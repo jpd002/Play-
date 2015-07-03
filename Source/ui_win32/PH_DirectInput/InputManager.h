@@ -24,9 +24,10 @@ namespace PH_DirectInput
 
 		struct BINDINGINFO
 		{
+			BINDINGINFO() = default;
 			BINDINGINFO(const GUID& device, uint32 id) : device(device), id(id) { }
 			GUID		device;
-			uint32		id;
+			uint32		id = 0;
 		};
 
 		class CBinding
@@ -100,7 +101,7 @@ namespace PH_DirectInput
 		class CSimulatedAxisBinding : public CBinding
 		{
 		public:
-											CSimulatedAxisBinding(const BINDINGINFO&, const BINDINGINFO&);
+											CSimulatedAxisBinding(const BINDINGINFO& = BINDINGINFO(), const BINDINGINFO& = BINDINGINFO());
 			virtual							~CSimulatedAxisBinding();
 
 			static void						RegisterPreferences(Framework::CConfig&, const char*);
@@ -117,6 +118,10 @@ namespace PH_DirectInput
 			virtual void					Load(Framework::CConfig&, const char*) override;
 
 		private:
+			static void						RegisterKeyBindingPreferences(Framework::CConfig&, const char*);
+			void							SaveKeyBinding(Framework::CConfig&, const char*, const BINDINGINFO&) const;
+			void							LoadKeyBinding(Framework::CConfig&, const char*, BINDINGINFO&);
+
 			BINDINGINFO						m_key1Binding;
 			BINDINGINFO						m_key2Binding;
 

@@ -1,5 +1,6 @@
 #include <string.h>
 #include <boost/lexical_cast.hpp>
+#include "string_format.h"
 #include "InputManager.h"
 #include "win32/GuidUtils.h"
 
@@ -52,6 +53,10 @@ CInputManager::CInputManager(HWND hWnd, Framework::CConfig& config)
 		m_config.RegisterPreferenceInteger(Framework::CConfig::MakePreferenceName(prefBase, CONFIG_BINDING_TYPE).c_str(), 0);
 		CSimpleBinding::RegisterPreferences(m_config, prefBase.c_str());
 		CPovHatBinding::RegisterPreferences(m_config, prefBase.c_str());
+		if(PS2::CControllerInfo::IsAxis(static_cast<PS2::CControllerInfo::BUTTON>(i)))
+		{
+			CSimulatedAxisBinding::RegisterPreferences(m_config, prefBase.c_str());
+		}
 	}
 	Load();
 
@@ -84,6 +89,9 @@ void CInputManager::Load()
 			break;
 		case BINDING_POVHAT:
 			binding.reset(new CPovHatBinding());
+			break;
+		case BINDING_SIMULATEDAXIS:
+			binding.reset(new CSimulatedAxisBinding());
 			break;
 		}
 		if(binding)
@@ -124,20 +132,24 @@ void CInputManager::AutoConfigureKeyboard()
 	SetSimpleBinding(PS2::CControllerInfo::CROSS,		CInputManager::BINDINGINFO(GUID_SysKeyboard, DIK_Z));
 	SetSimpleBinding(PS2::CControllerInfo::TRIANGLE,	CInputManager::BINDINGINFO(GUID_SysKeyboard, DIK_S));
 	SetSimpleBinding(PS2::CControllerInfo::CIRCLE,		CInputManager::BINDINGINFO(GUID_SysKeyboard, DIK_X));
+	SetSimpleBinding(PS2::CControllerInfo::L1,			CInputManager::BINDINGINFO(GUID_SysKeyboard, DIK_1));
+	SetSimpleBinding(PS2::CControllerInfo::L2,			CInputManager::BINDINGINFO(GUID_SysKeyboard, DIK_2));
+	SetSimpleBinding(PS2::CControllerInfo::R1,			CInputManager::BINDINGINFO(GUID_SysKeyboard, DIK_9));
+	SetSimpleBinding(PS2::CControllerInfo::R2,			CInputManager::BINDINGINFO(GUID_SysKeyboard, DIK_0));
 
-	//CInputManager::GetInstance().SetSimulatedAxisBinding(CControllerInfo::ANALOG_LEFT_X,
-	//	CInputManager::BINDINGINFO(GUID_SysKeyboard, DIK_LEFT),
-	//	CInputManager::BINDINGINFO(GUID_SysKeyboard, DIK_RIGHT));
-	//CInputManager::GetInstance().SetSimulatedAxisBinding(CControllerInfo::ANALOG_LEFT_Y,
-	//	CInputManager::BINDINGINFO(GUID_SysKeyboard, DIK_UP),
-	//	CInputManager::BINDINGINFO(GUID_SysKeyboard, DIK_DOWN));
+	SetSimulatedAxisBinding(PS2::CControllerInfo::ANALOG_LEFT_X,
+		CInputManager::BINDINGINFO(GUID_SysKeyboard, DIK_F),
+		CInputManager::BINDINGINFO(GUID_SysKeyboard, DIK_H));
+	SetSimulatedAxisBinding(PS2::CControllerInfo::ANALOG_LEFT_Y,
+		CInputManager::BINDINGINFO(GUID_SysKeyboard, DIK_T),
+		CInputManager::BINDINGINFO(GUID_SysKeyboard, DIK_G));
 
-	//CInputManager::GetInstance().SetSimulatedAxisBinding(CControllerInfo::ANALOG_RIGHT_X,
-	//	CInputManager::BINDINGINFO(GUID_SysKeyboard, DIK_LEFT),
-	//	CInputManager::BINDINGINFO(GUID_SysKeyboard, DIK_RIGHT));
-	//CInputManager::GetInstance().SetSimulatedAxisBinding(CControllerInfo::ANALOG_RIGHT_Y,
-	//	CInputManager::BINDINGINFO(GUID_SysKeyboard, DIK_UP),
-	//	CInputManager::BINDINGINFO(GUID_SysKeyboard, DIK_DOWN));
+	SetSimulatedAxisBinding(PS2::CControllerInfo::ANALOG_RIGHT_X,
+		CInputManager::BINDINGINFO(GUID_SysKeyboard, DIK_J),
+		CInputManager::BINDINGINFO(GUID_SysKeyboard, DIK_L));
+	SetSimulatedAxisBinding(PS2::CControllerInfo::ANALOG_RIGHT_Y,
+		CInputManager::BINDINGINFO(GUID_SysKeyboard, DIK_I),
+		CInputManager::BINDINGINFO(GUID_SysKeyboard, DIK_K));
 }
 
 const CInputManager::CBinding* CInputManager::GetBinding(PS2::CControllerInfo::BUTTON button) const
@@ -416,11 +428,17 @@ CInputManager::CSimulatedAxisBinding::~CSimulatedAxisBinding()
 
 void CInputManager::CSimulatedAxisBinding::RegisterPreferences(Framework::CConfig& config, const char* buttonBase)
 {
-//    string prefBase = string(buttonBase) + "." + string(CONFIG_SIMPLEBINDING_PREFIX);
-//    config.RegisterPreferenceString(
-//        (prefBase + "." + string(CONFIG_SIMPLEBINDING_DEVICE)).c_str(), lexical_cast<string>(GUID()).c_str());
-//    config.RegisterPreferenceInteger(
-//        (prefBase + "." + string(CONFIG_SIMPLEBINDING_ID)).c_str(), 0);
+	auto prefBase = Framework::CConfig::MakePreferenceName(buttonBase, CONFIG_SIMULATEDAXISBINDING_PREFIX);
+	auto key1PrefBase = Framework::CConfig::MakePreferenceName(prefBase, CONFIG_SIMULATEDAXISBINDING_KEY1);
+	auto key2PrefBase = Framework::CConfig::MakePreferenceName(prefBase, CONFIG_SIMULATEDAXISBINDING_KEY2);
+	RegisterKeyBindingPreferences(config, key1PrefBase.c_str());
+	RegisterKeyBindingPreferences(config, key2PrefBase.c_str());
+}
+
+void CInputManager::CSimulatedAxisBinding::RegisterKeyBindingPreferences(Framework::CConfig& config, const char* prefBase)
+{
+	config.RegisterPreferenceString(Framework::CConfig::MakePreferenceName(prefBase, CONFIG_BINDINGINFO_DEVICE).c_str(), boost::lexical_cast<std::string>(GUID()).c_str());
+	config.RegisterPreferenceInteger(Framework::CConfig::MakePreferenceName(prefBase, CONFIG_BINDINGINFO_ID).c_str(), 0);
 }
 
 CInputManager::BINDINGTYPE CInputManager::CSimulatedAxisBinding::GetBindingType() const
@@ -430,52 +448,55 @@ CInputManager::BINDINGTYPE CInputManager::CSimulatedAxisBinding::GetBindingType(
 
 void CInputManager::CSimulatedAxisBinding::Save(Framework::CConfig& config, const char* buttonBase) const
 {
-	//string prefBase = CConfig::MakePreferenceName(buttonBase, CONFIG_SIMPLEBINDING_PREFIX);
-	//config.SetPreferenceString(
-	//    CConfig::MakePreferenceName(prefBase, CONFIG_BINDINGINFO_DEVICE).c_str(), 
-	//    boost::lexical_cast<string>(device).c_str());
-	//config.SetPreferenceInteger(
-	//    CConfig::MakePreferenceName(prefBase, CONFIG_BINDINGINFO_ID).c_str(), 
-	//    id);
+	auto prefBase = Framework::CConfig::MakePreferenceName(buttonBase, CONFIG_SIMULATEDAXISBINDING_PREFIX);
+	auto key1PrefBase = Framework::CConfig::MakePreferenceName(prefBase, CONFIG_SIMULATEDAXISBINDING_KEY1);
+	auto key2PrefBase = Framework::CConfig::MakePreferenceName(prefBase, CONFIG_SIMULATEDAXISBINDING_KEY2);
+	SaveKeyBinding(config, key1PrefBase.c_str(), m_key1Binding);
+	SaveKeyBinding(config, key2PrefBase.c_str(), m_key2Binding);
+}
+
+void CInputManager::CSimulatedAxisBinding::SaveKeyBinding(Framework::CConfig& config, const char* prefBase, const BINDINGINFO& binding) const
+{
+	config.SetPreferenceString(Framework::CConfig::MakePreferenceName(prefBase, CONFIG_BINDINGINFO_DEVICE).c_str(), boost::lexical_cast<std::string>(binding.device).c_str());
+	config.SetPreferenceInteger(Framework::CConfig::MakePreferenceName(prefBase, CONFIG_BINDINGINFO_ID).c_str(), binding.id);
 }
 
 void CInputManager::CSimulatedAxisBinding::Load(Framework::CConfig& config, const char* buttonBase)
 {
-	//string prefBase = CConfig::MakePreferenceName(buttonBase, CONFIG_SIMPLEBINDING_PREFIX);
-	//device = boost::lexical_cast<GUID>(config.GetPreferenceString(CConfig::MakePreferenceName(prefBase, CONFIG_BINDINGINFO_DEVICE).c_str()));
-	//id = config.GetPreferenceInteger(CConfig::MakePreferenceName(prefBase, CONFIG_BINDINGINFO_ID).c_str());
+	auto prefBase = Framework::CConfig::MakePreferenceName(buttonBase, CONFIG_SIMULATEDAXISBINDING_PREFIX);
+	auto key1PrefBase = Framework::CConfig::MakePreferenceName(prefBase, CONFIG_SIMULATEDAXISBINDING_KEY1);
+	auto key2PrefBase = Framework::CConfig::MakePreferenceName(prefBase, CONFIG_SIMULATEDAXISBINDING_KEY2);
+	LoadKeyBinding(config, key1PrefBase.c_str(), m_key1Binding);
+	LoadKeyBinding(config, key2PrefBase.c_str(), m_key2Binding);
+}
+
+void CInputManager::CSimulatedAxisBinding::LoadKeyBinding(Framework::CConfig& config, const char* prefBase, BINDINGINFO& binding)
+{
+	binding.device = boost::lexical_cast<GUID>(config.GetPreferenceString(Framework::CConfig::MakePreferenceName(prefBase, CONFIG_BINDINGINFO_DEVICE).c_str()));
+	binding.id = config.GetPreferenceInteger(Framework::CConfig::MakePreferenceName(prefBase, CONFIG_BINDINGINFO_ID).c_str());
 }
 
 std::tstring CInputManager::CSimulatedAxisBinding::GetDescription(Framework::DirectInput::CManager* directInputManager) const
 {
-	//DIDEVICEINSTANCE deviceInstance;
-	//DIDEVICEOBJECTINSTANCE objectInstance;
-	//if(!directInputManager->GetDeviceInfo(device, &deviceInstance))
-	//{
-	//    return _T("");
-	//}
-	//if(!directInputManager->GetDeviceObjectInfo(device, id, &objectInstance))
-	//{
-	//    return _T("");
-	//}
-	//return tstring(deviceInstance.tszInstanceName) + _T(": ") + tstring(objectInstance.tszName);
-	return std::tstring(_T("pwned!"));
+	auto key1BindingDesc = GetBindingInfoDescription(directInputManager, m_key1Binding);
+	auto key2BindingDesc = GetBindingInfoDescription(directInputManager, m_key2Binding);
+	return string_format(_T("Simulated (%s / %s)"), key1BindingDesc.c_str(), key2BindingDesc.c_str());
 }
 
 uint32 CInputManager::CSimulatedAxisBinding::GetValue() const
 {
-	uint32 value = 0;
+	uint32 value = 0x7FFF;
 	if(m_key1State && m_key2State)
-	{
-		value = 0;
-	}
-	if(m_key1State)
 	{
 		value = 0x7FFF;
 	}
+	if(m_key1State)
+	{
+		value = 0;
+	}
 	else if(m_key2State)
 	{
-		value = 0x8000;
+		value = 0xFFFF;
 	}
 	return value;
 }
