@@ -496,6 +496,8 @@ void CIopBios::FinishModuleStart()
 		assert(loadedModule->state == MODULE_STATE::STOPPED);
 		loadedModule->state			= MODULE_STATE::STARTED;
 		loadedModule->residentState	= moduleResidentState;
+
+		OnModuleStarted(moduleId);
 	}
 	else
 	{
@@ -529,6 +531,12 @@ int32 CIopBios::LoadModule(const char* path)
 int32 CIopBios::LoadModule(uint32 modulePtr)
 {
 	CELF module(m_ram + modulePtr);
+	return LoadModule(module, "");
+}
+
+int32 CIopBios::LoadModuleFromHost(uint8* modulePtr)
+{
+	CELF module(modulePtr);
 	return LoadModule(module, "");
 }
 

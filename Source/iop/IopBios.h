@@ -92,6 +92,7 @@ public:
 
 	int32						LoadModule(const char*);
 	int32						LoadModule(uint32);
+	int32						LoadModuleFromHost(uint8*);
 	int32						UnloadModule(uint32);
 	int32						StartModule(uint32, const char*, const char*, unsigned int);
 	int32						StopModule(uint32);
@@ -178,6 +179,10 @@ public:
 	BiosDebugModuleInfoArray	GetModulesDebugInfo() const override;
 	BiosDebugThreadInfoArray	GetThreadsDebugInfo() const override;
 #endif
+
+	typedef boost::signals2::signal<void (uint32)> ModuleStartedEvent;
+
+	ModuleStartedEvent			OnModuleStarted;
 
 private:
 	enum DEFAULT_STACKSIZE
