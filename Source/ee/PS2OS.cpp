@@ -217,8 +217,19 @@ void CPS2OS::Initialize()
 	m_semaWaitCaller = 0;
 	m_semaWaitThreadId = -1;
 
-	m_ee.m_State.nCOP0[CCOP_SCU::STATUS] |= CMIPS::STATUS_IE;
 	SetVsyncFlagPtrs(0, 0);
+
+	AssembleCustomSyscallHandler();
+	AssembleInterruptHandler();
+	AssembleDmacHandler();
+	AssembleIntcHandler();
+	AssembleThreadEpilog();
+	AssembleWaitThreadProc();
+	AssembleAlarmHandler();
+	CreateWaitThread();
+
+	m_ee.m_State.nPC = BIOS_ADDRESS_WAITTHREADPROC;
+	m_ee.m_State.nCOP0[CCOP_SCU::STATUS] |= CMIPS::STATUS_IE;
 }
 
 void CPS2OS::Release()
@@ -425,15 +436,6 @@ void CPS2OS::LoadExecutableInternal()
 
 	m_ee.m_State.nPC = header.nEntryPoint;
 	
-	AssembleCustomSyscallHandler();
-	AssembleInterruptHandler();
-	AssembleDmacHandler();
-	AssembleIntcHandler();
-	AssembleThreadEpilog();
-	AssembleWaitThreadProc();
-	AssembleAlarmHandler();
-	CreateWaitThread();
-
 #ifdef DEBUGGER_INCLUDED
 	std::pair<uint32, uint32> executableRange = GetExecutableRange();
 	uint32 minAddr = executableRange.first;
