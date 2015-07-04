@@ -55,7 +55,7 @@ TESTRESULT GetTestResult(const boost::filesystem::path& testFilePath)
 	return result;
 }
 
-void ExecuteTest(const boost::filesystem::path& testFilePath)
+void ExecuteEeTest(const boost::filesystem::path& testFilePath)
 {
 	auto resultFilePath = testFilePath;
 	resultFilePath.replace_extension(".result");
@@ -86,6 +86,50 @@ void ExecuteTest(const boost::filesystem::path& testFilePath)
 	virtualMachine.Destroy();
 }
 
+void ExecuteIopTest(const boost::filesystem::path& testFilePath)
+{
+	//Read in the module data
+	std::vector<uint8> moduleData;
+	{
+		auto moduleStream = Framework::CreateInputStdStream(testFilePath.native());
+		auto length = moduleStream.GetLength();
+		moduleData.resize(length);
+		moduleStream.Read(moduleData.data(), length);
+	}
+
+	auto resultFilePath = testFilePath;
+	resultFilePath.replace_extension(".result");
+	auto resultStream = new Framework::CStdStream(resultFilePath.string().c_str(), "wb");
+
+	bool executionOver = false;
+
+	//Setup virtual machine
+	CPS2VM virtualMachine;
+	virtualMachine.Initialize();
+	virtualMachine.Reset();
+	int32 rootModuleId = virtualMachine.m_iopOs->LoadModuleFromHost(moduleData.data());
+	virtualMachine.m_iopOs->OnModuleStarted.connect(
+		[&executionOver, &rootModuleId] (uint32 moduleId)
+		{
+			if(rootModuleId == moduleId)
+			{
+				executionOver = true;
+			}
+		}
+	);
+	virtualMachine.m_iopOs->StartModule(rootModuleId, "", nullptr, 0);
+	virtualMachine.m_iopOs->GetIoman()->SetFileStream(Iop::CIoman::FID_STDOUT, resultStream);
+	virtualMachine.Resume();
+
+	while(!executionOver)
+	{
+		std::this_thread::sleep_for(std::chrono::milliseconds(100));
+	}
+
+	virtualMachine.Pause();
+	virtualMachine.Destroy();
+}
+
 void ScanAndExecuteTests(const boost::filesystem::path& testDirPath, const TestReportWriterPtr& testReportWriter)
 {
 	boost::filesystem::directory_iterator endIterator;
@@ -101,7 +145,18 @@ void ScanAndExecuteTests(const boost::filesystem::path& testDirPath, const TestR
 		if(testPath.extension() == ".elf")
 		{
 			printf("Testing '%s': ", testPath.string().c_str());
-			ExecuteTest(testPath);
+			ExecuteEeTest(testPath);
+			auto result = GetTestResult(testPath);
+			printf("%s.\r\n", result.succeeded ? "SUCCEEDED" : "FAILED");
+			if(testReportWriter)
+			{
+				testReportWriter->ReportTestEntry(testPath.string(), result);
+			}
+		}
+		else if(testPath.extension() == ".irx")
+		{
+			printf("Testing '%s': ", testPath.string().c_str());
+			ExecuteIopTest(testPath);
 			auto result = GetTestResult(testPath);
 			printf("%s.\r\n", result.succeeded ? "SUCCEEDED" : "FAILED");
 			if(testReportWriter)
