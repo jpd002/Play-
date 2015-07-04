@@ -74,7 +74,7 @@ void ExecuteTest(const boost::filesystem::path& testFilePath)
 		}
 	);
 	virtualMachine.m_ee->m_os->BootFromFile(testFilePath.string().c_str());
-	virtualMachine.m_iopOs->GetIoman()->SetFileStream(1, resultStream);
+	virtualMachine.m_iopOs->GetIoman()->SetFileStream(Iop::CIoman::FID_STDOUT, resultStream);
 	virtualMachine.Resume();
 
 	while(!executionOver)
