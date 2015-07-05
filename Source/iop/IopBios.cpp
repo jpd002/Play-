@@ -1144,9 +1144,6 @@ void CIopBios::Reschedule()
 	uint32 nextThreadId = GetNextReadyThread();
 	if(nextThreadId == -1)
 	{
-#ifdef _DEBUG
-//		printf("Warning, no thread available for running.\r\n");
-#endif
 		m_cpu.m_State.nPC = m_idleFunctionAddress;
 	}
 	else
