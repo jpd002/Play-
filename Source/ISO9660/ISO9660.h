@@ -25,4 +25,6 @@ private:
 	BlockProviderPtr			m_blockProvider;
 	ISO9660::CVolumeDescriptor	m_volumeDescriptor;
 	ISO9660::CPathTable			m_pathTable;
+
+	uint8						m_blockBuffer[ISO9660::CBlockProvider::BLOCKSIZE];
 };

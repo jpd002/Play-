@@ -22,7 +22,12 @@ CISO9660::~CISO9660()
 
 void CISO9660::ReadBlock(uint32 address, void* data)
 {
-	m_blockProvider->ReadBlock(address, data);
+	//The buffer is needed to make sure exception handlers
+	//are properly called as some system calls (ie.: ReadFile)
+	//won't generate an exception when trying to write to
+	//a write protected area
+	m_blockProvider->ReadBlock(address, m_blockBuffer);
+	memcpy(data, m_blockBuffer, CBlockProvider::BLOCKSIZE);
 }
 
 bool CISO9660::GetFileRecord(CDirectoryRecord* record, const char* filename)
