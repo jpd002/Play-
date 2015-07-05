@@ -95,11 +95,13 @@ void CMcServ::GetInfo(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize
 {
 	assert(argsSize >= 0x1C);
 
+	//The layout of this can actually vary according to the version of the
+	//MCSERV module currently loaded
 	uint32 port			= args[1];
 	uint32 slot			= args[2];
-	bool wantType		= args[3] != 0;
+	bool wantFormatted	= args[3] != 0;
 	bool wantFreeSpace	= args[4] != 0;
-	bool wantFormatted	= args[5] != 0;
+	bool wantType		= args[5] != 0;
 	uint32* retBuffer	= reinterpret_cast<uint32*>(&ram[args[7]]);
 
 	CLog::GetInstance().Print(LOG_NAME, "GetInfo(port = %i, slot = %i, wantType = %i, wantFreeSpace = %i, wantFormatted = %i, retBuffer = 0x%0.8X);\r\n",
@@ -107,7 +109,7 @@ void CMcServ::GetInfo(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize
 
 	if(wantType)
 	{
-		retBuffer[0x00] = 2;
+		retBuffer[0x00] = 2;		//2 -> PS2 memory card
 	}
 	if(wantFreeSpace)
 	{
