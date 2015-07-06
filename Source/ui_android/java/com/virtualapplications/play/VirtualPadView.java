@@ -59,56 +59,56 @@ public class VirtualPadView extends SurfaceView
 
 		_items.add(new VirtualPadButton(
 				new RectF(startSelPadPosX + 0, startSelPadPosY + 0, startSelPadPosX + 128, startSelPadPosY + 64),
-				VirtualPadConstants.BUTTON_SELECT, select));
+				InputManagerConstants.BUTTON_SELECT, select));
 		_items.add(new VirtualPadButton(
 				new RectF(startSelPadPosX + 256, startSelPadPosY + 0, startSelPadPosX + 384, startSelPadPosY + 64),
-				VirtualPadConstants.BUTTON_START, start));
+				InputManagerConstants.BUTTON_START, start));
 
 		_items.add(new VirtualPadButton(
 				new RectF(dpadPosX + 128, dpadPosY + 0, dpadPosX + 256, dpadPosY + 192),
-				VirtualPadConstants.BUTTON_UP, up));
+				InputManagerConstants.BUTTON_UP, up));
 		_items.add(new VirtualPadButton(
 				new RectF(dpadPosX + 128, dpadPosY + 192, dpadPosX + 256, dpadPosY + 384),
-				VirtualPadConstants.BUTTON_DOWN, down));
+				InputManagerConstants.BUTTON_DOWN, down));
 		_items.add(new VirtualPadButton(
 				new RectF(dpadPosX + 0, dpadPosY + 128, dpadPosX + 192, dpadPosY + 256),
-				VirtualPadConstants.BUTTON_LEFT, left));
+				InputManagerConstants.BUTTON_LEFT, left));
 		_items.add(new VirtualPadButton(
 				new RectF(dpadPosX + 192, dpadPosY + 128, dpadPosX + 384, dpadPosY + 256),
-				VirtualPadConstants.BUTTON_RIGHT, right));
+				InputManagerConstants.BUTTON_RIGHT, right));
 
 		_items.add(new VirtualPadButton(
 				new RectF(leftButtonsPosX, leftButtonsPosY, leftButtonsPosX + lrButtonWidth, leftButtonsPosY + lrButtonHeight),
-				VirtualPadConstants.BUTTON_L2, lr, "L2"));
+				InputManagerConstants.BUTTON_L2, lr, "L2"));
 		_items.add(new VirtualPadButton(
 				new RectF(leftButtonsPosX, leftButtonsPosY + lrButtonHeight, leftButtonsPosX + lrButtonWidth, leftButtonsPosY + lrButtonHeight * 2),
-				VirtualPadConstants.BUTTON_L1, lr, "L1"));
+				InputManagerConstants.BUTTON_L1, lr, "L1"));
 		_items.add(new VirtualPadButton(
 				new RectF(rightButtonsPosX, rightButtonsPosY, rightButtonsPosX + lrButtonWidth, rightButtonsPosY + lrButtonHeight),
-				VirtualPadConstants.BUTTON_R2, lr, "R2"));
+				InputManagerConstants.BUTTON_R2, lr, "R2"));
 		_items.add(new VirtualPadButton(
 				new RectF(rightButtonsPosX, rightButtonsPosY + lrButtonHeight, rightButtonsPosX + lrButtonWidth, rightButtonsPosY + lrButtonHeight * 2),
-				VirtualPadConstants.BUTTON_R1, lr, "R1"));
+				InputManagerConstants.BUTTON_R1, lr, "R1"));
 				
 		_items.add(new VirtualPadButton(
 				new RectF(actionPadPosX + 128, actionPadPosY + 0, actionPadPosX + 256, actionPadPosY + 128),
-				VirtualPadConstants.BUTTON_TRIANGLE, triangle));
+				InputManagerConstants.BUTTON_TRIANGLE, triangle));
 		_items.add(new VirtualPadButton(
 				new RectF(actionPadPosX + 128, actionPadPosY + 256, actionPadPosX + 256, actionPadPosY + 384),
-				VirtualPadConstants.BUTTON_CROSS, cross));
+				InputManagerConstants.BUTTON_CROSS, cross));
 		_items.add(new VirtualPadButton(
 				new RectF(actionPadPosX + 0, actionPadPosY + 128, actionPadPosX + 128, actionPadPosY + 256),
-				VirtualPadConstants.BUTTON_SQUARE, square));
+				InputManagerConstants.BUTTON_SQUARE, square));
 		_items.add(new VirtualPadButton(
 				new RectF(actionPadPosX + 256, actionPadPosY + 128, actionPadPosX + 384, actionPadPosY + 256),
-				VirtualPadConstants.BUTTON_CIRCLE, circle));
+				InputManagerConstants.BUTTON_CIRCLE, circle));
 
 		_items.add(new VirtualPadStick(
 				new RectF(leftAnalogStickPosX, analogStickPosY, leftAnalogStickPosX + analogStickSize, analogStickPosY + analogStickSize),
-				VirtualPadConstants.ANALOG_LEFT_X, VirtualPadConstants.ANALOG_LEFT_Y, analogStick));
+				InputManagerConstants.ANALOG_LEFT_X, InputManagerConstants.ANALOG_LEFT_Y, analogStick));
 		_items.add(new VirtualPadStick(
 				new RectF(rightAnalogStickPosX, analogStickPosY, rightAnalogStickPosX + analogStickSize, analogStickPosY + analogStickSize),
-				VirtualPadConstants.ANALOG_RIGHT_X, VirtualPadConstants.ANALOG_RIGHT_Y, analogStick));
+				InputManagerConstants.ANALOG_RIGHT_X, InputManagerConstants.ANALOG_RIGHT_Y, analogStick));
 
 		postInvalidate();
 	}
