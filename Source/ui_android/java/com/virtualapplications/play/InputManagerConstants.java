@@ -1,6 +1,6 @@
 package com.virtualapplications.play;
 
-public class VirtualPadConstants
+public class InputManagerConstants
 {
 	//Using public static final ints here because enums can't be 
 	//translated to defines with javah
