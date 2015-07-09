@@ -11,8 +11,6 @@ namespace Iop
 	class CCdvdfsv : public CModule
 	{
 	public:
-		typedef std::function<void (uint32, uint32)> ReadToEeRamHandler;
-
 							CCdvdfsv(CSifMan&, uint8*);
 		virtual				~CCdvdfsv();
 
