@@ -30,10 +30,11 @@ public class MainActivity extends Activity
 		
 		setContentView(R.layout.main);
 		
-		_preferences = getSharedPreferences("prefs", MODE_PRIVATE);
-		
 		File filesDir = getFilesDir();
 		NativeInterop.setFilesDirPath(Environment.getExternalStorageDirectory().getAbsolutePath());
+
+		_preferences = getSharedPreferences("prefs", MODE_PRIVATE);
+		EmulatorActivity.RegisterPreferences();
 	
 		if(!NativeInterop.isVirtualMachineCreated())
 		{
@@ -93,29 +94,18 @@ public class MainActivity extends Activity
 		dialog.show();
 	}
 	
+	private void displaySettingsActivity()
+	{
+		Intent intent = new Intent(getApplicationContext(), SettingsActivity.class);
+		startActivity(intent);
+	}
+	
 	private void displayAboutDialog()
 	{
 		long buildDate = getBuildDate(this);
 		String buildDateString = new SimpleDateFormat("yyyy/MM/dd", Locale.getDefault()).format(buildDate);
 		String aboutMessage = String.format("Build Date: %s", buildDateString);
 		displaySimpleMessage("About Play!", aboutMessage);
-	}
-	
-	private void setFps(MenuItem item)
-	{
-		SharedPreferences.Editor preferencesEditor = _preferences.edit();
-
-		if (item.isChecked())
-		{
-			preferencesEditor.putBoolean("fpsValue", false);
-		}
-		else
-		{
-			preferencesEditor.putBoolean("fpsValue", true);
-		}
-		preferencesEditor.commit();
-
-		item.setChecked(_preferences.getBoolean("fpsValue", false));
 	}
 	
 	@Override
@@ -127,22 +117,15 @@ public class MainActivity extends Activity
 	}
 	
 	@Override
-	public boolean onPrepareOptionsMenu(Menu menu)
-	{
-		menu.getItem(1).setChecked(_preferences.getBoolean("fpsValue", false));
-		return super.onPrepareOptionsMenu(menu);
-	}
-	
-	@Override
 	public boolean onOptionsItemSelected(MenuItem item) 
 	{
 		switch(item.getItemId()) 
 		{
+		case R.id.main_menu_settings:
+			displaySettingsActivity();
+			return true;
 		case R.id.main_menu_about:
 			displayAboutDialog();
-			return true;
-		case R.id.main_menu_fps:
-			setFps(item);
 			return true;
 		default:
 			return super.onOptionsItemSelected(item);

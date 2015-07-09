@@ -1,6 +1,5 @@
 #include <jni.h>
 #include <cassert>
-#include <android/log.h>
 #include <android/native_window.h>
 #include <android/native_window_jni.h>
 #include "PathUtils.h"
@@ -8,29 +7,12 @@
 #include "../PS2VM.h"
 #include "../PS2VM_Preferences.h"
 #include "../gs/GSH_Null.h"
+#include "NativeShared.h"
 #include "GSH_OpenGLAndroid.h"
 #include "PH_Android.h"
 #include "StatsManager.h"
 
-#define LOG_NAME "Play!"
-
 CPS2VM* g_virtualMachine = nullptr;
-
-void Log_Print(const char* fmt, ...)
-{
-	va_list ap;
-	va_start(ap, fmt);
-	__android_log_vprint(ANDROID_LOG_INFO, LOG_NAME, fmt, ap);
-	va_end(ap);
-}
-
-std::string GetStringFromJstring(JNIEnv* env, jstring javaString)
-{
-	auto nativeString = env->GetStringUTFChars(javaString, JNI_FALSE);
-	std::string result(nativeString);
-	env->ReleaseStringUTFChars(javaString, nativeString);
-	return result;
-}
 
 extern "C" JNIEXPORT void JNICALL Java_com_virtualapplications_play_NativeInterop_setFilesDirPath(JNIEnv* env, jobject obj, jstring dirPathString)
 {

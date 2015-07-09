@@ -1,0 +1,8 @@
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+	<CheckBoxPreference
+		android:key="ui.showfps"
+		android:title="Display F/S &amp; DC/F"
+		android:summary="Show &quot;Frames Per Second&quot; and &quot;Draw Calls Per Frame&quot; on screen."
+		android:persistent="false"
+	/>
+</PreferenceScreen>

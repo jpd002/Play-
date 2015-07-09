@@ -10,10 +10,17 @@ import java.util.*;
 
 public class EmulatorActivity extends Activity 
 {
+	private static final String PREFERENCE_UI_SHOWFPS = "ui.showfps";
+	
 	private SurfaceView _renderView;
 	private TextView _statsTextView;
 	private Timer _statsTimer = new Timer();
 	private Handler _statsTimerHandler;
+	
+	public static void RegisterPreferences()
+	{
+		SettingsManager.registerPreferenceBoolean(PREFERENCE_UI_SHOWFPS, false);
+	}
 	
 	@Override 
 	protected void onCreate(Bundle savedInstanceState) 
@@ -35,8 +42,7 @@ public class EmulatorActivity extends Activity
 		SurfaceHolder holder = _renderView.getHolder();
 		holder.addCallback(new SurfaceCallback());
 		
-		final SharedPreferences _preferences = getSharedPreferences("prefs", MODE_PRIVATE);
-		if (_preferences.getBoolean("fpsValue", false))
+		if(SettingsManager.getPreferenceBoolean(PREFERENCE_UI_SHOWFPS))
 		{
 			_statsTextView = (TextView)findViewById(R.id.emulator_stats);
 			setupStatsTimer();

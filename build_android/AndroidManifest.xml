@@ -23,5 +23,9 @@
 			android:configChanges="orientation|locale|keyboard|keyboardHidden|navigation"
 			android:theme="@android:style/Theme.NoTitleBar.Fullscreen">
 		</activity>
+		<activity
+			android:name=".SettingsActivity"
+			android:configChanges="orientation|locale|keyboard|keyboardHidden|navigation">
+		</activity>
 	</application>
 </manifest> 
