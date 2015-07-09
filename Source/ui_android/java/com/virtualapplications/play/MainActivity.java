@@ -151,11 +151,12 @@ public class MainActivity extends Activity
 	
 	private static boolean IsLoadableDiskImageFileName(String fileName)
 	{
-		return 
-				fileName.endsWith(".iso") || 
-				fileName.endsWith(".bin") ||
-				fileName.endsWith(".cso") || 
-				fileName.endsWith(".isz");
+		
+		return  
+				fileName.toLowerCase().endsWith(".iso") ||
+				fileName.toLowerCase().endsWith(".bin") ||
+				fileName.toLowerCase().endsWith(".cso") ||
+				fileName.toLowerCase().endsWith(".isz");
 	}
 	
 	private static FileListItem[] getFileList(String directoryPath)
