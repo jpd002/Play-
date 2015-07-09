@@ -11,6 +11,7 @@ import java.util.*;
 public class EmulatorActivity extends Activity 
 {
 	private static final String PREFERENCE_UI_SHOWFPS = "ui.showfps";
+	private static final String PREFERENCE_UI_SHOWVIRTUALPAD = "ui.showvirtualpad";
 	
 	private SurfaceView _renderView;
 	private TextView _statsTextView;
@@ -20,6 +21,7 @@ public class EmulatorActivity extends Activity
 	public static void RegisterPreferences()
 	{
 		SettingsManager.registerPreferenceBoolean(PREFERENCE_UI_SHOWFPS, false);
+		SettingsManager.registerPreferenceBoolean(PREFERENCE_UI_SHOWVIRTUALPAD, true);
 	}
 	
 	@Override 
@@ -41,6 +43,12 @@ public class EmulatorActivity extends Activity
 		_renderView = (SurfaceView)findViewById(R.id.emulator_view);
 		SurfaceHolder holder = _renderView.getHolder();
 		holder.addCallback(new SurfaceCallback());
+		
+		if(!SettingsManager.getPreferenceBoolean(PREFERENCE_UI_SHOWVIRTUALPAD))
+		{
+			View virtualPadView = (View)findViewById(R.id.emulator_virtualpad);
+			virtualPadView.setVisibility(View.GONE);
+		}
 		
 		if(SettingsManager.getPreferenceBoolean(PREFERENCE_UI_SHOWFPS))
 		{
