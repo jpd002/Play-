@@ -79,7 +79,7 @@ namespace Ee
 		}
 
 	private:
-		typedef std::map<uint32, uint32> StatisRegisterCheckerMap;
+		typedef std::map<uint32, uint32> StatusRegisterCheckerMap;
 
 		uint32						IOPortReadHandler(uint32);
 		uint32						IOPortWriteHandler(uint32, uint32);
@@ -104,7 +104,7 @@ namespace Ee
 		void						LoadBIOS();
 		void						FillFakeIopRam();
 
-		StatisRegisterCheckerMap	m_statusRegisterCheckers;
+		StatusRegisterCheckerMap	m_statusRegisterCheckers;
 		bool						m_isIdle = false;
 
 		CMA_VU						m_MAVU0;
