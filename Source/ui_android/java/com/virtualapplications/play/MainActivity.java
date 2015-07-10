@@ -50,7 +50,9 @@ public class MainActivity extends Activity
 	{
 		File currentDirectoryFile = new File(getCurrentDirectory());
 		File parentDirectoryFile = currentDirectoryFile.getParentFile();
-		if(parentDirectoryFile == null) return;
+		if(parentDirectoryFile == null) {
+			finish();
+		}
 		setCurrentDirectory(currentDirectoryFile.getParentFile().getAbsolutePath());
 		updateFileListView();
 	}
@@ -126,6 +128,9 @@ public class MainActivity extends Activity
 			return true;
 		case R.id.main_menu_about:
 			displayAboutDialog();
+			return true;
+		case R.id.main_menu_exit:
+			finish();
 			return true;
 		default:
 			return super.onOptionsItemSelected(item);
