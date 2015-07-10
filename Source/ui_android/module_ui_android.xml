@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="module_ui_android" default="compile.module.ui_android">
+  <dirname property="module.ui_android.basedir" file="${ant.file.module_ui_android}"/>
+  
+  <property name="module.jdk.home.ui_android" value="${project.jdk.home}"/>
+  <property name="module.jdk.bin.ui_android" value="${project.jdk.bin}"/>
+  <property name="module.jdk.classpath.ui_android" value="${project.jdk.classpath}"/>
+  
+  <property name="compiler.args.ui_android" value="-encoding windows-1252 -source 8 ${compiler.args}"/>
+  
+  <property name="ui_android.output.dir" value="${module.ui_android.basedir}/../../out/production/ui_android"/>
+  <property name="ui_android.testoutput.dir" value="${module.ui_android.basedir}/../../out/test/ui_android"/>
+  
+  <path id="ui_android.module.bootclasspath">
+    <!-- Paths to be included in compilation bootclasspath -->
+  </path>
+  
+  <path id="ui_android.module.production.classpath">
+    <path refid="${module.jdk.classpath.ui_android}"/>
+  </path>
+  
+  <path id="ui_android.runtime.production.module.classpath">
+    <pathelement location="${ui_android.output.dir}"/>
+  </path>
+  
+  <path id="ui_android.module.classpath">
+    <path refid="${module.jdk.classpath.ui_android}"/>
+    <pathelement location="${ui_android.output.dir}"/>
+  </path>
+  
+  <path id="ui_android.runtime.module.classpath">
+    <pathelement location="${ui_android.testoutput.dir}"/>
+    <pathelement location="${ui_android.output.dir}"/>
+  </path>
+  
+  
+  <patternset id="excluded.from.module.ui_android">
+    <patternset refid="ignored.files"/>
+  </patternset>
+  
+  <patternset id="excluded.from.compilation.ui_android">
+    <patternset refid="excluded.from.module.ui_android"/>
+  </patternset>
+  
+  <path id="ui_android.module.sourcepath">
+    <dirset dir="${module.ui_android.basedir}">
+      <include name="java"/>
+    </dirset>
+  </path>
+  
+  
+  <target name="compile.module.ui_android" depends="compile.module.ui_android.production,compile.module.ui_android.tests" description="Compile module ui_android"/>
+  
+  <target name="compile.module.ui_android.production" depends="register.custom.compilers" description="Compile module ui_android; production classes">
+    <mkdir dir="${ui_android.output.dir}"/>
+    <javac2 destdir="${ui_android.output.dir}" debug="${compiler.debug}" nowarn="${compiler.generate.no.warnings}" memorymaximumsize="${compiler.max.memory}" fork="true" executable="${module.jdk.bin.ui_android}/javac">
+      <compilerarg line="${compiler.args.ui_android}"/>
+      <bootclasspath refid="ui_android.module.bootclasspath"/>
+      <classpath refid="ui_android.module.production.classpath"/>
+      <src refid="ui_android.module.sourcepath"/>
+      <patternset refid="excluded.from.compilation.ui_android"/>
+    </javac2>
+    
+    <copy todir="${ui_android.output.dir}">
+      <fileset dir="${module.ui_android.basedir}/java">
+        <patternset refid="compiler.resources"/>
+        <type type="file"/>
+      </fileset>
+    </copy>
+  </target>
+  
+  <target name="compile.module.ui_android.tests" depends="register.custom.compilers,compile.module.ui_android.production" description="compile module ui_android; test classes" unless="skip.tests"/>
+  
+  <target name="clean.module.ui_android" description="cleanup module">
+    <delete dir="${ui_android.output.dir}"/>
+    <delete dir="${ui_android.testoutput.dir}"/>
+  </target>
+</project>

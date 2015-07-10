@@ -1,0 +1,10 @@
+<component name="libraryTable">
+  <library name="boost">
+    <CLASSES />
+    <JAVADOC />
+    <NATIVE>
+      <root url="file://$PROJECT_DIR$/../../boost" />
+    </NATIVE>
+    <SOURCES />
+  </library>
+</component>
