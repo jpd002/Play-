@@ -2,6 +2,9 @@ build_android/bin
 build_android/gen
 build_android/libs
 build_android/obj
+build_android/jni/ExternalDependencies.mk
+build_android/local.properties
+build_android/proguard-project.txt
 Debug
 Release
 ReleaseWithDebugger
