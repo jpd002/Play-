@@ -21,6 +21,7 @@
 		<activity
 			android:name=".EmulatorActivity"
 			android:configChanges="orientation|locale|keyboard|keyboardHidden|navigation"
+            android:screenOrientation="sensorLandscape"
 			android:theme="@android:style/Theme.NoTitleBar.Fullscreen">
 		</activity>
 		<activity
