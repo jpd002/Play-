@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="play-native" default="help">
+    <property environment="env" />
+    <condition property="ndkbuildopt" value="-j${env.NUMBER_OF_PROCESSORS}" else="-j4">
+        <isset property="env.NUMBER_OF_PROCESSORS" />
+    </condition>
+    <condition property="ndkbuildopt" value="${env.NDKBUILDOPT}">
+        <isset property="env.NDKBUILDOPT" />
+    </condition>
+    <target name="-pre-build">
+        <exec executable="${ndk.dir}/ndk-build.cmd" failonerror="true" osfamily="windows">
+            <arg line="${ndkbuildopt}"/>
+        </exec>
+        <exec executable="${ndk.dir}/ndk-build" failonerror="true" osfamily="unix">
+            <arg line="${ndkbuildopt}"/>
+        </exec>
+    </target>
+    <target name="clean" depends="android_rules.clean">
+        <exec executable="${ndk.dir}/ndk-build.cmd" failonerror="true" osfamily="windows">
+            <arg value="clean"/>
+        </exec>
+        <exec executable="${ndk.dir}/ndk-build" failonerror="true" osfamily="unix">
+            <arg value="clean"/>
+        </exec>
+    </target>
+</project>
