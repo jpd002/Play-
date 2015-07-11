@@ -5,6 +5,7 @@ build_android/obj
 build_android/jni/ExternalDependencies.mk
 build_android/local.properties
 build_android/proguard-project.txt
+build_android/ant.properties
 Debug
 Release
 ReleaseWithDebugger
@@ -18,4 +19,5 @@ ReleaseAot
 *.user
 *.userprops
 xcuserdata
+tools/Compile
 

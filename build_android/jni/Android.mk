@@ -19,14 +19,14 @@ include $(PREBUILT_STATIC_LIBRARY)
 include $(CLEAR_VARS)
 
 LOCAL_MODULE			:= libFramework
-LOCAL_SRC_FILES 		:= $(FRAMEWORK_PATH)/build_android/obj/local/$(TARGET_ARCH_ABI)/libFramework.a
+LOCAL_SRC_FILES 		:= ../$(FRAMEWORK_PATH)/build_android/obj/local/$(TARGET_ARCH_ABI)/libFramework.a
 
 include $(PREBUILT_STATIC_LIBRARY)
 
 include $(CLEAR_VARS)
 
 LOCAL_MODULE			:= libCodeGen
-LOCAL_SRC_FILES 		:= $(CODEGEN_PATH)/build_android/obj/local/$(TARGET_ARCH_ABI)/libCodeGen.a
+LOCAL_SRC_FILES 		:= ../$(CODEGEN_PATH)/build_android/obj/local/$(TARGET_ARCH_ABI)/libCodeGen.a
 
 include $(PREBUILT_STATIC_LIBRARY)
 
