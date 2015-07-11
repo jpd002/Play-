@@ -1,6 +1,6 @@
+libPlay.so
 build_android/bin
 build_android/gen
-build_android/libs
 build_android/obj
 build_android/jni/ExternalDependencies.mk
 build_android/local.properties
@@ -17,5 +17,6 @@ ReleaseAot
 *.suo
 *.user
 *.userprops
+*.orig
 xcuserdata
 
