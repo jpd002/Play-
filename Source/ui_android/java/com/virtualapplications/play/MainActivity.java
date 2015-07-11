@@ -146,7 +146,7 @@ public class MainActivity extends Activity
 	
 	private static boolean IsLoadableExecutableFileName(String fileName)
 	{
-		return fileName.endsWith(".elf");
+		return fileName.toLowerCase().endsWith(".elf");
 	}
 	
 	private static boolean IsLoadableDiskImageFileName(String fileName)
