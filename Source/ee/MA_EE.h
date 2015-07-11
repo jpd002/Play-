@@ -132,6 +132,7 @@ private:
 	void								PMADDH();
 	void								PAND();
 	void								PXOR();
+	void								PREVH();
 	void								PMULTH();
 	void								PEXEW();
 	void								PROT3W();
