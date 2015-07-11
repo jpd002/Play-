@@ -119,6 +119,7 @@ private:
 	void							BNEL();
 	void							BLEZL();
 	void							BGTZL();
+	void							DADDI();
 	void							DADDIU();
 	void							LDL();
 	void							LDR();
