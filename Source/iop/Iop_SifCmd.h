@@ -3,7 +3,7 @@
 #include "Iop_Module.h"
 #include "Iop_SifMan.h"
 #include "Iop_SifDynamic.h"
-#include "Iop_SysMem.h"
+#include "Iop_Sysmem.h"
 #include "zip/ZipArchiveWriter.h"
 #include "zip/ZipArchiveReader.h"
 

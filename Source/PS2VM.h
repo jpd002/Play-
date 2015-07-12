@@ -6,7 +6,7 @@
 #include "MIPS.h"
 #include "MailBox.h"
 #include "PadHandler.h"
-#include "iso9660/ISO9660.h"
+#include "ISO9660/ISO9660.h"
 #include "VirtualMachine.h"
 #include "ee/Ee_SubSystem.h"
 #include "iop/Iop_SubSystem.h"
