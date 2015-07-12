@@ -201,10 +201,13 @@ void CSubSystem::Reset()
 
 	m_os->Initialize();
 	FillFakeIopRam();
+
+	m_isIdle = false;
 }
 
 int CSubSystem::ExecuteCpu(int quota)
 {
+	m_isIdle = false;
 	int executed = 0;
 	if(m_EE.m_State.callMsEnabled)
 	{
@@ -242,6 +245,12 @@ int CSubSystem::ExecuteCpu(int quota)
 				m_EE.m_State.nHasException = MIPS_EXCEPTION_NONE;
 			}
 			break;
+		case MIPS_EXCEPTION_IDLE:
+			{
+				m_isIdle = true;
+				m_EE.m_State.nHasException = MIPS_EXCEPTION_NONE;
+			}
+			break;
 		case MIPS_EXCEPTION_CHECKPENDINGINT:
 			{
 				m_EE.m_State.nHasException = MIPS_EXCEPTION_NONE;
@@ -271,7 +280,7 @@ bool CSubSystem::IsCpuIdle() const
 	{
 		return true;
 	}
-	else if(m_os->IsIdle())
+	else if(m_os->IsIdle() || m_isIdle)
 	{
 		return true;
 	}
@@ -413,6 +422,17 @@ uint32 CSubSystem::IOPortReadHandler(uint32 nAddress)
 	else
 	{
 		printf("PS2VM: Read an unhandled IO port (0x%0.8X).\r\n", nAddress);
+	}
+
+	if((nAddress == CINTC::INTC_STAT) || (nAddress == CGSHandler::GS_CSR))
+	{
+		static const uint32 checkCountMax = 5000;
+		uint32& checkCount = m_statusRegisterCheckers[m_EE.m_State.nPC];
+		checkCount = std::min<uint32>(checkCount + 1, checkCountMax);
+		if(checkCount == checkCountMax)
+		{
+			m_EE.m_State.nHasException = MIPS_EXCEPTION_IDLE;
+		}
 	}
 
 	return nReturn;
