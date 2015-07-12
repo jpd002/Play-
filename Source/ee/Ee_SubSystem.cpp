@@ -202,6 +202,7 @@ void CSubSystem::Reset()
 	m_os->Initialize();
 	FillFakeIopRam();
 
+	m_statusRegisterCheckers.clear();
 	m_isIdle = false;
 }
 
