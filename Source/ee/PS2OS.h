@@ -115,8 +115,8 @@ private:
 		uint32									stackBase;
 		uint32									stackSize;
 		uint32									gp;
-		uint32									priority;
-		uint32									currentPriority;
+		uint32									initPriority;
+		uint32									currPriority;
 	};
 
 	struct SEMAPHORE
@@ -136,7 +136,8 @@ private:
 		uint32									heapBase;
 		uint32									threadProc;
 		uint32									epc;
-		uint32									priority;
+		uint32									initPriority;
+		uint32									currPriority;
 		uint32									semaWait;
 		uint32									wakeUpCount;
 		uint32									scheduleID;

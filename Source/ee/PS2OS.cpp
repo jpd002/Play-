@@ -1119,7 +1119,7 @@ void CPS2OS::ThreadShakeAndBake()
 		{
 			//Remove and readd the thread into the queue
 			m_threadSchedule->Remove(thread->scheduleID);
-			thread->scheduleID = m_threadSchedule->Insert(id, thread->priority);
+			thread->scheduleID = m_threadSchedule->Insert(id, thread->currPriority);
 		}
 
 		ThreadSwitchContext(id);
@@ -1642,7 +1642,7 @@ void CPS2OS::sc_CreateThread()
 	auto parentThread = GetThread(GetCurrentThreadId());
 	uint32 heapBase = parentThread->heapBase;
 
-	assert(threadParam->priority < 128);
+	assert(threadParam->initPriority < 128);
 
 	uint32 stackAddr = threadParam->stackBase + threadParam->stackSize;
 
@@ -1652,11 +1652,12 @@ void CPS2OS::sc_CreateThread()
 	thread->stackBase		= threadParam->stackBase;
 	thread->epc				= threadParam->threadProc;
 	thread->threadProc		= threadParam->threadProc;
-	thread->priority		= threadParam->priority;
+	thread->initPriority	= threadParam->initPriority;
+	thread->currPriority	= threadParam->initPriority;
 	thread->heapBase		= heapBase;
 	thread->wakeUpCount		= 0;
 	thread->quota			= THREAD_INIT_QUOTA;
-	thread->scheduleID		= m_threadSchedule->Insert(id, threadParam->priority);
+	thread->scheduleID		= m_threadSchedule->Insert(id, threadParam->initPriority);
 	thread->stackSize		= threadParam->stackSize;
 	thread->contextPtr		= stackAddr - STACKRES;
 
@@ -1811,15 +1812,15 @@ void CPS2OS::sc_ChangeThreadPriority()
 		return;
 	}
 
-	uint32 prevPrio = thread->priority;
-	thread->priority = prio;
+	uint32 prevPrio = thread->currPriority;
+	thread->currPriority = prio;
 
 	m_ee.m_State.nGPR[SC_RETURN].nV[0] = prevPrio;
 	m_ee.m_State.nGPR[SC_RETURN].nV[1] = 0;
 
 	//Reschedule?
 	m_threadSchedule->Remove(thread->scheduleID);
-	thread->scheduleID = m_threadSchedule->Insert(id, thread->priority);
+	thread->scheduleID = m_threadSchedule->Insert(id, thread->currPriority);
 
 	if(!isInt)
 	{
@@ -1931,8 +1932,8 @@ void CPS2OS::sc_ReferThreadStatus()
 		auto threadParam = reinterpret_cast<THREADPARAM*>(GetStructPtr(statusPtr));
 
 		threadParam->status				= ret;
-		threadParam->priority			= thread->priority;
-		threadParam->currentPriority	= thread->priority;
+		threadParam->initPriority		= thread->initPriority;
+		threadParam->currPriority		= thread->currPriority;
 		threadParam->stackBase			= thread->stackBase;
 		threadParam->stackSize			= thread->stackSize;
 	}
@@ -2117,9 +2118,10 @@ void CPS2OS::sc_SetupThread()
 	thread->valid			= 0x01;
 	thread->status			= THREAD_RUNNING;
 	thread->stackBase		= stackAddr - stackSize;
-	thread->priority		= 0;
+	thread->initPriority	= 0;
+	thread->currPriority	= 0;
 	thread->quota			= THREAD_INIT_QUOTA;
-	thread->scheduleID		= m_threadSchedule->Insert(1, thread->priority);
+	thread->scheduleID		= m_threadSchedule->Insert(1, thread->currPriority);
 	thread->contextPtr		= 0;
 
 	SetCurrentThreadId(1);
@@ -3190,7 +3192,7 @@ BiosDebugThreadInfoArray CPS2OS::GetThreadsDebugInfo() const
 
 		BIOS_DEBUG_THREAD_INFO threadInfo;
 		threadInfo.id			= threadIterator.GetValue();
-		threadInfo.priority		= thread->priority;
+		threadInfo.priority		= thread->currPriority;
 		if(GetCurrentThreadId() == threadIterator.GetValue())
 		{
 			threadInfo.pc = m_ee.m_State.nPC;
