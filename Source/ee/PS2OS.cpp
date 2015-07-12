@@ -1743,8 +1743,15 @@ void CPS2OS::sc_StartThread()
 //23
 void CPS2OS::sc_ExitThread()
 {
-	auto thread = GetThread(GetCurrentThreadId());
+	uint32 threadId = GetCurrentThreadId();
+
+	auto thread = GetThread(threadId);
 	thread->status = THREAD_ZOMBIE;
+
+	//Reset the thread's priority
+	thread->currPriority = thread->initPriority;
+	m_threadSchedule->Remove(thread->scheduleID);
+	thread->scheduleID = m_threadSchedule->Insert(threadId, thread->currPriority);
 
 	ThreadShakeAndBake();
 }
@@ -1792,6 +1799,11 @@ void CPS2OS::sc_TerminateThread()
 	}
 
 	thread->status = THREAD_ZOMBIE;
+
+	//Reset the thread's priority
+	thread->currPriority = thread->initPriority;
+	m_threadSchedule->Remove(thread->scheduleID);
+	thread->scheduleID = m_threadSchedule->Insert(id, thread->currPriority);
 
 	m_ee.m_State.nGPR[SC_RETURN].nD0 = static_cast<int32>(id);
 }
