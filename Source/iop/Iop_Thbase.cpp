@@ -8,6 +8,7 @@ using namespace Iop;
 
 #define FUNCTION_CREATETHREAD				"CreateThread"
 #define FUNCTION_STARTTHREAD				"StartThread"
+#define FUNCTION_STARTTHREADARGS			"StartThreadArgs"
 #define FUNCTION_DELETETHREAD				"DeleteThread"
 #define FUNCTION_EXITTHREAD					"ExitThread"
 #define FUNCTION_TERMINATETHREAD			"TerminateThread"
@@ -54,6 +55,9 @@ std::string CThbase::GetFunctionName(unsigned int functionId) const
 		break;
 	case 6:
 		return FUNCTION_STARTTHREAD;
+		break;
+	case 7:
+		return FUNCTION_STARTTHREADARGS;
 		break;
 	case 8:
 		return FUNCTION_EXITTHREAD;
@@ -124,6 +128,13 @@ void CThbase::Invoke(CMIPS& context, unsigned int functionId)
 		context.m_State.nGPR[CMIPS::V0].nD0 = static_cast<int32>(StartThread(
 			context.m_State.nGPR[CMIPS::A0].nV0,
 			context.m_State.nGPR[CMIPS::A1].nV0
+			));
+		break;
+	case 7:
+		context.m_State.nGPR[CMIPS::V0].nD0 = static_cast<int32>(StartThreadArgs(
+			context.m_State.nGPR[CMIPS::A0].nV0,
+			context.m_State.nGPR[CMIPS::A1].nV0,
+			context.m_State.nGPR[CMIPS::A2].nV0
 			));
 		break;
 	case 8:
@@ -219,6 +230,11 @@ uint32 CThbase::DeleteThread(uint32 threadId)
 int32 CThbase::StartThread(uint32 threadId, uint32 param)
 {
 	return m_bios.StartThread(threadId, param);
+}
+
+int32 CThbase::StartThreadArgs(uint32 threadId, uint32 args, uint32 argpPtr)
+{
+	return m_bios.StartThreadArgs(threadId, args, argpPtr);
 }
 
 uint32 CThbase::ExitThread()
