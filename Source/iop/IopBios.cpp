@@ -801,6 +801,58 @@ int32 CIopBios::StartThread(uint32 threadId, uint32 param)
 	return 0;
 }
 
+int32 CIopBios::StartThreadArgs(uint32 threadId, uint32 args, uint32 argpPtr)
+{
+#ifdef _DEBUG
+	CLog::GetInstance().Print(LOGNAME, "%d: StartThreadArgs(threadId = %d, args = %d, argp = 0x%0.8X);\r\n", 
+		CurrentThreadId(), threadId, args, argpPtr);
+#endif
+
+	auto thread = GetThread(threadId);
+	assert(thread != nullptr);
+	if(thread == nullptr)
+	{
+		return -1;
+	}
+
+	if(thread->status != THREAD_STATUS_DORMANT)
+	{
+		CLog::GetInstance().Print(LOGNAME, "%d: Failed to start thread %d, thread not dormant.\r\n",
+			CurrentThreadId(), threadId);
+		assert(false);
+		return -1;
+	}
+
+	static const auto pushToStack =
+		[] (uint8* dst, uint32& stackAddress, const uint8* src, uint32 size)
+		{
+			uint32 fixedSize = ((size + 0x3) & ~0x3);
+			uint32 copyAddress = stackAddress - size;
+			stackAddress -= fixedSize;
+			memcpy(dst + copyAddress, src, size);
+			return copyAddress;
+		};
+
+	thread->status = THREAD_STATUS_RUNNING;
+	thread->priority = thread->initPriority;
+	thread->context.epc = thread->threadProc;
+	thread->context.gpr[CMIPS::RA] = m_threadFinishAddress;
+	thread->context.gpr[CMIPS::SP] = thread->stackBase + thread->stackSize;
+
+	thread->context.gpr[CMIPS::A0] = args;
+	thread->context.gpr[CMIPS::A1] = pushToStack(m_ram, thread->context.gpr[CMIPS::SP], m_ram + argpPtr, args);
+
+	thread->context.gpr[CMIPS::SP] -= STACK_FRAME_RESERVE_SIZE;
+
+	auto currentThread = GetThread(CurrentThreadId());
+	if((currentThread == nullptr) || (currentThread->priority < thread->priority))
+	{
+		m_rescheduleNeeded = true;
+	}
+
+	return 0;
+}
+
 void CIopBios::ExitThread()
 {
 #ifdef _DEBUG
