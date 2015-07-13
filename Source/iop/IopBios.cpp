@@ -1189,8 +1189,8 @@ void CIopBios::Reschedule()
 	if(CurrentThreadId() != -1)
 	{
 		SaveThreadContext(CurrentThreadId());
-		UnlinkThread(CurrentThreadId());
-		LinkThread(CurrentThreadId());
+//		UnlinkThread(CurrentThreadId());
+//		LinkThread(CurrentThreadId());
 	}
 
 	uint32 nextThreadId = GetNextReadyThread();
