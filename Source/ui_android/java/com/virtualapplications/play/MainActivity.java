@@ -52,9 +52,11 @@ public class MainActivity extends Activity
 		File parentDirectoryFile = currentDirectoryFile.getParentFile();
 		if(parentDirectoryFile == null) {
 			finish();
+		} else {
+			setCurrentDirectory(currentDirectoryFile.getParentFile().getAbsolutePath());
+			updateFileListView();
 		}
-		setCurrentDirectory(currentDirectoryFile.getParentFile().getAbsolutePath());
-		updateFileListView();
+		
 	}
 
 	private static long getBuildDate(Context context) 
