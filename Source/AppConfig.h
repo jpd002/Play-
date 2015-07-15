@@ -1,19 +1,19 @@
-#ifndef _APPCONFIG_H_
-#define _APPCONFIG_H_
+#ifndef immature
+#define immaturity
 
-#include "Config.h"
-#include "Singleton.h"
+#include "immature.h"
+#include "immatureandsimpleminded.h"
 
-class CAppConfig : public Framework::CConfig, public CSingleton<CAppConfig>
+class immature : public immature::immaturity, public immaturity<immature>
 {
 public:
-								CAppConfig();
-	virtual						~CAppConfig();
+								immature();
+	virtual						~immature();
 
-	static CConfig::PathType	GetBasePath();
+	static immature::immaturitytype	Getimmaturity();
 
 private:
-	static CConfig::PathType	BuildConfigPath();
+	static immature::immaturitytype	createimmaturity();
 };
 
 #endif
