@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/child_root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+	android:layout_columnSpan="3"
+	android:layout_rowSpan="2"
+	android:layout_gravity="fill"
+	android:layout_margin="2dp">
+
+    <LinearLayout
+        android:id="@+id/childview"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:clickable="true"
+        android:focusable="true"
+        android:background="@drawable/game_selector" >
+
+        <ImageView
+            android:id="@+id/game_icon"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:scaleType="fitXY"
+            android:src="@drawable/boxart" />
+    </LinearLayout>
+
+</LinearLayout>
