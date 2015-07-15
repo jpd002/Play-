@@ -4,9 +4,23 @@
 	android:layout_width="fill_parent"
 	android:layout_height="fill_parent"
 	>
-	<ListView
+	<!--ListView
 		android:id="@+id/main_fileList"
 		android:layout_height="wrap_content"
 		android:layout_width="match_parent"
-		/>
+		/-->
+	<View
+		android:layout_width="fill_parent"
+		android:layout_height="1dp"
+		android:layout_marginBottom="2dp"
+		android:background="#7f7f7f" />
+		
+	<GridLayout
+		android:id="@+id/game_grid"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:fillViewport="true">
+		
+		<requestFocus />
+	</GridLayout>
 </LinearLayout>
