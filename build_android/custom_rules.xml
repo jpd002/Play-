@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project name="play-native" default="help">
     <property environment="env" />
-	<condition property="ndk.debug" value="${env.NDK_DEBUG}" else="1">
+	<condition property="ndk.debug" value="${env.NDK_DEBUG}">
 		<isset property="env.NDK_DEBUG" />
 	</condition>
     <condition property="ndkbuildopt" value="-j${env.NUMBER_OF_PROCESSORS}" else="-j4">
