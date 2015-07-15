@@ -6,6 +6,8 @@ import android.content.pm.*;
 import android.os.*;
 import android.util.*;
 import android.view.*;
+import android.view.View;
+import android.view.View.OnClickListener;
 import android.widget.*;
 import android.widget.AdapterView.*;
 import java.io.*;
@@ -24,6 +26,7 @@ public class MainActivity extends Activity
 	private ListView _fileListView;
 	private TextView _fileListViewHeader;
 	private ArrayList<FileListItem> fileListItems;
+	private GridLayout gameListing;
 	private static Activity mActivity;
 	
 	@Override 
@@ -245,40 +248,63 @@ public class MainActivity extends Activity
 			this.array = arrayType;
 		}
 		
-		protected void onPreExecute() {
-			_fileListView.setOnItemClickListener(
-				new OnItemClickListener()
-				{
-					@Override
-					public void onItemClick(AdapterView<?> parent, View view, int position, long id)
-					{
-						//Remove one to compensate for header
-						position = position - 1;
-						
-						FileListItem fileListItem = _fileListItems[position];
-						try
-						{
-							if(IsLoadableExecutableFileName(fileListItem.getPath()))
-							{
-								NativeInterop.loadElf(fileListItem.getPath());
-							}
-							else
-							{
-								NativeInterop.bootDiskImage(fileListItem.getPath());
-							}
-							setCurrentDirectory(fileListItem.getPath().substring(0, fileListItem.getPath().lastIndexOf(File.separator)));
-						}
-						catch(Exception ex)
-						{
-							displaySimpleMessage("Error", ex.getMessage());
+		private void createListItem(GridLayout list, final File game, final int index) {
+			final View childview = MainActivity.this.getLayoutInflater().inflate(
+				R.layout.game_list_item, null, false);
+			
+			final GamesDbAPI gameParser = new GamesDbAPI(game, index);
+			gameParser.setViewParent(MainActivity.this, childview);
+			
+			childview.findViewById(R.id.childview).setOnClickListener(new OnClickListener() {
+				public void onClick(View view) {
+					final AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+					builder.setCancelable(true);
+					builder.setTitle(gameParser.getGameTitle());
+					builder.setMessage(gameParser.game_details.get(index));
+					builder.setIcon(gameParser.getGameIcon());
+					builder.setPositiveButton("Close",
+											  new DialogInterface.OnClickListener() {
+						public void onClick(DialogInterface dialog, int which) {
+							dialog.dismiss();
 							return;
 						}
-						//TODO: Catch errors that might happen while loading files
-						Intent intent = new Intent(getApplicationContext(), EmulatorActivity.class);
-						startActivity(intent);
-					}
+					});
+					builder.setPositiveButton("Launch",
+											  new DialogInterface.OnClickListener() {
+						public void onClick(DialogInterface dialog, int which) {
+							dialog.dismiss();
+							try
+							{
+								if(IsLoadableExecutableFileName(game.getPath()))
+								{
+									NativeInterop.loadElf(game.getPath());
+								}
+								else
+								{
+									NativeInterop.bootDiskImage(game.getPath());
+								}
+								setCurrentDirectory(game.getPath().substring(0, game.getPath().lastIndexOf(File.separator)));
+							}
+							catch(Exception ex)
+							{
+								displaySimpleMessage("Error", ex.getMessage());
+								return;
+							}
+							//TODO: Catch errors that might happen while loading files
+							Intent intent = new Intent(getApplicationContext(), EmulatorActivity.class);
+							startActivity(intent);
+							return;
+						}
+					});
+					builder.create().show();
 				}
-			);
+			});
+			list.addView(childview);
+			gameParser.execute(game.getName());
+		}
+		
+		protected void onPreExecute() {
+			
 		}
 		
 		@Override
@@ -313,18 +339,24 @@ public class MainActivity extends Activity
 		protected void onPostExecute(List<File> images) {
 			if (images != null && !images.isEmpty()) {
 				// Create the list of acceptable images
-				for(File file : images)
-				{
-					fileListItems.add(new FileListItem(file.getAbsolutePath()));
-				}
+//				for(File file : images)
+//				{
+//					fileListItems.add(new FileListItem(file.getAbsolutePath()));
+//				}
 				
-				Collections.sort(fileListItems);
+//				Collections.sort(fileListItems);
+				Collections.sort(images);
 
-				_fileListItems = fileListItems.toArray(new FileListItem[images.size()]);
+//				_fileListItems = fileListItems.toArray(new FileListItem[images.size()]);
+//				
+//				ArrayAdapter<FileListItem> adapter = new ArrayAdapter<FileListItem>(MainActivity.this,
+//					android.R.layout.simple_list_item_1, android.R.id.text1, _fileListItems);
+//				_fileListView.setAdapter(adapter);
 				
-				ArrayAdapter<FileListItem> adapter = new ArrayAdapter<FileListItem>(MainActivity.this,
-					android.R.layout.simple_list_item_1, android.R.id.text1, _fileListItems);
-				_fileListView.setAdapter(adapter);
+				for (int i = 0; i < images.size(); i++) {
+					createListItem(gameListing, images.get(i), i);
+				}
+				gameListing.invalidate();
 			} else {
 				// Display warning that no disks exist
 			}
@@ -361,12 +393,16 @@ public class MainActivity extends Activity
 	
 	private void prepareFileListView()
 	{
-		_fileListView = (ListView)findViewById(R.id.main_fileList);
+//		_fileListView = (ListView)findViewById(R.id.main_fileList);
+		gameListing = (GridLayout) findViewById(R.id.game_grid);
+		if (gameListing != null) {
+			gameListing.removeAllViews();
+		}
 		
-		View header = (View)getLayoutInflater().inflate(R.layout.fileview_header, null);
-		_fileListViewHeader = (TextView)header.findViewById(R.id.headerTextView);
+//		View header = (View)getLayoutInflater().inflate(R.layout.fileview_header, null);
+//		_fileListViewHeader = (TextView)header.findViewById(R.id.headerTextView);
 
-		_fileListView.addHeaderView(header, null, false);
+//		_fileListView.addHeaderView(header, null, false);
 		
 //		_fileListView.setOnItemClickListener(
 //			new OnItemClickListener() 
@@ -417,7 +453,7 @@ public class MainActivity extends Activity
 //			}
 //		);
 		
-		fileListItems = new ArrayList<FileListItem>();
+//		fileListItems = new ArrayList<FileListItem>();
 	}
 	
 	private void updateFileListView()
