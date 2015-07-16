@@ -146,6 +146,29 @@ public class EmulatorActivity extends Activity
 		}
 		return super.dispatchGenericMotionEvent(event);
 	}
+
+	@Override
+	public void onBackPressed()
+	{
+		AlertDialog.Builder builder = new AlertDialog.Builder(new ContextThemeWrapper(this, android.R.style.Theme_Holo_Dialog));
+
+		builder.setTitle("Exit Game?");
+		builder.setMessage("Are You Sure You Want To Exit The Game?");
+
+		builder.setPositiveButton("Yes",new DialogInterface.OnClickListener() {
+					public void onClick(DialogInterface dialog,int id) {
+						finish();
+					}
+				  })
+				.setNegativeButton("No",new DialogInterface.OnClickListener() {
+					public void onClick(DialogInterface dialog,int id) {
+						dialog.cancel();
+					}
+				});
+		
+		AlertDialog dialog = builder.create();
+		dialog.show();
+	}
 	
 	private void setupStatsTimer()
 	{
