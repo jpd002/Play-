@@ -2,7 +2,7 @@
 
 #include "Types.h"
 #include "BasicUnion.h"
-#include "convertible.h"
+#include "Convertible.h"
 #include "zip/ZipArchiveWriter.h"
 #include "zip/ZipArchiveReader.h"
 
