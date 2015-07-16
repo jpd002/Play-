@@ -48,6 +48,7 @@ public class GamesDbAPI extends AsyncTask<String, Integer, String> {
 	private File game;
 	private int index;
 	private View childview;
+	private ImageView preview;
 	private Context mContext;
 	private String game_name;
 	private Drawable game_icon;
@@ -67,6 +68,7 @@ public class GamesDbAPI extends AsyncTask<String, Integer, String> {
 	}
 
 	protected void onPreExecute() {
+		preview = (ImageView) childview.findViewById(R.id.game_icon);
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.GINGERBREAD) {
 			StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder()
 					.permitAll().build();
@@ -84,17 +86,7 @@ public class GamesDbAPI extends AsyncTask<String, Integer, String> {
 		options.inJustDecodeBounds = true;
 		Bitmap bitmap = BitmapFactory.decodeStream(bis, null, options);
 
-		int heightRatio = (int) Math.ceil(options.outHeight / (float) 152);
-		int widthRatio = (int) Math.ceil(options.outWidth / (float) 114);
-
-		if (heightRatio > 1 || widthRatio > 1) {
-			if (heightRatio > widthRatio) {
-				options.inSampleSize = heightRatio;
-			} else {
-				options.inSampleSize = widthRatio;
-			}
-		}
-
+		options.inSampleSize = calculateInSampleSize(options, preview);
 		options.inJustDecodeBounds = false;
 		bis.close();
 		im.close();
@@ -108,6 +100,27 @@ public class GamesDbAPI extends AsyncTask<String, Integer, String> {
 		bis = null;
 		im = null;
 		return bitmap;
+	}
+	
+	private int calculateInSampleSize(BitmapFactory.Options options, ImageView imageView) {
+		final int height = options.outHeight;
+		final int width = options.outWidth;
+		final int reqHeight = imageView.getMeasuredHeight();
+		final int reqWidth = imageView.getMeasuredWidth();
+		int inSampleSize = 1;
+		
+		if (height > reqHeight || width > reqWidth) {
+
+			final int halfHeight = height / 2;
+			final int halfWidth = width / 2;
+
+			while ((halfHeight / inSampleSize) > reqHeight
+				   && (halfWidth / inSampleSize) > reqWidth) {
+				inSampleSize *= 2;
+			}
+		}
+		
+		return inSampleSize;
 	}
 
 	@Override
@@ -156,16 +169,14 @@ public class GamesDbAPI extends AsyncTask<String, Integer, String> {
 				game_name = getValue(root, "GameTitle");
 				String details = getValue(root, "Overview");
 				game_details.put(index, details);
-				Element boxart = (Element) root.getElementsByTagName("Images")
-						.item(0);
-				String image = "http://thegamesdb.net/banners/"
-						+ getValue(boxart, "boxart");
+				Element images = (Element) root.getElementsByTagName("Images").item(0);
+				Element boxart = (Element) images.getElementsByTagName("boxart").item(1);
+				String image = "http://thegamesdb.net/banners/" + getElementValue(boxart);
 				try {
 					Bitmap game_image = decodeBitmapIcon(image);
 					game_preview.put(index, game_image);
-					ImageView preview = (ImageView) childview.findViewById(R.id.game_icon);
 					preview.setImageBitmap(game_image);
-					preview.setScaleType(ScaleType.FIT_XY);
+					preview.setScaleType(ScaleType.CENTER_INSIDE);
 				} catch (IOException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
