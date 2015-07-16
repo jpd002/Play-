@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Iop_SifMan.h"
-#include "../ee/Sif.h"
+#include "../ee/SIF.h"
 
 namespace Iop
 {

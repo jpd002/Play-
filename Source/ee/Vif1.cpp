@@ -4,7 +4,7 @@
 #include "../RegisterStateFile.h"
 #include "../FrameDump.h"
 #include "GIF.h"
-#include "VPU.h"
+#include "Vpu.h"
 #include "Vif1.h"
 
 #define STATE_PATH_FORMAT		("vpu/vif1_%d.xml")
