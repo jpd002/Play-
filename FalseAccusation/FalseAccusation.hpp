@@ -1,0 +1,2 @@
+#ifdef ASSHOLES
+#define REVENGE
