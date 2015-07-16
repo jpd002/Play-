@@ -33,8 +33,10 @@ public:
 	void				SetDMA3ReceiveHandler(const Dma3ReceiveHandler&);
 	uint32				ReceiveDMA4(uint32, uint32, bool, uint8*);
 
+	void				CountTicks(uint32);
 	void				ExecuteCommand();
 	bool				WillExecuteCommand() const;
+	bool				IsCommandDelayed() const;
 	bool				HasPendingOUTFIFOData() const;
 
 private:
@@ -179,6 +181,8 @@ private:
 	public:
 		virtual			~CCommand() {}
 		virtual bool	Execute() = 0;
+		virtual void	CountTicks(uint32) {}
+		virtual bool	IsDelayed() const { return false; }
 
 	private:
 
@@ -208,10 +212,13 @@ private:
 
 		void			Initialize(CBDECCommand*, CCSCCommand*, CINFIFO*, COUTFIFO*, uint32, const DECODER_CONTEXT&);
 		bool			Execute() override;
+		void			CountTicks(uint32) override;
+		bool			IsDelayed() const override;
 
 	private:
 		enum STATE
 		{
+			STATE_DELAY,
 			STATE_ADVANCE,
 			STATE_READMBTYPE,
 			STATE_READDCTTYPE,
@@ -242,6 +249,7 @@ private:
 		uint32					m_mbType = 0;
 		uint32					m_qsc = 0;
 		uint32					m_mbCount = 0;
+		int32					m_delayTicks = 0;
 	};
 
 	//0x02 ------------------------------------------------------------
