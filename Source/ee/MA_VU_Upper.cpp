@@ -1,7 +1,7 @@
 #include "MA_VU.h"
 #include "../MIPS.h"
 #include "VUShared.h"
-#include "VIF.h"
+#include "Vif.h"
 
 using namespace std;
 

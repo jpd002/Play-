@@ -307,6 +307,7 @@ void CSubSystem::CountTicks(int ticks)
 		}
 	}
 	m_dmac.ResumeDMA8();
+	m_ipu.CountTicks(ticks);
 	ExecuteIpu();
 	if(!m_EE.m_State.nHasException)
 	{
@@ -573,6 +574,10 @@ void CSubSystem::ExecuteIpu()
 	while(m_ipu.WillExecuteCommand())
 	{
 		m_ipu.ExecuteCommand();
+		if(m_ipu.IsCommandDelayed())
+		{
+			break;
+		}
 		if(m_ipu.HasPendingOUTFIFOData())
 		{
 			break;
