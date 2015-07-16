@@ -8,8 +8,10 @@ import android.util.*;
 import android.view.*;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.View.OnLongClickListener;
 import android.widget.*;
 import android.widget.AdapterView.*;
+import android.widget.GridLayout.LayoutParams;
 import java.io.*;
 import java.text.*;
 import java.util.*;
@@ -22,12 +24,13 @@ public class MainActivity extends Activity
 	private static final String PREFERENCE_CURRENT_DIRECTORY = "CurrentDirectory";
 	
 	private SharedPreferences _preferences;
-	private FileListItem[] _fileListItems;
-	private ListView _fileListView;
-	private TextView _fileListViewHeader;
-	private ArrayList<FileListItem> fileListItems;
 	private GridLayout gameListing;
 	private static Activity mActivity;
+	private boolean isConfigured = false;
+	private int totalItems;
+	private int rowNumber;
+	private int columnNumber;
+	private int columnCount;
 	
 	@Override 
 	protected void onCreate(Bundle savedInstanceState) 
@@ -51,40 +54,7 @@ public class MainActivity extends Activity
 		}
 		
 		prepareFileListView();
-//		updateFileListView();
-		
-		String sdcard = getCurrentDirectory();
-		
-		new ImageFinder(R.array.disks).execute(sdcard);
-		new ImageFinder(R.array.elves).execute(sdcard);
-
-		if (sdcard.equals(Environment.getExternalStorageDirectory().getAbsolutePath())) {
-			HashSet<String> extStorage = MainActivity.getExternalMounts();
-			if (extStorage != null && !extStorage.isEmpty()) {
-				for (Iterator<String> sd = extStorage.iterator(); sd.hasNext();) {
-					String sdCardPath = sd.next().replace("mnt/media_rw", "storage");
-					if (!sdCardPath.equals(sdcard)) {
-						if (new File(sdCardPath).canRead()) {
-							new ImageFinder(R.array.disks).execute(sdCardPath);
-							new ImageFinder(R.array.elves).execute(sdCardPath);
-						}
-					}
-				}
-			}
-		}
 	}
-
-//	@Override
-//	public void onBackPressed()
-//	{
-//		File currentDirectoryFile = new File(getCurrentDirectory());
-//		File parentDirectoryFile = currentDirectoryFile.getParentFile();
-//		if(parentDirectoryFile == null) {
-//			finish();
-//		}
-//		setCurrentDirectory(currentDirectoryFile.getParentFile().getAbsolutePath());
-//		updateFileListView();
-//	}
 
 	private static long getBuildDate(Context context) 
 	{
@@ -223,6 +193,8 @@ public class MainActivity extends Activity
 	
 	public static void resetDirectory() {
 		((MainActivity) mActivity).clearCurrentDirectory();
+		((MainActivity) mActivity).isConfigured = false;
+		((MainActivity) mActivity).prepareFileListView();
 	}
 	
 	private static boolean IsLoadableExecutableFileName(String fileName)
@@ -248,20 +220,35 @@ public class MainActivity extends Activity
 			this.array = arrayType;
 		}
 		
-		private void createListItem(GridLayout list, final File game, final int index) {
+		private View createListItem(final File game, final int index) {
 			final View childview = MainActivity.this.getLayoutInflater().inflate(
 				R.layout.game_list_item, null, false);
+			
+			if (!isConfigured) {
+				
+				((TextView) childview.findViewById(R.id.game_text)).setText(game.getName());
+				
+				childview.findViewById(R.id.childview).setOnClickListener(new OnClickListener() {
+					public void onClick(View view) {
+						launchDisk(game);
+						prepareFileListView();
+						return;
+					}
+				});
+				
+				return childview;
+			}
 			
 			final GamesDbAPI gameParser = new GamesDbAPI(game, index);
 			gameParser.setViewParent(MainActivity.this, childview);
 			
-			childview.findViewById(R.id.childview).setOnClickListener(new OnClickListener() {
-				public void onClick(View view) {
+			childview.findViewById(R.id.childview).setOnLongClickListener(new OnLongClickListener() {
+				public boolean onLongClick(View view) {
 					final AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
 					builder.setCancelable(true);
 					builder.setTitle(gameParser.getGameTitle());
-					builder.setMessage(gameParser.game_details.get(index));
 					builder.setIcon(gameParser.getGameIcon());
+					builder.setMessage(gameParser.getGameDetails());
 					builder.setPositiveButton("Close",
 											  new DialogInterface.OnClickListener() {
 						public void onClick(DialogInterface dialog, int which) {
@@ -273,34 +260,24 @@ public class MainActivity extends Activity
 											  new DialogInterface.OnClickListener() {
 						public void onClick(DialogInterface dialog, int which) {
 							dialog.dismiss();
-							try
-							{
-								if(IsLoadableExecutableFileName(game.getPath()))
-								{
-									NativeInterop.loadElf(game.getPath());
-								}
-								else
-								{
-									NativeInterop.bootDiskImage(game.getPath());
-								}
-								setCurrentDirectory(game.getPath().substring(0, game.getPath().lastIndexOf(File.separator)));
-							}
-							catch(Exception ex)
-							{
-								displaySimpleMessage("Error", ex.getMessage());
-								return;
-							}
-							//TODO: Catch errors that might happen while loading files
-							Intent intent = new Intent(getApplicationContext(), EmulatorActivity.class);
-							startActivity(intent);
+							launchDisk(game);
 							return;
 						}
 					});
 					builder.create().show();
+					return true;
 				}
 			});
-			list.addView(childview);
+			
+			
+			childview.findViewById(R.id.childview).setOnClickListener(new OnClickListener() {
+				public void onClick(View view) {
+					launchDisk(game);
+					return;
+				}
+			});
 			gameParser.execute(game.getName());
+			return childview;
 		}
 		
 		protected void onPreExecute() {
@@ -339,130 +316,102 @@ public class MainActivity extends Activity
 		protected void onPostExecute(List<File> images) {
 			if (images != null && !images.isEmpty()) {
 				// Create the list of acceptable images
-//				for(File file : images)
-//				{
-//					fileListItems.add(new FileListItem(file.getAbsolutePath()));
-//				}
-				
-//				Collections.sort(fileListItems);
-				Collections.sort(images);
 
-//				_fileListItems = fileListItems.toArray(new FileListItem[images.size()]);
-//				
-//				ArrayAdapter<FileListItem> adapter = new ArrayAdapter<FileListItem>(MainActivity.this,
-//					android.R.layout.simple_list_item_1, android.R.id.text1, _fileListItems);
-//				_fileListView.setAdapter(adapter);
+				Collections.sort(images);
 				
-				for (int i = 0; i < images.size(); i++) {
-					createListItem(gameListing, images.get(i), i);
+				totalItems += images.size();
+				// Should be replaced by screen size calculation
+				int row = totalItems / columnCount;
+				gameListing.setColumnCount(columnCount);
+				gameListing.setRowCount(row + 1);
+				for (int i = 0; i < images.size(); i++, columnNumber++)
+				{
+					if (columnNumber == columnCount)
+					{
+						columnNumber = 0;
+						rowNumber++;
+					}
+					View view = createListItem(images.get(i), i);
+					GridLayout.LayoutParams param =new GridLayout.LayoutParams();
+					param.height = LayoutParams.WRAP_CONTENT;
+					param.width = LayoutParams.WRAP_CONTENT;
+					param.rightMargin = 5;
+					param.topMargin = 5;
+					param.setGravity(Gravity.CENTER);
+					param.columnSpec = GridLayout.spec(columnNumber);
+					param.rowSpec = GridLayout.spec(rowNumber);
+					view.setLayoutParams (param);
+					gameListing.addView(view);
 				}
-				gameListing.invalidate();
+//				gameListing.invalidate();
 			} else {
 				// Display warning that no disks exist
 			}
 		}
 	}
 	
-	private static FileListItem[] getFileList(String directoryPath)
-	{
-		ArrayList<FileListItem> fileListItems = new ArrayList<FileListItem>();
-		fileListItems.add(new FileListItem(".."));
-		File directoryFile = new File(directoryPath);
-		File[] fileList = directoryFile.listFiles();
-		if(fileList != null)
+	private void launchDisk (File game) {
+		try
 		{
-			for(File file : fileList)
+			if(IsLoadableExecutableFileName(game.getPath()))
 			{
-				if(file.isDirectory())
-				{
-					fileListItems.add(new FileListItem(file.getAbsolutePath()));
-				}
-				else if(IsLoadableExecutableFileName(file.getName()))
-				{
-					fileListItems.add(new FileListItem(file.getAbsolutePath()));
-				}
-				else if(IsLoadableDiskImageFileName(file.getName()))
-				{
-					fileListItems.add(new FileListItem(file.getAbsolutePath()));
-				}
+				NativeInterop.loadElf(game.getPath());
 			}
+			else
+			{
+				NativeInterop.bootDiskImage(game.getPath());
+			}
+			setCurrentDirectory(game.getPath().substring(0, game.getPath().lastIndexOf(File.separator)));
 		}
-		Collections.sort(fileListItems);
-		return fileListItems.toArray(new FileListItem[fileListItems.size()]);
+		catch(Exception ex)
+		{
+			displaySimpleMessage("Error", ex.getMessage());
+			return;
+		}
+		//TODO: Catch errors that might happen while loading files
+		Intent intent = new Intent(getApplicationContext(), EmulatorActivity.class);
+		startActivity(intent);
 	}
-	
+
 	private void prepareFileListView()
 	{
-//		_fileListView = (ListView)findViewById(R.id.main_fileList);
 		gameListing = (GridLayout) findViewById(R.id.game_grid);
 		if (gameListing != null) {
 			gameListing.removeAllViews();
 		}
 		
-//		View header = (View)getLayoutInflater().inflate(R.layout.fileview_header, null);
-//		_fileListViewHeader = (TextView)header.findViewById(R.id.headerTextView);
-
-//		_fileListView.addHeaderView(header, null, false);
+		totalItems = 0;
+		rowNumber = 0;
+		columnNumber = 0;
 		
-//		_fileListView.setOnItemClickListener(
-//			new OnItemClickListener() 
-//			{
-//				@Override 
-//				public void onItemClick(AdapterView<?> parent, View view, int position, long id) 
-//				{
-//					//Remove one to compensate for header
-//					position = position - 1;
-//					
-//					FileListItem fileListItem = _fileListItems[position];
-//					if(fileListItem.isParentDirectory())
-//					{
-//						File currentDirectoryFile = new File(getCurrentDirectory());
-//						File parentDirectoryFile = currentDirectoryFile.getParentFile();
-//						if(parentDirectoryFile == null) return;
-//						setCurrentDirectory(currentDirectoryFile.getParentFile().getAbsolutePath());
-//						updateFileListView();
-//					}
-//					else if(fileListItem.isDirectory())
-//					{
-//						setCurrentDirectory(fileListItem.getPath());
-//						updateFileListView();
-//					}
-//					else
-//					{
-//						try
-//						{
-//							if(IsLoadableExecutableFileName(fileListItem.getPath()))
-//							{
-//								NativeInterop.loadElf(fileListItem.getPath());
-//							}
-//							else
-//							{
-//								NativeInterop.bootDiskImage(fileListItem.getPath());
-//							}
-//						}
-//						catch(Exception ex)
-//						{
-//							displaySimpleMessage("Error", ex.getMessage());
-//							return;
-//						}
-//						//TODO: Catch errors that might happen while loading files
-//						Intent intent = new Intent(getApplicationContext(), EmulatorActivity.class);
-//						startActivity(intent);
-//					}
-//				}
-//			}
-//		);
+		DisplayMetrics metrics = new DisplayMetrics();
+		getWindowManager().getDefaultDisplay().getMetrics(metrics);
+		final float scale = getResources().getDisplayMetrics().density;
+		int screenWidth = (int) (metrics.widthPixels * scale + 0.5f);
+		columnCount = (int) ((screenWidth / 180) / 3) - 1;
+		// Divide screen width by a single column, then by columnSpan
 		
-//		fileListItems = new ArrayList<FileListItem>();
-	}
-	
-	private void updateFileListView()
-	{
-		_fileListItems = getFileList(getCurrentDirectory());
-		_fileListViewHeader.setText(getCurrentDirectory());
+		String sdcard = getCurrentDirectory();
+		if (!sdcard.equals(Environment.getExternalStorageDirectory().getAbsolutePath())) {
+			isConfigured = true;
+		}
 		
-		ArrayAdapter<FileListItem> adapter = new ArrayAdapter<FileListItem>(this,
-			android.R.layout.simple_list_item_1, android.R.id.text1, _fileListItems);
-		_fileListView.setAdapter(adapter);
+		new ImageFinder(R.array.disks).execute(sdcard);
+		new ImageFinder(R.array.elves).execute(sdcard);
+		
+		if (!isConfigured) {
+			HashSet<String> extStorage = MainActivity.getExternalMounts();
+			if (extStorage != null && !extStorage.isEmpty()) {
+				for (Iterator<String> sd = extStorage.iterator(); sd.hasNext();) {
+					String sdCardPath = sd.next().replace("mnt/media_rw", "storage");
+					if (!sdCardPath.equals(sdcard)) {
+						if (new File(sdCardPath).canRead()) {
+							new ImageFinder(R.array.disks).execute(sdCardPath);
+							new ImageFinder(R.array.elves).execute(sdCardPath);
+						}
+					}
+				}
+			}
+		}
 	}
 }

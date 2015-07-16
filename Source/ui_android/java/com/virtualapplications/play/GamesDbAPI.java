@@ -42,6 +42,7 @@ import android.util.SparseArray;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.ImageView.ScaleType;
+import android.widget.TextView;
 
 public class GamesDbAPI extends AsyncTask<String, Integer, String> {
 
@@ -54,8 +55,8 @@ public class GamesDbAPI extends AsyncTask<String, Integer, String> {
 	private Drawable game_icon;
 
 	private static final String games_url = "http://thegamesdb.net/api/GetGame.php?platform=sony+playstation+2&name=";
-	public SparseArray<String> game_details = new SparseArray<String>();
-	public SparseArray<Bitmap> game_preview = new SparseArray<Bitmap>();
+	private SparseArray<String> game_details = new SparseArray<String>();
+	private SparseArray<Bitmap> game_preview = new SparseArray<Bitmap>();
 
 	public GamesDbAPI(File game, int index) {
 		this.game = game;
@@ -162,31 +163,30 @@ public class GamesDbAPI extends AsyncTask<String, Integer, String> {
 	@Override
 	protected void onPostExecute(String gameData) {
 		if (gameData != null) {
-			Document doc = getDomElement(gameData);
-			if (doc != null && doc.getElementsByTagName("Game") != null) {
-				Element root = (Element) doc.getElementsByTagName("Game").item(
-						0);
+			try {
+				Document doc = getDomElement(gameData);
+				Element root = (Element) doc.getElementsByTagName("Game").item(0);
 				game_name = getValue(root, "GameTitle");
 				String details = getValue(root, "Overview");
 				game_details.put(index, details);
 				Element images = (Element) root.getElementsByTagName("Images").item(0);
+				Element sleave = (Element) images.getElementsByTagName("boxart").item(0);
+				String cover = "http://thegamesdb.net/banners/" + getElementValue(sleave);
+				game_icon = new BitmapDrawable(decodeBitmapIcon(cover));
 				Element boxart = (Element) images.getElementsByTagName("boxart").item(1);
 				String image = "http://thegamesdb.net/banners/" + getElementValue(boxart);
-				try {
-					Bitmap game_image = decodeBitmapIcon(image);
-					game_preview.put(index, game_image);
-					preview.setImageBitmap(game_image);
-					preview.setScaleType(ScaleType.CENTER_INSIDE);
-				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
+				Bitmap game_image = decodeBitmapIcon(image);
+				game_preview.put(index, game_image);
+				preview.setImageBitmap(game_image);
+				preview.setScaleType(ScaleType.CENTER_INSIDE);
+				((TextView) childview.findViewById(R.id.game_text)).setVisibility(View.GONE);
+			} catch (IOException e) {
+				game_details.put(index, mContext.getString(R.string.game_info));
+				((TextView) childview.findViewById(R.id.game_text)).setText(game.getName());
 			}
 		} else {
-			game_details.put(index,
-					mContext.getString(R.string.game_info));
-			final String nameLower = game.getName().toLowerCase(
-					Locale.getDefault());
+			game_details.put(index, mContext.getString(R.string.game_info));
+			((TextView) childview.findViewById(R.id.game_text)).setText(game.getName());
 		}
 
 		childview.setTag(game_name);
@@ -211,6 +211,14 @@ public class GamesDbAPI extends AsyncTask<String, Integer, String> {
 
 	public String getGameTitle() {
 		return game_name;
+	}
+	
+	public String getGameDetails() {
+		return game_details.get(index);
+	}
+	
+	public Bitmap getGamePreview() {
+		return game_preview.get(index);
 	}
 
 	public Document getDomElement(String xml) {

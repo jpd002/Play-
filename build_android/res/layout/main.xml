@@ -3,23 +3,23 @@
 	android:orientation="vertical"
 	android:layout_width="fill_parent"
 	android:layout_height="fill_parent"
-	>
-	<!--ListView
-		android:id="@+id/main_fileList"
-		android:layout_height="wrap_content"
+	android:background="@drawable/gradient_grid">
+	
+	<ScrollView
+		android:id="@+id/game_scroller"
 		android:layout_width="match_parent"
-		/-->
-	<View
-		android:layout_width="fill_parent"
-		android:layout_height="1dp"
-		android:layout_marginBottom="2dp"
-		android:background="#7f7f7f" />
-		
-	<GridLayout
-		android:id="@+id/game_grid"
-		android:layout_width="match_parent"
-		android:layout_height="wrap_content" >
-		
-		<requestFocus />
-	</GridLayout>
+		android:layout_height="match_parent"
+		android:layout_weight="1"
+		android:fillViewport="true" >
+			
+		<GridLayout
+			android:id="@+id/game_grid"
+			android:layout_width="match_parent"
+			android:layout_height="match_parent"
+			android:useDefaultMargins="true"
+			android:alignmentMode="alignBounds">
+			
+			<requestFocus />
+		</GridLayout>
+	</ScrollView>
 </LinearLayout>
