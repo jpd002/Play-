@@ -38,6 +38,7 @@ public class MainActivity extends Activity
 	private int numColumn = 0;
 	private DrawerLayout mDrawerLayout;
 	private ActionBarDrawerToggle mDrawerToggle;
+	private float localScale;
 	
 	@Override 
 	protected void onCreate(Bundle savedInstanceState) 
@@ -410,7 +411,7 @@ public class MainActivity extends Activity
 	
 				TableRow game_row = new TableRow(MainActivity.this);
 				game_row.setGravity(Gravity.CENTER);
-				int pad = (int) (10 * context.getResources().getDisplayMetrics().density + 0.5f);
+				int pad = (int) (10 * localScale + 0.5f);
 				game_row.setPadding(0, 0, 0, pad);
 				
 				int column = 0;
@@ -422,7 +423,7 @@ public class MainActivity extends Activity
 						column = 0;
 						game_row = new TableRow(MainActivity.this);
 						game_row.setGravity(Gravity.CENTER);
-						game_row.setPadding(0, 0, 0, 10);
+						game_row.setPadding(0, 0, 0, pad);
 					}
 					game_row.addView(createListItem(images.get(i), i));
 					column ++;
@@ -480,9 +481,9 @@ public class MainActivity extends Activity
 		
 		DisplayMetrics metrics = new DisplayMetrics();
 		getWindowManager().getDefaultDisplay().getMetrics(metrics);
-		final float scale = getResources().getDisplayMetrics().density;
-		int screenWidth = (int) (metrics.widthPixels * scale + 0.5f);
-		int screenHeight = (int) (metrics.heightPixels * scale + 0.5f);
+		localScale = getResources().getDisplayMetrics().density;
+		int screenWidth = (int) (metrics.widthPixels * localScale + 0.5f);
+		int screenHeight = (int) (metrics.heightPixels * localScale + 0.5f);
 		
 		if (screenWidth > screenHeight) {
 			numColumn = 3;
