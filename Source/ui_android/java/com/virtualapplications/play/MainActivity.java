@@ -58,13 +58,13 @@ public class MainActivity extends Activity
 			/** Called when a drawer has settled in a completely closed state. */
 			public void onDrawerClosed(View view) {
 				super.onDrawerClosed(view);
-				getActionBar().setTitle(getString(R.string.app_name));
+				getActionBar().setTitle(getString(R.string.menu_title_shut));
 			}
 			
 			/** Called when a drawer has settled in a completely open state. */
 			public void onDrawerOpened(View drawerView) {
 				super.onDrawerOpened(drawerView);
-				getActionBar().setTitle(getString(R.string.menu_title));
+				getActionBar().setTitle(getString(R.string.menu_title_open));
 			}
 		};
 		
@@ -73,6 +73,7 @@ public class MainActivity extends Activity
 		
 		getActionBar().setDisplayHomeAsUpEnabled(true);
 		getActionBar().setHomeButtonEnabled(true);
+		getActionBar().setTitle(getString(R.string.menu_title_shut));
 		
 		mActivity = MainActivity.this;
 		
@@ -405,11 +406,12 @@ public class MainActivity extends Activity
 				TableRow.LayoutParams params = new TableRow.LayoutParams(
 					TableRow.LayoutParams.WRAP_CONTENT,
 					TableRow.LayoutParams.WRAP_CONTENT);
-				params.setMargins(0, 10, 0, 10);
 				params.gravity = Gravity.CENTER;
 	
 				TableRow game_row = new TableRow(MainActivity.this);
 				game_row.setGravity(Gravity.CENTER);
+				int pad = (int) (10 * context.getResources().getDisplayMetrics().density + 0.5f);
+				game_row.setPadding(0, 0, 0, pad);
 				
 				int column = 0;
 				for (int i = 0; i < images.size(); i++)
@@ -420,6 +422,7 @@ public class MainActivity extends Activity
 						column = 0;
 						game_row = new TableRow(MainActivity.this);
 						game_row.setGravity(Gravity.CENTER);
+						game_row.setPadding(0, 0, 0, 10);
 					}
 					game_row.addView(createListItem(images.get(i), i));
 					column ++;
@@ -456,6 +459,17 @@ public class MainActivity extends Activity
 		Intent intent = new Intent(getApplicationContext(), EmulatorActivity.class);
 		startActivity(intent);
 	}
+	
+	private boolean isAndroidTV(Context context) {
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
+			UiModeManager uiModeManager = (UiModeManager)
+			context.getSystemService(Context.UI_MODE_SERVICE);
+			if (uiModeManager.getCurrentModeType() == Configuration.UI_MODE_TYPE_TELEVISION) {
+				return true;
+			}
+		}
+		return false;
+	}
 
 	private void prepareFileListView()
 	{
@@ -474,6 +488,10 @@ public class MainActivity extends Activity
 			numColumn = 3;
 		} else {
 			numColumn = 2;
+		}
+		
+		if (isAndroidTV(getApplicationContext())) {
+			numColumn += 1;
 		}
 		
 		String sdcard = getCurrentDirectory();

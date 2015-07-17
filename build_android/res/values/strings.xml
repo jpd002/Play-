@@ -18,5 +18,6 @@
 	<string name="drawer_open">Menu Open</string>
 	<string name="drawer_shut">Menu Shut</string>
 	
-	<string name="menu_title">Play! Menu</string>
+	<string name="menu_title_open">Menu</string>
+	<string name="menu_title_shut">Games</string>
 </resources>
