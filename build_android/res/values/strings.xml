@@ -12,9 +12,11 @@
 		<item>bin</item>
 		<item>cso</item>
 		<item>isz</item>
-	</string-array>
-	
-	<string-array name="elves">
 		<item>elf</item>
 	</string-array>
+	
+	<string name="drawer_open">Menu Open</string>
+	<string name="drawer_shut">Menu Shut</string>
+	
+	<string name="menu_title">Play! Menu</string>
 </resources>

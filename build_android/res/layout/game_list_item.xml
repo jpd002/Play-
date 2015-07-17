@@ -1,29 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
 	android:id="@+id/childview"
-	android:layout_width="match_parent"
-	android:layout_height="match_parent"
 	android:orientation="vertical"
+	android:layout_width="wrap_content"
+	android:layout_height="wrap_content"
 	android:clickable="true"
 	android:focusable="true"
 	android:background="@drawable/game_selector"
-	android:layout_columnSpan="3"
-	android:layout_rowSpan="4"
-	android:layout_gravity="fill"
-	android:padding="2dp" >
+	android:gravity="center"
+	android:layout_weight="1" >
 
 	<ImageView
 		android:id="@+id/game_icon"
-		android:layout_width="168dp"
-		android:layout_height="238dp"
-		android:layout_gravity="center_vertical"
+		android:layout_width="172dp"
+		android:layout_height="242dp"
+		android:layout_gravity="center"
 		android:scaleType="fitXY"
 		android:src="@drawable/boxart"
 		android:adjustViewBounds="false" />
 		
 	<TextView
 		android:id="@+id/game_text"
-		android:layout_width="wrap_content"
+		android:layout_width="170dp"
 		android:layout_height="wrap_content"
 		android:layout_alignParentBottom="true"
 		android:layout_marginBottom="2dp"

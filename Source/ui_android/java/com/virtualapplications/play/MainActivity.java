@@ -3,15 +3,23 @@ package com.virtualapplications.play;
 import android.app.*;
 import android.content.*;
 import android.content.pm.*;
+import android.content.res.Configuration;
 import android.os.*;
 import android.util.*;
 import android.view.*;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnLongClickListener;
+import android.view.ViewGroup;
+import android.view.ViewGroup.LayoutParams;
 import android.widget.*;
 import android.widget.AdapterView.*;
-import android.widget.GridLayout.LayoutParams;
+import android.widget.LinearLayout;
+import android.widget.TableLayout;
+import android.widget.TableRow;
+import android.widget.TextView;
+import android.support.v4.app.ActionBarDrawerToggle;
+import android.support.v4.widget.DrawerLayout;
 import java.io.*;
 import java.text.*;
 import java.util.*;
@@ -24,13 +32,12 @@ public class MainActivity extends Activity
 	private static final String PREFERENCE_CURRENT_DIRECTORY = "CurrentDirectory";
 	
 	private SharedPreferences _preferences;
-	private GridLayout gameListing;
+	private TableLayout gameListing;
 	private static Activity mActivity;
 	private boolean isConfigured = false;
-	private int totalItems;
-	private int rowNumber;
-	private int columnNumber;
-	private int columnCount;
+	private int numColumn = 0;
+	private DrawerLayout mDrawerLayout;
+	private ActionBarDrawerToggle mDrawerToggle;
 	
 	@Override 
 	protected void onCreate(Bundle savedInstanceState) 
@@ -39,6 +46,33 @@ public class MainActivity extends Activity
 		//Log.w(Constants.TAG, "MainActivity - onCreate");
 		
 		setContentView(R.layout.main);
+		
+		mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
+		mDrawerToggle = new ActionBarDrawerToggle(
+			MainActivity.this,      /* host Activity */
+			mDrawerLayout,			/* DrawerLayout object */
+			R.drawable.ic_drawer,	/* nav drawer icon to replace 'Up' caret */
+			R.string.drawer_open,	/* "open drawer" description */
+			R.string.drawer_shut	/* "close drawer" description */
+		) {
+			/** Called when a drawer has settled in a completely closed state. */
+			public void onDrawerClosed(View view) {
+				super.onDrawerClosed(view);
+				getActionBar().setTitle(getString(R.string.app_name));
+			}
+			
+			/** Called when a drawer has settled in a completely open state. */
+			public void onDrawerOpened(View drawerView) {
+				super.onDrawerOpened(drawerView);
+				getActionBar().setTitle(getString(R.string.menu_title));
+			}
+		};
+		
+		// Set the drawer toggle as the DrawerListener
+		mDrawerLayout.setDrawerListener(mDrawerToggle);
+		
+		getActionBar().setDisplayHomeAsUpEnabled(true);
+		getActionBar().setHomeButtonEnabled(true);
 		
 		mActivity = MainActivity.this;
 		
@@ -110,7 +144,20 @@ public class MainActivity extends Activity
 	}
 	
 	@Override
-	public boolean onCreateOptionsMenu(Menu menu) 
+	protected void onPostCreate(Bundle savedInstanceState) {
+		super.onPostCreate(savedInstanceState);
+		// Sync the toggle state after onRestoreInstanceState has occurred.
+		mDrawerToggle.syncState();
+	}
+	
+	@Override
+	public void onConfigurationChanged(Configuration newConfig) {
+		super.onConfigurationChanged(newConfig);
+		mDrawerToggle.onConfigurationChanged(newConfig);
+	}
+	
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu)
 	{
 		MenuInflater inflater = getMenuInflater();
 		inflater.inflate(R.layout.main_menu, menu);
@@ -120,8 +167,20 @@ public class MainActivity extends Activity
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) 
 	{
+		// Pass the event to ActionBarDrawerToggle, if it returns
+		// true, then it has handled the app icon touch event
+		if (mDrawerToggle.onOptionsItemSelected(item)) {
+			return true;
+		}
 		switch(item.getItemId()) 
 		{
+		case android.R.id.home:
+			if (mDrawerLayout.isDrawerOpen(Gravity.LEFT)) {
+				mDrawerLayout.closeDrawer(Gravity.LEFT);
+			} else {
+				mDrawerLayout.openDrawer(Gravity.LEFT);
+			}
+			return true;
 		case R.id.main_menu_settings:
 			displaySettingsActivity();
 			return true;
@@ -220,6 +279,33 @@ public class MainActivity extends Activity
 			this.array = arrayType;
 		}
 		
+		private List<File> getFileList(String path) {
+			File storage = new File(path);
+			
+			String[] mediaTypes = MainActivity.this.getResources().getStringArray(array);
+			FilenameFilter[] filter = new FilenameFilter[mediaTypes.length];
+			
+			int i = 0;
+			for (final String type : mediaTypes) {
+				filter[i] = new FilenameFilter() {
+					
+					public boolean accept(File dir, String name) {
+						if (dir.getName().startsWith(".") || name.startsWith(".")) {
+							return false;
+						} else {
+							return StringUtils.endsWithIgnoreCase(name, "." + type);
+						}
+					}
+					
+				};
+				i++;
+			}
+			
+			FileUtils fileUtils = new FileUtils();
+			Collection<File> files = fileUtils.listFiles(storage, filter, -1);
+			return (List<File>) files;
+		}
+		
 		private View createListItem(final File game, final int index) {
 			final View childview = MainActivity.this.getLayoutInflater().inflate(
 				R.layout.game_list_item, null, false);
@@ -286,29 +372,26 @@ public class MainActivity extends Activity
 		
 		@Override
 		protected List<File> doInBackground(String... paths) {
-			File storage = new File(paths[0]);
-
-			String[] mediaTypes = MainActivity.this.getResources().getStringArray(array);
-			FilenameFilter[] filter = new FilenameFilter[mediaTypes.length];
 			
-			int i = 0;
-			for (final String type : mediaTypes) {
-				filter[i] = new FilenameFilter() {
-					
-					public boolean accept(File dir, String name) {
-						if (dir.getName().startsWith(".") || name.startsWith(".")) {
-							return false;
-						} else {
-							return StringUtils.endsWithIgnoreCase(name, "." + type);
+			final String root_path = paths[0];
+			ArrayList<File> files = new ArrayList<File>();
+			files.addAll(getFileList(root_path));
+			
+			if (!isConfigured) {
+				HashSet<String> extStorage = MainActivity.getExternalMounts();
+				if (extStorage != null && !extStorage.isEmpty()) {
+					for (Iterator<String> sd = extStorage.iterator(); sd.hasNext();) {
+						String sdCardPath = sd.next().replace("mnt/media_rw", "storage");
+						if (!sdCardPath.equals(root_path)) {
+							if (new File(sdCardPath).canRead()) {
+								files.addAll(getFileList(sdCardPath));
+							}
 						}
 					}
-					
-				};
-				i++;
+				}
 			}
 			
-			FileUtils fileUtils = new FileUtils();
-			Collection<File> files = fileUtils.listFiles(storage, filter, -1);
+			
 			return (List<File>) files;
 		}
 		
@@ -319,31 +402,32 @@ public class MainActivity extends Activity
 
 				Collections.sort(images);
 				
-				totalItems += images.size();
-				// Should be replaced by screen size calculation
-				int row = totalItems / columnCount;
-				gameListing.setColumnCount(columnCount);
-				gameListing.setRowCount(row + 1);
-				for (int i = 0; i < images.size(); i++, columnNumber++)
+				TableRow.LayoutParams params = new TableRow.LayoutParams(
+					TableRow.LayoutParams.WRAP_CONTENT,
+					TableRow.LayoutParams.WRAP_CONTENT);
+				params.setMargins(0, 10, 0, 10);
+				params.gravity = Gravity.CENTER;
+	
+				TableRow game_row = new TableRow(MainActivity.this);
+				game_row.setGravity(Gravity.CENTER);
+				
+				int column = 0;
+				for (int i = 0; i < images.size(); i++)
 				{
-					if (columnNumber == columnCount)
+					if (column == numColumn)
 					{
-						columnNumber = 0;
-						rowNumber++;
+						gameListing.addView(game_row, params);
+						column = 0;
+						game_row = new TableRow(MainActivity.this);
+						game_row.setGravity(Gravity.CENTER);
 					}
-					View view = createListItem(images.get(i), i);
-					GridLayout.LayoutParams param =new GridLayout.LayoutParams();
-					param.height = LayoutParams.WRAP_CONTENT;
-					param.width = LayoutParams.WRAP_CONTENT;
-					param.rightMargin = 5;
-					param.topMargin = 5;
-					param.setGravity(Gravity.CENTER);
-					param.columnSpec = GridLayout.spec(columnNumber);
-					param.rowSpec = GridLayout.spec(rowNumber);
-					view.setLayoutParams (param);
-					gameListing.addView(view);
+					game_row.addView(createListItem(images.get(i), i));
+					column ++;
 				}
-//				gameListing.invalidate();
+				if (column != 0) {
+					gameListing.addView(game_row, params);
+				}
+				gameListing.invalidate();
 			} else {
 				// Display warning that no disks exist
 			}
@@ -375,21 +459,22 @@ public class MainActivity extends Activity
 
 	private void prepareFileListView()
 	{
-		gameListing = (GridLayout) findViewById(R.id.game_grid);
+		gameListing = (TableLayout) findViewById(R.id.game_grid);
 		if (gameListing != null) {
 			gameListing.removeAllViews();
 		}
-		
-		totalItems = 0;
-		rowNumber = 0;
-		columnNumber = 0;
 		
 		DisplayMetrics metrics = new DisplayMetrics();
 		getWindowManager().getDefaultDisplay().getMetrics(metrics);
 		final float scale = getResources().getDisplayMetrics().density;
 		int screenWidth = (int) (metrics.widthPixels * scale + 0.5f);
-		columnCount = (int) ((screenWidth / 180) / 3) - 1;
-		// Divide screen width by a single column, then by columnSpan
+		int screenHeight = (int) (metrics.heightPixels * scale + 0.5f);
+		
+		if (screenWidth > screenHeight) {
+			numColumn = 3;
+		} else {
+			numColumn = 2;
+		}
 		
 		String sdcard = getCurrentDirectory();
 		if (!sdcard.equals(Environment.getExternalStorageDirectory().getAbsolutePath())) {
@@ -397,21 +482,5 @@ public class MainActivity extends Activity
 		}
 		
 		new ImageFinder(R.array.disks).execute(sdcard);
-		new ImageFinder(R.array.elves).execute(sdcard);
-		
-		if (!isConfigured) {
-			HashSet<String> extStorage = MainActivity.getExternalMounts();
-			if (extStorage != null && !extStorage.isEmpty()) {
-				for (Iterator<String> sd = extStorage.iterator(); sd.hasNext();) {
-					String sdCardPath = sd.next().replace("mnt/media_rw", "storage");
-					if (!sdCardPath.equals(sdcard)) {
-						if (new File(sdCardPath).canRead()) {
-							new ImageFinder(R.array.disks).execute(sdCardPath);
-							new ImageFinder(R.array.elves).execute(sdCardPath);
-						}
-					}
-				}
-			}
-		}
 	}
 }
