@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringReader;
 import java.io.UnsupportedEncodingException;
+import java.lang.NullPointerException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.Locale;
@@ -165,22 +166,27 @@ public class GamesDbAPI extends AsyncTask<String, Integer, String> {
 		if (gameData != null) {
 			try {
 				Document doc = getDomElement(gameData);
-				Element root = (Element) doc.getElementsByTagName("Game").item(0);
-				game_name = getValue(root, "GameTitle");
-				String details = getValue(root, "Overview");
-				game_details.put(index, details);
-				Element images = (Element) root.getElementsByTagName("Images").item(0);
-				Element sleave = (Element) images.getElementsByTagName("boxart").item(0);
-				String cover = "http://thegamesdb.net/banners/" + getElementValue(sleave);
-				game_icon = new BitmapDrawable(decodeBitmapIcon(cover));
-				Element boxart = (Element) images.getElementsByTagName("boxart").item(1);
-				String image = "http://thegamesdb.net/banners/" + getElementValue(boxart);
-				Bitmap game_image = decodeBitmapIcon(image);
-				game_preview.put(index, game_image);
-				preview.setImageBitmap(game_image);
-				preview.setScaleType(ScaleType.CENTER_INSIDE);
-				((TextView) childview.findViewById(R.id.game_text)).setVisibility(View.GONE);
-			} catch (IOException e) {
+				if (doc.getElementsByTagName("Game") != null) {
+					Element root = (Element) doc.getElementsByTagName("Game").item(0);
+					game_name = getValue(root, "GameTitle");
+					String details = getValue(root, "Overview");
+					game_details.put(index, details);
+					Element images = (Element) root.getElementsByTagName("Images").item(0);
+					Element sleave = (Element) images.getElementsByTagName("boxart").item(0);
+					String cover = "http://thegamesdb.net/banners/" + getElementValue(sleave);
+					game_icon = new BitmapDrawable(decodeBitmapIcon(cover));
+					Element boxart = (Element) images.getElementsByTagName("boxart").item(1);
+					String image = "http://thegamesdb.net/banners/" + getElementValue(boxart);
+					Bitmap game_image = decodeBitmapIcon(image);
+					game_preview.put(index, game_image);
+					preview.setImageBitmap(game_image);
+					preview.setScaleType(ScaleType.CENTER_INSIDE);
+					((TextView) childview.findViewById(R.id.game_text)).setVisibility(View.GONE);
+				} else {
+					game_details.put(index, mContext.getString(R.string.game_info));
+					((TextView) childview.findViewById(R.id.game_text)).setText(game.getName());
+				}
+			} catch (Exception e) {
 				game_details.put(index, mContext.getString(R.string.game_info));
 				((TextView) childview.findViewById(R.id.game_text)).setText(game.getName());
 			}
