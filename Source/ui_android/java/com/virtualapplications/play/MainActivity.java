@@ -347,6 +347,7 @@ public class MainActivity extends Activity
 					public void onClick(View view) {
 						setCurrentDirectory(game.getPath().substring(0,
 							game.getPath().lastIndexOf(File.separator)));
+						isConfigured = true;
 						prepareFileListView();
 						return;
 					}
@@ -436,7 +437,9 @@ public class MainActivity extends Activity
 				Collections.sort(images);
 	
 				TableRow game_row = new TableRow(MainActivity.this);
-				game_row.setGravity(Gravity.CENTER);
+				if (isConfigured) {
+					game_row.setGravity(Gravity.CENTER);
+				}
 				int pad = (int) (10 * localScale + 0.5f);
 				game_row.setPadding(0, 0, 0, pad);
 				
@@ -525,14 +528,6 @@ public class MainActivity extends Activity
 			gameListing.removeAllViews();
 		}
 		
-		if (!mDrawerLayout.isDrawerOpen(Gravity.LEFT)) {
-			if (!isConfigured) {
-				getActionBar().setTitle(getString(R.string.menu_title_look));
-			} else {
-				getActionBar().setTitle(getString(R.string.menu_title_shut));
-			}
-		}
-		
 		DisplayMetrics metrics = new DisplayMetrics();
 		getWindowManager().getDefaultDisplay().getMetrics(metrics);
 		localScale = getResources().getDisplayMetrics().density;
@@ -555,5 +550,13 @@ public class MainActivity extends Activity
 		}
 		
 		new ImageFinder(R.array.disks).execute(sdcard);
+		
+		if (!mDrawerLayout.isDrawerOpen(Gravity.LEFT)) {
+			if (!isConfigured) {
+				getActionBar().setTitle(getString(R.string.menu_title_look));
+			} else {
+				getActionBar().setTitle(getString(R.string.menu_title_shut));
+			}
+		}
 	}
 }
