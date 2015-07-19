@@ -19,12 +19,19 @@
 		android:src="@drawable/boxart"
 		android:adjustViewBounds="false" />
 		
-	<TextView
-		android:id="@+id/game_text"
-		android:layout_width="162dp"
-		android:layout_height="wrap_content"
-		android:layout_alignParentBottom="true"
-		android:layout_margin="4dp"
-		android:layout_gravity="center_vertical" />
+	<RelativeLayout
+		android:id="@+id/text_wrapper"
+		android:orientation="vertical"
+		android:layout_width="172dp"
+		android:layout_height="242dp"
+		android:layout_alignTop="@+id/game_icon" >
+		
+		<TextView
+			android:id="@+id/game_text"
+			android:layout_width="162dp"
+			android:layout_height="wrap_content"
+			android:layout_margin="5dp"
+			android:layout_alignParentBottom="true" />
+	</RelativeLayout>
 
 </RelativeLayout>
