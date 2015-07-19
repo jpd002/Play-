@@ -765,6 +765,12 @@ void CGSH_OpenGL::SetupBlendingFunction(uint64 alphaReg)
 		//Cd (no blend)
 		glBlendFuncSeparate(GL_ZERO, GL_ONE, GL_ONE, GL_ZERO);
 	}
+	else
+	{
+		assert(0);
+		//Default blending
+		glBlendFuncSeparate(GL_ONE, GL_ZERO, GL_ONE, GL_ZERO);
+	}
 
 	glBlendEquation(nFunction);
 }

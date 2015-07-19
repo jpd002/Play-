@@ -942,6 +942,13 @@ void CGSH_Direct3D9::SetupBlendingFunction(uint64 alphaReg)
 		m_device->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_INVBLENDFACTOR);
 		m_device->SetRenderState(D3DRS_BLENDFACTOR, D3DCOLOR_ARGB(fix, fix, fix, fix));
 	}
+	else
+	{
+		assert(0);
+		//Default blending
+		m_device->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_ONE);
+		m_device->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_ZERO);
+	}
 }
 
 void CGSH_Direct3D9::SetupTestFunctions(uint64 nData)
