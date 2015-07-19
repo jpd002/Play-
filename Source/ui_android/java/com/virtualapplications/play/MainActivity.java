@@ -39,12 +39,20 @@ public class MainActivity extends Activity
 	private DrawerLayout mDrawerLayout;
 	private ActionBarDrawerToggle mDrawerToggle;
 	private float localScale;
+	private int currentOrientation;
 	
 	@Override 
 	protected void onCreate(Bundle savedInstanceState) 
 	{
 		super.onCreate(savedInstanceState);
 		//Log.w(Constants.TAG, "MainActivity - onCreate");
+		
+		currentOrientation = getResources().getConfiguration().orientation;
+		if (currentOrientation == Configuration.ORIENTATION_LANDSCAPE) {
+			setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE);
+		} else {
+			setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_PORTRAIT);
+		}
 		
 		setContentView(R.layout.main);
 		
@@ -59,7 +67,11 @@ public class MainActivity extends Activity
 			/** Called when a drawer has settled in a completely closed state. */
 			public void onDrawerClosed(View view) {
 				super.onDrawerClosed(view);
-				getActionBar().setTitle(getString(R.string.menu_title_shut));
+				if (!isConfigured) {
+					getActionBar().setTitle(getString(R.string.menu_title_look));
+				} else {
+					getActionBar().setTitle(getString(R.string.menu_title_shut));
+				}
 			}
 			
 			/** Called when a drawer has settled in a completely open state. */
@@ -71,6 +83,22 @@ public class MainActivity extends Activity
 		
 		// Set the drawer toggle as the DrawerListener
 		mDrawerLayout.setDrawerListener(mDrawerToggle);
+		
+		Button buttonPrefs = (Button) mDrawerLayout.findViewById(R.id.main_menu_settings);
+		buttonPrefs.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View arg0) {
+				displaySettingsActivity();
+			}
+		});
+		
+		Button buttonAbout = (Button) mDrawerLayout.findViewById(R.id.main_menu_about);
+		buttonAbout.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View arg0) {
+				displayAboutDialog();
+			}
+		});
 		
 		getActionBar().setDisplayHomeAsUpEnabled(true);
 		getActionBar().setHomeButtonEnabled(true);
@@ -156,15 +184,16 @@ public class MainActivity extends Activity
 	public void onConfigurationChanged(Configuration newConfig) {
 		super.onConfigurationChanged(newConfig);
 		mDrawerToggle.onConfigurationChanged(newConfig);
+		
 	}
 	
-	@Override
-	public boolean onCreateOptionsMenu(Menu menu)
-	{
-		MenuInflater inflater = getMenuInflater();
-		inflater.inflate(R.layout.main_menu, menu);
-		return super.onCreateOptionsMenu(menu);
-	}
+//	@Override
+//	public boolean onCreateOptionsMenu(Menu menu)
+//	{
+//		MenuInflater inflater = getMenuInflater();
+//		inflater.inflate(R.layout.main_menu, menu);
+//		return super.onCreateOptionsMenu(menu);
+//	}
 	
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) 
@@ -183,15 +212,12 @@ public class MainActivity extends Activity
 				mDrawerLayout.openDrawer(Gravity.LEFT);
 			}
 			return true;
-		case R.id.main_menu_settings:
-			displaySettingsActivity();
-			return true;
-		case R.id.main_menu_about:
-			displayAboutDialog();
-			return true;
-		case R.id.main_menu_exit:
-			finish();
-			return true;
+//		case R.id.main_menu_settings:
+//			displaySettingsActivity();
+//			return true;
+//		case R.id.main_menu_about:
+//			displayAboutDialog();
+//			return true;
 		default:
 			return super.onOptionsItemSelected(item);
 		}
@@ -309,16 +335,18 @@ public class MainActivity extends Activity
 		}
 		
 		private View createListItem(final File game, final int index) {
-			final View childview = MainActivity.this.getLayoutInflater().inflate(
-				R.layout.game_list_item, null, false);
 			
 			if (!isConfigured) {
+				
+				final View childview = MainActivity.this.getLayoutInflater().inflate(
+					R.layout.file_list_item, null, false);
 				
 				((TextView) childview.findViewById(R.id.game_text)).setText(game.getName());
 				
 				childview.findViewById(R.id.childview).setOnClickListener(new OnClickListener() {
 					public void onClick(View view) {
-						launchDisk(game);
+						setCurrentDirectory(game.getPath().substring(0,
+							game.getPath().lastIndexOf(File.separator)));
 						prepareFileListView();
 						return;
 					}
@@ -326,6 +354,9 @@ public class MainActivity extends Activity
 				
 				return childview;
 			}
+			
+			final View childview = MainActivity.this.getLayoutInflater().inflate(
+				R.layout.game_list_item, null, false);
 			
 			final GamesDbAPI gameParser = new GamesDbAPI(game, index);
 			gameParser.setViewParent(MainActivity.this, childview);
@@ -403,33 +434,48 @@ public class MainActivity extends Activity
 				// Create the list of acceptable images
 
 				Collections.sort(images);
-				
-				TableRow.LayoutParams params = new TableRow.LayoutParams(
-					TableRow.LayoutParams.WRAP_CONTENT,
-					TableRow.LayoutParams.WRAP_CONTENT);
-				params.gravity = Gravity.CENTER;
 	
 				TableRow game_row = new TableRow(MainActivity.this);
 				game_row.setGravity(Gravity.CENTER);
 				int pad = (int) (10 * localScale + 0.5f);
 				game_row.setPadding(0, 0, 0, pad);
 				
-				int column = 0;
-				for (int i = 0; i < images.size(); i++)
-				{
-					if (column == numColumn)
+				if (!isConfigured) {
+					TableRow.LayoutParams params = new TableRow.LayoutParams(
+						TableRow.LayoutParams.MATCH_PARENT,
+						TableRow.LayoutParams.WRAP_CONTENT);
+					params.gravity = Gravity.CENTER_VERTICAL;
+
+					for (int i = 0; i < images.size(); i++)
 					{
+						game_row.addView(createListItem(images.get(i), i));
 						gameListing.addView(game_row, params);
-						column = 0;
 						game_row = new TableRow(MainActivity.this);
-						game_row.setGravity(Gravity.CENTER);
 						game_row.setPadding(0, 0, 0, pad);
 					}
-					game_row.addView(createListItem(images.get(i), i));
-					column ++;
-				}
-				if (column != 0) {
-					gameListing.addView(game_row, params);
+				} else {
+					TableRow.LayoutParams params = new TableRow.LayoutParams(
+						TableRow.LayoutParams.WRAP_CONTENT,
+						TableRow.LayoutParams.WRAP_CONTENT);
+					params.gravity = Gravity.CENTER;
+
+					int column = 0;
+					for (int i = 0; i < images.size(); i++)
+					{
+						if (column == numColumn)
+						{
+							gameListing.addView(game_row, params);
+							column = 0;
+							game_row = new TableRow(MainActivity.this);
+							game_row.setGravity(Gravity.CENTER);
+							game_row.setPadding(0, 0, 0, pad);
+						}
+						game_row.addView(createListItem(images.get(i), i));
+						column ++;
+					}
+					if (column != 0) {
+						gameListing.addView(game_row, params);
+					}
 				}
 				gameListing.invalidate();
 			} else {
@@ -477,6 +523,14 @@ public class MainActivity extends Activity
 		gameListing = (TableLayout) findViewById(R.id.game_grid);
 		if (gameListing != null) {
 			gameListing.removeAllViews();
+		}
+		
+		if (!mDrawerLayout.isDrawerOpen(Gravity.LEFT)) {
+			if (!isConfigured) {
+				getActionBar().setTitle(getString(R.string.menu_title_look));
+			} else {
+				getActionBar().setTitle(getString(R.string.menu_title_shut));
+			}
 		}
 		
 		DisplayMetrics metrics = new DisplayMetrics();
