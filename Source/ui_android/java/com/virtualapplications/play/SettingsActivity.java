@@ -45,6 +45,18 @@ public class SettingsActivity extends PreferenceActivity
 					checkBoxPref.setChecked(SettingsManager.getPreferenceBoolean(checkBoxPref.getKey()));
 				}
 			}
+			
+			final Preference button = (Preference)getPreferenceManager().findPreference("ui.clearfolder");
+			if (button != null) {
+				button.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+					@Override
+					public boolean onPreferenceClick(Preference arg0) {
+						MainActivity.resetDirectory();
+						getPreferenceScreen().removePreference(button);
+						return true;
+					}
+				});
+			}
 		}
 		
 		@Override

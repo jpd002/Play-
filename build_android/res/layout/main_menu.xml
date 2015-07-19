@@ -10,9 +10,4 @@
 		android:title="@string/main_menu_about"
 		android:showAsAction="never" 
 	/>
-    <item
-		android:id="@+id/main_menu_exit"
-		android:title="@string/main_menu_exit"
-		android:showAsAction="never"
-    />
 </menu>
