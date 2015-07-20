@@ -4,6 +4,7 @@ import android.app.*;
 import android.content.*;
 import android.content.pm.*;
 import android.content.res.Configuration;
+import android.graphics.drawable.BitmapDrawable;
 import android.os.*;
 import android.util.*;
 import android.view.*;
@@ -33,7 +34,7 @@ public class MainActivity extends Activity
 	
 	private SharedPreferences _preferences;
 	private TableLayout gameListing;
-	private static Activity mActivity;
+	static Activity mActivity;
 	private boolean isConfigured = false;
 	private int numColumn = 0;
 	private DrawerLayout mDrawerLayout;
@@ -359,16 +360,19 @@ public class MainActivity extends Activity
 			final View childview = MainActivity.this.getLayoutInflater().inflate(
 				R.layout.game_list_item, null, false);
 			
-			final GamesDbAPI gameParser = new GamesDbAPI(game, index);
-			gameParser.setViewParent(MainActivity.this, childview);
-			
+			//final GamesDbAPI gameParser = new GamesDbAPI(game, index);
+			//gameParser.setViewParent(MainActivity.this, childview);
+			final getGameDetails GG = new getGameDetails(game, index);
+			GG.setViewParent(MainActivity.this, childview);
+
 			childview.findViewById(R.id.childview).setOnLongClickListener(new OnLongClickListener() {
 				public boolean onLongClick(View view) {
 					final AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
 					builder.setCancelable(true);
-					builder.setTitle(gameParser.getGameTitle());
-					builder.setIcon(gameParser.getGameIcon());
-					builder.setMessage(gameParser.getGameDetails());
+					builder.setTitle(GG.GameDetails.getName());
+					builder.setIcon(new BitmapDrawable(GG.GameDetails.getBitmap()));
+					//TODO:Request Details on demand.
+					builder.setMessage(GG.GameDetails.getDescription(mActivity));
 					builder.setPositiveButton("Close",
 											  new DialogInterface.OnClickListener() {
 						public void onClick(DialogInterface dialog, int which) {
@@ -396,7 +400,7 @@ public class MainActivity extends Activity
 					return;
 				}
 			});
-			gameParser.execute(game.getName());
+			GG.execute(game.getName());
 			return childview;
 		}
 		
