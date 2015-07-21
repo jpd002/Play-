@@ -11,7 +11,12 @@ import android.view.*;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnLongClickListener;
+import android.view.ViewGroup;
+import android.view.ViewGroup.LayoutParams;
 import android.widget.*;
+import android.widget.AdapterView.*;
+import android.widget.ImageView.ScaleType;
+import android.widget.LinearLayout;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
@@ -20,12 +25,9 @@ import android.support.v4.widget.DrawerLayout;
 import java.io.*;
 import java.text.*;
 import java.util.*;
-import java.util.concurrent.ExecutionException;
 import java.util.zip.*;
 import org.apache.commons.lang3.StringUtils;
 import com.android.util.FileUtils;
-
-import static org.apache.commons.lang3.text.WordUtils.capitalizeFully;
 
 public class MainActivity extends Activity 
 {	
@@ -33,13 +35,14 @@ public class MainActivity extends Activity
 	
 	private SharedPreferences _preferences;
 	private TableLayout gameListing;
-	private static Activity mActivity;
+	static Activity mActivity;
 	private boolean isConfigured = false;
 	private int numColumn = 0;
 	private DrawerLayout mDrawerLayout;
 	private ActionBarDrawerToggle mDrawerToggle;
 	private float localScale;
 	private int currentOrientation;
+	private GameInfo gameInfo;
 	
 	@Override 
 	protected void onCreate(Bundle savedInstanceState) 
@@ -116,21 +119,12 @@ public class MainActivity extends Activity
 		{
 			NativeInterop.createVirtualMachine();
 		}
-
-		initialDbSetup();
+		
+		gameInfo = new GameInfo(MainActivity.this);
+		gameInfo.getDatabase();
+		
 		prepareFileListView();
 	}
-
-	private void initialDbSetup() {
-		try {
-			new SetupDB().execute(this).get();
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		} catch (ExecutionException e) {
-			e.printStackTrace();
-		}
-	}
-
 
 	private static long getBuildDate(Context context) 
 	{
@@ -199,14 +193,6 @@ public class MainActivity extends Activity
 		
 	}
 	
-//	@Override
-//	public boolean onCreateOptionsMenu(Menu menu)
-//	{
-//		MenuInflater inflater = getMenuInflater();
-//		inflater.inflate(R.layout.main_menu, menu);
-//		return super.onCreateOptionsMenu(menu);
-//	}
-	
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) 
 	{
@@ -224,12 +210,6 @@ public class MainActivity extends Activity
 				mDrawerLayout.openDrawer(Gravity.LEFT);
 			}
 			return true;
-//		case R.id.main_menu_settings:
-//			displaySettingsActivity();
-//			return true;
-//		case R.id.main_menu_about:
-//			displayAboutDialog();
-//			return true;
 		default:
 			return super.onOptionsItemSelected(item);
 		}
@@ -343,19 +323,10 @@ public class MainActivity extends Activity
 			
 			FileUtils fileUtils = new FileUtils();
 			Collection<File> files = fileUtils.listFiles(storage, filter, -1);
-			Iterator<File> imagesit = files.iterator();
-			while (imagesit.hasNext()) {
-				File images = imagesit.next();
-				if (!IsLoadableExecutableFileName(images.getName())){
-					if (NativeInterop.GetDiskId(images.toString()) == null){
-						imagesit.remove();
-					}
-				}
-			}
 			return (List<File>) files;
 		}
 		
-		private View createListItem(final File game) {
+		private View createListItem(final File game, final int index) {
 			
 			if (!isConfigured) {
 				
@@ -379,37 +350,40 @@ public class MainActivity extends Activity
 			
 			final View childview = MainActivity.this.getLayoutInflater().inflate(
 				R.layout.game_list_item, null, false);
-
-			final getGameDetails GG = new getGameDetails(game, mActivity);
-			GG.setViewParent(childview);
-
-			childview.findViewById(R.id.childview).setOnLongClickListener(new OnLongClickListener() {
-				public boolean onLongClick(View view) {
-					final AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
-					builder.setCancelable(true);
-					builder.setTitle(capitalizeFully(GG.GameInfo.getName()));
-					builder.setIcon(new BitmapDrawable(GG.GameInfo.getBackCover()));
-					builder.setMessage(GG.GameInfo.getDescription(mActivity));
-					builder.setPositiveButton("Close",
-											  new DialogInterface.OnClickListener() {
-						public void onClick(DialogInterface dialog, int which) {
-							dialog.dismiss();
-							return;
-						}
-					});
-					builder.setPositiveButton("Launch",
-											  new DialogInterface.OnClickListener() {
-						public void onClick(DialogInterface dialog, int which) {
-							dialog.dismiss();
-							launchDisk(game);
-							return;
-						}
-					});
-					builder.create().show();
-					return true;
-				}
-			});
 			
+			((TextView) childview.findViewById(R.id.game_text)).setText(game.getName());
+			
+			final String[] gameStats = gameInfo.getGameInfo(game, childview);
+			
+			if (gameStats != null) {
+				childview.findViewById(R.id.childview).setOnLongClickListener(new OnLongClickListener() {
+					public boolean onLongClick(View view) {
+						final AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+						builder.setCancelable(true);
+						builder.setTitle(gameStats[1]);
+						builder.setMessage(gameStats[2]);
+						builder.setNegativeButton("Close",
+						new DialogInterface.OnClickListener() {
+							public void onClick(DialogInterface dialog, int which) {
+								dialog.dismiss();
+								return;
+							}
+						});
+						builder.setPositiveButton("Launch",
+						new DialogInterface.OnClickListener() {
+							public void onClick(DialogInterface dialog, int which) {
+								dialog.dismiss();
+								launchDisk(game);
+								return;
+							}
+						});
+						builder.create().show();
+						return true;
+					}
+				});
+				gameInfo.getImage(gameStats[0], childview);
+				((TextView) childview.findViewById(R.id.game_text)).setVisibility(View.GONE);
+			}
 			
 			childview.findViewById(R.id.childview).setOnClickListener(new OnClickListener() {
 				public void onClick(View view) {
@@ -417,7 +391,6 @@ public class MainActivity extends Activity
 					return;
 				}
 			});
-			GG.execute(game.getName());
 			return childview;
 		}
 		
@@ -472,7 +445,7 @@ public class MainActivity extends Activity
 
 					for (int i = 0; i < images.size(); i++)
 					{
-						game_row.addView(createListItem(images.get(i)));
+						game_row.addView(createListItem(images.get(i), i));
 						gameListing.addView(game_row, params);
 						game_row = new TableRow(MainActivity.this);
 						game_row.setPadding(0, 0, 0, pad);
@@ -494,7 +467,7 @@ public class MainActivity extends Activity
 							game_row.setGravity(Gravity.CENTER);
 							game_row.setPadding(0, 0, 0, pad);
 						}
-						game_row.addView(createListItem(images.get(i)));
+						game_row.addView(createListItem(images.get(i), i));
 						column ++;
 					}
 					if (column != 0) {
@@ -506,6 +479,10 @@ public class MainActivity extends Activity
 				// Display warning that no disks exist
 			}
 		}
+	}
+	
+	public static void launchGame(File game) {
+		((MainActivity) mActivity).launchDisk(game);
 	}
 	
 	private void launchDisk (File game) {
@@ -544,6 +521,10 @@ public class MainActivity extends Activity
 
 	private void prepareFileListView()
 	{
+		if (gameInfo == null) {
+			gameInfo = new GameInfo(MainActivity.this);
+		}
+		
 		gameListing = (TableLayout) findViewById(R.id.game_grid);
 		if (gameListing != null) {
 			gameListing.removeAllViews();

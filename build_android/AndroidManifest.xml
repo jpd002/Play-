@@ -46,5 +46,8 @@
 			android:name=".SettingsActivity"
 			android:configChanges="orientation|locale|keyboard|keyboardHidden|navigation">
 		</activity>
+		<provider
+			android:name=".TheGamesDB"
+			android:authorities="virtualapplications.play.gamesdb" />
 	</application>
-</manifest> 
+</manifest>

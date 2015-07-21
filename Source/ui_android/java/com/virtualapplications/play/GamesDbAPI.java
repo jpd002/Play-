@@ -1,6 +1,7 @@
 package com.virtualapplications.play;
 
 import java.io.BufferedInputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringReader;
@@ -25,128 +26,99 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.ContentValues;
+import android.content.DialogInterface;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.os.AsyncTask;
+import android.os.Build;
+import android.os.StrictMode;
+import android.util.SparseArray;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.view.View.OnLongClickListener;
 import android.widget.ImageView;
+import android.widget.ImageView.ScaleType;
+import android.widget.TextView;
 
-public class GamesDbAPI{
+public class GamesDbAPI extends AsyncTask<File, Integer, Document> {
 
-	private ImageView preview;
+	private int index;
+	private View childview;
+	private Context mContext;
+	private String gameID;
+	private File gameFile;
+	private GameInfo gameInfo;
 
-	private static final String games_url_name = "http://thegamesdb.net/api/GetGame.php?platform=sony+playstation+2&name=";
-	private static final String games_url_id = "http://thegamesdb.net/api/GetGame.php?platform=sony+playstation+2&id=";
-	private static final String gameslist_url = "http://thegamesdb.net/api/PlatformGames.php?platform=sony+playstation+2";
+	private static final String games_url = "http://thegamesdb.net/api/GetGame.php?platform=sony+playstation+2&name=";
+    private static final String games_url_id = "http://thegamesdb.net/api/GetGame.php?platform=sony+playstation+2&id=";
+	private static final String games_list = "http://thegamesdb.net/api/GetPlatformGames.php?platform=11";
+	private SparseArray<String> game_details = new SparseArray<String>();
+	private SparseArray<Bitmap> game_preview = new SparseArray<Bitmap>();
 
-	public GamesDbAPI() {
+	public GamesDbAPI(Context mContext, String gameID) {
+		this.mContext = mContext;
+		this.gameID = gameID;
+	}
+	
+	public void setView(View childview) {
+		this.childview = childview;
 	}
 
-	public GameInfo getCover(GameInfo TheGame, Context mContext, ImageView preview){
-		this.preview= preview;
-		String filename = TheGame.getName();
-		int gameID = TheGame.getID();
-
-		if (isNetworkAvailable(mContext)) {
-			try {
-				DefaultHttpClient httpClient = new DefaultHttpClient();
-				HttpPost httpPost;
-				if (gameID != 0){
-					httpPost = new HttpPost(games_url_id + gameID);
-				} else {
-					if (filename.startsWith("[")) {
-						filename = filename.substring(filename.indexOf("]") + 1, filename.length());
-					}
-					if (filename.contains("[")) {
-						filename = filename.substring(0, filename.indexOf("["));
-					} else {
-						if (filename.contains(".") && (filename.length() - 4 - filename.lastIndexOf(".")) == 0)
-							filename = filename.substring(0, filename.lastIndexOf("."));
-					}
-					filename = filename.replace("_", " ").replace(":", " ");
-					filename = filename.replaceAll("[^\\p{Alpha}\\p{Digit}]+"," ");
-					filename = filename.replace("  ", " ").replace(" ", "+");
-					if (filename.endsWith("+")) {
-						filename = filename.substring(0, filename.length() - 1);
-					}
-					httpPost = new HttpPost(games_url_name + filename);
-				}
-				HttpResponse httpResponse = httpClient.execute(httpPost);
-				HttpEntity httpEntity = httpResponse.getEntity();
-				String gameData =  EntityUtils.toString(httpEntity);
-				if (gameData != null) {
-					Document doc = getDomElement(gameData);
-					if (doc.getElementsByTagName("Game") != null && doc.getElementsByTagName("Game").getLength() > 0) {
-						Element root = (Element) doc.getElementsByTagName("Game").item(0);
-						String details = getValue(root, "Overview");
-						TheGame.setDescription(details);
-						if (TheGame.getID() != 0){
-							TheGameDB db = new TheGameDB(mContext);
-							db.updateGame(TheGame, details);
-						}
-						Element images = (Element) root.getElementsByTagName("Images").item(0);
-						Element sleave = (Element) images.getElementsByTagName("boxart").item(0);
-						//TODO: to keep or not to keep
-						String cover = "http://thegamesdb.net/banners/" + getElementValue(sleave);
-						BitmapDrawable game_icon = new BitmapDrawable(decodeBitmapIcon(cover));
-						Element boxart = (Element) images.getElementsByTagName("boxart").item(1);
-						String image = "http://thegamesdb.net/banners/" + getElementValue(boxart);
-						Bitmap game_image = decodeBitmapIcon(image);
-						TheGame.setFrontCover(game_image);
-						TheGame.setBackCover(game_icon.getBitmap());
-					}
-				}
-			} catch (UnsupportedEncodingException e) {
-
-			} catch (ClientProtocolException e) {
-
-			} catch (IOException e) {
-
-			}
+	protected void onPreExecute() {
+		gameInfo = new GameInfo(mContext);
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.GINGERBREAD) {
+			StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder()
+					.permitAll().build();
+			StrictMode.setThreadPolicy(policy);
 		}
-
-		return TheGame;
 	}
 
-	public static String getDescription(String filename, int gameID, Context mContext){
-
-		if (isNetworkAvailable(mContext)) {
+	@Override
+	protected Document doInBackground(File... params) {
+		
+		if (GamesDbAPI.isNetworkAvailable(mContext)) {
 			try {
 				DefaultHttpClient httpClient = new DefaultHttpClient();
 				HttpPost httpPost;
-				if (gameID != 0){
-					httpPost = new HttpPost(games_url_id + gameID);
-				} else {
-					if (filename.startsWith("[")) {
-						filename = filename.substring(filename.indexOf("]") + 1, filename.length());
-					}
-					if (filename.contains("[")) {
-						filename = filename.substring(0, filename.indexOf("["));
+				if (params[0] != null) {
+					gameFile = params[0];
+					String filename = gameFile.getName();
+					if (gameID != null) {
+						httpPost = new HttpPost(games_url_id + gameID);
 					} else {
-						if (filename.contains(".") && (filename.lastIndexOf(".") - filename.length() - 4) == 0)
-						filename = filename.substring(0, filename.lastIndexOf("."));
+						if (filename.startsWith("[")) {
+							filename = filename.substring(filename.indexOf("]") + 1, filename.length());
+						}
+						if (filename.contains("[")) {
+							filename = filename.substring(0, filename.indexOf("["));
+						} else {
+							filename = filename.substring(0, filename.lastIndexOf("."));
+						}
+						filename = filename.replace("_", " ").replace(":", " ");
+						filename = filename.replaceAll("[^\\p{Alpha}\\p{Digit}]+"," ");
+						filename = filename.replace("  ", " ").replace(" ", "+");
+						if (filename.endsWith("+")) {
+							filename = filename.substring(0, filename.length() - 1);
+						}
+						httpPost = new HttpPost(games_url + filename);
 					}
-					filename = filename.replace("_", " ").replace(":", " ");
-					filename = filename.replaceAll("[^\\p{Alpha}\\p{Digit}]+"," ");
-					filename = filename.replace("  ", " ").replace(" ", "+");
-					if (filename.endsWith("+")) {
-						filename = filename.substring(0, filename.length() - 1);
-					}
-					httpPost = new HttpPost(games_url_name + filename);
+				} else {
+					httpPost = new HttpPost(games_list);
 				}
 				HttpResponse httpResponse = httpClient.execute(httpPost);
 				HttpEntity httpEntity = httpResponse.getEntity();
 				String gameData =  EntityUtils.toString(httpEntity);
 				if (gameData != null) {
-					Document doc = getDomElement(gameData);
-					if (doc.getElementsByTagName("Game") != null) {
-						Element root = (Element) doc.getElementsByTagName("Game").item(0);
-						String details = getValue(root, "Overview");
-
-						return details;
-					}
+					return getDomElement(gameData);
+				} else {
+					return null;
 				}
 			} catch (UnsupportedEncodingException e) {
 
@@ -159,54 +131,54 @@ public class GamesDbAPI{
 		return null;
 	}
 
-
-	public Bitmap decodeBitmapIcon(String filename) throws IOException {
-		URL updateURL = new URL(filename);
-		URLConnection conn1 = updateURL.openConnection();
-		InputStream im = conn1.getInputStream();
-		BufferedInputStream bis = new BufferedInputStream(im, 512);
-
-		BitmapFactory.Options options = new BitmapFactory.Options();
-		options.inJustDecodeBounds = true;
-		Bitmap bitmap = BitmapFactory.decodeStream(bis, null, options);
-
-		options.inSampleSize = calculateInSampleSize(options, preview);
-		options.inJustDecodeBounds = false;
-		bis.close();
-		im.close();
-		conn1 = updateURL.openConnection();
-		im = conn1.getInputStream();
-		bis = new BufferedInputStream(im, 512);
-		bitmap = BitmapFactory.decodeStream(bis, null, options);
-
-		bis.close();
-		im.close();
-		bis = null;
-		im = null;
-		return bitmap;
-	}
-
-	private int calculateInSampleSize(BitmapFactory.Options options, ImageView imageView) {
-		final int height = options.outHeight;
-		final int width = options.outWidth;
-		final int reqHeight = imageView.getMeasuredHeight();
-		final int reqWidth = imageView.getMeasuredWidth();
-		int inSampleSize = 1;
-
-		if (height > reqHeight || width > reqWidth) {
-
-			final int halfHeight = height / 2;
-			final int halfWidth = width / 2;
-
-			while ((halfHeight / inSampleSize) > reqHeight
-					&& (halfWidth / inSampleSize) > reqWidth) {
-				inSampleSize *= 2;
+	@Override
+	protected void onPostExecute(Document doc) {
+		
+		if (doc.getElementsByTagName("Game") != null) {
+			if (gameFile != null && gameID != null) {
+				try {
+					String selection = TheGamesDB.KEY_GAMEID + "=?";
+					String[] selectionArgs = { gameID };
+					
+					final Element root = (Element) doc.getElementsByTagName("Game").item(0);
+					ContentValues values = new ContentValues();
+					final String overview = getValue(root, "Overview");
+					values.put(TheGamesDB.KEY_OVERVIEW, overview);
+					
+					mContext.getContentResolver().update(TheGamesDB.GAMESDB_URI, values, selection, selectionArgs);
+					if (childview != null) {
+						childview.findViewById(R.id.childview).setOnLongClickListener(new OnLongClickListener() {
+							public boolean onLongClick(View view) {
+								final AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
+								builder.setCancelable(true);
+								builder.setTitle(getValue(root, "GameTitle"));
+								builder.setMessage(overview);
+								builder.setNegativeButton("Close",
+								new DialogInterface.OnClickListener() {
+									public void onClick(DialogInterface dialog, int which) {
+										dialog.dismiss();
+										return;
+									}
+								});
+								builder.setPositiveButton("Launch",
+								new DialogInterface.OnClickListener() {
+									public void onClick(DialogInterface dialog, int which) {
+										dialog.dismiss();
+										MainActivity.launchGame(gameFile);
+										return;
+									}
+								});
+								builder.create().show();
+								return true;
+							}
+						});
+					}
+				} catch (Exception e) {
+					
+				}
 			}
 		}
-
-		return inSampleSize;
 	}
-
 
 	public static boolean isNetworkAvailable(Context mContext) {
 		ConnectivityManager connectivityManager = (ConnectivityManager) mContext
@@ -221,7 +193,6 @@ public class GamesDbAPI{
 		}
 	}
 
-
 	public static Document getDomElement(String xml) {
 		Document doc = null;
 		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
@@ -234,10 +205,13 @@ public class GamesDbAPI{
 			doc = db.parse(is);
 
 		} catch (ParserConfigurationException e) {
+
 			return null;
 		} catch (SAXException e) {
+
 			return null;
 		} catch (IOException e) {
+
 			return null;
 		}
 
@@ -264,37 +238,4 @@ public class GamesDbAPI{
 		return "";
 	}
 
-	public static String getGameDBList(Context mContext){
-		if (isNetworkAvailable(mContext)) {
-			try {
-				DefaultHttpClient httpClient = new DefaultHttpClient();
-				HttpPost httpPost;
-				httpPost = new HttpPost(gameslist_url);
-				HttpResponse httpResponse = httpClient.execute(httpPost);
-				HttpEntity httpEntity = httpResponse.getEntity();
-				String gameData =  EntityUtils.toString(httpEntity);
-				if (gameData != null) {
-					Document doc = getDomElement(gameData);
-					if (doc.getElementsByTagName("Game") != null) {
-						NodeList root = doc.getElementsByTagName("Game");
-						TheGameDB db = new TheGameDB(mContext);
-						for(int i = 0; i < root.getLength(); i++) {
-							String ID = getValue((Element) root.item(i), "id");
-							String gameName = getValue((Element) root.item(i), "GameTitle");
-							String cover = getValue((Element) root.item(i), "thumb");
-							db.addGame(new GameInfo(Integer.parseInt(ID),gameName, null, cover));
-						}
-					}
-				}
-
-			} catch (UnsupportedEncodingException e) {
-
-			} catch (ClientProtocolException e) {
-
-			} catch (IOException e) {
-
-			}
-		}
-		return null;
-	}
 }
