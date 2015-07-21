@@ -6,8 +6,8 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
+import java.io.File;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -22,7 +22,7 @@ public class TheGameDB extends SQLiteOpenHelper {
     // Database Name
     private static final String DATABASE_NAME = "thegame.db";
 
-    // Contacts table name
+    // Table name
     private static final String TABLE_NAME = "gamedb";
 
     // Contacts Table Columns names
@@ -31,6 +31,7 @@ public class TheGameDB extends SQLiteOpenHelper {
     private static final String KEY_Name = "name";
     private static final String KEY_Serial = "code";
     private static final String KEY_Front = "Front";
+    private static final String KEY_Desc = "desc";
     //private static final String KEY_Back = "Back";
 
     public TheGameDB(Context context) {
@@ -40,11 +41,11 @@ public class TheGameDB extends SQLiteOpenHelper {
     // Creating Tables
     @Override
     public void onCreate(SQLiteDatabase db) {
-        /*String CREATE_STOPS_TABLE = "CREATE TABLE " + TABLE_NAME + "("
-                + KEY_ID + " INTEGER PRIMARY KEY," + KEY_Name + " TEXT,"
-                + KEY_Serial + " TEXT," + KEY_Front + " TEXT"
+        String CREATE_STOPS_TABLE = "CREATE TABLE " + TABLE_NAME + "("
+                + KEY_ID + " TEXT," + KEY_Name + " TEXT,"
+                + KEY_Serial + " TEXT," + KEY_Desc + " TEXT," + KEY_Front + " TEXT"
                 + ")";
-        db.execSQL(CREATE_STOPS_TABLE);*/
+        db.execSQL(CREATE_STOPS_TABLE);
     }
 
     // Upgrading database
@@ -57,11 +58,7 @@ public class TheGameDB extends SQLiteOpenHelper {
         onCreate(db);
     }
 
-    /**
-     * All CRUD(Create, Read, Update, Delete) Operations
-     */
 
-    // Adding new contact
     void addGame(GameInfo Game) {
         SQLiteDatabase db = this.getWritableDatabase();
 
@@ -86,9 +83,8 @@ public class TheGameDB extends SQLiteOpenHelper {
             cursor.moveToFirst();
 
         GameInfo stop = new GameInfo(Integer.parseInt(cursor.getString(0)),
-                cursor.getString(1), cursor.getString(2), cursor.getString(3));
+                cursor.getString(1), cursor.getString(2), null);
         cursor.close();
-        // return contact
         return stop;
     }
 
@@ -97,31 +93,28 @@ public class TheGameDB extends SQLiteOpenHelper {
         db = this.getReadableDatabase();
         Cursor cursor = db.query(TABLE_NAME, new String[]{KEY_ID,
                         KEY_Name, KEY_Serial},
-                KEY_Serial + " LIKE ?",
+                KEY_Serial + " LIKE ? COLLATE NOCASE",
                 new String[]{"%"+serial+"%"}, null, null, null, null);
-        //Cursor cursor = db.rawQuery("SELECT * FROM 'gamedb' WHERE code='SLPM_663.20,SLUS_209.63,'", null);
         if (cursor != null)
             cursor.moveToFirst();
-        //TODO fix database arragment
+
         if (cursor.getCount()>0){
         GameInfo game = new GameInfo(Integer.parseInt(cursor.getString(0)),
-                cursor.getString(1) + ".iso", cursor.getString(2), null);
+                cursor.getString(1), cursor.getString(2), null);
             cursor.close();
             return game;
         } else {
             cursor.close();
-            // return contact
             return new GameInfo(0, name, serial, null);
         }
 
     }
 
-    // getting single contact
     boolean isGame(int id) {
         SQLiteDatabase db = this.getReadableDatabase();
 
         Cursor cursor = db.query(TABLE_NAME, new String[]{KEY_ID,
-                        KEY_Name, KEY_Serial}, KEY_ID + "=?",
+                        KEY_Name, KEY_Serial}, KEY_ID + "=? COLLATE NOCASE",
                 new String[]{String.valueOf(id)}, null, null, null, null);
 
         if (cursor != null)
@@ -136,7 +129,28 @@ public class TheGameDB extends SQLiteOpenHelper {
         return false;
     }
 
-    // getting All Contacts
+    int isGame(String name) {
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        Cursor cursor = db.query(TABLE_NAME, new String[]{KEY_ID,
+                        KEY_Name, KEY_Serial, KEY_Front}, KEY_Name + "=? COLLATE NOCASE",
+                new String[]{name}, null, null, null, null);
+
+        if (cursor != null)
+            cursor.moveToFirst();
+
+        if (cursor.getCount() > 0) {
+            int id = Integer.parseInt(cursor.getString(0));
+            cursor.close();
+            return id;
+        } else {
+
+            cursor.close();
+            return 0;
+        }
+
+    }
+
     public List<GameInfo> getAllGames() {
         List<GameInfo> stopList = new ArrayList<GameInfo>();
         // Select All Query
@@ -150,42 +164,16 @@ public class TheGameDB extends SQLiteOpenHelper {
             do {
                 GameInfo stop = new GameInfo(Integer.parseInt(cursor.getString(0)),
                         cursor.getString(1), cursor.getString(2), cursor.getString(3));
-                // Adding contact to list
                 stopList.add(stop);
             } while (cursor.moveToNext());
         }
 
-        // return contact list
         cursor.close();
         return stopList;
     }
 
-    public ArrayList<HashMap> getAllContactsArray() {
-        ArrayList<HashMap> stopList = new ArrayList<HashMap>();
-        // Select All Query
-        String selectQuery = "SELECT  * FROM " + TABLE_NAME;
 
-        SQLiteDatabase db = this.getWritableDatabase();
-        Cursor cursor = db.rawQuery(selectQuery, null);
-
-        // looping through all rows and adding to list
-        if (cursor.moveToFirst()) {
-            do {
-                HashMap values = new HashMap();
-                values.put(KEY_ID, Integer.parseInt(cursor.getString(0)));
-                values.put(KEY_Name, cursor.getString(1));
-                values.put(KEY_Serial, cursor.getString(2));
-                values.put(KEY_Front, cursor.getString(3));
-                stopList.add(values);
-            } while (cursor.moveToNext());
-        }
-
-        // return contact list
-        cursor.close();
-        return stopList;
-    }
-
-    public int updateGame(GameInfo Game) {
+    public int updateGame(GameInfo Game, String Desc) {
         SQLiteDatabase db = this.getWritableDatabase();
 
         ContentValues values = new ContentValues();
@@ -193,10 +181,27 @@ public class TheGameDB extends SQLiteOpenHelper {
         values.put(KEY_Name, Game.getName());
         values.put(KEY_Serial, Game.getSerial());
         values.put(KEY_Front, Game.getFrontLink());
+        values.put(KEY_Desc, Desc);
 
         // updating row
         return db.update(TABLE_NAME, values, KEY_ID + " = ?",
                 new String[]{String.valueOf(Game.getID())});
+    }
+
+    public int updateGameSerial(GameInfo game, int ID) {
+        String serial = getGame(ID).getSerial();
+        if (serial != null && serial.length()>0){
+            serial = serial+",";
+        } else {
+            serial ="";
+        }
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put(KEY_Serial, serial + game.getSerial());
+
+        // updating row
+        return db.update(TABLE_NAME, values, KEY_Name + " = ? COLLATE NOCASE",
+                new String[]{game.getName()});
     }
 
     public void deleteGame(GameInfo Game) {
@@ -216,6 +221,18 @@ public class TheGameDB extends SQLiteOpenHelper {
 
         // return count
         return count;
+    }
+
+    public static boolean isTableExists( Context mContext) {
+        File file = new File(String.valueOf(mContext.getDatabasePath(DATABASE_NAME)));
+        if (!file.exists()) {
+            TheGameDB db = new TheGameDB(mContext);
+            db.getReadableDatabase();
+            db.close();
+            return false;
+        } else {
+            return true;
+        }
     }
 
 }

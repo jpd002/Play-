@@ -1,6 +1,5 @@
 package com.virtualapplications.play;
 
-import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.os.AsyncTask;
@@ -16,6 +15,7 @@ public class GameInfo {
     private final String m_Serial;
     private final String m_FrontLink;
     private Bitmap m_Thumb;
+    private Bitmap m_Thumb2;
     private String m_Details;
 
     public GameInfo(int m_id, String m_name, String m_serial, String m_frontLink) {
@@ -38,12 +38,26 @@ public class GameInfo {
         return m_FrontLink;
     }
 
-    public void setThumb(Bitmap thumb) {
+    public void setFrontCover(Bitmap thumb) {
         m_Thumb = thumb;
     }
+    public void setBackCover(Bitmap thumb) { m_Thumb2 = thumb; }
 
-    public Bitmap getBitmap() {
+    public Bitmap getFrontCover() {
         return m_Thumb;
+    }
+
+    public Bitmap getBackCover() {
+        if (m_Thumb2 ==  null) {
+            if (m_Thumb != null) {
+                return m_Thumb;
+            } else {
+                return null;
+            }
+
+        } else {
+            return m_Thumb2;
+        }
     }
 
     public void setDescription(String details) {
@@ -66,6 +80,10 @@ public class GameInfo {
                 e.printStackTrace();
             } catch (ExecutionException e) {
                 e.printStackTrace();
+            }
+            if (this.getID() != 0 & m_Details != null){
+                TheGameDB db = new TheGameDB(mContext);
+                db.updateGame(this, m_Details);
             }
         }
         if (m_Details == null) {

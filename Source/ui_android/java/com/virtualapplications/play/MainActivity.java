@@ -11,11 +11,7 @@ import android.view.*;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnLongClickListener;
-import android.view.ViewGroup;
-import android.view.ViewGroup.LayoutParams;
 import android.widget.*;
-import android.widget.AdapterView.*;
-import android.widget.LinearLayout;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
@@ -24,9 +20,12 @@ import android.support.v4.widget.DrawerLayout;
 import java.io.*;
 import java.text.*;
 import java.util.*;
+import java.util.concurrent.ExecutionException;
 import java.util.zip.*;
 import org.apache.commons.lang3.StringUtils;
 import com.android.util.FileUtils;
+
+import static org.apache.commons.lang3.text.WordUtils.capitalizeFully;
 
 public class MainActivity extends Activity 
 {	
@@ -117,9 +116,22 @@ public class MainActivity extends Activity
 		{
 			NativeInterop.createVirtualMachine();
 		}
-		
+
+		initialDbSetup();
 		prepareFileListView();
 	}
+
+	private void initialDbSetup() {
+
+		try {
+			new SetupDB().execute(this).get();
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		} catch (ExecutionException e) {
+			e.printStackTrace();
+		}
+	}
+
 
 	private static long getBuildDate(Context context) 
 	{
@@ -362,16 +374,15 @@ public class MainActivity extends Activity
 			
 			//final GamesDbAPI gameParser = new GamesDbAPI(game, index);
 			//gameParser.setViewParent(MainActivity.this, childview);
-			final getGameDetails GG = new getGameDetails(game, index);
+			final getGameDetails GG = new getGameDetails(game);
 			GG.setViewParent(MainActivity.this, childview);
 
 			childview.findViewById(R.id.childview).setOnLongClickListener(new OnLongClickListener() {
 				public boolean onLongClick(View view) {
 					final AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
 					builder.setCancelable(true);
-					builder.setTitle(GG.GameDetails.getName());
-					builder.setIcon(new BitmapDrawable(GG.GameDetails.getBitmap()));
-					//TODO:Request Details on demand.
+					builder.setTitle(capitalizeFully(GG.GameDetails.getName()));
+					builder.setIcon(new BitmapDrawable(GG.GameDetails.getBackCover()));
 					builder.setMessage(GG.GameDetails.getDescription(mActivity));
 					builder.setPositiveButton("Close",
 											  new DialogInterface.OnClickListener() {

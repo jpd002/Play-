@@ -8,7 +8,6 @@ import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.StrictMode;
-import android.util.SparseArray;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -22,13 +21,11 @@ import java.io.OutputStream;
 public class getGameDetails extends AsyncTask<String, Integer, GameInfo> {
 
     private final File game;
-    private final int index;
     private Context mContext;
     private View childview;
 
 
     private ImageView preview;
-    private SparseArray<String> game_details = new SparseArray<String>();
     public GameInfo GameDetails;
 
     protected void onPreExecute() {
@@ -45,47 +42,43 @@ public class getGameDetails extends AsyncTask<String, Integer, GameInfo> {
         String Serial = getSerial(game);
         GameInfo TheGame = db.getGame(Serial, game.getName());
         int ID = TheGame.getID();
-        Bitmap bitmap = null;
+        Bitmap frontcover = null;
+        Bitmap backcover = null;
             if (ID != 0) {
-                bitmap = getImage(String.valueOf(ID));
+                frontcover = getImage(String.valueOf(ID)+"-1");
+                backcover = getImage(String.valueOf(ID)+"-2");
+            } else if (TheGame.getName() != null){
+                frontcover = getImage(TheGame.getName()+"-1");
+                backcover = getImage(TheGame.getName()+"-2");
             }
-            if (bitmap != null) {
-                TheGame.setThumb(bitmap);
-            } else {
+        if (frontcover != null) {
+            TheGame.setFrontCover(frontcover);
+        }
+        if (backcover != null) {
+            TheGame.setBackCover(backcover);
+        }
+        if (backcover == null || frontcover == null){
                 try {
                     if (isNetworkAvailable()){
                         GamesDbAPI GDB = new GamesDbAPI();
-                        TheGame = GDB.getCover(TheGame, index, mContext, preview);
-                        /*//TODO:call GameDB to get cover, save cover and set in game
-                        doc = getDomElement(GamesDbAPI_xml(TheGame.getName(), ID));
-                        if (doc.getElementsByTagName("Game") != null) {
-                            Element root = (Element) doc.getElementsByTagName("Game").item(0);
-                            game_name = getValue(root, "GameTitle");
-                            String details = getValue(root, "Overview");
-                            game_details.put(index, details);
-                            Element images = (Element) root.getElementsByTagName("Images").item(0);
-                            Element sleave = (Element) images.getElementsByTagName("boxart").item(0);
-                            String cover = "http://thegamesdb.net/banners/" + getElementValue(sleave);
-                            game_icon = new BitmapDrawable(decodeBitmapIcon(cover));
-                            Element boxart = (Element) images.getElementsByTagName("boxart").item(1);
-                            String image = "http://thegamesdb.net/banners/" + getElementValue(boxart);
-                            Bitmap game_image = decodeBitmapIcon(image);
-                            TheGame.setThumb(game_image);
-                            game_preview.put(index, TheGame.getBitmap());*/
+                        TheGame = GDB.getCover(TheGame, mContext, preview);
                             if (TheGame.getID() != 0) {
-                                if (TheGame.getBitmap() != null)
-                                    saveimage(String.valueOf(ID), TheGame.getBitmap());
+                                if (TheGame.getFrontCover() != null)
+                                    saveImage(String.valueOf(ID) +"-1", TheGame.getFrontCover());
+
+                                if (TheGame.getBackCover() != null)
+                                    saveImage(String.valueOf(ID) +"-2", TheGame.getBackCover());
+                            } else if (TheGame.getName() != null){
+                                if (TheGame.getFrontCover() != null)
+                                    saveImage(TheGame.getName() +"-1", TheGame.getFrontCover());
+
+                                if (TheGame.getBackCover() != null)
+                                    saveImage(TheGame.getName() +"-2", TheGame.getBackCover());
                             }
-                        /*} else {
-                            game_details.put(index, mContext.getString(R.string.game_info));
-                        }*/
                     }
                 } catch (Exception e) {
-                    game_details.put(index, mContext.getString(R.string.game_info));
                     e.printStackTrace();
                 }
-
-                //addBitmapToMemoryCache(String.valueOf(ID), bitmap);
             }
         return TheGame;
     }
@@ -122,18 +115,18 @@ public class getGameDetails extends AsyncTask<String, Integer, GameInfo> {
 
 
 
-    String[] SerialDummy = new String[]{"SCUS_974.81", "SLPM_661.51", "SLUS_210.05", "SLPS_250.50", "SLUS_209.63", "SCUS_974.72"};
+    String[] SerialDummy = new String[]{"SLPM_670.10", "SLPM_661.51", "SLUS_210.05", "SLPS_250.50", "SLUS_209.63", "SCUS_974.72"};
     public static int tmpint = -1;
 
     public String getSerial(File game) {
         //TODO:A Call To Native Call
-        if (tmpint >= 5) tmpint=-1;
+        if (tmpint > 4) tmpint=-1;
         return SerialDummy[++tmpint];
     }
 
 
 
-    private void saveimage(String key, Bitmap image){
+    private void saveImage(String key, Bitmap image){
         String path = mContext.getFilesDir() + "/covers/";
         OutputStream fOut = null;
         File file = new File(path, key+".jpg"); // the File to save to
@@ -154,9 +147,8 @@ public class getGameDetails extends AsyncTask<String, Integer, GameInfo> {
     }
 
 
-    public getGameDetails(File game, int index) {
+    public getGameDetails(File game) {
         this.game = game;
-        this.index = index;
     }
 
     public void setViewParent(Context mContext, View childview) {
@@ -171,18 +163,12 @@ public class getGameDetails extends AsyncTask<String, Integer, GameInfo> {
     }
 
     protected void onPostExecute(GameInfo gameData) {
-
-            if (gameData.getBitmap() != null){
-                preview.setImageBitmap(gameData.getBitmap());
+            if (gameData.getFrontCover() != null){
+                preview.setImageBitmap(gameData.getFrontCover());
                 preview.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
                 ((TextView) childview.findViewById(R.id.game_text)).setVisibility(View.GONE);
             } else {
                 ((TextView) childview.findViewById(R.id.game_text)).setText(gameData.getName());
             }
-            
-
-
-        //     ((TextView) childview.findViewById(R.id.game_text)).setText(game.getName());
-
     }
 }
