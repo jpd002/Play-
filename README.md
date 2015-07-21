@@ -12,7 +12,6 @@ For more information, please visit [purei.org](http://purei.org).
 - [boost](http://boost.org)
 
 ### Repositories ###
-- [Play! Build](https://github.com/jpd002/Play-Build)
 - [Play! Dependencies](https://github.com/jpd002/Play-Dependencies)
 - [Play! Framework](https://github.com/jpd002/Play--Framework) 
 - [Play! CodeGen](https://github.com/jpd002/Play--CodeGen)
