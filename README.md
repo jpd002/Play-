@@ -12,6 +12,7 @@ For more information, please visit [purei.org](http://purei.org).
 - [boost](http://boost.org)
 
 ### Repositories ###
+- [Play! Build](https://github.com/jpd002/Play-Build)
 - [Play! Dependencies](https://github.com/jpd002/Play-Dependencies)
 - [Play! Framework](https://github.com/jpd002/Play--Framework) 
 - [Play! CodeGen](https://github.com/jpd002/Play--CodeGen)
@@ -20,7 +21,9 @@ For more information, please visit [purei.org](http://purei.org).
 
 ### General Setup ###
 
-Make sure your working copies share the same parent folder. Your setup should look like this:
+You can get almost everything needed to build the emulator by using the [Play! Build](https://github.com/jpd002/Play-Build) project. You can also checkout every repository individually if you wish to do so, but make sure your working copies share the same parent folder.
+
+In the end, your setup should look like this:
 
 C:\Projects
 - CodeGen
