@@ -28,6 +28,7 @@ import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.StrictMode;
+import android.util.Log;
 import android.util.SparseArray;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -41,6 +42,8 @@ import java.io.FileOutputStream;
 import java.io.OutputStream;
 
 import java.util.concurrent.ExecutionException;
+
+import com.virtualapplications.play.SqliteHelper.Games;
 
 public class GameInfo {
 	
@@ -181,6 +184,7 @@ public class GameInfo {
 					preview.setImageBitmap(image);
 					preview.setScaleType(ScaleType.CENTER_INSIDE);
 					((TextView) childview.findViewById(R.id.game_text)).setVisibility(View.GONE);
+					preview.invalidate();
 				}
 			}
 		}
@@ -245,26 +249,33 @@ public class GameInfo {
 	
 	public String[] getGameInfo(File game, View childview) {
 		String serial = getSerial(game);
-		String gameID = null;
+		String gameID = null,  title = null, overview = null;
 		ContentResolver cr = mContext.getContentResolver();
-		String selection = TheGamesDB.KEY_SERIAL + "=?";
+		String selection = Games.KEY_SERIAL + "=?";
 		String[] selectionArgs = { serial };
-		Cursor c = cr.query(TheGamesDB.GAMESDB_URI, null, selection, selectionArgs, TheGamesDB.KEY_SERIAL + " desc");
+		Cursor c = cr.query(Games.GAMES_URI, null, selection, selectionArgs, null);
 		if (c.moveToFirst()) {
-			gameID = c.getString(c.getColumnIndex(TheGamesDB.KEY_GAMEID));
-			String title = c.getString(c.getColumnIndex(TheGamesDB.KEY_TITLE));
-			String overview = c.getString(c.getColumnIndex(TheGamesDB.KEY_OVERVIEW));
-			if (overview != null) {
-				return new String[] { gameID, title, overview };
-			}
+			do {
+				gameID = c.getString(c.getColumnIndex(Games.KEY_GAMEID));
+				title = c.getString(c.getColumnIndex(Games.KEY_TITLE));
+				overview = c.getString(c.getColumnIndex(Games.KEY_OVERVIEW));
+			} while (c.moveToNext());
 		}
-		GamesDbAPI gameDatabase = new GamesDbAPI(mContext, gameID);
-		gameDatabase.setView(childview);
-		gameDatabase.execute(game);
-		return null;
+		c.close();
+		// This assumes only one serial is possible, making a loop irrelevant
+		if (overview != null) {
+			return new String[] { gameID, title, overview };
+		} else {
+			GamesDbAPI gameDatabase = new GamesDbAPI(mContext, gameID);
+			gameDatabase.setView(childview);
+			gameDatabase.execute(game);
+			return null;
+		}
 	}
 	
 	public String getSerial(File game) {
-		return NativeInterop.getDiskSerial(game.getPath());
+		String code = NativeInterop.tryGetDiskId(game.getPath());
+		Log.d("Play!", game.getName() + " [" + code + "]");
+		return code;
 	}
 }

@@ -44,6 +44,8 @@ import android.widget.ImageView;
 import android.widget.ImageView.ScaleType;
 import android.widget.TextView;
 
+import com.virtualapplications.play.SqliteHelper.Games;
+
 public class GamesDbAPI extends AsyncTask<File, Integer, Document> {
 
 	private int index;
@@ -139,21 +141,21 @@ public class GamesDbAPI extends AsyncTask<File, Integer, Document> {
 				
 				ContentValues values = new ContentValues();
 				final String overview = getValue(root, "Overview");
-				values.put(TheGamesDB.KEY_OVERVIEW, overview);
+				values.put(Games.KEY_OVERVIEW, overview);
 				
 				if (gameID != null) {
 
-					String selection = TheGamesDB.KEY_GAMEID + "=?";
+					String selection = Games.KEY_GAMEID + "=?";
 					String[] selectionArgs = { gameID };
 					
-					mContext.getContentResolver().update(TheGamesDB.GAMESDB_URI, values, selection, selectionArgs);
+					mContext.getContentResolver().update(Games.GAMES_URI, values, selection, selectionArgs);
 					
 				} else {
 					
-					String selection = TheGamesDB.KEY_GAMEID + "=?";
+					String selection = Games.KEY_GAMEID + "=?";
 					String[] selectionArgs = { remoteID };
 					
-					mContext.getContentResolver().update(TheGamesDB.GAMESDB_URI, values, selection, selectionArgs);
+					mContext.getContentResolver().update(Games.GAMES_URI, values, selection, selectionArgs);
 					
 				}
 				if (childview != null) {
