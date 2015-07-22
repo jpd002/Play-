@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		70287BE41B5F3A0300B53235 /* MainViewController.mm in Sources */ = {isa = PBXBuildFile; fileRef = 70287BE31B5F3A0300B53235 /* MainViewController.mm */; };
 		704E1C4E1B3BA0B200C0ACE3 /* GSH_OpenGLiOS.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 704E1C4C1B3BA0B200C0ACE3 /* GSH_OpenGLiOS.cpp */; };
 		704E1C531B3BA25000C0ACE3 /* GSH_OpenGL_Shader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 704E1C4F1B3BA25000C0ACE3 /* GSH_OpenGL_Shader.cpp */; };
 		704E1C541B3BA25000C0ACE3 /* GSH_OpenGL_Texture.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 704E1C501B3BA25000C0ACE3 /* GSH_OpenGL_Texture.cpp */; };
@@ -14,7 +15,7 @@
 		70834AE91B1BCB0100E8D5C6 /* AppDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 70834AE41B1BCB0100E8D5C6 /* AppDelegate.mm */; };
 		70834AEA1B1BCB0100E8D5C6 /* Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 70834AE51B1BCB0100E8D5C6 /* Info.plist */; };
 		70834AEB1B1BCB0100E8D5C6 /* main.mm in Sources */ = {isa = PBXBuildFile; fileRef = 70834AE61B1BCB0100E8D5C6 /* main.mm */; };
-		70834AEC1B1BCB0100E8D5C6 /* MainViewController.mm in Sources */ = {isa = PBXBuildFile; fileRef = 70834AE81B1BCB0100E8D5C6 /* MainViewController.mm */; };
+		70834AEC1B1BCB0100E8D5C6 /* EmulatorViewController.mm in Sources */ = {isa = PBXBuildFile; fileRef = 70834AE81B1BCB0100E8D5C6 /* EmulatorViewController.mm */; };
 		70834AF31B1BCB9E00E8D5C6 /* LaunchScreen.xib in Resources */ = {isa = PBXBuildFile; fileRef = 70834AEF1B1BCB9E00E8D5C6 /* LaunchScreen.xib */; };
 		70834AF41B1BCB9E00E8D5C6 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 70834AF11B1BCB9E00E8D5C6 /* Main.storyboard */; };
 		70834B571B1BD2C300E8D5C6 /* AppConfig.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 70834AFD1B1BD2C200E8D5C6 /* AppConfig.cpp */; };
@@ -198,6 +199,8 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		70287BE31B5F3A0300B53235 /* MainViewController.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = MainViewController.mm; path = ../Source/ui_ios/MainViewController.mm; sourceTree = "<group>"; };
+		70287BE51B5F3A2400B53235 /* MainViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = MainViewController.h; path = ../Source/ui_ios/MainViewController.h; sourceTree = "<group>"; };
 		704E1C4C1B3BA0B200C0ACE3 /* GSH_OpenGLiOS.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = GSH_OpenGLiOS.cpp; path = ../Source/ui_ios/GSH_OpenGLiOS.cpp; sourceTree = "<group>"; };
 		704E1C4D1B3BA0B200C0ACE3 /* GSH_OpenGLiOS.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GSH_OpenGLiOS.h; path = ../Source/ui_ios/GSH_OpenGLiOS.h; sourceTree = "<group>"; };
 		704E1C4F1B3BA25000C0ACE3 /* GSH_OpenGL_Shader.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = GSH_OpenGL_Shader.cpp; path = ../Source/gs/GSH_OpenGL/GSH_OpenGL_Shader.cpp; sourceTree = "<group>"; };
@@ -209,8 +212,8 @@
 		70834AE41B1BCB0100E8D5C6 /* AppDelegate.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = AppDelegate.mm; path = ../Source/ui_ios/AppDelegate.mm; sourceTree = "<group>"; };
 		70834AE51B1BCB0100E8D5C6 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = ../Source/ui_ios/Info.plist; sourceTree = "<group>"; };
 		70834AE61B1BCB0100E8D5C6 /* main.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = main.mm; path = ../Source/ui_ios/main.mm; sourceTree = "<group>"; };
-		70834AE71B1BCB0100E8D5C6 /* MainViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MainViewController.h; path = ../Source/ui_ios/MainViewController.h; sourceTree = "<group>"; };
-		70834AE81B1BCB0100E8D5C6 /* MainViewController.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = MainViewController.mm; path = ../Source/ui_ios/MainViewController.mm; sourceTree = "<group>"; };
+		70834AE71B1BCB0100E8D5C6 /* EmulatorViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = EmulatorViewController.h; path = ../Source/ui_ios/EmulatorViewController.h; sourceTree = "<group>"; };
+		70834AE81B1BCB0100E8D5C6 /* EmulatorViewController.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = EmulatorViewController.mm; path = ../Source/ui_ios/EmulatorViewController.mm; sourceTree = "<group>"; };
 		70834AF01B1BCB9E00E8D5C6 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = ../Source/ui_ios/Base.lproj/LaunchScreen.xib; sourceTree = "<group>"; };
 		70834AF21B1BCB9E00E8D5C6 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = ../Source/ui_ios/Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		70834AFD1B1BD2C200E8D5C6 /* AppConfig.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = AppConfig.cpp; path = ../Source/AppConfig.cpp; sourceTree = "<group>"; };
@@ -553,6 +556,8 @@
 			children = (
 				70834AE31B1BCB0100E8D5C6 /* AppDelegate.h */,
 				70834AE41B1BCB0100E8D5C6 /* AppDelegate.mm */,
+				70834AE71B1BCB0100E8D5C6 /* EmulatorViewController.h */,
+				70834AE81B1BCB0100E8D5C6 /* EmulatorViewController.mm */,
 				70AD23681B38A39000137AA0 /* GlEsView.h */,
 				70AD23651B38A2FE00137AA0 /* GlEsView.mm */,
 				704E1C4C1B3BA0B200C0ACE3 /* GSH_OpenGLiOS.cpp */,
@@ -561,8 +566,8 @@
 				70834AEF1B1BCB9E00E8D5C6 /* LaunchScreen.xib */,
 				70834AE61B1BCB0100E8D5C6 /* main.mm */,
 				70834AF11B1BCB9E00E8D5C6 /* Main.storyboard */,
-				70834AE71B1BCB0100E8D5C6 /* MainViewController.h */,
-				70834AE81B1BCB0100E8D5C6 /* MainViewController.mm */,
+				70287BE51B5F3A2400B53235 /* MainViewController.h */,
+				70287BE31B5F3A0300B53235 /* MainViewController.mm */,
 				70834CE21B1BD93100E8D5C6 /* Purei_Prefix.pch */,
 			);
 			name = ui_ios;
@@ -1058,7 +1063,7 @@
 				70834B5F1B1BD2C300E8D5C6 /* ELF.cpp in Sources */,
 				70834C731B1BD70700E8D5C6 /* Iop_Intrman.cpp in Sources */,
 				70834C901B1BD70700E8D5C6 /* IsoDevice.cpp in Sources */,
-				70834AEC1B1BCB0100E8D5C6 /* MainViewController.mm in Sources */,
+				70834AEC1B1BCB0100E8D5C6 /* EmulatorViewController.mm in Sources */,
 				70834C6D1B1BD70700E8D5C6 /* Iop_Dynamic.cpp in Sources */,
 				70834B771B1BD2C300E8D5C6 /* PadListener.cpp in Sources */,
 				70834C6A1B1BD70700E8D5C6 /* Iop_Cdvdman.cpp in Sources */,
@@ -1104,6 +1109,7 @@
 				70834B7B1B1BD2C300E8D5C6 /* RegisterStateFile.cpp in Sources */,
 				70834B631B1BD2C300E8D5C6 /* Log.cpp in Sources */,
 				70AD238C1B38FFBA00137AA0 /* SaveImporter.cpp in Sources */,
+				70287BE41B5F3A0300B53235 /* MainViewController.mm in Sources */,
 				70834BFB1B1BD6A300E8D5C6 /* VuAnalysis.cpp in Sources */,
 				70834BF71B1BD6A300E8D5C6 /* Timer.cpp in Sources */,
 				70834B661B1BD2C300E8D5C6 /* MA_MIPSIV.cpp in Sources */,

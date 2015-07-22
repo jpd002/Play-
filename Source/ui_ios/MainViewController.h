@@ -1,7 +1,7 @@
 #import <UIKit/UIKit.h>
 
-@interface MainViewController : UIViewController
+@interface MainViewController : UITableViewController
 
+@property NSArray* images;
 
 @end
-

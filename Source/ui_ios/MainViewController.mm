@@ -1,10 +1,5 @@
-#include "PathUtils.h"
 #import "MainViewController.h"
-#import "GlEsView.h"
-#include "../PS2VM.h"
-#include "GSH_OpenGLiOS.h"
-
-CPS2VM* g_virtualMachine = nullptr;
+#import "EmulatorViewController.h"
 
 @interface MainViewController ()
 
@@ -14,22 +9,73 @@ CPS2VM* g_virtualMachine = nullptr;
 
 -(void)viewDidLoad
 {
-	CGRect screenBounds = [[UIScreen mainScreen] bounds];
+	NSString* path = [@"~" stringByExpandingTildeInPath];
+	NSFileManager* localFileManager = [[NSFileManager alloc] init];
 	
-	auto view = [[GlEsView alloc] initWithFrame: screenBounds];
-	self.view = view;
+	NSDirectoryEnumerator* dirEnum = [localFileManager enumeratorAtPath: path];	
 	
-	g_virtualMachine = new CPS2VM();
-	g_virtualMachine->Initialize();
-	g_virtualMachine->CreateGSHandler(CGSH_OpenGLiOS::GetFactoryFunction((CAEAGLLayer*)view.layer));
+	NSMutableArray* images = [[NSMutableArray alloc] init];
+	
+	NSString* file = nil;
+	while(file = [dirEnum nextObject])
+	{
+		NSString* extension = [file pathExtension];
+		if([extension caseInsensitiveCompare: @"elf"] == NSOrderedSame)
+		{
+			[images addObject: file];
+		}
+	}
+	
+	self.images = [images sortedArrayUsingSelector: @selector(caseInsensitiveCompare:)];
+}
 
-	g_virtualMachine->Pause();
-	g_virtualMachine->Reset();
+-(void)prepareForSegue: (UIStoryboardSegue*)segue sender: (id)sender
+{
+	NSIndexPath* indexPath = self.tableView.indexPathForSelectedRow;
+	NSString* filePath = [self.images objectAtIndex: indexPath.row];
+	NSString* homeDirPath = [@"~" stringByExpandingTildeInPath];
+	NSString* absolutePath = [homeDirPath stringByAppendingPathComponent: filePath];
+	EmulatorViewController* emulatorViewController = segue.destinationViewController;
+	emulatorViewController.imagePath = absolutePath;
+}
 
-	auto filePath = Framework::PathUtils::GetPersonalDataPath() / boost::filesystem::path("plasma_tunnel.elf");
-	g_virtualMachine->m_ee->m_os->BootFromFile(filePath.string().c_str());
+-(NSInteger)numberOfSectionsInTableView: (UITableView*)tableView 
+{
+	return 1;
+}
+
+-(NSInteger)tableView: (UITableView *)tableView numberOfRowsInSection: (NSInteger)section 
+{
+	return [self.images count];
+}
+
+-(NSString*)tableView: (UITableView*)tableView titleForHeaderInSection: (NSInteger)section 
+{
+	return @"";
+}
+
+-(UITableViewCell*)tableView: (UITableView*)tableView cellForRowAtIndexPath: (NSIndexPath*)indexPath 
+{
+	static NSString *CellIdentifier = @"Cell";
+
+	UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier: CellIdentifier];
+	if(cell == nil)
+	{
+		cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier: CellIdentifier];
+	}
 	
-	g_virtualMachine->Resume();
+	assert(indexPath.row < [self.images count]);
+	NSString* imagePath = [self.images objectAtIndex: indexPath.row];
+	
+	cell.textLabel.text = [imagePath lastPathComponent];
+	
+	return cell;
+}
+
+-(void)tableView: (UITableView*)tableView didSelectRowAtIndexPath: (NSIndexPath*)indexPath
+{
+	assert(indexPath.row < [self.images count]);
+	[self performSegueWithIdentifier: @"showEmulator" sender: self];
 }
 
 @end
