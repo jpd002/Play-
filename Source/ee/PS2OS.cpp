@@ -2,12 +2,11 @@
 #include <stdlib.h>
 #include <exception>
 #include <boost/filesystem/path.hpp>
-#include <boost/algorithm/string.hpp>
 #include "PS2OS.h"
 #include "StdStream.h"
 #include "PtrMacro.h"
 #include "../Ps2Const.h"
-#include "../Utils.h"
+#include "../DiskUtils.h"
 #include "../ElfFile.h"
 #include "../COP_SCU.h"
 #include "../uint128.h"
@@ -299,22 +298,11 @@ void CPS2OS::BootFromCDROM(const ArgumentList& arguments)
 
 		{
 			Framework::CStream* file(ioman->GetFileStream(handle));
-
-			auto line = Utils::GetLine(file);
-			while(!file->IsEOF())
+			auto systemConfig = DiskUtils::ParseSystemConfigFile(file);
+			auto bootItemIterator = systemConfig.find("BOOT2");
+			if(bootItemIterator != std::end(systemConfig))
 			{
-				auto trimmedEnd = std::remove_if(line.begin(), line.end(), isspace);
-				auto trimmedLine = std::string(line.begin(), trimmedEnd);
-				std::vector<std::string> components;
-				boost::split(components, trimmedLine, boost::is_any_of("="), boost::algorithm::token_compress_on);
-				if(components.size() >= 2)
-				{
-					if(components[0] == "BOOT2")
-					{
-						executablePath = components[1];
-					}
-				}
-				line = Utils::GetLine(file);
+				executablePath = bootItemIterator->second;
 			}
 		}
 

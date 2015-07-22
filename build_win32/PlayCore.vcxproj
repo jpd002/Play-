@@ -35,6 +35,7 @@
     <ClCompile Include="..\Source\COP_SCU.cpp" />
     <ClCompile Include="..\Source\COP_SCU_Reflection.cpp" />
     <ClCompile Include="..\Source\CsoImageStream.cpp" />
+    <ClCompile Include="..\Source\DiskUtils.cpp" />
     <ClCompile Include="..\Source\ee\COP_VU.cpp" />
     <ClCompile Include="..\Source\ee\COP_VU_Reflection.cpp" />
     <ClCompile Include="..\Source\ee\DMAC.cpp" />
@@ -181,6 +182,7 @@
     <ClInclude Include="..\Source\COP_FPU.h" />
     <ClInclude Include="..\Source\COP_SCU.h" />
     <ClInclude Include="..\Source\CsoImageStream.h" />
+    <ClInclude Include="..\Source\DiskUtils.h" />
     <ClInclude Include="..\Source\ee\COP_VU.h" />
     <ClInclude Include="..\Source\ee\DMAC.h" />
     <ClInclude Include="..\Source\ee\Dmac_Channel.h" />
