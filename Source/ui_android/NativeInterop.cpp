@@ -7,6 +7,7 @@
 #include "../PS2VM.h"
 #include "../PS2VM_Preferences.h"
 #include "../gs/GSH_Null.h"
+#include "../DiskUtils.h"
 #include "NativeShared.h"
 #include "GSH_OpenGLAndroid.h"
 #include "PH_Android.h"
@@ -102,3 +103,12 @@ extern "C" JNIEXPORT void JNICALL Java_com_virtualapplications_play_NativeIntero
 		static_cast<CGSH_OpenGLAndroid*>(gsHandler)->SetWindow(nativeWindow);
 	}
 }
+
+extern "C" JNIEXPORT jstring JNICALL Java_com_virtualapplications_play_NativeInterop_tryGetDiskId(JNIEnv* env, jobject obj, jstring selectedFilePath)
+{
+	//char* cserial = GetStringFromJstring(env, serial).c_str();
+	std::string * pStr = new std::string;
+	jboolean res = DiskUtils::TryGetDiskId(boost::filesystem::path(GetStringFromJstring(env, selectedFilePath).c_str()), pStr);
+	return env->NewStringUTF(pStr->c_str());
+}
+

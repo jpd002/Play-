@@ -19,6 +19,7 @@ public class NativeInterop
 	 
 	public static native void loadElf(String selectedFilePath);
 	public static native void bootDiskImage(String selectedFilePath);
+	public static native String tryGetDiskId(String selectedFilePath);
 	
 	public static native void setupGsHandler(Surface surface);
 }
