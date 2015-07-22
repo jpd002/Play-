@@ -26,10 +26,8 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
-import android.app.AlertDialog;
 import android.content.Context;
 import android.content.ContentValues;
-import android.content.DialogInterface;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
@@ -41,7 +39,6 @@ import android.os.Build;
 import android.os.StrictMode;
 import android.util.SparseArray;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.view.View.OnLongClickListener;
 import android.widget.ImageView;
 import android.widget.ImageView.ScaleType;
@@ -135,47 +132,41 @@ public class GamesDbAPI extends AsyncTask<File, Integer, Document> {
 	protected void onPostExecute(Document doc) {
 		
 		if (doc.getElementsByTagName("Game") != null) {
-			if (gameFile != null && gameID != null) {
-				try {
+			try {
+				final Element root = (Element) doc.getElementsByTagName("Game").item(0);
+				
+				final String remoteID = getValue(root, "id");
+				
+				ContentValues values = new ContentValues();
+				final String overview = getValue(root, "Overview");
+				values.put(TheGamesDB.KEY_OVERVIEW, overview);
+				
+				if (gameID != null) {
+
 					String selection = TheGamesDB.KEY_GAMEID + "=?";
 					String[] selectionArgs = { gameID };
 					
-					final Element root = (Element) doc.getElementsByTagName("Game").item(0);
-					ContentValues values = new ContentValues();
-					final String overview = getValue(root, "Overview");
-					values.put(TheGamesDB.KEY_OVERVIEW, overview);
+					mContext.getContentResolver().update(TheGamesDB.GAMESDB_URI, values, selection, selectionArgs);
+					
+				} else {
+					
+					String selection = TheGamesDB.KEY_GAMEID + "=?";
+					String[] selectionArgs = { remoteID };
 					
 					mContext.getContentResolver().update(TheGamesDB.GAMESDB_URI, values, selection, selectionArgs);
-					if (childview != null) {
-						childview.findViewById(R.id.childview).setOnLongClickListener(new OnLongClickListener() {
-							public boolean onLongClick(View view) {
-								final AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
-								builder.setCancelable(true);
-								builder.setTitle(getValue(root, "GameTitle"));
-								builder.setMessage(overview);
-								builder.setNegativeButton("Close",
-								new DialogInterface.OnClickListener() {
-									public void onClick(DialogInterface dialog, int which) {
-										dialog.dismiss();
-										return;
-									}
-								});
-								builder.setPositiveButton("Launch",
-								new DialogInterface.OnClickListener() {
-									public void onClick(DialogInterface dialog, int which) {
-										dialog.dismiss();
-										MainActivity.launchGame(gameFile);
-										return;
-									}
-								});
-								builder.create().show();
-								return true;
-							}
-						});
-					}
-				} catch (Exception e) {
 					
 				}
+				if (childview != null) {
+					childview.findViewById(R.id.childview).setOnLongClickListener(
+						gameInfo.configureLongClick(getValue(root, "GameTitle"), overview, gameFile));
+					if (gameID != null) {
+						gameInfo.getImage(gameID, childview);
+					} else {
+						gameInfo.getImage(remoteID, childview);
+					}
+				}
+			} catch (Exception e) {
+				
 			}
 		}
 	}

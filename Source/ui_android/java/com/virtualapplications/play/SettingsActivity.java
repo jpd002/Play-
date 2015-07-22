@@ -46,13 +46,24 @@ public class SettingsActivity extends PreferenceActivity
 				}
 			}
 			
-			final Preference button = (Preference)getPreferenceManager().findPreference("ui.clearfolder");
-			if (button != null) {
-				button.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+			final Preference button_f = (Preference)getPreferenceManager().findPreference("ui.clearfolder");
+			if (button_f != null) {
+				button_f.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
 					@Override
 					public boolean onPreferenceClick(Preference arg0) {
 						MainActivity.resetDirectory();
-						getPreferenceScreen().removePreference(button);
+						getPreferenceScreen().removePreference(button_f);
+						return true;
+					}
+				});
+			}
+			final Preference button_c = (Preference)getPreferenceManager().findPreference("ui.clearcache");
+			if (button_c != null) {
+				button_c.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+					@Override
+					public boolean onPreferenceClick(Preference arg0) {
+						MainActivity.clearCache();
+						getPreferenceScreen().removePreference(button_c);
 						return true;
 					}
 				});

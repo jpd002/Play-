@@ -16,9 +16,11 @@ import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.DefaultHttpClient;
 
+import android.app.AlertDialog;
 import android.content.Context;
 import android.content.ContextWrapper;
 import android.content.ContentResolver;
+import android.content.DialogInterface;
 import android.database.Cursor;
 import android.database.SQLException;
 import android.graphics.Bitmap;
@@ -28,6 +30,8 @@ import android.os.Build;
 import android.os.StrictMode;
 import android.util.SparseArray;
 import android.view.View;
+import android.view.View.OnClickListener;
+import android.view.View.OnLongClickListener;
 import android.widget.ImageView;
 import android.widget.ImageView.ScaleType;
 import android.widget.TextView;
@@ -44,54 +48,6 @@ public class GameInfo {
 	
 	public GameInfo (Context mContext) {
 		this.mContext = mContext;
-	}
-	
-	public Bitmap decodeBitmapIcon(String filename) throws IOException {
-		URL updateURL = new URL(filename);
-		URLConnection conn1 = updateURL.openConnection();
-		InputStream im = conn1.getInputStream();
-		BufferedInputStream bis = new BufferedInputStream(im, 512);
-		
-		BitmapFactory.Options options = new BitmapFactory.Options();
-		options.inJustDecodeBounds = true;
-		Bitmap bitmap = BitmapFactory.decodeStream(bis, null, options);
-		
-		options.inSampleSize = calculateInSampleSize(options);
-		options.inJustDecodeBounds = false;
-		bis.close();
-		im.close();
-		conn1 = updateURL.openConnection();
-		im = conn1.getInputStream();
-		bis = new BufferedInputStream(im, 512);
-		bitmap = BitmapFactory.decodeStream(bis, null, options);
-		
-		bis.close();
-		im.close();
-		bis = null;
-		im = null;
-		return bitmap;
-	}
-	
-	private int calculateInSampleSize(BitmapFactory.Options options) {
-		final int height = options.outHeight;
-		final int width = options.outWidth;
-		final int reqHeight = 400;
-		final int reqWidth = 300;
-		// TODO: Find a calculated width and height without ImageView
-		int inSampleSize = 1;
-		
-		if (height > reqHeight || width > reqWidth) {
-			
-			final int halfHeight = height / 2;
-			final int halfWidth = width / 2;
-			
-			while ((halfHeight / inSampleSize) > reqHeight
-				   && (halfWidth / inSampleSize) > reqWidth) {
-				inSampleSize *= 2;
-			}
-		}
-		
-		return inSampleSize;
 	}
 	
 	public void saveImage(String key, Bitmap image) {
@@ -140,27 +96,76 @@ public class GameInfo {
 		
 		private View childview;
 		private String key;
+		private ImageView preview;
 		
 		public GameImage(View childview) {
 			this.childview = childview;
 		}
 		
 		protected void onPreExecute() {
+			if (childview != null) {
+				preview = (ImageView) childview.findViewById(R.id.game_icon);
+			}
+		}
+		
+		private int calculateInSampleSize(BitmapFactory.Options options) {
+			final int height = options.outHeight;
+			final int width = options.outWidth;
+			int reqHeight = 420;
+			int reqWidth = 360;
+			if (preview != null) {
+				reqHeight = preview.getMeasuredHeight();
+				reqWidth = preview.getMeasuredWidth();
+			}
+			// TODO: Find a calculated width and height without ImageView
+			int inSampleSize = 1;
 			
+			if (height > reqHeight || width > reqWidth) {
+				
+				final int halfHeight = height / 2;
+				final int halfWidth = width / 2;
+				
+				while ((halfHeight / inSampleSize) > reqHeight
+					   && (halfWidth / inSampleSize) > reqWidth) {
+					inSampleSize *= 2;
+				}
+			}
+			
+			return inSampleSize;
 		}
 		
 		@Override
 		protected Bitmap doInBackground(String... params) {
 			key = params[0];
 			if (GamesDbAPI.isNetworkAvailable(mContext)) {
-				String api = "http://thegamesdb.net/banners/boxart/thumb/original/front/" + key + "-1.jpg";
+//				String api = "http://thegamesdb.net/banners/boxart/thumb/original/front/" + key + "-1.jpg";
+				// Retrieve the boxart thumbnail (approx. 420x300)
+				String api = "http://thegamesdb.net/banners/boxart/original/front/" + key + "-1.jpg";
+				// Retrieve the original boxart image (size varies)
 				try {
-					URL url = new URL(api);
-					HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-					connection.setDoInput(true);
-					connection.connect();
-					InputStream input = connection.getInputStream();
-					return BitmapFactory.decodeStream(input);
+					URL imageURL = new URL(api);
+					URLConnection conn1 = imageURL.openConnection();
+					InputStream im = conn1.getInputStream();
+					BufferedInputStream bis = new BufferedInputStream(im, 512);
+					
+					BitmapFactory.Options options = new BitmapFactory.Options();
+					options.inJustDecodeBounds = true;
+					Bitmap bitmap = BitmapFactory.decodeStream(bis, null, options);
+					
+					options.inSampleSize = calculateInSampleSize(options);
+					options.inJustDecodeBounds = false;
+					bis.close();
+					im.close();
+					conn1 = imageURL.openConnection();
+					im = conn1.getInputStream();
+					bis = new BufferedInputStream(im, 512);
+					bitmap = BitmapFactory.decodeStream(bis, null, options);
+					
+					bis.close();
+					im.close();
+					bis = null;
+					im = null;
+					return bitmap;
 				} catch (IOException e) {
 					
 				}
@@ -172,8 +177,7 @@ public class GameInfo {
 		protected void onPostExecute(Bitmap image) {
 			if (image != null) {
 				saveImage(key, image);
-				if (childview != null) {
-					ImageView preview = (ImageView) childview.findViewById(R.id.game_icon);
+				if (preview != null) {
 					preview.setImageBitmap(image);
 					preview.setScaleType(ScaleType.CENTER_INSIDE);
 					((TextView) childview.findViewById(R.id.game_text)).setVisibility(View.GONE);
@@ -182,12 +186,11 @@ public class GameInfo {
 		}
 	}
 	
-	public void getDatabase() {
-		ContextWrapper cw = new ContextWrapper(mContext);
-		String DB_PATH = cw.getFilesDir().getAbsolutePath()+ "/databases/";
+	public void getDatabase(boolean overwrite) {
+		String DB_PATH = mContext.getFilesDir().getAbsolutePath() + "/../databases/";
 		String DB_NAME = "games.db";
 		
-		if (!new File (DB_PATH + DB_NAME).exists()) {
+		if (overwrite || !new File (DB_PATH + DB_NAME).exists()) {
 			byte[] buffer = new byte[1024];
 			OutputStream myOutput = null;
 			int length;
@@ -212,6 +215,34 @@ public class GameInfo {
 		}
 	}
 	
+	public OnLongClickListener configureLongClick(final String title, final String overview, final File gameFile) {
+		return new OnLongClickListener() {
+			public boolean onLongClick(View view) {
+				final AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
+				builder.setCancelable(true);
+				builder.setTitle(title);
+				builder.setMessage(overview);
+				builder.setNegativeButton("Close",
+				new DialogInterface.OnClickListener() {
+					public void onClick(DialogInterface dialog, int which) {
+						dialog.dismiss();
+						return;
+					}
+				});
+				builder.setPositiveButton("Launch",
+				new DialogInterface.OnClickListener() {
+					public void onClick(DialogInterface dialog, int which) {
+						dialog.dismiss();
+						MainActivity.launchGame(gameFile);
+						return;
+					}
+				});
+				builder.create().show();
+				return true;
+			}
+		};
+	}
+	
 	public String[] getGameInfo(File game, View childview) {
 		String serial = getSerial(game);
 		String gameID = null;
@@ -223,24 +254,17 @@ public class GameInfo {
 			gameID = c.getString(c.getColumnIndex(TheGamesDB.KEY_GAMEID));
 			String title = c.getString(c.getColumnIndex(TheGamesDB.KEY_TITLE));
 			String overview = c.getString(c.getColumnIndex(TheGamesDB.KEY_OVERVIEW));
-			if (!overview.equals(null)) {
+			if (overview != null) {
 				return new String[] { gameID, title, overview };
 			}
 		}
-		if (gameID != null) {
-			GamesDbAPI gameDatabase = new GamesDbAPI(mContext, gameID);
-			gameDatabase.setView(childview);
-			gameDatabase.execute(game);
-		}
+		GamesDbAPI gameDatabase = new GamesDbAPI(mContext, gameID);
+		gameDatabase.setView(childview);
+		gameDatabase.execute(game);
 		return null;
 	}
 	
-	String[] SerialDummy = new String[]{"SLPM_670.10", "SLPM_661.51", "SLUS_210.05", "SLPS_250.50", "SLUS_209.63", "SCUS_974.72"};
-	public static int tmpint = -1;
-	
 	public String getSerial(File game) {
-		//TODO:A Call To Native Call
-		if (tmpint >= 5) tmpint=-1;
-		return SerialDummy[++tmpint];
+		return NativeInterop.getDiskSerial(game.getPath());
 	}
 }

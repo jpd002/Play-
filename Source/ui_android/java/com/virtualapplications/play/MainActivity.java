@@ -32,6 +32,7 @@ import com.android.util.FileUtils;
 public class MainActivity extends Activity 
 {	
 	private static final String PREFERENCE_CURRENT_DIRECTORY = "CurrentDirectory";
+	private static final String PREFERENCE_LAST_UPDATE = "lastUpdate";
 	
 	private SharedPreferences _preferences;
 	private TableLayout gameListing;
@@ -121,7 +122,10 @@ public class MainActivity extends Activity
 		}
 		
 		gameInfo = new GameInfo(MainActivity.this);
-		gameInfo.getDatabase();
+		if (_preferences.getLong(PREFERENCE_LAST_UPDATE, 0) == 0) {
+			gameInfo.getDatabase(true);
+			setLastUpdateTime();
+		}
 		
 		prepareFileListView();
 	}
@@ -263,6 +267,12 @@ public class MainActivity extends Activity
 		preferencesEditor.commit();
 	}
 	
+	private void setLastUpdateTime() {
+		SharedPreferences.Editor preferencesEditor = _preferences.edit();
+		preferencesEditor.putLong(PREFERENCE_LAST_UPDATE, System.currentTimeMillis());
+		preferencesEditor.commit();
+	}
+	
 	private void clearCurrentDirectory()
 	{
 		SharedPreferences.Editor preferencesEditor = _preferences.edit();
@@ -274,6 +284,19 @@ public class MainActivity extends Activity
 		((MainActivity) mActivity).clearCurrentDirectory();
 		((MainActivity) mActivity).isConfigured = false;
 		((MainActivity) mActivity).prepareFileListView();
+	}
+	
+	private void clearCoverCache() {
+		File dir = new File(getExternalFilesDir(null), "covers");
+		for (File file : dir.listFiles()) {
+			if (!file.isDirectory()) {
+				file.delete();
+			}
+		}
+	}
+	
+	public static void clearCache() {
+		((MainActivity) mActivity).clearCoverCache();
 	}
 	
 	private static boolean IsLoadableExecutableFileName(String fileName)
@@ -356,31 +379,9 @@ public class MainActivity extends Activity
 			final String[] gameStats = gameInfo.getGameInfo(game, childview);
 			
 			if (gameStats != null) {
-				childview.findViewById(R.id.childview).setOnLongClickListener(new OnLongClickListener() {
-					public boolean onLongClick(View view) {
-						final AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
-						builder.setCancelable(true);
-						builder.setTitle(gameStats[1]);
-						builder.setMessage(gameStats[2]);
-						builder.setNegativeButton("Close",
-						new DialogInterface.OnClickListener() {
-							public void onClick(DialogInterface dialog, int which) {
-								dialog.dismiss();
-								return;
-							}
-						});
-						builder.setPositiveButton("Launch",
-						new DialogInterface.OnClickListener() {
-							public void onClick(DialogInterface dialog, int which) {
-								dialog.dismiss();
-								launchDisk(game);
-								return;
-							}
-						});
-						builder.create().show();
-						return true;
-					}
-				});
+				childview.findViewById(R.id.childview).setOnLongClickListener(
+					gameInfo.configureLongClick(gameStats[1], gameStats[2], game));
+
 				gameInfo.getImage(gameStats[0], childview);
 				((TextView) childview.findViewById(R.id.game_text)).setVisibility(View.GONE);
 			}

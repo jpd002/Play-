@@ -60,12 +60,12 @@ public class TheGamesDB extends ContentProvider {
 
 		@Override
 		public void onCreate(SQLiteDatabase db) {
-			db.execSQL("CREATE TABLE " + TABLE_NAME + " ("
+			db.execSQL("CREATE TABLE IF NOT EXISTS " + TABLE_NAME + " ("
 					   + SQLITE_ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
 					   + KEY_GAMEID + " VARCHAR(255),"
 					   + KEY_TITLE + " VARCHAR(255),"
-					   + KEY_OVERVIEW + " VARCHAR(255)"
-					   + KEY_SERIAL + " VARCHAR(255)," + ");");
+					   + KEY_OVERVIEW + " VARCHAR(255),"
+					   + KEY_SERIAL + " VARCHAR(255)" + ");");
 		}
 		
 		@Override

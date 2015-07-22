@@ -17,4 +17,10 @@
 		android:summary="Clear stored default folder."
 		android:persistent="false"
 	/>
+	<Preference
+		android:key="ui.clearcache"
+		android:title="Reset Cache"
+		android:summary="Clear stored cover images."
+		android:persistent="false"
+	/>
 </PreferenceScreen>
