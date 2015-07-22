@@ -1,4 +1,5 @@
 #include <boost/algorithm/string.hpp>
+#include "make_unique.h"
 #include "Utils.h"
 #include "stricmp.h"
 #include "DiskUtils.h"
@@ -17,7 +18,7 @@
 static Framework::CStream* CreateImageStream(const boost::filesystem::path& imagePath)
 {
 #ifdef __ANDROID__
-	return new Framework::CPosixFileStream(path, O_RDONLY);
+	return new Framework::CPosixFileStream(imagePath.string().c_str(), O_RDONLY);
 #else
 	return new Framework::CStdStream(imagePath.string().c_str(), "rb");
 #endif
