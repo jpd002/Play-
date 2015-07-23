@@ -12,6 +12,7 @@
 		704E1C531B3BA25000C0ACE3 /* GSH_OpenGL_Shader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 704E1C4F1B3BA25000C0ACE3 /* GSH_OpenGL_Shader.cpp */; };
 		704E1C541B3BA25000C0ACE3 /* GSH_OpenGL_Texture.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 704E1C501B3BA25000C0ACE3 /* GSH_OpenGL_Texture.cpp */; };
 		704E1C551B3BA25000C0ACE3 /* GSH_OpenGL.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 704E1C511B3BA25000C0ACE3 /* GSH_OpenGL.cpp */; };
+		70603E1F1B60A94400935E3C /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 70603E1E1B60A94400935E3C /* Images.xcassets */; };
 		70834AE91B1BCB0100E8D5C6 /* AppDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 70834AE41B1BCB0100E8D5C6 /* AppDelegate.mm */; };
 		70834AEA1B1BCB0100E8D5C6 /* Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 70834AE51B1BCB0100E8D5C6 /* Info.plist */; };
 		70834AEB1B1BCB0100E8D5C6 /* main.mm in Sources */ = {isa = PBXBuildFile; fileRef = 70834AE61B1BCB0100E8D5C6 /* main.mm */; };
@@ -207,6 +208,7 @@
 		704E1C501B3BA25000C0ACE3 /* GSH_OpenGL_Texture.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = GSH_OpenGL_Texture.cpp; path = ../Source/gs/GSH_OpenGL/GSH_OpenGL_Texture.cpp; sourceTree = "<group>"; };
 		704E1C511B3BA25000C0ACE3 /* GSH_OpenGL.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = GSH_OpenGL.cpp; path = ../Source/gs/GSH_OpenGL/GSH_OpenGL.cpp; sourceTree = "<group>"; };
 		704E1C521B3BA25000C0ACE3 /* GSH_OpenGL.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GSH_OpenGL.h; path = ../Source/gs/GSH_OpenGL/GSH_OpenGL.h; sourceTree = "<group>"; };
+		70603E1E1B60A94400935E3C /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = "Play!/Images.xcassets"; sourceTree = "<group>"; };
 		70834AAE1B1BC70300E8D5C6 /* Play!.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Play!.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		70834AE31B1BCB0100E8D5C6 /* AppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AppDelegate.h; path = ../Source/ui_ios/AppDelegate.h; sourceTree = "<group>"; };
 		70834AE41B1BCB0100E8D5C6 /* AppDelegate.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = AppDelegate.mm; path = ../Source/ui_ios/AppDelegate.mm; sourceTree = "<group>"; };
@@ -554,6 +556,7 @@
 		70834AFB1B1BCCFF00E8D5C6 /* ui_ios */ = {
 			isa = PBXGroup;
 			children = (
+				70603E1E1B60A94400935E3C /* Images.xcassets */,
 				70834AE31B1BCB0100E8D5C6 /* AppDelegate.h */,
 				70834AE41B1BCB0100E8D5C6 /* AppDelegate.mm */,
 				70834AE71B1BCB0100E8D5C6 /* EmulatorViewController.h */,
@@ -1026,6 +1029,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				70834B9A1B1BD3AC00E8D5C6 /* GeneralSettings.xcconfig in Resources */,
+				70603E1F1B60A94400935E3C /* Images.xcassets in Resources */,
 				70834B9B1B1BD3AC00E8D5C6 /* GeneralSettingsDebug.xcconfig in Resources */,
 				70834AF41B1BCB9E00E8D5C6 /* Main.storyboard in Resources */,
 				70834B991B1BD3AC00E8D5C6 /* ExternalDependencies.xcconfig in Resources */,
@@ -1256,7 +1260,6 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 8.3;
 				MTL_ENABLE_DEBUG_INFO = YES;
-				ONLY_ACTIVE_ARCH = YES;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Debug;
@@ -1301,7 +1304,8 @@
 			baseConfigurationReference = 70834B971B1BD3AC00E8D5C6 /* GeneralSettingsDebug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				IPHONEOS_DEPLOYMENT_TARGET = 8.3;
+				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
+				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 			};
 			name = Debug;
@@ -1311,7 +1315,8 @@
 			baseConfigurationReference = 70834B981B1BD3AC00E8D5C6 /* GeneralSettingsRelease.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				IPHONEOS_DEPLOYMENT_TARGET = 8.3;
+				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
+				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 			};
 			name = Release;
