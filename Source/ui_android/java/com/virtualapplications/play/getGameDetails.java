@@ -9,6 +9,7 @@ import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.StrictMode;
+import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -123,8 +124,11 @@ public class getGameDetails extends AsyncTask<String, Integer, GameInfo> {
         }
     }
 
-    public String getSerial(File game) {
+    public static String getSerial(File game) {
         String serial = NativeInterop.GetDiskId(game.getAbsoluteFile().toString());
+        if (serial != null && !serial.equals("")) {
+            Log.d("Play!", game.getName() + " [" + serial + "]");
+        }
         return serial;
     }
 
