@@ -143,6 +143,16 @@ public class GamesDbAPI extends AsyncTask<File, Integer, Document> {
 				final String overview = getValue(root, "Overview");
 				values.put(Games.KEY_OVERVIEW, overview);
 				
+				Element images = (Element) root.getElementsByTagName("Images").item(0);
+				Element boxart;
+				if (images.getElementsByTagName("boxart").getLength() > 1) {
+					boxart = (Element) images.getElementsByTagName("boxart").item(1);
+				} else {
+					boxart = (Element) images.getElementsByTagName("boxart").item(0);
+				}
+				String cover = getElementValue(boxart);
+				values.put(Games.KEY_BOXART, cover);
+				
 				if (gameID != null) {
 
 					String selection = Games.KEY_GAMEID + "=?";
@@ -162,9 +172,9 @@ public class GamesDbAPI extends AsyncTask<File, Integer, Document> {
 					childview.findViewById(R.id.childview).setOnLongClickListener(
 						gameInfo.configureLongClick(getValue(root, "GameTitle"), overview, gameFile));
 					if (gameID != null) {
-						gameInfo.getImage(gameID, childview);
+						gameInfo.getImage(gameID, childview, cover);
 					} else {
-						gameInfo.getImage(remoteID, childview);
+						gameInfo.getImage(remoteID, childview, cover);
 					}
 				}
 			} catch (Exception e) {

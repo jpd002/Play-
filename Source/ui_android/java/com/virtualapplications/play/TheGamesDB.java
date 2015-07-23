@@ -50,7 +50,8 @@ public class TheGamesDB extends ContentProvider {
 					   + Games.KEY_GAMEID + " VARCHAR(255),"
 					   + Games.KEY_TITLE + " VARCHAR(255),"
 					   + Games.KEY_OVERVIEW + " VARCHAR(255),"
-					   + Games.KEY_SERIAL + " VARCHAR(255)" + ");");
+					   + Games.KEY_SERIAL + " VARCHAR(255),"
+					   + Games.KEY_BOXART + " VARCHAR(255)"+ ");");
 		}
 		
 		@Override
@@ -186,6 +187,7 @@ public class TheGamesDB extends ContentProvider {
 		gamesMap.put(Games.KEY_TITLE, Games.KEY_TITLE);
 		gamesMap.put(Games.KEY_OVERVIEW, Games.KEY_OVERVIEW);
 		gamesMap.put(Games.KEY_SERIAL, Games.KEY_SERIAL);
+		gamesMap.put(Games.KEY_BOXART, Games.KEY_BOXART);
 		
 		sUriMatcher.addURI(Games.AUTHORITY, Games.TABLE_NAME + "/#", GAMESID);
 		

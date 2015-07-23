@@ -7,6 +7,8 @@ import java.io.InputStream;
 import java.io.StringReader;
 import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
+import java.net.InetAddress;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 
@@ -73,7 +75,7 @@ public class GameInfo {
 		
 	}
 	
-	public Bitmap getImage(String key, View childview) {
+	public Bitmap getImage(String key, View childview, String boxart) {
 		String path = mContext.getExternalFilesDir(null) + "/covers/";
 		
 		File file = new File(path, key + ".jpg");
@@ -90,7 +92,7 @@ public class GameInfo {
 			}
 			return bitmap;
 		} else {
-			new GameImage(childview).execute(key);
+			new GameImage(childview, boxart).execute(key);
 			return null;
 		}
 	}
@@ -100,9 +102,11 @@ public class GameInfo {
 		private View childview;
 		private String key;
 		private ImageView preview;
+		private String boxart;
 		
-		public GameImage(View childview) {
+		public GameImage(View childview, String boxart) {
 			this.childview = childview;
+			this.boxart = boxart;
 		}
 		
 		protected void onPreExecute() {
@@ -141,13 +145,16 @@ public class GameInfo {
 		protected Bitmap doInBackground(String... params) {
 			key = params[0];
 			if (GamesDbAPI.isNetworkAvailable(mContext)) {
-//				String api = "http://thegamesdb.net/banners/boxart/thumb/original/front/" + key + "-1.jpg";
-				// Retrieve the boxart thumbnail (approx. 420x300)
-				String api = "http://thegamesdb.net/banners/boxart/original/front/" + key + "-1.jpg";
-				// Retrieve the original boxart image (size varies)
+				String api = null;
+				if (boxart != null) {
+					api = "http://thegamesdb.net/banners/" + boxart;
+				} else {
+					api = "http://thegamesdb.net/banners/boxart/thumb/original/front/" + key + "-1.jpg";
+				}
 				try {
 					URL imageURL = new URL(api);
 					URLConnection conn1 = imageURL.openConnection();
+					
 					InputStream im = conn1.getInputStream();
 					BufferedInputStream bis = new BufferedInputStream(im, 512);
 					
@@ -184,7 +191,6 @@ public class GameInfo {
 					preview.setImageBitmap(image);
 					preview.setScaleType(ScaleType.CENTER_INSIDE);
 					((TextView) childview.findViewById(R.id.game_text)).setVisibility(View.GONE);
-					preview.invalidate();
 				}
 			}
 		}
@@ -249,7 +255,7 @@ public class GameInfo {
 	
 	public String[] getGameInfo(File game, View childview) {
 		String serial = getSerial(game);
-		String gameID = null,  title = null, overview = null;
+		String gameID = null,  title = null, overview = null, boxart = null;
 		ContentResolver cr = mContext.getContentResolver();
 		String selection = Games.KEY_SERIAL + "=?";
 		String[] selectionArgs = { serial };
@@ -259,12 +265,13 @@ public class GameInfo {
 				gameID = c.getString(c.getColumnIndex(Games.KEY_GAMEID));
 				title = c.getString(c.getColumnIndex(Games.KEY_TITLE));
 				overview = c.getString(c.getColumnIndex(Games.KEY_OVERVIEW));
+				boxart = c.getString(c.getColumnIndex(Games.KEY_BOXART));
 			} while (c.moveToNext());
 		}
 		c.close();
 		// This assumes only one serial is possible, making a loop irrelevant
-		if (overview != null) {
-			return new String[] { gameID, title, overview };
+		if (overview != null && boxart != null) {
+			return new String[] { gameID, title, overview, boxart };
 		} else {
 			GamesDbAPI gameDatabase = new GamesDbAPI(mContext, gameID);
 			gameDatabase.setView(childview);
