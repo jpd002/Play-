@@ -1,6 +1,7 @@
 package com.virtualapplications.play;
 
 import android.app.*;
+import android.app.ProgressDialog;
 import android.content.*;
 import android.content.pm.*;
 import android.content.res.Configuration;
@@ -318,6 +319,7 @@ public class MainActivity extends Activity
 	private final class ImageFinder extends AsyncTask<String, Integer, List<File>> {
 		
 		private int array;
+		private ProgressDialog progDialog;
 		
 		public ImageFinder(int arrayType) {
 			this.array = arrayType;
@@ -336,8 +338,11 @@ public class MainActivity extends Activity
 					public boolean accept(File dir, String name) {
 						if (dir.getName().startsWith(".") || name.startsWith(".")) {
 							return false;
+						} else if (StringUtils.endsWithIgnoreCase(name, "." + type)) {
+							String serial = gameInfo.getSerial(new File(dir, name));
+							return serial != null && !serial.equals("");
 						} else {
-							return StringUtils.endsWithIgnoreCase(name, "." + type);
+							return false;
 						}
 					}
 					
@@ -397,7 +402,9 @@ public class MainActivity extends Activity
 		}
 		
 		protected void onPreExecute() {
-			
+			progDialog = ProgressDialog.show(MainActivity.this,
+				getString(R.string.search_games),
+				getString(R.string.search_games_msg), true);
 		}
 		
 		@Override
@@ -427,6 +434,9 @@ public class MainActivity extends Activity
 		
 		@Override
 		protected void onPostExecute(List<File> images) {
+			if (progDialog != null && progDialog.isShowing()) {
+				progDialog.dismiss();
+			}
 			if (images != null && !images.isEmpty()) {
 				// Create the list of acceptable images
 

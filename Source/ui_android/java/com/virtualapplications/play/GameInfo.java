@@ -282,7 +282,9 @@ public class GameInfo {
 	
 	public String getSerial(File game) {
 		String code = NativeInterop.tryGetDiskId(game.getPath());
-		Log.d("Play!", game.getName() + " [" + code + "]");
+		if (code != null && !code.equals("")) {
+			Log.d("Play!", game.getName() + " [" + code + "]");
+		}
 		return code;
 	}
 }
