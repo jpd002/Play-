@@ -1,15 +1,12 @@
 package com.virtualapplications.play;
 
 import java.io.BufferedInputStream;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringReader;
 import java.io.UnsupportedEncodingException;
-import java.lang.NullPointerException;
 import java.net.URL;
 import java.net.URLConnection;
-import java.util.Locale;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -29,54 +26,139 @@ import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.os.AsyncTask;
-import android.os.Build;
-import android.os.StrictMode;
-import android.util.SparseArray;
-import android.view.View;
 import android.widget.ImageView;
-import android.widget.ImageView.ScaleType;
-import android.widget.TextView;
 
-public class GamesDbAPI extends AsyncTask<String, Integer, String> {
+public class GamesDbAPI{
 
-	private File game;
-	private int index;
-	private View childview;
 	private ImageView preview;
-	private Context mContext;
-	private String game_name;
-	private Drawable game_icon;
 
-	private static final String games_url = "http://thegamesdb.net/api/GetGame.php?platform=sony+playstation+2&name=";
-	private SparseArray<String> game_details = new SparseArray<String>();
-	private SparseArray<Bitmap> game_preview = new SparseArray<Bitmap>();
+	private static final String games_url_name = "http://thegamesdb.net/api/GetGame.php?platform=sony+playstation+2&name=";
+	private static final String games_url_id = "http://thegamesdb.net/api/GetGame.php?platform=sony+playstation+2&id=";
+	private static final String gameslist_url = "http://thegamesdb.net/api/PlatformGames.php?platform=sony+playstation+2";
 
-	public GamesDbAPI(File game, int index) {
-		this.game = game;
-		this.index = index;
+	public GamesDbAPI() {
 	}
 
-	public void setViewParent(Context mContext, View childview) {
-		this.mContext = mContext;
-		this.childview = childview;
-	}
+	public GameInfo getCover(GameInfo TheGame, Context mContext, ImageView preview){
+		this.preview= preview;
+		String filename = TheGame.getName();
+		int gameID = TheGame.getID();
 
-	protected void onPreExecute() {
-		preview = (ImageView) childview.findViewById(R.id.game_icon);
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.GINGERBREAD) {
-			StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder()
-					.permitAll().build();
-			StrictMode.setThreadPolicy(policy);
+		if (isNetworkAvailable(mContext)) {
+			try {
+				DefaultHttpClient httpClient = new DefaultHttpClient();
+				HttpPost httpPost;
+				if (gameID != 0){
+					httpPost = new HttpPost(games_url_id + gameID);
+				} else {
+					if (filename.startsWith("[")) {
+						filename = filename.substring(filename.indexOf("]") + 1, filename.length());
+					}
+					if (filename.contains("[")) {
+						filename = filename.substring(0, filename.indexOf("["));
+					} else {
+						if (filename.contains(".") && (filename.length() - 4 - filename.lastIndexOf(".")) == 0)
+							filename = filename.substring(0, filename.lastIndexOf("."));
+					}
+					filename = filename.replace("_", " ").replace(":", " ");
+					filename = filename.replaceAll("[^\\p{Alpha}\\p{Digit}]+"," ");
+					filename = filename.replace("  ", " ").replace(" ", "+");
+					if (filename.endsWith("+")) {
+						filename = filename.substring(0, filename.length() - 1);
+					}
+					httpPost = new HttpPost(games_url_name + filename);
+				}
+				HttpResponse httpResponse = httpClient.execute(httpPost);
+				HttpEntity httpEntity = httpResponse.getEntity();
+				String gameData =  EntityUtils.toString(httpEntity);
+				if (gameData != null) {
+					Document doc = getDomElement(gameData);
+					if (doc.getElementsByTagName("Game") != null && doc.getElementsByTagName("Game").getLength() > 0) {
+						Element root = (Element) doc.getElementsByTagName("Game").item(0);
+						String details = getValue(root, "Overview");
+						TheGame.setDescription(details);
+						if (TheGame.getID() != 0){
+							TheGameDB db = new TheGameDB(mContext);
+							db.updateGame(TheGame, details);
+						}
+						Element images = (Element) root.getElementsByTagName("Images").item(0);
+						Element sleave = (Element) images.getElementsByTagName("boxart").item(0);
+						//TODO: to keep or not to keep
+						String cover = "http://thegamesdb.net/banners/" + getElementValue(sleave);
+						BitmapDrawable game_icon = new BitmapDrawable(decodeBitmapIcon(cover));
+						Element boxart = (Element) images.getElementsByTagName("boxart").item(1);
+						String image = "http://thegamesdb.net/banners/" + getElementValue(boxart);
+						Bitmap game_image = decodeBitmapIcon(image);
+						TheGame.setFrontCover(game_image);
+						TheGame.setBackCover(game_icon.getBitmap());
+					}
+				}
+			} catch (UnsupportedEncodingException e) {
+
+			} catch (ClientProtocolException e) {
+
+			} catch (IOException e) {
+
+			}
 		}
+
+		return TheGame;
 	}
+
+	public static String getDescription(String filename, int gameID, Context mContext){
+
+		if (isNetworkAvailable(mContext)) {
+			try {
+				DefaultHttpClient httpClient = new DefaultHttpClient();
+				HttpPost httpPost;
+				if (gameID != 0){
+					httpPost = new HttpPost(games_url_id + gameID);
+				} else {
+					if (filename.startsWith("[")) {
+						filename = filename.substring(filename.indexOf("]") + 1, filename.length());
+					}
+					if (filename.contains("[")) {
+						filename = filename.substring(0, filename.indexOf("["));
+					} else {
+						if (filename.contains(".") && (filename.lastIndexOf(".") - filename.length() - 4) == 0)
+						filename = filename.substring(0, filename.lastIndexOf("."));
+					}
+					filename = filename.replace("_", " ").replace(":", " ");
+					filename = filename.replaceAll("[^\\p{Alpha}\\p{Digit}]+"," ");
+					filename = filename.replace("  ", " ").replace(" ", "+");
+					if (filename.endsWith("+")) {
+						filename = filename.substring(0, filename.length() - 1);
+					}
+					httpPost = new HttpPost(games_url_name + filename);
+				}
+				HttpResponse httpResponse = httpClient.execute(httpPost);
+				HttpEntity httpEntity = httpResponse.getEntity();
+				String gameData =  EntityUtils.toString(httpEntity);
+				if (gameData != null) {
+					Document doc = getDomElement(gameData);
+					if (doc.getElementsByTagName("Game") != null) {
+						Element root = (Element) doc.getElementsByTagName("Game").item(0);
+						String details = getValue(root, "Overview");
+
+						return details;
+					}
+				}
+			} catch (UnsupportedEncodingException e) {
+
+			} catch (ClientProtocolException e) {
+
+			} catch (IOException e) {
+
+			}
+		}
+		return null;
+	}
+
 
 	public Bitmap decodeBitmapIcon(String filename) throws IOException {
 		URL updateURL = new URL(filename);
@@ -103,104 +185,32 @@ public class GamesDbAPI extends AsyncTask<String, Integer, String> {
 		im = null;
 		return bitmap;
 	}
-	
+
 	private int calculateInSampleSize(BitmapFactory.Options options, ImageView imageView) {
 		final int height = options.outHeight;
 		final int width = options.outWidth;
 		final int reqHeight = imageView.getMeasuredHeight();
 		final int reqWidth = imageView.getMeasuredWidth();
 		int inSampleSize = 1;
-		
+
 		if (height > reqHeight || width > reqWidth) {
 
 			final int halfHeight = height / 2;
 			final int halfWidth = width / 2;
 
 			while ((halfHeight / inSampleSize) > reqHeight
-				   && (halfWidth / inSampleSize) > reqWidth) {
+					&& (halfWidth / inSampleSize) > reqWidth) {
 				inSampleSize *= 2;
 			}
 		}
-		
+
 		return inSampleSize;
 	}
 
-	@Override
-	protected String doInBackground(String... params) {
-		String filename = game_name = params[0];
-		if (isNetworkAvailable()) {
-			if (filename.startsWith("[")) {
-				filename = filename.substring(filename.indexOf("]") + 1, filename.length());
-			}
-			if (filename.contains("[")) {
-				filename = filename.substring(0, filename.indexOf("["));
-			} else {
-				filename = filename.substring(0, filename.lastIndexOf("."));
-			}
-			filename = filename.replace("_", " ").replace(":", " ");
-			filename = filename.replaceAll("[^\\p{Alpha}\\p{Digit}]+"," ");
-			filename = filename.replace("  ", " ").replace(" ", "+");
-			if (filename.endsWith("+")) {
-				filename = filename.substring(0, filename.length() - 1);
-			}
-			try {
-				DefaultHttpClient httpClient = new DefaultHttpClient();
-				HttpPost httpPost = new HttpPost(games_url + filename);
 
-				HttpResponse httpResponse = httpClient.execute(httpPost);
-				HttpEntity httpEntity = httpResponse.getEntity();
-				return EntityUtils.toString(httpEntity);
-			} catch (UnsupportedEncodingException e) {
-
-			} catch (ClientProtocolException e) {
-
-			} catch (IOException e) {
-
-			}
-		}
-		return null;
-	}
-
-	@Override
-	protected void onPostExecute(String gameData) {
-		if (gameData != null) {
-			try {
-				Document doc = getDomElement(gameData);
-				if (doc.getElementsByTagName("Game") != null) {
-					Element root = (Element) doc.getElementsByTagName("Game").item(0);
-					game_name = getValue(root, "GameTitle");
-					String details = getValue(root, "Overview");
-					game_details.put(index, details);
-					Element images = (Element) root.getElementsByTagName("Images").item(0);
-					Element sleave = (Element) images.getElementsByTagName("boxart").item(0);
-					String cover = "http://thegamesdb.net/banners/" + getElementValue(sleave);
-					game_icon = new BitmapDrawable(decodeBitmapIcon(cover));
-					Element boxart = (Element) images.getElementsByTagName("boxart").item(1);
-					String image = "http://thegamesdb.net/banners/" + getElementValue(boxart);
-					Bitmap game_image = decodeBitmapIcon(image);
-					game_preview.put(index, game_image);
-					preview.setImageBitmap(game_image);
-					preview.setScaleType(ScaleType.CENTER_INSIDE);
-					((TextView) childview.findViewById(R.id.game_text)).setVisibility(View.GONE);
-				} else {
-					game_details.put(index, mContext.getString(R.string.game_info));
-					((TextView) childview.findViewById(R.id.game_text)).setText(game.getName());
-				}
-			} catch (Exception e) {
-				game_details.put(index, mContext.getString(R.string.game_info));
-				((TextView) childview.findViewById(R.id.game_text)).setText(game.getName());
-			}
-		} else {
-			game_details.put(index, mContext.getString(R.string.game_info));
-			((TextView) childview.findViewById(R.id.game_text)).setText(game.getName());
-		}
-
-		childview.setTag(game_name);
-	}
-
-	public boolean isNetworkAvailable() {
+	public static boolean isNetworkAvailable(Context mContext) {
 		ConnectivityManager connectivityManager = (ConnectivityManager) mContext
-				.getSystemService(Context.CONNECTIVITY_SERVICE);		
+				.getSystemService(Context.CONNECTIVITY_SERVICE);
 		NetworkInfo mWifi = connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
 		NetworkInfo mMobile = connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_MOBILE);
 		NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
@@ -211,23 +221,8 @@ public class GamesDbAPI extends AsyncTask<String, Integer, String> {
 		}
 	}
 
-	public Drawable getGameIcon() {
-		return game_icon;
-	}
 
-	public String getGameTitle() {
-		return game_name;
-	}
-	
-	public String getGameDetails() {
-		return game_details.get(index);
-	}
-	
-	public Bitmap getGamePreview() {
-		return game_preview.get(index);
-	}
-
-	public Document getDomElement(String xml) {
+	public static Document getDomElement(String xml) {
 		Document doc = null;
 		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
 		try {
@@ -239,25 +234,22 @@ public class GamesDbAPI extends AsyncTask<String, Integer, String> {
 			doc = db.parse(is);
 
 		} catch (ParserConfigurationException e) {
-
 			return null;
 		} catch (SAXException e) {
-
 			return null;
 		} catch (IOException e) {
-
 			return null;
 		}
 
 		return doc;
 	}
 
-	public String getValue(Element item, String str) {
+	public static String getValue(Element item, String str) {
 		NodeList n = item.getElementsByTagName(str);
-		return this.getElementValue(n.item(0));
+		return getElementValue(n.item(0));
 	}
 
-	public final String getElementValue(Node elem) {
+	public static final String getElementValue(Node elem) {
 		Node child;
 		if (elem != null) {
 			if (elem.hasChildNodes()) {
@@ -270,5 +262,39 @@ public class GamesDbAPI extends AsyncTask<String, Integer, String> {
 			}
 		}
 		return "";
+	}
+
+	public static String getGameDBList(Context mContext){
+		if (isNetworkAvailable(mContext)) {
+			try {
+				DefaultHttpClient httpClient = new DefaultHttpClient();
+				HttpPost httpPost;
+				httpPost = new HttpPost(gameslist_url);
+				HttpResponse httpResponse = httpClient.execute(httpPost);
+				HttpEntity httpEntity = httpResponse.getEntity();
+				String gameData =  EntityUtils.toString(httpEntity);
+				if (gameData != null) {
+					Document doc = getDomElement(gameData);
+					if (doc.getElementsByTagName("Game") != null) {
+						NodeList root = doc.getElementsByTagName("Game");
+						TheGameDB db = new TheGameDB(mContext);
+						for(int i = 0; i < root.getLength(); i++) {
+							String ID = getValue((Element) root.item(i), "id");
+							String gameName = getValue((Element) root.item(i), "GameTitle");
+							String cover = getValue((Element) root.item(i), "thumb");
+							db.addGame(new GameInfo(Integer.parseInt(ID),gameName, null, cover));
+						}
+					}
+				}
+
+			} catch (UnsupportedEncodingException e) {
+
+			} catch (ClientProtocolException e) {
+
+			} catch (IOException e) {
+
+			}
+		}
+		return null;
 	}
 }
