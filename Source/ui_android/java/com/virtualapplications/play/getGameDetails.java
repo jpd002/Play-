@@ -125,7 +125,7 @@ public class getGameDetails extends AsyncTask<String, Integer, GameInfo> {
     }
 
     public static String getSerial(File game) {
-        String serial = NativeInterop.GetDiskId(game.getAbsoluteFile().toString());
+        String serial = NativeInterop.getDiskId(game.getAbsoluteFile().toString());
         if (serial != null && !serial.equals("")) {
             Log.d("Play!", game.getName() + " [" + serial + "]");
         }
