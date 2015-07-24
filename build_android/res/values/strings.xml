@@ -23,4 +23,6 @@
 	<string name="menu_title_open">Menu</string>
 	<string name="menu_title_shut">Games</string>
 	<string name="menu_title_look">Search</string>
+	
+	<string name="currentDatabase">1</string>
 </resources>
