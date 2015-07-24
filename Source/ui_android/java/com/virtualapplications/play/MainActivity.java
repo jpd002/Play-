@@ -1,20 +1,18 @@
 package com.virtualapplications.play;
 
 import android.app.*;
+import android.app.ProgressDialog;
 import android.content.*;
 import android.content.pm.*;
 import android.content.res.Configuration;
+import android.graphics.drawable.BitmapDrawable;
 import android.os.*;
 import android.util.*;
 import android.view.*;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnLongClickListener;
-import android.view.ViewGroup;
-import android.view.ViewGroup.LayoutParams;
 import android.widget.*;
-import android.widget.AdapterView.*;
-import android.widget.LinearLayout;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
@@ -23,9 +21,12 @@ import android.support.v4.widget.DrawerLayout;
 import java.io.*;
 import java.text.*;
 import java.util.*;
+import java.util.concurrent.ExecutionException;
 import java.util.zip.*;
 import org.apache.commons.lang3.StringUtils;
 import com.android.util.FileUtils;
+
+import static org.apache.commons.lang3.text.WordUtils.capitalizeFully;
 
 public class MainActivity extends Activity 
 {	
@@ -116,9 +117,21 @@ public class MainActivity extends Activity
 		{
 			NativeInterop.createVirtualMachine();
 		}
-		
+
+		initialDbSetup();
 		prepareFileListView();
 	}
+
+	private void initialDbSetup() {
+		try {
+			new SetupDB().execute(this).get();
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		} catch (ExecutionException e) {
+			e.printStackTrace();
+		}
+	}
+
 
 	private static long getBuildDate(Context context) 
 	{
@@ -302,6 +315,7 @@ public class MainActivity extends Activity
 	private final class ImageFinder extends AsyncTask<String, Integer, List<File>> {
 		
 		private int array;
+		private ProgressDialog progDialog;
 		
 		public ImageFinder(int arrayType) {
 			this.array = arrayType;
@@ -320,21 +334,25 @@ public class MainActivity extends Activity
 					public boolean accept(File dir, String name) {
 						if (dir.getName().startsWith(".") || name.startsWith(".")) {
 							return false;
+						} else if (StringUtils.endsWithIgnoreCase(name, "." + type)) {
+							File disk = new File(dir, name);
+							String serial = getGameDetails.getSerial(disk);
+							return IsLoadableExecutableFileName(disk.getPath()) ||
+								(serial != null && !serial.equals(""));
 						} else {
-							return StringUtils.endsWithIgnoreCase(name, "." + type);
+							return false;
 						}
 					}
 					
 				};
 				i++;
 			}
-			
 			FileUtils fileUtils = new FileUtils();
 			Collection<File> files = fileUtils.listFiles(storage, filter, -1);
 			return (List<File>) files;
 		}
 		
-		private View createListItem(final File game, final int index) {
+		private View createListItem(final File game) {
 			
 			if (!isConfigured) {
 				
@@ -358,17 +376,17 @@ public class MainActivity extends Activity
 			
 			final View childview = MainActivity.this.getLayoutInflater().inflate(
 				R.layout.game_list_item, null, false);
-			
-			final GamesDbAPI gameParser = new GamesDbAPI(game, index);
-			gameParser.setViewParent(MainActivity.this, childview);
-			
+
+			final getGameDetails GG = new getGameDetails(game, mActivity);
+			GG.setViewParent(childview);
+
 			childview.findViewById(R.id.childview).setOnLongClickListener(new OnLongClickListener() {
 				public boolean onLongClick(View view) {
 					final AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
 					builder.setCancelable(true);
-					builder.setTitle(gameParser.getGameTitle());
-					builder.setIcon(gameParser.getGameIcon());
-					builder.setMessage(gameParser.getGameDetails());
+					builder.setTitle(capitalizeFully(GG.GameInfo.getName()));
+					builder.setIcon(new BitmapDrawable(GG.GameInfo.getBackCover()));
+					builder.setMessage(GG.GameInfo.getDescription(mActivity));
 					builder.setPositiveButton("Close",
 											  new DialogInterface.OnClickListener() {
 						public void onClick(DialogInterface dialog, int which) {
@@ -396,12 +414,14 @@ public class MainActivity extends Activity
 					return;
 				}
 			});
-			gameParser.execute(game.getName());
+			GG.execute(game.getName());
 			return childview;
 		}
 		
 		protected void onPreExecute() {
-			
+			progDialog = ProgressDialog.show(MainActivity.this,
+				getString(R.string.search_games),
+				getString(R.string.search_games_msg), true);
 		}
 		
 		@Override
@@ -431,6 +451,9 @@ public class MainActivity extends Activity
 		
 		@Override
 		protected void onPostExecute(List<File> images) {
+			if (progDialog != null && progDialog.isShowing()) {
+				progDialog.dismiss();
+			}
 			if (images != null && !images.isEmpty()) {
 				// Create the list of acceptable images
 
@@ -451,7 +474,7 @@ public class MainActivity extends Activity
 
 					for (int i = 0; i < images.size(); i++)
 					{
-						game_row.addView(createListItem(images.get(i), i));
+						game_row.addView(createListItem(images.get(i)));
 						gameListing.addView(game_row, params);
 						game_row = new TableRow(MainActivity.this);
 						game_row.setPadding(0, 0, 0, pad);
@@ -473,7 +496,7 @@ public class MainActivity extends Activity
 							game_row.setGravity(Gravity.CENTER);
 							game_row.setPadding(0, 0, 0, pad);
 						}
-						game_row.addView(createListItem(images.get(i), i));
+						game_row.addView(createListItem(images.get(i)));
 						column ++;
 					}
 					if (column != 0) {
