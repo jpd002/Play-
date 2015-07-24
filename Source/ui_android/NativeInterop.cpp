@@ -110,9 +110,7 @@ extern "C" JNIEXPORT jstring JNICALL Java_com_virtualapplications_play_NativeInt
 	bool succeeded = DiskUtils::TryGetDiskId(GetStringFromJstring(env, diskImagePath).c_str(), &diskId);
 	if(!succeeded)
 	{
-		jclass exceptionClass = env->FindClass("java/lang/Exception");
-		env->ThrowNew(exceptionClass, "Failed to obtain disk id.");
-		return 0;
+		return NULL;
 	}
 	jstring result = env->NewStringUTF(diskId.c_str());
 	return result;
