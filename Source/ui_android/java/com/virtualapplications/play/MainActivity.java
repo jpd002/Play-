@@ -389,8 +389,10 @@ public class MainActivity extends Activity
 				childview.findViewById(R.id.childview).setOnLongClickListener(
 					gameInfo.configureLongClick(gameStats[1], gameStats[2], game));
 
-				gameInfo.getImage(gameStats[0], childview, gameStats[3]);
-				((TextView) childview.findViewById(R.id.game_text)).setVisibility(View.GONE);
+				if (!gameStats[3].equals("404")) {
+					gameInfo.getImage(gameStats[0], childview, gameStats[3]);
+					((TextView) childview.findViewById(R.id.game_text)).setVisibility(View.GONE);
+				}
 			}
 			
 			childview.findViewById(R.id.childview).setOnClickListener(new OnClickListener() {

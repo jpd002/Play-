@@ -144,14 +144,18 @@ public class GamesDbAPI extends AsyncTask<File, Integer, Document> {
 				values.put(Games.KEY_OVERVIEW, overview);
 				
 				Element images = (Element) root.getElementsByTagName("Images").item(0);
-				Element boxart;
+				Element boxart = null;
 				if (images.getElementsByTagName("boxart").getLength() > 1) {
 					boxart = (Element) images.getElementsByTagName("boxart").item(1);
-				} else {
+				} else if (images.getElementsByTagName("boxart").getLength() == 1) {
 					boxart = (Element) images.getElementsByTagName("boxart").item(0);
 				}
-				String cover = getElementValue(boxart);
-				values.put(Games.KEY_BOXART, cover);
+				if (boxart != null) {
+					String cover = getElementValue(boxart);
+					values.put(Games.KEY_BOXART, cover);
+				} else {
+					values.put(Games.KEY_BOXART, "404");
+				}
 				
 				if (gameID != null) {
 
@@ -171,10 +175,12 @@ public class GamesDbAPI extends AsyncTask<File, Integer, Document> {
 				if (childview != null) {
 					childview.findViewById(R.id.childview).setOnLongClickListener(
 						gameInfo.configureLongClick(getValue(root, "GameTitle"), overview, gameFile));
-					if (gameID != null) {
-						gameInfo.getImage(gameID, childview, cover);
-					} else {
-						gameInfo.getImage(remoteID, childview, cover);
+					if (boxart != null) {
+						if (gameID != null) {
+							gameInfo.getImage(gameID, childview, cover);
+						} else {
+							gameInfo.getImage(remoteID, childview, cover);
+						}
 					}
 				}
 			} catch (Exception e) {
