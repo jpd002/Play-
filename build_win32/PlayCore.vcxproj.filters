@@ -439,6 +439,9 @@
     <ClCompile Include="..\Source\ee\EeExecutor.cpp">
       <Filter>Source Files\Ee</Filter>
     </ClCompile>
+    <ClCompile Include="..\Source\DiskUtils.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Source\AppConfig.h">
@@ -854,6 +857,9 @@
     </ClInclude>
     <ClInclude Include="..\Source\ee\EeExecutor.h">
       <Filter>Source Files\Ee</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\DiskUtils.h">
+      <Filter>Source Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

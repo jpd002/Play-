@@ -12,17 +12,6 @@
 #include "PtrMacro.h"
 #include "StdStream.h"
 #include "GZipStream.h"
-#ifdef WIN32
-#include "VolumeStream.h"
-#else
-#include "Posix_VolumeStream.h"
-#endif
-#ifdef __ANDROID__
-#include "PosixFileStream.h"
-#endif
-#include "stricmp.h"
-#include "CsoImageStream.h"
-#include "IszImageStream.h"
 #include "MemoryStateFile.h"
 #include "zip/ZipArchiveWriter.h"
 #include "zip/ZipArchiveReader.h"
@@ -36,6 +25,7 @@
 #include "iop/IsoDevice.h"
 #include "Log.h"
 #include "ISO9660/BlockProvider.h"
+#include "DiskUtils.h"
 
 #define LOG_NAME		("ps2vm")
 
@@ -669,79 +659,17 @@ void CPS2VM::CDROM0_Reset()
 	CDROM0_Mount(CAppConfig::GetInstance().GetPreferenceString(PS2VM_CDROM0PATH));
 }
 
-Framework::CStream* CPS2VM::CDROM0_CreateImageStream(const char* path)
-{
-#ifdef __ANDROID__
-	return new Framework::CPosixFileStream(path, O_RDONLY);
-#else
-	return new Framework::CStdStream(path, "rb");
-#endif
-}
-
 void CPS2VM::CDROM0_Mount(const char* path)
 {
-	//Check if there's an m_pCDROM0 already
-	//Check if files are linked to this m_pCDROM0 too and do something with them
+	//TODO: Check if there's an m_cdrom0 already
+	//TODO: Check if files are linked to this m_cdrom0 too and do something with them
 
 	size_t pathLength = strlen(path);
 	if(pathLength != 0)
 	{
 		try
 		{
-			std::shared_ptr<Framework::CStream> stream;
-			const char* extension = "";
-			if(pathLength >= 4)
-			{
-				extension = path + pathLength - 4;
-			}
-
-			//Gotta think of something better than that...
-			if(!stricmp(extension, ".isz"))
-			{
-				stream = std::make_shared<CIszImageStream>(CDROM0_CreateImageStream(path));
-			}
-			else if(!stricmp(extension, ".cso"))
-			{
-				stream = std::make_shared<CCsoImageStream>(CDROM0_CreateImageStream(path));
-			}
-#ifdef WIN32
-			else if(path[0] == '\\')
-			{
-				stream = std::make_shared<Framework::Win32::CVolumeStream>(path[4]);
-			}
-#elif !defined(__ANDROID__) && !TARGET_OS_IPHONE && !TARGET_IPHONE_SIMULATOR
-			else
-			{
-				try
-				{
-					stream = std::make_shared<Framework::Posix::CVolumeStream>(path);
-				}
-				catch(...)
-				{
-					//Ok if it fails here, might be a standard ISO image file
-					//which will be handled below
-				}
-			}
-#endif
-
-			//If it's null after all that, just feed it to a StdStream
-			if(!stream)
-			{
-				stream = std::shared_ptr<Framework::CStream>(CDROM0_CreateImageStream(path));
-			}
-
-			try
-			{
-				auto blockProvider = std::make_shared<ISO9660::CBlockProvider2048>(stream);
-				m_cdrom0 = std::make_unique<CISO9660>(blockProvider);
-			}
-			catch(...)
-			{
-				//Failed with block size 2048, try with CD-ROM XA
-				auto blockProvider = std::make_shared<ISO9660::CBlockProviderCDROMXA>(stream);
-				m_cdrom0 = std::make_unique<CISO9660>(blockProvider);
-			}
-
+			m_cdrom0 = DiskUtils::CreateDiskImageFromPath(path);
 			SetIopCdImage(m_cdrom0.get());
 		}
 		catch(const std::exception& Exception)

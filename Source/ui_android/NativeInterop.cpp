@@ -4,6 +4,7 @@
 #include <android/native_window_jni.h>
 #include "PathUtils.h"
 #include "../AppConfig.h"
+#include "../DiskUtils.h"
 #include "../PS2VM.h"
 #include "../PS2VM_Preferences.h"
 #include "../gs/GSH_Null.h"
@@ -101,4 +102,18 @@ extern "C" JNIEXPORT void JNICALL Java_com_virtualapplications_play_NativeIntero
 	{
 		static_cast<CGSH_OpenGLAndroid*>(gsHandler)->SetWindow(nativeWindow);
 	}
+}
+
+extern "C" JNIEXPORT jstring JNICALL Java_com_virtualapplications_play_NativeInterop_getDiskId(JNIEnv* env, jobject obj, jstring diskImagePath)
+{
+	std::string diskId;
+	bool succeeded = DiskUtils::TryGetDiskId(GetStringFromJstring(env, diskImagePath).c_str(), &diskId);
+	if(!succeeded)
+	{
+		jclass exceptionClass = env->FindClass("java/lang/Exception");
+		env->ThrowNew(exceptionClass, "Failed to obtain disk id.");
+		return 0;
+	}
+	jstring result = env->NewStringUTF(diskId.c_str());
+	return result;
 }
