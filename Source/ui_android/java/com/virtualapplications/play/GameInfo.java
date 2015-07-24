@@ -265,11 +265,14 @@ public class GameInfo {
 				title = c.getString(c.getColumnIndex(Games.KEY_TITLE));
 				overview = c.getString(c.getColumnIndex(Games.KEY_OVERVIEW));
 				boxart = c.getString(c.getColumnIndex(Games.KEY_BOXART));
+				if (gameID != null && !gameID.equals("")) {
+					break;
+				}
 			} while (c.moveToNext());
 		}
 		c.close();
-		// This assumes only one serial is possible, making a loop irrelevant
-		if (overview != null && boxart != null) {
+		if (overview != null && boxart != null &&
+			!overview.equals("") && !boxart.equals("")) {
 			return new String[] { gameID, title, overview, boxart };
 		} else {
 			GamesDbAPI gameDatabase = new GamesDbAPI(mContext, gameID);
