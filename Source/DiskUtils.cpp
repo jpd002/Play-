@@ -50,7 +50,7 @@ DiskUtils::Iso9660Ptr DiskUtils::CreateDiskImageFromPath(const boost::filesystem
 	{
 		try
 		{
-			stream = std::make_shared<Framework::Posix::CVolumeStream>(path);
+			stream = std::make_shared<Framework::Posix::CVolumeStream>(imagePath.string().c_str());
 		}
 		catch(...)
 		{
