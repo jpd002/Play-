@@ -33,7 +33,6 @@ import com.android.util.FileUtils;
 public class MainActivity extends Activity 
 {	
 	private static final String PREFERENCE_CURRENT_DIRECTORY = "CurrentDirectory";
-	private static final String PREFERENCE_LAST_UPDATE = "lastDbUpdate";
 	
 	private SharedPreferences _preferences;
 	private TableLayout gameListing;
@@ -123,11 +122,6 @@ public class MainActivity extends Activity
 		}
 		
 		gameInfo = new GameInfo(MainActivity.this);
-		String current = getString(R.string.currentDatabase);
-		if (_preferences.getString(PREFERENCE_LAST_UPDATE, "0") != current) {
-			gameInfo.getDatabase(true);
-			setLastDbUpdate(current);
-		}
 		
 		prepareFileListView();
 	}
@@ -266,12 +260,6 @@ public class MainActivity extends Activity
 	{
 		SharedPreferences.Editor preferencesEditor = _preferences.edit();
 		preferencesEditor.putString(PREFERENCE_CURRENT_DIRECTORY, currentDirectory);
-		preferencesEditor.commit();
-	}
-	
-	private void setLastDbUpdate(String updated) {
-		SharedPreferences.Editor preferencesEditor = _preferences.edit();
-		preferencesEditor.putString(PREFERENCE_LAST_UPDATE, updated);
 		preferencesEditor.commit();
 	}
 	

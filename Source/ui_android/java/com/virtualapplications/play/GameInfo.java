@@ -2,28 +2,19 @@ package com.virtualapplications.play;
 
 import java.io.BufferedInputStream;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.StringReader;
-import java.io.UnsupportedEncodingException;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
+import java.io.OutputStream;
 import java.net.URL;
 import java.net.URLConnection;
 
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpResponse;
-import org.apache.http.client.ClientProtocolException;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.impl.client.DefaultHttpClient;
-
 import android.app.AlertDialog;
 import android.content.Context;
-import android.content.ContextWrapper;
 import android.content.ContentResolver;
 import android.content.DialogInterface;
 import android.database.Cursor;
-import android.database.SQLException;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
@@ -37,10 +28,6 @@ import android.view.View.OnLongClickListener;
 import android.widget.ImageView;
 import android.widget.ImageView.ScaleType;
 import android.widget.TextView;
-
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.OutputStream;
 
 import java.util.concurrent.ExecutionException;
 
@@ -195,35 +182,6 @@ public class GameInfo {
 		}
 	}
 	
-	public void getDatabase(boolean overwrite) {
-		String DB_PATH = mContext.getFilesDir().getAbsolutePath() + "/../databases/";
-		String DB_NAME = "games.db";
-		
-		if (overwrite || !new File (DB_PATH + DB_NAME).exists()) {
-			byte[] buffer = new byte[1024];
-			OutputStream myOutput = null;
-			int length;
-			InputStream myInput = null;
-			try
-			{
-				myInput = mContext.getAssets().open(DB_NAME);
-				myOutput = new FileOutputStream(DB_PATH + DB_NAME);
-				while((length = myInput.read(buffer)) > 0)
-				{
-					myOutput.write(buffer, 0, length);
-				}
-				myOutput.close();
-				myOutput.flush();
-				myInput.close();
-				
-			}
-			catch(IOException e)
-			{
-				e.printStackTrace();
-			}
-		}
-	}
-	
 	public OnLongClickListener configureLongClick(final String title, final String overview, final File gameFile) {
 		return new OnLongClickListener() {
 			public boolean onLongClick(View view) {
@@ -254,10 +212,11 @@ public class GameInfo {
 	
 	public String[] getGameInfo(File game, View childview) {
 		String serial = getSerial(game);
+		String suffix = serial.substring(5, serial.length());
 		String gameID = null,  title = null, overview = null, boxart = null;
 		ContentResolver cr = mContext.getContentResolver();
 		String selection = Games.KEY_SERIAL + "=?";
-		String[] selectionArgs = { serial };
+		String[] selectionArgs = { serial, "SLUS" + suffix, "SLES" + suffix, "SLPS" + suffix };
 		Cursor c = cr.query(Games.GAMES_URI, null, selection, selectionArgs, null);
 		if (c != null) {
 			if (c.moveToFirst()) {
