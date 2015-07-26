@@ -291,6 +291,7 @@
     <ClInclude Include="..\Source\MIPSReflection.h" />
     <ClInclude Include="..\Source\MIPSTags.h" />
     <ClInclude Include="..\Source\OsStructManager.h" />
+    <ClInclude Include="..\Source\OsStructQueue.h" />
     <ClInclude Include="..\Source\PadHandler.h" />
     <ClInclude Include="..\Source\PadListener.h" />
     <ClInclude Include="..\Source\Profiler.h" />

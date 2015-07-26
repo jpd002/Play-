@@ -49,6 +49,8 @@
 #define BIOS_ADDRESS_CURRENT_THREAD_ID		0x00000010
 #define BIOS_ADDRESS_VSYNCFLAG_VALUE1PTR	0x00000014
 #define BIOS_ADDRESS_VSYNCFLAG_VALUE2PTR	0x00000018
+#define BIOS_ADDRESS_INTCHANDLERQUEUE_BASE	0x0000001C
+#define BIOS_ADDRESS_INTCHANDLER_BASE		0x0000A000
 #define BIOS_ADDRESS_DMACHANDLER_BASE		0x0000C000
 #define BIOS_ADDRESS_SEMAPHORE_BASE			0x0000E000
 #define BIOS_ADDRESS_ALARM_BASE				0x00010800
@@ -56,6 +58,7 @@
 #define BIOS_ADDRESS_BASE				0x1FC00000
 #define BIOS_ADDRESS_INTERRUPTHANDLER	0x1FC00200
 #define BIOS_ADDRESS_DMACHANDLER		0x1FC01000
+#define BIOS_ADDRESS_INTCHANDLER		0x1FC02000
 #define BIOS_ADDRESS_THREADEPILOG		0x1FC03000
 #define BIOS_ADDRESS_WAITTHREADPROC		0x1FC03100
 #define BIOS_ADDRESS_ALARMHANDLER		0x1FC03200
@@ -194,8 +197,10 @@ CPS2OS::CPS2OS(CMIPS& ee, uint8* ram, uint8* bios, uint8* spr, CGSHandler*& gs, 
 , m_sif(sif)
 , m_iopBios(iopBios)
 , m_semaphores(reinterpret_cast<SEMAPHORE*>(m_ram + BIOS_ADDRESS_SEMAPHORE_BASE), BIOS_ID_BASE, MAX_SEMAPHORE)
+, m_intcHandlers(reinterpret_cast<INTCHANDLER*>(m_ram + BIOS_ADDRESS_INTCHANDLER_BASE), BIOS_ID_BASE, MAX_INTCHANDLER)
 , m_dmacHandlers(reinterpret_cast<DMACHANDLER*>(m_ram + BIOS_ADDRESS_DMACHANDLER_BASE), BIOS_ID_BASE, MAX_DMACHANDLER)
 , m_alarms(reinterpret_cast<ALARM*>(m_ram + BIOS_ADDRESS_ALARM_BASE), BIOS_ID_BASE, MAX_ALARM)
+, m_intcHandlerQueue(m_intcHandlers, reinterpret_cast<uint32*>(m_ram + BIOS_ADDRESS_INTCHANDLERQUEUE_BASE))
 {
 	Initialize();
 }
@@ -250,8 +255,8 @@ void CPS2OS::DumpIntcHandlers()
 
 	for(unsigned int i = 0; i < MAX_INTCHANDLER; i++)
 	{
-		INTCHANDLER* handler = GetIntcHandler(i + 1);
-		if(handler->valid == 0) continue;
+		auto handler = m_intcHandlers[i + 1];
+		if(handler == nullptr) continue;
 
 		printf("ID: %0.2i, Line: %i, Address: 0x%0.8X.\r\n", \
 			i + 1,
@@ -680,10 +685,8 @@ void CPS2OS::AssembleInterruptHandler()
 			assembler.NOP();
 
 			//Process handlers
-			assembler.LUI(CMIPS::T0, 0x1FC0);
-			assembler.ORI(CMIPS::T0, CMIPS::T0, 0x2000);
 			assembler.ADDIU(CMIPS::A0, CMIPS::R0, line);
-			assembler.JALR(CMIPS::T0);
+			assembler.JAL(BIOS_ADDRESS_INTCHANDLER);
 			assembler.NOP();
 
 			assembler.MarkLabel(skipIntHandlerLabel);
@@ -856,66 +859,67 @@ void CPS2OS::AssembleDmacHandler()
 
 void CPS2OS::AssembleIntcHandler()
 {
-	CMIPSAssembler assembler(reinterpret_cast<uint32*>(&m_bios[0x2000]));
+	CMIPSAssembler assembler(reinterpret_cast<uint32*>(&m_bios[BIOS_ADDRESS_INTCHANDLER - BIOS_ADDRESS_BASE]));
 
-	CMIPSAssembler::LABEL checkHandlerLabel = assembler.CreateLabel();
-	CMIPSAssembler::LABEL moveToNextHandler = assembler.CreateLabel();
+	auto checkHandlerLabel = assembler.CreateLabel();
+	auto finishLoop = assembler.CreateLabel();
+
+	auto nextIdPtrRegister = CMIPS::S0;
+	auto causeRegister = CMIPS::S1;
+
+	auto nextIdRegister = CMIPS::T2;
 
 	//Prologue
-	//S0 -> Handler Counter
-
 	assembler.ADDIU(CMIPS::SP, CMIPS::SP, 0xFFE0);
 	assembler.SD(CMIPS::RA, 0x0000, CMIPS::SP);
 	assembler.SD(CMIPS::S0, 0x0008, CMIPS::SP);
 	assembler.SD(CMIPS::S1, 0x0010, CMIPS::SP);
 
 	//Clear INTC cause
-	assembler.LUI(CMIPS::T1, 0x1000);
-	assembler.ORI(CMIPS::T1, CMIPS::T1, 0xF000);
+	assembler.LI(CMIPS::T1, CINTC::INTC_STAT);
 	assembler.ADDIU(CMIPS::T0, CMIPS::R0, 0x0001);
 	assembler.SLLV(CMIPS::T0, CMIPS::T0, CMIPS::A0);
 	assembler.SW(CMIPS::T0, 0x0000, CMIPS::T1);
 
 	//Initialize INTC handler loop
-	assembler.ADDU(CMIPS::S0, CMIPS::R0, CMIPS::R0);
-	assembler.ADDU(CMIPS::S1, CMIPS::A0, CMIPS::R0);
+	assembler.LI(nextIdPtrRegister, BIOS_ADDRESS_INTCHANDLERQUEUE_BASE);
+	assembler.ADDU(causeRegister, CMIPS::A0, CMIPS::R0);
 
 	assembler.MarkLabel(checkHandlerLabel);
 
+	//Check
+	assembler.LW(nextIdRegister, 0, nextIdPtrRegister);
+	assembler.BEQ(nextIdRegister, CMIPS::R0, finishLoop);
+	assembler.ADDIU(nextIdRegister, nextIdRegister, static_cast<uint16>(-1));
+
 	//Get the address to the current INTCHANDLER structure
 	assembler.ADDIU(CMIPS::T0, CMIPS::R0, sizeof(INTCHANDLER));
-	assembler.MULTU(CMIPS::T0, CMIPS::S0, CMIPS::T0);
-	assembler.LUI(CMIPS::T1, 0x8000);
-	assembler.ORI(CMIPS::T1, CMIPS::T1, 0xA000);
+	assembler.MULTU(CMIPS::T0, nextIdRegister, CMIPS::T0);
+	assembler.LI(CMIPS::T1, BIOS_ADDRESS_INTCHANDLER_BASE);
 	assembler.ADDU(CMIPS::T0, CMIPS::T0, CMIPS::T1);
 
-	//Check validity
-	assembler.LW(CMIPS::T1, 0x0000, CMIPS::T0);
-	assembler.BEQ(CMIPS::T1, CMIPS::R0, moveToNextHandler);
-	assembler.NOP();
+	//Adjust nextIdPtr
+	assembler.ADDIU(nextIdPtrRegister, CMIPS::T0, offsetof(INTCHANDLER, nextId));
 
 	//Check if the cause is good one
-	assembler.LW(CMIPS::T1, 0x0004, CMIPS::T0);
-	assembler.BNE(CMIPS::S1, CMIPS::T1, moveToNextHandler);
+	assembler.LW(CMIPS::T1, offsetof(INTCHANDLER, cause), CMIPS::T0);
+	assembler.BNE(causeRegister, CMIPS::T1, checkHandlerLabel);
 	assembler.NOP();
 
 	//Load the necessary stuff
-	assembler.LW(CMIPS::T1, 0x0008, CMIPS::T0);
-	assembler.ADDU(CMIPS::A0, CMIPS::S1, CMIPS::R0);
-	assembler.LW(CMIPS::A1, 0x000C, CMIPS::T0);
-	assembler.LW(CMIPS::GP, 0x0010, CMIPS::T0);
+	assembler.LW(CMIPS::T1, offsetof(INTCHANDLER, address), CMIPS::T0);
+	assembler.ADDU(CMIPS::A0, causeRegister, CMIPS::R0);
+	assembler.LW(CMIPS::A1, offsetof(INTCHANDLER, arg), CMIPS::T0);
+	assembler.LW(CMIPS::GP, offsetof(INTCHANDLER, gp), CMIPS::T0);
 	
 	//Jump
 	assembler.JALR(CMIPS::T1);
 	assembler.NOP();
 
-	assembler.MarkLabel(moveToNextHandler);
-
-	//Increment handler counter and test
-	assembler.ADDIU(CMIPS::S0, CMIPS::S0, 0x0001);
-	assembler.ADDIU(CMIPS::T0, CMIPS::R0, MAX_INTCHANDLER - 1);
-	assembler.BNE(CMIPS::S0, CMIPS::T0, checkHandlerLabel);
+	assembler.BGEZ(CMIPS::V0, checkHandlerLabel);
 	assembler.NOP();
+
+	assembler.MarkLabel(finishLoop);
 
 	//Epilogue
 	assembler.LD(CMIPS::RA, 0x0000, CMIPS::SP);
@@ -1248,26 +1252,6 @@ uint8* CPS2OS::GetStructPtr(uint32 address) const
 	return memory + address;
 }
 
-uint32 CPS2OS::GetNextAvailableIntcHandlerId()
-{
-	for(uint32 i = 1; i < MAX_INTCHANDLER; i++)
-	{
-		INTCHANDLER* handler = GetIntcHandler(i);
-		if(handler->valid != 1)
-		{
-			return i;
-		}
-	}
-
-	return 0xFFFFFFFF;
-}
-
-CPS2OS::INTCHANDLER* CPS2OS::GetIntcHandler(uint32 id)
-{
-	id--;
-	return &((INTCHANDLER*)&m_ram[0x0000A000])[id];
-}
-
 uint32 CPS2OS::GetNextAvailableDeci2HandlerId()
 {
 	for(uint32 i = 1; i < MAX_DECI2HANDLER; i++)
@@ -1407,30 +1391,33 @@ void CPS2OS::sc_AddIntcHandler()
 	uint32 next		= m_ee.m_State.nGPR[SC_PARAM2].nV[0];
 	uint32 arg		= m_ee.m_State.nGPR[SC_PARAM3].nV[0];
 
-	/*
-	if(next != 0)
+	uint32 id = m_intcHandlers.Allocate();
+	if(static_cast<int32>(id) == -1)
 	{
-		assert(0);
-	}
-	*/
-
-	uint32 id = GetNextAvailableIntcHandlerId();
-	if(id == 0xFFFFFFFF)
-	{
-		m_ee.m_State.nGPR[SC_RETURN].nV[0] = 0xFFFFFFFF;
-		m_ee.m_State.nGPR[SC_RETURN].nV[1] = 0xFFFFFFFF;
+		m_ee.m_State.nGPR[SC_RETURN].nD0 = static_cast<int32>(-1);
 		return;
 	}
 
-	INTCHANDLER* handler = GetIntcHandler(id);
-	handler->valid		= 1;
+	auto handler = m_intcHandlers[id];
 	handler->address	= address;
 	handler->cause		= cause;
 	handler->arg		= arg;
 	handler->gp			= m_ee.m_State.nGPR[CMIPS::GP].nV[0];
 
-	m_ee.m_State.nGPR[SC_RETURN].nV[0] = id;
-	m_ee.m_State.nGPR[SC_RETURN].nV[1] = 0;
+	if(next == 0)
+	{
+		m_intcHandlerQueue.PushFront(id);
+	}
+	else if(static_cast<int32>(next) == -1)
+	{
+		m_intcHandlerQueue.PushBack(id);
+	}
+	else
+	{
+		m_intcHandlerQueue.AddBefore(next, id);
+	}
+
+	m_ee.m_State.nGPR[SC_RETURN].nD0 = static_cast<int32>(id);
 }
 
 //11
@@ -1439,18 +1426,17 @@ void CPS2OS::sc_RemoveIntcHandler()
 	uint32 cause	= m_ee.m_State.nGPR[SC_PARAM0].nV[0];
 	uint32 id		= m_ee.m_State.nGPR[SC_PARAM1].nV[0];
 
-	INTCHANDLER* handler = GetIntcHandler(id);
-	if(handler->valid != 1)
+	auto handler = m_intcHandlers[id];
+	if(!handler)
 	{
-		m_ee.m_State.nGPR[SC_RETURN].nV[0] = 0xFFFFFFFF;
-		m_ee.m_State.nGPR[SC_RETURN].nV[1] = 0xFFFFFFFF;
+		m_ee.m_State.nGPR[SC_RETURN].nD0 = static_cast<int32>(-1);
 		return;
 	}
 
-	handler->valid = 0;
+	m_intcHandlerQueue.Unlink(id);
+	m_intcHandlers.Free(id);
 
-	m_ee.m_State.nGPR[SC_RETURN].nV[0] = 0;
-	m_ee.m_State.nGPR[SC_RETURN].nV[1] = 0;
+	m_ee.m_State.nGPR[SC_RETURN].nD0 = 0;
 }
 
 //12
@@ -2422,15 +2408,14 @@ void CPS2OS::sc_SetSyscall()
 
 		unsigned int line = 12;
 
-		uint32 handlerId = GetNextAvailableIntcHandlerId();
-		if(handlerId == 0xFFFFFFFF)
+		uint32 handlerId = m_intcHandlers.Allocate();
+		if(static_cast<int32>(handlerId) == -1)
 		{
 			CLog::GetInstance().Print(LOG_NAME, "Couldn't set INTC handler through SetSyscall");
 			return;
 		}
 
-		INTCHANDLER* handler = GetIntcHandler(handlerId);
-		handler->valid		= 1;
+		auto handler = m_intcHandlers[handlerId];
 		handler->address	= address & 0x1FFFFFFF;
 		handler->cause		= line;
 		handler->arg		= 0;
@@ -2440,6 +2425,8 @@ void CPS2OS::sc_SetSyscall()
 		{
 			m_ee.m_pMemoryMap->SetWord(CINTC::INTC_MASK, (1 << line));
 		}
+
+		m_intcHandlerQueue.PushFront(handlerId);
 	}
 	else
 	{

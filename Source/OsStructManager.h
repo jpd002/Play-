@@ -11,7 +11,7 @@ public:
 	, m_idBase(idBase)
 	, m_structMax(structMax)
 	{
-
+		assert(m_idBase != 0);
 	}
 
 	StructType* GetBase() const
