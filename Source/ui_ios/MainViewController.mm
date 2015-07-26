@@ -1,5 +1,6 @@
 #import "MainViewController.h"
 #import "EmulatorViewController.h"
+#import "IosUtils.h"
 
 @interface MainViewController ()
 
@@ -19,8 +20,10 @@
 	NSString* file = nil;
 	while(file = [dirEnum nextObject])
 	{
-		NSString* extension = [file pathExtension];
-		if([extension caseInsensitiveCompare: @"elf"] == NSOrderedSame)
+		if(
+			IosUtils::IsLoadableExecutableFileName(file) ||
+			IosUtils::IsLoadableDiskImageFileName(file)
+		)
 		{
 			[images addObject: file];
 		}
