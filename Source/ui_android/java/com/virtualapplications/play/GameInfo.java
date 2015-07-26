@@ -259,18 +259,20 @@ public class GameInfo {
 		String selection = Games.KEY_SERIAL + "=?";
 		String[] selectionArgs = { serial };
 		Cursor c = cr.query(Games.GAMES_URI, null, selection, selectionArgs, null);
-		if (c.moveToFirst()) {
-			do {
-				gameID = c.getString(c.getColumnIndex(Games.KEY_GAMEID));
-				title = c.getString(c.getColumnIndex(Games.KEY_TITLE));
-				overview = c.getString(c.getColumnIndex(Games.KEY_OVERVIEW));
-				boxart = c.getString(c.getColumnIndex(Games.KEY_BOXART));
-				if (gameID != null && !gameID.equals("")) {
-					break;
-				}
-			} while (c.moveToNext());
+		if (c != null) {
+			if (c.moveToFirst()) {
+				do {
+					gameID = c.getString(c.getColumnIndex(Games.KEY_GAMEID));
+					title = c.getString(c.getColumnIndex(Games.KEY_TITLE));
+					overview = c.getString(c.getColumnIndex(Games.KEY_OVERVIEW));
+					boxart = c.getString(c.getColumnIndex(Games.KEY_BOXART));
+					if (gameID != null && !gameID.equals("")) {
+						break;
+					}
+				} while (c.moveToNext());
+			}
+			c.close();
 		}
-		c.close();
 		if (overview != null && boxart != null &&
 			!overview.equals("") && !boxart.equals("")) {
 			return new String[] { gameID, title, overview, boxart };
