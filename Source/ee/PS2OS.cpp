@@ -50,6 +50,7 @@
 #define BIOS_ADDRESS_VSYNCFLAG_VALUE1PTR	0x00000014
 #define BIOS_ADDRESS_VSYNCFLAG_VALUE2PTR	0x00000018
 #define BIOS_ADDRESS_INTCHANDLERQUEUE_BASE	0x0000001C
+#define BIOS_ADDRESS_DMACHANDLERQUEUE_BASE	0x00000020
 #define BIOS_ADDRESS_INTCHANDLER_BASE		0x0000A000
 #define BIOS_ADDRESS_DMACHANDLER_BASE		0x0000C000
 #define BIOS_ADDRESS_SEMAPHORE_BASE			0x0000E000
@@ -201,6 +202,7 @@ CPS2OS::CPS2OS(CMIPS& ee, uint8* ram, uint8* bios, uint8* spr, CGSHandler*& gs, 
 , m_dmacHandlers(reinterpret_cast<DMACHANDLER*>(m_ram + BIOS_ADDRESS_DMACHANDLER_BASE), BIOS_ID_BASE, MAX_DMACHANDLER)
 , m_alarms(reinterpret_cast<ALARM*>(m_ram + BIOS_ADDRESS_ALARM_BASE), BIOS_ID_BASE, MAX_ALARM)
 , m_intcHandlerQueue(m_intcHandlers, reinterpret_cast<uint32*>(m_ram + BIOS_ADDRESS_INTCHANDLERQUEUE_BASE))
+, m_dmacHandlerQueue(m_dmacHandlers, reinterpret_cast<uint32*>(m_ram + BIOS_ADDRESS_DMACHANDLERQUEUE_BASE))
 {
 	Initialize();
 }
@@ -757,15 +759,15 @@ void CPS2OS::AssembleDmacHandler()
 {
 	CMIPSAssembler assembler(reinterpret_cast<uint32*>(&m_bios[BIOS_ADDRESS_DMACHANDLER - BIOS_ADDRESS_BASE]));
 
-	auto testHandlerLabel = assembler.CreateLabel();
+	auto checkHandlerLabel = assembler.CreateLabel();
 	auto testChannelLabel = assembler.CreateLabel();
-	auto skipHandlerLabel = assembler.CreateLabel();
 	auto skipChannelLabel = assembler.CreateLabel();
 
-	//Prologue
-	//S0 -> Channel Counter
-	//S1 -> DMA Interrupt Status
-	//S2 -> Handler Counter
+	auto channelCounterRegister = CMIPS::S0;
+	auto interruptStatusRegister = CMIPS::S1;
+	auto nextIdPtrRegister = CMIPS::S2;
+
+	auto nextIdRegister = CMIPS::T2;
 
 	assembler.ADDIU(CMIPS::SP, CMIPS::SP, 0xFFE0);
 	assembler.SD(CMIPS::RA, 0x0000, CMIPS::SP);
@@ -783,10 +785,10 @@ void CPS2OS::AssembleDmacHandler()
 	assembler.LW(CMIPS::T0, 0x0000, CMIPS::T0);
 
 	assembler.SRL(CMIPS::T1, CMIPS::T0, 16);
-	assembler.AND(CMIPS::S1, CMIPS::T0, CMIPS::T1);
+	assembler.AND(interruptStatusRegister, CMIPS::T0, CMIPS::T1);
 
 	//Initialize channel counter
-	assembler.ADDIU(CMIPS::S0, CMIPS::R0, 0x0009);
+	assembler.ADDIU(channelCounterRegister, CMIPS::R0, 0x0009);
 
 	assembler.MarkLabel(testChannelLabel);
 
@@ -802,29 +804,32 @@ void CPS2OS::AssembleDmacHandler()
 	assembler.SW(CMIPS::T0, 0x0000, CMIPS::T1);
 
 	//Initialize DMAC handler loop
-	assembler.ADDU(CMIPS::S2, CMIPS::R0, CMIPS::R0);
+	assembler.LI(nextIdPtrRegister, BIOS_ADDRESS_DMACHANDLERQUEUE_BASE);
 
-	assembler.MarkLabel(testHandlerLabel);
+	assembler.MarkLabel(checkHandlerLabel);
+
+	//Check
+	assembler.LW(nextIdRegister, 0, nextIdPtrRegister);
+	assembler.BEQ(nextIdRegister, CMIPS::R0, skipChannelLabel);
+	assembler.ADDIU(nextIdRegister, nextIdRegister, static_cast<uint16>(-1));
 
 	//Get the address to the current DMACHANDLER structure
 	assembler.ADDIU(CMIPS::T0, CMIPS::R0, sizeof(DMACHANDLER));
-	assembler.MULTU(CMIPS::T0, CMIPS::S2, CMIPS::T0);
+	assembler.MULTU(CMIPS::T0, nextIdRegister, CMIPS::T0);
 	assembler.LI(CMIPS::T1, BIOS_ADDRESS_DMACHANDLER_BASE);
 	assembler.ADDU(CMIPS::T0, CMIPS::T0, CMIPS::T1);
 
-	//Check validity
-	assembler.LW(CMIPS::T1, offsetof(DMACHANDLER, isValid), CMIPS::T0);
-	assembler.BEQ(CMIPS::T1, CMIPS::R0, skipHandlerLabel);
-	assembler.NOP();
+	//Adjust nextIdPtr
+	assembler.ADDIU(nextIdPtrRegister, CMIPS::T0, offsetof(INTCHANDLER, nextId));
 
 	//Check if the channel is good one
 	assembler.LW(CMIPS::T1, offsetof(DMACHANDLER, channel), CMIPS::T0);
-	assembler.BNE(CMIPS::S0, CMIPS::T1, skipHandlerLabel);
+	assembler.BNE(channelCounterRegister, CMIPS::T1, checkHandlerLabel);
 	assembler.NOP();
 
 	//Load the necessary stuff
 	assembler.LW(CMIPS::T1, offsetof(DMACHANDLER, address), CMIPS::T0);
-	assembler.ADDU(CMIPS::A0, CMIPS::S0, CMIPS::R0);
+	assembler.ADDU(CMIPS::A0, channelCounterRegister, CMIPS::R0);
 	assembler.LW(CMIPS::A1, offsetof(DMACHANDLER, arg), CMIPS::T0);
 	assembler.LW(CMIPS::GP, offsetof(DMACHANDLER, gp), CMIPS::T0);
 	
@@ -832,19 +837,14 @@ void CPS2OS::AssembleDmacHandler()
 	assembler.JALR(CMIPS::T1);
 	assembler.NOP();
 
-	assembler.MarkLabel(skipHandlerLabel);
-
-	//Increment handler counter and test
-	assembler.ADDIU(CMIPS::S2, CMIPS::S2, 0x0001);
-	assembler.ADDIU(CMIPS::T0, CMIPS::R0, MAX_DMACHANDLER - 1);
-	assembler.BNE(CMIPS::S2, CMIPS::T0, testHandlerLabel);
+	assembler.BGEZ(CMIPS::V0, checkHandlerLabel);
 	assembler.NOP();
 
 	assembler.MarkLabel(skipChannelLabel);
 
 	//Decrement channel counter and test
-	assembler.ADDIU(CMIPS::S0, CMIPS::S0, 0xFFFF);
-	assembler.BGEZ(CMIPS::S0, testChannelLabel);
+	assembler.ADDIU(channelCounterRegister, channelCounterRegister, 0xFFFF);
+	assembler.BGEZ(channelCounterRegister, testChannelLabel);
 	assembler.NOP();
 
 	//Epilogue
@@ -1447,20 +1447,10 @@ void CPS2OS::sc_AddDmacHandler()
 	uint32 next		= m_ee.m_State.nGPR[SC_PARAM2].nV[0];
 	uint32 arg		= m_ee.m_State.nGPR[SC_PARAM3].nV[0];
 
-	//The Next parameter indicates at which moment we'd want our DMAC handler to be called.
-	//-1 -> At the end
-	//0  -> At the start
-	//n  -> After handler 'n'
-
-	if(next != 0)
-	{
-		assert(0);
-	}
-
 	uint32 id = m_dmacHandlers.Allocate();
-	if(id == 0xFFFFFFFF)
+	if(static_cast<int32>(id) == -1)
 	{
-		m_ee.m_State.nGPR[SC_RETURN].nD0 = -1;
+		m_ee.m_State.nGPR[SC_RETURN].nD0 = static_cast<int32>(-1);
 		return;
 	}
 
@@ -1469,6 +1459,19 @@ void CPS2OS::sc_AddDmacHandler()
 	handler->channel	= channel;
 	handler->arg		= arg;
 	handler->gp			= m_ee.m_State.nGPR[CMIPS::GP].nV[0];
+
+	if(next == 0)
+	{
+		m_dmacHandlerQueue.PushFront(id);
+	}
+	else if(static_cast<int32>(next) == -1)
+	{
+		m_dmacHandlerQueue.PushBack(id);
+	}
+	else
+	{
+		m_dmacHandlerQueue.AddBefore(next, id);
+	}
 
 	m_ee.m_State.nGPR[SC_RETURN].nD0 = id;
 }
@@ -1480,12 +1483,13 @@ void CPS2OS::sc_RemoveDmacHandler()
 	uint32 id		= m_ee.m_State.nGPR[SC_PARAM1].nV[0];
 
 	auto handler = m_dmacHandlers[id];
-	if(handler == nullptr)
+	if(!handler)
 	{
-		m_ee.m_State.nGPR[SC_RETURN].nD0 = -1;
+		m_ee.m_State.nGPR[SC_RETURN].nD0 = static_cast<int32>(-1);
 		return;
 	}
 
+	m_dmacHandlerQueue.Unlink(id);
 	m_dmacHandlers.Free(id);
 
 	m_ee.m_State.nGPR[SC_RETURN].nD0 = 0;

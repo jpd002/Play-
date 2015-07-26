@@ -175,6 +175,7 @@ private:
 	struct DMACHANDLER
 	{
 		uint32									isValid;
+		uint32									nextId;
 		uint32									channel;
 		uint32									address;
 		uint32									arg;
@@ -262,6 +263,7 @@ private:
 	typedef COsStructManager<ALARM> AlarmList;
 
 	typedef COsStructQueue<INTCHANDLER> IntcHandlerQueue;
+	typedef COsStructQueue<DMACHANDLER> DmacHandlerQueue;
 
 	typedef void (CPS2OS::*SystemCallHandler)();
 
@@ -371,6 +373,7 @@ private:
 	AlarmList								m_alarms;
 
 	IntcHandlerQueue						m_intcHandlerQueue;
+	DmacHandlerQueue						m_dmacHandlerQueue;
 
 	std::string								m_executableName;
 	ArgumentList							m_currentArguments;
