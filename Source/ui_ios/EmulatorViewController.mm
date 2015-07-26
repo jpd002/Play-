@@ -5,6 +5,7 @@
 #include "../PS2VM_Preferences.h"
 #include "../AppConfig.h"
 #include "GSH_OpenGLiOS.h"
+#include "IosUtils.h"
 
 CPS2VM* g_virtualMachine = nullptr;
 
@@ -28,14 +29,16 @@ CPS2VM* g_virtualMachine = nullptr;
 	g_virtualMachine->Pause();
 	g_virtualMachine->Reset();
 
-	g_virtualMachine->m_ee->m_os->BootFromFile([self.imagePath UTF8String]);
-
-#if 0
-	auto filePath = Framework::PathUtils::GetPersonalDataPath() / boost::filesystem::path("SLPM62462 - Gradius V.isz");
-	CAppConfig::GetInstance().SetPreferenceString(PS2VM_CDROM0PATH, filePath.c_str());
-	g_virtualMachine->Reset();
-	g_virtualMachine->m_ee->m_os->BootFromCDROM(CPS2OS::ArgumentList());
-#endif
+	if(IosUtils::IsLoadableExecutableFileName(self.imagePath))
+	{
+		g_virtualMachine->m_ee->m_os->BootFromFile([self.imagePath UTF8String]);
+	}
+	else
+	{
+		CAppConfig::GetInstance().SetPreferenceString(PS2VM_CDROM0PATH, [self.imagePath UTF8String]);
+		g_virtualMachine->Reset();
+		g_virtualMachine->m_ee->m_os->BootFromCDROM(CPS2OS::ArgumentList());
+	}
 
 	g_virtualMachine->Resume();
 }
