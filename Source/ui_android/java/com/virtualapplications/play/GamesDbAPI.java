@@ -8,6 +8,7 @@ import java.io.StringReader;
 import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.net.URLConnection;
+import java.net.URLEncoder;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -54,14 +55,16 @@ public class GamesDbAPI extends AsyncTask<File, Integer, Document> {
 	private String gameID;
 	private File gameFile;
 	private GameInfo gameInfo;
+	private boolean elastic;
 
-	private static final String games_url = "http://thegamesdb.net/api/GetGame.php?platform=sony+playstation+2&name=";
+	private static final String games_url = "http://thegamesdb.net/api/GetGamesList.php?platform=sony+playstation+2&name=";
     private static final String games_url_id = "http://thegamesdb.net/api/GetGame.php?platform=sony+playstation+2&id=";
 	private static final String games_list = "http://thegamesdb.net/api/GetPlatformGames.php?platform=11";
 	private SparseArray<String> game_details = new SparseArray<String>();
 	private SparseArray<Bitmap> game_preview = new SparseArray<Bitmap>();
 
 	public GamesDbAPI(Context mContext, String gameID) {
+		this.elastic = false;
 		this.mContext = mContext;
 		this.gameID = gameID;
 	}
@@ -92,19 +95,12 @@ public class GamesDbAPI extends AsyncTask<File, Integer, Document> {
 					if (gameID != null) {
 						httpPost = new HttpPost(games_url_id + gameID);
 					} else {
-						if (filename.startsWith("[")) {
-							filename = filename.substring(filename.indexOf("]") + 1, filename.length());
-						}
-						if (filename.contains("[")) {
-							filename = filename.substring(0, filename.indexOf("["));
-						} else {
-							filename = filename.substring(0, filename.lastIndexOf("."));
-						}
-						filename = filename.replace("_", " ").replace(":", " ");
-						filename = filename.replaceAll("[^\\p{Alpha}\\p{Digit}]+"," ");
-						filename = filename.replace("  ", " ").replace(" ", "+");
-						if (filename.endsWith("+")) {
-							filename = filename.substring(0, filename.length() - 1);
+						elastic = true;
+						filename = filename.substring(0, filename.lastIndexOf("."));
+						try {
+							filename = URLEncoder.encode(filename, "UTF-8");
+						} catch (UnsupportedEncodingException e) {
+							filename = filename.replace(" ", "+");
 						}
 						httpPost = new HttpPost(games_url + filename);
 					}
@@ -139,48 +135,54 @@ public class GamesDbAPI extends AsyncTask<File, Integer, Document> {
 				
 				final String remoteID = getValue(root, "id");
 				
-				ContentValues values = new ContentValues();
-				final String overview = getValue(root, "Overview");
-				values.put(Games.KEY_OVERVIEW, overview);
-				
-				Element images = (Element) root.getElementsByTagName("Images").item(0);
-				Element boxart = null;
-				if (images.getElementsByTagName("boxart").getLength() > 1) {
-					boxart = (Element) images.getElementsByTagName("boxart").item(1);
-				} else if (images.getElementsByTagName("boxart").getLength() == 1) {
-					boxart = (Element) images.getElementsByTagName("boxart").item(0);
-				}
-				String coverImage = null;
-				if (boxart != null) {
-					coverImage = getElementValue(boxart);
-					values.put(Games.KEY_BOXART, coverImage);
+				if (elastic) {
+					GamesDbAPI gameDatabase = new GamesDbAPI(mContext, remoteID);
+					gameDatabase.setView(childview);
+					gameDatabase.execute(gameFile);
 				} else {
-					values.put(Games.KEY_BOXART, "404");
-				}
-				
-				if (gameID != null) {
+					ContentValues values = new ContentValues();
+					final String overview = getValue(root, "Overview");
+					values.put(Games.KEY_OVERVIEW, overview);
+					
+					Element images = (Element) root.getElementsByTagName("Images").item(0);
+					Element boxart = null;
+					if (images.getElementsByTagName("boxart").getLength() > 1) {
+						boxart = (Element) images.getElementsByTagName("boxart").item(1);
+					} else if (images.getElementsByTagName("boxart").getLength() == 1) {
+						boxart = (Element) images.getElementsByTagName("boxart").item(0);
+					}
+					String coverImage = null;
+					if (boxart != null) {
+						coverImage = getElementValue(boxart);
+						values.put(Games.KEY_BOXART, coverImage);
+					} else {
+						values.put(Games.KEY_BOXART, "404");
+					}
+					
+					if (gameID != null) {
 
-					String selection = Games.KEY_GAMEID + "=?";
-					String[] selectionArgs = { gameID };
-					
-					mContext.getContentResolver().update(Games.GAMES_URI, values, selection, selectionArgs);
-					
-				} else {
-					
-					String selection = Games.KEY_GAMEID + "=?";
-					String[] selectionArgs = { remoteID };
-					
-					mContext.getContentResolver().update(Games.GAMES_URI, values, selection, selectionArgs);
-					
-				}
-				if (childview != null) {
-					childview.findViewById(R.id.childview).setOnLongClickListener(
-						gameInfo.configureLongClick(getValue(root, "GameTitle"), overview, gameFile));
-					if (coverImage != null) {
-						if (gameID != null) {
-							gameInfo.getImage(gameID, childview, coverImage);
-						} else {
-							gameInfo.getImage(remoteID, childview, coverImage);
+						String selection = Games.KEY_GAMEID + "=?";
+						String[] selectionArgs = { gameID };
+						
+						mContext.getContentResolver().update(Games.GAMES_URI, values, selection, selectionArgs);
+						
+					} else {
+						
+						String selection = Games.KEY_GAMEID + "=?";
+						String[] selectionArgs = { remoteID };
+						
+						mContext.getContentResolver().update(Games.GAMES_URI, values, selection, selectionArgs);
+						
+					}
+					if (childview != null) {
+						childview.findViewById(R.id.childview).setOnLongClickListener(
+							gameInfo.configureLongClick(getValue(root, "GameTitle"), overview, gameFile));
+						if (coverImage != null) {
+							if (gameID != null) {
+								gameInfo.getImage(gameID, childview, coverImage);
+							} else {
+								gameInfo.getImage(remoteID, childview, coverImage);
+							}
 						}
 					}
 				}
