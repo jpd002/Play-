@@ -38,7 +38,6 @@ import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.StrictMode;
-import android.util.SparseArray;
 import android.view.View;
 import android.view.View.OnLongClickListener;
 import android.widget.ImageView;
@@ -60,8 +59,6 @@ public class GamesDbAPI extends AsyncTask<File, Integer, Document> {
 	private static final String games_url = "http://thegamesdb.net/api/GetGamesList.php?platform=sony+playstation+2&name=";
     private static final String games_url_id = "http://thegamesdb.net/api/GetGame.php?platform=sony+playstation+2&id=";
 	private static final String games_list = "http://thegamesdb.net/api/GetPlatformGames.php?platform=11";
-	private SparseArray<String> game_details = new SparseArray<String>();
-	private SparseArray<Bitmap> game_preview = new SparseArray<Bitmap>();
 
 	public GamesDbAPI(Context mContext, String gameID) {
 		this.elastic = false;
