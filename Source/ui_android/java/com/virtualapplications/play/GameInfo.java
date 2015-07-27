@@ -212,6 +212,7 @@ public class GameInfo {
 	
 	public String[] getGameInfo(File game, View childview) {
 		String serial = getSerial(game);
+		if (serial == null) return null;
 		String suffix = serial.substring(5, serial.length());
 		String gameID = null,  title = null, overview = null, boxart = null;
 		ContentResolver cr = mContext.getContentResolver();
