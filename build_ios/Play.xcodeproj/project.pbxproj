@@ -14,6 +14,7 @@
 		704E1C551B3BA25000C0ACE3 /* GSH_OpenGL.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 704E1C511B3BA25000C0ACE3 /* GSH_OpenGL.cpp */; };
 		70603E1F1B60A94400935E3C /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 70603E1E1B60A94400935E3C /* Images.xcassets */; };
 		7075D0B51B63260F0010D69C /* DiskUtils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7075D0B31B63260F0010D69C /* DiskUtils.cpp */; };
+		7075D0BB1B634B470010D69C /* IosUtils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7075D0B91B634B470010D69C /* IosUtils.cpp */; };
 		70834AE91B1BCB0100E8D5C6 /* AppDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 70834AE41B1BCB0100E8D5C6 /* AppDelegate.mm */; };
 		70834AEA1B1BCB0100E8D5C6 /* Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 70834AE51B1BCB0100E8D5C6 /* Info.plist */; };
 		70834AEB1B1BCB0100E8D5C6 /* main.mm in Sources */ = {isa = PBXBuildFile; fileRef = 70834AE61B1BCB0100E8D5C6 /* main.mm */; };
@@ -212,6 +213,8 @@
 		70603E1E1B60A94400935E3C /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = "Play!/Images.xcassets"; sourceTree = "<group>"; };
 		7075D0B31B63260F0010D69C /* DiskUtils.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = DiskUtils.cpp; path = ../Source/DiskUtils.cpp; sourceTree = "<group>"; };
 		7075D0B41B63260F0010D69C /* DiskUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DiskUtils.h; path = ../Source/DiskUtils.h; sourceTree = "<group>"; };
+		7075D0B91B634B470010D69C /* IosUtils.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = IosUtils.cpp; path = ../Source/ui_ios/IosUtils.cpp; sourceTree = "<group>"; };
+		7075D0BA1B634B470010D69C /* IosUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IosUtils.h; path = ../Source/ui_ios/IosUtils.h; sourceTree = "<group>"; };
 		70834AAE1B1BC70300E8D5C6 /* Play!.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Play!.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		70834AE31B1BCB0100E8D5C6 /* AppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AppDelegate.h; path = ../Source/ui_ios/AppDelegate.h; sourceTree = "<group>"; };
 		70834AE41B1BCB0100E8D5C6 /* AppDelegate.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = AppDelegate.mm; path = ../Source/ui_ios/AppDelegate.mm; sourceTree = "<group>"; };
@@ -559,7 +562,6 @@
 		70834AFB1B1BCCFF00E8D5C6 /* ui_ios */ = {
 			isa = PBXGroup;
 			children = (
-				70603E1E1B60A94400935E3C /* Images.xcassets */,
 				70834AE31B1BCB0100E8D5C6 /* AppDelegate.h */,
 				70834AE41B1BCB0100E8D5C6 /* AppDelegate.mm */,
 				70834AE71B1BCB0100E8D5C6 /* EmulatorViewController.h */,
@@ -568,7 +570,10 @@
 				70AD23651B38A2FE00137AA0 /* GlEsView.mm */,
 				704E1C4C1B3BA0B200C0ACE3 /* GSH_OpenGLiOS.cpp */,
 				704E1C4D1B3BA0B200C0ACE3 /* GSH_OpenGLiOS.h */,
+				70603E1E1B60A94400935E3C /* Images.xcassets */,
 				70834AE51B1BCB0100E8D5C6 /* Info.plist */,
+				7075D0B91B634B470010D69C /* IosUtils.cpp */,
+				7075D0BA1B634B470010D69C /* IosUtils.h */,
 				70834AEF1B1BCB9E00E8D5C6 /* LaunchScreen.xib */,
 				70834AE61B1BCB0100E8D5C6 /* main.mm */,
 				70834AF11B1BCB9E00E8D5C6 /* Main.storyboard */,
@@ -1064,6 +1069,7 @@
 				70834C801B1BD70700E8D5C6 /* Iop_Sio2.cpp in Sources */,
 				70AD238D1B38FFBA00137AA0 /* SaveImporterBase.cpp in Sources */,
 				70834C691B1BD70700E8D5C6 /* Iop_Cdvdfsv.cpp in Sources */,
+				7075D0BB1B634B470010D69C /* IosUtils.cpp in Sources */,
 				70834B761B1BD2C300E8D5C6 /* PadHandler.cpp in Sources */,
 				70834C8E1B1BD70700E8D5C6 /* Iop_Vblank.cpp in Sources */,
 				70834C761B1BD70700E8D5C6 /* Iop_Loadcore.cpp in Sources */,
