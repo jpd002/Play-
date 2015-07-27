@@ -132,7 +132,7 @@ public class GameInfo {
 			key = params[0];
 			if (GamesDbAPI.isNetworkAvailable(mContext) && boxart != null) {
 				String api = null;
-				if (!boxart.startsWith("http://thegamesdb.net/banners/") {
+				if (!boxart.startsWith("boxart/original/front/")) {
 					api = boxart;
 				} else {
 					api = "http://thegamesdb.net/banners/" + boxart;
