@@ -59,7 +59,7 @@ public class TheGamesDB extends ContentProvider {
 
 		@Override
 		public void onCreate(SQLiteDatabase db) {
-			db.execSQL("CREATE TABLE " + Games.TABLE_NAME + " ("
+			db.execSQL("CREATE TABLE IF NOT EXISTS " + Games.TABLE_NAME + " ("
 					   + Games.TABLE_ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
 					   + Games.KEY_GAMEID + " VARCHAR(255),"
 					   + Games.KEY_TITLE + " VARCHAR(255),"
@@ -91,7 +91,7 @@ public class TheGamesDB extends ContentProvider {
 				e.printStackTrace();
 			}
 			
-			db.execSQL("CREATE TABLE " + Covers.TABLE_NAME + " ("
+			db.execSQL("CREATE TABLE IF NOT EXISTS " + Covers.TABLE_NAME + " ("
 					   + Covers.TABLE_ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
 					   + Covers.KEY_SERIAL + " VARCHAR(255),"
 					   + Covers.KEY_DISK + " VARCHAR(255),"
