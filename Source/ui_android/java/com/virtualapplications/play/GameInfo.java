@@ -215,7 +215,8 @@ public class GameInfo {
 		String suffix = serial.substring(5, serial.length());
 		String gameID = null,  title = null, overview = null, boxart = null;
 		ContentResolver cr = mContext.getContentResolver();
-		String selection = Games.KEY_SERIAL + "=?";
+		String selection = Games.KEY_SERIAL + "=? OR " + Games.KEY_SERIAL + "=? OR "
+							+ Games.KEY_SERIAL + "=? OR " + Games.KEY_SERIAL + "=?";
 		String[] selectionArgs = { serial, "SLUS" + suffix, "SLES" + suffix, "SLPS" + suffix };
 		Cursor c = cr.query(Games.GAMES_URI, null, selection, selectionArgs, null);
 		if (c != null) {
