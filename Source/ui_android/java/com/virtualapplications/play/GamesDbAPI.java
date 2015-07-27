@@ -126,10 +126,9 @@ public class GamesDbAPI extends AsyncTask<File, Integer, Document> {
 	@Override
 	protected void onPostExecute(Document doc) {
 		
-		if (doc.getElementsByTagName("Game") != null) {
+		if (doc != null && doc.getElementsByTagName("Game") != null) {
 			try {
 				final Element root = (Element) doc.getElementsByTagName("Game").item(0);
-				
 				final String remoteID = getValue(root, "id");
 				
 				if (elastic) {
