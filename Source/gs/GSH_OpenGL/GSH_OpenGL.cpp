@@ -730,16 +730,16 @@ void CGSH_OpenGL::SetupBlendingFunction(uint64 alphaReg)
 		glBlendColor(0.0f, 0.0f, 0.0f, (float)alpha.nFix / 128.0f);
 		glBlendFuncSeparate(GL_CONSTANT_ALPHA, GL_CONSTANT_ALPHA, GL_ONE, GL_ZERO);
 	}
-//	else if((alpha.nA == 1) && (alpha.nB == 2) && (alpha.nC == 0) && (alpha.nD == 1))
-//	{
-//		//Cd * As + Cd
-//		//Implemented as Cd * As
-//		glBlendFunc(GL_ZERO, GL_SRC_ALPHA);
-//	}
 	else if((alpha.nA == 1) && (alpha.nB == 2) && (alpha.nC == 0) && (alpha.nD == 0))
 	{
 		//Cd * As + Cs
 		glBlendFuncSeparate(GL_ONE, GL_SRC_ALPHA, GL_ONE, GL_ZERO);
+	}
+	else if((alpha.nA == ALPHABLEND_ABD_CD) && (alpha.nB == ALPHABLEND_ABD_ZERO) && (alpha.nC == ALPHABLEND_C_AS) && (alpha.nD == ALPHABLEND_ABD_CD))
+	{
+		//1201 -> Cd * (As + 1)
+		//TODO: Implement this properly (multiple passes?)
+		glBlendFuncSeparate(GL_ZERO, GL_ONE, GL_ONE, GL_ZERO);
 	}
 	else if((alpha.nA == 1) && (alpha.nB == 2) && (alpha.nC == 0) && (alpha.nD == 2))
 	{
