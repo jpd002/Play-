@@ -30,6 +30,8 @@ import java.util.zip.*;
 import org.apache.commons.lang3.StringUtils;
 import com.android.util.FileUtils;
 
+import com.virtualapplications.play.SqliteHelper.Games;
+
 public class MainActivity extends Activity 
 {	
 	private static final String PREFERENCE_CURRENT_DIRECTORY = "CurrentDirectory";
@@ -122,6 +124,7 @@ public class MainActivity extends Activity
 		}
 		
 		gameInfo = new GameInfo(MainActivity.this);
+		getContentResolver().call(Games.GAMES_URI, "importDb", null, null);
 		
 		prepareFileListView();
 	}
