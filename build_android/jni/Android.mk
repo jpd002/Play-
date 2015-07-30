@@ -1,6 +1,10 @@
-LOCAL_PATH:= $(call my-dir)
+LOCAL_PATH := $(call my-dir)
 
 include $(LOCAL_PATH)/ExternalDependencies.mk
+
+DEPENDENCIES_PATH := $(realpath $(LOCAL_PATH))/../../../Dependencies
+FRAMEWORK_PATH    := $(realpath $(LOCAL_PATH))/../../../Framework
+CODEGEN_PATH      := $(realpath $(LOCAL_PATH))/../../../CodeGen
 
 include $(CLEAR_VARS)
 
@@ -41,6 +45,7 @@ LOCAL_SRC_FILES			:=	../../Source/AppConfig.cpp \
 							../../Source/COP_SCU.cpp \
 							../../Source/COP_SCU_Reflection.cpp \
 							../../Source/CsoImageStream.cpp \
+							../../Source/DiskUtils.cpp \
 							../../Source/ee/COP_VU.cpp \
 							../../Source/ee/COP_VU_Reflection.cpp \
 							../../Source/ee/DMAC.cpp \

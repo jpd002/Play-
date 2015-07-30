@@ -6,7 +6,7 @@
 #include "MIPS.h"
 #include "MailBox.h"
 #include "PadHandler.h"
-#include "iso9660/ISO9660.h"
+#include "ISO9660/ISO9660.h"
 #include "VirtualMachine.h"
 #include "ee/Ee_SubSystem.h"
 #include "iop/Iop_SubSystem.h"
@@ -119,7 +119,6 @@ private:
 	void						OnGsNewFrame();
 
 	void						CDROM0_Initialize();
-	Framework::CStream*			CDROM0_CreateImageStream(const char*);
 	void						CDROM0_Mount(const char*);
 	void						CDROM0_Reset();
 	void						CDROM0_Destroy();

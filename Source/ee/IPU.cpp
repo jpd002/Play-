@@ -188,41 +188,56 @@ void CIPU::SetRegister(uint32 nAddress, uint32 nValue)
 	}
 }
 
+void CIPU::CountTicks(uint32 ticks)
+{
+	if(m_currentCmd)
+	{
+		m_currentCmd->CountTicks(ticks);
+	}
+}
+
+bool CIPU::IsCommandDelayed() const
+{
+	if(m_currentCmd)
+	{
+		return m_currentCmd->IsDelayed();
+	}
+	return false;
+}
+
 void CIPU::ExecuteCommand()
 {
-	if(WillExecuteCommand())
+	assert(WillExecuteCommand());
+	try
 	{
-		try
+		assert(m_currentCmd != NULL);
+		bool result = m_currentCmd->Execute();
+		if(!result)
 		{
-			assert(m_currentCmd != NULL);
-			bool result = m_currentCmd->Execute();
-			if(!result)
-			{
-				return;
-			}
-			m_currentCmd = nullptr;
+			return;
+		}
+		m_currentCmd = nullptr;
 
-			//Clear BUSY states
-			m_isBusy = false;
-		}
-		catch(const Framework::CBitStream::CBitStreamException&)
-		{
+		//Clear BUSY states
+		m_isBusy = false;
+	}
+	catch(const Framework::CBitStream::CBitStreamException&)
+	{
 
-		}
-		catch(const CStartCodeException&)
-		{
-			m_currentCmd = nullptr;
-			m_isBusy = false;
-			m_IPU_CTRL |= IPU_CTRL_SCD;
-			CLog::GetInstance().Print(LOG_NAME, "Start code encountered.\r\n");
-		}
-		catch(const CVLCTable::CVLCTableException&)
-		{
-			m_currentCmd = nullptr;
-			m_isBusy = false;
-			m_IPU_CTRL |= IPU_CTRL_ECD;
-			CLog::GetInstance().Print(LOG_NAME, "VLC error encountered.\r\n");
-		}
+	}
+	catch(const CStartCodeException&)
+	{
+		m_currentCmd = nullptr;
+		m_isBusy = false;
+		m_IPU_CTRL |= IPU_CTRL_SCD;
+		CLog::GetInstance().Print(LOG_NAME, "Start code encountered.\r\n");
+	}
+	catch(const CVLCTable::CVLCTableException&)
+	{
+		m_currentCmd = nullptr;
+		m_isBusy = false;
+		m_IPU_CTRL |= IPU_CTRL_ECD;
+		CLog::GetInstance().Print(LOG_NAME, "VLC error encountered.\r\n");
 	}
 }
 
@@ -869,11 +884,12 @@ void CIPU::CIDECCommand::Initialize(CBDECCommand* BDECCommand, CCSCCommand* CSCC
 	m_BDECCommand	= BDECCommand;
 	m_CSCCommand	= CSCCommand;
 
-	m_state			= STATE_ADVANCE;
+	m_state			= STATE_DELAY;
 	m_mbType		= 0;
 	m_qsc			= m_command.qsc;
 	m_context		= context;
 	m_mbCount		= 0;
+	m_delayTicks	= 1000;
 }
 
 bool CIPU::CIDECCommand::Execute()
@@ -882,6 +898,17 @@ bool CIPU::CIDECCommand::Execute()
 	{
 		switch(m_state)
 		{
+		case STATE_DELAY:
+			{
+				//We need to induce a delay here because some games (Gust games) will issue a command 
+				//and restart an already active DMA3 transfer
+				if(m_delayTicks > 0)
+				{
+					return false;
+				}
+				m_state = STATE_ADVANCE;
+			}
+			break;
 		case STATE_ADVANCE:
 			{
 				m_IN_FIFO->Advance(m_command.fb);
@@ -1008,6 +1035,16 @@ bool CIPU::CIDECCommand::Execute()
 		}
 	}
 	return false;
+}
+
+void CIPU::CIDECCommand::CountTicks(uint32 ticks)
+{
+	m_delayTicks -= ticks;
+}
+
+bool CIPU::CIDECCommand::IsDelayed() const
+{
+	return (m_state == STATE_DELAY);
 }
 
 /////////////////////////////////////////////

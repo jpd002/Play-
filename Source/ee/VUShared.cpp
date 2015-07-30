@@ -5,9 +5,9 @@
 #include "FpMulTruncate.h"
 #include "FpAddTruncate.h"
 
-#define LATENCY_DIV     (7 - 1)
-#define LATENCY_SQRT    (7 - 1)
-#define LATENCY_RSQRT   (13 - 1)
+#define LATENCY_DIV     (7)
+#define LATENCY_SQRT    (7)
+#define LATENCY_RSQRT   (13)
 
 const VUShared::PIPEINFO VUShared::g_pipeInfoQ =
 {

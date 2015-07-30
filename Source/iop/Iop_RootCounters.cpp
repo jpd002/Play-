@@ -51,6 +51,16 @@ const uint32 CRootCounters::g_counterSizes[MAX_COUNTERS] =
 	32
 };
 
+const uint32 CRootCounters::g_counterMaxScales[MAX_COUNTERS] =
+{
+	1,
+	1,
+	8,
+	1,
+	256,
+	256
+};
+
 CRootCounters::CRootCounters(unsigned int clockFreq, Iop::CIntc& intc)
 : m_hsyncClocks(clockFreq / (480 * 60))
 , m_pixelClocks(clockFreq / (640 * 480 * 60))
@@ -119,9 +129,27 @@ void CRootCounters::Update(unsigned int ticks)
 		{
 			clockRatio = m_hsyncClocks;
 		}
-		if(i == 2 && counter.mode.div)
+		if(i == 2 && (counter.mode.div != COUNTER_SCALE_1))
 		{
+			assert(counter.mode.div == COUNTER_SCALE_8);
 			clockRatio = 8;
+		}
+		if(
+			((i == 4) || (i == 5)) && 
+			(counter.mode.div != COUNTER_SCALE_1))
+		{
+			switch(counter.mode.div)
+			{
+			case COUNTER_SCALE_8:
+				clockRatio = 8;
+				break;
+			case COUNTER_SCALE_16:
+				clockRatio = 16;
+				break;
+			case COUNTER_SCALE_256:
+				clockRatio = 256;
+				break;
+			}
 		}
 		unsigned int totalTicks = counter.clockRemain + ticks;
 		unsigned int countAdd = totalTicks / clockRatio;

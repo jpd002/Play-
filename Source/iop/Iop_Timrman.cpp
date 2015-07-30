@@ -169,13 +169,21 @@ int CTimrman::AllocHardTimer(CMIPS& context, uint32 source, uint32 size, uint32 
 	{
 		if(
 			(CRootCounters::g_counterSizes[i] == size) && 
-			((CRootCounters::g_counterSources[i] & source) != 0)
+			((CRootCounters::g_counterSources[i] & source) != 0) &&
+			(CRootCounters::g_counterMaxScales[i] >= prescale)
 			)
 		{
 			//Set proper clock divider
 			auto modeAddr = CRootCounters::g_counterBaseAddresses[i] + CRootCounters::CNT_MODE;
 			auto mode = make_convertible<CRootCounters::MODE>(context.m_pMemoryMap->GetWord(modeAddr));
 			mode.clc = (source != CRootCounters::COUNTER_SOURCE_SYSCLOCK) ? 1 : 0;
+
+			if(prescale == 1) mode.div = CRootCounters::COUNTER_SCALE_1;
+			else if(prescale == 8) mode.div = CRootCounters::COUNTER_SCALE_8;
+			else if(prescale == 16) mode.div = CRootCounters::COUNTER_SCALE_16;
+			else if(prescale == 256) mode.div = CRootCounters::COUNTER_SCALE_256;
+			else assert(false);
+
 			context.m_pMemoryMap->SetWord(modeAddr, mode);
 
 			return (i + 1);

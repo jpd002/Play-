@@ -11,4 +11,16 @@
 		android:summary="Show virtual pad on screen."
 		android:persistent="false"
 	/>
+	<Preference
+		android:key="ui.clearfolder"
+		android:title="Reset Folder"
+		android:summary="Clear stored default folder."
+		android:persistent="false"
+	/>
+	<Preference
+		android:key="ui.clearcache"
+		android:title="Reset Cache"
+		android:summary="Clear stored cover images."
+		android:persistent="false"
+	/>
 </PreferenceScreen>

@@ -1,6 +1,5 @@
-#include <jni.h>
-#include <android/log.h>
 #include "NativeShared.h"
+#include <android/log.h>
 
 #define LOG_NAME "Play!"
 

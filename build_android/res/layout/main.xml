@@ -1,12 +1,57 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-	android:orientation="vertical"
-	android:layout_width="fill_parent"
-	android:layout_height="fill_parent"
-	>
-	<ListView
-		android:id="@+id/main_fileList"
-		android:layout_height="wrap_content"
+<android.support.v4.widget.DrawerLayout
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	android:id="@+id/drawer_layout"
+	android:layout_width="match_parent"
+	android:layout_height="match_parent">
+	<!-- The main content view -->
+	<FrameLayout
+		android:id="@+id/content_frame"
 		android:layout_width="match_parent"
-		/>
-</LinearLayout>
+		android:layout_height="match_parent" >
+		<LinearLayout
+			android:orientation="vertical"
+			android:layout_width="fill_parent"
+			android:layout_height="fill_parent"
+			android:background="@drawable/gradient_grid">
+			
+			<ScrollView
+				android:id="@+id/game_scroller"
+				android:layout_width="match_parent"
+				android:layout_height="match_parent"
+				android:layout_weight="1"
+				android:scrollbars="none"
+				android:fillViewport="true" >
+				
+				<TableLayout
+					android:id="@+id/game_grid"
+					android:layout_width="match_parent"
+					android:layout_height="wrap_content"
+					android:layout_marginTop="10dp"
+					android:stretchColumns="*" >
+					
+					<requestFocus />
+				</TableLayout>
+			</ScrollView>
+		</LinearLayout>
+	</FrameLayout>
+	<!-- The navigation drawer -->
+	<LinearLayout android:id="@+id/left_drawer"
+		android:layout_width="240dp"
+		android:layout_height="match_parent"
+		android:layout_gravity="start"
+		android:background="#111"
+		android:orientation="vertical" >
+		<Button
+			android:id="@+id/main_menu_settings"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:text="@string/main_menu_settings" />
+		<Button
+			android:id="@+id/main_menu_about"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:text="@string/main_menu_about" />
+		
+	</LinearLayout>
+</android.support.v4.widget.DrawerLayout>

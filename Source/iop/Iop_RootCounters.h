@@ -22,8 +22,8 @@ namespace Iop
 			unsigned int iq2		: 1;
 			unsigned int unused2	: 1;
 			unsigned int clc		: 1;
-			unsigned int div		: 1;
-			unsigned int unused3	: 22;
+			unsigned int div		: 2;		//Assuming it's two bits here, but not sure about that
+			unsigned int unused3	: 21;
 		};
 		static_assert(sizeof(MODE) == sizeof(uint32), "MODE structure size is too small");
 
@@ -80,10 +80,19 @@ namespace Iop
 			COUNTER_SOURCE_HOLD		= 8
 		};
 
+		enum COUNTER_SCALE
+		{
+			COUNTER_SCALE_1   = 0,
+			COUNTER_SCALE_8   = 1,
+			COUNTER_SCALE_16  = 2,
+			COUNTER_SCALE_256 = 3
+		};
+
 		static const uint32		g_counterInterruptLines[MAX_COUNTERS];
 		static const uint32		g_counterBaseAddresses[MAX_COUNTERS];
 		static const uint32		g_counterSources[MAX_COUNTERS];
 		static const uint32		g_counterSizes[MAX_COUNTERS];
+		static const uint32		g_counterMaxScales[MAX_COUNTERS];
 
 	private:
 		struct COUNTER

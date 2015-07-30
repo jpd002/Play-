@@ -730,16 +730,16 @@ void CGSH_OpenGL::SetupBlendingFunction(uint64 alphaReg)
 		glBlendColor(0.0f, 0.0f, 0.0f, (float)alpha.nFix / 128.0f);
 		glBlendFuncSeparate(GL_CONSTANT_ALPHA, GL_CONSTANT_ALPHA, GL_ONE, GL_ZERO);
 	}
-//	else if((alpha.nA == 1) && (alpha.nB == 2) && (alpha.nC == 0) && (alpha.nD == 1))
-//	{
-//		//Cd * As + Cd
-//		//Implemented as Cd * As
-//		glBlendFunc(GL_ZERO, GL_SRC_ALPHA);
-//	}
 	else if((alpha.nA == 1) && (alpha.nB == 2) && (alpha.nC == 0) && (alpha.nD == 0))
 	{
 		//Cd * As + Cs
 		glBlendFuncSeparate(GL_ONE, GL_SRC_ALPHA, GL_ONE, GL_ZERO);
+	}
+	else if((alpha.nA == ALPHABLEND_ABD_CD) && (alpha.nB == ALPHABLEND_ABD_ZERO) && (alpha.nC == ALPHABLEND_C_AS) && (alpha.nD == ALPHABLEND_ABD_CD))
+	{
+		//1201 -> Cd * (As + 1)
+		//TODO: Implement this properly (multiple passes?)
+		glBlendFuncSeparate(GL_ZERO, GL_ONE, GL_ONE, GL_ZERO);
 	}
 	else if((alpha.nA == 1) && (alpha.nB == 2) && (alpha.nC == 0) && (alpha.nD == 2))
 	{
@@ -748,6 +748,12 @@ void CGSH_OpenGL::SetupBlendingFunction(uint64 alphaReg)
 		//REMOVE
 		glBlendFuncSeparate(GL_ZERO, GL_ONE, GL_ONE, GL_ZERO);
 		//REMOVE
+	}
+	else if((alpha.nA == ALPHABLEND_ABD_CD) && (alpha.nB == ALPHABLEND_ABD_ZERO) && (alpha.nC == ALPHABLEND_C_FIX) && (alpha.nD == ALPHABLEND_ABD_CS))
+	{
+		//1220 -> Cd * FIX + Cs
+		glBlendColor(0, 0, 0, static_cast<float>(alpha.nFix) / 128.0f);
+		glBlendFuncSeparate(GL_ONE, GL_CONSTANT_ALPHA, GL_ONE, GL_ZERO);
 	}
 	else if((alpha.nA == 1) && (alpha.nB == 2) && (alpha.nC == 2) && (alpha.nD == 2))
 	{
@@ -760,10 +766,33 @@ void CGSH_OpenGL::SetupBlendingFunction(uint64 alphaReg)
 		nFunction = GL_FUNC_REVERSE_SUBTRACT;
 		glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE, GL_ONE, GL_ZERO);
 	}
+	else if((alpha.nA == ALPHABLEND_ABD_ZERO) && (alpha.nB == ALPHABLEND_ABD_CS) && (alpha.nC == ALPHABLEND_C_FIX) && (alpha.nD == ALPHABLEND_ABD_CD))
+	{
+		//2021 -> Cd - Cs * FIX
+		nFunction = GL_FUNC_REVERSE_SUBTRACT;
+		glBlendColor(0, 0, 0, static_cast<float>(alpha.nFix) / 128.0f);
+		glBlendFuncSeparate(GL_CONSTANT_ALPHA, GL_ONE, GL_ONE, GL_ZERO);
+	}
+	else if((alpha.nA == ALPHABLEND_ABD_ZERO) && (alpha.nB == ALPHABLEND_ABD_CD) && (alpha.nC == ALPHABLEND_C_AS) && (alpha.nD == ALPHABLEND_ABD_CD))
+	{
+		//2101 -> Cd * (1 - As)
+		glBlendFuncSeparate(GL_ZERO, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ZERO);
+	}
+	else if((alpha.nA == ALPHABLEND_ABD_ZERO) && (alpha.nB == ALPHABLEND_ABD_ZERO) && (alpha.nD == ALPHABLEND_ABD_CS))
+	{
+		//22*0 -> Cs (no blend)
+		glBlendFuncSeparate(GL_ONE, GL_ZERO, GL_ONE, GL_ZERO);
+	}
 	else if((alpha.nA == 2) && (alpha.nB == 2) && (alpha.nC == 2) && (alpha.nD == 1))
 	{
 		//Cd (no blend)
 		glBlendFuncSeparate(GL_ZERO, GL_ONE, GL_ONE, GL_ZERO);
+	}
+	else
+	{
+		assert(0);
+		//Default blending
+		glBlendFuncSeparate(GL_ONE, GL_ZERO, GL_ONE, GL_ZERO);
 	}
 
 	glBlendEquation(nFunction);

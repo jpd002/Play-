@@ -6,6 +6,7 @@
 #include "../MIPS.h"
 #include "../BiosDebugInfoProvider.h"
 #include "../OsStructManager.h"
+#include "../OsStructQueue.h"
 #include "../gs/GSHandler.h"
 #include "SIF.h"
 
@@ -174,6 +175,7 @@ private:
 	struct DMACHANDLER
 	{
 		uint32									isValid;
+		uint32									nextId;
 		uint32									channel;
 		uint32									address;
 		uint32									arg;
@@ -182,7 +184,8 @@ private:
 
 	struct INTCHANDLER
 	{
-		uint32									valid;
+		uint32									isValid;
+		uint32									nextId;
 		uint32									cause;
 		uint32									address;
 		uint32									arg;
@@ -255,8 +258,12 @@ private:
 	};
 
 	typedef COsStructManager<SEMAPHORE> SemaphoreList;
+	typedef COsStructManager<INTCHANDLER> IntcHandlerList;
 	typedef COsStructManager<DMACHANDLER> DmacHandlerList;
 	typedef COsStructManager<ALARM> AlarmList;
+
+	typedef COsStructQueue<INTCHANDLER> IntcHandlerQueue;
+	typedef COsStructQueue<DMACHANDLER> DmacHandlerQueue;
 
 	typedef void (CPS2OS::*SystemCallHandler)();
 
@@ -295,9 +302,6 @@ private:
 	void									SetVsyncFlagPtrs(uint32, uint32);
 
 	uint8*									GetStructPtr(uint32) const;
-
-	uint32									GetNextAvailableIntcHandlerId();
-	INTCHANDLER*							GetIntcHandler(uint32);
 
 	uint32									GetNextAvailableDeci2HandlerId();
 	DECI2HANDLER*							GetDeci2Handler(uint32);
@@ -364,8 +368,12 @@ private:
 	CMIPS&									m_ee;
 	CRoundRibbon*							m_threadSchedule;
 	SemaphoreList							m_semaphores;
+	IntcHandlerList							m_intcHandlers;
 	DmacHandlerList							m_dmacHandlers;
 	AlarmList								m_alarms;
+
+	IntcHandlerQueue						m_intcHandlerQueue;
+	DmacHandlerQueue						m_dmacHandlerQueue;
 
 	std::string								m_executableName;
 	ArgumentList							m_currentArguments;

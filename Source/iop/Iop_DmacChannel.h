@@ -1,7 +1,7 @@
 #ifndef _IOP_DMACCHANNEL_H_
 #define _IOP_DMACCHANNEL_H_
 
-#include "convertible.h"
+#include "Convertible.h"
 #include "Types.h"
 #include <functional>
 

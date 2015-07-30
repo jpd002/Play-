@@ -311,34 +311,38 @@ Framework::OpenGl::CShader CGSH_OpenGL::GenerateFragmentShader(const SHADERCAPS&
 			shaderBuilder << "	float colorIndex = textureProj(g_texture, v_texCoord).r * 255.0;" << std::endl;
 			if(caps.texSourceMode == TEXTURE_SOURCE_MODE_IDX4)
 			{
-				shaderBuilder << "	textureColor = expandAlpha(texture(g_palette, vec2(colorIndex / 15.0, 1)));" << std::endl;
+				shaderBuilder << "	float paletteTexelBias = 0.5 / 16.0;";
+				shaderBuilder << "	textureColor = expandAlpha(texture(g_palette, vec2(colorIndex / 16.0 + paletteTexelBias, 0)));" << std::endl;
 			}
 			else if(caps.texSourceMode == TEXTURE_SOURCE_MODE_IDX8)
 			{
-				shaderBuilder << "	textureColor = expandAlpha(texture(g_palette, vec2(colorIndex / 255.0, 1)));" << std::endl;
+				shaderBuilder << "	float paletteTexelBias = 0.5 / 256.0;";
+				shaderBuilder << "	textureColor = expandAlpha(texture(g_palette, vec2(colorIndex / 256.0 + paletteTexelBias, 0)));" << std::endl;
 			}
 		}
 		else
 		{
 			shaderBuilder << "	vec2 projTexCoord = v_texCoord.xy / v_texCoord.z;" << std::endl;
-			shaderBuilder << "	float tlIdx = texture(g_texture, projTexCoord                                        ).r * 255.0;" << std::endl;
+			shaderBuilder << "	float tlIdx = texture(g_texture, projTexCoord                                     ).r * 255.0;" << std::endl;
 			shaderBuilder << "	float trIdx = texture(g_texture, projTexCoord + vec2(g_texelSize.x, 0)            ).r * 255.0;" << std::endl;
 			shaderBuilder << "	float blIdx = texture(g_texture, projTexCoord + vec2(0, g_texelSize.y)            ).r * 255.0;" << std::endl;
 			shaderBuilder << "	float brIdx = texture(g_texture, projTexCoord + vec2(g_texelSize.x, g_texelSize.y)).r * 255.0;" << std::endl;
 
 			if(caps.texSourceMode == TEXTURE_SOURCE_MODE_IDX4)
 			{
-				shaderBuilder << "	vec4 tl = expandAlpha(texture(g_palette, vec2(tlIdx / 15.0, 1)));" << std::endl;
-				shaderBuilder << "	vec4 tr = expandAlpha(texture(g_palette, vec2(trIdx / 15.0, 1)));" << std::endl;
-				shaderBuilder << "	vec4 bl = expandAlpha(texture(g_palette, vec2(blIdx / 15.0, 1)));" << std::endl;
-				shaderBuilder << "	vec4 br = expandAlpha(texture(g_palette, vec2(brIdx / 15.0, 1)));" << std::endl;
+				shaderBuilder << "	float paletteTexelBias = 0.5 / 16.0;";
+				shaderBuilder << "	vec4 tl = expandAlpha(texture(g_palette, vec2(tlIdx / 16.0 + paletteTexelBias, 0)));" << std::endl;
+				shaderBuilder << "	vec4 tr = expandAlpha(texture(g_palette, vec2(trIdx / 16.0 + paletteTexelBias, 0)));" << std::endl;
+				shaderBuilder << "	vec4 bl = expandAlpha(texture(g_palette, vec2(blIdx / 16.0 + paletteTexelBias, 0)));" << std::endl;
+				shaderBuilder << "	vec4 br = expandAlpha(texture(g_palette, vec2(brIdx / 16.0 + paletteTexelBias, 0)));" << std::endl;
 			}
 			else if(caps.texSourceMode == TEXTURE_SOURCE_MODE_IDX8)
 			{
-				shaderBuilder << "	vec4 tl = expandAlpha(texture(g_palette, vec2(tlIdx / 255.0, 1)));" << std::endl;
-				shaderBuilder << "	vec4 tr = expandAlpha(texture(g_palette, vec2(trIdx / 255.0, 1)));" << std::endl;
-				shaderBuilder << "	vec4 bl = expandAlpha(texture(g_palette, vec2(blIdx / 255.0, 1)));" << std::endl;
-				shaderBuilder << "	vec4 br = expandAlpha(texture(g_palette, vec2(brIdx / 255.0, 1)));" << std::endl;
+				shaderBuilder << "	float paletteTexelBias = 0.5 / 256.0;";
+				shaderBuilder << "	vec4 tl = expandAlpha(texture(g_palette, vec2(tlIdx / 256.0 + paletteTexelBias, 0)));" << std::endl;
+				shaderBuilder << "	vec4 tr = expandAlpha(texture(g_palette, vec2(trIdx / 256.0 + paletteTexelBias, 0)));" << std::endl;
+				shaderBuilder << "	vec4 bl = expandAlpha(texture(g_palette, vec2(blIdx / 256.0 + paletteTexelBias, 0)));" << std::endl;
+				shaderBuilder << "	vec4 br = expandAlpha(texture(g_palette, vec2(brIdx / 256.0 + paletteTexelBias, 0)));" << std::endl;
 			}
 
 			shaderBuilder << "	vec2 f = fract(projTexCoord * g_textureSize);" << std::endl;
