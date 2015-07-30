@@ -313,20 +313,24 @@ void CGSH_OpenGL::TexUploader_Psm16(uint32 bufPtr, uint32 bufWidth, unsigned int
 {
 	IndexorType indexor(m_pRAM, bufPtr, bufWidth);
 
-	uint16* dst = reinterpret_cast<uint16*>(m_pCvtBuffer);
+	auto dst = reinterpret_cast<uint16*>(m_pCvtBuffer);
 	for(unsigned int j = 0; j < texHeight; j++)
 	{
 		for(unsigned int i = 0; i < texWidth; i++)
 		{
-			dst[i] = indexor.GetPixel(i, j);
+			auto pixel = indexor.GetPixel(i, j);
+			auto cvtPixel = 
+				(((pixel & 0x001F) >>  0) << 11) |	//R
+				(((pixel & 0x03E0) >>  5) <<  6) |	//G
+				(((pixel & 0x7C00) >> 10) <<  1) |	//B
+				(pixel >> 15);						//A
+			dst[i] = cvtPixel;
 		}
 
 		dst += texWidth;
 	}
 
-#ifndef GLES_COMPATIBILITY
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB5_A1, texWidth, texHeight, 0, GL_RGBA, GL_UNSIGNED_SHORT_1_5_5_5_REV, m_pCvtBuffer);
-#endif
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB5_A1, texWidth, texHeight, 0, GL_RGBA, GL_UNSIGNED_SHORT_5_5_5_1, m_pCvtBuffer);
 	CHECKGLERROR();
 }
 
@@ -411,20 +415,24 @@ void CGSH_OpenGL::TexUpdater_Psm16(uint32 bufPtr, uint32 bufWidth, unsigned int 
 {
 	IndexorType indexor(m_pRAM, bufPtr, bufWidth);
 
-	uint16* dst = reinterpret_cast<uint16*>(m_pCvtBuffer);
+	auto dst = reinterpret_cast<uint16*>(m_pCvtBuffer);
 	for(unsigned int y = 0; y < texHeight; y++)
 	{
 		for(unsigned int x = 0; x < texWidth; x++)
 		{
-			dst[x] = indexor.GetPixel(texX + x, texY + y);
+			auto pixel = indexor.GetPixel(texX + x, texY + y);
+			auto cvtPixel = 
+				(((pixel & 0x001F) >>  0) << 11) |	//R
+				(((pixel & 0x03E0) >>  5) <<  6) |	//G
+				(((pixel & 0x7C00) >> 10) <<  1) |	//B
+				(pixel >> 15);						//A
+			dst[x] = cvtPixel;
 		}
 
 		dst += texWidth;
 	}
 
-#ifndef GLES_COMPATIBILITY
-	glTexSubImage2D(GL_TEXTURE_2D, 0, texX, texY, texWidth, texHeight, GL_RGBA, GL_UNSIGNED_SHORT_1_5_5_5_REV, m_pCvtBuffer);
-#endif
+	glTexSubImage2D(GL_TEXTURE_2D, 0, texX, texY, texWidth, texHeight, GL_RGBA, GL_UNSIGNED_SHORT_5_5_5_1, m_pCvtBuffer);
 	CHECKGLERROR();
 }
 
