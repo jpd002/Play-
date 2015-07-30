@@ -1,4 +1,4 @@
-package com.virtualapplications.play;
+package com.virtualapplications.play.database;
 
 import android.content.ContentProvider;
 import android.content.ContentUris;
@@ -11,9 +11,12 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
+import android.os.AsyncTask;
+import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.InputStream;
@@ -23,7 +26,6 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-
 
 import com.virtualapplications.play.SqliteHelper.Games;
 import com.virtualapplications.play.SqliteHelper.Covers;
@@ -48,9 +50,9 @@ public class TheGamesDB extends ContentProvider {
 	private static HashMap<String, String> gamesMap;
 	private static HashMap<String, String> coversMap;
 	
+	private static Context mContext;
+	
 	private static class DatabaseHelper extends SQLiteOpenHelper {
-		
-		private Context mContext;
 
 		DatabaseHelper(Context context) {
 			super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -66,30 +68,6 @@ public class TheGamesDB extends ContentProvider {
 					   + Games.KEY_OVERVIEW + " VARCHAR(255),"
 					   + Games.KEY_SERIAL + " VARCHAR(255),"
 					   + Games.KEY_BOXART + " VARCHAR(255)"+ ");");
-			
-			String DATABASE_PATH = mContext.getFilesDir().getAbsolutePath() + "/../databases/";
-			
-			byte[] buffer = new byte[1024];
-			OutputStream mOutput = null;
-			int length;
-			InputStream mInput = null;
-			try
-			{
-				mInput = mContext.getAssets().open(DATABASE_NAME);
-				mOutput = new FileOutputStream(DATABASE_PATH + DATABASE_NAME);
-				while((length = mInput.read(buffer)) > 0)
-				{
-					mOutput.write(buffer, 0, length);
-				}
-				mOutput.close();
-				mOutput.flush();
-				mInput.close();
-				
-			}
-			catch(IOException e)
-			{
-				e.printStackTrace();
-			}
 			
 			db.execSQL("CREATE TABLE " + Covers.TABLE_NAME + " ("
 					   + Covers.TABLE_ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
@@ -113,6 +91,89 @@ public class TheGamesDB extends ContentProvider {
     /**
      * All CRUD(Create, Read, Update, Delete) Operations
      */
+	
+	@Override
+	public Bundle call(String method, String arg, Bundle extras) {
+		SQLiteDatabase db = dbHelper.getWritableDatabase();
+		if (method.equals("importDb")) {
+			if (dbLength() == 0) {
+				new importDb().execute();
+			}
+		}
+		return null;
+	}
+	
+	public int dbLength() {
+		Cursor c = getContext().getContentResolver().query(Games.GAMES_URI, null, null, null, null);
+		return c.getCount();
+	}
+	
+	public class importDb extends AsyncTask<String, Integer, String> {
+		
+		private String DATABASE_PATH;
+		
+		protected void onPreExecute() {
+			DATABASE_PATH = mContext.getFilesDir().getAbsolutePath();
+			byte[] buffer = new byte[1024];
+			OutputStream mOutput = null;
+			int length;
+			InputStream mInput = null;
+			try
+			{
+				mInput = mContext.getAssets().open(DATABASE_NAME);
+				mOutput = new FileOutputStream(DATABASE_PATH + "/" + DATABASE_NAME);
+				while((length = mInput.read(buffer)) > 0)
+				{
+					mOutput.write(buffer, 0, length);
+				}
+				mOutput.close();
+				mOutput.flush();
+				mInput.close();
+				
+			}
+			catch(IOException e)
+			{
+				e.printStackTrace();
+			}
+		}
+		
+		@Override
+		protected String doInBackground(String... params) {
+			try {
+				SQLiteDatabase source = SQLiteDatabase.openDatabase(DATABASE_PATH
+					+ "/" + DATABASE_NAME, null, SQLiteDatabase.OPEN_READWRITE);
+				Cursor c = source.rawQuery("SELECT * FROM " + Games.TABLE_NAME, null);
+				if (c.moveToFirst()) {
+					do {
+						ContentValues game = new ContentValues();
+						game.put(Games.KEY_GAMEID, c.getString(c.getColumnIndex(Games.KEY_GAMEID)));
+						game.put(Games.KEY_TITLE, c.getString(c.getColumnIndex(Games.KEY_TITLE)));
+						game.put(Games.KEY_OVERVIEW, c.getString(c.getColumnIndex(Games.KEY_OVERVIEW)));
+						game.put(Games.KEY_SERIAL, c.getString(c.getColumnIndex(Games.KEY_SERIAL)));
+						game.put(Games.KEY_BOXART, c.getString(c.getColumnIndex(Games.KEY_BOXART)));
+						getContext().getContentResolver().insert(Games.GAMES_URI, game);
+					} while (c.moveToNext());
+				}
+				c.close();
+				source.close();
+			} catch (SQLException ex) {
+				ex.printStackTrace();
+			}
+			return null;
+		}
+		
+		@Override
+		protected void onPostExecute(String result) {
+			File tempDb = new File (DATABASE_PATH, DATABASE_NAME);
+			if (tempDb.exists()) {
+				tempDb.delete();
+			}
+			File tempDbJournal = new File (DATABASE_PATH, DATABASE_NAME + "-journal");
+			if (tempDbJournal.exists()) {
+				tempDbJournal.delete();
+			}
+		}
+	}
 
 	@Override
 	public int delete(Uri uri, String where, String[] whereArgs) {

@@ -130,12 +130,12 @@ public class GameInfo {
 		@Override
 		protected Bitmap doInBackground(String... params) {
 			key = params[0];
-			if (GamesDbAPI.isNetworkAvailable(mContext)) {
+			if (GamesDbAPI.isNetworkAvailable(mContext) && boxart != null) {
 				String api = null;
-				if (boxart != null) {
-					api = "http://thegamesdb.net/banners/" + boxart;
+				if (!boxart.startsWith("boxart/original/front/")) {
+					api = boxart;
 				} else {
-					api = "http://thegamesdb.net/banners/boxart/thumb/original/front/" + key + "-1.jpg";
+					api = "http://thegamesdb.net/banners/" + boxart;
 				}
 				try {
 					URL imageURL = new URL(api);
@@ -212,7 +212,10 @@ public class GameInfo {
 	
 	public String[] getGameInfo(File game, View childview) {
 		String serial = getSerial(game);
-		if (serial == null) return null;
+		if (serial == null) {
+			getImage(game.getName(), childview, null);
+			return null;
+		}
 		String suffix = serial.substring(5, serial.length());
 		String gameID = null,  title = null, overview = null, boxart = null;
 		ContentResolver cr = mContext.getContentResolver();
