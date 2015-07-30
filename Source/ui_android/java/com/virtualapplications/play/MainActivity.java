@@ -123,6 +123,15 @@ public class MainActivity extends Activity
 			NativeInterop.createVirtualMachine();
 		}
 		
+		Intent intent = getIntent();
+		if (intent.getAction() != null) {
+			if (intent.getAction().equals(Intent.ACTION_VIEW)) {
+				launchDisk(new File(intent.getData().getPath()));
+				getIntent().setData(null);
+				setIntent(null);
+			}
+		}
+		
 		gameInfo = new GameInfo(MainActivity.this);
 		getContentResolver().call(Games.GAMES_URI, "importDb", null, null);
 		
