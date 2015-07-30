@@ -378,8 +378,8 @@ void CGSH_OpenGL::TexUploader_Psm48H(uint32 bufPtr, uint32 bufWidth, unsigned in
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_R8, texWidth, texHeight, 0, GL_RED, GL_UNSIGNED_BYTE, m_pCvtBuffer);
 #else
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_ALPHA, texWidth, texHeight, 0, GL_ALPHA, GL_UNSIGNED_BYTE, m_pCvtBuffer);
-	CHECKGLERROR();
 #endif
+	CHECKGLERROR();
 }
 
 void CGSH_OpenGL::TexUpdater_Invalid(uint32 bufPtr, uint32 bufWidth, unsigned int texX, unsigned int texY, unsigned int texWidth, unsigned int texHeight)
@@ -403,6 +403,7 @@ void CGSH_OpenGL::TexUpdater_Psm32(uint32 bufPtr, uint32 bufWidth, unsigned int 
 	}
 
 	glTexSubImage2D(GL_TEXTURE_2D, 0, texX, texY, texWidth, texHeight, GL_RGBA, GL_UNSIGNED_BYTE, m_pCvtBuffer);
+	CHECKGLERROR();
 }
 
 template <typename IndexorType>
@@ -424,6 +425,7 @@ void CGSH_OpenGL::TexUpdater_Psm16(uint32 bufPtr, uint32 bufWidth, unsigned int 
 #ifndef GLES_COMPATIBILITY
 	glTexSubImage2D(GL_TEXTURE_2D, 0, texX, texY, texWidth, texHeight, GL_RGBA, GL_UNSIGNED_SHORT_1_5_5_5_REV, m_pCvtBuffer);
 #endif
+	CHECKGLERROR();
 }
 
 template <typename IndexorType>
@@ -449,6 +451,7 @@ void CGSH_OpenGL::TexUpdater_Psm48(uint32 bufPtr, uint32 bufWidth, unsigned int 
 #else
 	glTexSubImage2D(GL_TEXTURE_2D, 0, texX, texY, texWidth, texHeight, GL_ALPHA, GL_UNSIGNED_BYTE, m_pCvtBuffer);
 #endif
+	CHECKGLERROR();
 }
 
 template <uint32 shiftAmount, uint32 mask>
@@ -475,6 +478,7 @@ void CGSH_OpenGL::TexUpdater_Psm48H(uint32 bufPtr, uint32 bufWidth, unsigned int
 #else
 	glTexSubImage2D(GL_TEXTURE_2D, 0, texX, texY, texWidth, texHeight, GL_ALPHA, GL_UNSIGNED_BYTE, m_pCvtBuffer);
 #endif
+	CHECKGLERROR();
 }
 
 /////////////////////////////////////////////////////////////
