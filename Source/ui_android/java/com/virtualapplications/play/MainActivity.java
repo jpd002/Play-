@@ -421,8 +421,6 @@ public class MainActivity extends Activity
 					}
 				}
 			}
-			
-			
 			return (List<File>) files;
 		}
 		

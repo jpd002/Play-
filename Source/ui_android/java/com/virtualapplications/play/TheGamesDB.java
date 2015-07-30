@@ -1,4 +1,4 @@
-package com.virtualapplications.play;
+package com.virtualapplications.play.database;
 
 import android.content.ContentProvider;
 import android.content.ContentUris;
@@ -11,6 +11,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
@@ -25,7 +26,6 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-
 
 import com.virtualapplications.play.SqliteHelper.Games;
 import com.virtualapplications.play.SqliteHelper.Covers;
