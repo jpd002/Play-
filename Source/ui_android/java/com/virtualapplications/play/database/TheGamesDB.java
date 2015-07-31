@@ -27,8 +27,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import com.virtualapplications.play.SqliteHelper.Games;
-import com.virtualapplications.play.SqliteHelper.Covers;
+import com.virtualapplications.play.database.SqliteHelper.Games;
+import com.virtualapplications.play.database.SqliteHelper.Covers;
 
 public class TheGamesDB extends ContentProvider {
 	

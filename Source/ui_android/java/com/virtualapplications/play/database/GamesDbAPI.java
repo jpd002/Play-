@@ -1,4 +1,4 @@
-package com.virtualapplications.play;
+package com.virtualapplications.play.database;
 
 import java.io.BufferedInputStream;
 import java.io.File;
@@ -46,7 +46,8 @@ import android.widget.ImageView;
 import android.widget.ImageView.ScaleType;
 import android.widget.TextView;
 
-import com.virtualapplications.play.SqliteHelper.Games;
+import com.virtualapplications.play.R;
+import com.virtualapplications.play.database.SqliteHelper.Games;
 
 public class GamesDbAPI extends AsyncTask<File, Integer, Document> {
 

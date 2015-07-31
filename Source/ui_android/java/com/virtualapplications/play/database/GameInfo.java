@@ -1,4 +1,4 @@
-package com.virtualapplications.play;
+package com.virtualapplications.play.database;
 
 import java.io.BufferedInputStream;
 import java.io.File;
@@ -31,7 +31,10 @@ import android.widget.TextView;
 
 import java.util.concurrent.ExecutionException;
 
-import com.virtualapplications.play.SqliteHelper.Games;
+import com.virtualapplications.play.R;
+import com.virtualapplications.play.MainActivity;
+import com.virtualapplications.play.NativeInterop;
+import com.virtualapplications.play.database.SqliteHelper.Games;
 
 public class GameInfo {
 	

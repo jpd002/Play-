@@ -30,7 +30,8 @@ import java.util.zip.*;
 import org.apache.commons.lang3.StringUtils;
 import com.android.util.FileUtils;
 
-import com.virtualapplications.play.SqliteHelper.Games;
+import com.virtualapplications.play.database.GameInfo;
+import com.virtualapplications.play.database.SqliteHelper.Games;
 
 public class MainActivity extends Activity 
 {	
