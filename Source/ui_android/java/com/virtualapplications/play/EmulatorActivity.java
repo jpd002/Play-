@@ -39,6 +39,12 @@ public class EmulatorActivity extends Activity
 				View.SYSTEM_UI_FLAG_HIDE_NAVIGATION |
 				View.SYSTEM_UI_FLAG_FULLSCREEN |
 				View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
+	}
+
+	@Override 
+	protected void onPostCreate(Bundle savedInstanceState) 
+	{
+		super.onPostCreate(savedInstanceState);
 		
 		_renderView = (SurfaceView)findViewById(R.id.emulator_view);
 		SurfaceHolder holder = _renderView.getHolder();
