@@ -223,7 +223,7 @@ public class GameInfo {
 							+ Games.KEY_SERIAL + "=? OR " + Games.KEY_SERIAL + "=? OR " + Games.KEY_SERIAL + "=?";
 		String[] selectionArgs = { serial, "SLUS" + suffix, "SLES" + suffix, "SLPS" + suffix, "SLPM" + suffix, "SCES" + suffix };
 		Cursor c = cr.query(Games.GAMES_URI, null, selection, selectionArgs, null);
-		if (c != null) {
+		if (c != null && c.getCount() > 0) {
 			if (c.moveToFirst()) {
 				do {
 					gameID = c.getString(c.getColumnIndex(Games.KEY_GAMEID));
