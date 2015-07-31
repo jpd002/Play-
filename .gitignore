@@ -1,6 +1,8 @@
 libPlay.so
 build_android/bin
 build_android/gen
+build_android/appcompat/bin
+build_android/appcompat/gen
 build_android/obj
 build_android/jni/ExternalDependencies.mk
 build_android/local.properties
