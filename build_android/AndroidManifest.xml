@@ -50,7 +50,7 @@
 			android:configChanges="orientation|locale|keyboard|keyboardHidden|navigation">
 		</activity>
 		<provider
-			android:name=".TheGamesDB"
+			android:name=".database.TheGamesDB"
 			android:authorities="virtualapplications.play.gamesdb" />
 	</application>
 </manifest> 
