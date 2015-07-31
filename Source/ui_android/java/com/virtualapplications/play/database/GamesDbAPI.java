@@ -170,6 +170,9 @@ public class GamesDbAPI extends AsyncTask<File, Integer, Document> {
 					}
 				} else {
 					ContentValues values = new ContentValues();
+					values.put(Games.KEY_GAMEID, remoteID);
+					final String title = getValue(root, "GameTitle");
+					values.put(Games.KEY_TITLE, title);
 					final String overview = getValue(root, "Overview");
 					values.put(Games.KEY_OVERVIEW, overview);
 					
