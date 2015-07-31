@@ -1,5 +1,7 @@
 #include "File.h"
 #include <cassert>
+#include <cstring>
+#include <climits>
 #include <algorithm>
 
 using namespace ISO9660;

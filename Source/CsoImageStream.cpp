@@ -1,4 +1,6 @@
 #include <algorithm>
+#include <stdexcept>
+#include <string.h>
 #include <assert.h>
 #include "CsoImageStream.h"
 #include "zlib.h"
