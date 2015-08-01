@@ -150,6 +150,11 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
 		displaySimpleMessage("About Play!", aboutMessage);
 	}
 
+	@Override
+	public void onConfigurationChanged(Configuration newConfig) {
+		super.onConfigurationChanged(newConfig);
+	}
+
 	private String getCurrentDirectory()
 	{
 		return _preferences.getString(PREFERENCE_CURRENT_DIRECTORY, Environment.getExternalStorageDirectory().getAbsolutePath());
@@ -294,7 +299,7 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
 		if (NavigationDrawerFragment.mDrawerLayout != null) {
 			NavigationDrawerFragment.mDrawerLayout.openDrawer(NavigationDrawerFragment.mFragmentContainerView);
 		}
-		Toast.makeText(this, "Please click BACK again to exit", Toast.LENGTH_SHORT).show();
+		Toast.makeText(this, R.string.pressback_exit, Toast.LENGTH_SHORT).show();
 
 		new Handler().postDelayed(new Runnable() {
 
