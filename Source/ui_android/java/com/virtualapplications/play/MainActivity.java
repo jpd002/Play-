@@ -95,6 +95,30 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
 		getContentResolver().call(Games.GAMES_URI, "importDb", null, null);
 
 		prepareFileListView();
+		setDrawerLayoutMargin();
+
+	}
+
+	public int getStatusBarHeight() {
+		int result = 0;
+		int resourceId = getResources().getIdentifier("status_bar_height", "dimen", "android");
+		if (resourceId > 0) {
+			result = getResources().getDimensionPixelSize(resourceId);
+		}
+		return result;
+	}
+
+	private void setDrawerLayoutMargin() {
+		//this sets toolbar margin, but in effect moving the DrawerLayout
+			int statusBarHeight = getStatusBarHeight();
+
+			View drawerLayout = findViewById(R.id.my_awesome_toolbar);
+
+			ViewGroup.MarginLayoutParams mlp = (ViewGroup.MarginLayoutParams) drawerLayout
+					.getLayoutParams();
+			mlp.bottomMargin = - statusBarHeight;
+
+			drawerLayout.setLayoutParams(mlp);
 	}
 
 	private static long getBuildDate(Context context)
@@ -297,7 +321,11 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
 
 		this.doubleBackToExitPressedOnce = true;
 		if (NavigationDrawerFragment.mDrawerLayout != null) {
-			NavigationDrawerFragment.mDrawerLayout.openDrawer(NavigationDrawerFragment.mFragmentContainerView);
+			if (mNavigationDrawerFragment.isDrawerOpen()) {
+				mNavigationDrawerFragment.mDrawerLayout.closeDrawer(NavigationDrawerFragment.mFragmentContainerView);
+			} else {
+				mNavigationDrawerFragment.mDrawerLayout.openDrawer(NavigationDrawerFragment.mFragmentContainerView);
+			}
 		}
 		Toast.makeText(this, R.string.pressback_exit, Toast.LENGTH_SHORT).show();
 
