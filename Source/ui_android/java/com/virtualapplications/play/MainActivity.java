@@ -113,15 +113,18 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
 
 	private void setDrawerLayoutMargin() {
 		//this sets toolbar margin, but in effect moving the DrawerLayout
-			int statusBarHeight = getStatusBarHeight();
+		int statusBarHeight = getStatusBarHeight();
 
-			View drawerLayout = findViewById(R.id.my_awesome_toolbar);
+		View drawerLayout = findViewById(R.id.my_awesome_toolbar);
+		FrameLayout content = (FrameLayout) findViewById(R.id.content_frame);
+		
+		ViewGroup.MarginLayoutParams dlp = (ViewGroup.MarginLayoutParams) content.getLayoutParams();
+		dlp.topMargin = statusBarHeight;
+		content.setLayoutParams(dlp);
 
-			ViewGroup.MarginLayoutParams mlp = (ViewGroup.MarginLayoutParams) drawerLayout
-					.getLayoutParams();
-			mlp.bottomMargin = - statusBarHeight;
-
-			drawerLayout.setLayoutParams(mlp);
+		ViewGroup.MarginLayoutParams mlp = (ViewGroup.MarginLayoutParams) drawerLayout.getLayoutParams();
+		mlp.bottomMargin = - statusBarHeight;
+		drawerLayout.setLayoutParams(mlp);
 	}
 
 	private static long getBuildDate(Context context) 
