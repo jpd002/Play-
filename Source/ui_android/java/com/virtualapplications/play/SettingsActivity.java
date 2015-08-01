@@ -2,8 +2,11 @@ package com.virtualapplications.play;
 
 import android.os.*;
 import android.preference.*;
+import android.view.LayoutInflater;
+import android.view.View;
 import android.widget.*;
 import java.util.*;
+import android.support.v7.widget.Toolbar;
 
 public class SettingsActivity extends PreferenceActivity
 {
@@ -17,7 +20,22 @@ public class SettingsActivity extends PreferenceActivity
 	@Override
 	public void onBuildHeaders(List<Header> target) 
 	{
+
 		loadHeadersFromResource(R.xml.settings_headers, target);
+	}
+
+	@Override
+	protected void onPostCreate(Bundle savedInstanceState) {
+		super.onPostCreate(savedInstanceState);
+		LinearLayout root =  (LinearLayout)findViewById(android.R.id.list).getParent().getParent().getParent();
+		Toolbar bar = (Toolbar)LayoutInflater.from(this).inflate(R.layout.settings_toolbar, null, false);
+		bar.setNavigationOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				onBackPressed();
+			}
+		});
+		root.addView(bar, 0);
 	}
 	
 	@Override
@@ -26,7 +44,7 @@ public class SettingsActivity extends PreferenceActivity
 		return true;
 	}
 	
-	public static class GeneralSettingsFragment extends PreferenceFragment 
+	public static class GeneralSettingsFragment extends PreferenceFragment
 	{
 		@Override
 		public void onCreate(Bundle savedInstanceState) 
