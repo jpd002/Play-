@@ -4,7 +4,8 @@
 	android:layout_width="match_parent"
 	android:layout_height="match_parent"
 	xmlns:tools="http://schemas.android.com/tools"
-	tools:context=".MainActivity">
+	tools:context=".MainActivity"
+	android:id="@+id/relative_layout">
 
 	<android.support.v7.widget.Toolbar
 		android:id="@+id/my_awesome_toolbar"
@@ -24,7 +25,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_alignParentBottom="true"
-        android:fitsSystemWindows="true"
+        android:fitsSystemWindows="false"
         android:layout_below="@+id/my_awesome_toolbar">
 		<!-- The main content view -->
 		<FrameLayout
@@ -34,8 +35,7 @@
 			<LinearLayout
 				android:orientation="vertical"
 				android:layout_width="fill_parent"
-				android:layout_height="fill_parent"
-				android:background="@drawable/gradient_grid">
+				android:layout_height="fill_parent">
 
 				<ScrollView
 					android:id="@+id/game_scroller"
@@ -50,6 +50,7 @@
 						android:layout_width="match_parent"
 						android:layout_height="wrap_content"
 						android:layout_marginTop="10dp"
+						android:paddingBottom="10dp"
 						android:stretchColumns="*" >
 
 						<requestFocus />
@@ -64,7 +65,7 @@
 			android:name="com.virtualapplications.play.NavigationDrawerFragment"
 			tools:layout="@layout/fragment_navigation_drawer"
 			android:visibility="gone"
-			android:fitsSystemWindows="true"
+			android:fitsSystemWindows="false"
 			android:layout_marginTop="@dimen/tool_bar_top_padding_inv_inv"
 			/>
 	</android.support.v4.widget.DrawerLayout>
