@@ -1,4 +1,4 @@
-package com.virtualapplications.play;
+package com.virtualapplications.play.database;
 
 import android.net.Uri;
 import android.provider.BaseColumns;

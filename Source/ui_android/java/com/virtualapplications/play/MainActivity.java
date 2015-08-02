@@ -30,7 +30,8 @@ import java.util.zip.*;
 import org.apache.commons.lang3.StringUtils;
 import com.android.util.FileUtils;
 
-import com.virtualapplications.play.SqliteHelper.Games;
+import com.virtualapplications.play.database.GameInfo;
+import com.virtualapplications.play.database.SqliteHelper.Games;
 
 public class MainActivity extends Activity 
 {	
@@ -121,6 +122,15 @@ public class MainActivity extends Activity
 		if(!NativeInterop.isVirtualMachineCreated())
 		{
 			NativeInterop.createVirtualMachine();
+		}
+		
+		Intent intent = getIntent();
+		if (intent.getAction() != null) {
+			if (intent.getAction().equals(Intent.ACTION_VIEW)) {
+				launchDisk(new File(intent.getData().getPath()), true);
+				getIntent().setData(null);
+				setIntent(null);
+			}
 		}
 		
 		gameInfo = new GameInfo(MainActivity.this);
@@ -388,7 +398,7 @@ public class MainActivity extends Activity
 			
 			childview.findViewById(R.id.childview).setOnClickListener(new OnClickListener() {
 				public void onClick(View view) {
-					launchDisk(game);
+					launchDisk(game, false);
 					return;
 				}
 			});
@@ -486,10 +496,10 @@ public class MainActivity extends Activity
 	}
 	
 	public static void launchGame(File game) {
-		((MainActivity) mActivity).launchDisk(game);
+		((MainActivity) mActivity).launchDisk(game, false);
 	}
 	
-	private void launchDisk (File game) {
+	private void launchDisk (File game, boolean terminate) {
 		try
 		{
 			if(IsLoadableExecutableFileName(game.getPath()))
@@ -510,6 +520,9 @@ public class MainActivity extends Activity
 		//TODO: Catch errors that might happen while loading files
 		Intent intent = new Intent(getApplicationContext(), EmulatorActivity.class);
 		startActivity(intent);
+		if (terminate) {
+			finish();
+		}
 	}
 	
 	private boolean isAndroidTV(Context context) {

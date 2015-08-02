@@ -38,6 +38,38 @@
 				<category android:name="android.intent.category.LEANBACK_LAUNCHER" />
 				<category android:name="android.intent.category.LAUNCHER" />
 			</intent-filter>
+			<intent-filter>
+				<action android:name="android.intent.action.VIEW" />
+				
+				<category android:name="android.intent.category.DEFAULT" />
+				<category android:name="android.intent.category.BROWSABLE" />
+				
+				<data
+					android:host="*"
+					android:mimeType="*/*"
+					android:pathPattern=".*\\.iso"
+					android:scheme="file" />
+				<data
+					android:host="*"
+					android:mimeType="*/*"
+					android:pathPattern=".*\\.bin"
+					android:scheme="file" />
+				<data
+					android:host="*"
+					android:mimeType="*/*"
+					android:pathPattern=".*\\.cso"
+					android:scheme="file" />
+				<data
+					android:host="*"
+					android:mimeType="*/*"
+					android:pathPattern=".*\\.isz"
+					android:scheme="file" />
+				<data
+					android:host="*"
+					android:mimeType="*/*"
+					android:pathPattern=".*\\.elf"
+					android:scheme="file" />
+			</intent-filter>
 		</activity>
 		<activity
 			android:name=".EmulatorActivity"

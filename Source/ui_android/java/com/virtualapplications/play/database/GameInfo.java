@@ -1,4 +1,4 @@
-package com.virtualapplications.play;
+package com.virtualapplications.play.database;
 
 import java.io.BufferedInputStream;
 import java.io.File;
@@ -31,7 +31,10 @@ import android.widget.TextView;
 
 import java.util.concurrent.ExecutionException;
 
-import com.virtualapplications.play.SqliteHelper.Games;
+import com.virtualapplications.play.R;
+import com.virtualapplications.play.MainActivity;
+import com.virtualapplications.play.NativeInterop;
+import com.virtualapplications.play.database.SqliteHelper.Games;
 
 public class GameInfo {
 	
@@ -223,7 +226,7 @@ public class GameInfo {
 							+ Games.KEY_SERIAL + "=? OR " + Games.KEY_SERIAL + "=? OR " + Games.KEY_SERIAL + "=?";
 		String[] selectionArgs = { serial, "SLUS" + suffix, "SLES" + suffix, "SLPS" + suffix, "SLPM" + suffix, "SCES" + suffix };
 		Cursor c = cr.query(Games.GAMES_URI, null, selection, selectionArgs, null);
-		if (c != null) {
+		if (c != null && c.getCount() > 0) {
 			if (c.moveToFirst()) {
 				do {
 					gameID = c.getString(c.getColumnIndex(Games.KEY_GAMEID));
