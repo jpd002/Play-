@@ -1,57 +1,71 @@
-<?xml version="1.0" encoding="utf-8"?>
-<android.support.v4.widget.DrawerLayout
+<RelativeLayout
 	xmlns:android="http://schemas.android.com/apk/res/android"
-	android:id="@+id/drawer_layout"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
 	android:layout_width="match_parent"
-	android:layout_height="match_parent">
-	<!-- The main content view -->
-	<FrameLayout
-		android:id="@+id/content_frame"
+	android:layout_height="match_parent"
+	xmlns:tools="http://schemas.android.com/tools"
+	tools:context=".MainActivity">
+
+	<android.support.v7.widget.Toolbar
+		android:id="@+id/my_awesome_toolbar"
+		android:layout_height="wrap_content"
 		android:layout_width="match_parent"
-		android:layout_height="match_parent" >
-		<LinearLayout
-			android:orientation="vertical"
-			android:layout_width="fill_parent"
-			android:layout_height="fill_parent"
-			android:background="@drawable/gradient_grid">
-			
-			<ScrollView
-				android:id="@+id/game_scroller"
-				android:layout_width="match_parent"
-				android:layout_height="match_parent"
-				android:layout_weight="1"
-				android:scrollbars="none"
-				android:fillViewport="true" >
-				
-				<TableLayout
-					android:id="@+id/game_grid"
+		android:background="?attr/colorPrimary"
+		app:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
+		android:paddingTop="@dimen/tool_bar_top_padding"
+		android:layout_marginBottom="@dimen/tool_bar_top_padding_inv"
+		android:layout_alignParentTop="true"
+		android:layout_alignParentLeft="true"
+		android:layout_alignParentStart="true" />
+
+	<android.support.v4.widget.DrawerLayout xmlns:android="http://schemas.android.com/apk/res/android"
+		xmlns:tools="http://schemas.android.com/tools"
+		android:id="@+id/drawer_layout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_alignParentBottom="true"
+        android:fitsSystemWindows="true"
+        android:layout_below="@+id/my_awesome_toolbar">
+		<!-- The main content view -->
+		<FrameLayout
+			android:id="@+id/content_frame"
+			android:layout_width="match_parent"
+			android:layout_height="match_parent" >
+			<LinearLayout
+				android:orientation="vertical"
+				android:layout_width="fill_parent"
+				android:layout_height="fill_parent"
+				android:background="@drawable/gradient_grid">
+
+				<ScrollView
+					android:id="@+id/game_scroller"
 					android:layout_width="match_parent"
-					android:layout_height="wrap_content"
-					android:layout_marginTop="10dp"
-					android:stretchColumns="*" >
-					
-					<requestFocus />
-				</TableLayout>
-			</ScrollView>
-		</LinearLayout>
-	</FrameLayout>
-	<!-- The navigation drawer -->
-	<LinearLayout android:id="@+id/left_drawer"
-		android:layout_width="240dp"
-		android:layout_height="match_parent"
-		android:layout_gravity="start"
-		android:background="#111"
-		android:orientation="vertical" >
-		<Button
-			android:id="@+id/main_menu_settings"
-			android:layout_width="match_parent"
-			android:layout_height="wrap_content"
-			android:text="@string/main_menu_settings" />
-		<Button
-			android:id="@+id/main_menu_about"
-			android:layout_width="match_parent"
-			android:layout_height="wrap_content"
-			android:text="@string/main_menu_about" />
-		
-	</LinearLayout>
-</android.support.v4.widget.DrawerLayout>
+					android:layout_height="match_parent"
+					android:layout_weight="1"
+					android:scrollbars="none"
+					android:fillViewport="true" >
+
+					<TableLayout
+						android:id="@+id/game_grid"
+						android:layout_width="match_parent"
+						android:layout_height="wrap_content"
+						android:layout_marginTop="10dp"
+						android:stretchColumns="*" >
+
+						<requestFocus />
+					</TableLayout>
+				</ScrollView>
+			</LinearLayout>
+		</FrameLayout>
+		<!-- The navigation drawer -->
+		<fragment android:id="@+id/navigation_drawer"
+			android:layout_width="@dimen/navigation_drawer_width" android:layout_height="match_parent"
+			android:layout_gravity="start"
+			android:name="com.virtualapplications.play.NavigationDrawerFragment"
+			tools:layout="@layout/fragment_navigation_drawer"
+			android:visibility="gone"
+			android:fitsSystemWindows="true"
+			android:layout_marginTop="@dimen/tool_bar_top_padding_inv_inv"
+			/>
+	</android.support.v4.widget.DrawerLayout>
+</RelativeLayout>

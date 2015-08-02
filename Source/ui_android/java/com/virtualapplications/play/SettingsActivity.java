@@ -2,8 +2,11 @@ package com.virtualapplications.play;
 
 import android.os.*;
 import android.preference.*;
+import android.view.LayoutInflater;
+import android.view.View;
 import android.widget.*;
 import java.util.*;
+import android.support.v7.widget.Toolbar;
 
 public class SettingsActivity extends PreferenceActivity
 {
@@ -13,28 +16,43 @@ public class SettingsActivity extends PreferenceActivity
 		super.onDestroy();
 		SettingsManager.save();
 	}
-	
+
 	@Override
-	public void onBuildHeaders(List<Header> target) 
+	public void onBuildHeaders(List<Header> target)
 	{
+
 		loadHeadersFromResource(R.xml.settings_headers, target);
 	}
-	
+
+	@Override
+	protected void onPostCreate(Bundle savedInstanceState) {
+		super.onPostCreate(savedInstanceState);
+		LinearLayout root =  (LinearLayout)findViewById(android.R.id.list).getParent().getParent().getParent();
+		Toolbar bar = (Toolbar)LayoutInflater.from(this).inflate(R.layout.settings_toolbar, null, false);
+		bar.setNavigationOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				onBackPressed();
+			}
+		});
+		root.addView(bar, 0);
+	}
+
 	@Override
 	protected boolean isValidFragment(String fragmentName)
 	{
 		return true;
 	}
-	
-	public static class GeneralSettingsFragment extends PreferenceFragment 
+
+	public static class GeneralSettingsFragment extends PreferenceFragment
 	{
 		@Override
-		public void onCreate(Bundle savedInstanceState) 
+		public void onCreate(Bundle savedInstanceState)
 		{
 			super.onCreate(savedInstanceState);
 
 			addPreferencesFromResource(R.xml.settings_general_fragment);
-			
+
 			PreferenceGroup prefGroup = getPreferenceScreen();
 			for(int i = 0; i < prefGroup.getPreferenceCount(); i++)
 			{
@@ -45,7 +63,7 @@ public class SettingsActivity extends PreferenceActivity
 					checkBoxPref.setChecked(SettingsManager.getPreferenceBoolean(checkBoxPref.getKey()));
 				}
 			}
-			
+
 			final Preference button_f = (Preference)getPreferenceManager().findPreference("ui.clearfolder");
 			if (button_f != null) {
 				button_f.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
@@ -69,7 +87,7 @@ public class SettingsActivity extends PreferenceActivity
 				});
 			}
 		}
-		
+
 		@Override
 		public void onDestroy()
 		{

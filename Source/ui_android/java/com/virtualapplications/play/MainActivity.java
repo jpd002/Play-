@@ -5,24 +5,21 @@ import android.app.ProgressDialog;
 import android.content.*;
 import android.content.pm.*;
 import android.content.res.Configuration;
-import android.graphics.drawable.BitmapDrawable;
+import android.content.res.TypedArray;
+import android.graphics.Color;
 import android.os.*;
+import android.support.v7.app.ActionBarActivity;
+import android.support.v7.widget.Toolbar;
 import android.util.*;
 import android.view.*;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.view.View.OnLongClickListener;
-import android.view.ViewGroup;
-import android.view.ViewGroup.LayoutParams;
 import android.widget.*;
-import android.widget.AdapterView.*;
-import android.widget.ImageView.ScaleType;
-import android.widget.LinearLayout;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
-import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.widget.DrawerLayout;
+import android.support.v4.app.ActionBarDrawerToggle;
 import java.io.*;
 import java.text.*;
 import java.util.*;
@@ -33,7 +30,7 @@ import com.android.util.FileUtils;
 import com.virtualapplications.play.database.GameInfo;
 import com.virtualapplications.play.database.SqliteHelper.Games;
 
-public class MainActivity extends Activity 
+public class MainActivity extends ActionBarActivity implements NavigationDrawerFragment.NavigationDrawerCallbacks
 {	
 	private static final String PREFERENCE_CURRENT_DIRECTORY = "CurrentDirectory";
 	
@@ -47,7 +44,9 @@ public class MainActivity extends Activity
 	private float localScale;
 	private int currentOrientation;
 	private GameInfo gameInfo;
-	
+	protected NavigationDrawerFragment mNavigationDrawerFragment;
+	private boolean doubleBackToExitPressedOnce;
+
 	@Override 
 	protected void onCreate(Bundle savedInstanceState) 
 	{
@@ -63,80 +62,66 @@ public class MainActivity extends Activity
 		
 		setContentView(R.layout.main);
 		
-		mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
-		mDrawerToggle = new ActionBarDrawerToggle(
-			MainActivity.this,      /* host Activity */
-			mDrawerLayout,			/* DrawerLayout object */
-			R.drawable.ic_drawer,	/* nav drawer icon to replace 'Up' caret */
-			R.string.drawer_open,	/* "open drawer" description */
-			R.string.drawer_shut	/* "close drawer" description */
-		) {
-			/** Called when a drawer has settled in a completely closed state. */
-			public void onDrawerClosed(View view) {
-				super.onDrawerClosed(view);
-				if (!isConfigured) {
-					getActionBar().setTitle(getString(R.string.menu_title_look));
-				} else {
-					getActionBar().setTitle(getString(R.string.menu_title_shut));
-				}
-			}
-			
-			/** Called when a drawer has settled in a completely open state. */
-			public void onDrawerOpened(View drawerView) {
-				super.onDrawerOpened(drawerView);
-				getActionBar().setTitle(getString(R.string.menu_title_open));
-			}
-		};
-		
-		// Set the drawer toggle as the DrawerListener
-		mDrawerLayout.setDrawerListener(mDrawerToggle);
-		
-		Button buttonPrefs = (Button) mDrawerLayout.findViewById(R.id.main_menu_settings);
-		buttonPrefs.setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View arg0) {
-				displaySettingsActivity();
-			}
-		});
-		
-		Button buttonAbout = (Button) mDrawerLayout.findViewById(R.id.main_menu_about);
-		buttonAbout.setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View arg0) {
-				displayAboutDialog();
-			}
-		});
-		
-		getActionBar().setDisplayHomeAsUpEnabled(true);
-		getActionBar().setHomeButtonEnabled(true);
-		getActionBar().setTitle(getString(R.string.menu_title_shut));
-		
+		Toolbar toolbar = (Toolbar) findViewById(R.id.my_awesome_toolbar);
+		setSupportActionBar(toolbar);
+		toolbar.bringToFront();
+
+
+		mNavigationDrawerFragment = (NavigationDrawerFragment)
+				getFragmentManager().findFragmentById(R.id.navigation_drawer);
+
+		// Set up the drawer.
+		mNavigationDrawerFragment.setUp(
+				R.id.navigation_drawer,
+				(DrawerLayout) findViewById(R.id.drawer_layout));
+
+		TypedArray a = getTheme().obtainStyledAttributes(new int[]{R.attr.colorPrimaryDark});
+		int attributeResourceId = a.getColor(0, 0);
+		a.recycle();
+		findViewById(R.id.navigation_drawer).setBackgroundColor(Color.parseColor(
+				("#" + Integer.toHexString(attributeResourceId)).replace("#ff", "#8e")
+		));
+
+
 		mActivity = MainActivity.this;
-		
-		File filesDir = getFilesDir();
+
 		NativeInterop.setFilesDirPath(Environment.getExternalStorageDirectory().getAbsolutePath());
 
 		_preferences = getSharedPreferences("prefs", MODE_PRIVATE);
 		EmulatorActivity.RegisterPreferences();
-	
+
 		if(!NativeInterop.isVirtualMachineCreated())
 		{
 			NativeInterop.createVirtualMachine();
 		}
-		
-		Intent intent = getIntent();
-		if (intent.getAction() != null) {
-			if (intent.getAction().equals(Intent.ACTION_VIEW)) {
-				launchDisk(new File(intent.getData().getPath()), true);
-				getIntent().setData(null);
-				setIntent(null);
-			}
-		}
-		
+
 		gameInfo = new GameInfo(MainActivity.this);
 		getContentResolver().call(Games.GAMES_URI, "importDb", null, null);
-		
+
 		prepareFileListView();
+		setDrawerLayoutMargin();
+	}
+
+	public int getStatusBarHeight() {
+		int result = 0;
+		int resourceId = getResources().getIdentifier("status_bar_height", "dimen", "android");
+		if (resourceId > 0) {
+			result = getResources().getDimensionPixelSize(resourceId);
+		}
+		return result;
+	}
+
+	private void setDrawerLayoutMargin() {
+		//this sets toolbar margin, but in effect moving the DrawerLayout
+			int statusBarHeight = getStatusBarHeight();
+
+			View drawerLayout = findViewById(R.id.my_awesome_toolbar);
+
+			ViewGroup.MarginLayoutParams mlp = (ViewGroup.MarginLayoutParams) drawerLayout
+					.getLayoutParams();
+			mlp.bottomMargin = - statusBarHeight;
+
+			drawerLayout.setLayoutParams(mlp);
 	}
 
 	private static long getBuildDate(Context context) 
@@ -195,37 +180,13 @@ public class MainActivity extends Activity
 	@Override
 	protected void onPostCreate(Bundle savedInstanceState) {
 		super.onPostCreate(savedInstanceState);
-		// Sync the toggle state after onRestoreInstanceState has occurred.
-		mDrawerToggle.syncState();
 	}
 	
 	@Override
 	public void onConfigurationChanged(Configuration newConfig) {
 		super.onConfigurationChanged(newConfig);
-		mDrawerToggle.onConfigurationChanged(newConfig);
+		mNavigationDrawerFragment.onConfigurationChanged(newConfig);
 		
-	}
-	
-	@Override
-	public boolean onOptionsItemSelected(MenuItem item) 
-	{
-		// Pass the event to ActionBarDrawerToggle, if it returns
-		// true, then it has handled the app icon touch event
-		if (mDrawerToggle.onOptionsItemSelected(item)) {
-			return true;
-		}
-		switch(item.getItemId()) 
-		{
-		case android.R.id.home:
-			if (mDrawerLayout.isDrawerOpen(Gravity.LEFT)) {
-				mDrawerLayout.closeDrawer(Gravity.LEFT);
-			} else {
-				mDrawerLayout.openDrawer(Gravity.LEFT);
-			}
-			return true;
-		default:
-			return super.onOptionsItemSelected(item);
-		}
 	}
 	
 	private String getCurrentDirectory()
@@ -317,6 +278,76 @@ public class MainActivity extends Activity
 				fileName.toLowerCase().endsWith(".isz");
 	}
 	
+		@Override
+	public void onNavigationDrawerItemSelected(int position) {
+		//This will only manages the top stack, which is currently empty
+	}
+
+	@Override
+	public void onNavigationDrawerBottomItemSelected(int position) {
+		switch (position) {
+			case 0:
+				displaySettingsActivity();
+				break;
+			case 1:
+				displayAboutDialog();
+				break;
+			case 2:
+				finish();
+				break;
+
+		}
+	}
+
+	public void restoreActionBar() {
+		android.support.v7.app.ActionBar actionBar = getSupportActionBar();
+		actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
+		actionBar.setDisplayShowTitleEnabled(true);
+		actionBar.setTitle(R.string.app_name);
+		actionBar.setSubtitle(R.string.menu_title_shut);
+	}
+
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		if (!mNavigationDrawerFragment.isDrawerOpen()) {
+			// Only show items in the action bar relevant to this screen
+			// if the drawer is not showing. Otherwise, let the drawer
+			// decide what to show in the action bar.
+			//getMenuInflater().inflate(R.menu.main, menu);
+			restoreActionBar();
+			return true;
+		}
+		return super.onCreateOptionsMenu(menu);
+	}
+
+	@Override
+	public void onBackPressed() {
+
+		if (doubleBackToExitPressedOnce) {
+			super.onBackPressed();
+			finish();
+			return;
+		}
+
+		this.doubleBackToExitPressedOnce = true;
+		if (NavigationDrawerFragment.mDrawerLayout != null) {
+			if (mNavigationDrawerFragment.isDrawerOpen()) {
+				mNavigationDrawerFragment.mDrawerLayout.closeDrawer(NavigationDrawerFragment.mFragmentContainerView);
+			} else {
+				mNavigationDrawerFragment.mDrawerLayout.openDrawer(NavigationDrawerFragment.mFragmentContainerView);
+			}
+		}
+		Toast.makeText(this, R.string.pressback_exit, Toast.LENGTH_SHORT).show();
+
+		new Handler().postDelayed(new Runnable() {
+
+			@Override
+			public void run() {
+				doubleBackToExitPressedOnce = false;
+			}
+		}, 2000);
+	}
+
 	private final class ImageFinder extends AsyncTask<String, Integer, List<File>> {
 		
 		private int array;
@@ -570,12 +601,12 @@ public class MainActivity extends Activity
 		
 		new ImageFinder(R.array.disks).execute(sdcard);
 		
-		if (!mDrawerLayout.isDrawerOpen(Gravity.LEFT)) {
+		/*if (!mDrawerLayout.isDrawerOpen(Gravity.LEFT)) {
 			if (!isConfigured) {
 				getActionBar().setTitle(getString(R.string.menu_title_look));
 			} else {
 				getActionBar().setTitle(getString(R.string.menu_title_shut));
 			}
-		}
+		}*/
 	}
 }
