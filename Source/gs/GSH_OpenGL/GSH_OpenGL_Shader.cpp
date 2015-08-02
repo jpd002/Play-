@@ -129,6 +129,7 @@ Framework::OpenGl::CShader CGSH_OpenGL::GenerateFragmentShader(const SHADERCAPS&
 	shaderBuilder << "uniform vec2 g_clampMax;" << std::endl;
 	shaderBuilder << "uniform float g_texA0;" << std::endl;
 	shaderBuilder << "uniform float g_texA1;" << std::endl;
+	shaderBuilder << "uniform float g_alphaRef;" << std::endl;
 
 	if(caps.texClampS == TEXTURE_CLAMP_MODE_REGION_REPEAT || caps.texClampT == TEXTURE_CLAMP_MODE_REGION_REPEAT)
 	{
@@ -257,6 +258,11 @@ Framework::OpenGl::CShader CGSH_OpenGL::GenerateFragmentShader(const SHADERCAPS&
 		shaderBuilder << "	textureColor = gl_Color;" << std::endl;
 	}
 
+	if(caps.hasAlphaTest)
+	{
+		shaderBuilder << GenerateAlphaTestSection(static_cast<ALPHA_TEST_METHOD>(caps.alphaTestMethod));
+	}
+
 	if(caps.hasFog)
 	{
 		shaderBuilder << "	gl_FragColor = vec4(mix(textureColor.rgb, gl_Fog.color.rgb, gl_FogFragCoord), textureColor.a);" << std::endl;
@@ -282,6 +288,7 @@ Framework::OpenGl::CShader CGSH_OpenGL::GenerateFragmentShader(const SHADERCAPS&
 	shaderBuilder << "uniform vec2 g_texelSize;" << std::endl;
 	shaderBuilder << "uniform float g_texA0;" << std::endl;
 	shaderBuilder << "uniform float g_texA1;" << std::endl;
+	shaderBuilder << "uniform float g_alphaRef;" << std::endl;
 
 	shaderBuilder << "vec4 expandAlpha(vec4 inputColor)" << std::endl;
 	shaderBuilder << "{" << std::endl;
@@ -397,6 +404,12 @@ Framework::OpenGl::CShader CGSH_OpenGL::GenerateFragmentShader(const SHADERCAPS&
 	{
 		shaderBuilder << "	textureColor = v_color;" << std::endl;
 	}
+
+	if(caps.hasAlphaTest)
+	{
+		shaderBuilder << GenerateAlphaTestSection(static_cast<ALPHA_TEST_METHOD>(caps.alphaTestMethod));
+	}
+
 	shaderBuilder << "	fragColor = textureColor;" << std::endl;
 	shaderBuilder << "}" << std::endl;
 #endif
@@ -432,6 +445,53 @@ std::string CGSH_OpenGL::GenerateTexCoordClampingSection(TEXTURE_CLAMP_MODE clam
 			"g_clampMin." << coordinate << ") + g_clampMax." << coordinate << ";" << std::endl;
 		break;
 	}
+
+	std::string shaderSource = shaderBuilder.str();
+	return shaderSource;
+}
+
+std::string CGSH_OpenGL::GenerateAlphaTestSection(ALPHA_TEST_METHOD testMethod)
+{
+	std::stringstream shaderBuilder;
+
+	const char* test = "if(false)";
+
+	//testMethod is the condition to pass the test
+	switch(testMethod)
+	{
+	case ALPHA_TEST_NEVER:
+		test = "if(true)";
+		break;
+	case ALPHA_TEST_ALWAYS:
+		test = "if(false)";
+		break;
+	case ALPHA_TEST_LESS:
+		test = "if(textureColor.a >= g_alphaRef)";
+		break;
+	case ALPHA_TEST_LEQUAL:
+		test = "if(textureColor.a > g_alphaRef)";
+		break;
+	case ALPHA_TEST_EQUAL:
+		test = "if(textureColor.a != g_alphaRef)";
+		break;
+	case ALPHA_TEST_GEQUAL:
+		test = "if(textureColor.a < g_alphaRef)";
+		break;
+	case ALPHA_TEST_GREATER:
+		test = "if(textureColor.a <= g_alphaRef)";
+		break;
+	case ALPHA_TEST_NOTEQUAL:
+		test = "if(textureColor.a == g_alphaRef)";
+		break;
+	default:
+		assert(false);
+		break;
+	}
+
+	shaderBuilder << test			<< std::endl;
+	shaderBuilder << "{"			<< std::endl;
+	shaderBuilder << "	discard;"	<< std::endl;
+	shaderBuilder << "}"			<< std::endl;
 
 	std::string shaderSource = shaderBuilder.str();
 	return shaderSource;

@@ -108,7 +108,9 @@ private:
 		unsigned int texUseAlphaExpansion	: 1;
 		unsigned int texBlackIsTransparent	: 1;
 		unsigned int hasFog					: 1;
-		unsigned int padding				: 19;
+		unsigned int hasAlphaTest			: 1;
+		unsigned int alphaTestMethod		: 3;
+		unsigned int padding				: 15;
 
 		bool isIndexedTextureSource() const { return texSourceMode == TEXTURE_SOURCE_MODE_IDX4 || texSourceMode == TEXTURE_SOURCE_MODE_IDX8; }
 	};
@@ -127,6 +129,7 @@ private:
 		GLint							clampMaxUniform;
 		GLint							texA0Uniform;
 		GLint							texA1Uniform;
+		GLint							alphaRefUniform;
 	};
 
 	typedef std::unordered_map<uint32, SHADERINFO> ShaderInfoMap;
@@ -253,6 +256,7 @@ private:
 	Framework::OpenGl::CShader		GenerateVertexShader(const SHADERCAPS&);
 	Framework::OpenGl::CShader		GenerateFragmentShader(const SHADERCAPS&);
 	std::string						GenerateTexCoordClampingSection(TEXTURE_CLAMP_MODE, const char*);
+	std::string						GenerateAlphaTestSection(ALPHA_TEST_METHOD);
 
 	Framework::OpenGl::ProgramPtr	GeneratePresentProgram();
 	Framework::OpenGl::CVertexArray	GeneratePrimVertexArray();
@@ -267,14 +271,15 @@ private:
 	void							DrawToDepth(unsigned int, uint64);
 
 	void							SetRenderingContext(uint64);
-	void							SetupTestFunctions(uint64);
+	void							SetupTestFunctions(const SHADERINFO&, uint64);
 	void							SetupDepthBuffer(uint64, uint64);
 	void							SetupFramebuffer(const SHADERINFO&, uint64, uint64, uint64, uint64);
 	void							SetupBlendingFunction(uint64);
 	void							SetupFogColor();
 
 	static bool						CanRegionRepeatClampModeSimplified(uint32, uint32);
-	void							FillShaderCapsFromTexture(SHADERCAPS&, uint64, uint64, uint64, uint64);
+	void							FillShaderCapsFromTexture(SHADERCAPS&, const uint64&, const uint64&, const uint64&, const uint64&);
+	void							FillShaderCapsFromTest(SHADERCAPS&, const uint64&);
 	void							SetupTexture(const SHADERINFO&, uint64, uint64, uint64, uint64, uint64);
 	static bool						IsCompatibleFramebufferPSM(unsigned int, unsigned int);
 
