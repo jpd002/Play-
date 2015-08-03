@@ -165,51 +165,37 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
 		navigation_drawer.setLayoutParams(mlp2);
 
 		Point p = getNavigationBarSize(this);
-		if (p != null){
-			/*
-			This will take account of nav bar to right/bottom
-			Not sure if there is a way to detect left/top? thus always pad right/bottom for now
-			*/
-			if (p.x != 0){
-				View relative_layout = findViewById(R.id.relative_layout);
-				relative_layout.setPadding(
-						relative_layout.getPaddingLeft(), 
-						relative_layout.getPaddingTop(), 
-						relative_layout.getPaddingRight() + p.x, 
-						relative_layout.getPaddingBottom());
-			} else {
-				navigation_drawer.setPadding(
-					navigation_drawer.getPaddingLeft(), 
-					navigation_drawer.getPaddingTop(), 
-					navigation_drawer.getPaddingRight(), 
-					navigation_drawer.getPaddingBottom() + p.y);
+		/*
+		This will take account of nav bar to right/bottom
+		Not sure if there is a way to detect left/top? thus always pad right/bottom for now
+		*/
+		if (p.x != 0){
+			View relative_layout = findViewById(R.id.relative_layout);
+			relative_layout.setPadding(
+					relative_layout.getPaddingLeft(), 
+					relative_layout.getPaddingTop(), 
+					relative_layout.getPaddingRight() + p.x, 
+					relative_layout.getPaddingBottom());
+		} else if (p.y != 0){
+			navigation_drawer.setPadding(
+				navigation_drawer.getPaddingLeft(), 
+				navigation_drawer.getPaddingTop(), 
+				navigation_drawer.getPaddingRight(), 
+				navigation_drawer.getPaddingBottom() + p.y);
 
-			View game_scroller = findViewById(R.id.game_grid);
-			game_scroller.setPadding(
-				game_scroller.getPaddingLeft(), 
-				game_scroller.getPaddingTop(), 
-				game_scroller.getPaddingRight(), 
-				game_scroller.getPaddingBottom() + p.y);
-			}
+		View game_scroller = findViewById(R.id.game_grid);
+		game_scroller.setPadding(
+			game_scroller.getPaddingLeft(), 
+			game_scroller.getPaddingTop(), 
+			game_scroller.getPaddingRight(), 
+			game_scroller.getPaddingBottom() + p.y);
 		}
 	}
 
 	public static Point getNavigationBarSize(Context context) {
 		Point appUsableSize = getAppUsableScreenSize(context);
 		Point realScreenSize = getRealScreenSize(context);
-
-		// navigation bar on the right
-		if (appUsableSize.x < realScreenSize.x) {
-			return new Point(realScreenSize.x - appUsableSize.x, realScreenSize.y - appUsableSize.y);
-		}
-
-		// navigation bar at the bottom
-		if (appUsableSize.y < realScreenSize.y) {
-			return new Point(realScreenSize.x - appUsableSize.x, realScreenSize.y - appUsableSize.y);
-		}
-
-		// navigation bar is not present
-		return null;
+		return new Point(realScreenSize.x - appUsableSize.x, realScreenSize.y - appUsableSize.y);
 	}
 
 	public static Point getAppUsableScreenSize(Context context) {
