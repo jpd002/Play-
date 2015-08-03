@@ -21,12 +21,6 @@
 	<string name="app_header_two">- Recent</string>
 	<string name="app_header_three">- Favorites</string>
 	
-	<string name="drawer_open">Menu Open</string>
-	<string name="drawer_shut">Menu Shut</string>
-	
-	<!-- <string name="menu_title_open">Menu</string>
-	<string name="menu_title_look">Search</string> -->
-	
 	<string name="main_menu_one">Recent</string>
 	<string name="main_menu_two">Everything</string>
 	<string name="main_menu_three">Favorites</string>

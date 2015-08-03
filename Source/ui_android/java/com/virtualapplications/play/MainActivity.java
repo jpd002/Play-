@@ -415,7 +415,6 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
 		actionBar.setDisplayShowTitleEnabled(true);
 		actionBar.setIcon(R.drawable.ic_logo);
 		actionBar.setTitle(R.string.app_header_one);
-		actionBar.setSubtitle(null);
 	}
 
 	
