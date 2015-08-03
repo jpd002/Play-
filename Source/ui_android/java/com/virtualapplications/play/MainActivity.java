@@ -402,9 +402,6 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
 			case 1:
 				displayAboutDialog();
 				break;
-			case 2:
-				finish();
-				break;
 
 		}
 	}
@@ -432,30 +429,12 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
 
 	@Override
 	public void onBackPressed() {
-
-		if (doubleBackToExitPressedOnce) {
-			super.onBackPressed();
-			finish();
+		if (mNavigationDrawerFragment.mDrawerLayout != null && mNavigationDrawerFragment.isDrawerOpen()) {
+			mNavigationDrawerFragment.mDrawerLayout.closeDrawer(NavigationDrawerFragment.mFragmentContainerView);
 			return;
 		}
-
-		this.doubleBackToExitPressedOnce = true;
-		if (NavigationDrawerFragment.mDrawerLayout != null) {
-			if (mNavigationDrawerFragment.isDrawerOpen()) {
-				mNavigationDrawerFragment.mDrawerLayout.closeDrawer(NavigationDrawerFragment.mFragmentContainerView);
-			} else {
-				mNavigationDrawerFragment.mDrawerLayout.openDrawer(NavigationDrawerFragment.mFragmentContainerView);
-			}
-		}
-		Toast.makeText(this, R.string.pressback_exit, Toast.LENGTH_SHORT).show();
-
-		new Handler().postDelayed(new Runnable() {
-
-			@Override
-			public void run() {
-				doubleBackToExitPressedOnce = false;
-			}
-		}, 2000);
+		super.onBackPressed();
+		finish();
 	}
 
 	private final class ImageFinder extends AsyncTask<String, Integer, List<File>> {

@@ -113,7 +113,6 @@ public class NavigationDrawerFragment extends Fragment {
                 new String[]{
                         getString(R.string.main_menu_settings),
                         getString(R.string.main_menu_about),
-                        getString(R.string.main_menu_exit)
                 }));
     }
 
