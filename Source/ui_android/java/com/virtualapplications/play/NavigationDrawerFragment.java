@@ -101,9 +101,9 @@ public class NavigationDrawerFragment extends Fragment {
                 android.R.layout.simple_list_item_activated_1,
                 android.R.id.text1,
                 new String[]{
-                        "PlaceHolder 1",
-                        "PlaceHolder 2",
-                        "PlaceHolder 3",
+                        getString(R.string.main_menu_one),
+                        getString(R.string.main_menu_two),
+                        getString(R.string.main_menu_three),
                 }));
         //mDrawerListView.setItemChecked(mCurrentSelectedPosition, true);
         mDrawerListView_bottom.setAdapter(new ArrayAdapter<>(
@@ -113,7 +113,6 @@ public class NavigationDrawerFragment extends Fragment {
                 new String[]{
                         getString(R.string.main_menu_settings),
                         getString(R.string.main_menu_about),
-                        getString(R.string.main_menu_exit)
                 }));
     }
 
@@ -324,9 +323,10 @@ public class NavigationDrawerFragment extends Fragment {
      */
     private void showGlobalContextActionBar() {
         android.support.v7.app.ActionBar actionBar = ((ActionBarActivity) getActivity()).getSupportActionBar();
-        actionBar.setDisplayShowTitleEnabled(true);
         actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
-        actionBar.setSubtitle("Navigation");
+		actionBar.setIcon(R.drawable.ic_logo);
+		actionBar.setTitle(null);
+		actionBar.setSubtitle(null);
     }
 
     private android.app.ActionBar getActionBar() {
