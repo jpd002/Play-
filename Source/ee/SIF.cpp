@@ -525,6 +525,9 @@ void CSIF::Cmd_GetOtherData(SIFCMDHEADER* hdr)
 {
 	auto otherData = reinterpret_cast<SIFRPCOTHERDATA*>(hdr);
 
+	CLog::GetInstance().Print(LOG_NAME, "GetOtherData(dstPtr = 0x%0.8X, srcPtr = 0x%0.8X, size = 0x%0.8X);\r\n",
+		otherData->dstPtr, otherData->srcPtr, otherData->size);
+
 	uint32 dstPtr = otherData->dstPtr & (PS2::EE_RAM_SIZE - 1);
 	uint32 srcPtr = otherData->srcPtr & (PS2::IOP_RAM_SIZE - 1);
 
