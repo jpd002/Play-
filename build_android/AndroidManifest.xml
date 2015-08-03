@@ -28,7 +28,7 @@
 		android:banner="@drawable/ic_banner"
 		android:logo="@drawable/ic_logo"
 		android:isGame="true"
-		android:theme="@style/Blue"
+		android:theme="@style/Dark_Purple"
 		>
 		<activity 
 			android:name=".MainActivity"
