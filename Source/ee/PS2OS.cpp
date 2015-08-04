@@ -71,8 +71,6 @@
 #define PATCHESFILENAME		"patches.xml"
 #define LOG_NAME			("ps2os")
 
-#define THREAD_INIT_QUOTA			(15)
-
 #define SYSCALL_NAME_EXIT					"osExit"
 #define SYSCALL_NAME_LOADEXECPS2			"osLoadExecPS2"
 #define SYSCALL_NAME_EXECPS2				"osExecPS2"
@@ -1059,31 +1057,6 @@ void CPS2OS::ThreadShakeAndBake()
 		return;
 	}
 
-	//First of all, revoke the current's thread right to execute itself
-	{
-		unsigned int id = GetCurrentThreadId();
-		if(id != 0)
-		{
-			THREAD* thread = GetThread(id);
-			thread->quota--;
-		}
-	}
-
-	//Check if all quotas expired
-	if(ThreadHasAllQuotasExpired())
-	{
-		CRoundRibbon::ITERATOR threadIterator(m_threadSchedule);
-
-		//If so, regive a quota to everyone
-		for(threadIterator = m_threadSchedule->Begin(); !threadIterator.IsEnd(); threadIterator++)
-		{
-			unsigned int id = threadIterator.GetValue();
-			THREAD* thread = GetThread(id);
-
-			thread->quota = THREAD_INIT_QUOTA;
-		}
-	}
-
 	//Select thread to execute
 	{
 		unsigned int id = 0;
@@ -1097,14 +1070,12 @@ void CPS2OS::ThreadShakeAndBake()
 			thread = GetThread(id);
 
 			if(thread->status != THREAD_RUNNING) continue;
-			//if(thread->quota == 0) continue;
 			break;
 		}
 
 		if(threadIterator.IsEnd())
 		{
-			//Deadlock or something here
-			//printf("%s: Warning, no thread to execute.\r\n", LOG_NAME);
+			//No thread ready to be executed
 			id = 0;
 		}
 		else
@@ -1116,24 +1087,6 @@ void CPS2OS::ThreadShakeAndBake()
 
 		ThreadSwitchContext(id);
 	}
-}
-
-bool CPS2OS::ThreadHasAllQuotasExpired()
-{
-	CRoundRibbon::ITERATOR threadIterator(m_threadSchedule);
-
-	for(threadIterator = m_threadSchedule->Begin(); !threadIterator.IsEnd(); threadIterator++)
-	{
-		unsigned int id = threadIterator.GetValue();
-		THREAD* thread = GetThread(id);
-
-		if(thread->status != THREAD_RUNNING) continue;
-		if(thread->quota == 0) continue;
-
-		return false;
-	}
-
-	return true;
 }
 
 void CPS2OS::ThreadSwitchContext(unsigned int id)
@@ -1634,7 +1587,6 @@ void CPS2OS::sc_CreateThread()
 	thread->currPriority	= threadParam->initPriority;
 	thread->heapBase		= heapBase;
 	thread->wakeUpCount		= 0;
-	thread->quota			= THREAD_INIT_QUOTA;
 	thread->scheduleID		= m_threadSchedule->Insert(id, threadParam->initPriority);
 	thread->stackSize		= threadParam->stackSize;
 	thread->contextPtr		= stackAddr - STACKRES;
@@ -2110,7 +2062,6 @@ void CPS2OS::sc_SetupThread()
 	thread->stackBase		= stackAddr - stackSize;
 	thread->initPriority	= 0;
 	thread->currPriority	= 0;
-	thread->quota			= THREAD_INIT_QUOTA;
 	thread->scheduleID		= m_threadSchedule->Insert(1, thread->currPriority);
 	thread->contextPtr		= 0;
 
@@ -2231,7 +2182,6 @@ void CPS2OS::sc_SignalSema()
 				assert(0);
 				break;
 			}
-			thread->quota = THREAD_INIT_QUOTA;
 			sema->waitCount--;
 
 			if(sema->waitCount == 0)

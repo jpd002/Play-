@@ -143,7 +143,6 @@ private:
 		uint32									wakeUpCount;
 		uint32									scheduleID;
 		uint32									stackSize;
-		uint32									quota;
 	};
 
 	enum STACKRES
@@ -295,7 +294,6 @@ private:
 	uint32									GetNextAvailableThreadId();
 	THREAD*									GetThread(uint32) const;
 	void									ThreadShakeAndBake();
-	bool									ThreadHasAllQuotasExpired();
 	void									ThreadSwitchContext(unsigned int);
 
 	std::pair<uint32, uint32>				GetVsyncFlagPtrs() const;
