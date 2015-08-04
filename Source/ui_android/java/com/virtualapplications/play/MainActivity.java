@@ -47,6 +47,8 @@ public class MainActivity extends Activity
 	private float localScale;
 	private int currentOrientation;
 	private GameInfo gameInfo;
+
+	private List<File> currentGames = new ArrayList<File>();
 	
 	public static final int SORT_RECENT = 0;
 	public static final int SORT_HOMEBREW = 1;
@@ -141,7 +143,7 @@ public class MainActivity extends Activity
 		gameInfo = new GameInfo(MainActivity.this);
 		getContentResolver().call(Games.GAMES_URI, "importDb", null, null);
 		
-		prepareFileListView();
+		prepareFileListView(false);
 	}
 
 	private static long getBuildDate(Context context) 
@@ -291,7 +293,7 @@ public class MainActivity extends Activity
 	public static void resetDirectory() {
 		((MainActivity) mActivity).clearCurrentDirectory();
 		((MainActivity) mActivity).isConfigured = false;
-		((MainActivity) mActivity).prepareFileListView();
+		((MainActivity) mActivity).prepareFileListView(false);
 	}
 	
 	private void clearCoverCache() {
@@ -359,61 +361,7 @@ public class MainActivity extends Activity
 			}
 			FileUtils fileUtils = new FileUtils();
 			Collection<File> files = fileUtils.listFiles(storage, filter, -1);
-			if (sortMethod == SORT_RECENT) {
-				@SuppressWarnings("unchecked")
-				CompositeFileComparator comparator = new CompositeFileComparator(
-					SizeFileComparator.SIZE_REVERSE, LastModifiedFileComparator.LASTMODIFIED_REVERSE);
-				comparator.sort((List<File>) files);
-			}
 			return (List<File>) files;
-		}
-		
-		private View createListItem(final File game, final int index) {
-			
-			if (!isConfigured) {
-				
-				final View childview = MainActivity.this.getLayoutInflater().inflate(
-					R.layout.file_list_item, null, false);
-				
-				((TextView) childview.findViewById(R.id.game_text)).setText(game.getName());
-				
-				childview.findViewById(R.id.childview).setOnClickListener(new OnClickListener() {
-					public void onClick(View view) {
-						setCurrentDirectory(game.getPath().substring(0,
-							game.getPath().lastIndexOf(File.separator)));
-						isConfigured = true;
-						prepareFileListView();
-						return;
-					}
-				});
-				
-				return childview;
-			}
-			
-			final View childview = MainActivity.this.getLayoutInflater().inflate(
-				R.layout.game_list_item, null, false);
-			
-			((TextView) childview.findViewById(R.id.game_text)).setText(game.getName());
-			
-			final String[] gameStats = gameInfo.getGameInfo(game, childview);
-			
-			if (gameStats != null) {
-				childview.findViewById(R.id.childview).setOnLongClickListener(
-					gameInfo.configureLongClick(gameStats[1], gameStats[2], game));
-
-				if (!gameStats[3].equals("404")) {
-					gameInfo.getImage(gameStats[0], childview, gameStats[3]);
-					((TextView) childview.findViewById(R.id.game_text)).setVisibility(View.GONE);
-				}
-			}
-			
-			childview.findViewById(R.id.childview).setOnClickListener(new OnClickListener() {
-				public void onClick(View view) {
-					launchDisk(game, false);
-					return;
-				}
-			});
-			return childview;
 		}
 		
 		protected void onPreExecute() {
@@ -451,59 +399,118 @@ public class MainActivity extends Activity
 				progDialog.dismiss();
 			}
 			if (images != null && !images.isEmpty()) {
+				currentGames = images;
 				// Create the list of acceptable images
-
-				Collections.sort(images);
-	
-				TableRow game_row = new TableRow(MainActivity.this);
-				if (isConfigured) {
-					game_row.setGravity(Gravity.CENTER);
-				}
-				int pad = (int) (10 * localScale + 0.5f);
-				game_row.setPadding(0, 0, 0, pad);
-				
-				if (!isConfigured) {
-					TableRow.LayoutParams params = new TableRow.LayoutParams(
-						TableRow.LayoutParams.MATCH_PARENT,
-						TableRow.LayoutParams.WRAP_CONTENT);
-					params.gravity = Gravity.CENTER_VERTICAL;
-
-					for (int i = 0; i < images.size(); i++)
-					{
-						game_row.addView(createListItem(images.get(i), i));
-						gameListing.addView(game_row, params);
-						game_row = new TableRow(MainActivity.this);
-						game_row.setPadding(0, 0, 0, pad);
-					}
-				} else {
-					TableRow.LayoutParams params = new TableRow.LayoutParams(
-						TableRow.LayoutParams.WRAP_CONTENT,
-						TableRow.LayoutParams.WRAP_CONTENT);
-					params.gravity = Gravity.CENTER;
-
-					int column = 0;
-					for (int i = 0; i < images.size(); i++)
-					{
-						if (column == numColumn)
-						{
-							gameListing.addView(game_row, params);
-							column = 0;
-							game_row = new TableRow(MainActivity.this);
-							game_row.setGravity(Gravity.CENTER);
-							game_row.setPadding(0, 0, 0, pad);
-						}
-						game_row.addView(createListItem(images.get(i), i));
-						column ++;
-					}
-					if (column != 0) {
-						gameListing.addView(game_row, params);
-					}
-				}
-				gameListing.invalidate();
+				populateImages(images);
 			} else {
 				// Display warning that no disks exist
 			}
 		}
+	}
+	
+	private View createListItem(final File game, final int index) {
+		
+		if (!isConfigured) {
+			
+			final View childview = MainActivity.this.getLayoutInflater().inflate(
+										R.layout.file_list_item, null, false);
+			
+			((TextView) childview.findViewById(R.id.game_text)).setText(game.getName());
+			
+			childview.findViewById(R.id.childview).setOnClickListener(new OnClickListener() {
+				public void onClick(View view) {
+					setCurrentDirectory(game.getPath().substring(0,
+						game.getPath().lastIndexOf(File.separator)));
+					isConfigured = true;
+					prepareFileListView(false);
+					return;
+				}
+			});
+			
+			return childview;
+		}
+		
+		final View childview = MainActivity.this.getLayoutInflater().inflate(
+									R.layout.game_list_item, null, false);
+		
+		((TextView) childview.findViewById(R.id.game_text)).setText(game.getName());
+		
+		final String[] gameStats = gameInfo.getGameInfo(game, childview);
+		
+		if (gameStats != null) {
+			childview.findViewById(R.id.childview).setOnLongClickListener(
+				gameInfo.configureLongClick(gameStats[1], gameStats[2], game));
+			
+			if (!gameStats[3].equals("404")) {
+				gameInfo.getImage(gameStats[0], childview, gameStats[3]);
+				((TextView) childview.findViewById(R.id.game_text)).setVisibility(View.GONE);
+			}
+		}
+		
+		childview.findViewById(R.id.childview).setOnClickListener(new OnClickListener() {
+			public void onClick(View view) {
+				launchDisk(game, false);
+				return;
+			}
+		});
+		return childview;
+	}
+	
+	private void populateImages(List<File> images) {
+		if (sortMethod == SORT_RECENT) {
+			@SuppressWarnings("unchecked")
+			CompositeFileComparator comparator = new CompositeFileComparator(
+				SizeFileComparator.SIZE_REVERSE, LastModifiedFileComparator.LASTMODIFIED_REVERSE);
+			comparator.sort(images);
+		} else {
+			Collections.sort(images);
+		}
+		
+		TableRow game_row = new TableRow(MainActivity.this);
+		if (isConfigured) {
+			game_row.setGravity(Gravity.CENTER);
+		}
+		int pad = (int) (10 * localScale + 0.5f);
+		game_row.setPadding(0, 0, 0, pad);
+		
+		if (!isConfigured) {
+			TableRow.LayoutParams params = new TableRow.LayoutParams(
+				 TableRow.LayoutParams.MATCH_PARENT,
+				 TableRow.LayoutParams.WRAP_CONTENT);
+			params.gravity = Gravity.CENTER_VERTICAL;
+			
+			for (int i = 0; i < images.size(); i++)
+			{
+				game_row.addView(createListItem(images.get(i), i));
+				gameListing.addView(game_row, params);
+				game_row = new TableRow(MainActivity.this);
+				game_row.setPadding(0, 0, 0, pad);
+			}
+		} else {
+			TableRow.LayoutParams params = new TableRow.LayoutParams(
+				 TableRow.LayoutParams.WRAP_CONTENT,
+				 TableRow.LayoutParams.WRAP_CONTENT);
+			params.gravity = Gravity.CENTER;
+			
+			int column = 0;
+			for (int i = 0; i < images.size(); i++)
+			{
+				if (column == numColumn)
+				{
+					gameListing.addView(game_row, params);
+					column = 0;
+					game_row = new TableRow(MainActivity.this);
+					game_row.setGravity(Gravity.CENTER);
+					game_row.setPadding(0, 0, 0, pad);
+				}
+				game_row.addView(createListItem(images.get(i), i));
+				column ++;
+			}
+			if (column != 0) {
+				gameListing.addView(game_row, params);
+			}
+		}
+		gameListing.invalidate();
 	}
 	
 	public static void launchGame(File game) {
@@ -549,7 +556,7 @@ public class MainActivity extends Activity
 		return false;
 	}
 
-	private void prepareFileListView()
+	private void prepareFileListView(boolean retainList)
 	{
 		if (gameInfo == null) {
 			gameInfo = new GameInfo(MainActivity.this);
@@ -581,10 +588,14 @@ public class MainActivity extends Activity
 			isConfigured = true;
 		}
 		
-		if (sortMethod == SORT_HOMEBREW) {
-			new ImageFinder(R.array.homebrew).execute(sdcard);
+		if (isConfigured && retainList) {
+			populateImages(currentGames);
 		} else {
-			new ImageFinder(R.array.disks).execute(sdcard);
+			if (sortMethod == SORT_HOMEBREW) {
+				new ImageFinder(R.array.homebrew).execute(sdcard);
+			} else {
+				new ImageFinder(R.array.disks).execute(sdcard);
+			}
 		}
 		
 		if (!mDrawerLayout.isDrawerOpen(Gravity.LEFT)) {
