@@ -17,10 +17,15 @@
 	<string name="search_games">Locating games...</string>
 	<string name="search_games_msg">Please wait...</string>
 	
-	<string name="drawer_open">Menu Open</string>
-	<string name="drawer_shut">Menu Shut</string>
+	<string name="app_header_one">- Games</string>
+	<string name="app_header_two">- Recent</string>
+	<string name="app_header_three">- Favorites</string>
 	
-	<string name="menu_title_open">Menu</string>
-	<string name="menu_title_shut">Games</string>
-	<string name="menu_title_look">Search</string>
+	<string name="main_menu_one">Recent</string>
+	<string name="main_menu_two">Everything</string>
+	<string name="main_menu_three">Favorites</string>
+
+	<string name="pressback_exit">Please click BACK again to exit</string>
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
 </resources>
