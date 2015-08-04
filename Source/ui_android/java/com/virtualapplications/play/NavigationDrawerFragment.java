@@ -325,6 +325,7 @@ public class NavigationDrawerFragment extends Fragment {
         android.support.v7.app.ActionBar actionBar = ((ActionBarActivity) getActivity()).getSupportActionBar();
         actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
 		actionBar.setIcon(R.drawable.ic_logo);
+		actionBar.setTitle(null);
     }
 
     private android.app.ActionBar getActionBar() {
