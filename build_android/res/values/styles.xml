@@ -70,8 +70,7 @@
         <item name="colorPrimaryDark">#1976d2</item>
 
     </style>
-
-
+	
     <style name="Teal" parent="Theme.AppCompat.Light.NoActionBar">
         <item name="android:windowTranslucentStatus">true</item>
         <item name="android:windowTranslucentNavigation">true</item>
@@ -81,6 +80,18 @@
 
         <!-- colorPrimaryDark is used for the status bar -->
         <item name="colorPrimaryDark">#00796b</item>
+
+    </style>
+		
+	<style name="Play_Blue" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="android:windowTranslucentStatus">true</item>
+        <item name="android:windowTranslucentNavigation">true</item>
+        <!-- Customize your theme here. -->
+        <!-- colorPrimary is used for the default action bar background -->
+        <item name="colorPrimary">@color/action_bar_Play_Blue</item>
+
+        <!-- colorPrimaryDark is used for the status bar -->
+        <item name="colorPrimaryDark">#7878ff</item>
 
     </style>
 	
@@ -101,5 +112,6 @@
     <color name="action_bar_Yellow">#ffc107</color>
     <color name="action_bar_Blue">#2196f3</color>
     <color name="action_bar_Teal">#009688</color>
+	<color name="action_bar_Play_Blue">#7f7fff</color>
 	<color name="action_bar_Dark_Purple">#45438e</color>
 </resources>
