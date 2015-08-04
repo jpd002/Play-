@@ -48,6 +48,11 @@ public class MainActivity extends Activity
 	private int currentOrientation;
 	private GameInfo gameInfo;
 	
+	public static final int SORT_RECENT = 0;
+	public static final int SORT_HOMEBREW = 1;
+	public static final int SORT_NONE = 2;
+	private int sortMethod = SORT_NONE;
+	
 	@Override 
 	protected void onCreate(Bundle savedInstanceState) 
 	{
@@ -354,6 +359,12 @@ public class MainActivity extends Activity
 			}
 			FileUtils fileUtils = new FileUtils();
 			Collection<File> files = fileUtils.listFiles(storage, filter, -1);
+			if (sortMethod == SORT_RECENT) {
+				@SuppressWarnings("unchecked")
+				CompositeFileComparator comparator = new CompositeFileComparator(
+					SizeFileComparator.SIZE_REVERSE, LastModifiedFileComparator.LASTMODIFIED_REVERSE);
+				comparator.sort((List<File>) files);
+			}
 			return (List<File>) files;
 		}
 		
@@ -504,10 +515,12 @@ public class MainActivity extends Activity
 		{
 			if(IsLoadableExecutableFileName(game.getPath()))
 			{
+				game.setLastModified(System.currentTimeMillis());
 				NativeInterop.loadElf(game.getPath());
 			}
 			else
 			{
+				game.setLastModified(System.currentTimeMillis());
 				NativeInterop.bootDiskImage(game.getPath());
 			}
 			setCurrentDirectory(game.getPath().substring(0, game.getPath().lastIndexOf(File.separator)));
@@ -568,7 +581,11 @@ public class MainActivity extends Activity
 			isConfigured = true;
 		}
 		
-		new ImageFinder(R.array.disks).execute(sdcard);
+		if (sortMethod == SORT_HOMEBREW) {
+			new ImageFinder(R.array.homebrew).execute(sdcard);
+		} else {
+			new ImageFinder(R.array.disks).execute(sdcard);
+		}
 		
 		if (!mDrawerLayout.isDrawerOpen(Gravity.LEFT)) {
 			if (!isConfigured) {

@@ -14,6 +14,10 @@
 		<item>elf</item>
 	</string-array>
 	
+	<string-array name="homebrew">
+		<item>elf</item>
+	</string-array>
+	
 	<string name="search_games">Locating games...</string>
 	<string name="search_games_msg">Please wait...</string>
 	
@@ -23,4 +27,8 @@
 	<string name="menu_title_open">Menu</string>
 	<string name="menu_title_shut">Games</string>
 	<string name="menu_title_look">Search</string>
+	
+	<string name="file_list_recent">Recent</string>
+	<string name="file_list_homebrew">Homebrew</string>
+	<string name="file_list_default">Unsorted</string>
 </resources>
