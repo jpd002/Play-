@@ -15,6 +15,10 @@
 		<item>elf</item>
 	</string-array>
 	
+	<string-array name="homebrew">
+		<item>elf</item>
+	</string-array>
+	
 	<string name="search_games">Locating games...</string>
 	<string name="search_games_msg">Please wait...</string>
 	
@@ -27,5 +31,8 @@
 
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
-	<string name="pressback_exit">Please click BACK again to exit</string>
+	
+	<string name="file_list_recent">Recent</string>
+	<string name="file_list_homebrew">Homebrew</string>
+	<string name="file_list_default">Unsorted</string>
 </resources>
