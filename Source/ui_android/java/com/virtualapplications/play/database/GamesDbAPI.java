@@ -144,17 +144,17 @@ public class GamesDbAPI extends AsyncTask<File, Integer, Document> {
 					if (c != null && c.getCount() > 0) {
 						if (c.moveToFirst()) {
 							do {
-								dataID = c.getString(c.getColumnIndex(Games.KEY_GAMEID));
 								String title = c.getString(c.getColumnIndex(Games.KEY_TITLE));
 								String overview = c.getString(c.getColumnIndex(Games.KEY_OVERVIEW));
 								String boxart = c.getString(c.getColumnIndex(Games.KEY_BOXART));
 								if (overview != null && boxart != null &&
 									!overview.equals("") && !boxart.equals("")) {
+									dataID = c.getString(c.getColumnIndex(Games.KEY_GAMEID));
 									if (childview != null) {
 										childview.findViewById(R.id.childview).setOnLongClickListener(
 											gameInfo.configureLongClick(title, overview, gameFile));
 										if (boxart != null) {
-											gameInfo.getImage(dataID, childview, boxart);
+											gameInfo.getImage(remoteID, childview, boxart);
 										}
 									}
 									break;
