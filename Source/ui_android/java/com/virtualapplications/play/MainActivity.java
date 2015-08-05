@@ -193,16 +193,16 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
 
 		View file_listing = findViewById(R.id.file_grid);
 		file_listing.setPadding(
-			game_scroller.getPaddingLeft(), 
-			game_scroller.getPaddingTop(), 
-			game_scroller.getPaddingRight(), 
-			game_scroller.getPaddingBottom() + p.y);
+			file_listing.getPaddingLeft(),
+			file_listing.getPaddingTop(),
+			file_listing.getPaddingRight(),
+			file_listing.getPaddingBottom() + p.y);
 		View game_listing = findViewById(R.id.game_grid);
 		game_listing.setPadding(
-			 game_scroller.getPaddingLeft(),
-			 game_scroller.getPaddingTop(),
-			 game_scroller.getPaddingRight(),
-			 game_scroller.getPaddingBottom() + p.y);
+			 game_listing.getPaddingLeft(),
+			 game_listing.getPaddingTop(),
+			 game_listing.getPaddingRight(),
+			 game_listing.getPaddingBottom() + p.y);
 		}
 	}
 
