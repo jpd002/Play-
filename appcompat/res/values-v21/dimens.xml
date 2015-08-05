@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<resources>
-    <dimen name="tool_bar_top_padding">24dp</dimen>
-    <dimen name="tool_bar_top_padding_inv">-26dp</dimen>
-    <dimen name="tool_bar_top_padding_inv_inv">0dp</dimen>
-
-</resources>
