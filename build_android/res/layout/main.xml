@@ -22,25 +22,15 @@
 				android:layout_marginTop="10dp"
 				android:stretchColumns="*"
 				android:visibility="gone" />
-			
-			<ScrollView
-				android:id="@+id/game_scroller"
+				
+			<GridView
+				android:id="@+id/game_grid"
 				android:layout_width="match_parent"
-				android:layout_height="match_parent"
-				android:layout_weight="1"
-				android:scrollbars="none"
-				android:fillViewport="true" >
-				
-				<com.virtualapplications.play.ExpandableHeightGridView
-					android:id="@+id/game_grid"
-					android:layout_width="match_parent"
-					android:layout_height="wrap_content"
-					android:gravity="center"
-					android:verticalSpacing="6dp"
-					android:numColumns="auto_fit"
-					android:stretchMode="columnWidth" />
-				
-			</ScrollView>
+				android:layout_height="wrap_content"
+				android:gravity="center"
+				android:verticalSpacing="6dp"
+				android:numColumns="auto_fit"
+				android:stretchMode="columnWidth" />
 
 		</LinearLayout>
 	</FrameLayout>

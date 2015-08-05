@@ -16,6 +16,7 @@ import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
 import android.widget.*;
 import android.widget.AdapterView.*;
+import android.widget.GridView;
 import android.widget.ImageView.ScaleType;
 import android.widget.LinearLayout;
 import android.widget.TableLayout;
@@ -32,7 +33,6 @@ import com.android.util.FileUtils;
 
 import com.virtualapplications.play.database.GameInfo;
 import com.virtualapplications.play.database.SqliteHelper.Games;
-import com.virtualapplications.play.ExpandableHeightGridView;
 
 public class MainActivity extends Activity 
 {	
@@ -446,7 +446,7 @@ public class MainActivity extends Activity
 				if (gameListing != null && gameListing.isShown()) {
 					gameListing.removeAllViews();
 				}
-				ExpandableHeightGridView gameGrid = (ExpandableHeightGridView) findViewById(R.id.game_grid);
+				GridView gameGrid = (GridView) findViewById(R.id.game_grid);
 				if (gameGrid != null && gameGrid.isShown()) {
 					gameGrid.setAdapter(null);
 				}
@@ -458,7 +458,6 @@ public class MainActivity extends Activity
 					images.toArray(games);
 					GamesAdapter adapter = new GamesAdapter(MainActivity.this, R.layout.game_list_item, games);
 					gameGrid.setAdapter(adapter);
-					gameGrid.setExpanded(true);
 				} else {
 					gameListing.setVisibility(View.VISIBLE);
 					gameGrid.setVisibility(View.GONE);
