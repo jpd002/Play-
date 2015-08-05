@@ -41,7 +41,6 @@ public class MainActivity extends Activity
 	private SharedPreferences _preferences;
 	static Activity mActivity;
 	private boolean isConfigured = false;
-	private int numColumn = 0;
 	private DrawerLayout mDrawerLayout;
 	private ActionBarDrawerToggle mDrawerToggle;
 	private float localScale;
@@ -555,22 +554,6 @@ public class MainActivity extends Activity
 	{
 		if (gameInfo == null) {
 			gameInfo = new GameInfo(MainActivity.this);
-		}
-
-		DisplayMetrics metrics = new DisplayMetrics();
-		getWindowManager().getDefaultDisplay().getMetrics(metrics);
-		localScale = getResources().getDisplayMetrics().density;
-		int screenWidth = (int) (metrics.widthPixels * localScale + 0.5f);
-		int screenHeight = (int) (metrics.heightPixels * localScale + 0.5f);
-		
-		if (screenWidth > screenHeight) {
-			numColumn = 3;
-		} else {
-			numColumn = 2;
-		}
-		
-		if (isAndroidTV(getApplicationContext())) {
-			numColumn += 1;
 		}
 		
 		String sdcard = getCurrentDirectory();
