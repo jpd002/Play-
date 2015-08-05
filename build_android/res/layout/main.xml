@@ -37,25 +37,23 @@
 				android:layout_width="fill_parent"
 				android:layout_height="fill_parent">
 
-				<ScrollView
-					android:id="@+id/game_scroller"
+				<TableLayout
+					android:id="@+id/file_grid"
 					android:layout_width="match_parent"
-					android:layout_height="match_parent"
-					android:layout_weight="1"
-					android:scrollbars="none"
-					android:fillViewport="true" >
+					android:layout_height="wrap_content"
+					android:layout_marginTop="10dp"
+					android:stretchColumns="*"
+					android:visibility="gone" />
 
-					<TableLayout
-						android:id="@+id/game_grid"
-						android:layout_width="match_parent"
-						android:layout_height="wrap_content"
-						android:layout_marginTop="10dp"
-						android:paddingBottom="10dp"
-						android:stretchColumns="*" >
-
-						<requestFocus />
-					</TableLayout>
-				</ScrollView>
+				<GridView
+					android:id="@+id/game_grid"
+					android:layout_width="match_parent"
+					android:layout_height="wrap_content"
+					android:layout_marginTop="10dp"
+					android:gravity="center"
+					android:verticalSpacing="6dp"
+					android:numColumns="auto_fit"
+					android:stretchMode="columnWidth" />
 			</LinearLayout>
 		</FrameLayout>
 		<!-- The navigation drawer -->
