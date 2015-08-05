@@ -63,18 +63,12 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
 		//Log.w(Constants.TAG, "MainActivity - onCreate");
 		
 		currentOrientation = getResources().getConfiguration().orientation;
-//		if (currentOrientation == Configuration.ORIENTATION_LANDSCAPE) {
-//			setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE);
-//		} else {
-//			setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_PORTRAIT);
-//		}
 		
 		setContentView(R.layout.main);
 
-		Toolbar toolbar = (Toolbar) findViewById(R.id.my_awesome_toolbar);
+		Toolbar toolbar = getSupportToolbar();
 		setSupportActionBar(toolbar);
 		toolbar.bringToFront();
-
 
 		mNavigationDrawerFragment = (NavigationDrawerFragment)
 				getFragmentManager().findFragmentById(R.id.navigation_drawer);
@@ -93,15 +87,6 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
 
 
 		mActivity = MainActivity.this;
-	}
-
-	@Override 
-	protected void onPostCreate(Bundle savedInstanceState) 
-	{	
-		super.onPostCreate(savedInstanceState);
-		
-
-		adjustUI();
 		
 		NativeInterop.setFilesDirPath(Environment.getExternalStorageDirectory().getAbsolutePath());
 
@@ -137,7 +122,7 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
 		return result;
 	}
 
-	private void adjustUI() {
+	private Toolbar getSupportToolbar() {
 		//this sets toolbar margin, but in effect moving the DrawerLayout
 		int statusBarHeight = getStatusBarHeight();
 
@@ -154,7 +139,7 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
 		a.recycle();
 		float[] hsv = new float[3];
 		Color.colorToHSV(attributeResourceId, hsv);
-		hsv[2] *= 0.8f;// make it darker
+		hsv[2] *= 1.0f;// make it darker
 		colors[0] = Color.HSVToColor(hsv);
 		/*
 		using this will blend the top of the gradient with actionbar (aka using the same color)
@@ -204,6 +189,7 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
 			 game_listing.getPaddingRight(),
 			 game_listing.getPaddingBottom() + p.y);
 		}
+		return (Toolbar) toolbar;
 	}
 
 	public static Point getNavigationBarSize(Context context) {
