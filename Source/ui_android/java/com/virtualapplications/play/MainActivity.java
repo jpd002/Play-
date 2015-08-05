@@ -55,11 +55,11 @@ public class MainActivity extends Activity
 		//Log.w(Constants.TAG, "MainActivity - onCreate");
 		
 		currentOrientation = getResources().getConfiguration().orientation;
-		if (currentOrientation == Configuration.ORIENTATION_LANDSCAPE) {
-			setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE);
-		} else {
-			setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_PORTRAIT);
-		}
+//		if (currentOrientation == Configuration.ORIENTATION_LANDSCAPE) {
+//			setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE);
+//		} else {
+//			setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_PORTRAIT);
+//		}
 		
 		setContentView(R.layout.main);
 		
@@ -203,6 +203,10 @@ public class MainActivity extends Activity
 	public void onConfigurationChanged(Configuration newConfig) {
 		super.onConfigurationChanged(newConfig);
 		mDrawerToggle.onConfigurationChanged(newConfig);
+		if (newConfig.orientation != currentOrientation) {
+			currentOrientation = newConfig.orientation;
+			prepareFileListView();
+		}
 		
 	}
 	
