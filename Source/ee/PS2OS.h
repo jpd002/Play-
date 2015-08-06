@@ -6,6 +6,7 @@
 #include "../MIPS.h"
 #include "../BiosDebugInfoProvider.h"
 #include "../OsStructManager.h"
+#include "../OsVariableWrapper.h"
 #include "../OsStructQueue.h"
 #include "../gs/GSHandler.h"
 #include "SIF.h"
@@ -130,7 +131,7 @@ private:
 
 	struct THREAD
 	{
-		uint32									valid;
+		uint32									isValid;
 		uint32									status;
 		uint32									contextPtr;
 		uint32									stackBase;
@@ -256,6 +257,7 @@ private:
 		THS_DORMANT		= 0x10,
 	};
 
+	typedef COsStructManager<THREAD> ThreadList;
 	typedef COsStructManager<SEMAPHORE> SemaphoreList;
 	typedef COsStructManager<INTCHANDLER> IntcHandlerList;
 	typedef COsStructManager<DMACHANDLER> DmacHandlerList;
@@ -284,15 +286,13 @@ private:
 	void									AssembleIntcHandler();
 	void									AssembleAlarmHandler();
 	void									AssembleThreadEpilog();
-	void									AssembleWaitThreadProc();
+	void									AssembleIdleThreadProc();
 
 	uint32*									GetCustomSyscallTable();
 
-	void									CreateWaitThread();
+	void									CreateIdleThread();
 	uint32									GetCurrentThreadId() const;
 	void									SetCurrentThreadId(uint32);
-	uint32									GetNextAvailableThreadId();
-	THREAD*									GetThread(uint32) const;
 	void									ThreadShakeAndBake();
 	void									ThreadSwitchContext(unsigned int);
 
@@ -365,10 +365,13 @@ private:
 	CELF*									m_elf;
 	CMIPS&									m_ee;
 	CRoundRibbon*							m_threadSchedule;
+	ThreadList								m_threads;
 	SemaphoreList							m_semaphores;
 	IntcHandlerList							m_intcHandlers;
 	DmacHandlerList							m_dmacHandlers;
 	AlarmList								m_alarms;
+
+	OsVariableWrapper<uint32>				m_idleThreadId;
 
 	IntcHandlerQueue						m_intcHandlerQueue;
 	DmacHandlerQueue						m_dmacHandlerQueue;
