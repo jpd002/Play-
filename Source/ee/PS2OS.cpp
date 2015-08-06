@@ -249,7 +249,9 @@ void CPS2OS::Release()
 
 bool CPS2OS::IsIdle() const
 {
-	return (GetCurrentThreadId() == m_semaWaitThreadId);
+	return 
+		(GetCurrentThreadId() == m_idleThreadId) ||
+		(GetCurrentThreadId() == m_semaWaitThreadId);
 }
 
 void CPS2OS::DumpIntcHandlers()
