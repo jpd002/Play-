@@ -4,7 +4,43 @@ template<typename StructType>
 class COsStructManager
 {
 public:
-	typedef uint32 iterator;
+	class iterator
+	{
+	public:
+		iterator(const COsStructManager& container, uint32 id) : m_container(container), m_id(id) {}
+
+		iterator& operator ++()
+		{
+			m_id++;
+			return (*this);
+		}
+
+		iterator operator ++(int)
+		{
+			iterator copy(*this);
+			m_id++;
+			return copy;
+		}
+
+		bool operator !=(const iterator& rhs) const
+		{
+			return m_id != rhs.m_id;
+		}
+
+		StructType* operator *() const
+		{
+			return m_container[m_id];
+		}
+
+		operator uint32() const
+		{
+			return m_id;
+		}
+
+	private:
+		const COsStructManager& m_container;
+		uint32 m_id = 0;
+	};
 
 	COsStructManager(StructType* structBase, uint32 idBase, uint32 structMax)
 	: m_structBase(structBase)
@@ -65,14 +101,14 @@ public:
 		}
 	}
 
-	iterator Begin() const
+	iterator begin() const
 	{
-		return m_idBase;
+		return iterator(*this, m_idBase);
 	}
 
-	iterator End() const
+	iterator end() const
 	{
-		return m_idBase + m_structMax;
+		return iterator(*this, m_idBase + m_structMax);
 	}
 
 private:
