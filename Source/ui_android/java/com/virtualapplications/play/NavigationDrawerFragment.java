@@ -134,11 +134,7 @@ public class NavigationDrawerFragment extends Fragment {
         mDrawerListView_bottom.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                if (mDrawerLayout != null) {
-                    mDrawerLayout.closeDrawer(mFragmentContainerView);
-                }
                 selectBottomItem(position);
-
             }
         });
         return mDrawerRelativeLayout;

@@ -1,21 +1,30 @@
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:tools="http://schemas.android.com/tools"
     android:layout_height="match_parent"
     android:layout_width="match_parent"
     android:orientation="vertical">
-    <ListView xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
-        android:layout_height="0dp" android:choiceMode="singleChoice"
-        android:divider="@android:color/transparent" android:dividerHeight="0dp"
-        tools:context=".NavigationDrawerFragment"
-        android:id="@+id/nav_listview"
-        android:layout_weight="1" />
+    <ListView
+		android:id="@+id/nav_listview"
+		android:layout_width="match_parent"
+		android:layout_height="0dp"
+		android:choiceMode="singleChoice"
+		android:focusable="true"
+		android:divider="@android:color/transparent"
+		android:dividerHeight="0dp"
+		android:layout_weight="1"
+		android:nextFocusDown="@+id/nav_listview_bottom"
+		tools:context=".NavigationDrawerFragment" />
 
-    <ListView xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
-        android:layout_height="wrap_content" android:choiceMode="none"
-        android:divider="@android:color/transparent" android:dividerHeight="0dp"
-        tools:context=".NavigationDrawerFragment"
-        android:id="@+id/nav_listview_bottom"/>
+    <ListView
+		android:id="@+id/nav_listview_bottom"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:choiceMode="singleChoice"
+		android:focusable="true"
+		android:divider="@android:color/transparent"
+		android:dividerHeight="0dp"
+		android:nextFocusUp="@+id/nav_listview"
+		tools:context=".NavigationDrawerFragment" />
 
 </LinearLayout>
