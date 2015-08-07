@@ -14,26 +14,7 @@
 
     </style>
 
-    <style name="Settings" parent="Theme.AppCompat.NoActionBar">
-        <item name="android:windowTranslucentStatus">true</item>
-        <item name="android:windowTranslucentNavigation">false</item>
-        <!-- Customize your theme here. -->
-        <!-- colorPrimary is used for the default action bar background -->
-        <item name="colorPrimary">@color/action_bar_Blue</item>
-
-        <!-- colorPrimaryDark is used for the status bar -->
-        <item name="colorPrimaryDark">#1976d2</item>
-        <!--item name="colorPrimaryDark">#ff000000</item-->
-        <item name="actionBarStyle">@style/MyActionBar</item>
-
-    </style>
-
-    <style name="MyActionBar"
-        parent="Base.Widget.AppCompat.Light.ActionBar.Solid">
-        <item name="android:background">@color/action_bar_Blue</item>
-    </style>
-
-    <style name="Salmon_Pink" parent="Theme.AppCompat.Light.NoActionBar">
+    <style name="Salmon_Pink" parent="Theme.AppCompat.NoActionBar">
         <item name="android:windowTranslucentStatus">true</item>
         <item name="android:windowTranslucentNavigation">true</item>
         <!-- Customize your theme here. -->
@@ -46,7 +27,7 @@
 
     </style>
 
-    <style name="Yellow" parent="Theme.AppCompat.Light.NoActionBar">
+    <style name="Yellow" parent="Theme.AppCompat.NoActionBar">
         <item name="android:windowTranslucentStatus">true</item>
         <item name="android:windowTranslucentNavigation">true</item>
         <!-- Customize your theme here. -->
@@ -59,7 +40,7 @@
     </style>
 
 
-    <style name="Blue" parent="Theme.AppCompat.Light.NoActionBar">
+    <style name="Blue" parent="Theme.AppCompat.NoActionBar">
         <item name="android:windowTranslucentStatus">true</item>
         <item name="android:windowTranslucentNavigation">true</item>
         <!-- Customize your theme here. -->
@@ -72,7 +53,7 @@
     </style>
 
 
-    <style name="Teal" parent="Theme.AppCompat.Light.NoActionBar">
+    <style name="Teal" parent="Theme.AppCompat.NoActionBar">
         <item name="android:windowTranslucentStatus">true</item>
         <item name="android:windowTranslucentNavigation">true</item>
         <!-- Customize your theme here. -->
