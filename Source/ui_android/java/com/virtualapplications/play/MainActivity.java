@@ -71,6 +71,7 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
 		super.onCreate(savedInstanceState);
 		//Log.w(Constants.TAG, "MainActivity - onCreate");
 		
+		_preferences = getSharedPreferences("prefs", MODE_PRIVATE);
 		currentOrientation = getResources().getConfiguration().orientation;
 		
 		setContentView(R.layout.main);
@@ -99,7 +100,6 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
 		
 		NativeInterop.setFilesDirPath(Environment.getExternalStorageDirectory().getAbsolutePath());
 
-		_preferences = getSharedPreferences("prefs", MODE_PRIVATE);
 		EmulatorActivity.RegisterPreferences();
 
 		if(!NativeInterop.isVirtualMachineCreated())
