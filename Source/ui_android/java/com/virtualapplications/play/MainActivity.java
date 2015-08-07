@@ -34,6 +34,9 @@ import java.lang.reflect.InvocationTargetException;
 import java.text.*;
 import java.util.*;
 import java.util.zip.*;
+import org.apache.commons.io.comparator.CompositeFileComparator;
+import org.apache.commons.io.comparator.LastModifiedFileComparator;
+import org.apache.commons.io.comparator.SizeFileComparator;
 import org.apache.commons.lang3.StringUtils;
 import com.android.util.FileUtils;
 import android.graphics.Point;
@@ -393,15 +396,15 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
 		switch (position) {
 			case 0:
 				sortMethod = SORT_RECENT;
-				prepareFileListView();
+				prepareFileListView(false);
 				break;
 			case 1:
 				sortMethod = SORT_HOMEBREW;
-				prepareFileListView();
+				prepareFileListView(false);
 				break;
 			case 2:
 				sortMethod = SORT_NONE;
-				prepareFileListView();
+				prepareFileListView(false);
 				break;
 		}
 	}
