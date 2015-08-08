@@ -13,6 +13,9 @@ public:
 
 	}
 
+	COsStructQueue(const COsStructQueue&) = delete;
+	COsStructQueue& operator =(const COsStructQueue) = delete;
+
 	void PushFront(uint32 id)
 	{
 		uint32 nextId = (*m_headIdPtr);
