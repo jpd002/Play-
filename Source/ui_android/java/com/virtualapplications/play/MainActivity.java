@@ -80,15 +80,6 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
 			NativeInterop.createVirtualMachine();
 		}
 
-		Intent intent = getIntent();
-		if (intent.getAction() != null) {
-			if (intent.getAction().equals(Intent.ACTION_VIEW)) {
-				launchDisk(new File(intent.getData().getPath()), true);
-				getIntent().setData(null);
-				setIntent(null);
-			}
-		}
-
 //		if (isAndroidTV(this)) {
 //			// Load the menus for Android TV
 //		} else {
@@ -111,7 +102,6 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
 					("#" + Integer.toHexString(attributeResourceId)).replace("#ff", "#8e")
 			));
 //		}
-
 		gameInfo = new GameInfo(MainActivity.this);
 		getContentResolver().call(Games.GAMES_URI, "importDb", null, null);
 
@@ -379,7 +369,7 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
 		((MainActivity) mActivity).clearCoverCache();
 	}
 	
-	private static boolean IsLoadableExecutableFileName(String fileName)
+	static boolean IsLoadableExecutableFileName(String fileName)
 	{
 		return fileName.toLowerCase().endsWith(".elf");
 	}
@@ -573,7 +563,7 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
 			
 			childview.findViewById(R.id.childview).setOnClickListener(new OnClickListener() {
 				public void onClick(View view) {
-					launchDisk(game, false);
+					launchDisk(game);
 					return;
 				}
 			});
@@ -656,10 +646,10 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
 	}
 	
 	public static void launchGame(File game) {
-		((MainActivity) mActivity).launchDisk(game, false);
+		((MainActivity)mActivity).launchDisk(game);
 	}
 	
-	private void launchDisk (File game, boolean terminate) {
+	private void launchDisk (File game) {
 		try
 		{
 			if(IsLoadableExecutableFileName(game.getPath()))
@@ -682,9 +672,6 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
 		//TODO: Catch errors that might happen while loading files
 		Intent intent = new Intent(getApplicationContext(), EmulatorActivity.class);
 		startActivity(intent);
-		if (terminate) {
-			finish();
-		}
 	}
 	
 	private boolean isAndroidTV(Context context) {
