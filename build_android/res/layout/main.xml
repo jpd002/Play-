@@ -19,8 +19,7 @@
 		android:layout_alignParentLeft="true"
 		android:layout_alignParentStart="true" />
 
-	<android.support.v4.widget.DrawerLayout xmlns:android="http://schemas.android.com/apk/res/android"
-		xmlns:tools="http://schemas.android.com/tools"
+	<android.support.v4.widget.DrawerLayout
 		android:id="@+id/drawer_layout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -35,14 +34,13 @@
 			<LinearLayout
 				android:orientation="vertical"
 				android:layout_width="fill_parent"
-				android:layout_height="fill_parent">
+				android:layout_height="fill_parent" >
 
-				<TableLayout
+				<LinearLayout
 					android:id="@+id/file_grid"
 					android:layout_width="match_parent"
 					android:layout_height="wrap_content"
 					android:layout_marginTop="10dp"
-					android:stretchColumns="*"
 					android:visibility="gone" />
 
 				<GridView
@@ -57,10 +55,12 @@
 			</LinearLayout>
 		</FrameLayout>
 		<!-- The navigation drawer -->
-		<fragment android:id="@+id/navigation_drawer"
-			android:layout_width="@dimen/navigation_drawer_width" android:layout_height="match_parent"
-			android:layout_gravity="start"
+		<fragment
 			android:name="com.virtualapplications.play.NavigationDrawerFragment"
+			android:id="@+id/navigation_drawer"
+			android:layout_width="@dimen/navigation_drawer_width"
+			android:layout_height="match_parent"
+			android:layout_gravity="start"
 			tools:layout="@layout/fragment_navigation_drawer"
 			android:visibility="gone"
 			android:fitsSystemWindows="false"

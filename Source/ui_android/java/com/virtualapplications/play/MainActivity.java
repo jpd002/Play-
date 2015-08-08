@@ -24,8 +24,6 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.*;
 import android.widget.GridView;
-import android.widget.TableLayout;
-import android.widget.TableRow;
 import android.widget.TextView;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v4.app.ActionBarDrawerToggle;
@@ -589,7 +587,7 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
 			Collections.sort(images);
 		}
 		
-		TableLayout gameListing = (TableLayout) findViewById(R.id.file_grid);
+		LinearLayout gameListing = (LinearLayout) findViewById(R.id.file_grid);
 		if (gameListing != null && gameListing.isShown()) {
 			gameListing.removeAllViews();
 		}
@@ -609,22 +607,12 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
 		} else {
 			gameListing.setVisibility(View.VISIBLE);
 			gameGrid.setVisibility(View.GONE);
-			TableRow game_row = new TableRow(MainActivity.this);
-			int pad = (int) (10 * localScale + 0.5f);
-			game_row.setPadding(0, 0, 0, pad);
-			TableRow.LayoutParams params = new TableRow.LayoutParams(
-				 TableRow.LayoutParams.MATCH_PARENT,
-				 TableRow.LayoutParams.WRAP_CONTENT);
-			params.gravity = Gravity.CENTER_VERTICAL;
 			
 			for (int i = 0; i < images.size(); i++)
 			{
 				View childview = MainActivity.this.getLayoutInflater().inflate(
-									R.layout.file_list_item, null, false);
-				game_row.addView(createListItem(images.get(i), i, childview));
-				gameListing.addView(game_row, params);
-				game_row = new TableRow(MainActivity.this);
-				game_row.setPadding(0, 0, 0, pad);
+						R.layout.file_list_item, null, false);
+				gameListing.addView(createListItem(images.get(i), i, childview));
 			}
 			gameListing.invalidate();
 		}
