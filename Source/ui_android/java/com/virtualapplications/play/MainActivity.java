@@ -596,7 +596,7 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
 		}
 
 		int padding = getNavigationBarSize(this).y;
-		GamesAdapter adapter = new GamesAdapter(MainActivity.this, R.layout.game_list_item, images, padding);
+		GamesAdapter adapter = new GamesAdapter(MainActivity.this, isConfigured ? R.layout.game_list_item : R.layout.file_list_item, images, padding);
 		/*
 		gameGrid.setNumColumns(-1);
 		-1 = autofit
@@ -644,7 +644,7 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
 			if (game != null) {
 				createListItem(game, v);
 			}
-			if (position == games.size()){
+			if (position == games.size() - 1){
 				v.setPadding(
 						v.getPaddingLeft(),
 						v.getPaddingTop(),
