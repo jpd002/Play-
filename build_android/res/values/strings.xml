@@ -22,15 +22,12 @@
 	<string name="search_games">Locating games...</string>
 	<string name="search_games_msg">Please wait...</string>
 	
-	<string name="drawer_open">Menu Open</string>
-	<string name="drawer_shut">Menu Shut</string>
-	
 	<string name="menu_title_open">Menu</string>
 	<string name="menu_title_shut">Games</string>
 	<string name="menu_title_look">Search</string>
 
-    <string name="navigation_drawer_open">Open navigation drawer</string>
-    <string name="navigation_drawer_close">Close navigation drawer</string>
+    <string name="navigation_drawer_open">Navigation drawer open</string>
+    <string name="navigation_drawer_close">Navigation drawer closed</string>
 	
 	<string name="file_list_recent">Recent</string>
 	<string name="file_list_homebrew">Homebrew</string>
