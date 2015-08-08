@@ -68,23 +68,26 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
 	{
 		super.onCreate(savedInstanceState);
 		//Log.w(Constants.TAG, "MainActivity - onCreate");
-		
+
 		_preferences = getSharedPreferences("prefs", MODE_PRIVATE);
 		currentOrientation = getResources().getConfiguration().orientation;
-		
-		setContentView(R.layout.main);
-		
+
+		if (isAndroidTV(this)) {
+			setContentView(R.layout.tele);
+		} else {
+			setContentView(R.layout.main);
+		}
 		mActivity = MainActivity.this;
-		
+
 		NativeInterop.setFilesDirPath(Environment.getExternalStorageDirectory().getAbsolutePath());
-		
+
 		EmulatorActivity.RegisterPreferences();
-		
+
 		if(!NativeInterop.isVirtualMachineCreated())
 		{
 			NativeInterop.createVirtualMachine();
 		}
-		
+
 		Intent intent = getIntent();
 		if (intent.getAction() != null) {
 			if (intent.getAction().equals(Intent.ACTION_VIEW)) {
@@ -94,24 +97,28 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
 			}
 		}
 
-		Toolbar toolbar = getSupportToolbar();
-		setSupportActionBar(toolbar);
-		toolbar.bringToFront();
+//		if (isAndroidTV(this)) {
+//			// Load the menus for Android TV
+//		} else {
+			Toolbar toolbar = getSupportToolbar();
+			setSupportActionBar(toolbar);
+			toolbar.bringToFront();
 
-		mNavigationDrawerFragment = (NavigationDrawerFragment)
-				getFragmentManager().findFragmentById(R.id.navigation_drawer);
+			mNavigationDrawerFragment = (NavigationDrawerFragment)
+					getFragmentManager().findFragmentById(R.id.navigation_drawer);
 
-		// Set up the drawer.
-		mNavigationDrawerFragment.setUp(
-				R.id.navigation_drawer,
-				(DrawerLayout) findViewById(R.id.drawer_layout));
+			// Set up the drawer.
+			mNavigationDrawerFragment.setUp(
+					R.id.navigation_drawer,
+					(DrawerLayout) findViewById(R.id.drawer_layout));
 
-		TypedArray a = getTheme().obtainStyledAttributes(new int[]{R.attr.colorPrimaryDark});
-		int attributeResourceId = a.getColor(0, 0);
-		a.recycle();
-		findViewById(R.id.navigation_drawer).setBackgroundColor(Color.parseColor(
-				("#" + Integer.toHexString(attributeResourceId)).replace("#ff", "#8e")
-		));
+			TypedArray a = getTheme().obtainStyledAttributes(new int[]{R.attr.colorPrimaryDark});
+			int attributeResourceId = a.getColor(0, 0);
+			a.recycle();
+			findViewById(R.id.navigation_drawer).setBackgroundColor(Color.parseColor(
+					("#" + Integer.toHexString(attributeResourceId)).replace("#ff", "#8e")
+			));
+//		}
 
 		gameInfo = new GameInfo(MainActivity.this);
 		getContentResolver().call(Games.GAMES_URI, "importDb", null, null);
