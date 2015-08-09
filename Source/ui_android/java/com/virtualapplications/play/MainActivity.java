@@ -64,6 +64,7 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
 		_preferences = getSharedPreferences("prefs", MODE_PRIVATE);
 		currentOrientation = getResources().getConfiguration().orientation;
 
+		SettingsActivity.ChangeTheme(null,this);
 		if (isAndroidTV(this)) {
 			setContentView(R.layout.tele);
 		} else {
@@ -138,21 +139,7 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
 		dlp.topMargin = statusBarHeight;
 		content.setLayoutParams(dlp);
 
-		int[] colors = new int[2];// you can increase array size to add more colors to gradient.
-		TypedArray a = getTheme().obtainStyledAttributes(new int[]{R.attr.colorPrimary});
-		int topgradientcolor = a.getColor(0, 0);
-		a.recycle();
-		float[] hsv = new float[3];
-		Color.colorToHSV(topgradientcolor, hsv);
-		hsv[2] *= 0.8f;// make it darker
-		colors[0] = Color.HSVToColor(hsv);
-		/*
-		using this will blend the top of the gradient with actionbar (aka using the same color)
-		colors[0] = topgradientcolor
-		 */
-		colors[1] = Color.rgb(20,20,20);
-		GradientDrawable gradientbg = new GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM, colors);
-		content.setBackground(gradientbg);
+		setUIcolor(content);
 
 		ViewGroup.MarginLayoutParams mlp = (ViewGroup.MarginLayoutParams) toolbar.getLayoutParams();
 		mlp.bottomMargin = - statusBarHeight;
@@ -201,6 +188,33 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
 						relative_layout.getPaddingBottom());
 		}
 		return (Toolbar) toolbar;
+	}
+
+	private void setUIcolor(LinearLayout content){
+		if (content != null) {
+			int[] colors = new int[2];// you can increase array size to add more colors to gradient.
+			TypedArray a = getTheme().obtainStyledAttributes(new int[]{R.attr.colorPrimary});
+			int topgradientcolor = a.getColor(0, 0);
+
+			a.recycle();
+			float[] hsv = new float[3];
+			Color.colorToHSV(topgradientcolor, hsv);
+			hsv[2] *= 0.8f;// make it darker
+			colors[0] = Color.HSVToColor(hsv);
+			/*
+			using this will blend the top of the gradient with actionbar (aka using the same color)
+			colors[0] = topgradientcolor
+			 */
+			colors[1] = Color.rgb(20, 20, 20);
+			GradientDrawable gradientbg = new GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM, colors);
+			content.setBackground(gradientbg);
+		}
+		TypedArray a = getTheme().obtainStyledAttributes(new int[]{R.attr.colorPrimaryDark});
+		int attributeResourceId = a.getColor(0, 0);
+		a.recycle();
+		findViewById(R.id.navigation_drawer).setBackgroundColor(Color.parseColor(
+				("#" + Integer.toHexString(attributeResourceId)).replace("#ff", "#8e")
+		));
 	}
 
 	public static Point getNavigationBarSize(Context context) {
@@ -276,9 +290,18 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
 	private void displaySettingsActivity()
 	{
 		Intent intent = new Intent(getApplicationContext(), SettingsActivity.class);
-		startActivity(intent);
+		startActivityForResult(intent, 0);
+
 	}
-	
+
+	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+		if (requestCode == 0) {
+			SettingsActivity.ChangeTheme(null, this);
+			setUIcolor((LinearLayout) findViewById(R.id.content_frame));
+		}
+	}
+
+
 	private void displayAboutDialog()
 	{
 		long buildDate = getBuildDate(this);
