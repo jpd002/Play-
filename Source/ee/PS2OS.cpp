@@ -50,8 +50,9 @@
 #define BIOS_ADDRESS_CURRENT_THREAD_ID		0x00000014
 #define BIOS_ADDRESS_VSYNCFLAG_VALUE1PTR	0x00000018
 #define BIOS_ADDRESS_VSYNCFLAG_VALUE2PTR	0x0000001C
-#define BIOS_ADDRESS_INTCHANDLERQUEUE_BASE	0x00000020
-#define BIOS_ADDRESS_DMACHANDLERQUEUE_BASE	0x00000024
+#define BIOS_ADDRESS_THREADSCHEDULE_BASE	0x00000020
+#define BIOS_ADDRESS_INTCHANDLERQUEUE_BASE	0x00000024
+#define BIOS_ADDRESS_DMACHANDLERQUEUE_BASE	0x00000028
 #define BIOS_ADDRESS_INTCHANDLER_BASE		0x0000A000
 #define BIOS_ADDRESS_DMACHANDLER_BASE		0x0000C000
 #define BIOS_ADDRESS_SEMAPHORE_BASE			0x0000E000
@@ -194,7 +195,6 @@ CPS2OS::CPS2OS(CMIPS& ee, uint8* ram, uint8* bios, uint8* spr, CGSHandler*& gs, 
 , m_ram(ram)
 , m_bios(bios)
 , m_spr(spr)
-, m_threadSchedule(nullptr)
 , m_sif(sif)
 , m_iopBios(iopBios)
 , m_threads(reinterpret_cast<THREAD*>(m_ram + BIOS_ADDRESS_THREAD_BASE), BIOS_ID_BASE, MAX_THREAD)
@@ -204,6 +204,7 @@ CPS2OS::CPS2OS(CMIPS& ee, uint8* ram, uint8* bios, uint8* spr, CGSHandler*& gs, 
 , m_alarms(reinterpret_cast<ALARM*>(m_ram + BIOS_ADDRESS_ALARM_BASE), BIOS_ID_BASE, MAX_ALARM)
 , m_currentThreadId(reinterpret_cast<uint32*>(m_ram + BIOS_ADDRESS_CURRENT_THREAD_ID))
 , m_idleThreadId(reinterpret_cast<uint32*>(m_ram + BIOS_ADDRESS_IDLE_THREAD_ID))
+, m_threadSchedule(m_threads, reinterpret_cast<uint32*>(m_ram + BIOS_ADDRESS_THREADSCHEDULE_BASE))
 , m_intcHandlerQueue(m_intcHandlers, reinterpret_cast<uint32*>(m_ram + BIOS_ADDRESS_INTCHANDLERQUEUE_BASE))
 , m_dmacHandlerQueue(m_dmacHandlers, reinterpret_cast<uint32*>(m_ram + BIOS_ADDRESS_DMACHANDLERQUEUE_BASE))
 {
@@ -218,8 +219,6 @@ CPS2OS::~CPS2OS()
 void CPS2OS::Initialize()
 {
 	m_elf = nullptr;
-
-	m_threadSchedule = new CRoundRibbon(m_ram + 0x30000, 0x2000);
 
 	m_semaWaitId = -1;
 	m_semaWaitCount = 0;
@@ -244,8 +243,6 @@ void CPS2OS::Initialize()
 void CPS2OS::Release()
 {
 	UnloadExecutable();
-	
-	DELETEPTR(m_threadSchedule);
 }
 
 bool CPS2OS::IsIdle() const
@@ -1021,6 +1018,28 @@ uint32* CPS2OS::GetCustomSyscallTable()
 	return (uint32*)&m_ram[0x00010000];
 }
 
+void CPS2OS::LinkThread(uint32 threadId)
+{
+	auto thread = m_threads[threadId];
+
+	for(auto threadSchedulePair : m_threadSchedule)
+	{
+		auto scheduledThread = threadSchedulePair.second;
+		if(scheduledThread->currPriority > thread->currPriority)
+		{
+			m_threadSchedule.AddBefore(threadSchedulePair.first, threadId);
+			return;
+		}
+	}
+
+	m_threadSchedule.PushBack(threadId);
+}
+
+void CPS2OS::UnlinkThread(uint32 threadId)
+{
+	m_threadSchedule.Unlink(threadId);
+}
+
 void CPS2OS::ThreadShakeAndBake()
 {
 	//Don't play with fire (don't switch if we're in exception mode)
@@ -1037,34 +1056,19 @@ void CPS2OS::ThreadShakeAndBake()
 
 	//Select thread to execute
 	{
-		unsigned int id = 0;
-		THREAD* thread = nullptr;
-		CRoundRibbon::ITERATOR threadIterator(m_threadSchedule);
-
-		//Next, find the next suitable thread to execute
-		for(threadIterator = m_threadSchedule->Begin(); !threadIterator.IsEnd(); threadIterator++)
-		{
-			id = threadIterator.GetValue();
-			thread = m_threads[id];
-			assert(thread);
-
-			if(thread->status != THREAD_RUNNING) continue;
-			break;
-		}
-
-		if(threadIterator.IsEnd())
+		uint32 nextThreadId = 0;
+		if(m_threadSchedule.IsEmpty())
 		{
 			//No thread ready to be executed
-			id = m_idleThreadId;
+			nextThreadId = m_idleThreadId;
 		}
 		else
 		{
-			//Remove and readd the thread into the queue
-			m_threadSchedule->Remove(thread->scheduleID);
-			thread->scheduleID = m_threadSchedule->Insert(id, thread->currPriority);
+			auto nextThreadPair = *m_threadSchedule.begin();
+			nextThreadId = nextThreadPair.first;
+			assert(nextThreadPair.second->status == THREAD_RUNNING);
 		}
-
-		ThreadSwitchContext(id);
+		ThreadSwitchContext(nextThreadId);
 	}
 }
 
@@ -1567,7 +1571,6 @@ void CPS2OS::sc_CreateThread()
 	thread->currPriority	= threadParam->initPriority;
 	thread->heapBase		= heapBase;
 	thread->wakeUpCount		= 0;
-	thread->scheduleID		= m_threadSchedule->Insert(id, threadParam->initPriority);
 	thread->stackSize		= threadParam->stackSize;
 	thread->contextPtr		= stackAddr - STACKRES;
 
@@ -1613,8 +1616,6 @@ void CPS2OS::sc_DeleteThread()
 		return;
 	}
 
-	m_threadSchedule->Remove(thread->scheduleID);
-
 	m_threads.Free(id);
 
 	m_ee.m_State.nGPR[SC_RETURN].nD0 = static_cast<int32>(id);
@@ -1645,6 +1646,7 @@ void CPS2OS::sc_StartThread()
 
 	m_ee.m_State.nGPR[SC_RETURN].nD0 = static_cast<int32>(id);
 
+	LinkThread(id);
 	ThreadShakeAndBake();
 }
 
@@ -1655,11 +1657,8 @@ void CPS2OS::sc_ExitThread()
 
 	auto thread = m_threads[threadId];
 	thread->status = THREAD_ZOMBIE;
-
-	//Reset the thread's priority
 	thread->currPriority = thread->initPriority;
-	m_threadSchedule->Remove(thread->scheduleID);
-	thread->scheduleID = m_threadSchedule->Insert(threadId, thread->currPriority);
+	UnlinkThread(threadId);
 
 	ThreadShakeAndBake();
 }
@@ -1671,10 +1670,10 @@ void CPS2OS::sc_ExitDeleteThread()
 
 	auto thread = m_threads[threadId];
 	thread->status = THREAD_ZOMBIE;
-	
+	UnlinkThread(threadId);
+
 	ThreadShakeAndBake();
 
-	m_threadSchedule->Remove(thread->scheduleID);
 	m_threads.Free(threadId);
 }
 
@@ -1709,11 +1708,8 @@ void CPS2OS::sc_TerminateThread()
 	}
 
 	thread->status = THREAD_ZOMBIE;
-
-	//Reset the thread's priority
 	thread->currPriority = thread->initPriority;
-	m_threadSchedule->Remove(thread->scheduleID);
-	thread->scheduleID = m_threadSchedule->Insert(id, thread->currPriority);
+	UnlinkThread(id);
 
 	m_ee.m_State.nGPR[SC_RETURN].nD0 = static_cast<int32>(id);
 }
@@ -1738,9 +1734,12 @@ void CPS2OS::sc_ChangeThreadPriority()
 
 	m_ee.m_State.nGPR[SC_RETURN].nD0 = static_cast<int32>(prevPrio);
 
-	//Reschedule?
-	m_threadSchedule->Remove(thread->scheduleID);
-	thread->scheduleID = m_threadSchedule->Insert(id, thread->currPriority);
+	//Reschedule if thread is already running
+	if(thread->status == THREAD_RUNNING)
+	{
+		UnlinkThread(id);
+		LinkThread(id);
+	}
 
 	if(!isInt)
 	{
@@ -1751,39 +1750,24 @@ void CPS2OS::sc_ChangeThreadPriority()
 //2B
 void CPS2OS::sc_RotateThreadReadyQueue()
 {
-	CRoundRibbon::ITERATOR threadIterator(m_threadSchedule);
-
 	uint32 prio = m_ee.m_State.nGPR[SC_PARAM0].nV[0];
-
-	//TODO: Rescheduling isn't always necessary and will cause the current thread's priority queue to be
-	//rotated too since each time a thread is picked to be executed it's placed at the end of the queue...
 
 	//Find first of this priority and reinsert if it's the same as the current thread
 	//If it's not the same, the schedule will be rotated when another thread is choosen
-	for(threadIterator = m_threadSchedule->Begin(); !threadIterator.IsEnd(); threadIterator++)
+	for(auto threadSchedulePair : m_threadSchedule)
 	{
-		if(threadIterator.GetWeight() == prio)
+		auto scheduledThread = threadSchedulePair.second;
+		if(scheduledThread->currPriority == prio)
 		{
-			uint32 id = threadIterator.GetValue();
-			if(id == m_currentThreadId)
-			{
-				//TODO: Need to verify that
-				auto thread = m_threads[id];
-				m_threadSchedule->Remove(threadIterator.GetIndex());
-				thread->scheduleID = m_threadSchedule->Insert(id, prio);
-			}
+			UnlinkThread(threadSchedulePair.first);
+			LinkThread(threadSchedulePair.first);
 			break;
 		}
 	}
 
-	m_ee.m_State.nGPR[SC_RETURN].nV[0] = prio;
-	m_ee.m_State.nGPR[SC_RETURN].nV[1] = 0;
+	m_ee.m_State.nGPR[SC_RETURN].nD0 = static_cast<int32>(prio);
 
-	if(!threadIterator.IsEnd())
-	{
-		//Change has been made
-		ThreadShakeAndBake();
-	}
+	ThreadShakeAndBake();
 }
 
 //2F
@@ -1869,6 +1853,7 @@ void CPS2OS::sc_SleepThread()
 	{
 		assert(thread->status == THREAD_RUNNING);
 		thread->status = THREAD_SLEEPING;
+		UnlinkThread(m_currentThreadId);
 		ThreadShakeAndBake();
 		return;
 	}
@@ -1884,7 +1869,11 @@ void CPS2OS::sc_WakeupThread()
 	bool isInt		= m_ee.m_State.nGPR[3].nV[0] == 0x34;
 
 	auto thread = m_threads[id];
-	assert(thread);
+	if(!thread)
+	{
+		m_ee.m_State.nGPR[SC_RETURN].nD0 = static_cast<int32>(-1);
+		return;
+	}
 
 	if(
 		(thread->status == THREAD_SLEEPING) || 
@@ -1894,6 +1883,7 @@ void CPS2OS::sc_WakeupThread()
 		{
 		case THREAD_SLEEPING:
 			thread->status = THREAD_RUNNING;
+			LinkThread(id);
 			break;
 		case THREAD_SUSPENDED_SLEEPING:
 			thread->status = THREAD_SUSPENDED;
@@ -1948,6 +1938,7 @@ void CPS2OS::sc_SuspendThread()
 	{
 	case THREAD_RUNNING:
 		thread->status = THREAD_SUSPENDED;
+		UnlinkThread(id);
 		break;
 	case THREAD_WAITING:
 		thread->status = THREAD_SUSPENDED_WAITING;
@@ -1978,6 +1969,7 @@ void CPS2OS::sc_ResumeThread()
 	{
 	case THREAD_SUSPENDED:
 		thread->status = THREAD_RUNNING;
+		LinkThread(id);
 		break;
 	case THREAD_SUSPENDED_WAITING:
 		thread->status = THREAD_WAITING;
@@ -2041,11 +2033,11 @@ void CPS2OS::sc_SetupThread()
 	auto thread = m_threads[threadId];
 	thread->status			= THREAD_RUNNING;
 	thread->stackBase		= stackAddr - stackSize;
-	thread->initPriority	= 0;
-	thread->currPriority	= 0;
-	thread->scheduleID		= m_threadSchedule->Insert(1, thread->currPriority);
+	thread->initPriority	= 1;
+	thread->currPriority	= 1;
 	thread->contextPtr		= 0;
 
+	LinkThread(threadId);
 	m_currentThreadId = threadId;
 
 	m_ee.m_State.nGPR[SC_RETURN].nV[0] = stackAddr;
@@ -2144,8 +2136,9 @@ void CPS2OS::sc_SignalSema()
 	if(sema->waitCount != 0)
 	{
 		//Unsleep all threads if they were waiting
-		for(auto thread : m_threads)
+		for(auto threadIterator = std::begin(m_threads); threadIterator != std::end(m_threads); threadIterator++)
 		{
+			auto thread = *threadIterator;
 			if(!thread) continue;
 			if((thread->status != THREAD_WAITING) && (thread->status != THREAD_SUSPENDED_WAITING)) continue;
 			if(thread->semaWait != id) continue;
@@ -2154,6 +2147,7 @@ void CPS2OS::sc_SignalSema()
 			{
 			case THREAD_WAITING:
 				thread->status = THREAD_RUNNING;
+				LinkThread(threadIterator);
 				break;
 			case THREAD_SUSPENDED_WAITING:
 				thread->status = THREAD_SUSPENDED;
@@ -2223,6 +2217,7 @@ void CPS2OS::sc_WaitSema()
 		thread->status		= THREAD_WAITING;
 		thread->semaWait	= id;
 
+		UnlinkThread(m_currentThreadId);
 		ThreadShakeAndBake();
 
 		return;
@@ -2896,185 +2891,6 @@ CPS2OS::SystemCallHandler CPS2OS::m_sysCall[0x80] =
 	&CPS2OS::sc_SifSetDChain,		&CPS2OS::sc_SifSetReg,				&CPS2OS::sc_SifGetReg,				&CPS2OS::sc_Unhandled,				&CPS2OS::sc_Deci2Call,			&CPS2OS::sc_Unhandled,			&CPS2OS::sc_MachineType,		&CPS2OS::sc_GetMemorySize,
 };
 
-//////////////////////////////////////////////////
-//Round Ribbon Implementation
-//////////////////////////////////////////////////
-
-CPS2OS::CRoundRibbon::CRoundRibbon(void* memory, uint32 size)
-: m_node(reinterpret_cast<NODE*>(memory))
-, m_maxNode(size / sizeof(NODE))
-{
-	memset(memory, 0, size);
-
-	NODE* head = GetNode(0);
-	head->indexNext	= -1;
-	head->weight	= -1;
-	head->valid		= 1;
-}
-
-CPS2OS::CRoundRibbon::~CRoundRibbon()
-{
-
-}
-
-unsigned int CPS2OS::CRoundRibbon::Insert(uint32 value, uint32 weight)
-{
-	//Initialize the new node
-	NODE* node = AllocateNode();
-	if(node == NULL) return -1;
-	node->weight	= weight;
-	node->value		= value;
-
-	//Insert node in list
-	NODE* next = GetNode(0);
-	NODE* prev = NULL;
-
-	while(1)
-	{
-		if(next == NULL)
-		{
-			//We must insert there...
-			node->indexNext = prev->indexNext;
-			prev->indexNext = GetNodeIndex(node);
-			break;
-		}
-
-		if(next->weight == -1)
-		{
-			prev = next;
-			next = GetNode(next->indexNext);
-			continue;
-		}
-
-		if(node->weight < next->weight)
-		{
-			next = NULL;
-			continue;
-		}
-
-		prev = next;
-		next = GetNode(next->indexNext);
-	}
-
-	return GetNodeIndex(node);
-}
-
-void CPS2OS::CRoundRibbon::Remove(unsigned int index)
-{
-	if(index == 0) return;
-
-	NODE* curr = GetNode(index);
-	if(curr == NULL) return;
-	if(curr->valid != 1) return;
-
-	NODE* node = GetNode(0);
-
-	while(1)
-	{
-		if(node == NULL) break;
-		assert(node->valid);
-
-		if(node->indexNext == index)
-		{
-			node->indexNext = curr->indexNext;
-			break;
-		}
-		
-		node = GetNode(node->indexNext);
-	}
-
-	FreeNode(curr);
-}
-
-unsigned int CPS2OS::CRoundRibbon::Begin()
-{
-	return GetNode(0)->indexNext;
-}
-
-CPS2OS::CRoundRibbon::NODE* CPS2OS::CRoundRibbon::GetNode(unsigned int index)
-{
-	if(index >= m_maxNode) return NULL;
-	return m_node + index;
-}
-
-unsigned int CPS2OS::CRoundRibbon::GetNodeIndex(NODE* node)
-{
-	return (unsigned int)(node - m_node);
-}
-
-CPS2OS::CRoundRibbon::NODE* CPS2OS::CRoundRibbon::AllocateNode()
-{
-	for(unsigned int i = 1; i < m_maxNode; i++)
-	{
-		NODE* node = GetNode(i);
-		if(node->valid == 1) continue;
-		node->valid = 1;
-		return node;
-	}
-
-	return NULL;
-}
-
-void CPS2OS::CRoundRibbon::FreeNode(NODE* node)
-{
-	node->valid = 0;
-}
-
-CPS2OS::CRoundRibbon::ITERATOR::ITERATOR(CRoundRibbon* pRibbon)
-: m_ribbon(pRibbon)
-, m_index(0)
-{
-
-}
-
-CPS2OS::CRoundRibbon::ITERATOR& CPS2OS::CRoundRibbon::ITERATOR::operator =(unsigned int index)
-{
-	m_index = index;
-	return (*this);
-}
-
-CPS2OS::CRoundRibbon::ITERATOR& CPS2OS::CRoundRibbon::ITERATOR::operator ++(int)
-{
-	if(!IsEnd())
-	{
-		NODE* node = m_ribbon->GetNode(m_index);
-		m_index = node->indexNext;
-	}
-
-	return (*this);
-}
-
-uint32 CPS2OS::CRoundRibbon::ITERATOR::GetValue()
-{
-	if(!IsEnd())
-	{
-		return m_ribbon->GetNode(m_index)->value;
-	}
-
-	return 0;
-}
-
-uint32 CPS2OS::CRoundRibbon::ITERATOR::GetWeight()
-{
-	if(!IsEnd())
-	{
-		return m_ribbon->GetNode(m_index)->weight;
-	}
-
-	return -1;
-}
-
-unsigned int CPS2OS::CRoundRibbon::ITERATOR::GetIndex()
-{
-	return m_index;
-}
-
-bool CPS2OS::CRoundRibbon::ITERATOR::IsEnd()
-{
-	if(m_ribbon == NULL) return true;
-	return m_ribbon->GetNode(m_index) == NULL;
-}
-
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
 //Debug Stuff
 
@@ -3103,18 +2919,17 @@ BiosDebugThreadInfoArray CPS2OS::GetThreadsDebugInfo() const
 {
 	BiosDebugThreadInfoArray threadInfos;
 
-	CRoundRibbon::ITERATOR threadIterator(m_threadSchedule);
-
-	for(threadIterator = m_threadSchedule->Begin(); 
-		!threadIterator.IsEnd(); threadIterator++)
+	for(auto threadIterator = std::begin(m_threads); threadIterator != std::end(m_threads); threadIterator++)
 	{
-		auto thread = m_threads[threadIterator.GetValue()];
+		auto thread = *threadIterator;
+		if(!thread) continue;
+
 		auto threadContext = reinterpret_cast<THREADCONTEXT*>(GetStructPtr(thread->contextPtr));
 
 		BIOS_DEBUG_THREAD_INFO threadInfo;
-		threadInfo.id			= threadIterator.GetValue();
+		threadInfo.id			= threadIterator;
 		threadInfo.priority		= thread->currPriority;
-		if(m_currentThreadId == threadIterator.GetValue())
+		if(m_currentThreadId == threadIterator)
 		{
 			threadInfo.pc = m_ee.m_State.nPC;
 			threadInfo.ra = m_ee.m_State.nGPR[CMIPS::RA].nV0;
