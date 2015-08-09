@@ -21,7 +21,7 @@
 
 	<android.support.v4.widget.DrawerLayout
 		android:id="@+id/drawer_layout"
-        android:layout_width="match_parent"
+		android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_alignParentBottom="true"
         android:layout_below="@+id/my_awesome_toolbar">
@@ -39,7 +39,7 @@
 				android:layout_marginTop="10dp"
 				android:visibility="gone"
 				android:orientation="vertical" />
-			
+				
 			<GridView
 				android:id="@+id/game_grid"
 				android:layout_width="match_parent"
@@ -49,7 +49,7 @@
 				android:verticalSpacing="6dp"
 				android:numColumns="auto_fit"
 				android:stretchMode="columnWidth" />
-			
+
 		</LinearLayout>
 		<!-- The navigation drawer -->
 		<fragment
@@ -60,7 +60,6 @@
 			android:layout_gravity="start"
 			tools:layout="@layout/fragment_navigation_drawer"
 			android:visibility="gone"
-			android:layout_marginTop="@dimen/tool_bar_top_padding_inv_inv"
-			/>
+			android:layout_marginTop="@dimen/tool_bar_top_padding_inv_inv" />
 	</android.support.v4.widget.DrawerLayout>
 </RelativeLayout>
