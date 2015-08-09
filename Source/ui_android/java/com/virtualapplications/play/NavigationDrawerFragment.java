@@ -13,6 +13,7 @@ import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.ActionBarDrawerToggle;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -23,9 +24,6 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.LinearLayout;
 import android.widget.ListView;
-
-import com.ikimuhendis.ldrawer.ActionBarDrawerToggle;
-import com.ikimuhendis.ldrawer.DrawerArrowDrawable;
 
 /**
  * Fragment used for managing interactions for and presentation of a navigation drawer.
@@ -62,7 +60,6 @@ public class NavigationDrawerFragment extends Fragment {
     private int mCurrentSelectedPosition = 0;
     private boolean mFromSavedInstanceState;
     private boolean mUserLearnedDrawer;
-    private DrawerArrowDrawable drawerArrow;
     private ListView mDrawerListView_bottom;
 
     public NavigationDrawerFragment() {
@@ -161,14 +158,6 @@ public class NavigationDrawerFragment extends Fragment {
         actionBar.setDisplayHomeAsUpEnabled(true);
         actionBar.setHomeButtonEnabled(true);
 
-        drawerArrow = new DrawerArrowDrawable(getActivity()) {
-            @Override
-            public boolean isLayoutRtl() {
-                return false;
-            }
-        };
-        drawerArrow.setColor(android.R.color.white);
-        drawerArrow.setProgress(0f);
         // to set color
         // ActionBarDrawerToggle ties together the the proper interactions
         // between the navigation drawer and the action bar app icon.
@@ -176,7 +165,6 @@ public class NavigationDrawerFragment extends Fragment {
         mDrawerToggle = new ActionBarDrawerToggle(
                 (ActionBarActivity) getActivity(),                    /* host Activity */
                 mDrawerLayout,                    /* DrawerLayout object */
-                drawerArrow,             /* nav drawer image to replace 'Up' caret */
                 R.string.navigation_drawer_open,  /* "open drawer" description for accessibility */
                 R.string.navigation_drawer_close  /* "close drawer" description for accessibility */
         ) {
@@ -209,7 +197,6 @@ public class NavigationDrawerFragment extends Fragment {
                 getActivity().invalidateOptionsMenu(); // calls onPrepareOptionsMenu()
             }
         };
-        drawerArrow.setProgress(0f);
         // If the user hasn't 'learned' about the drawer, open it to introduce them to the drawer,
         // per the navigation drawer design guidelines.
         if (!mUserLearnedDrawer && !mFromSavedInstanceState) {
