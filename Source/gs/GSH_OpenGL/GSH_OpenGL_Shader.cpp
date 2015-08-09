@@ -318,12 +318,12 @@ Framework::OpenGl::CShader CGSH_OpenGL::GenerateFragmentShader(const SHADERCAPS&
 			shaderBuilder << "	float colorIndex = textureProj(g_texture, v_texCoord).r * 255.0;" << std::endl;
 			if(caps.texSourceMode == TEXTURE_SOURCE_MODE_IDX4)
 			{
-				shaderBuilder << "	float paletteTexelBias = 0.5 / 16.0;";
+				shaderBuilder << "	float paletteTexelBias = 0.5 / 16.0;" << std::endl;
 				shaderBuilder << "	textureColor = expandAlpha(texture(g_palette, vec2(colorIndex / 16.0 + paletteTexelBias, 0)));" << std::endl;
 			}
 			else if(caps.texSourceMode == TEXTURE_SOURCE_MODE_IDX8)
 			{
-				shaderBuilder << "	float paletteTexelBias = 0.5 / 256.0;";
+				shaderBuilder << "	float paletteTexelBias = 0.5 / 256.0;" << std::endl;
 				shaderBuilder << "	textureColor = expandAlpha(texture(g_palette, vec2(colorIndex / 256.0 + paletteTexelBias, 0)));" << std::endl;
 			}
 		}
@@ -337,7 +337,7 @@ Framework::OpenGl::CShader CGSH_OpenGL::GenerateFragmentShader(const SHADERCAPS&
 
 			if(caps.texSourceMode == TEXTURE_SOURCE_MODE_IDX4)
 			{
-				shaderBuilder << "	float paletteTexelBias = 0.5 / 16.0;";
+				shaderBuilder << "	float paletteTexelBias = 0.5 / 16.0;" << std::endl;
 				shaderBuilder << "	vec4 tl = expandAlpha(texture(g_palette, vec2(tlIdx / 16.0 + paletteTexelBias, 0)));" << std::endl;
 				shaderBuilder << "	vec4 tr = expandAlpha(texture(g_palette, vec2(trIdx / 16.0 + paletteTexelBias, 0)));" << std::endl;
 				shaderBuilder << "	vec4 bl = expandAlpha(texture(g_palette, vec2(blIdx / 16.0 + paletteTexelBias, 0)));" << std::endl;
@@ -345,7 +345,7 @@ Framework::OpenGl::CShader CGSH_OpenGL::GenerateFragmentShader(const SHADERCAPS&
 			}
 			else if(caps.texSourceMode == TEXTURE_SOURCE_MODE_IDX8)
 			{
-				shaderBuilder << "	float paletteTexelBias = 0.5 / 256.0;";
+				shaderBuilder << "	float paletteTexelBias = 0.5 / 256.0;" << std::endl;
 				shaderBuilder << "	vec4 tl = expandAlpha(texture(g_palette, vec2(tlIdx / 256.0 + paletteTexelBias, 0)));" << std::endl;
 				shaderBuilder << "	vec4 tr = expandAlpha(texture(g_palette, vec2(trIdx / 256.0 + paletteTexelBias, 0)));" << std::endl;
 				shaderBuilder << "	vec4 bl = expandAlpha(texture(g_palette, vec2(blIdx / 256.0 + paletteTexelBias, 0)));" << std::endl;
