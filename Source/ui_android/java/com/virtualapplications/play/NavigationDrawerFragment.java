@@ -239,7 +239,6 @@ public class NavigationDrawerFragment extends Fragment {
     }
 
     private void selectBottomItem(int position) {
-        mCurrentSelectedPosition = position;
         if (mDrawerListView != null) {
             mDrawerListView.setItemChecked(position, true);
         }
@@ -299,6 +298,20 @@ public class NavigationDrawerFragment extends Fragment {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onResume(){
+        super.onResume();
+        if (mDrawerListView != null) {
+            //TODO: colour is hardcoded, try getting from theme
+            TypedArray a = getActivity().getTheme().obtainStyledAttributes(new int[]{R.attr.colorPrimaryDark});
+            int attributeResourceId = a.getColor(0, 0);
+            View v = mDrawerListView.getChildAt(mCurrentSelectedPosition);
+            if (v != null)
+            v.setBackgroundColor(attributeResourceId);
+
+        }
     }
 
     /**
