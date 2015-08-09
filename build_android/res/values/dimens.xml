@@ -5,4 +5,7 @@
     <dimen name="tool_bar_top_padding">0dp</dimen>
     <dimen name="tool_bar_top_padding_inv">-26dp</dimen>
     <dimen name="tool_bar_top_padding_inv_inv">26dp</dimen>
+
+    <dimen name="cover_width">172dp</dimen>
+    <dimen name="cover_height">242dp</dimen>
 </resources>

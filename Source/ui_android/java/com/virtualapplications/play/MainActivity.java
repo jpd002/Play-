@@ -625,6 +625,9 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
 		-1 = autofit
 		or set a number if you like
 		 */
+		if (isConfigured){
+			gameGrid.setColumnWidth((int) getResources().getDimension(R.dimen.cover_width));
+		}
 		gameGrid.setAdapter(adapter);
 		gameGrid.invalidate();
 
