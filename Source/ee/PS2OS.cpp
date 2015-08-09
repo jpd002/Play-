@@ -202,6 +202,7 @@ CPS2OS::CPS2OS(CMIPS& ee, uint8* ram, uint8* bios, uint8* spr, CGSHandler*& gs, 
 , m_intcHandlers(reinterpret_cast<INTCHANDLER*>(m_ram + BIOS_ADDRESS_INTCHANDLER_BASE), BIOS_ID_BASE, MAX_INTCHANDLER)
 , m_dmacHandlers(reinterpret_cast<DMACHANDLER*>(m_ram + BIOS_ADDRESS_DMACHANDLER_BASE), BIOS_ID_BASE, MAX_DMACHANDLER)
 , m_alarms(reinterpret_cast<ALARM*>(m_ram + BIOS_ADDRESS_ALARM_BASE), BIOS_ID_BASE, MAX_ALARM)
+, m_currentThreadId(reinterpret_cast<uint32*>(m_ram + BIOS_ADDRESS_CURRENT_THREAD_ID))
 , m_idleThreadId(reinterpret_cast<uint32*>(m_ram + BIOS_ADDRESS_IDLE_THREAD_ID))
 , m_intcHandlerQueue(m_intcHandlers, reinterpret_cast<uint32*>(m_ram + BIOS_ADDRESS_INTCHANDLERQUEUE_BASE))
 , m_dmacHandlerQueue(m_dmacHandlers, reinterpret_cast<uint32*>(m_ram + BIOS_ADDRESS_DMACHANDLERQUEUE_BASE))
@@ -250,8 +251,8 @@ void CPS2OS::Release()
 bool CPS2OS::IsIdle() const
 {
 	return 
-		(GetCurrentThreadId() == m_idleThreadId) ||
-		(GetCurrentThreadId() == m_semaWaitThreadId);
+		(m_currentThreadId == m_idleThreadId) ||
+		(m_currentThreadId == m_semaWaitThreadId);
 }
 
 void CPS2OS::DumpIntcHandlers()
@@ -1020,16 +1021,6 @@ uint32* CPS2OS::GetCustomSyscallTable()
 	return (uint32*)&m_ram[0x00010000];
 }
 
-uint32 CPS2OS::GetCurrentThreadId() const
-{
-	return *reinterpret_cast<uint32*>(m_ram + BIOS_ADDRESS_CURRENT_THREAD_ID);
-}
-
-void CPS2OS::SetCurrentThreadId(uint32 threadId)
-{
-	*reinterpret_cast<uint32*>(m_ram + BIOS_ADDRESS_CURRENT_THREAD_ID) = threadId;
-}
-
 void CPS2OS::ThreadShakeAndBake()
 {
 	//Don't play with fire (don't switch if we're in exception mode)
@@ -1079,11 +1070,11 @@ void CPS2OS::ThreadShakeAndBake()
 
 void CPS2OS::ThreadSwitchContext(unsigned int id)
 {
-	if(id == GetCurrentThreadId()) return;
+	if(id == m_currentThreadId) return;
 
 	//Save the context of the current thread
 	{
-		auto thread = m_threads[GetCurrentThreadId()];
+		auto thread = m_threads[m_currentThreadId];
 		assert(thread);
 		thread->contextPtr = m_ee.m_State.nGPR[CMIPS::SP].nV0 - STACKRES;
 
@@ -1116,11 +1107,11 @@ void CPS2OS::ThreadSwitchContext(unsigned int id)
 		thread->epc = m_ee.m_State.nPC;
 	}
 
-	SetCurrentThreadId(id);
+	m_currentThreadId = id;
 
 	//Load the new context
 	{
-		auto thread = m_threads[GetCurrentThreadId()];
+		auto thread = m_threads[m_currentThreadId];
 		assert(thread);
 		m_ee.m_State.nPC = thread->epc;
 
@@ -1559,7 +1550,7 @@ void CPS2OS::sc_CreateThread()
 		return;
 	}
 
-	auto parentThread = m_threads[GetCurrentThreadId()];
+	auto parentThread = m_threads[m_currentThreadId];
 	assert(parentThread);
 	uint32 heapBase = parentThread->heapBase;
 
@@ -1597,7 +1588,7 @@ void CPS2OS::sc_DeleteThread()
 {
 	uint32 id = m_ee.m_State.nGPR[SC_PARAM0].nV[0];
 
-	if(id == GetCurrentThreadId())
+	if(id == m_currentThreadId)
 	{
 		m_ee.m_State.nGPR[SC_RETURN].nD0 = static_cast<int32>(-1);
 		return;
@@ -1660,7 +1651,7 @@ void CPS2OS::sc_StartThread()
 //23
 void CPS2OS::sc_ExitThread()
 {
-	uint32 threadId = GetCurrentThreadId();
+	uint32 threadId = m_currentThreadId;
 
 	auto thread = m_threads[threadId];
 	thread->status = THREAD_ZOMBIE;
@@ -1676,7 +1667,7 @@ void CPS2OS::sc_ExitThread()
 //24
 void CPS2OS::sc_ExitDeleteThread()
 {
-	uint32 threadId = GetCurrentThreadId();
+	uint32 threadId = m_currentThreadId;
 
 	auto thread = m_threads[threadId];
 	thread->status = THREAD_ZOMBIE;
@@ -1692,7 +1683,7 @@ void CPS2OS::sc_TerminateThread()
 {
 	uint32 id = m_ee.m_State.nGPR[SC_PARAM0].nV[0];
 
-	if(id == GetCurrentThreadId())
+	if(id == m_currentThreadId)
 	{
 		m_ee.m_State.nGPR[SC_RETURN].nD0 = static_cast<int32>(-1);
 		return;
@@ -1774,7 +1765,7 @@ void CPS2OS::sc_RotateThreadReadyQueue()
 		if(threadIterator.GetWeight() == prio)
 		{
 			uint32 id = threadIterator.GetValue();
-			if(id == GetCurrentThreadId())
+			if(id == m_currentThreadId)
 			{
 				//TODO: Need to verify that
 				auto thread = m_threads[id];
@@ -1798,7 +1789,7 @@ void CPS2OS::sc_RotateThreadReadyQueue()
 //2F
 void CPS2OS::sc_GetThreadId()
 {
-	m_ee.m_State.nGPR[SC_RETURN].nV[0] = GetCurrentThreadId();
+	m_ee.m_State.nGPR[SC_RETURN].nV[0] = m_currentThreadId;
 	m_ee.m_State.nGPR[SC_RETURN].nV[1] = 0;
 }
 
@@ -1816,7 +1807,7 @@ void CPS2OS::sc_ReferThreadStatus()
 
 	if(id == 0)
 	{
-		id = GetCurrentThreadId();
+		id = m_currentThreadId;
 	}
 
 	auto thread = m_threads[id];
@@ -1831,7 +1822,7 @@ void CPS2OS::sc_ReferThreadStatus()
 	switch(thread->status)
 	{
 	case THREAD_RUNNING:
-		if(id == GetCurrentThreadId())
+		if(id == m_currentThreadId)
 		{
 			ret = THS_RUN;
 		}
@@ -1873,7 +1864,7 @@ void CPS2OS::sc_ReferThreadStatus()
 //32
 void CPS2OS::sc_SleepThread()
 {
-	auto thread = m_threads[GetCurrentThreadId()];
+	auto thread = m_threads[m_currentThreadId];
 	if(thread->wakeUpCount == 0)
 	{
 		assert(thread->status == THREAD_RUNNING);
@@ -2055,7 +2046,7 @@ void CPS2OS::sc_SetupThread()
 	thread->scheduleID		= m_threadSchedule->Insert(1, thread->currPriority);
 	thread->contextPtr		= 0;
 
-	SetCurrentThreadId(threadId);
+	m_currentThreadId = threadId;
 
 	m_ee.m_State.nGPR[SC_RETURN].nV[0] = stackAddr;
 	m_ee.m_State.nGPR[SC_RETURN].nV[1] = 0;
@@ -2064,7 +2055,7 @@ void CPS2OS::sc_SetupThread()
 //3D
 void CPS2OS::sc_SetupHeap()
 {
-	auto thread = m_threads[GetCurrentThreadId()];
+	auto thread = m_threads[m_currentThreadId];
 
 	uint32 heapBase = m_ee.m_State.nGPR[SC_PARAM0].nV[0];
 	uint32 heapSize = m_ee.m_State.nGPR[SC_PARAM1].nV[0];
@@ -2085,7 +2076,7 @@ void CPS2OS::sc_SetupHeap()
 //3E
 void CPS2OS::sc_EndOfHeap()
 {
-	auto thread = m_threads[GetCurrentThreadId()];
+	auto thread = m_threads[m_currentThreadId];
 
 	m_ee.m_State.nGPR[SC_RETURN].nV[0] = thread->heapBase;
 	m_ee.m_State.nGPR[SC_RETURN].nV[1] = 0;
@@ -2212,7 +2203,7 @@ void CPS2OS::sc_WaitSema()
 		m_semaWaitCount++;
 		if(m_semaWaitCount > 100)
 		{
-			m_semaWaitThreadId = GetCurrentThreadId();
+			m_semaWaitThreadId = m_currentThreadId;
 		}
 	}
 	else
@@ -2227,7 +2218,7 @@ void CPS2OS::sc_WaitSema()
 		//Put this thread in sleep mode and reschedule...
 		sema->waitCount++;
 
-		auto thread = m_threads[GetCurrentThreadId()];
+		auto thread = m_threads[m_currentThreadId];
 		assert(thread->status == THREAD_RUNNING);
 		thread->status		= THREAD_WAITING;
 		thread->semaWait	= id;
@@ -2590,7 +2581,7 @@ void CPS2OS::DisassembleSysCall(uint8 func)
 	std::string description(GetSysCallDescription(func));
 	if(description.length() != 0)
 	{
-		CLog::GetInstance().Print(LOG_NAME, "%d: %s\r\n", GetCurrentThreadId(), description.c_str());
+		CLog::GetInstance().Print(LOG_NAME, "%d: %s\r\n", m_currentThreadId.Get(), description.c_str());
 	}
 #endif
 }
@@ -3123,7 +3114,7 @@ BiosDebugThreadInfoArray CPS2OS::GetThreadsDebugInfo() const
 		BIOS_DEBUG_THREAD_INFO threadInfo;
 		threadInfo.id			= threadIterator.GetValue();
 		threadInfo.priority		= thread->currPriority;
-		if(GetCurrentThreadId() == threadIterator.GetValue())
+		if(m_currentThreadId == threadIterator.GetValue())
 		{
 			threadInfo.pc = m_ee.m_State.nPC;
 			threadInfo.ra = m_ee.m_State.nGPR[CMIPS::RA].nV0;

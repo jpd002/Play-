@@ -20,6 +20,11 @@ public:
 		return *m_storage;
 	}
 
+	uint32 Get() const
+	{
+		return *m_storage;
+	}
+
 private:
 	Type*		m_storage;
 };

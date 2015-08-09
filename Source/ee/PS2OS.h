@@ -291,8 +291,6 @@ private:
 	uint32*									GetCustomSyscallTable();
 
 	void									CreateIdleThread();
-	uint32									GetCurrentThreadId() const;
-	void									SetCurrentThreadId(uint32);
 	void									ThreadShakeAndBake();
 	void									ThreadSwitchContext(unsigned int);
 
@@ -371,6 +369,7 @@ private:
 	DmacHandlerList							m_dmacHandlers;
 	AlarmList								m_alarms;
 
+	OsVariableWrapper<uint32>				m_currentThreadId;
 	OsVariableWrapper<uint32>				m_idleThreadId;
 
 	IntcHandlerQueue						m_intcHandlerQueue;
