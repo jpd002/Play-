@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <PreferenceCategory
+        android:title="Theme" >
+    </PreferenceCategory>
+    <ListPreference
+        android:key="ui.theme_selection"
+        android:title="@string/pref_title_theme_selection"
+        android:entries="@array/pref_theme_selection_titles"
+        android:entryValues="@array/pref_theme_selection_values"
+        android:defaultValue="1"
+        android:negativeButtonText="@null"
+        android:positiveButtonText="@null" />
+</PreferenceScreen>
