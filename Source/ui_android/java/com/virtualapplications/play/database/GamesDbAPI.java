@@ -51,6 +51,7 @@ import com.virtualapplications.play.database.SqliteHelper.Games;
 
 public class GamesDbAPI extends AsyncTask<File, Integer, Document> {
 
+	private final String serial;
 	private int index;
 	private View childview;
 	private Context mContext;
@@ -63,10 +64,11 @@ public class GamesDbAPI extends AsyncTask<File, Integer, Document> {
     private static final String games_url_id = "http://thegamesdb.net/api/GetGame.php?platform=sony+playstation+2&id=";
 	private static final String games_list = "http://thegamesdb.net/api/GetPlatformGames.php?platform=11";
 
-	public GamesDbAPI(Context mContext, String gameID) {
+	public GamesDbAPI(Context mContext, String gameID, String serial) {
 		this.elastic = false;
 		this.mContext = mContext;
 		this.gameID = gameID;
+		this.serial = serial;
 	}
 	
 	public void setView(View childview) {
@@ -164,7 +166,7 @@ public class GamesDbAPI extends AsyncTask<File, Integer, Document> {
 					}
 					c.close();
 					if (dataID == null) {
-						GamesDbAPI gameDatabase = new GamesDbAPI(mContext, remoteID);
+						GamesDbAPI gameDatabase = new GamesDbAPI(mContext, remoteID, serial);
 						gameDatabase.setView(childview);
 						gameDatabase.execute(gameFile);
 					}
@@ -191,14 +193,29 @@ public class GamesDbAPI extends AsyncTask<File, Integer, Document> {
 						values.put(Games.KEY_BOXART, "404");
 					}
 
+					/*
+					TODO:Adding the serial to the database this way is not ideal, as a mismatch will persist
+					but as it stands that's the only way to get the pcitures and prevent them from being downloaded every run
+					 */
 					if (c != null && c.getCount() > 0) {
 						if (c.moveToFirst()) {
 							do {
-								mContext.getContentResolver().update(Games.GAMES_URI, values, selection, selectionArgs);
-								break;
+								String db_serial = c.getString(c.getColumnIndex(Games.KEY_SERIAL));
+								if (db_serial == null || db_serial == serial){
+									values.put(Games.KEY_SERIAL, serial);
+									mContext.getContentResolver().update(Games.GAMES_URI, values, selection, selectionArgs);
+									break;
+								} else {
+									values.remove(Games.KEY_SERIAL);
+									mContext.getContentResolver().update(Games.GAMES_URI, values, selection, selectionArgs);
+								}
+
+
 							} while (c.moveToNext());
+
 						}
 					} else {
+						values.put(Games.KEY_SERIAL, serial);
 						mContext.getContentResolver().insert(Games.GAMES_URI, values);
 					}
 					c.close();

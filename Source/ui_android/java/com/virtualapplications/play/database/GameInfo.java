@@ -244,7 +244,7 @@ public class GameInfo {
 			!overview.equals("") && !boxart.equals("")) {
 			return new String[] { gameID, title, overview, boxart };
 		} else {
-			GamesDbAPI gameDatabase = new GamesDbAPI(mContext, gameID);
+			GamesDbAPI gameDatabase = new GamesDbAPI(mContext, gameID, serial);
 			gameDatabase.setView(childview);
 			gameDatabase.execute(game);
 			return null;
