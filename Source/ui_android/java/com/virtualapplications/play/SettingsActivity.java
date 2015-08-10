@@ -62,7 +62,7 @@ public class SettingsActivity extends PreferenceActivity
 
 	public static void ChangeTheme(Object pos, Activity mContext) {
 		Toolbar TB = (Toolbar) mContext.findViewById(R.id.my_awesome_toolbar);
-		int position = Integer.valueOf(PreferenceManager.getDefaultSharedPreferences(mContext).getString((String) ThemeSettingsFragment.THEME_SELECTION, "1"));
+		int position = Integer.valueOf(PreferenceManager.getDefaultSharedPreferences(mContext).getString((String) UISettingsFragment.THEME_SELECTION, "1"));
 		if (pos != null) {
 			position = Integer.valueOf(pos.toString());
 		}
@@ -111,8 +111,8 @@ public class SettingsActivity extends PreferenceActivity
 		{
 			super.onCreate(savedInstanceState);
 
-			addPreferencesFromResource(R.xml.settings_general_fragment);
-
+			addPreferencesFromResource(R.xml.settings_emu_fragment);
+			
 			PreferenceGroup prefGroup = getPreferenceScreen();
 			for(int i = 0; i < prefGroup.getPreferenceCount(); i++)
 			{
@@ -122,29 +122,6 @@ public class SettingsActivity extends PreferenceActivity
 					CheckBoxPreference checkBoxPref = (CheckBoxPreference)pref;
 					checkBoxPref.setChecked(SettingsManager.getPreferenceBoolean(checkBoxPref.getKey()));
 				}
-			}
-
-			final Preference button_f = (Preference)getPreferenceManager().findPreference("ui.clearfolder");
-			if (button_f != null) {
-				button_f.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-					@Override
-					public boolean onPreferenceClick(Preference arg0) {
-						MainActivity.resetDirectory();
-						getPreferenceScreen().removePreference(button_f);
-						return true;
-					}
-				});
-			}
-			final Preference button_c = (Preference)getPreferenceManager().findPreference("ui.clearcache");
-			if (button_c != null) {
-				button_c.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-					@Override
-					public boolean onPreferenceClick(Preference arg0) {
-						MainActivity.clearCache();
-						getPreferenceScreen().removePreference(button_c);
-						return true;
-					}
-				});
 			}
 		}
 
@@ -166,27 +143,51 @@ public class SettingsActivity extends PreferenceActivity
 		}
 	}
 
-	public static class ThemeSettingsFragment extends PreferenceFragment
+	public static class UISettingsFragment extends PreferenceFragment
 	{
 		public static CharSequence THEME_SELECTION = "ui.theme_selection";
 		@Override
 		public void onCreate(Bundle savedInstanceState)
 		{
 			super.onCreate(savedInstanceState);
+            
+            addPreferencesFromResource(R.xml.settings_ui_fragment);
+            
+            final Preference button_f = (Preference)getPreferenceManager().findPreference("ui.clearfolder");
+            if (button_f != null) {
+                button_f.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+                    @Override
+                    public boolean onPreferenceClick(Preference arg0) {
+                        MainActivity.resetDirectory();
+                        getPreferenceScreen().removePreference(button_f);
+                        return true;
+                    }
+                });
+            }
+            final Preference button_c = (Preference)getPreferenceManager().findPreference("ui.clearcache");
+            if (button_c != null) {
+                button_c.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+                    @Override
+                    public boolean onPreferenceClick(Preference arg0) {
+                        MainActivity.clearCache();
+                        getPreferenceScreen().removePreference(button_c);
+                        return true;
+                    }
+                });
+            }
 
-			addPreferencesFromResource(R.xml.settings_theme_fragment);
-			final Preference button_f = (Preference)getPreferenceManager().findPreference(THEME_SELECTION);
-			if (button_f != null) {
-				button_f.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+			final Preference button_t = (Preference)getPreferenceManager().findPreference(THEME_SELECTION);
+			if (button_t != null) {
+				button_t.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
 					@Override
 					public boolean onPreferenceChange(Preference preference, Object value) {
 						//int index = listPreference.findIndexOfValue(stringValue);
-						ChangeTheme(value,getActivity());
+						ChangeTheme(value, getActivity());
 						return true;
 					}
 				});
+				bindPreferenceSummaryToValue(button_t);
 			}
-			bindPreferenceSummaryToValue(button_f);
 		}
 
 		@Override
@@ -195,8 +196,7 @@ public class SettingsActivity extends PreferenceActivity
 			super.onDestroy();
 		}
 		private void bindPreferenceSummaryToValue(Preference preference) {
-			// Trigger the listener immediately with the preference's
-			// current value.
+			// Trigger the listener immediately with the preference's current value.
 			preference.getOnPreferenceChangeListener().onPreferenceChange(preference,
 					PreferenceManager
 							.getDefaultSharedPreferences(preference.getContext())
