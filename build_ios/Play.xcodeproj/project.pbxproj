@@ -12,6 +12,7 @@
 		704E1C531B3BA25000C0ACE3 /* GSH_OpenGL_Shader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 704E1C4F1B3BA25000C0ACE3 /* GSH_OpenGL_Shader.cpp */; };
 		704E1C541B3BA25000C0ACE3 /* GSH_OpenGL_Texture.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 704E1C501B3BA25000C0ACE3 /* GSH_OpenGL_Texture.cpp */; };
 		704E1C551B3BA25000C0ACE3 /* GSH_OpenGL.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 704E1C511B3BA25000C0ACE3 /* GSH_OpenGL.cpp */; };
+		705342D91B78122400477EC4 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 705342D81B78122400477EC4 /* CoreGraphics.framework */; };
 		70603E1F1B60A94400935E3C /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 70603E1E1B60A94400935E3C /* Images.xcassets */; };
 		7075D0B51B63260F0010D69C /* DiskUtils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7075D0B31B63260F0010D69C /* DiskUtils.cpp */; };
 		7075D0BB1B634B470010D69C /* IosUtils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7075D0B91B634B470010D69C /* IosUtils.cpp */; };
@@ -211,6 +212,7 @@
 		704E1C501B3BA25000C0ACE3 /* GSH_OpenGL_Texture.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = GSH_OpenGL_Texture.cpp; path = ../Source/gs/GSH_OpenGL/GSH_OpenGL_Texture.cpp; sourceTree = "<group>"; };
 		704E1C511B3BA25000C0ACE3 /* GSH_OpenGL.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = GSH_OpenGL.cpp; path = ../Source/gs/GSH_OpenGL/GSH_OpenGL.cpp; sourceTree = "<group>"; };
 		704E1C521B3BA25000C0ACE3 /* GSH_OpenGL.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GSH_OpenGL.h; path = ../Source/gs/GSH_OpenGL/GSH_OpenGL.h; sourceTree = "<group>"; };
+		705342D81B78122400477EC4 /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS8.4.sdk/System/Library/Frameworks/CoreGraphics.framework; sourceTree = DEVELOPER_DIR; };
 		70603E1E1B60A94400935E3C /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = "Play!/Images.xcassets"; sourceTree = "<group>"; };
 		7075D0B31B63260F0010D69C /* DiskUtils.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = DiskUtils.cpp; path = ../Source/DiskUtils.cpp; sourceTree = "<group>"; };
 		7075D0B41B63260F0010D69C /* DiskUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DiskUtils.h; path = ../Source/DiskUtils.h; sourceTree = "<group>"; };
@@ -523,6 +525,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				705342D91B78122400477EC4 /* CoreGraphics.framework in Frameworks */,
 				70AD23751B38F9B200137AA0 /* QuartzCore.framework in Frameworks */,
 				70AD23731B38F98E00137AA0 /* OpenGLES.framework in Frameworks */,
 				70834CE81B1BE1C500E8D5C6 /* libbz2.dylib in Frameworks */,
@@ -692,11 +695,12 @@
 			isa = PBXGroup;
 			children = (
 				70834B881B1BD2F500E8D5C6 /* CodeGen.xcodeproj */,
+				705342D81B78122400477EC4 /* CoreGraphics.framework */,
 				70834B821B1BD2E100E8D5C6 /* Framework.xcodeproj */,
 				70834CE71B1BE1C500E8D5C6 /* libbz2.dylib */,
 				70834CE01B1BD7EE00E8D5C6 /* libz.dylib */,
-				70AD23741B38F9B200137AA0 /* QuartzCore.framework */,
 				70AD23721B38F98E00137AA0 /* OpenGLES.framework */,
+				70AD23741B38F9B200137AA0 /* QuartzCore.framework */,
 				70834CE51B1BE1AE00E8D5C6 /* UIKit.framework */,
 			);
 			name = Dependencies;
