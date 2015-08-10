@@ -1,0 +1,21 @@
+<resources>
+    <string name="title_activity_settings">Settings</string>
+
+    <string name="pref_header_theme">Themes</string>
+
+    <string name="pref_title_theme_selection">Theme Selection</string>
+    <string-array name="pref_theme_selection_titles">
+        <item>Amber</item>
+        <item>Blue (Default)</item>
+        <item>Pink</item>
+        <item>Purple</item>
+        <item>Teal</item>
+    </string-array>
+    <string-array name="pref_theme_selection_values">
+        <item>0</item>
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+        <item>4</item>
+    </string-array>
+</resources>
