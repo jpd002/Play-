@@ -168,6 +168,7 @@
 		70AD23951B39199300137AA0 /* MaxSaveImporter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 70AD238F1B39199300137AA0 /* MaxSaveImporter.cpp */; };
 		70AD23961B39199300137AA0 /* PsuSaveImporter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 70AD23911B39199300137AA0 /* PsuSaveImporter.cpp */; };
 		70AD23971B39199300137AA0 /* XpsSaveImporter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 70AD23931B39199300137AA0 /* XpsSaveImporter.cpp */; };
+		87C4CC341B75010700CE6D3C /* iCadeReaderView.m in Sources */ = {isa = PBXBuildFile; fileRef = 87C4CC311B75010700CE6D3C /* iCadeReaderView.m */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -512,6 +513,9 @@
 		70AD23921B39199300137AA0 /* PsuSaveImporter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PsuSaveImporter.h; path = ../Source/saves/PsuSaveImporter.h; sourceTree = "<group>"; };
 		70AD23931B39199300137AA0 /* XpsSaveImporter.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = XpsSaveImporter.cpp; path = ../Source/saves/XpsSaveImporter.cpp; sourceTree = "<group>"; };
 		70AD23941B39199300137AA0 /* XpsSaveImporter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = XpsSaveImporter.h; path = ../Source/saves/XpsSaveImporter.h; sourceTree = "<group>"; };
+		87C4CC301B75010700CE6D3C /* iCadeReaderView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = iCadeReaderView.h; sourceTree = "<group>"; };
+		87C4CC311B75010700CE6D3C /* iCadeReaderView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = iCadeReaderView.m; sourceTree = "<group>"; };
+		87C4CC321B75010700CE6D3C /* iCadeState.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = iCadeState.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -553,6 +557,7 @@
 		70834AB01B1BC70300E8D5C6 /* Source Files */ = {
 			isa = PBXGroup;
 			children = (
+				87C4CC2F1B75010700CE6D3C /* iCade-iOS */,
 				70834AFC1B1BCD1200E8D5C6 /* Play Core */,
 				70834AFB1B1BCCFF00E8D5C6 /* ui_ios */,
 			);
@@ -952,6 +957,17 @@
 			name = saves;
 			sourceTree = "<group>";
 		};
+		87C4CC2F1B75010700CE6D3C /* iCade-iOS */ = {
+			isa = PBXGroup;
+			children = (
+				87C4CC301B75010700CE6D3C /* iCadeReaderView.h */,
+				87C4CC311B75010700CE6D3C /* iCadeReaderView.m */,
+				87C4CC321B75010700CE6D3C /* iCadeState.h */,
+			);
+			name = "iCade-iOS";
+			path = "../Source/ui_ios/iCade-iOS";
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -1174,6 +1190,7 @@
 				70AD23871B38FFBA00137AA0 /* Icon.cpp in Sources */,
 				70834C7D1B1BD70700E8D5C6 /* Iop_SifMan.cpp in Sources */,
 				70834C7E1B1BD70700E8D5C6 /* Iop_SifManNull.cpp in Sources */,
+				87C4CC341B75010700CE6D3C /* iCadeReaderView.m in Sources */,
 				70834C831B1BD70700E8D5C6 /* Iop_Spu2.cpp in Sources */,
 				70834C6F1B1BD70700E8D5C6 /* Iop_FileIoHandler1000.cpp in Sources */,
 				70834BDE1B1BD6A300E8D5C6 /* COP_VU.cpp in Sources */,
