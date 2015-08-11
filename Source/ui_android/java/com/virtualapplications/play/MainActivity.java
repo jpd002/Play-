@@ -591,6 +591,11 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
 					gameInfo.getImage(gameStats[0], childview, gameStats[3]);
 					((TextView) childview.findViewById(R.id.game_text)).setVisibility(View.GONE);
 				}
+			} else {
+				ImageView preview = (ImageView) childview.findViewById(R.id.game_icon);
+				preview.setImageResource(R.drawable.boxart);
+				preview.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
+				((TextView) childview.findViewById(R.id.game_text)).setVisibility(View.VISIBLE);
 			}
 			
 			childview.findViewById(R.id.childview).setOnClickListener(new OnClickListener() {
