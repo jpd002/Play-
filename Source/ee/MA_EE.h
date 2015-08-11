@@ -104,6 +104,7 @@ private:
 	void								PEXTLB();
 	void								PPACB();
 	void								PEXT5();
+	void								PPAC5();
 
 	//Mmi1
 	void								PABSW();
