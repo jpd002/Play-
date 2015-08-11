@@ -13,9 +13,9 @@
     
     <string name="search_games">Locating games&#8230;</string>
     <string name="search_games_msg">Please wait&#8230;</string>
-    
-    <string name="drawer_open">Menu Open</string>
-    <string name="drawer_shut">Menu Shut</string>
+
+    <string name="navigation_drawer_open">Navigation drawer open</string>
+    <string name="navigation_drawer_close">Navigation drawer closed</string>
     
     <string name="menu_title_open">Menu</string>
     <string name="menu_title_shut">Games</string>
