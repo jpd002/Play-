@@ -188,6 +188,7 @@ public class TheGamesDB extends ContentProvider {
 							+ " = " + uri.getPathSegments().get(1)
 							+ (!TextUtils.isEmpty(where) ? " AND ("
 							+ where + ')' : ""), whereArgs);
+				break;
 			case COVERS:
 				count = db.delete(Covers.TABLE_NAME, where, whereArgs);
 				break;
@@ -298,6 +299,7 @@ public class TheGamesDB extends ContentProvider {
 							+ uri.getPathSegments().get(1)
 							+ (!TextUtils.isEmpty(where) ? " AND ("
 							+ where + ')' : ""), whereArgs);
+				break;
 			case COVERS:
 				count = db.update(Covers.TABLE_NAME, values, where, whereArgs);
 				break;

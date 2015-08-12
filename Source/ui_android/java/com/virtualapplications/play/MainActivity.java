@@ -5,125 +5,82 @@ import android.app.ProgressDialog;
 import android.content.*;
 import android.content.pm.*;
 import android.content.res.Configuration;
-import android.graphics.drawable.BitmapDrawable;
+import android.content.res.TypedArray;
+import android.graphics.Color;
+import android.graphics.drawable.GradientDrawable;
 import android.os.*;
-import android.util.*;
+import android.support.v7.app.ActionBarActivity;
+import android.support.v7.widget.Toolbar;
 import android.view.*;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.view.View.OnLongClickListener;
-import android.view.ViewGroup;
-import android.view.ViewGroup.LayoutParams;
 import android.widget.*;
-import android.widget.AdapterView.*;
-import android.widget.ImageView.ScaleType;
-import android.widget.LinearLayout;
-import android.widget.TableLayout;
-import android.widget.TableRow;
+import android.widget.GridView;
 import android.widget.TextView;
-import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.widget.DrawerLayout;
 import java.io.*;
+import java.lang.reflect.InvocationTargetException;
 import java.text.*;
 import java.util.*;
 import java.util.zip.*;
+import org.apache.commons.io.comparator.CompositeFileComparator;
+import org.apache.commons.io.comparator.LastModifiedFileComparator;
+import org.apache.commons.io.comparator.SizeFileComparator;
 import org.apache.commons.lang3.StringUtils;
 import com.android.util.FileUtils;
+import android.graphics.Point;
 
 import com.virtualapplications.play.database.GameInfo;
 import com.virtualapplications.play.database.SqliteHelper.Games;
 
-public class MainActivity extends Activity 
+public class MainActivity extends ActionBarActivity implements NavigationDrawerFragment.NavigationDrawerCallbacks
 {	
 	private static final String PREFERENCE_CURRENT_DIRECTORY = "CurrentDirectory";
 	
 	private SharedPreferences _preferences;
-	private TableLayout gameListing;
 	static Activity mActivity;
 	private boolean isConfigured = false;
-	private int numColumn = 0;
-	private DrawerLayout mDrawerLayout;
-	private ActionBarDrawerToggle mDrawerToggle;
-	private float localScale;
 	private int currentOrientation;
 	private GameInfo gameInfo;
+	protected NavigationDrawerFragment mNavigationDrawerFragment;
+
+	private List<File> currentGames = new ArrayList<File>();
 	
+	public static final int SORT_RECENT = 0;
+	public static final int SORT_HOMEBREW = 1;
+	public static final int SORT_NONE = 2;
+	private int sortMethod = SORT_NONE;
+
+	//To prevent multiple padding buildups on multiple rotations.
+	private int relative_layout_original_right_padding;
+	private int navigation_drawer_original_bottom_padding;
+
 	@Override 
 	protected void onCreate(Bundle savedInstanceState) 
 	{
 		super.onCreate(savedInstanceState);
 		//Log.w(Constants.TAG, "MainActivity - onCreate");
-		
-		currentOrientation = getResources().getConfiguration().orientation;
-		if (currentOrientation == Configuration.ORIENTATION_LANDSCAPE) {
-			setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE);
-		} else {
-			setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_PORTRAIT);
-		}
-		
-		setContentView(R.layout.main);
-		
-		mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
-		mDrawerToggle = new ActionBarDrawerToggle(
-			MainActivity.this,      /* host Activity */
-			mDrawerLayout,			/* DrawerLayout object */
-			R.drawable.ic_drawer,	/* nav drawer icon to replace 'Up' caret */
-			R.string.drawer_open,	/* "open drawer" description */
-			R.string.drawer_shut	/* "close drawer" description */
-		) {
-			/** Called when a drawer has settled in a completely closed state. */
-			public void onDrawerClosed(View view) {
-				super.onDrawerClosed(view);
-				if (!isConfigured) {
-					getActionBar().setTitle(getString(R.string.menu_title_look));
-				} else {
-					getActionBar().setTitle(getString(R.string.menu_title_shut));
-				}
-			}
-			
-			/** Called when a drawer has settled in a completely open state. */
-			public void onDrawerOpened(View drawerView) {
-				super.onDrawerOpened(drawerView);
-				getActionBar().setTitle(getString(R.string.menu_title_open));
-			}
-		};
-		
-		// Set the drawer toggle as the DrawerListener
-		mDrawerLayout.setDrawerListener(mDrawerToggle);
-		
-		Button buttonPrefs = (Button) mDrawerLayout.findViewById(R.id.main_menu_settings);
-		buttonPrefs.setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View arg0) {
-				displaySettingsActivity();
-			}
-		});
-		
-		Button buttonAbout = (Button) mDrawerLayout.findViewById(R.id.main_menu_about);
-		buttonAbout.setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View arg0) {
-				displayAboutDialog();
-			}
-		});
-		
-		getActionBar().setDisplayHomeAsUpEnabled(true);
-		getActionBar().setHomeButtonEnabled(true);
-		getActionBar().setTitle(getString(R.string.menu_title_shut));
-		
-		mActivity = MainActivity.this;
-		
-		File filesDir = getFilesDir();
-		NativeInterop.setFilesDirPath(Environment.getExternalStorageDirectory().getAbsolutePath());
 
 		_preferences = getSharedPreferences("prefs", MODE_PRIVATE);
+		currentOrientation = getResources().getConfiguration().orientation;
+
+		SettingsActivity.ChangeTheme(null,this);
+		if (isAndroidTV(this)) {
+			setContentView(R.layout.tele);
+		} else {
+			setContentView(R.layout.main);
+		}
+		mActivity = MainActivity.this;
+
+		NativeInterop.setFilesDirPath(Environment.getExternalStorageDirectory().getAbsolutePath());
+
 		EmulatorActivity.RegisterPreferences();
-	
+
 		if(!NativeInterop.isVirtualMachineCreated())
 		{
 			NativeInterop.createVirtualMachine();
 		}
-		
+
 		Intent intent = getIntent();
 		if (intent.getAction() != null) {
 			if (intent.getAction().equals(Intent.ACTION_VIEW)) {
@@ -132,11 +89,162 @@ public class MainActivity extends Activity
 				setIntent(null);
 			}
 		}
-		
+
+//		if (isAndroidTV(this)) {
+//			// Load the menus for Android TV
+//		} else {
+			Toolbar toolbar = getSupportToolbar();
+			setSupportActionBar(toolbar);
+			toolbar.bringToFront();
+
+			mNavigationDrawerFragment = (NavigationDrawerFragment)
+					getFragmentManager().findFragmentById(R.id.navigation_drawer);
+
+			// Set up the drawer.
+			mNavigationDrawerFragment.setUp(
+					R.id.navigation_drawer,
+					(DrawerLayout) findViewById(R.id.drawer_layout));
+
+			TypedArray a = getTheme().obtainStyledAttributes(new int[]{R.attr.colorPrimaryDark});
+			int attributeResourceId = a.getColor(0, 0);
+			a.recycle();
+			findViewById(R.id.navigation_drawer).setBackgroundColor(Color.parseColor(
+					("#" + Integer.toHexString(attributeResourceId)).replace("#ff", "#8e")
+			));
+//		}
+
 		gameInfo = new GameInfo(MainActivity.this);
 		getContentResolver().call(Games.GAMES_URI, "importDb", null, null);
+
+	}
+
+	public int getStatusBarHeight() {
+		int result = 0;
+		int resourceId = getResources().getIdentifier("status_bar_height", "dimen", "android");
+		if (resourceId > 0) {
+			result = getResources().getDimensionPixelSize(resourceId);
+		}
+		return result;
+	}
+
+	private Toolbar getSupportToolbar() {
+		//this sets toolbar margin, but in effect moving the DrawerLayout
+		int statusBarHeight = getStatusBarHeight();
+
+		View toolbar = findViewById(R.id.my_awesome_toolbar);
+		final LinearLayout content = (LinearLayout) findViewById(R.id.content_frame);
 		
-		prepareFileListView();
+		ViewGroup.MarginLayoutParams dlp = (ViewGroup.MarginLayoutParams) content.getLayoutParams();
+		dlp.topMargin = statusBarHeight;
+		content.setLayoutParams(dlp);
+
+		setUIcolor(content);
+
+		ViewGroup.MarginLayoutParams mlp = (ViewGroup.MarginLayoutParams) toolbar.getLayoutParams();
+		mlp.bottomMargin = - statusBarHeight;
+		toolbar.setLayoutParams(mlp);
+		View navigation_drawer = findViewById(R.id.navigation_drawer);
+		ViewGroup.MarginLayoutParams mlp2 = (ViewGroup.MarginLayoutParams) navigation_drawer.getLayoutParams();
+		mlp2.topMargin = statusBarHeight;
+		navigation_drawer.setLayoutParams(mlp2);
+
+		Point p = getNavigationBarSize(this);
+		/*
+		This will take account of nav bar to right/bottom
+		Not sure if there is a way to detect left/top? thus always pad right/bottom for now
+		*/
+		View relative_layout = findViewById(R.id.relative_layout);
+		if (p.x != 0){
+			if (relative_layout_original_right_padding == 0){
+				relative_layout_original_right_padding = relative_layout.getPaddingRight();
+			}
+			relative_layout.setPadding(
+					relative_layout.getPaddingLeft(),
+					relative_layout.getPaddingTop(),
+					relative_layout_original_right_padding + p.x,
+					relative_layout.getPaddingBottom());
+
+			navigation_drawer.setPadding(
+					navigation_drawer.getPaddingLeft(),
+					navigation_drawer.getPaddingTop(),
+					navigation_drawer.getPaddingRight(),
+					navigation_drawer_original_bottom_padding);
+		} else if (p.y != 0){
+			navigation_drawer.invalidate();
+			if (navigation_drawer_original_bottom_padding == 0){
+				navigation_drawer_original_bottom_padding = navigation_drawer.getPaddingRight();
+			}
+			navigation_drawer.setPadding(
+				navigation_drawer.getPaddingLeft(), 
+				navigation_drawer.getPaddingTop(), 
+				navigation_drawer.getPaddingRight(),
+				navigation_drawer_original_bottom_padding + p.y);
+
+				relative_layout.setPadding(
+						relative_layout.getPaddingLeft(),
+						relative_layout.getPaddingTop(),
+						relative_layout_original_right_padding,
+						relative_layout.getPaddingBottom());
+		}
+		return (Toolbar) toolbar;
+	}
+
+	private void setUIcolor(LinearLayout content){
+		if (content != null) {
+			int[] colors = new int[2];// you can increase array size to add more colors to gradient.
+			TypedArray a = getTheme().obtainStyledAttributes(new int[]{R.attr.colorPrimary});
+			int topgradientcolor = a.getColor(0, 0);
+
+			a.recycle();
+			float[] hsv = new float[3];
+			Color.colorToHSV(topgradientcolor, hsv);
+			hsv[2] *= 0.8f;// make it darker
+			colors[0] = Color.HSVToColor(hsv);
+			/*
+			using this will blend the top of the gradient with actionbar (aka using the same color)
+			colors[0] = topgradientcolor
+			 */
+			colors[1] = Color.rgb(20, 20, 20);
+			GradientDrawable gradientbg = new GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM, colors);
+			content.setBackground(gradientbg);
+		}
+		TypedArray a = getTheme().obtainStyledAttributes(new int[]{R.attr.colorPrimaryDark});
+		int attributeResourceId = a.getColor(0, 0);
+		a.recycle();
+		findViewById(R.id.navigation_drawer).setBackgroundColor(Color.parseColor(
+				("#" + Integer.toHexString(attributeResourceId)).replace("#ff", "#8e")
+		));
+	}
+
+	public static Point getNavigationBarSize(Context context) {
+		Point appUsableSize = getAppUsableScreenSize(context);
+		Point realScreenSize = getRealScreenSize(context);
+		return new Point(realScreenSize.x - appUsableSize.x, realScreenSize.y - appUsableSize.y);
+	}
+
+	public static Point getAppUsableScreenSize(Context context) {
+		WindowManager windowManager = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
+		Display display = windowManager.getDefaultDisplay();
+		Point size = new Point();
+		display.getSize(size);
+		return size;
+	}
+
+	public static Point getRealScreenSize(Context context) {
+		WindowManager windowManager = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
+		Display display = windowManager.getDefaultDisplay();
+		Point size = new Point();
+
+		if (Build.VERSION.SDK_INT >= 17) {
+		display.getRealSize(size);
+		} else if (Build.VERSION.SDK_INT >= 14) {
+		try {
+			size.x = (Integer) Display.class.getMethod("getRawWidth").invoke(display);
+			size.y = (Integer) Display.class.getMethod("getRawHeight").invoke(display);
+		} catch (IllegalAccessException e) {} catch (InvocationTargetException e) {} catch (NoSuchMethodException e) {}
+		}
+
+		return size;
 	}
 
 	private static long getBuildDate(Context context) 
@@ -181,9 +289,18 @@ public class MainActivity extends Activity
 	private void displaySettingsActivity()
 	{
 		Intent intent = new Intent(getApplicationContext(), SettingsActivity.class);
-		startActivity(intent);
+		startActivityForResult(intent, 0);
+
 	}
-	
+
+	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+		if (requestCode == 0) {
+			SettingsActivity.ChangeTheme(null, this);
+			setUIcolor((LinearLayout) findViewById(R.id.content_frame));
+		}
+	}
+
+
 	private void displayAboutDialog()
 	{
 		long buildDate = getBuildDate(this);
@@ -192,40 +309,22 @@ public class MainActivity extends Activity
 		displaySimpleMessage("About Play!", aboutMessage);
 	}
 	
-	@Override
-	protected void onPostCreate(Bundle savedInstanceState) {
-		super.onPostCreate(savedInstanceState);
-		// Sync the toggle state after onRestoreInstanceState has occurred.
-		mDrawerToggle.syncState();
-	}
+
 	
 	@Override
 	public void onConfigurationChanged(Configuration newConfig) {
 		super.onConfigurationChanged(newConfig);
-		mDrawerToggle.onConfigurationChanged(newConfig);
-		
-	}
-	
-	@Override
-	public boolean onOptionsItemSelected(MenuItem item) 
-	{
-		// Pass the event to ActionBarDrawerToggle, if it returns
-		// true, then it has handled the app icon touch event
-		if (mDrawerToggle.onOptionsItemSelected(item)) {
-			return true;
-		}
-		switch(item.getItemId()) 
-		{
-		case android.R.id.home:
-			if (mDrawerLayout.isDrawerOpen(Gravity.LEFT)) {
-				mDrawerLayout.closeDrawer(Gravity.LEFT);
+		mNavigationDrawerFragment.onConfigurationChanged(newConfig);
+		if (newConfig.orientation != currentOrientation) {
+			currentOrientation = newConfig.orientation;
+			getSupportToolbar();
+			if (currentGames != null && !currentGames.isEmpty()) {
+				prepareFileListView(true);
 			} else {
-				mDrawerLayout.openDrawer(Gravity.LEFT);
+				prepareFileListView(false);
 			}
-			return true;
-		default:
-			return super.onOptionsItemSelected(item);
 		}
+		
 	}
 	
 	private String getCurrentDirectory()
@@ -286,7 +385,7 @@ public class MainActivity extends Activity
 	public static void resetDirectory() {
 		((MainActivity) mActivity).clearCurrentDirectory();
 		((MainActivity) mActivity).isConfigured = false;
-		((MainActivity) mActivity).prepareFileListView();
+		((MainActivity) mActivity).prepareFileListView(false);
 	}
 	
 	private void clearCoverCache() {
@@ -317,6 +416,67 @@ public class MainActivity extends Activity
 				fileName.toLowerCase().endsWith(".isz");
 	}
 	
+		@Override
+	public void onNavigationDrawerItemSelected(int position) {
+		switch (position) {
+			case 0:
+				sortMethod = SORT_RECENT;
+				prepareFileListView(false);
+				break;
+			case 1:
+				sortMethod = SORT_HOMEBREW;
+				prepareFileListView(false);
+				break;
+			case 2:
+				sortMethod = SORT_NONE;
+				prepareFileListView(false);
+				break;
+		}
+	}
+
+	@Override
+	public void onNavigationDrawerBottomItemSelected(int position) {
+		switch (position) {
+			case 0:
+				displaySettingsActivity();
+				break;
+			case 1:
+				displayAboutDialog();
+				break;
+
+		}
+	}
+
+	public void restoreActionBar() {
+		android.support.v7.app.ActionBar actionBar = getSupportActionBar();
+		actionBar.setDisplayShowTitleEnabled(true);
+		actionBar.setTitle(R.string.app_name);
+		actionBar.setSubtitle(R.string.menu_title_shut);
+	}
+
+	
+	public boolean onCreateOptionsMenu(Menu menu) {
+		if (!mNavigationDrawerFragment.isDrawerOpen()) {
+			// Only show items in the action bar relevant to this screen
+			// if the drawer is not showing. Otherwise, let the drawer
+			// decide what to show in the action bar.
+			//getMenuInflater().inflate(R.menu.main, menu);
+			restoreActionBar();
+			return true;
+		}
+		return super.onCreateOptionsMenu(menu);
+	}
+
+	@Override
+	public void onBackPressed() {
+		if (mNavigationDrawerFragment.mDrawerLayout != null && mNavigationDrawerFragment.isDrawerOpen()) {
+			mNavigationDrawerFragment.mDrawerLayout.closeDrawer(NavigationDrawerFragment.mFragmentContainerView);
+			return;
+		}
+		super.onBackPressed();
+		finish();
+	}
+
 	private final class ImageFinder extends AsyncTask<String, Integer, List<File>> {
 		
 		private int array;
@@ -357,54 +517,6 @@ public class MainActivity extends Activity
 			return (List<File>) files;
 		}
 		
-		private View createListItem(final File game, final int index) {
-			
-			if (!isConfigured) {
-				
-				final View childview = MainActivity.this.getLayoutInflater().inflate(
-					R.layout.file_list_item, null, false);
-				
-				((TextView) childview.findViewById(R.id.game_text)).setText(game.getName());
-				
-				childview.findViewById(R.id.childview).setOnClickListener(new OnClickListener() {
-					public void onClick(View view) {
-						setCurrentDirectory(game.getPath().substring(0,
-							game.getPath().lastIndexOf(File.separator)));
-						isConfigured = true;
-						prepareFileListView();
-						return;
-					}
-				});
-				
-				return childview;
-			}
-			
-			final View childview = MainActivity.this.getLayoutInflater().inflate(
-				R.layout.game_list_item, null, false);
-			
-			((TextView) childview.findViewById(R.id.game_text)).setText(game.getName());
-			
-			final String[] gameStats = gameInfo.getGameInfo(game, childview);
-			
-			if (gameStats != null) {
-				childview.findViewById(R.id.childview).setOnLongClickListener(
-					gameInfo.configureLongClick(gameStats[1], gameStats[2], game));
-
-				if (!gameStats[3].equals("404")) {
-					gameInfo.getImage(gameStats[0], childview, gameStats[3]);
-					((TextView) childview.findViewById(R.id.game_text)).setVisibility(View.GONE);
-				}
-			}
-			
-			childview.findViewById(R.id.childview).setOnClickListener(new OnClickListener() {
-				public void onClick(View view) {
-					launchDisk(game, false);
-					return;
-				}
-			});
-			return childview;
-		}
-		
 		protected void onPreExecute() {
 			progDialog = ProgressDialog.show(MainActivity.this,
 				getString(R.string.search_games),
@@ -440,58 +552,136 @@ public class MainActivity extends Activity
 				progDialog.dismiss();
 			}
 			if (images != null && !images.isEmpty()) {
+				currentGames = images;
 				// Create the list of acceptable images
-
-				Collections.sort(images);
-	
-				TableRow game_row = new TableRow(MainActivity.this);
-				if (isConfigured) {
-					game_row.setGravity(Gravity.CENTER);
-				}
-				int pad = (int) (10 * localScale + 0.5f);
-				game_row.setPadding(0, 0, 0, pad);
-				
-				if (!isConfigured) {
-					TableRow.LayoutParams params = new TableRow.LayoutParams(
-						TableRow.LayoutParams.MATCH_PARENT,
-						TableRow.LayoutParams.WRAP_CONTENT);
-					params.gravity = Gravity.CENTER_VERTICAL;
-
-					for (int i = 0; i < images.size(); i++)
-					{
-						game_row.addView(createListItem(images.get(i), i));
-						gameListing.addView(game_row, params);
-						game_row = new TableRow(MainActivity.this);
-						game_row.setPadding(0, 0, 0, pad);
-					}
-				} else {
-					TableRow.LayoutParams params = new TableRow.LayoutParams(
-						TableRow.LayoutParams.WRAP_CONTENT,
-						TableRow.LayoutParams.WRAP_CONTENT);
-					params.gravity = Gravity.CENTER;
-
-					int column = 0;
-					for (int i = 0; i < images.size(); i++)
-					{
-						if (column == numColumn)
-						{
-							gameListing.addView(game_row, params);
-							column = 0;
-							game_row = new TableRow(MainActivity.this);
-							game_row.setGravity(Gravity.CENTER);
-							game_row.setPadding(0, 0, 0, pad);
-						}
-						game_row.addView(createListItem(images.get(i), i));
-						column ++;
-					}
-					if (column != 0) {
-						gameListing.addView(game_row, params);
-					}
-				}
-				gameListing.invalidate();
+				populateImages(images);
 			} else {
 				// Display warning that no disks exist
 			}
+		}
+	}
+	
+	private View createListItem(final File game, final View childview) {
+		if (!isConfigured) {
+			
+			((TextView) childview.findViewById(R.id.game_text)).setText(game.getName());
+			
+			childview.findViewById(R.id.childview).setOnClickListener(new OnClickListener() {
+				public void onClick(View view) {
+					setCurrentDirectory(game.getPath().substring(0,
+						game.getPath().lastIndexOf(File.separator)));
+					isConfigured = true;
+					prepareFileListView(false);
+					return;
+				}
+			});
+			
+			return childview;
+		} else {
+			
+			((TextView) childview.findViewById(R.id.game_text)).setText(game.getName());
+			
+			final String[] gameStats = gameInfo.getGameInfo(game, childview);
+			
+			if (gameStats != null) {
+				childview.findViewById(R.id.childview).setOnLongClickListener(
+					gameInfo.configureLongClick(gameStats[1], gameStats[2], game));
+				
+				if (!gameStats[3].equals("404")) {
+					gameInfo.getImage(gameStats[0], childview, gameStats[3]);
+					((TextView) childview.findViewById(R.id.game_text)).setVisibility(View.GONE);
+				}
+			} else {
+				ImageView preview = (ImageView) childview.findViewById(R.id.game_icon);
+				preview.setImageResource(R.drawable.boxart);
+				preview.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
+				((TextView) childview.findViewById(R.id.game_text)).setVisibility(View.VISIBLE);
+			}
+			
+			childview.findViewById(R.id.childview).setOnClickListener(new OnClickListener() {
+				public void onClick(View view) {
+					launchDisk(game, false);
+					return;
+				}
+			});
+			return childview;
+		}
+	}
+	
+	private void populateImages(List<File> images) {
+		if (sortMethod == SORT_RECENT) {
+			@SuppressWarnings("unchecked")
+			CompositeFileComparator comparator = new CompositeFileComparator(
+				SizeFileComparator.SIZE_REVERSE, LastModifiedFileComparator.LASTMODIFIED_REVERSE);
+			comparator.sort(images);
+		} else {
+			Collections.sort(images);
+		}
+		GridView gameGrid = (GridView) findViewById(R.id.game_grid);
+		if (gameGrid != null && gameGrid.isShown()) {
+			gameGrid.setAdapter(null);
+		}
+
+		int padding = getNavigationBarSize(this).y;
+		GamesAdapter adapter = new GamesAdapter(MainActivity.this, isConfigured ? R.layout.game_list_item : R.layout.file_list_item, images, padding);
+		/*
+		gameGrid.setNumColumns(-1);
+		-1 = autofit
+		or set a number if you like
+		 */
+		if (isConfigured){
+			gameGrid.setColumnWidth((int) getResources().getDimension(R.dimen.cover_width));
+		}
+		gameGrid.setAdapter(adapter);
+		gameGrid.invalidate();
+
+	}
+	
+	public class GamesAdapter extends ArrayAdapter<File> {
+
+		private final int layoutid;
+		private final int padding;
+		private List<File> games;
+		
+		public GamesAdapter(Context context, int ResourceId, List<File> images, int padding) {
+			super(context, ResourceId, images);
+			this.games = images;
+			this.layoutid = ResourceId;
+			this.padding = padding;
+		}
+
+		public int getCount() {
+			//return mThumbIds.length;
+			return games.size();
+		}
+
+		public File getItem(int position) {
+			return games.get(position);
+		}
+
+		public long getItemId(int position) {
+			return position;
+		}
+		
+		@Override
+		public View getView(int position, View convertView, ViewGroup parent) {
+			View v = convertView;
+			if (v == null) {
+				LayoutInflater vi = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+				v = vi.inflate(layoutid, null);
+			}
+			final File game = games.get(position);
+			if (game != null) {
+				createListItem(game, v);
+			}
+			if (position == games.size() - 1){
+				v.setPadding(
+						v.getPaddingLeft(),
+						v.getPaddingTop(),
+						v.getPaddingRight(),
+						v.getPaddingBottom() + padding);
+			}
+			return v;
 		}
 	}
 	
@@ -504,10 +694,12 @@ public class MainActivity extends Activity
 		{
 			if(IsLoadableExecutableFileName(game.getPath()))
 			{
+				game.setLastModified(System.currentTimeMillis());
 				NativeInterop.loadElf(game.getPath());
 			}
 			else
 			{
+				game.setLastModified(System.currentTimeMillis());
 				NativeInterop.bootDiskImage(game.getPath());
 			}
 			setCurrentDirectory(game.getPath().substring(0, game.getPath().lastIndexOf(File.separator)));
@@ -536,31 +728,10 @@ public class MainActivity extends Activity
 		return false;
 	}
 
-	private void prepareFileListView()
+	private void prepareFileListView(boolean retainList)
 	{
 		if (gameInfo == null) {
 			gameInfo = new GameInfo(MainActivity.this);
-		}
-		
-		gameListing = (TableLayout) findViewById(R.id.game_grid);
-		if (gameListing != null) {
-			gameListing.removeAllViews();
-		}
-		
-		DisplayMetrics metrics = new DisplayMetrics();
-		getWindowManager().getDefaultDisplay().getMetrics(metrics);
-		localScale = getResources().getDisplayMetrics().density;
-		int screenWidth = (int) (metrics.widthPixels * localScale + 0.5f);
-		int screenHeight = (int) (metrics.heightPixels * localScale + 0.5f);
-		
-		if (screenWidth > screenHeight) {
-			numColumn = 3;
-		} else {
-			numColumn = 2;
-		}
-		
-		if (isAndroidTV(getApplicationContext())) {
-			numColumn += 1;
 		}
 		
 		String sdcard = getCurrentDirectory();
@@ -568,13 +739,13 @@ public class MainActivity extends Activity
 			isConfigured = true;
 		}
 		
-		new ImageFinder(R.array.disks).execute(sdcard);
-		
-		if (!mDrawerLayout.isDrawerOpen(Gravity.LEFT)) {
-			if (!isConfigured) {
-				getActionBar().setTitle(getString(R.string.menu_title_look));
+		if (isConfigured && retainList) {
+			populateImages(currentGames);
+		} else {
+			if (sortMethod == SORT_HOMEBREW) {
+				new ImageFinder(R.array.homebrew).execute(sdcard);
 			} else {
-				getActionBar().setTitle(getString(R.string.menu_title_shut));
+				new ImageFinder(R.array.disks).execute(sdcard);
 			}
 		}
 	}

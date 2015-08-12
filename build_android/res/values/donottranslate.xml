@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    
+    <string name="app_name">Play!</string>
+    
+    <!-- Applciation Preferences -->
+    
+    <string-array name="pref_theme_selection_values">
+        <item>0</item>
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+        <item>4</item>
+    </string-array>
+    
+    <!-- ROM File Type Arrays -->
+	
+	<string-array name="disks">
+		<item>iso</item>
+		<item>bin</item>
+		<item>cso</item>
+		<item>isz</item>
+		<item>elf</item>
+	</string-array>
+	
+	<string-array name="homebrew">
+		<item>elf</item>
+	</string-array>
+
+</resources>
