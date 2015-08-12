@@ -49,7 +49,7 @@ import android.widget.TextView;
 import com.virtualapplications.play.R;
 import com.virtualapplications.play.database.SqliteHelper.Games;
 
-public class GamesDbAPI extends AsyncTask<File, Integer, Document> {
+public class GamesDbAPI extends AsyncTask<File, Integer, String[]> {
 
 	private final String serial;
 	private int index;
@@ -85,7 +85,7 @@ public class GamesDbAPI extends AsyncTask<File, Integer, Document> {
 	}
 
 	@Override
-	protected Document doInBackground(File... params) {
+	protected String[] doInBackground(File... params) {
 		
 		if (GamesDbAPI.isNetworkAvailable(mContext)) {
 			try {
@@ -113,7 +113,95 @@ public class GamesDbAPI extends AsyncTask<File, Integer, Document> {
 				HttpEntity httpEntity = httpResponse.getEntity();
 				String gameData =  EntityUtils.toString(httpEntity);
 				if (gameData != null) {
-					return getDomElement(gameData);
+					Document doc = getDomElement(gameData);
+					if (doc != null && doc.getElementsByTagName("Game") != null) {
+						try {
+							final Element root = (Element) doc.getElementsByTagName("Game").item(0);
+							final String remoteID = getValue(root, "id");
+
+							ContentResolver cr = mContext.getContentResolver();
+							String selection = Games.KEY_GAMEID + "=?";
+							String[] selectionArgs = { remoteID };
+							Cursor c = cr.query(Games.GAMES_URI, null, selection, selectionArgs, null);
+							String dataID = null;
+
+							if (elastic) {
+								if (c != null && c.getCount() > 0) {
+									if (c.moveToFirst()) {
+										do {
+											String title = c.getString(c.getColumnIndex(Games.KEY_TITLE));
+											String overview = c.getString(c.getColumnIndex(Games.KEY_OVERVIEW));
+											String boxart = c.getString(c.getColumnIndex(Games.KEY_BOXART));
+											if (overview != null && boxart != null &&
+													!overview.equals("") && !boxart.equals("")) {
+												dataID = c.getString(c.getColumnIndex(Games.KEY_GAMEID));
+												c.close();
+												return new String[] { dataID, title, overview, boxart };
+											}
+										} while (c.moveToNext());
+									}
+								}
+								c.close();
+								if (dataID == null) {
+									gameID = remoteID;
+									elastic = false;
+									return doInBackground(gameFile);
+								}
+							} else {
+								ContentValues values = new ContentValues();
+								values.put(Games.KEY_GAMEID, remoteID);
+								final String title = getValue(root, "GameTitle");
+								values.put(Games.KEY_TITLE, title);
+								final String overview = getValue(root, "Overview");
+								values.put(Games.KEY_OVERVIEW, overview);
+
+								Element images = (Element) root.getElementsByTagName("Images").item(0);
+								Element boxart = null;
+								if (images.getElementsByTagName("boxart").getLength() > 1) {
+									boxart = (Element) images.getElementsByTagName("boxart").item(1);
+								} else if (images.getElementsByTagName("boxart").getLength() == 1) {
+									boxart = (Element) images.getElementsByTagName("boxart").item(0);
+								}
+								String coverImage = null;
+								if (boxart != null) {
+									coverImage = getElementValue(boxart);
+								} else {
+									coverImage = "404";
+								}
+								values.put(Games.KEY_BOXART, coverImage);
+
+					/*
+					TODO:Adding the serial to the database this way is not ideal, as a mismatch will persist
+					but as it stands that's the only way to get the pcitures and prevent them from being downloaded every run
+					 */
+								if (c != null && c.getCount() > 0) {
+									if (c.moveToFirst()) {
+										do {
+											String db_serial = c.getString(c.getColumnIndex(Games.KEY_SERIAL));
+											if (db_serial == null || db_serial == serial){
+												values.put(Games.KEY_SERIAL, serial);
+												mContext.getContentResolver().update(Games.GAMES_URI, values, selection, selectionArgs);
+												break;
+											} else {
+												values.remove(Games.KEY_SERIAL);
+												mContext.getContentResolver().update(Games.GAMES_URI, values, selection, selectionArgs);
+											}
+
+
+										} while (c.moveToNext());
+
+									}
+								} else {
+									values.put(Games.KEY_SERIAL, serial);
+									mContext.getContentResolver().insert(Games.GAMES_URI, values);
+								}
+								c.close();
+								return new String[] { dataID, title, overview, coverImage };
+							}
+						} catch (Exception e) {
+
+						}
+					}
 				} else {
 					return null;
 				}
@@ -129,109 +217,16 @@ public class GamesDbAPI extends AsyncTask<File, Integer, Document> {
 	}
 
 	@Override
-	protected void onPostExecute(Document doc) {
-		
-		if (doc != null && doc.getElementsByTagName("Game") != null) {
-			try {
-				final Element root = (Element) doc.getElementsByTagName("Game").item(0);
-				final String remoteID = getValue(root, "id");
-				
-				ContentResolver cr = mContext.getContentResolver();
-				String selection = Games.KEY_GAMEID + "=?";
-				String[] selectionArgs = { remoteID };
-				Cursor c = cr.query(Games.GAMES_URI, null, selection, selectionArgs, null);
-				String dataID = null;
-				
-				if (elastic) {
-					if (c != null && c.getCount() > 0) {
-						if (c.moveToFirst()) {
-							do {
-								String title = c.getString(c.getColumnIndex(Games.KEY_TITLE));
-								String overview = c.getString(c.getColumnIndex(Games.KEY_OVERVIEW));
-								String boxart = c.getString(c.getColumnIndex(Games.KEY_BOXART));
-								if (overview != null && boxart != null &&
-									!overview.equals("") && !boxart.equals("")) {
-									dataID = c.getString(c.getColumnIndex(Games.KEY_GAMEID));
-									if (childview != null) {
-										childview.findViewById(R.id.childview).setOnLongClickListener(
-											gameInfo.configureLongClick(title, overview, gameFile));
-										if (boxart != null) {
-											gameInfo.getImage(remoteID, childview, boxart);
-										}
-									}
-									break;
-								}
-							} while (c.moveToNext());
-						}
-					}
-					c.close();
-					if (dataID == null) {
-						GamesDbAPI gameDatabase = new GamesDbAPI(mContext, remoteID, serial);
-						gameDatabase.setView(childview);
-						gameDatabase.execute(gameFile);
-					}
-				} else {
-					ContentValues values = new ContentValues();
-					values.put(Games.KEY_GAMEID, remoteID);
-					final String title = getValue(root, "GameTitle");
-					values.put(Games.KEY_TITLE, title);
-					final String overview = getValue(root, "Overview");
-					values.put(Games.KEY_OVERVIEW, overview);
-					
-					Element images = (Element) root.getElementsByTagName("Images").item(0);
-					Element boxart = null;
-					if (images.getElementsByTagName("boxart").getLength() > 1) {
-						boxart = (Element) images.getElementsByTagName("boxart").item(1);
-					} else if (images.getElementsByTagName("boxart").getLength() == 1) {
-						boxart = (Element) images.getElementsByTagName("boxart").item(0);
-					}
-					String coverImage = null;
-					if (boxart != null) {
-						coverImage = getElementValue(boxart);
-						values.put(Games.KEY_BOXART, coverImage);
-					} else {
-						values.put(Games.KEY_BOXART, "404");
-					}
+	protected void onPostExecute(String[] gameStats) {
 
-					/*
-					TODO:Adding the serial to the database this way is not ideal, as a mismatch will persist
-					but as it stands that's the only way to get the pcitures and prevent them from being downloaded every run
-					 */
-					if (c != null && c.getCount() > 0) {
-						if (c.moveToFirst()) {
-							do {
-								String db_serial = c.getString(c.getColumnIndex(Games.KEY_SERIAL));
-								if (db_serial == null || db_serial == serial){
-									values.put(Games.KEY_SERIAL, serial);
-									mContext.getContentResolver().update(Games.GAMES_URI, values, selection, selectionArgs);
-									break;
-								} else {
-									values.remove(Games.KEY_SERIAL);
-									mContext.getContentResolver().update(Games.GAMES_URI, values, selection, selectionArgs);
-								}
-
-
-							} while (c.moveToNext());
-
-						}
-					} else {
-						values.put(Games.KEY_SERIAL, serial);
-						mContext.getContentResolver().insert(Games.GAMES_URI, values);
-					}
-					c.close();
-
-					if (childview != null) {
-						childview.findViewById(R.id.childview).setOnLongClickListener(
-							gameInfo.configureLongClick(getValue(root, "GameTitle"), overview, gameFile));
-						if (coverImage != null) {
-							gameInfo.getImage(remoteID, childview, coverImage);
-						}
-					}
-				}
-			} catch (Exception e) {
-				
+		if (childview != null && gameStats != null) {
+			childview.findViewById(R.id.childview).setOnLongClickListener(
+					gameInfo.configureLongClick(gameStats[1], gameStats[2], gameFile));
+			if (gameStats[3] != null && !gameStats[3].equals("404")) {
+				gameInfo.getImage(gameStats[0], childview, gameStats[3]);
 			}
 		}
+
 	}
 
 	public static boolean isNetworkAvailable(Context mContext) {

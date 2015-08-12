@@ -246,9 +246,16 @@ public class GameInfo {
 		} else {
 			GamesDbAPI gameDatabase = new GamesDbAPI(mContext, gameID, serial);
 			gameDatabase.setView(childview);
-			gameDatabase.execute(game);
-			return null;
+			//TODO
+			try {
+				return gameDatabase.execute(game).get();
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			} catch (ExecutionException e) {
+				e.printStackTrace();
+			}
 		}
+		return null;
 	}
 	
 	public String getSerial(File game) {
