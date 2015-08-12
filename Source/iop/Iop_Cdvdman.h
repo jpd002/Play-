@@ -43,6 +43,7 @@ namespace Iop
 		uint32					CdReadClock(uint32);
 		uint32					CdStatus();
 		uint32					CdCallback(uint32);
+		uint32					CdLayerSearchFile(uint32, uint32, uint32);
 
 		CIopBios&				m_bios;
 		CISO9660*				m_image = nullptr;
