@@ -81,9 +81,15 @@ public class GameInfo {
 			}
 			return bitmap;
 		} else {
-			new GameImage(childview, boxart).execute(key);
-			return null;
+			try {
+				return new GameImage(childview, boxart).execute(key).get();
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			} catch (ExecutionException e) {
+				e.printStackTrace();
+			}
 		}
+		return null;
 	}
 	
 	public class GameImage extends AsyncTask<String, Integer, Bitmap> {
