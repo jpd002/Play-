@@ -29,6 +29,8 @@
 	<string name="menu_title_shut">Games</string>
 	<string name="menu_title_look">Search</string>
 
+	<string name="section_header">- Games</string>
+	
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
 	
