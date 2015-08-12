@@ -5,8 +5,8 @@ import android.app.Activity;
 import android.app.Fragment;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
+import android.content.res.TypedArray;
 import android.graphics.Color;
-import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.view.GravityCompat;
@@ -222,8 +222,9 @@ public class NavigationDrawerFragment extends Fragment {
             for (int i = 0; i < mDrawerListView.getChildCount(); i++) {
                 if(position == i ){
                     //TODO: colour is hardcoded, try getting from theme
-                    ColorDrawable listsel = new ColorDrawable(Color.argb(170, 0, 0, 200));
-                    mDrawerListView.getChildAt(i).setBackground(listsel);
+                    TypedArray a = getActivity().getTheme().obtainStyledAttributes(new int[]{R.attr.colorPrimaryDark});
+                    int attributeResourceId = a.getColor(0, 0);
+                    mDrawerListView.getChildAt(i).setBackgroundColor(attributeResourceId);
                 }else{
                     mDrawerListView.getChildAt(i).setBackgroundColor(Color.TRANSPARENT);
                 }
@@ -238,7 +239,6 @@ public class NavigationDrawerFragment extends Fragment {
     }
 
     private void selectBottomItem(int position) {
-        mCurrentSelectedPosition = position;
         if (mDrawerListView != null) {
             mDrawerListView.setItemChecked(position, true);
         }
@@ -298,6 +298,20 @@ public class NavigationDrawerFragment extends Fragment {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onResume(){
+        super.onResume();
+        if (mDrawerListView != null) {
+            //TODO: colour is hardcoded, try getting from theme
+            TypedArray a = getActivity().getTheme().obtainStyledAttributes(new int[]{R.attr.colorPrimaryDark});
+            int attributeResourceId = a.getColor(0, 0);
+            View v = mDrawerListView.getChildAt(mCurrentSelectedPosition);
+            if (v != null)
+            v.setBackgroundColor(attributeResourceId);
+
+        }
     }
 
     /**

@@ -8,12 +8,13 @@
 	android:focusable="true"
 	android:background="@drawable/game_selector"
 	android:gravity="center"
-	android:layout_weight="1" >
+	android:layout_weight="1"
+	android:padding="5dp">
 
 	<ImageView
 		android:id="@+id/game_icon"
-		android:layout_width="172dp"
-		android:layout_height="242dp"
+		android:layout_width="@dimen/cover_width"
+		android:layout_height="@dimen/cover_height"
 		android:layout_gravity="center"
 		android:scaleType="fitCenter"
 		android:src="@drawable/boxart"
@@ -22,8 +23,8 @@
 	<RelativeLayout
 		android:id="@+id/text_wrapper"
 		android:orientation="vertical"
-		android:layout_width="172dp"
-		android:layout_height="242dp"
+		android:layout_width="@dimen/cover_width"
+		android:layout_height="@dimen/cover_height"
 		android:layout_alignTop="@+id/game_icon" >
 		
 		<TextView

@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    
+    <PreferenceCategory
+        android:title="@string/preferences_ui">
+        <Preference
+            android:key="ui.clearfolder"
+            android:title="@string/pref_ui_reset_folder_title"
+            android:summary="@string/pref_ui_reset_folder_summary"
+            android:persistent="false" />
+        <Preference
+            android:key="ui.clearcache"
+            android:title="@string/pref_ui_reset_cache_title"
+            android:summary="@string/pref_ui_reset_cache_summary"
+            android:persistent="false" />
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        android:title="@string/preferences_theme" >
+    <ListPreference
+        android:key="ui.theme_selection"
+        android:title="@string/pref_title_theme_selection"
+        android:entries="@array/pref_theme_selection_titles"
+        android:entryValues="@array/pref_theme_selection_values"
+        android:defaultValue="1"
+        android:negativeButtonText="@null"
+        android:positiveButtonText="@null" />
+    </PreferenceCategory>
+</PreferenceScreen>
