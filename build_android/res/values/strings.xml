@@ -57,6 +57,7 @@
         <item>Pink</item>
         <item>Purple</item>
         <item>Teal</item>
+		<item>Dark Purple</item>
     </string-array>
     
     <!-- Error Reporting / Debugging -->
