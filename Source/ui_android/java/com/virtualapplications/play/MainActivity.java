@@ -450,8 +450,8 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
 	public void restoreActionBar() {
 		android.support.v7.app.ActionBar actionBar = getSupportActionBar();
 		actionBar.setDisplayShowTitleEnabled(true);
-		actionBar.setTitle(R.string.app_name);
-		actionBar.setSubtitle(R.string.menu_title_shut);
+		actionBar.setIcon(R.drawable.ic_logo);
+		actionBar.setTitle(R.string.section_header);
 	}
 
 	
