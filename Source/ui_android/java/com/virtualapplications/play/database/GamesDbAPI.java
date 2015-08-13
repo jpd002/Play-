@@ -182,7 +182,7 @@ public class GamesDbAPI {
 									mContext.getContentResolver().insert(Games.GAMES_URI, values);
 								}
 								c.close();
-								return new GameInfoStruct(dataID, title, overview, coverImage);
+								return new GameInfoStruct(remoteID, title, overview, coverImage);
 							}
 						} catch (Exception e) {
 
