@@ -1,6 +1,7 @@
 #import "MainViewController.h"
 #import "EmulatorViewController.h"
 #import "IosUtils.h"
+#import "DiskUtils.h"
 
 @interface MainViewController ()
 
@@ -20,22 +21,29 @@
 	NSString* file = nil;
 	while(file = [dirEnum nextObject])
 	{
+        std::string diskId;
 		if(
 			IosUtils::IsLoadableExecutableFileName(file) ||
-			IosUtils::IsLoadableDiskImageFileName(file)
+			(IosUtils::IsLoadableDiskImageFileName(file) &&
+             DiskUtils::TryGetDiskId([[NSString stringWithFormat:@"%@/%@", path, file] UTF8String], &diskId))
 		)
 		{
-			[images addObject: file];
+            NSMutableDictionary *disk = [[NSMutableDictionary alloc] init];
+            [disk setValue:[NSString stringWithUTF8String:diskId.c_str()] forKey:@"serial"];
+            [disk setValue:file forKey:@"file"];
+			[images addObject: disk];
+            NSLog(@"%@: %s", file, diskId.c_str());
 		}
 	}
 	
 	self.images = [images sortedArrayUsingSelector: @selector(caseInsensitiveCompare:)];
+    [self.tableView reloadData];
 }
 
 -(void)prepareForSegue: (UIStoryboardSegue*)segue sender: (id)sender
 {
 	NSIndexPath* indexPath = self.tableView.indexPathForSelectedRow;
-	NSString* filePath = [self.images objectAtIndex: indexPath.row];
+    NSString* filePath = [[self.images objectAtIndex: indexPath.row] objectForKey:@"file"];
 	NSString* homeDirPath = [@"~" stringByExpandingTildeInPath];
 	NSString* absolutePath = [homeDirPath stringByAppendingPathComponent: filePath];
 	EmulatorViewController* emulatorViewController = segue.destinationViewController;
@@ -68,7 +76,7 @@
 	}
 	
 	assert(indexPath.row < [self.images count]);
-	NSString* imagePath = [self.images objectAtIndex: indexPath.row];
+	NSString* imagePath = [[self.images objectAtIndex: indexPath.row] objectForKey:@"file"];
 	
 	cell.textLabel.text = [imagePath lastPathComponent];
 	
