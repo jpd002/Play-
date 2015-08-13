@@ -94,6 +94,11 @@ public class SettingsActivity extends PreferenceActivity
 				theme = R.style.Teal;
 				mContext.setTheme(R.style.Teal);
 				break;
+			case 5:
+				if (TB != null){TB.setBackgroundResource(R.color.action_bar_Dark_Purple);}
+				theme = R.style.Dark_Purple;
+				mContext.setTheme(R.style.Dark_Purple);
+				break;
 		}
 		mContext.getTheme().applyStyle(theme,true);
 	}
