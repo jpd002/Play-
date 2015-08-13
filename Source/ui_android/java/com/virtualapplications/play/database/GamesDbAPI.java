@@ -53,7 +53,6 @@ public class GamesDbAPI extends AsyncTask<File, Integer, String[]> {
 
 	private final String serial;
 	private int index;
-	private View childview;
 	private Context mContext;
 	private String gameID;
 	private File gameFile;
@@ -69,10 +68,6 @@ public class GamesDbAPI extends AsyncTask<File, Integer, String[]> {
 		this.mContext = mContext;
 		this.gameID = gameID;
 		this.serial = serial;
-	}
-	
-	public void setView(View childview) {
-		this.childview = childview;
 	}
 
 	protected void onPreExecute() {
@@ -214,19 +209,6 @@ public class GamesDbAPI extends AsyncTask<File, Integer, String[]> {
 			}
 		}
 		return null;
-	}
-
-	@Override
-	protected void onPostExecute(String[] gameStats) {
-
-		if (childview != null && gameStats != null) {
-			childview.findViewById(R.id.childview).setOnLongClickListener(
-					gameInfo.configureLongClick(gameStats[1], gameStats[2], gameFile));
-			if (gameStats[3] != null && !gameStats[3].equals("404")) {
-				gameInfo.getImage(gameStats[0], childview, gameStats[3]);
-			}
-		}
-
 	}
 
 	public static boolean isNetworkAvailable(Context mContext) {

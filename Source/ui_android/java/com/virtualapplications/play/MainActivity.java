@@ -6,6 +6,7 @@ import android.content.*;
 import android.content.pm.*;
 import android.content.res.Configuration;
 import android.content.res.TypedArray;
+import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.drawable.GradientDrawable;
 import android.os.*;
@@ -561,7 +562,7 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
 		}
 	}
 	
-	private View createListItem(final File game, final View childview) {
+	private View createListItem(final File game, final View childview, int[] measures) {
 		if (!isConfigured) {
 			
 			((TextView) childview.findViewById(R.id.game_text)).setText(game.getName());
@@ -580,19 +581,20 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
 		} else {
 			
 			((TextView) childview.findViewById(R.id.game_text)).setText(game.getName());
-			
-			final String[] gameStats = gameInfo.getGameInfo(game, childview);
+			ImageView preview = (ImageView) childview.findViewById(R.id.game_icon);
+			final String[] gameStats = gameInfo.getGameInfo(game, measures);
 			
 			if (gameStats != null) {
 				childview.findViewById(R.id.childview).setOnLongClickListener(
 					gameInfo.configureLongClick(gameStats[1], gameStats[2], game));
 				
 				if (!gameStats[3].equals("404")) {
-					gameInfo.getImage(gameStats[0], childview, gameStats[3]);
+					Bitmap cover = gameInfo.getImage(gameStats[0], measures, gameStats[3]);
+					preview.setImageBitmap(cover);
+					preview.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
 					((TextView) childview.findViewById(R.id.game_text)).setVisibility(View.GONE);
 				}
 			} else {
-				ImageView preview = (ImageView) childview.findViewById(R.id.game_icon);
 				preview.setImageResource(R.drawable.boxart);
 				preview.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
 				((TextView) childview.findViewById(R.id.game_text)).setVisibility(View.VISIBLE);
@@ -623,7 +625,16 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
 		}
 
 		int padding = getNavigationBarSize(this).y;
-		GamesAdapter adapter = new GamesAdapter(MainActivity.this, isConfigured ? R.layout.game_list_item : R.layout.file_list_item, images, padding);
+
+		int mWidth = 0;
+		int mHeight = 0;
+		if (isConfigured){
+			View v = LayoutInflater.from(this).inflate(R.layout.game_list_item, null, false);
+			v.measure(0, 0);
+			mWidth = v.findViewById(R.id.game_icon).getMeasuredWidth();
+			mHeight = v.findViewById(R.id.game_icon).getMeasuredHeight();
+		}
+		GamesAdapter adapter = new GamesAdapter(MainActivity.this, isConfigured ? R.layout.game_list_item : R.layout.file_list_item, images, padding, new int[]{mHeight,mWidth});
 		/*
 		gameGrid.setNumColumns(-1);
 		-1 = autofit
@@ -641,13 +652,15 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
 
 		private final int layoutid;
 		private final int padding;
+		private final int[] measures;
 		private List<File> games;
 		
-		public GamesAdapter(Context context, int ResourceId, List<File> images, int padding) {
+		public GamesAdapter(Context context, int ResourceId, List<File> images, int padding, int[] measures) {
 			super(context, ResourceId, images);
 			this.games = images;
 			this.layoutid = ResourceId;
 			this.padding = padding;
+			this.measures = measures;
 		}
 
 		public int getCount() {
@@ -664,16 +677,18 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
 		}
 		
 		@Override
-		public View getView(int position, View convertView, ViewGroup parent) {
+		public View getView(final int position, View convertView, final ViewGroup parent) {
 			View v = convertView;
 			if (v == null) {
 				LayoutInflater vi = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 				v = vi.inflate(layoutid, null);
 			}
+
 			final File game = games.get(position);
 			if (game != null) {
-				createListItem(game, v);
+				createListItem(game, v, measures);
 			}
+
 			if (position == games.size() - 1){
 				v.setPadding(
 						v.getPaddingLeft(),
