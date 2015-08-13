@@ -562,50 +562,47 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
 		}
 	}
 	
-	private View createListItem(final File game, final View childview, int[] measures) {
+	private View createListItem(final GameInfoStruct gameStats, final View childview) {
 		if (!isConfigured) {
-			
-			((TextView) childview.findViewById(R.id.game_text)).setText(game.getName());
-			
+
+			((TextView) childview.findViewById(R.id.game_text)).setText(gameStats.getFile().getName());
+
 			childview.findViewById(R.id.childview).setOnClickListener(new OnClickListener() {
 				public void onClick(View view) {
-					setCurrentDirectory(game.getPath().substring(0,
-						game.getPath().lastIndexOf(File.separator)));
+					setCurrentDirectory(gameStats.getFile().getPath().substring(0,
+							gameStats.getFile().getPath().lastIndexOf(File.separator)));
 					isConfigured = true;
 					prepareFileListView(false);
 					return;
 				}
 			});
-			
+
 			return childview;
 		} else {
-			
-			((TextView) childview.findViewById(R.id.game_text)).setText(game.getName());
+
+			((TextView) childview.findViewById(R.id.game_text)).setText(gameStats.getTitleName());
 			ImageView preview = (ImageView) childview.findViewById(R.id.game_icon);
-			final GameInfoStruct gameStats = gameInfo.getGameInfo(game, measures);
-			
-			if (gameStats != null) {
+
 				childview.findViewById(R.id.childview).setOnLongClickListener(
-					gameInfo.configureLongClick(gameStats.getTitleName(), gameStats.getDescription(), game));
-				
+						gameInfo.configureLongClick(gameStats.getTitleName(), gameStats.getDescription(), gameStats.getFile()));
+
 				if (gameStats.getFrontLink() != null && !gameStats.getFrontLink().equals("404")) {
-					Bitmap cover = gameInfo.getImage(gameStats.getID(), measures, gameStats.getFrontLink());
-					preview.setImageBitmap(cover);
+					preview.setImageBitmap(gameStats.getFrontCover());
 					preview.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
 					((TextView) childview.findViewById(R.id.game_text)).setVisibility(View.GONE);
+				} else {
+					preview.setImageResource(R.drawable.boxart);
+					preview.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
+					((TextView) childview.findViewById(R.id.game_text)).setVisibility(View.VISIBLE);
 				}
-			} else {
-				preview.setImageResource(R.drawable.boxart);
-				preview.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
-				((TextView) childview.findViewById(R.id.game_text)).setVisibility(View.VISIBLE);
-			}
-			
-			childview.findViewById(R.id.childview).setOnClickListener(new OnClickListener() {
-				public void onClick(View view) {
-					launchDisk(game, false);
-					return;
-				}
-			});
+
+				childview.findViewById(R.id.childview).setOnClickListener(new OnClickListener() {
+					public void onClick(View view) {
+						launchDisk(gameStats.getFile(), false);
+						return;
+					}
+				});
+
 			return childview;
 		}
 	}
@@ -619,6 +616,7 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
 		} else {
 			Collections.sort(images);
 		}
+
 		GridView gameGrid = (GridView) findViewById(R.id.game_grid);
 		if (gameGrid != null && gameGrid.isShown()) {
 			gameGrid.setAdapter(null);
@@ -634,7 +632,25 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
 			mWidth = v.findViewById(R.id.game_icon).getMeasuredWidth();
 			mHeight = v.findViewById(R.id.game_icon).getMeasuredHeight();
 		}
-		GamesAdapter adapter = new GamesAdapter(MainActivity.this, isConfigured ? R.layout.game_list_item : R.layout.file_list_item, images, padding, new int[]{mHeight,mWidth});
+		int[] measures = new int[]{mHeight, mWidth};
+		List<GameInfoStruct> games = new ArrayList<>();
+		for (File game : images){
+			GameInfoStruct tmp;
+			if (!isConfigured || IsLoadableExecutableFileName(game.getName())) {
+				tmp = new GameInfoStruct(game);
+			} else {
+				 tmp = gameInfo.getGameInfo(game,measures);
+				tmp.setFile(game);
+				if (tmp.getFrontLink() != null && !tmp.getFrontLink().equals("404")) {
+					Bitmap cover = gameInfo.getImage(tmp.getID(), measures, tmp.getFrontLink());
+					tmp.setFrontCover(cover);
+				}
+			}
+
+			games.add(tmp);
+		}
+
+		GamesAdapter adapter = new GamesAdapter(MainActivity.this, isConfigured ? R.layout.game_list_item : R.layout.file_list_item, games, padding);
 		/*
 		gameGrid.setNumColumns(-1);
 		-1 = autofit
@@ -648,27 +664,24 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
 
 	}
 	
-	public class GamesAdapter extends ArrayAdapter<File> {
+	public class GamesAdapter extends ArrayAdapter<GameInfoStruct> {
 
 		private final int layoutid;
 		private final int padding;
-		private final int[] measures;
-		private List<File> games;
+		private List<GameInfoStruct> games;
 		
-		public GamesAdapter(Context context, int ResourceId, List<File> images, int padding, int[] measures) {
+		public GamesAdapter(Context context, int ResourceId, List<GameInfoStruct> images, int padding) {
 			super(context, ResourceId, images);
 			this.games = images;
 			this.layoutid = ResourceId;
 			this.padding = padding;
-			this.measures = measures;
 		}
 
 		public int getCount() {
-			//return mThumbIds.length;
 			return games.size();
 		}
 
-		public File getItem(int position) {
+		public GameInfoStruct getItem(int position) {
 			return games.get(position);
 		}
 
@@ -684,9 +697,9 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
 				v = vi.inflate(layoutid, null);
 			}
 
-			final File game = games.get(position);
+			final GameInfoStruct game = games.get(position);
 			if (game != null) {
-				createListItem(game, v, measures);
+				createListItem(game, v);
 			}
 
 			if (position == games.size() - 1){

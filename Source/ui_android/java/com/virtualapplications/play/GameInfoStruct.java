@@ -4,12 +4,13 @@ package com.virtualapplications.play;
 import android.graphics.Bitmap;
 
 import java.io.File;
+import java.util.List;
 
 public class GameInfoStruct {
-    private final String m_TitleName;
-    private final String m_ID;
+    private String m_TitleName;
+    private String m_ID;
     //private final String m_Serial;
-    private final String m_FrontLink;
+    private String m_FrontLink;
     private Bitmap m_Thumb;
     private Bitmap m_Thumb2;
     private String m_Overview;
@@ -21,6 +22,13 @@ public class GameInfoStruct {
         m_Overview = overview;
         m_FrontLink = m_frontLink;
     }
+
+    public GameInfoStruct(File file) {
+        m_File = file;
+        m_TitleName = file.getName();
+
+    }
+
     public String getTitleName(){
         return m_TitleName;
     }
