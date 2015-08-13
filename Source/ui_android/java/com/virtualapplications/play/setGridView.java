@@ -102,6 +102,7 @@ public class setGridView extends AsyncTask<String, Integer, List<GameInfoStruct>
         private final int layoutid;
         private final int padding;
         private List<GameInfoStruct> games;
+        private int original_bottom_pad;
 
         public GamesAdapter(Context context, int ResourceId, List<GameInfoStruct> images, int padding) {
             super(context, ResourceId, images);
@@ -134,13 +135,21 @@ public class setGridView extends AsyncTask<String, Integer, List<GameInfoStruct>
             if (game != null) {
                 createListItem(game, v);
             }
-
+            if (original_bottom_pad == 0){
+                original_bottom_pad = v.getPaddingBottom();
+            }
             if (position == games.size() - 1){
                 v.setPadding(
                         v.getPaddingLeft(),
                         v.getPaddingTop(),
                         v.getPaddingRight(),
-                        v.getPaddingBottom() + padding);
+                        original_bottom_pad + padding);
+            } else {
+                v.setPadding(
+                        v.getPaddingLeft(),
+                        v.getPaddingTop(),
+                        v.getPaddingRight(),
+                        original_bottom_pad);
             }
             return v;
         }
