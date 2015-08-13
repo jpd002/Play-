@@ -31,6 +31,7 @@ import android.widget.TextView;
 
 import java.util.concurrent.ExecutionException;
 
+import com.virtualapplications.play.GameInfoStruct;
 import com.virtualapplications.play.R;
 import com.virtualapplications.play.MainActivity;
 import com.virtualapplications.play.NativeInterop;
@@ -202,7 +203,7 @@ public class GameInfo {
 		};
 	}
 	
-	public String[] getGameInfo(File game, int[] measures) {
+	public GameInfoStruct getGameInfo(File game, int[] measures) {
 		String serial = getSerial(game);
 		if (serial == null) {
 			return null;
@@ -230,7 +231,7 @@ public class GameInfo {
 		}
 		if (overview != null && boxart != null &&
 			!overview.equals("") && !boxart.equals("")) {
-			return new String[] { gameID, title, overview, boxart };
+			return new GameInfoStruct(gameID, title, overview, boxart);
 		} else {
 			GamesDbAPI gameDatabase = new GamesDbAPI(mContext, gameID, serial);
 			//TODO

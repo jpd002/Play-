@@ -46,10 +46,11 @@ import android.widget.ImageView;
 import android.widget.ImageView.ScaleType;
 import android.widget.TextView;
 
+import com.virtualapplications.play.GameInfoStruct;
 import com.virtualapplications.play.R;
 import com.virtualapplications.play.database.SqliteHelper.Games;
 
-public class GamesDbAPI extends AsyncTask<File, Integer, String[]> {
+public class GamesDbAPI extends AsyncTask<File, Integer,GameInfoStruct> {
 
 	private final String serial;
 	private int index;
@@ -80,7 +81,7 @@ public class GamesDbAPI extends AsyncTask<File, Integer, String[]> {
 	}
 
 	@Override
-	protected String[] doInBackground(File... params) {
+	protected GameInfoStruct doInBackground(File... params) {
 		
 		if (GamesDbAPI.isNetworkAvailable(mContext)) {
 			try {
@@ -131,7 +132,7 @@ public class GamesDbAPI extends AsyncTask<File, Integer, String[]> {
 													!overview.equals("") && !boxart.equals("")) {
 												dataID = c.getString(c.getColumnIndex(Games.KEY_GAMEID));
 												c.close();
-												return new String[] { dataID, title, overview, boxart };
+												return new GameInfoStruct(dataID, title, overview, boxart);
 											}
 										} while (c.moveToNext());
 									}
@@ -191,7 +192,7 @@ public class GamesDbAPI extends AsyncTask<File, Integer, String[]> {
 									mContext.getContentResolver().insert(Games.GAMES_URI, values);
 								}
 								c.close();
-								return new String[] { dataID, title, overview, coverImage };
+								return new GameInfoStruct(dataID, title, overview, coverImage);
 							}
 						} catch (Exception e) {
 

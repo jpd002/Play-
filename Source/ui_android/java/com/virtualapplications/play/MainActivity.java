@@ -582,14 +582,14 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
 			
 			((TextView) childview.findViewById(R.id.game_text)).setText(game.getName());
 			ImageView preview = (ImageView) childview.findViewById(R.id.game_icon);
-			final String[] gameStats = gameInfo.getGameInfo(game, measures);
+			final GameInfoStruct gameStats = gameInfo.getGameInfo(game, measures);
 			
 			if (gameStats != null) {
 				childview.findViewById(R.id.childview).setOnLongClickListener(
-					gameInfo.configureLongClick(gameStats[1], gameStats[2], game));
+					gameInfo.configureLongClick(gameStats.getTitleName(), gameStats.getDescription(), game));
 				
-				if (!gameStats[3].equals("404")) {
-					Bitmap cover = gameInfo.getImage(gameStats[0], measures, gameStats[3]);
+				if (gameStats.getFrontLink() != null && !gameStats.getFrontLink().equals("404")) {
+					Bitmap cover = gameInfo.getImage(gameStats.getID(), measures, gameStats.getFrontLink());
 					preview.setImageBitmap(cover);
 					preview.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
 					((TextView) childview.findViewById(R.id.game_text)).setVisibility(View.GONE);
