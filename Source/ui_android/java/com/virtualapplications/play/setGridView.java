@@ -179,11 +179,11 @@ public class setGridView extends AsyncTask<String, Integer, List<GameInfoStruct>
 
                 if (gameStats.getFrontLink() != null && !gameStats.getFrontLink().equals("404")) {
                     preview.setImageBitmap(gameStats.getFrontCover());
-                    preview.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
+                    preview.setScaleType(ImageView.ScaleType.FIT_XY);
                     ((TextView) childview.findViewById(R.id.game_text)).setVisibility(View.GONE);
                 } else {
                     preview.setImageResource(R.drawable.boxart);
-                    preview.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
+                    preview.setScaleType(ImageView.ScaleType.FIT_XY);
                     ((TextView) childview.findViewById(R.id.game_text)).setVisibility(View.VISIBLE);
                 }
 
