@@ -1,12 +1,24 @@
 package com.virtualapplications.play;
 
-import android.app.*;
-import android.content.*;
-import android.os.*;
-import android.util.*;
-import android.view.*;
-import android.widget.*;
-import java.util.*;
+import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
+import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
+import android.util.Log;
+import android.view.ContextThemeWrapper;
+import android.view.KeyEvent;
+import android.view.MotionEvent;
+import android.view.Surface;
+import android.view.SurfaceHolder;
+import android.view.SurfaceView;
+import android.view.View;
+import android.view.WindowManager;
+import android.widget.TextView;
+
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class EmulatorActivity extends Activity 
 {

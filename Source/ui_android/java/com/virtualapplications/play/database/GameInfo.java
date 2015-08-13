@@ -1,5 +1,21 @@
 package com.virtualapplications.play.database;
 
+import android.app.AlertDialog;
+import android.content.ContentResolver;
+import android.content.Context;
+import android.content.DialogInterface;
+import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.util.Log;
+import android.view.View;
+import android.view.View.OnLongClickListener;
+
+import com.virtualapplications.play.GameInfoStruct;
+import com.virtualapplications.play.MainActivity;
+import com.virtualapplications.play.NativeInterop;
+import com.virtualapplications.play.database.SqliteHelper.Games;
+
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -9,33 +25,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URL;
 import java.net.URLConnection;
-
-import android.app.AlertDialog;
-import android.content.Context;
-import android.content.ContentResolver;
-import android.content.DialogInterface;
-import android.database.Cursor;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.os.AsyncTask;
-import android.os.Build;
-import android.os.StrictMode;
-import android.util.Log;
-import android.util.SparseArray;
-import android.view.View;
-import android.view.View.OnClickListener;
-import android.view.View.OnLongClickListener;
-import android.widget.ImageView;
-import android.widget.ImageView.ScaleType;
-import android.widget.TextView;
-
-import java.util.concurrent.ExecutionException;
-
-import com.virtualapplications.play.GameInfoStruct;
-import com.virtualapplications.play.R;
-import com.virtualapplications.play.MainActivity;
-import com.virtualapplications.play.NativeInterop;
-import com.virtualapplications.play.database.SqliteHelper.Games;
 
 public class GameInfo {
 	

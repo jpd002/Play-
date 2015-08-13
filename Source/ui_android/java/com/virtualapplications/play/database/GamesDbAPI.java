@@ -1,18 +1,14 @@
 package com.virtualapplications.play.database;
 
-import java.io.BufferedInputStream;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.StringReader;
-import java.io.UnsupportedEncodingException;
-import java.net.URL;
-import java.net.URLConnection;
-import java.net.URLEncoder;
+import android.content.ContentResolver;
+import android.content.ContentValues;
+import android.content.Context;
+import android.database.Cursor;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
+import com.virtualapplications.play.GameInfoStruct;
+import com.virtualapplications.play.database.SqliteHelper.Games;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -27,28 +23,15 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
-import android.content.Context;
-import android.content.ContentValues;
-import android.content.ContentResolver;
-import android.database.Cursor;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
-import android.os.AsyncTask;
-import android.os.Build;
-import android.os.StrictMode;
-import android.view.View;
-import android.view.View.OnLongClickListener;
-import android.widget.ImageView;
-import android.widget.ImageView.ScaleType;
-import android.widget.TextView;
+import java.io.File;
+import java.io.IOException;
+import java.io.StringReader;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 
-import com.virtualapplications.play.GameInfoStruct;
-import com.virtualapplications.play.R;
-import com.virtualapplications.play.database.SqliteHelper.Games;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 
 public class GamesDbAPI {
 

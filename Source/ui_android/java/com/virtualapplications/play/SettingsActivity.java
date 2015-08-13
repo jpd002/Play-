@@ -1,14 +1,20 @@
 package com.virtualapplications.play;
 
 import android.app.Activity;
-import android.os.*;
-import android.preference.*;
+import android.graphics.Point;
+import android.os.Bundle;
+import android.preference.CheckBoxPreference;
+import android.preference.Preference;
+import android.preference.PreferenceActivity;
+import android.preference.PreferenceFragment;
+import android.preference.PreferenceGroup;
+import android.preference.PreferenceManager;
+import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.*;
-import java.util.*;
-import android.support.v7.widget.Toolbar;
-import android.graphics.Point;
+import android.widget.LinearLayout;
+
+import java.util.List;
 
 public class SettingsActivity extends PreferenceActivity
 {

@@ -1,39 +1,56 @@
 package com.virtualapplications.play;
 
-import android.app.*;
+import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
-import android.content.*;
-import android.content.pm.*;
+import android.app.UiModeManager;
+import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.pm.ApplicationInfo;
 import android.content.res.Configuration;
 import android.content.res.TypedArray;
-import android.graphics.Bitmap;
 import android.graphics.Color;
+import android.graphics.Point;
 import android.graphics.drawable.GradientDrawable;
-import android.os.*;
+import android.os.AsyncTask;
+import android.os.Build;
+import android.os.Bundle;
+import android.os.Environment;
+import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.widget.Toolbar;
-import android.view.*;
+import android.view.Display;
+import android.view.Menu;
 import android.view.View;
-import android.view.View.OnClickListener;
-import android.widget.*;
-import android.widget.GridView;
-import android.widget.TextView;
-import android.support.v4.widget.DrawerLayout;
-import java.io.*;
-import java.lang.reflect.InvocationTargetException;
-import java.text.*;
-import java.util.*;
-import java.util.concurrent.ExecutionException;
-import java.util.zip.*;
+import android.view.ViewGroup;
+import android.view.WindowManager;
+import android.widget.LinearLayout;
+
+import com.android.util.FileUtils;
+import com.virtualapplications.play.database.GameInfo;
+import com.virtualapplications.play.database.SqliteHelper.Games;
+
 import org.apache.commons.io.comparator.CompositeFileComparator;
 import org.apache.commons.io.comparator.LastModifiedFileComparator;
 import org.apache.commons.io.comparator.SizeFileComparator;
 import org.apache.commons.lang3.StringUtils;
-import com.android.util.FileUtils;
-import android.graphics.Point;
 
-import com.virtualapplications.play.database.GameInfo;
-import com.virtualapplications.play.database.SqliteHelper.Games;
+import java.io.File;
+import java.io.FilenameFilter;
+import java.io.InputStream;
+import java.lang.reflect.InvocationTargetException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Locale;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
 
 
 public class MainActivity extends ActionBarActivity implements NavigationDrawerFragment.NavigationDrawerCallbacks
@@ -405,7 +422,7 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
 		((MainActivity) mActivity).clearCoverCache();
 	}
 	
-	static boolean IsLoadableExecutableFileName(String fileName)
+	public static boolean IsLoadableExecutableFileName(String fileName)
 	{
 		return fileName.toLowerCase().endsWith(".elf");
 	}

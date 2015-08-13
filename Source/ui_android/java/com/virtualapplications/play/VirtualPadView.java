@@ -1,11 +1,16 @@
 package com.virtualapplications.play;
 
-import android.app.*;
-import android.content.*;
-import android.graphics.*;
-import android.util.*;
-import android.view.*;
-import java.util.*;
+import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
+import android.graphics.RectF;
+import android.util.AttributeSet;
+import android.util.Log;
+import android.view.MotionEvent;
+import android.view.SurfaceView;
+
+import java.util.ArrayList;
 
 public class VirtualPadView extends SurfaceView
 {

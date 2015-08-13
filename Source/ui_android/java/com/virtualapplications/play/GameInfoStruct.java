@@ -4,7 +4,6 @@ package com.virtualapplications.play;
 import android.graphics.Bitmap;
 
 import java.io.File;
-import java.util.List;
 
 public class GameInfoStruct {
     private String m_TitleName;
