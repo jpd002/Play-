@@ -76,26 +76,20 @@ public class GameInfo {
 			Bitmap bitmap = BitmapFactory.decodeFile(file.getAbsolutePath(), options);
 			return bitmap;
 		} else {
-			try {
-				return new GameImage(measures, boxart).execute(key).get();
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			} catch (ExecutionException e) {
-				e.printStackTrace();
-			}
+			return new GameImage(key, measures, boxart).get(key);
 		}
-		return null;
 	}
 	
-	public class GameImage extends AsyncTask<String, Integer, Bitmap> {
+	class GameImage {
 		
 		private int[] measures;
 		private String key;
 		private String boxart;
 		
-		public GameImage(int[] measures, String boxart) {
+		public GameImage(String key , int[] measures, String boxart) {
 			this.measures = measures;
 			this.boxart = boxart;
+			this.key = key;
 		}
 
 		
@@ -125,8 +119,7 @@ public class GameInfo {
 			return inSampleSize;
 		}
 		
-		@Override
-		protected Bitmap doInBackground(String... params) {
+		protected Bitmap get(String... params) {
 			key = params[0];
 			if (GamesDbAPI.isNetworkAvailable(mContext) && boxart != null) {
 				String api = null;
@@ -159,19 +152,15 @@ public class GameInfo {
 					im.close();
 					bis = null;
 					im = null;
+					if (bitmap != null) {
+						saveImage(key, bitmap);
+					}
 					return bitmap;
 				} catch (IOException e) {
 					
 				}
 			}
 			return null;
-		}
-		
-		@Override
-		protected void onPostExecute(Bitmap image) {
-			if (image != null) {
-				saveImage(key, image);
-			}
 		}
 	}
 	
@@ -234,16 +223,8 @@ public class GameInfo {
 			return new GameInfoStruct(gameID, title, overview, boxart);
 		} else {
 			GamesDbAPI gameDatabase = new GamesDbAPI(mContext, gameID, serial);
-			//TODO
-			try {
-				return gameDatabase.execute(game).get();
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			} catch (ExecutionException e) {
-				e.printStackTrace();
-			}
+			return gameDatabase.get(game);
 		}
-		return null;
 	}
 	
 	public String getSerial(File game) {

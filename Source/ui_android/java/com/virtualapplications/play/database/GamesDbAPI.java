@@ -50,14 +50,12 @@ import com.virtualapplications.play.GameInfoStruct;
 import com.virtualapplications.play.R;
 import com.virtualapplications.play.database.SqliteHelper.Games;
 
-public class GamesDbAPI extends AsyncTask<File, Integer,GameInfoStruct> {
+public class GamesDbAPI {
 
 	private final String serial;
-	private int index;
 	private Context mContext;
 	private String gameID;
 	private File gameFile;
-	private GameInfo gameInfo;
 	private boolean elastic;
 
 	private static final String games_url = "http://thegamesdb.net/api/GetGamesList.php?platform=sony+playstation+2&name=";
@@ -71,17 +69,9 @@ public class GamesDbAPI extends AsyncTask<File, Integer,GameInfoStruct> {
 		this.serial = serial;
 	}
 
-	protected void onPreExecute() {
-		gameInfo = new GameInfo(mContext);
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.GINGERBREAD) {
-			StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder()
-					.permitAll().build();
-			StrictMode.setThreadPolicy(policy);
-		}
-	}
 
-	@Override
-	protected GameInfoStruct doInBackground(File... params) {
+
+	protected GameInfoStruct get(File... params) {
 		
 		if (GamesDbAPI.isNetworkAvailable(mContext)) {
 			try {
@@ -141,7 +131,7 @@ public class GamesDbAPI extends AsyncTask<File, Integer,GameInfoStruct> {
 								if (dataID == null) {
 									gameID = remoteID;
 									elastic = false;
-									return doInBackground(gameFile);
+									return get(gameFile);
 								}
 							} else {
 								ContentValues values = new ContentValues();

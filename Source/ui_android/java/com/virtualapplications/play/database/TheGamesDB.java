@@ -36,7 +36,7 @@ public class TheGamesDB extends ContentProvider {
 	private static final String DATABASE_NAME = "games.db";
 
     // Database Version
-    private static final int DATABASE_VERSION = 2;
+    private static final int DATABASE_VERSION = 3;
 	
 	public static final String SQLITE_ID = "_id";
 
@@ -109,9 +109,9 @@ public class TheGamesDB extends ContentProvider {
 	}
 	
 	public class importDb extends AsyncTask<String, Integer, String> {
-		
+
 		private String DATABASE_PATH;
-		
+
 		protected void onPreExecute() {
 			DATABASE_PATH = mContext.getFilesDir().getAbsolutePath();
 			byte[] buffer = new byte[1024];

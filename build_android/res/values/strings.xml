@@ -10,9 +10,12 @@
 	<string name="main_menu_exit">Exit</string>
 
 	<string name="game_info">No info</string>
-    
+
     <string name="search_games">Locating games&#8230;</string>
-    <string name="search_games_msg">Please wait&#8230;</string>
+    <string name="setting_view">Setting up View&#8230;</string>
+    <string name="please_wait">Please wait&#8230;</string>
+
+    <string name="database_import">Importing Database&#8230;</string>
 
     <string name="navigation_drawer_open">Navigation drawer open</string>
     <string name="navigation_drawer_close">Navigation drawer closed</string>
