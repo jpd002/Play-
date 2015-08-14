@@ -62,11 +62,21 @@
         sqlite3_bind_text(statement, 1, [diskId UTF8String], (int) diskId.length, NULL);
         
         if (sqlite3_step(statement) != SQLITE_DONE) {
-            gameID = [NSString stringWithUTF8String:(char *)sqlite3_column_text(statement, 1)];
-            title = [NSString stringWithUTF8String:(char *)sqlite3_column_text(statement, 2)];
-            overview = [NSString stringWithUTF8String:(char *)sqlite3_column_text(statement, 3)];
-            serial = [NSString stringWithUTF8String:(char *)sqlite3_column_text(statement, 4)];
-            boxart = [NSString stringWithUTF8String:(char *)sqlite3_column_text(statement, 5)];
+            if ((char *)sqlite3_column_text(statement, 1) != NULL) {
+                gameID = [NSString stringWithUTF8String:(char *)sqlite3_column_text(statement, 1)];
+            }
+            if ((char *)sqlite3_column_text(statement, 2) != NULL) {
+                title = [NSString stringWithUTF8String:(char *)sqlite3_column_text(statement, 2)];
+            }
+            if ((char *)sqlite3_column_text(statement, 3) != NULL) {
+                overview = [NSString stringWithUTF8String:(char *)sqlite3_column_text(statement, 3)];
+            }
+            if ((char *)sqlite3_column_text(statement, 4) != NULL) {
+                serial = [NSString stringWithUTF8String:(char *)sqlite3_column_text(statement, 4)];
+            }
+            if ((char *)sqlite3_column_text(statement, 5) != NULL) {
+                boxart = [NSString stringWithUTF8String:(char *)sqlite3_column_text(statement, 5)];
+            }
         }
     }
     
