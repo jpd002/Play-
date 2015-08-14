@@ -20,6 +20,7 @@ import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.StrictMode;
+import android.support.v4.util.LruCache;
 import android.util.Log;
 import android.util.SparseArray;
 import android.view.View;
@@ -39,12 +40,38 @@ import com.virtualapplications.play.database.SqliteHelper.Games;
 public class GameInfo {
 	
 	private Context mContext;
+	private LruCache<String, Bitmap> mMemoryCache;
+	final int maxMemory = (int) (Runtime.getRuntime().maxMemory() / 1024);
+	final int cacheSize = maxMemory / 4;
 	
 	public GameInfo (Context mContext) {
 		this.mContext = mContext;
+		mMemoryCache = new LruCache<String, Bitmap>(cacheSize) {
+			@Override
+			protected int sizeOf(String key, Bitmap bitmap) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR1) {
+					return bitmap.getByteCount() / 1024;
+                } else {
+                	return (bitmap.getRowBytes() * bitmap.getHeight()) / 1000;
+                }
+			}
+		};
+	}
+    
+	public void addBitmapToMemoryCache(String key, Bitmap bitmap) {
+		if (key != null && !key.equals(null) && bitmap != null) {
+			if (getBitmapFromMemCache(key) == null) {
+                mMemoryCache.put(key, bitmap);
+			}
+		}
+	}
+    
+    public Bitmap getBitmapFromMemCache(String key) {
+		return mMemoryCache.get(key);
 	}
 	
 	public void saveImage(String key, Bitmap image) {
+		addBitmapToMemoryCache(key, image);
 		String path = mContext.getExternalFilesDir(null) + "/covers/";
 		OutputStream fOut = null;
 		File file = new File(path, key + ".jpg"); // the File to save to
@@ -65,14 +92,25 @@ public class GameInfo {
 	}
 	
 	public Bitmap getImage(String key, View childview, String boxart) {
+		Bitmap cachedImage = getBitmapFromMemCache(key);
+		if (cachedImage != null) {
+			if (childview != null) {
+				ImageView preview = (ImageView) childview.findViewById(R.id.game_icon);
+				preview.setImageBitmap(cachedImage);
+				preview.setScaleType(ScaleType.CENTER_INSIDE);
+				((TextView) childview.findViewById(R.id.game_text)).setVisibility(View.GONE);
+			}
+			return cachedImage;
+		}
 		String path = mContext.getExternalFilesDir(null) + "/covers/";
-		
+
 		File file = new File(path, key + ".jpg");
 		if(file.exists())
 		{
 			BitmapFactory.Options options = new BitmapFactory.Options();
 			options.inPreferredConfig = Bitmap.Config.ARGB_8888;
 			Bitmap bitmap = BitmapFactory.decodeFile(file.getAbsolutePath(), options);
+            addBitmapToMemoryCache(key, bitmap);
 			if (childview != null) {
 				ImageView preview = (ImageView) childview.findViewById(R.id.game_icon);
 				preview.setImageBitmap(bitmap);
