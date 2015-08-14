@@ -2,6 +2,7 @@
 #import "EmulatorViewController.h"
 #import "IosUtils.h"
 #import "DiskUtils.h"
+#import "CoverViewCell.h"
 
 @interface MainViewController ()
 
@@ -11,6 +12,8 @@
 
 -(void)viewDidLoad
 {
+    self.database = [[SqliteDatabase alloc] init];
+    
 	NSString* path = [@"~" stringByExpandingTildeInPath];
 	NSFileManager* localFileManager = [[NSFileManager alloc] init];
 	
@@ -65,27 +68,35 @@
 	return @"";
 }
 
+- (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath {
+    return 160;
+    // Assign the specific cell height to prevent issues with custom size
+}
+
 -(UITableViewCell*)tableView: (UITableView*)tableView cellForRowAtIndexPath: (NSIndexPath*)indexPath 
 {
-	static NSString *CellIdentifier = @"Cell";
-
-	UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier: CellIdentifier];
-	if(cell == nil)
-	{
-		cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier: CellIdentifier];
-	}
-	
-	assert(indexPath.row < [self.images count]);
-	NSString* imagePath = [[self.images objectAtIndex: indexPath.row] objectForKey:@"file"];
-	
-	cell.textLabel.text = [imagePath lastPathComponent];
-	
+    static NSString *CellIdentifier = @"coverCell";
+    
+    CoverViewCell *cell = [tableView dequeueReusableCellWithIdentifier:CellIdentifier forIndexPath:indexPath];
+    NSDictionary *disk = [self.images objectAtIndex: indexPath.row];
+    NSString* diskId = [disk objectForKey:@"serial"];
+    
+    NSDictionary *game = [self.database getDiskInfo:diskId];
+    if ([game objectForKey:@"title"] != nil && ![[game objectForKey:@"title"] isEqual:@""]) {
+        cell.nameLabel.text = [game objectForKey:@"title"];
+    } else {
+        cell.nameLabel.text = [[disk objectForKey:@"file"] lastPathComponent];
+    }
+    if ([game objectForKey:@"boxart"] != nil && ![[game objectForKey:@"boxart"] isEqual:@"404"]) {
+        NSString *imageIcon = [[NSString alloc] initWithFormat:@"http://thegamesdb.net/banners/%@", [game objectForKey:@"boxart"]];
+        [cell.coverImage setImageWithURL:[NSURL URLWithString:imageIcon] placeholderImage:[UIImage imageNamed:@"boxart.png"]];
+    }
+    
 	return cell;
 }
 
 -(void)tableView: (UITableView*)tableView didSelectRowAtIndexPath: (NSIndexPath*)indexPath
 {
-	assert(indexPath.row < [self.images count]);
 	[self performSegueWithIdentifier: @"showEmulator" sender: self];
 }
 

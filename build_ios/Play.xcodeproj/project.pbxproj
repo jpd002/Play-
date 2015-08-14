@@ -169,7 +169,15 @@
 		70AD23951B39199300137AA0 /* MaxSaveImporter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 70AD238F1B39199300137AA0 /* MaxSaveImporter.cpp */; };
 		70AD23961B39199300137AA0 /* PsuSaveImporter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 70AD23911B39199300137AA0 /* PsuSaveImporter.cpp */; };
 		70AD23971B39199300137AA0 /* XpsSaveImporter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 70AD23931B39199300137AA0 /* XpsSaveImporter.cpp */; };
+		874ECDA41B7D980C000075B6 /* boxart.png in Resources */ = {isa = PBXBuildFile; fileRef = 874ECDA21B7D980C000075B6 /* boxart.png */; };
+		874ECDA61B7DB0F6000075B6 /* SqliteDatabase.m in Sources */ = {isa = PBXBuildFile; fileRef = 874ECDA51B7DB0F6000075B6 /* SqliteDatabase.m */; };
+		874ECDAA1B7DB862000075B6 /* libsqlite3.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 874ECDA91B7DB862000075B6 /* libsqlite3.dylib */; };
+		874ECDAC1B7DB9EB000075B6 /* games.db in Resources */ = {isa = PBXBuildFile; fileRef = 874ECDA81B7DB3DF000075B6 /* games.db */; };
+		874ECDE51B7E7250000075B6 /* SDWebImage.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 874ECDE41B7E7250000075B6 /* SDWebImage.framework */; };
+		874ECDE71B7E749A000075B6 /* ImageIO.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 874ECDE61B7E749A000075B6 /* ImageIO.framework */; };
+		87C208BE1B7A3E7E00638BDD /* GameController.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 87C208BD1B7A3E7E00638BDD /* GameController.framework */; };
 		87C4CC341B75010700CE6D3C /* iCadeReaderView.m in Sources */ = {isa = PBXBuildFile; fileRef = 87C4CC311B75010700CE6D3C /* iCadeReaderView.m */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
+		87EBC5AB1B7C573300018B42 /* CoverViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 87EBC5AA1B7C573300018B42 /* CoverViewCell.m */; };
 		87EC5F3B1B7AF6EA00F1B515 /* PH_iOS.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 87EC5F391B7AF6EA00F1B515 /* PH_iOS.cpp */; };
 /* End PBXBuildFile section */
 
@@ -516,9 +524,19 @@
 		70AD23921B39199300137AA0 /* PsuSaveImporter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PsuSaveImporter.h; path = ../Source/saves/PsuSaveImporter.h; sourceTree = "<group>"; };
 		70AD23931B39199300137AA0 /* XpsSaveImporter.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = XpsSaveImporter.cpp; path = ../Source/saves/XpsSaveImporter.cpp; sourceTree = "<group>"; };
 		70AD23941B39199300137AA0 /* XpsSaveImporter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = XpsSaveImporter.h; path = ../Source/saves/XpsSaveImporter.h; sourceTree = "<group>"; };
-		87C4CC301B75010700CE6D3C /* iCadeReaderView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = iCadeReaderView.h; sourceTree = "<group>"; };
+		874ECDA21B7D980C000075B6 /* boxart.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = boxart.png; sourceTree = "<group>"; };
+		874ECDA51B7DB0F6000075B6 /* SqliteDatabase.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = SqliteDatabase.m; path = ../Source/ui_ios/SqliteDatabase.m; sourceTree = "<group>"; };
+		874ECDA71B7DB1C1000075B6 /* SqliteDatabase.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = SqliteDatabase.h; path = ../Source/ui_ios/SqliteDatabase.h; sourceTree = "<group>"; };
+		874ECDA81B7DB3DF000075B6 /* games.db */ = {isa = PBXFileReference; lastKnownFileType = file; path = games.db; sourceTree = "<group>"; };
+		874ECDA91B7DB862000075B6 /* libsqlite3.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libsqlite3.dylib; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS8.4.sdk/usr/lib/libsqlite3.dylib; sourceTree = DEVELOPER_DIR; };
+		874ECDE41B7E7250000075B6 /* SDWebImage.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SDWebImage.framework; path = "Play!/SDWebImage.framework"; sourceTree = "<group>"; };
+		874ECDE61B7E749A000075B6 /* ImageIO.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ImageIO.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS8.4.sdk/System/Library/Frameworks/ImageIO.framework; sourceTree = DEVELOPER_DIR; };
+		87C208BD1B7A3E7E00638BDD /* GameController.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = GameController.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS8.4.sdk/System/Library/Frameworks/GameController.framework; sourceTree = DEVELOPER_DIR; };
+        87C4CC301B75010700CE6D3C /* iCadeReaderView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = iCadeReaderView.h; sourceTree = "<group>"; };
 		87C4CC311B75010700CE6D3C /* iCadeReaderView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = iCadeReaderView.m; sourceTree = "<group>"; };
 		87C4CC321B75010700CE6D3C /* iCadeState.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = iCadeState.h; sourceTree = "<group>"; };
+		87EBC5A91B7C573300018B42 /* CoverViewCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CoverViewCell.h; path = ../Source/ui_ios/CoverViewCell.h; sourceTree = "<group>"; };
+		87EBC5AA1B7C573300018B42 /* CoverViewCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = CoverViewCell.m; path = ../Source/ui_ios/CoverViewCell.m; sourceTree = "<group>"; };
 		87EC5F391B7AF6EA00F1B515 /* PH_iOS.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = PH_iOS.cpp; path = ../Source/ui_ios/PH_iOS.cpp; sourceTree = "<group>"; };
 		87EC5F3A1B7AF6EA00F1B515 /* PH_iOS.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PH_iOS.h; path = ../Source/ui_ios/PH_iOS.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -533,6 +551,10 @@
 				70AD23731B38F98E00137AA0 /* OpenGLES.framework in Frameworks */,
 				70834CE81B1BE1C500E8D5C6 /* libbz2.dylib in Frameworks */,
 				70834CE61B1BE1AE00E8D5C6 /* UIKit.framework in Frameworks */,
+				874ECDE71B7E749A000075B6 /* ImageIO.framework in Frameworks */,
+				874ECDAA1B7DB862000075B6 /* libsqlite3.dylib in Frameworks */,
+				87C208BE1B7A3E7E00638BDD /* GameController.framework in Frameworks */,
+				874ECDE51B7E7250000075B6 /* SDWebImage.framework in Frameworks */,
 				70834CE11B1BD7EE00E8D5C6 /* libz.dylib in Frameworks */,
 				70834CDE1B1BD7DE00E8D5C6 /* libCodeGen.a in Frameworks */,
 				70834CDF1B1BD7DE00E8D5C6 /* libFramework.a in Frameworks */,
@@ -563,6 +585,7 @@
 		70834AB01B1BC70300E8D5C6 /* Source Files */ = {
 			isa = PBXGroup;
 			children = (
+				874ECDA01B7D980C000075B6 /* Resources */,
 				87C4CC2F1B75010700CE6D3C /* iCade-iOS */,
 				70834AFC1B1BCD1200E8D5C6 /* Play Core */,
 				70834AFB1B1BCCFF00E8D5C6 /* ui_ios */,
@@ -579,6 +602,8 @@
 				70834AE41B1BCB0100E8D5C6 /* AppDelegate.mm */,
 				70834AE71B1BCB0100E8D5C6 /* EmulatorViewController.h */,
 				70834AE81B1BCB0100E8D5C6 /* EmulatorViewController.mm */,
+				87EBC5A91B7C573300018B42 /* CoverViewCell.h */,
+				87EBC5AA1B7C573300018B42 /* CoverViewCell.m */,
 				70AD23681B38A39000137AA0 /* GlEsView.h */,
 				70AD23651B38A2FE00137AA0 /* GlEsView.mm */,
 				704E1C4C1B3BA0B200C0ACE3 /* GSH_OpenGLiOS.cpp */,
@@ -593,6 +618,8 @@
 				70287BE51B5F3A2400B53235 /* MainViewController.h */,
 				70287BE31B5F3A0300B53235 /* MainViewController.mm */,
 				70834CE21B1BD93100E8D5C6 /* Purei_Prefix.pch */,
+				874ECDA51B7DB0F6000075B6 /* SqliteDatabase.m */,
+				874ECDA71B7DB1C1000075B6 /* SqliteDatabase.h */,
 			);
 			name = ui_ios;
 			sourceTree = "<group>";
@@ -699,6 +726,9 @@
 		70834B811B1BD2CF00E8D5C6 /* Dependencies */ = {
 			isa = PBXGroup;
 			children = (
+				874ECDA91B7DB862000075B6 /* libsqlite3.dylib */,
+				874ECDE61B7E749A000075B6 /* ImageIO.framework */,
+				874ECDE41B7E7250000075B6 /* SDWebImage.framework */,
 				70834B881B1BD2F500E8D5C6 /* CodeGen.xcodeproj */,
 				705342D81B78122400477EC4 /* CoreGraphics.framework */,
 				70834B821B1BD2E100E8D5C6 /* Framework.xcodeproj */,
@@ -707,6 +737,7 @@
 				70AD23721B38F98E00137AA0 /* OpenGLES.framework */,
 				70AD23741B38F9B200137AA0 /* QuartzCore.framework */,
 				70834CE51B1BE1AE00E8D5C6 /* UIKit.framework */,
+				87C208BD1B7A3E7E00638BDD /* GameController.framework */,
 			);
 			name = Dependencies;
 			sourceTree = "<group>";
@@ -966,6 +997,16 @@
 			name = saves;
 			sourceTree = "<group>";
 		};
+		874ECDA01B7D980C000075B6 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				874ECDA81B7DB3DF000075B6 /* games.db */,
+				874ECDA21B7D980C000075B6 /* boxart.png */,
+			);
+			name = Resources;
+			path = "Play!/Resources";
+			sourceTree = "<group>";
+		};
 		87C4CC2F1B75010700CE6D3C /* iCade-iOS */ = {
 			isa = PBXGroup;
 			children = (
@@ -1069,6 +1110,8 @@
 				70834AF41B1BCB9E00E8D5C6 /* Main.storyboard in Resources */,
 				70834B991B1BD3AC00E8D5C6 /* ExternalDependencies.xcconfig in Resources */,
 				70834AF31B1BCB9E00E8D5C6 /* LaunchScreen.xib in Resources */,
+				874ECDA41B7D980C000075B6 /* boxart.png in Resources */,
+				874ECDAC1B7DB9EB000075B6 /* games.db in Resources */,
 				70834AEA1B1BCB0100E8D5C6 /* Info.plist in Resources */,
 				70834B9C1B1BD3AC00E8D5C6 /* GeneralSettingsRelease.xcconfig in Resources */,
 			);
@@ -1085,6 +1128,7 @@
 				70AD238B1B38FFBA00137AA0 /* SaveExporter.cpp in Sources */,
 				70834B5B1B1BD2C300E8D5C6 /* COP_FPU.cpp in Sources */,
 				70834BDF1B1BD6A300E8D5C6 /* Dmac_Channel.cpp in Sources */,
+				87EBC5AB1B7C573300018B42 /* CoverViewCell.m in Sources */,
 				70834B5A1B1BD2C300E8D5C6 /* COP_FPU_Reflection.cpp in Sources */,
 				70834BEE1B1BD6A300E8D5C6 /* MA_EE_Reflection.cpp in Sources */,
 				70834BFC1B1BD6A300E8D5C6 /* VuBasicBlock.cpp in Sources */,
@@ -1132,6 +1176,7 @@
 				70834B571B1BD2C300E8D5C6 /* AppConfig.cpp in Sources */,
 				70834C851B1BD70700E8D5C6 /* Iop_Stdio.cpp in Sources */,
 				70834AEB1B1BCB0100E8D5C6 /* main.mm in Sources */,
+				874ECDA61B7DB0F6000075B6 /* SqliteDatabase.m in Sources */,
 				70834BE71B1BD6A300E8D5C6 /* IPU_DmVectorTable.cpp in Sources */,
 				70834B701B1BD2C300E8D5C6 /* MipsExecutor.cpp in Sources */,
 				70834BF81B1BD6A300E8D5C6 /* Vif.cpp in Sources */,
@@ -1342,8 +1387,19 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/Play!",
+				);
+				HEADER_SEARCH_PATHS = (
+					"$(BOOST_FRAMEWORK_PATH)",
+					"$(CODEGEN_PATH)/include",
+					"$(FRAMEWORK_PATH)/include",
+					../include,
+				);
 				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				OTHER_LDFLAGS = "-ObjC";
 			};
 			name = Debug;
 		};
@@ -1353,8 +1409,19 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/Play!",
+				);
+				HEADER_SEARCH_PATHS = (
+					"$(BOOST_FRAMEWORK_PATH)",
+					"$(CODEGEN_PATH)/include",
+					"$(FRAMEWORK_PATH)/include",
+					../include,
+				);
 				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				OTHER_LDFLAGS = "-ObjC";
 			};
 			name = Release;
 		};
