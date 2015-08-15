@@ -58,7 +58,6 @@ public class GameInfoStruct {
         } else {
             return false;
         }
-
     }
 
     public void setTitleName(String title, Context mContext){
@@ -129,6 +128,14 @@ public class GameInfoStruct {
             return "No info";
         } else {
             return m_Overview;
+        }
+    }
+
+    public boolean isDescriptionEmptyNull(){
+        if (m_Overview == null || m_Overview.isEmpty()){
+            return true;
+        } else {
+            return false;
         }
     }
 
