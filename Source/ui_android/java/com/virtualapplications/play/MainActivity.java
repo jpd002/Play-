@@ -642,7 +642,8 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
 		private final int layoutid;
 		private final int padding;
 		private List<File> games;
-		
+		private int original_bottom_pad;
+
 		public GamesAdapter(Context context, int ResourceId, List<File> images, int padding) {
 			super(context, ResourceId, images);
 			this.games = images;
@@ -674,12 +675,21 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
 			if (game != null) {
 				createListItem(game, v);
 			}
+			if (original_bottom_pad == 0){
+				original_bottom_pad = v.getPaddingBottom();
+			}
 			if (position == games.size() - 1){
 				v.setPadding(
 						v.getPaddingLeft(),
 						v.getPaddingTop(),
 						v.getPaddingRight(),
-						v.getPaddingBottom() + padding);
+						original_bottom_pad + padding);
+			} else {
+				v.setPadding(
+						v.getPaddingLeft(),
+						v.getPaddingTop(),
+						v.getPaddingRight(),
+						original_bottom_pad);
 			}
 			return v;
 		}
