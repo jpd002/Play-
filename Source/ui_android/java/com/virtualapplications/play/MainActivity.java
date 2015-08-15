@@ -479,9 +479,9 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
 				childview.findViewById(R.id.childview).setOnLongClickListener(null);
 				// passing game, as to pass and use (if) any user defined values
 				final GameInfoStruct gameStats = gameInfo.getGameInfo(game.getFile(), childview, game);
-				games.set(pos, gameStats);
 
 				if (gameStats != null) {
+					games.set(pos, gameStats);
 					childview.findViewById(R.id.childview).setOnLongClickListener(
 							gameInfo.configureLongClick(gameStats.getTitleName(), gameStats.getDescription(), game));
 
