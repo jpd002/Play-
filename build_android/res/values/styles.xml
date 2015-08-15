@@ -2,8 +2,6 @@
 
     <!-- Base application theme. -->
     <style name="Purple" parent="Theme.AppCompat.NoActionBar">
-        <item name="android:windowTranslucentStatus">true</item>
-        <item name="android:windowTranslucentNavigation">true</item>
         <!-- Customize your theme here. -->
         <!-- colorPrimary is used for the default action bar background -->
         <item name="colorPrimary">@color/action_bar_purple</item>
@@ -15,8 +13,6 @@
     </style>
 
     <style name="Pink" parent="Theme.AppCompat.NoActionBar">
-        <item name="android:windowTranslucentStatus">true</item>
-        <item name="android:windowTranslucentNavigation">true</item>
         <!-- Customize your theme here. -->
         <!-- colorPrimary is used for the default action bar background -->
         <item name="colorPrimary">@color/action_bar_Pink</item>
@@ -28,8 +24,6 @@
     </style>
 
     <style name="Yellow" parent="Theme.AppCompat.NoActionBar">
-        <item name="android:windowTranslucentStatus">true</item>
-        <item name="android:windowTranslucentNavigation">true</item>
         <!-- Customize your theme here. -->
         <!-- colorPrimary is used for the default action bar background -->
         <item name="colorPrimary">@color/action_bar_Yellow</item>
@@ -41,8 +35,6 @@
 
 
     <style name="Blue" parent="Theme.AppCompat.NoActionBar">
-        <item name="android:windowTranslucentStatus">true</item>
-        <item name="android:windowTranslucentNavigation">true</item>
         <!-- Customize your theme here. -->
         <!-- colorPrimary is used for the default action bar background -->
         <item name="colorPrimary">@color/action_bar_Blue</item>
@@ -54,8 +46,6 @@
 
 
     <style name="Teal" parent="Theme.AppCompat.NoActionBar">
-        <item name="android:windowTranslucentStatus">true</item>
-        <item name="android:windowTranslucentNavigation">true</item>
         <!-- Customize your theme here. -->
         <!-- colorPrimary is used for the default action bar background -->
         <item name="colorPrimary">@color/action_bar_Teal</item>
@@ -66,8 +56,6 @@
     </style>
 	
 	<style name="Dark_Purple" parent="Theme.AppCompat.NoActionBar">
-        <item name="android:windowTranslucentStatus">true</item>
-        <item name="android:windowTranslucentNavigation">true</item>
         <!-- Customize your theme here. -->
         <!-- colorPrimary is used for the default action bar background -->
         <item name="colorPrimary">@color/action_bar_Dark_Purple</item>

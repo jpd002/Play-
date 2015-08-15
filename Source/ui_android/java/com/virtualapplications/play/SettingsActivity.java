@@ -22,29 +22,14 @@ public class SettingsActivity extends PreferenceActivity
 	@Override
 	public void onBuildHeaders(List<Header> target)
 	{
-
 		loadHeadersFromResource(R.xml.settings_headers, target);
 	}
 
 	@Override
 	protected void onPostCreate(Bundle savedInstanceState) {
 		super.onPostCreate(savedInstanceState);
-		LinearLayout root =  (LinearLayout)findViewById(android.R.id.list).getParent().getParent().getParent();
+		LinearLayout root = (LinearLayout)findViewById(android.R.id.list).getParent().getParent().getParent();
 		Toolbar bar = (Toolbar)LayoutInflater.from(this).inflate(R.layout.settings_toolbar, null, false);
-		Point p = MainActivity.getNavigationBarSize(this);
-		if (p != null){
-			/*
-			This will take account of nav bar to right
-			Not sure if there is a way to detect left thus always pad right for now
-			*/
-			if (p.x != 0){
-				root.setPadding(
-						root.getPaddingLeft(), 
-						root.getPaddingTop(), 
-						root.getPaddingRight() + p.x, 
-						root.getPaddingBottom());
-			}
-		}
 		bar.setNavigationOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
