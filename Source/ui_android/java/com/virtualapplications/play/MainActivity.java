@@ -424,7 +424,7 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
 			GameIndexer GI = new GameIndexer(mActivity);
 			GI.startupindexingscan();
 
-			return GI.getindexGameInfoStruct();
+			return GI.getindexGameInfoStruct(sortMethod == SORT_HOMEBREW);
 		}
 		
 		@Override
