@@ -73,37 +73,10 @@ static NSString * const reuseIdentifier = @"coverCell";
     [self.collectionView registerClass:[UICollectionViewCell class] forCellWithReuseIdentifier:reuseIdentifier];
     
     self.database = [[SqliteDatabase alloc] init];
-    
-    NSString* path = [@"~" stringByExpandingTildeInPath];
-    NSFileManager* localFileManager = [[NSFileManager alloc] init];
-    
-    NSDirectoryEnumerator* dirEnum = [localFileManager enumeratorAtPath: path];
-    
-    NSMutableArray* images = [[NSMutableArray alloc] init];
-    
-    NSString* file = nil;
-    while(file = [dirEnum nextObject])
+    if (self.coverView.diskImages == nil)
     {
-        std::string diskId;
-        if(
-           IosUtils::IsLoadableExecutableFileName(file) ||
-           (IosUtils::IsLoadableDiskImageFileName(file) &&
-            DiskUtils::TryGetDiskId([[NSString stringWithFormat:@"%@/%@", path, file] UTF8String], &diskId))
-           )
-        {
-            NSMutableDictionary *disk = [[NSMutableDictionary alloc] init];
-            [disk setValue:[NSString stringWithUTF8String:diskId.c_str()] forKey:@"serial"];
-            [disk setValue:file forKey:@"file"];
-            [images addObject: disk];
-            NSLog(@"%@: %s", file, diskId.c_str());
-        }
+        self.coverView.diskImages = [self.coverView buildCollection];
     }
-    
-    self.images = [images sortedArrayUsingComparator:^NSComparisonResult(id a, id b) {
-        NSString *first = [[a objectForKey:@"file"] lastPathComponent];
-        NSString *second = [[b objectForKey:@"file"] lastPathComponent];
-        return [first caseInsensitiveCompare:second];
-    }];
     
     [self.collectionView reloadData];
 }
@@ -129,15 +102,19 @@ static NSString * const reuseIdentifier = @"coverCell";
     return 1;
 }
 
+- (NSString*)collectionView:(UICollectionView *)collectionView titleForHeaderInSection: (NSInteger)section
+{
+    return @"";
+}
 
 - (NSInteger)collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section {
-    return self.images.count;
+    return self.coverView.diskImages.count;
 }
 
 - (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath {
     UICollectionViewCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:reuseIdentifier forIndexPath:indexPath];
     
-    NSDictionary *disk = [self.images objectAtIndex: indexPath.row];
+    NSDictionary *disk = [self.coverView.diskImages objectAtIndex: indexPath.row];
     NSString* diskId = [disk objectForKey:@"serial"];
     
     NSDictionary *game = [self.database getDiskInfo:diskId];
@@ -173,7 +150,7 @@ static NSString * const reuseIdentifier = @"coverCell";
 {
     if ([segue.identifier isEqualToString:@"showEmulator"]) {
         NSIndexPath* indexPath = [[self.collectionView indexPathsForSelectedItems] objectAtIndex:0];
-        NSString* filePath = [[self.images objectAtIndex: indexPath.row] objectForKey:@"file"];
+        NSString* filePath = [[self.coverView.diskImages objectAtIndex: indexPath.row] objectForKey:@"file"];
         NSString* homeDirPath = [@"~" stringByExpandingTildeInPath];
         NSString* absolutePath = [homeDirPath stringByAppendingPathComponent: filePath];
         EmulatorViewController* emulatorViewController = segue.destinationViewController;

@@ -12,11 +12,12 @@
                     <collectionView key="view" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" dataMode="prototypes" id="NSw-mS-htR">
                         <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                        <collectionViewFlowLayout key="collectionViewLayout" minimumLineSpacing="5" minimumInteritemSpacing="5" id="KVN-ya-NZC">
+                        <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="calibratedRGB"/>
+                        <collectionViewFlowLayout key="collectionViewLayout" minimumLineSpacing="10" minimumInteritemSpacing="10" id="KVN-ya-NZC">
                             <size key="itemSize" width="144" height="204"/>
                             <size key="headerReferenceSize" width="0.0" height="0.0"/>
                             <size key="footerReferenceSize" width="0.0" height="0.0"/>
-                            <inset key="sectionInset" minX="5" minY="5" maxX="5" maxY="5"/>
+                            <inset key="sectionInset" minX="10" minY="10" maxX="10" maxY="10"/>
                         </collectionViewFlowLayout>
                         <cells>
                             <collectionViewCell opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" reuseIdentifier="coverCell" id="0I6-tW-IKA">
@@ -74,7 +75,7 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                         <prototypes>
-                            <tableViewCell contentMode="scaleToFill" selectionStyle="default" indentationWidth="10" reuseIdentifier="detailedCell" rowHeight="160" id="y39-Wr-aHd" customClass="CoverViewCell">
+                            <tableViewCell contentMode="scaleToFill" selectionStyle="default" indentationWidth="10" reuseIdentifier="detailCell" rowHeight="160" id="y39-Wr-aHd" customClass="CoverViewCell">
                                 <autoresizingMask key="autoresizingMask"/>
                                 <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="y39-Wr-aHd" id="m5s-UO-vw1">
                                     <autoresizingMask key="autoresizingMask"/>
@@ -164,7 +165,7 @@
         <!--Navigation Controller-->
         <scene sceneID="gLP-K1-Ezx">
             <objects>
-                <navigationController automaticallyAdjustsScrollViewInsets="NO" id="VnE-Sh-vgR" sceneMemberID="viewController">
+                <navigationController automaticallyAdjustsScrollViewInsets="NO" navigationBarHidden="YES" id="VnE-Sh-vgR" sceneMemberID="viewController">
                     <toolbarItems/>
                     <navigationBar key="navigationBar" contentMode="scaleToFill" id="VLy-tx-N4x">
                         <rect key="frame" x="0.0" y="0.0" width="320" height="44"/>
@@ -184,7 +185,7 @@
         <image name="boxart.png" width="245" height="368"/>
     </resources>
     <inferredMetricsTieBreakers>
-        <segue reference="pJM-6k-34E"/>
         <segue reference="V0J-jV-tPz"/>
+        <segue reference="x0p-rE-WNc"/>
     </inferredMetricsTieBreakers>
 </document>

@@ -6,7 +6,6 @@
 @interface MainViewController : UITableViewController
 
 @property SqliteDatabase* database;
-@property NSArray* images;
 @property ViewOrientation *mainView;
 
 @end

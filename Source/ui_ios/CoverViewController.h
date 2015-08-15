@@ -14,7 +14,6 @@
 @interface CoverViewController : UICollectionViewController
 
 @property SqliteDatabase* database;
-@property NSArray* images;
 @property ViewOrientation *coverView;
 
 @end

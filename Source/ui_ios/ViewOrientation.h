@@ -8,13 +8,16 @@
 
 #import <Foundation/Foundation.h>
 
-@interface ViewOrientation : NSObject {
-    
+@interface ViewOrientation : NSObject
+{
     BOOL isShowingLandscapeView;
+    NSArray* diskImages;
 }
 
 @property (nonatomic) BOOL isShowingLandscapeView;
+@property NSArray* diskImages;
 
-+ (ViewOrientation*)getInstance;
++ (ViewOrientation*) getInstance;
+- (NSArray*) buildCollection;
 
 @end
