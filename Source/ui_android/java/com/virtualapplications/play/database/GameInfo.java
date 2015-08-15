@@ -285,7 +285,7 @@ public class GameInfo {
 				gameInfoStruct.setTitleName(title, mContext);
 			}
 
-			if (gameInfoStruct.getDescription() == null || gameInfoStruct.getDescription().isEmpty()){
+			if (gameInfoStruct.isDescriptionEmptyNull()){
 				gameInfoStruct.setDescription(overview, mContext);
 			}
 			if (gameInfoStruct.getFrontLink() == null || gameInfoStruct.getFrontLink().isEmpty()){

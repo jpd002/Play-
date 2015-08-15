@@ -462,8 +462,7 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
 		} else {
 			((TextView) childview.findViewById(R.id.game_text)).setText(game.getTitleName());
 			//If user has set values, then read them, if not read from database
-			if (game.getDescription() != null && game.getFrontLink() != null &&
-					!game.getDescription().equals("") && !game.getFrontLink().equals("")) {
+			if (!game.isDescriptionEmptyNull() && game.getFrontLink() != null && !game.getFrontLink().equals("")) {
 				childview.findViewById(R.id.childview).setOnLongClickListener(
 						gameInfo.configureLongClick(game.getTitleName(), game.getDescription(), game));
 
