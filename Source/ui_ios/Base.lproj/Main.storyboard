@@ -2,6 +2,7 @@
 <document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="7706" systemVersion="14E46" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" initialViewController="VnE-Sh-vgR">
     <dependencies>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="7703"/>
+        <capability name="Constraints to layout margins" minToolsVersion="6.0"/>
     </dependencies>
     <scenes>
         <!--Emulator View Controller-->
@@ -36,8 +37,8 @@
                                 <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="y39-Wr-aHd" id="m5s-UO-vw1">
                                     <autoresizingMask key="autoresizingMask"/>
                                     <subviews>
-                                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="" textAlignment="center" lineBreakMode="wordWrap" numberOfLines="2" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="a0k-NV-7Pc">
-                                            <rect key="frame" x="117" y="8" width="195" height="42"/>
+                                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" ambiguous="YES" misplaced="YES" text="" textAlignment="center" lineBreakMode="wordWrap" numberOfLines="2" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="a0k-NV-7Pc">
+                                            <rect key="frame" x="117" y="8" width="475" height="42"/>
                                             <accessibility key="accessibilityConfiguration">
                                                 <accessibilityTraits key="traits" none="YES" staticText="YES" notEnabled="YES"/>
                                             </accessibility>
@@ -45,14 +46,8 @@
                                             <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
                                             <nil key="highlightedColor"/>
                                         </label>
-                                        <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" image="boxart.png" translatesAutoresizingMaskIntoConstraints="NO" id="1ux-YC-Lvu">
-                                            <rect key="frame" x="8" y="7" width="101" height="144"/>
-                                            <accessibility key="accessibilityConfiguration">
-                                                <accessibilityTraits key="traits" none="YES" image="YES" notEnabled="YES"/>
-                                            </accessibility>
-                                        </imageView>
-                                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="" lineBreakMode="wordWrap" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="id4-1k-4QZ">
-                                            <rect key="frame" x="125" y="58" width="180" height="84"/>
+                                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" ambiguous="YES" misplaced="YES" text="" lineBreakMode="wordWrap" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="id4-1k-4QZ">
+                                            <rect key="frame" x="125" y="58" width="462" height="93"/>
                                             <accessibility key="accessibilityConfiguration">
                                                 <accessibilityTraits key="traits" none="YES" staticText="YES" notEnabled="YES"/>
                                             </accessibility>
@@ -60,7 +55,48 @@
                                             <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
                                             <nil key="highlightedColor"/>
                                         </label>
+                                        <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="boxart.png" translatesAutoresizingMaskIntoConstraints="NO" id="1ux-YC-Lvu">
+                                            <rect key="frame" x="8" y="7" width="101" height="144"/>
+                                            <accessibility key="accessibilityConfiguration">
+                                                <accessibilityTraits key="traits" none="YES" image="YES" notEnabled="YES"/>
+                                            </accessibility>
+                                        </imageView>
                                     </subviews>
+                                    <constraints>
+                                        <constraint firstAttribute="bottomMargin" secondItem="id4-1k-4QZ" secondAttribute="bottom" constant="9.5" id="5TH-4d-XGP"/>
+                                        <constraint firstAttribute="trailingMargin" secondItem="id4-1k-4QZ" secondAttribute="trailing" constant="7" id="99n-yP-HLZ"/>
+                                        <constraint firstItem="id4-1k-4QZ" firstAttribute="top" secondItem="a0k-NV-7Pc" secondAttribute="bottom" constant="8" id="BQN-Wj-LmT"/>
+                                        <constraint firstItem="id4-1k-4QZ" firstAttribute="top" secondItem="m5s-UO-vw1" secondAttribute="topMargin" constant="50" id="Le2-5f-IZI"/>
+                                        <constraint firstItem="a0k-NV-7Pc" firstAttribute="trailing" secondItem="m5s-UO-vw1" secondAttribute="trailingMargin" id="Lr5-d4-pZp"/>
+                                        <constraint firstAttribute="bottomMargin" secondItem="1ux-YC-Lvu" secondAttribute="bottom" constant="0.5" id="QMR-XV-qyL"/>
+                                        <constraint firstItem="1ux-YC-Lvu" firstAttribute="top" secondItem="m5s-UO-vw1" secondAttribute="topMargin" constant="-1" id="Tex-LC-NGC"/>
+                                        <constraint firstItem="a0k-NV-7Pc" firstAttribute="top" secondItem="m5s-UO-vw1" secondAttribute="topMargin" id="e35-58-cZs"/>
+                                        <constraint firstAttribute="bottomMargin" secondItem="a0k-NV-7Pc" secondAttribute="bottom" constant="101.5" id="fKG-Bg-bFV"/>
+                                        <constraint firstAttribute="trailingMargin" secondItem="1ux-YC-Lvu" secondAttribute="trailing" constant="483" id="frS-RA-xev"/>
+                                        <constraint firstItem="a0k-NV-7Pc" firstAttribute="leading" secondItem="m5s-UO-vw1" secondAttribute="leadingMargin" constant="109" id="gdU-wR-oqn"/>
+                                        <constraint firstItem="id4-1k-4QZ" firstAttribute="leading" secondItem="1ux-YC-Lvu" secondAttribute="trailing" constant="16" id="iLb-tG-LeV"/>
+                                        <constraint firstAttribute="bottomMargin" secondItem="1ux-YC-Lvu" secondAttribute="bottom" constant="0.5" id="kvn-vq-PaG"/>
+                                        <constraint firstAttribute="trailingMargin" secondItem="1ux-YC-Lvu" secondAttribute="trailing" constant="483" id="lck-v0-f8Y"/>
+                                        <constraint firstItem="id4-1k-4QZ" firstAttribute="leading" secondItem="m5s-UO-vw1" secondAttribute="leadingMargin" constant="117" id="ld7-Dh-JqV"/>
+                                        <constraint firstItem="1ux-YC-Lvu" firstAttribute="top" secondItem="m5s-UO-vw1" secondAttribute="topMargin" constant="-1" id="rTU-Gv-mPa"/>
+                                        <constraint firstItem="a0k-NV-7Pc" firstAttribute="leading" secondItem="1ux-YC-Lvu" secondAttribute="trailing" constant="8" id="uAX-7r-h5J"/>
+                                        <constraint firstItem="a0k-NV-7Pc" firstAttribute="leading" secondItem="1ux-YC-Lvu" secondAttribute="trailing" constant="8" id="vxw-ae-kAh"/>
+                                        <constraint firstItem="1ux-YC-Lvu" firstAttribute="leading" secondItem="m5s-UO-vw1" secondAttribute="leadingMargin" id="yJw-9v-jDY"/>
+                                        <constraint firstItem="id4-1k-4QZ" firstAttribute="leading" secondItem="1ux-YC-Lvu" secondAttribute="trailing" constant="16" id="yhC-Ml-gwp"/>
+                                        <constraint firstItem="id4-1k-4QZ" firstAttribute="top" secondItem="a0k-NV-7Pc" secondAttribute="bottom" constant="8" id="z8v-DX-UDH"/>
+                                    </constraints>
+                                    <variation key="default">
+                                        <mask key="constraints">
+                                            <exclude reference="Tex-LC-NGC"/>
+                                            <exclude reference="frS-RA-xev"/>
+                                            <exclude reference="kvn-vq-PaG"/>
+                                            <exclude reference="fKG-Bg-bFV"/>
+                                            <exclude reference="vxw-ae-kAh"/>
+                                            <exclude reference="Le2-5f-IZI"/>
+                                            <exclude reference="yhC-Ml-gwp"/>
+                                            <exclude reference="z8v-DX-UDH"/>
+                                        </mask>
+                                    </variation>
                                 </tableViewCellContentView>
                                 <connections>
                                     <outlet property="coverImage" destination="1ux-YC-Lvu" id="dht-1h-dSm"/>

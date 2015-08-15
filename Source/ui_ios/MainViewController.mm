@@ -87,18 +87,16 @@
     NSString* diskId = [disk objectForKey:@"serial"];
     
     NSDictionary *game = [self.database getDiskInfo:diskId];
-    if ([game objectForKey:@"title"] != NULL && ![[game objectForKey:@"title"] isEqual:@""]) {
-        cell.nameLabel.text = [game objectForKey:@"title"];
-    } else {
+    if ([[game objectForKey:@"title"] isEqual:@""]) {
         cell.nameLabel.text = [[disk objectForKey:@"file"] lastPathComponent];
+    } else {
+        cell.nameLabel.text = [game objectForKey:@"title"];
     }
-    if ([game objectForKey:@"boxart"] != NULL && ![[game objectForKey:@"boxart"] isEqual:@"404"]) {
+    if (![[game objectForKey:@"boxart"] isEqual:@"404"]) {
         NSString *imageIcon = [[NSString alloc] initWithFormat:@"http://thegamesdb.net/banners/%@", [game objectForKey:@"boxart"]];
         [cell.coverImage setImageWithURL:[NSURL URLWithString:imageIcon] placeholderImage:[UIImage imageNamed:@"boxart.png"]];
     }
-    if ([game objectForKey:@"overview"] != NULL && ![[game objectForKey:@"overview"] isEqual:@""]) {
-        cell.overviewLabel.text = [game objectForKey:@"overview"];
-    }
+    cell.overviewLabel.text = [game objectForKey:@"overview"];
     
 	return cell;
 }
