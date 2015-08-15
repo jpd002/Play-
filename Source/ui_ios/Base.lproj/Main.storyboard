@@ -5,6 +5,46 @@
         <capability name="Constraints to layout margins" minToolsVersion="6.0"/>
     </dependencies>
     <scenes>
+        <!--Cover View Controller-->
+        <scene sceneID="AHq-Cy-tKY">
+            <objects>
+                <collectionViewController id="1v5-6a-quN" customClass="CoverViewController" sceneMemberID="viewController">
+                    <collectionView key="view" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" dataMode="prototypes" id="NSw-mS-htR">
+                        <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <collectionViewFlowLayout key="collectionViewLayout" minimumLineSpacing="5" minimumInteritemSpacing="5" id="KVN-ya-NZC">
+                            <size key="itemSize" width="144" height="204"/>
+                            <size key="headerReferenceSize" width="0.0" height="0.0"/>
+                            <size key="footerReferenceSize" width="0.0" height="0.0"/>
+                            <inset key="sectionInset" minX="5" minY="5" maxX="5" maxY="5"/>
+                        </collectionViewFlowLayout>
+                        <cells>
+                            <collectionViewCell opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" reuseIdentifier="coverCell" id="0I6-tW-IKA">
+                                <rect key="frame" x="0.0" y="0.0" width="50" height="50"/>
+                                <autoresizingMask key="autoresizingMask"/>
+                                <view key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center">
+                                    <rect key="frame" x="0.0" y="0.0" width="144" height="204"/>
+                                    <autoresizingMask key="autoresizingMask"/>
+                                    <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
+                                </view>
+                                <size key="customSize" width="144" height="204"/>
+                            </collectionViewCell>
+                        </cells>
+                        <connections>
+                            <outlet property="dataSource" destination="1v5-6a-quN" id="Tal-qk-dkC"/>
+                            <outlet property="delegate" destination="1v5-6a-quN" id="7HN-Qm-fo9"/>
+                        </connections>
+                    </collectionView>
+                    <navigationItem key="navigationItem" id="lVy-AQ-u1u"/>
+                    <connections>
+                        <segue destination="BYZ-38-t0r" kind="presentation" identifier="showEmulator" id="9uc-on-gij"/>
+                        <segue destination="hhZ-rB-yPM" kind="presentation" identifier="DisplayMainView" id="Hgn-D6-gVT"/>
+                    </connections>
+                </collectionViewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="nEc-gK-fd8" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="833" y="-459"/>
+        </scene>
         <!--Emulator View Controller-->
         <scene sceneID="tne-QT-ifu">
             <objects>
@@ -32,7 +72,7 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                         <prototypes>
-                            <tableViewCell contentMode="scaleToFill" selectionStyle="default" indentationWidth="10" reuseIdentifier="coverCell" rowHeight="160" id="y39-Wr-aHd" customClass="CoverViewCell">
+                            <tableViewCell contentMode="scaleToFill" selectionStyle="default" indentationWidth="10" reuseIdentifier="detailedCell" rowHeight="160" id="y39-Wr-aHd" customClass="CoverViewCell">
                                 <autoresizingMask key="autoresizingMask"/>
                                 <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="y39-Wr-aHd" id="m5s-UO-vw1">
                                     <autoresizingMask key="autoresizingMask"/>
@@ -70,16 +110,15 @@
                                         <constraint firstItem="a0k-NV-7Pc" firstAttribute="trailing" secondItem="m5s-UO-vw1" secondAttribute="trailingMargin" id="Lr5-d4-pZp"/>
                                         <constraint firstAttribute="bottomMargin" secondItem="1ux-YC-Lvu" secondAttribute="bottom" constant="0.5" id="QMR-XV-qyL"/>
                                         <constraint firstItem="1ux-YC-Lvu" firstAttribute="top" secondItem="m5s-UO-vw1" secondAttribute="topMargin" constant="-1" id="Tex-LC-NGC"/>
+                                        <constraint firstItem="id4-1k-4QZ" firstAttribute="leading" secondItem="1ux-YC-Lvu" secondAttribute="trailing" constant="16" id="Uah-SS-hSv"/>
+                                        <constraint firstItem="a0k-NV-7Pc" firstAttribute="leading" secondItem="1ux-YC-Lvu" secondAttribute="trailing" constant="8" id="dOY-T2-Rjm"/>
                                         <constraint firstItem="a0k-NV-7Pc" firstAttribute="top" secondItem="m5s-UO-vw1" secondAttribute="topMargin" id="e35-58-cZs"/>
                                         <constraint firstAttribute="bottomMargin" secondItem="a0k-NV-7Pc" secondAttribute="bottom" constant="101.5" id="fKG-Bg-bFV"/>
                                         <constraint firstAttribute="trailingMargin" secondItem="1ux-YC-Lvu" secondAttribute="trailing" constant="483" id="frS-RA-xev"/>
-                                        <constraint firstItem="a0k-NV-7Pc" firstAttribute="leading" secondItem="m5s-UO-vw1" secondAttribute="leadingMargin" constant="109" id="gdU-wR-oqn"/>
-                                        <constraint firstItem="id4-1k-4QZ" firstAttribute="leading" secondItem="1ux-YC-Lvu" secondAttribute="trailing" constant="16" id="iLb-tG-LeV"/>
+                                        <constraint firstItem="a0k-NV-7Pc" firstAttribute="leading" secondItem="m5s-UO-vw1" secondAttribute="leadingMargin" constant="109" id="kYc-UD-bCc"/>
                                         <constraint firstAttribute="bottomMargin" secondItem="1ux-YC-Lvu" secondAttribute="bottom" constant="0.5" id="kvn-vq-PaG"/>
-                                        <constraint firstAttribute="trailingMargin" secondItem="1ux-YC-Lvu" secondAttribute="trailing" constant="483" id="lck-v0-f8Y"/>
-                                        <constraint firstItem="id4-1k-4QZ" firstAttribute="leading" secondItem="m5s-UO-vw1" secondAttribute="leadingMargin" constant="117" id="ld7-Dh-JqV"/>
                                         <constraint firstItem="1ux-YC-Lvu" firstAttribute="top" secondItem="m5s-UO-vw1" secondAttribute="topMargin" constant="-1" id="rTU-Gv-mPa"/>
-                                        <constraint firstItem="a0k-NV-7Pc" firstAttribute="leading" secondItem="1ux-YC-Lvu" secondAttribute="trailing" constant="8" id="uAX-7r-h5J"/>
+                                        <constraint firstItem="id4-1k-4QZ" firstAttribute="leading" secondItem="m5s-UO-vw1" secondAttribute="leadingMargin" constant="117" id="sTw-SS-IMX"/>
                                         <constraint firstItem="a0k-NV-7Pc" firstAttribute="leading" secondItem="1ux-YC-Lvu" secondAttribute="trailing" constant="8" id="vxw-ae-kAh"/>
                                         <constraint firstItem="1ux-YC-Lvu" firstAttribute="leading" secondItem="m5s-UO-vw1" secondAttribute="leadingMargin" id="yJw-9v-jDY"/>
                                         <constraint firstItem="id4-1k-4QZ" firstAttribute="leading" secondItem="1ux-YC-Lvu" secondAttribute="trailing" constant="16" id="yhC-Ml-gwp"/>
@@ -113,6 +152,7 @@
                     <navigationItem key="navigationItem" id="k1w-jX-WLg"/>
                     <connections>
                         <segue destination="BYZ-38-t0r" kind="presentation" identifier="showEmulator" id="x0p-rE-WNc"/>
+                        <segue destination="1v5-6a-quN" kind="presentation" identifier="DisplayCoverView" id="V0J-jV-tPz"/>
                     </connections>
                 </tableViewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="4iG-vT-Rrv" userLabel="First Responder" sceneMemberID="firstResponder"/>
@@ -130,7 +170,7 @@
                     </navigationBar>
                     <nil name="viewControllers"/>
                     <connections>
-                        <segue destination="hhZ-rB-yPM" kind="relationship" relationship="rootViewController" id="eeV-lz-AL0"/>
+                        <segue destination="1v5-6a-quN" kind="relationship" relationship="rootViewController" id="CM3-7o-AJW"/>
                     </connections>
                 </navigationController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="0kd-C1-sbT" userLabel="First Responder" sceneMemberID="firstResponder"/>
@@ -141,4 +181,8 @@
     <resources>
         <image name="boxart.png" width="245" height="368"/>
     </resources>
+    <inferredMetricsTieBreakers>
+        <segue reference="x0p-rE-WNc"/>
+        <segue reference="V0J-jV-tPz"/>
+    </inferredMetricsTieBreakers>
 </document>

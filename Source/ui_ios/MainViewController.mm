@@ -10,6 +10,39 @@
 
 @implementation MainViewController
 
+- (void)awakeFromNib
+{
+    self.mainView = [ViewOrientation getInstance];
+    self.mainView.isShowingLandscapeView = YES;
+    [[UIDevice currentDevice] beginGeneratingDeviceOrientationNotifications];
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(orientationChanged:)
+                                                 name:UIDeviceOrientationDidChangeNotification
+                                               object:nil];
+}
+
+- (void)orientationChanged:(NSNotification *)notification
+{
+    UIDeviceOrientation deviceOrientation = [UIDevice currentDevice].orientation;
+    if (UIDeviceOrientationIsPortrait(deviceOrientation) &&
+        self.mainView.isShowingLandscapeView)
+    {
+        [self performSegueWithIdentifier:@"DisplayCoverView" sender:self];
+        self.mainView.isShowingLandscapeView = YES;
+    }
+    else if (UIDeviceOrientationIsLandscape(deviceOrientation) &&
+             !self.mainView.isShowingLandscapeView)
+    {
+        [self dismissViewControllerAnimated:YES completion:nil];
+        self.mainView.isShowingLandscapeView = NO;
+    }
+    else if (UIDeviceOrientationIsLandscape(deviceOrientation) &&
+             self.mainView.isShowingLandscapeView)
+    {
+        [self.presentingViewController dismissViewControllerAnimated:YES completion:nil];
+    }
+}
+
 -(void)viewDidLoad
 {
     self.database = [[SqliteDatabase alloc] init];
@@ -80,7 +113,7 @@
 
 -(UITableViewCell*)tableView: (UITableView*)tableView cellForRowAtIndexPath: (NSIndexPath*)indexPath 
 {
-    static NSString *CellIdentifier = @"coverCell";
+    static NSString *CellIdentifier = @"detailedCell";
     
     CoverViewCell *cell = [tableView dequeueReusableCellWithIdentifier:CellIdentifier forIndexPath:indexPath];
     NSDictionary *disk = [self.images objectAtIndex: indexPath.row];

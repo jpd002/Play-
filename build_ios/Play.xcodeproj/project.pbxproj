@@ -177,6 +177,8 @@
 		874ECDE71B7E749A000075B6 /* ImageIO.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 874ECDE61B7E749A000075B6 /* ImageIO.framework */; };
 		87C208BE1B7A3E7E00638BDD /* GameController.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 87C208BD1B7A3E7E00638BDD /* GameController.framework */; };
 		87C4CC341B75010700CE6D3C /* iCadeReaderView.m in Sources */ = {isa = PBXBuildFile; fileRef = 87C4CC311B75010700CE6D3C /* iCadeReaderView.m */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
+		87DCDB331B7F03260054D67C /* CoverViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 87DCDB321B7F03260054D67C /* CoverViewController.m */; };
+		87DCDB381B7F13370054D67C /* ViewOrientation.m in Sources */ = {isa = PBXBuildFile; fileRef = 87DCDB371B7F13370054D67C /* ViewOrientation.m */; };
 		87EBC5AB1B7C573300018B42 /* CoverViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 87EBC5AA1B7C573300018B42 /* CoverViewCell.m */; };
 		87EC5F3B1B7AF6EA00F1B515 /* PH_iOS.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 87EC5F391B7AF6EA00F1B515 /* PH_iOS.cpp */; };
 /* End PBXBuildFile section */
@@ -535,6 +537,10 @@
         87C4CC301B75010700CE6D3C /* iCadeReaderView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = iCadeReaderView.h; sourceTree = "<group>"; };
 		87C4CC311B75010700CE6D3C /* iCadeReaderView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = iCadeReaderView.m; sourceTree = "<group>"; };
 		87C4CC321B75010700CE6D3C /* iCadeState.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = iCadeState.h; sourceTree = "<group>"; };
+		87DCDB311B7F03260054D67C /* CoverViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CoverViewController.h; path = ../Source/ui_ios/CoverViewController.h; sourceTree = "<group>"; };
+		87DCDB321B7F03260054D67C /* CoverViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = CoverViewController.m; path = ../Source/ui_ios/CoverViewController.m; sourceTree = "<group>"; };
+		87DCDB361B7F13370054D67C /* ViewOrientation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ViewOrientation.h; path = ../Source/ui_ios/ViewOrientation.h; sourceTree = "<group>"; };
+		87DCDB371B7F13370054D67C /* ViewOrientation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = ViewOrientation.m; path = ../Source/ui_ios/ViewOrientation.m; sourceTree = "<group>"; };
 		87EBC5A91B7C573300018B42 /* CoverViewCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CoverViewCell.h; path = ../Source/ui_ios/CoverViewCell.h; sourceTree = "<group>"; };
 		87EBC5AA1B7C573300018B42 /* CoverViewCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = CoverViewCell.m; path = ../Source/ui_ios/CoverViewCell.m; sourceTree = "<group>"; };
 		87EC5F391B7AF6EA00F1B515 /* PH_iOS.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = PH_iOS.cpp; path = ../Source/ui_ios/PH_iOS.cpp; sourceTree = "<group>"; };
@@ -615,11 +621,15 @@
 				70834AEF1B1BCB9E00E8D5C6 /* LaunchScreen.xib */,
 				70834AE61B1BCB0100E8D5C6 /* main.mm */,
 				70834AF11B1BCB9E00E8D5C6 /* Main.storyboard */,
+				87DCDB311B7F03260054D67C /* CoverViewController.h */,
+				87DCDB321B7F03260054D67C /* CoverViewController.m */,
 				70287BE51B5F3A2400B53235 /* MainViewController.h */,
 				70287BE31B5F3A0300B53235 /* MainViewController.mm */,
 				70834CE21B1BD93100E8D5C6 /* Purei_Prefix.pch */,
 				874ECDA51B7DB0F6000075B6 /* SqliteDatabase.m */,
 				874ECDA71B7DB1C1000075B6 /* SqliteDatabase.h */,
+				87DCDB361B7F13370054D67C /* ViewOrientation.h */,
+				87DCDB371B7F13370054D67C /* ViewOrientation.m */,
 			);
 			name = ui_ios;
 			sourceTree = "<group>";
@@ -1132,6 +1142,7 @@
 				70834B5A1B1BD2C300E8D5C6 /* COP_FPU_Reflection.cpp in Sources */,
 				70834BEE1B1BD6A300E8D5C6 /* MA_EE_Reflection.cpp in Sources */,
 				70834BFC1B1BD6A300E8D5C6 /* VuBasicBlock.cpp in Sources */,
+				87DCDB331B7F03260054D67C /* CoverViewController.m in Sources */,
 				70834C701B1BD70700E8D5C6 /* Iop_FileIoHandler2100.cpp in Sources */,
 				70834B5D1B1BD2C300E8D5C6 /* COP_SCU.cpp in Sources */,
 				70834BFF1B1BD6A300E8D5C6 /* VUShared.cpp in Sources */,
@@ -1198,6 +1209,7 @@
 				70287BE41B5F3A0300B53235 /* MainViewController.mm in Sources */,
 				70834BFB1B1BD6A300E8D5C6 /* VuAnalysis.cpp in Sources */,
 				70834BF71B1BD6A300E8D5C6 /* Timer.cpp in Sources */,
+				87DCDB381B7F13370054D67C /* ViewOrientation.m in Sources */,
 				70834B661B1BD2C300E8D5C6 /* MA_MIPSIV.cpp in Sources */,
 				87EC5F3B1B7AF6EA00F1B515 /* PH_iOS.cpp in Sources */,
 				70834C881B1BD70700E8D5C6 /* Iop_Sysmem.cpp in Sources */,
