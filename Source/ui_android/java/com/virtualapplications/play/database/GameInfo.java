@@ -224,7 +224,7 @@ public class GameInfo {
 		}
 	}
 	
-	public OnLongClickListener configureLongClick(final String title, final String overview, final File gameFile) {
+	public OnLongClickListener configureLongClick(final String title, final String overview, final GameInfoStruct gameFile) {
 		return new OnLongClickListener() {
 			public boolean onLongClick(View view) {
 				final AlertDialog.Builder builder = new AlertDialog.Builder(mContext);

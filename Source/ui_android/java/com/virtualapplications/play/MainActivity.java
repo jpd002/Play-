@@ -465,7 +465,7 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
 			if (game.getDescription() != null && game.getFrontLink() != null &&
 					!game.getDescription().equals("") && !game.getFrontLink().equals("")) {
 				childview.findViewById(R.id.childview).setOnLongClickListener(
-						gameInfo.configureLongClick(game.getTitleName(), game.getDescription(), game.getFile()));
+						gameInfo.configureLongClick(game.getTitleName(), game.getDescription(), game));
 
 				if (!game.getFrontLink().equals("404")) {
 					gameInfo.getImage(game.getGameID(), childview, game.getFrontLink());
@@ -483,7 +483,7 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
 
 				if (gameStats != null) {
 					childview.findViewById(R.id.childview).setOnLongClickListener(
-							gameInfo.configureLongClick(gameStats.getTitleName(), gameStats.getDescription(), game.getFile()));
+							gameInfo.configureLongClick(gameStats.getTitleName(), gameStats.getDescription(), game));
 
 					if (gameStats.getFrontLink() != null && !gameStats.getFrontLink().equals("404")) {
 						gameInfo.getImage(gameStats.getGameID(), childview, gameStats.getFrontLink());
@@ -501,7 +501,7 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
 
 			childview.findViewById(R.id.childview).setOnClickListener(new OnClickListener() {
 				public void onClick(View view) {
-					launchDisk(game.getFile(), false);
+					launchGame(game);
 					return;
 				}
 			});
@@ -579,22 +579,20 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
 		}
 	}
 	
-	public static void launchGame(File game) {
-		((MainActivity) mActivity).launchDisk(game, false);
+	public static void launchGame(GameInfoStruct game) {
+		game.setlastplayed(mActivity);
+		((MainActivity) mActivity).launchDisk(game.getFile(), false);
 	}
-
-	private void launchDisk (File game, boolean terminate) {
+	
+	private void launchDisk(File game, boolean terminate) {
 		try
 		{
 			if(IsLoadableExecutableFileName(game.getPath()))
 			{
-				//TODO:Update IndexDB instead
-				game.setLastModified(System.currentTimeMillis());
 				NativeInterop.loadElf(game.getPath());
 			}
 			else
-			{	//TODO:Update IndexDB instead
-				game.setLastModified(System.currentTimeMillis());
+			{
 				NativeInterop.bootDiskImage(game.getPath());
 			}
 			setCurrentDirectory(game.getPath().substring(0, game.getPath().lastIndexOf(File.separator)));
