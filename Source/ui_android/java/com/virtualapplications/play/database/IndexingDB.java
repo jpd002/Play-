@@ -133,11 +133,15 @@ public class IndexingDB extends SQLiteOpenHelper {
         return IndexList;
     }
 
-    public List<GameInfoStruct> getAllIndexGameInfoStruct() {
+    public List<GameInfoStruct> getAllIndexGameInfoStruct(boolean homebrew) {
         SQLiteDatabase db = this.getReadableDatabase();
         List<GameInfoStruct> IndexList = new ArrayList<>();
-        Cursor cursor = db.query(TABLE_NAME, null, null,
-                null, null, null, null, null);
+        Cursor cursor;
+        if (!homebrew){
+            cursor = db.query(TABLE_NAME, null, null, null, null, null, null, null);
+        } else {
+            cursor = db.query(TABLE_NAME, null, KEY_DISKNAME + " LIKE ? COLLATE NOCASE", new String[]{"%.elf"}, null, null, null, null);
+        }
         if (cursor != null)
             if (cursor.moveToFirst()) {
                 do {
@@ -202,5 +206,4 @@ public class IndexingDB extends SQLiteOpenHelper {
         cursor.close();
         return paths;
     }
-
 }

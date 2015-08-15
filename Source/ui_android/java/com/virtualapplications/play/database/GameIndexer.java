@@ -158,13 +158,13 @@ public class GameIndexer {
         return db.getAllIndexList();
     }
 
-    public List<GameInfoStruct> getindexGameInfoStruct() {
+    public List<GameInfoStruct> getindexGameInfoStruct(boolean homebrew) {
         if (db == null){
             if ((db = new IndexingDB(mContext)) == null){
                 Log.e("PLAY!", "Failed To Initiate IndexDB");
             }
         }
-        return db.getAllIndexGameInfoStruct();
+        return db.getAllIndexGameInfoStruct(homebrew);
     }
 
     private List<String> getpath() {
