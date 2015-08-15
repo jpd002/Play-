@@ -499,7 +499,7 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
 		
 		protected void onPreExecute() {
 			progDialog = ProgressDialog.show(MainActivity.this,
-				getString(R.string.search_games),
+				getString(isConfigured ? R.string.updating_db : R.string.search_games),
 				getString(R.string.search_games_msg), true);
 		}
 		

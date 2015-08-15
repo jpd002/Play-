@@ -19,8 +19,8 @@
 		<item>elf</item>
 	</string-array>
 	
-	<string name="search_games">Locating games...</string>
-	<string name="search_games_msg">Please wait...</string>
+    <string name="search_games">Building collection&#8230;</string>
+    <string name="updating_db">Updating collection&#8230;</string>
 	
 	<string name="menu_title_open">Menu</string>
 	<string name="menu_title_shut">Games</string>
