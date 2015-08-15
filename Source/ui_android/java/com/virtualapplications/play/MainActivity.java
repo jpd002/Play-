@@ -525,7 +525,7 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
 			} else {
 				ImageView preview = (ImageView) childview.findViewById(R.id.game_icon);
 				preview.setImageResource(R.drawable.boxart);
-				preview.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
+				preview.setScaleType(ImageView.ScaleType.FIT_XY);
 				((TextView) childview.findViewById(R.id.game_text)).setVisibility(View.VISIBLE);
 			}
 			
