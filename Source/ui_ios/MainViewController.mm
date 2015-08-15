@@ -43,6 +43,14 @@
     }
 }
 
+- (BOOL)shouldAutorotate {
+    if ([self isViewLoaded] && self.view.window) {
+        return YES;
+    } else {
+        return NO;
+    }
+}
+
 -(void)viewDidLoad
 {
     self.database = [[SqliteDatabase alloc] init];
@@ -83,15 +91,17 @@
 
 -(void)prepareForSegue: (UIStoryboardSegue*)segue sender: (id)sender
 {
-	NSIndexPath* indexPath = self.tableView.indexPathForSelectedRow;
-    NSString* filePath = [[self.images objectAtIndex: indexPath.row] objectForKey:@"file"];
-	NSString* homeDirPath = [@"~" stringByExpandingTildeInPath];
-	NSString* absolutePath = [homeDirPath stringByAppendingPathComponent: filePath];
-	EmulatorViewController* emulatorViewController = segue.destinationViewController;
-	emulatorViewController.imagePath = absolutePath;
+    if ([segue.identifier isEqualToString:@"showEmulator"]) {
+        NSIndexPath* indexPath = self.tableView.indexPathForSelectedRow;
+        NSString* filePath = [[self.images objectAtIndex: indexPath.row] objectForKey:@"file"];
+        NSString* homeDirPath = [@"~" stringByExpandingTildeInPath];
+        NSString* absolutePath = [homeDirPath stringByAppendingPathComponent: filePath];
+        EmulatorViewController* emulatorViewController = segue.destinationViewController;
+        emulatorViewController.imagePath = absolutePath;
+    }
 }
 
--(NSInteger)numberOfSectionsInTableView: (UITableView*)tableView 
+-(NSInteger)numberOfSectionsInTableView: (UITableView*)tableView
 {
 	return 1;
 }

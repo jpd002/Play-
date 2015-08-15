@@ -53,9 +53,25 @@ static NSString * const reuseIdentifier = @"coverCell";
     }
 }
 
+- (BOOL)shouldAutorotate {
+    if ([self isViewLoaded] && self.view.window) {
+        return YES;
+    } else {
+        return NO;
+    }
+}
+
 - (void)viewDidLoad {
     [super viewDidLoad];
+    
+    // Uncomment the following line to preserve selection between presentations
+    // self.clearsSelectionOnViewWillAppear = NO;
 
+    self.collectionView.allowsMultipleSelection = NO;
+    
+    // Register cell classes
+    [self.collectionView registerClass:[UICollectionViewCell class] forCellWithReuseIdentifier:reuseIdentifier];
+    
     self.database = [[SqliteDatabase alloc] init];
     
     NSString* path = [@"~" stringByExpandingTildeInPath];
@@ -88,14 +104,6 @@ static NSString * const reuseIdentifier = @"coverCell";
         NSString *second = [[b objectForKey:@"file"] lastPathComponent];
         return [first caseInsensitiveCompare:second];
     }];
-    
-    // Uncomment the following line to preserve selection between presentations
-    // self.clearsSelectionOnViewWillAppear = NO;
-    
-    // Register cell classes
-    [self.collectionView registerClass:[UICollectionViewCell class] forCellWithReuseIdentifier:reuseIdentifier];
-    
-    // Do any additional setup after loading the view.
     
     [self.collectionView reloadData];
 }
@@ -161,7 +169,20 @@ static NSString * const reuseIdentifier = @"coverCell";
 }
 */
 
--(void)collectionView: (UICollectionView*)collectionView didSelectRowAtIndexPath: (NSIndexPath*)indexPath
+-(void)prepareForSegue: (UIStoryboardSegue*)segue sender: (id)sender
+{
+    if ([segue.identifier isEqualToString:@"showEmulator"]) {
+        NSIndexPath* indexPath = [[self.collectionView indexPathsForSelectedItems] objectAtIndex:0];
+        NSString* filePath = [[self.images objectAtIndex: indexPath.row] objectForKey:@"file"];
+        NSString* homeDirPath = [@"~" stringByExpandingTildeInPath];
+        NSString* absolutePath = [homeDirPath stringByAppendingPathComponent: filePath];
+        EmulatorViewController* emulatorViewController = segue.destinationViewController;
+        emulatorViewController.imagePath = absolutePath;
+        [self.collectionView deselectItemAtIndexPath:indexPath animated:NO];
+    }
+}
+
+-(void)collectionView: (UICollectionView*)collectionView didSelectItemAtIndexPath: (NSIndexPath*)indexPath
 {
     [self performSegueWithIdentifier: @"showEmulator" sender: self];
 }
