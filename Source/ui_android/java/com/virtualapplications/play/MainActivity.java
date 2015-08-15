@@ -475,6 +475,12 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
 					preview.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
 					((TextView) childview.findViewById(R.id.game_text)).setVisibility(View.VISIBLE);
 				}
+			} else if (IsLoadableExecutableFileName(game.getFile().getName())) {
+				ImageView preview = (ImageView) childview.findViewById(R.id.game_icon);
+				preview.setImageResource(R.drawable.boxart);
+				preview.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
+				((TextView) childview.findViewById(R.id.game_text)).setVisibility(View.VISIBLE);
+				childview.findViewById(R.id.childview).setOnLongClickListener(null);
 			} else {
 				childview.findViewById(R.id.childview).setOnLongClickListener(null);
 				// passing game, as to pass and use (if) any user defined values
