@@ -2036,11 +2036,13 @@ void CPS2OS::sc_SetupThread()
 	assert(static_cast<int32>(threadId) != -1);
 
 	//Set up the main thread
+	//Priority needs to be 0 because some games rely on this
+	//by calling RotateThreadReadyQueue(0) (Dynasty Warriors 2)
 	auto thread = m_threads[threadId];
 	thread->status			= THREAD_RUNNING;
 	thread->stackBase		= stackAddr - stackSize;
-	thread->initPriority	= 1;
-	thread->currPriority	= 1;
+	thread->initPriority	= 0;
+	thread->currPriority	= 0;
 	thread->contextPtr		= 0;
 
 	LinkThread(threadId);
