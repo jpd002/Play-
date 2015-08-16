@@ -1,7 +1,6 @@
 package com.virtualapplications.play;
 
-import java.io.*;
-import java.util.*;
+import java.io.File;
 
 class FileListItem implements Comparable<FileListItem>
 {

@@ -16,19 +16,15 @@ import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.InputStream;
-import java.io.IOException;
-import java.io.OutputStream;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-
-import com.virtualapplications.play.database.SqliteHelper.Games;
 import com.virtualapplications.play.database.SqliteHelper.Covers;
+import com.virtualapplications.play.database.SqliteHelper.Games;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.HashMap;
 
 public class TheGamesDB extends ContentProvider {
 	
@@ -36,7 +32,7 @@ public class TheGamesDB extends ContentProvider {
 	private static final String DATABASE_NAME = "games.db";
 
     // Database Version
-    private static final int DATABASE_VERSION = 2;
+    private static final int DATABASE_VERSION = 3;
 	
 	public static final String SQLITE_ID = "_id";
 
@@ -109,9 +105,9 @@ public class TheGamesDB extends ContentProvider {
 	}
 	
 	public class importDb extends AsyncTask<String, Integer, String> {
-		
+
 		private String DATABASE_PATH;
-		
+
 		protected void onPreExecute() {
 			DATABASE_PATH = mContext.getFilesDir().getAbsolutePath();
 			byte[] buffer = new byte[1024];

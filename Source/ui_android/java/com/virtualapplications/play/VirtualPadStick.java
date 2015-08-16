@@ -1,6 +1,10 @@
 package com.virtualapplications.play;
 
-import android.graphics.*;
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.graphics.Paint;
+import android.graphics.PointF;
+import android.graphics.RectF;
 
 class VirtualPadStick extends VirtualPadItem
 {

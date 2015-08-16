@@ -1,5 +1,21 @@
 package com.virtualapplications.play.database;
 
+import android.app.AlertDialog;
+import android.content.ContentResolver;
+import android.content.Context;
+import android.content.DialogInterface;
+import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.util.Log;
+import android.view.View;
+import android.view.View.OnLongClickListener;
+
+import com.virtualapplications.play.GameInfoStruct;
+import com.virtualapplications.play.MainActivity;
+import com.virtualapplications.play.NativeInterop;
+import com.virtualapplications.play.database.SqliteHelper.Games;
+
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -9,32 +25,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URL;
 import java.net.URLConnection;
-
-import android.app.AlertDialog;
-import android.content.Context;
-import android.content.ContentResolver;
-import android.content.DialogInterface;
-import android.database.Cursor;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.os.AsyncTask;
-import android.os.Build;
-import android.os.StrictMode;
-import android.util.Log;
-import android.util.SparseArray;
-import android.view.View;
-import android.view.View.OnClickListener;
-import android.view.View.OnLongClickListener;
-import android.widget.ImageView;
-import android.widget.ImageView.ScaleType;
-import android.widget.TextView;
-
-import java.util.concurrent.ExecutionException;
-
-import com.virtualapplications.play.R;
-import com.virtualapplications.play.MainActivity;
-import com.virtualapplications.play.NativeInterop;
-import com.virtualapplications.play.database.SqliteHelper.Games;
 
 public class GameInfo {
 	
@@ -64,7 +54,7 @@ public class GameInfo {
 		
 	}
 	
-	public Bitmap getImage(String key, View childview, String boxart) {
+	public Bitmap getImage(String key, int[] measures, String boxart) {
 		String path = mContext.getExternalFilesDir(null) + "/covers/";
 		
 		File file = new File(path, key + ".jpg");
@@ -73,45 +63,33 @@ public class GameInfo {
 			BitmapFactory.Options options = new BitmapFactory.Options();
 			options.inPreferredConfig = Bitmap.Config.ARGB_8888;
 			Bitmap bitmap = BitmapFactory.decodeFile(file.getAbsolutePath(), options);
-			if (childview != null) {
-				ImageView preview = (ImageView) childview.findViewById(R.id.game_icon);
-				preview.setImageBitmap(bitmap);
-				preview.setScaleType(ScaleType.CENTER_INSIDE);
-				((TextView) childview.findViewById(R.id.game_text)).setVisibility(View.GONE);
-			}
 			return bitmap;
 		} else {
-			new GameImage(childview, boxart).execute(key);
-			return null;
+			return new GameImage(key, measures, boxart).get(key);
 		}
 	}
 	
-	public class GameImage extends AsyncTask<String, Integer, Bitmap> {
+	class GameImage {
 		
-		private View childview;
+		private int[] measures;
 		private String key;
-		private ImageView preview;
 		private String boxart;
 		
-		public GameImage(View childview, String boxart) {
-			this.childview = childview;
+		public GameImage(String key , int[] measures, String boxart) {
+			this.measures = measures;
 			this.boxart = boxart;
+			this.key = key;
 		}
-		
-		protected void onPreExecute() {
-			if (childview != null) {
-				preview = (ImageView) childview.findViewById(R.id.game_icon);
-			}
-		}
+
 		
 		private int calculateInSampleSize(BitmapFactory.Options options) {
 			final int height = options.outHeight;
 			final int width = options.outWidth;
 			int reqHeight = 420;
 			int reqWidth = 360;
-			if (preview != null) {
-				reqHeight = preview.getMeasuredHeight();
-				reqWidth = preview.getMeasuredWidth();
+			if (measures != null) {
+				reqHeight = measures[0];
+				reqWidth = measures[1];
 			}
 			// TODO: Find a calculated width and height without ImageView
 			int inSampleSize = 1;
@@ -130,8 +108,7 @@ public class GameInfo {
 			return inSampleSize;
 		}
 		
-		@Override
-		protected Bitmap doInBackground(String... params) {
+		protected Bitmap get(String... params) {
 			key = params[0];
 			if (GamesDbAPI.isNetworkAvailable(mContext) && boxart != null) {
 				String api = null;
@@ -164,24 +141,15 @@ public class GameInfo {
 					im.close();
 					bis = null;
 					im = null;
+					if (bitmap != null) {
+						saveImage(key, bitmap);
+					}
 					return bitmap;
 				} catch (IOException e) {
 					
 				}
 			}
 			return null;
-		}
-		
-		@Override
-		protected void onPostExecute(Bitmap image) {
-			if (image != null) {
-				saveImage(key, image);
-				if (preview != null) {
-					preview.setImageBitmap(image);
-					preview.setScaleType(ScaleType.CENTER_INSIDE);
-					((TextView) childview.findViewById(R.id.game_text)).setVisibility(View.GONE);
-				}
-			}
 		}
 	}
 	
@@ -213,10 +181,9 @@ public class GameInfo {
 		};
 	}
 	
-	public String[] getGameInfo(File game, View childview) {
+	public GameInfoStruct getGameInfo(File game, int[] measures) {
 		String serial = getSerial(game);
 		if (serial == null) {
-			getImage(game.getName(), childview, null);
 			return null;
 		}
 		String suffix = serial.substring(5, serial.length());
@@ -242,12 +209,10 @@ public class GameInfo {
 		}
 		if (overview != null && boxart != null &&
 			!overview.equals("") && !boxart.equals("")) {
-			return new String[] { gameID, title, overview, boxart };
+			return new GameInfoStruct(gameID, title, overview, boxart);
 		} else {
 			GamesDbAPI gameDatabase = new GamesDbAPI(mContext, gameID, serial);
-			gameDatabase.setView(childview);
-			gameDatabase.execute(game);
-			return null;
+			return gameDatabase.get(game);
 		}
 	}
 	

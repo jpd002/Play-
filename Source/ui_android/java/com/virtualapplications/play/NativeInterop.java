@@ -1,6 +1,6 @@
 package com.virtualapplications.play;
 
-import android.view.*;
+import android.view.Surface;
 
 public class NativeInterop
 {

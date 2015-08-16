@@ -1,59 +1,80 @@
 package com.virtualapplications.play;
 
-import android.app.*;
+import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
-import android.content.*;
-import android.content.pm.*;
+import android.app.UiModeManager;
+import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.pm.ApplicationInfo;
 import android.content.res.Configuration;
 import android.content.res.TypedArray;
 import android.graphics.Color;
+import android.graphics.Point;
 import android.graphics.drawable.GradientDrawable;
-import android.os.*;
+import android.os.AsyncTask;
+import android.os.Build;
+import android.os.Bundle;
+import android.os.Environment;
+import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.widget.Toolbar;
-import android.view.*;
+import android.view.Display;
+import android.view.Menu;
 import android.view.View;
-import android.view.View.OnClickListener;
-import android.widget.*;
-import android.widget.GridView;
-import android.widget.TextView;
-import android.support.v4.widget.DrawerLayout;
-import java.io.*;
-import java.lang.reflect.InvocationTargetException;
-import java.text.*;
-import java.util.*;
-import java.util.zip.*;
+import android.view.ViewGroup;
+import android.view.WindowManager;
+import android.widget.LinearLayout;
+
+import com.android.util.FileUtils;
+import com.virtualapplications.play.database.GameInfo;
+import com.virtualapplications.play.database.SqliteHelper.Games;
+
 import org.apache.commons.io.comparator.CompositeFileComparator;
 import org.apache.commons.io.comparator.LastModifiedFileComparator;
 import org.apache.commons.io.comparator.SizeFileComparator;
 import org.apache.commons.lang3.StringUtils;
-import com.android.util.FileUtils;
-import android.graphics.Point;
 
-import com.virtualapplications.play.database.GameInfo;
-import com.virtualapplications.play.database.SqliteHelper.Games;
+import java.io.File;
+import java.io.FilenameFilter;
+import java.io.InputStream;
+import java.lang.reflect.InvocationTargetException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Locale;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
+
 
 public class MainActivity extends ActionBarActivity implements NavigationDrawerFragment.NavigationDrawerCallbacks
 {	
 	private static final String PREFERENCE_CURRENT_DIRECTORY = "CurrentDirectory";
 	
-	private SharedPreferences _preferences;
+	private static SharedPreferences _preferences;
 	static Activity mActivity;
-	private boolean isConfigured = false;
+	static boolean isConfigured = false;
 	private int currentOrientation;
-	private GameInfo gameInfo;
+	private static GameInfo gameInfo;
 	protected NavigationDrawerFragment mNavigationDrawerFragment;
 
-	private List<File> currentGames = new ArrayList<File>();
+	private static List<File> currentGames = new ArrayList<File>();
 	
 	public static final int SORT_RECENT = 0;
 	public static final int SORT_HOMEBREW = 1;
 	public static final int SORT_NONE = 2;
-	private int sortMethod = SORT_NONE;
+	private static int sortMethod = SORT_NONE;
 
 	//To prevent multiple padding buildups on multiple rotations.
 	private int relative_layout_original_right_padding;
 	private int navigation_drawer_original_bottom_padding;
+	private ProgressDialog progDialog;
 
 	@Override 
 	protected void onCreate(Bundle savedInstanceState) 
@@ -63,6 +84,7 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
 
 		_preferences = getSharedPreferences("prefs", MODE_PRIVATE);
 		currentOrientation = getResources().getConfiguration().orientation;
+		mActivity = MainActivity.this;
 
 		SettingsActivity.ChangeTheme(null,this);
 		if (isAndroidTV(this)) {
@@ -70,7 +92,6 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
 		} else {
 			setContentView(R.layout.main);
 		}
-		mActivity = MainActivity.this;
 
 		NativeInterop.setFilesDirPath(Environment.getExternalStorageDirectory().getAbsolutePath());
 
@@ -326,8 +347,8 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
 		}
 		
 	}
-	
-	private String getCurrentDirectory()
+
+	private static String getCurrentDirectory()
 	{
 		return _preferences.getString(PREFERENCE_CURRENT_DIRECTORY, Environment.getExternalStorageDirectory().getAbsolutePath());
 	}
@@ -368,7 +389,7 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
 		return out;
 	}
 	
-	private void setCurrentDirectory(String currentDirectory)
+	static void setCurrentDirectory(String currentDirectory)
 	{
 		SharedPreferences.Editor preferencesEditor = _preferences.edit();
 		preferencesEditor.putString(PREFERENCE_CURRENT_DIRECTORY, currentDirectory);
@@ -401,7 +422,7 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
 		((MainActivity) mActivity).clearCoverCache();
 	}
 	
-	private static boolean IsLoadableExecutableFileName(String fileName)
+	public static boolean IsLoadableExecutableFileName(String fileName)
 	{
 		return fileName.toLowerCase().endsWith(".elf");
 	}
@@ -477,7 +498,7 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
 		finish();
 	}
 
-	private final class ImageFinder extends AsyncTask<String, Integer, List<File>> {
+	private static final class ImageFinder extends AsyncTask<String, Integer, List<File>> {
 		
 		private int array;
 		private ProgressDialog progDialog;
@@ -489,7 +510,7 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
 		private List<File> getFileList(String path) {
 			File storage = new File(path);
 			
-			String[] mediaTypes = MainActivity.this.getResources().getStringArray(array);
+			String[] mediaTypes = mActivity.getResources().getStringArray(array);
 			FilenameFilter[] filter = new FilenameFilter[mediaTypes.length];
 			
 			int i = 0;
@@ -518,9 +539,9 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
 		}
 		
 		protected void onPreExecute() {
-			progDialog = ProgressDialog.show(MainActivity.this,
-				getString(R.string.search_games),
-				getString(R.string.search_games_msg), true);
+			progDialog = ProgressDialog.show(mActivity,
+				mActivity.getString(R.string.search_games),
+				mActivity.getString(R.string.please_wait), true);
 		}
 		
 		@Override
@@ -560,55 +581,9 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
 			}
 		}
 	}
-	
-	private View createListItem(final File game, final View childview) {
-		if (!isConfigured) {
-			
-			((TextView) childview.findViewById(R.id.game_text)).setText(game.getName());
-			
-			childview.findViewById(R.id.childview).setOnClickListener(new OnClickListener() {
-				public void onClick(View view) {
-					setCurrentDirectory(game.getPath().substring(0,
-						game.getPath().lastIndexOf(File.separator)));
-					isConfigured = true;
-					prepareFileListView(false);
-					return;
-				}
-			});
-			
-			return childview;
-		} else {
-			
-			((TextView) childview.findViewById(R.id.game_text)).setText(game.getName());
-			
-			final String[] gameStats = gameInfo.getGameInfo(game, childview);
-			
-			if (gameStats != null) {
-				childview.findViewById(R.id.childview).setOnLongClickListener(
-					gameInfo.configureLongClick(gameStats[1], gameStats[2], game));
-				
-				if (!gameStats[3].equals("404")) {
-					gameInfo.getImage(gameStats[0], childview, gameStats[3]);
-					((TextView) childview.findViewById(R.id.game_text)).setVisibility(View.GONE);
-				}
-			} else {
-				ImageView preview = (ImageView) childview.findViewById(R.id.game_icon);
-				preview.setImageResource(R.drawable.boxart);
-				preview.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
-				((TextView) childview.findViewById(R.id.game_text)).setVisibility(View.VISIBLE);
-			}
-			
-			childview.findViewById(R.id.childview).setOnClickListener(new OnClickListener() {
-				public void onClick(View view) {
-					launchDisk(game, false);
-					return;
-				}
-			});
-			return childview;
-		}
-	}
-	
-	private void populateImages(List<File> images) {
+
+
+	private static void populateImages(final List<File> images) {
 		if (sortMethod == SORT_RECENT) {
 			@SuppressWarnings("unchecked")
 			CompositeFileComparator comparator = new CompositeFileComparator(
@@ -617,73 +592,12 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
 		} else {
 			Collections.sort(images);
 		}
-		GridView gameGrid = (GridView) findViewById(R.id.game_grid);
-		if (gameGrid != null && gameGrid.isShown()) {
-			gameGrid.setAdapter(null);
-		}
 
-		int padding = getNavigationBarSize(this).y;
-		GamesAdapter adapter = new GamesAdapter(MainActivity.this, isConfigured ? R.layout.game_list_item : R.layout.file_list_item, images, padding);
-		/*
-		gameGrid.setNumColumns(-1);
-		-1 = autofit
-		or set a number if you like
-		 */
-		if (isConfigured){
-			gameGrid.setColumnWidth((int) getResources().getDimension(R.dimen.cover_width));
-		}
-		gameGrid.setAdapter(adapter);
-		gameGrid.invalidate();
+		new setGridView(mActivity, images, gameInfo).execute();
 
 	}
-	
-	public class GamesAdapter extends ArrayAdapter<File> {
 
-		private final int layoutid;
-		private final int padding;
-		private List<File> games;
-		
-		public GamesAdapter(Context context, int ResourceId, List<File> images, int padding) {
-			super(context, ResourceId, images);
-			this.games = images;
-			this.layoutid = ResourceId;
-			this.padding = padding;
-		}
 
-		public int getCount() {
-			//return mThumbIds.length;
-			return games.size();
-		}
-
-		public File getItem(int position) {
-			return games.get(position);
-		}
-
-		public long getItemId(int position) {
-			return position;
-		}
-		
-		@Override
-		public View getView(int position, View convertView, ViewGroup parent) {
-			View v = convertView;
-			if (v == null) {
-				LayoutInflater vi = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-				v = vi.inflate(layoutid, null);
-			}
-			final File game = games.get(position);
-			if (game != null) {
-				createListItem(game, v);
-			}
-			if (position == games.size() - 1){
-				v.setPadding(
-						v.getPaddingLeft(),
-						v.getPaddingTop(),
-						v.getPaddingRight(),
-						v.getPaddingBottom() + padding);
-			}
-			return v;
-		}
-	}
 	
 	public static void launchGame(File game) {
 		((MainActivity) mActivity).launchDisk(game, false);
@@ -728,10 +642,14 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
 		return false;
 	}
 
-	private void prepareFileListView(boolean retainList)
+	private void prepareFileListView(boolean retainList) {
+		prepareFileListView(retainList, currentGames, mActivity);
+	}
+
+	static void prepareFileListView(boolean retainList, List<File> currentGames, Context mContext)
 	{
 		if (gameInfo == null) {
-			gameInfo = new GameInfo(MainActivity.this);
+			gameInfo = new GameInfo(mContext);
 		}
 		
 		String sdcard = getCurrentDirectory();
