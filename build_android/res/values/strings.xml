@@ -10,9 +10,10 @@
 	<string name="main_menu_exit">Exit</string>
 
 	<string name="game_info">No info</string>
-    
-    <string name="search_games">Locating games&#8230;</string>
+
+    <string name="search_games">Building collection&#8230;</string>
     <string name="search_games_msg">Please wait&#8230;</string>
+    <string name="updating_db">Updating collection&#8230;</string>
 
     <string name="navigation_drawer_open">Navigation drawer open</string>
     <string name="navigation_drawer_close">Navigation drawer closed</string>
@@ -25,7 +26,7 @@
     <string name="file_list_homebrew">Homebrew</string>
     <string name="file_list_default">Unsorted</string>
     
-    <!-- Applciation Preferences -->
+    <!-- Application Preferences -->
     
     <string name="title_activity_settings">Settings</string>
     
