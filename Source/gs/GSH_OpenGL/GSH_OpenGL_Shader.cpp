@@ -279,7 +279,7 @@ Framework::OpenGl::CShader CGSH_OpenGL::GenerateFragmentShader(const SHADERCAPS&
 	shaderBuilder << "precision mediump float;" << std::endl;
 
 	shaderBuilder << "in vec4 v_color;" << std::endl;
-	shaderBuilder << "in vec3 v_texCoord;" << std::endl;
+	shaderBuilder << "in highp vec3 v_texCoord;" << std::endl;
 	shaderBuilder << "out vec4 fragColor;" << std::endl;
 
 	shaderBuilder << "uniform sampler2D g_texture;" << std::endl;
