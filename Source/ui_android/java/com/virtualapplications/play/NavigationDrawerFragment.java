@@ -78,13 +78,10 @@ public class NavigationDrawerFragment extends Fragment {
             mCurrentSelectedPosition = savedInstanceState.getInt(STATE_SELECTED_POSITION);
             mFromSavedInstanceState = true;
         } else {
-            mCurrentSelectedPosition = Integer.valueOf(PreferenceManager.getDefaultSharedPreferences(getActivity()).getString("page", "0"));
+            // Select either the default item (0) or the last selected item.
+            mCurrentSelectedPosition = Integer.valueOf(sp.getString("page", "0"));
             selectItem(mCurrentSelectedPosition);
         }
-
-        // Select either the default item (0) or the last selected item.
-
-
     }
 
     @Override

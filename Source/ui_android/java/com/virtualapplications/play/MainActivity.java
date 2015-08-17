@@ -116,6 +116,7 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
 		gameInfo = new GameInfo(MainActivity.this);
 		getContentResolver().call(Games.GAMES_URI, "importDb", null, null);
 
+		prepareFileListView(false);
 	}
 
 	public int getStatusBarHeight() {
