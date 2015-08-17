@@ -28,7 +28,6 @@ import org.apache.commons.io.comparator.LastModifiedFileComparator;
 import org.apache.commons.io.comparator.SizeFileComparator;
 import org.apache.commons.lang3.StringUtils;
 import com.android.util.FileUtils;
-import android.graphics.Point;
 
 import com.virtualapplications.play.database.GameInfo;
 import com.virtualapplications.play.database.SqliteHelper.Games;
@@ -89,9 +88,10 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
 //		if (isAndroidTV(this)) {
 //			// Load the menus for Android TV
 //		} else {
-			Toolbar toolbar = getSupportToolbar();
+			Toolbar toolbar = (Toolbar) findViewById(R.id.my_awesome_toolbar);
 			setSupportActionBar(toolbar);
 			toolbar.bringToFront();
+			setUIcolor();
 
 			mNavigationDrawerFragment = (NavigationDrawerFragment)
 					getFragmentManager().findFragmentById(R.id.navigation_drawer);
@@ -115,17 +115,8 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
 		prepareFileListView(false);
 	}
 
-	private Toolbar getSupportToolbar() {
-
-		View toolbar = findViewById(R.id.my_awesome_toolbar);
-		final LinearLayout content = (LinearLayout) findViewById(R.id.content_frame);
-
-		setUIcolor(content);
-
-		return (Toolbar) toolbar;
-	}
-
-	private void setUIcolor(LinearLayout content){
+	private void setUIcolor(){
+		View content = findViewById(R.id.content_frame) ;
 		if (content != null) {
 			int[] colors = new int[2];// you can increase array size to add more colors to gradient.
 			TypedArray a = getTheme().obtainStyledAttributes(new int[]{R.attr.colorPrimary});
@@ -201,7 +192,7 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		if (requestCode == 0) {
 			SettingsActivity.ChangeTheme(null, this);
-			setUIcolor((LinearLayout) findViewById(R.id.content_frame));
+			setUIcolor();
 		}
 	}
 
@@ -222,7 +213,7 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
 		mNavigationDrawerFragment.onConfigurationChanged(newConfig);
 		if (newConfig.orientation != currentOrientation) {
 			currentOrientation = newConfig.orientation;
-			getSupportToolbar();
+			setUIcolor();
 			if (currentGames != null && !currentGames.isEmpty()) {
 				prepareFileListView(true);
 			} else {
