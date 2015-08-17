@@ -175,6 +175,7 @@
 		874ECDAC1B7DB9EB000075B6 /* games.db in Resources */ = {isa = PBXBuildFile; fileRef = 874ECDA81B7DB3DF000075B6 /* games.db */; };
 		874ECDE51B7E7250000075B6 /* SDWebImage.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 874ECDE41B7E7250000075B6 /* SDWebImage.framework */; };
 		874ECDE71B7E749A000075B6 /* ImageIO.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 874ECDE61B7E749A000075B6 /* ImageIO.framework */; };
+		876AA37C1B82413300617242 /* BackgroundLayer.m in Sources */ = {isa = PBXBuildFile; fileRef = 876AA37B1B82413300617242 /* BackgroundLayer.m */; };
 		87C208BE1B7A3E7E00638BDD /* GameController.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 87C208BD1B7A3E7E00638BDD /* GameController.framework */; };
 		87C4CC341B75010700CE6D3C /* iCadeReaderView.m in Sources */ = {isa = PBXBuildFile; fileRef = 87C4CC311B75010700CE6D3C /* iCadeReaderView.m */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
 		87DCDB331B7F03260054D67C /* CoverViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 87DCDB321B7F03260054D67C /* CoverViewController.m */; };
@@ -533,6 +534,8 @@
 		874ECDA91B7DB862000075B6 /* libsqlite3.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libsqlite3.dylib; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS8.4.sdk/usr/lib/libsqlite3.dylib; sourceTree = DEVELOPER_DIR; };
 		874ECDE41B7E7250000075B6 /* SDWebImage.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SDWebImage.framework; path = "Play!/SDWebImage.framework"; sourceTree = "<group>"; };
 		874ECDE61B7E749A000075B6 /* ImageIO.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ImageIO.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS8.4.sdk/System/Library/Frameworks/ImageIO.framework; sourceTree = DEVELOPER_DIR; };
+		876AA37A1B82413300617242 /* BackgroundLayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = BackgroundLayer.h; path = ../Source/ui_ios/BackgroundLayer.h; sourceTree = "<group>"; };
+		876AA37B1B82413300617242 /* BackgroundLayer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = BackgroundLayer.m; path = ../Source/ui_ios/BackgroundLayer.m; sourceTree = "<group>"; };
 		87C208BD1B7A3E7E00638BDD /* GameController.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = GameController.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS8.4.sdk/System/Library/Frameworks/GameController.framework; sourceTree = DEVELOPER_DIR; };
         87C4CC301B75010700CE6D3C /* iCadeReaderView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = iCadeReaderView.h; sourceTree = "<group>"; };
 		87C4CC311B75010700CE6D3C /* iCadeReaderView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = iCadeReaderView.m; sourceTree = "<group>"; };
@@ -621,6 +624,8 @@
 				70834AEF1B1BCB9E00E8D5C6 /* LaunchScreen.xib */,
 				70834AE61B1BCB0100E8D5C6 /* main.mm */,
 				70834AF11B1BCB9E00E8D5C6 /* Main.storyboard */,
+				876AA37A1B82413300617242 /* BackgroundLayer.h */,
+				876AA37B1B82413300617242 /* BackgroundLayer.m */,
 				87DCDB311B7F03260054D67C /* CoverViewController.h */,
 				87DCDB321B7F03260054D67C /* CoverViewController.m */,
 				70287BE51B5F3A2400B53235 /* MainViewController.h */,
@@ -1193,6 +1198,7 @@
 				70834BF81B1BD6A300E8D5C6 /* Vif.cpp in Sources */,
 				7075D0B51B63260F0010D69C /* DiskUtils.cpp in Sources */,
 				70AD23971B39199300137AA0 /* XpsSaveImporter.cpp in Sources */,
+				876AA37C1B82413300617242 /* BackgroundLayer.m in Sources */,
 				70834B7D1B1BD2C300E8D5C6 /* StructCollectionStateFile.cpp in Sources */,
 				70834C811B1BD70700E8D5C6 /* Iop_Spu.cpp in Sources */,
 				70834C7A1B1BD70700E8D5C6 /* Iop_RootCounters.cpp in Sources */,

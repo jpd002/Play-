@@ -12,7 +12,7 @@
                     <collectionView key="view" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" dataMode="prototypes" id="NSw-mS-htR">
                         <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                        <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="calibratedRGB"/>
+                        <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
                         <collectionViewFlowLayout key="collectionViewLayout" minimumLineSpacing="10" minimumInteritemSpacing="10" id="KVN-ya-NZC">
                             <size key="itemSize" width="144" height="204"/>
                             <size key="headerReferenceSize" width="0.0" height="0.0"/>
@@ -74,6 +74,7 @@
                         <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                        <color key="sectionIndexBackgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
                         <prototypes>
                             <tableViewCell contentMode="scaleToFill" selectionStyle="default" indentationWidth="10" reuseIdentifier="detailCell" rowHeight="160" id="y39-Wr-aHd" customClass="CoverViewCell">
                                 <autoresizingMask key="autoresizingMask"/>
@@ -105,6 +106,7 @@
                                             </accessibility>
                                         </imageView>
                                     </subviews>
+                                    <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
                                     <constraints>
                                         <constraint firstAttribute="bottomMargin" secondItem="id4-1k-4QZ" secondAttribute="bottom" constant="9.5" id="5TH-4d-XGP"/>
                                         <constraint firstAttribute="trailingMargin" secondItem="id4-1k-4QZ" secondAttribute="trailing" constant="7" id="99n-yP-HLZ"/>
@@ -140,6 +142,7 @@
                                         </mask>
                                     </variation>
                                 </tableViewCellContentView>
+                                <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
                                 <connections>
                                     <outlet property="coverImage" destination="1ux-YC-Lvu" id="dht-1h-dSm"/>
                                     <outlet property="nameLabel" destination="a0k-NV-7Pc" id="H27-mU-CQb"/>
@@ -170,6 +173,7 @@
                     <navigationBar key="navigationBar" contentMode="scaleToFill" id="VLy-tx-N4x">
                         <rect key="frame" x="0.0" y="0.0" width="320" height="44"/>
                         <autoresizingMask key="autoresizingMask"/>
+                        <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
                     </navigationBar>
                     <nil name="viewControllers"/>
                     <connections>
@@ -185,7 +189,7 @@
         <image name="boxart.png" width="245" height="368"/>
     </resources>
     <inferredMetricsTieBreakers>
-        <segue reference="V0J-jV-tPz"/>
+        <segue reference="CM3-7o-AJW"/>
         <segue reference="x0p-rE-WNc"/>
     </inferredMetricsTieBreakers>
 </document>

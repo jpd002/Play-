@@ -3,6 +3,7 @@
 #import "IosUtils.h"
 #import "DiskUtils.h"
 #import "CoverViewCell.h"
+#import "BackgroundLayer.h"
 
 @interface MainViewController ()
 
@@ -21,38 +22,14 @@
                                                object:nil];
 }
 
-- (void)orientationChanged:(NSNotification *)notification
-{
-    UIDeviceOrientation deviceOrientation = [UIDevice currentDevice].orientation;
-    if (UIDeviceOrientationIsPortrait(deviceOrientation) &&
-        self.mainView.isShowingLandscapeView)
-    {
-        [self performSegueWithIdentifier:@"DisplayCoverView" sender:self];
-        self.mainView.isShowingLandscapeView = YES;
-    }
-    else if (UIDeviceOrientationIsLandscape(deviceOrientation) &&
-             !self.mainView.isShowingLandscapeView)
-    {
-        [self dismissViewControllerAnimated:YES completion:nil];
-        self.mainView.isShowingLandscapeView = NO;
-    }
-    else if (UIDeviceOrientationIsLandscape(deviceOrientation) &&
-             self.mainView.isShowingLandscapeView)
-    {
-        [self.presentingViewController dismissViewControllerAnimated:YES completion:nil];
-    }
-}
-
-- (BOOL)shouldAutorotate {
-    if ([self isViewLoaded] && self.view.window) {
-        return YES;
-    } else {
-        return NO;
-    }
-}
-
 -(void)viewDidLoad
 {
+	[super viewDidLoad];
+
+	CAGradientLayer *bgLayer = [BackgroundLayer blueGradient];
+	bgLayer.frame = self.view.bounds;
+	[self.view.layer insertSublayer:bgLayer atIndex:0];
+	
     self.database = [[SqliteDatabase alloc] init];
     if (self.mainView.diskImages == nil)
     {
@@ -60,6 +37,42 @@
     }
 
     [self.tableView reloadData];
+}
+
+- (void)willAnimateRotationToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration
+{
+	// resize your layers based on the view’s new bounds
+	[[[self.view.layer sublayers] objectAtIndex:0] setFrame:self.view.bounds];
+}
+
+- (void)orientationChanged:(NSNotification *)notification
+{
+	UIDeviceOrientation deviceOrientation = [UIDevice currentDevice].orientation;
+	if (UIDeviceOrientationIsPortrait(deviceOrientation) &&
+		self.mainView.isShowingLandscapeView)
+	{
+		[self performSegueWithIdentifier:@"DisplayCoverView" sender:self];
+		self.mainView.isShowingLandscapeView = YES;
+	}
+	else if (UIDeviceOrientationIsLandscape(deviceOrientation) &&
+			 !self.mainView.isShowingLandscapeView)
+	{
+		[self dismissViewControllerAnimated:YES completion:nil];
+		self.mainView.isShowingLandscapeView = NO;
+	}
+	else if (UIDeviceOrientationIsLandscape(deviceOrientation) &&
+			 self.mainView.isShowingLandscapeView)
+	{
+		[self.presentingViewController dismissViewControllerAnimated:YES completion:nil];
+	}
+}
+
+- (BOOL)shouldAutorotate {
+	if ([self isViewLoaded] && self.view.window) {
+		return YES;
+	} else {
+		return NO;
+	}
 }
 
 -(void)prepareForSegue: (UIStoryboardSegue*)segue sender: (id)sender
