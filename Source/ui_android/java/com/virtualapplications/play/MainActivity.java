@@ -15,6 +15,7 @@ import android.view.*;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.*;
+import android.widget.AdapterView.OnItemClickListener;
 import android.widget.GridView;
 import android.widget.TextView;
 import android.support.v4.widget.DrawerLayout;
@@ -552,6 +553,14 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
 		GridView gameGrid = (GridView) findViewById(R.id.game_grid);
 		if (gameGrid != null && gameGrid.isShown()) {
 			gameGrid.setAdapter(null);
+		}
+		
+		if (isAndroidTV(this)) {
+			gameGrid.setOnItemClickListener(new OnItemClickListener() {
+				public void onItemClick(AdapterView<?> parent, View v, int position, long id) {
+					v.performClick();
+				}
+			});
 		}
 
 		GamesAdapter adapter = new GamesAdapter(MainActivity.this, isConfigured ? R.layout.game_list_item : R.layout.file_list_item, images);
