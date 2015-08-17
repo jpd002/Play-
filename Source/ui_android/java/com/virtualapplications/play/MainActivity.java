@@ -51,10 +51,6 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
 	public static final int SORT_NONE = 2;
 	private int sortMethod = SORT_NONE;
 
-	//To prevent multiple padding buildups on multiple rotations.
-	private int relative_layout_original_right_padding;
-	private int navigation_drawer_original_bottom_padding;
-
 	@Override 
 	protected void onCreate(Bundle savedInstanceState) 
 	{
