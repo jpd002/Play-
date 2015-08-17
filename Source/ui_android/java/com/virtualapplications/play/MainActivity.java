@@ -115,35 +115,12 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
 		prepareFileListView(false);
 	}
 
-	public int getStatusBarHeight() {
-		int result = 0;
-		int resourceId = getResources().getIdentifier("status_bar_height", "dimen", "android");
-		if (resourceId > 0) {
-			result = getResources().getDimensionPixelSize(resourceId);
-		}
-		return result;
-	}
-
 	private Toolbar getSupportToolbar() {
-		//this sets toolbar margin, but in effect moving the DrawerLayout
-		int statusBarHeight = getStatusBarHeight();
 
 		View toolbar = findViewById(R.id.my_awesome_toolbar);
 		final LinearLayout content = (LinearLayout) findViewById(R.id.content_frame);
-		
-		ViewGroup.MarginLayoutParams dlp = (ViewGroup.MarginLayoutParams) content.getLayoutParams();
-		dlp.topMargin = statusBarHeight;
-		content.setLayoutParams(dlp);
 
 		setUIcolor(content);
-
-		ViewGroup.MarginLayoutParams mlp = (ViewGroup.MarginLayoutParams) toolbar.getLayoutParams();
-		mlp.bottomMargin = - statusBarHeight;
-		toolbar.setLayoutParams(mlp);
-		View navigation_drawer = findViewById(R.id.navigation_drawer);
-		ViewGroup.MarginLayoutParams mlp2 = (ViewGroup.MarginLayoutParams) navigation_drawer.getLayoutParams();
-		mlp2.topMargin = statusBarHeight;
-		navigation_drawer.setLayoutParams(mlp2);
 
 		return (Toolbar) toolbar;
 	}
