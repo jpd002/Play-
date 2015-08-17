@@ -1,10 +1,12 @@
 package com.virtualapplications.play;
 
 import android.app.Activity;
+import android.content.res.TypedArray;
 import android.os.*;
 import android.preference.*;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.*;
 import java.util.*;
 import android.support.v7.widget.Toolbar;
@@ -56,36 +58,37 @@ public class SettingsActivity extends PreferenceActivity
 			case 0:
 				if (TB != null){TB.setBackgroundResource(R.color.action_bar_Yellow);}
 				theme = R.style.Yellow;
-				mContext.setTheme(R.style.Yellow);
 				break;
 			default:
 			case 1:
 				if (TB != null){TB.setBackgroundResource(R.color.action_bar_Blue);}
 				theme = R.style.Blue;
-				mContext.setTheme(R.style.Blue);
 				break;
 			case 2:
 				if (TB != null){TB.setBackgroundResource(R.color.action_bar_Pink);}
 				theme = R.style.Pink;
-				mContext.setTheme(R.style.Pink);
 				break;
 			case 3:
 				if (TB != null){TB.setBackgroundResource(R.color.action_bar_purple);}
 				theme = R.style.Purple;
-				mContext.setTheme(R.style.Purple);
 				break;
 			case 4:
 				if (TB != null){TB.setBackgroundResource(R.color.action_bar_Teal);}
 				theme = R.style.Teal;
-				mContext.setTheme(R.style.Teal);
 				break;
 			case 5:
 				if (TB != null){TB.setBackgroundResource(R.color.action_bar_Dark_Purple);}
 				theme = R.style.Dark_Purple;
-				mContext.setTheme(R.style.Dark_Purple);
 				break;
 		}
 		mContext.getTheme().applyStyle(theme,true);
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+			TypedArray a = mContext.getTheme().obtainStyledAttributes(new int[]{R.attr.colorPrimaryDark});
+			int attributeResourceId = a.getColor(0, 0);
+			a.recycle();
+			mContext.getWindow().addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+			mContext.getWindow().setStatusBarColor(attributeResourceId);
+		}
 	}
 
 	@Override
@@ -145,7 +148,7 @@ public class SettingsActivity extends PreferenceActivity
             
             final Preference button_f = (Preference)getPreferenceManager().findPreference("ui.clearfolder");
             if (button_f != null) {
-                button_f.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+				button_f.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
                     @Override
                     public boolean onPreferenceClick(Preference arg0) {
                         MainActivity.resetDirectory();
