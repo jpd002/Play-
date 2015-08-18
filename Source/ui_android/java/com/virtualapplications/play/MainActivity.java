@@ -28,7 +28,6 @@ import org.apache.commons.io.comparator.LastModifiedFileComparator;
 import org.apache.commons.io.comparator.SizeFileComparator;
 import org.apache.commons.lang3.StringUtils;
 import com.android.util.FileUtils;
-import android.graphics.Point;
 
 import com.virtualapplications.play.database.GameInfo;
 import com.virtualapplications.play.database.SqliteHelper.Games;
@@ -89,9 +88,10 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
 //		if (isAndroidTV(this)) {
 //			// Load the menus for Android TV
 //		} else {
-			Toolbar toolbar = getSupportToolbar();
+			Toolbar toolbar = (Toolbar) findViewById(R.id.my_awesome_toolbar);
 			setSupportActionBar(toolbar);
 			toolbar.bringToFront();
+			setUIcolor();
 
 			mNavigationDrawerFragment = (NavigationDrawerFragment)
 					getFragmentManager().findFragmentById(R.id.navigation_drawer);
@@ -115,40 +115,8 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
 		prepareFileListView(false);
 	}
 
-	public int getStatusBarHeight() {
-		int result = 0;
-		int resourceId = getResources().getIdentifier("status_bar_height", "dimen", "android");
-		if (resourceId > 0) {
-			result = getResources().getDimensionPixelSize(resourceId);
-		}
-		return result;
-	}
-
-	private Toolbar getSupportToolbar() {
-		//this sets toolbar margin, but in effect moving the DrawerLayout
-		int statusBarHeight = getStatusBarHeight();
-
-		View toolbar = findViewById(R.id.my_awesome_toolbar);
-		final LinearLayout content = (LinearLayout) findViewById(R.id.content_frame);
-		
-		ViewGroup.MarginLayoutParams dlp = (ViewGroup.MarginLayoutParams) content.getLayoutParams();
-		dlp.topMargin = statusBarHeight;
-		content.setLayoutParams(dlp);
-
-		setUIcolor(content);
-
-		ViewGroup.MarginLayoutParams mlp = (ViewGroup.MarginLayoutParams) toolbar.getLayoutParams();
-		mlp.bottomMargin = - statusBarHeight;
-		toolbar.setLayoutParams(mlp);
-		View navigation_drawer = findViewById(R.id.navigation_drawer);
-		ViewGroup.MarginLayoutParams mlp2 = (ViewGroup.MarginLayoutParams) navigation_drawer.getLayoutParams();
-		mlp2.topMargin = statusBarHeight;
-		navigation_drawer.setLayoutParams(mlp2);
-
-		return (Toolbar) toolbar;
-	}
-
-	private void setUIcolor(LinearLayout content){
+	private void setUIcolor(){
+		View content = findViewById(R.id.content_frame) ;
 		if (content != null) {
 			int[] colors = new int[2];// you can increase array size to add more colors to gradient.
 			TypedArray a = getTheme().obtainStyledAttributes(new int[]{R.attr.colorPrimary});
@@ -224,7 +192,7 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		if (requestCode == 0) {
 			SettingsActivity.ChangeTheme(null, this);
-			setUIcolor((LinearLayout) findViewById(R.id.content_frame));
+			setUIcolor();
 		}
 	}
 
@@ -245,7 +213,7 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
 		mNavigationDrawerFragment.onConfigurationChanged(newConfig);
 		if (newConfig.orientation != currentOrientation) {
 			currentOrientation = newConfig.orientation;
-			getSupportToolbar();
+			setUIcolor();
 			if (currentGames != null && !currentGames.isEmpty()) {
 				prepareFileListView(true);
 			} else {

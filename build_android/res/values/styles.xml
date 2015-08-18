@@ -7,7 +7,7 @@
         <item name="colorPrimary">@color/action_bar_purple</item>
 
         <!-- colorPrimaryDark is used for the status bar -->
-        <item name="colorPrimaryDark">#c84dff</item>
+        <item name="colorPrimaryDark">#8a00b7</item>
         <!--item name="colorPrimaryDark">#ff000000</item-->
 
     </style>
