@@ -5,8 +5,8 @@ import android.app.Activity;
 import android.app.Fragment;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
+import android.content.res.TypedArray;
 import android.graphics.Color;
-import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.view.GravityCompat;
@@ -78,13 +78,12 @@ public class NavigationDrawerFragment extends Fragment {
             mCurrentSelectedPosition = savedInstanceState.getInt(STATE_SELECTED_POSITION);
             mFromSavedInstanceState = true;
         } else {
-            mCurrentSelectedPosition = Integer.valueOf(PreferenceManager.getDefaultSharedPreferences(getActivity()).getString("page", "0"));
-            selectItem(mCurrentSelectedPosition);
+            // Select either the default item (0) or the last selected item.
+            int user_position = Integer.valueOf(sp.getString("page", "0"));
+            if (mCurrentSelectedPosition != user_position) {
+                selectItem(user_position);
+            }
         }
-
-        // Select either the default item (0) or the last selected item.
-
-
     }
 
     @Override
@@ -98,9 +97,9 @@ public class NavigationDrawerFragment extends Fragment {
                 android.R.layout.simple_list_item_activated_1,
                 android.R.id.text1,
                 new String[]{
-                        "PlaceHolder 1",
-                        "PlaceHolder 2",
-                        "PlaceHolder 3",
+                        getString(R.string.file_list_recent),
+                        getString(R.string.file_list_homebrew),
+                        getString(R.string.file_list_default),
                 }));
         //mDrawerListView.setItemChecked(mCurrentSelectedPosition, true);
         mDrawerListView_bottom.setAdapter(new ArrayAdapter<>(
@@ -222,8 +221,9 @@ public class NavigationDrawerFragment extends Fragment {
             for (int i = 0; i < mDrawerListView.getChildCount(); i++) {
                 if(position == i ){
                     //TODO: colour is hardcoded, try getting from theme
-                    ColorDrawable listsel = new ColorDrawable(Color.argb(170, 0, 0, 200));
-                    mDrawerListView.getChildAt(i).setBackground(listsel);
+                    TypedArray a = getActivity().getTheme().obtainStyledAttributes(new int[]{R.attr.colorPrimaryDark});
+                    int attributeResourceId = a.getColor(0, 0);
+                    mDrawerListView.getChildAt(i).setBackgroundColor(attributeResourceId);
                 }else{
                     mDrawerListView.getChildAt(i).setBackgroundColor(Color.TRANSPARENT);
                 }
@@ -238,7 +238,6 @@ public class NavigationDrawerFragment extends Fragment {
     }
 
     private void selectBottomItem(int position) {
-        mCurrentSelectedPosition = position;
         if (mDrawerListView != null) {
             mDrawerListView.setItemChecked(position, true);
         }
@@ -298,6 +297,20 @@ public class NavigationDrawerFragment extends Fragment {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onResume(){
+        super.onResume();
+        if (mDrawerListView != null) {
+            //TODO: colour is hardcoded, try getting from theme
+            TypedArray a = getActivity().getTheme().obtainStyledAttributes(new int[]{R.attr.colorPrimaryDark});
+            int attributeResourceId = a.getColor(0, 0);
+            View v = mDrawerListView.getChildAt(mCurrentSelectedPosition);
+            if (v != null)
+            v.setBackgroundColor(attributeResourceId);
+
+        }
     }
 
     /**

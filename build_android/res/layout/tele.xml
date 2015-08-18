@@ -13,8 +13,6 @@
 		android:layout_width="match_parent"
 		android:background="?attr/colorPrimary"
 		app:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
-		android:paddingTop="@dimen/tool_bar_top_padding"
-		android:layout_marginBottom="@dimen/tool_bar_top_padding_inv"
 		android:layout_alignParentTop="true"
 		android:layout_alignParentLeft="true"
 		android:layout_alignParentStart="true" />
@@ -31,15 +29,6 @@
 			android:orientation="vertical"
 			android:layout_width="fill_parent"
 			android:layout_height="fill_parent" >
-			
-			<LinearLayout
-				android:id="@+id/file_grid"
-				android:layout_width="match_parent"
-				android:layout_height="wrap_content"
-				android:layout_marginTop="10dp"
-				android:visibility="gone"
-				android:orientation="vertical" />
-				
 			<GridView
 				android:id="@+id/game_grid"
 				android:layout_width="match_parent"
@@ -49,7 +38,6 @@
 				android:verticalSpacing="6dp"
 				android:numColumns="auto_fit"
 				android:stretchMode="columnWidth" />
-
 		</LinearLayout>
 		<!-- The navigation drawer -->
 		<fragment
@@ -60,6 +48,6 @@
 			android:layout_gravity="start"
 			tools:layout="@layout/fragment_navigation_drawer"
 			android:visibility="gone"
-			android:layout_marginTop="@dimen/tool_bar_top_padding_inv_inv" />
+			/>
 	</android.support.v4.widget.DrawerLayout>
 </RelativeLayout>

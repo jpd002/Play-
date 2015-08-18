@@ -863,11 +863,9 @@ uint32 CIopBios::SetAlarm(uint32 timePtr, uint32 alarmFunction, uint32 param)
 	uint32 alarmThreadId = -1;
 
 	//Find a thread we could recycle for a new alarm
-	for(auto threadIterator = m_threads.Begin();
-		threadIterator != m_threads.End(); threadIterator++)
+	for(auto thread : m_threads)
 	{
-		const auto& thread(m_threads[threadIterator]);
-		if(thread == nullptr) continue;
+		if(!thread) continue;
 		if(thread->threadProc != m_alarmThreadProcAddress) continue;
 		if(thread->status == THREAD_STATUS_DORMANT)
 		{
@@ -906,11 +904,9 @@ uint32 CIopBios::CancelAlarm(uint32 alarmFunction, uint32 param)
 
 	uint32 alarmThreadId = -1;
 
-	for(auto threadIterator = m_threads.Begin();
-		threadIterator != m_threads.End(); threadIterator++)
+	for(auto thread : m_threads)
 	{
-		const auto& thread(m_threads[threadIterator]);
-		if(thread == nullptr) continue;
+		if(!thread) continue;
 		if(thread->threadProc == m_alarmThreadProcAddress)
 		{
 			alarmThreadId = thread->id;
@@ -1293,11 +1289,9 @@ uint32 CIopBios::SignalSemaphore(uint32 semaphoreId, bool inInterrupt)
 
 	if(semaphore->waitCount != 0)
 	{
-		for(ThreadList::iterator threadIterator(m_threads.Begin());
-			threadIterator != m_threads.End(); threadIterator++)
+		for(auto thread : m_threads)
 		{
-			THREAD* thread(m_threads[threadIterator]);
-			if(thread == NULL) continue;
+			if(!thread) continue;
 			if(thread->waitSemaphore == semaphoreId)
 			{
 				if(thread->status != THREAD_STATUS_WAITING_SEMAPHORE)
@@ -1438,10 +1432,9 @@ uint32 CIopBios::SetEventFlag(uint32 eventId, uint32 value, bool inInterrupt)
 	eventFlag->value |= value;
 
 	//Check all threads waiting for this event
-	for(auto threadIterator(m_threads.Begin()); threadIterator != m_threads.End(); threadIterator++)
+	for(auto thread : m_threads)
 	{
-		THREAD* thread(m_threads[threadIterator]);
-		if(thread == NULL) continue;
+		if(!thread) continue;
 		if(thread->status != THREAD_STATUS_WAITING_EVENTFLAG) continue;
 		if(thread->waitEventFlag == eventId)
 		{
@@ -1605,10 +1598,9 @@ uint32 CIopBios::SendMessageBox(uint32 boxId, uint32 messagePtr)
 	}
 
 	//Check if there's a thread waiting for a message first
-	for(auto threadIterator(m_threads.Begin()); threadIterator != m_threads.End(); threadIterator++)
+	for(auto thread : m_threads)
 	{
-		THREAD* thread(m_threads[threadIterator]);
-		if(thread == NULL) continue;
+		if(!thread) continue;
 		if(thread->status != THREAD_STATUS_WAITING_MESSAGEBOX) continue;
 		if(thread->waitMessageBox == boxId)
 		{
@@ -1748,11 +1740,10 @@ bool CIopBios::ReleaseIntrHandler(uint32 line)
 
 uint32 CIopBios::FindIntrHandler(uint32 line)
 {
-	for(IntrHandlerList::iterator handlerIterator(m_intrHandlers.Begin());
-		handlerIterator != m_intrHandlers.End(); handlerIterator++)
+	for(auto handlerIterator = std::begin(m_intrHandlers); handlerIterator != std::end(m_intrHandlers); handlerIterator++)
 	{
-		INTRHANDLER* handler = m_intrHandlers[handlerIterator];
-		if(handler == NULL) continue;
+		auto handler = m_intrHandlers[handlerIterator];
+		if(!handler) continue;
 		if(handler->line == line) return handlerIterator;
 	}
 	return -1;
@@ -2197,11 +2188,9 @@ void CIopBios::TriggerCallback(uint32 address, uint32 arg0, uint32 arg1)
 	uint32 callbackThreadId = -1;
 
 	//Find a thread we could recycle for a new callback
-	for (auto threadIterator = m_threads.Begin();
-		threadIterator != m_threads.End(); threadIterator++)
+	for(auto thread : m_threads)
 	{
-		const auto& thread(m_threads[threadIterator]);
-		if(thread == nullptr) continue;
+		if(!thread) continue;
 		if(thread->threadProc != address) continue;
 		if(thread->status == THREAD_STATUS_DORMANT)
 		{

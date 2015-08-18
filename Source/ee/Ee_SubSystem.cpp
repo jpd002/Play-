@@ -285,10 +285,6 @@ bool CSubSystem::IsCpuIdle() const
 	{
 		return true;
 	}
-	else if(m_EE.m_State.nPC >= 0x1FC03100 && m_EE.m_State.nPC <= 0x1FC03110)
-	{
-		return true;
-	}
 	return false;
 }
 

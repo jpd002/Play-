@@ -7,26 +7,18 @@ import android.content.pm.*;
 import android.content.res.Configuration;
 import android.content.res.TypedArray;
 import android.graphics.Color;
-import android.graphics.LinearGradient;
-import android.graphics.Shader;
-import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
-import android.graphics.drawable.LayerDrawable;
-import android.graphics.drawable.PaintDrawable;
-import android.graphics.drawable.ShapeDrawable;
-import android.graphics.drawable.shapes.RectShape;
 import android.os.*;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.*;
 import android.view.*;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.*;
+import android.widget.AdapterView.OnItemClickListener;
 import android.widget.GridView;
 import android.widget.TextView;
 import android.support.v4.widget.DrawerLayout;
-import android.support.v4.app.ActionBarDrawerToggle;
 import java.io.*;
 import java.lang.reflect.InvocationTargetException;
 import java.text.*;
@@ -37,7 +29,6 @@ import org.apache.commons.io.comparator.LastModifiedFileComparator;
 import org.apache.commons.io.comparator.SizeFileComparator;
 import org.apache.commons.lang3.StringUtils;
 import com.android.util.FileUtils;
-import android.graphics.Point;
 
 import com.virtualapplications.play.database.GameInfo;
 import com.virtualapplications.play.database.SqliteHelper.Games;
@@ -49,9 +40,6 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
 	private SharedPreferences _preferences;
 	static Activity mActivity;
 	private boolean isConfigured = false;
-	private DrawerLayout mDrawerLayout;
-	private ActionBarDrawerToggle mDrawerToggle;
-	private float localScale;
 	private int currentOrientation;
 	private GameInfo gameInfo;
 	protected NavigationDrawerFragment mNavigationDrawerFragment;
@@ -62,7 +50,7 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
 	public static final int SORT_HOMEBREW = 1;
 	public static final int SORT_NONE = 2;
 	private int sortMethod = SORT_NONE;
-	
+
 	@Override 
 	protected void onCreate(Bundle savedInstanceState) 
 	{
@@ -72,6 +60,7 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
 		_preferences = getSharedPreferences("prefs", MODE_PRIVATE);
 		currentOrientation = getResources().getConfiguration().orientation;
 
+		SettingsActivity.ChangeTheme(null,this);
 		if (isAndroidTV(this)) {
 			setContentView(R.layout.tele);
 		} else {
@@ -100,9 +89,10 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
 //		if (isAndroidTV(this)) {
 //			// Load the menus for Android TV
 //		} else {
-			Toolbar toolbar = getSupportToolbar();
+			Toolbar toolbar = (Toolbar) findViewById(R.id.my_awesome_toolbar);
 			setSupportActionBar(toolbar);
 			toolbar.bringToFront();
+			setUIcolor();
 
 			mNavigationDrawerFragment = (NavigationDrawerFragment)
 					getFragmentManager().findFragmentById(R.id.navigation_drawer);
@@ -126,114 +116,32 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
 		prepareFileListView(false);
 	}
 
-	public int getStatusBarHeight() {
-		int result = 0;
-		int resourceId = getResources().getIdentifier("status_bar_height", "dimen", "android");
-		if (resourceId > 0) {
-			result = getResources().getDimensionPixelSize(resourceId);
+	private void setUIcolor(){
+		View content = findViewById(R.id.content_frame) ;
+		if (content != null) {
+			int[] colors = new int[2];// you can increase array size to add more colors to gradient.
+			TypedArray a = getTheme().obtainStyledAttributes(new int[]{R.attr.colorPrimary});
+			int topgradientcolor = a.getColor(0, 0);
+
+			a.recycle();
+			float[] hsv = new float[3];
+			Color.colorToHSV(topgradientcolor, hsv);
+			hsv[2] *= 0.8f;// make it darker
+			colors[0] = Color.HSVToColor(hsv);
+			/*
+			using this will blend the top of the gradient with actionbar (aka using the same color)
+			colors[0] = topgradientcolor
+			 */
+			colors[1] = Color.rgb(20, 20, 20);
+			GradientDrawable gradientbg = new GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM, colors);
+			content.setBackground(gradientbg);
 		}
-		return result;
-	}
-
-	private Toolbar getSupportToolbar() {
-		//this sets toolbar margin, but in effect moving the DrawerLayout
-		int statusBarHeight = getStatusBarHeight();
-
-		View toolbar = findViewById(R.id.my_awesome_toolbar);
-		final LinearLayout content = (LinearLayout) findViewById(R.id.content_frame);
-		
-		ViewGroup.MarginLayoutParams dlp = (ViewGroup.MarginLayoutParams) content.getLayoutParams();
-		dlp.topMargin = statusBarHeight;
-		content.setLayoutParams(dlp);
-
-		int[] colors = new int[2];// you can increase array size to add more colors to gradient.
-		TypedArray a = getTheme().obtainStyledAttributes(new int[]{R.attr.colorPrimary});
+		TypedArray a = getTheme().obtainStyledAttributes(new int[]{R.attr.colorPrimaryDark});
 		int attributeResourceId = a.getColor(0, 0);
 		a.recycle();
-		float[] hsv = new float[3];
-		Color.colorToHSV(attributeResourceId, hsv);
-		hsv[2] *= 0.8f;// make it darker
-		colors[0] = Color.HSVToColor(hsv);
-		/*
-		using this will blend the top of the gradient with actionbar (aka using the same color)
-		colors[0] = Color.parseColor("#" + Integer.toHexString(attributeResourceId)
-		 */
-		colors[1] = Color.rgb(20,20,20);
-		GradientDrawable gradientbg = new GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM, colors);
-		content.setBackground(gradientbg);
-
-		ViewGroup.MarginLayoutParams mlp = (ViewGroup.MarginLayoutParams) toolbar.getLayoutParams();
-		mlp.bottomMargin = - statusBarHeight;
-		toolbar.setLayoutParams(mlp);
-		View navigation_drawer = findViewById(R.id.navigation_drawer);
-		ViewGroup.MarginLayoutParams mlp2 = (ViewGroup.MarginLayoutParams) navigation_drawer.getLayoutParams();
-		mlp2.topMargin = statusBarHeight;
-		navigation_drawer.setLayoutParams(mlp2);
-
-		Point p = getNavigationBarSize(this);
-		/*
-		This will take account of nav bar to right/bottom
-		Not sure if there is a way to detect left/top? thus always pad right/bottom for now
-		*/
-		if (p.x != 0){
-			View relative_layout = findViewById(R.id.relative_layout);
-			relative_layout.setPadding(
-					relative_layout.getPaddingLeft(), 
-					relative_layout.getPaddingTop(), 
-					relative_layout.getPaddingRight() + p.x, 
-					relative_layout.getPaddingBottom());
-		} else if (p.y != 0){
-			navigation_drawer.setPadding(
-				navigation_drawer.getPaddingLeft(), 
-				navigation_drawer.getPaddingTop(), 
-				navigation_drawer.getPaddingRight(), 
-				navigation_drawer.getPaddingBottom() + p.y);
-
-		View file_listing = findViewById(R.id.file_grid);
-		file_listing.setPadding(
-			file_listing.getPaddingLeft(),
-			file_listing.getPaddingTop(),
-			file_listing.getPaddingRight(),
-			file_listing.getPaddingBottom() + p.y);
-		View game_listing = findViewById(R.id.game_grid);
-		game_listing.setPadding(
-			 game_listing.getPaddingLeft(),
-			 game_listing.getPaddingTop(),
-			 game_listing.getPaddingRight(),
-			 game_listing.getPaddingBottom() + p.y);
-		}
-		return (Toolbar) toolbar;
-	}
-
-	public static Point getNavigationBarSize(Context context) {
-		Point appUsableSize = getAppUsableScreenSize(context);
-		Point realScreenSize = getRealScreenSize(context);
-		return new Point(realScreenSize.x - appUsableSize.x, realScreenSize.y - appUsableSize.y);
-	}
-
-	public static Point getAppUsableScreenSize(Context context) {
-		WindowManager windowManager = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
-		Display display = windowManager.getDefaultDisplay();
-		Point size = new Point();
-		display.getSize(size);
-		return size;
-	}
-
-	public static Point getRealScreenSize(Context context) {
-		WindowManager windowManager = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
-		Display display = windowManager.getDefaultDisplay();
-		Point size = new Point();
-
-		if (Build.VERSION.SDK_INT >= 17) {
-		display.getRealSize(size);
-		} else if (Build.VERSION.SDK_INT >= 14) {
-		try {
-			size.x = (Integer) Display.class.getMethod("getRawWidth").invoke(display);
-			size.y = (Integer) Display.class.getMethod("getRawHeight").invoke(display);
-		} catch (IllegalAccessException e) {} catch (InvocationTargetException e) {} catch (NoSuchMethodException e) {}
-		}
-
-		return size;
+		findViewById(R.id.navigation_drawer).setBackgroundColor(Color.parseColor(
+				("#" + Integer.toHexString(attributeResourceId)).replace("#ff", "#8e")
+		));
 	}
 
 	private static long getBuildDate(Context context) 
@@ -278,9 +186,18 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
 	private void displaySettingsActivity()
 	{
 		Intent intent = new Intent(getApplicationContext(), SettingsActivity.class);
-		startActivity(intent);
+		startActivityForResult(intent, 0);
+
 	}
-	
+
+	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+		if (requestCode == 0) {
+			SettingsActivity.ChangeTheme(null, this);
+			setUIcolor();
+		}
+	}
+
+
 	private void displayAboutDialog()
 	{
 		long buildDate = getBuildDate(this);
@@ -297,6 +214,7 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
 		mNavigationDrawerFragment.onConfigurationChanged(newConfig);
 		if (newConfig.orientation != currentOrientation) {
 			currentOrientation = newConfig.orientation;
+			setUIcolor();
 			if (currentGames != null && !currentGames.isEmpty()) {
 				prepareFileListView(true);
 			} else {
@@ -428,7 +346,6 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
 
 	public void restoreActionBar() {
 		android.support.v7.app.ActionBar actionBar = getSupportActionBar();
-		actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
 		actionBar.setDisplayShowTitleEnabled(true);
 		actionBar.setTitle(R.string.app_name);
 		actionBar.setSubtitle(R.string.menu_title_shut);
@@ -499,7 +416,7 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
 		
 		protected void onPreExecute() {
 			progDialog = ProgressDialog.show(MainActivity.this,
-				getString(R.string.search_games),
+				getString(isConfigured ? R.string.updating_db : R.string.search_games),
 				getString(R.string.search_games_msg), true);
 		}
 		
@@ -541,8 +458,7 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
 		}
 	}
 	
-	private View createListItem(final File game, final int index, final View childview) {
-		
+	private View createListItem(final File game, final View childview) {
 		if (!isConfigured) {
 			
 			((TextView) childview.findViewById(R.id.game_text)).setText(game.getName());
@@ -572,6 +488,11 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
 					gameInfo.getImage(gameStats[0], childview, gameStats[3]);
 					((TextView) childview.findViewById(R.id.game_text)).setVisibility(View.GONE);
 				}
+			} else {
+				ImageView preview = (ImageView) childview.findViewById(R.id.game_icon);
+				preview.setImageResource(R.drawable.boxart);
+				preview.setScaleType(ImageView.ScaleType.FIT_XY);
+				((TextView) childview.findViewById(R.id.game_text)).setVisibility(View.VISIBLE);
 			}
 			
 			childview.findViewById(R.id.childview).setOnClickListener(new OnClickListener() {
@@ -593,45 +514,55 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
 		} else {
 			Collections.sort(images);
 		}
-		
-		LinearLayout gameListing = (LinearLayout) findViewById(R.id.file_grid);
-		if (gameListing != null && gameListing.isShown()) {
-			gameListing.removeAllViews();
-		}
 		GridView gameGrid = (GridView) findViewById(R.id.game_grid);
 		if (gameGrid != null && gameGrid.isShown()) {
 			gameGrid.setAdapter(null);
 		}
 		
-		if (isConfigured) {
-			gameGrid.setVisibility(View.VISIBLE);
-			gameListing.setVisibility(View.GONE);
-			File[] games = new File[images.size()];
-			images.toArray(games);
-			GamesAdapter adapter = new GamesAdapter(MainActivity.this, R.layout.game_list_item, games);
-			gameGrid.setAdapter(adapter);
-			gameGrid.invalidate();
-		} else {
-			gameListing.setVisibility(View.VISIBLE);
-			gameGrid.setVisibility(View.GONE);
-			
-			for (int i = 0; i < images.size(); i++)
-			{
-				View childview = MainActivity.this.getLayoutInflater().inflate(
-						R.layout.file_list_item, null, false);
-				gameListing.addView(createListItem(images.get(i), i, childview));
-			}
-			gameListing.invalidate();
+		if (isAndroidTV(this)) {
+			gameGrid.setOnItemClickListener(new OnItemClickListener() {
+				public void onItemClick(AdapterView<?> parent, View v, int position, long id) {
+					v.performClick();
+				}
+			});
 		}
+
+		GamesAdapter adapter = new GamesAdapter(MainActivity.this, isConfigured ? R.layout.game_list_item : R.layout.file_list_item, images);
+		/*
+		gameGrid.setNumColumns(-1);
+		-1 = autofit
+		or set a number if you like
+		 */
+		if (isConfigured){
+			gameGrid.setColumnWidth((int) getResources().getDimension(R.dimen.cover_width));
+		}
+		gameGrid.setAdapter(adapter);
+		gameGrid.invalidate();
+
 	}
 	
 	public class GamesAdapter extends ArrayAdapter<File> {
+
+		private final int layoutid;
+		private List<File> games;
 		
-		private File[] games;
-		
-		public GamesAdapter(Context context, int ResourceId, File[] images) {
+		public GamesAdapter(Context context, int ResourceId, List<File> images) {
 			super(context, ResourceId, images);
 			this.games = images;
+			this.layoutid = ResourceId;
+		}
+
+		public int getCount() {
+			//return mThumbIds.length;
+			return games.size();
+		}
+
+		public File getItem(int position) {
+			return games.get(position);
+		}
+
+		public long getItemId(int position) {
+			return position;
 		}
 		
 		@Override
@@ -639,11 +570,11 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
 			View v = convertView;
 			if (v == null) {
 				LayoutInflater vi = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-				v = vi.inflate(R.layout.game_list_item, null);
+				v = vi.inflate(layoutid, null);
 			}
-			final File game = games[position];
+			final File game = games.get(position);
 			if (game != null) {
-				createListItem(game, position, v);
+				createListItem(game, v);
 			}
 			return v;
 		}
@@ -712,13 +643,5 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
 				new ImageFinder(R.array.disks).execute(sdcard);
 			}
 		}
-		
-		/*if (!mDrawerLayout.isDrawerOpen(Gravity.LEFT)) {
-			if (!isConfigured) {
-				getActionBar().setTitle(getString(R.string.menu_title_look));
-			} else {
-				getActionBar().setTitle(getString(R.string.menu_title_shut));
-			}
-		}*/
 	}
 }
