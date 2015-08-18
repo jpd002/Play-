@@ -79,8 +79,10 @@ public class NavigationDrawerFragment extends Fragment {
             mFromSavedInstanceState = true;
         } else {
             // Select either the default item (0) or the last selected item.
-            mCurrentSelectedPosition = Integer.valueOf(sp.getString("page", "0"));
-            selectItem(mCurrentSelectedPosition);
+            int user_position = Integer.valueOf(sp.getString("page", "0"));
+            if (mCurrentSelectedPosition != user_position) {
+                selectItem(user_position);
+            }
         }
     }
 
