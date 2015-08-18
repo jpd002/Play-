@@ -13,8 +13,6 @@
 		android:layout_width="match_parent"
 		android:background="?attr/colorPrimary"
 		app:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
-		android:paddingTop="@dimen/tool_bar_top_padding"
-		android:layout_marginBottom="@dimen/tool_bar_top_padding_inv"
 		android:layout_alignParentTop="true"
 		android:layout_alignParentLeft="true"
 		android:layout_alignParentStart="true" />
@@ -50,6 +48,6 @@
 			android:layout_gravity="start"
 			tools:layout="@layout/fragment_navigation_drawer"
 			android:visibility="gone"
-			android:layout_marginTop="@dimen/tool_bar_top_padding_inv_inv" />
+			/>
 	</android.support.v4.widget.DrawerLayout>
 </RelativeLayout>
