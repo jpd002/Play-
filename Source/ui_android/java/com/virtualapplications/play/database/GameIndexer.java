@@ -20,6 +20,8 @@ import static com.virtualapplications.play.MainActivity.getExternalMounts;
 
 /**
  * Based On https://github.com/LithidSoftware/android_Findex/blob/master/src/com/lithidsw/findex/utils/FileWalker.java
+ * Modified for our needed functionality
+ * License in folder ../LICENSES/LICENSE
  */
 public class GameIndexer {
 
