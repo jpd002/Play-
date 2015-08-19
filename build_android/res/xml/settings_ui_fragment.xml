@@ -4,9 +4,9 @@
     <PreferenceCategory
         android:title="@string/preferences_ui">
         <Preference
-            android:key="ui.clearfolder"
-            android:title="@string/pref_ui_reset_folder_title"
-            android:summary="@string/pref_ui_reset_folder_summary"
+            android:key="ui.rescan"
+            android:title="@string/pref_ui_rescan_all_title"
+            android:summary="@string/pref_ui_rescan_all_summary"
             android:persistent="false" />
         <Preference
             android:key="ui.clearcache"
