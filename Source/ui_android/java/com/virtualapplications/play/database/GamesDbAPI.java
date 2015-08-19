@@ -1,13 +1,9 @@
 package com.virtualapplications.play.database;
 
-import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.StringReader;
 import java.io.UnsupportedEncodingException;
-import java.net.URL;
-import java.net.URLConnection;
 import java.net.URLEncoder;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -31,27 +27,21 @@ import android.content.Context;
 import android.content.ContentValues;
 import android.content.ContentResolver;
 import android.database.Cursor;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.StrictMode;
 import android.view.View;
-import android.view.View.OnLongClickListener;
-import android.widget.ImageView;
-import android.widget.ImageView.ScaleType;
-import android.widget.TextView;
 
+import com.virtualapplications.play.GameInfoStruct;
 import com.virtualapplications.play.R;
 import com.virtualapplications.play.database.SqliteHelper.Games;
 
 public class GamesDbAPI extends AsyncTask<File, Integer, Document> {
 
 	private final String serial;
+	private final GameInfoStruct gameInfoStruct;
 	private int index;
 	private View childview;
 	private Context mContext;
@@ -64,11 +54,12 @@ public class GamesDbAPI extends AsyncTask<File, Integer, Document> {
     private static final String games_url_id = "http://thegamesdb.net/api/GetGame.php?platform=sony+playstation+2&id=";
 	private static final String games_list = "http://thegamesdb.net/api/GetPlatformGames.php?platform=11";
 
-	public GamesDbAPI(Context mContext, String gameID, String serial) {
+	public GamesDbAPI(Context mContext, String gameID, String serial, GameInfoStruct gameInfoStruct) {
 		this.elastic = false;
 		this.mContext = mContext;
 		this.gameID = gameID;
 		this.serial = serial;
+		this.gameInfoStruct = gameInfoStruct;
 	}
 	
 	public void setView(View childview) {
@@ -152,6 +143,9 @@ public class GamesDbAPI extends AsyncTask<File, Integer, Document> {
 								if (overview != null && boxart != null &&
 									!overview.equals("") && !boxart.equals("")) {
 									dataID = c.getString(c.getColumnIndex(Games.KEY_GAMEID));
+									if (gameInfoStruct.getGameID() == null){
+										gameInfoStruct.setGameID(dataID, mContext);
+									}
 									if (childview != null) {
 										childview.findViewById(R.id.childview).setOnLongClickListener(
 											gameInfo.configureLongClick(title, overview, gameFile));
@@ -166,7 +160,7 @@ public class GamesDbAPI extends AsyncTask<File, Integer, Document> {
 					}
 					c.close();
 					if (dataID == null) {
-						GamesDbAPI gameDatabase = new GamesDbAPI(mContext, remoteID, serial);
+						GamesDbAPI gameDatabase = new GamesDbAPI(mContext, remoteID, serial, gameInfoStruct);
 						gameDatabase.setView(childview);
 						gameDatabase.execute(gameFile);
 					}
@@ -221,11 +215,19 @@ public class GamesDbAPI extends AsyncTask<File, Integer, Document> {
 					c.close();
 
 					if (childview != null) {
+						String m_title = getValue(root, "GameTitle");
+						if (!gameInfoStruct.isTitleNameEmptyNull()){
+							m_title = gameInfoStruct.getTitleName();
+						}
 						childview.findViewById(R.id.childview).setOnLongClickListener(
-							gameInfo.configureLongClick(getValue(root, "GameTitle"), overview, gameFile));
+								gameInfo.configureLongClick(m_title, overview, gameFile));
 						if (coverImage != null) {
 							gameInfo.getImage(remoteID, childview, coverImage);
 						}
+					}
+					dataID = c.getString(c.getColumnIndex(Games.KEY_GAMEID));
+					if (gameInfoStruct.getGameID() == null){
+						gameInfoStruct.setGameID(remoteID, mContext);
 					}
 				}
 			} catch (Exception e) {
