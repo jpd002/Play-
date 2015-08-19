@@ -441,79 +441,7 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
 			}
 		}
 	}
-
-	//TODO: should pass position instead of GameInfoStruct, so we can update those values, to avoid reading database on each scroll
-	private View createListItem(final GameInfoStruct game, final View childview) {
-		if (!isConfigured) {
-			//isConfig is no longer needed, since we index the entire phone, there is no need for the inital game picker
-			((TextView) childview.findViewById(R.id.game_text)).setText(game.getTitleName());
-
-			childview.findViewById(R.id.childview).setOnClickListener(new OnClickListener() {
-				public void onClick(View view) {
-					setCurrentDirectory(game.getFile().getPath().substring(0,
-							game.getFile().getPath().lastIndexOf(File.separator)));
-					isConfigured = true;
-					prepareFileListView(false);
-					return;
-				}
-			});
-
-			return childview;
-		} else {
-			((TextView) childview.findViewById(R.id.game_text)).setText(game.getTitleName());
-			//If user has set values, then read them, if not read from database
-			if (!game.isDescriptionEmptyNull() && game.getFrontLink() != null && !game.getFrontLink().equals("")) {
-				childview.findViewById(R.id.childview).setOnLongClickListener(
-						gameInfo.configureLongClick(game.getTitleName(), game.getDescription(), game));
-
-				if (!game.getFrontLink().equals("404")) {
-					gameInfo.getImage(game.getGameID(), childview, game.getFrontLink());
-					((TextView) childview.findViewById(R.id.game_text)).setVisibility(View.GONE);
-				} else {
-					ImageView preview = (ImageView) childview.findViewById(R.id.game_icon);
-					preview.setImageResource(R.drawable.boxart);
-					preview.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
-					((TextView) childview.findViewById(R.id.game_text)).setVisibility(View.VISIBLE);
-				}
-			} else if (IsLoadableExecutableFileName(game.getFile().getName())) {
-				ImageView preview = (ImageView) childview.findViewById(R.id.game_icon);
-				preview.setImageResource(R.drawable.boxart);
-				preview.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
-				((TextView) childview.findViewById(R.id.game_text)).setVisibility(View.VISIBLE);
-				childview.findViewById(R.id.childview).setOnLongClickListener(null);
-			} else {
-				childview.findViewById(R.id.childview).setOnLongClickListener(null);
-				// passing game, as to pass and use (if) any user defined values
-				final GameInfoStruct gameStats = gameInfo.getGameInfo(game.getFile(), childview, game);
-
-				if (gameStats != null) {
-					childview.findViewById(R.id.childview).setOnLongClickListener(
-							gameInfo.configureLongClick(gameStats.getTitleName(), gameStats.getDescription(), game));
-
-					if (gameStats.getFrontLink() != null && !gameStats.getFrontLink().equals("404")) {
-						gameInfo.getImage(gameStats.getGameID(), childview, gameStats.getFrontLink());
-						((TextView) childview.findViewById(R.id.game_text)).setVisibility(View.GONE);
-					}
-				} else {
-					ImageView preview = (ImageView) childview.findViewById(R.id.game_icon);
-					preview.setImageResource(R.drawable.boxart);
-					preview.setScaleType(ImageView.ScaleType.FIT_XY);
-					((TextView) childview.findViewById(R.id.game_text)).setVisibility(View.VISIBLE);
-				}
-			}
-
-
-
-			childview.findViewById(R.id.childview).setOnClickListener(new OnClickListener() {
-				public void onClick(View view) {
-					launchGame(game);
-					return;
-				}
-			});
-			return childview;
-		}
-	}
-
+	
 	private void populateImages(List<GameInfoStruct> images) {
 		if (sortMethod == SORT_RECENT) {
 			Collections.sort(images, new GameInfoStruct.GameInfoStructComparator());
@@ -578,10 +506,84 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
 			}
 			final GameInfoStruct game = games.get(position);
 			if (game != null) {
-				createListItem(game, v);
+				createListItem(game, v, position);
 			}
 			return v;
 		}
+
+		private View createListItem(final GameInfoStruct game, final View childview, int pos) {
+			if (!isConfigured) {
+				//isConfig is no longer needed, since we index the entire phone, there is no need for the inital game picker
+				((TextView) childview.findViewById(R.id.game_text)).setText(game.getTitleName());
+
+				childview.findViewById(R.id.childview).setOnClickListener(new OnClickListener() {
+					public void onClick(View view) {
+						setCurrentDirectory(game.getFile().getPath().substring(0,
+								game.getFile().getPath().lastIndexOf(File.separator)));
+						isConfigured = true;
+						prepareFileListView(false);
+						return;
+					}
+				});
+
+				return childview;
+			} else {
+
+				((TextView) childview.findViewById(R.id.game_text)).setText(game.getTitleName());
+				//If user has set values, then read them, if not read from database
+				if (!game.isDescriptionEmptyNull() && game.getFrontLink() != null && !game.getFrontLink().equals("")) {
+					childview.findViewById(R.id.childview).setOnLongClickListener(
+							gameInfo.configureLongClick(game.getTitleName(), game.getDescription(), game));
+
+					if (!game.getFrontLink().equals("404")) {
+						gameInfo.getImage(game.getGameID(), childview, game.getFrontLink());
+						((TextView) childview.findViewById(R.id.game_text)).setVisibility(View.GONE);
+					} else {
+						ImageView preview = (ImageView) childview.findViewById(R.id.game_icon);
+						preview.setImageResource(R.drawable.boxart);
+						preview.setScaleType(ImageView.ScaleType.FIT_XY);
+						((TextView) childview.findViewById(R.id.game_text)).setVisibility(View.VISIBLE);
+					}
+				} else if (IsLoadableExecutableFileName(game.getFile().getName())) {
+					ImageView preview = (ImageView) childview.findViewById(R.id.game_icon);
+					preview.setImageResource(R.drawable.boxart);
+					preview.setScaleType(ImageView.ScaleType.FIT_XY);
+					((TextView) childview.findViewById(R.id.game_text)).setVisibility(View.VISIBLE);
+					childview.findViewById(R.id.childview).setOnLongClickListener(null);
+				} else {
+					childview.findViewById(R.id.childview).setOnLongClickListener(null);
+					// passing game, as to pass and use (if) any user defined values
+					final GameInfoStruct gameStats = gameInfo.getGameInfo(game.getFile(), childview, game);
+					games.set(pos, gameStats);
+
+					if (gameStats != null) {
+						childview.findViewById(R.id.childview).setOnLongClickListener(
+								gameInfo.configureLongClick(gameStats.getTitleName(), gameStats.getDescription(), game));
+
+						if (gameStats.getFrontLink() != null && !gameStats.getFrontLink().equals("404")) {
+							gameInfo.getImage(gameStats.getGameID(), childview, gameStats.getFrontLink());
+							((TextView) childview.findViewById(R.id.game_text)).setVisibility(View.GONE);
+						}
+					} else {
+						ImageView preview = (ImageView) childview.findViewById(R.id.game_icon);
+						preview.setImageResource(R.drawable.boxart);
+						preview.setScaleType(ImageView.ScaleType.FIT_XY);
+						((TextView) childview.findViewById(R.id.game_text)).setVisibility(View.VISIBLE);
+					}
+				}
+
+
+
+				childview.findViewById(R.id.childview).setOnClickListener(new OnClickListener() {
+					public void onClick(View view) {
+						launchGame(game);
+						return;
+					}
+				});
+				return childview;
+			}
+		}
+
 	}
 	
 	public static void launchGame(GameInfoStruct game) {
