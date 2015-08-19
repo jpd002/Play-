@@ -258,6 +258,7 @@ public class GameInfo {
 			getImage(game.getName(), childview, null);
 			return null;
 		}
+		//TODO update Index details instead of GamesDB
 		String suffix = serial.substring(5, serial.length());
 		String gameID = null,  title = null, overview = null, boxart = null;
 		ContentResolver cr = mContext.getContentResolver();
