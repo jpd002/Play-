@@ -4,6 +4,7 @@ package com.virtualapplications.play;
 import android.graphics.Bitmap;
 
 import java.io.File;
+import java.util.Comparator;
 
 public class GameInfoStruct {
     private String m_TitleName;
@@ -14,6 +15,8 @@ public class GameInfoStruct {
     private Bitmap m_Thumb2;
     private String m_Overview;
     private File m_File;
+    private String m_indexID;
+    private long m_lastplayed;
 
     public GameInfoStruct(String m_id, String m_titlename, String overview, String m_frontLink) {
         m_TitleName = m_titlename;
@@ -29,7 +32,13 @@ public class GameInfoStruct {
     }
 
     public String getTitleName(){
-        return m_TitleName;
+        if (m_TitleName != null){
+            return m_TitleName;
+        } else {
+            if (m_File != null)
+            return m_File.getName();
+        }
+        return null;
     }
     public String getID(){
         return m_ID;
@@ -81,6 +90,25 @@ public class GameInfoStruct {
             return "No info";
         } else {
             return m_Overview;
+        }
+    }
+
+    public void setIndexID(String indexID) {
+        this.m_indexID = indexID;
+    }
+    public void setlastplayed(long lastplayed) {
+        this.m_lastplayed = lastplayed;
+    }
+
+    public long getlastplayed() {
+        return m_lastplayed;
+    }
+
+    public static class GameInfoStructComparator implements Comparator<GameInfoStruct> {
+        @Override
+        public int compare(GameInfoStruct o1, GameInfoStruct o2) {
+
+            return o1.getlastplayed() < o2.getlastplayed() ? -1 : o1.getlastplayed() == o2.getlastplayed() ? 0 : 1;
         }
     }
 }
