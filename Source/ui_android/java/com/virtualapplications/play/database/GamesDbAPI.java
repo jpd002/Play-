@@ -225,7 +225,6 @@ public class GamesDbAPI extends AsyncTask<File, Integer, Document> {
 							gameInfo.getImage(remoteID, childview, coverImage);
 						}
 					}
-					dataID = c.getString(c.getColumnIndex(Games.KEY_GAMEID));
 					if (gameInfoStruct.getGameID() == null){
 						gameInfoStruct.setGameID(remoteID, mContext);
 					}

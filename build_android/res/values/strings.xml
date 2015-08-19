@@ -42,8 +42,8 @@
     
     <string name="preferences_ui">Storage Options</string>
     
-    <string name="pref_ui_reset_folder_title">Reset Folder</string>
-    <string name="pref_ui_reset_folder_summary">Clear stored default folder</string>
+    <string name="pref_ui_rescan_all_title">Rescan Storage</string>
+    <string name="pref_ui_rescan_all_summary">Scan storage for new games</string>
     
     <string name="pref_ui_reset_cache_title">Reset Cache</string>
     <string name="pref_ui_reset_cache_summary">Clear stored cover images</string>

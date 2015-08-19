@@ -35,29 +35,16 @@ public class GameIndexer {
     }
 
     public void startupindexingscan() {
-        long startTime = System.currentTimeMillis();
         List<String> paths = getpath();
         if (paths.isEmpty()) {
-            HashSet<String> extStorage = getExternalMounts();
-            extStorage.add(Environment.getExternalStorageDirectory().getAbsolutePath());
-            if (extStorage != null && !extStorage.isEmpty()) {
-                for (String anExtStorage : extStorage) {
-                    String sdCardPath = anExtStorage.replace("mnt/media_rw", "storage");
-                    File file = new File(sdCardPath);
-                    walk(file, file.getAbsolutePath(), sdCardPath, 9999);
-                }
-            }
-            Log.i("INDEX", " 1st Runs");
+            fullindexingscan();
         } else {
             for (String path : paths) {
                 File file = new File(path);
                 walk(file, file.getAbsolutePath(), path, 0);
             }
-            Log.i("INDEX", " 2nd Runs");
         }
-        long endTime   = System.currentTimeMillis();
-        long totalTime = endTime - startTime;
-        Log.i("INDEX", "MY Time " + totalTime);
+
     }
 
     public void fullindexingscan() {
@@ -70,7 +57,6 @@ public class GameIndexer {
                     walk(file, file.getAbsolutePath(), sdCardPath, 9999);
                 }
             }
-            Log.i("INDEX", " 1st Runs");
 
     }
 
