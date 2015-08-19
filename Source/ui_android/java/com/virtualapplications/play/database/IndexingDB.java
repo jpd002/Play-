@@ -149,10 +149,7 @@ public class IndexingDB extends SQLiteOpenHelper {
                     String Path= cursor.getString(cursor.getColumnIndex(KEY_PATH));
                     String DiskName= cursor.getString(cursor.getColumnIndex(KEY_DISKNAME));
                     long last_played= cursor.getLong(cursor.getColumnIndex(KEY_LAST_PLAYED));
-                    GameInfoStruct values = new GameInfoStruct(GameID,GameTitle, OverView, FrontCoverLink);
-                    values.setFile(new File(Path, DiskName));
-                    values.setIndexID(IndexID);
-                    values.setlastplayed(last_played);
+                    GameInfoStruct values = new GameInfoStruct(IndexID, GameID,GameTitle, OverView, FrontCoverLink,last_played, new File(Path, DiskName));
                     IndexList.add(values);
                 } while (cursor.moveToNext());
             }

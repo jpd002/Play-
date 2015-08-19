@@ -252,13 +252,12 @@ public class GameInfo {
 		};
 	}
 	
-	public GameInfoStruct getGameInfo(File game, View childview) {
+	public GameInfoStruct getGameInfo(File game, View childview, GameInfoStruct gameInfoStruct) {
 		String serial = getSerial(game);
 		if (serial == null) {
 			getImage(game.getName(), childview, null);
 			return null;
 		}
-		//TODO update Index details instead of GamesDB
 		String suffix = serial.substring(5, serial.length());
 		String gameID = null,  title = null, overview = null, boxart = null;
 		ContentResolver cr = mContext.getContentResolver();
@@ -282,9 +281,22 @@ public class GameInfo {
 		}
 		if (overview != null && boxart != null &&
 			!overview.equals("") && !boxart.equals("")) {
-			return new GameInfoStruct(gameID, title, overview, boxart);
+			if (gameInfoStruct.isTitleNameEmptyNull()){
+				gameInfoStruct.setTitleName(title, mContext);
+			}
+
+			if (gameInfoStruct.getDescription() == null || gameInfoStruct.getDescription().isEmpty()){
+				gameInfoStruct.setDescription(overview, mContext);
+			}
+			if (gameInfoStruct.getFrontLink() == null || gameInfoStruct.getFrontLink().isEmpty()){
+				gameInfoStruct.setFrontLink(boxart, mContext);
+			}
+			if (gameInfoStruct.getGameID() == null){
+				gameInfoStruct.setGameID(gameID, mContext);
+			}
+			return gameInfoStruct;
 		} else {
-			GamesDbAPI gameDatabase = new GamesDbAPI(mContext, gameID, serial);
+			GamesDbAPI gameDatabase = new GamesDbAPI(mContext, gameID, serial, gameInfoStruct);
 			gameDatabase.setView(childview);
 			gameDatabase.execute(game);
 			return null;
