@@ -28,7 +28,6 @@ public class GameInfoStruct {
     public GameInfoStruct(String indexid, String m_id, String m_titlename, String overview, String m_frontLink, long last_played, File file) {
         m_TitleName = m_titlename;
         m_ID = m_id;
-        m_ID = m_id;
         m_Overview = overview;
         m_FrontLink = m_frontLink;
         m_indexID = indexid;
@@ -178,6 +177,10 @@ public class GameInfoStruct {
             values.put(IndexingDB.KEY_GAMEID, id);
             GI.updateIndex(values, IndexingDB.KEY_ID + "=?", new String[]{m_indexID});
         }
+    }
+
+    public String getIndexID() {
+        return m_indexID;
     }
 
     public static class GameInfoStructComparator implements Comparator<GameInfoStruct> {

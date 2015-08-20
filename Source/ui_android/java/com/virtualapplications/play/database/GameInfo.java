@@ -14,6 +14,7 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.ContentResolver;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -32,6 +33,7 @@ import android.widget.TextView;
 
 import java.util.concurrent.ExecutionException;
 
+import com.virtualapplications.play.CoverEditActivity;
 import com.virtualapplications.play.GameInfoStruct;
 import com.virtualapplications.play.R;
 import com.virtualapplications.play.MainActivity;
@@ -66,16 +68,25 @@ public class GameInfo {
 			}
 		}
 	}
-    
-    public Bitmap getBitmapFromMemCache(String key) {
+
+	public Bitmap getBitmapFromMemCache(String key) {
 		return mMemoryCache.get(key);
 	}
-	
+
+	public Bitmap removeBitmapFromMemCache(String key) {
+		return mMemoryCache.remove(key);
+	}
+
+
 	public void saveImage(String key, Bitmap image) {
+		saveImage(key, "", image);
+	}
+
+	public void saveImage(String key, String custom, Bitmap image) {
 		addBitmapToMemoryCache(key, image);
 		String path = mContext.getExternalFilesDir(null) + "/covers/";
 		OutputStream fOut = null;
-		File file = new File(path, key + ".jpg"); // the File to save to
+		File file = new File(path, key + custom + ".jpg"); // the File to save to
 		if (!file.getParentFile().exists()) {
 			file.getParentFile().mkdir();
 		}
@@ -89,10 +100,20 @@ public class GameInfo {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		
 	}
-	
+
+	public void deleteImage(String key, String custom) {
+		String path = mContext.getExternalFilesDir(null) + "/covers/";
+		File file = new File(path, key + custom + ".jpg"); // the File to save to
+		if (file.exists()) {
+			file.delete();
+		}
+	}
+
 	public Bitmap getImage(String key, View childview, String boxart) {
+		return getImage(key,childview,boxart, true);
+	}
+	public Bitmap getImage(String key, View childview, String boxart, boolean custom) {
 		Bitmap cachedImage = getBitmapFromMemCache(key);
 		if (cachedImage != null) {
 			if (childview != null) {
@@ -106,6 +127,7 @@ public class GameInfo {
 		String path = mContext.getExternalFilesDir(null) + "/covers/";
 
 		File file = new File(path, key + ".jpg");
+		if (custom && new File(path, key + "-custom.jpg").exists()) file = new File(path, key + "-custom.jpg");
 		if(file.exists())
 		{
 			BitmapFactory.Options options = new BitmapFactory.Options();
@@ -232,20 +254,34 @@ public class GameInfo {
 				builder.setTitle(title);
 				builder.setMessage(overview);
 				builder.setNegativeButton("Close",
-				new DialogInterface.OnClickListener() {
-					public void onClick(DialogInterface dialog, int which) {
-						dialog.dismiss();
-						return;
-					}
-				});
+						new DialogInterface.OnClickListener() {
+							public void onClick(DialogInterface dialog, int which) {
+								dialog.dismiss();
+								return;
+							}
+						});
 				builder.setPositiveButton("Launch",
-				new DialogInterface.OnClickListener() {
-					public void onClick(DialogInterface dialog, int which) {
-						dialog.dismiss();
-						MainActivity.launchGame(gameFile);
-						return;
-					}
-				});
+						new DialogInterface.OnClickListener() {
+							public void onClick(DialogInterface dialog, int which) {
+								dialog.dismiss();
+								MainActivity.launchGame(gameFile);
+								return;
+							}
+						});
+				builder.setNeutralButton("Edit",
+						new DialogInterface.OnClickListener() {
+							public void onClick(DialogInterface dialog, int which) {
+								dialog.dismiss();
+								Intent intent = new Intent(mContext, CoverEditActivity.class);
+								intent.putExtra("title",gameFile.getTitleName());
+								intent.putExtra("overview",gameFile.getDescription());
+								intent.putExtra("cover",gameFile.getFrontLink());
+								intent.putExtra("gameid",gameFile.getGameID());
+								intent.putExtra("indexid",gameFile.getIndexID());
+								((MainActivity)mContext).startActivityForResult(intent, 1);
+								return;
+							}
+						});
 				builder.create().show();
 				return true;
 			}

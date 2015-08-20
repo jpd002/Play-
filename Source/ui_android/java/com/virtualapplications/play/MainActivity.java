@@ -187,6 +187,13 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
 			ThemeManager.applyTheme(this);
 			setUIcolor();
 		}
+
+		if (requestCode == 1 && resultCode == RESULT_OK){
+			if (data != null){
+				gameInfo.removeBitmapFromMemCache(data.getStringExtra("gameid"));
+			}
+			prepareFileListView(false);
+		}
 	}
 
 

@@ -88,5 +88,10 @@
 		<provider
 			android:name=".database.TheGamesDB"
 			android:authorities="virtualapplications.play.gamesdb" />
+		<activity
+			android:name=".CoverEditActivity"
+			android:configChanges="orientation|locale|navigation"
+			>
+		</activity>
 	</application>
 </manifest> 
