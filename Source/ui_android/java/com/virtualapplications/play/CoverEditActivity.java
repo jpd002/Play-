@@ -1,5 +1,6 @@
 package com.virtualapplications.play;
 
+import android.content.ContentValues;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -15,6 +16,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.virtualapplications.play.database.GameInfo;
+import com.virtualapplications.play.database.IndexingDB;
 
 import java.io.FileNotFoundException;
 
@@ -145,9 +147,12 @@ public class CoverEditActivity extends ActionBarActivity {
 
         switch (item.getItemId()) {
             case R.id.action_save:
-                GameInfoStruct gis = new GameInfoStruct(intent.getStringExtra("indexid"), null, null, null, null, 0, null);
-                gis.setTitleName(((TextView) findViewById(R.id.editText)).getText().toString(), getApplicationContext());
-                gis.setDescription(((TextView) findViewById(R.id.editText2)).getText().toString(), getApplicationContext());
+                IndexingDB GI = new IndexingDB(this);
+                ContentValues values = new ContentValues();
+                values.put(IndexingDB.KEY_GAMETITLE, ((TextView) findViewById(R.id.editText)).getText().toString());
+                values.put(IndexingDB.KEY_OVERVIEW, ((TextView) findViewById(R.id.editText2)).getText().toString());
+                GI.updateIndex(values, IndexingDB.KEY_ID + "=?", new String[]{intent.getStringExtra("indexid")});
+
                 gi.removeBitmapFromMemCache(intent.getStringExtra("gameid"));
                 if (!default_cover && selectedImage != null){
                     gi.removeBitmapFromMemCache(intent.getStringExtra("gameid"));
