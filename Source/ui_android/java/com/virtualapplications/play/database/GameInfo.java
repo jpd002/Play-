@@ -198,6 +198,9 @@ public class GameInfo {
 				String api = null;
 				if (!boxart.startsWith("boxart/original/front/")) {
 					api = boxart;
+				} else if (boxart.equals("200")) {
+					//200 boxart has no link associated with it and was set by the user
+					return null;
 				} else {
 					api = "http://thegamesdb.net/banners/" + boxart;
 				}
@@ -211,7 +214,7 @@ public class GameInfo {
 					BitmapFactory.Options options = new BitmapFactory.Options();
 					options.inJustDecodeBounds = true;
 					Bitmap bitmap = BitmapFactory.decodeStream(bis, null, options);
-					
+
 					options.inSampleSize = calculateInSampleSize(options);
 					options.inJustDecodeBounds = false;
 					bis.close();
@@ -220,7 +223,7 @@ public class GameInfo {
 					im = conn1.getInputStream();
 					bis = new BufferedInputStream(im, 512);
 					bitmap = BitmapFactory.decodeStream(bis, null, options);
-					
+
 					bis.close();
 					im.close();
 					bis = null;
