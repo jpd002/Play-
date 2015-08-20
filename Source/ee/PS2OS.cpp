@@ -1928,8 +1928,26 @@ void CPS2OS::sc_SuspendThread()
 {
 	uint32 id = m_ee.m_State.nGPR[SC_PARAM0].nV[0];
 	
+	if(id == m_currentThreadId)
+	{
+		//This actually works on a real PS2
+		m_ee.m_State.nGPR[SC_RETURN].nD0 = static_cast<int32>(-1);
+		return;
+	}
+
 	auto thread = m_threads[id];
 	if(!thread)
+	{
+		m_ee.m_State.nGPR[SC_RETURN].nD0 = static_cast<int32>(-1);
+		return;
+	}
+
+	if(
+		(thread->status == THREAD_ZOMBIE) ||
+		(thread->status == THREAD_SUSPENDED) ||
+		(thread->status == THREAD_SUSPENDED_WAITING) ||
+		(thread->status == THREAD_SUSPENDED_SLEEPING)
+		)
 	{
 		m_ee.m_State.nGPR[SC_RETURN].nD0 = static_cast<int32>(-1);
 		return;
@@ -1962,8 +1980,25 @@ void CPS2OS::sc_ResumeThread()
 {
 	uint32 id = m_ee.m_State.nGPR[SC_PARAM0].nV[0];
 
+	if(id == m_currentThreadId)
+	{
+		m_ee.m_State.nGPR[SC_RETURN].nD0 = static_cast<int32>(-1);
+		return;
+	}
+
 	auto thread = m_threads[id];
 	if(!thread)
+	{
+		m_ee.m_State.nGPR[SC_RETURN].nD0 = static_cast<int32>(-1);
+		return;
+	}
+
+	if(
+		(thread->status == THREAD_ZOMBIE) ||
+		(thread->status == THREAD_RUNNING) ||
+		(thread->status == THREAD_WAITING) ||
+		(thread->status == THREAD_SLEEPING)
+		)
 	{
 		m_ee.m_State.nGPR[SC_RETURN].nD0 = static_cast<int32>(-1);
 		return;
