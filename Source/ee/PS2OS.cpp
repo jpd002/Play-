@@ -1688,12 +1688,6 @@ void CPS2OS::sc_TerminateThread()
 		return;
 	}
 
-	if(id >= MAX_THREAD)
-	{
-		m_ee.m_State.nGPR[SC_RETURN].nD0 = static_cast<int32>(-1);
-		return;
-	}
-
 	auto thread = m_threads[id];
 	if(!thread)
 	{
