@@ -22,7 +22,7 @@ static NSString * const reuseIdentifier = @"coverCell";
 
 - (void)awakeFromNib
 {
-    self.coverView = [ViewOrientation getInstance];
+    self.coverView = [CollectionView getInstance];
     self.coverView.isShowingLandscapeView = NO;
 
     [[UIDevice currentDevice] beginGeneratingDeviceOrientationNotifications];

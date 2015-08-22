@@ -13,7 +13,7 @@
 
 - (void)awakeFromNib
 {
-    self.mainView = [ViewOrientation getInstance];
+    self.mainView = [CollectionView getInstance];
     self.mainView.isShowingLandscapeView = YES;
     [[UIDevice currentDevice] beginGeneratingDeviceOrientationNotifications];
     [[NSNotificationCenter defaultCenter] addObserver:self

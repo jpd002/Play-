@@ -9,11 +9,11 @@
 #import <UIKit/UIKit.h>
 #import "SqliteDatabase.h"
 #import <SDWebImage/UIImageView+WebCache.h>
-#import "ViewOrientation.h"
+#import "CollectionView.h"
 
 @interface CoverViewController : UICollectionViewController
 
 @property SqliteDatabase* database;
-@property ViewOrientation *coverView;
+@property CollectionView *coverView;
 
 @end

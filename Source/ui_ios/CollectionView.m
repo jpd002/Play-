@@ -6,24 +6,24 @@
 //  Copyright (c) 2015 Jean-Philip Desjardins. All rights reserved.
 //
 
-#import "ViewOrientation.h"
+#import "CollectionView.h"
 #import "IosUtils.h"
 #import "DiskUtils.h"
 
-@implementation ViewOrientation
+@implementation CollectionView
 
 @synthesize isShowingLandscapeView;
 @synthesize diskImages;
 
-static ViewOrientation *instance = nil;
+static CollectionView *instance = nil;
 
-+ (ViewOrientation *) getInstance
++ (CollectionView *) getInstance
 {
     @synchronized(self)
     {
         if (instance == nil)
         {
-            instance = [ViewOrientation new];
+            instance = [CollectionView new];
         }
     }
     return instance;
