@@ -155,12 +155,8 @@
 		70834CDE1B1BD7DE00E8D5C6 /* libCodeGen.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 70834B8D1B1BD2F500E8D5C6 /* libCodeGen.a */; };
 		70834CDF1B1BD7DE00E8D5C6 /* libFramework.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 70834B871B1BD2E100E8D5C6 /* libFramework.a */; };
 		70834CE11B1BD7EE00E8D5C6 /* libz.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 70834CE01B1BD7EE00E8D5C6 /* libz.dylib */; };
-		70834CE61B1BE1AE00E8D5C6 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 70834CE51B1BE1AE00E8D5C6 /* UIKit.framework */; };
-		70834CE81B1BE1C500E8D5C6 /* libbz2.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 70834CE71B1BE1C500E8D5C6 /* libbz2.dylib */; };
 		70AD235B1B38A00500137AA0 /* EeExecutor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 70AD23591B38A00500137AA0 /* EeExecutor.cpp */; };
 		70AD23661B38A2FE00137AA0 /* GlEsView.mm in Sources */ = {isa = PBXBuildFile; fileRef = 70AD23651B38A2FE00137AA0 /* GlEsView.mm */; };
-		70AD23731B38F98E00137AA0 /* OpenGLES.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 70AD23721B38F98E00137AA0 /* OpenGLES.framework */; };
-		70AD23751B38F9B200137AA0 /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 70AD23741B38F9B200137AA0 /* QuartzCore.framework */; };
 		70AD23871B38FFBA00137AA0 /* Icon.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 70AD23771B38FFBA00137AA0 /* Icon.cpp */; };
 		70AD238A1B38FFBA00137AA0 /* Save.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 70AD237D1B38FFBA00137AA0 /* Save.cpp */; };
 		70AD238B1B38FFBA00137AA0 /* SaveExporter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 70AD237F1B38FFBA00137AA0 /* SaveExporter.cpp */; };
@@ -176,6 +172,10 @@
 		874ECDE71B7E749A000075B6 /* ImageIO.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 874ECDE61B7E749A000075B6 /* ImageIO.framework */; };
 		876AA37C1B82413300617242 /* BackgroundLayer.m in Sources */ = {isa = PBXBuildFile; fileRef = 876AA37B1B82413300617242 /* BackgroundLayer.m */; };
 		8794D9961B88AF2F00B1B3A3 /* SDWebImage.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8794D9951B88AF2F00B1B3A3 /* SDWebImage.framework */; };
+		8794D9AE1B88B60100B1B3A3 /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8794D9AD1B88B60100B1B3A3 /* QuartzCore.framework */; };
+		8794D9B01B88B60900B1B3A3 /* OpenGLES.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8794D9AF1B88B60900B1B3A3 /* OpenGLES.framework */; };
+		8794D9B21B88B61400B1B3A3 /* libbz2.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 8794D9B11B88B61400B1B3A3 /* libbz2.dylib */; };
+		8794D9B41B88B61C00B1B3A3 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8794D9B31B88B61C00B1B3A3 /* UIKit.framework */; };
 		87C208BE1B7A3E7E00638BDD /* GameController.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 87C208BD1B7A3E7E00638BDD /* GameController.framework */; };
 		87C4CC341B75010700CE6D3C /* iCadeReaderView.m in Sources */ = {isa = PBXBuildFile; fileRef = 87C4CC311B75010700CE6D3C /* iCadeReaderView.m */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
 		87DCDB331B7F03260054D67C /* CoverViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 87DCDB321B7F03260054D67C /* CoverViewController.m */; };
@@ -503,14 +503,10 @@
 		70834C9E1B1BD78D00E8D5C6 /* VolumeDescriptor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = VolumeDescriptor.h; path = ../Source/ISO9660/VolumeDescriptor.h; sourceTree = "<group>"; };
 		70834CE01B1BD7EE00E8D5C6 /* libz.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libz.dylib; path = usr/lib/libz.dylib; sourceTree = SDKROOT; };
 		70834CE21B1BD93100E8D5C6 /* Purei_Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Purei_Prefix.pch; path = ../Source/ui_ios/Purei_Prefix.pch; sourceTree = "<group>"; };
-		70834CE51B1BE1AE00E8D5C6 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS8.3.sdk/System/Library/Frameworks/UIKit.framework; sourceTree = DEVELOPER_DIR; };
-		70834CE71B1BE1C500E8D5C6 /* libbz2.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libbz2.dylib; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS8.3.sdk/usr/lib/libbz2.dylib; sourceTree = DEVELOPER_DIR; };
 		70AD23591B38A00500137AA0 /* EeExecutor.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = EeExecutor.cpp; path = ../Source/ee/EeExecutor.cpp; sourceTree = "<group>"; };
 		70AD235A1B38A00500137AA0 /* EeExecutor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = EeExecutor.h; path = ../Source/ee/EeExecutor.h; sourceTree = "<group>"; };
 		70AD23651B38A2FE00137AA0 /* GlEsView.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = GlEsView.mm; path = ../Source/ui_ios/GlEsView.mm; sourceTree = "<group>"; };
 		70AD23681B38A39000137AA0 /* GlEsView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GlEsView.h; path = ../Source/ui_ios/GlEsView.h; sourceTree = "<group>"; };
-		70AD23721B38F98E00137AA0 /* OpenGLES.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGLES.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS8.3.sdk/System/Library/Frameworks/OpenGLES.framework; sourceTree = DEVELOPER_DIR; };
-		70AD23741B38F9B200137AA0 /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS8.3.sdk/System/Library/Frameworks/QuartzCore.framework; sourceTree = DEVELOPER_DIR; };
 		70AD23771B38FFBA00137AA0 /* Icon.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Icon.cpp; path = ../Source/saves/Icon.cpp; sourceTree = "<group>"; };
 		70AD23781B38FFBA00137AA0 /* Icon.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Icon.h; path = ../Source/saves/Icon.h; sourceTree = "<group>"; };
 		70AD237D1B38FFBA00137AA0 /* Save.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Save.cpp; path = ../Source/saves/Save.cpp; sourceTree = "<group>"; };
@@ -536,8 +532,12 @@
 		876AA37A1B82413300617242 /* BackgroundLayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = BackgroundLayer.h; path = ../Source/ui_ios/BackgroundLayer.h; sourceTree = "<group>"; };
 		876AA37B1B82413300617242 /* BackgroundLayer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = BackgroundLayer.m; path = ../Source/ui_ios/BackgroundLayer.m; sourceTree = "<group>"; };
 		8794D9951B88AF2F00B1B3A3 /* SDWebImage.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = SDWebImage.framework; sourceTree = "<group>"; };
+		8794D9AD1B88B60100B1B3A3 /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS8.4.sdk/System/Library/Frameworks/QuartzCore.framework; sourceTree = DEVELOPER_DIR; };
+		8794D9AF1B88B60900B1B3A3 /* OpenGLES.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGLES.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS8.4.sdk/System/Library/Frameworks/OpenGLES.framework; sourceTree = DEVELOPER_DIR; };
+		8794D9B11B88B61400B1B3A3 /* libbz2.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libbz2.dylib; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS8.4.sdk/usr/lib/libbz2.dylib; sourceTree = DEVELOPER_DIR; };
+		8794D9B31B88B61C00B1B3A3 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS8.4.sdk/System/Library/Frameworks/UIKit.framework; sourceTree = DEVELOPER_DIR; };
 		87C208BD1B7A3E7E00638BDD /* GameController.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = GameController.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS8.4.sdk/System/Library/Frameworks/GameController.framework; sourceTree = DEVELOPER_DIR; };
-        87C4CC301B75010700CE6D3C /* iCadeReaderView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = iCadeReaderView.h; sourceTree = "<group>"; };
+		87C4CC301B75010700CE6D3C /* iCadeReaderView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = iCadeReaderView.h; sourceTree = "<group>"; };
 		87C4CC311B75010700CE6D3C /* iCadeReaderView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = iCadeReaderView.m; sourceTree = "<group>"; };
 		87C4CC321B75010700CE6D3C /* iCadeState.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = iCadeState.h; sourceTree = "<group>"; };
 		87DCDB311B7F03260054D67C /* CoverViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CoverViewController.h; path = ../Source/ui_ios/CoverViewController.h; sourceTree = "<group>"; };
@@ -555,11 +555,11 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				8794D9B41B88B61C00B1B3A3 /* UIKit.framework in Frameworks */,
+				8794D9B21B88B61400B1B3A3 /* libbz2.dylib in Frameworks */,
+				8794D9B01B88B60900B1B3A3 /* OpenGLES.framework in Frameworks */,
+				8794D9AE1B88B60100B1B3A3 /* QuartzCore.framework in Frameworks */,
 				705342D91B78122400477EC4 /* CoreGraphics.framework in Frameworks */,
-				70AD23751B38F9B200137AA0 /* QuartzCore.framework in Frameworks */,
-				70AD23731B38F98E00137AA0 /* OpenGLES.framework in Frameworks */,
-				70834CE81B1BE1C500E8D5C6 /* libbz2.dylib in Frameworks */,
-				70834CE61B1BE1AE00E8D5C6 /* UIKit.framework in Frameworks */,
 				874ECDE71B7E749A000075B6 /* ImageIO.framework in Frameworks */,
 				874ECDAA1B7DB862000075B6 /* libsqlite3.dylib in Frameworks */,
 				87C208BE1B7A3E7E00638BDD /* GameController.framework in Frameworks */,
@@ -747,11 +747,11 @@
 				70834B881B1BD2F500E8D5C6 /* CodeGen.xcodeproj */,
 				705342D81B78122400477EC4 /* CoreGraphics.framework */,
 				70834B821B1BD2E100E8D5C6 /* Framework.xcodeproj */,
-				70834CE71B1BE1C500E8D5C6 /* libbz2.dylib */,
+				8794D9B31B88B61C00B1B3A3 /* UIKit.framework */,
+				8794D9B11B88B61400B1B3A3 /* libbz2.dylib */,
+				8794D9AF1B88B60900B1B3A3 /* OpenGLES.framework */,
+				8794D9AD1B88B60100B1B3A3 /* QuartzCore.framework */,
 				70834CE01B1BD7EE00E8D5C6 /* libz.dylib */,
-				70AD23721B38F98E00137AA0 /* OpenGLES.framework */,
-				70AD23741B38F9B200137AA0 /* QuartzCore.framework */,
-				70834CE51B1BE1AE00E8D5C6 /* UIKit.framework */,
 				87C208BD1B7A3E7E00638BDD /* GameController.framework */,
 			);
 			name = Dependencies;
