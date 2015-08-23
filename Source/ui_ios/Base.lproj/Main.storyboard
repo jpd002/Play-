@@ -40,6 +40,7 @@
                         </connections>
                     </collectionView>
                     <navigationItem key="navigationItem" id="lVy-AQ-u1u"/>
+                    <simulatedOrientationMetrics key="simulatedOrientationMetrics"/>
                     <connections>
                         <segue destination="hhZ-rB-yPM" kind="presentation" identifier="DisplayMainView" id="Hgn-D6-gVT"/>
                     </connections>
@@ -156,6 +157,7 @@
                         </connections>
                     </tableView>
                     <navigationItem key="navigationItem" id="k1w-jX-WLg"/>
+                    <simulatedOrientationMetrics key="simulatedOrientationMetrics" orientation="landscapeRight"/>
                     <connections>
                         <segue destination="BYZ-38-t0r" kind="presentation" identifier="showEmulator" id="x0p-rE-WNc"/>
                         <segue destination="1v5-6a-quN" kind="presentation" identifier="DisplayCoverView" id="V0J-jV-tPz"/>
@@ -189,7 +191,7 @@
         <image name="boxart.png" width="245" height="368"/>
     </resources>
     <inferredMetricsTieBreakers>
-        <segue reference="CM3-7o-AJW"/>
+        <segue reference="V0J-jV-tPz"/>
         <segue reference="pJM-6k-34E"/>
     </inferredMetricsTieBreakers>
 </document>
