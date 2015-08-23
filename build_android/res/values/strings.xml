@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    
+
     <string name="app_name">Play!</string>
-    
+
     <!-- Application Navigation -->
     
 	<string name="main_menu_settings">Settings</string>
@@ -25,7 +25,9 @@
     <string name="file_list_recent">Recent</string>
     <string name="file_list_homebrew">Homebrew</string>
     <string name="file_list_default">Unsorted</string>
-    
+
+    <string name="game_unavailable">Game is unavailable.\nWould you like to remove it from the list?</string>
+    <string name="not_found">Not Found</string>
     <!-- Application Preferences -->
     
     <string name="title_activity_settings">Settings</string>

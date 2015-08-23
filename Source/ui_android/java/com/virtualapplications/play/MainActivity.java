@@ -152,7 +152,7 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
 		}
 		return 0;
 	}
-	
+
 	private void displaySimpleMessage(String title, String message)
 	{
 		AlertDialog.Builder builder = new AlertDialog.Builder(this);
@@ -160,17 +160,47 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
 		builder.setTitle(title);
 		builder.setMessage(message);
 
-		builder.setPositiveButton("OK", 
-			new DialogInterface.OnClickListener() 
-			{
-				@Override
-				public void onClick(DialogInterface dialog, int id) 
+		builder.setPositiveButton("OK",
+				new DialogInterface.OnClickListener()
 				{
-					
+					@Override
+					public void onClick(DialogInterface dialog, int id)
+					{
+
+					}
 				}
-			}
 		);
-		
+
+		AlertDialog dialog = builder.create();
+		dialog.show();
+	}
+
+	private void displayGameNotFound(final GameInfoStruct game)
+	{
+		AlertDialog.Builder builder = new AlertDialog.Builder(this);
+
+		builder.setTitle(R.string.not_found);
+		builder.setMessage(R.string.game_unavailable);
+
+		builder.setPositiveButton("Yes",
+				new DialogInterface.OnClickListener() {
+					@Override
+					public void onClick(DialogInterface dialog, int id) {
+						game.removeIndex(getBaseContext());
+						prepareFileListView(false);
+					}
+				}
+		);
+		builder.setNegativeButton("No",
+				new DialogInterface.OnClickListener() {
+					@Override
+					public void onClick(DialogInterface dialog, int id) {
+
+					}
+				}
+		);
+
+
 		AlertDialog dialog = builder.create();
 		dialog.show();
 	}
@@ -519,8 +549,12 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
 	}
 	
 	public static void launchGame(GameInfoStruct game) {
-		game.setlastplayed(mActivity);
-		((MainActivity) mActivity).launchDisk(game.getFile(), false);
+		if (game.getFile().exists()){
+			game.setlastplayed(mActivity);
+			((MainActivity) mActivity).launchDisk(game.getFile(), false);
+		} else {
+			((MainActivity) mActivity).displayGameNotFound(game);
+		}
 	}
 	
 	private void launchDisk(File game, boolean terminate) {

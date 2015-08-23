@@ -183,6 +183,14 @@ public class GameInfoStruct {
         return m_indexID;
     }
 
+    public void removeIndex(Context mContext) {
+        if (mContext != null){
+            IndexingDB GI = new IndexingDB(mContext);
+
+            GI.deleteIndex(IndexingDB.KEY_ID + "=?", new String[]{m_indexID});
+        }
+    }
+
     public static class GameInfoStructComparator implements Comparator<GameInfoStruct> {
         @Override
         public int compare(GameInfoStruct o1, GameInfoStruct o2) {
