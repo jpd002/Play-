@@ -477,6 +477,7 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
 		} else {
 			
 			((TextView) childview.findViewById(R.id.game_text)).setText(game.getName());
+			childview.findViewById(R.id.childview).setOnLongClickListener(null);
 			
 			final String[] gameStats = gameInfo.getGameInfo(game, childview);
 			
