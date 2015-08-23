@@ -1,25 +1,49 @@
-<?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-	android:layout_width="fill_parent"
-	android:layout_height="fill_parent"
+<RelativeLayout
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
+	xmlns:tools="http://schemas.android.com/tools"
+	android:layout_width="match_parent"
+	android:layout_height="match_parent"
 	>
-	<SurfaceView
-		android:id="@+id/emulator_view"
+	<android.support.v4.widget.DrawerLayout
+		android:id="@+id/emulator_drawer_layout"
 		android:layout_width="match_parent"
 		android:layout_height="match_parent"
-		android:focusable="false"
-		android:focusableInTouchMode="false"
+		>
+		<FrameLayout 
+			xmlns:android="http://schemas.android.com/apk/res/android"
+			xmlns:tools="http://schemas.android.com/tools"
+			android:layout_width="match_parent"
+			android:layout_height="match_parent"
+			>
+			<SurfaceView
+				android:id="@+id/emulator_view"
+				android:layout_width="match_parent"
+				android:layout_height="match_parent"
+				android:focusable="false"
+				android:focusableInTouchMode="false"
+			/>
+			<com.virtualapplications.play.VirtualPadView
+				android:id="@+id/emulator_virtualpad"
+				android:layout_width="match_parent"
+				android:layout_height="match_parent"
+				android:focusable="true"
+				android:focusableInTouchMode="true"
+			/>
+			<TextView 
+				android:id="@+id/emulator_stats"
+				android:layout_width="wrap_content" 
+				android:layout_height="wrap_content" 
+			/>
+		</FrameLayout>
+		<fragment
+			android:name="com.virtualapplications.play.EmulatorDrawerFragment"
+			android:id="@+id/emulator_drawer"
+			android:layout_width="@dimen/emulator_drawer_width"
+			android:layout_height="match_parent"
+			android:layout_gravity="start"
+			android:visibility="gone"
+			tools:layout="@layout/fragment_emulator_drawer"
 		/>
-	<com.virtualapplications.play.VirtualPadView
-		android:id="@+id/emulator_virtualpad"
-		android:layout_width="match_parent"
-		android:layout_height="match_parent"
-		android:focusable="true"
-		android:focusableInTouchMode="true"
-		/>
-	<TextView 
-		android:id="@+id/emulator_stats"
-		android:layout_width="wrap_content" 
-		android:layout_height="wrap_content" 
-	/>
-</FrameLayout>
+	</android.support.v4.widget.DrawerLayout>
+</RelativeLayout>
