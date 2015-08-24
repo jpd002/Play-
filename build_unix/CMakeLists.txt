@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 2.8)
-project(Play CXX)
+project(Play)
 
 set(CMAKE_MODULE_PATH
 	${Play_SOURCE_DIR}/Modules
@@ -9,6 +9,31 @@ set(CMAKE_MODULE_PATH
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 add_definitions(-D_DEBUG -D_IOP_EMULATE_MODULES)
+
+set(PROJECT_LIBS)
+
+set(Boost_FIND_REQUIRED TRUE)
+find_package(Boost COMPONENTS system filesystem chrono)
+include_directories($Boost_INCLUDE_DIRS)
+list(APPEND PROJECT_LIBS ${Boost_LIBRARIES})
+
+find_package(OpenGL REQUIRED)
+list(APPEND PROJECT_LIBS ${OPENGL_LIBRARIES})
+
+find_package(GLEW REQUIRED)
+list(APPEND PROJECT_LIBS ${GLEW_LIBRARIES})
+
+find_package(BZip2 REQUIRED)
+list(APPEND PROJECT_LIBS ${BZIP2_LIBRARIES})
+
+find_package(ZLIB REQUIRED)
+list(APPEND PROJECT_LIBS ${ZLIB_LIBRARIES})
+
+find_package(Threads REQUIRED)
+if(CMAKE_THREAD_LIBS_INIT)
+       list(APPEND PROJECT_LIBS "${CMAKE_THREAD_LIBS_INIT}")
+endif()
+
 
 include_directories(../Source ../../Framework/include ../../CodeGen/include)
 
@@ -139,6 +164,7 @@ add_library(Play
 	../Source/MIPSTags.cpp 
 	../Source/PadHandler.cpp 
 	../Source/PadListener.cpp 
+	../Source/Posix_VolumeStream.cpp
 	../Source/Profiler.cpp 
 	../Source/PS2VM.cpp 
 	../Source/RegisterStateFile.cpp 
@@ -146,3 +172,10 @@ add_library(Play
 	../Source/StructFile.cpp 
 	../Source/Utils.cpp
 )
+
+if(THREADS_HAVE_PTHREAD_ARG)
+  target_compile_options(PUBLIC Play "-pthread")
+endif()
+
+target_link_libraries(Play ${PROJECT_LIBS})
+
