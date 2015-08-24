@@ -505,18 +505,14 @@ Framework::OpenGl::ProgramPtr CGSH_OpenGL::GeneratePresentProgram()
 	{
 		std::stringstream shaderBuilder;
 		shaderBuilder << "#version 300 es" << std::endl;
-		shaderBuilder << "in vec3 a_position;" << std::endl;
+		shaderBuilder << "in vec2 a_position;" << std::endl;
+		shaderBuilder << "in vec2 a_texCoord;" << std::endl;
 		shaderBuilder << "out vec2 v_texCoord;" << std::endl;
 		shaderBuilder << "uniform vec2 g_texCoordScale;" << std::endl;
 		shaderBuilder << "void main()" << std::endl;
 		shaderBuilder << "{" << std::endl;
-		shaderBuilder << "	vec2 outputPosition;" << std::endl;
-		shaderBuilder << "	outputPosition.x = float(gl_VertexID / 2) * 4.0 - 1.0;" << std::endl;
-		shaderBuilder << "	outputPosition.y = float(gl_VertexID % 2) * 4.0 - 1.0;" << std::endl;
-		shaderBuilder << "	v_texCoord.x = float(gl_VertexID / 2) * 2.0;" << std::endl;
-		shaderBuilder << "	v_texCoord.y = 1.0 - float(gl_VertexID % 2) * 2.0;" << std::endl;
-		shaderBuilder << "	v_texCoord = v_texCoord * g_texCoordScale;" << std::endl;
-		shaderBuilder << "	gl_Position = vec4(outputPosition, 0, 1);" << std::endl;
+		shaderBuilder << "	v_texCoord = a_texCoord * g_texCoordScale;" << std::endl;
+		shaderBuilder << "	gl_Position = vec4(a_position, 0, 1);" << std::endl;
 		shaderBuilder << "}" << std::endl;
 
 		vertexShader.SetSource(shaderBuilder.str().c_str());
@@ -546,6 +542,10 @@ Framework::OpenGl::ProgramPtr CGSH_OpenGL::GeneratePresentProgram()
 	{
 		program->AttachShader(vertexShader);
 		program->AttachShader(pixelShader);
+
+		glBindAttribLocation(*program, static_cast<GLuint>(PRIM_VERTEX_ATTRIB::POSITION), "a_position");
+		glBindAttribLocation(*program, static_cast<GLuint>(PRIM_VERTEX_ATTRIB::TEXCOORD), "a_texCoord");
+
 		bool result = program->Link();
 		assert(result);
 	}
