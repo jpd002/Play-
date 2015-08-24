@@ -84,7 +84,8 @@ void CGSH_OpenGL::ReleaseImpl()
 	m_paletteCache.clear();
 	m_shaderInfos.clear();
 	m_presentProgram.reset();
-	m_emptyVertexArray.Reset();
+	m_presentVertexBuffer.Reset();
+	m_presentVertexArray.Reset();
 	m_primBuffer.Reset();
 	m_primVertexArray.Reset();
 }
@@ -274,8 +275,8 @@ void CGSH_OpenGL::FlipImpl()
 		assert(m_presentTexCoordScaleUniform != -1);
 		glUniform2f(m_presentTexCoordScaleUniform, u1, v1);
 
-		glBindBuffer(GL_ARRAY_BUFFER, 0);
-		glBindVertexArray(m_emptyVertexArray);
+		glBindBuffer(GL_ARRAY_BUFFER, m_presentVertexBuffer);
+		glBindVertexArray(m_presentVertexArray);
 
 #ifdef _DEBUG
 		m_presentProgram->Validate();
@@ -350,10 +351,11 @@ void CGSH_OpenGL::InitializeRC()
 
 #ifdef GLES_COMPATIBILITY
 	m_presentProgram = GeneratePresentProgram();
+	m_presentVertexBuffer = GeneratePresentVertexBuffer();
+	m_presentVertexArray = GeneratePresentVertexArray();
 	m_presentTextureUniform = glGetUniformLocation(*m_presentProgram, "g_texture");
 	m_presentTexCoordScaleUniform = glGetUniformLocation(*m_presentProgram, "g_texCoordScale");
 
-	m_emptyVertexArray = Framework::OpenGl::CVertexArray::Create();
 	m_primBuffer = Framework::OpenGl::CBuffer::Create();
 	m_primVertexArray = GeneratePrimVertexArray();
 #endif
@@ -361,6 +363,51 @@ void CGSH_OpenGL::InitializeRC()
 	PresentBackbuffer();
 
 	CHECKGLERROR();
+}
+
+Framework::OpenGl::CBuffer CGSH_OpenGL::GeneratePresentVertexBuffer()
+{
+	auto buffer = Framework::OpenGl::CBuffer::Create();
+
+	static const float bufferContents[] =
+	{
+		//Pos         UV
+		-1.0f, -1.0f, 0.0f,  1.0f,
+		-1.0f,  3.0f, 0.0f, -1.0f,
+		 3.0f, -1.0f, 2.0f,  1.0f,
+	};
+
+	glBindBuffer(GL_ARRAY_BUFFER, buffer);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(bufferContents), bufferContents, GL_STATIC_DRAW);
+
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+	CHECKGLERROR();
+
+	return buffer;
+}
+
+Framework::OpenGl::CVertexArray CGSH_OpenGL::GeneratePresentVertexArray()
+{
+	auto vertexArray = Framework::OpenGl::CVertexArray::Create();
+
+	glBindVertexArray(vertexArray);
+	
+	glBindBuffer(GL_ARRAY_BUFFER, m_presentVertexBuffer);
+
+	glEnableVertexAttribArray(static_cast<GLuint>(PRIM_VERTEX_ATTRIB::POSITION));
+	glVertexAttribPointer(static_cast<GLuint>(PRIM_VERTEX_ATTRIB::POSITION), 2, GL_FLOAT, 
+		GL_FALSE, sizeof(float) * 4, reinterpret_cast<const GLvoid*>(0));
+
+	glEnableVertexAttribArray(static_cast<GLuint>(PRIM_VERTEX_ATTRIB::TEXCOORD));
+	glVertexAttribPointer(static_cast<GLuint>(PRIM_VERTEX_ATTRIB::TEXCOORD), 2, GL_FLOAT, 
+		GL_FALSE, sizeof(float) * 4, reinterpret_cast<const GLvoid*>(8));
+
+	glBindVertexArray(0);
+
+	CHECKGLERROR();
+
+	return vertexArray;
 }
 
 Framework::OpenGl::CVertexArray CGSH_OpenGL::GeneratePrimVertexArray()
