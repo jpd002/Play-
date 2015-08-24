@@ -1,8 +1,17 @@
+#include <string.h>
 #include <fcntl.h>
-#include <sys/disk.h>
-#include <sys/stat.h>
 #include <stdexcept>
 #include <algorithm>
+
+#if defined(__APPLE__)
+#include <sys/disk.h>
+#include <sys/stat.h>
+#elif defined(__linux)
+#include <unistd.h>
+#include <sys/statvfs.h>
+#endif
+
+
 #include "Posix_VolumeStream.h"
 
 using namespace Framework::Posix;
@@ -14,10 +23,21 @@ CVolumeStream::CVolumeStream(const char* volumePath)
 	{
 		throw std::runtime_error("Couldn't open volume for reading.");
 	}
+#if defined(__APPLE__)
 	if(ioctl(m_fd, DKIOCGETBLOCKSIZE, &m_sectorSize) < 0)
 	{
 		throw std::runtime_error("Can't get sector size.");
 	}
+#elif defined(__linux)
+	struct statvfs s;
+	if(fstatvfs(m_fd, &s))
+	{
+		throw std::runtime_error("Can't get sector size.");
+	}
+	m_sectorSize = s.f_bsize;
+#else
+#error Unsupported
+#endif
 	m_cache = malloc(m_sectorSize);
 	m_cacheSector = m_sectorSize - 1;
 }
