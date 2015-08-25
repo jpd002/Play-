@@ -7,6 +7,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
 import com.virtualapplications.play.GameInfoStruct;
+import com.virtualapplications.play.MainActivity;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -133,33 +134,35 @@ public class IndexingDB extends SQLiteOpenHelper {
         return IndexList;
     }
 
-    public List<GameInfoStruct> getAllIndexGameInfoStruct(boolean homebrew) {
+    public List<GameInfoStruct> getAllIndexGameInfoStruct(int sortMethod) {
         SQLiteDatabase db = this.getReadableDatabase();
         List<GameInfoStruct> IndexList = new ArrayList<>();
         Cursor cursor;
-        if (!homebrew){
-            cursor = db.query(TABLE_NAME, null, null, null, null, null, null, null);
-        } else {
+        if (sortMethod == MainActivity.SORT_RECENT) {
+            cursor = db.query(TABLE_NAME, null, KEY_LAST_PLAYED + " != 0", null, null, null, KEY_LAST_PLAYED + " DESC", null);
+        } else if (sortMethod == MainActivity.SORT_HOMEBREW) {
             cursor = db.query(TABLE_NAME, null, KEY_DISKNAME + " LIKE ? COLLATE NOCASE", new String[]{"%.elf"}, null, null, null, null);
+        } else {
+            cursor = db.query(TABLE_NAME, null, null, null, null, null, null, null);
         }
-        if (cursor != null)
+        
+        if (cursor != null) {
             if (cursor.moveToFirst()) {
                 do {
-                    String IndexID= cursor.getString(cursor.getColumnIndex(KEY_ID));
-                    String GameID= cursor.getString(cursor.getColumnIndex(KEY_GAMEID));
-                    String GameTitle= cursor.getString(cursor.getColumnIndex(KEY_GAMETITLE));
-                    String FrontCoverLink= cursor.getString(cursor.getColumnIndex(KEY_IMAGE));
-                    String OverView= cursor.getString(cursor.getColumnIndex(KEY_OVERVIEW));
-                    String Path= cursor.getString(cursor.getColumnIndex(KEY_PATH));
-                    String DiskName= cursor.getString(cursor.getColumnIndex(KEY_DISKNAME));
-                    long last_played= cursor.getLong(cursor.getColumnIndex(KEY_LAST_PLAYED));
-                    GameInfoStruct values = new GameInfoStruct(IndexID, GameID,GameTitle, OverView, FrontCoverLink,last_played, new File(Path, DiskName));
+                    String IndexID = cursor.getString(cursor.getColumnIndex(KEY_ID));
+                    String GameID = cursor.getString(cursor.getColumnIndex(KEY_GAMEID));
+                    String GameTitle = cursor.getString(cursor.getColumnIndex(KEY_GAMETITLE));
+                    String FrontCoverLink = cursor.getString(cursor.getColumnIndex(KEY_IMAGE));
+                    String OverView = cursor.getString(cursor.getColumnIndex(KEY_OVERVIEW));
+                    String Path = cursor.getString(cursor.getColumnIndex(KEY_PATH));
+                    String DiskName = cursor.getString(cursor.getColumnIndex(KEY_DISKNAME));
+                    long last_played = cursor.getLong(cursor.getColumnIndex(KEY_LAST_PLAYED));
+                    GameInfoStruct values = new GameInfoStruct(IndexID, GameID, GameTitle, OverView, FrontCoverLink, last_played, new File(Path, DiskName));
                     IndexList.add(values);
                 } while (cursor.moveToNext());
             }
-
-
-        cursor.close();
+            cursor.close();
+        }
         return IndexList;
     }
 

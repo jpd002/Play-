@@ -404,7 +404,7 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
 			} else {
 				GI.startupindexingscan();
 			}
-			return GI.getindexGameInfoStruct(sortMethod == SORT_HOMEBREW);
+			return GI.getindexGameInfoStruct(sortMethod);
 		}
 		
 		@Override
@@ -423,9 +423,6 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
 	}
 	
 	private void populateImages(List<GameInfoStruct> images) {
-		if (sortMethod == SORT_RECENT) {
-			Collections.sort(images, new GameInfoStruct.GameInfoStructComparator());
-		}
 		GridView gameGrid = (GridView) findViewById(R.id.game_grid);
 		if (gameGrid != null && gameGrid.isShown()) {
 			gameGrid.setAdapter(null);

@@ -190,12 +190,4 @@ public class GameInfoStruct {
             GI.deleteIndex(IndexingDB.KEY_ID + "=?", new String[]{m_indexID});
         }
     }
-
-    public static class GameInfoStructComparator implements Comparator<GameInfoStruct> {
-        @Override
-        public int compare(GameInfoStruct o1, GameInfoStruct o2) {
-
-            return o1.getlastplayed() > o2.getlastplayed() ? -1 : o1.getlastplayed() == o2.getlastplayed() ? 1 : 0;
-        }
-    }
 }

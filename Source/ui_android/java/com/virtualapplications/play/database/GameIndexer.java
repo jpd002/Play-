@@ -6,6 +6,7 @@ import android.os.Environment;
 import android.util.Log;
 
 import com.virtualapplications.play.GameInfoStruct;
+import com.virtualapplications.play.MainActivity;
 import com.virtualapplications.play.NativeInterop;
 import com.virtualapplications.play.R;
 
@@ -84,7 +85,7 @@ public class GameIndexer {
                             values.put(IndexingDB.KEY_PATH, folderPath);
                             values.put(IndexingDB.KEY_SERIAL, serial);
                             values.put(IndexingDB.KEY_SIZE, f.length());
-                            values.put(IndexingDB.KEY_LAST_PLAYED, f.lastModified());
+                            values.put(IndexingDB.KEY_LAST_PLAYED, 0);
                             insert(values);
                             //Log.i("INDEX", "Name: " + name + " PATH: " + folderPath + " Serial: " + serial + " Size " + f.length());
                         }
@@ -144,13 +145,13 @@ public class GameIndexer {
         return db.getAllIndexList();
     }
 
-    public List<GameInfoStruct> getindexGameInfoStruct(boolean homebrew) {
+    public List<GameInfoStruct> getindexGameInfoStruct(int sortMethod) {
         if (db == null){
             if ((db = new IndexingDB(mContext)) == null){
                 Log.e("PLAY!", "Failed To Initiate IndexDB");
             }
         }
-        return db.getAllIndexGameInfoStruct(homebrew);
+        return db.getAllIndexGameInfoStruct(sortMethod);
     }
 
     private List<String> getpath() {
