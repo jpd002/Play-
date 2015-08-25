@@ -6,9 +6,16 @@ set(CMAKE_MODULE_PATH
 	${CMAKE_MODULE_PATH}
 )
 
+if(NOT CMAKE_BUILD_TYPE)
+	set(CMAKE_BUILD_TYPE Release CACHE STRING
+		"Choose the type of build, options are: None Debug Release"
+		FORCE)
+endif()
+
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-add_definitions(-D_DEBUG -D_IOP_EMULATE_MODULES)
+set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -D_DEBUG")
+add_definitions(-D_IOP_EMULATE_MODULES -DAOT_USE_CACHE)
 
 set(PROJECT_LIBS)
 
@@ -33,7 +40,6 @@ find_package(Threads REQUIRED)
 if(CMAKE_THREAD_LIBS_INIT)
        list(APPEND PROJECT_LIBS "${CMAKE_THREAD_LIBS_INIT}")
 endif()
-
 
 include_directories(../Source ../../Framework/include ../../CodeGen/include)
 
