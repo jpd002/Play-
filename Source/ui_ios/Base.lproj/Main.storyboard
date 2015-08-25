@@ -28,6 +28,7 @@
                                     <autoresizingMask key="autoresizingMask"/>
                                     <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
                                 </view>
+                                <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
                                 <size key="customSize" width="144" height="204"/>
                                 <connections>
                                     <segue destination="BYZ-38-t0r" kind="presentation" identifier="showEmulator" id="pJM-6k-34E"/>
@@ -76,6 +77,7 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                         <color key="sectionIndexBackgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
+                        <color key="sectionIndexTrackingBackgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
                         <prototypes>
                             <tableViewCell contentMode="scaleToFill" selectionStyle="default" indentationWidth="10" reuseIdentifier="detailCell" rowHeight="160" id="y39-Wr-aHd" customClass="CoverViewCell">
                                 <autoresizingMask key="autoresizingMask"/>
@@ -191,7 +193,7 @@
         <image name="boxart.png" width="245" height="368"/>
     </resources>
     <inferredMetricsTieBreakers>
+        <segue reference="x0p-rE-WNc"/>
         <segue reference="V0J-jV-tPz"/>
-        <segue reference="pJM-6k-34E"/>
     </inferredMetricsTieBreakers>
 </document>

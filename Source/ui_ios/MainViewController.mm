@@ -117,7 +117,7 @@
     
     NSDictionary *game = [self.database getDiskInfo:diskId];
     if ([[game objectForKey:@"title"] isEqual:@""]) {
-        cell.nameLabel.text = [[disk objectForKey:@"file"] lastPathComponent];
+        cell.nameLabel.text = [[[disk objectForKey:@"file"] lastPathComponent] stringByDeletingPathExtension];
     } else {
         cell.nameLabel.text = [game objectForKey:@"title"];
     }
