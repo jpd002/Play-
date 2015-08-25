@@ -29,8 +29,10 @@ struct AOT_BLOCK
 	void*			fct;
 };
 
-extern "C" AOT_BLOCK	_aot_firstBlock;
-extern "C" uint32		_aot_blockCount;
+extern "C" {
+	AOT_BLOCK _aot_firstBlock;
+	uint32 _aot_blockCount;
+}
 
 #endif
 

@@ -1,5 +1,15 @@
 cmake_minimum_required(VERSION 2.8)
+
 project(Play)
+add_subdirectory(
+	${Play_SOURCE_DIR}/../../Framework/build_unix
+	${Play_SOURCE_DIR}/../../Framework/build_unix/build
+)
+
+add_subdirectory(
+	${Play_SOURCE_DIR}/../../CodeGen/build_unix
+	${Play_SOURCE_DIR}/../../CodeGen/build_unix/build
+)
 
 set(CMAKE_MODULE_PATH
 	${Play_SOURCE_DIR}/Modules
@@ -44,9 +54,6 @@ endif()
 include_directories(../Source ../../Framework/include ../../CodeGen/include)
 
 add_library(Play
-	${Play_SOURCE_DIR}/../../Framework/build_unix/build/libFramework.a
-	${Play_SOURCE_DIR}/../../Framework/build_unix/build/libFramework_MySql.a
-	${Play_SOURCE_DIR}/../../CodeGen/build_unix/build/libCodeGen.a
 	../Source/AppConfig.cpp 
 	../Source/BasicBlock.cpp 
 	../Source/ControllerInfo.cpp 
@@ -55,6 +62,7 @@ add_library(Play
 	../Source/COP_SCU.cpp 
 	../Source/COP_SCU_Reflection.cpp 
 	../Source/CsoImageStream.cpp 
+	../Source/DiskUtils.cpp 
 	../Source/ee/COP_VU.cpp 
 	../Source/ee/COP_VU_Reflection.cpp 
 	../Source/ee/DMAC.cpp 
@@ -183,5 +191,40 @@ if(THREADS_HAVE_PTHREAD_ARG)
   target_compile_options(PUBLIC Play "-pthread")
 endif()
 
-target_link_libraries(Play ${PROJECT_LIBS})
+target_link_libraries(Play Framework CodeGen ${PROJECT_LIBS})
+
+
+
+enable_testing()
+
+add_executable(autotest
+	../tools/AutoTest/JUnitTestReportWriter.cpp
+	../tools/AutoTest/Main.cpp
+)
+target_link_libraries(autotest Play)
+
+add_executable(McServTest
+	../tools/McServTest/AppConfig.cpp
+	../tools/McServTest/GameTestSheet.cpp
+	../tools/McServTest/Main.cpp
+)
+target_link_libraries(McServTest Play)
+add_test(NAME McServTest
+	WORKING_DIRECTORY ${Play_SOURCE_DIR}/../tools/McServTest
+	COMMAND McServTest
+)
+
+add_executable(VuTest
+	../tools/VuTest/AddTest.cpp
+	../tools/VuTest/FlagsTest2.cpp
+	../tools/VuTest/FlagsTest.cpp
+	../tools/VuTest/Main.cpp
+	../tools/VuTest/TestVm.cpp
+	../tools/VuTest/TriAceTest.cpp
+	../tools/VuTest/VuAssembler.cpp
+)
+target_link_libraries(VuTest Play)
+add_test(NAME VuTest
+	COMMAND VuTest
+)
 
