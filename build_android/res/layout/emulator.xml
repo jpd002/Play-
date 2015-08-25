@@ -35,6 +35,14 @@
 				android:layout_width="wrap_content" 
 				android:layout_height="wrap_content" 
 			/>
+			<!-- 
+				This empty view is needed here to make sure drawer
+				scrolling is smooth on Android 5.0+
+			-->
+			<View
+				android:layout_width="match_parent"
+				android:layout_height="match_parent"
+			/>
 		</FrameLayout>
 		<fragment
 			android:name="com.virtualapplications.play.EmulatorDrawerFragment"
