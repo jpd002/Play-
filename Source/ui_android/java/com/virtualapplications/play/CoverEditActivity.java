@@ -32,7 +32,7 @@ public class CoverEditActivity extends ActionBarActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_cover_edit);
-        SettingsActivity.ChangeTheme(null, this);
+        ThemeManager.applyTheme(this);
         Toolbar tv = (Toolbar) findViewById(R.id.my_awesome_toolbar);
         setSupportActionBar(tv);
 
