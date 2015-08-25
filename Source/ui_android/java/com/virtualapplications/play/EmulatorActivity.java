@@ -10,6 +10,7 @@ import android.support.v4.widget.DrawerLayout;
 import android.util.*;
 import android.view.*;
 import android.widget.*;
+import android.widget.Toast;
 import java.util.*;
 
 public class EmulatorActivity extends Activity
@@ -60,13 +61,39 @@ public class EmulatorActivity extends Activity
 				@Override
 				public void onSaveStateSelected()
 				{
-					
+					int messageStringId = R.string.emulator_save_state_ok;
+					try
+					{
+						NativeInterop.saveState(0);
+					}
+					catch(Exception e)
+					{
+						messageStringId = R.string.emulator_save_state_fail;
+					}
+					Toast toast = Toast.makeText(
+						getApplicationContext(), getString(messageStringId), Toast.LENGTH_SHORT
+					);
+					toast.show();
+					_drawerFragment.closeDrawer();
 				}
 
 				@Override
 				public void onLoadStateSelected()
 				{
-					
+					int messageStringId = R.string.emulator_load_state_ok;
+					try
+					{
+						NativeInterop.loadState(0);
+					}
+					catch(Exception e)
+					{
+						messageStringId = R.string.emulator_load_state_fail;
+					}
+					Toast toast = Toast.makeText(
+						getApplicationContext(), getString(messageStringId), Toast.LENGTH_SHORT
+					);
+					toast.show();
+					_drawerFragment.closeDrawer();
 				}
 			}
 		);
