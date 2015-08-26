@@ -10,11 +10,9 @@
 
 @interface CollectionView : NSObject
 {
-    BOOL isShowingLandscapeView;
     NSArray* diskImages;
 }
 
-@property (nonatomic) BOOL isShowingLandscapeView;
 @property NSArray* diskImages;
 
 + (CollectionView*) getInstance;

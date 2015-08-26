@@ -12,7 +12,6 @@
 
 @implementation CollectionView
 
-@synthesize isShowingLandscapeView;
 @synthesize diskImages;
 
 static CollectionView *instance = nil;

@@ -7,7 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		70287BE41B5F3A0300B53235 /* MainViewController.mm in Sources */ = {isa = PBXBuildFile; fileRef = 70287BE31B5F3A0300B53235 /* MainViewController.mm */; };
 		704E1C4E1B3BA0B200C0ACE3 /* GSH_OpenGLiOS.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 704E1C4C1B3BA0B200C0ACE3 /* GSH_OpenGLiOS.cpp */; };
 		704E1C531B3BA25000C0ACE3 /* GSH_OpenGL_Shader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 704E1C4F1B3BA25000C0ACE3 /* GSH_OpenGL_Shader.cpp */; };
 		704E1C541B3BA25000C0ACE3 /* GSH_OpenGL_Texture.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 704E1C501B3BA25000C0ACE3 /* GSH_OpenGL_Texture.cpp */; };
@@ -216,8 +215,6 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		70287BE31B5F3A0300B53235 /* MainViewController.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = MainViewController.mm; path = ../Source/ui_ios/MainViewController.mm; sourceTree = "<group>"; };
-		70287BE51B5F3A2400B53235 /* MainViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = MainViewController.h; path = ../Source/ui_ios/MainViewController.h; sourceTree = "<group>"; };
 		704E1C4C1B3BA0B200C0ACE3 /* GSH_OpenGLiOS.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = GSH_OpenGLiOS.cpp; path = ../Source/ui_ios/GSH_OpenGLiOS.cpp; sourceTree = "<group>"; };
 		704E1C4D1B3BA0B200C0ACE3 /* GSH_OpenGLiOS.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GSH_OpenGLiOS.h; path = ../Source/ui_ios/GSH_OpenGLiOS.h; sourceTree = "<group>"; };
 		704E1C4F1B3BA25000C0ACE3 /* GSH_OpenGL_Shader.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = GSH_OpenGL_Shader.cpp; path = ../Source/gs/GSH_OpenGL/GSH_OpenGL_Shader.cpp; sourceTree = "<group>"; };
@@ -628,8 +625,6 @@
 				876AA37B1B82413300617242 /* BackgroundLayer.m */,
 				87DCDB311B7F03260054D67C /* CoverViewController.h */,
 				87DCDB321B7F03260054D67C /* CoverViewController.m */,
-				70287BE51B5F3A2400B53235 /* MainViewController.h */,
-				70287BE31B5F3A0300B53235 /* MainViewController.mm */,
 				70834CE21B1BD93100E8D5C6 /* Purei_Prefix.pch */,
 				874ECDA51B7DB0F6000075B6 /* SqliteDatabase.m */,
 				874ECDA71B7DB1C1000075B6 /* SqliteDatabase.h */,
@@ -1212,7 +1207,6 @@
 				70834B7B1B1BD2C300E8D5C6 /* RegisterStateFile.cpp in Sources */,
 				70834B631B1BD2C300E8D5C6 /* Log.cpp in Sources */,
 				70AD238C1B38FFBA00137AA0 /* SaveImporter.cpp in Sources */,
-				70287BE41B5F3A0300B53235 /* MainViewController.mm in Sources */,
 				70834BFB1B1BD6A300E8D5C6 /* VuAnalysis.cpp in Sources */,
 				70834BF71B1BD6A300E8D5C6 /* Timer.cpp in Sources */,
 				87DCDB381B7F13370054D67C /* CollectionView.m in Sources */,

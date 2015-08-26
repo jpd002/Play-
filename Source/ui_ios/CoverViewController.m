@@ -23,13 +23,6 @@ static NSString * const reuseIdentifier = @"coverCell";
 - (void)awakeFromNib
 {
     self.coverView = [CollectionView getInstance];
-    self.coverView.isShowingLandscapeView = NO;
-
-    [[UIDevice currentDevice] beginGeneratingDeviceOrientationNotifications];
-    [[NSNotificationCenter defaultCenter] addObserver:self
-                                             selector:@selector(orientationChanged:)
-                                                 name:UIDeviceOrientationDidChangeNotification
-                                               object:nil];
 }
 
 - (void)viewDidLoad {
@@ -60,28 +53,6 @@ static NSString * const reuseIdentifier = @"coverCell";
 {
 	// resize your layers based on the view’s new bounds
 	[[[self.view.layer sublayers] objectAtIndex:0] setFrame:self.view.bounds];
-}
-
-- (void)orientationChanged:(NSNotification *)notification
-{
-	UIDeviceOrientation deviceOrientation = [UIDevice currentDevice].orientation;
-	if (UIDeviceOrientationIsLandscape(deviceOrientation) &&
-		!self.coverView.isShowingLandscapeView)
-	{
-		[self performSegueWithIdentifier:@"DisplayMainView" sender:self];
-		self.coverView.isShowingLandscapeView = YES;
-	}
-	else if (UIDeviceOrientationIsPortrait(deviceOrientation) &&
-			 self.coverView.isShowingLandscapeView)
-	{
-		[self dismissViewControllerAnimated:YES completion:nil];
-		self.coverView.isShowingLandscapeView = NO;
-	}
-	else if (UIDeviceOrientationIsPortrait(deviceOrientation) &&
-			 !self.coverView.isShowingLandscapeView)
-	{
-		[self.presentingViewController dismissViewControllerAnimated:YES completion:nil];
-	}
 }
 
 - (BOOL)shouldAutorotate {

@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="7706" systemVersion="14E46" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" initialViewController="VnE-Sh-vgR">
     <dependencies>
+        <deployment identifier="iOS"/>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="7703"/>
-        <capability name="Constraints to layout margins" minToolsVersion="6.0"/>
     </dependencies>
     <scenes>
         <!--Cover View Controller-->
@@ -42,13 +42,10 @@
                     </collectionView>
                     <navigationItem key="navigationItem" id="lVy-AQ-u1u"/>
                     <simulatedOrientationMetrics key="simulatedOrientationMetrics"/>
-                    <connections>
-                        <segue destination="hhZ-rB-yPM" kind="presentation" identifier="DisplayMainView" id="Hgn-D6-gVT"/>
-                    </connections>
                 </collectionViewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="nEc-gK-fd8" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="833" y="-459"/>
+            <point key="canvasLocation" x="793" y="279"/>
         </scene>
         <!--Emulator View Controller-->
         <scene sceneID="tne-QT-ifu">
@@ -66,108 +63,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="1572" y="279"/>
-        </scene>
-        <!--Main View Controller-->
-        <scene sceneID="5aG-cf-LTq">
-            <objects>
-                <tableViewController id="hhZ-rB-yPM" customClass="MainViewController" sceneMemberID="viewController">
-                    <tableView key="view" clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="160" sectionHeaderHeight="22" sectionFooterHeight="22" id="WGp-Ri-NNP">
-                        <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
-                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                        <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
-                        <color key="sectionIndexBackgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
-                        <color key="sectionIndexTrackingBackgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
-                        <prototypes>
-                            <tableViewCell contentMode="scaleToFill" selectionStyle="default" indentationWidth="10" reuseIdentifier="detailCell" rowHeight="160" id="y39-Wr-aHd" customClass="CoverViewCell">
-                                <autoresizingMask key="autoresizingMask"/>
-                                <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="y39-Wr-aHd" id="m5s-UO-vw1">
-                                    <autoresizingMask key="autoresizingMask"/>
-                                    <subviews>
-                                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" ambiguous="YES" misplaced="YES" text="" textAlignment="center" lineBreakMode="wordWrap" numberOfLines="2" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="a0k-NV-7Pc">
-                                            <rect key="frame" x="117" y="8" width="475" height="42"/>
-                                            <accessibility key="accessibilityConfiguration">
-                                                <accessibilityTraits key="traits" none="YES" staticText="YES" notEnabled="YES"/>
-                                            </accessibility>
-                                            <fontDescription key="fontDescription" type="system" pointSize="17"/>
-                                            <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
-                                            <nil key="highlightedColor"/>
-                                        </label>
-                                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" ambiguous="YES" misplaced="YES" text="" lineBreakMode="wordWrap" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="id4-1k-4QZ">
-                                            <rect key="frame" x="125" y="58" width="462" height="93"/>
-                                            <accessibility key="accessibilityConfiguration">
-                                                <accessibilityTraits key="traits" none="YES" staticText="YES" notEnabled="YES"/>
-                                            </accessibility>
-                                            <fontDescription key="fontDescription" type="system" pointSize="12"/>
-                                            <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
-                                            <nil key="highlightedColor"/>
-                                        </label>
-                                        <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="boxart.png" translatesAutoresizingMaskIntoConstraints="NO" id="1ux-YC-Lvu">
-                                            <rect key="frame" x="8" y="7" width="101" height="144"/>
-                                            <accessibility key="accessibilityConfiguration">
-                                                <accessibilityTraits key="traits" none="YES" image="YES" notEnabled="YES"/>
-                                            </accessibility>
-                                        </imageView>
-                                    </subviews>
-                                    <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
-                                    <constraints>
-                                        <constraint firstAttribute="bottomMargin" secondItem="id4-1k-4QZ" secondAttribute="bottom" constant="9.5" id="5TH-4d-XGP"/>
-                                        <constraint firstAttribute="trailingMargin" secondItem="id4-1k-4QZ" secondAttribute="trailing" constant="7" id="99n-yP-HLZ"/>
-                                        <constraint firstItem="id4-1k-4QZ" firstAttribute="top" secondItem="a0k-NV-7Pc" secondAttribute="bottom" constant="8" id="BQN-Wj-LmT"/>
-                                        <constraint firstItem="id4-1k-4QZ" firstAttribute="top" secondItem="m5s-UO-vw1" secondAttribute="topMargin" constant="50" id="Le2-5f-IZI"/>
-                                        <constraint firstItem="a0k-NV-7Pc" firstAttribute="trailing" secondItem="m5s-UO-vw1" secondAttribute="trailingMargin" id="Lr5-d4-pZp"/>
-                                        <constraint firstAttribute="bottomMargin" secondItem="1ux-YC-Lvu" secondAttribute="bottom" constant="0.5" id="QMR-XV-qyL"/>
-                                        <constraint firstItem="1ux-YC-Lvu" firstAttribute="top" secondItem="m5s-UO-vw1" secondAttribute="topMargin" constant="-1" id="Tex-LC-NGC"/>
-                                        <constraint firstItem="id4-1k-4QZ" firstAttribute="leading" secondItem="1ux-YC-Lvu" secondAttribute="trailing" constant="16" id="Uah-SS-hSv"/>
-                                        <constraint firstItem="a0k-NV-7Pc" firstAttribute="leading" secondItem="1ux-YC-Lvu" secondAttribute="trailing" constant="8" id="dOY-T2-Rjm"/>
-                                        <constraint firstItem="a0k-NV-7Pc" firstAttribute="top" secondItem="m5s-UO-vw1" secondAttribute="topMargin" id="e35-58-cZs"/>
-                                        <constraint firstAttribute="bottomMargin" secondItem="a0k-NV-7Pc" secondAttribute="bottom" constant="101.5" id="fKG-Bg-bFV"/>
-                                        <constraint firstAttribute="trailingMargin" secondItem="1ux-YC-Lvu" secondAttribute="trailing" constant="483" id="frS-RA-xev"/>
-                                        <constraint firstItem="a0k-NV-7Pc" firstAttribute="leading" secondItem="m5s-UO-vw1" secondAttribute="leadingMargin" constant="109" id="kYc-UD-bCc"/>
-                                        <constraint firstAttribute="bottomMargin" secondItem="1ux-YC-Lvu" secondAttribute="bottom" constant="0.5" id="kvn-vq-PaG"/>
-                                        <constraint firstItem="1ux-YC-Lvu" firstAttribute="top" secondItem="m5s-UO-vw1" secondAttribute="topMargin" constant="-1" id="rTU-Gv-mPa"/>
-                                        <constraint firstItem="id4-1k-4QZ" firstAttribute="leading" secondItem="m5s-UO-vw1" secondAttribute="leadingMargin" constant="117" id="sTw-SS-IMX"/>
-                                        <constraint firstItem="a0k-NV-7Pc" firstAttribute="leading" secondItem="1ux-YC-Lvu" secondAttribute="trailing" constant="8" id="vxw-ae-kAh"/>
-                                        <constraint firstItem="1ux-YC-Lvu" firstAttribute="leading" secondItem="m5s-UO-vw1" secondAttribute="leadingMargin" id="yJw-9v-jDY"/>
-                                        <constraint firstItem="id4-1k-4QZ" firstAttribute="leading" secondItem="1ux-YC-Lvu" secondAttribute="trailing" constant="16" id="yhC-Ml-gwp"/>
-                                        <constraint firstItem="id4-1k-4QZ" firstAttribute="top" secondItem="a0k-NV-7Pc" secondAttribute="bottom" constant="8" id="z8v-DX-UDH"/>
-                                    </constraints>
-                                    <variation key="default">
-                                        <mask key="constraints">
-                                            <exclude reference="Tex-LC-NGC"/>
-                                            <exclude reference="frS-RA-xev"/>
-                                            <exclude reference="kvn-vq-PaG"/>
-                                            <exclude reference="fKG-Bg-bFV"/>
-                                            <exclude reference="vxw-ae-kAh"/>
-                                            <exclude reference="Le2-5f-IZI"/>
-                                            <exclude reference="yhC-Ml-gwp"/>
-                                            <exclude reference="z8v-DX-UDH"/>
-                                        </mask>
-                                    </variation>
-                                </tableViewCellContentView>
-                                <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
-                                <connections>
-                                    <outlet property="coverImage" destination="1ux-YC-Lvu" id="dht-1h-dSm"/>
-                                    <outlet property="nameLabel" destination="a0k-NV-7Pc" id="H27-mU-CQb"/>
-                                    <outlet property="overviewLabel" destination="id4-1k-4QZ" id="RIP-9c-HON"/>
-                                </connections>
-                            </tableViewCell>
-                        </prototypes>
-                        <connections>
-                            <outlet property="dataSource" destination="hhZ-rB-yPM" id="HYk-hP-2Yq"/>
-                            <outlet property="delegate" destination="hhZ-rB-yPM" id="USF-E1-tnZ"/>
-                        </connections>
-                    </tableView>
-                    <navigationItem key="navigationItem" id="k1w-jX-WLg"/>
-                    <simulatedOrientationMetrics key="simulatedOrientationMetrics" orientation="landscapeRight"/>
-                    <connections>
-                        <segue destination="BYZ-38-t0r" kind="presentation" identifier="showEmulator" id="x0p-rE-WNc"/>
-                        <segue destination="1v5-6a-quN" kind="presentation" identifier="DisplayCoverView" id="V0J-jV-tPz"/>
-                    </connections>
-                </tableViewController>
-                <placeholder placeholderIdentifier="IBFirstResponder" id="4iG-vT-Rrv" userLabel="First Responder" sceneMemberID="firstResponder"/>
-            </objects>
-            <point key="canvasLocation" x="833" y="278"/>
+            <point key="canvasLocation" x="1570" y="279"/>
         </scene>
         <!--Navigation Controller-->
         <scene sceneID="gLP-K1-Ezx">
@@ -189,11 +85,4 @@
             <point key="canvasLocation" x="26" y="279"/>
         </scene>
     </scenes>
-    <resources>
-        <image name="boxart.png" width="245" height="368"/>
-    </resources>
-    <inferredMetricsTieBreakers>
-        <segue reference="x0p-rE-WNc"/>
-        <segue reference="V0J-jV-tPz"/>
-    </inferredMetricsTieBreakers>
 </document>
