@@ -130,9 +130,9 @@ static NSString * const reuseIdentifier = @"coverCell";
     
     NSDictionary *game = [self.database getDiskInfo:diskId];
 
-    if (![[game objectForKey:@"boxart"] isEqual:@"404"]) {
+	cell.backgroundView = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"boxart.png"]];
+    if ([game objectForKey:@"boxart"] != nil && ![[game objectForKey:@"boxart"] isEqual:@"404"]) {
         NSString *imageIcon = [[NSString alloc] initWithFormat:@"http://thegamesdb.net/banners/%@", [game objectForKey:@"boxart"]];
-        cell.backgroundView = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"boxart.png"]];
         [(UIImageView *)cell.backgroundView setImageWithURL:[NSURL URLWithString:imageIcon] placeholderImage:[UIImage imageNamed:@"boxart.png"]];
     }
     
