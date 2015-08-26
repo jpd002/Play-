@@ -46,6 +46,12 @@
     
     <string name="pref_ui_rescan_all_title">Rescan Storage</string>
     <string name="pref_ui_rescan_all_summary">Scan storage for new games</string>
+
+    <string name="pref_ui_clear_index_title">Clear Game List</string>
+    <string name="pref_ui_clear_index_summary">Reset sll of the game\'s list and its associated details</string>
+
+    <string name="pref_ui_clear_unavailable_title">Clear Unavailable Games</string>
+    <string name="pref_ui_clear_unavailable_summary">Remove any game currently inaccessible from the game\'s list</string>
     
     <string name="pref_ui_reset_cache_title">Reset Cache</string>
     <string name="pref_ui_reset_cache_summary">Clear stored cover images</string>
