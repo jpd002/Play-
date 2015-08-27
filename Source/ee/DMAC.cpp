@@ -296,27 +296,16 @@ uint32 CDMAC::GetRegister(uint32 nAddress)
 	REGISTER_READ(D0_MADR, m_D0.m_nMADR)
 	REGISTER_READ(D0_QWC,  m_D0.m_nQWC)
 	REGISTER_READ(D0_TADR, m_D0.m_nTADR)
+	
+	//Channel 1
+	REGISTER_READ(D1_CHCR, m_D1.ReadCHCR())
+	REGISTER_READ(D1_MADR, m_D1.m_nMADR)
+	REGISTER_READ(D1_QWC,  m_D1.m_nQWC)
+	REGISTER_READ(D1_TADR, m_D1.m_nTADR)
 
-	case D1_CHCR + 0x0:
-		return m_D1.ReadCHCR();
-		break;
 	case D1_CHCR + 0x1:
 		//This is done by FFXII
 		return m_D1.ReadCHCR() >> 8;
-		break;
-	case D1_CHCR + 0x4:
-	case D1_CHCR + 0x8:
-	case D1_CHCR + 0xC:
-		return 0;
-		break;
-
-	case D1_TADR + 0x0:
-		return m_D1.m_nTADR;
-		break;
-	case D1_TADR + 0x4:
-	case D1_TADR + 0x8:
-	case D1_TADR + 0xC:
-		return 0;
 		break;
 
 	case D2_CHCR + 0x0:
