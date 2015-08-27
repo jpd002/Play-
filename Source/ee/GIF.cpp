@@ -4,9 +4,13 @@
 #include "../Ps2Const.h"
 #include "../Log.h"
 #include "../FrameDump.h"
+#include "../RegisterStateFile.h"
 #include "GIF.h"
 
 #define LOG_NAME ("gif")
+
+#define STATE_REGS_XML      ("gif/regs.xml")
+#define STATE_REGS_M3P      ("M3P")
 
 CGIF::CGIF(CGSHandler*& gs, uint8* ram, uint8* spr)
 : m_gs(gs)
@@ -31,6 +35,7 @@ CGIF::~CGIF()
 
 void CGIF::Reset()
 {
+	m_path3Masked = false;
 	m_loops = 0;
 	m_cmd = 0;
 	m_regs = 0;
@@ -38,6 +43,19 @@ void CGIF::Reset()
 	m_regList = 0;
 	m_eop = false;
 	m_qtemp = 0;
+}
+
+void CGIF::LoadState(Framework::CZipArchiveReader& archive)
+{
+	CRegisterStateFile registerFile(*archive.BeginReadFile(STATE_REGS_XML));
+	m_path3Masked = registerFile.GetRegister32(STATE_REGS_M3P) != 0;
+}
+
+void CGIF::SaveState(Framework::CZipArchiveWriter& archive)
+{
+	CRegisterStateFile* registerFile = new CRegisterStateFile(STATE_REGS_XML);
+	registerFile->SetRegister32(STATE_REGS_M3P, m_path3Masked ? 1 : 0);
+	archive.InsertFile(registerFile);
 }
 
 uint32 CGIF::ProcessPacked(CGSHandler::RegisterWriteList& writeList, uint8* memory, uint32 address, uint32 end)
@@ -332,6 +350,12 @@ uint32 CGIF::GetRegister(uint32 address)
 	switch(address)
 	{
 	case GIF_STAT:
+		if(m_path3Masked)
+		{
+			result |= GIF_STAT_M3P;
+			//Indicate that FIFO is full (15 qwords) (needed for GTA: San Andreas)
+			result |= (0x1F << 24);
+		}
 		if(m_gs && (m_gs->GetPendingTransferCount() != 0))
 		{
 			result |= GIF_STAT_APATH3;
@@ -349,6 +373,11 @@ void CGIF::SetRegister(uint32 address, uint32 value)
 #ifdef _DEBUG
 	DisassembleSet(address, value);
 #endif
+}
+
+void CGIF::SetPath3Masked(bool masked)
+{
+	m_path3Masked = masked;
 }
 
 void CGIF::DisassembleGet(uint32 address)
