@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <dimen name="navigation_drawer_width">240dp</dimen>
+    <dimen name="emulator_drawer_width">240dp</dimen>
 
     <dimen name="cover_width">172dp</dimen>
     <dimen name="cover_height">242dp</dimen>

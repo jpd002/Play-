@@ -259,6 +259,8 @@ private:
 	std::string						GenerateAlphaTestSection(ALPHA_TEST_METHOD);
 
 	Framework::OpenGl::ProgramPtr	GeneratePresentProgram();
+	Framework::OpenGl::CBuffer		GeneratePresentVertexBuffer();
+	Framework::OpenGl::CVertexArray	GeneratePresentVertexArray();
 	Framework::OpenGl::CVertexArray	GeneratePrimVertexArray();
 
 	void							Prim_Point();
@@ -332,6 +334,8 @@ private:
 	void							CommitFramebufferDirtyPages(const FramebufferPtr&, unsigned int, unsigned int);
 
 	Framework::OpenGl::ProgramPtr	m_presentProgram;
+	Framework::OpenGl::CBuffer		m_presentVertexBuffer;
+	Framework::OpenGl::CVertexArray	m_presentVertexArray;
 	GLint							m_presentTextureUniform = -1;
 	GLint							m_presentTexCoordScaleUniform = -1;
 
@@ -340,7 +344,6 @@ private:
 	FramebufferList					m_framebuffers;
 	DepthbufferList					m_depthbuffers;
 
-	Framework::OpenGl::CVertexArray	m_emptyVertexArray;
 	Framework::OpenGl::CBuffer		m_primBuffer;
 	Framework::OpenGl::CVertexArray	m_primVertexArray;
 

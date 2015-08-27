@@ -61,7 +61,19 @@
 		<item>Dark Purple</item>
     </string-array>
     
-    <!-- Error Reporting / Debugging -->
+	<!-- Emulator Drawer -->
+	
+	<string name="emulator_drawer_exit">Exit</string>
+	<string name="emulator_drawer_savestate">Save State</string>
+	<string name="emulator_drawer_loadstate">Load State</string>
+	
+	<string name="emulator_save_state_ok">State saved successfully.</string>
+	<string name="emulator_save_state_fail">Couldn\'t save state.</string>
+	
+	<string name="emulator_load_state_ok">State loaded successfully.</string>
+	<string name="emulator_load_state_fail">Couldn\'t load state.</string>
+	
+	<!-- Error Reporting / Debugging -->
 	
 	<string name="report_issue">Previous Crash Detected</string>
 	

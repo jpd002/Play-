@@ -60,7 +60,7 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
 		_preferences = getSharedPreferences("prefs", MODE_PRIVATE);
 		currentOrientation = getResources().getConfiguration().orientation;
 
-		SettingsActivity.ChangeTheme(null,this);
+		ThemeManager.applyTheme(this);
 		if (isAndroidTV(this)) {
 			setContentView(R.layout.tele);
 		} else {
@@ -192,7 +192,7 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
 
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		if (requestCode == 0) {
-			SettingsActivity.ChangeTheme(null, this);
+			ThemeManager.applyTheme(this);
 			setUIcolor();
 		}
 	}
@@ -477,6 +477,7 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
 		} else {
 			
 			((TextView) childview.findViewById(R.id.game_text)).setText(game.getName());
+			childview.findViewById(R.id.childview).setOnLongClickListener(null);
 			
 			final String[] gameStats = gameInfo.getGameInfo(game, childview);
 			
