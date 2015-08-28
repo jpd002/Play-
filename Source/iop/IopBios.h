@@ -211,7 +211,7 @@ private:
 	enum
 	{
 		MAX_THREAD				= 128,
-		MAX_SEMAPHORE			= 64,
+		MAX_SEMAPHORE			= 128,
 		MAX_EVENTFLAG			= 64,
 		MAX_INTRHANDLER			= 32,
 		MAX_MESSAGEBOX			= 32,
