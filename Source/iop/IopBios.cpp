@@ -1316,7 +1316,7 @@ uint32 CIopBios::SignalSemaphore(uint32 semaphoreId, bool inInterrupt)
 	{
 		semaphore->count++;
 	}
-	return semaphore->count;
+	return 0;
 }
 
 uint32 CIopBios::WaitSemaphore(uint32 semaphoreId)
