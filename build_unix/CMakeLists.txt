@@ -1,15 +1,20 @@
 cmake_minimum_required(VERSION 2.8)
 
 project(Play)
-add_subdirectory(
-	${Play_SOURCE_DIR}/../../Framework/build_unix
-	${Play_SOURCE_DIR}/../../Framework/build_unix/build
-)
 
-add_subdirectory(
-	${Play_SOURCE_DIR}/../../CodeGen/build_unix
-	${Play_SOURCE_DIR}/../../CodeGen/build_unix/build
-)
+if (NOT TARGET Framework)
+  add_subdirectory(
+	  ${Play_SOURCE_DIR}/../../Framework/build_unix
+	  ${Play_SOURCE_DIR}/../../Framework/build_unix/build
+  )
+endif()
+
+if (NOT TARGET CodeGen)
+  add_subdirectory(
+	  ${Play_SOURCE_DIR}/../../CodeGen/build_unix
+	  ${Play_SOURCE_DIR}/../../CodeGen/build_unix/build
+  )
+endif()
 
 set(CMAKE_MODULE_PATH
 	${Play_SOURCE_DIR}/Modules
