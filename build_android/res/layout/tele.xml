@@ -20,9 +20,9 @@
 	<android.support.v4.widget.DrawerLayout
 		android:id="@+id/drawer_layout"
 		android:layout_width="match_parent"
-		android:layout_height="match_parent"
-		android:layout_alignParentBottom="true"
-		android:layout_below="@+id/my_awesome_toolbar">
+        android:layout_height="match_parent"
+        android:layout_alignParentBottom="true"
+        android:layout_below="@+id/my_awesome_toolbar">
 		<!-- The main content view -->
 		<LinearLayout
 			android:id="@+id/content_frame"
@@ -33,8 +33,9 @@
 				android:id="@+id/game_grid"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
+				android:layout_marginTop="10dp"
 				android:gravity="center"
-				android:verticalSpacing="0dp"
+				android:verticalSpacing="6dp"
 				android:numColumns="auto_fit"
 				android:stretchMode="columnWidth" />
 		</LinearLayout>

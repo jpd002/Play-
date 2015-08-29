@@ -133,7 +133,7 @@ INSTRUCTION CMA_EE::m_cReflMmi0[32] =
 	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
 	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
 	{	"PEXT5",	NULL,			CopyMnemonic,		ReflOpRdRt,			NULL,				NULL			},
-	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
+	{	"PPAC5",	NULL,			CopyMnemonic,		ReflOpRdRt,			NULL,				NULL			},
 };
 
 INSTRUCTION CMA_EE::m_cReflMmi1[32] =

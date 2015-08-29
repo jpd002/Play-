@@ -129,6 +129,7 @@ Framework::OpenGl::CShader CGSH_OpenGL::GenerateFragmentShader(const SHADERCAPS&
 	shaderBuilder << "uniform vec2 g_clampMax;" << std::endl;
 	shaderBuilder << "uniform float g_texA0;" << std::endl;
 	shaderBuilder << "uniform float g_texA1;" << std::endl;
+	shaderBuilder << "uniform float g_alphaRef;" << std::endl;
 
 	if(caps.texClampS == TEXTURE_CLAMP_MODE_REGION_REPEAT || caps.texClampT == TEXTURE_CLAMP_MODE_REGION_REPEAT)
 	{
@@ -257,6 +258,11 @@ Framework::OpenGl::CShader CGSH_OpenGL::GenerateFragmentShader(const SHADERCAPS&
 		shaderBuilder << "	textureColor = gl_Color;" << std::endl;
 	}
 
+	if(caps.hasAlphaTest)
+	{
+		shaderBuilder << GenerateAlphaTestSection(static_cast<ALPHA_TEST_METHOD>(caps.alphaTestMethod));
+	}
+
 	if(caps.hasFog)
 	{
 		shaderBuilder << "	gl_FragColor = vec4(mix(textureColor.rgb, gl_Fog.color.rgb, gl_FogFragCoord), textureColor.a);" << std::endl;
@@ -273,7 +279,7 @@ Framework::OpenGl::CShader CGSH_OpenGL::GenerateFragmentShader(const SHADERCAPS&
 	shaderBuilder << "precision mediump float;" << std::endl;
 
 	shaderBuilder << "in vec4 v_color;" << std::endl;
-	shaderBuilder << "in vec3 v_texCoord;" << std::endl;
+	shaderBuilder << "in highp vec3 v_texCoord;" << std::endl;
 	shaderBuilder << "out vec4 fragColor;" << std::endl;
 
 	shaderBuilder << "uniform sampler2D g_texture;" << std::endl;
@@ -282,6 +288,7 @@ Framework::OpenGl::CShader CGSH_OpenGL::GenerateFragmentShader(const SHADERCAPS&
 	shaderBuilder << "uniform vec2 g_texelSize;" << std::endl;
 	shaderBuilder << "uniform float g_texA0;" << std::endl;
 	shaderBuilder << "uniform float g_texA1;" << std::endl;
+	shaderBuilder << "uniform float g_alphaRef;" << std::endl;
 
 	shaderBuilder << "vec4 expandAlpha(vec4 inputColor)" << std::endl;
 	shaderBuilder << "{" << std::endl;
@@ -311,12 +318,12 @@ Framework::OpenGl::CShader CGSH_OpenGL::GenerateFragmentShader(const SHADERCAPS&
 			shaderBuilder << "	float colorIndex = textureProj(g_texture, v_texCoord).r * 255.0;" << std::endl;
 			if(caps.texSourceMode == TEXTURE_SOURCE_MODE_IDX4)
 			{
-				shaderBuilder << "	float paletteTexelBias = 0.5 / 16.0;";
+				shaderBuilder << "	float paletteTexelBias = 0.5 / 16.0;" << std::endl;
 				shaderBuilder << "	textureColor = expandAlpha(texture(g_palette, vec2(colorIndex / 16.0 + paletteTexelBias, 0)));" << std::endl;
 			}
 			else if(caps.texSourceMode == TEXTURE_SOURCE_MODE_IDX8)
 			{
-				shaderBuilder << "	float paletteTexelBias = 0.5 / 256.0;";
+				shaderBuilder << "	float paletteTexelBias = 0.5 / 256.0;" << std::endl;
 				shaderBuilder << "	textureColor = expandAlpha(texture(g_palette, vec2(colorIndex / 256.0 + paletteTexelBias, 0)));" << std::endl;
 			}
 		}
@@ -330,7 +337,7 @@ Framework::OpenGl::CShader CGSH_OpenGL::GenerateFragmentShader(const SHADERCAPS&
 
 			if(caps.texSourceMode == TEXTURE_SOURCE_MODE_IDX4)
 			{
-				shaderBuilder << "	float paletteTexelBias = 0.5 / 16.0;";
+				shaderBuilder << "	float paletteTexelBias = 0.5 / 16.0;" << std::endl;
 				shaderBuilder << "	vec4 tl = expandAlpha(texture(g_palette, vec2(tlIdx / 16.0 + paletteTexelBias, 0)));" << std::endl;
 				shaderBuilder << "	vec4 tr = expandAlpha(texture(g_palette, vec2(trIdx / 16.0 + paletteTexelBias, 0)));" << std::endl;
 				shaderBuilder << "	vec4 bl = expandAlpha(texture(g_palette, vec2(blIdx / 16.0 + paletteTexelBias, 0)));" << std::endl;
@@ -338,7 +345,7 @@ Framework::OpenGl::CShader CGSH_OpenGL::GenerateFragmentShader(const SHADERCAPS&
 			}
 			else if(caps.texSourceMode == TEXTURE_SOURCE_MODE_IDX8)
 			{
-				shaderBuilder << "	float paletteTexelBias = 0.5 / 256.0;";
+				shaderBuilder << "	float paletteTexelBias = 0.5 / 256.0;" << std::endl;
 				shaderBuilder << "	vec4 tl = expandAlpha(texture(g_palette, vec2(tlIdx / 256.0 + paletteTexelBias, 0)));" << std::endl;
 				shaderBuilder << "	vec4 tr = expandAlpha(texture(g_palette, vec2(trIdx / 256.0 + paletteTexelBias, 0)));" << std::endl;
 				shaderBuilder << "	vec4 bl = expandAlpha(texture(g_palette, vec2(blIdx / 256.0 + paletteTexelBias, 0)));" << std::endl;
@@ -397,6 +404,12 @@ Framework::OpenGl::CShader CGSH_OpenGL::GenerateFragmentShader(const SHADERCAPS&
 	{
 		shaderBuilder << "	textureColor = v_color;" << std::endl;
 	}
+
+	if(caps.hasAlphaTest)
+	{
+		shaderBuilder << GenerateAlphaTestSection(static_cast<ALPHA_TEST_METHOD>(caps.alphaTestMethod));
+	}
+
 	shaderBuilder << "	fragColor = textureColor;" << std::endl;
 	shaderBuilder << "}" << std::endl;
 #endif
@@ -437,6 +450,53 @@ std::string CGSH_OpenGL::GenerateTexCoordClampingSection(TEXTURE_CLAMP_MODE clam
 	return shaderSource;
 }
 
+std::string CGSH_OpenGL::GenerateAlphaTestSection(ALPHA_TEST_METHOD testMethod)
+{
+	std::stringstream shaderBuilder;
+
+	const char* test = "if(false)";
+
+	//testMethod is the condition to pass the test
+	switch(testMethod)
+	{
+	case ALPHA_TEST_NEVER:
+		test = "if(true)";
+		break;
+	case ALPHA_TEST_ALWAYS:
+		test = "if(false)";
+		break;
+	case ALPHA_TEST_LESS:
+		test = "if(textureColor.a >= g_alphaRef)";
+		break;
+	case ALPHA_TEST_LEQUAL:
+		test = "if(textureColor.a > g_alphaRef)";
+		break;
+	case ALPHA_TEST_EQUAL:
+		test = "if(textureColor.a != g_alphaRef)";
+		break;
+	case ALPHA_TEST_GEQUAL:
+		test = "if(textureColor.a < g_alphaRef)";
+		break;
+	case ALPHA_TEST_GREATER:
+		test = "if(textureColor.a <= g_alphaRef)";
+		break;
+	case ALPHA_TEST_NOTEQUAL:
+		test = "if(textureColor.a == g_alphaRef)";
+		break;
+	default:
+		assert(false);
+		break;
+	}
+
+	shaderBuilder << test			<< std::endl;
+	shaderBuilder << "{"			<< std::endl;
+	shaderBuilder << "	discard;"	<< std::endl;
+	shaderBuilder << "}"			<< std::endl;
+
+	std::string shaderSource = shaderBuilder.str();
+	return shaderSource;
+}
+
 Framework::OpenGl::ProgramPtr CGSH_OpenGL::GeneratePresentProgram()
 {
 	Framework::OpenGl::CShader vertexShader(GL_VERTEX_SHADER);
@@ -445,18 +505,14 @@ Framework::OpenGl::ProgramPtr CGSH_OpenGL::GeneratePresentProgram()
 	{
 		std::stringstream shaderBuilder;
 		shaderBuilder << "#version 300 es" << std::endl;
-		shaderBuilder << "in vec3 a_position;" << std::endl;
+		shaderBuilder << "in vec2 a_position;" << std::endl;
+		shaderBuilder << "in vec2 a_texCoord;" << std::endl;
 		shaderBuilder << "out vec2 v_texCoord;" << std::endl;
 		shaderBuilder << "uniform vec2 g_texCoordScale;" << std::endl;
 		shaderBuilder << "void main()" << std::endl;
 		shaderBuilder << "{" << std::endl;
-		shaderBuilder << "	vec2 outputPosition;" << std::endl;
-		shaderBuilder << "	outputPosition.x = float(gl_VertexID / 2) * 4.0 - 1.0;" << std::endl;
-		shaderBuilder << "	outputPosition.y = float(gl_VertexID % 2) * 4.0 - 1.0;" << std::endl;
-		shaderBuilder << "	v_texCoord.x = float(gl_VertexID / 2) * 2.0;" << std::endl;
-		shaderBuilder << "	v_texCoord.y = 1.0 - float(gl_VertexID % 2) * 2.0;" << std::endl;
-		shaderBuilder << "	v_texCoord = v_texCoord * g_texCoordScale;" << std::endl;
-		shaderBuilder << "	gl_Position = vec4(outputPosition, 0, 1);" << std::endl;
+		shaderBuilder << "	v_texCoord = a_texCoord * g_texCoordScale;" << std::endl;
+		shaderBuilder << "	gl_Position = vec4(a_position, 0, 1);" << std::endl;
 		shaderBuilder << "}" << std::endl;
 
 		vertexShader.SetSource(shaderBuilder.str().c_str());
@@ -486,6 +542,10 @@ Framework::OpenGl::ProgramPtr CGSH_OpenGL::GeneratePresentProgram()
 	{
 		program->AttachShader(vertexShader);
 		program->AttachShader(pixelShader);
+
+		glBindAttribLocation(*program, static_cast<GLuint>(PRIM_VERTEX_ATTRIB::POSITION), "a_position");
+		glBindAttribLocation(*program, static_cast<GLuint>(PRIM_VERTEX_ATTRIB::TEXCOORD), "a_texCoord");
+
 		bool result = program->Link();
 		assert(result);
 	}

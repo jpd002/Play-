@@ -2,6 +2,7 @@
 #include <cassert>
 #include <android/native_window.h>
 #include <android/native_window_jni.h>
+#include "string_format.h"
 #include "PathUtils.h"
 #include "../AppConfig.h"
 #include "../DiskUtils.h"
@@ -14,6 +15,18 @@
 #include "StatsManager.h"
 
 CPS2VM* g_virtualMachine = nullptr;
+
+static boost::filesystem::path GetStateDirectoryPath()
+{
+	return CAppConfig::GetBasePath() / boost::filesystem::path("states/");
+}
+
+static boost::filesystem::path GenerateStatePath(int slot)
+{
+	auto stateDirPath = GetStateDirectoryPath();
+	auto stateFileName = string_format("%s.st%d", g_virtualMachine->m_ee->m_os->GetExecutableName(), slot);
+	return stateDirPath / stateFileName;
+}
 
 extern "C" JNIEXPORT void JNICALL Java_com_virtualapplications_play_NativeInterop_setFilesDirPath(JNIEnv* env, jobject obj, jstring dirPathString)
 {
@@ -53,6 +66,33 @@ extern "C" JNIEXPORT void JNICALL Java_com_virtualapplications_play_NativeIntero
 	assert(g_virtualMachine != nullptr);
 	if(g_virtualMachine == nullptr) return;
 	g_virtualMachine->Pause();
+}
+
+extern "C" JNIEXPORT void JNICALL Java_com_virtualapplications_play_NativeInterop_loadState(JNIEnv* env, jobject obj, jint slot)
+{
+	assert(g_virtualMachine != nullptr);
+	if(g_virtualMachine == nullptr) return;
+	auto stateFilePath = GenerateStatePath(slot);
+	if(g_virtualMachine->LoadState(stateFilePath.string().c_str()) != 0)
+	{
+		jclass exceptionClass = env->FindClass("java/lang/Exception");
+		env->ThrowNew(exceptionClass, "LoadState failed.");
+		return;
+	}
+}
+
+extern "C" JNIEXPORT void JNICALL Java_com_virtualapplications_play_NativeInterop_saveState(JNIEnv* env, jobject obj, jint slot)
+{
+	assert(g_virtualMachine != nullptr);
+	if(g_virtualMachine == nullptr) return;
+	Framework::PathUtils::EnsurePathExists(GetStateDirectoryPath());
+	auto stateFilePath = GenerateStatePath(slot);
+	if(g_virtualMachine->SaveState(stateFilePath.string().c_str()) != 0)
+	{
+		jclass exceptionClass = env->FindClass("java/lang/Exception");
+		env->ThrowNew(exceptionClass, "SaveState failed.");
+		return;
+	}
 }
 
 extern "C" JNIEXPORT void JNICALL Java_com_virtualapplications_play_NativeInterop_loadElf(JNIEnv* env, jobject obj, jstring selectedFilePath)

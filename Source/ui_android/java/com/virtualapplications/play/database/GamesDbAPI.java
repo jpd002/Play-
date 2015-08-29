@@ -1,4 +1,4 @@
-package com.virtualapplications.play;
+package com.virtualapplications.play.database;
 
 import java.io.BufferedInputStream;
 import java.io.File;
@@ -29,6 +29,8 @@ import org.xml.sax.SAXException;
 
 import android.content.Context;
 import android.content.ContentValues;
+import android.content.ContentResolver;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
@@ -44,10 +46,12 @@ import android.widget.ImageView;
 import android.widget.ImageView.ScaleType;
 import android.widget.TextView;
 
-import com.virtualapplications.play.SqliteHelper.Games;
+import com.virtualapplications.play.R;
+import com.virtualapplications.play.database.SqliteHelper.Games;
 
 public class GamesDbAPI extends AsyncTask<File, Integer, Document> {
 
+	private final String serial;
 	private int index;
 	private View childview;
 	private Context mContext;
@@ -60,10 +64,11 @@ public class GamesDbAPI extends AsyncTask<File, Integer, Document> {
     private static final String games_url_id = "http://thegamesdb.net/api/GetGame.php?platform=sony+playstation+2&id=";
 	private static final String games_list = "http://thegamesdb.net/api/GetPlatformGames.php?platform=11";
 
-	public GamesDbAPI(Context mContext, String gameID) {
+	public GamesDbAPI(Context mContext, String gameID, String serial) {
 		this.elastic = false;
 		this.mContext = mContext;
 		this.gameID = gameID;
+		this.serial = serial;
 	}
 	
 	public void setView(View childview) {
@@ -126,18 +131,50 @@ public class GamesDbAPI extends AsyncTask<File, Integer, Document> {
 	@Override
 	protected void onPostExecute(Document doc) {
 		
-		if (doc.getElementsByTagName("Game") != null) {
+		if (doc != null && doc.getElementsByTagName("Game") != null) {
 			try {
 				final Element root = (Element) doc.getElementsByTagName("Game").item(0);
-				
 				final String remoteID = getValue(root, "id");
 				
+				ContentResolver cr = mContext.getContentResolver();
+				String selection = Games.KEY_GAMEID + "=?";
+				String[] selectionArgs = { remoteID };
+				Cursor c = cr.query(Games.GAMES_URI, null, selection, selectionArgs, null);
+				String dataID = null;
+				
 				if (elastic) {
-					GamesDbAPI gameDatabase = new GamesDbAPI(mContext, remoteID);
-					gameDatabase.setView(childview);
-					gameDatabase.execute(gameFile);
+					if (c != null && c.getCount() > 0) {
+						if (c.moveToFirst()) {
+							do {
+								String title = c.getString(c.getColumnIndex(Games.KEY_TITLE));
+								String overview = c.getString(c.getColumnIndex(Games.KEY_OVERVIEW));
+								String boxart = c.getString(c.getColumnIndex(Games.KEY_BOXART));
+								if (overview != null && boxart != null &&
+									!overview.equals("") && !boxart.equals("")) {
+									dataID = c.getString(c.getColumnIndex(Games.KEY_GAMEID));
+									if (childview != null) {
+										childview.findViewById(R.id.childview).setOnLongClickListener(
+											gameInfo.configureLongClick(title, overview, gameFile));
+										if (boxart != null) {
+											gameInfo.getImage(remoteID, childview, boxart);
+										}
+									}
+									break;
+								}
+							} while (c.moveToNext());
+						}
+					}
+					c.close();
+					if (dataID == null) {
+						GamesDbAPI gameDatabase = new GamesDbAPI(mContext, remoteID, serial);
+						gameDatabase.setView(childview);
+						gameDatabase.execute(gameFile);
+					}
 				} else {
 					ContentValues values = new ContentValues();
+					values.put(Games.KEY_GAMEID, remoteID);
+					final String title = getValue(root, "GameTitle");
+					values.put(Games.KEY_TITLE, title);
 					final String overview = getValue(root, "Overview");
 					values.put(Games.KEY_OVERVIEW, overview);
 					
@@ -155,31 +192,39 @@ public class GamesDbAPI extends AsyncTask<File, Integer, Document> {
 					} else {
 						values.put(Games.KEY_BOXART, "404");
 					}
-					
-					if (gameID != null) {
 
-						String selection = Games.KEY_GAMEID + "=?";
-						String[] selectionArgs = { gameID };
-						
-						mContext.getContentResolver().update(Games.GAMES_URI, values, selection, selectionArgs);
-						
+					/*
+					TODO:Adding the serial to the database this way is not ideal, as a mismatch will persist
+					but as it stands that's the only way to get the pcitures and prevent them from being downloaded every run
+					 */
+					if (c != null && c.getCount() > 0) {
+						if (c.moveToFirst()) {
+							do {
+								String db_serial = c.getString(c.getColumnIndex(Games.KEY_SERIAL));
+								if (db_serial == null || db_serial == serial){
+									values.put(Games.KEY_SERIAL, serial);
+									mContext.getContentResolver().update(Games.GAMES_URI, values, selection, selectionArgs);
+									break;
+								} else {
+									values.remove(Games.KEY_SERIAL);
+									mContext.getContentResolver().update(Games.GAMES_URI, values, selection, selectionArgs);
+								}
+
+
+							} while (c.moveToNext());
+
+						}
 					} else {
-						
-						String selection = Games.KEY_GAMEID + "=?";
-						String[] selectionArgs = { remoteID };
-						
-						mContext.getContentResolver().update(Games.GAMES_URI, values, selection, selectionArgs);
-						
+						values.put(Games.KEY_SERIAL, serial);
+						mContext.getContentResolver().insert(Games.GAMES_URI, values);
 					}
+					c.close();
+
 					if (childview != null) {
 						childview.findViewById(R.id.childview).setOnLongClickListener(
 							gameInfo.configureLongClick(getValue(root, "GameTitle"), overview, gameFile));
 						if (coverImage != null) {
-							if (gameID != null) {
-								gameInfo.getImage(gameID, childview, coverImage);
-							} else {
-								gameInfo.getImage(remoteID, childview, coverImage);
-							}
+							gameInfo.getImage(remoteID, childview, coverImage);
 						}
 					}
 				}

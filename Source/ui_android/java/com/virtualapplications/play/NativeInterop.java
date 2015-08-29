@@ -17,6 +17,9 @@ public class NativeInterop
 	public static native void resumeVirtualMachine();
 	public static native void pauseVirtualMachine();
 	 
+	public static native void loadState(int slot);
+	public static native void saveState(int slot);
+	
 	public static native void loadElf(String selectedFilePath);
 	public static native void bootDiskImage(String selectedFilePath);
 	

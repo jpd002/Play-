@@ -1,0 +1,19 @@
+<LinearLayout
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:tools="http://schemas.android.com/tools"
+	android:layout_height="match_parent"
+	android:layout_width="match_parent"
+	android:orientation="vertical"
+	>
+	<ListView
+		android:id="@+id/fragment_emulator_drawer_list"
+		android:layout_width="match_parent"
+		android:layout_height="match_parent"
+		android:layout_weight="1"
+		android:focusable="true"
+		android:divider="@android:color/transparent"
+		android:dividerHeight="0dp"
+		android:stackFromBottom="true"
+		tools:context=".EmulatorDrawerFragment" 
+	/>
+</LinearLayout>

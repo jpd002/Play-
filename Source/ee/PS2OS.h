@@ -6,6 +6,7 @@
 #include "../MIPS.h"
 #include "../BiosDebugInfoProvider.h"
 #include "../OsStructManager.h"
+#include "../OsVariableWrapper.h"
 #include "../OsStructQueue.h"
 #include "../gs/GSHandler.h"
 #include "SIF.h"
@@ -56,49 +57,6 @@ public:
 	boost::signals2::signal<void ()>			OnRequestExit;
 
 private:
-	class CRoundRibbon
-	{
-	public:
-												CRoundRibbon(void*, uint32);
-												~CRoundRibbon();
-		unsigned int							Insert(uint32, uint32);
-		void									Remove(unsigned int);
-		unsigned int							Begin();
-
-		class ITERATOR
-		{
-		public:
-												ITERATOR(CRoundRibbon*);
-			ITERATOR&							operator =(unsigned int);
-			ITERATOR&							operator ++(int);
-			uint32								GetWeight();
-			uint32								GetValue();
-			unsigned int						GetIndex();
-			bool								IsEnd();
-
-		private:
-			CRoundRibbon*						m_ribbon;
-			unsigned int						m_index;
-		};
-
-	private:
-		struct NODE
-		{
-			uint32								value;
-			uint32								weight;
-			unsigned int						indexNext;
-			unsigned int						valid;
-		};
-
-		NODE*									GetNode(unsigned int);
-		unsigned int							GetNodeIndex(NODE*);
-		NODE*									AllocateNode();
-		void									FreeNode(NODE*);
-
-		NODE*									m_node;
-		uint32									m_maxNode;
-	};
-
 	struct SEMAPHOREPARAM
 	{
 		uint32									count;
@@ -130,7 +88,8 @@ private:
 
 	struct THREAD
 	{
-		uint32									valid;
+		uint32									isValid;
+		uint32									nextId;
 		uint32									status;
 		uint32									contextPtr;
 		uint32									stackBase;
@@ -141,9 +100,7 @@ private:
 		uint32									currPriority;
 		uint32									semaWait;
 		uint32									wakeUpCount;
-		uint32									scheduleID;
 		uint32									stackSize;
-		uint32									quota;
 	};
 
 	enum STACKRES
@@ -257,11 +214,13 @@ private:
 		THS_DORMANT		= 0x10,
 	};
 
+	typedef COsStructManager<THREAD> ThreadList;
 	typedef COsStructManager<SEMAPHORE> SemaphoreList;
 	typedef COsStructManager<INTCHANDLER> IntcHandlerList;
 	typedef COsStructManager<DMACHANDLER> DmacHandlerList;
 	typedef COsStructManager<ALARM> AlarmList;
 
+	typedef COsStructQueue<THREAD> ThreadQueue;
 	typedef COsStructQueue<INTCHANDLER> IntcHandlerQueue;
 	typedef COsStructQueue<DMACHANDLER> DmacHandlerQueue;
 
@@ -285,17 +244,14 @@ private:
 	void									AssembleIntcHandler();
 	void									AssembleAlarmHandler();
 	void									AssembleThreadEpilog();
-	void									AssembleWaitThreadProc();
+	void									AssembleIdleThreadProc();
 
 	uint32*									GetCustomSyscallTable();
 
-	void									CreateWaitThread();
-	uint32									GetCurrentThreadId() const;
-	void									SetCurrentThreadId(uint32);
-	uint32									GetNextAvailableThreadId();
-	THREAD*									GetThread(uint32) const;
+	void									CreateIdleThread();
+	void									LinkThread(uint32);
+	void									UnlinkThread(uint32);
 	void									ThreadShakeAndBake();
-	bool									ThreadHasAllQuotasExpired();
 	void									ThreadSwitchContext(unsigned int);
 
 	std::pair<uint32, uint32>				GetVsyncFlagPtrs() const;
@@ -366,12 +322,16 @@ private:
 
 	CELF*									m_elf;
 	CMIPS&									m_ee;
-	CRoundRibbon*							m_threadSchedule;
+	ThreadList								m_threads;
 	SemaphoreList							m_semaphores;
 	IntcHandlerList							m_intcHandlers;
 	DmacHandlerList							m_dmacHandlers;
 	AlarmList								m_alarms;
 
+	OsVariableWrapper<uint32>				m_currentThreadId;
+	OsVariableWrapper<uint32>				m_idleThreadId;
+
+	ThreadQueue								m_threadSchedule;
 	IntcHandlerQueue						m_intcHandlerQueue;
 	DmacHandlerQueue						m_dmacHandlerQueue;
 

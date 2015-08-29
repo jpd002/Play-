@@ -1,4 +1,4 @@
-package com.virtualapplications.play;
+package com.virtualapplications.play.database;
 
 import java.io.BufferedInputStream;
 import java.io.File;
@@ -21,6 +21,7 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.os.StrictMode;
 import android.util.Log;
+import android.util.LruCache;
 import android.util.SparseArray;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -31,17 +32,46 @@ import android.widget.TextView;
 
 import java.util.concurrent.ExecutionException;
 
-import com.virtualapplications.play.SqliteHelper.Games;
+import com.virtualapplications.play.R;
+import com.virtualapplications.play.MainActivity;
+import com.virtualapplications.play.NativeInterop;
+import com.virtualapplications.play.database.SqliteHelper.Games;
 
 public class GameInfo {
 	
 	private Context mContext;
+	private LruCache<String, Bitmap> mMemoryCache;
+	final int maxMemory = (int) (Runtime.getRuntime().maxMemory() / 1024);
+	final int cacheSize = maxMemory / 4;
 	
 	public GameInfo (Context mContext) {
 		this.mContext = mContext;
+		mMemoryCache = new LruCache<String, Bitmap>(cacheSize) {
+			@Override
+			protected int sizeOf(String key, Bitmap bitmap) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR1) {
+					return bitmap.getByteCount() / 1024;
+                } else {
+                	return (bitmap.getRowBytes() * bitmap.getHeight()) / 1000;
+                }
+			}
+		};
+	}
+    
+	public void addBitmapToMemoryCache(String key, Bitmap bitmap) {
+		if (key != null && !key.equals(null) && bitmap != null) {
+			if (getBitmapFromMemCache(key) == null) {
+                mMemoryCache.put(key, bitmap);
+			}
+		}
+	}
+    
+    public Bitmap getBitmapFromMemCache(String key) {
+		return mMemoryCache.get(key);
 	}
 	
 	public void saveImage(String key, Bitmap image) {
+		addBitmapToMemoryCache(key, image);
 		String path = mContext.getExternalFilesDir(null) + "/covers/";
 		OutputStream fOut = null;
 		File file = new File(path, key + ".jpg"); // the File to save to
@@ -62,18 +92,29 @@ public class GameInfo {
 	}
 	
 	public Bitmap getImage(String key, View childview, String boxart) {
+		Bitmap cachedImage = getBitmapFromMemCache(key);
+		if (cachedImage != null) {
+			if (childview != null) {
+				ImageView preview = (ImageView) childview.findViewById(R.id.game_icon);
+				preview.setImageBitmap(cachedImage);
+				preview.setScaleType(ScaleType.FIT_XY);
+				((TextView) childview.findViewById(R.id.game_text)).setVisibility(View.GONE);
+			}
+			return cachedImage;
+		}
 		String path = mContext.getExternalFilesDir(null) + "/covers/";
-		
+
 		File file = new File(path, key + ".jpg");
 		if(file.exists())
 		{
 			BitmapFactory.Options options = new BitmapFactory.Options();
 			options.inPreferredConfig = Bitmap.Config.ARGB_8888;
 			Bitmap bitmap = BitmapFactory.decodeFile(file.getAbsolutePath(), options);
+            addBitmapToMemoryCache(key, bitmap);
 			if (childview != null) {
 				ImageView preview = (ImageView) childview.findViewById(R.id.game_icon);
 				preview.setImageBitmap(bitmap);
-				preview.setScaleType(ScaleType.CENTER_INSIDE);
+				preview.setScaleType(ScaleType.FIT_XY);
 				((TextView) childview.findViewById(R.id.game_text)).setVisibility(View.GONE);
 			}
 			return bitmap;
@@ -130,12 +171,12 @@ public class GameInfo {
 		@Override
 		protected Bitmap doInBackground(String... params) {
 			key = params[0];
-			if (GamesDbAPI.isNetworkAvailable(mContext)) {
+			if (GamesDbAPI.isNetworkAvailable(mContext) && boxart != null) {
 				String api = null;
-				if (boxart != null) {
-					api = "http://thegamesdb.net/banners/" + boxart;
+				if (!boxart.startsWith("boxart/original/front/")) {
+					api = boxart;
 				} else {
-					api = "http://thegamesdb.net/banners/boxart/thumb/original/front/" + key + "-1.jpg";
+					api = "http://thegamesdb.net/banners/" + boxart;
 				}
 				try {
 					URL imageURL = new URL(api);
@@ -175,7 +216,7 @@ public class GameInfo {
 				saveImage(key, image);
 				if (preview != null) {
 					preview.setImageBitmap(image);
-					preview.setScaleType(ScaleType.CENTER_INSIDE);
+					preview.setScaleType(ScaleType.FIT_XY);
 					((TextView) childview.findViewById(R.id.game_text)).setVisibility(View.GONE);
 				}
 			}
@@ -212,7 +253,10 @@ public class GameInfo {
 	
 	public String[] getGameInfo(File game, View childview) {
 		String serial = getSerial(game);
-		if (serial == null) return null;
+		if (serial == null) {
+			getImage(game.getName(), childview, null);
+			return null;
+		}
 		String suffix = serial.substring(5, serial.length());
 		String gameID = null,  title = null, overview = null, boxart = null;
 		ContentResolver cr = mContext.getContentResolver();
@@ -220,7 +264,7 @@ public class GameInfo {
 							+ Games.KEY_SERIAL + "=? OR " + Games.KEY_SERIAL + "=? OR " + Games.KEY_SERIAL + "=?";
 		String[] selectionArgs = { serial, "SLUS" + suffix, "SLES" + suffix, "SLPS" + suffix, "SLPM" + suffix, "SCES" + suffix };
 		Cursor c = cr.query(Games.GAMES_URI, null, selection, selectionArgs, null);
-		if (c != null) {
+		if (c != null && c.getCount() > 0) {
 			if (c.moveToFirst()) {
 				do {
 					gameID = c.getString(c.getColumnIndex(Games.KEY_GAMEID));
@@ -238,7 +282,7 @@ public class GameInfo {
 			!overview.equals("") && !boxart.equals("")) {
 			return new String[] { gameID, title, overview, boxart };
 		} else {
-			GamesDbAPI gameDatabase = new GamesDbAPI(mContext, gameID);
+			GamesDbAPI gameDatabase = new GamesDbAPI(mContext, gameID, serial);
 			gameDatabase.setView(childview);
 			gameDatabase.execute(game);
 			return null;

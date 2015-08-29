@@ -673,6 +673,40 @@ void CMA_EE::PEXT5()
 	}
 }
 
+//1F
+void CMA_EE::PPAC5()
+{
+	if(m_nRD == 0) return;
+
+	for(unsigned int i = 0; i < 4; i++)
+	{
+		m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[i]));
+		m_codeGen->PushCst(0x80000000);
+		m_codeGen->And();
+		m_codeGen->Srl(16);
+
+		m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[i]));
+		m_codeGen->PushCst(0x00F80000);
+		m_codeGen->And();
+		m_codeGen->Srl(9);
+
+		m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[i]));
+		m_codeGen->PushCst(0x0000F800);
+		m_codeGen->And();
+		m_codeGen->Srl(6);
+
+		m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[i]));
+		m_codeGen->PushCst(0x000000F8);
+		m_codeGen->And();
+		m_codeGen->Srl(3);
+
+		m_codeGen->Or();
+		m_codeGen->Or();
+		m_codeGen->Or();
+		m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[i]));
+	}
+}
+
 //////////////////////////////////////////////////
 //MMI1 Opcodes
 //////////////////////////////////////////////////
@@ -1647,7 +1681,7 @@ CMA_EE::InstructionFuncConstant CMA_EE::m_pOpMmi0[0x20] =
 	//0x10
 	&CMA_EE::PADDSW,		&CMA_EE::PSUBSW,		&CMA_EE::PEXTLW,		&CMA_EE::PPACW,			&CMA_EE::PADDSH,		&CMA_EE::PSUBSH,		&CMA_EE::PEXTLH,		&CMA_EE::PPACH,
 	//0x18
-	&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::PEXTLB,		&CMA_EE::PPACB,			&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::PEXT5,			&CMA_EE::Illegal,
+	&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::PEXTLB,		&CMA_EE::PPACB,			&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::PEXT5,			&CMA_EE::PPAC5,
 };
 
 CMA_EE::InstructionFuncConstant CMA_EE::m_pOpMmi1[0x20] = 

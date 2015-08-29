@@ -321,12 +321,15 @@ void CDebugger::FindEeFunctions()
 		//Identify functions that reference special string literals (TODO: Move that inside a file)
 		static const std::map<std::string, std::string> stringFuncs = 
 		{
-			{	"SceSifrpcBind",									"SifBindRpc"		},
-			{	"SceSifrpcCall",									"SifCallRpc"		},
-			{	"call cdread cmd\n",								"CdRead"			},
-			{	"sceGsPutDrawEnv: DMA Ch.2 does not terminate\r\n",	"GsPutDrawEnv"		},
-			{	"sceGsSyncPath: DMA Ch.1 does not terminate\r\n",	"GsSyncPath"		},
-			{	"sceDbcReceiveData: rpc error\n",					"DbcReceiveData"	}
+			{	"SceSifrpcBind",										"SifBindRpc"		},
+			{	"SceSifrpcCall",										"SifCallRpc"		},
+			{	"call cdread cmd\n",									"CdRead"			},
+			{	"sceGsExecLoadImage: DMA Ch.2 does not terminate\r\n",	"GsExecLoadImage"	},
+			{	"sceGsExecStoreImage: DMA Ch.1 does not terminate\r\n",	"GsExecStoreImage"	},
+			{	"sceGsPutDrawEnv: DMA Ch.2 does not terminate\r\n",		"GsPutDrawEnv"		},
+			{	"sceGsSetDefLoadImage: too big size\r\n",				"GsSetDefLoadImage"	},
+			{	"sceGsSyncPath: DMA Ch.1 does not terminate\r\n",		"GsSyncPath"		},
+			{	"sceDbcReceiveData: rpc error\n",						"DbcReceiveData"	}
 		};
 
 		{

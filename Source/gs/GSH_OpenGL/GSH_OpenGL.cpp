@@ -84,7 +84,8 @@ void CGSH_OpenGL::ReleaseImpl()
 	m_paletteCache.clear();
 	m_shaderInfos.clear();
 	m_presentProgram.reset();
-	m_emptyVertexArray.Reset();
+	m_presentVertexBuffer.Reset();
+	m_presentVertexArray.Reset();
 	m_primBuffer.Reset();
 	m_primVertexArray.Reset();
 }
@@ -274,8 +275,8 @@ void CGSH_OpenGL::FlipImpl()
 		assert(m_presentTexCoordScaleUniform != -1);
 		glUniform2f(m_presentTexCoordScaleUniform, u1, v1);
 
-		glBindBuffer(GL_ARRAY_BUFFER, 0);
-		glBindVertexArray(m_emptyVertexArray);
+		glBindBuffer(GL_ARRAY_BUFFER, m_presentVertexBuffer);
+		glBindVertexArray(m_presentVertexArray);
 
 #ifdef _DEBUG
 		m_presentProgram->Validate();
@@ -350,10 +351,11 @@ void CGSH_OpenGL::InitializeRC()
 
 #ifdef GLES_COMPATIBILITY
 	m_presentProgram = GeneratePresentProgram();
+	m_presentVertexBuffer = GeneratePresentVertexBuffer();
+	m_presentVertexArray = GeneratePresentVertexArray();
 	m_presentTextureUniform = glGetUniformLocation(*m_presentProgram, "g_texture");
 	m_presentTexCoordScaleUniform = glGetUniformLocation(*m_presentProgram, "g_texCoordScale");
 
-	m_emptyVertexArray = Framework::OpenGl::CVertexArray::Create();
 	m_primBuffer = Framework::OpenGl::CBuffer::Create();
 	m_primVertexArray = GeneratePrimVertexArray();
 #endif
@@ -361,6 +363,51 @@ void CGSH_OpenGL::InitializeRC()
 	PresentBackbuffer();
 
 	CHECKGLERROR();
+}
+
+Framework::OpenGl::CBuffer CGSH_OpenGL::GeneratePresentVertexBuffer()
+{
+	auto buffer = Framework::OpenGl::CBuffer::Create();
+
+	static const float bufferContents[] =
+	{
+		//Pos         UV
+		-1.0f, -1.0f, 0.0f,  1.0f,
+		-1.0f,  3.0f, 0.0f, -1.0f,
+		 3.0f, -1.0f, 2.0f,  1.0f,
+	};
+
+	glBindBuffer(GL_ARRAY_BUFFER, buffer);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(bufferContents), bufferContents, GL_STATIC_DRAW);
+
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+	CHECKGLERROR();
+
+	return buffer;
+}
+
+Framework::OpenGl::CVertexArray CGSH_OpenGL::GeneratePresentVertexArray()
+{
+	auto vertexArray = Framework::OpenGl::CVertexArray::Create();
+
+	glBindVertexArray(vertexArray);
+	
+	glBindBuffer(GL_ARRAY_BUFFER, m_presentVertexBuffer);
+
+	glEnableVertexAttribArray(static_cast<GLuint>(PRIM_VERTEX_ATTRIB::POSITION));
+	glVertexAttribPointer(static_cast<GLuint>(PRIM_VERTEX_ATTRIB::POSITION), 2, GL_FLOAT, 
+		GL_FALSE, sizeof(float) * 4, reinterpret_cast<const GLvoid*>(0));
+
+	glEnableVertexAttribArray(static_cast<GLuint>(PRIM_VERTEX_ATTRIB::TEXCOORD));
+	glVertexAttribPointer(static_cast<GLuint>(PRIM_VERTEX_ATTRIB::TEXCOORD), 2, GL_FLOAT, 
+		GL_FALSE, sizeof(float) * 4, reinterpret_cast<const GLvoid*>(8));
+
+	glBindVertexArray(0);
+
+	CHECKGLERROR();
+
+	return vertexArray;
 }
 
 Framework::OpenGl::CVertexArray CGSH_OpenGL::GeneratePrimVertexArray()
@@ -486,6 +533,7 @@ void CGSH_OpenGL::SetRenderingContext(uint64 primReg)
 	memset(&shaderCaps, 0, sizeof(SHADERCAPS));
 
 	FillShaderCapsFromTexture(shaderCaps, tex0Reg, tex1Reg, texAReg, clampReg);
+	FillShaderCapsFromTest(shaderCaps, testReg);
 
 	if(prim.nFog)
 	{
@@ -518,6 +566,7 @@ void CGSH_OpenGL::SetRenderingContext(uint64 primReg)
 		shaderInfo.clampMaxUniform		= glGetUniformLocation(*shader, "g_clampMax");
 		shaderInfo.texA0Uniform			= glGetUniformLocation(*shader, "g_texA0");
 		shaderInfo.texA1Uniform			= glGetUniformLocation(*shader, "g_texA1");
+		shaderInfo.alphaRefUniform		= glGetUniformLocation(*shader, "g_alphaRef");
 
 		m_shaderInfos.insert(ShaderInfoMap::value_type(static_cast<uint32>(shaderCaps), shaderInfo));
 		shaderInfoIterator = m_shaderInfos.find(static_cast<uint32>(shaderCaps));
@@ -603,7 +652,7 @@ void CGSH_OpenGL::SetRenderingContext(uint64 primReg)
 		(m_renderState.testReg != testReg))
 	{
 		FlushVertexBuffer();
-		SetupTestFunctions(testReg);
+		SetupTestFunctions(shaderInfo, testReg);
 		CHECKGLERROR();
 	}
 
@@ -798,44 +847,15 @@ void CGSH_OpenGL::SetupBlendingFunction(uint64 alphaReg)
 	glBlendEquation(nFunction);
 }
 
-void CGSH_OpenGL::SetupTestFunctions(uint64 testReg)
+void CGSH_OpenGL::SetupTestFunctions(const SHADERINFO& shaderInfo, uint64 testReg)
 {
 	auto test = make_convertible<TEST>(testReg);
 
-#ifndef GLES_COMPATIBILITY
-	if(test.nAlphaEnabled)
+	if(shaderInfo.alphaRefUniform != -1)
 	{
-		static const GLenum g_alphaTestFunc[ALPHA_TEST_MAX] =
-		{
-			GL_NEVER,
-			GL_ALWAYS,
-			GL_LESS,
-			GL_LEQUAL,
-			GL_EQUAL,
-			GL_GEQUAL,
-			GL_GREATER,
-			GL_NOTEQUAL
-		};
-
-		//Handle special way of turning off color or depth writes
-		//Proper write masks will be set at other places
-		if((test.nAlphaMethod == ALPHA_TEST_NEVER) && (test.nAlphaFail != ALPHA_TEST_FAIL_KEEP))
-		{
-			glDisable(GL_ALPHA_TEST);
-		}
-		else
-		{
-			float nValue = (float)test.nAlphaRef / 255.0f;
-			glAlphaFunc(g_alphaTestFunc[test.nAlphaMethod], nValue);
-
-			glEnable(GL_ALPHA_TEST);
-		}
+		float alphaRef = (float)test.nAlphaRef / 255.0f;
+		glUniform1f(shaderInfo.alphaRefUniform, alphaRef);
 	}
-	else
-	{
-		glDisable(GL_ALPHA_TEST);
-	}
-#endif
 
 	if(test.nDepthEnabled)
 	{
@@ -1035,7 +1055,7 @@ bool CGSH_OpenGL::CanRegionRepeatClampModeSimplified(uint32 clampMin, uint32 cla
 	return false;
 }
 
-void CGSH_OpenGL::FillShaderCapsFromTexture(SHADERCAPS& shaderCaps, uint64 tex0Reg, uint64 tex1Reg, uint64 texAReg, uint64 clampReg)
+void CGSH_OpenGL::FillShaderCapsFromTexture(SHADERCAPS& shaderCaps, const uint64& tex0Reg, const uint64& tex1Reg, const uint64& texAReg, const uint64& clampReg)
 {
 	auto tex0 = make_convertible<TEX0>(tex0Reg);
 	auto tex1 = make_convertible<TEX1>(tex1Reg);
@@ -1090,6 +1110,30 @@ void CGSH_OpenGL::FillShaderCapsFromTexture(SHADERCAPS& shaderCaps, uint64 tex0R
 	}
 
 	shaderCaps.texFunction = tex0.nFunction;
+}
+
+void CGSH_OpenGL::FillShaderCapsFromTest(SHADERCAPS& shaderCaps, const uint64& testReg)
+{
+	auto test = make_convertible<TEST>(testReg);
+
+	if(test.nAlphaEnabled)
+	{
+		//Handle special way of turning off color or depth writes
+		//Proper write masks will be set at other places
+		if((test.nAlphaMethod == ALPHA_TEST_NEVER) && (test.nAlphaFail != ALPHA_TEST_FAIL_KEEP))
+		{
+			shaderCaps.hasAlphaTest = 0;
+		}
+		else
+		{
+			shaderCaps.hasAlphaTest = 1;
+			shaderCaps.alphaTestMethod = test.nAlphaMethod;
+		}
+	}
+	else
+	{
+		shaderCaps.hasAlphaTest = 0;
+	}
 }
 
 void CGSH_OpenGL::SetupTexture(const SHADERINFO& shaderInfo, uint64 primReg, uint64 tex0Reg, uint64 tex1Reg, uint64 texAReg, uint64 clampReg)

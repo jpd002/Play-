@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
 	package="com.virtualapplications.play"
-	android:versionCode="8"
+	android:versionCode="11"
 	android:versionName="0.30">
 	<uses-sdk android:minSdkVersion="19" android:targetSdkVersion="22" />
 	<uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
@@ -27,16 +27,51 @@
 		android:icon="@drawable/ic_launcher"
 		android:banner="@drawable/ic_banner"
 		android:logo="@drawable/ic_logo"
-		android:isGame="true">
+		android:isGame="true"
+		android:theme="@style/Blue"
+		>
 		<activity 
 			android:name=".MainActivity"
 			android:configChanges="orientation|navigation|screenSize|screenLayout|uiMode|keyboard|keyboardHidden"
-			android:label="@string/app_name">
+			android:label="@string/app_name"
+			>
 			<intent-filter>
 				<action android:name="android.intent.action.MAIN" />
 
 				<category android:name="android.intent.category.LEANBACK_LAUNCHER" />
 				<category android:name="android.intent.category.LAUNCHER" />
+			</intent-filter>
+			<intent-filter>
+				<action android:name="android.intent.action.VIEW" />
+				
+				<category android:name="android.intent.category.DEFAULT" />
+				<category android:name="android.intent.category.BROWSABLE" />
+				
+				<data
+					android:host="*"
+					android:mimeType="*/*"
+					android:pathPattern=".*\\.iso"
+					android:scheme="file" />
+				<data
+					android:host="*"
+					android:mimeType="*/*"
+					android:pathPattern=".*\\.bin"
+					android:scheme="file" />
+				<data
+					android:host="*"
+					android:mimeType="*/*"
+					android:pathPattern=".*\\.cso"
+					android:scheme="file" />
+				<data
+					android:host="*"
+					android:mimeType="*/*"
+					android:pathPattern=".*\\.isz"
+					android:scheme="file" />
+				<data
+					android:host="*"
+					android:mimeType="*/*"
+					android:pathPattern=".*\\.elf"
+					android:scheme="file" />
 			</intent-filter>
 		</activity>
 		<activity
@@ -47,10 +82,11 @@
 		</activity>
 		<activity
 			android:name=".SettingsActivity"
-			android:configChanges="orientation|locale|keyboard|keyboardHidden|navigation">
+			android:configChanges="orientation|locale|keyboard|keyboardHidden|navigation"
+			>
 		</activity>
 		<provider
-			android:name=".TheGamesDB"
+			android:name=".database.TheGamesDB"
 			android:authorities="virtualapplications.play.gamesdb" />
 	</application>
 </manifest> 
