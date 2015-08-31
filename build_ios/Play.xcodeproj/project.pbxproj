@@ -175,11 +175,11 @@
 		8794D9B01B88B60900B1B3A3 /* OpenGLES.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8794D9AF1B88B60900B1B3A3 /* OpenGLES.framework */; };
 		8794D9B21B88B61400B1B3A3 /* libbz2.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 8794D9B11B88B61400B1B3A3 /* libbz2.dylib */; };
 		8794D9B41B88B61C00B1B3A3 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8794D9B31B88B61C00B1B3A3 /* UIKit.framework */; };
+		879A687D1B94D344001D4262 /* CoverViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 879A687C1B94D344001D4262 /* CoverViewCell.m */; };
 		87C208BE1B7A3E7E00638BDD /* GameController.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 87C208BD1B7A3E7E00638BDD /* GameController.framework */; };
 		87C4CC341B75010700CE6D3C /* iCadeReaderView.m in Sources */ = {isa = PBXBuildFile; fileRef = 87C4CC311B75010700CE6D3C /* iCadeReaderView.m */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
 		87DCDB331B7F03260054D67C /* CoverViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 87DCDB321B7F03260054D67C /* CoverViewController.m */; };
 		87DCDB381B7F13370054D67C /* CollectionView.m in Sources */ = {isa = PBXBuildFile; fileRef = 87DCDB371B7F13370054D67C /* CollectionView.m */; };
-		87EBC5AB1B7C573300018B42 /* CoverViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 87EBC5AA1B7C573300018B42 /* CoverViewCell.m */; };
 		87EC5F3B1B7AF6EA00F1B515 /* PH_iOS.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 87EC5F391B7AF6EA00F1B515 /* PH_iOS.cpp */; };
 /* End PBXBuildFile section */
 
@@ -533,6 +533,8 @@
 		8794D9AF1B88B60900B1B3A3 /* OpenGLES.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGLES.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS8.4.sdk/System/Library/Frameworks/OpenGLES.framework; sourceTree = DEVELOPER_DIR; };
 		8794D9B11B88B61400B1B3A3 /* libbz2.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libbz2.dylib; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS8.4.sdk/usr/lib/libbz2.dylib; sourceTree = DEVELOPER_DIR; };
 		8794D9B31B88B61C00B1B3A3 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS8.4.sdk/System/Library/Frameworks/UIKit.framework; sourceTree = DEVELOPER_DIR; };
+		879A687B1B94D344001D4262 /* CoverViewCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CoverViewCell.h; path = ../Source/ui_ios/CoverViewCell.h; sourceTree = "<group>"; };
+		879A687C1B94D344001D4262 /* CoverViewCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = CoverViewCell.m; path = ../Source/ui_ios/CoverViewCell.m; sourceTree = "<group>"; };
 		87C208BD1B7A3E7E00638BDD /* GameController.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = GameController.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS8.4.sdk/System/Library/Frameworks/GameController.framework; sourceTree = DEVELOPER_DIR; };
 		87C4CC301B75010700CE6D3C /* iCadeReaderView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = iCadeReaderView.h; sourceTree = "<group>"; };
 		87C4CC311B75010700CE6D3C /* iCadeReaderView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = iCadeReaderView.m; sourceTree = "<group>"; };
@@ -541,8 +543,6 @@
 		87DCDB321B7F03260054D67C /* CoverViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = CoverViewController.m; path = ../Source/ui_ios/CoverViewController.m; sourceTree = "<group>"; };
 		87DCDB361B7F13370054D67C /* CollectionView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CollectionView.h; path = ../Source/ui_ios/CollectionView.h; sourceTree = "<group>"; };
 		87DCDB371B7F13370054D67C /* CollectionView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = CollectionView.m; path = ../Source/ui_ios/CollectionView.m; sourceTree = "<group>"; };
-		87EBC5A91B7C573300018B42 /* CoverViewCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CoverViewCell.h; path = ../Source/ui_ios/CoverViewCell.h; sourceTree = "<group>"; };
-		87EBC5AA1B7C573300018B42 /* CoverViewCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = CoverViewCell.m; path = ../Source/ui_ios/CoverViewCell.m; sourceTree = "<group>"; };
 		87EC5F391B7AF6EA00F1B515 /* PH_iOS.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = PH_iOS.cpp; path = ../Source/ui_ios/PH_iOS.cpp; sourceTree = "<group>"; };
 		87EC5F3A1B7AF6EA00F1B515 /* PH_iOS.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PH_iOS.h; path = ../Source/ui_ios/PH_iOS.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -608,8 +608,8 @@
 				70834AE41B1BCB0100E8D5C6 /* AppDelegate.mm */,
 				70834AE71B1BCB0100E8D5C6 /* EmulatorViewController.h */,
 				70834AE81B1BCB0100E8D5C6 /* EmulatorViewController.mm */,
-				87EBC5A91B7C573300018B42 /* CoverViewCell.h */,
-				87EBC5AA1B7C573300018B42 /* CoverViewCell.m */,
+				879A687B1B94D344001D4262 /* CoverViewCell.h */,
+				879A687C1B94D344001D4262 /* CoverViewCell.m */,
 				70AD23681B38A39000137AA0 /* GlEsView.h */,
 				70AD23651B38A2FE00137AA0 /* GlEsView.mm */,
 				704E1C4C1B3BA0B200C0ACE3 /* GSH_OpenGLiOS.cpp */,
@@ -1138,7 +1138,6 @@
 				70AD238B1B38FFBA00137AA0 /* SaveExporter.cpp in Sources */,
 				70834B5B1B1BD2C300E8D5C6 /* COP_FPU.cpp in Sources */,
 				70834BDF1B1BD6A300E8D5C6 /* Dmac_Channel.cpp in Sources */,
-				87EBC5AB1B7C573300018B42 /* CoverViewCell.m in Sources */,
 				70834B5A1B1BD2C300E8D5C6 /* COP_FPU_Reflection.cpp in Sources */,
 				70834BEE1B1BD6A300E8D5C6 /* MA_EE_Reflection.cpp in Sources */,
 				70834BFC1B1BD6A300E8D5C6 /* VuBasicBlock.cpp in Sources */,
@@ -1285,6 +1284,7 @@
 				70834BF61B1BD6A300E8D5C6 /* SIF.cpp in Sources */,
 				70834AE91B1BCB0100E8D5C6 /* AppDelegate.mm in Sources */,
 				70834BFE1B1BD6A300E8D5C6 /* VUShared_Reflection.cpp in Sources */,
+				879A687D1B94D344001D4262 /* CoverViewCell.m in Sources */,
 				70834B6F1B1BD2C300E8D5C6 /* MIPSCoprocessor.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

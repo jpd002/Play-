@@ -11,6 +11,7 @@
 #import "IosUtils.h"
 #import "DiskUtils.h"
 #import "BackgroundLayer.h"
+#import "CoverViewCell.h"
 
 @interface CoverViewController ()
 
@@ -36,10 +37,7 @@ static NSString * const reuseIdentifier = @"coverCell";
     // self.clearsSelectionOnViewWillAppear = NO;
 
     self.collectionView.allowsMultipleSelection = NO;
-    
-    // Register cell classes
-    [self.collectionView registerClass:[UICollectionViewCell class] forCellWithReuseIdentifier:reuseIdentifier];
-    
+	
     self.database = [[SqliteDatabase alloc] init];
     if (self.coverView.diskImages == nil)
     {
@@ -94,7 +92,7 @@ static NSString * const reuseIdentifier = @"coverCell";
 }
 
 - (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath {
-    UICollectionViewCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:reuseIdentifier forIndexPath:indexPath];
+	CoverViewCell *cell = (CoverViewCell *)[collectionView dequeueReusableCellWithReuseIdentifier:reuseIdentifier forIndexPath:indexPath];
     
     NSDictionary *disk = [self.coverView.diskImages objectAtIndex: indexPath.row];
     NSString* diskId = [disk objectForKey:@"serial"];
@@ -105,8 +103,10 @@ static NSString * const reuseIdentifier = @"coverCell";
     if ([game objectForKey:@"boxart"] != nil && ![[game objectForKey:@"boxart"] isEqual:@"404"]) {
         NSString *imageIcon = [[NSString alloc] initWithFormat:@"http://thegamesdb.net/banners/%@", [game objectForKey:@"boxart"]];
         [(UIImageView *)cell.backgroundView setImageWithURL:[NSURL URLWithString:imageIcon] placeholderImage:[UIImage imageNamed:@"boxart.png"]];
-    }
-    
+	} else {
+		cell.nameLabel.text = [[[disk objectForKey:@"file"] lastPathComponent] stringByDeletingPathExtension];
+	}
+		
     // Configure the cell
     
     return cell;
