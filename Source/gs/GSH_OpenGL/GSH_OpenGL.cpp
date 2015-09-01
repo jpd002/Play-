@@ -420,15 +420,15 @@ Framework::OpenGl::CVertexArray CGSH_OpenGL::GeneratePrimVertexArray()
 
 	glEnableVertexAttribArray(static_cast<GLuint>(PRIM_VERTEX_ATTRIB::POSITION));
 	glVertexAttribPointer(static_cast<GLuint>(PRIM_VERTEX_ATTRIB::POSITION), 3, GL_FLOAT, 
-		GL_FALSE, sizeof(PRIM_VERTEX), reinterpret_cast<const GLvoid*>(0));
+		GL_FALSE, sizeof(PRIM_VERTEX), reinterpret_cast<const GLvoid*>(offsetof(PRIM_VERTEX, x)));
 
 	glEnableVertexAttribArray(static_cast<GLuint>(PRIM_VERTEX_ATTRIB::COLOR));
 	glVertexAttribPointer(static_cast<GLuint>(PRIM_VERTEX_ATTRIB::COLOR), 4, GL_UNSIGNED_BYTE, 
-		GL_TRUE, sizeof(PRIM_VERTEX), reinterpret_cast<const GLvoid*>(12));
+		GL_TRUE, sizeof(PRIM_VERTEX), reinterpret_cast<const GLvoid*>(offsetof(PRIM_VERTEX, color)));
 
 	glEnableVertexAttribArray(static_cast<GLuint>(PRIM_VERTEX_ATTRIB::TEXCOORD));
 	glVertexAttribPointer(static_cast<GLuint>(PRIM_VERTEX_ATTRIB::TEXCOORD), 3, GL_FLOAT, 
-		GL_FALSE, sizeof(PRIM_VERTEX), reinterpret_cast<const GLvoid*>(16));
+		GL_FALSE, sizeof(PRIM_VERTEX), reinterpret_cast<const GLvoid*>(offsetof(PRIM_VERTEX, s)));
 
 	glBindVertexArray(0);
 
