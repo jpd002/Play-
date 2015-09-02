@@ -55,6 +55,7 @@ private:
 		uint64		tex1Reg;
 		uint64		texAReg;
 		uint64		clampReg;
+		uint64		fogColReg;
 		GLuint		shaderHandle;
 	};
 
@@ -130,6 +131,7 @@ private:
 		GLint							texA0Uniform;
 		GLint							texA1Uniform;
 		GLint							alphaRefUniform;
+		GLint							fogColorUniform;
 	};
 
 	typedef std::unordered_map<uint32, SHADERINFO> ShaderInfoMap;
@@ -219,6 +221,7 @@ private:
 		POSITION = 1,
 		COLOR = 2,
 		TEXCOORD = 3,
+		FOG = 4,
 	};
 
 	struct PRIM_VERTEX
@@ -226,6 +229,7 @@ private:
 		float x, y, z;
 		uint32 color;
 		float s, t, q;
+		float f;
 	};
 
 	enum VERTEX_BUFFER_SIZE
@@ -277,7 +281,7 @@ private:
 	void							SetupDepthBuffer(uint64, uint64);
 	void							SetupFramebuffer(const SHADERINFO&, uint64, uint64, uint64, uint64);
 	void							SetupBlendingFunction(uint64);
-	void							SetupFogColor();
+	void							SetupFogColor(const SHADERINFO&, uint64);
 
 	static bool						CanRegionRepeatClampModeSimplified(uint32, uint32);
 	void							FillShaderCapsFromTexture(SHADERCAPS&, const uint64&, const uint64&, const uint64&, const uint64&);

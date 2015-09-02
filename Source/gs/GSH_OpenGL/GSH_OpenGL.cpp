@@ -430,6 +430,10 @@ Framework::OpenGl::CVertexArray CGSH_OpenGL::GeneratePrimVertexArray()
 	glVertexAttribPointer(static_cast<GLuint>(PRIM_VERTEX_ATTRIB::TEXCOORD), 3, GL_FLOAT, 
 		GL_FALSE, sizeof(PRIM_VERTEX), reinterpret_cast<const GLvoid*>(offsetof(PRIM_VERTEX, s)));
 
+	glEnableVertexAttribArray(static_cast<GLuint>(PRIM_VERTEX_ATTRIB::FOG));
+	glVertexAttribPointer(static_cast<GLuint>(PRIM_VERTEX_ATTRIB::FOG), 1, GL_FLOAT, 
+		GL_FALSE, sizeof(PRIM_VERTEX), reinterpret_cast<const GLvoid*>(offsetof(PRIM_VERTEX, f)));
+
 	glBindVertexArray(0);
 
 	CHECKGLERROR();
@@ -523,6 +527,7 @@ void CGSH_OpenGL::SetRenderingContext(uint64 primReg)
 	uint64 tex1Reg = m_nReg[GS_REG_TEX1_1 + context];
 	uint64 texAReg = m_nReg[GS_REG_TEXA];
 	uint64 clampReg = m_nReg[GS_REG_CLAMP_1 + context];
+	uint64 fogColReg = m_nReg[GS_REG_FOGCOL];
 	uint64 scissorReg = m_nReg[GS_REG_SCISSOR_1 + context];
 
 	//--------------------------------------------------------
@@ -567,6 +572,7 @@ void CGSH_OpenGL::SetRenderingContext(uint64 primReg)
 		shaderInfo.texA0Uniform			= glGetUniformLocation(*shader, "g_texA0");
 		shaderInfo.texA1Uniform			= glGetUniformLocation(*shader, "g_texA1");
 		shaderInfo.alphaRefUniform		= glGetUniformLocation(*shader, "g_alphaRef");
+		shaderInfo.fogColorUniform		= glGetUniformLocation(*shader, "g_fogColor");
 
 		m_shaderInfos.insert(ShaderInfoMap::value_type(static_cast<uint32>(shaderCaps), shaderInfo));
 		shaderInfoIterator = m_shaderInfos.find(static_cast<uint32>(shaderCaps));
@@ -688,6 +694,17 @@ void CGSH_OpenGL::SetRenderingContext(uint64 primReg)
 		CHECKGLERROR();
 	}
 
+	if(shaderCaps.hasFog &&
+		(
+			!m_renderState.isValid ||
+			(m_renderState.fogColReg != fogColReg)
+		))
+	{
+		FlushVertexBuffer();
+		SetupFogColor(shaderInfo, fogColReg);
+		CHECKGLERROR();
+	}
+
 	XYOFFSET offset;
 	offset <<= m_nReg[GS_REG_XYOFFSET_1 + context];
 	m_nPrimOfsX = offset.GetX();
@@ -707,6 +724,7 @@ void CGSH_OpenGL::SetRenderingContext(uint64 primReg)
 	m_renderState.tex1Reg = tex1Reg;
 	m_renderState.texAReg = texAReg;
 	m_renderState.clampReg = clampReg;
+	m_renderState.fogColReg = fogColReg;
 }
 
 void CGSH_OpenGL::SetupBlendingFunction(uint64 alphaReg)
@@ -1024,19 +1042,20 @@ void CGSH_OpenGL::SetupFramebuffer(const SHADERINFO& shaderInfo, uint64 frameReg
 	glScissor(scissorX * FBSCALE, scissorY * FBSCALE, scissorWidth * FBSCALE, scissorHeight * FBSCALE);
 }
 
-void CGSH_OpenGL::SetupFogColor()
+void CGSH_OpenGL::SetupFogColor(const SHADERINFO& shaderInfo, uint64 fogColReg)
 {
+	float color[4];
+
+	auto fogCol = make_convertible<FOGCOL>(fogColReg);
+	color[0] = static_cast<float>(fogCol.nFCR) / 255.0f;
+	color[1] = static_cast<float>(fogCol.nFCG) / 255.0f;
+	color[2] = static_cast<float>(fogCol.nFCB) / 255.0f;
+	color[3] = 0.0f;
+
 #ifndef GLES_COMPATIBILITY
-	float nColor[4];
-
-	FOGCOL color;
-	color <<= m_nReg[GS_REG_FOGCOL];
-	nColor[0] = static_cast<float>(color.nFCR) / 255.0f;
-	nColor[1] = static_cast<float>(color.nFCG) / 255.0f;
-	nColor[2] = static_cast<float>(color.nFCB) / 255.0f;
-	nColor[3] = 0.0f;
-
-	glFogfv(GL_FOG_COLOR, nColor);
+	glFogfv(GL_FOG_COLOR, color);
+#else
+	glUniform3f(shaderInfo.fogColorUniform, color[0], color[1], color[2]);
 #endif
 }
 
@@ -1450,8 +1469,8 @@ void CGSH_OpenGL::Prim_Line()
 
 	PRIM_VERTEX vertices[] =
 	{
-		{	nX1,	nY1,	nZ1,	color1,	nS[0],	nT[0],	nQ[0]	},
-		{	nX2,	nY2,	nZ2,	color2,	nS[1],	nT[1],	nQ[1]	},
+		{	nX1,	nY1,	nZ1,	color1,	nS[0],	nT[0],	nQ[0],	0	},
+		{	nX2,	nY2,	nZ2,	color2,	nS[1],	nT[1],	nQ[1],	0	},
 	};
 
 	assert((m_vertexBuffer.size() + 2) <= VERTEX_BUFFER_SIZE);
@@ -1600,9 +1619,9 @@ void CGSH_OpenGL::Prim_Triangle()
 
 	PRIM_VERTEX vertices[] =
 	{
-		{	nX1,	nY1,	nZ1,	color1,	nS[0],	nT[0],	nQ[0]	},
-		{	nX2,	nY2,	nZ2,	color2,	nS[1],	nT[1],	nQ[1]	},
-		{	nX3,	nY3,	nZ3,	color3,	nS[2],	nT[2],	nQ[2]	},
+		{	nX1,	nY1,	nZ1,	color1,	nS[0],	nT[0],	nQ[0],	nF1	},
+		{	nX2,	nY2,	nZ2,	color2,	nS[1],	nT[1],	nQ[1],	nF2	},
+		{	nX3,	nY3,	nZ3,	color3,	nS[2],	nT[2],	nQ[2],	nF3	},
 	};
 
 	assert((m_vertexBuffer.size() + 3) <= VERTEX_BUFFER_SIZE);
@@ -1718,13 +1737,13 @@ void CGSH_OpenGL::Prim_Sprite()
 
 	PRIM_VERTEX vertices[] =
 	{
-		{	nX1,	nY1,	nZ,	color,	nS[0],	nT[0],	1	},
-		{	nX2,	nY1,	nZ,	color,	nS[1],	nT[0],	1	},
-		{	nX1,	nY2,	nZ,	color,	nS[0],	nT[1],	1	},
+		{	nX1,	nY1,	nZ,	color,	nS[0],	nT[0],	1,	0	},
+		{	nX2,	nY1,	nZ,	color,	nS[1],	nT[0],	1,	0	},
+		{	nX1,	nY2,	nZ,	color,	nS[0],	nT[1],	1,	0	},
 
-		{	nX1,	nY2,	nZ,	color,	nS[0],	nT[1],	1	},
-		{	nX2,	nY1,	nZ,	color,	nS[1],	nT[0],	1	},
-		{	nX2,	nY2,	nZ,	color,	nS[1],	nT[1],	1	},
+		{	nX1,	nY2,	nZ,	color,	nS[0],	nT[1],	1,	0	},
+		{	nX2,	nY1,	nZ,	color,	nS[1],	nT[0],	1,	0	},
+		{	nX2,	nY2,	nZ,	color,	nS[1],	nT[1],	1,	0	},
 	};
 
 	assert((m_vertexBuffer.size() + 6) <= VERTEX_BUFFER_SIZE);
@@ -1855,10 +1874,6 @@ void CGSH_OpenGL::WriteRegisterImpl(uint8 nRegister, uint64 nData)
 	case GS_REG_XYZF2:
 	case GS_REG_XYZF3:
 		VertexKick(nRegister, nData);
-		break;
-
-	case GS_REG_FOGCOL:
-		SetupFogColor();
 		break;
 	}
 }

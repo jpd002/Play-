@@ -61,6 +61,7 @@ Framework::OpenGl::ProgramPtr CGSH_OpenGL::GenerateShader(const SHADERCAPS& caps
 	glBindAttribLocation(*result, static_cast<GLuint>(PRIM_VERTEX_ATTRIB::POSITION), "a_position");
 	glBindAttribLocation(*result, static_cast<GLuint>(PRIM_VERTEX_ATTRIB::COLOR), "a_color");
 	glBindAttribLocation(*result, static_cast<GLuint>(PRIM_VERTEX_ATTRIB::TEXCOORD), "a_texCoord");
+	glBindAttribLocation(*result, static_cast<GLuint>(PRIM_VERTEX_ATTRIB::FOG), "a_fog");
 
 	bool linkResult = result->Link();
 	assert(linkResult);
@@ -93,12 +94,21 @@ Framework::OpenGl::CShader CGSH_OpenGL::GenerateVertexShader(const SHADERCAPS& c
 
 	shaderBuilder << "out vec4 v_color;" << std::endl;
 	shaderBuilder << "out vec3 v_texCoord;" << std::endl;
+	if(caps.hasFog)
+	{
+		shaderBuilder << "in float a_fog;" << std::endl;
+		shaderBuilder << "out float v_fog;" << std::endl;
+	}
 
 	shaderBuilder << "void main()" << std::endl;
 	shaderBuilder << "{" << std::endl;
 	shaderBuilder << "	vec4 texCoord = g_texMatrix * vec4(a_texCoord, 1);" << std::endl;
 	shaderBuilder << "	v_color = a_color;" << std::endl;
 	shaderBuilder << "	v_texCoord = texCoord.xyz;" << std::endl;
+	if(caps.hasFog)
+	{
+		shaderBuilder << "	v_fog = a_fog;" << std::endl;
+	}
 	shaderBuilder << "	gl_Position = g_projMatrix * vec4(a_position, 1);" << std::endl;
 	shaderBuilder << "}" << std::endl;
 #endif
@@ -280,6 +290,11 @@ Framework::OpenGl::CShader CGSH_OpenGL::GenerateFragmentShader(const SHADERCAPS&
 
 	shaderBuilder << "in vec4 v_color;" << std::endl;
 	shaderBuilder << "in highp vec3 v_texCoord;" << std::endl;
+	if(caps.hasFog)
+	{
+		shaderBuilder << "in float v_fog;" << std::endl;
+	}
+
 	shaderBuilder << "out vec4 fragColor;" << std::endl;
 
 	shaderBuilder << "uniform sampler2D g_texture;" << std::endl;
@@ -289,6 +304,7 @@ Framework::OpenGl::CShader CGSH_OpenGL::GenerateFragmentShader(const SHADERCAPS&
 	shaderBuilder << "uniform float g_texA0;" << std::endl;
 	shaderBuilder << "uniform float g_texA1;" << std::endl;
 	shaderBuilder << "uniform float g_alphaRef;" << std::endl;
+	shaderBuilder << "uniform vec3 g_fogColor;" << std::endl;
 
 	shaderBuilder << "vec4 expandAlpha(vec4 inputColor)" << std::endl;
 	shaderBuilder << "{" << std::endl;
@@ -410,7 +426,15 @@ Framework::OpenGl::CShader CGSH_OpenGL::GenerateFragmentShader(const SHADERCAPS&
 		shaderBuilder << GenerateAlphaTestSection(static_cast<ALPHA_TEST_METHOD>(caps.alphaTestMethod));
 	}
 
-	shaderBuilder << "	fragColor = textureColor;" << std::endl;
+	if(caps.hasFog)
+	{
+		shaderBuilder << "	fragColor = vec4(mix(textureColor.rgb, g_fogColor, v_fog), textureColor.a);" << std::endl;
+	}
+	else
+	{
+		shaderBuilder << "	fragColor = textureColor;" << std::endl;
+	}
+
 	shaderBuilder << "}" << std::endl;
 #endif
 
