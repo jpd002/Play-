@@ -31,9 +31,16 @@
 				android:focusableInTouchMode="true"
 			/>
 			<TextView 
-				android:id="@+id/emulator_stats"
+				android:id="@+id/emulator_fps"
 				android:layout_width="wrap_content" 
 				android:layout_height="wrap_content" 
+			/>
+			<TextView
+				android:id="@+id/emulator_profile"
+				android:layout_width="wrap_content" 
+				android:layout_height="wrap_content" 
+				android:layout_gravity="right"
+				android:typeface="monospace"
 			/>
 			<!-- 
 				This empty view is needed here to make sure drawer

@@ -41,6 +41,9 @@ extern "C" JNIEXPORT void JNICALL Java_com_virtualapplications_play_NativeIntero
 	g_virtualMachine = new CPS2VM();
 	g_virtualMachine->Initialize();
 	g_virtualMachine->CreatePadHandler(CPH_Android::GetFactoryFunction());
+#ifdef PROFILE
+	g_virtualMachine->ProfileFrameDone.connect(boost::bind(&CStatsManager::OnProfileFrameDone, &CStatsManager::GetInstance(), _1));
+#endif
 }
 
 extern "C" JNIEXPORT jboolean JNICALL Java_com_virtualapplications_play_NativeInterop_isVirtualMachineCreated(JNIEnv* env, jobject obj)

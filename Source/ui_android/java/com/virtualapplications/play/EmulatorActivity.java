@@ -19,9 +19,12 @@ public class EmulatorActivity extends Activity
 	private static final String PREFERENCE_UI_SHOWVIRTUALPAD = "ui.showvirtualpad";
 	
 	private SurfaceView _renderView;
-	private TextView _statsTextView;
+
 	private Timer _statsTimer = new Timer();
 	private Handler _statsTimerHandler;
+	private TextView _fpsTextView;
+	private TextView _profileTextView;
+
 	private DrawerLayout _drawerLayout;
 	protected EmulatorDrawerFragment _drawerFragment;
 	
@@ -112,15 +115,20 @@ public class EmulatorActivity extends Activity
 		SurfaceHolder holder = _renderView.getHolder();
 		holder.addCallback(new SurfaceCallback());
 		
+		_fpsTextView = (TextView)findViewById(R.id.emulator_fps);
+		_profileTextView = (TextView)findViewById(R.id.emulator_profile);
+		
 		if(!SettingsManager.getPreferenceBoolean(PREFERENCE_UI_SHOWVIRTUALPAD))
 		{
 			View virtualPadView = (View)findViewById(R.id.emulator_virtualpad);
 			virtualPadView.setVisibility(View.GONE);
 		}
 		
-		if(SettingsManager.getPreferenceBoolean(PREFERENCE_UI_SHOWFPS))
+		if(
+			SettingsManager.getPreferenceBoolean(PREFERENCE_UI_SHOWFPS) ||
+			StatsManager.isProfiling()
+			)
 		{
-			_statsTextView = (TextView)findViewById(R.id.emulator_stats);
 			setupStatsTimer();
 		}
 	}
@@ -243,7 +251,12 @@ public class EmulatorActivity extends Activity
 					int frames = StatsManager.getFrames();
 					int drawCalls = StatsManager.getDrawCalls();
 					int dcpf = (frames != 0) ? (drawCalls / frames) : 0;
-					_statsTextView.setText(String.format("%d f/s, %d dc/f", frames, dcpf));
+					_fpsTextView.setText(String.format("%d f/s, %d dc/f", frames, dcpf));
+					if(StatsManager.isProfiling())
+					{
+						String profilingInfo = StatsManager.getProfilingInfo();
+						_profileTextView.setText(profilingInfo);
+					}
 					StatsManager.clearStats();
 				}
 			};
