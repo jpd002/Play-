@@ -152,6 +152,7 @@ public class CoverEditActivity extends ActionBarActivity {
                 values.put(IndexingDB.KEY_GAMETITLE, ((TextView) findViewById(R.id.editText)).getText().toString());
                 values.put(IndexingDB.KEY_OVERVIEW, ((TextView) findViewById(R.id.editText2)).getText().toString());
                 GI.updateIndex(values, IndexingDB.KEY_ID + "=?", new String[]{intent.getStringExtra("indexid")});
+                GI.close();
                 if (intent.getStringExtra("cover") == null || intent.getStringExtra("cover").equals("404")){
                     values.put(IndexingDB.KEY_IMAGE, "200");
                 }

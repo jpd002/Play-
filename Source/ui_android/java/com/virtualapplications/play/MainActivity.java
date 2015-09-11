@@ -400,11 +400,11 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
 			
 			GameIndexer GI = new GameIndexer(mActivity);
 			if (fullscan){
-				GI.fullindexingscan();
+				GI.fullScan();
 			} else {
-				GI.startupindexingscan();
+				GI.startupScan();
 			}
-			return GI.getindexGameInfoStruct(sortMethod);
+			return GI.getIndexGISList(sortMethod);
 		}
 		
 		@Override

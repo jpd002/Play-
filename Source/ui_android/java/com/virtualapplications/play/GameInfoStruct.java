@@ -18,8 +18,6 @@ public class GameInfoStruct {
     private String m_ID;
     //private final String m_Serial;
     private String m_FrontLink;
-    private Bitmap m_Thumb;
-    private Bitmap m_Thumb2;
     private String m_Overview;
     private File m_File;
     private String m_indexID;
@@ -52,11 +50,7 @@ public class GameInfoStruct {
     }
 
     public boolean isTitleNameEmptyNull(){
-        if (m_TitleName == null || m_TitleName.isEmpty()){
-            return true;
-        } else {
-            return false;
-        }
+        return m_TitleName == null || m_TitleName.isEmpty();
     }
 
     public void setTitleName(String title, Context mContext){
@@ -81,28 +75,6 @@ public class GameInfoStruct {
         return m_FrontLink;
     }
 
-    public void setFrontCover(Bitmap thumb) {
-        m_Thumb = thumb;
-    }
-    public void setBackCover(Bitmap thumb) { m_Thumb2 = thumb; }
-
-    public Bitmap getFrontCover() {
-        return m_Thumb;
-    }
-
-    public Bitmap getBackCover() {
-        if (m_Thumb2 ==  null) {
-            if (m_Thumb != null) {
-                return m_Thumb;
-            } else {
-                return null;
-            }
-
-        } else {
-            return m_Thumb2;
-        }
-    }
-
     public void setFile(File file) {
         m_File = file;
     }
@@ -119,6 +91,7 @@ public class GameInfoStruct {
             ContentValues values = new ContentValues();
             values.put(IndexingDB.KEY_OVERVIEW, overview);
             GI.updateIndex(values, IndexingDB.KEY_ID + "=?", new String[]{m_indexID});
+            GI.close();
         }
     }
 
@@ -131,11 +104,7 @@ public class GameInfoStruct {
     }
 
     public boolean isDescriptionEmptyNull(){
-        if (m_Overview == null || m_Overview.isEmpty()){
-            return true;
-        } else {
-            return false;
-        }
+        return m_Overview == null || m_Overview.isEmpty();
     }
 
     public void setIndexID(String indexID) {
@@ -149,6 +118,7 @@ public class GameInfoStruct {
             ContentValues values = new ContentValues();
             values.put(IndexingDB.KEY_LAST_PLAYED, System.currentTimeMillis());
             GI.updateIndex(values, IndexingDB.KEY_ID + "=?", new String[]{m_indexID});
+            GI.close();
         }
     }
 
@@ -164,6 +134,7 @@ public class GameInfoStruct {
             ContentValues values = new ContentValues();
             values.put(IndexingDB.KEY_IMAGE, frontLink);
             GI.updateIndex(values, IndexingDB.KEY_ID + "=?", new String[]{m_indexID});
+            GI.close();
         }
     }
 
@@ -176,6 +147,7 @@ public class GameInfoStruct {
             ContentValues values = new ContentValues();
             values.put(IndexingDB.KEY_GAMEID, id);
             GI.updateIndex(values, IndexingDB.KEY_ID + "=?", new String[]{m_indexID});
+            GI.close();
         }
     }
 
@@ -188,6 +160,7 @@ public class GameInfoStruct {
             IndexingDB GI = new IndexingDB(mContext);
 
             GI.deleteIndex(IndexingDB.KEY_ID + "=?", new String[]{m_indexID});
+            GI.close();
         }
     }
 }

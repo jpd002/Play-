@@ -23,8 +23,6 @@ public class IndexingDB extends SQLiteOpenHelper {
     private static final String DATABASE_NAME = "GameIndex.db";
 
 
-    // Contacts Table Columns names
-    //private static final String KEY_ID = "id";
     public static final String KEY_ID = "id";
     public static final String KEY_DISKNAME = "DiskName";
     public static final String KEY_GAMETITLE = "GameTitle";
@@ -100,15 +98,16 @@ public class IndexingDB extends SQLiteOpenHelper {
 
         Cursor cursor = db.query(TABLE_NAME, null, selection,
                 selectionArgs, null, null, null, null);
-        if (cursor != null)
+        ContentValues values = new ContentValues();
+        if (cursor != null){
             cursor.moveToFirst();
 
-        ContentValues values = new ContentValues();
-        for (String col : cursor.getColumnNames()){
-            values.put(col, cursor.getString(cursor.getColumnIndex(col)));
-        }
+            for (String col : cursor.getColumnNames()){
+                values.put(col, cursor.getString(cursor.getColumnIndex(col)));
+            }
 
-        cursor.close();
+            cursor.close();
+        }
         return values;
     }
 
@@ -118,19 +117,28 @@ public class IndexingDB extends SQLiteOpenHelper {
         Cursor cursor = db.query(TABLE_NAME, null, selection,
                 selectionArgs, null, null, null, null);
         boolean isGame = false;
-        if (cursor != null && cursor.getCount() > 0)
-            isGame = true;
+        if (cursor != null){
+            if (cursor.getCount() > 0)
+                isGame = true;
 
-        cursor.close();
+            cursor.close();
+        }
+
         return isGame;
     }
 
-    public List<ContentValues> getAllIndexList() {
+    public List<ContentValues> getIndexList(int sortMethod) {
         SQLiteDatabase db = this.getReadableDatabase();
         List<ContentValues> IndexList = new ArrayList<>();
-        Cursor cursor = db.query(TABLE_NAME, null, null,
-                null, null, null, null, null);
-        if (cursor != null)
+        Cursor cursor;
+        if (sortMethod == MainActivity.SORT_RECENT) {
+            cursor = db.query(TABLE_NAME, null, KEY_LAST_PLAYED + " != 0", null, null, null, KEY_LAST_PLAYED + " DESC", null);
+        } else if (sortMethod == MainActivity.SORT_HOMEBREW) {
+            cursor = db.query(TABLE_NAME, null, KEY_DISKNAME + " LIKE ? COLLATE NOCASE", new String[]{"%.elf"}, null, null, null, null);
+        } else {
+            cursor = db.query(TABLE_NAME, null, null, null, null, null, null, null);
+        }
+        if (cursor != null){
             if (cursor.moveToFirst()) {
                 do {
                     ContentValues values = new ContentValues();
@@ -140,13 +148,13 @@ public class IndexingDB extends SQLiteOpenHelper {
                     IndexList.add(values);
                 } while (cursor.moveToNext());
             }
+            cursor.close();
+        }
 
-
-        cursor.close();
         return IndexList;
     }
 
-    public List<GameInfoStruct> getAllIndexGameInfoStruct(int sortMethod) {
+    public List<GameInfoStruct> getIndexGameInfoStruct(int sortMethod) {
         SQLiteDatabase db = this.getReadableDatabase();
         List<GameInfoStruct> IndexList = new ArrayList<>();
         Cursor cursor;
@@ -178,11 +186,12 @@ public class IndexingDB extends SQLiteOpenHelper {
         return IndexList;
     }
 
-    public int updateIndex(ContentValues values, String selection, String[] selectionArgs) {
+    public void updateIndex(ContentValues values, String selection, String[] selectionArgs) {
         SQLiteDatabase db = this.getWritableDatabase();
 
         // updating row
-        return db.update(TABLE_NAME, values, selection, selectionArgs);
+        db.update(TABLE_NAME, values, selection, selectionArgs);
+        db.close();
     }
 
     public void deleteIndex(String selection, String[] selectionArgs) {
@@ -198,10 +207,10 @@ public class IndexingDB extends SQLiteOpenHelper {
         Cursor cursor = db.query(TABLE_NAME, null, null,
                 null, null, null, null, null);
         int count = 0;
-        if (cursor != null)
+        if (cursor != null) {
             count = cursor.getCount();
-
-        cursor.close();
+            cursor.close();
+        }
         // return count
         return count;
     }
@@ -211,14 +220,15 @@ public class IndexingDB extends SQLiteOpenHelper {
 
         Cursor cursor = db.query(true, TABLE_NAME, new String[]{KEY_PATH}, null, null, KEY_PATH, null, null, null);
         List<String> paths = new ArrayList<>();
-        if (cursor != null)
+        if (cursor != null) {
             if (cursor.moveToFirst()) {
                 do {
                     paths.add(cursor.getString(cursor.getColumnIndex(KEY_PATH)));
                 } while (cursor.moveToNext());
             }
+            cursor.close();
+        }
 
-        cursor.close();
         return paths;
     }
 

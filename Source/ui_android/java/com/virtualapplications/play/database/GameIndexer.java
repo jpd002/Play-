@@ -6,7 +6,6 @@ import android.os.Environment;
 import android.util.Log;
 
 import com.virtualapplications.play.GameInfoStruct;
-import com.virtualapplications.play.MainActivity;
 import com.virtualapplications.play.NativeInterop;
 import com.virtualapplications.play.R;
 
@@ -16,7 +15,6 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Vector;
 
 import static com.virtualapplications.play.MainActivity.IsLoadableExecutableFileName;
 import static com.virtualapplications.play.MainActivity.getExternalMounts;
@@ -37,11 +35,11 @@ public class GameIndexer {
         mediaTypes = mContext.getResources().getStringArray(R.array.disks);
     }
 
-    public void startupindexingscan() {
+    public void startupScan() {
 
-        List<String> paths = getpath();
+        List<String> paths = getPaths();
         if (paths.isEmpty()) {
-            fullindexingscan();
+            fullScan();
         } else {
             toIndex = new ArrayList<>();
             for (String path : paths) {
@@ -53,7 +51,7 @@ public class GameIndexer {
 
     }
 
-    public void fullindexingscan() {
+    public void fullScan() {
         toIndex = new ArrayList<>();
             HashSet<String> extStorage = getExternalMounts();
             extStorage.add(Environment.getExternalStorageDirectory().getAbsolutePath());
@@ -149,28 +147,31 @@ public class GameIndexer {
         }
     }
 
-    private List<ContentValues> getindex() {
+    private List<ContentValues> getIndexCVList(int sortMethod) {
         if (db == null){
             if ((db = new IndexingDB(mContext)) == null){
                 Log.e("PLAY!", "Failed To Initiate IndexDB");
             }
         }
-        return db.getAllIndexList();
+        List<ContentValues> CV = db.getIndexList(sortMethod);
+        db.close();
+        db = null;
+        return CV;
     }
 
-    public List<GameInfoStruct> getindexGameInfoStruct(int sortMethod) {
+    public List<GameInfoStruct> getIndexGISList(int sortMethod) {
         if (db == null){
             if ((db = new IndexingDB(mContext)) == null){
                 Log.e("PLAY!", "Failed To Initiate IndexDB");
             }
         }
-        List<GameInfoStruct> GIS = db.getAllIndexGameInfoStruct(sortMethod);
+        List<GameInfoStruct> GIS = db.getIndexGameInfoStruct(sortMethod);
         db.close();
         db = null;
         return GIS;
     }
 
-    private List<String> getpath() {
+    private List<String> getPaths() {
         if (db == null){
             if ((db = new IndexingDB(mContext)) == null){
                 Log.e("PLAY!", "Failed To Initiate IndexDB");
