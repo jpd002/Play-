@@ -28,6 +28,8 @@
 
     <string name="game_unavailable">Game is unavailable.\nWould you like to remove it from the list?</string>
     <string name="not_found">Not Found</string>
+    <string name="no_game_found_adapter">No PS2 Game(s) Found, Please add your games to your device, then close and open this app.</string>
+
     <!-- Application Preferences -->
     
     <string name="title_activity_settings">Settings</string>
@@ -90,4 +92,5 @@
 	
 	<string name="platform">Copying logcat content to clipboard\nPlease paste in the issue report</string>
 	<string name="log_saved">Log saved to \"Files Dir\" path</string>
+    <string name="no_recent_adapter">No recently played PS2 game found.</string>
 </resources>

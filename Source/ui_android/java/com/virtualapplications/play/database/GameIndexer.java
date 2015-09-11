@@ -165,7 +165,7 @@ public class GameIndexer {
                 Log.e("PLAY!", "Failed To Initiate IndexDB");
             }
         }
-        List<GameInfoStruct> GIS = db.getIndexGameInfoStruct(sortMethod);
+        List<GameInfoStruct> GIS = db.getIndexGISList(sortMethod);
         db.close();
         db = null;
         return GIS;

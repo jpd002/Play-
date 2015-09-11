@@ -126,7 +126,7 @@ public class SettingsActivity extends PreferenceActivity implements SharedPrefer
 				button_f.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
 					@Override
 					public boolean onPreferenceClick(Preference arg0) {
-						MainActivity.FullDirectoryScan();
+						MainActivity.fullDirectoryScan();
 						getPreferenceScreen().removePreference(button_f);
 						return true;
 					}
@@ -151,7 +151,7 @@ public class SettingsActivity extends PreferenceActivity implements SharedPrefer
 					@Override
 					public boolean onPreferenceClick(Preference arg0) {
 						IndexingDB iDB = new IndexingDB(getActivity());
-						List<GameInfoStruct> games = iDB.getAllIndexGameInfoStruct(MainActivity.SORT_NONE);
+						List<GameInfoStruct> games = iDB.getIndexGISList(MainActivity.SORT_NONE);
 						iDB.close();
 						for (GameInfoStruct game : games){
 							if (!game.getFile().exists()) {

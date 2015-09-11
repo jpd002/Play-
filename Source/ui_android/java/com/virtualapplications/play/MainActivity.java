@@ -161,11 +161,9 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
 		builder.setMessage(message);
 
 		builder.setPositiveButton("OK",
-				new DialogInterface.OnClickListener()
-				{
+				new DialogInterface.OnClickListener() {
 					@Override
-					public void onClick(DialogInterface dialog, int id)
-					{
+					public void onClick(DialogInterface dialog, int id) {
 
 					}
 				}
@@ -287,7 +285,7 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
 		return out;
 	}
 	
-	public static void FullDirectoryScan() {
+	public static void fullDirectoryScan() {
 		((MainActivity) mActivity).prepareFileListView(false, true);
 	}
 	
@@ -412,13 +410,9 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
 			if (progDialog != null && progDialog.isShowing()) {
 				progDialog.dismiss();
 			}
-			if (images != null && !images.isEmpty()) {
-				currentGames = images;
-				// Create the list of acceptable images
-				populateImages(images);
-			} else {
-				// Display warning that no disks exist
-			}
+			currentGames = images;
+			// Create the list of acceptable images
+			populateImages(images);
 		}
 	}
 	
@@ -426,27 +420,30 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
 		GridView gameGrid = (GridView) findViewById(R.id.game_grid);
 		if (gameGrid != null && gameGrid.isShown()) {
 			gameGrid.setAdapter(null);
+			if (isAndroidTV(this)) {
+				gameGrid.setOnItemClickListener(new OnItemClickListener() {
+					public void onItemClick(AdapterView<?> parent, View v, int position, long id) {
+						v.performClick();
+					}
+				});
+			}
+			if (images == null || images.isEmpty()) {
+				// Display warning that no disks exist
+				ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, (sortMethod == SORT_RECENT) ? new String[]{getString(R.string.no_recent_adapter)} : new String[]{getString(R.string.no_game_found_adapter)});
+				gameGrid.setNumColumns(1);
+				gameGrid.setAdapter(adapter);
+			} else {
+				GamesAdapter adapter = new GamesAdapter(MainActivity.this, R.layout.game_list_item, images);
+				/*
+				-1 = autofit
+				 */
+				gameGrid.setNumColumns(-1);
+				gameGrid.setColumnWidth((int) getResources().getDimension(R.dimen.cover_width));
+
+				gameGrid.setAdapter(adapter);
+				gameGrid.invalidate();
+			}
 		}
-		
-		if (isAndroidTV(this)) {
-			gameGrid.setOnItemClickListener(new OnItemClickListener() {
-				public void onItemClick(AdapterView<?> parent, View v, int position, long id) {
-					v.performClick();
-				}
-			});
-		}
-
-		GamesAdapter adapter = new GamesAdapter(MainActivity.this, R.layout.game_list_item, images);
-		/*
-		gameGrid.setNumColumns(-1);
-		-1 = autofit
-		or set a number if you like
-		 */
-		gameGrid.setColumnWidth((int) getResources().getDimension(R.dimen.cover_width));
-
-		gameGrid.setAdapter(adapter);
-		gameGrid.invalidate();
-
 	}
 
 	public class GamesAdapter extends ArrayAdapter<GameInfoStruct> {

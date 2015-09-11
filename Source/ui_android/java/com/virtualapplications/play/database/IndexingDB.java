@@ -154,7 +154,7 @@ public class IndexingDB extends SQLiteOpenHelper {
         return IndexList;
     }
 
-    public List<GameInfoStruct> getIndexGameInfoStruct(int sortMethod) {
+    public List<GameInfoStruct> getIndexGISList(int sortMethod) {
         SQLiteDatabase db = this.getReadableDatabase();
         List<GameInfoStruct> IndexList = new ArrayList<>();
         Cursor cursor;
