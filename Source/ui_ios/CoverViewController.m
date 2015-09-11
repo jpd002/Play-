@@ -141,10 +141,13 @@ static NSString * const reuseIdentifier = @"coverCell";
     }
 }
 
+/*
+// Uncomment these methods to perform selection segue programatically
 -(void)collectionView: (UICollectionView*)collectionView didSelectItemAtIndexPath: (NSIndexPath*)indexPath
 {
     [self performSegueWithIdentifier: @"showEmulator" sender: self];
 }
+ */
 
 /*
 // Uncomment these methods to specify if an action menu should be displayed for the specified item, and react to actions performed on the item

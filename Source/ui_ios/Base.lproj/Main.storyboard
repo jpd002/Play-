@@ -40,6 +40,7 @@
                                 <size key="customSize" width="144" height="204"/>
                                 <connections>
                                     <outlet property="nameLabel" destination="KRt-E5-gbH" id="XJm-ai-vMg"/>
+                                    <segue destination="BYZ-38-t0r" kind="presentation" identifier="showEmulator" id="pJM-6k-34E"/>
                                 </connections>
                             </collectionViewCell>
                         </cells>
