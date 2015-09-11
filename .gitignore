@@ -18,5 +18,6 @@ ReleaseAot
 *.user
 *.userprops
 *.orig
+*.xccheckout
 xcuserdata
 
