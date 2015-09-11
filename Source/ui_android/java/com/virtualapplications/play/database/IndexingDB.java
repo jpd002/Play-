@@ -83,6 +83,18 @@ public class IndexingDB extends SQLiteOpenHelper {
         db.close(); // Closing database connection
     }
 
+    void insertAll(List<ContentValues> values) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        db.beginTransaction();
+        // Inserting Row
+        for (ContentValues value : values) {
+            db.insert(TABLE_NAME, null, value);
+        }
+        db.setTransactionSuccessful();
+        db.endTransaction();
+        db.close(); // Closing database connection
+    }
+
     ContentValues getGame(String selection, String[] selectionArgs) {
         SQLiteDatabase db = this.getReadableDatabase();
 

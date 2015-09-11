@@ -13,8 +13,10 @@ import com.virtualapplications.play.R;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Vector;
 
 import static com.virtualapplications.play.MainActivity.IsLoadableExecutableFileName;
 import static com.virtualapplications.play.MainActivity.getExternalMounts;
@@ -27,28 +29,32 @@ public class GameIndexer {
     private Context mContext;
     String[] mediaTypes;
     private IndexingDB db;
+    private List<ContentValues> toIndex;
 
 
     public GameIndexer(Context context){
         this.mContext = context;
         mediaTypes = mContext.getResources().getStringArray(R.array.disks);
-        db = new IndexingDB(mContext);
     }
 
     public void startupindexingscan() {
+
         List<String> paths = getpath();
         if (paths.isEmpty()) {
             fullindexingscan();
         } else {
+            toIndex = new ArrayList<>();
             for (String path : paths) {
                 File file = new File(path);
                 walk(file, file.getAbsolutePath(), path, 0);
             }
+            insertAll();
         }
 
     }
 
     public void fullindexingscan() {
+        toIndex = new ArrayList<>();
             HashSet<String> extStorage = getExternalMounts();
             extStorage.add(Environment.getExternalStorageDirectory().getAbsolutePath());
             if (extStorage != null && !extStorage.isEmpty()) {
@@ -57,6 +63,7 @@ public class GameIndexer {
                     File file = new File(sdCardPath);
                     walk(file, file.getAbsolutePath(), sdCardPath, 9999);
                 }
+                insertAll();
             }
 
     }
@@ -78,6 +85,7 @@ public class GameIndexer {
                             String serial = null;
                             if (!IsLoadableExecutableFileName(f.getPath())) {
                                 serial = getSerial(f);
+                                if (serial == null) continue;
                             }
 
                             ContentValues values = new ContentValues();
@@ -86,7 +94,7 @@ public class GameIndexer {
                             values.put(IndexingDB.KEY_SERIAL, serial);
                             values.put(IndexingDB.KEY_SIZE, f.length());
                             values.put(IndexingDB.KEY_LAST_PLAYED, 0);
-                            insert(values);
+                            toIndex.add(values);
                             //Log.i("INDEX", "Name: " + name + " PATH: " + folderPath + " Serial: " + serial + " Size " + f.length());
                         }
                     }
@@ -99,9 +107,7 @@ public class GameIndexer {
         for (final String type : mediaTypes) {
             if (!(f.getParentFile().getName().startsWith(".") || f.getName().startsWith("."))) {
                 if (StringUtils.endsWithIgnoreCase(f.getName(), "." + type)) {
-                    String serial = getSerial(f);
-                    return IsLoadableExecutableFileName(f.getPath()) ||
-                            (serial != null && !serial.equals(""));
+                    return true;
                 }
             }
         }
@@ -127,13 +133,20 @@ public class GameIndexer {
 
     }
 
-    private void insert(ContentValues values) {
-        if (db == null){
-            if ((db = new IndexingDB(mContext)) == null){
-                Log.e("PLAY!", "Failed To Initiate IndexDB");
+    private void insertAll() {
+        if (toIndex != null && toIndex.size() >0){
+            if (db == null){
+                if ((db = new IndexingDB(mContext)) == null){
+                    Log.e("PLAY!", "Failed To Initiate IndexDB");
+                }
             }
+            db.insertAll(toIndex);
+            toIndex = null;
         }
-        db.insert(values);
+        if (db != null){
+            db.close();
+            db = null;
+        }
     }
 
     private List<ContentValues> getindex() {
@@ -151,7 +164,10 @@ public class GameIndexer {
                 Log.e("PLAY!", "Failed To Initiate IndexDB");
             }
         }
-        return db.getAllIndexGameInfoStruct(sortMethod);
+        List<GameInfoStruct> GIS = db.getAllIndexGameInfoStruct(sortMethod);
+        db.close();
+        db = null;
+        return GIS;
     }
 
     private List<String> getpath() {
@@ -160,7 +176,10 @@ public class GameIndexer {
                 Log.e("PLAY!", "Failed To Initiate IndexDB");
             }
         }
-        return db.getPaths();
+        List<String> paths = db.getPaths();
+        db.close();
+        db = null;
+        return paths;
     }
 
     private boolean isNoMedia(File[] files) {
