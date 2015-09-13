@@ -119,12 +119,12 @@ public class SettingsActivity extends PreferenceActivity implements SharedPrefer
             
             addPreferencesFromResource(R.xml.settings_ui_fragment);
             
-            final Preference button_f = (Preference)getPreferenceManager().findPreference("ui.clearfolder");
+            final Preference button_f = (Preference)getPreferenceManager().findPreference("ui.rescan");
             if (button_f != null) {
 				button_f.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
                     @Override
                     public boolean onPreferenceClick(Preference arg0) {
-                        MainActivity.resetDirectory();
+                        MainActivity.FullDirectoryScan();
                         getPreferenceScreen().removePreference(button_f);
                         return true;
                     }

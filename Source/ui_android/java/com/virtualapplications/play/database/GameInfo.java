@@ -32,6 +32,7 @@ import android.widget.TextView;
 
 import java.util.concurrent.ExecutionException;
 
+import com.virtualapplications.play.GameInfoStruct;
 import com.virtualapplications.play.R;
 import com.virtualapplications.play.MainActivity;
 import com.virtualapplications.play.NativeInterop;
@@ -223,7 +224,7 @@ public class GameInfo {
 		}
 	}
 	
-	public OnLongClickListener configureLongClick(final String title, final String overview, final File gameFile) {
+	public OnLongClickListener configureLongClick(final String title, final String overview, final GameInfoStruct gameFile) {
 		return new OnLongClickListener() {
 			public boolean onLongClick(View view) {
 				final AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
@@ -251,7 +252,7 @@ public class GameInfo {
 		};
 	}
 	
-	public String[] getGameInfo(File game, View childview) {
+	public GameInfoStruct getGameInfo(File game, View childview, GameInfoStruct gameInfoStruct) {
 		String serial = getSerial(game);
 		if (serial == null) {
 			getImage(game.getName(), childview, null);
@@ -280,9 +281,22 @@ public class GameInfo {
 		}
 		if (overview != null && boxart != null &&
 			!overview.equals("") && !boxart.equals("")) {
-			return new String[] { gameID, title, overview, boxart };
+			if (gameInfoStruct.isTitleNameEmptyNull()){
+				gameInfoStruct.setTitleName(title, mContext);
+			}
+
+			if (gameInfoStruct.isDescriptionEmptyNull()){
+				gameInfoStruct.setDescription(overview, mContext);
+			}
+			if (gameInfoStruct.getFrontLink() == null || gameInfoStruct.getFrontLink().isEmpty()){
+				gameInfoStruct.setFrontLink(boxart, mContext);
+			}
+			if (gameInfoStruct.getGameID() == null){
+				gameInfoStruct.setGameID(gameID, mContext);
+			}
+			return gameInfoStruct;
 		} else {
-			GamesDbAPI gameDatabase = new GamesDbAPI(mContext, gameID, serial);
+			GamesDbAPI gameDatabase = new GamesDbAPI(mContext, gameID, serial, gameInfoStruct);
 			gameDatabase.setView(childview);
 			gameDatabase.execute(game);
 			return null;
