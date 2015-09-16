@@ -285,10 +285,15 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
 		return out;
 	}
 	
-	public static void fullDirectoryScan() {
+	public static void fullStorageScan() {
 		((MainActivity) mActivity).prepareFileListView(false, true);
 	}
-	
+
+	public static void clearGamegrid() {
+		((MainActivity) mActivity).currentGames = null;
+		((MainActivity) mActivity).populateImages(null);
+	}
+
 	private void clearCoverCache() {
 		File dir = new File(getExternalFilesDir(null), "covers");
 		for (File file : dir.listFiles()) {
@@ -418,7 +423,7 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
 	
 	private void populateImages(List<GameInfoStruct> images) {
 		GridView gameGrid = (GridView) findViewById(R.id.game_grid);
-		if (gameGrid != null && gameGrid.isShown()) {
+		if (gameGrid != null) {
 			gameGrid.setAdapter(null);
 			if (isAndroidTV(this)) {
 				gameGrid.setOnItemClickListener(new OnItemClickListener() {
@@ -433,7 +438,7 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
 				gameGrid.setNumColumns(1);
 				gameGrid.setAdapter(adapter);
 			} else {
-				GamesAdapter adapter = new GamesAdapter(MainActivity.this, R.layout.game_list_item, images);
+				GamesAdapter adapter = new GamesAdapter(this, R.layout.game_list_item, images);
 				/*
 				-1 = autofit
 				 */
@@ -587,10 +592,11 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
 		return false;
 	}
 
-	private void prepareFileListView(boolean retainList)
+	public static void prepareFileListView(boolean retainList)
 	{
-		prepareFileListView(retainList, false);
+		((MainActivity) mActivity).prepareFileListView(retainList, false);
 	}
+
 	private void prepareFileListView(boolean retainList, boolean fullscan)
 	{
 		if (gameInfo == null) {

@@ -121,13 +121,14 @@ public class SettingsActivity extends PreferenceActivity implements SharedPrefer
             
             addPreferencesFromResource(R.xml.settings_ui_fragment);
 
+			final PreferenceCategory preferenceCategory = (PreferenceCategory) findPreference("ui.storage");
 			final Preference button_f = (Preference)getPreferenceManager().findPreference("ui.rescan");
 			if (button_f != null) {
 				button_f.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
 					@Override
 					public boolean onPreferenceClick(Preference arg0) {
-						MainActivity.fullDirectoryScan();
-						getPreferenceScreen().removePreference(button_f);
+						MainActivity.fullStorageScan();
+						preferenceCategory.removePreference(button_f);
 						return true;
 					}
 				});
@@ -140,7 +141,8 @@ public class SettingsActivity extends PreferenceActivity implements SharedPrefer
 						IndexingDB iDB = new IndexingDB(getActivity());
 						iDB.resetDatabase();
 						iDB.close();
-						getPreferenceScreen().removePreference(button_r);
+						MainActivity.clearGamegrid();
+						preferenceCategory.removePreference(button_r);
 						return true;
 					}
 				});
@@ -158,7 +160,8 @@ public class SettingsActivity extends PreferenceActivity implements SharedPrefer
 								game.removeIndex(getActivity());
 							}
 						}
-						getPreferenceScreen().removePreference(button_u);
+						MainActivity.prepareFileListView(false);
+						preferenceCategory.removePreference(button_u);
 						return true;
 					}
 				});
@@ -169,7 +172,7 @@ public class SettingsActivity extends PreferenceActivity implements SharedPrefer
                     @Override
                     public boolean onPreferenceClick(Preference arg0) {
                         MainActivity.clearCache();
-                        getPreferenceScreen().removePreference(button_c);
+						preferenceCategory.removePreference(button_c);
                         return true;
                     }
                 });

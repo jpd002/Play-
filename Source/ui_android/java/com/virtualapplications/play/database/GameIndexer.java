@@ -114,7 +114,7 @@ public class GameIndexer {
 
     public String getSerial(File game) {
         String serial = NativeInterop.getDiskId(game.getPath());
-        Log.d("Play!", game.getName() + " [" + serial + "]");
+        //Log.d("Play!", game.getName() + " [" + serial + "]");
         return serial;
     }
 

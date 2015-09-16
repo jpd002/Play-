@@ -2,6 +2,7 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
     
     <PreferenceCategory
+        android:key="ui.storage"
         android:title="@string/preferences_ui">
         <Preference
             android:key="ui.rescan"
