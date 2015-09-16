@@ -144,7 +144,13 @@ public class GamesDbAPI extends AsyncTask<File, Integer, Document> {
 									!overview.equals("") && !boxart.equals("")) {
 									dataID = c.getString(c.getColumnIndex(Games.KEY_GAMEID));
 									if (gameInfoStruct.getGameID() == null){
-										gameInfoStruct.setGameID(dataID, mContext);
+										gameInfoStruct.setGameID(dataID, null);
+									}
+									if (gameInfoStruct.isDescriptionEmptyNull()){
+										gameInfoStruct.setDescription(overview, null);
+									}
+									if (gameInfoStruct.getFrontLink() == null || gameInfoStruct.getFrontLink().isEmpty()){
+										gameInfoStruct.setFrontLink(boxart, null);
 									}
 									if (childview != null) {
 										childview.findViewById(R.id.childview).setOnLongClickListener(
@@ -171,7 +177,7 @@ public class GamesDbAPI extends AsyncTask<File, Integer, Document> {
 					values.put(Games.KEY_TITLE, title);
 					final String overview = getValue(root, "Overview");
 					values.put(Games.KEY_OVERVIEW, overview);
-					
+
 					Element images = (Element) root.getElementsByTagName("Images").item(0);
 					Element boxart = null;
 					if (images.getElementsByTagName("boxart").getLength() > 1) {
@@ -214,19 +220,29 @@ public class GamesDbAPI extends AsyncTask<File, Integer, Document> {
 					}
 					c.close();
 
+					String m_title = getValue(root, "GameTitle");
+
+					if (gameInfoStruct.getGameID() == null){
+						gameInfoStruct.setGameID(remoteID, null);
+					}
+					if (!gameInfoStruct.isTitleNameEmptyNull()){
+						m_title = gameInfoStruct.getTitleName();
+					} else {
+						gameInfoStruct.setTitleName(m_title, null);
+					}
+					if (gameInfoStruct.isDescriptionEmptyNull()){
+						gameInfoStruct.setDescription(overview, null);
+					}
+					if (gameInfoStruct.getFrontLink() == null || gameInfoStruct.getFrontLink().isEmpty()){
+						gameInfoStruct.setFrontLink(coverImage, null);
+					}
+
 					if (childview != null) {
-						String m_title = getValue(root, "GameTitle");
-						if (!gameInfoStruct.isTitleNameEmptyNull()){
-							m_title = gameInfoStruct.getTitleName();
-						}
 						childview.findViewById(R.id.childview).setOnLongClickListener(
 								gameInfo.configureLongClick(m_title, overview, gameInfoStruct));
 						if (coverImage != null) {
 							gameInfo.getImage(remoteID, childview, coverImage);
 						}
-					}
-					if (gameInfoStruct.getGameID() == null){
-						gameInfoStruct.setGameID(remoteID, mContext);
 					}
 				}
 			} catch (Exception e) {
