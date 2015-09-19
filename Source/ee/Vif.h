@@ -16,13 +16,19 @@ class CVif
 public:
 	enum
 	{
-		REGS0_START	= 0x10003800,
-		VIF0_MARK	= 0x10003830,
-		REGS0_END	= 0x10003A00,
-		REGS1_START	= 0x10003C00,
-		VIF1_FBRST	= 0x10003C10,
-		VIF1_MARK	= 0x10003C30,
-		REGS1_END	= 0x10003E00,
+		REGS0_START		= 0x10003800,
+		VIF0_MARK		= 0x10003830,
+		REGS0_END		= 0x10003A00,
+
+		REGS1_START		= 0x10003C00,
+		VIF1_FBRST		= 0x10003C10,
+		VIF1_MARK		= 0x10003C30,
+		REGS1_END		= 0x10003E00,
+
+		VIF0_FIFO_START	= 0x10004000,
+		VIF0_FIFO_END	= 0x10004FFF,
+		VIF1_FIFO_START	= 0x10005000,
+		VIF1_FIFO_END	= 0x10005FFF,
 	};
 
 								CVif(unsigned int, CVpu&, uint8*, uint8*);
@@ -48,6 +54,11 @@ protected:
 		FBRST_STC = 0x08
 	};
 
+	enum
+	{
+		FIFO_SIZE = 0x100
+	};
+
 	class CFifoStream
 	{
 	public:
@@ -62,6 +73,7 @@ protected:
 		void					Flush();
 		void					Align32();
 		void					SetDmaParams(uint32, uint32, bool);
+		void					SetFifoParams(uint8*, uint32);
 
 	private:
 		void					SyncBuffer();
@@ -135,6 +147,8 @@ protected:
 		MASK_MASK = 3
 	};
 
+	void				ProcessFifoWrite(uint32, uint32);
+
 	void				ProcessPacket(StreamType&);
 	virtual void		ExecuteCommand(StreamType&, CODE);
 	virtual void		Cmd_UNPACK(StreamType&, CODE, uint32);
@@ -169,6 +183,9 @@ protected:
 	unsigned int		m_number = 0;
 	CVpu&				m_vpu;
 	CFifoStream			m_stream;
+
+	uint8				m_fifoBuffer[FIFO_SIZE];
+	uint32				m_fifoIndex = 0;
 
 	STAT				m_STAT;
 	CYCLE				m_CYCLE;

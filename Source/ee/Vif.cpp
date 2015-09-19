@@ -4,12 +4,15 @@
 #include "../Log.h"
 #include "../Ps2Const.h"
 #include "../RegisterStateFile.h"
+#include "../MemoryStateFile.h"
 #include "Vpu.h"
 #include "Vif.h"
 
 #define LOG_NAME ("vif")
 
-#define STATE_PATH_FORMAT		("vpu/vif_%d.xml")
+#define STATE_PATH_REGS_FORMAT	("vpu/vif_%d.xml")
+#define STATE_PATH_FIFO_FORMAT	("vpu/vif_%d_fifo")
+
 #define STATE_REGS_STAT			("STAT")
 #define STATE_REGS_CODE			("CODE")
 #define STATE_REGS_CYCLE		("CYCLE")
@@ -29,6 +32,7 @@
 #define STATE_REGS_ITOPS		("ITOPS")
 #define STATE_REGS_READTICK		("readTick")
 #define STATE_REGS_WRITETICK	("writeTick")
+#define STATE_REGS_FIFOINDEX	("fifoIndex")
 
 CVif::CVif(unsigned int number, CVpu& vpu, uint8* ram, uint8* spr)
 : m_number(number)
@@ -51,6 +55,8 @@ void CVif::Reset()
 	memset(&m_CYCLE, 0, sizeof(CYCLE));
 	memset(&m_R, 0, sizeof(m_R));
 	memset(&m_C, 0, sizeof(m_C));
+	memset(&m_fifoBuffer, 0, sizeof(m_fifoBuffer));
+	m_fifoIndex = 0;
 	m_MODE = 0;
 	m_NUM = 0;
 	m_MASK = 0;
@@ -84,19 +90,29 @@ uint32 CVif::GetRegister(uint32 address)
 
 void CVif::SetRegister(uint32 address, uint32 value)
 {
-	switch(address)
+	if(
+		(address >= VIF0_FIFO_START && address < VIF0_FIFO_END) ||
+		(address >= VIF1_FIFO_START && address < VIF1_FIFO_END)
+		)
 	{
-	case VIF1_FBRST:
-		if(value & FBRST_STC)
+		ProcessFifoWrite(address, value);
+	}
+	else
+	{
+		switch(address)
 		{
-			m_STAT.nVIS = 0;
-			m_STAT.nINT = 0;
+		case VIF1_FBRST:
+			if(value & FBRST_STC)
+			{
+				m_STAT.nVIS = 0;
+				m_STAT.nINT = 0;
+			}
+			break;
+		case VIF0_MARK:
+		case VIF1_MARK:
+			m_MARK = value;
+			break;
 		}
-		break;
-	case VIF0_MARK:
-	case VIF1_MARK:
-		m_MARK = value;
-		break;
 	}
 #ifdef _DEBUG
 	DisassembleSet(address, value);
@@ -105,53 +121,67 @@ void CVif::SetRegister(uint32 address, uint32 value)
 
 void CVif::SaveState(Framework::CZipArchiveWriter& archive)
 {
-	auto path = string_format(STATE_PATH_FORMAT, m_number);
-	CRegisterStateFile* registerFile = new CRegisterStateFile(path.c_str());
-	registerFile->SetRegister32(STATE_REGS_STAT,		m_STAT);
-	registerFile->SetRegister32(STATE_REGS_CODE,		m_CODE);
-	registerFile->SetRegister32(STATE_REGS_CYCLE,		m_CYCLE);
-	registerFile->SetRegister32(STATE_REGS_NUM,			m_NUM);
-	registerFile->SetRegister32(STATE_REGS_MODE,		m_MODE);
-	registerFile->SetRegister32(STATE_REGS_MASK,		m_MASK);
-	registerFile->SetRegister32(STATE_REGS_MARK,		m_MARK);
-	registerFile->SetRegister32(STATE_REGS_ROW0,		m_R[0]);
-	registerFile->SetRegister32(STATE_REGS_ROW1,		m_R[1]);
-	registerFile->SetRegister32(STATE_REGS_ROW2,		m_R[2]);
-	registerFile->SetRegister32(STATE_REGS_ROW3,		m_R[3]);
-	registerFile->SetRegister32(STATE_REGS_COL0,		m_C[0]);
-	registerFile->SetRegister32(STATE_REGS_COL1,		m_C[1]);
-	registerFile->SetRegister32(STATE_REGS_COL2,		m_C[2]);
-	registerFile->SetRegister32(STATE_REGS_COL3,		m_C[3]);
-	registerFile->SetRegister32(STATE_REGS_ITOP,		m_ITOP);
-	registerFile->SetRegister32(STATE_REGS_ITOPS,		m_ITOPS);
-	registerFile->SetRegister32(STATE_REGS_READTICK,	m_readTick);
-	registerFile->SetRegister32(STATE_REGS_WRITETICK,	m_writeTick);
-	archive.InsertFile(registerFile);
+	{
+		auto path = string_format(STATE_PATH_REGS_FORMAT, m_number);
+		auto registerFile = new CRegisterStateFile(path.c_str());
+		registerFile->SetRegister32(STATE_REGS_STAT,		m_STAT);
+		registerFile->SetRegister32(STATE_REGS_CODE,		m_CODE);
+		registerFile->SetRegister32(STATE_REGS_CYCLE,		m_CYCLE);
+		registerFile->SetRegister32(STATE_REGS_NUM,			m_NUM);
+		registerFile->SetRegister32(STATE_REGS_MODE,		m_MODE);
+		registerFile->SetRegister32(STATE_REGS_MASK,		m_MASK);
+		registerFile->SetRegister32(STATE_REGS_MARK,		m_MARK);
+		registerFile->SetRegister32(STATE_REGS_ROW0,		m_R[0]);
+		registerFile->SetRegister32(STATE_REGS_ROW1,		m_R[1]);
+		registerFile->SetRegister32(STATE_REGS_ROW2,		m_R[2]);
+		registerFile->SetRegister32(STATE_REGS_ROW3,		m_R[3]);
+		registerFile->SetRegister32(STATE_REGS_COL0,		m_C[0]);
+		registerFile->SetRegister32(STATE_REGS_COL1,		m_C[1]);
+		registerFile->SetRegister32(STATE_REGS_COL2,		m_C[2]);
+		registerFile->SetRegister32(STATE_REGS_COL3,		m_C[3]);
+		registerFile->SetRegister32(STATE_REGS_ITOP,		m_ITOP);
+		registerFile->SetRegister32(STATE_REGS_ITOPS,		m_ITOPS);
+		registerFile->SetRegister32(STATE_REGS_READTICK,	m_readTick);
+		registerFile->SetRegister32(STATE_REGS_WRITETICK,	m_writeTick);
+		registerFile->SetRegister32(STATE_REGS_FIFOINDEX,	m_fifoIndex);
+		archive.InsertFile(registerFile);
+	}
+	{
+		auto path = string_format(STATE_PATH_FIFO_FORMAT, m_number);
+		archive.InsertFile(new CMemoryStateFile(path.c_str(), &m_fifoBuffer, sizeof(m_fifoBuffer)));
+	}
 }
 
 void CVif::LoadState(Framework::CZipArchiveReader& archive)
 {
-	auto path = string_format(STATE_PATH_FORMAT, m_number);
-	CRegisterStateFile registerFile(*archive.BeginReadFile(path.c_str()));
-	m_STAT		<<= registerFile.GetRegister32(STATE_REGS_STAT);
-	m_CODE		<<= registerFile.GetRegister32(STATE_REGS_CODE);
-	m_CYCLE		<<= registerFile.GetRegister32(STATE_REGS_CYCLE);
-	m_NUM		= static_cast<uint8>(registerFile.GetRegister32(STATE_REGS_NUM));
-	m_MODE		= registerFile.GetRegister32(STATE_REGS_MODE);
-	m_MASK		= registerFile.GetRegister32(STATE_REGS_MASK);
-	m_MARK		= registerFile.GetRegister32(STATE_REGS_MARK);
-	m_R[0]		= registerFile.GetRegister32(STATE_REGS_ROW0);
-	m_R[1]		= registerFile.GetRegister32(STATE_REGS_ROW1);
-	m_R[2]		= registerFile.GetRegister32(STATE_REGS_ROW2);
-	m_R[3]		= registerFile.GetRegister32(STATE_REGS_ROW3);
-	m_C[0]		= registerFile.GetRegister32(STATE_REGS_COL0);
-	m_C[1]		= registerFile.GetRegister32(STATE_REGS_COL1);
-	m_C[2]		= registerFile.GetRegister32(STATE_REGS_COL2);
-	m_C[3]		= registerFile.GetRegister32(STATE_REGS_COL3);
-	m_ITOP		= registerFile.GetRegister32(STATE_REGS_ITOP);
-	m_ITOPS		= registerFile.GetRegister32(STATE_REGS_ITOPS);
-	m_readTick	= registerFile.GetRegister32(STATE_REGS_READTICK);
-	m_writeTick	= registerFile.GetRegister32(STATE_REGS_WRITETICK);
+	{
+		auto path = string_format(STATE_PATH_REGS_FORMAT, m_number);
+		CRegisterStateFile registerFile(*archive.BeginReadFile(path.c_str()));
+		m_STAT		<<= registerFile.GetRegister32(STATE_REGS_STAT);
+		m_CODE		<<= registerFile.GetRegister32(STATE_REGS_CODE);
+		m_CYCLE		<<= registerFile.GetRegister32(STATE_REGS_CYCLE);
+		m_NUM		= static_cast<uint8>(registerFile.GetRegister32(STATE_REGS_NUM));
+		m_MODE		= registerFile.GetRegister32(STATE_REGS_MODE);
+		m_MASK		= registerFile.GetRegister32(STATE_REGS_MASK);
+		m_MARK		= registerFile.GetRegister32(STATE_REGS_MARK);
+		m_R[0]		= registerFile.GetRegister32(STATE_REGS_ROW0);
+		m_R[1]		= registerFile.GetRegister32(STATE_REGS_ROW1);
+		m_R[2]		= registerFile.GetRegister32(STATE_REGS_ROW2);
+		m_R[3]		= registerFile.GetRegister32(STATE_REGS_ROW3);
+		m_C[0]		= registerFile.GetRegister32(STATE_REGS_COL0);
+		m_C[1]		= registerFile.GetRegister32(STATE_REGS_COL1);
+		m_C[2]		= registerFile.GetRegister32(STATE_REGS_COL2);
+		m_C[3]		= registerFile.GetRegister32(STATE_REGS_COL3);
+		m_ITOP		= registerFile.GetRegister32(STATE_REGS_ITOP);
+		m_ITOPS		= registerFile.GetRegister32(STATE_REGS_ITOPS);
+		m_readTick	= registerFile.GetRegister32(STATE_REGS_READTICK);
+		m_writeTick	= registerFile.GetRegister32(STATE_REGS_WRITETICK);
+		m_fifoIndex	= registerFile.GetRegister32(STATE_REGS_FIFOINDEX);
+	}
+	{
+		auto path = string_format(STATE_PATH_FIFO_FORMAT, m_number);
+		archive.BeginReadFile(path.c_str())->Read(&m_fifoBuffer, sizeof(m_fifoBuffer));
+	}
 }
 
 uint32 CVif::GetTOP() const
@@ -200,6 +230,27 @@ bool CVif::IsWaitingForProgramEnd() const
 bool CVif::IsStalledByInterrupt() const
 {
 	return (m_STAT.nVIS != 0);
+}
+
+void CVif::ProcessFifoWrite(uint32 address, uint32 value)
+{
+	assert(m_fifoIndex != FIFO_SIZE);
+	if(m_fifoIndex == FIFO_SIZE)
+	{
+		return;
+	}
+	uint32 index = (address & 0xF) / 4;
+	*reinterpret_cast<uint32*>(m_fifoBuffer + m_fifoIndex + index * 4) = value;
+	if(index == 3)
+	{
+		m_fifoIndex += 0x10;
+		m_stream.SetFifoParams(m_fifoBuffer, m_fifoIndex);
+		ProcessPacket(m_stream);
+		uint32 newIndex = m_stream.GetRemainingDmaTransferSize();
+		uint32 discardSize = m_fifoIndex - newIndex;
+		memmove(m_fifoBuffer, m_fifoBuffer + discardSize, newIndex);
+		m_fifoIndex = newIndex;
+	}
 }
 
 void CVif::ProcessPacket(StreamType& stream)
@@ -877,20 +928,31 @@ void CVif::DisassembleGet(uint32 address)
 
 void CVif::DisassembleSet(uint32 address, uint32 value)
 {
-	switch(address)
+	if((address >= VIF0_FIFO_START) && (address < VIF0_FIFO_END))
 	{
-	case VIF1_FBRST:
-		CLog::GetInstance().Print(LOG_NAME, "VIF1_FBRST = 0x%0.8X.\r\n", value);
-		break;
-	case VIF0_MARK:
-		CLog::GetInstance().Print(LOG_NAME, "VIF0_MARK = 0x%0.8X.\r\n", value);
-		break;
-	case VIF1_MARK:
-		CLog::GetInstance().Print(LOG_NAME, "VIF1_MARK = 0x%0.8X.\r\n", value);
-		break;
-	default:
-		CLog::GetInstance().Print(LOG_NAME, "Writing unknown register 0x%0.8X, 0x%0.8X.\r\n", address, value);
-		break;
+		CLog::GetInstance().Print(LOG_NAME, "VIF0_FIFO(0x%0.3X) = 0x%0.8X.\r\n", address & 0xFFF, value);
+	}
+	else if((address >= VIF1_FIFO_START) && (address < VIF1_FIFO_END))
+	{
+		CLog::GetInstance().Print(LOG_NAME, "VIF1_FIFO(0x%0.3X) = 0x%0.8X.\r\n", address & 0xFFF, value);
+	}
+	else
+	{
+		switch(address)
+		{
+		case VIF1_FBRST:
+			CLog::GetInstance().Print(LOG_NAME, "VIF1_FBRST = 0x%0.8X.\r\n", value);
+			break;
+		case VIF0_MARK:
+			CLog::GetInstance().Print(LOG_NAME, "VIF0_MARK = 0x%0.8X.\r\n", value);
+			break;
+		case VIF1_MARK:
+			CLog::GetInstance().Print(LOG_NAME, "VIF1_MARK = 0x%0.8X.\r\n", value);
+			break;
+		default:
+			CLog::GetInstance().Print(LOG_NAME, "Writing unknown register 0x%0.8X, 0x%0.8X.\r\n", address, value);
+			break;
+		}
 	}
 }
 
@@ -1064,6 +1126,15 @@ void CVif::CFifoStream::SetDmaParams(uint32 address, uint32 size, bool tagInclud
 	m_nextAddress = address;
 	m_endAddress = address + size;
 	m_tagIncluded = tagIncluded;
+	SyncBuffer();
+}
+
+void CVif::CFifoStream::SetFifoParams(uint8* source, uint32 size)
+{
+	m_source = source;
+	m_nextAddress = 0;
+	m_endAddress = size;
+	m_tagIncluded = false;
 	SyncBuffer();
 }
 

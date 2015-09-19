@@ -187,6 +187,7 @@ void CGSH_OpenGL::FlipImpl()
 	{
 		if(
 			(candidateFramebuffer->m_basePtr == fb.GetBufPtr()) &&
+			(GetFramebufferBitDepth(candidateFramebuffer->m_psm) == GetFramebufferBitDepth(fb.nPSM)) &&
 			(candidateFramebuffer->m_width == fb.GetBufWidth())
 			)
 		{
