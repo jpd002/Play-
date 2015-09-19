@@ -57,6 +57,23 @@ bool CGSH_OpenGL::IsCompatibleFramebufferPSM(unsigned int psmFb, unsigned int ps
 	}
 }
 
+uint32 CGSH_OpenGL::GetFramebufferBitDepth(uint32 psm)
+{
+	if((psm == PSMCT32) || (psm == PSMCT24))
+	{
+		return 32;
+	}
+	else if((psm == PSMCT16) || (psm == PSMCT16S))
+	{
+		return 16;
+	}
+	else
+	{
+		assert(false);
+		return 32;
+	}
+}
+
 CGSH_OpenGL::TEXTURE_INFO CGSH_OpenGL::PrepareTexture(const TEX0& tex0)
 {
 	TEXTURE_INFO texInfo;

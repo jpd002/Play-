@@ -284,6 +284,7 @@ private:
 	void							FillShaderCapsFromTest(SHADERCAPS&, const uint64&);
 	void							SetupTexture(const SHADERINFO&, uint64, uint64, uint64, uint64, uint64);
 	static bool						IsCompatibleFramebufferPSM(unsigned int, unsigned int);
+	static uint32					GetFramebufferBitDepth(uint32);
 
 	FramebufferPtr					FindCompatibleFramebuffer(const FRAME&) const;
 	DepthbufferPtr					FindDepthbuffer(const ZBUF&, const FRAME&) const;
