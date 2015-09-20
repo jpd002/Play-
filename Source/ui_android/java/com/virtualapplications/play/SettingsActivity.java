@@ -11,6 +11,8 @@ import java.util.*;
 import android.support.v7.widget.Toolbar;
 import android.graphics.Point;
 
+import com.virtualapplications.play.database.IndexingDB;
+
 public class SettingsActivity extends PreferenceActivity implements SharedPreferences.OnSharedPreferenceChangeListener
 {
 	@Override
@@ -118,25 +120,59 @@ public class SettingsActivity extends PreferenceActivity implements SharedPrefer
 			super.onCreate(savedInstanceState);
             
             addPreferencesFromResource(R.xml.settings_ui_fragment);
-            
-            final Preference button_f = (Preference)getPreferenceManager().findPreference("ui.clearfolder");
-            if (button_f != null) {
+
+			final PreferenceCategory preferenceCategory = (PreferenceCategory) findPreference("ui.storage");
+			final Preference button_f = (Preference)getPreferenceManager().findPreference("ui.rescan");
+			if (button_f != null) {
 				button_f.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-                    @Override
-                    public boolean onPreferenceClick(Preference arg0) {
-                        MainActivity.resetDirectory();
-                        getPreferenceScreen().removePreference(button_f);
-                        return true;
-                    }
-                });
-            }
+					@Override
+					public boolean onPreferenceClick(Preference arg0) {
+						MainActivity.fullStorageScan();
+						preferenceCategory.removePreference(button_f);
+						return true;
+					}
+				});
+			}
+			final Preference button_r = (Preference)getPreferenceManager().findPreference("ui.clear_index");
+			if (button_r != null) {
+				button_r.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+					@Override
+					public boolean onPreferenceClick(Preference arg0) {
+						IndexingDB iDB = new IndexingDB(getActivity());
+						iDB.resetDatabase();
+						iDB.close();
+						MainActivity.clearGamegrid();
+						preferenceCategory.removePreference(button_r);
+						return true;
+					}
+				});
+			}
+			final Preference button_u = (Preference)getPreferenceManager().findPreference("ui.clear_unavailable");
+			if (button_u != null) {
+				button_u.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+					@Override
+					public boolean onPreferenceClick(Preference arg0) {
+						IndexingDB iDB = new IndexingDB(getActivity());
+						List<GameInfoStruct> games = iDB.getIndexGISList(MainActivity.SORT_NONE);
+						iDB.close();
+						for (GameInfoStruct game : games){
+							if (!game.getFile().exists()) {
+								game.removeIndex(getActivity());
+							}
+						}
+						MainActivity.prepareFileListView(false);
+						preferenceCategory.removePreference(button_u);
+						return true;
+					}
+				});
+			}
             final Preference button_c = (Preference)getPreferenceManager().findPreference("ui.clearcache");
             if (button_c != null) {
                 button_c.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
                     @Override
                     public boolean onPreferenceClick(Preference arg0) {
                         MainActivity.clearCache();
-                        getPreferenceScreen().removePreference(button_c);
+						preferenceCategory.removePreference(button_c);
                         return true;
                     }
                 });

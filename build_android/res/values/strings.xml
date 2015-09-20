@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    
+
     <string name="app_name">Play!</string>
-    
+
     <!-- Application Navigation -->
     
 	<string name="main_menu_settings">Settings</string>
@@ -25,7 +25,11 @@
     <string name="file_list_recent">Recent</string>
     <string name="file_list_homebrew">Homebrew</string>
     <string name="file_list_default">Unsorted</string>
-    
+
+    <string name="game_unavailable">Game is unavailable.\nWould you like to remove it from the list?</string>
+    <string name="not_found">Not Found</string>
+    <string name="no_game_found_adapter">No PS2 Game(s) Found, Please add your games to your device, then close and open this app.</string>
+
     <!-- Application Preferences -->
     
     <string name="title_activity_settings">Settings</string>
@@ -42,8 +46,14 @@
     
     <string name="preferences_ui">Storage Options</string>
     
-    <string name="pref_ui_reset_folder_title">Reset Folder</string>
-    <string name="pref_ui_reset_folder_summary">Clear stored default folder</string>
+    <string name="pref_ui_rescan_all_title">Rescan Storage</string>
+    <string name="pref_ui_rescan_all_summary">Scan storage for new games</string>
+
+    <string name="pref_ui_clear_index_title">Clear Game List</string>
+    <string name="pref_ui_clear_index_summary">Reset all of the game list and its associated details</string>
+
+    <string name="pref_ui_clear_unavailable_title">Clear Unavailable Games</string>
+    <string name="pref_ui_clear_unavailable_summary">Remove any game currently inaccessible from the game list</string>
     
     <string name="pref_ui_reset_cache_title">Reset Cache</string>
     <string name="pref_ui_reset_cache_summary">Clear stored cover images</string>
@@ -82,4 +92,5 @@
 	
 	<string name="platform">Copying logcat content to clipboard\nPlease paste in the issue report</string>
 	<string name="log_saved">Log saved to \"Files Dir\" path</string>
+    <string name="no_recent_adapter">No recently played PS2 game found.</string>
 </resources>
