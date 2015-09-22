@@ -1,6 +1,7 @@
 package com.virtualapplications.play;
 
 import android.app.*;
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.*;
 import android.content.pm.*;
@@ -9,7 +10,9 @@ import android.content.res.TypedArray;
 import android.graphics.Color;
 import android.graphics.drawable.GradientDrawable;
 import android.os.*;
-import android.support.v7.app.ActionBarActivity;
+import android.preference.PreferenceManager;
+import android.support.v7.app.*;
+import android.support.v7.app.ActionBar;
 import android.support.v7.widget.Toolbar;
 import android.view.*;
 import android.view.View;
@@ -43,6 +46,7 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
 	public static final int SORT_HOMEBREW = 1;
 	public static final int SORT_NONE = 2;
 	private int sortMethod = SORT_NONE;
+	private String navSubtitle;
 
 	@Override 
 	protected void onCreate(Bundle savedInstanceState) 
@@ -105,7 +109,9 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
 		gameInfo = new GameInfo(MainActivity.this);
 		getContentResolver().call(Games.GAMES_URI, "importDb", null, null);
 
-		prepareFileListView(false);
+		SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
+		sortMethod = sp.getInt("sortMethod", SORT_NONE);
+		onNavigationDrawerItemSelected(sortMethod);
 	}
 
 	private void setUIcolor(){
@@ -325,19 +331,31 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
 	@Override
 	public void onNavigationDrawerItemSelected(int position) {
 		switch (position) {
-			case 0:
+			case SORT_RECENT:
 				sortMethod = SORT_RECENT;
-				prepareFileListView(false);
+				navSubtitle = getString(R.string.file_list_recent);
 				break;
-			case 1:
+			case SORT_HOMEBREW:
 				sortMethod = SORT_HOMEBREW;
-				prepareFileListView(false);
+				navSubtitle = getString(R.string.file_list_homebrew);
 				break;
-			case 2:
+			case SORT_NONE:
+			default:
 				sortMethod = SORT_NONE;
-				prepareFileListView(false);
+				navSubtitle = getString(R.string.file_list_default);
 				break;
 		}
+
+		ActionBar actionbar = getSupportActionBar();
+		if (actionbar != null){
+			actionbar.setSubtitle("Games - " + navSubtitle);
+		}
+
+		prepareFileListView(false);
+
+		SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
+		sp.edit().putInt("sortMethod", sortMethod).apply();
+
 	}
 
 	@Override
@@ -357,7 +375,7 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
 		android.support.v7.app.ActionBar actionBar = getSupportActionBar();
 		actionBar.setDisplayShowTitleEnabled(true);
 		actionBar.setTitle(R.string.app_name);
-		actionBar.setSubtitle(R.string.menu_title_shut);
+		actionBar.setSubtitle("Games - " + navSubtitle);
 	}
 
 	public boolean onCreateOptionsMenu(Menu menu) {

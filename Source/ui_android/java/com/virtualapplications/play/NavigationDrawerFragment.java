@@ -79,10 +79,7 @@ public class NavigationDrawerFragment extends Fragment {
             mFromSavedInstanceState = true;
         } else {
             // Select either the default item (0) or the last selected item.
-            int user_position = Integer.valueOf(sp.getString("page", "0"));
-            if (mCurrentSelectedPosition != user_position) {
-                selectItem(user_position);
-            }
+            mCurrentSelectedPosition = sp.getInt("sortMethod", 2);
         }
     }
 
@@ -101,7 +98,14 @@ public class NavigationDrawerFragment extends Fragment {
                         getString(R.string.file_list_homebrew),
                         getString(R.string.file_list_default),
                 }));
-        //mDrawerListView.setItemChecked(mCurrentSelectedPosition, true);
+        mDrawerListView.post(new Runnable() {
+            public void run() {
+                TypedArray a = getActivity().getTheme().obtainStyledAttributes(new int[]{R.attr.colorPrimaryDark});
+                int attributeResourceId = a.getColor(0, 0);
+                mDrawerListView.getChildAt(mCurrentSelectedPosition).setBackgroundColor(attributeResourceId);
+            }
+        });
+
         mDrawerListView_bottom.setAdapter(new ArrayAdapter<>(
                 ((ActionBarActivity) getActivity()).getSupportActionBar().getThemedContext(),
                 android.R.layout.simple_list_item_activated_1,
