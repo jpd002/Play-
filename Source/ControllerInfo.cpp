@@ -20,8 +20,10 @@ const char* CControllerInfo::m_buttonName[CControllerInfo::MAX_BUTTONS] =
 	"cross",
 	"l1",
 	"l2",
+	"l3",
 	"r1",
 	"r2",
+	"r3"
 };
 
 bool CControllerInfo::IsAxis(BUTTON button)
