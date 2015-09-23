@@ -89,7 +89,7 @@
 			android:name=".database.TheGamesDB"
 			android:authorities="virtualapplications.play.gamesdb" />
 		<activity
-			android:name=".CoverEditActivity"
+			android:name=".GameInfoEditActivity"
 			android:configChanges="orientation|locale|navigation"
 			>
 		</activity>

@@ -33,7 +33,7 @@ import android.widget.TextView;
 
 import java.util.concurrent.ExecutionException;
 
-import com.virtualapplications.play.CoverEditActivity;
+import com.virtualapplications.play.GameInfoEditActivity;
 import com.virtualapplications.play.GameInfoStruct;
 import com.virtualapplications.play.R;
 import com.virtualapplications.play.MainActivity;
@@ -275,7 +275,7 @@ public class GameInfo {
 						new DialogInterface.OnClickListener() {
 							public void onClick(DialogInterface dialog, int which) {
 								dialog.dismiss();
-								Intent intent = new Intent(mContext, CoverEditActivity.class);
+								Intent intent = new Intent(mContext, GameInfoEditActivity.class);
 								intent.putExtra("title",gameFile.getTitleName());
 								intent.putExtra("overview",gameFile.getDescription());
 								intent.putExtra("cover",gameFile.getFrontLink());
