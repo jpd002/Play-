@@ -1,5 +1,4 @@
-#ifndef _CONTROLLERINFO_H_
-#define _CONTROLLERINFO_H_
+#pragma once
 
 #include "Types.h"
 
@@ -36,5 +35,3 @@ namespace PS2
 		static bool			IsAxis(BUTTON);
 	};
 };
-
-#endif

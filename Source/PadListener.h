@@ -1,5 +1,4 @@
-#ifndef _PADLISTENER_H_
-#define _PADLISTENER_H_
+#pragma once
 
 #include "Types.h"
 #include "ControllerInfo.h"
@@ -12,5 +11,3 @@ public:
 	virtual void	SetAxisState(unsigned int, PS2::CControllerInfo::BUTTON, uint8, uint8*) = 0;
 	static uint32	GetButtonMask(PS2::CControllerInfo::BUTTON);
 };
-
-#endif
