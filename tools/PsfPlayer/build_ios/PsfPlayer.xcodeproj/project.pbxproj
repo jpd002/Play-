@@ -20,7 +20,6 @@
 		7045B4341A5D85F500F5B431 /* GeneralSettings.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = 7045B4311A5D85F500F5B431 /* GeneralSettings.xcconfig */; };
 		7045B4351A5D85F500F5B431 /* GeneralSettingsDebug.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = 7045B4321A5D85F500F5B431 /* GeneralSettingsDebug.xcconfig */; };
 		7045B4361A5D85F500F5B431 /* GeneralSettingsRelease.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = 7045B4331A5D85F500F5B431 /* GeneralSettingsRelease.xcconfig */; };
-		7045B4381A5D860900F5B431 /* ExternalDependencies.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = 7045B4371A5D860900F5B431 /* ExternalDependencies.xcconfig */; };
 		708FE7B617C0B82400BFCDB2 /* AppConfig.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 708FE79717C0B66700BFCDB2 /* AppConfig.cpp */; };
 		708FE7B717C0B82400BFCDB2 /* Iop_PsfSubSystem.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 708FE79B17C0B66700BFCDB2 /* Iop_PsfSubSystem.cpp */; };
 		708FE7B817C0B82400BFCDB2 /* Playlist.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 708FE79E17C0B66700BFCDB2 /* Playlist.cpp */; };
@@ -181,7 +180,6 @@
 		7045B4311A5D85F500F5B431 /* GeneralSettings.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = GeneralSettings.xcconfig; sourceTree = "<group>"; };
 		7045B4321A5D85F500F5B431 /* GeneralSettingsDebug.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = GeneralSettingsDebug.xcconfig; sourceTree = "<group>"; };
 		7045B4331A5D85F500F5B431 /* GeneralSettingsRelease.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = GeneralSettingsRelease.xcconfig; sourceTree = "<group>"; };
-		7045B4371A5D860900F5B431 /* ExternalDependencies.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = ExternalDependencies.xcconfig; sourceTree = "<group>"; };
 		708FE79717C0B66700BFCDB2 /* AppConfig.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = AppConfig.cpp; path = ../Source/AppConfig.cpp; sourceTree = "<group>"; };
 		708FE79817C0B66700BFCDB2 /* AppConfig.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = AppConfig.h; path = ../Source/AppConfig.h; sourceTree = "<group>"; };
 		708FE79917C0B66700BFCDB2 /* AppDef.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = AppDef.h; path = ../Source/AppDef.h; sourceTree = "<group>"; };
@@ -494,7 +492,6 @@
 		7045B4301A5D85EA00F5B431 /* Config */ = {
 			isa = PBXGroup;
 			children = (
-				7045B4371A5D860900F5B431 /* ExternalDependencies.xcconfig */,
 				7045B4311A5D85F500F5B431 /* GeneralSettings.xcconfig */,
 				7045B4321A5D85F500F5B431 /* GeneralSettingsDebug.xcconfig */,
 				7045B4331A5D85F500F5B431 /* GeneralSettingsRelease.xcconfig */,
@@ -854,7 +851,6 @@
 				7045B4351A5D85F500F5B431 /* GeneralSettingsDebug.xcconfig in Resources */,
 				70BA8D2E180C724900A73E9E /* PlaylistBarIcon.png in Resources */,
 				7016687117C7307E003504E0 /* Storyboard.storyboard in Resources */,
-				7045B4381A5D860900F5B431 /* ExternalDependencies.xcconfig in Resources */,
 				70BA8D35180C733500A73E9E /* TrackInfoBarIcon.png in Resources */,
 				70BA8D2F180C724900A73E9E /* PlaylistBarIcon@2x.png in Resources */,
 				70BA8D36180C733500A73E9E /* TrackInfoBarIcon@2x.png in Resources */,
