@@ -98,6 +98,8 @@ public class NavigationDrawerFragment extends Fragment {
                         getString(R.string.file_list_homebrew),
                         getString(R.string.file_list_default),
                 }));
+        //Thunder07: Using 'post' might seem weird, but thats the only way I found for setting the selection
+        //highlight on startup, every other way returns null.
         mDrawerListView.post(new Runnable() {
             public void run() {
                 TypedArray a = getActivity().getTheme().obtainStyledAttributes(new int[]{R.attr.colorPrimaryDark});
