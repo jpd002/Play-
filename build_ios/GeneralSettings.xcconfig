@@ -1,9 +1,11 @@
 SDKROOT = iphoneos
+IPHONEOS_DEPLOYMENT_TARGET = 7.0
 
 CLANG_CXX_LANGUAGE_STANDARD = c++0x
 CLANG_CXX_LIBRARY = libc++
 
 VALID_ARCHS = armv7
+ENABLE_BITCODE = NO
 
 OTHER_CFLAGS = -fvisibility=hidden
 OTHER_LDFLAGS = -ObjC -framework boost
