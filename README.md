@@ -30,6 +30,11 @@ C:\Projects
 - Framework
 - Play
 
+### Building for OSX and iOS ###
+
+Building on OSX and iOS has been tested with Xcode 6 and Xcode 7. 
+
+To build for those platforms, you need to first build boost using the [script](https://github.com/jpd002/Play-Dependencies/blob/master/BoostMac/boost.sh) provided in the [Dependencies](https://github.com/jpd002/Play-Dependencies) repository. This will create the boost Xcode framework files that are needed by the projects from this repository. Once this is done, you will be able to open `Play.xcodeproj` for either OSX and iOS and build the project normally.
 
 ### Building for Android ###
 
