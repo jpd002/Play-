@@ -231,10 +231,4 @@ public class IndexingDB extends SQLiteOpenHelper {
 
         return paths;
     }
-
-    public void resetDatabase() {
-        SQLiteDatabase db = this.getWritableDatabase();
-        onUpgrade(db, 0, 0);
-        db.close();
-    }
 }

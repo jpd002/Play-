@@ -10,11 +10,6 @@
             android:summary="@string/pref_ui_rescan_all_summary"
             android:persistent="false" />
         <Preference
-            android:key="ui.clear_index"
-            android:title="@string/pref_ui_clear_index_title"
-            android:summary="@string/pref_ui_clear_index_summary"
-            android:persistent="false" />
-        <Preference
             android:key="ui.clear_unavailable"
             android:title="@string/pref_ui_clear_unavailable_title"
             android:summary="@string/pref_ui_clear_unavailable_summary"
