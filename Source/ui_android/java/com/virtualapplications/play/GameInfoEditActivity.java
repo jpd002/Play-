@@ -20,7 +20,7 @@ import com.virtualapplications.play.database.IndexingDB;
 
 import java.io.FileNotFoundException;
 
-public class CoverEditActivity extends ActionBarActivity {
+public class GameInfoEditActivity extends ActionBarActivity {
 
     private final int SELECT_PHOTO = 1003;
     private Intent intent;
@@ -31,7 +31,7 @@ public class CoverEditActivity extends ActionBarActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_cover_edit);
+        setContentView(R.layout.activity_gameinfo_edit);
         ThemeManager.applyTheme(this);
         Toolbar tv = (Toolbar) findViewById(R.id.my_awesome_toolbar);
         setSupportActionBar(tv);

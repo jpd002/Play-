@@ -1,5 +1,4 @@
-#ifndef _CONTROLLERINFO_H_
-#define _CONTROLLERINFO_H_
+#pragma once
 
 #include "Types.h"
 
@@ -26,8 +25,10 @@ namespace PS2
 			CROSS,
 			L1,
 			L2,
+			L3,
 			R1,
 			R2,
+			R3,
 			MAX_BUTTONS
 		};
 
@@ -36,5 +37,3 @@ namespace PS2
 		static bool			IsAxis(BUTTON);
 	};
 };
-
-#endif

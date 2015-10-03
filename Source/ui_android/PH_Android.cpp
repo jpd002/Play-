@@ -77,11 +77,17 @@ void CPH_Android::SetButtonState(uint32 buttonId, bool pressed)
 	case com_virtualapplications_play_InputManagerConstants_BUTTON_L2:
 		m_buttonStates[PS2::CControllerInfo::L2] = pressed;
 		break;
+	case com_virtualapplications_play_InputManagerConstants_BUTTON_L3:
+		m_buttonStates[PS2::CControllerInfo::L3] = pressed;
+		break;
 	case com_virtualapplications_play_InputManagerConstants_BUTTON_R1:
 		m_buttonStates[PS2::CControllerInfo::R1] = pressed;
 		break;
 	case com_virtualapplications_play_InputManagerConstants_BUTTON_R2:
 		m_buttonStates[PS2::CControllerInfo::R2] = pressed;
+		break;
+	case com_virtualapplications_play_InputManagerConstants_BUTTON_R3:
+		m_buttonStates[PS2::CControllerInfo::R3] = pressed;
 		break;
 	}
 }

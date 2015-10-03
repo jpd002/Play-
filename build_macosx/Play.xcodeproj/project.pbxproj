@@ -14,7 +14,6 @@
 		7011789915E25576006D1039 /* OutputWindow.mm in Sources */ = {isa = PBXBuildFile; fileRef = 7011789815E25575006D1039 /* OutputWindow.mm */; };
 		7017B3901652F660008ACEAC /* Iop_Sio2.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7017B38E1652F660008ACEAC /* Iop_Sio2.cpp */; };
 		703093B217BE5AE1009662A1 /* FrameDump.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 703093AD17BE5AB1009662A1 /* FrameDump.cpp */; };
-		70320D1D1A99EAC4001E9C4B /* ExternalDependencies.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = 70320D191A99EAC4001E9C4B /* ExternalDependencies.xcconfig */; };
 		70320D1E1A99EAC4001E9C4B /* GeneralSettings.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = 70320D1A1A99EAC4001E9C4B /* GeneralSettings.xcconfig */; };
 		70320D1F1A99EAC4001E9C4B /* GeneralSettingsDebug.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = 70320D1B1A99EAC4001E9C4B /* GeneralSettingsDebug.xcconfig */; };
 		70320D201A99EAC4001E9C4B /* GeneralSettingsRelease.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = 70320D1C1A99EAC4001E9C4B /* GeneralSettingsRelease.xcconfig */; };
@@ -210,7 +209,6 @@
 		7017B38F1652F660008ACEAC /* Iop_Sio2.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Iop_Sio2.h; path = ../Source/iop/Iop_Sio2.h; sourceTree = "<group>"; };
 		703093AD17BE5AB1009662A1 /* FrameDump.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = FrameDump.cpp; path = ../Source/FrameDump.cpp; sourceTree = "<group>"; };
 		703093AE17BE5AB1009662A1 /* FrameDump.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = FrameDump.h; path = ../Source/FrameDump.h; sourceTree = "<group>"; };
-		70320D191A99EAC4001E9C4B /* ExternalDependencies.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = ExternalDependencies.xcconfig; sourceTree = "<group>"; };
 		70320D1A1A99EAC4001E9C4B /* GeneralSettings.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = GeneralSettings.xcconfig; sourceTree = "<group>"; };
 		70320D1B1A99EAC4001E9C4B /* GeneralSettingsDebug.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = GeneralSettingsDebug.xcconfig; sourceTree = "<group>"; };
 		70320D1C1A99EAC4001E9C4B /* GeneralSettingsRelease.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = GeneralSettingsRelease.xcconfig; sourceTree = "<group>"; };
@@ -521,7 +519,6 @@
 		70320D181A99EAB0001E9C4B /* Config */ = {
 			isa = PBXGroup;
 			children = (
-				70320D191A99EAC4001E9C4B /* ExternalDependencies.xcconfig */,
 				70320D1A1A99EAC4001E9C4B /* GeneralSettings.xcconfig */,
 				70320D1B1A99EAC4001E9C4B /* GeneralSettingsDebug.xcconfig */,
 				70320D1C1A99EAC4001E9C4B /* GeneralSettingsRelease.xcconfig */,
@@ -1030,7 +1027,6 @@
 				70320D201A99EAC4001E9C4B /* GeneralSettingsRelease.xcconfig in Resources */,
 				70684A3C151E8B2400C9574F /* VfsManager.xib in Resources */,
 				70C0C84E1ADC97A900492241 /* Images.xcassets in Resources */,
-				70320D1D1A99EAC4001E9C4B /* ExternalDependencies.xcconfig in Resources */,
 				700DF99515DF699000818F3B /* patches.xml in Resources */,
 				700DF99C15DFC0CB00818F3B /* MainMenu.xib in Resources */,
 				700FB58015E11E1E00C322DE /* OutputWindow.xib in Resources */,

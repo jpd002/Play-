@@ -1,21 +1,16 @@
-SDKROOT = iphoneos
-IPHONEOS_DEPLOYMENT_TARGET = 7.0
+SDKROOT = macosx
 
 CLANG_CXX_LANGUAGE_STANDARD = c++0x
 CLANG_CXX_LIBRARY = libc++
 
-VALID_ARCHS = armv7
-ENABLE_BITCODE = NO
-
 OTHER_CFLAGS = -fvisibility=hidden
-OTHER_LDFLAGS = -ObjC -framework boost ../build_aot/output/macho/$(CURRENT_ARCH)/PsfBlocks.o
+OTHER_LDFLAGS = -ObjC -framework boost
 
 PRODUCT_NAME = PsfPlayer
-INFOPLIST_FILE = ../Source/ios_ui/Info.plist
+INFOPLIST_FILE = ../Source/macosx_ui/Info.plist
 
 GCC_PRECOMPILE_PREFIX_HEADER = YES
-GCC_PREFIX_HEADER = ../Source/ios_ui/PsfPlayer_Prefix.pch
-GENERAL_GCC_PREPROCESSOR_DEFINITIONS = AOT_USE_CACHE
+GCC_PREFIX_HEADER = ../Source/macosx_ui/PsfPlayer_Prefix.pch
 
 CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR
 CLANG_WARN__DUPLICATE_METHOD_MATCH = YES
@@ -32,7 +27,7 @@ GCC_WARN_UNDECLARED_SELECTOR = YES
 GCC_SYMBOLS_PRIVATE_EXTERN = YES
 GCC_INPUT_FILETYPE = sourcecode.cpp.objcpp
 
-BOOST_FRAMEWORK_PATH = ../../../../Dependencies/BoostMac/ios/framework/
+BOOST_FRAMEWORK_PATH = ../../../../Dependencies/BoostMac/osx/framework/
 FRAMEWORK_PATH = ../../../../Framework
 CODEGEN_PATH = ../../../../CodeGen
 
