@@ -295,11 +295,6 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
 		((MainActivity) mActivity).prepareFileListView(false, true);
 	}
 
-	public static void clearGamegrid() {
-		((MainActivity) mActivity).currentGames = null;
-		((MainActivity) mActivity).populateImages(null);
-	}
-
 	private void clearCoverCache() {
 		File dir = new File(getExternalFilesDir(null), "covers");
 		for (File file : dir.listFiles()) {

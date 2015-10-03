@@ -133,20 +133,6 @@ public class SettingsActivity extends PreferenceActivity implements SharedPrefer
 					}
 				});
 			}
-			final Preference button_r = (Preference)getPreferenceManager().findPreference("ui.clear_index");
-			if (button_r != null) {
-				button_r.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-					@Override
-					public boolean onPreferenceClick(Preference arg0) {
-						IndexingDB iDB = new IndexingDB(getActivity());
-						iDB.resetDatabase();
-						iDB.close();
-						MainActivity.clearGamegrid();
-						preferenceCategory.removePreference(button_r);
-						return true;
-					}
-				});
-			}
 			final Preference button_u = (Preference)getPreferenceManager().findPreference("ui.clear_unavailable");
 			if (button_u != null) {
 				button_u.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
