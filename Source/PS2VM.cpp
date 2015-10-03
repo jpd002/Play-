@@ -494,7 +494,7 @@ void CPS2VM::PauseImpl()
 void CPS2VM::ResumeImpl()
 {
 #ifdef DEBUGGER_INCLUDED
-	m_ee->m_executor.DisableBreakpointsOnce();
+	m_ee->m_executor->DisableBreakpointsOnce();
 	m_iop->m_executor.DisableBreakpointsOnce();
 	m_ee->m_vpu1->DisableBreakpointsOnce();
 #endif
@@ -577,7 +577,7 @@ void CPS2VM::UpdateEe()
 
 #ifdef DEBUGGER_INCLUDED
 		if(m_singleStepEe) break;
-		if(m_ee->m_executor.MustBreak()) break;
+		if(m_ee->m_executor->MustBreak()) break;
 #endif
 	}
 }
@@ -712,7 +712,7 @@ void CPS2VM::EmuThread()
 {
 	fesetround(FE_TOWARDZERO);
 	CProfiler::GetInstance().SetWorkThread();
-	m_ee->m_executor.AddExceptionHandler();
+	m_ee->m_executor->AddExceptionHandler();
 	while(1)
 	{
 		while(m_mailBox.IsPending())
@@ -793,7 +793,7 @@ void CPS2VM::EmuThread()
 			}
 #ifdef DEBUGGER_INCLUDED
 			if(
-			   m_ee->m_executor.MustBreak() || 
+			   m_ee->m_executor->MustBreak() || 
 			   m_iop->m_executor.MustBreak() ||
 			   m_ee->m_vpu1->MustBreak() ||
 			   m_singleStepEe || m_singleStepIop || m_singleStepVu0 || m_singleStepVu1)
@@ -809,5 +809,5 @@ void CPS2VM::EmuThread()
 #endif
 		}
 	}
-	m_ee->m_executor.RemoveExceptionHandler();
+	m_ee->m_executor->RemoveExceptionHandler();
 }

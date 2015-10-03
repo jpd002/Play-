@@ -40,6 +40,8 @@ namespace Ee
 		void						SetVpu0(std::shared_ptr<CVpu>);
 		void						SetVpu1(std::shared_ptr<CVpu>);
 
+		void						SetExecutor(std::unique_ptr<CEeExecutor>);
+
 		uint8*						m_ram = nullptr;
 		uint8*						m_bios = nullptr;
 		uint8*						m_spr = nullptr;
@@ -66,7 +68,7 @@ namespace Ee
 		CMIPS						m_EE;
 		CMIPS						m_VU0;
 		CMIPS						m_VU1;
-		CEeExecutor					m_executor;
+		std::unique_ptr<CEeExecutor> m_executor;
 
 		void* operator new(size_t allocSize)
 		{

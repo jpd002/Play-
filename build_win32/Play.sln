@@ -7,7 +7,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Play", "Play.vcxproj", "{DD
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Framework", "..\..\Framework\build_win32\Framework.vcxproj", "{553CE050-A97E-4E6E-AE84-057A1F0FA45D}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CodeGen", "..\..\CodeGen\build_win32\CodeGen.vcxproj", "{E3521577-BFC9-4532-9B70-1F8C0D546F4A}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CodeGen", "..\..\codegen\build_win32\CodeGen.vcxproj", "{E3521577-BFC9-4532-9B70-1F8C0D546F4A}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "FrameworkOpenGl", "..\..\Framework\build_win32\FrameworkOpenGl.vcxproj", "{482892BB-6D81-4CA4-BFD5-01A756C21292}"
 EndProject
@@ -26,6 +26,8 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PlayCore", "PlayCore.vcxproj", "{D060D0BF-20E4-4DCD-975E-9EE6DDF4F73A}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "McServTest", "McServTest.vcxproj", "{A2064EB3-BA2F-49A6-826D-BE2903E38359}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PlayLib", "PlayLib.vcxproj", "{825D24F4-38FA-4BA6-9C78-F58EDC91A66A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -153,6 +155,18 @@ Global
 		{A2064EB3-BA2F-49A6-826D-BE2903E38359}.ReleaseWithDebugger|Win32.Build.0 = Release|Win32
 		{A2064EB3-BA2F-49A6-826D-BE2903E38359}.ReleaseWithDebugger|x64.ActiveCfg = Release|x64
 		{A2064EB3-BA2F-49A6-826D-BE2903E38359}.ReleaseWithDebugger|x64.Build.0 = Release|x64
+		{825D24F4-38FA-4BA6-9C78-F58EDC91A66A}.Debug|Win32.ActiveCfg = Debug|Win32
+		{825D24F4-38FA-4BA6-9C78-F58EDC91A66A}.Debug|Win32.Build.0 = Debug|Win32
+		{825D24F4-38FA-4BA6-9C78-F58EDC91A66A}.Debug|x64.ActiveCfg = Debug|x64
+		{825D24F4-38FA-4BA6-9C78-F58EDC91A66A}.Debug|x64.Build.0 = Debug|x64
+		{825D24F4-38FA-4BA6-9C78-F58EDC91A66A}.Release|Win32.ActiveCfg = Release|Win32
+		{825D24F4-38FA-4BA6-9C78-F58EDC91A66A}.Release|Win32.Build.0 = Release|Win32
+		{825D24F4-38FA-4BA6-9C78-F58EDC91A66A}.Release|x64.ActiveCfg = Release|x64
+		{825D24F4-38FA-4BA6-9C78-F58EDC91A66A}.Release|x64.Build.0 = Release|x64
+		{825D24F4-38FA-4BA6-9C78-F58EDC91A66A}.ReleaseWithDebugger|Win32.ActiveCfg = ReleaseWithDebugger|Win32
+		{825D24F4-38FA-4BA6-9C78-F58EDC91A66A}.ReleaseWithDebugger|Win32.Build.0 = ReleaseWithDebugger|Win32
+		{825D24F4-38FA-4BA6-9C78-F58EDC91A66A}.ReleaseWithDebugger|x64.ActiveCfg = ReleaseWithDebugger|x64
+		{825D24F4-38FA-4BA6-9C78-F58EDC91A66A}.ReleaseWithDebugger|x64.Build.0 = ReleaseWithDebugger|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

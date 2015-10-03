@@ -34,7 +34,6 @@ CSubSystem::CSubSystem(uint8* iopRam, CIopBios& iopBios)
 , m_EE(MEMORYMAP_ENDIAN_LSBF)
 , m_VU0(MEMORYMAP_ENDIAN_LSBF)
 , m_VU1(MEMORYMAP_ENDIAN_LSBF)
-, m_executor(m_EE, m_ram)
 , m_dmac(m_ram, m_spr, m_vuMem0, m_EE)
 , m_gif(m_gs, m_ram, m_spr)
 , m_sif(m_dmac, m_ram, iopRam)
@@ -140,11 +139,13 @@ CSubSystem::CSubSystem(uint8* iopRam, CIopBios& iopBios)
 
 	m_os = new CPS2OS(m_EE, m_ram, m_bios, m_spr, m_gs, m_sif, iopBios);
 	m_os->OnRequestInstructionCacheFlush.connect(boost::bind(&CSubSystem::FlushInstructionCache, this));
+
+	m_executor = std::make_unique<CEeExecutor>(m_EE, m_ram);
 }
 
 CSubSystem::~CSubSystem()
 {
-	m_executor.Reset();
+	m_executor->Reset();
 	framework_aligned_free(m_ram);
 	delete [] m_bios;
 	delete [] m_fakeIopRam;
@@ -163,10 +164,16 @@ void CSubSystem::SetVpu1(std::shared_ptr<CVpu> newVpu1)
 	m_vpu1 = newVpu1;
 }
 
+void CSubSystem::SetExecutor(std::unique_ptr<CEeExecutor> newExecutor)
+{
+	m_executor->Reset();
+	m_executor = std::move(newExecutor);
+}
+
 void CSubSystem::Reset()
 {
 	m_os->Release();
-	m_executor.Reset();
+	m_executor->Reset();
 
 	memset(m_ram,			0, PS2::EE_RAM_SIZE);
 	memset(m_spr,			0, PS2::EE_SPR_SIZE);
@@ -223,7 +230,7 @@ int CSubSystem::ExecuteCpu(int quota)
 	}
 	else if(!m_EE.m_State.nHasException)
 	{
-		executed = (quota - m_executor.Execute(quota));
+		executed = (quota - m_executor->Execute(quota));
 	}
 	if(m_EE.m_State.nHasException)
 	{
@@ -276,7 +283,7 @@ int CSubSystem::ExecuteCpu(int quota)
 
 bool CSubSystem::IsCpuIdle() const
 {
-	CBasicBlock* nextBlock = m_executor.FindBlockAt(m_EE.m_State.nPC);
+	CBasicBlock* nextBlock = m_executor->FindBlockAt(m_EE.m_State.nPC);
 	if(nextBlock && nextBlock->GetSelfLoopCount() > 5000)
 	{
 		return true;
@@ -374,7 +381,7 @@ void CSubSystem::LoadState(Framework::CZipArchiveReader& archive)
 	m_timer.LoadState(archive);
 	m_gif.LoadState(archive);
 
-	m_executor.Reset();
+	m_executor->Reset();
 }
 
 uint32 CSubSystem::IOPortReadHandler(uint32 nAddress)
@@ -607,7 +614,7 @@ void CSubSystem::CheckPendingInterrupts()
 			m_intc.IsInterruptPending()
 #ifdef DEBUGGER_INCLUDED
 //			&& !m_singleStepEe
-			&& !m_executor.MustBreak()
+			&& !m_executor->MustBreak()
 #endif
 			)
 		{
@@ -618,7 +625,7 @@ void CSubSystem::CheckPendingInterrupts()
 
 void CSubSystem::FlushInstructionCache()
 {
-	m_executor.Reset();
+	m_executor->Reset();
 }
 
 void CSubSystem::LoadBIOS()

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <boost/signals2.hpp>
+#include <boost/filesystem.hpp>
 #include <string>
 #include <memory>
 #include "win32/Window.h"
@@ -29,6 +30,10 @@ protected:
 	long							OnActivateApp(bool, unsigned long) override;
 	long							OnSize(unsigned int, unsigned int, unsigned int) override;
 	long							OnMove(int, int) override;
+
+	virtual void					CreateGSHandler();
+	COutputWnd*						m_outputWnd;
+	CPS2VM&							m_virtualMachine;
 
 private:
 	class CScopedVmPauser
@@ -116,8 +121,6 @@ private:
 
 	void							SetupSoundHandler();
 
-	CPS2VM&							m_virtualMachine;
-
 	unsigned int					m_frames;
 	uint32							m_drawCallCount;
 	HACCEL							m_accTable;
@@ -137,7 +140,7 @@ private:
 	unsigned int					m_recordBufferHeight;
 
 	Framework::Win32::CStatusBar	m_statusBar;
-	COutputWnd*						m_outputWnd;
+	
 	CStatsOverlayWindow				m_statsOverlayWnd;
 #ifdef DEBUGGER_INCLUDED
 	std::unique_ptr<CDebugger>		m_debugger;

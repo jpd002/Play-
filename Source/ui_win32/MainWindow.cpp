@@ -122,8 +122,7 @@ CMainWindow::CMainWindow(CPS2VM& virtualMachine)
 	m_statusBar.SetText(STATUSPANEL,	sVersion);
 	m_statusBar.SetText(FPSPANEL,		_T(""));
 
-	//m_virtualMachine.CreateGSHandler(CGSH_Null::GetFactoryFunction());
-	m_virtualMachine.CreateGSHandler(CGSH_OpenGLWin32::GetFactoryFunction(m_outputWnd));
+	CreateGSHandler();
 
 	m_virtualMachine.CreatePadHandler(CPH_DirectInput::GetFactoryFunction(m_hWnd));
 	SetupSoundHandler();
@@ -182,6 +181,12 @@ CMainWindow::~CMainWindow()
 	m_recordAviMutex = NULL;
 
 	m_virtualMachine.Destroy();
+}
+
+void CMainWindow::CreateGSHandler()
+{
+	//m_virtualMachine.CreateGSHandler(CGSH_Null::GetFactoryFunction());
+	m_virtualMachine.CreateGSHandler(CGSH_OpenGLWin32::GetFactoryFunction(m_outputWnd));
 }
 
 int CMainWindow::Loop()
