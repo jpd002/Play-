@@ -574,7 +574,10 @@ void CGSHandler::BeginTransfer()
 			break;
 		}
 
-		m_trxCtx.nSize	= (trxReg.nRRW * trxReg.nRRH * nPixelSize) / 8;
+		//Make sure transfer size is a multiple of 16. Some games (ex.: Gregory Horror Show)
+		//specify transfer width/height that will give a transfer size that is not a multiple of 16
+		//and will prevent proper handling of image transfer (texture cache will not be invalidated).
+		m_trxCtx.nSize	= ((trxReg.nRRW * trxReg.nRRH * nPixelSize) / 8) & ~0xF;
 		m_trxCtx.nRealSize = m_trxCtx.nSize;
 		m_trxCtx.nRRX	= 0;
 		m_trxCtx.nRRY	= 0;
