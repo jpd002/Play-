@@ -394,6 +394,21 @@ void CGSHandler::FeedImageData(const void* data, uint32 length)
 
 void CGSHandler::WriteRegisterMassively(const RegisterWrite* writeList, unsigned int count, const CGsPacketMetadata* metadata)
 {
+	for(unsigned int i = 0; i < count; i++)
+	{
+		const auto& write = writeList[i];
+		switch(write.first)
+		{
+		case GS_REG_SIGNAL:
+			//TODO: Update SIGLBLID
+			m_nCSR |= CSR_SIGNAL_EVENT;
+			break;
+		case GS_REG_FINISH:
+			m_nCSR |= CSR_FINISH_EVENT;
+			break;
+		}
+	}
+
 	m_transferCount++;
 
 	auto massiveWrite = reinterpret_cast<MASSIVEWRITE_INFO*>(malloc(sizeof(MASSIVEWRITE_INFO) + (count * sizeof(RegisterWrite))));
@@ -453,21 +468,6 @@ void CGSHandler::WriteRegisterImpl(uint8 nRegister, uint64 nData)
 
 	case GS_REG_TRXDIR:
 		BeginTransfer();
-		break;
-
-	case GS_REG_SIGNAL:
-		{
-			std::lock_guard<std::recursive_mutex> registerMutexLock(m_registerMutex);
-			//TODO: Update SIGLBLID
-			m_nCSR |= CSR_SIGNAL_EVENT;
-		}
-		break;
-
-	case GS_REG_FINISH:
-		{
-			std::lock_guard<std::recursive_mutex> registerMutexLock(m_registerMutex);
-			m_nCSR |= CSR_FINISH_EVENT;
-		}
 		break;
 	}
 
