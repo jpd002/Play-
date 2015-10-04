@@ -19,5 +19,6 @@ ReleaseAot
 *.userprops
 *.orig
 *.xccheckout
+*.xcscmblueprint
 xcuserdata
 
