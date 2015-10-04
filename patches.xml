@@ -25,4 +25,8 @@
 		<Patch Address="0x002751B4" Value="0x00000000" Description="Nullify spin wait" />
 	</Executable>
 	
+	<Executable Name="SLPM_653.24;1" Title="Gregory Horror Show" Region="JP">
+		<Patch Address="0x0018F268" Value="0x00000000" Description="Remove pad test" />
+	</Executable>
+	
 </Patches>
