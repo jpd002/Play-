@@ -27,6 +27,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PlayCore", "PlayCore.vcxpro
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "McServTest", "McServTest.vcxproj", "{A2064EB3-BA2F-49A6-826D-BE2903E38359}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "zlib-1.2.8", "..\..\Dependencies\build_win32\zlib-1.2.8.vcxproj", "{55FA4E66-2FBB-4165-A9CA-D126D13879BD}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -153,6 +155,18 @@ Global
 		{A2064EB3-BA2F-49A6-826D-BE2903E38359}.ReleaseWithDebugger|Win32.Build.0 = Release|Win32
 		{A2064EB3-BA2F-49A6-826D-BE2903E38359}.ReleaseWithDebugger|x64.ActiveCfg = Release|x64
 		{A2064EB3-BA2F-49A6-826D-BE2903E38359}.ReleaseWithDebugger|x64.Build.0 = Release|x64
+		{55FA4E66-2FBB-4165-A9CA-D126D13879BD}.Debug|Win32.ActiveCfg = Debug|Win32
+		{55FA4E66-2FBB-4165-A9CA-D126D13879BD}.Debug|Win32.Build.0 = Debug|Win32
+		{55FA4E66-2FBB-4165-A9CA-D126D13879BD}.Debug|x64.ActiveCfg = Debug|x64
+		{55FA4E66-2FBB-4165-A9CA-D126D13879BD}.Debug|x64.Build.0 = Debug|x64
+		{55FA4E66-2FBB-4165-A9CA-D126D13879BD}.Release|Win32.ActiveCfg = Release|Win32
+		{55FA4E66-2FBB-4165-A9CA-D126D13879BD}.Release|Win32.Build.0 = Release|Win32
+		{55FA4E66-2FBB-4165-A9CA-D126D13879BD}.Release|x64.ActiveCfg = Release|x64
+		{55FA4E66-2FBB-4165-A9CA-D126D13879BD}.Release|x64.Build.0 = Release|x64
+		{55FA4E66-2FBB-4165-A9CA-D126D13879BD}.ReleaseWithDebugger|Win32.ActiveCfg = Release|Win32
+		{55FA4E66-2FBB-4165-A9CA-D126D13879BD}.ReleaseWithDebugger|Win32.Build.0 = Release|Win32
+		{55FA4E66-2FBB-4165-A9CA-D126D13879BD}.ReleaseWithDebugger|x64.ActiveCfg = Release|x64
+		{55FA4E66-2FBB-4165-A9CA-D126D13879BD}.ReleaseWithDebugger|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -166,5 +180,6 @@ Global
 		{8C48C11A-7C3F-4699-B62F-B0A66F0F78F7} = {84FCC3FB-586F-4614-A3C1-654525D87C9B}
 		{55FCF74F-E31A-4D0D-B86A-76EAE76ACE39} = {D05BD6D7-C644-418C-9767-5D392359079F}
 		{A2064EB3-BA2F-49A6-826D-BE2903E38359} = {D05BD6D7-C644-418C-9767-5D392359079F}
+		{55FA4E66-2FBB-4165-A9CA-D126D13879BD} = {84FCC3FB-586F-4614-A3C1-654525D87C9B}
 	EndGlobalSection
 EndGlobal

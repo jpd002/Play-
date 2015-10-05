@@ -177,6 +177,9 @@
     <ProjectReference Include="..\..\Dependencies\build_win32\bzip2-1.0.6.vcxproj">
       <Project>{8c48c11a-7c3f-4699-b62f-b0a66f0f78f7}</Project>
     </ProjectReference>
+    <ProjectReference Include="..\..\Dependencies\build_win32\zlib-1.2.8.vcxproj">
+      <Project>{55fa4e66-2fbb-4165-a9ca-d126d13879bd}</Project>
+    </ProjectReference>
     <ProjectReference Include="..\..\Framework\build_win32\Framework.vcxproj">
       <Project>{553ce050-a97e-4e6e-ae84-057a1f0fa45d}</Project>
     </ProjectReference>
@@ -186,7 +189,6 @@
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
-    <Import Project="..\..\NuGetPackages\zlib.v140.windesktop.msvcstl.dyn.rt-dyn.1.2.8.8\build\native\zlib.v140.windesktop.msvcstl.dyn.rt-dyn.targets" Condition="Exists('..\..\NuGetPackages\zlib.v140.windesktop.msvcstl.dyn.rt-dyn.1.2.8.8\build\native\zlib.v140.windesktop.msvcstl.dyn.rt-dyn.targets')" />
     <Import Project="..\..\NuGetPackages\boost.1.59.0.0\build\native\boost.targets" Condition="Exists('..\..\NuGetPackages\boost.1.59.0.0\build\native\boost.targets')" />
     <Import Project="..\..\NuGetPackages\boost_filesystem-vc140.1.59.0.0\build\native\boost_filesystem-vc140.targets" Condition="Exists('..\..\NuGetPackages\boost_filesystem-vc140.1.59.0.0\build\native\boost_filesystem-vc140.targets')" />
     <Import Project="..\..\NuGetPackages\boost_date_time-vc140.1.59.0.0\build\native\boost_date_time-vc140.targets" Condition="Exists('..\..\NuGetPackages\boost_date_time-vc140.1.59.0.0\build\native\boost_date_time-vc140.targets')" />
@@ -197,7 +199,6 @@
     <PropertyGroup>
       <ErrorText>This project references NuGet package(s) that are missing on this computer. Enable NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
     </PropertyGroup>
-    <Error Condition="!Exists('..\..\NuGetPackages\zlib.v140.windesktop.msvcstl.dyn.rt-dyn.1.2.8.8\build\native\zlib.v140.windesktop.msvcstl.dyn.rt-dyn.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\NuGetPackages\zlib.v140.windesktop.msvcstl.dyn.rt-dyn.1.2.8.8\build\native\zlib.v140.windesktop.msvcstl.dyn.rt-dyn.targets'))" />
     <Error Condition="!Exists('..\..\NuGetPackages\boost.1.59.0.0\build\native\boost.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\NuGetPackages\boost.1.59.0.0\build\native\boost.targets'))" />
     <Error Condition="!Exists('..\..\NuGetPackages\boost_filesystem-vc140.1.59.0.0\build\native\boost_filesystem-vc140.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\NuGetPackages\boost_filesystem-vc140.1.59.0.0\build\native\boost_filesystem-vc140.targets'))" />
     <Error Condition="!Exists('..\..\NuGetPackages\boost_date_time-vc140.1.59.0.0\build\native\boost_date_time-vc140.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\NuGetPackages\boost_date_time-vc140.1.59.0.0\build\native\boost_date_time-vc140.targets'))" />
