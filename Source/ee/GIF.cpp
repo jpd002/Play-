@@ -356,10 +356,6 @@ uint32 CGIF::GetRegister(uint32 address)
 			//Indicate that FIFO is full (15 qwords) (needed for GTA: San Andreas)
 			result |= (0x1F << 24);
 		}
-		if(m_gs && (m_gs->GetPendingTransferCount() != 0))
-		{
-			result |= GIF_STAT_APATH3;
-		}
 		break;
 	}
 #ifdef _DEBUG
