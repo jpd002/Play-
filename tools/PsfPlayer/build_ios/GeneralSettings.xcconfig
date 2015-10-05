@@ -1,11 +1,11 @@
-#include "ExternalDependencies.xcconfig"
-
 SDKROOT = iphoneos
+IPHONEOS_DEPLOYMENT_TARGET = 7.0
 
 CLANG_CXX_LANGUAGE_STANDARD = c++0x
 CLANG_CXX_LIBRARY = libc++
 
 VALID_ARCHS = armv7
+ENABLE_BITCODE = NO
 
 OTHER_CFLAGS = -fvisibility=hidden
 OTHER_LDFLAGS = -ObjC -framework boost ../build_aot/output/macho/$(CURRENT_ARCH)/PsfBlocks.o
@@ -31,6 +31,10 @@ GCC_WARN_UNDECLARED_SELECTOR = YES
 
 GCC_SYMBOLS_PRIVATE_EXTERN = YES
 GCC_INPUT_FILETYPE = sourcecode.cpp.objcpp
+
+BOOST_FRAMEWORK_PATH = ../../../../Dependencies/BoostMac/ios/framework/
+FRAMEWORK_PATH = ../../../../Framework
+CODEGEN_PATH = ../../../../CodeGen
 
 FRAMEWORK_SEARCH_PATHS = $(BOOST_FRAMEWORK_PATH)
 HEADER_SEARCH_PATHS = $(BOOST_FRAMEWORK_PATH)/boost.framework/Headers $(FRAMEWORK_PATH)/include $(CODEGEN_PATH)/include ../../../Source

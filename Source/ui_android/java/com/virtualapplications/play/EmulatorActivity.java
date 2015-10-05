@@ -2,21 +2,31 @@ package com.virtualapplications.play;
 
 import android.app.*;
 import android.content.*;
+import android.content.res.Configuration;
+import android.content.res.TypedArray;
 import android.os.*;
+import android.graphics.Color;
+import android.support.v4.widget.DrawerLayout;
 import android.util.*;
 import android.view.*;
 import android.widget.*;
+import android.widget.Toast;
 import java.util.*;
 
-public class EmulatorActivity extends Activity 
+public class EmulatorActivity extends Activity
 {
 	private static final String PREFERENCE_UI_SHOWFPS = "ui.showfps";
 	private static final String PREFERENCE_UI_SHOWVIRTUALPAD = "ui.showvirtualpad";
 	
 	private SurfaceView _renderView;
-	private TextView _statsTextView;
+
 	private Timer _statsTimer = new Timer();
 	private Handler _statsTimerHandler;
+	private TextView _fpsTextView;
+	private TextView _profileTextView;
+
+	private DrawerLayout _drawerLayout;
+	protected EmulatorDrawerFragment _drawerFragment;
 	
 	public static void RegisterPreferences()
 	{
@@ -30,6 +40,7 @@ public class EmulatorActivity extends Activity
 		super.onCreate(savedInstanceState);
 		//Log.w(Constants.TAG, "EmulatorActivity - onCreate");
 		
+		ThemeManager.applyTheme(this);
 		setContentView(R.layout.emulator);
 
 		getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
@@ -39,6 +50,60 @@ public class EmulatorActivity extends Activity
 				View.SYSTEM_UI_FLAG_HIDE_NAVIGATION |
 				View.SYSTEM_UI_FLAG_FULLSCREEN |
 				View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
+	
+		_drawerFragment = (EmulatorDrawerFragment)getFragmentManager().findFragmentById(R.id.emulator_drawer);
+		_drawerFragment.setEventListener(
+			new EmulatorDrawerFragment.EventListener()
+			{
+				@Override
+				public void onExitSelected()
+				{
+					finish();
+				}
+				
+				@Override
+				public void onSaveStateSelected()
+				{
+					int messageStringId = R.string.emulator_save_state_ok;
+					try
+					{
+						NativeInterop.saveState(0);
+					}
+					catch(Exception e)
+					{
+						messageStringId = R.string.emulator_save_state_fail;
+					}
+					Toast toast = Toast.makeText(
+						getApplicationContext(), getString(messageStringId), Toast.LENGTH_SHORT
+					);
+					toast.show();
+					_drawerFragment.closeDrawer();
+				}
+
+				@Override
+				public void onLoadStateSelected()
+				{
+					int messageStringId = R.string.emulator_load_state_ok;
+					try
+					{
+						NativeInterop.loadState(0);
+					}
+					catch(Exception e)
+					{
+						messageStringId = R.string.emulator_load_state_fail;
+					}
+					Toast toast = Toast.makeText(
+						getApplicationContext(), getString(messageStringId), Toast.LENGTH_SHORT
+					);
+					toast.show();
+					_drawerFragment.closeDrawer();
+				}
+			}
+		);
+		
+		View fragmentView = findViewById(R.id.emulator_drawer);
+		_drawerLayout = (DrawerLayout)findViewById(R.id.emulator_drawer_layout);
+		_drawerFragment.setUp(fragmentView, _drawerLayout);
 	}
 
 	@Override 
@@ -50,15 +115,20 @@ public class EmulatorActivity extends Activity
 		SurfaceHolder holder = _renderView.getHolder();
 		holder.addCallback(new SurfaceCallback());
 		
+		_fpsTextView = (TextView)findViewById(R.id.emulator_fps);
+		_profileTextView = (TextView)findViewById(R.id.emulator_profile);
+		
 		if(!SettingsManager.getPreferenceBoolean(PREFERENCE_UI_SHOWVIRTUALPAD))
 		{
 			View virtualPadView = (View)findViewById(R.id.emulator_virtualpad);
 			virtualPadView.setVisibility(View.GONE);
 		}
 		
-		if(SettingsManager.getPreferenceBoolean(PREFERENCE_UI_SHOWFPS))
+		if(
+			SettingsManager.getPreferenceBoolean(PREFERENCE_UI_SHOWFPS) ||
+			StatsManager.isProfiling()
+			)
 		{
-			_statsTextView = (TextView)findViewById(R.id.emulator_stats);
 			setupStatsTimer();
 		}
 	}
@@ -80,6 +150,10 @@ public class EmulatorActivity extends Activity
 	@Override
 	public boolean dispatchKeyEvent(KeyEvent event)
 	{
+		if(_drawerFragment.isDrawerOpened()) 
+		{
+			return super.dispatchKeyEvent(event);
+		}
 		int action = event.getAction();
 		if((action == KeyEvent.ACTION_DOWN) || (action == KeyEvent.ACTION_UP))
 		{
@@ -156,24 +230,14 @@ public class EmulatorActivity extends Activity
 	@Override
 	public void onBackPressed()
 	{
-		AlertDialog.Builder builder = new AlertDialog.Builder(new ContextThemeWrapper(this, android.R.style.Theme_Holo_Dialog));
-
-		builder.setTitle("Exit Game");
-		builder.setMessage("Are you sure you want to exit the game?");
-
-		builder.setPositiveButton("Yes",new DialogInterface.OnClickListener() {
-					public void onClick(DialogInterface dialog,int id) {
-						finish();
-					}
-				  })
-				.setNegativeButton("No",new DialogInterface.OnClickListener() {
-					public void onClick(DialogInterface dialog,int id) {
-						dialog.cancel();
-					}
-				});
-		
-		AlertDialog dialog = builder.create();
-		dialog.show();
+		if(_drawerFragment.isDrawerOpened())
+		{
+			_drawerFragment.closeDrawer();
+		}
+		else
+		{
+			_drawerFragment.openDrawer();
+		}
 	}
 	
 	private void setupStatsTimer()
@@ -187,7 +251,12 @@ public class EmulatorActivity extends Activity
 					int frames = StatsManager.getFrames();
 					int drawCalls = StatsManager.getDrawCalls();
 					int dcpf = (frames != 0) ? (drawCalls / frames) : 0;
-					_statsTextView.setText(String.format("%d f/s, %d dc/f", frames, dcpf));
+					_fpsTextView.setText(String.format("%d f/s, %d dc/f", frames, dcpf));
+					if(StatsManager.isProfiling())
+					{
+						String profilingInfo = StatsManager.getProfilingInfo();
+						_profileTextView.setText(profilingInfo);
+					}
 					StatsManager.clearStats();
 				}
 			};

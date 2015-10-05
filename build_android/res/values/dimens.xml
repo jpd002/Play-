@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <dimen name="navigation_drawer_width">240dp</dimen>
-
-    <dimen name="tool_bar_top_padding">0dp</dimen>
-    <dimen name="tool_bar_top_padding_inv">-26dp</dimen>
-    <dimen name="tool_bar_top_padding_inv_inv">26dp</dimen>
+    <dimen name="emulator_drawer_width">240dp</dimen>
 
     <dimen name="cover_width">172dp</dimen>
     <dimen name="cover_height">242dp</dimen>
+    <!-- Default screen margins, per the Android Design guidelines. -->
+    <dimen name="activity_horizontal_margin">16dp</dimen>
+    <dimen name="activity_vertical_margin">16dp</dimen>
 </resources>

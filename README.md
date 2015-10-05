@@ -30,16 +30,21 @@ C:\Projects
 - Framework
 - Play
 
-
 ### Building for Android ###
 
-Building for Android has only been tested under Cygwin, but should work on other UNIX-like environments.
+Building for Android has been tested on Windows and UNIX environments.
 
 - Make a copy of `ExternalDependencies.mk.template` found in `build_android/jni` and rename to `ExternalDependencies.mk`
-- Open the newly copied `ExternalDependencies.mk` and change paths inside to point to the proper dependency/repository paths (ie.: `/path/to/CodeGen` -> `/cygdrive/c/ProjectsGit/CodeGen/`)
+- Open the newly copied `ExternalDependencies.mk` and change paths inside to point to the proper dependency/repository paths (ie.: `/path/to/boost` -> `C:\Libraries\Boost`)
 - The build script relies on some environment variables that must be set before building:
-	- `ANDROID_NDK_ROOT` -> Must refer to the Android NDK's path (ie.: `/cygdrive/c/Android/android-ndk-r10d`)
-	- `ANDROID_SDK_ROOT` -> Must refer to the Android SDK's path (ie.: `/cygdrive/c/Android/android-sdk`)
+	- `ANDROID_NDK` -> Must refer to the Android NDK's path (ie.: `C:\Android\android-ndk-r10e`)
+	- `ANDROID_SDK_ROOT` -> Must refer to the Android SDK's path (ie.: `C:\Android\android-sdk`)
 	- `ANT_HOME` -> Must refer to a valid Apache Ant installation.
 - Make sure you've built all necessary depencendies: boost, Framework and CodeGen.
-- Run the `build_debug.sh` script available in the `build_android` directory to generate a debug build and `build_release.sh` for a release build.
+- Run the `build_debug` script available in the `build_android` directory to generate a debug build and `build_release` for a release build.
+
+### Building for OSX and iOS ###
+
+Building on OSX and iOS has been tested with Xcode 6 and Xcode 7. 
+
+To build for those platforms, you need to first build boost using the [script](https://github.com/jpd002/Play-Dependencies/blob/master/BoostMac/boost.sh) provided in the [Dependencies](https://github.com/jpd002/Play-Dependencies) repository. This will create the boost Xcode framework files that are needed by the projects from this repository. Once this is done, you will be able to open `Play.xcodeproj` for either OSX and iOS and build the project normally.

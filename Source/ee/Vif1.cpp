@@ -83,7 +83,7 @@ void CVif1::ExecuteCommand(StreamType& stream, CODE nCommand)
 		break;
 	case 0x06:
 		//MSKPATH3
-		//Should mask bit somewhere...
+		m_gif.SetPath3Masked((nCommand.nIMM & 0x8000) != 0);
 		break;
 	case 0x11:
 		//FLUSH

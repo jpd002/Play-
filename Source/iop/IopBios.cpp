@@ -743,7 +743,6 @@ uint32 CIopBios::CreateThread(uint32 threadProc, uint32 priority, uint32 stackSi
 	thread->nextActivateTime = 0;
 	thread->context.gpr[CMIPS::GP] = m_cpu.m_State.nGPR[CMIPS::GP].nV0;
 	thread->context.gpr[CMIPS::SP] = thread->stackBase + thread->stackSize - STACK_FRAME_RESERVE_SIZE;
-	LinkThread(thread->id);
 	return thread->id;
 }
 
@@ -782,6 +781,7 @@ int32 CIopBios::StartThread(uint32 threadId, uint32 param)
 	}
 
 	thread->status = THREAD_STATUS_RUNNING;
+	LinkThread(threadId);
 	thread->priority = thread->initPriority;
 	thread->context.epc = thread->threadProc;
 	thread->context.gpr[CMIPS::A0] = param;
@@ -801,6 +801,59 @@ int32 CIopBios::StartThread(uint32 threadId, uint32 param)
 	return 0;
 }
 
+int32 CIopBios::StartThreadArgs(uint32 threadId, uint32 args, uint32 argpPtr)
+{
+#ifdef _DEBUG
+	CLog::GetInstance().Print(LOGNAME, "%d: StartThreadArgs(threadId = %d, args = %d, argp = 0x%0.8X);\r\n", 
+		CurrentThreadId(), threadId, args, argpPtr);
+#endif
+
+	auto thread = GetThread(threadId);
+	assert(thread != nullptr);
+	if(thread == nullptr)
+	{
+		return -1;
+	}
+
+	if(thread->status != THREAD_STATUS_DORMANT)
+	{
+		CLog::GetInstance().Print(LOGNAME, "%d: Failed to start thread %d, thread not dormant.\r\n",
+			CurrentThreadId(), threadId);
+		assert(false);
+		return -1;
+	}
+
+	static const auto pushToStack =
+		[] (uint8* dst, uint32& stackAddress, const uint8* src, uint32 size)
+		{
+			uint32 fixedSize = ((size + 0x3) & ~0x3);
+			uint32 copyAddress = stackAddress - size;
+			stackAddress -= fixedSize;
+			memcpy(dst + copyAddress, src, size);
+			return copyAddress;
+		};
+
+	thread->status = THREAD_STATUS_RUNNING;
+	LinkThread(threadId);
+	thread->priority = thread->initPriority;
+	thread->context.epc = thread->threadProc;
+	thread->context.gpr[CMIPS::RA] = m_threadFinishAddress;
+	thread->context.gpr[CMIPS::SP] = thread->stackBase + thread->stackSize;
+
+	thread->context.gpr[CMIPS::A0] = args;
+	thread->context.gpr[CMIPS::A1] = pushToStack(m_ram, thread->context.gpr[CMIPS::SP], m_ram + argpPtr, args);
+
+	thread->context.gpr[CMIPS::SP] -= STACK_FRAME_RESERVE_SIZE;
+
+	auto currentThread = GetThread(CurrentThreadId());
+	if((currentThread == nullptr) || (currentThread->priority < thread->priority))
+	{
+		m_rescheduleNeeded = true;
+	}
+
+	return 0;
+}
+
 void CIopBios::ExitThread()
 {
 #ifdef _DEBUG
@@ -808,6 +861,7 @@ void CIopBios::ExitThread()
 #endif
 	THREAD* thread = GetThread(CurrentThreadId());
 	thread->status = THREAD_STATUS_DORMANT;
+	UnlinkThread(thread->id);
 	m_rescheduleNeeded = true;
 }
 
@@ -836,6 +890,7 @@ uint32 CIopBios::TerminateThread(uint32 threadId)
 		thread->waitSemaphore = 0;
 	}
 	thread->status = THREAD_STATUS_DORMANT;
+	UnlinkThread(thread->id);
 	return 0;
 }
 
@@ -848,6 +903,10 @@ void CIopBios::DelayThread(uint32 delay)
 
 	THREAD* thread = GetThread(CurrentThreadId());
 	thread->nextActivateTime = GetCurrentTime() + MicroSecToClock(delay);
+	//TODO: Add a proper wait state to allow thread to be relinked
+	//at the end of the queue at the right moment
+	UnlinkThread(thread->id);
+	LinkThread(thread->id);
 	m_rescheduleNeeded = true;
 }
 
@@ -855,6 +914,10 @@ void CIopBios::DelayThreadTicks(uint32 delay)
 {
 	auto thread = GetThread(CurrentThreadId());
 	thread->nextActivateTime = GetCurrentTime() + delay;
+	//TODO: Add a proper wait state to allow thread to be relinked
+	//at the end of the queue at the right moment
+	UnlinkThread(thread->id);
+	LinkThread(thread->id);
 	m_rescheduleNeeded = true;
 }
 
@@ -1001,6 +1064,7 @@ void CIopBios::SleepThread()
 	if(thread->wakeupCount == 0)
 	{
 		thread->status = THREAD_STATUS_SLEEPING;
+		UnlinkThread(thread->id);
 		m_rescheduleNeeded = true;
 	}
 	else
@@ -1020,6 +1084,7 @@ uint32 CIopBios::WakeupThread(uint32 threadId, bool inInterrupt)
 	if(thread->status == THREAD_STATUS_SLEEPING)
 	{
 		thread->status = THREAD_STATUS_RUNNING;
+		LinkThread(threadId);
 		if(!inInterrupt)
 		{
 			m_rescheduleNeeded = true;
@@ -1036,6 +1101,7 @@ void CIopBios::SleepThreadTillVBlankStart()
 {
 	THREAD* thread = GetThread(CurrentThreadId());
 	thread->status = THREAD_STATUS_WAIT_VBLANK_START;
+	UnlinkThread(thread->id);
 	m_rescheduleNeeded = true;
 }
 
@@ -1043,6 +1109,7 @@ void CIopBios::SleepThreadTillVBlankEnd()
 {
 	THREAD* thread = GetThread(CurrentThreadId());
 	thread->status = THREAD_STATUS_WAIT_VBLANK_END;
+	UnlinkThread(thread->id);
 	m_rescheduleNeeded = true;
 }
 
@@ -1133,8 +1200,6 @@ void CIopBios::Reschedule()
 	if(CurrentThreadId() != -1)
 	{
 		SaveThreadContext(CurrentThreadId());
-		UnlinkThread(CurrentThreadId());
-		LinkThread(CurrentThreadId());
 	}
 
 	uint32 nextThreadId = GetNextReadyThread();
@@ -1163,10 +1228,8 @@ uint32 CIopBios::GetNextReadyThread()
 		THREAD* nextThread = m_threads[nextThreadId];
 		nextThreadId = nextThread->nextThreadId;
 		if(GetCurrentTime() <= nextThread->nextActivateTime) continue;
-		if(nextThread->status == THREAD_STATUS_RUNNING)
-		{
-			return nextThread->id;
-		}
+		assert(nextThread->status == THREAD_STATUS_RUNNING);
+		return nextThread->id;
 	}
 	return -1;
 }
@@ -1198,28 +1261,26 @@ void CIopBios::CountTicks(uint32 ticks)
 
 void CIopBios::NotifyVBlankStart()
 {
-	uint32 nextThreadId = ThreadLinkHead();
-	while(nextThreadId != 0)
+	for(auto thread : m_threads)
 	{
-		THREAD* nextThread = m_threads[nextThreadId];
-		nextThreadId = nextThread->nextThreadId;
-		if(nextThread->status == THREAD_STATUS_WAIT_VBLANK_START)
+		if(!thread) continue;
+		if(thread->status == THREAD_STATUS_WAIT_VBLANK_START)
 		{
-			nextThread->status = THREAD_STATUS_RUNNING;
+			thread->status = THREAD_STATUS_RUNNING;
+			LinkThread(thread->id);
 		}
 	}
 }
 
 void CIopBios::NotifyVBlankEnd()
 {
-	uint32 nextThreadId = ThreadLinkHead();
-	while(nextThreadId != 0)
+	for(auto thread : m_threads)
 	{
-		THREAD* nextThread = m_threads[nextThreadId];
-		nextThreadId = nextThread->nextThreadId;
-		if(nextThread->status == THREAD_STATUS_WAIT_VBLANK_END)
+		if(!thread) continue;
+		if(thread->status == THREAD_STATUS_WAIT_VBLANK_END)
 		{
-			nextThread->status = THREAD_STATUS_RUNNING;
+			thread->status = THREAD_STATUS_RUNNING;
+			LinkThread(thread->id);
 		}
 	}
 #ifdef _IOP_EMULATE_MODULES
@@ -1299,6 +1360,7 @@ uint32 CIopBios::SignalSemaphore(uint32 semaphoreId, bool inInterrupt)
 					throw std::runtime_error("Thread not waiting for semaphone (inconsistent state).");
 				}
 				thread->status = THREAD_STATUS_RUNNING;
+				LinkThread(thread->id);
 				thread->waitSemaphore = 0;
 				if(!inInterrupt)
 				{
@@ -1316,7 +1378,7 @@ uint32 CIopBios::SignalSemaphore(uint32 semaphoreId, bool inInterrupt)
 	{
 		semaphore->count++;
 	}
-	return semaphore->count;
+	return 0;
 }
 
 uint32 CIopBios::WaitSemaphore(uint32 semaphoreId)
@@ -1336,9 +1398,11 @@ uint32 CIopBios::WaitSemaphore(uint32 semaphoreId)
 
 	if(semaphore->count == 0)
 	{
-		THREAD* thread = GetThread(CurrentThreadId());
+		uint32 threadId = CurrentThreadId();
+		THREAD* thread = GetThread(threadId);
 		thread->status			= THREAD_STATUS_WAITING_SEMAPHORE;
 		thread->waitSemaphore	= semaphoreId;
+		UnlinkThread(threadId);
 		semaphore->waitCount++;
 		m_rescheduleNeeded = true;
 	}
@@ -1446,6 +1510,8 @@ uint32 CIopBios::SetEventFlag(uint32 eventId, uint32 value, bool inInterrupt)
 				thread->waitEventFlagResultPtr = 0;
 
 				thread->status = THREAD_STATUS_RUNNING;
+				LinkThread(thread->id);
+
 				if(!inInterrupt)
 				{
 					m_rescheduleNeeded = true;
@@ -1494,6 +1560,7 @@ uint32 CIopBios::WaitEventFlag(uint32 eventId, uint32 value, uint32 mode, uint32
 	{
 		auto thread = GetThread(CurrentThreadId());
 		thread->status					= THREAD_STATUS_WAITING_EVENTFLAG;
+		UnlinkThread(thread->id);
 		thread->waitEventFlag			= eventId;
 		thread->waitEventFlagMode		= mode;
 		thread->waitEventFlagMask		= value;
@@ -1614,6 +1681,7 @@ uint32 CIopBios::SendMessageBox(uint32 boxId, uint32 messagePtr)
 			thread->waitMessageBoxResultPtr = 0;
 
 			thread->status = THREAD_STATUS_RUNNING;
+			LinkThread(thread->id);
 			if(!inInterrupt)
 			{
 				m_rescheduleNeeded = true;
@@ -1648,6 +1716,7 @@ uint32 CIopBios::ReceiveMessageBox(uint32 messagePtr, uint32 boxId)
 	{
 		THREAD* thread = GetThread(CurrentThreadId());
 		thread->status					= THREAD_STATUS_WAITING_MESSAGEBOX;
+		UnlinkThread(thread->id);
 		thread->waitMessageBox			= boxId;
 		thread->waitMessageBoxResultPtr	= messagePtr;
 		m_rescheduleNeeded = true;
@@ -2275,15 +2344,14 @@ BiosDebugThreadInfoArray CIopBios::GetThreadsDebugInfo() const
 {
 	BiosDebugThreadInfoArray threadInfos;
 
-	uint32 nextThreadId = ThreadLinkHead();
-	while(nextThreadId != 0)
+	for(auto thread : m_threads)
 	{
-		THREAD* nextThread = m_threads[nextThreadId];
+		if(!thread) continue;
 
 		BIOS_DEBUG_THREAD_INFO threadInfo;
-		threadInfo.id			= nextThreadId;
-		threadInfo.priority		= nextThread->priority;
-		if(GetCurrentThreadId() == nextThreadId)
+		threadInfo.id			= thread->id;
+		threadInfo.priority		= thread->priority;
+		if(GetCurrentThreadId() == threadInfo.id)
 		{
 			threadInfo.pc = m_cpu.m_State.nPC;
 			threadInfo.ra = m_cpu.m_State.nGPR[CMIPS::RA].nV0;
@@ -2291,12 +2359,12 @@ BiosDebugThreadInfoArray CIopBios::GetThreadsDebugInfo() const
 		}
 		else
 		{
-			threadInfo.pc = nextThread->context.epc;
-			threadInfo.ra = nextThread->context.gpr[CMIPS::RA];
-			threadInfo.sp = nextThread->context.gpr[CMIPS::SP];
+			threadInfo.pc = thread->context.epc;
+			threadInfo.ra = thread->context.gpr[CMIPS::RA];
+			threadInfo.sp = thread->context.gpr[CMIPS::SP];
 		}
 
-		switch(nextThread->status)
+		switch(thread->status)
 		{
 		case THREAD_STATUS_DORMANT:
 			threadInfo.stateDescription = "Dormant";
@@ -2308,13 +2376,13 @@ BiosDebugThreadInfoArray CIopBios::GetThreadsDebugInfo() const
 			threadInfo.stateDescription = "Sleeping";
 			break;
 		case THREAD_STATUS_WAITING_SEMAPHORE:
-			threadInfo.stateDescription = "Waiting (Semaphore: " + boost::lexical_cast<std::string>(nextThread->waitSemaphore) + ")";
+			threadInfo.stateDescription = "Waiting (Semaphore: " + boost::lexical_cast<std::string>(thread->waitSemaphore) + ")";
 			break;
 		case THREAD_STATUS_WAITING_EVENTFLAG:
-			threadInfo.stateDescription = "Waiting (Event Flag: " + boost::lexical_cast<std::string>(nextThread->waitEventFlag) + ")";
+			threadInfo.stateDescription = "Waiting (Event Flag: " + boost::lexical_cast<std::string>(thread->waitEventFlag) + ")";
 			break;
 		case THREAD_STATUS_WAITING_MESSAGEBOX:
-			threadInfo.stateDescription = "Waiting (Message Box: " + boost::lexical_cast<std::string>(nextThread->waitMessageBox) + ")";
+			threadInfo.stateDescription = "Waiting (Message Box: " + boost::lexical_cast<std::string>(thread->waitMessageBox) + ")";
 			break;
 		case THREAD_STATUS_WAIT_VBLANK_START:
 			threadInfo.stateDescription = "Waiting (Vblank Start)";
@@ -2328,8 +2396,6 @@ BiosDebugThreadInfoArray CIopBios::GetThreadsDebugInfo() const
 		}
 
 		threadInfos.push_back(threadInfo);
-
-		nextThreadId = nextThread->nextThreadId;
 	}
 
 	return threadInfos;

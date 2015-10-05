@@ -8,6 +8,11 @@
 
 /* Begin PBXBuildFile section */
 		703ABB6C17C0DCBE00FC0376 /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = 703ABB6B17C0DCA400FC0376 /* MainMenu.xib */; };
+		708ED2C31BBA1F4000C49611 /* GeneralSettings.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = 708ED2C01BBA1F4000C49611 /* GeneralSettings.xcconfig */; settings = {ASSET_TAGS = (); }; };
+		708ED2C41BBA1F4000C49611 /* GeneralSettingsDebug.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = 708ED2C11BBA1F4000C49611 /* GeneralSettingsDebug.xcconfig */; settings = {ASSET_TAGS = (); }; };
+		708ED2C51BBA1F4000C49611 /* GeneralSettingsRelease.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = 708ED2C21BBA1F4000C49611 /* GeneralSettingsRelease.xcconfig */; settings = {ASSET_TAGS = (); }; };
+		708ED2C81BBA278A00C49611 /* Iop_LibSd.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 708ED2C61BBA278A00C49611 /* Iop_LibSd.cpp */; settings = {ASSET_TAGS = (); }; };
+		708ED2CB1BBA27AD00C49611 /* PsfPathToken.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 708ED2C91BBA27AD00C49611 /* PsfPathToken.cpp */; settings = {ASSET_TAGS = (); }; };
 		70D3172617C0C15600CCA3A4 /* AppConfig.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 70D3170917C0C15600CCA3A4 /* AppConfig.cpp */; };
 		70D3172717C0C15600CCA3A4 /* Iop_PsfSubSystem.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 70D3170D17C0C15600CCA3A4 /* Iop_PsfSubSystem.cpp */; };
 		70D3172817C0C15600CCA3A4 /* Playlist.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 70D3171017C0C15600CCA3A4 /* Playlist.cpp */; };
@@ -20,7 +25,6 @@
 		70D3172F17C0C15600CCA3A4 /* PsfVm.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 70D3171E17C0C15600CCA3A4 /* PsfVm.cpp */; };
 		70D3173017C0C15600CCA3A4 /* PsfZipArchive.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 70D3172117C0C15600CCA3A4 /* PsfZipArchive.cpp */; };
 		70D3173117C0C15600CCA3A4 /* SH_OpenAL.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 70D3172317C0C15600CCA3A4 /* SH_OpenAL.cpp */; };
-		70D3174317C0C32C00CCA3A4 /* libboost.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 70D3174217C0C32300CCA3A4 /* libboost.a */; };
 		70D3174417C0C32C00CCA3A4 /* libCodeGen.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 70D3173C17C0C2F800CCA3A4 /* libCodeGen.a */; };
 		70D3174517C0C32C00CCA3A4 /* libFramework.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 70D3173617C0C23200CCA3A4 /* libFramework.a */; };
 		70D3174817C0C36B00CCA3A4 /* MipsJitter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 70D3174617C0C36B00CCA3A4 /* MipsJitter.cpp */; };
@@ -77,7 +81,6 @@
 		7E2A170A0F9554D300D3F99D /* MIPSAnalysis.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7E2A16E90F9554D300D3F99D /* MIPSAnalysis.cpp */; };
 		7E2A170B0F9554D300D3F99D /* MIPSArchitecture.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7E2A16EB0F9554D300D3F99D /* MIPSArchitecture.cpp */; };
 		7E2A170C0F9554D300D3F99D /* MIPSAssembler.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7E2A16ED0F9554D300D3F99D /* MIPSAssembler.cpp */; };
-		7E2A170D0F9554D300D3F99D /* MipsAssemblerDefinitions.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7E2A16EF0F9554D300D3F99D /* MipsAssemblerDefinitions.cpp */; };
 		7E2A170F0F9554D300D3F99D /* MIPSCoprocessor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7E2A16F30F9554D300D3F99D /* MIPSCoprocessor.cpp */; };
 		7E2A17100F9554D300D3F99D /* MipsExecutor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7E2A16F50F9554D300D3F99D /* MipsExecutor.cpp */; };
 		7E2A17110F9554D300D3F99D /* MIPSInstructionFactory.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7E2A16F70F9554D300D3F99D /* MIPSInstructionFactory.cpp */; };
@@ -128,13 +131,6 @@
 			remoteGlobalIDString = 7E207AE31507D03500EE8C4F;
 			remoteInfo = CodeGen;
 		};
-		70D3174117C0C32300CCA3A4 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 70D3173D17C0C32300CCA3A4 /* boost.xcodeproj */;
-			proxyType = 2;
-			remoteGlobalIDString = 7E207A831507C20200EE8C4F;
-			remoteInfo = boost;
-		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
@@ -143,6 +139,13 @@
 		29B97325FDCFA39411CA2CEA /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = /System/Library/Frameworks/Foundation.framework; sourceTree = "<absolute>"; };
 		703ABB6A17C0DCA400FC0376 /* InfoPlist.strings */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = InfoPlist.strings; path = ../Source/macosx_ui/InfoPlist.strings; sourceTree = "<group>"; };
 		703ABB6B17C0DCA400FC0376 /* MainMenu.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = MainMenu.xib; path = ../Source/macosx_ui/MainMenu.xib; sourceTree = "<group>"; };
+		708ED2C01BBA1F4000C49611 /* GeneralSettings.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = GeneralSettings.xcconfig; sourceTree = "<group>"; };
+		708ED2C11BBA1F4000C49611 /* GeneralSettingsDebug.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = GeneralSettingsDebug.xcconfig; sourceTree = "<group>"; };
+		708ED2C21BBA1F4000C49611 /* GeneralSettingsRelease.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = GeneralSettingsRelease.xcconfig; sourceTree = "<group>"; };
+		708ED2C61BBA278A00C49611 /* Iop_LibSd.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Iop_LibSd.cpp; path = ../../../Source/iop/Iop_LibSd.cpp; sourceTree = "<group>"; };
+		708ED2C71BBA278A00C49611 /* Iop_LibSd.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Iop_LibSd.h; path = ../../../Source/iop/Iop_LibSd.h; sourceTree = "<group>"; };
+		708ED2C91BBA27AD00C49611 /* PsfPathToken.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = PsfPathToken.cpp; path = ../Source/PsfPathToken.cpp; sourceTree = "<group>"; };
+		708ED2CA1BBA27AD00C49611 /* PsfPathToken.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PsfPathToken.h; path = ../Source/PsfPathToken.h; sourceTree = "<group>"; };
 		70D316FF17C0C0C700CCA3A4 /* ApplicationDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = ApplicationDelegate.h; path = ../Source/macosx_ui/ApplicationDelegate.h; sourceTree = "<group>"; };
 		70D3170017C0C0C700CCA3A4 /* ApplicationDelegate.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; name = ApplicationDelegate.mm; path = ../Source/macosx_ui/ApplicationDelegate.mm; sourceTree = "<group>"; };
 		70D3170217C0C0C700CCA3A4 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = Info.plist; path = ../Source/macosx_ui/Info.plist; sourceTree = "<group>"; };
@@ -182,7 +185,6 @@
 		70D3172417C0C15600CCA3A4 /* SH_OpenAL.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SH_OpenAL.h; path = ../Source/SH_OpenAL.h; sourceTree = "<group>"; };
 		70D3172517C0C15600CCA3A4 /* SoundHandler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SoundHandler.h; path = ../Source/SoundHandler.h; sourceTree = "<group>"; };
 		70D3173717C0C2F700CCA3A4 /* CodeGen.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = CodeGen.xcodeproj; path = ../../../../CodeGen/build_macosx/CodeGen.xcodeproj; sourceTree = "<group>"; };
-		70D3173D17C0C32300CCA3A4 /* boost.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = boost.xcodeproj; path = ../../../../boost/build_macosx/boost.xcodeproj; sourceTree = "<group>"; };
 		70D3174617C0C36B00CCA3A4 /* MipsJitter.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = MipsJitter.cpp; path = ../../../Source/MipsJitter.cpp; sourceTree = "<group>"; };
 		70D3174717C0C36B00CCA3A4 /* MipsJitter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MipsJitter.h; path = ../../../Source/MipsJitter.h; sourceTree = "<group>"; };
 		70D3174917C0C38E00CCA3A4 /* StructFile.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = StructFile.cpp; path = ../../../Source/StructFile.cpp; sourceTree = "<group>"; };
@@ -280,8 +282,6 @@
 		7E2A16EC0F9554D300D3F99D /* MIPSArchitecture.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MIPSArchitecture.h; path = ../../../Source/MIPSArchitecture.h; sourceTree = SOURCE_ROOT; };
 		7E2A16ED0F9554D300D3F99D /* MIPSAssembler.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = MIPSAssembler.cpp; path = ../../../Source/MIPSAssembler.cpp; sourceTree = SOURCE_ROOT; };
 		7E2A16EE0F9554D300D3F99D /* MIPSAssembler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MIPSAssembler.h; path = ../../../Source/MIPSAssembler.h; sourceTree = SOURCE_ROOT; };
-		7E2A16EF0F9554D300D3F99D /* MipsAssemblerDefinitions.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = MipsAssemblerDefinitions.cpp; path = ../../../Source/MipsAssemblerDefinitions.cpp; sourceTree = SOURCE_ROOT; };
-		7E2A16F00F9554D300D3F99D /* MipsAssemblerDefinitions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MipsAssemblerDefinitions.h; path = ../../../Source/MipsAssemblerDefinitions.h; sourceTree = SOURCE_ROOT; };
 		7E2A16F30F9554D300D3F99D /* MIPSCoprocessor.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = MIPSCoprocessor.cpp; path = ../../../Source/MIPSCoprocessor.cpp; sourceTree = SOURCE_ROOT; };
 		7E2A16F40F9554D300D3F99D /* MIPSCoprocessor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MIPSCoprocessor.h; path = ../../../Source/MIPSCoprocessor.h; sourceTree = SOURCE_ROOT; };
 		7E2A16F50F9554D300D3F99D /* MipsExecutor.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = MipsExecutor.cpp; path = ../../../Source/MipsExecutor.cpp; sourceTree = SOURCE_ROOT; };
@@ -358,7 +358,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				70D3174317C0C32C00CCA3A4 /* libboost.a in Frameworks */,
 				70D3174417C0C32C00CCA3A4 /* libCodeGen.a in Frameworks */,
 				70D3174517C0C32C00CCA3A4 /* libFramework.a in Frameworks */,
 				8D11072F0486CEB800E47090 /* Cocoa.framework in Frameworks */,
@@ -381,11 +380,12 @@
 		29B97314FDCFA39411CA2CEA /* PsfPlayer */ = {
 			isa = PBXGroup;
 			children = (
+				708ED2BD1BBA1F2300C49611 /* Config */,
+				29B97323FDCFA39411CA2CEA /* Frameworks */,
 				70D316FE17C0C0A800CCA3A4 /* MacOSX UI */,
+				19C28FACFE9D520D11CA2CBB /* Products */,
 				7E9000200F059A06008B14D1 /* PsfPlayer Core */,
 				7E90001E0F0599E3008B14D1 /* Purei Core */,
-				29B97323FDCFA39411CA2CEA /* Frameworks */,
-				19C28FACFE9D520D11CA2CBB /* Products */,
 			);
 			name = PsfPlayer;
 			sourceTree = "<group>";
@@ -393,7 +393,6 @@
 		29B97323FDCFA39411CA2CEA /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				70D3173D17C0C32300CCA3A4 /* boost.xcodeproj */,
 				7E90008C0F059C25008B14D1 /* Framework.xcodeproj */,
 				70D3173717C0C2F700CCA3A4 /* CodeGen.xcodeproj */,
 				1058C7A1FEA54F0111CA2CBB /* Cocoa.framework */,
@@ -403,6 +402,16 @@
 				7E9000A70F059D4B008B14D1 /* libz.dylib */,
 			);
 			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		708ED2BD1BBA1F2300C49611 /* Config */ = {
+			isa = PBXGroup;
+			children = (
+				708ED2C01BBA1F4000C49611 /* GeneralSettings.xcconfig */,
+				708ED2C11BBA1F4000C49611 /* GeneralSettingsDebug.xcconfig */,
+				708ED2C21BBA1F4000C49611 /* GeneralSettingsRelease.xcconfig */,
+			);
+			name = Config;
 			sourceTree = "<group>";
 		};
 		70D316FE17C0C0A800CCA3A4 /* MacOSX UI */ = {
@@ -435,14 +444,6 @@
 			isa = PBXGroup;
 			children = (
 				70D3173C17C0C2F800CCA3A4 /* libCodeGen.a */,
-			);
-			name = Products;
-			sourceTree = "<group>";
-		};
-		70D3173E17C0C32300CCA3A4 /* Products */ = {
-			isa = PBXGroup;
-			children = (
-				70D3174217C0C32300CCA3A4 /* libboost.a */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -559,8 +560,6 @@
 				7E2A16EC0F9554D300D3F99D /* MIPSArchitecture.h */,
 				7E2A16ED0F9554D300D3F99D /* MIPSAssembler.cpp */,
 				7E2A16EE0F9554D300D3F99D /* MIPSAssembler.h */,
-				7E2A16EF0F9554D300D3F99D /* MipsAssemblerDefinitions.cpp */,
-				7E2A16F00F9554D300D3F99D /* MipsAssemblerDefinitions.h */,
 				7E2A16F30F9554D300D3F99D /* MIPSCoprocessor.cpp */,
 				7E2A16F40F9554D300D3F99D /* MIPSCoprocessor.h */,
 				7E2A16F50F9554D300D3F99D /* MipsExecutor.cpp */,
@@ -606,6 +605,8 @@
 				7E2A17280F95552500D3F99D /* Iop_Intrman.h */,
 				7E2A17290F95552500D3F99D /* Iop_Ioman.cpp */,
 				7E2A172A0F95552500D3F99D /* Iop_Ioman.h */,
+				708ED2C61BBA278A00C49611 /* Iop_LibSd.cpp */,
+				708ED2C71BBA278A00C49611 /* Iop_LibSd.h */,
 				7E2A172B0F95552500D3F99D /* Iop_Loadcore.cpp */,
 				7E2A172C0F95552500D3F99D /* Iop_Loadcore.h */,
 				7E2A172D0F95552500D3F99D /* Iop_Modload.cpp */,
@@ -623,10 +624,10 @@
 				7E2A17370F95552500D3F99D /* Iop_SifManNull.h */,
 				7E2A17440F95554C00D3F99D /* Iop_Spu.cpp */,
 				7E2A17450F95554C00D3F99D /* Iop_Spu.h */,
-				7E2A17460F95554C00D3F99D /* Iop_Spu2.cpp */,
-				7E2A17470F95554C00D3F99D /* Iop_Spu2.h */,
 				7E2A17480F95554C00D3F99D /* Iop_Spu2_Core.cpp */,
 				7E2A17490F95554C00D3F99D /* Iop_Spu2_Core.h */,
+				7E2A17460F95554C00D3F99D /* Iop_Spu2.cpp */,
+				7E2A17470F95554C00D3F99D /* Iop_Spu2.h */,
 				7E2A174A0F95554C00D3F99D /* Iop_SpuBase.cpp */,
 				7E2A174B0F95554C00D3F99D /* Iop_SpuBase.h */,
 				7E2A174C0F95554C00D3F99D /* Iop_Stdio.cpp */,
@@ -676,6 +677,8 @@
 				70D3171717C0C15600CCA3A4 /* PsfFs.h */,
 				70D3171817C0C15600CCA3A4 /* PsfLoader.cpp */,
 				70D3171917C0C15600CCA3A4 /* PsfLoader.h */,
+				708ED2C91BBA27AD00C49611 /* PsfPathToken.cpp */,
+				708ED2CA1BBA27AD00C49611 /* PsfPathToken.h */,
 				70D3171A17C0C15600CCA3A4 /* PsfStreamProvider.cpp */,
 				70D3171B17C0C15600CCA3A4 /* PsfStreamProvider.h */,
 				70D3171C17C0C15600CCA3A4 /* PsfTags.cpp */,
@@ -733,10 +736,6 @@
 			projectDirPath = "";
 			projectReferences = (
 				{
-					ProductGroup = 70D3173E17C0C32300CCA3A4 /* Products */;
-					ProjectRef = 70D3173D17C0C32300CCA3A4 /* boost.xcodeproj */;
-				},
-				{
 					ProductGroup = 70D3173817C0C2F700CCA3A4 /* Products */;
 					ProjectRef = 70D3173717C0C2F700CCA3A4 /* CodeGen.xcodeproj */;
 				},
@@ -767,13 +766,6 @@
 			remoteRef = 70D3173B17C0C2F800CCA3A4 /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
-		70D3174217C0C32300CCA3A4 /* libboost.a */ = {
-			isa = PBXReferenceProxy;
-			fileType = archive.ar;
-			path = libboost.a;
-			remoteRef = 70D3174117C0C32300CCA3A4 /* PBXContainerItemProxy */;
-			sourceTree = BUILT_PRODUCTS_DIR;
-		};
 /* End PBXReferenceProxy section */
 
 /* Begin PBXResourcesBuildPhase section */
@@ -781,6 +773,9 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				708ED2C31BBA1F4000C49611 /* GeneralSettings.xcconfig in Resources */,
+				708ED2C41BBA1F4000C49611 /* GeneralSettingsDebug.xcconfig in Resources */,
+				708ED2C51BBA1F4000C49611 /* GeneralSettingsRelease.xcconfig in Resources */,
 				703ABB6C17C0DCBE00FC0376 /* MainMenu.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -824,9 +819,9 @@
 				70D3179717C0CFFA00CCA3A4 /* main.mm in Sources */,
 				70D3175017C0CE1000CCA3A4 /* RegisterStateFile.cpp in Sources */,
 				7E2A170C0F9554D300D3F99D /* MIPSAssembler.cpp in Sources */,
+				708ED2CB1BBA27AD00C49611 /* PsfPathToken.cpp in Sources */,
 				70D3178417C0CF2300CCA3A4 /* Psp_Audio.cpp in Sources */,
 				70D3175617C0CE3800CCA3A4 /* ArgumentIterator.cpp in Sources */,
-				7E2A170D0F9554D300D3F99D /* MipsAssemblerDefinitions.cpp in Sources */,
 				70D3178317C0CF2300CCA3A4 /* MA_ALLEGREX.cpp in Sources */,
 				70D317A417C0D83E00CCA3A4 /* COP_FPU.cpp in Sources */,
 				70D3179917C0CFFA00CCA3A4 /* PlaylistItem.mm in Sources */,
@@ -865,6 +860,7 @@
 				70D3172F17C0C15600CCA3A4 /* PsfVm.cpp in Sources */,
 				7E2A17420F95552500D3F99D /* Iop_SifMan.cpp in Sources */,
 				70D3172D17C0C15600CCA3A4 /* PsfStreamProvider.cpp in Sources */,
+				708ED2C81BBA278A00C49611 /* Iop_LibSd.cpp in Sources */,
 				7E2A17430F95552500D3F99D /* Iop_SifManNull.cpp in Sources */,
 				70D3174817C0C36B00CCA3A4 /* MipsJitter.cpp in Sources */,
 				70D3173117C0C15600CCA3A4 /* SH_OpenAL.cpp in Sources */,
@@ -897,102 +893,34 @@
 /* Begin XCBuildConfiguration section */
 		C01FCF4B08A954540054247B /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 708ED2C11BBA1F4000C49611 /* GeneralSettingsDebug.xcconfig */;
 			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = NO;
-				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
-				CLANG_CXX_LANGUAGE_STANDARD = "c++0x";
-				CLANG_CXX_LIBRARY = "libc++";
 				COPY_PHASE_STRIP = NO;
-				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_ENABLE_FIX_AND_CONTINUE = YES;
-				GCC_MODEL_TUNING = G5;
-				GCC_OPTIMIZATION_LEVEL = 0;
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = ../Source/macosx_ui/PsfPlayer_Prefix.pch;
-				HEADER_SEARCH_PATHS = (
-					"~/Projects/Framework/include",
-					"~/Projects/Play/Source",
-					"~/Projects/CodeGen/include",
-					"~/Libraries/boost_1_50_0",
-				);
-				INFOPLIST_FILE = "$(SRCROOT)/../Source/macosx_ui/Info.plist";
 				INSTALL_PATH = "$(HOME)/Applications";
 				MACOSX_DEPLOYMENT_TARGET = 10.7;
-				PRODUCT_NAME = PsfPlayer;
-				SDKROOT = macosx;
 			};
 			name = Debug;
 		};
 		C01FCF4C08A954540054247B /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 708ED2C21BBA1F4000C49611 /* GeneralSettingsRelease.xcconfig */;
 			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = NO;
-				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
-				CLANG_CXX_LANGUAGE_STANDARD = "c++0x";
-				CLANG_CXX_LIBRARY = "libc++";
-				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				GCC_MODEL_TUNING = G5;
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = ../Source/macosx_ui/PsfPlayer_Prefix.pch;
-				HEADER_SEARCH_PATHS = (
-					"~/Projects/Framework/include",
-					"~/Projects/Play/Source",
-					"~/Projects/CodeGen/include",
-					"~/Libraries/boost_1_50_0",
-				);
-				INFOPLIST_FILE = "$(SRCROOT)/../Source/macosx_ui/Info.plist";
 				INSTALL_PATH = "$(HOME)/Applications";
 				MACOSX_DEPLOYMENT_TARGET = 10.7;
-				PRODUCT_NAME = PsfPlayer;
-				SDKROOT = macosx;
 			};
 			name = Release;
 		};
 		C01FCF4F08A954540054247B /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
-				GCC_C_LANGUAGE_STANDARD = c99;
-				GCC_OPTIMIZATION_LEVEL = 0;
-				GCC_PREPROCESSOR_DEFINITIONS = (
-					_PSX,
-					MACOSX,
-				);
-				GCC_WARN_ABOUT_RETURN_TYPE = YES;
-				GCC_WARN_UNUSED_VARIABLE = YES;
-				HEADER_SEARCH_PATHS = (
-					"/usr/local/include/boost-1_37/boost/tr1/tr1",
-					"/usr/local/include/boost-1_37/",
-					"~/Projects/Framework/include",
-					"~/Projects/Purei/Source",
-				);
 				ONLY_ACTIVE_ARCH = YES;
-				PREBINDING = NO;
-				SDKROOT = macosx10.5;
-				VALID_ARCHS = "i386 x86_64";
 			};
 			name = Debug;
 		};
 		C01FCF5008A954540054247B /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
-				GCC_C_LANGUAGE_STANDARD = c99;
-				GCC_PREPROCESSOR_DEFINITIONS = (
-					_PSX,
-					MACOSX,
-				);
-				GCC_WARN_ABOUT_RETURN_TYPE = YES;
-				GCC_WARN_UNUSED_VARIABLE = YES;
-				HEADER_SEARCH_PATHS = (
-					"/usr/local/include/boost-1_37/boost/tr1/tr1",
-					"/usr/local/include/boost-1_37/",
-					"~/Projects/Framework/include",
-					"~/Projects/Purei/Source",
-				);
-				PREBINDING = NO;
-				SDKROOT = macosx10.5;
-				VALID_ARCHS = "i386 x86_64";
 			};
 			name = Release;
 		};

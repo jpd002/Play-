@@ -14,6 +14,7 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.ContentResolver;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -21,6 +22,7 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.os.StrictMode;
 import android.util.Log;
+import android.util.LruCache;
 import android.util.SparseArray;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -31,6 +33,8 @@ import android.widget.TextView;
 
 import java.util.concurrent.ExecutionException;
 
+import com.virtualapplications.play.GameInfoEditActivity;
+import com.virtualapplications.play.GameInfoStruct;
 import com.virtualapplications.play.R;
 import com.virtualapplications.play.MainActivity;
 import com.virtualapplications.play.NativeInterop;
@@ -39,15 +43,50 @@ import com.virtualapplications.play.database.SqliteHelper.Games;
 public class GameInfo {
 	
 	private Context mContext;
+	private LruCache<String, Bitmap> mMemoryCache;
+	final int maxMemory = (int) (Runtime.getRuntime().maxMemory() / 1024);
+	final int cacheSize = maxMemory / 4;
 	
 	public GameInfo (Context mContext) {
 		this.mContext = mContext;
+		mMemoryCache = new LruCache<String, Bitmap>(cacheSize) {
+			@Override
+			protected int sizeOf(String key, Bitmap bitmap) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR1) {
+					return bitmap.getByteCount() / 1024;
+                } else {
+                	return (bitmap.getRowBytes() * bitmap.getHeight()) / 1000;
+                }
+			}
+		};
 	}
-	
+    
+	public void addBitmapToMemoryCache(String key, Bitmap bitmap) {
+		if (key != null && !key.equals(null) && bitmap != null) {
+			if (getBitmapFromMemCache(key) == null) {
+                mMemoryCache.put(key, bitmap);
+			}
+		}
+	}
+
+	public Bitmap getBitmapFromMemCache(String key) {
+		return mMemoryCache.get(key);
+	}
+
+	public Bitmap removeBitmapFromMemCache(String key) {
+		return mMemoryCache.remove(key);
+	}
+
+
 	public void saveImage(String key, Bitmap image) {
+		saveImage(key, "", image);
+	}
+
+	public void saveImage(String key, String custom, Bitmap image) {
+		addBitmapToMemoryCache(key, image);
 		String path = mContext.getExternalFilesDir(null) + "/covers/";
 		OutputStream fOut = null;
-		File file = new File(path, key + ".jpg"); // the File to save to
+		File file = new File(path, key + custom + ".jpg"); // the File to save to
 		if (!file.getParentFile().exists()) {
 			file.getParentFile().mkdir();
 		}
@@ -61,22 +100,44 @@ public class GameInfo {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		
 	}
-	
-	public Bitmap getImage(String key, View childview, String boxart) {
+
+	public void deleteImage(String key, String custom) {
 		String path = mContext.getExternalFilesDir(null) + "/covers/";
-		
+		File file = new File(path, key + custom + ".jpg"); // the File to save to
+		if (file.exists()) {
+			file.delete();
+		}
+	}
+
+	public Bitmap getImage(String key, View childview, String boxart) {
+		return getImage(key,childview,boxart, true);
+	}
+	public Bitmap getImage(String key, View childview, String boxart, boolean custom) {
+		Bitmap cachedImage = getBitmapFromMemCache(key);
+		if (cachedImage != null) {
+			if (childview != null) {
+				ImageView preview = (ImageView) childview.findViewById(R.id.game_icon);
+				preview.setImageBitmap(cachedImage);
+				preview.setScaleType(ScaleType.FIT_XY);
+				((TextView) childview.findViewById(R.id.game_text)).setVisibility(View.GONE);
+			}
+			return cachedImage;
+		}
+		String path = mContext.getExternalFilesDir(null) + "/covers/";
+
 		File file = new File(path, key + ".jpg");
+		if (custom && new File(path, key + "-custom.jpg").exists()) file = new File(path, key + "-custom.jpg");
 		if(file.exists())
 		{
 			BitmapFactory.Options options = new BitmapFactory.Options();
 			options.inPreferredConfig = Bitmap.Config.ARGB_8888;
 			Bitmap bitmap = BitmapFactory.decodeFile(file.getAbsolutePath(), options);
+            addBitmapToMemoryCache(key, bitmap);
 			if (childview != null) {
 				ImageView preview = (ImageView) childview.findViewById(R.id.game_icon);
 				preview.setImageBitmap(bitmap);
-				preview.setScaleType(ScaleType.CENTER_INSIDE);
+				preview.setScaleType(ScaleType.FIT_XY);
 				((TextView) childview.findViewById(R.id.game_text)).setVisibility(View.GONE);
 			}
 			return bitmap;
@@ -137,6 +198,9 @@ public class GameInfo {
 				String api = null;
 				if (!boxart.startsWith("boxart/original/front/")) {
 					api = boxart;
+				} else if (boxart.equals("200")) {
+					//200 boxart has no link associated with it and was set by the user
+					return null;
 				} else {
 					api = "http://thegamesdb.net/banners/" + boxart;
 				}
@@ -150,7 +214,7 @@ public class GameInfo {
 					BitmapFactory.Options options = new BitmapFactory.Options();
 					options.inJustDecodeBounds = true;
 					Bitmap bitmap = BitmapFactory.decodeStream(bis, null, options);
-					
+
 					options.inSampleSize = calculateInSampleSize(options);
 					options.inJustDecodeBounds = false;
 					bis.close();
@@ -159,7 +223,7 @@ public class GameInfo {
 					im = conn1.getInputStream();
 					bis = new BufferedInputStream(im, 512);
 					bitmap = BitmapFactory.decodeStream(bis, null, options);
-					
+
 					bis.close();
 					im.close();
 					bis = null;
@@ -178,14 +242,14 @@ public class GameInfo {
 				saveImage(key, image);
 				if (preview != null) {
 					preview.setImageBitmap(image);
-					preview.setScaleType(ScaleType.CENTER_INSIDE);
+					preview.setScaleType(ScaleType.FIT_XY);
 					((TextView) childview.findViewById(R.id.game_text)).setVisibility(View.GONE);
 				}
 			}
 		}
 	}
 	
-	public OnLongClickListener configureLongClick(final String title, final String overview, final File gameFile) {
+	public OnLongClickListener configureLongClick(final String title, final String overview, final GameInfoStruct gameFile) {
 		return new OnLongClickListener() {
 			public boolean onLongClick(View view) {
 				final AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
@@ -193,27 +257,41 @@ public class GameInfo {
 				builder.setTitle(title);
 				builder.setMessage(overview);
 				builder.setNegativeButton("Close",
-				new DialogInterface.OnClickListener() {
-					public void onClick(DialogInterface dialog, int which) {
-						dialog.dismiss();
-						return;
-					}
-				});
+						new DialogInterface.OnClickListener() {
+							public void onClick(DialogInterface dialog, int which) {
+								dialog.dismiss();
+								return;
+							}
+						});
 				builder.setPositiveButton("Launch",
-				new DialogInterface.OnClickListener() {
-					public void onClick(DialogInterface dialog, int which) {
-						dialog.dismiss();
-						MainActivity.launchGame(gameFile);
-						return;
-					}
-				});
+						new DialogInterface.OnClickListener() {
+							public void onClick(DialogInterface dialog, int which) {
+								dialog.dismiss();
+								MainActivity.launchGame(gameFile);
+								return;
+							}
+						});
+				builder.setNeutralButton("Edit",
+						new DialogInterface.OnClickListener() {
+							public void onClick(DialogInterface dialog, int which) {
+								dialog.dismiss();
+								Intent intent = new Intent(mContext, GameInfoEditActivity.class);
+								intent.putExtra("title",gameFile.getTitleName());
+								intent.putExtra("overview",gameFile.getDescription());
+								intent.putExtra("cover",gameFile.getFrontLink());
+								intent.putExtra("gameid",gameFile.getGameID());
+								intent.putExtra("indexid",gameFile.getIndexID());
+								((MainActivity)mContext).startActivityForResult(intent, 1);
+								return;
+							}
+						});
 				builder.create().show();
 				return true;
 			}
 		};
 	}
 	
-	public String[] getGameInfo(File game, View childview) {
+	public GameInfoStruct getGameInfo(File game, View childview, GameInfoStruct gameInfoStruct) {
 		String serial = getSerial(game);
 		if (serial == null) {
 			getImage(game.getName(), childview, null);
@@ -242,9 +320,22 @@ public class GameInfo {
 		}
 		if (overview != null && boxart != null &&
 			!overview.equals("") && !boxart.equals("")) {
-			return new String[] { gameID, title, overview, boxart };
+			if (gameInfoStruct.isTitleNameEmptyNull()){
+				gameInfoStruct.setTitleName(title, mContext);
+			}
+
+			if (gameInfoStruct.isDescriptionEmptyNull()){
+				gameInfoStruct.setDescription(overview, mContext);
+			}
+			if (gameInfoStruct.getFrontLink() == null || gameInfoStruct.getFrontLink().isEmpty()){
+				gameInfoStruct.setFrontLink(boxart, mContext);
+			}
+			if (gameInfoStruct.getGameID() == null){
+				gameInfoStruct.setGameID(gameID, mContext);
+			}
+			return gameInfoStruct;
 		} else {
-			GamesDbAPI gameDatabase = new GamesDbAPI(mContext, gameID, serial);
+			GamesDbAPI gameDatabase = new GamesDbAPI(mContext, gameID, serial, gameInfoStruct);
 			gameDatabase.setView(childview);
 			gameDatabase.execute(game);
 			return null;

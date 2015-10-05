@@ -1,6 +1,8 @@
 #pragma once
 
 #include "Types.h"
+#include "zip/ZipArchiveWriter.h"
+#include "zip/ZipArchiveReader.h"
 #include "../gs/GSHandler.h"
 #include "../Profiler.h"
 
@@ -14,7 +16,8 @@ public:
 
 	enum
 	{
-		GIF_STAT_APATH3 = 0xC00,
+		GIF_STAT_M3P		= 0x002,
+		GIF_STAT_APATH3		= 0xC00,
 	};
 
 	enum
@@ -47,6 +50,11 @@ public:
 	uint32			GetRegister(uint32);
 	void			SetRegister(uint32, uint32);
 
+	void			SetPath3Masked(bool);
+
+	void			LoadState(Framework::CZipArchiveReader&);
+	void			SaveState(Framework::CZipArchiveWriter&);
+
 private:
 	uint32			ProcessPacked(CGSHandler::RegisterWriteList&, uint8*, uint32, uint32);
 	uint32			ProcessRegList(CGSHandler::RegisterWriteList&, uint8*, uint32, uint32);
@@ -54,6 +62,8 @@ private:
 
 	void			DisassembleGet(uint32);
 	void			DisassembleSet(uint32, uint32);
+
+	bool			m_path3Masked = false;
 
 	uint16			m_loops;
 	uint8			m_cmd;

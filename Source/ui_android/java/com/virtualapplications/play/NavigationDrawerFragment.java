@@ -78,13 +78,9 @@ public class NavigationDrawerFragment extends Fragment {
             mCurrentSelectedPosition = savedInstanceState.getInt(STATE_SELECTED_POSITION);
             mFromSavedInstanceState = true;
         } else {
-            mCurrentSelectedPosition = Integer.valueOf(PreferenceManager.getDefaultSharedPreferences(getActivity()).getString("page", "0"));
-            selectItem(mCurrentSelectedPosition);
+            // Select either the default item (0) or the last selected item.
+            mCurrentSelectedPosition = sp.getInt("sortMethod", 2);
         }
-
-        // Select either the default item (0) or the last selected item.
-
-
     }
 
     @Override
@@ -98,11 +94,20 @@ public class NavigationDrawerFragment extends Fragment {
                 android.R.layout.simple_list_item_activated_1,
                 android.R.id.text1,
                 new String[]{
-                        "PlaceHolder 1",
-                        "PlaceHolder 2",
-                        "PlaceHolder 3",
+                        getString(R.string.file_list_recent),
+                        getString(R.string.file_list_homebrew),
+                        getString(R.string.file_list_default),
                 }));
-        //mDrawerListView.setItemChecked(mCurrentSelectedPosition, true);
+        //Thunder07: Using 'post' might seem weird, but thats the only way I found for setting the selection
+        //highlight on startup, every other way returns null.
+        mDrawerListView.post(new Runnable() {
+            public void run() {
+                TypedArray a = getActivity().getTheme().obtainStyledAttributes(new int[]{R.attr.colorPrimaryDark});
+                int attributeResourceId = a.getColor(0, 0);
+                mDrawerListView.getChildAt(mCurrentSelectedPosition).setBackgroundColor(attributeResourceId);
+            }
+        });
+
         mDrawerListView_bottom.setAdapter(new ArrayAdapter<>(
                 ((ActionBarActivity) getActivity()).getSupportActionBar().getThemedContext(),
                 android.R.layout.simple_list_item_activated_1,
