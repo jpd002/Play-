@@ -44,8 +44,8 @@ class CBasicBlock
 public:
 									CBasicBlock(CMIPS&, uint32, uint32);
 	virtual							~CBasicBlock();
-	unsigned int					Execute();
-	void							Compile();
+	virtual unsigned int			Execute();
+	virtual void					Compile();
 
 	uint32							GetBeginAddress() const;
 	uint32							GetEndAddress() const;
