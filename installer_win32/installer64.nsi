@@ -64,8 +64,6 @@ Section "Play! (required)"
   
   ; Put file there
   File "..\build_win32\x64\Play\Release\Play.exe"
-  File "..\build_win32\x64\Play\Release\glew32.dll"
-  File "..\build_win32\x64\Play\Release\zlib.dll"
   File "..\Readme.html"
   File "..\Changelog.html"
   File "..\Patches.xml"
@@ -84,7 +82,7 @@ Section "Play! (required)"
   
 SectionEnd
 
-!include "vcredist2013_x64.nsh"
+!include "vcredist2015_x64.nsh"
 
 ; Optional section (can be disabled by the user)
 Section "Start Menu Shortcuts"
@@ -111,8 +109,6 @@ Section "Uninstall"
 
   ; Remove files and uninstaller
   Delete $INSTDIR\Play.exe
-  Delete $INSTDIR\glew32.dll
-  Delete $INSTDIR\zlib.dll
   Delete $INSTDIR\Readme.html
   Delete $INSTDIR\Changelog.html
   Delete $INSTDIR\Patches.xml
