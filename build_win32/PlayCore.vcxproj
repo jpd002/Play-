@@ -438,7 +438,7 @@
       <PreprocessorDefinitions>_DEBUG;DEBUGGER_INCLUDED;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ForcedIncludeFiles>StdAfx.h</ForcedIncludeFiles>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
-      <AdditionalOptions>/Zm11 %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/Zm128 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -494,6 +494,7 @@
       <ForcedIncludeFiles>StdAfx.h</ForcedIncludeFiles>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <AdditionalOptions>/Zm128 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -513,6 +514,7 @@
       <ForcedIncludeFiles>StdAfx.h</ForcedIncludeFiles>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <AdditionalOptions>/Zm128 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
