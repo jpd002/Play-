@@ -1805,15 +1805,21 @@ int32 CIopBios::RegisterIntrHandler(uint32 line, uint32 mode, uint32 handler, ui
 	return KERNEL_RESULT_OK;
 }
 
-bool CIopBios::ReleaseIntrHandler(uint32 line)
+int32 CIopBios::ReleaseIntrHandler(uint32 line)
 {
+	if(line >= Iop::CIntc::LINE_MAX)
+	{
+		return KERNEL_RESULT_ERROR_ILLEGAL_INTRCODE;
+	}
+
 	uint32 handlerId = FindIntrHandler(line);
 	if(handlerId == -1)
 	{
-		return false;
+		return KERNEL_RESULT_ERROR_NOTFOUND_HANDLER;
 	}
+
 	m_intrHandlers.Free(handlerId);
-	return true;
+	return KERNEL_RESULT_OK;
 }
 
 uint32 CIopBios::FindIntrHandler(uint32 line)

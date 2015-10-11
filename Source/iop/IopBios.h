@@ -169,7 +169,7 @@ public:
 	uint32						PollMessageBox(uint32, uint32);
 
 	int32						RegisterIntrHandler(uint32, uint32, uint32, uint32);
-	bool						ReleaseIntrHandler(uint32);
+	int32						ReleaseIntrHandler(uint32);
 
 	void						TriggerCallback(uint32 address, uint32 arg0, uint32 arg1);
 

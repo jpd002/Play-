@@ -150,7 +150,7 @@ uint32 CIntrman::ReleaseIntrHandler(uint32 line)
 	CLog::GetInstance().Print(LOGNAME, FUNCTION_RELEASEINTRHANDLER "(line = %d);\r\n",
 		line);
 #endif
-	return m_bios.ReleaseIntrHandler(line) ? 1 : 0;
+	return m_bios.ReleaseIntrHandler(line);
 }
 
 uint32 CIntrman::EnableIntrLine(CMIPS& context, uint32 line)
