@@ -1,5 +1,4 @@
-#ifndef _IOP_INTRMAN_H_
-#define _IOP_INTRMAN_H_
+#pragma once
 
 #include "Iop_Module.h"
 
@@ -13,9 +12,9 @@ namespace Iop
 						CIntrman(CIopBios&, uint8*);
 		virtual			~CIntrman();
 
-		std::string		GetId() const;
-		std::string		GetFunctionName(unsigned int) const;
-		void			Invoke(CMIPS&, unsigned int);
+		std::string		GetId() const override;
+		std::string		GetFunctionName(unsigned int) const override;
+		void			Invoke(CMIPS&, unsigned int) override;
 
 	private:
 		uint32			RegisterIntrHandler(uint32, uint32, uint32, uint32);
@@ -27,10 +26,7 @@ namespace Iop
 		uint32			SuspendInterrupts(CMIPS&, uint32);
 		uint32			ResumeInterrupts(CMIPS&, uint32);
 		uint32			QueryIntrContext(CMIPS&);
-		uint8*			m_ram;
+		uint8*			m_ram = nullptr;
 		CIopBios&		m_bios;
 	};
 }
-
-#endif
-
