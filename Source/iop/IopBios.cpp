@@ -980,7 +980,7 @@ uint32 CIopBios::CancelAlarm(uint32 alarmFunction, uint32 param)
 	if(alarmThreadId == -1)
 	{
 		// handler not registered
-		return -105;
+		return KERNEL_RESULT_ERROR_NOTFOUND_HANDLER;
 	}
 
 	TerminateThread(alarmThreadId);
