@@ -49,9 +49,6 @@
     <string name="pref_ui_rescan_all_title">Rescan Storage</string>
     <string name="pref_ui_rescan_all_summary">Scan storage for new games</string>
 
-    <string name="pref_ui_clear_index_title">Clear Game List</string>
-    <string name="pref_ui_clear_index_summary">Reset all of the game list and its associated details</string>
-
     <string name="pref_ui_clear_unavailable_title">Clear Unavailable Games</string>
     <string name="pref_ui_clear_unavailable_summary">Remove any game currently inaccessible from the game list</string>
     
