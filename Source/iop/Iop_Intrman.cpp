@@ -141,7 +141,7 @@ uint32 CIntrman::RegisterIntrHandler(uint32 line, uint32 mode, uint32 handler, u
 	CLog::GetInstance().Print(LOGNAME, FUNCTION_REGISTERINTRHANDLER "(line = %d, mode = %d, handler = 0x%0.8X, arg = 0x%0.8X);\r\n",
 		line, mode, handler, arg);
 #endif
-	return m_bios.RegisterIntrHandler(line, mode, handler, arg) ? 1 : 0;
+	return m_bios.RegisterIntrHandler(line, mode, handler, arg);
 }
 
 uint32 CIntrman::ReleaseIntrHandler(uint32 line)

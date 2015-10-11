@@ -1776,24 +1776,33 @@ Iop::CCdvdfsv* CIopBios::GetCdvdfsv()
 
 #endif
 
-bool CIopBios::RegisterIntrHandler(uint32 line, uint32 mode, uint32 handler, uint32 arg)
+int32 CIopBios::RegisterIntrHandler(uint32 line, uint32 mode, uint32 handler, uint32 arg)
 {
 	assert(FindIntrHandler(line) == -1);
+	if(FindIntrHandler(line) != -1)
+	{
+		return KERNEL_RESULT_ERROR_FOUND_HANDLER;
+	}
+
+	if(line >= Iop::CIntc::LINE_MAX)
+	{
+		return KERNEL_RESULT_ERROR_ILLEGAL_INTRCODE;
+	}
 
 	uint32 handlerId = m_intrHandlers.Allocate();
 	assert(handlerId != -1);
 	if(handlerId == -1)
 	{
-		return false;
+		return KERNEL_RESULT_ERROR;
 	}
 
-	INTRHANDLER* intrHandler = m_intrHandlers[handlerId];
+	auto intrHandler = m_intrHandlers[handlerId];
 	intrHandler->line		= line;
 	intrHandler->mode		= mode;
 	intrHandler->handler	= handler;
 	intrHandler->arg		= arg;
 
-	return true;
+	return KERNEL_RESULT_OK;
 }
 
 bool CIopBios::ReleaseIntrHandler(uint32 line)

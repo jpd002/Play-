@@ -36,6 +36,7 @@ namespace Iop
 			LINE_DMA_DEV9	= 0x29,
 			LINE_DMA9		= 0x2A,		//sif0
 			LINE_DMA10		= 0x2B,		//sif1
+			LINE_MAX
 		};
 
 		enum
