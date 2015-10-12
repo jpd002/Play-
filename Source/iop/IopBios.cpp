@@ -1023,12 +1023,11 @@ uint32 CIopBios::ReferThreadStatus(uint32 threadId, uint32 statusPtr)
 		threadId = GetCurrentThreadId();
 	}
 
-	THREAD* thread = GetThread(threadId);
-	assert(thread != NULL);
-
-	if(thread == NULL)
+	auto thread = m_threads[threadId];
+	assert(thread);
+	if(!thread)
 	{
-		return -1;
+		return KERNEL_RESULT_ERROR_UNKNOWN_THID;
 	}
 
 	uint32 threadStatus = 0;
@@ -1046,7 +1045,7 @@ uint32 CIopBios::ReferThreadStatus(uint32 threadId, uint32 statusPtr)
 	reinterpret_cast<uint32*>(m_ram + statusPtr)[THREAD_INFO_INITPRIORITY]	= thread->initPriority;
 	reinterpret_cast<uint32*>(m_ram + statusPtr)[THREAD_INFO_PRIORITY]		= thread->priority;
 
-	return 0;
+	return KERNEL_RESULT_OK;
 }
 
 void CIopBios::SleepThread()
