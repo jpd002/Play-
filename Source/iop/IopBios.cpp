@@ -788,16 +788,7 @@ int32 CIopBios::StartThread(uint32 threadId, uint32 param)
 	thread->context.gpr[CMIPS::RA] = m_threadFinishAddress;
 	thread->context.gpr[CMIPS::SP] = thread->stackBase + thread->stackSize - STACK_FRAME_RESERVE_SIZE;
 
-	// If the thread we are starting is the same priority or lower than the current one, do yield.
-	// If may be that the correct action is never to yield - the docs aren't really clear.
-	// INET.IRX (from Champions: Return to Arms) depends on startThread not yielding when starting a 
-	// thread of the same priority.
-	auto currentThread = GetThread(CurrentThreadId());
-	if((currentThread == nullptr) || (currentThread->priority < thread->priority))
-	{
-		m_rescheduleNeeded = true;
-	}
-
+	m_rescheduleNeeded = true;
 	return 0;
 }
 
@@ -845,12 +836,7 @@ int32 CIopBios::StartThreadArgs(uint32 threadId, uint32 args, uint32 argpPtr)
 
 	thread->context.gpr[CMIPS::SP] -= STACK_FRAME_RESERVE_SIZE;
 
-	auto currentThread = GetThread(CurrentThreadId());
-	if((currentThread == nullptr) || (currentThread->priority < thread->priority))
-	{
-		m_rescheduleNeeded = true;
-	}
-
+	m_rescheduleNeeded = true;
 	return 0;
 }
 
