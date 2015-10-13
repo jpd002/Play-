@@ -1031,9 +1031,32 @@ uint32 CIopBios::ReferThreadStatus(uint32 threadId, uint32 statusPtr)
 	}
 
 	uint32 threadStatus = 0;
-	if(thread->status == THREAD_STATUS_DORMANT)
+	switch(thread->status)
 	{
-		threadStatus |= 0x10;
+	case THREAD_STATUS_DORMANT:
+		threadStatus = 0x10;
+		break;
+	case THREAD_STATUS_SLEEPING:
+	case THREAD_STATUS_WAITING_MESSAGEBOX:
+	case THREAD_STATUS_WAITING_EVENTFLAG:
+	case THREAD_STATUS_WAITING_SEMAPHORE:
+	case THREAD_STATUS_WAIT_VBLANK_START:
+	case THREAD_STATUS_WAIT_VBLANK_END:
+		threadStatus = 0x04;
+		break;
+	case THREAD_STATUS_RUNNING:
+		if(threadId == GetCurrentThreadId())
+		{
+			threadStatus = 0x01;
+		}
+		else
+		{
+			threadStatus = 0x02;
+		}
+		break;
+	default:
+		threadStatus = 0;
+		break;
 	}
 
 	reinterpret_cast<uint32*>(m_ram + statusPtr)[THREAD_INFO_ATTRIBUTE]		= 0;
