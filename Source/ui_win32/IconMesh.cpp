@@ -115,8 +115,13 @@ void CIconMesh::ComputeFrameInfluences()
 
 		if(frameAmp != 0)
 		{
+			//GTA San Andreas' icon references an invalid shape id.
+			//If it's invalid, reference the first shape
+			uint32 shapeId = frame->nShapeId;
+			if(shapeId >= m_icon->GetShapeCount()) shapeId = 0;
+
 			FRAMEINFLUENCE influence;
-			influence.shapeId = frame->nShapeId;
+			influence.shapeId = shapeId;
 			influence.amplitude = frameAmp;
 			m_frameInfluences.push_back(influence);
 		}
