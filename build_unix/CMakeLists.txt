@@ -36,7 +36,7 @@ set(PROJECT_LIBS)
 
 set(Boost_FIND_REQUIRED TRUE)
 find_package(Boost COMPONENTS system filesystem chrono)
-include_directories($Boost_INCLUDE_DIRS)
+include_directories(${Boost_INCLUDE_DIRS})
 list(APPEND PROJECT_LIBS ${Boost_LIBRARIES})
 
 find_package(OpenGL REQUIRED)
