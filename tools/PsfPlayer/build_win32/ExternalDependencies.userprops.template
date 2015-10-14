@@ -2,26 +2,14 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ImportGroup Label="PropertySheets" />
   <PropertyGroup Label="UserMacros">
-    <FRAMEWORK_PATH>path_to\framework</FRAMEWORK_PATH>
-    <CODEGEN_PATH>path_to\codegen</CODEGEN_PATH>
     <OPENAL_PATH>path_to\openal-1.1</OPENAL_PATH>
-    <UNRAR_PATH>path_to\unrarsrc-5.2.5</UNRAR_PATH>
     <TDEMU_PATH>path_to\tdemu</TDEMU_PATH>
   </PropertyGroup>
   <PropertyGroup />
   <ItemDefinitionGroup />
   <ItemGroup>
-    <BuildMacro Include="FRAMEWORK_PATH">
-      <Value>$(FRAMEWORK_PATH)</Value>
-    </BuildMacro>
-    <BuildMacro Include="CODEGEN_PATH">
-      <Value>$(CODEGEN_PATH)</Value>
-    </BuildMacro>
     <BuildMacro Include="OPENAL_PATH">
       <Value>$(OPENAL_PATH)</Value>
-    </BuildMacro>
-    <BuildMacro Include="UNRAR_PATH">
-      <Value>$(UNRAR_PATH)</Value>
     </BuildMacro>
     <BuildMacro Include="TDEMU_PATH">
       <Value>$(TDEMU_PATH)</Value>
