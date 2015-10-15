@@ -7,7 +7,7 @@
 #include "StdStreamUtils.h"
 #include "Jitter.h"
 #include "Jitter_CodeGen_x86_32.h"
-#include "Jitter_CodeGen_Arm.h"
+#include "Jitter_CodeGen_AArch32.h"
 #include "MemStream.h"
 #include "Iop_PsfSubSystem.h"
 #include "psp/Psp_PsfSubSystem.h"
@@ -264,7 +264,7 @@ void Compile(const char* databasePathName, const char* cpuArchName, const char* 
 	}
 	else if(!strcmp(cpuArchName, "arm"))
 	{
-		codeGen = new Jitter::CCodeGen_Arm();
+		codeGen = new Jitter::CCodeGen_AArch32();
 		cpuArch = Jitter::CObjectFile::CPU_ARCH_ARM;
 	}
 	else
