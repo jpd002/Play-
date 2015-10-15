@@ -8,6 +8,7 @@
 #include "Jitter.h"
 #include "Jitter_CodeGen_x86_32.h"
 #include "Jitter_CodeGen_AArch32.h"
+#include "Jitter_CodeGen_AArch64.h"
 #include "MemStream.h"
 #include "Iop_PsfSubSystem.h"
 #include "psp/Psp_PsfSubSystem.h"
@@ -267,6 +268,11 @@ void Compile(const char* databasePathName, const char* cpuArchName, const char* 
 		codeGen = new Jitter::CCodeGen_AArch32();
 		cpuArch = Jitter::CObjectFile::CPU_ARCH_ARM;
 	}
+	else if(!strcmp(cpuArchName, "arm64"))
+	{
+		codeGen = new Jitter::CCodeGen_AArch64();
+		cpuArch = Jitter::CObjectFile::CPU_ARCH_ARM64;
+	}
 	else
 	{
 		throw std::runtime_error("Invalid cpu target.");
@@ -365,7 +371,7 @@ void PrintUsage()
 {
 	printf("PsfAot usage:\r\n");
 	printf("\tPsfAot gather [InputFile] [DatabasePath]\r\n");
-	printf("\tPsfAot compile [DatabasePath] [x86|x64|arm] [coff|macho] [OutputFile]\r\n");
+	printf("\tPsfAot compile [DatabasePath] [x86|x64|arm|arm64] [coff|macho] [OutputFile]\r\n");
 }
 
 int main(int argc, char** argv)
