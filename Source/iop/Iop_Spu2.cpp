@@ -82,9 +82,11 @@ uint32 CSpu2::ReadRegisterImpl(uint32 address, uint32 value)
 	case C_IRQINFO:
 		for(unsigned int i = 0; i < CORE_NUM; i++)
 		{
-			if(m_core[i]->GetSpuBase().GetIrqPending())
+			auto& core = m_core[i];
+			if(core->GetSpuBase().GetIrqPending())
 			{
 				result |= (1 << (i + 2));
+				core->GetSpuBase().ClearIrqPending();
 			}
 		}
 		break;
