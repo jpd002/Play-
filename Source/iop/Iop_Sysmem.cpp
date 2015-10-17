@@ -12,7 +12,7 @@ using namespace Iop;
 #define FUNCTION_QUERYMEMSIZE			"QueryMemSize"
 #define FUNCTION_QUERYMAXFREEMEMSIZE	"QueryMaxFreeMemSize"
 
-#define MIN_BLOCK_SIZE  0x20
+#define MIN_BLOCK_SIZE  0x100
 
 CSysmem::CSysmem(uint8* ram, uint32 memoryBegin, uint32 memoryEnd, uint32 blockBase, CStdio& stdio, CIoman& ioman, CSifMan& sifMan)
 : m_iopRam(ram)
