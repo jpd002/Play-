@@ -196,6 +196,11 @@ private:
 		DEFAULT_PRIORITY = 64,
 	};
 
+	enum MODULE_INIT_PRIORITY
+	{
+		MODULE_INIT_PRIORITY = 8,
+	};
+
 	enum class MODULE_STATE : uint32
 	{
 		STOPPED,

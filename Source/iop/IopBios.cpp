@@ -335,7 +335,7 @@ void CIopBios::InitializeModuleStarter()
 		moduleStartRequest->nextPtr = reinterpret_cast<uint8*>(moduleStartRequest + 1) - m_ram;
 	}
 
-	m_moduleStarterThreadId = CreateThread(m_moduleStarterThreadProcAddress, DEFAULT_PRIORITY, DEFAULT_STACKSIZE, 0);
+	m_moduleStarterThreadId = CreateThread(m_moduleStarterThreadProcAddress, MODULE_INIT_PRIORITY, DEFAULT_STACKSIZE, 0);
 	StartThread(m_moduleStarterThreadId, 0);
 }
 
