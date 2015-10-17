@@ -1792,7 +1792,7 @@ int32 CIopBios::RegisterIntrHandler(uint32 line, uint32 mode, uint32 handler, ui
 		return KERNEL_RESULT_ERROR_FOUND_HANDLER;
 	}
 
-	if(line >= Iop::CIntc::LINE_MAX)
+	if(line >= Iop::CIntc::LINES_MAX)
 	{
 		return KERNEL_RESULT_ERROR_ILLEGAL_INTRCODE;
 	}
@@ -1815,7 +1815,7 @@ int32 CIopBios::RegisterIntrHandler(uint32 line, uint32 mode, uint32 handler, ui
 
 int32 CIopBios::ReleaseIntrHandler(uint32 line)
 {
-	if(line >= Iop::CIntc::LINE_MAX)
+	if(line >= Iop::CIntc::LINES_MAX)
 	{
 		return KERNEL_RESULT_ERROR_ILLEGAL_INTRCODE;
 	}
