@@ -258,20 +258,24 @@ void Compile(const char* databasePathName, const char* cpuArchName, const char* 
 {
 	Jitter::CCodeGen* codeGen = nullptr;
 	Jitter::CObjectFile::CPU_ARCH cpuArch = Jitter::CObjectFile::CPU_ARCH_X86;
+	bool is64Bits = false;
 	if(!strcmp(cpuArchName, "x86"))
 	{
 		codeGen = new Jitter::CCodeGen_x86_32();
 		cpuArch = Jitter::CObjectFile::CPU_ARCH_X86;
+		is64Bits = false;
 	}
 	else if(!strcmp(cpuArchName, "arm"))
 	{
 		codeGen = new Jitter::CCodeGen_AArch32();
 		cpuArch = Jitter::CObjectFile::CPU_ARCH_ARM;
+		is64Bits = false;
 	}
 	else if(!strcmp(cpuArchName, "arm64"))
 	{
 		codeGen = new Jitter::CCodeGen_AArch64();
 		cpuArch = Jitter::CObjectFile::CPU_ARCH_ARM64;
+		is64Bits = true;
 	}
 	else
 	{
@@ -285,7 +289,14 @@ void Compile(const char* databasePathName, const char* cpuArchName, const char* 
 	}
 	else if(!strcmp(imageFormatName, "macho"))
 	{
-		objectFile = std::make_unique<Jitter::CMachoObjectFile>(cpuArch);
+		if(is64Bits)
+		{
+			objectFile = std::make_unique<Jitter::CMachoObjectFile64>(cpuArch);
+		}
+		else
+		{
+			objectFile = std::make_unique<Jitter::CMachoObjectFile32>(cpuArch);
+		}
 	}
 	else
 	{
@@ -347,7 +358,14 @@ void Compile(const char* databasePathName, const char* cpuArchName, const char* 
 				blockTableSymbol.symbolReferences.push_back(ref);
 			}
 
-			blockTableStream.Write32(0);
+			if(is64Bits)
+			{
+				blockTableStream.Write64(0);
+			}
+			else
+			{
+				blockTableStream.Write32(0);
+			}
 		}
 
 		blockTableSymbol.data = std::vector<uint8>(blockTableStream.GetBuffer(), blockTableStream.GetBuffer() + blockTableStream.GetLength());
