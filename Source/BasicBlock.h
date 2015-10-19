@@ -33,6 +33,7 @@ struct AOT_BLOCK_KEY
 		}
 	}
 };
+static_assert(sizeof(AOT_BLOCK_KEY) == 0x0C, "AOT_BLOCK_KEY must be 12 bytes long.");
 
 namespace Jitter
 {
