@@ -273,7 +273,9 @@ void Compile(const char* databasePathName, const char* cpuArchName, const char* 
 	}
 	else if(!strcmp(cpuArchName, "arm64"))
 	{
-		codeGen = new Jitter::CCodeGen_AArch64();
+		auto generator = new Jitter::CCodeGen_AArch64();
+		generator->SetGenerateRelocatableCalls(true);
+		codeGen = generator;
 		cpuArch = Jitter::CObjectFile::CPU_ARCH_ARM64;
 		is64Bits = true;
 	}
