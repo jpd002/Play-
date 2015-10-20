@@ -291,6 +291,11 @@ bool CSpuBase::GetIrqPending() const
 	return m_irqPending;
 }
 
+void CSpuBase::ClearIrqPending()
+{
+	m_irqPending = false;
+}
+
 uint32 CSpuBase::GetIrqAddress() const
 {
 	return m_irqAddr;

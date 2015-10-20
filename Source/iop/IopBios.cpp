@@ -335,7 +335,7 @@ void CIopBios::InitializeModuleStarter()
 		moduleStartRequest->nextPtr = reinterpret_cast<uint8*>(moduleStartRequest + 1) - m_ram;
 	}
 
-	m_moduleStarterThreadId = CreateThread(m_moduleStarterThreadProcAddress, DEFAULT_PRIORITY, DEFAULT_STACKSIZE, 0);
+	m_moduleStarterThreadId = CreateThread(m_moduleStarterThreadProcAddress, MODULE_INIT_PRIORITY, DEFAULT_STACKSIZE, 0);
 	StartThread(m_moduleStarterThreadId, 0);
 }
 
@@ -788,16 +788,7 @@ int32 CIopBios::StartThread(uint32 threadId, uint32 param)
 	thread->context.gpr[CMIPS::RA] = m_threadFinishAddress;
 	thread->context.gpr[CMIPS::SP] = thread->stackBase + thread->stackSize - STACK_FRAME_RESERVE_SIZE;
 
-	// If the thread we are starting is the same priority or lower than the current one, do yield.
-	// If may be that the correct action is never to yield - the docs aren't really clear.
-	// INET.IRX (from Champions: Return to Arms) depends on startThread not yielding when starting a 
-	// thread of the same priority.
-	auto currentThread = GetThread(CurrentThreadId());
-	if((currentThread == nullptr) || (currentThread->priority < thread->priority))
-	{
-		m_rescheduleNeeded = true;
-	}
-
+	m_rescheduleNeeded = true;
 	return 0;
 }
 
@@ -845,12 +836,7 @@ int32 CIopBios::StartThreadArgs(uint32 threadId, uint32 args, uint32 argpPtr)
 
 	thread->context.gpr[CMIPS::SP] -= STACK_FRAME_RESERVE_SIZE;
 
-	auto currentThread = GetThread(CurrentThreadId());
-	if((currentThread == nullptr) || (currentThread->priority < thread->priority))
-	{
-		m_rescheduleNeeded = true;
-	}
-
+	m_rescheduleNeeded = true;
 	return 0;
 }
 
@@ -980,7 +966,7 @@ uint32 CIopBios::CancelAlarm(uint32 alarmFunction, uint32 param)
 	if(alarmThreadId == -1)
 	{
 		// handler not registered
-		return -105;
+		return KERNEL_RESULT_ERROR_NOTFOUND_HANDLER;
 	}
 
 	TerminateThread(alarmThreadId);
@@ -1023,18 +1009,40 @@ uint32 CIopBios::ReferThreadStatus(uint32 threadId, uint32 statusPtr)
 		threadId = GetCurrentThreadId();
 	}
 
-	THREAD* thread = GetThread(threadId);
-	assert(thread != NULL);
-
-	if(thread == NULL)
+	auto thread = m_threads[threadId];
+	assert(thread);
+	if(!thread)
 	{
-		return -1;
+		return KERNEL_RESULT_ERROR_UNKNOWN_THID;
 	}
 
 	uint32 threadStatus = 0;
-	if(thread->status == THREAD_STATUS_DORMANT)
+	switch(thread->status)
 	{
-		threadStatus |= 0x10;
+	case THREAD_STATUS_DORMANT:
+		threadStatus = 0x10;
+		break;
+	case THREAD_STATUS_SLEEPING:
+	case THREAD_STATUS_WAITING_MESSAGEBOX:
+	case THREAD_STATUS_WAITING_EVENTFLAG:
+	case THREAD_STATUS_WAITING_SEMAPHORE:
+	case THREAD_STATUS_WAIT_VBLANK_START:
+	case THREAD_STATUS_WAIT_VBLANK_END:
+		threadStatus = 0x04;
+		break;
+	case THREAD_STATUS_RUNNING:
+		if(threadId == GetCurrentThreadId())
+		{
+			threadStatus = 0x01;
+		}
+		else
+		{
+			threadStatus = 0x02;
+		}
+		break;
+	default:
+		threadStatus = 0;
+		break;
 	}
 
 	reinterpret_cast<uint32*>(m_ram + statusPtr)[THREAD_INFO_ATTRIBUTE]		= 0;
@@ -1046,7 +1054,7 @@ uint32 CIopBios::ReferThreadStatus(uint32 threadId, uint32 statusPtr)
 	reinterpret_cast<uint32*>(m_ram + statusPtr)[THREAD_INFO_INITPRIORITY]	= thread->initPriority;
 	reinterpret_cast<uint32*>(m_ram + statusPtr)[THREAD_INFO_PRIORITY]		= thread->priority;
 
-	return 0;
+	return KERNEL_RESULT_OK;
 }
 
 void CIopBios::SleepThread()
@@ -1776,35 +1784,56 @@ Iop::CCdvdfsv* CIopBios::GetCdvdfsv()
 
 #endif
 
-bool CIopBios::RegisterIntrHandler(uint32 line, uint32 mode, uint32 handler, uint32 arg)
+int32 CIopBios::RegisterIntrHandler(uint32 line, uint32 mode, uint32 handler, uint32 arg)
 {
 	assert(FindIntrHandler(line) == -1);
+	if(FindIntrHandler(line) != -1)
+	{
+		return KERNEL_RESULT_ERROR_FOUND_HANDLER;
+	}
+
+	if(line >= Iop::CIntc::LINES_MAX)
+	{
+		return KERNEL_RESULT_ERROR_ILLEGAL_INTRCODE;
+	}
+
+	//Registering a null handler is a no-op
+	if(handler == 0)
+	{
+		return KERNEL_RESULT_OK;
+	}
 
 	uint32 handlerId = m_intrHandlers.Allocate();
 	assert(handlerId != -1);
 	if(handlerId == -1)
 	{
-		return false;
+		return KERNEL_RESULT_ERROR;
 	}
 
-	INTRHANDLER* intrHandler = m_intrHandlers[handlerId];
+	auto intrHandler = m_intrHandlers[handlerId];
 	intrHandler->line		= line;
 	intrHandler->mode		= mode;
 	intrHandler->handler	= handler;
 	intrHandler->arg		= arg;
 
-	return true;
+	return KERNEL_RESULT_OK;
 }
 
-bool CIopBios::ReleaseIntrHandler(uint32 line)
+int32 CIopBios::ReleaseIntrHandler(uint32 line)
 {
+	if(line >= Iop::CIntc::LINES_MAX)
+	{
+		return KERNEL_RESULT_ERROR_ILLEGAL_INTRCODE;
+	}
+
 	uint32 handlerId = FindIntrHandler(line);
 	if(handlerId == -1)
 	{
-		return false;
+		return KERNEL_RESULT_ERROR_NOTFOUND_HANDLER;
 	}
+
 	m_intrHandlers.Free(handlerId);
-	return true;
+	return KERNEL_RESULT_OK;
 }
 
 uint32 CIopBios::FindIntrHandler(uint32 line)

@@ -1,21 +1,19 @@
 package com.virtualapplications.play.database;
 
 import java.io.File;
+import java.io.InputStream;
 import java.io.IOException;
 import java.io.StringReader;
 import java.io.UnsupportedEncodingException;
+import java.net.URL;
 import java.net.URLEncoder;
+import java.net.HttpURLConnection;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpResponse;
-import org.apache.http.client.ClientProtocolException;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.util.EntityUtils;
+import org.apache.commons.io.IOUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -32,8 +30,10 @@ import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.StrictMode;
+import android.util.Log;
 import android.view.View;
 
+import com.virtualapplications.play.Constants;
 import com.virtualapplications.play.GameInfoStruct;
 import com.virtualapplications.play.R;
 import com.virtualapplications.play.database.SqliteHelper.Games;
@@ -80,13 +80,12 @@ public class GamesDbAPI extends AsyncTask<File, Integer, Document> {
 		
 		if (GamesDbAPI.isNetworkAvailable(mContext)) {
 			try {
-				DefaultHttpClient httpClient = new DefaultHttpClient();
-				HttpPost httpPost;
+				URL requestUrl;
 				if (params[0] != null) {
 					gameFile = params[0];
 					String filename = gameFile.getName();
 					if (gameID != null) {
-						httpPost = new HttpPost(games_url_id + gameID);
+						requestUrl = new URL(games_url_id + gameID);
 					} else {
 						elastic = true;
 						filename = filename.substring(0, filename.lastIndexOf("."));
@@ -95,22 +94,30 @@ public class GamesDbAPI extends AsyncTask<File, Integer, Document> {
 						} catch (UnsupportedEncodingException e) {
 							filename = filename.replace(" ", "+");
 						}
-						httpPost = new HttpPost(games_url + filename);
+						requestUrl = new URL(games_url + filename);
 					}
 				} else {
-					httpPost = new HttpPost(games_list);
+					requestUrl = new URL(games_list);
 				}
-				HttpResponse httpResponse = httpClient.execute(httpPost);
-				HttpEntity httpEntity = httpResponse.getEntity();
-				String gameData =  EntityUtils.toString(httpEntity);
-				if (gameData != null) {
+				HttpURLConnection urlConnection = (HttpURLConnection)requestUrl.openConnection();
+				urlConnection.setRequestMethod("POST");
+				try 
+				{
+					InputStream inputStream = urlConnection.getInputStream();
+					String gameData = IOUtils.toString(inputStream, "UTF-8");
 					return getDomElement(gameData);
-				} else {
+				}
+				catch(Exception ex)
+				{
+					Log.w(Constants.TAG, String.format("Failed to obtain information: %s", ex.toString()));
 					return null;
 				}
+				finally 
+				{
+					urlConnection.disconnect();
+				}
+				
 			} catch (UnsupportedEncodingException e) {
-
-			} catch (ClientProtocolException e) {
 
 			} catch (IOException e) {
 

@@ -10,6 +10,7 @@ import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.database.sqlite.SQLiteQueryBuilder;
+import android.database.sqlite.SQLiteStatement;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -31,27 +32,27 @@ import com.virtualapplications.play.database.SqliteHelper.Games;
 import com.virtualapplications.play.database.SqliteHelper.Covers;
 
 public class TheGamesDB extends ContentProvider {
-	
+
 	// Database Name
 	private static final String DATABASE_NAME = "games.db";
 
     // Database Version
     private static final int DATABASE_VERSION = 2;
-	
+
 	public static final String SQLITE_ID = "_id";
 
 	private static final UriMatcher sUriMatcher;
-	
+
 	private static final int GAMES = 1;
 	private static final int GAMESID = 2;
 	private static final int COVERS = 3;
 	private static final int COVERSID = 4;
-	
+
 	private static HashMap<String, String> gamesMap;
 	private static HashMap<String, String> coversMap;
-	
+
 	private static Context mContext;
-	
+
 	private static class DatabaseHelper extends SQLiteOpenHelper {
 
 		DatabaseHelper(Context context) {
@@ -68,14 +69,14 @@ public class TheGamesDB extends ContentProvider {
 					   + Games.KEY_OVERVIEW + " VARCHAR(255),"
 					   + Games.KEY_SERIAL + " VARCHAR(255),"
 					   + Games.KEY_BOXART + " VARCHAR(255)"+ ");");
-			
+
 			db.execSQL("CREATE TABLE " + Covers.TABLE_NAME + " ("
 					   + Covers.TABLE_ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
 					   + Covers.KEY_SERIAL + " VARCHAR(255),"
 					   + Covers.KEY_DISK + " VARCHAR(255),"
 					   + Covers.KEY_IMAGE + " VARCHAR(255)"+ ");");
 		}
-		
+
 		@Override
 		public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
 			Log.w("PlayDB", "Upgrading database from version " + oldVersion + " to "
@@ -85,13 +86,13 @@ public class TheGamesDB extends ContentProvider {
 			onCreate(db);
 		}
 	}
-	
+
 	private DatabaseHelper dbHelper;
 
     /**
      * All CRUD(Create, Read, Update, Delete) Operations
      */
-	
+
 	@Override
 	public Bundle call(String method, String arg, Bundle extras) {
 		SQLiteDatabase db = dbHelper.getWritableDatabase();
@@ -102,16 +103,79 @@ public class TheGamesDB extends ContentProvider {
 		}
 		return null;
 	}
-	
+
 	public int dbLength() {
 		Cursor c = getContext().getContentResolver().query(Games.GAMES_URI, null, null, null, null);
 		return c.getCount();
 	}
-	
+
+	@Override
+	public int bulkInsert(Uri uri, ContentValues values[]) {
+		SQLiteDatabase db = dbHelper.getWritableDatabase();
+
+		String TABLE_NAME;
+		switch (sUriMatcher.match(uri)) {
+			case GAMES:
+			case GAMESID:
+				TABLE_NAME = Games.TABLE_NAME;
+				break;
+			case COVERS:
+			case COVERSID:
+				throw new IllegalArgumentException("URI is not Implemented to work with bulkInsert() yet.");
+			default:
+				throw new IllegalArgumentException("Unknown URI " + uri);
+		}
+
+		db.beginTransaction();
+		SQLiteStatement stmt = db.compileStatement("INSERT INTO "+ TABLE_NAME + "(" +Games.KEY_GAMEID + " ," + Games.KEY_TITLE + "," + Games.KEY_OVERVIEW + "," + Games.KEY_SERIAL + "," + Games.KEY_BOXART + ") VALUES(?,?,?,?,?)");
+
+		int numInserted = 0;
+		try {
+			int len = values.length;
+			for (ContentValues value : values) {
+
+				String KEY_GAMEID = (String)(value.get(Games.KEY_GAMEID));
+				if (KEY_GAMEID != null) {
+					stmt.bindString(1, KEY_GAMEID);
+				}
+
+				String KEY_TITLE = (String)(value.get(Games.KEY_TITLE));
+				if (KEY_TITLE != null) {
+					stmt.bindString(2, KEY_TITLE);
+				}
+
+				String KEY_OVERVIEW = (String)(value.get(Games.KEY_OVERVIEW));
+				if (KEY_OVERVIEW != null) {
+					stmt.bindString(3, KEY_OVERVIEW);
+				}
+
+				String KEY_SERIAL = (String)(value.get(Games.KEY_SERIAL));
+				if (KEY_SERIAL != null) {
+					stmt.bindString(4, KEY_SERIAL);
+				}
+
+				String KEY_BOXART = (String)(value.get(Games.KEY_BOXART));
+				if (KEY_BOXART != null) {
+					stmt.bindString(5, KEY_BOXART);
+				}
+
+				stmt.execute();
+				stmt.clearBindings();
+			}
+			numInserted = len;
+			db.setTransactionSuccessful();
+		} finally {
+			db.endTransaction();
+			stmt.close();
+		}
+		getContext().getContentResolver().notifyChange(uri, null);
+		return numInserted;
+	}
+
 	public class importDb extends AsyncTask<String, Integer, String> {
-		
+
 		private String DATABASE_PATH;
-		
+
 		protected void onPreExecute() {
 			DATABASE_PATH = mContext.getFilesDir().getAbsolutePath();
 			byte[] buffer = new byte[1024];
@@ -129,20 +193,21 @@ public class TheGamesDB extends ContentProvider {
 				mOutput.close();
 				mOutput.flush();
 				mInput.close();
-				
+
 			}
 			catch(IOException e)
 			{
 				e.printStackTrace();
 			}
 		}
-		
+
 		@Override
 		protected String doInBackground(String... params) {
 			try {
 				SQLiteDatabase source = SQLiteDatabase.openDatabase(DATABASE_PATH
-					+ "/" + DATABASE_NAME, null, SQLiteDatabase.OPEN_READWRITE);
+						+ "/" + DATABASE_NAME, null, SQLiteDatabase.OPEN_READWRITE);
 				Cursor c = source.rawQuery("SELECT * FROM " + Games.TABLE_NAME, null);
+				List<ContentValues> games = new ArrayList<>();
 				if (c.moveToFirst()) {
 					do {
 						ContentValues game = new ContentValues();
@@ -151,17 +216,18 @@ public class TheGamesDB extends ContentProvider {
 						game.put(Games.KEY_OVERVIEW, c.getString(c.getColumnIndex(Games.KEY_OVERVIEW)));
 						game.put(Games.KEY_SERIAL, c.getString(c.getColumnIndex(Games.KEY_SERIAL)));
 						game.put(Games.KEY_BOXART, c.getString(c.getColumnIndex(Games.KEY_BOXART)));
-						getContext().getContentResolver().insert(Games.GAMES_URI, game);
+						games.add(game);
 					} while (c.moveToNext());
 				}
 				c.close();
 				source.close();
-			} catch (SQLException ex) {
+				getContext().getContentResolver().bulkInsert(Games.GAMES_URI, games.toArray(new ContentValues[games.size()]));
+			} catch (SQLException ex)  {
 				ex.printStackTrace();
 			}
 			return null;
 		}
-		
+
 		@Override
 		protected void onPostExecute(String result) {
 			File tempDb = new File (DATABASE_PATH, DATABASE_NAME);
@@ -201,11 +267,11 @@ public class TheGamesDB extends ContentProvider {
 			default:
 				throw new IllegalArgumentException("Unknown URI " + uri);
 		}
-		
+
 		getContext().getContentResolver().notifyChange(uri, null);
 		return count;
 	}
-	
+
 	@Override
 	public String getType(Uri uri) {
 		switch (sUriMatcher.match(uri)) {
@@ -221,7 +287,7 @@ public class TheGamesDB extends ContentProvider {
 				throw new IllegalArgumentException("Unknown URI " + uri);
 		}
 	}
-	
+
 	@Override
 	public Uri insert(Uri uri, ContentValues initialValues) {
 		ContentValues values;
@@ -251,18 +317,18 @@ public class TheGamesDB extends ContentProvider {
 		}
 		throw new IllegalArgumentException("Unknown URI " + uri);
 	}
-	
+
 	@Override
 	public boolean onCreate() {
 		dbHelper = new DatabaseHelper(getContext());
 		return true;
 	}
-	
+
 	@Override
 	public Cursor query(Uri uri, String[] projection, String selection,
 						String[] selectionArgs, String sortOrder) {
 		SQLiteQueryBuilder qb = new SQLiteQueryBuilder();
-		
+
 		switch (sUriMatcher.match(uri)) {
 			case GAMES:
 				qb.setTables(Games.TABLE_NAME);
@@ -275,15 +341,15 @@ public class TheGamesDB extends ContentProvider {
 			default:
 				throw new IllegalArgumentException("Unknown URI " + uri);
 		}
-		
+
 		SQLiteDatabase db = dbHelper.getReadableDatabase();
 		Cursor c = qb.query(db, projection, selection, selectionArgs, null,
 							null, sortOrder);
-		
+
 		c.setNotificationUri(getContext().getContentResolver(), uri);
 		return c;
 	}
-	
+
 	@Override
 	public int update(Uri uri, ContentValues values, String where,
 					  String[] whereArgs) {
@@ -313,16 +379,16 @@ public class TheGamesDB extends ContentProvider {
 			default:
 				throw new IllegalArgumentException("Unknown URI " + uri);
 		}
-		
+
 		getContext().getContentResolver().notifyChange(uri, null);
 		return count;
 	}
-	
+
 	static {
 		sUriMatcher = new UriMatcher(UriMatcher.NO_MATCH);
-		
+
 		sUriMatcher.addURI(Games.AUTHORITY, Games.TABLE_NAME, GAMES);
-		
+
 		gamesMap = new HashMap<String, String>();
 		gamesMap.put(Games.TABLE_ID, Games.TABLE_ID);
 		gamesMap.put(Games.KEY_GAMEID, Games.KEY_GAMEID);
@@ -330,19 +396,19 @@ public class TheGamesDB extends ContentProvider {
 		gamesMap.put(Games.KEY_OVERVIEW, Games.KEY_OVERVIEW);
 		gamesMap.put(Games.KEY_SERIAL, Games.KEY_SERIAL);
 		gamesMap.put(Games.KEY_BOXART, Games.KEY_BOXART);
-		
+
 		sUriMatcher.addURI(Games.AUTHORITY, Games.TABLE_NAME + "/#", GAMESID);
-		
+
 		sUriMatcher.addURI(Covers.AUTHORITY, Covers.TABLE_NAME, COVERS);
-		
+
 		coversMap = new HashMap<String, String>();
 		coversMap.put(Covers.TABLE_ID, Covers.TABLE_ID);
 		coversMap.put(Covers.KEY_SERIAL, Covers.KEY_SERIAL);
 		coversMap.put(Covers.KEY_DISK, Covers.KEY_DISK);
 		coversMap.put(Covers.KEY_IMAGE, Covers.KEY_IMAGE);
-		
+
 		sUriMatcher.addURI(Covers.AUTHORITY, Covers.TABLE_NAME + "/#", COVERSID);
-		
+
 	}
 
 }

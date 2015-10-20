@@ -49,11 +49,12 @@ void CIconMesh::Render() const
 
 		for(unsigned int j = 0; j < m_frameInfluences.size(); j++)
 		{
-			const FRAMEINFLUENCE& influence(m_frameInfluences[j]);
-			const CIcon::VERTEX* pShape = m_icon->GetShape(influence.shapeId);
-			totalX += pShape[i].nX * influence.amplitude;
-			totalY += pShape[i].nY * influence.amplitude;
-			totalZ += pShape[i].nZ * influence.amplitude;
+			const auto& influence(m_frameInfluences[j]);
+			auto shape = m_icon->GetShape(influence.shapeId);
+			if(!shape) continue;
+			totalX += shape[i].nX * influence.amplitude;
+			totalY += shape[i].nY * influence.amplitude;
+			totalZ += shape[i].nZ * influence.amplitude;
 		}
 
 		glVertex3f(totalX, totalY, totalZ);
@@ -114,8 +115,13 @@ void CIconMesh::ComputeFrameInfluences()
 
 		if(frameAmp != 0)
 		{
+			//GTA San Andreas' icon references an invalid shape id.
+			//If it's invalid, reference the first shape
+			uint32 shapeId = frame->nShapeId;
+			if(shapeId >= m_icon->GetShapeCount()) shapeId = 0;
+
 			FRAMEINFLUENCE influence;
-			influence.shapeId = frame->nShapeId;
+			influence.shapeId = shapeId;
 			influence.amplitude = frameAmp;
 			m_frameInfluences.push_back(influence);
 		}

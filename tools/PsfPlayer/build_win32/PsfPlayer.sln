@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2013
-VisualStudioVersion = 12.0.31101.0
+# Visual Studio 14
+VisualStudioVersion = 14.0.23107.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PsfPlayer", "PsfPlayer.vcxproj", "{06CD8F2E-F93C-4DE3-8100-C74290578573}"
 	ProjectSection(ProjectDependencies) = postProject
@@ -25,6 +25,8 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Dependencies", "Dependencies", "{3223C0FB-153B-4C2A-AE52-3BED2FBCEED9}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "unrarsrc-5.2.5", "..\..\..\..\Dependencies\build_win32\unrarsrc-5.2.5.vcxproj", "{28F9E5B7-74EB-4DAA-A7C0-E09D2FF43291}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "zlib-1.2.8", "..\..\..\..\Dependencies\build_win32\zlib-1.2.8.vcxproj", "{55FA4E66-2FBB-4165-A9CA-D126D13879BD}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -200,11 +202,32 @@ Global
 		{28F9E5B7-74EB-4DAA-A7C0-E09D2FF43291}.ReleaseAot|Win32.Build.0 = Release|Win32
 		{28F9E5B7-74EB-4DAA-A7C0-E09D2FF43291}.ReleaseAot|x64.ActiveCfg = Release|x64
 		{28F9E5B7-74EB-4DAA-A7C0-E09D2FF43291}.ReleaseAot|x64.Build.0 = Release|x64
+		{55FA4E66-2FBB-4165-A9CA-D126D13879BD}.Debug|Win32.ActiveCfg = Debug|Win32
+		{55FA4E66-2FBB-4165-A9CA-D126D13879BD}.Debug|Win32.Build.0 = Debug|Win32
+		{55FA4E66-2FBB-4165-A9CA-D126D13879BD}.Debug|x64.ActiveCfg = Debug|x64
+		{55FA4E66-2FBB-4165-A9CA-D126D13879BD}.Debug|x64.Build.0 = Debug|x64
+		{55FA4E66-2FBB-4165-A9CA-D126D13879BD}.DebugAot|Win32.ActiveCfg = Debug|Win32
+		{55FA4E66-2FBB-4165-A9CA-D126D13879BD}.DebugAot|Win32.Build.0 = Debug|Win32
+		{55FA4E66-2FBB-4165-A9CA-D126D13879BD}.DebugAot|x64.ActiveCfg = Debug|x64
+		{55FA4E66-2FBB-4165-A9CA-D126D13879BD}.DebugAot|x64.Build.0 = Debug|x64
+		{55FA4E66-2FBB-4165-A9CA-D126D13879BD}.DebugWithDebugger|Win32.ActiveCfg = Debug|Win32
+		{55FA4E66-2FBB-4165-A9CA-D126D13879BD}.DebugWithDebugger|Win32.Build.0 = Debug|Win32
+		{55FA4E66-2FBB-4165-A9CA-D126D13879BD}.DebugWithDebugger|x64.ActiveCfg = Debug|x64
+		{55FA4E66-2FBB-4165-A9CA-D126D13879BD}.DebugWithDebugger|x64.Build.0 = Debug|x64
+		{55FA4E66-2FBB-4165-A9CA-D126D13879BD}.Release|Win32.ActiveCfg = Release|Win32
+		{55FA4E66-2FBB-4165-A9CA-D126D13879BD}.Release|Win32.Build.0 = Release|Win32
+		{55FA4E66-2FBB-4165-A9CA-D126D13879BD}.Release|x64.ActiveCfg = Release|x64
+		{55FA4E66-2FBB-4165-A9CA-D126D13879BD}.Release|x64.Build.0 = Release|x64
+		{55FA4E66-2FBB-4165-A9CA-D126D13879BD}.ReleaseAot|Win32.ActiveCfg = Release|Win32
+		{55FA4E66-2FBB-4165-A9CA-D126D13879BD}.ReleaseAot|Win32.Build.0 = Release|Win32
+		{55FA4E66-2FBB-4165-A9CA-D126D13879BD}.ReleaseAot|x64.ActiveCfg = Release|x64
+		{55FA4E66-2FBB-4165-A9CA-D126D13879BD}.ReleaseAot|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{28F9E5B7-74EB-4DAA-A7C0-E09D2FF43291} = {3223C0FB-153B-4C2A-AE52-3BED2FBCEED9}
+		{55FA4E66-2FBB-4165-A9CA-D126D13879BD} = {3223C0FB-153B-4C2A-AE52-3BED2FBCEED9}
 	EndGlobalSection
 EndGlobal

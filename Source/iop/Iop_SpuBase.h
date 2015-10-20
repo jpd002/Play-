@@ -168,6 +168,7 @@ namespace Iop
 		void			SetBaseSamplingRate(uint32);
 
 		bool			GetIrqPending() const;
+		void			ClearIrqPending();
 
 		uint32			GetIrqAddress() const;
 		void			SetIrqAddress(uint32);

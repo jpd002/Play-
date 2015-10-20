@@ -308,6 +308,7 @@
     <ClInclude Include="..\Source\saves\SaveImporter.h" />
     <ClInclude Include="..\Source\saves\SaveImporterBase.h" />
     <ClInclude Include="..\Source\saves\XpsSaveImporter.h" />
+    <ClInclude Include="..\Source\SifDefs.h" />
     <ClInclude Include="..\Source\StructCollectionStateFile.h" />
     <ClInclude Include="..\Source\StructFile.h" />
     <ClInclude Include="..\Source\uint128.h" />
