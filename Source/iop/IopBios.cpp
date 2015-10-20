@@ -1797,6 +1797,12 @@ int32 CIopBios::RegisterIntrHandler(uint32 line, uint32 mode, uint32 handler, ui
 		return KERNEL_RESULT_ERROR_ILLEGAL_INTRCODE;
 	}
 
+	//Registering a null handler is a no-op
+	if(handler == 0)
+	{
+		return KERNEL_RESULT_OK;
+	}
+
 	uint32 handlerId = m_intrHandlers.Allocate();
 	assert(handlerId != -1);
 	if(handlerId == -1)
