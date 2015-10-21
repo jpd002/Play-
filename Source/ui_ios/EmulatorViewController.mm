@@ -42,10 +42,13 @@ CPS2VM* g_virtualMachine = nullptr;
     [self.view addSubview:self.iCadeReader];
     self.iCadeReader.delegate = self;
     self.iCadeReader.active = YES;
-	
+}
+
+-(void)viewDidAppear: (BOOL)animated
+{
 	g_virtualMachine = new CPS2VM();
 	g_virtualMachine->Initialize();
-	g_virtualMachine->CreateGSHandler(CGSH_OpenGLiOS::GetFactoryFunction((CAEAGLLayer*)view.layer));
+	g_virtualMachine->CreateGSHandler(CGSH_OpenGLiOS::GetFactoryFunction((CAEAGLLayer*)self.view.layer));
 
 	g_virtualMachine->Pause();
 	g_virtualMachine->Reset();
@@ -182,6 +185,11 @@ CPS2VM* g_virtualMachine = nullptr;
 -(BOOL)prefersStatusBarHidden
 {
 	return YES;
+}
+
+-(UIInterfaceOrientationMask)supportedInterfaceOrientations
+{
+	return UIInterfaceOrientationMaskLandscape;
 }
 
 - (void)dealloc
