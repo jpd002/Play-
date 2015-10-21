@@ -163,6 +163,7 @@
 		70AD23951B39199300137AA0 /* MaxSaveImporter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 70AD238F1B39199300137AA0 /* MaxSaveImporter.cpp */; };
 		70AD23961B39199300137AA0 /* PsuSaveImporter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 70AD23911B39199300137AA0 /* PsuSaveImporter.cpp */; };
 		70AD23971B39199300137AA0 /* XpsSaveImporter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 70AD23931B39199300137AA0 /* XpsSaveImporter.cpp */; };
+		70B1833C1BD7D40900EAEB9B /* VirtualPad.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 70B1833A1BD7D40900EAEB9B /* VirtualPad.cpp */; settings = {ASSET_TAGS = (); }; };
 		874ECDA41B7D980C000075B6 /* boxart.png in Resources */ = {isa = PBXBuildFile; fileRef = 874ECDA21B7D980C000075B6 /* boxart.png */; };
 		874ECDA61B7DB0F6000075B6 /* SqliteDatabase.m in Sources */ = {isa = PBXBuildFile; fileRef = 874ECDA51B7DB0F6000075B6 /* SqliteDatabase.m */; };
 		874ECDAA1B7DB862000075B6 /* libsqlite3.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 874ECDA91B7DB862000075B6 /* libsqlite3.dylib */; };
@@ -518,6 +519,8 @@
 		70AD23921B39199300137AA0 /* PsuSaveImporter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PsuSaveImporter.h; path = ../Source/saves/PsuSaveImporter.h; sourceTree = "<group>"; };
 		70AD23931B39199300137AA0 /* XpsSaveImporter.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = XpsSaveImporter.cpp; path = ../Source/saves/XpsSaveImporter.cpp; sourceTree = "<group>"; };
 		70AD23941B39199300137AA0 /* XpsSaveImporter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = XpsSaveImporter.h; path = ../Source/saves/XpsSaveImporter.h; sourceTree = "<group>"; };
+		70B1833A1BD7D40900EAEB9B /* VirtualPad.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = VirtualPad.cpp; path = ../Source/VirtualPad.cpp; sourceTree = "<group>"; };
+		70B1833B1BD7D40900EAEB9B /* VirtualPad.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = VirtualPad.h; path = ../Source/VirtualPad.h; sourceTree = "<group>"; };
 		874ECDA21B7D980C000075B6 /* boxart.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = boxart.png; sourceTree = "<group>"; };
 		874ECDA51B7DB0F6000075B6 /* SqliteDatabase.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = SqliteDatabase.m; path = ../Source/ui_ios/SqliteDatabase.m; sourceTree = "<group>"; };
 		874ECDA71B7DB1C1000075B6 /* SqliteDatabase.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = SqliteDatabase.h; path = ../Source/ui_ios/SqliteDatabase.h; sourceTree = "<group>"; };
@@ -727,6 +730,8 @@
 				70834B521B1BD2C300E8D5C6 /* Utils.cpp */,
 				70834B531B1BD2C300E8D5C6 /* Utils.h */,
 				70834B541B1BD2C300E8D5C6 /* VirtualMachine.h */,
+				70B1833A1BD7D40900EAEB9B /* VirtualPad.cpp */,
+				70B1833B1BD7D40900EAEB9B /* VirtualPad.h */,
 			);
 			name = "Play Core";
 			sourceTree = "<group>";
@@ -1221,6 +1226,7 @@
 				70834C0C1B1BD6E000E8D5C6 /* GsPixelFormats.cpp in Sources */,
 				70834B601B1BD2C300E8D5C6 /* ElfFile.cpp in Sources */,
 				704E1C541B3BA25000C0ACE3 /* GSH_OpenGL_Texture.cpp in Sources */,
+				70B1833C1BD7D40900EAEB9B /* VirtualPad.cpp in Sources */,
 				70834C741B1BD70700E8D5C6 /* Iop_Ioman.cpp in Sources */,
 				70834C8D1B1BD70700E8D5C6 /* Iop_Timrman.cpp in Sources */,
 				70834C891B1BD70700E8D5C6 /* Iop_Thbase.cpp in Sources */,
