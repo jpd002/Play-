@@ -246,7 +246,7 @@ uint32 CSysmem::AllocateMemory(uint32 size, uint32 flags, uint32 wantedAddress)
 	}
 
 	assert(0);
-	return NULL;
+	return 0;
 }
 
 uint32 CSysmem::FreeMemory(uint32 address)
