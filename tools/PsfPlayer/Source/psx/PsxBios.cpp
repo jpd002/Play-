@@ -116,7 +116,7 @@ void CPsxBios::LoadExe(uint8* exe)
 		exe += exeHeader->textSize;
 
 #ifdef DEBUGGER_INCLUDED
-		m_cpu.m_pAnalysis->Analyse(realAddr, realAddr + exeHeader->textSize, m_cpu.m_State.nPC);
+		m_cpu.m_analysis->Analyse(realAddr, realAddr + exeHeader->textSize, m_cpu.m_State.nPC);
 #endif
 	}
 }
