@@ -60,9 +60,6 @@
 		70834B7D1B1BD2C300E8D5C6 /* StructCollectionStateFile.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 70834B4D1B1BD2C300E8D5C6 /* StructCollectionStateFile.cpp */; };
 		70834B7E1B1BD2C300E8D5C6 /* StructFile.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 70834B4F1B1BD2C300E8D5C6 /* StructFile.cpp */; };
 		70834B7F1B1BD2C300E8D5C6 /* Utils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 70834B521B1BD2C300E8D5C6 /* Utils.cpp */; };
-		70834B9A1B1BD3AC00E8D5C6 /* GeneralSettings.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = 70834B961B1BD3AC00E8D5C6 /* GeneralSettings.xcconfig */; };
-		70834B9B1B1BD3AC00E8D5C6 /* GeneralSettingsDebug.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = 70834B971B1BD3AC00E8D5C6 /* GeneralSettingsDebug.xcconfig */; };
-		70834B9C1B1BD3AC00E8D5C6 /* GeneralSettingsRelease.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = 70834B981B1BD3AC00E8D5C6 /* GeneralSettingsRelease.xcconfig */; };
 		70834BDD1B1BD6A300E8D5C6 /* COP_VU_Reflection.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 70834B9E1B1BD6A300E8D5C6 /* COP_VU_Reflection.cpp */; };
 		70834BDE1B1BD6A300E8D5C6 /* COP_VU.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 70834B9F1B1BD6A300E8D5C6 /* COP_VU.cpp */; };
 		70834BDF1B1BD6A300E8D5C6 /* Dmac_Channel.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 70834BA11B1BD6A300E8D5C6 /* Dmac_Channel.cpp */; };
@@ -1111,15 +1108,12 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				70834B9A1B1BD3AC00E8D5C6 /* GeneralSettings.xcconfig in Resources */,
 				70603E1F1B60A94400935E3C /* Images.xcassets in Resources */,
-				70834B9B1B1BD3AC00E8D5C6 /* GeneralSettingsDebug.xcconfig in Resources */,
 				70834AF41B1BCB9E00E8D5C6 /* Main.storyboard in Resources */,
 				70834AF31B1BCB9E00E8D5C6 /* LaunchScreen.xib in Resources */,
 				874ECDA41B7D980C000075B6 /* boxart.png in Resources */,
 				874ECDAC1B7DB9EB000075B6 /* games.db in Resources */,
 				70834AEA1B1BCB0100E8D5C6 /* Info.plist in Resources */,
-				70834B9C1B1BD3AC00E8D5C6 /* GeneralSettingsRelease.xcconfig in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
