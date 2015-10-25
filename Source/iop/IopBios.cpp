@@ -667,6 +667,17 @@ int32 CIopBios::SearchModuleByName(const char* moduleName) const
 
 void CIopBios::ProcessModuleReset(const std::string& imagePath)
 {
+	unsigned int imageVersion = 1000;
+	bool found = TryGetImageVersionFromPath(imagePath, &imageVersion);
+	if(!found) found = TryGetImageVersionFromContents(imagePath, &imageVersion);
+	assert(found);
+#ifdef _IOP_EMULATE_MODULES
+	m_fileIo->SetModuleVersion(imageVersion);
+#endif
+}
+
+bool CIopBios::TryGetImageVersionFromPath(const std::string& imagePath, unsigned int* result)
+{
 	struct IMAGE_FILE_PATTERN
 	{
 		const char* start;
@@ -678,12 +689,12 @@ void CIopBios::ProcessModuleReset(const std::string& imagePath)
 		{	"DNAS",		"DNAS%d.IMG;1"		}
 	};
 
-	unsigned int imageVersion = 1000;
 	for(const auto imageFilePattern : g_imageFilePatterns)
 	{
 		auto imageFileName = strstr(imagePath.c_str(), imageFilePattern.start);
 		if(imageFileName != nullptr)
 		{
+			unsigned int imageVersion = 0;
 			auto cvtCount = sscanf(imageFileName, imageFilePattern.pattern, &imageVersion);
 			if(cvtCount == 1)
 			{
@@ -695,13 +706,49 @@ void CIopBios::ProcessModuleReset(const std::string& imagePath)
 				{
 					imageVersion = imageVersion * 10;
 				}
-				break;
+				if(result)
+				{
+					(*result) = imageVersion;
+				}
+				return true;
 			}
 		}
 	}
-#ifdef _IOP_EMULATE_MODULES
-	m_fileIo->SetModuleVersion(imageVersion);
-#endif
+	return false;
+}
+
+bool CIopBios::TryGetImageVersionFromContents(const std::string& imagePath, unsigned int* result)
+{
+	//Format of imagePath can be something like 'rom0:/UDNL cdrom0:/something;1'
+	auto imagePathStart = strstr(imagePath.c_str(), "cdrom0:");
+	if(!imagePathStart) return false;
+
+	int32 fd = m_ioman->Open(Iop::Ioman::CDevice::OPEN_FLAG_RDONLY, imagePathStart);
+	if(fd < 0) return false;
+
+	Iop::CIoman::CFile file(fd, *m_ioman);
+	auto stream = m_ioman->GetFileStream(file);
+	while(1)
+	{
+		static const unsigned int moduleVersionStringSize = 0x10;
+		char moduleVersionString[moduleVersionStringSize + 1];
+		auto currentPos = stream->Tell();
+		stream->Read(moduleVersionString, moduleVersionStringSize);
+		moduleVersionString[moduleVersionStringSize] = 0;
+		if(!strncmp(moduleVersionString, "PsIIfileio  ", 12))
+		{
+			//Found something
+			unsigned int imageVersion = atoi(moduleVersionString + 12);
+			if(imageVersion < 1000) return false;
+			if(result)
+			{
+				(*result) = imageVersion;
+			}
+			return true;
+		}
+		stream->Seek(currentPos + 1, Framework::STREAM_SEEK_SET);
+	}
+	return false;
 }
 
 CIopBios::THREAD* CIopBios::GetThread(uint32 threadId)

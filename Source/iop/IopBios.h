@@ -105,6 +105,9 @@ public:
 	int32						SearchModuleByName(const char*) const;
 	void						ProcessModuleReset(const std::string&);
 
+	bool						TryGetImageVersionFromPath(const std::string&, unsigned int*);
+	bool						TryGetImageVersionFromContents(const std::string&, unsigned int*);
+
 	void						HandleException();
 	void						HandleInterrupt();
 
