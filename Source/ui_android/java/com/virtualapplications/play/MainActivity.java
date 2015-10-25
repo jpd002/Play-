@@ -1,6 +1,7 @@
 package com.virtualapplications.play;
 
 import android.app.*;
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.*;
 import android.content.pm.*;
@@ -9,7 +10,9 @@ import android.content.res.TypedArray;
 import android.graphics.Color;
 import android.graphics.drawable.GradientDrawable;
 import android.os.*;
-import android.support.v7.app.ActionBarActivity;
+import android.preference.PreferenceManager;
+import android.support.v7.app.*;
+import android.support.v7.app.ActionBar;
 import android.support.v7.widget.Toolbar;
 import android.view.*;
 import android.view.View;
@@ -24,32 +27,26 @@ import java.lang.reflect.InvocationTargetException;
 import java.text.*;
 import java.util.*;
 import java.util.zip.*;
-import org.apache.commons.io.comparator.CompositeFileComparator;
-import org.apache.commons.io.comparator.LastModifiedFileComparator;
-import org.apache.commons.io.comparator.SizeFileComparator;
 import org.apache.commons.lang3.StringUtils;
-import com.android.util.FileUtils;
 
+import com.virtualapplications.play.database.GameIndexer;
 import com.virtualapplications.play.database.GameInfo;
 import com.virtualapplications.play.database.SqliteHelper.Games;
 
 public class MainActivity extends ActionBarActivity implements NavigationDrawerFragment.NavigationDrawerCallbacks
-{	
-	private static final String PREFERENCE_CURRENT_DIRECTORY = "CurrentDirectory";
-	
-	private SharedPreferences _preferences;
+{
 	static Activity mActivity;
-	private boolean isConfigured = false;
 	private int currentOrientation;
 	private GameInfo gameInfo;
 	protected NavigationDrawerFragment mNavigationDrawerFragment;
 
-	private List<File> currentGames = new ArrayList<File>();
+	private List<GameInfoStruct> currentGames = new ArrayList<>();
 	
 	public static final int SORT_RECENT = 0;
 	public static final int SORT_HOMEBREW = 1;
 	public static final int SORT_NONE = 2;
 	private int sortMethod = SORT_NONE;
+	private String navSubtitle;
 
 	@Override 
 	protected void onCreate(Bundle savedInstanceState) 
@@ -57,8 +54,8 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
 		super.onCreate(savedInstanceState);
 		//Log.w(Constants.TAG, "MainActivity - onCreate");
 
-		_preferences = getSharedPreferences("prefs", MODE_PRIVATE);
 		currentOrientation = getResources().getConfiguration().orientation;
+		mActivity = MainActivity.this;
 
 		ThemeManager.applyTheme(this);
 		if (isAndroidTV(this)) {
@@ -66,7 +63,6 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
 		} else {
 			setContentView(R.layout.main);
 		}
-		mActivity = MainActivity.this;
 
 		NativeInterop.setFilesDirPath(Environment.getExternalStorageDirectory().getAbsolutePath());
 
@@ -113,7 +109,9 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
 		gameInfo = new GameInfo(MainActivity.this);
 		getContentResolver().call(Games.GAMES_URI, "importDb", null, null);
 
-		prepareFileListView(false);
+		SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
+		sortMethod = sp.getInt("sortMethod", SORT_NONE);
+		onNavigationDrawerItemSelected(sortMethod);
 	}
 
 	private void setUIcolor(){
@@ -160,7 +158,7 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
 		}
 		return 0;
 	}
-	
+
 	private void displaySimpleMessage(String title, String message)
 	{
 		AlertDialog.Builder builder = new AlertDialog.Builder(this);
@@ -168,17 +166,45 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
 		builder.setTitle(title);
 		builder.setMessage(message);
 
-		builder.setPositiveButton("OK", 
-			new DialogInterface.OnClickListener() 
-			{
-				@Override
-				public void onClick(DialogInterface dialog, int id) 
-				{
-					
+		builder.setPositiveButton("OK",
+				new DialogInterface.OnClickListener() {
+					@Override
+					public void onClick(DialogInterface dialog, int id) {
+
+					}
 				}
-			}
 		);
-		
+
+		AlertDialog dialog = builder.create();
+		dialog.show();
+	}
+
+	private void displayGameNotFound(final GameInfoStruct game)
+	{
+		AlertDialog.Builder builder = new AlertDialog.Builder(this);
+
+		builder.setTitle(R.string.not_found);
+		builder.setMessage(R.string.game_unavailable);
+
+		builder.setPositiveButton("Yes",
+				new DialogInterface.OnClickListener() {
+					@Override
+					public void onClick(DialogInterface dialog, int id) {
+						game.removeIndex(getBaseContext());
+						prepareFileListView(false);
+					}
+				}
+		);
+		builder.setNegativeButton("No",
+				new DialogInterface.OnClickListener() {
+					@Override
+					public void onClick(DialogInterface dialog, int id) {
+
+					}
+				}
+		);
+
+
 		AlertDialog dialog = builder.create();
 		dialog.show();
 	}
@@ -195,6 +221,13 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
 			ThemeManager.applyTheme(this);
 			setUIcolor();
 		}
+
+		if (requestCode == 1 && resultCode == RESULT_OK){
+			if (data != null){
+				gameInfo.removeBitmapFromMemCache(data.getStringExtra("gameid"));
+			}
+			prepareFileListView(false);
+		}
 	}
 
 
@@ -205,9 +238,7 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
 		String aboutMessage = String.format("Build Date: %s", buildDateString);
 		displaySimpleMessage("About Play!", aboutMessage);
 	}
-	
 
-	
 	@Override
 	public void onConfigurationChanged(Configuration newConfig) {
 		super.onConfigurationChanged(newConfig);
@@ -223,12 +254,7 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
 		}
 		
 	}
-	
-	private String getCurrentDirectory()
-	{
-		return _preferences.getString(PREFERENCE_CURRENT_DIRECTORY, Environment.getExternalStorageDirectory().getAbsolutePath());
-	}
-	
+
 	public static HashSet<String> getExternalMounts() {
 		final HashSet<String> out = new HashSet<String>();
 		String reg = "(?i).*vold.*(vfat|ntfs|exfat|fat32|ext3|ext4|fuse).*rw.*";
@@ -265,26 +291,10 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
 		return out;
 	}
 	
-	private void setCurrentDirectory(String currentDirectory)
-	{
-		SharedPreferences.Editor preferencesEditor = _preferences.edit();
-		preferencesEditor.putString(PREFERENCE_CURRENT_DIRECTORY, currentDirectory);
-		preferencesEditor.commit();
+	public static void fullStorageScan() {
+		((MainActivity) mActivity).prepareFileListView(false, true);
 	}
-	
-	private void clearCurrentDirectory()
-	{
-		SharedPreferences.Editor preferencesEditor = _preferences.edit();
-		preferencesEditor.remove(PREFERENCE_CURRENT_DIRECTORY);
-		preferencesEditor.commit();
-	}
-	
-	public static void resetDirectory() {
-		((MainActivity) mActivity).clearCurrentDirectory();
-		((MainActivity) mActivity).isConfigured = false;
-		((MainActivity) mActivity).prepareFileListView(false);
-	}
-	
+
 	private void clearCoverCache() {
 		File dir = new File(getExternalFilesDir(null), "covers");
 		for (File file : dir.listFiles()) {
@@ -298,7 +308,7 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
 		((MainActivity) mActivity).clearCoverCache();
 	}
 	
-	private static boolean IsLoadableExecutableFileName(String fileName)
+	public static boolean IsLoadableExecutableFileName(String fileName)
 	{
 		return fileName.toLowerCase().endsWith(".elf");
 	}
@@ -313,22 +323,34 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
 				fileName.toLowerCase().endsWith(".isz");
 	}
 	
-		@Override
+	@Override
 	public void onNavigationDrawerItemSelected(int position) {
 		switch (position) {
-			case 0:
+			case SORT_RECENT:
 				sortMethod = SORT_RECENT;
-				prepareFileListView(false);
+				navSubtitle = getString(R.string.file_list_recent);
 				break;
-			case 1:
+			case SORT_HOMEBREW:
 				sortMethod = SORT_HOMEBREW;
-				prepareFileListView(false);
+				navSubtitle = getString(R.string.file_list_homebrew);
 				break;
-			case 2:
+			case SORT_NONE:
+			default:
 				sortMethod = SORT_NONE;
-				prepareFileListView(false);
+				navSubtitle = getString(R.string.file_list_default);
 				break;
 		}
+
+		ActionBar actionbar = getSupportActionBar();
+		if (actionbar != null){
+			actionbar.setSubtitle("Games - " + navSubtitle);
+		}
+
+		prepareFileListView(false);
+
+		SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
+		sp.edit().putInt("sortMethod", sortMethod).apply();
+
 	}
 
 	@Override
@@ -348,10 +370,9 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
 		android.support.v7.app.ActionBar actionBar = getSupportActionBar();
 		actionBar.setDisplayShowTitleEnabled(true);
 		actionBar.setTitle(R.string.app_name);
-		actionBar.setSubtitle(R.string.menu_title_shut);
+		actionBar.setSubtitle("Games - " + navSubtitle);
 	}
 
-	
 	public boolean onCreateOptionsMenu(Menu menu) {
 		if (!mNavigationDrawerFragment.isDrawerOpen()) {
 			// Only show items in the action bar relevant to this screen
@@ -374,180 +395,81 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
 		finish();
 	}
 
-	private final class ImageFinder extends AsyncTask<String, Integer, List<File>> {
-		
-		private int array;
+	private final class ImageFinder extends AsyncTask<String, Integer, List<GameInfoStruct>> {
+
+		private final boolean fullscan;
 		private ProgressDialog progDialog;
 		
-		public ImageFinder(int arrayType) {
-			this.array = arrayType;
+		public ImageFinder(boolean fullscan) {
+			this.fullscan = fullscan;
 		}
-		
-		private List<File> getFileList(String path) {
-			File storage = new File(path);
-			
-			String[] mediaTypes = MainActivity.this.getResources().getStringArray(array);
-			FilenameFilter[] filter = new FilenameFilter[mediaTypes.length];
-			
-			int i = 0;
-			for (final String type : mediaTypes) {
-				filter[i] = new FilenameFilter() {
-					
-					public boolean accept(File dir, String name) {
-						if (dir.getName().startsWith(".") || name.startsWith(".")) {
-							return false;
-						} else if (StringUtils.endsWithIgnoreCase(name, "." + type)) {
-							File disk = new File(dir, name);
-							String serial = gameInfo.getSerial(disk);
-							return IsLoadableExecutableFileName(disk.getPath()) ||
-								(serial != null && !serial.equals(""));
-						} else {
-							return false;
-						}
-					}
-					
-				};
-				i++;
-			}
-			FileUtils fileUtils = new FileUtils();
-			Collection<File> files = fileUtils.listFiles(storage, filter, -1);
-			return (List<File>) files;
-		}
+
 		
 		protected void onPreExecute() {
 			progDialog = ProgressDialog.show(MainActivity.this,
-				getString(isConfigured ? R.string.updating_db : R.string.search_games),
+				getString(R.string.search_games),
 				getString(R.string.search_games_msg), true);
 		}
 		
 		@Override
-		protected List<File> doInBackground(String... paths) {
+		protected List<GameInfoStruct> doInBackground(String... paths) {
 			
-			final String root_path = paths[0];
-			ArrayList<File> files = new ArrayList<File>();
-			files.addAll(getFileList(root_path));
-			
-			if (!isConfigured) {
-				HashSet<String> extStorage = MainActivity.getExternalMounts();
-				if (extStorage != null && !extStorage.isEmpty()) {
-					for (Iterator<String> sd = extStorage.iterator(); sd.hasNext();) {
-						String sdCardPath = sd.next().replace("mnt/media_rw", "storage");
-						if (!sdCardPath.equals(root_path)) {
-							if (new File(sdCardPath).canRead()) {
-								files.addAll(getFileList(sdCardPath));
-							}
-						}
-					}
-				}
+			GameIndexer GI = new GameIndexer(mActivity);
+			if (fullscan){
+				GI.fullScan();
+			} else {
+				GI.startupScan();
 			}
-			return (List<File>) files;
+			return GI.getIndexGISList(sortMethod);
 		}
 		
 		@Override
-		protected void onPostExecute(List<File> images) {
+		protected void onPostExecute(List<GameInfoStruct> images) {
 			if (progDialog != null && progDialog.isShowing()) {
 				progDialog.dismiss();
 			}
-			if (images != null && !images.isEmpty()) {
-				currentGames = images;
-				// Create the list of acceptable images
-				populateImages(images);
-			} else {
-				// Display warning that no disks exist
-			}
+			currentGames = images;
+			// Create the list of acceptable images
+			populateImages(images);
 		}
 	}
 	
-	private View createListItem(final File game, final View childview) {
-		if (!isConfigured) {
-			
-			((TextView) childview.findViewById(R.id.game_text)).setText(game.getName());
-			
-			childview.findViewById(R.id.childview).setOnClickListener(new OnClickListener() {
-				public void onClick(View view) {
-					setCurrentDirectory(game.getPath().substring(0,
-						game.getPath().lastIndexOf(File.separator)));
-					isConfigured = true;
-					prepareFileListView(false);
-					return;
-				}
-			});
-			
-			return childview;
-		} else {
-			
-			((TextView) childview.findViewById(R.id.game_text)).setText(game.getName());
-			childview.findViewById(R.id.childview).setOnLongClickListener(null);
-			
-			final String[] gameStats = gameInfo.getGameInfo(game, childview);
-			
-			if (gameStats != null) {
-				childview.findViewById(R.id.childview).setOnLongClickListener(
-					gameInfo.configureLongClick(gameStats[1], gameStats[2], game));
-				
-				if (!gameStats[3].equals("404")) {
-					gameInfo.getImage(gameStats[0], childview, gameStats[3]);
-					((TextView) childview.findViewById(R.id.game_text)).setVisibility(View.GONE);
-				}
-			} else {
-				ImageView preview = (ImageView) childview.findViewById(R.id.game_icon);
-				preview.setImageResource(R.drawable.boxart);
-				preview.setScaleType(ImageView.ScaleType.FIT_XY);
-				((TextView) childview.findViewById(R.id.game_text)).setVisibility(View.VISIBLE);
-			}
-			
-			childview.findViewById(R.id.childview).setOnClickListener(new OnClickListener() {
-				public void onClick(View view) {
-					launchDisk(game, false);
-					return;
-				}
-			});
-			return childview;
-		}
-	}
-	
-	private void populateImages(List<File> images) {
-		if (sortMethod == SORT_RECENT) {
-			@SuppressWarnings("unchecked")
-			CompositeFileComparator comparator = new CompositeFileComparator(
-				SizeFileComparator.SIZE_REVERSE, LastModifiedFileComparator.LASTMODIFIED_REVERSE);
-			comparator.sort(images);
-		} else {
-			Collections.sort(images);
-		}
+	private void populateImages(List<GameInfoStruct> images) {
 		GridView gameGrid = (GridView) findViewById(R.id.game_grid);
-		if (gameGrid != null && gameGrid.isShown()) {
+		if (gameGrid != null) {
 			gameGrid.setAdapter(null);
-		}
-		
-		if (isAndroidTV(this)) {
-			gameGrid.setOnItemClickListener(new OnItemClickListener() {
-				public void onItemClick(AdapterView<?> parent, View v, int position, long id) {
-					v.performClick();
-				}
-			});
-		}
+			if (isAndroidTV(this)) {
+				gameGrid.setOnItemClickListener(new OnItemClickListener() {
+					public void onItemClick(AdapterView<?> parent, View v, int position, long id) {
+						v.performClick();
+					}
+				});
+			}
+			if (images == null || images.isEmpty()) {
+				// Display warning that no disks exist
+				ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, (sortMethod == SORT_RECENT) ? new String[]{getString(R.string.no_recent_adapter)} : new String[]{getString(R.string.no_game_found_adapter)});
+				gameGrid.setNumColumns(1);
+				gameGrid.setAdapter(adapter);
+			} else {
+				GamesAdapter adapter = new GamesAdapter(this, R.layout.game_list_item, images);
+				/*
+				-1 = autofit
+				 */
+				gameGrid.setNumColumns(-1);
+				gameGrid.setColumnWidth((int) getResources().getDimension(R.dimen.cover_width));
 
-		GamesAdapter adapter = new GamesAdapter(MainActivity.this, isConfigured ? R.layout.game_list_item : R.layout.file_list_item, images);
-		/*
-		gameGrid.setNumColumns(-1);
-		-1 = autofit
-		or set a number if you like
-		 */
-		if (isConfigured){
-			gameGrid.setColumnWidth((int) getResources().getDimension(R.dimen.cover_width));
+				gameGrid.setAdapter(adapter);
+				gameGrid.invalidate();
+			}
 		}
-		gameGrid.setAdapter(adapter);
-		gameGrid.invalidate();
-
 	}
-	
-	public class GamesAdapter extends ArrayAdapter<File> {
+
+	public class GamesAdapter extends ArrayAdapter<GameInfoStruct> {
 
 		private final int layoutid;
-		private List<File> games;
+		private List<GameInfoStruct> games;
 		
-		public GamesAdapter(Context context, int ResourceId, List<File> images) {
+		public GamesAdapter(Context context, int ResourceId, List<GameInfoStruct> images) {
 			super(context, ResourceId, images);
 			this.games = images;
 			this.layoutid = ResourceId;
@@ -558,7 +480,7 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
 			return games.size();
 		}
 
-		public File getItem(int position) {
+		public GameInfoStruct getItem(int position) {
 			return games.get(position);
 		}
 
@@ -573,32 +495,91 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
 				LayoutInflater vi = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 				v = vi.inflate(layoutid, null);
 			}
-			final File game = games.get(position);
+			final GameInfoStruct game = games.get(position);
 			if (game != null) {
-				createListItem(game, v);
+				createListItem(game, v, position);
 			}
 			return v;
 		}
+
+		private View createListItem(final GameInfoStruct game, final View childview, int pos) {
+			((TextView) childview.findViewById(R.id.game_text)).setText(game.getTitleName());
+			//If user has set values, then read them, if not read from database
+			if (!game.isDescriptionEmptyNull() && game.getFrontLink() != null && !game.getFrontLink().equals("")) {
+				childview.findViewById(R.id.childview).setOnLongClickListener(
+						gameInfo.configureLongClick(game.getTitleName(), game.getDescription(), game));
+
+				if (!game.getFrontLink().equals("404")) {
+					gameInfo.getImage(game.getGameID(), childview, game.getFrontLink());
+					((TextView) childview.findViewById(R.id.game_text)).setVisibility(View.GONE);
+				} else {
+					ImageView preview = (ImageView) childview.findViewById(R.id.game_icon);
+					preview.setImageResource(R.drawable.boxart);
+					preview.setScaleType(ImageView.ScaleType.FIT_XY);
+					((TextView) childview.findViewById(R.id.game_text)).setVisibility(View.VISIBLE);
+				}
+			} else if (IsLoadableExecutableFileName(game.getFile().getName())) {
+				ImageView preview = (ImageView) childview.findViewById(R.id.game_icon);
+				preview.setImageResource(R.drawable.boxart);
+				preview.setScaleType(ImageView.ScaleType.FIT_XY);
+				((TextView) childview.findViewById(R.id.game_text)).setVisibility(View.VISIBLE);
+				childview.findViewById(R.id.childview).setOnLongClickListener(null);
+			} else {
+				childview.findViewById(R.id.childview).setOnLongClickListener(null);
+				// passing game, as to pass and use (if) any user defined values
+				final GameInfoStruct gameStats = gameInfo.getGameInfo(game.getFile(), childview, game);
+
+				if (gameStats != null) {
+					games.set(pos, gameStats);
+					childview.findViewById(R.id.childview).setOnLongClickListener(
+							gameInfo.configureLongClick(gameStats.getTitleName(), gameStats.getDescription(), game));
+
+					if (gameStats.getFrontLink() != null && !gameStats.getFrontLink().equals("404")) {
+						gameInfo.getImage(gameStats.getGameID(), childview, gameStats.getFrontLink());
+						((TextView) childview.findViewById(R.id.game_text)).setVisibility(View.GONE);
+					}
+				} else {
+					ImageView preview = (ImageView) childview.findViewById(R.id.game_icon);
+					preview.setImageResource(R.drawable.boxart);
+					preview.setScaleType(ImageView.ScaleType.FIT_XY);
+					((TextView) childview.findViewById(R.id.game_text)).setVisibility(View.VISIBLE);
+				}
+			}
+
+
+
+			childview.findViewById(R.id.childview).setOnClickListener(new OnClickListener() {
+				public void onClick(View view) {
+					launchGame(game);
+					return;
+				}
+			});
+			return childview;
+
+		}
+
 	}
 	
-	public static void launchGame(File game) {
-		((MainActivity) mActivity).launchDisk(game, false);
+	public static void launchGame(GameInfoStruct game) {
+		if (game.getFile().exists()){
+			game.setlastplayed(mActivity);
+			((MainActivity) mActivity).launchDisk(game.getFile(), false);
+		} else {
+			((MainActivity) mActivity).displayGameNotFound(game);
+		}
 	}
 	
-	private void launchDisk (File game, boolean terminate) {
+	private void launchDisk(File game, boolean terminate) {
 		try
 		{
 			if(IsLoadableExecutableFileName(game.getPath()))
 			{
-				game.setLastModified(System.currentTimeMillis());
 				NativeInterop.loadElf(game.getPath());
 			}
 			else
 			{
-				game.setLastModified(System.currentTimeMillis());
 				NativeInterop.bootDiskImage(game.getPath());
 			}
-			setCurrentDirectory(game.getPath().substring(0, game.getPath().lastIndexOf(File.separator)));
 		}
 		catch(Exception ex)
 		{
@@ -624,25 +605,21 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
 		return false;
 	}
 
-	private void prepareFileListView(boolean retainList)
+	public static void prepareFileListView(boolean retainList)
+	{
+		((MainActivity) mActivity).prepareFileListView(retainList, false);
+	}
+
+	private void prepareFileListView(boolean retainList, boolean fullscan)
 	{
 		if (gameInfo == null) {
 			gameInfo = new GameInfo(MainActivity.this);
 		}
-		
-		String sdcard = getCurrentDirectory();
-		if (!sdcard.equals(Environment.getExternalStorageDirectory().getAbsolutePath())) {
-			isConfigured = true;
-		}
-		
-		if (isConfigured && retainList) {
+
+		if (retainList) {
 			populateImages(currentGames);
 		} else {
-			if (sortMethod == SORT_HOMEBREW) {
-				new ImageFinder(R.array.homebrew).execute(sdcard);
-			} else {
-				new ImageFinder(R.array.disks).execute(sdcard);
-			}
+			new ImageFinder(fullscan).execute();
 		}
 	}
 }

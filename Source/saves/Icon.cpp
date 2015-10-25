@@ -1,4 +1,5 @@
 #include <exception>
+#include <cassert>
 #include "Icon.h"
 
 #pragma pack(push, 1)
@@ -62,6 +63,8 @@ CIcon::~CIcon()
 
 const CIcon::VERTEX* CIcon::GetShape(unsigned int nShapeIdx) const
 {
+	assert(nShapeIdx < m_nShapeCount);
+	if(nShapeIdx >= m_nShapeCount) return nullptr;
 	return m_pShapes[nShapeIdx];
 }
 

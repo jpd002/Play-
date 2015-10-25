@@ -132,6 +132,7 @@ public:
 	uint32						CreateThread(uint32, uint32, uint32, uint32);
 	void						DeleteThread(uint32);
 	int32						StartThread(uint32, uint32);
+	int32						StartThreadArgs(uint32, uint32, uint32);
 	void						ExitThread();
 	uint32						TerminateThread(uint32);
 	void						DelayThread(uint32);
@@ -167,8 +168,8 @@ public:
 	uint32						ReceiveMessageBox(uint32, uint32);
 	uint32						PollMessageBox(uint32, uint32);
 
-	bool						RegisterIntrHandler(uint32, uint32, uint32, uint32);
-	bool						ReleaseIntrHandler(uint32);
+	int32						RegisterIntrHandler(uint32, uint32, uint32, uint32);
+	int32						ReleaseIntrHandler(uint32);
 
 	void						TriggerCallback(uint32 address, uint32 arg0, uint32 arg1);
 
@@ -195,6 +196,11 @@ private:
 		DEFAULT_PRIORITY = 64,
 	};
 
+	enum MODULE_INIT_PRIORITY
+	{
+		MODULE_INIT_PRIORITY = 8,
+	};
+
 	enum class MODULE_STATE : uint32
 	{
 		STOPPED,
@@ -211,7 +217,7 @@ private:
 	enum
 	{
 		MAX_THREAD				= 128,
-		MAX_SEMAPHORE			= 64,
+		MAX_SEMAPHORE			= 128,
 		MAX_EVENTFLAG			= 64,
 		MAX_INTRHANDLER			= 32,
 		MAX_MESSAGEBOX			= 32,
@@ -325,6 +331,16 @@ private:
 	enum
 	{
 		IOPMOD_SECTION_ID = 0x70000080,
+	};
+
+	enum KERNEL_RESULT_CODES
+	{
+		KERNEL_RESULT_OK                     =    0,
+		KERNEL_RESULT_ERROR                  =   -1,
+		KERNEL_RESULT_ERROR_ILLEGAL_INTRCODE = -101,
+		KERNEL_RESULT_ERROR_FOUND_HANDLER    = -104,
+		KERNEL_RESULT_ERROR_NOTFOUND_HANDLER = -105,
+		KERNEL_RESULT_ERROR_UNKNOWN_THID     = -407,
 	};
 
 	typedef COsStructManager<THREAD> ThreadList;

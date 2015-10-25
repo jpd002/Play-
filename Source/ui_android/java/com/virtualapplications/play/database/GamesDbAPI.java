@@ -1,25 +1,19 @@
 package com.virtualapplications.play.database;
 
-import java.io.BufferedInputStream;
 import java.io.File;
-import java.io.IOException;
 import java.io.InputStream;
+import java.io.IOException;
 import java.io.StringReader;
 import java.io.UnsupportedEncodingException;
 import java.net.URL;
-import java.net.URLConnection;
 import java.net.URLEncoder;
+import java.net.HttpURLConnection;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpResponse;
-import org.apache.http.client.ClientProtocolException;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.util.EntityUtils;
+import org.apache.commons.io.IOUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -31,27 +25,23 @@ import android.content.Context;
 import android.content.ContentValues;
 import android.content.ContentResolver;
 import android.database.Cursor;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.StrictMode;
+import android.util.Log;
 import android.view.View;
-import android.view.View.OnLongClickListener;
-import android.widget.ImageView;
-import android.widget.ImageView.ScaleType;
-import android.widget.TextView;
 
+import com.virtualapplications.play.Constants;
+import com.virtualapplications.play.GameInfoStruct;
 import com.virtualapplications.play.R;
 import com.virtualapplications.play.database.SqliteHelper.Games;
 
 public class GamesDbAPI extends AsyncTask<File, Integer, Document> {
 
 	private final String serial;
+	private final GameInfoStruct gameInfoStruct;
 	private int index;
 	private View childview;
 	private Context mContext;
@@ -64,11 +54,12 @@ public class GamesDbAPI extends AsyncTask<File, Integer, Document> {
     private static final String games_url_id = "http://thegamesdb.net/api/GetGame.php?platform=sony+playstation+2&id=";
 	private static final String games_list = "http://thegamesdb.net/api/GetPlatformGames.php?platform=11";
 
-	public GamesDbAPI(Context mContext, String gameID, String serial) {
+	public GamesDbAPI(Context mContext, String gameID, String serial, GameInfoStruct gameInfoStruct) {
 		this.elastic = false;
 		this.mContext = mContext;
 		this.gameID = gameID;
 		this.serial = serial;
+		this.gameInfoStruct = gameInfoStruct;
 	}
 	
 	public void setView(View childview) {
@@ -89,13 +80,12 @@ public class GamesDbAPI extends AsyncTask<File, Integer, Document> {
 		
 		if (GamesDbAPI.isNetworkAvailable(mContext)) {
 			try {
-				DefaultHttpClient httpClient = new DefaultHttpClient();
-				HttpPost httpPost;
+				URL requestUrl;
 				if (params[0] != null) {
 					gameFile = params[0];
 					String filename = gameFile.getName();
 					if (gameID != null) {
-						httpPost = new HttpPost(games_url_id + gameID);
+						requestUrl = new URL(games_url_id + gameID);
 					} else {
 						elastic = true;
 						filename = filename.substring(0, filename.lastIndexOf("."));
@@ -104,22 +94,30 @@ public class GamesDbAPI extends AsyncTask<File, Integer, Document> {
 						} catch (UnsupportedEncodingException e) {
 							filename = filename.replace(" ", "+");
 						}
-						httpPost = new HttpPost(games_url + filename);
+						requestUrl = new URL(games_url + filename);
 					}
 				} else {
-					httpPost = new HttpPost(games_list);
+					requestUrl = new URL(games_list);
 				}
-				HttpResponse httpResponse = httpClient.execute(httpPost);
-				HttpEntity httpEntity = httpResponse.getEntity();
-				String gameData =  EntityUtils.toString(httpEntity);
-				if (gameData != null) {
+				HttpURLConnection urlConnection = (HttpURLConnection)requestUrl.openConnection();
+				urlConnection.setRequestMethod("POST");
+				try 
+				{
+					InputStream inputStream = urlConnection.getInputStream();
+					String gameData = IOUtils.toString(inputStream, "UTF-8");
 					return getDomElement(gameData);
-				} else {
+				}
+				catch(Exception ex)
+				{
+					Log.w(Constants.TAG, String.format("Failed to obtain information: %s", ex.toString()));
 					return null;
 				}
+				finally 
+				{
+					urlConnection.disconnect();
+				}
+				
 			} catch (UnsupportedEncodingException e) {
-
-			} catch (ClientProtocolException e) {
 
 			} catch (IOException e) {
 
@@ -152,9 +150,18 @@ public class GamesDbAPI extends AsyncTask<File, Integer, Document> {
 								if (overview != null && boxart != null &&
 									!overview.equals("") && !boxart.equals("")) {
 									dataID = c.getString(c.getColumnIndex(Games.KEY_GAMEID));
+									if (gameInfoStruct.getGameID() == null){
+										gameInfoStruct.setGameID(dataID, null);
+									}
+									if (gameInfoStruct.isDescriptionEmptyNull()){
+										gameInfoStruct.setDescription(overview, null);
+									}
+									if (gameInfoStruct.getFrontLink() == null || gameInfoStruct.getFrontLink().isEmpty()){
+										gameInfoStruct.setFrontLink(boxart, null);
+									}
 									if (childview != null) {
 										childview.findViewById(R.id.childview).setOnLongClickListener(
-											gameInfo.configureLongClick(title, overview, gameFile));
+											gameInfo.configureLongClick(title, overview, gameInfoStruct));
 										if (boxart != null) {
 											gameInfo.getImage(remoteID, childview, boxart);
 										}
@@ -166,7 +173,7 @@ public class GamesDbAPI extends AsyncTask<File, Integer, Document> {
 					}
 					c.close();
 					if (dataID == null) {
-						GamesDbAPI gameDatabase = new GamesDbAPI(mContext, remoteID, serial);
+						GamesDbAPI gameDatabase = new GamesDbAPI(mContext, remoteID, serial, gameInfoStruct);
 						gameDatabase.setView(childview);
 						gameDatabase.execute(gameFile);
 					}
@@ -177,7 +184,7 @@ public class GamesDbAPI extends AsyncTask<File, Integer, Document> {
 					values.put(Games.KEY_TITLE, title);
 					final String overview = getValue(root, "Overview");
 					values.put(Games.KEY_OVERVIEW, overview);
-					
+
 					Element images = (Element) root.getElementsByTagName("Images").item(0);
 					Element boxart = null;
 					if (images.getElementsByTagName("boxart").getLength() > 1) {
@@ -220,9 +227,26 @@ public class GamesDbAPI extends AsyncTask<File, Integer, Document> {
 					}
 					c.close();
 
+					String m_title = getValue(root, "GameTitle");
+
+					if (gameInfoStruct.getGameID() == null){
+						gameInfoStruct.setGameID(remoteID, null);
+					}
+					if (!gameInfoStruct.isTitleNameEmptyNull()){
+						m_title = gameInfoStruct.getTitleName();
+					} else {
+						gameInfoStruct.setTitleName(m_title, null);
+					}
+					if (gameInfoStruct.isDescriptionEmptyNull()){
+						gameInfoStruct.setDescription(overview, null);
+					}
+					if (gameInfoStruct.getFrontLink() == null || gameInfoStruct.getFrontLink().isEmpty()){
+						gameInfoStruct.setFrontLink(coverImage, null);
+					}
+
 					if (childview != null) {
 						childview.findViewById(R.id.childview).setOnLongClickListener(
-							gameInfo.configureLongClick(getValue(root, "GameTitle"), overview, gameFile));
+								gameInfo.configureLongClick(m_title, overview, gameInfoStruct));
 						if (coverImage != null) {
 							gameInfo.getImage(remoteID, childview, coverImage);
 						}

@@ -351,6 +351,7 @@ void CSubSystem::SaveState(Framework::CZipArchiveWriter& archive)
 	m_vpu0->SaveState(archive);
 	m_vpu1->SaveState(archive);
 	m_timer.SaveState(archive);
+	m_gif.SaveState(archive);
 }
 
 void CSubSystem::LoadState(Framework::CZipArchiveReader& archive)
@@ -371,6 +372,7 @@ void CSubSystem::LoadState(Framework::CZipArchiveReader& archive)
 	m_vpu0->LoadState(archive);
 	m_vpu1->LoadState(archive);
 	m_timer.LoadState(archive);
+	m_gif.LoadState(archive);
 
 	m_executor.Reset();
 }
@@ -456,6 +458,14 @@ uint32 CSubSystem::IOPortWriteHandler(uint32 nAddress, uint32 nData)
 		m_vpu0->GetVif().SetRegister(nAddress, nData);
 	}
 	else if(nAddress >= CVif::REGS1_START && nAddress < CVif::REGS1_END)
+	{
+		m_vpu1->GetVif().SetRegister(nAddress, nData);
+	}
+	else if(nAddress >= CVif::VIF0_FIFO_START && nAddress < CVif::VIF0_FIFO_END)
+	{
+		m_vpu0->GetVif().SetRegister(nAddress, nData);
+	}
+	else if(nAddress >= CVif::VIF1_FIFO_START && nAddress < CVif::VIF1_FIFO_END)
 	{
 		m_vpu1->GetVif().SetRegister(nAddress, nData);
 	}

@@ -9,16 +9,17 @@
 #define STATE_CALLBACK_ADDRESS	("CallbackAddress")
 #define STATE_STATUS			("Status")
 
-#define FUNCTION_CDREAD			"CdRead"
-#define FUNCTION_CDSEEK			"CdSeek"
-#define FUNCTION_CDGETERROR		"CdGetError"
-#define FUNCTION_CDSEARCHFILE	"CdSearchFile"
-#define FUNCTION_CDSYNC			"CdSync"
-#define FUNCTION_CDGETDISKTYPE	"CdGetDiskType"
-#define FUNCTION_CDDISKREADY	"CdDiskReady"
-#define FUNCTION_CDREADCLOCK	"CdReadClock"
-#define FUNCTION_CDSTATUS		"CdStatus"
-#define FUNCTION_CDCALLBACK		"CdCallback"
+#define FUNCTION_CDREAD				"CdRead"
+#define FUNCTION_CDSEEK				"CdSeek"
+#define FUNCTION_CDGETERROR			"CdGetError"
+#define FUNCTION_CDSEARCHFILE		"CdSearchFile"
+#define FUNCTION_CDSYNC				"CdSync"
+#define FUNCTION_CDGETDISKTYPE		"CdGetDiskType"
+#define FUNCTION_CDDISKREADY		"CdDiskReady"
+#define FUNCTION_CDREADCLOCK		"CdReadClock"
+#define FUNCTION_CDSTATUS			"CdStatus"
+#define FUNCTION_CDCALLBACK			"CdCallback"
+#define FUNCTION_CDLAYERSEARCHFILE	"CdLayerSearchFile"
 
 using namespace Iop;
 
@@ -88,6 +89,9 @@ std::string CCdvdman::GetFunctionName(unsigned int functionId) const
 	case 37:
 		return FUNCTION_CDCALLBACK;
 		break;
+	case 84:
+		return FUNCTION_CDLAYERSEARCHFILE;
+		break;
 	default:
 		return "unknown";
 		break;
@@ -135,6 +139,12 @@ void CCdvdman::Invoke(CMIPS& ctx, unsigned int functionId)
 		break;
 	case 37:
 		ctx.m_State.nGPR[CMIPS::V0].nV0 = CdCallback(ctx.m_State.nGPR[CMIPS::A0].nV0);
+		break;
+	case 84:
+		ctx.m_State.nGPR[CMIPS::V0].nV0 = CdLayerSearchFile(
+			ctx.m_State.nGPR[CMIPS::A0].nV0,
+			ctx.m_State.nGPR[CMIPS::A1].nV0,
+			ctx.m_State.nGPR[CMIPS::A2].nV0);
 		break;
 	default:
 		CLog::GetInstance().Print(LOG_NAME, "Unknown function called (%d).\r\n", 
@@ -308,4 +318,10 @@ uint32 CCdvdman::CdCallback(uint32 callbackPtr)
 	uint32 oldCallbackPtr = m_callbackPtr;
 	m_callbackPtr = callbackPtr;
 	return oldCallbackPtr;
+}
+
+uint32 CCdvdman::CdLayerSearchFile(uint32 fileInfoPtr, uint32 namePtr, uint32 layer)
+{
+	assert(layer == 0);
+	return CdSearchFile(fileInfoPtr, namePtr);
 }

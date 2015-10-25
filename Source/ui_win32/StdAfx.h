@@ -3,6 +3,7 @@
 
 #define _VARIADIC_MAX 8
 #define NOMINMAX
+#define BOOST_OPTIONAL_USE_OLD_DEFINITION_OF_NONE
 
 #include <windows.h>
 

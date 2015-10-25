@@ -7,7 +7,8 @@
 #include "StdStreamUtils.h"
 #include "Jitter.h"
 #include "Jitter_CodeGen_x86_32.h"
-#include "Jitter_CodeGen_Arm.h"
+#include "Jitter_CodeGen_AArch32.h"
+#include "Jitter_CodeGen_AArch64.h"
 #include "MemStream.h"
 #include "Iop_PsfSubSystem.h"
 #include "psp/Psp_PsfSubSystem.h"
@@ -257,15 +258,26 @@ void Compile(const char* databasePathName, const char* cpuArchName, const char* 
 {
 	Jitter::CCodeGen* codeGen = nullptr;
 	Jitter::CObjectFile::CPU_ARCH cpuArch = Jitter::CObjectFile::CPU_ARCH_X86;
+	bool is64Bits = false;
 	if(!strcmp(cpuArchName, "x86"))
 	{
 		codeGen = new Jitter::CCodeGen_x86_32();
 		cpuArch = Jitter::CObjectFile::CPU_ARCH_X86;
+		is64Bits = false;
 	}
 	else if(!strcmp(cpuArchName, "arm"))
 	{
-		codeGen = new Jitter::CCodeGen_Arm();
+		codeGen = new Jitter::CCodeGen_AArch32();
 		cpuArch = Jitter::CObjectFile::CPU_ARCH_ARM;
+		is64Bits = false;
+	}
+	else if(!strcmp(cpuArchName, "arm64"))
+	{
+		auto generator = new Jitter::CCodeGen_AArch64();
+		generator->SetGenerateRelocatableCalls(true);
+		codeGen = generator;
+		cpuArch = Jitter::CObjectFile::CPU_ARCH_ARM64;
+		is64Bits = true;
 	}
 	else
 	{
@@ -279,7 +291,14 @@ void Compile(const char* databasePathName, const char* cpuArchName, const char* 
 	}
 	else if(!strcmp(imageFormatName, "macho"))
 	{
-		objectFile = std::make_unique<Jitter::CMachoObjectFile>(cpuArch);
+		if(is64Bits)
+		{
+			objectFile = std::make_unique<Jitter::CMachoObjectFile64>(cpuArch);
+		}
+		else
+		{
+			objectFile = std::make_unique<Jitter::CMachoObjectFile32>(cpuArch);
+		}
 	}
 	else
 	{
@@ -341,7 +360,14 @@ void Compile(const char* databasePathName, const char* cpuArchName, const char* 
 				blockTableSymbol.symbolReferences.push_back(ref);
 			}
 
-			blockTableStream.Write32(0);
+			if(is64Bits)
+			{
+				blockTableStream.Write64(0);
+			}
+			else
+			{
+				blockTableStream.Write32(0);
+			}
 		}
 
 		blockTableSymbol.data = std::vector<uint8>(blockTableStream.GetBuffer(), blockTableStream.GetBuffer() + blockTableStream.GetLength());
@@ -365,7 +391,7 @@ void PrintUsage()
 {
 	printf("PsfAot usage:\r\n");
 	printf("\tPsfAot gather [InputFile] [DatabasePath]\r\n");
-	printf("\tPsfAot compile [DatabasePath] [x86|x64|arm] [coff|macho] [OutputFile]\r\n");
+	printf("\tPsfAot compile [DatabasePath] [x86|x64|arm|arm64] [coff|macho] [OutputFile]\r\n");
 }
 
 int main(int argc, char** argv)

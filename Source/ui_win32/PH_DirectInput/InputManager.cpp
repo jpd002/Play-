@@ -41,6 +41,8 @@ uint32 CInputManager::m_buttonDefaultValue[PS2::CControllerInfo::MAX_BUTTONS] =
 	false,
 	false,
 	false,
+	false,
+	false
 };
 
 CInputManager::CInputManager(HWND hWnd, Framework::CConfig& config)

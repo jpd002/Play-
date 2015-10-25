@@ -1,5 +1,3 @@
-#include "ExternalDependencies.xcconfig"
-
 SDKROOT = macosx
 
 CLANG_CXX_LANGUAGE_STANDARD = c++0x
@@ -28,6 +26,10 @@ GCC_WARN_UNDECLARED_SELECTOR = YES
 
 GCC_SYMBOLS_PRIVATE_EXTERN = YES
 GCC_INPUT_FILETYPE = sourcecode.cpp.objcpp
+
+FRAMEWORK_PATH = ../../Framework/
+CODEGEN_PATH = ../../CodeGen/
+BOOST_FRAMEWORK_PATH = ../../Dependencies/BoostMac/osx/framework/
 
 FRAMEWORK_SEARCH_PATHS = $(BOOST_FRAMEWORK_PATH)
 HEADER_SEARCH_PATHS = $(BOOST_FRAMEWORK_PATH)/boost.framework/Headers $(CODEGEN_PATH)/include $(FRAMEWORK_PATH)/include ../include

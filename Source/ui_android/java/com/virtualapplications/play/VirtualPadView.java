@@ -60,6 +60,7 @@ public class VirtualPadView extends SurfaceView
 		float analogStickSize = 96.0f / uiScale;
 		float lrButtonWidth = 128.0f / uiScale;
 		float lrButtonHeight = 64.0f / uiScale;
+		float lr3ButtonSize = 64.0f / uiScale;
 		float dpadButtonSize = 32.0f / uiScale;
 		float margin = 32.0f / uiScale;
 		float padButtonSize = 64.0f / uiScale;
@@ -77,6 +78,9 @@ public class VirtualPadView extends SurfaceView
 		float leftAnalogStickPosX = dpadPosX + (padButtonSize * 3) + analogStickSize;
 		float rightAnalogStickPosX = actionPadPosX - (analogStickSize * 2);
 		float analogStickPosY = screenHeight - (padButtonSize * 3) - margin;
+		float l3ButtonPosX = startSelPadPosX - (lr3ButtonSize * 2);
+		float r3ButtonPosX = startSelPadPosX + (padButtonSize * 3) + lr3ButtonSize;
+		float lr3ButtonPosY = screenHeight - padButtonSize - margin;
 		
 		_items.clear();
 
@@ -132,6 +136,13 @@ public class VirtualPadView extends SurfaceView
 		_items.add(new VirtualPadStick(
 				createScaledRect(rightAnalogStickPosX, analogStickPosY, rightAnalogStickPosX + analogStickSize, analogStickPosY + analogStickSize, density),
 				InputManagerConstants.ANALOG_RIGHT_X, InputManagerConstants.ANALOG_RIGHT_Y, analogStick));
+
+		_items.add(new VirtualPadButton(
+				createScaledRect(l3ButtonPosX, lr3ButtonPosY, l3ButtonPosX + lr3ButtonSize, lr3ButtonPosY + lr3ButtonSize, density),
+				InputManagerConstants.BUTTON_L3, lr, "L3"));
+		_items.add(new VirtualPadButton(
+				createScaledRect(r3ButtonPosX, lr3ButtonPosY, r3ButtonPosX + lr3ButtonSize, lr3ButtonPosY + lr3ButtonSize, density),
+				InputManagerConstants.BUTTON_R3, lr, "R3"));
 
 		postInvalidate();
 	}

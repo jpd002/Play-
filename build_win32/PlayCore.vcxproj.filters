@@ -867,5 +867,8 @@
     <ClInclude Include="..\Source\OsVariableWrapper.h">
       <Filter>Source Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\Source\SifDefs.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

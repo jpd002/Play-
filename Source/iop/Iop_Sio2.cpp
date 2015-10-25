@@ -45,12 +45,13 @@ void CSio2::Reset()
 	memset(m_ctrl1, 0, sizeof(m_ctrl1));
 	memset(m_ctrl2, 0, sizeof(m_ctrl2));
 	memset(&m_padState, 0, sizeof(m_padState));
-	for(auto padInfoIterator = std::begin(m_padState);
-		padInfoIterator != std::end(m_padState); padInfoIterator++)
+	for(auto& padInfo : m_padState)
 	{
-		auto& padInfo = (*padInfoIterator);
 		padInfo.buttonState = 0xFFFF;
 		padInfo.mode = ID_ANALOG;
+		padInfo.pollMask[0] = 0xFF;
+		padInfo.pollMask[1] = 0xFF;
+		padInfo.pollMask[2] = 0x03;
 		memset(padInfo.analogStickState, 0x7F, sizeof(padInfo.analogStickState));
 	}
 }
@@ -217,16 +218,7 @@ void CSio2::ProcessController(unsigned int portId, size_t outputOffset, uint32 d
 			break;
 		case 0x41:
 			assert(dstSize == 9);
-			if(padState.mode == ID_ANALOGP)
-			{
-				m_outputBuffer[outputOffset + 0x03] = padState.pollMask[0];
-				m_outputBuffer[outputOffset + 0x04] = padState.pollMask[1];
-				m_outputBuffer[outputOffset + 0x05] = padState.pollMask[2];
-				m_outputBuffer[outputOffset + 0x06] = 0x00;
-				m_outputBuffer[outputOffset + 0x07] = 0x00;
-				m_outputBuffer[outputOffset + 0x08] = 0x5A;
-			}
-			else
+			if(padState.mode == ID_DIGITAL)
 			{
 				m_outputBuffer[outputOffset + 0x03] = 0x00;
 				m_outputBuffer[outputOffset + 0x04] = 0x00;
@@ -234,6 +226,15 @@ void CSio2::ProcessController(unsigned int portId, size_t outputOffset, uint32 d
 				m_outputBuffer[outputOffset + 0x06] = 0x00;
 				m_outputBuffer[outputOffset + 0x07] = 0x00;
 				m_outputBuffer[outputOffset + 0x08] = 0x00;
+			}
+			else
+			{
+				m_outputBuffer[outputOffset + 0x03] = padState.pollMask[0];
+				m_outputBuffer[outputOffset + 0x04] = padState.pollMask[1];
+				m_outputBuffer[outputOffset + 0x05] = padState.pollMask[2];
+				m_outputBuffer[outputOffset + 0x06] = 0x00;
+				m_outputBuffer[outputOffset + 0x07] = 0x00;
+				m_outputBuffer[outputOffset + 0x08] = 0x5A;
 			}
 			CLog::GetInstance().Print(LOG_NAME, "Pad %d: Cmd41();\r\n", padId);
 			break;
