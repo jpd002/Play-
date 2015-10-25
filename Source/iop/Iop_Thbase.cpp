@@ -286,18 +286,18 @@ uint32 CThbase::iWakeupThread(uint32 threadId)
 	return m_bios.WakeupThread(threadId, true);
 }
 
-uint32 CThbase::GetSystemTime(uint32 resultAddr)
+uint32 CThbase::GetSystemTime(uint32 resultPtr)
 {
 #ifdef _DEBUG
-	CLog::GetInstance().Print(LOG_NAME, "%d : GetSystemTime(result);\r\n",
-		m_bios.GetCurrentThreadId());
+	CLog::GetInstance().Print(LOG_NAME, "%d : " FUNCTION_GETSYSTEMTIME "(resultPtr = 0x%0.8X);\r\n",
+		m_bios.GetCurrentThreadId(), resultPtr);
 #endif
-	uint64* result = NULL;
-	if(resultAddr != 0)
+	uint64* result = nullptr;
+	if(resultPtr != 0)
 	{
-		result = reinterpret_cast<uint64*>(&m_ram[resultAddr]);
+		result = reinterpret_cast<uint64*>(&m_ram[resultPtr]);
 	}
-	if(result != NULL)
+	if(result)
 	{
 		(*result) = m_bios.GetCurrentTime();
 	}
