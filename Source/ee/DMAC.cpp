@@ -11,7 +11,7 @@
 #define STATE_REGS_XML      ("dmac/regs.xml")
 #define STATE_REGS_CTRL     ("D_CTRL")
 #define STATE_REGS_STAT     ("D_STAT")
-#define STATE_REGS_PCR		("D_PCR")
+#define STATE_REGS_PCR      ("D_PCR")
 #define STATE_REGS_RBSR     ("D_RBSR")
 #define STATE_REGS_RBOR     ("D_RBOR")
 #define STATE_REGS_D8_SADR  ("D8_SADR")
@@ -32,7 +32,6 @@
 		return 0;						\
 		break;
 
-using namespace Framework;
 using namespace Dmac;
 
 //DMA channels (EE side)
@@ -47,9 +46,8 @@ using namespace Dmac;
 //8 - SPR (incoming)
 //9 - SPR (outgoing)
 
-uint32 DummyTransfertFunction(uint32 address, uint32 size, uint32, bool)
+static uint32 DummyTransferFunction(uint32 address, uint32 size, uint32, bool)
 {
-//    return size;
 	throw std::runtime_error("Not implemented.");
 }
 
@@ -60,13 +58,13 @@ CDMAC::CDMAC(uint8* ram, uint8* spr, uint8* vuMem0, CMIPS& ee)
 , m_ee(ee)
 , m_D_STAT(0)
 , m_D_ENABLE(0)
-, m_D0(*this, 0, DummyTransfertFunction)
-, m_D1(*this, 1, DummyTransfertFunction)
-, m_D2(*this, 2, DummyTransfertFunction)
+, m_D0(*this, 0, DummyTransferFunction)
+, m_D1(*this, 1, DummyTransferFunction)
+, m_D2(*this, 2, DummyTransferFunction)
 , m_D3_CHCR(0)
 , m_D3_MADR(0)
 , m_D3_QWC(0)
-, m_D4(*this, 4, DummyTransfertFunction)
+, m_D4(*this, 4, DummyTransferFunction)
 , m_D5_CHCR(0)
 , m_D5_MADR(0)
 , m_D5_QWC(0)
@@ -839,7 +837,7 @@ void CDMAC::SetRegister(uint32 nAddress, uint32 nData)
 
 }
 
-void CDMAC::LoadState(CZipArchiveReader& archive)
+void CDMAC::LoadState(Framework::CZipArchiveReader& archive)
 {
 	CRegisterStateFile registerFile(*archive.BeginReadFile(STATE_REGS_XML));
 	m_D_CTRL	<<= registerFile.GetRegister32(STATE_REGS_CTRL);
@@ -858,7 +856,7 @@ void CDMAC::LoadState(CZipArchiveReader& archive)
 	m_D9.LoadState(archive);
 }
 
-void CDMAC::SaveState(CZipArchiveWriter& archive)
+void CDMAC::SaveState(Framework::CZipArchiveWriter& archive)
 {
 	CRegisterStateFile* registerFile = new CRegisterStateFile(STATE_REGS_XML);
 	registerFile->SetRegister32(STATE_REGS_CTRL,	m_D_CTRL);

@@ -1,5 +1,4 @@
-#ifndef _DMAC_H_
-#define _DMAC_H_
+#pragma once
 
 #include "Types.h"
 #include "zip/ZipArchiveWriter.h"
@@ -166,5 +165,3 @@ private:
 	Dmac::DmaReceiveHandler m_receiveDma5;
 	Dmac::DmaReceiveHandler m_receiveDma6;
 };
-
-#endif
