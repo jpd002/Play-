@@ -34,18 +34,6 @@
 
 using namespace Dmac;
 
-//DMA channels (EE side)
-//0 - VIF0
-//1 - VIF1
-//2 - GIF
-//3 - IPU (incoming)
-//4 - IPU (outgoing)
-//5 - SIF0 (from IOP)
-//6 - SIF1 (to IOP?)
-//7 - SIF2
-//8 - SPR (incoming)
-//9 - SPR (outgoing)
-
 static uint32 DummyTransferFunction(uint32 address, uint32 size, uint32, bool)
 {
 	throw std::runtime_error("Not implemented.");
