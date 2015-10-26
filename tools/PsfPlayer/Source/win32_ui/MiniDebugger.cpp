@@ -1,7 +1,7 @@
 #include "MiniDebugger.h"
 #include "win32/Rect.h"
 #include "win32/AcceleratorTableGenerator.h"
-#include "win32ui/resource.h"
+#include "ui_win32/resource.h"
 #include <functional>
 #include <stdio.h>
 #include <io.h>
