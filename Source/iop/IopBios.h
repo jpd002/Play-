@@ -75,16 +75,22 @@ public:
 		THREAD_STATUS_WAIT_VBLANK_END		= 8,
 	};
 
-	enum THREAD_STATUS_OFFSETS
+	struct THREAD_INFO
 	{
-		THREAD_INFO_ATTRIBUTE				= 0,
-		THREAD_INFO_OPTION					= 1,
-		THREAD_INFO_STATUS					= 2,
-		THREAD_INFO_THREAD					= 3,
-		THREAD_INFO_STACK					= 4,
-		THREAD_INFO_STACKSIZE				= 5,
-		THREAD_INFO_INITPRIORITY			= 7,
-		THREAD_INFO_PRIORITY				= 8
+		uint32 attributes;
+		uint32 option;
+		uint32 status;
+		uint32 entryPoint;
+		uint32 stackAddr;
+		uint32 stackSize;
+		uint32 gp;
+		uint32 initPriority;
+		uint32 currentPriority;
+		uint32 waitType;
+		uint32 waitId;
+		uint32 wakeupCount;
+		uint32 regContextAddr;
+		uint32 reserved[4];
 	};
 
 								CIopBios(CMIPS&, uint8*, uint32);
