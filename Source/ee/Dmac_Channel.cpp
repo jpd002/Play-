@@ -127,6 +127,18 @@ void CChannel::Execute()
 		case 0x00:
 			ExecuteNormal();
 			break;
+		case 0x02:
+			assert((m_nNumber == CDMAC::CHANNEL_ID_FROM_SPR) || (m_nNumber == CDMAC::CHANNEL_ID_TO_SPR));
+			if((m_dmac.m_D_SQWC.sqwc == 0) || (m_dmac.m_D_SQWC.tqwc == 0))
+			{
+				//If SQWC or TQWC is 0, execute normally
+				ExecuteNormal();
+			}
+			else
+			{
+				ExecuteInterleave();
+			}
+			break;
 		case 0x01:
 		case 0x03:		//FFXII uses 3 here, assuming source chain mode
 			ExecuteSourceChain();
@@ -169,6 +181,32 @@ void CChannel::ExecuteNormal()
 		if(m_nMADR == (m_dmac.m_D_RBOR + ringBufferSize))
 		{
 			m_nMADR = m_dmac.m_D_RBOR;
+		}
+	}
+}
+
+void CChannel::ExecuteInterleave()
+{
+	assert((m_nQWC % m_dmac.m_D_SQWC.tqwc) == 0);
+	while(1)
+	{
+		//Transfer
+		{
+			uint32 qwc  = m_dmac.m_D_SQWC.tqwc;
+			uint32 recv = m_pReceive(m_nMADR, qwc, 0, false);
+			assert(recv == qwc);
+
+			m_nMADR += recv * 0x10;
+			m_nQWC  -= recv;
+		}
+
+		//Skip
+		m_nMADR += m_dmac.m_D_SQWC.sqwc * 0x10;
+
+		if(m_nQWC == 0)
+		{
+			ClearSTR();
+			break;
 		}
 	}
 }

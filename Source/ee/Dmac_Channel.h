@@ -52,6 +52,7 @@ namespace Dmac
 		void					WriteCHCR(uint32);
 		void					Execute();
 		void					ExecuteNormal();
+		void					ExecuteInterleave();
 		void					ExecuteSourceChain();
 		void					SetReceiveHandler(const DmaReceiveHandler&);
 

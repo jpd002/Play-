@@ -12,6 +12,7 @@
 #define STATE_REGS_CTRL     ("D_CTRL")
 #define STATE_REGS_STAT     ("D_STAT")
 #define STATE_REGS_PCR      ("D_PCR")
+#define STATE_REGS_SQWC     ("D_SQWC")
 #define STATE_REGS_RBSR     ("D_RBSR")
 #define STATE_REGS_RBOR     ("D_RBOR")
 #define STATE_REGS_D8_SADR  ("D8_SADR")
@@ -79,6 +80,7 @@ void CDMAC::Reset()
 	m_D_STAT	= 0;
 	m_D_ENABLE	= 0;
 	m_D_PCR		= 0;
+	m_D_SQWC	<<= 0;
 	m_D_RBSR	= 0;
 	m_D_RBOR	= 0;
 
@@ -410,6 +412,10 @@ uint32 CDMAC::GetRegister(uint32 nAddress)
 
 	case D_PCR:
 		return m_D_PCR;
+		break;
+
+	case D_SQWC:
+		return m_D_SQWC;
 		break;
 
 	case D_ENABLER + 0x0:
@@ -788,6 +794,14 @@ void CDMAC::SetRegister(uint32 nAddress, uint32 nData)
 	case D_PCR + 0xC:
 		break;
 
+	case D_SQWC + 0x0:
+		m_D_SQWC <<= nData;
+		break;
+	case D_SQWC + 0x4:
+	case D_SQWC + 0x8:
+	case D_SQWC + 0xC:
+		break;
+
 	case D_RBSR + 0x0:
 		m_D_RBSR = nData;
 		assert((m_D_RBSR & 0xF) == 0);
@@ -831,6 +845,7 @@ void CDMAC::LoadState(Framework::CZipArchiveReader& archive)
 	m_D_CTRL	<<= registerFile.GetRegister32(STATE_REGS_CTRL);
 	m_D_STAT	= registerFile.GetRegister32(STATE_REGS_STAT);
 	m_D_PCR		= registerFile.GetRegister32(STATE_REGS_PCR);
+	m_D_SQWC	<<= registerFile.GetRegister32(STATE_REGS_SQWC);
 	m_D_RBSR	= registerFile.GetRegister32(STATE_REGS_RBSR);
 	m_D_RBOR	= registerFile.GetRegister32(STATE_REGS_RBOR);
 	m_D8_SADR	= registerFile.GetRegister32(STATE_REGS_D8_SADR);
@@ -850,6 +865,7 @@ void CDMAC::SaveState(Framework::CZipArchiveWriter& archive)
 	registerFile->SetRegister32(STATE_REGS_CTRL,	m_D_CTRL);
 	registerFile->SetRegister32(STATE_REGS_STAT,	m_D_STAT);
 	registerFile->SetRegister32(STATE_REGS_PCR,		m_D_PCR);
+	registerFile->SetRegister32(STATE_REGS_SQWC,	m_D_SQWC);
 	registerFile->SetRegister32(STATE_REGS_RBSR,	m_D_RBSR);
 	registerFile->SetRegister32(STATE_REGS_RBOR,	m_D_RBOR);
 	registerFile->SetRegister32(STATE_REGS_D8_SADR, m_D8_SADR);
@@ -962,6 +978,9 @@ void CDMAC::DisassembleGet(uint32 nAddress)
 		break;
 	case D_PCR:
 		CLog::GetInstance().Print(LOG_NAME, "= D_PCR.\r\n");
+		break;
+	case D_SQWC:
+		CLog::GetInstance().Print(LOG_NAME, "= D_SQWC.\r\n");
 		break;
 	case D_ENABLER:
 		CLog::GetInstance().Print(LOG_NAME, "= D_ENABLER.\r\n");
@@ -1077,6 +1096,9 @@ void CDMAC::DisassembleSet(uint32 nAddress, uint32 nData)
 		break;
 	case D_PCR:
 		CLog::GetInstance().Print(LOG_NAME, "D_PCR = 0x%0.8X.\r\n", nData);
+		break;
+	case D_SQWC:
+		CLog::GetInstance().Print(LOG_NAME, "D_SQWC = 0x%0.8X.\r\n", nData);
 		break;
 	case D_RBSR:
 		CLog::GetInstance().Print(LOG_NAME, "D_RBSR = 0x%0.8X.\r\n", nData);

@@ -75,6 +75,7 @@ public:
 		D_CTRL		= 0x1000E000,
 		D_STAT		= 0x1000E010,
 		D_PCR		= 0x1000E020,
+		D_SQWC		= 0x1000E030,
 		D_RBSR		= 0x1000E040,
 		D_RBOR		= 0x1000E050,
 
@@ -130,6 +131,15 @@ private:
 	};
 	static_assert(sizeof(D_CTRL_REG) == sizeof(uint32), "Size of D_CTRL_REG struct must be 4 bytes.");
 
+	struct D_SQWC_REG : public convertible<uint32>
+	{
+		unsigned int    sqwc      : 8;
+		unsigned int    reserved0 : 8;
+		unsigned int    tqwc      : 8;
+		unsigned int    reserved1 : 8;
+	};
+	static_assert(sizeof(D_SQWC_REG) == sizeof(uint32), "Size of D_SQWC_REG struct must be 4 bytes.");
+
 	uint64				FetchDMATag(uint32);
 
 	uint32				ReceiveDMA8(uint32, uint32, uint32, bool);
@@ -141,6 +151,7 @@ private:
 	uint32				m_D_STAT;
 	uint32				m_D_ENABLE;
 	uint32				m_D_PCR;
+	D_SQWC_REG			m_D_SQWC;
 	uint32				m_D_RBSR;
 	uint32				m_D_RBOR;
 
