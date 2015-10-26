@@ -1045,6 +1045,26 @@ uint32 CIopBios::ReferThreadStatus(uint32 threadId, uint32 statusPtr)
 		break;
 	}
 
+	uint32 waitType = 0;
+	switch(thread->status)
+	{
+	case THREAD_STATUS_SLEEPING:
+		waitType = 1;
+		break;
+	case THREAD_STATUS_WAITING_SEMAPHORE:
+		waitType = 3;
+		break;
+	case THREAD_STATUS_WAITING_EVENTFLAG:
+		waitType = 4;
+		break;
+	case THREAD_STATUS_WAITING_MESSAGEBOX:
+		waitType = 5;
+		break;
+	default:
+		waitType = 0;
+		break;
+	}
+
 	auto threadInfo = reinterpret_cast<THREAD_INFO*>(m_ram + statusPtr);
 	threadInfo->attributes      = 0;
 	threadInfo->option          = thread->optionData;
@@ -1054,6 +1074,7 @@ uint32 CIopBios::ReferThreadStatus(uint32 threadId, uint32 statusPtr)
 	threadInfo->stackSize       = thread->stackSize;
 	threadInfo->initPriority    = thread->initPriority;
 	threadInfo->currentPriority = thread->priority;
+	threadInfo->waitType        = waitType;
 
 	return KERNEL_RESULT_OK;
 }
