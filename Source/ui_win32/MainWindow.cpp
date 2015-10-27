@@ -71,7 +71,7 @@ CMainWindow::CMainWindow(CPS2VM& virtualMachine)
 {
 	m_recordAviMutex = CreateMutex(NULL, FALSE, NULL);
 
-	TCHAR sVersion[256];
+	
 
 	CAppConfig::GetInstance().RegisterPreferenceBoolean(PREF_UI_PAUSEWHENFOCUSLOST, true);
 	CAppConfig::GetInstance().RegisterPreferenceBoolean(PREF_UI_SOUNDENABLED, true);
@@ -110,6 +110,11 @@ CMainWindow::CMainWindow(CPS2VM& virtualMachine)
 	m_frameDebugger = std::unique_ptr<CFrameDebugger>(new CFrameDebugger());
 	CreateDebugMenu();
 #endif
+}
+
+void CMainWindow::PostConstruct()
+{
+	TCHAR sVersion[256];
 
 	PrintVersion(sVersion, countof(sVersion));
 
@@ -119,8 +124,8 @@ CMainWindow::CMainWindow(CPS2VM& virtualMachine)
 
 	m_statusBar = Framework::Win32::CStatusBar(m_hWnd);
 	m_statusBar.SetParts(2, m_statusBarPanelWidths);
-	m_statusBar.SetText(STATUSPANEL,	sVersion);
-	m_statusBar.SetText(FPSPANEL,		_T(""));
+	m_statusBar.SetText(STATUSPANEL, sVersion);
+	m_statusBar.SetText(FPSPANEL, _T(""));
 
 	CreateGSHandler();
 

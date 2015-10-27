@@ -22,6 +22,8 @@ class CMainWindow : public Framework::Win32::CWindow, public boost::signals2::tr
 public:
 									CMainWindow(CPS2VM&);
 									~CMainWindow();
+	void							PostConstruct();
+									
 	int								Loop();
 
 protected:
