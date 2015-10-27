@@ -1,3 +1,4 @@
+#include <string.h>
 #include "MipsFunctionPatternDb.h"
 #include "xml/FilteringNodeIterator.h"
 

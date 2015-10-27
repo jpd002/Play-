@@ -2588,7 +2588,7 @@ void CPS2OS::HandleSyscall()
 		//Save for custom handler
 		m_ee.m_State.nGPR[3].nV[0] = func;
 
-		if(GetCustomSyscallTable()[func] == NULL)
+		if(GetCustomSyscallTable()[func] == 0)
 		{
 	#ifdef _DEBUG
 			DisassembleSysCall(static_cast<uint8>(func & 0xFF));

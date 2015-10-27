@@ -89,7 +89,8 @@ int main(int argc, const char** argv)
 		directoryIterator != endDirectoryIterator; directoryIterator++)
 	{
 		auto testPath = directoryIterator->path();
-		CGameTestSheet testSheet(Framework::CreateInputStdStream(testPath.native()));
+		auto stream = Framework::CreateInputStdStream(testPath.native());
+		CGameTestSheet testSheet(stream);
 
 		for(const auto& test : testSheet.GetTests())
 		{

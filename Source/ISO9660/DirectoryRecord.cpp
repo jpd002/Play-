@@ -1,3 +1,4 @@
+#include <string.h>
 #include "DirectoryRecord.h"
 
 using namespace ISO9660;

@@ -600,14 +600,18 @@
 		70834AFB1B1BCCFF00E8D5C6 /* ui_ios */ = {
 			isa = PBXGroup;
 			children = (
-				87EC5F391B7AF6EA00F1B515 /* PH_iOS.cpp */,
-				87EC5F3A1B7AF6EA00F1B515 /* PH_iOS.h */,
 				70834AE31B1BCB0100E8D5C6 /* AppDelegate.h */,
 				70834AE41B1BCB0100E8D5C6 /* AppDelegate.mm */,
-				70834AE71B1BCB0100E8D5C6 /* EmulatorViewController.h */,
-				70834AE81B1BCB0100E8D5C6 /* EmulatorViewController.mm */,
+				876AA37A1B82413300617242 /* BackgroundLayer.h */,
+				876AA37B1B82413300617242 /* BackgroundLayer.m */,
+				87DCDB361B7F13370054D67C /* CollectionView.h */,
+				87DCDB371B7F13370054D67C /* CollectionView.m */,
 				879A687B1B94D344001D4262 /* CoverViewCell.h */,
 				879A687C1B94D344001D4262 /* CoverViewCell.m */,
+				87DCDB311B7F03260054D67C /* CoverViewController.h */,
+				87DCDB321B7F03260054D67C /* CoverViewController.m */,
+				70834AE71B1BCB0100E8D5C6 /* EmulatorViewController.h */,
+				70834AE81B1BCB0100E8D5C6 /* EmulatorViewController.mm */,
 				70AD23681B38A39000137AA0 /* GlEsView.h */,
 				70AD23651B38A2FE00137AA0 /* GlEsView.mm */,
 				704E1C4C1B3BA0B200C0ACE3 /* GSH_OpenGLiOS.cpp */,
@@ -619,15 +623,11 @@
 				70834AEF1B1BCB9E00E8D5C6 /* LaunchScreen.xib */,
 				70834AE61B1BCB0100E8D5C6 /* main.mm */,
 				70834AF11B1BCB9E00E8D5C6 /* Main.storyboard */,
-				876AA37A1B82413300617242 /* BackgroundLayer.h */,
-				876AA37B1B82413300617242 /* BackgroundLayer.m */,
-				87DCDB311B7F03260054D67C /* CoverViewController.h */,
-				87DCDB321B7F03260054D67C /* CoverViewController.m */,
+				87EC5F391B7AF6EA00F1B515 /* PH_iOS.cpp */,
+				87EC5F3A1B7AF6EA00F1B515 /* PH_iOS.h */,
 				70834CE21B1BD93100E8D5C6 /* Purei_Prefix.pch */,
-				874ECDA51B7DB0F6000075B6 /* SqliteDatabase.m */,
 				874ECDA71B7DB1C1000075B6 /* SqliteDatabase.h */,
-				87DCDB361B7F13370054D67C /* CollectionView.h */,
-				87DCDB371B7F13370054D67C /* CollectionView.m */,
+				874ECDA51B7DB0F6000075B6 /* SqliteDatabase.m */,
 			);
 			name = ui_ios;
 			sourceTree = "<group>";

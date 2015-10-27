@@ -1,5 +1,6 @@
 #pragma once
 
+#include <memory>
 #include "Types.h"
 #include "Stream.h"
 

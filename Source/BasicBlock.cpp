@@ -31,8 +31,10 @@ struct AOT_BLOCK
 };
 #pragma pack(pop)
 
-extern "C" AOT_BLOCK	_aot_firstBlock;
-extern "C" uint32		_aot_blockCount;
+extern "C" {
+	AOT_BLOCK _aot_firstBlock;
+	uint32 _aot_blockCount;
+}
 
 #endif
 

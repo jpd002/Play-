@@ -145,12 +145,15 @@ CSubSystem::CSubSystem(uint8* iopRam, CIopBios& iopBios)
 CSubSystem::~CSubSystem()
 {
 	m_executor.Reset();
+	delete m_os;
 	framework_aligned_free(m_ram);
 	delete [] m_bios;
+	delete [] m_spr;
 	delete [] m_fakeIopRam;
 	framework_aligned_free(m_vuMem0);
+	delete [] m_microMem0;
 	framework_aligned_free(m_vuMem1);
-	delete m_os;
+	delete [] m_microMem1;
 }
 
 void CSubSystem::SetVpu0(std::shared_ptr<CVpu> newVpu0)

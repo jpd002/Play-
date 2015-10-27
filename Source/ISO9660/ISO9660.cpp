@@ -1,3 +1,4 @@
+#include <string.h>
 #include <limits.h>
 #include "ISO9660.h"
 #include "StdStream.h"

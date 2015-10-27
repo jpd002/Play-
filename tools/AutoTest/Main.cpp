@@ -207,7 +207,15 @@ int main(int argc, const char** argv)
 		return -1;
 	}
 
-	ScanAndExecuteTests(autoTestRoot, testReportWriter);
+	try
+	{
+		ScanAndExecuteTests(autoTestRoot, testReportWriter);
+	}
+	catch(const std::exception& exception)
+	{
+		printf("Error: Failed to execute tests: %s\r\n", exception.what());
+		return -1;
+	}
 
 	if(testReportWriter)
 	{

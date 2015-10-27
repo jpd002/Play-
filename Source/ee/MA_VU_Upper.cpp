@@ -3,6 +3,8 @@
 #include "VUShared.h"
 #include "Vif.h"
 
+#undef MAX
+
 using namespace std;
 
 CMA_VU::CUpper::CUpper() 
