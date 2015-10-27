@@ -160,7 +160,11 @@
 		70AD23951B39199300137AA0 /* MaxSaveImporter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 70AD238F1B39199300137AA0 /* MaxSaveImporter.cpp */; };
 		70AD23961B39199300137AA0 /* PsuSaveImporter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 70AD23911B39199300137AA0 /* PsuSaveImporter.cpp */; };
 		70AD23971B39199300137AA0 /* XpsSaveImporter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 70AD23931B39199300137AA0 /* XpsSaveImporter.cpp */; };
-		70B1833C1BD7D40900EAEB9B /* VirtualPad.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 70B1833A1BD7D40900EAEB9B /* VirtualPad.cpp */; settings = {ASSET_TAGS = (); }; };
+		70B1833C1BD7D40900EAEB9B /* VirtualPad.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 70B1833A1BD7D40900EAEB9B /* VirtualPad.cpp */; };
+		70D3A8751BDF1746005494CE /* VirtualPadButton.mm in Sources */ = {isa = PBXBuildFile; fileRef = 70D3A86E1BDF1746005494CE /* VirtualPadButton.mm */; };
+		70D3A8761BDF1746005494CE /* VirtualPadItem.mm in Sources */ = {isa = PBXBuildFile; fileRef = 70D3A8701BDF1746005494CE /* VirtualPadItem.mm */; };
+		70D3A8771BDF1746005494CE /* VirtualPadStick.mm in Sources */ = {isa = PBXBuildFile; fileRef = 70D3A8721BDF1746005494CE /* VirtualPadStick.mm */; };
+		70D3A8781BDF1746005494CE /* VirtualPadView.mm in Sources */ = {isa = PBXBuildFile; fileRef = 70D3A8741BDF1746005494CE /* VirtualPadView.mm */; };
 		874ECDA41B7D980C000075B6 /* boxart.png in Resources */ = {isa = PBXBuildFile; fileRef = 874ECDA21B7D980C000075B6 /* boxart.png */; };
 		874ECDA61B7DB0F6000075B6 /* SqliteDatabase.m in Sources */ = {isa = PBXBuildFile; fileRef = 874ECDA51B7DB0F6000075B6 /* SqliteDatabase.m */; };
 		874ECDAA1B7DB862000075B6 /* libsqlite3.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 874ECDA91B7DB862000075B6 /* libsqlite3.dylib */; };
@@ -518,6 +522,14 @@
 		70AD23941B39199300137AA0 /* XpsSaveImporter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = XpsSaveImporter.h; path = ../Source/saves/XpsSaveImporter.h; sourceTree = "<group>"; };
 		70B1833A1BD7D40900EAEB9B /* VirtualPad.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = VirtualPad.cpp; path = ../Source/VirtualPad.cpp; sourceTree = "<group>"; };
 		70B1833B1BD7D40900EAEB9B /* VirtualPad.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = VirtualPad.h; path = ../Source/VirtualPad.h; sourceTree = "<group>"; };
+		70D3A86D1BDF1746005494CE /* VirtualPadButton.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = VirtualPadButton.h; path = ../Source/ui_ios/VirtualPadButton.h; sourceTree = "<group>"; };
+		70D3A86E1BDF1746005494CE /* VirtualPadButton.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = VirtualPadButton.mm; path = ../Source/ui_ios/VirtualPadButton.mm; sourceTree = "<group>"; };
+		70D3A86F1BDF1746005494CE /* VirtualPadItem.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = VirtualPadItem.h; path = ../Source/ui_ios/VirtualPadItem.h; sourceTree = "<group>"; };
+		70D3A8701BDF1746005494CE /* VirtualPadItem.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = VirtualPadItem.mm; path = ../Source/ui_ios/VirtualPadItem.mm; sourceTree = "<group>"; };
+		70D3A8711BDF1746005494CE /* VirtualPadStick.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = VirtualPadStick.h; path = ../Source/ui_ios/VirtualPadStick.h; sourceTree = "<group>"; };
+		70D3A8721BDF1746005494CE /* VirtualPadStick.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = VirtualPadStick.mm; path = ../Source/ui_ios/VirtualPadStick.mm; sourceTree = "<group>"; };
+		70D3A8731BDF1746005494CE /* VirtualPadView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = VirtualPadView.h; path = ../Source/ui_ios/VirtualPadView.h; sourceTree = "<group>"; };
+		70D3A8741BDF1746005494CE /* VirtualPadView.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = VirtualPadView.mm; path = ../Source/ui_ios/VirtualPadView.mm; sourceTree = "<group>"; };
 		874ECDA21B7D980C000075B6 /* boxart.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = boxart.png; sourceTree = "<group>"; };
 		874ECDA51B7DB0F6000075B6 /* SqliteDatabase.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = SqliteDatabase.m; path = ../Source/ui_ios/SqliteDatabase.m; sourceTree = "<group>"; };
 		874ECDA71B7DB1C1000075B6 /* SqliteDatabase.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = SqliteDatabase.h; path = ../Source/ui_ios/SqliteDatabase.h; sourceTree = "<group>"; };
@@ -628,6 +640,14 @@
 				70834CE21B1BD93100E8D5C6 /* Purei_Prefix.pch */,
 				874ECDA71B7DB1C1000075B6 /* SqliteDatabase.h */,
 				874ECDA51B7DB0F6000075B6 /* SqliteDatabase.m */,
+				70D3A86D1BDF1746005494CE /* VirtualPadButton.h */,
+				70D3A86E1BDF1746005494CE /* VirtualPadButton.mm */,
+				70D3A86F1BDF1746005494CE /* VirtualPadItem.h */,
+				70D3A8701BDF1746005494CE /* VirtualPadItem.mm */,
+				70D3A8711BDF1746005494CE /* VirtualPadStick.h */,
+				70D3A8721BDF1746005494CE /* VirtualPadStick.mm */,
+				70D3A8731BDF1746005494CE /* VirtualPadView.h */,
+				70D3A8741BDF1746005494CE /* VirtualPadView.mm */,
 			);
 			name = ui_ios;
 			sourceTree = "<group>";
@@ -1178,8 +1198,10 @@
 				70834C7C1B1BD70700E8D5C6 /* Iop_SifDynamic.cpp in Sources */,
 				70834C0B1B1BD6E000E8D5C6 /* GSHandler.cpp in Sources */,
 				70834C091B1BD6E000E8D5C6 /* GsCachedArea.cpp in Sources */,
+				70D3A8751BDF1746005494CE /* VirtualPadButton.mm in Sources */,
 				70834B571B1BD2C300E8D5C6 /* AppConfig.cpp in Sources */,
 				70834C851B1BD70700E8D5C6 /* Iop_Stdio.cpp in Sources */,
+				70D3A8771BDF1746005494CE /* VirtualPadStick.mm in Sources */,
 				70834AEB1B1BCB0100E8D5C6 /* main.mm in Sources */,
 				874ECDA61B7DB0F6000075B6 /* SqliteDatabase.m in Sources */,
 				70834BE71B1BD6A300E8D5C6 /* IPU_DmVectorTable.cpp in Sources */,
@@ -1198,6 +1220,7 @@
 				70AD238A1B38FFBA00137AA0 /* Save.cpp in Sources */,
 				70834B591B1BD2C300E8D5C6 /* ControllerInfo.cpp in Sources */,
 				70834B681B1BD2C300E8D5C6 /* MemoryMap.cpp in Sources */,
+				70D3A8781BDF1746005494CE /* VirtualPadView.mm in Sources */,
 				70834B7B1B1BD2C300E8D5C6 /* RegisterStateFile.cpp in Sources */,
 				70834B631B1BD2C300E8D5C6 /* Log.cpp in Sources */,
 				70AD238C1B38FFBA00137AA0 /* SaveImporter.cpp in Sources */,
@@ -1246,6 +1269,7 @@
 				70834CA41B1BD78D00E8D5C6 /* VolumeDescriptor.cpp in Sources */,
 				70834BDD1B1BD6A300E8D5C6 /* COP_VU_Reflection.cpp in Sources */,
 				70834BE21B1BD6A300E8D5C6 /* EEAssembler.cpp in Sources */,
+				70D3A8761BDF1746005494CE /* VirtualPadItem.mm in Sources */,
 				70834BF21B1BD6A300E8D5C6 /* MA_VU_Upper.cpp in Sources */,
 				70834BEF1B1BD6A300E8D5C6 /* MA_EE.cpp in Sources */,
 				70834B641B1BD2C300E8D5C6 /* MA_MIPSIV_Reflection.cpp in Sources */,

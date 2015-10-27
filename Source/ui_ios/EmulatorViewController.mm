@@ -50,6 +50,13 @@ CPS2VM* g_virtualMachine = nullptr;
 	g_virtualMachine->Initialize();
 	g_virtualMachine->CreateGSHandler(CGSH_OpenGLiOS::GetFactoryFunction((CAEAGLLayer*)self.view.layer));
 
+	g_virtualMachine->CreatePadHandler(CPH_iOS::GetFactoryFunction());
+	
+	CGRect screenBounds = [[UIScreen mainScreen] bounds];
+	self.virtualPadView = [[VirtualPadView alloc] initWithFrame: screenBounds
+	                                              padHandler: static_cast<CPH_iOS*>(g_virtualMachine->GetPadHandler())];
+	[self.view addSubview: self.virtualPadView];
+
 	g_virtualMachine->Pause();
 	g_virtualMachine->Reset();
 
