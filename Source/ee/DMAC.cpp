@@ -233,15 +233,22 @@ bool CDMAC::IsEndTagId(uint32 nTag)
 uint32 CDMAC::ReceiveDMA8(uint32 nDstAddress, uint32 nCount, uint32 unused, bool nTagIncluded)
 {
 	assert(nTagIncluded == false);
-
 	assert(m_D8_SADR < PS2::EE_SPR_SIZE);
-	assert((m_D8_SADR + (nCount * 0x10)) <= PS2::EE_SPR_SIZE);
 
 	nDstAddress &= (PS2::EE_RAM_SIZE - 1);
-	memcpy(m_ram + nDstAddress, m_spr + m_D8_SADR, nCount * 0x10);
 
-	m_D8_SADR += (nCount * 0x10);
-	m_D8_SADR &= SADR_WRITE_MASK;
+	uint32 remainTransfer = nCount;
+	while(remainTransfer != 0)
+	{
+		uint32 remainSpr = (PS2::EE_SPR_SIZE - m_D8_SADR) / 0x10;
+		uint32 copySize = std::min<uint32>(remainSpr, remainTransfer);
+		memcpy(m_ram + nDstAddress, m_spr + m_D8_SADR, copySize * 0x10);
+
+		remainTransfer -= copySize;
+		nDstAddress += (copySize * 0x10);
+		m_D8_SADR += (copySize * 0x10);
+		m_D8_SADR &= SADR_WRITE_MASK;
+	}
 
 	return nCount;
 }
@@ -249,24 +256,34 @@ uint32 CDMAC::ReceiveDMA8(uint32 nDstAddress, uint32 nCount, uint32 unused, bool
 uint32 CDMAC::ReceiveDMA9(uint32 nSrcAddress, uint32 nCount, uint32 unused, bool nTagIncluded)
 {
 	assert(nTagIncluded == false);
-
 	assert(m_D9_SADR < PS2::EE_SPR_SIZE);
-	assert((m_D9_SADR + (nCount * 0x10)) <= PS2::EE_SPR_SIZE);
 
-	if(nSrcAddress >= PS2::VUMEM0ADDR && nSrcAddress < (PS2::VUMEM0ADDR + PS2::VUMEM0SIZE))
+	const uint8* srcPtr = nullptr;
+	if((nSrcAddress >= PS2::VUMEM0ADDR) && (nSrcAddress < (PS2::VUMEM0ADDR + PS2::VUMEM0SIZE)))
 	{
 		nSrcAddress -= PS2::VUMEM0ADDR;
 		nSrcAddress &= (PS2::VUMEM0SIZE - 1);
-		memcpy(m_spr + m_D9_SADR, m_vuMem0 + nSrcAddress, nCount * 0x10);
+		srcPtr = m_vuMem0;
 	}
 	else
 	{
 		nSrcAddress &= (PS2::EE_RAM_SIZE - 1);
-		memcpy(m_spr + m_D9_SADR, m_ram + nSrcAddress, nCount * 0x10);
+		srcPtr = m_ram;
 	}
+	assert(srcPtr);
 
-	m_D9_SADR += (nCount * 0x10);
-	m_D9_SADR &= SADR_WRITE_MASK;
+	uint32 remainTransfer = nCount;
+	while(remainTransfer != 0)
+	{
+		uint32 remainSpr = (PS2::EE_SPR_SIZE - m_D9_SADR) / 0x10;
+		uint32 copySize = std::min<uint32>(remainSpr, remainTransfer);
+		memcpy(m_spr + m_D9_SADR, srcPtr + nSrcAddress, copySize * 0x10);
+
+		remainTransfer -= copySize;
+		nSrcAddress += (copySize * 0x10);
+		m_D9_SADR += (copySize * 0x10);
+		m_D9_SADR &= SADR_WRITE_MASK;
+	}
 
 	return nCount;
 }
