@@ -43,5 +43,5 @@ void CPH_iOS::SetButtonState(PS2::CControllerInfo::BUTTON buttonId, bool pressed
 
 void CPH_iOS::SetAxisState(PS2::CControllerInfo::BUTTON buttonId, float value)
 {
-    m_axisStates[buttonId] = value;
+	m_axisStates[buttonId] = value;
 }
