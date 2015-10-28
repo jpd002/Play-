@@ -1045,14 +1045,36 @@ uint32 CIopBios::ReferThreadStatus(uint32 threadId, uint32 statusPtr)
 		break;
 	}
 
-	reinterpret_cast<uint32*>(m_ram + statusPtr)[THREAD_INFO_ATTRIBUTE]		= 0;
-	reinterpret_cast<uint32*>(m_ram + statusPtr)[THREAD_INFO_OPTION]		= thread->optionData;
-	reinterpret_cast<uint32*>(m_ram + statusPtr)[THREAD_INFO_STATUS]		= threadStatus;
-	reinterpret_cast<uint32*>(m_ram + statusPtr)[THREAD_INFO_THREAD]		= thread->threadProc;
-	reinterpret_cast<uint32*>(m_ram + statusPtr)[THREAD_INFO_STACK]			= thread->stackBase;
-	reinterpret_cast<uint32*>(m_ram + statusPtr)[THREAD_INFO_STACKSIZE]		= thread->stackSize;
-	reinterpret_cast<uint32*>(m_ram + statusPtr)[THREAD_INFO_INITPRIORITY]	= thread->initPriority;
-	reinterpret_cast<uint32*>(m_ram + statusPtr)[THREAD_INFO_PRIORITY]		= thread->priority;
+	uint32 waitType = 0;
+	switch(thread->status)
+	{
+	case THREAD_STATUS_SLEEPING:
+		waitType = 1;
+		break;
+	case THREAD_STATUS_WAITING_SEMAPHORE:
+		waitType = 3;
+		break;
+	case THREAD_STATUS_WAITING_EVENTFLAG:
+		waitType = 4;
+		break;
+	case THREAD_STATUS_WAITING_MESSAGEBOX:
+		waitType = 5;
+		break;
+	default:
+		waitType = 0;
+		break;
+	}
+
+	auto threadInfo = reinterpret_cast<THREAD_INFO*>(m_ram + statusPtr);
+	threadInfo->attributes      = 0;
+	threadInfo->option          = thread->optionData;
+	threadInfo->status          = threadStatus;
+	threadInfo->entryPoint      = thread->threadProc;
+	threadInfo->stackAddr       = thread->stackBase;
+	threadInfo->stackSize       = thread->stackSize;
+	threadInfo->initPriority    = thread->initPriority;
+	threadInfo->currentPriority = thread->priority;
+	threadInfo->waitType        = waitType;
 
 	return KERNEL_RESULT_OK;
 }

@@ -1153,6 +1153,26 @@ void CPS2OS::ThreadSwitchContext(unsigned int id)
 	CLog::GetInstance().Print(LOG_NAME, "New thread elected (id = %i).\r\n", id);
 }
 
+void CPS2OS::CheckLivingThreads()
+{
+	//Check if we have a living thread (this is needed for autotests to work properly)
+	bool hasLiveThread = false;
+	for(auto thread : m_threads)
+	{
+		if(!thread) continue;
+		if(thread->status != THREAD_ZOMBIE)
+		{
+			hasLiveThread = true;
+			break;
+		}
+	}
+
+	if(!hasLiveThread)
+	{
+		OnRequestExit();
+	}
+}
+
 void CPS2OS::CreateIdleThread()
 {
 	m_idleThreadId = m_threads.Allocate();
@@ -1661,6 +1681,8 @@ void CPS2OS::sc_ExitThread()
 	UnlinkThread(threadId);
 
 	ThreadShakeAndBake();
+
+	CheckLivingThreads();
 }
 
 //24
@@ -1675,6 +1697,8 @@ void CPS2OS::sc_ExitDeleteThread()
 	ThreadShakeAndBake();
 
 	m_threads.Free(threadId);
+
+	CheckLivingThreads();
 }
 
 //25
@@ -2588,7 +2612,7 @@ void CPS2OS::HandleSyscall()
 		//Save for custom handler
 		m_ee.m_State.nGPR[3].nV[0] = func;
 
-		if(GetCustomSyscallTable()[func] == NULL)
+		if(GetCustomSyscallTable()[func] == 0)
 		{
 	#ifdef _DEBUG
 			DisassembleSysCall(static_cast<uint8>(func & 0xFF));

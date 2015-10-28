@@ -1,3 +1,6 @@
+#include <string.h>
+#include <assert.h>
+#include <memory>
 #include "GameTestSheet.h"
 #include "xml/Parser.h"
 #include "xml/Utils.h"

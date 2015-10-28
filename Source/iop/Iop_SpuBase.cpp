@@ -1,5 +1,6 @@
 #include <cassert>
 #include <cmath>
+#include <climits>
 #include "string_format.h"
 #include "../Log.h"
 #include "../RegisterStateFile.h"

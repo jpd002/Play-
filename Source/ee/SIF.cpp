@@ -422,7 +422,7 @@ void CSIF::Cmd_Initialize(SIFCMDHEADER* hdr)
 		SETSREG SReg;
 		SReg.Header.commandId	= 0x80000001;
 		SReg.Header.size		= sizeof(SETSREG);
-		SReg.Header.dest		= NULL;
+		SReg.Header.dest		= 0;
 		SReg.Header.optional	= 0;
 		SReg.nRegister			= 0;
 		SReg.nValue				= 1;

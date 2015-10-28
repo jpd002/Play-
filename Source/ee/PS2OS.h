@@ -253,6 +253,7 @@ private:
 	void									UnlinkThread(uint32);
 	void									ThreadShakeAndBake();
 	void									ThreadSwitchContext(unsigned int);
+	void									CheckLivingThreads();
 
 	std::pair<uint32, uint32>				GetVsyncFlagPtrs() const;
 	void									SetVsyncFlagPtrs(uint32, uint32);

@@ -1,3 +1,4 @@
+#include "make_unique.h"
 #include "JUnitTestReportWriter.h"
 #include "StdStreamUtils.h"
 #include "xml/Writer.h"

@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <assert.h>
 #include <math.h>
+
 #include "../../Log.h"
 #include "../../AppConfig.h"
 #include "../GsPixelFormats.h"

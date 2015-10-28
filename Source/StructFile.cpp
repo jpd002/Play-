@@ -1,3 +1,4 @@
+#include <string.h>
 #include "StructFile.h"
 #include "xml/Node.h"
 #include "lexical_cast_ex.h"

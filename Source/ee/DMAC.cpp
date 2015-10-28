@@ -11,7 +11,8 @@
 #define STATE_REGS_XML      ("dmac/regs.xml")
 #define STATE_REGS_CTRL     ("D_CTRL")
 #define STATE_REGS_STAT     ("D_STAT")
-#define STATE_REGS_PCR		("D_PCR")
+#define STATE_REGS_PCR      ("D_PCR")
+#define STATE_REGS_SQWC     ("D_SQWC")
 #define STATE_REGS_RBSR     ("D_RBSR")
 #define STATE_REGS_RBOR     ("D_RBOR")
 #define STATE_REGS_D8_SADR  ("D8_SADR")
@@ -32,24 +33,10 @@
 		return 0;						\
 		break;
 
-using namespace Framework;
 using namespace Dmac;
 
-//DMA channels (EE side)
-//0 - VIF0
-//1 - VIF1
-//2 - GIF
-//3 - IPU (incoming)
-//4 - IPU (outgoing)
-//5 - SIF0 (from IOP)
-//6 - SIF1 (to IOP?)
-//7 - SIF2
-//8 - SPR (incoming)
-//9 - SPR (outgoing)
-
-uint32 DummyTransfertFunction(uint32 address, uint32 size, uint32, bool)
+static uint32 DummyTransferFunction(uint32 address, uint32 size, uint32, bool)
 {
-//    return size;
 	throw std::runtime_error("Not implemented.");
 }
 
@@ -60,13 +47,13 @@ CDMAC::CDMAC(uint8* ram, uint8* spr, uint8* vuMem0, CMIPS& ee)
 , m_ee(ee)
 , m_D_STAT(0)
 , m_D_ENABLE(0)
-, m_D0(*this, 0, DummyTransfertFunction)
-, m_D1(*this, 1, DummyTransfertFunction)
-, m_D2(*this, 2, DummyTransfertFunction)
+, m_D0(*this, 0, DummyTransferFunction)
+, m_D1(*this, 1, DummyTransferFunction)
+, m_D2(*this, 2, DummyTransferFunction)
 , m_D3_CHCR(0)
 , m_D3_MADR(0)
 , m_D3_QWC(0)
-, m_D4(*this, 4, DummyTransfertFunction)
+, m_D4(*this, 4, DummyTransferFunction)
 , m_D5_CHCR(0)
 , m_D5_MADR(0)
 , m_D5_QWC(0)
@@ -93,6 +80,7 @@ void CDMAC::Reset()
 	m_D_STAT	= 0;
 	m_D_ENABLE	= 0;
 	m_D_PCR		= 0;
+	m_D_SQWC	<<= 0;
 	m_D_RBSR	= 0;
 	m_D_RBOR	= 0;
 
@@ -245,15 +233,22 @@ bool CDMAC::IsEndTagId(uint32 nTag)
 uint32 CDMAC::ReceiveDMA8(uint32 nDstAddress, uint32 nCount, uint32 unused, bool nTagIncluded)
 {
 	assert(nTagIncluded == false);
-
 	assert(m_D8_SADR < PS2::EE_SPR_SIZE);
-	assert((m_D8_SADR + (nCount * 0x10)) <= PS2::EE_SPR_SIZE);
 
 	nDstAddress &= (PS2::EE_RAM_SIZE - 1);
-	memcpy(m_ram + nDstAddress, m_spr + m_D8_SADR, nCount * 0x10);
 
-	m_D8_SADR += (nCount * 0x10);
-	m_D8_SADR &= SADR_WRITE_MASK;
+	uint32 remainTransfer = nCount;
+	while(remainTransfer != 0)
+	{
+		uint32 remainSpr = (PS2::EE_SPR_SIZE - m_D8_SADR) / 0x10;
+		uint32 copySize = std::min<uint32>(remainSpr, remainTransfer);
+		memcpy(m_ram + nDstAddress, m_spr + m_D8_SADR, copySize * 0x10);
+
+		remainTransfer -= copySize;
+		nDstAddress += (copySize * 0x10);
+		m_D8_SADR += (copySize * 0x10);
+		m_D8_SADR &= SADR_WRITE_MASK;
+	}
 
 	return nCount;
 }
@@ -261,24 +256,34 @@ uint32 CDMAC::ReceiveDMA8(uint32 nDstAddress, uint32 nCount, uint32 unused, bool
 uint32 CDMAC::ReceiveDMA9(uint32 nSrcAddress, uint32 nCount, uint32 unused, bool nTagIncluded)
 {
 	assert(nTagIncluded == false);
-
 	assert(m_D9_SADR < PS2::EE_SPR_SIZE);
-	assert((m_D9_SADR + (nCount * 0x10)) <= PS2::EE_SPR_SIZE);
 
-	if(nSrcAddress >= PS2::VUMEM0ADDR && nSrcAddress < (PS2::VUMEM0ADDR + PS2::VUMEM0SIZE))
+	const uint8* srcPtr = nullptr;
+	if((nSrcAddress >= PS2::VUMEM0ADDR) && (nSrcAddress < (PS2::VUMEM0ADDR + PS2::VUMEM0SIZE)))
 	{
 		nSrcAddress -= PS2::VUMEM0ADDR;
 		nSrcAddress &= (PS2::VUMEM0SIZE - 1);
-		memcpy(m_spr + m_D9_SADR, m_vuMem0 + nSrcAddress, nCount * 0x10);
+		srcPtr = m_vuMem0;
 	}
 	else
 	{
 		nSrcAddress &= (PS2::EE_RAM_SIZE - 1);
-		memcpy(m_spr + m_D9_SADR, m_ram + nSrcAddress, nCount * 0x10);
+		srcPtr = m_ram;
 	}
+	assert(srcPtr);
 
-	m_D9_SADR += (nCount * 0x10);
-	m_D9_SADR &= SADR_WRITE_MASK;
+	uint32 remainTransfer = nCount;
+	while(remainTransfer != 0)
+	{
+		uint32 remainSpr = (PS2::EE_SPR_SIZE - m_D9_SADR) / 0x10;
+		uint32 copySize = std::min<uint32>(remainSpr, remainTransfer);
+		memcpy(m_spr + m_D9_SADR, srcPtr + nSrcAddress, copySize * 0x10);
+
+		remainTransfer -= copySize;
+		nSrcAddress += (copySize * 0x10);
+		m_D9_SADR += (copySize * 0x10);
+		m_D9_SADR &= SADR_WRITE_MASK;
+	}
 
 	return nCount;
 }
@@ -424,6 +429,10 @@ uint32 CDMAC::GetRegister(uint32 nAddress)
 
 	case D_PCR:
 		return m_D_PCR;
+		break;
+
+	case D_SQWC:
+		return m_D_SQWC;
 		break;
 
 	case D_ENABLER + 0x0:
@@ -802,6 +811,14 @@ void CDMAC::SetRegister(uint32 nAddress, uint32 nData)
 	case D_PCR + 0xC:
 		break;
 
+	case D_SQWC + 0x0:
+		m_D_SQWC <<= nData;
+		break;
+	case D_SQWC + 0x4:
+	case D_SQWC + 0x8:
+	case D_SQWC + 0xC:
+		break;
+
 	case D_RBSR + 0x0:
 		m_D_RBSR = nData;
 		assert((m_D_RBSR & 0xF) == 0);
@@ -839,12 +856,13 @@ void CDMAC::SetRegister(uint32 nAddress, uint32 nData)
 
 }
 
-void CDMAC::LoadState(CZipArchiveReader& archive)
+void CDMAC::LoadState(Framework::CZipArchiveReader& archive)
 {
 	CRegisterStateFile registerFile(*archive.BeginReadFile(STATE_REGS_XML));
 	m_D_CTRL	<<= registerFile.GetRegister32(STATE_REGS_CTRL);
 	m_D_STAT	= registerFile.GetRegister32(STATE_REGS_STAT);
 	m_D_PCR		= registerFile.GetRegister32(STATE_REGS_PCR);
+	m_D_SQWC	<<= registerFile.GetRegister32(STATE_REGS_SQWC);
 	m_D_RBSR	= registerFile.GetRegister32(STATE_REGS_RBSR);
 	m_D_RBOR	= registerFile.GetRegister32(STATE_REGS_RBOR);
 	m_D8_SADR	= registerFile.GetRegister32(STATE_REGS_D8_SADR);
@@ -858,12 +876,13 @@ void CDMAC::LoadState(CZipArchiveReader& archive)
 	m_D9.LoadState(archive);
 }
 
-void CDMAC::SaveState(CZipArchiveWriter& archive)
+void CDMAC::SaveState(Framework::CZipArchiveWriter& archive)
 {
 	CRegisterStateFile* registerFile = new CRegisterStateFile(STATE_REGS_XML);
 	registerFile->SetRegister32(STATE_REGS_CTRL,	m_D_CTRL);
 	registerFile->SetRegister32(STATE_REGS_STAT,	m_D_STAT);
 	registerFile->SetRegister32(STATE_REGS_PCR,		m_D_PCR);
+	registerFile->SetRegister32(STATE_REGS_SQWC,	m_D_SQWC);
 	registerFile->SetRegister32(STATE_REGS_RBSR,	m_D_RBSR);
 	registerFile->SetRegister32(STATE_REGS_RBOR,	m_D_RBOR);
 	registerFile->SetRegister32(STATE_REGS_D8_SADR, m_D8_SADR);
@@ -976,6 +995,9 @@ void CDMAC::DisassembleGet(uint32 nAddress)
 		break;
 	case D_PCR:
 		CLog::GetInstance().Print(LOG_NAME, "= D_PCR.\r\n");
+		break;
+	case D_SQWC:
+		CLog::GetInstance().Print(LOG_NAME, "= D_SQWC.\r\n");
 		break;
 	case D_ENABLER:
 		CLog::GetInstance().Print(LOG_NAME, "= D_ENABLER.\r\n");
@@ -1091,6 +1113,9 @@ void CDMAC::DisassembleSet(uint32 nAddress, uint32 nData)
 		break;
 	case D_PCR:
 		CLog::GetInstance().Print(LOG_NAME, "D_PCR = 0x%0.8X.\r\n", nData);
+		break;
+	case D_SQWC:
+		CLog::GetInstance().Print(LOG_NAME, "D_SQWC = 0x%0.8X.\r\n", nData);
 		break;
 	case D_RBSR:
 		CLog::GetInstance().Print(LOG_NAME, "D_RBSR = 0x%0.8X.\r\n", nData);

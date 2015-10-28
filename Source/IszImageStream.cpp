@@ -1,6 +1,7 @@
 #include "IszImageStream.h"
 #include <stdexcept>
 #include <algorithm>
+#include <string.h>
 #include <assert.h>
 #include "bzlib.h"
 #include "zlib.h"
