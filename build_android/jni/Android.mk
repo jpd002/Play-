@@ -166,6 +166,7 @@ LOCAL_SRC_FILES			:=	../../Source/AppConfig.cpp \
 							../../Source/RegisterStateFile.cpp \
 							../../Source/StructCollectionStateFile.cpp \
 							../../Source/StructFile.cpp \
+							../../Source/VirtualPad.cpp \
 							../../Source/ui_android/GSH_OpenGLAndroid.cpp \
 							../../Source/ui_android/InputManager.cpp \
 							../../Source/ui_android/NativeInterop.cpp \
