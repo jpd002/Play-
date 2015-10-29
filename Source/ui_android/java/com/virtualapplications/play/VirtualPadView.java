@@ -39,7 +39,7 @@ public class VirtualPadView extends SurfaceView
 	@Override
 	protected void onSizeChanged(int w, int h, int oldw, int oldh)
 	{
-		Log.w(Constants.TAG, String.format("onSizeChanged - %d, %d, %d, %d", w, h, oldw, oldh));
+		//Log.w(Constants.TAG, String.format("onSizeChanged - %d, %d, %d, %d", w, h, oldw, oldh));
 
 		DisplayMetrics dm = new DisplayMetrics();
 		((Activity)getContext()).getWindowManager().getDefaultDisplay().getMetrics(dm);
