@@ -10,7 +10,6 @@ class VirtualPadStick extends VirtualPadItem
 	
 	private PointF _pressPosition = new PointF();
 	private PointF _offset = new PointF();
-	private static float _radius = 150;
 	
 	public VirtualPadStick(RectF bounds, int valueAxisX, int valueAxisY, Bitmap bitmap)
 	{
@@ -39,13 +38,14 @@ class VirtualPadStick extends VirtualPadItem
 	@Override
 	public void onPointerMove(float x, float y)
 	{
+		float radius = _bounds.width();
 		_offset = new PointF(x - _pressPosition.x, y - _pressPosition.y);
-		_offset.x = Math.min(_offset.x, _radius);
-		_offset.x = Math.max(_offset.x, -_radius);
-		_offset.y = Math.min(_offset.y, _radius);
-		_offset.y = Math.max(_offset.y, -_radius);
-		InputManager.setAxisState(_valueAxisX, _offset.x / _radius);
-		InputManager.setAxisState(_valueAxisY, _offset.y / _radius);
+		_offset.x = Math.min(_offset.x,  radius);
+		_offset.x = Math.max(_offset.x, -radius);
+		_offset.y = Math.min(_offset.y,  radius);
+		_offset.y = Math.max(_offset.y, -radius);
+		InputManager.setAxisState(_valueAxisX, _offset.x / radius);
+		InputManager.setAxisState(_valueAxisY, _offset.y / radius);
 	}
 	
 	@Override
