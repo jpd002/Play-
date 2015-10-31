@@ -54,10 +54,10 @@ CVirtualPad::ItemArray CVirtualPad::GetItems(float screenWidth, float screenHeig
 
 	items.push_back(CreateButtonItem(
 		startSelPadPosX + padButtonSize * 0, startSelPadPosY + padButtonSize / 2, startSelPadPosX + padButtonSize * 1, startSelPadPosY + padButtonSize,
-		PS2::CControllerInfo::START, "start"));
+		PS2::CControllerInfo::SELECT, "select"));
 	items.push_back(CreateButtonItem(
 		startSelPadPosX + padButtonSize * 2, startSelPadPosY + padButtonSize / 2, startSelPadPosX + padButtonSize * 3, startSelPadPosY + padButtonSize,
-		PS2::CControllerInfo::SELECT, "select"));
+		PS2::CControllerInfo::START, "start"));
 
 	items.push_back(CreateButtonItem(
 		dpadPosX + dpadButtonSize * 2, dpadPosY + dpadButtonSize * 0, dpadPosX + dpadButtonSize * 4, dpadPosY + dpadButtonSize * 3,
