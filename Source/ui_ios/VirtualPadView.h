@@ -8,6 +8,7 @@
 }
 
 @property NSArray<VirtualPadItem*>* items;
+@property NSDictionary<NSString*, UIImage*>* itemImages;
 
 -(VirtualPadView*)initWithFrame: (CGRect)frame padHandler: (CPH_iOS*) padHandler;
 -(void)rebuildPadItems;

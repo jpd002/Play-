@@ -6,6 +6,7 @@
 
 @property BOOL pressed;
 @property PS2::CControllerInfo::BUTTON code;
+@property NSString* caption;
 
 -(void)onPointerDown: (CGPoint)position;
 -(void)onPointerUp;

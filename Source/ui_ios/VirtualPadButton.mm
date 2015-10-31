@@ -4,17 +4,30 @@
 
 -(void)draw: (CGContextRef)context
 {
+	[self.image drawInRect: self.bounds];
 	if(self.pressed)
 	{
-		CGFloat color[] = { 0, 0.75, 0.75, 1.0 };
-		CGContextSetFillColor(context, color);
+		CGContextSaveGState(context);
+		CGContextSetBlendMode(context, kCGBlendModePlusDarker);
+		[self.image drawInRect: self.bounds];
+		CGContextRestoreGState(context);
 	}
-	else
+	
+	if([self.caption length] != 0)
 	{
-		CGFloat color[] = { 0, 0.75, 0.75, 0.5 };
-		CGContextSetFillColor(context, color);
+		NSMutableParagraphStyle *paragraphStyle = [[NSParagraphStyle defaultParagraphStyle] mutableCopy];
+		paragraphStyle.alignment = NSTextAlignmentCenter;
+		NSDictionary* attributes =
+		@{
+			NSParagraphStyleAttributeName: paragraphStyle,
+			NSForegroundColorAttributeName: [UIColor whiteColor]
+		};
+	
+		CGSize textSize = [self.caption sizeWithAttributes: attributes];
+		CGRect textRect = CGRectOffset(self.bounds, 0, (self.bounds.size.height - textSize.height) / 2);
+	
+		[self.caption drawInRect: textRect withAttributes: attributes];
 	}
-	CGContextFillRect(context, self.bounds);
 }
 
 -(void)onPointerDown: (CGPoint)position

@@ -4,10 +4,8 @@
 
 -(void)draw: (CGContextRef)context
 {
-	CGFloat color[] = { 0.75, 0.75, 0.75, 0.5 };
 	auto offsetBounds = CGRectOffset(self.bounds, self.offset.x, self.offset.y);
-	CGContextSetFillColor(context, color);
-	CGContextFillRect(context, offsetBounds);
+	[self.image drawInRect: offsetBounds];
 }
 
 -(void)onPointerDown: (CGPoint)position

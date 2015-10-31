@@ -10,6 +10,21 @@
 	self = [super initWithFrame: frame];
 	if(self)
 	{
+		NSMutableDictionary<NSString*, UIImage*>* itemImages = [[NSMutableDictionary alloc] init];
+		[itemImages setObject: [UIImage imageNamed: @"select.png"]      forKey: @"select"];
+		[itemImages setObject: [UIImage imageNamed: @"start.png"]       forKey: @"start"];
+		[itemImages setObject: [UIImage imageNamed: @"up.png"]          forKey: @"up"];
+		[itemImages setObject: [UIImage imageNamed: @"down.png"]        forKey: @"down"];
+		[itemImages setObject: [UIImage imageNamed: @"left.png"]        forKey: @"left"];
+		[itemImages setObject: [UIImage imageNamed: @"right.png"]       forKey: @"right"];
+		[itemImages setObject: [UIImage imageNamed: @"triangle.png"]    forKey: @"triangle"];
+		[itemImages setObject: [UIImage imageNamed: @"cross.png"]       forKey: @"cross"];
+		[itemImages setObject: [UIImage imageNamed: @"circle.png"]      forKey: @"circle"];
+		[itemImages setObject: [UIImage imageNamed: @"square.png"]      forKey: @"square"];
+		[itemImages setObject: [UIImage imageNamed: @"lr.png"]          forKey: @"lr"];
+		[itemImages setObject: [UIImage imageNamed: @"analogstick.png"] forKey: @"analogStick"];
+		self.itemImages = itemImages;
+		
 		self.opaque = NO;
 		self.multipleTouchEnabled = YES;
 		_padHandler = padHandler;
@@ -39,8 +54,10 @@
 		{
 			auto button = [[VirtualPadButton alloc] init];
 			button.code = padItem.code0;
+			button.caption = [NSString stringWithUTF8String: padItem.caption.c_str()];
 			item = button;
 		}
+		item.image = [self.itemImages objectForKey: [NSString stringWithUTF8String: padItem.imageName.c_str()]];
 		item.padHandler = _padHandler;
 		item.bounds = CGRectMake(padItem.x1, padItem.y1, itemWidth, itemHeight);
 		[items addObject: item];

@@ -7,6 +7,18 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		7001D6451BE5457C008B6205 /* cross.png in Resources */ = {isa = PBXBuildFile; fileRef = 7001D63B1BE5457C008B6205 /* cross.png */; };
+		7001D6461BE5457C008B6205 /* down.png in Resources */ = {isa = PBXBuildFile; fileRef = 7001D63C1BE5457C008B6205 /* down.png */; };
+		7001D6471BE5457C008B6205 /* left.png in Resources */ = {isa = PBXBuildFile; fileRef = 7001D63D1BE5457C008B6205 /* left.png */; };
+		7001D6481BE5457C008B6205 /* lr.png in Resources */ = {isa = PBXBuildFile; fileRef = 7001D63E1BE5457C008B6205 /* lr.png */; };
+		7001D6491BE5457C008B6205 /* right.png in Resources */ = {isa = PBXBuildFile; fileRef = 7001D63F1BE5457C008B6205 /* right.png */; };
+		7001D64A1BE5457C008B6205 /* select.png in Resources */ = {isa = PBXBuildFile; fileRef = 7001D6401BE5457C008B6205 /* select.png */; };
+		7001D64B1BE5457C008B6205 /* square.png in Resources */ = {isa = PBXBuildFile; fileRef = 7001D6411BE5457C008B6205 /* square.png */; };
+		7001D64C1BE5457C008B6205 /* start.png in Resources */ = {isa = PBXBuildFile; fileRef = 7001D6421BE5457C008B6205 /* start.png */; };
+		7001D64D1BE5457C008B6205 /* triangle.png in Resources */ = {isa = PBXBuildFile; fileRef = 7001D6431BE5457C008B6205 /* triangle.png */; };
+		7001D64E1BE5457C008B6205 /* up.png in Resources */ = {isa = PBXBuildFile; fileRef = 7001D6441BE5457C008B6205 /* up.png */; };
+		7001D6511BE54582008B6205 /* analogstick.png in Resources */ = {isa = PBXBuildFile; fileRef = 7001D64F1BE54582008B6205 /* analogstick.png */; };
+		7001D6521BE54582008B6205 /* circle.png in Resources */ = {isa = PBXBuildFile; fileRef = 7001D6501BE54582008B6205 /* circle.png */; };
 		704E1C4E1B3BA0B200C0ACE3 /* GSH_OpenGLiOS.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 704E1C4C1B3BA0B200C0ACE3 /* GSH_OpenGLiOS.cpp */; };
 		704E1C531B3BA25000C0ACE3 /* GSH_OpenGL_Shader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 704E1C4F1B3BA25000C0ACE3 /* GSH_OpenGL_Shader.cpp */; };
 		704E1C541B3BA25000C0ACE3 /* GSH_OpenGL_Texture.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 704E1C501B3BA25000C0ACE3 /* GSH_OpenGL_Texture.cpp */; };
@@ -216,6 +228,18 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		7001D63B1BE5457C008B6205 /* cross.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = cross.png; sourceTree = "<group>"; };
+		7001D63C1BE5457C008B6205 /* down.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = down.png; sourceTree = "<group>"; };
+		7001D63D1BE5457C008B6205 /* left.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = left.png; sourceTree = "<group>"; };
+		7001D63E1BE5457C008B6205 /* lr.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = lr.png; sourceTree = "<group>"; };
+		7001D63F1BE5457C008B6205 /* right.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = right.png; sourceTree = "<group>"; };
+		7001D6401BE5457C008B6205 /* select.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = select.png; sourceTree = "<group>"; };
+		7001D6411BE5457C008B6205 /* square.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = square.png; sourceTree = "<group>"; };
+		7001D6421BE5457C008B6205 /* start.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = start.png; sourceTree = "<group>"; };
+		7001D6431BE5457C008B6205 /* triangle.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = triangle.png; sourceTree = "<group>"; };
+		7001D6441BE5457C008B6205 /* up.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = up.png; sourceTree = "<group>"; };
+		7001D64F1BE54582008B6205 /* analogstick.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = analogstick.png; sourceTree = "<group>"; };
+		7001D6501BE54582008B6205 /* circle.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = circle.png; sourceTree = "<group>"; };
 		704E1C4C1B3BA0B200C0ACE3 /* GSH_OpenGLiOS.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = GSH_OpenGLiOS.cpp; path = ../Source/ui_ios/GSH_OpenGLiOS.cpp; sourceTree = "<group>"; };
 		704E1C4D1B3BA0B200C0ACE3 /* GSH_OpenGLiOS.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GSH_OpenGLiOS.h; path = ../Source/ui_ios/GSH_OpenGLiOS.h; sourceTree = "<group>"; };
 		704E1C4F1B3BA25000C0ACE3 /* GSH_OpenGL_Shader.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = GSH_OpenGL_Shader.cpp; path = ../Source/gs/GSH_OpenGL/GSH_OpenGL_Shader.cpp; sourceTree = "<group>"; };
@@ -1029,8 +1053,20 @@
 		874ECDA01B7D980C000075B6 /* Resources */ = {
 			isa = PBXGroup;
 			children = (
-				874ECDA81B7DB3DF000075B6 /* games.db */,
+				7001D64F1BE54582008B6205 /* analogstick.png */,
 				874ECDA21B7D980C000075B6 /* boxart.png */,
+				7001D6501BE54582008B6205 /* circle.png */,
+				7001D63B1BE5457C008B6205 /* cross.png */,
+				7001D63C1BE5457C008B6205 /* down.png */,
+				874ECDA81B7DB3DF000075B6 /* games.db */,
+				7001D63D1BE5457C008B6205 /* left.png */,
+				7001D63E1BE5457C008B6205 /* lr.png */,
+				7001D63F1BE5457C008B6205 /* right.png */,
+				7001D6401BE5457C008B6205 /* select.png */,
+				7001D6411BE5457C008B6205 /* square.png */,
+				7001D6421BE5457C008B6205 /* start.png */,
+				7001D6431BE5457C008B6205 /* triangle.png */,
+				7001D6441BE5457C008B6205 /* up.png */,
 			);
 			name = Resources;
 			path = "Play!/Resources";
@@ -1133,11 +1169,23 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				7001D6451BE5457C008B6205 /* cross.png in Resources */,
+				7001D64D1BE5457C008B6205 /* triangle.png in Resources */,
 				70603E1F1B60A94400935E3C /* Images.xcassets in Resources */,
+				7001D6521BE54582008B6205 /* circle.png in Resources */,
+				7001D6491BE5457C008B6205 /* right.png in Resources */,
+				7001D6471BE5457C008B6205 /* left.png in Resources */,
 				70834AF41B1BCB9E00E8D5C6 /* Main.storyboard in Resources */,
+				7001D6461BE5457C008B6205 /* down.png in Resources */,
+				7001D64C1BE5457C008B6205 /* start.png in Resources */,
+				7001D6511BE54582008B6205 /* analogstick.png in Resources */,
+				7001D6481BE5457C008B6205 /* lr.png in Resources */,
 				70834AF31B1BCB9E00E8D5C6 /* LaunchScreen.xib in Resources */,
+				7001D64B1BE5457C008B6205 /* square.png in Resources */,
 				874ECDA41B7D980C000075B6 /* boxart.png in Resources */,
+				7001D64A1BE5457C008B6205 /* select.png in Resources */,
 				874ECDAC1B7DB9EB000075B6 /* games.db in Resources */,
+				7001D64E1BE5457C008B6205 /* up.png in Resources */,
 				70834AEA1B1BCB0100E8D5C6 /* Info.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
