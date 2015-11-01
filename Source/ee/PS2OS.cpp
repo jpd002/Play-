@@ -664,13 +664,11 @@ void CPS2OS::AssembleInterruptHandler()
 	assembler.ADDU(CMIPS::SP, CMIPS::K0, CMIPS::R0);
 
 	//Get INTC status
-	assembler.LUI(CMIPS::T0, 0x1000);
-	assembler.ORI(CMIPS::T0, CMIPS::T0, 0xF000);
+	assembler.LI(CMIPS::T0, CINTC::INTC_STAT);
 	assembler.LW(CMIPS::S0, 0x0000, CMIPS::T0);
 
 	//Get INTC mask
-	assembler.LUI(CMIPS::T1, 0x1000);
-	assembler.ORI(CMIPS::T1, CMIPS::T1, 0xF010);
+	assembler.LI(CMIPS::T1, CINTC::INTC_MASK);
 	assembler.LW(CMIPS::S1, 0x0000, CMIPS::T1);
 
 	//Get cause
