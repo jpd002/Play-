@@ -161,6 +161,7 @@ LOCAL_SRC_FILES			:=	../../Source/AppConfig.cpp \
 							../../Source/MIPSTags.cpp \
 							../../Source/PadHandler.cpp \
 							../../Source/PadListener.cpp \
+							../../Source/PH_Generic.cpp \
 							../../Source/Profiler.cpp \
 							../../Source/PS2VM.cpp \
 							../../Source/RegisterStateFile.cpp \
@@ -171,7 +172,6 @@ LOCAL_SRC_FILES			:=	../../Source/AppConfig.cpp \
 							../../Source/ui_android/InputManager.cpp \
 							../../Source/ui_android/NativeInterop.cpp \
 							../../Source/ui_android/NativeShared.cpp \
-							../../Source/ui_android/PH_Android.cpp \
 							../../Source/ui_android/SettingsManager.cpp \
 							../../Source/ui_android/StatsManager.cpp \
 							../../Source/Utils.cpp

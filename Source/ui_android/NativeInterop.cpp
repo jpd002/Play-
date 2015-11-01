@@ -6,12 +6,12 @@
 #include "PathUtils.h"
 #include "../AppConfig.h"
 #include "../DiskUtils.h"
+#include "../PH_Generic.h"
 #include "../PS2VM.h"
 #include "../PS2VM_Preferences.h"
 #include "../gs/GSH_Null.h"
 #include "NativeShared.h"
 #include "GSH_OpenGLAndroid.h"
-#include "PH_Android.h"
 #include "StatsManager.h"
 
 CPS2VM* g_virtualMachine = nullptr;
@@ -40,7 +40,7 @@ extern "C" JNIEXPORT void JNICALL Java_com_virtualapplications_play_NativeIntero
 	assert(g_virtualMachine == nullptr);
 	g_virtualMachine = new CPS2VM();
 	g_virtualMachine->Initialize();
-	g_virtualMachine->CreatePadHandler(CPH_Android::GetFactoryFunction());
+	g_virtualMachine->CreatePadHandler(CPH_Generic::GetFactoryFunction());
 #ifdef PROFILE
 	g_virtualMachine->ProfileFrameDone.connect(boost::bind(&CStatsManager::OnProfileFrameDone, &CStatsManager::GetInstance(), _1));
 #endif

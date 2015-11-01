@@ -3,7 +3,7 @@
 #include "make_unique.h"
 #include "xml/Writer.h"
 #include "InputManager.h"
-#include "PH_Android.h"
+#include "../PH_Generic.h"
 #include "../PS2VM.h"
 #include "../VirtualPad.h"
 #include "com_virtualapplications_play_InputManagerConstants.h"
@@ -40,7 +40,7 @@ void CInputManager::SetButtonState(int buttonId, bool pressed)
 	auto padHandler = g_virtualMachine->GetPadHandler();
 	if(padHandler)
 	{
-		static_cast<CPH_Android*>(padHandler)->SetButtonState(buttonId, pressed);
+		static_cast<CPH_Generic*>(padHandler)->SetButtonState(buttonId, pressed);
 	}
 }
 
@@ -49,7 +49,7 @@ void CInputManager::SetAxisState(int buttonId, float value)
 	auto padHandler = g_virtualMachine->GetPadHandler();
 	if(padHandler)
 	{
-		static_cast<CPH_Android*>(padHandler)->SetAxisState(buttonId, value);
+		static_cast<CPH_Generic*>(padHandler)->SetAxisState(buttonId, value);
 	}
 }
 
