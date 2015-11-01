@@ -173,6 +173,7 @@ public:
 	bool						ProcessEventFlag(uint32, uint32&, uint32, uint32*);
 
 	uint32						CreateMessageBox();
+	uint32						DeleteMessageBox(uint32);
 	uint32						SendMessageBox(uint32, uint32);
 	uint32						ReceiveMessageBox(uint32, uint32);
 	uint32						PollMessageBox(uint32, uint32);
@@ -350,6 +351,7 @@ private:
 		KERNEL_RESULT_ERROR_FOUND_HANDLER    = -104,
 		KERNEL_RESULT_ERROR_NOTFOUND_HANDLER = -105,
 		KERNEL_RESULT_ERROR_UNKNOWN_THID     = -407,
+		KERNEL_RESULT_ERROR_UNKNOWN_MBXID    = -410,
 	};
 
 	typedef COsStructManager<THREAD> ThreadList;

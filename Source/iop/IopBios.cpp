@@ -1726,6 +1726,24 @@ uint32 CIopBios::CreateMessageBox()
 	return boxId;
 }
 
+uint32 CIopBios::DeleteMessageBox(uint32 boxId)
+{
+#ifdef _DEBUG
+	CLog::GetInstance().Print(LOGNAME, "%d: DeleteMessageBox(boxId = %d);\r\n",
+		CurrentThreadId(), boxId);
+#endif
+
+	auto box = m_messageBoxes[boxId];
+	if(!box)
+	{
+		return KERNEL_RESULT_ERROR_UNKNOWN_MBXID;
+	}
+
+	m_messageBoxes.Free(boxId);
+
+	return KERNEL_RESULT_OK;
+}
+
 uint32 CIopBios::SendMessageBox(uint32 boxId, uint32 messagePtr)
 {
 	bool inInterrupt = false;
