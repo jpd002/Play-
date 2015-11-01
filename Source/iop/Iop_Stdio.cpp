@@ -2,6 +2,7 @@
 #include "Iop_Ioman.h"
 #include <boost/lexical_cast.hpp>
 #include "lexical_cast_ex.h"
+#include "string_format.h"
 #include "../Log.h"
 
 #define LOG_NAME			"iop_stdio"
@@ -104,8 +105,17 @@ std::string CStdio::PrintFormatted(CArgumentIterator& args)
 				else if(type == 'x' || type == 'X' || type == 'p')
 				{
 					uint32 number = args.GetNext();
-					unsigned int precisionValue = precision.length() ? boost::lexical_cast<unsigned int>(precision) : 0;
-					output += lexical_cast_hex<std::string>(number, precisionValue);
+					std::string format;
+					if(precision.empty())
+					{
+						format = string_format("%%%c", type);
+					}
+					else
+					{
+						unsigned int precisionValue = atoi(precision.c_str());
+						format = string_format("%%0%d%c", precisionValue, type);
+					}
+					output += string_format(format.c_str(), number);
 					paramDone = true;
 				}
 				else if(type == 'l')

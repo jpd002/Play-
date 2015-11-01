@@ -1,5 +1,4 @@
-#ifndef _DMAC_CHANNEL_H_
-#define _DMAC_CHANNEL_H_
+#pragma once
 
 #include "Types.h"
 #include <functional>
@@ -53,6 +52,7 @@ namespace Dmac
 		void					WriteCHCR(uint32);
 		void					Execute();
 		void					ExecuteNormal();
+		void					ExecuteInterleave();
 		void					ExecuteSourceChain();
 		void					SetReceiveHandler(const DmaReceiveHandler&);
 
@@ -77,5 +77,3 @@ namespace Dmac
 		CDMAC&					m_dmac;
 	};
 };
-
-#endif
