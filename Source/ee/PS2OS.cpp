@@ -113,6 +113,7 @@
 #define SYSCALL_NAME_ISIGNALSEMA			"osiSignalSema"
 #define SYSCALL_NAME_WAITSEMA				"osWaitSema"
 #define SYSCALL_NAME_POLLSEMA				"osPollSema"
+#define SYSCALL_NAME_IPOLLSEMA				"osiPollSema"
 #define SYSCALL_NAME_REFERSEMASTATUS		"osReferSemaStatus"
 #define SYSCALL_NAME_IREFERSEMASTATUS		"osiReferSemaStatus"
 #define SYSCALL_NAME_FLUSHCACHE				"osFlushCache"
@@ -169,6 +170,7 @@ const CPS2OS::SYSCALL_NAME	CPS2OS::g_syscallNames[] =
 	{	0x0043,		SYSCALL_NAME_ISIGNALSEMA			},
 	{	0x0044,		SYSCALL_NAME_WAITSEMA				},
 	{	0x0045,		SYSCALL_NAME_POLLSEMA				},
+	{	0x0046,		SYSCALL_NAME_IPOLLSEMA				},
 	{	0x0047,		SYSCALL_NAME_REFERSEMASTATUS		},
 	{	0x0048,		SYSCALL_NAME_IREFERSEMASTATUS		},
 	{	0x0064,		SYSCALL_NAME_FLUSHCACHE				},
@@ -2293,6 +2295,7 @@ void CPS2OS::sc_WaitSema()
 }
 
 //45
+//46
 void CPS2OS::sc_PollSema()
 {
 	uint32 id = m_ee.m_State.nGPR[SC_PARAM0].nV[0];
@@ -2840,7 +2843,7 @@ std::string CPS2OS::GetSysCallDescription(uint8 function)
 			m_ee.m_State.nGPR[SC_PARAM0].nV[0]);
 		break;
 	case 0x46:
-		sprintf(description, "iPollSema(semaid = %i);", \
+		sprintf(description, SYSCALL_NAME_IPOLLSEMA "(semaid = %i);", \
 			m_ee.m_State.nGPR[SC_PARAM0].nV[0]);
 		break;
 	case 0x47:
