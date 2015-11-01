@@ -6,7 +6,7 @@
 #include "../AppConfig.h"
 #include "GSH_OpenGLiOS.h"
 #include "IosUtils.h"
-#include "PH_iOS.h"
+#include "PH_Generic.h"
 
 CPS2VM* g_virtualMachine = nullptr;
 
@@ -50,11 +50,11 @@ CPS2VM* g_virtualMachine = nullptr;
 	g_virtualMachine->Initialize();
 	g_virtualMachine->CreateGSHandler(CGSH_OpenGLiOS::GetFactoryFunction((CAEAGLLayer*)self.view.layer));
 
-	g_virtualMachine->CreatePadHandler(CPH_iOS::GetFactoryFunction());
+	g_virtualMachine->CreatePadHandler(CPH_Generic::GetFactoryFunction());
 	
 	CGRect screenBounds = [[UIScreen mainScreen] bounds];
 	self.virtualPadView = [[VirtualPadView alloc] initWithFrame: screenBounds
-	                                              padHandler: static_cast<CPH_iOS*>(g_virtualMachine->GetPadHandler())];
+	                                              padHandler: static_cast<CPH_Generic*>(g_virtualMachine->GetPadHandler())];
 	[self.view addSubview: self.virtualPadView];
 
 	g_virtualMachine->Pause();
@@ -83,7 +83,7 @@ CPS2VM* g_virtualMachine = nullptr;
                 auto padHandler = g_virtualMachine->GetPadHandler();
                 if(padHandler)
                 {
-                    static_cast<CPH_iOS*>(padHandler)->SetButtonState(PS2::CControllerInfo::SQUARE, pressed);
+                    static_cast<CPH_Generic*>(padHandler)->SetButtonState(PS2::CControllerInfo::SQUARE, pressed);
                 }
                 
             }];
@@ -92,7 +92,7 @@ CPS2VM* g_virtualMachine = nullptr;
                 auto padHandler = g_virtualMachine->GetPadHandler();
                 if(padHandler)
                 {
-                    static_cast<CPH_iOS*>(padHandler)->SetButtonState(PS2::CControllerInfo::CIRCLE, pressed);
+                    static_cast<CPH_Generic*>(padHandler)->SetButtonState(PS2::CControllerInfo::CIRCLE, pressed);
                 }
                 
             }];
@@ -101,7 +101,7 @@ CPS2VM* g_virtualMachine = nullptr;
                 auto padHandler = g_virtualMachine->GetPadHandler();
                 if(padHandler)
                 {
-                    static_cast<CPH_iOS*>(padHandler)->SetButtonState(PS2::CControllerInfo::CROSS, pressed);
+                    static_cast<CPH_Generic*>(padHandler)->SetButtonState(PS2::CControllerInfo::CROSS, pressed);
                 }
                 
             }];
@@ -110,7 +110,7 @@ CPS2VM* g_virtualMachine = nullptr;
                 auto padHandler = g_virtualMachine->GetPadHandler();
                 if(padHandler)
                 {
-                    static_cast<CPH_iOS*>(padHandler)->SetButtonState(PS2::CControllerInfo::TRIANGLE, pressed);
+                    static_cast<CPH_Generic*>(padHandler)->SetButtonState(PS2::CControllerInfo::TRIANGLE, pressed);
                 }
                 
             }];
@@ -118,8 +118,8 @@ CPS2VM* g_virtualMachine = nullptr;
                 auto padHandler = g_virtualMachine->GetPadHandler();
                 if(padHandler)
                 {
-                    static_cast<CPH_iOS*>(padHandler)->SetAxisState(PS2::CControllerInfo::ANALOG_LEFT_X, xValue);
-                    static_cast<CPH_iOS*>(padHandler)->SetAxisState(PS2::CControllerInfo::ANALOG_LEFT_Y, yValue);
+                    static_cast<CPH_Generic*>(padHandler)->SetAxisState(PS2::CControllerInfo::ANALOG_LEFT_X, xValue);
+                    static_cast<CPH_Generic*>(padHandler)->SetAxisState(PS2::CControllerInfo::ANALOG_LEFT_Y, yValue);
                 }
             }];
             //Add controller pause handler here
@@ -130,7 +130,7 @@ CPS2VM* g_virtualMachine = nullptr;
                 auto padHandler = g_virtualMachine->GetPadHandler();
                 if(padHandler)
                 {
-                    static_cast<CPH_iOS*>(padHandler)->SetButtonState(PS2::CControllerInfo::SQUARE, pressed);
+                    static_cast<CPH_Generic*>(padHandler)->SetButtonState(PS2::CControllerInfo::SQUARE, pressed);
                 }
                 
             }];
@@ -139,7 +139,7 @@ CPS2VM* g_virtualMachine = nullptr;
                 auto padHandler = g_virtualMachine->GetPadHandler();
                 if(padHandler)
                 {
-                    static_cast<CPH_iOS*>(padHandler)->SetButtonState(PS2::CControllerInfo::CIRCLE, pressed);
+                    static_cast<CPH_Generic*>(padHandler)->SetButtonState(PS2::CControllerInfo::CIRCLE, pressed);
                 }
                 
             }];
@@ -148,7 +148,7 @@ CPS2VM* g_virtualMachine = nullptr;
                 auto padHandler = g_virtualMachine->GetPadHandler();
                 if(padHandler)
                 {
-                    static_cast<CPH_iOS*>(padHandler)->SetButtonState(PS2::CControllerInfo::CROSS, pressed);
+                    static_cast<CPH_Generic*>(padHandler)->SetButtonState(PS2::CControllerInfo::CROSS, pressed);
                 }
                 
             }];
@@ -157,7 +157,7 @@ CPS2VM* g_virtualMachine = nullptr;
                 auto padHandler = g_virtualMachine->GetPadHandler();
                 if(padHandler)
                 {
-                    static_cast<CPH_iOS*>(padHandler)->SetButtonState(PS2::CControllerInfo::TRIANGLE, pressed);
+                    static_cast<CPH_Generic*>(padHandler)->SetButtonState(PS2::CControllerInfo::TRIANGLE, pressed);
                 }
                 
             }];
@@ -165,22 +165,22 @@ CPS2VM* g_virtualMachine = nullptr;
                 auto padHandler = g_virtualMachine->GetPadHandler();
                 if(padHandler)
                 {
-                    static_cast<CPH_iOS*>(padHandler)->SetAxisState(PS2::CControllerInfo::ANALOG_LEFT_X, xValue);
-                    static_cast<CPH_iOS*>(padHandler)->SetAxisState(PS2::CControllerInfo::ANALOG_LEFT_Y, yValue);
+                    static_cast<CPH_Generic*>(padHandler)->SetAxisState(PS2::CControllerInfo::ANALOG_LEFT_X, xValue);
+                    static_cast<CPH_Generic*>(padHandler)->SetAxisState(PS2::CControllerInfo::ANALOG_LEFT_Y, yValue);
                 }
             }];
             [self.gController.extendedGamepad.leftThumbstick.xAxis setValueChangedHandler:^(GCControllerAxisInput *axis, float value){
                 auto padHandler = g_virtualMachine->GetPadHandler();
                 if(padHandler)
                 {
-                    static_cast<CPH_iOS*>(padHandler)->SetAxisState(PS2::CControllerInfo::ANALOG_LEFT_X, value);
+                    static_cast<CPH_Generic*>(padHandler)->SetAxisState(PS2::CControllerInfo::ANALOG_LEFT_X, value);
                 }
             }];
             [self.gController.extendedGamepad.leftThumbstick.yAxis setValueChangedHandler:^(GCControllerAxisInput *axis, float value){
                 auto padHandler = g_virtualMachine->GetPadHandler();
                 if(padHandler)
                 {
-                    static_cast<CPH_iOS*>(padHandler)->SetAxisState(PS2::CControllerInfo::ANALOG_LEFT_Y, value);
+                    static_cast<CPH_Generic*>(padHandler)->SetAxisState(PS2::CControllerInfo::ANALOG_LEFT_Y, value);
                 }
             }];
         }

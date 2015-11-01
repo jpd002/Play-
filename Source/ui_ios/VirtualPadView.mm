@@ -5,7 +5,7 @@
 
 @implementation VirtualPadView
 
--(id)initWithFrame: (CGRect)frame padHandler: (CPH_iOS*)padHandler
+-(id)initWithFrame: (CGRect)frame padHandler: (CPH_Generic*)padHandler
 {
 	self = [super initWithFrame: frame];
 	if(self)

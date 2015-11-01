@@ -1,19 +1,19 @@
 #pragma once
 
-#include "../PadHandler.h"
+#include "PadHandler.h"
 
-class CPH_iOS : public CPadHandler
+class CPH_Generic : public CPadHandler
 {
 public:
-								CPH_iOS();
-	virtual						~CPH_iOS();
+								CPH_Generic();
+	virtual						~CPH_Generic();
 	
 	static FactoryFunction		GetFactoryFunction();
 
 	void						Update(uint8*) override;
 
-	void						SetButtonState(PS2::CControllerInfo::BUTTON, bool);
-	void						SetAxisState(PS2::CControllerInfo::BUTTON, float);
+	void						SetButtonState(uint32, bool);
+	void						SetAxisState(uint32, float);
 	
 private:
 	bool						m_buttonStates[PS2::CControllerInfo::MAX_BUTTONS];

@@ -24,6 +24,7 @@
 		704E1C541B3BA25000C0ACE3 /* GSH_OpenGL_Texture.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 704E1C501B3BA25000C0ACE3 /* GSH_OpenGL_Texture.cpp */; };
 		704E1C551B3BA25000C0ACE3 /* GSH_OpenGL.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 704E1C511B3BA25000C0ACE3 /* GSH_OpenGL.cpp */; };
 		705342D91B78122400477EC4 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 705342D81B78122400477EC4 /* CoreGraphics.framework */; };
+		705877341BE58A4B00213FFC /* PH_Generic.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 705877321BE58A4B00213FFC /* PH_Generic.cpp */; };
 		70603E1F1B60A94400935E3C /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 70603E1E1B60A94400935E3C /* Images.xcassets */; };
 		7075D0B51B63260F0010D69C /* DiskUtils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7075D0B31B63260F0010D69C /* DiskUtils.cpp */; };
 		7075D0BB1B634B470010D69C /* IosUtils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7075D0B91B634B470010D69C /* IosUtils.cpp */; };
@@ -193,7 +194,6 @@
 		87C4CC341B75010700CE6D3C /* iCadeReaderView.m in Sources */ = {isa = PBXBuildFile; fileRef = 87C4CC311B75010700CE6D3C /* iCadeReaderView.m */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
 		87DCDB331B7F03260054D67C /* CoverViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 87DCDB321B7F03260054D67C /* CoverViewController.m */; };
 		87DCDB381B7F13370054D67C /* CollectionView.m in Sources */ = {isa = PBXBuildFile; fileRef = 87DCDB371B7F13370054D67C /* CollectionView.m */; };
-		87EC5F3B1B7AF6EA00F1B515 /* PH_iOS.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 87EC5F391B7AF6EA00F1B515 /* PH_iOS.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -247,6 +247,8 @@
 		704E1C511B3BA25000C0ACE3 /* GSH_OpenGL.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = GSH_OpenGL.cpp; path = ../Source/gs/GSH_OpenGL/GSH_OpenGL.cpp; sourceTree = "<group>"; };
 		704E1C521B3BA25000C0ACE3 /* GSH_OpenGL.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GSH_OpenGL.h; path = ../Source/gs/GSH_OpenGL/GSH_OpenGL.h; sourceTree = "<group>"; };
 		705342D81B78122400477EC4 /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS8.4.sdk/System/Library/Frameworks/CoreGraphics.framework; sourceTree = DEVELOPER_DIR; };
+		705877321BE58A4B00213FFC /* PH_Generic.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = PH_Generic.cpp; path = ../Source/PH_Generic.cpp; sourceTree = "<group>"; };
+		705877331BE58A4B00213FFC /* PH_Generic.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PH_Generic.h; path = ../Source/PH_Generic.h; sourceTree = "<group>"; };
 		70603E1E1B60A94400935E3C /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = "Play!/Images.xcassets"; sourceTree = "<group>"; };
 		7075D0B31B63260F0010D69C /* DiskUtils.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = DiskUtils.cpp; path = ../Source/DiskUtils.cpp; sourceTree = "<group>"; };
 		7075D0B41B63260F0010D69C /* DiskUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DiskUtils.h; path = ../Source/DiskUtils.h; sourceTree = "<group>"; };
@@ -577,8 +579,6 @@
 		87DCDB321B7F03260054D67C /* CoverViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = CoverViewController.m; path = ../Source/ui_ios/CoverViewController.m; sourceTree = "<group>"; };
 		87DCDB361B7F13370054D67C /* CollectionView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CollectionView.h; path = ../Source/ui_ios/CollectionView.h; sourceTree = "<group>"; };
 		87DCDB371B7F13370054D67C /* CollectionView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = CollectionView.m; path = ../Source/ui_ios/CollectionView.m; sourceTree = "<group>"; };
-		87EC5F391B7AF6EA00F1B515 /* PH_iOS.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = PH_iOS.cpp; path = ../Source/ui_ios/PH_iOS.cpp; sourceTree = "<group>"; };
-		87EC5F3A1B7AF6EA00F1B515 /* PH_iOS.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PH_iOS.h; path = ../Source/ui_ios/PH_iOS.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -659,8 +659,6 @@
 				70834AEF1B1BCB9E00E8D5C6 /* LaunchScreen.xib */,
 				70834AE61B1BCB0100E8D5C6 /* main.mm */,
 				70834AF11B1BCB9E00E8D5C6 /* Main.storyboard */,
-				87EC5F391B7AF6EA00F1B515 /* PH_iOS.cpp */,
-				87EC5F3A1B7AF6EA00F1B515 /* PH_iOS.h */,
 				70834CE21B1BD93100E8D5C6 /* Purei_Prefix.pch */,
 				874ECDA71B7DB1C1000075B6 /* SqliteDatabase.h */,
 				874ECDA51B7DB0F6000075B6 /* SqliteDatabase.m */,
@@ -751,6 +749,8 @@
 				70834B3C1B1BD2C300E8D5C6 /* PadHandler.h */,
 				70834B3D1B1BD2C300E8D5C6 /* PadListener.cpp */,
 				70834B3E1B1BD2C300E8D5C6 /* PadListener.h */,
+				705877321BE58A4B00213FFC /* PH_Generic.cpp */,
+				705877331BE58A4B00213FFC /* PH_Generic.h */,
 				70834B411B1BD2C300E8D5C6 /* Profiler.cpp */,
 				70834B421B1BD2C300E8D5C6 /* Profiler.h */,
 				70834B431B1BD2C300E8D5C6 /* Ps2Const.h */,
@@ -1276,7 +1276,6 @@
 				70834BF71B1BD6A300E8D5C6 /* Timer.cpp in Sources */,
 				87DCDB381B7F13370054D67C /* CollectionView.m in Sources */,
 				70834B661B1BD2C300E8D5C6 /* MA_MIPSIV.cpp in Sources */,
-				87EC5F3B1B7AF6EA00F1B515 /* PH_iOS.cpp in Sources */,
 				70834C881B1BD70700E8D5C6 /* Iop_Sysmem.cpp in Sources */,
 				70834B6E1B1BD2C300E8D5C6 /* MIPSAssembler.cpp in Sources */,
 				70834C0A1B1BD6E000E8D5C6 /* GSH_Null.cpp in Sources */,
@@ -1320,6 +1319,7 @@
 				70D3A8761BDF1746005494CE /* VirtualPadItem.mm in Sources */,
 				70834BF21B1BD6A300E8D5C6 /* MA_VU_Upper.cpp in Sources */,
 				70834BEF1B1BD6A300E8D5C6 /* MA_EE.cpp in Sources */,
+				705877341BE58A4B00213FFC /* PH_Generic.cpp in Sources */,
 				70834B641B1BD2C300E8D5C6 /* MA_MIPSIV_Reflection.cpp in Sources */,
 				70AD23871B38FFBA00137AA0 /* Icon.cpp in Sources */,
 				70834C7D1B1BD70700E8D5C6 /* Iop_SifMan.cpp in Sources */,
