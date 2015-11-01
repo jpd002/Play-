@@ -20,6 +20,7 @@ using namespace Iop;
 #define FUNCTION_IWAKEUPTHREAD				"iWakeupThread"
 #define FUNCTION_DELAYTHREAD				"DelayThread"
 #define FUNCTION_GETSYSTEMTIME				"GetSystemTime"
+#define FUNCTION_GETSYSTEMTIMELOW			"GetSystemTimeLow"
 #define FUNCTION_SETALARM					"SetAlarm"
 #define FUNCTION_CANCELALARM				"CancelAlarm"
 #define FUNCTION_USECTOSYSCLOCK				"USecToSysClock"
@@ -103,6 +104,9 @@ std::string CThbase::GetFunctionName(unsigned int functionId) const
 		break;
 	case 42:
 		return FUNCTION_GETCURRENTTHREADPRIORITY;
+		break;
+	case 43:
+		return FUNCTION_GETSYSTEMTIMELOW;
 		break;
 	default:
 		return "unknown";
@@ -210,6 +214,9 @@ void CThbase::Invoke(CMIPS& context, unsigned int functionId)
 	case 42:
 		context.m_State.nGPR[CMIPS::V0].nD0 = static_cast<int32>(GetCurrentThreadPriority());
 		break;
+	case 43:
+		context.m_State.nGPR[CMIPS::V0].nD0 = static_cast<int32>(GetSystemTimeLow());
+		break;
 	default:
 		CLog::GetInstance().Print(LOG_NAME, "Unknown function (%d) called at (%0.8X).\r\n", functionId, context.m_State.nPC);
 		break;
@@ -302,6 +309,15 @@ uint32 CThbase::GetSystemTime(uint32 resultPtr)
 		(*result) = m_bios.GetCurrentTime();
 	}
 	return 1;
+}
+
+uint32 CThbase::GetSystemTimeLow()
+{
+#ifdef _DEBUG
+	CLog::GetInstance().Print(LOG_NAME, "%d : " FUNCTION_GETSYSTEMTIMELOW "();\r\n",
+		m_bios.GetCurrentThreadId());
+#endif
+	return static_cast<uint32>(m_bios.GetCurrentTime());
 }
 
 uint32 CThbase::SetAlarm(uint32 timePtr, uint32 alarmFunction, uint32 param)

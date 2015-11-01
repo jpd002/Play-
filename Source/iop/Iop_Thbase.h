@@ -40,6 +40,7 @@ namespace Iop
 		uint32			WakeupThread(uint32);
 		uint32			iWakeupThread(uint32);
 		uint32			GetSystemTime(uint32);
+		uint32			GetSystemTimeLow();
 		uint32			SetAlarm(uint32, uint32, uint32);
 		uint32			CancelAlarm(uint32, uint32);
 		void			USecToSysClock(uint32, uint32);
