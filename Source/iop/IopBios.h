@@ -100,7 +100,7 @@ public:
 	int32						LoadModule(uint32);
 	int32						LoadModuleFromHost(uint8*);
 	int32						UnloadModule(uint32);
-	int32						StartModule(uint32, const char*, const char*, unsigned int);
+	int32						StartModule(uint32, const char*, const char*, uint32);
 	int32						StopModule(uint32);
 	int32						SearchModuleByName(const char*) const;
 	void						ProcessModuleReset(const std::string&);
