@@ -366,7 +366,6 @@ private:
 	void							RegisterModule(Iop::CModule*);
 	void							ClearDynamicModules();
 
-	void							ExitCurrentThread();
 	void							LoadThreadContext(uint32);
 	void							SaveThreadContext(uint32);
 	uint32							GetNextReadyThread();
