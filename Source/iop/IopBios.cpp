@@ -1720,8 +1720,9 @@ uint32 CIopBios::CreateMessageBox()
 		return -1;
 	}
 
-	MESSAGEBOX* box = m_messageBoxes[boxId];
+	auto box = m_messageBoxes[boxId];
 	box->nextMsgPtr = 0;
+	box->numMessage = 0;
 
 	return boxId;
 }
@@ -1753,10 +1754,10 @@ uint32 CIopBios::SendMessageBox(uint32 boxId, uint32 messagePtr)
 		CurrentThreadId(), boxId, messagePtr, inInterrupt);
 #endif
 
-	MESSAGEBOX* box = m_messageBoxes[boxId];
-	if(box == NULL)
+	auto box = m_messageBoxes[boxId];
+	if(!box)
 	{
-		return -1;
+		return KERNEL_RESULT_ERROR_UNKNOWN_MBXID;
 	}
 
 	//Check if there's a thread waiting for a message first
@@ -1782,12 +1783,27 @@ uint32 CIopBios::SendMessageBox(uint32 boxId, uint32 messagePtr)
 				m_rescheduleNeeded = true;
 			}
 			
-			return 0;
+			return KERNEL_RESULT_OK;
 		}
 	}
 
-	assert(0);
-	return 0;
+	auto header = reinterpret_cast<MESSAGE_HEADER*>(m_ram + messagePtr);
+	header->nextMsgPtr = 0;
+
+	auto msgPtr = &box->nextMsgPtr;
+	while(1)
+	{
+		if((*msgPtr) == 0)
+		{
+			(*msgPtr) = messagePtr;
+			break;
+		}
+		msgPtr = reinterpret_cast<uint32*>(m_ram + *msgPtr);
+	}
+
+	box->numMessage++;
+
+	return KERNEL_RESULT_OK;
 }
 
 uint32 CIopBios::ReceiveMessageBox(uint32 messagePtr, uint32 boxId)
@@ -1797,15 +1813,23 @@ uint32 CIopBios::ReceiveMessageBox(uint32 messagePtr, uint32 boxId)
 		CurrentThreadId(), messagePtr, boxId);
 #endif
 
-	MESSAGEBOX* box = m_messageBoxes[boxId];
-	if(box == NULL)
+	auto box = m_messageBoxes[boxId];
+	if(!box)
 	{
-		return -1;
+		return KERNEL_RESULT_ERROR_UNKNOWN_MBXID;
 	}
 
 	if(box->nextMsgPtr != 0)
 	{
-		assert(0);
+		assert(box->numMessage > 0);
+
+		uint32* message = reinterpret_cast<uint32*>(m_ram + messagePtr);
+		(*message) = box->nextMsgPtr;
+
+		//Unlink message
+		auto header = reinterpret_cast<MESSAGE_HEADER*>(m_ram + box->nextMsgPtr);
+		box->nextMsgPtr = header->nextMsgPtr;
+		box->numMessage--;
 	}
 	else
 	{
@@ -1817,7 +1841,7 @@ uint32 CIopBios::ReceiveMessageBox(uint32 messagePtr, uint32 boxId)
 		m_rescheduleNeeded = true;
 	}
 
-	return 0;
+	return KERNEL_RESULT_OK;
 }
 
 uint32 CIopBios::PollMessageBox(uint32 messagePtr, uint32 boxId)

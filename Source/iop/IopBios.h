@@ -282,6 +282,14 @@ private:
 	{
 		uint32			isValid;
 		uint32			nextMsgPtr;
+		uint32			numMessage;
+	};
+
+	struct MESSAGE_HEADER
+	{
+		uint32			nextMsgPtr;
+		uint8			priority;
+		uint8			unused[3];
 	};
 
 	struct SEMAPHORE_STATUS
