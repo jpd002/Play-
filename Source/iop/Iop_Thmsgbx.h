@@ -27,6 +27,7 @@ namespace Iop
 		uint32			SendMbx(uint32, uint32);
 		uint32			ReceiveMbx(uint32, uint32);
 		uint32			PollMbx(uint32, uint32);
+		uint32			ReferMbxStatus(uint32, uint32);
 
 		uint8*			m_ram = nullptr;
 		CIopBios&		m_bios;

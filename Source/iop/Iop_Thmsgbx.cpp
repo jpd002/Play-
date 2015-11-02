@@ -11,6 +11,7 @@ using namespace Iop;
 #define FUNCTION_SENDMBX			"SendMbx"
 #define FUNCTION_RECEIVEMBX			"ReceiveMbx"
 #define FUNCTION_POLLMBX			"PollMbx"
+#define FUNCTION_REFERMBXSTATUS		"ReferMbxStatus"
 
 CThmsgbx::CThmsgbx(CIopBios& bios, uint8* ram)
 : m_bios(bios)
@@ -47,6 +48,9 @@ std::string CThmsgbx::GetFunctionName(unsigned int functionId) const
 		break;
 	case 9:
 		return FUNCTION_POLLMBX;
+		break;
+	case 11:
+		return FUNCTION_REFERMBXSTATUS;
 		break;
 	default:
 		return "unknown";
@@ -86,6 +90,12 @@ void CThmsgbx::Invoke(CMIPS& context, unsigned int functionId)
 			context.m_State.nGPR[CMIPS::A1].nV0
 			);
 		break;
+	case 11:
+		context.m_State.nGPR[CMIPS::V0].nV0 = ReferMbxStatus(
+			context.m_State.nGPR[CMIPS::A0].nV0,
+			context.m_State.nGPR[CMIPS::A1].nV0
+			);
+		break;
 	default:
 		CLog::GetInstance().Print(LOG_NAME, "Unknown function (%d) called at (%0.8X).\r\n", functionId, context.m_State.nPC);
 		break;
@@ -115,4 +125,9 @@ uint32 CThmsgbx::ReceiveMbx(uint32 messagePtr, uint32 boxId)
 uint32 CThmsgbx::PollMbx(uint32 messagePtr, uint32 boxId)
 {
 	return m_bios.PollMessageBox(messagePtr, boxId);
+}
+
+uint32 CThmsgbx::ReferMbxStatus(uint32 boxId, uint32 statusPtr)
+{
+	return m_bios.ReferMessageBoxStatus(boxId, statusPtr);
 }

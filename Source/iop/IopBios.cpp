@@ -1866,6 +1866,29 @@ uint32 CIopBios::PollMessageBox(uint32 messagePtr, uint32 boxId)
 	return 0;
 }
 
+uint32 CIopBios::ReferMessageBoxStatus(uint32 boxId, uint32 statusPtr)
+{
+#ifdef _DEBUG
+	CLog::GetInstance().Print(LOGNAME, "%d: ReferMessageBox(boxId = %d, statusPtr = 0x%0.8X);\r\n",
+		CurrentThreadId(), boxId, statusPtr);
+#endif
+
+	auto box = m_messageBoxes[boxId];
+	if(!box)
+	{
+		return KERNEL_RESULT_ERROR_UNKNOWN_MBXID;
+	}
+
+	auto status = reinterpret_cast<MESSAGEBOX_STATUS*>(m_ram + statusPtr);
+	status->attr          = 0;
+	status->option        = 0;
+	status->numMessage    = box->numMessage;
+	status->numWaitThread = 0;
+	status->messagePtr    = box->nextMsgPtr;
+
+	return KERNEL_RESULT_OK;
+}
+
 Iop::CIoman* CIopBios::GetIoman()
 {
 	return m_ioman;

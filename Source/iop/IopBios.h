@@ -177,6 +177,7 @@ public:
 	uint32						SendMessageBox(uint32, uint32);
 	uint32						ReceiveMessageBox(uint32, uint32);
 	uint32						PollMessageBox(uint32, uint32);
+	uint32						ReferMessageBoxStatus(uint32, uint32);
 
 	int32						RegisterIntrHandler(uint32, uint32, uint32, uint32);
 	int32						ReleaseIntrHandler(uint32);
@@ -283,6 +284,16 @@ private:
 		uint32			isValid;
 		uint32			nextMsgPtr;
 		uint32			numMessage;
+	};
+
+	struct MESSAGEBOX_STATUS
+	{
+		uint32			attr;
+		uint32			option;
+		uint32			numWaitThread;
+		uint32			numMessage;
+		uint32			messagePtr;
+		uint32			unused[2];
 	};
 
 	struct MESSAGE_HEADER
