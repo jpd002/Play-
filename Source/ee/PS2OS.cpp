@@ -663,6 +663,12 @@ void CPS2OS::AssembleInterruptHandler()
 	//Set SP
 	assembler.ADDU(CMIPS::SP, CMIPS::K0, CMIPS::R0);
 
+	//Disable interrupts. Used by some games (ie.: RE4) to check interrupt context.
+	assembler.MFC0(CMIPS::T0, CCOP_SCU::STATUS);
+	assembler.LI(CMIPS::T1, ~CMIPS::STATUS_IE);
+	assembler.AND(CMIPS::T0, CMIPS::T0, CMIPS::T1);
+	assembler.MTC0(CMIPS::T0, CCOP_SCU::STATUS);
+
 	//Get INTC status
 	assembler.LI(CMIPS::T0, CINTC::INTC_STAT);
 	assembler.LW(CMIPS::S0, 0x0000, CMIPS::T0);
