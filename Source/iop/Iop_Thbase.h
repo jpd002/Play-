@@ -12,9 +12,9 @@ namespace Iop
 						CThbase(CIopBios&, uint8*);
 		virtual			~CThbase();
 
-		std::string		GetId() const;
-		std::string		GetFunctionName(unsigned int) const;
-		void			Invoke(CMIPS&, unsigned int);
+		std::string		GetId() const override;
+		std::string		GetFunctionName(unsigned int) const override;
+		void			Invoke(CMIPS&, unsigned int) override;
 
 	private:
 		struct THREAD
