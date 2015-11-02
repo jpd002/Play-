@@ -1044,11 +1044,11 @@ void CIopBios::ChangeThreadPriority(uint32 threadId, uint32 newPrio)
 	m_rescheduleNeeded = true;
 }
 
-uint32 CIopBios::ReferThreadStatus(uint32 threadId, uint32 statusPtr)
+uint32 CIopBios::ReferThreadStatus(uint32 threadId, uint32 statusPtr, bool inInterrupt)
 {
 #ifdef _DEBUG
-	CLog::GetInstance().Print(LOGNAME, "%d: ReferThreadStatus(threadId = %d, statusPtr = 0x%0.8X);\r\n", 
-		CurrentThreadId(), threadId, statusPtr);
+	CLog::GetInstance().Print(LOGNAME, "%d: ReferThreadStatus(threadId = %d, statusPtr = 0x%0.8X, inInterrupt = %d);\r\n", 
+		CurrentThreadId(), threadId, statusPtr, inInterrupt);
 #endif
 
 	if(threadId == 0)

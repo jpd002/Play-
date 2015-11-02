@@ -36,6 +36,7 @@ namespace Iop
 		uint32			DelayThread(uint32);
 		uint32			GetThreadId();
 		uint32			ReferThreadStatus(uint32, uint32);
+		uint32			iReferThreadStatus(uint32, uint32);
 		uint32			SleepThread();
 		uint32			WakeupThread(uint32);
 		uint32			iWakeupThread(uint32);

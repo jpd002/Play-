@@ -15,6 +15,7 @@ using namespace Iop;
 #define FUNCTION_CHANGETHREADPRIORITY		"ChangeThreadPriority"
 #define FUNCTION_GETTHREADID				"GetThreadId"
 #define FUNCTION_REFERTHREADSTATUS			"ReferThreadStatus"
+#define FUNCTION_IREFERTHREADSTATUS			"iReferThreadStatus"
 #define FUNCTION_SLEEPTHREAD				"SleepThread"
 #define FUNCTION_WAKEUPTHREAD				"WakeupThread"
 #define FUNCTION_IWAKEUPTHREAD				"iWakeupThread"
@@ -74,6 +75,9 @@ std::string CThbase::GetFunctionName(unsigned int functionId) const
 		break;
 	case 22:
 		return FUNCTION_REFERTHREADSTATUS;
+		break;
+	case 23:
+		return FUNCTION_IREFERTHREADSTATUS;
 		break;
 	case 24:
 		return FUNCTION_SLEEPTHREAD;
@@ -160,6 +164,12 @@ void CThbase::Invoke(CMIPS& context, unsigned int functionId)
 		break;
 	case 22:
 		context.m_State.nGPR[CMIPS::V0].nD0 = static_cast<int32>(ReferThreadStatus(
+			context.m_State.nGPR[CMIPS::A0].nV0,
+			context.m_State.nGPR[CMIPS::A1].nV0
+			));
+		break;
+	case 23:
+		context.m_State.nGPR[CMIPS::V0].nD0 = static_cast<int32>(iReferThreadStatus(
 			context.m_State.nGPR[CMIPS::A0].nV0,
 			context.m_State.nGPR[CMIPS::A1].nV0
 			));
@@ -274,7 +284,12 @@ uint32 CThbase::GetThreadId()
 
 uint32 CThbase::ReferThreadStatus(uint32 threadId, uint32 statusPtr)
 {
-	return m_bios.ReferThreadStatus(threadId, statusPtr);
+	return m_bios.ReferThreadStatus(threadId, statusPtr, false);
+}
+
+uint32 CThbase::iReferThreadStatus(uint32 threadId, uint32 statusPtr)
+{
+	return m_bios.ReferThreadStatus(threadId, statusPtr, true);
 }
 
 uint32 CThbase::SleepThread()
