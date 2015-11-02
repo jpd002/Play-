@@ -285,7 +285,6 @@ void CSio2::ProcessController(unsigned int portId, size_t outputOffset, uint32 d
 				assert(dstSize == 5 || dstSize == 9);
 				uint8 mode = m_inputBuffer[3];
 				uint8 lock = m_inputBuffer[4];
-				//cmdBuffer[3] == 0x01 ? (u8)ID_ANALOG : (u8)ID_DIGITAL;
 				//cmdBuffer[4] == 0x03 -> Mode Lock
 				m_outputBuffer[outputOffset + 0x03] = 0x00;
 				m_outputBuffer[outputOffset + 0x04] = 0x00;
@@ -296,6 +295,7 @@ void CSio2::ProcessController(unsigned int portId, size_t outputOffset, uint32 d
 					m_outputBuffer[outputOffset + 0x07] = 0x00;
 					m_outputBuffer[outputOffset + 0x08] = 0x00;
 				}
+				padState.mode = (mode == 0x01) ? ID_ANALOG : ID_DIGITAL;
 				CLog::GetInstance().Print(LOG_NAME, "Pad %d: SetModeAndLock(mode = %d, lock = %d);\r\n", padId, mode, lock);
 			}
 			break;
@@ -303,7 +303,7 @@ void CSio2::ProcessController(unsigned int portId, size_t outputOffset, uint32 d
 			assert(dstSize == 9);
 			assert(padState.configMode);
 			std::copy(std::begin(DUALSHOCK2_MODEL), std::end(DUALSHOCK2_MODEL), m_outputBuffer.begin() + outputOffset + 0x03);
-			m_outputBuffer[outputOffset + 5] = 0x01;		//0x01 if analog pad
+			m_outputBuffer[outputOffset + 5] = (padState.mode == ID_DIGITAL) ? 0x00 : 0x01;		//0x01 if analog pad
 			CLog::GetInstance().Print(LOG_NAME, "Pad %d: QueryModel();\r\n", padId);
 			break;
 		case 0x46:
