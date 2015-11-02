@@ -329,6 +329,7 @@ void CDebugger::FindEeFunctions()
 			{	"sceGsPutDrawEnv: DMA Ch.2 does not terminate\r\n",		"GsPutDrawEnv"		},
 			{	"sceGsSetDefLoadImage: too big size\r\n",				"GsSetDefLoadImage"	},
 			{	"sceGsSyncPath: DMA Ch.1 does not terminate\r\n",		"GsSyncPath"		},
+			{	"libpad: buffer addr is not 64 byte align. %08x\n",		"PadPortOpen"		},
 			{	"sceDbcReceiveData: rpc error\n",						"DbcReceiveData"	}
 		};
 
