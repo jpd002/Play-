@@ -8,16 +8,21 @@ using namespace Iop;
 
 static const uint8 DUALSHOCK2_MODEL[6] = 
 {
-	0x03, 0x02, 0x00, 0x02, 0x01, 0x00
+	0x03,	//Model
+	0x02,	//Mode Count
+	0x00,	//Mode Current Offset
+	0x02,	//Actuator Count
+	0x01,	//Actuator Comb Count
+	0x00
 };
 
 static const uint8 DUALSHOCK2_ID[5][5] = 
 {
-	{0x00, 0x01, 0x02, 0x00, 0x0A},
-	{0x00, 0x01, 0x01, 0x01, 0x14},
-	{0x00, 0x02, 0x00, 0x01, 0x00},
-	{0x00, 0x00, 0x04, 0x00, 0x00},
-	{0x00, 0x00, 0x07, 0x00, 0x00}
+	{0x00, 0x01, 0x02, 0x00, 0x0A},		//Actuator 0 info
+	{0x00, 0x01, 0x01, 0x01, 0x14},		//Actuator 1 info
+	{0x00, 0x02, 0x00, 0x01, 0x00},		//Actuator Comb 0 info
+	{0x00, 0x00, 0x04, 0x00, 0x00},		//Mode 0 info
+	{0x00, 0x00, 0x07, 0x00, 0x00}		//Mode 1 info
 };
 
 #define ID_DIGITAL	0x41
@@ -236,7 +241,7 @@ void CSio2::ProcessController(unsigned int portId, size_t outputOffset, uint32 d
 				m_outputBuffer[outputOffset + 0x07] = 0x00;
 				m_outputBuffer[outputOffset + 0x08] = 0x5A;
 			}
-			CLog::GetInstance().Print(LOG_NAME, "Pad %d: Cmd41();\r\n", padId);
+			CLog::GetInstance().Print(LOG_NAME, "Pad %d: QueryButtonMask();\r\n", padId);
 			break;
 		case 0x42:		//Read Data
 			assert(dstSize == 5 || dstSize == 9 || dstSize == 21);
@@ -312,13 +317,13 @@ void CSio2::ProcessController(unsigned int portId, size_t outputOffset, uint32 d
 			{
 				std::copy(std::begin(DUALSHOCK2_ID[1]), std::end(DUALSHOCK2_ID[1]), m_outputBuffer.begin() + outputOffset + 0x04);
 			}
-			CLog::GetInstance().Print(LOG_NAME, "Pad %d: GetDeviceId46(mode = %d);\r\n", padId, m_inputBuffer[3]);
+			CLog::GetInstance().Print(LOG_NAME, "Pad %d: QueryAct(mode = %d);\r\n", padId, m_inputBuffer[3]);
 			break;
 		case 0x47:
 			assert(dstSize == 9);
 			assert(padState.configMode);
 			std::copy(std::begin(DUALSHOCK2_ID[2]), std::end(DUALSHOCK2_ID[2]), m_outputBuffer.begin() + outputOffset + 0x04);
-			CLog::GetInstance().Print(LOG_NAME, "Pad %d: GetDeviceId47();\r\n", padId);
+			CLog::GetInstance().Print(LOG_NAME, "Pad %d: QueryComb();\r\n", padId);
 			break;
 		case 0x4C:
 			assert(dstSize == 9);
@@ -331,7 +336,7 @@ void CSio2::ProcessController(unsigned int portId, size_t outputOffset, uint32 d
 			{
 				std::copy(std::begin(DUALSHOCK2_ID[4]), std::end(DUALSHOCK2_ID[4]), m_outputBuffer.begin() + outputOffset + 0x04);
 			}
-			CLog::GetInstance().Print(LOG_NAME, "Pad %d: GetDeviceId4C(mode = %d);\r\n", padId, m_inputBuffer[3]);
+			CLog::GetInstance().Print(LOG_NAME, "Pad %d: QueryMode(mode = %d);\r\n", padId, m_inputBuffer[3]);
 			break;
 		case 0x4D:		//SetVibration
 			assert(dstSize == 9);
