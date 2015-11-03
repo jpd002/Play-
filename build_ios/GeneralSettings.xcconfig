@@ -6,6 +6,7 @@ CLANG_CXX_LIBRARY = libc++
 
 VALID_ARCHS = armv7
 ENABLE_BITCODE = NO
+CODE_SIGN_IDENTITY = -
 
 OTHER_CFLAGS = -fvisibility=hidden
 OTHER_LDFLAGS = -ObjC -framework boost
