@@ -115,6 +115,7 @@ CMainWindow::CMainWindow(CPS2VM& virtualMachine)
 
 	m_outputWnd = new COutputWnd(m_hWnd);
 
+	m_virtualPadWnd = CVirtualPadWindow(m_hWnd);
 	m_statsOverlayWnd = CStatsOverlayWindow(m_hWnd);
 
 	m_statusBar = Framework::Win32::CStatusBar(m_hWnd);
@@ -358,13 +359,13 @@ long CMainWindow::OnSize(unsigned int, unsigned int, unsigned int)
 	{
 		RefreshLayout();
 	}
-	RefreshStatsOverlayLayout();
+	RefreshOverlaysLayout();
 	return TRUE;
 }
 
 long CMainWindow::OnMove(int x, int y)
 {
-	RefreshStatsOverlayLayout();
+	RefreshOverlaysLayout();
 	return FALSE;
 }
 
@@ -779,7 +780,7 @@ void CMainWindow::RefreshLayout()
 	}
 }
 
-void CMainWindow::RefreshStatsOverlayLayout()
+void CMainWindow::RefreshOverlaysLayout()
 {
 	auto clientRect = GetClientRect();
 
@@ -788,6 +789,11 @@ void CMainWindow::RefreshStatsOverlayLayout()
 
 	auto clientScreenRect = Framework::Win32::CRect(0, 0, outputWidth, outputHeight);
 	clientScreenRect.ClientToScreen(m_hWnd);
+
+	SetWindowPos(m_virtualPadWnd.m_hWnd, NULL, 
+		clientScreenRect.Left(), clientScreenRect.Top(), 
+		clientScreenRect.Width(), clientScreenRect.Height(),
+		SWP_NOZORDER | SWP_NOACTIVATE);
 	SetWindowPos(m_statsOverlayWnd.m_hWnd, NULL, 
 		clientScreenRect.Left(), clientScreenRect.Top(), 
 		clientScreenRect.Width(), clientScreenRect.Height(),

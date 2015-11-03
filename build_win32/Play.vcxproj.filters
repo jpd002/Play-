@@ -241,6 +241,9 @@
     <ClCompile Include="..\Source\gs\GSH_OpenGL\GSH_OpenGL_Texture.cpp">
       <Filter>Source Files\GSH_OpenGL</Filter>
     </ClCompile>
+    <ClCompile Include="..\Source\ui_win32\VirtualPadWindow.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Source\ui_win32\IconMesh.h">
@@ -461,6 +464,9 @@
     </ClInclude>
     <ClInclude Include="..\Source\gs\GSH_OpenGL\GSH_OpenGL.h">
       <Filter>Source Files\GSH_OpenGL</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\ui_win32\VirtualPadWindow.h">
+      <Filter>Source Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
