@@ -8,7 +8,7 @@
 #include "SettingsDialogProvider.h"
 #include "OutputWnd.h"
 #include "AviStream.h"
-#include "VirtualPadWindow.h"
+#include "VirtualPad/VirtualPadWindow.h"
 #include "StatsOverlayWindow.h"
 #ifdef DEBUGGER_INCLUDED
 #include "Debugger.h"

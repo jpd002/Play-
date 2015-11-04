@@ -1,10 +1,12 @@
 #include <minmax.h>
 #include <gdiplus.h>
 #include "VirtualPadWindow.h"
-#include "../VirtualPad.h"
+#include "VirtualPadButton.h"
+#include "../../VirtualPad.h"
 #include "win32/ClientDeviceContext.h"
 #include "win32/MemoryDeviceContext.h"
 #include "win32/GdiObj.h"
+#include "string_cast.h"
 
 CVirtualPadWindow::CVirtualPadWindow()
 {
@@ -33,9 +35,15 @@ CVirtualPadWindow& CVirtualPadWindow::operator =(CVirtualPadWindow&& rhs)
 	return (*this);
 }
 
-long CVirtualPadWindow::OnSize(unsigned int, unsigned int, unsigned int)
+long CVirtualPadWindow::OnSize(unsigned int, unsigned int width, unsigned int height)
 {
-	Update();
+	RecreateItems(width, height);
+	UpdateSurface();
+	return TRUE;
+}
+
+long CVirtualPadWindow::OnLeftButtonDown(int x, int y)
+{
 	return TRUE;
 }
 
@@ -46,19 +54,43 @@ void CVirtualPadWindow::Reset()
 		Gdiplus::GdiplusShutdown(m_gdiPlusToken);
 		m_gdiPlusToken = 0;
 	}
+	m_items.clear();
 }
 
 void CVirtualPadWindow::MoveFrom(CVirtualPadWindow&& rhs)
 {
 	CWindow::MoveFrom(std::move(rhs));
 	std::swap(m_gdiPlusToken, rhs.m_gdiPlusToken);
+	m_items = std::move(rhs.m_items);
 }
 
-void CVirtualPadWindow::Update()
+void CVirtualPadWindow::RecreateItems(unsigned int width, unsigned int height)
+{
+	auto itemDefs = CVirtualPad::GetItems(width, height);
+	
+	m_items.clear();
+	for(const auto& itemDef : itemDefs)
+	{
+		Framework::Win32::CRect bounds(itemDef.x1, itemDef.y1, itemDef.x2, itemDef.y2);
+		ItemPtr item;
+		if(itemDef.isAnalog)
+		{
+			continue;
+		}
+		else
+		{
+			auto button = std::make_shared<CVirtualPadButton>();
+			button->SetCaption(string_cast<std::wstring>(itemDef.caption));
+			item = button;
+		}
+		item->SetBounds(bounds);
+		m_items.push_back(item);
+	}
+}
+
+void CVirtualPadWindow::UpdateSurface()
 {
 	auto windowRect = GetWindowRect();
-
-	auto items = CVirtualPad::GetItems(windowRect.Width(), windowRect.Height());
 
 	auto screenDc = Framework::Win32::CClientDeviceContext(NULL);
 	auto memDc = Framework::Win32::CMemoryDeviceContext(screenDc);
@@ -66,11 +98,9 @@ void CVirtualPadWindow::Update()
 	memDc.SelectObject(memBitmap);
 
 	Gdiplus::Graphics graphics(memDc);
-	Gdiplus::SolidBrush myBrush(Gdiplus::Color(255, 0, 0, 255));
-
-	for(const auto& item : items)
+	for(const auto& item : m_items)
 	{
-		graphics.FillRectangle(&myBrush, item.x1, item.y1, item.x2 - item.x1, item.y2 - item.y1);
+		item->Draw(graphics);
 	}
 
 	POINT dstPt = { windowRect.Left(), windowRect.Top() };
@@ -80,6 +110,6 @@ void CVirtualPadWindow::Update()
 	BLENDFUNCTION blendFunc = {};
 	blendFunc.AlphaFormat = AC_SRC_ALPHA;
 
-	BOOL result = UpdateLayeredWindow(m_hWnd, screenDc, &dstPt, &dstSize, memDc, &srcPt, RGB(0, 0, 0), &blendFunc, ULW_COLORKEY);
+	BOOL result = UpdateLayeredWindow(m_hWnd, screenDc, &dstPt, &dstSize, memDc, &srcPt, RGB(0, 0, 0), nullptr, ULW_COLORKEY);
 	assert(result == TRUE);
 }
