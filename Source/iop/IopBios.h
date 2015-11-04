@@ -6,6 +6,7 @@
 #include "../MIPS.h"
 #include "../ELF.h"
 #include "../OsStructManager.h"
+#include "../OsVariableWrapper.h"
 #include "Iop_BiosBase.h"
 #include "Iop_SifMan.h"
 #include "Iop_SifCmd.h"
@@ -149,7 +150,8 @@ public:
 	uint32						SetAlarm(uint32, uint32, uint32);
 	uint32						CancelAlarm(uint32, uint32);
 	THREAD*						GetThread(uint32);
-	uint32						GetCurrentThreadId() const;
+	int32						GetCurrentThreadId();
+	int32						GetCurrentThreadIdRaw() const;
 	void						ChangeThreadPriority(uint32, uint32);
 	uint32						ReferThreadStatus(uint32, uint32, bool);
 	void						SleepThread();
@@ -366,6 +368,7 @@ private:
 	{
 		KERNEL_RESULT_OK                     =    0,
 		KERNEL_RESULT_ERROR                  =   -1,
+		KERNEL_RESULT_ERROR_ILLEGAL_CONTEXT  = -100,
 		KERNEL_RESULT_ERROR_ILLEGAL_INTRCODE = -101,
 		KERNEL_RESULT_ERROR_FOUND_HANDLER    = -104,
 		KERNEL_RESULT_ERROR_NOTFOUND_HANDLER = -105,
@@ -398,7 +401,6 @@ private:
 	void							UnlinkThread(uint32);
 
 	uint32&							ThreadLinkHead() const;
-	uint32&							CurrentThreadId() const;
 	uint64&							CurrentTime() const;
 	uint32&							ModuleStartRequestHead() const;
 	uint32&							ModuleStartRequestFree() const;
@@ -448,6 +450,8 @@ private:
 
 	IopModuleMapType				m_modules;
 	DynamicIopModuleListType		m_dynamicModules;
+
+	OsVariableWrapper<uint32>		m_currentThreadId;
 
 #ifdef DEBUGGER_INCLUDED
 	BiosDebugModuleInfoArray		m_moduleTags;

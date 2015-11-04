@@ -312,7 +312,7 @@ uint32 CThbase::GetSystemTime(uint32 resultPtr)
 {
 #ifdef _DEBUG
 	CLog::GetInstance().Print(LOG_NAME, "%d : " FUNCTION_GETSYSTEMTIME "(resultPtr = 0x%0.8X);\r\n",
-		m_bios.GetCurrentThreadId(), resultPtr);
+		m_bios.GetCurrentThreadIdRaw(), resultPtr);
 #endif
 	uint64* result = nullptr;
 	if(resultPtr != 0)
@@ -330,7 +330,7 @@ uint32 CThbase::GetSystemTimeLow()
 {
 #ifdef _DEBUG
 	CLog::GetInstance().Print(LOG_NAME, "%d : " FUNCTION_GETSYSTEMTIMELOW "();\r\n",
-		m_bios.GetCurrentThreadId());
+		m_bios.GetCurrentThreadIdRaw());
 #endif
 	return static_cast<uint32>(m_bios.GetCurrentTime());
 }
@@ -339,7 +339,7 @@ uint32 CThbase::SetAlarm(uint32 timePtr, uint32 alarmFunction, uint32 param)
 {
 #ifdef _DEBUG
 	CLog::GetInstance().Print(LOG_NAME, "%d : SetAlarm(timePtr = 0x%0.8X, alarmFunction = 0x%0.8X, param = 0x%0.8X);\r\n",
-		m_bios.GetCurrentThreadId(), timePtr, alarmFunction, param);
+		m_bios.GetCurrentThreadIdRaw(), timePtr, alarmFunction, param);
 #endif
 	return m_bios.SetAlarm(timePtr, alarmFunction, param);
 }
@@ -348,7 +348,7 @@ uint32 CThbase::CancelAlarm(uint32 alarmFunction, uint32 param)
 {
 #ifdef _DEBUG
 	CLog::GetInstance().Print(LOG_NAME, "%d : CancelAlarm(alarmFunction = 0x%0.8X, param = 0x%0.8X);\r\n",
-		m_bios.GetCurrentThreadId(), alarmFunction, param);
+		m_bios.GetCurrentThreadIdRaw(), alarmFunction, param);
 #endif
 	return m_bios.CancelAlarm(alarmFunction, param);
 }
@@ -357,7 +357,7 @@ void CThbase::USecToSysClock(uint32 usec, uint32 timePtr)
 {
 #ifdef _DEBUG
 	CLog::GetInstance().Print(LOG_NAME, "%d : USecToSysClock(usec = 0x%0.8X, timePtr = 0x%0.8X);\r\n",
-		m_bios.GetCurrentThreadId(), usec, timePtr);
+		m_bios.GetCurrentThreadIdRaw(), usec, timePtr);
 #endif
 	uint64* time = (timePtr != 0) ? reinterpret_cast<uint64*>(&m_ram[timePtr]) : NULL;
 	if(time != NULL)
@@ -370,7 +370,7 @@ void CThbase::SysClockToUSec(uint32 timePtr, uint32 secPtr, uint32 usecPtr)
 {
 #ifdef _DEBUG
 	CLog::GetInstance().Print(LOG_NAME, "%d : SysClockToUSec(time = 0x%0.8X, sec = 0x%0.8X, usec = 0x%0.8X);\r\n",
-		m_bios.GetCurrentThreadId(), timePtr, secPtr, usecPtr);
+		m_bios.GetCurrentThreadIdRaw(), timePtr, secPtr, usecPtr);
 #endif
 	uint64* time = (timePtr != 0) ? reinterpret_cast<uint64*>(&m_ram[timePtr]) : NULL;
 	uint32* sec = (secPtr != 0) ? reinterpret_cast<uint32*>(&m_ram[secPtr]) : NULL;
@@ -393,9 +393,9 @@ uint32 CThbase::GetCurrentThreadPriority()
 {
 #ifdef _DEBUG
 	CLog::GetInstance().Print(LOG_NAME, "%d : " FUNCTION_GETCURRENTTHREADPRIORITY "();\r\n",
-		m_bios.GetCurrentThreadId());
+		m_bios.GetCurrentThreadIdRaw());
 #endif
-	CIopBios::THREAD* currentThread = m_bios.GetThread(m_bios.GetCurrentThreadId());
+	CIopBios::THREAD* currentThread = m_bios.GetThread(m_bios.GetCurrentThreadIdRaw());
 	if(currentThread == NULL) return -1;
 	return currentThread->priority;
 }
