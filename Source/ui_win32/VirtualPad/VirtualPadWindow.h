@@ -16,6 +16,7 @@ public:
 protected:
 	long    OnSize(unsigned int, unsigned int ,unsigned int) override;
 	long    OnLeftButtonDown(int, int) override;
+	long    OnLeftButtonUp(int, int) override;
 
 private:
 	typedef std::shared_ptr<CVirtualPadItem> ItemPtr;

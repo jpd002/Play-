@@ -7,8 +7,16 @@ CVirtualPadButton::~CVirtualPadButton()
 
 void CVirtualPadButton::Draw(Gdiplus::Graphics& graphics)
 {
-	Gdiplus::SolidBrush brush(Gdiplus::Color(255, 0, 0, 255));
-	graphics.FillRectangle(&brush, m_bounds.Left(), m_bounds.Top(), m_bounds.Width(), m_bounds.Height());
+	if(m_pressed)
+	{
+		Gdiplus::SolidBrush brush(Gdiplus::Color(255, 255, 0, 255));
+		graphics.FillRectangle(&brush, m_bounds.Left(), m_bounds.Top(), m_bounds.Width(), m_bounds.Height());
+	}
+	else
+	{
+		Gdiplus::SolidBrush brush(Gdiplus::Color(255, 0, 0, 255));
+		graphics.FillRectangle(&brush, m_bounds.Left(), m_bounds.Top(), m_bounds.Width(), m_bounds.Height());
+	}
 
 	if(!m_caption.empty())
 	{
@@ -21,7 +29,12 @@ void CVirtualPadButton::Draw(Gdiplus::Graphics& graphics)
 
 void CVirtualPadButton::OnMouseDown(int x, int y)
 {
-	
+	m_pressed = true;
+}
+
+void CVirtualPadButton::OnMouseUp()
+{
+	m_pressed = false;
 }
 
 void CVirtualPadButton::SetCaption(const std::wstring& caption)

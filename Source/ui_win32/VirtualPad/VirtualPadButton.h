@@ -10,6 +10,7 @@ public:
 	
 	virtual void    Draw(Gdiplus::Graphics&) override;
 	virtual void    OnMouseDown(int, int) override;
+	virtual void    OnMouseUp() override;
 
 	void    SetCaption(const std::wstring&);
 

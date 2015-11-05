@@ -8,6 +8,8 @@
 #include "win32/GdiObj.h"
 #include "string_cast.h"
 
+#define POINTER_TOKEN 0xDEADBEEF
+
 CVirtualPadWindow::CVirtualPadWindow()
 {
 
@@ -44,6 +46,34 @@ long CVirtualPadWindow::OnSize(unsigned int, unsigned int width, unsigned int he
 
 long CVirtualPadWindow::OnLeftButtonDown(int x, int y)
 {
+	POINT pt = { x, y };
+	for(auto& item : m_items)
+	{
+		if(PtInRect(item->GetBounds(), pt))
+		{
+			SetCapture(m_hWnd);
+			item->SetPointerId(POINTER_TOKEN);
+			item->OnMouseDown(x, y);
+			UpdateSurface();
+			break;
+		}
+	}
+	return TRUE;
+}
+
+long CVirtualPadWindow::OnLeftButtonUp(int x, int y)
+{
+	for(auto& item : m_items)
+	{
+		if(item->GetPointerId() == POINTER_TOKEN)
+		{
+			ReleaseCapture();
+			item->SetPointerId(0);
+			item->OnMouseUp();
+			UpdateSurface();
+			break;
+		}
+	}
 	return TRUE;
 }
 
