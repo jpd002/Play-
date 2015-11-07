@@ -351,6 +351,7 @@
     <ClCompile Include="..\Source\ui_win32\VFSManagerWnd.cpp" />
     <ClCompile Include="..\Source\ui_win32\VirtualPad\VirtualPadButton.cpp" />
     <ClCompile Include="..\Source\ui_win32\VirtualPad\VirtualPadItem.cpp" />
+    <ClCompile Include="..\Source\ui_win32\VirtualPad\VirtualPadStick.cpp" />
     <ClCompile Include="..\Source\ui_win32\VirtualPad\VirtualPadWindow.cpp" />
     <ClCompile Include="..\Source\ui_win32\WinUtils.cpp" />
     <ClCompile Include="..\tools\PsfPlayer\Source\win32_ui\SH_WaveOut.cpp" />
@@ -429,6 +430,7 @@
     <ClInclude Include="..\Source\ui_win32\VFSManagerWnd.h" />
     <ClInclude Include="..\Source\ui_win32\VirtualPad\VirtualPadButton.h" />
     <ClInclude Include="..\Source\ui_win32\VirtualPad\VirtualPadItem.h" />
+    <ClInclude Include="..\Source\ui_win32\VirtualPad\VirtualPadStick.h" />
     <ClInclude Include="..\Source\ui_win32\VirtualPad\VirtualPadWindow.h" />
     <ClInclude Include="..\Source\ui_win32\WinUtils.h" />
     <ClInclude Include="..\tools\PsfPlayer\Source\win32_ui\SH_WaveOut.h" />

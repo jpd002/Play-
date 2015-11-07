@@ -2,6 +2,7 @@
 #include <gdiplus.h>
 #include "VirtualPadWindow.h"
 #include "VirtualPadButton.h"
+#include "VirtualPadStick.h"
 #include "../../VirtualPad.h"
 #include "win32/ClientDeviceContext.h"
 #include "win32/MemoryDeviceContext.h"
@@ -77,6 +78,20 @@ long CVirtualPadWindow::OnLeftButtonUp(int x, int y)
 	return TRUE;
 }
 
+long CVirtualPadWindow::OnMouseMove(WPARAM, int x, int y)
+{
+	for(auto& item : m_items)
+	{
+		if(item->GetPointerId() == POINTER_TOKEN)
+		{
+			item->OnMouseMove(x, y);
+			UpdateSurface();
+			break;
+		}
+	}
+	return TRUE;
+}
+
 void CVirtualPadWindow::Reset()
 {
 	if(m_gdiPlusToken != 0)
@@ -105,7 +120,8 @@ void CVirtualPadWindow::RecreateItems(unsigned int width, unsigned int height)
 		ItemPtr item;
 		if(itemDef.isAnalog)
 		{
-			continue;
+			auto stick = std::make_shared<CVirtualPadStick>();
+			item = stick;
 		}
 		else
 		{

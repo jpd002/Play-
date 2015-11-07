@@ -10,6 +10,11 @@ void CVirtualPadItem::OnMouseDown(int, int)
 
 }
 
+void CVirtualPadItem::OnMouseMove(int, int)
+{
+
+}
+
 void CVirtualPadItem::OnMouseUp()
 {
 

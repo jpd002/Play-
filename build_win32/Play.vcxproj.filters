@@ -253,6 +253,9 @@
     <ClCompile Include="..\Source\ui_win32\VirtualPad\VirtualPadItem.cpp">
       <Filter>Source Files\VirtualPad</Filter>
     </ClCompile>
+    <ClCompile Include="..\Source\ui_win32\VirtualPad\VirtualPadStick.cpp">
+      <Filter>Source Files\VirtualPad</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Source\ui_win32\IconMesh.h">
@@ -481,6 +484,9 @@
       <Filter>Source Files\VirtualPad</Filter>
     </ClInclude>
     <ClInclude Include="..\Source\ui_win32\VirtualPad\VirtualPadButton.h">
+      <Filter>Source Files\VirtualPad</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\ui_win32\VirtualPad\VirtualPadStick.h">
       <Filter>Source Files\VirtualPad</Filter>
     </ClInclude>
   </ItemGroup>

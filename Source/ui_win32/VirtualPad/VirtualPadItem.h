@@ -12,6 +12,7 @@ public:
 
 	virtual void    Draw(Gdiplus::Graphics&) = 0;
 	virtual void    OnMouseDown(int, int);
+	virtual void    OnMouseMove(int, int);
 	virtual void    OnMouseUp();
 
 	Framework::Win32::CRect    GetBounds() const;
