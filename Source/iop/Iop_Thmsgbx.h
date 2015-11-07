@@ -1,5 +1,4 @@
-#ifndef _IOP_THMSGBX_H_
-#define _IOP_THMSGBX_H_
+#pragma once
 
 #include "Iop_Module.h"
 #include "IopBios.h"
@@ -12,9 +11,9 @@ namespace Iop
 						CThmsgbx(CIopBios&, uint8*);
 		virtual			~CThmsgbx();
 
-		std::string		GetId() const;
-		std::string		GetFunctionName(unsigned int) const;
-		void			Invoke(CMIPS&, unsigned int);
+		std::string		GetId() const override;
+		std::string		GetFunctionName(unsigned int) const override;
+		void			Invoke(CMIPS&, unsigned int) override;
 
 	private:
 		struct MSGBX
@@ -24,13 +23,13 @@ namespace Iop
 		};
 
 		uint32			CreateMbx(const MSGBX*);
+		uint32			DeleteMbx(uint32);
 		uint32			SendMbx(uint32, uint32);
 		uint32			ReceiveMbx(uint32, uint32);
 		uint32			PollMbx(uint32, uint32);
+		uint32			ReferMbxStatus(uint32, uint32);
 
-		uint8*			m_ram;
+		uint8*			m_ram = nullptr;
 		CIopBios&		m_bios;
 	};
 }
-
-#endif

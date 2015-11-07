@@ -163,6 +163,7 @@
     <ClCompile Include="..\Source\StructCollectionStateFile.cpp" />
     <ClCompile Include="..\Source\StructFile.cpp" />
     <ClCompile Include="..\Source\Utils.cpp" />
+    <ClCompile Include="..\Source\VirtualPad.cpp" />
     <ClCompile Include="..\Source\VolumeStream.cpp" />
     <ClCompile Include="..\Source\ui_win32\StdAfx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
@@ -314,6 +315,7 @@
     <ClInclude Include="..\Source\uint128.h" />
     <ClInclude Include="..\Source\Utils.h" />
     <ClInclude Include="..\Source\VirtualMachine.h" />
+    <ClInclude Include="..\Source\VirtualPad.h" />
     <ClInclude Include="..\Source\VolumeStream.h" />
     <ClInclude Include="..\Source\ui_win32\StdAfx.h" />
   </ItemGroup>

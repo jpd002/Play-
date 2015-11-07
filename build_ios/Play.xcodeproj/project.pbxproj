@@ -7,11 +7,24 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		7001D6451BE5457C008B6205 /* cross.png in Resources */ = {isa = PBXBuildFile; fileRef = 7001D63B1BE5457C008B6205 /* cross.png */; };
+		7001D6461BE5457C008B6205 /* down.png in Resources */ = {isa = PBXBuildFile; fileRef = 7001D63C1BE5457C008B6205 /* down.png */; };
+		7001D6471BE5457C008B6205 /* left.png in Resources */ = {isa = PBXBuildFile; fileRef = 7001D63D1BE5457C008B6205 /* left.png */; };
+		7001D6481BE5457C008B6205 /* lr.png in Resources */ = {isa = PBXBuildFile; fileRef = 7001D63E1BE5457C008B6205 /* lr.png */; };
+		7001D6491BE5457C008B6205 /* right.png in Resources */ = {isa = PBXBuildFile; fileRef = 7001D63F1BE5457C008B6205 /* right.png */; };
+		7001D64A1BE5457C008B6205 /* select.png in Resources */ = {isa = PBXBuildFile; fileRef = 7001D6401BE5457C008B6205 /* select.png */; };
+		7001D64B1BE5457C008B6205 /* square.png in Resources */ = {isa = PBXBuildFile; fileRef = 7001D6411BE5457C008B6205 /* square.png */; };
+		7001D64C1BE5457C008B6205 /* start.png in Resources */ = {isa = PBXBuildFile; fileRef = 7001D6421BE5457C008B6205 /* start.png */; };
+		7001D64D1BE5457C008B6205 /* triangle.png in Resources */ = {isa = PBXBuildFile; fileRef = 7001D6431BE5457C008B6205 /* triangle.png */; };
+		7001D64E1BE5457C008B6205 /* up.png in Resources */ = {isa = PBXBuildFile; fileRef = 7001D6441BE5457C008B6205 /* up.png */; };
+		7001D6511BE54582008B6205 /* analogstick.png in Resources */ = {isa = PBXBuildFile; fileRef = 7001D64F1BE54582008B6205 /* analogstick.png */; };
+		7001D6521BE54582008B6205 /* circle.png in Resources */ = {isa = PBXBuildFile; fileRef = 7001D6501BE54582008B6205 /* circle.png */; };
 		704E1C4E1B3BA0B200C0ACE3 /* GSH_OpenGLiOS.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 704E1C4C1B3BA0B200C0ACE3 /* GSH_OpenGLiOS.cpp */; };
 		704E1C531B3BA25000C0ACE3 /* GSH_OpenGL_Shader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 704E1C4F1B3BA25000C0ACE3 /* GSH_OpenGL_Shader.cpp */; };
 		704E1C541B3BA25000C0ACE3 /* GSH_OpenGL_Texture.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 704E1C501B3BA25000C0ACE3 /* GSH_OpenGL_Texture.cpp */; };
 		704E1C551B3BA25000C0ACE3 /* GSH_OpenGL.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 704E1C511B3BA25000C0ACE3 /* GSH_OpenGL.cpp */; };
 		705342D91B78122400477EC4 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 705342D81B78122400477EC4 /* CoreGraphics.framework */; };
+		705877341BE58A4B00213FFC /* PH_Generic.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 705877321BE58A4B00213FFC /* PH_Generic.cpp */; };
 		70603E1F1B60A94400935E3C /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 70603E1E1B60A94400935E3C /* Images.xcassets */; };
 		7075D0B51B63260F0010D69C /* DiskUtils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7075D0B31B63260F0010D69C /* DiskUtils.cpp */; };
 		7075D0BB1B634B470010D69C /* IosUtils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7075D0B91B634B470010D69C /* IosUtils.cpp */; };
@@ -160,6 +173,11 @@
 		70AD23951B39199300137AA0 /* MaxSaveImporter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 70AD238F1B39199300137AA0 /* MaxSaveImporter.cpp */; };
 		70AD23961B39199300137AA0 /* PsuSaveImporter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 70AD23911B39199300137AA0 /* PsuSaveImporter.cpp */; };
 		70AD23971B39199300137AA0 /* XpsSaveImporter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 70AD23931B39199300137AA0 /* XpsSaveImporter.cpp */; };
+		70B1833C1BD7D40900EAEB9B /* VirtualPad.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 70B1833A1BD7D40900EAEB9B /* VirtualPad.cpp */; };
+		70D3A8751BDF1746005494CE /* VirtualPadButton.mm in Sources */ = {isa = PBXBuildFile; fileRef = 70D3A86E1BDF1746005494CE /* VirtualPadButton.mm */; };
+		70D3A8761BDF1746005494CE /* VirtualPadItem.mm in Sources */ = {isa = PBXBuildFile; fileRef = 70D3A8701BDF1746005494CE /* VirtualPadItem.mm */; };
+		70D3A8771BDF1746005494CE /* VirtualPadStick.mm in Sources */ = {isa = PBXBuildFile; fileRef = 70D3A8721BDF1746005494CE /* VirtualPadStick.mm */; };
+		70D3A8781BDF1746005494CE /* VirtualPadView.mm in Sources */ = {isa = PBXBuildFile; fileRef = 70D3A8741BDF1746005494CE /* VirtualPadView.mm */; };
 		874ECDA41B7D980C000075B6 /* boxart.png in Resources */ = {isa = PBXBuildFile; fileRef = 874ECDA21B7D980C000075B6 /* boxart.png */; };
 		874ECDA61B7DB0F6000075B6 /* SqliteDatabase.m in Sources */ = {isa = PBXBuildFile; fileRef = 874ECDA51B7DB0F6000075B6 /* SqliteDatabase.m */; };
 		874ECDAA1B7DB862000075B6 /* libsqlite3.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 874ECDA91B7DB862000075B6 /* libsqlite3.dylib */; };
@@ -176,7 +194,6 @@
 		87C4CC341B75010700CE6D3C /* iCadeReaderView.m in Sources */ = {isa = PBXBuildFile; fileRef = 87C4CC311B75010700CE6D3C /* iCadeReaderView.m */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
 		87DCDB331B7F03260054D67C /* CoverViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 87DCDB321B7F03260054D67C /* CoverViewController.m */; };
 		87DCDB381B7F13370054D67C /* CollectionView.m in Sources */ = {isa = PBXBuildFile; fileRef = 87DCDB371B7F13370054D67C /* CollectionView.m */; };
-		87EC5F3B1B7AF6EA00F1B515 /* PH_iOS.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 87EC5F391B7AF6EA00F1B515 /* PH_iOS.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -211,6 +228,18 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		7001D63B1BE5457C008B6205 /* cross.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = cross.png; sourceTree = "<group>"; };
+		7001D63C1BE5457C008B6205 /* down.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = down.png; sourceTree = "<group>"; };
+		7001D63D1BE5457C008B6205 /* left.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = left.png; sourceTree = "<group>"; };
+		7001D63E1BE5457C008B6205 /* lr.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = lr.png; sourceTree = "<group>"; };
+		7001D63F1BE5457C008B6205 /* right.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = right.png; sourceTree = "<group>"; };
+		7001D6401BE5457C008B6205 /* select.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = select.png; sourceTree = "<group>"; };
+		7001D6411BE5457C008B6205 /* square.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = square.png; sourceTree = "<group>"; };
+		7001D6421BE5457C008B6205 /* start.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = start.png; sourceTree = "<group>"; };
+		7001D6431BE5457C008B6205 /* triangle.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = triangle.png; sourceTree = "<group>"; };
+		7001D6441BE5457C008B6205 /* up.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = up.png; sourceTree = "<group>"; };
+		7001D64F1BE54582008B6205 /* analogstick.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = analogstick.png; sourceTree = "<group>"; };
+		7001D6501BE54582008B6205 /* circle.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = circle.png; sourceTree = "<group>"; };
 		704E1C4C1B3BA0B200C0ACE3 /* GSH_OpenGLiOS.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = GSH_OpenGLiOS.cpp; path = ../Source/ui_ios/GSH_OpenGLiOS.cpp; sourceTree = "<group>"; };
 		704E1C4D1B3BA0B200C0ACE3 /* GSH_OpenGLiOS.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GSH_OpenGLiOS.h; path = ../Source/ui_ios/GSH_OpenGLiOS.h; sourceTree = "<group>"; };
 		704E1C4F1B3BA25000C0ACE3 /* GSH_OpenGL_Shader.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = GSH_OpenGL_Shader.cpp; path = ../Source/gs/GSH_OpenGL/GSH_OpenGL_Shader.cpp; sourceTree = "<group>"; };
@@ -218,6 +247,8 @@
 		704E1C511B3BA25000C0ACE3 /* GSH_OpenGL.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = GSH_OpenGL.cpp; path = ../Source/gs/GSH_OpenGL/GSH_OpenGL.cpp; sourceTree = "<group>"; };
 		704E1C521B3BA25000C0ACE3 /* GSH_OpenGL.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GSH_OpenGL.h; path = ../Source/gs/GSH_OpenGL/GSH_OpenGL.h; sourceTree = "<group>"; };
 		705342D81B78122400477EC4 /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS8.4.sdk/System/Library/Frameworks/CoreGraphics.framework; sourceTree = DEVELOPER_DIR; };
+		705877321BE58A4B00213FFC /* PH_Generic.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = PH_Generic.cpp; path = ../Source/PH_Generic.cpp; sourceTree = "<group>"; };
+		705877331BE58A4B00213FFC /* PH_Generic.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PH_Generic.h; path = ../Source/PH_Generic.h; sourceTree = "<group>"; };
 		70603E1E1B60A94400935E3C /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = "Play!/Images.xcassets"; sourceTree = "<group>"; };
 		7075D0B31B63260F0010D69C /* DiskUtils.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = DiskUtils.cpp; path = ../Source/DiskUtils.cpp; sourceTree = "<group>"; };
 		7075D0B41B63260F0010D69C /* DiskUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DiskUtils.h; path = ../Source/DiskUtils.h; sourceTree = "<group>"; };
@@ -515,6 +546,16 @@
 		70AD23921B39199300137AA0 /* PsuSaveImporter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PsuSaveImporter.h; path = ../Source/saves/PsuSaveImporter.h; sourceTree = "<group>"; };
 		70AD23931B39199300137AA0 /* XpsSaveImporter.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = XpsSaveImporter.cpp; path = ../Source/saves/XpsSaveImporter.cpp; sourceTree = "<group>"; };
 		70AD23941B39199300137AA0 /* XpsSaveImporter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = XpsSaveImporter.h; path = ../Source/saves/XpsSaveImporter.h; sourceTree = "<group>"; };
+		70B1833A1BD7D40900EAEB9B /* VirtualPad.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = VirtualPad.cpp; path = ../Source/VirtualPad.cpp; sourceTree = "<group>"; };
+		70B1833B1BD7D40900EAEB9B /* VirtualPad.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = VirtualPad.h; path = ../Source/VirtualPad.h; sourceTree = "<group>"; };
+		70D3A86D1BDF1746005494CE /* VirtualPadButton.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = VirtualPadButton.h; path = ../Source/ui_ios/VirtualPadButton.h; sourceTree = "<group>"; };
+		70D3A86E1BDF1746005494CE /* VirtualPadButton.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = VirtualPadButton.mm; path = ../Source/ui_ios/VirtualPadButton.mm; sourceTree = "<group>"; };
+		70D3A86F1BDF1746005494CE /* VirtualPadItem.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = VirtualPadItem.h; path = ../Source/ui_ios/VirtualPadItem.h; sourceTree = "<group>"; };
+		70D3A8701BDF1746005494CE /* VirtualPadItem.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = VirtualPadItem.mm; path = ../Source/ui_ios/VirtualPadItem.mm; sourceTree = "<group>"; };
+		70D3A8711BDF1746005494CE /* VirtualPadStick.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = VirtualPadStick.h; path = ../Source/ui_ios/VirtualPadStick.h; sourceTree = "<group>"; };
+		70D3A8721BDF1746005494CE /* VirtualPadStick.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = VirtualPadStick.mm; path = ../Source/ui_ios/VirtualPadStick.mm; sourceTree = "<group>"; };
+		70D3A8731BDF1746005494CE /* VirtualPadView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = VirtualPadView.h; path = ../Source/ui_ios/VirtualPadView.h; sourceTree = "<group>"; };
+		70D3A8741BDF1746005494CE /* VirtualPadView.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = VirtualPadView.mm; path = ../Source/ui_ios/VirtualPadView.mm; sourceTree = "<group>"; };
 		874ECDA21B7D980C000075B6 /* boxart.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = boxart.png; sourceTree = "<group>"; };
 		874ECDA51B7DB0F6000075B6 /* SqliteDatabase.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = SqliteDatabase.m; path = ../Source/ui_ios/SqliteDatabase.m; sourceTree = "<group>"; };
 		874ECDA71B7DB1C1000075B6 /* SqliteDatabase.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = SqliteDatabase.h; path = ../Source/ui_ios/SqliteDatabase.h; sourceTree = "<group>"; };
@@ -538,8 +579,6 @@
 		87DCDB321B7F03260054D67C /* CoverViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = CoverViewController.m; path = ../Source/ui_ios/CoverViewController.m; sourceTree = "<group>"; };
 		87DCDB361B7F13370054D67C /* CollectionView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CollectionView.h; path = ../Source/ui_ios/CollectionView.h; sourceTree = "<group>"; };
 		87DCDB371B7F13370054D67C /* CollectionView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = CollectionView.m; path = ../Source/ui_ios/CollectionView.m; sourceTree = "<group>"; };
-		87EC5F391B7AF6EA00F1B515 /* PH_iOS.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = PH_iOS.cpp; path = ../Source/ui_ios/PH_iOS.cpp; sourceTree = "<group>"; };
-		87EC5F3A1B7AF6EA00F1B515 /* PH_iOS.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PH_iOS.h; path = ../Source/ui_ios/PH_iOS.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -620,11 +659,17 @@
 				70834AEF1B1BCB9E00E8D5C6 /* LaunchScreen.xib */,
 				70834AE61B1BCB0100E8D5C6 /* main.mm */,
 				70834AF11B1BCB9E00E8D5C6 /* Main.storyboard */,
-				87EC5F391B7AF6EA00F1B515 /* PH_iOS.cpp */,
-				87EC5F3A1B7AF6EA00F1B515 /* PH_iOS.h */,
 				70834CE21B1BD93100E8D5C6 /* Purei_Prefix.pch */,
 				874ECDA71B7DB1C1000075B6 /* SqliteDatabase.h */,
 				874ECDA51B7DB0F6000075B6 /* SqliteDatabase.m */,
+				70D3A86D1BDF1746005494CE /* VirtualPadButton.h */,
+				70D3A86E1BDF1746005494CE /* VirtualPadButton.mm */,
+				70D3A86F1BDF1746005494CE /* VirtualPadItem.h */,
+				70D3A8701BDF1746005494CE /* VirtualPadItem.mm */,
+				70D3A8711BDF1746005494CE /* VirtualPadStick.h */,
+				70D3A8721BDF1746005494CE /* VirtualPadStick.mm */,
+				70D3A8731BDF1746005494CE /* VirtualPadView.h */,
+				70D3A8741BDF1746005494CE /* VirtualPadView.mm */,
 			);
 			name = ui_ios;
 			sourceTree = "<group>";
@@ -704,6 +749,8 @@
 				70834B3C1B1BD2C300E8D5C6 /* PadHandler.h */,
 				70834B3D1B1BD2C300E8D5C6 /* PadListener.cpp */,
 				70834B3E1B1BD2C300E8D5C6 /* PadListener.h */,
+				705877321BE58A4B00213FFC /* PH_Generic.cpp */,
+				705877331BE58A4B00213FFC /* PH_Generic.h */,
 				70834B411B1BD2C300E8D5C6 /* Profiler.cpp */,
 				70834B421B1BD2C300E8D5C6 /* Profiler.h */,
 				70834B431B1BD2C300E8D5C6 /* Ps2Const.h */,
@@ -724,6 +771,8 @@
 				70834B521B1BD2C300E8D5C6 /* Utils.cpp */,
 				70834B531B1BD2C300E8D5C6 /* Utils.h */,
 				70834B541B1BD2C300E8D5C6 /* VirtualMachine.h */,
+				70B1833A1BD7D40900EAEB9B /* VirtualPad.cpp */,
+				70B1833B1BD7D40900EAEB9B /* VirtualPad.h */,
 			);
 			name = "Play Core";
 			sourceTree = "<group>";
@@ -1004,8 +1053,20 @@
 		874ECDA01B7D980C000075B6 /* Resources */ = {
 			isa = PBXGroup;
 			children = (
-				874ECDA81B7DB3DF000075B6 /* games.db */,
+				7001D64F1BE54582008B6205 /* analogstick.png */,
 				874ECDA21B7D980C000075B6 /* boxart.png */,
+				7001D6501BE54582008B6205 /* circle.png */,
+				7001D63B1BE5457C008B6205 /* cross.png */,
+				7001D63C1BE5457C008B6205 /* down.png */,
+				874ECDA81B7DB3DF000075B6 /* games.db */,
+				7001D63D1BE5457C008B6205 /* left.png */,
+				7001D63E1BE5457C008B6205 /* lr.png */,
+				7001D63F1BE5457C008B6205 /* right.png */,
+				7001D6401BE5457C008B6205 /* select.png */,
+				7001D6411BE5457C008B6205 /* square.png */,
+				7001D6421BE5457C008B6205 /* start.png */,
+				7001D6431BE5457C008B6205 /* triangle.png */,
+				7001D6441BE5457C008B6205 /* up.png */,
 			);
 			name = Resources;
 			path = "Play!/Resources";
@@ -1108,11 +1169,23 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				7001D6451BE5457C008B6205 /* cross.png in Resources */,
+				7001D64D1BE5457C008B6205 /* triangle.png in Resources */,
 				70603E1F1B60A94400935E3C /* Images.xcassets in Resources */,
+				7001D6521BE54582008B6205 /* circle.png in Resources */,
+				7001D6491BE5457C008B6205 /* right.png in Resources */,
+				7001D6471BE5457C008B6205 /* left.png in Resources */,
 				70834AF41B1BCB9E00E8D5C6 /* Main.storyboard in Resources */,
+				7001D6461BE5457C008B6205 /* down.png in Resources */,
+				7001D64C1BE5457C008B6205 /* start.png in Resources */,
+				7001D6511BE54582008B6205 /* analogstick.png in Resources */,
+				7001D6481BE5457C008B6205 /* lr.png in Resources */,
 				70834AF31B1BCB9E00E8D5C6 /* LaunchScreen.xib in Resources */,
+				7001D64B1BE5457C008B6205 /* square.png in Resources */,
 				874ECDA41B7D980C000075B6 /* boxart.png in Resources */,
+				7001D64A1BE5457C008B6205 /* select.png in Resources */,
 				874ECDAC1B7DB9EB000075B6 /* games.db in Resources */,
+				7001D64E1BE5457C008B6205 /* up.png in Resources */,
 				70834AEA1B1BCB0100E8D5C6 /* Info.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1173,8 +1246,10 @@
 				70834C7C1B1BD70700E8D5C6 /* Iop_SifDynamic.cpp in Sources */,
 				70834C0B1B1BD6E000E8D5C6 /* GSHandler.cpp in Sources */,
 				70834C091B1BD6E000E8D5C6 /* GsCachedArea.cpp in Sources */,
+				70D3A8751BDF1746005494CE /* VirtualPadButton.mm in Sources */,
 				70834B571B1BD2C300E8D5C6 /* AppConfig.cpp in Sources */,
 				70834C851B1BD70700E8D5C6 /* Iop_Stdio.cpp in Sources */,
+				70D3A8771BDF1746005494CE /* VirtualPadStick.mm in Sources */,
 				70834AEB1B1BCB0100E8D5C6 /* main.mm in Sources */,
 				874ECDA61B7DB0F6000075B6 /* SqliteDatabase.m in Sources */,
 				70834BE71B1BD6A300E8D5C6 /* IPU_DmVectorTable.cpp in Sources */,
@@ -1193,6 +1268,7 @@
 				70AD238A1B38FFBA00137AA0 /* Save.cpp in Sources */,
 				70834B591B1BD2C300E8D5C6 /* ControllerInfo.cpp in Sources */,
 				70834B681B1BD2C300E8D5C6 /* MemoryMap.cpp in Sources */,
+				70D3A8781BDF1746005494CE /* VirtualPadView.mm in Sources */,
 				70834B7B1B1BD2C300E8D5C6 /* RegisterStateFile.cpp in Sources */,
 				70834B631B1BD2C300E8D5C6 /* Log.cpp in Sources */,
 				70AD238C1B38FFBA00137AA0 /* SaveImporter.cpp in Sources */,
@@ -1200,7 +1276,6 @@
 				70834BF71B1BD6A300E8D5C6 /* Timer.cpp in Sources */,
 				87DCDB381B7F13370054D67C /* CollectionView.m in Sources */,
 				70834B661B1BD2C300E8D5C6 /* MA_MIPSIV.cpp in Sources */,
-				87EC5F3B1B7AF6EA00F1B515 /* PH_iOS.cpp in Sources */,
 				70834C881B1BD70700E8D5C6 /* Iop_Sysmem.cpp in Sources */,
 				70834B6E1B1BD2C300E8D5C6 /* MIPSAssembler.cpp in Sources */,
 				70834C0A1B1BD6E000E8D5C6 /* GSH_Null.cpp in Sources */,
@@ -1215,6 +1290,7 @@
 				70834C0C1B1BD6E000E8D5C6 /* GsPixelFormats.cpp in Sources */,
 				70834B601B1BD2C300E8D5C6 /* ElfFile.cpp in Sources */,
 				704E1C541B3BA25000C0ACE3 /* GSH_OpenGL_Texture.cpp in Sources */,
+				70B1833C1BD7D40900EAEB9B /* VirtualPad.cpp in Sources */,
 				70834C741B1BD70700E8D5C6 /* Iop_Ioman.cpp in Sources */,
 				70834C8D1B1BD70700E8D5C6 /* Iop_Timrman.cpp in Sources */,
 				70834C891B1BD70700E8D5C6 /* Iop_Thbase.cpp in Sources */,
@@ -1240,8 +1316,10 @@
 				70834CA41B1BD78D00E8D5C6 /* VolumeDescriptor.cpp in Sources */,
 				70834BDD1B1BD6A300E8D5C6 /* COP_VU_Reflection.cpp in Sources */,
 				70834BE21B1BD6A300E8D5C6 /* EEAssembler.cpp in Sources */,
+				70D3A8761BDF1746005494CE /* VirtualPadItem.mm in Sources */,
 				70834BF21B1BD6A300E8D5C6 /* MA_VU_Upper.cpp in Sources */,
 				70834BEF1B1BD6A300E8D5C6 /* MA_EE.cpp in Sources */,
+				705877341BE58A4B00213FFC /* PH_Generic.cpp in Sources */,
 				70834B641B1BD2C300E8D5C6 /* MA_MIPSIV_Reflection.cpp in Sources */,
 				70AD23871B38FFBA00137AA0 /* Icon.cpp in Sources */,
 				70834C7D1B1BD70700E8D5C6 /* Iop_SifMan.cpp in Sources */,
@@ -1329,7 +1407,6 @@
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
@@ -1364,7 +1441,6 @@
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_NS_ASSERTIONS = NO;

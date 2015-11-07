@@ -9,4 +9,6 @@ public class InputManager
 
 	public static native void setButtonState(int button, boolean pressed);
 	public static native void setAxisState(int button, float value);
+	
+	public static native String getVirtualPadItems(float screenWidth, float screenHeight);
 }

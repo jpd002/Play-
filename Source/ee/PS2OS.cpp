@@ -113,6 +113,7 @@
 #define SYSCALL_NAME_ISIGNALSEMA			"osiSignalSema"
 #define SYSCALL_NAME_WAITSEMA				"osWaitSema"
 #define SYSCALL_NAME_POLLSEMA				"osPollSema"
+#define SYSCALL_NAME_IPOLLSEMA				"osiPollSema"
 #define SYSCALL_NAME_REFERSEMASTATUS		"osReferSemaStatus"
 #define SYSCALL_NAME_IREFERSEMASTATUS		"osiReferSemaStatus"
 #define SYSCALL_NAME_FLUSHCACHE				"osFlushCache"
@@ -169,6 +170,7 @@ const CPS2OS::SYSCALL_NAME	CPS2OS::g_syscallNames[] =
 	{	0x0043,		SYSCALL_NAME_ISIGNALSEMA			},
 	{	0x0044,		SYSCALL_NAME_WAITSEMA				},
 	{	0x0045,		SYSCALL_NAME_POLLSEMA				},
+	{	0x0046,		SYSCALL_NAME_IPOLLSEMA				},
 	{	0x0047,		SYSCALL_NAME_REFERSEMASTATUS		},
 	{	0x0048,		SYSCALL_NAME_IREFERSEMASTATUS		},
 	{	0x0064,		SYSCALL_NAME_FLUSHCACHE				},
@@ -661,14 +663,18 @@ void CPS2OS::AssembleInterruptHandler()
 	//Set SP
 	assembler.ADDU(CMIPS::SP, CMIPS::K0, CMIPS::R0);
 
+	//Disable interrupts. Used by some games (ie.: RE4) to check interrupt context.
+	assembler.MFC0(CMIPS::T0, CCOP_SCU::STATUS);
+	assembler.LI(CMIPS::T1, ~CMIPS::STATUS_IE);
+	assembler.AND(CMIPS::T0, CMIPS::T0, CMIPS::T1);
+	assembler.MTC0(CMIPS::T0, CCOP_SCU::STATUS);
+
 	//Get INTC status
-	assembler.LUI(CMIPS::T0, 0x1000);
-	assembler.ORI(CMIPS::T0, CMIPS::T0, 0xF000);
+	assembler.LI(CMIPS::T0, CINTC::INTC_STAT);
 	assembler.LW(CMIPS::S0, 0x0000, CMIPS::T0);
 
 	//Get INTC mask
-	assembler.LUI(CMIPS::T1, 0x1000);
-	assembler.ORI(CMIPS::T1, CMIPS::T1, 0xF010);
+	assembler.LI(CMIPS::T1, CINTC::INTC_MASK);
 	assembler.LW(CMIPS::S1, 0x0000, CMIPS::T1);
 
 	//Get cause
@@ -2293,6 +2299,7 @@ void CPS2OS::sc_WaitSema()
 }
 
 //45
+//46
 void CPS2OS::sc_PollSema()
 {
 	uint32 id = m_ee.m_State.nGPR[SC_PARAM0].nV[0];
@@ -2840,7 +2847,7 @@ std::string CPS2OS::GetSysCallDescription(uint8 function)
 			m_ee.m_State.nGPR[SC_PARAM0].nV[0]);
 		break;
 	case 0x46:
-		sprintf(description, "iPollSema(semaid = %i);", \
+		sprintf(description, SYSCALL_NAME_IPOLLSEMA "(semaid = %i);", \
 			m_ee.m_State.nGPR[SC_PARAM0].nV[0]);
 		break;
 	case 0x47:

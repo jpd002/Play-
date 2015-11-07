@@ -12,9 +12,9 @@ namespace Iop
 						CThbase(CIopBios&, uint8*);
 		virtual			~CThbase();
 
-		std::string		GetId() const;
-		std::string		GetFunctionName(unsigned int) const;
-		void			Invoke(CMIPS&, unsigned int);
+		std::string		GetId() const override;
+		std::string		GetFunctionName(unsigned int) const override;
+		void			Invoke(CMIPS&, unsigned int) override;
 
 	private:
 		struct THREAD
@@ -36,10 +36,12 @@ namespace Iop
 		uint32			DelayThread(uint32);
 		uint32			GetThreadId();
 		uint32			ReferThreadStatus(uint32, uint32);
+		uint32			iReferThreadStatus(uint32, uint32);
 		uint32			SleepThread();
 		uint32			WakeupThread(uint32);
 		uint32			iWakeupThread(uint32);
 		uint32			GetSystemTime(uint32);
+		uint32			GetSystemTimeLow();
 		uint32			SetAlarm(uint32, uint32, uint32);
 		uint32			CancelAlarm(uint32, uint32);
 		void			USecToSysClock(uint32, uint32);

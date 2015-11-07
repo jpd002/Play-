@@ -1,22 +1,23 @@
-#include "PH_iOS.h"
+#include <cassert>
+#include "PH_Generic.h"
 
-CPH_iOS::CPH_iOS()
+CPH_Generic::CPH_Generic()
 {
 	memset(&m_buttonStates, 0, sizeof(m_buttonStates));
 	memset(&m_axisStates, 0, sizeof(m_axisStates));
 }
 
-CPH_iOS::~CPH_iOS()
+CPH_Generic::~CPH_Generic()
 {
 	
 }
 
-CPadHandler::FactoryFunction CPH_iOS::GetFactoryFunction()
+CPadHandler::FactoryFunction CPH_Generic::GetFactoryFunction()
 {
-	return [] () { return new CPH_iOS(); };
+	return [] () { return new CPH_Generic(); };
 }
 
-void CPH_iOS::Update(uint8* ram)
+void CPH_Generic::Update(uint8* ram)
 {
 	for(auto& listener : m_listeners)
 	{
@@ -36,12 +37,14 @@ void CPH_iOS::Update(uint8* ram)
 	}
 }
 
-void CPH_iOS::SetButtonState(PS2::CControllerInfo::BUTTON buttonId, bool pressed)
+void CPH_Generic::SetButtonState(uint32 buttonId, bool pressed)
 {
+	assert(buttonId < PS2::CControllerInfo::MAX_BUTTONS);
 	m_buttonStates[buttonId] = pressed;
 }
 
-void CPH_iOS::SetAxisState(PS2::CControllerInfo::BUTTON buttonId, float value)
+void CPH_Generic::SetAxisState(uint32 buttonId, float value)
 {
-    m_axisStates[buttonId] = value;
+	assert(buttonId < PS2::CControllerInfo::MAX_BUTTONS);
+	m_axisStates[buttonId] = value;
 }

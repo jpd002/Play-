@@ -11,16 +11,11 @@ class VirtualPadButton extends VirtualPadItem
 
 	private boolean _pressed = false;
 	
-	public VirtualPadButton(RectF bounds, int value, Bitmap bitmap)
+	public VirtualPadButton(RectF bounds, int value, Bitmap bitmap, String caption)
 	{
 		super(bounds);
 		_value = value;
 		_bitmap = bitmap;
-	}
-
-	public VirtualPadButton(RectF bounds, int value, Bitmap bitmap, String caption)
-	{
-		this(bounds, value, bitmap);
 		_caption = caption;
 	}
 	
