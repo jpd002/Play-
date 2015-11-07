@@ -105,6 +105,8 @@ void CCOP_VU::SQC2()
 //01
 void CCOP_VU::QMFC2()
 {
+	if(m_nFT == 0) return;
+
 	for(unsigned int i = 0; i < 4; i++)
 	{
 		m_codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2[m_nFS].nV[i]));
