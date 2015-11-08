@@ -22,7 +22,7 @@ CVirtualPadWindow::CVirtualPadWindow(HWND parentWnd)
 	auto result = Gdiplus::GdiplusStartup(&m_gdiPlusToken, &startupInput, NULL);
 	assert(result == Gdiplus::Ok);
 
-	Create(WS_EX_TRANSPARENT | WS_EX_LAYERED, Framework::Win32::CDefaultWndClass::GetName(), _T(""), WS_POPUP, Framework::Win32::CRect(0, 0, 128, 128), parentWnd, NULL);
+	Create(WS_EX_LAYERED, Framework::Win32::CDefaultWndClass::GetName(), _T(""), WS_POPUP, Framework::Win32::CRect(0, 0, 128, 128), parentWnd, NULL);
 	SetClassPtr();
 }
 
@@ -92,6 +92,11 @@ long CVirtualPadWindow::OnMouseMove(WPARAM, int x, int y)
 	return TRUE;
 }
 
+long CVirtualPadWindow::OnMouseActivate(WPARAM wParam, LPARAM lParam)
+{
+	return MA_NOACTIVATE;
+}
+
 void CVirtualPadWindow::Reset()
 {
 	if(m_gdiPlusToken != 0)
@@ -140,7 +145,16 @@ void CVirtualPadWindow::UpdateSurface()
 
 	auto screenDc = Framework::Win32::CClientDeviceContext(NULL);
 	auto memDc = Framework::Win32::CMemoryDeviceContext(screenDc);
-	auto memBitmap = Framework::Win32::CBitmap(CreateCompatibleBitmap(screenDc, windowRect.Width(), windowRect.Height()));
+
+	BITMAPINFO bitmapInfo = {};
+	bitmapInfo.bmiHeader.biSize        = sizeof(BITMAPINFOHEADER);
+	bitmapInfo.bmiHeader.biWidth       = windowRect.Width();
+	bitmapInfo.bmiHeader.biHeight      = windowRect.Height();
+	bitmapInfo.bmiHeader.biPlanes      = 1;
+	bitmapInfo.bmiHeader.biBitCount    = 32;
+	bitmapInfo.bmiHeader.biCompression = BI_RGB;
+	
+	auto memBitmap = Framework::Win32::CBitmap(CreateDIBSection(memDc, &bitmapInfo, DIB_RGB_COLORS, nullptr, NULL, 0));
 	memDc.SelectObject(memBitmap);
 
 	Gdiplus::Graphics graphics(memDc);
@@ -154,8 +168,10 @@ void CVirtualPadWindow::UpdateSurface()
 	POINT srcPt = { 0, 0 };
 
 	BLENDFUNCTION blendFunc = {};
+	blendFunc.BlendOp = AC_SRC_OVER;
 	blendFunc.AlphaFormat = AC_SRC_ALPHA;
+	blendFunc.SourceConstantAlpha = 255;
 
-	BOOL result = UpdateLayeredWindow(m_hWnd, screenDc, &dstPt, &dstSize, memDc, &srcPt, RGB(0, 0, 0), nullptr, ULW_COLORKEY);
+	BOOL result = UpdateLayeredWindow(m_hWnd, screenDc, &dstPt, &dstSize, memDc, &srcPt, RGB(0, 0, 0), &blendFunc, ULW_ALPHA);
 	assert(result == TRUE);
 }
