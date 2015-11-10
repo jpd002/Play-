@@ -12,8 +12,20 @@
 #define IDB_REFRESH                     117
 #define IDD_DEBUG_THREADCALLSTACK       118
 #define IDR_FRAMEDEBUGGER               119
+#define IDB_VIRTUALPAD_LR               119
 #define IDR_CHECKERBOARD_SHADER         120
+#define IDB_VIRTUALPAD_LEFT             120
 #define IDR_PIXELBUFFERVIEW_SHADER      121
+#define IDB_VIRTUALPAD_RIGHT            121
+#define IDB_VIRTUALPAD_UP               122
+#define IDB_VIRTUALPAD_DOWN             123
+#define IDB_VIRTUALPAD_CIRCLE           124
+#define IDB_VIRTUALPAD_CROSS            125
+#define IDB_VIRTUALPAD_SQUARE           126
+#define IDB_VIRTUALPAD_TRIANGLE         127
+#define IDB_VIRTUALPAD_START            128
+#define IDB_VIRTUALPAD_SELECT           129
+#define IDB_VIRTUALPAD_ANALOGSTICK      130
 #define IDC_CALLSTACKITEM_LIST          1001
 #define ID_FILE_EXIT                    40002
 #define ID_FILE_OPENELF                 40003
@@ -104,7 +116,7 @@
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        119
+#define _APS_NEXT_RESOURCE_VALUE        131
 #define _APS_NEXT_COMMAND_VALUE         40196
 #define _APS_NEXT_CONTROL_VALUE         1002
 #define _APS_NEXT_SYMED_VALUE           101

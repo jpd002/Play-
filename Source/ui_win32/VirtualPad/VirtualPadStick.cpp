@@ -8,10 +8,9 @@ CVirtualPadStick::~CVirtualPadStick()
 
 void CVirtualPadStick::Draw(Gdiplus::Graphics& graphics)
 {
-	Gdiplus::SolidBrush brush(Gdiplus::Color(255, 0, 0, 255));
 	auto offsetRect = m_bounds;
 	OffsetRect(offsetRect, m_offset.x, m_offset.y);
-	graphics.FillRectangle(&brush, offsetRect.Left(), offsetRect.Top(), offsetRect.Width(), offsetRect.Height());
+	graphics.DrawImage(m_image, offsetRect.Left(), offsetRect.Top(), offsetRect.Width(), offsetRect.Height());
 }
 
 void CVirtualPadStick::OnMouseDown(int x, int y)

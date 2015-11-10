@@ -495,6 +495,20 @@
       <FileType>Document</FileType>
     </None>
   </ItemGroup>
+  <ItemGroup>
+    <Image Include="..\Source\ui_win32\Images\analogstick.png" />
+    <Image Include="..\Source\ui_win32\Images\circle.png" />
+    <Image Include="..\Source\ui_win32\Images\cross.png" />
+    <Image Include="..\Source\ui_win32\Images\down.png" />
+    <Image Include="..\Source\ui_win32\Images\left.png" />
+    <Image Include="..\Source\ui_win32\Images\lr.png" />
+    <Image Include="..\Source\ui_win32\Images\right.png" />
+    <Image Include="..\Source\ui_win32\Images\select.png" />
+    <Image Include="..\Source\ui_win32\Images\square.png" />
+    <Image Include="..\Source\ui_win32\Images\start.png" />
+    <Image Include="..\Source\ui_win32\Images\triangle.png" />
+    <Image Include="..\Source\ui_win32\Images\up.png" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
     <Import Project="..\..\NuGetPackages\boost.1.59.0.0\build\native\boost.targets" Condition="Exists('..\..\NuGetPackages\boost.1.59.0.0\build\native\boost.targets')" />

@@ -30,6 +30,11 @@ void CVirtualPadItem::SetBounds(const Framework::Win32::CRect& bounds)
 	m_bounds = bounds;
 }
 
+void CVirtualPadItem::SetImage(Gdiplus::Bitmap* image)
+{
+	m_image = image;
+}
+
 uint32 CVirtualPadItem::GetPointerId() const
 {
 	return m_pointerId;

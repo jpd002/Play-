@@ -7,15 +7,32 @@ CVirtualPadButton::~CVirtualPadButton()
 
 void CVirtualPadButton::Draw(Gdiplus::Graphics& graphics)
 {
-	if(m_pressed)
+	if(m_image != nullptr)
 	{
-		Gdiplus::SolidBrush brush(Gdiplus::Color(255, 255, 0, 255));
-		graphics.FillRectangle(&brush, m_bounds.Left(), m_bounds.Top(), m_bounds.Width(), m_bounds.Height());
-	}
-	else
-	{
-		Gdiplus::SolidBrush brush(Gdiplus::Color(255, 0, 0, 255));
-		graphics.FillRectangle(&brush, m_bounds.Left(), m_bounds.Top(), m_bounds.Width(), m_bounds.Height());
+		Gdiplus::RectF dstRect(m_bounds.Left(), m_bounds.Top(), m_bounds.Width(), m_bounds.Height());
+
+		if(m_pressed)
+		{
+			Gdiplus::ColorMatrix matrix;
+			memset(&matrix, 0, sizeof(Gdiplus::ColorMatrix));
+			matrix.m[0][0] = 0.75;
+			matrix.m[1][1] = 0.75;
+			matrix.m[2][2] = 0.75;
+			matrix.m[3][3] = 1;
+			matrix.m[4][4] = 1;
+
+			Gdiplus::ImageAttributes attr;
+			attr.SetColorMatrix(&matrix);
+
+			Gdiplus::RectF imageSize;
+			Gdiplus::Unit imageUnit;
+			m_image->GetBounds(&imageSize, &imageUnit);
+			graphics.DrawImage(m_image, dstRect, imageSize.X, imageSize.Y, imageSize.Width, imageSize.Height, imageUnit, &attr);
+		}
+		else
+		{
+			graphics.DrawImage(m_image, dstRect);
+		}
 	}
 
 	if(!m_caption.empty())

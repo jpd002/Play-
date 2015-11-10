@@ -524,4 +524,18 @@
       <Filter>Source Files</Filter>
     </CustomBuild>
   </ItemGroup>
+  <ItemGroup>
+    <Image Include="..\Source\ui_win32\Images\lr.png" />
+    <Image Include="..\Source\ui_win32\Images\left.png" />
+    <Image Include="..\Source\ui_win32\Images\right.png" />
+    <Image Include="..\Source\ui_win32\Images\up.png" />
+    <Image Include="..\Source\ui_win32\Images\down.png" />
+    <Image Include="..\Source\ui_win32\Images\circle.png" />
+    <Image Include="..\Source\ui_win32\Images\cross.png" />
+    <Image Include="..\Source\ui_win32\Images\square.png" />
+    <Image Include="..\Source\ui_win32\Images\triangle.png" />
+    <Image Include="..\Source\ui_win32\Images\start.png" />
+    <Image Include="..\Source\ui_win32\Images\select.png" />
+    <Image Include="..\Source\ui_win32\Images\analogstick.png" />
+  </ItemGroup>
 </Project>

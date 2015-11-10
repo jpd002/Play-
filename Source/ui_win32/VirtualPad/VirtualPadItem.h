@@ -18,11 +18,13 @@ public:
 	Framework::Win32::CRect    GetBounds() const;
 	void                       SetBounds(const Framework::Win32::CRect&);
 
+	void    SetImage(Gdiplus::Bitmap*);
+
 	uint32    GetPointerId() const;
 	void      SetPointerId(uint32);
 
 protected:
 	Framework::Win32::CRect    m_bounds = Framework::Win32::CRect(0, 0, 0, 0);
-
-	uint32    m_pointerId = 0;
+	Gdiplus::Bitmap*           m_image = nullptr;
+	uint32                     m_pointerId = 0;
 };

@@ -13,7 +13,35 @@
 #undef APSTUDIO_READONLY_SYMBOLS
 
 /////////////////////////////////////////////////////////////////////////////
-// English (United States) resources
+// 日本語 (日本) resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_JPN)
+LANGUAGE LANG_JAPANESE, SUBLANG_DEFAULT
+#pragma code_page(932)
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// PNG
+//
+
+IDB_VIRTUALPAD_LR       PNG                     "Images\\lr.png"
+IDB_VIRTUALPAD_LEFT     PNG                     "Images\\left.png"
+IDB_VIRTUALPAD_RIGHT    PNG                     "Images\\right.png"
+IDB_VIRTUALPAD_UP       PNG                     "Images\\up.png"
+IDB_VIRTUALPAD_DOWN     PNG                     "Images\\down.png"
+IDB_VIRTUALPAD_CIRCLE   PNG                     "Images\\circle.png"
+IDB_VIRTUALPAD_CROSS    PNG                     "Images\\cross.png"
+IDB_VIRTUALPAD_SQUARE   PNG                     "Images\\square.png"
+IDB_VIRTUALPAD_TRIANGLE PNG                     "Images\\triangle.png"
+IDB_VIRTUALPAD_START    PNG                     "Images\\start.png"
+IDB_VIRTUALPAD_SELECT   PNG                     "Images\\select.png"
+IDB_VIRTUALPAD_ANALOGSTICK PNG                     "Images\\analogstick.png"
+#endif    // 日本語 (日本) resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+/////////////////////////////////////////////////////////////////////////////
+// 英語 (米国) resources
 
 #if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
 LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US

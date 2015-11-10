@@ -1,6 +1,9 @@
 #pragma once
 
+#include <minmax.h>
+#include <GdiPlus.h>
 #include <memory>
+#include <map>
 #include "win32/Window.h"
 #include "VirtualPadItem.h"
 
@@ -22,7 +25,9 @@ protected:
 
 private:
 	typedef std::shared_ptr<CVirtualPadItem> ItemPtr;
+	typedef std::shared_ptr<Gdiplus::Bitmap> BitmapPtr;
 	typedef std::vector<ItemPtr> ItemArray;
+	typedef std::map<std::string, BitmapPtr> BitmapMap;
 
 	void    Reset();
 	void    MoveFrom(CVirtualPadWindow&&);
@@ -30,6 +35,9 @@ private:
 	void    RecreateItems(unsigned int, unsigned int);
 	void    UpdateSurface();
 
+	static BitmapPtr    LoadBitmapFromResource(int);
+
 	ULONG_PTR    m_gdiPlusToken = 0;
 	ItemArray    m_items;
+	BitmapMap    m_itemImages;
 };
