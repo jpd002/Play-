@@ -60,10 +60,9 @@ long CVirtualPadWindow::OnSize(unsigned int, unsigned int width, unsigned int he
 
 long CVirtualPadWindow::OnLeftButtonDown(int x, int y)
 {
-	POINT pt = { x, y };
 	for(auto& item : m_items)
 	{
-		if(PtInRect(item->GetBounds(), pt))
+		if(item->GetBounds().Contains(x, y))
 		{
 			SetCapture(m_hWnd);
 			item->SetPointerId(POINTER_TOKEN);
@@ -167,7 +166,7 @@ void CVirtualPadWindow::RecreateItems(unsigned int width, unsigned int height)
 	m_items.clear();
 	for(const auto& itemDef : itemDefs)
 	{
-		Framework::Win32::CRect bounds(itemDef.x1, itemDef.y1, itemDef.x2, itemDef.y2);
+		Gdiplus::RectF bounds(itemDef.x1, itemDef.y1, itemDef.x2 - itemDef.x1, itemDef.y2 - itemDef.y1);
 		ItemPtr item;
 		if(itemDef.isAnalog)
 		{

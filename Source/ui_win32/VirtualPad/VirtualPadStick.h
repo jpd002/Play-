@@ -13,6 +13,6 @@ public:
 	virtual void    OnMouseUp() override;
 
 private:
-	POINT    m_pressPosition;
-	POINT    m_offset;
+	Gdiplus::PointF    m_pressPosition = Gdiplus::PointF(0, 0);
+	Gdiplus::PointF    m_offset = Gdiplus::PointF(0, 0);
 };

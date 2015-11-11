@@ -20,12 +20,12 @@ void CVirtualPadItem::OnMouseUp()
 
 }
 
-Framework::Win32::CRect CVirtualPadItem::GetBounds() const
+Gdiplus::RectF CVirtualPadItem::GetBounds() const
 {
 	return m_bounds;
 }
 
-void CVirtualPadItem::SetBounds(const Framework::Win32::CRect& bounds)
+void CVirtualPadItem::SetBounds(const Gdiplus::RectF& bounds)
 {
 	m_bounds = bounds;
 }

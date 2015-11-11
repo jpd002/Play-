@@ -9,8 +9,6 @@ void CVirtualPadButton::Draw(Gdiplus::Graphics& graphics)
 {
 	if(m_image != nullptr)
 	{
-		Gdiplus::RectF dstRect(m_bounds.Left(), m_bounds.Top(), m_bounds.Width(), m_bounds.Height());
-
 		if(m_pressed)
 		{
 			Gdiplus::ColorMatrix matrix;
@@ -27,11 +25,11 @@ void CVirtualPadButton::Draw(Gdiplus::Graphics& graphics)
 			Gdiplus::RectF imageSize;
 			Gdiplus::Unit imageUnit;
 			m_image->GetBounds(&imageSize, &imageUnit);
-			graphics.DrawImage(m_image, dstRect, imageSize.X, imageSize.Y, imageSize.Width, imageSize.Height, imageUnit, &attr);
+			graphics.DrawImage(m_image, m_bounds, imageSize.X, imageSize.Y, imageSize.Width, imageSize.Height, imageUnit, &attr);
 		}
 		else
 		{
-			graphics.DrawImage(m_image, dstRect);
+			graphics.DrawImage(m_image, m_bounds);
 		}
 	}
 
@@ -40,7 +38,7 @@ void CVirtualPadButton::Draw(Gdiplus::Graphics& graphics)
 		Gdiplus::SolidBrush fontBrush(Gdiplus::Color(255, 255, 255, 255));
 		Gdiplus::Font font(&Gdiplus::FontFamily(L"Courier New"), 10);
 		graphics.DrawString(m_caption.c_str(), m_caption.size(), &font, 
-			Gdiplus::PointF(m_bounds.Left(), m_bounds.Top()), &fontBrush);
+			Gdiplus::PointF(m_bounds.X, m_bounds.Y), &fontBrush);
 	}
 }
 

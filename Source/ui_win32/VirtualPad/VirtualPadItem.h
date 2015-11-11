@@ -3,7 +3,6 @@
 #include <Windows.h>
 #include <minmax.h>
 #include <GdiPlus.h>
-#include "win32/Rect.h"
 
 class CVirtualPadItem
 {
@@ -15,8 +14,8 @@ public:
 	virtual void    OnMouseMove(int, int);
 	virtual void    OnMouseUp();
 
-	Framework::Win32::CRect    GetBounds() const;
-	void                       SetBounds(const Framework::Win32::CRect&);
+	Gdiplus::RectF    GetBounds() const;
+	void              SetBounds(const Gdiplus::RectF&);
 
 	void    SetImage(Gdiplus::Bitmap*);
 
@@ -24,7 +23,7 @@ public:
 	void      SetPointerId(uint32);
 
 protected:
-	Framework::Win32::CRect    m_bounds = Framework::Win32::CRect(0, 0, 0, 0);
-	Gdiplus::Bitmap*           m_image = nullptr;
-	uint32                     m_pointerId = 0;
+	Gdiplus::RectF      m_bounds = Gdiplus::RectF(0, 0, 0, 0);
+	Gdiplus::Bitmap*    m_image = nullptr;
+	uint32              m_pointerId = 0;
 };
