@@ -1,5 +1,11 @@
 #include "VirtualPadButton.h"
 
+CVirtualPadButton::CVirtualPadButton()
+: m_font(&Gdiplus::FontFamily(L"Arial"), 10)
+{
+
+}
+
 CVirtualPadButton::~CVirtualPadButton()
 {
 
@@ -36,9 +42,15 @@ void CVirtualPadButton::Draw(Gdiplus::Graphics& graphics)
 	if(!m_caption.empty())
 	{
 		Gdiplus::SolidBrush fontBrush(Gdiplus::Color(255, 255, 255, 255));
-		Gdiplus::Font font(&Gdiplus::FontFamily(L"Courier New"), 10);
-		graphics.DrawString(m_caption.c_str(), m_caption.size(), &font, 
-			Gdiplus::PointF(m_bounds.X, m_bounds.Y), &fontBrush);
+
+		Gdiplus::RectF boundingBox(0, 0, 0, 0);
+		graphics.MeasureString(m_caption.c_str(), m_caption.size(), &m_font,
+			Gdiplus::PointF(0, 0), &boundingBox);
+		Gdiplus::PointF textOrigin(
+			m_bounds.X + (m_bounds.Width - boundingBox.Width) / 2,
+			m_bounds.Y + (m_bounds.Height - boundingBox.Height) / 2
+		);
+		graphics.DrawString(m_caption.c_str(), m_caption.size(), &m_font, textOrigin, &fontBrush);
 	}
 }
 
