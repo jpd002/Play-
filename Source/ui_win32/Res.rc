@@ -7,16 +7,16 @@
 //
 // Generated from the TEXTINCLUDE 2 resource.
 //
-#include <windows.h>
+#include "afxres.h"
 
 /////////////////////////////////////////////////////////////////////////////
 #undef APSTUDIO_READONLY_SYMBOLS
 
 /////////////////////////////////////////////////////////////////////////////
-// 日本語 (日本) resources
+// ニュートラル resources
 
-#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_JPN)
-LANGUAGE LANG_JAPANESE, SUBLANG_DEFAULT
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_NEU)
+LANGUAGE LANG_NEUTRAL, SUBLANG_NEUTRAL
 #pragma code_page(932)
 
 /////////////////////////////////////////////////////////////////////////////
@@ -36,42 +36,6 @@ IDB_VIRTUALPAD_TRIANGLE PNG                     "Images\\triangle.png"
 IDB_VIRTUALPAD_START    PNG                     "Images\\start.png"
 IDB_VIRTUALPAD_SELECT   PNG                     "Images\\select.png"
 IDB_VIRTUALPAD_ANALOGSTICK PNG                     "Images\\analogstick.png"
-#endif    // 日本語 (日本) resources
-/////////////////////////////////////////////////////////////////////////////
-
-
-/////////////////////////////////////////////////////////////////////////////
-// 英語 (米国) resources
-
-#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
-LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
-#pragma code_page(1252)
-
-#ifdef APSTUDIO_INVOKED
-/////////////////////////////////////////////////////////////////////////////
-//
-// TEXTINCLUDE
-//
-
-1 TEXTINCLUDE 
-BEGIN
-    "resource.h\0"
-END
-
-2 TEXTINCLUDE 
-BEGIN
-    "#include ""afxres.h""\r\n"
-    "\0"
-END
-
-3 TEXTINCLUDE 
-BEGIN
-    "\r\n"
-    "\0"
-END
-
-#endif    // APSTUDIO_INVOKED
-
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -107,16 +71,6 @@ BEGIN
 END
 #endif    // APSTUDIO_INVOKED
 
-#endif    // English (United States) resources
-/////////////////////////////////////////////////////////////////////////////
-
-
-/////////////////////////////////////////////////////////////////////////////
-// French (Canada) resources
-
-#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_FRC)
-LANGUAGE LANG_FRENCH, SUBLANG_FRENCH_CANADIAN
-#pragma code_page(1252)
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -249,18 +203,14 @@ IDI_PLAY                ICON                    "Images\\play.ico"
 
 IDC_GRAB                CURSOR                  "images\\grab.cur"
 IDC_GRABBING            CURSOR                  "images\\grabbing.cur"
-#endif    // French (Canada) resources
-/////////////////////////////////////////////////////////////////////////////
-
-IDR_CHECKERBOARD_SHADER     TEXTFILE               "framedebugger\\CheckerboardShader.fx"
-IDR_PIXELBUFFERVIEW_SHADER  TEXTFILE               "framedebugger\\PixelBufferViewShader.fx"
 
 /////////////////////////////////////////////////////////////////////////////
-// English (Canada) resources
+//
+// TEXTFILE
+//
 
-#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENC)
-LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_CAN
-#pragma code_page(1252)
+IDR_CHECKERBOARD_SHADER TEXTFILE                "framedebugger\\CheckerboardShader.fx"
+IDR_PIXELBUFFERVIEW_SHADER TEXTFILE                "framedebugger\\PixelBufferViewShader.fx"
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -301,7 +251,43 @@ BEGIN
     END
 END
 
-#endif    // English (Canada) resources
+#endif    // ニュートラル resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+/////////////////////////////////////////////////////////////////////////////
+// 英語 (米国) resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+#pragma code_page(1252)
+
+#ifdef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// TEXTINCLUDE
+//
+
+1 TEXTINCLUDE 
+BEGIN
+    "resource.h\0"
+END
+
+2 TEXTINCLUDE 
+BEGIN
+    "#include ""afxres.h""\r\n"
+    "\0"
+END
+
+3 TEXTINCLUDE 
+BEGIN
+    "\r\n"
+    "\0"
+END
+
+#endif    // APSTUDIO_INVOKED
+
+#endif    // 英語 (米国) resources
 /////////////////////////////////////////////////////////////////////////////
 
 
