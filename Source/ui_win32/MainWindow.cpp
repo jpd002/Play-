@@ -163,7 +163,7 @@ CMainWindow::CMainWindow(CPS2VM& virtualMachine)
 	m_virtualPadWnd.SetPadHandler(static_cast<CPH_Generic*>(m_virtualMachine.GetPadHandler()));
 #endif
 #ifdef PROFILE
-	m_statsOverlayWnd.Show(SW_SHOW);
+	m_statsOverlayWnd.Show(SW_SHOWNOACTIVATE);
 #endif
 }
 
