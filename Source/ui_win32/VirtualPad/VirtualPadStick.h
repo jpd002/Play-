@@ -12,7 +12,13 @@ public:
 	virtual void    OnMouseMove(int, int) override;
 	virtual void    OnMouseUp() override;
 
+	void    SetCodeX(PS2::CControllerInfo::BUTTON);
+	void    SetCodeY(PS2::CControllerInfo::BUTTON);
+
 private:
 	Gdiplus::PointF    m_pressPosition = Gdiplus::PointF(0, 0);
 	Gdiplus::PointF    m_offset = Gdiplus::PointF(0, 0);
+
+	PS2::CControllerInfo::BUTTON    m_codeX;
+	PS2::CControllerInfo::BUTTON    m_codeY;
 };

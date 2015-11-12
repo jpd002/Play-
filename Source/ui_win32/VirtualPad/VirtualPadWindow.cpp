@@ -51,6 +51,14 @@ CVirtualPadWindow& CVirtualPadWindow::operator =(CVirtualPadWindow&& rhs)
 	return (*this);
 }
 
+void CVirtualPadWindow::SetPadHandler(CPH_Generic* padHandler)
+{
+	for(auto& item : m_items)
+	{
+		item->SetPadHandler(padHandler);
+	}
+}
+
 long CVirtualPadWindow::OnSize(unsigned int, unsigned int width, unsigned int height)
 {
 	RecreateItems(width, height);
@@ -171,12 +179,15 @@ void CVirtualPadWindow::RecreateItems(unsigned int width, unsigned int height)
 		if(itemDef.isAnalog)
 		{
 			auto stick = std::make_shared<CVirtualPadStick>();
+			stick->SetCodeX(itemDef.code0);
+			stick->SetCodeY(itemDef.code1);
 			item = stick;
 		}
 		else
 		{
 			auto button = std::make_shared<CVirtualPadButton>();
 			button->SetCaption(string_cast<std::wstring>(itemDef.caption));
+			button->SetCode(itemDef.code0);
 			item = button;
 		}
 		auto imageIterator = m_itemImages.find(itemDef.imageName);

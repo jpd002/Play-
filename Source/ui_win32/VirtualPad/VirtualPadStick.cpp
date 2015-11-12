@@ -29,9 +29,29 @@ void CVirtualPadStick::OnMouseMove(int x, int y)
 	offsetY = std::min<float>(offsetY,  radius);
 	offsetY = std::max<float>(offsetY, -radius);
 	m_offset = Gdiplus::PointF(offsetX, offsetY);
+	if(m_padHandler)
+	{
+		m_padHandler->SetAxisState(m_codeX, offsetX / radius);
+		m_padHandler->SetAxisState(m_codeY, offsetY / radius);
+	}
 }
 
 void CVirtualPadStick::OnMouseUp()
 {
 	m_offset = Gdiplus::PointF(0, 0);
+	if(m_padHandler)
+	{
+		m_padHandler->SetAxisState(m_codeX, 0);
+		m_padHandler->SetAxisState(m_codeY, 0);
+	}
+}
+
+void CVirtualPadStick::SetCodeX(PS2::CControllerInfo::BUTTON codeX)
+{
+	m_codeX = codeX;
+}
+
+void CVirtualPadStick::SetCodeY(PS2::CControllerInfo::BUTTON codeY)
+{
+	m_codeY = codeY;
 }

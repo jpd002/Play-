@@ -57,11 +57,24 @@ void CVirtualPadButton::Draw(Gdiplus::Graphics& graphics)
 void CVirtualPadButton::OnMouseDown(int x, int y)
 {
 	m_pressed = true;
+	if(m_padHandler)
+	{
+		m_padHandler->SetButtonState(m_code, m_pressed);
+	}
 }
 
 void CVirtualPadButton::OnMouseUp()
 {
 	m_pressed = false;
+	if(m_padHandler)
+	{
+		m_padHandler->SetButtonState(m_code, m_pressed);
+	}
+}
+
+void CVirtualPadButton::SetCode(PS2::CControllerInfo::BUTTON code)
+{
+	m_code = code;
 }
 
 void CVirtualPadButton::SetCaption(const std::wstring& caption)

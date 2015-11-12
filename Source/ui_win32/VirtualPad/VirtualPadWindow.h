@@ -16,6 +16,8 @@ public:
 
 	CVirtualPadWindow&    operator =(CVirtualPadWindow&&);
 
+	void    SetPadHandler(CPH_Generic*);
+
 protected:
 	long    OnSize(unsigned int, unsigned int ,unsigned int) override;
 	long    OnLeftButtonDown(int, int) override;

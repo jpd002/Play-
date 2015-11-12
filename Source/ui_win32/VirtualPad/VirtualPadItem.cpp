@@ -20,6 +20,11 @@ void CVirtualPadItem::OnMouseUp()
 
 }
 
+void CVirtualPadItem::SetPadHandler(CPH_Generic* padHandler)
+{
+	m_padHandler = padHandler;
+}
+
 Gdiplus::RectF CVirtualPadItem::GetBounds() const
 {
 	return m_bounds;

@@ -260,6 +260,7 @@
     <ClCompile Include="..\Source\gs\GSH_OpenGL\GSH_OpenGL.cpp" />
     <ClCompile Include="..\Source\gs\GSH_OpenGL\GSH_OpenGL_Shader.cpp" />
     <ClCompile Include="..\Source\gs\GSH_OpenGL\GSH_OpenGL_Texture.cpp" />
+    <ClCompile Include="..\Source\PH_Generic.cpp" />
     <ClCompile Include="..\Source\ui_win32\AboutWnd.cpp" />
     <ClCompile Include="..\Source\ui_win32\AviStream.cpp" />
     <ClCompile Include="..\Source\ui_win32\CallStackWnd.cpp">
@@ -358,6 +359,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Source\gs\GSH_OpenGL\GSH_OpenGL.h" />
+    <ClInclude Include="..\Source\PH_Generic.h" />
     <ClInclude Include="..\Source\ui_win32\AboutWnd.h" />
     <ClInclude Include="..\Source\ui_win32\AviStream.h" />
     <ClInclude Include="..\Source\ui_win32\CallStackWnd.h" />

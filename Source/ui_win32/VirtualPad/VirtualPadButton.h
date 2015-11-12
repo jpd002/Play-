@@ -16,6 +16,7 @@ public:
 	virtual void    OnMouseDown(int, int) override;
 	virtual void    OnMouseUp() override;
 
+	void    SetCode(PS2::CControllerInfo::BUTTON);
 	void    SetCaption(const std::wstring&);
 
 protected:
@@ -23,4 +24,5 @@ protected:
 	bool             m_pressed = false;
 	Gdiplus::Font    m_font;
 
+	PS2::CControllerInfo::BUTTON    m_code;
 };

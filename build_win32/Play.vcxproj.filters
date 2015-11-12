@@ -26,6 +26,9 @@
     <Filter Include="Source Files\VirtualPad">
       <UniqueIdentifier>{d173c7f2-daaf-4c46-aecd-4ebca9a329ec}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\PH_Generic">
+      <UniqueIdentifier>{d958dc2f-49d3-4d46-83eb-630f8d215733}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\Source\ui_win32\IconMesh.cpp">
@@ -255,6 +258,9 @@
     </ClCompile>
     <ClCompile Include="..\Source\ui_win32\VirtualPad\VirtualPadStick.cpp">
       <Filter>Source Files\VirtualPad</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\PH_Generic.cpp">
+      <Filter>Source Files\PH_Generic</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -488,6 +494,9 @@
     </ClInclude>
     <ClInclude Include="..\Source\ui_win32\VirtualPad\VirtualPadStick.h">
       <Filter>Source Files\VirtualPad</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\PH_Generic.h">
+      <Filter>Source Files\PH_Generic</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
