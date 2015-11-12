@@ -71,9 +71,9 @@ namespace Dmac
 
 		void					ClearSTR();
 
-		unsigned int			m_nNumber;
+		unsigned int			m_number = 0;
 		uint32					m_nSCCTRL;
-		DmaReceiveHandler		m_pReceive;
+		DmaReceiveHandler		m_receive;
 		CDMAC&					m_dmac;
 	};
 };

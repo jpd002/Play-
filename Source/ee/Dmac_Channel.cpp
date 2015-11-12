@@ -21,8 +21,8 @@ using namespace Dmac;
 
 CChannel::CChannel(CDMAC& dmac, unsigned int nNumber, const DmaReceiveHandler& pReceive) 
 : m_dmac(dmac)
-, m_nNumber(nNumber)
-, m_pReceive(pReceive)
+, m_number(nNumber)
+, m_receive(pReceive)
 {
 
 }
@@ -45,7 +45,7 @@ void CChannel::Reset()
 
 void CChannel::SaveState(Framework::CZipArchiveWriter& archive)
 {
-	std::string path = STATE_PREFIX + boost::lexical_cast<std::string>(m_nNumber) + STATE_SUFFIX;
+	std::string path = STATE_PREFIX + boost::lexical_cast<std::string>(m_number) + STATE_SUFFIX;
 	CRegisterStateFile* registerFile = new CRegisterStateFile(path.c_str());
 	registerFile->SetRegister32(STATE_REGS_CHCR,	m_CHCR);
 	registerFile->SetRegister32(STATE_REGS_MADR,	m_nMADR);
@@ -59,7 +59,7 @@ void CChannel::SaveState(Framework::CZipArchiveWriter& archive)
 
 void CChannel::LoadState(Framework::CZipArchiveReader& archive)
 {
-	std::string path = STATE_PREFIX + boost::lexical_cast<std::string>(m_nNumber) + STATE_SUFFIX;
+	std::string path = STATE_PREFIX + boost::lexical_cast<std::string>(m_number) + STATE_SUFFIX;
 	CRegisterStateFile registerFile(*archive.BeginReadFile(path.c_str()));
 	m_CHCR		<<= registerFile.GetRegister32(STATE_REGS_CHCR);
 	m_nMADR		= registerFile.GetRegister32(STATE_REGS_MADR);
@@ -112,13 +112,13 @@ void CChannel::Execute()
 		if(m_dmac.m_D_ENABLE)
 		{
 			//TODO: Need to check cases where this is done on channels other than 4
-			assert(m_nNumber == 4);
+			assert(m_number == CDMAC::CHANNEL_ID_TO_IPU);
 			return;
 		}
-		if((m_nNumber == CDMAC::CHANNEL_ID_VIF1) && (m_CHCR.nDIR == 0))
+		if((m_number == CDMAC::CHANNEL_ID_VIF1) && (m_CHCR.nDIR == 0))
 		{
 			//Humm, destination mode, not supported for now.
-			CLog::GetInstance().Print(LOG_NAME, "Warning: Using destination mode for channel %d. Cancelling transfer.\r\n", m_nNumber);
+			CLog::GetInstance().Print(LOG_NAME, "Warning: Using destination mode for channel %d. Cancelling transfer.\r\n", m_number);
 			ClearSTR();
 			return;
 		}
@@ -128,7 +128,7 @@ void CChannel::Execute()
 			ExecuteNormal();
 			break;
 		case 0x02:
-			assert((m_nNumber == CDMAC::CHANNEL_ID_FROM_SPR) || (m_nNumber == CDMAC::CHANNEL_ID_TO_SPR));
+			assert((m_number == CDMAC::CHANNEL_ID_FROM_SPR) || (m_number == CDMAC::CHANNEL_ID_TO_SPR));
 			if((m_dmac.m_D_SQWC.sqwc == 0) || (m_dmac.m_D_SQWC.tqwc == 0))
 			{
 				//If SQWC or TQWC is 0, execute normally
@@ -154,7 +154,7 @@ void CChannel::ExecuteNormal()
 {
 	uint32 qwc = m_nQWC;
 
-	if(m_dmac.m_D_CTRL.mfd == 0x02 && m_nNumber == 8)
+	if(m_dmac.m_D_CTRL.mfd == 0x02 && m_number == CDMAC::CHANNEL_ID_FROM_SPR)
 	{
 		//Adjust QWC if we're in MFIFO mode
 		uint32 ringBufferAddr = m_nMADR - m_dmac.m_D_RBOR;
@@ -164,7 +164,7 @@ void CChannel::ExecuteNormal()
 		qwc = std::min<int32>(m_nQWC, (ringBufferSize - ringBufferAddr) / 0x10);
 	}
 
-	uint32 nRecv = m_pReceive(m_nMADR, qwc, 0, false);
+	uint32 nRecv = m_receive(m_nMADR, qwc, 0, false);
 
 	m_nMADR	+= nRecv * 0x10;
 	m_nQWC	-= nRecv;
@@ -174,7 +174,7 @@ void CChannel::ExecuteNormal()
 		ClearSTR();
 	}
 
-	if(m_dmac.m_D_CTRL.mfd == 0x02 && m_nNumber == 8)
+	if(m_dmac.m_D_CTRL.mfd == 0x02 && m_number == CDMAC::CHANNEL_ID_FROM_SPR)
 	{
 		//Loop MADR if needed
 		uint32 ringBufferSize = m_dmac.m_D_RBSR + 0x10;
@@ -193,7 +193,7 @@ void CChannel::ExecuteInterleave()
 		//Transfer
 		{
 			uint32 qwc  = m_dmac.m_D_SQWC.tqwc;
-			uint32 recv = m_pReceive(m_nMADR, qwc, 0, false);
+			uint32 recv = m_receive(m_nMADR, qwc, 0, false);
 			assert(recv == qwc);
 
 			m_nMADR += recv * 0x10;
@@ -216,7 +216,7 @@ void CChannel::ExecuteSourceChain()
 	//Execute current
 	if(m_nQWC != 0)
 	{
-		uint32 nRecv = m_pReceive(m_nMADR, m_nQWC, 0, false);
+		uint32 nRecv = m_receive(m_nMADR, m_nQWC, 0, false);
 
 		m_nMADR	+= nRecv * 0x10;
 		m_nQWC	-= nRecv;
@@ -231,7 +231,7 @@ void CChannel::ExecuteSourceChain()
 	while(m_CHCR.nSTR == 1)
 	{
 		//Check if MFIFO is enabled with this channel
-		if(m_dmac.m_D_CTRL.mfd == 0x02 && m_nNumber == 1)
+		if(m_dmac.m_D_CTRL.mfd == 0x02 && m_number == CDMAC::CHANNEL_ID_VIF1)
 		{
 			//Hold transfer if not ready
 			if(m_nTADR == m_dmac.m_D8.m_nMADR)
@@ -245,7 +245,7 @@ void CChannel::ExecuteSourceChain()
 		{
 			assert(m_CHCR.nTTE);
 			m_CHCR.nReserved0 = 0;
-			if(m_pReceive(m_nTADR, 1, 0, true) != 1)
+			if(m_receive(m_nTADR, 1, 0, true) != 1)
 			{
 				//Device didn't receive DmaTag, break for now
 				m_CHCR.nReserved0 = 1;
@@ -288,7 +288,7 @@ void CChannel::ExecuteSourceChain()
 			if(m_CHCR.nTTE == 1)
 			{
 				m_CHCR.nReserved0 = 0;
-				if(m_pReceive(m_nTADR, 1, 0, true) != 1)
+				if(m_receive(m_nTADR, 1, 0, true) != 1)
 				{
 					//Device didn't receive DmaTag, break for now
 					m_CHCR.nReserved0 = 1;
@@ -375,7 +375,7 @@ void CChannel::ExecuteSourceChain()
 		}
 
 		uint32 qwc = m_nQWC;
-		if(nID == DMATAG_CNT && m_dmac.m_D_CTRL.mfd == 0x02 && m_nNumber == 1)
+		if(nID == DMATAG_CNT && m_dmac.m_D_CTRL.mfd == 0x02 && m_number == CDMAC::CHANNEL_ID_VIF1)
 		{
 			//Adjust QWC in MFIFO mode
 			uint32 ringBufferAddr = m_nMADR - m_dmac.m_D_RBOR;
@@ -387,13 +387,13 @@ void CChannel::ExecuteSourceChain()
 
 		if(qwc != 0)
 		{
-			uint32 nRecv = m_pReceive(m_nMADR, qwc, 0, false);
+			uint32 nRecv = m_receive(m_nMADR, qwc, 0, false);
 
 			m_nMADR		+= nRecv * 0x10;
 			m_nQWC		-= nRecv;
 		}
 
-		if(m_dmac.m_D_CTRL.mfd == 0x02 && m_nNumber == 1)
+		if(m_dmac.m_D_CTRL.mfd == 0x02 && m_number == CDMAC::CHANNEL_ID_VIF1)
 		{
 			if(nID == DMATAG_CNT)
 			{
@@ -415,7 +415,7 @@ void CChannel::ExecuteSourceChain()
 
 void CChannel::SetReceiveHandler(const DmaReceiveHandler& handler)
 {
-	m_pReceive = handler;
+	m_receive = handler;
 }
 
 void CChannel::ClearSTR()
@@ -423,7 +423,7 @@ void CChannel::ClearSTR()
 	m_CHCR.nSTR = ~m_CHCR.nSTR;
 
 	//Set interrupt
-	m_dmac.m_D_STAT |= (1 << m_nNumber);
+	m_dmac.m_D_STAT |= (1 << m_number);
 
 	m_dmac.UpdateCpCond();
 }
