@@ -107,6 +107,60 @@ void CGSH_OpenGL::FlipImpl()
 	FlushVertexBuffer();
 	m_renderState.isValid = false;
 
+	DISPLAY d;
+	DISPFB fb;
+	{
+		std::lock_guard<std::recursive_mutex> registerMutexLock(m_registerMutex);
+		unsigned int readCircuit = GetCurrentReadCircuit();
+		switch(readCircuit)
+		{
+		case 0:
+			d <<= m_nDISPLAY1.value.q;
+			fb <<= m_nDISPFB1.value.q;
+			break;
+		case 1:
+			d <<= m_nDISPLAY2.value.q;
+			fb <<= m_nDISPFB2.value.q;
+			break;
+		}
+	}
+
+	unsigned int dispWidth = (d.nW + 1) / (d.nMagX + 1);
+	unsigned int dispHeight = (d.nH + 1);
+
+	FramebufferPtr framebuffer;
+	for(const auto& candidateFramebuffer : m_framebuffers)
+	{
+		if(
+			(candidateFramebuffer->m_basePtr == fb.GetBufPtr()) &&
+			(GetFramebufferBitDepth(candidateFramebuffer->m_psm) == GetFramebufferBitDepth(fb.nPSM)) &&
+			(candidateFramebuffer->m_width == fb.GetBufWidth())
+			)
+		{
+			//We have a winner
+			framebuffer = candidateFramebuffer;
+			break;
+		}
+	}
+
+	if(!framebuffer && (fb.GetBufWidth() != 0))
+	{
+		framebuffer = FramebufferPtr(new CFramebuffer(fb.GetBufPtr(), fb.GetBufWidth(), 1024, fb.nPSM));
+		m_framebuffers.push_back(framebuffer);
+#ifndef HIGHRES_MODE
+		PopulateFramebuffer(framebuffer);
+#endif
+	}
+
+	if(framebuffer)
+	{
+		//BGDA (US version) requires the interlaced check to work properly
+		//Data read from dirty pages here would probably need to be scaled up by 2
+		//if we are in interlaced mode (guessing that Unreal Tournament would need that here)
+		bool halfHeight = GetCrtIsInterlaced() && GetCrtIsFrameMode();
+		CommitFramebufferDirtyPages(framebuffer, 0, halfHeight ? (dispHeight / 2) : dispHeight);
+	}
+
 	//Clear all of our output framebuffer
 	{
 		glBindFramebuffer(GL_FRAMEBUFFER, m_presentFramebuffer);
@@ -160,60 +214,6 @@ void CGSH_OpenGL::FlipImpl()
 			glViewport(offsetX, offsetY, sourceWidth, sourceHeight);
 		}
 		break;
-	}
-
-	DISPLAY d;
-	DISPFB fb;
-	{
-		std::lock_guard<std::recursive_mutex> registerMutexLock(m_registerMutex);
-		unsigned int readCircuit = GetCurrentReadCircuit();
-		switch(readCircuit)
-		{
-		case 0:
-			d <<= m_nDISPLAY1.value.q;
-			fb <<= m_nDISPFB1.value.q;
-			break;
-		case 1:
-			d <<= m_nDISPLAY2.value.q;
-			fb <<= m_nDISPFB2.value.q;
-			break;
-		}
-	}
-
-	unsigned int dispWidth = (d.nW + 1) / (d.nMagX + 1);
-	unsigned int dispHeight = (d.nH + 1);
-
-	FramebufferPtr framebuffer;
-	for(const auto& candidateFramebuffer : m_framebuffers)
-	{
-		if(
-			(candidateFramebuffer->m_basePtr == fb.GetBufPtr()) &&
-			(GetFramebufferBitDepth(candidateFramebuffer->m_psm) == GetFramebufferBitDepth(fb.nPSM)) &&
-			(candidateFramebuffer->m_width == fb.GetBufWidth())
-			)
-		{
-			//We have a winner
-			framebuffer = candidateFramebuffer;
-			break;
-		}
-	}
-
-	if(!framebuffer && (fb.GetBufWidth() != 0))
-	{
-		framebuffer = FramebufferPtr(new CFramebuffer(fb.GetBufPtr(), fb.GetBufWidth(), 1024, fb.nPSM));
-		m_framebuffers.push_back(framebuffer);
-#ifndef HIGHRES_MODE
-		PopulateFramebuffer(framebuffer);
-#endif
-	}
-
-	if(framebuffer)
-	{
-		//BGDA (US version) requires the interlaced check to work properly
-		//Data read from dirty pages here would probably need to be scaled up by 2
-		//if we are in interlaced mode (guessing that Unreal Tournament would need that here)
-		bool halfHeight = GetCrtIsInterlaced() && GetCrtIsFrameMode();
-		CommitFramebufferDirtyPages(framebuffer, 0, halfHeight ? (dispHeight / 2) : dispHeight);
 	}
 
 	if(framebuffer)
