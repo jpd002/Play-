@@ -15,8 +15,8 @@ public:
 
 	void										Update(uint8*);
 
-	virtual Framework::Win32::CModalWindow*		CreateSettingsDialog(HWND);
-	virtual void								OnSettingsDialogDestroyed();
+	Framework::Win32::CModalWindow*				CreateSettingsDialog(HWND) override;
+	void										OnSettingsDialogDestroyed() override;
 
 	static FactoryFunction						GetFactoryFunction(HWND);
 

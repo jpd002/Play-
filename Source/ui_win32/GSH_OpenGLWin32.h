@@ -17,8 +17,8 @@ public:
 
 	CSettingsDialogProvider*		GetSettingsDialogProvider();
 
-	Framework::Win32::CModalWindow* CreateSettingsDialog(HWND);
-	void							OnSettingsDialogDestroyed();
+	Framework::Win32::CModalWindow* CreateSettingsDialog(HWND) override;
+	void							OnSettingsDialogDestroyed() override;
 
 protected:
 	virtual void					PresentBackbuffer();
