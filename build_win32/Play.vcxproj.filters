@@ -23,6 +23,12 @@
     <Filter Include="Source Files\GSH_Direct3D9">
       <UniqueIdentifier>{d88718a1-4063-436d-b08b-da90d6ee383b}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\VirtualPad">
+      <UniqueIdentifier>{d173c7f2-daaf-4c46-aecd-4ebca9a329ec}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\PH_Generic">
+      <UniqueIdentifier>{d958dc2f-49d3-4d46-83eb-630f8d215733}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\Source\ui_win32\IconMesh.cpp">
@@ -240,6 +246,21 @@
     </ClCompile>
     <ClCompile Include="..\Source\ui_win32\RendererSettingsWnd.cpp">
       <Filter>Source Files\GSH_OpenGL</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\ui_win32\VirtualPad\VirtualPadWindow.cpp">
+      <Filter>Source Files\VirtualPad</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\ui_win32\VirtualPad\VirtualPadButton.cpp">
+      <Filter>Source Files\VirtualPad</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\ui_win32\VirtualPad\VirtualPadItem.cpp">
+      <Filter>Source Files\VirtualPad</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\ui_win32\VirtualPad\VirtualPadStick.cpp">
+      <Filter>Source Files\VirtualPad</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\PH_Generic.cpp">
+      <Filter>Source Files\PH_Generic</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -462,6 +483,21 @@
     <ClInclude Include="..\Source\ui_win32\RendererSettingsWnd.h">
       <Filter>Source Files\GSH_OpenGL</Filter>
     </ClInclude>
+    <ClInclude Include="..\Source\ui_win32\VirtualPad\VirtualPadWindow.h">
+      <Filter>Source Files\VirtualPad</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\ui_win32\VirtualPad\VirtualPadItem.h">
+      <Filter>Source Files\VirtualPad</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\ui_win32\VirtualPad\VirtualPadButton.h">
+      <Filter>Source Files\VirtualPad</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\ui_win32\VirtualPad\VirtualPadStick.h">
+      <Filter>Source Files\VirtualPad</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\PH_Generic.h">
+      <Filter>Source Files\PH_Generic</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\Source\License.txt" />
@@ -496,5 +532,19 @@
     <CustomBuild Include="..\Source\ui_win32\SysInfo_x64.asm">
       <Filter>Source Files</Filter>
     </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="..\Source\ui_win32\Images\lr.png" />
+    <Image Include="..\Source\ui_win32\Images\left.png" />
+    <Image Include="..\Source\ui_win32\Images\right.png" />
+    <Image Include="..\Source\ui_win32\Images\up.png" />
+    <Image Include="..\Source\ui_win32\Images\down.png" />
+    <Image Include="..\Source\ui_win32\Images\circle.png" />
+    <Image Include="..\Source\ui_win32\Images\cross.png" />
+    <Image Include="..\Source\ui_win32\Images\square.png" />
+    <Image Include="..\Source\ui_win32\Images\triangle.png" />
+    <Image Include="..\Source\ui_win32\Images\start.png" />
+    <Image Include="..\Source\ui_win32\Images\select.png" />
+    <Image Include="..\Source\ui_win32\Images\analogstick.png" />
   </ItemGroup>
 </Project>

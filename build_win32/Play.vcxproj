@@ -260,6 +260,7 @@
     <ClCompile Include="..\Source\gs\GSH_OpenGL\GSH_OpenGL.cpp" />
     <ClCompile Include="..\Source\gs\GSH_OpenGL\GSH_OpenGL_Shader.cpp" />
     <ClCompile Include="..\Source\gs\GSH_OpenGL\GSH_OpenGL_Texture.cpp" />
+    <ClCompile Include="..\Source\PH_Generic.cpp" />
     <ClCompile Include="..\Source\ui_win32\AboutWnd.cpp" />
     <ClCompile Include="..\Source\ui_win32\AviStream.cpp" />
     <ClCompile Include="..\Source\ui_win32\CallStackWnd.cpp">
@@ -349,11 +350,16 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="..\Source\ui_win32\VFSManagerWnd.cpp" />
+    <ClCompile Include="..\Source\ui_win32\VirtualPad\VirtualPadButton.cpp" />
+    <ClCompile Include="..\Source\ui_win32\VirtualPad\VirtualPadItem.cpp" />
+    <ClCompile Include="..\Source\ui_win32\VirtualPad\VirtualPadStick.cpp" />
+    <ClCompile Include="..\Source\ui_win32\VirtualPad\VirtualPadWindow.cpp" />
     <ClCompile Include="..\Source\ui_win32\WinUtils.cpp" />
     <ClCompile Include="..\tools\PsfPlayer\Source\win32_ui\SH_WaveOut.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Source\gs\GSH_OpenGL\GSH_OpenGL.h" />
+    <ClInclude Include="..\Source\PH_Generic.h" />
     <ClInclude Include="..\Source\ui_win32\AboutWnd.h" />
     <ClInclude Include="..\Source\ui_win32\AviStream.h" />
     <ClInclude Include="..\Source\ui_win32\CallStackWnd.h" />
@@ -424,6 +430,10 @@
     <ClInclude Include="..\Source\ui_win32\ThreadCallStackViewWnd.h" />
     <ClInclude Include="..\Source\ui_win32\ThreadsViewWnd.h" />
     <ClInclude Include="..\Source\ui_win32\VFSManagerWnd.h" />
+    <ClInclude Include="..\Source\ui_win32\VirtualPad\VirtualPadButton.h" />
+    <ClInclude Include="..\Source\ui_win32\VirtualPad\VirtualPadItem.h" />
+    <ClInclude Include="..\Source\ui_win32\VirtualPad\VirtualPadStick.h" />
+    <ClInclude Include="..\Source\ui_win32\VirtualPad\VirtualPadWindow.h" />
     <ClInclude Include="..\Source\ui_win32\WinUtils.h" />
     <ClInclude Include="..\tools\PsfPlayer\Source\win32_ui\SH_WaveOut.h" />
   </ItemGroup>
@@ -486,6 +496,20 @@
     <None Include="..\Source\ui_win32\FrameDebugger\PixelBufferViewShader.fx">
       <FileType>Document</FileType>
     </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="..\Source\ui_win32\Images\analogstick.png" />
+    <Image Include="..\Source\ui_win32\Images\circle.png" />
+    <Image Include="..\Source\ui_win32\Images\cross.png" />
+    <Image Include="..\Source\ui_win32\Images\down.png" />
+    <Image Include="..\Source\ui_win32\Images\left.png" />
+    <Image Include="..\Source\ui_win32\Images\lr.png" />
+    <Image Include="..\Source\ui_win32\Images\right.png" />
+    <Image Include="..\Source\ui_win32\Images\select.png" />
+    <Image Include="..\Source\ui_win32\Images\square.png" />
+    <Image Include="..\Source\ui_win32\Images\start.png" />
+    <Image Include="..\Source\ui_win32\Images\triangle.png" />
+    <Image Include="..\Source\ui_win32\Images\up.png" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

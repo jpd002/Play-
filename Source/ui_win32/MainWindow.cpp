@@ -17,6 +17,7 @@
 #include "../ee/PS2OS.h"
 #include "../gs/GSH_Null.h"
 #include "GSH_OpenGLWin32.h"
+#include "../PH_Generic.h"
 #include "PH_DirectInput.h"
 #include "VFSManagerWnd.h"
 #include "McManagerWnd.h"
@@ -49,6 +50,8 @@
 
 #define PREF_UI_PAUSEWHENFOCUSLOST	"ui.pausewhenfocuslost"
 #define PREF_UI_SOUNDENABLED		"ui.soundenabled"
+
+//#define USE_VIRTUALPAD
 
 double CMainWindow::m_statusBarPanelWidths[2] =
 {
@@ -115,6 +118,7 @@ CMainWindow::CMainWindow(CPS2VM& virtualMachine)
 
 	m_outputWnd = new COutputWnd(m_hWnd);
 
+	m_virtualPadWnd = CVirtualPadWindow(m_hWnd);
 	m_statsOverlayWnd = CStatsOverlayWindow(m_hWnd);
 
 	m_statusBar = Framework::Win32::CStatusBar(m_hWnd);
@@ -125,7 +129,11 @@ CMainWindow::CMainWindow(CPS2VM& virtualMachine)
 	//m_virtualMachine.CreateGSHandler(CGSH_Null::GetFactoryFunction());
 	m_virtualMachine.CreateGSHandler(CGSH_OpenGLWin32::GetFactoryFunction(m_outputWnd));
 
+#ifdef USE_VIRTUALPAD
+	m_virtualMachine.CreatePadHandler(CPH_Generic::GetFactoryFunction());
+#else
 	m_virtualMachine.CreatePadHandler(CPH_DirectInput::GetFactoryFunction(m_hWnd));
+#endif
 	SetupSoundHandler();
 
 	m_deactivatePause = false;
@@ -150,8 +158,12 @@ CMainWindow::CMainWindow(CPS2VM& virtualMachine)
 	UpdateUI();
 	Center();
 	Show(SW_SHOW);
+#ifdef USE_VIRTUALPAD
+	m_virtualPadWnd.Show(SW_SHOWNOACTIVATE);
+	m_virtualPadWnd.SetPadHandler(static_cast<CPH_Generic*>(m_virtualMachine.GetPadHandler()));
+#endif
 #ifdef PROFILE
-	m_statsOverlayWnd.Show(SW_SHOW);
+	m_statsOverlayWnd.Show(SW_SHOWNOACTIVATE);
 #endif
 }
 
@@ -358,13 +370,13 @@ long CMainWindow::OnSize(unsigned int, unsigned int, unsigned int)
 	{
 		RefreshLayout();
 	}
-	RefreshStatsOverlayLayout();
+	RefreshOverlaysLayout();
 	return TRUE;
 }
 
 long CMainWindow::OnMove(int x, int y)
 {
-	RefreshStatsOverlayLayout();
+	RefreshOverlaysLayout();
 	return FALSE;
 }
 
@@ -779,7 +791,7 @@ void CMainWindow::RefreshLayout()
 	}
 }
 
-void CMainWindow::RefreshStatsOverlayLayout()
+void CMainWindow::RefreshOverlaysLayout()
 {
 	auto clientRect = GetClientRect();
 
@@ -788,6 +800,11 @@ void CMainWindow::RefreshStatsOverlayLayout()
 
 	auto clientScreenRect = Framework::Win32::CRect(0, 0, outputWidth, outputHeight);
 	clientScreenRect.ClientToScreen(m_hWnd);
+
+	SetWindowPos(m_virtualPadWnd.m_hWnd, NULL, 
+		clientScreenRect.Left(), clientScreenRect.Top(), 
+		clientScreenRect.Width(), clientScreenRect.Height(),
+		SWP_NOZORDER | SWP_NOACTIVATE);
 	SetWindowPos(m_statsOverlayWnd.m_hWnd, NULL, 
 		clientScreenRect.Left(), clientScreenRect.Top(), 
 		clientScreenRect.Width(), clientScreenRect.Height(),
