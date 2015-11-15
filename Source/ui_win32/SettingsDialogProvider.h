@@ -1,13 +1,11 @@
-#ifndef _SETTINGSDIALOGPROVIDER_H_
-#define _SETTINGSDIALOGPROVIDER_H_
+#pragma once
 
-#include "win32/ModalWindow.h"
+#include "win32/Window.h"
 
 class CSettingsDialogProvider
 {
 public:
-    virtual Framework::Win32::CModalWindow*		CreateSettingsDialog(HWND) = 0;
-	virtual void				                OnSettingsDialogDestroyed() = 0;
+	virtual                               ~CSettingsDialogProvider() {}
+	virtual Framework::Win32::CWindow*    CreateSettingsDialog(HWND) = 0;
+	virtual void                          OnSettingsDialogDestroyed() = 0;
 };
-
-#endif

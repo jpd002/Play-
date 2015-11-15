@@ -89,7 +89,7 @@ CSettingsDialogProvider* CGSH_OpenGLWin32::GetSettingsDialogProvider()
 	return this;
 }
 
-Framework::Win32::CModalWindow* CGSH_OpenGLWin32::CreateSettingsDialog(HWND hParent)
+Framework::Win32::CWindow* CGSH_OpenGLWin32::CreateSettingsDialog(HWND hParent)
 {
 	return new CRendererSettingsWnd(hParent, this);
 }

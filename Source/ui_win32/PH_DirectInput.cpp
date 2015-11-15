@@ -46,7 +46,7 @@ void CPH_DirectInput::Update(uint8* ram)
 	}
 }
 
-Framework::Win32::CModalWindow* CPH_DirectInput::CreateSettingsDialog(HWND parent)
+Framework::Win32::CWindow* CPH_DirectInput::CreateSettingsDialog(HWND parent)
 {
 	return new PH_DirectInput::CControllerSettingsWnd(parent, m_inputManager);
 }

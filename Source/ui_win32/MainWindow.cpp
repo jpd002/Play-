@@ -554,9 +554,22 @@ void CMainWindow::ShowSettingsDialog(CSettingsDialogProvider* provider)
 
 	CScopedVmPauser vmPauser(m_virtualMachine);
 
-	Framework::Win32::CModalWindow* pWindow = provider->CreateSettingsDialog(m_hWnd);
-	pWindow->DoModal();
-	delete pWindow;
+	{
+		auto window = std::shared_ptr<Framework::Win32::CWindow>(provider->CreateSettingsDialog(m_hWnd));
+		if(auto modalWindow = std::dynamic_pointer_cast<Framework::Win32::CModalWindow>(window))
+		{
+			modalWindow->DoModal();
+		}
+		else if(auto dialog = std::dynamic_pointer_cast<Framework::Win32::CDialog>(window))
+		{
+			dialog->DoModal();
+		}
+		else
+		{
+			//Unknown window type
+			assert(false);
+		}
+	}
 	provider->OnSettingsDialogDestroyed();
 
 	Redraw();
