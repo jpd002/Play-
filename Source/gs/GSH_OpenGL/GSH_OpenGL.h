@@ -26,10 +26,6 @@ public:
 	void							ProcessLocalToLocalTransfer() override;
 	void							ReadFramebuffer(uint32, uint32, void*) override;
 
-	bool							IsBlendColorExtSupported();
-	bool							IsBlendEquationExtSupported();
-	bool							IsFogCoordfExtSupported();
-
 protected:
 	void							TexCache_Flush();
 	void							PalCache_Flush();

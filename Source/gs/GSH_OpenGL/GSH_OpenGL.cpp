@@ -2061,33 +2061,6 @@ void CGSH_OpenGL::ReadFramebuffer(uint32 width, uint32 height, void* buffer)
 #endif
 }
 
-bool CGSH_OpenGL::IsBlendColorExtSupported()
-{
-#ifndef GLES_COMPATIBILITY
-	return glBlendColorEXT != NULL;
-#else
-	return true;
-#endif
-}
-
-bool CGSH_OpenGL::IsBlendEquationExtSupported()
-{
-#ifndef GLES_COMPATIBILITY
-	return glBlendEquationEXT != NULL;
-#else
-	return true;
-#endif
-}
-
-bool CGSH_OpenGL::IsFogCoordfExtSupported()
-{
-#ifndef GLES_COMPATIBILITY
-	return glFogCoordfEXT != NULL;
-#else
-	return true;
-#endif
-}
-
 /////////////////////////////////////////////////////////////
 // Framebuffer
 /////////////////////////////////////////////////////////////
