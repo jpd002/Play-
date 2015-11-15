@@ -52,6 +52,19 @@ BEGIN
     PUSHBUTTON      "Cancel",IDCANCEL,246,138,60,18
 END
 
+IDD_GSHOPENGL_SETTINGS DIALOGEX 0, 0, 307, 47
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Video Settings"
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    CONTROL         "Render lines using quads",IDC_GSHOPENGL_SETTINGS_LINESASQUAD,
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,6,6,294,10
+    CONTROL         "Force bilinear texture filtering",IDC_GSHOPENGL_SETTINGS_FORCEBILINEAR,
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,6,18,294,10
+    DEFPUSHBUTTON   "OK",IDOK,174,30,60,12
+    PUSHBUTTON      "Cancel",IDCANCEL,240,30,60,12
+END
+
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -67,6 +80,14 @@ BEGIN
         RIGHTMARGIN, 309
         TOPMARGIN, 7
         BOTTOMMARGIN, 152
+    END
+
+    IDD_GSHOPENGL_SETTINGS, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 300
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 40
     END
 END
 #endif    // APSTUDIO_INVOKED
@@ -249,6 +270,17 @@ BEGIN
     BEGIN
         VALUE "Translation", 0x1009, 1200
     END
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// AFX_DIALOG_LAYOUT
+//
+
+IDD_GSHOPENGL_SETTINGS AFX_DIALOG_LAYOUT
+BEGIN
+    0
 END
 
 #endif    // ÉjÉÖÅ[ÉgÉâÉã resources

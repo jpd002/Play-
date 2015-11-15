@@ -331,7 +331,7 @@
     <ClCompile Include="..\Source\ui_win32\RegViewSCU.cpp" />
     <ClCompile Include="..\Source\ui_win32\RegViewVU.cpp" />
     <ClCompile Include="..\Source\ui_win32\RegViewWnd.cpp" />
-    <ClCompile Include="..\Source\ui_win32\RendererSettingsWnd.cpp" />
+    <ClCompile Include="..\Source\ui_win32\GSH_OpenGL_SettingsWnd.cpp" />
     <ClCompile Include="..\Source\ui_win32\SaveIconView.cpp" />
     <ClCompile Include="..\Source\ui_win32\SaveView.cpp" />
     <ClCompile Include="..\Source\ui_win32\StatsOverlayWindow.cpp" />
@@ -419,7 +419,7 @@
     <ClInclude Include="..\Source\ui_win32\RegViewSCU.h" />
     <ClInclude Include="..\Source\ui_win32\RegViewVU.h" />
     <ClInclude Include="..\Source\ui_win32\RegViewWnd.h" />
-    <ClInclude Include="..\Source\ui_win32\RendererSettingsWnd.h" />
+    <ClInclude Include="..\Source\ui_win32\GSH_OpenGL_SettingsWnd.h" />
     <ClInclude Include="..\Source\ui_win32\resource.h" />
     <ClInclude Include="..\Source\ui_win32\SaveIconView.h" />
     <ClInclude Include="..\Source\ui_win32\SaveView.h" />

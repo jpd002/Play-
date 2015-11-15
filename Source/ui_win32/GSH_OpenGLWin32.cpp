@@ -1,5 +1,5 @@
 #include "GSH_OpenGLWin32.h"
-#include "RendererSettingsWnd.h"
+#include "GSH_OpenGL_SettingsWnd.h"
 
 PIXELFORMATDESCRIPTOR CGSH_OpenGLWin32::m_pfd =
 {
@@ -89,9 +89,9 @@ CSettingsDialogProvider* CGSH_OpenGLWin32::GetSettingsDialogProvider()
 	return this;
 }
 
-Framework::Win32::CWindow* CGSH_OpenGLWin32::CreateSettingsDialog(HWND hParent)
+Framework::Win32::CWindow* CGSH_OpenGLWin32::CreateSettingsDialog(HWND parentWnd)
 {
-	return new CRendererSettingsWnd(hParent, this);
+	return new CGSH_OpenGL_SettingsWnd(parentWnd);
 }
 
 void CGSH_OpenGLWin32::OnSettingsDialogDestroyed()

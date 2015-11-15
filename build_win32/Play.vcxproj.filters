@@ -244,9 +244,6 @@
     <ClCompile Include="..\Source\gs\GSH_OpenGL\GSH_OpenGL_Texture.cpp">
       <Filter>Source Files\GSH_OpenGL</Filter>
     </ClCompile>
-    <ClCompile Include="..\Source\ui_win32\RendererSettingsWnd.cpp">
-      <Filter>Source Files\GSH_OpenGL</Filter>
-    </ClCompile>
     <ClCompile Include="..\Source\ui_win32\VirtualPad\VirtualPadWindow.cpp">
       <Filter>Source Files\VirtualPad</Filter>
     </ClCompile>
@@ -261,6 +258,9 @@
     </ClCompile>
     <ClCompile Include="..\Source\PH_Generic.cpp">
       <Filter>Source Files\PH_Generic</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\ui_win32\GSH_OpenGL_SettingsWnd.cpp">
+      <Filter>Source Files\GSH_OpenGL</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -480,9 +480,6 @@
     <ClInclude Include="..\Source\gs\GSH_OpenGL\GSH_OpenGL.h">
       <Filter>Source Files\GSH_OpenGL</Filter>
     </ClInclude>
-    <ClInclude Include="..\Source\ui_win32\RendererSettingsWnd.h">
-      <Filter>Source Files\GSH_OpenGL</Filter>
-    </ClInclude>
     <ClInclude Include="..\Source\ui_win32\VirtualPad\VirtualPadWindow.h">
       <Filter>Source Files\VirtualPad</Filter>
     </ClInclude>
@@ -497,6 +494,9 @@
     </ClInclude>
     <ClInclude Include="..\Source\PH_Generic.h">
       <Filter>Source Files\PH_Generic</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\ui_win32\GSH_OpenGL_SettingsWnd.h">
+      <Filter>Source Files\GSH_OpenGL</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
