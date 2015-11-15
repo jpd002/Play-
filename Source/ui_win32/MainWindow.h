@@ -86,7 +86,7 @@ private:
 	void							ShowSysInfo();
 	void							ShowAbout();
 	void							ShowSettingsDialog(CSettingsDialogProvider*);
-	void							ShowRendererSettings();
+	void							ShowVideoSettings();
 	void							ShowControllerSettings();
 	void							ShowVfsManager();
 	void							ShowMcManager();

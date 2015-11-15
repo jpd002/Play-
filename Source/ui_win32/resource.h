@@ -81,7 +81,7 @@
 #define ID_VIEW_VECTORUNIT1VIEW         40099
 #define ID_VIEW_EEVIEW                  40101
 #define ID_VIEW_VU1VIEW                 40102
-#define ID_MAIN_OPTIONS_RENDERER        40105
+#define ID_MAIN_OPTIONS_VIDEO           40105
 #define ID_MAIN_VM_PAUSEFOCUS           40107
 #define ID_VM_ASMJAL                    40109
 #define ID_VM_DUMPINTCHANDLERS          40119

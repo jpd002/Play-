@@ -145,7 +145,7 @@ BEGIN
     END
     POPUP "&Options"
     BEGIN
-        MENUITEM "Renderer Settings...",        ID_MAIN_OPTIONS_RENDERER
+        MENUITEM "Video Settings...",           ID_MAIN_OPTIONS_VIDEO
         MENUITEM "Controller Settings...",      ID_MAIN_OPTIONS_CONTROLLER
         MENUITEM "&Virtual File System Manager...", ID_MAIN_OPTIONS_VFSMANAGER
         MENUITEM "Memory Card Manager...",      ID_MAIN_OPTIONS_MCMANAGER
