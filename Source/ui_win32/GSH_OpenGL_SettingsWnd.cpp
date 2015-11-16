@@ -13,9 +13,6 @@ CGSH_OpenGL_SettingsWnd::CGSH_OpenGL_SettingsWnd(HWND parentWindow)
 
 	m_linesAsQuadsCheck.SetCheck(CAppConfig::GetInstance().GetPreferenceBoolean(PREF_CGSH_OPENGL_LINEASQUADS));
 	m_forceBilinearTextures.SetCheck(CAppConfig::GetInstance().GetPreferenceBoolean(PREF_CGSH_OPENGL_FORCEBILINEARTEXTURES));
-
-	//Is this really needed?
-	m_linesAsQuadsCheck.SetFocus();
 }
 
 CGSH_OpenGL_SettingsWnd::~CGSH_OpenGL_SettingsWnd()
