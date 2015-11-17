@@ -27,6 +27,12 @@ namespace Dmac
 			DMATAG_END
 		};
 
+		enum CHCR_DIR
+		{
+			CHCR_DIR_TO   = 0,
+			CHCR_DIR_FROM = 1,
+		};
+
 		struct CHCR : public convertible<uint32>
 		{
 			unsigned int		nDIR		: 1;
