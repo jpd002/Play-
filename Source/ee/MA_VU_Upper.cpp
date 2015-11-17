@@ -209,7 +209,7 @@ void CMA_VU::CUpper::MADD()
 //2A
 void CMA_VU::CUpper::MUL()
 {
-	VUShared::MUL(m_codeGen, m_nDest, m_nFD, m_nFS, m_nFT);
+	VUShared::MUL(m_codeGen, m_nDest, m_nFD, m_nFS, m_nFT, m_relativePipeTime);
 }
 
 //2B

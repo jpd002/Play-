@@ -391,7 +391,7 @@ void CCOP_VU::VMADD()
 //2A
 void CCOP_VU::VMUL()
 {
-	VUShared::MUL(m_codeGen, m_nDest, m_nFD, m_nFS, m_nFT);
+	VUShared::MUL(m_codeGen, m_nDest, m_nFD, m_nFS, m_nFT, 0);
 }
 
 //2B
