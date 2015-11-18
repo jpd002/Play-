@@ -16,6 +16,8 @@ public:
 
 	virtual uint32	GetTOP() const override;
 
+	virtual uint32	ReceiveDMA(uint32, uint32, uint32, bool) override;
+
 private:
 	typedef std::vector<uint8> ByteArray;
 

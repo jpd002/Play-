@@ -375,6 +375,11 @@ void CGIF::SetRegister(uint32 address, uint32 value)
 #endif
 }
 
+CGSHandler* CGIF::GetGsHandler()
+{
+	return m_gs;
+}
+
 void CGIF::SetPath3Masked(bool masked)
 {
 	m_path3Masked = masked;

@@ -115,13 +115,6 @@ void CChannel::Execute()
 			assert(m_number == CDMAC::CHANNEL_ID_TO_IPU);
 			return;
 		}
-		if((m_number == CDMAC::CHANNEL_ID_VIF1) && (m_CHCR.nDIR == 0))
-		{
-			//Humm, destination mode, not supported for now.
-			CLog::GetInstance().Print(LOG_NAME, "Warning: Using destination mode for channel %d. Cancelling transfer.\r\n", m_number);
-			ClearSTR();
-			return;
-		}
 		switch(m_CHCR.nMOD)
 		{
 		case 0x00:
