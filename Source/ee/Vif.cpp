@@ -623,7 +623,8 @@ void CVif::Cmd_UNPACK(StreamType& stream, CODE nCommand, uint32 nDstAddr)
 					}
 					else if(m_MODE == MODE_DIFFERENCE)
 					{
-						assert(0);
+						writeValue.nV[i] += m_R[i];
+						m_R[i] = writeValue.nV[i];
 					}
 
 					dst->nV[i] = writeValue.nV[i];
