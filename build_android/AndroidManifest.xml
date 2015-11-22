@@ -41,6 +41,12 @@
 				<category android:name="android.intent.category.LEANBACK_LAUNCHER" />
 				<category android:name="android.intent.category.LAUNCHER" />
 			</intent-filter>
+		</activity>
+		<activity
+			android:name=".ExternalEmulatorLauncher"
+			android:enabled="true"
+			android:exported="true"
+			android:label="PLAY - PS2 Game Launcher">
 			<intent-filter>
 				<action android:name="android.intent.action.VIEW" />
 				

@@ -33,6 +33,8 @@ import com.virtualapplications.play.database.GameIndexer;
 import com.virtualapplications.play.database.GameInfo;
 import com.virtualapplications.play.database.SqliteHelper.Games;
 
+import static com.virtualapplications.play.VirtualMachineManager.launchDisk;
+
 public class MainActivity extends ActionBarActivity implements NavigationDrawerFragment.NavigationDrawerCallbacks
 {
 	static Activity mActivity;
@@ -71,15 +73,6 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
 		if(!NativeInterop.isVirtualMachineCreated())
 		{
 			NativeInterop.createVirtualMachine();
-		}
-
-		Intent intent = getIntent();
-		if (intent.getAction() != null) {
-			if (intent.getAction().equals(Intent.ACTION_VIEW)) {
-				launchDisk(new File(intent.getData().getPath()), true);
-				getIntent().setData(null);
-				setIntent(null);
-			}
 		}
 
 //		if (isAndroidTV(this)) {
@@ -560,39 +553,19 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
 
 	}
 	
-	public static void launchGame(GameInfoStruct game) {
+	public void launchGame(GameInfoStruct game) {
 		if (game.getFile().exists()){
 			game.setlastplayed(mActivity);
-			((MainActivity) mActivity).launchDisk(game.getFile(), false);
+			try {
+				launchDisk(this, game.getFile());
+			} catch (Exception e) {
+				displaySimpleMessage("Error", e.getMessage());
+			}
 		} else {
 			((MainActivity) mActivity).displayGameNotFound(game);
 		}
 	}
-	
-	private void launchDisk(File game, boolean terminate) {
-		try
-		{
-			if(IsLoadableExecutableFileName(game.getPath()))
-			{
-				NativeInterop.loadElf(game.getPath());
-			}
-			else
-			{
-				NativeInterop.bootDiskImage(game.getPath());
-			}
-		}
-		catch(Exception ex)
-		{
-			displaySimpleMessage("Error", ex.getMessage());
-			return;
-		}
-		//TODO: Catch errors that might happen while loading files
-		Intent intent = new Intent(getApplicationContext(), EmulatorActivity.class);
-		startActivity(intent);
-		if (terminate) {
-			finish();
-		}
-	}
+
 	
 	private boolean isAndroidTV(Context context) {
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
