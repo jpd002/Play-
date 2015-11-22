@@ -30,7 +30,6 @@ public class ExternalEmulatorLauncher extends Activity {
             NativeInterop.createVirtualMachine();
         }
         Intent intent = getIntent();
-        String errorMSG = null;
         if (intent.getAction() != null) {
             if (intent.getAction().equals(Intent.ACTION_VIEW)) {
                 try {
