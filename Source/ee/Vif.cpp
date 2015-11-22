@@ -83,6 +83,22 @@ uint32 CVif::GetRegister(uint32 address)
 	case VIF1_MARK:
 		result = m_MARK;
 		break;
+	case VIF0_R0:
+	case VIF1_R0:
+		result = m_R[0];
+		break;
+	case VIF0_R1:
+	case VIF1_R1:
+		result = m_R[1];
+		break;
+	case VIF0_R2:
+	case VIF1_R2:
+		result = m_R[2];
+		break;
+	case VIF0_R3:
+	case VIF1_R3:
+		result = m_R[3];
+		break;
 	}
 #ifdef _DEBUG
 	DisassembleGet(address);
@@ -919,8 +935,32 @@ void CVif::DisassembleGet(uint32 address)
 	case VIF0_MARK:
 		CLog::GetInstance().Print(LOG_NAME, "VIF0_MARK.\r\n");
 		break;
+	case VIF0_R0:
+		CLog::GetInstance().Print(LOG_NAME, "VIF0_R0.\r\n");
+		break;
+	case VIF0_R1:
+		CLog::GetInstance().Print(LOG_NAME, "VIF0_R1.\r\n");
+		break;
+	case VIF0_R2:
+		CLog::GetInstance().Print(LOG_NAME, "VIF0_R2.\r\n");
+		break;
+	case VIF0_R3:
+		CLog::GetInstance().Print(LOG_NAME, "VIF0_R3.\r\n");
+		break;
 	case VIF1_MARK:
 		CLog::GetInstance().Print(LOG_NAME, "VIF1_MARK.\r\n");
+		break;
+	case VIF1_R0:
+		CLog::GetInstance().Print(LOG_NAME, "VIF1_R0.\r\n");
+		break;
+	case VIF1_R1:
+		CLog::GetInstance().Print(LOG_NAME, "VIF1_R1.\r\n");
+		break;
+	case VIF1_R2:
+		CLog::GetInstance().Print(LOG_NAME, "VIF1_R2.\r\n");
+		break;
+	case VIF1_R3:
+		CLog::GetInstance().Print(LOG_NAME, "VIF1_R3.\r\n");
 		break;
 	default:
 		CLog::GetInstance().Print(LOG_NAME, "Reading unknown register 0x%0.8X.\r\n", address);
