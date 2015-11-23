@@ -22,7 +22,7 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.GridView;
 import android.widget.TextView;
 import android.support.v4.widget.DrawerLayout;
-import java.io.*;
+import java.io.File;
 import java.lang.reflect.InvocationTargetException;
 import java.text.*;
 import java.util.*;
@@ -246,42 +246,6 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
 			}
 		}
 		
-	}
-
-	public static HashSet<String> getExternalMounts() {
-		final HashSet<String> out = new HashSet<String>();
-		String reg = "(?i).*vold.*(vfat|ntfs|exfat|fat32|ext3|ext4|fuse).*rw.*";
-		String s = "";
-		try {
-			final java.lang.Process process = new ProcessBuilder().command("mount")
-			.redirectErrorStream(true).start();
-			process.waitFor();
-			final InputStream is = process.getInputStream();
-			final byte[] buffer = new byte[1024];
-			while (is.read(buffer) != -1) {
-				s = s + new String(buffer);
-			}
-			is.close();
-		} catch (final Exception e) {
-			
-		}
-		
-		final String[] lines = s.split("\n");
-		for (String line : lines) {
-			if (StringUtils.containsIgnoreCase(line, "secure"))
-				continue;
-			if (StringUtils.containsIgnoreCase(line, "asec"))
-				continue;
-			if (line.matches(reg)) {
-				String[] parts = line.split(" ");
-				for (String part : parts) {
-					if (part.startsWith("/"))
-						if (!StringUtils.containsIgnoreCase(part, "vold"))
-							out.add(part);
-				}
-			}
-		}
-		return out;
 	}
 	
 	public static void fullStorageScan() {
