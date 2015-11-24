@@ -8,6 +8,7 @@ import android.util.Log;
 import com.virtualapplications.play.GameInfoStruct;
 import com.virtualapplications.play.NativeInterop;
 import com.virtualapplications.play.R;
+import com.virtualapplications.play.VirtualMachineManager;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -17,8 +18,6 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-
-import static com.virtualapplications.play.MainActivity.IsLoadableExecutableFileName;
 
 /**
  * Based On https://github.com/LithidSoftware/android_Findex/blob/master/src/com/lithidsw/findex/utils/FileWalker.java
@@ -118,7 +117,7 @@ public class GameIndexer {
                         if (!isIndexed(folderPath, f.getName())) {
                             String name = f.getName();
                             String serial = null;
-                            if (!IsLoadableExecutableFileName(f.getPath())) {
+                            if (!VirtualMachineManager.IsLoadableExecutableFileName(f.getPath())) {
                                 serial = getSerial(f);
                                 if (serial == null) continue;
                             }

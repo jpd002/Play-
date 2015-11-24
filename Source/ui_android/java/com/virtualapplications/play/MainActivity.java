@@ -33,8 +33,6 @@ import com.virtualapplications.play.database.GameIndexer;
 import com.virtualapplications.play.database.GameInfo;
 import com.virtualapplications.play.database.SqliteHelper.Games;
 
-import static com.virtualapplications.play.VirtualMachineManager.launchDisk;
-
 public class MainActivity extends ActionBarActivity implements NavigationDrawerFragment.NavigationDrawerCallbacks
 {
 	static Activity mActivity;
@@ -265,21 +263,6 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
 		((MainActivity) mActivity).clearCoverCache();
 	}
 	
-	public static boolean IsLoadableExecutableFileName(String fileName)
-	{
-		return fileName.toLowerCase().endsWith(".elf");
-	}
-	
-	private static boolean IsLoadableDiskImageFileName(String fileName)
-	{
-		
-		return  
-				fileName.toLowerCase().endsWith(".iso") ||
-				fileName.toLowerCase().endsWith(".bin") ||
-				fileName.toLowerCase().endsWith(".cso") ||
-				fileName.toLowerCase().endsWith(".isz");
-	}
-	
 	@Override
 	public void onNavigationDrawerItemSelected(int position) {
 		switch (position) {
@@ -474,7 +457,7 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
 					preview.setImageResource(R.drawable.boxart);
 					((TextView) childview.findViewById(R.id.game_text)).setVisibility(View.VISIBLE);
 				}
-			} else if (IsLoadableExecutableFileName(game.getFile().getName())) {
+			} else if (VirtualMachineManager.IsLoadableExecutableFileName(game.getFile().getName())) {
 				ImageView preview = (ImageView) childview.findViewById(R.id.game_icon);
 				preview.setImageResource(R.drawable.boxart);
 				((TextView) childview.findViewById(R.id.game_text)).setVisibility(View.VISIBLE);
@@ -518,7 +501,7 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
 		if (game.getFile().exists()){
 			game.setlastplayed(mActivity);
 			try {
-				launchDisk(this, game.getFile());
+				VirtualMachineManager.launchDisk(this, game.getFile());
 			} catch (Exception e) {
 				displaySimpleMessage("Error", e.getMessage());
 			}

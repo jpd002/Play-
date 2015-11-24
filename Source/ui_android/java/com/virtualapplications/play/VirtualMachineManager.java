@@ -5,11 +5,9 @@ import android.content.Intent;
 
 import java.io.File;
 
-import static com.virtualapplications.play.MainActivity.IsLoadableExecutableFileName;
-
 public class VirtualMachineManager
 {
-	static void launchDisk(Context mContext, File game) throws Exception 
+	public static void launchDisk(Context mContext, File game) throws Exception 
 	{
 		if(IsLoadableExecutableFileName(game.getPath()))
 		{
@@ -21,5 +19,10 @@ public class VirtualMachineManager
 		}
 		Intent intent = new Intent(mContext, EmulatorActivity.class);
 		mContext.startActivity(intent);
+	}
+	
+	public static boolean IsLoadableExecutableFileName(String fileName)
+	{
+		return fileName.toLowerCase().endsWith(".elf");
 	}
 }
