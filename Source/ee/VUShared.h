@@ -134,7 +134,7 @@ namespace VUShared
 	void						MSUBAi(CMipsJitter*, uint8, uint8, uint32);
 	void						MFIR(CMipsJitter*, uint8, uint8, uint8);
 	void						MTIR(CMipsJitter*, uint8, uint8, uint8);
-	void						MUL(CMipsJitter*, uint8, uint8, uint8, uint8);
+	void						MUL(CMipsJitter*, uint8, uint8, uint8, uint8, uint32);
 	void						MULbc(CMipsJitter*, uint8, uint8, uint8, uint8, uint8, uint32);
 	void						MULi(CMipsJitter*, uint8, uint8, uint8);
 	void						MULq(CMipsJitter*, uint8, uint8, uint8, uint32);

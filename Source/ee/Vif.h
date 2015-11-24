@@ -43,7 +43,7 @@ public:
 	virtual uint32				GetTOP() const;
 	virtual uint32				GetITOP() const;
 
-	uint32						ReceiveDMA(uint32, uint32, bool);
+	virtual uint32				ReceiveDMA(uint32, uint32, uint32, bool);
 
 	bool						IsWaitingForProgramEnd() const;
 	bool						IsStalledByInterrupt() const;
@@ -182,6 +182,8 @@ protected:
 
 	unsigned int		m_number = 0;
 	CVpu&				m_vpu;
+	uint8*				m_ram = nullptr;
+	uint8*				m_spr = nullptr;
 	CFifoStream			m_stream;
 
 	uint8				m_fifoBuffer[FIFO_SIZE];

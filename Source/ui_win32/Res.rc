@@ -7,43 +7,35 @@
 //
 // Generated from the TEXTINCLUDE 2 resource.
 //
-#include <windows.h>
+#include "afxres.h"
 
 /////////////////////////////////////////////////////////////////////////////
 #undef APSTUDIO_READONLY_SYMBOLS
 
 /////////////////////////////////////////////////////////////////////////////
-// English (United States) resources
+// ニュートラル resources
 
-#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
-LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
-#pragma code_page(1252)
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_NEU)
+LANGUAGE LANG_NEUTRAL, SUBLANG_NEUTRAL
+#pragma code_page(932)
 
-#ifdef APSTUDIO_INVOKED
 /////////////////////////////////////////////////////////////////////////////
 //
-// TEXTINCLUDE
+// PNG
 //
 
-1 TEXTINCLUDE 
-BEGIN
-    "resource.h\0"
-END
-
-2 TEXTINCLUDE 
-BEGIN
-    "#include ""afxres.h""\r\n"
-    "\0"
-END
-
-3 TEXTINCLUDE 
-BEGIN
-    "\r\n"
-    "\0"
-END
-
-#endif    // APSTUDIO_INVOKED
-
+IDB_VIRTUALPAD_LR       PNG                     "Images\\lr.png"
+IDB_VIRTUALPAD_LEFT     PNG                     "Images\\left.png"
+IDB_VIRTUALPAD_RIGHT    PNG                     "Images\\right.png"
+IDB_VIRTUALPAD_UP       PNG                     "Images\\up.png"
+IDB_VIRTUALPAD_DOWN     PNG                     "Images\\down.png"
+IDB_VIRTUALPAD_CIRCLE   PNG                     "Images\\circle.png"
+IDB_VIRTUALPAD_CROSS    PNG                     "Images\\cross.png"
+IDB_VIRTUALPAD_SQUARE   PNG                     "Images\\square.png"
+IDB_VIRTUALPAD_TRIANGLE PNG                     "Images\\triangle.png"
+IDB_VIRTUALPAD_START    PNG                     "Images\\start.png"
+IDB_VIRTUALPAD_SELECT   PNG                     "Images\\select.png"
+IDB_VIRTUALPAD_ANALOGSTICK PNG                     "Images\\analogstick.png"
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -58,6 +50,19 @@ BEGIN
     LISTBOX         IDC_CALLSTACKITEM_LIST,6,6,300,126,LBS_NOINTEGRALHEIGHT | WS_VSCROLL | WS_TABSTOP
     DEFPUSHBUTTON   "OK",IDOK,6,138,60,18
     PUSHBUTTON      "Cancel",IDCANCEL,246,138,60,18
+END
+
+IDD_GSHOPENGL_SETTINGS DIALOGEX 0, 0, 307, 47
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Video Settings"
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    CONTROL         "Render lines using quads",IDC_GSHOPENGL_SETTINGS_LINESASQUAD,
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,6,6,294,10
+    CONTROL         "Force bilinear texture filtering",IDC_GSHOPENGL_SETTINGS_FORCEBILINEAR,
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,6,18,294,10
+    DEFPUSHBUTTON   "OK",IDOK,174,30,60,12
+    PUSHBUTTON      "Cancel",IDCANCEL,240,30,60,12
 END
 
 
@@ -76,19 +81,17 @@ BEGIN
         TOPMARGIN, 7
         BOTTOMMARGIN, 152
     END
+
+    IDD_GSHOPENGL_SETTINGS, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 300
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 40
+    END
 END
 #endif    // APSTUDIO_INVOKED
 
-#endif    // English (United States) resources
-/////////////////////////////////////////////////////////////////////////////
-
-
-/////////////////////////////////////////////////////////////////////////////
-// French (Canada) resources
-
-#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_FRC)
-LANGUAGE LANG_FRENCH, SUBLANG_FRENCH_CANADIAN
-#pragma code_page(1252)
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -163,7 +166,7 @@ BEGIN
     END
     POPUP "&Options"
     BEGIN
-        MENUITEM "Renderer Settings...",        ID_MAIN_OPTIONS_RENDERER
+        MENUITEM "Video Settings...",           ID_MAIN_OPTIONS_VIDEO
         MENUITEM "Controller Settings...",      ID_MAIN_OPTIONS_CONTROLLER
         MENUITEM "&Virtual File System Manager...", ID_MAIN_OPTIONS_VFSMANAGER
         MENUITEM "Memory Card Manager...",      ID_MAIN_OPTIONS_MCMANAGER
@@ -221,18 +224,14 @@ IDI_PLAY                ICON                    "Images\\play.ico"
 
 IDC_GRAB                CURSOR                  "images\\grab.cur"
 IDC_GRABBING            CURSOR                  "images\\grabbing.cur"
-#endif    // French (Canada) resources
-/////////////////////////////////////////////////////////////////////////////
-
-IDR_CHECKERBOARD_SHADER     TEXTFILE               "framedebugger\\CheckerboardShader.fx"
-IDR_PIXELBUFFERVIEW_SHADER  TEXTFILE               "framedebugger\\PixelBufferViewShader.fx"
 
 /////////////////////////////////////////////////////////////////////////////
-// English (Canada) resources
+//
+// TEXTFILE
+//
 
-#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENC)
-LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_CAN
-#pragma code_page(1252)
+IDR_CHECKERBOARD_SHADER TEXTFILE                "framedebugger\\CheckerboardShader.fx"
+IDR_PIXELBUFFERVIEW_SHADER TEXTFILE                "framedebugger\\PixelBufferViewShader.fx"
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -273,7 +272,54 @@ BEGIN
     END
 END
 
-#endif    // English (Canada) resources
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// AFX_DIALOG_LAYOUT
+//
+
+IDD_GSHOPENGL_SETTINGS AFX_DIALOG_LAYOUT
+BEGIN
+    0
+END
+
+#endif    // ニュートラル resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+/////////////////////////////////////////////////////////////////////////////
+// 英語 (米国) resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+#pragma code_page(1252)
+
+#ifdef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// TEXTINCLUDE
+//
+
+1 TEXTINCLUDE 
+BEGIN
+    "resource.h\0"
+END
+
+2 TEXTINCLUDE 
+BEGIN
+    "#include ""afxres.h""\r\n"
+    "\0"
+END
+
+3 TEXTINCLUDE 
+BEGIN
+    "\r\n"
+    "\0"
+END
+
+#endif    // APSTUDIO_INVOKED
+
+#endif    // 英語 (米国) resources
 /////////////////////////////////////////////////////////////////////////////
 
 

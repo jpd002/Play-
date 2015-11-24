@@ -50,6 +50,8 @@ public:
 	uint32			GetRegister(uint32);
 	void			SetRegister(uint32, uint32);
 
+	CGSHandler*		GetGsHandler();
+
 	void			SetPath3Masked(bool);
 
 	void			LoadState(Framework::CZipArchiveReader&);

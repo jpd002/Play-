@@ -4,6 +4,7 @@
 #include "../RegisterStateFile.h"
 #include "../FrameDump.h"
 #include "GIF.h"
+#include "Dmac_Channel.h"
 #include "Vpu.h"
 #include "Vif1.h"
 
@@ -62,6 +63,34 @@ void CVif1::LoadState(Framework::CZipArchiveReader& archive)
 uint32 CVif1::GetTOP() const
 {
 	return m_TOP;
+}
+
+uint32 CVif1::ReceiveDMA(uint32 address, uint32 qwc, uint32 direction, bool tagIncluded)
+{
+	if(direction == Dmac::CChannel::CHCR_DIR_TO)
+	{
+		uint8* source = nullptr;
+		uint32 size = qwc * 0x10;
+		if(address & 0x80000000)
+		{
+			source = m_spr;
+			address &= (PS2::EE_SPR_SIZE - 1);
+			assert((address + size) <= PS2::EE_SPR_SIZE);
+		}
+		else
+		{
+			source = m_ram;
+			address &= (PS2::EE_RAM_SIZE - 1);
+			assert((address + size) <= PS2::EE_RAM_SIZE);
+		}
+		auto gs = m_gif.GetGsHandler();
+		gs->ReadImageData(source + address, size);
+		return qwc;
+	}
+	else
+	{
+		return CVif::ReceiveDMA(address, qwc, direction, tagIncluded);
+	}
 }
 
 void CVif1::ExecuteCommand(StreamType& stream, CODE nCommand)

@@ -17,6 +17,7 @@
 #include "../ee/PS2OS.h"
 #include "../gs/GSH_Null.h"
 #include "GSH_OpenGLWin32.h"
+#include "../PH_Generic.h"
 #include "PH_DirectInput.h"
 #include "VFSManagerWnd.h"
 #include "McManagerWnd.h"
@@ -49,6 +50,8 @@
 
 #define PREF_UI_PAUSEWHENFOCUSLOST	"ui.pausewhenfocuslost"
 #define PREF_UI_SOUNDENABLED		"ui.soundenabled"
+
+//#define USE_VIRTUALPAD
 
 double CMainWindow::m_statusBarPanelWidths[2] =
 {
@@ -120,6 +123,7 @@ void CMainWindow::PostConstruct()
 
 	m_outputWnd = new COutputWnd(m_hWnd);
 
+	m_virtualPadWnd = CVirtualPadWindow(m_hWnd);
 	m_statsOverlayWnd = CStatsOverlayWindow(m_hWnd);
 
 	m_statusBar = Framework::Win32::CStatusBar(m_hWnd);
@@ -129,7 +133,11 @@ void CMainWindow::PostConstruct()
 
 	CreateGSHandler();
 
+#ifdef USE_VIRTUALPAD
+	m_virtualMachine.CreatePadHandler(CPH_Generic::GetFactoryFunction());
+#else
 	m_virtualMachine.CreatePadHandler(CPH_DirectInput::GetFactoryFunction(m_hWnd));
+#endif
 	SetupSoundHandler();
 
 	m_deactivatePause = false;
@@ -154,8 +162,12 @@ void CMainWindow::PostConstruct()
 	UpdateUI();
 	Center();
 	Show(SW_SHOW);
+#ifdef USE_VIRTUALPAD
+	m_virtualPadWnd.Show(SW_SHOWNOACTIVATE);
+	m_virtualPadWnd.SetPadHandler(static_cast<CPH_Generic*>(m_virtualMachine.GetPadHandler()));
+#endif
 #ifdef PROFILE
-	m_statsOverlayWnd.Show(SW_SHOW);
+	m_statsOverlayWnd.Show(SW_SHOWNOACTIVATE);
 #endif
 }
 
@@ -281,8 +293,8 @@ long CMainWindow::OnCommand(unsigned short nID, unsigned short nCmd, HWND hSende
 	case ID_MAIN_VIEW_ACTUALSIZE:
 		ChangeViewMode(CGSHandler::PRESENTATION_MODE_ORIGINAL);
 		break;
-	case ID_MAIN_OPTIONS_RENDERER:
-		ShowRendererSettings();
+	case ID_MAIN_OPTIONS_VIDEO:
+		ShowVideoSettings();
 		break;
 	case ID_MAIN_OPTIONS_CONTROLLER:
 		ShowControllerSettings();
@@ -368,13 +380,13 @@ long CMainWindow::OnSize(unsigned int, unsigned int, unsigned int)
 	{
 		RefreshLayout();
 	}
-	RefreshStatsOverlayLayout();
+	RefreshOverlaysLayout();
 	return TRUE;
 }
 
 long CMainWindow::OnMove(int x, int y)
 {
-	RefreshStatsOverlayLayout();
+	RefreshOverlaysLayout();
 	return FALSE;
 }
 
@@ -552,15 +564,28 @@ void CMainWindow::ShowSettingsDialog(CSettingsDialogProvider* provider)
 
 	CScopedVmPauser vmPauser(m_virtualMachine);
 
-	Framework::Win32::CModalWindow* pWindow = provider->CreateSettingsDialog(m_hWnd);
-	pWindow->DoModal();
-	delete pWindow;
+	{
+		auto window = std::shared_ptr<Framework::Win32::CWindow>(provider->CreateSettingsDialog(m_hWnd));
+		if(auto modalWindow = std::dynamic_pointer_cast<Framework::Win32::CModalWindow>(window))
+		{
+			modalWindow->DoModal();
+		}
+		else if(auto dialog = std::dynamic_pointer_cast<Framework::Win32::CDialog>(window))
+		{
+			dialog->DoModal();
+		}
+		else
+		{
+			//Unknown window type
+			assert(false);
+		}
+	}
 	provider->OnSettingsDialogDestroyed();
 
 	Redraw();
 }
 
-void CMainWindow::ShowRendererSettings()
+void CMainWindow::ShowVideoSettings()
 {
 	ShowSettingsDialog(dynamic_cast<CSettingsDialogProvider*>(m_virtualMachine.GetGSHandler()));
 }
@@ -789,7 +814,7 @@ void CMainWindow::RefreshLayout()
 	}
 }
 
-void CMainWindow::RefreshStatsOverlayLayout()
+void CMainWindow::RefreshOverlaysLayout()
 {
 	auto clientRect = GetClientRect();
 
@@ -798,6 +823,11 @@ void CMainWindow::RefreshStatsOverlayLayout()
 
 	auto clientScreenRect = Framework::Win32::CRect(0, 0, outputWidth, outputHeight);
 	clientScreenRect.ClientToScreen(m_hWnd);
+
+	SetWindowPos(m_virtualPadWnd.m_hWnd, NULL, 
+		clientScreenRect.Left(), clientScreenRect.Top(), 
+		clientScreenRect.Width(), clientScreenRect.Height(),
+		SWP_NOZORDER | SWP_NOACTIVATE);
 	SetWindowPos(m_statsOverlayWnd.m_hWnd, NULL, 
 		clientScreenRect.Left(), clientScreenRect.Top(), 
 		clientScreenRect.Width(), clientScreenRect.Height(),

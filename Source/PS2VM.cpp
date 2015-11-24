@@ -695,7 +695,7 @@ void CPS2VM::SetIopCdImage(CISO9660* image)
 
 void CPS2VM::RegisterModulesInPadHandler()
 {
-	if(m_pad == NULL) return;
+	if(m_pad == nullptr) return;
 
 	m_pad->RemoveAllListeners();
 	m_pad->InsertListener(m_iopOs->GetPadman());

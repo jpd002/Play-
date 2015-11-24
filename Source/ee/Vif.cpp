@@ -36,6 +36,8 @@
 
 CVif::CVif(unsigned int number, CVpu& vpu, uint8* ram, uint8* spr)
 : m_number(number)
+, m_ram(ram)
+, m_spr(spr)
 , m_stream(ram, spr)
 , m_vpu(vpu)
 , m_vifProfilerZone(CProfiler::GetInstance().RegisterZone(string_format("VIF%d", number).c_str()))
@@ -194,7 +196,7 @@ uint32 CVif::GetITOP() const
 	return m_ITOP;
 }
 
-uint32 CVif::ReceiveDMA(uint32 address, uint32 qwc, bool tagIncluded)
+uint32 CVif::ReceiveDMA(uint32 address, uint32 qwc, uint32 unused, bool tagIncluded)
 {
 	if(m_STAT.nVEW && m_vpu.IsVuRunning())
 	{

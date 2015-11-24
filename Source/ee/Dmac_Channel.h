@@ -27,6 +27,12 @@ namespace Dmac
 			DMATAG_END
 		};
 
+		enum CHCR_DIR
+		{
+			CHCR_DIR_TO   = 0,
+			CHCR_DIR_FROM = 1,
+		};
+
 		struct CHCR : public convertible<uint32>
 		{
 			unsigned int		nDIR		: 1;
@@ -71,9 +77,9 @@ namespace Dmac
 
 		void					ClearSTR();
 
-		unsigned int			m_nNumber;
+		unsigned int			m_number = 0;
 		uint32					m_nSCCTRL;
-		DmaReceiveHandler		m_pReceive;
+		DmaReceiveHandler		m_receive;
 		CDMAC&					m_dmac;
 	};
 };

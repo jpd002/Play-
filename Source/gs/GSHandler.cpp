@@ -392,6 +392,11 @@ void CGSHandler::FeedImageData(const void* data, uint32 length)
 	m_mailBox.SendCall(std::bind(&CGSHandler::FeedImageDataImpl, this, buffer, length));
 }
 
+void CGSHandler::ReadImageData(void* data, uint32 length)
+{
+	m_mailBox.SendCall([this, data, length] () { ReadImageDataImpl(data, length); }, true);
+}
+
 void CGSHandler::WriteRegisterMassively(const RegisterWrite* writeList, unsigned int count, const CGsPacketMetadata* metadata)
 {
 	for(unsigned int i = 0; i < count; i++)
@@ -504,7 +509,7 @@ void CGSHandler::FeedImageDataImpl(void* pData, uint32 nLength)
 		if(m_trxCtx.nSize == 0)
 		{
 			auto trxReg = make_convertible<TRXREG>(m_nReg[GS_REG_TRXREG]);
-			assert(m_trxCtx.nRRY == trxReg.nRRH);
+			//assert(m_trxCtx.nRRY == trxReg.nRRH);
 			ProcessImageTransfer();
 
 #ifdef _DEBUG
@@ -515,6 +520,41 @@ void CGSHandler::FeedImageDataImpl(void* pData, uint32 nLength)
 
 	assert(m_transferCount != 0);
 	m_transferCount--;
+}
+
+void CGSHandler::ReadImageDataImpl(void* ptr, uint32 size)
+{
+	assert(m_trxCtx.nSize != 0);
+	assert(m_trxCtx.nSize == size);
+	auto bltBuf = make_convertible<BITBLTBUF>(m_nReg[GS_REG_BITBLTBUF]);
+	auto trxReg = make_convertible<TRXREG>(m_nReg[GS_REG_TRXREG]);
+	auto trxPos = make_convertible<TRXPOS>(m_nReg[GS_REG_TRXPOS]);
+
+	assert(trxPos.nDIR == 0);
+	switch(bltBuf.nSrcPsm)
+	{
+	case PSMCT32:
+		{
+			CGsPixelFormats::CPixelIndexorPSMCT32 indexor(m_pRAM, bltBuf.GetSrcPtr(), bltBuf.nSrcWidth);
+			for(uint32 i = 0; i < size / sizeof(uint32); i++)
+			{
+				uint32 x = (m_trxCtx.nRRX + trxPos.nSSAX) % 2048;
+				uint32 y = (m_trxCtx.nRRY + trxPos.nSSAY) % 2048;
+				auto pixel = indexor.GetPixel(x, y);
+				reinterpret_cast<uint32*>(ptr)[i] = pixel;
+				m_trxCtx.nRRX++;
+				if(m_trxCtx.nRRX == trxReg.nRRW)
+				{
+					m_trxCtx.nRRX = 0;
+					m_trxCtx.nRRY++;
+				}
+			}
+		}
+		break;
+	default:
+		assert(false);
+		break;
+	}
 }
 
 void CGSHandler::WriteRegisterMassivelyImpl(MASSIVEWRITE_INFO* massiveWrite)
@@ -541,9 +581,9 @@ void CGSHandler::WriteRegisterMassivelyImpl(MASSIVEWRITE_INFO* massiveWrite)
 void CGSHandler::BeginTransfer()
 {
 	uint32 trxDir = m_nReg[GS_REG_TRXDIR] & 0x03;
-	if(trxDir == 0)
+	if(trxDir == 0 || trxDir == 1)
 	{
-		//From Host to Local
+		//"Host to Local" or "Local to Host"
 		auto bltBuf = make_convertible<BITBLTBUF>(m_nReg[GS_REG_BITBLTBUF]);
 		auto trxReg = make_convertible<TRXREG>(m_nReg[GS_REG_TRXREG]);
 		unsigned int nPixelSize = 0;
@@ -582,6 +622,17 @@ void CGSHandler::BeginTransfer()
 		m_trxCtx.nRRX	= 0;
 		m_trxCtx.nRRY	= 0;
 		m_trxCtx.nDirty	= false;
+
+		if(trxDir == 0)
+		{
+			CLog::GetInstance().Print(LOG_NAME, "Starting transfer to 0x%0.8X, buffer size %d, psm: %d, size (%dx%d)\r\n",
+				bltBuf.GetDstPtr(), bltBuf.GetDstWidth(), bltBuf.nDstPsm, trxReg.nRRW, trxReg.nRRH);
+		}
+		else if(trxDir == 1)
+		{
+			CLog::GetInstance().Print(LOG_NAME, "Starting transfer from 0x%0.8X, buffer size %d, psm: %d, size (%dx%d)\r\n",
+				bltBuf.GetSrcPtr(), bltBuf.GetSrcWidth(), bltBuf.nSrcPsm, trxReg.nRRW, trxReg.nRRH);
+		}
 	}
 	else if(trxDir == 2)
 	{

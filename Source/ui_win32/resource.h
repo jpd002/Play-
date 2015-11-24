@@ -12,9 +12,24 @@
 #define IDB_REFRESH                     117
 #define IDD_DEBUG_THREADCALLSTACK       118
 #define IDR_FRAMEDEBUGGER               119
+#define IDB_VIRTUALPAD_LR               119
 #define IDR_CHECKERBOARD_SHADER         120
+#define IDB_VIRTUALPAD_LEFT             120
 #define IDR_PIXELBUFFERVIEW_SHADER      121
+#define IDB_VIRTUALPAD_RIGHT            121
+#define IDB_VIRTUALPAD_UP               122
+#define IDB_VIRTUALPAD_DOWN             123
+#define IDB_VIRTUALPAD_CIRCLE           124
+#define IDB_VIRTUALPAD_CROSS            125
+#define IDB_VIRTUALPAD_SQUARE           126
+#define IDB_VIRTUALPAD_TRIANGLE         127
+#define IDB_VIRTUALPAD_START            128
+#define IDB_VIRTUALPAD_SELECT           129
+#define IDB_VIRTUALPAD_ANALOGSTICK      130
+#define IDD_GSHOPENGL_SETTINGS          131
 #define IDC_CALLSTACKITEM_LIST          1001
+#define IDC_GSHOPENGL_SETTINGS_LINESASQUAD 1003
+#define IDC_GSHOPENGL_SETTINGS_FORCEBILINEAR 1004
 #define ID_FILE_EXIT                    40002
 #define ID_FILE_OPENELF                 40003
 #define ID_WINDOW_TILEHORIZONTAL        40006
@@ -69,7 +84,7 @@
 #define ID_VIEW_VECTORUNIT1VIEW         40099
 #define ID_VIEW_EEVIEW                  40101
 #define ID_VIEW_VU1VIEW                 40102
-#define ID_MAIN_OPTIONS_RENDERER        40105
+#define ID_MAIN_OPTIONS_VIDEO           40105
 #define ID_MAIN_VM_PAUSEFOCUS           40107
 #define ID_VM_ASMJAL                    40109
 #define ID_VM_DUMPINTCHANDLERS          40119
@@ -104,9 +119,9 @@
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        119
+#define _APS_NEXT_RESOURCE_VALUE        133
 #define _APS_NEXT_COMMAND_VALUE         40196
-#define _APS_NEXT_CONTROL_VALUE         1002
+#define _APS_NEXT_CONTROL_VALUE         1004
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

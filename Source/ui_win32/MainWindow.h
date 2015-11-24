@@ -9,6 +9,7 @@
 #include "SettingsDialogProvider.h"
 #include "OutputWnd.h"
 #include "AviStream.h"
+#include "VirtualPad/VirtualPadWindow.h"
 #include "StatsOverlayWindow.h"
 #ifdef DEBUGGER_INCLUDED
 #include "Debugger.h"
@@ -92,7 +93,7 @@ private:
 	void							ShowSysInfo();
 	void							ShowAbout();
 	void							ShowSettingsDialog(CSettingsDialogProvider*);
-	void							ShowRendererSettings();
+	void							ShowVideoSettings();
 	void							ShowControllerSettings();
 	void							ShowVfsManager();
 	void							ShowMcManager();
@@ -102,7 +103,7 @@ private:
 
 	void							LoadELF(const char*);
 	void							RefreshLayout();
-	void							RefreshStatsOverlayLayout();
+	void							RefreshOverlaysLayout();
 	void							PrintVersion(TCHAR*, size_t);
 	void							PrintStatusTextA(const char*, ...);
 	void							SetStatusText(const TCHAR*);
@@ -142,7 +143,7 @@ private:
 	unsigned int					m_recordBufferHeight;
 
 	Framework::Win32::CStatusBar	m_statusBar;
-	
+	CVirtualPadWindow				m_virtualPadWnd;
 	CStatsOverlayWindow				m_statsOverlayWnd;
 #ifdef DEBUGGER_INCLUDED
 	std::unique_ptr<CDebugger>		m_debugger;
