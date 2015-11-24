@@ -57,6 +57,8 @@ CPS2VM* g_virtualMachine = nullptr;
 	                                              padHandler: static_cast<CPH_Generic*>(g_virtualMachine->GetPadHandler())];
 	[self.view addSubview: self.virtualPadView];
 
+	[self setupFpsCounter];
+	
 	g_virtualMachine->Pause();
 	g_virtualMachine->Reset();
 
@@ -187,6 +189,41 @@ CPS2VM* g_virtualMachine = nullptr;
     } else {
         self.gController = nil;
     }
+}
+
+-(void)setupFpsCounter
+{
+	auto screenBounds = [[UIScreen mainScreen] bounds];
+
+	self.fpsCounterLabel = [[UILabel alloc] initWithFrame: screenBounds];
+	self.fpsCounterLabel.textColor = [UIColor whiteColor];
+	[self.view addSubview: self.fpsCounterLabel];
+
+	g_virtualMachine->GetGSHandler()->OnNewFrame.connect(
+		[self] (uint32 drawCallCount)
+		{
+			@synchronized(self)
+			{
+				self.frames++;
+				self.drawCallCount += drawCallCount;
+			}
+		}
+	);
+	
+	[NSTimer scheduledTimerWithTimeInterval: 1 target: self selector: @selector(updateFpsCounter) userInfo: nil repeats: YES];
+}
+
+-(void)updateFpsCounter
+{
+	@synchronized(self)
+	{
+		uint32 dcpf = (self.frames != 0) ? (self.drawCallCount / self.frames) : 0;
+		self.fpsCounterLabel.text = [NSString stringWithFormat: @"%d f/s, %d dc/f",
+			self.frames, dcpf];
+		self.frames = 0;
+		self.drawCallCount = 0;
+	}
+	[self.fpsCounterLabel sizeToFit];
 }
 
 -(BOOL)prefersStatusBarHidden
