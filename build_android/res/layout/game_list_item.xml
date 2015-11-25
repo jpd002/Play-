@@ -14,7 +14,7 @@
 		android:layout_width="@dimen/cover_width"
 		android:layout_height="@dimen/cover_height"
 		android:layout_gravity="center"
-		android:scaleType="fitCenter"
+		android:scaleType="fitXY"
 		android:src="@drawable/boxart"
 		android:adjustViewBounds="false" />
 		

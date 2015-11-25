@@ -22,7 +22,7 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.GridView;
 import android.widget.TextView;
 import android.support.v4.widget.DrawerLayout;
-import java.io.*;
+import java.io.File;
 import java.lang.reflect.InvocationTargetException;
 import java.text.*;
 import java.util.*;
@@ -32,8 +32,6 @@ import org.apache.commons.lang3.StringUtils;
 import com.virtualapplications.play.database.GameIndexer;
 import com.virtualapplications.play.database.GameInfo;
 import com.virtualapplications.play.database.SqliteHelper.Games;
-
-import static com.virtualapplications.play.VirtualMachineManager.launchDisk;
 
 public class MainActivity extends ActionBarActivity implements NavigationDrawerFragment.NavigationDrawerCallbacks
 {
@@ -247,42 +245,6 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
 		}
 		
 	}
-
-	public static HashSet<String> getExternalMounts() {
-		final HashSet<String> out = new HashSet<String>();
-		String reg = "(?i).*vold.*(vfat|ntfs|exfat|fat32|ext3|ext4|fuse).*rw.*";
-		String s = "";
-		try {
-			final java.lang.Process process = new ProcessBuilder().command("mount")
-			.redirectErrorStream(true).start();
-			process.waitFor();
-			final InputStream is = process.getInputStream();
-			final byte[] buffer = new byte[1024];
-			while (is.read(buffer) != -1) {
-				s = s + new String(buffer);
-			}
-			is.close();
-		} catch (final Exception e) {
-			
-		}
-		
-		final String[] lines = s.split("\n");
-		for (String line : lines) {
-			if (StringUtils.containsIgnoreCase(line, "secure"))
-				continue;
-			if (StringUtils.containsIgnoreCase(line, "asec"))
-				continue;
-			if (line.matches(reg)) {
-				String[] parts = line.split(" ");
-				for (String part : parts) {
-					if (part.startsWith("/"))
-						if (!StringUtils.containsIgnoreCase(part, "vold"))
-							out.add(part);
-				}
-			}
-		}
-		return out;
-	}
 	
 	public static void fullStorageScan() {
 		((MainActivity) mActivity).prepareFileListView(false, true);
@@ -299,21 +261,6 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
 	
 	public static void clearCache() {
 		((MainActivity) mActivity).clearCoverCache();
-	}
-	
-	public static boolean IsLoadableExecutableFileName(String fileName)
-	{
-		return fileName.toLowerCase().endsWith(".elf");
-	}
-	
-	private static boolean IsLoadableDiskImageFileName(String fileName)
-	{
-		
-		return  
-				fileName.toLowerCase().endsWith(".iso") ||
-				fileName.toLowerCase().endsWith(".bin") ||
-				fileName.toLowerCase().endsWith(".cso") ||
-				fileName.toLowerCase().endsWith(".isz");
 	}
 	
 	@Override
@@ -508,13 +455,11 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
 				} else {
 					ImageView preview = (ImageView) childview.findViewById(R.id.game_icon);
 					preview.setImageResource(R.drawable.boxart);
-					preview.setScaleType(ImageView.ScaleType.FIT_XY);
 					((TextView) childview.findViewById(R.id.game_text)).setVisibility(View.VISIBLE);
 				}
-			} else if (IsLoadableExecutableFileName(game.getFile().getName())) {
+			} else if (VirtualMachineManager.IsLoadableExecutableFileName(game.getFile().getName())) {
 				ImageView preview = (ImageView) childview.findViewById(R.id.game_icon);
 				preview.setImageResource(R.drawable.boxart);
-				preview.setScaleType(ImageView.ScaleType.FIT_XY);
 				((TextView) childview.findViewById(R.id.game_text)).setVisibility(View.VISIBLE);
 				childview.findViewById(R.id.childview).setOnLongClickListener(null);
 			} else {
@@ -534,7 +479,6 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
 				} else {
 					ImageView preview = (ImageView) childview.findViewById(R.id.game_icon);
 					preview.setImageResource(R.drawable.boxart);
-					preview.setScaleType(ImageView.ScaleType.FIT_XY);
 					((TextView) childview.findViewById(R.id.game_text)).setVisibility(View.VISIBLE);
 				}
 			}
@@ -557,7 +501,7 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
 		if (game.getFile().exists()){
 			game.setlastplayed(mActivity);
 			try {
-				launchDisk(this, game.getFile());
+				VirtualMachineManager.launchDisk(this, game.getFile());
 			} catch (Exception e) {
 				displaySimpleMessage("Error", e.getMessage());
 			}

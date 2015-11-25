@@ -84,7 +84,8 @@
                         android:layout_width="175dp"
                         android:layout_height="250dp"
                         android:id="@+id/game_icon"
-                        android:layout_gravity="center_horizontal" />
+                        android:layout_gravity="center_horizontal"
+                        android:scaleType="fitXY" />
 
                     <LinearLayout
                         android:orientation="vertical"

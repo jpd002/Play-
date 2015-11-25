@@ -8,16 +8,16 @@ import android.util.Log;
 import com.virtualapplications.play.GameInfoStruct;
 import com.virtualapplications.play.NativeInterop;
 import com.virtualapplications.play.R;
+import com.virtualapplications.play.VirtualMachineManager;
 
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.File;
+import java.io.InputStream;
+
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-
-import static com.virtualapplications.play.MainActivity.IsLoadableExecutableFileName;
-import static com.virtualapplications.play.MainActivity.getExternalMounts;
 
 /**
  * Based On https://github.com/LithidSoftware/android_Findex/blob/master/src/com/lithidsw/findex/utils/FileWalker.java
@@ -34,6 +34,42 @@ public class GameIndexer {
         this.mContext = context;
         mediaTypes = mContext.getResources().getStringArray(R.array.disks);
     }
+
+	public static HashSet<String> getExternalMounts() {
+		final HashSet<String> out = new HashSet<String>();
+		String reg = "(?i).*vold.*(vfat|ntfs|exfat|fat32|ext3|ext4|fuse).*rw.*";
+		String s = "";
+		try {
+			final java.lang.Process process = new ProcessBuilder().command("mount")
+			.redirectErrorStream(true).start();
+			process.waitFor();
+			final InputStream is = process.getInputStream();
+			final byte[] buffer = new byte[1024];
+			while (is.read(buffer) != -1) {
+				s = s + new String(buffer);
+			}
+			is.close();
+		} catch (final Exception e) {
+			
+		}
+		
+		final String[] lines = s.split("\n");
+		for (String line : lines) {
+			if (StringUtils.containsIgnoreCase(line, "secure"))
+				continue;
+			if (StringUtils.containsIgnoreCase(line, "asec"))
+				continue;
+			if (line.matches(reg)) {
+				String[] parts = line.split(" ");
+				for (String part : parts) {
+					if (part.startsWith("/"))
+						if (!StringUtils.containsIgnoreCase(part, "vold"))
+							out.add(part);
+				}
+			}
+		}
+		return out;
+	}
 
     public void startupScan() {
 
@@ -81,7 +117,7 @@ public class GameIndexer {
                         if (!isIndexed(folderPath, f.getName())) {
                             String name = f.getName();
                             String serial = null;
-                            if (!IsLoadableExecutableFileName(f.getPath())) {
+                            if (!VirtualMachineManager.IsLoadableExecutableFileName(f.getPath())) {
                                 serial = getSerial(f);
                                 if (serial == null) continue;
                             }
