@@ -508,13 +508,11 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
 				} else {
 					ImageView preview = (ImageView) childview.findViewById(R.id.game_icon);
 					preview.setImageResource(R.drawable.boxart);
-					preview.setScaleType(ImageView.ScaleType.FIT_XY);
 					((TextView) childview.findViewById(R.id.game_text)).setVisibility(View.VISIBLE);
 				}
 			} else if (IsLoadableExecutableFileName(game.getFile().getName())) {
 				ImageView preview = (ImageView) childview.findViewById(R.id.game_icon);
 				preview.setImageResource(R.drawable.boxart);
-				preview.setScaleType(ImageView.ScaleType.FIT_XY);
 				((TextView) childview.findViewById(R.id.game_text)).setVisibility(View.VISIBLE);
 				childview.findViewById(R.id.childview).setOnLongClickListener(null);
 			} else {
@@ -534,7 +532,6 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
 				} else {
 					ImageView preview = (ImageView) childview.findViewById(R.id.game_icon);
 					preview.setImageResource(R.drawable.boxart);
-					preview.setScaleType(ImageView.ScaleType.FIT_XY);
 					((TextView) childview.findViewById(R.id.game_text)).setVisibility(View.VISIBLE);
 				}
 			}
