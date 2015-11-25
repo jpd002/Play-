@@ -816,6 +816,7 @@ void CGSH_Direct3D9::SetRenderingContext(uint64 primReg)
 	uint64 tex0Reg = m_nReg[GS_REG_TEX0_1 + context];
 	uint64 tex1Reg = m_nReg[GS_REG_TEX1_1 + context];
 	uint64 clampReg = m_nReg[GS_REG_CLAMP_1 + context];
+	uint64 scissorReg = m_nReg[GS_REG_SCISSOR_1 + context];
 
 	if(!m_renderState.isValid ||
 		(m_renderState.primReg != primReg))
@@ -843,9 +844,10 @@ void CGSH_Direct3D9::SetRenderingContext(uint64 primReg)
 	}
 
 	if(!m_renderState.isValid ||
-		(m_renderState.frameReg != frameReg))
+		(m_renderState.frameReg != frameReg) ||
+		(m_renderState.scissorReg != scissorReg))
 	{
-		SetupFramebuffer(frameReg);
+		SetupFramebuffer(frameReg, scissorReg);
 	}
 
 	if(!m_renderState.isValid ||
@@ -865,6 +867,7 @@ void CGSH_Direct3D9::SetRenderingContext(uint64 primReg)
 	m_renderState.tex0Reg = tex0Reg;
 	m_renderState.tex1Reg = tex1Reg;
 	m_renderState.clampReg = clampReg;
+	m_renderState.scissorReg = scissorReg;
 
 	auto offset = make_convertible<XYOFFSET>(m_nReg[GS_REG_XYOFFSET_1 + context]);
 	m_nPrimOfsX = offset.GetX();
@@ -1081,11 +1084,12 @@ void CGSH_Direct3D9::SetupTexture(uint64 tex0Reg, uint64 tex1Reg, uint64 clampRe
 	m_device->SetSamplerState(0, D3DSAMP_MIPFILTER, nMipFilter);
 }
 
-void CGSH_Direct3D9::SetupFramebuffer(uint64 frameReg)
+void CGSH_Direct3D9::SetupFramebuffer(uint64 frameReg, uint64 scissorReg)
 {
 	if(frameReg == 0) return;
 
 	auto frame = make_convertible<FRAME>(frameReg);
+	auto scissor = make_convertible<SCISSOR>(scissorReg);
 
 	{
 		bool r = (frame.nMask & 0x000000FF) == 0;
@@ -1120,6 +1124,14 @@ void CGSH_Direct3D9::SetupFramebuffer(uint64 frameReg)
 
 	result = m_device->SetRenderTarget(0, renderSurface);
 	assert(SUCCEEDED(result));
+
+	RECT scissorRect = {};
+	scissorRect.left = scissor.scax0;
+	scissorRect.top = scissor.scay0;
+	scissorRect.right = scissor.scax1 + 1;
+	scissorRect.bottom = scissor.scay1 + 1;
+	m_device->SetScissorRect(&scissorRect);
+	m_device->SetRenderState(D3DRS_SCISSORTESTENABLE, TRUE);
 
 	SetReadCircuitMatrix(projWidth, projHeight);
 }
