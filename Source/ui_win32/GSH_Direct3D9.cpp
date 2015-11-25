@@ -1104,11 +1104,13 @@ void CGSH_Direct3D9::SetupFramebuffer(uint64 frameReg, uint64 scissorReg)
 		m_device->SetRenderState(D3DRS_COLORWRITEENABLE, colorMask);
 	}
 
+	bool newFramebuffer = false;
 	auto framebuffer = FindFramebuffer(frameReg);
 	if(!framebuffer)
 	{
 		framebuffer = FramebufferPtr(new CFramebuffer(m_device, frame.GetBasePtr(), frame.GetWidth(), 1024, frame.nPsm));
 		m_framebuffers.push_back(framebuffer);
+		newFramebuffer = true;
 	}
 
 	//Any framebuffer selected at this point can be used as a texture
@@ -1124,6 +1126,13 @@ void CGSH_Direct3D9::SetupFramebuffer(uint64 frameReg, uint64 scissorReg)
 
 	result = m_device->SetRenderTarget(0, renderSurface);
 	assert(SUCCEEDED(result));
+
+	if(newFramebuffer)
+	{
+		//TODO: Get actual contents from GS RAM
+		m_device->SetRenderState(D3DRS_SCISSORTESTENABLE, FALSE);
+		m_device->Clear(0, NULL, D3DCLEAR_TARGET, D3DCOLOR_ARGB(0, 0, 0, 0), 1.0f, 0);
+	}
 
 	RECT scissorRect = {};
 	scissorRect.left = scissor.scax0;
