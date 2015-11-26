@@ -67,9 +67,6 @@
     <ClCompile Include="..\Source\ui_win32\PH_DirectInput.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\Source\ui_win32\RendererSettingsWnd.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\Source\ui_win32\SaveIconView.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -214,6 +211,24 @@
     <ClCompile Include="..\Source\ui_win32\MemoryCardView.cpp">
       <Filter>Source Files\MCManager</Filter>
     </ClCompile>
+    <ClCompile Include="..\Source\ui_win32\GSH_OpenGL_SettingsWnd.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\ui_win32\VirtualPad\VirtualPadButton.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\ui_win32\VirtualPad\VirtualPadItem.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\ui_win32\VirtualPad\VirtualPadStick.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\ui_win32\VirtualPad\VirtualPadWindow.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\PH_Generic.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Source\ui_win32\AboutWnd.h">
@@ -274,9 +289,6 @@
       <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="..\Source\ui_win32\PH_DirectInput.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Source\ui_win32\RendererSettingsWnd.h">
       <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="..\Source\ui_win32\resource.h">
@@ -435,34 +447,52 @@
     <ClInclude Include="..\Source\ui_win32\MemoryCardView.h">
       <Filter>Source Files\MCManager</Filter>
     </ClInclude>
+    <ClInclude Include="..\Source\ui_win32\GSH_OpenGL_SettingsWnd.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\ui_win32\VirtualPad\VirtualPadButton.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\ui_win32\VirtualPad\VirtualPadItem.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\ui_win32\VirtualPad\VirtualPadStick.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\ui_win32\VirtualPad\VirtualPadWindow.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\PH_Generic.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\Source\ui_win32\Images\arrow.bmp">
-      <Filter>Source Files</Filter>
-    </None>
-    <None Include="..\Source\ui_win32\Images\bpoint.bmp">
-      <Filter>Source Files</Filter>
-    </None>
-    <None Include="..\Source\ui_win32\FrameDebugger\CheckerboardShader.fx">
-      <Filter>Source Files</Filter>
-    </None>
-    <None Include="..\Source\ui_win32\images\grab.cur">
-      <Filter>Source Files</Filter>
-    </None>
-    <None Include="..\Source\ui_win32\images\grabbing.cur">
-      <Filter>Source Files</Filter>
-    </None>
     <None Include="..\Source\License.txt">
       <Filter>Source Files</Filter>
     </None>
     <None Include="packages.config">
       <Filter>Source Files</Filter>
     </None>
-    <None Include="..\Source\ui_win32\Images\play.ico">
-      <Filter>Source Files</Filter>
-    </None>
     <None Include="..\Source\ui_win32\FrameDebugger\PixelBufferViewShader.fx">
       <Filter>Source Files\Frame Debugger</Filter>
+    </None>
+    <None Include="..\Source\ui_win32\Images\arrow.bmp">
+      <Filter>Source Files\Resources</Filter>
+    </None>
+    <None Include="..\Source\ui_win32\Images\bpoint.bmp">
+      <Filter>Source Files\Resources</Filter>
+    </None>
+    <None Include="..\Source\ui_win32\images\grab.cur">
+      <Filter>Source Files\Resources</Filter>
+    </None>
+    <None Include="..\Source\ui_win32\images\grabbing.cur">
+      <Filter>Source Files\Resources</Filter>
+    </None>
+    <None Include="..\Source\ui_win32\FrameDebugger\CheckerboardShader.fx">
+      <Filter>Source Files\Resources</Filter>
+    </None>
+    <None Include="..\Source\ui_win32\Images\play.ico">
+      <Filter>Source Files\Resources</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>
@@ -478,10 +508,51 @@
     <Filter Include="Source Files\MCManager">
       <UniqueIdentifier>{b8291f37-80d2-4d67-82d5-408507fc19a8}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\Resources">
+      <UniqueIdentifier>{a31f15c3-0c2f-4960-837f-2f782d8bdf69}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="..\Source\ui_win32\SysInfo_x64.asm">
       <Filter>Source Files</Filter>
     </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="..\Source\ui_win32\Images\analogstick.png">
+      <Filter>Source Files\Resources</Filter>
+    </Image>
+    <Image Include="..\Source\ui_win32\Images\circle.png">
+      <Filter>Source Files\Resources</Filter>
+    </Image>
+    <Image Include="..\Source\ui_win32\Images\cross.png">
+      <Filter>Source Files\Resources</Filter>
+    </Image>
+    <Image Include="..\Source\ui_win32\Images\down.png">
+      <Filter>Source Files\Resources</Filter>
+    </Image>
+    <Image Include="..\Source\ui_win32\Images\left.png">
+      <Filter>Source Files\Resources</Filter>
+    </Image>
+    <Image Include="..\Source\ui_win32\Images\lr.png">
+      <Filter>Source Files\Resources</Filter>
+    </Image>
+    <Image Include="..\Source\ui_win32\Images\right.png">
+      <Filter>Source Files\Resources</Filter>
+    </Image>
+    <Image Include="..\Source\ui_win32\Images\select.png">
+      <Filter>Source Files\Resources</Filter>
+    </Image>
+    <Image Include="..\Source\ui_win32\Images\square.png">
+      <Filter>Source Files\Resources</Filter>
+    </Image>
+    <Image Include="..\Source\ui_win32\Images\start.png">
+      <Filter>Source Files\Resources</Filter>
+    </Image>
+    <Image Include="..\Source\ui_win32\Images\triangle.png">
+      <Filter>Source Files\Resources</Filter>
+    </Image>
+    <Image Include="..\Source\ui_win32\Images\up.png">
+      <Filter>Source Files\Resources</Filter>
+    </Image>
   </ItemGroup>
 </Project>
