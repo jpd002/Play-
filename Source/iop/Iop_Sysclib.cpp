@@ -80,6 +80,9 @@ std::string CSysclib::GetFunctionName(unsigned int functionId) const
 	case 36:
 		return "strtol";
 		break;
+	case 40:
+		return "wmemcopy";
+		break;
 	case 41:
 		return "wmemset";
 		break;
@@ -209,6 +212,13 @@ void CSysclib::Invoke(CMIPS& context, unsigned int functionId)
 		assert(context.m_State.nGPR[CMIPS::A1].nV0 == 0);
 		context.m_State.nGPR[CMIPS::V0].nD0 = static_cast<int32>(__strtol(
 			reinterpret_cast<char*>(&m_ram[context.m_State.nGPR[CMIPS::A0].nV0]),
+			context.m_State.nGPR[CMIPS::A2].nV0
+			));
+		break;
+	case 40:
+		context.m_State.nGPR[CMIPS::V0].nD0 = static_cast<int32>(__wmemcopy(
+			context.m_State.nGPR[CMIPS::A0].nV0,
+			context.m_State.nGPR[CMIPS::A1].nV0,
 			context.m_State.nGPR[CMIPS::A2].nV0
 			));
 		break;
@@ -356,4 +366,13 @@ uint32 CSysclib::__strcspn(uint32 str1Ptr, uint32 str2Ptr)
 uint32 CSysclib::__strtol(const char* string, unsigned int radix)
 {
 	return strtol(string, NULL, radix);
+}
+
+uint32 CSysclib::__wmemcopy(uint32 dstPtr, uint32 srcPtr, uint32 size)
+{
+	assert((size & 0x3) == 0);
+	auto dst = reinterpret_cast<uint8*>(m_ram + dstPtr);
+	auto src = reinterpret_cast<uint8*>(m_ram + srcPtr);
+	memmove(dst, src, size);
+	return dstPtr;
 }

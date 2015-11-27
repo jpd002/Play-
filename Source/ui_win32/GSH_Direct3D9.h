@@ -82,6 +82,7 @@ private:
 		uint64		tex0Reg;
 		uint64		tex1Reg;
 		uint64		clampReg;
+		uint64		scissorReg;
 	};
 
 	class CCachedTexture
@@ -168,7 +169,7 @@ private:
 	void							SetupTestFunctions(uint64);
 	void							SetupDepthBuffer(uint64, uint64);
 	void							SetupTexture(uint64, uint64, uint64);
-	void							SetupFramebuffer(uint64);
+	void							SetupFramebuffer(uint64, uint64);
 	TEXTURE_INFO					LoadTexture(const TEX0&, const TEX1&, const CLAMP&);
 	void							GetTextureImpl(Framework::CBitmap&, uint64, uint64, uint64);
 

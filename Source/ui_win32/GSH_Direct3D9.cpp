@@ -131,6 +131,7 @@ void CGSH_Direct3D9::ResetImpl()
 	memset(&m_vtxBuffer, 0, sizeof(m_vtxBuffer));
 	m_framebuffers.clear();
 	m_depthbuffers.clear();
+	m_renderState.isValid = false;
 	CGSHandler::ResetImpl();
 }
 
@@ -816,6 +817,7 @@ void CGSH_Direct3D9::SetRenderingContext(uint64 primReg)
 	uint64 tex0Reg = m_nReg[GS_REG_TEX0_1 + context];
 	uint64 tex1Reg = m_nReg[GS_REG_TEX1_1 + context];
 	uint64 clampReg = m_nReg[GS_REG_CLAMP_1 + context];
+	uint64 scissorReg = m_nReg[GS_REG_SCISSOR_1 + context];
 
 	if(!m_renderState.isValid ||
 		(m_renderState.primReg != primReg))
@@ -843,9 +845,10 @@ void CGSH_Direct3D9::SetRenderingContext(uint64 primReg)
 	}
 
 	if(!m_renderState.isValid ||
-		(m_renderState.frameReg != frameReg))
+		(m_renderState.frameReg != frameReg) ||
+		(m_renderState.scissorReg != scissorReg))
 	{
-		SetupFramebuffer(frameReg);
+		SetupFramebuffer(frameReg, scissorReg);
 	}
 
 	if(!m_renderState.isValid ||
@@ -865,6 +868,7 @@ void CGSH_Direct3D9::SetRenderingContext(uint64 primReg)
 	m_renderState.tex0Reg = tex0Reg;
 	m_renderState.tex1Reg = tex1Reg;
 	m_renderState.clampReg = clampReg;
+	m_renderState.scissorReg = scissorReg;
 
 	auto offset = make_convertible<XYOFFSET>(m_nReg[GS_REG_XYOFFSET_1 + context]);
 	m_nPrimOfsX = offset.GetX();
@@ -1081,11 +1085,12 @@ void CGSH_Direct3D9::SetupTexture(uint64 tex0Reg, uint64 tex1Reg, uint64 clampRe
 	m_device->SetSamplerState(0, D3DSAMP_MIPFILTER, nMipFilter);
 }
 
-void CGSH_Direct3D9::SetupFramebuffer(uint64 frameReg)
+void CGSH_Direct3D9::SetupFramebuffer(uint64 frameReg, uint64 scissorReg)
 {
 	if(frameReg == 0) return;
 
 	auto frame = make_convertible<FRAME>(frameReg);
+	auto scissor = make_convertible<SCISSOR>(scissorReg);
 
 	{
 		bool r = (frame.nMask & 0x000000FF) == 0;
@@ -1100,11 +1105,13 @@ void CGSH_Direct3D9::SetupFramebuffer(uint64 frameReg)
 		m_device->SetRenderState(D3DRS_COLORWRITEENABLE, colorMask);
 	}
 
+	bool newFramebuffer = false;
 	auto framebuffer = FindFramebuffer(frameReg);
 	if(!framebuffer)
 	{
 		framebuffer = FramebufferPtr(new CFramebuffer(m_device, frame.GetBasePtr(), frame.GetWidth(), 1024, frame.nPsm));
 		m_framebuffers.push_back(framebuffer);
+		newFramebuffer = true;
 	}
 
 	//Any framebuffer selected at this point can be used as a texture
@@ -1120,6 +1127,21 @@ void CGSH_Direct3D9::SetupFramebuffer(uint64 frameReg)
 
 	result = m_device->SetRenderTarget(0, renderSurface);
 	assert(SUCCEEDED(result));
+
+	if(newFramebuffer)
+	{
+		//TODO: Get actual contents from GS RAM
+		m_device->SetRenderState(D3DRS_SCISSORTESTENABLE, FALSE);
+		m_device->Clear(0, NULL, D3DCLEAR_TARGET, D3DCOLOR_ARGB(0, 0, 0, 0), 1.0f, 0);
+	}
+
+	RECT scissorRect = {};
+	scissorRect.left = scissor.scax0;
+	scissorRect.top = scissor.scay0;
+	scissorRect.right = scissor.scax1 + 1;
+	scissorRect.bottom = scissor.scay1 + 1;
+	m_device->SetScissorRect(&scissorRect);
+	m_device->SetRenderState(D3DRS_SCISSORTESTENABLE, TRUE);
 
 	SetReadCircuitMatrix(projWidth, projHeight);
 }
