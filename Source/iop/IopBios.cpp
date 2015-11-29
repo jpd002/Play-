@@ -69,8 +69,6 @@
 //This is the space needed to preserve at most four arguments in the stack frame (as per MIPS calling convention)
 #define STACK_FRAME_RESERVE_SIZE		0x10
 
-#define ERROR_SEMAPHORE_ZERO	(-419)
-
 CIopBios::CIopBios(CMIPS& cpu, uint8* ram, uint32 ramSize) 
 : m_cpu(cpu)
 , m_ram(ram)
@@ -1512,7 +1510,7 @@ uint32 CIopBios::PollSemaphore(uint32 semaphoreId)
 
 	if(semaphore->count == 0)
 	{
-		return ERROR_SEMAPHORE_ZERO;
+		return KERNEL_RESULT_ERROR_SEMA_ZERO;
 	}
 
 	semaphore->count--;
