@@ -59,7 +59,7 @@ CSubSystem::CSubSystem(uint8* iopRam, CIopBios& iopBios)
 	{
 		//Read map
 		m_EE.m_pMemoryMap->InsertReadMap(0x00000000,			0x01FFFFFF,									m_ram,														0x00);
-		m_EE.m_pMemoryMap->InsertReadMap(0x02000000,			0x02003FFF,									m_spr,														0x01);
+		m_EE.m_pMemoryMap->InsertReadMap(PS2::EE_SPR_ADDR,		PS2::EE_SPR_ADDR + PS2::EE_SPR_SIZE,		m_spr,														0x01);
 		m_EE.m_pMemoryMap->InsertReadMap(0x10000000,			0x10FFFFFF,									bind(&CSubSystem::IOPortReadHandler, this, PLACEHOLDER_1),	0x02);
 		m_EE.m_pMemoryMap->InsertReadMap(PS2::MICROMEM0ADDR,	PS2::MICROMEM0ADDR + PS2::MICROMEM0SIZE,	m_microMem0,												0x03);
 		m_EE.m_pMemoryMap->InsertReadMap(PS2::VUMEM0ADDR,		PS2::VUMEM0ADDR + PS2::VUMEM0SIZE,			m_vuMem0,													0x04);
@@ -71,7 +71,7 @@ CSubSystem::CSubSystem(uint8* iopRam, CIopBios& iopBios)
 
 		//Write map
 		m_EE.m_pMemoryMap->InsertWriteMap(0x00000000,			0x01FFFFFF,									m_ram,																			0x00);
-		m_EE.m_pMemoryMap->InsertWriteMap(0x02000000,			0x02003FFF,									m_spr,																			0x01);
+		m_EE.m_pMemoryMap->InsertWriteMap(PS2::EE_SPR_ADDR,		PS2::EE_SPR_ADDR + PS2::EE_SPR_SIZE,		m_spr,																			0x01);
 		m_EE.m_pMemoryMap->InsertWriteMap(0x10000000,			0x10FFFFFF,									bind(&CSubSystem::IOPortWriteHandler, this, PLACEHOLDER_1, PLACEHOLDER_2),		0x02);
 		m_EE.m_pMemoryMap->InsertWriteMap(PS2::MICROMEM0ADDR,	PS2::MICROMEM0ADDR + PS2::MICROMEM0SIZE,	bind(&CSubSystem::Vu0MicroMemWriteHandler, this, PLACEHOLDER_1, PLACEHOLDER_2),	0x03);
 		m_EE.m_pMemoryMap->InsertWriteMap(PS2::VUMEM0ADDR,		PS2::VUMEM0ADDR + PS2::VUMEM0SIZE,			m_vuMem0,																		0x04);

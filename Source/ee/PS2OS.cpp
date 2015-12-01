@@ -1277,10 +1277,13 @@ uint32 CPS2OS::TranslateAddress(CMIPS*, uint32 vaddrLo)
 {
 	if(vaddrLo >= 0x70000000 && vaddrLo <= 0x70003FFF)
 	{
-		return (vaddrLo - 0x6E000000);
+		//SPR memory access, the TLB entry for this should have the SPR bit set
+		static const uint32 addressFixUp = 0x70000000 - PS2::EE_SPR_ADDR;
+		return (vaddrLo - addressFixUp);
 	}
 	if(vaddrLo >= 0x30100000 && vaddrLo <= 0x31FFFFFF)
 	{
+		//RAM access, "uncached & accelerated" as per TLB entry
 		return (vaddrLo - 0x30000000);
 	}
 	return vaddrLo & 0x1FFFFFFF;

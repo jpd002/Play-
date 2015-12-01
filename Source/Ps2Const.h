@@ -20,6 +20,8 @@ namespace PS2
 
 	enum
 	{
+		//Technically, SPR isn't mapped in the EE's physical address space
+		EE_SPR_ADDR = 0x02000000,
 		EE_SPR_SIZE = 0x00004000,
 	};
 
