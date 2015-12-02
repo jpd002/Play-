@@ -58,6 +58,13 @@ CPS2VM* g_virtualMachine = nullptr;
 	[self.view addSubview: self.virtualPadView];
 
 	[self setupFpsCounter];
+
+	UIButton* but = [UIButton buttonWithType: UIButtonTypeRoundedRect];
+	[but setTitle: @"Save" forState: UIControlStateNormal];
+	[but setBackgroundColor: [UIColor whiteColor]];
+	[but addTarget: self action: @selector(onSaveStateButtonClick) forControlEvents: UIControlEventTouchUpInside];
+	but.frame = CGRectMake(screenBounds.size.width - 50, (screenBounds.size.height - 25) / 2, 50, 25);
+	[self.view addSubview: but];
 	
 	g_virtualMachine->Pause();
 	g_virtualMachine->Reset();
@@ -224,6 +231,14 @@ CPS2VM* g_virtualMachine = nullptr;
 		self.drawCallCount = 0;
 	}
 	[self.fpsCounterLabel sizeToFit];
+}
+
+-(void)onSaveStateButtonClick
+{
+	auto dataPath = Framework::PathUtils::GetPersonalDataPath();
+	auto statePath = dataPath / "state.sta";
+	g_virtualMachine->SaveState(statePath.c_str());
+	NSLog(@"Saved state to '%s'.", statePath.string().c_str());
 }
 
 -(BOOL)prefersStatusBarHidden
