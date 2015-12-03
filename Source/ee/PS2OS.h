@@ -32,7 +32,8 @@ public:
 	void										DumpDmacHandlers();
 
 	void										BootFromFile(const char*);
-	void										BootFromCDROM(const ArgumentList&);
+	void										BootFromVirtualPath(const char*, const ArgumentList&);
+	void										BootFromCDROM();
 	CELF*										GetELF();
 	const char*									GetExecutableName() const;
 	std::pair<uint32, uint32>					GetExecutableRange() const;

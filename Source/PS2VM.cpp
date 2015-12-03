@@ -705,7 +705,7 @@ void CPS2VM::RegisterModulesInPadHandler()
 void CPS2VM::ReloadExecutable(const char* executablePath, const CPS2OS::ArgumentList& arguments)
 {
 	ResetVM();
-	m_ee->m_os->BootFromCDROM(arguments);
+	m_ee->m_os->BootFromVirtualPath(executablePath, arguments);
 }
 
 void CPS2VM::EmuThread()

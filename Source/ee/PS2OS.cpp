@@ -295,10 +295,34 @@ void CPS2OS::BootFromFile(const char* sPath)
 	LoadELF(stream, execPath.filename().string().c_str(), ArgumentList());
 }
 
-void CPS2OS::BootFromCDROM(const ArgumentList& arguments)
+void CPS2OS::BootFromVirtualPath(const char* executablePath, const ArgumentList& arguments)
+{
+	auto ioman = m_iopBios.GetIoman();
+
+	uint32 handle = ioman->Open(Iop::Ioman::CDevice::OPEN_FLAG_RDONLY, executablePath);
+	if(static_cast<int32>(handle) < 0)
+	{
+		throw std::runtime_error("Couldn't open executable specified by virtual path.");
+	}
+
+	try
+	{
+		const char* executableName = strchr(executablePath, ':') + 1;
+		if(executableName[0] == '/' || executableName[0] == '\\') executableName++;
+		Framework::CStream* file(ioman->GetFileStream(handle));
+		LoadELF(*file, executableName, arguments);
+	}
+	catch(...)
+	{
+		throw std::runtime_error("Error occured while reading ELF executable from virtual path.");
+	}
+	ioman->Close(handle);
+}
+
+void CPS2OS::BootFromCDROM()
 {
 	std::string executablePath;
-	Iop::CIoman* ioman = m_iopBios.GetIoman();
+	auto ioman = m_iopBios.GetIoman();
 
 	{
 		uint32 handle = ioman->Open(Iop::Ioman::CDevice::OPEN_FLAG_RDONLY, "cdrom0:SYSTEM.CNF");
@@ -325,26 +349,7 @@ void CPS2OS::BootFromCDROM(const ArgumentList& arguments)
 		throw std::runtime_error("Error parsing 'SYSTEM.CNF' for a BOOT2 value.");
 	}
 
-	{
-		uint32 handle = ioman->Open(Iop::Ioman::CDevice::OPEN_FLAG_RDONLY, executablePath.c_str());
-		if(static_cast<int32>(handle) < 0)
-		{
-			throw std::runtime_error("Couldn't open executable specified in SYSTEM.CNF.");
-		}
-
-		try
-		{
-			const char* executableName = strchr(executablePath.c_str(), ':') + 1;
-			if(executableName[0] == '/' || executableName[0] == '\\') executableName++;
-			Framework::CStream* file(ioman->GetFileStream(handle));
-			LoadELF(*file, executableName, arguments);
-		}
-		catch(...)
-		{
-			throw std::runtime_error("Error occured while reading ELF executable from disk.");
-		}
-		ioman->Close(handle);
-	}
+	BootFromVirtualPath(executablePath.c_str(), ArgumentList());
 }
 
 CELF* CPS2OS::GetELF()
@@ -1322,19 +1327,24 @@ void CPS2OS::sc_Exit()
 //06
 void CPS2OS::sc_LoadExecPS2()
 {
-	uint32 fileNamePtr	= m_ee.m_State.nGPR[SC_PARAM0].nV[0];
+	uint32 filePathPtr	= m_ee.m_State.nGPR[SC_PARAM0].nV[0];
 	uint32 argCount		= m_ee.m_State.nGPR[SC_PARAM1].nV[0];
 	uint32 argValuesPtr	= m_ee.m_State.nGPR[SC_PARAM2].nV[0];
 
 	ArgumentList arguments;
 	for(uint32 i = 0; i < argCount; i++)
 	{
-		uint32 argValuePtr = *reinterpret_cast<uint32*>(m_ram + argValuesPtr + i * 4);
-		arguments.push_back(reinterpret_cast<const char*>(m_ram + argValuePtr));
+		uint32 argValuePtr = *reinterpret_cast<uint32*>(GetStructPtr(argValuesPtr + i * 4));
+		arguments.push_back(reinterpret_cast<const char*>(GetStructPtr(argValuePtr)));
 	}
 
-	std::string fileName = reinterpret_cast<const char*>(m_ram + fileNamePtr);
-	OnRequestLoadExecutable(fileName.c_str(), arguments);
+	std::string filePath = reinterpret_cast<const char*>(GetStructPtr(filePathPtr));
+	if(filePath.find(':') == std::string::npos)
+	{
+		//Unreal Tournament doesn't provide drive info in path
+		filePath = "cdrom0:" + filePath;
+	}
+	OnRequestLoadExecutable(filePath.c_str(), arguments);
 }
 
 //07
