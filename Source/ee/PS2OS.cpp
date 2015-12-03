@@ -1202,8 +1202,9 @@ void CPS2OS::SetVsyncFlagPtrs(uint32 value1Ptr, uint32 value2Ptr)
 
 uint8* CPS2OS::GetStructPtr(uint32 address) const
 {
+	address = TranslateAddress(nullptr, address);
 	uint8* memory = nullptr;
-	if(address >= 0x70000000)
+	if((address >= PS2::EE_SPR_ADDR) && (address < (PS2::EE_SPR_ADDR + PS2::EE_SPR_SIZE)))
 	{
 		address &= (PS2::EE_SPR_SIZE - 1);
 		memory = m_spr;
