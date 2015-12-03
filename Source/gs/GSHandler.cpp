@@ -84,6 +84,7 @@ CGSHandler::CGSHandler()
 	m_pTransferHandler[PSMCT32]					= &CGSHandler::TrxHandlerCopy<CGsPixelFormats::STORAGEPSMCT32>;
 	m_pTransferHandler[PSMCT24]					= &CGSHandler::TrxHandlerPSMCT24;
 	m_pTransferHandler[PSMCT16]					= &CGSHandler::TrxHandlerCopy<CGsPixelFormats::STORAGEPSMCT16>;
+	m_pTransferHandler[PSMCT16S]				= &CGSHandler::TrxHandlerCopy<CGsPixelFormats::STORAGEPSMCT16S>;
 	m_pTransferHandler[PSMT8]					= &CGSHandler::TrxHandlerCopy<CGsPixelFormats::STORAGEPSMT8>;
 	m_pTransferHandler[PSMT4]					= &CGSHandler::TrxHandlerPSMT4;
 	m_pTransferHandler[PSMT8H]					= &CGSHandler::TrxHandlerPSMT8H;
@@ -598,6 +599,7 @@ void CGSHandler::BeginTransfer()
 			nPixelSize = 24;
 			break;
 		case PSMCT16:
+		case PSMCT16S:
 			nPixelSize = 16;
 			break;
 		case PSMT8:
