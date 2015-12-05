@@ -76,6 +76,7 @@ private:
 		void								ADDi();
 		void								MADDi();
 		void								SUBq();
+		void								MSUBq();
 		void								SUBi();
 		void								MSUBi();
 		void								ADD();
