@@ -566,6 +566,7 @@ void CVif::Cmd_UNPACK(StreamType& stream, CODE nCommand, uint32 nDstAddr)
 	bool useMask = (nCommand.nCMD & 0x10) != 0;
 	uint32 cl = m_CYCLE.nCL;
 	uint32 wl = m_CYCLE.nWL;
+	if(wl == 0) wl = UINT_MAX;
 
 	if(m_NUM == nCommand.nNUM)
 	{
@@ -576,14 +577,21 @@ void CVif::Cmd_UNPACK(StreamType& stream, CODE nCommand, uint32 nDstAddr)
 	uint32 currentNum = (m_NUM == 0) ? 256 : m_NUM;
 	uint32 codeNum = (m_CODE.nNUM == 0) ? 256 : m_CODE.nNUM;
 	uint32 transfered = codeNum - currentNum;
-	assert(transfered == 0 || cl == wl);	//The value above is only valid for specific combinations of cl and wl
 
-	nDstAddr += transfered;
+	if(cl > wl)
+	{
+		nDstAddr += cl * (transfered / wl) + (transfered % wl);
+	}
+	else
+	{
+		nDstAddr += transfered;
+	}
+
 	nDstAddr *= 0x10;
 
 	uint128* dst = reinterpret_cast<uint128*>(m_vpu.GetVuMemory() + nDstAddr);
 
-	while((currentNum != 0) && stream.GetAvailableReadBytes())
+	while(currentNum != 0)
 	{
 		bool mustWrite = false;
 		uint128 writeValue;
