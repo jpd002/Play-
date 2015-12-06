@@ -307,6 +307,7 @@ private:
 		void								MFP();
 		void								XTOP();
 		void								XGKICK();
+		void								ESADD();
 		void								ESQRT();
 		void								ESIN();
 
