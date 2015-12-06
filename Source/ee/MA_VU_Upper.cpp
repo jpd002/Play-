@@ -98,7 +98,7 @@ void CMA_VU::CUpper::MADDbc()
 //0F
 void CMA_VU::CUpper::MSUBbc()
 {
-	VUShared::MSUBbc(m_codeGen, m_nDest, m_nFD, m_nFS, m_nFT, m_nBc);
+	VUShared::MSUBbc(m_codeGen, m_nDest, m_nFD, m_nFS, m_nFT, m_nBc, m_relativePipeTime);
 }
 
 //10

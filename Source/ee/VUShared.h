@@ -126,7 +126,7 @@ namespace VUShared
 	void						MOVE(CMipsJitter*, uint8, uint8, uint8);
 	void						MR32(CMipsJitter*, uint8, uint8, uint8);
 	void						MSUB(CMipsJitter*, uint8, uint8, uint8, uint8, uint32);
-	void						MSUBbc(CMipsJitter*, uint8, uint8, uint8, uint8, uint8);
+	void						MSUBbc(CMipsJitter*, uint8, uint8, uint8, uint8, uint8, uint32);
 	void						MSUBi(CMipsJitter*, uint8, uint8, uint8);
 	void						MSUBq(CMipsJitter*, uint8, uint8, uint8);
 	void						MSUBA(CMipsJitter*, uint8, uint8, uint8, uint32);
