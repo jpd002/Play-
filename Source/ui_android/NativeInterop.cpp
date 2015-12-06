@@ -122,7 +122,7 @@ extern "C" JNIEXPORT void JNICALL Java_com_virtualapplications_play_NativeIntero
 	g_virtualMachine->Reset();
 	try
 	{
-		g_virtualMachine->m_ee->m_os->BootFromCDROM(CPS2OS::ArgumentList());
+		g_virtualMachine->m_ee->m_os->BootFromCDROM();
 	}
 	catch(const std::exception& exception)
 	{
