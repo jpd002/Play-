@@ -77,7 +77,7 @@ CPS2VM* g_virtualMachine = nullptr;
 	{
 		CAppConfig::GetInstance().SetPreferenceString(PS2VM_CDROM0PATH, [self.imagePath UTF8String]);
 		g_virtualMachine->Reset();
-		g_virtualMachine->m_ee->m_os->BootFromCDROM(CPS2OS::ArgumentList());
+		g_virtualMachine->m_ee->m_os->BootFromCDROM();
 	}
 
 	g_virtualMachine->Resume();

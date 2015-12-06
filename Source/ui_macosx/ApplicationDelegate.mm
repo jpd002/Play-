@@ -170,7 +170,7 @@
 	try
 	{
 		CPS2OS* os = g_virtualMachine->m_ee->m_os;
-		os->BootFromCDROM(CPS2OS::ArgumentList());
+		os->BootFromCDROM();
 		[self updateTitle];
 		g_virtualMachine->Resume();
 	}
