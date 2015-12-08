@@ -237,38 +237,6 @@ void CGSH_OpenGL::FlipImpl()
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
-#ifndef GLES_COMPATIBILITY
-		glUseProgram(0);
-
-		glMatrixMode(GL_PROJECTION);
-		glPushMatrix();
-		glLoadIdentity();
-
-		glDisable(GL_ALPHA_TEST);
-		glColor4f(1, 1, 1, 1);
-
-		glMatrixMode(GL_TEXTURE);
-		glLoadIdentity();
-
-		glBegin(GL_QUADS);
-		{
-			glTexCoord2f(u1, v0);
-			glVertex2f(1, 1);
-
-			glTexCoord2f(u1, v1);
-			glVertex2f(1, -1);
-
-			glTexCoord2f(u0, v1);
-			glVertex2f(-1, -1);
-
-			glTexCoord2f(u0, v0);
-			glVertex2f(-1, 1);
-		}
-		glEnd();
-
-		glMatrixMode(GL_PROJECTION);
-		glPopMatrix();
-#else
 		glUseProgram(*m_presentProgram);
 
 		assert(m_presentTextureUniform != -1);
@@ -285,7 +253,6 @@ void CGSH_OpenGL::FlipImpl()
 #endif
 
 		glDrawArrays(GL_TRIANGLES, 0, 3);
-#endif
 	}
 
 	CHECKGLERROR();
@@ -323,26 +290,7 @@ void CGSH_OpenGL::InitializeRC()
 {
 	//Initialize basic stuff
 	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
-#ifndef GLES_COMPATIBILITY
-	glClearDepth(0.0f);
-#else
 	glClearDepthf(0.0f);
-#endif
-
-#ifndef GLES_COMPATIBILITY
-	glEnable(GL_TEXTURE_2D);
-#endif
-
-#ifndef GLES_COMPATIBILITY
-	glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
-
-	//Initialize fog
-	glFogi(GL_FOG_MODE, GL_LINEAR);
-	glFogf(GL_FOG_START, 0.0f);
-	glFogf(GL_FOG_END, 1.0f);
-	glHint(GL_FOG_HINT, GL_NICEST);
-	glFogi(GL_FOG_COORDINATE_SOURCE_EXT, GL_FOG_COORDINATE_EXT);
-#endif
 
 	SetupTextureUploaders();
 
@@ -351,7 +299,6 @@ void CGSH_OpenGL::InitializeRC()
 	glDisable(GL_TEXTURE_2D);
 #endif
 
-#ifdef GLES_COMPATIBILITY
 	m_presentProgram = GeneratePresentProgram();
 	m_presentVertexBuffer = GeneratePresentVertexBuffer();
 	m_presentVertexArray = GeneratePresentVertexArray();
@@ -360,7 +307,6 @@ void CGSH_OpenGL::InitializeRC()
 
 	m_primBuffer = Framework::OpenGl::CBuffer::Create();
 	m_primVertexArray = GeneratePrimVertexArray();
-#endif
 
 	PresentBackbuffer();
 
@@ -626,17 +572,6 @@ void CGSH_OpenGL::SetRenderingContext(uint64 primReg)
 //		{
 //			glDisable(GL_BLEND);
 //		}
-
-#ifndef GLES_COMPATIBILITY
-		if(prim.nShading)
-		{
-			glShadeModel(GL_SMOOTH);
-		}
-		else
-		{
-			glShadeModel(GL_FLAT);
-		}
-#endif
 
 		if(prim.nAlpha)
 		{
@@ -1017,19 +952,10 @@ void CGSH_OpenGL::SetupFramebuffer(const SHADERINFO& shaderInfo, uint64 frameReg
 	float projMatrix[16];
 	MakeLinearZOrtho(projMatrix, 0, projWidth, 0, projHeight);
 
-#ifndef GLES_COMPATIBILITY
-	glMatrixMode(GL_PROJECTION);
-	glLoadIdentity();
-	glMultMatrixf(projMatrix);
-
-	glMatrixMode(GL_MODELVIEW);
-	glLoadIdentity();
-#else
 	if(shaderInfo.projMatrixUniform != -1)
 	{
 		glUniformMatrix4fv(shaderInfo.projMatrixUniform, 1, GL_FALSE, projMatrix);
 	}
-#endif
 
 	glEnable(GL_SCISSOR_TEST);
 	int scissorX = scissor.scax0;
@@ -1054,11 +980,7 @@ void CGSH_OpenGL::SetupFogColor(const SHADERINFO& shaderInfo, uint64 fogColReg)
 	color[2] = static_cast<float>(fogCol.nFCB) / 255.0f;
 	color[3] = 0.0f;
 
-#ifndef GLES_COMPATIBILITY
-	glFogfv(GL_FOG_COLOR, color);
-#else
 	glUniform3f(shaderInfo.fogColorUniform, color[0], color[1], color[2]);
-#endif
 }
 
 bool CGSH_OpenGL::CanRegionRepeatClampModeSimplified(uint32 clampMin, uint32 clampMax)
@@ -1181,13 +1103,6 @@ void CGSH_OpenGL::SetupTexture(const SHADERINFO& shaderInfo, uint64 primReg, uin
 	glActiveTexture(GL_TEXTURE0);
 	auto texInfo = PrepareTexture(tex0);
 
-#ifndef GLES_COMPATIBILITY
-	glMatrixMode(GL_TEXTURE);
-	glLoadIdentity();
-	glTranslatef(texInfo.offsetX, 0, 0);
-	glScalef(texInfo.scaleRatioX, texInfo.scaleRatioY, 1);
-#endif
-
 	GLenum nMagFilter = GL_NEAREST;
 	GLenum nMinFilter = GL_NEAREST;
 
@@ -1283,7 +1198,6 @@ void CGSH_OpenGL::SetupTexture(const SHADERINFO& shaderInfo, uint64 primReg, uin
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 	}
 
-#ifdef GLES_COMPATIBILITY
 	float texMatrix[16];
 	memset(texMatrix, 0, sizeof(texMatrix));
 	texMatrix[0 + (0 * 4)] = texInfo.scaleRatioX;
@@ -1296,7 +1210,6 @@ void CGSH_OpenGL::SetupTexture(const SHADERINFO& shaderInfo, uint64 primReg, uin
 	{
 		glUniformMatrix4fv(shaderInfo.texMatrixUniform, 1, GL_FALSE, texMatrix);
 	}
-#endif
 
 	if(shaderInfo.textureSizeUniform != -1)
 	{
@@ -1367,37 +1280,6 @@ CGSH_OpenGL::DepthbufferPtr CGSH_OpenGL::FindDepthbuffer(const ZBUF& zbuf, const
 
 void CGSH_OpenGL::Prim_Point()
 {
-#ifndef GLES_COMPATIBILITY
-	XYZ xyz;
-	xyz <<= m_VtxBuffer[0].nPosition;
-
-	float nX = xyz.GetX();	float nY = xyz.GetY();	float nZ = xyz.GetZ();
-
-	nX -= m_nPrimOfsX;
-	nY -= m_nPrimOfsY;
-
-	if(!m_PrimitiveMode.nUseUV && !m_PrimitiveMode.nTexture)
-	{
-		RGBAQ rgbaq;
-		rgbaq <<= m_VtxBuffer[0].nRGBAQ;
-
-		glBegin(GL_QUADS);
-
-			glColor4ub(rgbaq.nR, rgbaq.nG, rgbaq.nB, rgbaq.nA);
-
-			glVertex2f(nX + 0, nY + 0);
-			glVertex2f(nX + 1, nY + 0);
-			glVertex2f(nX + 1, nY + 1);
-			glVertex2f(nX + 0, nY + 1);
-
-		glEnd();
-	}
-	else
-	{
-		//Yay for textured points!
-		assert(0);
-	}
-#endif
 }
 
 void CGSH_OpenGL::Prim_Line()
@@ -1423,44 +1305,6 @@ void CGSH_OpenGL::Prim_Line()
 	float nT[2] = { 0, 0 };
 	float nQ[2] = { 1, 1 };
 
-#ifndef GLES_COMPATIBILITY
-	if(!m_PrimitiveMode.nUseUV && !m_PrimitiveMode.nTexture)
-	{
-		if(m_nLinesAsQuads)
-		{
-			glBegin(GL_QUADS);
-
-				glColor4ub(rgbaq[0].nR, rgbaq[0].nG, rgbaq[0].nB, rgbaq[0].nA);
-		
-				glVertex2f(nX1 + 0, nY1 + 0);
-				glVertex2f(nX1 + 1, nY1 + 1);
-
-				glColor4ub(rgbaq[1].nR, rgbaq[1].nG, rgbaq[1].nB, rgbaq[1].nA);
-
-				glVertex2f(nX2 + 1, nY2 + 1);
-				glVertex2f(nX2 + 0, nY2 + 0);
-
-			glEnd();
-		}
-		else
-		{
-			glBegin(GL_LINES);
-
-				glColor4ub(rgbaq[0].nR, rgbaq[0].nG, rgbaq[0].nB, rgbaq[0].nA);
-				glVertex2f(nX1, nY1);
-
-				glColor4ub(rgbaq[1].nR, rgbaq[1].nG, rgbaq[1].nB, rgbaq[1].nA);
-				glVertex2f(nX2, nY2);
-
-			glEnd();
-		}
-	}
-	else
-	{
-		//Yay for textured lines!
-		assert(0);
-	}
-#else
 	auto color1 = MakeColor(
 		MulBy2Clamp(rgbaq[0].nR), MulBy2Clamp(rgbaq[0].nG),
 		MulBy2Clamp(rgbaq[0].nB), MulBy2Clamp(rgbaq[0].nA));
@@ -1477,7 +1321,6 @@ void CGSH_OpenGL::Prim_Line()
 
 	assert((m_vertexBuffer.size() + 2) <= VERTEX_BUFFER_SIZE);
 	m_vertexBuffer.insert(m_vertexBuffer.end(), std::begin(vertices), std::end(vertices));
-#endif
 }
 
 void CGSH_OpenGL::Prim_Triangle()
@@ -1564,49 +1407,6 @@ void CGSH_OpenGL::Prim_Triangle()
 		}
 	}
 
-#ifndef GLES_COMPATIBILITY
-	if(m_PrimitiveMode.nTexture)
-	{
-		//Textured triangle
-		glBegin(GL_TRIANGLES);
-		{
-			glColor4ub(MulBy2Clamp(rgbaq[0].nR), MulBy2Clamp(rgbaq[0].nG), MulBy2Clamp(rgbaq[0].nB), MulBy2Clamp(rgbaq[0].nA));
-			glTexCoord4f(nS[0], nT[0], 0, nQ[0]);
-			if(glFogCoordfEXT) glFogCoordfEXT(nF1);
-			glVertex3f(nX1, nY1, nZ1);
-
-			glColor4ub(MulBy2Clamp(rgbaq[1].nR), MulBy2Clamp(rgbaq[1].nG), MulBy2Clamp(rgbaq[1].nB), MulBy2Clamp(rgbaq[1].nA));
-			glTexCoord4f(nS[1], nT[1], 0, nQ[1]);
-			if(glFogCoordfEXT) glFogCoordfEXT(nF2);
-			glVertex3f(nX2, nY2, nZ2);
-
-			glColor4ub(MulBy2Clamp(rgbaq[2].nR), MulBy2Clamp(rgbaq[2].nG), MulBy2Clamp(rgbaq[2].nB), MulBy2Clamp(rgbaq[2].nA));
-			glTexCoord4f(nS[2], nT[2], 0, nQ[2]);
-			if(glFogCoordfEXT) glFogCoordfEXT(nF3);
-			glVertex3f(nX3, nY3, nZ3);
-		}
-		glEnd();
-	}
-	else
-	{
-		//Non Textured Triangle
-		glBegin(GL_TRIANGLES);
-		{
-			glColor4ub(rgbaq[0].nR, rgbaq[0].nG, rgbaq[0].nB, MulBy2Clamp(rgbaq[0].nA));
-			if(glFogCoordfEXT) glFogCoordfEXT(nF1);
-			glVertex3f(nX1, nY1, nZ1);
-
-			glColor4ub(rgbaq[1].nR, rgbaq[1].nG, rgbaq[1].nB, MulBy2Clamp(rgbaq[1].nA));
-			if(glFogCoordfEXT) glFogCoordfEXT(nF2);
-			glVertex3f(nX2, nY2, nZ2);
-
-			glColor4ub(rgbaq[2].nR, rgbaq[2].nG, rgbaq[2].nB, MulBy2Clamp(rgbaq[2].nA));
-			if(glFogCoordfEXT) glFogCoordfEXT(nF3);
-			glVertex3f(nX3, nY3, nZ3);
-		}
-		glEnd();
-	}
-#else
 	auto color1 = MakeColor(
 		MulBy2Clamp(rgbaq[0].nR), MulBy2Clamp(rgbaq[0].nG),
 		MulBy2Clamp(rgbaq[0].nB), MulBy2Clamp(rgbaq[0].nA));
@@ -1628,7 +1428,6 @@ void CGSH_OpenGL::Prim_Triangle()
 
 	assert((m_vertexBuffer.size() + 3) <= VERTEX_BUFFER_SIZE);
 	m_vertexBuffer.insert(m_vertexBuffer.end(), std::begin(vertices), std::end(vertices));
-#endif
 }
 
 void CGSH_OpenGL::Prim_Sprite()
@@ -1690,49 +1489,6 @@ void CGSH_OpenGL::Prim_Sprite()
 		}
 	}
 
-#ifndef GLES_COMPATIBILITY
-	if(m_PrimitiveMode.nTexture)
-	{
-		glColor4ub(MulBy2Clamp(rgbaq[0].nR), MulBy2Clamp(rgbaq[0].nG), MulBy2Clamp(rgbaq[0].nB), MulBy2Clamp(rgbaq[0].nA));
-
-		glBegin(GL_QUADS);
-		{
-			glTexCoord2f(nS[0], nT[0]);
-			glVertex3f(nX1, nY1, nZ);
-
-			glTexCoord2f(nS[1], nT[0]);
-			glVertex3f(nX2, nY1, nZ);
-
-			glTexCoord2f(nS[1], nT[1]);
-			glVertex3f(nX2, nY2, nZ);
-
-			glTexCoord2f(nS[0], nT[1]);
-			glVertex3f(nX1, nY2, nZ);
-
-		}
-		glEnd();
-	}
-	else if(!m_PrimitiveMode.nTexture)
-	{
-		//REMOVE
-		//Humm? Would it be possible to have a gradient using those registers?
-		glColor4ub(MulBy2Clamp(rgbaq[0].nR), MulBy2Clamp(rgbaq[0].nG), MulBy2Clamp(rgbaq[0].nB), MulBy2Clamp(rgbaq[0].nA));
-		//glColor4ub(rgbaq[0].nR, rgbaq[0].nG, rgbaq[0].nB, rgbaq[0].nA);
-
-		glBegin(GL_QUADS);
-
-			glVertex3f(nX1, nY1, nZ);
-			glVertex3f(nX2, nY1, nZ);
-			glVertex3f(nX2, nY2, nZ);
-			glVertex3f(nX1, nY2, nZ);
-
-		glEnd();
-	}
-	else
-	{
-		assert(0);
-	}
-#else
 	auto color = MakeColor(
 		MulBy2Clamp(rgbaq[0].nR), MulBy2Clamp(rgbaq[0].nG),
 		MulBy2Clamp(rgbaq[0].nB), MulBy2Clamp(rgbaq[0].nA));
@@ -1750,12 +1506,10 @@ void CGSH_OpenGL::Prim_Sprite()
 
 	assert((m_vertexBuffer.size() + 6) <= VERTEX_BUFFER_SIZE);
 	m_vertexBuffer.insert(m_vertexBuffer.end(), std::begin(vertices), std::end(vertices));
-#endif
 }
 
 void CGSH_OpenGL::FlushVertexBuffer()
 {
-#ifdef GLES_COMPATIBILITY
 	if(m_vertexBuffer.empty()) return;
 
 	assert(m_renderState.isValid == true);
@@ -1788,7 +1542,6 @@ void CGSH_OpenGL::FlushVertexBuffer()
 	m_vertexBuffer.clear();
 
 	m_drawCallCount++;
-#endif
 }
 
 void CGSH_OpenGL::DrawToDepth(unsigned int primitiveType, uint64 primReg)
@@ -1824,11 +1577,7 @@ void CGSH_OpenGL::DrawToDepth(unsigned int primitiveType, uint64 primReg)
 	assert(result == GL_FRAMEBUFFER_COMPLETE);
 
 	glDepthMask(GL_TRUE);
-#ifndef GLES_COMPATIBILITY
-	glClearDepth(0);
-#else
 	glClearDepthf(0);
-#endif
 	glClear(GL_DEPTH_BUFFER_BIT);
 }
 
@@ -1922,9 +1671,6 @@ void CGSH_OpenGL::VertexKick(uint8 nRegister, uint64 nValue)
 		if(nDrawingKick)
 		{
 			SetRenderingContext(m_PrimitiveMode);
-#ifndef GLES_COMPATIBILITY
-			m_drawCallCount++;
-#endif
 		}
 
 		switch(m_primitiveType)
@@ -2054,11 +1800,6 @@ void CGSH_OpenGL::ProcessLocalToLocalTransfer()
 
 void CGSH_OpenGL::ReadFramebuffer(uint32 width, uint32 height, void* buffer)
 {
-#ifndef GLES_COMPATIBILITY
-	glFlush();
-	glFinish();
-	glReadPixels(0, 0, width, height, GL_BGR, GL_UNSIGNED_BYTE, buffer);
-#endif
 }
 
 /////////////////////////////////////////////////////////////
