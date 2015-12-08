@@ -301,6 +301,8 @@ Framework::OpenGl::CShader CGSH_OpenGL::GenerateFragmentShader(const SHADERCAPS&
 	shaderBuilder << "uniform sampler2D g_palette;" << std::endl;
 	shaderBuilder << "uniform vec2 g_textureSize;" << std::endl;
 	shaderBuilder << "uniform vec2 g_texelSize;" << std::endl;
+	shaderBuilder << "uniform vec2 g_clampMin;" << std::endl;
+	shaderBuilder << "uniform vec2 g_clampMax;" << std::endl;
 	shaderBuilder << "uniform float g_texA0;" << std::endl;
 	shaderBuilder << "uniform float g_texA1;" << std::endl;
 	shaderBuilder << "uniform float g_alphaRef;" << std::endl;
@@ -326,12 +328,24 @@ Framework::OpenGl::CShader CGSH_OpenGL::GenerateFragmentShader(const SHADERCAPS&
 
 	shaderBuilder << "void main()" << std::endl;
 	shaderBuilder << "{" << std::endl;
+
+	shaderBuilder << "	vec3 texCoord = v_texCoord;" << std::endl;
+	shaderBuilder << "	texCoord.st /= texCoord.p;" << std::endl;
+
+	if((caps.texClampS != TEXTURE_CLAMP_MODE_STD) || (caps.texClampT != TEXTURE_CLAMP_MODE_STD))
+	{
+		shaderBuilder << "	texCoord.st *= g_textureSize.st;" << std::endl;
+		shaderBuilder << GenerateTexCoordClampingSection(static_cast<TEXTURE_CLAMP_MODE>(caps.texClampS), "s");
+		shaderBuilder << GenerateTexCoordClampingSection(static_cast<TEXTURE_CLAMP_MODE>(caps.texClampT), "t");
+		shaderBuilder << "	texCoord.st /= g_textureSize.st;" << std::endl;
+	}
+
 	shaderBuilder << "	vec4 textureColor = vec4(1, 1, 1, 1);" << std::endl;
 	if(caps.isIndexedTextureSource())
 	{
 		if(!caps.texBilinearFilter)
 		{
-			shaderBuilder << "	float colorIndex = textureProj(g_texture, v_texCoord).r * 255.0;" << std::endl;
+			shaderBuilder << "	float colorIndex = texture(g_texture, texCoord.st).r * 255.0;" << std::endl;
 			if(caps.texSourceMode == TEXTURE_SOURCE_MODE_IDX4)
 			{
 				shaderBuilder << "	float paletteTexelBias = 0.5 / 16.0;" << std::endl;
@@ -345,11 +359,10 @@ Framework::OpenGl::CShader CGSH_OpenGL::GenerateFragmentShader(const SHADERCAPS&
 		}
 		else
 		{
-			shaderBuilder << "	vec2 projTexCoord = v_texCoord.xy / v_texCoord.z;" << std::endl;
-			shaderBuilder << "	float tlIdx = texture(g_texture, projTexCoord                                     ).r * 255.0;" << std::endl;
-			shaderBuilder << "	float trIdx = texture(g_texture, projTexCoord + vec2(g_texelSize.x, 0)            ).r * 255.0;" << std::endl;
-			shaderBuilder << "	float blIdx = texture(g_texture, projTexCoord + vec2(0, g_texelSize.y)            ).r * 255.0;" << std::endl;
-			shaderBuilder << "	float brIdx = texture(g_texture, projTexCoord + vec2(g_texelSize.x, g_texelSize.y)).r * 255.0;" << std::endl;
+			shaderBuilder << "	float tlIdx = texture(g_texture, texCoord.st                                     ).r * 255.0;" << std::endl;
+			shaderBuilder << "	float trIdx = texture(g_texture, texCoord.st + vec2(g_texelSize.x, 0)            ).r * 255.0;" << std::endl;
+			shaderBuilder << "	float blIdx = texture(g_texture, texCoord.st + vec2(0, g_texelSize.y)            ).r * 255.0;" << std::endl;
+			shaderBuilder << "	float brIdx = texture(g_texture, texCoord.st + vec2(g_texelSize.x, g_texelSize.y)).r * 255.0;" << std::endl;
 
 			if(caps.texSourceMode == TEXTURE_SOURCE_MODE_IDX4)
 			{
@@ -368,7 +381,7 @@ Framework::OpenGl::CShader CGSH_OpenGL::GenerateFragmentShader(const SHADERCAPS&
 				shaderBuilder << "	vec4 br = expandAlpha(texture(g_palette, vec2(brIdx / 256.0 + paletteTexelBias, 0)));" << std::endl;
 			}
 
-			shaderBuilder << "	vec2 f = fract(projTexCoord * g_textureSize);" << std::endl;
+			shaderBuilder << "	vec2 f = fract(texCoord.st * g_textureSize);" << std::endl;
 			shaderBuilder << "	vec4 tA = mix(tl, tr, f.x);" << std::endl;
 			shaderBuilder << "	vec4 tB = mix(bl, br, f.x);" << std::endl;
 			shaderBuilder << "	textureColor = mix(tA, tB, f.y);" << std::endl;
@@ -376,7 +389,7 @@ Framework::OpenGl::CShader CGSH_OpenGL::GenerateFragmentShader(const SHADERCAPS&
 	}
 	else if(caps.texSourceMode == TEXTURE_SOURCE_MODE_STD)
 	{
-		shaderBuilder << "	textureColor = expandAlpha(textureProj(g_texture, v_texCoord));" << std::endl;
+		shaderBuilder << "	textureColor = expandAlpha(texture(g_texture, texCoord.st));" << std::endl;
 	}
 	
 	if(caps.texSourceMode != TEXTURE_SOURCE_MODE_NONE)
