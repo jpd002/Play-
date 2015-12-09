@@ -426,11 +426,6 @@ uint32 CGSH_OpenGL::RGBA16ToRGBA32(uint16 nColor)
 	return (nColor & 0x8000 ? 0xFF000000 : 0) | ((nColor & 0x7C00) << 9) | ((nColor & 0x03E0) << 6) | ((nColor & 0x001F) << 3);
 }
 
-uint8 CGSH_OpenGL::MulBy2Clamp(uint8 nValue)
-{
-	return (nValue > 0x7F) ? 0xFF : (nValue << 1);
-}
-
 float CGSH_OpenGL::GetZ(float nZ)
 {
 	if(nZ == 0)
@@ -1237,13 +1232,13 @@ void CGSH_OpenGL::SetupTexture(const SHADERINFO& shaderInfo, uint64 primReg, uin
 
 	if(shaderInfo.texA0Uniform != -1)
 	{
-		float a = static_cast<float>(MulBy2Clamp(texA.nTA0)) / 255.f;
+		float a = static_cast<float>(texA.nTA0) / 255.f;
 		glUniform1f(shaderInfo.texA0Uniform, a);
 	}
 
 	if(shaderInfo.texA1Uniform != -1)
 	{
-		float a = static_cast<float>(MulBy2Clamp(texA.nTA1)) / 255.f;
+		float a = static_cast<float>(texA.nTA1) / 255.f;
 		glUniform1f(shaderInfo.texA1Uniform, a);
 	}
 }
@@ -1306,12 +1301,12 @@ void CGSH_OpenGL::Prim_Line()
 	float nQ[2] = { 1, 1 };
 
 	auto color1 = MakeColor(
-		MulBy2Clamp(rgbaq[0].nR), MulBy2Clamp(rgbaq[0].nG),
-		MulBy2Clamp(rgbaq[0].nB), MulBy2Clamp(rgbaq[0].nA));
+		rgbaq[0].nR, rgbaq[0].nG,
+		rgbaq[0].nB, rgbaq[0].nA);
 
 	auto color2 = MakeColor(
-		MulBy2Clamp(rgbaq[1].nR), MulBy2Clamp(rgbaq[1].nG),
-		MulBy2Clamp(rgbaq[1].nB), MulBy2Clamp(rgbaq[1].nA));
+		rgbaq[1].nR, rgbaq[1].nG,
+		rgbaq[1].nB, rgbaq[1].nA);
 
 	PRIM_VERTEX vertices[] =
 	{
@@ -1408,16 +1403,16 @@ void CGSH_OpenGL::Prim_Triangle()
 	}
 
 	auto color1 = MakeColor(
-		MulBy2Clamp(rgbaq[0].nR), MulBy2Clamp(rgbaq[0].nG),
-		MulBy2Clamp(rgbaq[0].nB), MulBy2Clamp(rgbaq[0].nA));
+		rgbaq[0].nR, rgbaq[0].nG,
+		rgbaq[0].nB, rgbaq[0].nA);
 
 	auto color2 = MakeColor(
-		MulBy2Clamp(rgbaq[1].nR), MulBy2Clamp(rgbaq[1].nG),
-		MulBy2Clamp(rgbaq[1].nB), MulBy2Clamp(rgbaq[1].nA));
+		rgbaq[1].nR, rgbaq[1].nG,
+		rgbaq[1].nB, rgbaq[1].nA);
 
 	auto color3 = MakeColor(
-		MulBy2Clamp(rgbaq[2].nR), MulBy2Clamp(rgbaq[2].nG),
-		MulBy2Clamp(rgbaq[2].nB), MulBy2Clamp(rgbaq[2].nA));
+		rgbaq[2].nR, rgbaq[2].nG,
+		rgbaq[2].nB, rgbaq[2].nA);
 
 	PRIM_VERTEX vertices[] =
 	{
@@ -1490,8 +1485,8 @@ void CGSH_OpenGL::Prim_Sprite()
 	}
 
 	auto color = MakeColor(
-		MulBy2Clamp(rgbaq[0].nR), MulBy2Clamp(rgbaq[0].nG),
-		MulBy2Clamp(rgbaq[0].nB), MulBy2Clamp(rgbaq[0].nA));
+		rgbaq[0].nR, rgbaq[0].nG,
+		rgbaq[0].nB, rgbaq[0].nA);
 
 	PRIM_VERTEX vertices[] =
 	{
