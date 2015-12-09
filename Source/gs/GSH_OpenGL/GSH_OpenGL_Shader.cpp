@@ -143,6 +143,12 @@ Framework::OpenGl::CShader CGSH_OpenGL::GenerateFragmentShader(const SHADERCAPS&
 	shaderBuilder << "uniform float g_alphaRef;" << std::endl;
 	shaderBuilder << "uniform vec3 g_fogColor;" << std::endl;
 
+	if(caps.texClampS == TEXTURE_CLAMP_MODE_REGION_REPEAT || caps.texClampT == TEXTURE_CLAMP_MODE_REGION_REPEAT)
+	{
+		shaderBuilder << s_andFunction << std::endl;
+		shaderBuilder << s_orFunction << std::endl;
+	}
+
 	shaderBuilder << "vec4 expandAlpha(vec4 inputColor)" << std::endl;
 	shaderBuilder << "{" << std::endl;
 	if(caps.texUseAlphaExpansion)
