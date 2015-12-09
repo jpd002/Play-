@@ -217,9 +217,6 @@ void CGSH_OpenGL::PreparePalette(const TEX0& tex0)
 				uint32 color = 
 					(static_cast<uint16>(m_pCLUT[i + clutOffset + 0x000])) | 
 					(static_cast<uint16>(m_pCLUT[i + clutOffset + 0x100]) << 16);
-				uint32 alpha = MulBy2Clamp(color >> 24);
-				color &= ~0xFF000000;
-				color |= alpha << 24;
 				convertedClut[i] = color;
 			}
 		}
@@ -248,9 +245,6 @@ void CGSH_OpenGL::PreparePalette(const TEX0& tex0)
 				uint32 color = 
 					(static_cast<uint16>(m_pCLUT[i + 0x000])) | 
 					(static_cast<uint16>(m_pCLUT[i + 0x100]) << 16);
-				uint32 alpha = MulBy2Clamp(color >> 24);
-				color &= ~0xFF000000;
-				color |= alpha << 24;
 				convertedClut[i] = color;
 			}
 		}

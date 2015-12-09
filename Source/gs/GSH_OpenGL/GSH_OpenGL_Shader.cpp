@@ -243,12 +243,12 @@ Framework::OpenGl::CShader CGSH_OpenGL::GenerateFragmentShader(const SHADERCAPS&
 		switch(caps.texFunction)
 		{
 		case TEX0_FUNCTION_MODULATE:
-			shaderBuilder << "	textureColor *= v_color;" << std::endl;
+			shaderBuilder << "	textureColor = clamp(textureColor * v_color * 2.0, 0.0, 1.0);" << std::endl;
 			break;
 		case TEX0_FUNCTION_DECAL:
 			break;
 		case TEX0_FUNCTION_HIGHLIGHT:
-			shaderBuilder << "	textureColor.rgb = (textureColor.rgb * v_color.rgb) + v_color.aaa;" << std::endl;
+			shaderBuilder << "	textureColor.rgb = clamp(textureColor.rgb * v_color.rgb * 2.0, 0.0, 1.0) + v_color.aaa;" << std::endl;
 			if(!caps.texHasAlpha)
 			{
 				shaderBuilder << "	textureColor.a = v_color.a;" << std::endl;
@@ -259,7 +259,7 @@ Framework::OpenGl::CShader CGSH_OpenGL::GenerateFragmentShader(const SHADERCAPS&
 			}
 			break;
 		case TEX0_FUNCTION_HIGHLIGHT2:
-			shaderBuilder << "	textureColor.rgb = (textureColor.rgb * v_color.rgb) + v_color.aaa;" << std::endl;
+			shaderBuilder << "	textureColor.rgb = clamp(textureColor.rgb * v_color.rgb * 2.0, 0.0, 1.0) + v_color.aaa;" << std::endl;
 			if(!caps.texHasAlpha)
 			{
 				shaderBuilder << "	textureColor.a = v_color.a;" << std::endl;
@@ -282,12 +282,16 @@ Framework::OpenGl::CShader CGSH_OpenGL::GenerateFragmentShader(const SHADERCAPS&
 
 	if(caps.hasFog)
 	{
-		shaderBuilder << "	fragColor = vec4(mix(textureColor.rgb, g_fogColor, v_fog), textureColor.a);" << std::endl;
+		shaderBuilder << "	fragColor.xyz = mix(textureColor.rgb, g_fogColor, v_fog);" << std::endl;
 	}
 	else
 	{
-		shaderBuilder << "	fragColor = textureColor;" << std::endl;
+		shaderBuilder << "	fragColor.xyz = textureColor.xyz;" << std::endl;
 	}
+
+	//For proper alpha blending, alpha has to be multiplied by 2 (0x80 -> 1.0)
+	//This has the side effect of not writing a proper value in the framebuffer (should write alpha "as is")
+	shaderBuilder << "	fragColor.a = clamp(textureColor.a * 2.0, 0.0, 1.0);" << std::endl;
 
 	shaderBuilder << "}" << std::endl;
 
