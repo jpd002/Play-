@@ -11,13 +11,13 @@ public:
 
 	static FactoryFunction	GetFactoryFunction(CGLContextObj);
 	
-	virtual void			InitializeImpl();
-	virtual void			ReleaseImpl();
+	virtual void			InitializeImpl() override;
+	virtual void			ReleaseImpl() override;
 	
-	virtual void			ReadFramebuffer(uint32, uint32, void*);
+	virtual void			ReadFramebuffer(uint32, uint32, void*) override;
 
 protected:
-	virtual void			PresentBackbuffer();
+	virtual void			PresentBackbuffer() override;
 	
 private:
 	static CGSHandler*		GSHandlerFactory(CGLContextObj);
