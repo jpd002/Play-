@@ -2,6 +2,12 @@
 #include <assert.h>
 #include <sstream>
 
+#ifdef GLES_COMPATIBILITY
+#define GLSL_VERSION "#version 300 es"
+#else
+#define GLSL_VERSION "#version 150"
+#endif
+
 static const char* s_andFunction =
 "float and(int a, int b)\r\n"
 "{\r\n"
@@ -74,7 +80,7 @@ Framework::OpenGl::ProgramPtr CGSH_OpenGL::GenerateShader(const SHADERCAPS& caps
 Framework::OpenGl::CShader CGSH_OpenGL::GenerateVertexShader(const SHADERCAPS& caps)
 {
 	std::stringstream shaderBuilder;
-	shaderBuilder << "#version 300 es" << std::endl;
+	shaderBuilder << GLSL_VERSION << std::endl;
 
 	shaderBuilder << "uniform mat4 g_projMatrix;" << std::endl;
 	shaderBuilder << "uniform mat4 g_texMatrix;" << std::endl;
@@ -119,7 +125,7 @@ Framework::OpenGl::CShader CGSH_OpenGL::GenerateFragmentShader(const SHADERCAPS&
 {
 	std::stringstream shaderBuilder;
 
-	shaderBuilder << "#version 300 es" << std::endl;
+	shaderBuilder << GLSL_VERSION << std::endl;
 
 	shaderBuilder << "precision mediump float;" << std::endl;
 
@@ -385,7 +391,7 @@ Framework::OpenGl::ProgramPtr CGSH_OpenGL::GeneratePresentProgram()
 
 	{
 		std::stringstream shaderBuilder;
-		shaderBuilder << "#version 300 es" << std::endl;
+		shaderBuilder << GLSL_VERSION << std::endl;
 		shaderBuilder << "in vec2 a_position;" << std::endl;
 		shaderBuilder << "in vec2 a_texCoord;" << std::endl;
 		shaderBuilder << "out vec2 v_texCoord;" << std::endl;
@@ -403,7 +409,7 @@ Framework::OpenGl::ProgramPtr CGSH_OpenGL::GeneratePresentProgram()
 
 	{
 		std::stringstream shaderBuilder;
-		shaderBuilder << "#version 300 es" << std::endl;
+		shaderBuilder << GLSL_VERSION << std::endl;
 		shaderBuilder << "precision mediump float;" << std::endl;
 		shaderBuilder << "in vec2 v_texCoord;" << std::endl;
 		shaderBuilder << "out vec4 fragColor;" << std::endl;
