@@ -246,7 +246,6 @@ private:
 	void							PreparePalette(const TEX0&);
 
 	uint32							RGBA16ToRGBA32(uint16);
-	uint8							MulBy2Clamp(uint8);
 	float							GetZ(float);
 	unsigned int					GetNextPowerOf2(unsigned int);
 

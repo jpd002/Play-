@@ -217,9 +217,6 @@ void CGSH_OpenGL::PreparePalette(const TEX0& tex0)
 				uint32 color = 
 					(static_cast<uint16>(m_pCLUT[i + clutOffset + 0x000])) | 
 					(static_cast<uint16>(m_pCLUT[i + clutOffset + 0x100]) << 16);
-				uint32 alpha = MulBy2Clamp(color >> 24);
-				color &= ~0xFF000000;
-				color |= alpha << 24;
 				convertedClut[i] = color;
 			}
 		}
@@ -248,9 +245,6 @@ void CGSH_OpenGL::PreparePalette(const TEX0& tex0)
 				uint32 color = 
 					(static_cast<uint16>(m_pCLUT[i + 0x000])) | 
 					(static_cast<uint16>(m_pCLUT[i + 0x100]) << 16);
-				uint32 alpha = MulBy2Clamp(color >> 24);
-				color &= ~0xFF000000;
-				color |= alpha << 24;
 				convertedClut[i] = color;
 			}
 		}
@@ -367,12 +361,7 @@ void CGSH_OpenGL::TexUploader_Psm48(uint32 bufPtr, uint32 bufWidth, unsigned int
 		dst += texWidth;
 	}
 
-#ifdef GLES_COMPATIBILITY
-	//GL_ALPHA isn't allowed in GL 3.2+
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_R8, texWidth, texHeight, 0, GL_RED, GL_UNSIGNED_BYTE, m_pCvtBuffer);
-#else
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_ALPHA, texWidth, texHeight, 0, GL_ALPHA, GL_UNSIGNED_BYTE, m_pCvtBuffer);
-#endif
 	CHECKGLERROR();
 }
 
@@ -394,12 +383,7 @@ void CGSH_OpenGL::TexUploader_Psm48H(uint32 bufPtr, uint32 bufWidth, unsigned in
 		dst += texWidth;
 	}
 
-#ifdef GLES_COMPATIBILITY
-	//GL_ALPHA isn't allowed in GL 3.2+
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_R8, texWidth, texHeight, 0, GL_RED, GL_UNSIGNED_BYTE, m_pCvtBuffer);
-#else
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_ALPHA, texWidth, texHeight, 0, GL_ALPHA, GL_UNSIGNED_BYTE, m_pCvtBuffer);
-#endif
 	CHECKGLERROR();
 }
 
@@ -470,12 +454,7 @@ void CGSH_OpenGL::TexUpdater_Psm48(uint32 bufPtr, uint32 bufWidth, unsigned int 
 		dst += texWidth;
 	}
 
-#ifdef GLES_COMPATIBILITY
-	//GL_ALPHA isn't allowed in GL 3.2+
 	glTexSubImage2D(GL_TEXTURE_2D, 0, texX, texY, texWidth, texHeight, GL_RED, GL_UNSIGNED_BYTE, m_pCvtBuffer);
-#else
-	glTexSubImage2D(GL_TEXTURE_2D, 0, texX, texY, texWidth, texHeight, GL_ALPHA, GL_UNSIGNED_BYTE, m_pCvtBuffer);
-#endif
 	CHECKGLERROR();
 }
 
@@ -497,12 +476,7 @@ void CGSH_OpenGL::TexUpdater_Psm48H(uint32 bufPtr, uint32 bufWidth, unsigned int
 		dst += texWidth;
 	}
 
-#ifdef GLES_COMPATIBILITY
-	//GL_ALPHA isn't allowed in GL 3.2+
 	glTexSubImage2D(GL_TEXTURE_2D, 0, texX, texY, texWidth, texHeight, GL_RED, GL_UNSIGNED_BYTE, m_pCvtBuffer);
-#else
-	glTexSubImage2D(GL_TEXTURE_2D, 0, texX, texY, texWidth, texHeight, GL_ALPHA, GL_UNSIGNED_BYTE, m_pCvtBuffer);
-#endif
 	CHECKGLERROR();
 }
 
