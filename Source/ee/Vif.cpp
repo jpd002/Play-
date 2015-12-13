@@ -566,6 +566,8 @@ void CVif::Cmd_UNPACK(StreamType& stream, CODE nCommand, uint32 nDstAddr)
 {
 	assert((nCommand.nCMD & 0x60) == 0x60);
 
+	const auto vuMem = m_vpu.GetVuMemory();
+	const auto vuMemSize = m_vpu.GetVuMemorySize();
 	bool usn = (m_CODE.nIMM & 0x4000) != 0;
 	bool useMask = (nCommand.nCMD & 0x10) != 0;
 	uint32 cl = m_CYCLE.nCL;
@@ -592,8 +594,6 @@ void CVif::Cmd_UNPACK(StreamType& stream, CODE nCommand, uint32 nDstAddr)
 	}
 
 	nDstAddr *= 0x10;
-
-	uint128* dst = reinterpret_cast<uint128*>(m_vpu.GetVuMemory() + nDstAddr);
 
 	while(currentNum != 0)
 	{
@@ -623,6 +623,8 @@ void CVif::Cmd_UNPACK(StreamType& stream, CODE nCommand, uint32 nDstAddr)
 
 		if(mustWrite)
 		{
+			auto dst = reinterpret_cast<uint128*>(vuMem + nDstAddr);
+
 			for(unsigned int i = 0; i < 4; i++)
 			{
 				uint32 maskOp = useMask ? GetMaskOp(i, m_writeTick) : MASK_DATA;
@@ -686,7 +688,8 @@ void CVif::Cmd_UNPACK(StreamType& stream, CODE nCommand, uint32 nDstAddr)
 			}
 		}
 
-		dst++;
+		nDstAddr += 0x10;
+		nDstAddr &= (vuMemSize - 1);
 	}
 
 	if(currentNum != 0)
