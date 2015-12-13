@@ -83,6 +83,10 @@ uint32 CVif::GetRegister(uint32 address)
 	case VIF1_MARK:
 		result = m_MARK;
 		break;
+	case VIF0_CYCLE:
+	case VIF1_CYCLE:
+		result = m_CYCLE;
+		break;
 	case VIF0_R0:
 	case VIF1_R0:
 		result = m_R[0];
@@ -944,6 +948,9 @@ void CVif::DisassembleGet(uint32 address)
 	case VIF0_MARK:
 		CLog::GetInstance().Print(LOG_NAME, "VIF0_MARK.\r\n");
 		break;
+	case VIF0_CYCLE:
+		CLog::GetInstance().Print(LOG_NAME, "VIF0_CYCLE.\r\n");
+		break;
 	case VIF0_R0:
 		CLog::GetInstance().Print(LOG_NAME, "VIF0_R0.\r\n");
 		break;
@@ -958,6 +965,9 @@ void CVif::DisassembleGet(uint32 address)
 		break;
 	case VIF1_MARK:
 		CLog::GetInstance().Print(LOG_NAME, "VIF1_MARK.\r\n");
+		break;
+	case VIF1_CYCLE:
+		CLog::GetInstance().Print(LOG_NAME, "VIF1_CYCLE.\r\n");
 		break;
 	case VIF1_R0:
 		CLog::GetInstance().Print(LOG_NAME, "VIF1_R0.\r\n");
