@@ -1275,6 +1275,26 @@ CGSH_OpenGL::DepthbufferPtr CGSH_OpenGL::FindDepthbuffer(const ZBUF& zbuf, const
 
 void CGSH_OpenGL::Prim_Point()
 {
+	auto xyz = make_convertible<XYZ>(m_VtxBuffer[0].nPosition);
+	auto rgbaq = make_convertible<RGBAQ>(m_VtxBuffer[0].nRGBAQ);
+
+	float x = xyz.GetX(); float y = xyz.GetY(); float z = xyz.GetZ();
+
+	x -= m_nPrimOfsX;
+	y -= m_nPrimOfsY;
+
+	auto color = MakeColor(
+		rgbaq.nR, rgbaq.nG,
+		rgbaq.nB, rgbaq.nA);
+
+	PRIM_VERTEX vertex =
+	{
+		//x, y, z, color, s, t, q, f
+		  x, y, z, color, 0, 0, 1, 0,
+	};
+
+	assert((m_vertexBuffer.size() + 1) <= VERTEX_BUFFER_SIZE);
+	m_vertexBuffer.push_back(vertex);
 }
 
 void CGSH_OpenGL::Prim_Line()
@@ -1517,6 +1537,9 @@ void CGSH_OpenGL::FlushVertexBuffer()
 	GLenum primitiveMode = GL_NONE;
 	switch(m_primitiveType)
 	{
+	case PRIM_POINT:
+		primitiveMode = GL_POINTS;
+		break;
 	case PRIM_LINE:
 	case PRIM_LINESTRIP:
 		primitiveMode = GL_LINES;
