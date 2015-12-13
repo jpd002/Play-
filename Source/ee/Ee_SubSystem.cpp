@@ -58,30 +58,30 @@ CSubSystem::CSubSystem(uint8* iopRam, CIopBios& iopBios)
 	//EmotionEngine context setup
 	{
 		//Read map
-		m_EE.m_pMemoryMap->InsertReadMap(0x00000000,			0x01FFFFFF,									m_ram,														0x00);
-		m_EE.m_pMemoryMap->InsertReadMap(PS2::EE_SPR_ADDR,		PS2::EE_SPR_ADDR + PS2::EE_SPR_SIZE,		m_spr,														0x01);
-		m_EE.m_pMemoryMap->InsertReadMap(0x10000000,			0x10FFFFFF,									bind(&CSubSystem::IOPortReadHandler, this, PLACEHOLDER_1),	0x02);
-		m_EE.m_pMemoryMap->InsertReadMap(PS2::MICROMEM0ADDR,	PS2::MICROMEM0ADDR + PS2::MICROMEM0SIZE,	m_microMem0,												0x03);
-		m_EE.m_pMemoryMap->InsertReadMap(PS2::VUMEM0ADDR,		PS2::VUMEM0ADDR + PS2::VUMEM0SIZE,			m_vuMem0,													0x04);
-		m_EE.m_pMemoryMap->InsertReadMap(PS2::MICROMEM1ADDR,	PS2::MICROMEM1ADDR + PS2::MICROMEM1SIZE,	m_microMem1,												0x05);
-		m_EE.m_pMemoryMap->InsertReadMap(PS2::VUMEM1ADDR,		PS2::VUMEM1ADDR + PS2::VUMEM1SIZE,			m_vuMem1,													0x06);
-		m_EE.m_pMemoryMap->InsertReadMap(0x12000000,			0x12FFFFFF,									bind(&CSubSystem::IOPortReadHandler, this, PLACEHOLDER_1),	0x07);
-		m_EE.m_pMemoryMap->InsertReadMap(0x1C000000,			0x1C001000,									m_fakeIopRam,												0x08);
-		m_EE.m_pMemoryMap->InsertReadMap(0x1FC00000,			0x1FFFFFFF,									m_bios,														0x09);
+		m_EE.m_pMemoryMap->InsertReadMap(0x00000000,            0x01FFFFFF,                                     m_ram,                                                        0x00);
+		m_EE.m_pMemoryMap->InsertReadMap(PS2::EE_SPR_ADDR,      PS2::EE_SPR_ADDR + PS2::EE_SPR_SIZE - 1,        m_spr,                                                        0x01);
+		m_EE.m_pMemoryMap->InsertReadMap(0x10000000,            0x10FFFFFF,                                     bind(&CSubSystem::IOPortReadHandler, this, PLACEHOLDER_1),    0x02);
+		m_EE.m_pMemoryMap->InsertReadMap(PS2::MICROMEM0ADDR,    PS2::MICROMEM0ADDR + PS2::MICROMEM0SIZE - 1,    m_microMem0,                                                  0x03);
+		m_EE.m_pMemoryMap->InsertReadMap(PS2::VUMEM0ADDR,       PS2::VUMEM0ADDR + PS2::VUMEM0SIZE - 1,          m_vuMem0,                                                     0x04);
+		m_EE.m_pMemoryMap->InsertReadMap(PS2::MICROMEM1ADDR,    PS2::MICROMEM1ADDR + PS2::MICROMEM1SIZE - 1,    m_microMem1,                                                  0x05);
+		m_EE.m_pMemoryMap->InsertReadMap(PS2::VUMEM1ADDR,       PS2::VUMEM1ADDR + PS2::VUMEM1SIZE - 1,          m_vuMem1,                                                     0x06);
+		m_EE.m_pMemoryMap->InsertReadMap(0x12000000,            0x12FFFFFF,                                     bind(&CSubSystem::IOPortReadHandler, this, PLACEHOLDER_1),    0x07);
+		m_EE.m_pMemoryMap->InsertReadMap(0x1C000000,            0x1C001000,                                     m_fakeIopRam,                                                 0x08);
+		m_EE.m_pMemoryMap->InsertReadMap(0x1FC00000,            0x1FFFFFFF,                                     m_bios,                                                       0x09);
 
 		//Write map
-		m_EE.m_pMemoryMap->InsertWriteMap(0x00000000,			0x01FFFFFF,									m_ram,																			0x00);
-		m_EE.m_pMemoryMap->InsertWriteMap(PS2::EE_SPR_ADDR,		PS2::EE_SPR_ADDR + PS2::EE_SPR_SIZE,		m_spr,																			0x01);
-		m_EE.m_pMemoryMap->InsertWriteMap(0x10000000,			0x10FFFFFF,									bind(&CSubSystem::IOPortWriteHandler, this, PLACEHOLDER_1, PLACEHOLDER_2),		0x02);
-		m_EE.m_pMemoryMap->InsertWriteMap(PS2::MICROMEM0ADDR,	PS2::MICROMEM0ADDR + PS2::MICROMEM0SIZE,	bind(&CSubSystem::Vu0MicroMemWriteHandler, this, PLACEHOLDER_1, PLACEHOLDER_2),	0x03);
-		m_EE.m_pMemoryMap->InsertWriteMap(PS2::VUMEM0ADDR,		PS2::VUMEM0ADDR + PS2::VUMEM0SIZE,			m_vuMem0,																		0x04);
-		m_EE.m_pMemoryMap->InsertWriteMap(PS2::MICROMEM1ADDR,	PS2::MICROMEM1ADDR + PS2::MICROMEM1SIZE,	m_microMem1,																	0x05);
-		m_EE.m_pMemoryMap->InsertWriteMap(PS2::VUMEM1ADDR,		PS2::VUMEM1ADDR + PS2::VUMEM1SIZE,			m_vuMem1,																		0x06);
-		m_EE.m_pMemoryMap->InsertWriteMap(0x12000000,			0x12FFFFFF,									bind(&CSubSystem::IOPortWriteHandler,	this, PLACEHOLDER_1, PLACEHOLDER_2),	0x07);
+		m_EE.m_pMemoryMap->InsertWriteMap(0x00000000,            0x01FFFFFF,                                     m_ram,                                                                             0x00);
+		m_EE.m_pMemoryMap->InsertWriteMap(PS2::EE_SPR_ADDR,      PS2::EE_SPR_ADDR + PS2::EE_SPR_SIZE - 1,        m_spr,                                                                             0x01);
+		m_EE.m_pMemoryMap->InsertWriteMap(0x10000000,            0x10FFFFFF,                                     bind(&CSubSystem::IOPortWriteHandler, this, PLACEHOLDER_1, PLACEHOLDER_2),         0x02);
+		m_EE.m_pMemoryMap->InsertWriteMap(PS2::MICROMEM0ADDR,    PS2::MICROMEM0ADDR + PS2::MICROMEM0SIZE - 1,    bind(&CSubSystem::Vu0MicroMemWriteHandler, this, PLACEHOLDER_1, PLACEHOLDER_2),    0x03);
+		m_EE.m_pMemoryMap->InsertWriteMap(PS2::VUMEM0ADDR,       PS2::VUMEM0ADDR + PS2::VUMEM0SIZE - 1,          m_vuMem0,                                                                          0x04);
+		m_EE.m_pMemoryMap->InsertWriteMap(PS2::MICROMEM1ADDR,    PS2::MICROMEM1ADDR + PS2::MICROMEM1SIZE - 1,    m_microMem1,                                                                       0x05);
+		m_EE.m_pMemoryMap->InsertWriteMap(PS2::VUMEM1ADDR,       PS2::VUMEM1ADDR + PS2::VUMEM1SIZE - 1,          m_vuMem1,                                                                          0x06);
+		m_EE.m_pMemoryMap->InsertWriteMap(0x12000000,            0x12FFFFFF,                                     bind(&CSubSystem::IOPortWriteHandler,	this, PLACEHOLDER_1, PLACEHOLDER_2),        0x07);
 
 		//Instruction map
-		m_EE.m_pMemoryMap->InsertInstructionMap(0x00000000, 0x01FFFFFF, m_ram,	0x00);
-		m_EE.m_pMemoryMap->InsertInstructionMap(0x1FC00000, 0x1FFFFFFF, m_bios,	0x01);
+		m_EE.m_pMemoryMap->InsertInstructionMap(0x00000000, 0x01FFFFFF, m_ram,  0x00);
+		m_EE.m_pMemoryMap->InsertInstructionMap(0x1FC00000, 0x1FFFFFFF, m_bios, 0x01);
 
 		m_EE.m_pArch			= &m_EEArch;
 		m_EE.m_pCOP[0]			= &m_COP_SCU;

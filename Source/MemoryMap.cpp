@@ -9,26 +9,31 @@ CMemoryMap::~CMemoryMap()
 
 void CMemoryMap::InsertReadMap(uint32 start, uint32 end, void* pointer, unsigned char key)
 {
+	assert(GetReadMap(start) == nullptr);
 	InsertMap(m_readMap, start, end, pointer, key);
 }
 
 void CMemoryMap::InsertReadMap(uint32 start, uint32 end, const MemoryMapHandlerType& handler, unsigned char key)
 {
+	assert(GetReadMap(start) == nullptr);
 	InsertMap(m_readMap, start, end, handler, key);
 }
 
 void CMemoryMap::InsertWriteMap(uint32 start, uint32 end, void* pointer, unsigned char key)
 {
+	assert(GetWriteMap(start) == nullptr);
 	InsertMap(m_writeMap, start, end, pointer, key);
 }
 
 void CMemoryMap::InsertWriteMap(uint32 start, uint32 end, const MemoryMapHandlerType& handler, unsigned char key)
 {
+	assert(GetWriteMap(start) == nullptr);
 	InsertMap(m_writeMap, start, end, handler, key);
 }
 
 void CMemoryMap::InsertInstructionMap(uint32 start, uint32 end, void* pointer, unsigned char key)
 {
+	assert(GetMap(m_instructionMap, start) == nullptr);
 	InsertMap(m_instructionMap, start, end, pointer, key);
 }
 
