@@ -7,9 +7,9 @@ CMemoryMap::~CMemoryMap()
 
 }
 
-void CMemoryMap::InsertReadMap(uint32 nStart, uint32 nEnd, void* pPointer, unsigned char nKey)
+void CMemoryMap::InsertReadMap(uint32 start, uint32 end, void* pointer, unsigned char key)
 {
-	InsertMap(m_readMap, nStart, nEnd, pPointer, nKey);
+	InsertMap(m_readMap, start, end, pointer, key);
 }
 
 void CMemoryMap::InsertReadMap(uint32 start, uint32 end, const MemoryMapHandlerType& handler, unsigned char key)
@@ -17,9 +17,9 @@ void CMemoryMap::InsertReadMap(uint32 start, uint32 end, const MemoryMapHandlerT
 	InsertMap(m_readMap, start, end, handler, key);
 }
 
-void CMemoryMap::InsertWriteMap(uint32 nStart, uint32 nEnd, void* pPointer, unsigned char nKey)
+void CMemoryMap::InsertWriteMap(uint32 start, uint32 end, void* pointer, unsigned char key)
 {
-	InsertMap(m_writeMap, nStart, nEnd, pPointer, nKey);
+	InsertMap(m_writeMap, start, end, pointer, key);
 }
 
 void CMemoryMap::InsertWriteMap(uint32 start, uint32 end, const MemoryMapHandlerType& handler, unsigned char key)
