@@ -695,7 +695,6 @@ void CVif::Cmd_UNPACK(StreamType& stream, CODE nCommand, uint32 nDstAddr)
 	}
 	else
 	{
-//        assert((m_cmdBuffer.GetReadCount() & 0x03) == 0);
 		stream.Align32();
 		m_STAT.nVPS = 0;
 	}
