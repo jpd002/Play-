@@ -576,7 +576,11 @@ void CVif::Cmd_UNPACK(StreamType& stream, CODE nCommand, uint32 nDstAddr)
 	bool useMask = (nCommand.nCMD & 0x10) != 0;
 	uint32 cl = m_CYCLE.nCL;
 	uint32 wl = m_CYCLE.nWL;
-	if(wl == 0) wl = UINT_MAX;
+	if(wl == 0) 
+	{
+		wl = UINT_MAX;
+		cl = UINT_MAX;
+	}
 
 	if(m_NUM == nCommand.nNUM)
 	{
