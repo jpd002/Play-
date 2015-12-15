@@ -1196,9 +1196,9 @@ void CGSH_OpenGL::SetupTexture(const SHADERINFO& shaderInfo, uint64 primReg, uin
 	float texMatrix[16];
 	memset(texMatrix, 0, sizeof(texMatrix));
 	texMatrix[0 + (0 * 4)] = texInfo.scaleRatioX;
-	texMatrix[3 + (0 * 4)] = texInfo.offsetX;
 	texMatrix[1 + (1 * 4)] = texInfo.scaleRatioY;
 	texMatrix[2 + (2 * 4)] = 1;
+	texMatrix[0 + (3 * 4)] = texInfo.offsetX;
 	texMatrix[3 + (3 * 4)] = 1;
 
 	if(shaderInfo.texMatrixUniform != -1)
