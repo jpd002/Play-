@@ -1818,6 +1818,14 @@ void CGSH_OpenGL::ProcessLocalToLocalTransfer()
 
 void CGSH_OpenGL::ReadFramebuffer(uint32 width, uint32 height, void* buffer)
 {
+	//TODO: Implement this in a better way. This is only used for movie recording on Win32 for now.
+#ifdef GLES_COMPATIBILITY
+	assert(false);
+#else
+	glFlush();
+	glFinish();
+	glReadPixels(0, 0, width, height, GL_BGR, GL_UNSIGNED_BYTE, buffer);
+#endif
 }
 
 /////////////////////////////////////////////////////////////
