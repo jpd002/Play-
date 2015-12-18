@@ -1282,6 +1282,7 @@ void CGSH_OpenGL::Prim_Point()
 
 	x -= m_nPrimOfsX;
 	y -= m_nPrimOfsY;
+	z = GetZ(z);
 
 	auto color = MakeColor(
 		rgbaq.nR, rgbaq.nG,
@@ -1311,6 +1312,9 @@ void CGSH_OpenGL::Prim_Line()
 
 	nY1 -= m_nPrimOfsY;
 	nY2 -= m_nPrimOfsY;
+
+	nZ1 = GetZ(nZ1);
+	nZ2 = GetZ(nZ2);
 
 	RGBAQ rgbaq[2];
 	rgbaq[0] <<= m_VtxBuffer[1].nRGBAQ;
