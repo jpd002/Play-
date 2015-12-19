@@ -50,6 +50,9 @@ std::string CSysclib::GetFunctionName(unsigned int functionId) const
 	case 19:
 		return "sprintf";
 		break;
+	case 20:
+		return "strcat";
+		break;
 	case 21:
 		return "strchr";
 		break;
@@ -152,6 +155,12 @@ void CSysclib::Invoke(CMIPS& context, unsigned int functionId)
 		break;
 	case 19:
 		context.m_State.nGPR[CMIPS::V0].nD0 = static_cast<int32>(__sprintf(context));
+		break;
+	case 20:
+		context.m_State.nGPR[CMIPS::V0].nD0 = __strcat(
+			context.m_State.nGPR[CMIPS::A0].nV0,
+			context.m_State.nGPR[CMIPS::A1].nV0
+			);
 		break;
 	case 21:
 		context.m_State.nGPR[CMIPS::V0].nD0 = __strchr(
@@ -300,6 +309,16 @@ uint32 CSysclib::__sprintf(CMIPS& context)
 	std::string output = m_stdio.PrintFormatted(args);
 	strcpy(destination, output.c_str());
 	return static_cast<uint32>(output.length());
+}
+
+uint32 CSysclib::__strcat(uint32 dstPtr, uint32 srcPtr)
+{
+	assert(dstPtr != 0);
+	assert(srcPtr != 0);
+	auto dst = reinterpret_cast<char*>(m_ram + dstPtr);
+	auto src = reinterpret_cast<const char*>(m_ram + srcPtr);
+	strcat(dst, src);
+	return dstPtr;
 }
 
 uint32 CSysclib::__strlen(const char* string)
