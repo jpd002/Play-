@@ -65,9 +65,6 @@ void CGSH_OpenGLiOS::CreateFramebuffer()
 	glGenFramebuffers(1, &m_defaultFramebuffer);
 	glBindFramebuffer(GL_FRAMEBUFFER, m_defaultFramebuffer);
 		
-	glGenRenderbuffers(1, &m_depthRenderbuffer);
-	glBindRenderbuffer(GL_RENDERBUFFER, m_depthRenderbuffer);
-		
 	// Create color render buffer and allocate backing store.
 	glGenRenderbuffers(1, &m_colorRenderbuffer);
 	glBindRenderbuffer(GL_RENDERBUFFER, m_colorRenderbuffer);
@@ -75,12 +72,7 @@ void CGSH_OpenGLiOS::CreateFramebuffer()
 	glGetRenderbufferParameteriv(GL_RENDERBUFFER, GL_RENDERBUFFER_WIDTH, &m_framebufferWidth);
 	glGetRenderbufferParameteriv(GL_RENDERBUFFER, GL_RENDERBUFFER_HEIGHT, &m_framebufferHeight);
 
-	glBindRenderbuffer(GL_RENDERBUFFER, m_depthRenderbuffer);
-	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, m_framebufferWidth, m_framebufferHeight);
-
 	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER, m_colorRenderbuffer);
-	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, m_depthRenderbuffer);
-	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_STENCIL_ATTACHMENT, GL_RENDERBUFFER, m_depthRenderbuffer);
 
 	CHECKGLERROR();
 	
