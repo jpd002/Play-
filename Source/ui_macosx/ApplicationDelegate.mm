@@ -18,6 +18,7 @@
 	[outputWindowController.window center];
 	[outputWindowController showWindow: nil];
 	[outputWindowController setDelegate: self];
+	[self setupOpenGlContext];
 	
 	NSOpenGLContext* context = [outputWindowController.openGlView openGLContext];
 	void* lowLevelContext = [context CGLContextObj];
@@ -53,6 +54,22 @@
 -(void)applicationWillTerminate: (NSNotification*)notification
 {
 	g_virtualMachine->Pause();
+}
+
+-(void)setupOpenGlContext
+{
+	NSOpenGLPixelFormatAttribute pixelFormatAttributes[] =
+	{
+		NSOpenGLPFAOpenGLProfile, NSOpenGLProfileVersion3_2Core,
+		NSOpenGLPFADoubleBuffer, YES,
+		NSOpenGLPFADepthSize, 24,
+		0
+	};
+		
+	NSOpenGLPixelFormat* pixelFormat = [[[NSOpenGLPixelFormat alloc] initWithAttributes: pixelFormatAttributes] autorelease];
+	NSOpenGLContext* context = [[[NSOpenGLContext alloc] initWithFormat: pixelFormat shareContext:nil] autorelease];
+	[outputWindowController.openGlView setPixelFormat: pixelFormat];
+	[outputWindowController.openGlView setOpenGLContext: context];
 }
 
 -(IBAction)bootElfMenuSelected: (id)sender
