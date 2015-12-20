@@ -218,10 +218,7 @@ void CGSH_OpenGL::FlipImpl()
 
 	if(framebuffer)
 	{
-		float u0 = 0;
 		float u1 = static_cast<float>(dispWidth) / static_cast<float>(framebuffer->m_textureWidth);
-
-		float v0 = 0;
 		float v1 = static_cast<float>(dispHeight) / static_cast<float>(framebuffer->m_height);
 
 		glDisable(GL_BLEND);
