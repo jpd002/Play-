@@ -1735,7 +1735,7 @@ void CGSH_OpenGL::VertexKick(uint8 nRegister, uint64 nValue)
 	}
 }
 
-void CGSH_OpenGL::ProcessImageTransfer()
+void CGSH_OpenGL::ProcessHostToLocalTransfer()
 {
 	auto bltBuf = make_convertible<BITBLTBUF>(m_nReg[GS_REG_BITBLTBUF]);
 	uint32 transferAddress = bltBuf.GetDstPtr();
@@ -1769,11 +1769,9 @@ void CGSH_OpenGL::ProcessImageTransfer()
 	}
 }
 
-void CGSH_OpenGL::ProcessClutTransfer(uint32 csa, uint32)
+void CGSH_OpenGL::ProcessLocalToHostTransfer()
 {
-	FlushVertexBuffer();
-	m_renderState.isValid = false;
-	PalCache_Invalidate(csa);
+
 }
 
 void CGSH_OpenGL::ProcessLocalToLocalTransfer()
@@ -1815,6 +1813,13 @@ void CGSH_OpenGL::ProcessLocalToLocalTransfer()
 
 		glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
 	}
+}
+
+void CGSH_OpenGL::ProcessClutTransfer(uint32 csa, uint32)
+{
+	FlushVertexBuffer();
+	m_renderState.isValid = false;
+	PalCache_Invalidate(csa);
 }
 
 void CGSH_OpenGL::ReadFramebuffer(uint32 width, uint32 height, void* buffer)

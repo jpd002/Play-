@@ -511,7 +511,7 @@ void CGSHandler::FeedImageDataImpl(void* pData, uint32 nLength)
 		{
 			auto trxReg = make_convertible<TRXREG>(m_nReg[GS_REG_TRXREG]);
 			//assert(m_trxCtx.nRRY == trxReg.nRRH);
-			ProcessImageTransfer();
+			ProcessHostToLocalTransfer();
 
 #ifdef _DEBUG
 			CLog::GetInstance().Print(LOG_NAME, "Completed image transfer at 0x%0.8X (dirty = %d).\r\n", bltBuf.GetDstPtr(), m_trxCtx.nDirty);
@@ -632,6 +632,7 @@ void CGSHandler::BeginTransfer()
 		}
 		else if(trxDir == 1)
 		{
+			ProcessLocalToHostTransfer();
 			CLog::GetInstance().Print(LOG_NAME, "Starting transfer from 0x%0.8X, buffer size %d, psm: %d, size (%dx%d)\r\n",
 				bltBuf.GetSrcPtr(), bltBuf.GetSrcWidth(), bltBuf.nSrcPsm, trxReg.nRRW, trxReg.nRRH);
 		}

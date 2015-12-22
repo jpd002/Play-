@@ -527,9 +527,10 @@ public:
 	virtual void							SetCrt(bool, unsigned int, bool);
 	void									Initialize();
 	void									Release();
-	virtual void							ProcessImageTransfer() = 0;
-	virtual void							ProcessClutTransfer(uint32, uint32) = 0;
+	virtual void							ProcessHostToLocalTransfer() = 0;
+	virtual void							ProcessLocalToHostTransfer() = 0;
 	virtual void							ProcessLocalToLocalTransfer() = 0;
+	virtual void							ProcessClutTransfer(uint32, uint32) = 0;
 	void									Flip(bool showOnly = false);
 	virtual void							ReadFramebuffer(uint32, uint32, void*) = 0;
 	

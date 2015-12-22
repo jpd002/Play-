@@ -8,9 +8,10 @@ public:
 								CGSH_Null();
 	virtual						~CGSH_Null();
 
-	virtual void				ProcessImageTransfer() override;
-	virtual void				ProcessClutTransfer(uint32, uint32) override;
+	virtual void				ProcessHostToLocalTransfer() override;
+	virtual void				ProcessLocalToHostTransfer() override;
 	virtual void				ProcessLocalToLocalTransfer() override;
+	virtual void				ProcessClutTransfer(uint32, uint32) override;
 	virtual void				ReadFramebuffer(uint32, uint32, void*) override;
 
 	static FactoryFunction		GetFactoryFunction();

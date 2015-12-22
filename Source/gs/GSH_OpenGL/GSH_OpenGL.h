@@ -21,9 +21,10 @@ public:
 
 	virtual void					LoadState(Framework::CZipArchiveReader&) override;
 	
-	void							ProcessImageTransfer() override;
-	void							ProcessClutTransfer(uint32, uint32) override;
+	void							ProcessHostToLocalTransfer() override;
+	void							ProcessLocalToHostTransfer() override;
 	void							ProcessLocalToLocalTransfer() override;
+	void							ProcessClutTransfer(uint32, uint32) override;
 	void							ReadFramebuffer(uint32, uint32, void*) override;
 
 protected:
