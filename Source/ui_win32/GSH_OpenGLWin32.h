@@ -15,8 +15,6 @@ public:
 	virtual void					InitializeImpl();
 	virtual void					ReleaseImpl();
 
-	CSettingsDialogProvider*		GetSettingsDialogProvider();
-
 	Framework::Win32::CWindow*		CreateSettingsDialog(HWND) override;
 	void							OnSettingsDialogDestroyed() override;
 

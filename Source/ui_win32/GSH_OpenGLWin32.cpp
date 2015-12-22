@@ -82,11 +82,6 @@ void CGSH_OpenGLWin32::PresentBackbuffer()
 	SwapBuffers(m_dc);
 }
 
-CSettingsDialogProvider* CGSH_OpenGLWin32::GetSettingsDialogProvider()
-{
-	return this;
-}
-
 Framework::Win32::CWindow* CGSH_OpenGLWin32::CreateSettingsDialog(HWND parentWnd)
 {
 	return new CGSH_OpenGL_SettingsWnd(parentWnd);
