@@ -4,6 +4,7 @@
 #include "StdStreamUtils.h"
 #include "Utils.h"
 #include "JUnitTestReportWriter.h"
+#include "gs/GSH_Null.h"
 
 std::vector<std::string> ReadLines(Framework::CStream& inputStream)
 {
@@ -67,6 +68,7 @@ void ExecuteEeTest(const boost::filesystem::path& testFilePath)
 	CPS2VM virtualMachine;
 	virtualMachine.Initialize();
 	virtualMachine.Reset();
+	virtualMachine.CreateGSHandler(CGSH_Null::GetFactoryFunction());
 	virtualMachine.m_ee->m_os->OnRequestExit.connect(
 		[&executionOver] ()
 		{
