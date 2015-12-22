@@ -85,6 +85,7 @@ void ExecuteEeTest(const boost::filesystem::path& testFilePath)
 	}
 
 	virtualMachine.Pause();
+	virtualMachine.DestroyGSHandler();
 	virtualMachine.Destroy();
 }
 
