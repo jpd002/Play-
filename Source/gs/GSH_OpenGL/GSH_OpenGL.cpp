@@ -661,9 +661,20 @@ void CGSH_OpenGL::SetupBlendingFunction(uint64 alphaReg)
 	int nFunction = GL_FUNC_ADD;
 	auto alpha = make_convertible<ALPHA>(alphaReg);
 
-	if((alpha.nA == 0) && (alpha.nB == 0) && (alpha.nC == 0) && (alpha.nD == 0))
+	if((alpha.nA == alpha.nB) && (alpha.nD == ALPHABLEND_ABD_CS))
 	{
+		//ab*0 (when a == b) - Cs
 		glBlendFuncSeparate(GL_ONE, GL_ZERO, GL_ONE, GL_ZERO);
+	}
+	else if((alpha.nA == alpha.nB) && (alpha.nD == ALPHABLEND_ABD_CD))
+	{
+		//ab*1 (when a == b) - Cd
+		glBlendFuncSeparate(GL_ZERO, GL_ONE, GL_ONE, GL_ZERO);
+	}
+	else if((alpha.nA == alpha.nB) && (alpha.nD == ALPHABLEND_ABD_ZERO))
+	{
+		//ab*2 (when a == b) - Zero
+		glBlendFuncSeparate(GL_ZERO, GL_ZERO, GL_ONE, GL_ZERO);
 	}
 	else if((alpha.nA == 0) && (alpha.nB == 1) && (alpha.nC == 0) && (alpha.nD == 1))
 	{
@@ -773,16 +784,6 @@ void CGSH_OpenGL::SetupBlendingFunction(uint64 alphaReg)
 	{
 		//2101 -> Cd * (1 - As)
 		glBlendFuncSeparate(GL_ZERO, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ZERO);
-	}
-	else if((alpha.nA == ALPHABLEND_ABD_ZERO) && (alpha.nB == ALPHABLEND_ABD_ZERO) && (alpha.nD == ALPHABLEND_ABD_CS))
-	{
-		//22*0 -> Cs (no blend)
-		glBlendFuncSeparate(GL_ONE, GL_ZERO, GL_ONE, GL_ZERO);
-	}
-	else if((alpha.nA == 2) && (alpha.nB == 2) && (alpha.nC == 2) && (alpha.nD == 1))
-	{
-		//Cd (no blend)
-		glBlendFuncSeparate(GL_ZERO, GL_ONE, GL_ONE, GL_ZERO);
 	}
 	else
 	{
