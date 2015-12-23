@@ -749,13 +749,10 @@ void CGSH_OpenGL::SetupBlendingFunction(uint64 alphaReg)
 		//TODO: Implement this properly (multiple passes?)
 		glBlendFuncSeparate(GL_ZERO, GL_ONE, GL_ONE, GL_ZERO);
 	}
-	else if((alpha.nA == 1) && (alpha.nB == 2) && (alpha.nC == 0) && (alpha.nD == 2))
+	else if((alpha.nA == ALPHABLEND_ABD_CD) && (alpha.nB == ALPHABLEND_ABD_ZERO) && (alpha.nC == ALPHABLEND_C_AS) && (alpha.nD == ALPHABLEND_ABD_ZERO))
 	{
-		//Cd * As
-		//glBlendFunc(GL_ZERO, GL_SRC_ALPHA);
-		//REMOVE
-		glBlendFuncSeparate(GL_ZERO, GL_ONE, GL_ONE, GL_ZERO);
-		//REMOVE
+		//1202 - Cd * As
+		glBlendFuncSeparate(GL_ZERO, GL_SRC_ALPHA, GL_ONE, GL_ZERO);
 	}
 	else if((alpha.nA == ALPHABLEND_ABD_CD) && (alpha.nB == ALPHABLEND_ABD_ZERO) && (alpha.nC == ALPHABLEND_C_FIX) && (alpha.nD == ALPHABLEND_ABD_CS))
 	{
