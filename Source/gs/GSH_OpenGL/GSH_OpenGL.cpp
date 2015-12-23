@@ -1772,7 +1772,52 @@ void CGSH_OpenGL::ProcessHostToLocalTransfer()
 
 void CGSH_OpenGL::ProcessLocalToHostTransfer()
 {
+	//This is constrained to work only with ps2autotest, will be unconstrained later
 
+	auto bltBuf = make_convertible<BITBLTBUF>(m_nReg[GS_REG_BITBLTBUF]);
+	auto trxPos = make_convertible<TRXPOS>(m_nReg[GS_REG_TRXPOS]);
+	auto trxReg = make_convertible<TRXREG>(m_nReg[GS_REG_TRXREG]);
+
+	if(bltBuf.nSrcPsm != PSMCT32) return;
+
+	uint32 transferAddress = bltBuf.GetSrcPtr();
+	if(transferAddress != 0) return;
+
+	if((trxReg.nRRW != 32) || (trxReg.nRRH != 32)) return;
+	if((trxPos.nSSAX != 0) || (trxPos.nSSAY != 0)) return;
+
+	auto framebufferIterator = std::find_if(m_framebuffers.begin(), m_framebuffers.end(), 
+		[] (const FramebufferPtr& framebuffer)
+		{
+			return (framebuffer->m_psm == PSMCT32) && (framebuffer->m_basePtr == 0);
+		}
+	);
+	if(framebufferIterator == std::end(m_framebuffers)) return;
+	const auto& framebuffer = (*framebufferIterator);
+
+	FlushVertexBuffer();
+	m_renderState.isValid = false;
+
+	auto pixels = new uint32[trxReg.nRRW * trxReg.nRRH];
+
+	glBindFramebuffer(GL_FRAMEBUFFER, framebuffer->m_framebuffer);
+	glReadPixels(trxPos.nSSAX, trxPos.nSSAY, trxReg.nRRW, trxReg.nRRH, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
+	CHECKGLERROR();
+
+	//Write back to RAM
+	{
+		CGsPixelFormats::CPixelIndexorPSMCT32 indexor(m_pRAM, bltBuf.GetSrcPtr(), bltBuf.nSrcWidth);
+		for(uint32 y = trxPos.nSSAY; y < (trxPos.nSSAY + trxReg.nRRH); y++)
+		{
+			for(uint32 x = trxPos.nSSAX; x < (trxPos.nSSAX + trxReg.nRRH); x++)
+			{
+				uint32 pixel = pixels[x + (y * trxReg.nRRW)];
+				indexor.SetPixel(x, y, pixel);
+			}
+		}
+	}
+
+	delete [] pixels;
 }
 
 void CGSH_OpenGL::ProcessLocalToLocalTransfer()
