@@ -16,6 +16,7 @@
 #include "Debugger.h"
 #include "resource.h"
 #include "string_cast.h"
+#include "string_format.h"
 
 #define CLSNAME			_T("CDebugger")
 
@@ -282,6 +283,34 @@ void CDebugger::ReanalyzeEe()
 	auto executableRange = m_virtualMachine.m_ee->m_os->GetExecutableRange();
 	uint32 minAddr = executableRange.first;
 	uint32 maxAddr = executableRange.second & ~0x03;
+
+	auto getAddress = 
+		[this] (const TCHAR* prompt, uint32& address)
+		{
+			Framework::Win32::CInputBox addressInputBox(_T("Analyze EE"), prompt, 
+				string_format(_T("0x%0.8X"), address).c_str());
+			auto addrValue = addressInputBox.GetValue(m_hWnd);
+			if(addrValue == nullptr) return false;
+			uint32 addrValueTemp = 0;
+			int cvtCount = _stscanf(addrValue, _T("%x"), &addrValueTemp);
+			if(cvtCount != 0)
+			{
+				address = addrValueTemp & ~0x3;
+			}
+			return true;
+		};
+
+	if(!getAddress(_T("Start Address:"), minAddr)) return;
+	if(!getAddress(_T("End Address:"), maxAddr)) return;
+
+	if(minAddr > maxAddr)
+	{
+		MessageBox(m_hWnd, _T("Start address is larger than end address."), _T("Analyze EE"), MB_ICONERROR);
+		return;
+	}
+
+	minAddr = std::min<uint32>(minAddr, PS2::EE_RAM_SIZE);
+	maxAddr = std::min<uint32>(maxAddr, PS2::EE_RAM_SIZE);
 
 	m_virtualMachine.m_ee->m_EE.m_analysis->Clear();
 	m_virtualMachine.m_ee->m_EE.m_analysis->Analyse(minAddr, maxAddr);
