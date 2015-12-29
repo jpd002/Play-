@@ -7,11 +7,12 @@
 
 namespace Iop
 {
+	class CCdvdman;
 
 	class CCdvdfsv : public CModule
 	{
 	public:
-							CCdvdfsv(CSifMan&, uint8*);
+							CCdvdfsv(CSifMan&, CCdvdman&, uint8*);
 		virtual				~CCdvdfsv();
 
 		std::string			GetId() const override;
@@ -54,6 +55,7 @@ namespace Iop
 		void				StreamCmd(uint32*, uint32, uint32*, uint32, uint8*);
 		void				SearchFile(uint32*, uint32, uint32*, uint32, uint8*);
 
+		CCdvdman&			m_cdvdman;
 		uint32				m_streamPos = 0;
 		uint8*				m_iopRam = nullptr;
 		CISO9660*			m_iso = nullptr;

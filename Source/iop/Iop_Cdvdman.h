@@ -24,6 +24,8 @@ namespace Iop
 		void					LoadState(Framework::CZipArchiveReader&);
 		void					SaveState(Framework::CZipArchiveWriter&);
 
+		uint32					CdReadClockDirect(uint8*);
+
 	private:
 		enum CDVD_STATUS
 		{

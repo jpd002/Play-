@@ -210,7 +210,7 @@ void CIopBios::Reset(Iop::CSifMan* sifMan)
 		RegisterModule(m_fileIo);
 	}
 	{
-		m_cdvdfsv = new Iop::CCdvdfsv(*m_sifMan, m_ram);
+		m_cdvdfsv = new Iop::CCdvdfsv(*m_sifMan, *m_cdvdman, m_ram);
 		RegisterModule(m_cdvdfsv);
 	}
 	{

@@ -2,14 +2,16 @@
 #include "../Log.h"
 #include "../Ps2Const.h"
 #include "Iop_Cdvdfsv.h"
+#include "Iop_Cdvdman.h"
 #include "Iop_SifManPs2.h"
 
 using namespace Iop;
 
 #define LOG_NAME "iop_cdvdfsv"
 
-CCdvdfsv::CCdvdfsv(CSifMan& sif, uint8* iopRam)
-: m_iopRam(iopRam)
+CCdvdfsv::CCdvdfsv(CSifMan& sif, CCdvdman& cdvdman, uint8* iopRam)
+: m_cdvdman(cdvdman)
+, m_iopRam(iopRam)
 {
 	m_module592 = CSifModuleAdapter(std::bind(&CCdvdfsv::Invoke592, this,
 		std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, std::placeholders::_5, std::placeholders::_6));
@@ -127,19 +129,8 @@ bool CCdvdfsv::Invoke593(uint32 method, uint32* args, uint32 argsSize, uint32* r
 			assert(retSize >= 0xC);
 			CLog::GetInstance().Print(LOG_NAME, "ReadClock();\r\n");
 
-			time_t currentTime = time(0);
-			tm* localTime = localtime(&currentTime);
-			uint8* clockResult = reinterpret_cast<uint8*>(ret + 1);
-			clockResult[0] = 0x01;											//Status ?
-			clockResult[1] = static_cast<uint8>(localTime->tm_sec);			//Seconds
-			clockResult[2] = static_cast<uint8>(localTime->tm_min);			//Minutes
-			clockResult[3] = static_cast<uint8>(localTime->tm_hour);		//Hour
-			clockResult[4] = 0;												//Padding
-			clockResult[5] = static_cast<uint8>(localTime->tm_mday);		//Day
-			clockResult[6] = static_cast<uint8>(localTime->tm_mon);			//Month
-			clockResult[7] = static_cast<uint8>(localTime->tm_year % 100);	//Year
-
-			ret[0x00] = 0x00;
+			auto clockBuffer = reinterpret_cast<uint8*>(ret + 1);
+			(*ret) = m_cdvdman.CdReadClockDirect(clockBuffer);
 		}
 		break;
 

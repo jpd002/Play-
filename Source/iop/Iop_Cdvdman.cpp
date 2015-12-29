@@ -50,6 +50,29 @@ void CCdvdman::SaveState(Framework::CZipArchiveWriter& archive)
 	archive.InsertFile(registerFile);
 }
 
+static uint8 Uint8ToBcd(uint8 input)
+{
+	uint8 digit0 = input % 10;
+	uint8 digit1 = (input / 10) % 10;
+	return digit0 | (digit1 << 4);
+}
+
+uint32 CCdvdman::CdReadClockDirect(uint8* clockBuffer)
+{
+	auto currentTime = time(0);
+	auto localTime = localtime(&currentTime);
+	clockBuffer[0] = 0;                                                           //Status (0 = ok, anything else = error)
+	clockBuffer[1] = Uint8ToBcd(static_cast<uint8>(localTime->tm_sec));           //Seconds
+	clockBuffer[2] = Uint8ToBcd(static_cast<uint8>(localTime->tm_min));           //Minutes
+	clockBuffer[3] = Uint8ToBcd(static_cast<uint8>(localTime->tm_hour));          //Hour
+	clockBuffer[4] = 0;                                                           //Padding
+	clockBuffer[5] = Uint8ToBcd(static_cast<uint8>(localTime->tm_mday));          //Day
+	clockBuffer[6] = Uint8ToBcd(static_cast<uint8>(localTime->tm_mon + 1));       //Month
+	clockBuffer[7] = Uint8ToBcd(static_cast<uint8>(localTime->tm_year % 100));    //Year
+	//Returns 1 on success and 0 on error
+	return 1;
+}
+
 std::string CCdvdman::GetId() const
 {
 	return "cdvdman";
@@ -288,20 +311,8 @@ uint32 CCdvdman::CdReadClock(uint32 clockPtr)
 	CLog::GetInstance().Print(LOG_NAME, FUNCTION_CDREADCLOCK "(clockPtr = %0.8X);\r\n",
 		clockPtr);
 
-	time_t currentTime = time(0);
-	tm* localTime = localtime(&currentTime);
-
-	uint8* clockResult = m_ram + clockPtr;
-	clockResult[0] = 0x01;											//Status ?
-	clockResult[1] = static_cast<uint8>(localTime->tm_sec);			//Seconds
-	clockResult[2] = static_cast<uint8>(localTime->tm_min);			//Minutes
-	clockResult[3] = static_cast<uint8>(localTime->tm_hour);		//Hour
-	clockResult[4] = 0;												//Week
-	clockResult[5] = static_cast<uint8>(localTime->tm_mday);		//Day
-	clockResult[6] = static_cast<uint8>(localTime->tm_mon);			//Month
-	clockResult[7] = static_cast<uint8>(localTime->tm_year % 100);	//Year
-
-	return 0;
+	auto clockBuffer = m_ram + clockPtr;
+	return CdReadClockDirect(clockBuffer);
 }
 
 uint32 CCdvdman::CdStatus()
