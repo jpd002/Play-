@@ -108,8 +108,15 @@ namespace Iop
 			uint32			unknown4;
 		};
 
+		uint32			InvokeOpen(uint32*, uint32, uint32*, uint32, uint8*);
+		uint32			InvokeClose(uint32*, uint32, uint32*, uint32, uint8*);
+		uint32			InvokeRead(uint32*, uint32, uint32*, uint32, uint8*);
+		uint32			InvokeSeek(uint32*, uint32, uint32*, uint32, uint8*);
+		uint32			InvokeActivate(uint32*, uint32, uint32*, uint32, uint8*);
+
 		void			CopyHeader(REPLYHEADER&, const COMMANDHEADER&);
-		
+		void			SendSifReply();
+
 		uint32			m_resultPtr[2];
 		CSifMan&		m_sifMan;
 	};
