@@ -65,8 +65,6 @@ namespace Iop
 		typedef std::map<uint32, Framework::CStream*> FileMapType;
 		typedef std::map<std::string, DevicePtr> DeviceMapType;
 
-		void					Open(CMIPS&);
-
 		FileMapType				m_files;
 		DeviceMapType			m_devices;
 		uint8*					m_ram;
