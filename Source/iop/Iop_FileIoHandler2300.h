@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Iop_FileIo.h"
+#include "Iop_Ioman.h"
 
 namespace Iop
 {
@@ -47,6 +48,13 @@ namespace Iop
 			uint32			fd;
 			uint32			offset;
 			uint32			whence;
+		};
+
+		struct GETSTATCOMMAND
+		{
+			COMMANDHEADER	header;
+			uint32			statBuffer;
+			char			fileName[256];
 		};
 
 		struct ACTIVATECOMMAND
@@ -99,6 +107,14 @@ namespace Iop
 			uint32			unknown4;
 		};
 
+		struct GETSTATREPLY
+		{
+			REPLYHEADER		header;
+			uint32			result;
+			uint32			dstPtr;
+			CIoman::STAT	stat;
+		};
+
 		struct ACTIVATEREPLY
 		{
 			REPLYHEADER		header;
@@ -112,6 +128,7 @@ namespace Iop
 		uint32			InvokeClose(uint32*, uint32, uint32*, uint32, uint8*);
 		uint32			InvokeRead(uint32*, uint32, uint32*, uint32, uint8*);
 		uint32			InvokeSeek(uint32*, uint32, uint32*, uint32, uint8*);
+		uint32			InvokeGetStat(uint32*, uint32, uint32*, uint32, uint8*);
 		uint32			InvokeActivate(uint32*, uint32, uint32*, uint32, uint8*);
 
 		void			CopyHeader(REPLYHEADER&, const COMMANDHEADER&);

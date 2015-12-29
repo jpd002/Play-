@@ -24,6 +24,19 @@ namespace Iop
 			SEEK_DIR_END = 2
 		};
 
+		struct STAT
+		{
+			uint32			mode;
+			uint32			attr;
+			uint32			loSize;
+			uint8			creationTime[8];
+			uint8			lastAccessTime[8];
+			uint8			lastModificationTime[8];
+			uint32			hiSize;
+			uint32			reserved[6];
+		};
+		static_assert(sizeof(STAT) == 64, "STAT structure must be 64 bytes long.");
+
 		class CFile
 		{
 		public:
@@ -55,6 +68,7 @@ namespace Iop
 		uint32					Read(uint32, uint32, void*);
 		uint32					Write(uint32, uint32, const void*);
 		uint32					Seek(uint32, uint32, uint32);
+		uint32					GetStat(const char*, STAT*);
 		uint32					AddDrv(uint32);
 		uint32					DelDrv(uint32);
 

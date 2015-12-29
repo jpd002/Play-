@@ -10,6 +10,7 @@ using namespace Iop;
 #define COMMANDID_CLOSE       1
 #define COMMANDID_READ        2
 #define COMMANDID_SEEK        4
+#define COMMANDID_GETSTAT     12
 #define COMMANDID_ACTIVATE    23
 
 CFileIoHandler2300::CFileIoHandler2300(CIoman* ioman, CSifMan& sifMan)
@@ -34,6 +35,9 @@ void CFileIoHandler2300::Invoke(uint32 method, uint32* args, uint32 argsSize, ui
 		break;
 	case COMMANDID_SEEK:
 		*ret = InvokeSeek(args, argsSize, ret, retSize, ram);
+		break;
+	case COMMANDID_GETSTAT:
+		*ret = InvokeGetStat(args, argsSize, ret, retSize, ram);
 		break;
 	case COMMANDID_ACTIVATE:
 		*ret = InvokeActivate(args, argsSize, ret, retSize, ram);
@@ -147,6 +151,29 @@ uint32 CFileIoHandler2300::InvokeSeek(uint32* args, uint32 argsSize, uint32* ret
 		reply.unknown3 = 0;
 		reply.unknown4 = 0;
 		memcpy(ram + m_resultPtr[0], &reply, sizeof(SEEKREPLY));
+	}
+
+	SendSifReply();
+	return 1;
+}
+
+uint32 CFileIoHandler2300::InvokeGetStat(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, uint8* ram)
+{
+	assert(retSize == 4);
+	CIoman::STAT stat;
+	auto command = reinterpret_cast<GETSTATCOMMAND*>(args);
+	auto result = m_ioman->GetStat(command->fileName, &stat);
+
+	//Send response
+	if(m_resultPtr[0] != 0)
+	{
+		GETSTATREPLY reply;
+		reply.header.commandId = COMMANDID_GETSTAT;
+		CopyHeader(reply.header, command->header);
+		reply.result = result;
+		reply.dstPtr = command->statBuffer;
+		reply.stat   = stat;
+		memcpy(ram + m_resultPtr[0], &reply, sizeof(GETSTATREPLY));
 	}
 
 	SendSifReply();
