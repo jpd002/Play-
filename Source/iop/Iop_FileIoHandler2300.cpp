@@ -182,7 +182,7 @@ uint32 CFileIoHandler2300::InvokeGetStat(uint32* args, uint32 argsSize, uint32* 
 
 uint32 CFileIoHandler2300::InvokeActivate(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, uint8* ram)
 {
-	//No idea what that does...
+	//No idea what that does... This is used by Romancing Saga with 'hdd0:' parameter.
 	assert(retSize == 4);
 	auto command = reinterpret_cast<ACTIVATECOMMAND*>(args);
 
@@ -200,7 +200,9 @@ uint32 CFileIoHandler2300::InvokeActivate(uint32* args, uint32 argsSize, uint32*
 	}
 
 	SendSifReply();
-	return 1;
+	
+	//Return failure till we figure out what that does
+	return 0;
 }
 
 void CFileIoHandler2300::CopyHeader(REPLYHEADER& reply, const COMMANDHEADER& command)
