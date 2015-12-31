@@ -121,10 +121,6 @@ CGSH_OpenGL::TEXTURE_INFO CGSH_OpenGL::PrepareTexture(const TEX0& tex0)
 			float scaleRatioX = static_cast<float>(tex0.GetWidth()) / static_cast<float>(candidateFramebuffer->m_textureWidth);
 			float scaleRatioY = static_cast<float>(tex0.GetHeight()) / static_cast<float>(candidateFramebuffer->m_height);
 
-			//If we're currently in interlaced mode, framebuffer will have twice the height
-			bool halfHeight = GetCrtIsInterlaced() && GetCrtIsFrameMode();
-			if(halfHeight) scaleRatioY *= 2.0f;
-
 			texInfo.offsetX = offsetX;
 			texInfo.scaleRatioX = scaleRatioX;
 			texInfo.scaleRatioY = scaleRatioY;

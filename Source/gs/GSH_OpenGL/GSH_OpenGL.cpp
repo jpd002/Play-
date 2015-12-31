@@ -128,6 +128,9 @@ void CGSH_OpenGL::FlipImpl()
 	unsigned int dispWidth = (d.nW + 1) / (d.nMagX + 1);
 	unsigned int dispHeight = (d.nH + 1);
 
+	bool halfHeight = GetCrtIsInterlaced() && GetCrtIsFrameMode();
+	if(halfHeight) dispHeight /= 2;
+
 	FramebufferPtr framebuffer;
 	for(const auto& candidateFramebuffer : m_framebuffers)
 	{
@@ -157,8 +160,7 @@ void CGSH_OpenGL::FlipImpl()
 		//BGDA (US version) requires the interlaced check to work properly
 		//Data read from dirty pages here would probably need to be scaled up by 2
 		//if we are in interlaced mode (guessing that Unreal Tournament would need that here)
-		bool halfHeight = GetCrtIsInterlaced() && GetCrtIsFrameMode();
-		CommitFramebufferDirtyPages(framebuffer, 0, halfHeight ? (dispHeight / 2) : dispHeight);
+		CommitFramebufferDirtyPages(framebuffer, 0, dispHeight);
 	}
 
 	//Clear all of our output framebuffer
@@ -936,9 +938,8 @@ void CGSH_OpenGL::SetupFramebuffer(const SHADERINFO& shaderInfo, uint64 frameReg
 
 	glViewport(0, 0, framebuffer->m_width * FBSCALE, framebuffer->m_height * FBSCALE);
 	
-	bool halfHeight = GetCrtIsInterlaced() && GetCrtIsFrameMode();
 	float projWidth = static_cast<float>(framebuffer->m_width);
-	float projHeight = static_cast<float>(halfHeight ? (framebuffer->m_height / 2) : framebuffer->m_height);
+	float projHeight = static_cast<float>(framebuffer->m_height);
 
 	float projMatrix[16];
 	MakeLinearZOrtho(projMatrix, 0, projWidth, 0, projHeight);
@@ -953,11 +954,6 @@ void CGSH_OpenGL::SetupFramebuffer(const SHADERINFO& shaderInfo, uint64 frameReg
 	int scissorY = scissor.scay0;
 	int scissorWidth = scissor.scax1 - scissor.scax0 + 1;
 	int scissorHeight = scissor.scay1 - scissor.scay0 + 1;
-	if(halfHeight)
-	{
-		scissorY *= 2;
-		scissorHeight *= 2;
-	}
 	glScissor(scissorX * FBSCALE, scissorY * FBSCALE, scissorWidth * FBSCALE, scissorHeight * FBSCALE);
 }
 
