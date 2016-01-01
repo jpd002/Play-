@@ -93,6 +93,7 @@ CGSH_OpenGL::TEXTURE_INFO CGSH_OpenGL::PrepareTexture(const TEX0& tex0)
 
 		//Another case: TEX0 is pointing to the start of a page within our framebuffer (BGDA does this)
 		else if(candidateFramebuffer->m_basePtr <= tex0.GetBufPtr() &&
+			candidateFramebuffer->m_width == tex0.GetBufWidth() &&
 			candidateFramebuffer->m_psm == tex0.nPsm)
 		{
 			uint32 framebufferOffset = tex0.GetBufPtr() - candidateFramebuffer->m_basePtr;
