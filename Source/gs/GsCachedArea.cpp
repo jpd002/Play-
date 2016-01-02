@@ -10,8 +10,8 @@ static bool DoMemoryRangesOverlap(uint32 start1, uint32 size1, uint32 start2, ui
 	uint32 min2 = start2;
 	uint32 max2 = start2 + size2;
 
-	if(max1 < min2) return false;
-	if(min1 > max2) return false;
+	if(max1 <= min2) return false;
+	if(min1 >= max2) return false;
 	
 	return true;
 }
