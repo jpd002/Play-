@@ -220,7 +220,7 @@ void CGSH_OpenGL::FlipImpl()
 
 	if(framebuffer)
 	{
-		float u1 = static_cast<float>(dispWidth) / static_cast<float>(framebuffer->m_textureWidth);
+		float u1 = static_cast<float>(dispWidth) / static_cast<float>(framebuffer->m_width);
 		float v1 = static_cast<float>(dispHeight) / static_cast<float>(framebuffer->m_height);
 
 		glDisable(GL_BLEND);
@@ -902,7 +902,7 @@ void CGSH_OpenGL::SetupFramebuffer(const SHADERINFO& shaderInfo, uint64 frameReg
 	}
 
 	//Look for a framebuffer that matches the specified information
-	auto framebuffer = FindCompatibleFramebuffer(frame);
+	auto framebuffer = FindFramebuffer(frame);
 	if(!framebuffer)
 	{
 		framebuffer = FramebufferPtr(new CFramebuffer(frame.GetBasePtr(), frame.GetWidth(), 1024, frame.nPsm));
@@ -911,7 +911,6 @@ void CGSH_OpenGL::SetupFramebuffer(const SHADERINFO& shaderInfo, uint64 frameReg
 		PopulateFramebuffer(framebuffer);
 #endif
 	}
-	framebuffer->SetBufferWidth(frame.GetWidth());
 
 	CommitFramebufferDirtyPages(framebuffer, scissor.scay0, scissor.scay1);
 
@@ -921,6 +920,8 @@ void CGSH_OpenGL::SetupFramebuffer(const SHADERINFO& shaderInfo, uint64 frameReg
 		depthbuffer = DepthbufferPtr(new CDepthbuffer(zbuf.GetBasePtr(), frame.GetWidth(), 1024, zbuf.nPsm));
 		m_depthbuffers.push_back(depthbuffer);
 	}
+
+	assert(framebuffer->m_width == depthbuffer->m_width);
 
 	glBindFramebuffer(GL_FRAMEBUFFER, framebuffer->m_framebuffer);
 
@@ -1235,14 +1236,14 @@ void CGSH_OpenGL::SetupTexture(const SHADERINFO& shaderInfo, uint64 primReg, uin
 	}
 }
 
-CGSH_OpenGL::FramebufferPtr CGSH_OpenGL::FindCompatibleFramebuffer(const FRAME& frame) const
+CGSH_OpenGL::FramebufferPtr CGSH_OpenGL::FindFramebuffer(const FRAME& frame) const
 {
 	auto framebufferIterator = std::find_if(std::begin(m_framebuffers), std::end(m_framebuffers), 
 		[&] (const FramebufferPtr& framebuffer)
 		{
 			return (framebuffer->m_basePtr == frame.GetBasePtr()) &&
 				(framebuffer->m_psm == frame.nPsm) &&
-				(framebuffer->m_width >= frame.GetWidth());
+				(framebuffer->m_width == frame.GetWidth());
 		}
 	);
 
@@ -1885,7 +1886,6 @@ CGSH_OpenGL::CFramebuffer::CFramebuffer(uint32 basePtr, uint32 width, uint32 hei
 , m_psm(psm)
 , m_framebuffer(0)
 , m_texture(0)
-, m_textureWidth(width)
 {
 	m_cachedArea.SetArea(psm, basePtr, width, height);
 
@@ -1915,13 +1915,6 @@ CGSH_OpenGL::CFramebuffer::~CFramebuffer()
 	{
 		glDeleteTextures(1, &m_texture);
 	}
-}
-
-void CGSH_OpenGL::CFramebuffer::SetBufferWidth(uint32 newWidth)
-{
-	if(m_width == newWidth) return;
-	m_width = newWidth;
-	m_cachedArea.SetArea(m_psm, m_basePtr, m_width, m_height);
 }
 
 void CGSH_OpenGL::PopulateFramebuffer(const FramebufferPtr& framebuffer)
