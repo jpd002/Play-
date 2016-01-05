@@ -7,8 +7,6 @@
 #include "../GsPixelFormats.h"
 #include "GSH_OpenGL.h"
 
-//#define _WIREFRAME
-
 //#define HIGHRES_MODE
 #ifdef HIGHRES_MODE
 #define FBSCALE (2.0f)
@@ -294,11 +292,6 @@ void CGSH_OpenGL::InitializeRC()
 	glClearDepthf(0.0f);
 
 	SetupTextureUploaders();
-
-#ifdef _WIREFRAME
-	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-	glDisable(GL_TEXTURE_2D);
-#endif
 
 	m_presentProgram = GeneratePresentProgram();
 	m_presentVertexBuffer = GeneratePresentVertexBuffer();
