@@ -604,6 +604,21 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		7066B4BE1C3EB838007568BB /* VirtualPad */ = {
+			isa = PBXGroup;
+			children = (
+				70D3A86D1BDF1746005494CE /* VirtualPadButton.h */,
+				70D3A86E1BDF1746005494CE /* VirtualPadButton.mm */,
+				70D3A86F1BDF1746005494CE /* VirtualPadItem.h */,
+				70D3A8701BDF1746005494CE /* VirtualPadItem.mm */,
+				70D3A8711BDF1746005494CE /* VirtualPadStick.h */,
+				70D3A8721BDF1746005494CE /* VirtualPadStick.mm */,
+				70D3A8731BDF1746005494CE /* VirtualPadView.h */,
+				70D3A8741BDF1746005494CE /* VirtualPadView.mm */,
+			);
+			name = VirtualPad;
+			sourceTree = "<group>";
+		};
 		70834AA51B1BC70300E8D5C6 = {
 			isa = PBXGroup;
 			children = (
@@ -662,14 +677,7 @@
 				70834CE21B1BD93100E8D5C6 /* Purei_Prefix.pch */,
 				874ECDA71B7DB1C1000075B6 /* SqliteDatabase.h */,
 				874ECDA51B7DB0F6000075B6 /* SqliteDatabase.m */,
-				70D3A86D1BDF1746005494CE /* VirtualPadButton.h */,
-				70D3A86E1BDF1746005494CE /* VirtualPadButton.mm */,
-				70D3A86F1BDF1746005494CE /* VirtualPadItem.h */,
-				70D3A8701BDF1746005494CE /* VirtualPadItem.mm */,
-				70D3A8711BDF1746005494CE /* VirtualPadStick.h */,
-				70D3A8721BDF1746005494CE /* VirtualPadStick.mm */,
-				70D3A8731BDF1746005494CE /* VirtualPadView.h */,
-				70D3A8741BDF1746005494CE /* VirtualPadView.mm */,
+				7066B4BE1C3EB838007568BB /* VirtualPad */,
 			);
 			name = ui_ios;
 			sourceTree = "<group>";
