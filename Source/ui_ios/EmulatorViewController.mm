@@ -20,7 +20,7 @@ CPS2VM* g_virtualMachine = nullptr;
 +(void)registerPreferences
 {
 	CAppConfig::GetInstance().RegisterPreferenceBoolean(PREFERENCE_UI_SHOWFPS, false);
-	CAppConfig::GetInstance().RegisterPreferenceBoolean(PREFERENCE_UI_SHOWVIRTUALPAD, false);
+	CAppConfig::GetInstance().RegisterPreferenceBoolean(PREFERENCE_UI_SHOWVIRTUALPAD, true);
 }
 
 -(void)viewDidLoad
