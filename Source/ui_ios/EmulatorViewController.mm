@@ -4,6 +4,7 @@
 #include "../PS2VM.h"
 #include "../PS2VM_Preferences.h"
 #include "../AppConfig.h"
+#include "PreferenceDefs.h"
 #include "GSH_OpenGLiOS.h"
 #include "IosUtils.h"
 #include "PH_Generic.h"
@@ -15,6 +16,12 @@ CPS2VM* g_virtualMachine = nullptr;
 @end
 
 @implementation EmulatorViewController
+
++(void)registerPreferences
+{
+	CAppConfig::GetInstance().RegisterPreferenceBoolean(PREFERENCE_UI_SHOWFPS, false);
+	CAppConfig::GetInstance().RegisterPreferenceBoolean(PREFERENCE_UI_SHOWVIRTUALPAD, false);
+}
 
 -(void)viewDidLoad
 {
@@ -52,12 +59,19 @@ CPS2VM* g_virtualMachine = nullptr;
 
 	g_virtualMachine->CreatePadHandler(CPH_Generic::GetFactoryFunction());
 	
-	CGRect screenBounds = [[UIScreen mainScreen] bounds];
-	self.virtualPadView = [[VirtualPadView alloc] initWithFrame: screenBounds
-	                                              padHandler: static_cast<CPH_Generic*>(g_virtualMachine->GetPadHandler())];
-	[self.view addSubview: self.virtualPadView];
+	const CGRect screenBounds = [[UIScreen mainScreen] bounds];
 
-	[self setupFpsCounter];
+	if(CAppConfig::GetInstance().GetPreferenceBoolean(PREFERENCE_UI_SHOWVIRTUALPAD))
+	{
+		auto padHandler = static_cast<CPH_Generic*>(g_virtualMachine->GetPadHandler());
+		self.virtualPadView = [[VirtualPadView alloc] initWithFrame: screenBounds padHandler: padHandler];
+		[self.view addSubview: self.virtualPadView];
+	}
+
+	if(CAppConfig::GetInstance().GetPreferenceBoolean(PREFERENCE_UI_SHOWFPS))
+	{
+		[self setupFpsCounter];
+	}
 
 	UIButton* but = [UIButton buttonWithType: UIButtonTypeRoundedRect];
 	[but setTitle: @"Save" forState: UIControlStateNormal];

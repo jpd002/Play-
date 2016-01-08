@@ -26,6 +26,7 @@
 		705342D91B78122400477EC4 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 705342D81B78122400477EC4 /* CoreGraphics.framework */; };
 		705877341BE58A4B00213FFC /* PH_Generic.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 705877321BE58A4B00213FFC /* PH_Generic.cpp */; };
 		70603E1F1B60A94400935E3C /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 70603E1E1B60A94400935E3C /* Images.xcassets */; };
+		7066B4BD1C3EB820007568BB /* SettingsViewController.mm in Sources */ = {isa = PBXBuildFile; fileRef = 7066B4BC1C3EB820007568BB /* SettingsViewController.mm */; };
 		7075D0B51B63260F0010D69C /* DiskUtils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7075D0B31B63260F0010D69C /* DiskUtils.cpp */; };
 		7075D0BB1B634B470010D69C /* IosUtils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7075D0B91B634B470010D69C /* IosUtils.cpp */; };
 		70834AE91B1BCB0100E8D5C6 /* AppDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 70834AE41B1BCB0100E8D5C6 /* AppDelegate.mm */; };
@@ -250,6 +251,9 @@
 		705877321BE58A4B00213FFC /* PH_Generic.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = PH_Generic.cpp; path = ../Source/PH_Generic.cpp; sourceTree = "<group>"; };
 		705877331BE58A4B00213FFC /* PH_Generic.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PH_Generic.h; path = ../Source/PH_Generic.h; sourceTree = "<group>"; };
 		70603E1E1B60A94400935E3C /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = "Play!/Images.xcassets"; sourceTree = "<group>"; };
+		7066B4BC1C3EB820007568BB /* SettingsViewController.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = SettingsViewController.mm; path = ../Source/ui_ios/SettingsViewController.mm; sourceTree = "<group>"; };
+		7066B4BF1C3EB87C007568BB /* SettingsViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = SettingsViewController.h; path = ../Source/ui_ios/SettingsViewController.h; sourceTree = "<group>"; };
+		7066B4C01C3F3BC9007568BB /* PreferenceDefs.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = PreferenceDefs.h; path = ../Source/ui_ios/PreferenceDefs.h; sourceTree = "<group>"; };
 		7075D0B31B63260F0010D69C /* DiskUtils.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = DiskUtils.cpp; path = ../Source/DiskUtils.cpp; sourceTree = "<group>"; };
 		7075D0B41B63260F0010D69C /* DiskUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DiskUtils.h; path = ../Source/DiskUtils.h; sourceTree = "<group>"; };
 		7075D0B91B634B470010D69C /* IosUtils.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = IosUtils.cpp; path = ../Source/ui_ios/IosUtils.cpp; sourceTree = "<group>"; };
@@ -674,7 +678,10 @@
 				70834AEF1B1BCB9E00E8D5C6 /* LaunchScreen.xib */,
 				70834AE61B1BCB0100E8D5C6 /* main.mm */,
 				70834AF11B1BCB9E00E8D5C6 /* Main.storyboard */,
+				7066B4C01C3F3BC9007568BB /* PreferenceDefs.h */,
 				70834CE21B1BD93100E8D5C6 /* Purei_Prefix.pch */,
+				7066B4BF1C3EB87C007568BB /* SettingsViewController.h */,
+				7066B4BC1C3EB820007568BB /* SettingsViewController.mm */,
 				874ECDA71B7DB1C1000075B6 /* SqliteDatabase.h */,
 				874ECDA51B7DB0F6000075B6 /* SqliteDatabase.m */,
 				7066B4BE1C3EB838007568BB /* VirtualPad */,
@@ -1280,6 +1287,7 @@
 				70834B7B1B1BD2C300E8D5C6 /* RegisterStateFile.cpp in Sources */,
 				70834B631B1BD2C300E8D5C6 /* Log.cpp in Sources */,
 				70AD238C1B38FFBA00137AA0 /* SaveImporter.cpp in Sources */,
+				7066B4BD1C3EB820007568BB /* SettingsViewController.mm in Sources */,
 				70834BFB1B1BD6A300E8D5C6 /* VuAnalysis.cpp in Sources */,
 				70834BF71B1BD6A300E8D5C6 /* Timer.cpp in Sources */,
 				87DCDB381B7F13370054D67C /* CollectionView.m in Sources */,

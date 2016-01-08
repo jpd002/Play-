@@ -5,6 +5,8 @@
 
 @interface EmulatorViewController : UIViewController <iCadeEventDelegate>
 
++(void)registerPreferences;
+
 @property (nonatomic) iCadeReaderView* iCadeReader;
 @property (nonatomic) GCController *gController __attribute__((weak_import));
 @property (nonatomic, strong) id connectObserver;
