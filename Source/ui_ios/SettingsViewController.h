@@ -4,6 +4,8 @@
 {
 	IBOutlet UISwitch*    showFpsSwitch;
 	IBOutlet UISwitch*    showVirtualPadSwitch;
+	
+	IBOutlet UILabel*    versionInfoLabel;
 }
 
 @end
