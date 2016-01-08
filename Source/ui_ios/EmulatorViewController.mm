@@ -74,9 +74,9 @@ CPS2VM* g_virtualMachine = nullptr;
 	}
 
 	UIButton* but = [UIButton buttonWithType: UIButtonTypeRoundedRect];
-	[but setTitle: @"Save" forState: UIControlStateNormal];
+	[but setTitle: @"Exit" forState: UIControlStateNormal];
 	[but setBackgroundColor: [UIColor whiteColor]];
-	[but addTarget: self action: @selector(onSaveStateButtonClick) forControlEvents: UIControlEventTouchUpInside];
+	[but addTarget: self action: @selector(onExitButtonClick) forControlEvents: UIControlEventTouchUpInside];
 	but.frame = CGRectMake(screenBounds.size.width - 50, (screenBounds.size.height - 25) / 2, 50, 25);
 	[self.view addSubview: but];
 	
@@ -253,6 +253,12 @@ CPS2VM* g_virtualMachine = nullptr;
 	auto statePath = dataPath / "state.sta";
 	g_virtualMachine->SaveState(statePath.c_str());
 	NSLog(@"Saved state to '%s'.", statePath.string().c_str());
+}
+
+-(void)onExitButtonClick
+{
+	g_virtualMachine->Pause();
+	[self dismissViewControllerAnimated: YES completion: nil];
 }
 
 -(BOOL)prefersStatusBarHidden
