@@ -172,7 +172,7 @@ private:
 	class CFramebuffer
 	{
 	public:
-									CFramebuffer(uint32, uint32, uint32, uint32);
+									CFramebuffer(uint32, uint32, uint32, uint32, uint32);
 									~CFramebuffer();
 
 		uint32						m_basePtr;
@@ -191,7 +191,7 @@ private:
 	class CDepthbuffer
 	{
 	public:
-									CDepthbuffer(uint32, uint32, uint32, uint32);
+									CDepthbuffer(uint32, uint32, uint32, uint32, uint32);
 									~CDepthbuffer();
 
 		uint32						m_basePtr;
@@ -313,6 +313,7 @@ private:
 	float							m_nMaxZ;
 
 	bool							m_forceBilinearTextures = false;
+	unsigned int					m_fbScale = 1;
 
 	uint8*							m_pCvtBuffer;
 

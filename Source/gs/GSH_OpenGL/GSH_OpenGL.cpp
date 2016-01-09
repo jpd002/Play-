@@ -7,13 +7,6 @@
 #include "../GsPixelFormats.h"
 #include "GSH_OpenGL.h"
 
-//#define HIGHRES_MODE
-#ifdef HIGHRES_MODE
-#define FBSCALE (2.0f)
-#else
-#define FBSCALE (1.0f)
-#endif
-
 GLenum CGSH_OpenGL::g_nativeClampModes[CGSHandler::CLAMP_MODE_MAX] =
 {
 	GL_REPEAT,
@@ -146,7 +139,7 @@ void CGSH_OpenGL::FlipImpl()
 
 	if(!framebuffer && (fb.GetBufWidth() != 0))
 	{
-		framebuffer = FramebufferPtr(new CFramebuffer(fb.GetBufPtr(), fb.GetBufWidth(), 1024, fb.nPSM));
+		framebuffer = FramebufferPtr(new CFramebuffer(fb.GetBufPtr(), fb.GetBufWidth(), 1024, fb.nPSM, m_fbScale));
 		m_framebuffers.push_back(framebuffer);
 		PopulateFramebuffer(framebuffer);
 	}
@@ -255,7 +248,7 @@ void CGSH_OpenGL::FlipImpl()
 		for(const auto& framebuffer : m_framebuffers)
 		{
 			glBindTexture(GL_TEXTURE_2D, framebuffer->m_texture);
-			DumpTexture(framebuffer->m_width * FBSCALE, framebuffer->m_height * FBSCALE, framebuffer->m_basePtr);
+			DumpTexture(framebuffer->m_width * m_fbScale, framebuffer->m_height * m_fbScale, framebuffer->m_basePtr);
 		}
 		glBindTexture(GL_TEXTURE_2D, 0);
 	}
@@ -887,7 +880,7 @@ void CGSH_OpenGL::SetupFramebuffer(const SHADERINFO& shaderInfo, uint64 frameReg
 	auto framebuffer = FindFramebuffer(frame);
 	if(!framebuffer)
 	{
-		framebuffer = FramebufferPtr(new CFramebuffer(frame.GetBasePtr(), frame.GetWidth(), 1024, frame.nPsm));
+		framebuffer = FramebufferPtr(new CFramebuffer(frame.GetBasePtr(), frame.GetWidth(), 1024, frame.nPsm, m_fbScale));
 		m_framebuffers.push_back(framebuffer);
 		PopulateFramebuffer(framebuffer);
 	}
@@ -897,7 +890,7 @@ void CGSH_OpenGL::SetupFramebuffer(const SHADERINFO& shaderInfo, uint64 frameReg
 	auto depthbuffer = FindDepthbuffer(zbuf, frame);
 	if(!depthbuffer)
 	{
-		depthbuffer = DepthbufferPtr(new CDepthbuffer(zbuf.GetBasePtr(), frame.GetWidth(), 1024, zbuf.nPsm));
+		depthbuffer = DepthbufferPtr(new CDepthbuffer(zbuf.GetBasePtr(), frame.GetWidth(), 1024, zbuf.nPsm, m_fbScale));
 		m_depthbuffers.push_back(depthbuffer);
 	}
 
@@ -917,7 +910,7 @@ void CGSH_OpenGL::SetupFramebuffer(const SHADERINFO& shaderInfo, uint64 frameReg
 		CHECKGLERROR();
 	}
 
-	glViewport(0, 0, framebuffer->m_width * FBSCALE, framebuffer->m_height * FBSCALE);
+	glViewport(0, 0, framebuffer->m_width * m_fbScale, framebuffer->m_height * m_fbScale);
 	
 	float projWidth = static_cast<float>(framebuffer->m_width);
 	float projHeight = static_cast<float>(framebuffer->m_height);
@@ -935,7 +928,7 @@ void CGSH_OpenGL::SetupFramebuffer(const SHADERINFO& shaderInfo, uint64 frameReg
 	int scissorY = scissor.scay0;
 	int scissorWidth = scissor.scax1 - scissor.scax0 + 1;
 	int scissorHeight = scissor.scay1 - scissor.scay0 + 1;
-	glScissor(scissorX * FBSCALE, scissorY * FBSCALE, scissorWidth * FBSCALE, scissorHeight * FBSCALE);
+	glScissor(scissorX * m_fbScale, scissorY * m_fbScale, scissorWidth * m_fbScale, scissorHeight * m_fbScale);
 }
 
 void CGSH_OpenGL::SetupFogColor(const SHADERINFO& shaderInfo, uint64 fogColReg)
@@ -1835,8 +1828,8 @@ void CGSH_OpenGL::ProcessLocalToLocalTransfer()
 
 		//Copy buffers
 		glBlitFramebuffer(
-			0, 0, srcFramebuffer->m_width * FBSCALE, srcFramebuffer->m_height * FBSCALE, 
-			0, 0, srcFramebuffer->m_width * FBSCALE, srcFramebuffer->m_height * FBSCALE, 
+			0, 0, srcFramebuffer->m_width * m_fbScale, srcFramebuffer->m_height * m_fbScale, 
+			0, 0, srcFramebuffer->m_width * m_fbScale, srcFramebuffer->m_height * m_fbScale, 
 			GL_COLOR_BUFFER_BIT, GL_NEAREST);
 		CHECKGLERROR();
 
@@ -1867,7 +1860,7 @@ void CGSH_OpenGL::ReadFramebuffer(uint32 width, uint32 height, void* buffer)
 // Framebuffer
 /////////////////////////////////////////////////////////////
 
-CGSH_OpenGL::CFramebuffer::CFramebuffer(uint32 basePtr, uint32 width, uint32 height, uint32 psm)
+CGSH_OpenGL::CFramebuffer::CFramebuffer(uint32 basePtr, uint32 width, uint32 height, uint32 psm, uint32 scale)
 : m_basePtr(basePtr)
 , m_width(width)
 , m_height(height)
@@ -1880,7 +1873,7 @@ CGSH_OpenGL::CFramebuffer::CFramebuffer(uint32 basePtr, uint32 width, uint32 hei
 	//Build color attachment
 	glGenTextures(1, &m_texture);
 	glBindTexture(GL_TEXTURE_2D, m_texture);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, m_width * FBSCALE, m_height * FBSCALE, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, m_width * scale, m_height * scale, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
 	CHECKGLERROR();
 		
 	//Build framebuffer
@@ -1925,7 +1918,7 @@ void CGSH_OpenGL::PopulateFramebuffer(const FramebufferPtr& framebuffer)
 	//Copy buffers
 	glBlitFramebuffer(
 		0, 0, framebuffer->m_width, framebuffer->m_height, 
-		0, 0, framebuffer->m_width * FBSCALE, framebuffer->m_height * FBSCALE, 
+		0, 0, framebuffer->m_width * m_fbScale, framebuffer->m_height * m_fbScale, 
 		GL_COLOR_BUFFER_BIT, GL_NEAREST);
 	CHECKGLERROR();
 
@@ -2016,8 +2009,8 @@ void CGSH_OpenGL::CommitFramebufferDirtyPages(const FramebufferPtr& framebuffer,
 				texX, texY, texWidth, texHeight);
 			
 			glBlitFramebuffer(
-				texX          , texY          , (texX + texWidth),           (texY + texHeight), 
-				texX * FBSCALE, texY * FBSCALE, (texX + texWidth) * FBSCALE, (texY + texHeight) * FBSCALE, 
+				texX,             texY,             (texX + texWidth),             (texY + texHeight), 
+				texX * m_fbScale, texY * m_fbScale, (texX + texWidth) * m_fbScale, (texY + texHeight) * m_fbScale, 
 				GL_COLOR_BUFFER_BIT, GL_NEAREST);
 			CHECKGLERROR();
 		}
@@ -2032,7 +2025,7 @@ void CGSH_OpenGL::CommitFramebufferDirtyPages(const FramebufferPtr& framebuffer,
 // Depthbuffer
 /////////////////////////////////////////////////////////////
 
-CGSH_OpenGL::CDepthbuffer::CDepthbuffer(uint32 basePtr, uint32 width, uint32 height, uint32 psm)
+CGSH_OpenGL::CDepthbuffer::CDepthbuffer(uint32 basePtr, uint32 width, uint32 height, uint32 psm, uint32 scale)
 : m_basePtr(basePtr)
 , m_width(width)
 , m_height(height)
@@ -2042,7 +2035,7 @@ CGSH_OpenGL::CDepthbuffer::CDepthbuffer(uint32 basePtr, uint32 width, uint32 hei
 	//Build depth attachment
 	glGenRenderbuffers(1, &m_depthBuffer);
 	glBindRenderbuffer(GL_RENDERBUFFER, m_depthBuffer);
-	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, m_width * FBSCALE, m_height * FBSCALE);
+	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, m_width * scale, m_height * scale);
 	CHECKGLERROR();
 }
 
