@@ -60,6 +60,9 @@ std::string CIoman::GetFunctionName(unsigned int functionId) const
 	case 4:
 		return "open";
 		break;
+	case 5:
+		return "close";
+		break;
 	case 6:
 		return "read";
 		break;
