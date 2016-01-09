@@ -334,6 +334,9 @@ private:
 	GLint							m_presentTextureUniform = -1;
 	GLint							m_presentTexCoordScaleUniform = -1;
 
+	Framework::OpenGl::CFramebuffer	m_copyToFbFramebuffer;
+	Framework::OpenGl::CTexture		m_copyToFbTexture;
+
 	TextureList						m_textureCache;
 	PaletteList						m_paletteCache;
 	FramebufferList					m_framebuffers;

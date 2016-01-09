@@ -84,6 +84,8 @@ void CGSH_OpenGL::ReleaseImpl()
 	m_presentVertexArray.Reset();
 	m_primBuffer.Reset();
 	m_primVertexArray.Reset();
+	m_copyToFbTexture.Reset();
+	m_copyToFbFramebuffer.Reset();
 }
 
 void CGSH_OpenGL::ResetImpl()
@@ -146,16 +148,11 @@ void CGSH_OpenGL::FlipImpl()
 	{
 		framebuffer = FramebufferPtr(new CFramebuffer(fb.GetBufPtr(), fb.GetBufWidth(), 1024, fb.nPSM));
 		m_framebuffers.push_back(framebuffer);
-#ifndef HIGHRES_MODE
 		PopulateFramebuffer(framebuffer);
-#endif
 	}
 
 	if(framebuffer)
 	{
-		//BGDA (US version) requires the interlaced check to work properly
-		//Data read from dirty pages here would probably need to be scaled up by 2
-		//if we are in interlaced mode (guessing that Unreal Tournament would need that here)
 		CommitFramebufferDirtyPages(framebuffer, 0, dispHeight);
 	}
 
@@ -298,6 +295,9 @@ void CGSH_OpenGL::InitializeRC()
 	m_presentVertexArray = GeneratePresentVertexArray();
 	m_presentTextureUniform = glGetUniformLocation(*m_presentProgram, "g_texture");
 	m_presentTexCoordScaleUniform = glGetUniformLocation(*m_presentProgram, "g_texCoordScale");
+
+	m_copyToFbTexture = Framework::OpenGl::CTexture::Create();
+	m_copyToFbFramebuffer = Framework::OpenGl::CFramebuffer::Create();
 
 	m_primBuffer = Framework::OpenGl::CBuffer::Create();
 	m_primVertexArray = GeneratePrimVertexArray();
@@ -889,9 +889,7 @@ void CGSH_OpenGL::SetupFramebuffer(const SHADERINFO& shaderInfo, uint64 frameReg
 	{
 		framebuffer = FramebufferPtr(new CFramebuffer(frame.GetBasePtr(), frame.GetWidth(), 1024, frame.nPsm));
 		m_framebuffers.push_back(framebuffer);
-#ifndef HIGHRES_MODE
 		PopulateFramebuffer(framebuffer);
-#endif
 	}
 
 	CommitFramebufferDirtyPages(framebuffer, scissor.scay0, scissor.scay1);
@@ -1909,27 +1907,80 @@ CGSH_OpenGL::CFramebuffer::~CFramebuffer()
 
 void CGSH_OpenGL::PopulateFramebuffer(const FramebufferPtr& framebuffer)
 {
-	if(framebuffer->m_psm != PSMCT32)
-	{
-		//In some cases we might not want to populate the framebuffer if its
-		//pixel format isn't PSMCT32 since it will also change the pixel format of the
-		//underlying OpenGL framebuffer (due to the call to glTexImage2D)
-		return;
-	}
-
-	glBindTexture(GL_TEXTURE_2D, framebuffer->m_texture);
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, m_copyToFbTexture);
 	((this)->*(m_textureUploader[framebuffer->m_psm]))(framebuffer->m_basePtr, 
 		framebuffer->m_width / 64, framebuffer->m_width, framebuffer->m_height);
 	CHECKGLERROR();
+
+	glBindFramebuffer(GL_FRAMEBUFFER, m_copyToFbFramebuffer);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, m_copyToFbTexture, 0);
+	auto fbStatus = glCheckFramebufferStatus(GL_FRAMEBUFFER);
+	assert(fbStatus == GL_FRAMEBUFFER_COMPLETE);
+	CHECKGLERROR();
+
+	glBindFramebuffer(GL_FRAMEBUFFER, framebuffer->m_framebuffer);
+	glBindFramebuffer(GL_READ_FRAMEBUFFER, m_copyToFbFramebuffer);
+
+	//Copy buffers
+	glBlitFramebuffer(
+		0, 0, framebuffer->m_width, framebuffer->m_height, 
+		0, 0, framebuffer->m_width * FBSCALE, framebuffer->m_height * FBSCALE, 
+		GL_COLOR_BUFFER_BIT, GL_NEAREST);
+	CHECKGLERROR();
+
+	glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
 }
 
 void CGSH_OpenGL::CommitFramebufferDirtyPages(const FramebufferPtr& framebuffer, unsigned int minY, unsigned int maxY)
 {
+	class CCopyToFbEnabler
+	{
+	public:
+		~CCopyToFbEnabler()
+		{
+			if(m_copyToFbEnabled)
+			{
+				//Restore previous framebuffer
+				glBindFramebuffer(GL_FRAMEBUFFER, m_previousFb);
+			}
+		}
+
+		void EnableCopyToFb(const FramebufferPtr& framebuffer, GLuint copyToFbFramebuffer, GLuint copyToFbTexture)
+		{
+			if(m_copyToFbEnabled) return;
+
+			//This function might be called in the "SetupTexture" phase after
+			//"SetupFramebuffer" has been called, so, we need to save the previous FB binding
+			glGetIntegerv(GL_FRAMEBUFFER_BINDING, &m_previousFb);
+
+			glActiveTexture(GL_TEXTURE0);
+			glBindTexture(GL_TEXTURE_2D, copyToFbTexture);
+			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, framebuffer->m_width, framebuffer->m_height, 
+				0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
+
+			glBindFramebuffer(GL_FRAMEBUFFER, copyToFbFramebuffer);
+			glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, copyToFbTexture, 0);
+			auto fbStatus = glCheckFramebufferStatus(GL_FRAMEBUFFER);
+			assert(fbStatus == GL_FRAMEBUFFER_COMPLETE);
+			CHECKGLERROR();
+
+			glBindFramebuffer(GL_FRAMEBUFFER, framebuffer->m_framebuffer);
+			glBindFramebuffer(GL_READ_FRAMEBUFFER, copyToFbFramebuffer);
+
+			m_copyToFbEnabled = true;
+		}
+
+	private:
+		bool m_copyToFbEnabled = false;
+		GLint m_previousFb = 0;
+	};
+
 	auto& cachedArea = framebuffer->m_cachedArea;
 
 	if(cachedArea.HasDirtyPages())
 	{
-		glBindTexture(GL_TEXTURE_2D, framebuffer->m_texture);
+		CCopyToFbEnabler copyToFbEnabler;
 
 		auto texturePageSize = CGsPixelFormats::GetPsmPageSize(framebuffer->m_psm);
 		auto pageRect = cachedArea.GetPageRect();
@@ -1958,7 +2009,17 @@ void CGSH_OpenGL::CommitFramebufferDirtyPages(const FramebufferPtr& framebuffer,
 			{
 				texHeight = framebuffer->m_height - texY;
 			}
-			((this)->*(m_textureUpdater[framebuffer->m_psm]))(framebuffer->m_basePtr, framebuffer->m_width / 64, texX, texY, texWidth, texHeight);
+			
+			copyToFbEnabler.EnableCopyToFb(framebuffer, m_copyToFbFramebuffer, m_copyToFbTexture);
+
+			((this)->*(m_textureUpdater[framebuffer->m_psm]))(framebuffer->m_basePtr, framebuffer->m_width / 64,
+				texX, texY, texWidth, texHeight);
+			
+			glBlitFramebuffer(
+				texX          , texY          , (texX + texWidth),           (texY + texHeight), 
+				texX * FBSCALE, texY * FBSCALE, (texX + texWidth) * FBSCALE, (texY + texHeight) * FBSCALE, 
+				GL_COLOR_BUFFER_BIT, GL_NEAREST);
+			CHECKGLERROR();
 		}
 
 		//Mark all pages as clean, but might be wrong due to range not
