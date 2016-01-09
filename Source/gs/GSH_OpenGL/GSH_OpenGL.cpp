@@ -1837,8 +1837,8 @@ void CGSH_OpenGL::ProcessLocalToLocalTransfer()
 
 		//Copy buffers
 		glBlitFramebuffer(
-			0, 0, srcFramebuffer->m_width, srcFramebuffer->m_height, 
-			0, 0, srcFramebuffer->m_width, srcFramebuffer->m_height, 
+			0, 0, srcFramebuffer->m_width * FBSCALE, srcFramebuffer->m_height * FBSCALE, 
+			0, 0, srcFramebuffer->m_width * FBSCALE, srcFramebuffer->m_height * FBSCALE, 
 			GL_COLOR_BUFFER_BIT, GL_NEAREST);
 		CHECKGLERROR();
 
