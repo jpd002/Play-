@@ -2444,8 +2444,8 @@ void CIopBios::TriggerCallback(uint32 address, uint32 arg0, uint32 arg1)
 		callbackThreadId = CreateThread(address, DEFAULT_PRIORITY, DEFAULT_STACKSIZE, 0);
 	}
 
-	ChangeThreadPriority(callbackThreadId, 1);
 	StartThread(callbackThreadId, 0);
+	ChangeThreadPriority(callbackThreadId, 1);
 
 	auto thread = GetThread(callbackThreadId);
 	thread->context.gpr[CMIPS::A0] = arg0;
