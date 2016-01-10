@@ -312,8 +312,8 @@ private:
 	uint32							m_nTexHeight;
 	float							m_nMaxZ;
 
-	bool							m_nForceBilinearTextures;
-	bool							m_fixSmallZValues;
+	bool							m_forceBilinearTextures = false;
+	bool							m_fixSmallZValues = false;
 
 	uint8*							m_pCvtBuffer;
 

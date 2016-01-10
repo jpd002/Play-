@@ -279,8 +279,8 @@ void CGSH_OpenGL::LoadState(Framework::CZipArchiveReader& archive)
 
 void CGSH_OpenGL::LoadSettings()
 {
-	m_nForceBilinearTextures	= CAppConfig::GetInstance().GetPreferenceBoolean(PREF_CGSH_OPENGL_FORCEBILINEARTEXTURES);
-	m_fixSmallZValues			= CAppConfig::GetInstance().GetPreferenceBoolean(PREF_CGSH_OPENGL_FIXSMALLZVALUES);
+	m_forceBilinearTextures    = CAppConfig::GetInstance().GetPreferenceBoolean(PREF_CGSH_OPENGL_FORCEBILINEARTEXTURES);
+	m_fixSmallZValues          = CAppConfig::GetInstance().GetPreferenceBoolean(PREF_CGSH_OPENGL_FIXSMALLZVALUES);
 }
 
 void CGSH_OpenGL::InitializeRC()
@@ -1118,7 +1118,7 @@ void CGSH_OpenGL::SetupTexture(const SHADERINFO& shaderInfo, uint64 primReg, uin
 		break;
 	}
 
-	if(m_nForceBilinearTextures)
+	if(m_forceBilinearTextures)
 	{
 		nMagFilter = GL_LINEAR;
 		nMinFilter = GL_LINEAR;
