@@ -992,10 +992,18 @@ void CGSH_OpenGL::FillShaderCapsFromTexture(SHADERCAPS& shaderCaps, const uint64
 		shaderCaps.texClampT = clampMode[1];
 	}
 
-	if(CGsPixelFormats::IsPsmIDTEX(tex0.nPsm) && ((tex1.nMinFilter != MIN_FILTER_NEAREST) || (tex1.nMagFilter != MIN_FILTER_NEAREST)))
+	if(CGsPixelFormats::IsPsmIDTEX(tex0.nPsm))
 	{
-		//We'll need to filter the texture manually
-		shaderCaps.texBilinearFilter = 1;
+		if((tex1.nMinFilter != MIN_FILTER_NEAREST) || (tex1.nMagFilter != MIN_FILTER_NEAREST))
+		{
+			//We'll need to filter the texture manually
+			shaderCaps.texBilinearFilter = 1;
+		}
+
+		if(m_forceBilinearTextures)
+		{
+			shaderCaps.texBilinearFilter = 1;
+		}
 	}
 
 	if(tex0.nColorComp == 1)
