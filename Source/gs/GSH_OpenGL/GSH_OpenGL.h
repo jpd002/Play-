@@ -244,7 +244,6 @@ private:
 
 	uint32							RGBA16ToRGBA32(uint16);
 	float							GetZ(float);
-	unsigned int					GetNextPowerOf2(unsigned int);
 
 	void							VertexKick(uint8, uint64);
 

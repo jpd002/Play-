@@ -444,11 +444,6 @@ float CGSH_OpenGL::GetZ(float nZ)
 	}
 }
 
-unsigned int CGSH_OpenGL::GetNextPowerOf2(unsigned int nNumber)
-{
-	return 1 << ((int)(log((double)(nNumber - 1)) / log(2.0)) + 1);
-}
-
 /////////////////////////////////////////////////////////////
 // Context Unpacking
 /////////////////////////////////////////////////////////////
