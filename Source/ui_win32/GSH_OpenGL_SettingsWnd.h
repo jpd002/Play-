@@ -10,7 +10,7 @@ public:
 	virtual    ~CGSH_OpenGL_SettingsWnd();
 
 protected:
-	long    OnCommand(unsigned short, unsigned short, HWND);
+	long    OnCommand(unsigned short, unsigned short, HWND) override;
 
 private:
 	void    Save();
