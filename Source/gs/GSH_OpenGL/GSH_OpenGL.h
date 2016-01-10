@@ -10,7 +10,6 @@
 #include "opengl/Resource.h"
 
 #define PREF_CGSH_OPENGL_FORCEBILINEARTEXTURES		"renderer.opengl.forcebilineartextures"
-#define PREF_CGSH_OPENGL_FIXSMALLZVALUES			"renderer.opengl.fixsmallzvalues"
 
 class CGSH_OpenGL : public CGSHandler
 {
@@ -312,7 +311,6 @@ private:
 	float							m_nMaxZ;
 
 	bool							m_forceBilinearTextures = false;
-	bool							m_fixSmallZValues = false;
 
 	uint8*							m_pCvtBuffer;
 

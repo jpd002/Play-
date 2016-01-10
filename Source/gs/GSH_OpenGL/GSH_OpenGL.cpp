@@ -41,7 +41,6 @@ CGSH_OpenGL::CGSH_OpenGL()
 : m_pCvtBuffer(nullptr)
 {
 	CAppConfig::GetInstance().RegisterPreferenceBoolean(PREF_CGSH_OPENGL_FORCEBILINEARTEXTURES, false);
-	CAppConfig::GetInstance().RegisterPreferenceBoolean(PREF_CGSH_OPENGL_FIXSMALLZVALUES, false);
 
 	LoadSettings();
 
@@ -280,7 +279,6 @@ void CGSH_OpenGL::LoadState(Framework::CZipArchiveReader& archive)
 void CGSH_OpenGL::LoadSettings()
 {
 	m_forceBilinearTextures    = CAppConfig::GetInstance().GetPreferenceBoolean(PREF_CGSH_OPENGL_FORCEBILINEARTEXTURES);
-	m_fixSmallZValues          = CAppConfig::GetInstance().GetPreferenceBoolean(PREF_CGSH_OPENGL_FIXSMALLZVALUES);
 }
 
 void CGSH_OpenGL::InitializeRC()
@@ -430,18 +428,10 @@ float CGSH_OpenGL::GetZ(float nZ)
 		return -1;
 	}
 	
-	if(m_fixSmallZValues && (nZ < 256))
-	{
-		//The number is small, so scale to a smaller ratio (65536)
-		return (nZ - 32768.0f) / 32768.0f;
-	}
-	else
-	{
-		nZ -= m_nMaxZ;
-		if(nZ > m_nMaxZ) return 1.0;
-		if(nZ < -m_nMaxZ) return -1.0;
-		return nZ / m_nMaxZ;
-	}
+	nZ -= m_nMaxZ;
+	if(nZ > m_nMaxZ) return 1.0;
+	if(nZ < -m_nMaxZ) return -1.0;
+	return nZ / m_nMaxZ;
 }
 
 /////////////////////////////////////////////////////////////
