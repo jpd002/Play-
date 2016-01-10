@@ -9,7 +9,6 @@
 #include "opengl/Shader.h"
 #include "opengl/Resource.h"
 
-#define PREF_CGSH_OPENGL_LINEASQUADS				"renderer.opengl.linesasquads"
 #define PREF_CGSH_OPENGL_FORCEBILINEARTEXTURES		"renderer.opengl.forcebilineartextures"
 #define PREF_CGSH_OPENGL_FIXSMALLZVALUES			"renderer.opengl.fixsmallzvalues"
 
@@ -313,7 +312,6 @@ private:
 	uint32							m_nTexHeight;
 	float							m_nMaxZ;
 
-	bool							m_nLinesAsQuads;
 	bool							m_nForceBilinearTextures;
 	bool							m_fixSmallZValues;
 

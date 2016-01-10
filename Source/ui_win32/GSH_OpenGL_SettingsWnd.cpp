@@ -8,10 +8,8 @@ CGSH_OpenGL_SettingsWnd::CGSH_OpenGL_SettingsWnd(HWND parentWindow)
 {
 	SetClassPtr();
 
-	m_linesAsQuadsCheck     = Framework::Win32::CButton(GetItem(IDC_GSHOPENGL_SETTINGS_LINESASQUAD));
 	m_forceBilinearTextures = Framework::Win32::CButton(GetItem(IDC_GSHOPENGL_SETTINGS_FORCEBILINEAR));
 
-	m_linesAsQuadsCheck.SetCheck(CAppConfig::GetInstance().GetPreferenceBoolean(PREF_CGSH_OPENGL_LINEASQUADS));
 	m_forceBilinearTextures.SetCheck(CAppConfig::GetInstance().GetPreferenceBoolean(PREF_CGSH_OPENGL_FORCEBILINEARTEXTURES));
 }
 
@@ -39,6 +37,5 @@ long CGSH_OpenGL_SettingsWnd::OnCommand(unsigned short id, unsigned short cmd, H
 
 void CGSH_OpenGL_SettingsWnd::Save()
 {
-	CAppConfig::GetInstance().SetPreferenceBoolean(PREF_CGSH_OPENGL_LINEASQUADS, m_linesAsQuadsCheck.GetCheck());
 	CAppConfig::GetInstance().SetPreferenceBoolean(PREF_CGSH_OPENGL_FORCEBILINEARTEXTURES, m_forceBilinearTextures.GetCheck());
 }

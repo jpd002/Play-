@@ -15,6 +15,5 @@ protected:
 private:
 	void    Save();
 
-	Framework::Win32::CButton    m_linesAsQuadsCheck;
 	Framework::Win32::CButton    m_forceBilinearTextures;
 };

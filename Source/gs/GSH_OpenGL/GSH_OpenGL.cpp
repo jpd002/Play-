@@ -40,7 +40,6 @@ static uint32 MakeColor(uint8 r, uint8 g, uint8 b, uint8 a)
 CGSH_OpenGL::CGSH_OpenGL() 
 : m_pCvtBuffer(nullptr)
 {
-	CAppConfig::GetInstance().RegisterPreferenceBoolean(PREF_CGSH_OPENGL_LINEASQUADS, false);
 	CAppConfig::GetInstance().RegisterPreferenceBoolean(PREF_CGSH_OPENGL_FORCEBILINEARTEXTURES, false);
 	CAppConfig::GetInstance().RegisterPreferenceBoolean(PREF_CGSH_OPENGL_FIXSMALLZVALUES, false);
 
@@ -280,7 +279,6 @@ void CGSH_OpenGL::LoadState(Framework::CZipArchiveReader& archive)
 
 void CGSH_OpenGL::LoadSettings()
 {
-	m_nLinesAsQuads				= CAppConfig::GetInstance().GetPreferenceBoolean(PREF_CGSH_OPENGL_LINEASQUADS);
 	m_nForceBilinearTextures	= CAppConfig::GetInstance().GetPreferenceBoolean(PREF_CGSH_OPENGL_FORCEBILINEARTEXTURES);
 	m_fixSmallZValues			= CAppConfig::GetInstance().GetPreferenceBoolean(PREF_CGSH_OPENGL_FIXSMALLZVALUES);
 }
