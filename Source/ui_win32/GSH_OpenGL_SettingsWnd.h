@@ -17,7 +17,4 @@ private:
 
 	Framework::Win32::CButton    m_linesAsQuadsCheck;
 	Framework::Win32::CButton    m_forceBilinearTextures;
-
-	bool    m_nLinesAsQuads = false;
-	bool    m_nForceBilinearTextures = false;
 };
