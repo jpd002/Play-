@@ -1924,12 +1924,27 @@ void CPS2OS::sc_WakeupThread()
 	uint32 id		= m_ee.m_State.nGPR[SC_PARAM0].nV[0];
 	bool isInt		= m_ee.m_State.nGPR[3].nV[0] == 0x34;
 
+	if((id == 0) || (id == m_currentThreadId))
+	{
+		//Can't wakeup a thread that's already running
+		m_ee.m_State.nGPR[SC_RETURN].nD0 = static_cast<int32>(-1);
+		return;
+	}
+
 	auto thread = m_threads[id];
 	if(!thread)
 	{
 		m_ee.m_State.nGPR[SC_RETURN].nD0 = static_cast<int32>(-1);
 		return;
 	}
+
+	if(thread->status == THREAD_ZOMBIE)
+	{
+		m_ee.m_State.nGPR[SC_RETURN].nD0 = static_cast<int32>(-1);
+		return;
+	}
+
+	m_ee.m_State.nGPR[SC_RETURN].nD0 = static_cast<int32>(id);
 
 	if(
 		(thread->status == THREAD_SLEEPING) || 
