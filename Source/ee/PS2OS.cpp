@@ -1869,15 +1869,33 @@ void CPS2OS::sc_ReferThreadStatus()
 		break;
 	}
 
+	uint32 waitType = 0;
+	switch(thread->status)
+	{
+	case THREAD_SLEEPING:
+	case THREAD_SUSPENDED_SLEEPING:
+		waitType = 1;
+		break;
+	case THREAD_WAITING:
+	case THREAD_SUSPENDED_WAITING:
+		waitType = 2;
+		break;
+	default:
+		waitType = 0;
+		break;
+	}
+
 	if(statusPtr != 0)
 	{
-		auto threadParam = reinterpret_cast<THREADPARAM*>(GetStructPtr(statusPtr));
+		auto status = reinterpret_cast<THREADSTATUS*>(GetStructPtr(statusPtr));
 
-		threadParam->status				= ret;
-		threadParam->initPriority		= thread->initPriority;
-		threadParam->currPriority		= thread->currPriority;
-		threadParam->stackBase			= thread->stackBase;
-		threadParam->stackSize			= thread->stackSize;
+		status->status          = ret;
+		status->initPriority    = thread->initPriority;
+		status->currPriority    = thread->currPriority;
+		status->stackBase       = thread->stackBase;
+		status->stackSize       = thread->stackSize;
+		status->waitType        = waitType;
+		status->wakeupCount     = thread->wakeUpCount;
 	}
 
 	m_ee.m_State.nGPR[SC_RETURN].nD0 = ret;

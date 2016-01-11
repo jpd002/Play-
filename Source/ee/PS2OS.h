@@ -77,7 +77,17 @@ private:
 		uint32									gp;
 		uint32									initPriority;
 		uint32									currPriority;
+		uint32									attr;
+		uint32									option;
 	};
+
+	struct THREADSTATUS : public THREADPARAM
+	{
+		uint32									waitType;
+		uint32									waitId;
+		uint32									wakeupCount;
+	};
+	static_assert(sizeof(THREADSTATUS) == 0x30, "Thread status must be 48 bytes long.");
 
 	struct SEMAPHORE
 	{
