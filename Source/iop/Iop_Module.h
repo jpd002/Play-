@@ -1,5 +1,4 @@
-#ifndef _IOP_MODULE_H_
-#define _IOP_MODULE_H_
+#pragma once
 
 #include <string>
 #include "../MIPS.h"
@@ -18,5 +17,3 @@ namespace Iop
 
 	};
 };
-
-#endif
