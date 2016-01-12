@@ -45,6 +45,7 @@ namespace Iop
 		bool				Invoke592(uint32, uint32*, uint32, uint32*, uint32, uint8*);
 		bool				Invoke593(uint32, uint32*, uint32, uint32*, uint32, uint8*);
 		bool				Invoke595(uint32, uint32*, uint32, uint32*, uint32, uint8*);
+		bool				Invoke596(uint32, uint32*, uint32, uint32*, uint32, uint8*);
 		bool				Invoke597(uint32, uint32*, uint32, uint32*, uint32, uint8*);
 		bool				Invoke59A(uint32, uint32*, uint32, uint32*, uint32, uint8*);
 		bool				Invoke59C(uint32, uint32*, uint32, uint32*, uint32, uint8*);
@@ -68,6 +69,7 @@ namespace Iop
 		CSifModuleAdapter	m_module592;
 		CSifModuleAdapter	m_module593;
 		CSifModuleAdapter	m_module595;
+		CSifModuleAdapter	m_module596;
 		CSifModuleAdapter	m_module597;
 		CSifModuleAdapter	m_module59A;
 		CSifModuleAdapter	m_module59C;

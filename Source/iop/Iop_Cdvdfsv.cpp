@@ -19,6 +19,8 @@ CCdvdfsv::CCdvdfsv(CSifMan& sif, CCdvdman& cdvdman, uint8* iopRam)
 		std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, std::placeholders::_5, std::placeholders::_6));
 	m_module595 = CSifModuleAdapter(std::bind(&CCdvdfsv::Invoke595, this,
 		std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, std::placeholders::_5, std::placeholders::_6));
+	m_module596 = CSifModuleAdapter(std::bind(&CCdvdfsv::Invoke596, this,
+		std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, std::placeholders::_5, std::placeholders::_6));
 	m_module597 = CSifModuleAdapter(std::bind(&CCdvdfsv::Invoke597, this,
 		std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, std::placeholders::_5, std::placeholders::_6));
 	m_module59A = CSifModuleAdapter(std::bind(&CCdvdfsv::Invoke59A, this,
@@ -29,6 +31,7 @@ CCdvdfsv::CCdvdfsv(CSifMan& sif, CCdvdman& cdvdman, uint8* iopRam)
 	sif.RegisterModule(MODULE_ID_1, &m_module592);
 	sif.RegisterModule(MODULE_ID_2, &m_module593);
 	sif.RegisterModule(MODULE_ID_4, &m_module595);
+	sif.RegisterModule(MODULE_ID_5, &m_module596);
 	sif.RegisterModule(MODULE_ID_6, &m_module597);
 	sif.RegisterModule(MODULE_ID_7, &m_module59A);
 	sif.RegisterModule(MODULE_ID_8, &m_module59C);
@@ -239,6 +242,17 @@ bool CCdvdfsv::Invoke595(uint32 method, uint32* args, uint32 argsSize, uint32* r
 
 	default:
 		CLog::GetInstance().Print(LOG_NAME, "Unknown method invoked (0x%0.8X, 0x%0.8X).\r\n", 0x595, method);
+		break;
+	}
+	return true;
+}
+
+bool CCdvdfsv::Invoke596(uint32 method, uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, uint8* ram)
+{
+	switch(method)
+	{
+	default:
+		CLog::GetInstance().Print(LOG_NAME, "Unknown method invoked (0x%0.8X, 0x%0.8X).\r\n", 0x596, method);
 		break;
 	}
 	return true;
