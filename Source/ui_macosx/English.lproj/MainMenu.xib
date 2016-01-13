@@ -88,6 +88,12 @@
                                     <action selector="bootElfMenuSelected:" target="795" id="799"/>
                                 </connections>
                             </menuItem>
+                            <menuItem isSeparatorItem="YES" id="tya-I3-Qoq"/>
+                            <menuItem title="Close Window" keyEquivalent="w" id="q8d-Tw-THS">
+                                <connections>
+                                    <action selector="performClose:" target="-1" id="jBa-VO-NsF"/>
+                                </connections>
+                            </menuItem>
                         </items>
                     </menu>
                 </menuItem>
