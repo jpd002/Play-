@@ -5,13 +5,13 @@
         <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="9531"/>
     </dependencies>
     <objects>
-        <customObject id="-2" userLabel="File's Owner" customClass="NSApplication"/>
-        <customObject id="-1" userLabel="First Responder" customClass="FirstResponder"/>
-        <customObject id="-3" userLabel="Application" customClass="NSObject">
+        <customObject id="-2" userLabel="File's Owner" customClass="NSApplication">
             <connections>
-                <outlet property="delegate" destination="795" id="796"/>
+                <outlet property="delegate" destination="795" id="pUv-7l-Yhg"/>
             </connections>
         </customObject>
+        <customObject id="-1" userLabel="First Responder" customClass="FirstResponder"/>
+        <customObject id="-3" userLabel="Application" customClass="NSObject"/>
         <customObject id="371" customClass="NSFontManager"/>
         <customObject id="795" customClass="ApplicationDelegate">
             <connections>
@@ -33,7 +33,11 @@
                                 </connections>
                             </menuItem>
                             <menuItem isSeparatorItem="YES" id="236"/>
-                            <menuItem title="Preferences…" keyEquivalent="," id="129"/>
+                            <menuItem title="Preferences…" keyEquivalent="," id="129">
+                                <connections>
+                                    <action selector="showPreferences:" target="795" id="Keu-ZP-vgF"/>
+                                </connections>
+                            </menuItem>
                             <menuItem isSeparatorItem="YES" id="143"/>
                             <menuItem title="Services" id="131">
                                 <modifierMask key="keyEquivalentModifierMask"/>

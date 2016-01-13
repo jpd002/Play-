@@ -1,5 +1,6 @@
 #import "ApplicationDelegate.h"
 #import "VfsManagerController.h"
+#import "PreferencesWindowController.h"
 #import "GSH_OpenGLMacOSX.h"
 #import "PH_HidMacOSX.h"
 #import "Globals.h"
@@ -70,6 +71,11 @@
 	NSOpenGLContext* context = [[[NSOpenGLContext alloc] initWithFormat: pixelFormat shareContext:nil] autorelease];
 	[outputWindowController.openGlView setPixelFormat: pixelFormat];
 	[outputWindowController.openGlView setOpenGLContext: context];
+}
+
+-(IBAction)showPreferences: (id)sender
+{
+	[[PreferencesWindowController defaultController] show];
 }
 
 -(IBAction)bootElfMenuSelected: (id)sender

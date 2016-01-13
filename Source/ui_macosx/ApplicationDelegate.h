@@ -10,6 +10,7 @@
 }
 
 -(void)applicationDidFinishLaunching: (NSNotification*)notification;
+-(IBAction)showPreferences: (id)sender;
 -(IBAction)bootElfMenuSelected: (id)sender;
 -(IBAction)bootCdrom0MenuSelected: (id)sender;
 -(IBAction)bootDiskImageMenuSelected: (id)sender;
