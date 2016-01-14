@@ -192,7 +192,7 @@
 	}
 	else
 	{
-		m_value = [[NSString alloc] initWithCString: preferenceValue];
+		m_value = [[NSString alloc] initWithUTF8String: preferenceValue];
 	}
 	return result;
 }
