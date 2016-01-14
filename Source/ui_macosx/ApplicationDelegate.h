@@ -21,7 +21,6 @@
 -(IBAction)pauseResumeMenuSelected: (id)sender;
 -(IBAction)saveStateMenuSelected: (id)sender;
 -(IBAction)loadStateMenuSelected: (id)sender;
--(IBAction)vfsManagerMenuSelected: (id)sender;
 -(void)bootFromElf: (NSString*)fileName;
 -(void)bootFromCdrom0;
 -(void)updateTitle;

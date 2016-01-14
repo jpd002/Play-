@@ -1,5 +1,4 @@
 #import "ApplicationDelegate.h"
-#import "VfsManagerController.h"
 #import "PreferencesWindowController.h"
 #import "GSH_OpenGLMacOSX.h"
 #import "PH_HidMacOSX.h"
@@ -161,11 +160,6 @@
 	{
 		NSRunCriticalAlertPanel(@"Error occured while trying to load state.", @"", NULL, NULL, NULL);
 	}
-}
-
--(IBAction)vfsManagerMenuSelected: (id)sender
-{
-	[[VfsManagerController defaultController] showManager];
 }
 
 -(void)bootFromElf : (NSString*)fileName

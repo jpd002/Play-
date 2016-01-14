@@ -29,9 +29,15 @@
                             <action selector="onToolBarButtonPressed:" target="-2" id="WRg-Fb-U7b"/>
                         </connections>
                     </toolbarItem>
+                    <toolbarItem implicitItemIdentifier="DAF19A38-1F2D-4A76-88CD-1B63B654A381" label="Filesystem" paletteLabel="Filesystem" tag="1" image="NSFolder" selectable="YES" id="SRE-jX-uO8">
+                        <connections>
+                            <action selector="onToolBarButtonPressed:" target="-2" id="Gdx-Pv-X7f"/>
+                        </connections>
+                    </toolbarItem>
                 </allowedToolbarItems>
                 <defaultToolbarItems>
                     <toolbarItem reference="rwX-i3-mrU"/>
+                    <toolbarItem reference="SRE-jX-uO8"/>
                 </defaultToolbarItems>
             </toolbar>
             <connections>
@@ -41,5 +47,6 @@
     </objects>
     <resources>
         <image name="NSComputer" width="32" height="32"/>
+        <image name="NSFolder" width="32" height="32"/>
     </resources>
 </document>

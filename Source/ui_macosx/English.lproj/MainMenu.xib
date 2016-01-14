@@ -369,13 +369,6 @@
                                     <action selector="saveStateMenuSelected:" target="795" id="825"/>
                                 </connections>
                             </menuItem>
-                            <menuItem isSeparatorItem="YES" id="822"/>
-                            <menuItem title="Virtual File System Manager..." id="816">
-                                <modifierMask key="keyEquivalentModifierMask"/>
-                                <connections>
-                                    <action selector="vfsManagerMenuSelected:" target="795" id="826"/>
-                                </connections>
-                            </menuItem>
                         </items>
                     </menu>
                 </menuItem>
