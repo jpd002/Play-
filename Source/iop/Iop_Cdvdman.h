@@ -54,4 +54,6 @@ namespace Iop
 		uint32					m_callbackPtr = 0;
 		uint32					m_status = CDVD_STATUS_STOPPED;
 	};
+
+	typedef std::shared_ptr<CCdvdman> CdvdmanPtr;
 };

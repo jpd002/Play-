@@ -123,7 +123,7 @@ public:
 	void						NotifyVBlankStart();
 	void						NotifyVBlankEnd();
 
-	void						Reset(Iop::CSifMan*);
+	void						Reset(const Iop::SifManPtr&);
 
 	virtual void				SaveState(Framework::CZipArchiveWriter&);
 	virtual void				LoadState(Framework::CZipArchiveReader&);
@@ -137,7 +137,7 @@ public:
 	Iop::CPadMan*				GetPadman();
 	Iop::CCdvdfsv*				GetCdvdfsv();
 #endif
-	void						RegisterDynamicModule(Iop::CDynamic*);
+	void						RegisterDynamicModule(const Iop::DynamicPtr&);
 
 	uint32						CreateThread(uint32, uint32, uint32, uint32);
 	void						DeleteThread(uint32);
@@ -383,12 +383,11 @@ private:
 	typedef COsStructManager<INTRHANDLER> IntrHandlerList;
 	typedef COsStructManager<MESSAGEBOX> MessageBoxList;
 	typedef COsStructManager<LOADEDMODULE> LoadedModuleList;
-	typedef std::map<std::string, Iop::CModule*> IopModuleMapType;
+	typedef std::map<std::string, Iop::ModulePtr> IopModuleMapType;
 	typedef std::list<Iop::CDynamic*> DynamicIopModuleListType;
 	typedef std::pair<uint32, uint32> ExecutableRange;
-	typedef std::shared_ptr<Iop::CModule> ModulePtr;
 
-	void							RegisterModule(Iop::CModule*);
+	void							RegisterModule(const Iop::ModulePtr&);
 	void							ClearDynamicModules();
 
 	void							LoadThreadContext(uint32);
@@ -457,19 +456,19 @@ private:
 #ifdef DEBUGGER_INCLUDED
 	BiosDebugModuleInfoArray		m_moduleTags;
 #endif
-	Iop::CSifMan*					m_sifMan;
-	Iop::CSifCmd*					m_sifCmd;
-	Iop::CStdio*					m_stdio;
-	Iop::CIoman*					m_ioman;
-	Iop::CCdvdman*					m_cdvdman;
-	Iop::CSysmem*					m_sysmem;
-	Iop::CModload*					m_modload;
-	Iop::CLoadcore*					m_loadcore;
-	ModulePtr						m_libsd;
+	Iop::SifManPtr					m_sifMan;
+	Iop::SifCmdPtr					m_sifCmd;
+	Iop::StdioPtr					m_stdio;
+	Iop::IomanPtr					m_ioman;
+	Iop::CdvdmanPtr					m_cdvdman;
+	Iop::SysmemPtr					m_sysmem;
+	Iop::ModloadPtr					m_modload;
+	Iop::LoadcorePtr				m_loadcore;
+	Iop::ModulePtr					m_libsd;
 #ifdef _IOP_EMULATE_MODULES
-	Iop::CFileIo*					m_fileIo;
-	Iop::CPadMan*					m_padman;
-	Iop::CCdvdfsv*					m_cdvdfsv;
+	Iop::FileIoPtr					m_fileIo;
+	Iop::PadManPtr					m_padman;
+	Iop::CdvdfsvPtr					m_cdvdfsv;
 #endif
 };
 

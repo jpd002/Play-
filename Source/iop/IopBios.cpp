@@ -107,7 +107,7 @@ CIopBios::~CIopBios()
 	DeleteModules();
 }
 
-void CIopBios::Reset(Iop::CSifMan* sifMan)
+void CIopBios::Reset(const Iop::SifManPtr& sifMan)
 {
 	//Assemble handlers
 	{
@@ -136,9 +136,9 @@ void CIopBios::Reset(Iop::CSifMan* sifMan)
 
 	DeleteModules();
 
-	if(sifMan == NULL)
+	if(!sifMan)
 	{
-		m_sifMan = new Iop::CSifManNull();
+		m_sifMan = std::make_shared<Iop::CSifManNull>();
 	}
 	else
 	{
@@ -147,77 +147,77 @@ void CIopBios::Reset(Iop::CSifMan* sifMan)
 
 	//Register built-in modules
 	{
-		m_ioman = new Iop::CIoman(m_ram);
+		m_ioman = std::make_shared<Iop::CIoman>(m_ram);
 		RegisterModule(m_ioman);
 	}
 	{
-		m_stdio = new Iop::CStdio(m_ram, *m_ioman);
+		m_stdio = std::make_shared<Iop::CStdio>(m_ram, *m_ioman);
 		RegisterModule(m_stdio);
 	}
 	{
-		m_sysmem = new Iop::CSysmem(m_ram, CONTROL_BLOCK_END, m_ramSize, BIOS_HEAPBLOCK_BASE, *m_stdio, *m_ioman, *m_sifMan);
+		m_sysmem = std::make_shared<Iop::CSysmem>(m_ram, CONTROL_BLOCK_END, m_ramSize, BIOS_HEAPBLOCK_BASE, *m_stdio, *m_ioman, *m_sifMan);
 		RegisterModule(m_sysmem);
 	}
 	{
-		m_modload = new Iop::CModload(*this, m_ram);
+		m_modload = std::make_shared<Iop::CModload>(*this, m_ram);
 		RegisterModule(m_modload);
 	}
 	{
-		RegisterModule(new Iop::CSysclib(m_ram, *m_stdio));
+		RegisterModule(std::make_shared<Iop::CSysclib>(m_ram, *m_stdio));
 	}
 	{
-		m_loadcore = new Iop::CLoadcore(*this, m_ram, *m_sifMan);
+		m_loadcore = std::make_shared<Iop::CLoadcore>(*this, m_ram, *m_sifMan);
 		RegisterModule(m_loadcore);
 	}
 	{
 		m_libsd = std::make_shared<Iop::CLibSd>();
 	}
 	{
-		RegisterModule(new Iop::CThbase(*this, m_ram));
+		RegisterModule(std::make_shared<Iop::CThbase>(*this, m_ram));
 	}
 	{
-		RegisterModule(new Iop::CThmsgbx(*this, m_ram));
+		RegisterModule(std::make_shared<Iop::CThmsgbx>(*this, m_ram));
 	}
 	{
-		RegisterModule(new Iop::CThsema(*this, m_ram));
+		RegisterModule(std::make_shared<Iop::CThsema>(*this, m_ram));
 	}
 	{
-		RegisterModule(new Iop::CThevent(*this, m_ram));
+		RegisterModule(std::make_shared<Iop::CThevent>(*this, m_ram));
 	}
 	{
-		RegisterModule(new Iop::CTimrman(*this));
+		RegisterModule(std::make_shared<Iop::CTimrman>(*this));
 	}
 	{
-		RegisterModule(new Iop::CIntrman(*this, m_ram));
+		RegisterModule(std::make_shared<Iop::CIntrman>(*this, m_ram));
 	}
 	{
-		RegisterModule(new Iop::CVblank(*this));
+		RegisterModule(std::make_shared<Iop::CVblank>(*this));
 	}
 	{
-		m_cdvdman = new Iop::CCdvdman(*this, m_ram);
+		m_cdvdman = std::make_shared<Iop::CCdvdman>(*this, m_ram);
 		RegisterModule(m_cdvdman);
 	}
 	{
 		RegisterModule(m_sifMan);
 	}
 	{
-		m_sifCmd = new Iop::CSifCmd(*this, *m_sifMan, *m_sysmem, m_ram);
+		m_sifCmd = std::make_shared<Iop::CSifCmd>(*this, *m_sifMan, *m_sysmem, m_ram);
 		RegisterModule(m_sifCmd);
 	}
 #ifdef _IOP_EMULATE_MODULES
 	{
-		m_fileIo = new Iop::CFileIo(*m_sifMan, *m_ioman);
+		m_fileIo = std::make_shared<Iop::CFileIo>(*m_sifMan, *m_ioman);
 		RegisterModule(m_fileIo);
 	}
 	{
-		m_cdvdfsv = new Iop::CCdvdfsv(*m_sifMan, *m_cdvdman, m_ram);
+		m_cdvdfsv = std::make_shared<Iop::CCdvdfsv>(*m_sifMan, *m_cdvdman, m_ram);
 		RegisterModule(m_cdvdfsv);
 	}
 	{
-		RegisterModule(new Iop::CMcServ(*m_sifMan));
+		RegisterModule(std::make_shared<Iop::CMcServ>(*m_sifMan));
 	}
 	{
-		m_padman = new Iop::CPadMan(*m_sifMan);
+		m_padman = std::make_shared<Iop::CPadMan>(*m_sifMan);
 		RegisterModule(m_padman);
 	}
 #endif
@@ -294,7 +294,7 @@ void CIopBios::LoadState(Framework::CZipArchiveReader& archive)
 		{
 			const CStructFile& structFile(structIterator->second);
 			uint32 importTableAddress = structFile.GetRegister32(STATE_MODULE_IMPORT_TABLE_ADDRESS);
-			Iop::CDynamic* module = new Iop::CDynamic(reinterpret_cast<uint32*>(m_ram + importTableAddress));
+			auto module = std::make_shared<Iop::CDynamic>(reinterpret_cast<uint32*>(m_ram + importTableAddress));
 			RegisterDynamicModule(module);
 		}
 	}
@@ -1368,7 +1368,7 @@ void CIopBios::NotifyVBlankEnd()
 		}
 	}
 #ifdef _IOP_EMULATE_MODULES
-	m_cdvdfsv->ProcessCommands(m_sifMan);
+	m_cdvdfsv->ProcessCommands(m_sifMan.get());
 #endif
 }
 
@@ -1898,29 +1898,29 @@ uint32 CIopBios::ReferMessageBoxStatus(uint32 boxId, uint32 statusPtr)
 
 Iop::CIoman* CIopBios::GetIoman()
 {
-	return m_ioman;
+	return m_ioman.get();
 }
 
 Iop::CCdvdman* CIopBios::GetCdvdman()
 {
-	return m_cdvdman;
+	return m_cdvdman.get();
 }
 
 Iop::CLoadcore* CIopBios::GetLoadcore()
 {
-	return m_loadcore;
+	return m_loadcore.get();
 }
 
 #ifdef _IOP_EMULATE_MODULES
 
 Iop::CPadMan* CIopBios::GetPadman()
 {
-	return m_padman;
+	return m_padman.get();
 }
 
 Iop::CCdvdfsv* CIopBios::GetCdvdfsv()
 {
-	return m_cdvdfsv;
+	return m_cdvdfsv.get();
 }
 
 #endif
@@ -2221,24 +2221,20 @@ void CIopBios::ReturnFromException()
 
 void CIopBios::DeleteModules()
 {
-	while(m_modules.size() != 0)
-	{
-		delete m_modules.begin()->second;
-		m_modules.erase(m_modules.begin());
-	}
+	m_modules.clear();
 	m_dynamicModules.clear();
 
+	m_sifCmd.reset();
+	m_sifMan.reset();
 	m_libsd.reset();
-
-	m_sifMan = NULL;
-	m_stdio = NULL;
-	m_ioman = NULL;
-	m_sysmem = NULL;
-	m_modload = NULL;
-	m_sysmem = NULL;
+	m_stdio.reset();
+	m_ioman.reset();
+	m_sysmem.reset();
+	m_modload.reset();
 #ifdef _IOP_EMULATE_MODULES
-	m_padman = NULL;
-	m_cdvdfsv = NULL;
+	m_padman.reset();
+	m_cdvdfsv.reset();
+	m_fileIo.reset();
 #endif
 }
 
@@ -2259,31 +2255,37 @@ std::string CIopBios::ReadModuleName(uint32 address)
 	return moduleName;
 }
 
-void CIopBios::RegisterModule(Iop::CModule* module)
+void CIopBios::RegisterModule(const Iop::ModulePtr& module)
 {
+	bool registered = (m_modules.find(module->GetId()) != std::end(m_modules));
+	assert(!registered);
+	if(registered)
+	{
+		//Just fail silently, registering a module that already exists
+		//might have unintended side-effects (SIF handler might point to dangling ptr)
+		return;
+	}
 	m_modules[module->GetId()] = module;
 }
 
 void CIopBios::ClearDynamicModules()
 {
-	for(DynamicIopModuleListType::iterator dynModuleIterator(m_dynamicModules.begin());
-		dynModuleIterator != m_dynamicModules.end(); dynModuleIterator++)
+	for(const auto& dynamicModule : m_dynamicModules)
 	{
-		IopModuleMapType::iterator module(m_modules.find((*dynModuleIterator)->GetId()));
-		assert(module != m_modules.end());
-		if(module != m_modules.end())
+		auto moduleIterator(m_modules.find(dynamicModule->GetId()));
+		assert(moduleIterator != m_modules.end());
+		if(moduleIterator != m_modules.end())
 		{
-			delete module->second;
-			m_modules.erase(module);
+			m_modules.erase(moduleIterator);
 		}
 	}
 
 	m_dynamicModules.clear();
 }
 
-void CIopBios::RegisterDynamicModule(Iop::CDynamic* dynamicModule)
+void CIopBios::RegisterDynamicModule(const Iop::DynamicPtr& dynamicModule)
 {
-	m_dynamicModules.push_back(dynamicModule);
+	m_dynamicModules.push_back(dynamicModule.get());
 	RegisterModule(dynamicModule);
 }
 

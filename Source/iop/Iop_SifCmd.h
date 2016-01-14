@@ -92,4 +92,6 @@ namespace Iop
 		uint32					m_returnFromRpcInvokeAddr;
 		DynamicModuleList		m_servers;
 	};
+
+	typedef std::shared_ptr<CSifCmd> SifCmdPtr;
 }

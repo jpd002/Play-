@@ -371,7 +371,7 @@ void CPS2VM::ResetVM()
 		m_ee->m_gs->Reset();
 	}
 
-	m_iopOs->Reset(new Iop::CSifManPs2(m_ee->m_sif, m_ee->m_ram, m_iop->m_ram));
+	m_iopOs->Reset(std::make_shared<Iop::CSifManPs2>(m_ee->m_sif, m_ee->m_ram, m_iop->m_ram));
 
 	CDROM0_Reset();
 

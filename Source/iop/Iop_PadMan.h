@@ -201,6 +201,8 @@ namespace Iop
 		static void				PDF_SetAxisState(CPadDataInterface*, PS2::CControllerInfo::BUTTON, uint8);
 	};
 
+	typedef std::shared_ptr<CPadMan> PadManPtr;
+
 	template <> inline void CPadMan::CPadDataHandler<CPadMan::PADDATA>::SetModeCurId(unsigned int) {}
 	template <> inline void CPadMan::CPadDataHandler<CPadMan::PADDATA>::SetModeCurOffset(unsigned int) {}
 	template <> inline void CPadMan::CPadDataHandler<CPadMan::PADDATA>::SetModeTable(unsigned int, unsigned int) {}

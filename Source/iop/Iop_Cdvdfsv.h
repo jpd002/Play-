@@ -74,4 +74,6 @@ namespace Iop
 		CSifModuleAdapter	m_module59A;
 		CSifModuleAdapter	m_module59C;
 	};
+
+	typedef std::shared_ptr<CCdvdfsv> CdvdfsvPtr;
 }

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <string>
+#include <memory>
 #include "../MIPS.h"
 
 namespace Iop
@@ -16,4 +17,6 @@ namespace Iop
 	private:
 
 	};
+
+	typedef std::shared_ptr<CModule> ModulePtr;
 };

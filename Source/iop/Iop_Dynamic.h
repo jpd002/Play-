@@ -20,4 +20,6 @@ namespace Iop
 		uint32*			m_exportTable;
 		std::string		m_name;
 	};
+	
+	typedef std::shared_ptr<CDynamic> DynamicPtr;
 }

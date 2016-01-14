@@ -127,7 +127,7 @@ uint32 CLoadcore::RegisterLibraryEntries(uint32 exportTablePtr)
 {
 	CLog::GetInstance().Print(LOG_NAME, FUNCTION_REGISTERLIBRARYENTRIES "(exportTable = 0x%0.8X);\r\n", exportTablePtr);
 	uint32* exportTable = reinterpret_cast<uint32*>(&m_ram[exportTablePtr]);
-	m_bios.RegisterDynamicModule(new CDynamic(exportTable));
+	m_bios.RegisterDynamicModule(std::make_shared<CDynamic>(exportTable));
 	return 0;
 }
 

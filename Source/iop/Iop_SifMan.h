@@ -42,4 +42,6 @@ namespace Iop
 
 		uint32					m_sifSetDmaCallbackHandlerPtr;
 	};
+
+	typedef std::shared_ptr<CSifMan> SifManPtr;
 }

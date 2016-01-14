@@ -84,4 +84,6 @@ namespace Iop
 		uint8*					m_ram;
 		uint32					m_nextFileHandle;
 	};
+
+	typedef std::shared_ptr<CIoman> IomanPtr;
 }

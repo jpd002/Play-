@@ -44,4 +44,6 @@ namespace Iop
 		CIoman&					m_ioman;
 		HandlerPtr				m_handler;
 	};
+
+	typedef std::shared_ptr<CFileIo> FileIoPtr;
 }
