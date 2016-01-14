@@ -1,6 +1,7 @@
 #import <Foundation/Foundation.h>
 #import "PreferencesWindowController.h"
 #import "VideoSettingsViewController.h"
+#include "../AppConfig.h"
 
 @implementation PreferencesWindowController
 
@@ -24,6 +25,7 @@ static PreferencesWindowController* g_sharedInstance = nil;
 
 -(void)windowWillClose: (NSNotification*)notification
 {
+	CAppConfig::GetInstance().Save();
 	[NSApp stopModal];
 	[self release];
 	g_sharedInstance = nil;
