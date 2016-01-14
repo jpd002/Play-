@@ -217,8 +217,7 @@ void CIopBios::Reset(const Iop::SifManPtr& sifMan)
 		RegisterModule(std::make_shared<Iop::CMcServ>(*m_sifMan));
 	}
 	{
-		m_padman = std::make_shared<Iop::CPadMan>(*m_sifMan);
-		RegisterModule(m_padman);
+		m_padman = std::make_shared<Iop::CPadMan>();
 	}
 #endif
 

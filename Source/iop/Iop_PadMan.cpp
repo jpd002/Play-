@@ -17,14 +17,11 @@ using namespace PS2;
 #define STATE_PADDATA_ADDRESS	("address")
 #define STATE_PADDATA_TYPE		("type")
 
-CPadMan::CPadMan(CSifMan& sif)
+CPadMan::CPadMan()
 : m_nPadDataAddress(0)
 , m_nPadDataType(PAD_DATA_STD)
 {
-	sif.RegisterModule(MODULE_ID_1, this);
-	sif.RegisterModule(MODULE_ID_2, this);
-	sif.RegisterModule(MODULE_ID_3, this);
-	sif.RegisterModule(MODULE_ID_4, this);
+
 }
 
 std::string CPadMan::GetId() const
@@ -35,6 +32,14 @@ std::string CPadMan::GetId() const
 std::string CPadMan::GetFunctionName(unsigned int) const
 {
 	return "unknown";
+}
+
+void CPadMan::RegisterSifModule(CSifMan& sif)
+{
+	sif.RegisterModule(MODULE_ID_1, this);
+	sif.RegisterModule(MODULE_ID_2, this);
+	sif.RegisterModule(MODULE_ID_3, this);
+	sif.RegisterModule(MODULE_ID_4, this);
 }
 
 void CPadMan::Invoke(CMIPS& context, unsigned int functionId)

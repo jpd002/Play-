@@ -14,9 +14,13 @@ namespace Iop
 	class CPadMan : public CModule, public CPadListener, public CSifModule
 	{
 	public:
-							CPadMan(CSifMan&);
+							CPadMan();
+
 		std::string			GetId() const override;
 		std::string			GetFunctionName(unsigned int) const override;
+
+		void				RegisterSifModule(CSifMan&);
+
 		void				Invoke(CMIPS&, unsigned int) override;
 		bool				Invoke(uint32, uint32*, uint32, uint32*, uint32, uint8*) override;
 		void				SaveState(Framework::CZipArchiveWriter&);
