@@ -458,10 +458,7 @@ void CSIF::Cmd_Bind(SIFCMDHEADER* hdr)
 	CLog::GetInstance().Print(LOG_NAME, "Bound client data (0x%0.8X) with server id 0x%0.8X.\r\n", bind->clientDataAddr, bind->serverId);
 
 	auto moduleIterator(m_modules.find(bind->serverId));
-	if(
-		(moduleIterator != m_modules.end()) || 
-		((bind->serverId & 0xF0000000) == 0x80000000)
-		)
+	if(moduleIterator != m_modules.end())
 	{
 		SendPacket(&rend, sizeof(SIFRPCREQUESTEND));
 	}
