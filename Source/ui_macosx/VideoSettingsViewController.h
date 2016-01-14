@@ -2,7 +2,7 @@
 
 @interface VideoSettingsViewController : NSViewController
 {
-	NSButton*    forceBilinearFilteringCheckBox;
+	IBOutlet NSButton*    forceBilinearFilteringCheckBox;
 }
 
 @end

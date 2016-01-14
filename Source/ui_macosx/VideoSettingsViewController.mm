@@ -1,4 +1,6 @@
 #import "VideoSettingsViewController.h"
+#include "../gs/GSH_OpenGL/GSH_OpenGL.h"
+#include "../AppConfig.h"
 
 @implementation VideoSettingsViewController
 
@@ -11,14 +13,14 @@
 	return self;
 }
 
--(void)viewDidAppear
+-(void)viewWillAppear
 {
-
+	[forceBilinearFilteringCheckBox setState: CAppConfig::GetInstance().GetPreferenceBoolean(PREF_CGSH_OPENGL_FORCEBILINEARTEXTURES) ? NSOnState : NSOffState];
 }
 
--(void)viewDidDisappear
+-(void)viewWillDisappear
 {
-
+	CAppConfig::GetInstance().SetPreferenceBoolean(PREF_CGSH_OPENGL_FORCEBILINEARTEXTURES, forceBilinearFilteringCheckBox.state == NSOnState);
 }
 
 @end

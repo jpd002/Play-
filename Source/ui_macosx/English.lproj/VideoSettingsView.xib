@@ -5,8 +5,9 @@
         <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="9531"/>
     </dependencies>
     <objects>
-        <customObject id="-2" userLabel="File's Owner" customClass="TestViewController">
+        <customObject id="-2" userLabel="File's Owner" customClass="VideoSettingsViewController">
             <connections>
+                <outlet property="forceBilinearFilteringCheckBox" destination="FML-oH-x2V" id="wtg-n8-IEi"/>
                 <outlet property="view" destination="c22-O7-iKe" id="f1M-br-lhw"/>
             </connections>
         </customObject>
