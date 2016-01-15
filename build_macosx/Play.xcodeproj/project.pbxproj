@@ -25,6 +25,7 @@
 		705D396F1C43FFC900D267A6 /* PreferencesWindow.xib in Resources */ = {isa = PBXBuildFile; fileRef = 705D396D1C43FFC900D267A6 /* PreferencesWindow.xib */; };
 		705D39721C44A3FF00D267A6 /* VideoSettingsView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 705D39701C44A3FF00D267A6 /* VideoSettingsView.xib */; };
 		705D39741C44A44F00D267A6 /* VideoSettingsViewController.mm in Sources */ = {isa = PBXBuildFile; fileRef = 705D39731C44A44F00D267A6 /* VideoSettingsViewController.mm */; };
+		705DAEFC1C4882ED00210465 /* ScopedVmPauser.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 705DAEFA1C4882ED00210465 /* ScopedVmPauser.cpp */; };
 		70684979151E882000C9574F /* libCodeGen.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 70684976151E880F00C9574F /* libCodeGen.a */; };
 		7068497B151E883D00C9574F /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7068497A151E883D00C9574F /* OpenGL.framework */; };
 		7068497D151E885200C9574F /* libz.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 7068497C151E885200C9574F /* libz.dylib */; };
@@ -231,6 +232,8 @@
 		705D39711C44A3FF00D267A6 /* English */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = English; path = VideoSettingsView.xib; sourceTree = "<group>"; };
 		705D39731C44A44F00D267A6 /* VideoSettingsViewController.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = VideoSettingsViewController.mm; path = ../Source/ui_macosx/VideoSettingsViewController.mm; sourceTree = "<group>"; };
 		705D39751C44A47A00D267A6 /* VideoSettingsViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = VideoSettingsViewController.h; path = ../Source/ui_macosx/VideoSettingsViewController.h; sourceTree = "<group>"; };
+		705DAEFA1C4882ED00210465 /* ScopedVmPauser.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ScopedVmPauser.cpp; path = ../Source/ScopedVmPauser.cpp; sourceTree = "<group>"; };
+		705DAEFB1C4882ED00210465 /* ScopedVmPauser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ScopedVmPauser.h; path = ../Source/ScopedVmPauser.h; sourceTree = "<group>"; };
 		7068496E151E880E00C9574F /* CodeGen.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = CodeGen.xcodeproj; path = ../../CodeGen/build_macosx/CodeGen.xcodeproj; sourceTree = "<group>"; };
 		7068497A151E883D00C9574F /* OpenGL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGL.framework; path = System/Library/Frameworks/OpenGL.framework; sourceTree = SDKROOT; };
 		7068497C151E885200C9574F /* libz.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libz.dylib; path = usr/lib/libz.dylib; sourceTree = SDKROOT; };
@@ -889,6 +892,8 @@
 				7E4C160C1519A9A500357777 /* PS2VM.h */,
 				7E4C160D1519A9A500357777 /* RegisterStateFile.cpp */,
 				7E4C160E1519A9A500357777 /* RegisterStateFile.h */,
+				705DAEFA1C4882ED00210465 /* ScopedVmPauser.cpp */,
+				705DAEFB1C4882ED00210465 /* ScopedVmPauser.h */,
 				7E4C16111519A9A600357777 /* SifModule.h */,
 				7E4C16121519A9A600357777 /* SifModuleAdapter.h */,
 				7E4C16131519A9A600357777 /* StructCollectionStateFile.cpp */,
@@ -1163,6 +1168,7 @@
 				706849EF151E896900C9574F /* Iop_PadMan.cpp in Sources */,
 				706849F0151E896900C9574F /* Iop_RootCounters.cpp in Sources */,
 				707AF6B81ADE04AB00EA1374 /* CsoImageStream.cpp in Sources */,
+				705DAEFC1C4882ED00210465 /* ScopedVmPauser.cpp in Sources */,
 				706849F1151E896900C9574F /* Iop_SifCmd.cpp in Sources */,
 				70D9F1301AFB016900197BBE /* Ee_SubSystem.cpp in Sources */,
 				706849F2151E896900C9574F /* Iop_SifDynamic.cpp in Sources */,

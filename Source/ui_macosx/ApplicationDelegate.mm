@@ -4,6 +4,7 @@
 #import "PH_HidMacOSX.h"
 #import "Globals.h"
 #import "../ee/PS2OS.h"
+#import "../ScopedVmPauser.h"
 #import "../PS2VM_Preferences.h"
 #import "../AppConfig.h"
 
@@ -74,6 +75,7 @@
 
 -(IBAction)showPreferences: (id)sender
 {
+	CScopedVmPauser vmPaused(*g_virtualMachine);
 	[[PreferencesWindowController defaultController] show];
 }
 
