@@ -56,9 +56,11 @@ static PreferencesWindowController* g_sharedInstance = nil;
 	}
 	NSView* contentView = currentViewController.view;
 	self.window.contentView = nil;
-	auto currentOrigin = self.window.frame.origin;
+	auto currentFrame = self.window.frame;
+	auto currentTop = currentFrame.origin.y + currentFrame.size.height;
 	auto windowFrame = [self.window frameRectForContentRect: contentView.frame];
-	windowFrame = NSMakeRect(currentOrigin.x, currentOrigin.y, windowFrame.size.width, windowFrame.size.height);
+	auto newY = currentTop - windowFrame.size.height;
+	windowFrame = NSMakeRect(currentFrame.origin.x, newY, windowFrame.size.width, windowFrame.size.height);
 	[self.window setFrame: windowFrame display: YES animate: YES];
 	self.window.contentView = contentView;
 }
