@@ -21,7 +21,8 @@ static PreferencesWindowController* g_sharedInstance = nil;
 
 -(void)show
 {
-	[NSApp runModalForWindow: [self window]];
+	[self.window center];
+	[NSApp runModalForWindow: self.window];
 	CAppConfig::GetInstance().Save();
 }
 
