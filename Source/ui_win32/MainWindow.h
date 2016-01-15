@@ -32,17 +32,6 @@ protected:
 	long							OnMove(int, int) override;
 
 private:
-	class CScopedVmPauser
-	{
-	public:
-						CScopedVmPauser(CPS2VM&);
-		virtual			~CScopedVmPauser();
-
-	private:
-		CPS2VM&			m_virtualMachine;
-		bool			m_paused;
-	};
-
 	class COpenCommand
 	{
 	public:

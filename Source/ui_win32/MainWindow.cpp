@@ -1026,25 +1026,6 @@ void CMainWindow::SetupSoundHandler()
 	}
 }
 
-CMainWindow::CScopedVmPauser::CScopedVmPauser(CPS2VM& virtualMachine)
-: m_virtualMachine(virtualMachine)
-, m_paused(false)
-{
-	if(m_virtualMachine.GetStatus() == CVirtualMachine::RUNNING)
-	{
-		m_paused = true;
-		m_virtualMachine.Pause();
-	}
-}
-
-CMainWindow::CScopedVmPauser::~CScopedVmPauser()
-{
-	if(m_paused)
-	{
-		m_virtualMachine.Resume();
-	}
-}
-
 void CMainWindow::CBootCdRomOpenCommand::Execute(CMainWindow* mainWindow)
 {
 	mainWindow->BootCDROM();
