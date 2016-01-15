@@ -5,7 +5,7 @@
 	IBOutlet NSToolbar*		toolbar;
 }
 
-@property(assign) NSViewController* currentViewController;
+@property(retain) NSViewController* currentViewController;
 
 +(PreferencesWindowController*)defaultController;
 -(void)show;
