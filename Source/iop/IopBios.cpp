@@ -27,6 +27,7 @@
 #include "Iop_Timrman.h"
 #include "Iop_Intrman.h"
 #include "Iop_Vblank.h"
+#include "Iop_Dynamic.h"
 
 #define LOGNAME "iop_bios"
 
@@ -264,16 +265,17 @@ void CIopBios::SaveState(Framework::CZipArchiveWriter& archive)
 {
 	CStructCollectionStateFile* modulesFile = new CStructCollectionStateFile(STATE_MODULES);
 	{
-		for(DynamicIopModuleListType::iterator moduleIterator(m_dynamicModules.begin());
-			moduleIterator != m_dynamicModules.end(); moduleIterator++)
+		for(const auto& modulePair : m_modules)
 		{
-			Iop::CDynamic* module(*moduleIterator);
-			CStructFile moduleStruct;
+			if(auto dynamicModule = std::dynamic_pointer_cast<Iop::CDynamic>(modulePair.second))
 			{
-				uint32 importTableAddress = reinterpret_cast<uint8*>(module->GetExportTable()) - m_ram;
-				moduleStruct.SetRegister32(STATE_MODULE_IMPORT_TABLE_ADDRESS, importTableAddress); 
+				CStructFile moduleStruct;
+				{
+					uint32 importTableAddress = reinterpret_cast<uint8*>(dynamicModule->GetExportTable()) - m_ram;
+					moduleStruct.SetRegister32(STATE_MODULE_IMPORT_TABLE_ADDRESS, importTableAddress); 
+				}
+				modulesFile->InsertStruct(dynamicModule->GetId().c_str(), moduleStruct);
 			}
-			modulesFile->InsertStruct(module->GetId().c_str(), moduleStruct);
 		}
 	}
 	archive.InsertFile(modulesFile);
@@ -284,17 +286,30 @@ void CIopBios::SaveState(Framework::CZipArchiveWriter& archive)
 
 void CIopBios::LoadState(Framework::CZipArchiveReader& archive)
 {
-	ClearDynamicModules();
+	//Remove all dynamic modules
+	for(auto modulePairIterator = m_modules.begin(); 
+		modulePairIterator != m_modules.end();)
+	{
+		if(dynamic_cast<Iop::CDynamic*>(modulePairIterator->second.get()) != nullptr)
+		{
+			modulePairIterator = m_modules.erase(modulePairIterator);
+		}
+		else
+		{
+			modulePairIterator++;
+		}
+	}
 
 	CStructCollectionStateFile modulesFile(*archive.BeginReadFile(STATE_MODULES));
 	{
-		for(CStructCollectionStateFile::StructIterator structIterator(modulesFile.GetStructBegin());
+		for(auto structIterator(modulesFile.GetStructBegin()); 
 			structIterator != modulesFile.GetStructEnd(); structIterator++)
 		{
 			const CStructFile& structFile(structIterator->second);
 			uint32 importTableAddress = structFile.GetRegister32(STATE_MODULE_IMPORT_TABLE_ADDRESS);
 			auto module = std::make_shared<Iop::CDynamic>(reinterpret_cast<uint32*>(m_ram + importTableAddress));
-			RegisterDynamicModule(module);
+			bool result = RegisterModule(module);
+			assert(result);
 		}
 	}
 
@@ -2221,7 +2236,6 @@ void CIopBios::ReturnFromException()
 void CIopBios::DeleteModules()
 {
 	m_modules.clear();
-	m_dynamicModules.clear();
 
 	m_sifCmd.reset();
 	m_sifMan.reset();
@@ -2254,38 +2268,12 @@ std::string CIopBios::ReadModuleName(uint32 address)
 	return moduleName;
 }
 
-void CIopBios::RegisterModule(const Iop::ModulePtr& module)
+bool CIopBios::RegisterModule(const Iop::ModulePtr& module)
 {
 	bool registered = (m_modules.find(module->GetId()) != std::end(m_modules));
-	assert(!registered);
-	if(registered)
-	{
-		//Just fail silently, registering a module that already exists
-		//might have unintended side-effects (SIF handler might point to dangling ptr)
-		return;
-	}
+	if(registered) return false;
 	m_modules[module->GetId()] = module;
-}
-
-void CIopBios::ClearDynamicModules()
-{
-	for(const auto& dynamicModule : m_dynamicModules)
-	{
-		auto moduleIterator(m_modules.find(dynamicModule->GetId()));
-		assert(moduleIterator != m_modules.end());
-		if(moduleIterator != m_modules.end())
-		{
-			m_modules.erase(moduleIterator);
-		}
-	}
-
-	m_dynamicModules.clear();
-}
-
-void CIopBios::RegisterDynamicModule(const Iop::DynamicPtr& dynamicModule)
-{
-	m_dynamicModules.push_back(dynamicModule.get());
-	RegisterModule(dynamicModule);
+	return true;
 }
 
 uint32 CIopBios::LoadExecutable(CELF& elf, ExecutableRange& executableRange)

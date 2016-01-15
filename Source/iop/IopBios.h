@@ -17,7 +17,6 @@
 #include "Iop_Modload.h"
 #include "Iop_Loadcore.h"
 #include "Iop_LibSd.h"
-#include "Iop_Dynamic.h"
 #ifdef _IOP_EMULATE_MODULES
 #include "Iop_FileIo.h"
 #include "Iop_PadMan.h"
@@ -137,7 +136,7 @@ public:
 	Iop::CPadMan*				GetPadman();
 	Iop::CCdvdfsv*				GetCdvdfsv();
 #endif
-	void						RegisterDynamicModule(const Iop::DynamicPtr&);
+	bool						RegisterModule(const Iop::ModulePtr&);
 
 	uint32						CreateThread(uint32, uint32, uint32, uint32);
 	void						DeleteThread(uint32);
@@ -384,11 +383,7 @@ private:
 	typedef COsStructManager<MESSAGEBOX> MessageBoxList;
 	typedef COsStructManager<LOADEDMODULE> LoadedModuleList;
 	typedef std::map<std::string, Iop::ModulePtr> IopModuleMapType;
-	typedef std::list<Iop::CDynamic*> DynamicIopModuleListType;
 	typedef std::pair<uint32, uint32> ExecutableRange;
-
-	void							RegisterModule(const Iop::ModulePtr&);
-	void							ClearDynamicModules();
 
 	void							LoadThreadContext(uint32);
 	void							SaveThreadContext(uint32);
@@ -449,7 +444,6 @@ private:
 	MessageBoxList					m_messageBoxes;
 
 	IopModuleMapType				m_modules;
-	DynamicIopModuleListType		m_dynamicModules;
 
 	OsVariableWrapper<uint32>		m_currentThreadId;
 
