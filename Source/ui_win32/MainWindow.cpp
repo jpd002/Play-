@@ -13,6 +13,7 @@
 #include "MainWindow.h"
 #include "../PS2VM.h"
 #include "../PS2VM_Preferences.h"
+#include "../ScopedVmPauser.h"
 #include "../AppConfig.h"
 #include "../ee/PS2OS.h"
 #include "../gs/GSH_Null.h"

@@ -160,6 +160,7 @@
     <ClCompile Include="..\Source\saves\SaveImporter.cpp" />
     <ClCompile Include="..\Source\saves\SaveImporterBase.cpp" />
     <ClCompile Include="..\Source\saves\XpsSaveImporter.cpp" />
+    <ClCompile Include="..\Source\ScopedVmPauser.cpp" />
     <ClCompile Include="..\Source\StructCollectionStateFile.cpp" />
     <ClCompile Include="..\Source\StructFile.cpp" />
     <ClCompile Include="..\Source\Utils.cpp" />
@@ -309,6 +310,7 @@
     <ClInclude Include="..\Source\saves\SaveImporter.h" />
     <ClInclude Include="..\Source\saves\SaveImporterBase.h" />
     <ClInclude Include="..\Source\saves\XpsSaveImporter.h" />
+    <ClInclude Include="..\Source\ScopedVmPauser.h" />
     <ClInclude Include="..\Source\SifDefs.h" />
     <ClInclude Include="..\Source\StructCollectionStateFile.h" />
     <ClInclude Include="..\Source\StructFile.h" />

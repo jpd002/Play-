@@ -445,6 +445,9 @@
     <ClCompile Include="..\Source\VirtualPad.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\Source\ScopedVmPauser.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Source\AppConfig.h">
@@ -874,6 +877,9 @@
       <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="..\Source\VirtualPad.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\ScopedVmPauser.h">
       <Filter>Source Files</Filter>
     </ClInclude>
   </ItemGroup>
