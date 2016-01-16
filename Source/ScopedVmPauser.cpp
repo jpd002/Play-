@@ -3,7 +3,6 @@
 
 CScopedVmPauser::CScopedVmPauser(CVirtualMachine& virtualMachine)
 : m_virtualMachine(virtualMachine)
-, m_paused(false)
 {
 	if(m_virtualMachine.GetStatus() == CVirtualMachine::RUNNING)
 	{
