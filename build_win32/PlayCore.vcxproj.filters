@@ -448,6 +448,9 @@
     <ClCompile Include="..\Source\ScopedVmPauser.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\Source\iop\Iop_MtapMan.cpp">
+      <Filter>Source Files\Iop</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Source\AppConfig.h">
@@ -881,6 +884,9 @@
     </ClInclude>
     <ClInclude Include="..\Source\ScopedVmPauser.h">
       <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\iop\Iop_MtapMan.h">
+      <Filter>Source Files\Iop</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

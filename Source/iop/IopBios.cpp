@@ -207,6 +207,7 @@ void CIopBios::Reset(const Iop::SifManPtr& sifMan)
 	}
 	{
 		m_padman = std::make_shared<Iop::CPadMan>();
+		m_mtapman = std::make_shared<Iop::CMtapMan>();
 	}
 #endif
 

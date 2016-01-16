@@ -98,6 +98,7 @@
     <ClCompile Include="..\Source\iop\Iop_Loadcore.cpp" />
     <ClCompile Include="..\Source\iop\Iop_McServ.cpp" />
     <ClCompile Include="..\Source\iop\Iop_Modload.cpp" />
+    <ClCompile Include="..\Source\iop\Iop_MtapMan.cpp" />
     <ClCompile Include="..\Source\iop\Iop_PadMan.cpp" />
     <ClCompile Include="..\Source\iop\Iop_RootCounters.cpp" />
     <ClCompile Include="..\Source\iop\Iop_SifCmd.cpp" />
@@ -244,6 +245,7 @@
     <ClInclude Include="..\Source\iop\Iop_McServ.h" />
     <ClInclude Include="..\Source\iop\Iop_Modload.h" />
     <ClInclude Include="..\Source\iop\Iop_Module.h" />
+    <ClInclude Include="..\Source\iop\Iop_MtapMan.h" />
     <ClInclude Include="..\Source\iop\Iop_PadMan.h" />
     <ClInclude Include="..\Source\iop\Iop_RootCounters.h" />
     <ClInclude Include="..\Source\iop\Iop_SifCmd.h" />

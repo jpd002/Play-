@@ -20,6 +20,7 @@
 #ifdef _IOP_EMULATE_MODULES
 #include "Iop_FileIo.h"
 #include "Iop_PadMan.h"
+#include "Iop_MtapMan.h"
 #include "Iop_Cdvdfsv.h"
 #endif
 
@@ -462,6 +463,7 @@ private:
 #ifdef _IOP_EMULATE_MODULES
 	Iop::FileIoPtr					m_fileIo;
 	Iop::PadManPtr					m_padman;
+	Iop::MtapManPtr					m_mtapman;
 	Iop::CdvdfsvPtr					m_cdvdfsv;
 #endif
 };
