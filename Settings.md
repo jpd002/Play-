@@ -6,7 +6,7 @@ This is a description of the settings that are available for the emulator. The g
 
 ### Show Frame and Draw Call Counters 
 
-Enables display of "frames per second" (f/s) and "draw calls per second" (dc/s) statistics on screen.
+Enables display of "frames per second" (f/s) and "draw calls per frame" (dc/f) statistics on screen.
 
 *(Android & iOS only)*
 
