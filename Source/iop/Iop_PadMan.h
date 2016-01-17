@@ -2,6 +2,7 @@
 
 #include "Iop_Module.h"
 #include "Iop_SifMan.h"
+#include "Iop_SifModuleProvider.h"
 #include "../PadListener.h"
 #include <functional>
 #include "zip/ZipArchiveWriter.h"
@@ -11,7 +12,7 @@
 
 namespace Iop
 {
-	class CPadMan : public CModule, public CPadListener, public CSifModule
+	class CPadMan : public CModule, public CPadListener, public CSifModule, public CSifModuleProvider
 	{
 	public:
 							CPadMan();
@@ -19,7 +20,7 @@ namespace Iop
 		std::string			GetId() const override;
 		std::string			GetFunctionName(unsigned int) const override;
 
-		void				RegisterSifModule(CSifMan&);
+		void				RegisterSifModules(CSifMan&) override;
 
 		void				Invoke(CMIPS&, unsigned int) override;
 		bool				Invoke(uint32, uint32*, uint32, uint32*, uint32, uint8*) override;

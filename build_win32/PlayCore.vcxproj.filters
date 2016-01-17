@@ -888,5 +888,8 @@
     <ClInclude Include="..\Source\iop\Iop_MtapMan.h">
       <Filter>Source Files\Iop</Filter>
     </ClInclude>
+    <ClInclude Include="..\Source\iop\Iop_SifModuleProvider.h">
+      <Filter>Source Files\Iop</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

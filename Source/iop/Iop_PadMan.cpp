@@ -34,7 +34,7 @@ std::string CPadMan::GetFunctionName(unsigned int) const
 	return "unknown";
 }
 
-void CPadMan::RegisterSifModule(CSifMan& sif)
+void CPadMan::RegisterSifModules(CSifMan& sif)
 {
 	sif.RegisterModule(MODULE_ID_1, this);
 	sif.RegisterModule(MODULE_ID_2, this);

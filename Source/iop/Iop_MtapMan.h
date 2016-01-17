@@ -2,11 +2,12 @@
 
 #include "Iop_Module.h"
 #include "Iop_SifMan.h"
+#include "Iop_SifModuleProvider.h"
 #include "../SifModuleAdapter.h"
 
 namespace Iop
 {
-	class CMtapMan : public CModule
+	class CMtapMan : public CModule, public CSifModuleProvider
 	{
 	public:
 		CMtapMan();
@@ -14,7 +15,7 @@ namespace Iop
 		std::string    GetId() const override;
 		std::string    GetFunctionName(unsigned int) const override;
 
-		void    RegisterSifModule(CSifMan&);
+		void    RegisterSifModules(CSifMan&) override;
 
 		void    Invoke(CMIPS&, unsigned int) override;
 

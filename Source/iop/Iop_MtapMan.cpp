@@ -26,7 +26,7 @@ std::string CMtapMan::GetFunctionName(unsigned int) const
 	return "unknown";
 }
 
-void CMtapMan::RegisterSifModule(CSifMan& sif)
+void CMtapMan::RegisterSifModules(CSifMan& sif)
 {
 	sif.RegisterModule(MODULE_ID_1, &m_module901);
 	sif.RegisterModule(MODULE_ID_2, &m_module902);

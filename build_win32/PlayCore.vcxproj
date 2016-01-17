@@ -253,6 +253,7 @@
     <ClInclude Include="..\Source\iop\Iop_SifMan.h" />
     <ClInclude Include="..\Source\iop\Iop_SifManNull.h" />
     <ClInclude Include="..\Source\iop\Iop_SifManPs2.h" />
+    <ClInclude Include="..\Source\iop\Iop_SifModuleProvider.h" />
     <ClInclude Include="..\Source\iop\Iop_Sio2.h" />
     <ClInclude Include="..\Source\iop\Iop_Spu.h" />
     <ClInclude Include="..\Source\iop\Iop_Spu2.h" />
