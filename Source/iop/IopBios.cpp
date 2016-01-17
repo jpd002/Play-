@@ -513,6 +513,20 @@ void CIopBios::FinishModuleStart()
 
 int32 CIopBios::LoadModule(const char* path)
 {
+#ifdef _IOP_EMULATE_MODULES
+	//HACK: This is needed to make 'doom.elf' read input properly
+	if(
+		!strcmp(path, "rom0:XSIO2MAN") || 
+		!strcmp(path, "rom0:XPADMAN")
+		)
+	{
+		return LoadHleModule(m_padman);
+	}
+	if(!strcmp(path, "rom0:XMTAPMAN"))
+	{
+		return LoadHleModule(m_mtapman);
+	}
+#endif
 	uint32 handle = m_ioman->Open(Iop::Ioman::CDevice::OPEN_FLAG_RDONLY, path);
 	if(handle & 0x80000000)
 	{
@@ -618,6 +632,11 @@ int32 CIopBios::StartModule(uint32 loadedModuleId, const char* path, const char*
 	{
 		return -1;
 	}
+	if(loadedModule->state == MODULE_STATE::HLE)
+	{
+		//HLE modules don't need to be started
+		return loadedModuleId;
+	}
 	assert(loadedModule->state == MODULE_STATE::STOPPED);
 	RequestModuleStart(false, loadedModuleId, path, args, argsLength);
 	return loadedModuleId;
@@ -646,6 +665,16 @@ int32 CIopBios::StopModule(uint32 loadedModuleId)
 	}
 	RequestModuleStart(true, loadedModuleId, "other", nullptr, 0);
 	return loadedModuleId;
+}
+
+bool CIopBios::IsModuleHle(uint32 loadedModuleId) const
+{
+	auto loadedModule = m_loadedModules[loadedModuleId];
+	if(!loadedModule)
+	{
+		return false;
+	}
+	return (loadedModule->state == MODULE_STATE::HLE);
 }
 
 int32 CIopBios::SearchModuleByName(const char* moduleName) const
@@ -2238,6 +2267,32 @@ void CIopBios::DeleteModules()
 	m_cdvdfsv.reset();
 	m_fileIo.reset();
 #endif
+}
+
+int32 CIopBios::LoadHleModule(const Iop::ModulePtr& module)
+{
+	auto loadedModuleId = SearchModuleByName(module->GetId().c_str());
+	if(loadedModuleId != -1)
+	{
+		return loadedModuleId;
+	}
+
+	loadedModuleId = m_loadedModules.Allocate();
+	assert(loadedModuleId != -1);
+	if(loadedModuleId == -1) return -1;
+
+	auto loadedModule = m_loadedModules[loadedModuleId];
+	strncpy(loadedModule->name, module->GetId().c_str(), LOADEDMODULE::MAX_NAME_SIZE);
+	loadedModule->state = MODULE_STATE::HLE;
+
+	//Register entries as if the module initialized itself
+	RegisterModule(module);
+	if(auto sifModuleProvider = std::dynamic_pointer_cast<Iop::CSifModuleProvider>(module))
+	{
+		sifModuleProvider->RegisterSifModules(*m_sifMan);
+	}
+
+	return loadedModuleId;
 }
 
 std::string CIopBios::ReadModuleName(uint32 address)

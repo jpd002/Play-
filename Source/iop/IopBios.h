@@ -103,6 +103,7 @@ public:
 	int32						UnloadModule(uint32);
 	int32						StartModule(uint32, const char*, const char*, uint32);
 	int32						StopModule(uint32);
+	bool						IsModuleHle(uint32) const;
 	int32						SearchModuleByName(const char*) const;
 	void						ProcessModuleReset(const std::string&);
 
@@ -217,7 +218,8 @@ private:
 	enum class MODULE_STATE : uint32
 	{
 		STOPPED,
-		STARTED
+		STARTED,
+		HLE,
 	};
 
 	enum class MODULE_RESIDENT_STATE : uint32
@@ -407,6 +409,8 @@ private:
 	void							RelocateElf(CELF&, uint32);
 	std::string						ReadModuleName(uint32);
 	void							DeleteModules();
+
+	int32							LoadHleModule(const Iop::ModulePtr&);
 
 	uint32							AssembleThreadFinish(CMIPSAssembler&);
 	uint32							AssembleReturnFromException(CMIPSAssembler&);

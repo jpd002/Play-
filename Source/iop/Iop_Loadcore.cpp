@@ -164,17 +164,6 @@ bool CLoadcore::LoadModule(uint32* args, uint32 argsSize, uint32* ret, uint32 re
 	//Load the module
 	CLog::GetInstance().Print(LOG_NAME, "Request to load module '%s' received with %d bytes arguments payload.\r\n", moduleName, moduleArgsSize);
 
-	//HACK: This is needed to make 'doom.elf' read input properly
-	if(
-		!strcmp(moduleName, "rom0:XSIO2MAN") || 
-		!strcmp(moduleName, "rom0:XPADMAN") ||
-		!strcmp(moduleName, "rom0:XMTAPMAN")
-		)
-	{
-		ret[0] = 0;
-		return true;
-	}
-
 	auto moduleId = m_bios.LoadModule(moduleName);
 	if(moduleId >= 0)
 	{
@@ -184,14 +173,14 @@ bool CLoadcore::LoadModule(uint32* args, uint32 argsSize, uint32* ret, uint32 re
 	//This function returns something negative upon failure
 	ret[0] = moduleId;
 
-	if(moduleId >= 0)
+	if((moduleId >= 0) && !m_bios.IsModuleHle(moduleId))
 	{
 		//Block EE till the IOP has completed the operation and sends its reply to the EE
 		return false;
 	}
 	else
 	{
-		//Loading module failed, reply can be sent over immediately
+		//Loading module failed or is module is HLE, reply can be sent over immediately
 		return true;
 	}
 }
