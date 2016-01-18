@@ -30,7 +30,7 @@ public:
 protected:
 	void							TexCache_Flush();
 	void							PalCache_Flush();
-	void							LoadSettings();
+	void							LoadPreferences();
 	virtual void					InitializeImpl() override;
 	virtual void					ReleaseImpl() override;
 	virtual void					ResetImpl() override;

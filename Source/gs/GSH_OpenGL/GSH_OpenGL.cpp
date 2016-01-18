@@ -41,7 +41,7 @@ CGSH_OpenGL::CGSH_OpenGL()
 : m_pCvtBuffer(nullptr)
 {
 	RegisterPreferences();
-	LoadSettings();
+	LoadPreferences();
 
 	m_pCvtBuffer = new uint8[CVTBUFFERSIZE];
 
@@ -281,9 +281,9 @@ void CGSH_OpenGL::RegisterPreferences()
 	CAppConfig::GetInstance().RegisterPreferenceBoolean(PREF_CGSH_OPENGL_FORCEBILINEARTEXTURES, false);
 }
 
-void CGSH_OpenGL::LoadSettings()
+void CGSH_OpenGL::LoadPreferences()
 {
-	m_forceBilinearTextures    = CAppConfig::GetInstance().GetPreferenceBoolean(PREF_CGSH_OPENGL_FORCEBILINEARTEXTURES);
+	m_forceBilinearTextures = CAppConfig::GetInstance().GetPreferenceBoolean(PREF_CGSH_OPENGL_FORCEBILINEARTEXTURES);
 }
 
 void CGSH_OpenGL::InitializeRC()
