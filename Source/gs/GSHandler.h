@@ -499,6 +499,8 @@ public:
 											CGSHandler();
 	virtual									~CGSHandler();
 
+	static void								RegisterPreferences();
+
 	void									Reset();
 	void									SetPresentationParams(const PRESENTATION_PARAMS&);
 

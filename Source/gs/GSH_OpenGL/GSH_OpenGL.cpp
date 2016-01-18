@@ -40,8 +40,7 @@ static uint32 MakeColor(uint8 r, uint8 g, uint8 b, uint8 a)
 CGSH_OpenGL::CGSH_OpenGL() 
 : m_pCvtBuffer(nullptr)
 {
-	CAppConfig::GetInstance().RegisterPreferenceBoolean(PREF_CGSH_OPENGL_FORCEBILINEARTEXTURES, false);
-
+	RegisterPreferences();
 	LoadSettings();
 
 	m_pCvtBuffer = new uint8[CVTBUFFERSIZE];
@@ -274,6 +273,12 @@ void CGSH_OpenGL::LoadState(Framework::CZipArchiveReader& archive)
 	CGSHandler::LoadState(archive);
 
 	m_mailBox.SendCall(std::bind(&CGSH_OpenGL::TexCache_InvalidateTextures, this, 0, RAMSIZE));
+}
+
+void CGSH_OpenGL::RegisterPreferences()
+{
+	CGSHandler::RegisterPreferences();
+	CAppConfig::GetInstance().RegisterPreferenceBoolean(PREF_CGSH_OPENGL_FORCEBILINEARTEXTURES, false);
 }
 
 void CGSH_OpenGL::LoadSettings()

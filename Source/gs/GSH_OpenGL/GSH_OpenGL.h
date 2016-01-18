@@ -17,6 +17,8 @@ public:
 									CGSH_OpenGL();
 	virtual							~CGSH_OpenGL();
 
+	static void						RegisterPreferences();
+
 	virtual void					LoadState(Framework::CZipArchiveReader&) override;
 	
 	void							ProcessHostToLocalTransfer() override;

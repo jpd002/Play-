@@ -67,7 +67,7 @@ CGSHandler::CGSHandler()
 , m_frameDump(nullptr)
 , m_loggingEnabled(true)
 {
-	CAppConfig::GetInstance().RegisterPreferenceInteger(PREF_CGSHANDLER_PRESENTATION_MODE, CGSHandler::PRESENTATION_MODE_FIT);
+	RegisterPreferences();
 	
 	m_presentationParams.mode = static_cast<PRESENTATION_MODE>(CAppConfig::GetInstance().GetPreferenceInteger(PREF_CGSHANDLER_PRESENTATION_MODE));
 	m_presentationParams.windowWidth = 512;
@@ -102,6 +102,11 @@ CGSHandler::~CGSHandler()
 	m_thread.join();
 	delete [] m_pRAM;
 	delete [] m_pCLUT;
+}
+
+void CGSHandler::RegisterPreferences()
+{
+	CAppConfig::GetInstance().RegisterPreferenceInteger(PREF_CGSHANDLER_PRESENTATION_MODE, CGSHandler::PRESENTATION_MODE_FIT);
 }
 
 void CGSHandler::Reset()
