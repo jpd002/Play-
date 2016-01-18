@@ -73,31 +73,25 @@ public class SettingsActivity extends PreferenceActivity implements SharedPrefer
 		}
 	}
 	
-	public static class GeneralSettingsFragment extends PreferenceFragment
+	public static class EmulatorSettingsFragment extends PreferenceFragment
 	{
 		@Override
 		public void onCreate(Bundle savedInstanceState)
 		{
 			super.onCreate(savedInstanceState);
-
 			addPreferencesFromResource(R.xml.settings_emu_fragment);
-			
-			PreferenceGroup prefGroup = getPreferenceScreen();
-			for(int i = 0; i < prefGroup.getPreferenceCount(); i++)
-			{
-				Preference pref = prefGroup.getPreference(i);
-				if(pref instanceof CheckBoxPreference)
-				{
-					CheckBoxPreference checkBoxPref = (CheckBoxPreference)pref;
-					checkBoxPref.setChecked(SettingsManager.getPreferenceBoolean(checkBoxPref.getKey()));
-				}
-			}
+			writeToPreferences(getPreferenceScreen());
 		}
 
 		@Override
 		public void onDestroy()
 		{
-			PreferenceGroup prefGroup = getPreferenceScreen();
+			readFromPreferences(getPreferenceScreen());
+			super.onDestroy();
+		}
+		
+		private void readFromPreferences(PreferenceGroup prefGroup)
+		{
 			for(int i = 0; i < prefGroup.getPreferenceCount(); i++)
 			{
 				Preference pref = prefGroup.getPreference(i);
@@ -106,9 +100,28 @@ public class SettingsActivity extends PreferenceActivity implements SharedPrefer
 					CheckBoxPreference checkBoxPref = (CheckBoxPreference)pref;
 					SettingsManager.setPreferenceBoolean(checkBoxPref.getKey(), checkBoxPref.isChecked());
 				}
+				else if(pref instanceof PreferenceGroup)
+				{
+					readFromPreferences((PreferenceGroup)pref);
+				}
 			}
-
-			super.onDestroy();
+		}
+		
+		private void writeToPreferences(PreferenceGroup prefGroup)
+		{
+			for(int i = 0; i < prefGroup.getPreferenceCount(); i++)
+			{
+				Preference pref = prefGroup.getPreference(i);
+				if(pref instanceof CheckBoxPreference)
+				{
+					CheckBoxPreference checkBoxPref = (CheckBoxPreference)pref;
+					checkBoxPref.setChecked(SettingsManager.getPreferenceBoolean(checkBoxPref.getKey()));
+				}
+				else if(pref instanceof PreferenceGroup)
+				{
+					writeToPreferences((PreferenceGroup)pref);
+				}
+			}
 		}
 	}
 

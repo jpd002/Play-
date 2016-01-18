@@ -34,11 +34,13 @@
     
     <string name="preferences_screen_emu">Emulator Settings</string>
     
-    <string name="pref_emu_fps_display_title">Display F/S &amp; DC/F</string>
-    <string name="pref_emu_fps_display_summary">Show \"Frames Per Second\" and \"Draw Calls Per Frame\" on screen</string>
+    <string name="pref_emu_general">General Settings</string>
+
+    <string name="pref_emu_general_fps_display_title">Show Frame and Draw Call Counters</string>
+    <string name="pref_emu_general_fps_display_summary">Enables display of &quot;frames per second&quot; (f/s) and &quot;draw calls per frame&quot; (dc/f) statistics on screen.</string>
     
-    <string name="pref_emu_pad_display_title">Show Virtual Pad</string>
-    <string name="pref_emu_pad_display_summary">Show virtual pad on screen</string>
+    <string name="pref_emu_general_pad_display_title">Show Virtual Pad</string>
+    <string name="pref_emu_general_pad_display_summary">Enables display of on-screen virtual controller pad.</string>
     
     <string name="preferences_screen_ui">UI Configuration</string>
     
