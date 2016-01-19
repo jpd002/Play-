@@ -1,5 +1,6 @@
 #import "AppDelegate.h"
 #import "EmulatorViewController.h"
+#include "GSH_OpenGL.h"
 
 @interface AppDelegate ()
 
@@ -10,6 +11,7 @@
 -(BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOption
 {
 	[EmulatorViewController registerPreferences];
+	CGSH_OpenGL::RegisterPreferences();
 	return YES;
 }
 
