@@ -44,6 +44,7 @@ extern "C" JNIEXPORT void JNICALL Java_com_virtualapplications_play_NativeIntero
 #ifdef PROFILE
 	g_virtualMachine->ProfileFrameDone.connect(boost::bind(&CStatsManager::OnProfileFrameDone, &CStatsManager::GetInstance(), _1));
 #endif
+	CGSH_OpenGL::RegisterPreferences();
 }
 
 extern "C" JNIEXPORT jboolean JNICALL Java_com_virtualapplications_play_NativeInterop_isVirtualMachineCreated(JNIEnv* env, jobject obj)
