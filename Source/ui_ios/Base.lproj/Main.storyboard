@@ -130,7 +130,7 @@
                                     </tableViewCell>
                                 </cells>
                             </tableViewSection>
-                            <tableViewSection headerTitle="Version Information" id="9eF-GH-FHV">
+                            <tableViewSection headerTitle="Video" id="9eF-GH-FHV">
                                 <cells>
                                     <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="blue" hidesAccessoryWhenEditing="NO" indentationLevel="1" indentationWidth="0.0" id="aKd-pO-wvH">
                                         <rect key="frame" x="0.0" y="252" width="600" height="44"/>
@@ -139,7 +139,38 @@
                                             <rect key="frame" x="0.0" y="0.0" width="600" height="44"/>
                                             <autoresizingMask key="autoresizingMask"/>
                                             <subviews>
-                                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="0.30 - __DATE__" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" minimumFontSize="9" translatesAutoresizingMaskIntoConstraints="NO" id="xz7-VY-07q">
+                                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Force Bilinear Filtering" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" minimumFontSize="9" translatesAutoresizingMaskIntoConstraints="NO" id="xz7-VY-07q">
+                                                    <rect key="frame" x="8" y="11" width="527" height="21"/>
+                                                    <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                                    <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
+                                                    <nil key="highlightedColor"/>
+                                                </label>
+                                                <switch opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" contentHorizontalAlignment="center" contentVerticalAlignment="center" on="YES" translatesAutoresizingMaskIntoConstraints="NO" id="r5o-M4-kDB">
+                                                    <rect key="frame" x="543" y="6" width="51" height="31"/>
+                                                </switch>
+                                            </subviews>
+                                            <constraints>
+                                                <constraint firstItem="r5o-M4-kDB" firstAttribute="leading" secondItem="xz7-VY-07q" secondAttribute="trailing" constant="8" symbolic="YES" id="2Rz-sx-L2r"/>
+                                                <constraint firstItem="xz7-VY-07q" firstAttribute="centerY" secondItem="Fvc-Vb-9Op" secondAttribute="centerY" id="EYG-U4-zvA"/>
+                                                <constraint firstItem="xz7-VY-07q" firstAttribute="top" secondItem="Fvc-Vb-9Op" secondAttribute="topMargin" constant="3" id="NAf-At-Uxg"/>
+                                                <constraint firstItem="xz7-VY-07q" firstAttribute="leading" secondItem="Fvc-Vb-9Op" secondAttribute="leadingMargin" id="WvF-kb-5JZ"/>
+                                                <constraint firstItem="xz7-VY-07q" firstAttribute="centerY" secondItem="r5o-M4-kDB" secondAttribute="centerY" id="cIn-Ss-duu"/>
+                                                <constraint firstItem="r5o-M4-kDB" firstAttribute="trailing" secondItem="Fvc-Vb-9Op" secondAttribute="trailingMargin" id="eIg-XT-i8K"/>
+                                            </constraints>
+                                        </tableViewCellContentView>
+                                    </tableViewCell>
+                                </cells>
+                            </tableViewSection>
+                            <tableViewSection headerTitle="Version Information" id="d6N-kI-BBa">
+                                <cells>
+                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="blue" hidesAccessoryWhenEditing="NO" indentationLevel="1" indentationWidth="0.0" id="bUB-Fr-n0c">
+                                        <rect key="frame" x="0.0" y="346" width="600" height="44"/>
+                                        <autoresizingMask key="autoresizingMask"/>
+                                        <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="bUB-Fr-n0c" id="VCQ-yX-pIE">
+                                            <rect key="frame" x="0.0" y="0.0" width="600" height="44"/>
+                                            <autoresizingMask key="autoresizingMask"/>
+                                            <subviews>
+                                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="0.30 - __DATE__" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" minimumFontSize="9" translatesAutoresizingMaskIntoConstraints="NO" id="w2T-id-DC8">
                                                     <rect key="frame" x="8" y="11" width="584" height="21"/>
                                                     <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                                     <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
@@ -147,10 +178,10 @@
                                                 </label>
                                             </subviews>
                                             <constraints>
-                                                <constraint firstItem="xz7-VY-07q" firstAttribute="centerY" secondItem="Fvc-Vb-9Op" secondAttribute="centerY" id="0nR-Ov-gay"/>
-                                                <constraint firstItem="xz7-VY-07q" firstAttribute="top" secondItem="Fvc-Vb-9Op" secondAttribute="topMargin" constant="3" id="9i1-Qp-Dis"/>
-                                                <constraint firstItem="xz7-VY-07q" firstAttribute="leading" secondItem="Fvc-Vb-9Op" secondAttribute="leadingMargin" id="ggQ-DU-3UB"/>
-                                                <constraint firstItem="xz7-VY-07q" firstAttribute="trailing" secondItem="Fvc-Vb-9Op" secondAttribute="trailingMargin" id="vBf-fw-7td"/>
+                                                <constraint firstItem="w2T-id-DC8" firstAttribute="top" secondItem="VCQ-yX-pIE" secondAttribute="topMargin" constant="3" id="PT5-Xh-yU4"/>
+                                                <constraint firstItem="w2T-id-DC8" firstAttribute="trailing" secondItem="VCQ-yX-pIE" secondAttribute="trailingMargin" id="PjT-cY-AGq"/>
+                                                <constraint firstItem="w2T-id-DC8" firstAttribute="centerY" secondItem="VCQ-yX-pIE" secondAttribute="centerY" id="Rfy-5Z-YiI"/>
+                                                <constraint firstItem="w2T-id-DC8" firstAttribute="leading" secondItem="VCQ-yX-pIE" secondAttribute="leadingMargin" id="bEg-kn-HF6"/>
                                             </constraints>
                                         </tableViewCellContentView>
                                     </tableViewCell>
@@ -164,9 +195,10 @@
                     </tableView>
                     <navigationItem key="navigationItem" title="Settings" id="uG2-4L-hAD"/>
                     <connections>
+                        <outlet property="forceBilinearFiltering" destination="r5o-M4-kDB" id="ynK-Zv-ADM"/>
                         <outlet property="showFpsSwitch" destination="5Wo-ch-s5J" id="Ius-gD-fIr"/>
                         <outlet property="showVirtualPadSwitch" destination="hMN-wf-jlB" id="1Sb-Wi-cwa"/>
-                        <outlet property="versionInfoLabel" destination="xz7-VY-07q" id="FDw-fQ-VfR"/>
+                        <outlet property="versionInfoLabel" destination="w2T-id-DC8" id="Sk7-qJ-alx"/>
                     </connections>
                 </tableViewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="DlU-rA-yok" userLabel="First Responder" sceneMemberID="firstResponder"/>
