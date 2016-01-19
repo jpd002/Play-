@@ -15,4 +15,14 @@
 			android:persistent="false"
 		/>
 	</PreferenceCategory>
+	<PreferenceCategory
+		android:title="@string/pref_emu_video"
+		>
+		<CheckBoxPreference
+			android:key="renderer.opengl.forcebilineartextures"
+			android:title="@string/pref_emu_video_force_bilinear_title"
+			android:summary="@string/pref_emu_video_force_bilinear_summary"
+			android:persistent="false"
+		/>
+	</PreferenceCategory>
 </PreferenceScreen>
