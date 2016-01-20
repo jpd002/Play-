@@ -90,6 +90,7 @@ void CGSH_OpenGL::ReleaseImpl()
 
 void CGSH_OpenGL::ResetImpl()
 {
+	LoadPreferences();
 	TexCache_Flush();
 	PalCache_Flush();
 	m_framebuffers.clear();
