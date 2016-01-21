@@ -4,7 +4,7 @@ This is a description of the settings that are available for the emulator. The g
 
 ## General Settings
 
-### Show Frame and Draw Call Counters 
+### Show Frame and Draw Call Counters
 
 Enables display of "frames per second" (f/s) and "draw calls per frame" (dc/f) statistics on screen.
 
