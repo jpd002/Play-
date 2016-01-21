@@ -45,6 +45,17 @@ CGSH_OpenGL::~CGSH_OpenGL()
 	delete [] m_pCvtBuffer;
 }
 
+void CGSH_OpenGL::FlushFramebuffers()
+{
+	m_mailBox.SendCall(
+		[this] ()
+		{
+			m_framebuffers.clear();
+			m_depthbuffers.clear();
+		}
+	);
+}
+
 void CGSH_OpenGL::InitializeImpl()
 {
 	InitializeRC();

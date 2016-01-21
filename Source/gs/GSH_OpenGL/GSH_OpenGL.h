@@ -31,6 +31,7 @@ public:
 protected:
 	void							TexCache_Flush();
 	void							PalCache_Flush();
+	void							FlushFramebuffers();
 	void							LoadPreferences();
 	virtual void					InitializeImpl() override;
 	virtual void					ReleaseImpl() override;

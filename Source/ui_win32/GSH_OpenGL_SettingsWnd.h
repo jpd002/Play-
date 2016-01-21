@@ -15,5 +15,6 @@ protected:
 private:
 	void    Save();
 
+	Framework::Win32::CButton    m_enableHighResMode;
 	Framework::Win32::CButton    m_forceBilinearTextures;
 };

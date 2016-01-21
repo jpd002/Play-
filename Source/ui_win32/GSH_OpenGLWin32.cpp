@@ -92,6 +92,7 @@ void CGSH_OpenGLWin32::OnSettingsDialogDestroyed()
 	LoadPreferences();
 	TexCache_Flush();
 	PalCache_Flush();
+	FlushFramebuffers();
 }
 
 CGSHandler* CGSH_OpenGLWin32::GSHandlerFactory(Framework::Win32::CWindow* outputWindow)
