@@ -267,11 +267,13 @@ void CGSH_OpenGL::LoadState(Framework::CZipArchiveReader& archive)
 void CGSH_OpenGL::RegisterPreferences()
 {
 	CGSHandler::RegisterPreferences();
+	CAppConfig::GetInstance().RegisterPreferenceBoolean(PREF_CGSH_OPENGL_ENABLEHIGHRESMODE, false);
 	CAppConfig::GetInstance().RegisterPreferenceBoolean(PREF_CGSH_OPENGL_FORCEBILINEARTEXTURES, false);
 }
 
 void CGSH_OpenGL::LoadPreferences()
 {
+	m_fbScale = CAppConfig::GetInstance().GetPreferenceBoolean(PREF_CGSH_OPENGL_ENABLEHIGHRESMODE) ? 2 : 1;
 	m_forceBilinearTextures = CAppConfig::GetInstance().GetPreferenceBoolean(PREF_CGSH_OPENGL_FORCEBILINEARTEXTURES);
 }
 

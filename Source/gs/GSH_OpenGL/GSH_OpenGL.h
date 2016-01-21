@@ -9,7 +9,8 @@
 #include "opengl/Shader.h"
 #include "opengl/Resource.h"
 
-#define PREF_CGSH_OPENGL_FORCEBILINEARTEXTURES		"renderer.opengl.forcebilineartextures"
+#define PREF_CGSH_OPENGL_ENABLEHIGHRESMODE        "renderer.opengl.enablehighresmode"
+#define PREF_CGSH_OPENGL_FORCEBILINEARTEXTURES    "renderer.opengl.forcebilineartextures"
 
 class CGSH_OpenGL : public CGSHandler
 {
