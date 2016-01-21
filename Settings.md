@@ -18,6 +18,10 @@ Enables display of on-screen virtual controller pad.
 
 ## Video Settings
 
+### Enable High Resolution Mode
+
+Enables usage of 2x sized framebuffers for rendering.
+
 ### Force Bilinear Filtering
 
 Forces usage of bilinear filtering on all textures.
