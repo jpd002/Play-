@@ -5,6 +5,7 @@
 	IBOutlet UISwitch*    showFpsSwitch;
 	IBOutlet UISwitch*    showVirtualPadSwitch;
 	
+	IBOutlet UISwitch*    enableHighResMode;
 	IBOutlet UISwitch*    forceBilinearFiltering;
 	
 	IBOutlet UILabel*    versionInfoLabel;
