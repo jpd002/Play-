@@ -19,6 +19,12 @@
 		android:title="@string/pref_emu_video"
 		>
 		<CheckBoxPreference
+			android:key="renderer.opengl.enablehighresmode"
+			android:title="@string/pref_emu_video_enable_highres_title"
+			android:summary="@string/pref_emu_video_enable_highres_summary"
+			android:persistent="false"
+		/>
+		<CheckBoxPreference
 			android:key="renderer.opengl.forcebilineartextures"
 			android:title="@string/pref_emu_video_force_bilinear_title"
 			android:summary="@string/pref_emu_video_force_bilinear_summary"
