@@ -1904,6 +1904,8 @@ void CPS2OS::sc_ReferThreadStatus()
 //32
 void CPS2OS::sc_SleepThread()
 {
+	m_ee.m_State.nGPR[SC_RETURN].nD0 = static_cast<int32>(m_currentThreadId);
+
 	auto thread = m_threads[m_currentThreadId];
 	if(thread->wakeUpCount == 0)
 	{
