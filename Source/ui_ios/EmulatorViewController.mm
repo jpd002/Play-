@@ -53,6 +53,7 @@ CPS2VM* g_virtualMachine = nullptr;
 
 -(void)viewDidAppear: (BOOL)animated
 {
+	assert(g_virtualMachine == nullptr);
 	g_virtualMachine = new CPS2VM();
 	g_virtualMachine->Initialize();
 	g_virtualMachine->CreateGSHandler(CGSH_OpenGLiOS::GetFactoryFunction((CAEAGLLayer*)self.view.layer));
@@ -95,6 +96,14 @@ CPS2VM* g_virtualMachine = nullptr;
 	}
 
 	g_virtualMachine->Resume();
+}
+
+-(void)viewDidDisappear: (BOOL)animated
+{
+	g_virtualMachine->Pause();
+	g_virtualMachine->Destroy();
+	delete g_virtualMachine;
+	g_virtualMachine = nullptr;
 }
 
 - (void)toggleHardwareController:(BOOL)useHardware {
