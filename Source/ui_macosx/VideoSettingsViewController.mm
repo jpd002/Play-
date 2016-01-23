@@ -15,11 +15,13 @@
 
 -(void)viewWillAppear
 {
+	[enableHighResModeCheckBox setState: CAppConfig::GetInstance().GetPreferenceBoolean(PREF_CGSH_OPENGL_ENABLEHIGHRESMODE) ? NSOnState : NSOffState];
 	[forceBilinearFilteringCheckBox setState: CAppConfig::GetInstance().GetPreferenceBoolean(PREF_CGSH_OPENGL_FORCEBILINEARTEXTURES) ? NSOnState : NSOffState];
 }
 
 -(void)viewWillDisappear
 {
+	CAppConfig::GetInstance().SetPreferenceBoolean(PREF_CGSH_OPENGL_ENABLEHIGHRESMODE, enableHighResModeCheckBox.state == NSOnState);
 	CAppConfig::GetInstance().SetPreferenceBoolean(PREF_CGSH_OPENGL_FORCEBILINEARTEXTURES, forceBilinearFilteringCheckBox.state == NSOnState);
 }
 

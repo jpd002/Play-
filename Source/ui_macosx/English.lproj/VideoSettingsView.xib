@@ -7,6 +7,7 @@
     <objects>
         <customObject id="-2" userLabel="File's Owner" customClass="VideoSettingsViewController">
             <connections>
+                <outlet property="enableHighResModeCheckBox" destination="KlQ-fX-KPJ" id="6K1-tj-Spm"/>
                 <outlet property="forceBilinearFilteringCheckBox" destination="FML-oH-x2V" id="wtg-n8-IEi"/>
                 <outlet property="view" destination="c22-O7-iKe" id="f1M-br-lhw"/>
             </connections>
@@ -17,8 +18,15 @@
             <rect key="frame" x="0.0" y="0.0" width="540" height="272"/>
             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
             <subviews>
+                <button fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="KlQ-fX-KPJ">
+                    <rect key="frame" x="18" y="236" width="504" height="18"/>
+                    <buttonCell key="cell" type="check" title="Enable high resolution mode" bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="ai7-lW-2iW">
+                        <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
+                        <font key="font" metaFont="system"/>
+                    </buttonCell>
+                </button>
                 <button fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="FML-oH-x2V">
-                    <rect key="frame" x="18" y="236" width="444" height="18"/>
+                    <rect key="frame" x="18" y="216" width="504" height="18"/>
                     <buttonCell key="cell" type="check" title="Force bilinear filtering" bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="bPM-Np-yZj">
                         <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
                         <font key="font" metaFont="system"/>
