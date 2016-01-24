@@ -423,9 +423,12 @@ public:
 	//Reg 0x4C/0x4D
 	struct FRAME : public convertible<uint64>
 	{
-		unsigned int	nPtr				: 16;
-		unsigned int	nWidth				: 8;
-		unsigned int	nPsm				: 8;
+		unsigned int	nPtr				: 9;
+		unsigned int	nReserved0			: 7;
+		unsigned int	nWidth				: 6;
+		unsigned int	nReserved1			: 2;
+		unsigned int	nPsm				: 6;
+		unsigned int	nReserved2			: 2;
 		unsigned int	nMask				: 32;
 		uint32			GetBasePtr() const	{ return nPtr * 8192; }
 		uint32			GetWidth() const	{ return nWidth * 64; }
