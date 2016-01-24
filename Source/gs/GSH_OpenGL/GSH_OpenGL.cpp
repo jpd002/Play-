@@ -1949,6 +1949,16 @@ void CGSH_OpenGL::CommitFramebufferDirtyPages(const FramebufferPtr& framebuffer,
 			{
 				//Restore previous framebuffer
 				glBindFramebuffer(GL_FRAMEBUFFER, m_previousFb);
+				
+				//Restore scissor state
+				if(m_scissorTestEnabled)
+				{
+					glEnable(GL_SCISSOR_TEST);
+				}
+				else
+				{
+					glDisable(GL_SCISSOR_TEST);
+				}
 			}
 		}
 
@@ -1959,6 +1969,11 @@ void CGSH_OpenGL::CommitFramebufferDirtyPages(const FramebufferPtr& framebuffer,
 			//This function might be called in the "SetupTexture" phase after
 			//"SetupFramebuffer" has been called, so, we need to save the previous FB binding
 			glGetIntegerv(GL_FRAMEBUFFER_BINDING, &m_previousFb);
+
+			//Scissor state is also saved because we need to disable it since it affects glBlitFramebuffer
+			m_scissorTestEnabled = glIsEnabled(GL_SCISSOR_TEST);
+
+			glDisable(GL_SCISSOR_TEST);
 
 			glActiveTexture(GL_TEXTURE0);
 			glBindTexture(GL_TEXTURE_2D, copyToFbTexture);
@@ -1980,6 +1995,7 @@ void CGSH_OpenGL::CommitFramebufferDirtyPages(const FramebufferPtr& framebuffer,
 	private:
 		bool m_copyToFbEnabled = false;
 		GLint m_previousFb = 0;
+		GLboolean m_scissorTestEnabled = GL_FALSE;
 	};
 
 	auto& cachedArea = framebuffer->m_cachedArea;
