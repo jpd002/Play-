@@ -18,6 +18,7 @@
 #endif
 
 #include "Iop_SifManNull.h"
+#include "Iop_SifModuleProvider.h"
 #include "Iop_Sysclib.h"
 #include "Iop_Loadcore.h"
 #include "Iop_Thbase.h"
