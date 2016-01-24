@@ -21,6 +21,7 @@
 		704F23B61B0011C8009FD916 /* Vif1.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 704F23B11B0011C8009FD916 /* Vif1.cpp */; };
 		704F23B71B0011C8009FD916 /* Vpu.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 704F23B31B0011C8009FD916 /* Vpu.cpp */; };
 		7056F2851B2683C700389AFB /* EeExecutor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7056F2831B2683C700389AFB /* EeExecutor.cpp */; };
+		705AA9751C55683800775613 /* Iop_MtapMan.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 705AA9731C55683800775613 /* Iop_MtapMan.cpp */; };
 		705D396C1C43FFAF00D267A6 /* PreferencesWindowController.mm in Sources */ = {isa = PBXBuildFile; fileRef = 705D396B1C43FFAF00D267A6 /* PreferencesWindowController.mm */; };
 		705D396F1C43FFC900D267A6 /* PreferencesWindow.xib in Resources */ = {isa = PBXBuildFile; fileRef = 705D396D1C43FFC900D267A6 /* PreferencesWindow.xib */; };
 		705D39721C44A3FF00D267A6 /* VideoSettingsView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 705D39701C44A3FF00D267A6 /* VideoSettingsView.xib */; };
@@ -225,6 +226,8 @@
 		704F23B41B0011C8009FD916 /* Vpu.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Vpu.h; path = ../Source/ee/Vpu.h; sourceTree = "<group>"; };
 		7056F2831B2683C700389AFB /* EeExecutor.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = EeExecutor.cpp; path = ../Source/ee/EeExecutor.cpp; sourceTree = "<group>"; };
 		7056F2841B2683C700389AFB /* EeExecutor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = EeExecutor.h; path = ../Source/ee/EeExecutor.h; sourceTree = "<group>"; };
+		705AA9731C55683800775613 /* Iop_MtapMan.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Iop_MtapMan.cpp; path = ../Source/iop/Iop_MtapMan.cpp; sourceTree = "<group>"; };
+		705AA9741C55683800775613 /* Iop_MtapMan.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Iop_MtapMan.h; path = ../Source/iop/Iop_MtapMan.h; sourceTree = "<group>"; };
 		705B16BC1B097DD00081B3C6 /* BlockProvider.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = BlockProvider.h; path = ../Source/ISO9660/BlockProvider.h; sourceTree = "<group>"; };
 		705D396A1C43FFAF00D267A6 /* PreferencesWindowController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PreferencesWindowController.h; path = ../Source/ui_macosx/PreferencesWindowController.h; sourceTree = "<group>"; };
 		705D396B1C43FFAF00D267A6 /* PreferencesWindowController.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = PreferencesWindowController.mm; path = ../Source/ui_macosx/PreferencesWindowController.mm; sourceTree = "<group>"; };
@@ -589,6 +592,8 @@
 				706849AF151E896900C9574F /* Iop_Modload.cpp */,
 				706849B0151E896900C9574F /* Iop_Modload.h */,
 				706849B1151E896900C9574F /* Iop_Module.h */,
+				705AA9731C55683800775613 /* Iop_MtapMan.cpp */,
+				705AA9741C55683800775613 /* Iop_MtapMan.h */,
 				706849B2151E896900C9574F /* Iop_PadMan.cpp */,
 				706849B3151E896900C9574F /* Iop_PadMan.h */,
 				706849B4151E896900C9574F /* Iop_RootCounters.cpp */,
@@ -1109,6 +1114,7 @@
 				70D9F1451AFB016900197BBE /* SIF.cpp in Sources */,
 				70D9F13A1AFB016900197BBE /* IPU_MacroblockTypePTable.cpp in Sources */,
 				70D9F1601AFB019F00197BBE /* GSH_OpenGL_Shader.cpp in Sources */,
+				705AA9751C55683800775613 /* Iop_MtapMan.cpp in Sources */,
 				70D9F1391AFB016900197BBE /* IPU_MacroblockTypeITable.cpp in Sources */,
 				7ECB24341519AC0A00C4BBF8 /* MIPS.cpp in Sources */,
 				7ECB24351519AC0A00C4BBF8 /* MIPSAnalysis.cpp in Sources */,
