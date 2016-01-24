@@ -25,6 +25,7 @@
 		704E1C551B3BA25000C0ACE3 /* GSH_OpenGL.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 704E1C511B3BA25000C0ACE3 /* GSH_OpenGL.cpp */; };
 		705342D91B78122400477EC4 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 705342D81B78122400477EC4 /* CoreGraphics.framework */; };
 		705877341BE58A4B00213FFC /* PH_Generic.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 705877321BE58A4B00213FFC /* PH_Generic.cpp */; };
+		705AA9701C55675000775613 /* Iop_MtapMan.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 705AA96E1C55675000775613 /* Iop_MtapMan.cpp */; };
 		70603E1F1B60A94400935E3C /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 70603E1E1B60A94400935E3C /* Images.xcassets */; };
 		7066B4BD1C3EB820007568BB /* SettingsViewController.mm in Sources */ = {isa = PBXBuildFile; fileRef = 7066B4BC1C3EB820007568BB /* SettingsViewController.mm */; };
 		7075D0B51B63260F0010D69C /* DiskUtils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7075D0B31B63260F0010D69C /* DiskUtils.cpp */; };
@@ -250,6 +251,8 @@
 		705342D81B78122400477EC4 /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS8.4.sdk/System/Library/Frameworks/CoreGraphics.framework; sourceTree = DEVELOPER_DIR; };
 		705877321BE58A4B00213FFC /* PH_Generic.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = PH_Generic.cpp; path = ../Source/PH_Generic.cpp; sourceTree = "<group>"; };
 		705877331BE58A4B00213FFC /* PH_Generic.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PH_Generic.h; path = ../Source/PH_Generic.h; sourceTree = "<group>"; };
+		705AA96E1C55675000775613 /* Iop_MtapMan.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Iop_MtapMan.cpp; path = ../Source/iop/Iop_MtapMan.cpp; sourceTree = "<group>"; };
+		705AA96F1C55675000775613 /* Iop_MtapMan.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Iop_MtapMan.h; path = ../Source/iop/Iop_MtapMan.h; sourceTree = "<group>"; };
 		70603E1E1B60A94400935E3C /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = "Play!/Images.xcassets"; sourceTree = "<group>"; };
 		7066B4BC1C3EB820007568BB /* SettingsViewController.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = SettingsViewController.mm; path = ../Source/ui_ios/SettingsViewController.mm; sourceTree = "<group>"; };
 		7066B4BF1C3EB87C007568BB /* SettingsViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = SettingsViewController.h; path = ../Source/ui_ios/SettingsViewController.h; sourceTree = "<group>"; };
@@ -970,6 +973,8 @@
 				70834C341B1BD70700E8D5C6 /* Iop_Modload.cpp */,
 				70834C351B1BD70700E8D5C6 /* Iop_Modload.h */,
 				70834C361B1BD70700E8D5C6 /* Iop_Module.h */,
+				705AA96E1C55675000775613 /* Iop_MtapMan.cpp */,
+				705AA96F1C55675000775613 /* Iop_MtapMan.h */,
 				70834C371B1BD70700E8D5C6 /* Iop_PadMan.cpp */,
 				70834C381B1BD70700E8D5C6 /* Iop_PadMan.h */,
 				70834C391B1BD70700E8D5C6 /* Iop_RootCounters.cpp */,
@@ -1231,6 +1236,7 @@
 				70834C8E1B1BD70700E8D5C6 /* Iop_Vblank.cpp in Sources */,
 				70834C761B1BD70700E8D5C6 /* Iop_Loadcore.cpp in Sources */,
 				70834B7F1B1BD2C300E8D5C6 /* Utils.cpp in Sources */,
+				705AA9701C55675000775613 /* Iop_MtapMan.cpp in Sources */,
 				70834CA11B1BD78D00E8D5C6 /* ISO9660.cpp in Sources */,
 				70834B5F1B1BD2C300E8D5C6 /* ELF.cpp in Sources */,
 				70834C731B1BD70700E8D5C6 /* Iop_Intrman.cpp in Sources */,
