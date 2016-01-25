@@ -33,7 +33,7 @@ import com.virtualapplications.play.database.GameIndexer;
 import com.virtualapplications.play.database.GameInfo;
 import com.virtualapplications.play.database.SqliteHelper.Games;
 
-public class MainActivity extends ActionBarActivity implements NavigationDrawerFragment.NavigationDrawerCallbacks
+public class MainActivity extends AppCompatActivity implements NavigationDrawerFragment.NavigationDrawerCallbacks
 {
 	static Activity mActivity;
 	private int currentOrientation;

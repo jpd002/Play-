@@ -5,8 +5,8 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
-import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -20,7 +20,7 @@ import com.virtualapplications.play.database.IndexingDB;
 
 import java.io.FileNotFoundException;
 
-public class GameInfoEditActivity extends ActionBarActivity {
+public class GameInfoEditActivity extends AppCompatActivity {
 
     private final int SELECT_PHOTO = 1003;
     private Intent intent;
