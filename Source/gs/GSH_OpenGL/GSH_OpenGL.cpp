@@ -45,17 +45,6 @@ CGSH_OpenGL::~CGSH_OpenGL()
 	delete [] m_pCvtBuffer;
 }
 
-void CGSH_OpenGL::FlushFramebuffers()
-{
-	m_mailBox.SendCall(
-		[this] ()
-		{
-			m_framebuffers.clear();
-			m_depthbuffers.clear();
-		}
-	);
-}
-
 void CGSH_OpenGL::InitializeImpl()
 {
 	InitializeRC();
@@ -280,6 +269,16 @@ void CGSH_OpenGL::RegisterPreferences()
 	CGSHandler::RegisterPreferences();
 	CAppConfig::GetInstance().RegisterPreferenceBoolean(PREF_CGSH_OPENGL_ENABLEHIGHRESMODE, false);
 	CAppConfig::GetInstance().RegisterPreferenceBoolean(PREF_CGSH_OPENGL_FORCEBILINEARTEXTURES, false);
+}
+
+void CGSH_OpenGL::NotifyPreferencesChangedImpl()
+{
+	LoadPreferences();
+	TexCache_Flush();
+	PalCache_Flush();
+	m_framebuffers.clear();
+	m_depthbuffers.clear();
+	CGSHandler::NotifyPreferencesChangedImpl();
 }
 
 void CGSH_OpenGL::LoadPreferences()

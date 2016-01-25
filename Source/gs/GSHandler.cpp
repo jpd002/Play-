@@ -109,6 +109,11 @@ void CGSHandler::RegisterPreferences()
 	CAppConfig::GetInstance().RegisterPreferenceInteger(PREF_CGSHANDLER_PRESENTATION_MODE, CGSHandler::PRESENTATION_MODE_FIT);
 }
 
+void CGSHandler::NotifyPreferencesChanged()
+{
+	m_mailBox.SendCall([this] () { NotifyPreferencesChangedImpl(); });
+}
+
 void CGSHandler::Reset()
 {
 	ResetBase();
@@ -140,6 +145,11 @@ void CGSHandler::ResetBase()
 }
 
 void CGSHandler::ResetImpl()
+{
+
+}
+
+void CGSHandler::NotifyPreferencesChangedImpl()
 {
 
 }

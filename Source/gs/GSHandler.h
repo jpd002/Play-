@@ -503,6 +503,7 @@ public:
 	virtual									~CGSHandler();
 
 	static void								RegisterPreferences();
+	void									NotifyPreferencesChanged();
 
 	void									Reset();
 	void									SetPresentationParams(const PRESENTATION_PARAMS&);
@@ -683,6 +684,7 @@ protected:
 	virtual void							ReleaseImpl() = 0;
 	void									ResetBase();
 	virtual void							ResetImpl();
+	virtual void							NotifyPreferencesChangedImpl();
 	virtual void							FlipImpl();
 	void									MarkNewFrame();
 	virtual void							WriteRegisterImpl(uint8, uint64);

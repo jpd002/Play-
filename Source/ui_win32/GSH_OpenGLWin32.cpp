@@ -89,10 +89,7 @@ Framework::Win32::CWindow* CGSH_OpenGLWin32::CreateSettingsDialog(HWND parentWnd
 
 void CGSH_OpenGLWin32::OnSettingsDialogDestroyed()
 {
-	LoadPreferences();
-	TexCache_Flush();
-	PalCache_Flush();
-	FlushFramebuffers();
+	NotifyPreferencesChanged();
 }
 
 CGSHandler* CGSH_OpenGLWin32::GSHandlerFactory(Framework::Win32::CWindow* outputWindow)

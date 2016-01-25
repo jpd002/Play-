@@ -77,6 +77,8 @@
 {
 	CScopedVmPauser vmPaused(*g_virtualMachine);
 	[[PreferencesWindowController defaultController] show];
+	auto gs = g_virtualMachine->GetGSHandler();
+	if(gs != nullptr) gs->NotifyPreferencesChanged();
 }
 
 -(IBAction)bootElfMenuSelected: (id)sender
