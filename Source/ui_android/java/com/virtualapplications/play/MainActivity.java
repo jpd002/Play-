@@ -6,7 +6,6 @@ import android.app.ProgressDialog;
 import android.content.*;
 import android.content.pm.*;
 import android.content.res.Configuration;
-import android.content.res.TypedArray;
 import android.graphics.Color;
 import android.graphics.drawable.GradientDrawable;
 import android.os.*;
@@ -32,6 +31,8 @@ import org.apache.commons.lang3.StringUtils;
 import com.virtualapplications.play.database.GameIndexer;
 import com.virtualapplications.play.database.GameInfo;
 import com.virtualapplications.play.database.SqliteHelper.Games;
+
+import static com.virtualapplications.play.ThemeManager.getThemeColor;
 
 public class MainActivity extends AppCompatActivity implements NavigationDrawerFragment.NavigationDrawerCallbacks
 {
@@ -89,9 +90,7 @@ public class MainActivity extends AppCompatActivity implements NavigationDrawerF
 					R.id.navigation_drawer,
 					(DrawerLayout) findViewById(R.id.drawer_layout));
 
-			TypedArray a = getTheme().obtainStyledAttributes(new int[]{R.attr.colorPrimaryDark});
-			int attributeResourceId = a.getColor(0, 0);
-			a.recycle();
+			int attributeResourceId = getThemeColor(this, R.attr.colorPrimaryDark);
 			findViewById(R.id.navigation_drawer).setBackgroundColor(Color.parseColor(
 					("#" + Integer.toHexString(attributeResourceId)).replace("#ff", "#8e")
 			));
@@ -109,10 +108,8 @@ public class MainActivity extends AppCompatActivity implements NavigationDrawerF
 		View content = findViewById(R.id.content_frame) ;
 		if (content != null) {
 			int[] colors = new int[2];// you can increase array size to add more colors to gradient.
-			TypedArray a = getTheme().obtainStyledAttributes(new int[]{R.attr.colorPrimary});
-			int topgradientcolor = a.getColor(0, 0);
+			int topgradientcolor = getThemeColor(this, R.attr.colorPrimary);
 
-			a.recycle();
 			float[] hsv = new float[3];
 			Color.colorToHSV(topgradientcolor, hsv);
 			hsv[2] *= 0.8f;// make it darker
@@ -125,9 +122,7 @@ public class MainActivity extends AppCompatActivity implements NavigationDrawerF
 			GradientDrawable gradientbg = new GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM, colors);
 			content.setBackground(gradientbg);
 		}
-		TypedArray a = getTheme().obtainStyledAttributes(new int[]{R.attr.colorPrimaryDark});
-		int attributeResourceId = a.getColor(0, 0);
-		a.recycle();
+		int attributeResourceId = getThemeColor(this, R.attr.colorPrimaryDark);
 		findViewById(R.id.navigation_drawer).setBackgroundColor(Color.parseColor(
 				("#" + Integer.toHexString(attributeResourceId)).replace("#ff", "#8e")
 		));

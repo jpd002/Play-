@@ -1,10 +1,10 @@
 package com.virtualapplications.play;
 
 import android.app.Activity;
-import android.content.res.TypedArray;
 import android.os.Build;
 import android.preference.PreferenceManager;
 import android.support.v7.widget.Toolbar;
+import android.util.TypedValue;
 import android.view.WindowManager;
 
 public class ThemeManager
@@ -58,12 +58,12 @@ public class ThemeManager
 			activity.getWindow().setStatusBarColor(color);
 		}
 	}
-	
+
 	static int getThemeColor(Activity activity, int attribute)
 	{
-		TypedArray a = activity.getTheme().obtainStyledAttributes(new int[] { attribute });
-		int attributeColor = a.getColor(0, 0);
-		a.recycle();
-		return attributeColor;
+		TypedValue typedValue = new TypedValue();
+		activity.getTheme().resolveAttribute(attribute, typedValue, true);
+		int color = typedValue.data;
+		return color;
 	}
 }

@@ -5,7 +5,6 @@ import android.app.Activity;
 import android.app.Fragment;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
-import android.content.res.TypedArray;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -24,6 +23,8 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+
+import static com.virtualapplications.play.ThemeManager.getThemeColor;
 
 /**
  * Fragment used for managing interactions for and presentation of a navigation drawer.
@@ -102,8 +103,7 @@ public class NavigationDrawerFragment extends Fragment {
         //highlight on startup, every other way returns null.
         mDrawerListView.post(new Runnable() {
             public void run() {
-                TypedArray a = getActivity().getTheme().obtainStyledAttributes(new int[]{R.attr.colorPrimaryDark});
-                int attributeResourceId = a.getColor(0, 0);
+                int attributeResourceId = getThemeColor(getActivity(), R.attr.colorPrimaryDark);
                 mDrawerListView.getChildAt(mCurrentSelectedPosition).setBackgroundColor(attributeResourceId);
             }
         });
@@ -226,9 +226,7 @@ public class NavigationDrawerFragment extends Fragment {
             mDrawerListView.setItemChecked(position, true);
             for (int i = 0; i < mDrawerListView.getChildCount(); i++) {
                 if(position == i ){
-                    //TODO: colour is hardcoded, try getting from theme
-                    TypedArray a = getActivity().getTheme().obtainStyledAttributes(new int[]{R.attr.colorPrimaryDark});
-                    int attributeResourceId = a.getColor(0, 0);
+                    int attributeResourceId = getThemeColor(getActivity(), R.attr.colorPrimaryDark);
                     mDrawerListView.getChildAt(i).setBackgroundColor(attributeResourceId);
                 }else{
                     mDrawerListView.getChildAt(i).setBackgroundColor(Color.TRANSPARENT);
@@ -309,9 +307,7 @@ public class NavigationDrawerFragment extends Fragment {
     public void onResume(){
         super.onResume();
         if (mDrawerListView != null) {
-            //TODO: colour is hardcoded, try getting from theme
-            TypedArray a = getActivity().getTheme().obtainStyledAttributes(new int[]{R.attr.colorPrimaryDark});
-            int attributeResourceId = a.getColor(0, 0);
+            int attributeResourceId = getThemeColor(getActivity(), R.attr.colorPrimaryDark);
             View v = mDrawerListView.getChildAt(mCurrentSelectedPosition);
             if (v != null)
             v.setBackgroundColor(attributeResourceId);
