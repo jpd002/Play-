@@ -106,119 +106,145 @@ CPS2VM* g_virtualMachine = nullptr;
 	g_virtualMachine = nullptr;
 }
 
-- (void)toggleHardwareController:(BOOL)useHardware {
-    if (useHardware) {
-        self.gController = [GCController controllers][0];
-        if (self.gController.gamepad) {
-            [self.gController.gamepad.buttonA setValueChangedHandler:^(GCControllerButtonInput *button, float value, BOOL pressed) {
-                
-                auto padHandler = g_virtualMachine->GetPadHandler();
-                if(padHandler)
-                {
-                    static_cast<CPH_Generic*>(padHandler)->SetButtonState(PS2::CControllerInfo::SQUARE, pressed);
-                }
-                
-            }];
-            [self.gController.gamepad.buttonB setValueChangedHandler:^(GCControllerButtonInput *button, float value, BOOL pressed) {
-                
-                auto padHandler = g_virtualMachine->GetPadHandler();
-                if(padHandler)
-                {
-                    static_cast<CPH_Generic*>(padHandler)->SetButtonState(PS2::CControllerInfo::CIRCLE, pressed);
-                }
-                
-            }];
-            [self.gController.gamepad.buttonX setValueChangedHandler:^(GCControllerButtonInput *button, float value, BOOL pressed) {
-                
-                auto padHandler = g_virtualMachine->GetPadHandler();
-                if(padHandler)
-                {
-                    static_cast<CPH_Generic*>(padHandler)->SetButtonState(PS2::CControllerInfo::CROSS, pressed);
-                }
-                
-            }];
-            [self.gController.gamepad.buttonY setValueChangedHandler:^(GCControllerButtonInput *button, float value, BOOL pressed) {
-                
-                auto padHandler = g_virtualMachine->GetPadHandler();
-                if(padHandler)
-                {
-                    static_cast<CPH_Generic*>(padHandler)->SetButtonState(PS2::CControllerInfo::TRIANGLE, pressed);
-                }
-                
-            }];
-            [self.gController.gamepad.dpad setValueChangedHandler:^(GCControllerDirectionPad *dpad, float xValue, float yValue){
-                auto padHandler = g_virtualMachine->GetPadHandler();
-                if(padHandler)
-                {
-                    static_cast<CPH_Generic*>(padHandler)->SetAxisState(PS2::CControllerInfo::ANALOG_LEFT_X, xValue);
-                    static_cast<CPH_Generic*>(padHandler)->SetAxisState(PS2::CControllerInfo::ANALOG_LEFT_Y, yValue);
-                }
-            }];
-            //Add controller pause handler here
-        }
-        if (self.gController.extendedGamepad) {
-            [self.gController.extendedGamepad.buttonA setValueChangedHandler:^(GCControllerButtonInput *button, float value, BOOL pressed) {
-                
-                auto padHandler = g_virtualMachine->GetPadHandler();
-                if(padHandler)
-                {
-                    static_cast<CPH_Generic*>(padHandler)->SetButtonState(PS2::CControllerInfo::SQUARE, pressed);
-                }
-                
-            }];
-            [self.gController.extendedGamepad.buttonB setValueChangedHandler:^(GCControllerButtonInput *button, float value, BOOL pressed) {
-                
-                auto padHandler = g_virtualMachine->GetPadHandler();
-                if(padHandler)
-                {
-                    static_cast<CPH_Generic*>(padHandler)->SetButtonState(PS2::CControllerInfo::CIRCLE, pressed);
-                }
-                
-            }];
-            [self.gController.extendedGamepad.buttonX setValueChangedHandler:^(GCControllerButtonInput *button, float value, BOOL pressed) {
-                
-                auto padHandler = g_virtualMachine->GetPadHandler();
-                if(padHandler)
-                {
-                    static_cast<CPH_Generic*>(padHandler)->SetButtonState(PS2::CControllerInfo::CROSS, pressed);
-                }
-                
-            }];
-            [self.gController.extendedGamepad.buttonY setValueChangedHandler:^(GCControllerButtonInput *button, float value, BOOL pressed) {
-                
-                auto padHandler = g_virtualMachine->GetPadHandler();
-                if(padHandler)
-                {
-                    static_cast<CPH_Generic*>(padHandler)->SetButtonState(PS2::CControllerInfo::TRIANGLE, pressed);
-                }
-                
-            }];
-            [self.gController.extendedGamepad.dpad setValueChangedHandler:^(GCControllerDirectionPad *dpad, float xValue, float yValue){
-                auto padHandler = g_virtualMachine->GetPadHandler();
-                if(padHandler)
-                {
-                    static_cast<CPH_Generic*>(padHandler)->SetAxisState(PS2::CControllerInfo::ANALOG_LEFT_X, xValue);
-                    static_cast<CPH_Generic*>(padHandler)->SetAxisState(PS2::CControllerInfo::ANALOG_LEFT_Y, yValue);
-                }
-            }];
-            [self.gController.extendedGamepad.leftThumbstick.xAxis setValueChangedHandler:^(GCControllerAxisInput *axis, float value){
-                auto padHandler = g_virtualMachine->GetPadHandler();
-                if(padHandler)
-                {
-                    static_cast<CPH_Generic*>(padHandler)->SetAxisState(PS2::CControllerInfo::ANALOG_LEFT_X, value);
-                }
-            }];
-            [self.gController.extendedGamepad.leftThumbstick.yAxis setValueChangedHandler:^(GCControllerAxisInput *axis, float value){
-                auto padHandler = g_virtualMachine->GetPadHandler();
-                if(padHandler)
-                {
-                    static_cast<CPH_Generic*>(padHandler)->SetAxisState(PS2::CControllerInfo::ANALOG_LEFT_Y, value);
-                }
-            }];
-        }
-    } else {
-        self.gController = nil;
-    }
+-(void)toggleHardwareController: (BOOL)useHardware
+{
+	if(useHardware)
+	{
+		self.gController = [GCController controllers][0];
+		if(self.gController.gamepad)
+		{
+			[self.gController.gamepad.buttonA setValueChangedHandler:
+				^(GCControllerButtonInput* button, float value, BOOL pressed)
+				{
+					auto padHandler = g_virtualMachine->GetPadHandler();
+					if(padHandler)
+					{
+						static_cast<CPH_Generic*>(padHandler)->SetButtonState(PS2::CControllerInfo::SQUARE, pressed);
+					}
+				}
+			];
+			[self.gController.gamepad.buttonB setValueChangedHandler:
+				^(GCControllerButtonInput* button, float value, BOOL pressed)
+				{
+					auto padHandler = g_virtualMachine->GetPadHandler();
+					if(padHandler)
+					{
+						static_cast<CPH_Generic*>(padHandler)->SetButtonState(PS2::CControllerInfo::CIRCLE, pressed);
+					}
+				}
+			];
+			[self.gController.gamepad.buttonX setValueChangedHandler:
+				^(GCControllerButtonInput* button, float value, BOOL pressed)
+				{
+					auto padHandler = g_virtualMachine->GetPadHandler();
+					if(padHandler)
+					{
+						static_cast<CPH_Generic*>(padHandler)->SetButtonState(PS2::CControllerInfo::CROSS, pressed);
+					}
+				}
+			];
+			[self.gController.gamepad.buttonY setValueChangedHandler:
+				^(GCControllerButtonInput* button, float value, BOOL pressed)
+				{
+					auto padHandler = g_virtualMachine->GetPadHandler();
+					if(padHandler)
+					{
+						static_cast<CPH_Generic*>(padHandler)->SetButtonState(PS2::CControllerInfo::TRIANGLE, pressed);
+					}
+				}
+			];
+			[self.gController.gamepad.dpad setValueChangedHandler:
+				^(GCControllerDirectionPad* dpad, float xValue, float yValue)
+				{
+					auto padHandler = g_virtualMachine->GetPadHandler();
+					if(padHandler)
+					{
+						static_cast<CPH_Generic*>(padHandler)->SetAxisState(PS2::CControllerInfo::ANALOG_LEFT_X, xValue);
+						static_cast<CPH_Generic*>(padHandler)->SetAxisState(PS2::CControllerInfo::ANALOG_LEFT_Y, yValue);
+					}
+				}
+			];
+			//Add controller pause handler here
+		}
+		if(self.gController.extendedGamepad)
+		{
+			[self.gController.extendedGamepad.buttonA setValueChangedHandler:
+				^(GCControllerButtonInput* button, float value, BOOL pressed)
+				{
+					auto padHandler = g_virtualMachine->GetPadHandler();
+					if(padHandler)
+					{
+						static_cast<CPH_Generic*>(padHandler)->SetButtonState(PS2::CControllerInfo::SQUARE, pressed);
+					}
+				}
+			];
+			[self.gController.extendedGamepad.buttonB setValueChangedHandler:
+				^(GCControllerButtonInput* button, float value, BOOL pressed)
+				{
+					auto padHandler = g_virtualMachine->GetPadHandler();
+					if(padHandler)
+					{
+						static_cast<CPH_Generic*>(padHandler)->SetButtonState(PS2::CControllerInfo::CIRCLE, pressed);
+					}
+				}
+			];
+			[self.gController.extendedGamepad.buttonX setValueChangedHandler:
+				^(GCControllerButtonInput* button, float value, BOOL pressed)
+				{
+					auto padHandler = g_virtualMachine->GetPadHandler();
+					if(padHandler)
+					{
+						static_cast<CPH_Generic*>(padHandler)->SetButtonState(PS2::CControllerInfo::CROSS, pressed);
+					}
+				}
+			];
+			[self.gController.extendedGamepad.buttonY setValueChangedHandler:
+				^(GCControllerButtonInput* button, float value, BOOL pressed)
+				{
+					auto padHandler = g_virtualMachine->GetPadHandler();
+					if(padHandler)
+					{
+						static_cast<CPH_Generic*>(padHandler)->SetButtonState(PS2::CControllerInfo::TRIANGLE, pressed);
+					}
+				}
+			];
+			[self.gController.extendedGamepad.dpad setValueChangedHandler:
+				^(GCControllerDirectionPad* dpad, float xValue, float yValue)
+				{
+					auto padHandler = g_virtualMachine->GetPadHandler();
+					if(padHandler)
+					{
+						static_cast<CPH_Generic*>(padHandler)->SetAxisState(PS2::CControllerInfo::ANALOG_LEFT_X, xValue);
+						static_cast<CPH_Generic*>(padHandler)->SetAxisState(PS2::CControllerInfo::ANALOG_LEFT_Y, yValue);
+					}
+				}
+			];
+			[self.gController.extendedGamepad.leftThumbstick.xAxis setValueChangedHandler:
+				^(GCControllerAxisInput* axis, float value)
+				{
+					auto padHandler = g_virtualMachine->GetPadHandler();
+					if(padHandler)
+					{
+						static_cast<CPH_Generic*>(padHandler)->SetAxisState(PS2::CControllerInfo::ANALOG_LEFT_X, value);
+					}
+				}
+			];
+			[self.gController.extendedGamepad.leftThumbstick.yAxis setValueChangedHandler:
+				^(GCControllerAxisInput* axis, float value)
+				{
+					auto padHandler = g_virtualMachine->GetPadHandler();
+					if(padHandler)
+					{
+						static_cast<CPH_Generic*>(padHandler)->SetAxisState(PS2::CControllerInfo::ANALOG_LEFT_Y, value);
+					}
+				}
+			];
+		}
+	}
+	else
+	{
+		self.gController = nil;
+	}
 }
 
 -(void)setupFpsCounter
