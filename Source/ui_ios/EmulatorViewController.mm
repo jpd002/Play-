@@ -119,7 +119,7 @@ CPS2VM* g_virtualMachine = nullptr;
 					auto padHandler = g_virtualMachine->GetPadHandler();
 					if(padHandler)
 					{
-						static_cast<CPH_Generic*>(padHandler)->SetButtonState(PS2::CControllerInfo::SQUARE, pressed);
+						static_cast<CPH_Generic*>(padHandler)->SetButtonState(PS2::CControllerInfo::CROSS, pressed);
 					}
 				}
 			];
@@ -139,7 +139,7 @@ CPS2VM* g_virtualMachine = nullptr;
 					auto padHandler = g_virtualMachine->GetPadHandler();
 					if(padHandler)
 					{
-						static_cast<CPH_Generic*>(padHandler)->SetButtonState(PS2::CControllerInfo::CROSS, pressed);
+						static_cast<CPH_Generic*>(padHandler)->SetButtonState(PS2::CControllerInfo::SQUARE, pressed);
 					}
 				}
 			];
@@ -160,7 +160,7 @@ CPS2VM* g_virtualMachine = nullptr;
 					if(padHandler)
 					{
 						static_cast<CPH_Generic*>(padHandler)->SetAxisState(PS2::CControllerInfo::ANALOG_LEFT_X, xValue);
-						static_cast<CPH_Generic*>(padHandler)->SetAxisState(PS2::CControllerInfo::ANALOG_LEFT_Y, yValue);
+						static_cast<CPH_Generic*>(padHandler)->SetAxisState(PS2::CControllerInfo::ANALOG_LEFT_Y, -yValue);
 					}
 				}
 			];
@@ -174,7 +174,7 @@ CPS2VM* g_virtualMachine = nullptr;
 					auto padHandler = g_virtualMachine->GetPadHandler();
 					if(padHandler)
 					{
-						static_cast<CPH_Generic*>(padHandler)->SetButtonState(PS2::CControllerInfo::SQUARE, pressed);
+						static_cast<CPH_Generic*>(padHandler)->SetButtonState(PS2::CControllerInfo::CROSS, pressed);
 					}
 				}
 			];
@@ -194,7 +194,7 @@ CPS2VM* g_virtualMachine = nullptr;
 					auto padHandler = g_virtualMachine->GetPadHandler();
 					if(padHandler)
 					{
-						static_cast<CPH_Generic*>(padHandler)->SetButtonState(PS2::CControllerInfo::CROSS, pressed);
+						static_cast<CPH_Generic*>(padHandler)->SetButtonState(PS2::CControllerInfo::SQUARE, pressed);
 					}
 				}
 			];
@@ -215,7 +215,7 @@ CPS2VM* g_virtualMachine = nullptr;
 					if(padHandler)
 					{
 						static_cast<CPH_Generic*>(padHandler)->SetAxisState(PS2::CControllerInfo::ANALOG_LEFT_X, xValue);
-						static_cast<CPH_Generic*>(padHandler)->SetAxisState(PS2::CControllerInfo::ANALOG_LEFT_Y, yValue);
+						static_cast<CPH_Generic*>(padHandler)->SetAxisState(PS2::CControllerInfo::ANALOG_LEFT_Y, -yValue);
 					}
 				}
 			];
@@ -235,7 +235,7 @@ CPS2VM* g_virtualMachine = nullptr;
 					auto padHandler = g_virtualMachine->GetPadHandler();
 					if(padHandler)
 					{
-						static_cast<CPH_Generic*>(padHandler)->SetAxisState(PS2::CControllerInfo::ANALOG_LEFT_Y, value);
+						static_cast<CPH_Generic*>(padHandler)->SetAxisState(PS2::CControllerInfo::ANALOG_LEFT_Y, -value);
 					}
 				}
 			];
