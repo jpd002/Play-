@@ -132,6 +132,7 @@ add_library(Play
 	../Source/iop/Iop_Loadcore.cpp 
 	../Source/iop/Iop_McServ.cpp 
 	../Source/iop/Iop_Modload.cpp 
+	../Source/iop/Iop_MtapMan.cpp
 	../Source/iop/Iop_PadMan.cpp 
 	../Source/iop/Iop_RootCounters.cpp 
 	../Source/iop/Iop_SifCmd.cpp 
