@@ -92,6 +92,7 @@ public:
 		GS_DISPLAY2 = 0x120000A0,
 		GS_CSR		= 0x12001000,
 		GS_IMR		= 0x12001010,
+		GS_SIGLBLID	= 0x12001080,
 	};
 
 	enum
@@ -663,6 +664,13 @@ protected:
 	};
 	static_assert(sizeof(DISPLAY) == sizeof(uint64), "Size of DISPLAY struct must be 8 bytes.");
 
+	struct SIGLIBID : public convertible<uint64>
+	{
+		unsigned int	sigid		: 32;
+		unsigned int	lblid		: 32;
+	};
+	static_assert(sizeof(SIGLIBID) == sizeof(uint64), "Size of SIGLIBID struct must be 8 bytes.");
+
 	struct TRXCONTEXT
 	{
 		uint32			nSize;
@@ -717,6 +725,7 @@ protected:
 	DELAYED_REGISTER						m_nDISPLAY2;		//0x120000A0
 	uint64									m_nCSR;				//0x12001000
 	uint64									m_nIMR;				//0x12001010
+	uint64									m_nSIGLBLID;		//0x12001080
 
 	PRESENTATION_PARAMS						m_presentationParams;
 

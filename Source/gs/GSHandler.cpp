@@ -46,6 +46,7 @@
 #define STATE_PRIVREGS_DISPLAY2			("DISPLAY2")
 #define STATE_PRIVREGS_CSR				("CSR")
 #define STATE_PRIVREGS_IMR				("IMR")
+#define STATE_PRIVREGS_SIGLBLID			("SIGLBLID")
 #define STATE_PRIVREGS_CRTMODE			("CrtMode")
 
 #define LOG_NAME						("gs")
@@ -138,6 +139,7 @@ void CGSHandler::ResetBase()
 	m_nDISPLAY2.value.q = 0;
 	m_nCSR = 0;
 	m_nIMR = 0;
+	m_nSIGLBLID = 0;
 	m_nCrtMode = 2;
 	m_nCBP0 = 0;
 	m_nCBP1 = 0;
@@ -176,6 +178,7 @@ void CGSHandler::SaveState(Framework::CZipArchiveWriter& archive)
 		registerFile->SetRegister64(STATE_PRIVREGS_DISPLAY2,		m_nDISPLAY2.value.q);
 		registerFile->SetRegister64(STATE_PRIVREGS_CSR,				m_nCSR);
 		registerFile->SetRegister64(STATE_PRIVREGS_IMR,				m_nIMR);
+		registerFile->SetRegister64(STATE_PRIVREGS_SIGLBLID,		m_nSIGLBLID);
 		registerFile->SetRegister32(STATE_PRIVREGS_CRTMODE,			m_nCrtMode);
 
 		archive.InsertFile(registerFile);
@@ -198,6 +201,7 @@ void CGSHandler::LoadState(Framework::CZipArchiveReader& archive)
 		m_nDISPLAY2.value.q	= registerFile.GetRegister64(STATE_PRIVREGS_DISPLAY2);
 		m_nCSR				= registerFile.GetRegister64(STATE_PRIVREGS_CSR);
 		m_nIMR				= registerFile.GetRegister64(STATE_PRIVREGS_IMR);
+		m_nSIGLBLID			= registerFile.GetRegister64(STATE_PRIVREGS_SIGLBLID);
 		m_nCrtMode			= registerFile.GetRegister32(STATE_PRIVREGS_CRTMODE);
 	}
 }
@@ -261,6 +265,9 @@ uint32 CGSHandler::ReadPrivRegister(uint32 nAddress)
 		break;
 	case GS_IMR:
 		R_REG(nAddress, nData, m_nIMR);
+		break;
+	case GS_SIGLBLID:
+		R_REG(nAddress, nData, m_nSIGLBLID);
 		break;
 	default:
 		CLog::GetInstance().Print(LOG_NAME, "Read an unhandled priviledged register (0x%0.8X).\r\n", nAddress);
@@ -326,6 +333,9 @@ void CGSHandler::WritePrivRegister(uint32 nAddress, uint32 nData)
 		break;
 	case GS_IMR:
 		W_REG(nAddress, nData, m_nIMR);
+		break;
+	case GS_SIGLBLID:
+		W_REG(nAddress, nData, m_nSIGLBLID);
 		break;
 	default:
 		CLog::GetInstance().Print(LOG_NAME, "Wrote to an unhandled priviledged register (0x%0.8X, 0x%0.8X).\r\n", nAddress, nData);
