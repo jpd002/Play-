@@ -496,6 +496,14 @@ public:
 	};
 	static_assert(sizeof(TRXREG) == sizeof(uint64), "Size of TRXREG struct must be 8 bytes.");
 
+	//Reg 0x60
+	struct SIGNAL : public convertible<uint64>
+	{
+		unsigned int	id				: 32;
+		unsigned int	idmsk			: 32;
+	};
+	static_assert(sizeof(SIGNAL) == sizeof(uint64), "Size of SIGNAL struct must be 8 bytes.");
+
 	typedef std::pair<uint8, uint64> RegisterWrite;
 	typedef std::vector<RegisterWrite> RegisterWriteList;
 	typedef std::function<CGSHandler* (void)> FactoryFunction;

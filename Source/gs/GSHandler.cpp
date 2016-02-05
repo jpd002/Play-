@@ -1383,8 +1383,11 @@ std::string CGSHandler::DisassembleWrite(uint8 registerId, uint64 data)
 		result = string_format("TRXDIR(XDIR: %i)", data & 0x03);
 		break;
 	case GS_REG_SIGNAL:
-		result = string_format("SIGNAL(IDMSK: 0x%0.8X, ID: 0x%0.8X)",
-			static_cast<uint32>(data >> 32), static_cast<uint32>(data));
+		{
+			auto signal = make_convertible<SIGNAL>(data);
+			result = string_format("SIGNAL(IDMSK: 0x%0.8X, ID: 0x%0.8X)",
+				signal.idmsk, signal.id);
+		}
 		break;
 	case GS_REG_FINISH:
 		result = "FINISH()";
