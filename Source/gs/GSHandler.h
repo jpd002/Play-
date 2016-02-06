@@ -672,12 +672,12 @@ protected:
 	};
 	static_assert(sizeof(DISPLAY) == sizeof(uint64), "Size of DISPLAY struct must be 8 bytes.");
 
-	struct SIGLIBID : public convertible<uint64>
+	struct SIGLBLID : public convertible<uint64>
 	{
 		unsigned int	sigid		: 32;
 		unsigned int	lblid		: 32;
 	};
-	static_assert(sizeof(SIGLIBID) == sizeof(uint64), "Size of SIGLIBID struct must be 8 bytes.");
+	static_assert(sizeof(SIGLBLID) == sizeof(uint64), "Size of SIGLBLID struct must be 8 bytes.");
 
 	struct TRXCONTEXT
 	{
