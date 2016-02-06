@@ -437,6 +437,15 @@ void CGSHandler::WriteRegisterMassively(const RegisterWrite* writeList, unsigned
 		case GS_REG_FINISH:
 			m_nCSR |= CSR_FINISH_EVENT;
 			break;
+		case GS_REG_LABEL:
+			{
+				auto label = make_convertible<LABEL>(write.second);
+				auto siglblid = make_convertible<SIGLBLID>(m_nSIGLBLID);
+				siglblid.lblid &= ~label.idmsk;
+				siglblid.lblid |= label.id;
+				m_nSIGLBLID = siglblid;
+			}
+			break;
 		}
 	}
 
