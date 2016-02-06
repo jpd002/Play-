@@ -1392,6 +1392,13 @@ std::string CGSHandler::DisassembleWrite(uint8 registerId, uint64 data)
 	case GS_REG_FINISH:
 		result = "FINISH()";
 		break;
+	case GS_REG_LABEL:
+		{
+			auto label = make_convertible<LABEL>(data);
+			result = string_format("LABEL(IDMSK: 0x%0.8X, ID: 0x%0.8X)",
+				label.idmsk, label.id);
+		}
+		break;
 	default:
 		result = string_format("(Unknown register: 0x%0.2X)", registerId);
 		break;

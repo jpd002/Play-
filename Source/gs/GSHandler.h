@@ -65,6 +65,7 @@ enum GS_REGS
 	GS_REG_TRXDIR		= 0x53,
 	GS_REG_SIGNAL		= 0x60,
 	GS_REG_FINISH		= 0x61,
+	GS_REG_LABEL		= 0x62,
 };
 
 class CGSHandler
@@ -503,6 +504,14 @@ public:
 		unsigned int	idmsk			: 32;
 	};
 	static_assert(sizeof(SIGNAL) == sizeof(uint64), "Size of SIGNAL struct must be 8 bytes.");
+
+	//Reg 0x62
+	struct LABEL : public convertible<uint64>
+	{
+		unsigned int	id				: 32;
+		unsigned int	idmsk			: 32;
+	};
+	static_assert(sizeof(LABEL) == sizeof(uint64), "Size of LABEL struct must be 8 bytes.");
 
 	typedef std::pair<uint8, uint64> RegisterWrite;
 	typedef std::vector<RegisterWrite> RegisterWriteList;
