@@ -431,8 +431,14 @@ void CGSHandler::WriteRegisterMassively(const RegisterWrite* writeList, unsigned
 		switch(write.first)
 		{
 		case GS_REG_SIGNAL:
-			//TODO: Update SIGLBLID
-			m_nCSR |= CSR_SIGNAL_EVENT;
+			{
+				auto signal = make_convertible<SIGNAL>(write.second);
+				auto siglblid = make_convertible<SIGLBLID>(m_nSIGLBLID);
+				siglblid.sigid &= ~signal.idmsk;
+				siglblid.sigid |= signal.id;
+				m_nSIGLBLID = siglblid;
+				m_nCSR |= CSR_SIGNAL_EVENT;
+			}
 			break;
 		case GS_REG_FINISH:
 			m_nCSR |= CSR_FINISH_EVENT;
