@@ -423,9 +423,12 @@ public:
 	//Reg 0x4C/0x4D
 	struct FRAME : public convertible<uint64>
 	{
-		unsigned int	nPtr				: 16;
-		unsigned int	nWidth				: 8;
-		unsigned int	nPsm				: 8;
+		unsigned int	nPtr				: 9;
+		unsigned int	nReserved0			: 7;
+		unsigned int	nWidth				: 6;
+		unsigned int	nReserved1			: 2;
+		unsigned int	nPsm				: 6;
+		unsigned int	nReserved2			: 2;
 		unsigned int	nMask				: 32;
 		uint32			GetBasePtr() const	{ return nPtr * 8192; }
 		uint32			GetWidth() const	{ return nWidth * 64; }
@@ -499,6 +502,9 @@ public:
 											CGSHandler();
 	virtual									~CGSHandler();
 
+	static void								RegisterPreferences();
+	void									NotifyPreferencesChanged();
+
 	void									Reset();
 	void									SetPresentationParams(const PRESENTATION_PARAMS&);
 
@@ -527,9 +533,10 @@ public:
 	virtual void							SetCrt(bool, unsigned int, bool);
 	void									Initialize();
 	void									Release();
-	virtual void							ProcessImageTransfer() = 0;
-	virtual void							ProcessClutTransfer(uint32, uint32) = 0;
+	virtual void							ProcessHostToLocalTransfer() = 0;
+	virtual void							ProcessLocalToHostTransfer() = 0;
 	virtual void							ProcessLocalToLocalTransfer() = 0;
+	virtual void							ProcessClutTransfer(uint32, uint32) = 0;
 	void									Flip(bool showOnly = false);
 	virtual void							ReadFramebuffer(uint32, uint32, void*) = 0;
 	
@@ -677,6 +684,7 @@ protected:
 	virtual void							ReleaseImpl() = 0;
 	void									ResetBase();
 	virtual void							ResetImpl();
+	virtual void							NotifyPreferencesChangedImpl();
 	virtual void							FlipImpl();
 	void									MarkNewFrame();
 	virtual void							WriteRegisterImpl(uint8, uint64);

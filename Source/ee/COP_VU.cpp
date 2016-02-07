@@ -286,7 +286,7 @@ void CCOP_VU::VMADDbc()
 //0F
 void CCOP_VU::VMSUBbc()
 {
-	VUShared::MSUBbc(m_codeGen, m_nDest, m_nFD, m_nFS, m_nFT, m_nBc);
+	VUShared::MSUBbc(m_codeGen, m_nDest, m_nFD, m_nFS, m_nFT, m_nBc, 0);
 }
 
 //10

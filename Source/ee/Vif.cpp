@@ -83,6 +83,14 @@ uint32 CVif::GetRegister(uint32 address)
 	case VIF1_MARK:
 		result = m_MARK;
 		break;
+	case VIF0_CYCLE:
+	case VIF1_CYCLE:
+		result = m_CYCLE;
+		break;
+	case VIF0_MODE:
+	case VIF1_MODE:
+		result = m_MODE;
+		break;
 	case VIF0_R0:
 	case VIF1_R0:
 		result = m_R[0];
@@ -562,10 +570,17 @@ void CVif::Cmd_UNPACK(StreamType& stream, CODE nCommand, uint32 nDstAddr)
 {
 	assert((nCommand.nCMD & 0x60) == 0x60);
 
+	const auto vuMem = m_vpu.GetVuMemory();
+	const auto vuMemSize = m_vpu.GetVuMemorySize();
 	bool usn = (m_CODE.nIMM & 0x4000) != 0;
 	bool useMask = (nCommand.nCMD & 0x10) != 0;
 	uint32 cl = m_CYCLE.nCL;
 	uint32 wl = m_CYCLE.nWL;
+	if(wl == 0) 
+	{
+		wl = UINT_MAX;
+		cl = UINT_MAX;
+	}
 
 	if(m_NUM == nCommand.nNUM)
 	{
@@ -576,14 +591,19 @@ void CVif::Cmd_UNPACK(StreamType& stream, CODE nCommand, uint32 nDstAddr)
 	uint32 currentNum = (m_NUM == 0) ? 256 : m_NUM;
 	uint32 codeNum = (m_CODE.nNUM == 0) ? 256 : m_CODE.nNUM;
 	uint32 transfered = codeNum - currentNum;
-	assert(transfered == 0 || cl == wl);	//The value above is only valid for specific combinations of cl and wl
 
-	nDstAddr += transfered;
+	if(cl > wl)
+	{
+		nDstAddr += cl * (transfered / wl) + (transfered % wl);
+	}
+	else
+	{
+		nDstAddr += transfered;
+	}
+
 	nDstAddr *= 0x10;
 
-	uint128* dst = reinterpret_cast<uint128*>(m_vpu.GetVuMemory() + nDstAddr);
-
-	while((currentNum != 0) && stream.GetAvailableReadBytes())
+	while(currentNum != 0)
 	{
 		bool mustWrite = false;
 		uint128 writeValue;
@@ -611,6 +631,8 @@ void CVif::Cmd_UNPACK(StreamType& stream, CODE nCommand, uint32 nDstAddr)
 
 		if(mustWrite)
 		{
+			auto dst = reinterpret_cast<uint128*>(vuMem + nDstAddr);
+
 			for(unsigned int i = 0; i < 4; i++)
 			{
 				uint32 maskOp = useMask ? GetMaskOp(i, m_writeTick) : MASK_DATA;
@@ -674,7 +696,8 @@ void CVif::Cmd_UNPACK(StreamType& stream, CODE nCommand, uint32 nDstAddr)
 			}
 		}
 
-		dst++;
+		nDstAddr += 0x10;
+		nDstAddr &= (vuMemSize - 1);
 	}
 
 	if(currentNum != 0)
@@ -683,7 +706,6 @@ void CVif::Cmd_UNPACK(StreamType& stream, CODE nCommand, uint32 nDstAddr)
 	}
 	else
 	{
-//        assert((m_cmdBuffer.GetReadCount() & 0x03) == 0);
 		stream.Align32();
 		m_STAT.nVPS = 0;
 	}
@@ -936,6 +958,12 @@ void CVif::DisassembleGet(uint32 address)
 	case VIF0_MARK:
 		CLog::GetInstance().Print(LOG_NAME, "VIF0_MARK.\r\n");
 		break;
+	case VIF0_CYCLE:
+		CLog::GetInstance().Print(LOG_NAME, "VIF0_CYCLE.\r\n");
+		break;
+	case VIF0_MODE:
+		CLog::GetInstance().Print(LOG_NAME, "VIF0_MODE.\r\n");
+		break;
 	case VIF0_R0:
 		CLog::GetInstance().Print(LOG_NAME, "VIF0_R0.\r\n");
 		break;
@@ -950,6 +978,12 @@ void CVif::DisassembleGet(uint32 address)
 		break;
 	case VIF1_MARK:
 		CLog::GetInstance().Print(LOG_NAME, "VIF1_MARK.\r\n");
+		break;
+	case VIF1_CYCLE:
+		CLog::GetInstance().Print(LOG_NAME, "VIF1_CYCLE.\r\n");
+		break;
+	case VIF1_MODE:
+		CLog::GetInstance().Print(LOG_NAME, "VIF1_MODE.\r\n");
 		break;
 	case VIF1_R0:
 		CLog::GetInstance().Print(LOG_NAME, "VIF1_R0.\r\n");

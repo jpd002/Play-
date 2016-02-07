@@ -46,4 +46,6 @@ namespace Iop
 
 		LoadExecutableHandler		m_loadExecutableHandler;
 	};
+
+	typedef std::shared_ptr<CLoadcore> LoadcorePtr;
 }

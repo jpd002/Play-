@@ -765,16 +765,16 @@
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
-    <Import Project="..\..\..\..\NuGetPackages\boost.1.59.0.0\build\native\boost.targets" Condition="Exists('..\..\..\..\NuGetPackages\boost.1.59.0.0\build\native\boost.targets')" />
-    <Import Project="..\..\..\..\NuGetPackages\boost_filesystem-vc140.1.59.0.0\build\native\boost_filesystem-vc140.targets" Condition="Exists('..\..\..\..\NuGetPackages\boost_filesystem-vc140.1.59.0.0\build\native\boost_filesystem-vc140.targets')" />
-    <Import Project="..\..\..\..\NuGetPackages\boost_system-vc140.1.59.0.0\build\native\boost_system-vc140.targets" Condition="Exists('..\..\..\..\NuGetPackages\boost_system-vc140.1.59.0.0\build\native\boost_system-vc140.targets')" />
+    <Import Project="..\..\..\..\NuGetPackages\boost.1.60.0.0\build\native\boost.targets" Condition="Exists('..\..\..\..\NuGetPackages\boost.1.60.0.0\build\native\boost.targets')" />
+    <Import Project="..\..\..\..\NuGetPackages\boost_filesystem-vc140.1.60.0.0\build\native\boost_filesystem-vc140.targets" Condition="Exists('..\..\..\..\NuGetPackages\boost_filesystem-vc140.1.60.0.0\build\native\boost_filesystem-vc140.targets')" />
+    <Import Project="..\..\..\..\NuGetPackages\boost_system-vc140.1.60.0.0\build\native\boost_system-vc140.targets" Condition="Exists('..\..\..\..\NuGetPackages\boost_system-vc140.1.60.0.0\build\native\boost_system-vc140.targets')" />
   </ImportGroup>
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>
       <ErrorText>このプロジェクトは、このコンピューターにはない NuGet パッケージを参照しています。これらをダウンロードするには、NuGet パッケージの復元を有効にしてください。詳細については、http://go.microsoft.com/fwlink/?LinkID=322105 を参照してください。不足しているファイルは {0} です。</ErrorText>
     </PropertyGroup>
-    <Error Condition="!Exists('..\..\..\..\NuGetPackages\boost.1.59.0.0\build\native\boost.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\..\NuGetPackages\boost.1.59.0.0\build\native\boost.targets'))" />
-    <Error Condition="!Exists('..\..\..\..\NuGetPackages\boost_filesystem-vc140.1.59.0.0\build\native\boost_filesystem-vc140.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\..\NuGetPackages\boost_filesystem-vc140.1.59.0.0\build\native\boost_filesystem-vc140.targets'))" />
-    <Error Condition="!Exists('..\..\..\..\NuGetPackages\boost_system-vc140.1.59.0.0\build\native\boost_system-vc140.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\..\NuGetPackages\boost_system-vc140.1.59.0.0\build\native\boost_system-vc140.targets'))" />
+    <Error Condition="!Exists('..\..\..\..\NuGetPackages\boost.1.60.0.0\build\native\boost.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\..\NuGetPackages\boost.1.60.0.0\build\native\boost.targets'))" />
+    <Error Condition="!Exists('..\..\..\..\NuGetPackages\boost_filesystem-vc140.1.60.0.0\build\native\boost_filesystem-vc140.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\..\NuGetPackages\boost_filesystem-vc140.1.60.0.0\build\native\boost_filesystem-vc140.targets'))" />
+    <Error Condition="!Exists('..\..\..\..\NuGetPackages\boost_system-vc140.1.60.0.0\build\native\boost_system-vc140.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\..\NuGetPackages\boost_system-vc140.1.60.0.0\build\native\boost_system-vc140.targets'))" />
   </Target>
 </Project>

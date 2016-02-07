@@ -672,6 +672,33 @@ void CMA_VU::CLower::XGKICK()
 	m_codeGen->Call(reinterpret_cast<void*>(&MemoryUtils_SetWordProxy), 3, false);
 }
 
+//1C
+void CMA_VU::CLower::ESADD()
+{
+	///////////////////////////////////////////////////
+	//Raise all components to the power of 2
+
+	m_codeGen->FP_PushSingle(offsetof(CMIPS, m_State.nCOP2[m_nIS].nV[0]));
+	m_codeGen->PushTop();
+	m_codeGen->FP_Mul();
+
+	m_codeGen->FP_PushSingle(offsetof(CMIPS, m_State.nCOP2[m_nIS].nV[1]));
+	m_codeGen->PushTop();
+	m_codeGen->FP_Mul();
+
+	m_codeGen->FP_PushSingle(offsetof(CMIPS, m_State.nCOP2[m_nIS].nV[2]));
+	m_codeGen->PushTop();
+	m_codeGen->FP_Mul();
+
+	///////////////////////////////////////////////////
+	//Sum all components
+
+	m_codeGen->FP_Add();
+	m_codeGen->FP_Add();
+
+	m_codeGen->FP_PullSingle(offsetof(CMIPS, m_State.nCOP2P));
+}
+
 //1E
 void CMA_VU::CLower::ESQRT()
 {
@@ -1002,7 +1029,7 @@ CMA_VU::CLower::InstructionFuncConstant CMA_VU::CLower::m_pOpVector0[0x20] =
 	//0x10
 	&CMA_VU::CLower::RNEXT,			&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,
 	//0x18
-	&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::MFP,			&CMA_VU::CLower::XTOP,			&CMA_VU::CLower::XGKICK,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::ESQRT, 		&CMA_VU::CLower::ESIN,
+	&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::MFP,			&CMA_VU::CLower::XTOP,			&CMA_VU::CLower::XGKICK,		&CMA_VU::CLower::ESADD,			&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::ESQRT, 		&CMA_VU::CLower::ESIN,
 };
 
 CMA_VU::CLower::InstructionFuncConstant CMA_VU::CLower::m_pOpVector1[0x20] =

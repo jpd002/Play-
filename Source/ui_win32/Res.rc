@@ -57,7 +57,7 @@ STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSM
 CAPTION "Video Settings"
 FONT 8, "MS Shell Dlg", 400, 0, 0x1
 BEGIN
-    CONTROL         "Render lines using quads",IDC_GSHOPENGL_SETTINGS_LINESASQUAD,
+    CONTROL         "Enable high resolution mode",IDC_GSHOPENGL_SETTINGS_ENABLEHIGHRESMODE,
                     "Button",BS_AUTOCHECKBOX | WS_TABSTOP,6,6,294,10
     CONTROL         "Force bilinear texture filtering",IDC_GSHOPENGL_SETTINGS_FORCEBILINEAR,
                     "Button",BS_AUTOCHECKBOX | WS_TABSTOP,6,18,294,10

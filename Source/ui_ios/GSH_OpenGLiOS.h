@@ -21,7 +21,6 @@ private:
 	EAGLContext*			m_context = nullptr;
 	GLuint					m_defaultFramebuffer = 0;
 	GLuint					m_colorRenderbuffer = 0;
-	GLuint					m_depthRenderbuffer = 0;
 	
 	GLint					m_framebufferWidth = 0;
 	GLint					m_framebufferHeight = 0;

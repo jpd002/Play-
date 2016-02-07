@@ -98,6 +98,7 @@
     <ClCompile Include="..\Source\iop\Iop_Loadcore.cpp" />
     <ClCompile Include="..\Source\iop\Iop_McServ.cpp" />
     <ClCompile Include="..\Source\iop\Iop_Modload.cpp" />
+    <ClCompile Include="..\Source\iop\Iop_MtapMan.cpp" />
     <ClCompile Include="..\Source\iop\Iop_PadMan.cpp" />
     <ClCompile Include="..\Source\iop\Iop_RootCounters.cpp" />
     <ClCompile Include="..\Source\iop\Iop_SifCmd.cpp" />
@@ -160,6 +161,7 @@
     <ClCompile Include="..\Source\saves\SaveImporter.cpp" />
     <ClCompile Include="..\Source\saves\SaveImporterBase.cpp" />
     <ClCompile Include="..\Source\saves\XpsSaveImporter.cpp" />
+    <ClCompile Include="..\Source\ScopedVmPauser.cpp" />
     <ClCompile Include="..\Source\StructCollectionStateFile.cpp" />
     <ClCompile Include="..\Source\StructFile.cpp" />
     <ClCompile Include="..\Source\Utils.cpp" />
@@ -243,6 +245,7 @@
     <ClInclude Include="..\Source\iop\Iop_McServ.h" />
     <ClInclude Include="..\Source\iop\Iop_Modload.h" />
     <ClInclude Include="..\Source\iop\Iop_Module.h" />
+    <ClInclude Include="..\Source\iop\Iop_MtapMan.h" />
     <ClInclude Include="..\Source\iop\Iop_PadMan.h" />
     <ClInclude Include="..\Source\iop\Iop_RootCounters.h" />
     <ClInclude Include="..\Source\iop\Iop_SifCmd.h" />
@@ -250,6 +253,7 @@
     <ClInclude Include="..\Source\iop\Iop_SifMan.h" />
     <ClInclude Include="..\Source\iop\Iop_SifManNull.h" />
     <ClInclude Include="..\Source\iop\Iop_SifManPs2.h" />
+    <ClInclude Include="..\Source\iop\Iop_SifModuleProvider.h" />
     <ClInclude Include="..\Source\iop\Iop_Sio2.h" />
     <ClInclude Include="..\Source\iop\Iop_Spu.h" />
     <ClInclude Include="..\Source\iop\Iop_Spu2.h" />
@@ -309,6 +313,7 @@
     <ClInclude Include="..\Source\saves\SaveImporter.h" />
     <ClInclude Include="..\Source\saves\SaveImporterBase.h" />
     <ClInclude Include="..\Source\saves\XpsSaveImporter.h" />
+    <ClInclude Include="..\Source\ScopedVmPauser.h" />
     <ClInclude Include="..\Source\SifDefs.h" />
     <ClInclude Include="..\Source\StructCollectionStateFile.h" />
     <ClInclude Include="..\Source\StructFile.h" />
@@ -528,12 +533,12 @@
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
-    <Import Project="..\..\NuGetPackages\boost.1.59.0.0\build\native\boost.targets" Condition="Exists('..\..\NuGetPackages\boost.1.59.0.0\build\native\boost.targets')" />
+    <Import Project="..\..\NuGetPackages\boost.1.60.0.0\build\native\boost.targets" Condition="Exists('..\..\NuGetPackages\boost.1.60.0.0\build\native\boost.targets')" />
   </ImportGroup>
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>
       <ErrorText>This project references NuGet package(s) that are missing on this computer. Enable NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
     </PropertyGroup>
-    <Error Condition="!Exists('..\..\NuGetPackages\boost.1.59.0.0\build\native\boost.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\NuGetPackages\boost.1.59.0.0\build\native\boost.targets'))" />
+    <Error Condition="!Exists('..\..\NuGetPackages\boost.1.60.0.0\build\native\boost.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\NuGetPackages\boost.1.60.0.0\build\native\boost.targets'))" />
   </Target>
 </Project>

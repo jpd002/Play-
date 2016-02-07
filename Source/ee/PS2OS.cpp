@@ -295,10 +295,34 @@ void CPS2OS::BootFromFile(const char* sPath)
 	LoadELF(stream, execPath.filename().string().c_str(), ArgumentList());
 }
 
-void CPS2OS::BootFromCDROM(const ArgumentList& arguments)
+void CPS2OS::BootFromVirtualPath(const char* executablePath, const ArgumentList& arguments)
+{
+	auto ioman = m_iopBios.GetIoman();
+
+	uint32 handle = ioman->Open(Iop::Ioman::CDevice::OPEN_FLAG_RDONLY, executablePath);
+	if(static_cast<int32>(handle) < 0)
+	{
+		throw std::runtime_error("Couldn't open executable specified by virtual path.");
+	}
+
+	try
+	{
+		const char* executableName = strchr(executablePath, ':') + 1;
+		if(executableName[0] == '/' || executableName[0] == '\\') executableName++;
+		Framework::CStream* file(ioman->GetFileStream(handle));
+		LoadELF(*file, executableName, arguments);
+	}
+	catch(...)
+	{
+		throw std::runtime_error("Error occured while reading ELF executable from virtual path.");
+	}
+	ioman->Close(handle);
+}
+
+void CPS2OS::BootFromCDROM()
 {
 	std::string executablePath;
-	Iop::CIoman* ioman = m_iopBios.GetIoman();
+	auto ioman = m_iopBios.GetIoman();
 
 	{
 		uint32 handle = ioman->Open(Iop::Ioman::CDevice::OPEN_FLAG_RDONLY, "cdrom0:SYSTEM.CNF");
@@ -325,26 +349,7 @@ void CPS2OS::BootFromCDROM(const ArgumentList& arguments)
 		throw std::runtime_error("Error parsing 'SYSTEM.CNF' for a BOOT2 value.");
 	}
 
-	{
-		uint32 handle = ioman->Open(Iop::Ioman::CDevice::OPEN_FLAG_RDONLY, executablePath.c_str());
-		if(static_cast<int32>(handle) < 0)
-		{
-			throw std::runtime_error("Couldn't open executable specified in SYSTEM.CNF.");
-		}
-
-		try
-		{
-			const char* executableName = strchr(executablePath.c_str(), ':') + 1;
-			if(executableName[0] == '/' || executableName[0] == '\\') executableName++;
-			Framework::CStream* file(ioman->GetFileStream(handle));
-			LoadELF(*file, executableName, arguments);
-		}
-		catch(...)
-		{
-			throw std::runtime_error("Error occured while reading ELF executable from disk.");
-		}
-		ioman->Close(handle);
-	}
+	BootFromVirtualPath(executablePath.c_str(), ArgumentList());
 }
 
 CELF* CPS2OS::GetELF()
@@ -1202,8 +1207,9 @@ void CPS2OS::SetVsyncFlagPtrs(uint32 value1Ptr, uint32 value2Ptr)
 
 uint8* CPS2OS::GetStructPtr(uint32 address) const
 {
+	address = TranslateAddress(nullptr, address);
 	uint8* memory = nullptr;
-	if(address >= 0x70000000)
+	if((address >= PS2::EE_SPR_ADDR) && (address < (PS2::EE_SPR_ADDR + PS2::EE_SPR_SIZE)))
 	{
 		address &= (PS2::EE_SPR_SIZE - 1);
 		memory = m_spr;
@@ -1277,10 +1283,13 @@ uint32 CPS2OS::TranslateAddress(CMIPS*, uint32 vaddrLo)
 {
 	if(vaddrLo >= 0x70000000 && vaddrLo <= 0x70003FFF)
 	{
-		return (vaddrLo - 0x6E000000);
+		//SPR memory access, the TLB entry for this should have the SPR bit set
+		static const uint32 addressFixUp = 0x70000000 - PS2::EE_SPR_ADDR;
+		return (vaddrLo - addressFixUp);
 	}
 	if(vaddrLo >= 0x30100000 && vaddrLo <= 0x31FFFFFF)
 	{
+		//RAM access, "uncached & accelerated" as per TLB entry
 		return (vaddrLo - 0x30000000);
 	}
 	return vaddrLo & 0x1FFFFFFF;
@@ -1318,19 +1327,24 @@ void CPS2OS::sc_Exit()
 //06
 void CPS2OS::sc_LoadExecPS2()
 {
-	uint32 fileNamePtr	= m_ee.m_State.nGPR[SC_PARAM0].nV[0];
+	uint32 filePathPtr	= m_ee.m_State.nGPR[SC_PARAM0].nV[0];
 	uint32 argCount		= m_ee.m_State.nGPR[SC_PARAM1].nV[0];
 	uint32 argValuesPtr	= m_ee.m_State.nGPR[SC_PARAM2].nV[0];
 
 	ArgumentList arguments;
 	for(uint32 i = 0; i < argCount; i++)
 	{
-		uint32 argValuePtr = *reinterpret_cast<uint32*>(m_ram + argValuesPtr + i * 4);
-		arguments.push_back(reinterpret_cast<const char*>(m_ram + argValuePtr));
+		uint32 argValuePtr = *reinterpret_cast<uint32*>(GetStructPtr(argValuesPtr + i * 4));
+		arguments.push_back(reinterpret_cast<const char*>(GetStructPtr(argValuePtr)));
 	}
 
-	std::string fileName = reinterpret_cast<const char*>(m_ram + fileNamePtr);
-	OnRequestLoadExecutable(fileName.c_str(), arguments);
+	std::string filePath = reinterpret_cast<const char*>(GetStructPtr(filePathPtr));
+	if(filePath.find(':') == std::string::npos)
+	{
+		//Unreal Tournament doesn't provide drive info in path
+		filePath = "cdrom0:" + filePath;
+	}
+	OnRequestLoadExecutable(filePath.c_str(), arguments);
 }
 
 //07
@@ -1855,15 +1869,33 @@ void CPS2OS::sc_ReferThreadStatus()
 		break;
 	}
 
+	uint32 waitType = 0;
+	switch(thread->status)
+	{
+	case THREAD_SLEEPING:
+	case THREAD_SUSPENDED_SLEEPING:
+		waitType = 1;
+		break;
+	case THREAD_WAITING:
+	case THREAD_SUSPENDED_WAITING:
+		waitType = 2;
+		break;
+	default:
+		waitType = 0;
+		break;
+	}
+
 	if(statusPtr != 0)
 	{
-		auto threadParam = reinterpret_cast<THREADPARAM*>(GetStructPtr(statusPtr));
+		auto status = reinterpret_cast<THREADSTATUS*>(GetStructPtr(statusPtr));
 
-		threadParam->status				= ret;
-		threadParam->initPriority		= thread->initPriority;
-		threadParam->currPriority		= thread->currPriority;
-		threadParam->stackBase			= thread->stackBase;
-		threadParam->stackSize			= thread->stackSize;
+		status->status          = ret;
+		status->initPriority    = thread->initPriority;
+		status->currPriority    = thread->currPriority;
+		status->stackBase       = thread->stackBase;
+		status->stackSize       = thread->stackSize;
+		status->waitType        = waitType;
+		status->wakeupCount     = thread->wakeUpCount;
 	}
 
 	m_ee.m_State.nGPR[SC_RETURN].nD0 = ret;
@@ -1872,6 +1904,8 @@ void CPS2OS::sc_ReferThreadStatus()
 //32
 void CPS2OS::sc_SleepThread()
 {
+	m_ee.m_State.nGPR[SC_RETURN].nD0 = static_cast<int32>(m_currentThreadId);
+
 	auto thread = m_threads[m_currentThreadId];
 	if(thread->wakeUpCount == 0)
 	{
@@ -1892,12 +1926,27 @@ void CPS2OS::sc_WakeupThread()
 	uint32 id		= m_ee.m_State.nGPR[SC_PARAM0].nV[0];
 	bool isInt		= m_ee.m_State.nGPR[3].nV[0] == 0x34;
 
+	if((id == 0) || (id == m_currentThreadId))
+	{
+		//Can't wakeup a thread that's already running
+		m_ee.m_State.nGPR[SC_RETURN].nD0 = static_cast<int32>(-1);
+		return;
+	}
+
 	auto thread = m_threads[id];
 	if(!thread)
 	{
 		m_ee.m_State.nGPR[SC_RETURN].nD0 = static_cast<int32>(-1);
 		return;
 	}
+
+	if(thread->status == THREAD_ZOMBIE)
+	{
+		m_ee.m_State.nGPR[SC_RETURN].nD0 = static_cast<int32>(-1);
+		return;
+	}
+
+	m_ee.m_State.nGPR[SC_RETURN].nD0 = static_cast<int32>(id);
 
 	if(
 		(thread->status == THREAD_SLEEPING) || 

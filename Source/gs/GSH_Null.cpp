@@ -20,17 +20,22 @@ void CGSH_Null::ReleaseImpl()
 
 }
 
-void CGSH_Null::ProcessImageTransfer()
+void CGSH_Null::ProcessHostToLocalTransfer()
 {
 
 }
 
-void CGSH_Null::ProcessClutTransfer(uint32, uint32)
+void CGSH_Null::ProcessLocalToHostTransfer()
 {
 
 }
 
 void CGSH_Null::ProcessLocalToLocalTransfer()
+{
+
+}
+
+void CGSH_Null::ProcessClutTransfer(uint32, uint32)
 {
 
 }

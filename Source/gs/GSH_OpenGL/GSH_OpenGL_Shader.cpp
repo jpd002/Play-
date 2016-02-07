@@ -2,6 +2,12 @@
 #include <assert.h>
 #include <sstream>
 
+#ifdef GLES_COMPATIBILITY
+#define GLSL_VERSION "#version 300 es"
+#else
+#define GLSL_VERSION "#version 150"
+#endif
+
 static const char* s_andFunction =
 "float and(int a, int b)\r\n"
 "{\r\n"
@@ -74,16 +80,7 @@ Framework::OpenGl::ProgramPtr CGSH_OpenGL::GenerateShader(const SHADERCAPS& caps
 Framework::OpenGl::CShader CGSH_OpenGL::GenerateVertexShader(const SHADERCAPS& caps)
 {
 	std::stringstream shaderBuilder;
-#ifndef GLES_COMPATIBILITY
-	shaderBuilder << "void main()"													<< std::endl;
-	shaderBuilder << "{"															<< std::endl;
-	shaderBuilder << "	gl_TexCoord[0] = gl_TextureMatrix[0] * gl_MultiTexCoord0;"	<< std::endl;
-	shaderBuilder << "	gl_FrontColor = gl_Color;"									<< std::endl;
-	shaderBuilder << "	gl_Position = ftransform();"								<< std::endl;
-	shaderBuilder << "	gl_FogFragCoord = gl_FogCoord;"								<< std::endl;
-	shaderBuilder << "}"															<< std::endl;
-#else
-	shaderBuilder << "#version 300 es" << std::endl;
+	shaderBuilder << GLSL_VERSION << std::endl;
 
 	shaderBuilder << "uniform mat4 g_projMatrix;" << std::endl;
 	shaderBuilder << "uniform mat4 g_texMatrix;" << std::endl;
@@ -111,7 +108,6 @@ Framework::OpenGl::CShader CGSH_OpenGL::GenerateVertexShader(const SHADERCAPS& c
 	}
 	shaderBuilder << "	gl_Position = g_projMatrix * vec4(a_position, 1);" << std::endl;
 	shaderBuilder << "}" << std::endl;
-#endif
 
 	auto shaderSource = shaderBuilder.str();
 
@@ -129,162 +125,7 @@ Framework::OpenGl::CShader CGSH_OpenGL::GenerateFragmentShader(const SHADERCAPS&
 {
 	std::stringstream shaderBuilder;
 
-#ifndef GLES_COMPATIBILITY
-	//Unused uniforms will get optimized away
-	shaderBuilder << "uniform sampler2D g_texture;" << std::endl;
-	shaderBuilder << "uniform sampler2D g_palette;" << std::endl;
-	shaderBuilder << "uniform vec2 g_textureSize;" << std::endl;
-	shaderBuilder << "uniform vec2 g_texelSize;" << std::endl;
-	shaderBuilder << "uniform vec2 g_clampMin;" << std::endl;
-	shaderBuilder << "uniform vec2 g_clampMax;" << std::endl;
-	shaderBuilder << "uniform float g_texA0;" << std::endl;
-	shaderBuilder << "uniform float g_texA1;" << std::endl;
-	shaderBuilder << "uniform float g_alphaRef;" << std::endl;
-
-	if(caps.texClampS == TEXTURE_CLAMP_MODE_REGION_REPEAT || caps.texClampT == TEXTURE_CLAMP_MODE_REGION_REPEAT)
-	{
-		shaderBuilder << s_andFunction << std::endl;
-		shaderBuilder << s_orFunction << std::endl;
-	}
-
-	shaderBuilder << "vec4 expandAlpha(vec4 inputColor)" << std::endl;
-	shaderBuilder << "{" << std::endl;
-	if(caps.texUseAlphaExpansion)
-	{
-		shaderBuilder << "	float alpha = mix(g_texA0, g_texA1, inputColor.a);" << std::endl;
-		if(caps.texBlackIsTransparent)
-		{
-			shaderBuilder << "	float black = inputColor.r + inputColor.g + inputColor.b;" << std::endl;
-			shaderBuilder << "	if(black == 0) alpha = 0;" << std::endl;
-		}
-		shaderBuilder << "	return vec4(inputColor.rgb, alpha);" << std::endl;
-	}
-	else
-	{
-		shaderBuilder << "	return inputColor;" << std::endl;
-	}
-	shaderBuilder << "}" << std::endl;
-
-	shaderBuilder << "void main()" << std::endl;
-	shaderBuilder << "{" << std::endl;
-	shaderBuilder << "	vec4 texCoord = gl_TexCoord[0];" << std::endl;
-	shaderBuilder << "	texCoord.st /= texCoord.q;" << std::endl;
-
-	if((caps.texClampS != TEXTURE_CLAMP_MODE_STD) || (caps.texClampT != TEXTURE_CLAMP_MODE_STD))
-	{
-		shaderBuilder << "	texCoord.st *= g_textureSize.st;" << std::endl;
-		shaderBuilder << GenerateTexCoordClampingSection(static_cast<TEXTURE_CLAMP_MODE>(caps.texClampS), "s");
-		shaderBuilder << GenerateTexCoordClampingSection(static_cast<TEXTURE_CLAMP_MODE>(caps.texClampT), "t");
-		shaderBuilder << "	texCoord.st /= g_textureSize.st;" << std::endl;
-	}
-
-	shaderBuilder << "	vec4 textureColor = vec4(1, 1, 1, 1);" << std::endl;
-	if(caps.isIndexedTextureSource())
-	{
-		if(!caps.texBilinearFilter)
-		{
-			shaderBuilder << "	float colorIndex = texture2D(g_texture, texCoord.st).a * 255.0;" << std::endl;
-			if(caps.texSourceMode == TEXTURE_SOURCE_MODE_IDX4)
-			{
-				shaderBuilder << "	textureColor = expandAlpha(texture2D(g_palette, vec2(colorIndex / 16.0, 1)));" << std::endl;
-			}
-			else if(caps.texSourceMode == TEXTURE_SOURCE_MODE_IDX8)
-			{
-				shaderBuilder << "	textureColor = expandAlpha(texture2D(g_palette, vec2(colorIndex / 256.0, 1)));" << std::endl;
-			}
-		}
-		else
-		{
-			shaderBuilder << "	float tlIdx = texture2D(g_texture, texCoord.st                                     ).a * 255.0;" << std::endl;
-			shaderBuilder << "	float trIdx = texture2D(g_texture, texCoord.st + vec2(g_texelSize.x, 0)            ).a * 255.0;" << std::endl;
-			shaderBuilder << "	float blIdx = texture2D(g_texture, texCoord.st + vec2(0, g_texelSize.y)            ).a * 255.0;" << std::endl;
-			shaderBuilder << "	float brIdx = texture2D(g_texture, texCoord.st + vec2(g_texelSize.x, g_texelSize.y)).a * 255.0;" << std::endl;
-
-			if(caps.texSourceMode == TEXTURE_SOURCE_MODE_IDX4)
-			{
-				shaderBuilder << "	vec4 tl = expandAlpha(texture2D(g_palette, vec2(tlIdx / 16.0, 1)));" << std::endl;
-				shaderBuilder << "	vec4 tr = expandAlpha(texture2D(g_palette, vec2(trIdx / 16.0, 1)));" << std::endl;
-				shaderBuilder << "	vec4 bl = expandAlpha(texture2D(g_palette, vec2(blIdx / 16.0, 1)));" << std::endl;
-				shaderBuilder << "	vec4 br = expandAlpha(texture2D(g_palette, vec2(brIdx / 16.0, 1)));" << std::endl;
-			}
-			else if(caps.texSourceMode == TEXTURE_SOURCE_MODE_IDX8)
-			{
-				shaderBuilder << "	vec4 tl = expandAlpha(texture2D(g_palette, vec2(tlIdx / 256.0, 1)));" << std::endl;
-				shaderBuilder << "	vec4 tr = expandAlpha(texture2D(g_palette, vec2(trIdx / 256.0, 1)));" << std::endl;
-				shaderBuilder << "	vec4 bl = expandAlpha(texture2D(g_palette, vec2(blIdx / 256.0, 1)));" << std::endl;
-				shaderBuilder << "	vec4 br = expandAlpha(texture2D(g_palette, vec2(brIdx / 256.0, 1)));" << std::endl;
-			}
-
-			shaderBuilder << "	vec2 f = fract(texCoord.xy * g_textureSize);" << std::endl;
-			shaderBuilder << "	vec4 tA = mix(tl, tr, f.x);" << std::endl;
-			shaderBuilder << "	vec4 tB = mix(bl, br, f.x);" << std::endl;
-			shaderBuilder << "	textureColor = mix(tA, tB, f.y);" << std::endl;
-		}
-	}
-	else if(caps.texSourceMode == TEXTURE_SOURCE_MODE_STD)
-	{
-		shaderBuilder << "	textureColor = expandAlpha(texture2D(g_texture, texCoord.st));" << std::endl;
-	}
-
-	if(caps.texSourceMode != TEXTURE_SOURCE_MODE_NONE)
-	{
-		if(!caps.texHasAlpha)
-		{
-			shaderBuilder << "	textureColor.a = 1.0;" << std::endl;
-		}
-
-		switch(caps.texFunction)
-		{
-		case TEX0_FUNCTION_MODULATE:
-			shaderBuilder << "	textureColor *= gl_Color;" << std::endl;
-			break;
-		case TEX0_FUNCTION_DECAL:
-			break;
-		case TEX0_FUNCTION_HIGHLIGHT:
-			shaderBuilder << "	textureColor.rgb = (textureColor.rgb * gl_Color.rgb) + gl_Color.aaa;" << std::endl;
-			if(!caps.texHasAlpha)
-			{
-				shaderBuilder << "	textureColor.a = gl_Color.a;" << std::endl;
-			}
-			else
-			{
-				shaderBuilder << "	textureColor.a += gl_Color.a;" << std::endl;
-			}
-			break;
-		case TEX0_FUNCTION_HIGHLIGHT2:
-			shaderBuilder << "	textureColor.rgb = (textureColor.rgb * gl_Color.rgb) + gl_Color.aaa;" << std::endl;
-			if(!caps.texHasAlpha)
-			{
-				shaderBuilder << "	textureColor.a = gl_Color.a;" << std::endl;
-			}
-			break;
-		default:
-			assert(0);
-			break;
-		}
-	}
-	else
-	{
-		shaderBuilder << "	textureColor = gl_Color;" << std::endl;
-	}
-
-	if(caps.hasAlphaTest)
-	{
-		shaderBuilder << GenerateAlphaTestSection(static_cast<ALPHA_TEST_METHOD>(caps.alphaTestMethod));
-	}
-
-	if(caps.hasFog)
-	{
-		shaderBuilder << "	gl_FragColor = vec4(mix(textureColor.rgb, gl_Fog.color.rgb, gl_FogFragCoord), textureColor.a);" << std::endl;
-	}
-	else
-	{
-		shaderBuilder << "	gl_FragColor = textureColor;" << std::endl;
-	}
-
-	shaderBuilder << "}" << std::endl;
-#else
-	shaderBuilder << "#version 300 es" << std::endl;
+	shaderBuilder << GLSL_VERSION << std::endl;
 
 	shaderBuilder << "precision mediump float;" << std::endl;
 
@@ -301,10 +142,18 @@ Framework::OpenGl::CShader CGSH_OpenGL::GenerateFragmentShader(const SHADERCAPS&
 	shaderBuilder << "uniform sampler2D g_palette;" << std::endl;
 	shaderBuilder << "uniform vec2 g_textureSize;" << std::endl;
 	shaderBuilder << "uniform vec2 g_texelSize;" << std::endl;
+	shaderBuilder << "uniform vec2 g_clampMin;" << std::endl;
+	shaderBuilder << "uniform vec2 g_clampMax;" << std::endl;
 	shaderBuilder << "uniform float g_texA0;" << std::endl;
 	shaderBuilder << "uniform float g_texA1;" << std::endl;
 	shaderBuilder << "uniform float g_alphaRef;" << std::endl;
 	shaderBuilder << "uniform vec3 g_fogColor;" << std::endl;
+
+	if(caps.texClampS == TEXTURE_CLAMP_MODE_REGION_REPEAT || caps.texClampT == TEXTURE_CLAMP_MODE_REGION_REPEAT)
+	{
+		shaderBuilder << s_andFunction << std::endl;
+		shaderBuilder << s_orFunction << std::endl;
+	}
 
 	shaderBuilder << "vec4 expandAlpha(vec4 inputColor)" << std::endl;
 	shaderBuilder << "{" << std::endl;
@@ -326,12 +175,24 @@ Framework::OpenGl::CShader CGSH_OpenGL::GenerateFragmentShader(const SHADERCAPS&
 
 	shaderBuilder << "void main()" << std::endl;
 	shaderBuilder << "{" << std::endl;
+
+	shaderBuilder << "	highp vec3 texCoord = v_texCoord;" << std::endl;
+	shaderBuilder << "	texCoord.st /= texCoord.p;" << std::endl;
+
+	if((caps.texClampS != TEXTURE_CLAMP_MODE_STD) || (caps.texClampT != TEXTURE_CLAMP_MODE_STD))
+	{
+		shaderBuilder << "	texCoord.st *= g_textureSize.st;" << std::endl;
+		shaderBuilder << GenerateTexCoordClampingSection(static_cast<TEXTURE_CLAMP_MODE>(caps.texClampS), "s");
+		shaderBuilder << GenerateTexCoordClampingSection(static_cast<TEXTURE_CLAMP_MODE>(caps.texClampT), "t");
+		shaderBuilder << "	texCoord.st /= g_textureSize.st;" << std::endl;
+	}
+
 	shaderBuilder << "	vec4 textureColor = vec4(1, 1, 1, 1);" << std::endl;
 	if(caps.isIndexedTextureSource())
 	{
 		if(!caps.texBilinearFilter)
 		{
-			shaderBuilder << "	float colorIndex = textureProj(g_texture, v_texCoord).r * 255.0;" << std::endl;
+			shaderBuilder << "	float colorIndex = texture(g_texture, texCoord.st).r * 255.0;" << std::endl;
 			if(caps.texSourceMode == TEXTURE_SOURCE_MODE_IDX4)
 			{
 				shaderBuilder << "	float paletteTexelBias = 0.5 / 16.0;" << std::endl;
@@ -345,11 +206,10 @@ Framework::OpenGl::CShader CGSH_OpenGL::GenerateFragmentShader(const SHADERCAPS&
 		}
 		else
 		{
-			shaderBuilder << "	vec2 projTexCoord = v_texCoord.xy / v_texCoord.z;" << std::endl;
-			shaderBuilder << "	float tlIdx = texture(g_texture, projTexCoord                                     ).r * 255.0;" << std::endl;
-			shaderBuilder << "	float trIdx = texture(g_texture, projTexCoord + vec2(g_texelSize.x, 0)            ).r * 255.0;" << std::endl;
-			shaderBuilder << "	float blIdx = texture(g_texture, projTexCoord + vec2(0, g_texelSize.y)            ).r * 255.0;" << std::endl;
-			shaderBuilder << "	float brIdx = texture(g_texture, projTexCoord + vec2(g_texelSize.x, g_texelSize.y)).r * 255.0;" << std::endl;
+			shaderBuilder << "	float tlIdx = texture(g_texture, texCoord.st                                     ).r * 255.0;" << std::endl;
+			shaderBuilder << "	float trIdx = texture(g_texture, texCoord.st + vec2(g_texelSize.x, 0)            ).r * 255.0;" << std::endl;
+			shaderBuilder << "	float blIdx = texture(g_texture, texCoord.st + vec2(0, g_texelSize.y)            ).r * 255.0;" << std::endl;
+			shaderBuilder << "	float brIdx = texture(g_texture, texCoord.st + vec2(g_texelSize.x, g_texelSize.y)).r * 255.0;" << std::endl;
 
 			if(caps.texSourceMode == TEXTURE_SOURCE_MODE_IDX4)
 			{
@@ -368,7 +228,7 @@ Framework::OpenGl::CShader CGSH_OpenGL::GenerateFragmentShader(const SHADERCAPS&
 				shaderBuilder << "	vec4 br = expandAlpha(texture(g_palette, vec2(brIdx / 256.0 + paletteTexelBias, 0)));" << std::endl;
 			}
 
-			shaderBuilder << "	vec2 f = fract(projTexCoord * g_textureSize);" << std::endl;
+			shaderBuilder << "	vec2 f = fract(texCoord.st * g_textureSize);" << std::endl;
 			shaderBuilder << "	vec4 tA = mix(tl, tr, f.x);" << std::endl;
 			shaderBuilder << "	vec4 tB = mix(bl, br, f.x);" << std::endl;
 			shaderBuilder << "	textureColor = mix(tA, tB, f.y);" << std::endl;
@@ -376,7 +236,7 @@ Framework::OpenGl::CShader CGSH_OpenGL::GenerateFragmentShader(const SHADERCAPS&
 	}
 	else if(caps.texSourceMode == TEXTURE_SOURCE_MODE_STD)
 	{
-		shaderBuilder << "	textureColor = expandAlpha(textureProj(g_texture, v_texCoord));" << std::endl;
+		shaderBuilder << "	textureColor = expandAlpha(texture(g_texture, texCoord.st));" << std::endl;
 	}
 	
 	if(caps.texSourceMode != TEXTURE_SOURCE_MODE_NONE)
@@ -389,12 +249,12 @@ Framework::OpenGl::CShader CGSH_OpenGL::GenerateFragmentShader(const SHADERCAPS&
 		switch(caps.texFunction)
 		{
 		case TEX0_FUNCTION_MODULATE:
-			shaderBuilder << "	textureColor *= v_color;" << std::endl;
+			shaderBuilder << "	textureColor = clamp(textureColor * v_color * 2.0, 0.0, 1.0);" << std::endl;
 			break;
 		case TEX0_FUNCTION_DECAL:
 			break;
 		case TEX0_FUNCTION_HIGHLIGHT:
-			shaderBuilder << "	textureColor.rgb = (textureColor.rgb * v_color.rgb) + v_color.aaa;" << std::endl;
+			shaderBuilder << "	textureColor.rgb = clamp(textureColor.rgb * v_color.rgb * 2.0, 0.0, 1.0) + v_color.aaa;" << std::endl;
 			if(!caps.texHasAlpha)
 			{
 				shaderBuilder << "	textureColor.a = v_color.a;" << std::endl;
@@ -405,7 +265,7 @@ Framework::OpenGl::CShader CGSH_OpenGL::GenerateFragmentShader(const SHADERCAPS&
 			}
 			break;
 		case TEX0_FUNCTION_HIGHLIGHT2:
-			shaderBuilder << "	textureColor.rgb = (textureColor.rgb * v_color.rgb) + v_color.aaa;" << std::endl;
+			shaderBuilder << "	textureColor.rgb = clamp(textureColor.rgb * v_color.rgb * 2.0, 0.0, 1.0) + v_color.aaa;" << std::endl;
 			if(!caps.texHasAlpha)
 			{
 				shaderBuilder << "	textureColor.a = v_color.a;" << std::endl;
@@ -428,15 +288,18 @@ Framework::OpenGl::CShader CGSH_OpenGL::GenerateFragmentShader(const SHADERCAPS&
 
 	if(caps.hasFog)
 	{
-		shaderBuilder << "	fragColor = vec4(mix(textureColor.rgb, g_fogColor, v_fog), textureColor.a);" << std::endl;
+		shaderBuilder << "	fragColor.xyz = mix(textureColor.rgb, g_fogColor, v_fog);" << std::endl;
 	}
 	else
 	{
-		shaderBuilder << "	fragColor = textureColor;" << std::endl;
+		shaderBuilder << "	fragColor.xyz = textureColor.xyz;" << std::endl;
 	}
 
+	//For proper alpha blending, alpha has to be multiplied by 2 (0x80 -> 1.0)
+	//This has the side effect of not writing a proper value in the framebuffer (should write alpha "as is")
+	shaderBuilder << "	fragColor.a = clamp(textureColor.a * 2.0, 0.0, 1.0);" << std::endl;
+
 	shaderBuilder << "}" << std::endl;
-#endif
 
 	auto shaderSource = shaderBuilder.str();
 
@@ -528,7 +391,7 @@ Framework::OpenGl::ProgramPtr CGSH_OpenGL::GeneratePresentProgram()
 
 	{
 		std::stringstream shaderBuilder;
-		shaderBuilder << "#version 300 es" << std::endl;
+		shaderBuilder << GLSL_VERSION << std::endl;
 		shaderBuilder << "in vec2 a_position;" << std::endl;
 		shaderBuilder << "in vec2 a_texCoord;" << std::endl;
 		shaderBuilder << "out vec2 v_texCoord;" << std::endl;
@@ -546,7 +409,7 @@ Framework::OpenGl::ProgramPtr CGSH_OpenGL::GeneratePresentProgram()
 
 	{
 		std::stringstream shaderBuilder;
-		shaderBuilder << "#version 300 es" << std::endl;
+		shaderBuilder << GLSL_VERSION << std::endl;
 		shaderBuilder << "precision mediump float;" << std::endl;
 		shaderBuilder << "in vec2 v_texCoord;" << std::endl;
 		shaderBuilder << "out vec4 fragColor;" << std::endl;

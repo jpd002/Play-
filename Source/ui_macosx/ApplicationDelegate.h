@@ -10,6 +10,7 @@
 }
 
 -(void)applicationDidFinishLaunching: (NSNotification*)notification;
+-(IBAction)showPreferences: (id)sender;
 -(IBAction)bootElfMenuSelected: (id)sender;
 -(IBAction)bootCdrom0MenuSelected: (id)sender;
 -(IBAction)bootDiskImageMenuSelected: (id)sender;
@@ -20,7 +21,6 @@
 -(IBAction)pauseResumeMenuSelected: (id)sender;
 -(IBAction)saveStateMenuSelected: (id)sender;
 -(IBAction)loadStateMenuSelected: (id)sender;
--(IBAction)vfsManagerMenuSelected: (id)sender;
 -(void)bootFromElf: (NSString*)fileName;
 -(void)bootFromCdrom0;
 -(void)updateTitle;

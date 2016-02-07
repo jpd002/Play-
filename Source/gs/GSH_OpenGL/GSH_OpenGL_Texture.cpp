@@ -93,6 +93,7 @@ CGSH_OpenGL::TEXTURE_INFO CGSH_OpenGL::PrepareTexture(const TEX0& tex0)
 
 		//Another case: TEX0 is pointing to the start of a page within our framebuffer (BGDA does this)
 		else if(candidateFramebuffer->m_basePtr <= tex0.GetBufPtr() &&
+			candidateFramebuffer->m_width == tex0.GetBufWidth() &&
 			candidateFramebuffer->m_psm == tex0.nPsm)
 		{
 			uint32 framebufferOffset = tex0.GetBufPtr() - candidateFramebuffer->m_basePtr;
@@ -118,12 +119,8 @@ CGSH_OpenGL::TEXTURE_INFO CGSH_OpenGL::PrepareTexture(const TEX0& tex0)
 			//We have a winner
 			glBindTexture(GL_TEXTURE_2D, candidateFramebuffer->m_texture);
 
-			float scaleRatioX = static_cast<float>(tex0.GetWidth()) / static_cast<float>(candidateFramebuffer->m_textureWidth);
+			float scaleRatioX = static_cast<float>(tex0.GetWidth()) / static_cast<float>(candidateFramebuffer->m_width);
 			float scaleRatioY = static_cast<float>(tex0.GetHeight()) / static_cast<float>(candidateFramebuffer->m_height);
-
-			//If we're currently in interlaced mode, framebuffer will have twice the height
-			bool halfHeight = GetCrtIsInterlaced() && GetCrtIsFrameMode();
-			if(halfHeight) scaleRatioY *= 2.0f;
 
 			texInfo.offsetX = offsetX;
 			texInfo.scaleRatioX = scaleRatioX;
@@ -217,9 +214,6 @@ void CGSH_OpenGL::PreparePalette(const TEX0& tex0)
 				uint32 color = 
 					(static_cast<uint16>(m_pCLUT[i + clutOffset + 0x000])) | 
 					(static_cast<uint16>(m_pCLUT[i + clutOffset + 0x100]) << 16);
-				uint32 alpha = MulBy2Clamp(color >> 24);
-				color &= ~0xFF000000;
-				color |= alpha << 24;
 				convertedClut[i] = color;
 			}
 		}
@@ -248,9 +242,6 @@ void CGSH_OpenGL::PreparePalette(const TEX0& tex0)
 				uint32 color = 
 					(static_cast<uint16>(m_pCLUT[i + 0x000])) | 
 					(static_cast<uint16>(m_pCLUT[i + 0x100]) << 16);
-				uint32 alpha = MulBy2Clamp(color >> 24);
-				color &= ~0xFF000000;
-				color |= alpha << 24;
 				convertedClut[i] = color;
 			}
 		}
@@ -367,12 +358,7 @@ void CGSH_OpenGL::TexUploader_Psm48(uint32 bufPtr, uint32 bufWidth, unsigned int
 		dst += texWidth;
 	}
 
-#ifdef GLES_COMPATIBILITY
-	//GL_ALPHA isn't allowed in GL 3.2+
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_R8, texWidth, texHeight, 0, GL_RED, GL_UNSIGNED_BYTE, m_pCvtBuffer);
-#else
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_ALPHA, texWidth, texHeight, 0, GL_ALPHA, GL_UNSIGNED_BYTE, m_pCvtBuffer);
-#endif
 	CHECKGLERROR();
 }
 
@@ -394,12 +380,7 @@ void CGSH_OpenGL::TexUploader_Psm48H(uint32 bufPtr, uint32 bufWidth, unsigned in
 		dst += texWidth;
 	}
 
-#ifdef GLES_COMPATIBILITY
-	//GL_ALPHA isn't allowed in GL 3.2+
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_R8, texWidth, texHeight, 0, GL_RED, GL_UNSIGNED_BYTE, m_pCvtBuffer);
-#else
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_ALPHA, texWidth, texHeight, 0, GL_ALPHA, GL_UNSIGNED_BYTE, m_pCvtBuffer);
-#endif
 	CHECKGLERROR();
 }
 
@@ -470,12 +451,7 @@ void CGSH_OpenGL::TexUpdater_Psm48(uint32 bufPtr, uint32 bufWidth, unsigned int 
 		dst += texWidth;
 	}
 
-#ifdef GLES_COMPATIBILITY
-	//GL_ALPHA isn't allowed in GL 3.2+
 	glTexSubImage2D(GL_TEXTURE_2D, 0, texX, texY, texWidth, texHeight, GL_RED, GL_UNSIGNED_BYTE, m_pCvtBuffer);
-#else
-	glTexSubImage2D(GL_TEXTURE_2D, 0, texX, texY, texWidth, texHeight, GL_ALPHA, GL_UNSIGNED_BYTE, m_pCvtBuffer);
-#endif
 	CHECKGLERROR();
 }
 
@@ -497,12 +473,7 @@ void CGSH_OpenGL::TexUpdater_Psm48H(uint32 bufPtr, uint32 bufWidth, unsigned int
 		dst += texWidth;
 	}
 
-#ifdef GLES_COMPATIBILITY
-	//GL_ALPHA isn't allowed in GL 3.2+
 	glTexSubImage2D(GL_TEXTURE_2D, 0, texX, texY, texWidth, texHeight, GL_RED, GL_UNSIGNED_BYTE, m_pCvtBuffer);
-#else
-	glTexSubImage2D(GL_TEXTURE_2D, 0, texX, texY, texWidth, texHeight, GL_ALPHA, GL_UNSIGNED_BYTE, m_pCvtBuffer);
-#endif
 	CHECKGLERROR();
 }
 

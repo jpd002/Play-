@@ -2,20 +2,24 @@
 #include "../Log.h"
 #include "../Ps2Const.h"
 #include "Iop_Cdvdfsv.h"
+#include "Iop_Cdvdman.h"
 #include "Iop_SifManPs2.h"
 
 using namespace Iop;
 
 #define LOG_NAME "iop_cdvdfsv"
 
-CCdvdfsv::CCdvdfsv(CSifMan& sif, uint8* iopRam)
-: m_iopRam(iopRam)
+CCdvdfsv::CCdvdfsv(CSifMan& sif, CCdvdman& cdvdman, uint8* iopRam)
+: m_cdvdman(cdvdman)
+, m_iopRam(iopRam)
 {
 	m_module592 = CSifModuleAdapter(std::bind(&CCdvdfsv::Invoke592, this,
 		std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, std::placeholders::_5, std::placeholders::_6));
 	m_module593 = CSifModuleAdapter(std::bind(&CCdvdfsv::Invoke593, this,
 		std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, std::placeholders::_5, std::placeholders::_6));
 	m_module595 = CSifModuleAdapter(std::bind(&CCdvdfsv::Invoke595, this,
+		std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, std::placeholders::_5, std::placeholders::_6));
+	m_module596 = CSifModuleAdapter(std::bind(&CCdvdfsv::Invoke596, this,
 		std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, std::placeholders::_5, std::placeholders::_6));
 	m_module597 = CSifModuleAdapter(std::bind(&CCdvdfsv::Invoke597, this,
 		std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, std::placeholders::_5, std::placeholders::_6));
@@ -27,6 +31,7 @@ CCdvdfsv::CCdvdfsv(CSifMan& sif, uint8* iopRam)
 	sif.RegisterModule(MODULE_ID_1, &m_module592);
 	sif.RegisterModule(MODULE_ID_2, &m_module593);
 	sif.RegisterModule(MODULE_ID_4, &m_module595);
+	sif.RegisterModule(MODULE_ID_5, &m_module596);
 	sif.RegisterModule(MODULE_ID_6, &m_module597);
 	sif.RegisterModule(MODULE_ID_7, &m_module59A);
 	sif.RegisterModule(MODULE_ID_8, &m_module59C);
@@ -127,19 +132,8 @@ bool CCdvdfsv::Invoke593(uint32 method, uint32* args, uint32 argsSize, uint32* r
 			assert(retSize >= 0xC);
 			CLog::GetInstance().Print(LOG_NAME, "ReadClock();\r\n");
 
-			time_t currentTime = time(0);
-			tm* localTime = localtime(&currentTime);
-			uint8* clockResult = reinterpret_cast<uint8*>(ret + 1);
-			clockResult[0] = 0x01;											//Status ?
-			clockResult[1] = static_cast<uint8>(localTime->tm_sec);			//Seconds
-			clockResult[2] = static_cast<uint8>(localTime->tm_min);			//Minutes
-			clockResult[3] = static_cast<uint8>(localTime->tm_hour);		//Hour
-			clockResult[4] = 0;												//Padding
-			clockResult[5] = static_cast<uint8>(localTime->tm_mday);		//Day
-			clockResult[6] = static_cast<uint8>(localTime->tm_mon);			//Month
-			clockResult[7] = static_cast<uint8>(localTime->tm_year % 100);	//Year
-
-			ret[0x00] = 0x00;
+			auto clockBuffer = reinterpret_cast<uint8*>(ret + 1);
+			(*ret) = m_cdvdman.CdReadClockDirect(clockBuffer);
 		}
 		break;
 
@@ -248,6 +242,17 @@ bool CCdvdfsv::Invoke595(uint32 method, uint32* args, uint32 argsSize, uint32* r
 
 	default:
 		CLog::GetInstance().Print(LOG_NAME, "Unknown method invoked (0x%0.8X, 0x%0.8X).\r\n", 0x595, method);
+		break;
+	}
+	return true;
+}
+
+bool CCdvdfsv::Invoke596(uint32 method, uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, uint8* ram)
+{
+	switch(method)
+	{
+	default:
+		CLog::GetInstance().Print(LOG_NAME, "Unknown method invoked (0x%0.8X, 0x%0.8X).\r\n", 0x596, method);
 		break;
 	}
 	return true;

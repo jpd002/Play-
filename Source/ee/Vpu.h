@@ -47,6 +47,7 @@ public:
 	CMIPS&					GetContext() const;
 	uint8*					GetMicroMemory() const;
 	uint8*					GetVuMemory() const;
+	uint32					GetVuMemorySize() const;
 	bool					IsVuRunning() const;
 
 	CVif&					GetVif();
@@ -73,6 +74,7 @@ protected:
 
 	uint8*					m_microMem = nullptr;
 	uint8*					m_vuMem = nullptr;
+	uint32					m_vuMemSize = 0;
 	CMIPS*					m_ctx = nullptr;
 	CGIF&					m_gif;
 	VifPtr					m_vif;

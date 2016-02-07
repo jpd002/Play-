@@ -127,7 +127,9 @@ uint32 CLoadcore::RegisterLibraryEntries(uint32 exportTablePtr)
 {
 	CLog::GetInstance().Print(LOG_NAME, FUNCTION_REGISTERLIBRARYENTRIES "(exportTable = 0x%0.8X);\r\n", exportTablePtr);
 	uint32* exportTable = reinterpret_cast<uint32*>(&m_ram[exportTablePtr]);
-	m_bios.RegisterDynamicModule(new CDynamic(exportTable));
+	auto module = std::make_shared<CDynamic>(exportTable);
+	bool registered = m_bios.RegisterModule(module);
+	assert(registered);
 	return 0;
 }
 
@@ -162,17 +164,6 @@ bool CLoadcore::LoadModule(uint32* args, uint32 argsSize, uint32* ret, uint32 re
 	//Load the module
 	CLog::GetInstance().Print(LOG_NAME, "Request to load module '%s' received with %d bytes arguments payload.\r\n", moduleName, moduleArgsSize);
 
-	//HACK: This is needed to make 'doom.elf' read input properly
-	if(
-		!strcmp(moduleName, "rom0:XSIO2MAN") || 
-		!strcmp(moduleName, "rom0:XPADMAN") ||
-		!strcmp(moduleName, "rom0:XMTAPMAN")
-		)
-	{
-		ret[0] = 0;
-		return true;
-	}
-
 	auto moduleId = m_bios.LoadModule(moduleName);
 	if(moduleId >= 0)
 	{
@@ -182,14 +173,14 @@ bool CLoadcore::LoadModule(uint32* args, uint32 argsSize, uint32* ret, uint32 re
 	//This function returns something negative upon failure
 	ret[0] = moduleId;
 
-	if(moduleId >= 0)
+	if((moduleId >= 0) && !m_bios.IsModuleHle(moduleId))
 	{
 		//Block EE till the IOP has completed the operation and sends its reply to the EE
 		return false;
 	}
 	else
 	{
-		//Loading module failed, reply can be sent over immediately
+		//Loading module failed or is module is HLE, reply can be sent over immediately
 		return true;
 	}
 }

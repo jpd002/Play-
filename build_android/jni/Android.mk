@@ -110,6 +110,7 @@ LOCAL_SRC_FILES			:=	../../Source/AppConfig.cpp \
 							../../Source/iop/Iop_Loadcore.cpp \
 							../../Source/iop/Iop_McServ.cpp \
 							../../Source/iop/Iop_Modload.cpp \
+							../../Source/iop/Iop_MtapMan.cpp \
 							../../Source/iop/Iop_PadMan.cpp \
 							../../Source/iop/Iop_RootCounters.cpp \
 							../../Source/iop/Iop_SifCmd.cpp \
@@ -175,15 +176,19 @@ LOCAL_SRC_FILES			:=	../../Source/AppConfig.cpp \
 							../../Source/ui_android/SettingsManager.cpp \
 							../../Source/ui_android/StatsManager.cpp \
 							../../Source/Utils.cpp
-LOCAL_CFLAGS			:= -mcpu=cortex-a7 -Wno-extern-c-compat -D_IOP_EMULATE_MODULES -DDISABLE_LOGGING -DGLES_COMPATIBILITY
+LOCAL_CFLAGS			:= -Wno-extern-c-compat -D_IOP_EMULATE_MODULES -DDISABLE_LOGGING -DGLES_COMPATIBILITY
 LOCAL_C_INCLUDES		:= $(BOOST_PATH) $(DEPENDENCIES_PATH)/bzip2-1.0.6 $(FRAMEWORK_PATH)/include $(CODEGEN_PATH)/include $(LOCAL_PATH)/../../include
 LOCAL_CPP_FEATURES		:= exceptions rtti
 LOCAL_LDLIBS 			:= -landroid -llog -lGLESv3 -lEGL -lz
 LOCAL_STATIC_LIBRARIES	:= libCodeGen libFramework libbzip2 libboost cpufeatures
-LOCAL_ARM_NEON			:= true
 
 ifeq ($(APP_OPTIM),debug)
 LOCAL_CFLAGS			+= -D_DEBUG
+endif
+
+ifeq ($(TARGET_ARCH_ABI),armeabi-v7a)
+LOCAL_CFLAGS			+= -mcpu=cortex-a7
+LOCAL_ARM_NEON			:= true
 endif
 
 include $(BUILD_SHARED_LIBRARY)

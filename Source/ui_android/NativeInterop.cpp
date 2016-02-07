@@ -44,6 +44,7 @@ extern "C" JNIEXPORT void JNICALL Java_com_virtualapplications_play_NativeIntero
 #ifdef PROFILE
 	g_virtualMachine->ProfileFrameDone.connect(boost::bind(&CStatsManager::OnProfileFrameDone, &CStatsManager::GetInstance(), _1));
 #endif
+	CGSH_OpenGL::RegisterPreferences();
 }
 
 extern "C" JNIEXPORT jboolean JNICALL Java_com_virtualapplications_play_NativeInterop_isVirtualMachineCreated(JNIEnv* env, jobject obj)
@@ -122,7 +123,7 @@ extern "C" JNIEXPORT void JNICALL Java_com_virtualapplications_play_NativeIntero
 	g_virtualMachine->Reset();
 	try
 	{
-		g_virtualMachine->m_ee->m_os->BootFromCDROM(CPS2OS::ArgumentList());
+		g_virtualMachine->m_ee->m_os->BootFromCDROM();
 	}
 	catch(const std::exception& exception)
 	{

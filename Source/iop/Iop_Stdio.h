@@ -24,4 +24,6 @@ namespace Iop
 		uint8*			m_ram;
 		CIoman&			m_ioman;
 	};
+
+	typedef std::shared_ptr<CStdio> StdioPtr;
 }

@@ -61,4 +61,6 @@ namespace Iop
 		CStdio&					m_stdio;
 		CIoman&					m_ioman;
 	};
+
+	typedef std::shared_ptr<CSysmem> SysmemPtr;
 }

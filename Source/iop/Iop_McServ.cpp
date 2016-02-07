@@ -80,6 +80,9 @@ bool CMcServ::Invoke(uint32 method, uint32* args, uint32 argsSize, uint32* ret, 
 	case 0x0F:
 		Delete(args, argsSize, ret, retSize, ram);
 		break;
+	case 0x15:
+		GetSlotMax(args, argsSize, ret, retSize, ram);
+		break;
 	case 0xFE:
 		//Get version?
 		GetVersionInformation(args, argsSize, ret, retSize, ram);
@@ -493,6 +496,13 @@ void CMcServ::Delete(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize,
 	{
 		ret[0] = RET_NO_ENTRY;
 	}
+}
+
+void CMcServ::GetSlotMax(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, uint8* ram)
+{
+	int port = args[1];
+	CLog::GetInstance().Print(LOG_NAME, "GetSlotMax(port = %i);\r\n", port);
+	ret[0] = 1;
 }
 
 void CMcServ::GetVersionInformation(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, uint8* ram)

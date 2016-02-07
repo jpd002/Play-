@@ -21,6 +21,12 @@
 		704F23B61B0011C8009FD916 /* Vif1.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 704F23B11B0011C8009FD916 /* Vif1.cpp */; };
 		704F23B71B0011C8009FD916 /* Vpu.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 704F23B31B0011C8009FD916 /* Vpu.cpp */; };
 		7056F2851B2683C700389AFB /* EeExecutor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7056F2831B2683C700389AFB /* EeExecutor.cpp */; };
+		705AA9751C55683800775613 /* Iop_MtapMan.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 705AA9731C55683800775613 /* Iop_MtapMan.cpp */; };
+		705D396C1C43FFAF00D267A6 /* PreferencesWindowController.mm in Sources */ = {isa = PBXBuildFile; fileRef = 705D396B1C43FFAF00D267A6 /* PreferencesWindowController.mm */; };
+		705D396F1C43FFC900D267A6 /* PreferencesWindow.xib in Resources */ = {isa = PBXBuildFile; fileRef = 705D396D1C43FFC900D267A6 /* PreferencesWindow.xib */; };
+		705D39721C44A3FF00D267A6 /* VideoSettingsView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 705D39701C44A3FF00D267A6 /* VideoSettingsView.xib */; };
+		705D39741C44A44F00D267A6 /* VideoSettingsViewController.mm in Sources */ = {isa = PBXBuildFile; fileRef = 705D39731C44A44F00D267A6 /* VideoSettingsViewController.mm */; };
+		705DAEFC1C4882ED00210465 /* ScopedVmPauser.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 705DAEFA1C4882ED00210465 /* ScopedVmPauser.cpp */; };
 		70684979151E882000C9574F /* libCodeGen.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 70684976151E880F00C9574F /* libCodeGen.a */; };
 		7068497B151E883D00C9574F /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7068497A151E883D00C9574F /* OpenGL.framework */; };
 		7068497D151E885200C9574F /* libz.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 7068497C151E885200C9574F /* libz.dylib */; };
@@ -66,10 +72,10 @@
 		70684A21151E89E200C9574F /* GSH_OpenGLMacOSX.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 70684A0E151E89E200C9574F /* GSH_OpenGLMacOSX.cpp */; };
 		70684A24151E89E200C9574F /* PH_HidMacOSX.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 70684A15151E89E200C9574F /* PH_HidMacOSX.cpp */; };
 		70684A26151E89E200C9574F /* VfsManagerBindings.mm in Sources */ = {isa = PBXBuildFile; fileRef = 70684A1A151E89E200C9574F /* VfsManagerBindings.mm */; };
-		70684A27151E89E200C9574F /* VfsManagerController.mm in Sources */ = {isa = PBXBuildFile; fileRef = 70684A1C151E89E200C9574F /* VfsManagerController.mm */; };
+		70684A27151E89E200C9574F /* VfsManagerViewController.mm in Sources */ = {isa = PBXBuildFile; fileRef = 70684A1C151E89E200C9574F /* VfsManagerViewController.mm */; };
 		70684A29151E8A2C00C9574F /* IOKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 70684A28151E8A2C00C9574F /* IOKit.framework */; };
 		70684A3A151E8B2400C9574F /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 70684A34151E8B2400C9574F /* InfoPlist.strings */; };
-		70684A3C151E8B2400C9574F /* VfsManager.xib in Resources */ = {isa = PBXBuildFile; fileRef = 70684A38151E8B2400C9574F /* VfsManager.xib */; };
+		70684A3C151E8B2400C9574F /* VfsManagerView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 70684A38151E8B2400C9574F /* VfsManagerView.xib */; };
 		7075D0B01B6325540010D69C /* DiskUtils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7075D0AE1B6325540010D69C /* DiskUtils.cpp */; };
 		707AF6B81ADE04AB00EA1374 /* CsoImageStream.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 707AF6B61ADE04AB00EA1374 /* CsoImageStream.cpp */; };
 		70B414851AA21D1100AC7DE4 /* Iop_FileIoHandler1000.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 70B4147D1AA21D1100AC7DE4 /* Iop_FileIoHandler1000.cpp */; };
@@ -220,7 +226,17 @@
 		704F23B41B0011C8009FD916 /* Vpu.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Vpu.h; path = ../Source/ee/Vpu.h; sourceTree = "<group>"; };
 		7056F2831B2683C700389AFB /* EeExecutor.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = EeExecutor.cpp; path = ../Source/ee/EeExecutor.cpp; sourceTree = "<group>"; };
 		7056F2841B2683C700389AFB /* EeExecutor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = EeExecutor.h; path = ../Source/ee/EeExecutor.h; sourceTree = "<group>"; };
+		705AA9731C55683800775613 /* Iop_MtapMan.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Iop_MtapMan.cpp; path = ../Source/iop/Iop_MtapMan.cpp; sourceTree = "<group>"; };
+		705AA9741C55683800775613 /* Iop_MtapMan.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Iop_MtapMan.h; path = ../Source/iop/Iop_MtapMan.h; sourceTree = "<group>"; };
 		705B16BC1B097DD00081B3C6 /* BlockProvider.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = BlockProvider.h; path = ../Source/ISO9660/BlockProvider.h; sourceTree = "<group>"; };
+		705D396A1C43FFAF00D267A6 /* PreferencesWindowController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PreferencesWindowController.h; path = ../Source/ui_macosx/PreferencesWindowController.h; sourceTree = "<group>"; };
+		705D396B1C43FFAF00D267A6 /* PreferencesWindowController.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = PreferencesWindowController.mm; path = ../Source/ui_macosx/PreferencesWindowController.mm; sourceTree = "<group>"; };
+		705D396E1C43FFC900D267A6 /* English */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = English; path = PreferencesWindow.xib; sourceTree = "<group>"; };
+		705D39711C44A3FF00D267A6 /* English */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = English; path = VideoSettingsView.xib; sourceTree = "<group>"; };
+		705D39731C44A44F00D267A6 /* VideoSettingsViewController.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = VideoSettingsViewController.mm; path = ../Source/ui_macosx/VideoSettingsViewController.mm; sourceTree = "<group>"; };
+		705D39751C44A47A00D267A6 /* VideoSettingsViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = VideoSettingsViewController.h; path = ../Source/ui_macosx/VideoSettingsViewController.h; sourceTree = "<group>"; };
+		705DAEFA1C4882ED00210465 /* ScopedVmPauser.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ScopedVmPauser.cpp; path = ../Source/ScopedVmPauser.cpp; sourceTree = "<group>"; };
+		705DAEFB1C4882ED00210465 /* ScopedVmPauser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ScopedVmPauser.h; path = ../Source/ScopedVmPauser.h; sourceTree = "<group>"; };
 		7068496E151E880E00C9574F /* CodeGen.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = CodeGen.xcodeproj; path = ../../CodeGen/build_macosx/CodeGen.xcodeproj; sourceTree = "<group>"; };
 		7068497A151E883D00C9574F /* OpenGL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGL.framework; path = System/Library/Frameworks/OpenGL.framework; sourceTree = SDKROOT; };
 		7068497C151E885200C9574F /* libz.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libz.dylib; path = usr/lib/libz.dylib; sourceTree = SDKROOT; };
@@ -310,11 +326,11 @@
 		70684A16151E89E200C9574F /* PH_HidMacOSX.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PH_HidMacOSX.h; path = ../Source/ui_macosx/PH_HidMacOSX.h; sourceTree = "<group>"; };
 		70684A19151E89E200C9574F /* VfsManagerBindings.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = VfsManagerBindings.h; path = ../Source/ui_macosx/VfsManagerBindings.h; sourceTree = "<group>"; };
 		70684A1A151E89E200C9574F /* VfsManagerBindings.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = VfsManagerBindings.mm; path = ../Source/ui_macosx/VfsManagerBindings.mm; sourceTree = "<group>"; };
-		70684A1B151E89E200C9574F /* VfsManagerController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = VfsManagerController.h; path = ../Source/ui_macosx/VfsManagerController.h; sourceTree = "<group>"; };
-		70684A1C151E89E200C9574F /* VfsManagerController.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = VfsManagerController.mm; path = ../Source/ui_macosx/VfsManagerController.mm; sourceTree = "<group>"; };
+		70684A1B151E89E200C9574F /* VfsManagerViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = VfsManagerViewController.h; path = ../Source/ui_macosx/VfsManagerViewController.h; sourceTree = "<group>"; };
+		70684A1C151E89E200C9574F /* VfsManagerViewController.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = VfsManagerViewController.mm; path = ../Source/ui_macosx/VfsManagerViewController.mm; sourceTree = "<group>"; };
 		70684A28151E8A2C00C9574F /* IOKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = IOKit.framework; path = System/Library/Frameworks/IOKit.framework; sourceTree = SDKROOT; };
 		70684A35151E8B2400C9574F /* English */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = English; path = InfoPlist.strings; sourceTree = "<group>"; };
-		70684A39151E8B2400C9574F /* English */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = English; path = VfsManager.xib; sourceTree = "<group>"; };
+		70684A39151E8B2400C9574F /* English */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = English; path = VfsManagerView.xib; sourceTree = "<group>"; };
 		7075D0AE1B6325540010D69C /* DiskUtils.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = DiskUtils.cpp; path = ../Source/DiskUtils.cpp; sourceTree = "<group>"; };
 		7075D0AF1B6325540010D69C /* DiskUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DiskUtils.h; path = ../Source/DiskUtils.h; sourceTree = "<group>"; };
 		707AF6B61ADE04AB00EA1374 /* CsoImageStream.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = CsoImageStream.cpp; path = ../Source/CsoImageStream.cpp; sourceTree = "<group>"; };
@@ -576,6 +592,8 @@
 				706849AF151E896900C9574F /* Iop_Modload.cpp */,
 				706849B0151E896900C9574F /* Iop_Modload.h */,
 				706849B1151E896900C9574F /* Iop_Module.h */,
+				705AA9731C55683800775613 /* Iop_MtapMan.cpp */,
+				705AA9741C55683800775613 /* Iop_MtapMan.h */,
 				706849B2151E896900C9574F /* Iop_PadMan.cpp */,
 				706849B3151E896900C9574F /* Iop_PadMan.h */,
 				706849B4151E896900C9574F /* Iop_RootCounters.cpp */,
@@ -631,28 +649,25 @@
 		70684A05151E89BC00C9574F /* ui_macosx */ = {
 			isa = PBXGroup;
 			children = (
-				70C0C84D1ADC97A900492241 /* Images.xcassets */,
-				70684A33151E8B2400C9574F /* English.lproj */,
-				700DF99415DF699000818F3B /* patches.xml */,
-				70684A07151E89E200C9574F /* ApplicationDelegate.mm */,
+				70BB57701C4551600053A1F6 /* PreferencesWindow */,
 				70684A06151E89E200C9574F /* ApplicationDelegate.h */,
+				70684A07151E89E200C9574F /* ApplicationDelegate.mm */,
+				70684A33151E8B2400C9574F /* English.lproj */,
 				70684A0C151E89E200C9574F /* Globals.cpp */,
 				70684A0D151E89E200C9574F /* Globals.h */,
 				70684A0E151E89E200C9574F /* GSH_OpenGLMacOSX.cpp */,
 				70684A0F151E89E200C9574F /* GSH_OpenGLMacOSX.h */,
+				70C0C84D1ADC97A900492241 /* Images.xcassets */,
 				7E4C15711517CBD400357777 /* Info.plist */,
 				7E4C15721517CBD400357777 /* main.mm */,
-				7011789815E25575006D1039 /* OutputWindow.mm */,
 				7011789715E25575006D1039 /* OutputWindow.h */,
-				700FB58215E11FC600C322DE /* OutputWindowController.mm */,
+				7011789815E25575006D1039 /* OutputWindow.mm */,
 				700FB58115E11FC600C322DE /* OutputWindowController.h */,
+				700FB58215E11FC600C322DE /* OutputWindowController.mm */,
+				700DF99415DF699000818F3B /* patches.xml */,
 				70684A15151E89E200C9574F /* PH_HidMacOSX.cpp */,
 				70684A16151E89E200C9574F /* PH_HidMacOSX.h */,
 				7E4C15731517CBD400357777 /* Purei_Prefix.pch */,
-				70684A1A151E89E200C9574F /* VfsManagerBindings.mm */,
-				70684A19151E89E200C9574F /* VfsManagerBindings.h */,
-				70684A1C151E89E200C9574F /* VfsManagerController.mm */,
-				70684A1B151E89E200C9574F /* VfsManagerController.h */,
 			);
 			name = ui_macosx;
 			sourceTree = "<group>";
@@ -661,9 +676,11 @@
 			isa = PBXGroup;
 			children = (
 				70684A34151E8B2400C9574F /* InfoPlist.strings */,
-				70684A38151E8B2400C9574F /* VfsManager.xib */,
 				700DF99A15DFC0CB00818F3B /* MainMenu.xib */,
 				700FB57E15E11E1E00C322DE /* OutputWindow.xib */,
+				705D396D1C43FFC900D267A6 /* PreferencesWindow.xib */,
+				70684A38151E8B2400C9574F /* VfsManagerView.xib */,
+				705D39701C44A3FF00D267A6 /* VideoSettingsView.xib */,
 			);
 			name = English.lproj;
 			path = ../Source/ui_macosx/English.lproj;
@@ -680,6 +697,21 @@
 				7E4C16051519A9A400357777 /* Posix_VolumeStream.h */,
 			);
 			name = DiskStreams;
+			sourceTree = "<group>";
+		};
+		70BB57701C4551600053A1F6 /* PreferencesWindow */ = {
+			isa = PBXGroup;
+			children = (
+				705D396A1C43FFAF00D267A6 /* PreferencesWindowController.h */,
+				705D396B1C43FFAF00D267A6 /* PreferencesWindowController.mm */,
+				70684A19151E89E200C9574F /* VfsManagerBindings.h */,
+				70684A1A151E89E200C9574F /* VfsManagerBindings.mm */,
+				70684A1B151E89E200C9574F /* VfsManagerViewController.h */,
+				70684A1C151E89E200C9574F /* VfsManagerViewController.mm */,
+				705D39751C44A47A00D267A6 /* VideoSettingsViewController.h */,
+				705D39731C44A44F00D267A6 /* VideoSettingsViewController.mm */,
+			);
+			name = PreferencesWindow;
 			sourceTree = "<group>";
 		};
 		70D9F0EC1AFB013400197BBE /* Ee */ = {
@@ -865,6 +897,8 @@
 				7E4C160C1519A9A500357777 /* PS2VM.h */,
 				7E4C160D1519A9A500357777 /* RegisterStateFile.cpp */,
 				7E4C160E1519A9A500357777 /* RegisterStateFile.h */,
+				705DAEFA1C4882ED00210465 /* ScopedVmPauser.cpp */,
+				705DAEFB1C4882ED00210465 /* ScopedVmPauser.h */,
 				7E4C16111519A9A600357777 /* SifModule.h */,
 				7E4C16121519A9A600357777 /* SifModuleAdapter.h */,
 				7E4C16131519A9A600357777 /* StructCollectionStateFile.cpp */,
@@ -1025,9 +1059,11 @@
 				70684A3A151E8B2400C9574F /* InfoPlist.strings in Resources */,
 				70320D1F1A99EAC4001E9C4B /* GeneralSettingsDebug.xcconfig in Resources */,
 				70320D201A99EAC4001E9C4B /* GeneralSettingsRelease.xcconfig in Resources */,
-				70684A3C151E8B2400C9574F /* VfsManager.xib in Resources */,
+				70684A3C151E8B2400C9574F /* VfsManagerView.xib in Resources */,
+				705D39721C44A3FF00D267A6 /* VideoSettingsView.xib in Resources */,
 				70C0C84E1ADC97A900492241 /* Images.xcassets in Resources */,
 				700DF99515DF699000818F3B /* patches.xml in Resources */,
+				705D396F1C43FFC900D267A6 /* PreferencesWindow.xib in Resources */,
 				700DF99C15DFC0CB00818F3B /* MainMenu.xib in Resources */,
 				700FB58015E11E1E00C322DE /* OutputWindow.xib in Resources */,
 				70320D1E1A99EAC4001E9C4B /* GeneralSettings.xcconfig in Resources */,
@@ -1074,9 +1110,11 @@
 				7ECB24321519AC0A00C4BBF8 /* MemoryStateFile.cpp in Sources */,
 				7ECB24331519AC0A00C4BBF8 /* MemoryUtils.cpp in Sources */,
 				70D9F1401AFB016900197BBE /* MA_VU_LowerReflection.cpp in Sources */,
+				705D396C1C43FFAF00D267A6 /* PreferencesWindowController.mm in Sources */,
 				70D9F1451AFB016900197BBE /* SIF.cpp in Sources */,
 				70D9F13A1AFB016900197BBE /* IPU_MacroblockTypePTable.cpp in Sources */,
 				70D9F1601AFB019F00197BBE /* GSH_OpenGL_Shader.cpp in Sources */,
+				705AA9751C55683800775613 /* Iop_MtapMan.cpp in Sources */,
 				70D9F1391AFB016900197BBE /* IPU_MacroblockTypeITable.cpp in Sources */,
 				7ECB24341519AC0A00C4BBF8 /* MIPS.cpp in Sources */,
 				7ECB24351519AC0A00C4BBF8 /* MIPSAnalysis.cpp in Sources */,
@@ -1136,6 +1174,7 @@
 				706849EF151E896900C9574F /* Iop_PadMan.cpp in Sources */,
 				706849F0151E896900C9574F /* Iop_RootCounters.cpp in Sources */,
 				707AF6B81ADE04AB00EA1374 /* CsoImageStream.cpp in Sources */,
+				705DAEFC1C4882ED00210465 /* ScopedVmPauser.cpp in Sources */,
 				706849F1151E896900C9574F /* Iop_SifCmd.cpp in Sources */,
 				70D9F1301AFB016900197BBE /* Ee_SubSystem.cpp in Sources */,
 				706849F2151E896900C9574F /* Iop_SifDynamic.cpp in Sources */,
@@ -1174,8 +1213,9 @@
 				70684A21151E89E200C9574F /* GSH_OpenGLMacOSX.cpp in Sources */,
 				70684A24151E89E200C9574F /* PH_HidMacOSX.cpp in Sources */,
 				70684A26151E89E200C9574F /* VfsManagerBindings.mm in Sources */,
-				70684A27151E89E200C9574F /* VfsManagerController.mm in Sources */,
+				70684A27151E89E200C9574F /* VfsManagerViewController.mm in Sources */,
 				70F0372E15D83D0E006A96F1 /* Iop_Thmsgbx.cpp in Sources */,
+				705D39741C44A44F00D267A6 /* VideoSettingsViewController.mm in Sources */,
 				70D9F1331AFB016900197BBE /* FpMulTruncate.cpp in Sources */,
 				700FB58315E11FC600C322DE /* OutputWindowController.mm in Sources */,
 				7011789915E25576006D1039 /* OutputWindow.mm in Sources */,
@@ -1216,6 +1256,22 @@
 			name = OutputWindow.xib;
 			sourceTree = "<group>";
 		};
+		705D396D1C43FFC900D267A6 /* PreferencesWindow.xib */ = {
+			isa = PBXVariantGroup;
+			children = (
+				705D396E1C43FFC900D267A6 /* English */,
+			);
+			name = PreferencesWindow.xib;
+			sourceTree = "<group>";
+		};
+		705D39701C44A3FF00D267A6 /* VideoSettingsView.xib */ = {
+			isa = PBXVariantGroup;
+			children = (
+				705D39711C44A3FF00D267A6 /* English */,
+			);
+			name = VideoSettingsView.xib;
+			sourceTree = "<group>";
+		};
 		70684A34151E8B2400C9574F /* InfoPlist.strings */ = {
 			isa = PBXVariantGroup;
 			children = (
@@ -1224,12 +1280,12 @@
 			name = InfoPlist.strings;
 			sourceTree = "<group>";
 		};
-		70684A38151E8B2400C9574F /* VfsManager.xib */ = {
+		70684A38151E8B2400C9574F /* VfsManagerView.xib */ = {
 			isa = PBXVariantGroup;
 			children = (
 				70684A39151E8B2400C9574F /* English */,
 			);
-			name = VfsManager.xib;
+			name = VfsManagerView.xib;
 			sourceTree = "<group>";
 		};
 /* End PBXVariantGroup section */

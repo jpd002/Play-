@@ -10,14 +10,11 @@ public:
 	virtual    ~CGSH_OpenGL_SettingsWnd();
 
 protected:
-	long    OnCommand(unsigned short, unsigned short, HWND);
+	long    OnCommand(unsigned short, unsigned short, HWND) override;
 
 private:
 	void    Save();
 
-	Framework::Win32::CButton    m_linesAsQuadsCheck;
+	Framework::Win32::CButton    m_enableHighResMode;
 	Framework::Win32::CButton    m_forceBilinearTextures;
-
-	bool    m_nLinesAsQuads = false;
-	bool    m_nForceBilinearTextures = false;
 };

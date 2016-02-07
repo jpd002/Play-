@@ -466,22 +466,6 @@ void CSifCmd::SifRegisterRpc(CMIPS& context)
 		serverDataAddr, serverId, function, buffer, cfunction, cbuffer, queueAddr);
 
 	bool moduleRegistered = m_sifMan.IsModuleRegistered(serverId);
-
-	static const uint32 padManServerId0 = 0x80000100;
-	static const uint32 padManServerId1 = 0x80000101;
-	static const uint32 padManServerId2 = 0x8000010F;
-	static const uint32 padManServerId3 = 0x0000011F;
-	if(
-		(serverId == padManServerId0) ||
-		(serverId == padManServerId1) ||
-		(serverId == padManServerId2) ||
-		(serverId == padManServerId3)
-		)
-	{
-		//High Level PADMAN modules are only there in case the game makes no attempts to load one of them.
-		moduleRegistered = false;
-	}
-
 	if(!moduleRegistered)
 	{
 		CSifDynamic* module = new CSifDynamic(*this, serverDataAddr);

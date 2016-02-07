@@ -13,6 +13,7 @@
 #include "MainWindow.h"
 #include "../PS2VM.h"
 #include "../PS2VM_Preferences.h"
+#include "../ScopedVmPauser.h"
 #include "../AppConfig.h"
 #include "../ee/PS2OS.h"
 #include "../gs/GSH_Null.h"
@@ -703,7 +704,7 @@ void CMainWindow::BootCDROM()
 
 	try
 	{
-		os.BootFromCDROM(CPS2OS::ArgumentList());
+		os.BootFromCDROM();
 #ifndef _DEBUG
 		m_virtualMachine.Resume();
 #endif
@@ -1033,25 +1034,6 @@ void CMainWindow::SetupSoundHandler()
 	else
 	{
 		m_virtualMachine.DestroySoundHandler();
-	}
-}
-
-CMainWindow::CScopedVmPauser::CScopedVmPauser(CPS2VM& virtualMachine)
-: m_virtualMachine(virtualMachine)
-, m_paused(false)
-{
-	if(m_virtualMachine.GetStatus() == CVirtualMachine::RUNNING)
-	{
-		m_paused = true;
-		m_virtualMachine.Pause();
-	}
-}
-
-CMainWindow::CScopedVmPauser::~CScopedVmPauser()
-{
-	if(m_paused)
-	{
-		m_virtualMachine.Resume();
 	}
 }
 

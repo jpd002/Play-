@@ -32,7 +32,8 @@ public:
 	void										DumpDmacHandlers();
 
 	void										BootFromFile(const char*);
-	void										BootFromCDROM(const ArgumentList&);
+	void										BootFromVirtualPath(const char*, const ArgumentList&);
+	void										BootFromCDROM();
 	CELF*										GetELF();
 	const char*									GetExecutableName() const;
 	std::pair<uint32, uint32>					GetExecutableRange() const;
@@ -76,7 +77,17 @@ private:
 		uint32									gp;
 		uint32									initPriority;
 		uint32									currPriority;
+		uint32									attr;
+		uint32									option;
 	};
+
+	struct THREADSTATUS : public THREADPARAM
+	{
+		uint32									waitType;
+		uint32									waitId;
+		uint32									wakeupCount;
+	};
+	static_assert(sizeof(THREADSTATUS) == 0x30, "Thread status must be 48 bytes long.");
 
 	struct SEMAPHORE
 	{

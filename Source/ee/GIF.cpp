@@ -259,8 +259,12 @@ uint32 CGIF::ProcessPacket(uint8* memory, uint32 address, uint32 end, const CGsP
 			}
 
 			//We need to update the registers
-			TAG tag = *reinterpret_cast<TAG*>(&memory[address]);
+			auto tag = *reinterpret_cast<TAG*>(&memory[address]);
 			address += 0x10;
+#ifdef _DEBUG
+			CLog::GetInstance().Print(LOG_NAME, "TAG(loops = %d, eop = %d, pre = %d, prim = 0x%0.4X, cmd = %d, nreg = %d);\r\n",
+				tag.loops, tag.eop, tag.pre, tag.prim, tag.cmd, tag.nreg);
+#endif
 
 			m_loops		= tag.loops;
 			m_cmd		= tag.cmd;

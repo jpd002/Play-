@@ -371,7 +371,7 @@ void CPS2VM::ResetVM()
 		m_ee->m_gs->Reset();
 	}
 
-	m_iopOs->Reset(new Iop::CSifManPs2(m_ee->m_sif, m_ee->m_ram, m_iop->m_ram));
+	m_iopOs->Reset(std::make_shared<Iop::CSifManPs2>(m_ee->m_sif, m_ee->m_ram, m_iop->m_ram));
 
 	CDROM0_Reset();
 
@@ -705,7 +705,7 @@ void CPS2VM::RegisterModulesInPadHandler()
 void CPS2VM::ReloadExecutable(const char* executablePath, const CPS2OS::ArgumentList& arguments)
 {
 	ResetVM();
-	m_ee->m_os->BootFromCDROM(arguments);
+	m_ee->m_os->BootFromVirtualPath(executablePath, arguments);
 }
 
 void CPS2VM::EmuThread()

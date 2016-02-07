@@ -76,6 +76,7 @@ private:
 		void								ADDi();
 		void								MADDi();
 		void								SUBq();
+		void								MSUBq();
 		void								SUBi();
 		void								MSUBi();
 		void								ADD();
@@ -306,6 +307,7 @@ private:
 		void								MFP();
 		void								XTOP();
 		void								XGKICK();
+		void								ESADD();
 		void								ESQRT();
 		void								ESIN();
 

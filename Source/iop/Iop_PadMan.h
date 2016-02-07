@@ -1,8 +1,8 @@
-#ifndef _IOP_PADMAN_H_
-#define _IOP_PADMAN_H_
+#pragma once
 
 #include "Iop_Module.h"
 #include "Iop_SifMan.h"
+#include "Iop_SifModuleProvider.h"
 #include "../PadListener.h"
 #include <functional>
 #include "zip/ZipArchiveWriter.h"
@@ -12,18 +12,22 @@
 
 namespace Iop
 {
-	class CPadMan : public CModule, public CPadListener, public CSifModule
+	class CPadMan : public CModule, public CPadListener, public CSifModule, public CSifModuleProvider
 	{
 	public:
-							CPadMan(CSifMan&);
-		std::string			GetId() const;
-		std::string			GetFunctionName(unsigned int) const;
-		void				Invoke(CMIPS&, unsigned int);
-		virtual bool		Invoke(uint32, uint32*, uint32, uint32*, uint32, uint8*);
-		virtual void		SaveState(Framework::CZipArchiveWriter&);
-		virtual void		LoadState(Framework::CZipArchiveReader&);
-		virtual void		SetButtonState(unsigned int, PS2::CControllerInfo::BUTTON, bool, uint8*);
-		virtual void		SetAxisState(unsigned int, PS2::CControllerInfo::BUTTON, uint8, uint8*);
+							CPadMan();
+
+		std::string			GetId() const override;
+		std::string			GetFunctionName(unsigned int) const override;
+
+		void				RegisterSifModules(CSifMan&) override;
+
+		void				Invoke(CMIPS&, unsigned int) override;
+		bool				Invoke(uint32, uint32*, uint32, uint32*, uint32, uint8*) override;
+		void				SaveState(Framework::CZipArchiveWriter&);
+		void				LoadState(Framework::CZipArchiveReader&);
+		void				SetButtonState(unsigned int, PS2::CControllerInfo::BUTTON, bool, uint8*) override;
+		void				SetAxisState(unsigned int, PS2::CControllerInfo::BUTTON, uint8, uint8*) override;
 
 		enum MODULE_ID
 		{
@@ -202,6 +206,8 @@ namespace Iop
 		static void				PDF_SetAxisState(CPadDataInterface*, PS2::CControllerInfo::BUTTON, uint8);
 	};
 
+	typedef std::shared_ptr<CPadMan> PadManPtr;
+
 	template <> inline void CPadMan::CPadDataHandler<CPadMan::PADDATA>::SetModeCurId(unsigned int) {}
 	template <> inline void CPadMan::CPadDataHandler<CPadMan::PADDATA>::SetModeCurOffset(unsigned int) {}
 	template <> inline void CPadMan::CPadDataHandler<CPadMan::PADDATA>::SetModeTable(unsigned int, unsigned int) {}
@@ -212,5 +218,3 @@ namespace Iop
 	template <> inline void CPadMan::CPadDataHandler<CPadMan::PADDATA80>::SetModeTable(unsigned int, unsigned int) {}
 	template <> inline void CPadMan::CPadDataHandler<CPadMan::PADDATA80>::SetNumberOfModes(unsigned int) {}
 }
-
-#endif

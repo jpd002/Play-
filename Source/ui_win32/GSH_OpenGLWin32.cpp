@@ -46,7 +46,6 @@ void CGSH_OpenGLWin32::InitializeImpl()
 	auto result = glewInit();
 	assert(result == GLEW_OK);
 
-#ifdef GLES_COMPATIBILITY
 	if(wglCreateContextAttribsARB != nullptr)
 	{
 		auto prevContext = m_context;
@@ -66,7 +65,6 @@ void CGSH_OpenGLWin32::InitializeImpl()
 		auto deleteResult = wglDeleteContext(prevContext);
 		assert(deleteResult == TRUE);
 	}
-#endif
 
 	CGSH_OpenGL::InitializeImpl();
 }
@@ -84,11 +82,6 @@ void CGSH_OpenGLWin32::PresentBackbuffer()
 	SwapBuffers(m_dc);
 }
 
-CSettingsDialogProvider* CGSH_OpenGLWin32::GetSettingsDialogProvider()
-{
-	return this;
-}
-
 Framework::Win32::CWindow* CGSH_OpenGLWin32::CreateSettingsDialog(HWND parentWnd)
 {
 	return new CGSH_OpenGL_SettingsWnd(parentWnd);
@@ -96,9 +89,7 @@ Framework::Win32::CWindow* CGSH_OpenGLWin32::CreateSettingsDialog(HWND parentWnd
 
 void CGSH_OpenGLWin32::OnSettingsDialogDestroyed()
 {
-	LoadSettings();
-	TexCache_Flush();
-	PalCache_Flush();
+	NotifyPreferencesChanged();
 }
 
 CGSHandler* CGSH_OpenGLWin32::GSHandlerFactory(Framework::Win32::CWindow* outputWindow)

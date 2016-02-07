@@ -26,9 +26,10 @@ public:
 									CGSH_Direct3D9(Framework::Win32::CWindow*);
 	virtual							~CGSH_Direct3D9();
 
-	void							ProcessImageTransfer() override;
-	void							ProcessClutTransfer(uint32, uint32) override;
+	void							ProcessHostToLocalTransfer() override;
+	void							ProcessLocalToHostTransfer() override;
 	void							ProcessLocalToLocalTransfer() override;
+	void							ProcessClutTransfer(uint32, uint32) override;
 	void							ReadFramebuffer(uint32, uint32, void*) override;
 	
 	bool							GetDepthTestingEnabled() const;

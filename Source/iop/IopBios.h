@@ -17,10 +17,10 @@
 #include "Iop_Modload.h"
 #include "Iop_Loadcore.h"
 #include "Iop_LibSd.h"
-#include "Iop_Dynamic.h"
 #ifdef _IOP_EMULATE_MODULES
 #include "Iop_FileIo.h"
 #include "Iop_PadMan.h"
+#include "Iop_MtapMan.h"
 #include "Iop_Cdvdfsv.h"
 #endif
 
@@ -103,6 +103,7 @@ public:
 	int32						UnloadModule(uint32);
 	int32						StartModule(uint32, const char*, const char*, uint32);
 	int32						StopModule(uint32);
+	bool						IsModuleHle(uint32) const;
 	int32						SearchModuleByName(const char*) const;
 	void						ProcessModuleReset(const std::string&);
 
@@ -123,7 +124,7 @@ public:
 	void						NotifyVBlankStart();
 	void						NotifyVBlankEnd();
 
-	void						Reset(Iop::CSifMan*);
+	void						Reset(const Iop::SifManPtr&);
 
 	virtual void				SaveState(Framework::CZipArchiveWriter&);
 	virtual void				LoadState(Framework::CZipArchiveReader&);
@@ -137,7 +138,7 @@ public:
 	Iop::CPadMan*				GetPadman();
 	Iop::CCdvdfsv*				GetCdvdfsv();
 #endif
-	void						RegisterDynamicModule(Iop::CDynamic*);
+	bool						RegisterModule(const Iop::ModulePtr&);
 
 	uint32						CreateThread(uint32, uint32, uint32, uint32);
 	void						DeleteThread(uint32);
@@ -217,7 +218,8 @@ private:
 	enum class MODULE_STATE : uint32
 	{
 		STOPPED,
-		STARTED
+		STARTED,
+		HLE,
 	};
 
 	enum class MODULE_RESIDENT_STATE : uint32
@@ -383,13 +385,8 @@ private:
 	typedef COsStructManager<INTRHANDLER> IntrHandlerList;
 	typedef COsStructManager<MESSAGEBOX> MessageBoxList;
 	typedef COsStructManager<LOADEDMODULE> LoadedModuleList;
-	typedef std::map<std::string, Iop::CModule*> IopModuleMapType;
-	typedef std::list<Iop::CDynamic*> DynamicIopModuleListType;
+	typedef std::map<std::string, Iop::ModulePtr> IopModuleMapType;
 	typedef std::pair<uint32, uint32> ExecutableRange;
-	typedef std::shared_ptr<Iop::CModule> ModulePtr;
-
-	void							RegisterModule(Iop::CModule*);
-	void							ClearDynamicModules();
 
 	void							LoadThreadContext(uint32);
 	void							SaveThreadContext(uint32);
@@ -412,6 +409,8 @@ private:
 	void							RelocateElf(CELF&, uint32);
 	std::string						ReadModuleName(uint32);
 	void							DeleteModules();
+
+	int32							LoadHleModule(const Iop::ModulePtr&);
 
 	uint32							AssembleThreadFinish(CMIPSAssembler&);
 	uint32							AssembleReturnFromException(CMIPSAssembler&);
@@ -450,26 +449,26 @@ private:
 	MessageBoxList					m_messageBoxes;
 
 	IopModuleMapType				m_modules;
-	DynamicIopModuleListType		m_dynamicModules;
 
 	OsVariableWrapper<uint32>		m_currentThreadId;
 
 #ifdef DEBUGGER_INCLUDED
 	BiosDebugModuleInfoArray		m_moduleTags;
 #endif
-	Iop::CSifMan*					m_sifMan;
-	Iop::CSifCmd*					m_sifCmd;
-	Iop::CStdio*					m_stdio;
-	Iop::CIoman*					m_ioman;
-	Iop::CCdvdman*					m_cdvdman;
-	Iop::CSysmem*					m_sysmem;
-	Iop::CModload*					m_modload;
-	Iop::CLoadcore*					m_loadcore;
-	ModulePtr						m_libsd;
+	Iop::SifManPtr					m_sifMan;
+	Iop::SifCmdPtr					m_sifCmd;
+	Iop::StdioPtr					m_stdio;
+	Iop::IomanPtr					m_ioman;
+	Iop::CdvdmanPtr					m_cdvdman;
+	Iop::SysmemPtr					m_sysmem;
+	Iop::ModloadPtr					m_modload;
+	Iop::LoadcorePtr				m_loadcore;
+	Iop::ModulePtr					m_libsd;
 #ifdef _IOP_EMULATE_MODULES
-	Iop::CFileIo*					m_fileIo;
-	Iop::CPadMan*					m_padman;
-	Iop::CCdvdfsv*					m_cdvdfsv;
+	Iop::FileIoPtr					m_fileIo;
+	Iop::PadManPtr					m_padman;
+	Iop::MtapManPtr					m_mtapman;
+	Iop::CdvdfsvPtr					m_cdvdfsv;
 #endif
 };
 

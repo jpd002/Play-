@@ -9,9 +9,8 @@
 #include "opengl/Shader.h"
 #include "opengl/Resource.h"
 
-#define PREF_CGSH_OPENGL_LINEASQUADS				"renderer.opengl.linesasquads"
-#define PREF_CGSH_OPENGL_FORCEBILINEARTEXTURES		"renderer.opengl.forcebilineartextures"
-#define PREF_CGSH_OPENGL_FIXSMALLZVALUES			"renderer.opengl.fixsmallzvalues"
+#define PREF_CGSH_OPENGL_ENABLEHIGHRESMODE        "renderer.opengl.enablehighresmode"
+#define PREF_CGSH_OPENGL_FORCEBILINEARTEXTURES    "renderer.opengl.forcebilineartextures"
 
 class CGSH_OpenGL : public CGSHandler
 {
@@ -19,20 +18,24 @@ public:
 									CGSH_OpenGL();
 	virtual							~CGSH_OpenGL();
 
+	static void						RegisterPreferences();
+
 	virtual void					LoadState(Framework::CZipArchiveReader&) override;
 	
-	void							ProcessImageTransfer() override;
-	void							ProcessClutTransfer(uint32, uint32) override;
+	void							ProcessHostToLocalTransfer() override;
+	void							ProcessLocalToHostTransfer() override;
 	void							ProcessLocalToLocalTransfer() override;
+	void							ProcessClutTransfer(uint32, uint32) override;
 	void							ReadFramebuffer(uint32, uint32, void*) override;
 
 protected:
 	void							TexCache_Flush();
 	void							PalCache_Flush();
-	void							LoadSettings();
+	void							LoadPreferences();
 	virtual void					InitializeImpl() override;
 	virtual void					ReleaseImpl() override;
 	virtual void					ResetImpl() override;
+	virtual void					NotifyPreferencesChangedImpl() override;
 	virtual void					FlipImpl() override;
 
 	GLuint							m_presentFramebuffer = 0;
@@ -171,10 +174,8 @@ private:
 	class CFramebuffer
 	{
 	public:
-									CFramebuffer(uint32, uint32, uint32, uint32);
+									CFramebuffer(uint32, uint32, uint32, uint32, uint32);
 									~CFramebuffer();
-
-		void						SetBufferWidth(uint32);
 
 		uint32						m_basePtr;
 		uint32						m_width;
@@ -183,7 +184,6 @@ private:
 
 		GLuint						m_framebuffer;
 		GLuint						m_texture;
-		uint32						m_textureWidth;
 
 		CGsCachedArea				m_cachedArea;
 	};
@@ -193,7 +193,7 @@ private:
 	class CDepthbuffer
 	{
 	public:
-									CDepthbuffer(uint32, uint32, uint32, uint32);
+									CDepthbuffer(uint32, uint32, uint32, uint32, uint32);
 									~CDepthbuffer();
 
 		uint32						m_basePtr;
@@ -246,9 +246,7 @@ private:
 	void							PreparePalette(const TEX0&);
 
 	uint32							RGBA16ToRGBA32(uint16);
-	uint8							MulBy2Clamp(uint8);
 	float							GetZ(float);
-	unsigned int					GetNextPowerOf2(unsigned int);
 
 	void							VertexKick(uint8, uint64);
 
@@ -286,7 +284,7 @@ private:
 	static bool						IsCompatibleFramebufferPSM(unsigned int, unsigned int);
 	static uint32					GetFramebufferBitDepth(uint32);
 
-	FramebufferPtr					FindCompatibleFramebuffer(const FRAME&) const;
+	FramebufferPtr					FindFramebuffer(const FRAME&) const;
 	DepthbufferPtr					FindDepthbuffer(const ZBUF&, const FRAME&) const;
 
 	void							DumpTexture(unsigned int, unsigned int, uint32);
@@ -316,9 +314,8 @@ private:
 	uint32							m_nTexHeight;
 	float							m_nMaxZ;
 
-	bool							m_nLinesAsQuads;
-	bool							m_nForceBilinearTextures;
-	bool							m_fixSmallZValues;
+	bool							m_forceBilinearTextures = false;
+	unsigned int					m_fbScale = 1;
 
 	uint8*							m_pCvtBuffer;
 
@@ -339,6 +336,9 @@ private:
 	Framework::OpenGl::CVertexArray	m_presentVertexArray;
 	GLint							m_presentTextureUniform = -1;
 	GLint							m_presentTexCoordScaleUniform = -1;
+
+	Framework::OpenGl::CFramebuffer	m_copyToFbFramebuffer;
+	Framework::OpenGl::CTexture		m_copyToFbTexture;
 
 	TextureList						m_textureCache;
 	PaletteList						m_paletteCache;

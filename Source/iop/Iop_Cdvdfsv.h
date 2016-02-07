@@ -7,11 +7,12 @@
 
 namespace Iop
 {
+	class CCdvdman;
 
 	class CCdvdfsv : public CModule
 	{
 	public:
-							CCdvdfsv(CSifMan&, uint8*);
+							CCdvdfsv(CSifMan&, CCdvdman&, uint8*);
 		virtual				~CCdvdfsv();
 
 		std::string			GetId() const override;
@@ -44,6 +45,7 @@ namespace Iop
 		bool				Invoke592(uint32, uint32*, uint32, uint32*, uint32, uint8*);
 		bool				Invoke593(uint32, uint32*, uint32, uint32*, uint32, uint8*);
 		bool				Invoke595(uint32, uint32*, uint32, uint32*, uint32, uint8*);
+		bool				Invoke596(uint32, uint32*, uint32, uint32*, uint32, uint8*);
 		bool				Invoke597(uint32, uint32*, uint32, uint32*, uint32, uint8*);
 		bool				Invoke59A(uint32, uint32*, uint32, uint32*, uint32, uint8*);
 		bool				Invoke59C(uint32, uint32*, uint32, uint32*, uint32, uint8*);
@@ -54,6 +56,7 @@ namespace Iop
 		void				StreamCmd(uint32*, uint32, uint32*, uint32, uint8*);
 		void				SearchFile(uint32*, uint32, uint32*, uint32, uint8*);
 
+		CCdvdman&			m_cdvdman;
 		uint32				m_streamPos = 0;
 		uint8*				m_iopRam = nullptr;
 		CISO9660*			m_iso = nullptr;
@@ -66,8 +69,11 @@ namespace Iop
 		CSifModuleAdapter	m_module592;
 		CSifModuleAdapter	m_module593;
 		CSifModuleAdapter	m_module595;
+		CSifModuleAdapter	m_module596;
 		CSifModuleAdapter	m_module597;
 		CSifModuleAdapter	m_module59A;
 		CSifModuleAdapter	m_module59C;
 	};
+
+	typedef std::shared_ptr<CCdvdfsv> CdvdfsvPtr;
 }

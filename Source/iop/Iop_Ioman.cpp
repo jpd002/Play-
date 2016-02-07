@@ -60,6 +60,9 @@ std::string CIoman::GetFunctionName(unsigned int functionId) const
 	case 4:
 		return "open";
 		break;
+	case 5:
+		return "close";
+		break;
 	case 6:
 		return "read";
 		break;
@@ -207,6 +210,23 @@ uint32 CIoman::Seek(uint32 handle, uint32 position, uint32 whence)
 		CLog::GetInstance().Print(LOG_NAME, "%s: Error occured while trying to seek file : %s\r\n", __FUNCTION__, except.what());
 	}
 	return result;
+}
+
+uint32 CIoman::GetStat(const char* path, STAT* stat)
+{
+	CLog::GetInstance().Print(LOG_NAME, "GetStat(path = '%s', stat = ptr);\r\n", path);
+
+	uint32 fd = Open(Ioman::CDevice::OPEN_FLAG_RDONLY, path);
+	if(static_cast<int32>(fd) < 0)
+	{
+		return -1;
+	}
+	uint32 size = Seek(fd, 0, SEEK_DIR_END);
+	Close(fd);
+	memset(stat, 0, sizeof(STAT));
+	stat->mode = 0777 | (2 << 12); //File mode + File type (2)
+	stat->loSize = size;
+	return 0;
 }
 
 uint32 CIoman::AddDrv(uint32 drvPtr)

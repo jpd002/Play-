@@ -25,4 +25,6 @@ namespace Iop
 		CIopBios&		m_bios;
 		uint8*			m_ram = nullptr;
 	};
+
+	typedef std::shared_ptr<CModload> ModloadPtr;
 }
