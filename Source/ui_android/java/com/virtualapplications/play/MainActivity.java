@@ -1,5 +1,6 @@
 package com.virtualapplications.play;
 
+import android.Manifest;
 import android.app.*;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
@@ -10,6 +11,8 @@ import android.graphics.Color;
 import android.graphics.drawable.GradientDrawable;
 import android.os.*;
 import android.preference.PreferenceManager;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.*;
 import android.support.v7.app.ActionBar;
 import android.support.v7.widget.Toolbar;
@@ -22,11 +25,9 @@ import android.widget.GridView;
 import android.widget.TextView;
 import android.support.v4.widget.DrawerLayout;
 import java.io.File;
-import java.lang.reflect.InvocationTargetException;
 import java.text.*;
 import java.util.*;
 import java.util.zip.*;
-import org.apache.commons.lang3.StringUtils;
 
 import com.virtualapplications.play.database.GameIndexer;
 import com.virtualapplications.play.database.GameInfo;
@@ -49,8 +50,8 @@ public class MainActivity extends AppCompatActivity implements NavigationDrawerF
 	private int sortMethod = SORT_NONE;
 	private String navSubtitle;
 
-	@Override 
-	protected void onCreate(Bundle savedInstanceState) 
+	@Override
+	protected void onCreate(Bundle savedInstanceState)
 	{
 		super.onCreate(savedInstanceState);
 		//Log.w(Constants.TAG, "MainActivity - onCreate");
@@ -65,6 +66,37 @@ public class MainActivity extends AppCompatActivity implements NavigationDrawerF
 			setContentView(R.layout.main);
 		}
 
+//		if (isAndroidTV(this)) {
+//			// Load the menus for Android TV
+//		} else {
+		Toolbar toolbar = (Toolbar) findViewById(R.id.my_awesome_toolbar);
+		setSupportActionBar(toolbar);
+		toolbar.bringToFront();
+		setUIcolor();
+
+		mNavigationDrawerFragment = (NavigationDrawerFragment)
+				getFragmentManager().findFragmentById(R.id.navigation_drawer);
+
+		// Set up the drawer.
+		mNavigationDrawerFragment.setUp(
+				R.id.navigation_drawer,
+				(DrawerLayout) findViewById(R.id.drawer_layout));
+
+		int attributeResourceId = getThemeColor(this, R.attr.colorPrimaryDark);
+		findViewById(R.id.navigation_drawer).setBackgroundColor(Color.parseColor(
+				("#" + Integer.toHexString(attributeResourceId)).replace("#ff", "#8e")
+		));
+//		}
+
+
+		if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+			ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, Constants.READ_WRITE_PERMISSION);
+		} else {
+			Startup();
+		}
+	}
+
+	private void Startup() {
 		NativeInterop.setFilesDirPath(Environment.getExternalStorageDirectory().getAbsolutePath());
 
 		EmulatorActivity.RegisterPreferences();
@@ -74,34 +106,42 @@ public class MainActivity extends AppCompatActivity implements NavigationDrawerF
 			NativeInterop.createVirtualMachine();
 		}
 
-//		if (isAndroidTV(this)) {
-//			// Load the menus for Android TV
-//		} else {
-			Toolbar toolbar = (Toolbar) findViewById(R.id.my_awesome_toolbar);
-			setSupportActionBar(toolbar);
-			toolbar.bringToFront();
-			setUIcolor();
-
-			mNavigationDrawerFragment = (NavigationDrawerFragment)
-					getFragmentManager().findFragmentById(R.id.navigation_drawer);
-
-			// Set up the drawer.
-			mNavigationDrawerFragment.setUp(
-					R.id.navigation_drawer,
-					(DrawerLayout) findViewById(R.id.drawer_layout));
-
-			int attributeResourceId = getThemeColor(this, R.attr.colorPrimaryDark);
-			findViewById(R.id.navigation_drawer).setBackgroundColor(Color.parseColor(
-					("#" + Integer.toHexString(attributeResourceId)).replace("#ff", "#8e")
-			));
-//		}
-
 		gameInfo = new GameInfo(MainActivity.this);
 		getContentResolver().call(Games.GAMES_URI, "importDb", null, null);
 
 		SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
 		sortMethod = sp.getInt("sortMethod", SORT_NONE);
 		onNavigationDrawerItemSelected(sortMethod);
+	}
+
+	@Override
+	public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
+		switch (requestCode) {
+			case Constants.READ_WRITE_PERMISSION: {
+				// If request is cancelled, the result arrays are empty.
+				if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+					Startup();
+				} else {
+					AlertDialog.Builder builder = new AlertDialog.Builder(this);
+
+					builder.setTitle("Permission Request");
+					builder.setMessage("Please Grant Permission,\nWithout Read/Write Permission, PLAY! wouldn't be able to find your games or save your progress.");
+
+					builder.setPositiveButton("OK",
+							new DialogInterface.OnClickListener() {
+								@Override
+								public void onClick(DialogInterface dialog, int id) {
+									finish();
+								}
+							}
+					);
+
+					AlertDialog dialog = builder.create();
+					dialog.show();
+				}
+				return;
+			}
+		}
 	}
 
 	private void setUIcolor(){
