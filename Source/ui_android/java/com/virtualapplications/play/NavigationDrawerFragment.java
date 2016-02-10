@@ -5,15 +5,14 @@ import android.app.Activity;
 import android.app.Fragment;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
-import android.content.res.TypedArray;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
-import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.ActionBarDrawerToggle;
+import android.support.v7.app.AppCompatActivity;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -24,6 +23,8 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+
+import static com.virtualapplications.play.ThemeManager.getThemeColor;
 
 /**
  * Fragment used for managing interactions for and presentation of a navigation drawer.
@@ -90,7 +91,7 @@ public class NavigationDrawerFragment extends Fragment {
         setHasOptionsMenu(true);
 
         mDrawerListView.setAdapter(new ArrayAdapter<>(
-                ((ActionBarActivity) getActivity()).getSupportActionBar().getThemedContext(),
+                ((AppCompatActivity) getActivity()).getSupportActionBar().getThemedContext(),
                 android.R.layout.simple_list_item_activated_1,
                 android.R.id.text1,
                 new String[]{
@@ -102,14 +103,13 @@ public class NavigationDrawerFragment extends Fragment {
         //highlight on startup, every other way returns null.
         mDrawerListView.post(new Runnable() {
             public void run() {
-                TypedArray a = getActivity().getTheme().obtainStyledAttributes(new int[]{R.attr.colorPrimaryDark});
-                int attributeResourceId = a.getColor(0, 0);
+                int attributeResourceId = getThemeColor(getActivity(), R.attr.colorPrimaryDark);
                 mDrawerListView.getChildAt(mCurrentSelectedPosition).setBackgroundColor(attributeResourceId);
             }
         });
 
         mDrawerListView_bottom.setAdapter(new ArrayAdapter<>(
-                ((ActionBarActivity) getActivity()).getSupportActionBar().getThemedContext(),
+                ((AppCompatActivity) getActivity()).getSupportActionBar().getThemedContext(),
                 android.R.layout.simple_list_item_activated_1,
                 android.R.id.text1,
                 new String[]{
@@ -159,7 +159,7 @@ public class NavigationDrawerFragment extends Fragment {
         mDrawerLayout.setDrawerShadow(R.drawable.drawer_shadow, GravityCompat.START);
         // set up the drawer's list view with items and click listener
 
-        android.support.v7.app.ActionBar actionBar = ((ActionBarActivity) getActivity()).getSupportActionBar();
+        android.support.v7.app.ActionBar actionBar = ((AppCompatActivity) getActivity()).getSupportActionBar();
         actionBar.setDisplayHomeAsUpEnabled(true);
         actionBar.setHomeButtonEnabled(true);
 
@@ -168,7 +168,7 @@ public class NavigationDrawerFragment extends Fragment {
         // between the navigation drawer and the action bar app icon.
 
         mDrawerToggle = new ActionBarDrawerToggle(
-                (ActionBarActivity) getActivity(),                    /* host Activity */
+                (AppCompatActivity) getActivity(),                    /* host Activity */
                 mDrawerLayout,                    /* DrawerLayout object */
                 R.string.navigation_drawer_open,  /* "open drawer" description for accessibility */
                 R.string.navigation_drawer_close  /* "close drawer" description for accessibility */
@@ -226,9 +226,7 @@ public class NavigationDrawerFragment extends Fragment {
             mDrawerListView.setItemChecked(position, true);
             for (int i = 0; i < mDrawerListView.getChildCount(); i++) {
                 if(position == i ){
-                    //TODO: colour is hardcoded, try getting from theme
-                    TypedArray a = getActivity().getTheme().obtainStyledAttributes(new int[]{R.attr.colorPrimaryDark});
-                    int attributeResourceId = a.getColor(0, 0);
+                    int attributeResourceId = getThemeColor(getActivity(), R.attr.colorPrimaryDark);
                     mDrawerListView.getChildAt(i).setBackgroundColor(attributeResourceId);
                 }else{
                     mDrawerListView.getChildAt(i).setBackgroundColor(Color.TRANSPARENT);
@@ -309,9 +307,7 @@ public class NavigationDrawerFragment extends Fragment {
     public void onResume(){
         super.onResume();
         if (mDrawerListView != null) {
-            //TODO: colour is hardcoded, try getting from theme
-            TypedArray a = getActivity().getTheme().obtainStyledAttributes(new int[]{R.attr.colorPrimaryDark});
-            int attributeResourceId = a.getColor(0, 0);
+            int attributeResourceId = getThemeColor(getActivity(), R.attr.colorPrimaryDark);
             View v = mDrawerListView.getChildAt(mCurrentSelectedPosition);
             if (v != null)
             v.setBackgroundColor(attributeResourceId);
@@ -324,7 +320,7 @@ public class NavigationDrawerFragment extends Fragment {
      * 'context', rather than just what's in the current screen.
      */
     private void showGlobalContextActionBar() {
-        android.support.v7.app.ActionBar actionBar = ((ActionBarActivity) getActivity()).getSupportActionBar();
+        android.support.v7.app.ActionBar actionBar = ((AppCompatActivity) getActivity()).getSupportActionBar();
         actionBar.setDisplayShowTitleEnabled(true);
         actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
         actionBar.setSubtitle("Navigation");
