@@ -35,6 +35,7 @@ namespace Iop
 			CDVD_STATUS_PAUSED = 10,
 		};
 
+		uint32					CdInit(uint32);
 		uint32					CdRead(uint32, uint32, uint32, uint32);
 		uint32					CdSeek(uint32);
 		uint32					CdGetError();
@@ -45,6 +46,7 @@ namespace Iop
 		uint32					CdReadClock(uint32);
 		uint32					CdStatus();
 		uint32					CdCallback(uint32);
+		uint32					CdSetMmode(uint32);
 		uint32					CdLayerSearchFile(uint32, uint32, uint32);
 
 		CIopBios&				m_bios;
