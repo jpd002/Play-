@@ -79,6 +79,8 @@ void CGSH_OpenGL::ReleaseImpl()
 	m_primVertexArray.Reset();
 	m_copyToFbTexture.Reset();
 	m_copyToFbFramebuffer.Reset();
+	m_vertexParamsBuffer.Reset();
+	m_fragmentParamsBuffer.Reset();
 }
 
 void CGSH_OpenGL::ResetImpl()
@@ -307,6 +309,9 @@ void CGSH_OpenGL::InitializeRC()
 	m_primBuffer = Framework::OpenGl::CBuffer::Create();
 	m_primVertexArray = GeneratePrimVertexArray();
 
+	m_vertexParamsBuffer = GenerateUniformBlockBuffer(sizeof(VERTEXPARAMS));
+	m_fragmentParamsBuffer = GenerateUniformBlockBuffer(sizeof(FRAGMENTPARAMS));
+
 	PresentBackbuffer();
 
 	CHECKGLERROR();
@@ -386,6 +391,17 @@ Framework::OpenGl::CVertexArray CGSH_OpenGL::GeneratePrimVertexArray()
 	CHECKGLERROR();
 
 	return vertexArray;
+}
+
+Framework::OpenGl::CBuffer CGSH_OpenGL::GenerateUniformBlockBuffer(size_t blockSize)
+{
+	auto uniformBlockBuffer = Framework::OpenGl::CBuffer::Create();
+
+	glBindBuffer(GL_UNIFORM_BUFFER, uniformBlockBuffer);
+	glBufferData(GL_UNIFORM_BUFFER, blockSize, nullptr, GL_STREAM_DRAW);
+	CHECKGLERROR();
+
+	return uniformBlockBuffer;
 }
 
 void CGSH_OpenGL::MakeLinearZOrtho(float* matrix, float left, float right, float bottom, float top)
@@ -490,18 +506,22 @@ void CGSH_OpenGL::SetRenderingContext(uint64 primReg)
 		SHADERINFO shaderInfo;
 		shaderInfo.shader = shader;
 
-		shaderInfo.projMatrixUniform	= glGetUniformLocation(*shader, "g_projMatrix");
-		shaderInfo.texMatrixUniform		= glGetUniformLocation(*shader, "g_texMatrix");
-		shaderInfo.textureUniform		= glGetUniformLocation(*shader, "g_texture");
-		shaderInfo.paletteUniform		= glGetUniformLocation(*shader, "g_palette");
-		shaderInfo.textureSizeUniform	= glGetUniformLocation(*shader, "g_textureSize");
-		shaderInfo.texelSizeUniform		= glGetUniformLocation(*shader, "g_texelSize");
-		shaderInfo.clampMinUniform		= glGetUniformLocation(*shader, "g_clampMin");
-		shaderInfo.clampMaxUniform		= glGetUniformLocation(*shader, "g_clampMax");
-		shaderInfo.texA0Uniform			= glGetUniformLocation(*shader, "g_texA0");
-		shaderInfo.texA1Uniform			= glGetUniformLocation(*shader, "g_texA1");
-		shaderInfo.alphaRefUniform		= glGetUniformLocation(*shader, "g_alphaRef");
-		shaderInfo.fogColorUniform		= glGetUniformLocation(*shader, "g_fogColor");
+		shaderInfo.textureUniform = glGetUniformLocation(*shader, "g_texture");
+		shaderInfo.paletteUniform = glGetUniformLocation(*shader, "g_palette");
+
+		auto vertexParamsUniformBlock = glGetUniformBlockIndex(*shader, "VertexParams");
+		if(vertexParamsUniformBlock != GL_INVALID_INDEX)
+		{
+			glUniformBlockBinding(*shader, vertexParamsUniformBlock, 0);
+		}
+
+		auto fragmentParamsUniformBlock = glGetUniformBlockIndex(*shader, "FragmentParams");
+		if(fragmentParamsUniformBlock != GL_INVALID_INDEX)
+		{
+			glUniformBlockBinding(*shader, fragmentParamsUniformBlock, 1);
+		}
+
+		CHECKGLERROR();
 
 		m_shaderInfos.insert(ShaderInfoMap::value_type(static_cast<uint32>(shaderCaps), shaderInfo));
 		shaderInfoIterator = m_shaderInfos.find(static_cast<uint32>(shaderCaps));
@@ -785,11 +805,8 @@ void CGSH_OpenGL::SetupTestFunctions(const SHADERINFO& shaderInfo, uint64 testRe
 {
 	auto test = make_convertible<TEST>(testReg);
 
-	if(shaderInfo.alphaRefUniform != -1)
-	{
-		float alphaRef = (float)test.nAlphaRef / 255.0f;
-		glUniform1f(shaderInfo.alphaRefUniform, alphaRef);
-	}
+	m_fragmentParams.alphaRef = static_cast<float>(test.nAlphaRef) / 255.0f;
+	m_fragmentParamsValid = false;
 
 	if(test.nDepthEnabled)
 	{
@@ -926,13 +943,8 @@ void CGSH_OpenGL::SetupFramebuffer(const SHADERINFO& shaderInfo, uint64 frameReg
 	float projWidth = static_cast<float>(framebuffer->m_width);
 	float projHeight = static_cast<float>(framebuffer->m_height);
 
-	float projMatrix[16];
-	MakeLinearZOrtho(projMatrix, 0, projWidth, 0, projHeight);
-
-	if(shaderInfo.projMatrixUniform != -1)
-	{
-		glUniformMatrix4fv(shaderInfo.projMatrixUniform, 1, GL_FALSE, projMatrix);
-	}
+	MakeLinearZOrtho(m_vertexParams.projMatrix, 0, projWidth, 0, projHeight);
+	m_vertexParamsValid = false;
 
 	glEnable(GL_SCISSOR_TEST);
 	int scissorX = scissor.scax0;
@@ -944,15 +956,11 @@ void CGSH_OpenGL::SetupFramebuffer(const SHADERINFO& shaderInfo, uint64 frameReg
 
 void CGSH_OpenGL::SetupFogColor(const SHADERINFO& shaderInfo, uint64 fogColReg)
 {
-	float color[4];
-
 	auto fogCol = make_convertible<FOGCOL>(fogColReg);
-	color[0] = static_cast<float>(fogCol.nFCR) / 255.0f;
-	color[1] = static_cast<float>(fogCol.nFCG) / 255.0f;
-	color[2] = static_cast<float>(fogCol.nFCB) / 255.0f;
-	color[3] = 0.0f;
-
-	glUniform3f(shaderInfo.fogColorUniform, color[0], color[1], color[2]);
+	m_fragmentParams.fogColor[0] = static_cast<float>(fogCol.nFCR) / 255.0f;
+	m_fragmentParams.fogColor[1] = static_cast<float>(fogCol.nFCG) / 255.0f;
+	m_fragmentParams.fogColor[2] = static_cast<float>(fogCol.nFCB) / 255.0f;
+	m_fragmentParamsValid = false;
 }
 
 bool CGSH_OpenGL::CanRegionRepeatClampModeSimplified(uint32 clampMin, uint32 clampMax)
@@ -1178,54 +1186,25 @@ void CGSH_OpenGL::SetupTexture(const SHADERINFO& shaderInfo, uint64 primReg, uin
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 	}
 
-	float texMatrix[16];
-	memset(texMatrix, 0, sizeof(texMatrix));
-	texMatrix[0 + (0 * 4)] = texInfo.scaleRatioX;
-	texMatrix[1 + (1 * 4)] = texInfo.scaleRatioY;
-	texMatrix[2 + (2 * 4)] = 1;
-	texMatrix[0 + (3 * 4)] = texInfo.offsetX;
-	texMatrix[3 + (3 * 4)] = 1;
+	memset(m_vertexParams.texMatrix, 0, sizeof(m_vertexParams.texMatrix));
+	m_vertexParams.texMatrix[0 + (0 * 4)] = texInfo.scaleRatioX;
+	m_vertexParams.texMatrix[1 + (1 * 4)] = texInfo.scaleRatioY;
+	m_vertexParams.texMatrix[2 + (2 * 4)] = 1;
+	m_vertexParams.texMatrix[0 + (3 * 4)] = texInfo.offsetX;
+	m_vertexParams.texMatrix[3 + (3 * 4)] = 1;
+	m_vertexParamsValid = false;
 
-	if(shaderInfo.texMatrixUniform != -1)
-	{
-		glUniformMatrix4fv(shaderInfo.texMatrixUniform, 1, GL_FALSE, texMatrix);
-	}
-
-	if(shaderInfo.textureSizeUniform != -1)
-	{
-		glUniform2f(shaderInfo.textureSizeUniform, 
-			static_cast<float>(tex0.GetWidth()), static_cast<float>(tex0.GetHeight()));
-	}
-
-	if(shaderInfo.texelSizeUniform != -1)
-	{
-		glUniform2f(shaderInfo.texelSizeUniform, 
-			1.0f / static_cast<float>(tex0.GetWidth()), 1.0f / static_cast<float>(tex0.GetHeight()));
-	}
-
-	if(shaderInfo.clampMinUniform != -1)
-	{
-		glUniform2f(shaderInfo.clampMinUniform,
-			static_cast<float>(clampMin[0]), static_cast<float>(clampMin[1]));
-	}
-
-	if(shaderInfo.clampMaxUniform != -1)
-	{
-		glUniform2f(shaderInfo.clampMaxUniform,
-			static_cast<float>(clampMax[0]), static_cast<float>(clampMax[1]));
-	}
-
-	if(shaderInfo.texA0Uniform != -1)
-	{
-		float a = static_cast<float>(texA.nTA0) / 255.f;
-		glUniform1f(shaderInfo.texA0Uniform, a);
-	}
-
-	if(shaderInfo.texA1Uniform != -1)
-	{
-		float a = static_cast<float>(texA.nTA1) / 255.f;
-		glUniform1f(shaderInfo.texA1Uniform, a);
-	}
+	m_fragmentParams.textureSize[0] = static_cast<float>(tex0.GetWidth());
+	m_fragmentParams.textureSize[1] = static_cast<float>(tex0.GetHeight());
+	m_fragmentParams.texelSize[0] = 1.0f / static_cast<float>(tex0.GetWidth());
+	m_fragmentParams.texelSize[1] = 1.0f / static_cast<float>(tex0.GetHeight());
+	m_fragmentParams.clampMin[0] = static_cast<float>(clampMin[0]);
+	m_fragmentParams.clampMin[1] = static_cast<float>(clampMin[1]);
+	m_fragmentParams.clampMax[0] = static_cast<float>(clampMax[0]);
+	m_fragmentParams.clampMax[1] = static_cast<float>(clampMax[1]);
+	m_fragmentParams.texA0 = static_cast<float>(texA.nTA0) / 255.f;
+	m_fragmentParams.texA1 = static_cast<float>(texA.nTA1) / 255.f;
+	m_fragmentParamsValid = false;
 }
 
 CGSH_OpenGL::FramebufferPtr CGSH_OpenGL::FindFramebuffer(const FRAME& frame) const
@@ -1517,6 +1496,25 @@ void CGSH_OpenGL::FlushVertexBuffer()
 	if(m_vertexBuffer.empty()) return;
 
 	assert(m_renderState.isValid == true);
+
+	if(!m_vertexParamsValid)
+	{
+		glBindBuffer(GL_UNIFORM_BUFFER, m_vertexParamsBuffer);
+		glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(VERTEXPARAMS), &m_vertexParams);
+		CHECKGLERROR();
+		m_vertexParamsValid = true;
+	}
+
+	if(!m_fragmentParamsValid)
+	{
+		glBindBuffer(GL_UNIFORM_BUFFER, m_fragmentParamsBuffer);
+		glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(FRAGMENTPARAMS), &m_fragmentParams);
+		CHECKGLERROR();
+		m_fragmentParamsValid = true;
+	}
+
+	glBindBufferBase(GL_UNIFORM_BUFFER, 0, m_vertexParamsBuffer);
+	glBindBufferBase(GL_UNIFORM_BUFFER, 1, m_fragmentParamsBuffer);
 
 	glBindBuffer(GL_ARRAY_BUFFER, m_primBuffer);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(PRIM_VERTEX) * m_vertexBuffer.size(), m_vertexBuffer.data(), GL_STREAM_DRAW);
