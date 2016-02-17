@@ -82,8 +82,11 @@ Framework::OpenGl::CShader CGSH_OpenGL::GenerateVertexShader(const SHADERCAPS& c
 	std::stringstream shaderBuilder;
 	shaderBuilder << GLSL_VERSION << std::endl;
 
-	shaderBuilder << "uniform mat4 g_projMatrix;" << std::endl;
-	shaderBuilder << "uniform mat4 g_texMatrix;" << std::endl;
+	shaderBuilder << "layout(std140) uniform VertexParams" << std::endl;
+	shaderBuilder << "{" << std::endl;
+	shaderBuilder << "	mat4 g_projMatrix;" << std::endl;
+	shaderBuilder << "	mat4 g_texMatrix;" << std::endl;
+	shaderBuilder << "};" << std::endl;
 
 	shaderBuilder << "in vec3 a_position;" << std::endl;
 	shaderBuilder << "in vec4 a_color;" << std::endl;
@@ -140,14 +143,18 @@ Framework::OpenGl::CShader CGSH_OpenGL::GenerateFragmentShader(const SHADERCAPS&
 
 	shaderBuilder << "uniform sampler2D g_texture;" << std::endl;
 	shaderBuilder << "uniform sampler2D g_palette;" << std::endl;
-	shaderBuilder << "uniform vec2 g_textureSize;" << std::endl;
-	shaderBuilder << "uniform vec2 g_texelSize;" << std::endl;
-	shaderBuilder << "uniform vec2 g_clampMin;" << std::endl;
-	shaderBuilder << "uniform vec2 g_clampMax;" << std::endl;
-	shaderBuilder << "uniform float g_texA0;" << std::endl;
-	shaderBuilder << "uniform float g_texA1;" << std::endl;
-	shaderBuilder << "uniform float g_alphaRef;" << std::endl;
-	shaderBuilder << "uniform vec3 g_fogColor;" << std::endl;
+
+	shaderBuilder << "layout(std140) uniform FragmentParams" << std::endl;
+	shaderBuilder << "{" << std::endl;
+	shaderBuilder << "	vec2 g_textureSize;" << std::endl;
+	shaderBuilder << "	vec2 g_texelSize;" << std::endl;
+	shaderBuilder << "	vec2 g_clampMin;" << std::endl;
+	shaderBuilder << "	vec2 g_clampMax;" << std::endl;
+	shaderBuilder << "	float g_texA0;" << std::endl;
+	shaderBuilder << "	float g_texA1;" << std::endl;
+	shaderBuilder << "	float g_alphaRef;" << std::endl;
+	shaderBuilder << "	vec3 g_fogColor;" << std::endl;
+	shaderBuilder << "};" << std::endl;
 
 	if(caps.texClampS == TEXTURE_CLAMP_MODE_REGION_REPEAT || caps.texClampT == TEXTURE_CLAMP_MODE_REGION_REPEAT)
 	{

@@ -58,6 +58,29 @@ private:
 		GLuint		shaderHandle;
 	};
 
+	//These need to match the layout of the shader's uniform block
+	struct VERTEXPARAMS
+	{
+		float		projMatrix[16];
+		float		texMatrix[16];
+	};
+	static_assert(sizeof(VERTEXPARAMS) == 0x80, "Size of VERTEXPARAMS must be 128 bytes.");
+
+	struct FRAGMENTPARAMS
+	{
+		float		textureSize[2];
+		float		texelSize[2];
+		float		clampMin[2];
+		float		clampMax[2];
+		float		texA0;
+		float		texA1;
+		float		alphaRef;
+		float		padding1;
+		float		fogColor[3];
+		float		padding2;
+	};
+	static_assert(sizeof(FRAGMENTPARAMS) == 0x40, "Size of FRAGMENTPARAMS must be 64 bytes.");
+
 	enum
 	{
 		MAX_TEXTURE_CACHE = 256,
@@ -119,18 +142,8 @@ private:
 	struct SHADERINFO
 	{
 		Framework::OpenGl::ProgramPtr	shader;
-		GLint							projMatrixUniform;
-		GLint							texMatrixUniform;
 		GLint							textureUniform;
 		GLint							paletteUniform;
-		GLint							textureSizeUniform;
-		GLint							texelSizeUniform;
-		GLint							clampMinUniform;
-		GLint							clampMaxUniform;
-		GLint							texA0Uniform;
-		GLint							texA1Uniform;
-		GLint							alphaRefUniform;
-		GLint							fogColorUniform;
 	};
 
 	typedef std::unordered_map<uint32, SHADERINFO> ShaderInfoMap;
@@ -260,6 +273,7 @@ private:
 	Framework::OpenGl::CBuffer		GeneratePresentVertexBuffer();
 	Framework::OpenGl::CVertexArray	GeneratePresentVertexArray();
 	Framework::OpenGl::CVertexArray	GeneratePrimVertexArray();
+	Framework::OpenGl::CBuffer		GenerateUniformBlockBuffer(size_t);
 
 	void							Prim_Point();
 	void							Prim_Line();
@@ -363,5 +377,11 @@ private:
 
 	ShaderInfoMap					m_shaderInfos;
 	RENDERSTATE						m_renderState;
+	bool							m_vertexParamsValid = false;
+	bool							m_fragmentParamsValid = false;
+	VERTEXPARAMS					m_vertexParams;
+	FRAGMENTPARAMS					m_fragmentParams;
+	Framework::OpenGl::CBuffer		m_vertexParamsBuffer;
+	Framework::OpenGl::CBuffer		m_fragmentParamsBuffer;
 	VertexBuffer					m_vertexBuffer;
 };
