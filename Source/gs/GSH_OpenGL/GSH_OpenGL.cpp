@@ -596,7 +596,7 @@ void CGSH_OpenGL::SetRenderingContext(uint64 primReg)
 		(m_renderState.testReg != testReg))
 	{
 		FlushVertexBuffer();
-		SetupTestFunctions(shaderInfo, testReg);
+		SetupTestFunctions(testReg);
 		CHECKGLERROR();
 	}
 
@@ -616,7 +616,7 @@ void CGSH_OpenGL::SetRenderingContext(uint64 primReg)
 		(m_renderState.testReg != testReg))
 	{
 		FlushVertexBuffer();
-		SetupFramebuffer(shaderInfo, frameReg, zbufReg, scissorReg, testReg);
+		SetupFramebuffer(frameReg, zbufReg, scissorReg, testReg);
 		CHECKGLERROR();
 	}
 
@@ -628,7 +628,7 @@ void CGSH_OpenGL::SetRenderingContext(uint64 primReg)
 		(m_renderState.primReg != primReg))
 	{
 		FlushVertexBuffer();
-		SetupTexture(shaderInfo, primReg, tex0Reg, tex1Reg, texAReg, clampReg);
+		SetupTexture(primReg, tex0Reg, tex1Reg, texAReg, clampReg);
 		CHECKGLERROR();
 	}
 
@@ -639,7 +639,7 @@ void CGSH_OpenGL::SetRenderingContext(uint64 primReg)
 		))
 	{
 		FlushVertexBuffer();
-		SetupFogColor(shaderInfo, fogColReg);
+		SetupFogColor(fogColReg);
 		CHECKGLERROR();
 	}
 
@@ -801,7 +801,7 @@ void CGSH_OpenGL::SetupBlendingFunction(uint64 alphaReg)
 	glBlendEquation(nFunction);
 }
 
-void CGSH_OpenGL::SetupTestFunctions(const SHADERINFO& shaderInfo, uint64 testReg)
+void CGSH_OpenGL::SetupTestFunctions(uint64 testReg)
 {
 	auto test = make_convertible<TEST>(testReg);
 
@@ -869,7 +869,7 @@ void CGSH_OpenGL::SetupDepthBuffer(uint64 zbufReg, uint64 testReg)
 	glDepthMask(depthWriteEnabled ? GL_TRUE : GL_FALSE);
 }
 
-void CGSH_OpenGL::SetupFramebuffer(const SHADERINFO& shaderInfo, uint64 frameReg, uint64 zbufReg, uint64 scissorReg, uint64 testReg)
+void CGSH_OpenGL::SetupFramebuffer(uint64 frameReg, uint64 zbufReg, uint64 scissorReg, uint64 testReg)
 {
 	if(frameReg == 0) return;
 
@@ -954,7 +954,7 @@ void CGSH_OpenGL::SetupFramebuffer(const SHADERINFO& shaderInfo, uint64 frameReg
 	glScissor(scissorX * m_fbScale, scissorY * m_fbScale, scissorWidth * m_fbScale, scissorHeight * m_fbScale);
 }
 
-void CGSH_OpenGL::SetupFogColor(const SHADERINFO& shaderInfo, uint64 fogColReg)
+void CGSH_OpenGL::SetupFogColor(uint64 fogColReg)
 {
 	auto fogCol = make_convertible<FOGCOL>(fogColReg);
 	m_fragmentParams.fogColor[0] = static_cast<float>(fogCol.nFCR) / 255.0f;
@@ -1067,7 +1067,7 @@ void CGSH_OpenGL::FillShaderCapsFromTest(SHADERCAPS& shaderCaps, const uint64& t
 	}
 }
 
-void CGSH_OpenGL::SetupTexture(const SHADERINFO& shaderInfo, uint64 primReg, uint64 tex0Reg, uint64 tex1Reg, uint64 texAReg, uint64 clampReg)
+void CGSH_OpenGL::SetupTexture(uint64 primReg, uint64 tex0Reg, uint64 tex1Reg, uint64 texAReg, uint64 clampReg)
 {
 	auto prim = make_convertible<PRMODE>(primReg);
 
