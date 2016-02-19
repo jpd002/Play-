@@ -71,7 +71,7 @@ void CGSH_OpenGL::ReleaseImpl()
 
 	m_textureCache.clear();
 	m_paletteCache.clear();
-	m_shaderInfos.clear();
+	m_shaders.clear();
 	m_presentProgram.reset();
 	m_presentVertexBuffer.Reset();
 	m_presentVertexArray.Reset();
@@ -499,15 +499,25 @@ void CGSH_OpenGL::SetRenderingContext(uint64 primReg)
 	//Create shader if it doesn't exist
 	//--------------------------------------------------------
 
-	auto shaderInfoIterator = m_shaderInfos.find(static_cast<uint32>(shaderCaps));
-	if(shaderInfoIterator == m_shaderInfos.end())
+	auto shaderIterator = m_shaders.find(static_cast<uint32>(shaderCaps));
+	if(shaderIterator == m_shaders.end())
 	{
 		auto shader = GenerateShader(shaderCaps);
-		SHADERINFO shaderInfo;
-		shaderInfo.shader = shader;
 
-		shaderInfo.textureUniform = glGetUniformLocation(*shader, "g_texture");
-		shaderInfo.paletteUniform = glGetUniformLocation(*shader, "g_palette");
+		glUseProgram(*shader);
+		m_validGlState &= ~GLSTATE_PROGRAM;
+
+		auto textureUniform = glGetUniformLocation(*shader, "g_texture");
+		if(textureUniform != -1)
+		{
+			glUniform1i(textureUniform, 0);
+		}
+
+		auto paletteUniform = glGetUniformLocation(*shader, "g_palette");
+		if(paletteUniform != -1)
+		{
+			glUniform1i(paletteUniform, 1);
+		}
 
 		auto vertexParamsUniformBlock = glGetUniformBlockIndex(*shader, "VertexParams");
 		if(vertexParamsUniformBlock != GL_INVALID_INDEX)
@@ -523,33 +533,19 @@ void CGSH_OpenGL::SetRenderingContext(uint64 primReg)
 
 		CHECKGLERROR();
 
-		m_shaderInfos.insert(ShaderInfoMap::value_type(static_cast<uint32>(shaderCaps), shaderInfo));
-		shaderInfoIterator = m_shaderInfos.find(static_cast<uint32>(shaderCaps));
+		m_shaders.insert(std::make_pair(static_cast<uint32>(shaderCaps), shader));
+		shaderIterator = m_shaders.find(static_cast<uint32>(shaderCaps));
 	}
-
-	const auto& shaderInfo = shaderInfoIterator->second;
 
 	//--------------------------------------------------------
 	//Bind shader
 	//--------------------------------------------------------
 
-	GLuint shaderHandle = *shaderInfo.shader;
+	GLuint shaderHandle = *shaderIterator->second;
 	if(!m_renderState.isValid ||
 		(m_renderState.shaderHandle != shaderHandle))
 	{
 		FlushVertexBuffer();
-
-		glUseProgram(shaderHandle);
-
-		if(shaderInfo.textureUniform != -1)
-		{
-			glUniform1i(shaderInfo.textureUniform, 0);
-		}
-
-		if(shaderInfo.paletteUniform != -1)
-		{
-			glUniform1i(shaderInfo.paletteUniform, 1);
-		}
 
 		//Invalidate because we might need to set uniforms again
 		m_renderState.isValid = false;
@@ -806,7 +802,7 @@ void CGSH_OpenGL::SetupTestFunctions(uint64 testReg)
 	auto test = make_convertible<TEST>(testReg);
 
 	m_fragmentParams.alphaRef = static_cast<float>(test.nAlphaRef) / 255.0f;
-	m_fragmentParamsValid = false;
+	m_validGlState &= GLSTATE_FRAGMENT_PARAMS;
 
 	if(test.nDepthEnabled)
 	{
@@ -944,7 +940,7 @@ void CGSH_OpenGL::SetupFramebuffer(uint64 frameReg, uint64 zbufReg, uint64 sciss
 	float projHeight = static_cast<float>(framebuffer->m_height);
 
 	MakeLinearZOrtho(m_vertexParams.projMatrix, 0, projWidth, 0, projHeight);
-	m_vertexParamsValid = false;
+	m_validGlState &= ~GLSTATE_VERTEX_PARAMS;
 
 	glEnable(GL_SCISSOR_TEST);
 	int scissorX = scissor.scax0;
@@ -960,7 +956,7 @@ void CGSH_OpenGL::SetupFogColor(uint64 fogColReg)
 	m_fragmentParams.fogColor[0] = static_cast<float>(fogCol.nFCR) / 255.0f;
 	m_fragmentParams.fogColor[1] = static_cast<float>(fogCol.nFCG) / 255.0f;
 	m_fragmentParams.fogColor[2] = static_cast<float>(fogCol.nFCB) / 255.0f;
-	m_fragmentParamsValid = false;
+	m_validGlState &= ~GLSTATE_FRAGMENT_PARAMS;
 }
 
 bool CGSH_OpenGL::CanRegionRepeatClampModeSimplified(uint32 clampMin, uint32 clampMax)
@@ -1192,7 +1188,7 @@ void CGSH_OpenGL::SetupTexture(uint64 primReg, uint64 tex0Reg, uint64 tex1Reg, u
 	m_vertexParams.texMatrix[2 + (2 * 4)] = 1;
 	m_vertexParams.texMatrix[0 + (3 * 4)] = texInfo.offsetX;
 	m_vertexParams.texMatrix[3 + (3 * 4)] = 1;
-	m_vertexParamsValid = false;
+	m_validGlState &= ~GLSTATE_VERTEX_PARAMS;
 
 	m_fragmentParams.textureSize[0] = static_cast<float>(tex0.GetWidth());
 	m_fragmentParams.textureSize[1] = static_cast<float>(tex0.GetHeight());
@@ -1204,7 +1200,7 @@ void CGSH_OpenGL::SetupTexture(uint64 primReg, uint64 tex0Reg, uint64 tex1Reg, u
 	m_fragmentParams.clampMax[1] = static_cast<float>(clampMax[1]);
 	m_fragmentParams.texA0 = static_cast<float>(texA.nTA0) / 255.f;
 	m_fragmentParams.texA1 = static_cast<float>(texA.nTA1) / 255.f;
-	m_fragmentParamsValid = false;
+	m_validGlState &= ~GLSTATE_FRAGMENT_PARAMS;
 }
 
 CGSH_OpenGL::FramebufferPtr CGSH_OpenGL::FindFramebuffer(const FRAME& frame) const
@@ -1497,20 +1493,26 @@ void CGSH_OpenGL::FlushVertexBuffer()
 
 	assert(m_renderState.isValid == true);
 
-	if(!m_vertexParamsValid)
+	if((m_validGlState & GLSTATE_VERTEX_PARAMS) == 0)
 	{
 		glBindBuffer(GL_UNIFORM_BUFFER, m_vertexParamsBuffer);
 		glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(VERTEXPARAMS), &m_vertexParams);
 		CHECKGLERROR();
-		m_vertexParamsValid = true;
+		m_validGlState |= GLSTATE_VERTEX_PARAMS;
 	}
 
-	if(!m_fragmentParamsValid)
+	if((m_validGlState & GLSTATE_FRAGMENT_PARAMS) == 0)
 	{
 		glBindBuffer(GL_UNIFORM_BUFFER, m_fragmentParamsBuffer);
 		glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(FRAGMENTPARAMS), &m_fragmentParams);
 		CHECKGLERROR();
-		m_fragmentParamsValid = true;
+		m_validGlState |= GLSTATE_FRAGMENT_PARAMS;
+	}
+
+	if((m_validGlState & GLSTATE_PROGRAM) == 0)
+	{
+		glUseProgram(m_renderState.shaderHandle);
+		m_validGlState |= GLSTATE_PROGRAM;
 	}
 
 	glBindBufferBase(GL_UNIFORM_BUFFER, 0, m_vertexParamsBuffer);
