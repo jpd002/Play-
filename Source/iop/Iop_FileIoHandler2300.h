@@ -50,6 +50,12 @@ namespace Iop
 			uint32			whence;
 		};
 
+		struct DOPENCOMMAND
+		{
+			COMMANDHEADER	header;
+			char			dirName[256];
+		};
+
 		struct GETSTATCOMMAND
 		{
 			COMMANDHEADER	header;
@@ -107,6 +113,15 @@ namespace Iop
 			uint32			unknown4;
 		};
 
+		struct DOPENREPLY
+		{
+			REPLYHEADER		header;
+			uint32			result;
+			uint32			unknown2;
+			uint32			unknown3;
+			uint32			unknown4;
+		};
+
 		struct GETSTATREPLY
 		{
 			REPLYHEADER		header;
@@ -128,6 +143,7 @@ namespace Iop
 		uint32			InvokeClose(uint32*, uint32, uint32*, uint32, uint8*);
 		uint32			InvokeRead(uint32*, uint32, uint32*, uint32, uint8*);
 		uint32			InvokeSeek(uint32*, uint32, uint32*, uint32, uint8*);
+		uint32			InvokeDopen(uint32*, uint32, uint32*, uint32, uint8*);
 		uint32			InvokeGetStat(uint32*, uint32, uint32*, uint32, uint8*);
 		uint32			InvokeActivate(uint32*, uint32, uint32*, uint32, uint8*);
 

@@ -10,6 +10,7 @@ using namespace Iop;
 #define COMMANDID_CLOSE       1
 #define COMMANDID_READ        2
 #define COMMANDID_SEEK        4
+#define COMMANDID_DOPEN       9
 #define COMMANDID_GETSTAT     12
 #define COMMANDID_ACTIVATE    23
 
@@ -35,6 +36,9 @@ void CFileIoHandler2300::Invoke(uint32 method, uint32* args, uint32 argsSize, ui
 		break;
 	case COMMANDID_SEEK:
 		*ret = InvokeSeek(args, argsSize, ret, retSize, ram);
+		break;
+	case COMMANDID_DOPEN:
+		*ret = InvokeDopen(args, argsSize, ret, retSize, ram);
 		break;
 	case COMMANDID_GETSTAT:
 		*ret = InvokeGetStat(args, argsSize, ret, retSize, ram);
@@ -147,6 +151,31 @@ uint32 CFileIoHandler2300::InvokeSeek(uint32* args, uint32 argsSize, uint32* ret
 		reply.header.commandId = COMMANDID_SEEK;
 		CopyHeader(reply.header, command->header);
 		reply.result   = result;
+		reply.unknown2 = 0;
+		reply.unknown3 = 0;
+		reply.unknown4 = 0;
+		memcpy(ram + m_resultPtr[0], &reply, sizeof(SEEKREPLY));
+	}
+
+	SendSifReply();
+	return 1;
+}
+
+uint32 CFileIoHandler2300::InvokeDopen(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, uint8* ram)
+{
+	assert(retSize == 4);
+	auto command = reinterpret_cast<DOPENCOMMAND*>(args);
+
+	//This is a stub and is not implemented yet
+	CLog::GetInstance().Print(LOG_NAME, "Dopen('%s');\r\n", command->dirName);
+
+	//Send response
+	if(m_resultPtr[0] != 0)
+	{
+		DOPENREPLY reply;
+		reply.header.commandId = COMMANDID_DOPEN;
+		CopyHeader(reply.header, command->header);
+		reply.result   = -1;
 		reply.unknown2 = 0;
 		reply.unknown3 = 0;
 		reply.unknown4 = 0;
