@@ -285,16 +285,16 @@ private:
 	void							DrawToDepth(unsigned int, uint64);
 
 	void							SetRenderingContext(uint64);
-	void							SetupTestFunctions(const SHADERINFO&, uint64);
+	void							SetupTestFunctions(uint64);
 	void							SetupDepthBuffer(uint64, uint64);
-	void							SetupFramebuffer(const SHADERINFO&, uint64, uint64, uint64, uint64);
+	void							SetupFramebuffer(uint64, uint64, uint64, uint64);
 	void							SetupBlendingFunction(uint64);
-	void							SetupFogColor(const SHADERINFO&, uint64);
+	void							SetupFogColor(uint64);
 
 	static bool						CanRegionRepeatClampModeSimplified(uint32, uint32);
 	void							FillShaderCapsFromTexture(SHADERCAPS&, const uint64&, const uint64&, const uint64&, const uint64&);
 	void							FillShaderCapsFromTest(SHADERCAPS&, const uint64&);
-	void							SetupTexture(const SHADERINFO&, uint64, uint64, uint64, uint64, uint64);
+	void							SetupTexture(uint64, uint64, uint64, uint64, uint64);
 	static bool						IsCompatibleFramebufferPSM(unsigned int, unsigned int);
 	static uint32					GetFramebufferBitDepth(uint32);
 
