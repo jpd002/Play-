@@ -139,14 +139,7 @@ private:
 	};
 	static_assert(sizeof(SHADERCAPS) == sizeof(uint32), "SHADERCAPS structure size must be 4 bytes.");
 
-	struct SHADERINFO
-	{
-		Framework::OpenGl::ProgramPtr	shader;
-		GLint							textureUniform;
-		GLint							paletteUniform;
-	};
-
-	typedef std::unordered_map<uint32, SHADERINFO> ShaderInfoMap;
+	typedef std::unordered_map<uint32, Framework::OpenGl::ProgramPtr> ShaderMap;
 
 	class CTexture
 	{
@@ -375,10 +368,16 @@ private:
 	TEXTUREUPLOADER					m_textureUploader[CGSHandler::PSM_MAX];
 	TEXTUREUPDATER					m_textureUpdater[CGSHandler::PSM_MAX];
 
-	ShaderInfoMap					m_shaderInfos;
+	enum GLSTATE_BITS : uint32
+	{
+		GLSTATE_VERTEX_PARAMS   = 0x0001,
+		GLSTATE_FRAGMENT_PARAMS = 0x0002,
+		GLSTATE_PROGRAM         = 0x0004
+	};
+
+	ShaderMap						m_shaders;
 	RENDERSTATE						m_renderState;
-	bool							m_vertexParamsValid = false;
-	bool							m_fragmentParamsValid = false;
+	uint32							m_validGlState = 0;
 	VERTEXPARAMS					m_vertexParams;
 	FRAGMENTPARAMS					m_fragmentParams;
 	Framework::OpenGl::CBuffer		m_vertexParamsBuffer;
