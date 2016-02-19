@@ -179,6 +179,11 @@ uint32 CGIF::ProcessRegList(CGSHandler::RegisterWriteList& writeList, uint8* mem
 
 	while(m_loops != 0)
 	{
+		if(address == end)
+		{
+			break;
+		}
+
 		for(uint32 j = 0; j < m_regs; j++)
 		{
 			assert(address < end);
