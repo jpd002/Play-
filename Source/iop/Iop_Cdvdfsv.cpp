@@ -152,15 +152,9 @@ bool CCdvdfsv::Invoke593(uint32 method, uint32* args, uint32 argsSize, uint32* r
 
 	case 0x0C:
 		//Status
-		//Returns
-		//0 - Stopped
-		//1 - Open
-		//2 - Spin
-		//3 - Read
-		//and more...
 		assert(retSize >= 4);
 		CLog::GetInstance().Print(LOG_NAME, "Status();\r\n");
-		ret[0x00] = 0;
+		ret[0x00] = m_streaming ? CCdvdman::CDVD_STATUS_SEEK : CCdvdman::CDVD_STATUS_STOPPED;
 		break;
 
 	case 0x16:
@@ -362,6 +356,7 @@ void CCdvdfsv::StreamCmd(uint32* args, uint32 argsSize, uint32* ret, uint32 retS
 		m_streamPos = sector;
 		ret[0] = 1;
 		CLog::GetInstance().Print(LOG_NAME, "StreamStart(pos = 0x%0.8X);\r\n", sector);
+		m_streaming = true;
 		break;
 	case 2:
 		//Read
@@ -384,6 +379,7 @@ void CCdvdfsv::StreamCmd(uint32* args, uint32 argsSize, uint32* ret, uint32 retS
 		//Stop
 		ret[0] = 1;
 		CLog::GetInstance().Print(LOG_NAME, "StreamStop();\r\n");
+		m_streaming = false;
 		break;
 	case 5:
 		//Init

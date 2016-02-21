@@ -12,6 +12,15 @@ namespace Iop
 	class CCdvdman : public CModule
 	{
 	public:
+		enum CDVD_STATUS
+		{
+			CDVD_STATUS_STOPPED  = 0,
+			CDVD_STATUS_SPINNING = 2,
+			CDVD_STATUS_READING  = 6,
+			CDVD_STATUS_PAUSED   = 10,
+			CDVD_STATUS_SEEK     = 18,
+		};
+
 								CCdvdman(CIopBios&, uint8*);
 		virtual					~CCdvdman();
 
@@ -27,14 +36,6 @@ namespace Iop
 		uint32					CdReadClockDirect(uint8*);
 
 	private:
-		enum CDVD_STATUS
-		{
-			CDVD_STATUS_STOPPED = 0,
-			CDVD_STATUS_SPINNING = 2,
-			CDVD_STATUS_READING = 6,
-			CDVD_STATUS_PAUSED = 10,
-		};
-
 		uint32					CdInit(uint32);
 		uint32					CdRead(uint32, uint32, uint32, uint32);
 		uint32					CdSeek(uint32);
