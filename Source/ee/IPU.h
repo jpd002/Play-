@@ -210,7 +210,7 @@ private:
 	public:
 						CIDECCommand();
 
-		void			Initialize(CBDECCommand*, CCSCCommand*, CINFIFO*, COUTFIFO*, uint32, const DECODER_CONTEXT&);
+		void			Initialize(CBDECCommand*, CCSCCommand*, CINFIFO*, COUTFIFO*, uint32, const DECODER_CONTEXT&, uint16, uint16);
 		bool			Execute() override;
 		void			CountTicks(uint32) override;
 		bool			IsDelayed() const override;
@@ -246,6 +246,8 @@ private:
 		Framework::CMemStream	m_blockStream;
 
 		DECODER_CONTEXT			m_context;
+		uint16					m_TH0 = 0;
+		uint16					m_TH1 = 0;
 		uint32					m_mbType = 0;
 		uint32					m_qsc = 0;
 		uint32					m_mbCount = 0;
@@ -438,7 +440,7 @@ private:
 	public:
 						CCSCCommand();
 
-		void			Initialize(CINFIFO*, COUTFIFO*, uint32);
+		void			Initialize(CINFIFO*, COUTFIFO*, uint32, uint16, uint16);
 		bool			Execute() override;
 
 	private:
@@ -464,6 +466,8 @@ private:
 		CINFIFO*		m_IN_FIFO = nullptr;
 		COUTFIFO*		m_OUT_FIFO = nullptr;
 
+		uint16			m_TH0 = 0;
+		uint16			m_TH1 = 0;
 		unsigned int	m_currentIndex = 0;
 		unsigned int	m_mbCount = 0;
 
