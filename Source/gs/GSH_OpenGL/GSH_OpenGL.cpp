@@ -63,6 +63,7 @@ void CGSH_OpenGL::InitializeImpl()
 
 	m_nMaxZ = 32768.0;
 	m_renderState.isValid = false;
+	m_validGlState = 0;
 }
 
 void CGSH_OpenGL::ReleaseImpl()
@@ -92,6 +93,7 @@ void CGSH_OpenGL::ResetImpl()
 	m_depthbuffers.clear();
 	m_vertexBuffer.clear();
 	m_renderState.isValid = false;
+	m_validGlState = 0;
 	m_drawingToDepth = false;
 }
 
