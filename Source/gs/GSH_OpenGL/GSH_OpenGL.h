@@ -56,6 +56,11 @@ private:
 		uint64		clampReg;
 		uint64		fogColReg;
 		GLuint		shaderHandle;
+		GLint		scissorX;
+		GLint		scissorY;
+		GLsizei		scissorWidth;
+		GLsizei		scissorHeight;
+		bool		blendEnabled;
 	};
 
 	//These need to match the layout of the shader's uniform block
@@ -372,7 +377,9 @@ private:
 	{
 		GLSTATE_VERTEX_PARAMS   = 0x0001,
 		GLSTATE_FRAGMENT_PARAMS = 0x0002,
-		GLSTATE_PROGRAM         = 0x0004
+		GLSTATE_PROGRAM         = 0x0004,
+		GLSTATE_SCISSOR         = 0x0008,
+		GLSTATE_BLEND           = 0x0010,
 	};
 
 	ShaderMap						m_shaders;

@@ -101,6 +101,7 @@ void CGSH_OpenGL::FlipImpl()
 {
 	FlushVertexBuffer();
 	m_renderState.isValid = false;
+	m_validGlState &= ~(GLSTATE_PROGRAM | GLSTATE_SCISSOR | GLSTATE_BLEND);
 
 	DISPLAY d;
 	DISPFB fb;
@@ -572,14 +573,8 @@ void CGSH_OpenGL::SetRenderingContext(uint64 primReg)
 //			glDisable(GL_BLEND);
 //		}
 
-		if(prim.nAlpha)
-		{
-			glEnable(GL_BLEND);
-		}
-		else
-		{
-			glDisable(GL_BLEND);
-		}
+		m_renderState.blendEnabled = prim.nAlpha ? GL_TRUE : GL_FALSE;
+		m_validGlState &= ~GLSTATE_BLEND;
 	}
 
 	if(!m_renderState.isValid ||
@@ -944,12 +939,11 @@ void CGSH_OpenGL::SetupFramebuffer(uint64 frameReg, uint64 zbufReg, uint64 sciss
 	MakeLinearZOrtho(m_vertexParams.projMatrix, 0, projWidth, 0, projHeight);
 	m_validGlState &= ~GLSTATE_VERTEX_PARAMS;
 
-	glEnable(GL_SCISSOR_TEST);
-	int scissorX = scissor.scax0;
-	int scissorY = scissor.scay0;
-	int scissorWidth = scissor.scax1 - scissor.scax0 + 1;
-	int scissorHeight = scissor.scay1 - scissor.scay0 + 1;
-	glScissor(scissorX * m_fbScale, scissorY * m_fbScale, scissorWidth * m_fbScale, scissorHeight * m_fbScale);
+	m_renderState.scissorX = scissor.scax0;
+	m_renderState.scissorY = scissor.scay0;
+	m_renderState.scissorWidth = scissor.scax1 - scissor.scax0 + 1;
+	m_renderState.scissorHeight = scissor.scay1 - scissor.scay0 + 1;
+	m_validGlState &= ~GLSTATE_SCISSOR;
 }
 
 void CGSH_OpenGL::SetupFogColor(uint64 fogColReg)
@@ -1517,6 +1511,20 @@ void CGSH_OpenGL::FlushVertexBuffer()
 		m_validGlState |= GLSTATE_PROGRAM;
 	}
 
+	if((m_validGlState & GLSTATE_SCISSOR) == 0)
+	{
+		glEnable(GL_SCISSOR_TEST);
+		glScissor(m_renderState.scissorX * m_fbScale, m_renderState.scissorY * m_fbScale,
+			m_renderState.scissorWidth * m_fbScale, m_renderState.scissorHeight * m_fbScale);
+		m_validGlState |= GLSTATE_SCISSOR;
+	}
+
+	if((m_validGlState & GLSTATE_BLEND) == 0)
+	{
+		m_renderState.blendEnabled ? glEnable(GL_BLEND) : glDisable(GL_BLEND);
+		m_validGlState |= GLSTATE_BLEND;
+	}
+
 	glBindBufferBase(GL_UNIFORM_BUFFER, 0, m_vertexParamsBuffer);
 	glBindBufferBase(GL_UNIFORM_BUFFER, 1, m_fragmentParamsBuffer);
 
@@ -1949,16 +1957,6 @@ void CGSH_OpenGL::CommitFramebufferDirtyPages(const FramebufferPtr& framebuffer,
 			{
 				//Restore previous framebuffer
 				glBindFramebuffer(GL_FRAMEBUFFER, m_previousFb);
-				
-				//Restore scissor state
-				if(m_scissorTestEnabled)
-				{
-					glEnable(GL_SCISSOR_TEST);
-				}
-				else
-				{
-					glDisable(GL_SCISSOR_TEST);
-				}
 			}
 		}
 
@@ -1969,9 +1967,6 @@ void CGSH_OpenGL::CommitFramebufferDirtyPages(const FramebufferPtr& framebuffer,
 			//This function might be called in the "SetupTexture" phase after
 			//"SetupFramebuffer" has been called, so, we need to save the previous FB binding
 			glGetIntegerv(GL_FRAMEBUFFER_BINDING, &m_previousFb);
-
-			//Scissor state is also saved because we need to disable it since it affects glBlitFramebuffer
-			m_scissorTestEnabled = glIsEnabled(GL_SCISSOR_TEST);
 
 			glDisable(GL_SCISSOR_TEST);
 
@@ -1995,7 +1990,6 @@ void CGSH_OpenGL::CommitFramebufferDirtyPages(const FramebufferPtr& framebuffer,
 	private:
 		bool m_copyToFbEnabled = false;
 		GLint m_previousFb = 0;
-		GLboolean m_scissorTestEnabled = GL_FALSE;
 	};
 
 	auto& cachedArea = framebuffer->m_cachedArea;
@@ -2032,6 +2026,7 @@ void CGSH_OpenGL::CommitFramebufferDirtyPages(const FramebufferPtr& framebuffer,
 				texHeight = framebuffer->m_height - texY;
 			}
 			
+			m_validGlState &= ~GLSTATE_SCISSOR;
 			copyToFbEnabler.EnableCopyToFb(framebuffer, m_copyToFbFramebuffer, m_copyToFbTexture);
 
 			((this)->*(m_textureUpdater[framebuffer->m_psm]))(framebuffer->m_basePtr, framebuffer->m_width / 64,
