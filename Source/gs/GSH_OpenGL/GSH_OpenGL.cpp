@@ -929,6 +929,9 @@ void CGSH_OpenGL::SetupFramebuffer(uint64 frameReg, uint64 zbufReg, uint64 sciss
 	GLenum result = glCheckFramebufferStatus(GL_FRAMEBUFFER);
 	assert(result == GL_FRAMEBUFFER_COMPLETE);
 
+	m_renderState.framebufferHandle = framebuffer->m_framebuffer;
+	m_validGlState &= ~GLSTATE_FRAMEBUFFER;
+
 	{
 		GLenum drawBufferId = GL_COLOR_ATTACHMENT0;
 		glDrawBuffers(1, &drawBufferId);
@@ -1547,6 +1550,12 @@ void CGSH_OpenGL::FlushVertexBuffer()
 		m_validGlState |= GLSTATE_TEXTURE;
 	}
 
+	if((m_validGlState & GLSTATE_FRAMEBUFFER) == 0)
+	{
+		glBindFramebuffer(GL_FRAMEBUFFER, m_renderState.framebufferHandle);
+		m_validGlState |= GLSTATE_FRAMEBUFFER;
+	}
+
 	glBindBufferBase(GL_UNIFORM_BUFFER, 0, m_vertexParamsBuffer);
 	glBindBufferBase(GL_UNIFORM_BUFFER, 1, m_fragmentParamsBuffer);
 
@@ -1975,20 +1984,12 @@ void CGSH_OpenGL::CommitFramebufferDirtyPages(const FramebufferPtr& framebuffer,
 	public:
 		~CCopyToFbEnabler()
 		{
-			if(m_copyToFbEnabled)
-			{
-				//Restore previous framebuffer
-				glBindFramebuffer(GL_FRAMEBUFFER, m_previousFb);
-			}
+
 		}
 
 		void EnableCopyToFb(const FramebufferPtr& framebuffer, GLuint copyToFbFramebuffer, GLuint copyToFbTexture)
 		{
 			if(m_copyToFbEnabled) return;
-
-			//This function might be called in the "SetupTexture" phase after
-			//"SetupFramebuffer" has been called, so, we need to save the previous FB binding
-			glGetIntegerv(GL_FRAMEBUFFER_BINDING, &m_previousFb);
 
 			glDisable(GL_SCISSOR_TEST);
 
@@ -2011,7 +2012,6 @@ void CGSH_OpenGL::CommitFramebufferDirtyPages(const FramebufferPtr& framebuffer,
 
 	private:
 		bool m_copyToFbEnabled = false;
-		GLint m_previousFb = 0;
 	};
 
 	auto& cachedArea = framebuffer->m_cachedArea;
@@ -2048,7 +2048,7 @@ void CGSH_OpenGL::CommitFramebufferDirtyPages(const FramebufferPtr& framebuffer,
 				texHeight = framebuffer->m_height - texY;
 			}
 			
-			m_validGlState &= ~GLSTATE_SCISSOR;
+			m_validGlState &= ~(GLSTATE_SCISSOR | GLSTATE_FRAMEBUFFER);
 			copyToFbEnabler.EnableCopyToFb(framebuffer, m_copyToFbFramebuffer, m_copyToFbTexture);
 
 			((this)->*(m_textureUpdater[framebuffer->m_psm]))(framebuffer->m_basePtr, framebuffer->m_width / 64,
