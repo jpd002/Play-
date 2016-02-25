@@ -56,6 +56,13 @@ private:
 		uint64		clampReg;
 		uint64		fogColReg;
 		GLuint		shaderHandle;
+		GLuint		framebufferHandle;
+		GLuint		texture0Handle;
+		GLint		texture0MinFilter;
+		GLint		texture0MagFilter;
+		GLint		texture0WrapS;
+		GLint		texture0WrapT;
+		GLuint		texture1Handle;
 		GLint		scissorX;
 		GLint		scissorY;
 		GLsizei		scissorWidth;
@@ -222,6 +229,7 @@ private:
 
 	struct TEXTURE_INFO
 	{
+		GLuint	textureHandle = 0;
 		float	offsetX = 0;
 		float	scaleRatioX = 1;
 		float	scaleRatioY = 1;
@@ -258,7 +266,7 @@ private:
 	void							MakeLinearZOrtho(float*, float, float, float, float);
 	unsigned int					GetCurrentReadCircuit();
 	TEXTURE_INFO					PrepareTexture(const TEX0&);
-	void							PreparePalette(const TEX0&);
+	GLuint							PreparePalette(const TEX0&);
 
 	uint32							RGBA16ToRGBA32(uint16);
 	float							GetZ(float);
@@ -385,6 +393,7 @@ private:
 		GLSTATE_SCISSOR         = 0x0008,
 		GLSTATE_BLEND           = 0x0010,
 		GLSTATE_COLORMASK       = 0x0020,
+		GLSTATE_TEXTURE         = 0x0040,
 	};
 
 	ShaderMap						m_shaders;

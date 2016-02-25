@@ -116,15 +116,13 @@ CGSH_OpenGL::TEXTURE_INFO CGSH_OpenGL::PrepareTexture(const TEX0& tex0)
 		{
 			CommitFramebufferDirtyPages(candidateFramebuffer, 0, tex0.GetHeight());
 
-			//We have a winner
-			glBindTexture(GL_TEXTURE_2D, candidateFramebuffer->m_texture);
-
 			float scaleRatioX = static_cast<float>(tex0.GetWidth()) / static_cast<float>(candidateFramebuffer->m_width);
 			float scaleRatioY = static_cast<float>(tex0.GetHeight()) / static_cast<float>(candidateFramebuffer->m_height);
 
-			texInfo.offsetX = offsetX;
-			texInfo.scaleRatioX = scaleRatioX;
-			texInfo.scaleRatioY = scaleRatioY;
+			texInfo.textureHandle = candidateFramebuffer->m_texture;
+			texInfo.offsetX       = offsetX;
+			texInfo.scaleRatioX   = scaleRatioX;
+			texInfo.scaleRatioY   = scaleRatioY;
 
 			return texInfo;
 		}
@@ -133,6 +131,8 @@ CGSH_OpenGL::TEXTURE_INFO CGSH_OpenGL::PrepareTexture(const TEX0& tex0)
 	auto texture = TexCache_Search(tex0);
 	if(texture)
 	{
+		texInfo.textureHandle = texture->m_texture;
+
 		glBindTexture(GL_TEXTURE_2D, texture->m_texture);
 		auto& cachedArea = texture->m_cachedArea;
 
@@ -179,23 +179,24 @@ CGSH_OpenGL::TEXTURE_INFO CGSH_OpenGL::PrepareTexture(const TEX0& tex0)
 		texWidth = std::min<uint32>(texWidth, 1024);
 		texHeight = std::min<uint32>(texHeight, 1024);
 
-		GLuint nTexture = 0;
-		glGenTextures(1, &nTexture);
-		glBindTexture(GL_TEXTURE_2D, nTexture);
+		GLuint textureHandle = 0;
+		glGenTextures(1, &textureHandle);
+		glBindTexture(GL_TEXTURE_2D, textureHandle);
 		((this)->*(m_textureUploader[tex0.nPsm]))(tex0.GetBufPtr(), tex0.nBufWidth, texWidth, texHeight);
-		TexCache_Insert(tex0, nTexture);
+		TexCache_Insert(tex0, textureHandle);
+
+		texInfo.textureHandle = textureHandle;
 	}
 
 	return texInfo;
 }
 
-void CGSH_OpenGL::PreparePalette(const TEX0& tex0)
+GLuint CGSH_OpenGL::PreparePalette(const TEX0& tex0)
 {
 	GLuint textureHandle = PalCache_Search(tex0);
 	if(textureHandle != 0)
 	{
-		glBindTexture(GL_TEXTURE_2D, textureHandle);
-		return;
+		return textureHandle;
 	}
 
 	uint32 convertedClut[256];
@@ -261,8 +262,7 @@ void CGSH_OpenGL::PreparePalette(const TEX0& tex0)
 	textureHandle = PalCache_Search(entryCount, convertedClut);
 	if(textureHandle != 0)
 	{
-		glBindTexture(GL_TEXTURE_2D, textureHandle);
-		return;
+		return textureHandle;
 	}
 
 	glGenTextures(1, &textureHandle);
@@ -270,6 +270,8 @@ void CGSH_OpenGL::PreparePalette(const TEX0& tex0)
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, entryCount, 1, 0, GL_RGBA, GL_UNSIGNED_BYTE, convertedClut);
 
 	PalCache_Insert(tex0, convertedClut, textureHandle);
+
+	return textureHandle;
 }
 
 void CGSH_OpenGL::DumpTexture(unsigned int nWidth, unsigned int nHeight, uint32 checksum)

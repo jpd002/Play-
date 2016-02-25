@@ -1065,14 +1065,18 @@ void CGSH_OpenGL::FillShaderCapsFromTest(SHADERCAPS& shaderCaps, const uint64& t
 
 void CGSH_OpenGL::SetupTexture(uint64 primReg, uint64 tex0Reg, uint64 tex1Reg, uint64 texAReg, uint64 clampReg)
 {
+	m_renderState.texture0Handle = 0;
+	m_renderState.texture1Handle = 0;
+	m_renderState.texture0MinFilter = GL_NEAREST;
+	m_renderState.texture0MagFilter = GL_NEAREST;
+	m_renderState.texture0WrapS = GL_CLAMP_TO_EDGE;
+	m_renderState.texture0WrapT = GL_CLAMP_TO_EDGE;
+	m_validGlState &= ~GLSTATE_TEXTURE;
+
 	auto prim = make_convertible<PRMODE>(primReg);
 
 	if(tex0Reg == 0 || prim.nTexture == 0)
 	{
-		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, 0);
-		glActiveTexture(GL_TEXTURE1);
-		glBindTexture(GL_TEXTURE_2D, 0);
 		return;
 	}
 
@@ -1084,32 +1088,30 @@ void CGSH_OpenGL::SetupTexture(uint64 primReg, uint64 tex0Reg, uint64 tex1Reg, u
 	m_nTexWidth = tex0.GetWidth();
 	m_nTexHeight = tex0.GetHeight();
 
-	glActiveTexture(GL_TEXTURE0);
 	auto texInfo = PrepareTexture(tex0);
-
-	GLenum nMagFilter = GL_NEAREST;
-	GLenum nMinFilter = GL_NEAREST;
+	m_renderState.texture0Handle = texInfo.textureHandle;
 
 	//Setup sampling modes
-	if(tex1.nMagFilter == MAG_FILTER_NEAREST)
+	switch(tex1.nMagFilter)
 	{
-		nMagFilter = GL_NEAREST;
-	}
-	else
-	{
-		nMagFilter = GL_LINEAR;
+	case MAG_FILTER_NEAREST:
+		m_renderState.texture0MagFilter = GL_NEAREST;
+		break;
+	case MAG_FILTER_LINEAR:
+		m_renderState.texture0MagFilter = GL_LINEAR;
+		break;
 	}
 
 	switch(tex1.nMinFilter)
 	{
 	case MIN_FILTER_NEAREST:
-		nMinFilter = GL_NEAREST;
+		m_renderState.texture0MinFilter = GL_NEAREST;
 		break;
 	case MIN_FILTER_LINEAR:
-		nMinFilter = GL_LINEAR;
+		m_renderState.texture0MinFilter = GL_LINEAR;
 		break;
 	case MIN_FILTER_LINEAR_MIP_LINEAR:
-		nMinFilter = GL_LINEAR_MIPMAP_LINEAR;
+		m_renderState.texture0MinFilter = GL_LINEAR_MIPMAP_LINEAR;
 		break;
 	default:
 		assert(0);
@@ -1118,15 +1120,15 @@ void CGSH_OpenGL::SetupTexture(uint64 primReg, uint64 tex0Reg, uint64 tex1Reg, u
 
 	if(m_forceBilinearTextures)
 	{
-		nMagFilter = GL_LINEAR;
-		nMinFilter = GL_LINEAR;
+		m_renderState.texture0MagFilter = GL_LINEAR;
+		m_renderState.texture0MinFilter = GL_LINEAR;
 	}
 
 	unsigned int clampMin[2] = { 0, 0 };
 	unsigned int clampMax[2] = { 0, 0 };
 	float textureScaleRatio[2] = { texInfo.scaleRatioX, texInfo.scaleRatioY };
-	GLenum nWrapS = g_nativeClampModes[clamp.nWMS];
-	GLenum nWrapT = g_nativeClampModes[clamp.nWMT];
+	m_renderState.texture0WrapS = g_nativeClampModes[clamp.nWMS];
+	m_renderState.texture0WrapT = g_nativeClampModes[clamp.nWMT];
 
 	if((clamp.nWMS > CLAMP_MODE_CLAMP) || (clamp.nWMT > CLAMP_MODE_CLAMP))
 	{
@@ -1158,28 +1160,17 @@ void CGSH_OpenGL::SetupTexture(uint64 primReg, uint64 tex0Reg, uint64 tex1Reg, u
 		}
 	}
 
-	if(CGsPixelFormats::IsPsmIDTEX(tex0.nPsm) && (nMinFilter != GL_NEAREST || nMagFilter != GL_NEAREST))
+	if(CGsPixelFormats::IsPsmIDTEX(tex0.nPsm) && 
+		(m_renderState.texture0MinFilter != GL_NEAREST || m_renderState.texture0MagFilter != GL_NEAREST))
 	{
 		//We'll need to filter the texture manually
-		nMinFilter = GL_NEAREST;
-		nMagFilter = GL_NEAREST;
+		m_renderState.texture0MinFilter = GL_NEAREST;
+		m_renderState.texture0MagFilter = GL_NEAREST;
 	}
-
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, nMagFilter);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, nMinFilter);
-
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, nWrapS);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, nWrapT);
 
 	if(CGsPixelFormats::IsPsmIDTEX(tex0.nPsm))
 	{
-		glActiveTexture(GL_TEXTURE1);
-		PreparePalette(tex0);
-
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+		m_renderState.texture1Handle = PreparePalette(tex0);
 	}
 
 	memset(m_vertexParams.texMatrix, 0, sizeof(m_vertexParams.texMatrix));
@@ -1535,6 +1526,25 @@ void CGSH_OpenGL::FlushVertexBuffer()
 			m_renderState.colorMaskR, m_renderState.colorMaskG,
 			m_renderState.colorMaskB, m_renderState.colorMaskA);
 		m_validGlState |= GLSTATE_COLORMASK;
+	}
+
+	if((m_validGlState & GLSTATE_TEXTURE) == 0)
+	{
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, m_renderState.texture0Handle);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, m_renderState.texture0MinFilter);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, m_renderState.texture0MagFilter);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, m_renderState.texture0WrapS);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, m_renderState.texture0WrapT);
+
+		glActiveTexture(GL_TEXTURE1);
+		glBindTexture(GL_TEXTURE_2D, m_renderState.texture1Handle);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+		m_validGlState |= GLSTATE_TEXTURE;
 	}
 
 	glBindBufferBase(GL_UNIFORM_BUFFER, 0, m_vertexParamsBuffer);
