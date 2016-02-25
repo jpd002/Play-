@@ -394,6 +394,7 @@ private:
 		GLSTATE_BLEND           = 0x0010,
 		GLSTATE_COLORMASK       = 0x0020,
 		GLSTATE_TEXTURE         = 0x0040,
+		GLSTATE_FRAMEBUFFER     = 0x0080,
 	};
 
 	ShaderMap						m_shaders;
