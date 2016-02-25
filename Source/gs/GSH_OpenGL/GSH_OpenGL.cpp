@@ -888,7 +888,11 @@ void CGSH_OpenGL::SetupFramebuffer(uint64 frameReg, uint64 zbufReg, uint64 sciss
 		}
 	}
 
-	glColorMask(r, g, b, a);
+	m_renderState.colorMaskR = r;
+	m_renderState.colorMaskG = g;
+	m_renderState.colorMaskB = b;
+	m_renderState.colorMaskA = a;
+	m_validGlState &= ~GLSTATE_COLORMASK;
 
 	//Check if we're drawing into a buffer that's been used for depth before
 	{
@@ -1523,6 +1527,14 @@ void CGSH_OpenGL::FlushVertexBuffer()
 	{
 		m_renderState.blendEnabled ? glEnable(GL_BLEND) : glDisable(GL_BLEND);
 		m_validGlState |= GLSTATE_BLEND;
+	}
+
+	if((m_validGlState & GLSTATE_COLORMASK) == 0)
+	{
+		glColorMask(
+			m_renderState.colorMaskR, m_renderState.colorMaskG,
+			m_renderState.colorMaskB, m_renderState.colorMaskA);
+		m_validGlState |= GLSTATE_COLORMASK;
 	}
 
 	glBindBufferBase(GL_UNIFORM_BUFFER, 0, m_vertexParamsBuffer);

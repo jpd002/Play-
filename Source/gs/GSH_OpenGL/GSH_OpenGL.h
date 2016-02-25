@@ -61,6 +61,10 @@ private:
 		GLsizei		scissorWidth;
 		GLsizei		scissorHeight;
 		bool		blendEnabled;
+		bool		colorMaskR;
+		bool		colorMaskG;
+		bool		colorMaskB;
+		bool		colorMaskA;
 	};
 
 	//These need to match the layout of the shader's uniform block
@@ -380,6 +384,7 @@ private:
 		GLSTATE_PROGRAM         = 0x0004,
 		GLSTATE_SCISSOR         = 0x0008,
 		GLSTATE_BLEND           = 0x0010,
+		GLSTATE_COLORMASK       = 0x0020,
 	};
 
 	ShaderMap						m_shaders;
