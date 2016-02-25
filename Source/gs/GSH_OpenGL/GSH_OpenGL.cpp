@@ -101,7 +101,7 @@ void CGSH_OpenGL::FlipImpl()
 {
 	FlushVertexBuffer();
 	m_renderState.isValid = false;
-	m_validGlState &= ~(GLSTATE_PROGRAM | GLSTATE_SCISSOR | GLSTATE_BLEND);
+	m_validGlState = 0;
 
 	DISPLAY d;
 	DISPFB fb;
