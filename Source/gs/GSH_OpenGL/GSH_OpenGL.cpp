@@ -7,6 +7,8 @@
 #include "../GsPixelFormats.h"
 #include "GSH_OpenGL.h"
 
+#define NUM_SAMPLES 8
+
 GLenum CGSH_OpenGL::g_nativeClampModes[CGSHandler::CLAMP_MODE_MAX] =
 {
 	GL_REPEAT,
@@ -144,7 +146,7 @@ void CGSH_OpenGL::FlipImpl()
 
 	if(!framebuffer && (fb.GetBufWidth() != 0))
 	{
-		framebuffer = FramebufferPtr(new CFramebuffer(fb.GetBufPtr(), fb.GetBufWidth(), 1024, fb.nPSM, m_fbScale));
+		framebuffer = FramebufferPtr(new CFramebuffer(fb.GetBufPtr(), fb.GetBufWidth(), 1024, fb.nPSM, m_fbScale, m_multisampleEnabled));
 		m_framebuffers.push_back(framebuffer);
 		PopulateFramebuffer(framebuffer);
 	}
@@ -152,6 +154,10 @@ void CGSH_OpenGL::FlipImpl()
 	if(framebuffer)
 	{
 		CommitFramebufferDirtyPages(framebuffer, 0, dispHeight);
+		if(m_multisampleEnabled)
+		{
+			ResolveFramebufferMultisample(framebuffer, m_fbScale);
+		}
 	}
 
 	//Clear all of our output framebuffer
@@ -905,7 +911,7 @@ void CGSH_OpenGL::SetupFramebuffer(uint64 frameReg, uint64 zbufReg, uint64 sciss
 	auto framebuffer = FindFramebuffer(frame);
 	if(!framebuffer)
 	{
-		framebuffer = FramebufferPtr(new CFramebuffer(frame.GetBasePtr(), frame.GetWidth(), 1024, frame.nPsm, m_fbScale));
+		framebuffer = FramebufferPtr(new CFramebuffer(frame.GetBasePtr(), frame.GetWidth(), 1024, frame.nPsm, m_fbScale, m_multisampleEnabled));
 		m_framebuffers.push_back(framebuffer);
 		PopulateFramebuffer(framebuffer);
 	}
@@ -915,7 +921,7 @@ void CGSH_OpenGL::SetupFramebuffer(uint64 frameReg, uint64 zbufReg, uint64 sciss
 	auto depthbuffer = FindDepthbuffer(zbuf, frame);
 	if(!depthbuffer)
 	{
-		depthbuffer = DepthbufferPtr(new CDepthbuffer(zbuf.GetBasePtr(), frame.GetWidth(), 1024, zbuf.nPsm, m_fbScale));
+		depthbuffer = DepthbufferPtr(new CDepthbuffer(zbuf.GetBasePtr(), frame.GetWidth(), 1024, zbuf.nPsm, m_fbScale, m_multisampleEnabled));
 		m_depthbuffers.push_back(depthbuffer);
 	}
 
@@ -931,6 +937,10 @@ void CGSH_OpenGL::SetupFramebuffer(uint64 frameReg, uint64 zbufReg, uint64 sciss
 
 	m_renderState.framebufferHandle = framebuffer->m_framebuffer;
 	m_validGlState &= ~GLSTATE_FRAMEBUFFER;
+
+	//We assume that we will be drawing to this framebuffer and that we'll need
+	//to resolve samples at some point if multisampling is enabled
+	framebuffer->m_resolveNeeded = true;
 
 	{
 		GLenum drawBufferId = GL_COLOR_ATTACHMENT0;
@@ -1912,28 +1922,52 @@ void CGSH_OpenGL::ReadFramebuffer(uint32 width, uint32 height, void* buffer)
 // Framebuffer
 /////////////////////////////////////////////////////////////
 
-CGSH_OpenGL::CFramebuffer::CFramebuffer(uint32 basePtr, uint32 width, uint32 height, uint32 psm, uint32 scale)
+CGSH_OpenGL::CFramebuffer::CFramebuffer(uint32 basePtr, uint32 width, uint32 height, uint32 psm, uint32 scale, bool multisampled)
 : m_basePtr(basePtr)
 , m_width(width)
 , m_height(height)
 , m_psm(psm)
-, m_framebuffer(0)
-, m_texture(0)
 {
 	m_cachedArea.SetArea(psm, basePtr, width, height);
 
 	//Build color attachment
 	glGenTextures(1, &m_texture);
 	glBindTexture(GL_TEXTURE_2D, m_texture);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, m_width * scale, m_height * scale, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+	glTexStorage2D(GL_TEXTURE_2D, 1, GL_RGBA8, m_width * scale, m_height * scale);
 	CHECKGLERROR();
+
+	if(multisampled)
+	{
+		//We also need an attachment for multisampled color
+		glGenRenderbuffers(1, &m_colorBufferMs);
+		glBindRenderbuffer(GL_RENDERBUFFER, m_colorBufferMs);
+		glRenderbufferStorageMultisample(GL_RENDERBUFFER, NUM_SAMPLES, GL_RGBA8, m_width * scale, m_height * scale);
+		CHECKGLERROR();
+	}
 		
 	//Build framebuffer
 	glGenFramebuffers(1, &m_framebuffer);
 	glBindFramebuffer(GL_FRAMEBUFFER, m_framebuffer);
-	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, m_texture, 0);
-
+	if(multisampled)
+	{
+		glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER, m_colorBufferMs);
+	}
+	else
+	{
+		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, m_texture, 0);
+	}
 	CHECKGLERROR();
+
+	if(multisampled)
+	{
+		glGenFramebuffers(1, &m_resolveFramebuffer);
+		glBindFramebuffer(GL_FRAMEBUFFER, m_resolveFramebuffer);
+		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, m_texture, 0);
+		CHECKGLERROR();
+
+		auto status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
+		assert(status == GL_FRAMEBUFFER_COMPLETE);
+	}
 
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
@@ -1944,9 +1978,17 @@ CGSH_OpenGL::CFramebuffer::~CFramebuffer()
 	{
 		glDeleteFramebuffers(1, &m_framebuffer);
 	}
+	if(m_resolveFramebuffer != 0)
+	{
+		glDeleteFramebuffers(1, &m_resolveFramebuffer);
+	}
 	if(m_texture != 0)
 	{
 		glDeleteTextures(1, &m_texture);
+	}
+	if(m_colorBufferMs != 0)
+	{
+		glDeleteRenderbuffers(1, &m_colorBufferMs);
 	}
 }
 
@@ -2067,11 +2109,29 @@ void CGSH_OpenGL::CommitFramebufferDirtyPages(const FramebufferPtr& framebuffer,
 	}
 }
 
+void CGSH_OpenGL::ResolveFramebufferMultisample(const FramebufferPtr& framebuffer, uint32 scale)
+{
+	if(!framebuffer->m_resolveNeeded) return;
+
+	m_validGlState &= ~(GLSTATE_SCISSOR | GLSTATE_FRAMEBUFFER);
+
+	glDisable(GL_SCISSOR_TEST);
+	glBindFramebuffer(GL_FRAMEBUFFER, framebuffer->m_resolveFramebuffer);
+	glBindFramebuffer(GL_READ_FRAMEBUFFER, framebuffer->m_framebuffer);
+	glBlitFramebuffer(
+		0, 0, framebuffer->m_width * scale, framebuffer->m_height * scale, 
+		0, 0, framebuffer->m_width * scale, framebuffer->m_height * scale, 
+		GL_COLOR_BUFFER_BIT, GL_NEAREST);
+	CHECKGLERROR();
+
+	framebuffer->m_resolveNeeded = false;
+}
+
 /////////////////////////////////////////////////////////////
 // Depthbuffer
 /////////////////////////////////////////////////////////////
 
-CGSH_OpenGL::CDepthbuffer::CDepthbuffer(uint32 basePtr, uint32 width, uint32 height, uint32 psm, uint32 scale)
+CGSH_OpenGL::CDepthbuffer::CDepthbuffer(uint32 basePtr, uint32 width, uint32 height, uint32 psm, uint32 scale, bool multisampled)
 : m_basePtr(basePtr)
 , m_width(width)
 , m_height(height)
@@ -2081,7 +2141,14 @@ CGSH_OpenGL::CDepthbuffer::CDepthbuffer(uint32 basePtr, uint32 width, uint32 hei
 	//Build depth attachment
 	glGenRenderbuffers(1, &m_depthBuffer);
 	glBindRenderbuffer(GL_RENDERBUFFER, m_depthBuffer);
-	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, m_width * scale, m_height * scale);
+	if(multisampled)
+	{
+		glRenderbufferStorageMultisample(GL_RENDERBUFFER, NUM_SAMPLES, GL_DEPTH_COMPONENT24, m_width * scale, m_height * scale);
+	}
+	else
+	{
+		glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, m_width * scale, m_height * scale);
+	}
 	CHECKGLERROR();
 }
 

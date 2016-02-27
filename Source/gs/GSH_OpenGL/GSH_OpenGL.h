@@ -196,7 +196,7 @@ private:
 	class CFramebuffer
 	{
 	public:
-									CFramebuffer(uint32, uint32, uint32, uint32, uint32);
+									CFramebuffer(uint32, uint32, uint32, uint32, uint32, bool);
 									~CFramebuffer();
 
 		uint32						m_basePtr;
@@ -204,8 +204,12 @@ private:
 		uint32						m_height;
 		uint32						m_psm;
 
-		GLuint						m_framebuffer;
-		GLuint						m_texture;
+		GLuint						m_framebuffer = 0;
+		GLuint						m_texture = 0;
+
+		GLuint						m_resolveFramebuffer = 0;
+		bool						m_resolveNeeded = false;
+		GLuint						m_colorBufferMs = 0;
 
 		CGsCachedArea				m_cachedArea;
 	};
@@ -215,7 +219,7 @@ private:
 	class CDepthbuffer
 	{
 	public:
-									CDepthbuffer(uint32, uint32, uint32, uint32, uint32);
+									CDepthbuffer(uint32, uint32, uint32, uint32, uint32, bool);
 									~CDepthbuffer();
 
 		uint32						m_basePtr;
@@ -340,6 +344,7 @@ private:
 
 	bool							m_forceBilinearTextures = false;
 	unsigned int					m_fbScale = 1;
+	bool							m_multisampleEnabled = false;
 
 	uint8*							m_pCvtBuffer;
 
@@ -354,6 +359,7 @@ private:
 
 	void							PopulateFramebuffer(const FramebufferPtr&);
 	void							CommitFramebufferDirtyPages(const FramebufferPtr&, unsigned int, unsigned int);
+	void							ResolveFramebufferMultisample(const FramebufferPtr&, uint32);
 
 	Framework::OpenGl::ProgramPtr	m_presentProgram;
 	Framework::OpenGl::CBuffer		m_presentVertexBuffer;
