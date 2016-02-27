@@ -255,7 +255,7 @@ uint32 CSysmem::FreeMemory(uint32 address)
 
 	address -= m_memoryBegin;
 	//Search for block pointing at the address
-	uint32* nextBlockId = &m_headBlockId;
+	auto nextBlockId = &m_headBlockId;
 	auto nextBlock = m_blocks[*nextBlockId];
 	while(nextBlock != nullptr)
 	{
