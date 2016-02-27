@@ -52,9 +52,9 @@
 #define BIOS_INTRHANDLER_SIZE				(sizeof(CIopBios::INTRHANDLER) * CIopBios::MAX_INTRHANDLER)
 #define BIOS_MESSAGEBOX_BASE				(BIOS_INTRHANDLER_BASE + BIOS_INTRHANDLER_SIZE)
 #define BIOS_MESSAGEBOX_SIZE				(sizeof(CIopBios::MESSAGEBOX) * CIopBios::MAX_MESSAGEBOX)
-#define BIOS_HEAPBLOCK_BASE					(BIOS_MESSAGEBOX_BASE + BIOS_MESSAGEBOX_SIZE)
-#define BIOS_HEAPBLOCK_SIZE					(sizeof(Iop::CSysmem::BLOCK) * Iop::CSysmem::MAX_BLOCKS)
-#define BIOS_MODULESTARTREQUEST_BASE		(BIOS_HEAPBLOCK_BASE + BIOS_HEAPBLOCK_SIZE)
+#define BIOS_MEMORYBLOCK_BASE				(BIOS_MESSAGEBOX_BASE + BIOS_MESSAGEBOX_SIZE)
+#define BIOS_MEMORYBLOCK_SIZE				(sizeof(Iop::MEMORYBLOCK) * CIopBios::MAX_MEMORYBLOCK)
+#define BIOS_MODULESTARTREQUEST_BASE		(BIOS_MEMORYBLOCK_BASE + BIOS_MEMORYBLOCK_SIZE)
 #define BIOS_MODULESTARTREQUEST_SIZE		(sizeof(CIopBios::MODULESTARTREQUEST) * CIopBios::MAX_MODULESTARTREQUEST)
 #define BIOS_LOADEDMODULE_BASE				(BIOS_MODULESTARTREQUEST_BASE + BIOS_MODULESTARTREQUEST_SIZE)
 #define BIOS_LOADEDMODULE_SIZE				(sizeof(CIopBios::LOADEDMODULE) * CIopBios::MAX_LOADEDMODULE)
@@ -82,6 +82,7 @@ CIopBios::CIopBios(CMIPS& cpu, uint8* ram, uint32 ramSize)
 , m_moduleStarterThreadId(0)
 , m_alarmThreadProcAddress(0)
 , m_threads(reinterpret_cast<THREAD*>(&m_ram[BIOS_THREADS_BASE]), 1, MAX_THREAD)
+, m_memoryBlocks(reinterpret_cast<Iop::MEMORYBLOCK*>(&ram[BIOS_MEMORYBLOCK_BASE]), 1, MAX_MEMORYBLOCK)
 , m_semaphores(reinterpret_cast<SEMAPHORE*>(&m_ram[BIOS_SEMAPHORES_BASE]), 1, MAX_SEMAPHORE)
 , m_eventFlags(reinterpret_cast<EVENTFLAG*>(&m_ram[BIOS_EVENTFLAGS_BASE]), 1, MAX_EVENTFLAG)
 , m_intrHandlers(reinterpret_cast<INTRHANDLER*>(&m_ram[BIOS_INTRHANDLER_BASE]), 1, MAX_INTRHANDLER)
@@ -145,7 +146,7 @@ void CIopBios::Reset(const Iop::SifManPtr& sifMan)
 		RegisterModule(m_stdio);
 	}
 	{
-		m_sysmem = std::make_shared<Iop::CSysmem>(m_ram, CONTROL_BLOCK_END, m_ramSize, BIOS_HEAPBLOCK_BASE, *m_stdio, *m_ioman, *m_sifMan);
+		m_sysmem = std::make_shared<Iop::CSysmem>(m_ram, CONTROL_BLOCK_END, m_ramSize, m_memoryBlocks, *m_stdio, *m_ioman, *m_sifMan);
 		RegisterModule(m_sysmem);
 	}
 	{

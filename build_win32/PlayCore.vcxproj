@@ -228,6 +228,7 @@
     <ClInclude Include="..\Source\iop\Ioman_Device.h" />
     <ClInclude Include="..\Source\iop\IopBios.h" />
     <ClInclude Include="..\Source\iop\Iop_BiosBase.h" />
+    <ClInclude Include="..\Source\iop\Iop_BiosStructs.h" />
     <ClInclude Include="..\Source\iop\Iop_Cdvdfsv.h" />
     <ClInclude Include="..\Source\iop\Iop_Cdvdman.h" />
     <ClInclude Include="..\Source\iop\Iop_Dmac.h" />

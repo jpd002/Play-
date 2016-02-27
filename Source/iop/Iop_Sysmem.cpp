@@ -14,14 +14,14 @@ using namespace Iop;
 
 #define MIN_BLOCK_SIZE  0x100
 
-CSysmem::CSysmem(uint8* ram, uint32 memoryBegin, uint32 memoryEnd, uint32 blockBase, CStdio& stdio, CIoman& ioman, CSifMan& sifMan)
+CSysmem::CSysmem(uint8* ram, uint32 memoryBegin, uint32 memoryEnd, BlockListType& blocks, CStdio& stdio, CIoman& ioman, CSifMan& sifMan)
 : m_iopRam(ram)
 , m_memoryBegin(memoryBegin)
 , m_memoryEnd(memoryEnd)
 , m_stdio(stdio)
 , m_ioman(ioman)
 , m_memorySize(memoryEnd - memoryBegin)
-, m_blocks(reinterpret_cast<BLOCK*>(&ram[blockBase]), 1, MAX_BLOCKS)
+, m_blocks(blocks)
 {
 	//Initialize block map
 	m_headBlockId = m_blocks.Allocate();

@@ -8,6 +8,7 @@
 #include "../OsStructManager.h"
 #include "../OsVariableWrapper.h"
 #include "Iop_BiosBase.h"
+#include "Iop_BiosStructs.h"
 #include "Iop_SifMan.h"
 #include "Iop_SifCmd.h"
 #include "Iop_Ioman.h"
@@ -232,6 +233,7 @@ private:
 	enum
 	{
 		MAX_THREAD				= 128,
+		MAX_MEMORYBLOCK			= 256,
 		MAX_SEMAPHORE			= 128,
 		MAX_EVENTFLAG			= 64,
 		MAX_INTRHANDLER			= 32,
@@ -380,6 +382,7 @@ private:
 	};
 
 	typedef COsStructManager<THREAD> ThreadList;
+	typedef COsStructManager<Iop::MEMORYBLOCK> MemoryBlockList;
 	typedef COsStructManager<SEMAPHORE> SemaphoreList;
 	typedef COsStructManager<EVENTFLAG> EventFlagList;
 	typedef COsStructManager<INTRHANDLER> IntrHandlerList;
@@ -443,6 +446,7 @@ private:
 	bool							m_rescheduleNeeded = false;
 	LoadedModuleList				m_loadedModules;
 	ThreadList						m_threads;
+	MemoryBlockList					m_memoryBlocks;
 	SemaphoreList					m_semaphores;
 	EventFlagList					m_eventFlags;
 	IntrHandlerList					m_intrHandlers;
