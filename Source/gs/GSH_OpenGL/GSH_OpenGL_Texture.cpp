@@ -115,6 +115,10 @@ CGSH_OpenGL::TEXTURE_INFO CGSH_OpenGL::PrepareTexture(const TEX0& tex0)
 		if(canBeUsed)
 		{
 			CommitFramebufferDirtyPages(candidateFramebuffer, 0, tex0.GetHeight());
+			if(m_multisampleEnabled)
+			{
+				ResolveFramebufferMultisample(candidateFramebuffer, m_fbScale);
+			}
 
 			float scaleRatioX = static_cast<float>(tex0.GetWidth()) / static_cast<float>(candidateFramebuffer->m_width);
 			float scaleRatioY = static_cast<float>(tex0.GetHeight()) / static_cast<float>(candidateFramebuffer->m_height);
