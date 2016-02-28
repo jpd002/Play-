@@ -28,7 +28,7 @@ CSysmem::CSysmem(uint8* ram, uint32 memoryBegin, uint32 memoryEnd, BlockListType
 	auto block = m_blocks[m_headBlockId];
 	block->address		= m_memorySize;
 	block->size			= 0;
-	block->nextBlock	= 0;
+	block->nextBlockId	= BlockListType::INVALID_ID;
 
 	//Register sif module
 	sifMan.RegisterModule(MODULE_ID, this);
@@ -138,17 +138,17 @@ uint32 CSysmem::QueryMaxFreeMemSize()
 {
 	uint32 maxSize = 0;
 	uint32 begin = 0;
-	uint32* nextBlockId = &m_headBlockId;
+	auto nextBlockId = &m_headBlockId;
 	auto nextBlock = m_blocks[*nextBlockId];
 	while(nextBlock != nullptr)
 	{
 		uint32 end = nextBlock->address;
-		if ((end - begin) >= maxSize)
+		if((end - begin) >= maxSize)
 		{
 			maxSize = end - begin;
 		}
 		begin = nextBlock->address + nextBlock->size;
-		nextBlockId = &nextBlock->nextBlock;
+		nextBlockId = &nextBlock->nextBlockId;
 		nextBlock = m_blocks[*nextBlockId];
 	}
 	return maxSize;
@@ -175,7 +175,7 @@ uint32 CSysmem::AllocateMemory(uint32 size, uint32 flags, uint32 wantedAddress)
 				break;
 			}
 			begin = nextBlock->address + nextBlock->size;
-			nextBlockId = &nextBlock->nextBlock;
+			nextBlockId = &nextBlock->nextBlockId;
 			nextBlock = m_blocks[*nextBlockId];
 		}
 		
@@ -188,9 +188,9 @@ uint32 CSysmem::AllocateMemory(uint32 size, uint32 flags, uint32 wantedAddress)
 				return 0;
 			}
 			auto newBlock = m_blocks[newBlockId];
-			newBlock->address	= begin;
-			newBlock->size		= size;
-			newBlock->nextBlock	= *nextBlockId;
+			newBlock->address		= begin;
+			newBlock->size			= size;
+			newBlock->nextBlockId	= *nextBlockId;
 			*nextBlockId = newBlockId;
 			return begin + m_memoryBegin;
 		}
@@ -220,22 +220,22 @@ uint32 CSysmem::AllocateMemory(uint32 size, uint32 flags, uint32 wantedAddress)
 				break;
 			}
 			begin = nextBlock->address + nextBlock->size;
-			nextBlockId = &nextBlock->nextBlock;
+			nextBlockId = &nextBlock->nextBlockId;
 			nextBlock = m_blocks[*nextBlockId];
 		}
 		
 		if(nextBlock != nullptr)
 		{
 			uint32 newBlockId = m_blocks.Allocate();
-			assert(newBlockId != 0);
-			if(newBlockId == 0)
+			assert(newBlockId != BlockListType::INVALID_ID);
+			if(newBlockId == BlockListType::INVALID_ID)
 			{
 				return 0;
 			}
 			auto newBlock = m_blocks[newBlockId];
-			newBlock->address	= wantedAddress;
-			newBlock->size		= size;
-			newBlock->nextBlock	= *nextBlockId;
+			newBlock->address		= wantedAddress;
+			newBlock->size			= size;
+			newBlock->nextBlockId	= *nextBlockId;
 			*nextBlockId = newBlockId;
 			return wantedAddress + m_memoryBegin;
 		}
@@ -263,14 +263,14 @@ uint32 CSysmem::FreeMemory(uint32 address)
 		{
 			break;
 		}
-		nextBlockId = &nextBlock->nextBlock;
+		nextBlockId = &nextBlock->nextBlockId;
 		nextBlock = m_blocks[*nextBlockId];
 	}
 
 	if(nextBlock != nullptr)
 	{
 		m_blocks.Free(*nextBlockId);
-		*nextBlockId = nextBlock->nextBlock;
+		*nextBlockId = nextBlock->nextBlockId;
 	}
 	else
 	{

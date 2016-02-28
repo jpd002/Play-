@@ -7,7 +7,7 @@ namespace Iop
 	struct MEMORYBLOCK
 	{
 		uint32	isValid;
-		uint32	nextBlock;
+		uint32	nextBlockId;
 		uint32	address;
 		uint32	size;
 	};
