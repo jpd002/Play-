@@ -266,6 +266,16 @@ private:
 		uint32			waitCount;
 	};
 
+	struct SEMAPHORE_STATUS
+	{
+		uint32			attrib;
+		uint32			option;
+		uint32			initCount;
+		uint32			maxCount;
+		uint32			currentCount;
+		uint32			numWaitThreads;
+	};
+
 	struct EVENTFLAG
 	{
 		uint32			isValid;
@@ -352,16 +362,6 @@ private:
 		uint32			freeSize;
 		uint32			numWaitThreads;
 		uint32			unused[3];
-	};
-
-	struct SEMAPHORE_STATUS
-	{
-		uint32			attrib;
-		uint32			option;
-		uint32			initCount;
-		uint32			maxCount;
-		uint32			currentCount;
-		uint32			numWaitThreads;
 	};
 
 	struct MODULESTARTREQUEST
