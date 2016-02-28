@@ -119,6 +119,7 @@
     <ClCompile Include="..\Source\iop\Iop_Thevent.cpp" />
     <ClCompile Include="..\Source\iop\Iop_Thmsgbx.cpp" />
     <ClCompile Include="..\Source\iop\Iop_Thsema.cpp" />
+    <ClCompile Include="..\Source\iop\Iop_Thvpool.cpp" />
     <ClCompile Include="..\Source\iop\Iop_Timrman.cpp" />
     <ClCompile Include="..\Source\iop\Iop_Vblank.cpp" />
     <ClCompile Include="..\Source\iop\IsoDevice.cpp" />
@@ -268,6 +269,7 @@
     <ClInclude Include="..\Source\iop\Iop_Thevent.h" />
     <ClInclude Include="..\Source\iop\Iop_Thmsgbx.h" />
     <ClInclude Include="..\Source\iop\Iop_Thsema.h" />
+    <ClInclude Include="..\Source\iop\Iop_Thvpool.h" />
     <ClInclude Include="..\Source\iop\Iop_Timrman.h" />
     <ClInclude Include="..\Source\iop\Iop_Vblank.h" />
     <ClInclude Include="..\Source\iop\IsoDevice.h" />
