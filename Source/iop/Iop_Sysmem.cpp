@@ -182,8 +182,8 @@ uint32 CSysmem::AllocateMemory(uint32 size, uint32 flags, uint32 wantedAddress)
 		if(nextBlock != nullptr)
 		{
 			uint32 newBlockId = m_blocks.Allocate();
-			assert(newBlockId != 0);
-			if(newBlockId == 0)
+			assert(newBlockId != BlockListType::INVALID_ID);
+			if(newBlockId == BlockListType::INVALID_ID)
 			{
 				return 0;
 			}
