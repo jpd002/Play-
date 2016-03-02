@@ -28,6 +28,19 @@
 using namespace IPU;
 using namespace MPEG2;
 
+static CVLCTable::DECODE_STATUS FilterSymbolError(CVLCTable::DECODE_STATUS result)
+{
+	switch(result)
+	{
+	case CVLCTable::DECODE_STATUS_SYMBOLNOTFOUND:
+		throw CVLCTable::CVLCTableException();
+		break;
+	default:
+		return result;
+		break;
+	}
+}
+
 CIPU::CIPU() 
 : m_IPU_CTRL(0)
 , m_isBusy(false)
@@ -1339,14 +1352,14 @@ bool CIPU::CBDECCommand_ReadDct::Execute()
 				MPEG2::RUNLEVELPAIR runLevelPair;
 				if(m_blockIndex == 0)
 				{
-					if(m_coeffTable->TryGetRunLevelPairDc(m_IN_FIFO, &runLevelPair, m_isMpeg2) != CVLCTable::DECODE_STATUS_SUCCESS)
+					if(FilterSymbolError(m_coeffTable->TryGetRunLevelPairDc(m_IN_FIFO, &runLevelPair, m_isMpeg2)) != CVLCTable::DECODE_STATUS_SUCCESS)
 					{
 						return false;
 					}
 				}
 				else
 				{
-					if(m_coeffTable->TryGetRunLevelPair(m_IN_FIFO, &runLevelPair, m_isMpeg2) != CVLCTable::DECODE_STATUS_SUCCESS)
+					if(FilterSymbolError(m_coeffTable->TryGetRunLevelPair(m_IN_FIFO, &runLevelPair, m_isMpeg2)) != CVLCTable::DECODE_STATUS_SUCCESS)
 					{
 						return false;
 					}
