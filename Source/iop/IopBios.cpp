@@ -959,6 +959,11 @@ uint32 CIopBios::TerminateThread(uint32 threadId)
 #endif
 
 	assert(threadId != m_currentThreadId);
+	if(threadId == m_currentThreadId)
+	{
+		return KERNEL_RESULT_ERROR_ILLEGAL_THID;
+	}
+
 	auto thread = GetThread(threadId);
 	assert(thread != nullptr);
 	if(thread == nullptr)
