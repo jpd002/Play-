@@ -385,6 +385,9 @@
     <ClCompile Include="..\..\..\Source\iop\Iop_LibSd.cpp">
       <Filter>Source Files\Purei Core\iop</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\Source\iop\Iop_Thvpool.cpp">
+      <Filter>Source Files\Purei Core\iop</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\Source\BasicBlock.h">
@@ -745,6 +748,9 @@
       <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\Source\iop\Iop_LibSd.h">
+      <Filter>Source Files\Purei Core\iop</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Source\iop\Iop_Thvpool.h">
       <Filter>Source Files\Purei Core\iop</Filter>
     </ClInclude>
   </ItemGroup>
