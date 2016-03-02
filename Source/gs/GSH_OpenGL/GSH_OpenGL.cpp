@@ -948,8 +948,10 @@ void CGSH_OpenGL::SetupFramebuffer(uint64 frameReg, uint64 zbufReg, uint64 sciss
 		CHECKGLERROR();
 	}
 
-	glViewport(0, 0, framebuffer->m_width * m_fbScale, framebuffer->m_height * m_fbScale);
-	
+	m_renderState.viewportWidth = framebuffer->m_width;
+	m_renderState.viewportHeight = framebuffer->m_height;
+	m_validGlState &= ~GLSTATE_VIEWPORT;
+
 	float projWidth = static_cast<float>(framebuffer->m_width);
 	float projHeight = static_cast<float>(framebuffer->m_height);
 
@@ -1517,6 +1519,12 @@ void CGSH_OpenGL::FlushVertexBuffer()
 	{
 		glUseProgram(m_renderState.shaderHandle);
 		m_validGlState |= GLSTATE_PROGRAM;
+	}
+
+	if((m_validGlState & GLSTATE_VIEWPORT) == 0)
+	{
+		glViewport(0, 0, m_renderState.viewportWidth * m_fbScale, m_renderState.viewportHeight * m_fbScale);
+		m_validGlState |= GLSTATE_VIEWPORT;
 	}
 
 	if((m_validGlState & GLSTATE_SCISSOR) == 0)

@@ -63,6 +63,8 @@ private:
 		GLint		texture0WrapS;
 		GLint		texture0WrapT;
 		GLuint		texture1Handle;
+		GLsizei		viewportWidth;
+		GLsizei		viewportHeight;
 		GLint		scissorX;
 		GLint		scissorY;
 		GLsizei		scissorWidth;
@@ -401,6 +403,7 @@ private:
 		GLSTATE_COLORMASK       = 0x0020,
 		GLSTATE_TEXTURE         = 0x0040,
 		GLSTATE_FRAMEBUFFER     = 0x0080,
+		GLSTATE_VIEWPORT        = 0x0100,
 	};
 
 	ShaderMap						m_shaders;
