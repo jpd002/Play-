@@ -131,6 +131,7 @@ LOCAL_SRC_FILES			:=	../../Source/AppConfig.cpp \
 							../../Source/iop/Iop_Thevent.cpp \
 							../../Source/iop/Iop_Thmsgbx.cpp \
 							../../Source/iop/Iop_Thsema.cpp \
+							../../Source/iop/Iop_Thvpool.cpp \
 							../../Source/iop/Iop_Timrman.cpp \
 							../../Source/iop/Iop_Vblank.cpp \
 							../../Source/iop/IopBios.cpp \
