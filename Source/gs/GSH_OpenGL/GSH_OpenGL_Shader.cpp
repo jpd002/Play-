@@ -446,3 +446,60 @@ Framework::OpenGl::ProgramPtr CGSH_OpenGL::GeneratePresentProgram()
 
 	return program;
 }
+
+Framework::OpenGl::ProgramPtr CGSH_OpenGL::GenerateCopyToFbProgram()
+{
+	Framework::OpenGl::CShader vertexShader(GL_VERTEX_SHADER);
+	Framework::OpenGl::CShader pixelShader(GL_FRAGMENT_SHADER);
+
+	{
+		std::stringstream shaderBuilder;
+		shaderBuilder << GLSL_VERSION << std::endl;
+		shaderBuilder << "in vec2 a_position;" << std::endl;
+		shaderBuilder << "in vec2 a_texCoord;" << std::endl;
+		shaderBuilder << "out vec2 v_texCoord;" << std::endl;
+		shaderBuilder << "uniform vec2 g_srcPosition;" << std::endl;
+		shaderBuilder << "uniform vec2 g_srcSize;" << std::endl;
+		shaderBuilder << "void main()" << std::endl;
+		shaderBuilder << "{" << std::endl;
+		shaderBuilder << "	v_texCoord = (a_texCoord * g_srcSize) + g_srcPosition;" << std::endl;
+		shaderBuilder << "	gl_Position = vec4(a_position, 0, 1);" << std::endl;
+		shaderBuilder << "}" << std::endl;
+
+		vertexShader.SetSource(shaderBuilder.str().c_str());
+		bool result = vertexShader.Compile();
+		assert(result);
+	}
+
+	{
+		std::stringstream shaderBuilder;
+		shaderBuilder << GLSL_VERSION << std::endl;
+		shaderBuilder << "precision mediump float;" << std::endl;
+		shaderBuilder << "in vec2 v_texCoord;" << std::endl;
+		shaderBuilder << "out vec4 fragColor;" << std::endl;
+		shaderBuilder << "uniform sampler2D g_texture;" << std::endl;
+		shaderBuilder << "void main()" << std::endl;
+		shaderBuilder << "{" << std::endl;
+		shaderBuilder << "	fragColor = texture(g_texture, v_texCoord);" << std::endl;
+		shaderBuilder << "}" << std::endl;
+
+		pixelShader.SetSource(shaderBuilder.str().c_str());
+		bool result = pixelShader.Compile();
+		assert(result);
+	}
+
+	auto program = std::make_shared<Framework::OpenGl::CProgram>();
+
+	{
+		program->AttachShader(vertexShader);
+		program->AttachShader(pixelShader);
+
+		glBindAttribLocation(*program, static_cast<GLuint>(PRIM_VERTEX_ATTRIB::POSITION), "a_position");
+		glBindAttribLocation(*program, static_cast<GLuint>(PRIM_VERTEX_ATTRIB::TEXCOORD), "a_texCoord");
+
+		bool result = program->Link();
+		assert(result);
+	}
+
+	return program;
+}

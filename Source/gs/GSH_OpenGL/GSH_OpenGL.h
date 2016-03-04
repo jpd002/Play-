@@ -288,6 +288,11 @@ private:
 	Framework::OpenGl::ProgramPtr	GeneratePresentProgram();
 	Framework::OpenGl::CBuffer		GeneratePresentVertexBuffer();
 	Framework::OpenGl::CVertexArray	GeneratePresentVertexArray();
+
+	Framework::OpenGl::ProgramPtr	GenerateCopyToFbProgram();
+	Framework::OpenGl::CBuffer		GenerateCopyToFbVertexBuffer();
+	Framework::OpenGl::CVertexArray	GenerateCopyToFbVertexArray();
+
 	Framework::OpenGl::CVertexArray	GeneratePrimVertexArray();
 	Framework::OpenGl::CBuffer		GenerateUniformBlockBuffer(size_t);
 
@@ -298,6 +303,7 @@ private:
 
 	void							FlushVertexBuffer();
 
+	void							CopyToFb(int32, int32, int32, int32, int32, int32, int32, int32, int32, int32);
 	void							DrawToDepth(unsigned int, uint64);
 
 	void							SetRenderingContext(uint64);
@@ -369,8 +375,13 @@ private:
 	GLint							m_presentTextureUniform = -1;
 	GLint							m_presentTexCoordScaleUniform = -1;
 
+	Framework::OpenGl::ProgramPtr	m_copyToFbProgram;
 	Framework::OpenGl::CFramebuffer	m_copyToFbFramebuffer;
 	Framework::OpenGl::CTexture		m_copyToFbTexture;
+	Framework::OpenGl::CBuffer		m_copyToFbVertexBuffer;
+	Framework::OpenGl::CVertexArray	m_copyToFbVertexArray;
+	GLint							m_copyToFbSrcPositionUniform = -1;
+	GLint							m_copyToFbSrcSizeUniform = -1;
 
 	TextureList						m_textureCache;
 	PaletteList						m_paletteCache;
