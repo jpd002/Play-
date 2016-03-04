@@ -8,6 +8,7 @@
 #include "GSH_OpenGL.h"
 
 #define NUM_SAMPLES 8
+//#define USE_COPYTOFB
 
 GLenum CGSH_OpenGL::g_nativeClampModes[CGSHandler::CLAMP_MODE_MAX] =
 {
@@ -78,10 +79,13 @@ void CGSH_OpenGL::ReleaseImpl()
 	m_presentProgram.reset();
 	m_presentVertexBuffer.Reset();
 	m_presentVertexArray.Reset();
+	m_copyToFbProgram.reset();
+	m_copyToFbFramebuffer.Reset();
+	m_copyToFbTexture.Reset();
+	m_copyToFbVertexBuffer.Reset();
+	m_copyToFbVertexArray.Reset();
 	m_primBuffer.Reset();
 	m_primVertexArray.Reset();
-	m_copyToFbTexture.Reset();
-	m_copyToFbFramebuffer.Reset();
 	m_vertexParamsBuffer.Reset();
 	m_fragmentParamsBuffer.Reset();
 }
@@ -312,8 +316,13 @@ void CGSH_OpenGL::InitializeRC()
 	m_presentTextureUniform = glGetUniformLocation(*m_presentProgram, "g_texture");
 	m_presentTexCoordScaleUniform = glGetUniformLocation(*m_presentProgram, "g_texCoordScale");
 
+	m_copyToFbProgram = GenerateCopyToFbProgram();
 	m_copyToFbTexture = Framework::OpenGl::CTexture::Create();
 	m_copyToFbFramebuffer = Framework::OpenGl::CFramebuffer::Create();
+	m_copyToFbVertexBuffer = GenerateCopyToFbVertexBuffer();
+	m_copyToFbVertexArray = GenerateCopyToFbVertexArray();
+	m_copyToFbSrcPositionUniform = glGetUniformLocation(*m_copyToFbProgram, "g_srcPosition");
+	m_copyToFbSrcSizeUniform = glGetUniformLocation(*m_copyToFbProgram, "g_srcSize");
 
 	m_primBuffer = Framework::OpenGl::CBuffer::Create();
 	m_primVertexArray = GeneratePrimVertexArray();
@@ -355,6 +364,52 @@ Framework::OpenGl::CVertexArray CGSH_OpenGL::GeneratePresentVertexArray()
 	glBindVertexArray(vertexArray);
 	
 	glBindBuffer(GL_ARRAY_BUFFER, m_presentVertexBuffer);
+
+	glEnableVertexAttribArray(static_cast<GLuint>(PRIM_VERTEX_ATTRIB::POSITION));
+	glVertexAttribPointer(static_cast<GLuint>(PRIM_VERTEX_ATTRIB::POSITION), 2, GL_FLOAT, 
+		GL_FALSE, sizeof(float) * 4, reinterpret_cast<const GLvoid*>(0));
+
+	glEnableVertexAttribArray(static_cast<GLuint>(PRIM_VERTEX_ATTRIB::TEXCOORD));
+	glVertexAttribPointer(static_cast<GLuint>(PRIM_VERTEX_ATTRIB::TEXCOORD), 2, GL_FLOAT, 
+		GL_FALSE, sizeof(float) * 4, reinterpret_cast<const GLvoid*>(8));
+
+	glBindVertexArray(0);
+
+	CHECKGLERROR();
+
+	return vertexArray;
+}
+
+Framework::OpenGl::CBuffer CGSH_OpenGL::GenerateCopyToFbVertexBuffer()
+{
+	auto buffer = Framework::OpenGl::CBuffer::Create();
+
+	static const float bufferContents[] =
+	{
+		//Pos       UV
+		-1.0f, -1.0f, 0.0f, 0.0f,
+		 1.0f, -1.0f, 1.0f, 0.0f,
+		-1.0f,  1.0f, 0.0f, 1.0f,
+		 1.0f,  1.0f, 1.0f, 1.0f,
+	};
+
+	glBindBuffer(GL_ARRAY_BUFFER, buffer);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(bufferContents), bufferContents, GL_STATIC_DRAW);
+
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+	CHECKGLERROR();
+
+	return buffer;
+}
+
+Framework::OpenGl::CVertexArray CGSH_OpenGL::GenerateCopyToFbVertexArray()
+{
+	auto vertexArray = Framework::OpenGl::CVertexArray::Create();
+
+	glBindVertexArray(vertexArray);
+
+	glBindBuffer(GL_ARRAY_BUFFER, m_copyToFbVertexBuffer);
 
 	glEnableVertexAttribArray(static_cast<GLuint>(PRIM_VERTEX_ATTRIB::POSITION));
 	glVertexAttribPointer(static_cast<GLuint>(PRIM_VERTEX_ATTRIB::POSITION), 2, GL_FLOAT, 
@@ -1647,6 +1702,47 @@ void CGSH_OpenGL::DrawToDepth(unsigned int primitiveType, uint64 primReg)
 	glClear(GL_DEPTH_BUFFER_BIT);
 }
 
+void CGSH_OpenGL::CopyToFb(
+	int32 srcX0, int32 srcY0, int32 srcX1, int32 srcY1,
+	int32 srcWidth, int32 srcHeight,
+	int32 dstX0, int32 dstY0, int32 dstX1, int32 dstY1)
+{
+	m_validGlState &= ~(GLSTATE_BLEND | GLSTATE_COLORMASK | GLSTATE_SCISSOR | GLSTATE_PROGRAM);
+	m_validGlState &= ~(GLSTATE_VIEWPORT);
+
+	assert(srcX1 >= srcX0);
+	assert(srcY1 >= srcY0);
+	assert(dstX1 >= dstX0);
+	assert(dstY1 >= dstY0);
+
+	float positionX = static_cast<float>(srcX0) / static_cast<float>(srcWidth);
+	float positionY = static_cast<float>(srcY0) / static_cast<float>(srcHeight);
+	float sizeX = static_cast<float>(srcX1 - srcX0) / static_cast<float>(srcWidth);
+	float sizeY = static_cast<float>(srcY1 - srcY0) / static_cast<float>(srcHeight);
+
+	glDisable(GL_BLEND);
+	glDisable(GL_DEPTH_TEST);
+	glDisable(GL_SCISSOR_TEST);
+	glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+
+	glUseProgram(*m_copyToFbProgram);
+
+	glUniform2f(m_copyToFbSrcPositionUniform, positionX, positionY);
+	glUniform2f(m_copyToFbSrcSizeUniform, sizeX, sizeY);
+	glViewport(dstX0, dstY0, dstX1 - dstX0, dstY1 - dstY0);
+
+	glBindBuffer(GL_ARRAY_BUFFER, m_copyToFbVertexBuffer);
+	glBindVertexArray(m_copyToFbVertexArray);
+
+#ifdef _DEBUG
+	m_copyToFbProgram->Validate();
+#endif
+
+	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+
+	CHECKGLERROR();
+}
+
 /////////////////////////////////////////////////////////////
 // Other Functions
 /////////////////////////////////////////////////////////////
@@ -2004,6 +2100,10 @@ void CGSH_OpenGL::PopulateFramebuffer(const FramebufferPtr& framebuffer)
 {
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, m_copyToFbTexture);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 	((this)->*(m_textureUploader[framebuffer->m_psm]))(framebuffer->m_basePtr, 
 		framebuffer->m_width / 64, framebuffer->m_width, framebuffer->m_height);
 	CHECKGLERROR();
@@ -2015,6 +2115,8 @@ void CGSH_OpenGL::PopulateFramebuffer(const FramebufferPtr& framebuffer)
 	CHECKGLERROR();
 
 	glBindFramebuffer(GL_FRAMEBUFFER, framebuffer->m_framebuffer);
+
+#ifndef USE_COPYTOFB
 	glBindFramebuffer(GL_READ_FRAMEBUFFER, m_copyToFbFramebuffer);
 
 	//Copy buffers
@@ -2022,9 +2124,16 @@ void CGSH_OpenGL::PopulateFramebuffer(const FramebufferPtr& framebuffer)
 		0, 0, framebuffer->m_width, framebuffer->m_height, 
 		0, 0, framebuffer->m_width * m_fbScale, framebuffer->m_height * m_fbScale, 
 		GL_COLOR_BUFFER_BIT, GL_NEAREST);
-	CHECKGLERROR();
 
 	glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
+#else
+	CopyToFb(
+		0, 0, framebuffer->m_width, framebuffer->m_height,
+		framebuffer->m_width, framebuffer->m_height,
+		0, 0, framebuffer->m_width, framebuffer->m_height);
+	framebuffer->m_resolveNeeded = true;
+#endif
+	CHECKGLERROR();
 }
 
 void CGSH_OpenGL::CommitFramebufferDirtyPages(const FramebufferPtr& framebuffer, unsigned int minY, unsigned int maxY)
@@ -2047,6 +2156,10 @@ void CGSH_OpenGL::CommitFramebufferDirtyPages(const FramebufferPtr& framebuffer,
 			glBindTexture(GL_TEXTURE_2D, copyToFbTexture);
 			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, framebuffer->m_width, framebuffer->m_height, 
 				0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
 			glBindFramebuffer(GL_FRAMEBUFFER, copyToFbFramebuffer);
 			glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, copyToFbTexture, 0);
@@ -2104,10 +2217,18 @@ void CGSH_OpenGL::CommitFramebufferDirtyPages(const FramebufferPtr& framebuffer,
 			((this)->*(m_textureUpdater[framebuffer->m_psm]))(framebuffer->m_basePtr, framebuffer->m_width / 64,
 				texX, texY, texWidth, texHeight);
 			
+#ifndef USE_COPYTOFB
 			glBlitFramebuffer(
 				texX,             texY,             (texX + texWidth),             (texY + texHeight), 
 				texX * m_fbScale, texY * m_fbScale, (texX + texWidth) * m_fbScale, (texY + texHeight) * m_fbScale, 
 				GL_COLOR_BUFFER_BIT, GL_NEAREST);
+#else
+			CopyToFb(
+				texX,             texY,             (texX + texWidth),             (texY + texHeight),
+				framebuffer->m_width, framebuffer->m_height,
+				texX * m_fbScale, texY * m_fbScale, (texX + texWidth) * m_fbScale, (texY + texHeight) * m_fbScale);
+			framebuffer->m_resolveNeeded = true;
+#endif
 			CHECKGLERROR();
 		}
 
