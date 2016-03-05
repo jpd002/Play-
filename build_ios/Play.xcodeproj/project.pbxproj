@@ -30,6 +30,7 @@
 		7066B4BD1C3EB820007568BB /* SettingsViewController.mm in Sources */ = {isa = PBXBuildFile; fileRef = 7066B4BC1C3EB820007568BB /* SettingsViewController.mm */; };
 		7075D0B51B63260F0010D69C /* DiskUtils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7075D0B31B63260F0010D69C /* DiskUtils.cpp */; };
 		7075D0BB1B634B470010D69C /* IosUtils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7075D0B91B634B470010D69C /* IosUtils.cpp */; };
+		7076A8011C8A7D7500C6B873 /* Iop_Thvpool.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7076A7FF1C8A7D7500C6B873 /* Iop_Thvpool.cpp */; };
 		70834AE91B1BCB0100E8D5C6 /* AppDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 70834AE41B1BCB0100E8D5C6 /* AppDelegate.mm */; };
 		70834AEA1B1BCB0100E8D5C6 /* Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 70834AE51B1BCB0100E8D5C6 /* Info.plist */; };
 		70834AEB1B1BCB0100E8D5C6 /* main.mm in Sources */ = {isa = PBXBuildFile; fileRef = 70834AE61B1BCB0100E8D5C6 /* main.mm */; };
@@ -261,6 +262,8 @@
 		7075D0B41B63260F0010D69C /* DiskUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DiskUtils.h; path = ../Source/DiskUtils.h; sourceTree = "<group>"; };
 		7075D0B91B634B470010D69C /* IosUtils.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = IosUtils.cpp; path = ../Source/ui_ios/IosUtils.cpp; sourceTree = "<group>"; };
 		7075D0BA1B634B470010D69C /* IosUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IosUtils.h; path = ../Source/ui_ios/IosUtils.h; sourceTree = "<group>"; };
+		7076A7FF1C8A7D7500C6B873 /* Iop_Thvpool.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Iop_Thvpool.cpp; path = ../Source/iop/Iop_Thvpool.cpp; sourceTree = "<group>"; };
+		7076A8001C8A7D7500C6B873 /* Iop_Thvpool.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Iop_Thvpool.h; path = ../Source/iop/Iop_Thvpool.h; sourceTree = "<group>"; };
 		70834AAE1B1BC70300E8D5C6 /* Play!.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Play!.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		70834AE31B1BCB0100E8D5C6 /* AppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AppDelegate.h; path = ../Source/ui_ios/AppDelegate.h; sourceTree = "<group>"; };
 		70834AE41B1BCB0100E8D5C6 /* AppDelegate.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = AppDelegate.mm; path = ../Source/ui_ios/AppDelegate.mm; sourceTree = "<group>"; };
@@ -1015,6 +1018,8 @@
 				70834C5C1B1BD70700E8D5C6 /* Iop_Thmsgbx.h */,
 				70834C5D1B1BD70700E8D5C6 /* Iop_Thsema.cpp */,
 				70834C5E1B1BD70700E8D5C6 /* Iop_Thsema.h */,
+				7076A7FF1C8A7D7500C6B873 /* Iop_Thvpool.cpp */,
+				7076A8001C8A7D7500C6B873 /* Iop_Thvpool.h */,
 				70834C5F1B1BD70700E8D5C6 /* Iop_Timrman.cpp */,
 				70834C601B1BD70700E8D5C6 /* Iop_Timrman.h */,
 				70834C611B1BD70700E8D5C6 /* Iop_Vblank.cpp */,
@@ -1268,6 +1273,7 @@
 				70834C0B1B1BD6E000E8D5C6 /* GSHandler.cpp in Sources */,
 				70834C091B1BD6E000E8D5C6 /* GsCachedArea.cpp in Sources */,
 				70D3A8751BDF1746005494CE /* VirtualPadButton.mm in Sources */,
+				7076A8011C8A7D7500C6B873 /* Iop_Thvpool.cpp in Sources */,
 				70834B571B1BD2C300E8D5C6 /* AppConfig.cpp in Sources */,
 				70834C851B1BD70700E8D5C6 /* Iop_Stdio.cpp in Sources */,
 				70D3A8771BDF1746005494CE /* VirtualPadStick.mm in Sources */,
