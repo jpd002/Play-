@@ -77,6 +77,7 @@
 		70684A3A151E8B2400C9574F /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 70684A34151E8B2400C9574F /* InfoPlist.strings */; };
 		70684A3C151E8B2400C9574F /* VfsManagerView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 70684A38151E8B2400C9574F /* VfsManagerView.xib */; };
 		7075D0B01B6325540010D69C /* DiskUtils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7075D0AE1B6325540010D69C /* DiskUtils.cpp */; };
+		7076A8061C8A7F5300C6B873 /* Iop_Thvpool.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7076A8041C8A7F5300C6B873 /* Iop_Thvpool.cpp */; };
 		707AF6B81ADE04AB00EA1374 /* CsoImageStream.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 707AF6B61ADE04AB00EA1374 /* CsoImageStream.cpp */; };
 		70B414851AA21D1100AC7DE4 /* Iop_FileIoHandler1000.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 70B4147D1AA21D1100AC7DE4 /* Iop_FileIoHandler1000.cpp */; };
 		70B414861AA21D1100AC7DE4 /* Iop_FileIoHandler2100.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 70B4147F1AA21D1100AC7DE4 /* Iop_FileIoHandler2100.cpp */; };
@@ -333,6 +334,8 @@
 		70684A39151E8B2400C9574F /* English */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = English; path = VfsManagerView.xib; sourceTree = "<group>"; };
 		7075D0AE1B6325540010D69C /* DiskUtils.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = DiskUtils.cpp; path = ../Source/DiskUtils.cpp; sourceTree = "<group>"; };
 		7075D0AF1B6325540010D69C /* DiskUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DiskUtils.h; path = ../Source/DiskUtils.h; sourceTree = "<group>"; };
+		7076A8041C8A7F5300C6B873 /* Iop_Thvpool.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Iop_Thvpool.cpp; path = ../Source/iop/Iop_Thvpool.cpp; sourceTree = "<group>"; };
+		7076A8051C8A7F5300C6B873 /* Iop_Thvpool.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Iop_Thvpool.h; path = ../Source/iop/Iop_Thvpool.h; sourceTree = "<group>"; };
 		707AF6B61ADE04AB00EA1374 /* CsoImageStream.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = CsoImageStream.cpp; path = ../Source/CsoImageStream.cpp; sourceTree = "<group>"; };
 		707AF6B71ADE04AB00EA1374 /* CsoImageStream.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CsoImageStream.h; path = ../Source/CsoImageStream.h; sourceTree = "<group>"; };
 		70B4147D1AA21D1100AC7DE4 /* Iop_FileIoHandler1000.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Iop_FileIoHandler1000.cpp; path = ../Source/iop/Iop_FileIoHandler1000.cpp; sourceTree = "<group>"; };
@@ -634,6 +637,8 @@
 				70F0372D15D83D0E006A96F1 /* Iop_Thmsgbx.h */,
 				706849D4151E896900C9574F /* Iop_Thsema.cpp */,
 				706849D5151E896900C9574F /* Iop_Thsema.h */,
+				7076A8041C8A7F5300C6B873 /* Iop_Thvpool.cpp */,
+				7076A8051C8A7F5300C6B873 /* Iop_Thvpool.h */,
 				706849D6151E896900C9574F /* Iop_Timrman.cpp */,
 				706849D7151E896900C9574F /* Iop_Timrman.h */,
 				706849D8151E896900C9574F /* Iop_Vblank.cpp */,
@@ -1113,6 +1118,7 @@
 				705D396C1C43FFAF00D267A6 /* PreferencesWindowController.mm in Sources */,
 				70D9F1451AFB016900197BBE /* SIF.cpp in Sources */,
 				70D9F13A1AFB016900197BBE /* IPU_MacroblockTypePTable.cpp in Sources */,
+				7076A8061C8A7F5300C6B873 /* Iop_Thvpool.cpp in Sources */,
 				70D9F1601AFB019F00197BBE /* GSH_OpenGL_Shader.cpp in Sources */,
 				705AA9751C55683800775613 /* Iop_MtapMan.cpp in Sources */,
 				70D9F1391AFB016900197BBE /* IPU_MacroblockTypeITable.cpp in Sources */,
