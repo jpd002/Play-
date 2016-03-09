@@ -1,4 +1,5 @@
 #include "Iop_Sysclib.h"
+#include "../Ps2Const.h"
 
 using namespace Iop;
 
@@ -213,9 +214,9 @@ void CSysclib::Invoke(CMIPS& context, unsigned int functionId)
 		);
 		break;
 	case 36:
-		assert(context.m_State.nGPR[CMIPS::A1].nV0 == 0);
 		context.m_State.nGPR[CMIPS::V0].nD0 = static_cast<int32>(__strtol(
-			reinterpret_cast<char*>(&m_ram[context.m_State.nGPR[CMIPS::A0].nV0]),
+			context.m_State.nGPR[CMIPS::A0].nV0,
+			context.m_State.nGPR[CMIPS::A1].nV0,
 			context.m_State.nGPR[CMIPS::A2].nV0
 			));
 		break;
@@ -245,6 +246,17 @@ void CSysclib::Invoke(CMIPS& context, unsigned int functionId)
 		assert(0);
 		break;
 	}
+}
+
+uint8* CSysclib::GetPtr(uint32 ptr) const
+{
+	assert(ptr != 0);
+	//We should rarely get addresses that point to other areas
+	//than RAM, so we assert just to give a warning because it might
+	//mean there's an error somewhere else
+	assert(ptr < PS2::IOP_RAM_SIZE);
+	ptr &= (PS2::IOP_RAM_SIZE - 1);
+	return reinterpret_cast<uint8*>(m_ram + ptr);
 }
 
 uint32 CSysclib::__look_ctype_table(uint32 character)
@@ -377,8 +389,10 @@ uint32 CSysclib::__strcspn(uint32 str1Ptr, uint32 str2Ptr)
 	return result;
 }
 
-uint32 CSysclib::__strtol(const char* string, unsigned int radix)
+uint32 CSysclib::__strtol(uint32 stringPtr, uint32 endPtrPtr, uint32 radix)
 {
+	assert(endPtrPtr == 0);
+	auto string = reinterpret_cast<const char*>(GetPtr(stringPtr));
 	return strtol(string, NULL, radix);
 }
 

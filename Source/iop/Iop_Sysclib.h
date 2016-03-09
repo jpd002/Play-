@@ -16,6 +16,8 @@ namespace Iop
 		void			Invoke(CMIPS&, unsigned int) override;
 
 	private:
+		uint8*			GetPtr(uint32) const;
+
 		uint32			__look_ctype_table(uint32);
 		uint32			__memcmp(const void*, const void*, uint32);
 		void			__memcpy(void*, const void*, unsigned int);
@@ -32,7 +34,7 @@ namespace Iop
 		uint32			__strrchr(uint32, uint32);
 		uint32			__strstr(uint32, uint32);
 		uint32			__strcspn(uint32, uint32);
-		uint32			__strtol(const char*, unsigned int);
+		uint32			__strtol(uint32, uint32, uint32);
 		uint32			__wmemcopy(uint32, uint32, uint32);
 		uint8*			m_ram;
 		CStdio&			m_stdio;
