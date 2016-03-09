@@ -9,11 +9,6 @@ CSysclib::CSysclib(uint8* ram, CStdio& stdio)
 
 }
 
-CSysclib::~CSysclib()
-{
-
-}
-
 std::string CSysclib::GetId() const
 {
 	return "sysclib";

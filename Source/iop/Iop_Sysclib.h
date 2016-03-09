@@ -1,5 +1,4 @@
-#ifndef _IOP_SYSCLIB_H_
-#define _IOP_SYSCLIB_H_
+#pragma once
 
 #include "Iop_Module.h"
 #include "Iop_Stdio.h"
@@ -10,11 +9,11 @@ namespace Iop
 	{
 	public:
 						CSysclib(uint8*, CStdio&);
-		virtual			~CSysclib();
+		virtual			~CSysclib() = default;
 
-		std::string		GetId() const;
-		std::string		GetFunctionName(unsigned int) const;
-		void			Invoke(CMIPS&, unsigned int);
+		std::string		GetId() const override;
+		std::string		GetFunctionName(unsigned int) const override;
+		void			Invoke(CMIPS&, unsigned int) override;
 
 	private:
 		uint32			__look_ctype_table(uint32);
@@ -39,5 +38,3 @@ namespace Iop
 		CStdio&			m_stdio;
 	};
 }
-
-#endif
