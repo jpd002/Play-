@@ -74,6 +74,7 @@ private:
 		bool		colorMaskG;
 		bool		colorMaskB;
 		bool		colorMaskA;
+		bool		depthMask;
 	};
 
 	//These need to match the layout of the shader's uniform block
@@ -412,9 +413,10 @@ private:
 		GLSTATE_SCISSOR         = 0x0008,
 		GLSTATE_BLEND           = 0x0010,
 		GLSTATE_COLORMASK       = 0x0020,
-		GLSTATE_TEXTURE         = 0x0040,
-		GLSTATE_FRAMEBUFFER     = 0x0080,
-		GLSTATE_VIEWPORT        = 0x0100,
+		GLSTATE_DEPTHMASK       = 0x0040,
+		GLSTATE_TEXTURE         = 0x0080,
+		GLSTATE_FRAMEBUFFER     = 0x0100,
+		GLSTATE_VIEWPORT        = 0x0200,
 	};
 
 	ShaderMap						m_shaders;

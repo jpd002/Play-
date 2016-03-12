@@ -920,7 +920,8 @@ void CGSH_OpenGL::SetupDepthBuffer(uint64 zbufReg, uint64 testReg)
 	{
 		depthWriteEnabled = false;
 	}
-	glDepthMask(depthWriteEnabled ? GL_TRUE : GL_FALSE);
+	m_renderState.depthMask = depthWriteEnabled;
+	m_validGlState &= ~GLSTATE_DEPTHMASK;
 }
 
 void CGSH_OpenGL::SetupFramebuffer(uint64 frameReg, uint64 zbufReg, uint64 scissorReg, uint64 testReg)
@@ -1604,6 +1605,12 @@ void CGSH_OpenGL::FlushVertexBuffer()
 		m_validGlState |= GLSTATE_COLORMASK;
 	}
 
+	if((m_validGlState & GLSTATE_DEPTHMASK) == 0)
+	{
+		glDepthMask(m_renderState.depthMask ? GL_TRUE : GL_FALSE);
+		m_validGlState |= GLSTATE_DEPTHMASK;
+	}
+
 	if((m_validGlState & GLSTATE_TEXTURE) == 0)
 	{
 		glActiveTexture(GL_TEXTURE0);
@@ -1700,6 +1707,8 @@ void CGSH_OpenGL::DrawToDepth(unsigned int primitiveType, uint64 primReg)
 	glDepthMask(GL_TRUE);
 	glClearDepthf(0);
 	glClear(GL_DEPTH_BUFFER_BIT);
+
+	m_validGlState &= ~GLSTATE_DEPTHMASK;
 }
 
 void CGSH_OpenGL::CopyToFb(
