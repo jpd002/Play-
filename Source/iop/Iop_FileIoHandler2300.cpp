@@ -12,7 +12,7 @@ using namespace Iop;
 #define COMMANDID_SEEK        4
 #define COMMANDID_DOPEN       9
 #define COMMANDID_GETSTAT     12
-#define COMMANDID_ACTIVATE    23
+#define COMMANDID_DEVCTL      23
 
 CFileIoHandler2300::CFileIoHandler2300(CIoman* ioman, CSifMan& sifMan)
 : CHandler(ioman)
@@ -43,8 +43,8 @@ void CFileIoHandler2300::Invoke(uint32 method, uint32* args, uint32 argsSize, ui
 	case COMMANDID_GETSTAT:
 		*ret = InvokeGetStat(args, argsSize, ret, retSize, ram);
 		break;
-	case COMMANDID_ACTIVATE:
-		*ret = InvokeActivate(args, argsSize, ret, retSize, ram);
+	case COMMANDID_DEVCTL:
+		*ret = InvokeDevctl(args, argsSize, ret, retSize, ram);
 		break;
 	case 255:
 		//Not really sure about that...
@@ -209,29 +209,28 @@ uint32 CFileIoHandler2300::InvokeGetStat(uint32* args, uint32 argsSize, uint32* 
 	return 1;
 }
 
-uint32 CFileIoHandler2300::InvokeActivate(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, uint8* ram)
+uint32 CFileIoHandler2300::InvokeDevctl(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, uint8* ram)
 {
-	//No idea what that does... This is used by Romancing Saga with 'hdd0:' parameter.
+	//This is used by Romancing Saga with 'hdd0:' parameter.
+	assert(argsSize >= 0x81C);
 	assert(retSize == 4);
-	auto command = reinterpret_cast<ACTIVATECOMMAND*>(args);
+	auto command = reinterpret_cast<DEVCTLCOMMAND*>(args);
 
 	if(m_resultPtr[0] != 0)
 	{
 		//Send response
-		ACTIVATEREPLY reply;
-		reply.header.commandId = COMMANDID_ACTIVATE;
+		DEVCTLREPLY reply;
+		reply.header.commandId = COMMANDID_DEVCTL;
 		CopyHeader(reply.header, command->header);
 		reply.result   = 0;
 		reply.unknown2 = 0;
 		reply.unknown3 = 0;
 		reply.unknown4 = 0;
-		memcpy(ram + m_resultPtr[0], &reply, sizeof(ACTIVATEREPLY));
+		memcpy(ram + m_resultPtr[0], &reply, sizeof(DEVCTLREPLY));
 	}
 
 	SendSifReply();
-	
-	//Return failure till we figure out what that does
-	return 0;
+	return 1;
 }
 
 void CFileIoHandler2300::CopyHeader(REPLYHEADER& reply, const COMMANDHEADER& command)

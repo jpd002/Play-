@@ -63,10 +63,16 @@ namespace Iop
 			char			fileName[256];
 		};
 
-		struct ACTIVATECOMMAND
+		struct DEVCTLCOMMAND
 		{
 			COMMANDHEADER	header;
-			char			device[256];
+			char			device[0x100];
+			char			unused[0x300];
+			char			inputBuffer[0x400];
+			uint32			cmdId;
+			uint32			inputSize;
+			uint32			outputPtr;
+			uint32			outputSize;
 		};
 
 		struct REPLYHEADER
@@ -130,7 +136,7 @@ namespace Iop
 			CIoman::STAT	stat;
 		};
 
-		struct ACTIVATEREPLY
+		struct DEVCTLREPLY
 		{
 			REPLYHEADER		header;
 			uint32			result;
@@ -145,7 +151,7 @@ namespace Iop
 		uint32			InvokeSeek(uint32*, uint32, uint32*, uint32, uint8*);
 		uint32			InvokeDopen(uint32*, uint32, uint32*, uint32, uint8*);
 		uint32			InvokeGetStat(uint32*, uint32, uint32*, uint32, uint8*);
-		uint32			InvokeActivate(uint32*, uint32, uint32*, uint32, uint8*);
+		uint32			InvokeDevctl(uint32*, uint32, uint32*, uint32, uint8*);
 
 		void			CopyHeader(REPLYHEADER&, const COMMANDHEADER&);
 		void			SendSifReply();
