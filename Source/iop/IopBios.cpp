@@ -74,10 +74,11 @@
 //This is the space needed to preserve at most four arguments in the stack frame (as per MIPS calling convention)
 #define STACK_FRAME_RESERVE_SIZE		0x10
 
-CIopBios::CIopBios(CMIPS& cpu, uint8* ram, uint32 ramSize) 
+CIopBios::CIopBios(CMIPS& cpu, uint8* ram, uint32 ramSize, uint8* spr)
 : m_cpu(cpu)
 , m_ram(ram)
 , m_ramSize(ramSize)
+, m_spr(spr)
 , m_threadFinishAddress(0)
 , m_returnFromExceptionAddress(0)
 , m_idleFunctionAddress(0)
@@ -158,7 +159,7 @@ void CIopBios::Reset(const Iop::SifManPtr& sifMan)
 		RegisterModule(m_modload);
 	}
 	{
-		RegisterModule(std::make_shared<Iop::CSysclib>(m_ram, *m_stdio));
+		RegisterModule(std::make_shared<Iop::CSysclib>(m_ram, m_spr, *m_stdio));
 	}
 	{
 		m_loadcore = std::make_shared<Iop::CLoadcore>(*this, m_ram, *m_sifMan);

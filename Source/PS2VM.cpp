@@ -82,7 +82,7 @@ CPS2VM::CPS2VM()
 	}
 	
 	m_iop = std::make_unique<Iop::CSubSystem>(true);
-	m_iopOs = std::make_shared<CIopBios>(m_iop->m_cpu, m_iop->m_ram, PS2::IOP_RAM_SIZE);
+	m_iopOs = std::make_shared<CIopBios>(m_iop->m_cpu, m_iop->m_ram, PS2::IOP_RAM_SIZE, m_iop->m_scratchPad);
 
 	m_ee = std::make_unique<Ee::CSubSystem>(m_iop->m_ram, *m_iopOs);
 	m_ee->m_os->OnRequestLoadExecutable.connect(boost::bind(&CPS2VM::ReloadExecutable, this, _1, _2));

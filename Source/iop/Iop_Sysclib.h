@@ -8,7 +8,7 @@ namespace Iop
 	class CSysclib : public CModule
 	{
 	public:
-						CSysclib(uint8*, CStdio&);
+						CSysclib(uint8*, uint8*, CStdio&);
 		virtual			~CSysclib() = default;
 
 		std::string		GetId() const override;
@@ -16,13 +16,13 @@ namespace Iop
 		void			Invoke(CMIPS&, unsigned int) override;
 
 	private:
-		uint8*			GetPtr(uint32) const;
+		uint8*			GetPtr(uint32, uint32) const;
 
 		uint32			__look_ctype_table(uint32);
 		uint32			__memcmp(const void*, const void*, uint32);
 		void			__memcpy(void*, const void*, unsigned int);
 		void			__memmove(void*, const void*, uint32);
-		void			__memset(void*, int, unsigned int);
+		uint32			__memset(uint32, uint32, uint32);
 		uint32			__sprintf(CMIPS& context);
 		uint32			__strcat(uint32, uint32);
 		uint32			__strlen(const char*);
@@ -36,7 +36,8 @@ namespace Iop
 		uint32			__strcspn(uint32, uint32);
 		uint32			__strtol(uint32, uint32, uint32);
 		uint32			__wmemcopy(uint32, uint32, uint32);
-		uint8*			m_ram;
+		uint8*			m_ram = nullptr;
+		uint8*			m_spr = nullptr;
 		CStdio&			m_stdio;
 	};
 }

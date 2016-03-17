@@ -95,7 +95,7 @@ public:
 		uint32 reserved[4];
 	};
 
-								CIopBios(CMIPS&, uint8*, uint32);
+								CIopBios(CMIPS&, uint8*, uint32, uint8*);
 	virtual						~CIopBios();
 
 	int32						LoadModule(const char*);
@@ -484,8 +484,9 @@ private:
 #endif
 
 	CMIPS&							m_cpu;
-	uint8*							m_ram;
+	uint8*							m_ram = nullptr;
 	uint32							m_ramSize;
+	uint8*							m_spr = nullptr;
 	uint32							m_threadFinishAddress;
 	uint32							m_returnFromExceptionAddress;
 	uint32							m_idleFunctionAddress;
