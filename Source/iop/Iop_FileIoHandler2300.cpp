@@ -14,6 +14,9 @@ using namespace Iop;
 #define COMMANDID_GETSTAT     12
 #define COMMANDID_DEVCTL      23
 
+#define DEVCTL_CDVD_GETERROR   0x4320
+#define DEVCTL_CDVD_DISKREADY  0x4325
+
 CFileIoHandler2300::CFileIoHandler2300(CIoman* ioman, CSifMan& sifMan)
 : CHandler(ioman)
 , m_sifMan(sifMan)
@@ -212,9 +215,32 @@ uint32 CFileIoHandler2300::InvokeGetStat(uint32* args, uint32 argsSize, uint32* 
 uint32 CFileIoHandler2300::InvokeDevctl(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, uint8* ram)
 {
 	//This is used by Romancing Saga with 'hdd0:' parameter.
+	//This is also used by Phantasy Star Collection with 'cdrom0:' parameter.
+
 	assert(argsSize >= 0x81C);
 	assert(retSize == 4);
 	auto command = reinterpret_cast<DEVCTLCOMMAND*>(args);
+
+	uint32* input = reinterpret_cast<uint32*>(command->inputBuffer);
+	uint32* output = reinterpret_cast<uint32*>(ram + command->outputPtr);
+
+	switch(command->cmdId)
+	{
+	case DEVCTL_CDVD_GETERROR:
+		assert(command->outputSize == 4);
+		CLog::GetInstance().Print(LOG_NAME, "DevCtl -> CdGetError();\r\n");
+		output[0] = 0;	//No error
+		break;
+	case DEVCTL_CDVD_DISKREADY:
+		assert(command->inputSize == 4);
+		assert(command->outputSize == 4);
+		CLog::GetInstance().Print(LOG_NAME, "DevCtl -> CdDiskReady(%d);\r\n", input[0]);
+		output[0] = 2;	//Disk ready
+		break;
+	default:
+		CLog::GetInstance().Print(LOG_NAME, "DevCtl -> Unknown(cmd = %0.8X);\r\n", command->cmdId);
+		break;
+	}
 
 	if(m_resultPtr[0] != 0)
 	{
