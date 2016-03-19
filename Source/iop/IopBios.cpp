@@ -281,6 +281,7 @@ void CIopBios::SaveState(Framework::CZipArchiveWriter& archive)
 
 	m_sifCmd->SaveState(archive);
 	m_cdvdman->SaveState(archive);
+	m_fileIo->SaveState(archive);
 }
 
 void CIopBios::LoadState(Framework::CZipArchiveReader& archive)
@@ -314,6 +315,7 @@ void CIopBios::LoadState(Framework::CZipArchiveReader& archive)
 
 	m_sifCmd->LoadState(archive);
 	m_cdvdman->LoadState(archive);
+	m_fileIo->LoadState(archive);
 
 #ifdef DEBUGGER_INCLUDED
 	m_cpu.m_analysis->Clear();
