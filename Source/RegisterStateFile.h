@@ -1,5 +1,4 @@
-#ifndef _REGISTERSTATEFILE_H_
-#define _REGISTERSTATEFILE_H_
+#pragma once
 
 #include "zip/ZipFile.h"
 #include "uint128.h"
@@ -21,7 +20,7 @@ public:
 	uint128				GetRegister128(const char*) const;
 
 	void				Read(Framework::CStream&);
-	virtual void		Write(Framework::CStream&);
+	virtual void		Write(Framework::CStream&) override;
 
 private:
 	typedef std::pair<uint8, uint128> Register;
@@ -29,5 +28,3 @@ private:
 
 	RegisterList		m_registers;
 };
-
-#endif
