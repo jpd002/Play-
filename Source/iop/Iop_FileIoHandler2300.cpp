@@ -1,8 +1,13 @@
 #include "Iop_FileIoHandler2300.h"
 #include "Iop_Ioman.h"
+#include "../RegisterStateFile.h"
 #include "../Log.h"
 
 #define LOG_NAME ("iop_fileio")
+
+#define STATE_XML           ("iop_fileio/state2300.xml")
+#define STATE_RESULTPTR0    ("resultPtr0")
+#define STATE_RESULTPTR1    ("resultPtr1")
 
 using namespace Iop;
 
@@ -70,6 +75,21 @@ void CFileIoHandler2300::Invoke(uint32 method, uint32* args, uint32 argsSize, ui
 		CLog::GetInstance().Print(LOG_NAME, "Unknown function (%d) called.\r\n", method);
 		break;
 	}
+}
+
+void CFileIoHandler2300::LoadState(Framework::CZipArchiveReader& archive)
+{
+	auto registerFile = CRegisterStateFile(*archive.BeginReadFile(STATE_XML));
+	m_resultPtr[0] = registerFile.GetRegister32(STATE_RESULTPTR0);
+	m_resultPtr[1] = registerFile.GetRegister32(STATE_RESULTPTR1);
+}
+
+void CFileIoHandler2300::SaveState(Framework::CZipArchiveWriter& archive) const
+{
+	auto registerFile = new CRegisterStateFile(STATE_XML);
+	registerFile->SetRegister32(STATE_RESULTPTR0, m_resultPtr[0]);
+	registerFile->SetRegister32(STATE_RESULTPTR1, m_resultPtr[1]);
+	archive.InsertFile(registerFile);
 }
 
 uint32 CFileIoHandler2300::InvokeOpen(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, uint8* ram)

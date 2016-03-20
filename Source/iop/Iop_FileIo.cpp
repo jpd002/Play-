@@ -66,6 +66,7 @@ void CFileIo::LoadState(Framework::CZipArchiveReader& archive)
 	auto registerFile = CRegisterStateFile(*archive.BeginReadFile(STATE_VERSION_XML));
 	m_moduleVersion = registerFile.GetRegister32(STATE_VERSION_MODULEVERSION);
 	SetModuleVersion(m_moduleVersion);
+	m_handler->LoadState(archive);
 }
 
 void CFileIo::SaveState(Framework::CZipArchiveWriter& archive) const
@@ -73,6 +74,7 @@ void CFileIo::SaveState(Framework::CZipArchiveWriter& archive) const
 	auto registerFile = new CRegisterStateFile(STATE_VERSION_XML);
 	registerFile->SetRegister32(STATE_VERSION_MODULEVERSION, m_moduleVersion);
 	archive.InsertFile(registerFile);
+	m_handler->SaveState(archive);
 }
 
 //--------------------------------------------------

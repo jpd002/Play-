@@ -12,6 +12,9 @@ namespace Iop
 
 		void			Invoke(uint32, uint32*, uint32, uint32*, uint32, uint8*) override;
 
+		void			LoadState(Framework::CZipArchiveReader&) override;
+		void			SaveState(Framework::CZipArchiveWriter&) const override;
+
 	private:
 		struct COMMANDHEADER
 		{

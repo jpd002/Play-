@@ -20,6 +20,9 @@ namespace Iop
 			
 			virtual void	Invoke(uint32, uint32*, uint32, uint32*, uint32, uint8*) = 0;
 
+			virtual void	LoadState(Framework::CZipArchiveReader&) {};
+			virtual void	SaveState(Framework::CZipArchiveWriter&) const {};
+
 		protected:
 			CIoman*			m_ioman = nullptr;
 		};
