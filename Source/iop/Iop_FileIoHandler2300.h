@@ -10,7 +10,7 @@ namespace Iop
 	public:
 						CFileIoHandler2300(CIoman*, CSifMan&);
 
-		virtual void	Invoke(uint32, uint32*, uint32, uint32*, uint32, uint8*) override;
+		void			Invoke(uint32, uint32*, uint32, uint32*, uint32, uint8*) override;
 
 	private:
 		struct COMMANDHEADER

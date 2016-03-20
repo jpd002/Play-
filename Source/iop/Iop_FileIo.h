@@ -16,7 +16,7 @@ namespace Iop
 		{
 		public:
 							CHandler(CIoman*);
-			virtual			~CHandler() {}
+			virtual			~CHandler() = default;
 			
 			virtual void	Invoke(uint32, uint32*, uint32, uint32*, uint32, uint8*) = 0;
 
@@ -30,7 +30,6 @@ namespace Iop
 		};
 
 								CFileIo(CSifMan&, CIoman&);
-		virtual					~CFileIo();
 
 		void					SetModuleVersion(unsigned int);
 
@@ -40,7 +39,7 @@ namespace Iop
 		virtual bool			Invoke(uint32, uint32*, uint32, uint32*, uint32, uint8*) override;
 
 		void					LoadState(Framework::CZipArchiveReader&);
-		void					SaveState(Framework::CZipArchiveWriter&);
+		void					SaveState(Framework::CZipArchiveWriter&) const;
 
 	private:
 		typedef std::unique_ptr<CHandler> HandlerPtr;

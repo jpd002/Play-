@@ -20,11 +20,6 @@ CFileIo::CFileIo(CSifMan& sifMan, CIoman& ioman)
 	m_handler = std::make_unique<CFileIoHandler1000>(&m_ioman);
 }
 
-CFileIo::~CFileIo()
-{
-
-}
-
 void CFileIo::SetModuleVersion(unsigned int moduleVersion)
 {
 	m_handler.reset();
@@ -73,7 +68,7 @@ void CFileIo::LoadState(Framework::CZipArchiveReader& archive)
 	SetModuleVersion(m_moduleVersion);
 }
 
-void CFileIo::SaveState(Framework::CZipArchiveWriter& archive)
+void CFileIo::SaveState(Framework::CZipArchiveWriter& archive) const
 {
 	auto registerFile = new CRegisterStateFile(STATE_VERSION_XML);
 	registerFile->SetRegister32(STATE_VERSION_MODULEVERSION, m_moduleVersion);
