@@ -77,6 +77,11 @@ void CFileIo::SaveState(Framework::CZipArchiveWriter& archive) const
 	m_handler->SaveState(archive);
 }
 
+void CFileIo::ProcessCommands()
+{
+	m_handler->ProcessCommands();
+}
+
 //--------------------------------------------------
 // CHandler
 //--------------------------------------------------

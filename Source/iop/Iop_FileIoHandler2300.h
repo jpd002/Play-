@@ -15,6 +15,8 @@ namespace Iop
 		void			LoadState(Framework::CZipArchiveReader&) override;
 		void			SaveState(Framework::CZipArchiveWriter&) const override;
 
+		void			ProcessCommands() override;
+
 	private:
 		struct COMMANDHEADER
 		{
@@ -161,5 +163,6 @@ namespace Iop
 
 		uint32			m_resultPtr[2];
 		CSifMan&		m_sifMan;
+		bool			m_pendingReadCommand = false;
 	};
 };

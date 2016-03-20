@@ -23,6 +23,8 @@ namespace Iop
 			virtual void	LoadState(Framework::CZipArchiveReader&) {};
 			virtual void	SaveState(Framework::CZipArchiveWriter&) const {};
 
+			virtual void	ProcessCommands() {};
+
 		protected:
 			CIoman*			m_ioman = nullptr;
 		};
@@ -43,6 +45,8 @@ namespace Iop
 
 		void					LoadState(Framework::CZipArchiveReader&);
 		void					SaveState(Framework::CZipArchiveWriter&) const;
+
+		void					ProcessCommands();
 
 	private:
 		typedef std::unique_ptr<CHandler> HandlerPtr;
