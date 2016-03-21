@@ -68,6 +68,14 @@ namespace Iop
 			char			fileName[256];
 		};
 
+		struct MOUNTCOMMAND
+		{
+			COMMANDHEADER	header;
+			char			fileSystemName[0x100];
+			char			unused[0x300];
+			char			deviceName[0x400];
+		};
+
 		struct DEVCTLCOMMAND
 		{
 			COMMANDHEADER	header;
@@ -141,6 +149,15 @@ namespace Iop
 			CIoman::STAT	stat;
 		};
 
+		struct MOUNTREPLY
+		{
+			REPLYHEADER		header;
+			uint32			result;
+			uint32			unknown2;
+			uint32			unknown3;
+			uint32			unknown4;
+		};
+
 		struct DEVCTLREPLY
 		{
 			REPLYHEADER		header;
@@ -156,6 +173,7 @@ namespace Iop
 		uint32			InvokeSeek(uint32*, uint32, uint32*, uint32, uint8*);
 		uint32			InvokeDopen(uint32*, uint32, uint32*, uint32, uint8*);
 		uint32			InvokeGetStat(uint32*, uint32, uint32*, uint32, uint8*);
+		uint32			InvokeMount(uint32*, uint32, uint32*, uint32, uint8*);
 		uint32			InvokeDevctl(uint32*, uint32, uint32*, uint32, uint8*);
 
 		void			CopyHeader(REPLYHEADER&, const COMMANDHEADER&);
