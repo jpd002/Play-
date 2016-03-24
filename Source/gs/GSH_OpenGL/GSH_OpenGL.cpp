@@ -522,47 +522,8 @@ float CGSH_OpenGL::GetZ(float nZ)
 // Context Unpacking
 /////////////////////////////////////////////////////////////
 
-void CGSH_OpenGL::SetRenderingContext(uint64 primReg)
+Framework::OpenGl::ProgramPtr CGSH_OpenGL::GetShaderFromCaps(const SHADERCAPS& shaderCaps)
 {
-	auto prim = make_convertible<PRMODE>(primReg);
-
-	unsigned int context = prim.nContext;
-
-	uint64 testReg = m_nReg[GS_REG_TEST_1 + context];
-	uint64 frameReg = m_nReg[GS_REG_FRAME_1 + context];
-	uint64 alphaReg = m_nReg[GS_REG_ALPHA_1 + context];
-	uint64 zbufReg = m_nReg[GS_REG_ZBUF_1 + context];
-	uint64 tex0Reg = m_nReg[GS_REG_TEX0_1 + context];
-	uint64 tex1Reg = m_nReg[GS_REG_TEX1_1 + context];
-	uint64 texAReg = m_nReg[GS_REG_TEXA];
-	uint64 clampReg = m_nReg[GS_REG_CLAMP_1 + context];
-	uint64 fogColReg = m_nReg[GS_REG_FOGCOL];
-	uint64 scissorReg = m_nReg[GS_REG_SCISSOR_1 + context];
-
-	//--------------------------------------------------------
-	//Get shader caps
-	//--------------------------------------------------------
-
-	SHADERCAPS shaderCaps;
-	memset(&shaderCaps, 0, sizeof(SHADERCAPS));
-
-	FillShaderCapsFromTexture(shaderCaps, tex0Reg, tex1Reg, texAReg, clampReg);
-	FillShaderCapsFromTest(shaderCaps, testReg);
-
-	if(prim.nFog)
-	{
-		shaderCaps.hasFog = 1;
-	}
-
-	if(!prim.nTexture)
-	{
-		shaderCaps.texSourceMode = TEXTURE_SOURCE_MODE_NONE;
-	}
-
-	//--------------------------------------------------------
-	//Create shader if it doesn't exist
-	//--------------------------------------------------------
-
 	auto shaderIterator = m_shaders.find(static_cast<uint32>(shaderCaps));
 	if(shaderIterator == m_shaders.end())
 	{
@@ -600,19 +561,61 @@ void CGSH_OpenGL::SetRenderingContext(uint64 primReg)
 		m_shaders.insert(std::make_pair(static_cast<uint32>(shaderCaps), shader));
 		shaderIterator = m_shaders.find(static_cast<uint32>(shaderCaps));
 	}
+	return shaderIterator->second;
+}
+
+void CGSH_OpenGL::SetRenderingContext(uint64 primReg)
+{
+	auto prim = make_convertible<PRMODE>(primReg);
+
+	unsigned int context = prim.nContext;
+
+	uint64 testReg = m_nReg[GS_REG_TEST_1 + context];
+	uint64 frameReg = m_nReg[GS_REG_FRAME_1 + context];
+	uint64 alphaReg = m_nReg[GS_REG_ALPHA_1 + context];
+	uint64 zbufReg = m_nReg[GS_REG_ZBUF_1 + context];
+	uint64 tex0Reg = m_nReg[GS_REG_TEX0_1 + context];
+	uint64 tex1Reg = m_nReg[GS_REG_TEX1_1 + context];
+	uint64 texAReg = m_nReg[GS_REG_TEXA];
+	uint64 clampReg = m_nReg[GS_REG_CLAMP_1 + context];
+	uint64 fogColReg = m_nReg[GS_REG_FOGCOL];
+	uint64 scissorReg = m_nReg[GS_REG_SCISSOR_1 + context];
 
 	//--------------------------------------------------------
-	//Bind shader
+	//Get shader caps
 	//--------------------------------------------------------
 
-	GLuint shaderHandle = *shaderIterator->second;
+	auto shaderCaps = make_convertible<SHADERCAPS>(0);
+	FillShaderCapsFromTexture(shaderCaps, tex0Reg, tex1Reg, texAReg, clampReg);
+	FillShaderCapsFromTest(shaderCaps, testReg);
+	auto technique = GetTechniqueFromTest(testReg);
+
+	if(prim.nFog)
+	{
+		shaderCaps.hasFog = 1;
+	}
+
+	if(!prim.nTexture)
+	{
+		shaderCaps.texSourceMode = TEXTURE_SOURCE_MODE_NONE;
+	}
+
+	//--------------------------------------------------------
+	//Check if a different shader is needed
+	//--------------------------------------------------------
+
 	if(!m_renderState.isValid ||
-		(m_renderState.shaderHandle != shaderHandle))
+		(static_cast<uint32>(m_renderState.shaderCaps) != static_cast<uint32>(shaderCaps)))
 	{
 		FlushVertexBuffer();
+		m_renderState.shaderCaps = shaderCaps;
+	}
 
-		//Invalidate because we might need to set uniforms again
-		m_renderState.isValid = false;
+	if(!m_renderState.isValid ||
+		(m_renderState.technique != technique))
+	{
+		FlushVertexBuffer();
+		m_renderState.technique = technique;
 	}
 
 	//--------------------------------------------------------
@@ -703,19 +706,18 @@ void CGSH_OpenGL::SetRenderingContext(uint64 primReg)
 	
 	CHECKGLERROR();
 
-	m_renderState.isValid = true;
-	m_renderState.shaderHandle = shaderHandle;
-	m_renderState.primReg = primReg;
-	m_renderState.alphaReg = alphaReg;
-	m_renderState.testReg = testReg;
-	m_renderState.zbufReg = zbufReg;
+	m_renderState.isValid    = true;
+	m_renderState.primReg    = primReg;
+	m_renderState.alphaReg   = alphaReg;
+	m_renderState.testReg    = testReg;
+	m_renderState.zbufReg    = zbufReg;
 	m_renderState.scissorReg = scissorReg;
-	m_renderState.frameReg = frameReg;
-	m_renderState.tex0Reg = tex0Reg;
-	m_renderState.tex1Reg = tex1Reg;
-	m_renderState.texAReg = texAReg;
-	m_renderState.clampReg = clampReg;
-	m_renderState.fogColReg = fogColReg;
+	m_renderState.frameReg   = frameReg;
+	m_renderState.tex0Reg    = tex0Reg;
+	m_renderState.tex1Reg    = tex1Reg;
+	m_renderState.texAReg    = texAReg;
+	m_renderState.clampReg   = clampReg;
+	m_renderState.fogColReg  = fogColReg;
 }
 
 void CGSH_OpenGL::SetupBlendingFunction(uint64 alphaReg)
@@ -1132,6 +1134,30 @@ void CGSH_OpenGL::FillShaderCapsFromTest(SHADERCAPS& shaderCaps, const uint64& t
 	{
 		shaderCaps.hasAlphaTest = 0;
 	}
+}
+
+CGSH_OpenGL::TECHNIQUE CGSH_OpenGL::GetTechniqueFromTest(const uint64& testReg)
+{
+	auto test = make_convertible<TEST>(testReg);
+
+	auto technique = TECHNIQUE::STANDARD;
+
+	if(test.nAlphaEnabled)
+	{
+		if((test.nAlphaMethod == ALPHA_TEST_NEVER) && (test.nAlphaFail != ALPHA_TEST_FAIL_KEEP))
+		{
+
+		}
+		else
+		{
+			if(test.nAlphaFail == ALPHA_TEST_FAIL_FBONLY)
+			{
+				technique = TECHNIQUE::ALPHATEST_FBONLY;
+			}
+		}
+	}
+
+	return technique;
 }
 
 void CGSH_OpenGL::SetupTexture(uint64 primReg, uint64 tex0Reg, uint64 tex1Reg, uint64 texAReg, uint64 clampReg)
@@ -1555,6 +1581,69 @@ void CGSH_OpenGL::FlushVertexBuffer()
 
 	assert(m_renderState.isValid == true);
 
+	if(m_renderState.technique == TECHNIQUE::STANDARD)
+	{
+		auto shader = GetShaderFromCaps(m_renderState.shaderCaps);
+		if(*shader != m_renderState.shaderHandle)
+		{
+			m_renderState.shaderHandle = *shader;
+			m_validGlState &= ~GLSTATE_PROGRAM;
+		}
+		DoRenderPass();
+	}
+	else if(m_renderState.technique == TECHNIQUE::ALPHATEST_FBONLY)
+	{
+		//No point getting here if depth write has been disabled (very flimsy test here)
+		assert(m_renderState.depthMask == true);
+		assert(m_renderState.shaderCaps.hasAlphaTest == true);
+
+		bool colorMaskRSave = m_renderState.colorMaskR;
+		bool colorMaskGSave = m_renderState.colorMaskG;
+		bool colorMaskBSave = m_renderState.colorMaskB;
+		bool colorMaskASave = m_renderState.colorMaskA;
+
+		//First pass - Disable alpha test, enable color writes, disable depth writes
+		//Color must be written first in case depth testing is enabled
+		{
+			m_renderState.shaderCaps.hasAlphaTest = false;
+			auto shader = GetShaderFromCaps(m_renderState.shaderCaps);
+			m_renderState.shaderHandle = *shader;
+			m_renderState.depthMask = false;
+			m_validGlState &= ~(GLSTATE_PROGRAM | GLSTATE_DEPTHMASK);
+			DoRenderPass();
+		}
+
+		//Second pass - Enable alpha test, disable color writes, enable depth writes
+		{
+			m_renderState.shaderCaps.hasAlphaTest = true;
+			auto shader = GetShaderFromCaps(m_renderState.shaderCaps);
+			m_renderState.shaderHandle = *shader;
+			m_renderState.colorMaskR = m_renderState.colorMaskG = false;
+			m_renderState.colorMaskB = m_renderState.colorMaskA = false;
+			m_renderState.depthMask = true;
+			m_validGlState &= ~(GLSTATE_PROGRAM | GLSTATE_COLORMASK | GLSTATE_DEPTHMASK);
+			DoRenderPass();
+		}
+
+		//Restore state
+		m_renderState.colorMaskR = colorMaskRSave;
+		m_renderState.colorMaskG = colorMaskGSave;
+		m_renderState.colorMaskB = colorMaskBSave;
+		m_renderState.colorMaskA = colorMaskASave;
+		m_renderState.shaderCaps.hasAlphaTest = true;
+		m_validGlState &= ~GLSTATE_COLORMASK;
+	}
+#if 0
+	else if(m_renderState.technique == ALPHA_DEPTHONLY)
+	{
+
+	}
+#endif
+	m_vertexBuffer.clear();
+}
+
+void CGSH_OpenGL::DoRenderPass()
+{
 	if((m_validGlState & GLSTATE_VERTEX_PARAMS) == 0)
 	{
 		glBindBuffer(GL_UNIFORM_BUFFER, m_vertexParamsBuffer);
@@ -1666,8 +1755,6 @@ void CGSH_OpenGL::FlushVertexBuffer()
 	}
 
 	glDrawArrays(primitiveMode, 0, m_vertexBuffer.size());
-
-	m_vertexBuffer.clear();
 
 	m_drawCallCount++;
 }
