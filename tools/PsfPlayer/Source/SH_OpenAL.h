@@ -16,10 +16,10 @@ public:
 
 	static CSoundHandler*	HandlerFactory();
 
-	void					Reset();
-	void					Write(int16*, unsigned int, unsigned int);
-	bool					HasFreeBuffers();
-	void					RecycleBuffers();
+	void					Reset() override;
+	void					Write(int16*, unsigned int, unsigned int) override;
+	bool					HasFreeBuffers() override;
+	void					RecycleBuffers() override;
 
 private:
 	typedef std::deque<ALuint> BufferList;
