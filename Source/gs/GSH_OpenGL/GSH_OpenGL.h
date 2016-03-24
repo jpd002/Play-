@@ -41,9 +41,37 @@ protected:
 	GLuint							m_presentFramebuffer = 0;
 
 private:
+	enum class TECHNIQUE
+	{
+		STANDARD,
+		ALPHATEST_FBONLY,
+		ALPHATEST_DEPTHONLY,
+	};
+
+	struct SHADERCAPS : public convertible<uint32>
+	{
+		unsigned int texFunction			: 2;		//0 - Modulate, 1 - Decal, 2 - Highlight, 3 - Hightlight2
+		unsigned int texClampS				: 2;
+		unsigned int texClampT				: 2;
+		unsigned int texSourceMode			: 2;
+		unsigned int texHasAlpha			: 1;
+		unsigned int texBilinearFilter		: 1;
+		unsigned int texUseAlphaExpansion	: 1;
+		unsigned int texBlackIsTransparent	: 1;
+		unsigned int hasFog					: 1;
+		unsigned int hasAlphaTest			: 1;
+		unsigned int alphaTestMethod		: 3;
+		unsigned int padding				: 15;
+
+		bool isIndexedTextureSource() const { return texSourceMode == TEXTURE_SOURCE_MODE_IDX4 || texSourceMode == TEXTURE_SOURCE_MODE_IDX8; }
+	};
+	static_assert(sizeof(SHADERCAPS) == sizeof(uint32), "SHADERCAPS structure size must be 4 bytes.");
+
 	struct RENDERSTATE
 	{
 		bool		isValid;
+		
+		//Register State
 		uint64		primReg;
 		uint64		frameReg;
 		uint64		testReg;
@@ -55,6 +83,12 @@ private:
 		uint64		texAReg;
 		uint64		clampReg;
 		uint64		fogColReg;
+
+		//Intermediate State
+		TECHNIQUE	technique;
+		SHADERCAPS	shaderCaps;
+
+		//OpenGL state
 		GLuint		shaderHandle;
 		GLuint		framebufferHandle;
 		GLuint		texture0Handle;
@@ -138,25 +172,6 @@ private:
 		TEXTURE_CLAMP_MODE_REGION_REPEAT		= 2,
 		TEXTURE_CLAMP_MODE_REGION_REPEAT_SIMPLE	= 3
 	};
-
-	struct SHADERCAPS : public convertible<uint32>
-	{
-		unsigned int texFunction			: 2;		//0 - Modulate, 1 - Decal, 2 - Highlight, 3 - Hightlight2
-		unsigned int texClampS				: 2;
-		unsigned int texClampT				: 2;
-		unsigned int texSourceMode			: 2;
-		unsigned int texHasAlpha			: 1;
-		unsigned int texBilinearFilter		: 1;
-		unsigned int texUseAlphaExpansion	: 1;
-		unsigned int texBlackIsTransparent	: 1;
-		unsigned int hasFog					: 1;
-		unsigned int hasAlphaTest			: 1;
-		unsigned int alphaTestMethod		: 3;
-		unsigned int padding				: 15;
-
-		bool isIndexedTextureSource() const { return texSourceMode == TEXTURE_SOURCE_MODE_IDX4 || texSourceMode == TEXTURE_SOURCE_MODE_IDX8; }
-	};
-	static_assert(sizeof(SHADERCAPS) == sizeof(uint32), "SHADERCAPS structure size must be 4 bytes.");
 
 	typedef std::unordered_map<uint32, Framework::OpenGl::ProgramPtr> ShaderMap;
 
@@ -280,6 +295,7 @@ private:
 
 	void							VertexKick(uint8, uint64);
 
+	Framework::OpenGl::ProgramPtr	GetShaderFromCaps(const SHADERCAPS&);
 	Framework::OpenGl::ProgramPtr	GenerateShader(const SHADERCAPS&);
 	Framework::OpenGl::CShader		GenerateVertexShader(const SHADERCAPS&);
 	Framework::OpenGl::CShader		GenerateFragmentShader(const SHADERCAPS&);
@@ -303,6 +319,7 @@ private:
 	void							Prim_Sprite();
 
 	void							FlushVertexBuffer();
+	void							DoRenderPass();
 
 	void							CopyToFb(int32, int32, int32, int32, int32, int32, int32, int32, int32, int32);
 	void							DrawToDepth(unsigned int, uint64);
@@ -317,6 +334,8 @@ private:
 	static bool						CanRegionRepeatClampModeSimplified(uint32, uint32);
 	void							FillShaderCapsFromTexture(SHADERCAPS&, const uint64&, const uint64&, const uint64&, const uint64&);
 	void							FillShaderCapsFromTest(SHADERCAPS&, const uint64&);
+	static TECHNIQUE				GetTechniqueFromTest(const uint64&);
+
 	void							SetupTexture(uint64, uint64, uint64, uint64, uint64);
 	static bool						IsCompatibleFramebufferPSM(unsigned int, unsigned int);
 	static uint32					GetFramebufferBitDepth(uint32);
