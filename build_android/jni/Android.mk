@@ -175,12 +175,13 @@ LOCAL_SRC_FILES			:=	../../Source/AppConfig.cpp \
 							../../Source/ui_android/NativeInterop.cpp \
 							../../Source/ui_android/NativeShared.cpp \
 							../../Source/ui_android/SettingsManager.cpp \
+							../../Source/ui_android/SH_OpenSL.cpp \
 							../../Source/ui_android/StatsManager.cpp \
 							../../Source/Utils.cpp
 LOCAL_CFLAGS			:= -Wno-extern-c-compat -D_IOP_EMULATE_MODULES -DDISABLE_LOGGING -DGLES_COMPATIBILITY
 LOCAL_C_INCLUDES		:= $(BOOST_PATH) $(DEPENDENCIES_PATH)/bzip2-1.0.6 $(FRAMEWORK_PATH)/include $(CODEGEN_PATH)/include $(LOCAL_PATH)/../../include
 LOCAL_CPP_FEATURES		:= exceptions rtti
-LOCAL_LDLIBS 			:= -landroid -llog -lGLESv3 -lEGL -lz
+LOCAL_LDLIBS 			:= -landroid -llog -lOpenSLES -lGLESv3 -lEGL -lz
 LOCAL_STATIC_LIBRARIES	:= libCodeGen libFramework libbzip2 libboost cpufeatures
 
 ifeq ($(APP_OPTIM),debug)
