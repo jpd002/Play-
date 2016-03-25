@@ -19,6 +19,7 @@ using namespace Iop;
 #define COMMANDID_DOPEN       9
 #define COMMANDID_GETSTAT     12
 #define COMMANDID_MOUNT       20
+#define COMMANDID_UMOUNT      21
 #define COMMANDID_DEVCTL      23
 
 #define DEVCTL_CDVD_GETERROR   0x4320
@@ -55,6 +56,9 @@ void CFileIoHandler2300::Invoke(uint32 method, uint32* args, uint32 argsSize, ui
 		break;
 	case COMMANDID_MOUNT:
 		*ret = InvokeMount(args, argsSize, ret, retSize, ram);
+		break;
+	case COMMANDID_UMOUNT:
+		*ret = InvokeUmount(args, argsSize, ret, retSize, ram);
 		break;
 	case COMMANDID_DEVCTL:
 		*ret = InvokeDevctl(args, argsSize, ret, retSize, ram);
@@ -271,6 +275,33 @@ uint32 CFileIoHandler2300::InvokeMount(uint32* args, uint32 argsSize, uint32* re
 		reply.unknown3 = 0;
 		reply.unknown4 = 0;
 		memcpy(ram + m_resultPtr[0], &reply, sizeof(MOUNTREPLY));
+	}
+
+	SendSifReply();
+	//Not supported for now, return 0
+	return 0;
+}
+
+uint32 CFileIoHandler2300::InvokeUmount(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, uint8* ram)
+{
+	//This is used by Romancing Saga with 'pfs0:' parameter.
+	assert(argsSize >= 0x0C);
+	assert(retSize == 4);
+	auto command = reinterpret_cast<UMOUNTCOMMAND*>(args);
+
+	CLog::GetInstance().Print(LOG_NAME, "Umount('%s');\r\n", command->deviceName);
+
+	if(m_resultPtr[0] != 0)
+	{
+		//Send response
+		UMOUNTREPLY reply;
+		reply.header.commandId = COMMANDID_UMOUNT;
+		CopyHeader(reply.header, command->header);
+		reply.result   = 0;
+		reply.unknown2 = 0;
+		reply.unknown3 = 0;
+		reply.unknown4 = 0;
+		memcpy(ram + m_resultPtr[0], &reply, sizeof(UMOUNTREPLY));
 	}
 
 	SendSifReply();

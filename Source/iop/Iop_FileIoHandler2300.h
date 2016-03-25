@@ -76,6 +76,12 @@ namespace Iop
 			char			deviceName[0x400];
 		};
 
+		struct UMOUNTCOMMAND
+		{
+			COMMANDHEADER	header;
+			char			deviceName[0x100];
+		};
+
 		struct DEVCTLCOMMAND
 		{
 			COMMANDHEADER	header;
@@ -158,6 +164,15 @@ namespace Iop
 			uint32			unknown4;
 		};
 
+		struct UMOUNTREPLY
+		{
+			REPLYHEADER		header;
+			uint32			result;
+			uint32			unknown2;
+			uint32			unknown3;
+			uint32			unknown4;
+		};
+
 		struct DEVCTLREPLY
 		{
 			REPLYHEADER		header;
@@ -174,6 +189,7 @@ namespace Iop
 		uint32			InvokeDopen(uint32*, uint32, uint32*, uint32, uint8*);
 		uint32			InvokeGetStat(uint32*, uint32, uint32*, uint32, uint8*);
 		uint32			InvokeMount(uint32*, uint32, uint32*, uint32, uint8*);
+		uint32			InvokeUmount(uint32*, uint32, uint32*, uint32, uint8*);
 		uint32			InvokeDevctl(uint32*, uint32, uint32*, uint32, uint8*);
 
 		void			CopyHeader(REPLYHEADER&, const COMMANDHEADER&);
