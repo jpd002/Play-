@@ -12,6 +12,7 @@
 		288765080DF74369002DB57D /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 288765070DF74369002DB57D /* CoreGraphics.framework */; };
 		701409181907FA6A008E3DE7 /* PsfPathToken.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 701409161907FA6A008E3DE7 /* PsfPathToken.cpp */; };
 		7016687117C7307E003504E0 /* Storyboard.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 7016682917C72969003504E0 /* Storyboard.storyboard */; };
+		7016FCAD1CA887C2000A798D /* Iop_Thvpool.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7016FCAB1CA887C2000A798D /* Iop_Thvpool.cpp */; };
 		701E5CD317C0BDFB00261AFD /* SH_OpenAL.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 708FE7B317C0B66700BFCDB2 /* SH_OpenAL.cpp */; };
 		70383A3C17BF343800482B35 /* libz.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 70383A3B17BF343800482B35 /* libz.dylib */; };
 		70383A3F17BF347A00482B35 /* RegisterStateFile.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 70383A3D17BF346300482B35 /* RegisterStateFile.cpp */; };
@@ -20,7 +21,7 @@
 		7045B4341A5D85F500F5B431 /* GeneralSettings.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = 7045B4311A5D85F500F5B431 /* GeneralSettings.xcconfig */; };
 		7045B4351A5D85F500F5B431 /* GeneralSettingsDebug.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = 7045B4321A5D85F500F5B431 /* GeneralSettingsDebug.xcconfig */; };
 		7045B4361A5D85F500F5B431 /* GeneralSettingsRelease.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = 7045B4331A5D85F500F5B431 /* GeneralSettingsRelease.xcconfig */; };
-		70513EB11BBECAAE002E5163 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 70513EB01BBECAAE002E5163 /* Images.xcassets */; settings = {ASSET_TAGS = (); }; };
+		70513EB11BBECAAE002E5163 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 70513EB01BBECAAE002E5163 /* Images.xcassets */; };
 		708FE7B617C0B82400BFCDB2 /* AppConfig.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 708FE79717C0B66700BFCDB2 /* AppConfig.cpp */; };
 		708FE7B717C0B82400BFCDB2 /* Iop_PsfSubSystem.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 708FE79B17C0B66700BFCDB2 /* Iop_PsfSubSystem.cpp */; };
 		708FE7B817C0B82400BFCDB2 /* Playlist.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 708FE79E17C0B66700BFCDB2 /* Playlist.cpp */; };
@@ -169,6 +170,11 @@
 		701409161907FA6A008E3DE7 /* PsfPathToken.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = PsfPathToken.cpp; path = ../Source/PsfPathToken.cpp; sourceTree = "<group>"; };
 		701409171907FA6A008E3DE7 /* PsfPathToken.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PsfPathToken.h; path = ../Source/PsfPathToken.h; sourceTree = "<group>"; };
 		7016682917C72969003504E0 /* Storyboard.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Storyboard.storyboard; path = ../Source/ios_ui/Storyboard.storyboard; sourceTree = "<group>"; };
+		7016FCA81CA885AF000A798D /* Psp_PsfBios.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Psp_PsfBios.h; path = ../Source/psp/Psp_PsfBios.h; sourceTree = "<group>"; };
+		7016FCA91CA885AF000A798D /* Psp_PsfDevice.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Psp_PsfDevice.h; path = ../Source/psp/Psp_PsfDevice.h; sourceTree = "<group>"; };
+		7016FCAA1CA885AF000A798D /* Psp_PsfSubSystem.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Psp_PsfSubSystem.h; path = ../Source/psp/Psp_PsfSubSystem.h; sourceTree = "<group>"; };
+		7016FCAB1CA887C2000A798D /* Iop_Thvpool.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Iop_Thvpool.cpp; path = ../../../Source/iop/Iop_Thvpool.cpp; sourceTree = "<group>"; };
+		7016FCAC1CA887C2000A798D /* Iop_Thvpool.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Iop_Thvpool.h; path = ../../../Source/iop/Iop_Thvpool.h; sourceTree = "<group>"; };
 		70383A3A17BF2E1C00482B35 /* BiosDebugInfoProvider.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = BiosDebugInfoProvider.h; path = ../../../Source/BiosDebugInfoProvider.h; sourceTree = "<group>"; };
 		70383A3B17BF343800482B35 /* libz.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libz.dylib; path = usr/lib/libz.dylib; sourceTree = SDKROOT; };
 		70383A3D17BF346300482B35 /* RegisterStateFile.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = RegisterStateFile.cpp; path = ../../../Source/RegisterStateFile.cpp; sourceTree = "<group>"; };
@@ -317,7 +323,6 @@
 		7E4B3D070F9E99C100675ED7 /* StructCollectionStateFile.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = StructCollectionStateFile.h; path = ../../../Source/StructCollectionStateFile.h; sourceTree = SOURCE_ROOT; };
 		7E4B3D080F9E99C100675ED7 /* StructFile.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = StructFile.cpp; path = ../../../Source/StructFile.cpp; sourceTree = SOURCE_ROOT; };
 		7E4B3D090F9E99C100675ED7 /* StructFile.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = StructFile.h; path = ../../../Source/StructFile.h; sourceTree = SOURCE_ROOT; };
-		7E4B3D0A0F9E99C100675ED7 /* VUShared.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = VUShared.h; path = ../../../Source/VUShared.h; sourceTree = SOURCE_ROOT; };
 		7E4B3D2F0F9E9A3D00675ED7 /* ArgumentIterator.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ArgumentIterator.cpp; path = ../../../Source/iop/ArgumentIterator.cpp; sourceTree = SOURCE_ROOT; };
 		7E4B3D300F9E9A3D00675ED7 /* ArgumentIterator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ArgumentIterator.h; path = ../../../Source/iop/ArgumentIterator.h; sourceTree = SOURCE_ROOT; };
 		7E4B3D310F9E9A3D00675ED7 /* Ioman_Device.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Ioman_Device.h; path = ../../../Source/iop/Ioman_Device.h; sourceTree = SOURCE_ROOT; };
@@ -547,8 +552,11 @@
 				7E2721DC1213B6FB00C0DEBF /* Psp_KernelLibrary.cpp */,
 				7E2721DD1213B6FB00C0DEBF /* Psp_KernelLibrary.h */,
 				7E2721DE1213B6FB00C0DEBF /* Psp_PsfBios.cpp */,
+				7016FCA81CA885AF000A798D /* Psp_PsfBios.h */,
 				7E2721DF1213B6FB00C0DEBF /* Psp_PsfDevice.cpp */,
+				7016FCA91CA885AF000A798D /* Psp_PsfDevice.h */,
 				7E2721E01213B6FB00C0DEBF /* Psp_PsfSubSystem.cpp */,
+				7016FCAA1CA885AF000A798D /* Psp_PsfSubSystem.h */,
 				7E2721E11213B6FB00C0DEBF /* Psp_SasCore.cpp */,
 				7E2721E21213B6FB00C0DEBF /* Psp_SasCore.h */,
 				7E2721E31213B6FB00C0DEBF /* Psp_StdioForUser.cpp */,
@@ -686,7 +694,6 @@
 				7E4B3D070F9E99C100675ED7 /* StructCollectionStateFile.h */,
 				7E4B3D080F9E99C100675ED7 /* StructFile.cpp */,
 				7E4B3D090F9E99C100675ED7 /* StructFile.h */,
-				7E4B3D0A0F9E99C100675ED7 /* VUShared.h */,
 			);
 			name = "Purei Core";
 			sourceTree = "<group>";
@@ -753,6 +760,8 @@
 				70383A4317BF34F600482B35 /* Iop_Thmsgbx.h */,
 				7E4B3D620F9E9A3D00675ED7 /* Iop_Thsema.cpp */,
 				7E4B3D630F9E9A3D00675ED7 /* Iop_Thsema.h */,
+				7016FCAB1CA887C2000A798D /* Iop_Thvpool.cpp */,
+				7016FCAC1CA887C2000A798D /* Iop_Thvpool.h */,
 				7E4B3D640F9E9A3D00675ED7 /* Iop_Timrman.cpp */,
 				7E4B3D650F9E9A3D00675ED7 /* Iop_Timrman.h */,
 				7E4B3D660F9E9A3D00675ED7 /* Iop_Vblank.cpp */,
@@ -872,6 +881,7 @@
 				70D2317D1809EAC80008351C /* PlaylistDiscoveryService.cpp in Sources */,
 				7E4B3CF00F9E99A500675ED7 /* MA_MIPSIV.cpp in Sources */,
 				708FE7C017C0B82400BFCDB2 /* PsfVm.cpp in Sources */,
+				7016FCAD1CA887C2000A798D /* Iop_Thvpool.cpp in Sources */,
 				708FE7BC17C0B82400BFCDB2 /* PsfLoader.cpp in Sources */,
 				7E4B3CF10F9E99A500675ED7 /* MA_MIPSIV_Reflection.cpp in Sources */,
 				7E4B3CF20F9E99A500675ED7 /* MA_MIPSIV_Templates.cpp in Sources */,
