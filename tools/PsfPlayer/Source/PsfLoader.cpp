@@ -110,7 +110,7 @@ void CPsfLoader::LoadPs2(CPsfVm& virtualMachine, const CPsfPathToken& filePath, 
 	virtualMachine.SetSubSystem(subSystem);
 
 	{
-		auto bios = std::make_shared<PS2::CPsfBios>(virtualMachine.GetCpu(), virtualMachine.GetRam(), PS2::IOP_RAM_SIZE);
+		auto bios = std::make_shared<PS2::CPsfBios>(virtualMachine.GetCpu(), virtualMachine.GetRam(), PS2::IOP_RAM_SIZE, virtualMachine.GetSpr());
 		subSystem->SetBios(bios);
 		LoadPs2Recurse(virtualMachine, static_cast<PS2::CPsfBios*>(bios.get()), filePath, streamProvider, tags);
 		static_cast<PS2::CPsfBios*>(bios.get())->Start();
