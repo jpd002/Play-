@@ -24,10 +24,10 @@ namespace Psp
 											CPsfSubSystem(uint32 = DEFAULT_RAMSIZE);
 		virtual								~CPsfSubSystem();
 
-		virtual void						Reset();
-		virtual CMIPS&						GetCpu();
-		virtual uint8*						GetRam();
-		virtual Iop::CSpuBase&				GetSpuCore(unsigned int);
+		void								Reset() override;
+		CMIPS&								GetCpu() override;
+		uint8*								GetRam() override;
+		Iop::CSpuBase&						GetSpuCore(unsigned int) override;
 
 #ifdef DEBUGGER_INCLUDED
 		virtual bool						MustBreak();
@@ -37,7 +37,7 @@ namespace Psp
 		virtual void						SaveDebugTags(Framework::Xml::CNode*);
 #endif
 
-		virtual void						Update(bool, CSoundHandler*);
+		void								Update(bool, CSoundHandler*) override;
 
 		Psp::CPsfBios&						GetBios();
 

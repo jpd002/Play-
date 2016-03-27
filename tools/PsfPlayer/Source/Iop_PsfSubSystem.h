@@ -12,10 +12,10 @@ namespace Iop
 											CPsfSubSystem(bool ps2Mode);
 		virtual								~CPsfSubSystem();
 
-		virtual void						Reset();
-		virtual CMIPS&						GetCpu();
-		virtual uint8*						GetRam();
-		virtual Iop::CSpuBase&				GetSpuCore(unsigned int);
+		void								Reset() override;
+		CMIPS&								GetCpu() override;
+		uint8*								GetRam() override;
+		Iop::CSpuBase&						GetSpuCore(unsigned int) override;
 
 #ifdef DEBUGGER_INCLUDED
 		virtual bool						MustBreak();
@@ -27,7 +27,7 @@ namespace Iop
 
 		void								SetBios(const Iop::BiosBasePtr&);
 
-		virtual void						Update(bool, CSoundHandler*);
+		void								Update(bool, CSoundHandler*) override;
 
 	private:
 		CSubSystem							m_iop;
