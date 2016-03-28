@@ -418,8 +418,8 @@ private:
 	unsigned int					m_primitiveType;
 	bool							m_drawingToDepth = false;
 
-	static GLenum					g_nativeClampModes[CGSHandler::CLAMP_MODE_MAX];
-	static unsigned int				g_shaderClampModes[CGSHandler::CLAMP_MODE_MAX];
+	static const GLenum				g_nativeClampModes[CGSHandler::CLAMP_MODE_MAX];
+	static const unsigned int		g_shaderClampModes[CGSHandler::CLAMP_MODE_MAX];
 
 	TEXTUREUPLOADER					m_textureUploader[CGSHandler::PSM_MAX];
 	TEXTUREUPDATER					m_textureUpdater[CGSHandler::PSM_MAX];

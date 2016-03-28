@@ -10,7 +10,7 @@
 #define NUM_SAMPLES 8
 //#define USE_COPYTOFB
 
-GLenum CGSH_OpenGL::g_nativeClampModes[CGSHandler::CLAMP_MODE_MAX] =
+const GLenum CGSH_OpenGL::g_nativeClampModes[CGSHandler::CLAMP_MODE_MAX] =
 {
 	GL_REPEAT,
 	GL_CLAMP_TO_EDGE,
@@ -18,7 +18,7 @@ GLenum CGSH_OpenGL::g_nativeClampModes[CGSHandler::CLAMP_MODE_MAX] =
 	GL_REPEAT
 };
 
-unsigned int CGSH_OpenGL::g_shaderClampModes[CGSHandler::CLAMP_MODE_MAX] =
+const unsigned int CGSH_OpenGL::g_shaderClampModes[CGSHandler::CLAMP_MODE_MAX] =
 {
 	TEXTURE_CLAMP_MODE_STD,
 	TEXTURE_CLAMP_MODE_STD,
