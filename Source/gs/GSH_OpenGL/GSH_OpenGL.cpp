@@ -26,6 +26,18 @@ const unsigned int CGSH_OpenGL::g_shaderClampModes[CGSHandler::CLAMP_MODE_MAX] =
 	TEXTURE_CLAMP_MODE_REGION_REPEAT
 };
 
+const unsigned int CGSH_OpenGL::g_alphaTestInverse[CGSHandler::ALPHA_TEST_MAX] =
+{
+	ALPHA_TEST_ALWAYS,
+	ALPHA_TEST_NEVER,
+	ALPHA_TEST_GEQUAL,
+	ALPHA_TEST_GREATER,
+	ALPHA_TEST_NOTEQUAL,
+	ALPHA_TEST_LESS,
+	ALPHA_TEST_LEQUAL,
+	ALPHA_TEST_EQUAL
+};
+
 static uint32 MakeColor(uint8 r, uint8 g, uint8 b, uint8 a)
 {
 	return (a << 24) | (b << 16) | (g << 8) | (r);
@@ -1152,7 +1164,7 @@ CGSH_OpenGL::TECHNIQUE CGSH_OpenGL::GetTechniqueFromTest(const uint64& testReg)
 		{
 			if(test.nAlphaFail == ALPHA_TEST_FAIL_FBONLY)
 			{
-				technique = TECHNIQUE::ALPHATEST_FBONLY;
+				technique = TECHNIQUE::ALPHATEST_TWOPASS;
 			}
 		}
 	}
@@ -1591,21 +1603,26 @@ void CGSH_OpenGL::FlushVertexBuffer()
 		}
 		DoRenderPass();
 	}
-	else if(m_renderState.technique == TECHNIQUE::ALPHATEST_FBONLY)
+	else if(m_renderState.technique == TECHNIQUE::ALPHATEST_TWOPASS)
 	{
+		//TODO: Support channels other than depth
 		//No point getting here if depth write has been disabled (very flimsy test here)
 		assert(m_renderState.depthMask == true);
 		assert(m_renderState.shaderCaps.hasAlphaTest == true);
 
-		bool colorMaskRSave = m_renderState.colorMaskR;
-		bool colorMaskGSave = m_renderState.colorMaskG;
-		bool colorMaskBSave = m_renderState.colorMaskB;
-		bool colorMaskASave = m_renderState.colorMaskA;
-
-		//First pass - Disable alpha test, enable color writes, disable depth writes
-		//Color must be written first in case depth testing is enabled
+		//First pass - Draw normally
 		{
-			m_renderState.shaderCaps.hasAlphaTest = false;
+			auto shader = GetShaderFromCaps(m_renderState.shaderCaps);
+			m_renderState.shaderHandle = *shader;
+			m_validGlState &= ~GLSTATE_PROGRAM;
+			DoRenderPass();
+		}
+
+		auto alphaTestMethodSave = m_renderState.shaderCaps.alphaTestMethod;
+
+		//Second pass - Draw with alpha test inverted, disabling writes for channels test preserves if it fails.
+		{
+			m_renderState.shaderCaps.alphaTestMethod = g_alphaTestInverse[m_renderState.shaderCaps.alphaTestMethod];
 			auto shader = GetShaderFromCaps(m_renderState.shaderCaps);
 			m_renderState.shaderHandle = *shader;
 			m_renderState.depthMask = false;
@@ -1613,32 +1630,10 @@ void CGSH_OpenGL::FlushVertexBuffer()
 			DoRenderPass();
 		}
 
-		//Second pass - Enable alpha test, disable color writes, enable depth writes
-		{
-			m_renderState.shaderCaps.hasAlphaTest = true;
-			auto shader = GetShaderFromCaps(m_renderState.shaderCaps);
-			m_renderState.shaderHandle = *shader;
-			m_renderState.colorMaskR = m_renderState.colorMaskG = false;
-			m_renderState.colorMaskB = m_renderState.colorMaskA = false;
-			m_renderState.depthMask = true;
-			m_validGlState &= ~(GLSTATE_PROGRAM | GLSTATE_COLORMASK | GLSTATE_DEPTHMASK);
-			DoRenderPass();
-		}
-
-		//Restore state
-		m_renderState.colorMaskR = colorMaskRSave;
-		m_renderState.colorMaskG = colorMaskGSave;
-		m_renderState.colorMaskB = colorMaskBSave;
-		m_renderState.colorMaskA = colorMaskASave;
-		m_renderState.shaderCaps.hasAlphaTest = true;
-		m_validGlState &= ~GLSTATE_COLORMASK;
+		m_renderState.depthMask = true;
+		m_renderState.shaderCaps.alphaTestMethod = alphaTestMethodSave;
+		m_validGlState &= ~GLSTATE_DEPTHMASK;
 	}
-#if 0
-	else if(m_renderState.technique == ALPHA_DEPTHONLY)
-	{
-
-	}
-#endif
 	m_vertexBuffer.clear();
 }
 
