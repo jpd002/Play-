@@ -44,8 +44,7 @@ private:
 	enum class TECHNIQUE
 	{
 		STANDARD,
-		ALPHATEST_FBONLY,
-		ALPHATEST_DEPTHONLY,
+		ALPHATEST_TWOPASS,
 	};
 
 	struct SHADERCAPS : public convertible<uint32>
@@ -420,6 +419,7 @@ private:
 
 	static const GLenum				g_nativeClampModes[CGSHandler::CLAMP_MODE_MAX];
 	static const unsigned int		g_shaderClampModes[CGSHandler::CLAMP_MODE_MAX];
+	static const unsigned int		g_alphaTestInverse[CGSHandler::ALPHA_TEST_MAX];
 
 	TEXTUREUPLOADER					m_textureUploader[CGSHandler::PSM_MAX];
 	TEXTUREUPDATER					m_textureUpdater[CGSHandler::PSM_MAX];
