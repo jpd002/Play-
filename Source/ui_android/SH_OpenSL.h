@@ -2,6 +2,7 @@
 
 #include "../../tools/PsfPlayer/Source/SoundHandler.h"
 #include <SLES/OpenSLES.h>
+#include <SLES/OpenSLES_Android.h>
 
 class CSH_OpenSL : public CSoundHandler
 {
@@ -17,6 +18,15 @@ public:
 	void    RecycleBuffers() override;
 	
 private:
-	SLObjectItf    m_engineObject;
-	SLEngineItf    m_engine;
+	void    CreateOutputMix();
+	void    CreateAudioPlayer();
+	
+	SLObjectItf    m_engineObject = nullptr;
+	SLEngineItf    m_engine = nullptr;
+	
+	SLObjectItf    m_outputMixObject = nullptr;
+
+	SLObjectItf                      m_playerObject = nullptr;
+	SLPlayItf                        m_playerPlay = nullptr;
+	SLAndroidSimpleBufferQueueItf    m_playerQueue = nullptr;
 };
