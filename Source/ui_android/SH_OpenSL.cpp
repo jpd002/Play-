@@ -54,7 +54,7 @@ void CSH_OpenSL::CreateAudioPlayer()
 	
 	SLDataLocator_AndroidSimpleBufferQueue bufferQueueLocator = {};
 	bufferQueueLocator.locatorType = SL_DATALOCATOR_ANDROIDSIMPLEBUFFERQUEUE;
-	bufferQueueLocator.numBuffers  = 2;
+	bufferQueueLocator.numBuffers  = BUFFER_COUNT;
 	
 	SLDataFormat_PCM dataFormat = {};
 	dataFormat.formatType    = SL_DATAFORMAT_PCM;
@@ -90,6 +90,23 @@ void CSH_OpenSL::CreateAudioPlayer()
 	
 	result = (*m_playerObject)->GetInterface(m_playerObject, SL_IID_ANDROIDSIMPLEBUFFERQUEUE, &m_playerQueue);
 	assert(result == SL_RESULT_SUCCESS);
+	
+	result = (*m_playerQueue)->RegisterCallback(m_playerQueue, &CSH_OpenSL::QueueCallback, this);
+	assert(result == SL_RESULT_SUCCESS);
+	
+	result = (*m_playerPlay)->SetPlayState(m_playerPlay, SL_PLAYSTATE_PLAYING);
+	assert(result == SL_RESULT_SUCCESS);
+}
+
+void CSH_OpenSL::QueueCallback(SLAndroidSimpleBufferQueueItf, void* context)
+{
+	reinterpret_cast<CSH_OpenSL*>(context)->QueueCallbackImpl();
+}
+
+void CSH_OpenSL::QueueCallbackImpl()
+{
+	assert(m_bufferCount != BUFFER_COUNT);
+	m_bufferCount++;
 }
 
 void CSH_OpenSL::Reset()
@@ -100,16 +117,22 @@ void CSH_OpenSL::Reset()
 	
 	result = (*m_playerQueue)->Clear(m_playerQueue);
 	assert(result == SL_RESULT_SUCCESS);
+	
+	m_bufferCount = BUFFER_COUNT;
 }
 
 void CSH_OpenSL::Write(int16* buffer, unsigned int sampleCount, unsigned int)
 {
+	if(m_bufferCount == 0) return;
+	
 	assert(m_playerQueue != nullptr);
 	
 	SLresult result = SL_RESULT_SUCCESS;
 	
 	result = (*m_playerQueue)->Enqueue(m_playerQueue, buffer, sampleCount * sizeof(int16));
 	assert(result == SL_RESULT_SUCCESS);
+	
+	m_bufferCount--;
 }
 
 bool CSH_OpenSL::HasFreeBuffers()

@@ -18,8 +18,16 @@ public:
 	void    RecycleBuffers() override;
 	
 private:
+	enum
+	{
+		BUFFER_COUNT = 5,
+	};
+	
 	void    CreateOutputMix();
 	void    CreateAudioPlayer();
+	
+	static void    QueueCallback(SLAndroidSimpleBufferQueueItf, void*);
+	void           QueueCallbackImpl();
 	
 	SLObjectItf    m_engineObject = nullptr;
 	SLEngineItf    m_engine = nullptr;
@@ -29,4 +37,6 @@ private:
 	SLObjectItf                      m_playerObject = nullptr;
 	SLPlayItf                        m_playerPlay = nullptr;
 	SLAndroidSimpleBufferQueueItf    m_playerQueue = nullptr;
+	
+	uint32    m_bufferCount = BUFFER_COUNT;
 };
