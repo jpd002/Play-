@@ -25,3 +25,9 @@ Enables usage of 2x sized framebuffers for rendering.
 ### Force Bilinear Filtering
 
 Forces usage of bilinear filtering on all textures.
+
+## Audio Settings
+
+### Enable Audio Output
+
+Enables audio output.
