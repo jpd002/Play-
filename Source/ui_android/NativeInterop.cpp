@@ -12,9 +12,12 @@
 #include "../gs/GSH_Null.h"
 #include "NativeShared.h"
 #include "GSH_OpenGLAndroid.h"
+#include "SH_OpenSL.h"
 #include "StatsManager.h"
 
 CPS2VM* g_virtualMachine = nullptr;
+
+#define PREF_AUDIO_ENABLEOUTPUT ("audio.enableoutput")
 
 static boost::filesystem::path GetStateDirectoryPath()
 {
@@ -26,6 +29,20 @@ static boost::filesystem::path GenerateStatePath(int slot)
 	auto stateDirPath = GetStateDirectoryPath();
 	auto stateFileName = string_format("%s.st%d", g_virtualMachine->m_ee->m_os->GetExecutableName(), slot);
 	return stateDirPath / stateFileName;
+}
+
+static void SetupSoundHandler()
+{
+	assert(g_virtualMachine != nullptr);
+	auto audioEnabled = CAppConfig::GetInstance().GetPreferenceBoolean(PREF_AUDIO_ENABLEOUTPUT);
+	if(audioEnabled)
+	{
+		g_virtualMachine->CreateSoundHandler(&CSH_OpenSL::HandlerFactory);
+	}
+	else
+	{
+		g_virtualMachine->DestroySoundHandler();
+	}
 }
 
 extern "C" JNIEXPORT void JNICALL Java_com_virtualapplications_play_NativeInterop_setFilesDirPath(JNIEnv* env, jobject obj, jstring dirPathString)
@@ -44,6 +61,7 @@ extern "C" JNIEXPORT void JNICALL Java_com_virtualapplications_play_NativeIntero
 #ifdef PROFILE
 	g_virtualMachine->ProfileFrameDone.connect(boost::bind(&CStatsManager::OnProfileFrameDone, &CStatsManager::GetInstance(), _1));
 #endif
+	CAppConfig::GetInstance().RegisterPreferenceBoolean(PREF_AUDIO_ENABLEOUTPUT, true);
 	CGSH_OpenGL::RegisterPreferences();
 }
 
@@ -104,6 +122,7 @@ extern "C" JNIEXPORT void JNICALL Java_com_virtualapplications_play_NativeIntero
 	assert(g_virtualMachine != nullptr);
 	g_virtualMachine->Pause();
 	g_virtualMachine->Reset();
+	SetupSoundHandler();
 	try
 	{
 		g_virtualMachine->m_ee->m_os->BootFromFile(GetStringFromJstring(env, selectedFilePath).c_str());
@@ -121,6 +140,7 @@ extern "C" JNIEXPORT void JNICALL Java_com_virtualapplications_play_NativeIntero
 	CAppConfig::GetInstance().SetPreferenceString(PS2VM_CDROM0PATH, GetStringFromJstring(env, selectedFilePath).c_str());
 	g_virtualMachine->Pause();
 	g_virtualMachine->Reset();
+	SetupSoundHandler();
 	try
 	{
 		g_virtualMachine->m_ee->m_os->BootFromCDROM();
