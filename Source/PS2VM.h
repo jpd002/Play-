@@ -92,11 +92,15 @@ private:
 	void						ResumeImpl();
 	void						PauseImpl();
 	void						DestroyImpl();
-	void						CreateGsImpl(const CGSHandler::FactoryFunction&);
-	void						DestroyGsImpl();
+	
+	void						CreateGsHandlerImpl(const CGSHandler::FactoryFunction&);
+	void						DestroyGsHandlerImpl();
 
 	void						CreatePadHandlerImpl(const CPadHandler::FactoryFunction&);
 	void						DestroyPadHandlerImpl();
+	
+	void						CreateSoundHandlerImpl(const CSoundHandler::FactoryFunction&);
+	void						DestroySoundHandlerImpl();
 
 	void						UpdateEe();
 	void						UpdateIop();

@@ -9,7 +9,6 @@
 #include "ee/PS2OS.h"
 #include "Ps2Const.h"
 #include "iop/Iop_SifManPs2.h"
-#include "PtrMacro.h"
 #include "StdStream.h"
 #include "GZipStream.h"
 #include "MemoryStateFile.h"
@@ -104,7 +103,7 @@ CPS2VM::~CPS2VM()
 void CPS2VM::CreateGSHandler(const CGSHandler::FactoryFunction& factoryFunction)
 {
 	if(m_ee->m_gs != nullptr) return;
-	m_mailBox.SendCall(bind(&CPS2VM::CreateGsImpl, this, factoryFunction), true);
+	m_mailBox.SendCall([this, factoryFunction] () { CreateGsHandlerImpl(factoryFunction); }, true);
 }
 
 CGSHandler* CPS2VM::GetGSHandler()
@@ -115,13 +114,13 @@ CGSHandler* CPS2VM::GetGSHandler()
 void CPS2VM::DestroyGSHandler()
 {
 	if(m_ee->m_gs == nullptr) return;
-	m_mailBox.SendCall(std::bind(&CPS2VM::DestroyGsImpl, this), true);
+	m_mailBox.SendCall([this] () { DestroyGsHandlerImpl(); }, true);
 }
 
 void CPS2VM::CreatePadHandler(const CPadHandler::FactoryFunction& factoryFunction)
 {
 	if(m_pad != nullptr) return;
-	m_mailBox.SendCall(std::bind(&CPS2VM::CreatePadHandlerImpl, this, factoryFunction), true);
+	m_mailBox.SendCall([this, factoryFunction] () { CreatePadHandlerImpl(factoryFunction); }, true);
 }
 
 CPadHandler* CPS2VM::GetPadHandler()
@@ -132,32 +131,19 @@ CPadHandler* CPS2VM::GetPadHandler()
 void CPS2VM::DestroyPadHandler()
 {
 	if(m_pad == nullptr) return;
-	m_mailBox.SendCall(std::bind(&CPS2VM::DestroyPadHandlerImpl, this), true);
+	m_mailBox.SendCall([this] () { DestroyPadHandlerImpl(); }, true);
 }
 
 void CPS2VM::CreateSoundHandler(const CSoundHandler::FactoryFunction& factoryFunction)
 {
 	if(m_soundHandler != nullptr) return;
-	m_mailBox.SendCall(
-		[this, factoryFunction] ()
-		{
-			m_soundHandler = factoryFunction();
-		},
-		true
-	);
+	m_mailBox.SendCall([this, factoryFunction] () { CreateSoundHandlerImpl(factoryFunction); }, true);
 }
 
 void CPS2VM::DestroySoundHandler()
 {
 	if(m_soundHandler == nullptr) return;
-	m_mailBox.SendCall(
-		[this] ()
-		{
-			delete m_soundHandler;
-			m_soundHandler = nullptr;
-		},
-		true
-	);
+	m_mailBox.SendCall([this] () { DestroySoundHandlerImpl(); }, true);
 }
 
 CVirtualMachine::STATUS CPS2VM::GetStatus() const
@@ -503,21 +489,25 @@ void CPS2VM::ResumeImpl()
 
 void CPS2VM::DestroyImpl()
 {
-	DELETEPTR(m_ee->m_gs);
+	DestroyGsHandlerImpl();
+	DestroyPadHandlerImpl();
+	DestroySoundHandlerImpl();
 	m_nEnd = true;
 }
 
-void CPS2VM::CreateGsImpl(const CGSHandler::FactoryFunction& factoryFunction)
+void CPS2VM::CreateGsHandlerImpl(const CGSHandler::FactoryFunction& factoryFunction)
 {
 	m_ee->m_gs = factoryFunction();
 	m_ee->m_gs->Initialize();
 	m_ee->m_gs->OnNewFrame.connect(boost::bind(&CPS2VM::OnGsNewFrame, this));
 }
 
-void CPS2VM::DestroyGsImpl()
+void CPS2VM::DestroyGsHandlerImpl()
 {
+	if(m_ee->m_gs == nullptr) return;
 	m_ee->m_gs->Release();
-	DELETEPTR(m_ee->m_gs);
+	delete m_ee->m_gs;
+	m_ee->m_gs = nullptr;
 }
 
 void CPS2VM::CreatePadHandlerImpl(const CPadHandler::FactoryFunction& factoryFunction)
@@ -528,7 +518,21 @@ void CPS2VM::CreatePadHandlerImpl(const CPadHandler::FactoryFunction& factoryFun
 
 void CPS2VM::DestroyPadHandlerImpl()
 {
-	DELETEPTR(m_pad);
+	if(m_pad == nullptr) return;
+	delete m_pad;
+	m_pad = nullptr;
+}
+
+void CPS2VM::CreateSoundHandlerImpl(const CSoundHandler::FactoryFunction& factoryFunction)
+{
+	m_soundHandler = factoryFunction();
+}
+
+void CPS2VM::DestroySoundHandlerImpl()
+{
+	if(m_soundHandler == nullptr) return;
+	delete m_soundHandler;
+	m_soundHandler = nullptr;
 }
 
 void CPS2VM::OnGsNewFrame()
