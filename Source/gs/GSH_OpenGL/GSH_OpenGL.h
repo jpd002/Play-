@@ -8,6 +8,9 @@
 #include "opengl/Program.h"
 #include "opengl/Shader.h"
 #include "opengl/Resource.h"
+#if defined(__APPLE__)
+#include "OpenGL/gl3ext.h"
+#endif
 
 #define PREF_CGSH_OPENGL_ENABLEHIGHRESMODE        "renderer.opengl.enablehighresmode"
 #define PREF_CGSH_OPENGL_FORCEBILINEARTEXTURES    "renderer.opengl.forcebilineartextures"
