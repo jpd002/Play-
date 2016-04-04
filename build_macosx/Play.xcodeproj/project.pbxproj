@@ -84,6 +84,8 @@
 		70B414871AA21D1100AC7DE4 /* Iop_FileIoHandler2300.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 70B414811AA21D1100AC7DE4 /* Iop_FileIoHandler2300.cpp */; };
 		70B414881AA21D1100AC7DE4 /* Iop_LibSd.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 70B414831AA21D1100AC7DE4 /* Iop_LibSd.cpp */; };
 		70C0C84E1ADC97A900492241 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 70C0C84D1ADC97A900492241 /* Images.xcassets */; };
+		70CCA2711CB1E965006F99CA /* OpenAL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 70CCA2701CB1E965006F99CA /* OpenAL.framework */; };
+		70CCA2741CB1E99A006F99CA /* SH_OpenAL.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 70CCA2721CB1E99A006F99CA /* SH_OpenAL.cpp */; };
 		70D9F12C1AFB016900197BBE /* COP_VU_Reflection.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 70D9F0ED1AFB016900197BBE /* COP_VU_Reflection.cpp */; };
 		70D9F12D1AFB016900197BBE /* COP_VU.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 70D9F0EE1AFB016900197BBE /* COP_VU.cpp */; };
 		70D9F12E1AFB016900197BBE /* Dmac_Channel.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 70D9F0F01AFB016900197BBE /* Dmac_Channel.cpp */; };
@@ -347,6 +349,9 @@
 		70B414831AA21D1100AC7DE4 /* Iop_LibSd.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Iop_LibSd.cpp; path = ../Source/iop/Iop_LibSd.cpp; sourceTree = "<group>"; };
 		70B414841AA21D1100AC7DE4 /* Iop_LibSd.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Iop_LibSd.h; path = ../Source/iop/Iop_LibSd.h; sourceTree = "<group>"; };
 		70C0C84D1ADC97A900492241 /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = "Play!/Images.xcassets"; sourceTree = "<group>"; };
+		70CCA2701CB1E965006F99CA /* OpenAL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenAL.framework; path = System/Library/Frameworks/OpenAL.framework; sourceTree = SDKROOT; };
+		70CCA2721CB1E99A006F99CA /* SH_OpenAL.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SH_OpenAL.cpp; path = ../tools/PsfPlayer/Source/SH_OpenAL.cpp; sourceTree = "<group>"; };
+		70CCA2731CB1E99A006F99CA /* SH_OpenAL.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SH_OpenAL.h; path = ../tools/PsfPlayer/Source/SH_OpenAL.h; sourceTree = "<group>"; };
 		70D9F0ED1AFB016900197BBE /* COP_VU_Reflection.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = COP_VU_Reflection.cpp; path = ../Source/ee/COP_VU_Reflection.cpp; sourceTree = "<group>"; };
 		70D9F0EE1AFB016900197BBE /* COP_VU.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = COP_VU.cpp; path = ../Source/ee/COP_VU.cpp; sourceTree = "<group>"; };
 		70D9F0EF1AFB016900197BBE /* COP_VU.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = COP_VU.h; path = ../Source/ee/COP_VU.h; sourceTree = "<group>"; };
@@ -522,6 +527,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				70CCA2711CB1E965006F99CA /* OpenAL.framework in Frameworks */,
 				7068498B151E891200C9574F /* libbz2.dylib in Frameworks */,
 				7068497D151E885200C9574F /* libz.dylib in Frameworks */,
 				70684979151E882000C9574F /* libCodeGen.a in Frameworks */,
@@ -654,7 +660,6 @@
 		70684A05151E89BC00C9574F /* ui_macosx */ = {
 			isa = PBXGroup;
 			children = (
-				70BB57701C4551600053A1F6 /* PreferencesWindow */,
 				70684A06151E89E200C9574F /* ApplicationDelegate.h */,
 				70684A07151E89E200C9574F /* ApplicationDelegate.mm */,
 				70684A33151E8B2400C9574F /* English.lproj */,
@@ -672,7 +677,10 @@
 				700DF99415DF699000818F3B /* patches.xml */,
 				70684A15151E89E200C9574F /* PH_HidMacOSX.cpp */,
 				70684A16151E89E200C9574F /* PH_HidMacOSX.h */,
+				70BB57701C4551600053A1F6 /* PreferencesWindow */,
 				7E4C15731517CBD400357777 /* Purei_Prefix.pch */,
+				70CCA2721CB1E99A006F99CA /* SH_OpenAL.cpp */,
+				70CCA2731CB1E99A006F99CA /* SH_OpenAL.h */,
 			);
 			name = ui_macosx;
 			sourceTree = "<group>";
@@ -959,26 +967,19 @@
 		7E7832AA1516710A00C04C62 /* Dependencies */ = {
 			isa = PBXGroup;
 			children = (
-				7E4C15761517CDD000357777 /* Framework.xcodeproj */,
-				7068496E151E880E00C9574F /* CodeGen.xcodeproj */,
-				7068498A151E891200C9574F /* libbz2.dylib */,
-				7068497C151E885200C9574F /* libz.dylib */,
-				70684A28151E8A2C00C9574F /* IOKit.framework */,
-				7068497A151E883D00C9574F /* OpenGL.framework */,
-				7E7832AB1516710A00C04C62 /* Cocoa.framework */,
-				7E7832AD1516710A00C04C62 /* Other Frameworks */,
-			);
-			name = Dependencies;
-			sourceTree = "<group>";
-		};
-		7E7832AD1516710A00C04C62 /* Other Frameworks */ = {
-			isa = PBXGroup;
-			children = (
 				7E7832AE1516710A00C04C62 /* AppKit.framework */,
+				7E7832AB1516710A00C04C62 /* Cocoa.framework */,
+				7068496E151E880E00C9574F /* CodeGen.xcodeproj */,
 				7E7832AF1516710A00C04C62 /* CoreData.framework */,
 				7E7832B01516710A00C04C62 /* Foundation.framework */,
+				7E4C15761517CDD000357777 /* Framework.xcodeproj */,
+				70684A28151E8A2C00C9574F /* IOKit.framework */,
+				7068498A151E891200C9574F /* libbz2.dylib */,
+				7068497C151E885200C9574F /* libz.dylib */,
+				70CCA2701CB1E965006F99CA /* OpenAL.framework */,
+				7068497A151E883D00C9574F /* OpenGL.framework */,
 			);
-			name = "Other Frameworks";
+			name = Dependencies;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -1159,6 +1160,7 @@
 				706849E0151E896900C9574F /* Iop_Cdvdfsv.cpp in Sources */,
 				70D9F1411AFB016900197BBE /* MA_VU_Upper.cpp in Sources */,
 				706849E1151E896900C9574F /* Iop_Cdvdman.cpp in Sources */,
+				70CCA2741CB1E99A006F99CA /* SH_OpenAL.cpp in Sources */,
 				706849E4151E896900C9574F /* Iop_Dmac.cpp in Sources */,
 				70D9F13E1AFB016900197BBE /* MA_EE.cpp in Sources */,
 				70D9F1581AFB018900197BBE /* GsCachedArea.cpp in Sources */,
