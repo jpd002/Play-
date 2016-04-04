@@ -8,6 +8,8 @@
 	IBOutlet UISwitch*    enableHighResMode;
 	IBOutlet UISwitch*    forceBilinearFiltering;
 	
+	IBOutlet UISwitch*    enableAudioOutput;
+	
 	IBOutlet UILabel*    versionInfoLabel;
 }
 
