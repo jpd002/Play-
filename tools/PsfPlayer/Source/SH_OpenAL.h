@@ -1,5 +1,4 @@
-#ifndef _CSH_OPENAL_H_
-#define _CSH_OPENAL_H_
+#pragma once
 
 #include <deque>
 #include "SoundHandler.h"
@@ -38,5 +37,3 @@ private:
 	bool					m_mustSync;
 	ALuint					m_bufferNames[MAX_BUFFERS];
 };
-
-#endif
