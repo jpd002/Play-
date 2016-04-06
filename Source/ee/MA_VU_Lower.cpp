@@ -815,16 +815,7 @@ void CMA_VU::CLower::ERSQRT()
 //0D
 void CMA_VU::CLower::LQD()
 {
-	m_codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2VI[m_nIS]));
-	m_codeGen->PushCst(1);
-	m_codeGen->Sub();
-	m_codeGen->PullRel(offsetof(CMIPS, m_State.nCOP2VI[m_nIS]));
-
-	m_codeGen->PushRelRef(offsetof(CMIPS, m_vuMem));
-	VUShared::ComputeMemAccessAddr(m_codeGen, m_nIS, 0, 0);
-	m_codeGen->AddRef();
-
-	VUShared::LQbase(m_codeGen, m_nDest, m_nIT);
+	VUShared::LQD(m_codeGen, m_nDest, m_nIT, m_nIS, 0);
 }
 
 //0E
