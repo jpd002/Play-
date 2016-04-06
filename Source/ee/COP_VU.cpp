@@ -701,6 +701,12 @@ void CCOP_VU::VOPMULA()
 	VUShared::OPMULA(m_codeGen, m_nFS, m_nFT);
 }
 
+//0D
+void CCOP_VU::VLQD()
+{
+	VUShared::LQD(m_codeGen, m_nDest, m_nIT, m_nIS, PS2::VUMEM0ADDR);
+}
+
 //0E
 void CCOP_VU::VRSQRT()
 {
@@ -848,7 +854,7 @@ CCOP_VU::InstructionFuncConstant CCOP_VU::m_pOpVx2[0x20] =
 	//0x00
 	&CCOP_VU::VADDAbc,		&CCOP_VU::VSUBAbc,		&CCOP_VU::VMADDAbc,		&CCOP_VU::VMSUBAbc,		&CCOP_VU::VITOF12,		&CCOP_VU::VFTOI12,		&CCOP_VU::VMULAbc,		&CCOP_VU::VMULAi,
 	//0x08
-	&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::VMULA,		&CCOP_VU::VOPMULA,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::VRSQRT,		&CCOP_VU::VILWR,
+	&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::VMULA,		&CCOP_VU::VOPMULA,		&CCOP_VU::Illegal,		&CCOP_VU::VLQD,			&CCOP_VU::VRSQRT,		&CCOP_VU::VILWR,
 	//0x10
 	&CCOP_VU::VRINIT,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,
 	//0x18
