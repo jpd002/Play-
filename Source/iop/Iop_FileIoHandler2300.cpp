@@ -2,6 +2,7 @@
 #include "Iop_Ioman.h"
 #include "../RegisterStateFile.h"
 #include "../Log.h"
+#include "../Ps2Const.h"
 
 #define LOG_NAME ("iop_fileio")
 
@@ -162,7 +163,8 @@ uint32 CFileIoHandler2300::InvokeRead(uint32* args, uint32 argsSize, uint32* ret
 {
 	assert(retSize == 4);
 	auto command = reinterpret_cast<READCOMMAND*>(args);
-	auto result = m_ioman->Read(command->fd, command->size, reinterpret_cast<void*>(ram + command->buffer));
+	uint32 readAddress = command->buffer & (PS2::EE_RAM_SIZE - 1);
+	auto result = m_ioman->Read(command->fd, command->size, reinterpret_cast<void*>(ram + readAddress));
 
 	//Send response
 	if(m_resultPtr[0] != 0)
