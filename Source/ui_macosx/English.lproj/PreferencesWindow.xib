@@ -29,14 +29,20 @@
                             <action selector="onToolBarButtonPressed:" target="-2" id="WRg-Fb-U7b"/>
                         </connections>
                     </toolbarItem>
-                    <toolbarItem implicitItemIdentifier="DAF19A38-1F2D-4A76-88CD-1B63B654A381" label="Filesystem" paletteLabel="Filesystem" tag="1" image="NSFolder" selectable="YES" id="SRE-jX-uO8">
+                    <toolbarItem implicitItemIdentifier="DAF19A38-1F2D-4A76-88CD-1B63B654A381" label="Filesystem" paletteLabel="Filesystem" tag="2" image="NSFolder" selectable="YES" id="SRE-jX-uO8">
                         <connections>
                             <action selector="onToolBarButtonPressed:" target="-2" id="Gdx-Pv-X7f"/>
+                        </connections>
+                    </toolbarItem>
+                    <toolbarItem implicitItemIdentifier="CE1785D1-3637-4FFC-AD90-38DB893A9234" label="Audio" paletteLabel="Audio" tag="1" image="NSComputer" selectable="YES" id="czM-Ls-onj">
+                        <connections>
+                            <action selector="onToolBarButtonPressed:" target="-2" id="F4b-ar-aNK"/>
                         </connections>
                     </toolbarItem>
                 </allowedToolbarItems>
                 <defaultToolbarItems>
                     <toolbarItem reference="rwX-i3-mrU"/>
+                    <toolbarItem reference="czM-Ls-onj"/>
                     <toolbarItem reference="SRE-jX-uO8"/>
                 </defaultToolbarItems>
             </toolbar>

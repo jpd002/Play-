@@ -1,6 +1,7 @@
 #import <Foundation/Foundation.h>
 #import "PreferencesWindowController.h"
 #import "VideoSettingsViewController.h"
+#import "AudioSettingsViewController.h"
 #import "VfsManagerViewController.h"
 #include "../AppConfig.h"
 
@@ -49,6 +50,9 @@ static PreferencesWindowController* g_sharedInstance = nil;
 		currentViewController = [[VideoSettingsViewController alloc] init];
 		break;
 	case 1:
+		currentViewController = [[AudioSettingsViewController alloc] init];
+		break;
+	case 2:
 		currentViewController = [[VfsManagerViewController alloc] init];
 		break;
 	default:

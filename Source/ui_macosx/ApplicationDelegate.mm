@@ -97,6 +97,7 @@
 	[[PreferencesWindowController defaultController] show];
 	auto gs = g_virtualMachine->GetGSHandler();
 	if(gs != nullptr) gs->NotifyPreferencesChanged();
+	[self setupSoundHandler];
 }
 
 -(IBAction)bootElfMenuSelected: (id)sender

@@ -126,6 +126,8 @@
 		70D9F1611AFB019F00197BBE /* GSH_OpenGL_Texture.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 70D9F15D1AFB019F00197BBE /* GSH_OpenGL_Texture.cpp */; };
 		70D9F1621AFB019F00197BBE /* GSH_OpenGL.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 70D9F15E1AFB019F00197BBE /* GSH_OpenGL.cpp */; };
 		70F0372E15D83D0E006A96F1 /* Iop_Thmsgbx.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 70F0372C15D83D0E006A96F1 /* Iop_Thmsgbx.cpp */; };
+		70F2AB0B1CBB558B00D0773D /* AudioSettingsView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 70F2AB091CBB558B00D0773D /* AudioSettingsView.xib */; };
+		70F2AB0E1CBB56B600D0773D /* AudioSettingsViewController.mm in Sources */ = {isa = PBXBuildFile; fileRef = 70F2AB0D1CBB56B600D0773D /* AudioSettingsViewController.mm */; };
 		7E4C15751517CBD400357777 /* main.mm in Sources */ = {isa = PBXBuildFile; fileRef = 7E4C15721517CBD400357777 /* main.mm */; };
 		7E4C15811517E6F800357777 /* libFramework.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 7E4C157E1517CDD200357777 /* libFramework.a */; };
 		7E7832AC1516710A00C04C62 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7E7832AB1516710A00C04C62 /* Cocoa.framework */; };
@@ -423,6 +425,9 @@
 		70D9F15F1AFB019F00197BBE /* GSH_OpenGL.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GSH_OpenGL.h; path = ../Source/gs/GSH_OpenGL/GSH_OpenGL.h; sourceTree = "<group>"; };
 		70F0372C15D83D0E006A96F1 /* Iop_Thmsgbx.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Iop_Thmsgbx.cpp; path = ../Source/iop/Iop_Thmsgbx.cpp; sourceTree = "<group>"; };
 		70F0372D15D83D0E006A96F1 /* Iop_Thmsgbx.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Iop_Thmsgbx.h; path = ../Source/iop/Iop_Thmsgbx.h; sourceTree = "<group>"; };
+		70F2AB0A1CBB558B00D0773D /* English */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = English; path = AudioSettingsView.xib; sourceTree = "<group>"; };
+		70F2AB0C1CBB56B600D0773D /* AudioSettingsViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AudioSettingsViewController.h; path = ../Source/ui_macosx/AudioSettingsViewController.h; sourceTree = "<group>"; };
+		70F2AB0D1CBB56B600D0773D /* AudioSettingsViewController.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = AudioSettingsViewController.mm; path = ../Source/ui_macosx/AudioSettingsViewController.mm; sourceTree = "<group>"; };
 		70F2AB0F1CBC544C00D0773D /* PreferenceDefs.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PreferenceDefs.h; path = ../Source/ui_macosx/PreferenceDefs.h; sourceTree = "<group>"; };
 		7E4C15711517CBD400357777 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = ../Source/ui_macosx/Info.plist; sourceTree = "<group>"; };
 		7E4C15721517CBD400357777 /* main.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = main.mm; path = ../Source/ui_macosx/main.mm; sourceTree = "<group>"; };
@@ -696,6 +701,7 @@
 				705D396D1C43FFC900D267A6 /* PreferencesWindow.xib */,
 				70684A38151E8B2400C9574F /* VfsManagerView.xib */,
 				705D39701C44A3FF00D267A6 /* VideoSettingsView.xib */,
+				70F2AB091CBB558B00D0773D /* AudioSettingsView.xib */,
 			);
 			name = English.lproj;
 			path = ../Source/ui_macosx/English.lproj;
@@ -717,6 +723,8 @@
 		70BB57701C4551600053A1F6 /* PreferencesWindow */ = {
 			isa = PBXGroup;
 			children = (
+				70F2AB0C1CBB56B600D0773D /* AudioSettingsViewController.h */,
+				70F2AB0D1CBB56B600D0773D /* AudioSettingsViewController.mm */,
 				705D396A1C43FFAF00D267A6 /* PreferencesWindowController.h */,
 				705D396B1C43FFAF00D267A6 /* PreferencesWindowController.mm */,
 				70684A19151E89E200C9574F /* VfsManagerBindings.h */,
@@ -1072,6 +1080,7 @@
 				70C0C84E1ADC97A900492241 /* Images.xcassets in Resources */,
 				700DF99515DF699000818F3B /* patches.xml in Resources */,
 				705D396F1C43FFC900D267A6 /* PreferencesWindow.xib in Resources */,
+				70F2AB0B1CBB558B00D0773D /* AudioSettingsView.xib in Resources */,
 				700DF99C15DFC0CB00818F3B /* MainMenu.xib in Resources */,
 				700FB58015E11E1E00C322DE /* OutputWindow.xib in Resources */,
 				70320D1E1A99EAC4001E9C4B /* GeneralSettings.xcconfig in Resources */,
@@ -1212,6 +1221,7 @@
 				7056F2851B2683C700389AFB /* EeExecutor.cpp in Sources */,
 				70684A01151E896900C9574F /* Iop_Timrman.cpp in Sources */,
 				70D9F15A1AFB018900197BBE /* GSHandler.cpp in Sources */,
+				70F2AB0E1CBB56B600D0773D /* AudioSettingsViewController.mm in Sources */,
 				70684A02151E896900C9574F /* Iop_Vblank.cpp in Sources */,
 				70D9F14E1AFB016900197BBE /* VUShared.cpp in Sources */,
 				70684A03151E896900C9574F /* IopBios.cpp in Sources */,
@@ -1296,6 +1306,14 @@
 				70684A39151E8B2400C9574F /* English */,
 			);
 			name = VfsManagerView.xib;
+			sourceTree = "<group>";
+		};
+		70F2AB091CBB558B00D0773D /* AudioSettingsView.xib */ = {
+			isa = PBXVariantGroup;
+			children = (
+				70F2AB0A1CBB558B00D0773D /* English */,
+			);
+			name = AudioSettingsView.xib;
 			sourceTree = "<group>";
 		};
 /* End PBXVariantGroup section */
