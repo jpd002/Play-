@@ -423,6 +423,7 @@
 		70D9F15F1AFB019F00197BBE /* GSH_OpenGL.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GSH_OpenGL.h; path = ../Source/gs/GSH_OpenGL/GSH_OpenGL.h; sourceTree = "<group>"; };
 		70F0372C15D83D0E006A96F1 /* Iop_Thmsgbx.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Iop_Thmsgbx.cpp; path = ../Source/iop/Iop_Thmsgbx.cpp; sourceTree = "<group>"; };
 		70F0372D15D83D0E006A96F1 /* Iop_Thmsgbx.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Iop_Thmsgbx.h; path = ../Source/iop/Iop_Thmsgbx.h; sourceTree = "<group>"; };
+		70F2AB0F1CBC544C00D0773D /* PreferenceDefs.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PreferenceDefs.h; path = ../Source/ui_macosx/PreferenceDefs.h; sourceTree = "<group>"; };
 		7E4C15711517CBD400357777 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = ../Source/ui_macosx/Info.plist; sourceTree = "<group>"; };
 		7E4C15721517CBD400357777 /* main.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = main.mm; path = ../Source/ui_macosx/main.mm; sourceTree = "<group>"; };
 		7E4C15731517CBD400357777 /* Purei_Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Purei_Prefix.pch; path = ../Source/ui_macosx/Purei_Prefix.pch; sourceTree = "<group>"; };
@@ -677,6 +678,7 @@
 				700DF99415DF699000818F3B /* patches.xml */,
 				70684A15151E89E200C9574F /* PH_HidMacOSX.cpp */,
 				70684A16151E89E200C9574F /* PH_HidMacOSX.h */,
+				70F2AB0F1CBC544C00D0773D /* PreferenceDefs.h */,
 				70BB57701C4551600053A1F6 /* PreferencesWindow */,
 				7E4C15731517CBD400357777 /* Purei_Prefix.pch */,
 				70CCA2721CB1E99A006F99CA /* SH_OpenAL.cpp */,

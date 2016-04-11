@@ -2,7 +2,9 @@
 #import "PreferencesWindowController.h"
 #import "GSH_OpenGLMacOSX.h"
 #import "PH_HidMacOSX.h"
+#import "../../tools/PsfPlayer/Source/SH_OpenAL.h"
 #import "Globals.h"
+#import "PreferenceDefs.h"
 #import "../ee/PS2OS.h"
 #import "../ScopedVmPauser.h"
 #import "../PS2VM_Preferences.h"
@@ -12,6 +14,8 @@
 
 -(void)applicationDidFinishLaunching: (NSNotification*)notification
 {
+	CAppConfig::GetInstance().RegisterPreferenceBoolean(PREFERENCE_AUDIO_ENABLEOUTPUT, true);
+	
 	g_virtualMachine->Initialize();
 	
 	outputWindowController = [[OutputWindowController alloc] initWithWindowNibName: @"OutputWindow"];
@@ -25,6 +29,7 @@
 	void* lowLevelContext = [context CGLContextObj];
 	g_virtualMachine->CreateGSHandler(CGSH_OpenGLMacOSX::GetFactoryFunction(reinterpret_cast<CGLContextObj>(lowLevelContext)));
 	g_virtualMachine->CreatePadHandler(CPH_HidMacOSX::GetFactoryFunction());
+	[self setupSoundHandler];
 #ifdef _DEBUG
 	//Check arguments
 	NSArray* args = [[NSProcessInfo processInfo] arguments];
@@ -71,6 +76,19 @@
 	NSOpenGLContext* context = [[[NSOpenGLContext alloc] initWithFormat: pixelFormat shareContext:nil] autorelease];
 	[outputWindowController.openGlView setPixelFormat: pixelFormat];
 	[outputWindowController.openGlView setOpenGLContext: context];
+}
+
+-(void)setupSoundHandler
+{
+	auto audioEnabled = CAppConfig::GetInstance().GetPreferenceBoolean(PREFERENCE_AUDIO_ENABLEOUTPUT);
+	if(audioEnabled)
+	{
+		g_virtualMachine->CreateSoundHandler(&CSH_OpenAL::HandlerFactory);
+	}
+	else
+	{
+		g_virtualMachine->DestroySoundHandler();
+	}
 }
 
 -(IBAction)showPreferences: (id)sender
