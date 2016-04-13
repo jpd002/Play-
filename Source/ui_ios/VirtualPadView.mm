@@ -37,7 +37,7 @@
 {
 	auto frame = self.frame;
 	auto padItems = CVirtualPad::GetItems(frame.size.width, frame.size.height);
-	NSMutableArray<VirtualPadItem>* items = [[NSMutableArray alloc] init];
+	NSMutableArray<VirtualPadItem>* items = [[NSMutableArray<VirtualPadItem> alloc] init];
 	for(const auto& padItem : padItems)
 	{
 		auto itemWidth = padItem.x2 - padItem.x1;

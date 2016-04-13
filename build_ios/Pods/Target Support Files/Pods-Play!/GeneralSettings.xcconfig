@@ -9,13 +9,13 @@ ENABLE_BITCODE = NO
 CODE_SIGN_IDENTITY = -
 
 OTHER_CFLAGS = -fvisibility=hidden $(inherited) -isystem "${PODS_ROOT}/Headers/Public" -isystem "${PODS_ROOT}/Headers/Public/SDWebImage"
-OTHER_LDFLAGS = $(inherited) -ObjC -l"SDWebImage" -framework "ImageIO" -framework boost
+OTHER_LDFLAGS = $(inherited) -ObjC -l"SDWebImage" -framework "ImageIO"
 
 PRODUCT_NAME = Play!
-INFOPLIST_FILE = ../Source/ui_ios/Info.plist
+INFOPLIST_FILE = ${PODS_ROOT}/../../Source/ui_ios/Info.plist
 
 GCC_PRECOMPILE_PREFIX_HEADER = YES
-GCC_PREFIX_HEADER = ../Source/ui_ios/Purei_Prefix.pch
+GCC_PREFIX_HEADER = ${PODS_ROOT}/../../Source/ui_ios/Purei_Prefix.pch
 GENERAL_GCC_PREPROCESSOR_DEFINITIONS = _IOP_EMULATE_MODULES GLES_COMPATIBILITY
 
 CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR
@@ -33,9 +33,9 @@ GCC_WARN_UNDECLARED_SELECTOR = YES
 GCC_SYMBOLS_PRIVATE_EXTERN = YES
 GCC_INPUT_FILETYPE = sourcecode.cpp.objcpp
 
-FRAMEWORK_PATH = ../../Framework/
-CODEGEN_PATH = ../../CodeGen/
-BOOST_FRAMEWORK_PATH = ../../Dependencies/BoostMac/ios/framework/
+FRAMEWORK_PATH = ${PODS_ROOT}/../../../Framework/
+CODEGEN_PATH = ${PODS_ROOT}/../../../CodeGen/
+BOOST_FRAMEWORK_PATH = ${PODS_ROOT}/../../../boost_1_58_0
 
-FRAMEWORK_SEARCH_PATHS = $(BOOST_FRAMEWORK_PATH) .
-HEADER_SEARCH_PATHS = $(BOOST_FRAMEWORK_PATH)/boost.framework/Headers $(CODEGEN_PATH)/include $(FRAMEWORK_PATH)/include ../include $(inherited) "${PODS_ROOT}/Headers/Public" "${PODS_ROOT}/Headers/Public/SDWebImage"
+FRAMEWORK_SEARCH_PATHS = $(BOOST_FRAMEWORK_PATH) ${PODS_ROOT}/../.
+HEADER_SEARCH_PATHS = $(BOOST_FRAMEWORK_PATH) $(BOOST_FRAMEWORK_PATH)/boost.framework/Headers $(CODEGEN_PATH)/include $(FRAMEWORK_PATH)/include ${PODS_ROOT}/../../include $(inherited) "${PODS_ROOT}/Headers/Public" "${PODS_ROOT}/Headers/Public/SDWebImage"
