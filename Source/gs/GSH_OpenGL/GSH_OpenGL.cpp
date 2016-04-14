@@ -1507,6 +1507,12 @@ void CGSH_OpenGL::Prim_Triangle()
 
 	assert((m_vertexBuffer.size() + 3) <= VERTEX_BUFFER_SIZE);
 	m_vertexBuffer.insert(m_vertexBuffer.end(), std::begin(vertices), std::end(vertices));
+
+	if(m_renderState.technique == TECHNIQUE::ALPHATEST_TWOPASS)
+	{
+		//Two pass alpha test cannot be batched due to overlapping primitives
+		FlushVertexBuffer();
+	}
 }
 
 void CGSH_OpenGL::Prim_Sprite()
@@ -1585,6 +1591,12 @@ void CGSH_OpenGL::Prim_Sprite()
 
 	assert((m_vertexBuffer.size() + 6) <= VERTEX_BUFFER_SIZE);
 	m_vertexBuffer.insert(m_vertexBuffer.end(), std::begin(vertices), std::end(vertices));
+
+	if(m_renderState.technique == TECHNIQUE::ALPHATEST_TWOPASS)
+	{
+		//Two pass alpha test cannot be batched due to overlapping primitives
+		FlushVertexBuffer();
+	}
 }
 
 void CGSH_OpenGL::FlushVertexBuffer()
