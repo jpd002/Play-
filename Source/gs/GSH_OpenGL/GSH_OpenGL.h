@@ -333,7 +333,7 @@ private:
 	static bool						CanRegionRepeatClampModeSimplified(uint32, uint32);
 	void							FillShaderCapsFromTexture(SHADERCAPS&, const uint64&, const uint64&, const uint64&, const uint64&);
 	void							FillShaderCapsFromTest(SHADERCAPS&, const uint64&);
-	static TECHNIQUE				GetTechniqueFromTest(const uint64&);
+	TECHNIQUE						GetTechniqueFromTest(const uint64&);
 
 	void							SetupTexture(uint64, uint64, uint64, uint64, uint64);
 	static bool						IsCompatibleFramebufferPSM(unsigned int, unsigned int);
@@ -372,6 +372,7 @@ private:
 	bool							m_forceBilinearTextures = false;
 	unsigned int					m_fbScale = 1;
 	bool							m_multisampleEnabled = false;
+	bool							m_accurateAlphaTestEnabled = false;
 
 	uint8*							m_pCvtBuffer;
 

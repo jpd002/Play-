@@ -1164,7 +1164,10 @@ CGSH_OpenGL::TECHNIQUE CGSH_OpenGL::GetTechniqueFromTest(const uint64& testReg)
 		{
 			if(test.nAlphaFail == ALPHA_TEST_FAIL_FBONLY)
 			{
-				technique = TECHNIQUE::ALPHATEST_TWOPASS;
+				if(m_accurateAlphaTestEnabled)
+				{
+					technique = TECHNIQUE::ALPHATEST_TWOPASS;
+				}
 			}
 		}
 	}
