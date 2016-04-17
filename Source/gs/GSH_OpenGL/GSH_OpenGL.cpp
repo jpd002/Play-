@@ -91,7 +91,6 @@ void CGSH_OpenGL::ReleaseImpl()
 	m_presentVertexBuffer.Reset();
 	m_presentVertexArray.Reset();
 	m_copyToFbProgram.reset();
-	m_copyToFbFramebuffer.Reset();
 	m_copyToFbTexture.Reset();
 	m_copyToFbVertexBuffer.Reset();
 	m_copyToFbVertexArray.Reset();
@@ -329,7 +328,6 @@ void CGSH_OpenGL::InitializeRC()
 
 	m_copyToFbProgram = GenerateCopyToFbProgram();
 	m_copyToFbTexture = Framework::OpenGl::CTexture::Create();
-	m_copyToFbFramebuffer = Framework::OpenGl::CFramebuffer::Create();
 	m_copyToFbVertexBuffer = GenerateCopyToFbVertexBuffer();
 	m_copyToFbVertexArray = GenerateCopyToFbVertexArray();
 	m_copyToFbSrcPositionUniform = glGetUniformLocation(*m_copyToFbProgram, "g_srcPosition");
@@ -2213,12 +2211,6 @@ void CGSH_OpenGL::PopulateFramebuffer(const FramebufferPtr& framebuffer)
 		framebuffer->m_width / 64, framebuffer->m_width, framebuffer->m_height);
 	CHECKGLERROR();
 
-	glBindFramebuffer(GL_FRAMEBUFFER, m_copyToFbFramebuffer);
-	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, m_copyToFbTexture, 0);
-	auto fbStatus = glCheckFramebufferStatus(GL_FRAMEBUFFER);
-	assert(fbStatus == GL_FRAMEBUFFER_COMPLETE);
-	CHECKGLERROR();
-
 	glBindFramebuffer(GL_FRAMEBUFFER, framebuffer->m_framebuffer);
 
 	CopyToFb(
@@ -2240,7 +2232,7 @@ void CGSH_OpenGL::CommitFramebufferDirtyPages(const FramebufferPtr& framebuffer,
 
 		}
 
-		void EnableCopyToFb(const FramebufferPtr& framebuffer, GLuint copyToFbFramebuffer, GLuint copyToFbTexture)
+		void EnableCopyToFb(const FramebufferPtr& framebuffer, GLuint copyToFbTexture)
 		{
 			if(m_copyToFbEnabled) return;
 
@@ -2255,14 +2247,7 @@ void CGSH_OpenGL::CommitFramebufferDirtyPages(const FramebufferPtr& framebuffer,
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
-			glBindFramebuffer(GL_FRAMEBUFFER, copyToFbFramebuffer);
-			glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, copyToFbTexture, 0);
-			auto fbStatus = glCheckFramebufferStatus(GL_FRAMEBUFFER);
-			assert(fbStatus == GL_FRAMEBUFFER_COMPLETE);
-			CHECKGLERROR();
-
 			glBindFramebuffer(GL_FRAMEBUFFER, framebuffer->m_framebuffer);
-			glBindFramebuffer(GL_READ_FRAMEBUFFER, copyToFbFramebuffer);
 
 			m_copyToFbEnabled = true;
 		}
@@ -2306,7 +2291,7 @@ void CGSH_OpenGL::CommitFramebufferDirtyPages(const FramebufferPtr& framebuffer,
 			}
 			
 			m_validGlState &= ~(GLSTATE_SCISSOR | GLSTATE_FRAMEBUFFER | GLSTATE_TEXTURE);
-			copyToFbEnabler.EnableCopyToFb(framebuffer, m_copyToFbFramebuffer, m_copyToFbTexture);
+			copyToFbEnabler.EnableCopyToFb(framebuffer, m_copyToFbTexture);
 
 			((this)->*(m_textureUpdater[framebuffer->m_psm]))(framebuffer->m_basePtr, framebuffer->m_width / 64,
 				texX, texY, texWidth, texHeight);

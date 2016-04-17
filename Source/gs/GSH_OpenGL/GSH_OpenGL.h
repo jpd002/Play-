@@ -396,7 +396,6 @@ private:
 	GLint							m_presentTexCoordScaleUniform = -1;
 
 	Framework::OpenGl::ProgramPtr	m_copyToFbProgram;
-	Framework::OpenGl::CFramebuffer	m_copyToFbFramebuffer;
 	Framework::OpenGl::CTexture		m_copyToFbTexture;
 	Framework::OpenGl::CBuffer		m_copyToFbVertexBuffer;
 	Framework::OpenGl::CVertexArray	m_copyToFbVertexArray;
