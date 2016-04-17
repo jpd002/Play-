@@ -8,7 +8,6 @@
 #include "GSH_OpenGL.h"
 
 #define NUM_SAMPLES 8
-//#define USE_COPYTOFB
 
 const GLenum CGSH_OpenGL::g_nativeClampModes[CGSHandler::CLAMP_MODE_MAX] =
 {
@@ -2222,23 +2221,12 @@ void CGSH_OpenGL::PopulateFramebuffer(const FramebufferPtr& framebuffer)
 
 	glBindFramebuffer(GL_FRAMEBUFFER, framebuffer->m_framebuffer);
 
-#ifndef USE_COPYTOFB
-	glBindFramebuffer(GL_READ_FRAMEBUFFER, m_copyToFbFramebuffer);
-
-	//Copy buffers
-	glBlitFramebuffer(
-		0, 0, framebuffer->m_width, framebuffer->m_height, 
-		0, 0, framebuffer->m_width * m_fbScale, framebuffer->m_height * m_fbScale, 
-		GL_COLOR_BUFFER_BIT, GL_NEAREST);
-
-	glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
-#else
 	CopyToFb(
 		0, 0, framebuffer->m_width, framebuffer->m_height,
 		framebuffer->m_width, framebuffer->m_height,
 		0, 0, framebuffer->m_width, framebuffer->m_height);
 	framebuffer->m_resolveNeeded = true;
-#endif
+
 	CHECKGLERROR();
 }
 
@@ -2323,18 +2311,12 @@ void CGSH_OpenGL::CommitFramebufferDirtyPages(const FramebufferPtr& framebuffer,
 			((this)->*(m_textureUpdater[framebuffer->m_psm]))(framebuffer->m_basePtr, framebuffer->m_width / 64,
 				texX, texY, texWidth, texHeight);
 			
-#ifndef USE_COPYTOFB
-			glBlitFramebuffer(
-				texX,             texY,             (texX + texWidth),             (texY + texHeight), 
-				texX * m_fbScale, texY * m_fbScale, (texX + texWidth) * m_fbScale, (texY + texHeight) * m_fbScale, 
-				GL_COLOR_BUFFER_BIT, GL_NEAREST);
-#else
 			CopyToFb(
 				texX,             texY,             (texX + texWidth),             (texY + texHeight),
 				framebuffer->m_width, framebuffer->m_height,
 				texX * m_fbScale, texY * m_fbScale, (texX + texWidth) * m_fbScale, (texY + texHeight) * m_fbScale);
 			framebuffer->m_resolveNeeded = true;
-#endif
+
 			CHECKGLERROR();
 		}
 
