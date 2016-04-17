@@ -2224,7 +2224,7 @@ void CGSH_OpenGL::PopulateFramebuffer(const FramebufferPtr& framebuffer)
 	CopyToFb(
 		0, 0, framebuffer->m_width, framebuffer->m_height,
 		framebuffer->m_width, framebuffer->m_height,
-		0, 0, framebuffer->m_width, framebuffer->m_height);
+		0, 0, framebuffer->m_width * m_fbScale, framebuffer->m_height * m_fbScale);
 	framebuffer->m_resolveNeeded = true;
 
 	CHECKGLERROR();
