@@ -1654,7 +1654,7 @@ void CGSH_OpenGL::DoRenderPass()
 	if((m_validGlState & GLSTATE_VERTEX_PARAMS) == 0)
 	{
 		glBindBuffer(GL_UNIFORM_BUFFER, m_vertexParamsBuffer);
-		glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(VERTEXPARAMS), &m_vertexParams);
+		glBufferData(GL_UNIFORM_BUFFER, sizeof(VERTEXPARAMS), &m_vertexParams, GL_STREAM_DRAW);
 		CHECKGLERROR();
 		m_validGlState |= GLSTATE_VERTEX_PARAMS;
 	}
@@ -1662,7 +1662,7 @@ void CGSH_OpenGL::DoRenderPass()
 	if((m_validGlState & GLSTATE_FRAGMENT_PARAMS) == 0)
 	{
 		glBindBuffer(GL_UNIFORM_BUFFER, m_fragmentParamsBuffer);
-		glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(FRAGMENTPARAMS), &m_fragmentParams);
+		glBufferData(GL_UNIFORM_BUFFER, sizeof(FRAGMENTPARAMS), &m_fragmentParams, GL_STREAM_DRAW);
 		CHECKGLERROR();
 		m_validGlState |= GLSTATE_FRAGMENT_PARAMS;
 	}
