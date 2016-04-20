@@ -77,12 +77,15 @@
 		70684A3A151E8B2400C9574F /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 70684A34151E8B2400C9574F /* InfoPlist.strings */; };
 		70684A3C151E8B2400C9574F /* VfsManagerView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 70684A38151E8B2400C9574F /* VfsManagerView.xib */; };
 		7075D0B01B6325540010D69C /* DiskUtils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7075D0AE1B6325540010D69C /* DiskUtils.cpp */; };
+		7076A8061C8A7F5300C6B873 /* Iop_Thvpool.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7076A8041C8A7F5300C6B873 /* Iop_Thvpool.cpp */; };
 		707AF6B81ADE04AB00EA1374 /* CsoImageStream.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 707AF6B61ADE04AB00EA1374 /* CsoImageStream.cpp */; };
 		70B414851AA21D1100AC7DE4 /* Iop_FileIoHandler1000.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 70B4147D1AA21D1100AC7DE4 /* Iop_FileIoHandler1000.cpp */; };
 		70B414861AA21D1100AC7DE4 /* Iop_FileIoHandler2100.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 70B4147F1AA21D1100AC7DE4 /* Iop_FileIoHandler2100.cpp */; };
 		70B414871AA21D1100AC7DE4 /* Iop_FileIoHandler2300.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 70B414811AA21D1100AC7DE4 /* Iop_FileIoHandler2300.cpp */; };
 		70B414881AA21D1100AC7DE4 /* Iop_LibSd.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 70B414831AA21D1100AC7DE4 /* Iop_LibSd.cpp */; };
 		70C0C84E1ADC97A900492241 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 70C0C84D1ADC97A900492241 /* Images.xcassets */; };
+		70CCA2711CB1E965006F99CA /* OpenAL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 70CCA2701CB1E965006F99CA /* OpenAL.framework */; };
+		70CCA2741CB1E99A006F99CA /* SH_OpenAL.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 70CCA2721CB1E99A006F99CA /* SH_OpenAL.cpp */; };
 		70D9F12C1AFB016900197BBE /* COP_VU_Reflection.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 70D9F0ED1AFB016900197BBE /* COP_VU_Reflection.cpp */; };
 		70D9F12D1AFB016900197BBE /* COP_VU.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 70D9F0EE1AFB016900197BBE /* COP_VU.cpp */; };
 		70D9F12E1AFB016900197BBE /* Dmac_Channel.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 70D9F0F01AFB016900197BBE /* Dmac_Channel.cpp */; };
@@ -123,6 +126,8 @@
 		70D9F1611AFB019F00197BBE /* GSH_OpenGL_Texture.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 70D9F15D1AFB019F00197BBE /* GSH_OpenGL_Texture.cpp */; };
 		70D9F1621AFB019F00197BBE /* GSH_OpenGL.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 70D9F15E1AFB019F00197BBE /* GSH_OpenGL.cpp */; };
 		70F0372E15D83D0E006A96F1 /* Iop_Thmsgbx.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 70F0372C15D83D0E006A96F1 /* Iop_Thmsgbx.cpp */; };
+		70F2AB0B1CBB558B00D0773D /* AudioSettingsView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 70F2AB091CBB558B00D0773D /* AudioSettingsView.xib */; };
+		70F2AB0E1CBB56B600D0773D /* AudioSettingsViewController.mm in Sources */ = {isa = PBXBuildFile; fileRef = 70F2AB0D1CBB56B600D0773D /* AudioSettingsViewController.mm */; };
 		7E4C15751517CBD400357777 /* main.mm in Sources */ = {isa = PBXBuildFile; fileRef = 7E4C15721517CBD400357777 /* main.mm */; };
 		7E4C15811517E6F800357777 /* libFramework.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 7E4C157E1517CDD200357777 /* libFramework.a */; };
 		7E7832AC1516710A00C04C62 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7E7832AB1516710A00C04C62 /* Cocoa.framework */; };
@@ -333,6 +338,8 @@
 		70684A39151E8B2400C9574F /* English */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = English; path = VfsManagerView.xib; sourceTree = "<group>"; };
 		7075D0AE1B6325540010D69C /* DiskUtils.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = DiskUtils.cpp; path = ../Source/DiskUtils.cpp; sourceTree = "<group>"; };
 		7075D0AF1B6325540010D69C /* DiskUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DiskUtils.h; path = ../Source/DiskUtils.h; sourceTree = "<group>"; };
+		7076A8041C8A7F5300C6B873 /* Iop_Thvpool.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Iop_Thvpool.cpp; path = ../Source/iop/Iop_Thvpool.cpp; sourceTree = "<group>"; };
+		7076A8051C8A7F5300C6B873 /* Iop_Thvpool.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Iop_Thvpool.h; path = ../Source/iop/Iop_Thvpool.h; sourceTree = "<group>"; };
 		707AF6B61ADE04AB00EA1374 /* CsoImageStream.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = CsoImageStream.cpp; path = ../Source/CsoImageStream.cpp; sourceTree = "<group>"; };
 		707AF6B71ADE04AB00EA1374 /* CsoImageStream.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CsoImageStream.h; path = ../Source/CsoImageStream.h; sourceTree = "<group>"; };
 		70B4147D1AA21D1100AC7DE4 /* Iop_FileIoHandler1000.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Iop_FileIoHandler1000.cpp; path = ../Source/iop/Iop_FileIoHandler1000.cpp; sourceTree = "<group>"; };
@@ -344,6 +351,9 @@
 		70B414831AA21D1100AC7DE4 /* Iop_LibSd.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Iop_LibSd.cpp; path = ../Source/iop/Iop_LibSd.cpp; sourceTree = "<group>"; };
 		70B414841AA21D1100AC7DE4 /* Iop_LibSd.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Iop_LibSd.h; path = ../Source/iop/Iop_LibSd.h; sourceTree = "<group>"; };
 		70C0C84D1ADC97A900492241 /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = "Play!/Images.xcassets"; sourceTree = "<group>"; };
+		70CCA2701CB1E965006F99CA /* OpenAL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenAL.framework; path = System/Library/Frameworks/OpenAL.framework; sourceTree = SDKROOT; };
+		70CCA2721CB1E99A006F99CA /* SH_OpenAL.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SH_OpenAL.cpp; path = ../tools/PsfPlayer/Source/SH_OpenAL.cpp; sourceTree = "<group>"; };
+		70CCA2731CB1E99A006F99CA /* SH_OpenAL.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SH_OpenAL.h; path = ../tools/PsfPlayer/Source/SH_OpenAL.h; sourceTree = "<group>"; };
 		70D9F0ED1AFB016900197BBE /* COP_VU_Reflection.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = COP_VU_Reflection.cpp; path = ../Source/ee/COP_VU_Reflection.cpp; sourceTree = "<group>"; };
 		70D9F0EE1AFB016900197BBE /* COP_VU.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = COP_VU.cpp; path = ../Source/ee/COP_VU.cpp; sourceTree = "<group>"; };
 		70D9F0EF1AFB016900197BBE /* COP_VU.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = COP_VU.h; path = ../Source/ee/COP_VU.h; sourceTree = "<group>"; };
@@ -415,6 +425,10 @@
 		70D9F15F1AFB019F00197BBE /* GSH_OpenGL.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GSH_OpenGL.h; path = ../Source/gs/GSH_OpenGL/GSH_OpenGL.h; sourceTree = "<group>"; };
 		70F0372C15D83D0E006A96F1 /* Iop_Thmsgbx.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Iop_Thmsgbx.cpp; path = ../Source/iop/Iop_Thmsgbx.cpp; sourceTree = "<group>"; };
 		70F0372D15D83D0E006A96F1 /* Iop_Thmsgbx.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Iop_Thmsgbx.h; path = ../Source/iop/Iop_Thmsgbx.h; sourceTree = "<group>"; };
+		70F2AB0A1CBB558B00D0773D /* English */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = English; path = AudioSettingsView.xib; sourceTree = "<group>"; };
+		70F2AB0C1CBB56B600D0773D /* AudioSettingsViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AudioSettingsViewController.h; path = ../Source/ui_macosx/AudioSettingsViewController.h; sourceTree = "<group>"; };
+		70F2AB0D1CBB56B600D0773D /* AudioSettingsViewController.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = AudioSettingsViewController.mm; path = ../Source/ui_macosx/AudioSettingsViewController.mm; sourceTree = "<group>"; };
+		70F2AB0F1CBC544C00D0773D /* PreferenceDefs.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PreferenceDefs.h; path = ../Source/ui_macosx/PreferenceDefs.h; sourceTree = "<group>"; };
 		7E4C15711517CBD400357777 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = ../Source/ui_macosx/Info.plist; sourceTree = "<group>"; };
 		7E4C15721517CBD400357777 /* main.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = main.mm; path = ../Source/ui_macosx/main.mm; sourceTree = "<group>"; };
 		7E4C15731517CBD400357777 /* Purei_Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Purei_Prefix.pch; path = ../Source/ui_macosx/Purei_Prefix.pch; sourceTree = "<group>"; };
@@ -519,6 +533,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				70CCA2711CB1E965006F99CA /* OpenAL.framework in Frameworks */,
 				7068498B151E891200C9574F /* libbz2.dylib in Frameworks */,
 				7068497D151E885200C9574F /* libz.dylib in Frameworks */,
 				70684979151E882000C9574F /* libCodeGen.a in Frameworks */,
@@ -634,6 +649,8 @@
 				70F0372D15D83D0E006A96F1 /* Iop_Thmsgbx.h */,
 				706849D4151E896900C9574F /* Iop_Thsema.cpp */,
 				706849D5151E896900C9574F /* Iop_Thsema.h */,
+				7076A8041C8A7F5300C6B873 /* Iop_Thvpool.cpp */,
+				7076A8051C8A7F5300C6B873 /* Iop_Thvpool.h */,
 				706849D6151E896900C9574F /* Iop_Timrman.cpp */,
 				706849D7151E896900C9574F /* Iop_Timrman.h */,
 				706849D8151E896900C9574F /* Iop_Vblank.cpp */,
@@ -649,7 +666,6 @@
 		70684A05151E89BC00C9574F /* ui_macosx */ = {
 			isa = PBXGroup;
 			children = (
-				70BB57701C4551600053A1F6 /* PreferencesWindow */,
 				70684A06151E89E200C9574F /* ApplicationDelegate.h */,
 				70684A07151E89E200C9574F /* ApplicationDelegate.mm */,
 				70684A33151E8B2400C9574F /* English.lproj */,
@@ -667,7 +683,11 @@
 				700DF99415DF699000818F3B /* patches.xml */,
 				70684A15151E89E200C9574F /* PH_HidMacOSX.cpp */,
 				70684A16151E89E200C9574F /* PH_HidMacOSX.h */,
+				70F2AB0F1CBC544C00D0773D /* PreferenceDefs.h */,
+				70BB57701C4551600053A1F6 /* PreferencesWindow */,
 				7E4C15731517CBD400357777 /* Purei_Prefix.pch */,
+				70CCA2721CB1E99A006F99CA /* SH_OpenAL.cpp */,
+				70CCA2731CB1E99A006F99CA /* SH_OpenAL.h */,
 			);
 			name = ui_macosx;
 			sourceTree = "<group>";
@@ -681,6 +701,7 @@
 				705D396D1C43FFC900D267A6 /* PreferencesWindow.xib */,
 				70684A38151E8B2400C9574F /* VfsManagerView.xib */,
 				705D39701C44A3FF00D267A6 /* VideoSettingsView.xib */,
+				70F2AB091CBB558B00D0773D /* AudioSettingsView.xib */,
 			);
 			name = English.lproj;
 			path = ../Source/ui_macosx/English.lproj;
@@ -702,6 +723,8 @@
 		70BB57701C4551600053A1F6 /* PreferencesWindow */ = {
 			isa = PBXGroup;
 			children = (
+				70F2AB0C1CBB56B600D0773D /* AudioSettingsViewController.h */,
+				70F2AB0D1CBB56B600D0773D /* AudioSettingsViewController.mm */,
 				705D396A1C43FFAF00D267A6 /* PreferencesWindowController.h */,
 				705D396B1C43FFAF00D267A6 /* PreferencesWindowController.mm */,
 				70684A19151E89E200C9574F /* VfsManagerBindings.h */,
@@ -954,26 +977,19 @@
 		7E7832AA1516710A00C04C62 /* Dependencies */ = {
 			isa = PBXGroup;
 			children = (
-				7E4C15761517CDD000357777 /* Framework.xcodeproj */,
-				7068496E151E880E00C9574F /* CodeGen.xcodeproj */,
-				7068498A151E891200C9574F /* libbz2.dylib */,
-				7068497C151E885200C9574F /* libz.dylib */,
-				70684A28151E8A2C00C9574F /* IOKit.framework */,
-				7068497A151E883D00C9574F /* OpenGL.framework */,
-				7E7832AB1516710A00C04C62 /* Cocoa.framework */,
-				7E7832AD1516710A00C04C62 /* Other Frameworks */,
-			);
-			name = Dependencies;
-			sourceTree = "<group>";
-		};
-		7E7832AD1516710A00C04C62 /* Other Frameworks */ = {
-			isa = PBXGroup;
-			children = (
 				7E7832AE1516710A00C04C62 /* AppKit.framework */,
+				7E7832AB1516710A00C04C62 /* Cocoa.framework */,
+				7068496E151E880E00C9574F /* CodeGen.xcodeproj */,
 				7E7832AF1516710A00C04C62 /* CoreData.framework */,
 				7E7832B01516710A00C04C62 /* Foundation.framework */,
+				7E4C15761517CDD000357777 /* Framework.xcodeproj */,
+				70684A28151E8A2C00C9574F /* IOKit.framework */,
+				7068498A151E891200C9574F /* libbz2.dylib */,
+				7068497C151E885200C9574F /* libz.dylib */,
+				70CCA2701CB1E965006F99CA /* OpenAL.framework */,
+				7068497A151E883D00C9574F /* OpenGL.framework */,
 			);
-			name = "Other Frameworks";
+			name = Dependencies;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -1064,6 +1080,7 @@
 				70C0C84E1ADC97A900492241 /* Images.xcassets in Resources */,
 				700DF99515DF699000818F3B /* patches.xml in Resources */,
 				705D396F1C43FFC900D267A6 /* PreferencesWindow.xib in Resources */,
+				70F2AB0B1CBB558B00D0773D /* AudioSettingsView.xib in Resources */,
 				700DF99C15DFC0CB00818F3B /* MainMenu.xib in Resources */,
 				700FB58015E11E1E00C322DE /* OutputWindow.xib in Resources */,
 				70320D1E1A99EAC4001E9C4B /* GeneralSettings.xcconfig in Resources */,
@@ -1113,6 +1130,7 @@
 				705D396C1C43FFAF00D267A6 /* PreferencesWindowController.mm in Sources */,
 				70D9F1451AFB016900197BBE /* SIF.cpp in Sources */,
 				70D9F13A1AFB016900197BBE /* IPU_MacroblockTypePTable.cpp in Sources */,
+				7076A8061C8A7F5300C6B873 /* Iop_Thvpool.cpp in Sources */,
 				70D9F1601AFB019F00197BBE /* GSH_OpenGL_Shader.cpp in Sources */,
 				705AA9751C55683800775613 /* Iop_MtapMan.cpp in Sources */,
 				70D9F1391AFB016900197BBE /* IPU_MacroblockTypeITable.cpp in Sources */,
@@ -1153,6 +1171,7 @@
 				706849E0151E896900C9574F /* Iop_Cdvdfsv.cpp in Sources */,
 				70D9F1411AFB016900197BBE /* MA_VU_Upper.cpp in Sources */,
 				706849E1151E896900C9574F /* Iop_Cdvdman.cpp in Sources */,
+				70CCA2741CB1E99A006F99CA /* SH_OpenAL.cpp in Sources */,
 				706849E4151E896900C9574F /* Iop_Dmac.cpp in Sources */,
 				70D9F13E1AFB016900197BBE /* MA_EE.cpp in Sources */,
 				70D9F1581AFB018900197BBE /* GsCachedArea.cpp in Sources */,
@@ -1202,6 +1221,7 @@
 				7056F2851B2683C700389AFB /* EeExecutor.cpp in Sources */,
 				70684A01151E896900C9574F /* Iop_Timrman.cpp in Sources */,
 				70D9F15A1AFB018900197BBE /* GSHandler.cpp in Sources */,
+				70F2AB0E1CBB56B600D0773D /* AudioSettingsViewController.mm in Sources */,
 				70684A02151E896900C9574F /* Iop_Vblank.cpp in Sources */,
 				70D9F14E1AFB016900197BBE /* VUShared.cpp in Sources */,
 				70684A03151E896900C9574F /* IopBios.cpp in Sources */,
@@ -1286,6 +1306,14 @@
 				70684A39151E8B2400C9574F /* English */,
 			);
 			name = VfsManagerView.xib;
+			sourceTree = "<group>";
+		};
+		70F2AB091CBB558B00D0773D /* AudioSettingsView.xib */ = {
+			isa = PBXVariantGroup;
+			children = (
+				70F2AB0A1CBB558B00D0773D /* English */,
+			);
+			name = AudioSettingsView.xib;
 			sourceTree = "<group>";
 		};
 /* End PBXVariantGroup section */

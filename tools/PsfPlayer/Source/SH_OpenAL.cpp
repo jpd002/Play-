@@ -78,14 +78,10 @@ void CSH_OpenAL::Write(int16* samples, unsigned int sampleCount, unsigned int sa
 	alSourceQueueBuffers(m_source, 1, &buffer);
 	CHECK_AL_ERROR();
 	
-	if(m_availableBuffers.size() == 0)
+	ALint sourceState = m_source.GetState();
+	if(sourceState != AL_PLAYING)
 	{
-		ALint sourceState = m_source.GetState();
-		if(sourceState != AL_PLAYING)
-		{
-			m_source.Play();
-			assert(m_source.GetState() == AL_PLAYING);
-			RecycleBuffers();
-		}
+		m_source.Play();
+		assert(m_source.GetState() == AL_PLAYING);
 	}
 }

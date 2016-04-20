@@ -623,8 +623,7 @@ void CGSH_OpenGL::SetRenderingContext(uint64 primReg)
 		CHECKGLERROR();
 	}
 
-	XYOFFSET offset;
-	offset <<= m_nReg[GS_REG_XYOFFSET_1 + context];
+	auto offset = make_convertible<XYOFFSET>(m_nReg[GS_REG_XYOFFSET_1 + context]);
 	m_nPrimOfsX = offset.GetX();
 	m_nPrimOfsY = offset.GetY();
 	

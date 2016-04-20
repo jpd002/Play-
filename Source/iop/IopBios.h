@@ -8,6 +8,7 @@
 #include "../OsStructManager.h"
 #include "../OsVariableWrapper.h"
 #include "Iop_BiosBase.h"
+#include "Iop_BiosStructs.h"
 #include "Iop_SifMan.h"
 #include "Iop_SifCmd.h"
 #include "Iop_Ioman.h"
@@ -94,7 +95,7 @@ public:
 		uint32 reserved[4];
 	};
 
-								CIopBios(CMIPS&, uint8*, uint32);
+								CIopBios(CMIPS&, uint8*, uint32, uint8*);
 	virtual						~CIopBios();
 
 	int32						LoadModule(const char*);
@@ -182,6 +183,13 @@ public:
 	uint32						PollMessageBox(uint32, uint32);
 	uint32						ReferMessageBoxStatus(uint32, uint32);
 
+	uint32						CreateVpl(uint32);
+	uint32						DeleteVpl(uint32);
+	uint32						pAllocateVpl(uint32, uint32);
+	uint32						FreeVpl(uint32, uint32);
+	uint32						ReferVplStatus(uint32, uint32);
+	uint32						GetVplFreeSize(uint32);
+
 	int32						RegisterIntrHandler(uint32, uint32, uint32, uint32);
 	int32						ReleaseIntrHandler(uint32);
 
@@ -232,10 +240,12 @@ private:
 	enum
 	{
 		MAX_THREAD				= 128,
+		MAX_MEMORYBLOCK			= 256,
 		MAX_SEMAPHORE			= 128,
 		MAX_EVENTFLAG			= 64,
 		MAX_INTRHANDLER			= 32,
 		MAX_MESSAGEBOX			= 32,
+		MAX_VPL					= 16,
 		MAX_MODULESTARTREQUEST	= 32,
 		MAX_LOADEDMODULE		= 32,
 	};
@@ -254,6 +264,16 @@ private:
 		uint32			count;
 		uint32			maxCount;
 		uint32			waitCount;
+	};
+
+	struct SEMAPHORE_STATUS
+	{
+		uint32			attrib;
+		uint32			option;
+		uint32			initCount;
+		uint32			maxCount;
+		uint32			currentCount;
+		uint32			numWaitThreads;
 	};
 
 	struct EVENTFLAG
@@ -307,14 +327,41 @@ private:
 		uint8			unused[3];
 	};
 
-	struct SEMAPHORE_STATUS
+	struct VPL
 	{
-		uint32			attrib;
+		uint32			isValid;
+		uint32			attr;
 		uint32			option;
-		uint32			initCount;
-		uint32			maxCount;
-		uint32			currentCount;
+		uint32			poolPtr;
+		uint32			size;
+		uint32			headBlockId;
+	};
+
+	enum VPL_ATTR
+	{
+		VPL_ATTR_THFIFO       = 0x000,
+		VPL_ATTR_THPRI        = 0x001,
+		VPL_ATTR_THMODE_MASK  = 0x001,
+		VPL_ATTR_MEMBTM       = 0x200,
+		VPL_ATTR_MEMMODE_MASK = 0x200,
+		VPL_ATTR_VALID_MASK   = (VPL_ATTR_THMODE_MASK | VPL_ATTR_MEMMODE_MASK)
+	};
+
+	struct VPL_PARAM
+	{
+		uint32			attr;
+		uint32			option;
+		uint32			size;
+	};
+
+	struct VPL_STATUS
+	{
+		uint32			attr;
+		uint32			option;
+		uint32			size;
+		uint32			freeSize;
 		uint32			numWaitThreads;
+		uint32			unused[3];
 	};
 
 	struct MODULESTARTREQUEST
@@ -374,16 +421,23 @@ private:
 		KERNEL_RESULT_ERROR_ILLEGAL_INTRCODE = -101,
 		KERNEL_RESULT_ERROR_FOUND_HANDLER    = -104,
 		KERNEL_RESULT_ERROR_NOTFOUND_HANDLER = -105,
+		KERNEL_RESULT_ERROR_NO_MEMORY        = -400,
+		KERNEL_RESULT_ERROR_ILLEGAL_ATTR     = -401,
+		KERNEL_RESULT_ERROR_ILLEGAL_THID     = -406,
 		KERNEL_RESULT_ERROR_UNKNOWN_THID     = -407,
 		KERNEL_RESULT_ERROR_UNKNOWN_MBXID    = -410,
+		KERNEL_RESULT_ERROR_UNKNOWN_VPLID    = -411,
 		KERNEL_RESULT_ERROR_SEMA_ZERO        = -419,
+		KERNEL_RESULT_ERROR_ILLEGAL_MEMSIZE  = -427,
 	};
 
 	typedef COsStructManager<THREAD> ThreadList;
+	typedef COsStructManager<Iop::MEMORYBLOCK> MemoryBlockList;
 	typedef COsStructManager<SEMAPHORE> SemaphoreList;
 	typedef COsStructManager<EVENTFLAG> EventFlagList;
 	typedef COsStructManager<INTRHANDLER> IntrHandlerList;
 	typedef COsStructManager<MESSAGEBOX> MessageBoxList;
+	typedef COsStructManager<VPL> VplList;
 	typedef COsStructManager<LOADEDMODULE> LoadedModuleList;
 	typedef std::map<std::string, Iop::ModulePtr> IopModuleMapType;
 	typedef std::pair<uint32, uint32> ExecutableRange;
@@ -430,8 +484,9 @@ private:
 #endif
 
 	CMIPS&							m_cpu;
-	uint8*							m_ram;
+	uint8*							m_ram = nullptr;
 	uint32							m_ramSize;
+	uint8*							m_spr = nullptr;
 	uint32							m_threadFinishAddress;
 	uint32							m_returnFromExceptionAddress;
 	uint32							m_idleFunctionAddress;
@@ -443,10 +498,12 @@ private:
 	bool							m_rescheduleNeeded = false;
 	LoadedModuleList				m_loadedModules;
 	ThreadList						m_threads;
+	MemoryBlockList					m_memoryBlocks;
 	SemaphoreList					m_semaphores;
 	EventFlagList					m_eventFlags;
 	IntrHandlerList					m_intrHandlers;
 	MessageBoxList					m_messageBoxes;
+	VplList							m_vpls;
 
 	IopModuleMapType				m_modules;
 

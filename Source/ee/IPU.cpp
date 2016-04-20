@@ -28,6 +28,19 @@
 using namespace IPU;
 using namespace MPEG2;
 
+static CVLCTable::DECODE_STATUS FilterSymbolError(CVLCTable::DECODE_STATUS result)
+{
+	switch(result)
+	{
+	case CVLCTable::DECODE_STATUS_SYMBOLNOTFOUND:
+		throw CVLCTable::CVLCTableException();
+		break;
+	default:
+		return result;
+		break;
+	}
+}
+
 CIPU::CIPU() 
 : m_IPU_CTRL(0)
 , m_isBusy(false)
@@ -265,7 +278,7 @@ void CIPU::InitializeCommand(uint32 value)
 		break;
 	case IPU_CMD_IDEC:
 		{
-			m_IDECCommand.Initialize(&m_BDECCommand, &m_CSCCommand, &m_IN_FIFO, &m_OUT_FIFO, value, GetDecoderContext());
+			m_IDECCommand.Initialize(&m_BDECCommand, &m_CSCCommand, &m_IN_FIFO, &m_OUT_FIFO, value, GetDecoderContext(), m_nTH0, m_nTH1);
 			m_currentCmd = &m_IDECCommand;
 		}
 		break;
@@ -302,7 +315,7 @@ void CIPU::InitializeCommand(uint32 value)
 		break;
 	case IPU_CMD_CSC:
 		{
-			m_CSCCommand.Initialize(&m_IN_FIFO, &m_OUT_FIFO, value);
+			m_CSCCommand.Initialize(&m_IN_FIFO, &m_OUT_FIFO, value, m_nTH0, m_nTH1);
 			m_currentCmd = &m_CSCCommand;
 		}
 		break;
@@ -874,7 +887,7 @@ CIPU::CIDECCommand::CIDECCommand()
 }
 
 void CIPU::CIDECCommand::Initialize(CBDECCommand* BDECCommand, CCSCCommand* CSCCommand, CINFIFO* inFifo, COUTFIFO* outFifo, 
-	uint32 commandCode, const DECODER_CONTEXT& context)
+	uint32 commandCode, const DECODER_CONTEXT& context, uint16 TH0, uint16 TH1)
 {
 	m_command <<= commandCode;
 	assert(m_command.cmdId == IPU_CMD_IDEC);
@@ -888,6 +901,8 @@ void CIPU::CIDECCommand::Initialize(CBDECCommand* BDECCommand, CCSCCommand* CSCC
 	m_mbType		= 0;
 	m_qsc			= m_command.qsc;
 	m_context		= context;
+	m_TH0			= TH0;
+	m_TH1			= TH1;
 	m_mbCount		= 0;
 	m_delayTicks	= 1000;
 }
@@ -970,7 +985,7 @@ bool CIPU::CIDECCommand::Execute()
 				cscCommand.mbc		= 1;
 				cscCommand.dte		= m_command.dte;
 				cscCommand.ofm		= m_command.ofm;
-				m_CSCCommand->Initialize(&m_temp_IN_FIFO, m_OUT_FIFO, cscCommand);
+				m_CSCCommand->Initialize(&m_temp_IN_FIFO, m_OUT_FIFO, cscCommand, m_TH0, m_TH1);
 				m_state = STATE_CSC;
 				m_blockStream.Seek(0, Framework::STREAM_SEEK_SET);
 			}
@@ -1337,14 +1352,14 @@ bool CIPU::CBDECCommand_ReadDct::Execute()
 				MPEG2::RUNLEVELPAIR runLevelPair;
 				if(m_blockIndex == 0)
 				{
-					if(m_coeffTable->TryGetRunLevelPairDc(m_IN_FIFO, &runLevelPair, m_isMpeg2) != CVLCTable::DECODE_STATUS_SUCCESS)
+					if(FilterSymbolError(m_coeffTable->TryGetRunLevelPairDc(m_IN_FIFO, &runLevelPair, m_isMpeg2)) != CVLCTable::DECODE_STATUS_SUCCESS)
 					{
 						return false;
 					}
 				}
 				else
 				{
-					if(m_coeffTable->TryGetRunLevelPair(m_IN_FIFO, &runLevelPair, m_isMpeg2) != CVLCTable::DECODE_STATUS_SUCCESS)
+					if(FilterSymbolError(m_coeffTable->TryGetRunLevelPair(m_IN_FIFO, &runLevelPair, m_isMpeg2)) != CVLCTable::DECODE_STATUS_SUCCESS)
 					{
 						return false;
 					}
@@ -1696,7 +1711,7 @@ CIPU::CCSCCommand::CCSCCommand()
 	GenerateCbCrMap();
 }
 
-void CIPU::CCSCCommand::Initialize(CINFIFO* input, COUTFIFO* output, uint32 commandCode)
+void CIPU::CCSCCommand::Initialize(CINFIFO* input, COUTFIFO* output, uint32 commandCode, uint16 TH0, uint16 TH1)
 {
 	m_command <<= commandCode;
 	assert(m_command.cmdId == IPU_CMD_CSC);
@@ -1706,6 +1721,8 @@ void CIPU::CCSCCommand::Initialize(CINFIFO* input, COUTFIFO* output, uint32 comm
 	m_IN_FIFO = input;
 	m_OUT_FIFO = output;
 
+	m_TH0 = TH0;
+	m_TH1 = TH1;
 	m_currentIndex = 0;
 	m_mbCount = m_command.mbc;
 }
@@ -1757,6 +1774,9 @@ bool CIPU::CCSCCommand::Execute()
 
 				uint32* pPixel = nPixel;
 				unsigned int* pCbCrMap = m_nCbCrMap;
+				
+				uint32 alphaTh0 = (m_TH0 & 0xFF) | ((m_TH0 & 0xFF) << 8) | ((m_TH0 & 0xFF) << 16);
+				uint32 alphaTh1 = (m_TH1 & 0xFF) | ((m_TH1 & 0xFF) << 8) | ((m_TH1 & 0xFF) << 16);
 
 				for(unsigned int i = 0; i < 16; i++)
 				{
@@ -1778,7 +1798,22 @@ bool CIPU::CCSCCommand::Execute()
 						if(nG < 0) { nG = 0; } if(nG > 255) { nG = 255; }
 						if(nB < 0) { nB = 0; } if(nB > 255) { nB = 255; }
 
-						pPixel[j] = (((uint8)nB) << 16) | (((uint8)nG) << 8) | (((uint8)nR) << 0);
+						uint8 a = 0;
+						uint32 rgb = (static_cast<uint8>(nB) << 16) | (static_cast<uint8>(nG) << 8) | (static_cast<uint8>(nR) << 0);
+						if(rgb < alphaTh0)
+						{
+							a = 0;
+						}
+						else if(rgb < alphaTh1)
+						{
+							a = 0x40;
+						}
+						else
+						{
+							a = 0x80;
+						}
+
+						pPixel[j] = (a << 24) | rgb;
 					}
 
 					pY			+= 0x10;

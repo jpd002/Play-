@@ -8,6 +8,7 @@
 #include "GSH_OpenGLiOS.h"
 #include "IosUtils.h"
 #include "PH_Generic.h"
+#include "../../tools/PsfPlayer/Source/SH_OpenAL.h"
 
 CPS2VM* g_virtualMachine = nullptr;
 
@@ -21,6 +22,7 @@ CPS2VM* g_virtualMachine = nullptr;
 {
 	CAppConfig::GetInstance().RegisterPreferenceBoolean(PREFERENCE_UI_SHOWFPS, false);
 	CAppConfig::GetInstance().RegisterPreferenceBoolean(PREFERENCE_UI_SHOWVIRTUALPAD, true);
+	CAppConfig::GetInstance().RegisterPreferenceBoolean(PREFERENCE_AUDIO_ENABLEOUTPUT, true);
 }
 
 -(void)viewDidLoad
@@ -59,6 +61,11 @@ CPS2VM* g_virtualMachine = nullptr;
 	g_virtualMachine->CreateGSHandler(CGSH_OpenGLiOS::GetFactoryFunction((CAEAGLLayer*)self.view.layer));
 
 	g_virtualMachine->CreatePadHandler(CPH_Generic::GetFactoryFunction());
+	
+	if(CAppConfig::GetInstance().GetPreferenceBoolean(PREFERENCE_AUDIO_ENABLEOUTPUT))
+	{
+		g_virtualMachine->CreateSoundHandler(&CSH_OpenAL::HandlerFactory);
+	}
 	
 	const CGRect screenBounds = [[UIScreen mainScreen] bounds];
 

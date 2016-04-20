@@ -152,6 +152,11 @@ uint8* CPsfVm::GetRam()
 	return m_subSystem->GetRam();
 }
 
+uint8* CPsfVm::GetSpr()
+{
+	return m_subSystem->GetSpr();
+}
+
 void CPsfVm::Step()
 {
 #ifdef DEBUGGER_INCLUDED

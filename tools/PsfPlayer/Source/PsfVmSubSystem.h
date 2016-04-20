@@ -16,6 +16,7 @@ public:
 	virtual void						Reset() = 0;
 	virtual CMIPS&						GetCpu() = 0;
 	virtual uint8*						GetRam() = 0;
+	virtual uint8*						GetSpr() = 0;
 	virtual Iop::CSpuBase&				GetSpuCore(unsigned int) = 0;
 
 	virtual void						Update(bool, CSoundHandler*) = 0;

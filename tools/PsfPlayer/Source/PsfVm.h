@@ -29,6 +29,7 @@ public:
 	CMIPS&				GetCpu();
 	Iop::CSpuBase&		GetSpuCore(unsigned int);
 	uint8*				GetRam();
+	uint8*				GetSpr();
 	void				SetSubSystem(const PsfVmSubSystemPtr&);
 
 	CDebuggable			GetDebugInfo();

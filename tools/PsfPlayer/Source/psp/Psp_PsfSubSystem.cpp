@@ -64,6 +64,11 @@ uint8* CPsfSubSystem::GetRam()
 	return m_ram;
 }
 
+uint8* CPsfSubSystem::GetSpr()
+{
+	return nullptr;
+}
+
 CPsfBios& CPsfSubSystem::GetBios()
 {
 	return m_bios;

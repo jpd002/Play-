@@ -1,5 +1,4 @@
-#ifndef _CSH_OPENAL_H_
-#define _CSH_OPENAL_H_
+#pragma once
 
 #include <deque>
 #include "SoundHandler.h"
@@ -16,10 +15,10 @@ public:
 
 	static CSoundHandler*	HandlerFactory();
 
-	void					Reset();
-	void					Write(int16*, unsigned int, unsigned int);
-	bool					HasFreeBuffers();
-	void					RecycleBuffers();
+	void					Reset() override;
+	void					Write(int16*, unsigned int, unsigned int) override;
+	bool					HasFreeBuffers() override;
+	void					RecycleBuffers() override;
 
 private:
 	typedef std::deque<ALuint> BufferList;
@@ -38,5 +37,3 @@ private:
 	bool					m_mustSync;
 	ALuint					m_bufferNames[MAX_BUFFERS];
 };
-
-#endif

@@ -56,6 +56,11 @@ uint8* CPsfSubSystem::GetRam()
 	return m_iop.m_ram;
 }
 
+uint8* CPsfSubSystem::GetSpr()
+{
+	return m_iop.m_scratchPad;
+}
+
 void CPsfSubSystem::SetBios(const BiosBasePtr& bios)
 {
 	m_iop.SetBios(bios);

@@ -2,6 +2,8 @@
 
 #include "Iop_SifMan.h"
 #include "Iop_Module.h"
+#include "zip/ZipArchiveWriter.h"
+#include "zip/ZipArchiveReader.h"
 
 namespace Iop
 {
@@ -14,9 +16,14 @@ namespace Iop
 		{
 		public:
 							CHandler(CIoman*);
-			virtual			~CHandler() {}
+			virtual			~CHandler() = default;
 			
 			virtual void	Invoke(uint32, uint32*, uint32, uint32*, uint32, uint8*) = 0;
+
+			virtual void	LoadState(Framework::CZipArchiveReader&) {};
+			virtual void	SaveState(Framework::CZipArchiveWriter&) const {};
+
+			virtual void	ProcessCommands() {};
 
 		protected:
 			CIoman*			m_ioman = nullptr;
@@ -28,7 +35,6 @@ namespace Iop
 		};
 
 								CFileIo(CSifMan&, CIoman&);
-		virtual					~CFileIo();
 
 		void					SetModuleVersion(unsigned int);
 
@@ -37,11 +43,17 @@ namespace Iop
 		virtual void			Invoke(CMIPS&, unsigned int) override;
 		virtual bool			Invoke(uint32, uint32*, uint32, uint32*, uint32, uint8*) override;
 
+		void					LoadState(Framework::CZipArchiveReader&);
+		void					SaveState(Framework::CZipArchiveWriter&) const;
+
+		void					ProcessCommands();
+
 	private:
 		typedef std::unique_ptr<CHandler> HandlerPtr;
 
 		CSifMan&				m_sifMan;
 		CIoman&					m_ioman;
+		unsigned int			m_moduleVersion = 0;
 		HandlerPtr				m_handler;
 	};
 

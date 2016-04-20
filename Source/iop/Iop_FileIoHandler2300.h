@@ -10,7 +10,12 @@ namespace Iop
 	public:
 						CFileIoHandler2300(CIoman*, CSifMan&);
 
-		virtual void	Invoke(uint32, uint32*, uint32, uint32*, uint32, uint8*) override;
+		void			Invoke(uint32, uint32*, uint32, uint32*, uint32, uint8*) override;
+
+		void			LoadState(Framework::CZipArchiveReader&) override;
+		void			SaveState(Framework::CZipArchiveWriter&) const override;
+
+		void			ProcessCommands() override;
 
 	private:
 		struct COMMANDHEADER
@@ -50,6 +55,12 @@ namespace Iop
 			uint32			whence;
 		};
 
+		struct DOPENCOMMAND
+		{
+			COMMANDHEADER	header;
+			char			dirName[256];
+		};
+
 		struct GETSTATCOMMAND
 		{
 			COMMANDHEADER	header;
@@ -57,10 +68,30 @@ namespace Iop
 			char			fileName[256];
 		};
 
-		struct ACTIVATECOMMAND
+		struct MOUNTCOMMAND
 		{
 			COMMANDHEADER	header;
-			char			device[256];
+			char			fileSystemName[0x100];
+			char			unused[0x300];
+			char			deviceName[0x400];
+		};
+
+		struct UMOUNTCOMMAND
+		{
+			COMMANDHEADER	header;
+			char			deviceName[0x100];
+		};
+
+		struct DEVCTLCOMMAND
+		{
+			COMMANDHEADER	header;
+			char			device[0x100];
+			char			unused[0x300];
+			char			inputBuffer[0x400];
+			uint32			cmdId;
+			uint32			inputSize;
+			uint32			outputPtr;
+			uint32			outputSize;
 		};
 
 		struct REPLYHEADER
@@ -107,6 +138,15 @@ namespace Iop
 			uint32			unknown4;
 		};
 
+		struct DOPENREPLY
+		{
+			REPLYHEADER		header;
+			uint32			result;
+			uint32			unknown2;
+			uint32			unknown3;
+			uint32			unknown4;
+		};
+
 		struct GETSTATREPLY
 		{
 			REPLYHEADER		header;
@@ -115,7 +155,25 @@ namespace Iop
 			CIoman::STAT	stat;
 		};
 
-		struct ACTIVATEREPLY
+		struct MOUNTREPLY
+		{
+			REPLYHEADER		header;
+			uint32			result;
+			uint32			unknown2;
+			uint32			unknown3;
+			uint32			unknown4;
+		};
+
+		struct UMOUNTREPLY
+		{
+			REPLYHEADER		header;
+			uint32			result;
+			uint32			unknown2;
+			uint32			unknown3;
+			uint32			unknown4;
+		};
+
+		struct DEVCTLREPLY
 		{
 			REPLYHEADER		header;
 			uint32			result;
@@ -128,13 +186,17 @@ namespace Iop
 		uint32			InvokeClose(uint32*, uint32, uint32*, uint32, uint8*);
 		uint32			InvokeRead(uint32*, uint32, uint32*, uint32, uint8*);
 		uint32			InvokeSeek(uint32*, uint32, uint32*, uint32, uint8*);
+		uint32			InvokeDopen(uint32*, uint32, uint32*, uint32, uint8*);
 		uint32			InvokeGetStat(uint32*, uint32, uint32*, uint32, uint8*);
-		uint32			InvokeActivate(uint32*, uint32, uint32*, uint32, uint8*);
+		uint32			InvokeMount(uint32*, uint32, uint32*, uint32, uint8*);
+		uint32			InvokeUmount(uint32*, uint32, uint32*, uint32, uint8*);
+		uint32			InvokeDevctl(uint32*, uint32, uint32*, uint32, uint8*);
 
 		void			CopyHeader(REPLYHEADER&, const COMMANDHEADER&);
 		void			SendSifReply();
 
 		uint32			m_resultPtr[2];
 		CSifMan&		m_sifMan;
+		bool			m_pendingReadCommand = false;
 	};
 };

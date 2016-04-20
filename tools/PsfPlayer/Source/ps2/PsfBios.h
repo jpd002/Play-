@@ -10,7 +10,7 @@ namespace PS2
 	class CPsfBios : public Iop::CBiosBase
 	{
 	public:
-									CPsfBios(CMIPS&, uint8*, uint32);
+									CPsfBios(CMIPS&, uint8*, uint32, uint8*);
 		virtual						~CPsfBios();
 		void						HandleException();
 		void						HandleInterrupt();

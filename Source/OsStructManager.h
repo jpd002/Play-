@@ -42,6 +42,11 @@ public:
 		uint32 m_id = 0;
 	};
 
+	enum
+	{
+		INVALID_ID = -1
+	};
+
 	COsStructManager(StructType* structBase, uint32 idBase, uint32 structMax)
 	: m_structBase(structBase)
 	, m_idBase(idBase)
@@ -83,7 +88,7 @@ public:
 				return (i + m_idBase);
 			}
 		}
-		return -1;
+		return INVALID_ID;
 	}
 
 	void Free(uint32 id)

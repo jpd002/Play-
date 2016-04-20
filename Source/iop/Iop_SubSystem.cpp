@@ -34,26 +34,26 @@ CSubSystem::CSubSystem(bool ps2Mode)
 , m_dmaUpdateTicks(0)
 {
 	//Read memory map
-	m_cpu.m_pMemoryMap->InsertReadMap((0 * IOP_RAM_SIZE), (0 * IOP_RAM_SIZE) + IOP_RAM_SIZE - 1,	m_ram,														0x01);
-	m_cpu.m_pMemoryMap->InsertReadMap((1 * IOP_RAM_SIZE), (1 * IOP_RAM_SIZE) + IOP_RAM_SIZE - 1,	m_ram,														0x02);
-	m_cpu.m_pMemoryMap->InsertReadMap((2 * IOP_RAM_SIZE), (2 * IOP_RAM_SIZE) + IOP_RAM_SIZE - 1,	m_ram,														0x03);
-	m_cpu.m_pMemoryMap->InsertReadMap((3 * IOP_RAM_SIZE), (3 * IOP_RAM_SIZE) + IOP_RAM_SIZE - 1,	m_ram,														0x04);
-	m_cpu.m_pMemoryMap->InsertReadMap(0x1F800000,					0x1F8003FF,						m_scratchPad,												0x05);
-	m_cpu.m_pMemoryMap->InsertReadMap(HW_REG_BEGIN,					HW_REG_END,						std::bind(&CSubSystem::ReadIoRegister, this, std::placeholders::_1),		0x06);
+	m_cpu.m_pMemoryMap->InsertReadMap((0 * IOP_RAM_SIZE),    (0 * IOP_RAM_SIZE) + IOP_RAM_SIZE - 1,      m_ram,                                                                  0x01);
+	m_cpu.m_pMemoryMap->InsertReadMap((1 * IOP_RAM_SIZE),    (1 * IOP_RAM_SIZE) + IOP_RAM_SIZE - 1,      m_ram,                                                                  0x02);
+	m_cpu.m_pMemoryMap->InsertReadMap((2 * IOP_RAM_SIZE),    (2 * IOP_RAM_SIZE) + IOP_RAM_SIZE - 1,      m_ram,                                                                  0x03);
+	m_cpu.m_pMemoryMap->InsertReadMap((3 * IOP_RAM_SIZE),    (3 * IOP_RAM_SIZE) + IOP_RAM_SIZE - 1,      m_ram,                                                                  0x04);
+	m_cpu.m_pMemoryMap->InsertReadMap(IOP_SCRATCH_ADDR,      IOP_SCRATCH_ADDR + IOP_SCRATCH_SIZE - 1,    m_scratchPad,                                                           0x05);
+	m_cpu.m_pMemoryMap->InsertReadMap(HW_REG_BEGIN,          HW_REG_END,                                 std::bind(&CSubSystem::ReadIoRegister, this, std::placeholders::_1),    0x06);
 
 	//Write memory map
-	m_cpu.m_pMemoryMap->InsertWriteMap((0 * IOP_RAM_SIZE),		(0 * IOP_RAM_SIZE) + IOP_RAM_SIZE - 1,	m_ram,																			0x01);
-	m_cpu.m_pMemoryMap->InsertWriteMap((1 * IOP_RAM_SIZE),		(1 * IOP_RAM_SIZE) + IOP_RAM_SIZE - 1,	m_ram,																			0x02);
-	m_cpu.m_pMemoryMap->InsertWriteMap((2 * IOP_RAM_SIZE),		(2 * IOP_RAM_SIZE) + IOP_RAM_SIZE - 1,	m_ram,																			0x03);
-	m_cpu.m_pMemoryMap->InsertWriteMap((3 * IOP_RAM_SIZE),		(3 * IOP_RAM_SIZE) + IOP_RAM_SIZE - 1,	m_ram,																			0x04);
-	m_cpu.m_pMemoryMap->InsertWriteMap(0x1F800000,		0x1F8003FF,									m_scratchPad,																	0x05);
-	m_cpu.m_pMemoryMap->InsertWriteMap(HW_REG_BEGIN,	HW_REG_END,									std::bind(&CSubSystem::WriteIoRegister, this, std::placeholders::_1, std::placeholders::_2),		0x06);
+	m_cpu.m_pMemoryMap->InsertWriteMap((0 * IOP_RAM_SIZE),    (0 * IOP_RAM_SIZE) + IOP_RAM_SIZE - 1,      m_ram,                                                                                          0x01);
+	m_cpu.m_pMemoryMap->InsertWriteMap((1 * IOP_RAM_SIZE),    (1 * IOP_RAM_SIZE) + IOP_RAM_SIZE - 1,      m_ram,                                                                                          0x02);
+	m_cpu.m_pMemoryMap->InsertWriteMap((2 * IOP_RAM_SIZE),    (2 * IOP_RAM_SIZE) + IOP_RAM_SIZE - 1,      m_ram,                                                                                          0x03);
+	m_cpu.m_pMemoryMap->InsertWriteMap((3 * IOP_RAM_SIZE),    (3 * IOP_RAM_SIZE) + IOP_RAM_SIZE - 1,      m_ram,                                                                                          0x04);
+	m_cpu.m_pMemoryMap->InsertWriteMap(IOP_SCRATCH_ADDR,      IOP_SCRATCH_ADDR + IOP_SCRATCH_SIZE - 1,    m_scratchPad,                                                                                   0x05);
+	m_cpu.m_pMemoryMap->InsertWriteMap(HW_REG_BEGIN,          HW_REG_END,                                 std::bind(&CSubSystem::WriteIoRegister, this, std::placeholders::_1, std::placeholders::_2),    0x06);
 
 	//Instruction memory map
-	m_cpu.m_pMemoryMap->InsertInstructionMap((0 * IOP_RAM_SIZE), (0 * IOP_RAM_SIZE) + IOP_RAM_SIZE - 1,	m_ram,						0x01);
-	m_cpu.m_pMemoryMap->InsertInstructionMap((1 * IOP_RAM_SIZE), (1 * IOP_RAM_SIZE) + IOP_RAM_SIZE - 1,	m_ram,						0x02);
-	m_cpu.m_pMemoryMap->InsertInstructionMap((2 * IOP_RAM_SIZE), (2 * IOP_RAM_SIZE) + IOP_RAM_SIZE - 1,	m_ram,						0x03);
-	m_cpu.m_pMemoryMap->InsertInstructionMap((3 * IOP_RAM_SIZE), (3 * IOP_RAM_SIZE) + IOP_RAM_SIZE - 1,	m_ram,						0x04);
+	m_cpu.m_pMemoryMap->InsertInstructionMap((0 * IOP_RAM_SIZE),    (0 * IOP_RAM_SIZE) + IOP_RAM_SIZE - 1,    m_ram,    0x01);
+	m_cpu.m_pMemoryMap->InsertInstructionMap((1 * IOP_RAM_SIZE),    (1 * IOP_RAM_SIZE) + IOP_RAM_SIZE - 1,    m_ram,    0x02);
+	m_cpu.m_pMemoryMap->InsertInstructionMap((2 * IOP_RAM_SIZE),    (2 * IOP_RAM_SIZE) + IOP_RAM_SIZE - 1,    m_ram,    0x03);
+	m_cpu.m_pMemoryMap->InsertInstructionMap((3 * IOP_RAM_SIZE),    (3 * IOP_RAM_SIZE) + IOP_RAM_SIZE - 1,    m_ram,    0x04);
 
 	m_cpu.m_pArch = &m_cpuArch;
 	m_cpu.m_pCOP[0] = &m_copScu;

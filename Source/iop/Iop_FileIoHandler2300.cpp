@@ -1,8 +1,14 @@
 #include "Iop_FileIoHandler2300.h"
 #include "Iop_Ioman.h"
+#include "../RegisterStateFile.h"
 #include "../Log.h"
 
 #define LOG_NAME ("iop_fileio")
+
+#define STATE_XML            ("iop_fileio/state2300.xml")
+#define STATE_RESULTPTR0     ("resultPtr0")
+#define STATE_RESULTPTR1     ("resultPtr1")
+#define STATE_PENDINGREADCMD ("pendingReadCmd")
 
 using namespace Iop;
 
@@ -10,8 +16,14 @@ using namespace Iop;
 #define COMMANDID_CLOSE       1
 #define COMMANDID_READ        2
 #define COMMANDID_SEEK        4
+#define COMMANDID_DOPEN       9
 #define COMMANDID_GETSTAT     12
-#define COMMANDID_ACTIVATE    23
+#define COMMANDID_MOUNT       20
+#define COMMANDID_UMOUNT      21
+#define COMMANDID_DEVCTL      23
+
+#define DEVCTL_CDVD_GETERROR   0x4320
+#define DEVCTL_CDVD_DISKREADY  0x4325
 
 CFileIoHandler2300::CFileIoHandler2300(CIoman* ioman, CSifMan& sifMan)
 : CHandler(ioman)
@@ -36,11 +48,20 @@ void CFileIoHandler2300::Invoke(uint32 method, uint32* args, uint32 argsSize, ui
 	case COMMANDID_SEEK:
 		*ret = InvokeSeek(args, argsSize, ret, retSize, ram);
 		break;
+	case COMMANDID_DOPEN:
+		*ret = InvokeDopen(args, argsSize, ret, retSize, ram);
+		break;
 	case COMMANDID_GETSTAT:
 		*ret = InvokeGetStat(args, argsSize, ret, retSize, ram);
 		break;
-	case COMMANDID_ACTIVATE:
-		*ret = InvokeActivate(args, argsSize, ret, retSize, ram);
+	case COMMANDID_MOUNT:
+		*ret = InvokeMount(args, argsSize, ret, retSize, ram);
+		break;
+	case COMMANDID_UMOUNT:
+		*ret = InvokeUmount(args, argsSize, ret, retSize, ram);
+		break;
+	case COMMANDID_DEVCTL:
+		*ret = InvokeDevctl(args, argsSize, ret, retSize, ram);
 		break;
 	case 255:
 		//Not really sure about that...
@@ -62,6 +83,32 @@ void CFileIoHandler2300::Invoke(uint32 method, uint32* args, uint32 argsSize, ui
 	default:
 		CLog::GetInstance().Print(LOG_NAME, "Unknown function (%d) called.\r\n", method);
 		break;
+	}
+}
+
+void CFileIoHandler2300::LoadState(Framework::CZipArchiveReader& archive)
+{
+	auto registerFile = CRegisterStateFile(*archive.BeginReadFile(STATE_XML));
+	m_resultPtr[0]       = registerFile.GetRegister32(STATE_RESULTPTR0);
+	m_resultPtr[1]       = registerFile.GetRegister32(STATE_RESULTPTR1);
+	m_pendingReadCommand = registerFile.GetRegister32(STATE_PENDINGREADCMD) != 0;
+}
+
+void CFileIoHandler2300::SaveState(Framework::CZipArchiveWriter& archive) const
+{
+	auto registerFile = new CRegisterStateFile(STATE_XML);
+	registerFile->SetRegister32(STATE_RESULTPTR0,     m_resultPtr[0]);
+	registerFile->SetRegister32(STATE_RESULTPTR1,     m_resultPtr[1]);
+	registerFile->SetRegister32(STATE_PENDINGREADCMD, m_pendingReadCommand ? 1 : 0);
+	archive.InsertFile(registerFile);
+}
+
+void CFileIoHandler2300::ProcessCommands()
+{
+	if(m_pendingReadCommand)
+	{
+		SendSifReply();
+		m_pendingReadCommand = false;
 	}
 }
 
@@ -130,7 +177,9 @@ uint32 CFileIoHandler2300::InvokeRead(uint32* args, uint32 argsSize, uint32* ret
 		memcpy(ram + m_resultPtr[0], &reply, sizeof(READREPLY));
 	}
 
-	SendSifReply();
+	//Delay read reply to next frame (needed by Phantasy Star Collection)
+	assert(!m_pendingReadCommand);
+	m_pendingReadCommand = true;
 	return 1;
 }
 
@@ -147,6 +196,31 @@ uint32 CFileIoHandler2300::InvokeSeek(uint32* args, uint32 argsSize, uint32* ret
 		reply.header.commandId = COMMANDID_SEEK;
 		CopyHeader(reply.header, command->header);
 		reply.result   = result;
+		reply.unknown2 = 0;
+		reply.unknown3 = 0;
+		reply.unknown4 = 0;
+		memcpy(ram + m_resultPtr[0], &reply, sizeof(SEEKREPLY));
+	}
+
+	SendSifReply();
+	return 1;
+}
+
+uint32 CFileIoHandler2300::InvokeDopen(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, uint8* ram)
+{
+	assert(retSize == 4);
+	auto command = reinterpret_cast<DOPENCOMMAND*>(args);
+
+	//This is a stub and is not implemented yet
+	CLog::GetInstance().Print(LOG_NAME, "Dopen('%s');\r\n", command->dirName);
+
+	//Send response
+	if(m_resultPtr[0] != 0)
+	{
+		DOPENREPLY reply;
+		reply.header.commandId = COMMANDID_DOPEN;
+		CopyHeader(reply.header, command->header);
+		reply.result   = -1;
 		reply.unknown2 = 0;
 		reply.unknown3 = 0;
 		reply.unknown4 = 0;
@@ -180,29 +254,106 @@ uint32 CFileIoHandler2300::InvokeGetStat(uint32* args, uint32 argsSize, uint32* 
 	return 1;
 }
 
-uint32 CFileIoHandler2300::InvokeActivate(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, uint8* ram)
+uint32 CFileIoHandler2300::InvokeMount(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, uint8* ram)
 {
-	//No idea what that does... This is used by Romancing Saga with 'hdd0:' parameter.
+	//This is used by Final Fantasy X
+	assert(argsSize >= 0xC14);
 	assert(retSize == 4);
-	auto command = reinterpret_cast<ACTIVATECOMMAND*>(args);
+	auto command = reinterpret_cast<MOUNTCOMMAND*>(args);
+
+	CLog::GetInstance().Print(LOG_NAME, "Mount('%s', '%s');\r\n", 
+		command->fileSystemName, command->deviceName);
 
 	if(m_resultPtr[0] != 0)
 	{
 		//Send response
-		ACTIVATEREPLY reply;
-		reply.header.commandId = COMMANDID_ACTIVATE;
+		MOUNTREPLY reply;
+		reply.header.commandId = COMMANDID_MOUNT;
 		CopyHeader(reply.header, command->header);
 		reply.result   = 0;
 		reply.unknown2 = 0;
 		reply.unknown3 = 0;
 		reply.unknown4 = 0;
-		memcpy(ram + m_resultPtr[0], &reply, sizeof(ACTIVATEREPLY));
+		memcpy(ram + m_resultPtr[0], &reply, sizeof(MOUNTREPLY));
 	}
 
 	SendSifReply();
-	
-	//Return failure till we figure out what that does
+	//Not supported for now, return 0
 	return 0;
+}
+
+uint32 CFileIoHandler2300::InvokeUmount(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, uint8* ram)
+{
+	//This is used by Romancing Saga with 'pfs0:' parameter.
+	assert(argsSize >= 0x0C);
+	assert(retSize == 4);
+	auto command = reinterpret_cast<UMOUNTCOMMAND*>(args);
+
+	CLog::GetInstance().Print(LOG_NAME, "Umount('%s');\r\n", command->deviceName);
+
+	if(m_resultPtr[0] != 0)
+	{
+		//Send response
+		UMOUNTREPLY reply;
+		reply.header.commandId = COMMANDID_UMOUNT;
+		CopyHeader(reply.header, command->header);
+		reply.result   = 0;
+		reply.unknown2 = 0;
+		reply.unknown3 = 0;
+		reply.unknown4 = 0;
+		memcpy(ram + m_resultPtr[0], &reply, sizeof(UMOUNTREPLY));
+	}
+
+	SendSifReply();
+	//Not supported for now, return 0
+	return 0;
+}
+
+uint32 CFileIoHandler2300::InvokeDevctl(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, uint8* ram)
+{
+	//This is used by Romancing Saga with 'hdd0:' parameter.
+	//This is also used by Phantasy Star Collection with 'cdrom0:' parameter.
+
+	assert(argsSize >= 0x81C);
+	assert(retSize == 4);
+	auto command = reinterpret_cast<DEVCTLCOMMAND*>(args);
+
+	uint32* input = reinterpret_cast<uint32*>(command->inputBuffer);
+	uint32* output = reinterpret_cast<uint32*>(ram + command->outputPtr);
+
+	switch(command->cmdId)
+	{
+	case DEVCTL_CDVD_GETERROR:
+		assert(command->outputSize == 4);
+		CLog::GetInstance().Print(LOG_NAME, "DevCtl -> CdGetError();\r\n");
+		output[0] = 0;	//No error
+		break;
+	case DEVCTL_CDVD_DISKREADY:
+		assert(command->inputSize == 4);
+		assert(command->outputSize == 4);
+		CLog::GetInstance().Print(LOG_NAME, "DevCtl -> CdDiskReady(%d);\r\n", input[0]);
+		output[0] = 2;	//Disk ready
+		break;
+	default:
+		CLog::GetInstance().Print(LOG_NAME, "DevCtl -> Unknown(cmd = %0.8X);\r\n", command->cmdId);
+		break;
+	}
+
+	if(m_resultPtr[0] != 0)
+	{
+		//Send response
+		DEVCTLREPLY reply;
+		reply.header.commandId = COMMANDID_DEVCTL;
+		CopyHeader(reply.header, command->header);
+		reply.result   = 0;
+		reply.unknown2 = 0;
+		reply.unknown3 = 0;
+		reply.unknown4 = 0;
+		memcpy(ram + m_resultPtr[0], &reply, sizeof(DEVCTLREPLY));
+	}
+
+	SendSifReply();
+	return 1;
 }
 
 void CFileIoHandler2300::CopyHeader(REPLYHEADER& reply, const COMMANDHEADER& command)

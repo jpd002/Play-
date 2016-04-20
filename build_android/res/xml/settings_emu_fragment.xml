@@ -31,4 +31,14 @@
 			android:persistent="false"
 		/>
 	</PreferenceCategory>
+	<PreferenceCategory
+		android:title="@string/pref_emu_audio"
+		>
+		<CheckBoxPreference
+			android:key="audio.enableoutput"
+			android:title="@string/pref_emu_audio_enable_output_title"
+			android:summary="@string/pref_emu_audio_enable_output_summary"
+			android:persistent="false"
+		/>
+	</PreferenceCategory>
 </PreferenceScreen>

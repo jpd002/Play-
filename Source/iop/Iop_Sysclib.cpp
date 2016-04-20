@@ -1,15 +1,12 @@
 #include "Iop_Sysclib.h"
+#include "../Ps2Const.h"
 
 using namespace Iop;
 
-CSysclib::CSysclib(uint8* ram, CStdio& stdio)
+CSysclib::CSysclib(uint8* ram, uint8* spr, CStdio& stdio)
 : m_ram(ram)
+, m_spr(spr)
 , m_stdio(stdio)
-{
-
-}
-
-CSysclib::~CSysclib()
 {
 
 }
@@ -133,9 +130,8 @@ void CSysclib::Invoke(CMIPS& context, unsigned int functionId)
 			context.m_State.nGPR[CMIPS::A2].nV0);
 		break;
 	case 14:
-		context.m_State.nGPR[CMIPS::V0].nD0 = context.m_State.nGPR[CMIPS::A0].nD0;
-		__memset(
-			&m_ram[context.m_State.nGPR[CMIPS::A0].nV0],
+		context.m_State.nGPR[CMIPS::V0].nD0 = __memset(
+			context.m_State.nGPR[CMIPS::A0].nV0,
 			context.m_State.nGPR[CMIPS::A1].nV0,
 			context.m_State.nGPR[CMIPS::A2].nV0);
 		break;
@@ -149,7 +145,7 @@ void CSysclib::Invoke(CMIPS& context, unsigned int functionId)
 	case 17:
 		//bzero
 		__memset(
-			&m_ram[context.m_State.nGPR[CMIPS::A0].nV0],
+			context.m_State.nGPR[CMIPS::A0].nV0,
 			0,
 			context.m_State.nGPR[CMIPS::A1].nV0);
 		break;
@@ -218,9 +214,9 @@ void CSysclib::Invoke(CMIPS& context, unsigned int functionId)
 		);
 		break;
 	case 36:
-		assert(context.m_State.nGPR[CMIPS::A1].nV0 == 0);
 		context.m_State.nGPR[CMIPS::V0].nD0 = static_cast<int32>(__strtol(
-			reinterpret_cast<char*>(&m_ram[context.m_State.nGPR[CMIPS::A0].nV0]),
+			context.m_State.nGPR[CMIPS::A0].nV0,
+			context.m_State.nGPR[CMIPS::A1].nV0,
 			context.m_State.nGPR[CMIPS::A2].nV0
 			));
 		break;
@@ -249,6 +245,27 @@ void CSysclib::Invoke(CMIPS& context, unsigned int functionId)
 		printf("%s(%0.8X): Unknown function (%d) called.\r\n", __FUNCTION__, context.m_State.nPC, functionId);
 		assert(0);
 		break;
+	}
+}
+
+uint8* CSysclib::GetPtr(uint32 ptr, uint32 size) const
+{
+	assert(ptr != 0);
+	if(ptr >= PS2::IOP_SCRATCH_ADDR)
+	{
+		//Some games (Phantasy Star Collection) seem to address areas beyond the SPR's limits
+		ptr &= (PS2::IOP_SCRATCH_SIZE - 1);
+		assert((ptr + size) <= PS2::IOP_SCRATCH_SIZE);
+		return reinterpret_cast<uint8*>(m_spr + ptr);
+	}
+	else
+	{
+		//We should rarely get addresses that point to other areas
+		//than RAM, so we assert just to give a warning because it might
+		//mean there's an error somewhere else
+		assert(ptr < PS2::IOP_RAM_SIZE);
+		ptr &= (PS2::IOP_RAM_SIZE - 1);
+		return reinterpret_cast<uint8*>(m_ram + ptr);
 	}
 }
 
@@ -297,9 +314,11 @@ void CSysclib::__memmove(void* dest, const void* src, uint32 length)
 	memmove(dest, src, length);
 }
 
-void CSysclib::__memset(void* dest, int character, unsigned int length)
+uint32 CSysclib::__memset(uint32 destPtr, uint32 character, uint32 length)
 {
+	auto dest = reinterpret_cast<uint8*>(GetPtr(destPtr, length));
 	memset(dest, character, length);
+	return destPtr;
 }
 
 uint32 CSysclib::__sprintf(CMIPS& context)
@@ -382,8 +401,10 @@ uint32 CSysclib::__strcspn(uint32 str1Ptr, uint32 str2Ptr)
 	return result;
 }
 
-uint32 CSysclib::__strtol(const char* string, unsigned int radix)
+uint32 CSysclib::__strtol(uint32 stringPtr, uint32 endPtrPtr, uint32 radix)
 {
+	assert(endPtrPtr == 0);
+	auto string = reinterpret_cast<const char*>(GetPtr(stringPtr, 0));
 	return strtol(string, NULL, radix);
 }
 

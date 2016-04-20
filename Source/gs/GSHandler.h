@@ -65,6 +65,7 @@ enum GS_REGS
 	GS_REG_TRXDIR		= 0x53,
 	GS_REG_SIGNAL		= 0x60,
 	GS_REG_FINISH		= 0x61,
+	GS_REG_LABEL		= 0x62,
 };
 
 class CGSHandler
@@ -92,6 +93,7 @@ public:
 		GS_DISPLAY2 = 0x120000A0,
 		GS_CSR		= 0x12001000,
 		GS_IMR		= 0x12001010,
+		GS_SIGLBLID	= 0x12001080,
 	};
 
 	enum
@@ -495,6 +497,22 @@ public:
 	};
 	static_assert(sizeof(TRXREG) == sizeof(uint64), "Size of TRXREG struct must be 8 bytes.");
 
+	//Reg 0x60
+	struct SIGNAL : public convertible<uint64>
+	{
+		unsigned int	id				: 32;
+		unsigned int	idmsk			: 32;
+	};
+	static_assert(sizeof(SIGNAL) == sizeof(uint64), "Size of SIGNAL struct must be 8 bytes.");
+
+	//Reg 0x62
+	struct LABEL : public convertible<uint64>
+	{
+		unsigned int	id				: 32;
+		unsigned int	idmsk			: 32;
+	};
+	static_assert(sizeof(LABEL) == sizeof(uint64), "Size of LABEL struct must be 8 bytes.");
+
 	typedef std::pair<uint8, uint64> RegisterWrite;
 	typedef std::vector<RegisterWrite> RegisterWriteList;
 	typedef std::function<CGSHandler* (void)> FactoryFunction;
@@ -663,6 +681,13 @@ protected:
 	};
 	static_assert(sizeof(DISPLAY) == sizeof(uint64), "Size of DISPLAY struct must be 8 bytes.");
 
+	struct SIGLBLID : public convertible<uint64>
+	{
+		unsigned int	sigid		: 32;
+		unsigned int	lblid		: 32;
+	};
+	static_assert(sizeof(SIGLBLID) == sizeof(uint64), "Size of SIGLBLID struct must be 8 bytes.");
+
 	struct TRXCONTEXT
 	{
 		uint32			nSize;
@@ -717,6 +742,7 @@ protected:
 	DELAYED_REGISTER						m_nDISPLAY2;		//0x120000A0
 	uint64									m_nCSR;				//0x12001000
 	uint64									m_nIMR;				//0x12001010
+	uint64									m_nSIGLBLID;		//0x12001080
 
 	PRESENTATION_PARAMS						m_presentationParams;
 

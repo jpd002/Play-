@@ -1,5 +1,4 @@
-#ifndef _IOP_THSEMA_H_
-#define _IOP_THSEMA_H_
+#pragma once
 
 #include "Iop_Module.h"
 #include "IopBios.h"
@@ -12,9 +11,9 @@ namespace Iop
 						CThsema(CIopBios&, uint8*);
 		virtual			~CThsema();
 
-		std::string		GetId() const;
-		std::string		GetFunctionName(unsigned int) const;
-		void			Invoke(CMIPS&, unsigned int);
+		std::string		GetId() const override;
+		std::string		GetFunctionName(unsigned int) const override;
+		void			Invoke(CMIPS&, unsigned int) override;
 
 	private:
 		struct SEMAPHORE
@@ -37,5 +36,3 @@ namespace Iop
 		CIopBios&		m_bios;
 	};
 }
-
-#endif

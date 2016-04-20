@@ -15,20 +15,6 @@
 #include "FrameDump.h"
 #include "Profiler.h"
 
-enum PS2VM_MSG
-{
-	PS2VM_MSG_PAUSE,
-	PS2VM_MSG_RESUME,
-	PS2VM_MSG_DESTROY,
-	PS2VM_MSG_CREATEGS,
-	PS2VM_MSG_DESTROYGS,
-	PS2VM_MSG_CREATEPAD,
-	PS2VM_MSG_DESTROYPAD,
-	PS2VM_MSG_SAVESTATE,
-	PS2VM_MSG_LOADSTATE,
-	PS2VM_MSG_RESET,
-};
-
 #define PREF_PS2_HOST_DIRECTORY				("ps2.host.directory")
 #define PREF_PS2_MC0_DIRECTORY				("ps2.mc0.directory")
 #define PREF_PS2_MC1_DIRECTORY				("ps2.mc1.directory")
@@ -106,11 +92,15 @@ private:
 	void						ResumeImpl();
 	void						PauseImpl();
 	void						DestroyImpl();
-	void						CreateGsImpl(const CGSHandler::FactoryFunction&);
-	void						DestroyGsImpl();
+	
+	void						CreateGsHandlerImpl(const CGSHandler::FactoryFunction&);
+	void						DestroyGsHandlerImpl();
 
 	void						CreatePadHandlerImpl(const CPadHandler::FactoryFunction&);
 	void						DestroyPadHandlerImpl();
+	
+	void						CreateSoundHandlerImpl(const CSoundHandler::FactoryFunction&);
+	void						DestroySoundHandlerImpl();
 
 	void						UpdateEe();
 	void						UpdateIop();
