@@ -2,7 +2,7 @@
 	<Executable Name="SLES_506.72;1" Title="Baldur's Gate: Dark Alliance" Region="EU">
 		<Patch Address="0x00300478" Value="0x00000001" Description="Enable libcdvd tracing."/>
 	</Executable>
-
+	
 	<Executable Name="SLPM_661.75;1" Title="Akumajou Dracula - Yami No Juin" Region="JP">
 		<Patch Address="0x009B47D0" Value="0x00000002" Description="Enable libcdvd tracing."/>
 		<Patch Address="0x00400868" Value="0x081D8174" Description="Redirect calls from printf stub to the real printf" />
@@ -12,6 +12,7 @@
 			<Patch Address="0x0042FD58" Value="0x24020001" Description="cv patch"/>
 		-->
 	</Executable>
+	
 	<Executable Name="SLPM_669.65;1" Title="Guilty Gear XX Accent Core Plus" Region="JP">
 		<Patch Address="0x0011F528" Value="0x080B4E74" Description="Redirect calls from trace stub to real printf" />
 		<Patch Address="0x0011F52C" Value="0x00000000" Description="Redirect calls from trace stub to real printf" />
@@ -25,4 +26,8 @@
 		<Patch Address="0x002751B4" Value="0x00000000" Description="Nullify spin wait" />
 	</Executable>
 	
+	<Executable Name="SLUS_213.70;1" Title="Mega Man X Collection" Region="US">
+		<Patch Address="0x001255D0" Value="0x03E00008" Description="Disable movie playback" />
+		<Patch Address="0x001255D4" Value="0x00000000" Description="Disable movie playback" />
+	</Executable>
 </Patches>

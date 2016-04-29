@@ -109,6 +109,7 @@ namespace VUShared
 	void						ISWbase(CMipsJitter*, uint8);
 	void						ISWR(CMipsJitter*, uint8, uint8, uint8, uint32);
 	void						LQbase(CMipsJitter*, uint8, uint8);
+	void						LQD(CMipsJitter*, uint8, uint8, uint8, uint32);
 	void						LQI(CMipsJitter*, uint8, uint8, uint8, uint32);
 	void						MADD(CMipsJitter*, uint8, uint8, uint8, uint8, uint32);
 	void						MADDbc(CMipsJitter*, uint8, uint8, uint8, uint8, uint8, uint32);
@@ -176,6 +177,7 @@ namespace VUShared
 	void						ReflOpFsDstItInc(MIPSReflection::INSTRUCTION*, CMIPS*, uint32, uint32, char*, unsigned int);
 	void						ReflOpFtFs(MIPSReflection::INSTRUCTION*, CMIPS*, uint32, uint32, char*, unsigned int);
 	void						ReflOpFtIs(MIPSReflection::INSTRUCTION*, CMIPS*, uint32, uint32, char*, unsigned int);
+	void						ReflOpFtDstIsDec(MIPSReflection::INSTRUCTION*, CMIPS*, uint32, uint32, char*, unsigned int);
 	void						ReflOpFtDstIsInc(MIPSReflection::INSTRUCTION*, CMIPS*, uint32, uint32, char*, unsigned int);
 	void						ReflOpClip(MIPSReflection::INSTRUCTION*, CMIPS*, uint32, uint32, char*, unsigned int);
 	void						ReflOpAccFsI(MIPSReflection::INSTRUCTION*, CMIPS*, uint32, uint32, char*, unsigned int);

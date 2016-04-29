@@ -489,8 +489,7 @@ void CGSHandler::WriteRegisterImpl(uint8 nRegister, uint64 nData)
 		{
 			unsigned int nContext = nRegister - GS_REG_TEX0_1;
 			assert(nContext == 0 || nContext == 1);
-			TEX0 tex0;
-			tex0 <<= m_nReg[GS_REG_TEX0_1 + nContext];
+			auto tex0 = make_convertible<TEX0>(m_nReg[GS_REG_TEX0_1 + nContext]);
 			SyncCLUT(tex0);
 		}
 		break;
@@ -506,8 +505,7 @@ void CGSHandler::WriteRegisterImpl(uint8 nRegister, uint64 nData)
 			m_nReg[GS_REG_TEX0_1 + nContext] &= ~nMask;
 			m_nReg[GS_REG_TEX0_1 + nContext] |= nData & nMask;
 
-			TEX0 tex0;
-			tex0 <<= m_nReg[GS_REG_TEX0_1 + nContext];
+			auto tex0 = make_convertible<TEX0>(m_nReg[GS_REG_TEX0_1 + nContext]);
 			SyncCLUT(tex0);
 		}
 		break;

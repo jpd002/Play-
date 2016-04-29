@@ -139,6 +139,7 @@ private:
 	void								VMULAi();
 	void								VMULA();
 	void								VOPMULA();
+	void								VLQD();
 	void								VRSQRT();
 	void								VILWR();
 	void								VRINIT();

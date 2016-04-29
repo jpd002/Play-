@@ -41,9 +41,36 @@ protected:
 	GLuint							m_presentFramebuffer = 0;
 
 private:
+	enum class TECHNIQUE
+	{
+		STANDARD,
+		ALPHATEST_TWOPASS,
+	};
+
+	struct SHADERCAPS : public convertible<uint32>
+	{
+		unsigned int texFunction			: 2;		//0 - Modulate, 1 - Decal, 2 - Highlight, 3 - Hightlight2
+		unsigned int texClampS				: 2;
+		unsigned int texClampT				: 2;
+		unsigned int texSourceMode			: 2;
+		unsigned int texHasAlpha			: 1;
+		unsigned int texBilinearFilter		: 1;
+		unsigned int texUseAlphaExpansion	: 1;
+		unsigned int texBlackIsTransparent	: 1;
+		unsigned int hasFog					: 1;
+		unsigned int hasAlphaTest			: 1;
+		unsigned int alphaTestMethod		: 3;
+		unsigned int padding				: 15;
+
+		bool isIndexedTextureSource() const { return texSourceMode == TEXTURE_SOURCE_MODE_IDX4 || texSourceMode == TEXTURE_SOURCE_MODE_IDX8; }
+	};
+	static_assert(sizeof(SHADERCAPS) == sizeof(uint32), "SHADERCAPS structure size must be 4 bytes.");
+
 	struct RENDERSTATE
 	{
 		bool		isValid;
+		
+		//Register State
 		uint64		primReg;
 		uint64		frameReg;
 		uint64		testReg;
@@ -55,8 +82,56 @@ private:
 		uint64		texAReg;
 		uint64		clampReg;
 		uint64		fogColReg;
+
+		//Intermediate State
+		TECHNIQUE	technique;
+		SHADERCAPS	shaderCaps;
+
+		//OpenGL state
 		GLuint		shaderHandle;
+		GLuint		framebufferHandle;
+		GLuint		texture0Handle;
+		GLint		texture0MinFilter;
+		GLint		texture0MagFilter;
+		GLint		texture0WrapS;
+		GLint		texture0WrapT;
+		GLuint		texture1Handle;
+		GLsizei		viewportWidth;
+		GLsizei		viewportHeight;
+		GLint		scissorX;
+		GLint		scissorY;
+		GLsizei		scissorWidth;
+		GLsizei		scissorHeight;
+		bool		blendEnabled;
+		bool		colorMaskR;
+		bool		colorMaskG;
+		bool		colorMaskB;
+		bool		colorMaskA;
+		bool		depthMask;
 	};
+
+	//These need to match the layout of the shader's uniform block
+	struct VERTEXPARAMS
+	{
+		float		projMatrix[16];
+		float		texMatrix[16];
+	};
+	static_assert(sizeof(VERTEXPARAMS) == 0x80, "Size of VERTEXPARAMS must be 128 bytes.");
+
+	struct FRAGMENTPARAMS
+	{
+		float		textureSize[2];
+		float		texelSize[2];
+		float		clampMin[2];
+		float		clampMax[2];
+		float		texA0;
+		float		texA1;
+		float		alphaRef;
+		float		padding1;
+		float		fogColor[3];
+		float		padding2;
+	};
+	static_assert(sizeof(FRAGMENTPARAMS) == 0x40, "Size of FRAGMENTPARAMS must be 64 bytes.");
 
 	enum
 	{
@@ -97,43 +172,7 @@ private:
 		TEXTURE_CLAMP_MODE_REGION_REPEAT_SIMPLE	= 3
 	};
 
-	struct SHADERCAPS : public convertible<uint32>
-	{
-		unsigned int texFunction			: 2;		//0 - Modulate, 1 - Decal, 2 - Highlight, 3 - Hightlight2
-		unsigned int texClampS				: 2;
-		unsigned int texClampT				: 2;
-		unsigned int texSourceMode			: 2;
-		unsigned int texHasAlpha			: 1;
-		unsigned int texBilinearFilter		: 1;
-		unsigned int texUseAlphaExpansion	: 1;
-		unsigned int texBlackIsTransparent	: 1;
-		unsigned int hasFog					: 1;
-		unsigned int hasAlphaTest			: 1;
-		unsigned int alphaTestMethod		: 3;
-		unsigned int padding				: 15;
-
-		bool isIndexedTextureSource() const { return texSourceMode == TEXTURE_SOURCE_MODE_IDX4 || texSourceMode == TEXTURE_SOURCE_MODE_IDX8; }
-	};
-	static_assert(sizeof(SHADERCAPS) == sizeof(uint32), "SHADERCAPS structure size must be 4 bytes.");
-
-	struct SHADERINFO
-	{
-		Framework::OpenGl::ProgramPtr	shader;
-		GLint							projMatrixUniform;
-		GLint							texMatrixUniform;
-		GLint							textureUniform;
-		GLint							paletteUniform;
-		GLint							textureSizeUniform;
-		GLint							texelSizeUniform;
-		GLint							clampMinUniform;
-		GLint							clampMaxUniform;
-		GLint							texA0Uniform;
-		GLint							texA1Uniform;
-		GLint							alphaRefUniform;
-		GLint							fogColorUniform;
-	};
-
-	typedef std::unordered_map<uint32, SHADERINFO> ShaderInfoMap;
+	typedef std::unordered_map<uint32, Framework::OpenGl::ProgramPtr> ShaderMap;
 
 	class CTexture
 	{
@@ -174,7 +213,7 @@ private:
 	class CFramebuffer
 	{
 	public:
-									CFramebuffer(uint32, uint32, uint32, uint32, uint32);
+									CFramebuffer(uint32, uint32, uint32, uint32, uint32, bool);
 									~CFramebuffer();
 
 		uint32						m_basePtr;
@@ -182,8 +221,12 @@ private:
 		uint32						m_height;
 		uint32						m_psm;
 
-		GLuint						m_framebuffer;
-		GLuint						m_texture;
+		GLuint						m_framebuffer = 0;
+		GLuint						m_texture = 0;
+
+		GLuint						m_resolveFramebuffer = 0;
+		bool						m_resolveNeeded = false;
+		GLuint						m_colorBufferMs = 0;
 
 		CGsCachedArea				m_cachedArea;
 	};
@@ -193,7 +236,7 @@ private:
 	class CDepthbuffer
 	{
 	public:
-									CDepthbuffer(uint32, uint32, uint32, uint32, uint32);
+									CDepthbuffer(uint32, uint32, uint32, uint32, uint32, bool);
 									~CDepthbuffer();
 
 		uint32						m_basePtr;
@@ -207,6 +250,7 @@ private:
 
 	struct TEXTURE_INFO
 	{
+		GLuint	textureHandle = 0;
 		float	offsetX = 0;
 		float	scaleRatioX = 1;
 		float	scaleRatioY = 1;
@@ -243,13 +287,14 @@ private:
 	void							MakeLinearZOrtho(float*, float, float, float, float);
 	unsigned int					GetCurrentReadCircuit();
 	TEXTURE_INFO					PrepareTexture(const TEX0&);
-	void							PreparePalette(const TEX0&);
+	GLuint							PreparePalette(const TEX0&);
 
 	uint32							RGBA16ToRGBA32(uint16);
 	float							GetZ(float);
 
 	void							VertexKick(uint8, uint64);
 
+	Framework::OpenGl::ProgramPtr	GetShaderFromCaps(const SHADERCAPS&);
 	Framework::OpenGl::ProgramPtr	GenerateShader(const SHADERCAPS&);
 	Framework::OpenGl::CShader		GenerateVertexShader(const SHADERCAPS&);
 	Framework::OpenGl::CShader		GenerateFragmentShader(const SHADERCAPS&);
@@ -259,7 +304,13 @@ private:
 	Framework::OpenGl::ProgramPtr	GeneratePresentProgram();
 	Framework::OpenGl::CBuffer		GeneratePresentVertexBuffer();
 	Framework::OpenGl::CVertexArray	GeneratePresentVertexArray();
+
+	Framework::OpenGl::ProgramPtr	GenerateCopyToFbProgram();
+	Framework::OpenGl::CBuffer		GenerateCopyToFbVertexBuffer();
+	Framework::OpenGl::CVertexArray	GenerateCopyToFbVertexArray();
+
 	Framework::OpenGl::CVertexArray	GeneratePrimVertexArray();
+	Framework::OpenGl::CBuffer		GenerateUniformBlockBuffer(size_t);
 
 	void							Prim_Point();
 	void							Prim_Line();
@@ -267,20 +318,24 @@ private:
 	void							Prim_Sprite();
 
 	void							FlushVertexBuffer();
+	void							DoRenderPass();
 
+	void							CopyToFb(int32, int32, int32, int32, int32, int32, int32, int32, int32, int32);
 	void							DrawToDepth(unsigned int, uint64);
 
 	void							SetRenderingContext(uint64);
-	void							SetupTestFunctions(const SHADERINFO&, uint64);
+	void							SetupTestFunctions(uint64);
 	void							SetupDepthBuffer(uint64, uint64);
-	void							SetupFramebuffer(const SHADERINFO&, uint64, uint64, uint64, uint64);
+	void							SetupFramebuffer(uint64, uint64, uint64, uint64);
 	void							SetupBlendingFunction(uint64);
-	void							SetupFogColor(const SHADERINFO&, uint64);
+	void							SetupFogColor(uint64);
 
 	static bool						CanRegionRepeatClampModeSimplified(uint32, uint32);
 	void							FillShaderCapsFromTexture(SHADERCAPS&, const uint64&, const uint64&, const uint64&, const uint64&);
 	void							FillShaderCapsFromTest(SHADERCAPS&, const uint64&);
-	void							SetupTexture(const SHADERINFO&, uint64, uint64, uint64, uint64, uint64);
+	TECHNIQUE						GetTechniqueFromTest(const uint64&);
+
+	void							SetupTexture(uint64, uint64, uint64, uint64, uint64);
 	static bool						IsCompatibleFramebufferPSM(unsigned int, unsigned int);
 	static uint32					GetFramebufferBitDepth(uint32);
 
@@ -316,6 +371,8 @@ private:
 
 	bool							m_forceBilinearTextures = false;
 	unsigned int					m_fbScale = 1;
+	bool							m_multisampleEnabled = false;
+	bool							m_accurateAlphaTestEnabled = false;
 
 	uint8*							m_pCvtBuffer;
 
@@ -330,6 +387,7 @@ private:
 
 	void							PopulateFramebuffer(const FramebufferPtr&);
 	void							CommitFramebufferDirtyPages(const FramebufferPtr&, unsigned int, unsigned int);
+	void							ResolveFramebufferMultisample(const FramebufferPtr&, uint32);
 
 	Framework::OpenGl::ProgramPtr	m_presentProgram;
 	Framework::OpenGl::CBuffer		m_presentVertexBuffer;
@@ -337,8 +395,12 @@ private:
 	GLint							m_presentTextureUniform = -1;
 	GLint							m_presentTexCoordScaleUniform = -1;
 
-	Framework::OpenGl::CFramebuffer	m_copyToFbFramebuffer;
+	Framework::OpenGl::ProgramPtr	m_copyToFbProgram;
 	Framework::OpenGl::CTexture		m_copyToFbTexture;
+	Framework::OpenGl::CBuffer		m_copyToFbVertexBuffer;
+	Framework::OpenGl::CVertexArray	m_copyToFbVertexArray;
+	GLint							m_copyToFbSrcPositionUniform = -1;
+	GLint							m_copyToFbSrcSizeUniform = -1;
 
 	TextureList						m_textureCache;
 	PaletteList						m_paletteCache;
@@ -355,13 +417,33 @@ private:
 	unsigned int					m_primitiveType;
 	bool							m_drawingToDepth = false;
 
-	static GLenum					g_nativeClampModes[CGSHandler::CLAMP_MODE_MAX];
-	static unsigned int				g_shaderClampModes[CGSHandler::CLAMP_MODE_MAX];
+	static const GLenum				g_nativeClampModes[CGSHandler::CLAMP_MODE_MAX];
+	static const unsigned int		g_shaderClampModes[CGSHandler::CLAMP_MODE_MAX];
+	static const unsigned int		g_alphaTestInverse[CGSHandler::ALPHA_TEST_MAX];
 
 	TEXTUREUPLOADER					m_textureUploader[CGSHandler::PSM_MAX];
 	TEXTUREUPDATER					m_textureUpdater[CGSHandler::PSM_MAX];
 
-	ShaderInfoMap					m_shaderInfos;
+	enum GLSTATE_BITS : uint32
+	{
+		GLSTATE_VERTEX_PARAMS   = 0x0001,
+		GLSTATE_FRAGMENT_PARAMS = 0x0002,
+		GLSTATE_PROGRAM         = 0x0004,
+		GLSTATE_SCISSOR         = 0x0008,
+		GLSTATE_BLEND           = 0x0010,
+		GLSTATE_COLORMASK       = 0x0020,
+		GLSTATE_DEPTHMASK       = 0x0040,
+		GLSTATE_TEXTURE         = 0x0080,
+		GLSTATE_FRAMEBUFFER     = 0x0100,
+		GLSTATE_VIEWPORT        = 0x0200,
+	};
+
+	ShaderMap						m_shaders;
 	RENDERSTATE						m_renderState;
+	uint32							m_validGlState = 0;
+	VERTEXPARAMS					m_vertexParams;
+	FRAGMENTPARAMS					m_fragmentParams;
+	Framework::OpenGl::CBuffer		m_vertexParamsBuffer;
+	Framework::OpenGl::CBuffer		m_fragmentParamsBuffer;
 	VertexBuffer					m_vertexBuffer;
 };

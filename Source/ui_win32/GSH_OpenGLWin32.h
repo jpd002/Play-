@@ -12,14 +12,14 @@ public:
 
 	static FactoryFunction			GetFactoryFunction(Framework::Win32::CWindow*);
 
-	virtual void					InitializeImpl();
-	virtual void					ReleaseImpl();
+	void							InitializeImpl() override;
+	void							ReleaseImpl() override;
 
 	Framework::Win32::CWindow*		CreateSettingsDialog(HWND) override;
 	void							OnSettingsDialogDestroyed() override;
 
 protected:
-	virtual void					PresentBackbuffer();
+	void							PresentBackbuffer() override;
 
 private:
 	static CGSHandler*				GSHandlerFactory(Framework::Win32::CWindow*);

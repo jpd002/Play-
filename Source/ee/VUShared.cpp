@@ -687,6 +687,20 @@ void VUShared::LQbase(CMipsJitter* codeGen, uint8 dest, uint8 it)
 	}
 }
 
+void VUShared::LQD(CMipsJitter* codeGen, uint8 dest, uint8 it, uint8 is, uint32 baseAddress)
+{
+	codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2VI[is]));
+	codeGen->PushCst(1);
+	codeGen->Sub();
+	codeGen->PullRel(offsetof(CMIPS, m_State.nCOP2VI[is]));
+
+	codeGen->PushRelRef(offsetof(CMIPS, m_vuMem));
+	VUShared::ComputeMemAccessAddr(codeGen, is, 0, 0);
+	codeGen->AddRef();
+
+	VUShared::LQbase(codeGen, dest, it);
+}
+
 void VUShared::LQI(CMipsJitter* codeGen, uint8 dest, uint8 it, uint8 is, uint32 baseAddress)
 {
 	codeGen->PushRelRef(offsetof(CMIPS, m_vuMem));
