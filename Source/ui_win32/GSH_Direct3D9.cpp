@@ -16,7 +16,23 @@ struct CUSTOMVERTEX
 	float u, v;
 };
 
+struct PRESENTVERTEX
+{
+	float x, y, z;
+	float u, v;
+};
+
 #define CUSTOMFVF (D3DFVF_XYZ | D3DFVF_DIFFUSE | D3DFVF_TEX1)
+#define PRESENTFVF (D3DFVF_XYZ | D3DFVF_TEX1)
+
+static const PRESENTVERTEX g_presentVertices[] = 
+{
+	// X   Y  Z  U  V
+	{ -1, -1, 0, 0, 1 },
+	{  1, -1, 0, 1, 1 },
+	{ -1,  1, 0, 0, 0 },
+	{  1,  1, 0, 1, 0 }
+};
 
 CGSH_Direct3D9::CGSH_Direct3D9(Framework::Win32::CWindow* outputWindow) 
 : m_outputWnd(dynamic_cast<COutputWnd*>(outputWindow))
@@ -295,11 +311,117 @@ void CGSH_Direct3D9::PresentBackbuffer()
 	}
 }
 
+unsigned int CGSH_Direct3D9::GetCurrentReadCircuit()
+{
+	//assert((m_nPMODE & 0x3) != 0x03);
+	if(m_nPMODE & 0x1) return 0;
+	if(m_nPMODE & 0x2) return 1;
+	//Getting here is bad
+	return 0;
+}
+
 void CGSH_Direct3D9::FlipImpl()
 {
-	m_renderState.isValid = false;
+	DrawActiveFramebuffer();
 	PresentBackbuffer();
 	CGSHandler::FlipImpl();
+}
+
+void CGSH_Direct3D9::DrawActiveFramebuffer()
+{
+	HRESULT result = S_OK;
+
+	m_renderState.isValid = false;
+	DISPLAY d;
+	DISPFB fb;
+	{
+		std::lock_guard<std::recursive_mutex> registerMutexLock(m_registerMutex);
+		unsigned int readCircuit = GetCurrentReadCircuit();
+		switch(readCircuit)
+		{
+		case 0:
+			d <<= m_nDISPLAY1.value.q;
+			fb <<= m_nDISPFB1.value.q;
+			break;
+		case 1:
+			d <<= m_nDISPLAY2.value.q;
+			fb <<= m_nDISPFB2.value.q;
+			break;
+		}
+	}
+
+	unsigned int dispWidth = (d.nW + 1) / (d.nMagX + 1);
+	unsigned int dispHeight = (d.nH + 1);
+
+	bool halfHeight = GetCrtIsInterlaced() && GetCrtIsFrameMode();
+	if(halfHeight) dispHeight /= 2;
+
+	FramebufferPtr framebuffer;
+	for(const auto& candidateFramebuffer : m_framebuffers)
+	{
+		if(
+			(candidateFramebuffer->m_basePtr == fb.GetBufPtr()) &&
+			//(GetFramebufferBitDepth(candidateFramebuffer->m_psm) == GetFramebufferBitDepth(fb.nPSM)) &&
+			(candidateFramebuffer->m_width == fb.GetBufWidth())
+			)
+		{
+			//We have a winner
+			framebuffer = candidateFramebuffer;
+			break;
+		}
+	}
+
+	//TODO: Create new framebuffer if none is found
+	//TODO: Commit dirty framebuffer pages to video memory
+	//TODO: Resolve multisample
+
+	{
+		SurfacePtr backbuffer;
+		result = m_device->GetBackBuffer(0, 0, D3DBACKBUFFER_TYPE_MONO, &backbuffer);
+		assert(SUCCEEDED(result));
+
+		result = m_device->SetRenderTarget(0, backbuffer);
+		assert(SUCCEEDED(result));
+	}
+
+	D3DVIEWPORT9 viewport = {};
+	viewport.X = 0;
+	viewport.Y = 0;
+	viewport.Width  = m_presentationParams.windowWidth;
+	viewport.Height = m_presentationParams.windowHeight;
+	result = m_device->SetViewport(&viewport);
+	assert(SUCCEEDED(result));
+
+	result = m_device->Clear(1, nullptr, D3DCLEAR_TARGET, D3DCOLOR_XRGB(0, 0, 0), 0, 0);
+	assert(SUCCEEDED(result));
+
+	D3DXMATRIX identityMatrix = {};
+	D3DXMatrixIdentity(&identityMatrix);
+	m_device->SetTransform(D3DTS_PROJECTION, &identityMatrix);
+	m_device->SetTransform(D3DTS_VIEW, &identityMatrix);
+	m_device->SetTransform(D3DTS_WORLD, &identityMatrix);
+
+	if(framebuffer)
+	{
+		float u1 = static_cast<float>(dispWidth) / static_cast<float>(framebuffer->m_width);
+		float v1 = static_cast<float>(dispHeight) / static_cast<float>(framebuffer->m_height);
+
+		D3DXMATRIX textureMatrix = {};
+		D3DXMatrixScaling(&textureMatrix, u1, v1, 1);
+		m_device->SetTransform(D3DTS_TEXTURE0, &textureMatrix);
+
+		result = m_device->SetStreamSource(0, m_presentVb, 0, sizeof(PRESENTVERTEX));
+		assert(SUCCEEDED(result));
+
+		result = m_device->SetFVF(PRESENTFVF);
+		assert(SUCCEEDED(result));
+
+		result = m_device->SetTexture(0, framebuffer->m_renderTarget);
+		assert(SUCCEEDED(result));
+
+		result = m_device->DrawPrimitive(D3DPT_TRIANGLESTRIP, 0, 2);
+		assert(SUCCEEDED(result));
+	}
 }
 
 void CGSH_Direct3D9::SetReadCircuitMatrix(int nWidth, int nHeight)
@@ -429,6 +551,20 @@ void CGSH_Direct3D9::OnDeviceReset()
 	result = m_device->CreateVertexBuffer(4 * sizeof(CUSTOMVERTEX), D3DUSAGE_DYNAMIC | D3DUSAGE_WRITEONLY, CUSTOMFVF, D3DPOOL_DEFAULT, &m_quadVb, NULL);
 	assert(SUCCEEDED(result));
 
+	result = m_device->CreateVertexBuffer(4 * sizeof(PRESENTVERTEX), D3DUSAGE_DYNAMIC | D3DUSAGE_WRITEONLY, PRESENTFVF, D3DPOOL_DEFAULT, &m_presentVb, nullptr);
+	assert(SUCCEEDED(result));
+
+	{
+		uint8* buffer = nullptr;
+		result = m_presentVb->Lock(0, sizeof(g_presentVertices), reinterpret_cast<void**>(&buffer), D3DLOCK_DISCARD);
+		assert(SUCCEEDED(result));
+
+		memcpy(buffer, g_presentVertices, sizeof(g_presentVertices));
+
+		result = m_presentVb->Unlock();
+		assert(SUCCEEDED(result));
+	}
+
 	auto clientRect = m_outputWnd->GetClientRect();
 	m_deviceWindowWidth = clientRect.Width();
 	m_deviceWindowHeight = clientRect.Height();
@@ -440,6 +576,7 @@ void CGSH_Direct3D9::OnDeviceResetting()
 {
 	m_triangleVb.Reset();
 	m_quadVb.Reset();
+	m_presentVb.Reset();
 	m_framebuffers.clear();
 	m_depthbuffers.clear();
 	TexCache_Flush();

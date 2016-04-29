@@ -155,7 +155,9 @@ private:
 	void							OnDeviceReset();
 	void							OnDeviceResetting();
 	D3DPRESENT_PARAMETERS			CreatePresentParams();
+	void							DrawActiveFramebuffer();
 	void							PresentBackbuffer();
+	unsigned int					GetCurrentReadCircuit();
 
 	FramebufferPtr					FindFramebuffer(uint64) const;
 	void							GetFramebufferImpl(Framework::CBitmap&, uint64);
@@ -236,6 +238,7 @@ private:
 
 	VertexBufferPtr					m_triangleVb;
 	VertexBufferPtr					m_quadVb;
+	VertexBufferPtr					m_presentVb;
 	bool							m_sceneBegun = false;
 
 	uint32							m_deviceWindowWidth = 0;
