@@ -237,4 +237,7 @@ private:
 	VertexBufferPtr					m_triangleVb;
 	VertexBufferPtr					m_quadVb;
 	bool							m_sceneBegun = false;
+
+	uint32							m_deviceWindowWidth = 0;
+	uint32							m_deviceWindowHeight = 0;
 };

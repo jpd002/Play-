@@ -357,6 +357,22 @@ bool CGSH_Direct3D9::TestDevice()
 		}
 	}
 
+	auto clientRect = m_outputWnd->GetClientRect();
+	bool sizeChanged = 
+		(clientRect.Width() != m_deviceWindowWidth) ||
+		(clientRect.Height() != m_deviceWindowHeight);
+	if(sizeChanged)
+	{
+		OnDeviceResetting();
+		auto presentParams = CreatePresentParams();
+		HRESULT result = m_device->Reset(&presentParams);
+		if(FAILED(result))
+		{
+			assert(0);
+		}
+		OnDeviceReset();
+	}
+
 	return true;
 }
 
@@ -412,6 +428,10 @@ void CGSH_Direct3D9::OnDeviceReset()
 
 	result = m_device->CreateVertexBuffer(4 * sizeof(CUSTOMVERTEX), D3DUSAGE_DYNAMIC | D3DUSAGE_WRITEONLY, CUSTOMFVF, D3DPOOL_DEFAULT, &m_quadVb, NULL);
 	assert(SUCCEEDED(result));
+
+	auto clientRect = m_outputWnd->GetClientRect();
+	m_deviceWindowWidth = clientRect.Width();
+	m_deviceWindowHeight = clientRect.Height();
 
 	m_renderState.isValid = false;
 }
