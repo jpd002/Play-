@@ -9,9 +9,9 @@
 #define D3D_DEBUG_INFO
 //#define _WIREFRAME
 
-struct CUSTOMVERTEX 
+struct CUSTOMVERTEX
 {
-	float x, y, z; 
+	float x, y, z;
 	DWORD color;
 	float u, v;
 };
@@ -20,12 +20,9 @@ struct CUSTOMVERTEX
 
 CGSH_Direct3D9::CGSH_Direct3D9(Framework::Win32::CWindow* outputWindow) 
 : m_outputWnd(dynamic_cast<COutputWnd*>(outputWindow))
-, m_cvtBuffer(nullptr)
-, m_sceneBegun(false)
-, m_currentTextureWidth(0)
-, m_currentTextureHeight(0)
 {
 	memset(&m_renderState, 0, sizeof(m_renderState));
+	m_primitiveMode <<= 0;
 }
 
 CGSH_Direct3D9::~CGSH_Direct3D9()

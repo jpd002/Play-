@@ -208,25 +208,25 @@ private:
 	bool							m_alphaBlendingEnabled = true;
 	bool							m_alphaTestingEnabled = true;
 
-	COutputWnd*						m_outputWnd;
+	COutputWnd*						m_outputWnd = nullptr;
 	Direct3DPtr						m_d3d;
 	DevicePtr						m_device;
 
 	//Context variables (put this in a struct or something?)
-	float							m_nPrimOfsX;
-	float							m_nPrimOfsY;
+	float							m_nPrimOfsX = 0;
+	float							m_nPrimOfsY = 0;
 	TexturePtr						m_currentTexture;
-	uint32							m_currentTextureWidth;
-	uint32							m_currentTextureHeight;
-	float							m_nMaxZ;
+	uint32							m_currentTextureWidth = 0;
+	uint32							m_currentTextureHeight = 0;
+	float							m_nMaxZ = 0;
 
-	uint8*							m_cvtBuffer;
+	uint8*							m_cvtBuffer = nullptr;
 
 	PRMODE							m_primitiveMode;
-	unsigned int					m_primitiveType;
+	unsigned int					m_primitiveType = 0;
 
 	VERTEX							m_vtxBuffer[3];
-	int								m_vtxCount;
+	int								m_vtxCount = 0;
 
 	CachedTextureList				m_cachedTextures;
 	FramebufferList					m_framebuffers;
@@ -236,5 +236,5 @@ private:
 
 	VertexBufferPtr					m_triangleVb;
 	VertexBufferPtr					m_quadVb;
-	bool							m_sceneBegun;
+	bool							m_sceneBegun = false;
 };
