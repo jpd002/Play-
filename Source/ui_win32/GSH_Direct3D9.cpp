@@ -374,8 +374,6 @@ D3DPRESENT_PARAMETERS CGSH_Direct3D9::CreatePresentParams()
 	d3dpp.BackBufferFormat			= D3DFMT_X8R8G8B8;
 	d3dpp.BackBufferWidth			= outputWidth;
 	d3dpp.BackBufferHeight			= outputHeight;
-	d3dpp.EnableAutoDepthStencil	= TRUE;
-	d3dpp.AutoDepthStencilFormat	= D3DFMT_D24S8;
 	return d3dpp;
 }
 
