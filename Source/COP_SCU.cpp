@@ -67,7 +67,31 @@ void CCOP_SCU::CompileInstruction(uint32 nAddress, CMipsJitter* codeGen, CMIPS* 
 //00
 void CCOP_SCU::MFC0()
 {
-	m_codeGen->PushRel(offsetof(CMIPS, m_State.nCOP0[m_nRD]));
+	switch(m_nRD)
+	{
+	case 25:
+		switch(m_nOpcode & 1)
+		{
+		case 0:
+			//MFPS
+			m_codeGen->PushRel(offsetof(CMIPS, m_State.cop0_pccr));
+			break;
+		case 1:
+			//MFPC
+			{
+				uint32 reg = (m_nOpcode >> 1) & 1;
+				m_codeGen->PushRel(offsetof(CMIPS, m_State.cop0_pcr[reg]));
+			}
+			break;
+		default:
+			assert(false);
+			break;
+		}
+		break;
+	default:
+		m_codeGen->PushRel(offsetof(CMIPS, m_State.nCOP0[m_nRD]));
+		break;
+	}
 
 	if(m_regSize == MIPS_REGSIZE_64)
 	{
@@ -93,7 +117,31 @@ void CCOP_SCU::MTC0()
 		m_codeGen->Or();
 	}
 
-	m_codeGen->PullRel(offsetof(CMIPS, m_State.nCOP0[m_nRD]));
+	switch(m_nRD)
+	{
+	case 25:
+		switch(m_nOpcode & 1)
+		{
+		case 0:
+			//MTPS
+			//Mask out bits that stay 0
+			m_codeGen->PushCst(0x800FFBFE);
+			m_codeGen->And();
+			m_codeGen->PullRel(offsetof(CMIPS, m_State.cop0_pccr));
+			break;
+		case 1:
+			//MTPC
+			{
+				uint32 reg = (m_nOpcode >> 1) & 1;
+				m_codeGen->PullRel(offsetof(CMIPS, m_State.cop0_pcr[reg]));
+			}
+			break;
+		}
+		break;
+	default:
+		m_codeGen->PullRel(offsetof(CMIPS, m_State.nCOP0[m_nRD]));
+		break;
+	}
 }
 
 //08

@@ -61,6 +61,9 @@ __attribute__((aligned(16)))
 	//COP0
 	uint32				nCOP0[32];
 
+	uint32				cop0_pccr;
+	uint32				cop0_pcr[2];
+
 	//COP1
 	uint32				nCOP1[32];
 	uint32				nCOP1A;
