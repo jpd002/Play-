@@ -318,6 +318,20 @@ void CSubSystem::CountTicks(int ticks)
 	CheckPendingInterrupts();
 	m_EE.m_State.nCOP0[CCOP_SCU::COUNT] += ticks;
 	m_timer.Count(ticks);
+	if(m_EE.m_State.cop0_pccr & 0x80000000)
+	{
+		auto pccr = make_convertible<CCOP_SCU::PCCR>(m_EE.m_State.cop0_pccr);
+		bool event0Enabled = (pccr.u0 | pccr.s0 | pccr.k0 | pccr.exl0) != 0;
+		bool event1Enabled = (pccr.u1 | pccr.s1 | pccr.k1 | pccr.exl1) != 0;
+		if(event0Enabled && (pccr.event0 == 1))
+		{
+			m_EE.m_State.cop0_pcr[0] += ticks;
+		}
+		if(event1Enabled && (pccr.event1 == 1))
+		{
+			m_EE.m_State.cop0_pcr[1] += ticks;
+		}
+	}
 }
 
 void CSubSystem::NotifyVBlankStart()
