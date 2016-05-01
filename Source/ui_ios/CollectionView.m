@@ -30,7 +30,7 @@ static CollectionView *instance = nil;
 
 - (NSArray *) buildCollection
 {
-    NSString* path = [@"~" stringByExpandingTildeInPath];
+    NSString* path = [@"~/Documents" stringByExpandingTildeInPath];
     NSFileManager* localFileManager = [[NSFileManager alloc] init];
     
     NSDirectoryEnumerator* dirEnum = [localFileManager enumeratorAtPath: path];

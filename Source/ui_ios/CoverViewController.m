@@ -133,7 +133,7 @@ static NSString * const reuseIdentifier = @"coverCell";
     if ([segue.identifier isEqualToString:@"showEmulator"]) {
         NSIndexPath* indexPath = [[self.collectionView indexPathsForSelectedItems] objectAtIndex:0];
         NSString* filePath = [[self.coverView.diskImages objectAtIndex: indexPath.row] objectForKey:@"file"];
-        NSString* homeDirPath = [@"~" stringByExpandingTildeInPath];
+        NSString* homeDirPath = [@"~/Documents" stringByExpandingTildeInPath];
         NSString* absolutePath = [homeDirPath stringByAppendingPathComponent: filePath];
         EmulatorViewController* emulatorViewController = segue.destinationViewController;
         emulatorViewController.imagePath = absolutePath;
