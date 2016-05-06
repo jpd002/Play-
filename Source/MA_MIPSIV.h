@@ -77,6 +77,7 @@ protected:
 	void Template_Add32(bool);
 	void Template_Add64(bool);
 	void Template_Sub32(bool);
+	void Template_Sub64(bool);
 	void Template_LoadUnsigned32(void*);
 	void Template_ShiftCst32(const TemplateParamedOperationFunctionType&);
 	void Template_ShiftVar32(const TemplateOperationFunctionType&);
@@ -184,6 +185,7 @@ private:
 	void							SLTU();
 	void							DADD();
 	void							DADDU();
+	void							DSUB();
 	void							DSUBU();
 	void							DSLL();
 	void							DSRL();

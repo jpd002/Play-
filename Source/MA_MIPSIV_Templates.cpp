@@ -53,6 +53,18 @@ void CMA_MIPSIV::Template_Sub32(bool isSigned)
 	m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[0]));
 }
 
+void CMA_MIPSIV::Template_Sub64(bool isSigned)
+{
+	if(m_nRD == 0) return;
+
+	assert(m_regSize == MIPS_REGSIZE_64);
+
+	m_codeGen->PushRel64(offsetof(CMIPS, m_State.nGPR[m_nRS].nV[0]));
+	m_codeGen->PushRel64(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[0]));
+	m_codeGen->Sub64();
+	m_codeGen->PullRel64(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[0]));
+}
+
 void CMA_MIPSIV::Template_LoadUnsigned32(void* pProxyFunction)
 {
 	if(m_nRT == 0) return;
