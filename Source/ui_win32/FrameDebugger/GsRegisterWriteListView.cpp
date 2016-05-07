@@ -55,20 +55,33 @@ void CGsRegisterWriteListView::SetFrameDump(CFrameDump* frameDump)
 	const auto& drawingKicks = m_frameDump->GetDrawingKicks();
 	for(const auto& packet : m_frameDump->GetPackets())
 	{
+		bool isRegisterPacket = packet.imageData.empty();
+
 		auto lowerBoundIterator = drawingKicks.upper_bound(cmdIndex);
-		auto upperBoundIterator = drawingKicks.lower_bound(cmdIndex + packet.writes.size());
+		auto upperBoundIterator = drawingKicks.lower_bound(cmdIndex + packet.registerWrites.size());
 
 		int kickCount = static_cast<int>(std::distance(lowerBoundIterator, upperBoundIterator));
 		
-		auto packetDescription = string_cast<std::tstring>(string_format("Packet (Write Count: %d, Draw Count: %d, Path: %d)", 
-			packet.writes.size(), kickCount, packet.metadata.pathIndex));
+		std::tstring packetDescription;
+
+		if(isRegisterPacket)
+		{
+			packetDescription = string_cast<std::tstring>(string_format("Register Packet (Write Count: %d, Draw Count: %d, Path: %d)", 
+				packet.registerWrites.size(), kickCount, packet.metadata.pathIndex));
+		}
+		else
+		{
+			packetDescription = string_cast<std::tstring>(string_format("Image Packet (Size: 0x%0.8X)", 
+				packet.imageData.size()));
+		}
 
 		TVINSERTSTRUCT insertStruct = {};
 		insertStruct.hParent		= TVI_ROOT;
 		insertStruct.item.pszText	= const_cast<LPWSTR>(packetDescription.c_str());
 		insertStruct.item.cChildren	= 1;
 		insertStruct.item.lParam	= packetIndex;
-		insertStruct.item.mask		= TVIF_TEXT | TVIF_CHILDREN | TVIF_PARAM;
+		insertStruct.item.mask		= TVIF_TEXT | TVIF_PARAM;
+		if(isRegisterPacket) insertStruct.item.mask |= TVIF_CHILDREN;
 		HTREEITEM packetRootItem = m_packetsTreeView->InsertItem(&insertStruct);
 
 		PACKETINFO packetInfo;
@@ -76,7 +89,7 @@ void CGsRegisterWriteListView::SetFrameDump(CFrameDump* frameDump)
 		packetInfo.treeViewItem = packetRootItem;
 		m_packetInfos.push_back(packetInfo);
 
-		cmdIndex += packet.writes.size();
+		cmdIndex += packet.registerWrites.size();
 		packetIndex++;
 	}
 
@@ -195,7 +208,7 @@ void CGsRegisterWriteListView::OnPacketsTreeViewItemExpanding(NMTREEVIEW* treeVi
 
 		uint32 cmdIndex = packetInfo.cmdIndexStart;
 
-		for(const auto& registerWrite : packet.writes)
+		for(const auto& registerWrite : packet.registerWrites)
 		{
 			auto packetWriteDescription = CGSHandler::DisassembleWrite(registerWrite.first, registerWrite.second);
 			auto treeItemText = string_format("%0.4X: %s", cmdIndex - packetInfo.cmdIndexStart, packetWriteDescription.c_str());

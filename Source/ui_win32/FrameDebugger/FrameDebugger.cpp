@@ -230,7 +230,14 @@ void CFrameDebugger::UpdateDisplay(int32 targetCmdIndex)
 	memcpy(gsRegisters, m_frameDump.GetInitialGsRegisters(), CGSHandler::REGISTER_MAX * sizeof(uint64));
 	m_gs->SetSMODE2(m_frameDump.GetInitialSMODE2());
 
-	CGsPacket::WriteArray writes;
+	CGsPacket::RegisterWriteArray registerWrites;
+
+	const auto flushRegisterWrites =
+		[&]()
+		{
+			m_gs->WriteRegisterMassively(registerWrites.data(), registerWrites.size(), nullptr);
+			registerWrites.clear();
+		};
 
 	int32 cmdIndex = 0;
 	for(const auto& packet : m_frameDump.GetPackets())
@@ -239,15 +246,23 @@ void CFrameDebugger::UpdateDisplay(int32 targetCmdIndex)
 
 		m_currentMetadata = packet.metadata;
 
-		for(const auto& registerWrite : packet.writes)
+		if(packet.registerWrites.empty())
 		{
-			if((cmdIndex - 1) >= targetCmdIndex) break;
-			writes.push_back(registerWrite);
-			cmdIndex++;
+			flushRegisterWrites();
+			m_gs->FeedImageData(packet.imageData.data(), packet.imageData.size());
+		}
+		else
+		{
+			for(const auto& registerWrite : packet.registerWrites)
+			{
+				if((cmdIndex - 1) >= targetCmdIndex) break;
+				registerWrites.push_back(registerWrite);
+				cmdIndex++;
+			}
 		}
 	}
 
-	m_gs->WriteRegisterMassively(writes.data(), writes.size(), nullptr);
+	flushRegisterWrites();
 	m_gs->Flip();
 
 	const auto& drawingKicks = m_frameDump.GetDrawingKicks();

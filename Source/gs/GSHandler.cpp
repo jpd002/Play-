@@ -524,6 +524,13 @@ void CGSHandler::FeedImageDataImpl(void* pData, uint32 nLength)
 {
 	boost::scoped_array<uint8> dataPtr(reinterpret_cast<uint8*>(pData));
 
+#ifdef DEBUGGER_INCLUDED
+	if(m_frameDump)
+	{
+		m_frameDump->AddImagePacket(reinterpret_cast<const uint8*>(pData), nLength);
+	}
+#endif
+
 	if(m_trxCtx.nSize == 0)
 	{
 #ifdef _DEBUG
@@ -601,7 +608,7 @@ void CGSHandler::WriteRegisterMassivelyImpl(MASSIVEWRITE_INFO* massiveWrite)
 #ifdef DEBUGGER_INCLUDED
 	if(m_frameDump)
 	{
-		m_frameDump->AddPacket(massiveWrite->writes, massiveWrite->count, &massiveWrite->metadata);
+		m_frameDump->AddRegisterPacket(massiveWrite->writes, massiveWrite->count, &massiveWrite->metadata);
 	}
 #endif
 

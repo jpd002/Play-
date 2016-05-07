@@ -36,10 +36,12 @@ public:
 class CGsPacket
 {
 public:
-	typedef std::vector<CGSHandler::RegisterWrite> WriteArray;
+	typedef std::vector<CGSHandler::RegisterWrite> RegisterWriteArray;
+	typedef std::vector<uint8> ImageDataArray;
 
-	WriteArray			writes;
 	CGsPacketMetadata	metadata;
+	RegisterWriteArray	registerWrites;
+	ImageDataArray		imageData;
 };
 
 struct DRAWINGKICK_INFO
@@ -74,7 +76,8 @@ public:
 	void						SetInitialSMODE2(uint64);
 
 	const PacketArray&			GetPackets() const;
-	void						AddPacket(const CGSHandler::RegisterWrite*, uint32, const CGsPacketMetadata*);
+	void						AddRegisterPacket(const CGSHandler::RegisterWrite*, uint32, const CGsPacketMetadata*);
+	void						AddImagePacket(const uint8*, uint32);
 
 	void						Read(Framework::CStream&);
 	void						Write(Framework::CStream&) const;

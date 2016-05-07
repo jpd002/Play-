@@ -2,13 +2,14 @@
 #include "MemoryStateFile.h"
 #include "RegisterStateFile.h"
 
-#define STATE_INITIAL_GSRAM				"init/gsram"
-#define STATE_INITIAL_GSREGS			"init/gsregs"
-#define STATE_INITIAL_GSPRIVREGS		"init/gsprivregs"
-#define STATE_PACKET_PREFIX				"packet_"
-#define STATE_PACKET_METADATA_PREFIX	"packetmetadata_"
+#define STATE_INITIAL_GSRAM                "init/gsram"
+#define STATE_INITIAL_GSREGS               "init/gsregs"
+#define STATE_INITIAL_GSPRIVREGS           "init/gsprivregs"
+#define STATE_PACKET_METADATA_PREFIX       "packet_"
+#define STATE_PACKET_REGISTERWRITES_PREFIX "packet_registerwrites_"
+#define STATE_PACKET_IMAGEDATA_PREFIX      "packet_imagedata_"
 
-#define STATE_PRIVREG_SMODE2			"SMODE2"
+#define STATE_PRIVREG_SMODE2               "SMODE2"
 
 CFrameDump::CFrameDump()
 {
@@ -54,14 +55,21 @@ const CFrameDump::PacketArray& CFrameDump::GetPackets() const
 	return m_packets;
 }
 
-void CFrameDump::AddPacket(const CGSHandler::RegisterWrite* registerWrites, uint32 count, const CGsPacketMetadata* metadata)
+void CFrameDump::AddRegisterPacket(const CGSHandler::RegisterWrite* registerWrites, uint32 count, const CGsPacketMetadata* metadata)
 {
 	CGsPacket packet;
-	packet.writes = CGsPacket::WriteArray(registerWrites, registerWrites + count);
+	packet.registerWrites = CGsPacket::RegisterWriteArray(registerWrites, registerWrites + count);
 	if(metadata)
 	{
 		packet.metadata = *metadata;
 	}
+	m_packets.push_back(packet);
+}
+
+void CFrameDump::AddImagePacket(const uint8* imageData, uint32 size)
+{
+	CGsPacket packet;
+	packet.imageData = CGsPacket::ImageDataArray(imageData, imageData + size);
 	m_packets.push_back(packet);
 }
 
@@ -82,28 +90,41 @@ void CFrameDump::Read(Framework::CStream& input)
 	std::map<unsigned int, std::string> packetFiles;
 	for(const auto& fileHeader : archive.GetFileHeaders())
 	{
-		if(fileHeader.first.find(STATE_PACKET_PREFIX) == 0)
+		if(fileHeader.first.find(STATE_PACKET_METADATA_PREFIX) == 0)
 		{
 			unsigned int packetIdx = 0;
-			sscanf(fileHeader.first.c_str(), STATE_PACKET_PREFIX "%d", &packetIdx);
+			sscanf(fileHeader.first.c_str(), STATE_PACKET_METADATA_PREFIX "%d", &packetIdx);
 			packetFiles[packetIdx] = fileHeader.first;
 		}
 	}
 
 	for(const auto& packetFilePair : packetFiles)
 	{
-		const auto& packetFile = packetFilePair.second;
-		const auto& packetFileHeader = archive.GetFileHeader(packetFile.c_str());
-		unsigned int writeCount = packetFileHeader->uncompressedSize / sizeof(CGSHandler::RegisterWrite);
-		assert(packetFileHeader->uncompressedSize % sizeof(CGSHandler::RegisterWrite) == 0);
-
-		std::string packetMetadataFile = STATE_PACKET_METADATA_PREFIX + std::to_string(packetFilePair.first);
+		const auto& packetMetadataFileName = packetFilePair.second;
+		auto packetRegisterWritesFileName = STATE_PACKET_REGISTERWRITES_PREFIX + std::to_string(packetFilePair.first);
+		auto packetImageDataFileName = STATE_PACKET_IMAGEDATA_PREFIX + std::to_string(packetFilePair.first);
 
 		CGsPacket packet;
-		packet.writes.resize(writeCount);
 
-		archive.BeginReadFile(packetFile.c_str())->Read(packet.writes.data(), packet.writes.size() * sizeof(CGSHandler::RegisterWrite));
-		archive.BeginReadFile(packetMetadataFile.c_str())->Read(&packet.metadata, sizeof(CGsPacketMetadata));
+		//Read metadata (mandatory)
+		archive.BeginReadFile(packetMetadataFileName.c_str())->Read(&packet.metadata, sizeof(CGsPacketMetadata));
+
+		//Read register writes
+		if(const auto& packetRegisterWritesFileHeader = archive.GetFileHeader(packetRegisterWritesFileName.c_str()))
+		{
+			unsigned int writeCount = packetRegisterWritesFileHeader->uncompressedSize / sizeof(CGSHandler::RegisterWrite);
+			assert(packetRegisterWritesFileHeader->uncompressedSize % sizeof(CGSHandler::RegisterWrite) == 0);
+			packet.registerWrites.resize(writeCount);
+			archive.BeginReadFile(packetRegisterWritesFileName.c_str())->Read(packet.registerWrites.data(), packet.registerWrites.size() * sizeof(CGSHandler::RegisterWrite));
+		}
+
+		//Read image data
+		if(const auto& packetImageDataFileHeader = archive.GetFileHeader(packetImageDataFileName.c_str()))
+		{
+			unsigned int imageDataSize = packetImageDataFileHeader->uncompressedSize;
+			packet.imageData.resize(imageDataSize);
+			archive.BeginReadFile(packetImageDataFileName.c_str())->Read(packet.imageData.data(), packet.imageData.size());
+		}
 
 		m_packets.push_back(packet);
 	}
@@ -125,10 +146,18 @@ void CFrameDump::Write(Framework::CStream& output) const
 	unsigned int currentPacket = 0;
 	for(const auto& packet : m_packets)
 	{
-		std::string packetName = STATE_PACKET_PREFIX + std::to_string(currentPacket);
-		std::string packetMetadataName = STATE_PACKET_METADATA_PREFIX + std::to_string(currentPacket);
-		archive.InsertFile(new CMemoryStateFile(packetName.c_str(), packet.writes.data(), packet.writes.size() * sizeof(CGSHandler::RegisterWrite)));
-		archive.InsertFile(new CMemoryStateFile(packetMetadataName.c_str(), &packet.metadata, sizeof(CGsPacketMetadata)));
+		auto packetMetadataFileName = STATE_PACKET_METADATA_PREFIX + std::to_string(currentPacket);
+		archive.InsertFile(new CMemoryStateFile(packetMetadataFileName.c_str(), &packet.metadata, sizeof(CGsPacketMetadata)));
+		if(!packet.registerWrites.empty())
+		{
+			auto packetRegisterWritesFileName = STATE_PACKET_REGISTERWRITES_PREFIX + std::to_string(currentPacket);
+			archive.InsertFile(new CMemoryStateFile(packetRegisterWritesFileName.c_str(), packet.registerWrites.data(), packet.registerWrites.size() * sizeof(CGSHandler::RegisterWrite)));
+		}
+		if(!packet.imageData.empty())
+		{
+			auto packetImageDataName = STATE_PACKET_IMAGEDATA_PREFIX + std::to_string(currentPacket);
+			archive.InsertFile(new CMemoryStateFile(packetImageDataName.c_str(), packet.imageData.data(), packet.imageData.size()));
+		}
 		currentPacket++;
 	}
 
@@ -156,7 +185,7 @@ void CFrameDump::IdentifyDrawingKicks()
 	uint32 cmdIndex = 0;
 	for(const auto& packet : GetPackets())
 	{
-		for(const auto& registerWrite : packet.writes)
+		for(const auto& registerWrite : packet.registerWrites)
 		{
 			if(registerWrite.first == GS_REG_PRIM)
 			{
