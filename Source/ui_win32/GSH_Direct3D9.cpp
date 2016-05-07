@@ -59,7 +59,7 @@ CGSHandler::FactoryFunction CGSH_Direct3D9::GetFactoryFunction(Framework::Win32:
 
 void CGSH_Direct3D9::ProcessHostToLocalTransfer()
 {
-
+	m_renderState.isValid = false;
 }
 
 void CGSH_Direct3D9::ProcessLocalToHostTransfer()
