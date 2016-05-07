@@ -124,10 +124,21 @@ void CCOP_SCU::MTC0()
 		{
 		case 0:
 			//MTPS
-			//Mask out bits that stay 0
-			m_codeGen->PushCst(0x800FFBFE);
-			m_codeGen->And();
-			m_codeGen->PullRel(offsetof(CMIPS, m_State.cop0_pccr));
+			{
+				uint32 reg = (m_nOpcode >> 1) & 0x1F;
+				if(reg == 0)
+				{
+					//Mask out bits that stay 0
+					m_codeGen->PushCst(0x800FFBFE);
+					m_codeGen->And();
+					m_codeGen->PullRel(offsetof(CMIPS, m_State.cop0_pccr));
+				}
+				else
+				{
+					//No-op when reg is not 0
+					m_codeGen->PullTop();
+				}
+			}
 			break;
 		case 1:
 			//MTPC
