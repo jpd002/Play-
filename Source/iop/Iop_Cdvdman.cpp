@@ -332,7 +332,7 @@ uint32 CCdvdman::CdDiskReady(uint32 mode)
 
 uint32 CCdvdman::CdReadClock(uint32 clockPtr)
 {
-	CLog::GetInstance().Print(LOG_NAME, FUNCTION_CDREADCLOCK "(clockPtr = %0.8X);\r\n",
+	CLog::GetInstance().Print(LOG_NAME, FUNCTION_CDREADCLOCK "(clockPtr = 0x%0.8X);\r\n",
 		clockPtr);
 
 	auto clockBuffer = m_ram + clockPtr;
@@ -347,7 +347,7 @@ uint32 CCdvdman::CdStatus()
 
 uint32 CCdvdman::CdCallback(uint32 callbackPtr)
 {
-	CLog::GetInstance().Print(LOG_NAME, FUNCTION_CDCALLBACK "(callbackPtr = %0.8X);\r\n",
+	CLog::GetInstance().Print(LOG_NAME, FUNCTION_CDCALLBACK "(callbackPtr = 0x%0.8X);\r\n",
 		callbackPtr);
 
 	uint32 oldCallbackPtr = m_callbackPtr;
@@ -363,6 +363,8 @@ uint32 CCdvdman::CdSetMmode(uint32 mode)
 
 uint32 CCdvdman::CdLayerSearchFile(uint32 fileInfoPtr, uint32 namePtr, uint32 layer)
 {
+	CLog::GetInstance().Print(LOG_NAME, FUNCTION_CDLAYERSEARCHFILE "(fileInfoPtr = 0x%0.8X, namePtr = 0x%0.8X, layer = %d);\r\n",
+		fileInfoPtr, namePtr, layer);
 	assert(layer == 0);
 	return CdSearchFile(fileInfoPtr, namePtr);
 }
