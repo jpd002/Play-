@@ -17,10 +17,12 @@
 #define FUNCTION_CDSYNC				"CdSync"
 #define FUNCTION_CDGETDISKTYPE		"CdGetDiskType"
 #define FUNCTION_CDDISKREADY		"CdDiskReady"
+#define FUNCTION_CDTRAYREQ			"CdTrayReq"
 #define FUNCTION_CDREADCLOCK		"CdReadClock"
 #define FUNCTION_CDSTATUS			"CdStatus"
 #define FUNCTION_CDCALLBACK			"CdCallback"
 #define FUNCTION_CDSETMMODE			"CdSetMmode"
+#define FUNCTION_CDREADDVDDUALINFO	"CdReadDvdDualInfo"
 #define FUNCTION_CDLAYERSEARCHFILE	"CdLayerSearchFile"
 
 using namespace Iop;
@@ -108,6 +110,9 @@ std::string CCdvdman::GetFunctionName(unsigned int functionId) const
 	case 13:
 		return FUNCTION_CDDISKREADY;
 		break;
+	case 14:
+		return FUNCTION_CDTRAYREQ;
+		break;
 	case 24:
 		return FUNCTION_CDREADCLOCK;
 		break;
@@ -119,6 +124,9 @@ std::string CCdvdman::GetFunctionName(unsigned int functionId) const
 		break;
 	case 75:
 		return FUNCTION_CDSETMMODE;
+		break;
+	case 83:
+		return FUNCTION_CDREADDVDDUALINFO;
 		break;
 	case 84:
 		return FUNCTION_CDLAYERSEARCHFILE;
@@ -165,6 +173,11 @@ void CCdvdman::Invoke(CMIPS& ctx, unsigned int functionId)
 	case 13:
 		ctx.m_State.nGPR[CMIPS::V0].nV0 = CdDiskReady(ctx.m_State.nGPR[CMIPS::A0].nV0);
 		break;
+	case 14:
+		ctx.m_State.nGPR[CMIPS::V0].nV0 = CdTrayReq(
+			ctx.m_State.nGPR[CMIPS::A0].nV0,
+			ctx.m_State.nGPR[CMIPS::A1].nV0);
+		break;
 	case 24:
 		ctx.m_State.nGPR[CMIPS::V0].nV0 = CdReadClock(ctx.m_State.nGPR[CMIPS::A0].nV0);
 		break;
@@ -176,6 +189,11 @@ void CCdvdman::Invoke(CMIPS& ctx, unsigned int functionId)
 		break;
 	case 75:
 		ctx.m_State.nGPR[CMIPS::V0].nV0 = CdSetMmode(ctx.m_State.nGPR[CMIPS::A0].nV0);
+		break;
+	case 83:
+		ctx.m_State.nGPR[CMIPS::V0].nV0 = CdReadDvdDualInfo(
+			ctx.m_State.nGPR[CMIPS::A0].nV0,
+			ctx.m_State.nGPR[CMIPS::A1].nV0);
 		break;
 	case 84:
 		ctx.m_State.nGPR[CMIPS::V0].nV0 = CdLayerSearchFile(
@@ -330,6 +348,17 @@ uint32 CCdvdman::CdDiskReady(uint32 mode)
 	return 2;
 }
 
+uint32 CCdvdman::CdTrayReq(uint32 mode, uint32 trayCntPtr)
+{
+	CLog::GetInstance().Print(LOG_NAME, FUNCTION_CDTRAYREQ "(mode = %d, trayCntPtr = 0x%0.8X);\r\n",
+		mode, trayCntPtr);
+
+	auto trayCnt = reinterpret_cast<uint32*>(m_ram + trayCntPtr);
+	(*trayCnt) = 0;
+
+	return 1;
+}
+
 uint32 CCdvdman::CdReadClock(uint32 clockPtr)
 {
 	CLog::GetInstance().Print(LOG_NAME, FUNCTION_CDREADCLOCK "(clockPtr = 0x%0.8X);\r\n",
@@ -358,6 +387,19 @@ uint32 CCdvdman::CdCallback(uint32 callbackPtr)
 uint32 CCdvdman::CdSetMmode(uint32 mode)
 {
 	CLog::GetInstance().Print(LOG_NAME, FUNCTION_CDSETMMODE "(mode = %d);\r\n", mode);
+	return 1;
+}
+
+uint32 CCdvdman::CdReadDvdDualInfo(uint32 onDualPtr, uint32 layer1StartPtr)
+{
+	CLog::GetInstance().Print(LOG_NAME, FUNCTION_CDREADDVDDUALINFO "(onDualPtr = 0x%0.8X, layer1StartPtr = 0x%0.8X);\r\n",
+		onDualPtr, layer1StartPtr);
+
+	auto onDual = reinterpret_cast<uint32*>(m_ram + onDualPtr);
+	auto layer1Start = reinterpret_cast<uint32*>(m_ram + layer1StartPtr);
+	(*onDual) = 0;
+	(*layer1Start) = 0;
+
 	return 1;
 }
 

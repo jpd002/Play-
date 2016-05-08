@@ -44,10 +44,12 @@ namespace Iop
 		uint32					CdSync(uint32);
 		uint32					CdGetDiskType();
 		uint32					CdDiskReady(uint32);
+		uint32					CdTrayReq(uint32, uint32);
 		uint32					CdReadClock(uint32);
 		uint32					CdStatus();
 		uint32					CdCallback(uint32);
 		uint32					CdSetMmode(uint32);
+		uint32					CdReadDvdDualInfo(uint32, uint32);
 		uint32					CdLayerSearchFile(uint32, uint32, uint32);
 
 		CIopBios&				m_bios;
