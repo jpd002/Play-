@@ -1355,6 +1355,25 @@ void CPS2OS::sc_ExecPS2()
 	uint32 argCount		= m_ee.m_State.nGPR[SC_PARAM2].nV[0];
 	uint32 argValuesPtr	= m_ee.m_State.nGPR[SC_PARAM3].nV[0];
 
+	//This is used by Gran Turismo 4. The game clears the program
+	//loaded initially, so, we need to make sure there's no stale
+	//threads or handlers
+
+	sc_ExitDeleteThread();
+	assert(m_currentThreadId == m_idleThreadId);
+
+	//Clear all remaining INTC handlers
+	std::vector<uint32> intcHandlerIds;
+	for(const auto& intcHandlerPair : m_intcHandlerQueue)
+	{
+		intcHandlerIds.push_back(intcHandlerPair.first);
+	}
+	for(const auto& intcHandlerId : intcHandlerIds)
+	{
+		m_intcHandlerQueue.Unlink(intcHandlerId);
+		m_intcHandlers.Free(intcHandlerId);
+	}
+
 	m_ee.m_State.nPC = pc;
 	m_ee.m_State.nGPR[CMIPS::GP].nD0 = static_cast<int32>(gp);
 	m_ee.m_State.nGPR[CMIPS::A0].nD0 = static_cast<int32>(argCount);
