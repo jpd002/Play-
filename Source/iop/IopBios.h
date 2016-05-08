@@ -142,7 +142,7 @@ public:
 	bool						RegisterModule(const Iop::ModulePtr&);
 
 	uint32						CreateThread(uint32, uint32, uint32, uint32);
-	void						DeleteThread(uint32);
+	int32						DeleteThread(uint32);
 	int32						StartThread(uint32, uint32);
 	int32						StartThreadArgs(uint32, uint32, uint32);
 	void						ExitThread();
@@ -427,6 +427,7 @@ private:
 		KERNEL_RESULT_ERROR_UNKNOWN_THID     = -407,
 		KERNEL_RESULT_ERROR_UNKNOWN_MBXID    = -410,
 		KERNEL_RESULT_ERROR_UNKNOWN_VPLID    = -411,
+		KERNEL_RESULT_ERROR_NOT_DORMANT      = -414,
 		KERNEL_RESULT_ERROR_SEMA_ZERO        = -419,
 		KERNEL_RESULT_ERROR_ILLEGAL_MEMSIZE  = -427,
 	};

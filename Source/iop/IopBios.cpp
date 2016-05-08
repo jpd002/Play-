@@ -853,16 +853,34 @@ uint32 CIopBios::CreateThread(uint32 threadProc, uint32 priority, uint32 stackSi
 	return thread->id;
 }
 
-void CIopBios::DeleteThread(uint32 threadId)
+int32 CIopBios::DeleteThread(uint32 threadId)
 {
 #ifdef _DEBUG
 	CLog::GetInstance().Print(LOGNAME, "%d: DeleteThread(threadId = %d);\r\n", 
 		m_currentThreadId.Get(), threadId);
 #endif
-	THREAD* thread = m_threads[threadId];
+
+	if(threadId == 0)
+	{
+		return KERNEL_RESULT_ERROR_ILLEGAL_THID;
+	}
+
+	auto thread = m_threads[threadId];
+	if(!thread)
+	{
+		return KERNEL_RESULT_ERROR_UNKNOWN_THID;
+	}
+
+	if(thread->status != THREAD_STATUS_DORMANT)
+	{
+		return KERNEL_RESULT_ERROR_NOT_DORMANT;
+	}
+
 	UnlinkThread(threadId);
 	m_sysmem->FreeMemory(thread->stackBase);
 	m_threads.Free(threadId);
+
+	return KERNEL_RESULT_OK;
 }
 
 int32 CIopBios::StartThread(uint32 threadId, uint32 param)

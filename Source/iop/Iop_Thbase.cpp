@@ -240,8 +240,7 @@ uint32 CThbase::CreateThread(const THREAD* thread)
 
 uint32 CThbase::DeleteThread(uint32 threadId)
 {
-	m_bios.DeleteThread(threadId);
-	return 0;
+	return m_bios.DeleteThread(threadId);
 }
 
 int32 CThbase::StartThread(uint32 threadId, uint32 param)
