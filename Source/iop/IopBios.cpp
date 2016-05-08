@@ -1209,7 +1209,7 @@ uint32 CIopBios::ReferThreadStatus(uint32 threadId, uint32 statusPtr, bool inInt
 	return KERNEL_RESULT_OK;
 }
 
-void CIopBios::SleepThread()
+int32 CIopBios::SleepThread()
 {
 #ifdef _DEBUG
 	CLog::GetInstance().Print(LOGNAME, "%i: SleepThread();\r\n", 
@@ -1231,6 +1231,8 @@ void CIopBios::SleepThread()
 	{
 		thread->wakeupCount--;
 	}
+
+	return KERNEL_RESULT_OK;
 }
 
 uint32 CIopBios::WakeupThread(uint32 threadId, bool inInterrupt)

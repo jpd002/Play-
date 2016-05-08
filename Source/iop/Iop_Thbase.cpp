@@ -293,8 +293,7 @@ uint32 CThbase::iReferThreadStatus(uint32 threadId, uint32 statusPtr)
 
 uint32 CThbase::SleepThread()
 {
-	m_bios.SleepThread();
-	return 1;
+	return m_bios.SleepThread();
 }
 
 uint32 CThbase::WakeupThread(uint32 threadId)
