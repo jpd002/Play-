@@ -252,7 +252,10 @@ void CSifCmd::ProcessInvocation(uint32 serverDataAddr, uint32 methodId, uint32* 
 	SIFRPCDATAQUEUE* dataQueue = reinterpret_cast<SIFRPCDATAQUEUE*>(&m_ram[serverData->queueAddr]);
 
 	//Copy params
-	memcpy(&m_ram[serverData->buffer], params, size);
+	if(serverData->buffer != 0)
+	{
+		memcpy(&m_ram[serverData->buffer], params, size);
+	}
 	CIopBios::THREAD* thread(m_bios.GetThread(dataQueue->threadId));
 
 	assert(thread->status == CIopBios::THREAD_STATUS_SLEEPING);
