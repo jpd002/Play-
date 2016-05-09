@@ -315,6 +315,8 @@ void VUShared::MSUBA_base(CMipsJitter* codeGen, uint8 dest, size_t fs, size_t ft
 
 void VUShared::ABS(CMipsJitter* codeGen, uint8 nDest, uint8 nFt, uint8 nFs)
 {
+	if(nFt == 0) return;
+
 	codeGen->MD_PushRel(offsetof(CMIPS, m_State.nCOP2[nFs]));
 	codeGen->MD_AbsS();
 	PullVector(codeGen, nDest, offsetof(CMIPS, m_State.nCOP2[nFt]));
