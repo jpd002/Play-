@@ -35,7 +35,7 @@ CFrameDebugger::CFrameDebugger()
 
 	m_mainSplitter = std::make_unique<Framework::Win32::CHorizontalSplitter>(m_hWnd, GetClientRect());
 
-	m_registerWriteListView = std::make_unique<CGsRegisterWriteListView>(*m_mainSplitter, GetClientRect());
+	m_packetListView = std::make_unique<CGsPacketListView>(*m_mainSplitter, GetClientRect());
 
 	m_tab = std::make_unique<CTabHost>(*m_mainSplitter, GetClientRect());
 
@@ -59,7 +59,7 @@ CFrameDebugger::CFrameDebugger()
 
 	UpdateMenus();
 
-	m_mainSplitter->SetChild(0, *m_registerWriteListView);
+	m_mainSplitter->SetChild(0, *m_packetListView);
 	m_mainSplitter->SetChild(1, *m_tab);
 
 	CreateAcceleratorTables();
@@ -148,13 +148,13 @@ long CFrameDebugger::OnNotify(WPARAM param, NMHDR* header)
 		}
 		return FALSE;
 	}
-	else if(CWindow::IsNotifySource(m_registerWriteListView.get(), header))
+	else if(CWindow::IsNotifySource(m_packetListView.get(), header))
 	{
 		switch(header->code)
 		{
-		case CGsRegisterWriteListView::NOTIFICATION_SELCHANGED:
+		case CGsPacketListView::NOTIFICATION_SELCHANGED:
 			{
-				auto selchangedInfo = reinterpret_cast<CGsRegisterWriteListView::SELCHANGED_INFO*>(header);
+				auto selchangedInfo = reinterpret_cast<CGsPacketListView::SELCHANGED_INFO*>(header);
 				UpdateDisplay(selchangedInfo->selectedCmdIndex);
 			}
 			break;
@@ -320,7 +320,7 @@ void CFrameDebugger::LoadFrameDump(const TCHAR* dumpPathName)
 	}
 
 	m_vu1vm.Reset();
-	m_registerWriteListView->SetFrameDump(&m_frameDump);
+	m_packetListView->SetFrameDump(&m_frameDump);
 
 	UpdateDisplay(0);
 }
@@ -339,7 +339,7 @@ void CFrameDebugger::ShowFrameDumpSelector()
 void CFrameDebugger::ToggleAlphaTest()
 {
 	m_gs->SetAlphaTestingEnabled(!m_gs->GetAlphaTestingEnabled());
-	uint32 selectedItemIndex = m_registerWriteListView->GetSelectedItemIndex();
+	uint32 selectedItemIndex = m_packetListView->GetSelectedItemIndex();
 	if(selectedItemIndex != -1)
 	{
 		UpdateDisplay(selectedItemIndex);
@@ -350,7 +350,7 @@ void CFrameDebugger::ToggleAlphaTest()
 void CFrameDebugger::ToggleDepthTest()
 {
 	m_gs->SetDepthTestingEnabled(!m_gs->GetDepthTestingEnabled());
-	uint32 selectedItemIndex = m_registerWriteListView->GetSelectedItemIndex();
+	uint32 selectedItemIndex = m_packetListView->GetSelectedItemIndex();
 	if(selectedItemIndex != -1)
 	{
 		UpdateDisplay(selectedItemIndex);
@@ -361,7 +361,7 @@ void CFrameDebugger::ToggleDepthTest()
 void CFrameDebugger::ToggleAlphaBlending()
 {
 	m_gs->SetAlphaBlendingEnabled(!m_gs->GetAlphaBlendingEnabled());
-	uint32 selectedItemIndex = m_registerWriteListView->GetSelectedItemIndex();
+	uint32 selectedItemIndex = m_packetListView->GetSelectedItemIndex();
 	if(selectedItemIndex != -1)
 	{
 		UpdateDisplay(selectedItemIndex);

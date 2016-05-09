@@ -160,9 +160,6 @@
     <ClCompile Include="..\Source\ui_win32\FrameDebugger\PixelBufferViewOverlay.cpp">
       <Filter>Source Files\FrameDebugger</Filter>
     </ClCompile>
-    <ClCompile Include="..\Source\ui_win32\FrameDebugger\GsRegisterWriteListView.cpp">
-      <Filter>Source Files\FrameDebugger</Filter>
-    </ClCompile>
     <ClCompile Include="..\Source\ui_win32\FrameDebugger\Vu1ProgramView.cpp">
       <Filter>Source Files\FrameDebugger</Filter>
     </ClCompile>
@@ -261,6 +258,9 @@
     </ClCompile>
     <ClCompile Include="..\Source\ui_win32\GSH_OpenGL_SettingsWnd.cpp">
       <Filter>Source Files\GSH_OpenGL</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\ui_win32\FrameDebugger\GsPacketListView.cpp">
+      <Filter>Source Files\FrameDebugger</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -399,9 +399,6 @@
     <ClInclude Include="..\Source\ui_win32\FrameDebugger\FrameDebuggerTab.h">
       <Filter>Source Files\FrameDebugger</Filter>
     </ClInclude>
-    <ClInclude Include="..\Source\ui_win32\FrameDebugger\GsRegisterWriteListView.h">
-      <Filter>Source Files\FrameDebugger</Filter>
-    </ClInclude>
     <ClInclude Include="..\Source\ui_win32\FrameDebugger\Vu1ProgramView.h">
       <Filter>Source Files\FrameDebugger</Filter>
     </ClInclude>
@@ -497,6 +494,9 @@
     </ClInclude>
     <ClInclude Include="..\Source\ui_win32\GSH_OpenGL_SettingsWnd.h">
       <Filter>Source Files\GSH_OpenGL</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\ui_win32\FrameDebugger\GsPacketListView.h">
+      <Filter>Source Files\FrameDebugger</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

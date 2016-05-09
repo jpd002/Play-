@@ -9,7 +9,7 @@
 #include "win32/GdiObj.h"
 #include "../../gs/GSHandler.h"
 
-class CGsRegisterWriteListView : public Framework::Win32::CWindow
+class CGsPacketListView : public Framework::Win32::CWindow
 {
 public:
 	enum
@@ -22,8 +22,8 @@ public:
 		uint32 selectedCmdIndex;
 	};
 
-													CGsRegisterWriteListView(HWND, const RECT&);
-	virtual											~CGsRegisterWriteListView();
+													CGsPacketListView(HWND, const RECT&);
+	virtual											~CGsPacketListView();
 
 	void											SetFrameDump(CFrameDump*);
 	uint32											GetSelectedItemIndex() const;

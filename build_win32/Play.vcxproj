@@ -295,7 +295,7 @@
     <ClCompile Include="..\Source\ui_win32\FrameDebugger\GsContextStateView.cpp" />
     <ClCompile Include="..\Source\ui_win32\FrameDebugger\GsContextView.cpp" />
     <ClCompile Include="..\Source\ui_win32\FrameDebugger\GsInputStateView.cpp" />
-    <ClCompile Include="..\Source\ui_win32\FrameDebugger\GsRegisterWriteListView.cpp" />
+    <ClCompile Include="..\Source\ui_win32\FrameDebugger\GsPacketListView.cpp" />
     <ClCompile Include="..\Source\ui_win32\FrameDebugger\GsStateUtils.cpp" />
     <ClCompile Include="..\Source\ui_win32\FrameDebugger\PixelBufferView.cpp" />
     <ClCompile Include="..\Source\ui_win32\FrameDebugger\PixelBufferViewOverlay.cpp" />
@@ -388,7 +388,7 @@
     <ClInclude Include="..\Source\ui_win32\FrameDebugger\GsContextStateView.h" />
     <ClInclude Include="..\Source\ui_win32\FrameDebugger\GsContextView.h" />
     <ClInclude Include="..\Source\ui_win32\FrameDebugger\GsInputStateView.h" />
-    <ClInclude Include="..\Source\ui_win32\FrameDebugger\GsRegisterWriteListView.h" />
+    <ClInclude Include="..\Source\ui_win32\FrameDebugger\GsPacketListView.h" />
     <ClInclude Include="..\Source\ui_win32\FrameDebugger\GsStateUtils.h" />
     <ClInclude Include="..\Source\ui_win32\FrameDebugger\PixelBufferView.h" />
     <ClInclude Include="..\Source\ui_win32\FrameDebugger\PixelBufferViewOverlay.h" />

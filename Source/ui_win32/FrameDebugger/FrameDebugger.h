@@ -11,7 +11,7 @@
 #include "Vu1Vm.h"
 #include "GsInputStateView.h"
 #include "GsContextView.h"
-#include "GsRegisterWriteListView.h"
+#include "GsPacketListView.h"
 #include "Vu1ProgramView.h"
 #include "TabHost.h"
 
@@ -57,7 +57,7 @@ private:
 
 	std::unique_ptr<Framework::Win32::CSplitter>	m_mainSplitter;
 
-	std::unique_ptr<CGsRegisterWriteListView>		m_registerWriteListView;
+	std::unique_ptr<CGsPacketListView>				m_packetListView;
 	std::unique_ptr<CTabHost>						m_tab;
 
 	std::unique_ptr<CGsContextView>					m_gsContextView0;

@@ -1,10 +1,10 @@
-#include "GsRegisterWriteListView.h"
+#include "GsPacketListView.h"
 #include "../../FrameDump.h"
 #include "string_cast.h"
 #include "string_format.h"
 #include "win32/DpiUtils.h"
 
-CGsRegisterWriteListView::CGsRegisterWriteListView(HWND parentWnd, const RECT& rect)
+CGsPacketListView::CGsPacketListView(HWND parentWnd, const RECT& rect)
 : m_frameDump(nullptr)
 {
 	Create(0, Framework::Win32::CDefaultWndClass::GetName(), _T(""), WS_CHILD | WS_VISIBLE | WS_CLIPCHILDREN | WS_CLIPCHILDREN, 
@@ -29,12 +29,12 @@ CGsRegisterWriteListView::CGsRegisterWriteListView(HWND parentWnd, const RECT& r
 		m_hWnd, Framework::Win32::PointsToPixels(Framework::Win32::CRect(100, 0, 200, 25)));
 }
 
-CGsRegisterWriteListView::~CGsRegisterWriteListView()
+CGsPacketListView::~CGsPacketListView()
 {
 
 }
 
-void CGsRegisterWriteListView::SetFrameDump(CFrameDump* frameDump)
+void CGsPacketListView::SetFrameDump(CFrameDump* frameDump)
 {
 	m_frameDump = frameDump;
 
@@ -102,7 +102,7 @@ void CGsRegisterWriteListView::SetFrameDump(CFrameDump* frameDump)
 	RedrawWindow(*m_packetsTreeView, nullptr, nullptr, RDW_ERASE | RDW_FRAME | RDW_INVALIDATE | RDW_ALLCHILDREN);
 }
 
-uint32 CGsRegisterWriteListView::GetSelectedItemIndex() const
+uint32 CGsPacketListView::GetSelectedItemIndex() const
 {
 	HTREEITEM selectedItem = m_packetsTreeView->GetSelection();
 	if(selectedItem == nullptr) return -1;
@@ -112,7 +112,7 @@ uint32 CGsRegisterWriteListView::GetSelectedItemIndex() const
 	return GetItemIndexFromTreeViewItem(&item);
 }
 
-long CGsRegisterWriteListView::OnSize(unsigned int, unsigned int, unsigned int)
+long CGsPacketListView::OnSize(unsigned int, unsigned int, unsigned int)
 {
 	auto clientRect = GetClientRect();
 	Framework::Win32::CRect packetsTreeViewRect(0, Framework::Win32::PointsToPixels(30), 
@@ -121,7 +121,7 @@ long CGsRegisterWriteListView::OnSize(unsigned int, unsigned int, unsigned int)
 	return TRUE;
 }
 
-long CGsRegisterWriteListView::OnCommand(unsigned short, unsigned short, HWND senderWnd)
+long CGsPacketListView::OnCommand(unsigned short, unsigned short, HWND senderWnd)
 {
 	if(CWindow::IsCommandSource(m_prevDrawKickButton.get(), senderWnd))
 	{
@@ -134,7 +134,7 @@ long CGsRegisterWriteListView::OnCommand(unsigned short, unsigned short, HWND se
 	return TRUE;
 }
 
-long CGsRegisterWriteListView::OnNotify(WPARAM param, NMHDR* header)
+long CGsPacketListView::OnNotify(WPARAM param, NMHDR* header)
 {
 	if(CWindow::IsNotifySource(m_packetsTreeView.get(), header))
 	{
@@ -155,7 +155,7 @@ long CGsRegisterWriteListView::OnNotify(WPARAM param, NMHDR* header)
 	return FALSE;
 }
 
-long CGsRegisterWriteListView::OnPacketsTreeViewCustomDraw(NMTVCUSTOMDRAW* customDraw)
+long CGsPacketListView::OnPacketsTreeViewCustomDraw(NMTVCUSTOMDRAW* customDraw)
 {
 	if(customDraw->nmcd.dwDrawStage == CDDS_PREPAINT)
 	{
@@ -184,7 +184,7 @@ long CGsRegisterWriteListView::OnPacketsTreeViewCustomDraw(NMTVCUSTOMDRAW* custo
 	}
 }
 
-uint32 CGsRegisterWriteListView::GetItemIndexFromTreeViewItem(TVITEM* item) const
+uint32 CGsPacketListView::GetItemIndexFromTreeViewItem(TVITEM* item) const
 {
 	HTREEITEM itemParent = m_packetsTreeView->GetItemParent(item->hItem);
 	if(itemParent == nullptr)
@@ -198,7 +198,7 @@ uint32 CGsRegisterWriteListView::GetItemIndexFromTreeViewItem(TVITEM* item) cons
 	}
 }
 
-void CGsRegisterWriteListView::OnPacketsTreeViewItemExpanding(NMTREEVIEW* treeView)
+void CGsPacketListView::OnPacketsTreeViewItemExpanding(NMTREEVIEW* treeView)
 {
 	if((treeView->itemNew.state & TVIS_EXPANDEDONCE) == 0)
 	{
@@ -222,7 +222,7 @@ void CGsRegisterWriteListView::OnPacketsTreeViewItemExpanding(NMTREEVIEW* treeVi
 	}
 }
 
-void CGsRegisterWriteListView::OnPacketsTreeViewSelChanged(NMTREEVIEW* treeView)
+void CGsPacketListView::OnPacketsTreeViewSelChanged(NMTREEVIEW* treeView)
 {
 	uint32 selectedCmdIndex = GetItemIndexFromTreeViewItem(&treeView->itemNew);
 	SELCHANGED_INFO selchangedInfo;
@@ -233,7 +233,7 @@ void CGsRegisterWriteListView::OnPacketsTreeViewSelChanged(NMTREEVIEW* treeView)
 	SendMessage(GetParent(), WM_NOTIFY, reinterpret_cast<WPARAM>(m_hWnd), reinterpret_cast<LPARAM>(&selchangedInfo));
 }
 
-void CGsRegisterWriteListView::GoToWrite(uint32 writeIndex)
+void CGsPacketListView::GoToWrite(uint32 writeIndex)
 {
 	auto packetInfoIterator = std::lower_bound(std::begin(m_packetInfos), std::end(m_packetInfos), writeIndex, 
 		[] (const PACKETINFO& p1, uint32 i2) { return p1.cmdIndexStart < i2; });
@@ -249,7 +249,7 @@ void CGsRegisterWriteListView::GoToWrite(uint32 writeIndex)
 	m_packetsTreeView->SetSelection(writeInfo.treeViewItem);
 }
 
-void CGsRegisterWriteListView::OnPrevDrawKick()
+void CGsPacketListView::OnPrevDrawKick()
 {
 	if(m_frameDump == nullptr) return;
 
@@ -278,7 +278,7 @@ void CGsRegisterWriteListView::OnPrevDrawKick()
 	GoToWrite(prevKickIndexIterator->first);
 }
 
-void CGsRegisterWriteListView::OnNextDrawKick()
+void CGsPacketListView::OnNextDrawKick()
 {
 	if(m_frameDump == nullptr) return;
 
