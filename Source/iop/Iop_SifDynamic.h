@@ -1,5 +1,4 @@
-#ifndef _IOP_SIFDYNAMIC_H_
-#define _IOP_SIFDYNAMIC_H_
+#pragma once
 
 #include "Iop_SifMan.h"
 
@@ -12,14 +11,12 @@ namespace Iop
 	public:
 						CSifDynamic(CSifCmd&, uint32);
 		virtual			~CSifDynamic();
-		virtual bool	Invoke(uint32, uint32*, uint32, uint32*, uint32, uint8*);
+		bool			Invoke(uint32, uint32*, uint32, uint32*, uint32, uint8*) override;
 
 		uint32			GetServerDataAddress() const;
 
 	private:
 		CSifCmd&		m_sifCmd;
-		uint32			m_serverDataAddress;
+		uint32			m_serverDataAddress = 0;
 	};
 }
-
-#endif

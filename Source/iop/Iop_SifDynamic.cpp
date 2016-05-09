@@ -3,9 +3,9 @@
 
 using namespace Iop;
 
-CSifDynamic::CSifDynamic(CSifCmd& sifCmd, uint32 serverDataAddress) :
-m_sifCmd(sifCmd),
-m_serverDataAddress(serverDataAddress)
+CSifDynamic::CSifDynamic(CSifCmd& sifCmd, uint32 serverDataAddress)
+: m_sifCmd(sifCmd)
+, m_serverDataAddress(serverDataAddress)
 {
 
 }
