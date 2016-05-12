@@ -5,7 +5,7 @@
 #define STATE_INITIAL_GSRAM                "init/gsram"
 #define STATE_INITIAL_GSREGS               "init/gsregs"
 #define STATE_INITIAL_GSPRIVREGS           "init/gsprivregs"
-#define STATE_PACKET_METADATA_PREFIX       "packet_"
+#define STATE_PACKET_METADATA_PREFIX       "packet_metadata_"
 #define STATE_PACKET_REGISTERWRITES_PREFIX "packet_registerwrites_"
 #define STATE_PACKET_IMAGEDATA_PREFIX      "packet_imagedata_"
 
@@ -93,7 +93,8 @@ void CFrameDump::Read(Framework::CStream& input)
 		if(fileHeader.first.find(STATE_PACKET_METADATA_PREFIX) == 0)
 		{
 			unsigned int packetIdx = 0;
-			sscanf(fileHeader.first.c_str(), STATE_PACKET_METADATA_PREFIX "%d", &packetIdx);
+			int scanCount = sscanf(fileHeader.first.c_str(), STATE_PACKET_METADATA_PREFIX "%d", &packetIdx);
+			assert(scanCount == 1);
 			packetFiles[packetIdx] = fileHeader.first;
 		}
 	}
