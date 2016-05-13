@@ -1,5 +1,6 @@
 #include <boost/filesystem.hpp>
 #include <boost/lexical_cast.hpp>
+#include "../../AppConfig.h"
 #include "FrameDebugger.h"
 #include "win32/AcceleratorTableGenerator.h"
 #include "win32/Rect.h"
@@ -15,9 +16,14 @@
 #define WNDSTYLE					(WS_CLIPCHILDREN | WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX | WS_MAXIMIZEBOX | WS_SIZEBOX)
 #define WNDTITLE					_T("Play! - Frame Debugger")
 
+#define PREF_FRAMEDEBUGGER_FRAMEBUFFER_DISPLAYMODE    "framedebugger.framebuffer.displaymode"
+
 CFrameDebugger::CFrameDebugger()
 : m_accTable(nullptr)
 {
+	CAppConfig::GetInstance().RegisterPreferenceInteger(PREF_FRAMEDEBUGGER_FRAMEBUFFER_DISPLAYMODE, CGsContextView::FB_DISPLAY_MODE_RAW);
+	m_fbDisplayMode = static_cast<CGsContextView::FB_DISPLAY_MODE>(CAppConfig::GetInstance().GetPreferenceInteger(PREF_FRAMEDEBUGGER_FRAMEBUFFER_DISPLAYMODE));
+
 	Create(0, Framework::Win32::CDefaultWndClass::GetName(), WNDTITLE, WNDSTYLE, Framework::Win32::CRect(0, 0, 1024, 768), nullptr, nullptr);
 	SetClassPtr();
 
@@ -374,6 +380,7 @@ void CFrameDebugger::SetFbDisplayMode(CGsContextView::FB_DISPLAY_MODE fbDisplayM
 	m_gsContextView0->SetFbDisplayMode(fbDisplayMode);
 	m_gsContextView1->SetFbDisplayMode(fbDisplayMode);
 	m_fbDisplayMode = fbDisplayMode;
+	CAppConfig::GetInstance().SetPreferenceInteger(PREF_FRAMEDEBUGGER_FRAMEBUFFER_DISPLAYMODE, fbDisplayMode);
 	UpdateMenus();
 }
 
