@@ -17,6 +17,7 @@
 #define FUNCTION_SETTIMERCALLBACK		"SetTimerCallback"
 #define FUNCTION_SETUPHARDTIMER			"SetupHardTimer"
 #define FUNCTION_STARTHARDTIMER			"StartHardTimer"
+#define FUNCTION_STOPHARDTIMER			"StopHardTimer"
 
 using namespace Iop;
 
@@ -69,6 +70,9 @@ std::string CTimrman::GetFunctionName(unsigned int functionId) const
 		break;
 	case 23:
 		return FUNCTION_STARTHARDTIMER;
+		break;
+	case 24:
+		return FUNCTION_STOPHARDTIMER;
 		break;
 	default:
 		return "unknown";
@@ -144,6 +148,11 @@ void CTimrman::Invoke(CMIPS& context, unsigned int functionId)
 		break;
 	case 23:
 		context.m_State.nGPR[CMIPS::V0].nD0 = StartHardTimer(
+			context.m_State.nGPR[CMIPS::A0].nV0
+			);
+		break;
+	case 24:
+		context.m_State.nGPR[CMIPS::V0].nD0 = StopHardTimer(
 			context.m_State.nGPR[CMIPS::A0].nV0
 			);
 		break;
@@ -300,6 +309,15 @@ int CTimrman::StartHardTimer(uint32 timerId)
 {
 #ifdef _DEBUG
 	CLog::GetInstance().Print(LOG_NAME, FUNCTION_STARTHARDTIMER "(timerId = %d);\r\n",
+		timerId);
+#endif
+	return 0;
+}
+
+int32 CTimrman::StopHardTimer(uint32 timerId)
+{
+#ifdef _DEBUG
+	CLog::GetInstance().Print(LOG_NAME, FUNCTION_STOPHARDTIMER "(timerId = %d);\r\n",
 		timerId);
 #endif
 	return 0;
