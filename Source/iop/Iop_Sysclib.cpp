@@ -403,9 +403,15 @@ uint32 CSysclib::__strcspn(uint32 str1Ptr, uint32 str2Ptr)
 
 uint32 CSysclib::__strtol(uint32 stringPtr, uint32 endPtrPtr, uint32 radix)
 {
-	assert(endPtrPtr == 0);
 	auto string = reinterpret_cast<const char*>(GetPtr(stringPtr, 0));
-	return strtol(string, NULL, radix);
+	char* end = nullptr;
+	uint32 result = strtol(string, &end, radix);
+	if(endPtrPtr != 0)
+	{
+		auto endPtr = reinterpret_cast<uint32*>(GetPtr(endPtrPtr, 4));
+		(*endPtr) = static_cast<uint32>(end - string);
+	}
+	return result;
 }
 
 uint32 CSysclib::__wmemcopy(uint32 dstPtr, uint32 srcPtr, uint32 size)
