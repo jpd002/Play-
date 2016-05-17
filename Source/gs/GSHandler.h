@@ -697,7 +697,7 @@ protected:
 		bool			nDirty;
 	};
 
-	typedef bool (CGSHandler::*TRANSFERHANDLER)(void*, uint32);
+	typedef bool (CGSHandler::*TRANSFERWRITEHANDLER)(const void*, uint32);
 
 	void									LogWrite(uint8, uint64);
 	void									LogPrivateWrite(uint32);
@@ -713,20 +713,20 @@ protected:
 	virtual void							FlipImpl();
 	void									MarkNewFrame();
 	virtual void							WriteRegisterImpl(uint8, uint64);
-	virtual void							FeedImageDataImpl(void*, uint32);
+	void									FeedImageDataImpl(const void*, uint32);
 	void									ReadImageDataImpl(void*, uint32);
 	virtual void							WriteRegisterMassivelyImpl(MASSIVEWRITE_INFO*);
 
 	void									BeginTransfer();
 
-	TRANSFERHANDLER							m_pTransferHandler[PSM_MAX];
+	TRANSFERWRITEHANDLER					m_transferWriteHandlers[PSM_MAX];
 
-	bool									TrxHandlerInvalid(void*, uint32);
-	template <typename Storage> bool		TrxHandlerCopy(void*, uint32);
-	bool									TrxHandlerPSMT4(void*, uint32);
-	bool									TrxHandlerPSMCT24(void*, uint32);
-	bool									TrxHandlerPSMT8H(void*, uint32);
-	template <uint32, uint32> bool			TrxHandlerPSMT4H(void*, uint32);
+	bool									TransferWriteHandlerInvalid(const void*, uint32);
+	template <typename Storage> bool		TransferWriteHandlerGeneric(const void*, uint32);
+	bool									TransferWriteHandlerPSMT4(const void*, uint32);
+	bool									TransferWriteHandlerPSMCT24(const void*, uint32);
+	bool									TransferWriteHandlerPSMT8H(const void*, uint32);
+	template <uint32, uint32> bool			TransferWriteHandlerPSMT4H(const void*, uint32);
 
 	void									SyncCLUT(const TEX0&);
 	void									ReadCLUT4(const TEX0&);

@@ -79,18 +79,18 @@ CGSHandler::CGSHandler()
 
 	for(int i = 0; i < PSM_MAX; i++)
 	{
-		m_pTransferHandler[i]					= &CGSHandler::TrxHandlerInvalid;
+		m_transferWriteHandlers[i] = &CGSHandler::TransferWriteHandlerInvalid;
 	}
 
-	m_pTransferHandler[PSMCT32]					= &CGSHandler::TrxHandlerCopy<CGsPixelFormats::STORAGEPSMCT32>;
-	m_pTransferHandler[PSMCT24]					= &CGSHandler::TrxHandlerPSMCT24;
-	m_pTransferHandler[PSMCT16]					= &CGSHandler::TrxHandlerCopy<CGsPixelFormats::STORAGEPSMCT16>;
-	m_pTransferHandler[PSMCT16S]				= &CGSHandler::TrxHandlerCopy<CGsPixelFormats::STORAGEPSMCT16S>;
-	m_pTransferHandler[PSMT8]					= &CGSHandler::TrxHandlerCopy<CGsPixelFormats::STORAGEPSMT8>;
-	m_pTransferHandler[PSMT4]					= &CGSHandler::TrxHandlerPSMT4;
-	m_pTransferHandler[PSMT8H]					= &CGSHandler::TrxHandlerPSMT8H;
-	m_pTransferHandler[PSMT4HL]					= &CGSHandler::TrxHandlerPSMT4H<24, 0x0F000000>;
-	m_pTransferHandler[PSMT4HH]					= &CGSHandler::TrxHandlerPSMT4H<28, 0xF0000000>;
+	m_transferWriteHandlers[PSMCT32]  = &CGSHandler::TransferWriteHandlerGeneric<CGsPixelFormats::STORAGEPSMCT32>;
+	m_transferWriteHandlers[PSMCT24]  = &CGSHandler::TransferWriteHandlerPSMCT24;
+	m_transferWriteHandlers[PSMCT16]  = &CGSHandler::TransferWriteHandlerGeneric<CGsPixelFormats::STORAGEPSMCT16>;
+	m_transferWriteHandlers[PSMCT16S] = &CGSHandler::TransferWriteHandlerGeneric<CGsPixelFormats::STORAGEPSMCT16S>;
+	m_transferWriteHandlers[PSMT8]    = &CGSHandler::TransferWriteHandlerGeneric<CGsPixelFormats::STORAGEPSMT8>;
+	m_transferWriteHandlers[PSMT4]    = &CGSHandler::TransferWriteHandlerPSMT4;
+	m_transferWriteHandlers[PSMT8H]   = &CGSHandler::TransferWriteHandlerPSMT8H;
+	m_transferWriteHandlers[PSMT4HL]  = &CGSHandler::TransferWriteHandlerPSMT4H<24, 0x0F000000>;
+	m_transferWriteHandlers[PSMT4HH]  = &CGSHandler::TransferWriteHandlerPSMT4H<28, 0xF0000000>;
 
 	ResetBase();
 
@@ -520,9 +520,9 @@ void CGSHandler::WriteRegisterImpl(uint8 nRegister, uint64 nData)
 #endif
 }
 
-void CGSHandler::FeedImageDataImpl(void* pData, uint32 nLength)
+void CGSHandler::FeedImageDataImpl(const void* pData, uint32 nLength)
 {
-	boost::scoped_array<uint8> dataPtr(reinterpret_cast<uint8*>(pData));
+	boost::scoped_array<const uint8> dataPtr(reinterpret_cast<const uint8*>(pData));
 
 #ifdef DEBUGGER_INCLUDED
 	if(m_frameDump)
@@ -548,7 +548,7 @@ void CGSHandler::FeedImageDataImpl(void* pData, uint32 nLength)
 
 		auto bltBuf = make_convertible<BITBLTBUF>(m_nReg[GS_REG_BITBLTBUF]);
 
-		m_trxCtx.nDirty |= ((this)->*(m_pTransferHandler[bltBuf.nDstPsm]))(pData, nLength);
+		m_trxCtx.nDirty |= ((this)->*(m_transferWriteHandlers[bltBuf.nDstPsm]))(pData, nLength);
 
 		m_trxCtx.nSize -= nLength;
 
@@ -689,14 +689,14 @@ void CGSHandler::BeginTransfer()
 	}
 }
 
-bool CGSHandler::TrxHandlerInvalid(void* pData, uint32 nLength)
+bool CGSHandler::TransferWriteHandlerInvalid(const void* pData, uint32 nLength)
 {
 	assert(0);
 	return false;
 }
 
 template <typename Storage>
-bool CGSHandler::TrxHandlerCopy(void* pData, uint32 nLength)
+bool CGSHandler::TransferWriteHandlerGeneric(const void* pData, uint32 nLength)
 {
 	bool nDirty = false;
 	auto trxPos = make_convertible<TRXPOS>(m_nReg[GS_REG_TRXPOS]);
@@ -707,7 +707,7 @@ bool CGSHandler::TrxHandlerCopy(void* pData, uint32 nLength)
 
 	CGsPixelFormats::CPixelIndexor<Storage> Indexor(m_pRAM, trxBuf.GetDstPtr(), trxBuf.nDstWidth);
 
-	auto pSrc = reinterpret_cast<typename Storage::Unit*>(pData);
+	auto pSrc = reinterpret_cast<const typename Storage::Unit*>(pData);
 
 	for(unsigned int i = 0; i < nLength; i++)
 	{
@@ -733,7 +733,7 @@ bool CGSHandler::TrxHandlerCopy(void* pData, uint32 nLength)
 	return nDirty;
 }
 
-bool CGSHandler::TrxHandlerPSMCT24(void* pData, uint32 nLength)
+bool CGSHandler::TransferWriteHandlerPSMCT24(const void* pData, uint32 nLength)
 {
 	auto trxPos = make_convertible<TRXPOS>(m_nReg[GS_REG_TRXPOS]);
 	auto trxReg = make_convertible<TRXREG>(m_nReg[GS_REG_TRXREG]);
@@ -741,7 +741,7 @@ bool CGSHandler::TrxHandlerPSMCT24(void* pData, uint32 nLength)
 
 	CGsPixelFormats::CPixelIndexorPSMCT32 Indexor(m_pRAM, trxBuf.GetDstPtr(), trxBuf.nDstWidth);
 
-	uint8* pSrc = (uint8*)pData;
+	auto pSrc = reinterpret_cast<const uint8*>(pData);
 
 	for(unsigned int i = 0; i < nLength; i += 3)
 	{
@@ -749,7 +749,7 @@ bool CGSHandler::TrxHandlerPSMCT24(void* pData, uint32 nLength)
 		uint32 nY = (m_trxCtx.nRRY + trxPos.nDSAY) % 2048;
 
 		uint32* pDstPixel = Indexor.GetPixelAddress(nX, nY);
-		uint32 nSrcPixel = (*(uint32*)&pSrc[i]) & 0x00FFFFFF;
+		uint32 nSrcPixel = *reinterpret_cast<const uint32*>(&pSrc[i]) & 0x00FFFFFF;
 		(*pDstPixel) &= 0xFF000000;
 		(*pDstPixel) |= nSrcPixel;
 
@@ -764,7 +764,7 @@ bool CGSHandler::TrxHandlerPSMCT24(void* pData, uint32 nLength)
 	return true;
 }
 
-bool CGSHandler::TrxHandlerPSMT4(void* pData, uint32 nLength)
+bool CGSHandler::TransferWriteHandlerPSMT4(const void* pData, uint32 nLength)
 {
 	bool dirty = false;
 	auto trxPos = make_convertible<TRXPOS>(m_nReg[GS_REG_TRXPOS]);
@@ -773,7 +773,7 @@ bool CGSHandler::TrxHandlerPSMT4(void* pData, uint32 nLength)
 
 	CGsPixelFormats::CPixelIndexorPSMT4 Indexor(m_pRAM, trxBuf.GetDstPtr(), trxBuf.nDstWidth);
 
-	uint8* pSrc = (uint8*)pData;
+	auto pSrc = reinterpret_cast<const uint8*>(pData);
 
 	for(unsigned int i = 0; i < nLength; i++)
 	{
@@ -807,7 +807,7 @@ bool CGSHandler::TrxHandlerPSMT4(void* pData, uint32 nLength)
 }
 
 template <uint32 nShift, uint32 nMask>
-bool CGSHandler::TrxHandlerPSMT4H(void* pData, uint32 nLength)
+bool CGSHandler::TransferWriteHandlerPSMT4H(const void* pData, uint32 nLength)
 {
 	auto trxPos = make_convertible<TRXPOS>(m_nReg[GS_REG_TRXPOS]);
 	auto trxReg = make_convertible<TRXREG>(m_nReg[GS_REG_TRXREG]);
@@ -815,7 +815,7 @@ bool CGSHandler::TrxHandlerPSMT4H(void* pData, uint32 nLength)
 
 	CGsPixelFormats::CPixelIndexorPSMCT32 Indexor(m_pRAM, trxBuf.GetDstPtr(), trxBuf.nDstWidth);
 
-	uint8* pSrc = reinterpret_cast<uint8*>(pData);
+	auto pSrc = reinterpret_cast<const uint8*>(pData);
 
 	for(unsigned int i = 0; i < nLength; i++)
 	{
@@ -857,7 +857,7 @@ bool CGSHandler::TrxHandlerPSMT4H(void* pData, uint32 nLength)
 	return true;
 }
 
-bool CGSHandler::TrxHandlerPSMT8H(void* pData, uint32 nLength)
+bool CGSHandler::TransferWriteHandlerPSMT8H(const void* pData, uint32 nLength)
 {
 	auto trxPos = make_convertible<TRXPOS>(m_nReg[GS_REG_TRXPOS]);
 	auto trxReg = make_convertible<TRXREG>(m_nReg[GS_REG_TRXREG]);
@@ -865,7 +865,7 @@ bool CGSHandler::TrxHandlerPSMT8H(void* pData, uint32 nLength)
 
 	CGsPixelFormats::CPixelIndexorPSMCT32 Indexor(m_pRAM, trxBuf.GetDstPtr(), trxBuf.nDstWidth);
 
-	uint8* pSrc = reinterpret_cast<uint8*>(pData);
+	auto pSrc = reinterpret_cast<const uint8*>(pData);
 
 	for(unsigned int i = 0; i < nLength; i++)
 	{
