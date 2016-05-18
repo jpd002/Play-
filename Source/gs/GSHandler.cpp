@@ -80,6 +80,7 @@ CGSHandler::CGSHandler()
 	for(int i = 0; i < PSM_MAX; i++)
 	{
 		m_transferWriteHandlers[i] = &CGSHandler::TransferWriteHandlerInvalid;
+		m_transferReadHandlers[i] = &CGSHandler::TransferReadHandlerInvalid;
 	}
 
 	m_transferWriteHandlers[PSMCT32]  = &CGSHandler::TransferWriteHandlerGeneric<CGsPixelFormats::STORAGEPSMCT32>;
@@ -91,6 +92,9 @@ CGSHandler::CGSHandler()
 	m_transferWriteHandlers[PSMT8H]   = &CGSHandler::TransferWriteHandlerPSMT8H;
 	m_transferWriteHandlers[PSMT4HL]  = &CGSHandler::TransferWriteHandlerPSMT4H<24, 0x0F000000>;
 	m_transferWriteHandlers[PSMT4HH]  = &CGSHandler::TransferWriteHandlerPSMT4H<28, 0xF0000000>;
+
+	m_transferReadHandlers[PSMCT32] = &CGSHandler::TransferReadHandlerGeneric<CGsPixelFormats::STORAGEPSMCT32>;
+	m_transferReadHandlers[PSMT8]   = &CGSHandler::TransferReadHandlerGeneric<CGsPixelFormats::STORAGEPSMT8>;
 
 	ResetBase();
 
@@ -573,34 +577,10 @@ void CGSHandler::ReadImageDataImpl(void* ptr, uint32 size)
 	assert(m_trxCtx.nSize != 0);
 	assert(m_trxCtx.nSize == size);
 	auto bltBuf = make_convertible<BITBLTBUF>(m_nReg[GS_REG_BITBLTBUF]);
-	auto trxReg = make_convertible<TRXREG>(m_nReg[GS_REG_TRXREG]);
 	auto trxPos = make_convertible<TRXPOS>(m_nReg[GS_REG_TRXPOS]);
 
 	assert(trxPos.nDIR == 0);
-	switch(bltBuf.nSrcPsm)
-	{
-	case PSMCT32:
-		{
-			CGsPixelFormats::CPixelIndexorPSMCT32 indexor(m_pRAM, bltBuf.GetSrcPtr(), bltBuf.nSrcWidth);
-			for(uint32 i = 0; i < size / sizeof(uint32); i++)
-			{
-				uint32 x = (m_trxCtx.nRRX + trxPos.nSSAX) % 2048;
-				uint32 y = (m_trxCtx.nRRY + trxPos.nSSAY) % 2048;
-				auto pixel = indexor.GetPixel(x, y);
-				reinterpret_cast<uint32*>(ptr)[i] = pixel;
-				m_trxCtx.nRRX++;
-				if(m_trxCtx.nRRX == trxReg.nRRW)
-				{
-					m_trxCtx.nRRX = 0;
-					m_trxCtx.nRRY++;
-				}
-			}
-		}
-		break;
-	default:
-		assert(false);
-		break;
-	}
+	((this)->*(m_transferReadHandlers[bltBuf.nSrcPsm]))(ptr, size);
 }
 
 void CGSHandler::WriteRegisterMassivelyImpl(MASSIVEWRITE_INFO* massiveWrite)
@@ -888,6 +868,37 @@ bool CGSHandler::TransferWriteHandlerPSMT8H(const void* pData, uint32 nLength)
 	}
 
 	return true;
+}
+
+void CGSHandler::TransferReadHandlerInvalid(void*, uint32)
+{
+	assert(0);
+}
+
+template <typename Storage>
+void CGSHandler::TransferReadHandlerGeneric(void* buffer, uint32 length)
+{
+	auto trxPos = make_convertible<TRXPOS>(m_nReg[GS_REG_TRXPOS]);
+	auto trxReg = make_convertible<TRXREG>(m_nReg[GS_REG_TRXREG]);
+	auto trxBuf = make_convertible<BITBLTBUF>(m_nReg[GS_REG_BITBLTBUF]);
+
+	uint32 typedLength = length / sizeof(typename Storage::Unit);
+	auto typedBuffer = reinterpret_cast<typename Storage::Unit*>(buffer);
+
+	CGsPixelFormats::CPixelIndexor<Storage> indexor(m_pRAM, trxBuf.GetSrcPtr(), trxBuf.nSrcWidth);
+	for(uint32 i = 0; i < typedLength; i++)
+	{
+		uint32 x = (m_trxCtx.nRRX + trxPos.nSSAX) % 2048;
+		uint32 y = (m_trxCtx.nRRY + trxPos.nSSAY) % 2048;
+		auto pixel = indexor.GetPixel(x, y);
+		typedBuffer[i] = pixel;
+		m_trxCtx.nRRX++;
+		if(m_trxCtx.nRRX == trxReg.nRRW)
+		{
+			m_trxCtx.nRRX = 0;
+			m_trxCtx.nRRY++;
+		}
+	}
 }
 
 void CGSHandler::SetCrt(bool nIsInterlaced, unsigned int nMode, bool nIsFrameMode)

@@ -698,6 +698,7 @@ protected:
 	};
 
 	typedef bool (CGSHandler::*TRANSFERWRITEHANDLER)(const void*, uint32);
+	typedef void (CGSHandler::*TRANSFERREADHANDLER)(void*, uint32);
 
 	void									LogWrite(uint8, uint64);
 	void									LogPrivateWrite(uint32);
@@ -720,6 +721,7 @@ protected:
 	void									BeginTransfer();
 
 	TRANSFERWRITEHANDLER					m_transferWriteHandlers[PSM_MAX];
+	TRANSFERREADHANDLER						m_transferReadHandlers[PSM_MAX];
 
 	bool									TransferWriteHandlerInvalid(const void*, uint32);
 	template <typename Storage> bool		TransferWriteHandlerGeneric(const void*, uint32);
@@ -727,6 +729,9 @@ protected:
 	bool									TransferWriteHandlerPSMCT24(const void*, uint32);
 	bool									TransferWriteHandlerPSMT8H(const void*, uint32);
 	template <uint32, uint32> bool			TransferWriteHandlerPSMT4H(const void*, uint32);
+
+	void									TransferReadHandlerInvalid(void*, uint32);
+	template <typename Storage> void		TransferReadHandlerGeneric(void*, uint32);
 
 	void									SyncCLUT(const TEX0&);
 	void									ReadCLUT4(const TEX0&);
