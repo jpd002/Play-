@@ -632,10 +632,11 @@ void CGSHandler::BeginTransfer()
 		//"Host to Local" or "Local to Host"
 		auto bltBuf = make_convertible<BITBLTBUF>(m_nReg[GS_REG_BITBLTBUF]);
 		auto trxReg = make_convertible<TRXREG>(m_nReg[GS_REG_TRXREG]);
+		auto psm = (trxDir == 0) ? bltBuf.nDstPsm : bltBuf.nSrcPsm;
 		unsigned int nPixelSize = 0;
 
-		//We need to figure out the pixel size of the source stream
-		switch(bltBuf.nDstPsm)
+		//We need to figure out the pixel size of the stream
+		switch(psm)
 		{
 		case PSMCT32:
 			nPixelSize = 32;
