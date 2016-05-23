@@ -98,6 +98,7 @@ public class MainActivity extends AppCompatActivity implements NavigationDrawerF
 
 	private void Startup() {
 		NativeInterop.setFilesDirPath(Environment.getExternalStorageDirectory().getAbsolutePath());
+		NativeInterop.setAssetManager(getAssets());
 
 		EmulatorActivity.RegisterPreferences();
 

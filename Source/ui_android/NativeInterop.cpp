@@ -2,6 +2,7 @@
 #include <cassert>
 #include <android/native_window.h>
 #include <android/native_window_jni.h>
+#include "android/AssetManager.h"
 #include "string_format.h"
 #include "PathUtils.h"
 #include "../AppConfig.h"
@@ -50,6 +51,13 @@ extern "C" JNIEXPORT void JNICALL Java_com_virtualapplications_play_NativeIntero
 	auto dirPath = env->GetStringUTFChars(dirPathString, 0);
 	Framework::PathUtils::SetFilesDirPath(dirPath);
 	env->ReleaseStringUTFChars(dirPathString, dirPath);
+}
+
+extern "C" JNIEXPORT void JNICALL Java_com_virtualapplications_play_NativeInterop_setAssetManager(JNIEnv* env, jobject obj, jobject assetManagerJava)
+{
+	auto assetManager = AAssetManager_fromJava(env, assetManagerJava);
+	assert(assetManager != nullptr);
+	Framework::Android::CAssetManager::GetInstance().SetAssetManager(assetManager);
 }
 
 extern "C" JNIEXPORT void JNICALL Java_com_virtualapplications_play_NativeInterop_createVirtualMachine(JNIEnv* env, jobject obj)

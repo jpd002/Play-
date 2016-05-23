@@ -4,6 +4,9 @@
 #include <boost/filesystem/path.hpp>
 #include "PS2OS.h"
 #include "StdStream.h"
+#ifdef __ANDROID__
+#include "android/AssetStream.h"
+#endif
 #include "PtrMacro.h"
 #include "../Ps2Const.h"
 #include "../DiskUtils.h"
@@ -549,12 +552,15 @@ uint32 CPS2OS::LoadExecutable(const char* path, const char* section)
 
 void CPS2OS::ApplyPatches()
 {
-	auto patchesPath = Framework::PathUtils::GetAppResourcesPath() / PATCHESFILENAME;
-	
 	std::unique_ptr<Framework::Xml::CNode> document;
 	try
 	{
+#ifdef __ANDROID__
+		Framework::Android::CAssetStream patchesStream(PATCHESFILENAME);
+#else
+		auto patchesPath = Framework::PathUtils::GetAppResourcesPath() / PATCHESFILENAME;
 		Framework::CStdStream patchesStream(Framework::CreateInputStdStream(patchesPath.native()));
+#endif
 		document = std::unique_ptr<Framework::Xml::CNode>(Framework::Xml::CParser::ParseDocument(patchesStream));
 		if(!document) return;
 	}

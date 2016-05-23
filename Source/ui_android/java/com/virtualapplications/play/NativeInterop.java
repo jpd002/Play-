@@ -1,5 +1,6 @@
 package com.virtualapplications.play;
 
+import android.content.res.AssetManager;
 import android.view.Surface;
 
 public class NativeInterop
@@ -10,7 +11,8 @@ public class NativeInterop
 	}
 
 	public static native void setFilesDirPath(String dirPath);
-	 
+	public static native void setAssetManager(AssetManager assetManager);
+	
 	public static native void createVirtualMachine();
 	public static native boolean isVirtualMachineCreated();
 	public static native boolean isVirtualMachineRunning();
