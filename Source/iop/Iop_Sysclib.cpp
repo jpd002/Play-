@@ -1,5 +1,9 @@
 #include "Iop_Sysclib.h"
 #include "../Ps2Const.h"
+#include <stdarg.h>
+#include "string_format.h"
+#include <boost/lexical_cast.hpp>
+#include "lexical_cast_ex.h"
 
 using namespace Iop;
 
@@ -85,6 +89,9 @@ std::string CSysclib::GetFunctionName(unsigned int functionId) const
 		break;
 	case 41:
 		return "wmemset";
+		break;
+	case 42:
+		return "vsprintf";
 		break;
 	default:
 		return "unknown";
@@ -241,6 +248,16 @@ void CSysclib::Invoke(CMIPS& context, unsigned int functionId)
 			context.m_State.nGPR[CMIPS::V0].nD0 = context.m_State.nGPR[CMIPS::A0].nV0;
 		}
 		break;
+	case 42:
+		// int vsprintf (char * s, const char * format, va_list arg );
+		{
+			context.m_State.nGPR[CMIPS::V0].nD0 = static_cast<int>(__vsprintf(
+				reinterpret_cast<char*>(&m_ram[context.m_State.nGPR[CMIPS::A0].nV0]),
+				reinterpret_cast<const char*>(&m_ram[context.m_State.nGPR[CMIPS::A1].nV0]),
+				reinterpret_cast<va_list>(&m_ram[context.m_State.nGPR[CMIPS::A2].nV0])
+			));
+		}
+		break;
 	default:
 		printf("%s(%0.8X): Unknown function (%d) called.\r\n", __FUNCTION__, context.m_State.nPC, functionId);
 		assert(0);
@@ -319,6 +336,104 @@ uint32 CSysclib::__memset(uint32 destPtr, uint32 character, uint32 length)
 	auto dest = reinterpret_cast<uint8*>(GetPtr(destPtr, length));
 	memset(dest, character, length);
 	return destPtr;
+}
+
+// TODO: This is basically the same as CStdio::PrintFormatted(CArgumentIterator& args). Code should be merged.
+
+int CSysclib::__vsprintf(char * s, const char * format, va_list args)
+{
+	std::string output;
+	const char* formatPtr = format;
+	while (*format != 0)
+	{
+		char character = *(format++);
+		if (character == '%')
+		{
+			bool paramDone = false;
+			bool inPrecision = false;
+			char fillChar = ' ';
+			std::string precision;
+			while (!paramDone && *format != 0)
+			{
+				char type = *(format++);
+				if (type == '%')
+				{
+					output += type;
+					paramDone = true;
+				}
+				else if (type == 's')
+				{
+					const char* text = reinterpret_cast<const char*>(&m_ram[va_arg(args, uint32)]);
+					output += text;
+					paramDone = true;
+				}
+				else if (type == 'c')
+				{
+					char character = static_cast<char>(va_arg(args, char));
+					output += character;
+					paramDone = true;
+				}
+				else if (type == 'd' || type == 'i')
+				{
+					int number = va_arg(args, int);
+					unsigned int precisionValue = precision.length() ? boost::lexical_cast<unsigned int>(precision) : 1;
+					output += lexical_cast_int<std::string>(number, precisionValue, fillChar);
+					paramDone = true;
+				}
+				else if (type == 'u')
+				{
+					unsigned int number = va_arg(args, int);
+					unsigned int precisionValue = precision.length() ? boost::lexical_cast<unsigned int>(precision) : 1;
+					output += lexical_cast_uint<std::string>(number, precisionValue);
+					paramDone = true;
+				}
+				else if (type == 'x' || type == 'X' || type == 'p')
+				{
+					uint32 number = va_arg(args, uint32);
+					std::string format;
+					if (precision.empty())
+					{
+						format = string_format("%%%c", type);
+					}
+					else
+					{
+						unsigned int precisionValue = atoi(precision.c_str());
+						format = string_format("%%0%d%c", precisionValue, type);
+					}
+					output += string_format(format.c_str(), number);
+					paramDone = true;
+				}
+				else if (type == 'l')
+				{
+					//Length specifier, don't bother about it.
+				}
+				else if (type == '.')
+				{
+					inPrecision = true;
+				}
+				else
+				{
+					assert(isdigit(type));
+					if (inPrecision)
+					{
+						precision += type;
+					}
+					else
+					{
+						fillChar = type;
+						inPrecision = true;
+					}
+				}
+			}
+		}
+		else
+		{
+			output += character;
+		}
+	}
+
+	memcpy(s, output.c_str(), output.size());
+	return output.size();
 }
 
 uint32 CSysclib::__sprintf(CMIPS& context)
