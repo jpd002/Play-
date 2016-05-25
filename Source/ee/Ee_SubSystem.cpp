@@ -75,7 +75,7 @@ CSubSystem::CSubSystem(uint8* iopRam, CIopBios& iopBios)
 		m_EE.m_pMemoryMap->InsertWriteMap(0x10000000,            0x10FFFFFF,                                     bind(&CSubSystem::IOPortWriteHandler, this, PLACEHOLDER_1, PLACEHOLDER_2),         0x02);
 		m_EE.m_pMemoryMap->InsertWriteMap(PS2::MICROMEM0ADDR,    PS2::MICROMEM0ADDR + PS2::MICROMEM0SIZE - 1,    bind(&CSubSystem::Vu0MicroMemWriteHandler, this, PLACEHOLDER_1, PLACEHOLDER_2),    0x03);
 		m_EE.m_pMemoryMap->InsertWriteMap(PS2::VUMEM0ADDR,       PS2::VUMEM0ADDR + PS2::VUMEM0SIZE - 1,          m_vuMem0,                                                                          0x04);
-		m_EE.m_pMemoryMap->InsertWriteMap(PS2::MICROMEM1ADDR,    PS2::MICROMEM1ADDR + PS2::MICROMEM1SIZE - 1,    m_microMem1,                                                                       0x05);
+		m_EE.m_pMemoryMap->InsertWriteMap(PS2::MICROMEM1ADDR,    PS2::MICROMEM1ADDR + PS2::MICROMEM1SIZE - 1,    bind(&CSubSystem::Vu1MicroMemWriteHandler, this, PLACEHOLDER_1, PLACEHOLDER_2),    0x05);
 		m_EE.m_pMemoryMap->InsertWriteMap(PS2::VUMEM1ADDR,       PS2::VUMEM1ADDR + PS2::VUMEM1SIZE - 1,          m_vuMem1,                                                                          0x06);
 		m_EE.m_pMemoryMap->InsertWriteMap(0x12000000,            0x12FFFFFF,                                     bind(&CSubSystem::IOPortWriteHandler,	this, PLACEHOLDER_1, PLACEHOLDER_2),        0x07);
 
@@ -555,6 +555,13 @@ uint32 CSubSystem::Vu0IoPortWriteHandler(uint32 address, uint32 value)
 								  address, value);
 		break;
 	}
+	return 0;
+}
+
+uint32 CSubSystem::Vu1MicroMemWriteHandler(uint32 address, uint32 value)
+{
+	*reinterpret_cast<uint32*>(m_microMem1 + (address - PS2::MICROMEM1ADDR)) = value;
+	m_vpu1->InvalidateMicroProgram();
 	return 0;
 }
 
