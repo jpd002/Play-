@@ -710,8 +710,8 @@ void CMA_VU::CLower::ESQRT()
 //1F
 void CMA_VU::CLower::ESIN()
 {
-	const unsigned int seriesLength = 5;
-	const uint32 seriesConstants[seriesLength] =
+	static const unsigned int seriesLength = 5;
+	static const uint32 seriesConstants[seriesLength] =
 	{
 		0x3F800000,
 		0xBE2AAAA4,
@@ -719,7 +719,7 @@ void CMA_VU::CLower::ESIN()
 		0xB94FB21F,
 		0x362E9C14
 	};
-	const unsigned int seriesExponents[seriesLength] =
+	static const unsigned int seriesExponents[seriesLength] =
 	{
 		1,
 		3,
@@ -727,7 +727,6 @@ void CMA_VU::CLower::ESIN()
 		7,
 		9
 	};
-
 
 	for(unsigned int i = 0; i < seriesLength; i++)
 	{
