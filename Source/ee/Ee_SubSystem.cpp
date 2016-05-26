@@ -509,6 +509,13 @@ uint32 CSubSystem::IOPortWriteHandler(uint32 nAddress, uint32 nData)
 	{
 		m_dmac.SetRegister(nAddress, nData);
 	}
+	else if(nAddress == CVpu::VU_CMSAR1)
+	{
+		if(!m_vpu1->IsVuRunning())
+		{
+			m_vpu1->ExecuteMicroProgram(nData);
+		}
+	}
 	else if(nAddress >= 0x12000000 && nAddress <= 0x1200108C)
 	{
 		if(m_gs != NULL)

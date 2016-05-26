@@ -6,6 +6,7 @@
 #include "../MemoryUtils.h"
 #include "../Ps2Const.h"
 #include "offsetof_def.h"
+#include "Vpu.h"
 
 #define LOG_NAME				("vpu")
 
@@ -230,11 +231,18 @@ void CCOP_VU::CTC2()
 			m_codeGen->PullTop();
 			break;
 		case 31:
-			//CMSAR1 - Not implemented (this should start vu1 like vcallmsr starts vu0.)
-#ifdef _DEBUG
-			CLog::GetInstance().Print(LOG_NAME, "Warning: Writing CMSAR1 through CTC2 (start vu1.)\r\n");
-#endif
-			m_codeGen->PullTop();
+			//CMSAR1
+			{
+				//Push context
+				m_codeGen->PushCtx();
+				//Push value
+				m_codeGen->PushIdx(1);
+				//Compute Address
+				m_codeGen->PushCst(CVpu::VU_CMSAR1);
+				m_codeGen->Call(reinterpret_cast<void*>(&MemoryUtils_SetWordProxy), 3, false);
+				//Clear stack
+				m_codeGen->PullTop();
+			}
 			break;
 		default:
 			throw std::runtime_error("Not implemented.");

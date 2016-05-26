@@ -19,6 +19,7 @@ public:
 		VU_TOP		= 0x8400,
 		VU_XGKICK	= 0x8410,
 		VU_ITOP		= 0x8420,
+		VU_CMSAR1	= 0x1000FFC0,		//This is meant to be used by the EE through CTC2
 	};
 
 	struct VPUINIT
