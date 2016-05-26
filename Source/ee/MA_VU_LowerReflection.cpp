@@ -575,7 +575,7 @@ INSTRUCTION CMA_VU::CLower::m_cReflVX0[32] =
 	{	"XTOP",		NULL,			CopyMnemonic,		ReflOpIt,			NULL,				NULL			},
 	{	"XGKICK",	NULL,			CopyMnemonic,		ReflOpIs,			NULL,				NULL			},
 	{	"ESADD",	NULL,			CopyMnemonic,		ReflOpPFs,			NULL,				NULL			},
-	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
+	{	"EATANxy",	NULL,			CopyMnemonic,		ReflOpPFs,			NULL,				NULL			},
 	{	"ESQRT",	NULL,			CopyMnemonic,		ReflOpPFsf,			NULL,				NULL			},
 	{	"ESIN",		NULL,			CopyMnemonic,		ReflOpPFsf,			NULL,				NULL			},
 };
@@ -615,7 +615,7 @@ INSTRUCTION CMA_VU::CLower::m_cReflVX1[32] =
 	{	"XITOP",	NULL,			CopyMnemonic,		ReflOpIt,			NULL,				NULL			},
 	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
 	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
-	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
+	{	"EATANxz",	NULL,			CopyMnemonic,		ReflOpPFs,			NULL,				NULL			},
 	{	"ERSQRT",	NULL,			CopyMnemonic,		ReflOpPFsf,			NULL,				NULL			},
 	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
 };
@@ -959,7 +959,7 @@ VUINSTRUCTION CMA_VU::CLower::m_cVuReflVX0[32] =
 	{	"XTOP",		NULL,			ReflOpAffWrIt		},
 	{	"XGKICK",	NULL,			ReflOpAffRdIs		},
 	{	"ESADD",	NULL,			ReflOpAffWrPRdFs	},
-	{	NULL,		NULL,			NULL				},
+	{	"EATANxy",	NULL,			ReflOpAffWrPRdFs	},
 	{	"ESQRT",	NULL,			ReflOpAffWrPRdFs	},
 	{	"ESIN",		NULL,			ReflOpAffWrPRdFs	},
 };
@@ -999,7 +999,7 @@ VUINSTRUCTION CMA_VU::CLower::m_cVuReflVX1[32] =
 	{	"XITOP",	NULL,			ReflOpAffWrIt		},
 	{	NULL,		NULL,			NULL				},
 	{	NULL,		NULL,			NULL				},
-	{	NULL,		NULL,			NULL				},
+	{	"EATANxz",	NULL,			ReflOpAffWrPRdFs	},
 	{	"ERSQRT",	NULL,			NULL				},
 	{	NULL,		NULL,			NULL				},
 };

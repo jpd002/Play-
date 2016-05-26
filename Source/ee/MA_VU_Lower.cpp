@@ -159,6 +159,63 @@ void CMA_VU::CLower::BuildStatusInIT()
 	//TODO: Check other flags
 }
 
+void CMA_VU::CLower::GenerateEATAN()
+{
+	static const uint32 pi4 = 0x3F490FDB;
+	const unsigned int seriesLength = 8;
+	static const uint32 seriesConstants[seriesLength] =
+	{
+		0x3F7FFFF5,
+		0xBEAAA61C,
+		0x3E4C40A6,
+		0xBE0E6C63,
+		0x3DC577DF,
+		0xBD6501C4,
+		0x3CB31652,
+		0xBB84D7E7,
+	};
+	static const unsigned int seriesExponents[seriesLength] =
+	{
+		1,
+		3,
+		5,
+		7,
+		9,
+		11,
+		13,
+		15
+	};
+
+	for(unsigned int i = 0; i < seriesLength; i++)
+	{
+		unsigned int exponent = seriesExponents[i];
+		float constant = *reinterpret_cast<const float*>(&seriesConstants[i]);
+
+		m_codeGen->FP_PushSingle(offsetof(CMIPS, m_State.nCOP2T));
+		for(unsigned int j = 0; j < exponent - 1; j++)
+		{
+			m_codeGen->FP_PushSingle(offsetof(CMIPS, m_State.nCOP2T));
+			m_codeGen->FP_Mul();
+		}
+
+		m_codeGen->FP_PushCst(constant);
+		m_codeGen->FP_Mul();
+
+		if(i != 0)
+		{
+			m_codeGen->FP_Add();
+		}
+	}
+
+	{
+		float constant = *reinterpret_cast<const float*>(&pi4);
+		m_codeGen->FP_PushCst(constant);
+		m_codeGen->FP_Add();
+	}
+
+	m_codeGen->FP_PullSingle(offsetof(CMIPS, m_State.nCOP2P));
+}
+
 //////////////////////////////////////////////////
 //General Instructions
 //////////////////////////////////////////////////
@@ -699,6 +756,24 @@ void CMA_VU::CLower::ESADD()
 	m_codeGen->FP_PullSingle(offsetof(CMIPS, m_State.nCOP2P));
 }
 
+//1D
+void CMA_VU::CLower::EATANxy()
+{
+	//Compute t = (y - x) / (y + x)
+	m_codeGen->FP_PushSingle(offsetof(CMIPS, m_State.nCOP2[m_nIS].nV[1]));
+	m_codeGen->FP_PushSingle(offsetof(CMIPS, m_State.nCOP2[m_nIS].nV[0]));
+	m_codeGen->FP_Sub();
+
+	m_codeGen->FP_PushSingle(offsetof(CMIPS, m_State.nCOP2[m_nIS].nV[1]));
+	m_codeGen->FP_PushSingle(offsetof(CMIPS, m_State.nCOP2[m_nIS].nV[0]));
+	m_codeGen->FP_Add();
+
+	m_codeGen->FP_Div();
+	m_codeGen->FP_PullSingle(offsetof(CMIPS, m_State.nCOP2T));
+
+	GenerateEATAN();
+}
+
 //1E
 void CMA_VU::CLower::ESQRT()
 {
@@ -797,6 +872,24 @@ void CMA_VU::CLower::XITOP()
 
 	m_codeGen->Call(reinterpret_cast<void*>(&MemoryUtils_GetWordProxy), 2, true);
 	m_codeGen->PullRel(offsetof(CMIPS, m_State.nCOP2VI[m_nIT]));
+}
+
+//1D
+void CMA_VU::CLower::EATANxz()
+{
+	//Compute t = (z - x) / (z + x)
+	m_codeGen->FP_PushSingle(offsetof(CMIPS, m_State.nCOP2[m_nIS].nV[2]));
+	m_codeGen->FP_PushSingle(offsetof(CMIPS, m_State.nCOP2[m_nIS].nV[0]));
+	m_codeGen->FP_Sub();
+
+	m_codeGen->FP_PushSingle(offsetof(CMIPS, m_State.nCOP2[m_nIS].nV[2]));
+	m_codeGen->FP_PushSingle(offsetof(CMIPS, m_State.nCOP2[m_nIS].nV[0]));
+	m_codeGen->FP_Add();
+
+	m_codeGen->FP_Div();
+	m_codeGen->FP_PullSingle(offsetof(CMIPS, m_State.nCOP2T));
+
+	GenerateEATAN();
 }
 
 //1E
@@ -1019,7 +1112,7 @@ CMA_VU::CLower::InstructionFuncConstant CMA_VU::CLower::m_pOpVector0[0x20] =
 	//0x10
 	&CMA_VU::CLower::RNEXT,			&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,
 	//0x18
-	&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::MFP,			&CMA_VU::CLower::XTOP,			&CMA_VU::CLower::XGKICK,		&CMA_VU::CLower::ESADD,			&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::ESQRT, 		&CMA_VU::CLower::ESIN,
+	&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::MFP,			&CMA_VU::CLower::XTOP,			&CMA_VU::CLower::XGKICK,		&CMA_VU::CLower::ESADD,			&CMA_VU::CLower::EATANxy,		&CMA_VU::CLower::ESQRT, 		&CMA_VU::CLower::ESIN,
 };
 
 CMA_VU::CLower::InstructionFuncConstant CMA_VU::CLower::m_pOpVector1[0x20] =
@@ -1031,7 +1124,7 @@ CMA_VU::CLower::InstructionFuncConstant CMA_VU::CLower::m_pOpVector1[0x20] =
 	//0x10
 	&CMA_VU::CLower::RGET,			&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,
 	//0x18
-	&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::XITOP,			&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::ERSQRT,		&CMA_VU::CLower::Illegal,
+	&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::XITOP,			&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::EATANxz,		&CMA_VU::CLower::ERSQRT,		&CMA_VU::CLower::Illegal,
 };
 
 CMA_VU::CLower::InstructionFuncConstant CMA_VU::CLower::m_pOpVector2[0x20] =

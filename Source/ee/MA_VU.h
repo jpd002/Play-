@@ -255,6 +255,7 @@ private:
 		static void							ReflOpAffWrVi1(VUShared::VUINSTRUCTION*, CMIPS*, uint32, uint32, VUShared::OPERANDSET&);
 
 		void								BuildStatusInIT();
+		void								GenerateEATAN();
 
 		//General
 		void								LQ();
@@ -307,6 +308,7 @@ private:
 		void								XTOP();
 		void								XGKICK();
 		void								ESADD();
+		void								EATANxy();
 		void								ESQRT();
 		void								ESIN();
 
@@ -317,6 +319,7 @@ private:
 		void								MFIR();
 		void								RGET();
 		void								XITOP();
+		void								EATANxz();
 		void								ERSQRT();
 
 		//Vector2
