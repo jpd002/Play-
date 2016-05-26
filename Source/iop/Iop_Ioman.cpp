@@ -94,6 +94,10 @@ uint32 CIoman::Open(uint32 flags, const char* path)
 			throw std::runtime_error("Invalid path.");
 		}
 		std::string deviceName(fullPath.begin(), fullPath.begin() + position);
+		if (deviceName == "cdrom") {
+			// Tribes does this
+			deviceName = "cdrom0";
+		}
 		std::string devicePath(fullPath.begin() + position + 1, fullPath.end());
 		DeviceMapType::iterator device(m_devices.find(deviceName));
 		if(device == m_devices.end())
