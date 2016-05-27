@@ -55,10 +55,9 @@ void CStdio::Invoke(CMIPS& context, unsigned int functionId)
 	}
 }
 
-std::string CStdio::PrintFormatted(CArgumentIterator& args)
+std::string CStdio::PrintFormatted(const char* format, CArgumentIterator& args)
 {
-	std::string output;
-	const char* format = reinterpret_cast<const char*>(&m_ram[args.GetNext()]);
+	std::string output;	
 	while(*format != 0)
 	{
 		char character = *(format++);
@@ -152,6 +151,7 @@ std::string CStdio::PrintFormatted(CArgumentIterator& args)
 void CStdio::__printf(CMIPS& context)
 {
 	CArgumentIterator args(context);
-	auto output = PrintFormatted(args);
+	const char* format = reinterpret_cast<const char*>(&m_ram[args.GetNext()]);
+	auto output = PrintFormatted(format, args);
 	m_ioman.Write(CIoman::FID_STDOUT, output.length(), output.c_str());
 }

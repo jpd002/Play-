@@ -7,12 +7,14 @@ class CArgumentIterator
 {
 public:
                     CArgumentIterator(CMIPS&);
+					CArgumentIterator(CMIPS&, const char*);
     virtual         ~CArgumentIterator();
     uint32          GetNext();
 
 private:
     unsigned int    m_current;
     CMIPS&          m_context;
+	const char*		m_args;
 };
 
 #endif
