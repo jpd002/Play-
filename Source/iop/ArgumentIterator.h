@@ -1,20 +1,34 @@
-#ifndef _ARGUMENT_ITERATOR_H_
-#define _ARGUMENT_ITERATOR_H_
+#pragma once
 
 #include "../MIPS.h"
 
 class CArgumentIterator
 {
 public:
-                    CArgumentIterator(CMIPS&);
-					CArgumentIterator(CMIPS&, const char*);
-    virtual         ~CArgumentIterator();
-    uint32          GetNext();
-
-private:
-    unsigned int    m_current;
-    CMIPS&          m_context;
-	const char*		m_args;
+	virtual         ~CArgumentIterator() = default;
+	virtual uint32  GetNext() = 0;
 };
 
-#endif
+class CCallArgumentIterator : public CArgumentIterator
+{
+public:
+	CCallArgumentIterator(CMIPS&);
+
+	uint32          GetNext() override;
+
+private:
+	CMIPS&          m_context;
+	unsigned int    m_current = 0;
+};
+
+class CValistArgumentIterator : public CArgumentIterator
+{
+public:
+	CValistArgumentIterator(CMIPS&, uint32);
+
+	uint32          GetNext() override;
+
+private:
+	CMIPS&          m_context;
+	uint32          m_argsPtr = 0;
+};

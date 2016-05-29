@@ -1,9 +1,5 @@
 #include "Iop_Sysclib.h"
 #include "../Ps2Const.h"
-#include <stdarg.h>
-#include "string_format.h"
-#include <boost/lexical_cast.hpp>
-#include "lexical_cast_ex.h"
 
 using namespace Iop;
 
@@ -249,15 +245,12 @@ void CSysclib::Invoke(CMIPS& context, unsigned int functionId)
 		}
 		break;
 	case 42:
-		// int vsprintf (char * s, const char * format, va_list arg );
-		{
-			context.m_State.nGPR[CMIPS::V0].nD0 = static_cast<int>(__vsprintf(
-				context,
-				reinterpret_cast<char*>(&m_ram[context.m_State.nGPR[CMIPS::A0].nV0]),
-				reinterpret_cast<const char*>(&m_ram[context.m_State.nGPR[CMIPS::A1].nV0]),
-				reinterpret_cast<va_list>(&m_ram[context.m_State.nGPR[CMIPS::A2].nV0])
+		context.m_State.nGPR[CMIPS::V0].nD0 = static_cast<int32>(__vsprintf(
+			context,
+			context.m_State.nGPR[CMIPS::A0].nV0,
+			context.m_State.nGPR[CMIPS::A1].nV0,
+			context.m_State.nGPR[CMIPS::A2].nV0
 			));
-		}
 		break;
 	default:
 		printf("%s(%0.8X): Unknown function (%d) called.\r\n", __FUNCTION__, context.m_State.nPC, functionId);
@@ -339,20 +332,12 @@ uint32 CSysclib::__memset(uint32 destPtr, uint32 character, uint32 length)
 	return destPtr;
 }
 
-uint32 CSysclib::__vsprintf(CMIPS& context, char* destination, const char* format, const char* argsPtr)
-{
-	CArgumentIterator args(context, argsPtr);
-	std::string output = m_stdio.PrintFormatted(format, args);
-	strcpy(destination, output.c_str());
-	return static_cast<uint32>(output.length());
-}
-
 uint32 CSysclib::__sprintf(CMIPS& context)
 {
-	CArgumentIterator args(context);
-	char* destination = reinterpret_cast<char*>(&m_ram[args.GetNext()]);
-	const char* format = reinterpret_cast<const char*>(&m_ram[args.GetNext()]);
-	std::string output = m_stdio.PrintFormatted(format, args);
+	CCallArgumentIterator args(context);
+	auto destination = reinterpret_cast<char*>(m_ram + args.GetNext());
+	auto format = reinterpret_cast<const char*>(m_ram + args.GetNext());
+	auto output = m_stdio.PrintFormatted(format, args);
 	strcpy(destination, output.c_str());
 	return static_cast<uint32>(output.length());
 }
@@ -442,4 +427,14 @@ uint32 CSysclib::__wmemcopy(uint32 dstPtr, uint32 srcPtr, uint32 size)
 	auto src = reinterpret_cast<uint8*>(m_ram + srcPtr);
 	memmove(dst, src, size);
 	return dstPtr;
+}
+
+uint32 CSysclib::__vsprintf(CMIPS& context, uint32 destinationPtr, uint32 formatPtr, uint32 argsPtr)
+{
+	CValistArgumentIterator args(context, argsPtr);
+	auto destination = reinterpret_cast<char*>(m_ram + destinationPtr);
+	auto format = reinterpret_cast<const char*>(m_ram + formatPtr);
+	auto output = m_stdio.PrintFormatted(format, args);
+	strcpy(destination, output.c_str());
+	return static_cast<uint32>(output.length());
 }
