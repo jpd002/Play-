@@ -342,6 +342,7 @@ private:
 
 	OsVariableWrapper<uint32>				m_currentThreadId;
 	OsVariableWrapper<uint32>				m_idleThreadId;
+	OsVariableWrapper<uint32>				m_lastSifDmaTime;
 
 	ThreadQueue								m_threadSchedule;
 	IntcHandlerQueue						m_intcHandlerQueue;

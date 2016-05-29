@@ -53,6 +53,7 @@
 #define BIOS_ADDRESS_THREADSCHEDULE_BASE	0x00000020
 #define BIOS_ADDRESS_INTCHANDLERQUEUE_BASE	0x00000024
 #define BIOS_ADDRESS_DMACHANDLERQUEUE_BASE	0x00000028
+#define BIOS_ADDRESS_LASTSIFDMA_TIME		0x0000002C
 #define BIOS_ADDRESS_INTCHANDLER_BASE		0x0000A000
 #define BIOS_ADDRESS_DMACHANDLER_BASE		0x0000C000
 #define BIOS_ADDRESS_SEMAPHORE_BASE			0x0000E000
@@ -206,6 +207,7 @@ CPS2OS::CPS2OS(CMIPS& ee, uint8* ram, uint8* bios, uint8* spr, CGSHandler*& gs, 
 , m_alarms(reinterpret_cast<ALARM*>(m_ram + BIOS_ADDRESS_ALARM_BASE), BIOS_ID_BASE, MAX_ALARM)
 , m_currentThreadId(reinterpret_cast<uint32*>(m_ram + BIOS_ADDRESS_CURRENT_THREAD_ID))
 , m_idleThreadId(reinterpret_cast<uint32*>(m_ram + BIOS_ADDRESS_IDLE_THREAD_ID))
+, m_lastSifDmaTime(reinterpret_cast<uint32*>(m_ram + BIOS_ADDRESS_LASTSIFDMA_TIME))
 , m_threadSchedule(m_threads, reinterpret_cast<uint32*>(m_ram + BIOS_ADDRESS_THREADSCHEDULE_BASE))
 , m_intcHandlerQueue(m_intcHandlers, reinterpret_cast<uint32*>(m_ram + BIOS_ADDRESS_INTCHANDLERQUEUE_BASE))
 , m_dmacHandlerQueue(m_dmacHandlers, reinterpret_cast<uint32*>(m_ram + BIOS_ADDRESS_DMACHANDLERQUEUE_BASE))
@@ -2505,13 +2507,26 @@ void CPS2OS::sc_SetSyscall()
 //76
 void CPS2OS::sc_SifDmaStat()
 {
-	m_ee.m_State.nGPR[SC_RETURN].nV[0] = 0xFFFFFFFF;
-	m_ee.m_State.nGPR[SC_RETURN].nV[1] = 0xFFFFFFFF;
+	//If SIF dma has just been set (100 cycle delay), return 'queued' status.
+	//This is required for Okami
+	int64 timerDiff = static_cast<uint64>(m_ee.m_State.nCOP0[CCOP_SCU::COUNT]) - static_cast<uint64>(m_lastSifDmaTime);
+	if((timerDiff < 0) || (timerDiff > 100))
+	{
+		//Completed
+		m_ee.m_State.nGPR[SC_RETURN].nD0 = static_cast<int32>(-1);
+	}
+	else
+	{
+		//Queued
+		m_ee.m_State.nGPR[SC_RETURN].nD0 = static_cast<int32>(1);
+	}
 }
 
 //77
 void CPS2OS::sc_SifSetDma()
 {
+	m_lastSifDmaTime = m_ee.m_State.nCOP0[CCOP_SCU::COUNT];
+
 	auto xfer = reinterpret_cast<SIFDMAREG*>(GetStructPtr(m_ee.m_State.nGPR[SC_PARAM0].nV0));
 	uint32 count = m_ee.m_State.nGPR[SC_PARAM1].nV[0];
 
