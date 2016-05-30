@@ -36,6 +36,7 @@ namespace Iop
 		uint32			__strcspn(uint32, uint32);
 		uint32			__strtol(uint32, uint32, uint32);
 		uint32			__wmemcopy(uint32, uint32, uint32);
+		uint32			__vsprintf(CMIPS&, uint32, uint32, uint32);
 		uint8*			m_ram = nullptr;
 		uint8*			m_spr = nullptr;
 		CStdio&			m_stdio;

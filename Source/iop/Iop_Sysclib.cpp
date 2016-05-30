@@ -86,6 +86,9 @@ std::string CSysclib::GetFunctionName(unsigned int functionId) const
 	case 41:
 		return "wmemset";
 		break;
+	case 42:
+		return "vsprintf";
+		break;
 	default:
 		return "unknown";
 		break;
@@ -241,6 +244,14 @@ void CSysclib::Invoke(CMIPS& context, unsigned int functionId)
 			context.m_State.nGPR[CMIPS::V0].nD0 = context.m_State.nGPR[CMIPS::A0].nV0;
 		}
 		break;
+	case 42:
+		context.m_State.nGPR[CMIPS::V0].nD0 = static_cast<int32>(__vsprintf(
+			context,
+			context.m_State.nGPR[CMIPS::A0].nV0,
+			context.m_State.nGPR[CMIPS::A1].nV0,
+			context.m_State.nGPR[CMIPS::A2].nV0
+			));
+		break;
 	default:
 		printf("%s(%0.8X): Unknown function (%d) called.\r\n", __FUNCTION__, context.m_State.nPC, functionId);
 		assert(0);
@@ -323,9 +334,10 @@ uint32 CSysclib::__memset(uint32 destPtr, uint32 character, uint32 length)
 
 uint32 CSysclib::__sprintf(CMIPS& context)
 {
-	CArgumentIterator args(context);
-	char* destination = reinterpret_cast<char*>(&m_ram[args.GetNext()]);
-	std::string output = m_stdio.PrintFormatted(args);
+	CCallArgumentIterator args(context);
+	auto destination = reinterpret_cast<char*>(m_ram + args.GetNext());
+	auto format = reinterpret_cast<const char*>(m_ram + args.GetNext());
+	auto output = m_stdio.PrintFormatted(format, args);
 	strcpy(destination, output.c_str());
 	return static_cast<uint32>(output.length());
 }
@@ -421,4 +433,14 @@ uint32 CSysclib::__wmemcopy(uint32 dstPtr, uint32 srcPtr, uint32 size)
 	auto src = reinterpret_cast<uint8*>(m_ram + srcPtr);
 	memmove(dst, src, size);
 	return dstPtr;
+}
+
+uint32 CSysclib::__vsprintf(CMIPS& context, uint32 destinationPtr, uint32 formatPtr, uint32 argsPtr)
+{
+	CValistArgumentIterator args(context, argsPtr);
+	auto destination = reinterpret_cast<char*>(m_ram + destinationPtr);
+	auto format = reinterpret_cast<const char*>(m_ram + formatPtr);
+	auto output = m_stdio.PrintFormatted(format, args);
+	strcpy(destination, output.c_str());
+	return static_cast<uint32>(output.length());
 }
