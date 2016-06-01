@@ -365,9 +365,6 @@
 		70834B541B1BD2C300E8D5C6 /* VirtualMachine.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = VirtualMachine.h; path = ../Source/VirtualMachine.h; sourceTree = "<group>"; };
 		70834B821B1BD2E100E8D5C6 /* Framework.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = Framework.xcodeproj; path = ../../Framework/build_ios/Framework.xcodeproj; sourceTree = "<group>"; };
 		70834B881B1BD2F500E8D5C6 /* CodeGen.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = CodeGen.xcodeproj; path = ../../CodeGen/build_ios/CodeGen.xcodeproj; sourceTree = "<group>"; };
-		70834B961B1BD3AC00E8D5C6 /* GeneralSettings.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = GeneralSettings.xcconfig; sourceTree = "<group>"; };
-		70834B971B1BD3AC00E8D5C6 /* GeneralSettingsDebug.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = GeneralSettingsDebug.xcconfig; sourceTree = "<group>"; };
-		70834B981B1BD3AC00E8D5C6 /* GeneralSettingsRelease.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = GeneralSettingsRelease.xcconfig; sourceTree = "<group>"; };
 		70834B9E1B1BD6A300E8D5C6 /* COP_VU_Reflection.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = COP_VU_Reflection.cpp; path = ../Source/ee/COP_VU_Reflection.cpp; sourceTree = "<group>"; };
 		70834B9F1B1BD6A300E8D5C6 /* COP_VU.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = COP_VU.cpp; path = ../Source/ee/COP_VU.cpp; sourceTree = "<group>"; };
 		70834BA01B1BD6A300E8D5C6 /* COP_VU.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = COP_VU.h; path = ../Source/ee/COP_VU.h; sourceTree = "<group>"; };
@@ -638,7 +635,6 @@
 		70834AA51B1BC70300E8D5C6 = {
 			isa = PBXGroup;
 			children = (
-				70834B941B1BD3A300E8D5C6 /* Config */,
 				70834B811B1BD2CF00E8D5C6 /* Dependencies */,
 				70834AB01B1BC70300E8D5C6 /* Source Files */,
 				70834AAF1B1BC70300E8D5C6 /* Products */,
@@ -840,16 +836,6 @@
 				70834B8D1B1BD2F500E8D5C6 /* libCodeGen.a */,
 			);
 			name = Products;
-			sourceTree = "<group>";
-		};
-		70834B941B1BD3A300E8D5C6 /* Config */ = {
-			isa = PBXGroup;
-			children = (
-				70834B961B1BD3AC00E8D5C6 /* GeneralSettings.xcconfig */,
-				70834B971B1BD3AC00E8D5C6 /* GeneralSettingsDebug.xcconfig */,
-				70834B981B1BD3AC00E8D5C6 /* GeneralSettingsRelease.xcconfig */,
-			);
-			name = Config;
 			sourceTree = "<group>";
 		};
 		70834B9D1B1BD69100E8D5C6 /* ee */ = {
@@ -1499,23 +1485,85 @@
 		};
 		70834AD21B1BC70300E8D5C6 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 70834B971B1BD3AC00E8D5C6 /* GeneralSettingsDebug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
+				BOOST_FRAMEWORK_PATH = "$(SRCROOT)/../../Dependencies/BoostMac/ios/framework/";
+				CLANG_CXX_LANGUAGE_STANDARD = "c++0x";
+				CODEGEN_PATH = "$(SRCROOT)/../../CodeGen/";
+				ENABLE_BITCODE = NO;
+				FRAMEWORK_PATH = "$(SRCROOT)/../../Framework/";
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(SRCROOT)",
+					"$(BOOST_FRAMEWORK_PATH)",
+				);
+				GCC_INPUT_FILETYPE = sourcecode.cpp.objcpp;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "$(SRCROOT)/../Source/ui_ios/Purei_Prefix.pch";
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					_DEBUG,
+					_IOP_EMULATE_MODULES,
+					GLES_COMPATIBILITY,
+				);
+				HEADER_SEARCH_PATHS = (
+					"$(BOOST_FRAMEWORK_PATH)/boost.framework/Headers",
+					"$(FRAMEWORK_PATH)/include",
+					"$(CODEGEN_PATH)/include",
+				);
+				INFOPLIST_FILE = "$(SRCROOT)/../Source/ui_ios/Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				OTHER_LDFLAGS = (
+					"-ObjC",
+					"-framework",
+					boost,
+				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.virtualapplications.play;
+				PRODUCT_NAME = "Play!";
+				SDKROOT = iphoneos;
+				VALID_ARCHS = "arm64 armv7";
 			};
 			name = Debug;
 		};
 		70834AD31B1BC70300E8D5C6 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 70834B981B1BD3AC00E8D5C6 /* GeneralSettingsRelease.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
+				BOOST_FRAMEWORK_PATH = "$(SRCROOT)/../../Dependencies/BoostMac/ios/framework/";
+				CLANG_CXX_LANGUAGE_STANDARD = "c++0x";
+				CODEGEN_PATH = "$(SRCROOT)/../../CodeGen/";
+				ENABLE_BITCODE = NO;
+				FRAMEWORK_PATH = "$(SRCROOT)/../../Framework/";
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(SRCROOT)",
+					"$(BOOST_FRAMEWORK_PATH)",
+				);
+				GCC_INPUT_FILETYPE = sourcecode.cpp.objcpp;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "$(SRCROOT)/../Source/ui_ios/Purei_Prefix.pch";
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					NDEBUG,
+					_IOP_EMULATE_MODULES,
+					GLES_COMPATIBILITY,
+				);
+				HEADER_SEARCH_PATHS = (
+					"$(BOOST_FRAMEWORK_PATH)/boost.framework/Headers",
+					"$(FRAMEWORK_PATH)/include",
+					"$(CODEGEN_PATH)/include",
+				);
+				INFOPLIST_FILE = "$(SRCROOT)/../Source/ui_ios/Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				OTHER_LDFLAGS = (
+					"-ObjC",
+					"-framework",
+					boost,
+				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.virtualapplications.play;
+				PRODUCT_NAME = "Play!";
+				SDKROOT = iphoneos;
+				VALID_ARCHS = "arm64 armv7";
 			};
 			name = Release;
 		};
