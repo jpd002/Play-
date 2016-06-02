@@ -1563,6 +1563,7 @@
 				BOOST_FRAMEWORK_PATH = "$(SRCROOT)/../../Dependencies/BoostMac/ios/framework/";
 				CLANG_CXX_LANGUAGE_STANDARD = "c++0x";
 				CODEGEN_PATH = "$(SRCROOT)/../../CodeGen/";
+				CODE_SIGN_IDENTITY = "-";
 				ENABLE_BITCODE = NO;
 				FRAMEWORK_PATH = "$(SRCROOT)/../../Framework/";
 				FRAMEWORK_SEARCH_PATHS = "$(BOOST_FRAMEWORK_PATH)";
@@ -1605,6 +1606,7 @@
 				BOOST_FRAMEWORK_PATH = "$(SRCROOT)/../../Dependencies/BoostMac/ios/framework/";
 				CLANG_CXX_LANGUAGE_STANDARD = "c++0x";
 				CODEGEN_PATH = "$(SRCROOT)/../../CodeGen/";
+				CODE_SIGN_IDENTITY = "-";
 				ENABLE_BITCODE = NO;
 				FRAMEWORK_PATH = "$(SRCROOT)/../../Framework/";
 				FRAMEWORK_SEARCH_PATHS = "$(BOOST_FRAMEWORK_PATH)";
