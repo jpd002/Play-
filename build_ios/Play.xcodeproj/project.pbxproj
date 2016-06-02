@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		1638528FED9BB87F3A7A2F0D /* libPods-Play!.a in Frameworks */ = {isa = PBXBuildFile; fileRef = FBF4F79FA6C04D875998B3D9 /* libPods-Play!.a */; };
 		7001D6451BE5457C008B6205 /* cross.png in Resources */ = {isa = PBXBuildFile; fileRef = 7001D63B1BE5457C008B6205 /* cross.png */; };
 		7001D6461BE5457C008B6205 /* down.png in Resources */ = {isa = PBXBuildFile; fileRef = 7001D63C1BE5457C008B6205 /* down.png */; };
 		7001D6471BE5457C008B6205 /* left.png in Resources */ = {isa = PBXBuildFile; fileRef = 7001D63D1BE5457C008B6205 /* left.png */; };
@@ -189,7 +190,6 @@
 		874ECDAC1B7DB9EB000075B6 /* games.db in Resources */ = {isa = PBXBuildFile; fileRef = 874ECDA81B7DB3DF000075B6 /* games.db */; };
 		874ECDE71B7E749A000075B6 /* ImageIO.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 874ECDE61B7E749A000075B6 /* ImageIO.framework */; };
 		876AA37C1B82413300617242 /* BackgroundLayer.m in Sources */ = {isa = PBXBuildFile; fileRef = 876AA37B1B82413300617242 /* BackgroundLayer.m */; };
-		8794D9961B88AF2F00B1B3A3 /* SDWebImage.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8794D9951B88AF2F00B1B3A3 /* SDWebImage.framework */; };
 		8794D9AE1B88B60100B1B3A3 /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8794D9AD1B88B60100B1B3A3 /* QuartzCore.framework */; };
 		8794D9B01B88B60900B1B3A3 /* OpenGLES.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8794D9AF1B88B60900B1B3A3 /* OpenGLES.framework */; };
 		8794D9B21B88B61400B1B3A3 /* libbz2.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 8794D9B11B88B61400B1B3A3 /* libbz2.dylib */; };
@@ -233,6 +233,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		57D2134DADAF48FC38DA4397 /* Pods-Play!.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Play!.release.xcconfig"; path = "Pods/Target Support Files/Pods-Play!/Pods-Play!.release.xcconfig"; sourceTree = "<group>"; };
 		7001D63B1BE5457C008B6205 /* cross.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = cross.png; sourceTree = "<group>"; };
 		7001D63C1BE5457C008B6205 /* down.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = down.png; sourceTree = "<group>"; };
 		7001D63D1BE5457C008B6205 /* left.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = left.png; sourceTree = "<group>"; };
@@ -576,7 +577,6 @@
 		874ECDE61B7E749A000075B6 /* ImageIO.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ImageIO.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS8.4.sdk/System/Library/Frameworks/ImageIO.framework; sourceTree = DEVELOPER_DIR; };
 		876AA37A1B82413300617242 /* BackgroundLayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = BackgroundLayer.h; path = ../Source/ui_ios/BackgroundLayer.h; sourceTree = "<group>"; };
 		876AA37B1B82413300617242 /* BackgroundLayer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = BackgroundLayer.m; path = ../Source/ui_ios/BackgroundLayer.m; sourceTree = "<group>"; };
-		8794D9951B88AF2F00B1B3A3 /* SDWebImage.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = SDWebImage.framework; sourceTree = "<group>"; };
 		8794D9AD1B88B60100B1B3A3 /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS8.4.sdk/System/Library/Frameworks/QuartzCore.framework; sourceTree = DEVELOPER_DIR; };
 		8794D9AF1B88B60900B1B3A3 /* OpenGLES.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGLES.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS8.4.sdk/System/Library/Frameworks/OpenGLES.framework; sourceTree = DEVELOPER_DIR; };
 		8794D9B11B88B61400B1B3A3 /* libbz2.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libbz2.dylib; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS8.4.sdk/usr/lib/libbz2.dylib; sourceTree = DEVELOPER_DIR; };
@@ -591,6 +591,8 @@
 		87DCDB321B7F03260054D67C /* CoverViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = CoverViewController.m; path = ../Source/ui_ios/CoverViewController.m; sourceTree = "<group>"; };
 		87DCDB361B7F13370054D67C /* CollectionView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CollectionView.h; path = ../Source/ui_ios/CollectionView.h; sourceTree = "<group>"; };
 		87DCDB371B7F13370054D67C /* CollectionView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = CollectionView.m; path = ../Source/ui_ios/CollectionView.m; sourceTree = "<group>"; };
+		96C1E9C3B45BD0F22D54C0F5 /* Pods-Play!.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Play!.debug.xcconfig"; path = "Pods/Target Support Files/Pods-Play!/Pods-Play!.debug.xcconfig"; sourceTree = "<group>"; };
+		FBF4F79FA6C04D875998B3D9 /* libPods-Play!.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-Play!.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -608,15 +610,32 @@
 				874ECDAA1B7DB862000075B6 /* libsqlite3.dylib in Frameworks */,
 				87C208BE1B7A3E7E00638BDD /* GameController.framework in Frameworks */,
 				70834CE11B1BD7EE00E8D5C6 /* libz.dylib in Frameworks */,
-				8794D9961B88AF2F00B1B3A3 /* SDWebImage.framework in Frameworks */,
 				70834CDE1B1BD7DE00E8D5C6 /* libCodeGen.a in Frameworks */,
 				70834CDF1B1BD7DE00E8D5C6 /* libFramework.a in Frameworks */,
+				1638528FED9BB87F3A7A2F0D /* libPods-Play!.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		508E3A61DD6BD318EC5524CD /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				FBF4F79FA6C04D875998B3D9 /* libPods-Play!.a */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		600951DF3A9CC3191A009AAD /* Pods */ = {
+			isa = PBXGroup;
+			children = (
+				96C1E9C3B45BD0F22D54C0F5 /* Pods-Play!.debug.xcconfig */,
+				57D2134DADAF48FC38DA4397 /* Pods-Play!.release.xcconfig */,
+			);
+			name = Pods;
+			sourceTree = "<group>";
+		};
 		7066B4BE1C3EB838007568BB /* VirtualPad */ = {
 			isa = PBXGroup;
 			children = (
@@ -638,6 +657,8 @@
 				70834B811B1BD2CF00E8D5C6 /* Dependencies */,
 				70834AB01B1BC70300E8D5C6 /* Source Files */,
 				70834AAF1B1BC70300E8D5C6 /* Products */,
+				600951DF3A9CC3191A009AAD /* Pods */,
+				508E3A61DD6BD318EC5524CD /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -816,7 +837,6 @@
 				7055C9A21CAEBB820075A9F5 /* OpenAL.framework */,
 				8794D9AF1B88B60900B1B3A3 /* OpenGLES.framework */,
 				8794D9AD1B88B60100B1B3A3 /* QuartzCore.framework */,
-				8794D9951B88AF2F00B1B3A3 /* SDWebImage.framework */,
 				8794D9B31B88B61C00B1B3A3 /* UIKit.framework */,
 			);
 			name = Dependencies;
@@ -1110,9 +1130,12 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 70834AD11B1BC70300E8D5C6 /* Build configuration list for PBXNativeTarget "Play!" */;
 			buildPhases = (
+				97DB91D9F52C8BBE3816F010 /* 📦 Check Pods Manifest.lock */,
 				70834AAA1B1BC70300E8D5C6 /* Sources */,
 				70834AAB1B1BC70300E8D5C6 /* Frameworks */,
 				70834AAC1B1BC70300E8D5C6 /* Resources */,
+				55CD2C9794A2B93289C63EE7 /* 📦 Embed Pods Frameworks */,
+				C781DB241A8C121766283B81 /* 📦 Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -1211,6 +1234,54 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		55CD2C9794A2B93289C63EE7 /* 📦 Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "📦 Embed Pods Frameworks";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-Play!/Pods-Play!-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		97DB91D9F52C8BBE3816F010 /* 📦 Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "📦 Check Pods Manifest.lock";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_ROOT}/../Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [[ $? != 0 ]] ; then\n    cat << EOM\nerror: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\nEOM\n    exit 1\nfi\n";
+			showEnvVarsInLog = 0;
+		};
+		C781DB241A8C121766283B81 /* 📦 Copy Pods Resources */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "📦 Copy Pods Resources";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-Play!/Pods-Play!-resources.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		70834AAA1B1BC70300E8D5C6 /* Sources */ = {
@@ -1485,6 +1556,7 @@
 		};
 		70834AD21B1BC70300E8D5C6 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 96C1E9C3B45BD0F22D54C0F5 /* Pods-Play!.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
@@ -1493,19 +1565,18 @@
 				CODEGEN_PATH = "$(SRCROOT)/../../CodeGen/";
 				ENABLE_BITCODE = NO;
 				FRAMEWORK_PATH = "$(SRCROOT)/../../Framework/";
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(SRCROOT)",
-					"$(BOOST_FRAMEWORK_PATH)",
-				);
+				FRAMEWORK_SEARCH_PATHS = "$(BOOST_FRAMEWORK_PATH)";
 				GCC_INPUT_FILETYPE = sourcecode.cpp.objcpp;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "$(SRCROOT)/../Source/ui_ios/Purei_Prefix.pch";
 				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
 					_DEBUG,
 					_IOP_EMULATE_MODULES,
 					GLES_COMPATIBILITY,
 				);
 				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
 					"$(BOOST_FRAMEWORK_PATH)/boost.framework/Headers",
 					"$(FRAMEWORK_PATH)/include",
 					"$(CODEGEN_PATH)/include",
@@ -1514,7 +1585,7 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				OTHER_LDFLAGS = (
-					"-ObjC",
+					"$(inherited)",
 					"-framework",
 					boost,
 				);
@@ -1527,6 +1598,7 @@
 		};
 		70834AD31B1BC70300E8D5C6 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 57D2134DADAF48FC38DA4397 /* Pods-Play!.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
@@ -1535,19 +1607,18 @@
 				CODEGEN_PATH = "$(SRCROOT)/../../CodeGen/";
 				ENABLE_BITCODE = NO;
 				FRAMEWORK_PATH = "$(SRCROOT)/../../Framework/";
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(SRCROOT)",
-					"$(BOOST_FRAMEWORK_PATH)",
-				);
+				FRAMEWORK_SEARCH_PATHS = "$(BOOST_FRAMEWORK_PATH)";
 				GCC_INPUT_FILETYPE = sourcecode.cpp.objcpp;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "$(SRCROOT)/../Source/ui_ios/Purei_Prefix.pch";
 				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
 					NDEBUG,
 					_IOP_EMULATE_MODULES,
 					GLES_COMPATIBILITY,
 				);
 				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
 					"$(BOOST_FRAMEWORK_PATH)/boost.framework/Headers",
 					"$(FRAMEWORK_PATH)/include",
 					"$(CODEGEN_PATH)/include",
@@ -1556,7 +1627,7 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				OTHER_LDFLAGS = (
-					"-ObjC",
+					"$(inherited)",
 					"-framework",
 					boost,
 				);
