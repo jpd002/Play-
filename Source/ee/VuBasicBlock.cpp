@@ -2,8 +2,6 @@
 #include "MA_VU.h"
 #include "offsetof_def.h"
 
-#pragma optimize("", off)
-
 CVuBasicBlock::CVuBasicBlock(CMIPS& context, uint32 begin, uint32 end)
 : CBasicBlock(context, begin, end)
 {
