@@ -56,34 +56,27 @@ void CVuBasicBlock::CompileRange(CMipsJitter* jitter)
 		int length = (fixedEnd - m_begin) >> 3;
 		if (length > 2)
 		{
+			// Check if we have a conditional branch instruction. Luckily these populate the contiguous opcode range 0x28 -> 0x2F inclusive
 			uint32 opcodeLo = m_context.m_pMemoryMap->GetInstruction(adjustedEnd - 8);
 			uint32 id = (opcodeLo >> 25) & 0x7f;
 			if (id >= 0x28 && id < 0x30)
 			{
 				// We have a conditional branch instruction. Now we need to check that the condition register is not written
 				// by the previous instruction.
-				uint32 priorOpcodeLo = m_context.m_pMemoryMap->GetInstruction(adjustedEnd - 16);
+				int priorOpcodeAddr = adjustedEnd - 16;
+				uint32 priorOpcodeLo = m_context.m_pMemoryMap->GetInstruction(priorOpcodeAddr);
 
-				// if not NOP
-				if (priorOpcodeLo != 0x8000033C) {
-
+				VUShared::OPERANDSET loOps = arch->GetAffectedOperands(&m_context, priorOpcodeAddr, priorOpcodeLo);
+				if (loOps.writeI != 0) {
 					uint8  is = static_cast<uint8> ((opcodeLo >> 11) & 0x001F);
 					uint8  it = static_cast<uint8> ((opcodeLo >> 16) & 0x001F);
-
-					uint32 lowerOp = (priorOpcodeLo >> 25) & 0x7f;
-					if (lowerOp == 0x40) {
-						if ((priorOpcodeLo & 0x7FF) == 0x037c) {
-							// LQI
-							uint8  incReg = static_cast<uint8> ((priorOpcodeLo >> 11) & 0x000F);
-							if (is == incReg || it == incReg) {
-								// argh - we need to use the value of incReg 4 steps prior.
-								delayedReg = incReg;
-								delayedRegTime = adjustedEnd - 5 * 8;
-								delayedRegTargetTime = adjustedEnd - 8;
-							}
-						}
+					if (is == loOps.writeI || it == loOps.writeI) {
+						// argh - we need to use the value of incReg 4 steps prior.
+						delayedReg = loOps.writeI;
+						delayedRegTime = adjustedEnd - 5 * 8;
+						delayedRegTargetTime = adjustedEnd - 8;
 					}
-				}
+				}			
 			}
 		}
 	}
