@@ -123,6 +123,24 @@ static const char* g_textureClutLoadControlString[8] =
 	"(INVALID)",
 };
 
+static const char* g_textureMagFilterString[2] =
+{
+	"NEAREST",
+	"LINEAR"
+};
+
+static const char* g_textureMinFilterString[8] =
+{
+	"NEAREST",
+	"LINEAR",
+	"NEAREST_MIPMAP_NEAREST",
+	"NEAREST_MIPMAP_LINEAR",
+	"LINEAR_MIPMAP_NEAREST",
+	"LINEAR_MIPMAP_LINEAR",
+	"(INVALID)",
+	"(INVALID)"
+};
+
 static const char* g_wrapModeString[4] =
 {
 	"REPEAT",
@@ -235,6 +253,7 @@ std::string CGsStateUtils::GetContextState(CGSHandler* gs, unsigned int contextI
 
 	{
 		auto tex0 = make_convertible<CGSHandler::TEX0>(gs->GetRegisters()[GS_REG_TEX0_1 + contextId]);
+		auto tex1 = make_convertible<CGSHandler::TEX1>(gs->GetRegisters()[GS_REG_TEX1_1 + contextId]);
 		result += string_format("Texture:\r\n");
 		result += string_format("\tPtr: 0x%0.8X\r\n", tex0.GetBufPtr());
 		result += string_format("\tBuffer Width: %d\r\n", tex0.GetBufWidth());
@@ -248,6 +267,13 @@ std::string CGsStateUtils::GetContextState(CGSHandler* gs, unsigned int contextI
 		result += string_format("\tCLUT Storage Mode: %d\r\n", tex0.nCSM + 1);
 		result += string_format("\tCLUT Entry Offset: %d\r\n", tex0.nCSA * 16);
 		result += string_format("\tCLUT Load Control: %s\r\n", g_textureClutLoadControlString[tex0.nCLD]);
+		result += string_format("\tLOD Use Fixed Value: %s\r\n", g_yesNoString[tex1.nLODMethod]);
+		result += string_format("\tMaximum Mip Level: %d\r\n", tex1.nMaxMip);
+		result += string_format("\tMag Filter: %s\r\n", g_textureMagFilterString[tex1.nMagFilter]);
+		result += string_format("\tMin Filter: %s\r\n", g_textureMinFilterString[tex1.nMinFilter]);
+		result += string_format("\tUse Automatic Mip Address: %s\r\n", g_yesNoString[tex1.nMipBaseAddr]);
+		result += string_format("\tLOD L: %d\r\n", tex1.nLODL);
+		result += string_format("\tLOD K: %d\r\n", tex1.nLODK);
 	}
 
 	{
