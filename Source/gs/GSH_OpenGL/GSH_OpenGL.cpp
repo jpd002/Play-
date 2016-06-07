@@ -1214,13 +1214,14 @@ void CGSH_OpenGL::SetupTexture(uint64 primReg, uint64 tex0Reg, uint64 tex1Reg, u
 	switch(tex1.nMinFilter)
 	{
 	case MIN_FILTER_NEAREST:
+	case MIN_FILTER_NEAREST_MIP_NEAREST:
+	case MIN_FILTER_NEAREST_MIP_LINEAR:
 		m_renderState.texture0MinFilter = GL_NEAREST;
 		break;
 	case MIN_FILTER_LINEAR:
-		m_renderState.texture0MinFilter = GL_LINEAR;
-		break;
+	case MIN_FILTER_LINEAR_MIP_NEAREST:
 	case MIN_FILTER_LINEAR_MIP_LINEAR:
-		m_renderState.texture0MinFilter = GL_LINEAR_MIPMAP_LINEAR;
+		m_renderState.texture0MinFilter = GL_LINEAR;
 		break;
 	default:
 		assert(0);
