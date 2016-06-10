@@ -65,13 +65,15 @@ void CVuBasicBlock::CompileRange(CMipsJitter* jitter)
 				uint32 priorOpcodeLo = m_context.m_pMemoryMap->GetInstruction(priorOpcodeAddr);
 
 				VUShared::OPERANDSET loOps = arch->GetAffectedOperands(&m_context, priorOpcodeAddr, priorOpcodeLo);
-				if (loOps.writeI != 0) {
+				if (loOps.writeI != 0)
+				{
 					uint8  is = static_cast<uint8> ((opcodeLo >> 11) & 0x001F);
 					uint8  it = static_cast<uint8> ((opcodeLo >> 16) & 0x001F);
-					if (is == loOps.writeI || it == loOps.writeI) {
+					if (is == loOps.writeI || it == loOps.writeI)
+					{
 						// argh - we need to use the value of incReg 4 steps prior.
 						delayedReg = loOps.writeI;
-						delayedRegTime = adjustedEnd - 5 * 8;
+						delayedRegTime = std::max(adjustedEnd - 5 * 8, static_cast<int>(m_begin));
 						delayedRegTargetTime = adjustedEnd - 8;
 					}
 				}			
