@@ -1,5 +1,4 @@
-#ifndef _REGVIEWVU_H_
-#define _REGVIEWVU_H_
+#pragma once
 
 #include "RegViewPage.h"
 #include "../MIPS.h"
@@ -11,12 +10,10 @@ public:
 									CRegViewVU(HWND, const RECT&, CVirtualMachine&, CMIPS*);
 	virtual							~CRegViewVU();
 
-	virtual void					Update() override;
+	void							Update() override;
 
 private:
 	std::string						GetDisplayText();
 
-	CMIPS*							m_pCtx;
+	CMIPS*							m_ctx = nullptr;
 };
-
-#endif

@@ -2,9 +2,9 @@
 #include "RegViewVU.h"
 #include "../PS2VM.h"
 
-CRegViewVU::CRegViewVU(HWND hParent, const RECT& rect, CVirtualMachine& virtualMachine, CMIPS* pCtx)
+CRegViewVU::CRegViewVU(HWND hParent, const RECT& rect, CVirtualMachine& virtualMachine, CMIPS* ctx)
 : CRegViewPage(hParent, rect)
-, m_pCtx(pCtx)
+, m_ctx(ctx)
 {
 	virtualMachine.OnMachineStateChange.connect(boost::bind(&CRegViewVU::Update, this));
 	virtualMachine.OnRunningStateChange.connect(boost::bind(&CRegViewVU::Update, this));
@@ -31,7 +31,7 @@ std::string CRegViewVU::GetDisplayText()
 	result += "              x               y       \r\n";
 	result += "              z               w       \r\n";
 
-	MIPSSTATE* pState = &m_pCtx->m_State;
+	const auto& state = m_ctx->m_State;
 
 	for(unsigned int i = 0; i < 32; i++)
 	{
@@ -46,59 +46,61 @@ std::string CRegViewVU::GetDisplayText()
 			sprintf(sReg1, "VF%i ", i);
 		}
 
-		sprintf(sLine, "%s: %+.7e %+.7e\r\n       %+.7e %+.7e\r\n", sReg1, \
-			*(float*)&pState->nCOP2[i].nV0, \
-			*(float*)&pState->nCOP2[i].nV1, \
-			*(float*)&pState->nCOP2[i].nV2, \
-			*(float*)&pState->nCOP2[i].nV3);
+		sprintf(sLine, "%s: %+.7e %+.7e\r\n       %+.7e %+.7e\r\n", sReg1,
+			*reinterpret_cast<const float*>(&state.nCOP2[i].nV0),
+			*reinterpret_cast<const float*>(&state.nCOP2[i].nV1),
+			*reinterpret_cast<const float*>(&state.nCOP2[i].nV2),
+			*reinterpret_cast<const float*>(&state.nCOP2[i].nV3)
+		);
 
 		result += sLine;
 	}
 
-	sprintf(sLine, "ACC  : %+.7e %+.7e\r\n       %+.7e %+.7e\r\n", \
-		*(float*)&pState->nCOP2A.nV0, \
-		*(float*)&pState->nCOP2A.nV1, \
-		*(float*)&pState->nCOP2A.nV2, \
-		*(float*)&pState->nCOP2A.nV3);
+	sprintf(sLine, "ACC  : %+.7e %+.7e\r\n       %+.7e %+.7e\r\n",
+		*reinterpret_cast<const float*>(&state.nCOP2A.nV0),
+		*reinterpret_cast<const float*>(&state.nCOP2A.nV1),
+		*reinterpret_cast<const float*>(&state.nCOP2A.nV2),
+		*reinterpret_cast<const float*>(&state.nCOP2A.nV3)
+	);
 
 	result += sLine;
 
-	sprintf(sLine, "Q    : %+.7e\r\n", *(float*)&pState->nCOP2Q);
+	sprintf(sLine, "Q    : %+.7e\r\n", *reinterpret_cast<const float*>(&state.nCOP2Q));
 	result += sLine;
 
-	sprintf(sLine, "I    : %+.7e\r\n", *(float*)&pState->nCOP2I);
+	sprintf(sLine, "I    : %+.7e\r\n", *reinterpret_cast<const float*>(&state.nCOP2I));
 	result += sLine;
 
-	sprintf(sLine, "P    : %+.7e\r\n", *(float*)&pState->nCOP2P);
+	sprintf(sLine, "P    : %+.7e\r\n", *reinterpret_cast<const float*>(&state.nCOP2P));
 	result += sLine;
 
-	sprintf(sLine, "R    : %+.7e (0x%0.8X)\r\n", *(float*)&pState->nCOP2R, pState->nCOP2R);
+	sprintf(sLine, "R    : %+.7e (0x%0.8X)\r\n", *reinterpret_cast<const float*>(&state.nCOP2R), state.nCOP2R);
 	result += sLine;
 
-	sprintf(sLine, "MACF : 0x%0.4X\r\n", pState->nCOP2MF);
+	sprintf(sLine, "MACF : 0x%0.4X\r\n", state.nCOP2MF);
 	result += sLine;
 
-	sprintf(sLine, "STKF : 0x%0.4X\r\n", pState->nCOP2SF);
+	sprintf(sLine, "STKF : 0x%0.4X\r\n", state.nCOP2SF);
 	result += sLine;
 
-	sprintf(sLine, "CLIP : 0x%0.6X\r\n", pState->nCOP2CF);
+	sprintf(sLine, "CLIP : 0x%0.6X\r\n", state.nCOP2CF);
 	result += sLine;
 
-	sprintf(sLine, "PIPE : 0x%0.4X\r\n", pState->pipeTime);
+	sprintf(sLine, "PIPE : 0x%0.4X\r\n", state.pipeTime);
 	result += sLine;
 
-	sprintf(sLine, "PIPEQ: 0x%0.4X - %+.7e\r\n", pState->pipeQ.counter, *(float*)&pState->pipeQ.heldValue);
+	sprintf(sLine, "PIPEQ: 0x%0.4X - %+.7e\r\n", state.pipeQ.counter, *reinterpret_cast<const float*>(&state.pipeQ.heldValue));
 	result += sLine;
 
-	unsigned int currentPipeMacCounter = pState->pipeMac.index - 1;
+	unsigned int currentPipeMacCounter = state.pipeMac.index - 1;
 
 	uint32 macFlagPipeValues[MACFLAG_PIPELINE_SLOTS];
 	uint32 macFlagPipeTimes[MACFLAG_PIPELINE_SLOTS];
 	for(unsigned int i = 0; i < MACFLAG_PIPELINE_SLOTS; i++)
 	{
 		unsigned int currIndex = (currentPipeMacCounter - i) & (MACFLAG_PIPELINE_SLOTS - 1);
-		macFlagPipeValues[i] = pState->pipeMac.values[currIndex];
-		macFlagPipeTimes[i] = pState->pipeMac.pipeTimes[currIndex];
+		macFlagPipeValues[i] = state.pipeMac.values[currIndex];
+		macFlagPipeTimes[i] = state.pipeMac.pipeTimes[currIndex];
 	}
 
 	sprintf(sLine, "PIPEM: 0x%0.4X:0x%0.4X, 0x%0.4X:0x%0.4X\r\n", 
@@ -127,7 +129,7 @@ std::string CRegViewVU::GetDisplayText()
 			sprintf(sReg2, "VI%i ", i + 1);
 		}
 
-		sprintf(sLine, "%s: 0x%0.4X    %s: 0x%0.4X\r\n", sReg1, pState->nCOP2VI[i] & 0xFFFF, sReg2, pState->nCOP2VI[i + 1] & 0xFFFF);
+		sprintf(sLine, "%s: 0x%0.4X    %s: 0x%0.4X\r\n", sReg1, state.nCOP2VI[i] & 0xFFFF, sReg2, state.nCOP2VI[i + 1] & 0xFFFF);
 		result += sLine;
 	}
 
