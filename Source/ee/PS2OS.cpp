@@ -2398,7 +2398,7 @@ void CPS2OS::sc_ReferSemaStatus()
 {
 	bool isInt = m_ee.m_State.nGPR[3].nV[0] != 0x47;
 	uint32 id = m_ee.m_State.nGPR[SC_PARAM0].nV[0];
-	SEMAPHOREPARAM* semaParam = (SEMAPHOREPARAM*)(m_ram + (m_ee.m_State.nGPR[SC_PARAM1].nV[0] & 0x1FFFFFFF));
+	auto semaParam = reinterpret_cast<SEMAPHOREPARAM*>(GetStructPtr(m_ee.m_State.nGPR[SC_PARAM1].nV0));
 
 	auto sema = m_semaphores[id];
 	if(sema == nullptr)

@@ -5,8 +5,6 @@
 
 #undef MAX
 
-using namespace std;
-
 CMA_VU::CUpper::CUpper() 
 : CMIPSInstructionFactory(MIPS_REGSIZE_32)
 , m_nFT(0)

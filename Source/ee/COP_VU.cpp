@@ -8,6 +8,8 @@
 #include "offsetof_def.h"
 #include "Vpu.h"
 
+#undef MAX
+
 #define LOG_NAME				("vpu")
 
 CCOP_VU::CCOP_VU(MIPS_REGSIZE nRegSize) 
