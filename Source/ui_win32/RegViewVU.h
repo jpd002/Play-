@@ -12,8 +12,20 @@ public:
 
 	void							Update() override;
 
+protected:
+	long							OnRightButtonUp(int, int) override;
+	long							OnCommand(unsigned short, unsigned short, HWND) override;
+
 private:
+	enum VIEWMODE
+	{
+		VIEWMODE_WORD,
+		VIEWMODE_SINGLE,
+		VIEWMODE_MAX,
+	};
+
 	std::string						GetDisplayText();
 
 	CMIPS*							m_ctx = nullptr;
+	VIEWMODE						m_viewMode = VIEWMODE_SINGLE;
 };
