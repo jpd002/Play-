@@ -2,6 +2,8 @@
 #include <string.h>
 #include "RegViewFPU.h"
 
+#define MENUCMD_BASE 40000
+
 CRegViewFPU::CRegViewFPU(HWND hParent, const RECT& rect, CVirtualMachine& virtualMachine, CMIPS* pC) 
 : CRegViewPage(hParent, rect)
 , m_pCtx(pC)
@@ -130,8 +132,8 @@ long CRegViewFPU::OnRightButtonUp(int nX, int nY)
 	ClientToScreen(m_hWnd, &pt);
 
 	HMENU hMenu = CreatePopupMenu();
-	InsertMenu(hMenu, 0, MF_BYPOSITION | (m_nViewMode == VIEWMODE_WORD ? MF_CHECKED : 0),	40000 + VIEWMODE_WORD,		_T("32 Bits Integers"));
-	InsertMenu(hMenu, 1, MF_BYPOSITION | (m_nViewMode == VIEWMODE_SINGLE ? MF_CHECKED : 0),	40000 + VIEWMODE_SINGLE,	_T("Single Precision Floating-Point Numbers"));
+	InsertMenu(hMenu, 0, MF_BYPOSITION | (m_nViewMode == VIEWMODE_WORD ? MF_CHECKED : 0),   MENUCMD_BASE + VIEWMODE_WORD,   _T("32 Bits Integers"));
+	InsertMenu(hMenu, 1, MF_BYPOSITION | (m_nViewMode == VIEWMODE_SINGLE ? MF_CHECKED : 0), MENUCMD_BASE + VIEWMODE_SINGLE, _T("Single Precision Floating-Point Numbers"));
 
 	TrackPopupMenu(hMenu, 0, pt.x, pt.y, 0, m_hWnd, NULL); 
 
@@ -140,9 +142,9 @@ long CRegViewFPU::OnRightButtonUp(int nX, int nY)
 
 long CRegViewFPU::OnCommand(unsigned short nID, unsigned short nCmd, HWND hSender)
 {
-	if((nID >= 40000) && (nID < (40000 + VIEWMODE_MAX)))
+	if((nID >= MENUCMD_BASE) && (nID < (MENUCMD_BASE + VIEWMODE_MAX)))
 	{
-		m_nViewMode = (VIEWMODE)(nID - 40000);
+		m_nViewMode = static_cast<VIEWMODE>(nID - MENUCMD_BASE);
 		Update();
 	}
 

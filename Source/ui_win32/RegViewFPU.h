@@ -1,5 +1,4 @@
-#ifndef _REGVIEWFPU_H_
-#define _REGVIEWFPU_H_
+#pragma once
 
 #include <string>
 #include "RegViewPage.h"
@@ -12,9 +11,11 @@ public:
 									CRegViewFPU(HWND, const RECT&, CVirtualMachine&, CMIPS*);
 	virtual							~CRegViewFPU();
 
+	void							Update() override;
+
 protected:
-	long							OnRightButtonUp(int, int);
-	long							OnCommand(unsigned short, unsigned short, HWND);
+	long							OnRightButtonUp(int, int) override;
+	long							OnCommand(unsigned short, unsigned short, HWND) override;
 
 private:
 	enum VIEWMODE
@@ -24,7 +25,6 @@ private:
 		VIEWMODE_MAX,
 	};
 
-	void							Update();
 	std::string 					GetDisplayText();
 
 	std::string						RenderWord();
@@ -37,5 +37,3 @@ private:
 	VIEWMODE						m_nViewMode;
 	CMIPS*							m_pCtx;
 };
-
-#endif
