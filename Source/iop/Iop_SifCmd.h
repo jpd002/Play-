@@ -29,7 +29,7 @@ namespace Iop
 	private:
 		typedef std::list<CSifDynamic*> DynamicModuleList;
 
-		struct SIFRPCDATAQUEUE
+		struct SIFRPCQUEUEDATA
 		{
 			uint32		threadId;
 			uint32		active;
@@ -53,6 +53,7 @@ namespace Iop
 
 			uint32		queueAddr;
 		};
+		static_assert(sizeof(SIFRPCSERVERDATA) <= 0x44, "Size of SIFRPCSERVERDATA must be less or equal to 68 bytes.");
 
 		// m_cmdBuffer is an array of these structures.
 		struct SIFCMDDATA
@@ -67,6 +68,8 @@ namespace Iop
 
 		void					ProcessCustomCommand(uint32);
 
+		uint32					SifSetCmdBuffer(uint32, uint32);
+		void					SifAddCmdHandler(uint32, uint32, uint32);
 		uint32					SifSendCmd(uint32, uint32, uint32, uint32, uint32, uint32);
 		uint32					SifBindRpc(uint32, uint32, uint32);
 		void					SifCallRpc(CMIPS&);
@@ -76,8 +79,6 @@ namespace Iop
 		void					SifRpcLoop(uint32);
 		uint32					SifGetOtherData(uint32, uint32, uint32, uint32, uint32);
 		void					ReturnFromRpcInvoke(CMIPS&);
-		uint32					SifSetCmdBuffer(uint32 pData, uint32 len);
-		void					SifAddCmdHandler(uint32 pos, uint32 handler, uint32 data);
 
 		uint32					m_cmdBuffer = 0;
 		uint32					m_cmdBufferLen = 0;

@@ -248,15 +248,15 @@ void CSifCmd::BuildExportTable()
 
 void CSifCmd::ProcessInvocation(uint32 serverDataAddr, uint32 methodId, uint32* params, uint32 size)
 {
-	SIFRPCSERVERDATA* serverData = reinterpret_cast<SIFRPCSERVERDATA*>(&m_ram[serverDataAddr]);
-	SIFRPCDATAQUEUE* dataQueue = reinterpret_cast<SIFRPCDATAQUEUE*>(&m_ram[serverData->queueAddr]);
+	auto serverData = reinterpret_cast<SIFRPCSERVERDATA*>(m_ram + serverDataAddr);
+	auto queueData = reinterpret_cast<SIFRPCQUEUEDATA*>(m_ram + serverData->queueAddr);
 
 	//Copy params
 	if(serverData->buffer != 0)
 	{
 		memcpy(&m_ram[serverData->buffer], params, size);
 	}
-	CIopBios::THREAD* thread(m_bios.GetThread(dataQueue->threadId));
+	auto thread(m_bios.GetThread(queueData->threadId));
 
 	assert(thread->status == CIopBios::THREAD_STATUS_SLEEPING);
 
@@ -266,14 +266,14 @@ void CSifCmd::ProcessInvocation(uint32 serverDataAddr, uint32 methodId, uint32* 
 	thread->context.gpr[CMIPS::A2] = size;
 	thread->context.gpr[CMIPS::S0] = serverDataAddr;
 	thread->context.gpr[CMIPS::RA] = m_returnFromRpcInvokeAddr;
-	m_bios.WakeupThread(dataQueue->threadId, true);
+	m_bios.WakeupThread(queueData->threadId, true);
 	m_bios.Reschedule();
 }
 
 void CSifCmd::ReturnFromRpcInvoke(CMIPS& context)
 {
-	SIFRPCSERVERDATA* serverData = reinterpret_cast<SIFRPCSERVERDATA*>(&m_ram[context.m_State.nGPR[CMIPS::S0].nV0]);
-	uint8* returnData = m_ram + context.m_State.nGPR[CMIPS::V0].nV0;
+	auto serverData = reinterpret_cast<SIFRPCSERVERDATA*>(m_ram + context.m_State.nGPR[CMIPS::S0].nV0);
+	auto returnData = m_ram + context.m_State.nGPR[CMIPS::V0].nV0;
 	m_bios.SleepThread();
 	m_sifMan.SendCallReply(serverData->serverId, returnData);
 }
@@ -489,43 +489,43 @@ void CSifCmd::SifRegisterRpc(CMIPS& context)
 
 	if(queueAddr != 0)
 	{
-		SIFRPCDATAQUEUE* dataQueue = reinterpret_cast<SIFRPCDATAQUEUE*>(&m_ram[queueAddr]);
-		assert(dataQueue->serverDataStart == 0);
-		dataQueue->serverDataStart = serverDataAddr;
+		auto queueData = reinterpret_cast<SIFRPCQUEUEDATA*>(m_ram + queueAddr);
+		assert(queueData->serverDataStart == 0);
+		queueData->serverDataStart = serverDataAddr;
 	}
 
 	context.m_State.nGPR[CMIPS::V0].nD0 = 0;
 }
 
-void CSifCmd::SifSetRpcQueue(uint32 queueAddr, uint32 threadId)
+void CSifCmd::SifSetRpcQueue(uint32 queueDataAddr, uint32 threadId)
 {
-	CLog::GetInstance().Print(LOG_NAME, "SifSetRpcQueue(queue = 0x%0.8X, threadId = %d);\r\n",
-		queueAddr, threadId);
+	CLog::GetInstance().Print(LOG_NAME, FUNCTION_SIFSETRPCQUEUE "(queueData = 0x%0.8X, threadId = %d);\r\n",
+		queueDataAddr, threadId);
 
-	if(queueAddr != 0)
+	if(queueDataAddr != 0)
 	{
-		SIFRPCDATAQUEUE* dataQueue = reinterpret_cast<SIFRPCDATAQUEUE*>(&m_ram[queueAddr]);
-		dataQueue->threadId = threadId;
+		auto queueData = reinterpret_cast<SIFRPCQUEUEDATA*>(m_ram + queueDataAddr);
+		queueData->threadId = threadId;
 	}
 }
 
 uint32 CSifCmd::SifCheckStatRpc(uint32 clientDataAddress)
 {
-	CLog::GetInstance().Print(LOG_NAME, "SifCheckStatRpc(clientData = 0x%0.8X);\r\n",
+	CLog::GetInstance().Print(LOG_NAME, FUNCTION_SIFCHECKSTATRPC "(clientData = 0x%0.8X);\r\n",
 		clientDataAddress);
 	return 0;
 }
 
 void CSifCmd::SifRpcLoop(uint32 queueAddr)
 {
-	CLog::GetInstance().Print(LOG_NAME, "SifRpcLoop(queue = 0x%0.8X);\r\n",
+	CLog::GetInstance().Print(LOG_NAME, FUNCTION_SIFRPCLOOP "(queue = 0x%0.8X);\r\n",
 		queueAddr);
 	m_bios.SleepThread();
 }
 
 uint32 CSifCmd::SifGetOtherData(uint32 packetPtr, uint32 src, uint32 dst, uint32 size, uint32 mode)
 {
-	CLog::GetInstance().Print(LOG_NAME, "SifGetOtherData(packetPtr = 0x%0.8X, src = 0x%0.8X, dst = 0x%0.8X, size = 0x%0.8X, mode = %d);\r\n",
+	CLog::GetInstance().Print(LOG_NAME, FUNCTION_SIFGETOTHERDATA "(packetPtr = 0x%0.8X, src = 0x%0.8X, dst = 0x%0.8X, size = 0x%0.8X, mode = %d);\r\n",
 		packetPtr, src, dst, size, mode);
 	m_sifMan.GetOtherData(dst, src, size);
 	return 0;
