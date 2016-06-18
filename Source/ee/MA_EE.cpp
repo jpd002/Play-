@@ -1079,6 +1079,70 @@ void CMA_EE::PMADDH()
 	}
 }
 
+//11
+void CMA_EE::PHMADH()
+{
+	static const size_t offsets[4] =
+	{
+		offsetof(CMIPS, m_State.nLO[0]),
+		offsetof(CMIPS, m_State.nHI[0]),
+		offsetof(CMIPS, m_State.nLO1[0]),
+		offsetof(CMIPS, m_State.nHI1[0]),
+	};
+
+	static const size_t clearOffsets[4] =
+	{
+		offsetof(CMIPS, m_State.nLO[1]),
+		offsetof(CMIPS, m_State.nHI[1]),
+		offsetof(CMIPS, m_State.nLO1[1]),
+		offsetof(CMIPS, m_State.nHI1[1]),
+	};
+
+	for(unsigned int i = 0; i < 4; i++)
+	{
+		m_codeGen->PushCst(0);
+		m_codeGen->PullRel(clearOffsets[i]);
+	}
+
+	for(unsigned int i = 0; i < 4; i++)
+	{
+		//Lower 16-bits (An0 * An1)
+		{
+			m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRS].nV[i]));
+			m_codeGen->SignExt16();
+
+			m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[i]));
+			m_codeGen->SignExt16();
+
+			m_codeGen->MultS();
+			m_codeGen->ExtLow64();
+		}
+
+		//Higher 16-bits (Bn0 * Bn1)
+		{
+			m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRS].nV[i]));
+			m_codeGen->Sra(16);
+
+			m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[i]));
+			m_codeGen->Sra(16);
+
+			m_codeGen->MultS();
+			m_codeGen->ExtLow64();
+		}
+
+		m_codeGen->Add();
+
+		if(m_nRD != 0)
+		{
+			m_codeGen->PushTop();
+			m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[i]));
+		}
+
+		//Store to LO/HI
+		m_codeGen->PullRel(offsets[i]);
+	}
+}
+
 //12
 void CMA_EE::PAND()
 {
@@ -1703,7 +1767,7 @@ CMA_EE::InstructionFuncConstant CMA_EE::m_pOpMmi2[0x20] =
 	//0x08
 	&CMA_EE::PMFHI,			&CMA_EE::PMFLO,			&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::PMULTW,		&CMA_EE::PDIVW,			&CMA_EE::PCPYLD,		&CMA_EE::Illegal,
 	//0x10
-	&CMA_EE::PMADDH,		&CMA_EE::Illegal,		&CMA_EE::PAND,			&CMA_EE::PXOR,			&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,
+	&CMA_EE::PMADDH,		&CMA_EE::PHMADH,		&CMA_EE::PAND,			&CMA_EE::PXOR,			&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,
 	//0x18
 	&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::PREVH,			&CMA_EE::PMULTH,		&CMA_EE::Illegal,		&CMA_EE::PEXEW,			&CMA_EE::PROT3W,
 };

@@ -131,6 +131,7 @@ private:
 	void								PDIVW();
 	void								PCPYLD();
 	void								PMADDH();
+	void								PHMADH();
 	void								PAND();
 	void								PXOR();
 	void								PREVH();
