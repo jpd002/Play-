@@ -12,7 +12,8 @@ using namespace Iop;
 #define STATE_MODULE						("Module")
 #define STATE_MODULE_SERVER_DATA_ADDRESS	("ServerDataAddress")
 
-#define CUSTOM_RETURNFROMRPCINVOKE  0x666
+#define CUSTOM_FINISHEXECREQUEST    0x666
+#define CUSTOM_SLEEPTHREAD          0x667
 
 #define MODULE_NAME						"sifcmd"
 #define MODULE_VERSION					0x101
@@ -27,9 +28,12 @@ using namespace Iop;
 #define FUNCTION_SIFREGISTERRPC			"SifRegisterRpc"
 #define FUNCTION_SIFCHECKSTATRPC		"SifCheckStatRpc"
 #define FUNCTION_SIFSETRPCQUEUE			"SifSetRpcQueue"
+#define FUNCTION_SIFGETNEXTREQUEST		"SifGetNextRequest"
+#define FUNCTION_SIFEXECREQUEST			"SifExecRequest"
 #define FUNCTION_SIFRPCLOOP				"SifRpcLoop"
-#define FUNCTION_SIFGETOTHERDATA		"SifGetOtherData"	
-#define FUNCTION_RETURNFROMRPCINVOKE	"ReturnFromRpcInvoke"
+#define FUNCTION_SIFGETOTHERDATA		"SifGetOtherData"
+#define FUNCTION_FINISHEXECREQUEST		"FinishExecRequest"
+#define FUNCTION_SLEEPTHREAD			"SleepThread"
 
 #define TRAMPOLINE_SIZE				0x800
 #define SENDCMD_EXTRASTRUCT_SIZE	0x10
@@ -132,14 +136,23 @@ std::string CSifCmd::GetFunctionName(unsigned int functionId) const
 	case 19:
 		return FUNCTION_SIFSETRPCQUEUE;
 		break;
+	case 20:
+		return FUNCTION_SIFGETNEXTREQUEST;
+		break;
+	case 21:
+		return FUNCTION_SIFEXECREQUEST;
+		break;
 	case 22:
 		return FUNCTION_SIFRPCLOOP;
 		break;
 	case 23:
 		return FUNCTION_SIFGETOTHERDATA;
 		break;
-	case CUSTOM_RETURNFROMRPCINVOKE:
-		return FUNCTION_RETURNFROMRPCINVOKE;
+	case CUSTOM_FINISHEXECREQUEST:
+		return FUNCTION_FINISHEXECREQUEST;
+		break;
+	case CUSTOM_SLEEPTHREAD:
+		return FUNCTION_SLEEPTHREAD;
 		break;
 	default:
 		return "unknown";
@@ -195,8 +208,16 @@ void CSifCmd::Invoke(CMIPS& context, unsigned int functionId)
 		SifSetRpcQueue(context.m_State.nGPR[CMIPS::A0].nV0,
 			context.m_State.nGPR[CMIPS::A1].nV0);
 		break;
+	case 20:
+		context.m_State.nGPR[CMIPS::V0].nD0 = static_cast<int32>(SifGetNextRequest(
+			context.m_State.nGPR[CMIPS::A0].nV0
+		));
+		break;
+	case 21:
+		SifExecRequest(context);
+		break;
 	case 22:
-		SifRpcLoop(context.m_State.nGPR[CMIPS::A0].nV0);
+		SifRpcLoop(context);
 		break;
 	case 23:
 		context.m_State.nGPR[CMIPS::V0].nV0 = SifGetOtherData(
@@ -206,8 +227,14 @@ void CSifCmd::Invoke(CMIPS& context, unsigned int functionId)
 			context.m_State.nGPR[CMIPS::A3].nV0,
 			context.m_pMemoryMap->GetWord(context.m_State.nGPR[CMIPS::SP].nV0 + 0x10));
 		break;
-	case CUSTOM_RETURNFROMRPCINVOKE:
-		ReturnFromRpcInvoke(context);
+	case CUSTOM_FINISHEXECREQUEST:
+		FinishExecRequest(
+			context.m_State.nGPR[CMIPS::A0].nV0,
+			context.m_State.nGPR[CMIPS::A1].nV0
+		);
+		break;
+	case CUSTOM_SLEEPTHREAD:
+		SleepThread();
 		break;
 	default:
 		CLog::GetInstance().Print(LOG_NAME, "Unknown function called (%d).\r\n", 
@@ -239,10 +266,85 @@ void CSifCmd::BuildExportTable()
 	exportTable += (strlen(MODULE_NAME) + 3) / 4;
 
 	{
-		m_returnFromRpcInvokeAddr = reinterpret_cast<uint8*>(exportTable) - m_ram;
 		CMIPSAssembler assembler(exportTable);
+
+		//Trampoline for SifGetNextRequest
+		uint32 sifGetNextRequestAddr = (reinterpret_cast<uint8*>(exportTable) - m_ram) + (assembler.GetProgramSize() * 4);
 		assembler.JR(CMIPS::RA);
-		assembler.ADDIU(CMIPS::R0, CMIPS::R0, CUSTOM_RETURNFROMRPCINVOKE);
+		assembler.ADDIU(CMIPS::R0, CMIPS::R0, 20);
+
+		//Trampoline for SifExecRequest
+		uint32 sifExecRequestAddr = (reinterpret_cast<uint8*>(exportTable) - m_ram) + (assembler.GetProgramSize() * 4);
+		assembler.JR(CMIPS::RA);
+		assembler.ADDIU(CMIPS::R0, CMIPS::R0, 21);
+
+		uint32 finishExecRequestAddr = (reinterpret_cast<uint8*>(exportTable) - m_ram) + (assembler.GetProgramSize() * 4);
+		assembler.JR(CMIPS::RA);
+		assembler.ADDIU(CMIPS::R0, CMIPS::R0, CUSTOM_FINISHEXECREQUEST);
+
+		uint32 sleepThreadAddr = (reinterpret_cast<uint8*>(exportTable) - m_ram) + (assembler.GetProgramSize() * 4);
+		assembler.JR(CMIPS::RA);
+		assembler.ADDIU(CMIPS::R0, CMIPS::R0, CUSTOM_SLEEPTHREAD);
+
+		//Assemble SifRpcLoop
+		{
+			m_sifRpcLoopAddr = (reinterpret_cast<uint8*>(exportTable) - m_ram) + (assembler.GetProgramSize() * 4);
+			auto checkNextRequestLabel = assembler.CreateLabel();
+			auto sleepThreadLabel = assembler.CreateLabel();
+
+			assembler.ADDIU(CMIPS::SP, CMIPS::SP, 0xFFF0);
+			assembler.SW(CMIPS::RA, 0x00, CMIPS::SP);
+			assembler.SW(CMIPS::S0, 0x04, CMIPS::SP);
+			assembler.ADDU(CMIPS::S0, CMIPS::A0, CMIPS::R0);
+
+			//checkNextRequest:
+			assembler.MarkLabel(checkNextRequestLabel);
+			assembler.JAL(sifGetNextRequestAddr);
+			assembler.ADDU(CMIPS::A0, CMIPS::S0, CMIPS::R0);
+			assembler.BEQ(CMIPS::V0, CMIPS::R0, sleepThreadLabel);
+			assembler.NOP();
+
+			assembler.JAL(sifExecRequestAddr);
+			assembler.ADDU(CMIPS::A0, CMIPS::V0, CMIPS::R0);
+
+			//sleepThread:
+			assembler.MarkLabel(sleepThreadLabel);
+			assembler.JAL(sleepThreadAddr);
+			assembler.NOP();
+			assembler.BEQ(CMIPS::R0, CMIPS::R0, checkNextRequestLabel);
+			assembler.NOP();
+
+			assembler.LW(CMIPS::S0, 0x04, CMIPS::SP);
+			assembler.LW(CMIPS::RA, 0x00, CMIPS::SP);
+			assembler.JR(CMIPS::RA);
+			assembler.ADDIU(CMIPS::SP, CMIPS::SP, 0x10);
+		}
+
+		//Assemble SifExecRequest
+		{
+			m_sifExecRequestAddr = (reinterpret_cast<uint8*>(exportTable) - m_ram) + (assembler.GetProgramSize() * 4);
+
+			assembler.ADDIU(CMIPS::SP, CMIPS::SP, 0xFFE0);
+			assembler.SW(CMIPS::RA, 0x1C, CMIPS::SP);
+			assembler.SW(CMIPS::S0, 0x18, CMIPS::SP);
+			assembler.ADDU(CMIPS::S0, CMIPS::A0, CMIPS::R0);
+
+			assembler.LW(CMIPS::A0, offsetof(SIFRPCSERVERDATA, rid), CMIPS::S0);
+			assembler.LW(CMIPS::A1, offsetof(SIFRPCSERVERDATA, buffer), CMIPS::S0);
+			assembler.LW(CMIPS::A2, offsetof(SIFRPCSERVERDATA, rsize), CMIPS::S0);
+			assembler.LW(CMIPS::T0, offsetof(SIFRPCSERVERDATA, function), CMIPS::S0);
+			assembler.JALR(CMIPS::T0);
+			assembler.NOP();
+
+			assembler.ADDU(CMIPS::A0, CMIPS::S0, CMIPS::R0);
+			assembler.JAL(finishExecRequestAddr);
+			assembler.ADDU(CMIPS::A1, CMIPS::V0, CMIPS::R0);
+
+			assembler.LW(CMIPS::S0, 0x18, CMIPS::SP);
+			assembler.LW(CMIPS::RA, 0x1C, CMIPS::SP);
+			assembler.JR(CMIPS::RA);
+			assembler.ADDIU(CMIPS::SP, CMIPS::SP, 0x20);
+		}
 	}
 }
 
@@ -256,25 +358,23 @@ void CSifCmd::ProcessInvocation(uint32 serverDataAddr, uint32 methodId, uint32* 
 	{
 		memcpy(&m_ram[serverData->buffer], params, size);
 	}
-	auto thread(m_bios.GetThread(queueData->threadId));
+	serverData->rid = methodId;
+	serverData->rsize = size;
 
+	assert(queueData->serverDataLink == 0);
+	assert(queueData->serverDataStart == serverDataAddr);
+	queueData->serverDataLink = serverDataAddr;
+
+	auto thread = m_bios.GetThread(queueData->threadId);
 	assert(thread->status == CIopBios::THREAD_STATUS_SLEEPING);
-
-	thread->context.epc = serverData->function;
-	thread->context.gpr[CMIPS::A0] = methodId;
-	thread->context.gpr[CMIPS::A1] = serverData->buffer;
-	thread->context.gpr[CMIPS::A2] = size;
-	thread->context.gpr[CMIPS::S0] = serverDataAddr;
-	thread->context.gpr[CMIPS::RA] = m_returnFromRpcInvokeAddr;
 	m_bios.WakeupThread(queueData->threadId, true);
 	m_bios.Reschedule();
 }
 
-void CSifCmd::ReturnFromRpcInvoke(CMIPS& context)
+void CSifCmd::FinishExecRequest(uint32 serverDataAddr, uint32 returnDataAddr)
 {
-	auto serverData = reinterpret_cast<SIFRPCSERVERDATA*>(m_ram + context.m_State.nGPR[CMIPS::S0].nV0);
-	auto returnData = m_ram + context.m_State.nGPR[CMIPS::V0].nV0;
-	m_bios.SleepThread();
+	auto serverData = reinterpret_cast<SIFRPCSERVERDATA*>(m_ram + serverDataAddr);
+	auto returnData = m_ram + returnDataAddr;
 	m_sifMan.SendCallReply(serverData->serverId, returnData);
 }
 
@@ -509,6 +609,29 @@ void CSifCmd::SifSetRpcQueue(uint32 queueDataAddr, uint32 threadId)
 	}
 }
 
+uint32 CSifCmd::SifGetNextRequest(uint32 queueDataAddr)
+{
+	CLog::GetInstance().Print(LOG_NAME, FUNCTION_SIFGETNEXTREQUEST "(queueData = 0x%0.8X);\r\n",
+		queueDataAddr);
+
+	uint32 result = 0;
+	if(queueDataAddr != 0)
+	{
+		auto queueData = reinterpret_cast<SIFRPCQUEUEDATA*>(m_ram + queueDataAddr);
+		result = queueData->serverDataLink;
+		queueData->serverDataLink = 0;
+	}
+	return result;
+}
+
+void CSifCmd::SifExecRequest(CMIPS& context)
+{
+	uint32 serverDataAddr = context.m_State.nGPR[CMIPS::A0].nV0;
+	CLog::GetInstance().Print(LOG_NAME, FUNCTION_SIFEXECREQUEST "(serverData = 0x%0.8X);\r\n",
+		serverDataAddr);
+	context.m_State.nPC = m_sifExecRequestAddr;
+}
+
 uint32 CSifCmd::SifCheckStatRpc(uint32 clientDataAddress)
 {
 	CLog::GetInstance().Print(LOG_NAME, FUNCTION_SIFCHECKSTATRPC "(clientData = 0x%0.8X);\r\n",
@@ -516,11 +639,12 @@ uint32 CSifCmd::SifCheckStatRpc(uint32 clientDataAddress)
 	return 0;
 }
 
-void CSifCmd::SifRpcLoop(uint32 queueAddr)
+void CSifCmd::SifRpcLoop(CMIPS& context)
 {
+	uint32 queueAddr = context.m_State.nGPR[CMIPS::A0].nV0;
 	CLog::GetInstance().Print(LOG_NAME, FUNCTION_SIFRPCLOOP "(queue = 0x%0.8X);\r\n",
 		queueAddr);
-	m_bios.SleepThread();
+	context.m_State.nPC = m_sifRpcLoopAddr;
 }
 
 uint32 CSifCmd::SifGetOtherData(uint32 packetPtr, uint32 src, uint32 dst, uint32 size, uint32 mode)
@@ -529,4 +653,9 @@ uint32 CSifCmd::SifGetOtherData(uint32 packetPtr, uint32 src, uint32 dst, uint32
 		packetPtr, src, dst, size, mode);
 	m_sifMan.GetOtherData(dst, src, size);
 	return 0;
+}
+
+void CSifCmd::SleepThread()
+{
+	m_bios.SleepThread();
 }

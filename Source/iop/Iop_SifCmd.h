@@ -33,8 +33,8 @@ namespace Iop
 		{
 			uint32		threadId;
 			uint32		active;
-			uint32		serverDataLink;
-			uint32		serverDataStart;
+			uint32		serverDataLink;    //Set when there's a pending request
+			uint32		serverDataStart;   //Set when a RPC server has been registered on the queue
 			uint32		serverDataEnd;
 			uint32		queueNext;
 		};
@@ -50,6 +50,9 @@ namespace Iop
 			uint32		cfunction;
 			uint32		cbuffer;
 			uint32		csize;
+
+			uint32		rsize;
+			uint32		rid;
 
 			uint32		queueAddr;
 		};
@@ -76,9 +79,12 @@ namespace Iop
 		void					SifRegisterRpc(CMIPS&);
 		uint32					SifCheckStatRpc(uint32);
 		void					SifSetRpcQueue(uint32, uint32);
-		void					SifRpcLoop(uint32);
+		uint32					SifGetNextRequest(uint32);
+		void					SifExecRequest(CMIPS&);
+		void					SifRpcLoop(CMIPS&);
 		uint32					SifGetOtherData(uint32, uint32, uint32, uint32, uint32);
-		void					ReturnFromRpcInvoke(CMIPS&);
+		void					FinishExecRequest(uint32, uint32);
+		void					SleepThread();
 
 		uint32					m_cmdBuffer = 0;
 		uint32					m_cmdBufferLen = 0;
@@ -90,7 +96,8 @@ namespace Iop
 		uint32					m_memoryBufferAddr;
 		uint32					m_trampolineAddr;
 		uint32					m_sendCmdExtraStructAddr;
-		uint32					m_returnFromRpcInvokeAddr;
+		uint32					m_sifRpcLoopAddr = 0;
+		uint32					m_sifExecRequestAddr = 0;
 		DynamicModuleList		m_servers;
 	};
 
