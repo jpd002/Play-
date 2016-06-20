@@ -13,7 +13,7 @@ public:
 												CPH_DirectInput(HWND);
 	virtual										~CPH_DirectInput();
 
-	void										Update(uint8*);
+	void										Update(uint8*) override;
 
 	Framework::Win32::CWindow*					CreateSettingsDialog(HWND) override;
 	void										OnSettingsDialogDestroyed() override;

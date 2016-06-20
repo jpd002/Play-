@@ -26,13 +26,11 @@ CPadHandler* CPH_DirectInput::PadHandlerFactory(HWND hWnd)
 
 void CPH_DirectInput::Update(uint8* ram)
 {
-	for(auto listenerIterator(std::begin(m_listeners)); 
-		listenerIterator != std::end(m_listeners); listenerIterator++)
+	for(auto& listener : m_listeners)
 	{
-		auto& listener(*listenerIterator);
 		for(unsigned int i = 0; i < PS2::CControllerInfo::MAX_BUTTONS; i++)
 		{
-			PS2::CControllerInfo::BUTTON button = static_cast<PS2::CControllerInfo::BUTTON>(i);
+			auto button = static_cast<PS2::CControllerInfo::BUTTON>(i);
 			uint32 value = m_inputManager.GetBindingValue(button);
 			if(PS2::CControllerInfo::IsAxis(button))
 			{
