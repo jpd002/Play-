@@ -51,8 +51,9 @@ void CVuBasicBlock::CompileRange(CMipsJitter* jitter)
 		// Test if the block ends with a conditional branch instruction where the condition variable has been
 		// set in the prior instruction.
 		// In this case, the pipeline shortcut fails and we need to use the value from 4 instructions previous.
+		// If the relevant set instruction is not part of this block, skip the fix and fall back to the broken implementation.
 		int length = (fixedEnd - m_begin) >> 3;
-		if (length > 2)
+		if (length > 4)
 		{
 			// Check if we have a conditional branch instruction. Luckily these populate the contiguous opcode range 0x28 -> 0x2F inclusive
 			uint32 opcodeLo = m_context.m_pMemoryMap->GetInstruction(adjustedEnd - 8);
@@ -73,7 +74,7 @@ void CVuBasicBlock::CompileRange(CMipsJitter* jitter)
 					{
 						// argh - we need to use the value of incReg 4 steps prior.
 						delayedReg = loOps.writeI;
-						delayedRegTime = std::max(adjustedEnd - 5 * 8, static_cast<int>(m_begin));
+						delayedRegTime = adjustedEnd - 5 * 8;
 						delayedRegTargetTime = adjustedEnd - 8;
 					}
 				}			
