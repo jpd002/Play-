@@ -332,7 +332,7 @@ static bool TryGetStringAtAddress(CMIPS* context, uint32 address, std::string& r
 		result += byte;
 		address++;
 	}
-	return (result.length() != 0);
+	return (result.length() > 1);
 }
 
 void CMIPSAnalysis::AnalyseStringReferences(uint32 start, uint32 end)
@@ -358,9 +358,8 @@ void CMIPSAnalysis::AnalyseStringReferences(uint32 start, uint32 end)
 			else if((op & 0xFC000000) == 0x24000000)
 			{
 				uint32 rs = (op >> 21) & 0x1F;
-				uint32 rt = (op >> 16) & 0x1F;
 				uint32 imm = static_cast<int16>(op);
-				if((rs == rt) && registerWritten[rs])
+				if(registerWritten[rs])
 				{
 					//Check string
 					uint32 targetAddress = registerValue[rs] + imm;
