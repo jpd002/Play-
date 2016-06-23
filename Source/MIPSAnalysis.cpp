@@ -90,7 +90,8 @@ void CMIPSAnalysis::AnalyseSubroutines(uint32 start, uint32 end, uint32 entryPoi
 	FindSubroutinesByJumpTargets(start, end, entryPoint);
 	ExpandSubroutines(start, end);
 
-	printf("CMIPSAnalysis: Found %d subroutines in the range [0x%0.8X, 0x%0.8X].\r\n", m_subroutines.size() - subroutinesBefore, start, end);
+	uint32 subroutinesAdded = static_cast<uint32>(m_subroutines.size() - subroutinesBefore);
+	printf("CMIPSAnalysis: Found %d subroutines in the range [0x%0.8X, 0x%0.8X].\r\n", subroutinesAdded, start, end);
 }
 
 static bool IsStackFreeingInstruction(uint32 opcode)
