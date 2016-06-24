@@ -161,7 +161,7 @@ INSTRUCTION CMA_EE::m_cReflMmi1[32] =
 	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
 	{	"PEXTUW",	NULL,			CopyMnemonic,		ReflOpRdRsRt,		NULL,				NULL			},
 	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
-	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
+	{	"PADDUH",	NULL,			CopyMnemonic,		ReflOpRdRsRt,		NULL,				NULL			},
 	{	"PSUBUH",	NULL,			CopyMnemonic,		ReflOpRdRsRt,		NULL,				NULL			},
 	{	"PEXTUH",	NULL,			CopyMnemonic,		ReflOpRdRsRt,		NULL,				NULL			},
 	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
