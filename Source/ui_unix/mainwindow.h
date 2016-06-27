@@ -36,6 +36,8 @@ public:
     CStatsManager* StatsManager;
     CPH_HidUnix* padhandler = nullptr;
 
+	void showEvent(QShowEvent*) override;
+
 public slots:
     void openGLWindow_resized();
     void setFPS();
