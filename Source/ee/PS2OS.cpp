@@ -2605,7 +2605,7 @@ void CPS2OS::sc_Deci2Call()
 	case 0x03:
 		//Deci2Send
 		{
-			uint32 id = *reinterpret_cast<uint32*>(&m_ram[param + 0x00]);
+			uint32 id = *reinterpret_cast<uint32*>(GetStructPtr(param + 0x00));
 
 			DECI2HANDLER* handler = GetDeci2Handler(id);
 
@@ -2627,7 +2627,7 @@ void CPS2OS::sc_Deci2Call()
 	case 0x04:
 		//Deci2Poll
 		{
-			uint32 id = *reinterpret_cast<uint32*>(&m_ram[param + 0x00]);
+			uint32 id = *reinterpret_cast<uint32*>(GetStructPtr(param + 0x00));
 		
 			DECI2HANDLER* handler = GetDeci2Handler(id);
 			if(handler->valid != 0)
