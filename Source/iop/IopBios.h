@@ -436,6 +436,18 @@ private:
 		KERNEL_RESULT_ERROR_ILLEGAL_MEMSIZE  = -427,
 	};
 
+	enum
+	{
+		ET_SCE_IOPRELEXEC  = 0xFF80,
+		ET_SCE_IOPRELEXEC2 = 0xFF81
+	};
+
+	enum
+	{
+		R_MIPSSCE_MHI16  = 0xFA,
+		R_MIPSSCE_ADDEND = 0xFB
+	};
+
 	typedef COsStructManager<THREAD> ThreadList;
 	typedef COsStructManager<Iop::MEMORYBLOCK> MemoryBlockList;
 	typedef COsStructManager<SEMAPHORE> SemaphoreList;

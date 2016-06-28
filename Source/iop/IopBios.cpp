@@ -2659,21 +2659,21 @@ unsigned int CIopBios::GetElfProgramToLoad(CELF& elf)
 
 void CIopBios::RelocateElf(CELF& elf, uint32 baseAddress)
 {
-	//Process relocation
-	const ELFHEADER& header = elf.GetHeader();
+	const auto& header = elf.GetHeader();
+	bool isVersion2 = (header.nType == ET_SCE_IOPRELEXEC2);
 	for(unsigned int i = 0; i < header.nSectHeaderCount; i++)
 	{
-		ELFSECTIONHEADER* sectionHeader = elf.GetSection(i);
-		if(sectionHeader != NULL && sectionHeader->nType == CELF::SHT_REL)
+		const auto* sectionHeader = elf.GetSection(i);
+		if(sectionHeader != nullptr && sectionHeader->nType == CELF::SHT_REL)
 		{
 			uint32 lastHi16 = -1;
 			uint32 instructionHi16 = -1;
 			unsigned int linkedSection = sectionHeader->nInfo;
 			unsigned int recordCount = sectionHeader->nSize / 8;
-			ELFSECTIONHEADER* relocatedSection = elf.GetSection(linkedSection);
-			const uint32* relocationRecord = reinterpret_cast<const uint32*>(elf.GetSectionData(i));
-			uint8* relocatedSectionData = reinterpret_cast<uint8*>(const_cast<void*>(elf.GetSectionData(linkedSection)));
-			if(relocatedSection == NULL || relocationRecord == NULL || relocatedSectionData == NULL) continue;
+			auto relocatedSection = elf.GetSection(linkedSection);
+			auto relocationRecord = reinterpret_cast<const uint32*>(elf.GetSectionData(i));
+			auto relocatedSectionData = reinterpret_cast<uint8*>(const_cast<void*>(elf.GetSectionData(linkedSection)));
+			if(relocatedSection == nullptr || relocationRecord == nullptr || relocatedSectionData == nullptr) continue;
 			uint32 sectionBase = relocatedSection->nStart;
 			for(unsigned int record = 0; record < recordCount; record++)
 			{
@@ -2697,32 +2697,69 @@ void CIopBios::RelocateElf(CELF& elf, uint32 baseAddress)
 						}
 						break;
 					case CELF::R_MIPS_HI16:
+						if(isVersion2)
 						{
+							assert((record + 1) != recordCount);
+							assert((relocationRecord[3] & 0xFF) == CELF::R_MIPS_LO16);
+							uint32 nextRelocationAddress = relocationRecord[2] - sectionBase;
+							uint32 nextInstruction = *reinterpret_cast<uint32*>(&relocatedSectionData[nextRelocationAddress]);
+							uint32 offset = static_cast<int16>(nextInstruction) + (instruction << 16);
+							offset += baseAddress;
+							if(offset & 0x8000) offset += 0x10000;
+							instruction &= ~0xFFFF;
+							instruction |= offset >> 16;
+						}
+						else
+						{
+							assert(lastHi16 == -1);
 							lastHi16 = relocationAddress;
 							instructionHi16 = instruction;
 						}
 						break;
 					case CELF::R_MIPS_LO16:
+						if(isVersion2)
 						{
-							if(lastHi16 != -1)
-							{
-								uint32 offset = static_cast<int16>(instruction) + (instructionHi16 << 16);
-								offset += baseAddress;
-								instruction &= ~0xFFFF;
-								instruction |= offset & 0xFFFF;
+							uint32 offset = static_cast<int16>(instruction);
+							offset += baseAddress;
+							instruction &= ~0xFFFF;
+							instruction |= offset & 0xFFFF;
+						}
+						else
+						{
+							assert(lastHi16 != -1);
 
-								uint32& prevInstruction = *reinterpret_cast<uint32*>(&relocatedSectionData[lastHi16]);
-								prevInstruction &= ~0xFFFF;
-								if(offset & 0x8000) offset += 0x10000;
-								prevInstruction |= offset >> 16;
-								lastHi16 = -1;
-							}
-							else
+							uint32 offset = static_cast<int16>(instruction) + (instructionHi16 << 16);
+							offset += baseAddress;
+							instruction &= ~0xFFFF;
+							instruction |= offset & 0xFFFF;
+
+							uint32& prevInstruction = *reinterpret_cast<uint32*>(&relocatedSectionData[lastHi16]);
+							prevInstruction &= ~0xFFFF;
+							if(offset & 0x8000) offset += 0x10000;
+							prevInstruction |= offset >> 16;
+							lastHi16 = -1;
+						}
+						break;
+					case R_MIPSSCE_MHI16:
+						{
+							assert(isVersion2);
+							assert((record + 1) != recordCount);
+							assert((relocationRecord[3] & 0xFF) == R_MIPSSCE_ADDEND);
+							uint32 offset = relocationRecord[2] + baseAddress;
+							if(offset & 0x8000) offset += 0x10000;
+							offset >>= 16;
+							while(1)
 							{
-#ifdef _DEBUG
-								CLog::GetInstance().Print(LOGNAME, "%s: No HI16 relocation record found for corresponding LO16.\r\n", 
-									__FUNCTION__);
-#endif
+								uint32& prevInstruction = *reinterpret_cast<uint32*>(&relocatedSectionData[relocationAddress]);
+
+								int32 mhiOffset = static_cast<int16>(prevInstruction);
+								mhiOffset *= 4;
+
+								prevInstruction &= ~0xFFFF;
+								prevInstruction |= offset;
+
+								if(mhiOffset == 0) break;
+								relocationAddress += mhiOffset;
 							}
 						}
 						break;
