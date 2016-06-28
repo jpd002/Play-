@@ -15,6 +15,7 @@ ReleaseAot
 *.ipch
 *.sdf
 *.opensdf
+*.VC.db
 *.VC.opendb
 *.suo
 *.user
