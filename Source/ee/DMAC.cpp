@@ -411,6 +411,11 @@ uint32 CDMAC::GetRegister(uint32 nAddress)
 	REGISTER_READ(D8_QWC,  m_D8.m_nQWC)
 	REGISTER_READ(D8_SADR, m_D8_SADR)
 
+	case D8_CHCR + 0x1:
+		//This is done by Front Mission 4
+		return m_D8.ReadCHCR() >> 8;
+		break;
+
 	//Channel 9
 	REGISTER_READ(D9_CHCR, m_D9.ReadCHCR())
 	REGISTER_READ(D9_MADR, m_D9.m_nMADR)
@@ -705,6 +710,10 @@ void CDMAC::SetRegister(uint32 nAddress, uint32 nData)
 	//Channel 8
 	case D8_CHCR + 0x0:
 		m_D8.WriteCHCR(nData);
+		break;
+	case D8_CHCR + 0x1:
+		//This is done by Front Mission 4
+		m_D8.WriteCHCR((m_D8.ReadCHCR() & ~0xFF00) | ((nData & 0xFF) << 8));
 		break;
 	case D8_CHCR + 0x4:
 	case D8_CHCR + 0x8:
