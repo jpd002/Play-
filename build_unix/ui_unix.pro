@@ -18,18 +18,22 @@ INCLUDEPATH +=../ \
 
 SOURCES += ../Source/ui_unix/main.cpp\
         ../Source/ui_unix/mainwindow.cpp \
-        ../Source/ui_unix/GSH_OpenGLUnix.cpp \
+        ../Source/ui_unix/GSH_OpenGLQt.cpp \
         ../Source/ui_unix/StatsManager.cpp \
         ../Source/ui_unix/PH_HidUnix.cpp \
-        ../Source/ui_unix/settingsdialog.cpp
+        ../Source/ui_unix/settingsdialog.cpp \
+        ../Source/ui_unix/openglwindow.cpp
+
 
 HEADERS  += ../Source/ui_unix/mainwindow.h \
-            ../Source/ui_unix/GSH_OpenGLUnix.h \
+            ../Source/ui_unix/GSH_OpenGLQt.h \
             ../Source/ui_unix/global.h \
             ../Source/ui_unix/StatsManager.h \
             ../Source/ui_unix/PH_HidUnix.h \
             ../Source/ui_unix/settingsdialog.h \
-            ../Source/ui_unix/PreferenceDefs.h
+            ../Source/ui_unix/PreferenceDefs.h \
+            ../Source/ui_unix/openglwindow.h
+
 
 FORMS    += mainwindow.ui \
     settingsdialog.ui

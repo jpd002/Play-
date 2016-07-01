@@ -22,11 +22,14 @@ class MainWindow : public QMainWindow
 public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
-    WId getOpenGLPanel();
     void setOpenGlPanelSize();
     void createStatusBar();
     void initEmu();
     void setupSoundHandler();
+    void Setupfpscounter();
+    void createOpenGlPanel();
+
+    QWindow* openglpanel;
 
     QLabel* fpsLabel;
     QLabel* dcLabel;
@@ -34,7 +37,7 @@ public:
     CPH_HidUnix* padhandler = nullptr;
 
 public slots:
-    void on_openGLWidget_resized();
+    void openGLWindow_resized();
     void setFPS();
 
 private slots:

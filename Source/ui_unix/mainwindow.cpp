@@ -1,12 +1,14 @@
 #include "mainwindow.h"
 #include "settingsdialog.h"
 
+#include "openglwindow.h"
 
 #include <QFileDialog>
 #include <QTimer>
+#include <QWindow>
 
 #include "global.h"
-#include "GSH_OpenGLUnix.h"
+#include "GSH_OpenGLQt.h"
 #include "tools/PsfPlayer/Source/SH_OpenAL.h"
 #include "PreferenceDefs.h"
 
@@ -19,21 +21,34 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->setupUi(this);
 }
 
-WId MainWindow::getOpenGLPanel()
-{
-    return ui->openGLWidget->winId();
-}
-
 MainWindow::~MainWindow()
 {
     delete ui;
+}
+
+
+void MainWindow::createOpenGlPanel()
+{
+    QSurfaceFormat format;
+    format.setVersion(3, 2);
+    format.setProfile(QSurfaceFormat::CompatibilityProfile);
+
+    openglpanel = new OpenGLWindow;
+    openglpanel->show();
+    QWidget * container = QWidget::createWindowContainer(openglpanel);
+    ui->gridLayout->addWidget(container);
+    connect(openglpanel, SIGNAL(heightChanged(int)), this, SLOT(openGLWindow_resized()));
+    connect(openglpanel, SIGNAL(widthChanged(int)), this, SLOT(openGLWindow_resized()));
+
+    connect(openglpanel, SIGNAL(keyUp(QKeyEvent*)), this, SLOT(keyReleaseEvent(QKeyEvent*)));
+    connect(openglpanel, SIGNAL(keyDown(QKeyEvent*)), this, SLOT(keyPressEvent(QKeyEvent*)));
 }
 
 void MainWindow::initEmu(){
     g_virtualMachine = new CPS2VM();
     g_virtualMachine->Initialize();
 
-    g_virtualMachine->CreateGSHandler(CGSH_OpenGLUnix::GetFactoryFunction(getOpenGLPanel()));
+    g_virtualMachine->CreateGSHandler(CGSH_OpenGLQt::GetFactoryFunction(openglpanel));
     setupSoundHandler();
 
     g_virtualMachine->CreatePadHandler(CPH_HidUnix::GetFactoryFunction());
@@ -47,7 +62,7 @@ void MainWindow::initEmu(){
 
 void MainWindow::setOpenGlPanelSize()
 {
-    on_openGLWidget_resized();
+    openGLWindow_resized();
 }
 
 void MainWindow::setupSoundHandler()
@@ -65,12 +80,12 @@ void MainWindow::setupSoundHandler()
     }
 }
 
-void MainWindow::on_openGLWidget_resized()
+void MainWindow::openGLWindow_resized()
 {
     if (g_virtualMachine != nullptr && g_virtualMachine->m_ee != nullptr  && g_virtualMachine->m_ee->m_gs != nullptr )
         {
 
-            GLint w = ui->openGLWidget->size().width(), h = ui->openGLWidget->size().height();
+            GLint w = openglpanel->size().width(), h = openglpanel->size().height();
 
             CGSHandler::PRESENTATION_PARAMS presentationParams;
             presentationParams.mode 			= (CGSHandler::PRESENTATION_MODE)CAppConfig::GetInstance().GetPreferenceInteger(PREF_CGSHANDLER_PRESENTATION_MODE);

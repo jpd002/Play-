@@ -31,9 +31,6 @@
     <property name="bottomMargin">
      <number>0</number>
     </property>
-    <item row="0" column="0">
-     <widget class="QOpenGLWidget" name="openGLWidget"/>
-    </item>
    </layout>
   </widget>
   <widget class="QMenuBar" name="menuBar">

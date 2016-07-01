@@ -1,6 +1,7 @@
 #include <QApplication>
 
 #include "mainwindow.h"
+#include <QWindow>
 
 int main(int argc, char *argv[])
 {
@@ -8,7 +9,11 @@ int main(int argc, char *argv[])
     MainWindow w;
     w.show();
 
+    w.createOpenGlPanel();
     w.initEmu();
+
+
+
 
     return a.exec();
 }
