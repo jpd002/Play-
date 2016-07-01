@@ -58,6 +58,6 @@ DEPENDPATH += $$PWD/../../CodeGen/include
 
 unix:!macx: PRE_TARGETDEPS += $$PWD/../../CodeGen/build_unix/build/libCodeGen.a
 
-LIBS += -lboost_system -lboost_filesystem -lboost_chrono -lX11 -lGLEW -lz -lbz2 -lopenal
+LIBS += -lboost_system -lboost_filesystem -lboost_chrono -lGLEW -lz -lbz2 -lopenal
 
 QMAKE_CXXFLAGS += -std=c++11

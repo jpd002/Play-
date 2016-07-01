@@ -21,7 +21,6 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->setupUi(this);
 
     openglpanel = new OpenGLWindow;
-    openglpanel->show();
     QWidget * container = QWidget::createWindowContainer(openglpanel);
     ui->gridLayout->addWidget(container);
     connect(openglpanel, SIGNAL(heightChanged(int)), this, SLOT(openGLWindow_resized()));

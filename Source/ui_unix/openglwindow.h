@@ -11,6 +11,7 @@ public:
         ~OpenGLWindow();
 
 protected:
+    void exposeEvent(QExposeEvent *ev) Q_DECL_OVERRIDE;
     void keyPressEvent(QKeyEvent*) Q_DECL_OVERRIDE;
     void keyReleaseEvent(QKeyEvent*) Q_DECL_OVERRIDE;
 

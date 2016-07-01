@@ -7,6 +7,7 @@ OpenGLWindow::OpenGLWindow(QWindow *parent)
     QSurfaceFormat format;
     format.setVersion(3, 2);
     format.setProfile(QSurfaceFormat::CoreProfile);
+    format.setSwapBehavior(QSurfaceFormat::DoubleBuffer);
 
     setSurfaceType(QWindow::OpenGLSurface);
     setFormat(format);
@@ -24,4 +25,10 @@ void OpenGLWindow::keyPressEvent(QKeyEvent *ev)
 void OpenGLWindow::keyReleaseEvent(QKeyEvent *ev)
 {
     emit keyUp(ev);
+}
+
+void OpenGLWindow::exposeEvent(QExposeEvent* ev)
+{
+    emit widthChanged(size().width());
+    QWindow::exposeEvent(ev);
 }

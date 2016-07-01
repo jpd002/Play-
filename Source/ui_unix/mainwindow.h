@@ -22,6 +22,8 @@ class MainWindow : public QMainWindow
 public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
+
+private:
     void setOpenGlPanelSize();
     void createStatusBar();
     void initEmu();
@@ -29,14 +31,17 @@ public:
     void Setupfpscounter();
     void createOpenGlPanel();
 
-    QWindow* openglpanel;
+    Ui::MainWindow *ui;
 
+    QWindow* openglpanel;
     QLabel* fpsLabel;
     QLabel* dcLabel;
     CStatsManager* StatsManager;
     CPH_HidUnix* padhandler = nullptr;
+    QTimer *fpstimer = nullptr;
 
-	void showEvent(QShowEvent*) override;
+protected:
+    void showEvent(QShowEvent*) Q_DECL_OVERRIDE;
 
 public slots:
     void openGLWindow_resized();
@@ -44,21 +49,13 @@ public slots:
 
 private slots:
     void on_actionOpen_Game_triggered();
-
     void on_actionStart_Game_triggered();
-
     void on_actionBoot_ELF_triggered();
-
     void on_actionExit_triggered();
     void keyPressEvent(QKeyEvent *);
     void keyReleaseEvent(QKeyEvent *);
-
     void on_actionSettings_triggered();
-protected:
 
-private:
-    Ui::MainWindow *ui;
-    QTimer *fpstimer = nullptr;
 };
 
 #endif // MAINWINDOW_H
