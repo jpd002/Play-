@@ -1,0 +1,8 @@
+#include "GeneralSettings.xcconfig"
+
+GCC_PREPROCESSOR_DEFINITIONS = $(inherited) COCOAPODS=1 $(GENERAL_GCC_PREPROCESSOR_DEFINITIONS) NDEBUG
+//HEADER_SEARCH_PATHS = $(inherited) "${PODS_ROOT}/Headers/Public" "${PODS_ROOT}/Headers/Public/SDWebImage"
+LIBRARY_SEARCH_PATHS = $(inherited) "$CONFIGURATION_BUILD_DIR/SDWebImage"
+//OTHER_CFLAGS = $(inherited) -isystem "${PODS_ROOT}/Headers/Public" -isystem "${PODS_ROOT}/Headers/Public/SDWebImage"
+//OTHER_LDFLAGS = $(inherited) -ObjC -l"SDWebImage" -framework "ImageIO"
+PODS_ROOT = ${SRCROOT}/Pods

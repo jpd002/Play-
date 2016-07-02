@@ -7,8 +7,8 @@
 	CPH_Generic* _padHandler;
 }
 
-@property NSArray<VirtualPadItem*>* items;
-@property NSDictionary<NSString*, UIImage*>* itemImages;
+@property NSArray<VirtualPadItem>* items;
+@property NSDictionary* itemImages;
 
 -(VirtualPadView*)initWithFrame: (CGRect)frame padHandler: (CPH_Generic*) padHandler;
 -(void)rebuildPadItems;

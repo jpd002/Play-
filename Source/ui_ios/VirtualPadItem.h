@@ -1,6 +1,9 @@
 #import <UIKit/UIKit.h>
 #include "PH_Generic.h"
 
+@protocol VirtualPadItem <NSObject>
+@end
+
 @interface VirtualPadItem : NSObject
 
 @property CGRect bounds;

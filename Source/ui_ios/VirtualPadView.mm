@@ -10,7 +10,7 @@
 	self = [super initWithFrame: frame];
 	if(self)
 	{
-		NSMutableDictionary<NSString*, UIImage*>* itemImages = [[NSMutableDictionary alloc] init];
+		NSMutableDictionary* itemImages = [[NSMutableDictionary alloc] init];
 		[itemImages setObject: [UIImage imageNamed: @"select.png"]      forKey: @"select"];
 		[itemImages setObject: [UIImage imageNamed: @"start.png"]       forKey: @"start"];
 		[itemImages setObject: [UIImage imageNamed: @"up.png"]          forKey: @"up"];
@@ -37,7 +37,7 @@
 {
 	auto frame = self.frame;
 	auto padItems = CVirtualPad::GetItems(frame.size.width, frame.size.height);
-	NSMutableArray<VirtualPadItem*>* items = [[NSMutableArray alloc] init];
+	NSMutableArray<VirtualPadItem>* items = [[NSMutableArray<VirtualPadItem> alloc] init];
 	for(const auto& padItem : padItems)
 	{
 		auto itemWidth = padItem.x2 - padItem.x1;
@@ -77,7 +77,7 @@
 	}
 }
 
--(void)touchesBegan: (NSSet<UITouch*>*)touches withEvent: (UIEvent*)event
+-(void)touchesBegan: (NSSet<UITouch>*)touches withEvent: (UIEvent*)event
 {
 	for(UITouch* touch in touches)
 	{
@@ -95,7 +95,7 @@
 	}
 }
 
--(void)touchesMoved: (NSSet<UITouch*>*)touches withEvent: (UIEvent*)event
+-(void)touchesMoved: (NSSet<UITouch>*)touches withEvent: (UIEvent*)event
 {
 	for(UITouch* touch in touches)
 	{
@@ -112,7 +112,7 @@
 	}
 }
 
--(void)endOrCancelTouches: (NSSet<UITouch*>*)touches
+-(void)endOrCancelTouches: (NSSet<UITouch>*)touches
 {
 	for(UITouch* touch in touches)
 	{
@@ -129,12 +129,12 @@
 	}
 }
 
--(void)touchesEnded: (NSSet<UITouch*>*)touches withEvent: (UIEvent*)event
+-(void)touchesEnded: (NSSet<UITouch>*)touches withEvent: (UIEvent*)event
 {
 	[self endOrCancelTouches: touches];
 }
 
--(void)touchesCancelled: (NSSet<UITouch*>*)touches withEvent: (UIEvent*)event
+-(void)touchesCancelled: (NSSet<UITouch>*)touches withEvent: (UIEvent*)event
 {
 	[self endOrCancelTouches: touches];
 }
