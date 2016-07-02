@@ -6,6 +6,7 @@
 #include <QKeyEvent>
 
 #include "AppConfig.h"
+#include "PS2VM.h"
 #include "PS2VM_Preferences.h"
 #include "StatsManager.h"
 #include "PH_HidUnix.h"
@@ -39,6 +40,7 @@ private:
     CStatsManager* StatsManager;
     CPH_HidUnix* padhandler = nullptr;
     QTimer *fpstimer = nullptr;
+    CPS2VM* g_virtualMachine = nullptr;
 
 protected:
     void showEvent(QShowEvent*) Q_DECL_OVERRIDE;

@@ -7,7 +7,6 @@
 #include <QTimer>
 #include <QWindow>
 
-#include "global.h"
 #include "GSH_OpenGLQt.h"
 #include "tools/PsfPlayer/Source/SH_OpenAL.h"
 #include "PreferenceDefs.h"

@@ -27,7 +27,6 @@ SOURCES += ../Source/ui_unix/main.cpp\
 
 HEADERS  += ../Source/ui_unix/mainwindow.h \
             ../Source/ui_unix/GSH_OpenGLQt.h \
-            ../Source/ui_unix/global.h \
             ../Source/ui_unix/StatsManager.h \
             ../Source/ui_unix/PH_HidUnix.h \
             ../Source/ui_unix/settingsdialog.h \
