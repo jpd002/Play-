@@ -63,8 +63,8 @@
      <set>AlignCenter</set>
     </property>
     <property name="icon">
-     <iconset>
-      <normaloff>../../Downloads/1465576135_gear.png</normaloff>../../Downloads/1465576135_gear.png</iconset>
+     <iconset resource="resources.qrc">
+      <normaloff>:/assets/general.png</normaloff>:/assets/general.png</iconset>
     </property>
     <property name="flags">
      <set>ItemIsSelectable|ItemIsEnabled</set>
@@ -78,8 +78,8 @@
      <set>AlignCenter</set>
     </property>
     <property name="icon">
-     <iconset>
-      <normaloff>../../Downloads/1465576153_music.png</normaloff>../../Downloads/1465576153_music.png</iconset>
+     <iconset resource="resources.qrc">
+      <normaloff>:/assets/video.png</normaloff>:/assets/video.png</iconset>
     </property>
     <property name="flags">
      <set>ItemIsSelectable|ItemIsEnabled</set>
@@ -98,8 +98,8 @@
      <set>AlignCenter</set>
     </property>
     <property name="icon">
-     <iconset>
-      <normaloff>../../Downloads/1465576153_music.png</normaloff>../../Downloads/1465576153_music.png</iconset>
+     <iconset resource="resources.qrc">
+      <normaloff>:/assets/music.png</normaloff>:/assets/music.png</iconset>
     </property>
     <property name="flags">
      <set>ItemIsSelectable|ItemIsEnabled</set>
@@ -222,7 +222,9 @@
    </widget>
   </widget>
  </widget>
- <resources/>
+ <resources>
+  <include location="resources.qrc"/>
+ </resources>
  <connections>
   <connection>
    <sender>buttonBox</sender>

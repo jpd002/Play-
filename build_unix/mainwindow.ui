@@ -14,8 +14,8 @@
    <string>Play!</string>
   </property>
   <property name="windowIcon">
-   <iconset>
-    <normaloff>../../Downloads/ic_launcher.png</normaloff>../../Downloads/ic_launcher.png</iconset>
+   <iconset resource="resources.qrc">
+    <normaloff>:/assets/app_icon.png</normaloff>:/assets/app_icon.png</iconset>
   </property>
   <widget class="QWidget" name="centralWidget">
    <layout class="QGridLayout" name="gridLayout">
@@ -101,6 +101,8 @@
   </action>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
- <resources/>
+ <resources>
+  <include location="resources.qrc"/>
+ </resources>
  <connections/>
 </ui>

@@ -34,6 +34,8 @@ HEADERS  += ../Source/ui_unix/mainwindow.h \
 FORMS    += mainwindow.ui \
     settingsdialog.ui
 
+RESOURCES     = resources.qrc
+
 unix:!macx: LIBS += -L$$PWD/build/ -lPlay
 
 DEPENDPATH += $$PWD/../Source/
