@@ -55,7 +55,6 @@ public slots:
 
 private slots:
     void on_actionOpen_Game_triggered();
-    void on_actionStart_Game_triggered();
     void on_actionBoot_ELF_triggered();
     void on_actionExit_triggered();
     void keyPressEvent(QKeyEvent *);

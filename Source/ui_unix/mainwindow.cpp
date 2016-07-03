@@ -119,26 +119,23 @@ void MainWindow::on_actionOpen_Game_triggered()
     {
         auto fileName = dialog.selectedFiles().first();
         CAppConfig::GetInstance().SetPreferenceString(PS2VM_CDROM0PATH, fileName.toStdString().c_str());
-    }
-}
 
-void MainWindow::on_actionStart_Game_triggered()
-{
 
-    if (g_virtualMachine != nullptr)
-    {
-        try
+        if (g_virtualMachine != nullptr)
         {
-            g_virtualMachine->Pause();
-            g_virtualMachine->Reset();
-            g_virtualMachine->m_ee->m_os->BootFromCDROM();
-            g_virtualMachine->Resume();
-            setOpenGlPanelSize();
-            setupSaveLoadStateSlots();
-        } catch( const std::exception& e) {
-            QMessageBox messageBox;
-            messageBox.critical(0,"Error",e.what());
-            messageBox.show();
+            try
+            {
+                g_virtualMachine->Pause();
+                g_virtualMachine->Reset();
+                g_virtualMachine->m_ee->m_os->BootFromCDROM();
+                g_virtualMachine->Resume();
+                setOpenGlPanelSize();
+                setupSaveLoadStateSlots();
+            } catch( const std::exception& e) {
+                QMessageBox messageBox;
+                messageBox.critical(0,"Error",e.what());
+                messageBox.show();
+            }
         }
     }
 }
@@ -225,6 +222,7 @@ void MainWindow::on_actionSettings_triggered()
     CAppConfig::GetInstance().Save();
 }
 
+//TODO: handle or disable when ELF is loaded
 void MainWindow::setupSaveLoadStateSlots(){
     bool enable = (g_virtualMachine != nullptr ? (g_virtualMachine->m_ee->m_os->GetELF() != nullptr) : false);
     ui->menuSave_States->clear();
@@ -258,6 +256,7 @@ void MainWindow::saveState(){
 
     int m_stateSlot = sender()->property("stateSlot").toInt();
     g_virtualMachine->SaveState(GenerateStatePath(m_stateSlot).string().c_str());
+
     QDateTime* dt = new QDateTime;
     QString datetime = dt->currentDateTime().toString("hh:mm dd.MM.yyyy");
     ui->menuSave_States->actions().at(m_stateSlot-1)->setText(QString("Save Slot %1 - %2").arg(m_stateSlot).arg(datetime));

@@ -47,14 +47,13 @@
      <string>File</string>
     </property>
     <addaction name="actionOpen_Game"/>
-    <addaction name="actionStart_Game"/>
     <addaction name="actionBoot_ELF"/>
     <addaction name="separator"/>
     <addaction name="actionExit"/>
    </widget>
    <widget class="QMenu" name="menuEdit">
     <property name="title">
-     <string>Edit</string>
+     <string>Options</string>
     </property>
     <addaction name="actionSettings"/>
    </widget>
@@ -84,18 +83,13 @@
   <widget class="QStatusBar" name="statusBar"/>
   <action name="actionOpen_Game">
    <property name="text">
-    <string>Open Game</string>
+    <string>Boot Disk Image...</string>
+   </property>
+   <property name="toolTip">
+    <string>Boot Disk Image...</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+O</string>
-   </property>
-  </action>
-  <action name="actionStart_Game">
-   <property name="text">
-    <string>Start Game</string>
-   </property>
-   <property name="shortcut">
-    <string>Ctrl+R</string>
    </property>
   </action>
   <action name="actionExit">
@@ -113,7 +107,10 @@
   </action>
   <action name="actionBoot_ELF">
    <property name="text">
-    <string>Boot ELF</string>
+    <string>Boot ELF...</string>
+   </property>
+   <property name="toolTip">
+    <string>Boot ELF...</string>
    </property>
   </action>
   <action name="actionLoad_Slot_1_Empty">
