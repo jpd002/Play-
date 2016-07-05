@@ -1,5 +1,4 @@
-#ifndef _IOP_SIO2_H_
-#define _IOP_SIO2_H_
+#pragma once
 
 #include "Types.h"
 #include "Iop_Intc.h"
@@ -25,8 +24,8 @@ namespace Iop
 		uint32				ReadRegister(uint32);
 		void				WriteRegister(uint32, uint32);
 
-		virtual void		SetButtonState(unsigned int, PS2::CControllerInfo::BUTTON, bool, uint8*);
-		virtual void		SetAxisState(unsigned int, PS2::CControllerInfo::BUTTON, uint8, uint8*);
+		void				SetButtonState(unsigned int, PS2::CControllerInfo::BUTTON, bool, uint8*) override;
+		void				SetAxisState(unsigned int, PS2::CControllerInfo::BUTTON, uint8, uint8*) override;
 
 	private:
 		enum REGISTERS
@@ -90,5 +89,3 @@ namespace Iop
 		PADSTATE			m_padState[MAX_PADS];
 	};
 }
-
-#endif
