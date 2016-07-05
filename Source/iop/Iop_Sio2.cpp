@@ -259,18 +259,20 @@ void CSio2::ProcessController(unsigned int portId, size_t outputOffset, uint32 d
 				if(dstSize == 21)
 				{
 					//Pressure stuff
-					m_outputBuffer[outputOffset + 0x09] = 0;
-					m_outputBuffer[outputOffset + 0x0A] = 0;
-					m_outputBuffer[outputOffset + 0x0B] = 0;
-					m_outputBuffer[outputOffset + 0x0C] = 0;
-					m_outputBuffer[outputOffset + 0x0D] = 0;
-					m_outputBuffer[outputOffset + 0x0E] = 0;
-					m_outputBuffer[outputOffset + 0x0F] = 0;
-					m_outputBuffer[outputOffset + 0x10] = 0;
-					m_outputBuffer[outputOffset + 0x11] = 0;
-					m_outputBuffer[outputOffset + 0x12] = 0;
-					m_outputBuffer[outputOffset + 0x13] = 0;
-					m_outputBuffer[outputOffset + 0x14] = 0;
+					m_outputBuffer[outputOffset + 0x09] = ((padState.buttonState & 0x2000) == 0) ? 0xFF : 0x00;  //Left
+					m_outputBuffer[outputOffset + 0x0A] = ((padState.buttonState & 0x8000) == 0) ? 0xFF : 0x00;  //Right
+					m_outputBuffer[outputOffset + 0x0B] = ((padState.buttonState & 0x1000) == 0) ? 0xFF : 0x00;  //Up
+					m_outputBuffer[outputOffset + 0x0C] = ((padState.buttonState & 0x4000) == 0) ? 0xFF : 0x00;  //Down
+
+					m_outputBuffer[outputOffset + 0x0D] = ((padState.buttonState & 0x0010) == 0) ? 0xFF : 0x00;  //Triangle
+					m_outputBuffer[outputOffset + 0x0E] = ((padState.buttonState & 0x0020) == 0) ? 0xFF : 0x00;  //Circle
+					m_outputBuffer[outputOffset + 0x0F] = ((padState.buttonState & 0x0040) == 0) ? 0xFF : 0x00;  //Cross
+					m_outputBuffer[outputOffset + 0x10] = ((padState.buttonState & 0x0080) == 0) ? 0xFF : 0x00;  //Square
+
+					m_outputBuffer[outputOffset + 0x11] = ((padState.buttonState & 0x0004) == 0) ? 0xFF : 0x00;  //L1
+					m_outputBuffer[outputOffset + 0x12] = ((padState.buttonState & 0x0008) == 0) ? 0xFF : 0x00;  //R1
+					m_outputBuffer[outputOffset + 0x13] = ((padState.buttonState & 0x0001) == 0) ? 0xFF : 0x00;  //L2
+					m_outputBuffer[outputOffset + 0x14] = ((padState.buttonState & 0x0002) == 0) ? 0xFF : 0x00;  //R2
 				}
 			}
 			CLog::GetInstance().Print(LOG_NAME, "Pad %d: ReadData();\r\n", padId);
