@@ -48,6 +48,7 @@ public:
 		uint32			initPriority;
 		uint32			priority;
 		uint32			optionData;
+		uint32			attributes;
 		uint32			threadProc;
 		THREADCONTEXT	context;
 		uint32			status;
@@ -141,7 +142,7 @@ public:
 #endif
 	bool						RegisterModule(const Iop::ModulePtr&);
 
-	uint32						CreateThread(uint32, uint32, uint32, uint32);
+	uint32						CreateThread(uint32, uint32, uint32, uint32, uint32);
 	int32						DeleteThread(uint32);
 	int32						StartThread(uint32, uint32);
 	int32						StartThreadArgs(uint32, uint32, uint32);
@@ -423,6 +424,8 @@ private:
 		KERNEL_RESULT_ERROR_NOTFOUND_HANDLER = -105,
 		KERNEL_RESULT_ERROR_NO_MEMORY        = -400,
 		KERNEL_RESULT_ERROR_ILLEGAL_ATTR     = -401,
+		KERNEL_RESULT_ERROR_ILLEGAL_ENTRY    = -402,
+		KERNEL_RESULT_ERROR_ILLEGAL_PRIORITY = -403,
 		KERNEL_RESULT_ERROR_ILLEGAL_THID     = -406,
 		KERNEL_RESULT_ERROR_UNKNOWN_THID     = -407,
 		KERNEL_RESULT_ERROR_UNKNOWN_MBXID    = -410,

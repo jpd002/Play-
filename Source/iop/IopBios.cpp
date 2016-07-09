@@ -348,7 +348,7 @@ void CIopBios::InitializeModuleStarter()
 		moduleStartRequest->nextPtr = reinterpret_cast<uint8*>(moduleStartRequest + 1) - m_ram;
 	}
 
-	m_moduleStarterThreadId = CreateThread(m_moduleStarterThreadProcAddress, MODULE_INIT_PRIORITY, DEFAULT_STACKSIZE, 0);
+	m_moduleStarterThreadId = CreateThread(m_moduleStarterThreadProcAddress, MODULE_INIT_PRIORITY, DEFAULT_STACKSIZE, 0, 0);
 	StartThread(m_moduleStarterThreadId, 0);
 }
 
@@ -816,37 +816,57 @@ int32 CIopBios::GetCurrentThreadIdRaw() const
 	return m_currentThreadId;
 }
 
-uint32 CIopBios::CreateThread(uint32 threadProc, uint32 priority, uint32 stackSize, uint32 optionData)
+uint32 CIopBios::CreateThread(uint32 threadProc, uint32 priority, uint32 stackSize, uint32 optionData, uint32 attributes)
 {
 #ifdef _DEBUG
 	CLog::GetInstance().Print(LOGNAME, "%d: CreateThread(threadProc = 0x%0.8X, priority = %d, stackSize = 0x%0.8X);\r\n", 
 		m_currentThreadId.Get(), threadProc, priority, stackSize);
 #endif
 
+	//Thread proc address needs to be 4-bytes aligned
+	if((threadProc & 0x3) != 0)
+	{
+		return KERNEL_RESULT_ERROR_ILLEGAL_ENTRY;
+	}
+
+	//Priority needs to be between [1, 126]
+	if((priority < 1) || (priority > 126))
+	{
+		return KERNEL_RESULT_ERROR_ILLEGAL_PRIORITY;
+	}
+
 	if(stackSize == 0)
 	{
 		stackSize = DEFAULT_STACKSIZE;
+	}
+
+	uint32 stackBase = m_sysmem->AllocateMemory(stackSize, 0, 0);
+	if(stackBase == 0)
+	{
+		return KERNEL_RESULT_ERROR_NO_MEMORY;
 	}
 
 	uint32 threadId = m_threads.Allocate();
 	assert(threadId != -1);
 	if(threadId == -1)
 	{
+		m_sysmem->FreeMemory(stackBase);
 		return -1;
 	}
 
-	THREAD* thread = m_threads[threadId];
+	auto thread = m_threads[threadId];
 	memset(&thread->context, 0, sizeof(thread->context));
-	thread->context.delayJump = 1;
+	thread->context.delayJump = MIPS_INVALID_PC;
 	thread->stackSize = stackSize;
-	thread->stackBase = m_sysmem->AllocateMemory(thread->stackSize, 0, 0);
+	thread->stackBase = stackBase;
 	memset(m_ram + thread->stackBase, 0, thread->stackSize);
 	thread->id = threadId;
-	thread->priority = priority;
+	thread->priority = 0;
 	thread->initPriority = priority;
 	thread->status = THREAD_STATUS_DORMANT;
 	thread->threadProc = threadProc;
 	thread->optionData = optionData;
+	thread->attributes = attributes;
 	thread->nextActivateTime = 0;
 	thread->context.gpr[CMIPS::GP] = m_cpu.m_State.nGPR[CMIPS::GP].nV0;
 	thread->context.gpr[CMIPS::SP] = thread->stackBase + thread->stackSize - STACK_FRAME_RESERVE_SIZE;
@@ -1056,7 +1076,7 @@ uint32 CIopBios::SetAlarm(uint32 timePtr, uint32 alarmFunction, uint32 param)
 	//If no threads are available, create a new one
 	if(alarmThreadId == -1)
 	{
-		alarmThreadId = CreateThread(m_alarmThreadProcAddress, 1, DEFAULT_STACKSIZE, 0);
+		alarmThreadId = CreateThread(m_alarmThreadProcAddress, 1, DEFAULT_STACKSIZE, 0, 0);
 	}
 
 	StartThread(alarmThreadId, 0);
@@ -2729,7 +2749,7 @@ void CIopBios::TriggerCallback(uint32 address, uint32 arg0, uint32 arg1)
 	//If no threads are available, create a new one
 	if(callbackThreadId == -1)
 	{
-		callbackThreadId = CreateThread(address, DEFAULT_PRIORITY, DEFAULT_STACKSIZE, 0);
+		callbackThreadId = CreateThread(address, DEFAULT_PRIORITY, DEFAULT_STACKSIZE, 0, 0);
 	}
 
 	StartThread(callbackThreadId, 0);

@@ -235,7 +235,7 @@ void CThbase::Invoke(CMIPS& context, unsigned int functionId)
 
 uint32 CThbase::CreateThread(const THREAD* thread)
 {
-	return m_bios.CreateThread(thread->threadProc, thread->priority, thread->stackSize, thread->options);
+	return m_bios.CreateThread(thread->threadProc, thread->priority, thread->stackSize, thread->options, thread->attributes);
 }
 
 uint32 CThbase::DeleteThread(uint32 threadId)
