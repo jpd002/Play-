@@ -167,6 +167,11 @@ void CDMAC::ResumeDMA1()
 	m_D1.Execute();
 }
 
+void CDMAC::ResumeDMA2()
+{
+	m_D2.Execute();
+}
+
 uint32 CDMAC::ResumeDMA3(const void* pBuffer, uint32 nSize)
 {
 	if(!(m_D3_CHCR & CHCR_STR)) return 0;

@@ -112,6 +112,7 @@ public:
 	bool				IsInterruptPending();
 	void				ResumeDMA0();
 	void				ResumeDMA1();
+	void				ResumeDMA2();
 	uint32				ResumeDMA3(const void*, uint32);
 	void				ResumeDMA4();
 	void				ResumeDMA8();

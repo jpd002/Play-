@@ -305,6 +305,7 @@ void CSubSystem::CountTicks(int ticks)
 			m_intc.AssertLine(CINTC::INTC_LINE_VIF1);
 		}
 	}
+	m_dmac.ResumeDMA2();
 	m_dmac.ResumeDMA8();
 	m_ipu.CountTicks(ticks);
 	ExecuteIpu();
