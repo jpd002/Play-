@@ -145,9 +145,25 @@ void CChannel::Execute()
 
 void CChannel::ExecuteNormal()
 {
+	bool isMfifo = false;
+	switch(m_dmac.m_D_CTRL.mfd)
+	{
+	case 0:
+		isMfifo = false;
+		break;
+	case 1:
+		//Invalid
+		assert(false);
+		break;
+	case 2:
+	case 3:
+		isMfifo = (m_number == CDMAC::CHANNEL_ID_FROM_SPR);
+		break;
+	}
+
 	uint32 qwc = m_nQWC;
 
-	if(m_dmac.m_D_CTRL.mfd == 0x02 && m_number == CDMAC::CHANNEL_ID_FROM_SPR)
+	if(isMfifo)
 	{
 		//Adjust QWC if we're in MFIFO mode
 		uint32 ringBufferAddr = m_nMADR - m_dmac.m_D_RBOR;
@@ -167,7 +183,7 @@ void CChannel::ExecuteNormal()
 		ClearSTR();
 	}
 
-	if(m_dmac.m_D_CTRL.mfd == 0x02 && m_number == CDMAC::CHANNEL_ID_FROM_SPR)
+	if(isMfifo)
 	{
 		//Loop MADR if needed
 		uint32 ringBufferSize = m_dmac.m_D_RBSR + 0x10;
@@ -206,6 +222,24 @@ void CChannel::ExecuteInterleave()
 
 void CChannel::ExecuteSourceChain()
 {
+	bool isMfifo = false;
+	switch(m_dmac.m_D_CTRL.mfd)
+	{
+	case 0:
+		isMfifo = false;
+		break;
+	case 1:
+		//Invalid
+		assert(false);
+		break;
+	case 2:
+		isMfifo = (m_number == CDMAC::CHANNEL_ID_VIF1);
+		break;
+	case 3:
+		isMfifo = (m_number == CDMAC::CHANNEL_ID_GIF);
+		break;
+	}
+
 	//Execute current
 	if(m_nQWC != 0)
 	{
@@ -224,7 +258,7 @@ void CChannel::ExecuteSourceChain()
 	while(m_CHCR.nSTR == 1)
 	{
 		//Check if MFIFO is enabled with this channel
-		if(m_dmac.m_D_CTRL.mfd == 0x02 && m_number == CDMAC::CHANNEL_ID_VIF1)
+		if(isMfifo)
 		{
 			//Hold transfer if not ready
 			if(m_nTADR == m_dmac.m_D8.m_nMADR)
@@ -368,7 +402,7 @@ void CChannel::ExecuteSourceChain()
 		}
 
 		uint32 qwc = m_nQWC;
-		if(nID == DMATAG_CNT && m_dmac.m_D_CTRL.mfd == 0x02 && m_number == CDMAC::CHANNEL_ID_VIF1)
+		if((nID == DMATAG_CNT) && isMfifo)
 		{
 			//Adjust QWC in MFIFO mode
 			uint32 ringBufferAddr = m_nMADR - m_dmac.m_D_RBOR;
@@ -386,7 +420,7 @@ void CChannel::ExecuteSourceChain()
 			m_nQWC		-= nRecv;
 		}
 
-		if(m_dmac.m_D_CTRL.mfd == 0x02 && m_number == CDMAC::CHANNEL_ID_VIF1)
+		if(isMfifo)
 		{
 			if(nID == DMATAG_CNT)
 			{
