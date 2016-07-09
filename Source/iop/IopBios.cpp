@@ -1218,6 +1218,7 @@ uint32 CIopBios::ReferThreadStatus(uint32 threadId, uint32 statusPtr, bool inInt
 	auto threadInfo = reinterpret_cast<THREAD_INFO*>(m_ram + statusPtr);
 	threadInfo->attributes      = 0;
 	threadInfo->option          = thread->optionData;
+	threadInfo->attributes      = thread->attributes;
 	threadInfo->status          = threadStatus;
 	threadInfo->entryPoint      = thread->threadProc;
 	threadInfo->stackAddr       = thread->stackBase;
