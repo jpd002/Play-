@@ -160,6 +160,13 @@ uint32 CSysmem::AllocateMemory(uint32 size, uint32 flags, uint32 wantedAddress)
 		size, flags, wantedAddress);
 
 	const uint32 blockSize = MIN_BLOCK_SIZE;
+
+	if(size > (0 - blockSize))
+	{
+		//Will be aligned up to 0, return failure
+		return 0;
+	}
+
 	size = ((size + (blockSize - 1)) / blockSize) * blockSize;
 
 	if(flags == 0 || flags == 1)
