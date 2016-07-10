@@ -157,7 +157,8 @@ void CCOP_VU::CFC2()
 			m_codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2Q));
 			break;
 		default:
-			assert(0);
+			assert(false);
+			m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[0].nV[0]));
 			break;
 		}
 	}
@@ -247,7 +248,8 @@ void CCOP_VU::CTC2()
 			}
 			break;
 		default:
-			throw std::runtime_error("Not implemented.");
+			assert(false);
+			m_codeGen->PullTop();
 			break;
 		}
 	}
