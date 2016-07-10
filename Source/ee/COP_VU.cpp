@@ -138,8 +138,7 @@ void CCOP_VU::CFC2()
 			m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[0].nV[0]));
 			break;
 		case 20:	//R
-			CLog::GetInstance().Print(LOG_NAME, "Warning: Reading contents of R register through CFC2.\r\n");
-			m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[0].nV[0]));
+			m_codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2R));
 			break;
 		case 17:	//MAC flag
 #ifdef _DEBUG
@@ -218,6 +217,11 @@ void CCOP_VU::CTC2()
 		case 18:
 			//Clipping flag
 			m_codeGen->PullRel(offsetof(CMIPS, m_State.nCOP2CF));
+			break;
+		case 20:
+			m_codeGen->PushCst(0x7FFFFF);
+			m_codeGen->And();
+			m_codeGen->PullRel(offsetof(CMIPS, m_State.nCOP2R));
 			break;
 		case 21:
 			m_codeGen->PullRel(offsetof(CMIPS, m_State.nCOP2I));
