@@ -69,6 +69,9 @@ std::string CIoman::GetFunctionName(unsigned int functionId) const
 	case 8:
 		return "seek";
 		break;
+	case 16:
+		return "getstat";
+		break;
 	default:
 		return "unknown";
 		break;
@@ -294,6 +297,12 @@ void CIoman::Invoke(CMIPS& context, unsigned int functionId)
 			context.m_State.nGPR[CMIPS::A0].nV[0],
 			context.m_State.nGPR[CMIPS::A1].nV[0],
 			context.m_State.nGPR[CMIPS::A2].nV[0]));
+		break;
+	case 16:
+		context.m_State.nGPR[CMIPS::V0].nD0 = static_cast<int32>(GetStat(
+			reinterpret_cast<char*>(&m_ram[context.m_State.nGPR[CMIPS::A0].nV[0]]),
+			reinterpret_cast<STAT*>(&m_ram[context.m_State.nGPR[CMIPS::A1].nV[0]])
+		));
 		break;
 	case 20:
 		context.m_State.nGPR[CMIPS::V0].nD0 = static_cast<int32>(AddDrv(
