@@ -24,6 +24,7 @@ project.afterEvaluate {
 	compileReleaseNdk.dependsOn 'ndkBuildRelease'
 	clean.dependsOn 'ndkCleanDebug'
 	clean.dependsOn 'ndkCleanRelease'
+	preBuild.dependsOn 'copyPatchFile'
 }
 
 android {
@@ -66,6 +67,11 @@ android {
 		java.srcDirs = [ '../Source/ui_android/java' ]
 		jni.srcDirs = []
 		jniLibs.srcDir 'src/main/libs'
+	}
+	
+	task copyPatchFile(type: Copy) {
+		from '../patches.xml'
+		into 'src/main/assets'
 	}
 	
 	task ndkBuildDebug(type: Exec) {
