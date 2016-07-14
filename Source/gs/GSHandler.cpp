@@ -1318,18 +1318,18 @@ std::string CGSHandler::DisassembleWrite(uint8 registerId, uint64 data)
 				clut.nCBW, clut.nCOU, clut.nCOV);
 		}
 		break;
-	case GS_REG_FOGCOL:
-		{
-			auto fogcol = make_convertible<FOGCOL>(data);
-			result = string_format("FOGCOL(R: 0x%0.2X, G: 0x%0.2X, B: 0x%0.2X)",
-				fogcol.nFCR, fogcol.nFCG, fogcol.nFCB);
-		}
-		break;
 	case GS_REG_TEXA:
 		{
 			auto texa = make_convertible<TEXA>(data);
 			result = string_format("TEXA(TA0: 0x%0.2X, AEM: %i, TA1: 0x%0.2X)",
 				texa.nTA0, texa.nAEM, texa.nTA1);
+		}
+		break;
+	case GS_REG_FOGCOL:
+		{
+			auto fogcol = make_convertible<FOGCOL>(data);
+			result = string_format("FOGCOL(R: 0x%0.2X, G: 0x%0.2X, B: 0x%0.2X)",
+				fogcol.nFCR, fogcol.nFCG, fogcol.nFCB);
 		}
 		break;
 	case GS_REG_TEXFLUSH:
