@@ -43,6 +43,10 @@ enum GS_REGS
 	GS_REG_PRMODECONT	= 0x1A,
 	GS_REG_PRMODE		= 0x1B,
 	GS_REG_TEXCLUT		= 0x1C,
+	GS_REG_MIPTBP1_1	= 0x34,
+	GS_REG_MIPTBP1_2	= 0x35,
+	GS_REG_MIPTBP2_1	= 0x36,
+	GS_REG_MIPTBP2_2	= 0x37,
 	GS_REG_TEXA			= 0x3B,
 	GS_REG_FOGCOL		= 0x3D,
 	GS_REG_TEXFLUSH		= 0x3F,
@@ -345,6 +349,46 @@ public:
 		uint32			nReserved2;
 	};
 	static_assert(sizeof(PRMODE) == sizeof(uint64), "Size of PRMODE struct must be 8 bytes.");
+
+	//Reg 0x34/0x35
+	struct MIPTBP1 : public convertible<uint64>
+	{
+		unsigned int	tbp1			: 14;
+		unsigned int	tbw1			: 6;
+		unsigned int	pad0			: 12;
+		unsigned int	pad1			: 2;
+		unsigned int	tbw2			: 6;
+		unsigned int	tbp3			: 14;
+		unsigned int	tbw3			: 6;
+		unsigned int	reserved		: 4;
+		uint32			GetTbp1() const { return tbp1 * 64; }
+		uint32			GetTbp2() const { return (pad0 | (pad1 << 12)) * 64; }
+		uint32			GetTbp3() const { return tbp3 * 64; }
+		uint32			GetTbw1() const { return tbw1 * 64; }
+		uint32			GetTbw2() const { return tbw2 * 64; }
+		uint32			GetTbw3() const { return tbw3 * 64; }
+	};
+	static_assert(sizeof(MIPTBP1) == sizeof(uint64), "Size of MIPTBP1 struct must be 8 bytes.");
+
+	//Reg 0x36/0x37
+	struct MIPTBP2 : public convertible<uint64>
+	{
+		unsigned int	tbp4			: 14;
+		unsigned int	tbw4			: 6;
+		unsigned int	pad0			: 12;
+		unsigned int	pad1			: 2;
+		unsigned int	tbw5			: 6;
+		unsigned int	tbp6			: 14;
+		unsigned int	tbw6			: 6;
+		unsigned int	reserved		: 4;
+		uint32			GetTbp4() const { return tbp4 * 64; }
+		uint32			GetTbp5() const { return (pad0 | (pad1 << 12)) * 64; }
+		uint32			GetTbp6() const { return tbp6 * 64; }
+		uint32			GetTbw4() const { return tbw4 * 64; }
+		uint32			GetTbw5() const { return tbw5 * 64; }
+		uint32			GetTbw6() const { return tbw6 * 64; }
+	};
+	static_assert(sizeof(MIPTBP2) == sizeof(uint64), "Size of MIPTBP2 struct must be 8 bytes.");
 
 	//Reg 0x3B
 	struct TEXA : public convertible<uint64>

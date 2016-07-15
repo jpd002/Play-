@@ -1318,6 +1318,28 @@ std::string CGSHandler::DisassembleWrite(uint8 registerId, uint64 data)
 				clut.nCBW, clut.nCOU, clut.nCOV);
 		}
 		break;
+	case GS_REG_MIPTBP1_1:
+	case GS_REG_MIPTBP1_2:
+		{
+			auto miptbp1 = make_convertible<MIPTBP1>(data);
+			result = string_format("MIPTBP1_%d(TBP1: 0x%0.8X, TBW1: %d, TBP2: 0x%0.8X, TBW2: %d, TBP3: 0x%0.8X, TBW3: %d)",
+				(registerId == GS_REG_MIPTBP1_1) ? 1 : 2, 
+				miptbp1.GetTbp1(), miptbp1.GetTbw1(),
+				miptbp1.GetTbp2(), miptbp1.GetTbw2(),
+				miptbp1.GetTbp3(), miptbp1.GetTbw3());
+		}
+		break;
+	case GS_REG_MIPTBP2_1:
+	case GS_REG_MIPTBP2_2:
+		{
+			auto miptbp2 = make_convertible<MIPTBP2>(data);
+			result = string_format("MIPTBP2_%d(TBP4: 0x%0.8X, TBW4: %d, TBP5: 0x%0.8X, TBW5: %d, TBP6: 0x%0.8X, TBW6: %d)",
+				(registerId == GS_REG_MIPTBP2_1) ? 1 : 2, 
+				miptbp2.GetTbp4(), miptbp2.GetTbw4(),
+				miptbp2.GetTbp5(), miptbp2.GetTbw5(),
+				miptbp2.GetTbp6(), miptbp2.GetTbw6());
+		}
+		break;
 	case GS_REG_TEXA:
 		{
 			auto texa = make_convertible<TEXA>(data);
