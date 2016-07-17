@@ -34,12 +34,12 @@ void CProfiler::EnterZone(ZoneHandle zoneHandle)
 {
 	assert(std::this_thread::get_id() == m_workThreadId);
 	
-	auto thisTime = boost::chrono::high_resolution_clock::now();
+	auto thisTime = std::chrono::high_resolution_clock::now();
 
 	if(!m_zoneStack.empty())
 	{
 		auto topZoneHandle = m_zoneStack.top();
-		auto duration = boost::chrono::duration_cast<boost::chrono::microseconds>(thisTime - m_currentTime);
+		auto duration = std::chrono::duration_cast<std::chrono::microseconds>(thisTime - m_currentTime);
 		AddTimeToZone(topZoneHandle, duration.count());
 	}
 
@@ -53,11 +53,11 @@ void CProfiler::ExitZone()
 	assert(std::this_thread::get_id() == m_workThreadId);
 	assert(!m_zoneStack.empty());
 
-	auto thisTime = boost::chrono::high_resolution_clock::now();
+	auto thisTime = std::chrono::high_resolution_clock::now();
 
 	{
 		auto topZoneHandle = m_zoneStack.top();
-		auto duration = boost::chrono::duration_cast<boost::chrono::microseconds>(thisTime - m_currentTime);
+		auto duration = std::chrono::duration_cast<std::chrono::microseconds>(thisTime - m_currentTime);
 		AddTimeToZone(topZoneHandle, duration.count());
 	}
 
