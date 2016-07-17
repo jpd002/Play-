@@ -80,27 +80,57 @@ void CCOP_VU::LQC2()
 {
 	if(m_nFT == 0) return;
 
-	ComputeMemAccessAddr();
+	ComputeMemAccessPageRef();
 
-	m_codeGen->PushCtx();
-	m_codeGen->PushIdx(1);
-	m_codeGen->Call(reinterpret_cast<void*>(&MemoryUtils_GetQuadProxy), 2, Jitter::CJitter::RETURN_VALUE_128);
-	m_codeGen->MD_PullRel(offsetof(CMIPS, m_State.nCOP2[m_nFT]));
+	m_codeGen->IsRefNull();
+	m_codeGen->PushCst(0);
+	m_codeGen->BeginIf(Jitter::CONDITION_EQ);
+	{
+		ComputeMemAccessRef(0x10);
 
-	m_codeGen->PullTop();
+		m_codeGen->MD_LoadFromRef();
+		m_codeGen->MD_PullRel(offsetof(CMIPS, m_State.nCOP2[m_nFT]));
+	}
+	m_codeGen->Else();
+	{
+		ComputeMemAccessAddrNoXlat();
+
+		m_codeGen->PushCtx();
+		m_codeGen->PushIdx(1);
+		m_codeGen->Call(reinterpret_cast<void*>(&MemoryUtils_GetQuadProxy), 2, Jitter::CJitter::RETURN_VALUE_128);
+		m_codeGen->MD_PullRel(offsetof(CMIPS, m_State.nCOP2[m_nFT]));
+
+		m_codeGen->PullTop();
+	}
+	m_codeGen->EndIf();
 }
 
 //3E
 void CCOP_VU::SQC2()
 {
-	ComputeMemAccessAddr();
+	ComputeMemAccessPageRef();
 
-	m_codeGen->PushCtx();
-	m_codeGen->MD_PushRel(offsetof(CMIPS, m_State.nCOP2[m_nFT]));
-	m_codeGen->PushIdx(2);
-	m_codeGen->Call(reinterpret_cast<void*>(&MemoryUtils_SetQuadProxy), 3, Jitter::CJitter::RETURN_VALUE_NONE);
+	m_codeGen->IsRefNull();
+	m_codeGen->PushCst(0);
+	m_codeGen->BeginIf(Jitter::CONDITION_EQ);
+	{
+		ComputeMemAccessRef(0x10);
 
-	m_codeGen->PullTop();
+		m_codeGen->MD_PushRel(offsetof(CMIPS, m_State.nCOP2[m_nFT]));
+		m_codeGen->MD_StoreAtRef();
+	}
+	m_codeGen->Else();
+	{
+		ComputeMemAccessAddrNoXlat();
+
+		m_codeGen->PushCtx();
+		m_codeGen->MD_PushRel(offsetof(CMIPS, m_State.nCOP2[m_nFT]));
+		m_codeGen->PushIdx(2);
+		m_codeGen->Call(reinterpret_cast<void*>(&MemoryUtils_SetQuadProxy), 3, Jitter::CJitter::RETURN_VALUE_NONE);
+
+		m_codeGen->PullTop();
+	}
+	m_codeGen->EndIf();
 }
 
 //////////////////////////////////////////////////

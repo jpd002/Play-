@@ -27,6 +27,10 @@ public:
 
 protected:
 	void ComputeMemAccessAddr();
+	void ComputeMemAccessAddrNoXlat();
+	void ComputeMemAccessRef(uint32);
+	void ComputeMemAccessPageRef();
+
 	void Branch(Jitter::CONDITION);
 	void BranchLikely(Jitter::CONDITION);
 

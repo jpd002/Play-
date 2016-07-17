@@ -474,7 +474,7 @@ void CMA_MIPSIV::LDL()
 
 	assert(m_regSize == MIPS_REGSIZE_64);
 
-	ComputeMemAccessAddr();
+	ComputeMemAccessAddrNoXlat();
 	m_codeGen->PushRel64(offsetof(CMIPS, m_State.nGPR[m_nRT]));
 	m_codeGen->PushCtx();
 	m_codeGen->Call(reinterpret_cast<void*>(&LDL_Proxy), 3, Jitter::CJitter::RETURN_VALUE_64);
@@ -488,7 +488,7 @@ void CMA_MIPSIV::LDR()
 
 	assert(m_regSize == MIPS_REGSIZE_64);
 
-	ComputeMemAccessAddr();
+	ComputeMemAccessAddrNoXlat();
 	m_codeGen->PushRel64(offsetof(CMIPS, m_State.nGPR[m_nRT]));
 	m_codeGen->PushCtx();
 	m_codeGen->Call(reinterpret_cast<void*>(&LDR_Proxy), 3, Jitter::CJitter::RETURN_VALUE_64);
@@ -563,7 +563,32 @@ void CMA_MIPSIV::LWL()
 //23
 void CMA_MIPSIV::LW()
 {
-	Template_LoadUnsigned32(reinterpret_cast<void*>(&MemoryUtils_GetWordProxy));
+	if(m_regSize == MIPS_REGSIZE_64)
+	{
+		ComputeMemAccessPageRef();
+
+		m_codeGen->IsRefNull();
+		m_codeGen->PushCst(0);
+		m_codeGen->BeginIf(Jitter::CONDITION_EQ);
+		{
+			ComputeMemAccessRef(4);
+
+			m_codeGen->LoadFromRef();
+			m_codeGen->PushTop();
+			m_codeGen->SignExt();
+			m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[1]));
+			m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[0]));
+		}
+		m_codeGen->Else();
+		{
+			Template_LoadUnsigned32(reinterpret_cast<void*>(&MemoryUtils_GetWordProxy));
+		}
+		m_codeGen->EndIf();
+	}
+	else
+	{
+		Template_LoadUnsigned32(reinterpret_cast<void*>(&MemoryUtils_GetWordProxy));
+	}
 }
 
 //24
@@ -653,14 +678,43 @@ void CMA_MIPSIV::SWL()
 //2B
 void CMA_MIPSIV::SW()
 {
-	ComputeMemAccessAddr();
+	if(m_regSize == MIPS_REGSIZE_64)
+	{
+		ComputeMemAccessPageRef();
 
-	m_codeGen->PushCtx();
-	m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[0]));
-	m_codeGen->PushIdx(2);
-	m_codeGen->Call(reinterpret_cast<void*>(&MemoryUtils_SetWordProxy), 3, false);
+		m_codeGen->IsRefNull();
+		m_codeGen->PushCst(0);
+		m_codeGen->BeginIf(Jitter::CONDITION_EQ);
+		{
+			ComputeMemAccessRef(4);
 
-	m_codeGen->PullTop();
+			m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[0]));
+			m_codeGen->StoreAtRef();
+		}
+		m_codeGen->Else();
+		{
+			ComputeMemAccessAddr();
+
+			m_codeGen->PushCtx();
+			m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[0]));
+			m_codeGen->PushIdx(2);
+			m_codeGen->Call(reinterpret_cast<void*>(&MemoryUtils_SetWordProxy), 3, false);
+
+			m_codeGen->PullTop();
+		}
+		m_codeGen->EndIf();
+	}
+	else
+	{
+		ComputeMemAccessAddr();
+
+		m_codeGen->PushCtx();
+		m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[0]));
+		m_codeGen->PushIdx(2);
+		m_codeGen->Call(reinterpret_cast<void*>(&MemoryUtils_SetWordProxy), 3, false);
+
+		m_codeGen->PullTop();
+	}
 }
 
 //2C
@@ -668,7 +722,7 @@ void CMA_MIPSIV::SDL()
 {
 	assert(m_regSize == MIPS_REGSIZE_64);
 
-	ComputeMemAccessAddr();
+	ComputeMemAccessAddrNoXlat();
 	m_codeGen->PushRel64(offsetof(CMIPS, m_State.nGPR[m_nRT]));
 	m_codeGen->PushCtx();
 	m_codeGen->Call(reinterpret_cast<void*>(&SDL_Proxy), 3, false);
@@ -679,7 +733,7 @@ void CMA_MIPSIV::SDR()
 {
 	assert(m_regSize == MIPS_REGSIZE_64);
 
-	ComputeMemAccessAddr();
+	ComputeMemAccessAddrNoXlat();
 	m_codeGen->PushRel64(offsetof(CMIPS, m_State.nGPR[m_nRT]));
 	m_codeGen->PushCtx();
 	m_codeGen->Call(reinterpret_cast<void*>(&SDR_Proxy), 3, false);
@@ -739,14 +793,29 @@ void CMA_MIPSIV::LD()
 
 	assert(m_regSize == MIPS_REGSIZE_64);
 
-	ComputeMemAccessAddr();
+	ComputeMemAccessPageRef();
 
-	m_codeGen->PushCtx();
-	m_codeGen->PushIdx(1);
-	m_codeGen->Call(reinterpret_cast<void*>(&MemoryUtils_GetDoubleProxy), 2, Jitter::CJitter::RETURN_VALUE_64);
-	m_codeGen->PullRel64(offsetof(CMIPS, m_State.nGPR[m_nRT]));
+	m_codeGen->IsRefNull();
+	m_codeGen->PushCst(0);
+	m_codeGen->BeginIf(Jitter::CONDITION_EQ);
+	{
+		ComputeMemAccessRef(8);
 
-	m_codeGen->PullTop();
+		m_codeGen->Load64FromRef();
+		m_codeGen->PullRel64(offsetof(CMIPS, m_State.nGPR[m_nRT]));
+	}
+	m_codeGen->Else();
+	{
+		ComputeMemAccessAddrNoXlat();
+
+		m_codeGen->PushCtx();
+		m_codeGen->PushIdx(1);
+		m_codeGen->Call(reinterpret_cast<void*>(&MemoryUtils_GetDoubleProxy), 2, Jitter::CJitter::RETURN_VALUE_64);
+		m_codeGen->PullRel64(offsetof(CMIPS, m_State.nGPR[m_nRT]));
+
+		m_codeGen->PullTop();
+	}
+	m_codeGen->EndIf();
 }
 
 //39
@@ -780,14 +849,29 @@ void CMA_MIPSIV::SD()
 {
 	assert(m_regSize == MIPS_REGSIZE_64);
 
-	ComputeMemAccessAddr();
+	ComputeMemAccessPageRef();
 
-	m_codeGen->PushCtx();
-	m_codeGen->PushRel64(offsetof(CMIPS, m_State.nGPR[m_nRT]));
-	m_codeGen->PushIdx(2);
-	m_codeGen->Call(reinterpret_cast<void*>(&MemoryUtils_SetDoubleProxy), 3, Jitter::CJitter::RETURN_VALUE_NONE);
+	m_codeGen->IsRefNull();
+	m_codeGen->PushCst(0);
+	m_codeGen->BeginIf(Jitter::CONDITION_EQ);
+	{
+		ComputeMemAccessRef(8);
 
-	m_codeGen->PullTop();
+		m_codeGen->PushRel64(offsetof(CMIPS, m_State.nGPR[m_nRT]));
+		m_codeGen->Store64AtRef();
+	}
+	m_codeGen->Else();
+	{
+		ComputeMemAccessAddrNoXlat();
+
+		m_codeGen->PushCtx();
+		m_codeGen->PushRel64(offsetof(CMIPS, m_State.nGPR[m_nRT]));
+		m_codeGen->PushIdx(2);
+		m_codeGen->Call(reinterpret_cast<void*>(&MemoryUtils_SetDoubleProxy), 3, Jitter::CJitter::RETURN_VALUE_NONE);
+
+		m_codeGen->PullTop();
+	}
+	m_codeGen->EndIf();
 }
 
 //////////////////////////////////////////////////
