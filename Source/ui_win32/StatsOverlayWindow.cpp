@@ -88,6 +88,12 @@ void CStatsOverlayWindow::Update(unsigned int frames)
 			y += m_renderMetrics.fontSizeY + m_renderMetrics.spaceY;
 		}
 
+		{
+			float totalAvgMsSpent = (frames != 0) ? static_cast<double>(totalTime) / static_cast<double>(frames * timeScale) : 0;
+			memDc.TextOut(x + (m_renderMetrics.fontSizeX * 20), y, string_format(_T("%6.2fms"), totalAvgMsSpent).c_str());
+			y += m_renderMetrics.fontSizeY + m_renderMetrics.spaceY;
+		}
+
 		for(auto& zonePair : m_profilerZones) { zonePair.second.currentValue = 0; }
 	}
 
