@@ -66,7 +66,9 @@ void CStatsOverlayWindow::Update(unsigned int frames)
 			totalTime += zoneInfo.currentValue;
 		}
 
-		//float avgFrameTime = (static_cast<double>(totalTime) /  static_cast<double>(m_frames * 1000));
+		static const uint64 timeScale = 1000;
+
+		//float avgFrameTime = (static_cast<double>(totalTime) /  static_cast<double>(m_frames * timeScale));
 		//profilerTextResult = string_format(_T("Avg Frame Time: %0.2fms"), avgFrameTime);
 
 		int x = m_renderMetrics.marginX;
@@ -75,9 +77,9 @@ void CStatsOverlayWindow::Update(unsigned int frames)
 		{
 			const auto& zoneInfo = zonePair.second;
 			float avgRatioSpent = (totalTime != 0) ? static_cast<double>(zoneInfo.currentValue) / static_cast<double>(totalTime) : 0;
-			float avgMsSpent = (frames != 0) ? static_cast<double>(zoneInfo.currentValue) / static_cast<double>(frames * 1000) : 0;
-			float minMsSpent = (zoneInfo.minValue != ~0ULL) ? static_cast<double>(zoneInfo.minValue) / static_cast<double>(1000) : 0;
-			float maxMsSpent = static_cast<double>(zoneInfo.maxValue) / static_cast<double>(1000);
+			float avgMsSpent = (frames != 0) ? static_cast<double>(zoneInfo.currentValue) / static_cast<double>(frames * timeScale) : 0;
+			float minMsSpent = (zoneInfo.minValue != ~0ULL) ? static_cast<double>(zoneInfo.minValue) / static_cast<double>(timeScale) : 0;
+			float maxMsSpent = static_cast<double>(zoneInfo.maxValue) / static_cast<double>(timeScale);
 			memDc.TextOut(x + 0  , y, string_cast<std::tstring>(zonePair.first).c_str());
 			memDc.TextOut(x + (m_renderMetrics.fontSizeX * 10), y, string_format(_T("%6.2f%%"), avgRatioSpent * 100.f).c_str());
 			memDc.TextOut(x + (m_renderMetrics.fontSizeX * 20), y, string_format(_T("%6.2fms"), avgMsSpent).c_str());
