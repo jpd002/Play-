@@ -66,7 +66,7 @@ void CStatsOverlayWindow::Update(unsigned int frames)
 			totalTime += zoneInfo.currentValue;
 		}
 
-		static const uint64 timeScale = 1000;
+		static const uint64 timeScale = 1000000;
 
 		//float avgFrameTime = (static_cast<double>(totalTime) /  static_cast<double>(m_frames * timeScale));
 		//profilerTextResult = string_format(_T("Avg Frame Time: %0.2fms"), avgFrameTime);

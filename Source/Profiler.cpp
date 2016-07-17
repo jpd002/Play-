@@ -39,7 +39,7 @@ void CProfiler::EnterZone(ZoneHandle zoneHandle)
 	if(!m_zoneStack.empty())
 	{
 		auto topZoneHandle = m_zoneStack.top();
-		auto duration = std::chrono::duration_cast<std::chrono::microseconds>(thisTime - m_currentTime);
+		auto duration = std::chrono::duration_cast<std::chrono::nanoseconds>(thisTime - m_currentTime);
 		AddTimeToZone(topZoneHandle, duration.count());
 	}
 
@@ -57,7 +57,7 @@ void CProfiler::ExitZone()
 
 	{
 		auto topZoneHandle = m_zoneStack.top();
-		auto duration = std::chrono::duration_cast<std::chrono::microseconds>(thisTime - m_currentTime);
+		auto duration = std::chrono::duration_cast<std::chrono::nanoseconds>(thisTime - m_currentTime);
 		AddTimeToZone(topZoneHandle, duration.count());
 	}
 
@@ -88,11 +88,11 @@ void CProfiler::SetWorkThread()
 #endif
 }
 
-void CProfiler::AddTimeToZone(ZoneHandle zoneHandle, uint64 timeUs)
+void CProfiler::AddTimeToZone(ZoneHandle zoneHandle, uint64 timeNs)
 {
 	assert(m_zones.size() > zoneHandle);
 	auto& zone = m_zones[zoneHandle];
-	zone.totalTime += timeUs;
+	zone.totalTime += timeNs;
 }
 
 //////////////////////////////////////////////////////////////////////////
