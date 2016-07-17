@@ -27,6 +27,8 @@ public:
 
 	ZoneHandle			RegisterZone(const char*);
 
+	void				CountCurrentZone();
+
 	void				EnterZone(ZoneHandle);
 	void				ExitZone();
 

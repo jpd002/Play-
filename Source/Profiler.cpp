@@ -30,6 +30,22 @@ CProfiler::ZoneHandle CProfiler::RegisterZone(const char* name)
 #endif
 }
 
+void CProfiler::CountCurrentZone()
+{
+	assert(std::this_thread::get_id() == m_workThreadId);
+	assert(!m_zoneStack.empty());
+
+	auto thisTime = std::chrono::high_resolution_clock::now();
+
+	{
+		auto topZoneHandle = m_zoneStack.top();
+		auto duration = std::chrono::duration_cast<std::chrono::nanoseconds>(thisTime - m_currentTime);
+		AddTimeToZone(topZoneHandle, duration.count());
+	}
+
+	m_currentTime = thisTime;
+}
+
 void CProfiler::EnterZone(ZoneHandle zoneHandle)
 {
 	assert(std::this_thread::get_id() == m_workThreadId);
@@ -50,20 +66,8 @@ void CProfiler::EnterZone(ZoneHandle zoneHandle)
 
 void CProfiler::ExitZone()
 {
-	assert(std::this_thread::get_id() == m_workThreadId);
-	assert(!m_zoneStack.empty());
-
-	auto thisTime = std::chrono::high_resolution_clock::now();
-
-	{
-		auto topZoneHandle = m_zoneStack.top();
-		auto duration = std::chrono::duration_cast<std::chrono::nanoseconds>(thisTime - m_currentTime);
-		AddTimeToZone(topZoneHandle, duration.count());
-	}
-
+	CountCurrentZone();
 	m_zoneStack.pop();
-
-	m_currentTime = thisTime;
 }
 
 CProfiler::ZoneArray CProfiler::GetStats() const

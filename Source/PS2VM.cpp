@@ -717,6 +717,9 @@ void CPS2VM::EmuThread()
 {
 	fesetround(FE_TOWARDZERO);
 	CProfiler::GetInstance().SetWorkThread();
+#ifdef PROFILE
+	CProfilerZone profilerZone(m_otherProfilerZone);
+#endif
 	m_ee->m_executor.AddExceptionHandler();
 	while(1)
 	{
@@ -731,10 +734,6 @@ void CPS2VM::EmuThread()
 		}
 		if(m_nStatus == RUNNING)
 		{
-#ifdef PROFILE
-			CProfilerZone profilerZone(m_otherProfilerZone);
-#endif
-
 			if(m_spuUpdateTicks <= 0)
 			{
 				UpdateSpu();
@@ -767,6 +766,7 @@ void CPS2VM::EmuThread()
 						}
 #ifdef PROFILE
 						{
+							CProfiler::GetInstance().CountCurrentZone();
 							auto stats = CProfiler::GetInstance().GetStats();
 							ProfileFrameDone(stats);
 							CProfiler::GetInstance().Reset();
