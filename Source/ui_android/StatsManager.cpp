@@ -51,6 +51,11 @@ std::string CStatsManager::GetProfilingInfo()
 		);
 	}
 	
+	{
+		float totalAvgMsSpent = (m_frames != 0) ? static_cast<double>(totalTime) / static_cast<double>(m_frames * timeScale) : 0;
+		result += string_format("                   %6.2fms\r\n", totalAvgMsSpent);
+	}
+	
 	return result;
 }
 
