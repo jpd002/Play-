@@ -25,6 +25,18 @@ project.afterEvaluate {
 	clean.dependsOn 'ndkCleanDebug'
 	clean.dependsOn 'ndkCleanRelease'
 	preBuild.dependsOn 'copyPatchFile'
+	
+	def propsFile = rootProject.file('keystore.properties')
+	def configName = 'release'
+	
+	if(propsFile.exists() && android.signingConfigs.hasProperty(configName)) {
+		def props = new Properties()
+		props.load(new FileInputStream(propsFile))
+		android.signingConfigs[configName].storeFile = file(props['storeFile'])
+		android.signingConfigs[configName].storePassword = props['storePassword']
+		android.signingConfigs[configName].keyAlias = props['keyAlias']
+		android.signingConfigs[configName].keyPassword = props['keyPassword']
+	}
 }
 
 android {
@@ -48,6 +60,15 @@ android {
 		compile 'commons-io:commons-io:2.5'
 	}
 	
+	signingConfigs {
+		release {
+			storeFile file('store.keystore')
+			storePassword ''
+			keyAlias ''
+			keyPassword ''
+		}
+	}
+	
 	buildTypes {
 		debug {
 			debuggable true
@@ -55,6 +76,7 @@ android {
 		}
 		release {
 			proguardFile getDefaultProguardFile('proguard-android.txt')
+			signingConfig signingConfigs.release
 		}
 	}
 	
