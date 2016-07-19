@@ -48,12 +48,12 @@ public:
 	static FactoryFunction			GetFactoryFunction(Framework::Win32::CWindow*);
 
 protected:
-	virtual void					ResetImpl() override;
-	virtual void					InitializeImpl() override;
-	virtual void					ReleaseImpl() override;
-	virtual void					FlipImpl() override;
+	void							ResetImpl() override;
+	void							InitializeImpl() override;
+	void							ReleaseImpl() override;
+	void							FlipImpl() override;
 
-	virtual void					WriteRegisterImpl(uint8, uint64) override;
+	void							WriteRegisterImpl(uint8, uint64) override;
 
 private:
 	typedef Framework::Win32::CComPtr<IDirect3D9> Direct3DPtr;
