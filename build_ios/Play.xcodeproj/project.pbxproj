@@ -20,6 +20,7 @@
 		7001D64E1BE5457C008B6205 /* up.png in Resources */ = {isa = PBXBuildFile; fileRef = 7001D6441BE5457C008B6205 /* up.png */; };
 		7001D6511BE54582008B6205 /* analogstick.png in Resources */ = {isa = PBXBuildFile; fileRef = 7001D64F1BE54582008B6205 /* analogstick.png */; };
 		7001D6521BE54582008B6205 /* circle.png in Resources */ = {isa = PBXBuildFile; fileRef = 7001D6501BE54582008B6205 /* circle.png */; };
+		7002C6891D3D1A4700B8E9BB /* patches.xml in Resources */ = {isa = PBXBuildFile; fileRef = 7002C6881D3D1A4700B8E9BB /* patches.xml */; };
 		704E1C4E1B3BA0B200C0ACE3 /* GSH_OpenGLiOS.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 704E1C4C1B3BA0B200C0ACE3 /* GSH_OpenGLiOS.cpp */; };
 		704E1C531B3BA25000C0ACE3 /* GSH_OpenGL_Shader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 704E1C4F1B3BA25000C0ACE3 /* GSH_OpenGL_Shader.cpp */; };
 		704E1C541B3BA25000C0ACE3 /* GSH_OpenGL_Texture.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 704E1C501B3BA25000C0ACE3 /* GSH_OpenGL_Texture.cpp */; };
@@ -246,6 +247,7 @@
 		7001D6441BE5457C008B6205 /* up.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = up.png; sourceTree = "<group>"; };
 		7001D64F1BE54582008B6205 /* analogstick.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = analogstick.png; sourceTree = "<group>"; };
 		7001D6501BE54582008B6205 /* circle.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = circle.png; sourceTree = "<group>"; };
+		7002C6881D3D1A4700B8E9BB /* patches.xml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; name = patches.xml; path = ../../../patches.xml; sourceTree = "<group>"; };
 		704E1C4C1B3BA0B200C0ACE3 /* GSH_OpenGLiOS.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = GSH_OpenGLiOS.cpp; path = ../Source/ui_ios/GSH_OpenGLiOS.cpp; sourceTree = "<group>"; };
 		704E1C4D1B3BA0B200C0ACE3 /* GSH_OpenGLiOS.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GSH_OpenGLiOS.h; path = ../Source/ui_ios/GSH_OpenGLiOS.h; sourceTree = "<group>"; };
 		704E1C4F1B3BA25000C0ACE3 /* GSH_OpenGL_Shader.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = GSH_OpenGL_Shader.cpp; path = ../Source/gs/GSH_OpenGL/GSH_OpenGL_Shader.cpp; sourceTree = "<group>"; };
@@ -1101,6 +1103,7 @@
 				874ECDA81B7DB3DF000075B6 /* games.db */,
 				7001D63D1BE5457C008B6205 /* left.png */,
 				7001D63E1BE5457C008B6205 /* lr.png */,
+				7002C6881D3D1A4700B8E9BB /* patches.xml */,
 				7001D63F1BE5457C008B6205 /* right.png */,
 				7001D6401BE5457C008B6205 /* select.png */,
 				7001D6411BE5457C008B6205 /* square.png */,
@@ -1230,6 +1233,7 @@
 				874ECDAC1B7DB9EB000075B6 /* games.db in Resources */,
 				7001D64E1BE5457C008B6205 /* up.png in Resources */,
 				70834AEA1B1BCB0100E8D5C6 /* Info.plist in Resources */,
+				7002C6891D3D1A4700B8E9BB /* patches.xml in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
