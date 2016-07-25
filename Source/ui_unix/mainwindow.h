@@ -49,6 +49,7 @@ private:
     CPS2VM* g_virtualMachine = nullptr;
 
 protected:
+    void closeEvent(QCloseEvent*) Q_DECL_OVERRIDE;
     void showEvent(QShowEvent*) Q_DECL_OVERRIDE;
 
 public slots:
