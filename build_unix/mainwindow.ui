@@ -75,6 +75,8 @@
     </widget>
     <addaction name="menuSave_States"/>
     <addaction name="menuLoad_States"/>
+    <addaction name="separator"/>
+    <addaction name="actionPause_Resume"/>
    </widget>
    <addaction name="menuFor_The"/>
    <addaction name="menuEdit"/>
@@ -121,6 +123,11 @@
   <action name="action_save_Slot_1_Empty">
    <property name="text">
     <string>Save Slot 1 - Empty</string>
+   </property>
+  </action>
+  <action name="actionPause_Resume">
+   <property name="text">
+    <string>Pause/Resume</string>
    </property>
   </action>
  </widget>

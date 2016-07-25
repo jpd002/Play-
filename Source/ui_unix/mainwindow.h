@@ -35,12 +35,14 @@ private:
     QString saveStateInfo(int);
     boost::filesystem::path GetStateDirectoryPath();
     boost::filesystem::path GenerateStatePath(int);
+    void OnRunningStateChange();
 
     Ui::MainWindow *ui;
 
     QWindow* openglpanel;
     QLabel* fpsLabel;
     QLabel* dcLabel;
+    QLabel* stateLabel;
     CStatsManager* StatsManager;
     CPH_HidUnix* padhandler = nullptr;
     QTimer *fpstimer = nullptr;
@@ -62,7 +64,7 @@ private slots:
     void on_actionSettings_triggered();
     void saveState();
     void loadState();
-
+    void on_actionPause_Resume_triggered();
 };
 
 #endif // MAINWINDOW_H

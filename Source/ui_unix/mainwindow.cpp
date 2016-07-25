@@ -71,8 +71,10 @@ void MainWindow::initEmu(){
     StatsManager = new CStatsManager();
     g_virtualMachine->m_ee->m_gs->OnNewFrame.connect(boost::bind(&CStatsManager::OnNewFrame, StatsManager, _1));
 
+    g_virtualMachine->OnRunningStateChange.connect(boost::bind(&MainWindow::OnRunningStateChange, this));
     createStatusBar();
 }
+
 
 void MainWindow::setOpenGlPanelSize()
 {
@@ -195,8 +197,16 @@ void MainWindow::createStatusBar()
     dcLabel->setAlignment(Qt::AlignHCenter);
     dcLabel->setMinimumSize(dcLabel->sizeHint());
 
+
+    stateLabel = new QLabel(" Paused ");
+    stateLabel->setAlignment(Qt::AlignHCenter);
+    stateLabel->setMinimumSize(dcLabel->sizeHint());
+
+
+    statusBar()->addWidget(stateLabel);
     statusBar()->addWidget(fpsLabel);
     statusBar()->addWidget(dcLabel);
+
 
     fpstimer = new QTimer(this);
     connect(fpstimer, SIGNAL(timeout()), this, SLOT(setFPS()));
@@ -214,6 +224,11 @@ void MainWindow::setFPS()
     dcLabel->setText(QString(" dc: %1 ").arg(dcpf));
 }
 
+void MainWindow::OnRunningStateChange()
+{
+    stateLabel->setText(g_virtualMachine->GetStatus() == CVirtualMachine::PAUSED ? "Paused" : "Running");
+}
+
 void MainWindow::on_actionSettings_triggered()
 {
     SettingsDialog sd;
@@ -222,7 +237,6 @@ void MainWindow::on_actionSettings_triggered()
     CAppConfig::GetInstance().Save();
 }
 
-//TODO: handle or disable when ELF is loaded
 void MainWindow::setupSaveLoadStateSlots(){
     bool enable = (g_virtualMachine != nullptr ? (g_virtualMachine->m_ee->m_os->GetELF() != nullptr) : false);
     ui->menuSave_States->clear();
@@ -286,4 +300,17 @@ boost::filesystem::path MainWindow::GenerateStatePath(int m_stateSlot)
 {
     std::string stateFileName = std::string(g_virtualMachine->m_ee->m_os->GetExecutableName()) + ".st" + std::to_string(m_stateSlot) + ".zip";
     return GetStateDirectoryPath() / boost::filesystem::path(stateFileName);
+}
+
+void MainWindow::on_actionPause_Resume_triggered()
+{
+    if (g_virtualMachine != nullptr)
+    {
+        if (g_virtualMachine->GetStatus() == CVirtualMachine::PAUSED)
+        {
+            g_virtualMachine->Resume();
+        } else {
+            g_virtualMachine->Pause();
+        }
+    }
 }
