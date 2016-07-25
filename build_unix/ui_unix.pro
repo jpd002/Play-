@@ -18,11 +18,13 @@ INCLUDEPATH +=../ \
 
 SOURCES += ../Source/ui_unix/main.cpp\
         ../Source/ui_unix/mainwindow.cpp \
-        ../Source/ui_unix/GSH_OpenGLUnix.cpp
+        ../Source/ui_unix/GSH_OpenGLUnix.cpp \
+        ../Source/ui_unix/PH_HidUnix.cpp
 
 HEADERS  += ../Source/ui_unix/mainwindow.h \
             ../Source/ui_unix/GSH_OpenGLUnix.h \
-            ../Source/ui_unix/global.h
+            ../Source/ui_unix/global.h \
+            ../Source/ui_unix/PH_HidUnix.h
 
 FORMS    += mainwindow.ui
 

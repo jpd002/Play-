@@ -6,6 +6,7 @@
 
 #include "gs/GSH_OpenGL/GSH_OpenGL.h"
 #include "opengl/OpenGlDef.h"
+#include <GL/glx.h>
 
 class CGSH_OpenGLUnix : public CGSH_OpenGL
 {

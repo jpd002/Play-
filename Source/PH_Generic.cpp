@@ -1,4 +1,5 @@
 #include <cassert>
+#include <cstring>
 #include "PH_Generic.h"
 
 CPH_Generic::CPH_Generic()

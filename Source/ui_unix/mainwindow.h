@@ -7,6 +7,7 @@
 
 #include "AppConfig.h"
 #include "PS2VM_Preferences.h"
+#include "PH_HidUnix.h"
 
 
 namespace Ui {
@@ -24,6 +25,8 @@ public:
     void setOpenGlPanelSize();
     void initEmu();
 
+    CPH_HidUnix* padhandler = nullptr;
+
 public slots:
     void on_openGLWidget_resized();
 
@@ -35,6 +38,8 @@ private slots:
     void on_actionBoot_ELF_triggered();
 
     void on_actionExit_triggered();
+    void keyPressEvent(QKeyEvent *);
+    void keyReleaseEvent(QKeyEvent *);
 protected:
 
 private:

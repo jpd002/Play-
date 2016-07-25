@@ -33,6 +33,9 @@ void MainWindow::initEmu(){
     g_virtualMachine->Initialize();
 
     g_virtualMachine->CreateGSHandler(CGSH_OpenGLUnix::GetFactoryFunction(getOpenGLPanel()));
+
+    g_virtualMachine->CreatePadHandler(CPH_HidUnix::GetFactoryFunction());
+    padhandler = static_cast<CPH_HidUnix*>(g_virtualMachine->GetPadHandler());
 }
 
 void MainWindow::setOpenGlPanelSize()
@@ -108,4 +111,17 @@ void MainWindow::on_actionExit_triggered()
         g_virtualMachine->DestroySoundHandler();
     }
     exit(0);
+}
+
+
+void MainWindow::keyPressEvent(QKeyEvent *event)
+{
+    if (padhandler != nullptr)
+            padhandler->InputValueCallbackPressed(event->key());
+}
+
+void MainWindow::keyReleaseEvent(QKeyEvent *event)
+{
+    if (padhandler != nullptr)
+            padhandler->InputValueCallbackReleased(event->key());
 }
