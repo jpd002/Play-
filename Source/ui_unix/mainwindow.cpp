@@ -3,12 +3,17 @@
 
 #include "openglwindow.h"
 
+#include <QDateTime>
 #include <QFileDialog>
 #include <QTimer>
 #include <QWindow>
+#include <QMessageBox>
 
 #include "GSH_OpenGLQt.h"
 #include "tools/PsfPlayer/Source/SH_OpenAL.h"
+#include "DiskUtils.h"
+#include "PathUtils.h"
+
 #include "PreferenceDefs.h"
 
 #include "ui_mainwindow.h"
@@ -27,6 +32,9 @@ MainWindow::MainWindow(QWidget *parent) :
 
     connect(openglpanel, SIGNAL(keyUp(QKeyEvent*)), this, SLOT(keyReleaseEvent(QKeyEvent*)));
     connect(openglpanel, SIGNAL(keyDown(QKeyEvent*)), this, SLOT(keyPressEvent(QKeyEvent*)));
+
+
+    setupSaveLoadStateSlots();
 }
 
 MainWindow::~MainWindow()
@@ -119,11 +127,19 @@ void MainWindow::on_actionStart_Game_triggered()
 
     if (g_virtualMachine != nullptr)
     {
-        g_virtualMachine->Pause();
-        g_virtualMachine->Reset();
-        g_virtualMachine->m_ee->m_os->BootFromCDROM();
-        g_virtualMachine->Resume();
-        setOpenGlPanelSize();
+        try
+        {
+            g_virtualMachine->Pause();
+            g_virtualMachine->Reset();
+            g_virtualMachine->m_ee->m_os->BootFromCDROM();
+            g_virtualMachine->Resume();
+            setOpenGlPanelSize();
+            setupSaveLoadStateSlots();
+        } catch( const std::exception& e) {
+            QMessageBox messageBox;
+            messageBox.critical(0,"Error",e.what());
+            messageBox.show();
+        }
     }
 }
 
@@ -136,12 +152,21 @@ void MainWindow::on_actionBoot_ELF_triggered()
     {
         if (g_virtualMachine != nullptr)
         {
-            auto fileName = dialog.selectedFiles().first();
-            g_virtualMachine->Pause();
-            g_virtualMachine->Reset();
-            g_virtualMachine->m_ee->m_os->BootFromFile(fileName.toStdString().c_str());
-            g_virtualMachine->Resume();
-            setOpenGlPanelSize();
+            try
+            {
+                auto fileName = dialog.selectedFiles().first();
+
+                g_virtualMachine->Pause();
+                g_virtualMachine->Reset();
+                g_virtualMachine->m_ee->m_os->BootFromFile(fileName.toStdString().c_str());
+                g_virtualMachine->Resume();
+                setOpenGlPanelSize();
+                setupSaveLoadStateSlots();
+            } catch( const std::exception& e) {
+                QMessageBox messageBox;
+                messageBox.critical(0,"Error",e.what());
+                messageBox.show();
+            }
         }
     }
 }
@@ -198,4 +223,68 @@ void MainWindow::on_actionSettings_triggered()
     sd.exec();
     setupSoundHandler();
     CAppConfig::GetInstance().Save();
+}
+
+void MainWindow::setupSaveLoadStateSlots(){
+    bool enable = (g_virtualMachine != nullptr ? (g_virtualMachine->m_ee->m_os->GetELF() != nullptr) : false);
+    ui->menuSave_States->clear();
+    ui->menuLoad_States->clear();
+    for (int i=1; i <= 10; i++){
+        QString info = enable ? saveStateInfo(i) : "Empty";
+
+        QAction* saveaction = new QAction(this);
+        saveaction->setText(QString("Save Slot %1 - %2").arg(i).arg(info));
+        saveaction->setEnabled(enable);
+        saveaction->setProperty("stateSlot", i);
+        ui->menuSave_States->addAction(saveaction);
+
+        QAction* loadaction = new QAction(this);
+        loadaction->setText(QString("Load Slot %1 - %2").arg(i).arg(info));
+        loadaction->setEnabled(enable);
+        loadaction->setProperty("stateSlot", i);
+        ui->menuLoad_States->addAction(loadaction);
+
+        if (enable)
+        {
+            connect(saveaction, SIGNAL(triggered()), this, SLOT(saveState()));
+            connect(loadaction, SIGNAL(triggered()), this, SLOT(loadState()));
+        }
+
+    }
+}
+
+void MainWindow::saveState(){
+    Framework::PathUtils::EnsurePathExists(GetStateDirectoryPath());
+
+    int m_stateSlot = sender()->property("stateSlot").toInt();
+    g_virtualMachine->SaveState(GenerateStatePath(m_stateSlot).string().c_str());
+    QDateTime* dt = new QDateTime;
+    QString datetime = dt->currentDateTime().toString("hh:mm dd.MM.yyyy");
+    ui->menuSave_States->actions().at(m_stateSlot-1)->setText(QString("Save Slot %1 - %2").arg(m_stateSlot).arg(datetime));
+    ui->menuLoad_States->actions().at(m_stateSlot-1)->setText(QString("Load Slot %1 - %2").arg(m_stateSlot).arg(datetime));
+}
+
+void MainWindow::loadState(){
+    int m_stateSlot = sender()->property("stateSlot").toInt();
+    g_virtualMachine->LoadState(GenerateStatePath(m_stateSlot).string().c_str());
+    g_virtualMachine->Resume();
+}
+QString MainWindow::saveStateInfo(int m_stateSlot) {
+    QFileInfo file(GenerateStatePath(m_stateSlot).string().c_str());
+    if (file.exists() && file.isFile()) {
+        return file.created().toString("hh:mm dd.MM.yyyy");
+    } else {
+        return "Empty";
+    }
+}
+
+boost::filesystem::path MainWindow::GetStateDirectoryPath()
+{
+    return CAppConfig::GetBasePath() / boost::filesystem::path("states/");
+}
+
+boost::filesystem::path MainWindow::GenerateStatePath(int m_stateSlot)
+{
+    std::string stateFileName = std::string(g_virtualMachine->m_ee->m_os->GetExecutableName()) + ".st" + std::to_string(m_stateSlot) + ".zip";
+    return GetStateDirectoryPath() / boost::filesystem::path(stateFileName);
 }

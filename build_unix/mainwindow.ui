@@ -58,8 +58,28 @@
     </property>
     <addaction name="actionSettings"/>
    </widget>
+   <widget class="QMenu" name="menuVirtualMachine">
+    <property name="title">
+     <string>VirtualMachine</string>
+    </property>
+    <widget class="QMenu" name="menuSave_States">
+     <property name="title">
+      <string>Save States</string>
+     </property>
+     <addaction name="action_save_Slot_1_Empty"/>
+    </widget>
+    <widget class="QMenu" name="menuLoad_States">
+     <property name="title">
+      <string>Load States</string>
+     </property>
+     <addaction name="actionLoad_Slot_1_Empty"/>
+    </widget>
+    <addaction name="menuSave_States"/>
+    <addaction name="menuLoad_States"/>
+   </widget>
    <addaction name="menuFor_The"/>
    <addaction name="menuEdit"/>
+   <addaction name="menuVirtualMachine"/>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
   <action name="actionOpen_Game">
@@ -94,6 +114,16 @@
   <action name="actionBoot_ELF">
    <property name="text">
     <string>Boot ELF</string>
+   </property>
+  </action>
+  <action name="actionLoad_Slot_1_Empty">
+   <property name="text">
+    <string>Load Slot 1 - Empty</string>
+   </property>
+  </action>
+  <action name="action_save_Slot_1_Empty">
+   <property name="text">
+    <string>Save Slot 1 - Empty</string>
    </property>
   </action>
  </widget>

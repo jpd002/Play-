@@ -31,6 +31,10 @@ private:
     void setupSoundHandler();
     void Setupfpscounter();
     void createOpenGlPanel();
+    void setupSaveLoadStateSlots();
+    QString saveStateInfo(int);
+    boost::filesystem::path GetStateDirectoryPath();
+    boost::filesystem::path GenerateStatePath(int);
 
     Ui::MainWindow *ui;
 
@@ -57,6 +61,8 @@ private slots:
     void keyPressEvent(QKeyEvent *);
     void keyReleaseEvent(QKeyEvent *);
     void on_actionSettings_triggered();
+    void saveState();
+    void loadState();
 
 };
 
