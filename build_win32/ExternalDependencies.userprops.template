@@ -2,23 +2,11 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ImportGroup Label="PropertySheets" />
   <PropertyGroup Label="UserMacros">
-    <FRAMEWORK_PATH>path_to\framework</FRAMEWORK_PATH>
-    <CODEGEN_PATH>path_to\codegen</CODEGEN_PATH>
-    <BZLIB_PATH>path_to\bzip2-1.0.6</BZLIB_PATH>
     <VTUNE_PATH>path_to\vtune</VTUNE_PATH>
   </PropertyGroup>
   <PropertyGroup />
   <ItemDefinitionGroup />
   <ItemGroup>
-    <BuildMacro Include="FRAMEWORK_PATH">
-      <Value>$(FRAMEWORK_PATH)</Value>
-    </BuildMacro>
-    <BuildMacro Include="CODEGEN_PATH">
-      <Value>$(CODEGEN_PATH)</Value>
-    </BuildMacro>
-    <BuildMacro Include="BZLIB_PATH">
-      <Value>$(BZLIB_PATH)</Value>
-    </BuildMacro>
     <BuildMacro Include="VTUNE_PATH">
       <Value>$(VTUNE_PATH)</Value>
     </BuildMacro>
