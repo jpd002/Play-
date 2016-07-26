@@ -483,6 +483,9 @@
     <ProjectReference Include="..\..\Framework\build_win32\FrameworkOpenGl.vcxproj">
       <Project>{482892bb-6d81-4ca4-bfd5-01a756c21292}</Project>
     </ProjectReference>
+    <ProjectReference Include="..\..\Nuanceur\build_win32\Nuanceur.vcxproj">
+      <Project>{310d6196-3bc4-42bf-909a-eec05e930a09}</Project>
+    </ProjectReference>
     <ProjectReference Include="PlayCore.vcxproj">
       <Project>{d060d0bf-20e4-4dcd-975e-9ee6ddf4f73a}</Project>
     </ProjectReference>
