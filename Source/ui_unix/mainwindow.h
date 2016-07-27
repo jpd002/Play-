@@ -36,6 +36,8 @@ private:
     boost::filesystem::path GetStateDirectoryPath();
     boost::filesystem::path GenerateStatePath(int);
     void OnRunningStateChange();
+    void OnExecutableChange();
+    void UpdateUI();
 
     Ui::MainWindow *ui;
 

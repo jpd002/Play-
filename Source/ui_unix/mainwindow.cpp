@@ -36,7 +36,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(openglpanel, SIGNAL(keyDown(QKeyEvent*)), this, SLOT(keyPressEvent(QKeyEvent*)));
 
 
-    setupSaveLoadStateSlots();
+    UpdateUI();
 }
 
 MainWindow::~MainWindow()
@@ -74,6 +74,7 @@ void MainWindow::initEmu(){
     g_virtualMachine->m_ee->m_gs->OnNewFrame.connect(boost::bind(&CStatsManager::OnNewFrame, StatsManager, _1));
 
     g_virtualMachine->OnRunningStateChange.connect(boost::bind(&MainWindow::OnRunningStateChange, this));
+    g_virtualMachine->m_ee->m_os->OnExecutableChange.connect(boost::bind(&MainWindow::OnExecutableChange, this));
     createStatusBar();
 }
 
@@ -133,8 +134,6 @@ void MainWindow::on_actionOpen_Game_triggered()
                 g_virtualMachine->Reset();
                 g_virtualMachine->m_ee->m_os->BootFromCDROM();
                 g_virtualMachine->Resume();
-                setOpenGlPanelSize();
-                setupSaveLoadStateSlots();
             } catch( const std::exception& e) {
                 QMessageBox messageBox;
                 messageBox.critical(0,"Error",e.what());
@@ -161,8 +160,6 @@ void MainWindow::on_actionBoot_ELF_triggered()
                 g_virtualMachine->Reset();
                 g_virtualMachine->m_ee->m_os->BootFromFile(fileName.toStdString().c_str());
                 g_virtualMachine->Resume();
-                setOpenGlPanelSize();
-                setupSaveLoadStateSlots();
             } catch( const std::exception& e) {
                 QMessageBox messageBox;
                 messageBox.critical(0,"Error",e.what());
@@ -339,4 +336,15 @@ void MainWindow::on_actionAbout_triggered()
     boostver = ver.arg(BOOST_VERSION / 100000).arg(BOOST_VERSION / 100 % 1000).arg(BOOST_VERSION % 100);
     messageBox.about(this, this->windowTitle(), about.arg(QString(PLAY_VERSION), __DATE__, QT_VERSION_STR, ZLIB_VERSION, boostver));
     messageBox.show();
+}
+
+void MainWindow::OnExecutableChange()
+{
+    UpdateUI();
+}
+
+void MainWindow::UpdateUI()
+{
+    setOpenGlPanelSize();
+    setupSaveLoadStateSlots();
 }
