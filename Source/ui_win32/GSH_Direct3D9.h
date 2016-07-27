@@ -5,6 +5,7 @@
 #include "win32/ComPtr.h"
 #include "bitmap/Bitmap.h"
 #include "OutputWnd.h"
+#include "nuanceur/Builder.h"
 #include <list>
 #ifdef _DEBUG
 #define D3D_DEBUG_INFO
@@ -61,6 +62,8 @@ private:
 	typedef Framework::Win32::CComPtr<IDirect3DDevice9> DevicePtr;
 	typedef Framework::Win32::CComPtr<IDirect3DTexture9> TexturePtr;
 	typedef Framework::Win32::CComPtr<IDirect3DSurface9> SurfacePtr;
+	typedef Framework::Win32::CComPtr<IDirect3DVertexShader9> VertexShaderPtr;
+	typedef Framework::Win32::CComPtr<IDirect3DPixelShader9> PixelShaderPtr;
 
 	enum MAXCACHE
 	{
@@ -71,6 +74,13 @@ private:
 	{
 		CVTBUFFERSIZE = 2048 * 2048 * 4,
 	};
+
+	struct SHADERCAPS : public convertible<uint32>
+	{
+		uint32 hasTexture : 1;
+		uint32 padding    : 31;
+	};
+	static_assert(sizeof(SHADERCAPS) == sizeof(uint32), "SHADERCAPS structure size must be 4 bytes.");
 
 	struct RENDERSTATE
 	{
@@ -205,6 +215,12 @@ private:
 	void							TexCache_Flush();
 
 	void							FlattenClut(const TEX0&, uint32*);
+
+	VertexShaderPtr					CreateVertexShader(SHADERCAPS);
+	PixelShaderPtr					CreatePixelShader(SHADERCAPS);
+
+	Nuanceur::CShaderBuilder		GenerateVertexShader(SHADERCAPS);
+	Nuanceur::CShaderBuilder		GeneratePixelShader(SHADERCAPS);
 
 	bool							m_depthTestingEnabled = true;
 	bool							m_alphaBlendingEnabled = true;

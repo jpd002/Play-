@@ -14,7 +14,7 @@
       <AdditionalIncludeDirectories>$(FRAMEWORK_PATH)\include;$(CODEGEN_PATH)\include;$(NUANCEUR_PATH)\include;$(BZLIB_PATH);$(ZLIB_PATH);$(DXSDK_DIR)Include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>comctl32.lib;uxtheme.lib;opengl32.lib;glu32.lib;dxguid.lib;dinput8.lib;vfw32.lib;winmm.lib;gdiplus.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>comctl32.lib;uxtheme.lib;opengl32.lib;glu32.lib;dxguid.lib;dinput8.lib;vfw32.lib;winmm.lib;gdiplus.lib;d3dcompiler.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <IgnoreSpecificDefaultLibraries>LIBCMT</IgnoreSpecificDefaultLibraries>
     </Link>
   </ItemDefinitionGroup>

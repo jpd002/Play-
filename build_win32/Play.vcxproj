@@ -307,6 +307,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="..\Source\ui_win32\GSH_Direct3D9.cpp" />
+    <ClCompile Include="..\Source\ui_win32\GSH_Direct3D9_Shader.cpp" />
     <ClCompile Include="..\Source\ui_win32\GSH_Direct3D9_Texture.cpp" />
     <ClCompile Include="..\Source\ui_win32\GSH_OpenGLWin32.cpp" />
     <ClCompile Include="..\Source\ui_win32\IconMesh.cpp" />

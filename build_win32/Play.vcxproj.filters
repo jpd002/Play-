@@ -262,6 +262,9 @@
     <ClCompile Include="..\Source\ui_win32\FrameDebugger\GsPacketListView.cpp">
       <Filter>Source Files\FrameDebugger</Filter>
     </ClCompile>
+    <ClCompile Include="..\Source\ui_win32\GSH_Direct3D9_Shader.cpp">
+      <Filter>Source Files\GSH_Direct3D9</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Source\ui_win32\IconMesh.h">
