@@ -35,7 +35,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(openglpanel, SIGNAL(keyUp(QKeyEvent*)), this, SLOT(keyReleaseEvent(QKeyEvent*)));
     connect(openglpanel, SIGNAL(keyDown(QKeyEvent*)), this, SLOT(keyPressEvent(QKeyEvent*)));
 
-
+    RegisterPreferences();
     UpdateUI();
 }
 
@@ -233,7 +233,6 @@ void MainWindow::on_actionSettings_triggered()
     SettingsDialog sd;
     sd.exec();
     setupSoundHandler();
-    CAppConfig::GetInstance().Save();
 }
 
 void MainWindow::setupSaveLoadStateSlots(){
@@ -347,4 +346,9 @@ void MainWindow::UpdateUI()
 {
     setOpenGlPanelSize();
     setupSaveLoadStateSlots();
+}
+
+void MainWindow::RegisterPreferences()
+{
+    CAppConfig::GetInstance().RegisterPreferenceBoolean(PREFERENCE_AUDIO_ENABLEOUTPUT, true);
 }

@@ -12,13 +12,13 @@ SettingsDialog::SettingsDialog(QWidget *parent) :
     //Not needed, as it can be set in the ui editor, but left for ease of ui edit.
     ui->stackedWidget->setCurrentIndex(0);
 
-    RegisterPreferences();
     LoadPreferences();
     connect(ui->listWidget, &QListWidget::currentItemChanged, this, &SettingsDialog::changePage);
 }
 
 SettingsDialog::~SettingsDialog()
 {
+    CAppConfig::GetInstance().Save();
     delete ui;
 }
 
@@ -28,12 +28,6 @@ void SettingsDialog::changePage(QListWidgetItem *current, QListWidgetItem *previ
         current = previous;
 
     ui->stackedWidget->setCurrentIndex(ui->listWidget->row(current));
-}
-
-
-void SettingsDialog::RegisterPreferences()
-{
-    CAppConfig::GetInstance().RegisterPreferenceBoolean(PREFERENCE_AUDIO_ENABLEOUTPUT, true);
 }
 
 void SettingsDialog::LoadPreferences()

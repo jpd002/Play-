@@ -38,6 +38,7 @@ private:
     void OnRunningStateChange();
     void OnExecutableChange();
     void UpdateUI();
+    void RegisterPreferences();
 
     Ui::MainWindow *ui;
 
