@@ -384,6 +384,10 @@ void CGSH_Direct3D9::DrawActiveFramebuffer()
 		assert(SUCCEEDED(result));
 	}
 
+	m_device->SetVertexDeclaration(nullptr);
+	m_device->SetVertexShader(nullptr);
+	m_device->SetPixelShader(nullptr);
+
 	D3DVIEWPORT9 viewport = {};
 	viewport.X = 0;
 	viewport.Y = 0;
@@ -424,32 +428,26 @@ void CGSH_Direct3D9::DrawActiveFramebuffer()
 	}
 }
 
-void CGSH_Direct3D9::SetReadCircuitMatrix(int nWidth, int nHeight)
+void CGSH_Direct3D9::SetReadCircuitMatrix(int width, int height)
 {
 	//Setup projection matrix
-	{
-		D3DXMATRIX projMatrix;
-		D3DXMatrixOrthoLH(&projMatrix, static_cast<FLOAT>(nWidth), static_cast<FLOAT>(nHeight), 1.0f, 0.0f);
-		m_device->SetTransform(D3DTS_PROJECTION, &projMatrix);
-	}
+	D3DXMATRIX projMatrix;
+	D3DXMatrixOrthoLH(&projMatrix, static_cast<FLOAT>(width), static_cast<FLOAT>(height), 1.0f, 0.0f);
 
 	//Setup view matrix
-	{
-		D3DXMATRIX viewMatrix;
-		D3DXMatrixLookAtLH(&viewMatrix,
-						   &D3DXVECTOR3(0.0f, 0.0f, 1.0f),
-						   &D3DXVECTOR3(0.0f, 0.0f, 0.0f),
-						   &D3DXVECTOR3(0.0f, -1.0f, 0.0f));
-
-		m_device->SetTransform(D3DTS_VIEW, &viewMatrix);
-	}
+	D3DXMATRIX viewMatrix;
+	D3DXMatrixLookAtLH(&viewMatrix,
+						&D3DXVECTOR3(0.0f, 0.0f, 1.0f),
+						&D3DXVECTOR3(0.0f, 0.0f, 0.0f),
+						&D3DXVECTOR3(0.0f, -1.0f, 0.0f));
 
 	//Setup world matrix
-	{
-		D3DXMATRIX worldMatrix;
-		D3DXMatrixTranslation(&worldMatrix, -static_cast<FLOAT>(nWidth) / 2.0f, -static_cast<FLOAT>(nHeight) / 2.0f, 0);
-		m_device->SetTransform(D3DTS_WORLD, &worldMatrix);
-	}
+	D3DXMATRIX worldMatrix;
+	D3DXMatrixTranslation(&worldMatrix, -static_cast<FLOAT>(width) / 2.0f, -static_cast<FLOAT>(height) / 2.0f, 0);
+
+	D3DXMATRIX tempMatrix;
+	D3DXMatrixMultiply(&tempMatrix, &worldMatrix, &viewMatrix);
+	D3DXMatrixMultiply(reinterpret_cast<D3DXMATRIX*>(&m_projMatrix), &tempMatrix, &projMatrix);
 }
 
 bool CGSH_Direct3D9::TestDevice()
@@ -549,6 +547,17 @@ void CGSH_Direct3D9::OnDeviceReset()
 	assert(SUCCEEDED(result));
 
 	result = m_device->CreateVertexBuffer(4 * sizeof(PRESENTVERTEX), D3DUSAGE_DYNAMIC | D3DUSAGE_WRITEONLY, PRESENTFVF, D3DPOOL_DEFAULT, &m_presentVb, nullptr);
+	assert(SUCCEEDED(result));
+
+	static const D3DVERTEXELEMENT9 vertexElements[] =
+	{
+		{ 0, offsetof(CUSTOMVERTEX, x),     D3DDECLTYPE_FLOAT3,   0, D3DDECLUSAGE_POSITION, 0 },
+		{ 0, offsetof(CUSTOMVERTEX, u),     D3DDECLTYPE_FLOAT2,   0, D3DDECLUSAGE_TEXCOORD, 0 },
+		{ 0, offsetof(CUSTOMVERTEX, color), D3DDECLTYPE_D3DCOLOR, 0, D3DDECLUSAGE_TEXCOORD, 1 },
+		D3DDECL_END()
+	};
+
+	result = m_device->CreateVertexDeclaration(vertexElements, &m_vertexDeclaration);
 	assert(SUCCEEDED(result));
 
 	{
@@ -709,7 +718,7 @@ void CGSH_Direct3D9::Prim_Line()
 		assert(SUCCEEDED(result));
 
 		// select which vertex format we are using
-		result = m_device->SetFVF(CUSTOMFVF);
+		result = m_device->SetVertexDeclaration(m_vertexDeclaration);
 		assert(SUCCEEDED(result));
 
 		// select the vertex buffer to display
@@ -850,7 +859,7 @@ void CGSH_Direct3D9::Prim_Triangle()
 		assert(SUCCEEDED(result));
 
 		// select which vertex format we are using
-		result = m_device->SetFVF(CUSTOMFVF);
+		result = m_device->SetVertexDeclaration(m_vertexDeclaration);
 		assert(SUCCEEDED(result));
 
 		// select the vertex buffer to display
@@ -944,7 +953,7 @@ void CGSH_Direct3D9::Prim_Sprite()
 		assert(SUCCEEDED(result));
 
 		// select which vertex format we are using
-		result = m_device->SetFVF(CUSTOMFVF);
+		result = m_device->SetVertexDeclaration(m_vertexDeclaration);
 		assert(SUCCEEDED(result));
 
 		// select the vertex buffer to display
@@ -971,6 +980,34 @@ void CGSH_Direct3D9::SetRenderingContext(uint64 primReg)
 	uint64 tex1Reg = m_nReg[GS_REG_TEX1_1 + context];
 	uint64 clampReg = m_nReg[GS_REG_CLAMP_1 + context];
 	uint64 scissorReg = m_nReg[GS_REG_SCISSOR_1 + context];
+
+	//Get shader caps
+	auto shaderCaps = make_convertible<SHADERCAPS>(0);
+	shaderCaps.hasTexture = prim.nTexture;
+
+	{
+		auto shaderIterator = m_vertexShaders.find(shaderCaps);
+		if(shaderIterator == std::end(m_vertexShaders))
+		{
+			auto shader = CreateVertexShader(shaderCaps);
+
+			m_vertexShaders.insert(std::make_pair(shaderCaps, shader));
+			shaderIterator = m_vertexShaders.find(shaderCaps);
+		}
+		m_device->SetVertexShader(shaderIterator->second);
+	}
+
+	{
+		auto shaderIterator = m_pixelShaders.find(shaderCaps);
+		if(shaderIterator == std::end(m_pixelShaders))
+		{
+			auto shader = CreatePixelShader(shaderCaps);
+
+			m_pixelShaders.insert(std::make_pair(shaderCaps, shader));
+			shaderIterator = m_pixelShaders.find(shaderCaps);
+		}
+		m_device->SetPixelShader(shaderIterator->second);
+	}
 
 	if(!m_renderState.isValid ||
 		(m_renderState.primReg != primReg))
@@ -1297,6 +1334,8 @@ void CGSH_Direct3D9::SetupFramebuffer(uint64 frameReg, uint64 scissorReg)
 	m_device->SetRenderState(D3DRS_SCISSORTESTENABLE, TRUE);
 
 	SetReadCircuitMatrix(projWidth, projHeight);
+
+	m_device->SetVertexShaderConstantF(0, reinterpret_cast<float*>(&m_projMatrix), 4);
 }
 
 void CGSH_Direct3D9::SetupDepthBuffer(uint64 zbufReg, uint64 frameReg)

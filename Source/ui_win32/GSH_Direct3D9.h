@@ -62,8 +62,12 @@ private:
 	typedef Framework::Win32::CComPtr<IDirect3DDevice9> DevicePtr;
 	typedef Framework::Win32::CComPtr<IDirect3DTexture9> TexturePtr;
 	typedef Framework::Win32::CComPtr<IDirect3DSurface9> SurfacePtr;
+	typedef Framework::Win32::CComPtr<IDirect3DVertexDeclaration9> VertexDeclarationPtr;
 	typedef Framework::Win32::CComPtr<IDirect3DVertexShader9> VertexShaderPtr;
 	typedef Framework::Win32::CComPtr<IDirect3DPixelShader9> PixelShaderPtr;
+
+	typedef std::map<uint32, VertexShaderPtr> VertexShaderMap;
+	typedef std::map<uint32, PixelShaderPtr> PixelShaderMap;
 
 	enum MAXCACHE
 	{
@@ -250,7 +254,12 @@ private:
 	FramebufferList					m_framebuffers;
 	DepthbufferList					m_depthbuffers;
 
+	VertexDeclarationPtr			m_vertexDeclaration;
+	VertexShaderMap					m_vertexShaders;
+	PixelShaderMap					m_pixelShaders;
+
 	RENDERSTATE						m_renderState;
+	D3DMATRIX						m_projMatrix;
 
 	VertexBufferPtr					m_drawVb;
 	VertexBufferPtr					m_presentVb;
