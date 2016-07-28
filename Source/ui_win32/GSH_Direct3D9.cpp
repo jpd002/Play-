@@ -545,10 +545,7 @@ void CGSH_Direct3D9::OnDeviceReset()
 	m_device->SetRenderState(D3DRS_LIGHTING, FALSE);
 	m_device->SetTextureStageState(0, D3DTSS_TEXTURETRANSFORMFLAGS, D3DTTFF_COUNT2);
 
-	result = m_device->CreateVertexBuffer(3 * sizeof(CUSTOMVERTEX), D3DUSAGE_DYNAMIC | D3DUSAGE_WRITEONLY, CUSTOMFVF, D3DPOOL_DEFAULT, &m_triangleVb, NULL);
-	assert(SUCCEEDED(result));
-
-	result = m_device->CreateVertexBuffer(4 * sizeof(CUSTOMVERTEX), D3DUSAGE_DYNAMIC | D3DUSAGE_WRITEONLY, CUSTOMFVF, D3DPOOL_DEFAULT, &m_quadVb, NULL);
+	result = m_device->CreateVertexBuffer(4 * sizeof(CUSTOMVERTEX), D3DUSAGE_DYNAMIC | D3DUSAGE_WRITEONLY, CUSTOMFVF, D3DPOOL_DEFAULT, &m_drawVb, nullptr);
 	assert(SUCCEEDED(result));
 
 	result = m_device->CreateVertexBuffer(4 * sizeof(PRESENTVERTEX), D3DUSAGE_DYNAMIC | D3DUSAGE_WRITEONLY, PRESENTFVF, D3DPOOL_DEFAULT, &m_presentVb, nullptr);
@@ -574,8 +571,7 @@ void CGSH_Direct3D9::OnDeviceReset()
 
 void CGSH_Direct3D9::OnDeviceResetting()
 {
-	m_triangleVb.Reset();
-	m_quadVb.Reset();
+	m_drawVb.Reset();
 	m_presentVb.Reset();
 	m_framebuffers.clear();
 	m_depthbuffers.clear();
@@ -704,12 +700,12 @@ void CGSH_Direct3D9::Prim_Line()
 		};
 
 		uint8* buffer = nullptr;
-		result = m_triangleVb->Lock(0, sizeof(CUSTOMVERTEX) * 3, reinterpret_cast<void**>(&buffer), D3DLOCK_DISCARD);
+		result = m_drawVb->Lock(0, sizeof(CUSTOMVERTEX) * 3, reinterpret_cast<void**>(&buffer), D3DLOCK_DISCARD);
 		assert(SUCCEEDED(result));
 		{
 			memcpy(buffer, vertices, sizeof(vertices));
 		}
-		result = m_triangleVb->Unlock();
+		result = m_drawVb->Unlock();
 		assert(SUCCEEDED(result));
 
 		// select which vertex format we are using
@@ -717,7 +713,7 @@ void CGSH_Direct3D9::Prim_Line()
 		assert(SUCCEEDED(result));
 
 		// select the vertex buffer to display
-		result = m_device->SetStreamSource(0, m_triangleVb, 0, sizeof(CUSTOMVERTEX));
+		result = m_device->SetStreamSource(0, m_drawVb, 0, sizeof(CUSTOMVERTEX));
 		assert(SUCCEEDED(result));
 
 		// copy the vertex buffer to the back buffer
@@ -845,12 +841,12 @@ void CGSH_Direct3D9::Prim_Triangle()
 		};
 
 		uint8* buffer = nullptr;
-		result = m_triangleVb->Lock(0, sizeof(CUSTOMVERTEX) * 3, reinterpret_cast<void**>(&buffer), D3DLOCK_DISCARD);
+		result = m_drawVb->Lock(0, sizeof(CUSTOMVERTEX) * 3, reinterpret_cast<void**>(&buffer), D3DLOCK_DISCARD);
 		assert(SUCCEEDED(result));
 		{
 			memcpy(buffer, vertices, sizeof(vertices));
 		}
-		result = m_triangleVb->Unlock();
+		result = m_drawVb->Unlock();
 		assert(SUCCEEDED(result));
 
 		// select which vertex format we are using
@@ -858,7 +854,7 @@ void CGSH_Direct3D9::Prim_Triangle()
 		assert(SUCCEEDED(result));
 
 		// select the vertex buffer to display
-		result = m_device->SetStreamSource(0, m_triangleVb, 0, sizeof(CUSTOMVERTEX));
+		result = m_device->SetStreamSource(0, m_drawVb, 0, sizeof(CUSTOMVERTEX));
 		assert(SUCCEEDED(result));
 
 		// copy the vertex buffer to the back buffer
@@ -939,12 +935,12 @@ void CGSH_Direct3D9::Prim_Sprite()
 		};
 
 		uint8* buffer = nullptr;
-		result = m_quadVb->Lock(0, sizeof(CUSTOMVERTEX) * 4, reinterpret_cast<void**>(&buffer), D3DLOCK_DISCARD);
+		result = m_drawVb->Lock(0, sizeof(CUSTOMVERTEX) * 4, reinterpret_cast<void**>(&buffer), D3DLOCK_DISCARD);
 		assert(SUCCEEDED(result));
 		{
 			memcpy(buffer, vertices, sizeof(vertices));
 		}
-		result = m_quadVb->Unlock();
+		result = m_drawVb->Unlock();
 		assert(SUCCEEDED(result));
 
 		// select which vertex format we are using
@@ -952,7 +948,7 @@ void CGSH_Direct3D9::Prim_Sprite()
 		assert(SUCCEEDED(result));
 
 		// select the vertex buffer to display
-		result = m_device->SetStreamSource(0, m_quadVb, 0, sizeof(CUSTOMVERTEX));
+		result = m_device->SetStreamSource(0, m_drawVb, 0, sizeof(CUSTOMVERTEX));
 		assert(SUCCEEDED(result));
 
 		// copy the vertex buffer to the back buffer

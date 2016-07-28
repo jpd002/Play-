@@ -252,8 +252,7 @@ private:
 
 	RENDERSTATE						m_renderState;
 
-	VertexBufferPtr					m_triangleVb;
-	VertexBufferPtr					m_quadVb;
+	VertexBufferPtr					m_drawVb;
 	VertexBufferPtr					m_presentVb;
 	bool							m_sceneBegun = false;
 
