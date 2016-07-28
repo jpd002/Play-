@@ -703,26 +703,26 @@ void CGSH_Direct3D9::Prim_Line()
 			{	nX2,	nY2,	nZ2,	color1,		nU2,	nV2 },
 		};
 
-		uint8* buffer = NULL;
+		uint8* buffer = nullptr;
 		result = m_triangleVb->Lock(0, sizeof(CUSTOMVERTEX) * 3, reinterpret_cast<void**>(&buffer), D3DLOCK_DISCARD);
-		assert(result == S_OK);
+		assert(SUCCEEDED(result));
 		{
 			memcpy(buffer, vertices, sizeof(vertices));
 		}
 		result = m_triangleVb->Unlock();
-		assert(result == S_OK);
+		assert(SUCCEEDED(result));
 
 		// select which vertex format we are using
 		result = m_device->SetFVF(CUSTOMFVF);
-		assert(result == S_OK);
+		assert(SUCCEEDED(result));
 
 		// select the vertex buffer to display
 		result = m_device->SetStreamSource(0, m_triangleVb, 0, sizeof(CUSTOMVERTEX));
-		assert(result == S_OK);
+		assert(SUCCEEDED(result));
 
 		// copy the vertex buffer to the back buffer
 		result = m_device->DrawPrimitive(D3DPT_LINELIST, 0, 1);
-		assert(result == S_OK);
+		assert(SUCCEEDED(result));
 	}
 
 	if(m_primitiveMode.nFog)
@@ -844,26 +844,26 @@ void CGSH_Direct3D9::Prim_Triangle()
 			{	nX3,	nY3,	nZ3,	color2,		nU3,	nV3 },
 		};
 
-		uint8* buffer = NULL;
+		uint8* buffer = nullptr;
 		result = m_triangleVb->Lock(0, sizeof(CUSTOMVERTEX) * 3, reinterpret_cast<void**>(&buffer), D3DLOCK_DISCARD);
-		assert(result == S_OK);
+		assert(SUCCEEDED(result));
 		{
 			memcpy(buffer, vertices, sizeof(vertices));
 		}
 		result = m_triangleVb->Unlock();
-		assert(result == S_OK);
+		assert(SUCCEEDED(result));
 
 		// select which vertex format we are using
 		result = m_device->SetFVF(CUSTOMFVF);
-		assert(result == S_OK);
+		assert(SUCCEEDED(result));
 
 		// select the vertex buffer to display
 		result = m_device->SetStreamSource(0, m_triangleVb, 0, sizeof(CUSTOMVERTEX));
-		assert(result == S_OK);
+		assert(SUCCEEDED(result));
 
 		// copy the vertex buffer to the back buffer
 		result = m_device->DrawPrimitive(D3DPT_TRIANGLELIST, 0, 1);
-		assert(result == S_OK);
+		assert(SUCCEEDED(result));
 	}
 
 	if(m_primitiveMode.nFog)
@@ -938,7 +938,7 @@ void CGSH_Direct3D9::Prim_Sprite()
 			{	nX2,	nY1,	nZ,		color1,		nU2,	nV1 },
 		};
 
-		uint8* buffer = NULL;
+		uint8* buffer = nullptr;
 		result = m_quadVb->Lock(0, sizeof(CUSTOMVERTEX) * 4, reinterpret_cast<void**>(&buffer), D3DLOCK_DISCARD);
 		assert(SUCCEEDED(result));
 		{
