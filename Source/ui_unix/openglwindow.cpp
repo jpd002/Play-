@@ -11,6 +11,9 @@ OpenGLWindow::OpenGLWindow(QWindow *parent)
 
     setSurfaceType(QWindow::OpenGLSurface);
     setFormat(format);
+
+    connect(this, SIGNAL(activeChanged()), this, SLOT(activeStateChanged()));
+
 }
 
 OpenGLWindow::~OpenGLWindow()
@@ -31,4 +34,23 @@ void OpenGLWindow::exposeEvent(QExposeEvent* ev)
 {
     emit widthChanged(size().width());
     QWindow::exposeEvent(ev);
+}
+
+void OpenGLWindow::focusOutEvent(QFocusEvent * event)
+{
+    emit focusOut(event);
+}
+void OpenGLWindow::focusInEvent(QFocusEvent * event)
+{
+    emit focusIn(event);
+}
+
+void OpenGLWindow::activeStateChanged()
+{
+    if (isActive())
+    {
+        emit focusIn(new QFocusEvent(QEvent::FocusIn));
+    } else {
+        emit focusOut(new QFocusEvent(QEvent::FocusOut));
+    }
 }

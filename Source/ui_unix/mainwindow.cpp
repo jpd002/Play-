@@ -35,8 +35,16 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(openglpanel, SIGNAL(keyUp(QKeyEvent*)), this, SLOT(keyReleaseEvent(QKeyEvent*)));
     connect(openglpanel, SIGNAL(keyDown(QKeyEvent*)), this, SLOT(keyPressEvent(QKeyEvent*)));
 
+
+    connect(openglpanel, SIGNAL(focusOut(QFocusEvent*)), this, SLOT(focusOutEvent(QFocusEvent*)));
+    connect(openglpanel, SIGNAL(focusIn(QFocusEvent*)), this, SLOT(focusInEvent(QFocusEvent*)));
+
     RegisterPreferences();
+
+    m_pauseFocusLost = CAppConfig::GetInstance().GetPreferenceBoolean(PREF_UI_PAUSEWHENFOCUSLOST);
+
     UpdateUI();
+
 }
 
 MainWindow::~MainWindow()
@@ -344,6 +352,7 @@ void MainWindow::OnExecutableChange()
 
 void MainWindow::UpdateUI()
 {
+    ui->actionPause_when_focus_is_lost->setChecked(m_pauseFocusLost);
     setOpenGlPanelSize();
     setupSaveLoadStateSlots();
 }
@@ -351,4 +360,38 @@ void MainWindow::UpdateUI()
 void MainWindow::RegisterPreferences()
 {
     CAppConfig::GetInstance().RegisterPreferenceBoolean(PREFERENCE_AUDIO_ENABLEOUTPUT, true);
+    CAppConfig::GetInstance().RegisterPreferenceBoolean(PREF_UI_PAUSEWHENFOCUSLOST, true);
+}
+
+void MainWindow::focusOutEvent(QFocusEvent * event)
+{
+    if (m_pauseFocusLost && g_virtualMachine->GetStatus() == CVirtualMachine::RUNNING)
+    {
+        if (!isActiveWindow() && !openglpanel->isActive())
+        {
+            if (g_virtualMachine != nullptr) {
+                g_virtualMachine->Pause();
+                m_deactivatePause = true;
+            }
+        }
+    }
+}
+void MainWindow::focusInEvent(QFocusEvent * event)
+{
+    if (m_pauseFocusLost && g_virtualMachine->GetStatus() == CVirtualMachine::PAUSED)
+    {
+        if (m_deactivatePause && (isActiveWindow() || openglpanel->isActive())){
+            if (g_virtualMachine != nullptr)
+            {
+                g_virtualMachine->Resume();
+                m_deactivatePause = false;
+            }
+        }
+    }
+}
+
+void MainWindow::on_actionPause_when_focus_is_lost_triggered(bool checked)
+{
+    m_pauseFocusLost = checked;
+    CAppConfig::GetInstance().SetPreferenceBoolean(PREF_UI_PAUSEWHENFOCUSLOST, m_pauseFocusLost);
 }

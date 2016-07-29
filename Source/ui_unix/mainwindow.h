@@ -50,6 +50,8 @@ private:
     CPH_HidUnix* padhandler = nullptr;
     QTimer *fpstimer = nullptr;
     CPS2VM* g_virtualMachine = nullptr;
+    bool m_deactivatePause = false;
+    bool m_pauseFocusLost = true;
 
 protected:
     void closeEvent(QCloseEvent*) Q_DECL_OVERRIDE;
@@ -70,6 +72,9 @@ private slots:
     void loadState();
     void on_actionPause_Resume_triggered();
     void on_actionAbout_triggered();
+    void focusOutEvent(QFocusEvent*) Q_DECL_OVERRIDE;
+    void focusInEvent(QFocusEvent*) Q_DECL_OVERRIDE;
+    void on_actionPause_when_focus_is_lost_triggered(bool checked);
 };
 
 #endif // MAINWINDOW_H

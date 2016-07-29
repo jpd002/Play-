@@ -10,6 +10,9 @@
     <height>512</height>
    </rect>
   </property>
+  <property name="focusPolicy">
+   <enum>Qt::ClickFocus</enum>
+  </property>
   <property name="windowTitle">
    <string>Play!</string>
   </property>
@@ -77,6 +80,7 @@
     <addaction name="menuLoad_States"/>
     <addaction name="separator"/>
     <addaction name="actionPause_Resume"/>
+    <addaction name="actionPause_when_focus_is_lost"/>
    </widget>
    <widget class="QMenu" name="menuHelp">
     <property name="title">
@@ -140,6 +144,14 @@
   <action name="actionAbout">
    <property name="text">
     <string>About</string>
+   </property>
+  </action>
+  <action name="actionPause_when_focus_is_lost">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Pause when focus is lost</string>
    </property>
   </action>
  </widget>
