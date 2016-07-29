@@ -49,6 +49,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
 MainWindow::~MainWindow()
 {
+    CAppConfig::GetInstance().Save();
     if (g_virtualMachine != nullptr)
     {
         g_virtualMachine->Pause();
