@@ -32,7 +32,8 @@ CGSH_Direct3D9::PixelShaderPtr CGSH_Direct3D9::CreatePixelShader(SHADERCAPS caps
 	HRESULT result = S_OK;
 	auto shaderCode = GeneratePixelShader(caps);
 
-	auto shaderSource = Nuanceur::CHlslShaderGenerator::Generate("main", shaderCode);
+	auto shaderSource = Nuanceur::CHlslShaderGenerator::Generate("main", shaderCode, 
+		Nuanceur::CHlslShaderGenerator::FLAG_COMBINED_SAMPLER_TEXTURE);
 
 	UINT compileFlags = 0;
 #ifdef _DEBUG
