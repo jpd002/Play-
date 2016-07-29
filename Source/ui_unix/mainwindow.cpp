@@ -139,10 +139,8 @@ void MainWindow::on_actionOpen_Game_triggered()
         {
             try
             {
-                g_virtualMachine->Pause();
-                g_virtualMachine->Reset();
-                g_virtualMachine->m_ee->m_os->BootFromCDROM();
-                g_virtualMachine->Resume();
+                m_lastOpenCommand = new lastOpenCommand(BootType::CD, fileName.toStdString().c_str());
+                BootCDROM();
             } catch( const std::exception& e) {
                 QMessageBox messageBox;
                 messageBox.critical(0,"Error",e.what());
@@ -164,11 +162,8 @@ void MainWindow::on_actionBoot_ELF_triggered()
             try
             {
                 auto fileName = dialog.selectedFiles().first();
-
-                g_virtualMachine->Pause();
-                g_virtualMachine->Reset();
-                g_virtualMachine->m_ee->m_os->BootFromFile(fileName.toStdString().c_str());
-                g_virtualMachine->Resume();
+                m_lastOpenCommand = new lastOpenCommand(BootType::ELF, fileName.toStdString().c_str());
+                BootElf(fileName.toStdString().c_str());
             } catch( const std::exception& e) {
                 QMessageBox messageBox;
                 messageBox.critical(0,"Error",e.what());
@@ -176,6 +171,22 @@ void MainWindow::on_actionBoot_ELF_triggered()
             }
         }
     }
+}
+
+void MainWindow::BootElf(const char* fileName)
+{
+    g_virtualMachine->Pause();
+    g_virtualMachine->Reset();
+    g_virtualMachine->m_ee->m_os->BootFromFile(fileName);
+    g_virtualMachine->Resume();
+}
+
+void MainWindow::BootCDROM()
+{
+    g_virtualMachine->Pause();
+    g_virtualMachine->Reset();
+    g_virtualMachine->m_ee->m_os->BootFromCDROM();
+    g_virtualMachine->Resume();
 }
 
 void MainWindow::on_actionExit_triggered()
@@ -354,6 +365,7 @@ void MainWindow::OnExecutableChange()
 void MainWindow::UpdateUI()
 {
     ui->actionPause_when_focus_is_lost->setChecked(m_pauseFocusLost);
+    ui->actionReset->setEnabled(m_lastOpenCommand != nullptr);
     setOpenGlPanelSize();
     setupSaveLoadStateSlots();
 }
@@ -395,4 +407,15 @@ void MainWindow::on_actionPause_when_focus_is_lost_triggered(bool checked)
 {
     m_pauseFocusLost = checked;
     CAppConfig::GetInstance().SetPreferenceBoolean(PREF_UI_PAUSEWHENFOCUSLOST, m_pauseFocusLost);
+}
+
+void MainWindow::on_actionReset_triggered()
+{
+    if (m_lastOpenCommand != nullptr){
+        if (m_lastOpenCommand->type == BootType::CD){
+            BootCDROM();
+        } else if (m_lastOpenCommand->type == BootType::ELF) {
+            BootElf(m_lastOpenCommand->filename);
+        }
+    }
 }

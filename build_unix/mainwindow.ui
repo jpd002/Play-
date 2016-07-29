@@ -81,6 +81,7 @@
     <addaction name="separator"/>
     <addaction name="actionPause_Resume"/>
     <addaction name="actionPause_when_focus_is_lost"/>
+    <addaction name="actionReset"/>
    </widget>
    <widget class="QMenu" name="menuHelp">
     <property name="title">
@@ -152,6 +153,14 @@
    </property>
    <property name="text">
     <string>Pause when focus is lost</string>
+   </property>
+  </action>
+  <action name="actionReset">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Reset</string>
    </property>
   </action>
  </widget>

@@ -39,6 +39,8 @@ private:
     void OnExecutableChange();
     void UpdateUI();
     void RegisterPreferences();
+    void BootElf(const char*);
+    void BootCDROM();
 
     Ui::MainWindow *ui;
 
@@ -52,6 +54,16 @@ private:
     CPS2VM* g_virtualMachine = nullptr;
     bool m_deactivatePause = false;
     bool m_pauseFocusLost = true;
+    enum BootType { CD, ELF };
+    struct lastOpenCommand
+    {
+        BootType type;
+        const char* filename;
+
+        lastOpenCommand(BootType m_type, const char* m_filename) : type(m_type),filename(m_filename){}
+
+    };
+    lastOpenCommand* m_lastOpenCommand = nullptr;
 
 protected:
     void closeEvent(QCloseEvent*) Q_DECL_OVERRIDE;
@@ -75,6 +87,7 @@ private slots:
     void focusOutEvent(QFocusEvent*) Q_DECL_OVERRIDE;
     void focusInEvent(QFocusEvent*) Q_DECL_OVERRIDE;
     void on_actionPause_when_focus_is_lost_triggered(bool checked);
+    void on_actionReset_triggered();
 };
 
 #endif // MAINWINDOW_H
