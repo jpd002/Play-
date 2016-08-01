@@ -130,7 +130,7 @@ void MainWindow::on_actionOpen_Game_triggered()
 {
     QFileDialog dialog(this);
     dialog.setFileMode(QFileDialog::ExistingFile);
-    dialog.setNameFilter(tr("ISO/CSO/ISZ files (*.iso *cso *.isz)"));
+    dialog.setNameFilter(tr("All supported types(*.iso *.bin *.isz *.cso);;UltraISO Compressed Disk Images (*.isz);;CISO Compressed Disk Images (*.cso);;All files (*.*)"));
     if (dialog.exec())
     {
         auto fileName = dialog.selectedFiles().first();
