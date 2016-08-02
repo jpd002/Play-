@@ -117,7 +117,7 @@
   </action>
   <action name="actionSettings">
    <property name="text">
-    <string>Settings</string>
+    <string>Settings...</string>
    </property>
   </action>
   <action name="actionBoot_ELF">
@@ -145,7 +145,7 @@
   </action>
   <action name="actionAbout">
    <property name="text">
-    <string>About</string>
+    <string>About...</string>
    </property>
   </action>
   <action name="actionPause_when_focus_is_lost">
@@ -166,7 +166,7 @@
   </action>
   <action name="actionMemory_Card_Manager">
    <property name="text">
-    <string>Memory Card Manager</string>
+    <string>Memory Card Manager...</string>
    </property>
   </action>
  </widget>

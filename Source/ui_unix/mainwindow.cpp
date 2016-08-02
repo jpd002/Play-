@@ -44,6 +44,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     m_pauseFocusLost = CAppConfig::GetInstance().GetPreferenceBoolean(PREF_UI_PAUSEWHENFOCUSLOST);
 
+    createStatusBar();
     UpdateUI();
 
 }
@@ -70,7 +71,8 @@ void MainWindow::showEvent(QShowEvent* event)
     initEmu();
 }
 
-void MainWindow::initEmu(){
+void MainWindow::initEmu()
+{
     g_virtualMachine = new CPS2VM();
     g_virtualMachine->Initialize();
 
@@ -85,7 +87,6 @@ void MainWindow::initEmu(){
 
     g_virtualMachine->OnRunningStateChange.connect(boost::bind(&MainWindow::OnRunningStateChange, this));
     g_virtualMachine->m_ee->m_os->OnExecutableChange.connect(boost::bind(&MainWindow::OnExecutableChange, this));
-    createStatusBar();
 }
 
 
@@ -96,7 +97,8 @@ void MainWindow::setOpenGlPanelSize()
 
 void MainWindow::setupSoundHandler()
 {
-    if(g_virtualMachine != nullptr){
+    if(g_virtualMachine != nullptr)
+    {
         bool audioEnabled = CAppConfig::GetInstance().GetPreferenceBoolean(PREFERENCE_AUDIO_ENABLEOUTPUT);
         if(audioEnabled)
         {
@@ -113,7 +115,6 @@ void MainWindow::openGLWindow_resized()
 {
     if (g_virtualMachine != nullptr && g_virtualMachine->m_ee != nullptr  && g_virtualMachine->m_ee->m_gs != nullptr )
         {
-
             GLint w = openglpanel->size().width(), h = openglpanel->size().height();
 
             CGSHandler::PRESENTATION_PARAMS presentationParams;
@@ -256,7 +257,8 @@ void MainWindow::on_actionSettings_triggered()
     setupSoundHandler();
 }
 
-void MainWindow::setupSaveLoadStateSlots(){
+void MainWindow::setupSaveLoadStateSlots()
+{
     bool enable = (g_virtualMachine != nullptr ? (g_virtualMachine->m_ee->m_os->GetELF() != nullptr) : false);
     ui->menuSave_States->clear();
     ui->menuLoad_States->clear();
@@ -284,7 +286,8 @@ void MainWindow::setupSaveLoadStateSlots(){
     }
 }
 
-void MainWindow::saveState(){
+void MainWindow::saveState()
+{
     Framework::PathUtils::EnsurePathExists(GetStateDirectoryPath());
 
     int m_stateSlot = sender()->property("stateSlot").toInt();
@@ -301,7 +304,9 @@ void MainWindow::loadState(){
     g_virtualMachine->LoadState(GenerateStatePath(m_stateSlot).string().c_str());
     g_virtualMachine->Resume();
 }
-QString MainWindow::saveStateInfo(int m_stateSlot) {
+
+QString MainWindow::saveStateInfo(int m_stateSlot)
+{
     QFileInfo file(GenerateStatePath(m_stateSlot).string().c_str());
     if (file.exists() && file.isFile()) {
         return file.created().toString("hh:mm dd.MM.yyyy");
