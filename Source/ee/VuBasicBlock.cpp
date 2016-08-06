@@ -66,7 +66,7 @@ void CVuBasicBlock::CompileRange(CMipsJitter* jitter)
 				uint32 priorOpcodeLo = m_context.m_pMemoryMap->GetInstruction(priorOpcodeAddr);
 
 				VUShared::OPERANDSET loOps = arch->GetAffectedOperands(&m_context, priorOpcodeAddr, priorOpcodeLo);
-				if (loOps.writeI != 0)
+				if ((loOps.writeI != 0) && !loOps.branchValue)
 				{
 					uint8  is = static_cast<uint8> ((opcodeLo >> 11) & 0x001F);
 					uint8  it = static_cast<uint8> ((opcodeLo >> 16) & 0x001F);
