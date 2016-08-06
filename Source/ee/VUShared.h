@@ -36,6 +36,10 @@ namespace VUShared
 		unsigned int			readI1;
 		bool					syncQ;
 		bool					readQ;
+
+		//When set, means that a branch following the instruction will be
+		//able to use the integer value directly
+		bool					branchValue;
 	};
 
 	struct VUINSTRUCTION;
