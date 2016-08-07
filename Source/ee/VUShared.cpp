@@ -662,6 +662,12 @@ void VUShared::ISWR(CMipsJitter* codeGen, uint8 dest, uint8 it, uint8 is, uint32
 
 void VUShared::LQbase(CMipsJitter* codeGen, uint8 dest, uint8 it)
 {
+	if(it == 0)
+	{
+		codeGen->PullTop();
+		return;
+	}
+
 	if(dest == 0xF)
 	{
 		codeGen->MD_LoadFromRef();
