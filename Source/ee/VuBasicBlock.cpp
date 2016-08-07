@@ -43,44 +43,7 @@ void CVuBasicBlock::CompileRange(CMipsJitter* jitter)
 		}
 	}
 
-	int delayedReg = 0;
-	int delayedRegTime = -1;
-	int delayedRegTargetTime = -1;
-	int adjustedEnd = fixedEnd - 4;
-	{
-		// Test if the block ends with a conditional branch instruction where the condition variable has been
-		// set in the prior instruction.
-		// In this case, the pipeline shortcut fails and we need to use the value from 4 instructions previous.
-		// If the relevant set instruction is not part of this block, skip the fix and fall back to the broken implementation.
-		int length = (fixedEnd - m_begin) >> 3;
-		if (length > 4)
-		{
-			// Check if we have a conditional branch instruction. Luckily these populate the contiguous opcode range 0x28 -> 0x2F inclusive
-			uint32 opcodeLo = m_context.m_pMemoryMap->GetInstruction(adjustedEnd - 8);
-			uint32 id = (opcodeLo >> 25) & 0x7f;
-			if (id >= 0x28 && id < 0x30)
-			{
-				// We have a conditional branch instruction. Now we need to check that the condition register is not written
-				// by the previous instruction.
-				int priorOpcodeAddr = adjustedEnd - 16;
-				uint32 priorOpcodeLo = m_context.m_pMemoryMap->GetInstruction(priorOpcodeAddr);
-
-				VUShared::OPERANDSET loOps = arch->GetAffectedOperands(&m_context, priorOpcodeAddr, priorOpcodeLo);
-				if ((loOps.writeI != 0) && !loOps.branchValue)
-				{
-					uint8  is = static_cast<uint8> ((opcodeLo >> 11) & 0x001F);
-					uint8  it = static_cast<uint8> ((opcodeLo >> 16) & 0x001F);
-					if (is == loOps.writeI || it == loOps.writeI)
-					{
-						// argh - we need to use the value of incReg 4 steps prior.
-						delayedReg = loOps.writeI;
-						delayedRegTime = adjustedEnd - 5 * 8;
-						delayedRegTargetTime = adjustedEnd - 8;
-					}
-				}			
-			}
-		}
-	}
+	auto integerBranchDelayInfo = GetIntegerBranchDelayInfo(fixedEnd);
 
 	for(uint32 address = m_begin; address <= fixedEnd; address += 8)
 	{
@@ -127,9 +90,10 @@ void CVuBasicBlock::CompileRange(CMipsJitter* jitter)
 			}
 		}
 
-		if (address == delayedRegTime) {
+		if(address == integerBranchDelayInfo.saveRegAddress)
+		{
 			// grab the value of the delayed reg to use in the conditional branch later
-			jitter->PushRel(offsetof(CMIPS, m_State.nCOP2VI[delayedReg]));
+			jitter->PushRel(offsetof(CMIPS, m_State.nCOP2VI[integerBranchDelayInfo.regIndex]));
 			jitter->PullRel(offsetof(CMIPS, m_State.savedIntReg));
 		}
 
@@ -145,21 +109,23 @@ void CVuBasicBlock::CompileRange(CMipsJitter* jitter)
 			jitter->MD_PullRel(offsetof(CMIPS, m_State.nCOP2[savedReg]));
 		}
 
-		if (address == delayedRegTargetTime) {
+		if(address == integerBranchDelayInfo.useRegAddress)
+		{
 			// set the target from the saved value
-			jitter->PushRel(offsetof(CMIPS, m_State.nCOP2VI[delayedReg]));
+			jitter->PushRel(offsetof(CMIPS, m_State.nCOP2VI[integerBranchDelayInfo.regIndex]));
 			jitter->PullRel(offsetof(CMIPS, m_State.savedIntRegTemp));
 
 			jitter->PushRel(offsetof(CMIPS, m_State.savedIntReg));
-			jitter->PullRel(offsetof(CMIPS, m_State.nCOP2VI[delayedReg]));
+			jitter->PullRel(offsetof(CMIPS, m_State.nCOP2VI[integerBranchDelayInfo.regIndex]));
 		}
 
 		arch->CompileInstruction(addressLo, jitter, &m_context);
 
-		if (address == delayedRegTargetTime) {
+		if(address == integerBranchDelayInfo.useRegAddress)
+		{
 			// put the target value back
 			jitter->PushRel(offsetof(CMIPS, m_State.savedIntRegTemp));
-			jitter->PullRel(offsetof(CMIPS, m_State.nCOP2VI[delayedReg]));
+			jitter->PullRel(offsetof(CMIPS, m_State.nCOP2VI[integerBranchDelayInfo.regIndex]));
 		}
 
 		if(savedReg != 0)
@@ -194,4 +160,88 @@ void CVuBasicBlock::CompileRange(CMipsJitter* jitter)
 		}
 		jitter->EndIf();
 	}
+}
+
+bool CVuBasicBlock::IsConditionalBranch(uint32 opcodeLo)
+{
+	//Conditional branches are in the contiguous opcode range 0x28 -> 0x2F inclusive
+	uint32 id = (opcodeLo >> 25) & 0x7F;
+	return (id >= 0x28) && (id < 0x30);
+}
+
+CVuBasicBlock::INTEGER_BRANCH_DELAY_INFO CVuBasicBlock::GetIntegerBranchDelayInfo(uint32 fixedEnd) const
+{
+	// Test if the block ends with a conditional branch instruction where the condition variable has been
+	// set in the prior instruction.
+	// In this case, the pipeline shortcut fails and we need to use the value from 4 instructions previous.
+	// If the relevant set instruction is not part of this block, use initial value of the integer register.
+
+	INTEGER_BRANCH_DELAY_INFO result;
+	auto arch = static_cast<CMA_VU*>(m_context.m_pArch);
+	uint32 adjustedEnd = fixedEnd - 4;
+
+	// Check if we have a conditional branch instruction.
+	uint32 branchOpcodeAddr = adjustedEnd - 8;
+	uint32 branchOpcodeLo = m_context.m_pMemoryMap->GetInstruction(branchOpcodeAddr);
+	if(IsConditionalBranch(branchOpcodeLo))
+	{
+		// We have a conditional branch instruction. Now we need to check that the condition register is not written
+		// by the previous instruction.
+		uint32 priorOpcodeAddr = adjustedEnd - 16;
+		uint32 priorOpcodeLo = m_context.m_pMemoryMap->GetInstruction(priorOpcodeAddr);
+
+		auto priorLoOps = arch->GetAffectedOperands(&m_context, priorOpcodeAddr, priorOpcodeLo);
+		if((priorLoOps.writeI != 0) && !priorLoOps.branchValue)
+		{
+			auto branchLoOps = arch->GetAffectedOperands(&m_context, branchOpcodeAddr, branchOpcodeLo);
+			if(
+				(branchLoOps.readI0 == priorLoOps.writeI) || 
+				(branchLoOps.readI1 == priorLoOps.writeI)
+				)
+			{
+				//Check if our block is a "special" loop. Disable delayed integer processing if it's the case
+				//TODO: Handle that case better
+				bool isSpecialLoop = CheckIsSpecialIntegerLoop(fixedEnd, priorLoOps.writeI);
+				if(!isSpecialLoop)
+				{
+					// we need to use the value of intReg 4 steps prior or use initial value.
+					result.regIndex       = priorLoOps.writeI;
+					result.saveRegAddress = std::max(adjustedEnd - 5 * 8, m_begin);
+					result.useRegAddress  = adjustedEnd - 8;
+				}
+			}
+		}
+	}
+
+	return result;
+}
+
+bool CVuBasicBlock::CheckIsSpecialIntegerLoop(uint32 fixedEnd, unsigned int regI) const
+{
+	//This checks for a pattern where all instructions within a block
+	//modifies an integer register except for one branch instruction that
+	//tests that integer register
+	//Required by BGDA that has that kind of loop inside its VU microcode
+
+	auto arch = static_cast<CMA_VU*>(m_context.m_pArch);
+	uint32 length = (fixedEnd - m_begin) / 8;
+	if(length != 4) return false;
+	for(uint32 index = 0; index <= length; index++)
+	{
+		uint32 address = m_begin + (index * 8);
+		uint32 opcodeLo = m_context.m_pMemoryMap->GetInstruction(address);
+		if(index == (length - 1))
+		{
+			assert(IsConditionalBranch(opcodeLo));
+			uint32 branchTarget = arch->GetInstructionEffectiveAddress(&m_context, address, opcodeLo);
+			if(branchTarget != m_begin) return false;
+		}
+		else
+		{
+			auto loOps = arch->GetAffectedOperands(&m_context, address, opcodeLo);
+			if(loOps.writeI != regI) return false;
+		}
+	}
+
+	return true;
 }
