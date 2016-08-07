@@ -9,7 +9,7 @@ public:
 	virtual			~CVuBasicBlock();
 
 protected:
-	virtual void	CompileRange(CMipsJitter*);
+	void			CompileRange(CMipsJitter*) override;
 
 private:
 

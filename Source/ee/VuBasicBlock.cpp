@@ -17,7 +17,7 @@ void CVuBasicBlock::CompileRange(CMipsJitter* jitter)
 {
 	assert((m_begin & 0x07) == 0);
 	assert(((m_end + 4) & 0x07) == 0);
-	CMA_VU* arch = static_cast<CMA_VU*>(m_context.m_pArch);
+	auto arch = static_cast<CMA_VU*>(m_context.m_pArch);
 
 	uint32 fixedEnd = m_end;
 	bool needsPcAdjust = false;
