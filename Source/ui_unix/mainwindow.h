@@ -26,14 +26,13 @@ public:
     ~MainWindow();
 
 private:
-    void setOpenGlPanelSize();
-    void createStatusBar();
-    void initEmu();
-    void setupSoundHandler();
+    void SetOpenGlPanelSize();
+    void CreateStatusBar();
+    void InitEmu();
+    void SetupSoundHandler();
     void Setupfpscounter();
-    void createOpenGlPanel();
-    void setupSaveLoadStateSlots();
-    QString saveStateInfo(int);
+    void SetupSaveLoadStateSlots();
+    QString SaveStateInfo(int);
     boost::filesystem::path GetStateDirectoryPath();
     boost::filesystem::path GenerateStatePath(int);
     void OnRunningStateChange();
@@ -45,13 +44,13 @@ private:
 
     Ui::MainWindow *ui;
 
-    QWindow* openglpanel;
+    QWindow* m_openglpanel;
     QLabel* fpsLabel;
-    QLabel* dcLabel;
-    QLabel* stateLabel;
+    QLabel* m_dcLabel;
+    QLabel* m_stateLabel;
     CStatsManager* StatsManager;
-    CPH_HidUnix* padhandler = nullptr;
-    QTimer *fpstimer = nullptr;
+    CPH_HidUnix* m_padhandler = nullptr;
+    QTimer *m_fpstimer = nullptr;
     CPS2VM* g_virtualMachine = nullptr;
     bool m_deactivatePause = false;
     bool m_pauseFocusLost = true;

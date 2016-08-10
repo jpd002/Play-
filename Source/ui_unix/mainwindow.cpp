@@ -30,24 +30,24 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     ui->setupUi(this);
 
-    openglpanel = new OpenGLWindow;
-    QWidget * container = QWidget::createWindowContainer(openglpanel);
+    m_openglpanel = new OpenGLWindow;
+    QWidget * container = QWidget::createWindowContainer(m_openglpanel);
     ui->gridLayout->addWidget(container);
-    connect(openglpanel, SIGNAL(heightChanged(int)), this, SLOT(openGLWindow_resized()));
-    connect(openglpanel, SIGNAL(widthChanged(int)), this, SLOT(openGLWindow_resized()));
+    connect(m_openglpanel, SIGNAL(heightChanged(int)), this, SLOT(openGLWindow_resized()));
+    connect(m_openglpanel, SIGNAL(widthChanged(int)), this, SLOT(openGLWindow_resized()));
 
-    connect(openglpanel, SIGNAL(keyUp(QKeyEvent*)), this, SLOT(keyReleaseEvent(QKeyEvent*)));
-    connect(openglpanel, SIGNAL(keyDown(QKeyEvent*)), this, SLOT(keyPressEvent(QKeyEvent*)));
+    connect(m_openglpanel, SIGNAL(keyUp(QKeyEvent*)), this, SLOT(keyReleaseEvent(QKeyEvent*)));
+    connect(m_openglpanel, SIGNAL(keyDown(QKeyEvent*)), this, SLOT(keyPressEvent(QKeyEvent*)));
 
 
-    connect(openglpanel, SIGNAL(focusOut(QFocusEvent*)), this, SLOT(focusOutEvent(QFocusEvent*)));
-    connect(openglpanel, SIGNAL(focusIn(QFocusEvent*)), this, SLOT(focusInEvent(QFocusEvent*)));
+    connect(m_openglpanel, SIGNAL(focusOut(QFocusEvent*)), this, SLOT(focusOutEvent(QFocusEvent*)));
+    connect(m_openglpanel, SIGNAL(focusIn(QFocusEvent*)), this, SLOT(focusInEvent(QFocusEvent*)));
 
     RegisterPreferences();
 
     m_pauseFocusLost = CAppConfig::GetInstance().GetPreferenceBoolean(PREF_UI_PAUSEWHENFOCUSLOST);
 
-    createStatusBar();
+    CreateStatusBar();
     UpdateUI();
 
 }
@@ -71,22 +71,22 @@ MainWindow::~MainWindow()
 void MainWindow::showEvent(QShowEvent* event)
 {
     QMainWindow::showEvent(event);
-    initEmu();
+    InitEmu();
 }
 
-void MainWindow::initEmu()
+void MainWindow::InitEmu()
 {
     g_virtualMachine = new CPS2VM();
     g_virtualMachine->Initialize();
 
-    g_virtualMachine->CreateGSHandler(CGSH_OpenGLQt::GetFactoryFunction(openglpanel));
-    setupSoundHandler();
+    g_virtualMachine->CreateGSHandler(CGSH_OpenGLQt::GetFactoryFunction(m_openglpanel));
+    SetupSoundHandler();
 
     g_virtualMachine->CreatePadHandler(CPH_HidUnix::GetFactoryFunction());
-    padhandler = static_cast<CPH_HidUnix*>(g_virtualMachine->GetPadHandler());
+    m_padhandler = static_cast<CPH_HidUnix*>(g_virtualMachine->GetPadHandler());
 
     CPH_HidUnix::BindingPtr *binding = ControllerConfigDialog::GetBinding(1);
-    padhandler->UpdateBinding(binding);
+    m_padhandler->UpdateBinding(binding);
 
     StatsManager = new CStatsManager();
     g_virtualMachine->m_ee->m_gs->OnNewFrame.connect(boost::bind(&CStatsManager::OnNewFrame, StatsManager, _1));
@@ -95,12 +95,12 @@ void MainWindow::initEmu()
     g_virtualMachine->m_ee->m_os->OnExecutableChange.connect(boost::bind(&MainWindow::OnExecutableChange, this));
 }
 
-void MainWindow::setOpenGlPanelSize()
+void MainWindow::SetOpenGlPanelSize()
 {
     openGLWindow_resized();
 }
 
-void MainWindow::setupSoundHandler()
+void MainWindow::SetupSoundHandler()
 {
     if(g_virtualMachine != nullptr)
     {
@@ -120,7 +120,7 @@ void MainWindow::openGLWindow_resized()
 {
     if (g_virtualMachine != nullptr && g_virtualMachine->m_ee != nullptr  && g_virtualMachine->m_ee->m_gs != nullptr )
         {
-            GLint w = openglpanel->size().width(), h = openglpanel->size().height();
+            GLint w = m_openglpanel->size().width(), h = m_openglpanel->size().height();
 
             CGSHandler::PRESENTATION_PARAMS presentationParams;
             presentationParams.mode 			= (CGSHandler::PRESENTATION_MODE)CAppConfig::GetInstance().GetPreferenceInteger(PREF_CGSHANDLER_PRESENTATION_MODE);
@@ -203,40 +203,40 @@ void MainWindow::on_actionExit_triggered()
 
 void MainWindow::keyPressEvent(QKeyEvent *event)
 {
-    if (padhandler != nullptr)
-            padhandler->InputValueCallbackPressed(event->key(), 0);
+    if (m_padhandler != nullptr)
+            m_padhandler->InputValueCallbackPressed(event->key(), 0);
 }
 
 void MainWindow::keyReleaseEvent(QKeyEvent *event)
 {
-    if (padhandler != nullptr)
-            padhandler->InputValueCallbackReleased(event->key(), 0);
+    if (m_padhandler != nullptr)
+            m_padhandler->InputValueCallbackReleased(event->key(), 0);
 }
 
-void MainWindow::createStatusBar()
+void MainWindow::CreateStatusBar()
 {
     fpsLabel = new QLabel(" fps:00 ");
     fpsLabel->setAlignment(Qt::AlignHCenter);
     fpsLabel->setMinimumSize(fpsLabel->sizeHint());
 
-    dcLabel = new QLabel(" dc:0000 ");
-    dcLabel->setAlignment(Qt::AlignHCenter);
-    dcLabel->setMinimumSize(dcLabel->sizeHint());
+    m_dcLabel = new QLabel(" dc:0000 ");
+    m_dcLabel->setAlignment(Qt::AlignHCenter);
+    m_dcLabel->setMinimumSize(m_dcLabel->sizeHint());
 
 
-    stateLabel = new QLabel(" Paused ");
-    stateLabel->setAlignment(Qt::AlignHCenter);
-    stateLabel->setMinimumSize(dcLabel->sizeHint());
+    m_stateLabel = new QLabel(" Paused ");
+    m_stateLabel->setAlignment(Qt::AlignHCenter);
+    m_stateLabel->setMinimumSize(m_dcLabel->sizeHint());
 
 
-    statusBar()->addWidget(stateLabel);
+    statusBar()->addWidget(m_stateLabel);
     statusBar()->addWidget(fpsLabel);
-    statusBar()->addWidget(dcLabel);
+    statusBar()->addWidget(m_dcLabel);
 
 
-    fpstimer = new QTimer(this);
-    connect(fpstimer, SIGNAL(timeout()), this, SLOT(setFPS()));
-    fpstimer->start(1000);
+    m_fpstimer = new QTimer(this);
+    connect(m_fpstimer, SIGNAL(timeout()), this, SLOT(setFPS()));
+    m_fpstimer->start(1000);
 }
 
 void MainWindow::setFPS()
@@ -247,28 +247,28 @@ void MainWindow::setFPS()
     //fprintf(stderr, "%d f/s, %d dc/f\n", frames, dcpf);
     StatsManager->ClearStats();
     fpsLabel->setText(QString(" fps: %1 ").arg(frames));
-    dcLabel->setText(QString(" dc: %1 ").arg(dcpf));
+    m_dcLabel->setText(QString(" dc: %1 ").arg(dcpf));
 }
 
 void MainWindow::OnRunningStateChange()
 {
-    stateLabel->setText(g_virtualMachine->GetStatus() == CVirtualMachine::PAUSED ? "Paused" : "Running");
+    m_stateLabel->setText(g_virtualMachine->GetStatus() == CVirtualMachine::PAUSED ? "Paused" : "Running");
 }
 
 void MainWindow::on_actionSettings_triggered()
 {
     SettingsDialog sd;
     sd.exec();
-    setupSoundHandler();
+    SetupSoundHandler();
 }
 
-void MainWindow::setupSaveLoadStateSlots()
+void MainWindow::SetupSaveLoadStateSlots()
 {
     bool enable = (g_virtualMachine != nullptr ? (g_virtualMachine->m_ee->m_os->GetELF() != nullptr) : false);
     ui->menuSave_States->clear();
     ui->menuLoad_States->clear();
     for (int i=1; i <= 10; i++){
-        QString info = enable ? saveStateInfo(i) : "Empty";
+        QString info = enable ? SaveStateInfo(i) : "Empty";
 
         QAction* saveaction = new QAction(this);
         saveaction->setText(QString("Save Slot %1 - %2").arg(i).arg(info));
@@ -310,7 +310,7 @@ void MainWindow::loadState(){
     g_virtualMachine->Resume();
 }
 
-QString MainWindow::saveStateInfo(int m_stateSlot)
+QString MainWindow::SaveStateInfo(int m_stateSlot)
 {
     QFileInfo file(GenerateStatePath(m_stateSlot).string().c_str());
     if (file.exists() && file.isFile()) {
@@ -377,8 +377,8 @@ void MainWindow::UpdateUI()
 {
     ui->actionPause_when_focus_is_lost->setChecked(m_pauseFocusLost);
     ui->actionReset->setEnabled(m_lastOpenCommand != nullptr);
-    setOpenGlPanelSize();
-    setupSaveLoadStateSlots();
+    SetOpenGlPanelSize();
+    SetupSaveLoadStateSlots();
 }
 
 void MainWindow::RegisterPreferences()
@@ -391,7 +391,7 @@ void MainWindow::focusOutEvent(QFocusEvent * event)
 {
     if (m_pauseFocusLost && g_virtualMachine->GetStatus() == CVirtualMachine::RUNNING)
     {
-        if (!isActiveWindow() && !openglpanel->isActive())
+        if (!isActiveWindow() && !m_openglpanel->isActive())
         {
             if (g_virtualMachine != nullptr) {
                 g_virtualMachine->Pause();
@@ -404,7 +404,7 @@ void MainWindow::focusInEvent(QFocusEvent * event)
 {
     if (m_pauseFocusLost && g_virtualMachine->GetStatus() == CVirtualMachine::PAUSED)
     {
-        if (m_deactivatePause && (isActiveWindow() || openglpanel->isActive())){
+        if (m_deactivatePause && (isActiveWindow() || m_openglpanel->isActive())){
             if (g_virtualMachine != nullptr)
             {
                 g_virtualMachine->Resume();

@@ -29,7 +29,7 @@ VFSManagerDialog::~VFSManagerDialog()
 void VFSManagerDialog::on_tableView_doubleClicked(const QModelIndex &index)
 {
     VFSModel* model = static_cast<VFSModel*>(ui->tableView->model());
-    model->doubleClicked(index, this);
+    model->DoubleClicked(index, this);
 }
 
 

@@ -4,7 +4,7 @@
 VFSModel::VFSModel(QObject *parent)
     :QAbstractTableModel(parent)
 {
-    setupDevices();
+    SetupDevices();
 }
 
 VFSModel::~VFSModel()
@@ -52,7 +52,7 @@ QVariant VFSModel::data(const QModelIndex &index, int role) const
     return QVariant();
 }
 
-void VFSModel::setupDevices()
+void VFSModel::SetupDevices()
 {
     m_devices[0] = new CDirectoryDevice("mc0",  "ps2.mc0.directory");
     m_devices[1] = new CDirectoryDevice("mc1",  "ps2.mc1.directory");
@@ -91,7 +91,7 @@ QVariant VFSModel::headerData(int section, Qt::Orientation orientation, int role
     return QAbstractTableModel::headerData(section, orientation, role);
 }
 
-void VFSModel::doubleClicked(const QModelIndex &index, QWidget* parent)
+void VFSModel::DoubleClicked(const QModelIndex &index, QWidget* parent)
 {
     CDevice* m_device = m_devices.at(index.row());
     m_device->RequestModification(parent);

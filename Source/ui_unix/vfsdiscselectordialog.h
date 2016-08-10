@@ -33,9 +33,9 @@ signals:
 
 private:
     Ui::VFSDiscSelectorDialog *ui;
-    QString res;
-    QList<QStorageInfo> discInfo;
-    void refresh_disc_drive();
+    QString m_path;
+    QList<QStorageInfo> m_discInfo;
+    void Refresh_disc_drive();
 };
 
 #endif // VFSDISCSELECTORDIALOG_H

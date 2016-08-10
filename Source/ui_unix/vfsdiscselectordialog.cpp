@@ -9,12 +9,12 @@ VFSDiscSelectorDialog::VFSDiscSelectorDialog(std::string m_sImagePath, CDevice::
     ui(new Ui::VFSDiscSelectorDialog)
 {
     ui->setupUi(this);
-    res = QString(m_sImagePath.c_str());
+    m_path = QString(m_sImagePath.c_str());
 
-    refresh_disc_drive();
+    Refresh_disc_drive();
     if (m_nBindingType == CDevice::BINDING_IMAGE)
     {
-        ui->lineEdit->setText(res);
+        ui->lineEdit->setText(m_path);
         on_disc_image_radioButton_clicked();
         ui->disc_image_radioButton->setChecked(true);
     } else {
@@ -35,19 +35,19 @@ void VFSDiscSelectorDialog::on_iso_browse_button_clicked()
     dialog.setNameFilter(tr("All supported types(*.iso *.bin *.isz *.cso);;UltraISO Compressed Disk Images (*.isz);;CISO Compressed Disk Images (*.cso);;All files (*.*)"));
     if (dialog.exec())
     {
-        res = dialog.selectedFiles().first();
-        ui->lineEdit->setText(res);
+        m_path = dialog.selectedFiles().first();
+        ui->lineEdit->setText(m_path);
     }
 }
 
 void VFSDiscSelectorDialog::on_refresh_disc_drive_button_clicked()
 {
-    refresh_disc_drive();
+    Refresh_disc_drive();
 }
 
-void VFSDiscSelectorDialog::refresh_disc_drive()
+void VFSDiscSelectorDialog::Refresh_disc_drive()
 {
-    discInfo.clear();
+    m_discInfo.clear();
     ui->comboBox->clear();
     foreach (const QStorageInfo &storage, QStorageInfo::mountedVolumes())
     {
@@ -66,17 +66,17 @@ void VFSDiscSelectorDialog::refresh_disc_drive()
                 }
                 QString item("%1 (%2)");
                 ui->comboBox->addItem(item.arg(device).arg(name));
-                discInfo.append(storage);
+                m_discInfo.append(storage);
             }
         }
     }
-    ui->comboBox->setEnabled(!discInfo.isEmpty());
-    if (res.startsWith("////", Qt::CaseInsensitive) || res.startsWith("/dev/", Qt::CaseInsensitive))
+    ui->comboBox->setEnabled(!m_discInfo.isEmpty());
+    if (m_path.startsWith("////", Qt::CaseInsensitive) || m_path.startsWith("/dev/", Qt::CaseInsensitive))
     {
-        for (int i = 0; i < discInfo.size(); i++)
+        for (int i = 0; i < m_discInfo.size(); i++)
         {
-            QString device(discInfo.at(i).device());
-            if (QString::compare(device, res, Qt::CaseInsensitive) == 0)
+            QString device(m_discInfo.at(i).device());
+            if (QString::compare(device, m_path, Qt::CaseInsensitive) == 0)
             {
                 ui->comboBox->setCurrentIndex(i);
                 break;
@@ -97,7 +97,7 @@ void VFSDiscSelectorDialog::accept()
     } else {
         if (ui->comboBox->currentIndex() > -1)
         {
-            emit onFinish(QString(discInfo.at(ui->comboBox->currentIndex()).device()), CDevice::BINDING_PHYSICAL);
+            emit onFinish(QString(m_discInfo.at(ui->comboBox->currentIndex()).device()), CDevice::BINDING_PHYSICAL);
             return QDialog::accept();
         }
     }
@@ -107,8 +107,8 @@ void VFSDiscSelectorDialog::accept()
 }
 void VFSDiscSelectorDialog::on_comboBox_currentIndexChanged(int index)
 {
-    if (discInfo.size() > 0){
-        res = QString(discInfo.at(index).device());
+    if (m_discInfo.size() > 0){
+        m_path = QString(m_discInfo.at(index).device());
     }
 }
 
@@ -123,7 +123,7 @@ void VFSDiscSelectorDialog::on_disc_image_radioButton_clicked()
 
 void VFSDiscSelectorDialog::on_cd_device_radioButton_clicked()
 {
-    ui->comboBox->setEnabled(!discInfo.isEmpty());
+    ui->comboBox->setEnabled(!m_discInfo.isEmpty());
     ui->refresh_disc_drive_button->setEnabled(true);
 
     ui->lineEdit->setEnabled(false);
