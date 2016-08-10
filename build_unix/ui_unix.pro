@@ -8,7 +8,9 @@ QT       += core gui
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
-TARGET = ui_unix
+TARGET = Play-Ui
+DEFINES += PLAY_VERSION=\\\"0.30\\\"
+VERSION = PLAY_VERSION
 TEMPLATE = app
 
 INCLUDEPATH +=../ \

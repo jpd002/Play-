@@ -78,9 +78,16 @@
     <addaction name="separator"/>
     <addaction name="actionPause_Resume"/>
    </widget>
+   <widget class="QMenu" name="menuHelp">
+    <property name="title">
+     <string>Help</string>
+    </property>
+    <addaction name="actionAbout"/>
+   </widget>
    <addaction name="menuFor_The"/>
    <addaction name="menuEdit"/>
    <addaction name="menuVirtualMachine"/>
+   <addaction name="menuHelp"/>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
   <action name="actionOpen_Game">
@@ -128,6 +135,11 @@
   <action name="actionPause_Resume">
    <property name="text">
     <string>Pause/Resume</string>
+   </property>
+  </action>
+  <action name="actionAbout">
+   <property name="text">
+    <string>About</string>
    </property>
   </action>
  </widget>

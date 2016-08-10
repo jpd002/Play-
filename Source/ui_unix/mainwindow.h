@@ -66,6 +66,7 @@ private slots:
     void saveState();
     void loadState();
     void on_actionPause_Resume_triggered();
+    void on_actionAbout_triggered();
 };
 
 #endif // MAINWINDOW_H
