@@ -48,7 +48,12 @@ namespace Iop
 		uint32					CdReadClock(uint32);
 		uint32					CdStatus();
 		uint32					CdCallback(uint32);
+		uint32					CdStInit(uint32, uint32, uint32);
+		uint32					CdStRead(uint32, uint32, uint32, uint32);
+		uint32					CdStStart(uint32, uint32);
+		uint32					CdStStop();
 		uint32					CdSetMmode(uint32);
+		uint32					CdStSeekF(uint32);
 		uint32					CdReadDvdDualInfo(uint32, uint32);
 		uint32					CdLayerSearchFile(uint32, uint32, uint32);
 
@@ -58,6 +63,7 @@ namespace Iop
 
 		uint32					m_callbackPtr = 0;
 		uint32					m_status = CDVD_STATUS_STOPPED;
+		uint32					m_streamPos = 0;
 	};
 
 	typedef std::shared_ptr<CCdvdman> CdvdmanPtr;
