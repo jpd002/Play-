@@ -88,6 +88,7 @@ private slots:
     void focusInEvent(QFocusEvent*) Q_DECL_OVERRIDE;
     void on_actionPause_when_focus_is_lost_triggered(bool checked);
     void on_actionReset_triggered();
+    void on_actionMemory_Card_Manager_triggered();
 };
 
 #endif // MAINWINDOW_H

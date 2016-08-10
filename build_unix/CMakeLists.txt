@@ -190,6 +190,14 @@ add_library(Play
 	../Source/Profiler.cpp 
 	../Source/PS2VM.cpp 
 	../Source/RegisterStateFile.cpp 
+	../Source/saves/Icon.cpp 
+	../Source/saves/MaxSaveImporter.cpp 
+	../Source/saves/PsuSaveImporter.cpp 
+	../Source/saves/Save.cpp 
+	../Source/saves/SaveExporter.cpp 
+	../Source/saves/SaveImporterBase.cpp 
+	../Source/saves/SaveImporter.cpp 
+	../Source/saves/XpsSaveImporter.cpp
 	../Source/StructCollectionStateFile.cpp 
 	../Source/StructFile.cpp 
 	../Source/Utils.cpp

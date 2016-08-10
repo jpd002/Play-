@@ -1,5 +1,6 @@
 #include "mainwindow.h"
 #include "settingsdialog.h"
+#include "memorycardmanagerdialog.h"
 
 #include "openglwindow.h"
 
@@ -418,4 +419,10 @@ void MainWindow::on_actionReset_triggered()
             BootElf(m_lastOpenCommand->filename);
         }
     }
+}
+
+void MainWindow::on_actionMemory_Card_Manager_triggered()
+{
+    MemoryCardManagerDialog mcm;
+    mcm.exec();
 }

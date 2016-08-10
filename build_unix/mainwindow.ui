@@ -59,6 +59,7 @@
      <string>Options</string>
     </property>
     <addaction name="actionSettings"/>
+    <addaction name="actionMemory_Card_Manager"/>
    </widget>
    <widget class="QMenu" name="menuVirtualMachine">
     <property name="title">
@@ -161,6 +162,11 @@
    </property>
    <property name="text">
     <string>Reset</string>
+   </property>
+  </action>
+  <action name="actionMemory_Card_Manager">
+   <property name="text">
+    <string>Memory Card Manager</string>
    </property>
   </action>
  </widget>

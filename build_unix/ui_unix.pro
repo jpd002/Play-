@@ -24,7 +24,9 @@ SOURCES += ../Source/ui_unix/main.cpp\
         ../Source/ui_unix/StatsManager.cpp \
         ../Source/ui_unix/PH_HidUnix.cpp \
         ../Source/ui_unix/settingsdialog.cpp \
-        ../Source/ui_unix/openglwindow.cpp
+        ../Source/ui_unix/openglwindow.cpp \
+        ../Source/ui_unix/memorycardmanagerdialog.cpp \
+        ../Source/ui_unix/MemoryCard.cpp
 
 
 HEADERS  += ../Source/ui_unix/mainwindow.h \
@@ -33,11 +35,14 @@ HEADERS  += ../Source/ui_unix/mainwindow.h \
             ../Source/ui_unix/PH_HidUnix.h \
             ../Source/ui_unix/settingsdialog.h \
             ../Source/ui_unix/PreferenceDefs.h \
-            ../Source/ui_unix/openglwindow.h
+            ../Source/ui_unix/openglwindow.h \
+            ../Source/ui_unix/memorycardmanagerdialog.h \
+            ../Source/ui_unix/MemoryCard.h
 
 
 FORMS    += mainwindow.ui \
-    settingsdialog.ui
+    settingsdialog.ui \
+    memorycardmanager.ui
 
 RESOURCES     = resources.qrc
 
@@ -59,6 +64,6 @@ DEPENDPATH += $$PWD/../../CodeGen/include
 
 unix:!macx: PRE_TARGETDEPS += $$PWD/../../CodeGen/build_unix/build/libCodeGen.a
 
-LIBS += -lboost_system -lboost_filesystem -lboost_chrono -lGLEW -lz -lbz2 -lopenal
+LIBS += -lboost_system -lboost_filesystem -lboost_chrono -lGLEW -lz -lbz2 -lopenal -licuuc
 
 QMAKE_CXXFLAGS += -std=c++11
