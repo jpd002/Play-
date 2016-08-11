@@ -1157,10 +1157,9 @@ void CGSH_Direct3D9::SetupBlendingFunction(uint64 alphaReg)
 	}
 }
 
-void CGSH_Direct3D9::SetupTestFunctions(uint64 nData)
+void CGSH_Direct3D9::SetupTestFunctions(uint64 testReg)
 {
-	TEST tst;
-	tst <<= nData;
+	auto tst = make_convertible<TEST>(testReg);
 
 	if(tst.nAlphaEnabled)
 	{
