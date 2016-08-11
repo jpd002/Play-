@@ -900,5 +900,8 @@
     <ClInclude Include="..\Source\iop\Iop_BiosStructs.h">
       <Filter>Source Files\Iop</Filter>
     </ClInclude>
+    <ClInclude Include="..\Source\gs\GsTextureCache.h">
+      <Filter>Source Files\Gs</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

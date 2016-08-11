@@ -223,6 +223,7 @@
     <ClInclude Include="..\Source\gs\GSHandler.h" />
     <ClInclude Include="..\Source\gs\GSH_Null.h" />
     <ClInclude Include="..\Source\gs\GsPixelFormats.h" />
+    <ClInclude Include="..\Source\gs\GsTextureCache.h" />
     <ClInclude Include="..\Source\Integer64.h" />
     <ClInclude Include="..\Source\iop\ArgumentIterator.h" />
     <ClInclude Include="..\Source\iop\DirectoryDevice.h" />
