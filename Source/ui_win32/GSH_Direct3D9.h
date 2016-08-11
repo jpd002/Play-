@@ -1,12 +1,12 @@
 #pragma once
 
 #include "../gs/GSHandler.h"
+#include "../gs/GsTextureCache.h"
 #include "win32/Window.h"
 #include "win32/ComPtr.h"
 #include "bitmap/Bitmap.h"
 #include "OutputWnd.h"
 #include "nuanceur/Builder.h"
-#include <list>
 #ifdef _DEBUG
 #define D3D_DEBUG_INFO
 #endif
@@ -69,10 +69,7 @@ private:
 	typedef std::map<uint32, VertexShaderPtr> VertexShaderMap;
 	typedef std::map<uint32, PixelShaderPtr> PixelShaderMap;
 
-	enum MAXCACHE
-	{
-		MAXCACHE = 256,
-	};
+	typedef void (CGSH_Direct3D9::*TEXTUREUPDATER)(D3DLOCKED_RECT*, uint32, uint32, unsigned int, unsigned int, unsigned int, unsigned int);
 
 	enum CVTBUFFERSIZE
 	{
@@ -99,27 +96,6 @@ private:
 		uint64		clampReg;
 		uint64		scissorReg;
 	};
-
-	class CCachedTexture
-	{
-	public:
-									CCachedTexture();
-									~CCachedTexture();
-		void						InvalidateFromMemorySpace(uint32, uint32);
-		void						Free();
-
-		uint32						m_nStart;
-		uint32						m_nSize;
-		uint32						m_nCLUTAddress;
-		uint64						m_nTex0;
-		uint64						m_nTexClut;
-		bool						m_nIsCSM2;
-		TexturePtr					m_texture;
-		uint32						m_checksum;
-		bool						m_live;
-	};
-	typedef std::shared_ptr<CCachedTexture> CachedTexturePtr;
-	typedef std::list<CachedTexturePtr> CachedTextureList;
 
 	class CFramebuffer
 	{
@@ -200,25 +176,12 @@ private:
 	void							Prim_Triangle();
 	void							Prim_Sprite();
 
-	void							TexUploader_Psm32(const TEX0&, const TEXA&, TexturePtr);
-	void							UploadConversionBuffer(const TEX0&, const TEXA&, TexturePtr);
-
-	uint32							ConvertTexturePsmct16(const TEX0&, const TEXA&);
-	uint32							ConvertTexturePsm8(const TEX0&, const TEXA&);
-	uint32							ConvertTexturePsm8H(const TEX0&, const TEXA&);
-	uint32							ConvertTexturePsm4(const TEX0&, const TEXA&);
-	template <uint32> uint32		ConvertTexturePsm4H(const TEX0&, const TEXA&);
-
 	static uint32					Color_Ps2ToDx9(uint32);
-	static uint32					RGBA16ToRGBA32(uint16);
 
-	TexturePtr						TexCache_SearchLive(const TEX0&);
-	TexturePtr						TexCache_SearchDead(const TEX0&, uint32);
-	void							TexCache_Insert(const TEX0&, const TexturePtr&, uint32);
-	void							TexCache_InvalidateTextures(uint32, uint32);
-	void							TexCache_Flush();
-
-	void							FlattenClut(const TEX0&, uint32*);
+	void							SetupTextureUpdaters();
+	void							TexUpdater_Invalid(D3DLOCKED_RECT*, uint32, uint32, unsigned int, unsigned int, unsigned int, unsigned int);
+	void							TexUpdater_Psm32(D3DLOCKED_RECT*, uint32, uint32, unsigned int, unsigned int, unsigned int, unsigned int);
+	template <typename> void		TexUpdater_Psm48(D3DLOCKED_RECT*, uint32, uint32, unsigned int, unsigned int, unsigned int, unsigned int);
 
 	VertexShaderPtr					CreateVertexShader(SHADERCAPS);
 	PixelShaderPtr					CreatePixelShader(SHADERCAPS);
@@ -237,7 +200,6 @@ private:
 	//Context variables (put this in a struct or something?)
 	float							m_nPrimOfsX = 0;
 	float							m_nPrimOfsY = 0;
-	TexturePtr						m_currentTexture;
 	uint32							m_currentTextureWidth = 0;
 	uint32							m_currentTextureHeight = 0;
 	float							m_nMaxZ = 0;
@@ -250,7 +212,9 @@ private:
 	VERTEX							m_vtxBuffer[3];
 	int								m_vtxCount = 0;
 
-	CachedTextureList				m_cachedTextures;
+	TEXTUREUPDATER					m_textureUpdater[CGSHandler::PSM_MAX];
+
+	CGsTextureCache<TexturePtr>		m_textureCache;
 	FramebufferList					m_framebuffers;
 	DepthbufferList					m_depthbuffers;
 

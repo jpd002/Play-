@@ -72,7 +72,38 @@ CGSHandler::FactoryFunction CGSH_Direct3D9::GetFactoryFunction(Framework::Win32:
 
 void CGSH_Direct3D9::ProcessHostToLocalTransfer()
 {
-	m_renderState.isValid = false;
+	auto bltBuf = make_convertible<BITBLTBUF>(m_nReg[GS_REG_BITBLTBUF]);
+	uint32 transferAddress = bltBuf.GetDstPtr();
+
+	if(m_trxCtx.nDirty)
+	{
+		//FlushVertexBuffer();
+		m_renderState.isValid = false;
+
+		auto trxReg = make_convertible<TRXREG>(m_nReg[GS_REG_TRXREG]);
+		auto trxPos = make_convertible<TRXPOS>(m_nReg[GS_REG_TRXPOS]);
+
+		//Find the pages that are touched by this transfer
+		auto transferPageSize = CGsPixelFormats::GetPsmPageSize(bltBuf.nDstPsm);
+
+		uint32 pageCountX = (bltBuf.GetDstWidth() + transferPageSize.first - 1) / transferPageSize.first;
+		uint32 pageCountY = (trxReg.nRRH + transferPageSize.second - 1) / transferPageSize.second;
+
+		uint32 pageCount = pageCountX * pageCountY;
+		uint32 transferSize = pageCount * CGsPixelFormats::PAGESIZE;
+		uint32 transferOffset = (trxPos.nDSAY / transferPageSize.second) * pageCountX * CGsPixelFormats::PAGESIZE;
+
+		m_textureCache.InvalidateRange(transferAddress + transferOffset, transferSize);
+
+#if 0
+		bool isUpperByteTransfer = (bltBuf.nDstPsm == PSMT8H) || (bltBuf.nDstPsm == PSMT4HL) || (bltBuf.nDstPsm == PSMT4HH);
+		for(const auto& framebuffer : m_framebuffers)
+		{
+			if((framebuffer->m_psm == PSMCT24) && isUpperByteTransfer) continue;
+			framebuffer->m_cachedArea.Invalidate(transferAddress + transferOffset, transferSize);
+		}
+#endif
+	}
 }
 
 void CGSH_Direct3D9::ProcessLocalToHostTransfer()
@@ -136,12 +167,9 @@ void CGSH_Direct3D9::InitializeImpl()
 	m_device->Clear(0, NULL, D3DCLEAR_TARGET, D3DCOLOR_XRGB(0, 0, 0), 1.0f, 0);
 	PresentBackbuffer();
 
-	for(unsigned int i = 0; i < MAXCACHE; i++)
-	{
-		m_cachedTextures.push_back(std::make_shared<CCachedTexture>());
-	}
-
 	m_cvtBuffer = new uint8[CVTBUFFERSIZE];
+
+	SetupTextureUpdaters();
 }
 
 void CGSH_Direct3D9::ResetImpl()
@@ -584,8 +612,7 @@ void CGSH_Direct3D9::OnDeviceResetting()
 	m_presentVb.Reset();
 	m_framebuffers.clear();
 	m_depthbuffers.clear();
-	TexCache_Flush();
-	m_currentTexture.Reset();
+	m_textureCache.Flush();
 }
 
 uint8 CGSH_Direct3D9::MulBy2Clamp(uint8 nValue)
@@ -659,8 +686,6 @@ void CGSH_Direct3D9::Prim_Line()
 
 	if(m_primitiveMode.nTexture)
 	{
-		m_device->SetTexture(0, m_currentTexture);
-
 		//Textured triangle
 		if(m_primitiveMode.nUseUV)
 		{
@@ -689,10 +714,6 @@ void CGSH_Direct3D9::Prim_Line()
 			nV1 /= rgbaq[0].nQ;
 			nV2 /= rgbaq[1].nQ;
 		}
-	}
-	else
-	{
-		m_device->SetTexture(0, NULL);
 	}
 
 	//Build vertex buffer
@@ -792,8 +813,6 @@ void CGSH_Direct3D9::Prim_Triangle()
 
 	if(m_primitiveMode.nTexture)
 	{
-		m_device->SetTexture(0, m_currentTexture);
-
 		//Textured triangle
 		if(m_primitiveMode.nUseUV)
 		{
@@ -828,10 +847,6 @@ void CGSH_Direct3D9::Prim_Triangle()
 			nV2 /= rgbaq[1].nQ;
 			nV3 /= rgbaq[2].nQ;
 		}
-	}
-	else
-	{
-		m_device->SetTexture(0, NULL);
 	}
 
 	//Build vertex buffer
@@ -904,8 +919,6 @@ void CGSH_Direct3D9::Prim_Sprite()
 
 	if(m_primitiveMode.nTexture)
 	{
-		m_device->SetTexture(0, m_currentTexture);
-
 		//Textured triangle
 		if(m_primitiveMode.nUseUV)
 		{
@@ -923,10 +936,6 @@ void CGSH_Direct3D9::Prim_Sprite()
 		{
 			//TODO
 		}
-	}
-	else
-	{
-		m_device->SetTexture(0, NULL);
 	}
 
 	{
@@ -1226,7 +1235,6 @@ void CGSH_Direct3D9::SetupTexture(uint64 tex0Reg, uint64 tex1Reg, uint64 clampRe
 {
 	if(tex0Reg == 0)
 	{
-		m_currentTexture.Reset();
 		return;
 	}
 
@@ -1238,7 +1246,6 @@ void CGSH_Direct3D9::SetupTexture(uint64 tex0Reg, uint64 tex1Reg, uint64 clampRe
 
 	m_currentTextureWidth	= tex0.GetWidth();
 	m_currentTextureHeight	= tex0.GetHeight();
-	m_currentTexture		= texInfo.texture;
 
 	int nMagFilter = D3DTEXF_NONE, nMinFilter = D3DTEXF_NONE, nMipFilter = D3DTEXF_NONE;
 	int nWrapS = 0, nWrapT = 0;
@@ -1269,6 +1276,7 @@ void CGSH_Direct3D9::SetupTexture(uint64 tex0Reg, uint64 tex1Reg, uint64 clampRe
 		break;
 	}
 
+	m_device->SetTexture(0, texInfo.texture);
 	m_device->SetSamplerState(0, D3DSAMP_MINFILTER, nMinFilter);
 	m_device->SetSamplerState(0, D3DSAMP_MAGFILTER, nMagFilter);
 	m_device->SetSamplerState(0, D3DSAMP_MIPFILTER, nMipFilter);

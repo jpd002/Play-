@@ -5,6 +5,18 @@
 #include "GSH_Direct3D9.h"
 #include "../gs/GsPixelFormats.h"
 
+void CGSH_Direct3D9::SetupTextureUpdaters()
+{
+	for(unsigned int i = 0; i < PSM_MAX; i++)
+	{
+		m_textureUpdater[i] = &CGSH_Direct3D9::TexUpdater_Invalid;
+	}
+
+	m_textureUpdater[PSMCT32] = &CGSH_Direct3D9::TexUpdater_Psm32;
+	m_textureUpdater[PSMT8]   = &CGSH_Direct3D9::TexUpdater_Psm48<CGsPixelFormats::CPixelIndexorPSMT8>;
+	m_textureUpdater[PSMT4]   = &CGSH_Direct3D9::TexUpdater_Psm48<CGsPixelFormats::CPixelIndexorPSMT4>;
+}
+
 CGSH_Direct3D9::TEXTURE_INFO CGSH_Direct3D9::LoadTexture(const TEX0& tex0, const TEX1& tex1, const CLAMP& clamp)
 {
 	TEXTURE_INFO result;
@@ -41,513 +53,134 @@ CGSH_Direct3D9::TEXTURE_INFO CGSH_Direct3D9::LoadTexture(const TEX0& tex0, const
 		}
 	}
 
-	result.texture = TexCache_SearchLive(tex0);
-	if(!result.texture.IsEmpty()) return result;
-
-	auto texA = make_convertible<TEXA>(m_nReg[GS_REG_TEXA]);
-
-	uint32 textureChecksum = 0; 
-	switch(tex0.nPsm)
-	{
-	case PSMT8:
-		textureChecksum = ConvertTexturePsm8(tex0, texA);
-		break;
-	case PSMT4:
-		textureChecksum = ConvertTexturePsm4(tex0, texA);
-		break;
-	case PSMT4HL:
-		textureChecksum = ConvertTexturePsm4H<24>(tex0, texA);
-		break;
-	case PSMT4HH:
-		textureChecksum = ConvertTexturePsm4H<28>(tex0, texA);
-		break;
-	case PSMT8H:
-		textureChecksum = ConvertTexturePsm8H(tex0, texA);
-		break;
-	case PSMCT16:
-		textureChecksum = ConvertTexturePsmct16(tex0, texA);
-		break;
-	}
-
-	if(textureChecksum)
-	{
-		//Check if we don't already have it somewhere...
-		result.texture = TexCache_SearchDead(tex0, textureChecksum);
-		if(!result.texture.IsEmpty())
-		{
-			return result;
-		}
-	}
-
-	uint32 width		= tex0.GetWidth();
-	uint32 height		= tex0.GetHeight();
-
 	HRESULT resultCode = S_OK;
-	resultCode = m_device->CreateTexture(width, height, 1, D3DUSAGE_DYNAMIC, D3DFMT_A8R8G8B8, D3DPOOL_DEFAULT, &result.texture, NULL);
-	assert(SUCCEEDED(resultCode));
 
-	switch(tex0.nPsm)
+	auto texture = m_textureCache.Search(tex0);
+	if(!texture)
 	{
-	case PSMCT32:
-	case PSMCT24:
-		TexUploader_Psm32(tex0, texA, result.texture);
-		break;
-	case PSMT8:
-	case PSMT8H:
-	case PSMT4:
-	case PSMT4HL:
-	case PSMT4HH:
-	case PSMCT16:
-		UploadConversionBuffer(tex0, texA, result.texture);
-		break;
-	default:
-		assert(0);
-		break;
+		uint32 width  = tex0.GetWidth();
+		uint32 height = tex0.GetHeight();
+
+		D3DFORMAT textureFormat = D3DFMT_A8R8G8B8;
+		switch(tex0.nPsm)
+		{
+		case PSMCT32:
+			textureFormat = D3DFMT_A8R8G8B8;
+			break;
+		case PSMT8:
+		case PSMT4:
+			textureFormat = D3DFMT_L8;
+			break;
+		default:
+			assert(false);
+			break;
+		}
+
+		resultCode = m_device->CreateTexture(width, height, 1, D3DUSAGE_DYNAMIC, textureFormat, D3DPOOL_DEFAULT, &result.texture, NULL);
+		assert(SUCCEEDED(resultCode));
+
+		m_textureCache.Insert(tex0, result.texture);
+		texture = m_textureCache.Search(tex0);
+		assert(result.texture == texture->m_textureHandle);
+
+		texture->m_cachedArea.Invalidate(0, RAMSIZE);
 	}
 
-	TexCache_Insert(tex0, result.texture, textureChecksum);
+	auto& cachedArea = texture->m_cachedArea;
 
+	if(cachedArea.HasDirtyPages())
+	{
+		D3DLOCKED_RECT lockedRect;
+		resultCode = texture->m_textureHandle->LockRect(0, &lockedRect, nullptr, 0);
+		assert(SUCCEEDED(resultCode));
+
+		auto texturePageSize = CGsPixelFormats::GetPsmPageSize(tex0.nPsm);
+		auto pageRect = cachedArea.GetPageRect();
+
+		for(unsigned int dirtyPageIndex = 0; dirtyPageIndex < CGsCachedArea::MAX_DIRTYPAGES; dirtyPageIndex++)
+		{
+			if(!cachedArea.IsPageDirty(dirtyPageIndex)) continue;
+
+			uint32 pageX = dirtyPageIndex % pageRect.first;
+			uint32 pageY = dirtyPageIndex / pageRect.first;
+			uint32 texX = pageX * texturePageSize.first;
+			uint32 texY = pageY * texturePageSize.second;
+			uint32 texWidth = texturePageSize.first;
+			uint32 texHeight = texturePageSize.second;
+			if(texX >= tex0.GetWidth()) continue;
+			if(texY >= tex0.GetHeight()) continue;
+			if((texX + texWidth) > tex0.GetWidth())
+			{
+				texWidth = tex0.GetWidth() - texX;
+			}
+			if((texY + texHeight) > tex0.GetHeight())
+			{
+				texHeight = tex0.GetHeight() - texY;
+			}
+			((this)->*(m_textureUpdater[tex0.nPsm]))(&lockedRect, tex0.GetBufPtr(), tex0.nBufWidth, texX, texY, texWidth, texHeight);
+		}
+
+		cachedArea.ClearDirtyPages();
+
+		resultCode = texture->m_textureHandle->UnlockRect(0);
+		assert(SUCCEEDED(resultCode));
+	}
+
+	result.texture = texture->m_textureHandle;
 	return result;
 }
 
 uint32 CGSH_Direct3D9::Color_Ps2ToDx9(uint32 color)
 {
 	return D3DCOLOR_ARGB(
-		(color >> 24) & 0xFF, 
+		(color >> 24) & 0xFF,
 		(color >>  0) & 0xFF,
 		(color >>  8) & 0xFF,
 		(color >> 16) & 0xFF);
 }
 
-uint32 CGSH_Direct3D9::RGBA16ToRGBA32(uint16 nColor)
+void CGSH_Direct3D9::TexUpdater_Invalid(D3DLOCKED_RECT*, uint32, uint32, unsigned int, unsigned int, unsigned int, unsigned int)
 {
-	return (nColor & 0x8000 ? 0xFF000000 : 0) | ((nColor & 0x7C00) << 9) | ((nColor & 0x03E0) << 6) | ((nColor & 0x001F) << 3);
+	assert(false);
 }
 
-void CGSH_Direct3D9::FlattenClut(const TEX0& tex0, uint32* dstClut)
+void CGSH_Direct3D9::TexUpdater_Psm32(D3DLOCKED_RECT* lockedRect, uint32 bufPtr, uint32 bufWidth, unsigned int texX, unsigned int texY, unsigned int texWidth, unsigned int texHeight)
 {
-	unsigned int entryCount = CGsPixelFormats::IsPsmIDTEX4(tex0.nPsm) ? 16 : 256;
+	CGsPixelFormats::CPixelIndexorPSMCT32 indexor(m_pRAM, bufPtr, bufWidth);
 
-	if(CGsPixelFormats::IsPsmIDTEX4(tex0.nPsm))
+	auto dstPitch = lockedRect->Pitch / 4;
+	auto dst = reinterpret_cast<uint32*>(lockedRect->pBits);
+	dst += texX + (texY * dstPitch);
+
+	for(unsigned int y = 0; y < texHeight; y++)
 	{
-		uint32 clutOffset = tex0.nCSA * 16;
-
-		if(tex0.nCPSM == PSMCT32)
+		for(unsigned int x = 0; x < texWidth; x++)
 		{
-//			assert(tex0.nCSA < 16);
-
-			for(unsigned int i = 0; i < 16; i++)
-			{
-				uint32 color = 
-					(static_cast<uint16>(m_pCLUT[i + clutOffset + 0x000])) | 
-					(static_cast<uint16>(m_pCLUT[i + clutOffset + 0x100]) << 16);
-				uint32 alpha = MulBy2Clamp(color >> 24);
-				color &= ~0xFF000000;
-				color |= alpha << 24;
-				dstClut[i] = Color_Ps2ToDx9(color);
-			}
-		}
-		else
-		{
-			assert(tex0.nCSA < 32);
-
-			for(unsigned int i = 0; i < 16; i++)
-			{
-				uint32 color = RGBA16ToRGBA32(m_pCLUT[i + clutOffset]);
-				dstClut[i] = Color_Ps2ToDx9(color);
-			}
-		}
-	}
-	else if(CGsPixelFormats::IsPsmIDTEX8(tex0.nPsm))
-	{
-		assert(tex0.nCSA == 0);
-
-		if(tex0.nCPSM == PSMCT32)
-		{
-			for(unsigned int i = 0; i < 256; i++)
-			{
-				uint32 color = 
-					(static_cast<uint16>(m_pCLUT[i + 0x000])) | 
-					(static_cast<uint16>(m_pCLUT[i + 0x100]) << 16);
-				uint32 alpha = MulBy2Clamp(color >> 24);
-				color &= ~0xFF000000;
-				color |= alpha << 24;
-				dstClut[i] = Color_Ps2ToDx9(color);
-			}
-		}
-		else
-		{
-			for(unsigned int i = 0; i < 256; i++)
-			{
-				uint32 color = RGBA16ToRGBA32(m_pCLUT[i]);
-				dstClut[i] = Color_Ps2ToDx9(color);
-			}
-		}
-	}
-}
-
-void CGSH_Direct3D9::TexUploader_Psm32(const TEX0& tex0, const TEXA& texA, TexturePtr texture)
-{
-	uint32 nPointer			= tex0.GetBufPtr();
-	unsigned int nWidth		= tex0.GetWidth();
-	unsigned int nHeight	= tex0.GetHeight();
-//	unsigned int nDstPitch	= nWidth;
-//	uint32* pDst			= reinterpret_cast<uint32*>(m_pCvtBuffer);
-
-	HRESULT result;
-	D3DLOCKED_RECT rect;
-	result = texture->LockRect(0, &rect, NULL, 0);
-
-	uint32* pDst			= reinterpret_cast<uint32*>(rect.pBits);
-	unsigned int nDstPitch	= rect.Pitch / 4;
-
-	CGsPixelFormats::CPixelIndexorPSMCT32 Indexor(m_pRAM, nPointer, tex0.nBufWidth);
-
-	for(unsigned int j = 0; j < nHeight; j++)
-	{
-		for(unsigned int i = 0; i < nWidth; i++)
-		{
-			pDst[i] = Color_Ps2ToDx9(Indexor.GetPixel(i, j));
+			uint32 color = indexor.GetPixel(texX + x, texY + y);
+			dst[x] = Color_Ps2ToDx9(color);
 		}
 
-		pDst += nDstPitch;
-	}
-
-	result = texture->UnlockRect(0);
-	assert(result == S_OK);
-}
-
-uint32 CGSH_Direct3D9::ConvertTexturePsm8(const TEX0& tex0, const TEXA& texA)
-{
-	unsigned int width		= tex0.GetWidth();
-	unsigned int height		= tex0.GetHeight();
-	unsigned int dstPitch	= width;
-	uint32* dst				= reinterpret_cast<uint32*>(m_cvtBuffer);
-	uint32 checksum			= crc32(0, NULL, 0);
-
-	uint32 clut[256];
-	FlattenClut(tex0, clut);
-
-	CGsPixelFormats::CPixelIndexorPSMT8 indexor(m_pRAM, tex0.GetBufPtr(), tex0.nBufWidth);
-
-	uint32 bufWidthBytes = tex0.nBufWidth * 64;
-
-	for(unsigned int j = 0; j < height; j++)
-	{
-		for(unsigned int i = 0; i < width; i++)
-		{
-			if(i <= bufWidthBytes)
-			{
-				uint32 pixel = indexor.GetPixel(i, j);
-				dst[i] = clut[pixel];
-			}
-			else
-			{
-				dst[i] = 0;
-			}
-		}
-
-		checksum = crc32(checksum, reinterpret_cast<Bytef*>(dst), sizeof(uint32) * width);
 		dst += dstPitch;
 	}
-
-	return checksum;
 }
 
-uint32 CGSH_Direct3D9::ConvertTexturePsm8H(const TEX0& tex0, const TEXA& texA)
+template <typename IndexorType>
+void CGSH_Direct3D9::TexUpdater_Psm48(D3DLOCKED_RECT* lockedRect, uint32 bufPtr, uint32 bufWidth, unsigned int texX, unsigned int texY, unsigned int texWidth, unsigned int texHeight)
 {
-	unsigned int width		= tex0.GetWidth();
-	unsigned int height		= tex0.GetHeight();
-	unsigned int dstPitch	= width;
-	uint32* dst				= reinterpret_cast<uint32*>(m_cvtBuffer);
-	uint32 checksum			= crc32(0, NULL, 0);
+	IndexorType indexor(m_pRAM, bufPtr, bufWidth);
 
-	uint32 clut[256];
-	FlattenClut(tex0, clut);
+	auto dstPitch = lockedRect->Pitch;
+	auto dst = reinterpret_cast<uint8*>(lockedRect->pBits);
+	dst += texX + (texY * dstPitch);
 
-	CGsPixelFormats::CPixelIndexorPSMCT32 indexor(m_pRAM, tex0.GetBufPtr(), tex0.nBufWidth);
-
-	uint32 bufWidthBytes = tex0.nBufWidth * 64;
-
-	for(unsigned int j = 0; j < height; j++)
+	for(unsigned int y = 0; y < texHeight; y++)
 	{
-		for(unsigned int i = 0; i < width; i++)
+		for(unsigned int x = 0; x < texWidth; x++)
 		{
-			if(i <= bufWidthBytes)
-			{
-				uint32 pixel = indexor.GetPixel(i, j);
-				pixel >>= 24;
-				dst[i] = clut[pixel];
-			}
-			else
-			{
-				dst[i] = 0;
-			}
+			uint8 pixel = indexor.GetPixel(texX + x, texY + y);
+			dst[x] = pixel;
 		}
 
-		checksum = crc32(checksum, reinterpret_cast<Bytef*>(dst), sizeof(uint32) * width);
 		dst += dstPitch;
 	}
-
-	return checksum;
-}
-
-uint32 CGSH_Direct3D9::ConvertTexturePsmct16(const TEX0& tex0, const TEXA& texA)
-{
-	unsigned int width = tex0.GetWidth();
-	unsigned int height = tex0.GetHeight();
-	unsigned int dstPitch = width;
-	uint32* dst = reinterpret_cast<uint32*>(m_cvtBuffer);
-	uint32 checksum = crc32(0, NULL, 0);
-
-	uint8 nTA0, nTA1;
-	if (tex0.nColorComp == 1)
-	{
-		nTA0 = texA.nTA0;
-		nTA1 = texA.nTA1;
-	}
-	else
-	{
-		nTA0 = 0;
-		nTA1 = 0;
-	}
-
-	CGsPixelFormats::CPixelIndexorPSMCT16S indexor(m_pRAM, tex0.GetBufPtr(), tex0.nBufWidth);
-
-	for (unsigned int j = 0; j < height; j++)
-	{
-		for (unsigned int i = 0; i < width; i++)
-		{
-			uint16 pixel = indexor.GetPixel(i, j);
-			uint8 nB = (pixel >> 0) & 0x1F;
-			uint8 nG = (pixel >> 5) & 0x1F;
-			uint8 nR = (pixel >> 10) & 0x1F;
-			uint8 nA = (pixel >> 15) & 0x01;
-
-			nB <<= 3;
-			nG <<= 3;
-			nR <<= 3;
-			nA = (nA == 0) ? nTA0 : nTA1;
-
-			*(((uint8*)&dst[i]) + 0) = nB;
-			*(((uint8*)&dst[i]) + 1) = nG;
-			*(((uint8*)&dst[i]) + 2) = nR;
-			*(((uint8*)&dst[i]) + 3) = nA;
-		}
-
-		checksum = crc32(checksum, reinterpret_cast<Bytef*>(dst), sizeof(uint32)* width);
-		dst += dstPitch;
-	}
-
-	return checksum;
-}
-
-uint32 CGSH_Direct3D9::ConvertTexturePsm4(const TEX0& tex0, const TEXA& texA)
-{
-	unsigned int width		= tex0.GetWidth();
-	unsigned int height		= tex0.GetHeight();
-	unsigned int dstPitch	= width;
-	uint32* dst				= reinterpret_cast<uint32*>(m_cvtBuffer);
-	uint32 checksum			= crc32(0, NULL, 0);
-
-	uint32 clut[256];
-	FlattenClut(tex0, clut);
-
-	CGsPixelFormats::CPixelIndexorPSMT4 indexor(m_pRAM, tex0.GetBufPtr(), tex0.nBufWidth);
-
-	for(unsigned int j = 0; j < height; j++)
-	{
-		for(unsigned int i = 0; i < width; i++)
-		{
-			uint32 pixel = indexor.GetPixel(i, j);
-			dst[i] = clut[pixel];
-		}
-
-		checksum = crc32(checksum, reinterpret_cast<Bytef*>(dst), sizeof(uint32) * width);
-		dst += dstPitch;
-	}
-
-	return checksum;
-}
-
-template <uint32 shiftAmount>
-uint32 CGSH_Direct3D9::ConvertTexturePsm4H(const TEX0& tex0, const TEXA& texA)
-{
-	unsigned int width		= tex0.GetWidth();
-	unsigned int height		= tex0.GetHeight();
-	unsigned int dstPitch	= width;
-	uint32* dst				= reinterpret_cast<uint32*>(m_cvtBuffer);
-	uint32 checksum			= crc32(0, NULL, 0);
-
-	uint32 clut[256];
-	FlattenClut(tex0, clut);
-
-	CGsPixelFormats::CPixelIndexorPSMCT32 indexor(m_pRAM, tex0.GetBufPtr(), tex0.nBufWidth);
-
-	for(unsigned int j = 0; j < height; j++)
-	{
-		for(unsigned int i = 0; i < width; i++)
-		{
-			uint32 pixel = indexor.GetPixel(i, j);
-			pixel >>= shiftAmount;
-			pixel &= 0x0F;
-			dst[i] = clut[pixel];
-		}
-
-		checksum = crc32(checksum, reinterpret_cast<Bytef*>(dst), sizeof(uint32) * width);
-		dst += dstPitch;
-	}
-
-	return checksum;
-}
-
-void CGSH_Direct3D9::UploadConversionBuffer(const TEX0& tex0, const TEXA& texA, TexturePtr texture)
-{
-	unsigned int width	= tex0.GetWidth();
-	unsigned int height	= tex0.GetHeight();
-
-	HRESULT result;
-	D3DLOCKED_RECT rect;
-	result = texture->LockRect(0, &rect, NULL, 0);
-	assert(result == S_OK);
-
-	uint8* srcPtr = reinterpret_cast<uint8*>(m_cvtBuffer);
-	uint8* dstPtr = reinterpret_cast<uint8*>(rect.pBits);
-	for(unsigned int i = 0; i < height; i++)
-	{
-		memcpy(dstPtr, srcPtr, width * sizeof(uint32));
-		srcPtr += width * sizeof(uint32);
-		dstPtr += rect.Pitch;
-	}
-
-	result = texture->UnlockRect(0);
-	assert(result == S_OK);
-}
-
-/////////////////////////////////////////////////////////////
-// Texture
-/////////////////////////////////////////////////////////////
-
-CGSH_Direct3D9::CCachedTexture::CCachedTexture() 
-: m_nStart(0)
-, m_nSize(0)
-, m_nCLUTAddress(0)
-, m_nTex0(0)
-, m_nTexClut(0)
-, m_nIsCSM2(false)
-, m_texture(NULL)
-, m_checksum(0)
-, m_live(false)
-{
-
-}
-
-CGSH_Direct3D9::CCachedTexture::~CCachedTexture()
-{
-	Free();
-}
-
-void CGSH_Direct3D9::CCachedTexture::Free()
-{
-	m_texture.Reset();
-	m_live = false;
-}
-
-void CGSH_Direct3D9::CCachedTexture::InvalidateFromMemorySpace(uint32 nStart, uint32 nSize)
-{
-	if(!m_live) return;
-
-	bool nInvalid = false;
-	uint32 nEnd = nStart + nSize;
-	uint32 nTexEnd = m_nStart + m_nSize;
-
-	if((nStart >= m_nStart) && (nStart < nTexEnd))
-	{
-		nInvalid = true;
-	}
-
-	if((nEnd >= m_nStart) && (nEnd < nTexEnd))
-	{
-		nInvalid = true;
-	}
-
-	if(nInvalid)
-	{
-		m_live = false;
-	}
-}
-
-/////////////////////////////////////////////////////////////
-// Texture Caching
-/////////////////////////////////////////////////////////////
-
-CGSH_Direct3D9::TexturePtr CGSH_Direct3D9::TexCache_SearchLive(const TEX0& tex0)
-{
-	for(auto textureIterator(m_cachedTextures.begin());
-		textureIterator != m_cachedTextures.end(); textureIterator++)
-	{
-		auto texture = *textureIterator;
-		if(!texture->m_live) continue;
-		//if(!texture.IsValid()) continue;
-		//if(m_TexCache[i].m_nStart != pTex0->GetBufPtr()) continue;
-		//if(m_TexCache[i].m_nCLUTAddress != pTex0->GetCLUTPtr()) continue;
-		if(static_cast<uint64>(tex0) != texture->m_nTex0) continue;
-//		if(texture->m_nIsCSM2)
-//		{
-//			if(((*(uint64*)GetTexClut()) & 0x3FFFFF) != texture->m_nTexClut) continue;
-//		}
-		m_cachedTextures.erase(textureIterator);
-		m_cachedTextures.push_front(texture);
-		return texture->m_texture;
-	}
-
-	return TexturePtr();
-}
-
-CGSH_Direct3D9::TexturePtr CGSH_Direct3D9::TexCache_SearchDead(const TEX0& tex0, uint32 checksum)
-{
-	for(auto textureIterator(m_cachedTextures.begin());
-		textureIterator != m_cachedTextures.end(); textureIterator++)
-	{
-		auto& texture = *textureIterator;
-		if(texture->m_texture.IsEmpty()) continue;
-		if(texture->m_checksum != checksum) continue;
-		if(texture->m_nTex0 != *reinterpret_cast<const uint64*>(&tex0)) continue;
-		texture->m_live = true;
-		m_cachedTextures.erase(textureIterator);
-		m_cachedTextures.push_front(texture);
-		return texture->m_texture;
-	}
-
-	return TexturePtr();
-}
-
-void CGSH_Direct3D9::TexCache_Insert(const TEX0& tex0, const TexturePtr& texture, uint32 checksum)
-{
-	auto cachedTexture = *m_cachedTextures.rbegin();
-	cachedTexture->Free();
-
-	cachedTexture->m_nStart			= tex0.GetBufPtr();
-	cachedTexture->m_nSize			= tex0.GetBufWidth() * tex0.GetHeight() * CGsPixelFormats::GetPsmPixelSize(tex0.nPsm) / 8;
-//	cachedTexture->m_nCLUTAddress	= pTex0->GetCLUTPtr();
-	cachedTexture->m_nTex0			= static_cast<const uint64>(tex0);
-//	cachedTexture->m_nTexClut		= (*(uint64*)GetTexClut()) & 0x3FFFFF;
-	cachedTexture->m_nTexClut		= 0;
-	cachedTexture->m_nIsCSM2		= tex0.nCSM == 1;
-	cachedTexture->m_texture		= texture;
-	cachedTexture->m_checksum		= checksum;
-	cachedTexture->m_live			= true;
-
-	m_cachedTextures.pop_back();
-	m_cachedTextures.push_front(cachedTexture);
-}
-
-void CGSH_Direct3D9::TexCache_InvalidateTextures(uint32 start, uint32 size)
-{
-	std::for_each(std::begin(m_cachedTextures), std::end(m_cachedTextures), [&] (CachedTexturePtr& texture) { texture->InvalidateFromMemorySpace(start, size); });
-}
-
-void CGSH_Direct3D9::TexCache_Flush()
-{
-	std::for_each(std::begin(m_cachedTextures), std::end(m_cachedTextures), [] (CachedTexturePtr& texture) { texture->Free(); });
 }
