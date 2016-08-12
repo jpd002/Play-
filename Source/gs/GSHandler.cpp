@@ -1080,8 +1080,7 @@ void CGSHandler::ReadCLUT4(const TEX0& tex0)
 			assert(tex0.nCPSM == PSMCT16);
 			assert(tex0.nCSA == 0);
 
-			TEXCLUT texClut;
-			texClut <<= m_nReg[GS_REG_TEXCLUT];
+			auto texClut = make_convertible<TEXCLUT>(m_nReg[GS_REG_TEXCLUT]);
 
 			CGsPixelFormats::CPixelIndexorPSMCT16 Indexor(m_pRAM, tex0.GetCLUTPtr(), texClut.nCBW);
 			unsigned int nOffsetX = texClut.GetOffsetU();
