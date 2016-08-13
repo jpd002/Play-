@@ -87,6 +87,13 @@ uint32 CIoman::Open(uint32 flags, const char* path)
 {
 	CLog::GetInstance().Print(LOG_NAME, "Open(flags = 0x%0.8X, path = '%s');\r\n", flags, path);
 
+	if(flags == 0)
+	{
+		//If no flags provided, assume we want to open the file
+		//Required by Capcom Arcade Collection
+		flags = Ioman::CDevice::OPEN_FLAG_RDONLY;
+	}
+
 	uint32 handle = 0xFFFFFFFF;
 	try
 	{
