@@ -1407,8 +1407,6 @@ void CGSH_OpenGL::Prim_Triangle()
 {
 	float nF1, nF2, nF3;
 
-	RGBAQ rgbaq[3];
-
 	XYZ vertex[3];
 	vertex[0] <<= m_VtxBuffer[2].nPosition;
 	vertex[1] <<= m_VtxBuffer[1].nPosition;
@@ -1418,6 +1416,7 @@ void CGSH_OpenGL::Prim_Triangle()
 	float nY1 = vertex[0].GetY(), nY2 = vertex[1].GetY(), nY3 = vertex[2].GetY();
 	float nZ1 = vertex[0].GetZ(), nZ2 = vertex[1].GetZ(), nZ3 = vertex[2].GetZ();
 
+	RGBAQ rgbaq[3];
 	rgbaq[0] <<= m_VtxBuffer[2].nRGBAQ;
 	rgbaq[1] <<= m_VtxBuffer[1].nRGBAQ;
 	rgbaq[2] <<= m_VtxBuffer[0].nRGBAQ;
@@ -1518,8 +1517,6 @@ void CGSH_OpenGL::Prim_Triangle()
 
 void CGSH_OpenGL::Prim_Sprite()
 {
-	RGBAQ rgbaq[2];
-
 	XYZ xyz[2];
 	xyz[0] <<= m_VtxBuffer[1].nPosition;
 	xyz[1] <<= m_VtxBuffer[0].nPosition;
@@ -1527,6 +1524,7 @@ void CGSH_OpenGL::Prim_Sprite()
 	float nX1 = xyz[0].GetX();	float nY1 = xyz[0].GetY();
 	float nX2 = xyz[1].GetX();	float nY2 = xyz[1].GetY();	float nZ = xyz[1].GetZ();
 
+	RGBAQ rgbaq[2];
 	rgbaq[0] <<= m_VtxBuffer[1].nRGBAQ;
 	rgbaq[1] <<= m_VtxBuffer[0].nRGBAQ;
 
