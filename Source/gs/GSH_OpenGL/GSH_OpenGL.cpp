@@ -1574,8 +1574,8 @@ void CGSH_OpenGL::Prim_Sprite()
 	}
 
 	auto color = MakeColor(
-		rgbaq[0].nR, rgbaq[0].nG,
-		rgbaq[0].nB, rgbaq[0].nA);
+		rgbaq[1].nR, rgbaq[1].nG,
+		rgbaq[1].nB, rgbaq[1].nA);
 
 	PRIM_VERTEX vertices[] =
 	{
