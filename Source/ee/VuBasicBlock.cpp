@@ -43,6 +43,45 @@ void CVuBasicBlock::CompileRange(CMipsJitter* jitter)
 		}
 	}
 
+	int delayedReg = 0;
+	int delayedRegTime = -1;
+	int delayedRegTargetTime = -1;
+	int adjustedEnd = fixedEnd - 4;
+	{
+		// Test if the block ends with a conditional branch instruction where the condition variable has been
+		// set in the prior instruction.
+		// In this case, the pipeline shortcut fails and we need to use the value from 4 instructions previous.
+		// If the relevant set instruction is not part of this block, skip the fix and fall back to the broken implementation.
+		int length = (fixedEnd - m_begin) >> 3;
+		if (length > 4)
+		{
+			// Check if we have a conditional branch instruction. Luckily these populate the contiguous opcode range 0x28 -> 0x2F inclusive
+			uint32 opcodeLo = m_context.m_pMemoryMap->GetInstruction(adjustedEnd - 8);
+			uint32 id = (opcodeLo >> 25) & 0x7f;
+			if (id >= 0x28 && id < 0x30)
+			{
+				// We have a conditional branch instruction. Now we need to check that the condition register is not written
+				// by the previous instruction.
+				int priorOpcodeAddr = adjustedEnd - 16;
+				uint32 priorOpcodeLo = m_context.m_pMemoryMap->GetInstruction(priorOpcodeAddr);
+
+				VUShared::OPERANDSET loOps = arch->GetAffectedOperands(&m_context, priorOpcodeAddr, priorOpcodeLo);
+				if (loOps.writeI != 0)
+				{
+					uint8  is = static_cast<uint8> ((opcodeLo >> 11) & 0x001F);
+					uint8  it = static_cast<uint8> ((opcodeLo >> 16) & 0x001F);
+					if (is == loOps.writeI || it == loOps.writeI)
+					{
+						// argh - we need to use the value of incReg 4 steps prior.
+						delayedReg = loOps.writeI;
+						delayedRegTime = adjustedEnd - 5 * 8;
+						delayedRegTargetTime = adjustedEnd - 8;
+					}
+				}			
+			}
+		}
+	}
+
 	for(uint32 address = m_begin; address <= fixedEnd; address += 8)
 	{
 		uint32 relativePipeTime = (address - m_begin) / 8;
@@ -88,6 +127,12 @@ void CVuBasicBlock::CompileRange(CMipsJitter* jitter)
 			}
 		}
 
+		if (address == delayedRegTime) {
+			// grab the value of the delayed reg to use in the conditional branch later
+			jitter->PushRel(offsetof(CMIPS, m_State.nCOP2VI[delayedReg]));
+			jitter->PullRel(offsetof(CMIPS, m_State.savedIntReg));
+		}
+
 		arch->SetRelativePipeTime(relativePipeTime);
 		arch->CompileInstruction(addressHi, jitter, &m_context);
 
@@ -100,7 +145,22 @@ void CVuBasicBlock::CompileRange(CMipsJitter* jitter)
 			jitter->MD_PullRel(offsetof(CMIPS, m_State.nCOP2[savedReg]));
 		}
 
+		if (address == delayedRegTargetTime) {
+			// set the target from the saved value
+			jitter->PushRel(offsetof(CMIPS, m_State.nCOP2VI[delayedReg]));
+			jitter->PullRel(offsetof(CMIPS, m_State.savedIntRegTemp));
+
+			jitter->PushRel(offsetof(CMIPS, m_State.savedIntReg));
+			jitter->PullRel(offsetof(CMIPS, m_State.nCOP2VI[delayedReg]));
+		}
+
 		arch->CompileInstruction(addressLo, jitter, &m_context);
+
+		if (address == delayedRegTargetTime) {
+			// put the target value back
+			jitter->PushRel(offsetof(CMIPS, m_State.savedIntRegTemp));
+			jitter->PullRel(offsetof(CMIPS, m_State.nCOP2VI[delayedReg]));
+		}
 
 		if(savedReg != 0)
 		{
