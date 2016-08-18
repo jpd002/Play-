@@ -1,5 +1,6 @@
 #include "InputBindingSelectionWindow.h"
 #include "win32/Rect.h"
+#include "win32/DpiUtils.h"
 #include "layout/LayoutEngine.h"
 #include "string_cast.h"
 
@@ -23,7 +24,8 @@ CInputBindingSelectionWindow::CInputBindingSelectionWindow(
 {
 	std::tstring title = _T("Select new binding for ") + string_cast<std::tstring>(PS2::CControllerInfo::m_buttonName[m_button]);
 
-	Create(WNDSTYLEEX, Framework::Win32::CDefaultWndClass::GetName(), title.c_str(), WNDSTYLE, Framework::Win32::CRect(0, 0, 400, 100), parent, NULL);
+	auto windowRect = Framework::Win32::PointsToPixels(Framework::Win32::CRect(0, 0, 400, 100));
+	Create(WNDSTYLEEX, Framework::Win32::CDefaultWndClass::GetName(), title.c_str(), WNDSTYLE, windowRect, parent, NULL);
 	SetClassPtr();
 
 	const CInputManager::CBinding* binding = inputManager.GetBinding(button);
@@ -35,7 +37,7 @@ CInputBindingSelectionWindow::CInputBindingSelectionWindow(
 	m_layout = 
 		Framework::VerticalLayoutContainer(
 			Framework::CLayoutStretch::Create() +
-			Framework::Win32::CLayoutWindow::CreateTextBoxBehavior(100, 21, m_currentBindingLabel) +
+			Framework::Win32::CLayoutWindow::CreateTextBoxBehavior(100, Framework::Win32::PointsToPixels(21), m_currentBindingLabel) +
 			Framework::CLayoutStretch::Create()
 		);
 
