@@ -1,5 +1,4 @@
-#ifndef _PH_DIRECTINPUT_H_
-#define _PH_DIRECTINPUT_H_
+#pragma once
 
 #include "Types.h"
 #include "SettingsDialogProvider.h"
@@ -24,7 +23,4 @@ private:
 	static CPadHandler*							PadHandlerFactory(HWND);
 
 	PH_DirectInput::CInputManager				m_inputManager;
-	HWND										m_hWnd;
 };
-
-#endif

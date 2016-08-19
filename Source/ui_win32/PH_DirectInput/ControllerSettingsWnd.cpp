@@ -59,6 +59,8 @@ CControllerSettingsWnd::CControllerSettingsWnd(HWND parent, CInputManager& input
 			)
 		);
 
+	m_inputManager.PushFocusWindow(m_hWnd);
+
 	RefreshLayout();
 	PopulateList();
 	UpdateBindings();
@@ -69,7 +71,7 @@ CControllerSettingsWnd::CControllerSettingsWnd(HWND parent, CInputManager& input
 
 CControllerSettingsWnd::~CControllerSettingsWnd()
 {
-
+	m_inputManager.PopFocusWindow();
 }
 
 void CControllerSettingsWnd::RefreshLayout()
@@ -171,6 +173,7 @@ void CControllerSettingsWnd::OnListItemDblClick()
 			CInputBindingSelectionWindow dialog(m_hWnd, m_inputManager, button);
 			dialog.DoModal();
 			UpdateBindings();
+			m_inputManager.ResetBindingValues();
 		}
 	}
 }

@@ -129,8 +129,11 @@ namespace PH_DirectInput
 			uint32							m_key2State = 0;
 		};
 
-											CInputManager(HWND, Framework::CConfig&);
+											CInputManager(Framework::CConfig&);
 		virtual								~CInputManager();
+
+		void								PushFocusWindow(HWND);
+		void								PopFocusWindow();
 
 		uint32								GetBindingValue(PS2::CControllerInfo::BUTTON) const;
 		void								ResetBindingValues();
@@ -159,5 +162,6 @@ namespace PH_DirectInput
 
 		Framework::DirectInput::CManager*	m_directInputManager;
 		Framework::CConfig&					m_config;
+		std::stack<HWND>					m_focusWindows;
 	};
 }

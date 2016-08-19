@@ -3,10 +3,9 @@
 #include "../AppConfig.h"
 
 CPH_DirectInput::CPH_DirectInput(HWND hWnd)
-: m_hWnd(hWnd)
-, m_inputManager(hWnd, CAppConfig::GetInstance())
+: m_inputManager(CAppConfig::GetInstance())
 {
-
+	m_inputManager.PushFocusWindow(hWnd);
 }
 
 CPH_DirectInput::~CPH_DirectInput()

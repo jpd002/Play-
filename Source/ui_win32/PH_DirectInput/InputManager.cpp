@@ -45,7 +45,7 @@ uint32 CInputManager::m_buttonDefaultValue[PS2::CControllerInfo::MAX_BUTTONS] =
 	false
 };
 
-CInputManager::CInputManager(HWND hWnd, Framework::CConfig& config)
+CInputManager::CInputManager(Framework::CConfig& config)
 : m_config(config)
 , m_directInputManager(new Framework::DirectInput::CManager())
 {
@@ -65,13 +65,25 @@ CInputManager::CInputManager(HWND hWnd, Framework::CConfig& config)
 	m_directInputManager->RegisterInputEventHandler(std::bind(&CInputManager::OnInputEventReceived, 
 		this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
 
-	m_directInputManager->CreateKeyboard(hWnd);
-	m_directInputManager->CreateJoysticks(hWnd);
+	m_directInputManager->CreateKeyboard();
+	m_directInputManager->CreateJoysticks();
 }
 
 CInputManager::~CInputManager()
 {
 	delete m_directInputManager;
+}
+
+void CInputManager::PushFocusWindow(HWND focusWindow)
+{
+	m_focusWindows.push(focusWindow);
+	m_directInputManager->SetFocusWindow(m_focusWindows.top());
+}
+
+void CInputManager::PopFocusWindow()
+{
+	m_focusWindows.pop();
+	m_directInputManager->SetFocusWindow(m_focusWindows.top());
 }
 
 void CInputManager::Load()

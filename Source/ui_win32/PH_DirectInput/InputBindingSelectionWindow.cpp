@@ -45,12 +45,14 @@ CInputBindingSelectionWindow::CInputBindingSelectionWindow(
 
 	m_directInputManagerHandlerId = inputManager.GetDirectInputManager()->RegisterInputEventHandler(std::bind(
 		&CInputBindingSelectionWindow::ProcessEvent, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
+	m_inputManager.PushFocusWindow(m_hWnd);
 
 	SetTimer(m_hWnd, 0, 50, NULL);
 }
 
 CInputBindingSelectionWindow::~CInputBindingSelectionWindow()
 {
+	m_inputManager.PopFocusWindow();
 	m_inputManager.GetDirectInputManager()->UnregisterInputEventHandler(m_directInputManagerHandlerId);
 }
 
