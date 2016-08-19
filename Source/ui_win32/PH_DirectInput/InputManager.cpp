@@ -136,8 +136,10 @@ void CInputManager::AutoConfigureKeyboard()
 	SetSimpleBinding(PS2::CControllerInfo::CIRCLE,		CInputManager::BINDINGINFO(GUID_SysKeyboard, DIK_X));
 	SetSimpleBinding(PS2::CControllerInfo::L1,			CInputManager::BINDINGINFO(GUID_SysKeyboard, DIK_1));
 	SetSimpleBinding(PS2::CControllerInfo::L2,			CInputManager::BINDINGINFO(GUID_SysKeyboard, DIK_2));
-	SetSimpleBinding(PS2::CControllerInfo::R1,			CInputManager::BINDINGINFO(GUID_SysKeyboard, DIK_9));
-	SetSimpleBinding(PS2::CControllerInfo::R2,			CInputManager::BINDINGINFO(GUID_SysKeyboard, DIK_0));
+	SetSimpleBinding(PS2::CControllerInfo::L3,			CInputManager::BINDINGINFO(GUID_SysKeyboard, DIK_3));
+	SetSimpleBinding(PS2::CControllerInfo::R1,			CInputManager::BINDINGINFO(GUID_SysKeyboard, DIK_8));
+	SetSimpleBinding(PS2::CControllerInfo::R2,			CInputManager::BINDINGINFO(GUID_SysKeyboard, DIK_9));
+	SetSimpleBinding(PS2::CControllerInfo::R3,			CInputManager::BINDINGINFO(GUID_SysKeyboard, DIK_0));
 
 	SetSimulatedAxisBinding(PS2::CControllerInfo::ANALOG_LEFT_X,
 		CInputManager::BINDINGINFO(GUID_SysKeyboard, DIK_F),
