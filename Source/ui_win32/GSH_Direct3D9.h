@@ -166,7 +166,7 @@ private:
 	TEXTURE_INFO					LoadTexture(const TEX0&, const TEX1&, const CLAMP&);
 	void							GetTextureImpl(Framework::CBitmap&, uint64, uint64, uint64);
 
-	void							CopyTextureToBitmap(Framework::CBitmap&, const TexturePtr&, uint32, uint32);
+	void							CopyTextureToBitmap(Framework::CBitmap&, const TexturePtr&, uint32, uint32, uint8);
 	void							CopyRenderTargetToBitmap(Framework::CBitmap&, const TexturePtr&, uint32, uint32, uint32, uint32);
 
 	float							GetZ(float);

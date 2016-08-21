@@ -237,11 +237,11 @@ void CGSH_Direct3D9::GetTextureImpl(Framework::CBitmap& outputBitmap, uint64 tex
 	}
 	else
 	{
-		CopyTextureToBitmap(outputBitmap, texInfo.texture, tex0.GetWidth(), tex0.GetHeight());
+		CopyTextureToBitmap(outputBitmap, texInfo.texture, tex0.GetWidth(), tex0.GetHeight(), tex0.nPsm);
 	}
 }
 
-void CGSH_Direct3D9::CopyTextureToBitmap(Framework::CBitmap& outputBitmap, const TexturePtr& texture, uint32 width, uint32 height)
+void CGSH_Direct3D9::CopyTextureToBitmap(Framework::CBitmap& outputBitmap, const TexturePtr& texture, uint32 width, uint32 height, uint8 format)
 {
 	outputBitmap = Framework::CBitmap(width, height, 32);
 
@@ -251,13 +251,38 @@ void CGSH_Direct3D9::CopyTextureToBitmap(Framework::CBitmap& outputBitmap, const
 	result = texture->LockRect(0, &lockedRect, nullptr, D3DLOCK_READONLY);
 	assert(SUCCEEDED(result));
 
-	uint8* srcPtr = reinterpret_cast<uint8*>(lockedRect.pBits);
-	uint8* dstPtr = reinterpret_cast<uint8*>(outputBitmap.GetPixels());
-	for(unsigned int y = 0; y < height; y++)
+	switch(format)
 	{
-		memcpy(dstPtr, srcPtr, width * 4);
-		dstPtr += outputBitmap.GetPitch();
-		srcPtr += lockedRect.Pitch;
+	case PSMT4:
+	case PSMT8:
+		{
+			auto srcPtr = reinterpret_cast<uint8*>(lockedRect.pBits);
+			auto dstPtr = reinterpret_cast<uint32*>(outputBitmap.GetPixels());
+			for(unsigned int y = 0; y < height; y++)
+			{
+				for(unsigned int x = 0; x < width; x++)
+				{
+					uint8 entry = srcPtr[x];
+					uint32 color = (0xFF << 24) | (entry << 16) | (entry << 8) | (entry << 0);
+					dstPtr[x] = color;
+				}
+				dstPtr += (outputBitmap.GetPitch() / 4);
+				srcPtr += lockedRect.Pitch;
+			}
+		}
+		break;
+	default:
+		{
+			auto srcPtr = reinterpret_cast<uint8*>(lockedRect.pBits);
+			auto dstPtr = reinterpret_cast<uint8*>(outputBitmap.GetPixels());
+			for(unsigned int y = 0; y < height; y++)
+			{
+				memcpy(dstPtr, srcPtr, width * 4);
+				dstPtr += outputBitmap.GetPitch();
+				srcPtr += lockedRect.Pitch;
+			}
+		}
+		break;
 	}
 
 	result = texture->UnlockRect(0);
