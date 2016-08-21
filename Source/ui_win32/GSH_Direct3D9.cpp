@@ -610,6 +610,7 @@ void CGSH_Direct3D9::OnDeviceResetting()
 {
 	m_drawVb.Reset();
 	m_presentVb.Reset();
+	m_vertexDeclaration.Reset();
 	m_framebuffers.clear();
 	m_depthbuffers.clear();
 	m_textureCache.Flush();
