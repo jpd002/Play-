@@ -184,7 +184,8 @@ add_library(Play
 	../Source/MIPSReflection.cpp 
 	../Source/MIPSTags.cpp 
 	../Source/PadHandler.cpp 
-	../Source/PadListener.cpp 
+	../Source/PadListener.cpp
+	../Source/PH_Generic.cpp 
 	../Source/Posix_VolumeStream.cpp
 	../Source/Profiler.cpp 
 	../Source/PS2VM.cpp 
@@ -192,6 +193,7 @@ add_library(Play
 	../Source/StructCollectionStateFile.cpp 
 	../Source/StructFile.cpp 
 	../Source/Utils.cpp
+	../tools/PsfPlayer/Source/SH_OpenAL.cpp
 )
 
 if(THREADS_HAVE_PTHREAD_ARG)
