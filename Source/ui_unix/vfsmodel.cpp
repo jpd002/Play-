@@ -78,10 +78,7 @@ QVariant VFSModel::headerData(int section, Qt::Orientation orientation, int role
 {
     if (orientation == Qt::Horizontal)
     {
-        if(role == Qt::BackgroundRole)
-            return QVariant(QBrush(QColor(Qt::green), Qt::SolidPattern));
-
-        if(role == Qt::DisplayRole)
+       if(role == Qt::DisplayRole)
         {
             if (section < m_h_header.size())
                 return m_h_header.at(section);
