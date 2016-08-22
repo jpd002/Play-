@@ -277,6 +277,18 @@ std::string CGsStateUtils::GetContextState(CGSHandler* gs, unsigned int contextI
 	}
 
 	{
+		auto miptbp1 = make_convertible<CGSHandler::MIPTBP1>(gs->GetRegisters()[GS_REG_MIPTBP1_1 + contextId]);
+		auto miptbp2 = make_convertible<CGSHandler::MIPTBP2>(gs->GetRegisters()[GS_REG_MIPTBP2_1 + contextId]);
+		result += string_format("Mipmap:\r\n");
+		result += string_format("\tLevel 1: 0x%0.8X, %d\r\n", miptbp1.GetTbp1(), miptbp1.GetTbw1());
+		result += string_format("\tLevel 2: 0x%0.8X, %d\r\n", miptbp1.GetTbp2(), miptbp1.GetTbw2());
+		result += string_format("\tLevel 3: 0x%0.8X, %d\r\n", miptbp1.GetTbp3(), miptbp1.GetTbw3());
+		result += string_format("\tLevel 4: 0x%0.8X, %d\r\n", miptbp2.GetTbp4(), miptbp2.GetTbw4());
+		result += string_format("\tLevel 5: 0x%0.8X, %d\r\n", miptbp2.GetTbp5(), miptbp2.GetTbw5());
+		result += string_format("\tLevel 6: 0x%0.8X, %d\r\n", miptbp2.GetTbp6(), miptbp2.GetTbw6());
+	}
+
+	{
 		auto texA = make_convertible<CGSHandler::TEXA>(gs->GetRegisters()[GS_REG_TEXA]);
 		result += string_format("Texture Alpha:\r\n");
 		result += string_format("\tAlpha 0: 0x%0.2X\r\n", texA.nTA0);
