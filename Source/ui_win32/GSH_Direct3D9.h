@@ -76,10 +76,20 @@ private:
 		CVTBUFFERSIZE = 2048 * 2048 * 4,
 	};
 
+	enum
+	{
+		TEXTURE_SOURCE_MODE_NONE = 0,
+		TEXTURE_SOURCE_MODE_STD  = 1,
+		TEXTURE_SOURCE_MODE_IDX4 = 2,
+		TEXTURE_SOURCE_MODE_IDX8 = 3
+	};
+
 	struct SHADERCAPS : public convertible<uint32>
 	{
-		uint32 hasTexture : 1;
-		uint32 padding    : 31;
+		uint32 texSourceMode : 2;
+		uint32 padding       : 30;
+
+		bool isIndexedTextureSource() const { return texSourceMode == TEXTURE_SOURCE_MODE_IDX4 || texSourceMode == TEXTURE_SOURCE_MODE_IDX8; }
 	};
 	static_assert(sizeof(SHADERCAPS) == sizeof(uint32), "SHADERCAPS structure size must be 4 bytes.");
 
@@ -157,6 +167,8 @@ private:
 	void							SetReadCircuitMatrix(int, int);
 	void							VertexKick(uint8, uint64);
 
+	void							FillShaderCapsFromTexture(SHADERCAPS&, const uint64&);
+
 	void							SetRenderingContext(uint64);
 	void							SetupBlendingFunction(uint64);
 	void							SetupTestFunctions(uint64);
@@ -165,6 +177,8 @@ private:
 	void							SetupFramebuffer(uint64, uint64);
 	TEXTURE_INFO					LoadTexture(const TEX0&, const TEX1&, const CLAMP&);
 	void							GetTextureImpl(Framework::CBitmap&, uint64, uint64, uint64);
+
+	TexturePtr						GetClutTexture(const TEX0&);
 
 	void							CopyTextureToBitmap(Framework::CBitmap&, const TexturePtr&, uint32, uint32, uint8);
 	void							CopyRenderTargetToBitmap(Framework::CBitmap&, const TexturePtr&, uint32, uint32, uint32, uint32);
@@ -217,6 +231,7 @@ private:
 	CGsTextureCache<TexturePtr>		m_textureCache;
 	FramebufferList					m_framebuffers;
 	DepthbufferList					m_depthbuffers;
+	TexturePtr						m_clutTexture;
 
 	VertexDeclarationPtr			m_vertexDeclaration;
 	VertexShaderMap					m_vertexShaders;

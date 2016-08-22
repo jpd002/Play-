@@ -184,3 +184,36 @@ void CGSH_Direct3D9::TexUpdater_Psm48(D3DLOCKED_RECT* lockedRect, uint32 bufPtr,
 		dst += dstPitch;
 	}
 }
+
+//------------------------------------------------------------------------
+//CLUT Stuff
+//------------------------------------------------------------------------
+
+CGSH_Direct3D9::TexturePtr CGSH_Direct3D9::GetClutTexture(const TEX0& tex0)
+{
+	HRESULT result = S_OK;
+
+	std::array<uint32, 256> convertedClut;
+	MakeLinearCLUT(tex0, convertedClut);
+	
+	unsigned int entryCount = CGsPixelFormats::IsPsmIDTEX4(tex0.nPsm) ? 16 : 256;
+
+	{
+		D3DLOCKED_RECT rect;
+		result = m_clutTexture->LockRect(0, &rect, NULL, D3DLOCK_DISCARD);
+		assert(SUCCEEDED(result));
+
+		auto dst = reinterpret_cast<uint32*>(rect.pBits);
+		unsigned int nDstPitch	= rect.Pitch / 4;
+
+		for(uint32 i = 0; i < entryCount; i++)
+		{
+			dst[i] = Color_Ps2ToDx9(convertedClut[i]);
+		}
+
+		result = m_clutTexture->UnlockRect(0);
+		assert(SUCCEEDED(result));
+	}
+
+	return m_clutTexture;
+}

@@ -96,18 +96,35 @@ Nuanceur::CShaderBuilder CGSH_Direct3D9::GeneratePixelShader(SHADERCAPS caps)
 		auto outputColor = CFloat4Lvalue(b.CreateOutput(SEMANTIC_SYSTEM_COLOR));
 
 		//Textures
-		auto texture = CTexture2DValue(b.CreateTexture2D(0));
+		auto baseTexture = CTexture2DValue(b.CreateTexture2D(0));
+		auto clutTexture = CTexture2DValue(b.CreateTexture2D(1));
 
 		//Temporaries
 		auto textureColor = CFloat4Lvalue(b.CreateTemporary());
 
-		if(caps.hasTexture)
+		textureColor = NewFloat4(b, 1, 1, 1, 1);
+
+		if(caps.texSourceMode == TEXTURE_SOURCE_MODE_STD)
 		{
-			textureColor = Sample(texture, inputTexCoord->xy());
+			textureColor = Sample(baseTexture, inputTexCoord->xy());
 		}
-		else
+		else if(caps.isIndexedTextureSource())
 		{
-			textureColor = NewFloat4(b, 1, 1, 1, 1);
+			auto colorIndex = CFloatLvalue(b.CreateTemporary());
+			colorIndex = Sample(baseTexture, inputTexCoord->xy())->x() * NewFloat(b, 255.f);
+			if(caps.texSourceMode == TEXTURE_SOURCE_MODE_IDX4)
+			{
+				colorIndex = colorIndex / NewFloat(b, 15.f);
+			}
+			else if(caps.texSourceMode == TEXTURE_SOURCE_MODE_IDX8)
+			{
+				colorIndex = colorIndex / NewFloat(b, 255.f);
+			}
+			else
+			{
+				assert(false);
+			}
+			textureColor = Sample(clutTexture, NewFloat2(colorIndex, 0));
 		}
 
 		outputColor = inputColor * textureColor;

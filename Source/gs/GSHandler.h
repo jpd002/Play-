@@ -790,6 +790,7 @@ protected:
 	void									SyncCLUT(const TEX0&);
 	void									ReadCLUT4(const TEX0&);
 	void									ReadCLUT8(const TEX0&);
+	void									MakeLinearCLUT(const TEX0&, std::array<uint32, 256>&) const;
 
 	bool									m_loggingEnabled;
 

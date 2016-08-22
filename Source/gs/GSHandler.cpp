@@ -1208,6 +1208,74 @@ void CGSHandler::ReadCLUT8(const TEX0& tex0)
 	}
 }
 
+void CGSHandler::MakeLinearCLUT(const TEX0& tex0, std::array<uint32, 256>& clut) const
+{
+	static const auto RGBA16ToRGBA32 =
+		[] (uint16 color)
+		{
+			return ((color & 0x8000) ? 0xFF000000 : 0) | ((color & 0x7C00) << 9) | ((color & 0x03E0) << 6) | ((color & 0x001F) << 3);
+		};
+
+	unsigned int entryCount = CGsPixelFormats::IsPsmIDTEX4(tex0.nPsm) ? 16 : 256;
+
+	if(CGsPixelFormats::IsPsmIDTEX4(tex0.nPsm))
+	{
+		uint32 clutOffset = tex0.nCSA * 16;
+
+		if(tex0.nCPSM == PSMCT32 || tex0.nCPSM == PSMCT24)
+		{
+			assert(tex0.nCSA < 16);
+
+			for(unsigned int i = 0; i < 16; i++)
+			{
+				uint32 color = 
+					(static_cast<uint16>(m_pCLUT[i + clutOffset + 0x000])) | 
+					(static_cast<uint16>(m_pCLUT[i + clutOffset + 0x100]) << 16);
+				clut[i] = color;
+			}
+		}
+		else if(tex0.nCPSM == PSMCT16)
+		{
+			assert(tex0.nCSA < 32);
+
+			for(unsigned int i = 0; i < 16; i++)
+			{
+				clut[i] = RGBA16ToRGBA32(m_pCLUT[i + clutOffset]);
+			}
+		}
+		else
+		{
+			assert(false);
+		}
+	}
+	else if(CGsPixelFormats::IsPsmIDTEX8(tex0.nPsm))
+	{
+		assert(tex0.nCSA == 0);
+
+		if(tex0.nCPSM == PSMCT32 || tex0.nCPSM == PSMCT24)
+		{
+			for(unsigned int i = 0; i < 256; i++)
+			{
+				uint32 color = 
+					(static_cast<uint16>(m_pCLUT[i + 0x000])) | 
+					(static_cast<uint16>(m_pCLUT[i + 0x100]) << 16);
+				clut[i] = color;
+			}
+		}
+		else if(tex0.nCPSM == PSMCT16)
+		{
+			for(unsigned int i = 0; i < 256; i++)
+			{
+				clut[i] = RGBA16ToRGBA32(m_pCLUT[i]);
+			}
+		}
+		else
+		{
+			assert(false);
+		}
+	}
+}
+
 void CGSHandler::SetLoggingEnabled(bool loggingEnabled)
 {
 	m_loggingEnabled = loggingEnabled;

@@ -476,6 +476,9 @@ void CGSH_Direct3D9::DrawActiveFramebuffer()
 		result = m_device->SetTexture(0, framebuffer->m_renderTarget);
 		assert(SUCCEEDED(result));
 
+		result = m_device->SetTexture(1, nullptr);
+		assert(SUCCEEDED(result));
+
 		result = m_device->DrawPrimitive(D3DPT_TRIANGLESTRIP, 0, 2);
 		assert(SUCCEEDED(result));
 	}
@@ -628,6 +631,9 @@ void CGSH_Direct3D9::OnDeviceReset()
 	m_deviceWindowWidth = clientRect.Width();
 	m_deviceWindowHeight = clientRect.Height();
 
+	result = m_device->CreateTexture(256, 1, 1, D3DUSAGE_DYNAMIC, D3DFMT_A8R8G8B8, D3DPOOL_DEFAULT, &m_clutTexture, nullptr);
+	assert(SUCCEEDED(result));
+
 	m_renderState.isValid = false;
 }
 
@@ -639,6 +645,7 @@ void CGSH_Direct3D9::OnDeviceResetting()
 	m_framebuffers.clear();
 	m_depthbuffers.clear();
 	m_textureCache.Flush();
+	m_clutTexture.Reset();
 }
 
 uint8 CGSH_Direct3D9::MulBy2Clamp(uint8 nValue)
@@ -1001,6 +1008,18 @@ void CGSH_Direct3D9::Prim_Sprite()
 	}
 }
 
+void CGSH_Direct3D9::FillShaderCapsFromTexture(SHADERCAPS& shaderCaps, const uint64& tex0Reg)
+{
+	auto tex0 = make_convertible<TEX0>(tex0Reg);
+
+	shaderCaps.texSourceMode = TEXTURE_SOURCE_MODE_STD;
+
+	if(CGsPixelFormats::IsPsmIDTEX(tex0.nPsm))
+	{
+		shaderCaps.texSourceMode = CGsPixelFormats::IsPsmIDTEX4(tex0.nPsm) ? TEXTURE_SOURCE_MODE_IDX4 : TEXTURE_SOURCE_MODE_IDX8;
+	}
+}
+
 void CGSH_Direct3D9::SetRenderingContext(uint64 primReg)
 {
 	auto prim = make_convertible<PRMODE>(primReg);
@@ -1018,7 +1037,12 @@ void CGSH_Direct3D9::SetRenderingContext(uint64 primReg)
 
 	//Get shader caps
 	auto shaderCaps = make_convertible<SHADERCAPS>(0);
-	shaderCaps.hasTexture = prim.nTexture;
+	FillShaderCapsFromTexture(shaderCaps, tex0Reg);
+
+	if(!prim.nTexture)
+	{
+		shaderCaps.texSourceMode = TEXTURE_SOURCE_MODE_NONE;
+	}
 
 	{
 		auto shaderIterator = m_vertexShaders.find(shaderCaps);
@@ -1306,6 +1330,16 @@ void CGSH_Direct3D9::SetupTexture(uint64 tex0Reg, uint64 tex1Reg, uint64 clampRe
 	m_device->SetSamplerState(0, D3DSAMP_MINFILTER, nMinFilter);
 	m_device->SetSamplerState(0, D3DSAMP_MAGFILTER, nMagFilter);
 	m_device->SetSamplerState(0, D3DSAMP_MIPFILTER, nMipFilter);
+
+	if(CGsPixelFormats::IsPsmIDTEX(tex0.nPsm))
+	{
+		auto clutTexture = GetClutTexture(tex0);
+
+		m_device->SetTexture(1, m_clutTexture);
+		m_device->SetSamplerState(1, D3DSAMP_MINFILTER, D3DTEXF_POINT);
+		m_device->SetSamplerState(1, D3DSAMP_MAGFILTER, D3DTEXF_POINT);
+		m_device->SetSamplerState(1, D3DSAMP_MIPFILTER, D3DTEXF_NONE);
+	}
 }
 
 void CGSH_Direct3D9::SetupFramebuffer(uint64 frameReg, uint64 scissorReg)
