@@ -32,6 +32,16 @@ MainWindow::MainWindow(QWidget *parent) :
 
 MainWindow::~MainWindow()
 {
+    if (g_virtualMachine != nullptr)
+    {
+        g_virtualMachine->Pause();
+        g_virtualMachine->DestroyPadHandler();
+        g_virtualMachine->DestroyGSHandler();
+        g_virtualMachine->DestroySoundHandler();
+        g_virtualMachine->Destroy();
+        delete g_virtualMachine;
+        g_virtualMachine = nullptr;
+    }
     delete ui;
 }
 
@@ -139,12 +149,7 @@ void MainWindow::on_actionBoot_ELF_triggered()
 
 void MainWindow::on_actionExit_triggered()
 {
-    if (g_virtualMachine != nullptr)
-    {
-        g_virtualMachine->Pause();
-        g_virtualMachine->DestroySoundHandler();
-    }
-    exit(0);
+    close();
 }
 
 void MainWindow::keyPressEvent(QKeyEvent *event)
