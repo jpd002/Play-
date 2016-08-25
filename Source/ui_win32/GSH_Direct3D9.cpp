@@ -1317,20 +1317,27 @@ void CGSH_Direct3D9::SetupTexture(uint64 tex0Reg, uint64 tex1Reg, uint64 clampRe
 		break;
 	}
 
-	m_device->SetTexture(0, texInfo.texture);
-	m_device->SetSamplerState(0, D3DSAMP_MINFILTER, nMinFilter);
-	m_device->SetSamplerState(0, D3DSAMP_MAGFILTER, nMagFilter);
-	m_device->SetSamplerState(0, D3DSAMP_MIPFILTER, nMipFilter);
-
 	if(CGsPixelFormats::IsPsmIDTEX(tex0.nPsm))
 	{
+		//Make sure point sampling is used, filtering will be done in shader
+		if(nMinFilter == D3DTEXF_LINEAR) nMinFilter = D3DTEXF_POINT;
+		if(nMagFilter == D3DTEXF_LINEAR) nMagFilter = D3DTEXF_POINT;
+		if(nMipFilter == D3DTEXF_LINEAR) nMipFilter = D3DTEXF_POINT;
+
 		auto clutTexture = GetClutTexture(tex0);
 
 		m_device->SetTexture(1, m_clutTexture);
 		m_device->SetSamplerState(1, D3DSAMP_MINFILTER, D3DTEXF_POINT);
 		m_device->SetSamplerState(1, D3DSAMP_MAGFILTER, D3DTEXF_POINT);
 		m_device->SetSamplerState(1, D3DSAMP_MIPFILTER, D3DTEXF_NONE);
+		m_device->SetSamplerState(1, D3DSAMP_ADDRESSU, D3DTADDRESS_CLAMP);
+		m_device->SetSamplerState(1, D3DSAMP_ADDRESSV, D3DTADDRESS_CLAMP);
 	}
+
+	m_device->SetTexture(0, texInfo.texture);
+	m_device->SetSamplerState(0, D3DSAMP_MINFILTER, nMinFilter);
+	m_device->SetSamplerState(0, D3DSAMP_MAGFILTER, nMagFilter);
+	m_device->SetSamplerState(0, D3DSAMP_MIPFILTER, nMipFilter);
 }
 
 void CGSH_Direct3D9::SetupFramebuffer(uint64 frameReg, uint64 scissorReg)
