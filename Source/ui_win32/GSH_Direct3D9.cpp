@@ -13,7 +13,7 @@ struct CUSTOMVERTEX
 {
 	float x, y, z;
 	DWORD color;
-	float u, v;
+	float s, t, q;
 };
 
 struct PRESENTVERTEX
@@ -608,7 +608,7 @@ void CGSH_Direct3D9::OnDeviceReset()
 	static const D3DVERTEXELEMENT9 vertexElements[] =
 	{
 		{ 0, offsetof(CUSTOMVERTEX, x),     D3DDECLTYPE_FLOAT3,   0, D3DDECLUSAGE_POSITION, 0 },
-		{ 0, offsetof(CUSTOMVERTEX, u),     D3DDECLTYPE_FLOAT2,   0, D3DDECLUSAGE_TEXCOORD, 0 },
+		{ 0, offsetof(CUSTOMVERTEX, s),     D3DDECLTYPE_FLOAT3,   0, D3DDECLUSAGE_TEXCOORD, 0 },
 		{ 0, offsetof(CUSTOMVERTEX, color), D3DDECLTYPE_D3DCOLOR, 0, D3DDECLUSAGE_TEXCOORD, 1 },
 		D3DDECL_END()
 	};
@@ -673,6 +673,7 @@ void CGSH_Direct3D9::Prim_Line()
 {
 	float nU1 = 0, nU2 = 0;
 	float nV1 = 0, nV2 = 0;
+	float nQ1 = 1, nQ2 = 1;
 	float nF1 = 0, nF2 = 0;
 
 	XYZ vertex[2];
@@ -741,11 +742,7 @@ void CGSH_Direct3D9::Prim_Line()
 			nU1 = st[0].nS, nU2 = st[1].nS;
 			nV1 = st[0].nT, nV2 = st[1].nT;
 
-			nU1 /= rgbaq[0].nQ;
-			nU2 /= rgbaq[1].nQ;
-
-			nV1 /= rgbaq[0].nQ;
-			nV2 /= rgbaq[1].nQ;
+			nQ1 = rgbaq[0].nQ; nQ2 = rgbaq[1].nQ;
 		}
 	}
 
@@ -758,8 +755,8 @@ void CGSH_Direct3D9::Prim_Line()
 
 		CUSTOMVERTEX vertices[] =
 		{
-			{	nX1,	nY1,	nZ1,	color0,		nU1,	nV1 },
-			{	nX2,	nY2,	nZ2,	color1,		nU2,	nV2 },
+			{ nX1, nY1, nZ1, color0, nU1, nV1, nQ1 },
+			{ nX2, nY2, nZ2, color1, nU2, nV2, nQ2 },
 		};
 
 		uint8* buffer = nullptr;
@@ -794,6 +791,7 @@ void CGSH_Direct3D9::Prim_Triangle()
 {
 	float nU1 = 0, nU2 = 0, nU3 = 0;
 	float nV1 = 0, nV2 = 0, nV3 = 0;
+	float nQ1 = 1, nQ2 = 1, nQ3 = 1;
 	float nF1 = 0, nF2 = 0, nF3 = 0;
 
 	XYZ vertex[3];
@@ -871,14 +869,7 @@ void CGSH_Direct3D9::Prim_Triangle()
 
 			nU1 = st[0].nS, nU2 = st[1].nS, nU3 = st[2].nS;
 			nV1 = st[0].nT, nV2 = st[1].nT, nV3 = st[2].nT;
-
-			nU1 /= rgbaq[0].nQ;
-			nU2 /= rgbaq[1].nQ;
-			nU3 /= rgbaq[2].nQ;
-
-			nV1 /= rgbaq[0].nQ;
-			nV2 /= rgbaq[1].nQ;
-			nV3 /= rgbaq[2].nQ;
+			nQ1 = rgbaq[0].nQ; nQ2 = rgbaq[1].nQ; nQ3 = rgbaq[2].nQ;
 		}
 	}
 
@@ -892,9 +883,9 @@ void CGSH_Direct3D9::Prim_Triangle()
 
 		CUSTOMVERTEX vertices[] =
 		{
-			{	nX1,	nY1,	nZ1,	color0,		nU1,	nV1 },
-			{	nX2,	nY2,	nZ2,	color1,		nU2,	nV2 },
-			{	nX3,	nY3,	nZ3,	color2,		nU3,	nV3 },
+			{ nX1, nY1, nZ1, color0, nU1, nV1, nQ1 },
+			{ nX2, nY2, nZ2, color1, nU2, nV2, nQ2 },
+			{ nX3, nY3, nZ3, color2, nU3, nV3, nQ3 },
 		};
 
 		uint8* buffer = nullptr;
@@ -979,10 +970,10 @@ void CGSH_Direct3D9::Prim_Sprite()
 
 		CUSTOMVERTEX vertices[] =
 		{
-			{	nX1,	nY2,	nZ,		color0,		nU1,	nV2 },
-			{	nX1,	nY1,	nZ,		color0,		nU1,	nV1 },
-			{	nX2,	nY2,	nZ,		color1,		nU2,	nV2 },
-			{	nX2,	nY1,	nZ,		color1,		nU2,	nV1 },
+			{ nX1, nY2, nZ, color0, nU1, nV2, 1 },
+			{ nX1, nY1, nZ, color0, nU1, nV1, 1 },
+			{ nX2, nY2, nZ, color1, nU2, nV2, 1 },
+			{ nX2, nY1, nZ, color1, nU2, nV1, 1 },
 		};
 
 		uint8* buffer = nullptr;

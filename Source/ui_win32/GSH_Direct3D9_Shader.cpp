@@ -100,18 +100,20 @@ Nuanceur::CShaderBuilder CGSH_Direct3D9::GeneratePixelShader(SHADERCAPS caps)
 		auto clutTexture = CTexture2DValue(b.CreateTexture2D(1));
 
 		//Temporaries
+		auto texCoord = CFloat2Lvalue(b.CreateTemporary());
 		auto textureColor = CFloat4Lvalue(b.CreateTemporary());
 
+		texCoord = inputTexCoord->xy() / inputTexCoord->zz();
 		textureColor = NewFloat4(b, 1, 1, 1, 1);
 
 		if(caps.texSourceMode == TEXTURE_SOURCE_MODE_STD)
 		{
-			textureColor = Sample(baseTexture, inputTexCoord->xy());
+			textureColor = Sample(baseTexture, texCoord);
 		}
 		else if(caps.isIndexedTextureSource())
 		{
 			auto colorIndex = CFloatLvalue(b.CreateTemporary());
-			colorIndex = Sample(baseTexture, inputTexCoord->xy())->x() * NewFloat(b, 255.f);
+			colorIndex = Sample(baseTexture, texCoord)->x() * NewFloat(b, 255.f);
 			if(caps.texSourceMode == TEXTURE_SOURCE_MODE_IDX4)
 			{
 				colorIndex = colorIndex / NewFloat(b, 15.f);
