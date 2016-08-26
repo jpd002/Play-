@@ -300,8 +300,14 @@ public:
 		unsigned int	nReserved1		: 9;
 		unsigned int	nLODL			: 2;
 		unsigned int	nReserved2		: 11;
-		unsigned int	nLODK			: 7;
-		unsigned int	nReserved3		: 25;
+		unsigned int	nLODK			: 12;
+		unsigned int	nReserved3		: 20;
+		
+		float GetK() const
+		{
+			int16 temp = nLODK | ((nLODK & 0x800) ? 0xF000 : 0x0000);
+			return static_cast<float>(temp) / 16.0f;
+		}
 	};
 	static_assert(sizeof(TEX1) == sizeof(uint64), "Size of TEX1 struct must be 8 bytes.");
 

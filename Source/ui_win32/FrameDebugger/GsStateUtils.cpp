@@ -273,7 +273,7 @@ std::string CGsStateUtils::GetContextState(CGSHandler* gs, unsigned int contextI
 		result += string_format("\tMin Filter: %s\r\n", g_textureMinFilterString[tex1.nMinFilter]);
 		result += string_format("\tUse Automatic Mip Address: %s\r\n", g_yesNoString[tex1.nMipBaseAddr]);
 		result += string_format("\tLOD L: %d\r\n", tex1.nLODL);
-		result += string_format("\tLOD K: %d\r\n", tex1.nLODK);
+		result += string_format("\tLOD K: %f\r\n", tex1.GetK());
 	}
 
 	{
