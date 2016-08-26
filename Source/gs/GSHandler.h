@@ -361,9 +361,9 @@ public:
 		unsigned int	tbp3			: 14;
 		unsigned int	tbw3			: 6;
 		unsigned int	reserved		: 4;
-		uint32			GetTbp1() const { return tbp1 * 64; }
-		uint32			GetTbp2() const { return (pad0 | (pad1 << 12)) * 64; }
-		uint32			GetTbp3() const { return tbp3 * 64; }
+		uint32			GetTbp1() const { return tbp1 * 256; }
+		uint32			GetTbp2() const { return (pad0 | (pad1 << 12)) * 256; }
+		uint32			GetTbp3() const { return tbp3 * 256; }
 		uint32			GetTbw1() const { return tbw1 * 64; }
 		uint32			GetTbw2() const { return tbw2 * 64; }
 		uint32			GetTbw3() const { return tbw3 * 64; }
@@ -381,9 +381,9 @@ public:
 		unsigned int	tbp6			: 14;
 		unsigned int	tbw6			: 6;
 		unsigned int	reserved		: 4;
-		uint32			GetTbp4() const { return tbp4 * 64; }
-		uint32			GetTbp5() const { return (pad0 | (pad1 << 12)) * 64; }
-		uint32			GetTbp6() const { return tbp6 * 64; }
+		uint32			GetTbp4() const { return tbp4 * 256; }
+		uint32			GetTbp5() const { return (pad0 | (pad1 << 12)) * 256; }
+		uint32			GetTbp6() const { return tbp6 * 256; }
 		uint32			GetTbw4() const { return tbw4 * 64; }
 		uint32			GetTbw5() const { return tbw5 * 64; }
 		uint32			GetTbw6() const { return tbw6 * 64; }
