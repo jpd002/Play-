@@ -17,7 +17,7 @@ void CGSH_Direct3D9::SetupTextureUpdaters()
 	m_textureUpdater[PSMT4]   = &CGSH_Direct3D9::TexUpdater_Psm48<CGsPixelFormats::CPixelIndexorPSMT4>;
 }
 
-CGSH_Direct3D9::TEXTURE_INFO CGSH_Direct3D9::LoadTexture(const TEX0& tex0, const TEX1& tex1, const CLAMP& clamp)
+CGSH_Direct3D9::TEXTURE_INFO CGSH_Direct3D9::LoadTexture(const TEX0& tex0, uint32 maxMip, const MIPTBP1& miptbp1, const MIPTBP2& miptbp2)
 {
 	TEXTURE_INFO result;
 
@@ -76,7 +76,7 @@ CGSH_Direct3D9::TEXTURE_INFO CGSH_Direct3D9::LoadTexture(const TEX0& tex0, const
 			break;
 		}
 
-		resultCode = m_device->CreateTexture(width, height, 1, D3DUSAGE_DYNAMIC, textureFormat, D3DPOOL_DEFAULT, &result.texture, NULL);
+		resultCode = m_device->CreateTexture(width, height, 1 + maxMip, D3DUSAGE_DYNAMIC, textureFormat, D3DPOOL_DEFAULT, &result.texture, NULL);
 		assert(SUCCEEDED(resultCode));
 
 		m_textureCache.Insert(tex0, result.texture);
@@ -124,6 +124,35 @@ CGSH_Direct3D9::TEXTURE_INFO CGSH_Direct3D9::LoadTexture(const TEX0& tex0, const
 
 		resultCode = texture->m_textureHandle->UnlockRect(0);
 		assert(SUCCEEDED(resultCode));
+
+		//Update mipmap levels
+		for(uint32 mipLevel = 1; mipLevel <= maxMip; mipLevel++)
+		{
+			uint32 mipLevelWidth = std::max<uint32>(tex0.GetWidth() >> mipLevel, 1);
+			uint32 mipLevelHeight = std::max<uint32>(tex0.GetHeight() >> mipLevel, 1);
+
+			uint32 mipLevelBufferPointer = 0;
+			uint32 mipLevelBufferWidth = 0;
+			switch(mipLevel)
+			{
+			case 1: mipLevelBufferPointer = miptbp1.GetTbp1(); mipLevelBufferWidth = miptbp1.GetTbw1(); break;
+			case 2: mipLevelBufferPointer = miptbp1.GetTbp2(); mipLevelBufferWidth = miptbp1.GetTbw2(); break;
+			case 3: mipLevelBufferPointer = miptbp1.GetTbp3(); mipLevelBufferWidth = miptbp1.GetTbw3(); break;
+			case 4: mipLevelBufferPointer = miptbp2.GetTbp4(); mipLevelBufferWidth = miptbp2.GetTbw4(); break;
+			case 5: mipLevelBufferPointer = miptbp2.GetTbp5(); mipLevelBufferWidth = miptbp2.GetTbw5(); break;
+			case 6: mipLevelBufferPointer = miptbp2.GetTbp6(); mipLevelBufferWidth = miptbp2.GetTbw6(); break;
+			}
+
+			if(mipLevelBufferWidth == 0) break;
+
+			resultCode = texture->m_textureHandle->LockRect(mipLevel, &lockedRect, nullptr, 0);
+			assert(SUCCEEDED(resultCode));
+
+			((this)->*(m_textureUpdater[tex0.nPsm]))(&lockedRect, mipLevelBufferPointer, mipLevelBufferWidth / 64, 0, 0, mipLevelWidth, mipLevelHeight);
+
+			resultCode = texture->m_textureHandle->UnlockRect(mipLevel);
+			assert(SUCCEEDED(resultCode));
+		}
 	}
 
 	result.texture = texture->m_textureHandle;

@@ -53,10 +53,10 @@ Framework::CBitmap CGSH_Direct3D9::GetFramebuffer(uint64 frameReg)
 	return result;
 }
 
-Framework::CBitmap CGSH_Direct3D9::GetTexture(uint64 tex0Reg, uint64 tex1Reg, uint64 clamp)
+Framework::CBitmap CGSH_Direct3D9::GetTexture(uint64 tex0Reg, uint32 maxMip, uint64 miptbp1Reg, uint64 miptbp2Reg, uint32 mipLevel)
 {
 	Framework::CBitmap result;
-	m_mailBox.SendCall([&] () { GetTextureImpl(result, tex0Reg, tex1Reg, clamp); }, true);
+	m_mailBox.SendCall([&] () { GetTextureImpl(result, tex0Reg, maxMip, miptbp1Reg, miptbp2Reg, mipLevel); }, true);
 	return result;
 }
 
@@ -223,12 +223,12 @@ CGSH_Direct3D9::DepthbufferPtr CGSH_Direct3D9::FindDepthbuffer(uint64 zbufReg, u
 	return (depthbufferIterator != std::end(m_depthbuffers)) ? *(depthbufferIterator) : DepthbufferPtr();
 }
 
-void CGSH_Direct3D9::GetTextureImpl(Framework::CBitmap& outputBitmap, uint64 tex0Reg, uint64 tex1Reg, uint64 clampReg)
+void CGSH_Direct3D9::GetTextureImpl(Framework::CBitmap& outputBitmap, uint64 tex0Reg, uint32 maxMip, uint64 miptbp1Reg, uint64 miptbp2Reg, uint32 mipLevel)
 {
 	auto tex0 = make_convertible<TEX0>(tex0Reg);
-	auto tex1 = make_convertible<TEX1>(tex1Reg);
-	auto clamp = make_convertible<CLAMP>(clampReg);
-	auto texInfo = LoadTexture(tex0, tex1, clamp);
+	auto miptbp1 = make_convertible<MIPTBP1>(miptbp1Reg);
+	auto miptbp2 = make_convertible<MIPTBP2>(miptbp2Reg);
+	auto texInfo = LoadTexture(tex0, maxMip, miptbp1, miptbp2);
 
 	if(texInfo.isRenderTarget)
 	{
@@ -237,18 +237,21 @@ void CGSH_Direct3D9::GetTextureImpl(Framework::CBitmap& outputBitmap, uint64 tex
 	}
 	else
 	{
-		CopyTextureToBitmap(outputBitmap, texInfo.texture, tex0.GetWidth(), tex0.GetHeight(), tex0.nPsm);
+		CopyTextureToBitmap(outputBitmap, texInfo.texture, tex0.GetWidth(), tex0.GetHeight(), tex0.nPsm, mipLevel);
 	}
 }
 
-void CGSH_Direct3D9::CopyTextureToBitmap(Framework::CBitmap& outputBitmap, const TexturePtr& texture, uint32 width, uint32 height, uint8 format)
+void CGSH_Direct3D9::CopyTextureToBitmap(Framework::CBitmap& outputBitmap, const TexturePtr& texture, uint32 width, uint32 height, uint8 format, uint32 mipLevel)
 {
+	width = std::max<uint32>(width >> mipLevel, 1);
+	height = std::max<uint32>(height >> mipLevel, 1);
+
 	outputBitmap = Framework::CBitmap(width, height, 32);
 
 	HRESULT result = S_OK;
 
 	D3DLOCKED_RECT lockedRect = {};
-	result = texture->LockRect(0, &lockedRect, nullptr, D3DLOCK_READONLY);
+	result = texture->LockRect(mipLevel, &lockedRect, nullptr, D3DLOCK_READONLY);
 	assert(SUCCEEDED(result));
 
 	switch(format)
@@ -285,7 +288,7 @@ void CGSH_Direct3D9::CopyTextureToBitmap(Framework::CBitmap& outputBitmap, const
 		break;
 	}
 
-	result = texture->UnlockRect(0);
+	result = texture->UnlockRect(mipLevel);
 	assert(SUCCEEDED(result));
 }
 
@@ -1023,6 +1026,8 @@ void CGSH_Direct3D9::SetRenderingContext(uint64 primReg)
 	uint64 zbufReg = m_nReg[GS_REG_ZBUF_1 + context];
 	uint64 tex0Reg = m_nReg[GS_REG_TEX0_1 + context];
 	uint64 tex1Reg = m_nReg[GS_REG_TEX1_1 + context];
+	uint64 miptbp1Reg = m_nReg[GS_REG_MIPTBP1_1 + context];
+	uint64 miptbp2Reg = m_nReg[GS_REG_MIPTBP2_1 + context];
 	uint64 clampReg = m_nReg[GS_REG_CLAMP_1 + context];
 	uint64 scissorReg = m_nReg[GS_REG_SCISSOR_1 + context];
 
@@ -1096,7 +1101,7 @@ void CGSH_Direct3D9::SetRenderingContext(uint64 primReg)
 		(m_renderState.tex1Reg != tex1Reg) ||
 		(m_renderState.clampReg != clampReg))
 	{
-		SetupTexture(tex0Reg, tex1Reg, clampReg);
+		SetupTexture(tex0Reg, tex1Reg, miptbp1Reg, miptbp2Reg, clampReg);
 	}
 
 	m_renderState.isValid = true;
@@ -1272,7 +1277,7 @@ void CGSH_Direct3D9::SetupTestFunctions(uint64 testReg)
 	}
 }
 
-void CGSH_Direct3D9::SetupTexture(uint64 tex0Reg, uint64 tex1Reg, uint64 clampReg)
+void CGSH_Direct3D9::SetupTexture(uint64 tex0Reg, uint64 tex1Reg, uint64 miptbp1Reg, uint64 miptbp2Reg, uint64 clampReg)
 {
 	if(tex0Reg == 0)
 	{
@@ -1281,9 +1286,11 @@ void CGSH_Direct3D9::SetupTexture(uint64 tex0Reg, uint64 tex1Reg, uint64 clampRe
 
 	auto tex0 = make_convertible<TEX0>(tex0Reg);
 	auto tex1 = make_convertible<TEX1>(tex1Reg);
+	auto miptbp1 = make_convertible<MIPTBP1>(miptbp1Reg);
+	auto miptbp2 = make_convertible<MIPTBP2>(miptbp2Reg);
 	auto clamp = make_convertible<CLAMP>(clampReg);
 
-	auto texInfo = LoadTexture(tex0, tex1, clamp);
+	auto texInfo = LoadTexture(tex0, tex1.nMaxMip, miptbp1, miptbp2);
 
 	m_currentTextureWidth	= tex0.GetWidth();
 	m_currentTextureHeight	= tex0.GetHeight();

@@ -6,6 +6,18 @@
 
 #define WNDSTYLE (WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN)
 
+enum TAB_IDS
+{
+	TAB_ID_FRAMEBUFFER,
+	TAB_ID_TEXTURE_BASE,
+	TAB_ID_TEXTURE_MIP1,
+	TAB_ID_TEXTURE_MIP2,
+	TAB_ID_TEXTURE_MIP3,
+	TAB_ID_TEXTURE_MIP4,
+	TAB_ID_TEXTURE_MIP5,
+	TAB_ID_TEXTURE_MIP6
+};
+
 CGsContextView::CGsContextView(HWND parent, const RECT& rect, CGSHandler* gs, unsigned int contextId)
 : m_contextId(contextId)
 , m_gs(gs)
@@ -16,8 +28,22 @@ CGsContextView::CGsContextView(HWND parent, const RECT& rect, CGSHandler* gs, un
 	m_mainSplitter = std::make_unique<Framework::Win32::CVerticalSplitter>(m_hWnd, GetClientRect());
 
 	m_bufferSelectionTab = std::make_unique<Framework::Win32::CTab>(*m_mainSplitter, Framework::Win32::CRect(0, 0, 1, 1), TCS_BOTTOM);
-	m_bufferSelectionTab->InsertTab(_T("Framebuffer"));
-	m_bufferSelectionTab->InsertTab(_T("Texture"));
+	m_bufferSelectionTab->SetTabData(
+		m_bufferSelectionTab->InsertTab(_T("Framebuffer")), TAB_ID_FRAMEBUFFER);
+	m_bufferSelectionTab->SetTabData(
+		m_bufferSelectionTab->InsertTab(_T("Texture (Base)")), TAB_ID_TEXTURE_BASE);
+	m_bufferSelectionTab->SetTabData(
+		m_bufferSelectionTab->InsertTab(_T("Texture (Mip 1)")), TAB_ID_TEXTURE_MIP1);
+	m_bufferSelectionTab->SetTabData(
+		m_bufferSelectionTab->InsertTab(_T("Texture (Mip 2)")), TAB_ID_TEXTURE_MIP2);
+	m_bufferSelectionTab->SetTabData(
+		m_bufferSelectionTab->InsertTab(_T("Texture (Mip 3)")), TAB_ID_TEXTURE_MIP3);
+	m_bufferSelectionTab->SetTabData(
+		m_bufferSelectionTab->InsertTab(_T("Texture (Mip 4)")), TAB_ID_TEXTURE_MIP4);
+	m_bufferSelectionTab->SetTabData(
+		m_bufferSelectionTab->InsertTab(_T("Texture (Mip 5)")), TAB_ID_TEXTURE_MIP5);
+	m_bufferSelectionTab->SetTabData(
+		m_bufferSelectionTab->InsertTab(_T("Texture (Mip 6)")), TAB_ID_TEXTURE_MIP6);
 
 	m_bufferView = std::make_unique<CPixelBufferView>(*m_bufferSelectionTab, Framework::Win32::CRect(0, 0, 1, 1));
 
@@ -51,34 +77,55 @@ void CGsContextView::UpdateState(CGSHandler* gs, CGsPacketMetadata*, DRAWINGKICK
 
 void CGsContextView::UpdateBufferView()
 {
-	if(m_bufferSelectionTab->GetSelection() == 0)
+	int selectionIndex = m_bufferSelectionTab->GetSelection();
+	uint32 selectedId = m_bufferSelectionTab->GetTabData(selectionIndex);
+	switch(selectedId)
 	{
-		uint64 frameReg = m_gs->GetRegisters()[GS_REG_FRAME_1 + m_contextId];
-		auto framebuffer = static_cast<CGSH_Direct3D9*>(m_gs)->GetFramebuffer(frameReg);
-		if(!framebuffer.IsEmpty())
+	case TAB_ID_FRAMEBUFFER:
 		{
-			RenderDrawKick(framebuffer);
-			if(m_fbDisplayMode == FB_DISPLAY_MODE_448P)
+			uint64 frameReg = m_gs->GetRegisters()[GS_REG_FRAME_1 + m_contextId];
+			auto framebuffer = static_cast<CGSH_Direct3D9*>(m_gs)->GetFramebuffer(frameReg);
+			if(!framebuffer.IsEmpty())
 			{
-				framebuffer = framebuffer.ResizeCanvas(640, 448);
+				RenderDrawKick(framebuffer);
+				if(m_fbDisplayMode == FB_DISPLAY_MODE_448P)
+				{
+					framebuffer = framebuffer.ResizeCanvas(640, 448);
+				}
+				else if(m_fbDisplayMode == FB_DISPLAY_MODE_448I)
+				{
+					framebuffer = framebuffer.ResizeCanvas(640, 224);
+					framebuffer = framebuffer.Resize(640, 448);
+				}
 			}
-			else if(m_fbDisplayMode == FB_DISPLAY_MODE_448I)
-			{
-				framebuffer = framebuffer.ResizeCanvas(640, 224);
-				framebuffer = framebuffer.Resize(640, 448);
-			}
+			m_bufferView->SetBitmap(framebuffer);
 		}
-		m_bufferView->SetBitmap(framebuffer);
-	}
-	else if(m_bufferSelectionTab->GetSelection() == 1)
-	{
-		uint64 tex0Reg = m_gs->GetRegisters()[GS_REG_TEX0_1 + m_contextId];
-		uint64 tex1Reg = m_gs->GetRegisters()[GS_REG_TEX1_1 + m_contextId];
-		uint64 clampReg = m_gs->GetRegisters()[GS_REG_CLAMP_1 + m_contextId];
+		break;
+	case TAB_ID_TEXTURE_BASE:
+	case TAB_ID_TEXTURE_MIP1:
+	case TAB_ID_TEXTURE_MIP2:
+	case TAB_ID_TEXTURE_MIP3:
+	case TAB_ID_TEXTURE_MIP4:
+	case TAB_ID_TEXTURE_MIP5:
+	case TAB_ID_TEXTURE_MIP6:
+		{
+			uint64 tex0Reg = m_gs->GetRegisters()[GS_REG_TEX0_1 + m_contextId];
+			uint64 tex1Reg = m_gs->GetRegisters()[GS_REG_TEX1_1 + m_contextId];
+			uint64 miptbp1Reg = m_gs->GetRegisters()[GS_REG_MIPTBP1_1 + m_contextId];
+			uint64 miptbp2Reg = m_gs->GetRegisters()[GS_REG_MIPTBP2_1 + m_contextId];
+			auto tex1 = make_convertible<CGSHandler::TEX1>(tex1Reg);
 
-		auto texture = static_cast<CGSH_Direct3D9*>(m_gs)->GetTexture(tex0Reg, tex1Reg, clampReg);
+			uint32 mipLevel = selectedId - TAB_ID_TEXTURE_BASE;
+			Framework::CBitmap texture;
 
-		m_bufferView->SetBitmap(texture);
+			if(mipLevel <= tex1.nMaxMip)
+			{
+				texture = static_cast<CGSH_Direct3D9*>(m_gs)->GetTexture(tex0Reg, tex1.nMaxMip, miptbp1Reg, miptbp2Reg, mipLevel);
+			}
+
+			m_bufferView->SetBitmap(texture);
+		}
+		break;
 	}
 }
 

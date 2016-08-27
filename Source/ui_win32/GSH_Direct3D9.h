@@ -43,7 +43,7 @@ public:
 	void							SetAlphaTestingEnabled(bool);
 
 	Framework::CBitmap				GetFramebuffer(uint64);
-	Framework::CBitmap				GetTexture(uint64, uint64, uint64);
+	Framework::CBitmap				GetTexture(uint64, uint32, uint64, uint64, uint32);
 	const VERTEX*					GetInputVertices() const;
 
 	static FactoryFunction			GetFactoryFunction(Framework::Win32::CWindow*);
@@ -173,14 +173,14 @@ private:
 	void							SetupBlendingFunction(uint64);
 	void							SetupTestFunctions(uint64);
 	void							SetupDepthBuffer(uint64, uint64);
-	void							SetupTexture(uint64, uint64, uint64);
+	void							SetupTexture(uint64, uint64, uint64, uint64, uint64);
 	void							SetupFramebuffer(uint64, uint64);
-	TEXTURE_INFO					LoadTexture(const TEX0&, const TEX1&, const CLAMP&);
-	void							GetTextureImpl(Framework::CBitmap&, uint64, uint64, uint64);
+	TEXTURE_INFO					LoadTexture(const TEX0&, uint32, const MIPTBP1&, const MIPTBP2&);
+	void							GetTextureImpl(Framework::CBitmap&, uint64, uint32, uint64, uint64, uint32);
 
 	TexturePtr						GetClutTexture(const TEX0&);
 
-	void							CopyTextureToBitmap(Framework::CBitmap&, const TexturePtr&, uint32, uint32, uint8);
+	void							CopyTextureToBitmap(Framework::CBitmap&, const TexturePtr&, uint32, uint32, uint8, uint32);
 	void							CopyRenderTargetToBitmap(Framework::CBitmap&, const TexturePtr&, uint32, uint32, uint32, uint32);
 
 	float							GetZ(float);
