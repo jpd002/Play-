@@ -426,7 +426,7 @@ void CCOP_SCU::GetArguments(uint32 nAddress, uint32 nOpcode, char* sText)
 	INSTRUCTION Instr;
 	Instr.pGetOperands	= SubTableOperands;
 	Instr.pSubTable		= &m_ReflGeneralTable;
-	Instr.pGetOperands(&Instr, NULL, nAddress, nOpcode, sText, nCount);	
+	Instr.pGetOperands(&Instr, NULL, nAddress, nOpcode, sText, nCount);
 }
 
 MIPS_BRANCH_TYPE CCOP_SCU::IsBranch(uint32 nOpcode)

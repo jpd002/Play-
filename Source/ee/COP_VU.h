@@ -1,5 +1,4 @@
-#ifndef _COP_VU_H_
-#define _COP_VU_H_
+#pragma once
 
 #include "../MIPSCoprocessor.h"
 #include "../MIPSReflection.h"
@@ -9,11 +8,11 @@ class CCOP_VU : public CMIPSCoprocessor
 public:
 										CCOP_VU(MIPS_REGSIZE);
 
-	virtual void						CompileInstruction(uint32, CMipsJitter*, CMIPS*);
-	virtual void						GetInstruction(uint32, char*);
-	virtual void						GetArguments(uint32, uint32, char*);
-	virtual uint32						GetEffectiveAddress(uint32, uint32);
-	virtual MIPS_BRANCH_TYPE			IsBranch(uint32);
+	void								CompileInstruction(uint32, CMipsJitter*, CMIPS*) override;
+	void								GetInstruction(uint32, char*) override;
+	void								GetArguments(uint32, uint32, char*) override;
+	uint32								GetEffectiveAddress(uint32, uint32) override;
+	MIPS_BRANCH_TYPE					IsBranch(uint32) override;
 
 protected:
 	typedef void (CCOP_VU::*InstructionFuncConstant)();
@@ -183,5 +182,3 @@ private:
 	static MIPSReflection::INSTRUCTION	m_cReflVX3[32];
 
 };
-
-#endif
