@@ -90,6 +90,8 @@
 #define SYSCALL_NAME_ENABLEDMAC				"osEnableDmac"
 #define SYSCALL_NAME_DISABLEDMAC			"osDisableDmac"
 #define SYSCALL_NAME_SETALARM				"osSetAlarm"
+#define SYSCALL_NAME_IENABLEDMAC			"osiEnableDmac"
+#define SYSCALL_NAME_IDISABLEDMAC			"osiDisableDmac"
 #define SYSCALL_NAME_IRELEASEALARM			"osiReleaseAlarm"
 #define SYSCALL_NAME_CREATETHREAD			"osCreateThread"
 #define SYSCALL_NAME_DELETETHREAD			"osDeleteThread"
@@ -147,6 +149,8 @@ const CPS2OS::SYSCALL_NAME	CPS2OS::g_syscallNames[] =
 	{	0x0016,		SYSCALL_NAME_ENABLEDMAC				},
 	{	0x0017,		SYSCALL_NAME_DISABLEDMAC			},
 	{	0x0018,		SYSCALL_NAME_SETALARM				},
+	{	0x001C,		SYSCALL_NAME_IENABLEDMAC			},
+	{	0x001D,		SYSCALL_NAME_IDISABLEDMAC			},
 	{	0x001F,		SYSCALL_NAME_IRELEASEALARM			},
 	{	0x0020,		SYSCALL_NAME_CREATETHREAD			},
 	{	0x0021,		SYSCALL_NAME_DELETETHREAD			},
@@ -1533,6 +1537,7 @@ void CPS2OS::sc_DisableIntc()
 }
 
 //16
+//1C
 void CPS2OS::sc_EnableDmac()
 {
 	uint32 channel = m_ee.m_State.nGPR[SC_PARAM0].nV[0];
@@ -1554,6 +1559,7 @@ void CPS2OS::sc_EnableDmac()
 }
 
 //17
+//1D
 void CPS2OS::sc_DisableDmac()
 {
 	uint32 channel = m_ee.m_State.nGPR[SC_PARAM0].nV[0];
@@ -2814,6 +2820,14 @@ std::string CPS2OS::GetSysCallDescription(uint8 function)
 			m_ee.m_State.nGPR[SC_PARAM1].nV[0], 
 			m_ee.m_State.nGPR[SC_PARAM2].nV[0]);
 		break;
+	case 0x1C:
+		sprintf(description, SYSCALL_NAME_IENABLEDMAC "(channel = %d);",
+			m_ee.m_State.nGPR[SC_PARAM0].nV[0]);
+		break;
+	case 0x1D:
+		sprintf(description, SYSCALL_NAME_IDISABLEDMAC "(channel = %d);",
+			m_ee.m_State.nGPR[SC_PARAM0].nV[0]);
+		break;
 	case 0x1F:
 		sprintf(description, SYSCALL_NAME_IRELEASEALARM "(id = %d);",
 			m_ee.m_State.nGPR[SC_PARAM0].nV[0]);
@@ -3021,7 +3035,7 @@ CPS2OS::SystemCallHandler CPS2OS::m_sysCall[0x80] =
 	//0x10
 	&CPS2OS::sc_AddIntcHandler,		&CPS2OS::sc_RemoveIntcHandler,		&CPS2OS::sc_AddDmacHandler,			&CPS2OS::sc_RemoveDmacHandler,		&CPS2OS::sc_EnableIntc,			&CPS2OS::sc_DisableIntc,		&CPS2OS::sc_EnableDmac,			&CPS2OS::sc_DisableDmac,
 	//0x18
-	&CPS2OS::sc_SetAlarm,			&CPS2OS::sc_Unhandled,				&CPS2OS::sc_Unhandled,				&CPS2OS::sc_Unhandled,				&CPS2OS::sc_Unhandled,			&CPS2OS::sc_Unhandled,			&CPS2OS::sc_Unhandled,			&CPS2OS::sc_ReleaseAlarm,
+	&CPS2OS::sc_SetAlarm,			&CPS2OS::sc_Unhandled,				&CPS2OS::sc_Unhandled,				&CPS2OS::sc_Unhandled,				&CPS2OS::sc_EnableDmac,			&CPS2OS::sc_DisableDmac,		&CPS2OS::sc_Unhandled,			&CPS2OS::sc_ReleaseAlarm,
 	//0x20
 	&CPS2OS::sc_CreateThread,		&CPS2OS::sc_DeleteThread,			&CPS2OS::sc_StartThread,			&CPS2OS::sc_ExitThread,				&CPS2OS::sc_ExitDeleteThread,	&CPS2OS::sc_TerminateThread,	&CPS2OS::sc_Unhandled,			&CPS2OS::sc_Unhandled,
 	//0x28
