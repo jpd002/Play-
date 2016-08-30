@@ -263,7 +263,7 @@ void VUShared::MADDA_base(CMipsJitter* codeGen, uint8 dest, size_t fs, size_t ft
 	TestSZFlags(codeGen, dest, offsetof(CMIPS, m_State.nCOP2A), relativePipeTime);
 }
 
-void VUShared::SUBA_base(CMipsJitter* codeGen, uint8 dest, size_t fs, size_t ft, bool expand)
+void VUShared::SUBA_base(CMipsJitter* codeGen, uint8 dest, size_t fs, size_t ft, bool expand, uint32 relativePipeTime)
 {
 	codeGen->MD_PushRel(fs);
 	if(expand)
@@ -276,6 +276,7 @@ void VUShared::SUBA_base(CMipsJitter* codeGen, uint8 dest, size_t fs, size_t ft,
 	}
 	codeGen->MD_SubS();
 	PullVector(codeGen, dest, offsetof(CMIPS, m_State.nCOP2A));
+	TestSZFlags(codeGen, dest, offsetof(CMIPS, m_State.nCOP2A), relativePipeTime);
 }
 
 void VUShared::MSUB_base(CMipsJitter* codeGen, uint8 dest, size_t fd, size_t fs, size_t ft, bool expand)
@@ -1308,28 +1309,28 @@ void VUShared::SUBq(CMipsJitter* codeGen, uint8 dest, uint8 fd, uint8 fs)
 	PullVector(codeGen, dest, offsetof(CMIPS, m_State.nCOP2[fd]));
 }
 
-void VUShared::SUBA(CMipsJitter* codeGen, uint8 dest, uint8 fs, uint8 ft)
+void VUShared::SUBA(CMipsJitter* codeGen, uint8 dest, uint8 fs, uint8 ft, uint32 relativePipeTime)
 {
 	SUBA_base(codeGen, dest,
 		offsetof(CMIPS, m_State.nCOP2[fs]),
 		offsetof(CMIPS, m_State.nCOP2[ft]),
-		false);
+		false, relativePipeTime);
 }
 
-void VUShared::SUBAbc(CMipsJitter* codeGen, uint8 dest, uint8 fs, uint8 ft, uint8 bc)
+void VUShared::SUBAbc(CMipsJitter* codeGen, uint8 dest, uint8 fs, uint8 ft, uint8 bc, uint32 relativePipeTime)
 {
 	SUBA_base(codeGen, dest,
 		offsetof(CMIPS, m_State.nCOP2[fs]),
 		offsetof(CMIPS, m_State.nCOP2[ft].nV[bc]),
-		true);
+		true, relativePipeTime);
 }
 
-void VUShared::SUBAi(CMipsJitter* codeGen, uint8 dest, uint8 fs)
+void VUShared::SUBAi(CMipsJitter* codeGen, uint8 dest, uint8 fs, uint32 relativePipeTime)
 {
 	SUBA_base(codeGen, dest,
 		offsetof(CMIPS, m_State.nCOP2[fs]),
 		offsetof(CMIPS, m_State.nCOP2I),
-		true);
+		true, relativePipeTime);
 }
 
 void VUShared::WAITQ(CMipsJitter* codeGen)

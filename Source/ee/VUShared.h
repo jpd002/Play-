@@ -80,7 +80,7 @@ namespace VUShared
 	void						ADDA_base(CMipsJitter*, uint8, size_t, size_t, bool);
 	void						MADD_base(CMipsJitter*, uint8, size_t, size_t, size_t, bool, uint32);
 	void						MADDA_base(CMipsJitter*, uint8, size_t, size_t, bool, uint32);
-	void						SUBA_base(CMipsJitter*, uint8, size_t, size_t, bool);
+	void						SUBA_base(CMipsJitter*, uint8, size_t, size_t, bool, uint32);
 	void						MSUB_base(CMipsJitter*, uint8, size_t, size_t, size_t, bool);
 	void						MSUBA_base(CMipsJitter*, uint8, size_t, size_t, bool, uint32);
 
@@ -162,9 +162,9 @@ namespace VUShared
 	void						SUBbc(CMipsJitter*, uint8, uint8, uint8, uint8, uint8, uint32);
 	void						SUBi(CMipsJitter*, uint8, uint8, uint8, uint32);
 	void						SUBq(CMipsJitter*, uint8, uint8, uint8);
-	void						SUBA(CMipsJitter*, uint8, uint8, uint8);
-	void						SUBAbc(CMipsJitter*, uint8, uint8, uint8, uint8);
-	void						SUBAi(CMipsJitter*, uint8, uint8);
+	void						SUBA(CMipsJitter*, uint8, uint8, uint8, uint32);
+	void						SUBAbc(CMipsJitter*, uint8, uint8, uint8, uint8, uint32);
+	void						SUBAi(CMipsJitter*, uint8, uint8, uint32);
 	void						WAITQ(CMipsJitter*);
 
 	void						FlushPipeline(const PIPEINFO&, CMipsJitter*);

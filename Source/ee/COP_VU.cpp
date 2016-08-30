@@ -546,7 +546,7 @@ void CCOP_VU::VADDAbc()
 //
 void CCOP_VU::VSUBAbc()
 {
-	VUShared::SUBAbc(m_codeGen, m_nDest, m_nFS, m_nFT, m_nBc);
+	VUShared::SUBAbc(m_codeGen, m_nDest, m_nFS, m_nFT, m_nBc, 0);
 }
 
 //
@@ -598,7 +598,7 @@ void CCOP_VU::VADDA()
 //0B
 void CCOP_VU::VSUBA()
 {
-	VUShared::SUBA(m_codeGen, m_nDest, m_nFS, m_nFT);
+	VUShared::SUBA(m_codeGen, m_nDest, m_nFS, m_nFT, 0);
 }
 
 //0C
