@@ -1263,6 +1263,12 @@ std::string CGSHandler::DisassembleWrite(uint8 registerId, uint64 data)
 				(registerId == GS_REG_XYZF2) ? "XYZF2" : "XYZF3", xyzf.GetX(), xyzf.GetY(), xyzf.nZ, xyzf.nF);
 		}
 		break;
+	case GS_REG_FOG:
+		{
+			auto fog = static_cast<uint8>(data >> 56);
+			result = string_format("FOG(F: %d)", fog);
+		}
+		break;
 	case GS_REG_TEX0_1:
 	case GS_REG_TEX0_2:
 		{
