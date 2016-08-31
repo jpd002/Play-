@@ -39,7 +39,8 @@ namespace Iop
 		{
 			COMMAND_NONE,
 			COMMAND_READ,
-			COMMAND_READIOP
+			COMMAND_READIOP,
+			COMMAND_STREAM_READ,
 		};
 
 		bool				Invoke592(uint32, uint32*, uint32, uint32*, uint32, uint8*);
@@ -53,7 +54,7 @@ namespace Iop
 		//Methods
 		void				Read(uint32*, uint32, uint32*, uint32, uint8*);
 		void				ReadIopMem(uint32*, uint32, uint32*, uint32, uint8*);
-		void				StreamCmd(uint32*, uint32, uint32*, uint32, uint8*);
+		bool				StreamCmd(uint32*, uint32, uint32*, uint32, uint8*);
 		void				SearchFile(uint32*, uint32, uint32*, uint32, uint8*);
 
 		CCdvdman&			m_cdvdman;

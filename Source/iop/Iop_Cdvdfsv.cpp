@@ -58,13 +58,14 @@ void CCdvdfsv::ProcessCommands(CSifMan* sifMan)
 	{
 		static const uint32 sectorSize = 0x800;
 
+		uint8* eeRam = nullptr;
+		if(auto sifManPs2 = dynamic_cast<CSifManPs2*>(sifMan))
+		{
+			eeRam = sifManPs2->GetEeRam();
+		}
+
 		if(m_pendingCommand == COMMAND_READ)
 		{
-			auto sifManPs2 = dynamic_cast<CSifManPs2*>(sifMan);
-			assert(sifManPs2 != nullptr);
-
-			uint8* eeRam = sifManPs2->GetEeRam();
-
 			if(m_iso != nullptr)
 			{
 				for(unsigned int i = 0; i < m_pendingReadCount; i++)
@@ -80,6 +81,17 @@ void CCdvdfsv::ProcessCommands(CSifMan* sifMan)
 				for(unsigned int i = 0; i < m_pendingReadCount; i++)
 				{
 					m_iso->ReadBlock(m_pendingReadSector + i, m_iopRam + (m_pendingReadAddr + (i * sectorSize)));
+				}
+			}
+		}
+		else if(m_pendingCommand == COMMAND_STREAM_READ)
+		{
+			if(m_iso != nullptr)
+			{
+				for(unsigned int i = 0; i < m_pendingReadCount; i++)
+				{
+					m_iso->ReadBlock(m_streamPos, eeRam + (m_pendingReadAddr + (i * sectorSize)));
+					m_streamPos++;
 				}
 			}
 		}
@@ -212,7 +224,7 @@ bool CCdvdfsv::Invoke595(uint32 method, uint32* args, uint32 argsSize, uint32* r
 		break;
 
 	case 0x09:
-		StreamCmd(args, argsSize, ret, retSize, ram);
+		return StreamCmd(args, argsSize, ret, retSize, ram);
 		break;
 
 	case 0x0D:
@@ -338,8 +350,10 @@ void CCdvdfsv::ReadIopMem(uint32* args, uint32 argsSize, uint32* ret, uint32 ret
 	m_pendingReadAddr = dstAddr & 0x1FFFFFFF;
 }
 
-void CCdvdfsv::StreamCmd(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, uint8* ram)
+bool CCdvdfsv::StreamCmd(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, uint8* ram)
 {
+	bool immediateReply = true;
+
 	uint32 sector	= args[0x00];
 	uint32 count	= args[0x01];
 	uint32 dstAddr	= args[0x02];
@@ -348,6 +362,8 @@ void CCdvdfsv::StreamCmd(uint32* args, uint32 argsSize, uint32* ret, uint32 retS
 
 	CLog::GetInstance().Print(LOG_NAME, "StreamCmd(sector = 0x%0.8X, count = 0x%0.8X, addr = 0x%0.8X, cmd = 0x%0.8X, mode = 0x%0.8X);\r\n",
 		sector, count, dstAddr, cmd, mode);
+
+	assert(m_pendingCommand == COMMAND_NONE);
 
 	switch(cmd)
 	{
@@ -360,18 +376,12 @@ void CCdvdfsv::StreamCmd(uint32* args, uint32 argsSize, uint32* ret, uint32 retS
 		break;
 	case 2:
 		//Read
-		dstAddr &= (PS2::EE_RAM_SIZE - 1);
-
-		if(m_iso != NULL)
-		{
-			for(unsigned int i = 0; i < count; i++)
-			{
-				m_iso->ReadBlock(m_streamPos, ram + (dstAddr + (i * 0x800)));
-				m_streamPos++;
-			}
-		}
-
+		m_pendingCommand    = COMMAND_STREAM_READ;
+		m_pendingReadSector = 0;
+		m_pendingReadCount  = count;
+		m_pendingReadAddr   = dstAddr & (PS2::EE_RAM_SIZE - 1);
 		ret[0] = count;
+		immediateReply = false;
 		CLog::GetInstance().Print(LOG_NAME, "StreamRead(count = 0x%0.8X, dest = 0x%0.8X);\r\n",
 			count, dstAddr);
 		break;
@@ -398,6 +408,8 @@ void CCdvdfsv::StreamCmd(uint32* args, uint32 argsSize, uint32* ret, uint32 retS
 		CLog::GetInstance().Print(LOG_NAME, "Unknown stream command used.\r\n");
 		break;
 	}
+
+	return immediateReply;
 }
 
 void CCdvdfsv::SearchFile(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, uint8* ram)
