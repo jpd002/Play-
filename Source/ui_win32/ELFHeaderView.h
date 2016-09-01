@@ -1,5 +1,4 @@
-#ifndef _ELFHEADERVIEW_H_
-#define _ELFHEADERVIEW_H_
+#pragma once
 
 #include "win32/Dialog.h"
 #include "win32/Edit.h"
@@ -10,10 +9,10 @@ class CELFHeaderView : public Framework::Win32::CDialog
 {
 public:
 								CELFHeaderView(HWND, CELF*);
-								~CELFHeaderView();
+	virtual						~CELFHeaderView();
 
 protected:
-	long						OnSize(unsigned int, unsigned int, unsigned int);
+	long						OnSize(unsigned int, unsigned int, unsigned int) override;
 
 private:
 	void						FillInformation();
@@ -34,5 +33,3 @@ private:
 	Framework::Win32::CEdit*    m_pSHCount;
 	Framework::Win32::CEdit*    m_pSHStrTab;
 };
-
-#endif

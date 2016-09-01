@@ -1,5 +1,4 @@
-#ifndef _ELFVIEW_H_
-#define _ELFVIEW_H_
+#pragma once
 
 #include <unordered_map>
 #include "OptionWnd.h"
@@ -14,15 +13,17 @@ class CELFView : public COptionWnd<Framework::Win32::CMDIChild>
 {
 public:
 						CELFView(HWND);
-						~CELFView();
-	void				SetELF(CELF*);
-protected:
-	long				OnSysCommand(unsigned int, LPARAM);
+	virtual				~CELFView();
 
-	virtual void		OnItemAppearing(HTREEITEM);
+	void				SetELF(CELF*);
+
+protected:
+	long				OnSysCommand(unsigned int, LPARAM) override;
+
+	void				OnItemAppearing(HTREEITEM) override;
 
 private:
-	typedef std::tr1::unordered_map<HTREEITEM, int> SectionItemMap;
+	typedef std::unordered_map<HTREEITEM, int> SectionItemMap;
 
 	void				PopulateList();
 	void				Delete();
@@ -36,5 +37,3 @@ private:
 	SectionItemMap		m_sectionItems;
 	SectionItemMap		m_programItems;
 };
-
-#endif

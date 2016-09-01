@@ -51,7 +51,7 @@ void CELFView::SetELF(CELF* pELF)
 	m_pHeaderView = new CELFHeaderView(hCont, m_pELF);
 	m_pSymbolView = new CELFSymbolView(hCont, m_pELF);
 
-    const ELFHEADER& header(m_pELF->GetHeader());
+	const ELFHEADER& header(m_pELF->GetHeader());
 
 	m_pSectionView = new CELFSectionView(hCont, m_pELF);
 	m_pProgramView = new CELFProgramView(hCont, m_pELF);
@@ -66,19 +66,19 @@ void CELFView::SetELF(CELF* pELF)
 
 void CELFView::PopulateList()
 {
-    InsertOption(NULL, _T("Header"), m_pHeaderView->m_hWnd);
+	InsertOption(NULL, _T("Header"), m_pHeaderView->m_hWnd);
 	HTREEITEM hItem = InsertOption(NULL, _T("Sections"), NULL);
-    const ELFHEADER& header = m_pELF->GetHeader();
+	const ELFHEADER& header = m_pELF->GetHeader();
 
 	const char* sStrTab = (const char*)m_pELF->GetSectionData(header.nSectHeaderStringTableIndex);
 	for(unsigned int i = 0; i < header.nSectHeaderCount; i++)
 	{
 		std::tstring sDisplay;
-    	const char* sName(NULL);
+		const char* sName(NULL);
 
-    	ELFSECTIONHEADER* pSect = m_pELF->GetSection(i);
+		ELFSECTIONHEADER* pSect = m_pELF->GetSection(i);
 		
-        if(sStrTab != NULL)
+		if(sStrTab != NULL)
 		{
 			sName = sStrTab + pSect->nStringTableIndex;
 		}
@@ -87,7 +87,7 @@ void CELFView::PopulateList()
 			sName = "";
 		}
 
-        if(strlen(sName))
+		if(strlen(sName))
 		{
 			sDisplay = string_cast<std::tstring>(sName);
 		}
@@ -96,7 +96,7 @@ void CELFView::PopulateList()
 			sDisplay = _T("Section ") + boost::lexical_cast<std::tstring>(i);
 		}
 
-        HTREEITEM sectionItem = InsertOption(hItem, sDisplay.c_str(), m_pSectionView->m_hWnd);
+		HTREEITEM sectionItem = InsertOption(hItem, sDisplay.c_str(), m_pSectionView->m_hWnd);
 		m_sectionItems[sectionItem] = i;
 	}
 	GetTreeView()->Expand(hItem, TVE_EXPAND);

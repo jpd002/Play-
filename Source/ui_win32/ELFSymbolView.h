@@ -1,5 +1,4 @@
-#ifndef _ELFSYMBOLVIEW_H_
-#define _ELFSYMBOLVIEW_H_
+#pragma once
 
 #include "win32/Window.h"
 #include "win32/ListView.h"
@@ -36,8 +35,8 @@ private:
 		SORT_STATE_ADDRESS_DESC,
 	};
 
-	long							OnSize(unsigned int, unsigned int, unsigned int);
-	long							OnNotify(WPARAM, NMHDR*);
+	long							OnSize(unsigned int, unsigned int, unsigned int) override;
+	long							OnNotify(WPARAM, NMHDR*) override;
 
 	static int						ItemNameComparer(const ITEM&, const ITEM&);
 	static int						ItemAddressComparer(const ITEM&, const ITEM&);
@@ -52,5 +51,3 @@ private:
 
 	SORT_STATE						m_sortState;
 };
-
-#endif

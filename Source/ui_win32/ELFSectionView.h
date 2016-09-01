@@ -1,5 +1,4 @@
-#ifndef _ELFSECTIONVIEW_H_
-#define _ELFSECTIONVIEW_H_
+#pragma once
 
 #include "win32/Dialog.h"
 #include "win32/Edit.h"
@@ -19,8 +18,8 @@ public:
 	void							SetSectionIndex(uint16);
 
 protected:
-	long							OnSize(unsigned int, unsigned int, unsigned int);
-	long							OnSetFocus();
+	long							OnSize(unsigned int, unsigned int, unsigned int) override;
+	long							OnSetFocus() override;
 
 private:
 	void							RefreshLayout();
@@ -47,5 +46,3 @@ private:
 	CMemoryViewPtr*					m_memoryView;
 	Framework::Win32::CListView*	m_dynamicSectionListView;
 };
-
-#endif

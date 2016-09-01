@@ -1,5 +1,4 @@
-#ifndef _ELFPROGRAMVIEW_H_
-#define _ELFPROGRAMVIEW_H_
+#pragma once
 
 #include "win32/Dialog.h"
 #include "win32/Edit.h"
@@ -16,7 +15,7 @@ public:
 	void						SetProgramIndex(uint16);
 
 protected:
-	long						OnSize(unsigned int, unsigned int, unsigned int);
+	long						OnSize(unsigned int, unsigned int, unsigned int) override;
 
 private:
 	void						FillInformation();
@@ -35,5 +34,3 @@ private:
 	Framework::Win32::CEdit*	m_pFlags;
 	Framework::Win32::CEdit*	m_pAlign;
 };
-
-#endif
