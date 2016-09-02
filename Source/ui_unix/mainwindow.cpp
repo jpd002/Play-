@@ -89,10 +89,10 @@ void MainWindow::InitEmu()
     m_padhandler->UpdateBinding(binding);
 
     StatsManager = new CStatsManager();
-    g_virtualMachine->m_ee->m_gs->OnNewFrame.connect(boost::bind(&CStatsManager::OnNewFrame, StatsManager, _1));
+    g_virtualMachine->m_ee->m_gs->OnNewFrame.connect(std::bind(&CStatsManager::OnNewFrame, StatsManager, std::placeholders::_1));
 
-    g_virtualMachine->OnRunningStateChange.connect(boost::bind(&MainWindow::OnRunningStateChange, this));
-    g_virtualMachine->m_ee->m_os->OnExecutableChange.connect(boost::bind(&MainWindow::OnExecutableChange, this));
+    g_virtualMachine->OnRunningStateChange.connect(std::bind(&MainWindow::OnRunningStateChange, this));
+    g_virtualMachine->m_ee->m_os->OnExecutableChange.connect(std::bind(&MainWindow::OnExecutableChange, this));
 }
 
 void MainWindow::SetOpenGlPanelSize()
