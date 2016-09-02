@@ -21,6 +21,13 @@ void CCOP_VU::ReflMnemI(INSTRUCTION* pInstr, CMIPS* pCtx, uint32 nOpcode, char* 
 	}
 }
 
+void CCOP_VU::ReflOpOff(INSTRUCTION* pInstr, CMIPS* pCtx, uint32 nAddress, uint32 nOpcode, char* sText, unsigned int nCount)
+{
+	auto imm = static_cast<uint16>((nOpcode >> 0) & 0xFFFF);
+	nAddress += 4;
+	sprintf(sText, "$%0.8X", nAddress + CMIPS::GetBranch(imm));
+}
+
 void CCOP_VU::ReflOpRtFd(INSTRUCTION* pInstr, CMIPS* pCtx, uint32 nAddress, uint32 nOpcode, char* sText, unsigned int nCount)
 {
 	uint8 nRT = static_cast<uint8>((nOpcode >> 16) & 0x001F);
@@ -65,6 +72,13 @@ void CCOP_VU::ReflOpFtOffRs(INSTRUCTION* pInstr, CMIPS* pCtx, uint32 nAddress, u
 void CCOP_VU::ReflOpVi27(INSTRUCTION* pInstr, CMIPS* pCtx, uint32 nAddress, uint32 nOpcode, char* sText, unsigned int nCount)
 {
 	sprintf(sText, "VI27");
+}
+
+uint32 CCOP_VU::ReflEaOffset(INSTRUCTION* pInstr, CMIPS* pCtx, uint32 nAddress, uint32 nOpcode)
+{
+	auto imm = static_cast<uint16>((nOpcode >>  0) & 0xFFFF);
+	nAddress += 4;
+	return (nAddress + CMIPS::GetBranch(imm));
 }
 
 INSTRUCTION CCOP_VU::m_cReflGeneral[64] =
@@ -155,7 +169,7 @@ INSTRUCTION CCOP_VU::m_cReflCop2[32] =
 	{	"CTC2",		NULL,			ReflMnemI,			ReflOpRtId,			NULL,				NULL			},
 	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
 	//0x08
-	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
+	{	"BC2",		NULL,			SubTableMnemonic,	SubTableOperands,	SubTableIsBranch,	SubTableEffAddr	},
 	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
 	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
 	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
@@ -181,6 +195,15 @@ INSTRUCTION CCOP_VU::m_cReflCop2[32] =
 	{	"V",		NULL,			SubTableMnemonic,	SubTableOperands,	SubTableIsBranch,	SubTableEffAddr	},
 	{	"V",		NULL,			SubTableMnemonic,	SubTableOperands,	SubTableIsBranch,	SubTableEffAddr	},
 	{	"V",		NULL,			SubTableMnemonic,	SubTableOperands,	SubTableIsBranch,	SubTableEffAddr	},
+};
+
+INSTRUCTION CCOP_VU::m_cReflBc2[4] =
+{
+	//0x00
+	{	NULL,		NULL,			NULL,				NULL,				NULL,						NULL			},
+	{	"BC2T",		NULL,			CopyMnemonic,		ReflOpOff,			MIPSReflection::IsBranch,	ReflEaOffset	},
+	{	NULL,		NULL,			NULL,				NULL,				NULL,						NULL			},
+	{	NULL,		NULL,			NULL,				NULL,				NULL,						NULL			},
 };
 
 INSTRUCTION CCOP_VU::m_cReflV[64] =
@@ -423,6 +446,7 @@ void CCOP_VU::SetupReflectionTables()
 {
 	static_assert(sizeof(m_ReflGeneral)	== sizeof(m_cReflGeneral),	"Array sizes don't match");
 	static_assert(sizeof(m_ReflCop2)	== sizeof(m_cReflCop2),		"Array sizes don't match");
+	static_assert(sizeof(m_ReflBc2)		== sizeof(m_cReflBc2),		"Array sizes don't match");
 	static_assert(sizeof(m_ReflV)		== sizeof(m_cReflV),		"Array sizes don't match");
 	static_assert(sizeof(m_ReflVX0)		== sizeof(m_cReflVX0),		"Array sizes don't match");
 	static_assert(sizeof(m_ReflVX1)		== sizeof(m_cReflVX1),		"Array sizes don't match");
@@ -431,6 +455,7 @@ void CCOP_VU::SetupReflectionTables()
 
 	memcpy(m_ReflGeneral,	m_cReflGeneral,	sizeof(m_cReflGeneral));
 	memcpy(m_ReflCop2,		m_cReflCop2,	sizeof(m_cReflCop2));
+	memcpy(m_ReflBc2,		m_cReflBc2,		sizeof(m_cReflBc2));
 	memcpy(m_ReflV,			m_cReflV,		sizeof(m_cReflV));
 	memcpy(m_ReflVX0,		m_cReflVX0,		sizeof(m_cReflVX0));
 	memcpy(m_ReflVX1,		m_cReflVX1,		sizeof(m_cReflVX1));
@@ -444,6 +469,10 @@ void CCOP_VU::SetupReflectionTables()
 	m_ReflCop2Table.nShift			= 21;
 	m_ReflCop2Table.nMask			= 0x1F;
 	m_ReflCop2Table.pTable			= m_ReflCop2;
+
+	m_ReflBc2Table.nShift			= 16;
+	m_ReflBc2Table.nMask			= 0x03;
+	m_ReflBc2Table.pTable			= m_ReflBc2;
 
 	m_ReflVTable.nShift				= 0;
 	m_ReflVTable.nMask				= 0x3F;
@@ -467,6 +496,7 @@ void CCOP_VU::SetupReflectionTables()
 
 	m_ReflGeneral[0x12].pSubTable	= &m_ReflCop2Table;
 
+	m_ReflCop2[0x08].pSubTable		= &m_ReflBc2Table;
 	for(unsigned int i = 0x10; i < 0x20; i++)
 	{
 		m_ReflCop2[i].pSubTable		= &m_ReflVTable;

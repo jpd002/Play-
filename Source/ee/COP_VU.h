@@ -21,6 +21,7 @@ protected:
 
 	static void							ReflMnemI(MIPSReflection::INSTRUCTION*, CMIPS*, uint32, char*, unsigned int);
 
+	static void							ReflOpOff(MIPSReflection::INSTRUCTION*, CMIPS*, uint32, uint32, char*, unsigned int);
 	static void							ReflOpRtFd(MIPSReflection::INSTRUCTION*, CMIPS*, uint32, uint32, char*, unsigned int);
 	static void							ReflOpRtId(MIPSReflection::INSTRUCTION*, CMIPS*, uint32, uint32, char*, unsigned int);
 	static void							ReflOpImm15(MIPSReflection::INSTRUCTION*, CMIPS*, uint32, uint32, char*, unsigned int);
@@ -28,8 +29,11 @@ protected:
 	static void							ReflOpFtOffRs(MIPSReflection::INSTRUCTION*, CMIPS*, uint32, uint32, char*, unsigned int);
 	static void							ReflOpVi27(MIPSReflection::INSTRUCTION*, CMIPS*, uint32, uint32, char*, unsigned int);
 
+	static uint32						ReflEaOffset(MIPSReflection::INSTRUCTION*, CMIPS*, uint32, uint32);
+
 	MIPSReflection::INSTRUCTION			m_ReflGeneral[64];
 	MIPSReflection::INSTRUCTION			m_ReflCop2[32];
+	MIPSReflection::INSTRUCTION			m_ReflBc2[4];
 	MIPSReflection::INSTRUCTION			m_ReflV[64];
 	MIPSReflection::INSTRUCTION			m_ReflVX0[32];
 	MIPSReflection::INSTRUCTION			m_ReflVX1[32];
@@ -38,6 +42,7 @@ protected:
 
 	MIPSReflection::SUBTABLE			m_ReflGeneralTable;
 	MIPSReflection::SUBTABLE			m_ReflCop2Table;
+	MIPSReflection::SUBTABLE			m_ReflBc2Table;
 	MIPSReflection::SUBTABLE			m_ReflVTable;
 	MIPSReflection::SUBTABLE			m_ReflVX0Table;
 	MIPSReflection::SUBTABLE			m_ReflVX1Table;
@@ -61,6 +66,7 @@ private:
 	void								CFC2();
 	void								QMTC2();
 	void								CTC2();
+	void								BC2();
 	void								V();
 
 	//Vector
@@ -175,6 +181,7 @@ private:
 	//Reflection tables
 	static MIPSReflection::INSTRUCTION	m_cReflGeneral[64];
 	static MIPSReflection::INSTRUCTION	m_cReflCop2[32];
+	static MIPSReflection::INSTRUCTION	m_cReflBc2[4];
 	static MIPSReflection::INSTRUCTION	m_cReflV[64];
 	static MIPSReflection::INSTRUCTION	m_cReflVX0[32];
 	static MIPSReflection::INSTRUCTION	m_cReflVX1[32];

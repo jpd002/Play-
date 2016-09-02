@@ -259,6 +259,16 @@ void CCOP_VU::CTC2()
 	}
 }
 
+//08
+void CCOP_VU::BC2()
+{
+	//Not implemented
+	//We assume that this is used to check if VU0 is still running
+	//after VCALLMS* is used (used in .hack games)
+	uint32 op = (m_nOpcode >> 16) & 0x03;
+	assert(op == 0x01);
+}
+
 //10-1F
 void CCOP_VU::V()
 {
@@ -826,7 +836,7 @@ CCOP_VU::InstructionFuncConstant CCOP_VU::m_pOpCop2[0x20] =
 	//0x00
 	&CCOP_VU::Illegal,			&CCOP_VU::QMFC2,			&CCOP_VU::CFC2,			&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::QMTC2,			&CCOP_VU::CTC2,			&CCOP_VU::Illegal,
 	//0x08
-	&CCOP_VU::Illegal,			&CCOP_VU::Illegal,			&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,			&CCOP_VU::Illegal,		&CCOP_VU::Illegal,
+	&CCOP_VU::BC2,				&CCOP_VU::Illegal,			&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,			&CCOP_VU::Illegal,		&CCOP_VU::Illegal,
 	//0x10
 	&CCOP_VU::V,				&CCOP_VU::V,				&CCOP_VU::V,			&CCOP_VU::V,			&CCOP_VU::V,			&CCOP_VU::V,				&CCOP_VU::V,			&CCOP_VU::V,
 	//0x18
