@@ -1019,7 +1019,7 @@ VUINSTRUCTION CMA_VU::CLower::m_cVuReflVX1[32] =
 	{	NULL,		NULL,			NULL				},
 	{	NULL,		NULL,			NULL				},
 	{	"EATANxz",	NULL,			ReflOpAffWrPRdFs	},
-	{	"ERSQRT",	NULL,			NULL				},
+	{	"ERSQRT",	NULL,			ReflOpAffWrPRdFs	},
 	{	NULL,		NULL,			NULL				},
 };
 
