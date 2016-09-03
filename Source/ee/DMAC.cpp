@@ -1033,7 +1033,7 @@ void CDMAC::DisassembleSet(uint32 nAddress, uint32 nData)
 		CLog::GetInstance().Print(LOG_NAME, "D1_MADR = 0x%0.8X.\r\n", nData);
 		break;
 	case D1_QWC:
-		CLog::GetInstance().Print(LOG_NAME, "D1_SIZE = 0x%0.8X.\r\n", nData);
+		CLog::GetInstance().Print(LOG_NAME, "D1_QWC = 0x%0.8X.\r\n", nData);
 		break;
 	case D1_TADR:
 		CLog::GetInstance().Print(LOG_NAME, "D1_TADR = 0x%0.8X.\r\n", nData);
@@ -1045,7 +1045,7 @@ void CDMAC::DisassembleSet(uint32 nAddress, uint32 nData)
 		CLog::GetInstance().Print(LOG_NAME, "D2_MADR = 0x%0.8X.\r\n", nData);
 		break;
 	case D2_QWC:
-		CLog::GetInstance().Print(LOG_NAME, "D2_SIZE = 0x%0.8X.\r\n", nData);
+		CLog::GetInstance().Print(LOG_NAME, "D2_QWC = 0x%0.8X.\r\n", nData);
 		break;
 	case D2_TADR:
 		CLog::GetInstance().Print(LOG_NAME, "D2_TADR = 0x%0.8X.\r\n", nData);
