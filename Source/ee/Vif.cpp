@@ -965,60 +965,34 @@ bool CVif::ResumeDelayedMicroProgram()
 
 void CVif::DisassembleGet(uint32 address)
 {
+#define LOG_GET(registerId) case registerId: CLog::GetInstance().Print(LOG_NAME, "= " #registerId ".\r\n"); break;
+
 	switch(address)
 	{
-	case VIF0_STAT:
-		CLog::GetInstance().Print(LOG_NAME, "VIF0_STAT.\r\n");
-		break;
-	case VIF0_MARK:
-		CLog::GetInstance().Print(LOG_NAME, "VIF0_MARK.\r\n");
-		break;
-	case VIF0_CYCLE:
-		CLog::GetInstance().Print(LOG_NAME, "VIF0_CYCLE.\r\n");
-		break;
-	case VIF0_MODE:
-		CLog::GetInstance().Print(LOG_NAME, "VIF0_MODE.\r\n");
-		break;
-	case VIF0_R0:
-		CLog::GetInstance().Print(LOG_NAME, "VIF0_R0.\r\n");
-		break;
-	case VIF0_R1:
-		CLog::GetInstance().Print(LOG_NAME, "VIF0_R1.\r\n");
-		break;
-	case VIF0_R2:
-		CLog::GetInstance().Print(LOG_NAME, "VIF0_R2.\r\n");
-		break;
-	case VIF0_R3:
-		CLog::GetInstance().Print(LOG_NAME, "VIF0_R3.\r\n");
-		break;
-	case VIF1_STAT:
-		CLog::GetInstance().Print(LOG_NAME, "VIF1_STAT.\r\n");
-		break;
-	case VIF1_MARK:
-		CLog::GetInstance().Print(LOG_NAME, "VIF1_MARK.\r\n");
-		break;
-	case VIF1_CYCLE:
-		CLog::GetInstance().Print(LOG_NAME, "VIF1_CYCLE.\r\n");
-		break;
-	case VIF1_MODE:
-		CLog::GetInstance().Print(LOG_NAME, "VIF1_MODE.\r\n");
-		break;
-	case VIF1_R0:
-		CLog::GetInstance().Print(LOG_NAME, "VIF1_R0.\r\n");
-		break;
-	case VIF1_R1:
-		CLog::GetInstance().Print(LOG_NAME, "VIF1_R1.\r\n");
-		break;
-	case VIF1_R2:
-		CLog::GetInstance().Print(LOG_NAME, "VIF1_R2.\r\n");
-		break;
-	case VIF1_R3:
-		CLog::GetInstance().Print(LOG_NAME, "VIF1_R3.\r\n");
-		break;
+		LOG_GET(VIF0_STAT)
+		LOG_GET(VIF0_MARK)
+		LOG_GET(VIF0_CYCLE)
+		LOG_GET(VIF0_MODE)
+		LOG_GET(VIF0_R0)
+		LOG_GET(VIF0_R1)
+		LOG_GET(VIF0_R2)
+		LOG_GET(VIF0_R3)
+
+		LOG_GET(VIF1_STAT)
+		LOG_GET(VIF1_MARK)
+		LOG_GET(VIF1_CYCLE)
+		LOG_GET(VIF1_MODE)
+		LOG_GET(VIF1_R0)
+		LOG_GET(VIF1_R1)
+		LOG_GET(VIF1_R2)
+		LOG_GET(VIF1_R3)
+
 	default:
 		CLog::GetInstance().Print(LOG_NAME, "Reading unknown register 0x%0.8X.\r\n", address);
 		break;
 	}
+
+#undef LOG_GET
 }
 
 void CVif::DisassembleSet(uint32 address, uint32 value)
@@ -1033,24 +1007,22 @@ void CVif::DisassembleSet(uint32 address, uint32 value)
 	}
 	else
 	{
+#define LOG_SET(registerId) case registerId: CLog::GetInstance().Print(LOG_NAME, #registerId " = 0x%0.8X.\r\n", value); break;
+
 		switch(address)
 		{
-		case VIF0_FBRST:
-			CLog::GetInstance().Print(LOG_NAME, "VIF0_FBRST = 0x%0.8X.\r\n", value);
-			break;
-		case VIF0_MARK:
-			CLog::GetInstance().Print(LOG_NAME, "VIF0_MARK = 0x%0.8X.\r\n", value);
-			break;
-		case VIF1_FBRST:
-			CLog::GetInstance().Print(LOG_NAME, "VIF1_FBRST = 0x%0.8X.\r\n", value);
-			break;
-		case VIF1_MARK:
-			CLog::GetInstance().Print(LOG_NAME, "VIF1_MARK = 0x%0.8X.\r\n", value);
-			break;
+			LOG_SET(VIF0_FBRST)
+			LOG_SET(VIF0_MARK)
+
+			LOG_SET(VIF1_FBRST)
+			LOG_SET(VIF1_MARK)
+
 		default:
 			CLog::GetInstance().Print(LOG_NAME, "Writing unknown register 0x%0.8X, 0x%0.8X.\r\n", address, value);
 			break;
 		}
+
+#undef LOG_SET
 	}
 }
 
