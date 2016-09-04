@@ -131,7 +131,15 @@ void CVif::SetRegister(uint32 address, uint32 value)
 	{
 		switch(address)
 		{
+		case VIF0_FBRST:
 		case VIF1_FBRST:
+			if(value & FBRST_RST)
+			{
+				//TODO: Reset FIFO
+				m_CODE <<= 0;
+				m_STAT <<= 0;
+				m_NUM = 0;
+			}
 			if(value & FBRST_STC)
 			{
 				m_STAT.nVIS = 0;
@@ -1027,11 +1035,14 @@ void CVif::DisassembleSet(uint32 address, uint32 value)
 	{
 		switch(address)
 		{
-		case VIF1_FBRST:
-			CLog::GetInstance().Print(LOG_NAME, "VIF1_FBRST = 0x%0.8X.\r\n", value);
+		case VIF0_FBRST:
+			CLog::GetInstance().Print(LOG_NAME, "VIF0_FBRST = 0x%0.8X.\r\n", value);
 			break;
 		case VIF0_MARK:
 			CLog::GetInstance().Print(LOG_NAME, "VIF0_MARK = 0x%0.8X.\r\n", value);
+			break;
+		case VIF1_FBRST:
+			CLog::GetInstance().Print(LOG_NAME, "VIF1_FBRST = 0x%0.8X.\r\n", value);
 			break;
 		case VIF1_MARK:
 			CLog::GetInstance().Print(LOG_NAME, "VIF1_MARK = 0x%0.8X.\r\n", value);

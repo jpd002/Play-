@@ -18,6 +18,7 @@ public:
 	{
 		REGS0_START		= 0x10003800,
 		VIF0_STAT		= 0x10003800,
+		VIF0_FBRST		= 0x10003810,
 		VIF0_MARK		= 0x10003830,
 		VIF0_CYCLE		= 0x10003840,
 		VIF0_MODE		= 0x10003850,
@@ -65,6 +66,7 @@ public:
 protected:
 	enum
 	{
+		FBRST_RST = 0x01,
 		FBRST_STC = 0x08
 	};
 
