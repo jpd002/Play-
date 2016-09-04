@@ -79,6 +79,10 @@ uint32 CVif::GetRegister(uint32 address)
 	uint32 result = 0;
 	switch(address)
 	{
+	case VIF0_STAT:
+	case VIF1_STAT:
+		result = m_STAT;
+		break;
 	case VIF0_MARK:
 	case VIF1_MARK:
 		result = m_MARK;
@@ -955,6 +959,9 @@ void CVif::DisassembleGet(uint32 address)
 {
 	switch(address)
 	{
+	case VIF0_STAT:
+		CLog::GetInstance().Print(LOG_NAME, "VIF0_STAT.\r\n");
+		break;
 	case VIF0_MARK:
 		CLog::GetInstance().Print(LOG_NAME, "VIF0_MARK.\r\n");
 		break;
@@ -975,6 +982,9 @@ void CVif::DisassembleGet(uint32 address)
 		break;
 	case VIF0_R3:
 		CLog::GetInstance().Print(LOG_NAME, "VIF0_R3.\r\n");
+		break;
+	case VIF1_STAT:
+		CLog::GetInstance().Print(LOG_NAME, "VIF1_STAT.\r\n");
 		break;
 	case VIF1_MARK:
 		CLog::GetInstance().Print(LOG_NAME, "VIF1_MARK.\r\n");
