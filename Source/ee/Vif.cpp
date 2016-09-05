@@ -599,7 +599,7 @@ void CVif::Cmd_UNPACK(StreamType& stream, CODE nCommand, uint32 nDstAddr)
 	if(wl == 0) 
 	{
 		wl = UINT_MAX;
-		cl = UINT_MAX;
+		cl = 0;
 	}
 
 	if(m_NUM == nCommand.nNUM)
@@ -631,7 +631,7 @@ void CVif::Cmd_UNPACK(StreamType& stream, CODE nCommand, uint32 nDstAddr)
 
 		if(cl >= wl)
 		{
-			if(m_readTick < wl || wl == 0)
+			if(m_readTick < wl)
 			{
 				bool success = Unpack_ReadValue(nCommand, stream, writeValue, usn);
 				if(!success) break;
