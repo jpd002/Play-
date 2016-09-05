@@ -4,6 +4,7 @@
 #include <QMainWindow>
 #include <QLabel>
 #include <QKeyEvent>
+#include <QXmlStreamReader>
 
 #include "AppConfig.h"
 #include "PS2VM.h"
@@ -65,6 +66,7 @@ private:
     };
     lastOpenCommand* m_lastOpenCommand = nullptr;
 
+    QString ReadElementValue(QXmlStreamReader &Rxml);
 protected:
     void closeEvent(QCloseEvent*) Q_DECL_OVERRIDE;
     void showEvent(QShowEvent*) Q_DECL_OVERRIDE;
@@ -90,6 +92,7 @@ private slots:
     void on_actionReset_triggered();
     void on_actionMemory_Card_Manager_triggered();
     void on_actionVFS_Manager_triggered();
+    void on_actionController_Manager_triggered();
 };
 
 #endif // MAINWINDOW_H

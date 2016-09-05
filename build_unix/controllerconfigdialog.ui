@@ -1,0 +1,931 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>ControllerConfigDialog</class>
+ <widget class="QDialog" name="ControllerConfigDialog">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>751</width>
+    <height>639</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Dialog</string>
+  </property>
+  <layout class="QGridLayout" name="gridLayout_1">
+   <item row="0" column="0">
+    <widget class="QTabWidget" name="tabWidget">
+     <property name="enabled">
+      <bool>true</bool>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">
+
+QGroupBox {
+    border: 1px solid gray;
+    border-radius: 9px;
+    margin-top: 0.5em;
+}
+
+QGroupBox::title {
+    subcontrol-origin: margin;
+    left: 10px;
+    padding: 0 3px 0 3px;
+}
+
+</string>
+     </property>
+     <property name="currentIndex">
+      <number>0</number>
+     </property>
+     <widget class="QWidget" name="tab">
+      <attribute name="title">
+       <string>Pad1</string>
+      </attribute>
+      <layout class="QGridLayout" name="gridLayout_2">
+       <item row="0" column="0">
+        <widget class="QGroupBox" name="groupBox_1_LS">
+         <property name="title">
+          <string>Left Shoulder Buttons</string>
+         </property>
+         <layout class="QGridLayout" name="gridLayout_3">
+          <item row="0" column="0">
+           <layout class="QVBoxLayout" name="verticalLayout">
+            <item>
+             <widget class="PadQWidgetExt" name="L1" native="true">
+              <property name="BindingIndex" stdset="0">
+               <number>14</number>
+              </property>
+              <property name="DefaultKey" stdset="0">
+               <string notr="true">E</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="PadQWidgetExt" name="L2" native="true">
+              <property name="BindingIndex" stdset="0">
+               <number>15</number>
+              </property>
+              <property name="DefaultKey" stdset="0">
+               <string notr="true">T</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item row="0" column="1" colspan="2">
+        <widget class="QGroupBox" name="groupBox_2_SS">
+         <property name="title">
+          <string/>
+         </property>
+         <layout class="QGridLayout" name="gridLayout_4">
+          <item row="0" column="0">
+           <layout class="QHBoxLayout" name="horizontalLayout">
+            <item>
+             <widget class="PadQWidgetExt" name="Select" native="true">
+              <property name="BindingIndex" stdset="0">
+               <number>8</number>
+              </property>
+              <property name="DefaultKey" stdset="0">
+               <string notr="true">Backspace</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="PadQWidgetExt" name="Start" native="true">
+              <property name="BindingIndex" stdset="0">
+               <number>9</number>
+              </property>
+              <property name="DefaultKey" stdset="0">
+               <string notr="true">Return</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item row="0" column="3">
+        <widget class="QGroupBox" name="groupBox_3_RS">
+         <property name="title">
+          <string>Right Shoulder Buttons</string>
+         </property>
+         <layout class="QGridLayout" name="gridLayout_5">
+          <item row="0" column="0">
+           <layout class="QVBoxLayout" name="verticalLayout_2">
+            <item>
+             <widget class="PadQWidgetExt" name="R1" native="true">
+              <property name="BindingIndex" stdset="0">
+               <number>17</number>
+              </property>
+              <property name="DefaultKey" stdset="0">
+               <string notr="true">Y</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="PadQWidgetExt" name="R2" native="true">
+              <property name="BindingIndex" stdset="0">
+               <number>18</number>
+              </property>
+              <property name="DefaultKey" stdset="0">
+               <string notr="true">I</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item row="1" column="0" colspan="2">
+        <widget class="QGroupBox" name="groupBox_4_DPad">
+         <property name="title">
+          <string>Direction-Pad</string>
+         </property>
+         <layout class="QGridLayout" name="gridLayout_6">
+          <item row="0" column="0">
+           <layout class="QGridLayout" name="gridLayout_7">
+            <item row="1" column="1">
+             <layout class="QVBoxLayout" name="verticalLayout_3">
+              <item>
+               <widget class="PadQWidgetExt" name="D_Up" native="true">
+                <property name="BindingIndex" stdset="0">
+                 <number>4</number>
+                </property>
+                <property name="DefaultKey" stdset="0">
+                 <string notr="true">Up</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+            <item row="2" column="2">
+             <layout class="QVBoxLayout" name="verticalLayout_4">
+              <item>
+               <widget class="PadQWidgetExt" name="D_Right" native="true">
+                <property name="BindingIndex" stdset="0">
+                 <number>7</number>
+                </property>
+                <property name="DefaultKey" stdset="0">
+                 <string notr="true">Right</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+            <item row="3" column="1">
+             <layout class="QVBoxLayout" name="verticalLayout_5">
+              <item>
+               <widget class="PadQWidgetExt" name="D_Down" native="true">
+                <property name="BindingIndex" stdset="0">
+                 <number>5</number>
+                </property>
+                <property name="DefaultKey" stdset="0">
+                 <string notr="true">Down</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+            <item row="2" column="0">
+             <layout class="QVBoxLayout" name="verticalLayout_6">
+              <item>
+               <widget class="PadQWidgetExt" name="D_Left" native="true">
+                <property name="BindingIndex" stdset="0">
+                 <number>6</number>
+                </property>
+                <property name="DefaultKey" stdset="0">
+                 <string notr="true">Left</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+           </layout>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item row="1" column="2" colspan="2">
+        <widget class="QGroupBox" name="groupBox_5_A">
+         <property name="styleSheet">
+          <string notr="true"/>
+         </property>
+         <property name="title">
+          <string>Action Buttons</string>
+         </property>
+         <layout class="QGridLayout" name="gridLayout_8">
+          <item row="0" column="0">
+           <layout class="QGridLayout" name="gridLayout_9">
+            <item row="0" column="1">
+             <layout class="QVBoxLayout" name="verticalLayout_7">
+              <item>
+               <widget class="PadQWidgetExt" name="Triangle" native="true">
+                <property name="BindingIndex" stdset="0">
+                 <number>11</number>
+                </property>
+                <property name="DefaultKey" stdset="0">
+                 <string notr="true">S</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+            <item row="1" column="2">
+             <layout class="QVBoxLayout" name="verticalLayout_8">
+              <item>
+               <widget class="PadQWidgetExt" name="Circle" native="true">
+                <property name="BindingIndex" stdset="0">
+                 <number>12</number>
+                </property>
+                <property name="DefaultKey" stdset="0">
+                 <string notr="true">X</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+            <item row="2" column="1">
+             <layout class="QVBoxLayout" name="verticalLayout_9">
+              <item>
+               <widget class="PadQWidgetExt" name="Cross" native="true">
+                <property name="BindingIndex" stdset="0">
+                 <number>13</number>
+                </property>
+                <property name="DefaultKey" stdset="0">
+                 <string notr="true">Z</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+            <item row="1" column="0">
+             <layout class="QVBoxLayout" name="verticalLayout_10">
+              <item>
+               <widget class="PadQWidgetExt" name="Square" native="true">
+                <property name="BindingIndex" stdset="0">
+                 <number>10</number>
+                </property>
+                <property name="DefaultKey" stdset="0">
+                 <string notr="true">A</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+           </layout>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item row="2" column="0" colspan="2">
+        <widget class="QGroupBox" name="groupBox_6_LA">
+         <property name="title">
+          <string>Left Analog</string>
+         </property>
+         <layout class="QGridLayout" name="gridLayout_10">
+          <item row="0" column="0">
+           <layout class="QGridLayout" name="gridLayout_11">
+            <item row="1" column="1">
+             <layout class="QVBoxLayout" name="verticalLayout_15">
+              <item>
+               <widget class="PadQWidgetExt" name="L3" native="true">
+                <property name="BindingIndex" stdset="0">
+                 <number>16</number>
+                </property>
+                <property name="DefaultKey" stdset="0">
+                 <string notr="true"/>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+            <item row="1" column="2">
+             <layout class="QVBoxLayout" name="verticalLayout_12">
+              <item>
+               <widget class="PadQWidgetExt" name="LA_Right" native="true">
+                <property name="BindingIndex" stdset="0">
+                 <number>0</number>
+                </property>
+                <property name="DefaultKey" stdset="0">
+                 <string notr="true">G</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+            <item row="1" column="0">
+             <layout class="QVBoxLayout" name="verticalLayout_14">
+              <item>
+               <widget class="PadQWidgetExt" name="LA_Left" native="true">
+                <property name="BindingIndex" stdset="0">
+                 <number>0</number>
+                </property>
+                <property name="DefaultKey" stdset="0">
+                 <string notr="true">D</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+            <item row="2" column="1">
+             <layout class="QVBoxLayout" name="verticalLayout_13">
+              <item>
+               <widget class="PadQWidgetExt" name="LA_Down" native="true">
+                <property name="BindingIndex" stdset="0">
+                 <number>1</number>
+                </property>
+                <property name="DefaultKey" stdset="0">
+                 <string notr="true">F</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+            <item row="0" column="1">
+             <layout class="QVBoxLayout" name="verticalLayout_11" stretch="0">
+              <item>
+               <widget class="PadQWidgetExt" name="LA_Up" native="true">
+                <property name="BindingIndex" stdset="0">
+                 <number>1</number>
+                </property>
+                <property name="DefaultKey" stdset="0">
+                 <string notr="true">R</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+           </layout>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item row="2" column="2" colspan="2">
+        <widget class="QGroupBox" name="groupBox_7_LA">
+         <property name="title">
+          <string>Right Analog</string>
+         </property>
+         <layout class="QGridLayout" name="gridLayout_12">
+          <item row="0" column="0">
+           <layout class="QGridLayout" name="gridLayout_13">
+            <item row="0" column="1">
+             <layout class="QVBoxLayout" name="verticalLayout_16">
+              <item>
+               <widget class="PadQWidgetExt" name="RA_Up" native="true">
+                <property name="BindingIndex" stdset="0">
+                 <number>3</number>
+                </property>
+                <property name="DefaultKey" stdset="0">
+                 <string notr="true">U</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+            <item row="1" column="2">
+             <layout class="QVBoxLayout" name="verticalLayout_17">
+              <item>
+               <widget class="PadQWidgetExt" name="RA_Right" native="true">
+                <property name="BindingIndex" stdset="0">
+                 <number>2</number>
+                </property>
+                <property name="DefaultKey" stdset="0">
+                 <string notr="true">K</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+            <item row="2" column="1">
+             <layout class="QVBoxLayout" name="verticalLayout_18">
+              <item>
+               <widget class="PadQWidgetExt" name="RA_Down" native="true">
+                <property name="BindingIndex" stdset="0">
+                 <number>3</number>
+                </property>
+                <property name="DefaultKey" stdset="0">
+                 <string notr="true">J</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+            <item row="1" column="0">
+             <layout class="QVBoxLayout" name="verticalLayout_19">
+              <item>
+               <widget class="PadQWidgetExt" name="RA_Left" native="true">
+                <property name="BindingIndex" stdset="0">
+                 <number>2</number>
+                </property>
+                <property name="DefaultKey" stdset="0">
+                 <string notr="true">H</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+            <item row="1" column="1">
+             <layout class="QVBoxLayout" name="verticalLayout_20">
+              <item>
+               <widget class="PadQWidgetExt" name="R3" native="true">
+                <property name="BindingIndex" stdset="0">
+                 <number>19</number>
+                </property>
+                <property name="DefaultKey" stdset="0">
+                 <string notr="true"/>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+           </layout>
+          </item>
+         </layout>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="tab_2">
+      <attribute name="title">
+       <string>Pad2</string>
+      </attribute>
+      <layout class="QGridLayout" name="gridLayout_14">
+       <item row="0" column="0">
+        <widget class="QGroupBox" name="groupBox_1_LS_2">
+         <property name="title">
+          <string>Left Shoulder Buttons</string>
+         </property>
+         <layout class="QGridLayout" name="gridLayout_15">
+          <item row="0" column="0">
+           <layout class="QVBoxLayout" name="verticalLayout_21">
+            <item>
+             <widget class="PadQWidgetExt" name="L1_2" native="true">
+              <property name="BindingIndex" stdset="0">
+               <number>14</number>
+              </property>
+              <property name="DefaultKey" stdset="0">
+               <string notr="true"/>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="PadQWidgetExt" name="L2_2" native="true">
+              <property name="BindingIndex" stdset="0">
+               <number>15</number>
+              </property>
+              <property name="DefaultKey" stdset="0">
+               <string notr="true"/>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item row="0" column="1" colspan="2">
+        <widget class="QGroupBox" name="groupBox_2_SS_2">
+         <property name="title">
+          <string/>
+         </property>
+         <layout class="QGridLayout" name="gridLayout_16">
+          <item row="0" column="0">
+           <layout class="QHBoxLayout" name="horizontalLayout_2">
+            <item>
+             <widget class="PadQWidgetExt" name="Select_2" native="true">
+              <property name="BindingIndex" stdset="0">
+               <number>8</number>
+              </property>
+              <property name="DefaultKey" stdset="0">
+               <string notr="true"/>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="PadQWidgetExt" name="Start_2" native="true">
+              <property name="BindingIndex" stdset="0">
+               <number>9</number>
+              </property>
+              <property name="DefaultKey" stdset="0">
+               <string notr="true"/>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item row="0" column="3">
+        <widget class="QGroupBox" name="groupBox_3_RS_2">
+         <property name="title">
+          <string>Right Shoulder Buttons</string>
+         </property>
+         <layout class="QGridLayout" name="gridLayout_17">
+          <item row="0" column="0">
+           <layout class="QVBoxLayout" name="verticalLayout_22">
+            <item>
+             <widget class="PadQWidgetExt" name="R1_2" native="true">
+              <property name="BindingIndex" stdset="0">
+               <number>17</number>
+              </property>
+              <property name="DefaultKey" stdset="0">
+               <string notr="true"/>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="PadQWidgetExt" name="R2_2" native="true">
+              <property name="BindingIndex" stdset="0">
+               <number>18</number>
+              </property>
+              <property name="DefaultKey" stdset="0">
+               <string notr="true"/>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item row="1" column="0" colspan="2">
+        <widget class="QGroupBox" name="groupBox_4_DPad_2">
+         <property name="title">
+          <string>Direction-Pad</string>
+         </property>
+         <layout class="QGridLayout" name="gridLayout_18">
+          <item row="0" column="0">
+           <layout class="QGridLayout" name="gridLayout_19">
+            <item row="1" column="1">
+             <layout class="QVBoxLayout" name="verticalLayout_23">
+              <item>
+               <widget class="PadQWidgetExt" name="D_Up_2" native="true">
+                <property name="BindingIndex" stdset="0">
+                 <number>4</number>
+                </property>
+                <property name="DefaultKey" stdset="0">
+                 <string notr="true"/>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+            <item row="2" column="2">
+             <layout class="QVBoxLayout" name="verticalLayout_24">
+              <item>
+               <widget class="PadQWidgetExt" name="D_Right_2" native="true">
+                <property name="BindingIndex" stdset="0">
+                 <number>7</number>
+                </property>
+                <property name="DefaultKey" stdset="0">
+                 <string notr="true"/>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+            <item row="3" column="1">
+             <layout class="QVBoxLayout" name="verticalLayout_25">
+              <item>
+               <widget class="PadQWidgetExt" name="D_Down_2" native="true">
+                <property name="BindingIndex" stdset="0">
+                 <number>5</number>
+                </property>
+                <property name="DefaultKey" stdset="0">
+                 <string notr="true"/>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+            <item row="2" column="0">
+             <layout class="QVBoxLayout" name="verticalLayout_26">
+              <item>
+               <widget class="PadQWidgetExt" name="D_Left_2" native="true">
+                <property name="BindingIndex" stdset="0">
+                 <number>6</number>
+                </property>
+                <property name="DefaultKey" stdset="0">
+                 <string notr="true"/>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+           </layout>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item row="1" column="2" colspan="2">
+        <widget class="QGroupBox" name="groupBox_5_A_2">
+         <property name="styleSheet">
+          <string notr="true"/>
+         </property>
+         <property name="title">
+          <string>Action Buttons</string>
+         </property>
+         <layout class="QGridLayout" name="gridLayout_20">
+          <item row="0" column="0">
+           <layout class="QGridLayout" name="gridLayout_21">
+            <item row="0" column="1">
+             <layout class="QVBoxLayout" name="verticalLayout_27">
+              <item>
+               <widget class="PadQWidgetExt" name="Triangle_2" native="true">
+                <property name="BindingIndex" stdset="0">
+                 <number>11</number>
+                </property>
+                <property name="DefaultKey" stdset="0">
+                 <string notr="true"/>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+            <item row="1" column="2">
+             <layout class="QVBoxLayout" name="verticalLayout_28">
+              <item>
+               <widget class="PadQWidgetExt" name="Circle_2" native="true">
+                <property name="BindingIndex" stdset="0">
+                 <number>12</number>
+                </property>
+                <property name="DefaultKey" stdset="0">
+                 <string notr="true"/>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+            <item row="2" column="1">
+             <layout class="QVBoxLayout" name="verticalLayout_29">
+              <item>
+               <widget class="PadQWidgetExt" name="Cross_2" native="true">
+                <property name="BindingIndex" stdset="0">
+                 <number>13</number>
+                </property>
+                <property name="DefaultKey" stdset="0">
+                 <string notr="true"/>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+            <item row="1" column="0">
+             <layout class="QVBoxLayout" name="verticalLayout_30">
+              <item>
+               <widget class="PadQWidgetExt" name="Square_2" native="true">
+                <property name="BindingIndex" stdset="0">
+                 <number>10</number>
+                </property>
+                <property name="DefaultKey" stdset="0">
+                 <string notr="true"/>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+           </layout>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item row="2" column="0" colspan="2">
+        <widget class="QGroupBox" name="groupBox_6_LA_2">
+         <property name="title">
+          <string>Left Analog</string>
+         </property>
+         <layout class="QGridLayout" name="gridLayout_22">
+          <item row="0" column="0">
+           <layout class="QGridLayout" name="gridLayout_23">
+            <item row="0" column="1">
+             <layout class="QVBoxLayout" name="verticalLayout_31" stretch="0">
+              <item>
+               <widget class="PadQWidgetExt" name="LA_Up_2" native="true">
+                <property name="BindingIndex" stdset="0">
+                 <number>1</number>
+                </property>
+                <property name="DefaultKey" stdset="0">
+                 <string notr="true"/>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+            <item row="1" column="2">
+             <layout class="QVBoxLayout" name="verticalLayout_32">
+              <item>
+               <widget class="PadQWidgetExt" name="LA_Right_2" native="true">
+                <property name="BindingIndex" stdset="0">
+                 <number>0</number>
+                </property>
+                <property name="DefaultKey" stdset="0">
+                 <string notr="true"/>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+            <item row="2" column="1">
+             <layout class="QVBoxLayout" name="verticalLayout_33">
+              <item>
+               <widget class="PadQWidgetExt" name="LA_Down_2" native="true">
+                <property name="BindingIndex" stdset="0">
+                 <number>1</number>
+                </property>
+                <property name="DefaultKey" stdset="0">
+                 <string notr="true"/>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+            <item row="1" column="0">
+             <layout class="QVBoxLayout" name="verticalLayout_34">
+              <item>
+               <widget class="PadQWidgetExt" name="LA_Left_2" native="true">
+                <property name="BindingIndex" stdset="0">
+                 <number>0</number>
+                </property>
+                <property name="DefaultKey" stdset="0">
+                 <string notr="true"/>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+            <item row="1" column="1">
+             <layout class="QVBoxLayout" name="verticalLayout_35">
+              <item>
+               <widget class="PadQWidgetExt" name="L3_2" native="true">
+                <property name="BindingIndex" stdset="0">
+                 <number>16</number>
+                </property>
+                <property name="DefaultKey" stdset="0">
+                 <string notr="true"/>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+           </layout>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item row="2" column="2" colspan="2">
+        <widget class="QGroupBox" name="groupBox_7_LA_2">
+         <property name="title">
+          <string>Right Analog</string>
+         </property>
+         <layout class="QGridLayout" name="gridLayout_24">
+          <item row="0" column="0">
+           <layout class="QGridLayout" name="gridLayout_25">
+            <item row="0" column="1">
+             <layout class="QVBoxLayout" name="verticalLayout_36">
+              <item>
+               <widget class="PadQWidgetExt" name="RA_Up_2" native="true">
+                <property name="BindingIndex" stdset="0">
+                 <number>3</number>
+                </property>
+                <property name="DefaultKey" stdset="0">
+                 <string notr="true"/>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+            <item row="1" column="2">
+             <layout class="QVBoxLayout" name="verticalLayout_37">
+              <item>
+               <widget class="PadQWidgetExt" name="RA_Right_2" native="true">
+                <property name="BindingIndex" stdset="0">
+                 <number>2</number>
+                </property>
+                <property name="DefaultKey" stdset="0">
+                 <string notr="true"/>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+            <item row="2" column="1">
+             <layout class="QVBoxLayout" name="verticalLayout_38">
+              <item>
+               <widget class="PadQWidgetExt" name="RA_Down_2" native="true">
+                <property name="BindingIndex" stdset="0">
+                 <number>3</number>
+                </property>
+                <property name="DefaultKey" stdset="0">
+                 <string notr="true"/>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+            <item row="1" column="0">
+             <layout class="QVBoxLayout" name="verticalLayout_39">
+              <item>
+               <widget class="PadQWidgetExt" name="RA_Left_2" native="true">
+                <property name="BindingIndex" stdset="0">
+                 <number>2</number>
+                </property>
+                <property name="DefaultKey" stdset="0">
+                 <string notr="true"/>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+            <item row="1" column="1">
+             <layout class="QVBoxLayout" name="verticalLayout_40">
+              <item>
+               <widget class="PadQWidgetExt" name="R3_2" native="true">
+                <property name="BindingIndex" stdset="0">
+                 <number>19</number>
+                </property>
+                <property name="DefaultKey" stdset="0">
+                 <string notr="true"/>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+           </layout>
+          </item>
+         </layout>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </widget>
+   </item>
+   <item row="1" column="0">
+    <widget class="QDialogButtonBox" name="buttonBox">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="standardButtons">
+      <set>QDialogButtonBox::Apply|QDialogButtonBox::Cancel|QDialogButtonBox::Ok|QDialogButtonBox::RestoreDefaults</set>
+     </property>
+     <property name="centerButtons">
+      <bool>false</bool>
+     </property>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>PadQWidgetExt</class>
+   <extends>QWidget</extends>
+   <header>padqwidgetext.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
+ <tabstops>
+  <tabstop>tabWidget</tabstop>
+ </tabstops>
+ <resources/>
+ <connections>
+  <connection>
+   <sender>buttonBox</sender>
+   <signal>accepted()</signal>
+   <receiver>ControllerConfigDialog</receiver>
+   <slot>accept()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>248</x>
+     <y>254</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>157</x>
+     <y>274</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>buttonBox</sender>
+   <signal>rejected()</signal>
+   <receiver>ControllerConfigDialog</receiver>
+   <slot>reject()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>316</x>
+     <y>260</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>286</x>
+     <y>274</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+</ui>

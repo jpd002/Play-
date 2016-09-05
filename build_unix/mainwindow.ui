@@ -42,7 +42,7 @@
      <x>0</x>
      <y>0</y>
      <width>640</width>
-     <height>25</height>
+     <height>19</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFor_The">
@@ -61,6 +61,7 @@
     <addaction name="actionSettings"/>
     <addaction name="actionMemory_Card_Manager"/>
     <addaction name="actionVFS_Manager"/>
+    <addaction name="actionController_Manager"/>
    </widget>
    <widget class="QMenu" name="menuVirtualMachine">
     <property name="title">
@@ -173,6 +174,11 @@
   <action name="actionVFS_Manager">
    <property name="text">
     <string>VFS Manager...</string>
+   </property>
+  </action>
+  <action name="actionController_Manager">
+   <property name="text">
+    <string>Controller Manager...</string>
    </property>
   </action>
  </widget>

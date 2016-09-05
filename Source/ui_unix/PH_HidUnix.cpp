@@ -26,6 +26,17 @@ CPH_HidUnix::~CPH_HidUnix()
 {
 }
 
+void CPH_HidUnix::UpdateBinding(BindingPtr* bindarr)
+{
+    if (bindarr == nullptr) return;
+    for(unsigned int i = 0; i < PS2::CControllerInfo::MAX_BUTTONS; i++)
+    {
+            if (bindarr[i] != 0)
+                m_bindings[i] = bindarr[i];
+    }
+}
+
+
 void CPH_HidUnix::Update(uint8* ram)
 {
     for(auto listenerIterator(std::begin(m_listeners));
@@ -62,32 +73,33 @@ CPadHandler* CPH_HidUnix::PadHandlerFactory(CPH_HidUnix* handler)
     return handler;
 }
 
-void CPH_HidUnix::InputValueCallbackPressed(uint32 valueRef)
+void CPH_HidUnix::InputValueCallbackPressed(uint32 valueRef, int type)
 {
-    InputValueCallback(valueRef, 1);
+    InputValueCallback(valueRef, 1, type);
 }
 
-void CPH_HidUnix::InputValueCallbackReleased(uint32 valueRef)
+void CPH_HidUnix::InputValueCallbackReleased(uint32 valueRef, int type)
 {
-    InputValueCallback(valueRef, 0);
+    InputValueCallback(valueRef, 0, type);
 }
 
-void CPH_HidUnix::InputValueCallback(uint32 value, uint32 action)
+void CPH_HidUnix::InputValueCallback(uint32 value, uint32 action, int type)
 {
     for(auto bindingIterator(std::begin(m_bindings));
         bindingIterator != std::end(m_bindings); bindingIterator++)
     {
         const auto& binding = (*bindingIterator);
         if(!binding) continue;
-        binding->ProcessEvent(value, action);
+        binding->ProcessEvent(value, action, type);
     }
 }
 
 //---------------------------------------------------------------------------------
 
-CPH_HidUnix::CSimpleBinding::CSimpleBinding(uint32 keyCode)
+CPH_HidUnix::CSimpleBinding::CSimpleBinding(uint32 keyCode, int controllerType)
     : m_keyCode(keyCode)
     , m_state(0)
+    , m_controllerType(controllerType)
 {
 
 }
@@ -97,9 +109,9 @@ CPH_HidUnix::CSimpleBinding::~CSimpleBinding()
 
 }
 
-void CPH_HidUnix::CSimpleBinding::ProcessEvent(uint32 keyCode, uint32 state)
+void CPH_HidUnix::CSimpleBinding::ProcessEvent(uint32 keyCode, uint32 state, int controllerType)
 {
-    if(keyCode != m_keyCode) return;
+    if(keyCode != m_keyCode || controllerType != m_controllerType) return;
     m_state = state;
 }
 
@@ -110,11 +122,12 @@ uint32 CPH_HidUnix::CSimpleBinding::GetValue() const
 
 //---------------------------------------------------------------------------------
 
-CPH_HidUnix::CSimulatedAxisBinding::CSimulatedAxisBinding(uint32 negativeKeyCode, uint32 positiveKeyCode)
+CPH_HidUnix::CSimulatedAxisBinding::CSimulatedAxisBinding(uint32 negativeKeyCode, uint32 positiveKeyCode, int controllerType)
     : m_negativeKeyCode(negativeKeyCode)
     , m_positiveKeyCode(positiveKeyCode)
     , m_negativeState(0)
     , m_positiveState(0)
+    , m_controllerType(controllerType)
 {
 
 }
@@ -124,8 +137,9 @@ CPH_HidUnix::CSimulatedAxisBinding::~CSimulatedAxisBinding()
 
 }
 
-void CPH_HidUnix::CSimulatedAxisBinding::ProcessEvent(uint32 keyCode, uint32 state)
+void CPH_HidUnix::CSimulatedAxisBinding::ProcessEvent(uint32 keyCode, uint32 state, int controllerType)
 {
+    if(controllerType != m_controllerType) return;
     if(keyCode == m_negativeKeyCode)
     {
         m_negativeState = state;

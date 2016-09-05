@@ -22,6 +22,7 @@
 
 #include "ui_mainwindow.h"
 #include "vfsmanagerdialog.h"
+#include "controllerconfigdialog.h"
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -84,13 +85,15 @@ void MainWindow::initEmu()
     g_virtualMachine->CreatePadHandler(CPH_HidUnix::GetFactoryFunction());
     padhandler = static_cast<CPH_HidUnix*>(g_virtualMachine->GetPadHandler());
 
+    CPH_HidUnix::BindingPtr *binding = ControllerConfigDialog::GetBinding(1);
+    padhandler->UpdateBinding(binding);
+
     StatsManager = new CStatsManager();
     g_virtualMachine->m_ee->m_gs->OnNewFrame.connect(boost::bind(&CStatsManager::OnNewFrame, StatsManager, _1));
 
     g_virtualMachine->OnRunningStateChange.connect(boost::bind(&MainWindow::OnRunningStateChange, this));
     g_virtualMachine->m_ee->m_os->OnExecutableChange.connect(boost::bind(&MainWindow::OnExecutableChange, this));
 }
-
 
 void MainWindow::setOpenGlPanelSize()
 {
@@ -201,13 +204,13 @@ void MainWindow::on_actionExit_triggered()
 void MainWindow::keyPressEvent(QKeyEvent *event)
 {
     if (padhandler != nullptr)
-            padhandler->InputValueCallbackPressed(event->key());
+            padhandler->InputValueCallbackPressed(event->key(), 0);
 }
 
 void MainWindow::keyReleaseEvent(QKeyEvent *event)
 {
     if (padhandler != nullptr)
-            padhandler->InputValueCallbackReleased(event->key());
+            padhandler->InputValueCallbackReleased(event->key(), 0);
 }
 
 void MainWindow::createStatusBar()
@@ -438,4 +441,10 @@ void MainWindow::on_actionVFS_Manager_triggered()
 {
     VFSManagerDialog vfsmgr;
     vfsmgr.exec();
+}
+
+void MainWindow::on_actionController_Manager_triggered()
+{
+    ControllerConfigDialog ccd;
+    ccd.exec();
 }

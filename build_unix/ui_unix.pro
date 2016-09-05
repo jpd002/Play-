@@ -13,8 +13,10 @@ DEFINES += PLAY_VERSION=\\\"0.30\\\"
 VERSION = PLAY_VERSION
 TEMPLATE = app
 
-INCLUDEPATH +=../ \
+INCLUDEPATH +=. \
+              ../ \
               ../Source \
+              ../Source/ui_unix/ \
               ../../CodeGen/include \
               ../../Framework/include \
 
@@ -30,8 +32,9 @@ SOURCES += ../Source/ui_unix/main.cpp\
     ../Source/ui_unix/vfsmanagerdialog.cpp \
     ../Source/ui_unix/vfsmodel.cpp \
     ../Source/ui_unix/vfsdiscselectordialog.cpp \
-    ../Source/ui_unix/VfsDevice.cpp
-
+    ../Source/ui_unix/VfsDevice.cpp \
+    ../Source/ui_unix/controllerconfigdialog.cpp \
+    ../Source/ui_unix/padqwidgetext.cpp
 
 
 HEADERS  += ../Source/ui_unix/mainwindow.h \
@@ -46,14 +49,17 @@ HEADERS  += ../Source/ui_unix/mainwindow.h \
     ../Source/ui_unix/vfsmanagerdialog.h \
     ../Source/ui_unix/vfsmodel.h \
     ../Source/ui_unix/vfsdiscselectordialog.h \
-    ../Source/ui_unix/VfsDevice.h
+    ../Source/ui_unix/VfsDevice.h \
+    ../Source/ui_unix/controllerconfigdialog.h \
+    ../Source/ui_unix/padqwidgetext.h
 
 
 FORMS    += mainwindow.ui \
     settingsdialog.ui \
     memorycardmanager.ui \
     vfsmanagerdialog.ui \
-    vfsdiscselectordialog.ui
+    vfsdiscselectordialog.ui \
+    controllerconfigdialog.ui
 
 RESOURCES     = resources.qrc
 
