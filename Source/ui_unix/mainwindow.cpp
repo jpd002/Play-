@@ -9,6 +9,7 @@
 #include <QTimer>
 #include <QWindow>
 #include <QMessageBox>
+#include <QStorageInfo>
 
 #include "GSH_OpenGLQt.h"
 #include "tools/PsfPlayer/Source/SH_OpenAL.h"
@@ -20,6 +21,7 @@
 #include "PreferenceDefs.h"
 
 #include "ui_mainwindow.h"
+#include "vfsmanagerdialog.h"
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -430,4 +432,10 @@ void MainWindow::on_actionMemory_Card_Manager_triggered()
 {
     MemoryCardManagerDialog mcm;
     mcm.exec();
+}
+
+void MainWindow::on_actionVFS_Manager_triggered()
+{
+    VFSManagerDialog vfsmgr;
+    vfsmgr.exec();
 }

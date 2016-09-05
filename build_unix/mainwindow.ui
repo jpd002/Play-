@@ -60,6 +60,7 @@
     </property>
     <addaction name="actionSettings"/>
     <addaction name="actionMemory_Card_Manager"/>
+    <addaction name="actionVFS_Manager"/>
    </widget>
    <widget class="QMenu" name="menuVirtualMachine">
     <property name="title">
@@ -167,6 +168,11 @@
   <action name="actionMemory_Card_Manager">
    <property name="text">
     <string>Memory Card Manager...</string>
+   </property>
+  </action>
+  <action name="actionVFS_Manager">
+   <property name="text">
+    <string>VFS Manager...</string>
    </property>
   </action>
  </widget>
