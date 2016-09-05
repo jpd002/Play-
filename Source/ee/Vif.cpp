@@ -1051,7 +1051,7 @@ void CVif::DisassembleCommand(CODE code)
 
 	if(code.nCMD >= 0x60)
 	{
-		const char* packFormats[16] = 
+		static const char* packFormats[16] = 
 		{
 			"S-32",
 			"S-16",
