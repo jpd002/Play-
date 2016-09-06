@@ -2,7 +2,7 @@
 #include "../Ps2Const.h"
 #include "AlignedAlloc.h"
 
-#if defined(__ANDROID__) || defined(__APPLE__)
+#if defined(__unix__) || defined(__ANDROID__) || defined(__APPLE__)
 #include <sys/mman.h>
 #endif
 
@@ -56,7 +56,7 @@ void CEeExecutor::AddExceptionHandler()
 #if defined(_WIN32)
 	m_handler = AddVectoredExceptionHandler(TRUE, &CEeExecutor::HandleException);
 	assert(m_handler != NULL);
-#elif defined(__ANDROID__)
+#elif defined(__unix__) || defined(__ANDROID__)
 	struct sigaction sigAction;
 	sigAction.sa_handler	= nullptr;
 	sigAction.sa_sigaction	= &HandleException;
@@ -144,7 +144,7 @@ void CEeExecutor::SetMemoryProtected(void* addr, size_t size, bool protect)
 	DWORD oldProtect = 0;
 	BOOL result = VirtualProtect(addr, size, protect ? PAGE_READONLY : PAGE_READWRITE, &oldProtect);
 	assert(result == TRUE);
-#elif defined(__ANDROID__) || defined(__APPLE__)
+#elif defined(__unix__) || defined(__ANDROID__) || defined(__APPLE__)
 	uintptr_t addrValue = reinterpret_cast<uintptr_t>(addr) & ~(m_pageSize - 1);
 	addr = reinterpret_cast<void*>(addrValue);
 	size = size + (m_pageSize - 1) & ~(m_pageSize - 1);
@@ -175,7 +175,7 @@ LONG CEeExecutor::HandleExceptionInternal(_EXCEPTION_POINTERS* exceptionInfo)
 	return EXCEPTION_CONTINUE_SEARCH;
 }
 
-#elif defined(__ANDROID__)
+#elif defined(__unix__) || defined(__ANDROID__)
 
 void CEeExecutor::HandleException(int sigId, siginfo_t* sigInfo, void* baseContext)
 {

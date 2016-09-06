@@ -5,6 +5,8 @@
 #elif defined(__APPLE__)
 #include <mach/mach.h>
 #include <thread>
+#elif defined(__unix__)
+#include <signal.h>
 #endif
 
 #include "../MipsExecutor.h"
@@ -35,7 +37,7 @@ private:
 	LONG					HandleExceptionInternal(_EXCEPTION_POINTERS*);
 
 	LPVOID					m_handler = NULL;
-#elif defined(__ANDROID__)
+#elif defined(__unix__) || defined(__ANDROID__)
 	static void				HandleException(int, siginfo_t*, void*);
 	void					HandleExceptionInternal(int, siginfo_t*, void*);
 #elif defined(__APPLE__)

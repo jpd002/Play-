@@ -1,0 +1,190 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>640</width>
+    <height>512</height>
+   </rect>
+  </property>
+  <property name="focusPolicy">
+   <enum>Qt::ClickFocus</enum>
+  </property>
+  <property name="windowTitle">
+   <string>Play!</string>
+  </property>
+  <property name="windowIcon">
+   <iconset resource="resources.qrc">
+    <normaloff>:/assets/app_icon.png</normaloff>:/assets/app_icon.png</iconset>
+  </property>
+  <widget class="QWidget" name="centralWidget">
+   <layout class="QGridLayout" name="gridLayout">
+    <property name="leftMargin">
+     <number>0</number>
+    </property>
+    <property name="topMargin">
+     <number>0</number>
+    </property>
+    <property name="rightMargin">
+     <number>0</number>
+    </property>
+    <property name="bottomMargin">
+     <number>0</number>
+    </property>
+   </layout>
+  </widget>
+  <widget class="QMenuBar" name="menuBar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>640</width>
+     <height>19</height>
+    </rect>
+   </property>
+   <widget class="QMenu" name="menuFor_The">
+    <property name="title">
+     <string>File</string>
+    </property>
+    <addaction name="actionOpen_Game"/>
+    <addaction name="actionBoot_ELF"/>
+    <addaction name="separator"/>
+    <addaction name="actionExit"/>
+   </widget>
+   <widget class="QMenu" name="menuEdit">
+    <property name="title">
+     <string>Options</string>
+    </property>
+    <addaction name="actionSettings"/>
+    <addaction name="actionMemory_Card_Manager"/>
+    <addaction name="actionVFS_Manager"/>
+    <addaction name="actionController_Manager"/>
+   </widget>
+   <widget class="QMenu" name="menuVirtualMachine">
+    <property name="title">
+     <string>VirtualMachine</string>
+    </property>
+    <widget class="QMenu" name="menuSave_States">
+     <property name="title">
+      <string>Save States</string>
+     </property>
+     <addaction name="action_save_Slot_1_Empty"/>
+    </widget>
+    <widget class="QMenu" name="menuLoad_States">
+     <property name="title">
+      <string>Load States</string>
+     </property>
+     <addaction name="actionLoad_Slot_1_Empty"/>
+    </widget>
+    <addaction name="menuSave_States"/>
+    <addaction name="menuLoad_States"/>
+    <addaction name="separator"/>
+    <addaction name="actionPause_Resume"/>
+    <addaction name="actionPause_when_focus_is_lost"/>
+    <addaction name="actionReset"/>
+   </widget>
+   <widget class="QMenu" name="menuHelp">
+    <property name="title">
+     <string>Help</string>
+    </property>
+    <addaction name="actionAbout"/>
+   </widget>
+   <addaction name="menuFor_The"/>
+   <addaction name="menuEdit"/>
+   <addaction name="menuVirtualMachine"/>
+   <addaction name="menuHelp"/>
+  </widget>
+  <widget class="QStatusBar" name="statusBar"/>
+  <action name="actionOpen_Game">
+   <property name="text">
+    <string>Boot Disk Image...</string>
+   </property>
+   <property name="toolTip">
+    <string>Boot Disk Image...</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+O</string>
+   </property>
+  </action>
+  <action name="actionExit">
+   <property name="text">
+    <string>Exit</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Q</string>
+   </property>
+  </action>
+  <action name="actionSettings">
+   <property name="text">
+    <string>Settings...</string>
+   </property>
+  </action>
+  <action name="actionBoot_ELF">
+   <property name="text">
+    <string>Boot ELF...</string>
+   </property>
+   <property name="toolTip">
+    <string>Boot ELF...</string>
+   </property>
+  </action>
+  <action name="actionLoad_Slot_1_Empty">
+   <property name="text">
+    <string>Load Slot 1 - Empty</string>
+   </property>
+  </action>
+  <action name="action_save_Slot_1_Empty">
+   <property name="text">
+    <string>Save Slot 1 - Empty</string>
+   </property>
+  </action>
+  <action name="actionPause_Resume">
+   <property name="text">
+    <string>Pause/Resume</string>
+   </property>
+  </action>
+  <action name="actionAbout">
+   <property name="text">
+    <string>About...</string>
+   </property>
+  </action>
+  <action name="actionPause_when_focus_is_lost">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Pause when focus is lost</string>
+   </property>
+  </action>
+  <action name="actionReset">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Reset</string>
+   </property>
+  </action>
+  <action name="actionMemory_Card_Manager">
+   <property name="text">
+    <string>Memory Card Manager...</string>
+   </property>
+  </action>
+  <action name="actionVFS_Manager">
+   <property name="text">
+    <string>VFS Manager...</string>
+   </property>
+  </action>
+  <action name="actionController_Manager">
+   <property name="text">
+    <string>Controller Manager...</string>
+   </property>
+  </action>
+ </widget>
+ <layoutdefault spacing="6" margin="11"/>
+ <resources>
+  <include location="resources.qrc"/>
+ </resources>
+ <connections/>
+</ui>

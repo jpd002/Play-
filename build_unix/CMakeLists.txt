@@ -184,14 +184,24 @@ add_library(Play
 	../Source/MIPSReflection.cpp 
 	../Source/MIPSTags.cpp 
 	../Source/PadHandler.cpp 
-	../Source/PadListener.cpp 
+	../Source/PadListener.cpp
+	../Source/PH_Generic.cpp 
 	../Source/Posix_VolumeStream.cpp
 	../Source/Profiler.cpp 
 	../Source/PS2VM.cpp 
 	../Source/RegisterStateFile.cpp 
+	../Source/saves/Icon.cpp 
+	../Source/saves/MaxSaveImporter.cpp 
+	../Source/saves/PsuSaveImporter.cpp 
+	../Source/saves/Save.cpp 
+	../Source/saves/SaveExporter.cpp 
+	../Source/saves/SaveImporterBase.cpp 
+	../Source/saves/SaveImporter.cpp 
+	../Source/saves/XpsSaveImporter.cpp
 	../Source/StructCollectionStateFile.cpp 
 	../Source/StructFile.cpp 
 	../Source/Utils.cpp
+	../tools/PsfPlayer/Source/SH_OpenAL.cpp
 )
 
 if(THREADS_HAVE_PTHREAD_ARG)
