@@ -33,7 +33,7 @@ public:
 	virtual			~CINTC();
 
 	void			Reset();
-	bool			IsInterruptPending();
+	bool			IsInterruptPending() const;
 
 	uint32			GetRegister(uint32);
 	void			SetRegister(uint32, uint32);
@@ -44,6 +44,8 @@ public:
 	void			SaveState(Framework::CZipArchiveWriter&);
 
 private:
+	uint32			GetStat() const;
+
 	uint32			m_INTC_STAT;
 	uint32			m_INTC_MASK;
 	CDMAC&			m_dmac;

@@ -26,19 +26,26 @@ void CINTC::Reset()
 	m_INTC_MASK = 0;
 }
 
-bool CINTC::IsInterruptPending()
+uint32 CINTC::GetStat() const
 {
+	uint32 tempStat = m_INTC_STAT;
+
 	if((m_gs != nullptr) && m_gs->IsInterruptPending())
 	{
-		m_INTC_STAT |= (1 << INTC_LINE_GS);
+		tempStat |= (1 << INTC_LINE_GS);
 	}
 
 	if(m_dmac.IsInterruptPending())
 	{
-		m_INTC_STAT |= (1 << INTC_LINE_DMAC);
+		tempStat |= (1 << INTC_LINE_DMAC);
 	}
 
-	return (m_INTC_STAT & m_INTC_MASK) != 0;
+	return tempStat;
+}
+
+bool CINTC::IsInterruptPending() const
+{
+	return (GetStat() & m_INTC_MASK) != 0;
 }
 
 uint32 CINTC::GetRegister(uint32 nAddress)
@@ -46,7 +53,7 @@ uint32 CINTC::GetRegister(uint32 nAddress)
 	switch(nAddress)
 	{
 	case INTC_STAT:
-		return m_INTC_STAT;
+		return GetStat();
 		break;
 	case INTC_MASK:
 		return m_INTC_MASK;
