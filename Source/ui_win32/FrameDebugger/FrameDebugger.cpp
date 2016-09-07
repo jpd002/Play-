@@ -79,6 +79,10 @@ CFrameDebugger::~CFrameDebugger()
 	{
 		DestroyAcceleratorTable(m_accTable);
 	}
+
+	//Destroy explicitly since we're keeping the window alive
+	//artificially by handling WM_SYSCOMMAND
+	Destroy();
 }
 
 HACCEL CFrameDebugger::GetAccelerators()

@@ -26,6 +26,11 @@ void CELFView::Delete()
 {
 	if(m_pELF != NULL)
 	{
+		m_pProgramView->Destroy();
+		m_pSectionView->Destroy();
+		m_pSymbolView->Destroy();
+		m_pHeaderView->Destroy();
+
 		DELETEPTR(m_pProgramView);
 		DELETEPTR(m_pSectionView);
 		DELETEPTR(m_pSymbolView);

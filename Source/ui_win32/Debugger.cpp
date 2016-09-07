@@ -107,6 +107,10 @@ CDebugger::~CDebugger()
 
 	SaveSettings();
 
+	//Destroy explicitly since we're keeping the window alive
+	//artificially by handling WM_SYSCOMMAND
+	Destroy();
+
 	for(unsigned int i = 0; i < DEBUGVIEW_MAX; i++)
 	{
 		delete m_pView[i];
