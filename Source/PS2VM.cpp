@@ -790,7 +790,7 @@ void CPS2VM::EmuThread()
 				}
 
 				//EE CPU is 8 times faster than the IOP CPU
-				static const int tickStep = 480;
+				static const int tickStep = 4800;
 				m_eeExecutionTicks += tickStep;
 				m_iopExecutionTicks += tickStep / 8;
 
