@@ -529,6 +529,11 @@ uint32 CSubSystem::IOPortWriteHandler(uint32 nAddress, uint32 nData)
 		printf("PS2VM: Wrote to an unhandled IO port (0x%0.8X, 0x%0.8X, PC: 0x%0.8X).\r\n", nAddress, nData, m_EE.m_State.nPC);
 	}
 
+	if(m_intc.IsInterruptPending() && (m_EE.m_State.nHasException == MIPS_EXCEPTION_NONE))
+	{
+		m_EE.m_State.nHasException = MIPS_EXCEPTION_CHECKPENDINGINT;
+	}
+
 	return 0;
 }
 
