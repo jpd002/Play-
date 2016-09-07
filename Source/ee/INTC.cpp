@@ -45,10 +45,10 @@ uint32 CINTC::GetRegister(uint32 nAddress)
 {
 	switch(nAddress)
 	{
-	case 0x1000F000:
+	case INTC_STAT:
 		return m_INTC_STAT;
 		break;
-	case 0x1000F010:
+	case INTC_MASK:
 		return m_INTC_MASK;
 		break;
 	default:
@@ -63,10 +63,10 @@ void CINTC::SetRegister(uint32 nAddress, uint32 nValue)
 {
 	switch(nAddress)
 	{
-	case 0x1000F000:
+	case INTC_STAT:
 		m_INTC_STAT &= ~nValue;
 		break;
-	case 0x1000F010:
+	case INTC_MASK:
 		m_INTC_MASK ^= nValue;
 		break;
 	default:
