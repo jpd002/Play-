@@ -1,5 +1,4 @@
-#ifndef _IOP_THEVENT_H_
-#define _IOP_THEVENT_H_
+#pragma once
 
 #include "Iop_Module.h"
 
@@ -13,9 +12,9 @@ namespace Iop
 						CThevent(CIopBios&, uint8*);
 		virtual			~CThevent();
 
-		std::string		GetId() const;
-		std::string		GetFunctionName(unsigned int) const;
-		void			Invoke(CMIPS&, unsigned int);
+		std::string		GetId() const override;
+		std::string		GetFunctionName(unsigned int) const override;
+		void			Invoke(CMIPS&, unsigned int) override;
 
 	private:
 		struct EVENT
@@ -32,9 +31,7 @@ namespace Iop
 		uint32			WaitEventFlag(uint32, uint32, uint32, uint32);
 		uint32			ReferEventFlagStatus(uint32, uint32);
 
-		uint8*			m_ram;
+		uint8*			m_ram = nullptr;
 		CIopBios&		m_bios;
 	};
 }
-
-#endif
