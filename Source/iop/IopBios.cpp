@@ -842,6 +842,9 @@ uint32 CIopBios::CreateThread(uint32 threadProc, uint32 priority, uint32 stackSi
 		stackSize = DEFAULT_STACKSIZE;
 	}
 
+	//Make sure stack size is a multiple of 4
+	stackSize = (stackSize + 0x03) & ~0x03;
+
 	uint32 stackBase = m_sysmem->AllocateMemory(stackSize, 0, 0);
 	if(stackBase == 0)
 	{
