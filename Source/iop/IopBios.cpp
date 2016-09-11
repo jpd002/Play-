@@ -390,6 +390,8 @@ void CIopBios::RequestModuleStart(bool stopRequest, uint32 moduleId, const char*
 	memcpy(moduleStartRequest->args, args, argsLength);
 	moduleStartRequest->argsLength	= argsLength;
 
+	//Make sure thread runs at proper priority (Burnout 3 changes priority)
+	ChangeThreadPriority(m_moduleStarterThreadId, MODULE_INIT_PRIORITY);
 	WakeupThread(m_moduleStarterThreadId, false);
 }
 
