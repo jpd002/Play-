@@ -38,11 +38,11 @@ public:
 	void						StepVu0();
 	void						StepVu1();
 
-	void						Resume();
-	void						Pause();
+	void						Resume() override;
+	void						Pause() override;
 	void						Reset();
 
-	STATUS						GetStatus() const;
+	STATUS						GetStatus() const override;
 
 	void						DumpEEIntcHandlers();
 	void						DumpEEDmacHandlers();
