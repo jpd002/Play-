@@ -1,6 +1,6 @@
 # Play!
 
-Play! is an attempt to create a PlayStation 2 emulator for Windows, OS X, Android & iOS platforms.
+Play! is an attempt to create a PlayStation 2 emulator for Windows, macOS, UNIX, Android & iOS platforms.
 
 Ongoing compatibility list can be found here: [Compatibility List Wiki](https://github.com/jpd002/Play-/wiki/Compatible-games).
 
@@ -15,6 +15,7 @@ For more information, please visit [purei.org](http://purei.org).
 - [Play! Dependencies](https://github.com/jpd002/Play-Dependencies)
 - [Play! Framework](https://github.com/jpd002/Play--Framework) 
 - [Play! CodeGen](https://github.com/jpd002/Play--CodeGen)
+- [Nuanceur](https://github.com/jpd002/Nuanceur)
 
 ## Building ##
 
@@ -28,6 +29,7 @@ C:\Projects
 - CodeGen
 - Dependencies
 - Framework
+- Nuanceur
 - Play
 
 ### Building for Android ###
@@ -43,8 +45,8 @@ Building for Android has been tested on Windows and UNIX environments.
 - Make sure you've built all necessary depencendies: boost, Framework and CodeGen.
 - Run the `build_debug` script available in the `build_android` directory to generate a debug build and `build_release` for a release build.
 
-### Building for OSX and iOS ###
+### Building for macOS and iOS ###
 
-Building on OSX and iOS has been tested with Xcode 6 and Xcode 7. 
+Building for macOS and iOS has been tested with Xcode 6 and Xcode 7. 
 
 To build for those platforms, you need to first build boost using the [script](https://github.com/jpd002/Play-Dependencies/blob/master/BoostMac/boost.sh) provided in the [Dependencies](https://github.com/jpd002/Play-Dependencies) repository. This will create the boost Xcode framework files that are needed by the projects from this repository. Once this is done, you will be able to open `Play.xcodeproj` for either OSX and iOS and build the project normally.
