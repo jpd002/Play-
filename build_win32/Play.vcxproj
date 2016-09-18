@@ -313,7 +313,7 @@
     <ClCompile Include="..\Source\ui_win32\Main.cpp" />
     <ClCompile Include="..\Source\ui_win32\MainWindow.cpp" />
     <ClCompile Include="..\Source\ui_win32\McManagerWnd.cpp" />
-    <ClCompile Include="..\Source\ui_win32\MemoryCard.cpp" />
+    <ClCompile Include="..\Source\ui_common\MemoryCard.cpp" />
     <ClCompile Include="..\Source\ui_win32\MemoryCardView.cpp" />
     <ClCompile Include="..\Source\ui_win32\MemoryView.cpp" />
     <ClCompile Include="..\Source\ui_win32\MemoryViewMIPS.cpp" />
@@ -401,7 +401,7 @@
     <ClInclude Include="..\Source\ui_win32\IconMesh.h" />
     <ClInclude Include="..\Source\ui_win32\MainWindow.h" />
     <ClInclude Include="..\Source\ui_win32\McManagerWnd.h" />
-    <ClInclude Include="..\Source\ui_win32\MemoryCard.h" />
+    <ClInclude Include="..\Source\ui_common\MemoryCard.h" />
     <ClInclude Include="..\Source\ui_win32\MemoryCardView.h" />
     <ClInclude Include="..\Source\ui_win32\MemoryView.h" />
     <ClInclude Include="..\Source\ui_win32\MemoryViewMIPS.h" />

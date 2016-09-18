@@ -14,7 +14,7 @@
 #include "NativeShared.h"
 #include "GSH_OpenGLAndroid.h"
 #include "SH_OpenSL.h"
-#include "StatsManager.h"
+#include "../ui_common/StatsManager.h"
 
 CPS2VM* g_virtualMachine = nullptr;
 

@@ -4,7 +4,7 @@
 #include "win32/ComboBox.h"
 #include "win32/Button.h"
 #include "win32/Layouts.h"
-#include "MemoryCard.h"
+#include "../ui_common/MemoryCard.h"
 #include "MemoryCardView.h"
 #include "SaveView.h"
 #include "../saves/SaveImporter.h"

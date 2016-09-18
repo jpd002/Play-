@@ -40,7 +40,7 @@
     <ClCompile Include="..\Source\ui_win32\MemoryCardView.cpp">
       <Filter>Source Files\McManager</Filter>
     </ClCompile>
-    <ClCompile Include="..\Source\ui_win32\MemoryCard.cpp">
+    <ClCompile Include="..\Source\ui_common\MemoryCard.cpp">
       <Filter>Source Files\McManager</Filter>
     </ClCompile>
     <ClCompile Include="..\Source\ui_win32\SaveIconView.cpp">
@@ -273,7 +273,7 @@
     <ClInclude Include="..\Source\ui_win32\MemoryCardView.h">
       <Filter>Source Files\McManager</Filter>
     </ClInclude>
-    <ClInclude Include="..\Source\ui_win32\MemoryCard.h">
+    <ClInclude Include="..\Source\ui_common\MemoryCard.h">
       <Filter>Source Files\McManager</Filter>
     </ClInclude>
     <ClInclude Include="..\Source\ui_win32\SaveIconView.h">
