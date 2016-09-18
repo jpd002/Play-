@@ -4,6 +4,7 @@
 #include <vector>
 #include <functional>
 #include <atomic>
+#include <array>
 #include <boost/signals2.hpp>
 
 #include "Types.h"
