@@ -133,6 +133,7 @@ protected:
 		unsigned int	nFQC		: 4;
 		unsigned int	nReserved3	: 4;
 	};
+	static_assert(sizeof(STAT) == sizeof(uint32), "Size of STAT struct must be 4 bytes.");
 
 	struct CYCLE : public convertible<uint32>
 	{
@@ -140,8 +141,8 @@ protected:
 		unsigned int	nWL			: 8;
 		unsigned int	reserved	: 16;
 	};
+	static_assert(sizeof(CYCLE) == sizeof(uint32), "Size of CYCLE struct must be 4 bytes.");
 
-#pragma pack(push, 1)
 	struct CODE : public convertible<uint32>
 	{
 		unsigned int	nIMM	: 16;
@@ -150,7 +151,6 @@ protected:
 		unsigned int	nI		: 1;
 	};
 	static_assert(sizeof(CODE) == sizeof(uint32), "Size of CODE struct must be 4 bytes.");
-#pragma pack(pop)
 
 	enum ADDMODE
 	{
