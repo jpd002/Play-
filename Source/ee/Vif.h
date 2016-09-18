@@ -76,6 +76,11 @@ protected:
 
 	enum
 	{
+		STAT_FDR = 0x00800000,
+	};
+
+	enum
+	{
 		FIFO_SIZE = 0x100
 	};
 
@@ -129,7 +134,8 @@ protected:
 		unsigned int	nINT		: 1;
 		unsigned int	nER0		: 1;
 		unsigned int	nER1		: 1;
-		unsigned int	nReserved2	: 10;
+		unsigned int	nReserved2	: 9;
+		unsigned int	nFDR		: 1;  //VIF1 only
 		unsigned int	nFQC		: 4;
 		unsigned int	nReserved3	: 4;
 	};

@@ -82,6 +82,12 @@ uint32 CVif::GetRegister(uint32 address)
 	case VIF0_STAT:
 	case VIF1_STAT:
 		result = m_STAT;
+		if(m_STAT.nFDR != 0)
+		{
+			//When FDR is set, it usually means the game is trying to
+			//read data from GS and that FIFO has some data in it
+			result |= (0x10 << 24);
+		}
 		break;
 	case VIF0_MARK:
 	case VIF1_MARK:
@@ -139,6 +145,9 @@ void CVif::SetRegister(uint32 address, uint32 value)
 	{
 		switch(address)
 		{
+		case VIF1_STAT:
+			m_STAT.nFDR = ((value & STAT_FDR) != 0) ? 1 : 0;
+			break;
 		case VIF0_FBRST:
 		case VIF1_FBRST:
 			if(value & FBRST_RST)
