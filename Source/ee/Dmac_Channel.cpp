@@ -334,9 +334,7 @@ void CChannel::ExecuteSourceChain()
 		uint64 nTag = m_dmac.FetchDMATag(m_nTADR);
 
 		//Save higher 16 bits of tag into CHCR
-		m_CHCR.nTAG = nTag >> 16;
-		//m_nCHCR &= ~0xFFFF0000;
-		//m_nCHCR |= nTag & 0xFFFF0000;
+		m_CHCR.nTAG = static_cast<uint16>(nTag >> 16);
 
 		uint8 nID = static_cast<uint8>((nTag >> 28) & 0x07);
 
