@@ -1015,7 +1015,6 @@ void CGSHandler::ReadCLUT4(const TEX0& tex0)
 	if(updateNeeded)
 	{
 		bool changed = false;
-		uint32 clutOffset = tex0.nCSA * 16;
 
 		if(tex0.nCSM == 0)
 		{
@@ -1025,6 +1024,7 @@ void CGSHandler::ReadCLUT4(const TEX0& tex0)
 				assert(tex0.nCSA < 16);
 
 				CGsPixelFormats::CPixelIndexorPSMCT32 Indexor(m_pRAM, tex0.GetCLUTPtr(), 1);
+				uint32 clutOffset = (tex0.nCSA & 0x0F) * 16;
 				uint16* pDst = m_pCLUT + clutOffset;
 
 				for(unsigned int j = 0; j < 2; j++)
@@ -1053,6 +1053,7 @@ void CGSHandler::ReadCLUT4(const TEX0& tex0)
 				assert(tex0.nCSA < 32);
 
 				CGsPixelFormats::CPixelIndexorPSMCT16 Indexor(m_pRAM, tex0.GetCLUTPtr(), 1);
+				uint32 clutOffset = tex0.nCSA * 16;
 				uint16* pDst = m_pCLUT + clutOffset;
 
 				for(unsigned int j = 0; j < 2; j++)
