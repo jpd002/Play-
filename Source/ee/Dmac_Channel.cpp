@@ -17,6 +17,8 @@
 #define STATE_REGS_ASR0			("ASR0")
 #define STATE_REGS_ASR1			("ASR1")
 
+#define DMATAG_IRQ 0x8000
+
 using namespace Dmac;
 
 CChannel::CChannel(CDMAC& dmac, unsigned int nNumber, const DmaReceiveHandler& pReceive) 
@@ -292,6 +294,12 @@ void CChannel::ExecuteSourceChain()
 				else
 				{
 					if(CDMAC::IsEndTagId((uint32)m_CHCR.nTAG << 16))
+					{
+						ClearSTR();
+						continue;
+					}
+
+					if((m_CHCR.nTIE != 0) && ((m_CHCR.nTAG & DMATAG_IRQ) != 0))
 					{
 						ClearSTR();
 						continue;
