@@ -42,14 +42,14 @@ private:
 	class CBootCdRomOpenCommand : public COpenCommand
 	{
 	public:
-		virtual void	Execute(CMainWindow*); 
+		void			Execute(CMainWindow*) override;
 	};
 
 	class CLoadElfOpenCommand : public COpenCommand
 	{
 	public:
 						CLoadElfOpenCommand(const char*);
-		virtual void	Execute(CMainWindow*);
+		void			Execute(CMainWindow*) override;
 
 	private:
 		std::string		m_fileName;
