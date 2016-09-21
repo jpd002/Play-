@@ -253,6 +253,11 @@ void CPS2VM::TriggerFrameDump(const FrameDumpCallback& frameDumpCallback)
 	);
 }
 
+CPS2VM::CPU_UTILISATION_INFO CPS2VM::GetCpuUtilisationInfo() const
+{
+	return m_cpuUtilisation;
+}
+
 #ifdef DEBUGGER_INCLUDED
 
 #define TAGS_SECTION_TAGS			("tags")
@@ -555,8 +560,14 @@ void CPS2VM::UpdateEe()
 		int executed = m_ee->ExecuteCpu(m_singleStepEe ? 1 : m_eeExecutionTicks);
 		if(m_ee->IsCpuIdle())
 		{
+#ifdef PROFILE
+			m_cpuUtilisation.eeIdleTicks += (m_eeExecutionTicks - executed);
+#endif
 			executed = m_eeExecutionTicks;
 		}
+#ifdef PROFILE
+		m_cpuUtilisation.eeTotalTicks += executed;
+#endif
 
 		m_eeExecutionTicks -= executed;
 		m_ee->CountTicks(executed);
@@ -583,8 +594,14 @@ void CPS2VM::UpdateIop()
 		int executed = m_iop->ExecuteCpu(m_singleStepIop ? 1 : m_iopExecutionTicks);
 		if(m_iop->IsCpuIdle())
 		{
+#ifdef PROFILE
+			m_cpuUtilisation.iopIdleTicks += (m_iopExecutionTicks - executed);
+#endif
 			executed = m_iopExecutionTicks;
 		}
+#ifdef PROFILE
+		m_cpuUtilisation.iopTotalTicks += executed;
+#endif
 
 		m_iopExecutionTicks -= executed;
 		m_spuUpdateTicks -= executed;
@@ -756,6 +773,8 @@ void CPS2VM::EmuThread()
 							ProfileFrameDone(stats);
 							CProfiler::GetInstance().Reset();
 						}
+
+						m_cpuUtilisation = CPU_UTILISATION_INFO();
 #endif
 					}
 					else

@@ -4,6 +4,7 @@
 #include "win32/Window.h"
 #include "win32/GdiObj.h"
 #include "../Profiler.h"
+#include "../PS2VM.h"
 
 class CStatsOverlayWindow : public Framework::Win32::CWindow
 {
@@ -17,7 +18,7 @@ public:
 	void					Update(unsigned int);
 	void					ResetStats();
 
-	void					OnProfileFrameDone(const CProfiler::ZoneArray&);
+	void					OnProfileFrameDone(CPS2VM&, const CProfiler::ZoneArray&);
 
 private:
 	struct RENDERMETRICS
@@ -41,6 +42,7 @@ private:
 	std::mutex				m_profilerZonesMutex;
 	ZoneMap					m_profilerZones;
 
+	CPS2VM::CPU_UTILISATION_INFO m_cpuUtilisation;
 	RENDERMETRICS			m_renderMetrics;
 	Framework::Win32::CFont	m_font;
 };

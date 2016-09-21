@@ -141,7 +141,7 @@ CMainWindow::CMainWindow(CPS2VM& virtualMachine)
 	m_pauseFocusLost = CAppConfig::GetInstance().GetPreferenceBoolean(PREF_UI_PAUSEWHENFOCUSLOST);
 
 	m_virtualMachine.m_ee->m_gs->OnNewFrame.connect(boost::bind(&CMainWindow::OnNewFrame, this, _1));
-	m_virtualMachine.ProfileFrameDone.connect(boost::bind(&CStatsOverlayWindow::OnProfileFrameDone, &m_statsOverlayWnd, _1));
+	m_virtualMachine.ProfileFrameDone.connect(boost::bind(&CStatsOverlayWindow::OnProfileFrameDone, &m_statsOverlayWnd, boost::ref(m_virtualMachine), _1));
 
 	SetTimer(m_hWnd, NULL, 1000, NULL);
 	//Initialize status bar

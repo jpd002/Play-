@@ -22,6 +22,15 @@
 class CPS2VM : public CVirtualMachine
 {
 public:
+	struct CPU_UTILISATION_INFO
+	{
+		int32 eeTotalTicks = 0;
+		int32 eeIdleTicks = 0;
+
+		int32 iopTotalTicks = 0;
+		int32 iopIdleTicks = 0;
+	};
+
 	typedef std::unique_ptr<Ee::CSubSystem> EeSubSystemPtr;
 	typedef std::unique_ptr<Iop::CSubSystem> IopSubSystemPtr;
 	typedef std::function<void (const CFrameDump&)> FrameDumpCallback;
@@ -62,6 +71,8 @@ public:
 	unsigned int				LoadState(const char*);
 
 	void						TriggerFrameDump(const FrameDumpCallback&);
+
+	CPU_UTILISATION_INFO		GetCpuUtilisationInfo() const;
 
 #ifdef DEBUGGER_INCLUDED
 	std::string					MakeDebugTagsPackagePath(const char*);
@@ -128,6 +139,8 @@ private:
 	int							m_spuUpdateTicks = 0;
 	int							m_eeExecutionTicks = 0;
 	int							m_iopExecutionTicks = 0;
+
+	CPU_UTILISATION_INFO		m_cpuUtilisation;
 
 	bool						m_singleStepEe;
 	bool						m_singleStepIop;
