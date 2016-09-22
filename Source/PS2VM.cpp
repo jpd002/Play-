@@ -38,8 +38,6 @@
 
 #define SPU_UPDATE_TICKS	(PS2::IOP_CLOCK_OVER_FREQ / 1000)
 
-#define VPU_LOG_BASE		"./vpu_logs/"
-
 namespace filesystem = boost::filesystem;
 
 CPS2VM::CPS2VM()
@@ -379,19 +377,6 @@ void CPS2VM::ResetVM()
 	m_currentSpuBlock = 0;
 
 	RegisterModulesInPadHandler();
-
-#ifdef DEBUGGER_INCLUDED
-	try
-	{
-		boost::filesystem::path logPath(VPU_LOG_BASE);
-		boost::filesystem::remove_all(logPath);
-		boost::filesystem::create_directory(logPath);
-	}
-	catch(...)
-	{
-
-	}
-#endif
 }
 
 void CPS2VM::DestroyVM()
