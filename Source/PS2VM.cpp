@@ -59,7 +59,7 @@ CPS2VM::CPS2VM()
 , m_gsSyncProfilerZone(CProfiler::GetInstance().RegisterZone("GSSYNC"))
 , m_otherProfilerZone(CProfiler::GetInstance().RegisterZone("OTHER"))
 {
-	const char* basicDirectorySettings[] =
+	static const char* basicDirectorySettings[] =
 	{
 		PREF_PS2_HOST_DIRECTORY, PREF_PS2_HOST_DIRECTORY_DEFAULT,
 		PREF_PS2_MC0_DIRECTORY, PREF_PS2_MC0_DIRECTORY_DEFAULT,
