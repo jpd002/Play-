@@ -142,6 +142,7 @@ std::pair<uint32, uint32> CGsPixelFormats::GetPsmPageSize(unsigned int psm)
 	case CGSHandler::PSMZ16:
 		return std::make_pair(CGsPixelFormats::STORAGEPSMCT16::PAGEWIDTH, CGsPixelFormats::STORAGEPSMCT16::PAGEHEIGHT);
 	case CGSHandler::PSMCT16S:
+	case CGSHandler::PSMZ16S:
 		return std::make_pair(CGsPixelFormats::STORAGEPSMCT16S::PAGEWIDTH, CGsPixelFormats::STORAGEPSMCT16S::PAGEHEIGHT);
 	case CGSHandler::PSMT8:
 		return std::make_pair(CGsPixelFormats::STORAGEPSMT8::PAGEWIDTH, CGsPixelFormats::STORAGEPSMT8::PAGEHEIGHT);
