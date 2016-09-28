@@ -40,7 +40,7 @@ public:
 							CVpu(unsigned int, const VPUINIT&, CGIF&, uint8*, uint8*);
 	virtual					~CVpu();
 
-	virtual void			Execute(bool);
+	void					Execute(int32);
 	void					Reset();
 	void					SaveState(Framework::CZipArchiveWriter&);
 	void					LoadState(Framework::CZipArchiveReader&);

@@ -569,12 +569,12 @@ void CPS2VM::UpdateEe()
 		m_cpuUtilisation.eeTotalTicks += executed;
 #endif
 
+		m_ee->m_vpu0->Execute(m_singleStepVu0 ? 1 : executed);
+		m_ee->m_vpu1->Execute(m_singleStepVu1 ? 1 : executed);
+
 		m_eeExecutionTicks -= executed;
 		m_ee->CountTicks(executed);
 		m_vblankTicks -= executed;
-
-		//Stop executing if executing VU subroutine
-		if(m_ee->m_EE.m_State.callMsEnabled) break;
 
 #ifdef DEBUGGER_INCLUDED
 		if(m_singleStepEe) break;
@@ -796,9 +796,6 @@ void CPS2VM::EmuThread()
 
 				UpdateEe();
 				UpdateIop();
-
-				m_ee->m_vpu0->Execute(m_singleStepVu0);
-				m_ee->m_vpu1->Execute(m_singleStepVu1);
 			}
 #ifdef DEBUGGER_INCLUDED
 			if(

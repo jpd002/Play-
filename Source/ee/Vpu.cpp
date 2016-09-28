@@ -38,7 +38,7 @@ CVpu::~CVpu()
 #endif
 }
 
-void CVpu::Execute(bool singleStep)
+void CVpu::Execute(int32 quota)
 {
 	if(!m_running) return;
 
@@ -46,7 +46,6 @@ void CVpu::Execute(bool singleStep)
 	CProfilerZone profilerZone(m_vuProfilerZone);
 #endif
 
-	unsigned int quota = singleStep ? 1 : 5000;
 	m_executor.Execute(quota);
 	if(m_ctx->m_State.nHasException)
 	{
@@ -166,7 +165,7 @@ void CVpu::ExecuteMicroProgram(uint32 nAddress)
 	m_running = true;
 	for(unsigned int i = 0; i < 100; i++)
 	{
-		Execute(false);
+		Execute(5000);
 		if(!m_running) break;
 	}
 }
