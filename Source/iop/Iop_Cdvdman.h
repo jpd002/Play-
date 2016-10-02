@@ -36,6 +36,11 @@ namespace Iop
 		uint32					CdReadClockDirect(uint8*);
 
 	private:
+		enum CDVD_FUNCTION
+		{
+			CDVD_FUNCTION_OPEN = 1,
+		};
+
 		uint32					CdInit(uint32);
 		uint32					CdRead(uint32, uint32, uint32, uint32);
 		uint32					CdSeek(uint32);

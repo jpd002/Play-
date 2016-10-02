@@ -290,8 +290,7 @@ uint32 CCdvdman::CdRead(uint32 startSector, uint32 sectorCount, uint32 bufferPtr
 	}
 	if(m_callbackPtr != 0)
 	{
-		static const uint32 callbackTypeCdRead = 1;
-		m_bios.TriggerCallback(m_callbackPtr, callbackTypeCdRead, 0);
+		m_bios.TriggerCallback(m_callbackPtr, CDVD_FUNCTION_OPEN, 0);
 	}
 	m_status = CDVD_STATUS_READING;
 	return 1;
