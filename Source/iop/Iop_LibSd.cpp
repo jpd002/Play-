@@ -9,6 +9,7 @@ using namespace Iop;
 
 #define FUNCTION_INIT					"Init"
 #define FUNCTION_SETPARAM				"SetParam"
+#define FUNCTION_GETPARAM				"GetParam"
 #define FUNCTION_SETSWITCH				"SetSwitch"
 #define FUNCTION_GETSWITCH				"GetSwitch"
 #define FUNCTION_SETADDR				"SetAddr"
@@ -37,6 +38,9 @@ std::string CLibSd::GetFunctionName(unsigned int functionId) const
 		break;
 	case 5:
 		return FUNCTION_SETPARAM;
+		break;
+	case 6:
+		return FUNCTION_GETPARAM;
 		break;
 	case 7:
 		return FUNCTION_SETSWITCH;
@@ -112,6 +116,10 @@ void CLibSd::TraceCall(CMIPS& context, unsigned int functionId)
 	case 5:
 		CLog::GetInstance().Print(LOG_NAME, FUNCTION_SETPARAM "(entry = 0x%0.4X, value = 0x%0.4X);\r\n", 
 			context.m_State.nGPR[CMIPS::A0].nV0, context.m_State.nGPR[CMIPS::A1].nV0);
+		break;
+	case 6:
+		CLog::GetInstance().Print(LOG_NAME, FUNCTION_GETPARAM "(entry = 0x%0.4X);\r\n", 
+			context.m_State.nGPR[CMIPS::A0].nV0);
 		break;
 	case 7:
 		CLog::GetInstance().Print(LOG_NAME, FUNCTION_SETSWITCH "(entry = 0x%0.4X, value = 0x%0.8X); //(%s)\r\n",
