@@ -300,6 +300,10 @@ uint32 CCdvdman::CdSeek(uint32 sector)
 {
 	CLog::GetInstance().Print(LOG_NAME, FUNCTION_CDSEEK "(sector = 0x%X);\r\n",
 		sector);
+	if(m_callbackPtr != 0)
+	{
+		m_bios.TriggerCallback(m_callbackPtr, CDVD_FUNCTION_SEEK, 0);
+	}
 	return 1;
 }
 
