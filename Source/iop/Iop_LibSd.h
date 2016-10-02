@@ -7,10 +7,10 @@ namespace Iop
 	class CLibSd : public CModule
 	{
 	public:
-		virtual std::string		GetId() const;
-		virtual std::string		GetFunctionName(unsigned int) const;
-		virtual void			Invoke(CMIPS&, unsigned int);
+		std::string		GetId() const override;
+		std::string		GetFunctionName(unsigned int) const override;
+		void			Invoke(CMIPS&, unsigned int) override;
 
-		static void				TraceCall(CMIPS&, unsigned int);
+		static void		TraceCall(CMIPS&, unsigned int);
 	};
 }
