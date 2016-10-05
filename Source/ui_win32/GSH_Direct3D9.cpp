@@ -968,13 +968,12 @@ void CGSH_Direct3D9::Prim_Sprite()
 	{
 		HRESULT result;
 
-		DWORD color0 = D3DCOLOR_ARGB(MulBy2Clamp(rgbaq[0].nA),	MulBy2Clamp(rgbaq[0].nR),	MulBy2Clamp(rgbaq[0].nG), MulBy2Clamp(rgbaq[0].nB));
 		DWORD color1 = D3DCOLOR_ARGB(MulBy2Clamp(rgbaq[1].nA),	MulBy2Clamp(rgbaq[1].nR),	MulBy2Clamp(rgbaq[1].nG), MulBy2Clamp(rgbaq[1].nB));
 
 		CUSTOMVERTEX vertices[] =
 		{
-			{ nX1, nY2, nZ, color0, nU1, nV2, 1 },
-			{ nX1, nY1, nZ, color0, nU1, nV1, 1 },
+			{ nX1, nY2, nZ, color1, nU1, nV2, 1 },
+			{ nX1, nY1, nZ, color1, nU1, nV1, 1 },
 			{ nX2, nY2, nZ, color1, nU2, nV2, 1 },
 			{ nX2, nY1, nZ, color1, nU2, nV1, 1 },
 		};
