@@ -188,6 +188,7 @@ void CMcServ::Open(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, u
 		case OPEN_FLAG_RDWR:
 			access = "r+b";
 			break;
+		case OPEN_FLAG_CREAT:    //Used by Crash Bandicoot: Wrath of Cortex
 		case (OPEN_FLAG_CREAT | OPEN_FLAG_WRONLY):
 		case (OPEN_FLAG_CREAT | OPEN_FLAG_RDWR):
 		case (OPEN_FLAG_TRUNC | OPEN_FLAG_CREAT | OPEN_FLAG_RDWR):
