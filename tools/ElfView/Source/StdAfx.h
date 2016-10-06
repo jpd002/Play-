@@ -12,8 +12,6 @@
 
 #include <windows.h>
 
-#include <boost/signal.hpp>
-
 #include "Types.h"
 #include "Stream.h"
 #include "StdStream.h"

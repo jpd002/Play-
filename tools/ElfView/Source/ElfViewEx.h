@@ -2,7 +2,7 @@
 #define _ELFVIEWEX_H_
 
 #include "ELFFile.h"
-#include "win32ui\ELFView.h"
+#include "ui_win32\ELFView.h"
 
 class CElfViewEx : public CELFView
 {
