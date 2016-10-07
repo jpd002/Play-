@@ -177,6 +177,7 @@ void CGSH_Direct3D9::ResetImpl()
 	memset(&m_vtxBuffer, 0, sizeof(m_vtxBuffer));
 	m_framebuffers.clear();
 	m_depthbuffers.clear();
+	m_textureCache.Flush();
 	m_renderState.isValid = false;
 	CGSHandler::ResetImpl();
 }
