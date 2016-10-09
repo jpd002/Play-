@@ -77,7 +77,6 @@ private:
 	uint8*			m_ram;
 	uint8*			m_spr;
 	CGSHandler*&	m_gs;
-	std::mutex		m_pathMutex;
 
 	CProfiler::ZoneHandle m_gifProfilerZone = 0;
 };

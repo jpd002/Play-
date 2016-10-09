@@ -229,7 +229,6 @@ uint32 CGIF::ProcessImage(uint8* memory, uint32 address, uint32 end)
 
 uint32 CGIF::ProcessPacket(uint8* memory, uint32 address, uint32 end, const CGsPacketMetadata& packetMetadata)
 {
-	std::unique_lock<std::mutex> pathLock(m_pathMutex);
 	static CGSHandler::RegisterWriteList writeList;
 	static const auto flushWriteList =
 		[] (CGSHandler* gs, const CGsPacketMetadata& packetMetadata)
