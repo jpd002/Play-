@@ -354,24 +354,25 @@ uint32 CGIF::ProcessMultiplePackets(uint8* memory, uint32 address, uint32 end, c
 
 uint32 CGIF::ReceiveDMA(uint32 address, uint32 qwc, uint32 unused, bool tagIncluded)
 {
-	uint8* memory(nullptr);
 	uint32 size = qwc * 0x10;
+
+	uint8* memory = nullptr;
+	if(address & 0x80000000)
+	{
+		memory = m_spr;
+		address &= PS2::EE_SPR_SIZE - 1;
+		assert((address + size) <= PS2::EE_SPR_SIZE);
+	}
+	else
+	{
+		memory = m_ram;
+	}
 
 	if(tagIncluded)
 	{
 		assert(qwc >= 0);
 		size -= 0x10;
 		address += 0x10;
-	}
-
-	if(address & 0x80000000)
-	{
-		memory = m_spr;
-		address &= PS2::EE_SPR_SIZE - 1;
-	}
-	else
-	{
-		memory = m_ram;
 	}
 	
 	uint32 end = address + size;
