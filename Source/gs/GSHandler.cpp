@@ -441,6 +441,7 @@ void CGSHandler::WriteRegisterMassively(const RegisterWrite* writeList, unsigned
 				siglblid.sigid &= ~signal.idmsk;
 				siglblid.sigid |= signal.id;
 				m_nSIGLBLID = siglblid;
+				assert((m_nCSR & CSR_SIGNAL_EVENT) == 0);
 				m_nCSR |= CSR_SIGNAL_EVENT;
 			}
 			break;
