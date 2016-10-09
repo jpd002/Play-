@@ -9,8 +9,15 @@
 
 #define LOG_NAME ("gif")
 
-#define STATE_REGS_XML      ("gif/regs.xml")
-#define STATE_REGS_M3P      ("M3P")
+#define STATE_REGS_XML        ("gif/regs.xml")
+#define STATE_REGS_M3P        ("M3P")
+#define STATE_REGS_LOOPS      ("LOOPS")
+#define STATE_REGS_CMD        ("CMD")
+#define STATE_REGS_REGS       ("REGS")
+#define STATE_REGS_REGSTEMP   ("REGSTEMP")
+#define STATE_REGS_REGLIST    ("REGLIST")
+#define STATE_REGS_EOP        ("EOP")
+#define STATE_REGS_QTEMP      ("QTEMP")
 
 CGIF::CGIF(CGSHandler*& gs, uint8* ram, uint8* spr)
 : m_gs(gs)
@@ -49,12 +56,26 @@ void CGIF::LoadState(Framework::CZipArchiveReader& archive)
 {
 	CRegisterStateFile registerFile(*archive.BeginReadFile(STATE_REGS_XML));
 	m_path3Masked = registerFile.GetRegister32(STATE_REGS_M3P) != 0;
+	m_loops       = static_cast<uint16>(registerFile.GetRegister32(STATE_REGS_LOOPS));
+	m_cmd         = static_cast<uint8>(registerFile.GetRegister32(STATE_REGS_CMD));
+	m_regs        = static_cast<uint8>(registerFile.GetRegister32(STATE_REGS_REGS));
+	m_regsTemp    = static_cast<uint8>(registerFile.GetRegister32(STATE_REGS_REGSTEMP));
+	m_regList     = registerFile.GetRegister64(STATE_REGS_REGLIST);
+	m_eop         = registerFile.GetRegister32(STATE_REGS_EOP) != 0;
+	m_qtemp       = registerFile.GetRegister32(STATE_REGS_QTEMP);
 }
 
 void CGIF::SaveState(Framework::CZipArchiveWriter& archive)
 {
 	CRegisterStateFile* registerFile = new CRegisterStateFile(STATE_REGS_XML);
-	registerFile->SetRegister32(STATE_REGS_M3P, m_path3Masked ? 1 : 0);
+	registerFile->SetRegister32(STATE_REGS_M3P,        m_path3Masked ? 1 : 0);
+	registerFile->SetRegister32(STATE_REGS_LOOPS,      m_loops);
+	registerFile->SetRegister32(STATE_REGS_CMD,        m_cmd);
+	registerFile->SetRegister32(STATE_REGS_REGS,       m_regs);
+	registerFile->SetRegister32(STATE_REGS_REGSTEMP,   m_regsTemp);
+	registerFile->SetRegister64(STATE_REGS_REGLIST,    m_regList);
+	registerFile->SetRegister32(STATE_REGS_EOP,        m_eop ? 1 : 0);
+	registerFile->SetRegister32(STATE_REGS_QTEMP,      m_qtemp);
 	archive.InsertFile(registerFile);
 }
 
