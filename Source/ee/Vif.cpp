@@ -1219,7 +1219,6 @@ void CVif::CFifoStream::SetDmaParams(uint32 address, uint32 size, bool tagInclud
 	m_nextAddress = address;
 	m_endAddress = address + size;
 	m_tagIncluded = tagIncluded;
-	SyncBuffer();
 }
 
 void CVif::CFifoStream::SetFifoParams(uint8* source, uint32 size)
@@ -1228,7 +1227,6 @@ void CVif::CFifoStream::SetFifoParams(uint8* source, uint32 size)
 	m_nextAddress = 0;
 	m_endAddress = size;
 	m_tagIncluded = false;
-	SyncBuffer();
 }
 
 uint32 CVif::CFifoStream::GetAvailableReadBytes() const
@@ -1247,6 +1245,23 @@ void CVif::CFifoStream::Align32()
 	if(remainBytes == 0) return;
 	Read(NULL, 4 - remainBytes);
 	assert((m_bufferPosition & 0x03) == 0);
+}
+
+uint8* CVif::CFifoStream::GetDirectPointer() const
+{
+	assert(m_bufferPosition == BUFFERSIZE);
+	assert(m_tagIncluded == false);
+	assert((m_nextAddress & 0x0F) == 0);
+	return m_source + m_nextAddress;
+}
+
+void CVif::CFifoStream::Advance(uint32 size)
+{
+	assert(m_bufferPosition == BUFFERSIZE);
+	assert(m_tagIncluded == false);
+	assert((m_nextAddress & 0x0F) == 0);
+	assert((size & 0x0F) == 0);
+	m_nextAddress += size;
 }
 
 void CVif::CFifoStream::SyncBuffer()

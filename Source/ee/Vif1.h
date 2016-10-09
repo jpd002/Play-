@@ -19,8 +19,6 @@ public:
 	virtual uint32	ReceiveDMA(uint32, uint32, uint32, bool) override;
 
 private:
-	typedef std::vector<uint8> ByteArray;
-
 	virtual void	ExecuteCommand(StreamType&, CODE) override;
 
 	void			Cmd_DIRECT(StreamType&, CODE);
@@ -34,6 +32,4 @@ private:
 	uint32			m_OFST;
 	uint32			m_TOP;
 	uint32			m_TOPS;
-
-	ByteArray		m_directBuffer;
 };

@@ -100,6 +100,9 @@ protected:
 		void					SetDmaParams(uint32, uint32, bool);
 		void					SetFifoParams(uint8*, uint32);
 
+		uint8*					GetDirectPointer() const;
+		void					Advance(uint32);
+
 	private:
 		void					SyncBuffer();
 

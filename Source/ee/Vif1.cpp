@@ -162,16 +162,10 @@ void CVif1::Cmd_DIRECT(StreamType& stream, CODE nCommand)
 
 	if(nSize != 0)
 	{
-		if(m_directBuffer.size() < nSize)
-		{
-			m_directBuffer.resize(nSize);
-		}
-
-		auto packet = m_directBuffer.data();
-		stream.Read(packet, nSize);
-
+		auto packet = stream.GetDirectPointer();
 		uint32 processed = m_gif.ProcessMultiplePackets(packet, 0, nSize, CGsPacketMetadata(2));
 		assert(processed == nSize);
+		stream.Advance(processed);
 	}
 
 	m_CODE.nIMM -= (nSize / 0x10);
