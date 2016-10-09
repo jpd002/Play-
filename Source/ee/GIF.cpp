@@ -52,6 +52,7 @@ void CGIF::Reset()
 	m_regList = 0;
 	m_eop = false;
 	m_qtemp = 0;
+	m_signalState = SIGNAL_STATE_NONE;
 }
 
 void CGIF::LoadState(Framework::CZipArchiveReader& archive)
@@ -94,10 +95,7 @@ uint32 CGIF::ProcessPacked(CGSHandler::RegisterWriteList& writeList, uint8* memo
 			uint64 temp = 0;
 			uint32 regDesc = (uint32)((m_regList >> ((m_regs - m_regsTemp) * 4)) & 0x0F);
 
-			uint128 packet = *(uint128*)&memory[address];
-			address += 0x10;
-
-			m_regsTemp--;
+			uint128 packet = *reinterpret_cast<uint128*>(memory + address);
 
 			switch(regDesc)
 			{
@@ -176,7 +174,22 @@ uint32 CGIF::ProcessPacked(CGSHandler::RegisterWriteList& writeList, uint8* memo
 				break;
 			case 0x0E:
 				//A + D
-				writeList.push_back(CGSHandler::RegisterWrite(static_cast<uint8>(packet.nD1), packet.nD0));
+				{
+					uint8 reg = static_cast<uint8>(packet.nD1);
+					if(reg == GS_REG_SIGNAL)
+					{
+						//Check if there's already a signal pending
+						auto csr = m_gs->ReadPrivRegister(CGSHandler::GS_CSR);
+						if((m_signalState == SIGNAL_STATE_ENCOUNTERED) || ((csr & CGSHandler::CSR_SIGNAL_EVENT) != 0))
+						{
+							//If there is, we need to wait for previous signal to be cleared
+							m_signalState = SIGNAL_STATE_PENDING;
+							return address - start;
+						}
+						m_signalState = SIGNAL_STATE_ENCOUNTERED;
+					}
+					writeList.push_back(CGSHandler::RegisterWrite(reg, packet.nD0));
+				}
 				break;
 			case 0x0F:
 				//NOP
@@ -185,6 +198,9 @@ uint32 CGIF::ProcessPacked(CGSHandler::RegisterWriteList& writeList, uint8* memo
 				assert(0);
 				break;
 			}
+
+			address += 0x10;
+			m_regsTemp--;
 		}
 
 		if(m_regsTemp == 0)
@@ -192,7 +208,6 @@ uint32 CGIF::ProcessPacked(CGSHandler::RegisterWriteList& writeList, uint8* memo
 			m_loops--;
 			m_regsTemp = m_regs;
 		}
-
 	}
 
 	return address - start;
@@ -271,6 +286,7 @@ uint32 CGIF::ProcessSinglePacket(uint8* memory, uint32 address, uint32 end, cons
 #endif
 
 	assert((m_activePath == 0) || (m_activePath == packetMetadata.pathIndex));
+	m_signalState = SIGNAL_STATE_NONE;
 	writeList.clear();
 
 	uint32 start = address;
@@ -329,6 +345,11 @@ uint32 CGIF::ProcessSinglePacket(uint8* memory, uint32 address, uint32 end, cons
 			address += ProcessImage(memory, address, end);
 			break;
 		}
+
+		if(m_signalState == SIGNAL_STATE_PENDING)
+		{
+			break;
+		}
 	}
 
 	if(m_loops == 0)
@@ -363,6 +384,11 @@ uint32 CGIF::ProcessMultiplePackets(uint8* memory, uint32 address, uint32 end, c
 	while(address < end)
 	{
 		address += ProcessSinglePacket(memory, address, end, packetMetadata);
+		if(m_signalState == SIGNAL_STATE_PENDING)
+		{
+			//No point in continuing, GS won't accept any more data
+			break;
+		}
 	}
 	assert(address <= end);
 	return address - start;

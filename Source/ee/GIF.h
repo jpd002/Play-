@@ -60,6 +60,13 @@ public:
 	void			SaveState(Framework::CZipArchiveWriter&);
 
 private:
+	enum SIGNAL_STATE
+	{
+		SIGNAL_STATE_NONE,
+		SIGNAL_STATE_ENCOUNTERED,
+		SIGNAL_STATE_PENDING,
+	};
+
 	uint32			ProcessPacked(CGSHandler::RegisterWriteList&, uint8*, uint32, uint32);
 	uint32			ProcessRegList(CGSHandler::RegisterWriteList&, uint8*, uint32, uint32);
 	uint32			ProcessImage(uint8*, uint32, uint32);
@@ -77,6 +84,7 @@ private:
 	uint64			m_regList;
 	bool			m_eop;
 	uint32			m_qtemp;
+	SIGNAL_STATE	m_signalState = SIGNAL_STATE_NONE;
 	uint8*			m_ram;
 	uint8*			m_spr;
 	CGSHandler*&	m_gs;
