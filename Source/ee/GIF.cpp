@@ -243,7 +243,7 @@ uint32 CGIF::ProcessImage(uint8* memory, uint32 address, uint32 end)
 	return (totalLoops * 0x10);
 }
 
-uint32 CGIF::ProcessPacket(uint8* memory, uint32 address, uint32 end, const CGsPacketMetadata& packetMetadata)
+uint32 CGIF::ProcessSinglePacket(uint8* memory, uint32 address, uint32 end, const CGsPacketMetadata& packetMetadata)
 {
 	static CGSHandler::RegisterWriteList writeList;
 	static const auto flushWriteList =
@@ -341,6 +341,17 @@ uint32 CGIF::ProcessPacket(uint8* memory, uint32 address, uint32 end, const CGsP
 	return address - start;
 }
 
+uint32 CGIF::ProcessMultiplePackets(uint8* memory, uint32 address, uint32 end, const CGsPacketMetadata& packetMetadata)
+{
+	//This will attempt to process everything from [address, end[ even if it contains multiple GIF packets
+	uint32 size = end - address;
+	while(address < end)
+	{
+		address += ProcessSinglePacket(memory, address, end, packetMetadata);
+	}
+	return size;
+}
+
 uint32 CGIF::ReceiveDMA(uint32 address, uint32 qwc, uint32 unused, bool tagIncluded)
 {
 	uint8* memory(nullptr);
@@ -364,12 +375,8 @@ uint32 CGIF::ReceiveDMA(uint32 address, uint32 qwc, uint32 unused, bool tagInclu
 	}
 	
 	uint32 end = address + size;
-
-	while(address < end)
-	{
-		address += ProcessPacket(memory, address, end, CGsPacketMetadata(3));
-	}
-
+	uint32 processed = ProcessMultiplePackets(memory, address, end, CGsPacketMetadata(3));
+	assert(processed == size);
 	return qwc;
 }
 
