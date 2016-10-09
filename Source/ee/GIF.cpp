@@ -368,17 +368,19 @@ uint32 CGIF::ReceiveDMA(uint32 address, uint32 qwc, uint32 unused, bool tagInclu
 		memory = m_ram;
 	}
 
+	uint32 start = address;
+	uint32 end = address + size;
+
 	if(tagIncluded)
 	{
 		assert(qwc >= 0);
-		size -= 0x10;
 		address += 0x10;
 	}
 	
-	uint32 end = address + size;
-	uint32 processed = ProcessMultiplePackets(memory, address, end, CGsPacketMetadata(3));
-	assert(processed == size);
-	return qwc;
+	address += ProcessMultiplePackets(memory, address, end, CGsPacketMetadata(3));
+	assert(address <= end);
+
+	return (address - start) / 0x10;
 }
 
 uint32 CGIF::GetRegister(uint32 address)
