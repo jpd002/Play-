@@ -68,6 +68,7 @@ private:
 	void			DisassembleSet(uint32, uint32);
 
 	bool			m_path3Masked = false;
+	uint32			m_activePath = 0;
 
 	uint16			m_loops;
 	uint8			m_cmd;
