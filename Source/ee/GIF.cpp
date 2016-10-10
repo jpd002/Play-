@@ -237,12 +237,7 @@ uint32 CGIF::ProcessImage(uint8* memory, uint32 address, uint32 end)
 {
 	uint16 totalLoops = static_cast<uint16>((end - address) / 0x10);
 	totalLoops = std::min<uint16>(totalLoops, m_loops);
-
-	if(m_gs != NULL)
-	{
-		m_gs->FeedImageData(memory + address, totalLoops * 0x10);
-	}
-
+	m_gs->FeedImageData(memory + address, totalLoops * 0x10);
 	m_loops -= totalLoops;
 
 	return (totalLoops * 0x10);
