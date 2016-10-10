@@ -249,11 +249,12 @@ uint32 CGIF::ProcessPacket(uint8* memory, uint32 address, uint32 end, const CGsP
 	static const auto flushWriteList =
 		[] (CGSHandler* gs, const CGsPacketMetadata& packetMetadata)
 		{
-			if((gs != nullptr) && !writeList.empty())
+			if(!writeList.empty())
 			{
-				gs->WriteRegisterMassively(writeList.data(), static_cast<unsigned int>(writeList.size()), &packetMetadata);
+				auto currentCapacity = writeList.capacity();
+				gs->WriteRegisterMassively(std::move(writeList), &packetMetadata);
+				writeList.reserve(currentCapacity);
 			}
-			writeList.clear();
 		};
 
 #ifdef PROFILE

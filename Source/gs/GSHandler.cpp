@@ -56,8 +56,7 @@ struct MASSIVEWRITE_INFO
 #ifdef DEBUGGER_INCLUDED
 	CGsPacketMetadata				metadata;
 #endif
-	unsigned int					count;
-	CGSHandler::RegisterWrite		writes[1];
+	CGSHandler::RegisterWriteList	writes;
 };
 
 CGSHandler::CGSHandler()
@@ -430,11 +429,10 @@ void CGSHandler::ReadImageData(void* data, uint32 length)
 	m_mailBox.SendCall([this, data, length] () { ReadImageDataImpl(data, length); }, true);
 }
 
-void CGSHandler::WriteRegisterMassively(const RegisterWrite* writeList, unsigned int count, const CGsPacketMetadata* metadata)
+void CGSHandler::WriteRegisterMassively(RegisterWriteList registerWrites, const CGsPacketMetadata* metadata)
 {
-	for(unsigned int i = 0; i < count; i++)
+	for(const auto& write : registerWrites)
 	{
-		const auto& write = writeList[i];
 		switch(write.first)
 		{
 		case GS_REG_SIGNAL:
@@ -465,21 +463,25 @@ void CGSHandler::WriteRegisterMassively(const RegisterWrite* writeList, unsigned
 
 	m_transferCount++;
 
-	auto massiveWrite = reinterpret_cast<MASSIVEWRITE_INFO*>(malloc(sizeof(MASSIVEWRITE_INFO) + (count * sizeof(RegisterWrite))));
-	memcpy(massiveWrite->writes, writeList, sizeof(CGSHandler::RegisterWrite) * count);
-	massiveWrite->count = count;
+	MASSIVEWRITE_INFO massiveWrite;
+	massiveWrite.writes = std::move(registerWrites);
 #ifdef DEBUGGER_INCLUDED
 	if(metadata != nullptr)
 	{
-		memcpy(&massiveWrite->metadata, metadata, sizeof(CGsPacketMetadata));
+		memcpy(&massiveWrite.metadata, metadata, sizeof(CGsPacketMetadata));
 	}
 	else
 	{
-		massiveWrite->metadata = CGsPacketMetadata();
+		massiveWrite.metadata = CGsPacketMetadata();
 	}
 #endif
-	//Bind is used here because using a lambda seems to cause problems on Android/clang
-	m_mailBox.SendCall(std::bind(&CGSHandler::WriteRegisterMassivelyImpl, this, massiveWrite));
+
+	m_mailBox.SendCall(
+		[this, massiveWrite = std::move(massiveWrite)] ()
+		{
+			WriteRegisterMassivelyImpl(massiveWrite);
+		}
+	);
 }
 
 void CGSHandler::WriteRegisterImpl(uint8 nRegister, uint64 nData)
@@ -587,22 +589,19 @@ void CGSHandler::ReadImageDataImpl(void* ptr, uint32 size)
 	((this)->*(m_transferReadHandlers[bltBuf.nSrcPsm]))(ptr, size);
 }
 
-void CGSHandler::WriteRegisterMassivelyImpl(MASSIVEWRITE_INFO* massiveWrite)
+void CGSHandler::WriteRegisterMassivelyImpl(const MASSIVEWRITE_INFO& massiveWrite)
 {
 #ifdef DEBUGGER_INCLUDED
 	if(m_frameDump)
 	{
-		m_frameDump->AddRegisterPacket(massiveWrite->writes, massiveWrite->count, &massiveWrite->metadata);
+		m_frameDump->AddRegisterPacket(massiveWrite.writes.data(), massiveWrite.writes.size(), &massiveWrite.metadata);
 	}
 #endif
 
-	const RegisterWrite* writeIterator = massiveWrite->writes;
-	for(unsigned int i = 0; i < massiveWrite->count; i++)
+	for(const auto& write : massiveWrite.writes)
 	{
-		WriteRegisterImpl(writeIterator->first, writeIterator->second);
-		writeIterator++;
+		WriteRegisterImpl(write.first, write.second);
 	}
-	free(massiveWrite);
 
 	assert(m_transferCount != 0);
 	m_transferCount--;

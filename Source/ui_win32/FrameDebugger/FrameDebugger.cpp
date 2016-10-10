@@ -245,8 +245,9 @@ void CFrameDebugger::UpdateDisplay(int32 targetCmdIndex)
 	const auto flushRegisterWrites =
 		[&]()
 		{
-			m_gs->WriteRegisterMassively(registerWrites.data(), registerWrites.size(), nullptr);
-			registerWrites.clear();
+			auto currentCapacity = registerWrites.capacity();
+			m_gs->WriteRegisterMassively(std::move(registerWrites), nullptr);
+			registerWrites.reserve(currentCapacity);
 		};
 
 	int32 cmdIndex = 0;

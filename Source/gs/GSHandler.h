@@ -601,7 +601,7 @@ public:
 	void									WriteRegister(uint8, uint64);
 	void									FeedImageData(const void*, uint32);
 	void									ReadImageData(void*, uint32);
-	void									WriteRegisterMassively(const RegisterWrite*, unsigned int, const CGsPacketMetadata*);
+	void									WriteRegisterMassively(RegisterWriteList, const CGsPacketMetadata*);
 
 	virtual void							SetCrt(bool, unsigned int, bool);
 	void									Initialize();
@@ -773,7 +773,7 @@ protected:
 	virtual void							WriteRegisterImpl(uint8, uint64);
 	void									FeedImageDataImpl(const void*, uint32);
 	void									ReadImageDataImpl(void*, uint32);
-	virtual void							WriteRegisterMassivelyImpl(MASSIVEWRITE_INFO*);
+	void									WriteRegisterMassivelyImpl(const MASSIVEWRITE_INFO&);
 
 	void									BeginTransfer();
 
