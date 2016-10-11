@@ -108,7 +108,66 @@ void CGSH_Direct3D9::ProcessHostToLocalTransfer()
 
 void CGSH_Direct3D9::ProcessLocalToHostTransfer()
 {
+	//This is constrained to work only with ps2autotest, will be unconstrained later
 
+	auto bltBuf = make_convertible<BITBLTBUF>(m_nReg[GS_REG_BITBLTBUF]);
+	auto trxPos = make_convertible<TRXPOS>(m_nReg[GS_REG_TRXPOS]);
+	auto trxReg = make_convertible<TRXREG>(m_nReg[GS_REG_TRXREG]);
+
+	if(bltBuf.nSrcPsm != PSMCT32) return;
+
+	uint32 transferAddress = bltBuf.GetSrcPtr();
+	if(transferAddress != 0) return;
+
+	if((trxReg.nRRW != 32) || (trxReg.nRRH != 32)) return;
+	if((trxPos.nSSAX != 0) || (trxPos.nSSAY != 0)) return;
+
+	auto framebufferIterator = std::find_if(m_framebuffers.begin(), m_framebuffers.end(), 
+		[] (const FramebufferPtr& framebuffer)
+		{
+			return (framebuffer->m_psm == PSMCT32) && (framebuffer->m_basePtr == 0);
+		}
+	);
+	if(framebufferIterator == std::end(m_framebuffers)) return;
+	const auto& framebuffer = (*framebufferIterator);
+
+	m_renderState.isValid = false;
+
+	auto renderTarget = framebuffer->m_renderTarget;
+	SurfacePtr offscreenSurface, renderTargetSurface;
+
+	HRESULT result = S_OK;
+
+	result = renderTarget->GetSurfaceLevel(0, &renderTargetSurface);
+	assert(SUCCEEDED(result));
+
+	result = m_device->CreateOffscreenPlainSurface(framebuffer->m_width, framebuffer->m_height, D3DFMT_A8R8G8B8, D3DPOOL_SYSTEMMEM, &offscreenSurface, nullptr);
+	assert(SUCCEEDED(result));
+
+	result = m_device->GetRenderTargetData(renderTargetSurface, offscreenSurface);
+	assert(SUCCEEDED(result));
+
+	D3DLOCKED_RECT lockedRect = {};
+	result = offscreenSurface->LockRect(&lockedRect, nullptr, D3DLOCK_READONLY);
+	assert(SUCCEEDED(result));
+
+	auto pixels = reinterpret_cast<uint32*>(lockedRect.pBits);
+
+	//Write back to RAM
+	{
+		CGsPixelFormats::CPixelIndexorPSMCT32 indexor(m_pRAM, bltBuf.GetSrcPtr(), bltBuf.nSrcWidth);
+		for(uint32 y = trxPos.nSSAY; y < (trxPos.nSSAY + trxReg.nRRH); y++)
+		{
+			for(uint32 x = trxPos.nSSAX; x < (trxPos.nSSAX + trxReg.nRRH); x++)
+			{
+				uint32 pixel = pixels[x + (y * lockedRect.Pitch / 4)];
+				indexor.SetPixel(x, y, pixel);
+			}
+		}
+	}
+
+	result = offscreenSurface->UnlockRect();
+	assert(SUCCEEDED(result));
 }
 
 void CGSH_Direct3D9::ProcessLocalToLocalTransfer()
