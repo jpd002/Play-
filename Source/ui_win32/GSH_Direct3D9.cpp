@@ -1190,7 +1190,25 @@ void CGSH_Direct3D9::SetupBlendingFunction(uint64 alphaReg)
 	m_device->SetRenderState(D3DRS_SRCBLENDALPHA, D3DBLEND_ONE);
 	m_device->SetRenderState(D3DRS_DESTBLENDALPHA, D3DBLEND_ZERO);
 
-	if((alpha.nA == 0) && (alpha.nB == 1) && (alpha.nC == 0) && (alpha.nD == 1))
+	if((alpha.nA == alpha.nB) && (alpha.nD == ALPHABLEND_ABD_CS))
+	{
+		//ab*0 (when a == b) - Cs
+		m_device->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_ONE);
+		m_device->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_ZERO);
+	}
+	else if((alpha.nA == alpha.nB) && (alpha.nD == ALPHABLEND_ABD_CD))
+	{
+		//ab*1 (when a == b) - Cd
+		m_device->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_ZERO);
+		m_device->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_ONE);
+	}
+	else if((alpha.nA == alpha.nB) && (alpha.nD == ALPHABLEND_ABD_ZERO))
+	{
+		//ab*2 (when a == b) - Zero
+		m_device->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_ZERO);
+		m_device->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_ZERO);
+	}
+	else if((alpha.nA == 0) && (alpha.nB == 1) && (alpha.nC == 0) && (alpha.nD == 1))
 	{
 		m_device->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_SRCALPHA);
 		m_device->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_INVSRCALPHA);
@@ -1256,12 +1274,6 @@ void CGSH_Direct3D9::SetupBlendingFunction(uint64 alphaReg)
 		m_device->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_ZERO);
 		m_device->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_INVBLENDFACTOR);
 		m_device->SetRenderState(D3DRS_BLENDFACTOR, D3DCOLOR_ARGB(fix, fix, fix, fix));
-	}
-	else if((alpha.nA == ALPHABLEND_ABD_ZERO) && (alpha.nB == ALPHABLEND_ABD_ZERO) && (alpha.nD == ALPHABLEND_ABD_CS))
-	{
-		//22*0 -> Cs (No blend)
-		m_device->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_ONE);
-		m_device->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_ZERO);
 	}
 	else
 	{
