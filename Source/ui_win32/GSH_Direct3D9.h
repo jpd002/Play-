@@ -184,7 +184,6 @@ private:
 	void							CopyRenderTargetToBitmap(Framework::CBitmap&, const TexturePtr&, uint32, uint32, uint32, uint32);
 
 	float							GetZ(float);
-	uint8							MulBy2Clamp(uint8);
 
 	void							Prim_Line();
 	void							Prim_Triangle();

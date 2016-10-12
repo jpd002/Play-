@@ -711,11 +711,6 @@ void CGSH_Direct3D9::OnDeviceResetting()
 	m_clutTexture.Reset();
 }
 
-uint8 CGSH_Direct3D9::MulBy2Clamp(uint8 nValue)
-{
-	return (nValue > 0x7F) ? 0xFF : (nValue << 1);
-}
-
 float CGSH_Direct3D9::GetZ(float nZ)
 {
 	if(nZ < 256)
@@ -813,8 +808,8 @@ void CGSH_Direct3D9::Prim_Line()
 	{
 		HRESULT result = S_OK;
 
-		DWORD color0 = D3DCOLOR_ARGB(MulBy2Clamp(rgbaq[0].nA),	MulBy2Clamp(rgbaq[0].nR),	MulBy2Clamp(rgbaq[0].nG), MulBy2Clamp(rgbaq[0].nB));
-		DWORD color1 = D3DCOLOR_ARGB(MulBy2Clamp(rgbaq[1].nA),	MulBy2Clamp(rgbaq[1].nR),	MulBy2Clamp(rgbaq[1].nG), MulBy2Clamp(rgbaq[1].nB));
+		DWORD color0 = D3DCOLOR_ARGB(rgbaq[0].nA, rgbaq[0].nR, rgbaq[0].nG, rgbaq[0].nB);
+		DWORD color1 = D3DCOLOR_ARGB(rgbaq[1].nA, rgbaq[1].nR, rgbaq[1].nG, rgbaq[1].nB);
 
 		CUSTOMVERTEX vertices[] =
 		{
@@ -940,9 +935,9 @@ void CGSH_Direct3D9::Prim_Triangle()
 	{
 		HRESULT result = S_OK;
 
-		DWORD color0 = D3DCOLOR_ARGB(MulBy2Clamp(rgbaq[0].nA),	MulBy2Clamp(rgbaq[0].nR),	MulBy2Clamp(rgbaq[0].nG), MulBy2Clamp(rgbaq[0].nB));
-		DWORD color1 = D3DCOLOR_ARGB(MulBy2Clamp(rgbaq[1].nA),	MulBy2Clamp(rgbaq[1].nR),	MulBy2Clamp(rgbaq[1].nG), MulBy2Clamp(rgbaq[1].nB));
-		DWORD color2 = D3DCOLOR_ARGB(MulBy2Clamp(rgbaq[2].nA),	MulBy2Clamp(rgbaq[2].nR),	MulBy2Clamp(rgbaq[2].nG), MulBy2Clamp(rgbaq[2].nB));
+		DWORD color0 = D3DCOLOR_ARGB(rgbaq[0].nA, rgbaq[0].nR, rgbaq[0].nG, rgbaq[0].nB);
+		DWORD color1 = D3DCOLOR_ARGB(rgbaq[1].nA, rgbaq[1].nR, rgbaq[1].nG, rgbaq[1].nB);
+		DWORD color2 = D3DCOLOR_ARGB(rgbaq[2].nA, rgbaq[2].nR, rgbaq[2].nG, rgbaq[2].nB);
 
 		CUSTOMVERTEX vertices[] =
 		{
@@ -1028,7 +1023,7 @@ void CGSH_Direct3D9::Prim_Sprite()
 	{
 		HRESULT result;
 
-		DWORD color1 = D3DCOLOR_ARGB(MulBy2Clamp(rgbaq[1].nA),	MulBy2Clamp(rgbaq[1].nR),	MulBy2Clamp(rgbaq[1].nG), MulBy2Clamp(rgbaq[1].nB));
+		DWORD color1 = D3DCOLOR_ARGB(rgbaq[1].nA, rgbaq[1].nR, rgbaq[1].nG, rgbaq[1].nB);
 
 		CUSTOMVERTEX vertices[] =
 		{
@@ -1210,7 +1205,7 @@ void CGSH_Direct3D9::SetupBlendingFunction(uint64 alphaReg)
 		//(Cs - Cd) * FIX + Cd
 		//		-> FIX * Cs + (1 - FIX) * Cd
 
-		uint8 fix = MulBy2Clamp(alpha.nFix);
+		uint8 fix = alpha.nFix;
 		m_device->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_BLENDFACTOR);
 		m_device->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_INVBLENDFACTOR);
 		m_device->SetRenderState(D3DRS_BLENDFACTOR, D3DCOLOR_ARGB(fix, fix, fix, fix));
@@ -1257,7 +1252,7 @@ void CGSH_Direct3D9::SetupBlendingFunction(uint64 alphaReg)
 		//(0 - Cd) * FIX + Cd 
 		//		-> 0 * Cs + (1 - FIX) * Cd
 
-		uint8 fix = MulBy2Clamp(alpha.nFix);
+		uint8 fix = alpha.nFix;
 		m_device->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_ZERO);
 		m_device->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_INVBLENDFACTOR);
 		m_device->SetRenderState(D3DRS_BLENDFACTOR, D3DCOLOR_ARGB(fix, fix, fix, fix));
