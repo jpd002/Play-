@@ -1238,6 +1238,12 @@ void CGSH_Direct3D9::SetupBlendingFunction(uint64 alphaReg)
 		m_device->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_SRCALPHA);
 		m_device->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_ONE);
 	}
+	else if((alpha.nA == ALPHABLEND_ABD_CS) && (alpha.nB == ALPHABLEND_ABD_ZERO) && (alpha.nC == ALPHABLEND_C_AS) && (alpha.nD == ALPHABLEND_ABD_ZERO))
+	{
+		//0202 - Cs * As
+		m_device->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_SRCALPHA);
+		m_device->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_ZERO);
+	}
 	else if((alpha.nA == 1) && (alpha.nB == 0) && (alpha.nC == 0) && (alpha.nD == 0))
 	{
 		//(Cd - Cs) * As + Cs
