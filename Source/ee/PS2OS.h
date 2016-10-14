@@ -11,6 +11,8 @@
 #include "../gs/GSHandler.h"
 #include "SIF.h"
 
+#define INTERRUPTS_ENABLED_MASK (CMIPS::STATUS_IE | CMIPS::STATUS_EIE)
+
 class CIopBios;
 
 class CPS2OS : public CBiosDebugInfoProvider
