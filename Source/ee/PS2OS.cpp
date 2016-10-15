@@ -2368,6 +2368,7 @@ void CPS2OS::sc_WaitSema()
 		m_semaWaitId = id;
 		m_semaWaitCaller = m_ee.m_State.nGPR[CMIPS::RA].nV0;
 		m_semaWaitCount = 0;
+		m_semaWaitThreadId = -1;
 	}
 
 	if(sema->count == 0)
