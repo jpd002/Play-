@@ -2352,6 +2352,9 @@ void CPS2OS::sc_WaitSema()
 		return;
 	}
 
+	//Check if we can activate a speed hack for a thread that is stuck
+	//in a loop checking the same semaphore over and over
+	//This helps skipping an idle loop in Castlevania: Curse of Darkness
 	if((m_semaWaitId == id) && (m_semaWaitCaller == m_ee.m_State.nGPR[CMIPS::RA].nV0))
 	{
 		m_semaWaitCount++;
