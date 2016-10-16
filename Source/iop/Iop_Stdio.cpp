@@ -65,6 +65,7 @@ std::string CStdio::PrintFormatted(const char* format, CArgumentIterator& args)
 		{
 			bool paramDone = false;
 			bool inPrecision = false;
+			bool showSign = false;
 			char fillChar = ' ';
 			std::string precision;
 			while(!paramDone && *format != 0) 
@@ -74,6 +75,10 @@ std::string CStdio::PrintFormatted(const char* format, CArgumentIterator& args)
 				{
 					output += type;
 					paramDone = true;
+				}
+				else if(type == '+')
+				{
+					showSign = true;
 				}
 				else if(type == 's')
 				{
@@ -91,6 +96,10 @@ std::string CStdio::PrintFormatted(const char* format, CArgumentIterator& args)
 				{
 					int number = args.GetNext();
 					unsigned int precisionValue = precision.length() ? boost::lexical_cast<unsigned int>(precision) : 1;
+					if(showSign && (number >= 0))
+					{
+						output += "+";
+					}
 					output += lexical_cast_int<std::string>(number, precisionValue, fillChar);
 					paramDone = true;
 				}
