@@ -1847,14 +1847,14 @@ bool CIopBios::ProcessEventFlag(uint32 mode, uint32& value, uint32 mask, uint32*
 
 	if(success)
 	{
+		if(resultPtr)
+		{
+			*resultPtr = value;
+		}
+
 		if(mode & WEF_CLEAR)
 		{
 			value &= ~mask;
-		}
-
-		if(resultPtr)
-		{
-			*resultPtr = maskResult;
 		}
 	}
 
