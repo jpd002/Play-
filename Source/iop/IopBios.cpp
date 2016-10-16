@@ -1854,7 +1854,7 @@ bool CIopBios::ProcessEventFlag(uint32 mode, uint32& value, uint32 mask, uint32*
 
 		if(mode & WEF_CLEAR)
 		{
-			value &= ~mask;
+			value = 0;
 		}
 	}
 
