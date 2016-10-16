@@ -13,6 +13,7 @@ using namespace Iop;
 #define FUNCTION_CLEAREVENTFLAG				"ClearEventFlag"
 #define FUNCTION_ICLEAREVENTFLAG			"iClearEventFlag"
 #define FUNCTION_WAITEVENTFLAG				"WaitEventFlag"
+#define FUNCTION_POLLEVENTFLAG				"PollEventFlag"
 #define FUNCTION_REFEREVENTFLAGSTATUS		"ReferEventFlagStatus"
 #define FUNCTION_IREFEREVENTFLAGSTATUS		"iReferEventFlagStatus"
 
@@ -57,6 +58,9 @@ std::string CThevent::GetFunctionName(unsigned int functionId) const
 		break;
 	case 10:
 		return FUNCTION_WAITEVENTFLAG;
+		break;
+	case 11:
+		return FUNCTION_POLLEVENTFLAG;
 		break;
 	case 13:
 		return FUNCTION_REFEREVENTFLAGSTATUS;
@@ -111,6 +115,14 @@ void CThevent::Invoke(CMIPS& context, unsigned int functionId)
 			context.m_State.nGPR[CMIPS::A3].nV0
 			));
 		break;
+	case 11:
+		context.m_State.nGPR[CMIPS::V0].nD0 = static_cast<int32>(PollEventFlag(
+			context.m_State.nGPR[CMIPS::A0].nV0,
+			context.m_State.nGPR[CMIPS::A1].nV0,
+			context.m_State.nGPR[CMIPS::A2].nV0,
+			context.m_State.nGPR[CMIPS::A3].nV0
+		));
+		break;
 	case 13:
 	case 14:
 		context.m_State.nGPR[CMIPS::V0].nD0 = static_cast<int32>(ReferEventFlagStatus(
@@ -152,6 +164,11 @@ uint32 CThevent::ClearEventFlag(uint32 eventId, uint32 bits)
 uint32 CThevent::WaitEventFlag(uint32 eventId, uint32 bits, uint32 mode, uint32 resultPtr)
 {
 	return m_bios.WaitEventFlag(eventId, bits, mode, resultPtr);
+}
+
+uint32 CThevent::PollEventFlag(uint32 eventId, uint32 bits, uint32 mode, uint32 resultPtr)
+{
+	return m_bios.PollEventFlag(eventId, bits, mode, resultPtr);
 }
 
 uint32 CThevent::ReferEventFlagStatus(uint32 eventId, uint32 infoPtr)

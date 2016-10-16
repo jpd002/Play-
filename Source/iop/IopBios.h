@@ -175,6 +175,7 @@ public:
 	uint32						SetEventFlag(uint32, uint32, bool);
 	uint32						ClearEventFlag(uint32, uint32);
 	uint32						WaitEventFlag(uint32, uint32, uint32, uint32);
+	uint32						PollEventFlag(uint32, uint32, uint32, uint32);
 	uint32						ReferEventFlagStatus(uint32, uint32);
 	bool						ProcessEventFlag(uint32, uint32&, uint32, uint32*);
 
@@ -434,6 +435,8 @@ private:
 		KERNEL_RESULT_ERROR_UNKNOWN_VPLID    = -411,
 		KERNEL_RESULT_ERROR_NOT_DORMANT      = -414,
 		KERNEL_RESULT_ERROR_SEMA_ZERO        = -419,
+		KERNEL_RESULT_ERROR_EVF_CONDITION    = -421,
+		KERNEL_RESULT_ERROR_EVF_ILLEGAL_PAT  = -423,
 		KERNEL_RESULT_ERROR_MBX_NOMSG        = -424,
 		KERNEL_RESULT_ERROR_ILLEGAL_MEMSIZE  = -427,
 	};

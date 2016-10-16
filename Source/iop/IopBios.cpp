@@ -1775,6 +1775,34 @@ uint32 CIopBios::WaitEventFlag(uint32 eventId, uint32 value, uint32 mode, uint32
 	return 0;
 }
 
+uint32 CIopBios::PollEventFlag(uint32 eventId, uint32 value, uint32 mode, uint32 resultPtr)
+{
+#ifdef _DEBUG
+	CLog::GetInstance().Print(LOGNAME, "%d: PollEventFlag(eventId = %d, value = 0x%0.8X, mode = 0x%0.2X, resultPtr = 0x%0.8X);\r\n",
+		m_currentThreadId.Get(), eventId, value, mode, resultPtr);
+#endif
+
+	auto eventFlag = m_eventFlags[eventId];
+	if(!eventFlag)
+	{
+		return KERNEL_RESULT_ERROR_UNKNOWN_EVFID;
+	}
+
+	if(value == 0)
+	{
+		return KERNEL_RESULT_ERROR_EVF_ILLEGAL_PAT;
+	}
+
+	bool success = ProcessEventFlag(mode, eventFlag->value, value, 
+		(resultPtr != 0) ? reinterpret_cast<uint32*>(m_ram + resultPtr) : nullptr);
+	if(!success)
+	{
+		return KERNEL_RESULT_ERROR_EVF_CONDITION;
+	}
+
+	return KERNEL_RESULT_OK;
+}
+
 uint32 CIopBios::ReferEventFlagStatus(uint32 eventId, uint32 infoPtr)
 {
 #ifdef _DEBUG
