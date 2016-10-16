@@ -1664,6 +1664,26 @@ uint32 CIopBios::CreateEventFlag(uint32 attributes, uint32 options, uint32 initV
 	return eventFlag->id;
 }
 
+uint32 CIopBios::DeleteEventFlag(uint32 eventId)
+{
+#ifdef _DEBUG
+	CLog::GetInstance().Print(LOGNAME, "%d: DeleteEventFlag(eventId = %d);\r\n",
+		m_currentThreadId.Get(), eventId);
+#endif
+
+	auto eventFlag = m_eventFlags[eventId];
+	if(!eventFlag)
+	{
+		CLog::GetInstance().Print(LOGNAME, "%d: Warning, trying to access invalid event flag with id %d.\r\n",
+			m_currentThreadId.Get(), eventId);
+		return KERNEL_RESULT_ERROR_UNKNOWN_EVFID;
+	}
+
+	m_eventFlags.Free(eventId);
+
+	return KERNEL_RESULT_OK;
+}
+
 uint32 CIopBios::SetEventFlag(uint32 eventId, uint32 value, bool inInterrupt)
 {
 #ifdef _DEBUG

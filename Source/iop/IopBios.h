@@ -171,6 +171,7 @@ public:
 	uint32						ReferSemaphoreStatus(uint32, uint32);
 
 	uint32						CreateEventFlag(uint32, uint32, uint32);
+	uint32						DeleteEventFlag(uint32);
 	uint32						SetEventFlag(uint32, uint32, bool);
 	uint32						ClearEventFlag(uint32, uint32);
 	uint32						WaitEventFlag(uint32, uint32, uint32, uint32);
@@ -428,6 +429,7 @@ private:
 		KERNEL_RESULT_ERROR_ILLEGAL_PRIORITY = -403,
 		KERNEL_RESULT_ERROR_ILLEGAL_THID     = -406,
 		KERNEL_RESULT_ERROR_UNKNOWN_THID     = -407,
+		KERNEL_RESULT_ERROR_UNKNOWN_EVFID    = -409,
 		KERNEL_RESULT_ERROR_UNKNOWN_MBXID    = -410,
 		KERNEL_RESULT_ERROR_UNKNOWN_VPLID    = -411,
 		KERNEL_RESULT_ERROR_NOT_DORMANT      = -414,

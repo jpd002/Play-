@@ -25,6 +25,7 @@ namespace Iop
 		};
 
 		uint32			CreateEventFlag(EVENT*);
+		uint32			DeleteEventFlag(uint32);
 		uint32			SetEventFlag(uint32, uint32);
 		uint32			iSetEventFlag(uint32, uint32);
 		uint32			ClearEventFlag(uint32, uint32);

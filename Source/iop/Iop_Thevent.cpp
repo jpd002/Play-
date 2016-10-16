@@ -7,6 +7,7 @@ using namespace Iop;
 #define LOG_NAME ("iop_thevent")
 
 #define FUNCTION_CREATEEVENTFLAG			"CreateEventFlag"
+#define FUNCTION_DELETEEVENTFLAG			"DeleteEventFlag"
 #define FUNCTION_SETEVENTFLAG				"SetEventFlag"
 #define FUNCTION_ISETEVENTFLAG				"iSetEventFlag"
 #define FUNCTION_CLEAREVENTFLAG				"ClearEventFlag"
@@ -38,6 +39,9 @@ std::string CThevent::GetFunctionName(unsigned int functionId) const
 	{
 	case 4:
 		return FUNCTION_CREATEEVENTFLAG;
+		break;
+	case 5:
+		return FUNCTION_DELETEEVENTFLAG;
 		break;
 	case 6:
 		return FUNCTION_SETEVENTFLAG;
@@ -73,6 +77,11 @@ void CThevent::Invoke(CMIPS& context, unsigned int functionId)
 	case 4:
 		context.m_State.nGPR[CMIPS::V0].nD0 = static_cast<int32>(CreateEventFlag(
 			reinterpret_cast<EVENT*>(&m_ram[context.m_State.nGPR[CMIPS::A0].nV0])
+			));
+		break;
+	case 5:
+		context.m_State.nGPR[CMIPS::V0].nD0 = static_cast<int32>(DeleteEventFlag(
+			context.m_State.nGPR[CMIPS::A0].nV0
 			));
 		break;
 	case 6:
@@ -118,6 +127,11 @@ void CThevent::Invoke(CMIPS& context, unsigned int functionId)
 uint32 CThevent::CreateEventFlag(EVENT* eventPtr)
 {
 	return m_bios.CreateEventFlag(eventPtr->attributes, eventPtr->options, eventPtr->initValue);
+}
+
+uint32 CThevent::DeleteEventFlag(uint32 eventId)
+{
+	return m_bios.DeleteEventFlag(eventId);
 }
 
 uint32 CThevent::SetEventFlag(uint32 eventId, uint32 bits)
