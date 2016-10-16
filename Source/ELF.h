@@ -147,7 +147,10 @@ public:
 	};
 
 						CELF(uint8*);
+						CELF(const CELF&) = delete;
 	virtual				~CELF();
+
+	CELF&				operator =(const CELF&) = delete;
 
 	uint8*				GetContent() const;
 	const ELFHEADER&	GetHeader() const;
