@@ -160,7 +160,7 @@ private:
 	unsigned int					GetCurrentReadCircuit();
 
 	FramebufferPtr					FindFramebuffer(uint64) const;
-	void							GetFramebufferImpl(Framework::CBitmap&, uint64);
+	Framework::CBitmap				GetFramebufferImpl(uint64);
 
 	DepthbufferPtr					FindDepthbuffer(uint64, uint64) const;
 
@@ -176,12 +176,12 @@ private:
 	void							SetupTexture(uint64, uint64, uint64, uint64, uint64);
 	void							SetupFramebuffer(uint64, uint64);
 	TEXTURE_INFO					LoadTexture(const TEX0&, uint32, const MIPTBP1&, const MIPTBP2&);
-	void							GetTextureImpl(Framework::CBitmap&, uint64, uint32, uint64, uint64, uint32);
+	Framework::CBitmap				GetTextureImpl(uint64, uint32, uint64, uint64, uint32);
 
 	TexturePtr						GetClutTexture(const TEX0&);
 
-	void							CopyTextureToBitmap(Framework::CBitmap&, const TexturePtr&, uint32, uint32, uint8, uint32);
-	void							CopyRenderTargetToBitmap(Framework::CBitmap&, const TexturePtr&, uint32, uint32, uint32, uint32);
+	Framework::CBitmap				CreateBitmapFromTexture(const TexturePtr&, uint32, uint32, uint8, uint32);
+	Framework::CBitmap				CreateBitmapFromRenderTarget(const TexturePtr&, uint32, uint32, uint32, uint32);
 
 	float							GetZ(float);
 

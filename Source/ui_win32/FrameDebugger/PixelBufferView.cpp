@@ -2,6 +2,7 @@
 #include <assert.h>
 #include <vector>
 #include "../resource.h"
+#include "../D3D9TextureUtils.h"
 #include "win32/FileDialog.h"
 #include "bitmap/BMP.h"
 #include "StdStreamUtils.h"
@@ -353,26 +354,35 @@ CPixelBufferView::TexturePtr CPixelBufferView::CreateTextureFromBitmap(const Fra
 
 	if(!bitmap.IsEmpty())
 	{
+		D3DFORMAT textureFormat =
+			[bitmap]()
+			{
+				switch(bitmap.GetBitsPerPixel())
+				{
+				case 8:
+					return D3DFMT_L8;
+				case 32:
+				default:
+					return D3DFMT_A8R8G8B8;
+				}
+			}();
+
 		HRESULT result = S_OK;
-		result = m_device->CreateTexture(bitmap.GetWidth(), bitmap.GetHeight(), 1, D3DUSAGE_DYNAMIC, D3DFMT_A8R8G8B8, D3DPOOL_DEFAULT, &texture, nullptr);
+		result = m_device->CreateTexture(bitmap.GetWidth(), bitmap.GetHeight(), 1, D3DUSAGE_DYNAMIC, textureFormat, D3DPOOL_DEFAULT, &texture, nullptr);
 		assert(SUCCEEDED(result));
 
-		D3DLOCKED_RECT lockedRect = {};
-
-		result = texture->LockRect(0, &lockedRect, nullptr, 0);
-		assert(SUCCEEDED(result));
-		
-		uint32* dstPtr = reinterpret_cast<uint32*>(lockedRect.pBits);
-		uint32* srcPtr = reinterpret_cast<uint32*>(bitmap.GetPixels());
-		for(unsigned int y = 0; y < bitmap.GetHeight(); y++)
+		switch(bitmap.GetBitsPerPixel())
 		{
-			memcpy(dstPtr, srcPtr, bitmap.GetWidth() * sizeof(uint32));
-			dstPtr += lockedRect.Pitch / sizeof(uint32);
-			srcPtr += bitmap.GetPitch() / sizeof(uint32);
+		case 8:
+			CopyBitmapToTexture<uint8>(texture, 0, bitmap);
+			break;
+		case 32:
+			CopyBitmapToTexture<uint32>(texture, 0, bitmap);
+			break;
+		default:
+			assert(false);
+			break;
 		}
-
-		result = texture->UnlockRect(0);
-		assert(SUCCEEDED(result));
 	}
 
 	return texture;

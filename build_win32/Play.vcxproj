@@ -366,6 +366,7 @@
     <ClInclude Include="..\Source\ui_win32\CallStackWnd.h" />
     <ClInclude Include="..\Source\ui_win32\CdromSelectionWnd.h" />
     <ClInclude Include="..\Source\ui_win32\CommandSink.h" />
+    <ClInclude Include="..\Source\ui_win32\D3D9TextureUtils.h" />
     <ClInclude Include="..\Source\ui_win32\DebugExpressionEvaluator.h" />
     <ClInclude Include="..\Source\ui_win32\Debugger.h" />
     <ClInclude Include="..\Source\ui_win32\DebuggerChildWnd.h" />

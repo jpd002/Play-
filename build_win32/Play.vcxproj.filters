@@ -501,6 +501,9 @@
     <ClInclude Include="..\Source\ui_win32\FrameDebugger\GsPacketListView.h">
       <Filter>Source Files\FrameDebugger</Filter>
     </ClInclude>
+    <ClInclude Include="..\Source\ui_win32\D3D9TextureUtils.h">
+      <Filter>Source Files\GSH_Direct3D9</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\Source\License.txt" />

@@ -1,6 +1,7 @@
 #include "GSH_Direct3D9.h"
 #include "../Log.h"
 #include "../gs/GsPixelFormats.h"
+#include "D3D9TextureUtils.h"
 #include <d3dx9math.h>
 
 #pragma comment (lib, "d3d9.lib")
@@ -49,14 +50,14 @@ CGSH_Direct3D9::~CGSH_Direct3D9()
 Framework::CBitmap CGSH_Direct3D9::GetFramebuffer(uint64 frameReg)
 {
 	Framework::CBitmap result;
-	m_mailBox.SendCall([&] () { GetFramebufferImpl(result, frameReg); }, true );
+	m_mailBox.SendCall([&] () { result = GetFramebufferImpl(frameReg); }, true );
 	return result;
 }
 
 Framework::CBitmap CGSH_Direct3D9::GetTexture(uint64 tex0Reg, uint32 maxMip, uint64 miptbp1Reg, uint64 miptbp2Reg, uint32 mipLevel)
 {
 	Framework::CBitmap result;
-	m_mailBox.SendCall([&] () { GetTextureImpl(result, tex0Reg, maxMip, miptbp1Reg, miptbp2Reg, mipLevel); }, true);
+	m_mailBox.SendCall([&] () { result = GetTextureImpl(tex0Reg, maxMip, miptbp1Reg, miptbp2Reg, mipLevel); }, true);
 	return result;
 }
 
@@ -260,12 +261,18 @@ CGSH_Direct3D9::FramebufferPtr CGSH_Direct3D9::FindFramebuffer(uint64 frameReg) 
 	return (framebufferIterator != std::end(m_framebuffers)) ? *(framebufferIterator) : FramebufferPtr();
 }
 
-void CGSH_Direct3D9::GetFramebufferImpl(Framework::CBitmap& outputBitmap, uint64 frameReg)
+Framework::CBitmap CGSH_Direct3D9::GetFramebufferImpl(uint64 frameReg)
 {
 	auto framebuffer = FindFramebuffer(frameReg);
-	if(!framebuffer) return;
-	CopyRenderTargetToBitmap(outputBitmap, framebuffer->m_renderTarget, 
-		framebuffer->m_width, framebuffer->m_height, framebuffer->m_width, framebuffer->m_height);
+	if(!framebuffer)
+	{
+		return Framework::CBitmap();
+	}
+	else
+	{
+		return CreateBitmapFromRenderTarget(framebuffer->m_renderTarget,
+			framebuffer->m_width, framebuffer->m_height, framebuffer->m_width, framebuffer->m_height);
+	}
 }
 
 CGSH_Direct3D9::DepthbufferPtr CGSH_Direct3D9::FindDepthbuffer(uint64 zbufReg, uint64 frameReg) const
@@ -283,7 +290,7 @@ CGSH_Direct3D9::DepthbufferPtr CGSH_Direct3D9::FindDepthbuffer(uint64 zbufReg, u
 	return (depthbufferIterator != std::end(m_depthbuffers)) ? *(depthbufferIterator) : DepthbufferPtr();
 }
 
-void CGSH_Direct3D9::GetTextureImpl(Framework::CBitmap& outputBitmap, uint64 tex0Reg, uint32 maxMip, uint64 miptbp1Reg, uint64 miptbp2Reg, uint32 mipLevel)
+Framework::CBitmap CGSH_Direct3D9::GetTextureImpl(uint64 tex0Reg, uint32 maxMip, uint64 miptbp1Reg, uint64 miptbp2Reg, uint32 mipLevel)
 {
 	auto tex0 = make_convertible<TEX0>(tex0Reg);
 	auto miptbp1 = make_convertible<MIPTBP1>(miptbp1Reg);
@@ -292,67 +299,53 @@ void CGSH_Direct3D9::GetTextureImpl(Framework::CBitmap& outputBitmap, uint64 tex
 
 	if(texInfo.isRenderTarget)
 	{
-		CopyRenderTargetToBitmap(outputBitmap, texInfo.texture, 
+		return CreateBitmapFromRenderTarget(texInfo.texture, 
 			texInfo.renderTargetWidth, texInfo.renderTargetHeight, tex0.GetWidth(), tex0.GetHeight());
 	}
 	else
 	{
-		CopyTextureToBitmap(outputBitmap, texInfo.texture, tex0.GetWidth(), tex0.GetHeight(), tex0.nPsm, mipLevel);
+		return CreateBitmapFromTexture(texInfo.texture, tex0.GetWidth(), tex0.GetHeight(), tex0.nPsm, mipLevel);
 	}
 }
 
-void CGSH_Direct3D9::CopyTextureToBitmap(Framework::CBitmap& outputBitmap, const TexturePtr& texture, uint32 width, uint32 height, uint8 format, uint32 mipLevel)
+Framework::CBitmap CGSH_Direct3D9::CreateBitmapFromTexture(const TexturePtr& texture, uint32 width, uint32 height, uint8 format, uint32 mipLevel)
 {
 	width = std::max<uint32>(width >> mipLevel, 1);
 	height = std::max<uint32>(height >> mipLevel, 1);
 
-	outputBitmap = Framework::CBitmap(width, height, 32);
-
-	HRESULT result = S_OK;
-
-	D3DLOCKED_RECT lockedRect = {};
-	result = texture->LockRect(mipLevel, &lockedRect, nullptr, D3DLOCK_READONLY);
-	assert(SUCCEEDED(result));
-
-	switch(format)
-	{
-	case PSMT4:
-	case PSMT8:
+	uint32 bitsPerPixel = 
+		[format]()
 		{
-			auto srcPtr = reinterpret_cast<uint8*>(lockedRect.pBits);
-			auto dstPtr = reinterpret_cast<uint32*>(outputBitmap.GetPixels());
-			for(unsigned int y = 0; y < height; y++)
+			switch(format)
 			{
-				for(unsigned int x = 0; x < width; x++)
-				{
-					uint8 entry = srcPtr[x];
-					uint32 color = (0xFF << 24) | (entry << 16) | (entry << 8) | (entry << 0);
-					dstPtr[x] = color;
-				}
-				dstPtr += (outputBitmap.GetPitch() / 4);
-				srcPtr += lockedRect.Pitch;
+			case PSMT4:
+			case PSMT8:
+				return 8;
+			default:
+				return 32;
+				break;
 			}
-		}
+		}();
+
+	auto bitmap = Framework::CBitmap(width, height, bitsPerPixel);
+
+	switch(bitsPerPixel)
+	{
+	case 8:
+		CopyTextureToBitmap<uint8>(bitmap, texture, mipLevel);
+		break;
+	case 32:
+		CopyTextureToBitmap<uint32>(bitmap, texture, mipLevel);
 		break;
 	default:
-		{
-			auto srcPtr = reinterpret_cast<uint8*>(lockedRect.pBits);
-			auto dstPtr = reinterpret_cast<uint8*>(outputBitmap.GetPixels());
-			for(unsigned int y = 0; y < height; y++)
-			{
-				memcpy(dstPtr, srcPtr, width * 4);
-				dstPtr += outputBitmap.GetPitch();
-				srcPtr += lockedRect.Pitch;
-			}
-		}
+		assert(false);
 		break;
 	}
 
-	result = texture->UnlockRect(mipLevel);
-	assert(SUCCEEDED(result));
+	return bitmap;
 }
 
-void CGSH_Direct3D9::CopyRenderTargetToBitmap(Framework::CBitmap& outputBitmap, const TexturePtr& renderTarget, uint32 renderTargetWidth, uint32 renderTargetHeight, uint32 width, uint32 height)
+Framework::CBitmap CGSH_Direct3D9::CreateBitmapFromRenderTarget(const TexturePtr& renderTarget, uint32 renderTargetWidth, uint32 renderTargetHeight, uint32 width, uint32 height)
 {
 	HRESULT result = S_OK;
 
@@ -367,25 +360,27 @@ void CGSH_Direct3D9::CopyRenderTargetToBitmap(Framework::CBitmap& outputBitmap, 
 	result = m_device->GetRenderTargetData(renderTargetSurface, offscreenSurface);
 	assert(SUCCEEDED(result));
 
-	outputBitmap = Framework::CBitmap(width, height, 32);
+	auto bitmap = Framework::CBitmap(width, height, 32);
 
 	D3DLOCKED_RECT lockedRect = {};
 	result = offscreenSurface->LockRect(&lockedRect, nullptr, D3DLOCK_READONLY);
 	assert(SUCCEEDED(result));
 
-	uint8* srcPtr = reinterpret_cast<uint8*>(lockedRect.pBits);
-	uint8* dstPtr = reinterpret_cast<uint8*>(outputBitmap.GetPixels());
+	auto srcPtr = reinterpret_cast<uint8*>(lockedRect.pBits);
+	auto dstPtr = reinterpret_cast<uint8*>(bitmap.GetPixels());
 	uint32 copyWidth = std::min<uint32>(renderTargetWidth, width);
 	uint32 copyHeight = std::min<uint32>(renderTargetHeight, height);
 	for(unsigned int y = 0; y < copyHeight; y++)
 	{
 		memcpy(dstPtr, srcPtr, copyWidth * 4);
-		dstPtr += outputBitmap.GetPitch();
+		dstPtr += bitmap.GetPitch();
 		srcPtr += lockedRect.Pitch;
 	}
 
 	result = offscreenSurface->UnlockRect();
 	assert(SUCCEEDED(result));
+
+	return bitmap;
 }
 
 void CGSH_Direct3D9::BeginScene()
