@@ -102,6 +102,7 @@ Nuanceur::CShaderBuilder CGSH_Direct3D9::GeneratePixelShader(SHADERCAPS caps)
 		//Temporaries
 		auto texCoord = CFloat2Lvalue(b.CreateTemporary());
 		auto textureColor = CFloat4Lvalue(b.CreateTemporary());
+		auto finalAlpha = CFloatLvalue(b.CreateTemporary());
 
 		texCoord = inputTexCoord->xy() / inputTexCoord->zz();
 		textureColor = NewFloat4(b, 1, 1, 1, 1);
@@ -129,7 +130,11 @@ Nuanceur::CShaderBuilder CGSH_Direct3D9::GeneratePixelShader(SHADERCAPS caps)
 			textureColor = Sample(clutTexture, NewFloat2(colorIndex, NewFloat(b, 0)));
 		}
 
+		//For proper alpha blending, alpha has to be multiplied by 2 (0x80 -> 1.0)
+		//This has the side effect of not writing a proper value in the framebuffer (should write alpha "as is")
 		outputColor = inputColor * textureColor;
+		finalAlpha = Saturate(outputColor->w() * NewFloat(b, 2));
+		outputColor = NewFloat4(outputColor->xyz(),finalAlpha);
 	}
 
 	return b;
