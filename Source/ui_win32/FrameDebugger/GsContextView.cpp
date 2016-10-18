@@ -113,6 +113,7 @@ void CGsContextView::UpdateBufferView()
 			uint64 tex1Reg = m_gs->GetRegisters()[GS_REG_TEX1_1 + m_contextId];
 			uint64 miptbp1Reg = m_gs->GetRegisters()[GS_REG_MIPTBP1_1 + m_contextId];
 			uint64 miptbp2Reg = m_gs->GetRegisters()[GS_REG_MIPTBP2_1 + m_contextId];
+			auto tex0 = make_convertible<CGSHandler::TEX0>(tex0Reg);
 			auto tex1 = make_convertible<CGSHandler::TEX1>(tex1Reg);
 
 			uint32 mipLevel = selectedId - TAB_ID_TEXTURE_BASE;
@@ -121,6 +122,12 @@ void CGsContextView::UpdateBufferView()
 			if(mipLevel <= tex1.nMaxMip)
 			{
 				texture = static_cast<CGSH_Direct3D9*>(m_gs)->GetTexture(tex0Reg, tex1.nMaxMip, miptbp1Reg, miptbp2Reg, mipLevel);
+				
+				if(CGsPixelFormats::IsPsmIDTEX4(tex0.nPsm))
+				{
+					//Too hard to see if pixel brightness is not boosted
+					BrightenBitmap(texture);
+				}
 			}
 
 			m_bufferView->SetBitmap(texture);
@@ -165,6 +172,21 @@ void CGsContextView::RenderDrawKick(Framework::CBitmap& bitmap)
 			bitmap.DrawLine(x2, y1, x1, y1, primHighlightColor);
 		}
 		break;
+	}
+}
+
+void CGsContextView::BrightenBitmap(Framework::CBitmap& bitmap)
+{
+	assert(!bitmap.IsEmpty());
+	assert(bitmap.GetBitsPerPixel() == 8);
+	auto pixels = reinterpret_cast<uint8*>(bitmap.GetPixels());
+	for(uint32 y = 0; y < bitmap.GetHeight(); y++)
+	{
+		for(uint32 x = 0; x < bitmap.GetWidth(); x++)
+		{
+			pixels[x] <<= 4;
+		}
+		pixels += bitmap.GetPitch();
 	}
 }
 

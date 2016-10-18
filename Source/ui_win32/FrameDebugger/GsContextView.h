@@ -35,6 +35,8 @@ private:
 	void											UpdateBufferView();
 	void											RenderDrawKick(Framework::CBitmap&);
 
+	static void										BrightenBitmap(Framework::CBitmap&);
+
 	std::unique_ptr<Framework::Win32::CSplitter>	m_mainSplitter;
 	std::unique_ptr<Framework::Win32::CTab>			m_bufferSelectionTab;
 	std::unique_ptr<CPixelBufferView>				m_bufferView;
