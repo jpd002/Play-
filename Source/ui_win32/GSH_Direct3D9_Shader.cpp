@@ -73,7 +73,7 @@ Nuanceur::CShaderBuilder CGSH_Direct3D9::GenerateVertexShader(SHADERCAPS caps)
 		//Constants
 		auto projMatrix = CMatrix44Value(b.CreateUniformMatrix("g_projMatrix"));
 
-		outputPosition = projMatrix * NewFloat4(inputPosition->xyz(), 1.0f);
+		outputPosition = projMatrix * NewFloat4(inputPosition->xyz(), NewFloat(b, 1.0f));
 		outputTexCoord = inputTexCoord->xyzw();
 		outputColor = inputColor->xyzw();
 	}
@@ -126,7 +126,7 @@ Nuanceur::CShaderBuilder CGSH_Direct3D9::GeneratePixelShader(SHADERCAPS caps)
 			{
 				assert(false);
 			}
-			textureColor = Sample(clutTexture, NewFloat2(colorIndex, 0));
+			textureColor = Sample(clutTexture, NewFloat2(colorIndex, NewFloat(b, 0)));
 		}
 
 		outputColor = inputColor * textureColor;
