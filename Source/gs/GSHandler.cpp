@@ -417,7 +417,10 @@ void CGSHandler::FeedImageData(const void* data, uint32 length)
 {
 	m_transferCount++;
 
-	uint8* buffer = new uint8[length];
+	//Allocate 0x10 more bytes to allow transfer handlers
+	//to read beyond the actual length of the buffer (ie.: PSMCT24)
+	
+	uint8* buffer = new uint8[length + 0x10];
 	memcpy(buffer, data, length);
 	m_mailBox.SendCall(std::bind(&CGSHandler::FeedImageDataImpl, this, buffer, length));
 }
