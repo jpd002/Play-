@@ -9,6 +9,7 @@ using namespace Iop;
 #define FUNCTION_CREATEMBX			"CreateMbx"
 #define FUNCTION_DELETEMBX			"DeleteMbx"
 #define FUNCTION_SENDMBX			"SendMbx"
+#define FUNCTION_ISENDMBX			"iSendMbx"
 #define FUNCTION_RECEIVEMBX			"ReceiveMbx"
 #define FUNCTION_POLLMBX			"PollMbx"
 #define FUNCTION_REFERMBXSTATUS		"ReferMbxStatus"
@@ -42,6 +43,9 @@ std::string CThmsgbx::GetFunctionName(unsigned int functionId) const
 		break;
 	case 6:
 		return FUNCTION_SENDMBX;
+		break;
+	case 7:
+		return FUNCTION_ISENDMBX;
 		break;
 	case 8:
 		return FUNCTION_RECEIVEMBX;
@@ -77,6 +81,12 @@ void CThmsgbx::Invoke(CMIPS& context, unsigned int functionId)
 			context.m_State.nGPR[CMIPS::A0].nV0,
 			context.m_State.nGPR[CMIPS::A1].nV0
 			);
+		break;
+	case 7:
+		context.m_State.nGPR[CMIPS::V0].nV0 = iSendMbx(
+			context.m_State.nGPR[CMIPS::A0].nV0,
+			context.m_State.nGPR[CMIPS::A1].nV0
+		);
 		break;
 	case 8:
 		context.m_State.nGPR[CMIPS::V0].nV0 = ReceiveMbx(
@@ -114,7 +124,12 @@ uint32 CThmsgbx::DeleteMbx(uint32 boxId)
 
 uint32 CThmsgbx::SendMbx(uint32 boxId, uint32 messagePtr)
 {
-	return m_bios.SendMessageBox(boxId, messagePtr);
+	return m_bios.SendMessageBox(boxId, messagePtr, false);
+}
+
+uint32 CThmsgbx::iSendMbx(uint32 boxId, uint32 messagePtr)
+{
+	return m_bios.SendMessageBox(boxId, messagePtr, true);
 }
 
 uint32 CThmsgbx::ReceiveMbx(uint32 messagePtr, uint32 boxId)

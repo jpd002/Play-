@@ -181,7 +181,7 @@ public:
 
 	uint32						CreateMessageBox();
 	uint32						DeleteMessageBox(uint32);
-	uint32						SendMessageBox(uint32, uint32);
+	uint32						SendMessageBox(uint32, uint32, bool);
 	uint32						ReceiveMessageBox(uint32, uint32);
 	uint32						PollMessageBox(uint32, uint32);
 	uint32						ReferMessageBoxStatus(uint32, uint32);

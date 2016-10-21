@@ -1900,10 +1900,8 @@ uint32 CIopBios::DeleteMessageBox(uint32 boxId)
 	return KERNEL_RESULT_OK;
 }
 
-uint32 CIopBios::SendMessageBox(uint32 boxId, uint32 messagePtr)
+uint32 CIopBios::SendMessageBox(uint32 boxId, uint32 messagePtr, bool inInterrupt)
 {
-	bool inInterrupt = false;
-
 #ifdef _DEBUG
 	CLog::GetInstance().Print(LOGNAME, "%d: SendMessageBox(boxId = %d, messagePtr = 0x%0.8X, inInterrupt = %d);\r\n",
 		m_currentThreadId.Get(), boxId, messagePtr, inInterrupt);

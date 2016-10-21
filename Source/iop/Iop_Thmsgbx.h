@@ -25,6 +25,7 @@ namespace Iop
 		uint32			CreateMbx(const MSGBX*);
 		uint32			DeleteMbx(uint32);
 		uint32			SendMbx(uint32, uint32);
+		uint32			iSendMbx(uint32, uint32);
 		uint32			ReceiveMbx(uint32, uint32);
 		uint32			PollMbx(uint32, uint32);
 		uint32			ReferMbxStatus(uint32, uint32);
