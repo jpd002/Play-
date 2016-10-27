@@ -1108,6 +1108,7 @@ void CPS2OS::ThreadSwitchContext(unsigned int id)
 		auto thread = m_threads[m_currentThreadId];
 		assert(thread);
 		thread->contextPtr = m_ee.m_State.nGPR[CMIPS::SP].nV0 - STACKRES;
+		assert(thread->contextPtr >= thread->stackBase);
 
 		auto context = reinterpret_cast<THREADCONTEXT*>(GetStructPtr(thread->contextPtr));
 
