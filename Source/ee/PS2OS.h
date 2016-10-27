@@ -119,6 +119,7 @@ private:
 	enum STACKRES
 	{
 		STACKRES = 0x2A0,
+		STACK_FRAME_RESERVE_SIZE = 0x20
 	};
 
 	//Castlevania: CoD relies on the fact that the GPRs are stored

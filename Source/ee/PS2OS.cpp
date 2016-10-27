@@ -1657,8 +1657,8 @@ void CPS2OS::sc_CreateThread()
 	auto context = reinterpret_cast<THREADCONTEXT*>(&m_ram[thread->contextPtr]);
 	memset(context, 0, sizeof(THREADCONTEXT));
 
-	context->gpr[CMIPS::SP].nV0 = stackAddr;
-	context->gpr[CMIPS::FP].nV0 = stackAddr;
+	context->gpr[CMIPS::SP].nV0 = stackAddr - STACK_FRAME_RESERVE_SIZE;
+	context->gpr[CMIPS::FP].nV0 = stackAddr - STACK_FRAME_RESERVE_SIZE;
 	context->gpr[CMIPS::GP].nV0 = threadParam->gp;
 	context->gpr[CMIPS::RA].nV0 = BIOS_ADDRESS_THREADEPILOG;
 
@@ -1714,6 +1714,8 @@ void CPS2OS::sc_StartThread()
 		return;
 	}
 
+	uint32 stackAddr = thread->stackBase + thread->stackSize;
+
 	assert(thread->status == THREAD_ZOMBIE);
 	thread->status = THREAD_RUNNING;
 	thread->epc = thread->threadProc;
@@ -1721,8 +1723,8 @@ void CPS2OS::sc_StartThread()
 	auto context = reinterpret_cast<THREADCONTEXT*>(&m_ram[thread->contextPtr]);
 	context->gpr[CMIPS::A0].nV0 = arg;
 	context->gpr[CMIPS::RA].nV0 = BIOS_ADDRESS_THREADEPILOG;
-	context->gpr[CMIPS::SP].nV0 = thread->contextPtr;
-	context->gpr[CMIPS::FP].nV0 = thread->contextPtr;
+	context->gpr[CMIPS::SP].nV0 = stackAddr - STACK_FRAME_RESERVE_SIZE;
+	context->gpr[CMIPS::FP].nV0 = stackAddr - STACK_FRAME_RESERVE_SIZE;
 
 	m_ee.m_State.nGPR[SC_RETURN].nD0 = static_cast<int32>(id);
 
