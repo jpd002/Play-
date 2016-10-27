@@ -26,11 +26,6 @@ CPixelBufferView::CPixelBufferView(HWND parent, const RECT& rect)
 	SetSizePosition(rect);
 }
 
-CPixelBufferView::~CPixelBufferView()
-{
-
-}
-
 void CPixelBufferView::SetBitmap(const Framework::CBitmap& bitmap)
 {
 	m_pixelBufferBitmap = bitmap;

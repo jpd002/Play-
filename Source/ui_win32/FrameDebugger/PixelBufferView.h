@@ -9,26 +9,26 @@ class CPixelBufferView : public CDirectXControl
 {
 public:
 							CPixelBufferView(HWND, const RECT&);
-	virtual					~CPixelBufferView();
+	virtual					~CPixelBufferView() = default;
 
 	void					SetBitmap(const Framework::CBitmap&);
 	void					FitBitmap();
 
 protected:
-	virtual void			Refresh() override;
+	void					Refresh() override;
 
-	virtual long			OnCommand(unsigned short, unsigned short, HWND) override;
-	virtual long			OnSize(unsigned int, unsigned int, unsigned int) override;
+	long					OnCommand(unsigned short, unsigned short, HWND) override;
+	long					OnSize(unsigned int, unsigned int, unsigned int) override;
 
-	virtual long			OnLeftButtonDown(int, int) override;
-	virtual long			OnLeftButtonUp(int, int) override;
+	long					OnLeftButtonDown(int, int) override;
+	long					OnLeftButtonUp(int, int) override;
 
-	virtual long			OnMouseMove(WPARAM, int, int) override;
+	long					OnMouseMove(WPARAM, int, int) override;
 
-	virtual long			OnMouseWheel(int, int, short) override;
+	long					OnMouseWheel(int, int, short) override;
 
-	virtual void			OnDeviceReset() override;
-	virtual void			OnDeviceResetting() override;
+	void					OnDeviceReset() override;
+	void					OnDeviceResetting() override;
 
 private:
 	typedef Framework::Win32::CComPtr<IDirect3DTexture9> TexturePtr;
