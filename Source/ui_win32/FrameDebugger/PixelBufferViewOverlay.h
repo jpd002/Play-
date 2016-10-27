@@ -12,13 +12,17 @@ public:
 		COMMAND_SAVE = 1,
 		COMMAND_FIT = 2
 	};
-												CPixelBufferViewOverlay(HWND);
-	virtual										~CPixelBufferViewOverlay();
+
+	           CPixelBufferViewOverlay(HWND);
+	           CPixelBufferViewOverlay(const CPixelBufferViewOverlay&) = delete;
+	virtual    ~CPixelBufferViewOverlay() = default;
+
+	CPixelBufferViewOverlay&    operator =(const CPixelBufferViewOverlay&) = delete;
 
 protected:
-	long										OnCommand(unsigned short, unsigned short, HWND) override;
+	long    OnCommand(unsigned short, unsigned short, HWND) override;
 
 private:
-	std::unique_ptr<Framework::Win32::CButton>	m_saveButton;
-	std::unique_ptr<Framework::Win32::CButton>	m_fitButton;
+	Framework::Win32::CButton      m_saveButton;
+	Framework::Win32::CButton      m_fitButton;
 };

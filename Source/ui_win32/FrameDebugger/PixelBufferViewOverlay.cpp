@@ -9,26 +9,21 @@ CPixelBufferViewOverlay::CPixelBufferViewOverlay(HWND parentWnd)
 		Framework::Win32::PointsToPixels(Framework::Win32::CRect(0, 0, 64, 32)), parentWnd, nullptr);
 	SetClassPtr();
 
-	m_saveButton = std::make_unique<Framework::Win32::CButton>(_T("Save"), m_hWnd, 
+	m_saveButton = Framework::Win32::CButton(_T("Save"), m_hWnd,
 		Framework::Win32::PointsToPixels(Framework::Win32::CRect(0, 0, 32, 32)));
-	m_fitButton = std::make_unique<Framework::Win32::CButton>(_T("Fit"), m_hWnd, 
+	m_fitButton = Framework::Win32::CButton(_T("Fit"), m_hWnd, 
 		Framework::Win32::PointsToPixels(Framework::Win32::CRect(32, 0, 64, 32)));
 }
 
-CPixelBufferViewOverlay::~CPixelBufferViewOverlay()
+long CPixelBufferViewOverlay::OnCommand(unsigned short, unsigned short cmd, HWND wndFrom)
 {
-
-}
-
-long CPixelBufferViewOverlay::OnCommand(unsigned short, unsigned short, HWND wndFrom)
-{
-	if(CWindow::IsCommandSource(m_saveButton.get(), wndFrom))
+	if(CWindow::IsCommandSource(&m_saveButton, wndFrom))
 	{
-		SendMessage(GetParent(), WM_COMMAND, COMMAND_SAVE << 16, reinterpret_cast<LPARAM>(m_hWnd));
+		SendMessage(GetParent(), WM_COMMAND, MAKEWPARAM(0, COMMAND_SAVE), reinterpret_cast<LPARAM>(m_hWnd));
 	}
-	else if(CWindow::IsCommandSource(m_fitButton.get(), wndFrom))
+	else if(CWindow::IsCommandSource(&m_fitButton, wndFrom))
 	{
-		SendMessage(GetParent(), WM_COMMAND, COMMAND_FIT << 16, reinterpret_cast<LPARAM>(m_hWnd));
+		SendMessage(GetParent(), WM_COMMAND, MAKEWPARAM(0, COMMAND_FIT), reinterpret_cast<LPARAM>(m_hWnd));
 	}
 	return TRUE;
 }
