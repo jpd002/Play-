@@ -4,14 +4,19 @@
 #include "bitmap/Bitmap.h"
 #include "PixelBufferViewOverlay.h"
 #include <memory>
+#include <vector>
 
 class CPixelBufferView : public CDirectXControl
 {
 public:
+	typedef std::pair<std::string, Framework::CBitmap> PixelBuffer;
+	typedef std::vector<PixelBuffer> PixelBufferArray;
+
 							CPixelBufferView(HWND, const RECT&);
 	virtual					~CPixelBufferView() = default;
 
-	void					SetBitmap(const Framework::CBitmap&);
+	void					SetPixelBuffers(PixelBufferArray);
+
 	void					FitBitmap();
 
 protected:
@@ -42,6 +47,9 @@ private:
 		float	texCoord[2];
 	};
 
+	const PixelBuffer*		GetSelectedPixelBuffer();
+	void					CreateSelectedPixelBufferTexture();
+
 	void					OnSaveBitmap();
 
 	void					CreateResources();
@@ -53,7 +61,7 @@ private:
 	void					SetEffectVector(EffectPtr&, const char*, float, float, float, float);
 
 	TexturePtr				m_pixelBufferTexture;
-	Framework::CBitmap		m_pixelBufferBitmap;
+	PixelBufferArray		m_pixelBuffers;
 	VertexDeclarationPtr	m_quadVertexDecl;
 	VertexBufferPtr			m_quadVertexBuffer;
 	EffectPtr				m_checkerboardEffect;

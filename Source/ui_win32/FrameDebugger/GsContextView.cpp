@@ -98,7 +98,9 @@ void CGsContextView::UpdateBufferView()
 					framebuffer = framebuffer.Resize(640, 448);
 				}
 			}
-			m_bufferView->SetBitmap(framebuffer);
+			CPixelBufferView::PixelBufferArray pixelBuffers;
+			pixelBuffers.emplace_back("Raw", std::move(framebuffer));
+			m_bufferView->SetPixelBuffers(std::move(pixelBuffers));
 		}
 		break;
 	case TAB_ID_TEXTURE_BASE:
@@ -130,7 +132,9 @@ void CGsContextView::UpdateBufferView()
 				}
 			}
 
-			m_bufferView->SetBitmap(texture);
+			CPixelBufferView::PixelBufferArray pixelBuffers;
+			pixelBuffers.emplace_back("Raw", std::move(texture));
+			m_bufferView->SetPixelBuffers(std::move(pixelBuffers));
 		}
 		break;
 	}

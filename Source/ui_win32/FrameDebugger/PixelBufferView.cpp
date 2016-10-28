@@ -26,10 +26,19 @@ CPixelBufferView::CPixelBufferView(HWND parent, const RECT& rect)
 	SetSizePosition(rect);
 }
 
-void CPixelBufferView::SetBitmap(const Framework::CBitmap& bitmap)
+void CPixelBufferView::SetPixelBuffers(PixelBufferArray pixelBuffers)
 {
-	m_pixelBufferBitmap = bitmap;
-	m_pixelBufferTexture = CreateTextureFromBitmap(bitmap);
+	m_pixelBuffers = std::move(pixelBuffers);
+	//Update buffer titles
+	{
+		CPixelBufferViewOverlay::StringList titles;
+		for(const auto& pixelBuffer : m_pixelBuffers)
+		{
+			titles.push_back(pixelBuffer.first);
+		}
+		m_overlay->SetPixelBufferTitles(std::move(titles));
+	}
+	CreateSelectedPixelBufferTexture();
 	Refresh();
 }
 
@@ -76,7 +85,9 @@ void CPixelBufferView::DrawCheckerboard()
 
 void CPixelBufferView::DrawPixelBuffer()
 {
-	if(m_pixelBufferBitmap.IsEmpty()) return;
+	auto pixelBuffer = GetSelectedPixelBuffer();
+	if(!pixelBuffer) return;
+	const auto& pixelBufferBitmap = pixelBuffer->second;
 
 	m_device->SetVertexDeclaration(m_quadVertexDecl);
 	m_device->SetStreamSource(0, m_quadVertexBuffer, 0, sizeof(VERTEX));
@@ -87,7 +98,7 @@ void CPixelBufferView::DrawPixelBuffer()
 		static_cast<float>(clientRect.right), static_cast<float>(clientRect.bottom), 0, 0);
 
 	SetEffectVector(m_pixelBufferViewEffect, "g_bufferSize",
-		static_cast<float>(m_pixelBufferBitmap.GetWidth()), static_cast<float>(m_pixelBufferBitmap.GetHeight()), 0, 0);
+		static_cast<float>(pixelBufferBitmap.GetWidth()), static_cast<float>(pixelBufferBitmap.GetHeight()), 0, 0);
 
 	SetEffectVector(m_pixelBufferViewEffect, "g_panOffset", m_panX, m_panY, 0, 0);
 	SetEffectVector(m_pixelBufferViewEffect, "g_zoomFactor", m_zoomFactor, 0, 0, 0);
@@ -121,6 +132,10 @@ long CPixelBufferView::OnCommand(unsigned short id, unsigned short cmd, HWND hwn
 			break;
 		case CPixelBufferViewOverlay::COMMAND_FIT:
 			FitBitmap();
+			break;
+		case CPixelBufferViewOverlay::COMMAND_PIXELBUFFER_CHANGED:
+			CreateSelectedPixelBufferTexture();
+			Refresh();
 			break;
 		}
 	}
@@ -205,7 +220,7 @@ long CPixelBufferView::OnMouseWheel(int x, int y, short z)
 void CPixelBufferView::OnDeviceReset()
 {
 	CreateResources();
-	m_pixelBufferTexture = CreateTextureFromBitmap(m_pixelBufferBitmap);
+	CreateSelectedPixelBufferTexture();
 	if(!m_checkerboardEffect.IsEmpty()) m_checkerboardEffect->OnResetDevice();
 	if(!m_pixelBufferViewEffect.IsEmpty()) m_pixelBufferViewEffect->OnResetDevice();
 }
@@ -219,37 +234,63 @@ void CPixelBufferView::OnDeviceResetting()
 	if(!m_pixelBufferViewEffect.IsEmpty()) m_pixelBufferViewEffect->OnLostDevice();
 }
 
+const CPixelBufferView::PixelBuffer* CPixelBufferView::GetSelectedPixelBuffer()
+{
+	if(m_pixelBuffers.empty()) return nullptr;
+	
+	int selectedPixelBufferIndex = m_overlay->GetSelectedPixelBufferIndex();
+	if(selectedPixelBufferIndex < 0) return nullptr;
+
+	assert(selectedPixelBufferIndex < m_pixelBuffers.size());
+	if(selectedPixelBufferIndex >= m_pixelBuffers.size()) return nullptr;
+
+	return &m_pixelBuffers[selectedPixelBufferIndex];
+}
+
+void CPixelBufferView::CreateSelectedPixelBufferTexture()
+{
+	m_pixelBufferTexture.Reset();
+
+	auto pixelBuffer = GetSelectedPixelBuffer();
+	if(!pixelBuffer) return;
+
+	m_pixelBufferTexture = CreateTextureFromBitmap(pixelBuffer->second);
+}
+
 void CPixelBufferView::OnSaveBitmap()
 {
-	if(!m_pixelBufferBitmap.IsEmpty())
+	auto pixelBuffer = GetSelectedPixelBuffer();
+	if(!pixelBuffer) return;
+	const auto& pixelBufferBitmap = pixelBuffer->second;
+
+	Framework::Win32::CFileDialog openFileDialog;
+	openFileDialog.m_OFN.lpstrFilter = _T("Windows Bitmap Files (*.bmp)\0*.bmp");
+	int result = openFileDialog.SummonSave(m_hWnd);
+	if(result == IDOK)
 	{
-		Framework::Win32::CFileDialog openFileDialog;
-		openFileDialog.m_OFN.lpstrFilter = _T("Windows Bitmap Files (*.bmp)\0*.bmp");
-		int result = openFileDialog.SummonSave(m_hWnd);
-		if(result == IDOK)
+		try
 		{
-			try
-			{
-				auto outputStream = Framework::CreateOutputStdStream(std::tstring(openFileDialog.m_OFN.lpstrFile));
-				Framework::CBMP::WriteBitmap(m_pixelBufferBitmap, outputStream);
-			}
-			catch(const std::exception& exception)
-			{
-				auto message = string_format("Failed to save buffer to file:\r\n\r\n%s", exception.what());
-				MessageBoxA(m_hWnd, message.c_str(), nullptr, MB_ICONHAND);
-			}
+			auto outputStream = Framework::CreateOutputStdStream(std::tstring(openFileDialog.m_OFN.lpstrFile));
+			Framework::CBMP::WriteBitmap(pixelBufferBitmap, outputStream);
+		}
+		catch(const std::exception& exception)
+		{
+			auto message = string_format("Failed to save buffer to file:\r\n\r\n%s", exception.what());
+			MessageBoxA(m_hWnd, message.c_str(), nullptr, MB_ICONHAND);
 		}
 	}
 }
 
 void CPixelBufferView::FitBitmap()
 {
-	if(m_pixelBufferBitmap.IsEmpty()) return;
+	auto pixelBuffer = GetSelectedPixelBuffer();
+	if(!pixelBuffer) return;
+	const auto& pixelBufferBitmap = pixelBuffer->second;
 
 	Framework::Win32::CRect clientRect = GetClientRect();
 	unsigned int marginSize = 50;
-	float normalizedSizeX = static_cast<float>(m_pixelBufferBitmap.GetWidth()) / static_cast<float>(clientRect.Right() - marginSize);
-	float normalizedSizeY = static_cast<float>(m_pixelBufferBitmap.GetHeight()) / static_cast<float>(clientRect.Bottom() - marginSize);
+	float normalizedSizeX = static_cast<float>(pixelBufferBitmap.GetWidth()) / static_cast<float>(clientRect.Right() - marginSize);
+	float normalizedSizeY = static_cast<float>(pixelBufferBitmap.GetHeight()) / static_cast<float>(clientRect.Bottom() - marginSize);
 
 	float normalizedSize = std::max<float>(normalizedSizeX, normalizedSizeY);
 
