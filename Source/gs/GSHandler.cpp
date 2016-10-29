@@ -1542,10 +1542,6 @@ std::string CGSHandler::DisassembleWrite(uint8 registerId, uint64 data)
 
 void CGSHandler::LogWrite(uint8 registerId, uint64 data)
 {
-	//Filtering
-	//if(!((registerId == GS_REG_FRAME_1) || (registerId == GS_REG_FRAME_2))) return;
-	//if(!((registerId == GS_REG_TEST_1) || (registerId == GS_REG_TEST_2))) return;
-
 	if(!m_loggingEnabled) return;
 	auto disassembledWrite = DisassembleWrite(registerId, data);
 	CLog::GetInstance().Print(LOG_NAME, "%s\r\n", disassembledWrite.c_str());
