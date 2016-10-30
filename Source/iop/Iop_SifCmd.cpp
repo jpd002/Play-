@@ -388,6 +388,8 @@ void CSifCmd::ProcessCustomCommand(uint32 commandHeaderAddr)
 		auto clientData = reinterpret_cast<SIFRPCCLIENTDATA*>(m_ram + requestEnd->clientDataAddr);
 		if(requestEnd->commandId == SIF_CMD_BIND)
 		{
+			//When serverDataAddr is 0, EE failed to find requested server ID
+			assert(requestEnd->serverDataAddr != 0);
 			clientData->serverDataAddr = requestEnd->serverDataAddr;
 			clientData->buffPtr = requestEnd->buffer;
 			clientData->cbuffPtr = requestEnd->cbuffer;
@@ -400,10 +402,16 @@ void CSifCmd::ProcessCustomCommand(uint32 commandHeaderAddr)
 		{
 			assert(0);
 		}
-		assert(clientData->header.semaId != 0);
-		m_bios.SignalSemaphore(clientData->header.semaId, true);
-		m_bios.DeleteSemaphore(clientData->header.semaId);
-		clientData->header.semaId = 0;
+		//Unlock/delete semaphore
+		{
+			assert(clientData->header.semaId != 0);
+			int32 result = 0;
+			result = m_bios.SignalSemaphore(clientData->header.semaId, true);
+			assert(result == 0);
+			result = m_bios.DeleteSemaphore(clientData->header.semaId);
+			assert(result == 0);
+			clientData->header.semaId = 0;
+		}
 	}
 	else
 	{
@@ -523,6 +531,7 @@ void CSifCmd::SifCallRpc(CMIPS& context)
 		clientDataAddr, rpcNumber, mode, sendAddr, sendSize, recvAddr, recvSize, endFctAddr, endParam);
 
 	auto clientData = reinterpret_cast<SIFRPCCLIENTDATA*>(m_ram + clientDataAddr);
+	assert(clientData->serverDataAddr != 0);
 	clientData->endFctPtr = endFctAddr;
 	clientData->endParam = endParam;
 	clientData->header.semaId = m_bios.CreateSemaphore(0, 1);
