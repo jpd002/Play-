@@ -58,7 +58,6 @@ namespace Iop
 		};
 		static_assert(sizeof(SIFRPCSERVERDATA) <= 0x44, "Size of SIFRPCSERVERDATA must be less or equal to 68 bytes.");
 
-		// m_cmdBuffer is an array of these structures.
 		struct SIFCMDDATA
 		{
 			uint32		sifCmdHandler;

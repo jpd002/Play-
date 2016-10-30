@@ -3,7 +3,6 @@
 #include "../ee/SIF.h"
 #include "../Log.h"
 #include "../StructCollectionStateFile.h"
-#include <boost/lexical_cast.hpp>
 
 using namespace Iop;
 
@@ -61,15 +60,15 @@ void CSifCmd::LoadState(Framework::CZipArchiveReader& archive)
 {
 	ClearServers();
 
-	CStructCollectionStateFile modulesFile(*archive.BeginReadFile(STATE_MODULES));
+	auto modulesFile = CStructCollectionStateFile(*archive.BeginReadFile(STATE_MODULES));
 	{
 		for(CStructCollectionStateFile::StructIterator structIterator(modulesFile.GetStructBegin());
 			structIterator != modulesFile.GetStructEnd(); structIterator++)
 		{
-			const CStructFile& structFile(structIterator->second);
+			const auto& structFile(structIterator->second);
 			uint32 serverDataAddress = structFile.GetRegister32(STATE_MODULE_SERVER_DATA_ADDRESS);
-			SIFRPCSERVERDATA* serverData(reinterpret_cast<SIFRPCSERVERDATA*>(m_ram + serverDataAddress));
-			CSifDynamic* module = new CSifDynamic(*this, serverDataAddress);
+			auto serverData = reinterpret_cast<SIFRPCSERVERDATA*>(m_ram + serverDataAddress);
+			auto module = new CSifDynamic(*this, serverDataAddress);
 			m_servers.push_back(module);
 			m_sifMan.RegisterModule(serverData->serverId, module);
 		}
@@ -78,14 +77,12 @@ void CSifCmd::LoadState(Framework::CZipArchiveReader& archive)
 
 void CSifCmd::SaveState(Framework::CZipArchiveWriter& archive)
 {
-	CStructCollectionStateFile* modulesFile = new CStructCollectionStateFile(STATE_MODULES);
+	auto modulesFile = new CStructCollectionStateFile(STATE_MODULES);
 	{
 		int moduleIndex = 0;
-		for(DynamicModuleList::iterator serverIterator(m_servers.begin());
-			serverIterator != m_servers.end(); serverIterator++)
+		for(const auto& module : m_servers)
 		{
-			CSifDynamic* module(*serverIterator);
-			std::string moduleName = std::string(STATE_MODULE) + boost::lexical_cast<std::string>(moduleIndex++);
+			auto moduleName = std::string(STATE_MODULE) + std::to_string(moduleIndex++);
 			CStructFile moduleStruct;
 			{
 				uint32 serverDataAddress = module->GetServerDataAddress();
@@ -245,13 +242,11 @@ void CSifCmd::Invoke(CMIPS& context, unsigned int functionId)
 
 void CSifCmd::ClearServers()
 {
-	for(DynamicModuleList::iterator serverIterator(m_servers.begin());
-		m_servers.end() != serverIterator; serverIterator++)
+	for(const auto& server : m_servers)
 	{
-		CSifDynamic* server(*serverIterator);
-		SIFRPCSERVERDATA* serverData(reinterpret_cast<SIFRPCSERVERDATA*>(m_ram + server->GetServerDataAddress()));
+		auto serverData = reinterpret_cast<SIFRPCSERVERDATA*>(m_ram + server->GetServerDataAddress());
 		m_sifMan.UnregisterModule(serverData->serverId);
-		delete (*serverIterator);
+		delete server;
 	}
 	m_servers.clear();
 }
