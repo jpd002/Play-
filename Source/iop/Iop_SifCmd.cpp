@@ -34,8 +34,7 @@ using namespace Iop;
 #define FUNCTION_FINISHEXECREQUEST		"FinishExecRequest"
 #define FUNCTION_SLEEPTHREAD			"SleepThread"
 
-#define TRAMPOLINE_SIZE				0x800
-#define SENDCMD_EXTRASTRUCT_SIZE	0x10
+#define SYSTEM_COMMAND_ID 0x80000000
 
 CSifCmd::CSifCmd(CIopBios& bios, CSifMan& sifMan, CSysmem& sysMem, uint8* ram) 
 : m_sifMan(sifMan)
@@ -43,9 +42,10 @@ CSifCmd::CSifCmd(CIopBios& bios, CSifMan& sifMan, CSysmem& sysMem, uint8* ram)
 , m_sysMem(sysMem)
 , m_ram(ram)
 {
-	m_memoryBufferAddr = m_sysMem.AllocateMemory(TRAMPOLINE_SIZE + SENDCMD_EXTRASTRUCT_SIZE, 0, 0);
-	m_trampolineAddr = m_memoryBufferAddr;
-	m_sendCmdExtraStructAddr = m_memoryBufferAddr + TRAMPOLINE_SIZE;
+	m_memoryBufferAddr = m_sysMem.AllocateMemory(sizeof(MODULEDATA), 0, 0);
+	m_trampolineAddr         = m_memoryBufferAddr + offsetof(MODULEDATA, trampoline);
+	m_sendCmdExtraStructAddr = m_memoryBufferAddr + offsetof(MODULEDATA, sendCmdExtraStruct);
+	m_sysCmdBuffer           = m_memoryBufferAddr + offsetof(MODULEDATA, sysCmdBuffer);
 	sifMan.SetModuleResetHandler([&] (const std::string& path) { bios.ProcessModuleReset(path); });
 	sifMan.SetCustomCommandHandler([&] (uint32 commandHeaderAddr) { ProcessCustomCommand(commandHeaderAddr); });
 	BuildExportTable();
@@ -410,17 +410,29 @@ void CSifCmd::ProcessCustomCommand(uint32 commandHeaderAddr)
 	}
 	else
 	{
-		if((m_cmdBuffer != 0) && (commandHeader->commandId < m_cmdBufferLen))
+		bool isSystemCommand = (commandHeader->commandId & SYSTEM_COMMAND_ID) != 0;
+		uint32 cmd = commandHeader->commandId & ~SYSTEM_COMMAND_ID;
+		uint32 cmdBuffer = isSystemCommand ? m_sysCmdBuffer : m_usrCmdBuffer;
+		uint32 cmdBufferLen = isSystemCommand ? MAX_SYSTEM_COMMAND : m_usrCmdBufferLen;
+
+		if((cmdBuffer != 0) && (cmd < cmdBufferLen))
 		{
-			const auto& cmdDataEntry = (reinterpret_cast<SIFCMDDATA*>(m_ram + m_cmdBuffer))[commandHeader->commandId];
+			const auto& cmdDataEntry = reinterpret_cast<SIFCMDDATA*>(m_ram + cmdBuffer)[cmd];
 			
 			CLog::GetInstance().Print(LOG_NAME, "Calling SIF command handler for command 0x%0.8X at 0x%0.8X with data 0x%0.8X.\r\n", 
 				commandHeader->commandId, cmdDataEntry.sifCmdHandler, cmdDataEntry.data);
 
-			//This expects to be in an interrupt and the handler is called in the interrupt.
-			//That's not the case here though, so we try for the same effect by calling the handler outside of an interrupt.
-			//TODO: Set GP
-			m_bios.TriggerCallback(cmdDataEntry.sifCmdHandler, commandHeaderAddr, cmdDataEntry.data);
+			assert(cmdDataEntry.sifCmdHandler != 0);
+			if(cmdDataEntry.sifCmdHandler != 0)
+			{
+				//This expects to be in an interrupt and the handler is called in the interrupt.
+				//That's not the case here though, so we try for the same effect by calling the handler outside of an interrupt.
+				m_bios.TriggerCallback(cmdDataEntry.sifCmdHandler, commandHeaderAddr, cmdDataEntry.data);
+			}
+		}
+		else
+		{
+			assert(false);
 		}
 	}
 }
@@ -430,9 +442,9 @@ uint32 CSifCmd::SifSetCmdBuffer(uint32 data, uint32 length)
 	CLog::GetInstance().Print(LOG_NAME, FUNCTION_SIFSETCMDBUFFER "(data = 0x%0.8X, length = %d);\r\n",
 		data, length);
 
-	uint32 originalBuffer = m_cmdBuffer;
-	m_cmdBuffer = data;
-	m_cmdBufferLen = length;
+	uint32 originalBuffer = m_usrCmdBuffer;
+	m_usrCmdBuffer = data;
+	m_usrCmdBufferLen = length;
 
 	return originalBuffer;
 }
@@ -441,10 +453,15 @@ void CSifCmd::SifAddCmdHandler(uint32 pos, uint32 handler, uint32 data)
 {
 	CLog::GetInstance().Print(LOG_NAME, FUNCTION_SIFADDCMDHANDLER "(pos = 0x%0.8X, handler = 0x%0.8X, data = 0x%0.8X);\r\n",
 		pos, handler, data);
-	if((m_cmdBuffer != 0) && (pos < m_cmdBufferLen))
+
+	bool isSystemCommand = (pos & SYSTEM_COMMAND_ID) != 0;
+	uint32 cmd = pos & ~SYSTEM_COMMAND_ID;
+	uint32 cmdBuffer = isSystemCommand ? m_sysCmdBuffer : m_usrCmdBuffer;
+	uint32 cmdBufferLen = isSystemCommand ? MAX_SYSTEM_COMMAND : m_usrCmdBufferLen;
+
+	if((cmdBuffer != 0) && (cmd < cmdBufferLen))
 	{
-		auto& cmdDataEntry = (reinterpret_cast<SIFCMDDATA*>(m_ram + m_cmdBuffer))[pos];
-		//TODO: Set GP
+		auto& cmdDataEntry = reinterpret_cast<SIFCMDDATA*>(m_ram + cmdBuffer)[cmd];
 		cmdDataEntry.sifCmdHandler = handler;
 		cmdDataEntry.data = data;
 	}

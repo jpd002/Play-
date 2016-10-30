@@ -64,6 +64,18 @@ namespace Iop
 			uint32		data;
 			uint32		gp;
 		};
+		
+		enum
+		{
+			MAX_SYSTEM_COMMAND = 0x20
+		};
+
+		struct MODULEDATA
+		{
+			uint8      trampoline[0x800];
+			uint8      sendCmdExtraStruct[0x10];
+			SIFCMDDATA sysCmdBuffer[MAX_SYSTEM_COMMAND];
+		};
 
 		void					ClearServers();
 		void					BuildExportTable();
@@ -85,8 +97,9 @@ namespace Iop
 		void					FinishExecRequest(uint32, uint32);
 		void					SleepThread();
 
-		uint32					m_cmdBuffer = 0;
-		uint32					m_cmdBufferLen = 0;
+		uint32					m_usrCmdBuffer = 0;
+		uint32					m_usrCmdBufferLen = 0;
+		uint32					m_sysCmdBuffer = 0;
 
 		CIopBios&				m_bios;
 		CSifMan&				m_sifMan;
