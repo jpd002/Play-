@@ -932,7 +932,7 @@ bool CIPU::CIDECCommand::Execute()
 			break;
 		case STATE_READMBTYPE:
 			{
-				if(CMacroblockTypeITable::GetInstance()->TryGetSymbol(m_IN_FIFO, m_mbType) != CVLCTable::DECODE_STATUS_SUCCESS)
+				if(FilterSymbolError(CMacroblockTypeITable::GetInstance()->TryGetSymbol(m_IN_FIFO, m_mbType)) != CVLCTable::DECODE_STATUS_SUCCESS)
 				{
 					return false;
 				}
