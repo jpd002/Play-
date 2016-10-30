@@ -278,7 +278,6 @@ void CSio2::ProcessController(unsigned int portId, size_t outputOffset, uint32 d
 			CLog::GetInstance().Print(LOG_NAME, "Pad %d: ReadData();\r\n", padId);
 			break;
 		case 0x43:		//Enter Config Mode
-			assert(dstSize == 9);
 			padState.configMode = (m_inputBuffer[3] == 0x01);
 			CLog::GetInstance().Print(LOG_NAME, "Pad %d: EnterConfigMode(config = %d);\r\n", padId, m_inputBuffer[3]);
 			break;
