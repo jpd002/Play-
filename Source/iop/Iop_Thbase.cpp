@@ -272,8 +272,7 @@ uint32 CThbase::ChangeThreadPriority(uint32 threadId, uint32 newPrio)
 
 uint32 CThbase::DelayThread(uint32 delay)
 {
-	m_bios.DelayThread(delay);
-	return 1;
+	return m_bios.DelayThread(delay);
 }
 
 uint32 CThbase::GetThreadId()

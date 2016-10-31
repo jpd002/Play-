@@ -148,7 +148,7 @@ public:
 	int32						StartThreadArgs(uint32, uint32, uint32);
 	void						ExitThread();
 	uint32						TerminateThread(uint32);
-	void						DelayThread(uint32);
+	int32						DelayThread(uint32);
 	void						DelayThreadTicks(uint32);
 	uint32						SetAlarm(uint32, uint32, uint32);
 	uint32						CancelAlarm(uint32, uint32);

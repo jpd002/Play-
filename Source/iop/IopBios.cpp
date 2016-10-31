@@ -1035,7 +1035,7 @@ uint32 CIopBios::TerminateThread(uint32 threadId)
 	return KERNEL_RESULT_OK;
 }
 
-void CIopBios::DelayThread(uint32 delay)
+int32 CIopBios::DelayThread(uint32 delay)
 {
 #ifdef _DEBUG
 	CLog::GetInstance().Print(LOGNAME, "%i: DelayThread(delay = %i);\r\n", 
@@ -1049,6 +1049,8 @@ void CIopBios::DelayThread(uint32 delay)
 	UnlinkThread(thread->id);
 	LinkThread(thread->id);
 	m_rescheduleNeeded = true;
+
+	return KERNEL_RESULT_OK;
 }
 
 void CIopBios::DelayThreadTicks(uint32 delay)
