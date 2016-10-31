@@ -1032,7 +1032,7 @@ uint32 CIopBios::TerminateThread(uint32 threadId)
 	}
 	thread->status = THREAD_STATUS_DORMANT;
 	UnlinkThread(thread->id);
-	return 0;
+	return KERNEL_RESULT_OK;
 }
 
 void CIopBios::DelayThread(uint32 delay)
