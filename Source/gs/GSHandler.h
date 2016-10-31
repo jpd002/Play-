@@ -613,6 +613,8 @@ public:
 	void									Flip(bool showOnly = false);
 	virtual void							ReadFramebuffer(uint32, uint32, void*) = 0;
 	
+	void									MakeLinearCLUT(const TEX0&, std::array<uint32, 256>&) const;
+	
 	uint8*									GetRam();
 	uint64*									GetRegisters();
 	
@@ -791,7 +793,6 @@ protected:
 	void									SyncCLUT(const TEX0&);
 	void									ReadCLUT4(const TEX0&);
 	void									ReadCLUT8(const TEX0&);
-	void									MakeLinearCLUT(const TEX0&, std::array<uint32, 256>&) const;
 
 	bool									m_loggingEnabled;
 

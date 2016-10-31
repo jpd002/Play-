@@ -32,10 +32,13 @@ protected:
 	long											OnNotify(WPARAM, NMHDR*) override;
 
 private:
+	typedef std::array<uint32, 256> ColorArray;
+
 	void											UpdateBufferView();
 	void											RenderDrawKick(Framework::CBitmap&);
 
 	static void										BrightenBitmap(Framework::CBitmap&);
+	static Framework::CBitmap						LookupBitmap(const Framework::CBitmap&, const ColorArray&);
 
 	std::unique_ptr<Framework::Win32::CSplitter>	m_mainSplitter;
 	std::unique_ptr<Framework::Win32::CTab>			m_bufferSelectionTab;

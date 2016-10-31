@@ -46,6 +46,8 @@ public:
 	Framework::CBitmap				GetTexture(uint64, uint32, uint64, uint64, uint32);
 	const VERTEX*					GetInputVertices() const;
 
+	static uint32					Color_Ps2ToDx9(uint32);
+
 	static FactoryFunction			GetFactoryFunction(Framework::Win32::CWindow*);
 
 protected:
@@ -188,8 +190,6 @@ private:
 	void							Prim_Line();
 	void							Prim_Triangle();
 	void							Prim_Sprite();
-
-	static uint32					Color_Ps2ToDx9(uint32);
 
 	void							SetupTextureUpdaters();
 	void							TexUpdater_Invalid(D3DLOCKED_RECT*, uint32, uint32, unsigned int, unsigned int, unsigned int, unsigned int);

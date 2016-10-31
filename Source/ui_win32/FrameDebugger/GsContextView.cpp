@@ -119,21 +119,32 @@ void CGsContextView::UpdateBufferView()
 			auto tex1 = make_convertible<CGSHandler::TEX1>(tex1Reg);
 
 			uint32 mipLevel = selectedId - TAB_ID_TEXTURE_BASE;
-			Framework::CBitmap texture;
+			Framework::CBitmap texture, clutTexture;
 
 			if(mipLevel <= tex1.nMaxMip)
 			{
 				texture = static_cast<CGSH_Direct3D9*>(m_gs)->GetTexture(tex0Reg, tex1.nMaxMip, miptbp1Reg, miptbp2Reg, mipLevel);
-				
-				if(CGsPixelFormats::IsPsmIDTEX4(tex0.nPsm))
-				{
-					//Too hard to see if pixel brightness is not boosted
-					BrightenBitmap(texture);
-				}
+			}
+
+			if(!texture.IsEmpty() && CGsPixelFormats::IsPsmIDTEX(tex0.nPsm))
+			{
+				ColorArray convertedClut;
+				m_gs->MakeLinearCLUT(tex0, convertedClut);
+				clutTexture = LookupBitmap(texture, convertedClut);
+			}
+
+			if(!texture.IsEmpty() && CGsPixelFormats::IsPsmIDTEX4(tex0.nPsm))
+			{
+				//Too hard to see if pixel brightness is not boosted
+				BrightenBitmap(texture);
 			}
 
 			CPixelBufferView::PixelBufferArray pixelBuffers;
 			pixelBuffers.emplace_back("Raw", std::move(texture));
+			if(!clutTexture.IsEmpty())
+			{
+				pixelBuffers.emplace_back("+ CLUT", std::move(clutTexture));
+			}
 			m_bufferView->SetPixelBuffers(std::move(pixelBuffers));
 		}
 		break;
@@ -192,6 +203,28 @@ void CGsContextView::BrightenBitmap(Framework::CBitmap& bitmap)
 		}
 		pixels += bitmap.GetPitch();
 	}
+}
+
+Framework::CBitmap CGsContextView::LookupBitmap(const Framework::CBitmap& srcBitmap, const ColorArray& clut)
+{
+	assert(!srcBitmap.IsEmpty());
+	assert(srcBitmap.GetBitsPerPixel() == 8);
+	auto dstBitmap = Framework::CBitmap(srcBitmap.GetWidth(), srcBitmap.GetHeight(), 32);
+	auto srcPixels = reinterpret_cast<uint8*>(srcBitmap.GetPixels());
+	auto dstPixels = reinterpret_cast<uint32*>(dstBitmap.GetPixels());
+	for(uint32 y = 0; y < srcBitmap.GetHeight(); y++)
+	{
+		for(uint32 x = 0; x < srcBitmap.GetWidth(); x++)
+		{
+			uint8 index = srcPixels[x];
+			uint32 color = clut[index];
+			uint32 newColor = CGSH_Direct3D9::Color_Ps2ToDx9(color);
+			dstPixels[x] = newColor;
+		}
+		srcPixels += srcBitmap.GetPitch();
+		dstPixels += dstBitmap.GetPitch() / 4;
+	}
+	return std::move(dstBitmap);
 }
 
 long CGsContextView::OnSize(unsigned int, unsigned int, unsigned int)
