@@ -376,64 +376,76 @@ void CSifCmd::FinishExecRequest(uint32 serverDataAddr, uint32 returnDataAddr)
 void CSifCmd::ProcessCustomCommand(uint32 commandHeaderAddr)
 {
 	auto commandHeader = reinterpret_cast<const SIFCMDHEADER*>(m_ram + commandHeaderAddr);
-	if(commandHeader->commandId == SIF_CMD_REND)
+	switch(commandHeader->commandId)
 	{
-		auto requestEnd = reinterpret_cast<const SIFRPCREQUESTEND*>(commandHeader);
-		assert(requestEnd->clientDataAddr != 0);
-		auto clientData = reinterpret_cast<SIFRPCCLIENTDATA*>(m_ram + requestEnd->clientDataAddr);
-		if(requestEnd->commandId == SIF_CMD_BIND)
+	case SIF_CMD_REND:
+		ProcessRpcRequestEnd(commandHeaderAddr);
+		break;
+	default:
+		ProcessDynamicCommand(commandHeaderAddr);
+		break;
+	}
+}
+
+void CSifCmd::ProcessRpcRequestEnd(uint32 commandHeaderAddr)
+{
+	auto requestEnd = reinterpret_cast<const SIFRPCREQUESTEND*>(m_ram + commandHeaderAddr);
+	assert(requestEnd->clientDataAddr != 0);
+	auto clientData = reinterpret_cast<SIFRPCCLIENTDATA*>(m_ram + requestEnd->clientDataAddr);
+	if(requestEnd->commandId == SIF_CMD_BIND)
+	{
+		//When serverDataAddr is 0, EE failed to find requested server ID
+		assert(requestEnd->serverDataAddr != 0);
+		clientData->serverDataAddr = requestEnd->serverDataAddr;
+		clientData->buffPtr = requestEnd->buffer;
+		clientData->cbuffPtr = requestEnd->cbuffer;
+	}
+	else if(requestEnd->commandId == SIF_CMD_CALL)
+	{
+		assert(clientData->endFctPtr == 0);
+	}
+	else
+	{
+		assert(0);
+	}
+	//Unlock/delete semaphore
+	{
+		assert(clientData->header.semaId != 0);
+		int32 result = 0;
+		result = m_bios.SignalSemaphore(clientData->header.semaId, true);
+		assert(result == 0);
+		result = m_bios.DeleteSemaphore(clientData->header.semaId);
+		assert(result == 0);
+		clientData->header.semaId = 0;
+	}
+}
+
+void CSifCmd::ProcessDynamicCommand(uint32 commandHeaderAddr)
+{
+	auto commandHeader = reinterpret_cast<const SIFCMDHEADER*>(m_ram + commandHeaderAddr);
+	bool isSystemCommand = (commandHeader->commandId & SYSTEM_COMMAND_ID) != 0;
+	uint32 cmd = commandHeader->commandId & ~SYSTEM_COMMAND_ID;
+	uint32 cmdBuffer = isSystemCommand ? m_sysCmdBuffer : m_usrCmdBuffer;
+	uint32 cmdBufferLen = isSystemCommand ? MAX_SYSTEM_COMMAND : m_usrCmdBufferLen;
+
+	if((cmdBuffer != 0) && (cmd < cmdBufferLen))
+	{
+		const auto& cmdDataEntry = reinterpret_cast<SIFCMDDATA*>(m_ram + cmdBuffer)[cmd];
+
+		CLog::GetInstance().Print(LOG_NAME, "Calling SIF command handler for command 0x%0.8X at 0x%0.8X with data 0x%0.8X.\r\n", 
+			commandHeader->commandId, cmdDataEntry.sifCmdHandler, cmdDataEntry.data);
+
+		assert(cmdDataEntry.sifCmdHandler != 0);
+		if(cmdDataEntry.sifCmdHandler != 0)
 		{
-			//When serverDataAddr is 0, EE failed to find requested server ID
-			assert(requestEnd->serverDataAddr != 0);
-			clientData->serverDataAddr = requestEnd->serverDataAddr;
-			clientData->buffPtr = requestEnd->buffer;
-			clientData->cbuffPtr = requestEnd->cbuffer;
-		}
-		else if(requestEnd->commandId == SIF_CMD_CALL)
-		{
-			assert(clientData->endFctPtr == 0);
-		}
-		else
-		{
-			assert(0);
-		}
-		//Unlock/delete semaphore
-		{
-			assert(clientData->header.semaId != 0);
-			int32 result = 0;
-			result = m_bios.SignalSemaphore(clientData->header.semaId, true);
-			assert(result == 0);
-			result = m_bios.DeleteSemaphore(clientData->header.semaId);
-			assert(result == 0);
-			clientData->header.semaId = 0;
+			//This expects to be in an interrupt and the handler is called in the interrupt.
+			//That's not the case here though, so we try for the same effect by calling the handler outside of an interrupt.
+			m_bios.TriggerCallback(cmdDataEntry.sifCmdHandler, commandHeaderAddr, cmdDataEntry.data);
 		}
 	}
 	else
 	{
-		bool isSystemCommand = (commandHeader->commandId & SYSTEM_COMMAND_ID) != 0;
-		uint32 cmd = commandHeader->commandId & ~SYSTEM_COMMAND_ID;
-		uint32 cmdBuffer = isSystemCommand ? m_sysCmdBuffer : m_usrCmdBuffer;
-		uint32 cmdBufferLen = isSystemCommand ? MAX_SYSTEM_COMMAND : m_usrCmdBufferLen;
-
-		if((cmdBuffer != 0) && (cmd < cmdBufferLen))
-		{
-			const auto& cmdDataEntry = reinterpret_cast<SIFCMDDATA*>(m_ram + cmdBuffer)[cmd];
-			
-			CLog::GetInstance().Print(LOG_NAME, "Calling SIF command handler for command 0x%0.8X at 0x%0.8X with data 0x%0.8X.\r\n", 
-				commandHeader->commandId, cmdDataEntry.sifCmdHandler, cmdDataEntry.data);
-
-			assert(cmdDataEntry.sifCmdHandler != 0);
-			if(cmdDataEntry.sifCmdHandler != 0)
-			{
-				//This expects to be in an interrupt and the handler is called in the interrupt.
-				//That's not the case here though, so we try for the same effect by calling the handler outside of an interrupt.
-				m_bios.TriggerCallback(cmdDataEntry.sifCmdHandler, commandHeaderAddr, cmdDataEntry.data);
-			}
-		}
-		else
-		{
-			assert(false);
-		}
+		assert(false);
 	}
 }
 

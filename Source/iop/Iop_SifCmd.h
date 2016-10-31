@@ -81,6 +81,8 @@ namespace Iop
 		void					BuildExportTable();
 
 		void					ProcessCustomCommand(uint32);
+		void					ProcessRpcRequestEnd(uint32);
+		void					ProcessDynamicCommand(uint32);
 
 		uint32					SifSetCmdBuffer(uint32, uint32);
 		void					SifAddCmdHandler(uint32, uint32, uint32);
