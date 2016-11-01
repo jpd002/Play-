@@ -17,6 +17,7 @@ using namespace Iop;
 #define MODULE_NAME						"sifcmd"
 #define MODULE_VERSION					0x101
 
+#define FUNCTION_SIFGETSREG				"SifGetSreg"
 #define FUNCTION_SIFSETCMDBUFFER		"SifSetCmdBuffer"
 #define FUNCTION_SIFADDCMDHANDLER		"SifAddCmdHandler"
 #define FUNCTION_SIFSENDCMD				"SifSendCmd"
@@ -42,10 +43,11 @@ CSifCmd::CSifCmd(CIopBios& bios, CSifMan& sifMan, CSysmem& sysMem, uint8* ram)
 , m_sysMem(sysMem)
 , m_ram(ram)
 {
-	m_memoryBufferAddr = m_sysMem.AllocateMemory(sizeof(MODULEDATA), 0, 0);
-	m_trampolineAddr         = m_memoryBufferAddr + offsetof(MODULEDATA, trampoline);
-	m_sendCmdExtraStructAddr = m_memoryBufferAddr + offsetof(MODULEDATA, sendCmdExtraStruct);
-	m_sysCmdBuffer           = m_memoryBufferAddr + offsetof(MODULEDATA, sysCmdBuffer);
+	m_moduleDataAddr = m_sysMem.AllocateMemory(sizeof(MODULEDATA), 0, 0);
+	m_trampolineAddr         = m_moduleDataAddr + offsetof(MODULEDATA, trampoline);
+	m_sendCmdExtraStructAddr = m_moduleDataAddr + offsetof(MODULEDATA, sendCmdExtraStruct);
+	m_sregAddr               = m_moduleDataAddr + offsetof(MODULEDATA, sreg);
+	m_sysCmdBuffer           = m_moduleDataAddr + offsetof(MODULEDATA, sysCmdBuffer);
 	sifMan.SetModuleResetHandler([&] (const std::string& path) { bios.ProcessModuleReset(path); });
 	sifMan.SetCustomCommandHandler([&] (uint32 commandHeaderAddr) { ProcessCustomCommand(commandHeaderAddr); });
 	BuildExportTable();
@@ -103,6 +105,9 @@ std::string CSifCmd::GetFunctionName(unsigned int functionId) const
 {
 	switch(functionId)
 	{
+	case 6:
+		return FUNCTION_SIFGETSREG;
+		break;
 	case 8:
 		return FUNCTION_SIFSETCMDBUFFER;
 		break;
@@ -161,6 +166,11 @@ void CSifCmd::Invoke(CMIPS& context, unsigned int functionId)
 {
 	switch(functionId)
 	{
+	case 6:
+		context.m_State.nGPR[CMIPS::V0].nV0 = SifGetSreg(
+			context.m_State.nGPR[CMIPS::A0].nV0
+		);
+		break;
 	case 8:
 		context.m_State.nGPR[CMIPS::V0].nV0 = SifSetCmdBuffer(
 			context.m_State.nGPR[CMIPS::A0].nV0, 
@@ -378,6 +388,9 @@ void CSifCmd::ProcessCustomCommand(uint32 commandHeaderAddr)
 	auto commandHeader = reinterpret_cast<const SIFCMDHEADER*>(m_ram + commandHeaderAddr);
 	switch(commandHeader->commandId)
 	{
+	case SIF_CMD_SETSREG:
+		ProcessSetSreg(commandHeaderAddr);
+		break;
 	case SIF_CMD_REND:
 		ProcessRpcRequestEnd(commandHeaderAddr);
 		break;
@@ -385,6 +398,15 @@ void CSifCmd::ProcessCustomCommand(uint32 commandHeaderAddr)
 		ProcessDynamicCommand(commandHeaderAddr);
 		break;
 	}
+}
+
+void CSifCmd::ProcessSetSreg(uint32 commandHeaderAddr)
+{
+	auto setSreg = reinterpret_cast<const SIFSETSREG*>(m_ram + commandHeaderAddr);
+	assert(setSreg->header.size == sizeof(SIFSETSREG));
+	assert(setSreg->index < MAX_SREG);
+	if(setSreg->index >= MAX_SREG) return;
+	reinterpret_cast<uint32*>(m_ram + m_sregAddr)[setSreg->index] = setSreg->value;
 }
 
 void CSifCmd::ProcessRpcRequestEnd(uint32 commandHeaderAddr)
@@ -447,6 +469,19 @@ void CSifCmd::ProcessDynamicCommand(uint32 commandHeaderAddr)
 	{
 		assert(false);
 	}
+}
+
+int32 CSifCmd::SifGetSreg(uint32 regIndex)
+{
+	CLog::GetInstance().Print(LOG_NAME, FUNCTION_SIFGETSREG "(regIndex = %d);\r\n",
+		regIndex);
+	assert(regIndex < MAX_SREG);
+	if(regIndex >= MAX_SREG)
+	{
+		return 0;
+	}
+	uint32 result = reinterpret_cast<uint32*>(m_ram + m_sregAddr)[regIndex];
+	return result;
 }
 
 uint32 CSifCmd::SifSetCmdBuffer(uint32 data, uint32 length)

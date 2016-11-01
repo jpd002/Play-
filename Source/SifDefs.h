@@ -4,11 +4,12 @@
 
 enum CONST_SIF_CMD
 {
-	SIF_CMD_INIT		= 0x80000002,
-	SIF_CMD_REND		= 0x80000008,
-	SIF_CMD_BIND		= 0x80000009,
-	SIF_CMD_CALL		= 0x8000000A,
-	SIF_CMD_OTHERDATA	= 0x8000000C,
+	SIF_CMD_SETSREG      = 0x80000001,
+	SIF_CMD_INIT         = 0x80000002,
+	SIF_CMD_REND         = 0x80000008,
+	SIF_CMD_BIND         = 0x80000009,
+	SIF_CMD_CALL         = 0x8000000A,
+	SIF_CMD_OTHERDATA    = 0x8000000C,
 };
 
 struct SIFDMAREG
@@ -28,6 +29,14 @@ struct SIFCMDHEADER
 	uint32 optional;
 };
 static_assert(sizeof(SIFCMDHEADER) == 0x10, "sizeof(SIFCMDHEADER) must be 16 bytes.");
+
+struct SIFSETSREG
+{
+	SIFCMDHEADER    header;
+	uint32          index;
+	uint32          value;
+};
+static_assert(sizeof(SIFSETSREG) == 0x18, "sizeof(SIFSETREG) must be 24 bytes.");
 
 struct SIFRPCBIND
 {

@@ -67,13 +67,15 @@ namespace Iop
 		
 		enum
 		{
-			MAX_SYSTEM_COMMAND = 0x20
+			MAX_SYSTEM_COMMAND = 0x20,
+			MAX_SREG = 0x20,
 		};
 
 		struct MODULEDATA
 		{
 			uint8      trampoline[0x800];
 			uint8      sendCmdExtraStruct[0x10];
+			uint32     sreg[MAX_SREG];
 			SIFCMDDATA sysCmdBuffer[MAX_SYSTEM_COMMAND];
 		};
 
@@ -81,9 +83,11 @@ namespace Iop
 		void					BuildExportTable();
 
 		void					ProcessCustomCommand(uint32);
+		void					ProcessSetSreg(uint32);
 		void					ProcessRpcRequestEnd(uint32);
 		void					ProcessDynamicCommand(uint32);
 
+		int32					SifGetSreg(uint32);
 		uint32					SifSetCmdBuffer(uint32, uint32);
 		void					SifAddCmdHandler(uint32, uint32, uint32);
 		uint32					SifSendCmd(uint32, uint32, uint32, uint32, uint32, uint32);
@@ -106,10 +110,11 @@ namespace Iop
 		CIopBios&				m_bios;
 		CSifMan&				m_sifMan;
 		CSysmem&				m_sysMem;
-		uint8*					m_ram;
-		uint32					m_memoryBufferAddr;
-		uint32					m_trampolineAddr;
-		uint32					m_sendCmdExtraStructAddr;
+		uint8*					m_ram = nullptr;
+		uint32					m_moduleDataAddr = 0;
+		uint32					m_trampolineAddr = 0;
+		uint32					m_sendCmdExtraStructAddr = 0;
+		uint32					m_sregAddr = 0;
 		uint32					m_sifRpcLoopAddr = 0;
 		uint32					m_sifExecRequestAddr = 0;
 		DynamicModuleList		m_servers;
