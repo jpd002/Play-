@@ -64,46 +64,46 @@ ELFSECTIONHEADER* CELF::GetSection(unsigned int nIndex)
 {
 	if(nIndex >= m_Header.nSectHeaderCount)
 	{
-		return NULL;
+		return nullptr;
 	}
 	return &m_pSection[nIndex];
 }
 
 const void* CELF::GetSectionData(unsigned int nIndex)
 {
-	ELFSECTIONHEADER* pSect = GetSection(nIndex);
-	if(pSect == NULL) return NULL;
-	return m_content + pSect->nOffset;
+	auto section = GetSection(nIndex);
+	if(section == nullptr) return nullptr;
+	return m_content + section->nOffset;
 }
 
 const void* CELF::FindSectionData(const char* sName)
 {
-	ELFSECTIONHEADER* pSect = FindSection(sName);
-	if(pSect == NULL) return NULL;
-	return m_content + pSect->nOffset;
+	auto section = FindSection(sName);
+	if(section == nullptr) return nullptr;
+	return m_content + section->nOffset;
 }
 
-ELFSECTIONHEADER* CELF::FindSection(const char* sName)
+ELFSECTIONHEADER* CELF::FindSection(const char* requestedSectionName)
 {
-	const char* sSectData = (const char*)GetSectionData(m_Header.nSectHeaderStringTableIndex);
-	if(sSectData == NULL) return NULL;
+	auto stringTableData = reinterpret_cast<const char*>(GetSectionData(m_Header.nSectHeaderStringTableIndex));
+	if(stringTableData == nullptr) return nullptr;
 	for(unsigned int i = 0; i < m_Header.nSectHeaderCount; i++)
 	{
-		ELFSECTIONHEADER* pTemp = GetSection(i);
-		const char* sSectName = sSectData + pTemp->nStringTableIndex;
-		if(!strcmp(sName, sSectName))
+		auto section = GetSection(i);
+		auto sectionName = stringTableData + section->nStringTableIndex;
+		if(!strcmp(requestedSectionName, sectionName))
 		{
-			return pTemp;
+			return section;
 		}
 	}
-	return NULL;
+	return nullptr;
 }
 
 ELFPROGRAMHEADER* CELF::GetProgram(unsigned int nIndex)
 {
 	if(nIndex >= m_Header.nProgHeaderCount)
 	{
-		return NULL;
+		return nullptr;
 	}
 	return &m_pProgram[nIndex];
 }

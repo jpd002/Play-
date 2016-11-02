@@ -1,5 +1,4 @@
-#ifndef _ELF_H_
-#define _ELF_H_
+#pragma once
 
 #include "Stream.h"
 #include "Types.h"
@@ -162,10 +161,8 @@ public:
 
 private:
 	ELFHEADER			m_Header;
-	uint8*				m_content;
+	uint8*				m_content = nullptr;
 
-	ELFSECTIONHEADER*	m_pSection;
-	ELFPROGRAMHEADER*	m_pProgram;
+	ELFSECTIONHEADER*	m_pSection = nullptr;
+	ELFPROGRAMHEADER*	m_pProgram = nullptr;
 };
-
-#endif
