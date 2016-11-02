@@ -153,10 +153,15 @@ public:
 
 	uint8*				GetContent() const;
 	const ELFHEADER&	GetHeader() const;
+
 	ELFSECTIONHEADER*	GetSection(unsigned int);
-	ELFSECTIONHEADER*	FindSection(const char*);
 	const void*			GetSectionData(unsigned int);
+	const char*			GetSectionName(unsigned int);
+
+	ELFSECTIONHEADER*	FindSection(const char*);
+	unsigned int		FindSectionIndex(const char*);
 	const void*			FindSectionData(const char*);
+
 	ELFPROGRAMHEADER*	GetProgram(unsigned int);
 
 private:

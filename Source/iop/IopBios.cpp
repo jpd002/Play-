@@ -2746,7 +2746,7 @@ void CIopBios::RelocateElf(CELF& elf, uint32 baseAddress)
 		{
 			uint32 lastHi16 = -1;
 			uint32 instructionHi16 = -1;
-			unsigned int linkedSection = sectionHeader->nInfo;
+			unsigned int linkedSection = GetRelocationLinkedSectionIndex(elf, i);
 			unsigned int recordCount = sectionHeader->nSize / 8;
 			auto relocatedSection = elf.GetSection(linkedSection);
 			auto relocationRecord = reinterpret_cast<const uint32*>(elf.GetSectionData(i));
@@ -2850,6 +2850,30 @@ void CIopBios::RelocateElf(CELF& elf, uint32 baseAddress)
 			}
 		}
 	}
+}
+
+uint32 CIopBios::GetRelocationLinkedSectionIndex(CELF& module, uint32 relocationSectionIndex)
+{
+	//The IOP's ELF loader doesn't seem to take in account a relocation table section's
+	//'info' field and only seems to use the .text section's base address for all adjustments
+	//Due to this, modules that are broken (ie.: Burnout 3's RWA.IRX) can be loaded properly
+	
+	//The approach that we use to apply relocations here requires us to have the relocated
+	//section's index. The means used to figure that index out might not work for all cases
+
+	auto relocationSection = module.GetSection(relocationSectionIndex);
+	auto relocationSectionName = module.GetSectionName(relocationSectionIndex);
+	if(relocationSectionName != nullptr)
+	{
+		//If relocation section name starts with '.rel'.
+		if(strstr(relocationSectionName, ".rel") == relocationSectionName)
+		{
+			auto relocatedSectionIndex = module.FindSectionIndex(relocationSectionName + 4);
+			if(relocatedSectionIndex != 0) return relocatedSectionIndex;
+		}
+	}
+
+	return relocationSection->nInfo;
 }
 
 void CIopBios::TriggerCallback(uint32 address, uint32 arg0, uint32 arg1)
