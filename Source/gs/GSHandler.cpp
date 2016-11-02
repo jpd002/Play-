@@ -988,6 +988,63 @@ void CGSHandler::SyncCLUT(const TEX0& tex0)
 	}
 }
 
+template <typename Indexor>
+bool CGSHandler::ReadCLUT4_16(const TEX0& tex0)
+{
+	bool changed = false;
+
+	assert(tex0.nCSA < 32);
+
+	Indexor indexor(m_pRAM, tex0.GetCLUTPtr(), 1);
+	uint32 clutOffset = tex0.nCSA * 16;
+	uint16* pDst = m_pCLUT + clutOffset;
+
+	for(unsigned int j = 0; j < 2; j++)
+	{
+		for(unsigned int i = 0; i < 8; i++)
+		{
+			uint16 color = indexor.GetPixel(i, j);
+
+			if(*pDst != color)
+			{
+				changed = true;
+			}
+
+			(*pDst++) = color;
+		}
+	}
+
+	return changed;
+}
+
+template <typename Indexor>
+bool CGSHandler::ReadCLUT8_16(const TEX0& tex0)
+{
+	bool changed = false;
+
+	Indexor indexor(m_pRAM, tex0.GetCLUTPtr(), 1);
+
+	for(unsigned int j = 0; j < 16; j++)
+	{
+		for(unsigned int i = 0; i < 16; i++)
+		{
+			uint16 color = indexor.GetPixel(i, j);
+
+			uint8 index = i + (j * 16);
+			index = (index & ~0x18) | ((index & 0x08) << 1) | ((index & 0x10) >> 1);
+
+			if(m_pCLUT[index] != color)
+			{
+				changed = true;
+			}
+
+			m_pCLUT[index] = color;
+		}
+	}
+
+	return changed;
+}
+
 void CGSHandler::ReadCLUT4(const TEX0& tex0)
 {
 	bool updateNeeded = false;
@@ -1054,26 +1111,11 @@ void CGSHandler::ReadCLUT4(const TEX0& tex0)
 			}
 			else if(tex0.nCPSM == PSMCT16)
 			{
-				assert(tex0.nCSA < 32);
-
-				CGsPixelFormats::CPixelIndexorPSMCT16 Indexor(m_pRAM, tex0.GetCLUTPtr(), 1);
-				uint32 clutOffset = tex0.nCSA * 16;
-				uint16* pDst = m_pCLUT + clutOffset;
-
-				for(unsigned int j = 0; j < 2; j++)
-				{
-					for(unsigned int i = 0; i < 8; i++)
-					{
-						uint16 color = Indexor.GetPixel(i, j);
-
-						if(*pDst != color)
-						{
-							changed = true;
-						}
-
-						(*pDst++) = color;
-					}
-				}
+				changed = ReadCLUT4_16<CGsPixelFormats::CPixelIndexorPSMCT16>(tex0);
+			}
+			else if(tex0.nCPSM == PSMCT16S)
+			{
+				changed = ReadCLUT4_16<CGsPixelFormats::CPixelIndexorPSMCT16S>(tex0);
 			}
 			else
 			{
@@ -1182,25 +1224,11 @@ void CGSHandler::ReadCLUT8(const TEX0& tex0)
 		}
 		else if(tex0.nCPSM == PSMCT16)
 		{
-			CGsPixelFormats::CPixelIndexorPSMCT16 Indexor(m_pRAM, tex0.GetCLUTPtr(), 1);
-
-			for(unsigned int j = 0; j < 16; j++)
-			{
-				for(unsigned int i = 0; i < 16; i++)
-				{
-					uint16 color = Indexor.GetPixel(i, j);
-					
-					uint8 index = i + (j * 16);
-					index = (index & ~0x18) | ((index & 0x08) << 1) | ((index & 0x10) >> 1);
-
-					if(m_pCLUT[index] != color)
-					{
-						changed = true;
-					}
-
-					m_pCLUT[index] = color;
-				}
-			}
+			changed = ReadCLUT8_16<CGsPixelFormats::CPixelIndexorPSMCT16>(tex0);
+		}
+		else if(tex0.nCPSM == PSMCT16S)
+		{
+			changed = ReadCLUT8_16<CGsPixelFormats::CPixelIndexorPSMCT16S>(tex0);
 		}
 		else
 		{

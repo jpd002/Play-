@@ -791,6 +791,8 @@ protected:
 	template <typename Storage> void		TransferReadHandlerGeneric(void*, uint32);
 
 	void									SyncCLUT(const TEX0&);
+	template <typename Indexor> bool		ReadCLUT4_16(const TEX0&);
+	template <typename Indexor> bool		ReadCLUT8_16(const TEX0&);
 	void									ReadCLUT4(const TEX0&);
 	void									ReadCLUT8(const TEX0&);
 
