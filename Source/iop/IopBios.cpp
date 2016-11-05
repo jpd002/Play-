@@ -873,6 +873,7 @@ uint32 CIopBios::CreateThread(uint32 threadProc, uint32 priority, uint32 stackSi
 	thread->optionData = optionData;
 	thread->attributes = attributes;
 	thread->nextActivateTime = 0;
+	thread->wakeupCount = 0;
 	thread->context.gpr[CMIPS::GP] = m_cpu.m_State.nGPR[CMIPS::GP].nV0;
 	thread->context.gpr[CMIPS::SP] = thread->stackBase + thread->stackSize - STACK_FRAME_RESERVE_SIZE;
 	return thread->id;
