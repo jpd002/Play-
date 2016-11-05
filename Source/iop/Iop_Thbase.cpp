@@ -19,6 +19,8 @@ using namespace Iop;
 #define FUNCTION_SLEEPTHREAD				"SleepThread"
 #define FUNCTION_WAKEUPTHREAD				"WakeupThread"
 #define FUNCTION_IWAKEUPTHREAD				"iWakeupThread"
+#define FUNCTION_CANCELWAKEUPTHREAD			"CancelWakeupThread"
+#define FUNCTION_ICANCELWAKEUPTHREAD		"iCancelWakeupThread"
 #define FUNCTION_DELAYTHREAD				"DelayThread"
 #define FUNCTION_GETSYSTEMTIME				"GetSystemTime"
 #define FUNCTION_GETSYSTEMTIMELOW			"GetSystemTimeLow"
@@ -87,6 +89,12 @@ std::string CThbase::GetFunctionName(unsigned int functionId) const
 		break;
 	case 26:
 		return FUNCTION_IWAKEUPTHREAD;
+		break;
+	case 27:
+		return FUNCTION_CANCELWAKEUPTHREAD;
+		break;
+	case 28:
+		return FUNCTION_ICANCELWAKEUPTHREAD;
 		break;
 	case 33:
 		return FUNCTION_DELAYTHREAD;
@@ -186,6 +194,16 @@ void CThbase::Invoke(CMIPS& context, unsigned int functionId)
 		context.m_State.nGPR[CMIPS::V0].nD0 = static_cast<int32>(iWakeupThread(
 			context.m_State.nGPR[CMIPS::A0].nV0
 			));
+		break;
+	case 27:
+		context.m_State.nGPR[CMIPS::V0].nD0 = CancelWakeupThread(
+			context.m_State.nGPR[CMIPS::A0].nV0
+		);
+		break;
+	case 28:
+		context.m_State.nGPR[CMIPS::V0].nD0 = iCancelWakeupThread(
+			context.m_State.nGPR[CMIPS::A0].nV0
+		);
 		break;
 	case 33:
 		context.m_State.nGPR[CMIPS::V0].nD0 = static_cast<int32>(DelayThread(
@@ -303,6 +321,16 @@ uint32 CThbase::WakeupThread(uint32 threadId)
 uint32 CThbase::iWakeupThread(uint32 threadId)
 {
 	return m_bios.WakeupThread(threadId, true);
+}
+
+int32 CThbase::CancelWakeupThread(uint32 threadId)
+{
+	return m_bios.CancelWakeupThread(threadId, false);
+}
+
+int32 CThbase::iCancelWakeupThread(uint32 threadId)
+{
+	return m_bios.CancelWakeupThread(threadId, true);
 }
 
 uint32 CThbase::GetSystemTime(uint32 resultPtr)

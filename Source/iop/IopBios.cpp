@@ -1287,6 +1287,30 @@ uint32 CIopBios::WakeupThread(uint32 threadId, bool inInterrupt)
 	return thread->wakeupCount;
 }
 
+int32 CIopBios::CancelWakeupThread(uint32 threadId, bool inInterrupt)
+{
+#ifdef _DEBUG
+	CLog::GetInstance().Print(LOGNAME, "%d: CancelWakeupThread(threadId = %d);\r\n", 
+		m_currentThreadId.Get(), threadId);
+#endif
+
+	if(threadId == 0)
+	{
+		threadId = m_currentThreadId;
+	}
+
+	auto thread = GetThread(threadId);
+	if(!thread)
+	{
+		return KERNEL_RESULT_ERROR_UNKNOWN_THID;
+	}
+
+	uint32 result = thread->wakeupCount;
+	thread->wakeupCount = 0;
+
+	return result;
+}
+
 void CIopBios::SleepThreadTillVBlankStart()
 {
 	THREAD* thread = GetThread(m_currentThreadId);

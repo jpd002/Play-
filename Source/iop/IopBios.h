@@ -159,6 +159,7 @@ public:
 	uint32						ReferThreadStatus(uint32, uint32, bool);
 	int32						SleepThread();
 	uint32						WakeupThread(uint32, bool);
+	int32						CancelWakeupThread(uint32, bool);
 
 	void						SleepThreadTillVBlankStart();
 	void						SleepThreadTillVBlankEnd();
