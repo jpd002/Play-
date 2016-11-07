@@ -261,7 +261,13 @@ void CPixelBufferView::OnSaveBitmap()
 {
 	auto pixelBuffer = GetSelectedPixelBuffer();
 	if(!pixelBuffer) return;
-	const auto& pixelBufferBitmap = pixelBuffer->second;
+	auto pixelBufferBitmap = pixelBuffer->second;
+
+	auto bpp = pixelBufferBitmap.GetBitsPerPixel();
+	if((bpp == 24) || (bpp == 32))
+	{
+		pixelBufferBitmap = ConvertBGRToRGB(std::move(pixelBufferBitmap));
+	}
 
 	Framework::Win32::CFileDialog openFileDialog;
 	openFileDialog.m_OFN.lpstrFilter = _T("Windows Bitmap Files (*.bmp)\0*.bmp");
@@ -279,6 +285,20 @@ void CPixelBufferView::OnSaveBitmap()
 			MessageBoxA(m_hWnd, message.c_str(), nullptr, MB_ICONHAND);
 		}
 	}
+}
+
+Framework::CBitmap CPixelBufferView::ConvertBGRToRGB(Framework::CBitmap bitmap)
+{
+	for(int32 y = 0; y < bitmap.GetHeight(); y++)
+	{
+		for(int32 x = 0; x < bitmap.GetWidth(); x++)
+		{
+			auto color = bitmap.GetPixel(x, y);
+			std::swap(color.r, color.b);
+			bitmap.SetPixel(x, y, color);
+		}
+	}
+	return std::move(bitmap);
 }
 
 void CPixelBufferView::FitBitmap()

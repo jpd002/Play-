@@ -50,7 +50,8 @@ private:
 	const PixelBuffer*		GetSelectedPixelBuffer();
 	void					CreateSelectedPixelBufferTexture();
 
-	void					OnSaveBitmap();
+	void						OnSaveBitmap();
+	static Framework::CBitmap	ConvertBGRToRGB(Framework::CBitmap);
 
 	void					CreateResources();
 	void					DrawCheckerboard();
