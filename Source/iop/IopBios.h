@@ -112,26 +112,26 @@ public:
 	bool						TryGetImageVersionFromPath(const std::string&, unsigned int*);
 	bool						TryGetImageVersionFromContents(const std::string&, unsigned int*);
 
-	void						HandleException();
-	void						HandleInterrupt();
+	void						HandleException() override;
+	void						HandleInterrupt() override;
 
 	void						Reschedule();
 
-	void						CountTicks(uint32);
+	void						CountTicks(uint32) override;
 	uint64						GetCurrentTime();
 	uint64						MilliSecToClock(uint32);
 	uint64						MicroSecToClock(uint32);
 	uint64						ClockToMicroSec(uint64);
 
-	void						NotifyVBlankStart();
-	void						NotifyVBlankEnd();
+	void						NotifyVBlankStart() override;
+	void						NotifyVBlankEnd() override;
 
 	void						Reset(const Iop::SifManPtr&);
 
-	virtual void				SaveState(Framework::CZipArchiveWriter&);
-	virtual void				LoadState(Framework::CZipArchiveReader&);
+	void						SaveState(Framework::CZipArchiveWriter&) override;
+	void						LoadState(Framework::CZipArchiveReader&) override;
 
-	bool						IsIdle();
+	bool						IsIdle() override;
 
 	Iop::CIoman*				GetIoman();
 	Iop::CCdvdman*				GetCdvdman();
@@ -199,8 +199,8 @@ public:
 	void						TriggerCallback(uint32 address, uint32 arg0, uint32 arg1);
 
 #ifdef DEBUGGER_INCLUDED
-	void						LoadDebugTags(Framework::Xml::CNode*);
-	void						SaveDebugTags(Framework::Xml::CNode*);
+	void						LoadDebugTags(Framework::Xml::CNode*) override;
+	void						SaveDebugTags(Framework::Xml::CNode*) override;
 
 	BiosDebugModuleInfoArray	GetModulesDebugInfo() const override;
 	BiosDebugThreadInfoArray	GetThreadsDebugInfo() const override;

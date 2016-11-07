@@ -1,5 +1,4 @@
-#ifndef _IOP_BIOSBASE_H_
-#define _IOP_BIOSBASE_H_
+#pragma once
 
 #include <memory>
 #include "Types.h"
@@ -15,7 +14,7 @@ namespace Iop
 	class CBiosBase : public CBiosDebugInfoProvider
 	{
 	public:
-		virtual						~CBiosBase() {}
+		virtual						~CBiosBase() = default;
 		virtual void				HandleException() = 0;
 		virtual void				HandleInterrupt() = 0;
 		virtual void				CountTicks(uint32) = 0;
@@ -37,5 +36,3 @@ namespace Iop
 
 	typedef std::shared_ptr<CBiosBase> BiosBasePtr;
 }
-
-#endif

@@ -2492,7 +2492,7 @@ void CIopBios::HandleException()
 		}
 #endif
 
-		IopModuleMapType::iterator module(m_modules.find(moduleName));
+		auto module(m_modules.find(moduleName));
 		if(module != m_modules.end())
 		{
 			module->second->Invoke(m_cpu, functionId);

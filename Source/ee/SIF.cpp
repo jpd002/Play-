@@ -161,15 +161,6 @@ uint32 CSIF::ReceiveDMA6(uint32 nSrcAddr, uint32 nSize, uint32 nDstAddr, bool is
 	{
 		auto hdr = reinterpret_cast<SIFCMDHEADER*>(m_eeRam + nSrcAddr);
 
-		//This is kinda odd...
-		//plasma_tunnel.elf does this
-/*
-	    if((hdr->nCID & 0xFF000000) == 0x08000000)
-	    {
-		    hdr->nCID &= 0x00FFFFFF;
-		    hdr->nCID |= 0x80000000;
-	    }
-*/
 		CLog::GetInstance().Print(LOG_NAME, "Received command 0x%0.8X.\r\n", hdr->commandId);
 
 		switch(hdr->commandId)
