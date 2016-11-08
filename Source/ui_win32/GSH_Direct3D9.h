@@ -89,7 +89,8 @@ private:
 	struct SHADERCAPS : public convertible<uint32>
 	{
 		uint32 texSourceMode : 2;
-		uint32 padding       : 30;
+		uint32 texFunction   : 2;
+		uint32 padding       : 28;
 
 		bool isIndexedTextureSource() const { return texSourceMode == TEXTURE_SOURCE_MODE_IDX4 || texSourceMode == TEXTURE_SOURCE_MODE_IDX8; }
 	};

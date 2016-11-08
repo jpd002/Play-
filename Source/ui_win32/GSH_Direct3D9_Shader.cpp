@@ -130,11 +130,23 @@ Nuanceur::CShaderBuilder CGSH_Direct3D9::GeneratePixelShader(SHADERCAPS caps)
 			textureColor = Sample(clutTexture, NewFloat2(colorIndex, NewFloat(b, 0)));
 		}
 
+		switch(caps.texFunction)
+		{
+		case TEX0_FUNCTION_MODULATE:
+			textureColor = Clamp(textureColor * inputColor * NewFloat4(b, 2, 2, 2, 2),
+				NewFloat4(b, 0, 0, 0, 0), NewFloat4(b, 1, 1, 1, 1));
+			break;
+		case TEX0_FUNCTION_DECAL:
+			break;
+		default:
+			assert(0);
+			break;
+		}
+
 		//For proper alpha blending, alpha has to be multiplied by 2 (0x80 -> 1.0)
 		//This has the side effect of not writing a proper value in the framebuffer (should write alpha "as is")
-		outputColor = inputColor * textureColor;
-		finalAlpha = Saturate(outputColor->w() * NewFloat(b, 2));
-		outputColor = NewFloat4(outputColor->xyz(),finalAlpha);
+		finalAlpha = Saturate(textureColor->w() * NewFloat(b, 2));
+		outputColor = NewFloat4(textureColor->xyz(), finalAlpha);
 	}
 
 	return b;

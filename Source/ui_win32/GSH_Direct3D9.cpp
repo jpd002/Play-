@@ -1061,6 +1061,8 @@ void CGSH_Direct3D9::FillShaderCapsFromTexture(SHADERCAPS& shaderCaps, const uin
 	{
 		shaderCaps.texSourceMode = CGsPixelFormats::IsPsmIDTEX4(tex0.nPsm) ? TEXTURE_SOURCE_MODE_IDX4 : TEXTURE_SOURCE_MODE_IDX8;
 	}
+
+	shaderCaps.texFunction = tex0.nFunction;
 }
 
 void CGSH_Direct3D9::SetRenderingContext(uint64 primReg)
