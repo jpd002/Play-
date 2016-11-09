@@ -408,18 +408,18 @@ void CSIF::Cmd_Initialize(SIFCMDHEADER* hdr)
 	}
 	else if(pInit->Header.optional == 1)
 	{
-		//If this is set to 1, and we need to disregard the address received and send a command back...
-		//Not sure about this though
-		SETSREG SReg;
-		SReg.Header.commandId	= 0x80000001;
-		SReg.Header.size		= sizeof(SETSREG);
-		SReg.Header.dest		= 0;
-		SReg.Header.optional	= 0;
-		SReg.nRegister			= 0;
-		SReg.nValue				= 1;
+		//If 'optional' is set to 1, and we need to disregard the address received and send a command back...
+		//Not sure about this though (seems to be used by SifInitRpc)
 
-		SendPacket(&SReg, sizeof(SETSREG));
-		//SendDMA(&SReg, sizeof(SETSREG));
+		SIFSETSREG SReg;
+		SReg.header.commandId = SIF_CMD_SETSREG;
+		SReg.header.size      = sizeof(SIFSETSREG);
+		SReg.header.dest      = 0;
+		SReg.header.optional  = 0;
+		SReg.index            = 0;    //Should be SIF_SREG_RPCINIT
+		SReg.value            = 1;
+
+		SendPacket(&SReg, sizeof(SIFSETSREG));
 	}
 	else
 	{

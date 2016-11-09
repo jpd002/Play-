@@ -52,13 +52,6 @@ private:
 		MAX_USERREG = 0x10,
 	};
 
-	struct SETSREG
-	{
-		SIFCMDHEADER				Header;
-		uint32						nRegister;
-		uint32						nValue;
-	};
-
 	struct CALLREQUESTINFO
 	{
 		SIFRPCCALL					call;
