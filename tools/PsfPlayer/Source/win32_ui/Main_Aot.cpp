@@ -52,14 +52,14 @@ void Gather(const char* archivePathName, const char* outputPathName)
 				threadPool.Enqueue(
 					[=] ()
 					{
-						printf("Processing %s...\r\n", archiveItemPath.string().c_str());
+						printf("Processing %s...\r\n", fileInfo.name.c_str());
 						fflush(stdout);
 
 						try
 						{
 							CPsfVm virtualMachine;
 
-							CPsfLoader::LoadPsf(virtualMachine, archiveItemPath.wstring(), archivePath);
+							CPsfLoader::LoadPsf(virtualMachine, fileInfo.name, archivePath);
 							int currentTime = 0;
 							virtualMachine.OnNewFrame.connect(
 								[&currentTime] ()
@@ -84,7 +84,7 @@ void Gather(const char* archivePathName, const char* outputPathName)
 						catch(const std::exception& exception)
 						{
 							printf("Failed to process '%s', reason: '%s'.\r\n", 
-								archiveItemPath.string().c_str(), exception.what());
+								fileInfo.name.c_str(), exception.what());
 							fflush(stdout);
 							throw;
 						}
