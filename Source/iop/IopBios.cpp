@@ -1151,6 +1151,12 @@ int32 CIopBios::ChangeThreadPriority(uint32 threadId, uint32 newPrio)
 	}
 
 	thread->priority = newPrio;
+	if(thread->status == THREAD_STATUS_RUNNING)
+	{
+		UnlinkThread(threadId);
+		LinkThread(threadId);
+	}
+
 	m_rescheduleNeeded = true;
 
 	return KERNEL_RESULT_OK;
