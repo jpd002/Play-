@@ -1131,7 +1131,7 @@ uint32 CIopBios::CancelAlarm(uint32 alarmFunction, uint32 param)
 	return 0;
 }
 
-void CIopBios::ChangeThreadPriority(uint32 threadId, uint32 newPrio)
+int32 CIopBios::ChangeThreadPriority(uint32 threadId, uint32 newPrio)
 {
 #ifdef _DEBUG
 	CLog::GetInstance().Print(LOGNAME, "%d: ChangeThreadPriority(threadId = %d, newPrio = %d);\r\n", 
@@ -1143,16 +1143,17 @@ void CIopBios::ChangeThreadPriority(uint32 threadId, uint32 newPrio)
 		threadId = m_currentThreadId;
 	}
 
-	THREAD* thread = GetThread(threadId);
-	assert(thread != NULL);
-
-	if(thread == NULL)
+	auto thread = GetThread(threadId);
+	assert(thread);
+	if(!thread)
 	{
-		return;
+		return KERNEL_RESULT_ERROR_UNKNOWN_THID;
 	}
 
 	thread->priority = newPrio;
 	m_rescheduleNeeded = true;
+
+	return KERNEL_RESULT_OK;
 }
 
 uint32 CIopBios::ReferThreadStatus(uint32 threadId, uint32 statusPtr, bool inInterrupt)

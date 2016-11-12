@@ -155,7 +155,7 @@ public:
 	THREAD*						GetThread(uint32);
 	int32						GetCurrentThreadId();
 	int32						GetCurrentThreadIdRaw() const;
-	void						ChangeThreadPriority(uint32, uint32);
+	int32						ChangeThreadPriority(uint32, uint32);
 	uint32						ReferThreadStatus(uint32, uint32, bool);
 	int32						SleepThread();
 	uint32						WakeupThread(uint32, bool);
