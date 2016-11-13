@@ -2,16 +2,6 @@
 #include "StdStreamUtils.h"
 #include "make_unique.h"
 
-CPsfZipArchive::CPsfZipArchive()
-{
-
-}
-
-CPsfZipArchive::~CPsfZipArchive()
-{
-
-}
-
 void CPsfZipArchive::Open(const boost::filesystem::path& filePath)
 {
 	assert(m_inputFile.IsEmpty());

@@ -38,11 +38,6 @@ m_events(reinterpret_cast<EVENT*>(&m_ram[EVENTS_BEGIN]), 1, MAX_EVENT)
 	Reset();
 }
 
-CPsxBios::~CPsxBios()
-{
-
-}
-
 void CPsxBios::Reset()
 {
 	uint32 syscallAddress[3] = { 0xA0, 0xB0, 0xC0 };

@@ -31,26 +31,26 @@ public:
 	};
 
 								CPsxBios(CMIPS&, uint8*, uint32);
-	virtual						~CPsxBios();
+	virtual						~CPsxBios() = default;
 
 	void						Reset();
-	void						HandleInterrupt();
-	void						HandleException();
-	void						CountTicks(uint32);
+	void						HandleInterrupt() override;
+	void						HandleException() override;
+	void						CountTicks(uint32) override;
 
 	void						LoadExe(uint8*);
 
-	void						SaveState(Framework::CZipArchiveWriter&);
-	void						LoadState(Framework::CZipArchiveReader&);
+	void						SaveState(Framework::CZipArchiveWriter&) override;
+	void						LoadState(Framework::CZipArchiveReader&) override;
 
-	void						NotifyVBlankStart();
-	void						NotifyVBlankEnd();
+	void						NotifyVBlankStart() override;
+	void						NotifyVBlankEnd() override;
 
-	bool						IsIdle();
+	bool						IsIdle() override;
 
 #ifdef DEBUGGER_INCLUDED
-	void						LoadDebugTags(Framework::Xml::CNode*);
-	void						SaveDebugTags(Framework::Xml::CNode*);
+	void						LoadDebugTags(Framework::Xml::CNode*) override;
+	void						SaveDebugTags(Framework::Xml::CNode*) override;
 
 	BiosDebugModuleInfoArray	GetModulesDebugInfo() const override;
 	BiosDebugThreadInfoArray	GetThreadsDebugInfo() const override;

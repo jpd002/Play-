@@ -3,28 +3,18 @@
 #include "PsfZipArchive.h"
 #include "stricmp.h"
 
-CPsfArchive::CPsfArchive()
-{
-
-}
-
-CPsfArchive::~CPsfArchive()
-{
-
-}
-
 CPsfArchive::PsfArchivePtr CPsfArchive::CreateFromPath(const boost::filesystem::path& filePath)
 {
-	std::string extension = filePath.extension().string();
+	auto extension = filePath.extension().string();
 	PsfArchivePtr result;
 	if(!strcmp(extension.c_str(), ".zip"))
 	{
-		result = std::unique_ptr<CPsfArchive>(new CPsfZipArchive());
+		result = std::make_unique<CPsfZipArchive>();
 	}
 #ifdef RAR_SUPPORT
 	else if(!strcmp(extension.c_str(), ".rar"))
 	{
-		result = std::unique_ptr<CPsfArchive>(new CPsfRarArchive());
+		result = std::make_unique<CPsfRarArchive>();
 	}
 #endif
 	else

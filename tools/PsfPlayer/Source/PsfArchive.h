@@ -17,8 +17,7 @@ public:
 	typedef FileList::const_iterator FileListIterator;
 	typedef std::unique_ptr<CPsfArchive> PsfArchivePtr;
 
-							CPsfArchive();
-	virtual					~CPsfArchive();
+	virtual					~CPsfArchive() = default;
 
 	static PsfArchivePtr	CreateFromPath(const boost::filesystem::path&);
 

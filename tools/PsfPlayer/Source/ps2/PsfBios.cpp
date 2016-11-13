@@ -16,11 +16,6 @@ CPsfBios::CPsfBios(CMIPS& cpu, uint8* ram, uint32 ramSize, uint8* spr)
 	ioman->RegisterDevice("hefile",			m_psfDevice);
 }
 
-CPsfBios::~CPsfBios()
-{
-
-}
-
 void CPsfBios::AppendArchive(const CPsfBase& psfFile)
 {
 	static_cast<CPsfDevice*>(m_psfDevice.get())->AppendArchive(psfFile);

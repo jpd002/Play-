@@ -11,22 +11,22 @@ namespace PS2
 	{
 	public:
 									CPsfBios(CMIPS&, uint8*, uint32, uint8*);
-		virtual						~CPsfBios();
-		void						HandleException();
-		void						HandleInterrupt();
-		void						CountTicks(uint32);
+		virtual						~CPsfBios() = default;
+		void						HandleException() override;
+		void						HandleInterrupt() override;
+		void						CountTicks(uint32) override;
 
-		void						SaveState(Framework::CZipArchiveWriter&);
-		void						LoadState(Framework::CZipArchiveReader&);
+		void						SaveState(Framework::CZipArchiveWriter&) override;
+		void						LoadState(Framework::CZipArchiveReader&) override;
 
-		void						NotifyVBlankStart();
-		void						NotifyVBlankEnd();
+		void						NotifyVBlankStart() override;
+		void						NotifyVBlankEnd() override;
 
-		bool						IsIdle();
+		bool						IsIdle() override;
 
 #ifdef DEBUGGER_INCLUDED
-		void						LoadDebugTags(Framework::Xml::CNode*);
-		void						SaveDebugTags(Framework::Xml::CNode*);
+		void						LoadDebugTags(Framework::Xml::CNode*) override;
+		void						SaveDebugTags(Framework::Xml::CNode*) override;
 
 		BiosDebugModuleInfoArray	GetModulesDebugInfo() const override;
 		BiosDebugThreadInfoArray	GetThreadsDebugInfo() const override;

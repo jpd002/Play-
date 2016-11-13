@@ -40,7 +40,7 @@ void Gather(const char* archivePathName, const char* outputPathName)
 	{
 		Framework::CThreadPool threadPool(std::thread::hardware_concurrency());
 
-		filesystem::path archivePath = filesystem::path(archivePathName);
+		auto archivePath = filesystem::path(archivePathName);
 		auto archive = std::unique_ptr<CPsfArchive>(CPsfArchive::CreateFromPath(archivePath));
 
 		for(const auto& fileInfo : archive->GetFiles())
