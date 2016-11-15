@@ -69,6 +69,7 @@ namespace Iop
 		{
 			MAX_SYSTEM_COMMAND = 0x20,
 			MAX_SREG = 0x20,
+			PENDING_CMD_BUFFER_SIZE = 0x400,
 		};
 
 		struct MODULEDATA
@@ -77,6 +78,8 @@ namespace Iop
 			uint8      sendCmdExtraStruct[0x10];
 			uint32     sreg[MAX_SREG];
 			SIFCMDDATA sysCmdBuffer[MAX_SYSTEM_COMMAND];
+			uint8      pendingCmdBuffer[PENDING_CMD_BUFFER_SIZE];
+			uint32     pendingCmdBufferSize;
 		};
 
 		void					ClearServers();
@@ -86,6 +89,7 @@ namespace Iop
 		void					ProcessSetSreg(uint32);
 		void					ProcessRpcRequestEnd(uint32);
 		void					ProcessDynamicCommand(uint32);
+		void					ProcessNextDynamicCommand();
 
 		int32					SifGetSreg(uint32);
 		uint32					SifSetCmdBuffer(uint32, uint32);
@@ -101,6 +105,7 @@ namespace Iop
 		void					SifRpcLoop(CMIPS&);
 		uint32					SifGetOtherData(uint32, uint32, uint32, uint32, uint32);
 		void					FinishExecRequest(uint32, uint32);
+		void					FinishExecCmd();
 		void					SleepThread();
 
 		uint32					m_usrCmdBuffer = 0;
@@ -117,6 +122,10 @@ namespace Iop
 		uint32					m_sregAddr = 0;
 		uint32					m_sifRpcLoopAddr = 0;
 		uint32					m_sifExecRequestAddr = 0;
+		uint32					m_sifExecCmdHandlerAddr = 0;
+		uint32					m_pendingCmdBufferAddr = 0;
+		uint32					m_pendingCmdBufferSizeAddr = 0;
+		bool					m_executingCmd = false;
 		DynamicModuleList		m_servers;
 	};
 

@@ -12,7 +12,8 @@ using namespace Iop;
 #define STATE_MODULE_SERVER_DATA_ADDRESS	("ServerDataAddress")
 
 #define CUSTOM_FINISHEXECREQUEST    0x666
-#define CUSTOM_SLEEPTHREAD          0x667
+#define CUSTOM_FINISHEXECCMD        0x667
+#define CUSTOM_SLEEPTHREAD          0x668
 
 #define MODULE_NAME						"sifcmd"
 #define MODULE_VERSION					0x101
@@ -33,6 +34,7 @@ using namespace Iop;
 #define FUNCTION_SIFRPCLOOP				"SifRpcLoop"
 #define FUNCTION_SIFGETOTHERDATA		"SifGetOtherData"
 #define FUNCTION_FINISHEXECREQUEST		"FinishExecRequest"
+#define FUNCTION_FINISHEXECCMD			"FinishExecCmd"
 #define FUNCTION_SLEEPTHREAD			"SleepThread"
 
 #define SYSTEM_COMMAND_ID 0x80000000
@@ -44,10 +46,12 @@ CSifCmd::CSifCmd(CIopBios& bios, CSifMan& sifMan, CSysmem& sysMem, uint8* ram)
 , m_ram(ram)
 {
 	m_moduleDataAddr = m_sysMem.AllocateMemory(sizeof(MODULEDATA), 0, 0);
-	m_trampolineAddr         = m_moduleDataAddr + offsetof(MODULEDATA, trampoline);
-	m_sendCmdExtraStructAddr = m_moduleDataAddr + offsetof(MODULEDATA, sendCmdExtraStruct);
-	m_sregAddr               = m_moduleDataAddr + offsetof(MODULEDATA, sreg);
-	m_sysCmdBuffer           = m_moduleDataAddr + offsetof(MODULEDATA, sysCmdBuffer);
+	m_trampolineAddr           = m_moduleDataAddr + offsetof(MODULEDATA, trampoline);
+	m_sendCmdExtraStructAddr   = m_moduleDataAddr + offsetof(MODULEDATA, sendCmdExtraStruct);
+	m_sregAddr                 = m_moduleDataAddr + offsetof(MODULEDATA, sreg);
+	m_sysCmdBuffer             = m_moduleDataAddr + offsetof(MODULEDATA, sysCmdBuffer);
+	m_pendingCmdBufferAddr     = m_moduleDataAddr + offsetof(MODULEDATA, pendingCmdBuffer);
+	m_pendingCmdBufferSizeAddr = m_moduleDataAddr + offsetof(MODULEDATA, pendingCmdBufferSize);
 	sifMan.SetModuleResetHandler([&] (const std::string& path) { bios.ProcessModuleReset(path); });
 	sifMan.SetCustomCommandHandler([&] (uint32 commandHeaderAddr) { ProcessCustomCommand(commandHeaderAddr); });
 	BuildExportTable();
@@ -153,6 +157,9 @@ std::string CSifCmd::GetFunctionName(unsigned int functionId) const
 	case CUSTOM_FINISHEXECREQUEST:
 		return FUNCTION_FINISHEXECREQUEST;
 		break;
+	case CUSTOM_FINISHEXECCMD:
+		return FUNCTION_FINISHEXECCMD;
+		break;
 	case CUSTOM_SLEEPTHREAD:
 		return FUNCTION_SLEEPTHREAD;
 		break;
@@ -240,6 +247,9 @@ void CSifCmd::Invoke(CMIPS& context, unsigned int functionId)
 			context.m_State.nGPR[CMIPS::A1].nV0
 		);
 		break;
+	case CUSTOM_FINISHEXECCMD:
+		FinishExecCmd();
+		break;
 	case CUSTOM_SLEEPTHREAD:
 		SleepThread();
 		break;
@@ -287,17 +297,23 @@ void CSifCmd::BuildExportTable()
 		assembler.JR(CMIPS::RA);
 		assembler.ADDIU(CMIPS::R0, CMIPS::R0, CUSTOM_FINISHEXECREQUEST);
 
+		uint32 finishExecCmdAddr = (reinterpret_cast<uint8*>(exportTable) - m_ram) + (assembler.GetProgramSize() * 4);
+		assembler.JR(CMIPS::RA);
+		assembler.ADDIU(CMIPS::R0, CMIPS::R0, CUSTOM_FINISHEXECCMD);
+
 		uint32 sleepThreadAddr = (reinterpret_cast<uint8*>(exportTable) - m_ram) + (assembler.GetProgramSize() * 4);
 		assembler.JR(CMIPS::RA);
 		assembler.ADDIU(CMIPS::R0, CMIPS::R0, CUSTOM_SLEEPTHREAD);
 
 		//Assemble SifRpcLoop
 		{
+			static const int16 stackAlloc = 0x10;
+
 			m_sifRpcLoopAddr = (reinterpret_cast<uint8*>(exportTable) - m_ram) + (assembler.GetProgramSize() * 4);
 			auto checkNextRequestLabel = assembler.CreateLabel();
 			auto sleepThreadLabel = assembler.CreateLabel();
 
-			assembler.ADDIU(CMIPS::SP, CMIPS::SP, 0xFFF0);
+			assembler.ADDIU(CMIPS::SP, CMIPS::SP, -stackAlloc);
 			assembler.SW(CMIPS::RA, 0x00, CMIPS::SP);
 			assembler.SW(CMIPS::S0, 0x04, CMIPS::SP);
 			assembler.ADDU(CMIPS::S0, CMIPS::A0, CMIPS::R0);
@@ -322,14 +338,16 @@ void CSifCmd::BuildExportTable()
 			assembler.LW(CMIPS::S0, 0x04, CMIPS::SP);
 			assembler.LW(CMIPS::RA, 0x00, CMIPS::SP);
 			assembler.JR(CMIPS::RA);
-			assembler.ADDIU(CMIPS::SP, CMIPS::SP, 0x10);
+			assembler.ADDIU(CMIPS::SP, CMIPS::SP, stackAlloc);
 		}
 
 		//Assemble SifExecRequest
 		{
+			static const int16 stackAlloc = 0x20;
+
 			m_sifExecRequestAddr = (reinterpret_cast<uint8*>(exportTable) - m_ram) + (assembler.GetProgramSize() * 4);
 
-			assembler.ADDIU(CMIPS::SP, CMIPS::SP, 0xFFE0);
+			assembler.ADDIU(CMIPS::SP, CMIPS::SP, -stackAlloc);
 			assembler.SW(CMIPS::RA, 0x1C, CMIPS::SP);
 			assembler.SW(CMIPS::S0, 0x18, CMIPS::SP);
 			assembler.ADDU(CMIPS::S0, CMIPS::A0, CMIPS::R0);
@@ -348,7 +366,33 @@ void CSifCmd::BuildExportTable()
 			assembler.LW(CMIPS::S0, 0x18, CMIPS::SP);
 			assembler.LW(CMIPS::RA, 0x1C, CMIPS::SP);
 			assembler.JR(CMIPS::RA);
-			assembler.ADDIU(CMIPS::SP, CMIPS::SP, 0x20);
+			assembler.ADDIU(CMIPS::SP, CMIPS::SP, stackAlloc);
+		}
+
+		//Assemble SifExecCmdHandler
+		{
+			static const int16 stackAlloc = 0x20;
+
+			m_sifExecCmdHandlerAddr = (reinterpret_cast<uint8*>(exportTable) - m_ram) + (assembler.GetProgramSize() * 4);
+
+			assembler.ADDIU(CMIPS::SP, CMIPS::SP, -stackAlloc);
+			assembler.SW(CMIPS::RA, 0x1C, CMIPS::SP);
+			assembler.SW(CMIPS::S0, 0x18, CMIPS::SP);
+			assembler.ADDU(CMIPS::S0, CMIPS::A0, CMIPS::R0);
+
+			assembler.ADDU(CMIPS::A0, CMIPS::A1, CMIPS::R0);    //A0 = Packet Address
+			assembler.LW(CMIPS::A1, offsetof(SIFCMDDATA, data), CMIPS::S0);
+			assembler.LW(CMIPS::T0, offsetof(SIFCMDDATA, sifCmdHandler), CMIPS::S0);
+			assembler.JALR(CMIPS::T0);
+			assembler.NOP();
+
+			assembler.JAL(finishExecCmdAddr);
+			assembler.NOP();
+
+			assembler.LW(CMIPS::S0, 0x18, CMIPS::SP);
+			assembler.LW(CMIPS::RA, 0x1C, CMIPS::SP);
+			assembler.JR(CMIPS::RA);
+			assembler.ADDIU(CMIPS::SP, CMIPS::SP, stackAlloc);
 		}
 	}
 }
@@ -381,6 +425,27 @@ void CSifCmd::FinishExecRequest(uint32 serverDataAddr, uint32 returnDataAddr)
 	auto serverData = reinterpret_cast<SIFRPCSERVERDATA*>(m_ram + serverDataAddr);
 	auto returnData = m_ram + returnDataAddr;
 	m_sifMan.SendCallReply(serverData->serverId, returnData);
+}
+
+void CSifCmd::FinishExecCmd()
+{
+	assert(m_executingCmd);
+	m_executingCmd = false;
+
+	uint32 commandHeaderAddr = m_pendingCmdBufferAddr;
+	auto commandHeader = reinterpret_cast<const SIFCMDHEADER*>(m_ram + commandHeaderAddr);
+
+	uint8 commandPacketSize = static_cast<uint8>(commandHeader->size & 0xFF);
+	auto pendingCmdBuffer = m_ram + m_pendingCmdBufferAddr;
+	auto pendingCmdBufferSize = reinterpret_cast<uint32*>(m_ram + m_pendingCmdBufferSizeAddr);
+	assert(*pendingCmdBufferSize >= commandPacketSize);
+	memmove(pendingCmdBuffer, pendingCmdBuffer + commandPacketSize, PENDING_CMD_BUFFER_SIZE - *pendingCmdBufferSize);
+	(*pendingCmdBufferSize) -= commandPacketSize;
+
+	if(*pendingCmdBufferSize > 0)
+	{
+		ProcessNextDynamicCommand();
+	}
 }
 
 void CSifCmd::ProcessCustomCommand(uint32 commandHeaderAddr)
@@ -445,6 +510,31 @@ void CSifCmd::ProcessRpcRequestEnd(uint32 commandHeaderAddr)
 void CSifCmd::ProcessDynamicCommand(uint32 commandHeaderAddr)
 {
 	auto commandHeader = reinterpret_cast<const SIFCMDHEADER*>(m_ram + commandHeaderAddr);
+
+	uint8 commandPacketSize = static_cast<uint8>(commandHeader->size & 0xFF);
+	auto pendingCmdBuffer = m_ram + m_pendingCmdBufferAddr;
+	auto pendingCmdBufferSize = reinterpret_cast<uint32*>(m_ram + m_pendingCmdBufferSizeAddr);
+	assert((*pendingCmdBufferSize + commandPacketSize) <= PENDING_CMD_BUFFER_SIZE);
+
+	if((*pendingCmdBufferSize + commandPacketSize) <= PENDING_CMD_BUFFER_SIZE)
+	{
+		memcpy(pendingCmdBuffer + *pendingCmdBufferSize, commandHeader, commandPacketSize);
+		(*pendingCmdBufferSize) += commandPacketSize;
+
+		if(!m_executingCmd)
+		{
+			ProcessNextDynamicCommand();
+		}
+	}
+}
+
+void CSifCmd::ProcessNextDynamicCommand()
+{
+	assert(!m_executingCmd);
+	m_executingCmd = true;
+
+	uint32 commandHeaderAddr = m_pendingCmdBufferAddr;
+	auto commandHeader = reinterpret_cast<const SIFCMDHEADER*>(m_ram + commandHeaderAddr);
 	bool isSystemCommand = (commandHeader->commandId & SYSTEM_COMMAND_ID) != 0;
 	uint32 cmd = commandHeader->commandId & ~SYSTEM_COMMAND_ID;
 	uint32 cmdBuffer = isSystemCommand ? m_sysCmdBuffer : m_usrCmdBuffer;
@@ -462,12 +552,18 @@ void CSifCmd::ProcessDynamicCommand(uint32 commandHeaderAddr)
 		{
 			//This expects to be in an interrupt and the handler is called in the interrupt.
 			//That's not the case here though, so we try for the same effect by calling the handler outside of an interrupt.
-			m_bios.TriggerCallback(cmdDataEntry.sifCmdHandler, commandHeaderAddr, cmdDataEntry.data);
+			uint32 cmdDataEntryAddr = reinterpret_cast<const uint8*>(&cmdDataEntry) - m_ram;
+			m_bios.TriggerCallback(m_sifExecCmdHandlerAddr, cmdDataEntryAddr, commandHeaderAddr);
+		}
+		else
+		{
+			FinishExecCmd();
 		}
 	}
 	else
 	{
 		assert(false);
+		FinishExecCmd();
 	}
 }
 
