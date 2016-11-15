@@ -1,5 +1,4 @@
-#ifndef _CALLSTACKWND_H_
-#define _CALLSTACKWND_H_
+#pragma once
 
 #include <boost/signals2.hpp>
 #include "win32/MDIChild.h"
@@ -20,9 +19,9 @@ public:
 	OnFunctionDblClickSignal		OnFunctionDblClick;
 
 protected:
-	long							OnSize(unsigned int, unsigned int, unsigned int);
-	long							OnSysCommand(unsigned int, LPARAM);
-	long							OnNotify(WPARAM, NMHDR*);
+	long							OnSize(unsigned int, unsigned int, unsigned int) override;
+	long							OnSysCommand(unsigned int, LPARAM) override;
+	long							OnNotify(WPARAM, NMHDR*) override;
 
 private:
 	void							RefreshLayout();
@@ -35,5 +34,3 @@ private:
 	Framework::Win32::CListView*	m_list;
 	CBiosDebugInfoProvider*			m_biosDebugInfoProvider;
 };
-
-#endif

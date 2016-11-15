@@ -1,5 +1,4 @@
-#ifndef _MINIDEBUGGER_H_
-#define _MINIDEBUGGER_H_
+#pragma once
 
 #include "win32/Window.h"
 #include "win32/HorizontalSplitter.h"
@@ -19,7 +18,7 @@ public:
 	void										Run();
 
 protected:
-	long										OnCommand(unsigned short, unsigned short, HWND);
+	long										OnCommand(unsigned short, unsigned short, HWND) override;
 
 private:
 	void										CreateAccelerators();
@@ -37,5 +36,3 @@ private:
 	CFunctionsView*								m_functionsView;
 	HACCEL										m_acceleratorTable;
 };
-
-#endif
