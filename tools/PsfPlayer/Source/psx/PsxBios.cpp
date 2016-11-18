@@ -90,10 +90,10 @@ void CPsxBios::Reset()
 	LongJmpBuffer() = 0;
 }
 
-void CPsxBios::LoadExe(uint8* exe)
+void CPsxBios::LoadExe(const uint8* exe)
 {
-	EXEHEADER* exeHeader(reinterpret_cast<EXEHEADER*>(exe));
-	if(strncmp(reinterpret_cast<char*>(exeHeader->id), "PS-X EXE", 8))
+	auto exeHeader = reinterpret_cast<const EXEHEADER*>(exe);
+	if(strncmp(reinterpret_cast<const char*>(exeHeader->id), "PS-X EXE", 8))
 	{
 		throw std::runtime_error("Invalid PSX executable.");
 	}

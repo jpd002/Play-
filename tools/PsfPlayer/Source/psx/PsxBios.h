@@ -38,7 +38,7 @@ public:
 	void						HandleException() override;
 	void						CountTicks(uint32) override;
 
-	void						LoadExe(uint8*);
+	void						LoadExe(const uint8*);
 
 	void						SaveState(Framework::CZipArchiveWriter&) override;
 	void						LoadState(Framework::CZipArchiveReader&) override;
