@@ -2,6 +2,7 @@
 #include "PsfRarArchive.h"
 #include "PsfZipArchive.h"
 #include "stricmp.h"
+#include "make_unique.h"
 
 CPsfArchive::PsfArchivePtr CPsfArchive::CreateFromPath(const boost::filesystem::path& filePath)
 {
