@@ -57,8 +57,6 @@ void CPsxBios::Reset()
 		assembler.NOP();
 	}
 
-	//Setup kernel stack
-	m_cpu.m_State.nGPR[CMIPS::K0].nD0 = static_cast<int32>(KERNEL_STACK);
 	m_cpu.m_State.nCOP0[CCOP_SCU::STATUS] |= CMIPS::STATUS_IE;
 
 	AssembleEventChecker();
@@ -338,7 +336,7 @@ uint32& CPsxBios::LongJmpBuffer() const
 
 void CPsxBios::SaveCpuState()
 {
-	uint32 address = m_cpu.m_State.nGPR[CMIPS::K0].nV0;
+	uint32 address = KERNEL_STACK;
 	for(unsigned int i = 0; i < 32; i++)
 	{
 		if(i == CMIPS::R0) continue;
@@ -351,7 +349,7 @@ void CPsxBios::SaveCpuState()
 
 void CPsxBios::LoadCpuState()
 {
-	uint32 address = m_cpu.m_State.nGPR[CMIPS::K0].nV0;
+	uint32 address = KERNEL_STACK;
 	for(unsigned int i = 0; i < 32; i++)
 	{
 		if(i == CMIPS::R0) continue;
