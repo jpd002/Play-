@@ -53,6 +53,7 @@ void CPsxBios::Reset()
 	//Assembly a dummy JR RA at 0 because Vagrant Story jumps at 0
 	{
 		CMIPSAssembler assembler(reinterpret_cast<uint32*>(m_ram + 0x0));
+		assembler.LUI(CMIPS::K0, 0x0000);    //This is required by Xenogears' SFX PSFs
 		assembler.JR(CMIPS::RA);
 		assembler.NOP();
 	}
