@@ -8,8 +8,7 @@
 class CMailBox
 {
 public:
-						CMailBox();
-	virtual				~CMailBox();
+	virtual				~CMailBox() = default;
 
 	typedef std::function<void ()> FunctionType;
 

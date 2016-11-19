@@ -3,16 +3,6 @@
 #include "win32/Win32Defs.h"
 #endif
 
-CMailBox::CMailBox()
-{
-
-}
-
-CMailBox::~CMailBox()
-{
-
-}
-
 bool CMailBox::IsPending() const
 {
 	return m_calls.size() != 0;
