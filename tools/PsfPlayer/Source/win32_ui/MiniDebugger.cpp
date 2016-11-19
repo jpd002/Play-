@@ -1,6 +1,7 @@
 #include "MiniDebugger.h"
 #include "win32/Rect.h"
 #include "win32/AcceleratorTableGenerator.h"
+#include "win32/DpiUtils.h"
 #include "ui_win32/resource.h"
 #include <functional>
 #include <stdio.h>
@@ -36,7 +37,8 @@ CMiniDebugger::CMiniDebugger(CVirtualMachine& virtualMachine, const CDebuggable&
 		RegisterClassEx(&w);
 	}
 
-	Create(WNDSTYLEEX, CLSNAME, _T("MiniDebugger"), WNDSTYLE, Framework::Win32::CRect(0, 0, 1000, 600), NULL, NULL);
+	auto windowRect = Framework::Win32::PointsToPixels(Framework::Win32::CRect(0, 0, 1000, 600));
+	Create(WNDSTYLEEX, CLSNAME, _T("MiniDebugger"), WNDSTYLE, windowRect, NULL, NULL);
 	SetClassPtr();
 
 	Center();
