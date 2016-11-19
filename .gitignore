@@ -12,6 +12,7 @@ build_unix/build-ui
 build-ui_unix*
 Source/build-ui_*
 Debug
+DebugWithDebugger
 Release
 ReleaseWithDebugger
 DebugAot
