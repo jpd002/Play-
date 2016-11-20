@@ -109,6 +109,7 @@ private:
 		uint32									heapBase;
 		uint32									threadProc;
 		uint32									epc;
+		uint32									gp;
 		uint32									initPriority;
 		uint32									currPriority;
 		uint32									semaWait;
@@ -267,6 +268,7 @@ private:
 	void									UnlinkThread(uint32);
 	void									ThreadShakeAndBake();
 	void									ThreadSwitchContext(uint32);
+	void									ThreadReset(uint32);
 	void									CheckLivingThreads();
 
 	std::pair<uint32, uint32>				GetVsyncFlagPtrs() const;

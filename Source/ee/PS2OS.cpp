@@ -1181,6 +1181,26 @@ void CPS2OS::ThreadSwitchContext(uint32 id)
 	CLog::GetInstance().Print(LOG_NAME, "New thread elected (id = %i).\r\n", id);
 }
 
+void CPS2OS::ThreadReset(uint32 id)
+{
+	assert(m_currentThreadId != id);
+
+	auto thread = m_threads[id];
+	assert(thread->status == THREAD_ZOMBIE);
+
+	uint32 stackTop = thread->stackBase + thread->stackSize;
+
+	thread->contextPtr = stackTop - STACKRES;
+	thread->currPriority = thread->initPriority;
+	//Reset wakeup count?
+
+	auto context = reinterpret_cast<THREADCONTEXT*>(GetStructPtr(thread->contextPtr));
+	context->gpr[CMIPS::SP].nV0 = stackTop - STACK_FRAME_RESERVE_SIZE;
+	context->gpr[CMIPS::FP].nV0 = stackTop - STACK_FRAME_RESERVE_SIZE;
+	context->gpr[CMIPS::GP].nV0 = thread->gp;
+	context->gpr[CMIPS::RA].nV0 = BIOS_ADDRESS_THREADEPILOG;
+}
+
 void CPS2OS::CheckLivingThreads()
 {
 	//Check if we have a living thread (this is needed for autotests to work properly)
@@ -1640,27 +1660,18 @@ void CPS2OS::sc_CreateThread()
 
 	assert(threadParam->initPriority < 128);
 
-	uint32 stackAddr = threadParam->stackBase + threadParam->stackSize;
-
 	auto thread = m_threads[id];
 	thread->status			= THREAD_ZOMBIE;
 	thread->stackBase		= threadParam->stackBase;
 	thread->epc				= threadParam->threadProc;
 	thread->threadProc		= threadParam->threadProc;
 	thread->initPriority	= threadParam->initPriority;
-	thread->currPriority	= threadParam->initPriority;
 	thread->heapBase		= heapBase;
 	thread->wakeUpCount		= 0;
+	thread->gp				= threadParam->gp;
 	thread->stackSize		= threadParam->stackSize;
-	thread->contextPtr		= stackAddr - STACKRES;
 
-	auto context = reinterpret_cast<THREADCONTEXT*>(&m_ram[thread->contextPtr]);
-	memset(context, 0, sizeof(THREADCONTEXT));
-
-	context->gpr[CMIPS::SP].nV0 = stackAddr - STACK_FRAME_RESERVE_SIZE;
-	context->gpr[CMIPS::FP].nV0 = stackAddr - STACK_FRAME_RESERVE_SIZE;
-	context->gpr[CMIPS::GP].nV0 = threadParam->gp;
-	context->gpr[CMIPS::RA].nV0 = BIOS_ADDRESS_THREADEPILOG;
+	ThreadReset(id);
 
 	m_ee.m_State.nGPR[SC_RETURN].nD0 = static_cast<int32>(id);
 }
@@ -1713,17 +1724,12 @@ void CPS2OS::sc_StartThread()
 		return;
 	}
 
-	uint32 stackAddr = thread->stackBase + thread->stackSize;
-
 	assert(thread->status == THREAD_ZOMBIE);
 	thread->status = THREAD_RUNNING;
-	thread->epc = thread->threadProc;
+	thread->epc    = thread->threadProc;
 
 	auto context = reinterpret_cast<THREADCONTEXT*>(&m_ram[thread->contextPtr]);
 	context->gpr[CMIPS::A0].nV0 = arg;
-	context->gpr[CMIPS::RA].nV0 = BIOS_ADDRESS_THREADEPILOG;
-	context->gpr[CMIPS::SP].nV0 = stackAddr - STACK_FRAME_RESERVE_SIZE;
-	context->gpr[CMIPS::FP].nV0 = stackAddr - STACK_FRAME_RESERVE_SIZE;
 
 	m_ee.m_State.nGPR[SC_RETURN].nD0 = static_cast<int32>(id);
 
@@ -1738,10 +1744,10 @@ void CPS2OS::sc_ExitThread()
 
 	auto thread = m_threads[threadId];
 	thread->status = THREAD_ZOMBIE;
-	thread->currPriority = thread->initPriority;
 	UnlinkThread(threadId);
 
 	ThreadShakeAndBake();
+	ThreadReset(threadId);
 
 	CheckLivingThreads();
 }
@@ -1787,8 +1793,8 @@ void CPS2OS::sc_TerminateThread()
 	}
 
 	thread->status = THREAD_ZOMBIE;
-	thread->currPriority = thread->initPriority;
 	UnlinkThread(id);
+	ThreadReset(id);
 
 	m_ee.m_State.nGPR[SC_RETURN].nD0 = static_cast<int32>(id);
 }
