@@ -128,19 +128,11 @@ private:
 	//values directly in the thread context
 	struct THREADCONTEXT
 	{
-		enum
-		{
-			COP1_REG_COUNT = 0x1C
-		};
-
 		uint128									gpr[0x20];
-		uint128									hi;
-		uint128									lo;
-		uint32									sa;
+		uint32									cop1[0x20];
 		uint32									fcsr;
 		uint32									cop1a;
-		uint32									reserved3;
-		uint32									cop1[COP1_REG_COUNT];
+		uint32									unknown[6];
 	};
 	static_assert(sizeof(THREADCONTEXT) == STACKRES, "Size of THREADCONTEXT must be STACKRES");
 

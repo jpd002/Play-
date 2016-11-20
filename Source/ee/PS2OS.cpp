@@ -1120,19 +1120,18 @@ void CPS2OS::ThreadSwitchContext(uint32 id)
 			if(i == CMIPS::K1) continue;
 			context->gpr[i] = m_ee.m_State.nGPR[i];
 		}
-		context->lo.nV[0] = m_ee.m_State.nLO[0];	context->lo.nV[1] = m_ee.m_State.nLO[1];
-		context->hi.nV[0] = m_ee.m_State.nHI[0];	context->hi.nV[1] = m_ee.m_State.nHI[1];
-		context->lo.nV[2] = m_ee.m_State.nLO1[0];	context->lo.nV[3] = m_ee.m_State.nLO1[1];
-		context->hi.nV[2] = m_ee.m_State.nHI1[0];	context->hi.nV[3] = m_ee.m_State.nHI1[1];
-		context->sa = m_ee.m_State.nSA;
-		for(uint32 i = 0; i < THREADCONTEXT::COP1_REG_COUNT; i++)
+		for(uint32 i = 0; i < 0x20; i++)
 		{
 			context->cop1[i] = m_ee.m_State.nCOP1[i];
 		}
-		for(uint32 i = 0; i < 4; i++)
-		{
-			context->gpr[CMIPS::K0].nV[i] = m_ee.m_State.nCOP1[i + THREADCONTEXT::COP1_REG_COUNT];
-		}
+		auto& sa = context->gpr[CMIPS::R0].nV0;
+		auto& hi = context->gpr[CMIPS::K0];
+		auto& lo = context->gpr[CMIPS::K1];
+		sa = m_ee.m_State.nSA >> 3;    //Act as if MFSA was used
+		hi.nV[0] = m_ee.m_State.nHI[0];  hi.nV[1] = m_ee.m_State.nHI[1];
+		hi.nV[2] = m_ee.m_State.nHI1[0]; hi.nV[3] = m_ee.m_State.nHI1[1];
+		lo.nV[0] = m_ee.m_State.nLO[0];  lo.nV[1] = m_ee.m_State.nLO[1];
+		lo.nV[2] = m_ee.m_State.nLO1[0]; lo.nV[3] = m_ee.m_State.nLO1[1];
 		context->cop1a = m_ee.m_State.nCOP1A;
 		context->fcsr = m_ee.m_State.nFCSR;
 
@@ -1151,7 +1150,7 @@ void CPS2OS::ThreadSwitchContext(uint32 id)
 		if(id != m_idleThreadId)
 		{
 			assert(thread->contextPtr != 0);
-			auto context = reinterpret_cast<THREADCONTEXT*>(GetStructPtr(thread->contextPtr));
+			auto context = reinterpret_cast<const THREADCONTEXT*>(GetStructPtr(thread->contextPtr));
 
 			for(uint32 i = 0; i < 0x20; i++)
 			{
@@ -1160,19 +1159,18 @@ void CPS2OS::ThreadSwitchContext(uint32 id)
 				if(i == CMIPS::K1) continue;
 				m_ee.m_State.nGPR[i] = context->gpr[i];
 			}
-			m_ee.m_State.nLO[0] = context->lo.nV[0];	m_ee.m_State.nLO[1] = context->lo.nV[1];
-			m_ee.m_State.nHI[0] = context->hi.nV[0];	m_ee.m_State.nHI[1] = context->hi.nV[1];
-			m_ee.m_State.nLO1[0] = context->lo.nV[2];	m_ee.m_State.nLO1[1] = context->lo.nV[3];
-			m_ee.m_State.nHI1[0] = context->hi.nV[2];	m_ee.m_State.nHI1[1] = context->hi.nV[3];
-			m_ee.m_State.nSA = context->sa;
-			for(uint32 i = 0; i < THREADCONTEXT::COP1_REG_COUNT; i++)
+			for(uint32 i = 0; i < 0x20; i++)
 			{
 				m_ee.m_State.nCOP1[i] = context->cop1[i];
 			}
-			for(uint32 i = 0; i < 4; i++)
-			{
-				m_ee.m_State.nCOP1[i + THREADCONTEXT::COP1_REG_COUNT] = context->gpr[CMIPS::K0].nV[i];
-			}
+			auto& sa = context->gpr[CMIPS::R0].nV0;
+			auto& hi = context->gpr[CMIPS::K0];
+			auto& lo = context->gpr[CMIPS::K1];
+			m_ee.m_State.nSA = (sa & 0x0F) << 3;    //Act as if MTSA was used
+			m_ee.m_State.nHI[0]  = hi.nV[0]; m_ee.m_State.nHI[1]  = hi.nV[1];
+			m_ee.m_State.nHI1[0] = hi.nV[2]; m_ee.m_State.nHI1[1] = hi.nV[3];
+			m_ee.m_State.nLO[0]  = lo.nV[0]; m_ee.m_State.nLO[1]  = lo.nV[1];
+			m_ee.m_State.nLO1[0] = lo.nV[2]; m_ee.m_State.nLO1[1] = lo.nV[3];
 			m_ee.m_State.nCOP1A = context->cop1a;
 			m_ee.m_State.nFCSR = context->fcsr;
 		}
