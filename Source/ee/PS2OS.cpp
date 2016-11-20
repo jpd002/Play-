@@ -1099,7 +1099,7 @@ void CPS2OS::ThreadShakeAndBake()
 	}
 }
 
-void CPS2OS::ThreadSwitchContext(unsigned int id)
+void CPS2OS::ThreadSwitchContext(uint32 id)
 {
 	if(id == m_currentThreadId) return;
 
@@ -1662,8 +1662,7 @@ void CPS2OS::sc_CreateThread()
 	context->gpr[CMIPS::GP].nV0 = threadParam->gp;
 	context->gpr[CMIPS::RA].nV0 = BIOS_ADDRESS_THREADEPILOG;
 
-	m_ee.m_State.nGPR[SC_RETURN].nV[0] = id;
-	m_ee.m_State.nGPR[SC_RETURN].nV[1] = 0;
+	m_ee.m_State.nGPR[SC_RETURN].nD0 = static_cast<int32>(id);
 }
 
 //21
