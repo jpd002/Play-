@@ -554,6 +554,7 @@ void CSifCmd::ProcessNextDynamicCommand()
 			//That's not the case here though, so we try for the same effect by calling the handler outside of an interrupt.
 			uint32 cmdDataEntryAddr = reinterpret_cast<const uint8*>(&cmdDataEntry) - m_ram;
 			m_bios.TriggerCallback(m_sifExecCmdHandlerAddr, cmdDataEntryAddr, commandHeaderAddr);
+			m_bios.Reschedule();
 		}
 		else
 		{

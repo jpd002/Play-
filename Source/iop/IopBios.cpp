@@ -2912,8 +2912,6 @@ void CIopBios::TriggerCallback(uint32 address, uint32 arg0, uint32 arg1)
 	auto thread = GetThread(callbackThreadId);
 	thread->context.gpr[CMIPS::A0] = arg0;
 	thread->context.gpr[CMIPS::A1] = arg1;
-
-	Reschedule();
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
