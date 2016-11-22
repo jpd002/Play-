@@ -44,14 +44,14 @@ android {
 		mavenCentral()
 	}
 	
-	compileSdkVersion 'android-23'
+	compileSdkVersion 'android-24'
 	buildToolsVersion '24.0.3'
 	
 	defaultConfig {
 		versionCode 33
 		versionName '0.30'
 		minSdkVersion 19
-		targetSdkVersion 23
+		targetSdkVersion 24
 	}
 	
 	dependencies {
