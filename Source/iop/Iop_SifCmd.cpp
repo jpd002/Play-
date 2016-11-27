@@ -46,6 +46,7 @@ CSifCmd::CSifCmd(CIopBios& bios, CSifMan& sifMan, CSysmem& sysMem, uint8* ram)
 , m_ram(ram)
 {
 	m_moduleDataAddr = m_sysMem.AllocateMemory(sizeof(MODULEDATA), 0, 0);
+	memset(m_ram + m_moduleDataAddr, 0, sizeof(MODULEDATA));
 	m_trampolineAddr           = m_moduleDataAddr + offsetof(MODULEDATA, trampoline);
 	m_sendCmdExtraStructAddr   = m_moduleDataAddr + offsetof(MODULEDATA, sendCmdExtraStruct);
 	m_sregAddr                 = m_moduleDataAddr + offsetof(MODULEDATA, sreg);
