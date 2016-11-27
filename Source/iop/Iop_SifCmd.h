@@ -122,8 +122,6 @@ namespace Iop
 		uint32					m_sifRpcLoopAddr = 0;
 		uint32					m_sifExecRequestAddr = 0;
 		uint32					m_sifExecCmdHandlerAddr = 0;
-		uint32					m_pendingCmdBufferAddr = 0;
-		uint32					m_pendingCmdBufferSizeAddr = 0;
 		DynamicModuleList		m_servers;
 	};
 

@@ -50,8 +50,6 @@ CSifCmd::CSifCmd(CIopBios& bios, CSifMan& sifMan, CSysmem& sysMem, uint8* ram)
 	m_trampolineAddr           = m_moduleDataAddr + offsetof(MODULEDATA, trampoline);
 	m_sendCmdExtraStructAddr   = m_moduleDataAddr + offsetof(MODULEDATA, sendCmdExtraStruct);
 	m_sysCmdBufferAddr         = m_moduleDataAddr + offsetof(MODULEDATA, sysCmdBuffer);
-	m_pendingCmdBufferAddr     = m_moduleDataAddr + offsetof(MODULEDATA, pendingCmdBuffer);
-	m_pendingCmdBufferSizeAddr = m_moduleDataAddr + offsetof(MODULEDATA, pendingCmdBufferSize);
 	sifMan.SetModuleResetHandler([&] (const std::string& path) { bios.ProcessModuleReset(path); });
 	sifMan.SetCustomCommandHandler([&] (uint32 commandHeaderAddr) { ProcessCustomCommand(commandHeaderAddr); });
 	BuildExportTable();
@@ -434,17 +432,15 @@ void CSifCmd::FinishExecCmd()
 	assert(moduleData->executingCmd);
 	moduleData->executingCmd = false;
 
-	uint32 commandHeaderAddr = m_pendingCmdBufferAddr;
-	auto commandHeader = reinterpret_cast<const SIFCMDHEADER*>(m_ram + commandHeaderAddr);
+	auto pendingCmdBuffer = moduleData->pendingCmdBuffer;
+	auto commandHeader = reinterpret_cast<const SIFCMDHEADER*>(pendingCmdBuffer);
 
 	uint8 commandPacketSize = static_cast<uint8>(commandHeader->size & 0xFF);
-	auto pendingCmdBuffer = m_ram + m_pendingCmdBufferAddr;
-	auto pendingCmdBufferSize = reinterpret_cast<uint32*>(m_ram + m_pendingCmdBufferSizeAddr);
-	assert(*pendingCmdBufferSize >= commandPacketSize);
-	memmove(pendingCmdBuffer, pendingCmdBuffer + commandPacketSize, PENDING_CMD_BUFFER_SIZE - *pendingCmdBufferSize);
-	(*pendingCmdBufferSize) -= commandPacketSize;
+	assert(moduleData->pendingCmdBufferSize >= commandPacketSize);
+	memmove(pendingCmdBuffer, pendingCmdBuffer + commandPacketSize, PENDING_CMD_BUFFER_SIZE - moduleData->pendingCmdBufferSize);
+	moduleData->pendingCmdBufferSize -= commandPacketSize;
 
-	if(*pendingCmdBufferSize > 0)
+	if(moduleData->pendingCmdBufferSize > 0)
 	{
 		ProcessNextDynamicCommand();
 	}
@@ -516,14 +512,12 @@ void CSifCmd::ProcessDynamicCommand(uint32 commandHeaderAddr)
 	auto commandHeader = reinterpret_cast<const SIFCMDHEADER*>(m_ram + commandHeaderAddr);
 
 	uint8 commandPacketSize = static_cast<uint8>(commandHeader->size & 0xFF);
-	auto pendingCmdBuffer = m_ram + m_pendingCmdBufferAddr;
-	auto pendingCmdBufferSize = reinterpret_cast<uint32*>(m_ram + m_pendingCmdBufferSizeAddr);
-	assert((*pendingCmdBufferSize + commandPacketSize) <= PENDING_CMD_BUFFER_SIZE);
+	assert((moduleData->pendingCmdBufferSize + commandPacketSize) <= PENDING_CMD_BUFFER_SIZE);
 
-	if((*pendingCmdBufferSize + commandPacketSize) <= PENDING_CMD_BUFFER_SIZE)
+	if((moduleData->pendingCmdBufferSize + commandPacketSize) <= PENDING_CMD_BUFFER_SIZE)
 	{
-		memcpy(pendingCmdBuffer + *pendingCmdBufferSize, commandHeader, commandPacketSize);
-		(*pendingCmdBufferSize) += commandPacketSize;
+		memcpy(moduleData->pendingCmdBuffer + moduleData->pendingCmdBufferSize, commandHeader, commandPacketSize);
+		moduleData->pendingCmdBufferSize += commandPacketSize;
 
 		if(!moduleData->executingCmd)
 		{
@@ -539,7 +533,7 @@ void CSifCmd::ProcessNextDynamicCommand()
 	assert(!moduleData->executingCmd);
 	moduleData->executingCmd = true;
 
-	uint32 commandHeaderAddr = m_pendingCmdBufferAddr;
+	uint32 commandHeaderAddr = m_moduleDataAddr + offsetof(MODULEDATA, pendingCmdBuffer);
 	auto commandHeader = reinterpret_cast<const SIFCMDHEADER*>(m_ram + commandHeaderAddr);
 	bool isSystemCommand = (commandHeader->commandId & SYSTEM_COMMAND_ID) != 0;
 	uint32 cmd = commandHeader->commandId & ~SYSTEM_COMMAND_ID;
