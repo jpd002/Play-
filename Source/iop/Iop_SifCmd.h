@@ -80,6 +80,7 @@ namespace Iop
 			SIFCMDDATA sysCmdBuffer[MAX_SYSTEM_COMMAND];
 			uint32     usrCmdBufferAddr;
 			uint32     usrCmdBufferLen;
+			uint32     executingCmd;
 			uint8      pendingCmdBuffer[PENDING_CMD_BUFFER_SIZE];
 			uint32     pendingCmdBufferSize;
 		};
@@ -124,7 +125,6 @@ namespace Iop
 		uint32					m_sifExecCmdHandlerAddr = 0;
 		uint32					m_pendingCmdBufferAddr = 0;
 		uint32					m_pendingCmdBufferSizeAddr = 0;
-		bool					m_executingCmd = false;
 		DynamicModuleList		m_servers;
 	};
 

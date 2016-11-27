@@ -429,8 +429,10 @@ void CSifCmd::FinishExecRequest(uint32 serverDataAddr, uint32 returnDataAddr)
 
 void CSifCmd::FinishExecCmd()
 {
-	assert(m_executingCmd);
-	m_executingCmd = false;
+	auto moduleData = reinterpret_cast<MODULEDATA*>(m_ram + m_moduleDataAddr);
+
+	assert(moduleData->executingCmd);
+	moduleData->executingCmd = false;
 
 	uint32 commandHeaderAddr = m_pendingCmdBufferAddr;
 	auto commandHeader = reinterpret_cast<const SIFCMDHEADER*>(m_ram + commandHeaderAddr);
@@ -509,6 +511,7 @@ void CSifCmd::ProcessRpcRequestEnd(uint32 commandHeaderAddr)
 
 void CSifCmd::ProcessDynamicCommand(uint32 commandHeaderAddr)
 {
+	auto moduleData = reinterpret_cast<MODULEDATA*>(m_ram + m_moduleDataAddr);
 	auto commandHeader = reinterpret_cast<const SIFCMDHEADER*>(m_ram + commandHeaderAddr);
 
 	uint8 commandPacketSize = static_cast<uint8>(commandHeader->size & 0xFF);
@@ -521,7 +524,7 @@ void CSifCmd::ProcessDynamicCommand(uint32 commandHeaderAddr)
 		memcpy(pendingCmdBuffer + *pendingCmdBufferSize, commandHeader, commandPacketSize);
 		(*pendingCmdBufferSize) += commandPacketSize;
 
-		if(!m_executingCmd)
+		if(!moduleData->executingCmd)
 		{
 			ProcessNextDynamicCommand();
 		}
@@ -530,12 +533,13 @@ void CSifCmd::ProcessDynamicCommand(uint32 commandHeaderAddr)
 
 void CSifCmd::ProcessNextDynamicCommand()
 {
-	assert(!m_executingCmd);
-	m_executingCmd = true;
+	auto moduleData = reinterpret_cast<MODULEDATA*>(m_ram + m_moduleDataAddr);
+
+	assert(!moduleData->executingCmd);
+	moduleData->executingCmd = true;
 
 	uint32 commandHeaderAddr = m_pendingCmdBufferAddr;
 	auto commandHeader = reinterpret_cast<const SIFCMDHEADER*>(m_ram + commandHeaderAddr);
-	auto moduleData = reinterpret_cast<MODULEDATA*>(m_ram + m_moduleDataAddr);
 	bool isSystemCommand = (commandHeader->commandId & SYSTEM_COMMAND_ID) != 0;
 	uint32 cmd = commandHeader->commandId & ~SYSTEM_COMMAND_ID;
 	uint32 cmdBufferAddr = isSystemCommand ? m_sysCmdBufferAddr : moduleData->usrCmdBufferAddr;
