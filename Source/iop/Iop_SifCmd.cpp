@@ -274,7 +274,7 @@ void CSifCmd::ClearServers()
 
 void CSifCmd::BuildExportTable()
 {
-	uint32* exportTable = reinterpret_cast<uint32*>(m_ram + m_trampolineAddr);
+	auto exportTable = reinterpret_cast<uint32*>(m_ram + m_trampolineAddr);
 	*(exportTable++) = 0x41E00000;
 	*(exportTable++) = 0;
 	*(exportTable++) = MODULE_VERSION;
