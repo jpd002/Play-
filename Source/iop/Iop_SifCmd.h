@@ -78,6 +78,8 @@ namespace Iop
 			uint8      sendCmdExtraStruct[0x10];
 			uint32     sreg[MAX_SREG];
 			SIFCMDDATA sysCmdBuffer[MAX_SYSTEM_COMMAND];
+			uint32     usrCmdBufferAddr;
+			uint32     usrCmdBufferLen;
 			uint8      pendingCmdBuffer[PENDING_CMD_BUFFER_SIZE];
 			uint32     pendingCmdBufferSize;
 		};
@@ -108,10 +110,6 @@ namespace Iop
 		void					FinishExecCmd();
 		void					SleepThread();
 
-		uint32					m_usrCmdBuffer = 0;
-		uint32					m_usrCmdBufferLen = 0;
-		uint32					m_sysCmdBuffer = 0;
-
 		CIopBios&				m_bios;
 		CSifMan&				m_sifMan;
 		CSysmem&				m_sysMem;
@@ -120,6 +118,7 @@ namespace Iop
 		uint32					m_trampolineAddr = 0;
 		uint32					m_sendCmdExtraStructAddr = 0;
 		uint32					m_sregAddr = 0;
+		uint32					m_sysCmdBufferAddr = 0;
 		uint32					m_sifRpcLoopAddr = 0;
 		uint32					m_sifExecRequestAddr = 0;
 		uint32					m_sifExecCmdHandlerAddr = 0;

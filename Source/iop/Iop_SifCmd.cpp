@@ -49,7 +49,7 @@ CSifCmd::CSifCmd(CIopBios& bios, CSifMan& sifMan, CSysmem& sysMem, uint8* ram)
 	m_trampolineAddr           = m_moduleDataAddr + offsetof(MODULEDATA, trampoline);
 	m_sendCmdExtraStructAddr   = m_moduleDataAddr + offsetof(MODULEDATA, sendCmdExtraStruct);
 	m_sregAddr                 = m_moduleDataAddr + offsetof(MODULEDATA, sreg);
-	m_sysCmdBuffer             = m_moduleDataAddr + offsetof(MODULEDATA, sysCmdBuffer);
+	m_sysCmdBufferAddr         = m_moduleDataAddr + offsetof(MODULEDATA, sysCmdBuffer);
 	m_pendingCmdBufferAddr     = m_moduleDataAddr + offsetof(MODULEDATA, pendingCmdBuffer);
 	m_pendingCmdBufferSizeAddr = m_moduleDataAddr + offsetof(MODULEDATA, pendingCmdBufferSize);
 	sifMan.SetModuleResetHandler([&] (const std::string& path) { bios.ProcessModuleReset(path); });
@@ -535,14 +535,15 @@ void CSifCmd::ProcessNextDynamicCommand()
 
 	uint32 commandHeaderAddr = m_pendingCmdBufferAddr;
 	auto commandHeader = reinterpret_cast<const SIFCMDHEADER*>(m_ram + commandHeaderAddr);
+	auto moduleData = reinterpret_cast<MODULEDATA*>(m_ram + m_moduleDataAddr);
 	bool isSystemCommand = (commandHeader->commandId & SYSTEM_COMMAND_ID) != 0;
 	uint32 cmd = commandHeader->commandId & ~SYSTEM_COMMAND_ID;
-	uint32 cmdBuffer = isSystemCommand ? m_sysCmdBuffer : m_usrCmdBuffer;
-	uint32 cmdBufferLen = isSystemCommand ? MAX_SYSTEM_COMMAND : m_usrCmdBufferLen;
+	uint32 cmdBufferAddr = isSystemCommand ? m_sysCmdBufferAddr : moduleData->usrCmdBufferAddr;
+	uint32 cmdBufferLen = isSystemCommand ? MAX_SYSTEM_COMMAND : moduleData->usrCmdBufferLen;
 
-	if((cmdBuffer != 0) && (cmd < cmdBufferLen))
+	if((cmdBufferAddr != 0) && (cmd < cmdBufferLen))
 	{
-		const auto& cmdDataEntry = reinterpret_cast<SIFCMDDATA*>(m_ram + cmdBuffer)[cmd];
+		const auto& cmdDataEntry = reinterpret_cast<SIFCMDDATA*>(m_ram + cmdBufferAddr)[cmd];
 
 		CLog::GetInstance().Print(LOG_NAME, "Calling SIF command handler for command 0x%0.8X at 0x%0.8X with data 0x%0.8X.\r\n", 
 			commandHeader->commandId, cmdDataEntry.sifCmdHandler, cmdDataEntry.data);
@@ -581,14 +582,15 @@ int32 CSifCmd::SifGetSreg(uint32 regIndex)
 	return result;
 }
 
-uint32 CSifCmd::SifSetCmdBuffer(uint32 data, uint32 length)
+uint32 CSifCmd::SifSetCmdBuffer(uint32 cmdBufferAddr, uint32 length)
 {
-	CLog::GetInstance().Print(LOG_NAME, FUNCTION_SIFSETCMDBUFFER "(data = 0x%0.8X, length = %d);\r\n",
-		data, length);
+	CLog::GetInstance().Print(LOG_NAME, FUNCTION_SIFSETCMDBUFFER "(cmdBufferAddr = 0x%0.8X, length = %d);\r\n",
+		cmdBufferAddr, length);
 
-	uint32 originalBuffer = m_usrCmdBuffer;
-	m_usrCmdBuffer = data;
-	m_usrCmdBufferLen = length;
+	auto moduleData = reinterpret_cast<MODULEDATA*>(m_ram + m_moduleDataAddr);
+	uint32 originalBuffer = moduleData->usrCmdBufferAddr;
+	moduleData->usrCmdBufferAddr = cmdBufferAddr;
+	moduleData->usrCmdBufferLen = length;
 
 	return originalBuffer;
 }
@@ -598,14 +600,15 @@ void CSifCmd::SifAddCmdHandler(uint32 pos, uint32 handler, uint32 data)
 	CLog::GetInstance().Print(LOG_NAME, FUNCTION_SIFADDCMDHANDLER "(pos = 0x%0.8X, handler = 0x%0.8X, data = 0x%0.8X);\r\n",
 		pos, handler, data);
 
+	auto moduleData = reinterpret_cast<const MODULEDATA*>(m_ram + m_moduleDataAddr);
 	bool isSystemCommand = (pos & SYSTEM_COMMAND_ID) != 0;
 	uint32 cmd = pos & ~SYSTEM_COMMAND_ID;
-	uint32 cmdBuffer = isSystemCommand ? m_sysCmdBuffer : m_usrCmdBuffer;
-	uint32 cmdBufferLen = isSystemCommand ? MAX_SYSTEM_COMMAND : m_usrCmdBufferLen;
+	uint32 cmdBufferAddr = isSystemCommand ? m_sysCmdBufferAddr : moduleData->usrCmdBufferAddr;
+	uint32 cmdBufferLen = isSystemCommand ? MAX_SYSTEM_COMMAND : moduleData->usrCmdBufferLen;
 
-	if((cmdBuffer != 0) && (cmd < cmdBufferLen))
+	if((cmdBufferAddr != 0) && (cmd < cmdBufferLen))
 	{
-		auto& cmdDataEntry = reinterpret_cast<SIFCMDDATA*>(m_ram + cmdBuffer)[cmd];
+		auto& cmdDataEntry = reinterpret_cast<SIFCMDDATA*>(m_ram + cmdBufferAddr)[cmd];
 		cmdDataEntry.sifCmdHandler = handler;
 		cmdDataEntry.data = data;
 	}
