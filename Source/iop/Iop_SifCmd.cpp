@@ -49,7 +49,6 @@ CSifCmd::CSifCmd(CIopBios& bios, CSifMan& sifMan, CSysmem& sysMem, uint8* ram)
 	memset(m_ram + m_moduleDataAddr, 0, sizeof(MODULEDATA));
 	m_trampolineAddr           = m_moduleDataAddr + offsetof(MODULEDATA, trampoline);
 	m_sendCmdExtraStructAddr   = m_moduleDataAddr + offsetof(MODULEDATA, sendCmdExtraStruct);
-	m_sregAddr                 = m_moduleDataAddr + offsetof(MODULEDATA, sreg);
 	m_sysCmdBufferAddr         = m_moduleDataAddr + offsetof(MODULEDATA, sysCmdBuffer);
 	m_pendingCmdBufferAddr     = m_moduleDataAddr + offsetof(MODULEDATA, pendingCmdBuffer);
 	m_pendingCmdBufferSizeAddr = m_moduleDataAddr + offsetof(MODULEDATA, pendingCmdBufferSize);
@@ -474,7 +473,8 @@ void CSifCmd::ProcessSetSreg(uint32 commandHeaderAddr)
 	assert(setSreg->header.size == sizeof(SIFSETSREG));
 	assert(setSreg->index < MAX_SREG);
 	if(setSreg->index >= MAX_SREG) return;
-	reinterpret_cast<uint32*>(m_ram + m_sregAddr)[setSreg->index] = setSreg->value;
+	auto moduleData = reinterpret_cast<MODULEDATA*>(m_ram + m_moduleDataAddr);
+	moduleData->sreg[setSreg->index] = setSreg->value;
 }
 
 void CSifCmd::ProcessRpcRequestEnd(uint32 commandHeaderAddr)
@@ -583,7 +583,8 @@ int32 CSifCmd::SifGetSreg(uint32 regIndex)
 	{
 		return 0;
 	}
-	uint32 result = reinterpret_cast<uint32*>(m_ram + m_sregAddr)[regIndex];
+	auto moduleData = reinterpret_cast<const MODULEDATA*>(m_ram + m_moduleDataAddr);
+	uint32 result = moduleData->sreg[regIndex];
 	return result;
 }
 

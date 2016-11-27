@@ -118,7 +118,6 @@ namespace Iop
 		uint32					m_moduleDataAddr = 0;
 		uint32					m_trampolineAddr = 0;
 		uint32					m_sendCmdExtraStructAddr = 0;
-		uint32					m_sregAddr = 0;
 		uint32					m_sysCmdBufferAddr = 0;
 		uint32					m_sifRpcLoopAddr = 0;
 		uint32					m_sifExecRequestAddr = 0;
