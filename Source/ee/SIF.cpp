@@ -399,14 +399,13 @@ void CSIF::Cmd_Initialize(SIFCMDHEADER* hdr)
 		uint32			nEEAddress;
 	};
 
-	INIT* pInit = reinterpret_cast<INIT*>(hdr);
-
-	if(pInit->Header.optional == 0)
+	auto init = reinterpret_cast<const INIT*>(hdr);
+	if(init->Header.optional == 0)
 	{
-		m_nEERecvAddr =  pInit->nEEAddress;
+		m_nEERecvAddr =  init->nEEAddress;
 		m_nEERecvAddr &= (PS2::EE_RAM_SIZE - 1);
 	}
-	else if(pInit->Header.optional == 1)
+	else if(init->Header.optional == 1)
 	{
 		//If 'optional' is set to 1, and we need to disregard the address received and send a command back...
 		//Not sure about this though (seems to be used by SifInitRpc)

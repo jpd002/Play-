@@ -739,14 +739,14 @@ void CSifCmd::SifRegisterRpc(CMIPS& context)
 	bool moduleRegistered = m_sifMan.IsModuleRegistered(serverId);
 	if(!moduleRegistered)
 	{
-		CSifDynamic* module = new CSifDynamic(*this, serverDataAddr);
+		auto module = new CSifDynamic(*this, serverDataAddr);
 		m_servers.push_back(module);
 		m_sifMan.RegisterModule(serverId, module);
 	}
 
 	if(serverDataAddr != 0)
 	{
-		SIFRPCSERVERDATA* serverData = reinterpret_cast<SIFRPCSERVERDATA*>(&m_ram[serverDataAddr]);
+		auto serverData = reinterpret_cast<SIFRPCSERVERDATA*>(&m_ram[serverDataAddr]);
 		serverData->serverId	= serverId;
 		serverData->function	= function;
 		serverData->buffer		= buffer;
