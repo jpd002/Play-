@@ -370,9 +370,8 @@ void CFileIoHandler2300::SendSifReply()
 	size_t packetSize = sizeof(SIFCMDHEADER);
 	uint8* callbackPacket = reinterpret_cast<uint8*>(alloca(packetSize));
 	auto header = reinterpret_cast<SIFCMDHEADER*>(callbackPacket);
-	header->commandId = 0x80000011;
-	header->size = packetSize;
-	header->dest = 0;
-	header->optional = 0;
+	memset(header, 0, sizeof(SIFCMDHEADER));
+	header->commandId  = 0x80000011;
+	header->packetSize = packetSize;
 	m_sifMan.SendPacket(callbackPacket, packetSize);
 }

@@ -23,7 +23,8 @@ static_assert(sizeof(SIFDMAREG) == 0x10, "sizeof(SIFDMAREG) must be 16 bytes.");
 
 struct SIFCMDHEADER
 {
-	uint32 size;
+	uint32 packetSize : 8;
+	uint32 destSize   : 24;
 	uint32 dest;
 	uint32 commandId;
 	uint32 optional;
