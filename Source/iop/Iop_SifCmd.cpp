@@ -629,11 +629,14 @@ uint32 CSifCmd::SifSendCmd(uint32 commandId, uint32 packetPtr, uint32 packetSize
 	auto header = reinterpret_cast<SIFCMDHEADER*>(packetData);
 	header->commandId  = commandId;
 	header->packetSize = packetSize;
+	header->destSize   = 0;
 	header->dest       = 0;
-	m_sifMan.SendPacket(packetData, packetSize);
 
 	if(sizeExtra != 0 && srcExtraPtr != 0 && dstExtraPtr != 0)
 	{
+		header->destSize = sizeExtra;
+		header->dest     = dstExtraPtr;
+
 		auto dmaReg = reinterpret_cast<SIFDMAREG*>(m_ram + m_sendCmdExtraStructAddr);
 		dmaReg->srcAddr = srcExtraPtr;
 		dmaReg->dstAddr = dstExtraPtr;
@@ -642,6 +645,8 @@ uint32 CSifCmd::SifSendCmd(uint32 commandId, uint32 packetPtr, uint32 packetSize
 
 		m_sifMan.SifSetDma(m_sendCmdExtraStructAddr, 1);
 	}
+
+	m_sifMan.SendPacket(packetData, packetSize);
 
 	return 1;
 }
@@ -700,8 +705,8 @@ void CSifCmd::SifCallRpc(CMIPS& context)
 		auto dmaReg = reinterpret_cast<SIFDMAREG*>(m_ram + m_sendCmdExtraStructAddr);
 		dmaReg->srcAddr = sendAddr;
 		dmaReg->dstAddr = clientData->buffPtr;
-		dmaReg->size = sendSize;
-		dmaReg->flags = 0;
+		dmaReg->size    = sendSize;
+		dmaReg->flags   = 0;
 
 		m_sifMan.SifSetDma(m_sendCmdExtraStructAddr, 1);
 	}
@@ -710,6 +715,8 @@ void CSifCmd::SifCallRpc(CMIPS& context)
 	memset(&callPacket, 0, sizeof(SIFRPCCALL));
 	callPacket.header.commandId  = SIF_CMD_CALL;
 	callPacket.header.packetSize = sizeof(SIFRPCCALL);
+	callPacket.header.destSize   = sendSize;
+	callPacket.header.dest       = clientData->buffPtr;
 	callPacket.rpcNumber         = rpcNumber;
 	callPacket.sendSize          = sendSize;
 	callPacket.recv              = recvAddr;
