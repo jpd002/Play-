@@ -497,11 +497,11 @@ void CSifCmd::ProcessRpcRequestEnd(uint32 commandHeaderAddr)
 	//Unlock/delete semaphore
 	{
 		assert(clientData->header.semaId != 0);
-		int32 result = 0;
+		int32 result = CIopBios::KERNEL_RESULT_OK;
 		result = m_bios.SignalSemaphore(clientData->header.semaId, true);
-		assert(result == 0);
+		assert(result == CIopBios::KERNEL_RESULT_OK);
 		result = m_bios.DeleteSemaphore(clientData->header.semaId);
-		assert(result == 0);
+		assert(result == CIopBios::KERNEL_RESULT_OK);
 		clientData->header.semaId = 0;
 	}
 }
@@ -662,7 +662,9 @@ uint32 CSifCmd::SifBindRpc(uint32 clientDataAddr, uint32 serverId, uint32 mode)
 	auto clientData = reinterpret_cast<SIFRPCCLIENTDATA*>(m_ram + clientDataAddr);
 	clientData->serverDataAddr = serverId;
 	clientData->header.semaId = m_bios.CreateSemaphore(0, 1);
-	m_bios.WaitSemaphore(clientData->header.semaId);
+	int32 result = CIopBios::KERNEL_RESULT_OK;
+	result = m_bios.WaitSemaphore(clientData->header.semaId);
+	assert(result == CIopBios::KERNEL_RESULT_OK);
 
 	SIFRPCBIND bindPacket;
 	memset(&bindPacket, 0, sizeof(SIFRPCBIND));
@@ -699,7 +701,9 @@ void CSifCmd::SifCallRpc(CMIPS& context)
 	clientData->endFctPtr = endFctAddr;
 	clientData->endParam = endParam;
 	clientData->header.semaId = m_bios.CreateSemaphore(0, 1);
-	m_bios.WaitSemaphore(clientData->header.semaId);
+	int32 result = CIopBios::KERNEL_RESULT_OK;
+	result = m_bios.WaitSemaphore(clientData->header.semaId);
+	assert(result == CIopBios::KERNEL_RESULT_OK);
 
 	{
 		auto dmaReg = reinterpret_cast<SIFDMAREG*>(m_ram + m_sendCmdExtraStructAddr);
