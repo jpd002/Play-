@@ -6,6 +6,12 @@ using namespace Iop;
 
 #define LOG_NAME		("iop_modload")
 
+#define FUNCTION_LOADSTARTMODULE       "LoadStartModule"
+#define FUNCTION_STARTMODULE           "StartModule"
+#define FUNCTION_LOADMODULEBUFFER      "LoadModuleBuffer"
+#define FUNCTION_GETMODULEIDLIST       "GetModuleIdList"
+#define FUNCTION_REFERMODULESTATUS     "ReferModuleStatus"
+
 CModload::CModload(CIopBios& bios, uint8* ram)
 : m_bios(bios)
 , m_ram(ram)
@@ -23,19 +29,19 @@ std::string CModload::GetFunctionName(unsigned int functionId) const
 	switch(functionId)
 	{
 	case 7:
-		return "LoadStartModule";
+		return FUNCTION_LOADSTARTMODULE;
 		break;
 	case 8:
-		return "StartModule";
+		return FUNCTION_STARTMODULE;
 		break;
 	case 10:
-		return "LoadModuleBuffer";
+		return FUNCTION_LOADMODULEBUFFER;
 		break;
 	case 16:
-		return "GetModuleIdList";
+		return FUNCTION_GETMODULEIDLIST;
 		break;
 	case 17:
-		return "ReferModuleStatus";
+		return FUNCTION_REFERMODULESTATUS;
 		break;
 	default:
 		return "unknown";
@@ -108,7 +114,7 @@ uint32 CModload::StartModule(uint32 moduleId, uint32 pathPtr, uint32 argsLength,
 {
 	const char* path = reinterpret_cast<const char*>(m_ram + pathPtr);
 	const char* args = reinterpret_cast<const char*>(m_ram + argsPtr);
-	CLog::GetInstance().Print(LOG_NAME, "StartModule(moduleId = %d, path = '%s', argsLength = %d, argsPtr = 0x%0.8X, resultPtr = 0x%0.8X);\r\n",
+	CLog::GetInstance().Print(LOG_NAME, FUNCTION_STARTMODULE "(moduleId = %d, path = '%s', argsLength = %d, argsPtr = 0x%0.8X, resultPtr = 0x%0.8X);\r\n",
 		moduleId, path, argsLength, argsPtr, resultPtr);
 	auto result = m_bios.StartModule(moduleId, path, args, argsLength);
 	return result;
@@ -116,7 +122,7 @@ uint32 CModload::StartModule(uint32 moduleId, uint32 pathPtr, uint32 argsLength,
 
 uint32 CModload::LoadModuleBuffer(uint32 modBufPtr)
 {
-	CLog::GetInstance().Print(LOG_NAME, "LoadModuleBuffer(modBufPtr = 0x%0.8X);\r\n",
+	CLog::GetInstance().Print(LOG_NAME, FUNCTION_LOADMODULEBUFFER "(modBufPtr = 0x%0.8X);\r\n",
 		modBufPtr);
 	assert((modBufPtr & 0x03) == 0);
 	auto result = m_bios.LoadModule(modBufPtr);
@@ -125,7 +131,7 @@ uint32 CModload::LoadModuleBuffer(uint32 modBufPtr)
 
 uint32 CModload::GetModuleIdList(uint32 readBufPtr, uint32 readBufSize, uint32 moduleCountPtr)
 {
-	CLog::GetInstance().Print(LOG_NAME, "GetModuleIdList(readBufPtr = 0x%0.8X, readBufSize = 0x%0.8X, moduleCountPtr = 0x%0.8X);\r\n",
+	CLog::GetInstance().Print(LOG_NAME, FUNCTION_GETMODULEIDLIST "(readBufPtr = 0x%0.8X, readBufSize = 0x%0.8X, moduleCountPtr = 0x%0.8X);\r\n",
 		readBufPtr, readBufSize, moduleCountPtr);
 	auto moduleCount = (moduleCountPtr != 0) ? reinterpret_cast<uint32*>(m_ram + moduleCountPtr) : nullptr;
 	if(moduleCount)
