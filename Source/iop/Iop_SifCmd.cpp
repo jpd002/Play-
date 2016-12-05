@@ -454,6 +454,10 @@ void CSifCmd::ProcessCustomCommand(uint32 commandHeaderAddr)
 	case SIF_CMD_SETSREG:
 		ProcessSetSreg(commandHeaderAddr);
 		break;
+	case 0x80000004:
+		//No clue what this is used for, but seems to be used after "WriteToIop" is used.
+		//Could be FlushCache or something like that
+		break;
 	case SIF_CMD_REND:
 		ProcessRpcRequestEnd(commandHeaderAddr);
 		break;
