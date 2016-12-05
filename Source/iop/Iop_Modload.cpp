@@ -6,14 +6,9 @@ using namespace Iop;
 
 #define LOG_NAME		("iop_modload")
 
-CModload::CModload(CIopBios& bios, uint8* ram) 
+CModload::CModload(CIopBios& bios, uint8* ram)
 : m_bios(bios)
 , m_ram(ram)
-{
-
-}
-
-CModload::~CModload()
 {
 
 }
@@ -75,7 +70,7 @@ void CModload::Invoke(CMIPS& context, unsigned int functionId)
 		));
 		break;
 	case 16:
-		context.m_State.nGPR[CMIPS::V0].nD0 = static_cast<uint32>(GetModuleIdList(
+		context.m_State.nGPR[CMIPS::V0].nD0 = static_cast<int32>(GetModuleIdList(
 			context.m_State.nGPR[CMIPS::A0].nV0,
 			context.m_State.nGPR[CMIPS::A1].nV0,
 			context.m_State.nGPR[CMIPS::A2].nV0

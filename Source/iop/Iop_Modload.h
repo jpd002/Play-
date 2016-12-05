@@ -10,7 +10,7 @@ namespace Iop
 	{
 	public:
 						CModload(CIopBios&, uint8*);
-		virtual			~CModload();
+		virtual			~CModload() = default;
 
 		std::string		GetId() const override;
 		std::string		GetFunctionName(unsigned int) const override;
