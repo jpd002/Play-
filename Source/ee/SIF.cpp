@@ -389,12 +389,12 @@ void CSIF::LoadState_RequestEnd(const CStructFile& file, SIFRPCREQUESTEND& reque
 //SIF Commands
 /////////////////////////////////////////////////////////
 
-void CSIF::Cmd_SetEERecvAddr(SIFCMDHEADER* hdr)
+void CSIF::Cmd_SetEERecvAddr(const SIFCMDHEADER* hdr)
 {
 	assert(0);
 }
 
-void CSIF::Cmd_Initialize(SIFCMDHEADER* hdr)
+void CSIF::Cmd_Initialize(const SIFCMDHEADER* hdr)
 {
 	struct INIT
 	{
@@ -428,9 +428,9 @@ void CSIF::Cmd_Initialize(SIFCMDHEADER* hdr)
 	}
 }
 
-void CSIF::Cmd_Bind(SIFCMDHEADER* hdr)
+void CSIF::Cmd_Bind(const SIFCMDHEADER* hdr)
 {
-	auto bind = reinterpret_cast<SIFRPCBIND*>(hdr);
+	auto bind = reinterpret_cast<const SIFRPCBIND*>(hdr);
 
 	SIFRPCREQUESTEND rend;
 	memset(&rend, 0, sizeof(SIFRPCREQUESTEND));
@@ -461,9 +461,9 @@ void CSIF::Cmd_Bind(SIFCMDHEADER* hdr)
 	}
 }
 
-void CSIF::Cmd_Call(SIFCMDHEADER* hdr)
+void CSIF::Cmd_Call(const SIFCMDHEADER* hdr)
 {
-	auto call = reinterpret_cast<SIFRPCCALL*>(hdr);
+	auto call = reinterpret_cast<const SIFRPCCALL*>(hdr);
 	bool sendReply = true;
 
 	CLog::GetInstance().Print(LOG_NAME, "Calling function 0x%0.8X of module 0x%0.8X.\r\n", call->rpcNumber, call->serverDataAddr);
@@ -514,9 +514,9 @@ void CSIF::Cmd_Call(SIFCMDHEADER* hdr)
 	}
 }
 
-void CSIF::Cmd_GetOtherData(SIFCMDHEADER* hdr)
+void CSIF::Cmd_GetOtherData(const SIFCMDHEADER* hdr)
 {
-	auto otherData = reinterpret_cast<SIFRPCOTHERDATA*>(hdr);
+	auto otherData = reinterpret_cast<const SIFRPCOTHERDATA*>(hdr);
 
 	CLog::GetInstance().Print(LOG_NAME, "GetOtherData(dstPtr = 0x%0.8X, srcPtr = 0x%0.8X, size = 0x%0.8X);\r\n",
 		otherData->dstPtr, otherData->srcPtr, otherData->size);

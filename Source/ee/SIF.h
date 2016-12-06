@@ -73,11 +73,11 @@ private:
 	void							LoadState_RpcCall(const CStructFile&, SIFRPCCALL&);
 	void							LoadState_RequestEnd(const CStructFile&, SIFRPCREQUESTEND&);
 
-	void							Cmd_SetEERecvAddr(SIFCMDHEADER*);
-	void							Cmd_Initialize(SIFCMDHEADER*);
-	void							Cmd_Bind(SIFCMDHEADER*);
-	void							Cmd_Call(SIFCMDHEADER*);
-	void							Cmd_GetOtherData(SIFCMDHEADER*);
+	void							Cmd_SetEERecvAddr(const SIFCMDHEADER*);
+	void							Cmd_Initialize(const SIFCMDHEADER*);
+	void							Cmd_Bind(const SIFCMDHEADER*);
+	void							Cmd_Call(const SIFCMDHEADER*);
+	void							Cmd_GetOtherData(const SIFCMDHEADER*);
 
 	uint8*							m_eeRam;
 	uint8*							m_iopRam;
