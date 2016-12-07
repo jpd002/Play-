@@ -192,7 +192,8 @@
 	}
 	else
 	{
-		m_value = [[NSString alloc] initWithUTF8String: preferenceValue];
+		m_value = [[NSFileManager defaultManager] stringWithFileSystemRepresentation:preferenceValue length:strlen(preferenceValue)];
+		[m_value retain];
 	}
 	return self;
 }

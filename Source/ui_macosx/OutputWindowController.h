@@ -13,8 +13,8 @@
 }
 
 @property(assign, nonatomic) IBOutlet NSOpenGLView* openGlView;
+@property(assign, nonatomic) id<OutputWindowDelegate> delegate;
 
--(void)setDelegate: (id<OutputWindowDelegate>)delegate;
 -(NSSize)contentSize;
 
 @end
