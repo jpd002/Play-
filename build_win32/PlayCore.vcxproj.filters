@@ -454,6 +454,9 @@
     <ClCompile Include="..\Source\iop\Iop_Thvpool.cpp">
       <Filter>Source Files\Iop</Filter>
     </ClCompile>
+    <ClCompile Include="..\Source\iop\Iop_Heaplib.cpp">
+      <Filter>Source Files\Iop</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Source\AppConfig.h">
@@ -902,6 +905,9 @@
     </ClInclude>
     <ClInclude Include="..\Source\gs\GsTextureCache.h">
       <Filter>Source Files\Gs</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\iop\Iop_Heaplib.h">
+      <Filter>Source Files\Iop</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

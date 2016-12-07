@@ -26,6 +26,7 @@
 #include "Iop_Thvpool.h"
 #include "Iop_Thmsgbx.h"
 #include "Iop_Thevent.h"
+#include "Iop_Heaplib.h"
 #include "Iop_Timrman.h"
 #include "Iop_Intrman.h"
 #include "Iop_Vblank.h"
@@ -182,6 +183,9 @@ void CIopBios::Reset(const Iop::SifManPtr& sifMan)
 	}
 	{
 		RegisterModule(std::make_shared<Iop::CThevent>(*this, m_ram));
+	}
+	{
+		RegisterModule(std::make_shared<Iop::CHeaplib>(*m_sysmem));
 	}
 	{
 		RegisterModule(std::make_shared<Iop::CTimrman>(*this));
