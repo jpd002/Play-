@@ -10,6 +10,9 @@ using namespace Iop;
 
 #define PREF_IOP_FILEIO_STDLOGGING ("iop.fileio.stdlogging")
 
+#define FUNCTION_ADDDRV    "AddDrv"
+#define FUNCTION_DELDRV    "DelDrv"
+
 CIoman::CIoman(uint8* ram)
 : m_ram(ram)
 , m_nextFileHandle(3)
@@ -71,6 +74,12 @@ std::string CIoman::GetFunctionName(unsigned int functionId) const
 		break;
 	case 16:
 		return "getstat";
+		break;
+	case 20:
+		return FUNCTION_ADDDRV;
+		break;
+	case 21:
+		return FUNCTION_DELDRV;
 		break;
 	default:
 		return "unknown";
@@ -242,14 +251,14 @@ uint32 CIoman::GetStat(const char* path, STAT* stat)
 
 uint32 CIoman::AddDrv(uint32 drvPtr)
 {
-	CLog::GetInstance().Print(LOG_NAME, "AddDrv(drvPtr = 0x%0.8X);\r\n",
+	CLog::GetInstance().Print(LOG_NAME, FUNCTION_ADDDRV "(drvPtr = 0x%0.8X);\r\n",
 		drvPtr);
 	return -1;
 }
 
 uint32 CIoman::DelDrv(uint32 drvPtr)
 {
-	CLog::GetInstance().Print(LOG_NAME, "DelDrv(drvPtr = 0x%0.8X);\r\n",
+	CLog::GetInstance().Print(LOG_NAME, FUNCTION_DELDRV "(drvPtr = 0x%0.8X);\r\n",
 		drvPtr);
 	return -1;
 }
