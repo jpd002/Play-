@@ -192,8 +192,7 @@
 	}
 	else
 	{
-		m_value = [[NSFileManager defaultManager] stringWithFileSystemRepresentation:preferenceValue length:strlen(preferenceValue)];
-		[m_value retain];
+		m_value = [[NSString alloc] initWithUTF8String: preferenceValue];
 	}
 	return self;
 }
@@ -236,7 +235,7 @@
 
 -(void)save
 {
-	CAppConfig::GetInstance().SetPreferenceString(PS2VM_CDROM0PATH, [m_value fileSystemRepresentation]);
+	CAppConfig::GetInstance().SetPreferenceString(PS2VM_CDROM0PATH, [m_value UTF8String]);
 }
 
 @end
