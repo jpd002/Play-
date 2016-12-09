@@ -26,4 +26,9 @@
 		<Patch Address="0x002751B4" Value="0x00000000" Description="Nullify spin wait" />
 	</Executable>
 	
+	
+	<Executable Name="SLUS_212.74;1" Title="Outrun" Region="US">
+		<Patch Address="0x00141C88" Value="0x1000000A" Description="Disable NET SIF bind." />
+	</Executable>
+	
 </Patches>
