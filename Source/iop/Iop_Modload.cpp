@@ -6,11 +6,15 @@ using namespace Iop;
 
 #define LOG_NAME		("iop_modload")
 
+//TODO: Move this in CIopBios
+#define KERNEL_RESULT_ERROR_UNKNOWN_MODULE -202
+
 #define FUNCTION_LOADSTARTMODULE       "LoadStartModule"
 #define FUNCTION_STARTMODULE           "StartModule"
 #define FUNCTION_LOADMODULEBUFFER      "LoadModuleBuffer"
 #define FUNCTION_GETMODULEIDLIST       "GetModuleIdList"
 #define FUNCTION_REFERMODULESTATUS     "ReferModuleStatus"
+#define FUNCTION_SEARCHMODULEBYNAME    "SearchModuleByName"
 
 CModload::CModload(CIopBios& bios, uint8* ram)
 : m_bios(bios)
@@ -42,6 +46,9 @@ std::string CModload::GetFunctionName(unsigned int functionId) const
 		break;
 	case 17:
 		return FUNCTION_REFERMODULESTATUS;
+		break;
+	case 22:
+		return FUNCTION_SEARCHMODULEBYNAME;
 		break;
 	default:
 		return "unknown";
@@ -81,6 +88,17 @@ void CModload::Invoke(CMIPS& context, unsigned int functionId)
 			context.m_State.nGPR[CMIPS::A1].nV0,
 			context.m_State.nGPR[CMIPS::A2].nV0
 		));
+		break;
+	case 17:
+		context.m_State.nGPR[CMIPS::V0].nD0 = ReferModuleStatus(
+			context.m_State.nGPR[CMIPS::A0].nV0,
+			context.m_State.nGPR[CMIPS::A1].nV0
+		);
+		break;
+	case 22:
+		context.m_State.nGPR[CMIPS::V0].nD0 = SearchModuleByName(
+			context.m_State.nGPR[CMIPS::A0].nV0
+		);
 		break;
 	default:
 		CLog::GetInstance().Print(LOG_NAME, "(%0.8X): Unknown function (%d) called.\r\n", 
@@ -139,4 +157,18 @@ uint32 CModload::GetModuleIdList(uint32 readBufPtr, uint32 readBufSize, uint32 m
 		(*moduleCount) = 0;
 	}
 	return 0;
+}
+
+int32 CModload::ReferModuleStatus(uint32 moduleId, uint32 moduleStatusPtr)
+{
+	CLog::GetInstance().Print(LOG_NAME, FUNCTION_REFERMODULESTATUS "(moduleId = %d, moduleStatusPtr = 0x%0.8X);\r\n",
+		moduleId, moduleStatusPtr);
+	return KERNEL_RESULT_ERROR_UNKNOWN_MODULE;
+}
+
+int32 CModload::SearchModuleByName(uint32 moduleNamePtr)
+{
+	CLog::GetInstance().Print(LOG_NAME, FUNCTION_SEARCHMODULEBYNAME "(moduleNamePtr = %s);\r\n",
+		PrintStringParameter(m_ram, moduleNamePtr).c_str());
+	return KERNEL_RESULT_ERROR_UNKNOWN_MODULE;
 }
