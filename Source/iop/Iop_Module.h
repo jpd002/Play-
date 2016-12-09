@@ -14,6 +14,7 @@ namespace Iop
 		virtual std::string		GetFunctionName(unsigned int) const = 0;
 		virtual void			Invoke(CMIPS&, unsigned int) = 0;
 
+		static std::string		PrintStringParameter(const uint8*, uint32);
 	};
 
 	typedef std::shared_ptr<CModule> ModulePtr;

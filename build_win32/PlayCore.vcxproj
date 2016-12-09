@@ -99,6 +99,7 @@
     <ClCompile Include="..\Source\iop\Iop_Loadcore.cpp" />
     <ClCompile Include="..\Source\iop\Iop_McServ.cpp" />
     <ClCompile Include="..\Source\iop\Iop_Modload.cpp" />
+    <ClCompile Include="..\Source\iop\Iop_Module.cpp" />
     <ClCompile Include="..\Source\iop\Iop_MtapMan.cpp" />
     <ClCompile Include="..\Source\iop\Iop_PadMan.cpp" />
     <ClCompile Include="..\Source\iop\Iop_RootCounters.cpp" />

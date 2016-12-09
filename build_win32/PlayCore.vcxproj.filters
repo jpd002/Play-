@@ -457,6 +457,9 @@
     <ClCompile Include="..\Source\iop\Iop_Heaplib.cpp">
       <Filter>Source Files\Iop</Filter>
     </ClCompile>
+    <ClCompile Include="..\Source\iop\Iop_Module.cpp">
+      <Filter>Source Files\Iop</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Source\AppConfig.h">

@@ -256,10 +256,10 @@ uint32 CIoman::AddDrv(uint32 drvPtr)
 	return -1;
 }
 
-uint32 CIoman::DelDrv(uint32 drvPtr)
+uint32 CIoman::DelDrv(uint32 drvNamePtr)
 {
-	CLog::GetInstance().Print(LOG_NAME, FUNCTION_DELDRV "(drvPtr = 0x%0.8X);\r\n",
-		drvPtr);
+	CLog::GetInstance().Print(LOG_NAME, FUNCTION_DELDRV "(drvNamePtr = %s);\r\n",
+		PrintStringParameter(m_ram, drvNamePtr).c_str());
 	return -1;
 }
 
