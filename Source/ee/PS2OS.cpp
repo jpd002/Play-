@@ -128,6 +128,7 @@
 #define SYSCALL_NAME_GSGETIMR				"osGsGetIMR"
 #define SYSCALL_NAME_GSPUTIMR				"osGsPutIMR"
 #define SYSCALL_NAME_SETVSYNCFLAG			"osSetVSyncFlag"
+#define SYSCALL_NAME_SETSYSCALL				"osSetSyscall"
 #define SYSCALL_NAME_SIFDMASTAT				"osSifDmaStat"
 #define SYSCALL_NAME_SIFSETDMA				"osSifSetDma"
 #define SYSCALL_NAME_SIFSETDCHAIN			"osSifSetDChain"
@@ -190,6 +191,7 @@ const CPS2OS::SYSCALL_NAME	CPS2OS::g_syscallNames[] =
 	{	0x0070,		SYSCALL_NAME_GSGETIMR				},
 	{	0x0071,		SYSCALL_NAME_GSPUTIMR				},
 	{	0x0073,		SYSCALL_NAME_SETVSYNCFLAG			},
+	{	0x0074,		SYSCALL_NAME_SETSYSCALL				},
 	{	0x0076,		SYSCALL_NAME_SIFDMASTAT				},
 	{	0x0077,		SYSCALL_NAME_SIFSETDMA				},
 	{	0x0078,		SYSCALL_NAME_SIFSETDCHAIN			},
@@ -3015,7 +3017,7 @@ std::string CPS2OS::GetSysCallDescription(uint8 function)
 			m_ee.m_State.nGPR[SC_PARAM1].nV[0]);
 		break;
 	case 0x74:
-		sprintf(description, "SetSyscall(num = 0x%0.2X, address = 0x%0.8X);", \
+		sprintf(description, SYSCALL_NAME_SETSYSCALL "(num = 0x%0.2X, address = 0x%0.8X);", \
 			m_ee.m_State.nGPR[SC_PARAM0].nV[0], \
 			m_ee.m_State.nGPR[SC_PARAM1].nV[0]);
 		break;
