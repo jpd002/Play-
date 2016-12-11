@@ -139,7 +139,8 @@ uint32 CIoman::Close(uint32 handle)
 		}
 		delete file->second;
 		m_files.erase(file);
-		result = 0;
+		//Returns handle instead of 0 (needed by Naruto: Ultimate Ninja 2)
+		result = handle;
 	}
 	catch(const std::exception& except)
 	{
