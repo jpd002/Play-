@@ -216,9 +216,7 @@ void CIopBios::Reset(const Iop::SifManPtr& sifMan)
 		m_cdvdfsv = std::make_shared<Iop::CCdvdfsv>(*m_sifMan, *m_cdvdman, m_ram);
 		RegisterModule(m_cdvdfsv);
 	}
-	{
-		RegisterModule(std::make_shared<Iop::CMcServ>(*m_sifMan));
-	}
+	RegisterModule(std::make_shared<Iop::CMcServ>(*m_sifMan));
 	{
 		m_padman = std::make_shared<Iop::CPadMan>();
 		m_mtapman = std::make_shared<Iop::CMtapMan>();
@@ -556,7 +554,7 @@ int32 CIopBios::LoadModule(const char* path)
 		return -1;
 	}
 	Iop::CIoman::CFile file(handle, *m_ioman);
-	Framework::CStream* stream = m_ioman->GetFileStream(file);
+	auto stream = m_ioman->GetFileStream(file);
 	CElfFile module(*stream);
 	return LoadModule(module, path);
 }
