@@ -382,73 +382,41 @@ uint32 CCore::WriteRegisterChannel(unsigned int channelId, uint32 address, uint3
 
 void CCore::LogRead(uint32 address, uint32 value)
 {
-	const char* logName = m_logName.c_str();
+	auto logName = m_logName.c_str();
+#define LOG_GET(registerId) case registerId: CLog::GetInstance().Print(logName, "= " #registerId " = 0x%0.4X\r\n", value); break;
+
 	switch(address)
 	{
-	case CORE_ATTR:
-		CLog::GetInstance().Print(logName, "= CORE_ATTR\r\n");
-		break;
-	case STATX:
-		CLog::GetInstance().Print(logName, "= STATX\r\n");
-		break;
-	case S_PMON_HI:
-		CLog::GetInstance().Print(logName, "= S_PMON_HI = 0x%0.4X.\r\n", value);
-		break;
-	case S_PMON_LO:
-		CLog::GetInstance().Print(logName, "= S_PMON_LO = 0x%0.4X.\r\n", value);
-		break;
-	case S_NON_HI:
-		CLog::GetInstance().Print(logName, "= S_NON_HI = 0x%0.4X.\r\n", value);
-		break;
-	case S_NON_LO:
-		CLog::GetInstance().Print(logName, "= S_NON_LO = 0x%0.4X.\r\n", value);
-		break;
-	case S_VMIXL_HI:
-		CLog::GetInstance().Print(logName, "= S_VMIXL_HI = 0x%0.4X.\r\n", value);
-		break;
-	case S_VMIXL_LO:
-		CLog::GetInstance().Print(logName, "= S_VMIXL_LO = 0x%0.4X.\r\n", value);
-		break;
-	case S_VMIXEL_HI:
-		CLog::GetInstance().Print(logName, "= S_VMIXEL_HI = 0x%0.4X.\r\n", value);
-		break;
-	case S_VMIXEL_LO:
-		CLog::GetInstance().Print(logName, "= S_VMIXEL_LO = 0x%0.4X.\r\n", value);
-		break;
-	case S_VMIXR_HI:
-		CLog::GetInstance().Print(logName, "= S_VMIXR_HI = 0x%0.4X.\r\n", value);
-		break;
-	case S_VMIXR_LO:
-		CLog::GetInstance().Print(logName, "= S_VMIXR_LO = 0x%0.4X.\r\n", value);
-		break;
-	case S_VMIXER_HI:
-		CLog::GetInstance().Print(logName, "= S_VMIXER_HI = 0x%0.4X.\r\n", value);
-		break;
-	case S_VMIXER_LO:
-		CLog::GetInstance().Print(logName, "= S_VMIXER_LO = 0x%0.4X.\r\n", value);
-		break;
-	case S_ENDX_HI:
-		CLog::GetInstance().Print(logName, "= S_ENDX_HI = 0x%0.4X.\r\n", value);
-		break;
-	case S_ENDX_LO:
-		CLog::GetInstance().Print(logName, "= S_ENDX_LO = 0x%0.4X.\r\n", value);
-		break;
-	case A_TSA_HI:
-		CLog::GetInstance().Print(logName, "= A_TSA_HI = 0x%0.4X.\r\n", value);
-		break;
-	case A_TS_MODE:
-		CLog::GetInstance().Print(logName, "= A_TS_MODE = 0x%0.4X.\r\n", value);
-		break;
-	case A_ESA_LO:
-		CLog::GetInstance().Print(logName, "= A_ESA_LO = 0x%0.4X.\r\n", value);
-		break;
-	case A_EEA_HI:
-		CLog::GetInstance().Print(logName, "= A_EEA_HI = 0x%0.4X.\r\n", value);
-		break;
+		LOG_GET(CORE_ATTR)
+		LOG_GET(STATX)
+		LOG_GET(S_PMON_HI)
+		LOG_GET(S_PMON_LO)
+		LOG_GET(S_NON_HI)
+		LOG_GET(S_NON_LO)
+		LOG_GET(S_VMIXL_HI)
+		LOG_GET(S_VMIXL_LO)
+		LOG_GET(S_VMIXEL_HI)
+		LOG_GET(S_VMIXEL_LO)
+		LOG_GET(S_VMIXR_HI)
+		LOG_GET(S_VMIXR_LO)
+		LOG_GET(S_VMIXER_HI)
+		LOG_GET(S_VMIXER_LO)
+		LOG_GET(S_ENDX_HI)
+		LOG_GET(S_ENDX_LO)
+		LOG_GET(A_TSA_HI)
+		LOG_GET(A_TSA_LO)
+		LOG_GET(A_TS_MODE)
+		LOG_GET(A_ESA_HI)
+		LOG_GET(A_ESA_LO)
+		LOG_GET(A_EEA_HI)
+		LOG_GET(A_EEA_LO)
+
 	default:
 		CLog::GetInstance().Print(logName, "Read an unknown register 0x%0.4X.\r\n", address);
 		break;
 	}
+
+#undef LOG_GET
 }
 
 void CCore::LogWrite(uint32 address, uint32 value)
