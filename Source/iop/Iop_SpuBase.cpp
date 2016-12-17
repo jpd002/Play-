@@ -601,8 +601,8 @@ void CSpuBase::Render(int16* samples, unsigned int sampleCount, unsigned int sam
 				inputSample = (inputSample * static_cast<int32>(channel.adsrVolume >> 16)) / static_cast<int32>(MAX_ADSR_VOLUME >> 16);
 			}
 
-			channel.volumeLeftAbs	= ComputeChannelVolume(channel.volumeLeft, channel.volumeLeftAbs);
-			channel.volumeRightAbs	= ComputeChannelVolume(channel.volumeRight, channel.volumeRightAbs);
+			channel.volumeLeftAbs  = ComputeChannelVolume(channel.volumeLeft, channel.volumeLeftAbs);
+			channel.volumeRightAbs = ComputeChannelVolume(channel.volumeRight, channel.volumeRightAbs);
 
 			int32 adjustedLeftVolume = std::min<int32>(0x7FFF, static_cast<int32>(static_cast<float>(channel.volumeLeftAbs >> 16) * m_volumeAdjust));
 			int32 adjustedRightVolume = std::min<int32>(0x7FFF, static_cast<int32>(static_cast<float>(channel.volumeRightAbs >> 16) * m_volumeAdjust));
@@ -611,7 +611,7 @@ void CSpuBase::Render(int16* samples, unsigned int sampleCount, unsigned int sam
 			//Mix in reverb if enabled for this channel
 			if(m_reverbEnabled && (m_channelReverb.f & (1 << i)))
 			{
-				MixSamples(inputSample, adjustedLeftVolume,	reverbSample + 0);
+				MixSamples(inputSample, adjustedLeftVolume, reverbSample + 0);
 				MixSamples(inputSample, adjustedRightVolume, reverbSample + 1);
 			}
 		}
@@ -701,7 +701,7 @@ void CSpuBase::Render(int16* samples, unsigned int sampleCount, unsigned int sam
 					//buffer[MIX_DEST_A0] = ACC0 - FB_A0 * FB_ALPHA;
 					//buffer[MIX_DEST_A1] = ACC1 - FB_A1 * FB_ALPHA;
 					//buffer[MIX_DEST_B0] = (FB_ALPHA * ACC0) - FB_A0 * (FB_ALPHA^0x8000) - FB_B0 * FB_X;
-					//buffer[MIX_DEST_B1] = (FB_ALPHA * ACC1) - FB_A1 * (FB_ALPHA^0x8000) - FB_B1 * FB_X;	
+					//buffer[MIX_DEST_B1] = (FB_ALPHA * ACC1) - FB_A1 * (FB_ALPHA^0x8000) - FB_B1 * FB_X;
 
 					float fb_alpha = GetReverbCoef(FB_ALPHA);
 					float fb_x = GetReverbCoef(FB_X);
