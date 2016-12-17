@@ -46,6 +46,7 @@ namespace Iop
 				S_VMIXR_LO		= 0x1F900192,
 				S_VMIXER_HI		= 0x1F900194,
 				S_VMIXER_LO		= 0x1F900196,
+				P_MMIX			= 0x1F900198,
 				CORE_ATTR		= 0x1F90019A,
 				A_IRQA_HI		= 0x1F90019C,
 				A_IRQA_LO		= 0x1F90019E,
@@ -74,6 +75,12 @@ namespace Iop
 				S_ENDX_HI		= 0x1F900340,
 				S_ENDX_LO		= 0x1F900342,
 				STATX			= 0x1F900344,
+				P_MVOLL			= 0x1F900760,		//Master volume
+				P_MVOLR			= 0x1F900762,
+				P_EVOLL			= 0x1F900764,		//Effect volume
+				P_EVOLR			= 0x1F900766,
+				P_BVOLL			= 0x1F90076C,		//Audio input volume
+				P_BVOLR			= 0x1F90076E,
 				RVB_C_REG_BASE	= 0x1F900774,
 				RVB_C_REG_END	= 0x1F900788,
 			};
