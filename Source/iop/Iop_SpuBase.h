@@ -223,7 +223,7 @@ namespace Iop
 		{
 		public:
 							CSampleReader();
-			virtual			~CSampleReader();
+			virtual			~CSampleReader() = default;
 
 			void			Reset();
 			void			SetMemory(uint8*, uint32);

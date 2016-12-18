@@ -898,11 +898,6 @@ CSpuBase::CSampleReader::CSampleReader()
 	Reset();
 }
 
-CSpuBase::CSampleReader::~CSampleReader()
-{
-
-}
-
 void CSpuBase::CSampleReader::Reset()
 {
 	m_nextSampleAddr = 0;
