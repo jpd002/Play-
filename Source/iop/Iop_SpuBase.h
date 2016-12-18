@@ -153,7 +153,7 @@ namespace Iop
 
 
 						CSpuBase(uint8*, uint32, unsigned int);
-		virtual			~CSpuBase();
+		virtual			~CSpuBase() = default;
 
 		void			Reset();
 

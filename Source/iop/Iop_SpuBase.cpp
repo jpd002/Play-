@@ -145,11 +145,6 @@ CSpuBase::CSpuBase(uint8* ram, uint32 ramSize, unsigned int spuNumber)
 	}
 }
 
-CSpuBase::~CSpuBase()
-{
-
-}
-
 void CSpuBase::Reset()
 {
 	m_ctrl = 0;
@@ -1033,11 +1028,11 @@ void CSpuBase::CSampleReader::UnpackSamples(int16* dst)
 	{
 		static const int32 predictorTable[5][2] =
 		{
-			{	0,		0		},
-			{   60,		0		},
-			{  115,		-52		},
-			{	98,		-55		},
-			{  122,		-60		},
+			{    0,       0  },
+			{   60,       0  },
+			{  115,     -52  },
+			{   98,     -55  },
+			{  122,     -60  },
 		};
 
 		for(unsigned int i = 0; i < BUFFER_SAMPLES; i++)
