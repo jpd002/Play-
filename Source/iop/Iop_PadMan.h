@@ -34,7 +34,7 @@ namespace Iop
 			MODULE_ID_1 = 0x80000100,
 			MODULE_ID_2 = 0x80000101,
 			MODULE_ID_3 = 0x8000010F,
-			MODULE_ID_4 = 0x0000011F,
+			MODULE_ID_4 = 0x8000011F,
 		};
 
 	private:

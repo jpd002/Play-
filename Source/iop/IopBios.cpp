@@ -538,6 +538,8 @@ int32 CIopBios::LoadModule(const char* path)
 #ifdef _IOP_EMULATE_MODULES
 	//HACK: This is needed to make 'doom.elf' read input properly
 	if(
+		!strcmp(path, "rom0:SIO2MAN") || 
+		!strcmp(path, "rom0:PADMAN") || 
 		!strcmp(path, "rom0:XSIO2MAN") || 
 		!strcmp(path, "rom0:XPADMAN")
 		)
