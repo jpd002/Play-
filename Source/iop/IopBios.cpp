@@ -15,6 +15,7 @@
 #include "Iop_Cdvdfsv.h"
 #include "Iop_McServ.h"
 #include "Iop_FileIo.h"
+#include "Iop_Naplink.h"
 #endif
 
 #include "Iop_SifManNull.h"
@@ -217,6 +218,7 @@ void CIopBios::Reset(const Iop::SifManPtr& sifMan)
 		RegisterModule(m_cdvdfsv);
 	}
 	RegisterModule(std::make_shared<Iop::CMcServ>(*m_sifMan));
+	//RegisterModule(std::make_shared<Iop::CNaplink>(*m_sifMan, *m_ioman));
 	{
 		m_padman = std::make_shared<Iop::CPadMan>();
 		m_mtapman = std::make_shared<Iop::CMtapMan>();
