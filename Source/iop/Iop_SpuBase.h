@@ -219,6 +219,14 @@ namespace Iop
 		static bool		g_reverbParamIsAddress[REVERB_PARAM_COUNT];
 
 	private:
+		enum
+		{
+			SOUND_INPUT_DATA_CORE0_BASE = 0x2000,
+			SOUND_INPUT_DATA_CORE1_BASE = 0x2400,
+			SOUND_INPUT_DATA_SIZE       = 0x400,
+			SOUND_INPUT_DATA_SAMPLES    = (SOUND_INPUT_DATA_SIZE / 4),
+		};
+
 		class CSampleReader
 		{
 		public:
@@ -273,6 +281,25 @@ namespace Iop
 			bool			m_didChangeRepeat;
 		};
 
+		class CBlockSampleReader
+		{
+		public:
+			void    Reset();
+			bool    CanReadSamples() const;
+
+			void    FillBlock(const uint8*);
+			void    GetSamples(int16&, int16&, unsigned int);
+
+		private:
+			enum
+			{
+				SRC_SAMPLING_RATE = 48000,
+			};
+
+			uint32 m_srcSampleIdx = 0;
+			uint8  m_blockBuffer[SOUND_INPUT_DATA_SIZE];
+		};
+
 		enum
 		{
 			MAX_ADSR_VOLUME = 0x7FFFFFFF,
@@ -312,5 +339,9 @@ namespace Iop
 		uint32				m_adsrLogTable[160];
 		bool				m_reverbEnabled;
 		float				m_volumeAdjust;
+
+		CBlockSampleReader	m_blockReader;
+		uint32				m_soundInputDataAddr = 0;
+		uint32				m_blockWritePtr = 0;
 	};
 }

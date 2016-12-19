@@ -172,6 +172,10 @@ void CSpuBase::Reset()
 		m_reader[i].Reset();
 		m_reader[i].SetMemory(m_ram, m_ramSize);
 	}
+
+	m_blockReader.Reset();
+	m_soundInputDataAddr = (m_spuNumber == 0) ? SOUND_INPUT_DATA_CORE0_BASE : SOUND_INPUT_DATA_CORE1_BASE;
+	m_blockWritePtr = 0;
 }
 
 void CSpuBase::LoadState(Framework::CZipArchiveReader& archive)
@@ -458,29 +462,50 @@ uint32 CSpuBase::ReceiveDma(uint8* buffer, uint32 blockSize, uint32 blockAmount)
 	CLog::GetInstance().Print(LOG_NAME, "Receiving DMA transfer to 0x%0.8X. Size = 0x%0.8X bytes.\r\n", 
 		m_transferAddr, blockSize * blockAmount);
 #endif
-	if(m_transferMode != TRANSFER_MODE_VOICE)
+	if(m_transferMode == TRANSFER_MODE_VOICE)
 	{
-		//CORE0/1 block modes should have transferAddr == 0
-		blockAmount = 1;
+		if((m_ctrl & CONTROL_DMA) == CONTROL_DMA_READ)
+		{
+			//DMA reads need to be throttled to allow FFX IopSoundDriver to properly synchronize itself
+			blockAmount = std::min<uint32>(blockAmount, 0x10);
+			return blockAmount;
+		}
+		unsigned int blocksTransfered = 0;
+		for(unsigned int i = 0; i < blockAmount; i++)
+		{
+			uint32 copySize = std::min<uint32>(m_ramSize - m_transferAddr, blockSize);
+			memcpy(m_ram + m_transferAddr, buffer, copySize);
+			m_transferAddr += blockSize;
+			m_transferAddr &= m_ramSize - 1;
+			buffer += blockSize;
+			blocksTransfered++;
+		}
+		return blocksTransfered;
+	}
+	else if(
+		(m_transferMode == TRANSFER_MODE_BLOCK_CORE0IN) ||
+		(m_transferMode == TRANSFER_MODE_BLOCK_CORE1IN)
+		)
+	{
+		assert(m_transferAddr == 0);
+		assert((m_spuNumber == 0) || !(m_transferMode == TRANSFER_MODE_BLOCK_CORE0IN));
+		assert((m_spuNumber == 1) || !(m_transferMode == TRANSFER_MODE_BLOCK_CORE1IN));
+		assert(m_blockWritePtr <= SOUND_INPUT_DATA_SIZE);
+
+		uint32 availableBytes = SOUND_INPUT_DATA_SIZE - m_blockWritePtr;
+		uint32 availableBlocks = availableBytes / blockSize;
+		blockAmount = std::min(blockAmount, availableBlocks);
+
+		uint32 dstAddr = m_soundInputDataAddr + m_blockWritePtr;
+		memcpy(m_ram + dstAddr, buffer, blockAmount * blockSize);
+		m_blockWritePtr += blockAmount * blockSize;
+
 		return blockAmount;
 	}
-	if((m_ctrl & CONTROL_DMA) == CONTROL_DMA_READ)
+	else
 	{
-		//DMA reads need to be throttled to allow FFX IopSoundDriver to properly synchronize itself
-		blockAmount = std::min<uint32>(blockAmount, 0x10);
-		return blockAmount;
+		return 1;
 	}
-	unsigned int blocksTransfered = 0;
-	for(unsigned int i = 0; i < blockAmount; i++)
-	{
-		uint32 copySize = std::min<uint32>(m_ramSize - m_transferAddr, blockSize);
-		memcpy(m_ram + m_transferAddr, buffer, copySize);
-		m_transferAddr += blockSize;
-		m_transferAddr &= m_ramSize - 1;
-		buffer += blockSize;
-		blocksTransfered++;
-	}
-	return blocksTransfered;
 }
 
 void CSpuBase::WriteWord(uint16 value)
@@ -612,6 +637,24 @@ void CSpuBase::Render(int16* samples, unsigned int sampleCount, unsigned int sam
 				MixSamples(inputSample, adjustedRightVolume, reverbSample + 1);
 			}
 		}
+
+		if(!m_blockReader.CanReadSamples() && (m_blockWritePtr == SOUND_INPUT_DATA_SIZE))
+		{
+			//We're ready to consume some data
+			m_blockReader.FillBlock(m_ram + m_soundInputDataAddr);
+			m_blockWritePtr = 0;
+		}
+
+		if(m_blockReader.CanReadSamples())
+		{
+			int16 sampleL = 0;
+			int16 sampleR = 0;
+			m_blockReader.GetSamples(sampleL, sampleR, sampleRate);
+
+			MixSamples(sampleL, 0x3FFF, samples + 0);
+			MixSamples(sampleR, 0x3FFF, samples + 1);
+		}
+
 		//Update reverb
 		if(updateReverb)
 		{
@@ -1122,4 +1165,38 @@ bool CSpuBase::CSampleReader::DidChangeRepeat() const
 void CSpuBase::CSampleReader::ClearDidChangeRepeat()
 {
 	m_didChangeRepeat = false;
+}
+
+///////////////////////////////////////////////////////
+// CBlockSampleReader
+///////////////////////////////////////////////////////
+
+void CSpuBase::CBlockSampleReader::Reset()
+{
+	m_srcSampleIdx = SOUND_INPUT_DATA_SAMPLES * TIME_SCALE;
+}
+
+bool CSpuBase::CBlockSampleReader::CanReadSamples() const
+{
+	uint32 sampleIdx = (m_srcSampleIdx / TIME_SCALE);
+	return (sampleIdx < SOUND_INPUT_DATA_SAMPLES);
+}
+
+void CSpuBase::CBlockSampleReader::FillBlock(const uint8* block)
+{
+	memcpy(m_blockBuffer, block, SOUND_INPUT_DATA_SIZE);
+	m_srcSampleIdx = 0;
+}
+
+void CSpuBase::CBlockSampleReader::GetSamples(int16& sampleL, int16& sampleR, unsigned int dstSamplingRate)
+{
+	uint32 srcSampleIdx = m_srcSampleIdx / TIME_SCALE;
+	int32 srcSampleAlpha = m_srcSampleIdx % TIME_SCALE;
+	assert(srcSampleIdx < SOUND_INPUT_DATA_SAMPLES);
+
+	auto inputSamples = reinterpret_cast<const int16*>(m_blockBuffer);
+	sampleL = inputSamples[0x000 + srcSampleIdx];
+	sampleR = inputSamples[0x100 + srcSampleIdx];
+
+	m_srcSampleIdx += (SRC_SAMPLING_RATE * TIME_SCALE) / dstSamplingRate;
 }
