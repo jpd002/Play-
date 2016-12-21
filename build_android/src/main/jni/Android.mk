@@ -104,12 +104,14 @@ LOCAL_SRC_FILES			:=	$(PROJECT_PATH)/Source/AppConfig.cpp \
 							$(PROJECT_PATH)/Source/iop/Iop_FileIoHandler1000.cpp \
 							$(PROJECT_PATH)/Source/iop/Iop_FileIoHandler2100.cpp \
 							$(PROJECT_PATH)/Source/iop/Iop_FileIoHandler2300.cpp \
+							$(PROJECT_PATH)/Source/iop/Iop_Heaplib.cpp \
 							$(PROJECT_PATH)/Source/iop/Iop_Intc.cpp \
 							$(PROJECT_PATH)/Source/iop/Iop_Intrman.cpp \
 							$(PROJECT_PATH)/Source/iop/Iop_Ioman.cpp \
 							$(PROJECT_PATH)/Source/iop/Iop_LibSd.cpp \
 							$(PROJECT_PATH)/Source/iop/Iop_Loadcore.cpp \
 							$(PROJECT_PATH)/Source/iop/Iop_McServ.cpp \
+							$(PROJECT_PATH)/Source/iop/Iop_Module.cpp \
 							$(PROJECT_PATH)/Source/iop/Iop_Modload.cpp \
 							$(PROJECT_PATH)/Source/iop/Iop_MtapMan.cpp \
 							$(PROJECT_PATH)/Source/iop/Iop_PadMan.cpp \
