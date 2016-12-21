@@ -17,7 +17,7 @@ const uint32 CCOP_FPU::m_ccMask[8] =
 	0x40000000,
 	0x80000000
 };
-
+dasdada
 CCOP_FPU::CCOP_FPU(MIPS_REGSIZE regSize)
 : CMIPSCoprocessor(regSize)
 {
