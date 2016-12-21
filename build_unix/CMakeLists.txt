@@ -125,13 +125,15 @@ add_library(Play
 	../Source/iop/Iop_FileIoHandler1000.cpp 
 	../Source/iop/Iop_FileIoHandler2100.cpp 
 	../Source/iop/Iop_FileIoHandler2300.cpp 
+	../Source/iop/Iop_Heaplib.cpp
 	../Source/iop/Iop_Intc.cpp 
 	../Source/iop/Iop_Intrman.cpp 
 	../Source/iop/Iop_Ioman.cpp 
 	../Source/iop/Iop_LibSd.cpp 
 	../Source/iop/Iop_Loadcore.cpp 
 	../Source/iop/Iop_McServ.cpp 
-	../Source/iop/Iop_Modload.cpp 
+	../Source/iop/Iop_Modload.cpp
+	../Source/iop/Iop_Module.cpp 
 	../Source/iop/Iop_MtapMan.cpp
 	../Source/iop/Iop_PadMan.cpp 
 	../Source/iop/Iop_RootCounters.cpp 
