@@ -1,6 +1,8 @@
 #ifndef _STDAFX_H_
 #define _STDAFX_H_
 
+#define NOMINMAX
+
 #include <windows.h>
 
 #include <string>
@@ -15,7 +17,6 @@
 
 #include <boost/signals2.hpp>
 #include <boost/lexical_cast.hpp>
-#include <boost/static_assert.hpp>
 #include <boost/filesystem/path.hpp>
 
 #include "Types.h"

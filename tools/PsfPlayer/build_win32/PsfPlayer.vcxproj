@@ -388,12 +388,14 @@
     <ClCompile Include="..\..\..\Source\iop\Iop_Dmac.cpp" />
     <ClCompile Include="..\..\..\Source\iop\Iop_DmacChannel.cpp" />
     <ClCompile Include="..\..\..\Source\iop\Iop_Dynamic.cpp" />
+    <ClCompile Include="..\..\..\Source\iop\Iop_Heaplib.cpp" />
     <ClCompile Include="..\..\..\Source\iop\Iop_Intc.cpp" />
     <ClCompile Include="..\..\..\Source\iop\Iop_Intrman.cpp" />
     <ClCompile Include="..\..\..\Source\iop\Iop_Ioman.cpp" />
     <ClCompile Include="..\..\..\Source\iop\Iop_LibSd.cpp" />
     <ClCompile Include="..\..\..\Source\iop\Iop_Loadcore.cpp" />
     <ClCompile Include="..\..\..\Source\iop\Iop_Modload.cpp" />
+    <ClCompile Include="..\..\..\Source\iop\Iop_Module.cpp" />
     <ClCompile Include="..\..\..\Source\iop\Iop_RootCounters.cpp" />
     <ClCompile Include="..\..\..\Source\iop\Iop_SifCmd.cpp" />
     <ClCompile Include="..\..\..\Source\iop\Iop_SifDynamic.cpp" />
@@ -634,6 +636,7 @@
     <ClInclude Include="..\..\..\Source\iop\Iop_Dmac.h" />
     <ClInclude Include="..\..\..\Source\iop\Iop_DmacChannel.h" />
     <ClInclude Include="..\..\..\Source\iop\Iop_Dynamic.h" />
+    <ClInclude Include="..\..\..\Source\iop\Iop_Heaplib.h" />
     <ClInclude Include="..\..\..\Source\iop\Iop_Intc.h" />
     <ClInclude Include="..\..\..\Source\iop\Iop_Intrman.h" />
     <ClInclude Include="..\..\..\Source\iop\Iop_Ioman.h" />
