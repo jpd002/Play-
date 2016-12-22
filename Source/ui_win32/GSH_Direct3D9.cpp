@@ -318,12 +318,15 @@ Framework::CBitmap CGSH_Direct3D9::CreateBitmapFromTexture(const TexturePtr& tex
 		{
 			switch(format)
 			{
+			case PSMCT16:
+				return 16;
 			case PSMT4:
 			case PSMT8:
 				return 8;
 			default:
+				assert(false);
+			case PSMCT32:
 				return 32;
-				break;
 			}
 		}();
 
@@ -333,6 +336,9 @@ Framework::CBitmap CGSH_Direct3D9::CreateBitmapFromTexture(const TexturePtr& tex
 	{
 	case 8:
 		CopyTextureToBitmap<uint8>(bitmap, texture, mipLevel);
+		break;
+	case 16:
+		CopyTextureToBitmap<uint16>(bitmap, texture, mipLevel);
 		break;
 	case 32:
 		CopyTextureToBitmap<uint32>(bitmap, texture, mipLevel);

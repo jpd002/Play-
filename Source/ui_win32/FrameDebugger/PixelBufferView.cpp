@@ -417,6 +417,8 @@ CPixelBufferView::TexturePtr CPixelBufferView::CreateTextureFromBitmap(const Fra
 				{
 				case 8:
 					return D3DFMT_L8;
+				case 16:
+					return D3DFMT_A1R5G5B5;
 				case 32:
 				default:
 					return D3DFMT_A8R8G8B8;
@@ -431,6 +433,9 @@ CPixelBufferView::TexturePtr CPixelBufferView::CreateTextureFromBitmap(const Fra
 		{
 		case 8:
 			CopyBitmapToTexture<uint8>(texture, 0, bitmap);
+			break;
+		case 16:
+			CopyBitmapToTexture<uint16>(texture, 0, bitmap);
 			break;
 		case 32:
 			CopyBitmapToTexture<uint32>(texture, 0, bitmap);

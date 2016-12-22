@@ -195,6 +195,7 @@ private:
 	void							SetupTextureUpdaters();
 	void							TexUpdater_Invalid(D3DLOCKED_RECT*, uint32, uint32, unsigned int, unsigned int, unsigned int, unsigned int);
 	void							TexUpdater_Psm32(D3DLOCKED_RECT*, uint32, uint32, unsigned int, unsigned int, unsigned int, unsigned int);
+	template <typename> void		TexUpdater_Psm16(D3DLOCKED_RECT*, uint32, uint32, unsigned int, unsigned int, unsigned int, unsigned int);
 	template <typename> void		TexUpdater_Psm48(D3DLOCKED_RECT*, uint32, uint32, unsigned int, unsigned int, unsigned int, unsigned int);
 
 	VertexShaderPtr					CreateVertexShader(SHADERCAPS);

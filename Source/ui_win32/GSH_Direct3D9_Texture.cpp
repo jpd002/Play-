@@ -13,6 +13,7 @@ void CGSH_Direct3D9::SetupTextureUpdaters()
 	}
 
 	m_textureUpdater[PSMCT32] = &CGSH_Direct3D9::TexUpdater_Psm32;
+	m_textureUpdater[PSMCT16] = &CGSH_Direct3D9::TexUpdater_Psm16<CGsPixelFormats::CPixelIndexorPSMCT16>;
 	m_textureUpdater[PSMT8]   = &CGSH_Direct3D9::TexUpdater_Psm48<CGsPixelFormats::CPixelIndexorPSMT8>;
 	m_textureUpdater[PSMT4]   = &CGSH_Direct3D9::TexUpdater_Psm48<CGsPixelFormats::CPixelIndexorPSMT4>;
 }
@@ -66,6 +67,9 @@ CGSH_Direct3D9::TEXTURE_INFO CGSH_Direct3D9::LoadTexture(const TEX0& tex0, uint3
 		{
 		case PSMCT32:
 			textureFormat = D3DFMT_A8R8G8B8;
+			break;
+		case PSMCT16:
+			textureFormat = D3DFMT_A1R5G5B5;
 			break;
 		case PSMT8:
 		case PSMT4:
@@ -187,6 +191,32 @@ void CGSH_Direct3D9::TexUpdater_Psm32(D3DLOCKED_RECT* lockedRect, uint32 bufPtr,
 		{
 			uint32 color = indexor.GetPixel(texX + x, texY + y);
 			dst[x] = Color_Ps2ToDx9(color);
+		}
+
+		dst += dstPitch;
+	}
+}
+
+template <typename IndexorType>
+void CGSH_Direct3D9::TexUpdater_Psm16(D3DLOCKED_RECT* lockedRect, uint32 bufPtr, uint32 bufWidth, unsigned int texX, unsigned int texY, unsigned int texWidth, unsigned int texHeight)
+{
+	IndexorType indexor(m_pRAM, bufPtr, bufWidth);
+
+	auto dstPitch = lockedRect->Pitch / 2;
+	auto dst = reinterpret_cast<uint16*>(lockedRect->pBits);
+	dst += texX + (texY * dstPitch);
+	
+	for(unsigned int y = 0; y < texHeight; y++)
+	{
+		for(unsigned int x = 0; x < texWidth; x++)
+		{
+			auto pixel = indexor.GetPixel(texX + x, texY + y);
+			auto cvtPixel =
+				(((pixel & 0x001F) >> 0) << 11) |	//R
+				(((pixel & 0x03E0) >> 5) << 6) |	//G
+				(((pixel & 0x7C00) >> 10) << 1) |	//B
+				(pixel >> 15);						//A
+			dst[x] = cvtPixel;
 		}
 
 		dst += dstPitch;
