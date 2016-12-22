@@ -216,9 +216,10 @@ void CMA_VU::CLower::ReflOpAffRdItIs(VUINSTRUCTION*, CMIPS*, uint32, uint32 opco
 	operandSet.readI1 = is;
 }
 
-void CMA_VU::CLower::ReflOpAffRdP(VUINSTRUCTION*, CMIPS*, uint32, uint32 opcode, OPERANDSET& operandSet)
+void CMA_VU::CLower::ReflOpAffP(VUINSTRUCTION*, CMIPS*, uint32, uint32 opcode, OPERANDSET& operandSet)
 {
-	//TODO: Read P
+	//Naming? (check WAITQ)
+	operandSet.syncP = true;
 }
 
 void CMA_VU::CLower::ReflOpAffWrFtRdFs(VUINSTRUCTION*, CMIPS*, uint32, uint32 opcode, OPERANDSET& operandSet)
@@ -253,8 +254,8 @@ void CMA_VU::CLower::ReflOpAffWrFtRdP(VUINSTRUCTION*, CMIPS*, uint32, uint32 opc
 {
 	auto ft = static_cast<uint8>((opcode >> 16) & 0x001F);
 
-	//TODO: Read P
 	operandSet.writeF = ft;
+	operandSet.readP = true;
 }
 
 void CMA_VU::CLower::ReflOpAffWrIdRdItIs(VUINSTRUCTION*, CMIPS*, uint32, uint32 opcode, OPERANDSET& operandSet)
@@ -1100,7 +1101,7 @@ VUINSTRUCTION CMA_VU::CLower::m_cVuReflVX3[32] =
 	{	NULL,		NULL,			NULL				},
 	{	"ERLENG",	NULL,			ReflOpAffWrPRdFs	},
 	{	NULL,		NULL,			NULL				},
-	{	"WAITP",	NULL,			ReflOpAffRdP		},
+	{	"WAITP",	NULL,			ReflOpAffP			},
 	{	NULL,		NULL,			NULL				},
 };
 // clang-format on

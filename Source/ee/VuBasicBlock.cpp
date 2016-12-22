@@ -46,16 +46,30 @@ void CVuBasicBlock::CompileRange(CMipsJitter* jitter)
 		//No lower instruction reads Q
 		assert(loOps.readQ == false);
 
+		//No upper instruction writes to P
+		assert(hiOps.syncP == false);
+
+		//No upper instruction reads from P
+		assert(hiOps.readP == false);
+
 		bool loIsXgKick = (opcodeLo & ~(0x1F << 11)) == 0x800006FC;
 
 		if(loOps.syncQ)
 		{
 			VUShared::FlushPipeline(VUShared::g_pipeInfoQ, jitter);
 		}
+		if(loOps.syncP)
+		{
+			VUShared::FlushPipeline(VUShared::g_pipeInfoP, jitter);
+		}
 
 		if(hiOps.readQ)
 		{
 			VUShared::CheckPipeline(VUShared::g_pipeInfoQ, jitter, relativePipeTime);
+		}
+		if(loOps.readP)
+		{
+			VUShared::CheckPipeline(VUShared::g_pipeInfoP, jitter, relativePipeTime);
 		}
 
 		uint8 savedReg = 0;

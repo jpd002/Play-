@@ -44,6 +44,8 @@ namespace VUShared
 		unsigned int readI1;
 		bool syncQ;
 		bool readQ;
+		bool					syncP;
+		bool					readP;
 
 		//When set, means that a branch following the instruction will be
 		//able to use the integer value directly
@@ -240,6 +242,7 @@ namespace VUShared
 	extern const REGISTER_PIPEINFO g_pipeInfoQ;
 	extern const FLAG_PIPEINFO g_pipeInfoMac;
 	extern const FLAG_PIPEINFO g_pipeInfoClip;
+	extern const PIPEINFO		g_pipeInfoP;
 }
 
 #endif

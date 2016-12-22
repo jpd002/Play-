@@ -832,9 +832,14 @@ void CMA_VU::CLower::RINIT()
 	VUShared::RINIT(m_codeGen, m_nIS, m_nFSF);
 }
 
+#define LATENCY_ELENG 17
+
 //1C
 void CMA_VU::CLower::ELENG()
 {
+	auto destination = VUShared::g_pipeInfoP.heldValue;
+	VUShared::QueueInPipeline(VUShared::g_pipeInfoP, m_codeGen, LATENCY_ELENG, m_relativePipeTime);
+
 	///////////////////////////////////////////////////
 	//Raise all components to the power of 2
 
@@ -861,7 +866,7 @@ void CMA_VU::CLower::ELENG()
 
 	m_codeGen->FP_Sqrt();
 
-	m_codeGen->FP_PullSingle(offsetof(CMIPS, m_State.nCOP2P));
+	m_codeGen->FP_PullSingle(destination);
 }
 
 //1D

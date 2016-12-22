@@ -32,6 +32,13 @@ const VUShared::FLAG_PIPEINFO VUShared::g_pipeInfoClip =
         offsetof(CMIPS, m_State.pipeClip.values),
         offsetof(CMIPS, m_State.pipeClip.pipeTimes)};
 
+const VUShared::PIPEINFO VUShared::g_pipeInfoP =
+{
+	offsetof(CMIPS, m_State.nCOP2P),
+	offsetof(CMIPS, m_State.pipeP.heldValue),
+	offsetof(CMIPS, m_State.pipeP.counter)
+};
+
 using namespace VUShared;
 
 bool VUShared::DestinationHasElement(uint8 nDest, unsigned int nElement)
