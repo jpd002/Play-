@@ -7,11 +7,7 @@
 @implementation OutputWindowController
 
 @synthesize openGlView = _openGlView;
-
--(void)setDelegate: (id)delegate
-{
-	_delegate = delegate;
-}
+@synthesize delegate = _delegate;
 
 -(NSApplicationPresentationOptions)window: (NSWindow*)window willUseFullScreenPresentationOptions:(NSApplicationPresentationOptions)proposedOptions
 {

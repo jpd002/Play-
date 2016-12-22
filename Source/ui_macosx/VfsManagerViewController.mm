@@ -23,7 +23,7 @@
 
 -(void)onTableViewDblClick: (id)sender
 {
-	int selectedIndex = [bindingsTableView clickedRow];
+	NSInteger selectedIndex = [bindingsTableView clickedRow];
 	if(selectedIndex == -1) return;
 	VfsManagerBinding* binding = [bindings getBindingAt: selectedIndex];
 	[binding requestModification];

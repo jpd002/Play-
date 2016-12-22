@@ -13,16 +13,14 @@
 
 @end
 
-@interface VfsManagerBindings : NSObject
+@interface VfsManagerBindings : NSObject <NSTableViewDataSource>
 {
 	NSMutableArray*		m_bindings;
 }
 
 -(VfsManagerBindings*)init;
 -(void)save;
--(int)numberOfRowsInTableView: (NSTableView*)tableView;
--(id)tableView: (NSTableView*)tableView objectValueForTableColumn:(NSTableColumn*)tableColumn row:(int)row;
--(VfsManagerBinding*)getBindingAt: (unsigned int)index;
+-(VfsManagerBinding*)getBindingAt: (NSUInteger)index;
 
 @end
 

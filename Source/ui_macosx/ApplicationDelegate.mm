@@ -199,7 +199,7 @@
 	catch(const std::exception& exception)
 	{
 		NSString* errorMessage = [[NSString alloc] initWithUTF8String: exception.what()];
-		NSRunCriticalAlertPanel(@"Load ELF error:", errorMessage, NULL, NULL, NULL);
+		NSRunCriticalAlertPanel(@"Load ELF error:", @"%@", NULL, NULL, NULL, errorMessage);
 	}
 }
 
@@ -217,7 +217,7 @@
 	catch(const std::exception& exception)
 	{
 		NSString* errorMessage = [[NSString alloc] initWithUTF8String: exception.what()];
-		NSRunCriticalAlertPanel(@"Load ELF error:", errorMessage, NULL, NULL, NULL);
+		NSRunCriticalAlertPanel(@"Load ELF error:", @"%@", NULL, NULL, NULL, errorMessage);
 	}
 }
 
