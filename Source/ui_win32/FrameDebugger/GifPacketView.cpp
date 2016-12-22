@@ -70,21 +70,16 @@ std::string DumpPacked(uint8*& packet, const CGIF::TAG& tag, CGSHandler::Registe
 					registerWrites.push_back(CGSHandler::RegisterWrite(((input.nV[3] & 0x8000) != 0) ? GS_REG_XYZF3 : GS_REG_XYZF2, temp));
 				}
 				break;
-/*
 			case 0x05:
 				//XYZ2
-				nTemp  = (nPacket.nV[0] & 0xFFFF);
-				nTemp |= (nPacket.nV[1] & 0xFFFF) << 16;
-				nTemp |= (uint64)(nPacket.nV[2] & 0xFFFFFFFF) << 32;
-				if(nPacket.nV[3] & 0x8000)
 				{
-					writeList.push_back(CGSHandler::RegisterWrite(GS_REG_XYZ3, nTemp));
-				}
-				else
-				{
-					writeList.push_back(CGSHandler::RegisterWrite(GS_REG_XYZ2, nTemp));
+					uint64 temp  = (input.nV[0] & 0xFFFF);
+					temp        |= (input.nV[1] & 0xFFFF) << 16;
+					temp        |= (uint64)(input.nV[2] & 0xFFFFFFFF) << 32;
+					registerWrites.push_back(CGSHandler::RegisterWrite(((input.nV[3] & 0x8000) != 0) ? GS_REG_XYZ3 : GS_REG_XYZ2, temp));
 				}
 				break;
+/*
 			case 0x06:
 				//TEX0_1
 				writeList.push_back(CGSHandler::RegisterWrite(GS_REG_TEX0_1, nPacket.nD0));
