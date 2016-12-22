@@ -21,6 +21,8 @@
 		7001D6511BE54582008B6205 /* analogstick.png in Resources */ = {isa = PBXBuildFile; fileRef = 7001D64F1BE54582008B6205 /* analogstick.png */; };
 		7001D6521BE54582008B6205 /* circle.png in Resources */ = {isa = PBXBuildFile; fileRef = 7001D6501BE54582008B6205 /* circle.png */; };
 		7002C6891D3D1A4700B8E9BB /* patches.xml in Resources */ = {isa = PBXBuildFile; fileRef = 7002C6881D3D1A4700B8E9BB /* patches.xml */; };
+		7044E5C31E0B661100766D13 /* Iop_Heaplib.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7044E5C01E0B661100766D13 /* Iop_Heaplib.cpp */; };
+		7044E5C41E0B661100766D13 /* Iop_Module.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7044E5C21E0B661100766D13 /* Iop_Module.cpp */; };
 		704E1C4E1B3BA0B200C0ACE3 /* GSH_OpenGLiOS.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 704E1C4C1B3BA0B200C0ACE3 /* GSH_OpenGLiOS.cpp */; };
 		704E1C531B3BA25000C0ACE3 /* GSH_OpenGL_Shader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 704E1C4F1B3BA25000C0ACE3 /* GSH_OpenGL_Shader.cpp */; };
 		704E1C541B3BA25000C0ACE3 /* GSH_OpenGL_Texture.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 704E1C501B3BA25000C0ACE3 /* GSH_OpenGL_Texture.cpp */; };
@@ -248,6 +250,9 @@
 		7001D64F1BE54582008B6205 /* analogstick.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = analogstick.png; sourceTree = "<group>"; };
 		7001D6501BE54582008B6205 /* circle.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = circle.png; sourceTree = "<group>"; };
 		7002C6881D3D1A4700B8E9BB /* patches.xml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; name = patches.xml; path = ../../../patches.xml; sourceTree = "<group>"; };
+		7044E5C01E0B661100766D13 /* Iop_Heaplib.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Iop_Heaplib.cpp; path = ../Source/iop/Iop_Heaplib.cpp; sourceTree = "<group>"; };
+		7044E5C11E0B661100766D13 /* Iop_Heaplib.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Iop_Heaplib.h; path = ../Source/iop/Iop_Heaplib.h; sourceTree = "<group>"; };
+		7044E5C21E0B661100766D13 /* Iop_Module.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Iop_Module.cpp; path = ../Source/iop/Iop_Module.cpp; sourceTree = "<group>"; };
 		704E1C4C1B3BA0B200C0ACE3 /* GSH_OpenGLiOS.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = GSH_OpenGLiOS.cpp; path = ../Source/ui_ios/GSH_OpenGLiOS.cpp; sourceTree = "<group>"; };
 		704E1C4D1B3BA0B200C0ACE3 /* GSH_OpenGLiOS.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GSH_OpenGLiOS.h; path = ../Source/ui_ios/GSH_OpenGLiOS.h; sourceTree = "<group>"; };
 		704E1C4F1B3BA25000C0ACE3 /* GSH_OpenGL_Shader.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = GSH_OpenGL_Shader.cpp; path = ../Source/gs/GSH_OpenGL/GSH_OpenGL_Shader.cpp; sourceTree = "<group>"; };
@@ -978,6 +983,8 @@
 				70834C251B1BD70700E8D5C6 /* Iop_FileIoHandler2100.h */,
 				70834C261B1BD70700E8D5C6 /* Iop_FileIoHandler2300.cpp */,
 				70834C271B1BD70700E8D5C6 /* Iop_FileIoHandler2300.h */,
+				7044E5C01E0B661100766D13 /* Iop_Heaplib.cpp */,
+				7044E5C11E0B661100766D13 /* Iop_Heaplib.h */,
 				70834C281B1BD70700E8D5C6 /* Iop_Intc.cpp */,
 				70834C291B1BD70700E8D5C6 /* Iop_Intc.h */,
 				70834C2A1B1BD70700E8D5C6 /* Iop_Intrman.cpp */,
@@ -992,6 +999,7 @@
 				70834C331B1BD70700E8D5C6 /* Iop_McServ.h */,
 				70834C341B1BD70700E8D5C6 /* Iop_Modload.cpp */,
 				70834C351B1BD70700E8D5C6 /* Iop_Modload.h */,
+				7044E5C21E0B661100766D13 /* Iop_Module.cpp */,
 				70834C361B1BD70700E8D5C6 /* Iop_Module.h */,
 				705AA96E1C55675000775613 /* Iop_MtapMan.cpp */,
 				705AA96F1C55675000775613 /* Iop_MtapMan.h */,
@@ -1322,6 +1330,7 @@
 				70834C6A1B1BD70700E8D5C6 /* Iop_Cdvdman.cpp in Sources */,
 				70834B5E1B1BD2C300E8D5C6 /* CsoImageStream.cpp in Sources */,
 				70834B711B1BD2C300E8D5C6 /* MipsFunctionPatternDb.cpp in Sources */,
+				7044E5C31E0B661100766D13 /* Iop_Heaplib.cpp in Sources */,
 				70834B721B1BD2C300E8D5C6 /* MIPSInstructionFactory.cpp in Sources */,
 				70834B5C1B1BD2C300E8D5C6 /* COP_SCU_Reflection.cpp in Sources */,
 				70834C791B1BD70700E8D5C6 /* Iop_PadMan.cpp in Sources */,
@@ -1431,6 +1440,7 @@
 				70834BE11B1BD6A300E8D5C6 /* Ee_SubSystem.cpp in Sources */,
 				70834BEC1B1BD6A300E8D5C6 /* IPU_MotionCodeTable.cpp in Sources */,
 				70834B791B1BD2C300E8D5C6 /* Profiler.cpp in Sources */,
+				7044E5C41E0B661100766D13 /* Iop_Module.cpp in Sources */,
 				70834BFD1B1BD6A300E8D5C6 /* VuExecutor.cpp in Sources */,
 				70834BF91B1BD6A300E8D5C6 /* Vif1.cpp in Sources */,
 				70834C781B1BD70700E8D5C6 /* Iop_Modload.cpp in Sources */,
