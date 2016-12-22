@@ -81,6 +81,8 @@
 		70B414871AA21D1100AC7DE4 /* Iop_FileIoHandler2300.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 70B414811AA21D1100AC7DE4 /* Iop_FileIoHandler2300.cpp */; };
 		70B414881AA21D1100AC7DE4 /* Iop_LibSd.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 70B414831AA21D1100AC7DE4 /* Iop_LibSd.cpp */; };
 		70C0C84E1ADC97A900492241 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 70C0C84D1ADC97A900492241 /* Images.xcassets */; };
+		70C2CD0E1E0B5DDE006CFD7A /* Iop_Heaplib.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 70C2CD0B1E0B5DDE006CFD7A /* Iop_Heaplib.cpp */; };
+		70C2CD0F1E0B5DDE006CFD7A /* Iop_Module.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 70C2CD0D1E0B5DDE006CFD7A /* Iop_Module.cpp */; };
 		70CCA2711CB1E965006F99CA /* OpenAL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 70CCA2701CB1E965006F99CA /* OpenAL.framework */; };
 		70CCA2741CB1E99A006F99CA /* SH_OpenAL.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 70CCA2721CB1E99A006F99CA /* SH_OpenAL.cpp */; };
 		70D9F12C1AFB016900197BBE /* COP_VU_Reflection.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 70D9F0ED1AFB016900197BBE /* COP_VU_Reflection.cpp */; };
@@ -348,6 +350,9 @@
 		70B414831AA21D1100AC7DE4 /* Iop_LibSd.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Iop_LibSd.cpp; sourceTree = "<group>"; };
 		70B414841AA21D1100AC7DE4 /* Iop_LibSd.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Iop_LibSd.h; sourceTree = "<group>"; };
 		70C0C84D1ADC97A900492241 /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = "../../build_macosx/Play!/Images.xcassets"; sourceTree = "<group>"; };
+		70C2CD0B1E0B5DDE006CFD7A /* Iop_Heaplib.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Iop_Heaplib.cpp; sourceTree = "<group>"; };
+		70C2CD0C1E0B5DDE006CFD7A /* Iop_Heaplib.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Iop_Heaplib.h; sourceTree = "<group>"; };
+		70C2CD0D1E0B5DDE006CFD7A /* Iop_Module.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Iop_Module.cpp; sourceTree = "<group>"; };
 		70CCA2701CB1E965006F99CA /* OpenAL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenAL.framework; path = System/Library/Frameworks/OpenAL.framework; sourceTree = SDKROOT; };
 		70CCA2721CB1E99A006F99CA /* SH_OpenAL.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SH_OpenAL.cpp; path = ../../tools/PsfPlayer/Source/SH_OpenAL.cpp; sourceTree = "<group>"; };
 		70CCA2731CB1E99A006F99CA /* SH_OpenAL.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SH_OpenAL.h; path = ../../tools/PsfPlayer/Source/SH_OpenAL.h; sourceTree = "<group>"; };
@@ -589,6 +594,8 @@
 				70B414801AA21D1100AC7DE4 /* Iop_FileIoHandler2100.h */,
 				70B414811AA21D1100AC7DE4 /* Iop_FileIoHandler2300.cpp */,
 				70B414821AA21D1100AC7DE4 /* Iop_FileIoHandler2300.h */,
+				70C2CD0B1E0B5DDE006CFD7A /* Iop_Heaplib.cpp */,
+				70C2CD0C1E0B5DDE006CFD7A /* Iop_Heaplib.h */,
 				706849A3151E896900C9574F /* Iop_Intc.cpp */,
 				706849A4151E896900C9574F /* Iop_Intc.h */,
 				706849A5151E896900C9574F /* Iop_Intrman.cpp */,
@@ -603,6 +610,7 @@
 				706849AE151E896900C9574F /* Iop_McServ.h */,
 				706849AF151E896900C9574F /* Iop_Modload.cpp */,
 				706849B0151E896900C9574F /* Iop_Modload.h */,
+				70C2CD0D1E0B5DDE006CFD7A /* Iop_Module.cpp */,
 				706849B1151E896900C9574F /* Iop_Module.h */,
 				705AA9731C55683800775613 /* Iop_MtapMan.cpp */,
 				705AA9741C55683800775613 /* Iop_MtapMan.h */,
@@ -1138,6 +1146,7 @@
 				70B414881AA21D1100AC7DE4 /* Iop_LibSd.cpp in Sources */,
 				704F23B71B0011C8009FD916 /* Vpu.cpp in Sources */,
 				7ECB243E1519AC0A00C4BBF8 /* MIPSTags.cpp in Sources */,
+				70C2CD0E1E0B5DDE006CFD7A /* Iop_Heaplib.cpp in Sources */,
 				7ECB243F1519AC0A00C4BBF8 /* PadHandler.cpp in Sources */,
 				7ECB24401519AC0A00C4BBF8 /* PadListener.cpp in Sources */,
 				7ECB24411519AC0A00C4BBF8 /* Posix_VolumeStream.cpp in Sources */,
@@ -1228,6 +1237,7 @@
 				700FB58315E11FC600C322DE /* OutputWindowController.mm in Sources */,
 				7011789915E25576006D1039 /* OutputWindow.mm in Sources */,
 				7075D0B01B6325540010D69C /* DiskUtils.cpp in Sources */,
+				70C2CD0F1E0B5DDE006CFD7A /* Iop_Module.cpp in Sources */,
 				7017B3901652F660008ACEAC /* Iop_Sio2.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
