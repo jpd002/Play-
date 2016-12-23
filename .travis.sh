@@ -2,6 +2,7 @@
 
 travis_before_install() 
 {
+    cd ..
     git clone https://github.com/jpd002/Play-Build.git Play-Build
     pushd Play-Build
     git submodule update --init --recursive
