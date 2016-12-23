@@ -13,10 +13,10 @@ travis_before_install()
     popd
 }
 
-travis_script() 
-{
-   
-}
+#travis_script()
+#{
+#   
+#}
 
 set -e
 set -x
