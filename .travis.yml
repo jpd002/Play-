@@ -1,12 +1,13 @@
+sudo: required
 language: cpp
 
-addons:
-  apt:
-    packages:
-      - cmake
-      - libglew-dev
-      - libboost-filesystem-dev 
-      - libboost-system-dev
+#addons:
+#  apt:
+#    packages:
+#      - cmake
+#      - libglew-dev
+#      - libboost-filesystem-dev 
+#      - libboost-system-dev
 
 before_install:
   - bash .travis.sh travis_before_install
