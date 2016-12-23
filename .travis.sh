@@ -14,6 +14,7 @@ travis_before_install()
 
 travis_script()
 {
+   ls
    cd Play-Build/Play/build_unix
    ./build.sh
 }
