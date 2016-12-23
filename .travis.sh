@@ -2,8 +2,8 @@
 
 travis_before_install() 
 {
-    sudo apt-get update -qq
-    sudo apt-get install cmake libboost-system-dev libboost-chrono-dev
+#    sudo apt-get update -qq
+#    sudo apt-get install cmake libboost-system-dev libboost-chrono-dev
     cd ..
     git clone https://github.com/jpd002/Play-Build.git Play-Build
     pushd Play-Build
