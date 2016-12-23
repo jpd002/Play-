@@ -1,6 +1,7 @@
 sudo: required
 language: cpp
 dist: trusty
+compiler: clang
 
 addons:
   apt:
