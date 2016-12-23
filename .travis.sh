@@ -16,7 +16,7 @@ travis_script()
 {
    pwd
    ls
-   cd Play-Build/Play/build_unix
+   cd build_unix
    ./build.sh
 }
 
