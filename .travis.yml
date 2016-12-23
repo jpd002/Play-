@@ -1,11 +1,14 @@
 sudo: required
 language: cpp
 dist: trusty
-compiler: clang
 
 addons:
   apt:
+    sources:
+      - ubuntu-toolchain-r-test
     packages:
+      - gcc-5.4
+      - g++-5.4
       - cmake
       - libglew-dev
       - libboost-filesystem-dev 
