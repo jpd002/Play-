@@ -14,8 +14,6 @@ travis_before_install()
 
 travis_script()
 {
-   pwd
-   ls
    cd build_unix
    ./build.sh
 }

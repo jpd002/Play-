@@ -4,6 +4,7 @@ addons:
   apt:
     packages:
       - cmake
+      - libglew-dev
 
 before_install:
   - bash .travis.sh travis_before_install
