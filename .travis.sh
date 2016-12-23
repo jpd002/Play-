@@ -12,10 +12,11 @@ travis_before_install()
     popd
 }
 
-#travis_script()
-#{
-#   
-#}
+travis_script()
+{
+   cd Play-Build/Play/build_unix
+   ./build.sh
+}
 
 set -e
 set -x
