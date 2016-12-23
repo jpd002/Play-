@@ -2,7 +2,7 @@
 
 travis_before_install() 
 {
-    cd ~
+    cd ..
     ls
     git clone https://github.com/jpd002/Play-Build.git Play-Build
     pushd Play-Build
