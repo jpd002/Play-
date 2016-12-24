@@ -23,6 +23,8 @@ before_install:
 
 install:
   - if [ "$CXX" = "g++" ]; then export CXX="g++-5" CC="gcc-5"; fi
+  - export QT_SELECT="qt5"
+  - qmake --version
   
 script:
   - bash .travis.sh travis_script
