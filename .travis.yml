@@ -20,7 +20,7 @@ before_install:
   - bash .travis.sh travis_before_install
 
 install:
-  - if [ "$CXX" = "g++" ]; then export CXX="g++-5" CC="gcc-5"; fi
+  - bash .travis.sh travis_install
   
 script:
   - bash .travis.sh travis_script

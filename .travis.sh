@@ -15,15 +15,20 @@ travis_before_install()
     popd
 }
 
+travis_install()
+{
+    if [ "$CXX" = "g++" ]; then export CXX="g++-5" CC="gcc-5"; fi
+    source /opt/qt57/bin/qt57-env.sh || true
+    qmake --version
+}
+
 travis_script()
 {
-    source /opt/qt57/bin/qt57-env.sh
-    qmake --version
     cd build_unix
     ./build.sh
 }
 
-#set -e
+set -e
 set -x
 
 $1;
