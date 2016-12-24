@@ -4,8 +4,8 @@ cd build
 cmake ..
 make
 cd ..
-mkdir -p build-ui
+mkdir -p build-ui/
+qmake -o build-ui/
 cd build-ui
-qmake ..
 make
 cd ..

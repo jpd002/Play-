@@ -8,7 +8,7 @@ travis_before_install()
     cd ..
     git clone -q https://github.com/jpd002/Play-Build.git Play-Build
     pushd Play-Build
-    git submodule update --init --recursive
+    git submodule update -q --init --recursive
     git submodule foreach "git checkout -q master"
     rm -rf Play
     mv ../Play- Play
