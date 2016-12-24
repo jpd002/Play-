@@ -23,7 +23,7 @@ travis_script()
 #    ./build.sh
 }
 
-set -e
+#set -e
 #set -x
 
 $1;
