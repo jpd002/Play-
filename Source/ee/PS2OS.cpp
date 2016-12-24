@@ -1728,7 +1728,7 @@ void CPS2OS::sc_StartThread()
 	thread->status = THREAD_RUNNING;
 	thread->epc    = thread->threadProc;
 
-	auto context = reinterpret_cast<THREADCONTEXT*>(&m_ram[thread->contextPtr]);
+	auto context = reinterpret_cast<THREADCONTEXT*>(GetStructPtr(thread->contextPtr));
 	context->gpr[CMIPS::A0].nV0 = arg;
 
 	m_ee.m_State.nGPR[SC_RETURN].nD0 = static_cast<int32>(id);
