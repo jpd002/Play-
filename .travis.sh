@@ -17,13 +17,13 @@ travis_before_install()
 
 travis_script()
 {
-    /opt/qt57/bin/qt57-env.sh
+    source /opt/qt57/bin/qt57-env.sh
     qmake --version
     cd build_unix
 #    ./build.sh
 }
 
 set -e
-set -x
+#set -x
 
 $1;
