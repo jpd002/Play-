@@ -20,6 +20,12 @@ std::string CSysclib::GetFunctionName(unsigned int functionId) const
 {
 	switch(functionId)
 	{
+	case 4:
+		return "setjmp";
+		break;
+	case 5:
+		return "longjmp";
+		break;
 	case 6:
 		return "toupper";
 		break;
@@ -99,6 +105,12 @@ void CSysclib::Invoke(CMIPS& context, unsigned int functionId)
 {
 	switch(functionId)
 	{
+	case 4:
+		context.m_State.nGPR[CMIPS::V0].nD0 = __setjmp(context);
+		break;
+	case 5:
+		__longjmp(context);
+		break;
 	case 6:
 		context.m_State.nGPR[CMIPS::V0].nD0 = toupper(
 			context.m_State.nGPR[CMIPS::A0].nV0);
@@ -278,6 +290,45 @@ uint8* CSysclib::GetPtr(uint32 ptr, uint32 size) const
 		ptr &= (PS2::IOP_RAM_SIZE - 1);
 		return reinterpret_cast<uint8*>(m_ram + ptr);
 	}
+}
+
+int32 CSysclib::__setjmp(CMIPS& context)
+{
+	uint32 envPtr = context.m_State.nGPR[CMIPS::A0].nV0;
+	auto env = reinterpret_cast<JMP_BUF*>(GetPtr(envPtr, sizeof(JMP_BUF)));
+	env->ra = context.m_State.nGPR[CMIPS::RA].nV0;
+	env->sp = context.m_State.nGPR[CMIPS::SP].nV0;
+	env->fp = context.m_State.nGPR[CMIPS::FP].nV0;
+	env->s0 = context.m_State.nGPR[CMIPS::S0].nV0;
+	env->s1 = context.m_State.nGPR[CMIPS::S1].nV0;
+	env->s2 = context.m_State.nGPR[CMIPS::S2].nV0;
+	env->s3 = context.m_State.nGPR[CMIPS::S3].nV0;
+	env->s4 = context.m_State.nGPR[CMIPS::S4].nV0;
+	env->s5 = context.m_State.nGPR[CMIPS::S5].nV0;
+	env->s6 = context.m_State.nGPR[CMIPS::S6].nV0;
+	env->s7 = context.m_State.nGPR[CMIPS::S7].nV0;
+	env->gp = context.m_State.nGPR[CMIPS::GP].nV0;
+	return 0;
+}
+
+void CSysclib::__longjmp(CMIPS& context)
+{
+	uint32 envPtr = context.m_State.nGPR[CMIPS::A0].nV0;
+	uint32 returnValue = context.m_State.nGPR[CMIPS::A1].nV0;
+	auto env = reinterpret_cast<const JMP_BUF*>(GetPtr(envPtr, sizeof(JMP_BUF)));
+	context.m_State.nPC = env->ra;
+	context.m_State.nGPR[CMIPS::SP].nV0 = env->sp;
+	context.m_State.nGPR[CMIPS::FP].nV0 = env->fp;
+	context.m_State.nGPR[CMIPS::S0].nV0 = env->s0;
+	context.m_State.nGPR[CMIPS::S1].nV0 = env->s1;
+	context.m_State.nGPR[CMIPS::S2].nV0 = env->s2;
+	context.m_State.nGPR[CMIPS::S3].nV0 = env->s3;
+	context.m_State.nGPR[CMIPS::S4].nV0 = env->s4;
+	context.m_State.nGPR[CMIPS::S5].nV0 = env->s5;
+	context.m_State.nGPR[CMIPS::S6].nV0 = env->s6;
+	context.m_State.nGPR[CMIPS::S7].nV0 = env->s7;
+	context.m_State.nGPR[CMIPS::GP].nV0 = env->gp;
+	context.m_State.nGPR[CMIPS::V0].nV0 = static_cast<int32>(returnValue);
 }
 
 uint32 CSysclib::__look_ctype_table(uint32 character)

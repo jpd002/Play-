@@ -16,8 +16,27 @@ namespace Iop
 		void			Invoke(CMIPS&, unsigned int) override;
 
 	private:
+		struct JMP_BUF
+		{
+			uint32 ra;
+			uint32 sp;
+			uint32 fp;
+			uint32 s0;
+			uint32 s1;
+			uint32 s2;
+			uint32 s3;
+			uint32 s4;
+			uint32 s5;
+			uint32 s6;
+			uint32 s7;
+			uint32 gp;
+		};
+		static_assert(sizeof(JMP_BUF) == 48, "Size of JMP_BUF must be 48.");
+
 		uint8*			GetPtr(uint32, uint32) const;
 
+		int32			__setjmp(CMIPS&);
+		void			__longjmp(CMIPS&);
 		uint32			__look_ctype_table(uint32);
 		uint32			__memcmp(const void*, const void*, uint32);
 		void			__memcpy(void*, const void*, unsigned int);
