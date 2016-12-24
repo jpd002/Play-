@@ -5,6 +5,7 @@ travis_before_install()
     sudo add-apt-repository --yes ppa:beineri/opt-qt57-trusty
     sudo apt-get update
     sudo apt-get install qt57base
+    source /opt/qt57/bin/qt57-env.sh
     cd ..
     git clone https://github.com/jpd002/Play-Build.git Play-Build
     pushd Play-Build
