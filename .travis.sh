@@ -20,10 +20,10 @@ travis_script()
     source /opt/qt57/bin/qt57-env.sh
     qmake --version
     cd build_unix
-#    ./build.sh
+    ./build.sh
 }
 
 #set -e
-#set -x
+set -x
 
 $1;
