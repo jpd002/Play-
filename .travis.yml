@@ -15,6 +15,7 @@ addons:
       - libboost-system-dev
       - libboost-chrono-dev
       - libopenal-dev
+      - qt5-default
 
 before_install:
   - bash .travis.sh travis_before_install
