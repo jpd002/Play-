@@ -18,9 +18,6 @@ addons:
 
 before_install:
   - bash .travis.sh travis_before_install
-
-install:
-  - bash .travis.sh travis_install
   
 script:
   - bash .travis.sh travis_script
