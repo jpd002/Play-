@@ -2,8 +2,9 @@
 
 travis_before_install() 
 {
-#    sudo apt-get update -qq
-#    sudo apt-get install cmake libboost-system-dev libboost-chrono-dev
+    sudo add-apt-repository ppa:beineri/opt-qt57-trusty
+    sudo apt-get update
+    sudo apt-get install qt5-qmake qtbase5-dev
     cd ..
     git clone https://github.com/jpd002/Play-Build.git Play-Build
     pushd Play-Build
