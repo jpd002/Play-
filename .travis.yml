@@ -6,7 +6,6 @@ addons:
   apt:
     sources:
       - ubuntu-toolchain-r-test
-      - ubuntu-sdk-team
     packages:
       - gcc-5
       - g++-5
