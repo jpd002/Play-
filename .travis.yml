@@ -1,0 +1,23 @@
+sudo: required
+language: cpp
+dist: trusty
+
+addons:
+  apt:
+    sources:
+      - ubuntu-toolchain-r-test
+    packages:
+      - gcc-5
+      - g++-5
+      - cmake
+      - libglew-dev
+      - libboost-filesystem-dev 
+      - libboost-system-dev
+      - libboost-chrono-dev
+      - libopenal-dev
+
+before_install:
+  - bash .travis.sh travis_before_install
+  
+script:
+  - bash .travis.sh travis_script
