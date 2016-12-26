@@ -14,11 +14,6 @@ CRegViewVU::CRegViewVU(HWND hParent, const RECT& rect, CVirtualMachine& virtualM
 	Update();
 }
 
-CRegViewVU::~CRegViewVU()
-{
-
-}
-
 void CRegViewVU::Update()
 {
 	SetDisplayText(GetDisplayText().c_str());
