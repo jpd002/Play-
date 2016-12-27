@@ -22,6 +22,9 @@ enum
 	MACFLAG_PIPELINE_SLOTS = 8,
 };
 
+//Invariants:
+//- Pipe times are sorted when iterating from index to index + PIPELINE_SLOTS
+//- The value at index - 1 is the latest value
 struct MACFLAG_PIPELINE
 {
 	uint32		index;

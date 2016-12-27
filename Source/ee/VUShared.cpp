@@ -1373,6 +1373,8 @@ void VUShared::QueueInPipeline(const PIPEINFO& pipeInfo, CMipsJitter* codeGen, u
 
 void VUShared::CheckMacFlagPipeline(CMipsJitter* codeGen, uint32 relativePipeTime)
 {
+	//This will check every slot in the pipeline and update
+	//MF every time (pipeTimes[i] <= (pipeTime + relativePipeTime))
 	for(unsigned int i = 0; i < MACFLAG_PIPELINE_SLOTS; i++)
 	{
 		codeGen->PushRelAddrRef(offsetof(CMIPS, m_State.pipeMac.pipeTimes));
