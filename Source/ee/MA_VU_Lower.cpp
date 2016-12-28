@@ -94,7 +94,7 @@ void CMA_VU::CLower::BuildStatusInIT()
 {
 	//Helper for FSAND and FSOR.  Grabs STATUS flag into current m_nIT register.
 
-	VUShared::CheckMacFlagPipeline(m_codeGen, m_relativePipeTime);
+	VUShared::CheckFlagPipeline(VUShared::g_pipeInfoMac, m_codeGen, m_relativePipeTime);
 
 	//Reset result
 	m_codeGen->PushCst(0);
@@ -418,7 +418,7 @@ void CMA_VU::CLower::FSOR()
 //18
 void CMA_VU::CLower::FMEQ()
 {
-	VUShared::CheckMacFlagPipeline(m_codeGen, m_relativePipeTime);
+	VUShared::CheckFlagPipeline(VUShared::g_pipeInfoMac, m_codeGen, m_relativePipeTime);
 
 	m_codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2MF));
 	m_codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2VI[m_nIS]));
@@ -429,7 +429,7 @@ void CMA_VU::CLower::FMEQ()
 //1A
 void CMA_VU::CLower::FMAND()
 {
-	VUShared::CheckMacFlagPipeline(m_codeGen, m_relativePipeTime);
+	VUShared::CheckFlagPipeline(VUShared::g_pipeInfoMac, m_codeGen, m_relativePipeTime);
 
 	m_codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2MF));
 	m_codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2VI[m_nIS]));
@@ -440,7 +440,7 @@ void CMA_VU::CLower::FMAND()
 //1B
 void CMA_VU::CLower::FMOR()
 {
-	VUShared::CheckMacFlagPipeline(m_codeGen, m_relativePipeTime);
+	VUShared::CheckFlagPipeline(VUShared::g_pipeInfoMac, m_codeGen, m_relativePipeTime);
 
 	m_codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2MF));
 	m_codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2VI[m_nIS]));

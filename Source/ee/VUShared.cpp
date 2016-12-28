@@ -16,6 +16,14 @@ const VUShared::PIPEINFO VUShared::g_pipeInfoQ =
 	offsetof(CMIPS, m_State.pipeQ.counter)
 };
 
+const VUShared::FLAG_PIPEINFO VUShared::g_pipeInfoMac =
+{
+	offsetof(CMIPS, m_State.nCOP2MF),
+	offsetof(CMIPS, m_State.pipeMac.index),
+	offsetof(CMIPS, m_State.pipeMac.values),
+	offsetof(CMIPS, m_State.pipeMac.pipeTimes)
+};
+
 using namespace VUShared;
 
 bool VUShared::DestinationHasElement(uint8 nDest, unsigned int nElement)
@@ -1371,16 +1379,16 @@ void VUShared::QueueInPipeline(const PIPEINFO& pipeInfo, CMipsJitter* codeGen, u
 	codeGen->PullRel(pipeInfo.counter);
 }
 
-void VUShared::CheckMacFlagPipeline(CMipsJitter* codeGen, uint32 relativePipeTime)
+void VUShared::CheckFlagPipeline(const FLAG_PIPEINFO& pipeInfo, CMipsJitter* codeGen, uint32 relativePipeTime)
 {
 	//This will check every slot in the pipeline and update
-	//MF every time (pipeTimes[i] <= (pipeTime + relativePipeTime))
+	//the flag register every time (pipeTimes[i] <= (pipeTime + relativePipeTime))
 	for(unsigned int i = 0; i < MACFLAG_PIPELINE_SLOTS; i++)
 	{
-		codeGen->PushRelAddrRef(offsetof(CMIPS, m_State.pipeMac.pipeTimes));
+		codeGen->PushRelAddrRef(pipeInfo.timeArray);
 		
 		//Compute index into array
-		codeGen->PushRel(offsetof(CMIPS, m_State.pipeMac.index));
+		codeGen->PushRel(pipeInfo.index);
 		codeGen->PushCst(i);
 		codeGen->Add();
 		codeGen->PushCst(MACFLAG_PIPELINE_SLOTS - 1);
@@ -1396,10 +1404,10 @@ void VUShared::CheckMacFlagPipeline(CMipsJitter* codeGen, uint32 relativePipeTim
 
 		codeGen->BeginIf(Jitter::CONDITION_LE);
 		{
-			codeGen->PushRelAddrRef(offsetof(CMIPS, m_State.pipeMac.values));
+			codeGen->PushRelAddrRef(pipeInfo.valueArray);
 		
 			//Compute index into array
-			codeGen->PushRel(offsetof(CMIPS, m_State.pipeMac.index));
+			codeGen->PushRel(pipeInfo.index);
 			codeGen->PushCst(i);
 			codeGen->Add();
 			codeGen->PushCst(MACFLAG_PIPELINE_SLOTS - 1);
@@ -1409,7 +1417,7 @@ void VUShared::CheckMacFlagPipeline(CMipsJitter* codeGen, uint32 relativePipeTim
 			codeGen->AddRef();
 			codeGen->LoadFromRef();
 
-			codeGen->PullRel(offsetof(CMIPS, m_State.nCOP2MF));
+			codeGen->PullRel(pipeInfo.value);
 		}
 		codeGen->EndIf();
 	}

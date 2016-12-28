@@ -26,6 +26,14 @@ namespace VUShared
 		size_t					counter;
 	};
 
+	struct FLAG_PIPEINFO
+	{
+		size_t value;
+		size_t index;
+		size_t valueArray;
+		size_t timeArray;
+	};
+
 	struct OPERANDSET
 	{
 		unsigned int			writeF;
@@ -170,7 +178,7 @@ namespace VUShared
 	void						FlushPipeline(const PIPEINFO&, CMipsJitter*);
 	void						CheckPipeline(const PIPEINFO&, CMipsJitter*, uint32);
 	void						QueueInPipeline(const PIPEINFO&, CMipsJitter*, uint32, uint32);
-	void						CheckMacFlagPipeline(CMipsJitter*, uint32);
+	void						CheckFlagPipeline(const FLAG_PIPEINFO&, CMipsJitter*, uint32);
 
 	//Shared addressing modes
 	void						ReflOpFdFsI(MIPSReflection::INSTRUCTION*, CMIPS*, uint32, uint32, char*, unsigned int);
@@ -219,6 +227,7 @@ namespace VUShared
 	extern const char*			m_sBroadcast[4];
 	extern const char*			m_sDestination[16];
 	extern const PIPEINFO		g_pipeInfoQ;
+	extern const FLAG_PIPEINFO	g_pipeInfoMac;
 }
 
 #endif
