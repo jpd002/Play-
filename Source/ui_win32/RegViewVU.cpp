@@ -3,6 +3,7 @@
 #include "../PS2VM.h"
 
 #define MENUCMD_BASE 40000
+#define CLIP_FLAG_MASK 0xFFFFFF
 
 CRegViewVU::CRegViewVU(HWND hParent, const RECT& rect, CVirtualMachine& virtualMachine, CMIPS* ctx)
 : CRegViewPage(hParent, rect)
@@ -126,7 +127,7 @@ std::string CRegViewVU::GetDisplayText()
 	sprintf(sLine, "STKF : 0x%0.4X\r\n", state.nCOP2SF);
 	result += sLine;
 
-	sprintf(sLine, "CLIP : 0x%0.6X\r\n", state.nCOP2CF);
+	sprintf(sLine, "CLIP : 0x%0.6X\r\n", state.nCOP2CF & CLIP_FLAG_MASK);
 	result += sLine;
 
 	sprintf(sLine, "PIPE : 0x%0.4X\r\n", state.pipeTime);
