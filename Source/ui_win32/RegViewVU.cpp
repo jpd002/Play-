@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include "RegViewVU.h"
+#include "string_format.h"
 #include "../PS2VM.h"
 
 #define MENUCMD_BASE 40000
@@ -136,26 +137,7 @@ std::string CRegViewVU::GetDisplayText()
 	sprintf(sLine, "PIPEQ: 0x%0.4X - %+.7e\r\n", state.pipeQ.counter, *reinterpret_cast<const float*>(&state.pipeQ.heldValue));
 	result += sLine;
 
-	unsigned int currentPipeMacCounter = state.pipeMac.index - 1;
-
-	uint32 macFlagPipeValues[MACFLAG_PIPELINE_SLOTS];
-	uint32 macFlagPipeTimes[MACFLAG_PIPELINE_SLOTS];
-	for(unsigned int i = 0; i < MACFLAG_PIPELINE_SLOTS; i++)
-	{
-		unsigned int currIndex = (currentPipeMacCounter - i) & (MACFLAG_PIPELINE_SLOTS - 1);
-		macFlagPipeValues[i] = state.pipeMac.values[currIndex];
-		macFlagPipeTimes[i] = state.pipeMac.pipeTimes[currIndex];
-	}
-
-	sprintf(sLine, "PIPEM: 0x%0.4X:0x%0.4X, 0x%0.4X:0x%0.4X\r\n", 
-		macFlagPipeTimes[0], macFlagPipeValues[0],
-		macFlagPipeTimes[1], macFlagPipeValues[1]);
-	result += sLine;
-
-	sprintf(sLine, "       0x%0.4X:0x%0.4X, 0x%0.4X:0x%0.4X\r\n", 
-		macFlagPipeTimes[2], macFlagPipeValues[2],
-		macFlagPipeTimes[3], macFlagPipeValues[3]);
-	result += sLine;
+	result += PrintPipeline("PIPEM:", state.pipeMac);
 
 	for(unsigned int i = 0; i < 16; i += 2)
 	{
@@ -175,6 +157,35 @@ std::string CRegViewVU::GetDisplayText()
 
 		sprintf(sLine, "%s: 0x%0.4X    %s: 0x%0.4X\r\n", sReg1, state.nCOP2VI[i] & 0xFFFF, sReg2, state.nCOP2VI[i + 1] & 0xFFFF);
 		result += sLine;
+	}
+
+	return result;
+}
+
+std::string CRegViewVU::PrintPipeline(const char* title, const MACFLAG_PIPELINE& pipe)
+{
+	//Print pipeline in reverse order
+	//Only the first 24-bits of values are printed because
+	//this is used for the clip register
+
+	std::string result;
+	unsigned int currentPipeMacCounter = pipe.index - 1;
+
+	uint32 pipeValues[MACFLAG_PIPELINE_SLOTS];
+	uint32 pipeTimes[MACFLAG_PIPELINE_SLOTS];
+	for(unsigned int i = 0; i < MACFLAG_PIPELINE_SLOTS; i++)
+	{
+		unsigned int currIndex = (currentPipeMacCounter - i) & (MACFLAG_PIPELINE_SLOTS - 1);
+		pipeValues[i] = pipe.values[currIndex] & CLIP_FLAG_MASK;
+		pipeTimes[i] = pipe.pipeTimes[currIndex];
+	}
+
+	for(unsigned int i = 0; i < (MACFLAG_PIPELINE_SLOTS / 2); i++)
+	{
+		const char* front = (i == 0) ? title : "      ";
+		result += string_format("%s 0x%0.4X:0x%0.6X, 0x%0.4X:0x%0.6X\r\n", front,
+			pipeTimes[(i * 2) + 0], pipeValues[(i * 2) + 0],
+			pipeTimes[(i * 2) + 1], pipeValues[(i * 2) + 1]);
 	}
 
 	return result;
