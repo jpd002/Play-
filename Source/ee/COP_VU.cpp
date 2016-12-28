@@ -12,6 +12,21 @@
 
 #define LOG_NAME				("vpu")
 
+enum CTRL_REG
+{
+	CTRL_REG_STATUS   = 16,
+	CTRL_REG_MAC      = 17,
+	CTRL_REG_CLIP     = 18,
+	CTRL_REG_R        = 20,
+	CTRL_REG_I        = 21,
+	CTRL_REG_Q        = 22,
+	CTRL_REG_TPC      = 26,
+	CTRL_REG_CMSAR0   = 27,
+	CTRL_REG_FBRST    = 28,
+	CTRL_REG_VPU_STAT = 29,
+	CTRL_REG_CMSAR1   = 31,
+};
+
 CCOP_VU::CCOP_VU(MIPS_REGSIZE nRegSize) 
 : CMIPSCoprocessor(nRegSize)
 , m_nFT(0)
@@ -130,29 +145,29 @@ void CCOP_VU::CFC2()
 	{
 		switch(m_nFS)
 		{
-		case 18:	//Clipping flag
+		case CTRL_REG_CLIP:
 			m_codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2CF));
 			break;
-		case 16:	//STATUS
+		case CTRL_REG_STATUS:
 			CLog::GetInstance().Print(LOG_NAME, "Warning: Reading contents of STATUS flag through CFC2.\r\n");
 			m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[0].nV[0]));
 			break;
-		case 20:	//R
+		case CTRL_REG_R:
 			m_codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2R));
 			break;
-		case 17:	//MAC flag
+		case CTRL_REG_MAC:
 #ifdef _DEBUG
 			CLog::GetInstance().Print(LOG_NAME, "Warning: Reading contents of MAC flag through CFC2.\r\n");
 #endif
-		case 26:	//TPC
-		case 28:	//FBRST
-		case 29:	//VPU-STAT
+		case CTRL_REG_TPC:
+		case CTRL_REG_FBRST:
+		case CTRL_REG_VPU_STAT:
 			m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[0].nV[0]));
 			break;
-		case 21:
+		case CTRL_REG_I:
 			m_codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2I));
 			break;
-		case 22:
+		case CTRL_REG_Q:
 			m_codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2Q));
 			break;
 		default:
@@ -200,45 +215,42 @@ void CCOP_VU::CTC2()
 
 		switch(m_nFS)
 		{
-		case 16:
-			//STATUS - Not implemented
+		case CTRL_REG_STATUS:
+			//Not implemented
 #ifdef _DEBUG
 			CLog::GetInstance().Print(LOG_NAME, "Warning: Writing contents of STATUS flag through CTC2.\r\n");
 #endif
 			m_codeGen->PullTop();
 			break;
-		case 17:
-			//MAC - Not implemented
+		case CTRL_REG_MAC:
+			//Not implemented
 #ifdef _DEBUG
 			CLog::GetInstance().Print(LOG_NAME, "Warning: Writing contents of MAC flag through CTC2.\r\n");
 #endif
 			m_codeGen->PullTop();
 			break;
-		case 18:
-			//Clipping flag
+		case CTRL_REG_CLIP:
 			m_codeGen->PullRel(offsetof(CMIPS, m_State.nCOP2CF));
 			break;
-		case 20:
+		case CTRL_REG_R:
 			m_codeGen->PushCst(0x7FFFFF);
 			m_codeGen->And();
 			m_codeGen->PullRel(offsetof(CMIPS, m_State.nCOP2R));
 			break;
-		case 21:
+		case CTRL_REG_I:
 			m_codeGen->PullRel(offsetof(CMIPS, m_State.nCOP2I));
 			break;
-		case 22:
+		case CTRL_REG_Q:
 			m_codeGen->PullRel(offsetof(CMIPS, m_State.nCOP2Q));
 			break;
-		case 27:
-			//CMSAR0
+		case CTRL_REG_CMSAR0:
 			m_codeGen->PullRel(offsetof(CMIPS, m_State.cmsar0));
 			break;
-		case 28:
-			//FBRST - Don't care
+		case CTRL_REG_FBRST:
+			//Don't care
 			m_codeGen->PullTop();
 			break;
-		case 31:
-			//CMSAR1
+		case CTRL_REG_CMSAR1:
 			{
 				//Push context
 				m_codeGen->PushCtx();
