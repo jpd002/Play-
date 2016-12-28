@@ -1,5 +1,4 @@
-#ifndef _MIPSINSTRUCTIONFACTORY_H_
-#define _MIPSINSTRUCTIONFACTORY_H_
+#pragma once
 
 #include "Types.h"
 #include "MipsJitter.h"
@@ -23,7 +22,7 @@ class CMIPSInstructionFactory
 {
 public:
 							CMIPSInstructionFactory(MIPS_REGSIZE);
-	virtual					~CMIPSInstructionFactory();
+	virtual					~CMIPSInstructionFactory() = default;
 	virtual void			CompileInstruction(uint32, CMipsJitter*, CMIPS*) = 0;
 
 protected:
@@ -34,11 +33,9 @@ protected:
 	void					Illegal();
 	void					SetupQuickVariables(uint32, CMipsJitter*, CMIPS*);
 
-    CMipsJitter*			m_codeGen;
-    CMIPS*					m_pCtx;
-    uint32					m_nOpcode;
-    uint32					m_nAddress;
+	CMipsJitter*			m_codeGen;
+	CMIPS*					m_pCtx;
+	uint32					m_nOpcode;
+	uint32					m_nAddress;
 	MIPS_REGSIZE			m_regSize;
 };
-
-#endif

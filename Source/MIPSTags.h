@@ -1,5 +1,4 @@
-#ifndef _MIPSTAGS_H_
-#define _MIPSTAGS_H_
+#pragma once
 
 #include "Types.h"
 #include "xml/Node.h"
@@ -15,23 +14,22 @@ public:
 
 	boost::signals2::signal<void ()>		OnTagListChange;
 
-											CMIPSTags();
-											~CMIPSTags();
 	void									InsertTag(uint32, const char*);
 	void									RemoveTags();
-	const char*								Find(uint32);
-	void									Serialize(Framework::Xml::CNode*, const char*);
+	const char*								Find(uint32) const;
+
+	void									Serialize(Framework::Xml::CNode*, const char*) const;
 	void									Unserialize(Framework::Xml::CNode*, const char*);
-	void									Serialize(Framework::Xml::CNode*);
+
+	void									Serialize(Framework::Xml::CNode*) const;
 	void									Unserialize(Framework::Xml::CNode*);
-	void									Serialize(const char*);
+
+	void									Serialize(const char*) const;
 	void									Unserialize(const char*);
 
 	TagIterator								GetTagsBegin() const;
 	TagIterator								GetTagsEnd() const;
 
 private:
-	TagMap									m_Tags;
+	TagMap									m_tags;
 };
-
-#endif

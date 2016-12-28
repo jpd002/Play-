@@ -1,5 +1,4 @@
 #include "MIPSTags.h"
-#include "PtrMacro.h"
 #include "StdStream.h"
 #include "lexical_cast_ex.h"
 #include "xml/FilteringNodeIterator.h"
@@ -8,23 +7,10 @@
 #define TAG_ELEMENT_ATTRIBUTE_ADDRESS	("address")
 #define TAG_ELEMENT_ATTRIBUTE_VALUE		("value")
 
-using namespace Framework;
-using namespace std;
-
-CMIPSTags::CMIPSTags()
-{
-
-}
-
-CMIPSTags::~CMIPSTags()
-{
-	RemoveTags();
-}
-
 void CMIPSTags::InsertTag(uint32 nAddress, const char* sTag)
 {
 	bool nErase = false;
-	if(sTag == NULL)
+	if(sTag == nullptr)
 	{
 		nErase = true;
 	}
@@ -35,46 +21,44 @@ void CMIPSTags::InsertTag(uint32 nAddress, const char* sTag)
 
 	if(nErase)
 	{
-		TagMap::iterator itTag(m_Tags.find(nAddress));
-
-		if(itTag != m_Tags.end())
+		auto tagIterator = m_tags.find(nAddress);
+		if(tagIterator != m_tags.end())
 		{
-			m_Tags.erase(itTag);
+			m_tags.erase(tagIterator);
 		}
 	}
 	else
 	{
-		m_Tags[nAddress] = sTag;
+		m_tags[nAddress] = sTag;
 	}
 }
 
 void CMIPSTags::RemoveTags()
 {
-	m_Tags.clear();
+	m_tags.clear();
 }
 
-const char* CMIPSTags::Find(uint32 nAddress)
+const char* CMIPSTags::Find(uint32 nAddress) const
 {
-	TagMap::const_iterator itTag(m_Tags.find(nAddress));
-	return (itTag != m_Tags.end()) ? (itTag->second.c_str()) : (NULL);
+	auto tagIterator = m_tags.find(nAddress);
+	return (tagIterator != m_tags.end()) ? (tagIterator->second.c_str()) : nullptr;
 }
 
-void CMIPSTags::Serialize(const char* sPath)
+void CMIPSTags::Serialize(const char* sPath) const
 {
-	CStdStream Stream(fopen(sPath, "wb"));
+	Framework::CStdStream stream(fopen(sPath, "wb"));
 
-	Stream.Write32(static_cast<uint32>(m_Tags.size()));
+	stream.Write32(static_cast<uint32>(m_tags.size()));
 
-	for(TagMap::const_iterator itTag(m_Tags.begin());
-		itTag != m_Tags.end(); itTag++)
+	for(const auto& tagPair : m_tags)
 	{
-		const string& sTag = itTag->second;
+		const auto& sTag = tagPair.second;
 
-		uint8 nLength = static_cast<uint8>(min<size_t>(sTag.length(), 255));
+		uint8 nLength = static_cast<uint8>(std::min<size_t>(sTag.length(), 255));
 
-		Stream.Write32(itTag->first);
-		Stream.Write8(nLength);
-		Stream.Write(sTag.c_str(), nLength);
+		stream.Write32(tagPair.first);
+		stream.Write8(nLength);
+		stream.Write(sTag.c_str(), nLength);
 	}
 }
 
@@ -82,7 +66,7 @@ void CMIPSTags::Unserialize(const char* sPath)
 {
 	try
 	{
-		CStdStream Stream(fopen(sPath, "rb"));
+		Framework::CStdStream Stream(fopen(sPath, "rb"));
 		RemoveTags();
 
 		uint32 nCount = Stream.Read32();
@@ -106,52 +90,51 @@ void CMIPSTags::Unserialize(const char* sPath)
 	}
 }
 
-void CMIPSTags::Serialize(Xml::CNode* parentNode, const char* sectionName)
+void CMIPSTags::Serialize(Framework::Xml::CNode* parentNode, const char* sectionName) const
 {
-    Xml::CNode* section = new Xml::CNode(sectionName, true);
-    Serialize(section);
-    parentNode->InsertNode(section);
+	auto section = new Framework::Xml::CNode(sectionName, true);
+	Serialize(section);
+	parentNode->InsertNode(section);
 }
 
-void CMIPSTags::Unserialize(Xml::CNode* parentNode, const char* sectionName)
+void CMIPSTags::Unserialize(Framework::Xml::CNode* parentNode, const char* sectionName)
 {
-    Xml::CNode* section = parentNode->Select(sectionName);
-    if(!section) return;
-    Unserialize(section);
+	auto section = parentNode->Select(sectionName);
+	if(!section) return;
+	Unserialize(section);
 }
 
-void CMIPSTags::Serialize(Xml::CNode* parentNode)
+void CMIPSTags::Serialize(Framework::Xml::CNode* parentNode) const
 {
-	for(TagMap::const_iterator itTag(m_Tags.begin());
-		itTag != m_Tags.end(); itTag++)
+	for(const auto& tagPair : m_tags)
 	{
-        Xml::CNode* node = new Xml::CNode(TAG_ELEMENT_NAME, true);
-        node->InsertAttribute(TAG_ELEMENT_ATTRIBUTE_ADDRESS, lexical_cast_hex<string>(itTag->first, 8).c_str());
-        node->InsertAttribute(TAG_ELEMENT_ATTRIBUTE_VALUE, itTag->second.c_str());
-        parentNode->InsertNode(node);
+		auto node = new Framework::Xml::CNode(TAG_ELEMENT_NAME, true);
+		node->InsertAttribute(TAG_ELEMENT_ATTRIBUTE_ADDRESS, lexical_cast_hex<std::string>(tagPair.first, 8).c_str());
+		node->InsertAttribute(TAG_ELEMENT_ATTRIBUTE_VALUE, tagPair.second.c_str());
+		parentNode->InsertNode(node);
 	}
 }
 
-void CMIPSTags::Unserialize(Xml::CNode* parentNode)
+void CMIPSTags::Unserialize(Framework::Xml::CNode* parentNode)
 {
-	for(Xml::CFilteringNodeIterator nodeIterator(parentNode, TAG_ELEMENT_NAME);
+	for(Framework::Xml::CFilteringNodeIterator nodeIterator(parentNode, TAG_ELEMENT_NAME);
 		!nodeIterator.IsEnd(); nodeIterator++)
 	{
-		Xml::CNode* node = *nodeIterator;
-		const char* addressText = node->GetAttribute(TAG_ELEMENT_ATTRIBUTE_ADDRESS);
-		const char* valueText	= node->GetAttribute(TAG_ELEMENT_ATTRIBUTE_VALUE);
+		auto node = *nodeIterator;
+		auto addressText = node->GetAttribute(TAG_ELEMENT_ATTRIBUTE_ADDRESS);
+		auto valueText   = node->GetAttribute(TAG_ELEMENT_ATTRIBUTE_VALUE);
 		if(!addressText || !valueText) continue;
-		uint32 address = lexical_cast_hex<string>(addressText);
+		uint32 address = lexical_cast_hex<std::string>(addressText);
 		InsertTag(address, valueText);
 	}
 }
 
 CMIPSTags::TagIterator CMIPSTags::GetTagsBegin() const
 {
-	return m_Tags.begin();
+	return m_tags.begin();
 }
 
 CMIPSTags::TagIterator CMIPSTags::GetTagsEnd() const
 {
-	return m_Tags.end();
+	return m_tags.end();
 }
