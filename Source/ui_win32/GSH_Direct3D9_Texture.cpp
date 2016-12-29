@@ -212,10 +212,10 @@ void CGSH_Direct3D9::TexUpdater_Psm16(D3DLOCKED_RECT* lockedRect, uint32 bufPtr,
 		{
 			auto pixel = indexor.GetPixel(texX + x, texY + y);
 			auto cvtPixel =
-				(((pixel & 0x001F) >> 0) << 11) |	//R
-				(((pixel & 0x03E0) >> 5) << 6) |	//G
-				(((pixel & 0x7C00) >> 10) << 1) |	//B
-				(pixel >> 15);						//A
+				(((pixel & 0x001F) >> 0)  << 10)  | //R
+				(((pixel & 0x03E0) >> 5)  <<  5)  | //G
+				(((pixel & 0x7C00) >> 10) <<  0)  | //B
+				(((pixel & 0x8000) >> 15) << 15);   //A
 			dst[x] = cvtPixel;
 		}
 
