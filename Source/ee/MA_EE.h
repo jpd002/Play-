@@ -101,6 +101,7 @@ private:
 	void								PSUBSH();
 	void								PEXTLH();
 	void								PPACH();
+	void								PADDSB();
 	void								PEXTLB();
 	void								PPACB();
 	void								PEXT5();

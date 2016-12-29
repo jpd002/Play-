@@ -126,7 +126,7 @@ INSTRUCTION CMA_EE::m_cReflMmi0[32] =
 	{	"PEXTLH",	NULL,			CopyMnemonic,		ReflOpRdRsRt,		NULL,				NULL			},
 	{	"PPACH",	NULL,			CopyMnemonic,		ReflOpRdRsRt,		NULL,				NULL			},
 	//0x18
-	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
+	{	"PADDSB",	NULL,			CopyMnemonic,		ReflOpRdRsRt,		NULL,				NULL			},
 	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
 	{	"PEXTLB",	NULL,			CopyMnemonic,		ReflOpRdRsRt,		NULL,				NULL			},
 	{	"PPACB",	NULL,			CopyMnemonic,		ReflOpRdRsRt,		NULL,				NULL			},
