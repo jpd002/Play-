@@ -154,66 +154,27 @@ void VUShared::TestSZFlags(CMipsJitter* codeGen, uint8 dest, size_t regOffset, u
 {
 	const int macOpLatency = 4;
 
-	//Write value time
-	{
-		//Generate value time address
-		codeGen->PushRelAddrRef(offsetof(CMIPS, m_State.pipeMac.pipeTimes));
+	//--- S flag
+	codeGen->MD_PushRel(regOffset);
+	codeGen->MD_IsNegative();
+	codeGen->Shl(4);
 
-		//Get offset and multiply by 4
-		codeGen->PushRel(offsetof(CMIPS, m_State.pipeMac.index));
-		codeGen->Shl(2);
-		codeGen->AddRef();
+	//--- Z flag
+	codeGen->MD_PushRel(regOffset);
+	codeGen->MD_IsZero();
+	codeGen->Or();
 
-		//Generate value time
-		codeGen->PushRel(offsetof(CMIPS, m_State.pipeTime));
-		codeGen->PushCst(relativePipeTime + macOpLatency);
-		codeGen->Add();
-
-		//--- Store value
-		codeGen->StoreAtRef();
-	}
-
-	//Write value
-	{
-		//Generate value time address
-		codeGen->PushRelAddrRef(offsetof(CMIPS, m_State.pipeMac.values));
-
-		//Get offset and multiply by 4
-		codeGen->PushRel(offsetof(CMIPS, m_State.pipeMac.index));
-		codeGen->Shl(2);
-		codeGen->AddRef();
-
-		//--- S flag
-		codeGen->MD_PushRel(regOffset);
-		codeGen->MD_IsNegative();
-		codeGen->Shl(4);
-
-		//--- Z flag
-		codeGen->MD_PushRel(regOffset);
-		codeGen->MD_IsZero();
-		codeGen->Or();
-
-		//Clear flags of inactive FMAC units
-		codeGen->PushCst((dest << 4) | dest);
-		codeGen->And();
-
-		//Update sticky flags
-		codeGen->PushTop();
-		codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2SF));
-		codeGen->Or();
-		codeGen->PullRel(offsetof(CMIPS, m_State.nCOP2SF));
-
-		//--- Store value
-		codeGen->StoreAtRef();
-	}
-
-	//Increment counter
-	codeGen->PushRel(offsetof(CMIPS, m_State.pipeMac.index));
-	codeGen->PushCst(1);
-	codeGen->Add();
-	codeGen->PushCst(MACFLAG_PIPELINE_SLOTS - 1);
+	//Clear flags of inactive FMAC units
+	codeGen->PushCst((dest << 4) | dest);
 	codeGen->And();
-	codeGen->PullRel(offsetof(CMIPS, m_State.pipeMac.index));
+
+	//Update sticky flags
+	codeGen->PushTop();
+	codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2SF));
+	codeGen->Or();
+	codeGen->PullRel(offsetof(CMIPS, m_State.nCOP2SF));
+
+	QueueInFlagPipeline(g_pipeInfoMac, codeGen, macOpLatency, relativePipeTime);
 }
 
 void VUShared::ADDA_base(CMipsJitter* codeGen, uint8 dest, size_t fs, size_t ft, bool expand)
@@ -1421,4 +1382,53 @@ void VUShared::CheckFlagPipeline(const FLAG_PIPEINFO& pipeInfo, CMipsJitter* cod
 		}
 		codeGen->EndIf();
 	}
+}
+
+void VUShared::QueueInFlagPipeline(const FLAG_PIPEINFO& pipeInfo, CMipsJitter* codeGen, uint32 latency, uint32 relativePipeTime)
+{
+	uint32 valueCursor = codeGen->GetTopCursor();
+
+	//Get offset and multiply by sizeof(uint32)
+	codeGen->PushRel(pipeInfo.index);
+	codeGen->Shl(2);
+	uint32 offsetCursor = codeGen->GetTopCursor();
+
+	//Write time
+	{
+		//Generate time address
+		codeGen->PushRelAddrRef(pipeInfo.timeArray);
+		codeGen->PushCursor(offsetCursor);
+		codeGen->AddRef();
+
+		//Generate time
+		codeGen->PushRel(offsetof(CMIPS, m_State.pipeTime));
+		codeGen->PushCst(relativePipeTime + latency);
+		codeGen->Add();
+
+		//--- Store time
+		codeGen->StoreAtRef();
+	}
+
+	//Write value
+	{
+		//Generate value address
+		codeGen->PushRelAddrRef(pipeInfo.valueArray);
+		codeGen->PushCursor(offsetCursor);
+		codeGen->AddRef();
+
+		//--- Store value
+		codeGen->PushCursor(valueCursor);
+		codeGen->StoreAtRef();
+	}
+
+	assert(codeGen->GetTopCursor() == offsetCursor); codeGen->PullTop();
+	assert(codeGen->GetTopCursor() == valueCursor); codeGen->PullTop();
+
+	//Increment counter
+	codeGen->PushRel(pipeInfo.index);
+	codeGen->PushCst(1);
+	codeGen->Add();
+	codeGen->PushCst(MACFLAG_PIPELINE_SLOTS - 1);
+	codeGen->And();
+	codeGen->PullRel(pipeInfo.index);
 }

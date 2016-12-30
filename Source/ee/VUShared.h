@@ -179,6 +179,7 @@ namespace VUShared
 	void						CheckPipeline(const PIPEINFO&, CMipsJitter*, uint32);
 	void						QueueInPipeline(const PIPEINFO&, CMipsJitter*, uint32, uint32);
 	void						CheckFlagPipeline(const FLAG_PIPEINFO&, CMipsJitter*, uint32);
+	void						QueueInFlagPipeline(const FLAG_PIPEINFO&, CMipsJitter*, uint32, uint32);
 
 	//Shared addressing modes
 	void						ReflOpFdFsI(MIPSReflection::INSTRUCTION*, CMIPS*, uint32, uint32, char*, unsigned int);
