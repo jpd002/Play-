@@ -99,6 +99,7 @@ __attribute__((aligned(16)))
 	REGISTER_PIPELINE	pipeQ;
 	REGISTER_PIPELINE	pipeP;
 	MACFLAG_PIPELINE	pipeMac;
+	MACFLAG_PIPELINE	pipeClip;
 
 	uint32				pipeTime;
 

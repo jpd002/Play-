@@ -101,7 +101,7 @@ namespace VUShared
 	void						ADDA(CMipsJitter*, uint8, uint8, uint8);
 	void						ADDAbc(CMipsJitter*, uint8, uint8, uint8, uint8);
 	void						ADDAi(CMipsJitter*, uint8, uint8);
-	void						CLIP(CMipsJitter*, uint8, uint8);
+	void						CLIP(CMipsJitter*, uint8, uint8, uint32);
 	void						DIV(CMipsJitter*, uint8, uint8, uint8, uint8, uint32);
 	void						FTOI0(CMipsJitter*, uint8, uint8, uint8);
 	void						FTOI4(CMipsJitter*, uint8, uint8, uint8);
@@ -181,6 +181,7 @@ namespace VUShared
 	void						QueueInPipeline(const PIPEINFO&, CMipsJitter*, uint32, uint32);
 	void						CheckFlagPipeline(const FLAG_PIPEINFO&, CMipsJitter*, uint32);
 	void						QueueInFlagPipeline(const FLAG_PIPEINFO&, CMipsJitter*, uint32, uint32);
+	void						ResetFlagPipeline(const FLAG_PIPEINFO&, CMipsJitter*);
 
 	//Shared addressing modes
 	void						ReflOpFdFsI(MIPSReflection::INSTRUCTION*, CMIPS*, uint32, uint32, char*, unsigned int);
@@ -230,6 +231,7 @@ namespace VUShared
 	extern const char*			m_sDestination[16];
 	extern const PIPEINFO		g_pipeInfoQ;
 	extern const FLAG_PIPEINFO	g_pipeInfoMac;
+	extern const FLAG_PIPEINFO	g_pipeInfoClip;
 }
 
 #endif

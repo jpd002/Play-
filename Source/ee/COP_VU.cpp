@@ -146,6 +146,7 @@ void CCOP_VU::CFC2()
 		switch(m_nFS)
 		{
 		case CTRL_REG_CLIP:
+			VUShared::CheckFlagPipeline(VUShared::g_pipeInfoClip, m_codeGen, 4);
 			m_codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2CF));
 			break;
 		case CTRL_REG_STATUS:
@@ -230,7 +231,9 @@ void CCOP_VU::CTC2()
 			m_codeGen->PullTop();
 			break;
 		case CTRL_REG_CLIP:
+			m_codeGen->PushTop();
 			m_codeGen->PullRel(offsetof(CMIPS, m_State.nCOP2CF));
+			VUShared::ResetFlagPipeline(VUShared::g_pipeInfoClip, m_codeGen);
 			break;
 		case CTRL_REG_R:
 			m_codeGen->PushCst(0x7FFFFF);
@@ -794,7 +797,7 @@ void CCOP_VU::VFTOI15()
 //07
 void CCOP_VU::VCLIP()
 {
-	VUShared::CLIP(m_codeGen, m_nFS, m_nFT);
+	VUShared::CLIP(m_codeGen, m_nFS, m_nFT, 0);
 }
 
 //08

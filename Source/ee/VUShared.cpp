@@ -25,6 +25,14 @@ const VUShared::FLAG_PIPEINFO VUShared::g_pipeInfoMac =
 	offsetof(CMIPS, m_State.pipeMac.pipeTimes)
 };
 
+const VUShared::FLAG_PIPEINFO VUShared::g_pipeInfoClip =
+{
+	offsetof(CMIPS, m_State.nCOP2CF),
+	offsetof(CMIPS, m_State.pipeClip.index),
+	offsetof(CMIPS, m_State.pipeClip.values),
+	offsetof(CMIPS, m_State.pipeClip.pipeTimes)
+};
+
 using namespace VUShared;
 
 bool VUShared::DestinationHasElement(uint8 nDest, unsigned int nElement)
@@ -383,12 +391,30 @@ void VUShared::ADDAi(CMipsJitter* codeGen, uint8 dest, uint8 fs)
 		true);
 }
 
-void VUShared::CLIP(CMipsJitter* codeGen, uint8 nFs, uint8 nFt)
+void VUShared::CLIP(CMipsJitter* codeGen, uint8 nFs, uint8 nFt, uint32 relativePipeTime)
 {
+	size_t tempOffset = offsetof(CMIPS, m_State.nCOP2T);
+
+	//Load previous value
+	{
+		codeGen->PushRelAddrRef(offsetof(CMIPS, m_State.pipeClip.values));
+
+		codeGen->PushRel(offsetof(CMIPS, m_State.pipeClip.index));
+		codeGen->PushCst(1);
+		codeGen->Sub();
+		codeGen->PushCst(MACFLAG_PIPELINE_SLOTS - 1);
+		codeGen->And();
+
+		codeGen->Shl(2);
+		codeGen->AddRef();
+		codeGen->LoadFromRef();
+		codeGen->PullRel(tempOffset);
+	}
+
 	//Create some space for the new test results
-	codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2CF));
+	codeGen->PushRel(tempOffset);
 	codeGen->Shl(6);
-	codeGen->PullRel(offsetof(CMIPS, m_State.nCOP2CF));
+	codeGen->PullRel(tempOffset);
 
 	for(unsigned int i = 0; i < 3; i++)
 	{
@@ -401,10 +427,10 @@ void VUShared::CLIP(CMipsJitter* codeGen, uint8 nFs, uint8 nFt)
 		codeGen->PushCst(0);
 		codeGen->BeginIf(Jitter::CONDITION_NE);
 		{
-			codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2CF));
+			codeGen->PushRel(tempOffset);
 			codeGen->PushCst(1 << ((i * 2) + 0));
 			codeGen->Or();
-			codeGen->PullRel(offsetof(CMIPS, m_State.nCOP2CF));
+			codeGen->PullRel(tempOffset);
 		}
 		codeGen->EndIf();
 
@@ -418,13 +444,16 @@ void VUShared::CLIP(CMipsJitter* codeGen, uint8 nFs, uint8 nFt)
 		codeGen->PushCst(0);
 		codeGen->BeginIf(Jitter::CONDITION_NE);
 		{
-			codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2CF));
+			codeGen->PushRel(tempOffset);
 			codeGen->PushCst(1 << ((i * 2) + 1));
 			codeGen->Or();
-			codeGen->PullRel(offsetof(CMIPS, m_State.nCOP2CF));
+			codeGen->PullRel(tempOffset);
 		}
 		codeGen->EndIf();
 	}
+
+	codeGen->PushRel(tempOffset);
+	QueueInFlagPipeline(g_pipeInfoClip, codeGen, LATENCY_MAC, relativePipeTime);
 }
 
 void VUShared::DIV(CMipsJitter* codeGen, uint8 nFs, uint8 nFsf, uint8 nFt, uint8 nFtf, uint32 relativePipeTime)
@@ -1438,4 +1467,20 @@ void VUShared::QueueInFlagPipeline(const FLAG_PIPEINFO& pipeInfo, CMipsJitter* c
 	codeGen->PushCst(MACFLAG_PIPELINE_SLOTS - 1);
 	codeGen->And();
 	codeGen->PullRel(pipeInfo.index);
+}
+
+void VUShared::ResetFlagPipeline(const FLAG_PIPEINFO& pipeInfo, CMipsJitter* codeGen)
+{
+	uint32 valueCursor = codeGen->GetTopCursor();
+
+	for(uint32 i = 0; i < MACFLAG_PIPELINE_SLOTS; i++)
+	{
+		codeGen->PushCst(0);
+		codeGen->PullRel(pipeInfo.timeArray + (i * 4));
+
+		codeGen->PushCursor(valueCursor);
+		codeGen->PullRel(pipeInfo.valueArray + (i * 4));
+	}
+
+	assert(codeGen->GetTopCursor() == valueCursor); codeGen->PullTop();
 }

@@ -311,6 +311,8 @@ void CMA_VU::CLower::ISUBIU()
 //10
 void CMA_VU::CLower::FCEQ()
 {
+	VUShared::CheckFlagPipeline(VUShared::g_pipeInfoClip, m_codeGen, m_relativePipeTime);
+
 	m_codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2CF));
 	m_codeGen->PushCst(0xFFFFFF);
 	m_codeGen->And();
@@ -333,11 +335,16 @@ void CMA_VU::CLower::FCSET()
 {
 	m_codeGen->PushCst(m_nImm24);
 	m_codeGen->PullRel(offsetof(CMIPS, m_State.nCOP2CF));
+
+	m_codeGen->PushCst(m_nImm24);
+	ResetFlagPipeline(VUShared::g_pipeInfoClip, m_codeGen);
 }
 
 //12
 void CMA_VU::CLower::FCAND()
 {
+	VUShared::CheckFlagPipeline(VUShared::g_pipeInfoClip, m_codeGen, m_relativePipeTime);
+
 	m_codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2CF));
 	m_codeGen->PushCst(m_nImm24);
 	m_codeGen->And();
@@ -359,6 +366,8 @@ void CMA_VU::CLower::FCAND()
 //13
 void CMA_VU::CLower::FCOR()
 {
+	VUShared::CheckFlagPipeline(VUShared::g_pipeInfoClip, m_codeGen, m_relativePipeTime);
+
 	m_codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2CF));
 	m_codeGen->PushCst(m_nImm24);
 	m_codeGen->Or();
@@ -451,6 +460,8 @@ void CMA_VU::CLower::FMOR()
 //1C
 void CMA_VU::CLower::FCGET()
 {
+	VUShared::CheckFlagPipeline(VUShared::g_pipeInfoClip, m_codeGen, m_relativePipeTime);
+
 	m_codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2CF));
 	m_codeGen->PushCst(0xFFF);
 	m_codeGen->And();

@@ -138,6 +138,7 @@ std::string CRegViewVU::GetDisplayText()
 	result += sLine;
 
 	result += PrintPipeline("PIPEM:", state.pipeMac);
+	result += PrintPipeline("PIPEC:", state.pipeClip);
 
 	for(unsigned int i = 0; i < 16; i += 2)
 	{
