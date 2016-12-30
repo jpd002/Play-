@@ -5,6 +5,7 @@
 #include "FpMulTruncate.h"
 #include "FpAddTruncate.h"
 
+#define LATENCY_MAC     (4)
 #define LATENCY_DIV     (7)
 #define LATENCY_SQRT    (7)
 #define LATENCY_RSQRT   (13)
@@ -152,8 +153,6 @@ void VUShared::ClampVector(CMipsJitter* codeGen)
 
 void VUShared::TestSZFlags(CMipsJitter* codeGen, uint8 dest, size_t regOffset, uint32 relativePipeTime)
 {
-	const int macOpLatency = 4;
-
 	//--- S flag
 	codeGen->MD_PushRel(regOffset);
 	codeGen->MD_IsNegative();
@@ -174,7 +173,7 @@ void VUShared::TestSZFlags(CMipsJitter* codeGen, uint8 dest, size_t regOffset, u
 	codeGen->Or();
 	codeGen->PullRel(offsetof(CMIPS, m_State.nCOP2SF));
 
-	QueueInFlagPipeline(g_pipeInfoMac, codeGen, macOpLatency, relativePipeTime);
+	QueueInFlagPipeline(g_pipeInfoMac, codeGen, LATENCY_MAC, relativePipeTime);
 }
 
 void VUShared::ADDA_base(CMipsJitter* codeGen, uint8 dest, size_t fs, size_t ft, bool expand)
