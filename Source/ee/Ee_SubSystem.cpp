@@ -218,9 +218,7 @@ int CSubSystem::ExecuteCpu(int quota)
 		if(!m_vpu0->IsVuRunning())
 		{
 			//callMs mode over
-			memcpy(&m_EE.m_State.nCOP2,		&m_VU0.m_State.nCOP2,	sizeof(m_EE.m_State.nCOP2));
-			memcpy(&m_EE.m_State.nCOP2A,	&m_VU0.m_State.nCOP2A,	sizeof(m_EE.m_State.nCOP2A));
-			memcpy(&m_EE.m_State.nCOP2VI,	&m_VU0.m_State.nCOP2VI, sizeof(m_EE.m_State.nCOP2VI));
+			CopyVuState(m_EE, m_VU0);
 			m_EE.m_State.callMsEnabled = 0;
 		}
 	}
@@ -241,10 +239,7 @@ int CSubSystem::ExecuteCpu(int quota)
 			{
 				//We are in callMs mode
 				assert(!m_vpu0->IsVuRunning());
-				//Copy the COP2 state to VPU0
-				memcpy(&m_VU0.m_State.nCOP2,	&m_EE.m_State.nCOP2,	sizeof(m_VU0.m_State.nCOP2));
-				memcpy(&m_VU0.m_State.nCOP2A,	&m_EE.m_State.nCOP2A,	sizeof(m_VU0.m_State.nCOP2A));
-				memcpy(&m_VU0.m_State.nCOP2VI,	&m_EE.m_State.nCOP2VI,	sizeof(m_VU0.m_State.nCOP2VI));
+				CopyVuState(m_VU0, m_EE);
 				m_vpu0->ExecuteMicroProgram(m_EE.m_State.callMsAddr);
 				m_EE.m_State.nHasException = MIPS_EXCEPTION_NONE;
 			}
@@ -613,6 +608,19 @@ uint32 CSubSystem::Vu1IoPortWriteHandler(uint32 address, uint32 value)
 		break;
 	}
 	return 0;
+}
+
+void CSubSystem::CopyVuState(CMIPS& dst, const CMIPS& src)
+{
+	memcpy(&dst.m_State.nCOP2,   &src.m_State.nCOP2,   sizeof(dst.m_State.nCOP2));
+	memcpy(&dst.m_State.nCOP2A,  &src.m_State.nCOP2A,  sizeof(dst.m_State.nCOP2A));
+	memcpy(&dst.m_State.nCOP2VI, &src.m_State.nCOP2VI, sizeof(dst.m_State.nCOP2VI));
+	dst.m_State.nCOP2CF = src.m_State.nCOP2CF;
+	for(unsigned int i = 0; i < MACFLAG_PIPELINE_SLOTS; i++)
+	{
+		dst.m_State.pipeClip.pipeTimes[i] = 0;
+		dst.m_State.pipeClip.values[i] = src.m_State.nCOP2CF;
+	}
 }
 
 void CSubSystem::ExecuteIpu()

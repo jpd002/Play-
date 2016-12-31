@@ -94,6 +94,8 @@ namespace Ee
 		uint32						Vu1IoPortReadHandler(uint32);
 		uint32						Vu1IoPortWriteHandler(uint32, uint32);
 
+		void						CopyVuState(CMIPS&, const CMIPS&);
+
 		void						ExecuteIpu();
 
 		void						CheckPendingInterrupts();
