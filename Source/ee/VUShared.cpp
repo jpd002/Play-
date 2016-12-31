@@ -10,7 +10,7 @@
 #define LATENCY_SQRT    (7)
 #define LATENCY_RSQRT   (13)
 
-const VUShared::PIPEINFO VUShared::g_pipeInfoQ =
+const VUShared::REGISTER_PIPEINFO VUShared::g_pipeInfoQ =
 {
 	offsetof(CMIPS, m_State.nCOP2Q),
 	offsetof(CMIPS, m_State.pipeQ.heldValue),
@@ -402,7 +402,7 @@ void VUShared::CLIP(CMipsJitter* codeGen, uint8 nFs, uint8 nFt, uint32 relativeP
 		codeGen->PushRel(offsetof(CMIPS, m_State.pipeClip.index));
 		codeGen->PushCst(1);
 		codeGen->Sub();
-		codeGen->PushCst(MACFLAG_PIPELINE_SLOTS - 1);
+		codeGen->PushCst(FLAG_PIPELINE_SLOTS - 1);
 		codeGen->And();
 
 		codeGen->Shl(2);
@@ -1344,7 +1344,7 @@ void VUShared::WAITQ(CMipsJitter* codeGen)
 	FlushPipeline(g_pipeInfoQ, codeGen);
 }
 
-void VUShared::FlushPipeline(const PIPEINFO& pipeInfo, CMipsJitter* codeGen)
+void VUShared::FlushPipeline(const REGISTER_PIPEINFO& pipeInfo, CMipsJitter* codeGen)
 {
 	codeGen->PushCst(0);
 	codeGen->PullRel(pipeInfo.counter);
@@ -1353,7 +1353,7 @@ void VUShared::FlushPipeline(const PIPEINFO& pipeInfo, CMipsJitter* codeGen)
 	codeGen->PullRel(pipeInfo.value);
 }
 
-void VUShared::CheckPipeline(const PIPEINFO& pipeInfo, CMipsJitter* codeGen, uint32 relativePipeTime)
+void VUShared::CheckPipeline(const REGISTER_PIPEINFO& pipeInfo, CMipsJitter* codeGen, uint32 relativePipeTime)
 {
 	codeGen->PushRel(pipeInfo.counter);
 
@@ -1368,7 +1368,7 @@ void VUShared::CheckPipeline(const PIPEINFO& pipeInfo, CMipsJitter* codeGen, uin
 	codeGen->EndIf();
 }
 
-void VUShared::QueueInPipeline(const PIPEINFO& pipeInfo, CMipsJitter* codeGen, uint32 latency, uint32 relativePipeTime)
+void VUShared::QueueInPipeline(const REGISTER_PIPEINFO& pipeInfo, CMipsJitter* codeGen, uint32 latency, uint32 relativePipeTime)
 {
 	//Set target
 	codeGen->PushRel(offsetof(CMIPS, m_State.pipeTime));
@@ -1381,7 +1381,7 @@ void VUShared::CheckFlagPipeline(const FLAG_PIPEINFO& pipeInfo, CMipsJitter* cod
 {
 	//This will check every slot in the pipeline and update
 	//the flag register every time (pipeTimes[i] <= (pipeTime + relativePipeTime))
-	for(unsigned int i = 0; i < MACFLAG_PIPELINE_SLOTS; i++)
+	for(unsigned int i = 0; i < FLAG_PIPELINE_SLOTS; i++)
 	{
 		codeGen->PushRelAddrRef(pipeInfo.timeArray);
 		
@@ -1389,7 +1389,7 @@ void VUShared::CheckFlagPipeline(const FLAG_PIPEINFO& pipeInfo, CMipsJitter* cod
 		codeGen->PushRel(pipeInfo.index);
 		codeGen->PushCst(i);
 		codeGen->Add();
-		codeGen->PushCst(MACFLAG_PIPELINE_SLOTS - 1);
+		codeGen->PushCst(FLAG_PIPELINE_SLOTS - 1);
 		codeGen->And();
 		
 		codeGen->Shl(2);
@@ -1408,7 +1408,7 @@ void VUShared::CheckFlagPipeline(const FLAG_PIPEINFO& pipeInfo, CMipsJitter* cod
 			codeGen->PushRel(pipeInfo.index);
 			codeGen->PushCst(i);
 			codeGen->Add();
-			codeGen->PushCst(MACFLAG_PIPELINE_SLOTS - 1);
+			codeGen->PushCst(FLAG_PIPELINE_SLOTS - 1);
 			codeGen->And();
 		
 			codeGen->Shl(2);
@@ -1465,7 +1465,7 @@ void VUShared::QueueInFlagPipeline(const FLAG_PIPEINFO& pipeInfo, CMipsJitter* c
 	codeGen->PushRel(pipeInfo.index);
 	codeGen->PushCst(1);
 	codeGen->Add();
-	codeGen->PushCst(MACFLAG_PIPELINE_SLOTS - 1);
+	codeGen->PushCst(FLAG_PIPELINE_SLOTS - 1);
 	codeGen->And();
 	codeGen->PullRel(pipeInfo.index);
 }
@@ -1474,7 +1474,7 @@ void VUShared::ResetFlagPipeline(const FLAG_PIPEINFO& pipeInfo, CMipsJitter* cod
 {
 	uint32 valueCursor = codeGen->GetTopCursor();
 
-	for(uint32 i = 0; i < MACFLAG_PIPELINE_SLOTS; i++)
+	for(uint32 i = 0; i < FLAG_PIPELINE_SLOTS; i++)
 	{
 		codeGen->PushCst(0);
 		codeGen->PullRel(pipeInfo.timeArray + (i * 4));

@@ -163,7 +163,7 @@ std::string CRegViewVU::GetDisplayText()
 	return result;
 }
 
-std::string CRegViewVU::PrintPipeline(const char* title, const MACFLAG_PIPELINE& pipe)
+std::string CRegViewVU::PrintPipeline(const char* title, const FLAG_PIPELINE& pipe)
 {
 	//Print pipeline in reverse order
 	//Only the first 24-bits of values are printed because
@@ -172,16 +172,16 @@ std::string CRegViewVU::PrintPipeline(const char* title, const MACFLAG_PIPELINE&
 	std::string result;
 	unsigned int currentPipeMacCounter = pipe.index - 1;
 
-	uint32 pipeValues[MACFLAG_PIPELINE_SLOTS];
-	uint32 pipeTimes[MACFLAG_PIPELINE_SLOTS];
-	for(unsigned int i = 0; i < MACFLAG_PIPELINE_SLOTS; i++)
+	uint32 pipeValues[FLAG_PIPELINE_SLOTS];
+	uint32 pipeTimes[FLAG_PIPELINE_SLOTS];
+	for(unsigned int i = 0; i < FLAG_PIPELINE_SLOTS; i++)
 	{
-		unsigned int currIndex = (currentPipeMacCounter - i) & (MACFLAG_PIPELINE_SLOTS - 1);
+		unsigned int currIndex = (currentPipeMacCounter - i) & (FLAG_PIPELINE_SLOTS - 1);
 		pipeValues[i] = pipe.values[currIndex] & CLIP_FLAG_MASK;
 		pipeTimes[i] = pipe.pipeTimes[currIndex];
 	}
 
-	for(unsigned int i = 0; i < (MACFLAG_PIPELINE_SLOTS / 2); i++)
+	for(unsigned int i = 0; i < (FLAG_PIPELINE_SLOTS / 2); i++)
 	{
 		const char* front = (i == 0) ? title : "      ";
 		result += string_format("%s 0x%0.4X:0x%0.6X, 0x%0.4X:0x%0.6X\r\n", front,

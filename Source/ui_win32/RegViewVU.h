@@ -25,7 +25,7 @@ private:
 	};
 
 	std::string						GetDisplayText();
-	static std::string				PrintPipeline(const char*, const MACFLAG_PIPELINE&);
+	static std::string				PrintPipeline(const char*, const FLAG_PIPELINE&);
 
 	CMIPS*							m_ctx = nullptr;
 	VIEWMODE						m_viewMode = VIEWMODE_SINGLE;
