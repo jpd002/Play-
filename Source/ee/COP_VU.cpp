@@ -157,9 +157,9 @@ void CCOP_VU::CFC2()
 			m_codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2R));
 			break;
 		case CTRL_REG_MAC:
-#ifdef _DEBUG
-			CLog::GetInstance().Print(LOG_NAME, "Warning: Reading contents of MAC flag through CFC2.\r\n");
-#endif
+			VUShared::CheckFlagPipeline(VUShared::g_pipeInfoMac, m_codeGen, 4);
+			m_codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2MF));
+			break;
 		case CTRL_REG_TPC:
 		case CTRL_REG_FBRST:
 		case CTRL_REG_VPU_STAT:
