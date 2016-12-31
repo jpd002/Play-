@@ -1608,9 +1608,11 @@ void CGSH_Direct3D9::VertexKick(uint8 nRegister, uint64 nValue)
 			{
 			case PRIM_POINT:
 				//if(drawingKick) Prim_Point();
+				m_vtxCount = 1;
 				break;
 			case PRIM_LINE:
 				if(drawingKick) Prim_Line();
+				m_vtxCount = 2;
 				break;
 			case PRIM_LINESTRIP:
 				if(drawingKick) Prim_Line();
