@@ -98,9 +98,6 @@ namespace Ee
 
 		void						CheckPendingInterrupts();
 
-		int							Execute(int);
-		bool						IsIdle() const;
-
 		void						FlushInstructionCache();
 
 		void						LoadBIOS();
