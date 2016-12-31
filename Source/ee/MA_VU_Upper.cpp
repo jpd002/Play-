@@ -129,7 +129,7 @@ void CMA_VU::CUpper::MULbc()
 //1C
 void CMA_VU::CUpper::MULq()
 {
-	VUShared::MULq(m_codeGen, m_nDest, m_nFD, m_nFS, m_nAddress);
+	VUShared::MULq(m_codeGen, m_nDest, m_nFD, m_nFS, m_relativePipeTime);
 }
 
 //1D

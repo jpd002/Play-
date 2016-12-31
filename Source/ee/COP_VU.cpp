@@ -360,7 +360,7 @@ void CCOP_VU::VMULbc()
 //1C
 void CCOP_VU::VMULq()
 {
-	VUShared::MULq(m_codeGen, m_nDest, m_nFD, m_nFS, m_nAddress);
+	VUShared::MULq(m_codeGen, m_nDest, m_nFD, m_nFS, 0);
 }
 
 //1D
