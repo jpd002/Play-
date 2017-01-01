@@ -263,6 +263,8 @@ private:
 	void									ThreadReset(uint32);
 	void									CheckLivingThreads();
 
+	void									SemaReleaseSingleThread(uint32, bool);
+
 	std::pair<uint32, uint32>				GetVsyncFlagPtrs() const;
 	void									SetVsyncFlagPtrs(uint32, uint32);
 

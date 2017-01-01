@@ -1221,6 +1221,50 @@ void CPS2OS::CheckLivingThreads()
 	}
 }
 
+void CPS2OS::SemaReleaseSingleThread(uint32 semaId, bool cancelled)
+{
+	//Releases a single thread from a semaphore's queue
+	//TODO: Implement an actual queue
+
+	auto sema = m_semaphores[semaId];
+	assert(sema);
+	assert(sema->waitCount != 0);
+
+	uint32 returnValue = cancelled ? -1 : semaId;
+	bool changed = false;
+	for(auto threadIterator = std::begin(m_threads); threadIterator != std::end(m_threads); threadIterator++)
+	{
+		auto thread = *threadIterator;
+		if(!thread) continue;
+		if((thread->status != THREAD_WAITING) && (thread->status != THREAD_SUSPENDED_WAITING)) continue;
+		if(thread->semaWait != semaId) continue;
+
+		switch(thread->status)
+		{
+		case THREAD_WAITING:
+			thread->status = THREAD_RUNNING;
+			LinkThread(threadIterator);
+			break;
+		case THREAD_SUSPENDED_WAITING:
+			thread->status = THREAD_SUSPENDED;
+			break;
+		default:
+			assert(0);
+			break;
+		}
+
+		auto context = reinterpret_cast<THREADCONTEXT*>(GetStructPtr(thread->contextPtr));
+		context->gpr[SC_RETURN].nD0 = static_cast<int32>(returnValue);
+
+		sema->waitCount--;
+		changed = true;
+		break;
+	}
+
+	//Something went wrong if nothing changed
+	assert(changed);
+}
+
 void CPS2OS::CreateIdleThread()
 {
 	m_idleThreadId = m_threads.Allocate();
@@ -2301,40 +2345,14 @@ void CPS2OS::sc_SignalSema()
 		return;
 	}
 	
+	//TODO: Check maximum value
+
+	//Set return value here because we might reschedule
+	m_ee.m_State.nGPR[SC_RETURN].nD0 = static_cast<int32>(id);
+
 	if(sema->waitCount != 0)
 	{
-		//Unsleep all threads if they were waiting
-		for(auto threadIterator = std::begin(m_threads); threadIterator != std::end(m_threads); threadIterator++)
-		{
-			auto thread = *threadIterator;
-			if(!thread) continue;
-			if((thread->status != THREAD_WAITING) && (thread->status != THREAD_SUSPENDED_WAITING)) continue;
-			if(thread->semaWait != id) continue;
-
-			switch(thread->status)
-			{
-			case THREAD_WAITING:
-				thread->status = THREAD_RUNNING;
-				LinkThread(threadIterator);
-				break;
-			case THREAD_SUSPENDED_WAITING:
-				thread->status = THREAD_SUSPENDED;
-				break;
-			default:
-				assert(0);
-				break;
-			}
-			sema->waitCount--;
-
-			if(sema->waitCount == 0)
-			{
-				break;
-			}
-		}
-
-		m_ee.m_State.nGPR[SC_RETURN].nV[0] = id;
-		m_ee.m_State.nGPR[SC_RETURN].nV[1] = 0;
-
+		SemaReleaseSingleThread(id, false);
 		if(!isInt)
 		{
 			ThreadShakeAndBake();
@@ -2344,8 +2362,6 @@ void CPS2OS::sc_SignalSema()
 	{
 		sema->count++;
 	}
-
-	m_ee.m_State.nGPR[SC_RETURN].nD0 = id;
 }
 
 //44
