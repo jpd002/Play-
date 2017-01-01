@@ -22,6 +22,8 @@
 		7045B4351A5D85F500F5B431 /* GeneralSettingsDebug.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = 7045B4321A5D85F500F5B431 /* GeneralSettingsDebug.xcconfig */; };
 		7045B4361A5D85F500F5B431 /* GeneralSettingsRelease.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = 7045B4331A5D85F500F5B431 /* GeneralSettingsRelease.xcconfig */; };
 		70513EB11BBECAAE002E5163 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 70513EB01BBECAAE002E5163 /* Images.xcassets */; };
+		707493AF1E198E4D00B9F6BA /* Iop_Heaplib.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 707493AC1E198E4D00B9F6BA /* Iop_Heaplib.cpp */; };
+		707493B01E198E4D00B9F6BA /* Iop_Module.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 707493AE1E198E4D00B9F6BA /* Iop_Module.cpp */; };
 		708FE7B617C0B82400BFCDB2 /* AppConfig.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 708FE79717C0B66700BFCDB2 /* AppConfig.cpp */; };
 		708FE7B717C0B82400BFCDB2 /* Iop_PsfSubSystem.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 708FE79B17C0B66700BFCDB2 /* Iop_PsfSubSystem.cpp */; };
 		708FE7B817C0B82400BFCDB2 /* Playlist.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 708FE79E17C0B66700BFCDB2 /* Playlist.cpp */; };
@@ -186,6 +188,9 @@
 		7045B4321A5D85F500F5B431 /* GeneralSettingsDebug.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = GeneralSettingsDebug.xcconfig; sourceTree = "<group>"; };
 		7045B4331A5D85F500F5B431 /* GeneralSettingsRelease.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = GeneralSettingsRelease.xcconfig; sourceTree = "<group>"; };
 		70513EB01BBECAAE002E5163 /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = PsfPlayer/Images.xcassets; sourceTree = "<group>"; };
+		707493AC1E198E4D00B9F6BA /* Iop_Heaplib.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Iop_Heaplib.cpp; path = ../../../Source/iop/Iop_Heaplib.cpp; sourceTree = "<group>"; };
+		707493AD1E198E4D00B9F6BA /* Iop_Heaplib.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Iop_Heaplib.h; path = ../../../Source/iop/Iop_Heaplib.h; sourceTree = "<group>"; };
+		707493AE1E198E4D00B9F6BA /* Iop_Module.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Iop_Module.cpp; path = ../../../Source/iop/Iop_Module.cpp; sourceTree = "<group>"; };
 		708FE79717C0B66700BFCDB2 /* AppConfig.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = AppConfig.cpp; path = ../Source/AppConfig.cpp; sourceTree = "<group>"; };
 		708FE79817C0B66700BFCDB2 /* AppConfig.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = AppConfig.h; path = ../Source/AppConfig.h; sourceTree = "<group>"; };
 		708FE79917C0B66700BFCDB2 /* AppDef.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = AppDef.h; path = ../Source/AppDef.h; sourceTree = "<group>"; };
@@ -713,6 +718,8 @@
 				7E4B3D360F9E9A3D00675ED7 /* Iop_DmacChannel.h */,
 				7E4B3D370F9E9A3D00675ED7 /* Iop_Dynamic.cpp */,
 				7E4B3D380F9E9A3D00675ED7 /* Iop_Dynamic.h */,
+				707493AC1E198E4D00B9F6BA /* Iop_Heaplib.cpp */,
+				707493AD1E198E4D00B9F6BA /* Iop_Heaplib.h */,
 				7E4B3D390F9E9A3D00675ED7 /* Iop_Intc.cpp */,
 				7E4B3D3A0F9E9A3D00675ED7 /* Iop_Intc.h */,
 				7E4B3D3B0F9E9A3D00675ED7 /* Iop_Intrman.cpp */,
@@ -725,6 +732,7 @@
 				7E4B3D400F9E9A3D00675ED7 /* Iop_Loadcore.h */,
 				7E4B3D410F9E9A3D00675ED7 /* Iop_Modload.cpp */,
 				7E4B3D420F9E9A3D00675ED7 /* Iop_Modload.h */,
+				707493AE1E198E4D00B9F6BA /* Iop_Module.cpp */,
 				7E4B3D430F9E9A3D00675ED7 /* Iop_Module.h */,
 				7E4B3D440F9E9A3D00675ED7 /* Iop_RootCounters.cpp */,
 				7E4B3D450F9E9A3D00675ED7 /* Iop_RootCounters.h */,
@@ -933,6 +941,7 @@
 				7E4B3D7D0F9E9A3D00675ED7 /* Iop_SubSystem.cpp in Sources */,
 				7E4B3D7E0F9E9A3D00675ED7 /* Iop_Sysclib.cpp in Sources */,
 				7E4B3D7F0F9E9A3D00675ED7 /* Iop_Sysmem.cpp in Sources */,
+				707493AF1E198E4D00B9F6BA /* Iop_Heaplib.cpp in Sources */,
 				7E4B3D800F9E9A3D00675ED7 /* Iop_Thbase.cpp in Sources */,
 				7E4B3D810F9E9A3D00675ED7 /* Iop_Thevent.cpp in Sources */,
 				70383A4117BF34B700482B35 /* COP_SCU_Reflection.cpp in Sources */,
@@ -970,6 +979,7 @@
 				708FE7BE17C0B82400BFCDB2 /* PsfStreamProvider.cpp in Sources */,
 				7E2721F51213B6FB00C0DEBF /* Psp_StdioForUser.cpp in Sources */,
 				7E2721F61213B6FB00C0DEBF /* Psp_SysMemUserForUser.cpp in Sources */,
+				707493B01E198E4D00B9F6BA /* Iop_Module.cpp in Sources */,
 				7E2721F71213B6FB00C0DEBF /* Psp_ThreadManForUser.cpp in Sources */,
 				7E2721F81213B6FB00C0DEBF /* PspBios.cpp in Sources */,
 				7E27229D1214FA7300C0DEBF /* COP_FPU_Reflection.cpp in Sources */,
