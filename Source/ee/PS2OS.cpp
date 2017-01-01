@@ -2320,15 +2320,20 @@ void CPS2OS::sc_DeleteSema()
 		return;
 	}
 
-	//Check if any threads are waiting for this?
+	//Set return value now because we might reschedule
+	m_ee.m_State.nGPR[SC_RETURN].nD0 = static_cast<int32>(id);
+
+	//Release all threads waiting for this semaphore
 	if(sema->waitCount != 0)
 	{
-		assert(0);
+		while(sema->waitCount != 0)
+		{
+			SemaReleaseSingleThread(id, true);
+		}
+		ThreadShakeAndBake();
 	}
 
 	m_semaphores.Free(id);
-
-	m_ee.m_State.nGPR[SC_RETURN].nD0 = id;
 }
 
 //42
