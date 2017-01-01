@@ -2272,7 +2272,7 @@ void CPS2OS::sc_DeleteSema()
 	auto sema = m_semaphores[id];
 	if(sema == nullptr)
 	{
-		m_ee.m_State.nGPR[SC_RETURN].nD0 = -1;
+		m_ee.m_State.nGPR[SC_RETURN].nD0 = static_cast<int32>(-1);
 		return;
 	}
 
@@ -2297,7 +2297,7 @@ void CPS2OS::sc_SignalSema()
 	auto sema = m_semaphores[id];
 	if(sema == nullptr)
 	{
-		m_ee.m_State.nGPR[SC_RETURN].nD0 = -1;
+		m_ee.m_State.nGPR[SC_RETURN].nD0 = static_cast<int32>(-1);
 		return;
 	}
 	
@@ -2386,8 +2386,8 @@ void CPS2OS::sc_WaitSema()
 
 		auto thread = m_threads[m_currentThreadId];
 		assert(thread->status == THREAD_RUNNING);
-		thread->status		= THREAD_WAITING;
-		thread->semaWait	= id;
+		thread->status   = THREAD_WAITING;
+		thread->semaWait = id;
 
 		UnlinkThread(m_currentThreadId);
 		ThreadShakeAndBake();
