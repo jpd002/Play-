@@ -114,13 +114,13 @@ uint32 CIoman::Open(uint32 flags, const char* path)
 		}
 		std::string deviceName(fullPath.begin(), fullPath.begin() + position);
 		std::string devicePath(fullPath.begin() + position + 1, fullPath.end());
-		DeviceMapType::iterator device(m_devices.find(deviceName));
-		if(device == m_devices.end())
+		auto deviceIterator = m_devices.find(deviceName);
+		if(deviceIterator == m_devices.end())
 		{
 			throw std::runtime_error("Device not found.");
 		}
-		Framework::CStream* stream = device->second->GetFile(flags, devicePath.c_str());
-		if(stream == NULL)
+		auto stream = deviceIterator->second->GetFile(flags, devicePath.c_str());
+		if(!stream)
 		{
 			throw std::runtime_error("File not found.");
 		}
