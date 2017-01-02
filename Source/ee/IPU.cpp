@@ -19,6 +19,7 @@
 #include "idct/IEEE1180.h"
 #include "../Log.h"
 #include "DMAC.h"
+#include "INTC.h"
 
 #define LOG_NAME ("ipu")
 
@@ -41,8 +42,9 @@ static CVLCTable::DECODE_STATUS FilterSymbolError(CVLCTable::DECODE_STATUS resul
 	}
 }
 
-CIPU::CIPU() 
-: m_IPU_CTRL(0)
+CIPU::CIPU(CINTC& intc)
+: m_intc(intc)
+, m_IPU_CTRL(0)
 , m_isBusy(false)
 , m_currentCmd(nullptr)
 {
@@ -233,6 +235,7 @@ void CIPU::ExecuteCommand()
 
 		//Clear BUSY states
 		m_isBusy = false;
+		m_intc.AssertLine(CINTC::INTC_LINE_IPU);
 	}
 	catch(const Framework::CBitStream::CBitStreamException&)
 	{

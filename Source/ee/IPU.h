@@ -9,12 +9,14 @@
 #include "../MailBox.h"
 #include "Convertible.h"
 
+class CINTC;
+
 class CIPU
 {
 public:
 	typedef std::function<uint32 (const void*, uint32)> Dma3ReceiveHandler;
 
-						CIPU();
+						CIPU(CINTC&);
 	virtual				~CIPU();
 
 	enum REGISTER
@@ -509,6 +511,8 @@ private:
 	void						DisassembleGet(uint32);
 	void						DisassembleSet(uint32, uint32);
 	void						DisassembleCommand(uint32);
+
+	CINTC&						m_intc;
 
 	uint8						m_nIntraIQ[0x40];
 	uint8						m_nNonIntraIQ[0x40];
