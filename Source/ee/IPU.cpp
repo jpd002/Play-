@@ -90,7 +90,10 @@ uint32 CIPU::GetRegister(uint32 nAddress)
 		break;
 
 	case IPU_CTRL + 0x0:
-		return m_IPU_CTRL | GetBusyBit(m_isBusy) | (m_IN_FIFO.GetSize() / 0x10);
+		{
+			auto fifoState = GetFifoState();
+			return m_IPU_CTRL | GetBusyBit(m_isBusy) | fifoState.ifc;
+		}
 		break;
 	case IPU_CTRL + 0x4:
 	case IPU_CTRL + 0x8:
@@ -98,7 +101,10 @@ uint32 CIPU::GetRegister(uint32 nAddress)
 		break;
 
 	case IPU_BP + 0x0:
-		return ((m_IN_FIFO.GetSize() / 0x10) << 8) | (m_IN_FIFO.GetBitIndex());
+		{
+			auto fifoState = GetFifoState();
+			return (fifoState.fp << 16) | (fifoState.ifc << 8) | fifoState.bp;
+		}
 		break;
 
 	case IPU_BP + 0x4:
@@ -522,6 +528,25 @@ void CIPU::InverseScan(int16* pBlock, bool isZigZag)
 uint32 CIPU::GetBusyBit(bool condition) const
 {
 	return condition ? 0x80000000 : 0x00000000;
+}
+
+CIPU::FIFO_STATE CIPU::GetFifoState() const
+{
+	uint32 bp = m_IN_FIFO.GetBitIndex();
+	uint32 ifc = m_IN_FIFO.GetSize() / 0x10;
+	uint32 fp = 0;
+
+	if((bp != 0) && (ifc != 0))
+	{
+		fp++;
+		ifc--;
+	}
+
+	FIFO_STATE state;
+	state.bp = bp;
+	state.ifc = ifc;
+	state.fp = fp;
+	return state;
 }
 
 void CIPU::DisassembleGet(uint32 nAddress)

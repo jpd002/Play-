@@ -63,6 +63,13 @@ private:
 		IPU_CMD_SETTH,
 	};
 
+	struct FIFO_STATE
+	{
+		uint32 bp = 0;
+		uint32 ifc = 0;
+		uint32 fp = 0;
+	};
+
 	struct CMD_IDEC : public convertible<uint32>
 	{
 		unsigned int fb			: 6;
@@ -507,6 +514,7 @@ private:
 	static void					InverseScan(int16*, bool isZigZag);
 
 	uint32						GetBusyBit(bool) const;
+	FIFO_STATE					GetFifoState() const;
 
 	void						DisassembleGet(uint32);
 	void						DisassembleSet(uint32, uint32);
