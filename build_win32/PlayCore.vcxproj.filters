@@ -178,9 +178,6 @@
     <ClCompile Include="..\Source\iop\Iop_FileIoHandler2100.cpp">
       <Filter>Source Files\Iop</Filter>
     </ClCompile>
-    <ClCompile Include="..\Source\iop\Iop_FileIoHandler2300.cpp">
-      <Filter>Source Files\Iop</Filter>
-    </ClCompile>
     <ClCompile Include="..\Source\iop\Iop_Intc.cpp">
       <Filter>Source Files\Iop</Filter>
     </ClCompile>
@@ -463,6 +460,9 @@
     <ClCompile Include="..\Source\iop\Iop_Module.cpp">
       <Filter>Source Files\Iop</Filter>
     </ClCompile>
+    <ClCompile Include="..\Source\iop\Iop_FileIoHandler2240.cpp">
+      <Filter>Source Files\Iop</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Source\AppConfig.h">
@@ -631,9 +631,6 @@
       <Filter>Source Files\Iop</Filter>
     </ClInclude>
     <ClInclude Include="..\Source\iop\Iop_FileIoHandler2100.h">
-      <Filter>Source Files\Iop</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Source\iop\Iop_FileIoHandler2300.h">
       <Filter>Source Files\Iop</Filter>
     </ClInclude>
     <ClInclude Include="..\Source\iop\Iop_Intc.h">
@@ -916,6 +913,9 @@
       <Filter>Source Files\Iop</Filter>
     </ClInclude>
     <ClInclude Include="..\Source\iop\Iop_Heaplib.h">
+      <Filter>Source Files\Iop</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\iop\Iop_FileIoHandler2240.h">
       <Filter>Source Files\Iop</Filter>
     </ClInclude>
   </ItemGroup>
