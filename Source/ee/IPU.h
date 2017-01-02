@@ -154,8 +154,8 @@ private:
 		bool				TryPeekBits_MSBF(uint8, uint32&) override;
 
 		void				SetBitPosition(unsigned int);
-		unsigned int		GetSize();
-		unsigned int		GetAvailableBits();
+		unsigned int		GetSize() const;
+		unsigned int		GetAvailableBits() const;
 		void				Reset();
 
 		enum BUFFERSIZE

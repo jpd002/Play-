@@ -821,12 +821,12 @@ void CIPU::CINFIFO::SetBitPosition(unsigned int position)
 	m_bitPosition = position;
 }
 
-unsigned int CIPU::CINFIFO::GetSize()
+unsigned int CIPU::CINFIFO::GetSize() const
 {
 	return m_size;
 }
 
-unsigned int CIPU::CINFIFO::GetAvailableBits()
+unsigned int CIPU::CINFIFO::GetAvailableBits() const
 {
 	return (m_size * 8) - m_bitPosition;
 }
