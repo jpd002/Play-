@@ -1254,11 +1254,10 @@ void CGSHandler::MakeLinearCLUT(const TEX0& tex0, std::array<uint32, 256>& clut)
 
 	if(CGsPixelFormats::IsPsmIDTEX4(tex0.nPsm))
 	{
-		uint32 clutOffset = tex0.nCSA * 16;
-
 		if(tex0.nCPSM == PSMCT32 || tex0.nCPSM == PSMCT24)
 		{
 			assert(tex0.nCSA < 16);
+			uint32 clutOffset = (tex0.nCSA & 0xF) * 16;
 
 			for(unsigned int i = 0; i < 16; i++)
 			{
@@ -1270,7 +1269,9 @@ void CGSHandler::MakeLinearCLUT(const TEX0& tex0, std::array<uint32, 256>& clut)
 		}
 		else if(tex0.nCPSM == PSMCT16)
 		{
+			//CSA is 5-bit, shouldn't go over 31
 			assert(tex0.nCSA < 32);
+			uint32 clutOffset = tex0.nCSA * 16;
 
 			for(unsigned int i = 0; i < 16; i++)
 			{

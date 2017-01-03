@@ -208,11 +208,10 @@ GLuint CGSH_OpenGL::PreparePalette(const TEX0& tex0)
 
 	if(CGsPixelFormats::IsPsmIDTEX4(tex0.nPsm))
 	{
-		uint32 clutOffset = tex0.nCSA * 16;
-
 		if(tex0.nCPSM == PSMCT32 || tex0.nCPSM == PSMCT24)
 		{
 			assert(tex0.nCSA < 16);
+			uint32 clutOffset = (tex0.nCSA & 0xF) * 16;
 
 			for(unsigned int i = 0; i < 16; i++)
 			{
@@ -224,7 +223,9 @@ GLuint CGSH_OpenGL::PreparePalette(const TEX0& tex0)
 		}
 		else if(tex0.nCPSM == PSMCT16 || tex0.nCPSM == PSMCT16S)
 		{
+			//CSA is 5-bit, shouldn't go over 31
 			assert(tex0.nCSA < 32);
+			uint32 clutOffset = tex0.nCSA * 16;
 
 			for(unsigned int i = 0; i < 16; i++)
 			{
