@@ -103,7 +103,7 @@ LOCAL_SRC_FILES			:=	$(PROJECT_PATH)/Source/AppConfig.cpp \
 							$(PROJECT_PATH)/Source/iop/Iop_FileIo.cpp \
 							$(PROJECT_PATH)/Source/iop/Iop_FileIoHandler1000.cpp \
 							$(PROJECT_PATH)/Source/iop/Iop_FileIoHandler2100.cpp \
-							$(PROJECT_PATH)/Source/iop/Iop_FileIoHandler2300.cpp \
+							$(PROJECT_PATH)/Source/iop/Iop_FileIoHandler2240.cpp \
 							$(PROJECT_PATH)/Source/iop/Iop_Heaplib.cpp \
 							$(PROJECT_PATH)/Source/iop/Iop_Intc.cpp \
 							$(PROJECT_PATH)/Source/iop/Iop_Intrman.cpp \
