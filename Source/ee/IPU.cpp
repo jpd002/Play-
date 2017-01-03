@@ -1814,10 +1814,6 @@ bool CIPU::CCSCCommand::Execute()
 						float nCb = nBlockCb[pCbCrMap[j]];
 						float nCr = nBlockCr[pCbCrMap[j]];
 
-						//nY = nBlockCb[pCbCrMap[j]];
-						//nCb = 128;
-						//nCr = 128;
-
 						float nR = nY								+ 1.402f	* (nCr - 128);
 						float nG = nY - 0.34414f	* (nCb - 128)	- 0.71414f	* (nCr - 128);
 						float nB = nY + 1.772f		* (nCb - 128);
