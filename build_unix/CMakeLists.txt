@@ -124,7 +124,7 @@ add_library(Play
 	../Source/iop/Iop_FileIo.cpp 
 	../Source/iop/Iop_FileIoHandler1000.cpp 
 	../Source/iop/Iop_FileIoHandler2100.cpp 
-	../Source/iop/Iop_FileIoHandler2300.cpp 
+	../Source/iop/Iop_FileIoHandler2240.cpp 
 	../Source/iop/Iop_Heaplib.cpp
 	../Source/iop/Iop_Intc.cpp 
 	../Source/iop/Iop_Intrman.cpp 
