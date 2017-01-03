@@ -447,6 +447,11 @@ private:
 	class CCSCCommand : public CCommand
 	{
 	public:
+		enum
+		{
+			BLOCK_SIZE = 0x180,
+		};
+
 						CCSCCommand();
 
 		void			Initialize(CINFIFO*, COUTFIFO*, uint32, uint16, uint16);
@@ -460,11 +465,6 @@ private:
 			STATE_CONVERTBLOCK,
 			STATE_FLUSHBLOCK,
 			STATE_DONE,
-		};
-
-		enum
-		{
-			BLOCK_SIZE = 0x180,
 		};
 
 		void			GenerateCbCrMap();

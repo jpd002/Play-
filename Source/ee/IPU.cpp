@@ -1002,6 +1002,8 @@ bool CIPU::CIDECCommand::Execute()
 				{
 					return false;
 				}
+				//BDEC will yield 384 elements in RAW16 format
+				assert(m_blockStream.GetSize() == (CCSCCommand::BLOCK_SIZE * sizeof(int16)));
 				m_state = STATE_CSCINIT;
 				m_mbCount++;
 			}
@@ -1015,6 +1017,8 @@ bool CIPU::CIDECCommand::Execute()
 				cscCommand.ofm		= m_command.ofm;
 				m_CSCCommand->Initialize(&m_temp_IN_FIFO, m_OUT_FIFO, cscCommand, m_TH0, m_TH1);
 				m_state = STATE_CSC;
+				//CSC requires 384 elements in RAW8 format to proceed
+				assert(m_blockStream.GetSize() == (CCSCCommand::BLOCK_SIZE * sizeof(uint8)));
 				m_blockStream.Seek(0, Framework::STREAM_SEEK_SET);
 			}
 			break;
@@ -1030,6 +1034,9 @@ bool CIPU::CIDECCommand::Execute()
 				}
 				if(m_CSCCommand->Execute())
 				{
+					//All data should have been consumed by CSC, so nothing should remain
+					uint32 remainLength = m_temp_IN_FIFO.GetAvailableBits() + (m_blockStream.GetRemainingLength() * 8);
+					assert(remainLength == 0);
 					m_state = STATE_CHECKSTARTCODE;
 					break;
 				}
