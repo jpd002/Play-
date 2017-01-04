@@ -78,7 +78,6 @@
 		707AF6B81ADE04AB00EA1374 /* CsoImageStream.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 707AF6B61ADE04AB00EA1374 /* CsoImageStream.cpp */; };
 		70B414851AA21D1100AC7DE4 /* Iop_FileIoHandler1000.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 70B4147D1AA21D1100AC7DE4 /* Iop_FileIoHandler1000.cpp */; };
 		70B414861AA21D1100AC7DE4 /* Iop_FileIoHandler2100.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 70B4147F1AA21D1100AC7DE4 /* Iop_FileIoHandler2100.cpp */; };
-		70B414871AA21D1100AC7DE4 /* Iop_FileIoHandler2300.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 70B414811AA21D1100AC7DE4 /* Iop_FileIoHandler2300.cpp */; };
 		70B414881AA21D1100AC7DE4 /* Iop_LibSd.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 70B414831AA21D1100AC7DE4 /* Iop_LibSd.cpp */; };
 		70C0C84E1ADC97A900492241 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 70C0C84D1ADC97A900492241 /* Images.xcassets */; };
 		70C2CD0E1E0B5DDE006CFD7A /* Iop_Heaplib.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 70C2CD0B1E0B5DDE006CFD7A /* Iop_Heaplib.cpp */; };
@@ -127,6 +126,7 @@
 		70F0372E15D83D0E006A96F1 /* Iop_Thmsgbx.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 70F0372C15D83D0E006A96F1 /* Iop_Thmsgbx.cpp */; };
 		70F2AB0B1CBB558B00D0773D /* AudioSettingsView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 70F2AB091CBB558B00D0773D /* AudioSettingsView.xib */; };
 		70F2AB0E1CBB56B600D0773D /* AudioSettingsViewController.mm in Sources */ = {isa = PBXBuildFile; fileRef = 70F2AB0D1CBB56B600D0773D /* AudioSettingsViewController.mm */; };
+		70F407F21E1C8268007DACD1 /* Iop_FileIoHandler2240.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 70F407F01E1C8268007DACD1 /* Iop_FileIoHandler2240.cpp */; };
 		7E4C15751517CBD400357777 /* main.mm in Sources */ = {isa = PBXBuildFile; fileRef = 7E4C15721517CBD400357777 /* main.mm */; };
 		7E4C15811517E6F800357777 /* libFramework.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 7E4C157E1517CDD200357777 /* libFramework.a */; };
 		7E7832AC1516710A00C04C62 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7E7832AB1516710A00C04C62 /* Cocoa.framework */; };
@@ -345,8 +345,6 @@
 		70B4147E1AA21D1100AC7DE4 /* Iop_FileIoHandler1000.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Iop_FileIoHandler1000.h; sourceTree = "<group>"; };
 		70B4147F1AA21D1100AC7DE4 /* Iop_FileIoHandler2100.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Iop_FileIoHandler2100.cpp; sourceTree = "<group>"; };
 		70B414801AA21D1100AC7DE4 /* Iop_FileIoHandler2100.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Iop_FileIoHandler2100.h; sourceTree = "<group>"; };
-		70B414811AA21D1100AC7DE4 /* Iop_FileIoHandler2300.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Iop_FileIoHandler2300.cpp; sourceTree = "<group>"; };
-		70B414821AA21D1100AC7DE4 /* Iop_FileIoHandler2300.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Iop_FileIoHandler2300.h; sourceTree = "<group>"; };
 		70B414831AA21D1100AC7DE4 /* Iop_LibSd.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Iop_LibSd.cpp; sourceTree = "<group>"; };
 		70B414841AA21D1100AC7DE4 /* Iop_LibSd.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Iop_LibSd.h; sourceTree = "<group>"; };
 		70C0C84D1ADC97A900492241 /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = "../../build_macosx/Play!/Images.xcassets"; sourceTree = "<group>"; };
@@ -431,6 +429,8 @@
 		70F2AB0C1CBB56B600D0773D /* AudioSettingsViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AudioSettingsViewController.h; sourceTree = "<group>"; };
 		70F2AB0D1CBB56B600D0773D /* AudioSettingsViewController.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = AudioSettingsViewController.mm; sourceTree = "<group>"; };
 		70F2AB0F1CBC544C00D0773D /* PreferenceDefs.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PreferenceDefs.h; sourceTree = "<group>"; };
+		70F407F01E1C8268007DACD1 /* Iop_FileIoHandler2240.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Iop_FileIoHandler2240.cpp; sourceTree = "<group>"; };
+		70F407F11E1C8268007DACD1 /* Iop_FileIoHandler2240.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Iop_FileIoHandler2240.h; sourceTree = "<group>"; };
 		7E4C15711517CBD400357777 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		7E4C15721517CBD400357777 /* main.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = main.mm; sourceTree = "<group>"; };
 		7E4C15731517CBD400357777 /* Purei_Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Purei_Prefix.pch; sourceTree = "<group>"; };
@@ -592,8 +592,8 @@
 				70B4147E1AA21D1100AC7DE4 /* Iop_FileIoHandler1000.h */,
 				70B4147F1AA21D1100AC7DE4 /* Iop_FileIoHandler2100.cpp */,
 				70B414801AA21D1100AC7DE4 /* Iop_FileIoHandler2100.h */,
-				70B414811AA21D1100AC7DE4 /* Iop_FileIoHandler2300.cpp */,
-				70B414821AA21D1100AC7DE4 /* Iop_FileIoHandler2300.h */,
+				70F407F01E1C8268007DACD1 /* Iop_FileIoHandler2240.cpp */,
+				70F407F11E1C8268007DACD1 /* Iop_FileIoHandler2240.h */,
 				70C2CD0B1E0B5DDE006CFD7A /* Iop_Heaplib.cpp */,
 				70C2CD0C1E0B5DDE006CFD7A /* Iop_Heaplib.h */,
 				706849A3151E896900C9574F /* Iop_Intc.cpp */,
@@ -1103,7 +1103,6 @@
 				7ECB24091519AC0A00C4BBF8 /* COP_SCU_Reflection.cpp in Sources */,
 				7ECB240E1519AC0A00C4BBF8 /* ELF.cpp in Sources */,
 				7ECB240F1519AC0A00C4BBF8 /* ElfFile.cpp in Sources */,
-				70B414871AA21D1100AC7DE4 /* Iop_FileIoHandler2300.cpp in Sources */,
 				7ECB241E1519AC0A00C4BBF8 /* DirectoryRecord.cpp in Sources */,
 				7ECB241F1519AC0A00C4BBF8 /* File.cpp in Sources */,
 				70D9F12E1AFB016900197BBE /* Dmac_Channel.cpp in Sources */,
@@ -1155,6 +1154,7 @@
 				7ECB24441519AC0A00C4BBF8 /* PS2VM.cpp in Sources */,
 				7ECB24451519AC0A00C4BBF8 /* RegisterStateFile.cpp in Sources */,
 				70D9F12C1AFB016900197BBE /* COP_VU_Reflection.cpp in Sources */,
+				70F407F21E1C8268007DACD1 /* Iop_FileIoHandler2240.cpp in Sources */,
 				70D9F14C1AFB016900197BBE /* VuExecutor.cpp in Sources */,
 				70D9F1311AFB016900197BBE /* EEAssembler.cpp in Sources */,
 				7ECB24471519AC0A00C4BBF8 /* StructCollectionStateFile.cpp in Sources */,
