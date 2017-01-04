@@ -47,6 +47,9 @@ void CMIPS::Reset()
 	memset(&m_State, 0, sizeof(MIPSSTATE));
 	m_State.nDelayedJumpAddr = MIPS_INVALID_PC;
 
+	//Reset FCSR
+	m_State.nFCSR = 0x01000001;
+
 	//Set VF0[w] to 1.0
 	m_State.nCOP2[0].nV3 = 0x3F800000;
 }

@@ -145,7 +145,18 @@ void CCOP_FPU::CTC1()
 {
 	if(m_fs == 31)
 	{
+		//Only condition code and status flags are writable
+		static const uint32 FCSR_WRITE_MASK = 0x0083C078;
+
 		m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_ft].nV[0]));
+		m_codeGen->PushCst(FCSR_WRITE_MASK);
+		m_codeGen->And();
+
+		m_codeGen->PushRel(offsetof(CMIPS, m_State.nFCSR));
+		m_codeGen->PushCst(~FCSR_WRITE_MASK);
+		m_codeGen->And();
+
+		m_codeGen->Or();
 		m_codeGen->PullRel(offsetof(CMIPS, m_State.nFCSR));
 	}
 	else
