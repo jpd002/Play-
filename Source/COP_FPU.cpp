@@ -85,6 +85,11 @@ void CCOP_FPU::PushCCBit(uint32 mask)
 //00
 void CCOP_FPU::MFC1()
 {
+	if(m_ft == 0)
+	{
+		return;
+	}
+
 	m_codeGen->PushRel(offsetof(CMIPS, m_State.nCOP1[m_fs]));
 	if(m_regSize == MIPS_REGSIZE_64)
 	{
@@ -98,6 +103,11 @@ void CCOP_FPU::MFC1()
 //02
 void CCOP_FPU::CFC1()
 {
+	if(m_ft == 0)
+	{
+		return;
+	}
+
 	if(m_fs < 16)
 	{
 		//Implementation and Revision Register
