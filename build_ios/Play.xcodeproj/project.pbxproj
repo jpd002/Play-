@@ -131,7 +131,6 @@
 		70834C6E1B1BD70700E8D5C6 /* Iop_FileIo.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 70834C201B1BD70700E8D5C6 /* Iop_FileIo.cpp */; };
 		70834C6F1B1BD70700E8D5C6 /* Iop_FileIoHandler1000.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 70834C221B1BD70700E8D5C6 /* Iop_FileIoHandler1000.cpp */; };
 		70834C701B1BD70700E8D5C6 /* Iop_FileIoHandler2100.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 70834C241B1BD70700E8D5C6 /* Iop_FileIoHandler2100.cpp */; };
-		70834C711B1BD70700E8D5C6 /* Iop_FileIoHandler2300.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 70834C261B1BD70700E8D5C6 /* Iop_FileIoHandler2300.cpp */; };
 		70834C721B1BD70700E8D5C6 /* Iop_Intc.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 70834C281B1BD70700E8D5C6 /* Iop_Intc.cpp */; };
 		70834C731B1BD70700E8D5C6 /* Iop_Intrman.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 70834C2A1B1BD70700E8D5C6 /* Iop_Intrman.cpp */; };
 		70834C741B1BD70700E8D5C6 /* Iop_Ioman.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 70834C2C1B1BD70700E8D5C6 /* Iop_Ioman.cpp */; };
@@ -187,6 +186,7 @@
 		70D3A8761BDF1746005494CE /* VirtualPadItem.mm in Sources */ = {isa = PBXBuildFile; fileRef = 70D3A8701BDF1746005494CE /* VirtualPadItem.mm */; };
 		70D3A8771BDF1746005494CE /* VirtualPadStick.mm in Sources */ = {isa = PBXBuildFile; fileRef = 70D3A8721BDF1746005494CE /* VirtualPadStick.mm */; };
 		70D3A8781BDF1746005494CE /* VirtualPadView.mm in Sources */ = {isa = PBXBuildFile; fileRef = 70D3A8741BDF1746005494CE /* VirtualPadView.mm */; };
+		70F73D3B1E1C7EF000A4D16C /* Iop_FileIoHandler2240.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 70F73D391E1C7EF000A4D16C /* Iop_FileIoHandler2240.cpp */; };
 		874ECDA41B7D980C000075B6 /* boxart.png in Resources */ = {isa = PBXBuildFile; fileRef = 874ECDA21B7D980C000075B6 /* boxart.png */; };
 		874ECDA61B7DB0F6000075B6 /* SqliteDatabase.m in Sources */ = {isa = PBXBuildFile; fileRef = 874ECDA51B7DB0F6000075B6 /* SqliteDatabase.m */; };
 		874ECDAA1B7DB862000075B6 /* libsqlite3.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 874ECDA91B7DB862000075B6 /* libsqlite3.dylib */; };
@@ -466,8 +466,6 @@
 		70834C231B1BD70700E8D5C6 /* Iop_FileIoHandler1000.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Iop_FileIoHandler1000.h; path = ../Source/iop/Iop_FileIoHandler1000.h; sourceTree = "<group>"; };
 		70834C241B1BD70700E8D5C6 /* Iop_FileIoHandler2100.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Iop_FileIoHandler2100.cpp; path = ../Source/iop/Iop_FileIoHandler2100.cpp; sourceTree = "<group>"; };
 		70834C251B1BD70700E8D5C6 /* Iop_FileIoHandler2100.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Iop_FileIoHandler2100.h; path = ../Source/iop/Iop_FileIoHandler2100.h; sourceTree = "<group>"; };
-		70834C261B1BD70700E8D5C6 /* Iop_FileIoHandler2300.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Iop_FileIoHandler2300.cpp; path = ../Source/iop/Iop_FileIoHandler2300.cpp; sourceTree = "<group>"; };
-		70834C271B1BD70700E8D5C6 /* Iop_FileIoHandler2300.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Iop_FileIoHandler2300.h; path = ../Source/iop/Iop_FileIoHandler2300.h; sourceTree = "<group>"; };
 		70834C281B1BD70700E8D5C6 /* Iop_Intc.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Iop_Intc.cpp; path = ../Source/iop/Iop_Intc.cpp; sourceTree = "<group>"; };
 		70834C291B1BD70700E8D5C6 /* Iop_Intc.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Iop_Intc.h; path = ../Source/iop/Iop_Intc.h; sourceTree = "<group>"; };
 		70834C2A1B1BD70700E8D5C6 /* Iop_Intrman.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Iop_Intrman.cpp; path = ../Source/iop/Iop_Intrman.cpp; sourceTree = "<group>"; };
@@ -576,6 +574,8 @@
 		70D3A8721BDF1746005494CE /* VirtualPadStick.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = VirtualPadStick.mm; path = ../Source/ui_ios/VirtualPadStick.mm; sourceTree = "<group>"; };
 		70D3A8731BDF1746005494CE /* VirtualPadView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = VirtualPadView.h; path = ../Source/ui_ios/VirtualPadView.h; sourceTree = "<group>"; };
 		70D3A8741BDF1746005494CE /* VirtualPadView.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = VirtualPadView.mm; path = ../Source/ui_ios/VirtualPadView.mm; sourceTree = "<group>"; };
+		70F73D391E1C7EF000A4D16C /* Iop_FileIoHandler2240.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Iop_FileIoHandler2240.cpp; path = ../Source/iop/Iop_FileIoHandler2240.cpp; sourceTree = "<group>"; };
+		70F73D3A1E1C7EF000A4D16C /* Iop_FileIoHandler2240.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Iop_FileIoHandler2240.h; path = ../Source/iop/Iop_FileIoHandler2240.h; sourceTree = "<group>"; };
 		874ECDA21B7D980C000075B6 /* boxart.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = boxart.png; sourceTree = "<group>"; };
 		874ECDA51B7DB0F6000075B6 /* SqliteDatabase.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = SqliteDatabase.m; path = ../Source/ui_ios/SqliteDatabase.m; sourceTree = "<group>"; };
 		874ECDA71B7DB1C1000075B6 /* SqliteDatabase.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = SqliteDatabase.h; path = ../Source/ui_ios/SqliteDatabase.h; sourceTree = "<group>"; };
@@ -981,8 +981,8 @@
 				70834C231B1BD70700E8D5C6 /* Iop_FileIoHandler1000.h */,
 				70834C241B1BD70700E8D5C6 /* Iop_FileIoHandler2100.cpp */,
 				70834C251B1BD70700E8D5C6 /* Iop_FileIoHandler2100.h */,
-				70834C261B1BD70700E8D5C6 /* Iop_FileIoHandler2300.cpp */,
-				70834C271B1BD70700E8D5C6 /* Iop_FileIoHandler2300.h */,
+				70F73D391E1C7EF000A4D16C /* Iop_FileIoHandler2240.cpp */,
+				70F73D3A1E1C7EF000A4D16C /* Iop_FileIoHandler2240.h */,
 				7044E5C01E0B661100766D13 /* Iop_Heaplib.cpp */,
 				7044E5C11E0B661100766D13 /* Iop_Heaplib.h */,
 				70834C281B1BD70700E8D5C6 /* Iop_Intc.cpp */,
@@ -1394,6 +1394,7 @@
 				70834C8C1B1BD70700E8D5C6 /* Iop_Thsema.cpp in Sources */,
 				70834C821B1BD70700E8D5C6 /* Iop_Spu2_Core.cpp in Sources */,
 				70834B7A1B1BD2C300E8D5C6 /* PS2VM.cpp in Sources */,
+				70F73D3B1E1C7EF000A4D16C /* Iop_FileIoHandler2240.cpp in Sources */,
 				70834C0C1B1BD6E000E8D5C6 /* GsPixelFormats.cpp in Sources */,
 				70834B601B1BD2C300E8D5C6 /* ElfFile.cpp in Sources */,
 				704E1C541B3BA25000C0ACE3 /* GSH_OpenGL_Texture.cpp in Sources */,
@@ -1404,7 +1405,6 @@
 				70834BF41B1BD6A300E8D5C6 /* MA_VU.cpp in Sources */,
 				70834BE91B1BD6A300E8D5C6 /* IPU_MacroblockTypeBTable.cpp in Sources */,
 				70834B611B1BD2C300E8D5C6 /* FrameDump.cpp in Sources */,
-				70834C711B1BD70700E8D5C6 /* Iop_FileIoHandler2300.cpp in Sources */,
 				70834BE61B1BD6A300E8D5C6 /* INTC.cpp in Sources */,
 				70834C6C1B1BD70700E8D5C6 /* Iop_DmacChannel.cpp in Sources */,
 				70834B7E1B1BD2C300E8D5C6 /* StructFile.cpp in Sources */,
