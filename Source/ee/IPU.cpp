@@ -1004,6 +1004,7 @@ bool CIPU::CIDECCommand::Execute()
 				}
 				//BDEC will yield 384 elements in RAW16 format
 				assert(m_blockStream.GetSize() == (CCSCCommand::BLOCK_SIZE * sizeof(int16)));
+				ConvertRawBlock();
 				m_state = STATE_CSCINIT;
 				m_mbCount++;
 			}
@@ -1095,6 +1096,22 @@ void CIPU::CIDECCommand::CountTicks(uint32 ticks)
 bool CIPU::CIDECCommand::IsDelayed() const
 {
 	return (m_state == STATE_DELAY);
+}
+
+void CIPU::CIDECCommand::ConvertRawBlock()
+{
+	//Convert block from RAW16 to RAW8
+	int16 blockData[CCSCCommand::BLOCK_SIZE];
+	m_blockStream.Seek(0, Framework::STREAM_SEEK_SET);
+	m_blockStream.Read(blockData, CCSCCommand::BLOCK_SIZE * sizeof(int16));
+	m_blockStream.ResetBuffer();
+	for(uint32 i = 0; i < CCSCCommand::BLOCK_SIZE; i++)
+	{
+		int16 blockValue = blockData[i];
+		blockValue = std::max<int16>(blockValue, 0);
+		blockValue = std::min<int16>(blockValue, 255);
+		m_blockStream.Write8(static_cast<uint8>(blockValue));
+	}
 }
 
 /////////////////////////////////////////////

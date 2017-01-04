@@ -241,6 +241,8 @@ private:
 			STATE_DONE
 		};
 
+		void					ConvertRawBlock();
+
 		CMD_IDEC				m_command = make_convertible<CMD_IDEC>(0);
 		STATE					m_state = STATE_DONE;
 
