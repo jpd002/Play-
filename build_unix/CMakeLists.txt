@@ -1,5 +1,6 @@
 cmake_minimum_required(VERSION 2.8)
 project(Play)
+add_definitions(-DPLAY_VERSION="0.30")
 
 if (NOT TARGET Framework)
 	add_subdirectory(
@@ -41,6 +42,9 @@ find_package(Boost COMPONENTS system filesystem chrono)
 include_directories(${Boost_INCLUDE_DIRS})
 list(APPEND PROJECT_LIBS ${Boost_LIBRARIES})
 
+find_package(OpenAL REQUIRED)
+list(APPEND PROJECT_LIBS ${OPENAL_LIBRARY})
+
 find_package(OpenGL REQUIRED)
 list(APPEND PROJECT_LIBS ${OPENGL_LIBRARIES})
 
@@ -55,8 +59,11 @@ list(APPEND PROJECT_LIBS ${ZLIB_LIBRARIES})
 
 find_package(Threads REQUIRED)
 if(CMAKE_THREAD_LIBS_INIT)
-	list(APPEND PROJECT_LIBS "${CMAKE_THREAD_LIBS_INIT}")
+       list(APPEND PROJECT_LIBS "${CMAKE_THREAD_LIBS_INIT}")
 endif()
+
+find_package(ICUUC REQUIRED)
+list(APPEND PROJECT_LIBS ${ICUUC_LIBRARIES})
 
 include_directories(../Source ../../Framework/include ../../CodeGen/include)
 
@@ -260,3 +267,70 @@ add_test(NAME VuTest
 	COMMAND VuTest
 )
 
+if (UNIX)
+	include_directories(
+		../
+		../Source/ui_unix/
+	)
+
+	set(QT_SOURCES
+		../Source/ui_unix/main.cpp
+		../Source/ui_unix/mainwindow.cpp
+		../Source/ui_unix/GSH_OpenGLQt.cpp
+		../Source/ui_unix/StatsManager.cpp
+		../Source/ui_unix/PH_HidUnix.cpp
+		../Source/ui_unix/settingsdialog.cpp
+		../Source/ui_unix/openglwindow.cpp
+		../Source/ui_unix/memorycardmanagerdialog.cpp
+		../Source/ui_unix/MemoryCard.cpp
+		../Source/ui_unix/vfsmanagerdialog.cpp
+		../Source/ui_unix/vfsmodel.cpp
+		../Source/ui_unix/vfsdiscselectordialog.cpp
+		../Source/ui_unix/VfsDevice.cpp
+		../Source/ui_unix/controllerconfigdialog.cpp
+		../Source/ui_unix/padqwidgetext.cpp
+	)
+
+	set(QT_MOC_HEADERS
+		../Source/ui_unix/mainwindow.h
+		../Source/ui_unix/GSH_OpenGLQt.h
+		../Source/ui_unix/StatsManager.h
+		../Source/ui_unix/PH_HidUnix.h
+		../Source/ui_unix/settingsdialog.h
+		../Source/ui_unix/PreferenceDefs.h
+		../Source/ui_unix/openglwindow.h
+		../Source/ui_unix/memorycardmanagerdialog.h
+		../Source/ui_unix/MemoryCard.h
+		../Source/ui_unix/vfsmanagerdialog.h
+		../Source/ui_unix/vfsmodel.h
+		../Source/ui_unix/vfsdiscselectordialog.h
+		../Source/ui_unix/VfsDevice.h
+		../Source/ui_unix/controllerconfigdialog.h
+		../Source/ui_unix/padqwidgetext.h
+	)
+
+	set(QT_UIS
+		mainwindow.ui
+		settingsdialog.ui
+		memorycardmanager.ui
+		vfsmanagerdialog.ui
+		vfsdiscselectordialog.ui
+		controllerconfigdialog.ui
+	)
+
+	set(QT_RESOURCES
+		resources.qrc
+	)
+
+	find_package(Qt5 REQUIRED COMPONENTS Widgets Core)
+	list(APPEND PROJECT_LIBS Qt5::Widgets Qt5::Core)
+	add_definitions(${QT_DEFINITIONS})
+	include_directories(${CMAKE_BINARY_DIR})
+
+	QT5_ADD_RESOURCES(QT_RES_SOURCES ${QT_RESOURCES})
+	QT5_WRAP_UI(QT_UI_HEADERS ${QT_UIS})
+	QT5_WRAP_CPP(QT_MOC_SRCS ${QT_MOC_HEADERS})
+
+	add_executable(Play-UI ${QT_SOURCES} ${QT_MOC_SRCS} ${QT_RES_SOURCES} ${QT_UI_HEADERS})
+	target_link_libraries(Play-UI Play Framework CodeGen ${PROJECT_LIBS})
+endif (UNIX)

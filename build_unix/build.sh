@@ -1,11 +1,5 @@
 set -e
 mkdir -p build
 cd build
-cmake ..
+cmake .. -DCMAKE_PREFIX_PATH=~/Qt5.6.0/5.6/gcc_64/
 make
-cd ..
-mkdir -p build-ui/
-qmake -o build-ui/
-cd build-ui
-make
-cd ..
