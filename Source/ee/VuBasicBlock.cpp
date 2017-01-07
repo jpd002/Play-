@@ -55,8 +55,8 @@ void CVuBasicBlock::CompileRange(CMipsJitter* jitter)
 		uint32 opcodeLo = m_context.m_pMemoryMap->GetInstruction(addressLo);
 		uint32 opcodeHi = m_context.m_pMemoryMap->GetInstruction(addressHi);
 
-		VUShared::OPERANDSET loOps = arch->GetAffectedOperands(&m_context, addressLo, opcodeLo);
-		VUShared::OPERANDSET hiOps = arch->GetAffectedOperands(&m_context, addressHi, opcodeHi);
+		auto loOps = arch->GetAffectedOperands(&m_context, addressLo, opcodeLo);
+		auto hiOps = arch->GetAffectedOperands(&m_context, addressHi, opcodeHi);
 
 		//No upper instruction writes to Q
 		assert(hiOps.syncQ == false);
