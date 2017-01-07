@@ -29,6 +29,9 @@ endif()
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -D_DEBUG")
+if(APPLE)
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -x objective-c++")
+endif(APPLE)
 add_definitions(-D_IOP_EMULATE_MODULES)
 
 set(PROJECT_LIBS)
@@ -57,7 +60,7 @@ endif()
 
 include_directories(../Source ../../Framework/include ../../CodeGen/include)
 
-add_library(Play
+set(COMMON_SRC_FILES
 	../Source/AppConfig.cpp 
 	../Source/BasicBlock.cpp 
 	../Source/ControllerInfo.cpp 
@@ -187,7 +190,6 @@ add_library(Play
 	../Source/PadHandler.cpp 
 	../Source/PadListener.cpp
 	../Source/PH_Generic.cpp 
-	../Source/Posix_VolumeStream.cpp
 	../Source/Profiler.cpp 
 	../Source/PS2VM.cpp 
 	../Source/RegisterStateFile.cpp 
@@ -204,6 +206,20 @@ add_library(Play
 	../Source/Utils.cpp
 	../tools/PsfPlayer/Source/SH_OpenAL.cpp
 )
+
+if (WIN32)
+	set(PLATFORM_SPECIFIC_SRC_FILES ../Source/VolumeStream.cpp)
+endif (WIN32)
+
+if (UNIX)
+    set(PLATFORM_SPECIFIC_SRC_FILES ../Source/Posix_VolumeStream.cpp)
+endif (UNIX)
+
+if (APPLE)
+	set(PLATFORM_SPECIFIC_SRC_FILES ../Source/Posix_VolumeStream.cpp)
+endif (APPLE)
+
+add_library(Play ${COMMON_SRC_FILES} ${PLATFORM_SPECIFIC_SRC_FILES})
 
 if(THREADS_HAVE_PTHREAD_ARG)
 	target_compile_options(PUBLIC Play "-pthread")
