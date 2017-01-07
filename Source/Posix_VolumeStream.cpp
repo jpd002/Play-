@@ -3,6 +3,7 @@
 #include <stdexcept>
 #include <algorithm>
 #include <cstdlib>
+#include <unistd.h>
 
 #if defined(__APPLE__)
 #include <sys/disk.h>

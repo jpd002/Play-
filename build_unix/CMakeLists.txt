@@ -1,5 +1,7 @@
 cmake_minimum_required(VERSION 2.8)
 project(Play)
+set(PROJECT_NAME "Play!")
+set(PROJECT_Version 0.30)
 add_definitions(-DPLAY_VERSION="0.30")
 
 if (NOT TARGET Framework)
@@ -62,8 +64,10 @@ if(CMAKE_THREAD_LIBS_INIT)
        list(APPEND PROJECT_LIBS "${CMAKE_THREAD_LIBS_INIT}")
 endif()
 
+if (UNIX AND NOT APPLE)
 find_package(ICUUC REQUIRED)
 list(APPEND PROJECT_LIBS ${ICUUC_LIBRARIES})
+endif()
 
 include_directories(../Source ../../Framework/include ../../CodeGen/include)
 
@@ -208,6 +212,7 @@ set(COMMON_SRC_FILES
 	../Source/saves/SaveImporterBase.cpp 
 	../Source/saves/SaveImporter.cpp 
 	../Source/saves/XpsSaveImporter.cpp
+	../Source/ScopedVmPauser.cpp
 	../Source/StructCollectionStateFile.cpp 
 	../Source/StructFile.cpp 
 	../Source/Utils.cpp
@@ -267,7 +272,7 @@ add_test(NAME VuTest
 	COMMAND VuTest
 )
 
-if (UNIX)
+if (UNIX AND NOT APPLE)
 	include_directories(
 		../
 		../Source/ui_unix/
@@ -333,4 +338,104 @@ if (UNIX)
 
 	add_executable(Play-UI ${QT_SOURCES} ${QT_MOC_SRCS} ${QT_RES_SOURCES} ${QT_UI_HEADERS})
 	target_link_libraries(Play-UI Play Framework CodeGen ${PROJECT_LIBS})
-endif (UNIX)
+endif (UNIX AND NOT APPLE)
+
+if(APPLE)
+	include_directories(
+		../
+		../Source/ui_macosx/
+	)
+
+	set (OSX_SOURCES
+		../Source/ui_macosx/ApplicationDelegate.mm
+		../Source/ui_macosx/AudioSettingsViewController.mm
+		../Source/ui_macosx/Globals.cpp
+		../Source/ui_macosx/GSH_OpenGLMacOSX.cpp
+		../Source/ui_macosx/main.mm
+		../Source/ui_macosx/OutputWindowController.mm
+		../Source/ui_macosx/OutputWindow.mm
+		../Source/ui_macosx/PH_HidMacOSX.cpp
+		../Source/ui_macosx/PreferencesWindowController.mm
+		../Source/ui_macosx/VfsManagerBindings.mm
+		../Source/ui_macosx/VfsManagerViewController.mm
+		../Source/ui_macosx/VideoSettingsViewController.mm
+	)
+
+	set (OSX_HEADERS
+		../Source/ui_macosx/Purei_Prefix.pch
+		../Source/ui_macosx/ApplicationDelegate.h
+		../Source/ui_macosx/AudioSettingsViewController.h
+		../Source/ui_macosx/Globals.h
+		../Source/ui_macosx/GSH_OpenGLMacOSX.h
+		../Source/ui_macosx/OutputWindowController.h
+		../Source/ui_macosx/OutputWindow.h
+		../Source/ui_macosx/PH_HidMacOSX.h
+		../Source/ui_macosx/PreferenceDefs.h
+		../Source/ui_macosx/PreferencesWindowController.h
+		../Source/ui_macosx/VfsManagerBindings.h
+		../Source/ui_macosx/VfsManagerViewController.h
+		../Source/ui_macosx/VideoSettingsViewController.h
+	)
+
+	# these are the OS X Interface Builder Files
+	set (OSX_XIBS
+		English.lproj/PreferencesWindow
+		English.lproj/MainMenu
+		English.lproj/VideoSettingsView
+		English.lproj/OutputWindow
+		English.lproj/AudioSettingsView
+		English.lproj/VfsManagerView
+	)
+
+	# Add our Executable
+	add_executable(Play-UI MACOSX_BUNDLE ${OSX_SOURCES} ${OSX_HEADERS})
+
+	# Probably a better way to set the framework link libraries.
+	target_link_libraries(Play-UI Play Framework CodeGen ${PROJECT_LIBS} "-ObjC -framework Cocoa -framework OpenGL -framework OpenAL -framework IOKit  -framework AppKit  -framework CoreData  -framework Foundation")
+
+	# Set a custom plist file for the app bundle
+	# NOTE: for these values to be used Info.plist has to be edited
+	set_target_properties(
+		Play-UI
+		PROPERTIES
+			MACOSX_BUNDLE_INFO_STRING "${PROJECT_NAME}"
+			MACOSX_BUNDLE_GUI_IDENTIFIER "com.virtualapplications.Play"
+			MACOSX_BUNDLE_LONG_VERSION_STRING "${PROJECT_NAME} Version ${PROJECT_Version}"
+			MACOSX_BUNDLE_BUNDLE_NAME ${PROJECT_NAME}
+			MACOSX_BUNDLE_SHORT_VERSION_STRING "${PROJECT_Version}"
+			MACOSX_BUNDLE_BUNDLE_VERSION ${PROJECT_Version}
+			MACOSX_BUNDLE_COPYRIGHT "Copyright (c) 2006-2017, Jean-Philip Desjardins. All Rights Reserved."
+			MACOSX_BUNDLE_ICON_FILE "AppIcon.icns"
+			MACOSX_BUNDLE_NSMAIN_NIB_FILE "MainMenu"
+			MACOSX_BUNDLE_NSPRINCIPAL_CLASS "NSApplication"
+			MACOSX_BUNDLE_INFO_PLIST "${Play_SOURCE_DIR}/../Source/ui_macosx/Info.plist"
+)
+
+	# Make sure we can find the 'ibtool' program. If we can NOT find it we
+	# skip generation of this project
+	find_program(IBTOOL ibtool HINTS "/usr/bin" "${OSX_DEVELOPER_ROOT}/usr/bin")
+	if (${IBTOOL} STREQUAL "IBTOOL-NOTFOUND")
+		message(SEND_ERROR "ibtool can not be found and is needed to compile the .xib files. It should have been installed with the Apple developer tools. The default system paths were searched in addition to ${OSX_DEVELOPER_ROOT}/usr/bin")
+	endif()
+
+	# Make sure the 'Resources' Directory is correctly created before we build
+	add_custom_command (TARGET Play-UI PRE_BUILD COMMAND mkdir -p ${CMAKE_CFG_INTDIR}/Play-UI.app/Contents/Resources)
+
+	# Copy Icon and patches
+	add_custom_command (TARGET Play-UI POST_BUILD 
+		COMMAND cp ${Play_SOURCE_DIR}/../build_macosx/AppIcon.icns ${CMAKE_CFG_INTDIR}/Play.app/Contents/Resources/AppIcon.icns
+	)
+	add_custom_command (TARGET Play-UI POST_BUILD 
+		COMMAND cp ${Play_SOURCE_DIR}/../patches.xml ${CMAKE_CFG_INTDIR}/Play.app/Contents/Resources/patches.xml
+	)
+
+	# Compile the .xib files using the 'ibtool' program with the destination being the app package
+	foreach(xib ${OSX_XIBS})
+		add_custom_command (TARGET Play-UI POST_BUILD 
+				COMMAND ${IBTOOL} --errors --warnings --notices --output-format human-readable-text 
+					--compile ${CMAKE_CFG_INTDIR}/Play-UI.app/Contents/Resources/${xib}.nib
+					${Play_SOURCE_DIR}/../Source/ui_macosx/${xib}.xib
+				COMMENT "${Play_SOURCE_DIR}/../Source/ui_macosx/${xib}.xib")
+
+	endforeach()
+endif(APPLE)
