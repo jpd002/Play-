@@ -1,19 +1,18 @@
 cmake_minimum_required(VERSION 2.8)
-
 project(Play)
 
 if (NOT TARGET Framework)
-  add_subdirectory(
-	  ${Play_SOURCE_DIR}/../../Framework/build_unix
-	  ${Play_SOURCE_DIR}/../../Framework/build_unix/build
-  )
+	add_subdirectory(
+		${Play_SOURCE_DIR}/../../Framework/build_unix
+		${Play_SOURCE_DIR}/../../Framework/build_unix/build
+	)
 endif()
 
 if (NOT TARGET CodeGen)
-  add_subdirectory(
-	  ${Play_SOURCE_DIR}/../../CodeGen/build_unix
-	  ${Play_SOURCE_DIR}/../../CodeGen/build_unix/build
-  )
+	add_subdirectory(
+		${Play_SOURCE_DIR}/../../CodeGen/build_unix
+		${Play_SOURCE_DIR}/../../CodeGen/build_unix/build
+	)
 endif()
 
 set(CMAKE_MODULE_PATH
@@ -53,7 +52,7 @@ list(APPEND PROJECT_LIBS ${ZLIB_LIBRARIES})
 
 find_package(Threads REQUIRED)
 if(CMAKE_THREAD_LIBS_INIT)
-       list(APPEND PROJECT_LIBS "${CMAKE_THREAD_LIBS_INIT}")
+	list(APPEND PROJECT_LIBS "${CMAKE_THREAD_LIBS_INIT}")
 endif()
 
 include_directories(../Source ../../Framework/include ../../CodeGen/include)
@@ -207,12 +206,10 @@ add_library(Play
 )
 
 if(THREADS_HAVE_PTHREAD_ARG)
-  target_compile_options(PUBLIC Play "-pthread")
+	target_compile_options(PUBLIC Play "-pthread")
 endif()
 
 target_link_libraries(Play Framework CodeGen ${PROJECT_LIBS})
-
-
 
 enable_testing()
 
