@@ -39,10 +39,13 @@ add_definitions(-D_IOP_EMULATE_MODULES)
 
 set(PROJECT_LIBS)
 
-set(Boost_FIND_REQUIRED TRUE)
-find_package(Boost COMPONENTS system filesystem chrono)
-include_directories(${Boost_INCLUDE_DIRS})
-list(APPEND PROJECT_LIBS ${Boost_LIBRARIES})
+if (NOT TARGET Boost::boost)
+	add_subdirectory(
+		${Play_SOURCE_DIR}/../../Dependencies/boost-cmake
+		${Play_SOURCE_DIR}/../../Dependencies/boost-cmake/build
+	)
+endif()
+list(APPEND PROJECT_LIBS Boost::boost Boost::system Boost::filesystem Boost::chrono)
 
 find_package(OpenAL REQUIRED)
 list(APPEND PROJECT_LIBS ${OPENAL_LIBRARY})
