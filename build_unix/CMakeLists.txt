@@ -95,11 +95,38 @@ if(UNIX OR WIN32)
 	list(APPEND PROJECT_LIBS ${GLEW_LIBRARIES})
 endif()
 
-find_package(BZip2 REQUIRED)
-list(APPEND PROJECT_LIBS ${BZIP2_LIBRARIES})
+find_package(BZip2)
+if (NOT BZIP2_FOUND)
+	MESSAGE("-- Using Provided BZip2 source")
+	if (NOT TARGET bz2)
+		add_subdirectory(
+			${CMAKE_CURRENT_SOURCE_DIR}/../../Dependencies/bzip2-1.0.6
+			${CMAKE_CURRENT_SOURCE_DIR}/../../Dependencies/bzip2-1.0.6/build
+		)
+	endif()
+	include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../../Dependencies/bzip2-1.0.6)
+	list(APPEND PROJECT_LIBS bz2)
+else()
+	include_directories(${BZIP2_INCLUDE_DIR})
+	list(APPEND PROJECT_LIBS ${BZIP2_LIBRARIES})
+endif()
 
-find_package(ZLIB REQUIRED)
-list(APPEND PROJECT_LIBS ${ZLIB_LIBRARIES})
+find_package(ZLIB)
+if (NOT ZLIB_FOUND)
+	MESSAGE("-- Using Provided zlib source")
+	if(NOT TARGET zlibstatic)
+		add_subdirectory(
+			${CMAKE_CURRENT_SOURCE_DIR}/../../Dependencies/zlib-1.2.8
+			${CMAKE_CURRENT_SOURCE_DIR}/../../Dependencies/zlib-1.2.8/build
+		)
+	endif()
+	include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../../Dependencies/zlib-1.2.8)
+	include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../../Dependencies/zlib-1.2.8/build)
+	list(APPEND PROJECT_LIBS zlibstatic)
+else()
+	include_directories(${ZLIB_INCLUDE_DIRS})
+	list(APPEND PROJECT_LIBS ${ZLIB_LIBRARIES})
+endif()
 
 find_package(Threads REQUIRED)
 if(CMAKE_THREAD_LIBS_INIT)
