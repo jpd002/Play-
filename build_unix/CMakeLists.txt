@@ -133,10 +133,17 @@ if(UNIX AND NOT ANDROID)
 	list(APPEND PROJECT_LIBS ${OPENAL_LIBRARY})
 endif()
 
-if(UNIX OR WIN32)
-	find_package(GLEW REQUIRED)
-	include_directories(${GLEW_INCLUDE_DIR})
-	list(APPEND PROJECT_LIBS ${GLEW_LIBRARIES})
+if(UNIX OR WIN32 AND NOT ANDROID AND NOT APPLE)
+	if (NOT TARGET glew_s)
+		set(BUILD_SHARED_LIBS off)
+		set(BUILD_UTILS off)
+		add_subdirectory(
+			${CMAKE_CURRENT_SOURCE_DIR}/../../Dependencies/glew
+			${CMAKE_CURRENT_SOURCE_DIR}/../../Dependencies/glew/build_${CMAKE_SYSTEM_NAME}
+		)
+	endif()
+	list(APPEND PROJECT_LIBS glew_s)
+	include_directories(${GLEW_SOURCE}/include)
 endif()
 
 find_package(BZip2)
