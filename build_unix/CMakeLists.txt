@@ -2,35 +2,24 @@ cmake_minimum_required(VERSION 2.8)
 project(Play)
 set(PROJECT_NAME "Play!")
 set(PROJECT_Version 0.30)
-add_definitions(-DPLAY_VERSION="0.30")
-
-if (NOT TARGET Framework)
-	add_subdirectory(
-		${Play_SOURCE_DIR}/../../Framework/build_unix
-		${Play_SOURCE_DIR}/../../Framework/build_unix/build
-	)
-endif()
-
-if (NOT TARGET CodeGen)
-	add_subdirectory(
-		${Play_SOURCE_DIR}/../../CodeGen/build_unix
-		${Play_SOURCE_DIR}/../../CodeGen/build_unix/build
-	)
-endif()
-
-if(WIN32)
-	if (NOT TARGET Nuanceur)
-		add_subdirectory(
-			${Play_SOURCE_DIR}/../../Nuanceur/build_unix
-			${Play_SOURCE_DIR}/../../Nuanceur/build_unix/build
-		)
-	endif()
-endif()
+add_definitions(-DPLAY_VERSION="${PROJECT_Version}")
+set(PROJECT_LIBS)
 
 set(CMAKE_MODULE_PATH
-	${Play_SOURCE_DIR}/Modules
+	${CMAKE_CURRENT_SOURCE_DIR}/../../Dependencies/cmake-modules
 	${CMAKE_MODULE_PATH}
 )
+
+# flags
+set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+if(WIN32)
+	set(CMAKE_CXX_FLAGS "/EHsc")
+endif()
+
+if(APPLE)
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -x objective-c++")
+endif()
 
 if(NOT CMAKE_BUILD_TYPE)
 	set(CMAKE_BUILD_TYPE Release CACHE STRING
@@ -38,12 +27,16 @@ if(NOT CMAKE_BUILD_TYPE)
 		FORCE)
 endif()
 
-set(CMAKE_CXX_STANDARD 11)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -D_DEBUG")
-if(APPLE)
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -x objective-c++")
-endif(APPLE)
+# definitions
+MESSAGE("-- Build type: ${CMAKE_BUILD_TYPE}")
+if(NOT MSVC)
+	if(CMAKE_BUILD_TYPE STREQUAL "Release")
+		add_definitions(-DNDEBUG)
+	else()
+		add_definitions(-D_DEBUG)
+	endif()
+endif()
+
 add_definitions(-D_IOP_EMULATE_MODULES)
 add_definitions(-DGLEW_STATIC)
 
@@ -71,12 +64,38 @@ if(WIN32)
 	endif()
 endif()
 
-set(PROJECT_LIBS)
+# targets, packages and dependencies
+if (NOT TARGET Framework)
+	add_subdirectory(
+		${CMAKE_CURRENT_SOURCE_DIR}/../../Framework/build_unix
+		${CMAKE_CURRENT_SOURCE_DIR}/../../Framework/build_unix/build_${CMAKE_SYSTEM_NAME}
+	)
+endif()
+list(APPEND PROJECT_LIBS Framework)
+
+if (NOT TARGET CodeGen)
+	add_subdirectory(
+		${CMAKE_CURRENT_SOURCE_DIR}/../../CodeGen/build_unix
+		${CMAKE_CURRENT_SOURCE_DIR}/../../CodeGen/build_unix/build_${CMAKE_SYSTEM_NAME}
+	)
+endif()
+list(APPEND PROJECT_LIBS CodeGen)
+
+if(WIN32)
+	if (NOT TARGET Nuanceur)
+		add_subdirectory(
+			${CMAKE_CURRENT_SOURCE_DIR}/../../Nuanceur/build_unix
+			${CMAKE_CURRENT_SOURCE_DIR}/../../Nuanceur/build_unix/build_${CMAKE_SYSTEM_NAME}
+		)
+	endif()
+	include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../../Nuanceur/include)
+	list(APPEND PROJECT_LIBS Nuanceur)
+endif()
 
 if (NOT TARGET Boost::boost)
 	add_subdirectory(
-		${Play_SOURCE_DIR}/../../Dependencies/boost-cmake
-		${Play_SOURCE_DIR}/../../Dependencies/boost-cmake/build
+		${CMAKE_CURRENT_SOURCE_DIR}/../../Dependencies/boost-cmake
+		${CMAKE_CURRENT_SOURCE_DIR}/../../Dependencies/boost-cmake/build_${CMAKE_SYSTEM_NAME}
 	)
 endif()
 list(APPEND PROJECT_LIBS Boost::boost Boost::system Boost::filesystem Boost::chrono)
@@ -101,7 +120,7 @@ if (NOT BZIP2_FOUND)
 	if (NOT TARGET bz2)
 		add_subdirectory(
 			${CMAKE_CURRENT_SOURCE_DIR}/../../Dependencies/bzip2-1.0.6
-			${CMAKE_CURRENT_SOURCE_DIR}/../../Dependencies/bzip2-1.0.6/build
+			${CMAKE_CURRENT_SOURCE_DIR}/../../Dependencies/bzip2-1.0.6/build_${CMAKE_SYSTEM_NAME}
 		)
 	endif()
 	include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../../Dependencies/bzip2-1.0.6)
@@ -117,11 +136,11 @@ if (NOT ZLIB_FOUND)
 	if(NOT TARGET zlibstatic)
 		add_subdirectory(
 			${CMAKE_CURRENT_SOURCE_DIR}/../../Dependencies/zlib-1.2.8
-			${CMAKE_CURRENT_SOURCE_DIR}/../../Dependencies/zlib-1.2.8/build
+			${CMAKE_CURRENT_SOURCE_DIR}/../../Dependencies/zlib-1.2.8/build_${CMAKE_SYSTEM_NAME}
 		)
 	endif()
 	include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../../Dependencies/zlib-1.2.8)
-	include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../../Dependencies/zlib-1.2.8/build)
+	include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../../Dependencies/zlib-1.2.8/build_${CMAKE_SYSTEM_NAME})
 	list(APPEND PROJECT_LIBS zlibstatic)
 else()
 	include_directories(${ZLIB_INCLUDE_DIRS})
@@ -134,8 +153,8 @@ if(CMAKE_THREAD_LIBS_INIT)
 endif()
 
 if (UNIX AND NOT APPLE)
-find_package(ICUUC REQUIRED)
-list(APPEND PROJECT_LIBS ${ICUUC_LIBRARIES})
+	find_package(ICUUC REQUIRED)
+	list(APPEND PROJECT_LIBS ${ICUUC_LIBRARIES})
 endif()
 
 include_directories(../Source ../../Framework/include ../../CodeGen/include)
@@ -300,47 +319,16 @@ if (APPLE)
 	set(PLATFORM_SPECIFIC_SRC_FILES ../Source/Posix_VolumeStream.cpp)
 endif (APPLE)
 
-add_library(Play ${COMMON_SRC_FILES} ${PLATFORM_SPECIFIC_SRC_FILES})
+add_library(PlayCore ${COMMON_SRC_FILES} ${PLATFORM_SPECIFIC_SRC_FILES})
 
 if(THREADS_HAVE_PTHREAD_ARG)
-	target_compile_options(PUBLIC Play "-pthread")
+	target_compile_options(PUBLIC PlayCore "-pthread")
 endif()
 
-target_link_libraries(Play Framework CodeGen ${PROJECT_LIBS})
+target_link_libraries(PlayCore ${PROJECT_LIBS})
+list(APPEND PROJECT_LIBS PlayCore)
 
-enable_testing()
-
-add_executable(autotest
-	../tools/AutoTest/JUnitTestReportWriter.cpp
-	../tools/AutoTest/Main.cpp
-)
-target_link_libraries(autotest Play)
-
-add_executable(McServTest
-	../tools/McServTest/AppConfig.cpp
-	../tools/McServTest/GameTestSheet.cpp
-	../tools/McServTest/Main.cpp
-)
-target_link_libraries(McServTest Play)
-add_test(NAME McServTest
-	WORKING_DIRECTORY ${Play_SOURCE_DIR}/../tools/McServTest
-	COMMAND McServTest
-)
-
-add_executable(VuTest
-	../tools/VuTest/AddTest.cpp
-	../tools/VuTest/FlagsTest2.cpp
-	../tools/VuTest/FlagsTest.cpp
-	../tools/VuTest/Main.cpp
-	../tools/VuTest/TestVm.cpp
-	../tools/VuTest/TriAceTest.cpp
-	../tools/VuTest/VuAssembler.cpp
-)
-target_link_libraries(VuTest Play)
-add_test(NAME VuTest
-	COMMAND VuTest
-)
-
+#UI
 if (UNIX AND NOT APPLE)
 	include_directories(
 		../
@@ -405,8 +393,8 @@ if (UNIX AND NOT APPLE)
 	QT5_WRAP_UI(QT_UI_HEADERS ${QT_UIS})
 	QT5_WRAP_CPP(QT_MOC_SRCS ${QT_MOC_HEADERS})
 
-	add_executable(Play-UI ${QT_SOURCES} ${QT_MOC_SRCS} ${QT_RES_SOURCES} ${QT_UI_HEADERS})
-	target_link_libraries(Play-UI Play Framework CodeGen ${PROJECT_LIBS})
+	add_executable(Play ${QT_SOURCES} ${QT_MOC_SRCS} ${QT_RES_SOURCES} ${QT_UI_HEADERS})
+	target_link_libraries(Play ${PROJECT_LIBS})
 endif (UNIX AND NOT APPLE)
 
 if(APPLE)
@@ -457,15 +445,15 @@ if(APPLE)
 	)
 
 	# Add our Executable
-	add_executable(Play-UI MACOSX_BUNDLE ${OSX_SOURCES} ${OSX_HEADERS})
+	add_executable(Play MACOSX_BUNDLE ${OSX_SOURCES} ${OSX_HEADERS})
 
 	# Probably a better way to set the framework link libraries.
-	target_link_libraries(Play-UI Play Framework CodeGen ${PROJECT_LIBS} "-ObjC -framework Cocoa -framework OpenGL -framework OpenAL -framework IOKit  -framework AppKit  -framework CoreData  -framework Foundation")
+	target_link_libraries(Play ${PROJECT_LIBS} "-ObjC -framework Cocoa -framework OpenGL -framework OpenAL -framework IOKit  -framework AppKit  -framework CoreData  -framework Foundation")
 
 	# Set a custom plist file for the app bundle
 	# NOTE: for these values to be used Info.plist has to be edited
 	set_target_properties(
-		Play-UI
+		Play
 		PROPERTIES
 			MACOSX_BUNDLE_INFO_STRING "${PROJECT_NAME}"
 			MACOSX_BUNDLE_GUI_IDENTIFIER "com.virtualapplications.Play"
@@ -477,7 +465,7 @@ if(APPLE)
 			MACOSX_BUNDLE_ICON_FILE "AppIcon.icns"
 			MACOSX_BUNDLE_NSMAIN_NIB_FILE "MainMenu"
 			MACOSX_BUNDLE_NSPRINCIPAL_CLASS "NSApplication"
-			MACOSX_BUNDLE_INFO_PLIST "${Play_SOURCE_DIR}/../Source/ui_macosx/Info.plist"
+			MACOSX_BUNDLE_INFO_PLIST "${CMAKE_CURRENT_SOURCE_DIR}/../Source/ui_macosx/Info.plist"
 )
 
 	# Make sure we can find the 'ibtool' program. If we can NOT find it we
@@ -488,23 +476,23 @@ if(APPLE)
 	endif()
 
 	# Make sure the 'Resources' Directory is correctly created before we build
-	add_custom_command (TARGET Play-UI PRE_BUILD COMMAND mkdir -p ${CMAKE_CFG_INTDIR}/Play-UI.app/Contents/Resources)
+	add_custom_command (TARGET Play PRE_BUILD COMMAND mkdir -p ${CMAKE_CFG_INTDIR}/Play.app/Contents/Resources)
 
 	# Copy Icon and patches
-	add_custom_command (TARGET Play-UI POST_BUILD 
-		COMMAND cp ${Play_SOURCE_DIR}/../build_macosx/AppIcon.icns ${CMAKE_CFG_INTDIR}/Play.app/Contents/Resources/AppIcon.icns
+	add_custom_command (TARGET Play POST_BUILD 
+		COMMAND cp ${CMAKE_CURRENT_SOURCE_DIR}/../build_macosx/AppIcon.icns ${CMAKE_CFG_INTDIR}/Play.app/Contents/Resources/AppIcon.icns
 	)
-	add_custom_command (TARGET Play-UI POST_BUILD 
-		COMMAND cp ${Play_SOURCE_DIR}/../patches.xml ${CMAKE_CFG_INTDIR}/Play.app/Contents/Resources/patches.xml
+	add_custom_command (TARGET Play POST_BUILD 
+		COMMAND cp ${CMAKE_CURRENT_SOURCE_DIR}/../patches.xml ${CMAKE_CFG_INTDIR}/Play.app/Contents/Resources/patches.xml
 	)
 
 	# Compile the .xib files using the 'ibtool' program with the destination being the app package
 	foreach(xib ${OSX_XIBS})
-		add_custom_command (TARGET Play-UI POST_BUILD 
+		add_custom_command (TARGET Play POST_BUILD 
 				COMMAND ${IBTOOL} --errors --warnings --notices --output-format human-readable-text 
-					--compile ${CMAKE_CFG_INTDIR}/Play-UI.app/Contents/Resources/${xib}.nib
-					${Play_SOURCE_DIR}/../Source/ui_macosx/${xib}.xib
-				COMMENT "${Play_SOURCE_DIR}/../Source/ui_macosx/${xib}.xib")
+					--compile ${CMAKE_CFG_INTDIR}/Play.app/Contents/Resources/${xib}.nib
+					${CMAKE_CURRENT_SOURCE_DIR}/../Source/ui_macosx/${xib}.xib
+				COMMENT "${CMAKE_CURRENT_SOURCE_DIR}/../Source/ui_macosx/${xib}.xib")
 
 	endforeach()
 endif(APPLE)
@@ -608,10 +596,43 @@ if (WIN32)
 		${MANIFEST}
 	)
 
-	add_executable(Play-UI-Win32 WIN32 ${WIN32_SRC} ../Source/ui_win32/Res.rc)
-	target_link_libraries(Play-UI-Win32 PUBLIC Play Framework CodeGen Nuanceur ${PROJECT_LIBS})
+	add_executable(Play WIN32 ${WIN32_SRC} ../Source/ui_win32/Res.rc)
+	target_link_libraries(Play PUBLIC ${PROJECT_LIBS})
 	include(Modules/PrecompiledHeader.cmake)
 	set(pch_source ../Source/ui_win32/StdAfx.cpp)
-	add_precompiled_header(Play-UI-Win32 ../Source/ui_win32/StdAfx.h c++-header)
-	target_use_precompiled_header(Play-UI-Win32 ../Source/ui_win32/StdAfx.h c++-header FORCEINCLUDE)
+	add_precompiled_header(Play ../Source/ui_win32/StdAfx.h c++-header)
+	target_use_precompiled_header(Play ../Source/ui_win32/StdAfx.h c++-header FORCEINCLUDE)
 endif (WIN32)
+
+enable_testing()
+
+add_executable(autotest
+	../tools/AutoTest/JUnitTestReportWriter.cpp
+	../tools/AutoTest/Main.cpp
+)
+target_link_libraries(autotest PlayCore)
+
+add_executable(McServTest
+	../tools/McServTest/AppConfig.cpp
+	../tools/McServTest/GameTestSheet.cpp
+	../tools/McServTest/Main.cpp
+)
+target_link_libraries(McServTest PlayCore)
+add_test(NAME McServTest
+	WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/../tools/McServTest
+	COMMAND McServTest
+)
+
+add_executable(VuTest
+	../tools/VuTest/AddTest.cpp
+	../tools/VuTest/FlagsTest2.cpp
+	../tools/VuTest/FlagsTest.cpp
+	../tools/VuTest/Main.cpp
+	../tools/VuTest/TestVm.cpp
+	../tools/VuTest/TriAceTest.cpp
+	../tools/VuTest/VuAssembler.cpp
+)
+target_link_libraries(VuTest PlayCore)
+add_test(NAME VuTest
+	COMMAND VuTest
+)
