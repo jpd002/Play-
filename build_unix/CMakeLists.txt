@@ -77,11 +77,29 @@ endif()
 # targets, packages and dependencies
 if (NOT TARGET Framework)
 	add_subdirectory(
-		${CMAKE_CURRENT_SOURCE_DIR}/../../Framework/build_unix
-		${CMAKE_CURRENT_SOURCE_DIR}/../../Framework/build_unix/build_${CMAKE_SYSTEM_NAME}
+		${CMAKE_CURRENT_SOURCE_DIR}/../../Framework/build_unix/Framework
+		${CMAKE_CURRENT_SOURCE_DIR}/../../Framework/build_unix/Framework/build_${CMAKE_SYSTEM_NAME}
 	)
 endif()
 list(APPEND PROJECT_LIBS Framework)
+
+if (NOT TARGET Framework_OpenGl)
+	add_subdirectory(
+		${CMAKE_CURRENT_SOURCE_DIR}/../../Framework/build_unix/FrameworkOpenGl
+		${CMAKE_CURRENT_SOURCE_DIR}/../../Framework/build_unix/FrameworkOpenGl/build_${CMAKE_SYSTEM_NAME}
+	)
+endif()
+list(APPEND PROJECT_LIBS Framework_OpenGl)
+
+if(UNIX AND NOT ANDROID AND NOT APPLE)
+	if (NOT TARGET Framework_OpenAl)
+		add_subdirectory(
+			${CMAKE_CURRENT_SOURCE_DIR}/../../Framework/build_unix/FrameworkOpenAl
+			${CMAKE_CURRENT_SOURCE_DIR}/../../Framework/build_unix/FrameworkOpenAl/build_${CMAKE_SYSTEM_NAME}
+		)
+	endif()
+	list(APPEND PROJECT_LIBS Framework_OpenAl)
+endif()
 
 if (NOT TARGET CodeGen)
 	add_subdirectory(
