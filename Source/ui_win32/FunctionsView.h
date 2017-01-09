@@ -30,10 +30,10 @@ public:
 	boost::signals2::signal<void (void)>	OnFunctionsStateChange;
 
 protected:
-	long									OnSize(unsigned int, unsigned int, unsigned int);
-	long									OnCommand(unsigned short, unsigned short, HWND);
-	long									OnNotify(WPARAM, NMHDR*);
-	long									OnSysCommand(unsigned int, LPARAM);
+	long									OnSize(unsigned int, unsigned int, unsigned int) override;
+	long									OnCommand(unsigned short, unsigned short, HWND) override;
+	long									OnNotify(WPARAM, NMHDR*) override;
+	long									OnSysCommand(unsigned int, LPARAM) override;
 
 private:
 	void									CreateListColumns();

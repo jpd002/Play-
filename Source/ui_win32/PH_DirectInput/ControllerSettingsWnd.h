@@ -17,9 +17,9 @@ namespace PH_DirectInput
 		virtual								~CControllerSettingsWnd();
 
 	protected:
-		long								OnCommand(unsigned short, unsigned short, HWND);
-		long								OnNotify(WPARAM, NMHDR*);
-		long								OnTimer(WPARAM);
+		long								OnCommand(unsigned short, unsigned short, HWND) override;
+		long								OnNotify(WPARAM, NMHDR*) override;
+		long								OnTimer(WPARAM) override;
 
 	private:
 		void								RefreshLayout();

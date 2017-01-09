@@ -20,9 +20,9 @@ public:
 	boost::signals2::signal<void (uint32)>	OnGotoAddress;
 
 protected:
-	long									OnSize(unsigned int, unsigned int, unsigned int);
-	long									OnSysCommand(unsigned int, LPARAM);
-	long									OnNotify(WPARAM, NMHDR*);
+	long									OnSize(unsigned int, unsigned int, unsigned int) override;
+	long									OnSysCommand(unsigned int, LPARAM) override;
+	long									OnNotify(WPARAM, NMHDR*) override;
 
 private:
 	void									CreateColumns();
