@@ -82,7 +82,7 @@ long CFunctionsView::OnSize(unsigned int nX, unsigned int nY, unsigned int nType
 	return TRUE;
 }
 
-long CFunctionsView::OnNotify(WPARAM wParam, NMHDR* pH)
+LRESULT CFunctionsView::OnNotify(WPARAM wParam, NMHDR* pH)
 {
 	if(pH->hwndFrom == m_pList->m_hWnd)
 	{

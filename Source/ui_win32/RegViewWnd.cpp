@@ -77,7 +77,7 @@ long CRegViewWnd::OnSysCommand(unsigned int cmd, LPARAM)
 	return TRUE;
 }
 
-long CRegViewWnd::OnNotify(WPARAM param, NMHDR* hdr)
+LRESULT CRegViewWnd::OnNotify(WPARAM param, NMHDR* hdr)
 {
 	if(CWindow::IsNotifySource(&m_tabs, hdr))
 	{

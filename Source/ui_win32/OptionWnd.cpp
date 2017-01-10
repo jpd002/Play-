@@ -56,7 +56,7 @@ void COptionWnd<T>::OnItemAppearing(HTREEITEM item)
 }
 
 template <typename T> 
-long COptionWnd<T>::OnNotify(WPARAM wParam, NMHDR* pH)
+LRESULT COptionWnd<T>::OnNotify(WPARAM wParam, NMHDR* pH)
 {
 	if(m_pTreeView != NULL)
 	{

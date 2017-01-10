@@ -125,7 +125,7 @@ long CThreadsViewWnd::OnSysCommand(unsigned int nCmd, LPARAM lParam)
 	return TRUE;
 }
 
-long CThreadsViewWnd::OnNotify(WPARAM wParam, NMHDR* pHdr)
+LRESULT CThreadsViewWnd::OnNotify(WPARAM wParam, NMHDR* pHdr)
 {
 	if(CWindow::IsNotifySource(&m_listView, pHdr))
 	{

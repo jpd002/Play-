@@ -141,7 +141,7 @@ long CFrameDebugger::OnCommand(unsigned short id, unsigned short msg, HWND hwndF
 	return TRUE;
 }
 
-long CFrameDebugger::OnNotify(WPARAM param, NMHDR* header)
+LRESULT CFrameDebugger::OnNotify(WPARAM param, NMHDR* header)
 {
 	if(!IsWindowEnabled(m_hWnd))
 	{

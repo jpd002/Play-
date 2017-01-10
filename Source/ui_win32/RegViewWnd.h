@@ -15,7 +15,7 @@ public:
 protected:
 	long					OnSize(unsigned int, unsigned int, unsigned int) override;
 	long					OnSysCommand(unsigned int, LPARAM) override;
-	long					OnNotify(WPARAM, NMHDR*) override;
+	LRESULT					OnNotify(WPARAM, NMHDR*) override;
 
 private:
 	enum

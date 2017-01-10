@@ -36,7 +36,7 @@ private:
 	};
 
 	long							OnSize(unsigned int, unsigned int, unsigned int) override;
-	long							OnNotify(WPARAM, NMHDR*) override;
+	LRESULT							OnNotify(WPARAM, NMHDR*) override;
 
 	static int						ItemNameComparer(const ITEM&, const ITEM&);
 	static int						ItemAddressComparer(const ITEM&, const ITEM&);

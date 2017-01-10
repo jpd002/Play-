@@ -31,7 +31,7 @@ public:
 protected:
 	virtual long									OnSize(unsigned int, unsigned int, unsigned int) override;
 	virtual long									OnCommand(unsigned short, unsigned short, HWND) override;
-	virtual long									OnNotify(WPARAM, NMHDR*) override;
+	virtual LRESULT									OnNotify(WPARAM, NMHDR*) override;
 
 private:
 	struct PACKETINFO

@@ -90,7 +90,7 @@ long CELFSymbolView::OnSize(unsigned int nType, unsigned int nWidth, unsigned in
 	return FALSE;
 }
 
-long CELFSymbolView::OnNotify(WPARAM wParam, NMHDR* hdr)
+LRESULT CELFSymbolView::OnNotify(WPARAM wParam, NMHDR* hdr)
 {
 	if(IsNotifySource(m_listView, hdr))
 	{

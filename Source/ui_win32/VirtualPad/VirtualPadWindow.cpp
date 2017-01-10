@@ -112,7 +112,7 @@ long CVirtualPadWindow::OnMouseMove(WPARAM, int x, int y)
 	return TRUE;
 }
 
-long CVirtualPadWindow::OnMouseActivate(WPARAM wParam, LPARAM lParam)
+LRESULT CVirtualPadWindow::OnMouseActivate(WPARAM wParam, LPARAM lParam)
 {
 	return MA_NOACTIVATE;
 }

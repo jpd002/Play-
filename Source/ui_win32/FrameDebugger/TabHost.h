@@ -29,7 +29,7 @@ public:
 
 protected:
 	long										OnSize(unsigned int, unsigned int, unsigned int) override;
-	long										OnNotify(WPARAM, NMHDR*) override;
+	LRESULT										OnNotify(WPARAM, NMHDR*) override;
 
 private:
 	typedef std::vector<Framework::Win32::CWindow*> TabItemArray;

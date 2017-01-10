@@ -66,7 +66,7 @@ long CTabHost::OnSize(unsigned int, unsigned int, unsigned int)
 	return TRUE;
 }
 
-long CTabHost::OnNotify(WPARAM param, NMHDR* header)
+LRESULT CTabHost::OnNotify(WPARAM param, NMHDR* header)
 {
 	if(CWindow::IsNotifySource(m_tab.get(), header))
 	{

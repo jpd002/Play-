@@ -18,7 +18,7 @@ namespace PH_DirectInput
 
 	protected:
 		long								OnCommand(unsigned short, unsigned short, HWND) override;
-		long								OnNotify(WPARAM, NMHDR*) override;
+		LRESULT								OnNotify(WPARAM, NMHDR*) override;
 		long								OnTimer(WPARAM) override;
 
 	private:

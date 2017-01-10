@@ -63,7 +63,7 @@ long CCallStackWnd::OnSysCommand(unsigned int nCmd, LPARAM lParam)
 	return TRUE;
 }
 
-long CCallStackWnd::OnNotify(WPARAM wParam, NMHDR* pHDR)
+LRESULT CCallStackWnd::OnNotify(WPARAM wParam, NMHDR* pHDR)
 {
 	switch(pHDR->code)
 	{

@@ -29,7 +29,7 @@ public:
 protected:
 	long											OnSize(unsigned int, unsigned int, unsigned int) override;
 	long											OnCommand(unsigned short, unsigned short, HWND) override;
-	long											OnNotify(WPARAM, NMHDR*) override;
+	LRESULT											OnNotify(WPARAM, NMHDR*) override;
 
 private:
 	typedef std::array<uint32, 256> ColorArray;

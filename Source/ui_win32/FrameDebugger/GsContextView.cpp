@@ -242,7 +242,7 @@ long CGsContextView::OnCommand(unsigned short, unsigned short, HWND hwndFrom)
 	return TRUE;
 }
 
-long CGsContextView::OnNotify(WPARAM wParam, NMHDR* hdr)
+LRESULT CGsContextView::OnNotify(WPARAM wParam, NMHDR* hdr)
 {
 	if(CWindow::IsNotifySource(m_bufferSelectionTab.get(), hdr))
 	{

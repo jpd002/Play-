@@ -16,7 +16,7 @@ public:
 protected:
 	virtual void					OnItemAppearing(HTREEITEM);
 
-	long							OnNotify(WPARAM, NMHDR*) override;
+	LRESULT							OnNotify(WPARAM, NMHDR*) override;
 	long							OnSize(unsigned int, unsigned int, unsigned int) override;
 
 	Framework::Win32::CWindow*		GetContainer();

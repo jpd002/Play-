@@ -752,7 +752,7 @@ long CDebugger::OnSysCommand(unsigned int nCmd, LPARAM lParam)
 	return TRUE;
 }
 
-long CDebugger::OnWndProc(unsigned int nMsg, WPARAM wParam, LPARAM lParam)
+LRESULT CDebugger::OnWndProc(unsigned int nMsg, WPARAM wParam, LPARAM lParam)
 {
 	switch(nMsg)
 	{

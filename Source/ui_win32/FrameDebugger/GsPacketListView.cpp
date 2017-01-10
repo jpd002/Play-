@@ -134,7 +134,7 @@ long CGsPacketListView::OnCommand(unsigned short, unsigned short, HWND senderWnd
 	return TRUE;
 }
 
-long CGsPacketListView::OnNotify(WPARAM param, NMHDR* header)
+LRESULT CGsPacketListView::OnNotify(WPARAM param, NMHDR* header)
 {
 	if(CWindow::IsNotifySource(m_packetsTreeView.get(), header))
 	{

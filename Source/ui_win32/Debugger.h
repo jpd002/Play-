@@ -19,7 +19,7 @@ public:
 protected:
 	long							OnCommand(unsigned short, unsigned short, HWND) override;
 	long							OnSysCommand(unsigned int, LPARAM) override;
-	long							OnWndProc(unsigned int, WPARAM, LPARAM) override;
+	LRESULT							OnWndProc(unsigned int, WPARAM, LPARAM) override;
 
 private:
 	enum DEBUGVIEW

@@ -95,7 +95,7 @@ long CVFSManagerWnd::OnCommand(unsigned short nID, unsigned short nCmd, HWND hSe
 	return FALSE;
 }
 
-long CVFSManagerWnd::OnNotify(WPARAM wParam, NMHDR* pHDR)
+LRESULT CVFSManagerWnd::OnNotify(WPARAM wParam, NMHDR* pHDR)
 {
     if(pHDR->hwndFrom == m_pList->m_hWnd)
     {

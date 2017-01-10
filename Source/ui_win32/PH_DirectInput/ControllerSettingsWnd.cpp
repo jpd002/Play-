@@ -106,7 +106,7 @@ long CControllerSettingsWnd::OnCommand(unsigned short id, unsigned short cmd, HW
 	return TRUE;
 }
 
-long CControllerSettingsWnd::OnNotify(WPARAM param, NMHDR* header)
+LRESULT CControllerSettingsWnd::OnNotify(WPARAM param, NMHDR* header)
 {
 	if(m_bindingList && m_bindingList->m_hWnd == header->hwndFrom)
 	{
