@@ -16,7 +16,7 @@ public:
 	void							SetSpu(Iop::CSpuBase*);
 
 protected:
-	long							OnSize(unsigned int, unsigned int, unsigned int);
+	long							OnSize(unsigned int, unsigned int, unsigned int) override;
 
 private:
 	CSpuRegView*					m_regView;

@@ -21,18 +21,18 @@ protected:
 	virtual void			OnDeviceReset() = 0;
 	virtual void			OnDeviceResetting() = 0;
 
-	virtual long			OnEraseBkgnd();
-	virtual long			OnPaint();
-	virtual long			OnSize(unsigned int, unsigned int, unsigned int);
-	virtual long			OnThemeChanged();
-	virtual long			OnNcCalcSize(WPARAM, LPARAM);
-	virtual long			OnNcPaint(WPARAM);
-	virtual long			OnMouseMove(WPARAM, int, int);
-	virtual long			OnMouseLeave();
-	virtual long			OnLeftButtonDown(int, int);
-	virtual long			OnRightButtonDown(int, int);
-	virtual long			OnSetFocus();
-	virtual long			OnKillFocus();
+	long					OnEraseBkgnd() override;
+	long					OnPaint() override;
+	long					OnSize(unsigned int, unsigned int, unsigned int) override;
+	long					OnThemeChanged() override;
+	long					OnNcCalcSize(WPARAM, LPARAM) override;
+	long					OnNcPaint(WPARAM) override;
+	long					OnMouseMove(WPARAM, int, int) override;
+	long					OnMouseLeave() override;
+	long					OnLeftButtonDown(int, int) override;
+	long					OnRightButtonDown(int, int) override;
+	long					OnSetFocus() override;
+	long					OnKillFocus() override;
 
 protected:
 	Framework::Win32::CComPtr<IDirect3D9>			m_d3d;

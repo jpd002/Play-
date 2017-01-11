@@ -16,7 +16,7 @@ public:
     void                                RefreshLayout();
 
 protected:
-	long								OnSize(unsigned int, unsigned int, unsigned int);
+	long								OnSize(unsigned int, unsigned int, unsigned int) override;
 
 private:
 	void								UpdateFields();
