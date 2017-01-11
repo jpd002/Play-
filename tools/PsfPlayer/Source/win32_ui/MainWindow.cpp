@@ -330,7 +330,7 @@ CSoundHandler* CMainWindow::CreateHandler(const TCHAR* libraryPath)
 	return result;
 }
 
-long CMainWindow::OnWndProc(unsigned int msg, WPARAM wParam, LPARAM lParam)
+LRESULT CMainWindow::OnWndProc(unsigned int msg, WPARAM wParam, LPARAM lParam)
 {
 	if(m_taskBarList && (msg == m_taskBarList->GetCreatedMessage()))
 	{

@@ -29,7 +29,7 @@ public:
 	void								Run();
 
 protected:
-	long								OnWndProc(unsigned int, WPARAM, LPARAM) override;
+	LRESULT								OnWndProc(unsigned int, WPARAM, LPARAM) override;
 	long								OnCommand(unsigned short, unsigned short, HWND) override;
 	long								OnSize(unsigned int, unsigned int, unsigned int) override;
 	long								OnTimer(WPARAM) override;

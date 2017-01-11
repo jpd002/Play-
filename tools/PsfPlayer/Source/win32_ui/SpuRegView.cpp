@@ -135,7 +135,7 @@ long CSpuRegView::OnKeyDown(WPARAM keyId, LPARAM)
 	return TRUE;
 }
 
-long CSpuRegView::OnGetDlgCode(WPARAM, LPARAM)
+LRESULT CSpuRegView::OnGetDlgCode(WPARAM, LPARAM)
 {
 	return DLGC_WANTARROWS;
 }

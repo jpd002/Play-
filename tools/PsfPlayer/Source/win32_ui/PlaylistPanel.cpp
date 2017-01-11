@@ -103,7 +103,7 @@ long CPlaylistPanel::OnCommand(unsigned short cmd, unsigned short id, HWND sende
 	return FALSE;
 }
 
-long CPlaylistPanel::OnNotify(WPARAM wParam, NMHDR* hdr)
+LRESULT CPlaylistPanel::OnNotify(WPARAM wParam, NMHDR* hdr)
 {
 	if(CWindow::IsNotifySource(m_playlistView, hdr))
 	{

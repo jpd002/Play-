@@ -20,7 +20,7 @@ protected:
 	virtual long			OnVScroll(unsigned int, unsigned int) override;
 	virtual long			OnMouseWheel(int, int, short) override;
 	virtual long			OnKeyDown(WPARAM, LPARAM) override;
-	virtual long			OnGetDlgCode(WPARAM, LPARAM) override;
+	virtual LRESULT			OnGetDlgCode(WPARAM, LPARAM) override;
 
 	virtual void			Refresh() override;
 	virtual void			OnDeviceResetting() override;
