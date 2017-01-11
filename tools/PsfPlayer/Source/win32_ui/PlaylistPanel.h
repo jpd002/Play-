@@ -29,9 +29,9 @@ public:
 	OnSaveClickEvent					OnSaveClick;
 
 protected:
-	long								OnCommand(unsigned short, unsigned short, HWND);
-	long								OnNotify(WPARAM, NMHDR*);
-	long								OnSize(unsigned int, unsigned int, unsigned int);
+	long								OnCommand(unsigned short, unsigned short, HWND) override;
+	long								OnNotify(WPARAM, NMHDR*) override;
+	long								OnSize(unsigned int, unsigned int, unsigned int) override;
 
 private:
 	void								CreateColumns();

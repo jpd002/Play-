@@ -29,11 +29,11 @@ public:
 	void								Run();
 
 protected:
-	long								OnWndProc(unsigned int, WPARAM, LPARAM);
-	long								OnCommand(unsigned short, unsigned short, HWND);
-	long								OnSize(unsigned int, unsigned int, unsigned int);
-	long								OnTimer(WPARAM);
-	long								OnClose();
+	long								OnWndProc(unsigned int, WPARAM, LPARAM) override;
+	long								OnCommand(unsigned short, unsigned short, HWND) override;
+	long								OnSize(unsigned int, unsigned int, unsigned int) override;
+	long								OnTimer(WPARAM) override;
+	long								OnClose() override;
 
 private:
 	enum
