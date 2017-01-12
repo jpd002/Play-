@@ -274,7 +274,6 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </ClCompile>
-    <ClCompile Include="..\Source\ui_win32\DebuggerChildWnd.cpp" />
     <ClCompile Include="..\Source\ui_win32\Debugger\FindCallersViewWnd.cpp" />
     <ClCompile Include="..\Source\ui_win32\DebugUtils.cpp" />
     <ClCompile Include="..\Source\ui_win32\DebugView.cpp">
@@ -369,7 +368,6 @@
     <ClInclude Include="..\Source\ui_win32\D3D9TextureUtils.h" />
     <ClInclude Include="..\Source\ui_win32\DebugExpressionEvaluator.h" />
     <ClInclude Include="..\Source\ui_win32\Debugger.h" />
-    <ClInclude Include="..\Source\ui_win32\DebuggerChildWnd.h" />
     <ClInclude Include="..\Source\ui_win32\Debugger\FindCallersViewWnd.h" />
     <ClInclude Include="..\Source\ui_win32\DebugUtils.h" />
     <ClInclude Include="..\Source\ui_win32\DebugView.h" />

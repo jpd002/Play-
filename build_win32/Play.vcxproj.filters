@@ -58,9 +58,6 @@
     <ClCompile Include="..\Source\ui_win32\Debugger.cpp">
       <Filter>Source Files\Debugger</Filter>
     </ClCompile>
-    <ClCompile Include="..\Source\ui_win32\DebuggerChildWnd.cpp">
-      <Filter>Source Files\Debugger</Filter>
-    </ClCompile>
     <ClCompile Include="..\Source\ui_win32\DebugView.cpp">
       <Filter>Source Files\Debugger</Filter>
     </ClCompile>
@@ -292,9 +289,6 @@
       <Filter>Source Files\Debugger</Filter>
     </ClInclude>
     <ClInclude Include="..\Source\ui_win32\Debugger.h">
-      <Filter>Source Files\Debugger</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Source\ui_win32\DebuggerChildWnd.h">
       <Filter>Source Files\Debugger</Filter>
     </ClInclude>
     <ClInclude Include="..\Source\ui_win32\DebugView.h">
