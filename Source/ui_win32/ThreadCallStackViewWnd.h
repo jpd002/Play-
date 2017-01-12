@@ -20,7 +20,7 @@ public:
 	uint32							GetSelectedAddress() const;
 
 protected:
-	long							OnCommand(unsigned short, unsigned short, HWND);
+	long							OnCommand(unsigned short, unsigned short, HWND) override;
 
 private:
 	void							ProcessSelection();

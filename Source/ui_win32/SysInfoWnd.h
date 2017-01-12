@@ -14,7 +14,7 @@ public:
 									~CSysInfoWnd();
 
 protected:
-	long							OnTimer(WPARAM);
+	long							OnTimer(WPARAM) override;
 
 private:
 	void							UpdateSchedulerInfo();

@@ -22,8 +22,8 @@ public:
 	DeleteClickSignal					OnDeleteClick;
 
 protected:
-	long								OnSize(unsigned int, unsigned int, unsigned int);
-	long								OnCommand(unsigned short, unsigned short, HWND);
+	long								OnSize(unsigned int, unsigned int, unsigned int) override;
+	long								OnCommand(unsigned short, unsigned short, HWND) override;
 
 private:
 	void								RefreshLayout();
