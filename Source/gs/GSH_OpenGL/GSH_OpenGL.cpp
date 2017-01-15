@@ -2231,11 +2231,6 @@ void CGSH_OpenGL::CommitFramebufferDirtyPages(const FramebufferPtr& framebuffer,
 	class CCopyToFbEnabler
 	{
 	public:
-		~CCopyToFbEnabler()
-		{
-
-		}
-
 		void EnableCopyToFb(const FramebufferPtr& framebuffer, GLuint copyToFbTexture)
 		{
 			if(m_copyToFbEnabled) return;
