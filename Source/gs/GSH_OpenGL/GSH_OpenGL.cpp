@@ -878,6 +878,9 @@ void CGSH_OpenGL::SetupTestFunctions(uint64 testReg)
 	m_fragmentParams.alphaRef = static_cast<float>(test.nAlphaRef) / 255.0f;
 	m_validGlState &= ~GLSTATE_FRAGMENT_PARAMS;
 
+	m_renderState.depthTest = (test.nDepthEnabled != 0);
+	m_validGlState &= ~GLSTATE_DEPTHTEST;
+
 	if(test.nDepthEnabled)
 	{
 		unsigned int nFunc = GL_NEVER;
@@ -899,12 +902,6 @@ void CGSH_OpenGL::SetupTestFunctions(uint64 testReg)
 		}
 
 		glDepthFunc(nFunc);
-
-		glEnable(GL_DEPTH_TEST);
-	}
-	else
-	{
-		glDisable(GL_DEPTH_TEST);
 	}
 }
 
@@ -1697,6 +1694,12 @@ void CGSH_OpenGL::DoRenderPass()
 		m_validGlState |= GLSTATE_BLEND;
 	}
 
+	if((m_validGlState & GLSTATE_DEPTHTEST) == 0)
+	{
+		m_renderState.depthTest ? glEnable(GL_DEPTH_TEST) : glDisable(GL_DEPTH_TEST);
+		m_validGlState |= GLSTATE_DEPTHTEST;
+	}
+
 	if((m_validGlState & GLSTATE_COLORMASK) == 0)
 	{
 		glColorMask(
@@ -1815,7 +1818,7 @@ void CGSH_OpenGL::CopyToFb(
 	int32 dstX0, int32 dstY0, int32 dstX1, int32 dstY1)
 {
 	m_validGlState &= ~(GLSTATE_BLEND | GLSTATE_COLORMASK | GLSTATE_SCISSOR | GLSTATE_PROGRAM);
-	m_validGlState &= ~(GLSTATE_VIEWPORT);
+	m_validGlState &= ~(GLSTATE_VIEWPORT | GLSTATE_DEPTHTEST);
 
 	assert(srcX1 >= srcX0);
 	assert(srcY1 >= srcY0);
