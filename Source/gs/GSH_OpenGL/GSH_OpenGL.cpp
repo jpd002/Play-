@@ -1818,7 +1818,7 @@ void CGSH_OpenGL::CopyToFb(
 	int32 dstX0, int32 dstY0, int32 dstX1, int32 dstY1)
 {
 	m_validGlState &= ~(GLSTATE_BLEND | GLSTATE_COLORMASK | GLSTATE_SCISSOR | GLSTATE_PROGRAM);
-	m_validGlState &= ~(GLSTATE_VIEWPORT | GLSTATE_DEPTHTEST);
+	m_validGlState &= ~(GLSTATE_VIEWPORT | GLSTATE_DEPTHTEST | GLSTATE_DEPTHMASK);
 
 	assert(srcX1 >= srcX0);
 	assert(srcY1 >= srcY0);
@@ -1834,6 +1834,7 @@ void CGSH_OpenGL::CopyToFb(
 	glDisable(GL_DEPTH_TEST);
 	glDisable(GL_SCISSOR_TEST);
 	glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+	glDepthMask(GL_FALSE);
 
 	glUseProgram(*m_copyToFbProgram);
 
