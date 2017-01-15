@@ -29,18 +29,18 @@ void CGsCachedArea::SetArea(uint32 psm, uint32 bufPtr, uint32 bufWidth, uint32 h
 	m_height = height;
 }
 
-std::pair<uint32, uint32> CGsCachedArea::GetPageRect() const
+CGsCachedArea::PageRect CGsCachedArea::GetAreaPageRect() const
 {
 	auto texturePageSize = CGsPixelFormats::GetPsmPageSize(m_psm);
 	uint32 pageCountX = (m_bufWidth + texturePageSize.first - 1) / texturePageSize.first;
 	uint32 pageCountY = (m_height + texturePageSize.second - 1) / texturePageSize.second;
-	return std::make_pair(pageCountX, pageCountY);
+	return PageRect { 0, 0, pageCountX, pageCountY };
 }
 
 uint32 CGsCachedArea::GetPageCount() const
 {
-	auto pageRect = GetPageRect();
-	return pageRect.first * pageRect.second;
+	auto areaRect = GetAreaPageRect();
+	return areaRect.width * areaRect.height;
 }
 
 uint32 CGsCachedArea::GetSize() const

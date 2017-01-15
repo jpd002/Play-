@@ -2266,14 +2266,14 @@ void CGSH_OpenGL::CommitFramebufferDirtyPages(const FramebufferPtr& framebuffer,
 		CCopyToFbEnabler copyToFbEnabler;
 
 		auto texturePageSize = CGsPixelFormats::GetPsmPageSize(framebuffer->m_psm);
-		auto pageRect = cachedArea.GetPageRect();
+		auto areaRect = cachedArea.GetAreaPageRect();
 
 		for(unsigned int dirtyPageIndex = 0; dirtyPageIndex < CGsCachedArea::MAX_DIRTYPAGES; dirtyPageIndex++)
 		{
 			if(!cachedArea.IsPageDirty(dirtyPageIndex)) continue;
 
-			uint32 pageX = dirtyPageIndex % pageRect.first;
-			uint32 pageY = dirtyPageIndex / pageRect.first;
+			uint32 pageX = dirtyPageIndex % areaRect.width;
+			uint32 pageY = dirtyPageIndex / areaRect.width;
 			uint32 texX = pageX * texturePageSize.first;
 			uint32 texY = pageY * texturePageSize.second;
 			uint32 texWidth = texturePageSize.first;
