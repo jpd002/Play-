@@ -140,38 +140,35 @@ CGSH_OpenGL::TEXTURE_INFO CGSH_OpenGL::PrepareTexture(const TEX0& tex0)
 		glBindTexture(GL_TEXTURE_2D, texture->m_texture);
 		auto& cachedArea = texture->m_cachedArea;
 
-		if(cachedArea.HasDirtyPages())
+		auto texturePageSize = CGsPixelFormats::GetPsmPageSize(tex0.nPsm);
+		auto areaRect = cachedArea.GetAreaPageRect();
+
+		while(cachedArea.HasDirtyPages())
 		{
-			auto texturePageSize = CGsPixelFormats::GetPsmPageSize(tex0.nPsm);
-			auto areaRect = cachedArea.GetAreaPageRect();
+			auto dirtyRect = cachedArea.GetDirtyPageRect();
+			assert((dirtyRect.width != 0) && (dirtyRect.height != 0));
+			cachedArea.ClearDirtyPages(dirtyRect);
 
-			for(unsigned int dirtyPageIndex = 0; dirtyPageIndex < CGsCachedArea::MAX_DIRTYPAGES; dirtyPageIndex++)
+			uint32 texX = dirtyRect.x * texturePageSize.first;
+			uint32 texY = dirtyRect.y * texturePageSize.second;
+			uint32 texWidth = dirtyRect.width * texturePageSize.first;
+			uint32 texHeight = dirtyRect.height * texturePageSize.second;
+			if(texX >= tex0.GetWidth()) continue;
+			if(texY >= tex0.GetHeight()) continue;
+			//assert(texX < tex0.GetWidth());
+			//assert(texY < tex0.GetHeight());
+			if((texX + texWidth) > tex0.GetWidth())
 			{
-				if(!cachedArea.IsPageDirty(dirtyPageIndex)) continue;
-
-				uint32 pageX = dirtyPageIndex % areaRect.width;
-				uint32 pageY = dirtyPageIndex / areaRect.width;
-				uint32 texX = pageX * texturePageSize.first;
-				uint32 texY = pageY * texturePageSize.second;
-				uint32 texWidth = texturePageSize.first;
-				uint32 texHeight = texturePageSize.second;
-				if(texX >= tex0.GetWidth()) continue;
-				if(texY >= tex0.GetHeight()) continue;
-				//assert(texX < tex0.GetWidth());
-				//assert(texY < tex0.GetHeight());
-				if((texX + texWidth) > tex0.GetWidth())
-				{
-					texWidth = tex0.GetWidth() - texX;
-				}
-				if((texY + texHeight) > tex0.GetHeight())
-				{
-					texHeight = tex0.GetHeight() - texY;
-				}
-				((this)->*(m_textureUpdater[tex0.nPsm]))(tex0.GetBufPtr(), tex0.nBufWidth, texX, texY, texWidth, texHeight);
+				texWidth = tex0.GetWidth() - texX;
 			}
-
-			cachedArea.ClearDirtyPages();
+			if((texY + texHeight) > tex0.GetHeight())
+			{
+				texHeight = tex0.GetHeight() - texY;
+			}
+			((this)->*(m_textureUpdater[tex0.nPsm]))(tex0.GetBufPtr(), tex0.nBufWidth, texX, texY, texWidth, texHeight);
 		}
+
+		cachedArea.ClearDirtyPages();
 	}
 	else
 	{

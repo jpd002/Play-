@@ -2261,57 +2261,58 @@ void CGSH_OpenGL::CommitFramebufferDirtyPages(const FramebufferPtr& framebuffer,
 
 	auto& cachedArea = framebuffer->m_cachedArea;
 
-	if(cachedArea.HasDirtyPages())
+	auto areaRect = cachedArea.GetAreaPageRect();
+	auto texturePageSize = CGsPixelFormats::GetPsmPageSize(framebuffer->m_psm);
+
+	CCopyToFbEnabler copyToFbEnabler;
+	while(cachedArea.HasDirtyPages())
 	{
-		CCopyToFbEnabler copyToFbEnabler;
+		auto dirtyRect = cachedArea.GetDirtyPageRect();
+		assert((dirtyRect.width != 0) && (dirtyRect.height != 0));
+		cachedArea.ClearDirtyPages(dirtyRect);
 
-		auto texturePageSize = CGsPixelFormats::GetPsmPageSize(framebuffer->m_psm);
-		auto areaRect = cachedArea.GetAreaPageRect();
+		uint32 texX = dirtyRect.x * texturePageSize.first;
+		uint32 texY = dirtyRect.y * texturePageSize.second;
+		uint32 texWidth = dirtyRect.width * texturePageSize.first;
+		uint32 texHeight = dirtyRect.height * texturePageSize.second;
 
-		for(unsigned int dirtyPageIndex = 0; dirtyPageIndex < CGsCachedArea::MAX_DIRTYPAGES; dirtyPageIndex++)
+		if(texY >= maxY)
 		{
-			if(!cachedArea.IsPageDirty(dirtyPageIndex)) continue;
-
-			uint32 pageX = dirtyPageIndex % areaRect.width;
-			uint32 pageY = dirtyPageIndex / areaRect.width;
-			uint32 texX = pageX * texturePageSize.first;
-			uint32 texY = pageY * texturePageSize.second;
-			uint32 texWidth = texturePageSize.first;
-			uint32 texHeight = texturePageSize.second;
-			if(texX >= framebuffer->m_width) continue;
-			if(texY >= framebuffer->m_height) continue;
-			if(texY < minY) continue;
-			if(texY >= maxY) continue;
-			//assert(texX < tex0.GetWidth());
-			//assert(texY < tex0.GetHeight());
-			if((texX + texWidth) > framebuffer->m_width)
-			{
-				texWidth = framebuffer->m_width - texX;
-			}
-			if((texY + texHeight) > framebuffer->m_height)
-			{
-				texHeight = framebuffer->m_height - texY;
-			}
-			
-			m_validGlState &= ~(GLSTATE_SCISSOR | GLSTATE_FRAMEBUFFER | GLSTATE_TEXTURE);
-			copyToFbEnabler.EnableCopyToFb(framebuffer, m_copyToFbTexture);
-
-			((this)->*(m_textureUpdater[framebuffer->m_psm]))(framebuffer->m_basePtr, framebuffer->m_width / 64,
-				texX, texY, texWidth, texHeight);
-			
-			CopyToFb(
-				texX,             texY,             (texX + texWidth),             (texY + texHeight),
-				framebuffer->m_width, framebuffer->m_height,
-				texX * m_fbScale, texY * m_fbScale, (texX + texWidth) * m_fbScale, (texY + texHeight) * m_fbScale);
-			framebuffer->m_resolveNeeded = true;
-
-			CHECKGLERROR();
+			//Don't bother
+			continue;
 		}
 
-		//Mark all pages as clean, but might be wrong due to range not
-		//covering an area that might be used later on
-		cachedArea.ClearDirtyPages();
+		assert(texX < framebuffer->m_width);
+		assert(texY < framebuffer->m_height);
+		//assert(texY >= minY);
+		//assert(texY < maxY);
+		if((texX + texWidth) > framebuffer->m_width)
+		{
+			texWidth = framebuffer->m_width - texX;
+		}
+		if((texY + texHeight) > framebuffer->m_height)
+		{
+			texHeight = framebuffer->m_height - texY;
+		}
+
+		m_validGlState &= ~(GLSTATE_SCISSOR | GLSTATE_FRAMEBUFFER | GLSTATE_TEXTURE);
+		copyToFbEnabler.EnableCopyToFb(framebuffer, m_copyToFbTexture);
+
+		((this)->*(m_textureUpdater[framebuffer->m_psm]))(framebuffer->m_basePtr, framebuffer->m_width / 64,
+			texX, texY, texWidth, texHeight);
+
+		CopyToFb(
+			texX,             texY,             (texX + texWidth),             (texY + texHeight),
+			framebuffer->m_width, framebuffer->m_height,
+			texX * m_fbScale, texY * m_fbScale, (texX + texWidth) * m_fbScale, (texY + texHeight) * m_fbScale);
+		framebuffer->m_resolveNeeded = true;
+
+		CHECKGLERROR();
 	}
+
+	//Mark all pages as clean, but might be wrong due to range not
+	//covering an area that might be used later on
+	cachedArea.ClearDirtyPages();
 }
 
 void CGSH_OpenGL::ResolveFramebufferMultisample(const FramebufferPtr& framebuffer, uint32 scale)
