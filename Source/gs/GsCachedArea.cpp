@@ -37,6 +37,58 @@ CGsCachedArea::PageRect CGsCachedArea::GetAreaPageRect() const
 	return PageRect { 0, 0, pageCountX, pageCountY };
 }
 
+CGsCachedArea::PageRect CGsCachedArea::GetDirtyPageRect() const
+{
+	auto areaRect = GetAreaPageRect();
+
+	//Find starting point
+	uint32 startX = 0, startY = 0;
+	for(startY = 0; startY < areaRect.height; startY++)
+	{
+		bool done = false;
+		for(startX = 0; startX < areaRect.width; startX++)
+		{
+			uint32 pageIndex = startX + (startY * areaRect.width);
+			if(IsPageDirty(pageIndex))
+			{
+				done = true;
+				break;
+			}
+		}
+		if(done) break;
+	}
+
+	if((startX == areaRect.width) || (startY == areaRect.height))
+	{
+		return PageRect { 0, 0, 0, 0 };
+	}
+
+	const auto getHorzSpan =
+		[&] (uint32 bx, uint32 by)
+		{
+			uint32 span = 0;
+			for(uint32 x = bx; x < areaRect.width; x++)
+			{
+				uint32 pageIndex = x + (by * areaRect.width);
+				if(!IsPageDirty(pageIndex)) break;
+				span++;
+			}
+			return span;
+		};
+
+	//Check how high is the dirty rect
+	uint32 spanX = getHorzSpan(startX, startY);
+	uint32 spanY = 1;
+	for(uint32 y = startY + 1; y < areaRect.height; y++)
+	{
+		uint32 lineSpanX = getHorzSpan(startX, y);
+		if(lineSpanX < spanX) break;
+		spanY++;
+	}
+
+	return PageRect { startX, startY, spanX, spanY };
+}
+
 uint32 CGsCachedArea::GetPageCount() const
 {
 	auto areaRect = GetAreaPageRect();
@@ -100,4 +152,24 @@ bool CGsCachedArea::HasDirtyPages() const
 void CGsCachedArea::ClearDirtyPages()
 {
 	memset(m_dirtyPages, 0, sizeof(m_dirtyPages));
+}
+
+void CGsCachedArea::ClearDirtyPages(const PageRect& rect)
+{
+	auto areaRect = GetAreaPageRect();
+	uint32 endX = rect.x + rect.width;
+	uint32 endY = rect.y + rect.height;
+
+	for(uint32 y = rect.y; y < endY; y++)
+	{
+		for(uint32 x = rect.x; x < endX; x++)
+		{
+			uint32 pageIndex = x + (y * areaRect.width);
+			assert(pageIndex < sizeof(m_dirtyPages) * 8);
+			assert(pageIndex < GetPageCount());
+			unsigned int dirtyPageSection = pageIndex / (sizeof(m_dirtyPages[0]) * 8);
+			unsigned int dirtyPageIndex = pageIndex % (sizeof(m_dirtyPages[0]) * 8);
+			m_dirtyPages[dirtyPageSection] &= ~(1ULL << dirtyPageIndex);
+		}
+	}
 }
