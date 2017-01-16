@@ -56,11 +56,14 @@ void CGsCachedArea::Invalidate(uint32 memoryStart, uint32 memorySize)
 	{
 		//Find the pages that are touched by this transfer
 		uint32 pageStart = (memoryStart < m_bufPtr) ? 0 : ((memoryStart - m_bufPtr) / CGsPixelFormats::PAGESIZE);
-		uint32 pageCount = std::min<uint32>(GetPageCount(), (memorySize + CGsPixelFormats::PAGESIZE - 1) / CGsPixelFormats::PAGESIZE);
+		uint32 pageCount = (memorySize + CGsPixelFormats::PAGESIZE - 1) / CGsPixelFormats::PAGESIZE;
+		uint32 areaPageCount = GetPageCount();
 
 		for(unsigned int i = 0; i < pageCount; i++)
 		{
-			SetPageDirty(pageStart + i);
+			uint32 pageIndex = pageStart + i;
+			if(pageIndex >= areaPageCount) break;
+			SetPageDirty(pageIndex);
 		}
 
 		//Wouldn't make sense to go through here and not have at least a dirty page
