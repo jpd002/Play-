@@ -14,24 +14,12 @@
 // Texture Loading
 /////////////////////////////////////////////////////////////
 
-void CGSH_OpenGL::SetupTextureUploaders()
+void CGSH_OpenGL::SetupTextureUpdaters()
 {
 	for(unsigned int i = 0; i < PSM_MAX; i++)
 	{
-		m_textureUploader[i] = &CGSH_OpenGL::TexUploader_Invalid;
 		m_textureUpdater[i] = &CGSH_OpenGL::TexUpdater_Invalid;
 	}
-
-	m_textureUploader[PSMCT32]		= &CGSH_OpenGL::TexUploader_Psm32;
-	m_textureUploader[PSMCT24]		= &CGSH_OpenGL::TexUploader_Psm32;
-	m_textureUploader[PSMCT16]		= &CGSH_OpenGL::TexUploader_Psm16<CGsPixelFormats::CPixelIndexorPSMCT16>;
-	m_textureUploader[PSMCT24_UNK]	= &CGSH_OpenGL::TexUploader_Psm32;
-	m_textureUploader[PSMCT16S]		= &CGSH_OpenGL::TexUploader_Psm16<CGsPixelFormats::CPixelIndexorPSMCT16S>;
-	m_textureUploader[PSMT8]		= &CGSH_OpenGL::TexUploader_Psm48<CGsPixelFormats::CPixelIndexorPSMT8>;
-	m_textureUploader[PSMT4]		= &CGSH_OpenGL::TexUploader_Psm48<CGsPixelFormats::CPixelIndexorPSMT4>;
-	m_textureUploader[PSMT8H]		= &CGSH_OpenGL::TexUploader_Psm48H<24, 0xFF>;
-	m_textureUploader[PSMT4HL]		= &CGSH_OpenGL::TexUploader_Psm48H<24, 0x0F>;
-	m_textureUploader[PSMT4HH]		= &CGSH_OpenGL::TexUploader_Psm48H<28, 0x0F>;
 
 	m_textureUpdater[PSMCT32]		= &CGSH_OpenGL::TexUpdater_Psm32;
 	m_textureUpdater[PSMCT24]		= &CGSH_OpenGL::TexUpdater_Psm32;
@@ -71,6 +59,29 @@ uint32 CGSH_OpenGL::GetFramebufferBitDepth(uint32 psm)
 	{
 		assert(false);
 		return 32;
+	}
+}
+
+CGSH_OpenGL::TEXTUREFORMAT_INFO CGSH_OpenGL::GetTextureFormatInfo(uint32 psm)
+{
+	switch(psm)
+	{
+	case PSMCT32:
+	case PSMCT24:
+	case PSMCT24_UNK:
+		return TEXTUREFORMAT_INFO { GL_RGBA8, GL_RGBA, GL_UNSIGNED_BYTE };
+	case PSMCT16:
+	case PSMCT16S:
+		return TEXTUREFORMAT_INFO { GL_RGB5_A1, GL_RGBA, GL_UNSIGNED_SHORT_5_5_5_1 };
+	case PSMT8:
+	case PSMT4:
+	case PSMT8H:
+	case PSMT4HL:
+	case PSMT4HH:
+		return TEXTUREFORMAT_INFO { GL_R8, GL_RED, GL_UNSIGNED_BYTE };
+	default:
+		assert(false);
+		return TEXTUREFORMAT_INFO { GL_RGBA8, GL_RGBA, GL_UNSIGNED_BYTE };
 	}
 }
 
@@ -133,44 +144,7 @@ CGSH_OpenGL::TEXTURE_INFO CGSH_OpenGL::PrepareTexture(const TEX0& tex0)
 	}
 
 	auto texture = TexCache_Search(tex0);
-	if(texture)
-	{
-		texInfo.textureHandle = texture->m_texture;
-
-		glBindTexture(GL_TEXTURE_2D, texture->m_texture);
-		auto& cachedArea = texture->m_cachedArea;
-
-		auto texturePageSize = CGsPixelFormats::GetPsmPageSize(tex0.nPsm);
-		auto areaRect = cachedArea.GetAreaPageRect();
-
-		while(cachedArea.HasDirtyPages())
-		{
-			auto dirtyRect = cachedArea.GetDirtyPageRect();
-			assert((dirtyRect.width != 0) && (dirtyRect.height != 0));
-			cachedArea.ClearDirtyPages(dirtyRect);
-
-			uint32 texX = dirtyRect.x * texturePageSize.first;
-			uint32 texY = dirtyRect.y * texturePageSize.second;
-			uint32 texWidth = dirtyRect.width * texturePageSize.first;
-			uint32 texHeight = dirtyRect.height * texturePageSize.second;
-			if(texX >= tex0.GetWidth()) continue;
-			if(texY >= tex0.GetHeight()) continue;
-			//assert(texX < tex0.GetWidth());
-			//assert(texY < tex0.GetHeight());
-			if((texX + texWidth) > tex0.GetWidth())
-			{
-				texWidth = tex0.GetWidth() - texX;
-			}
-			if((texY + texHeight) > tex0.GetHeight())
-			{
-				texHeight = tex0.GetHeight() - texY;
-			}
-			((this)->*(m_textureUpdater[tex0.nPsm]))(tex0.GetBufPtr(), tex0.nBufWidth, texX, texY, texWidth, texHeight);
-		}
-
-		cachedArea.ClearDirtyPages();
-	}
-	else
+	if(!texture)
 	{
 		//Validate texture dimensions to prevent problems
 		auto texWidth = tex0.GetWidth();
@@ -179,15 +153,54 @@ CGSH_OpenGL::TEXTURE_INFO CGSH_OpenGL::PrepareTexture(const TEX0& tex0)
 		assert(texHeight <= 1024);
 		texWidth = std::min<uint32>(texWidth, 1024);
 		texHeight = std::min<uint32>(texHeight, 1024);
+		auto texFormat = GetTextureFormatInfo(tex0.nPsm);
 
 		GLuint textureHandle = 0;
 		glGenTextures(1, &textureHandle);
 		glBindTexture(GL_TEXTURE_2D, textureHandle);
-		((this)->*(m_textureUploader[tex0.nPsm]))(tex0.GetBufPtr(), tex0.nBufWidth, texWidth, texHeight);
-		TexCache_Insert(tex0, textureHandle);
+		glTexStorage2D(GL_TEXTURE_2D, 1, texFormat.internalFormat, texWidth, texHeight);
+		CHECKGLERROR();
 
-		texInfo.textureHandle = textureHandle;
+		TexCache_Insert(tex0, textureHandle);
+		texture = TexCache_Search(tex0);
+		assert(textureHandle == texture->m_texture);
+
+		texture->m_cachedArea.Invalidate(0, RAMSIZE);
 	}
+
+	texInfo.textureHandle = texture->m_texture;
+
+	glBindTexture(GL_TEXTURE_2D, texture->m_texture);
+	auto& cachedArea = texture->m_cachedArea;
+	auto texturePageSize = CGsPixelFormats::GetPsmPageSize(tex0.nPsm);
+	auto areaRect = cachedArea.GetAreaPageRect();
+
+	while(cachedArea.HasDirtyPages())
+	{
+		auto dirtyRect = cachedArea.GetDirtyPageRect();
+		assert((dirtyRect.width != 0) && (dirtyRect.height != 0));
+		cachedArea.ClearDirtyPages(dirtyRect);
+
+		uint32 texX = dirtyRect.x * texturePageSize.first;
+		uint32 texY = dirtyRect.y * texturePageSize.second;
+		uint32 texWidth = dirtyRect.width * texturePageSize.first;
+		uint32 texHeight = dirtyRect.height * texturePageSize.second;
+		if(texX >= tex0.GetWidth()) continue;
+		if(texY >= tex0.GetHeight()) continue;
+		//assert(texX < tex0.GetWidth());
+		//assert(texY < tex0.GetHeight());
+		if((texX + texWidth) > tex0.GetWidth())
+		{
+			texWidth = tex0.GetWidth() - texX;
+		}
+		if((texY + texHeight) > tex0.GetHeight())
+		{
+			texHeight = tex0.GetHeight() - texY;
+		}
+		((this)->*(m_textureUpdater[tex0.nPsm]))(tex0.GetBufPtr(), tex0.nBufWidth, texX, texY, texWidth, texHeight);
+	}
+
+	cachedArea.ClearDirtyPages();
 
 	return texInfo;
 }
@@ -294,98 +307,6 @@ void CGSH_OpenGL::DumpTexture(unsigned int nWidth, unsigned int nHeight, uint32 
 	Framework::CStdStream outputStream(fopen(sFilename, "wb"));
 	Framework::CBMP::WriteBitmap(bitmap, outputStream);
 #endif
-}
-
-void CGSH_OpenGL::TexUploader_Invalid(uint32, uint32, unsigned int, unsigned int)
-{
-	assert(0);
-}
-
-void CGSH_OpenGL::TexUploader_Psm32(uint32 bufPtr, uint32 bufWidth, unsigned int texWidth, unsigned int texHeight)
-{
-	CGsPixelFormats::CPixelIndexorPSMCT32 indexor(m_pRAM, bufPtr, bufWidth);
-
-	uint32* dst = reinterpret_cast<uint32*>(m_pCvtBuffer);
-	for(unsigned int j = 0; j < texHeight; j++)
-	{
-		for(unsigned int i = 0; i < texWidth; i++)
-		{
-			dst[i] = indexor.GetPixel(i, j);
-		}
-
-		dst += texWidth;
-	}
-
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, texWidth, texHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, m_pCvtBuffer);
-	CHECKGLERROR();
-}
-
-template <typename IndexorType>
-void CGSH_OpenGL::TexUploader_Psm16(uint32 bufPtr, uint32 bufWidth, unsigned int texWidth, unsigned int texHeight)
-{
-	IndexorType indexor(m_pRAM, bufPtr, bufWidth);
-
-	auto dst = reinterpret_cast<uint16*>(m_pCvtBuffer);
-	for(unsigned int j = 0; j < texHeight; j++)
-	{
-		for(unsigned int i = 0; i < texWidth; i++)
-		{
-			auto pixel = indexor.GetPixel(i, j);
-			auto cvtPixel = 
-				(((pixel & 0x001F) >>  0) << 11) |	//R
-				(((pixel & 0x03E0) >>  5) <<  6) |	//G
-				(((pixel & 0x7C00) >> 10) <<  1) |	//B
-				(pixel >> 15);						//A
-			dst[i] = cvtPixel;
-		}
-
-		dst += texWidth;
-	}
-
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB5_A1, texWidth, texHeight, 0, GL_RGBA, GL_UNSIGNED_SHORT_5_5_5_1, m_pCvtBuffer);
-	CHECKGLERROR();
-}
-
-template <typename IndexorType>
-void CGSH_OpenGL::TexUploader_Psm48(uint32 bufPtr, uint32 bufWidth, unsigned int texWidth, unsigned int texHeight)
-{
-	IndexorType indexor(m_pRAM, bufPtr, bufWidth);
-
-	uint8* dst = m_pCvtBuffer;
-	for(unsigned int j = 0; j < texHeight; j++)
-	{
-		for(unsigned int i = 0; i < texWidth; i++)
-		{
-			dst[i] = indexor.GetPixel(i, j);
-		}
-
-		dst += texWidth;
-	}
-
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_R8, texWidth, texHeight, 0, GL_RED, GL_UNSIGNED_BYTE, m_pCvtBuffer);
-	CHECKGLERROR();
-}
-
-template <uint32 shiftAmount, uint32 mask>
-void CGSH_OpenGL::TexUploader_Psm48H(uint32 bufPtr, uint32 bufWidth, unsigned int texWidth, unsigned int texHeight)
-{
-	CGsPixelFormats::CPixelIndexorPSMCT32 indexor(m_pRAM, bufPtr, bufWidth);
-
-	uint8* dst = m_pCvtBuffer;
-	for(unsigned int j = 0; j < texHeight; j++)
-	{
-		for(unsigned int i = 0; i < texWidth; i++)
-		{
-			uint32 pixel = indexor.GetPixel(i, j);
-			pixel = (pixel >> shiftAmount) & mask;
-			dst[i] = static_cast<uint8>(pixel);
-		}
-
-		dst += texWidth;
-	}
-
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_R8, texWidth, texHeight, 0, GL_RED, GL_UNSIGNED_BYTE, m_pCvtBuffer);
-	CHECKGLERROR();
 }
 
 void CGSH_OpenGL::TexUpdater_Invalid(uint32 bufPtr, uint32 bufWidth, unsigned int texX, unsigned int texY, unsigned int texWidth, unsigned int texHeight)

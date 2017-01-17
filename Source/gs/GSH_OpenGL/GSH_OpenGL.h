@@ -145,7 +145,6 @@ private:
 		CVTBUFFERSIZE = 0x800000,
 	};
 
-	typedef void (CGSH_OpenGL::*TEXTUREUPLOADER)(uint32, uint32, unsigned int, unsigned int);
 	typedef void (CGSH_OpenGL::*TEXTUREUPDATER)(uint32, uint32, unsigned int, unsigned int, unsigned int, unsigned int);
 
 	struct VERTEX
@@ -257,6 +256,13 @@ private:
 		float	scaleRatioY = 1;
 	};
 
+	struct TEXTUREFORMAT_INFO
+	{
+		GLenum internalFormat;
+		GLenum format;
+		GLenum type;
+	};
+
 	enum class PRIM_VERTEX_ATTRIB
 	{
 		POSITION = 1,
@@ -283,7 +289,7 @@ private:
 	void							WriteRegisterImpl(uint8, uint64) override;
 
 	void							InitializeRC();
-	void							SetupTextureUploaders();
+	void							SetupTextureUpdaters();
 	virtual void					PresentBackbuffer() = 0;
 	void							MakeLinearZOrtho(float*, float, float, float, float);
 	unsigned int					GetCurrentReadCircuit();
@@ -339,20 +345,12 @@ private:
 	void							SetupTexture(uint64, uint64, uint64, uint64, uint64);
 	static bool						IsCompatibleFramebufferPSM(unsigned int, unsigned int);
 	static uint32					GetFramebufferBitDepth(uint32);
+	static TEXTUREFORMAT_INFO		GetTextureFormatInfo(uint32);
 
 	FramebufferPtr					FindFramebuffer(const FRAME&) const;
 	DepthbufferPtr					FindDepthbuffer(const ZBUF&, const FRAME&) const;
 
 	void							DumpTexture(unsigned int, unsigned int, uint32);
-
-	//Texture uploaders
-	void							TexUploader_Invalid(uint32, uint32, unsigned int, unsigned int);
-
-	void							TexUploader_Psm32(uint32, uint32, unsigned int, unsigned int);
-	template <typename> void		TexUploader_Psm16(uint32, uint32, unsigned int, unsigned int);
-
-	template <typename> void		TexUploader_Psm48(uint32, uint32, unsigned int, unsigned int);
-	template <uint32, uint32> void	TexUploader_Psm48H(uint32, uint32, unsigned int, unsigned int);
 
 	//Texture updaters
 	void							TexUpdater_Invalid(uint32, uint32, unsigned int, unsigned int, unsigned int, unsigned int);
@@ -422,7 +420,6 @@ private:
 	static const unsigned int		g_shaderClampModes[CGSHandler::CLAMP_MODE_MAX];
 	static const unsigned int		g_alphaTestInverse[CGSHandler::ALPHA_TEST_MAX];
 
-	TEXTUREUPLOADER					m_textureUploader[CGSHandler::PSM_MAX];
 	TEXTUREUPDATER					m_textureUpdater[CGSHandler::PSM_MAX];
 
 	enum GLSTATE_BITS : uint32

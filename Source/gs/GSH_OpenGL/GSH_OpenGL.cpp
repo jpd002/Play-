@@ -318,7 +318,7 @@ void CGSH_OpenGL::InitializeRC()
 	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 	glClearDepthf(0.0f);
 
-	SetupTextureUploaders();
+	SetupTextureUpdaters();
 
 	m_presentProgram = GeneratePresentProgram();
 	m_presentVertexBuffer = GeneratePresentVertexBuffer();
@@ -2209,14 +2209,18 @@ CGSH_OpenGL::CFramebuffer::~CFramebuffer()
 
 void CGSH_OpenGL::PopulateFramebuffer(const FramebufferPtr& framebuffer)
 {
+	auto texFormat = GetTextureFormatInfo(framebuffer->m_psm);
+
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, m_copyToFbTexture);
+	glTexImage2D(GL_TEXTURE_2D, 0, texFormat.internalFormat, framebuffer->m_width, framebuffer->m_height,
+		0, texFormat.format, texFormat.type, nullptr);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-	((this)->*(m_textureUploader[framebuffer->m_psm]))(framebuffer->m_basePtr, 
-		framebuffer->m_width / 64, framebuffer->m_width, framebuffer->m_height);
+	((this)->*(m_textureUpdater[framebuffer->m_psm]))(framebuffer->m_basePtr, 
+		framebuffer->m_width / 64, 0, 0, framebuffer->m_width, framebuffer->m_height);
 	CHECKGLERROR();
 
 	glBindFramebuffer(GL_FRAMEBUFFER, framebuffer->m_framebuffer);
