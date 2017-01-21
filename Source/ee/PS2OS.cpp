@@ -1222,7 +1222,7 @@ void CPS2OS::CheckLivingThreads()
 	}
 }
 
-void CPS2OS::SemaReleaseSingleThread(uint32 semaId, bool cancelled)
+bool CPS2OS::SemaReleaseSingleThread(uint32 semaId, bool cancelled)
 {
 	//Releases a single thread from a semaphore's queue
 	//TODO: Implement an actual queue
@@ -1264,6 +1264,7 @@ void CPS2OS::SemaReleaseSingleThread(uint32 semaId, bool cancelled)
 
 	//Something went wrong if nothing changed
 	assert(changed);
+	return changed;
 }
 
 void CPS2OS::CreateIdleThread()
@@ -2329,7 +2330,8 @@ void CPS2OS::sc_DeleteSema()
 	{
 		while(sema->waitCount != 0)
 		{
-			SemaReleaseSingleThread(id, true);
+			bool succeeded = SemaReleaseSingleThread(id, true);
+			if(!succeeded) break;
 		}
 		ThreadShakeAndBake();
 	}
