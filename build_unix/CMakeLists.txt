@@ -619,7 +619,6 @@ if (WIN32)
 		../Source/ui_win32/CdromSelectionWnd.cpp
 		../Source/ui_win32/CommandSink.cpp
 		../Source/ui_win32/DebugExpressionEvaluator.cpp
-		../Source/ui_win32/DebuggerChildWnd.cpp
 		../Source/ui_win32/Debugger/FindCallersViewWnd.cpp
 		../Source/ui_win32/DebugUtils.cpp
 		../Source/ui_win32/DirectXControl.cpp
