@@ -21,7 +21,7 @@ void CMIPSAnalysis::Clear()
 void CMIPSAnalysis::Analyse(uint32 start, uint32 end, uint32 entryPoint)
 {
 	AnalyseSubroutines(start, end, entryPoint);
-	AnalyseStringReferences(start, end);
+	AnalyseStringReferences();
 }
 
 void CMIPSAnalysis::InsertSubroutine(uint32 start, uint32 end, uint32 stackAllocStart, uint32 stackAllocEnd, uint32 stackSize, uint32 returnAddrPos)
@@ -335,7 +335,7 @@ static bool TryGetStringAtAddress(CMIPS* context, uint32 address, std::string& r
 	return (result.length() > 1);
 }
 
-void CMIPSAnalysis::AnalyseStringReferences(uint32 start, uint32 end)
+void CMIPSAnalysis::AnalyseStringReferences()
 {
 	for(auto subroutinePair : m_subroutines)
 	{
@@ -364,15 +364,13 @@ void CMIPSAnalysis::AnalyseStringReferences(uint32 start, uint32 end)
 					//Check string
 					uint32 targetAddress = registerValue[rs] + imm;
 					registerWritten[rs] = false;
-					if(targetAddress >= start && targetAddress <= end)
+
+					std::string stringConstant;
+					if(TryGetStringAtAddress(m_ctx, targetAddress, stringConstant))
 					{
-						std::string stringConstant;
-						if(TryGetStringAtAddress(m_ctx, targetAddress, stringConstant))
+						if(m_ctx->m_Comments.Find(address) == nullptr)
 						{
-							if(m_ctx->m_Comments.Find(address) == nullptr)
-							{
-								m_ctx->m_Comments.InsertTag(address, stringConstant.c_str());
-							}
+							m_ctx->m_Comments.InsertTag(address, stringConstant.c_str());
 						}
 					}
 				}

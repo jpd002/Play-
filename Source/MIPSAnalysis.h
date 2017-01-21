@@ -38,7 +38,7 @@ private:
 	typedef std::map<uint32, SUBROUTINE, std::greater<uint32>> SubroutineList;
 
 	void								AnalyseSubroutines(uint32, uint32, uint32);
-	void								AnalyseStringReferences(uint32, uint32);
+	void								AnalyseStringReferences();
 
 	void								FindSubroutinesByStackAllocation(uint32, uint32);
 	void								FindSubroutinesByJumpTargets(uint32, uint32, uint32);
