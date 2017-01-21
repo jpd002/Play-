@@ -1,20 +1,41 @@
-sudo: required
-language: cpp
-dist: trusty
+matrix:
+  include:
+    - os: linux
+      dist: trusty
+      env:
+        - BUILD_TYPE="Unix Makefiles"
+        - TARGET_OS=Linux
+      sudo: require
+    - os: osx
+      osx_image: xcode8.3
+      env:
+        - BUILD_TYPE=Xcode TARGET_OS=OSX
+    - os: osx
+      osx_image: xcode8.3
+      env:
+        - BUILD_TYPE="Unix Makefiles"
+        - TARGET_OS=OSX
+    - os: linux
+      dist: precise
+      language: android
+      sudo: required
+      jdk: oraclejdk8
+      env:
+        global:
+          - ANDROID_TARGET=android-24
+          - ANDROID_ABI=armeabi-v7a
+          - BUILD_TYPE=Gradle
+          - TARGET_OS=Android
+      android:
+        components:
+        - tools
+        - platform-tools
+        - build-tools-24.0.3
+        - android-24
+        - extra-android-m2repository
+        - sys-img-${ANDROID_ABI}-${ANDROID_TARGET}
 
-addons:
-  apt:
-    sources:
-      - ubuntu-toolchain-r-test
-    packages:
-      - gcc-5
-      - g++-5
-      - cmake
-      - libglew-dev
-      - libboost-filesystem-dev 
-      - libboost-system-dev
-      - libboost-chrono-dev
-      - libopenal-dev
+language: cpp
 
 before_install:
   - bash .travis.sh travis_before_install
