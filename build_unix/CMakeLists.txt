@@ -18,6 +18,15 @@ if (NOT TARGET CodeGen)
 	)
 endif()
 
+if(WIN32)
+	if (NOT TARGET Nuanceur)
+		add_subdirectory(
+			${Play_SOURCE_DIR}/../../Nuanceur/build_unix
+			${Play_SOURCE_DIR}/../../Nuanceur/build_unix/build
+		)
+	endif()
+endif()
+
 set(CMAKE_MODULE_PATH
 	${Play_SOURCE_DIR}/Modules
 	${CMAKE_MODULE_PATH}
@@ -36,6 +45,31 @@ if(APPLE)
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -x objective-c++")
 endif(APPLE)
 add_definitions(-D_IOP_EMULATE_MODULES)
+add_definitions(-DGLEW_STATIC)
+
+if(WIN32)
+	add_definitions(-DWIN32) #TODO: replace WIN32 preprocessors with _WIN32
+	add_definitions(-D_CRT_SECURE_NO_WARNINGS)
+	add_definitions(-D_SCL_SECURE_NO_WARNINGS)
+	add_definitions(-D_LIB)
+	add_definitions(-D_UNICODE -DUNICODE)
+	if(DEFINED PROFILE)
+		add_definitions(-DPROFILE)
+	endif()
+	if(DEFINED VTUNE_ENABLED)
+		add_definitions(-DVTUNE_ENABLED)
+		list(APPEND PROJECT_LIBS libittnotify jitprofiling)
+		if(DEFINED VTUNE_PATH)
+			if(ARCH STREQUAL "x86")
+				include_directories($(VTUNE_PATH)\lib32)
+			else()
+				include_directories($(VTUNE_PATH)\lib64)
+			endif()
+		else()
+			MESSAGE(FATAL_ERROR "VTUNE_PATH was not defined")
+		endif()
+	endif()
+endif()
 
 set(PROJECT_LIBS)
 
@@ -47,14 +81,19 @@ if (NOT TARGET Boost::boost)
 endif()
 list(APPEND PROJECT_LIBS Boost::boost Boost::system Boost::filesystem Boost::chrono)
 
-find_package(OpenAL REQUIRED)
-list(APPEND PROJECT_LIBS ${OPENAL_LIBRARY})
+if(UNIX)
+	find_package(OpenAL REQUIRED)
+	list(APPEND PROJECT_LIBS ${OPENAL_LIBRARY})
+endif()
 
 find_package(OpenGL REQUIRED)
 list(APPEND PROJECT_LIBS ${OPENGL_LIBRARIES})
 
-find_package(GLEW REQUIRED)
-list(APPEND PROJECT_LIBS ${GLEW_LIBRARIES})
+if(UNIX OR WIN32)
+	find_package(GLEW REQUIRED)
+	include_directories(${GLEW_INCLUDE_DIR})
+	list(APPEND PROJECT_LIBS ${GLEW_LIBRARIES})
+endif()
 
 find_package(BZip2 REQUIRED)
 list(APPEND PROJECT_LIBS ${BZIP2_LIBRARIES})
@@ -442,3 +481,110 @@ if(APPLE)
 
 	endforeach()
 endif(APPLE)
+
+if (WIN32)
+	ENABLE_LANGUAGE(ASM_MASM)
+
+	include_directories(
+		../
+		../Source/ui_win32/
+		../Source/gs/GSH_OpenGL
+	)
+	if (CMAKE_BUILD_TYPE MATCHES DEBUG)
+		set(DEBUG_SRC
+			../Source/ui_win32/CallStackWnd.cpp
+			../Source/ui_win32/Debugger.cpp
+			../Source/ui_win32/DebugView.cpp
+			../Source/ui_win32/FunctionsView.cpp
+			../Source/ui_win32/ThreadsViewWnd.cpp
+		)
+	endif()
+	if(ARCH STREQUAL "x86")
+		set(MANIFEST ../Source/ui_win32/manifest.xml)
+	else()
+		set(MANIFEST ../Source/ui_win32/manifest64.xml)
+	endif()
+	set(WIN32_SRC
+		../Source/ui_win32/AboutWnd.cpp
+		../Source/ui_win32/AviStream.cpp
+		../Source/ui_win32/CdromSelectionWnd.cpp
+		../Source/ui_win32/CommandSink.cpp
+		../Source/ui_win32/DebugExpressionEvaluator.cpp
+		../Source/ui_win32/DebuggerChildWnd.cpp
+		../Source/ui_win32/Debugger/FindCallersViewWnd.cpp
+		../Source/ui_win32/DebugUtils.cpp
+		../Source/ui_win32/DirectXControl.cpp
+		../Source/ui_win32/DisAsm.cpp
+		../Source/ui_win32/DisAsmVu.cpp
+		../Source/ui_win32/DisAsmWnd.cpp
+		../Source/ui_win32/ELFHeaderView.cpp
+		../Source/ui_win32/ELFProgramView.cpp
+		../Source/ui_win32/ELFSectionView.cpp
+		../Source/ui_win32/ELFSymbolView.cpp
+		../Source/ui_win32/ELFView.cpp
+		../Source/ui_win32/FrameDebugger/FrameDebugger.cpp
+		../Source/ui_win32/FrameDebugger/GifPacketView.cpp
+		../Source/ui_win32/FrameDebugger/GsContextStateView.cpp
+		../Source/ui_win32/FrameDebugger/GsContextView.cpp
+		../Source/ui_win32/FrameDebugger/GsInputStateView.cpp
+		../Source/ui_win32/FrameDebugger/GsPacketListView.cpp
+		../Source/ui_win32/FrameDebugger/GsStateUtils.cpp
+		../Source/ui_win32/FrameDebugger/PixelBufferView.cpp
+		../Source/ui_win32/FrameDebugger/PixelBufferViewOverlay.cpp
+		../Source/ui_win32/FrameDebugger/TabHost.cpp
+		../Source/ui_win32/FrameDebugger/Vu1ProgramView.cpp
+		../Source/ui_win32/FrameDebugger/Vu1Vm.cpp
+		../Source/ui_win32/GSH_Direct3D9.cpp
+		../Source/ui_win32/GSH_Direct3D9_Shader.cpp
+		../Source/ui_win32/GSH_Direct3D9_Texture.cpp
+		../Source/ui_win32/GSH_OpenGLWin32.cpp
+		../Source/ui_win32/IconMesh.cpp
+		../Source/ui_win32/Main.cpp
+		../Source/ui_win32/MainWindow.cpp
+		../Source/ui_win32/McManagerWnd.cpp
+		../Source/ui_win32/MemoryCard.cpp
+		../Source/ui_win32/MemoryCardView.cpp
+		../Source/ui_win32/MemoryView.cpp
+		../Source/ui_win32/MemoryViewMIPS.cpp
+		../Source/ui_win32/MemoryViewMIPSWnd.cpp
+		../Source/ui_win32/MemoryViewPtr.cpp
+		../Source/ui_win32/OptionWnd.cpp
+		../Source/ui_win32/OutputWnd.cpp
+		../Source/ui_win32/PH_DirectInput.cpp
+		../Source/ui_win32/PH_DirectInput/ControllerSettingsWnd.cpp
+		../Source/ui_win32/PH_DirectInput/InputBindingSelectionWindow.cpp
+		../Source/ui_win32/PH_DirectInput/InputManager.cpp
+		../Source/ui_win32/RegViewFPU.cpp
+		../Source/ui_win32/RegViewGeneral.cpp
+		../Source/ui_win32/RegViewPage.cpp
+		../Source/ui_win32/RegViewSCU.cpp
+		../Source/ui_win32/RegViewVU.cpp
+		../Source/ui_win32/RegViewWnd.cpp
+		../Source/ui_win32/GSH_OpenGL_SettingsWnd.cpp
+		../Source/ui_win32/SaveIconView.cpp
+		../Source/ui_win32/SaveView.cpp
+		../Source/ui_win32/StatsOverlayWindow.cpp
+		../Source/ui_win32/StdAfx.cpp
+		../Source/ui_win32/SysInfo_x64.asm
+		../Source/ui_win32/SysInfoWnd.cpp
+		../Source/ui_win32/ThreadCallStackViewWnd.cpp
+		../Source/ui_win32/VFSManagerWnd.cpp
+		../Source/ui_win32/VirtualPad/VirtualPadButton.cpp
+		../Source/ui_win32/VirtualPad/VirtualPadItem.cpp
+		../Source/ui_win32/VirtualPad/VirtualPadStick.cpp
+		../Source/ui_win32/VirtualPad/VirtualPadWindow.cpp
+		../Source/ui_win32/WinUtils.cpp
+		../tools/PsfPlayer/Source/win32_ui/SH_WaveOut.cpp
+		../Source/VirtualPad.cpp
+		
+		${DEBUG_SRC}
+		${MANIFEST}
+	)
+
+	add_executable(Play-UI-Win32 WIN32 ${WIN32_SRC} ../Source/ui_win32/Res.rc)
+	target_link_libraries(Play-UI-Win32 PUBLIC Play Framework CodeGen Nuanceur ${PROJECT_LIBS})
+	include(Modules/PrecompiledHeader.cmake)
+	set(pch_source ../Source/ui_win32/StdAfx.cpp)
+	add_precompiled_header(Play-UI-Win32 ../Source/ui_win32/StdAfx.h c++-header)
+	target_use_precompiled_header(Play-UI-Win32 ../Source/ui_win32/StdAfx.h c++-header FORCEINCLUDE)
+endif (WIN32)
