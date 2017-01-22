@@ -224,10 +224,7 @@ void CCOP_VU::CTC2()
 			m_codeGen->PullTop();
 			break;
 		case CTRL_REG_MAC:
-			//Not implemented
-#ifdef _DEBUG
-			CLog::GetInstance().Print(LOG_NAME, "Warning: Writing contents of MAC flag through CTC2.\r\n");
-#endif
+			//Read-only register
 			m_codeGen->PullTop();
 			break;
 		case CTRL_REG_CLIP:
