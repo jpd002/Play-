@@ -2964,13 +2964,11 @@ void CIopBios::LoadDebugTags(Framework::Xml::CNode* root)
 
 void CIopBios::SaveDebugTags(Framework::Xml::CNode* root)
 {
-	Framework::Xml::CNode* moduleSection = new Framework::Xml::CNode(TAGS_SECTION_IOP_MODULES, true);
+	auto moduleSection = new Framework::Xml::CNode(TAGS_SECTION_IOP_MODULES, true);
 
-	for(auto moduleIterator(std::begin(m_moduleTags));
-		std::end(m_moduleTags) != moduleIterator; moduleIterator++)
+	for(const auto& module : m_moduleTags)
 	{
-		const auto& module(*moduleIterator);
-		Framework::Xml::CNode* moduleNode = new Framework::Xml::CNode(TAGS_SECTION_IOP_MODULES_MODULE, true);
+		auto moduleNode = new Framework::Xml::CNode(TAGS_SECTION_IOP_MODULES_MODULE, true);
 		moduleNode->InsertAttribute(TAGS_SECTION_IOP_MODULES_MODULE_BEGINADDRESS,	lexical_cast_hex<std::string>(module.begin, 8).c_str());
 		moduleNode->InsertAttribute(TAGS_SECTION_IOP_MODULES_MODULE_ENDADDRESS,		lexical_cast_hex<std::string>(module.end, 8).c_str());
 		moduleNode->InsertAttribute(TAGS_SECTION_IOP_MODULES_MODULE_NAME,			module.name.c_str());
