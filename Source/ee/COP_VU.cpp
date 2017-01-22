@@ -135,6 +135,8 @@ void CCOP_VU::QMFC2()
 //02
 void CCOP_VU::CFC2()
 {
+	if(m_nFT == 0) return;
+
 	if(m_nFS < 16)
 	{
 		m_codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2VI[m_nFS]));
