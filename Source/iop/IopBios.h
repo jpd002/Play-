@@ -25,6 +25,8 @@
 #include "Iop_Cdvdfsv.h"
 #endif
 
+class CMipsExecutor;
+
 class CIopBios : public Iop::CBiosBase
 {
 public:
@@ -121,7 +123,7 @@ public:
 		uint32 reserved[4];
 	};
 
-								CIopBios(CMIPS&, uint8*, uint32, uint8*);
+								CIopBios(CMIPS&, CMipsExecutor&, uint8*, uint32, uint8*);
 	virtual						~CIopBios();
 
 	int32						LoadModule(const char*);
@@ -419,6 +421,7 @@ private:
 		uint32					isValid;
 		char					name[MAX_NAME_SIZE];
 		uint32					start;
+		uint32					end;
 		uint32					entryPoint;
 		uint32					gp;
 		MODULE_STATE			state;
@@ -508,6 +511,7 @@ private:
 #endif
 
 	CMIPS&							m_cpu;
+	CMipsExecutor&					m_cpuExecutor;
 	uint8*							m_ram = nullptr;
 	uint32							m_ramSize;
 	uint8*							m_spr = nullptr;

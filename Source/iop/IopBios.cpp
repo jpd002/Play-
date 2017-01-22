@@ -3,6 +3,7 @@
 #include "../Log.h"
 #include "../ElfFile.h"
 #include "../Ps2Const.h"
+#include "../MipsExecutor.h"
 #include "PtrStream.h"
 #include "Iop_Intc.h"
 #include "lexical_cast_ex.h"
@@ -76,8 +77,9 @@
 //This is the space needed to preserve at most four arguments in the stack frame (as per MIPS calling convention)
 #define STACK_FRAME_RESERVE_SIZE		0x10
 
-CIopBios::CIopBios(CMIPS& cpu, uint8* ram, uint32 ramSize, uint8* spr)
+CIopBios::CIopBios(CMIPS& cpu, CMipsExecutor& cpuExecutor, uint8* ram, uint32 ramSize, uint8* spr)
 : m_cpu(cpu)
+, m_cpuExecutor(cpuExecutor)
 , m_ram(ram)
 , m_ramSize(ramSize)
 , m_spr(spr)
@@ -605,6 +607,7 @@ int32 CIopBios::LoadModule(CELF& elf, const char* path)
 	//Fill in module info
 	strncpy(loadedModule->name, moduleName.c_str(), LOADEDMODULE::MAX_NAME_SIZE);
 	loadedModule->start			= moduleRange.first;
+	loadedModule->end			= moduleRange.second;
 	loadedModule->entryPoint	= entryPoint;
 	loadedModule->gp			= iopMod ? (iopMod->gp + moduleRange.first) : 0;
 	loadedModule->state			= MODULE_STATE::STOPPED;
@@ -642,6 +645,10 @@ int32 CIopBios::UnloadModule(uint32 loadedModuleId)
 			loadedModuleId);
 		return -1;
 	}
+
+	//TODO: Remove module from IOP module list?
+	//TODO: Invalidate MIPS analysis range?
+	m_cpuExecutor.ClearActiveBlocksInRange(loadedModule->start, loadedModule->end);
 
 	//TODO: Check return value here.
 	m_sysmem->FreeMemory(loadedModule->start);
