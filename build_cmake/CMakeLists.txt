@@ -77,16 +77,16 @@ endif()
 # targets, packages and dependencies
 if (NOT TARGET Framework)
 	add_subdirectory(
-		${CMAKE_CURRENT_SOURCE_DIR}/../../Framework/build_unix/Framework
-		${CMAKE_CURRENT_SOURCE_DIR}/../../Framework/build_unix/Framework/build_${CMAKE_SYSTEM_NAME}
+		${CMAKE_CURRENT_SOURCE_DIR}/../../Framework/build_cmake/Framework
+		${CMAKE_CURRENT_SOURCE_DIR}/../../Framework/build_cmake/Framework/build_${CMAKE_SYSTEM_NAME}
 	)
 endif()
 list(APPEND PROJECT_LIBS Framework)
 
 if (NOT TARGET Framework_OpenGl)
 	add_subdirectory(
-		${CMAKE_CURRENT_SOURCE_DIR}/../../Framework/build_unix/FrameworkOpenGl
-		${CMAKE_CURRENT_SOURCE_DIR}/../../Framework/build_unix/FrameworkOpenGl/build_${CMAKE_SYSTEM_NAME}
+		${CMAKE_CURRENT_SOURCE_DIR}/../../Framework/build_cmake/FrameworkOpenGl
+		${CMAKE_CURRENT_SOURCE_DIR}/../../Framework/build_cmake/FrameworkOpenGl/build_${CMAKE_SYSTEM_NAME}
 	)
 endif()
 list(APPEND PROJECT_LIBS Framework_OpenGl)
@@ -94,8 +94,8 @@ list(APPEND PROJECT_LIBS Framework_OpenGl)
 if(UNIX OR APPLE AND NOT ANDROID)
 	if (NOT TARGET Framework_OpenAl)
 		add_subdirectory(
-			${CMAKE_CURRENT_SOURCE_DIR}/../../Framework/build_unix/FrameworkOpenAl
-			${CMAKE_CURRENT_SOURCE_DIR}/../../Framework/build_unix/FrameworkOpenAl/build_${CMAKE_SYSTEM_NAME}
+			${CMAKE_CURRENT_SOURCE_DIR}/../../Framework/build_cmake/FrameworkOpenAl
+			${CMAKE_CURRENT_SOURCE_DIR}/../../Framework/build_cmake/FrameworkOpenAl/build_${CMAKE_SYSTEM_NAME}
 		)
 	endif()
 	list(APPEND PROJECT_LIBS Framework_OpenAl)
@@ -105,8 +105,8 @@ endif()
 
 if (NOT TARGET CodeGen)
 	add_subdirectory(
-		${CMAKE_CURRENT_SOURCE_DIR}/../../CodeGen/build_unix
-		${CMAKE_CURRENT_SOURCE_DIR}/../../CodeGen/build_unix/build_${CMAKE_SYSTEM_NAME}
+		${CMAKE_CURRENT_SOURCE_DIR}/../../CodeGen/build_cmake
+		${CMAKE_CURRENT_SOURCE_DIR}/../../CodeGen/build_cmake/build_${CMAKE_SYSTEM_NAME}
 	)
 endif()
 list(APPEND PROJECT_LIBS CodeGen)
@@ -114,8 +114,8 @@ list(APPEND PROJECT_LIBS CodeGen)
 if(WIN32)
 	if (NOT TARGET Nuanceur)
 		add_subdirectory(
-			${CMAKE_CURRENT_SOURCE_DIR}/../../Nuanceur/build_unix
-			${CMAKE_CURRENT_SOURCE_DIR}/../../Nuanceur/build_unix/build_${CMAKE_SYSTEM_NAME}
+			${CMAKE_CURRENT_SOURCE_DIR}/../../Nuanceur/build_cmake
+			${CMAKE_CURRENT_SOURCE_DIR}/../../Nuanceur/build_cmake/build_${CMAKE_SYSTEM_NAME}
 		)
 	endif()
 	include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../../Nuanceur/include)
@@ -465,16 +465,16 @@ if (UNIX AND NOT APPLE AND NOT ANDROID)
 	)
 
 	set(QT_UIS
-		mainwindow.ui
-		settingsdialog.ui
-		memorycardmanager.ui
-		vfsmanagerdialog.ui
-		vfsdiscselectordialog.ui
-		controllerconfigdialog.ui
+		../build_unix/mainwindow.ui
+		../build_unix/settingsdialog.ui
+		../build_unix/memorycardmanager.ui
+		../build_unix/vfsmanagerdialog.ui
+		../build_unix/vfsdiscselectordialog.ui
+		../build_unix/controllerconfigdialog.ui
 	)
 
 	set(QT_RESOURCES
-		resources.qrc
+		../build_unix/resources.qrc
 	)
 
 	find_package(Qt5 REQUIRED COMPONENTS Widgets Core)

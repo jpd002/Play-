@@ -11,9 +11,9 @@ build_android/*.apk
 build_android/Play.iml
 build_android/projectFilesBackup/
 build_ios/Pods
-build_unix/build
-build_unix/build-ui
-build-ui_unix*
+build_unix/build*
+build_cmake/build*
+build-build_cmake*
 Source/build-ui_*
 Debug
 DebugWithDebugger
