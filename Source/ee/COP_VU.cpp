@@ -228,6 +228,8 @@ void CCOP_VU::CTC2()
 			m_codeGen->PullTop();
 			break;
 		case CTRL_REG_CLIP:
+			m_codeGen->PushCst(0xFFFFFF);
+			m_codeGen->And();
 			m_codeGen->PushTop();
 			m_codeGen->PullRel(offsetof(CMIPS, m_State.nCOP2CF));
 			VUShared::ResetFlagPipeline(VUShared::g_pipeInfoClip, m_codeGen);
@@ -244,6 +246,8 @@ void CCOP_VU::CTC2()
 			m_codeGen->PullRel(offsetof(CMIPS, m_State.nCOP2Q));
 			break;
 		case CTRL_REG_CMSAR0:
+			m_codeGen->PushCst(0xFFFF);
+			m_codeGen->And();
 			m_codeGen->PullRel(offsetof(CMIPS, m_State.cmsar0));
 			break;
 		case CTRL_REG_FBRST:
@@ -252,15 +256,19 @@ void CCOP_VU::CTC2()
 			break;
 		case CTRL_REG_CMSAR1:
 			{
+				m_codeGen->PushCst(0xFFFF);
+				m_codeGen->And();
+				uint32 valueCursor = m_codeGen->GetTopCursor();
+
 				//Push context
 				m_codeGen->PushCtx();
 				//Push value
-				m_codeGen->PushIdx(1);
+				m_codeGen->PushCursor(valueCursor);
 				//Compute Address
 				m_codeGen->PushCst(CVpu::VU_CMSAR1);
 				m_codeGen->Call(reinterpret_cast<void*>(&MemoryUtils_SetWordProxy), 3, false);
 				//Clear stack
-				m_codeGen->PullTop();
+				assert(m_codeGen->GetTopCursor() == valueCursor); m_codeGen->PullTop();
 			}
 			break;
 		default:
