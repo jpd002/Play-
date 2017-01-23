@@ -92,6 +92,7 @@ uint32 CVif::GetRegister(uint32 address)
 	case VIF0_MARK:
 	case VIF1_MARK:
 		result = m_MARK;
+		m_STAT.nMRK = 0;
 		break;
 	case VIF0_CYCLE:
 	case VIF1_CYCLE:
@@ -421,6 +422,7 @@ void CVif::ExecuteCommand(StreamType& stream, CODE nCommand)
 	case 0x07:
 		//MARK
 		m_MARK = nCommand.nIMM;
+		m_STAT.nMRK = 1;
 		break;
 	case 0x10:
 		//FLUSHE
