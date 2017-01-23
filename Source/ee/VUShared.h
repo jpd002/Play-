@@ -85,6 +85,9 @@ namespace VUShared
 	void						ClampVector(CMipsJitter*);
 	void						TestSZFlags(CMipsJitter*, uint8, size_t, uint32);
 
+	void						GetStatus(CMipsJitter*, size_t, uint32);
+	void						SetStatus(CMipsJitter*, size_t);
+
 	void						ADDA_base(CMipsJitter*, uint8, size_t, size_t, bool);
 	void						MADD_base(CMipsJitter*, uint8, size_t, size_t, size_t, bool, uint32);
 	void						MADDA_base(CMipsJitter*, uint8, size_t, size_t, bool, uint32);

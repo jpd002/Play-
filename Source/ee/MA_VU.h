@@ -257,7 +257,6 @@ private:
 		static void							ReflOpAffWrPRdFs(VUShared::VUINSTRUCTION*, CMIPS*, uint32, uint32, VUShared::OPERANDSET&);
 		static void							ReflOpAffWrVi1Bv(VUShared::VUINSTRUCTION*, CMIPS*, uint32, uint32, VUShared::OPERANDSET&);
 
-		void								BuildStatusInIT();
 		void								GenerateEATAN();
 
 		//General

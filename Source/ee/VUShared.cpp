@@ -10,6 +10,9 @@
 #define LATENCY_SQRT    (7)
 #define LATENCY_RSQRT   (13)
 
+#define STATUS_ZS 0x40
+#define STATUS_SS 0x80
+
 const VUShared::REGISTER_PIPEINFO VUShared::g_pipeInfoQ =
 {
 	offsetof(CMIPS, m_State.nCOP2Q),
@@ -182,6 +185,110 @@ void VUShared::TestSZFlags(CMipsJitter* codeGen, uint8 dest, size_t regOffset, u
 	codeGen->PullRel(offsetof(CMIPS, m_State.nCOP2SF));
 
 	QueueInFlagPipeline(g_pipeInfoMac, codeGen, LATENCY_MAC, relativePipeTime);
+}
+
+void VUShared::GetStatus(CMipsJitter* codeGen, size_t dstOffset, uint32 relativePipeTime)
+{
+	//Get STATUS flag using information from other values (MACflags and sticky flags)
+
+	CheckFlagPipeline(g_pipeInfoMac, codeGen, relativePipeTime);
+
+	//Reset result
+	codeGen->PushCst(0);
+	codeGen->PullRel(dstOffset);
+
+	//Check Z flag
+	codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2MF));
+	codeGen->PushCst(0x000F);
+	codeGen->And();
+	codeGen->PushCst(0);
+	codeGen->BeginIf(Jitter::CONDITION_NE);
+	{
+		codeGen->PushRel(dstOffset);
+		codeGen->PushCst(0x01);
+		codeGen->Or();
+		codeGen->PullRel(dstOffset);
+	}
+	codeGen->EndIf();
+
+	//Check S flag
+	codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2MF));
+	codeGen->PushCst(0x00F0);
+	codeGen->And();
+	codeGen->PushCst(0);
+	codeGen->BeginIf(Jitter::CONDITION_NE);
+	{
+		codeGen->PushRel(dstOffset);
+		codeGen->PushCst(0x02);
+		codeGen->Or();
+		codeGen->PullRel(dstOffset);
+	}
+	codeGen->EndIf();
+
+	//Check ZS flag
+	codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2SF));
+	codeGen->PushCst(0x000F);
+	codeGen->And();
+	codeGen->PushCst(0);
+	codeGen->BeginIf(Jitter::CONDITION_NE);
+	{
+		codeGen->PushRel(dstOffset);
+		codeGen->PushCst(STATUS_ZS);
+		codeGen->Or();
+		codeGen->PullRel(dstOffset);
+	}
+	codeGen->EndIf();
+
+	//Check SS flag
+	codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2SF));
+	codeGen->PushCst(0x00F0);
+	codeGen->And();
+	codeGen->PushCst(0);
+	codeGen->BeginIf(Jitter::CONDITION_NE);
+	{
+		codeGen->PushRel(dstOffset);
+		codeGen->PushCst(STATUS_SS);
+		codeGen->Or();
+		codeGen->PullRel(dstOffset);
+	}
+	codeGen->EndIf();
+
+	//TODO: Check other flags
+}
+
+void VUShared::SetStatus(CMipsJitter* codeGen, size_t srcOffset)
+{
+	//Only sticky flags can be set
+	
+	//Clear sticky flags
+	codeGen->PushCst(0);
+	codeGen->PullRel(offsetof(CMIPS, m_State.nCOP2SF));
+
+	codeGen->PushRel(srcOffset);
+	codeGen->PushCst(STATUS_ZS);
+	codeGen->And();
+	codeGen->PushCst(0);
+	codeGen->BeginIf(Jitter::CONDITION_NE);
+	{
+		codeGen->PushCst(0x000F);
+		codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2SF));
+		codeGen->Or();
+		codeGen->PullRel(offsetof(CMIPS, m_State.nCOP2SF));
+	}
+	codeGen->EndIf();
+
+	codeGen->PushRel(srcOffset);
+	codeGen->PushCst(STATUS_SS);
+	codeGen->And();
+	codeGen->PushCst(0);
+	codeGen->BeginIf(Jitter::CONDITION_NE);
+	{
+		codeGen->PushCst(0x00F0);
+		codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2SF));
+		codeGen->Or();
+		codeGen->PullRel(offsetof(CMIPS, m_State.nCOP2SF));
+	}
+	codeGen->EndIf();
 }
 
 void VUShared::ADDA_base(CMipsJitter* codeGen, uint8 dest, size_t fs, size_t ft, bool expand)

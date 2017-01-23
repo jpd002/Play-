@@ -152,8 +152,8 @@ void CCOP_VU::CFC2()
 			m_codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2CF));
 			break;
 		case CTRL_REG_STATUS:
-			CLog::GetInstance().Print(LOG_NAME, "Warning: Reading contents of STATUS flag through CFC2.\r\n");
-			m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[0].nV[0]));
+			VUShared::GetStatus(m_codeGen, offsetof(CMIPS, m_State.nCOP2T), 4);
+			m_codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2T));
 			break;
 		case CTRL_REG_R:
 			m_codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2R));
@@ -219,11 +219,8 @@ void CCOP_VU::CTC2()
 		switch(m_nFS)
 		{
 		case CTRL_REG_STATUS:
-			//Not implemented
-#ifdef _DEBUG
-			CLog::GetInstance().Print(LOG_NAME, "Warning: Writing contents of STATUS flag through CTC2.\r\n");
-#endif
 			m_codeGen->PullTop();
+			VUShared::SetStatus(m_codeGen, offsetof(CMIPS, m_State.nGPR[m_nFT].nV[0]));
 			break;
 		case CTRL_REG_MAC:
 			//Read-only register
