@@ -553,7 +553,10 @@ void CSIF::SendCallReply(uint32 serverId, const void* returnData)
 	if(requestInfo.call.recv != 0 && returnData != nullptr)
 	{
 		uint32 dstPtr = requestInfo.call.recv & (PS2::EE_RAM_SIZE - 1);
-		memcpy(m_eeRam + dstPtr, returnData, requestInfo.call.recvSize);
+		//Size needs to be a multiple of 4
+		assert((requestInfo.call.recvSize & 0x03) == 0);
+		uint32 dstSize = (requestInfo.call.recvSize + 0x03) & ~0x03;
+		memcpy(m_eeRam + dstPtr, returnData, dstSize);
 	}
 	SendPacket(&requestInfo.reply, sizeof(SIFRPCREQUESTEND));
 	m_callReplies.erase(replyIterator);
