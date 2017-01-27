@@ -65,11 +65,6 @@ void CGSH_OpenGL::InitializeImpl()
 
 	m_nVtxCount = 0;
 
-	for(unsigned int i = 0; i < MAX_TEXTURE_CACHE; i++)
-	{
-		m_textureCache.push_back(TexturePtr(new CTexture()));
-	}
-
 	for(unsigned int i = 0; i < MAX_PALETTE_CACHE; i++)
 	{
 		m_paletteCache.push_back(PalettePtr(new CPalette()));
@@ -84,7 +79,6 @@ void CGSH_OpenGL::ReleaseImpl()
 {
 	ResetImpl();
 
-	m_textureCache.clear();
 	m_paletteCache.clear();
 	m_shaders.clear();
 	m_presentProgram.reset();
@@ -103,7 +97,7 @@ void CGSH_OpenGL::ReleaseImpl()
 void CGSH_OpenGL::ResetImpl()
 {
 	LoadPreferences();
-	TexCache_Flush();
+	m_textureCache.Flush();
 	PalCache_Flush();
 	m_framebuffers.clear();
 	m_depthbuffers.clear();
@@ -285,8 +279,12 @@ void CGSH_OpenGL::FlipImpl()
 void CGSH_OpenGL::LoadState(Framework::CZipArchiveReader& archive)
 {
 	CGSHandler::LoadState(archive);
-
-	m_mailBox.SendCall(std::bind(&CGSH_OpenGL::TexCache_InvalidateTextures, this, 0, RAMSIZE));
+	m_mailBox.SendCall(
+		[this] ()
+		{
+			m_textureCache.InvalidateRange(0, RAMSIZE);
+		}
+	);
 }
 
 void CGSH_OpenGL::RegisterPreferences()
@@ -299,7 +297,7 @@ void CGSH_OpenGL::RegisterPreferences()
 void CGSH_OpenGL::NotifyPreferencesChangedImpl()
 {
 	LoadPreferences();
-	TexCache_Flush();
+	m_textureCache.Flush();
 	PalCache_Flush();
 	m_framebuffers.clear();
 	m_depthbuffers.clear();
@@ -2012,7 +2010,7 @@ void CGSH_OpenGL::ProcessHostToLocalTransfer()
 		uint32 transferSize = pageCount * CGsPixelFormats::PAGESIZE;
 		uint32 transferOffset = (trxPos.nDSAY / transferPageSize.second) * pageCountX * CGsPixelFormats::PAGESIZE;
 
-		TexCache_InvalidateTextures(transferAddress + transferOffset, transferSize);
+		m_textureCache.InvalidateRange(transferAddress + transferOffset, transferSize);
 
 		bool isUpperByteTransfer = (bltBuf.nDstPsm == PSMT8H) || (bltBuf.nDstPsm == PSMT4HL) || (bltBuf.nDstPsm == PSMT4HH);
 		for(const auto& framebuffer : m_framebuffers)

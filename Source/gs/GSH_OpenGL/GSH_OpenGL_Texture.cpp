@@ -143,7 +143,7 @@ CGSH_OpenGL::TEXTURE_INFO CGSH_OpenGL::PrepareTexture(const TEX0& tex0)
 		}
 	}
 
-	auto texture = TexCache_Search(tex0);
+	auto texture = m_textureCache.Search(tex0);
 	if(!texture)
 	{
 		//Validate texture dimensions to prevent problems
@@ -155,22 +155,21 @@ CGSH_OpenGL::TEXTURE_INFO CGSH_OpenGL::PrepareTexture(const TEX0& tex0)
 		texHeight = std::min<uint32>(texHeight, 1024);
 		auto texFormat = GetTextureFormatInfo(tex0.nPsm);
 
-		GLuint textureHandle = 0;
-		glGenTextures(1, &textureHandle);
-		glBindTexture(GL_TEXTURE_2D, textureHandle);
-		glTexStorage2D(GL_TEXTURE_2D, 1, texFormat.internalFormat, texWidth, texHeight);
-		CHECKGLERROR();
+		{
+			auto textureHandle = Framework::OpenGl::CTexture::Create();
+			glBindTexture(GL_TEXTURE_2D, textureHandle);
+			glTexStorage2D(GL_TEXTURE_2D, 1, texFormat.internalFormat, texWidth, texHeight);
+			CHECKGLERROR();
+			m_textureCache.Insert(tex0, std::move(textureHandle));
+		}
 
-		TexCache_Insert(tex0, textureHandle);
-		texture = TexCache_Search(tex0);
-		assert(textureHandle == texture->m_texture);
-
+		texture = m_textureCache.Search(tex0);
 		texture->m_cachedArea.Invalidate(0, RAMSIZE);
 	}
 
-	texInfo.textureHandle = texture->m_texture;
+	texInfo.textureHandle = texture->m_textureHandle;
 
-	glBindTexture(GL_TEXTURE_2D, texture->m_texture);
+	glBindTexture(GL_TEXTURE_2D, texture->m_textureHandle);
 	auto& cachedArea = texture->m_cachedArea;
 	auto texturePageSize = CGsPixelFormats::GetPsmPageSize(tex0.nPsm);
 	auto areaRect = cachedArea.GetAreaPageRect();
@@ -400,83 +399,6 @@ void CGSH_OpenGL::TexUpdater_Psm48H(uint32 bufPtr, uint32 bufWidth, unsigned int
 
 	glTexSubImage2D(GL_TEXTURE_2D, 0, texX, texY, texWidth, texHeight, GL_RED, GL_UNSIGNED_BYTE, m_pCvtBuffer);
 	CHECKGLERROR();
-}
-
-/////////////////////////////////////////////////////////////
-// Texture
-/////////////////////////////////////////////////////////////
-
-CGSH_OpenGL::CTexture::CTexture()
-: m_tex0(0)
-, m_texture(0)
-, m_live(false)
-{
-
-}
-
-CGSH_OpenGL::CTexture::~CTexture()
-{
-	Free();
-}
-
-void CGSH_OpenGL::CTexture::Free()
-{
-	if(m_texture != 0)
-	{
-		glDeleteTextures(1, &m_texture);
-		m_texture = 0;
-	}
-	m_live = false;
-	m_cachedArea.ClearDirtyPages();
-}
-
-/////////////////////////////////////////////////////////////
-// Texture Caching
-/////////////////////////////////////////////////////////////
-
-CGSH_OpenGL::CTexture* CGSH_OpenGL::TexCache_Search(const TEX0& tex0)
-{
-	uint64 maskedTex0 = static_cast<uint64>(tex0) & TEX0_CLUTINFO_MASK;
-
-	for(auto textureIterator(m_textureCache.begin());
-		textureIterator != m_textureCache.end(); textureIterator++)
-	{
-		auto texture = *textureIterator;
-		if(!texture->m_live) continue;
-		if(maskedTex0 != texture->m_tex0) continue;
-		m_textureCache.erase(textureIterator);
-		m_textureCache.push_front(texture);
-		return texture.get();
-	}
-
-	return nullptr;
-}
-
-void CGSH_OpenGL::TexCache_Insert(const TEX0& tex0, GLuint textureHandle)
-{
-	auto texture = *m_textureCache.rbegin();
-	texture->Free();
-
-	texture->m_cachedArea.SetArea(tex0.nPsm, tex0.GetBufPtr(), tex0.GetBufWidth(), tex0.GetHeight());
-
-	texture->m_tex0			= static_cast<uint64>(tex0) & TEX0_CLUTINFO_MASK;
-	texture->m_texture		= textureHandle;
-	texture->m_live			= true;
-
-	m_textureCache.pop_back();
-	m_textureCache.push_front(texture);
-}
-
-void CGSH_OpenGL::TexCache_InvalidateTextures(uint32 start, uint32 size)
-{
-	std::for_each(std::begin(m_textureCache), std::end(m_textureCache), 
-		[start, size] (TexturePtr& texture) { if(texture->m_live) { texture->m_cachedArea.Invalidate(start, size); } });
-}
-
-void CGSH_OpenGL::TexCache_Flush()
-{
-	std::for_each(std::begin(m_textureCache), std::end(m_textureCache), 
-		[] (TexturePtr& texture) { texture->Free(); });
 }
 
 /////////////////////////////////////////////////////////////

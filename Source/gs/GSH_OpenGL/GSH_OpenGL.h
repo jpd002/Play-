@@ -4,6 +4,7 @@
 #include <unordered_map>
 #include "../GSHandler.h"
 #include "../GsCachedArea.h"
+#include "../GsTextureCache.h"
 #include "opengl/OpenGlDef.h"
 #include "opengl/Program.h"
 #include "opengl/Shader.h"
@@ -29,7 +30,6 @@ public:
 	void							ReadFramebuffer(uint32, uint32, void*) override;
 
 protected:
-	void							TexCache_Flush();
 	void							PalCache_Flush();
 	void							LoadPreferences();
 	virtual void					InitializeImpl() override;
@@ -41,6 +41,8 @@ protected:
 	GLuint							m_presentFramebuffer = 0;
 
 private:
+	typedef CGsTextureCache<Framework::OpenGl::CTexture> TextureCache;
+
 	enum class TECHNIQUE
 	{
 		STANDARD,
@@ -173,22 +175,6 @@ private:
 	};
 
 	typedef std::unordered_map<uint32, Framework::OpenGl::ProgramPtr> ShaderMap;
-
-	class CTexture
-	{
-	public:
-									CTexture();
-									~CTexture();
-		void						Free();
-
-		uint64						m_tex0;
-		GLuint						m_texture;
-		bool						m_live;
-
-		CGsCachedArea				m_cachedArea;
-	};
-	typedef std::shared_ptr<CTexture> TexturePtr;
-	typedef std::list<TexturePtr> TextureList;
 
 	class CPalette
 	{
@@ -375,10 +361,6 @@ private:
 
 	uint8*							m_pCvtBuffer;
 
-	CTexture*						TexCache_Search(const TEX0&);
-	void							TexCache_Insert(const TEX0&, GLuint);
-	void							TexCache_InvalidateTextures(uint32, uint32);
-
 	GLuint							PalCache_Search(const TEX0&);
 	GLuint							PalCache_Search(unsigned int, const uint32*);
 	void							PalCache_Insert(const TEX0&, const uint32*, GLuint);
@@ -401,7 +383,7 @@ private:
 	GLint							m_copyToFbSrcPositionUniform = -1;
 	GLint							m_copyToFbSrcSizeUniform = -1;
 
-	TextureList						m_textureCache;
+	TextureCache					m_textureCache;
 	PaletteList						m_paletteCache;
 	FramebufferList					m_framebuffers;
 	DepthbufferList					m_depthbuffers;
