@@ -6,7 +6,7 @@
 #include "SIF.h"
 #include "lexical_cast_ex.h"
 
-#define		RPC_RECVADDR		0xDEADBEEF
+#define		RPC_RECVADDR		0xDEADBEF0
 #define		SIF_RESETADDR		0		//Only works if equals to 0
 
 #define LOG_NAME					("sif")
