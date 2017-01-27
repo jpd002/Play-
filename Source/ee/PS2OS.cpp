@@ -2586,7 +2586,7 @@ void CPS2OS::sc_SifSetDma()
 {
 	m_lastSifDmaTime = m_ee.m_State.nCOP0[CCOP_SCU::COUNT];
 
-	auto xfer = reinterpret_cast<SIFDMAREG*>(GetStructPtr(m_ee.m_State.nGPR[SC_PARAM0].nV0));
+	auto xfers = reinterpret_cast<const SIFDMAREG*>(GetStructPtr(m_ee.m_State.nGPR[SC_PARAM0].nV0));
 	uint32 count = m_ee.m_State.nGPR[SC_PARAM1].nV[0];
 
 	//Returns count
@@ -2595,12 +2595,16 @@ void CPS2OS::sc_SifSetDma()
 
 	for(unsigned int i = 0; i < count; i++)
 	{
-		uint32 size = (xfer[i].size + 0x0F) / 0x10;
+		const auto& xfer = xfers[i];
 
-		m_ee.m_pMemoryMap->SetWord(CDMAC::D6_MADR,	xfer[i].srcAddr);
-		m_ee.m_pMemoryMap->SetWord(CDMAC::D6_TADR,	xfer[i].dstAddr);
-		m_ee.m_pMemoryMap->SetWord(CDMAC::D6_QWC,	size);
-		m_ee.m_pMemoryMap->SetWord(CDMAC::D6_CHCR,	0x00000100);
+		uint32 size = (xfer.size + 0x0F) / 0x10;
+		assert((xfer.srcAddr & 0x0F) == 0);
+		assert((xfer.dstAddr & 0x03) == 0);
+
+		m_ee.m_pMemoryMap->SetWord(CDMAC::D6_MADR, xfer.srcAddr);
+		m_ee.m_pMemoryMap->SetWord(CDMAC::D6_TADR, xfer.dstAddr);
+		m_ee.m_pMemoryMap->SetWord(CDMAC::D6_QWC,  size);
+		m_ee.m_pMemoryMap->SetWord(CDMAC::D6_CHCR, CDMAC::CHCR_BIT::CHCR_STR);
 	}
 }
 
