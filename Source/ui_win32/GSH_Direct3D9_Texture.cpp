@@ -80,13 +80,14 @@ CGSH_Direct3D9::TEXTURE_INFO CGSH_Direct3D9::LoadTexture(const TEX0& tex0, uint3
 			break;
 		}
 
-		resultCode = m_device->CreateTexture(width, height, 1 + maxMip, D3DUSAGE_DYNAMIC, textureFormat, D3DPOOL_DEFAULT, &result.texture, NULL);
-		assert(SUCCEEDED(resultCode));
+		{
+			TexturePtr textureHandle;
+			resultCode = m_device->CreateTexture(width, height, 1 + maxMip, D3DUSAGE_DYNAMIC, textureFormat, D3DPOOL_DEFAULT, &textureHandle, NULL);
+			assert(SUCCEEDED(resultCode));
+			m_textureCache.Insert(tex0, std::move(textureHandle));
+		}
 
-		m_textureCache.Insert(tex0, result.texture);
 		texture = m_textureCache.Search(tex0);
-		assert(result.texture == texture->m_textureHandle);
-
 		texture->m_cachedArea.Invalidate(0, RAMSIZE);
 	}
 

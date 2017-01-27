@@ -58,7 +58,7 @@ public:
 		return nullptr;
 	}
 
-	void Insert(const CGSHandler::TEX0& tex0, TextureHandleType& textureHandle)
+	void Insert(const CGSHandler::TEX0& tex0, TextureHandleType textureHandle)
 	{
 		auto texture = *m_textureCache.rbegin();
 		texture->Reset();
@@ -66,7 +66,7 @@ public:
 		texture->m_cachedArea.SetArea(tex0.nPsm, tex0.GetBufPtr(), tex0.GetBufWidth(), tex0.GetHeight());
 
 		texture->m_tex0          = static_cast<uint64>(tex0) & TEX0_CLUTINFO_MASK;
-		texture->m_textureHandle = textureHandle;
+		texture->m_textureHandle = std::move(textureHandle);
 		texture->m_live          = true;
 
 		m_textureCache.pop_back();
