@@ -933,220 +933,128 @@ void CDMAC::UpdateCpCond()
 
 void CDMAC::DisassembleGet(uint32 nAddress)
 {
+#define LOG_GET(registerId) case registerId: CLog::GetInstance().Print(LOG_NAME, "= " #registerId ".\r\n"); break;
+
 	switch(nAddress)
 	{
-	//Channel 0
-	case D0_CHCR:
-		CLog::GetInstance().Print(LOG_NAME, "= D0_CHCR.\r\n");
-		break;
-	case D0_MADR:
-		CLog::GetInstance().Print(LOG_NAME, "= D0_MADR.\r\n");
-		break;
-	case D0_QWC:
-		CLog::GetInstance().Print(LOG_NAME, "= D0_QWC.\r\n");
-		break;
-	case D0_TADR:
-		CLog::GetInstance().Print(LOG_NAME, "= D0_TADR.\r\n");
-		break;
+		//Channel 0
+		LOG_GET(D0_CHCR)
+		LOG_GET(D0_MADR)
+		LOG_GET(D0_QWC)
+		LOG_GET(D0_TADR)
 
-	case D1_CHCR:
-		CLog::GetInstance().Print(LOG_NAME, "= D1_CHCR.\r\n");
-		break;
-	case D1_TADR:
-		CLog::GetInstance().Print(LOG_NAME, "= D1_TADR.\r\n");
-		break;
-	case D2_CHCR:
-		CLog::GetInstance().Print(LOG_NAME, "= D2_CHCR.\r\n");
-		break;
-	case D2_TADR:
-		CLog::GetInstance().Print(LOG_NAME, "= D2_TADR.\r\n");
-		break;
-	case D3_CHCR:
-		CLog::GetInstance().Print(LOG_NAME, "= D3_CHCR.\r\n");
-		break;
-	case D3_MADR:
-		CLog::GetInstance().Print(LOG_NAME, "= D3_MADR.\r\n");
-		break;
-	case D3_QWC:
-		CLog::GetInstance().Print(LOG_NAME, "= D3_QWC.\r\n");
-		break;
-	case D4_CHCR:
-		CLog::GetInstance().Print(LOG_NAME, "= D4_CHCR.\r\n");
-		break;
-	case D4_MADR:
-		CLog::GetInstance().Print(LOG_NAME, "= D4_MADR.\r\n");
-		break;
-	case D4_QWC:
-		CLog::GetInstance().Print(LOG_NAME, "= D4_QWC.\r\n");
-		break;
-	case D4_TADR:
-		CLog::GetInstance().Print(LOG_NAME, "= D4_TADR.\r\n");
-		break;
-	case D8_CHCR:
-		CLog::GetInstance().Print(LOG_NAME, "= D8_CHCR.\r\n");
-		break;
-	case D8_MADR:
-		CLog::GetInstance().Print(LOG_NAME, "= D8_MADR.\r\n");
-		break;
-	case D8_QWC:
-		CLog::GetInstance().Print(LOG_NAME, "= D8_QWC.\r\n");
-		break;
-	case D8_SADR:
-		CLog::GetInstance().Print(LOG_NAME, "= D8_SADR.\r\n");
-		break;
-	case D9_CHCR:
-		CLog::GetInstance().Print(LOG_NAME, "= D9_CHCR.\r\n");
-		break;
-	case D9_MADR:
-		CLog::GetInstance().Print(LOG_NAME, "= D9_MADR.\r\n");
-		break;
-	case D9_TADR:
-		CLog::GetInstance().Print(LOG_NAME, "= D9_TADR.\r\n");
-		break;
-	case D9_SADR:
-		CLog::GetInstance().Print(LOG_NAME, "= D9_SADR.\r\n");
-		break;
-	case D_CTRL:
-		CLog::GetInstance().Print(LOG_NAME, "= D_CTRL.\r\n");
-		break;
-	case D_STAT:
-		CLog::GetInstance().Print(LOG_NAME, "= D_STAT.\r\n");
-		break;
-	case D_PCR:
-		CLog::GetInstance().Print(LOG_NAME, "= D_PCR.\r\n");
-		break;
-	case D_SQWC:
-		CLog::GetInstance().Print(LOG_NAME, "= D_SQWC.\r\n");
-		break;
-	case D_ENABLER:
-		CLog::GetInstance().Print(LOG_NAME, "= D_ENABLER.\r\n");
-		break;
+		//Channel 1
+		LOG_GET(D1_CHCR)
+		LOG_GET(D1_TADR)
+
+		//Channel 2
+		LOG_GET(D2_CHCR)
+		LOG_GET(D2_TADR)
+
+		//Channel 3
+		LOG_GET(D3_CHCR)
+		LOG_GET(D3_MADR)
+		LOG_GET(D3_QWC)
+
+		//Channel 4
+		LOG_GET(D4_CHCR)
+		LOG_GET(D4_MADR)
+		LOG_GET(D4_QWC)
+		LOG_GET(D4_TADR)
+
+		//Channel 8
+		LOG_GET(D8_CHCR)
+		LOG_GET(D8_MADR)
+		LOG_GET(D8_QWC)
+		LOG_GET(D8_SADR)
+
+		//Channel 9
+		LOG_GET(D9_CHCR)
+		LOG_GET(D9_MADR)
+		LOG_GET(D9_TADR)
+		LOG_GET(D9_SADR)
+
+		//General
+		LOG_GET(D_CTRL)
+		LOG_GET(D_STAT)
+		LOG_GET(D_PCR)
+		LOG_GET(D_SQWC)
+		LOG_GET(D_ENABLER)
+
 	default:
 		CLog::GetInstance().Print(LOG_NAME, "Reading unknown register 0x%0.8X.\r\n", nAddress);
 		break;
 	}
+
+#undef LOG_GET
 }
 
 void CDMAC::DisassembleSet(uint32 nAddress, uint32 nData)
 {
+#define LOG_SET(registerId) case registerId: CLog::GetInstance().Print(LOG_NAME, #registerId " = 0x%0.8X.\r\n", nData); break;
+
 	switch(nAddress)
 	{
-	case D1_CHCR:
-		CLog::GetInstance().Print(LOG_NAME, "D1_CHCR = 0x%0.8X.\r\n", nData);
-		break;
-	case D1_MADR:
-		CLog::GetInstance().Print(LOG_NAME, "D1_MADR = 0x%0.8X.\r\n", nData);
-		break;
-	case D1_QWC:
-		CLog::GetInstance().Print(LOG_NAME, "D1_QWC = 0x%0.8X.\r\n", nData);
-		break;
-	case D1_TADR:
-		CLog::GetInstance().Print(LOG_NAME, "D1_TADR = 0x%0.8X.\r\n", nData);
-		break;
-	case D2_CHCR:
-		CLog::GetInstance().Print(LOG_NAME, "D2_CHCR = 0x%0.8X.\r\n", nData);
-		break;
-	case D2_MADR:
-		CLog::GetInstance().Print(LOG_NAME, "D2_MADR = 0x%0.8X.\r\n", nData);
-		break;
-	case D2_QWC:
-		CLog::GetInstance().Print(LOG_NAME, "D2_QWC = 0x%0.8X.\r\n", nData);
-		break;
-	case D2_TADR:
-		CLog::GetInstance().Print(LOG_NAME, "D2_TADR = 0x%0.8X.\r\n", nData);
-		break;
-	case D3_CHCR:
-		CLog::GetInstance().Print(LOG_NAME, "D3_CHCR = 0x%0.8X.\r\n", nData);
-		break;
-	case D3_MADR:
-		CLog::GetInstance().Print(LOG_NAME, "D3_MADR = 0x%0.8X.\r\n", nData);
-		break;
-	case D3_QWC:
-		CLog::GetInstance().Print(LOG_NAME, "D3_QWC = 0x%0.8X.\r\n", nData);
-		break;
-	case D4_CHCR:
-		CLog::GetInstance().Print(LOG_NAME, "D4_CHCR = 0x%0.8X.\r\n", nData);
-		break;
-	case D4_MADR:
-		CLog::GetInstance().Print(LOG_NAME, "D4_MADR = 0x%0.8X.\r\n", nData);
-		break;
-	case D4_QWC:
-		CLog::GetInstance().Print(LOG_NAME, "D4_QWC = 0x%0.8X.\r\n", nData);
-		break;
-	case D4_TADR:
-		CLog::GetInstance().Print(LOG_NAME, "D4_TADR = 0x%0.8X.\r\n", nData);
-		break;
-	case D5_CHCR:
-		CLog::GetInstance().Print(LOG_NAME, "D5_CHCR = 0x%0.8X.\r\n", nData);
-		break;
-	case D5_MADR:
-		CLog::GetInstance().Print(LOG_NAME, "D5_MADR = 0x%0.8X.\r\n", nData);
-		break;
-	case D5_QWC:
-		CLog::GetInstance().Print(LOG_NAME, "D5_QWC = 0x%0.8X.\r\n", nData);
-		break;
-	case D6_CHCR:
-		CLog::GetInstance().Print(LOG_NAME, "D6_CHCR = 0x%0.8X.\r\n", nData);
-		break;
-	case D6_MADR:
-		CLog::GetInstance().Print(LOG_NAME, "D6_MADR = 0x%0.8X.\r\n", nData);
-		break;
-	case D6_QWC:
-		CLog::GetInstance().Print(LOG_NAME, "D6_QWC = 0x%0.8X.\r\n", nData);
-		break;
-	case D6_TADR:
-		CLog::GetInstance().Print(LOG_NAME, "D6_TADR = 0x%0.8X.\r\n", nData);
-		break;
-	case D8_CHCR:
-		CLog::GetInstance().Print(LOG_NAME, "D8_CHCR = 0x%0.8X.\r\n", nData);
-		break;
-	case D8_MADR:
-		CLog::GetInstance().Print(LOG_NAME, "D8_MADR = 0x%0.8X.\r\n", nData);
-		break;
-	case D8_QWC:
-		CLog::GetInstance().Print(LOG_NAME, "D8_QWC = 0x%0.8X.\r\n", nData);
-		break;
-	case D8_SADR:
-		CLog::GetInstance().Print(LOG_NAME, "D8_SADR = 0x%0.8X.\r\n", nData);
-		break;
-	case D9_CHCR:
-		CLog::GetInstance().Print(LOG_NAME, "D9_CHCR = 0x%0.8X.\r\n", nData);
-		break;
-	case D9_MADR:
-		CLog::GetInstance().Print(LOG_NAME, "D9_MADR = 0x%0.8X.\r\n", nData);
-		break;
-	case D9_QWC:
-		CLog::GetInstance().Print(LOG_NAME, "D9_QWC = 0x%0.8X.\r\n", nData);
-		break;
-	case D9_TADR:
-		CLog::GetInstance().Print(LOG_NAME, "D9_TADR = 0x%0.8X.\r\n", nData);
-		break;
-	case D9_SADR:
-		CLog::GetInstance().Print(LOG_NAME, "D9_SADR = 0x%0.8X.\r\n", nData);
-		break;
-	case D_CTRL:
-		CLog::GetInstance().Print(LOG_NAME, "D_CTRL = 0x%0.8X.\r\n", nData);
-		break;
-	case D_STAT:
-		CLog::GetInstance().Print(LOG_NAME, "D_STAT = 0x%0.8X.\r\n", nData);
-		break;
-	case D_PCR:
-		CLog::GetInstance().Print(LOG_NAME, "D_PCR = 0x%0.8X.\r\n", nData);
-		break;
-	case D_SQWC:
-		CLog::GetInstance().Print(LOG_NAME, "D_SQWC = 0x%0.8X.\r\n", nData);
-		break;
-	case D_RBSR:
-		CLog::GetInstance().Print(LOG_NAME, "D_RBSR = 0x%0.8X.\r\n", nData);
-		break;
-	case D_RBOR:
-		CLog::GetInstance().Print(LOG_NAME, "D_RBOR = 0x%0.8X.\r\n", nData);
-		break;
-	case D_ENABLEW:
-		CLog::GetInstance().Print(LOG_NAME, "D_ENABLEW = 0x%0.8X.\r\n", nData);
-		break;
+		//Channel 1
+		LOG_SET(D1_CHCR)
+		LOG_SET(D1_MADR)
+		LOG_SET(D1_QWC)
+		LOG_SET(D1_TADR)
+
+		//Channel 2
+		LOG_SET(D2_CHCR)
+		LOG_SET(D2_MADR)
+		LOG_SET(D2_QWC)
+		LOG_SET(D2_TADR)
+
+		//Channel 3
+		LOG_SET(D3_CHCR)
+		LOG_SET(D3_MADR)
+		LOG_SET(D3_QWC)
+
+		//Channel 4
+		LOG_SET(D4_CHCR)
+		LOG_SET(D4_MADR)
+		LOG_SET(D4_QWC)
+		LOG_SET(D4_TADR)
+
+		//Channel 5
+		LOG_SET(D5_CHCR)
+		LOG_SET(D5_MADR)
+		LOG_SET(D5_QWC)
+
+		//Channel 6
+		LOG_SET(D6_CHCR)
+		LOG_SET(D6_MADR)
+		LOG_SET(D6_QWC)
+		LOG_SET(D6_TADR)
+
+		//Channel 8
+		LOG_SET(D8_CHCR)
+		LOG_SET(D8_MADR)
+		LOG_SET(D8_QWC)
+		LOG_SET(D8_SADR)
+
+		//Channel 9
+		LOG_SET(D9_CHCR)
+		LOG_SET(D9_MADR)
+		LOG_SET(D9_QWC)
+		LOG_SET(D9_TADR)
+		LOG_SET(D9_SADR)
+
+		//General
+		LOG_SET(D_CTRL)
+		LOG_SET(D_STAT)
+		LOG_SET(D_PCR)
+		LOG_SET(D_SQWC)
+		LOG_SET(D_RBSR)
+		LOG_SET(D_RBOR)
+		LOG_SET(D_ENABLEW)
+
 	default:
 		CLog::GetInstance().Print(LOG_NAME, "Writing unknown register 0x%0.8X, 0x%0.8X.\r\n", nAddress, nData);
 		break;
 	}
+
+#undef LOG_SET
 }
