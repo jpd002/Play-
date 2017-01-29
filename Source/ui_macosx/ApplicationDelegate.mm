@@ -181,7 +181,11 @@
 {
 	if(g_virtualMachine->LoadState("state.st0.zip"))
 	{
-		NSRunCriticalAlertPanel(@"Error occured while trying to load state.", @"", NULL, NULL, NULL);
+		NSAlert *alert = [[NSAlert alloc] init];
+		[alert addButtonWithTitle:@"OK"];
+		[alert setMessageText:@"Error occured while trying to load state."];
+		[alert setAlertStyle:NSAlertStyleCritical];
+		[alert runModal];
 	}
 }
 
@@ -199,7 +203,12 @@
 	catch(const std::exception& exception)
 	{
 		NSString* errorMessage = [[NSString alloc] initWithUTF8String: exception.what()];
-		NSRunCriticalAlertPanel(@"Load ELF error:", @"%@", NULL, NULL, NULL, errorMessage);
+		NSAlert *alert = [[NSAlert alloc] init];
+		[alert addButtonWithTitle:@"OK"];
+		[alert setMessageText:@"Load ELF error:"];
+		[alert setInformativeText:errorMessage];
+		[alert setAlertStyle:NSAlertStyleCritical];
+		[alert runModal];
 	}
 }
 
@@ -217,7 +226,12 @@
 	catch(const std::exception& exception)
 	{
 		NSString* errorMessage = [[NSString alloc] initWithUTF8String: exception.what()];
-		NSRunCriticalAlertPanel(@"Load ELF error:", @"%@", NULL, NULL, NULL, errorMessage);
+		NSAlert *alert = [[NSAlert alloc] init];
+		[alert addButtonWithTitle:@"OK"];
+		[alert setMessageText:@"Load ELF error:"];
+		[alert setInformativeText:errorMessage];
+		[alert setAlertStyle:NSAlertStyleCritical];
+		[alert runModal];
 	}
 }
 
