@@ -508,7 +508,8 @@ uint32 CSubSystem::IOPortWriteHandler(uint32 nAddress, uint32 nData)
 	}
 	else if(nAddress == CVpu::VU_CMSAR1)
 	{
-		if(!m_vpu1->IsVuRunning())
+		bool validAddress = (nData & 0x7) == 0;
+		if(!m_vpu1->IsVuRunning() && validAddress)
 		{
 			m_vpu1->ExecuteMicroProgram(nData);
 		}
