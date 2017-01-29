@@ -33,8 +33,8 @@ if(NOT CMAKE_BUILD_TYPE)
 endif()
 
 # definitions
-MESSAGE("-- Build type: ${CMAKE_BUILD_TYPE}")
 if(NOT MSVC)
+	MESSAGE("-- Build type: ${CMAKE_BUILD_TYPE}")
 	if(CMAKE_BUILD_TYPE STREQUAL "Release")
 		add_definitions(-DNDEBUG)
 	else()
@@ -537,15 +537,21 @@ if(APPLE)
 		English.lproj/VfsManagerView
 	)
 
+	set(OSX_RES
+		${CMAKE_CURRENT_SOURCE_DIR}/../build_macosx/AppIcon.icns
+		${CMAKE_CURRENT_SOURCE_DIR}/../patches.xml
+	)
 	# Add our Executable
-	add_executable(Play MACOSX_BUNDLE ${OSX_SOURCES} ${OSX_HEADERS})
+	add_executable(Play MACOSX_BUNDLE ${OSX_SOURCES} ${OSX_HEADERS} ${OSX_RES})
 	set_target_properties(Play PROPERTIES COMPILE_FLAGS "-x objective-c++")
 
 	# Probably a better way to set the framework link libraries.
-	target_link_libraries(Play ${PROJECT_LIBS} "-ObjC -framework Cocoa -framework OpenGL -framework OpenAL -framework IOKit  -framework AppKit  -framework CoreData  -framework Foundation")
+	target_link_libraries(Play ${PROJECT_LIBS} "-ObjC -framework Cocoa -framework OpenGL -framework OpenAL -framework IOKit -framework AppKit -framework CoreData -framework Foundation")
 
 	# Set a custom plist file for the app bundle
 	# NOTE: for these values to be used Info.plist has to be edited
+	# NOTE: from cmake 3.7.0 you can use %b for month name abbreviations
+	string(TIMESTAMP DATE "%d-%m-%Y")
 	set_target_properties(
 		Play
 		PROPERTIES
@@ -554,13 +560,12 @@ if(APPLE)
 			MACOSX_BUNDLE_LONG_VERSION_STRING "${PROJECT_NAME} Version ${PROJECT_Version}"
 			MACOSX_BUNDLE_BUNDLE_NAME ${PROJECT_NAME}
 			MACOSX_BUNDLE_SHORT_VERSION_STRING "${PROJECT_Version}"
-			MACOSX_BUNDLE_BUNDLE_VERSION ${PROJECT_Version}
-			MACOSX_BUNDLE_COPYRIGHT "Copyright (c) 2006-2017, Jean-Philip Desjardins. All Rights Reserved."
+			MACOSX_BUNDLE_BUNDLE_VERSION ${DATE}
+			MACOSX_BUNDLE_COPYRIGHT "© Virtual Applications, 2017"
 			MACOSX_BUNDLE_ICON_FILE "AppIcon.icns"
-			MACOSX_BUNDLE_NSMAIN_NIB_FILE "MainMenu"
-			MACOSX_BUNDLE_NSPRINCIPAL_CLASS "NSApplication"
-			MACOSX_BUNDLE_INFO_PLIST "${CMAKE_CURRENT_SOURCE_DIR}/../Source/ui_macosx/Info.plist"
-)
+			MACOSX_BUNDLE_INFO_PLIST "${CMAKE_CURRENT_SOURCE_DIR}/../Source/ui_macosx/Info.plist.in"
+		RESOURCE "${OSX_RES}"
+	)
 
 	# Make sure we can find the 'ibtool' program. If we can NOT find it we
 	# skip generation of this project
@@ -568,17 +573,6 @@ if(APPLE)
 	if (${IBTOOL} STREQUAL "IBTOOL-NOTFOUND")
 		message(SEND_ERROR "ibtool can not be found and is needed to compile the .xib files. It should have been installed with the Apple developer tools. The default system paths were searched in addition to ${OSX_DEVELOPER_ROOT}/usr/bin")
 	endif()
-
-	# Make sure the 'Resources' Directory is correctly created before we build
-	add_custom_command (TARGET Play PRE_BUILD COMMAND mkdir -p ${CMAKE_CFG_INTDIR}/Play.app/Contents/Resources)
-
-	# Copy Icon and patches
-	add_custom_command (TARGET Play POST_BUILD 
-		COMMAND cp ${CMAKE_CURRENT_SOURCE_DIR}/../build_macosx/AppIcon.icns ${CMAKE_CFG_INTDIR}/Play.app/Contents/Resources/AppIcon.icns
-	)
-	add_custom_command (TARGET Play POST_BUILD 
-		COMMAND cp ${CMAKE_CURRENT_SOURCE_DIR}/../patches.xml ${CMAKE_CFG_INTDIR}/Play.app/Contents/Resources/patches.xml
-	)
 
 	# Compile the .xib files using the 'ibtool' program with the destination being the app package
 	foreach(xib ${OSX_XIBS})
