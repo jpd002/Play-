@@ -995,6 +995,12 @@ void CDMAC::DisassembleSet(uint32 nAddress, uint32 nData)
 
 	switch(nAddress)
 	{
+		//Channel 0
+		LOG_SET(D0_CHCR)
+		LOG_SET(D0_MADR)
+		LOG_SET(D0_QWC)
+		LOG_SET(D0_TADR)
+
 		//Channel 1
 		LOG_SET(D1_CHCR)
 		LOG_SET(D1_MADR)
