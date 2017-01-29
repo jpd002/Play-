@@ -17,6 +17,7 @@ public:
 		{
 			m_live = false;
 			m_textureHandle = TextureHandleType();
+			m_cachedArea.ClearDirtyPages();
 		}
 
 		uint64        m_tex0 = 0;
