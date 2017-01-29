@@ -2705,7 +2705,7 @@ void CPS2OS::sc_Deci2Call()
 	case 0x10:
 		//kPuts
 		{
-			uint32 stringAddr = *reinterpret_cast<uint32*>(&m_ram[param]);
+			uint32 stringAddr = *reinterpret_cast<uint32*>(GetStructPtr(param));
 			uint8* string = &m_ram[stringAddr];
 			m_iopBios.GetIoman()->Write(1, static_cast<uint32>(strlen(reinterpret_cast<char*>(string))), string);
 		}
