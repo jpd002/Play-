@@ -78,7 +78,7 @@ endif()
 if (NOT TARGET Framework)
 	add_subdirectory(
 		${CMAKE_CURRENT_SOURCE_DIR}/../../Framework/build_cmake/Framework
-		${CMAKE_CURRENT_SOURCE_DIR}/../../Framework/build_cmake/Framework/build_${CMAKE_SYSTEM_NAME}
+		${CMAKE_CURRENT_BINARY_DIR}/Framework
 	)
 endif()
 list(APPEND PROJECT_LIBS Framework)
@@ -86,7 +86,7 @@ list(APPEND PROJECT_LIBS Framework)
 if (NOT TARGET Framework_OpenGl)
 	add_subdirectory(
 		${CMAKE_CURRENT_SOURCE_DIR}/../../Framework/build_cmake/FrameworkOpenGl
-		${CMAKE_CURRENT_SOURCE_DIR}/../../Framework/build_cmake/FrameworkOpenGl/build_${CMAKE_SYSTEM_NAME}
+		${CMAKE_CURRENT_BINARY_DIR}/FrameworkOpenGl
 	)
 endif()
 list(APPEND PROJECT_LIBS Framework_OpenGl)
@@ -95,7 +95,7 @@ if(UNIX OR APPLE AND NOT ANDROID)
 	if (NOT TARGET Framework_OpenAl)
 		add_subdirectory(
 			${CMAKE_CURRENT_SOURCE_DIR}/../../Framework/build_cmake/FrameworkOpenAl
-			${CMAKE_CURRENT_SOURCE_DIR}/../../Framework/build_cmake/FrameworkOpenAl/build_${CMAKE_SYSTEM_NAME}
+			${CMAKE_CURRENT_BINARY_DIR}/FrameworkOpenAl
 		)
 	endif()
 	list(APPEND PROJECT_LIBS Framework_OpenAl)
@@ -106,7 +106,7 @@ endif()
 if (NOT TARGET CodeGen)
 	add_subdirectory(
 		${CMAKE_CURRENT_SOURCE_DIR}/../../CodeGen/build_cmake
-		${CMAKE_CURRENT_SOURCE_DIR}/../../CodeGen/build_cmake/build_${CMAKE_SYSTEM_NAME}
+		${CMAKE_CURRENT_BINARY_DIR}/CodeGen
 	)
 endif()
 list(APPEND PROJECT_LIBS CodeGen)
@@ -115,7 +115,7 @@ if(WIN32)
 	if (NOT TARGET Nuanceur)
 		add_subdirectory(
 			${CMAKE_CURRENT_SOURCE_DIR}/../../Nuanceur/build_cmake
-			${CMAKE_CURRENT_SOURCE_DIR}/../../Nuanceur/build_cmake/build_${CMAKE_SYSTEM_NAME}
+			${CMAKE_CURRENT_BINARY_DIR}/Nuanceur
 		)
 	endif()
 	include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../../Nuanceur/include)
@@ -124,7 +124,7 @@ if(WIN32)
 	if (NOT TARGET FrameworkWinUI)
 		add_subdirectory(
 			${CMAKE_CURRENT_SOURCE_DIR}/../../Framework/build_cmake/FrameworkWinUI
-			${CMAKE_CURRENT_SOURCE_DIR}/../../Framework/build_cmake/FrameworkWinUI/build_${CMAKE_SYSTEM_NAME}
+			${CMAKE_CURRENT_BINARY_DIR}/FrameworkWinUI
 		)
 	endif()
 	include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../../Framework/include)
@@ -146,7 +146,7 @@ endif()
 if (NOT TARGET Boost::boost)
 	add_subdirectory(
 		${CMAKE_CURRENT_SOURCE_DIR}/../../Dependencies/boost-cmake
-		${CMAKE_CURRENT_SOURCE_DIR}/../../Dependencies/boost-cmake/build_${CMAKE_SYSTEM_NAME}
+		${CMAKE_CURRENT_BINARY_DIR}/boost-cmake
 	)
 endif()
 list(APPEND PROJECT_LIBS Boost::boost Boost::system Boost::filesystem Boost::chrono)
@@ -155,7 +155,7 @@ if(UNIX OR WIN32 AND NOT ANDROID AND NOT APPLE)
 	if (NOT TARGET glew_s)
 		add_subdirectory(
 			${CMAKE_CURRENT_SOURCE_DIR}/../../Dependencies/glew-2.0.0
-			${CMAKE_CURRENT_SOURCE_DIR}/../../Dependencies/glew-2.0.0/build_${CMAKE_SYSTEM_NAME}
+			${CMAKE_CURRENT_BINARY_DIR}/glew-2.0.0
 		)
 	endif()
 	list(APPEND PROJECT_LIBS glew_s)
@@ -168,7 +168,7 @@ if (NOT BZIP2_FOUND)
 	if (NOT TARGET bz2)
 		add_subdirectory(
 			${CMAKE_CURRENT_SOURCE_DIR}/../../Dependencies/bzip2-1.0.6
-			${CMAKE_CURRENT_SOURCE_DIR}/../../Dependencies/bzip2-1.0.6/build_${CMAKE_SYSTEM_NAME}
+			${CMAKE_CURRENT_BINARY_DIR}/bzip2-1.0.6
 		)
 	endif()
 	include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../../Dependencies/bzip2-1.0.6)
@@ -184,11 +184,11 @@ if (NOT ZLIB_FOUND)
 	if(NOT TARGET zlibstatic)
 		add_subdirectory(
 			${CMAKE_CURRENT_SOURCE_DIR}/../../Dependencies/zlib-1.2.8
-			${CMAKE_CURRENT_SOURCE_DIR}/../../Dependencies/zlib-1.2.8/build_${CMAKE_SYSTEM_NAME}
+			${CMAKE_CURRENT_BINARY_DIR}/zlib-1.2.8
 		)
 	endif()
 	include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../../Dependencies/zlib-1.2.8)
-	include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../../Dependencies/zlib-1.2.8/build_${CMAKE_SYSTEM_NAME})
+	include_directories(${CMAKE_CURRENT_BINARY_DIR}/zlib-1.2.8)
 	list(APPEND PROJECT_LIBS zlibstatic)
 else()
 	include_directories(${ZLIB_INCLUDE_DIRS})
