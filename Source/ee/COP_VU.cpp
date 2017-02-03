@@ -93,6 +93,8 @@ void CCOP_VU::CompileInstruction(uint32 nAddress, CMipsJitter* codeGen, CMIPS* p
 //36
 void CCOP_VU::LQC2()
 {
+	if(m_nFT == 0) return;
+
 	ComputeMemAccessAddr();
 
 	m_codeGen->PushCtx();
