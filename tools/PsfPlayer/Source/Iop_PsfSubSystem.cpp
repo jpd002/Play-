@@ -34,6 +34,11 @@ CMIPS& CPsfSubSystem::GetCpu()
 	return m_iop.m_cpu;
 }
 
+CMipsExecutor& CPsfSubSystem::GetCpuExecutor()
+{
+	return m_iop.m_executor;
+}
+
 CSpuBase& CPsfSubSystem::GetSpuCore(unsigned int coreId)
 {
 	if(coreId == 0)

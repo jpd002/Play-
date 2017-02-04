@@ -142,6 +142,11 @@ CMIPS& CPsfVm::GetCpu()
 	return m_subSystem->GetCpu();
 }
 
+CMipsExecutor& CPsfVm::GetCpuExecutor()
+{
+	return m_subSystem->GetCpuExecutor();
+}
+
 CSpuBase& CPsfVm::GetSpuCore(unsigned int coreId)
 {
 	return m_subSystem->GetSpuCore(coreId);

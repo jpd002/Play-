@@ -4,8 +4,8 @@ using namespace PS2;
 
 #define PSF_DEVICENAME	"psf"
 
-CPsfBios::CPsfBios(CMIPS& cpu, uint8* ram, uint32 ramSize, uint8* spr)
-: m_bios(cpu, ram, ramSize, spr)
+CPsfBios::CPsfBios(CMIPS& cpu, CMipsExecutor& cpuExecutor, uint8* ram, uint32 ramSize, uint8* spr)
+: m_bios(cpu, cpuExecutor, ram, ramSize, spr)
 , m_psfDevice(new CPsfDevice())
 {
 	m_bios.Reset(NULL);

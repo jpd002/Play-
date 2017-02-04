@@ -59,6 +59,11 @@ CMIPS& CPsfSubSystem::GetCpu()
 	return m_cpu;
 }
 
+CMipsExecutor& CPsfSubSystem::GetCpuExecutor()
+{
+	return m_executor;
+}
+
 uint8* CPsfSubSystem::GetRam()
 {
 	return m_ram;
