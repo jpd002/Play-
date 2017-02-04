@@ -1,5 +1,4 @@
-#ifndef _PSFVMSUBSYSTEM_H_
-#define _PSFVMSUBSYSTEM_H_
+#pragma once
 
 #include <memory>
 #include "MIPS.h"
@@ -11,7 +10,7 @@
 class CPsfVmSubSystem
 {
 public:
-	virtual								~CPsfVmSubSystem()	{}
+	virtual								~CPsfVmSubSystem() = default;
 
 	virtual void						Reset() = 0;
 	virtual CMIPS&						GetCpu() = 0;
@@ -33,5 +32,3 @@ public:
 };
 
 typedef std::shared_ptr<CPsfVmSubSystem> PsfVmSubSystemPtr;
-
-#endif

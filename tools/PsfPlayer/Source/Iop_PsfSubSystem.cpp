@@ -21,11 +21,6 @@ CPsfSubSystem::CPsfSubSystem(bool ps2Mode)
 	Reset();
 }
 
-CPsfSubSystem::~CPsfSubSystem()
-{
-
-}
-
 void CPsfSubSystem::Reset()
 {
 	m_iop.Reset();

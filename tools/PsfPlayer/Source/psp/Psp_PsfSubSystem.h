@@ -31,11 +31,11 @@ namespace Psp
 		Iop::CSpuBase&						GetSpuCore(unsigned int) override;
 
 #ifdef DEBUGGER_INCLUDED
-		virtual bool						MustBreak();
-		virtual void						DisableBreakpointsOnce();
-		virtual CBiosDebugInfoProvider*		GetBiosDebugInfoProvider();
-		virtual void						LoadDebugTags(Framework::Xml::CNode*);
-		virtual void						SaveDebugTags(Framework::Xml::CNode*);
+		bool								MustBreak() override;
+		void								DisableBreakpointsOnce() override;
+		CBiosDebugInfoProvider*				GetBiosDebugInfoProvider() override;
+		void								LoadDebugTags(Framework::Xml::CNode*) override;
+		void								SaveDebugTags(Framework::Xml::CNode*) override;
 #endif
 
 		void								Update(bool, CSoundHandler*) override;
