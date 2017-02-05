@@ -312,7 +312,6 @@ void CSubSystem::CountTicks(int ticks)
 			m_sif.ProcessPackets();
 		}
 	}
-	CheckPendingInterrupts();
 	m_EE.m_State.nCOP0[CCOP_SCU::COUNT] += ticks;
 	m_timer.Count(ticks);
 	if(m_EE.m_State.cop0_pccr & 0x80000000)
@@ -329,6 +328,7 @@ void CSubSystem::CountTicks(int ticks)
 			m_EE.m_State.cop0_pcr[1] += ticks;
 		}
 	}
+	CheckPendingInterrupts();
 }
 
 void CSubSystem::NotifyVBlankStart()
