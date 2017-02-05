@@ -824,6 +824,7 @@ void CDMAC::SetRegister(uint32 nAddress, uint32 nData)
 
 	case D_PCR + 0x0:
 		m_D_PCR = nData;
+		UpdateCpCond();
 		break;
 	case D_PCR + 0x4:
 	case D_PCR + 0x8:
