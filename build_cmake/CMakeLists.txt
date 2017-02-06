@@ -599,9 +599,9 @@ if (WIN32)
 		)
 	endif()
 	if(ARCH STREQUAL "x86")
-		set(MANIFEST ../Source/ui_win32/manifest.xml)
+		set(MANIFEST ../Source/ui_win32/Play-x86.manifest)
 	else()
-		set(MANIFEST ../Source/ui_win32/manifest64.xml)
+		set(MANIFEST ../Source/ui_win32/Play-x64.manifest)
 	endif()
 	set(WIN32_SRC
 		../Source/ui_win32/AboutWnd.cpp
