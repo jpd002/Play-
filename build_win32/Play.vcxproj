@@ -145,7 +145,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
     <Manifest>
-      <AdditionalManifestFiles>$(ProjectDir)/../Source/ui_win32/manifest.xml</AdditionalManifestFiles>
+      <AdditionalManifestFiles>$(ProjectDir)/../Source/ui_win32/Play-x86.manifest</AdditionalManifestFiles>
     </Manifest>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -163,7 +163,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
     <Manifest>
-      <AdditionalManifestFiles>$(ProjectDir)/../Source/ui_win32/manifest64.xml</AdditionalManifestFiles>
+      <AdditionalManifestFiles>$(ProjectDir)/../Source/ui_win32/Play-x64.manifest</AdditionalManifestFiles>
     </Manifest>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -186,7 +186,7 @@
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
     <Manifest>
-      <AdditionalManifestFiles>$(ProjectDir)/../Source/ui_win32/manifest.xml</AdditionalManifestFiles>
+      <AdditionalManifestFiles>$(ProjectDir)/../Source/ui_win32/Play-x86.manifest</AdditionalManifestFiles>
     </Manifest>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseWithDebugger|Win32'">
@@ -208,7 +208,7 @@
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
     <Manifest>
-      <AdditionalManifestFiles>$(ProjectDir)/../Source/ui_win32/manifest.xml</AdditionalManifestFiles>
+      <AdditionalManifestFiles>$(ProjectDir)/../Source/ui_win32/Play-x86.manifest</AdditionalManifestFiles>
     </Manifest>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -231,7 +231,7 @@
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
     <Manifest>
-      <AdditionalManifestFiles>$(ProjectDir)/../Source/ui_win32/manifest64.xml</AdditionalManifestFiles>
+      <AdditionalManifestFiles>$(ProjectDir)/../Source/ui_win32/Play-x64.manifest</AdditionalManifestFiles>
     </Manifest>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseWithDebugger|x64'">
@@ -253,7 +253,7 @@
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
     <Manifest>
-      <AdditionalManifestFiles>$(ProjectDir)/../Source/ui_win32/manifest64.xml</AdditionalManifestFiles>
+      <AdditionalManifestFiles>$(ProjectDir)/../Source/ui_win32/Play-x64.manifest</AdditionalManifestFiles>
     </Manifest>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -444,8 +444,6 @@
     <None Include="..\Source\ui_win32\images\grab.cur" />
     <None Include="..\Source\ui_win32\images\grabbing.cur" />
     <None Include="..\Source\ui_win32\Images\play.ico" />
-    <None Include="..\Source\ui_win32\manifest.xml" />
-    <None Include="..\Source\ui_win32\manifest64.xml" />
     <CustomBuild Include="..\Source\ui_win32\SysInfo_x64.asm">
       <FileType>Document</FileType>
       <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">ml64 /c /Fo"$(IntDir)\%(Filename).obj" %(Identity)</Command>
@@ -513,6 +511,14 @@
     <Image Include="..\Source\ui_win32\Images\start.png" />
     <Image Include="..\Source\ui_win32\Images\triangle.png" />
     <Image Include="..\Source\ui_win32\Images\up.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\Source\ui_win32\Play-x64.manifest">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="..\Source\ui_win32\Play-x86.manifest">
+      <SubType>Designer</SubType>
+    </None>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

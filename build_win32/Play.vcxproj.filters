@@ -513,10 +513,10 @@
       <Filter>Source Files\FrameDebugger</Filter>
     </None>
     <None Include="packages.config" />
-    <None Include="..\Source\ui_win32\manifest.xml">
+    <None Include="..\Source\ui_win32\Play-x86.manifest">
       <Filter>Source Files</Filter>
     </None>
-    <None Include="..\Source\ui_win32\manifest64.xml">
+    <None Include="..\Source\ui_win32\Play-x64.manifest">
       <Filter>Source Files</Filter>
     </None>
   </ItemGroup>
