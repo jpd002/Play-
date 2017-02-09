@@ -132,16 +132,13 @@ list(APPEND PROJECT_LIBS Boost::boost Boost::system Boost::filesystem Boost::chr
 
 if(UNIX OR WIN32 AND NOT ANDROID AND NOT APPLE)
 	if (NOT TARGET glew_s)
-		set(BUILD_SHARED_LIBS off)
-		set(BUILD_UTILS off)
-		string(REGEX REPLACE "/RTC(su|[1su])" "" CMAKE_C_FLAGS_DEBUG ${CMAKE_C_FLAGS_DEBUG})
 		add_subdirectory(
-			${CMAKE_CURRENT_SOURCE_DIR}/../../Dependencies/glew
-			${CMAKE_CURRENT_SOURCE_DIR}/../../Dependencies/glew/build_${CMAKE_SYSTEM_NAME}
+			${CMAKE_CURRENT_SOURCE_DIR}/../../Dependencies/glew-2.0.0
+			${CMAKE_CURRENT_SOURCE_DIR}/../../Dependencies/glew-2.0.0/build_${CMAKE_SYSTEM_NAME}
 		)
 	endif()
 	list(APPEND PROJECT_LIBS glew_s)
-	include_directories(${GLEW_SOURCE}/include)
+	include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../../Dependencies/glew-2.0.0/include)
 endif()
 
 find_package(BZip2)
