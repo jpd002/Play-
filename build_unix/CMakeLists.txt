@@ -21,6 +21,11 @@ if(APPLE)
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -x objective-c++")
 endif()
 
+if(ANDROID)
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+	include_directories("${CMAKE_ANDROID_NDK}/sources/android/cpufeatures/")
+endif()
+
 if(NOT CMAKE_BUILD_TYPE)
 	set(CMAKE_BUILD_TYPE Release CACHE STRING
 		"Choose the type of build, options are: None Debug Release"
@@ -64,6 +69,11 @@ if(WIN32)
 	endif()
 endif()
 
+if(ANDROID)
+	add_definitions(-DGLES_COMPATIBILITY)
+	add_definitions(-DDISABLE_LOGGING)
+endif()
+
 # targets, packages and dependencies
 if (NOT TARGET Framework)
 	add_subdirectory(
@@ -100,13 +110,10 @@ if (NOT TARGET Boost::boost)
 endif()
 list(APPEND PROJECT_LIBS Boost::boost Boost::system Boost::filesystem Boost::chrono)
 
-if(UNIX)
+if(UNIX AND NOT ANDROID)
 	find_package(OpenAL REQUIRED)
 	list(APPEND PROJECT_LIBS ${OPENAL_LIBRARY})
 endif()
-
-find_package(OpenGL REQUIRED)
-list(APPEND PROJECT_LIBS ${OPENGL_LIBRARIES})
 
 if(UNIX OR WIN32)
 	find_package(GLEW REQUIRED)
@@ -147,14 +154,27 @@ else()
 	list(APPEND PROJECT_LIBS ${ZLIB_LIBRARIES})
 endif()
 
-find_package(Threads REQUIRED)
-if(CMAKE_THREAD_LIBS_INIT)
-       list(APPEND PROJECT_LIBS "${CMAKE_THREAD_LIBS_INIT}")
+if(NOT ANDROID)
+	find_package(OpenGL REQUIRED)
+	list(APPEND PROJECT_LIBS ${OPENGL_LIBRARIES})
+
+	find_package(Threads REQUIRED)
+	if(CMAKE_THREAD_LIBS_INIT)
+		list(APPEND PROJECT_LIBS "${CMAKE_THREAD_LIBS_INIT}")
+	endif()
 endif()
 
-if (UNIX AND NOT APPLE)
+if (UNIX AND NOT APPLE AND NOT ANDROID)
 	find_package(ICUUC REQUIRED)
 	list(APPEND PROJECT_LIBS ${ICUUC_LIBRARIES})
+endif()
+
+if(ANDROID)
+	if(NOT TARGET cpufeatures)
+		add_library(cpufeatures STATIC ${CMAKE_ANDROID_NDK}/sources/android/cpufeatures/cpu-features.c)
+	endif()
+	list(APPEND PROJECT_LIBS cpufeatures)
+	list(APPEND PROJECT_LIBS android log OpenSLES GLESv3 EGL)
 endif()
 
 include_directories(../Source ../../Framework/include ../../CodeGen/include)
@@ -292,44 +312,70 @@ set(COMMON_SRC_FILES
 	../Source/Profiler.cpp 
 	../Source/PS2VM.cpp 
 	../Source/RegisterStateFile.cpp 
-	../Source/saves/Icon.cpp 
-	../Source/saves/MaxSaveImporter.cpp 
-	../Source/saves/PsuSaveImporter.cpp 
-	../Source/saves/Save.cpp 
-	../Source/saves/SaveExporter.cpp 
-	../Source/saves/SaveImporterBase.cpp 
-	../Source/saves/SaveImporter.cpp 
-	../Source/saves/XpsSaveImporter.cpp
 	../Source/ScopedVmPauser.cpp
 	../Source/StructCollectionStateFile.cpp 
 	../Source/StructFile.cpp 
 	../Source/Utils.cpp
-	../tools/PsfPlayer/Source/SH_OpenAL.cpp
+	../Source/VirtualPad.cpp
 )
 
 if (WIN32)
 	set(PLATFORM_SPECIFIC_SRC_FILES ../Source/VolumeStream.cpp)
-endif (WIN32)
+endif ()
 
-if (UNIX)
+if (UNIX AND NOT APPLE)
     set(PLATFORM_SPECIFIC_SRC_FILES ../Source/Posix_VolumeStream.cpp)
-endif (UNIX)
+endif ()
 
 if (APPLE)
 	set(PLATFORM_SPECIFIC_SRC_FILES ../Source/Posix_VolumeStream.cpp)
-endif (APPLE)
+endif ()
 
-add_library(PlayCore ${COMMON_SRC_FILES} ${PLATFORM_SPECIFIC_SRC_FILES})
+if(ANDROID)
+	set(PLATFORM_SPECIFIC_SRC_FILES
+		../Source/ui_android/GSH_OpenGLAndroid.cpp
+		../Source/ui_android/InputManager.cpp
+		../Source/ui_android/NativeInterop.cpp
+		../Source/ui_android/NativeShared.cpp
+		../Source/ui_android/SettingsManager.cpp
+		../Source/ui_android/SH_OpenSL.cpp
+		../Source/ui_android/StatsManager.cpp
+		)
+endif()
 
-if(THREADS_HAVE_PTHREAD_ARG)
-	target_compile_options(PUBLIC PlayCore "-pthread")
+if(NOT ANDROID)
+	set(PLATFORM_SPECIFIC_SRC_FILES
+		${PLATFORM_SPECIFIC_SRC_FILES}
+		../Source/saves/Icon.cpp
+		../Source/saves/MaxSaveImporter.cpp
+		../Source/saves/PsuSaveImporter.cpp
+		../Source/saves/Save.cpp
+		../Source/saves/SaveExporter.cpp
+		../Source/saves/SaveImporterBase.cpp
+		../Source/saves/SaveImporter.cpp
+		../Source/saves/XpsSaveImporter.cpp
+		../tools/PsfPlayer/Source/SH_OpenAL.cpp
+	)
+endif()
+
+if(ANDROID)
+	add_library(PlayCore SHARED ${COMMON_SRC_FILES} ${PLATFORM_SPECIFIC_SRC_FILES})
+else()
+	add_library(PlayCore STATIC ${COMMON_SRC_FILES} ${PLATFORM_SPECIFIC_SRC_FILES})
+endif()
+
+
+if(NOT ANDROID)
+	if(THREADS_HAVE_PTHREAD_ARG)
+		target_compile_options(PUBLIC PlayCore "-pthread")
+	endif()
 endif()
 
 target_link_libraries(PlayCore ${PROJECT_LIBS})
 list(APPEND PROJECT_LIBS PlayCore)
 
 #UI
-if (UNIX AND NOT APPLE)
+if (UNIX AND NOT APPLE AND NOT ANDROID)
 	include_directories(
 		../
 		../Source/ui_unix/
@@ -395,7 +441,7 @@ if (UNIX AND NOT APPLE)
 
 	add_executable(Play ${QT_SOURCES} ${QT_MOC_SRCS} ${QT_RES_SOURCES} ${QT_UI_HEADERS})
 	target_link_libraries(Play ${PROJECT_LIBS})
-endif (UNIX AND NOT APPLE)
+endif (UNIX AND NOT APPLE AND NOT ANDROID)
 
 if(APPLE)
 	include_directories(
