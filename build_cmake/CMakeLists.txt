@@ -1,3 +1,5 @@
+set(CMAKE_OSX_DEPLOYMENT_TARGET "10.9" CACHE STRING "Minimum OS X deployment version")
+
 cmake_minimum_required(VERSION 2.8)
 project(Play)
 set(PROJECT_NAME "Play!")
@@ -15,10 +17,6 @@ set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 if(WIN32)
 	set(CMAKE_CXX_FLAGS "/EHsc")
-endif()
-
-if(APPLE)
-	set(CXX_FLAGS "${CMAKE_CXX_FLAGS} -x objective-c++")
 endif()
 
 if(ANDROID)
@@ -214,6 +212,10 @@ if(ANDROID)
 	list(APPEND PROJECT_LIBS android log OpenSLES GLESv3 EGL)
 endif()
 
+if(APPLE)
+	list(APPEND PROJECT_LIBS "-framework Foundation")
+endif()
+
 include_directories(../Source ../../Framework/include ../../CodeGen/include)
 
 set(COMMON_SRC_FILES
@@ -380,16 +382,14 @@ if(ANDROID)
 		)
 endif()
 
-if(UNIX OR APPLE AND NOT ANDROID)
-	set(PLATFORM_SPECIFIC_SRC_FILES
-		${PLATFORM_SPECIFIC_SRC_FILES}
+if(OPENAL_FOUND)
+	list(APPEND PLATFORM_SPECIFIC_SRC_FILES
 		../tools/PsfPlayer/Source/SH_OpenAL.cpp
 	)
 endif()
 
 if(NOT ANDROID)
-	set(PLATFORM_SPECIFIC_SRC_FILES
-		${PLATFORM_SPECIFIC_SRC_FILES}
+	list(APPEND PLATFORM_SPECIFIC_SRC_FILES
 		../Source/saves/Icon.cpp
 		../Source/saves/MaxSaveImporter.cpp
 		../Source/saves/PsuSaveImporter.cpp
@@ -693,16 +693,13 @@ add_executable(autotest
 	../tools/AutoTest/JUnitTestReportWriter.cpp
 	../tools/AutoTest/Main.cpp
 )
-set_target_properties(autotest PROPERTIES COMPILE_FLAGS "${CXX_FLAGS}")
-target_link_libraries(autotest PlayCore "-framework Foundation")
+target_link_libraries(autotest PlayCore)
 
 add_executable(McServTest
 	../tools/McServTest/AppConfig.cpp
 	../tools/McServTest/GameTestSheet.cpp
 	../tools/McServTest/Main.cpp
 )
-target_link_libraries(McServTest PlayCore "-framework Foundation")
-set_target_properties(McServTest PROPERTIES COMPILE_FLAGS "${CXX_FLAGS}")
 target_link_libraries(McServTest PlayCore)
 
 add_test(NAME McServTest
