@@ -18,7 +18,7 @@ if(WIN32)
 endif()
 
 if(APPLE)
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -x objective-c++")
+	set(CXX_FLAGS "${CMAKE_CXX_FLAGS} -x objective-c++")
 endif()
 
 if(ANDROID)
@@ -91,7 +91,7 @@ if (NOT TARGET Framework_OpenGl)
 endif()
 list(APPEND PROJECT_LIBS Framework_OpenGl)
 
-if(UNIX AND NOT ANDROID AND NOT APPLE)
+if(UNIX OR APPLE AND NOT ANDROID)
 	if (NOT TARGET Framework_OpenAl)
 		add_subdirectory(
 			${CMAKE_CURRENT_SOURCE_DIR}/../../Framework/build_unix/FrameworkOpenAl
@@ -99,6 +99,8 @@ if(UNIX AND NOT ANDROID AND NOT APPLE)
 		)
 	endif()
 	list(APPEND PROJECT_LIBS Framework_OpenAl)
+	find_package(OpenAL REQUIRED)
+	list(APPEND PROJECT_LIBS ${OPENAL_LIBRARY})
 endif()
 
 if (NOT TARGET CodeGen)
@@ -128,15 +130,11 @@ if (NOT TARGET Boost::boost)
 endif()
 list(APPEND PROJECT_LIBS Boost::boost Boost::system Boost::filesystem Boost::chrono)
 
-if(UNIX AND NOT ANDROID)
-	find_package(OpenAL REQUIRED)
-	list(APPEND PROJECT_LIBS ${OPENAL_LIBRARY})
-endif()
-
 if(UNIX OR WIN32 AND NOT ANDROID AND NOT APPLE)
 	if (NOT TARGET glew_s)
 		set(BUILD_SHARED_LIBS off)
 		set(BUILD_UTILS off)
+		string(REGEX REPLACE "/RTC(su|[1su])" "" CMAKE_C_FLAGS_DEBUG ${CMAKE_C_FLAGS_DEBUG})
 		add_subdirectory(
 			${CMAKE_CURRENT_SOURCE_DIR}/../../Dependencies/glew
 			${CMAKE_CURRENT_SOURCE_DIR}/../../Dependencies/glew/build_${CMAKE_SYSTEM_NAME}
@@ -368,6 +366,13 @@ if(ANDROID)
 		)
 endif()
 
+if(UNIX OR APPLE AND NOT ANDROID)
+	set(PLATFORM_SPECIFIC_SRC_FILES
+		${PLATFORM_SPECIFIC_SRC_FILES}
+		../tools/PsfPlayer/Source/SH_OpenAL.cpp
+	)
+endif()
+
 if(NOT ANDROID)
 	set(PLATFORM_SPECIFIC_SRC_FILES
 		${PLATFORM_SPECIFIC_SRC_FILES}
@@ -379,7 +384,6 @@ if(NOT ANDROID)
 		../Source/saves/SaveImporterBase.cpp
 		../Source/saves/SaveImporter.cpp
 		../Source/saves/XpsSaveImporter.cpp
-		../tools/PsfPlayer/Source/SH_OpenAL.cpp
 	)
 endif()
 
@@ -517,6 +521,7 @@ if(APPLE)
 
 	# Add our Executable
 	add_executable(Play MACOSX_BUNDLE ${OSX_SOURCES} ${OSX_HEADERS})
+	set_target_properties(Play PROPERTIES COMPILE_FLAGS "-x objective-c++")
 
 	# Probably a better way to set the framework link libraries.
 	target_link_libraries(Play ${PROJECT_LIBS} "-ObjC -framework Cocoa -framework OpenGL -framework OpenAL -framework IOKit  -framework AppKit  -framework CoreData  -framework Foundation")
@@ -669,7 +674,7 @@ if (WIN32)
 
 	add_executable(Play WIN32 ${WIN32_SRC} ../Source/ui_win32/Res.rc)
 	target_link_libraries(Play PUBLIC ${PROJECT_LIBS})
-	include(Modules/PrecompiledHeader.cmake)
+	include(PrecompiledHeader)
 	set(pch_source ../Source/ui_win32/StdAfx.cpp)
 	add_precompiled_header(Play ../Source/ui_win32/StdAfx.h c++-header)
 	target_use_precompiled_header(Play ../Source/ui_win32/StdAfx.h c++-header FORCEINCLUDE)
@@ -681,14 +686,18 @@ add_executable(autotest
 	../tools/AutoTest/JUnitTestReportWriter.cpp
 	../tools/AutoTest/Main.cpp
 )
-target_link_libraries(autotest PlayCore)
+set_target_properties(autotest PROPERTIES COMPILE_FLAGS "${CXX_FLAGS}")
+target_link_libraries(autotest PlayCore "-framework Foundation")
 
 add_executable(McServTest
 	../tools/McServTest/AppConfig.cpp
 	../tools/McServTest/GameTestSheet.cpp
 	../tools/McServTest/Main.cpp
 )
+target_link_libraries(McServTest PlayCore "-framework Foundation")
+set_target_properties(McServTest PROPERTIES COMPILE_FLAGS "${CXX_FLAGS}")
 target_link_libraries(McServTest PlayCore)
+
 add_test(NAME McServTest
 	WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/../tools/McServTest
 	COMMAND McServTest
