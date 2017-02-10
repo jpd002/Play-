@@ -120,6 +120,18 @@ if(WIN32)
 	endif()
 	include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../../Nuanceur/include)
 	list(APPEND PROJECT_LIBS Nuanceur)
+
+	find_package(DirectX9 REQUIRED)
+	list(APPEND PROJECT_LIBS ${DirectX_D3D9_LIBRARY})
+	list(APPEND PROJECT_LIBS ${DirectX_D3DX9_LIBRARY})
+	include_directories(${DirectX_D3D9_INCLUDE_DIR} ${DirectX_D3DX9_INCLUDE_DIR})
+
+	find_package(GDIPLUS REQUIRED)
+	list(APPEND PROJECT_LIBS ${GDIPLUS_LIBRARIES})
+	include_directories(${GDIPLUS_INCLUDE_DIR})
+
+	list(APPEND PROJECT_LIBS comctl32 uxtheme opengl32 glu32 dxguid dinput8 vfw32 winmm gdiplus d3dcompiler Boost::date_time)
+
 endif()
 
 if (NOT TARGET Boost::boost)
