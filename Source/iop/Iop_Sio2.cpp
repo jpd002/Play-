@@ -48,11 +48,6 @@ CSio2::CSio2(Iop::CIntc& intc)
 	Reset();
 }
 
-CSio2::~CSio2()
-{
-
-}
-
 void CSio2::Reset()
 {
 	m_currentRegIndex = 0;

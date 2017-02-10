@@ -17,7 +17,7 @@ namespace Iop
 		};
 
 							CSio2(Iop::CIntc&);
-		virtual				~CSio2();
+		virtual				~CSio2() = default;
 
 		void				Reset();
 
