@@ -21,6 +21,9 @@ namespace Iop
 
 		void				Reset();
 
+		void				LoadState(Framework::CZipArchiveReader&);
+		void				SaveState(Framework::CZipArchiveWriter&);
+
 		uint32				ReadRegister(uint32);
 		void				WriteRegister(uint32, uint32);
 

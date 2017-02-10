@@ -1,8 +1,20 @@
 #include "Iop_Sio2.h"
 #include "../Log.h"
+#include "../RegisterStateFile.h"
+#include "../MemoryStateFile.h"
 #include <assert.h>
 
 #define LOG_NAME ("iop_sio2")
+
+#define STATE_REGS                 ("sio2/regs")
+#define STATE_CTRL1                ("sio2/ctrl1")
+#define STATE_CTRL2                ("sio2/ctrl2")
+#define STATE_PAD                  ("sio2/pad")
+#define STATE_INPUT                ("sio2/input")
+#define STATE_OUTPUT               ("sio2/output")
+
+#define STATE_REGS_XML             ("sio2/regs.xml")
+#define STATE_REGS_CURRENTREGINDEX ("CurrentRegIndex")
 
 using namespace Iop;
 
@@ -59,6 +71,53 @@ void CSio2::Reset()
 		padInfo.pollMask[2] = 0x03;
 		memset(padInfo.analogStickState, 0x7F, sizeof(padInfo.analogStickState));
 	}
+}
+
+void CSio2::LoadState(Framework::CZipArchiveReader& archive)
+{
+	static const auto readBuffer =
+		[] (ByteBufferType& outputBuffer, Framework::CStream& inputStream)
+		{
+			outputBuffer.clear();
+			while(!inputStream.IsEOF())
+			{
+				uint8 buffer[256];
+				uint32 read = inputStream.Read(buffer, 256);
+				outputBuffer.insert(outputBuffer.end(), buffer, buffer + read);
+			}
+		};
+
+	{
+		CRegisterStateFile registerFile(*archive.BeginReadFile(STATE_REGS_XML));
+		m_currentRegIndex = registerFile.GetRegister32(STATE_REGS_CURRENTREGINDEX);
+	}
+
+	archive.BeginReadFile(STATE_REGS)->Read(&m_regs, sizeof(m_regs));
+	archive.BeginReadFile(STATE_CTRL1)->Read(&m_ctrl1, sizeof(m_ctrl1));
+	archive.BeginReadFile(STATE_CTRL2)->Read(&m_ctrl2, sizeof(m_ctrl2));
+	archive.BeginReadFile(STATE_PAD)->Read(&m_padState, sizeof(m_padState));
+
+	readBuffer(m_outputBuffer, *archive.BeginReadFile(STATE_OUTPUT));
+	readBuffer(m_inputBuffer, *archive.BeginReadFile(STATE_INPUT));
+}
+
+void CSio2::SaveState(Framework::CZipArchiveWriter& archive)
+{
+	auto inputBuffer = std::vector<uint8>(m_inputBuffer.begin(), m_inputBuffer.end());
+	auto outputBuffer = std::vector<uint8>(m_outputBuffer.begin(), m_outputBuffer.end());
+
+	{
+		auto registerFile = new CRegisterStateFile(STATE_REGS_XML);
+		registerFile->SetRegister32(STATE_REGS_CURRENTREGINDEX, m_currentRegIndex);
+		archive.InsertFile(registerFile);
+	}
+
+	archive.InsertFile(new CMemoryStateFile(STATE_REGS,   &m_regs,     sizeof(m_regs)));
+	archive.InsertFile(new CMemoryStateFile(STATE_CTRL1,  &m_ctrl1,    sizeof(m_ctrl1)));
+	archive.InsertFile(new CMemoryStateFile(STATE_CTRL2,  &m_ctrl2,    sizeof(m_ctrl2)));
+	archive.InsertFile(new CMemoryStateFile(STATE_PAD,    &m_padState, sizeof(m_padState)));
+	archive.InsertFile(new CMemoryStateFile(STATE_INPUT,  inputBuffer.data(), inputBuffer.size()));
+	archive.InsertFile(new CMemoryStateFile(STATE_OUTPUT, outputBuffer.data(), outputBuffer.size()));
 }
 
 void CSio2::SetButtonState(unsigned int padNumber, PS2::CControllerInfo::BUTTON button, bool pressed, uint8* ram)
