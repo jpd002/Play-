@@ -105,6 +105,7 @@ void CGSH_OpenGL::ResetImpl()
 	m_renderState.isValid = false;
 	m_validGlState = 0;
 	m_drawingToDepth = false;
+	m_primitiveType = PRIM_INVALID;
 }
 
 void CGSH_OpenGL::FlipImpl()
