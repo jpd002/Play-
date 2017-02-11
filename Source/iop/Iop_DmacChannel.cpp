@@ -13,11 +13,6 @@ CChannel::CChannel(uint32 baseAddress, unsigned int number, CDmac& dmac)
 	Reset();
 }
 
-CChannel::~CChannel()
-{
-
-}
-
 void CChannel::Reset()
 {
 	m_CHCR <<= 0;

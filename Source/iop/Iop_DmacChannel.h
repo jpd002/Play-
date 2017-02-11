@@ -1,5 +1,4 @@
-#ifndef _IOP_DMACCHANNEL_H_
-#define _IOP_DMACCHANNEL_H_
+#pragma once
 
 #include "Convertible.h"
 #include "Types.h"
@@ -43,7 +42,7 @@ namespace Iop
 			static_assert(sizeof(CHCR) == sizeof(uint32), "Size of CHCR struct must be 4 bytes.");
 
 									CChannel(uint32, unsigned int, CDmac&);
-			virtual					~CChannel();
+			virtual					~CChannel() = default;
 
 			void					Reset();
 			void					SetReceiveFunction(const ReceiveFunctionType&);
@@ -62,5 +61,3 @@ namespace Iop
 		};
 	}
 }
-
-#endif

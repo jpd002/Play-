@@ -1,5 +1,4 @@
-#ifndef _IOP_DMAC_H_
-#define _IOP_DMAC_H_
+#pragma once
 
 #include "Types.h"
 #include "Iop_DmacChannel.h"
@@ -37,7 +36,7 @@ namespace Iop
 		};
 
 						CDmac(uint8*, CIntc&);
-		virtual			~CDmac();
+		virtual			~CDmac() = default;
 
 		void			Reset();
 		void			SetReceiveFunction(unsigned int, const Dmac::CChannel::ReceiveFunctionType&);
@@ -71,5 +70,3 @@ namespace Iop
 		CIntc&			m_intc;
 	};
 }
-
-#endif

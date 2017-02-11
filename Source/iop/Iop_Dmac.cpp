@@ -20,11 +20,6 @@ CDmac::CDmac(uint8* ram, CIntc& intc)
 	Reset();
 }
 
-CDmac::~CDmac()
-{
-
-}
-
 void CDmac::Reset()
 {
 	m_DPCR = 0;
