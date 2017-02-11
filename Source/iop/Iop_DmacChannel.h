@@ -2,6 +2,8 @@
 
 #include "Convertible.h"
 #include "Types.h"
+#include "zip/ZipArchiveWriter.h"
+#include "zip/ZipArchiveReader.h"
 #include <functional>
 
 namespace Iop
@@ -43,6 +45,9 @@ namespace Iop
 
 									CChannel(uint32, unsigned int, CDmac&);
 			virtual					~CChannel() = default;
+
+			void					SaveState(Framework::CZipArchiveWriter&);
+			void					LoadState(Framework::CZipArchiveReader&);
 
 			void					Reset();
 			void					SetReceiveFunction(const ReceiveFunctionType&);

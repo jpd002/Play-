@@ -1,6 +1,8 @@
 #pragma once
 
 #include "Types.h"
+#include "zip/ZipArchiveWriter.h"
+#include "zip/ZipArchiveReader.h"
 #include "Iop_DmacChannel.h"
 
 namespace Iop
@@ -42,6 +44,9 @@ namespace Iop
 		void			SetReceiveFunction(unsigned int, const Dmac::CChannel::ReceiveFunctionType&);
 		uint32			ReadRegister(uint32);
 		uint32			WriteRegister(uint32, uint32);
+
+		void			LoadState(Framework::CZipArchiveReader&);
+		void			SaveState(Framework::CZipArchiveWriter&);
 
 		void			ResumeDma(unsigned int);
 

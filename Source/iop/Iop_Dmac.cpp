@@ -1,9 +1,14 @@
 #include <assert.h>
 #include "Iop_Dmac.h"
 #include "Iop_Intc.h"
+#include "../RegisterStateFile.h"
 #include "../Log.h"
 
 #define LOG_NAME ("iop_dmac")
+
+#define STATE_REGS_XML      ("iop_dmac/regs.xml")
+#define STATE_REGS_DPCR     ("DPCR")
+#define STATE_REGS_DICR     ("DICR")
 
 using namespace Iop;
 using namespace Iop::Dmac;
@@ -142,6 +147,39 @@ uint32 CDmac::WriteRegister(uint32 address, uint32 value)
 		break;
 	}
 	return 0;
+}
+
+void CDmac::LoadState(Framework::CZipArchiveReader& archive)
+{
+	{
+		auto registerFile = CRegisterStateFile(*archive.BeginReadFile(STATE_REGS_XML));
+		m_DPCR = registerFile.GetRegister32(STATE_REGS_DPCR);
+		m_DICR = registerFile.GetRegister32(STATE_REGS_DICR);
+	}
+
+	for(unsigned int i = 0; i < MAX_CHANNEL; i++)
+	{
+		auto channel = m_channel[i];
+		if(!channel) continue;
+		channel->LoadState(archive);
+	}
+}
+
+void CDmac::SaveState(Framework::CZipArchiveWriter& archive)
+{
+	{
+		auto registerFile = new CRegisterStateFile(STATE_REGS_XML);
+		registerFile->SetRegister32(STATE_REGS_DPCR, m_DPCR);
+		registerFile->SetRegister32(STATE_REGS_DICR, m_DICR);
+		archive.InsertFile(registerFile);
+	}
+
+	for(unsigned int i = 0; i < MAX_CHANNEL; i++)
+	{
+		auto channel = m_channel[i];
+		if(!channel) continue;
+		channel->SaveState(archive);
+	}
 }
 
 void CDmac::LogRead(uint32 address)
