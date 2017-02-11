@@ -94,7 +94,7 @@ public:
 	};
 
 						CDMAC(uint8*, uint8*, uint8*, CMIPS&);
-	virtual				~CDMAC();
+	virtual				~CDMAC() = default;
 
 	void				Reset();
 

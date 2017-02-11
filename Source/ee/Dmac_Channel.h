@@ -48,7 +48,7 @@ namespace Dmac
 
 
 								CChannel(CDMAC&, unsigned int, const DmaReceiveHandler&);
-		virtual					~CChannel();
+		virtual					~CChannel() = default;
 
 		void					SaveState(Framework::CZipArchiveWriter&);
 		void					LoadState(Framework::CZipArchiveReader&);

@@ -29,11 +29,6 @@ CChannel::CChannel(CDMAC& dmac, unsigned int nNumber, const DmaReceiveHandler& p
 
 }
 
-CChannel::~CChannel()
-{
-
-}
-
 void CChannel::Reset()
 {
 	memset(&m_CHCR, 0, sizeof(CHCR));

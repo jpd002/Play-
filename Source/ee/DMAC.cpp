@@ -69,11 +69,6 @@ CDMAC::CDMAC(uint8* ram, uint8* spr, uint8* vuMem0, CMIPS& ee)
 	Reset();
 }
 
-CDMAC::~CDMAC()
-{
-
-}
-
 void CDMAC::Reset()
 {
 	m_D_CTRL	<<= 0;
