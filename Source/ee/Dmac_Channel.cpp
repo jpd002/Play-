@@ -1,14 +1,13 @@
 #include <string.h>
 #include <assert.h>
-#include <boost/lexical_cast.hpp>
+#include "string_format.h"
 #include "../RegisterStateFile.h"
 #include "../Log.h"
 #include "Dmac_Channel.h"
 #include "DMAC.h"
 
 #define LOG_NAME				("dmac")
-#define STATE_PREFIX			("dmac/channel_")
-#define STATE_SUFFIX			(".xml")
+#define STATE_REGS_XML_FORMAT	("dmac/channel_%d.xml")
 #define STATE_REGS_CHCR			("CHCR")
 #define STATE_REGS_MADR			("MADR")
 #define STATE_REGS_QWC			("QWC")
@@ -42,7 +41,7 @@ void CChannel::Reset()
 
 void CChannel::SaveState(Framework::CZipArchiveWriter& archive)
 {
-	std::string path = STATE_PREFIX + boost::lexical_cast<std::string>(m_number) + STATE_SUFFIX;
+	auto path = string_format(STATE_REGS_XML_FORMAT, m_number);
 	CRegisterStateFile* registerFile = new CRegisterStateFile(path.c_str());
 	registerFile->SetRegister32(STATE_REGS_CHCR,	m_CHCR);
 	registerFile->SetRegister32(STATE_REGS_MADR,	m_nMADR);
@@ -56,7 +55,7 @@ void CChannel::SaveState(Framework::CZipArchiveWriter& archive)
 
 void CChannel::LoadState(Framework::CZipArchiveReader& archive)
 {
-	std::string path = STATE_PREFIX + boost::lexical_cast<std::string>(m_number) + STATE_SUFFIX;
+	auto path = string_format(STATE_REGS_XML_FORMAT, m_number);
 	CRegisterStateFile registerFile(*archive.BeginReadFile(path.c_str()));
 	m_CHCR		<<= registerFile.GetRegister32(STATE_REGS_CHCR);
 	m_nMADR		= registerFile.GetRegister32(STATE_REGS_MADR);
