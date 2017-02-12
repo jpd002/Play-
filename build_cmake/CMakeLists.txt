@@ -67,7 +67,7 @@ if(WIN32)
 	endif()
 endif()
 
-if(ANDROID)
+if(ANDROID OR IOS)
 	add_definitions(-DGLES_COMPATIBILITY)
 	add_definitions(-DDISABLE_LOGGING)
 endif()
@@ -369,7 +369,7 @@ if (UNIX AND NOT APPLE)
     set(PLATFORM_SPECIFIC_SRC_FILES ../Source/Posix_VolumeStream.cpp)
 endif ()
 
-if (APPLE)
+if (APPLE AND NOT IOS)
 	set(PLATFORM_SPECIFIC_SRC_FILES ../Source/Posix_VolumeStream.cpp)
 endif ()
 
@@ -489,7 +489,8 @@ if (UNIX AND NOT APPLE AND NOT ANDROID)
 	target_link_libraries(Play ${PROJECT_LIBS})
 endif (UNIX AND NOT APPLE AND NOT ANDROID)
 
-if(APPLE)
+if(APPLE AND NOT IOS)
+
 	include_directories(
 		../
 		../Source/ui_macosx/
@@ -582,7 +583,97 @@ if(APPLE)
 				COMMENT "${CMAKE_CURRENT_SOURCE_DIR}/../Source/ui_macosx/${xib}.xib")
 
 	endforeach()
-endif(APPLE)
+endif(APPLE AND NOT IOS)
+
+if(APPLE AND IOS)
+	include_directories(
+		../
+		../Source/ui_ios/
+	)
+
+	find_library(UIKIT_LIBRARY NAMES UIKit)
+	find_library(COREGRAPHICS_LIBRARY NAMES CoreGraphics)
+	find_library(COREANIMATION_LIBRARY NAMES CoreAnimation)
+	find_library(GAMECONTROLLER_LIBRARY NAMES GameController)
+	find_library(QUARTZCORE_LIBRARY NAMES QuartzCore)
+
+	set (OSX_SOURCES
+		../Source/ui_ios/AppDelegate.mm
+		../Source/ui_ios/BackgroundLayer.m
+		../Source/ui_ios/CollectionView.m
+		../Source/ui_ios/CoverViewCell.m
+		../Source/ui_ios/CoverViewController.m
+		../Source/ui_ios/EmulatorViewController.mm
+		../Source/ui_ios/GlEsView.mm
+		../Source/ui_ios/GSH_OpenGLiOS.cpp
+		../Source/ui_ios/IosUtils.cpp
+		../Source/ui_ios/main.mm
+		../Source/ui_ios/SettingsViewController.mm
+		../Source/ui_ios/SqliteDatabase.m
+		../Source/ui_ios/VirtualPadButton.mm
+		../Source/ui_ios/VirtualPadItem.mm
+		../Source/ui_ios/VirtualPadStick.mm
+		../Source/ui_ios/VirtualPadView.mm
+	)
+
+	set (OSX_HEADERS
+		../Source/ui_ios/AppDelegate.h
+		../Source/ui_ios/BackgroundLayer.h
+		../Source/ui_ios/VirtualPadButton.h
+		../Source/ui_ios/VirtualPadItem.h
+		../Source/ui_ios/VirtualPadStick.h
+		../Source/ui_ios/VirtualPadView.h
+	)
+
+	set(OSX_RES
+		${CMAKE_CURRENT_SOURCE_DIR}/../patches.xml
+		${CMAKE_CURRENT_SOURCE_DIR}/../Source/ui_ios/Base.lproj/Main.storyboard
+		${CMAKE_CURRENT_SOURCE_DIR}/../build_ios/Play!/Resources/boxart.png
+		${CMAKE_CURRENT_SOURCE_DIR}/../build_ios/Play!/Resources/select.png
+		${CMAKE_CURRENT_SOURCE_DIR}/../build_ios/Play!/Resources/start.png
+		${CMAKE_CURRENT_SOURCE_DIR}/../build_ios/Play!/Resources/up.png
+		${CMAKE_CURRENT_SOURCE_DIR}/../build_ios/Play!/Resources/down.png
+		${CMAKE_CURRENT_SOURCE_DIR}/../build_ios/Play!/Resources/left.png
+		${CMAKE_CURRENT_SOURCE_DIR}/../build_ios/Play!/Resources/right.png
+		${CMAKE_CURRENT_SOURCE_DIR}/../build_ios/Play!/Resources/triangle.png
+		${CMAKE_CURRENT_SOURCE_DIR}/../build_ios/Play!/Resources/cross.png
+		${CMAKE_CURRENT_SOURCE_DIR}/../build_ios/Play!/Resources/circle.png
+		${CMAKE_CURRENT_SOURCE_DIR}/../build_ios/Play!/Resources/square.png
+		${CMAKE_CURRENT_SOURCE_DIR}/../build_ios/Play!/Resources/lr.png
+		${CMAKE_CURRENT_SOURCE_DIR}/../build_ios/Play!/Resources/analogstick.png
+	)
+
+	# Add our Executable
+	add_executable(Play MACOSX_BUNDLE ${OSX_SOURCES} ${OSX_HEADERS} ${OSX_RES})
+	set_target_properties(Play PROPERTIES COMPILE_FLAGS "-x objective-c++ -fobjc-arc")
+
+	# Probably a better way to set the framework link libraries.
+	target_link_libraries(Play ${UIKIT_LIBRARY})
+	target_link_libraries(Play ${COREGRAPHICS_LIBRARY})
+	target_link_libraries(Play $(COREANIMATION_LIBRARY))
+	target_link_libraries(Play ${GAMECONTROLLER_LIBRARY})
+	target_link_libraries(Play ${QUARTZCORE_LIBRARY})
+	target_link_libraries(Play ${PROJECT_LIBS} "-ObjC -lsqlite3 -framework OpenGLES -framework OpenAL")
+
+	# Set a custom plist file for the app bundle
+	# NOTE: for these values to be used Info.plist has to be edited
+	# NOTE: from cmake 3.7.0 you can use %b for month name abbreviations
+	string(TIMESTAMP DATE "%Y-%m-%d")
+	set_target_properties(
+		Play
+		PROPERTIES
+			MACOSX_BUNDLE_INFO_STRING "${PROJECT_NAME}"
+			MACOSX_BUNDLE_GUI_IDENTIFIER "com.virtualapplications.play"
+			MACOSX_BUNDLE_LONG_VERSION_STRING "${PROJECT_NAME} Version ${PROJECT_Version}"
+			MACOSX_BUNDLE_BUNDLE_NAME ${PROJECT_NAME}
+			MACOSX_BUNDLE_SHORT_VERSION_STRING "${PROJECT_Version}"
+			MACOSX_BUNDLE_BUNDLE_VERSION ${DATE}
+			MACOSX_BUNDLE_COPYRIGHT "© Virtual Applications, 2017"
+			MACOSX_BUNDLE_INFO_PLIST "${CMAKE_CURRENT_SOURCE_DIR}/../Source/ui_ios/Info.plist.in"
+			RESOURCE "${OSX_RES}"
+	)
+
+endif(APPLE AND IOS)
 
 if (WIN32)
 	ENABLE_LANGUAGE(ASM_MASM)
