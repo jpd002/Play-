@@ -17,18 +17,19 @@ INCLUDEPATH +=. \
       ../ \
       ../Source \
       ../Source/ui_unix/ \
+      ../Source/ui_common/ \
       ../../CodeGen/include \
       ../../Framework/include \
 
 SOURCES += ../Source/ui_unix/main.cpp\
     ../Source/ui_unix/mainwindow.cpp \
     ../Source/ui_unix/GSH_OpenGLQt.cpp \
-    ../Source/ui_unix/StatsManager.cpp \
+    ../Source/ui_common/StatsManager.cpp \
     ../Source/ui_unix/PH_HidUnix.cpp \
     ../Source/ui_unix/settingsdialog.cpp \
     ../Source/ui_unix/openglwindow.cpp \
     ../Source/ui_unix/memorycardmanagerdialog.cpp \
-    ../Source/ui_unix/MemoryCard.cpp \
+    ../Source/ui_common/MemoryCard.cpp \
     ../Source/ui_unix/vfsmanagerdialog.cpp \
     ../Source/ui_unix/vfsmodel.cpp \
     ../Source/ui_unix/vfsdiscselectordialog.cpp \
@@ -39,13 +40,13 @@ SOURCES += ../Source/ui_unix/main.cpp\
 
 HEADERS  += ../Source/ui_unix/mainwindow.h \
     ../Source/ui_unix/GSH_OpenGLQt.h \
-    ../Source/ui_unix/StatsManager.h \
+    ../Source/ui_common/StatsManager.h \
     ../Source/ui_unix/PH_HidUnix.h \
     ../Source/ui_unix/settingsdialog.h \
     ../Source/ui_unix/PreferenceDefs.h \
     ../Source/ui_unix/openglwindow.h \
     ../Source/ui_unix/memorycardmanagerdialog.h \
-    ../Source/ui_unix/MemoryCard.h \
+    ../Source/ui_common/MemoryCard.h \
     ../Source/ui_unix/vfsmanagerdialog.h \
     ../Source/ui_unix/vfsmodel.h \
     ../Source/ui_unix/vfsdiscselectordialog.h \
