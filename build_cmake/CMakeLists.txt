@@ -177,16 +177,25 @@ else()
 	list(APPEND PROJECT_LIBS ${BZIP2_LIBRARIES})
 endif()
 
-if(NOT ANDROID)
+find_package(ZLIB)
+if(NOT ZLIB_FOUND)
+	MESSAGE("-- Using Provided zlib source")
 	if(NOT TARGET zlibstatic)
-		MESSAGE("-- Using Provided zlib source")
 		add_subdirectory(
 			${CMAKE_CURRENT_SOURCE_DIR}/../../Dependencies/zlib-1.2.8
 			${CMAKE_CURRENT_BINARY_DIR}/zlib-1.2.8
 		)
+		include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../../Dependencies/zlib-1.2.8)
+		include_directories(${CMAKE_CURRENT_BINARY_DIR}/zlib-1.2.8)
+		list(APPEND PROJECT_LIBS zlibstatic)
 	endif()
-	list(APPEND PROJECT_LIBS zlibstatic zlibheaders)
+else()
+	find_package(ZLIB REQUIRED)
+	include_directories(${ZLIB_INCLUDE_DIRS})
+	list(APPEND PROJECT_LIBS ${ZLIB_LIBRARIES})
+endif()
 
+if(NOT ANDROID)
 	find_package(OpenGL REQUIRED)
 	list(APPEND PROJECT_LIBS ${OPENGL_LIBRARIES})
 
@@ -202,10 +211,6 @@ if (UNIX AND NOT APPLE AND NOT ANDROID)
 endif()
 
 if(ANDROID)
-	find_package(ZLIB REQUIRED)
-	include_directories(${ZLIB_INCLUDE_DIRS})
-	list(APPEND PROJECT_LIBS ${ZLIB_LIBRARIES})
-
 	if(NOT TARGET cpufeatures)
 		add_library(cpufeatures STATIC ${CMAKE_ANDROID_NDK}/sources/android/cpufeatures/cpu-features.c)
 	endif()
