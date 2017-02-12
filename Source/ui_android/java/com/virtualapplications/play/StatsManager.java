@@ -4,7 +4,7 @@ public class StatsManager
 {
 	static 
 	{
-		System.loadLibrary("Play");
+		System.loadLibrary("PlayCore");
 	}
 
 	public static native int getFrames();

@@ -4,7 +4,7 @@ public class SettingsManager
 {
 	static 
 	{
-		System.loadLibrary("Play");
+		System.loadLibrary("PlayCore");
 	}
 
 	public static native void save();

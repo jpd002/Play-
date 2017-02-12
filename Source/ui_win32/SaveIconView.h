@@ -1,7 +1,6 @@
 #ifndef _SAVEICONVIEW_H_
 #define _SAVEICONVIEW_H_
 
-#include <boost/thread.hpp>
 #include "win32/Window.h"
 #include "../saves/Save.h"
 #include "../MailBox.h"
@@ -34,7 +33,7 @@ private:
 
 	HGLRC								m_hRC;
 
-	boost::thread*						m_thread;
+	std::thread*						m_thread;
 	bool								m_threadOver;
 	CMailBox							m_mailBox;
 

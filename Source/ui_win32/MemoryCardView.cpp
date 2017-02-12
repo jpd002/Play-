@@ -263,7 +263,7 @@ CMemoryCardView::CRender::CRender(HWND hWnd, const CViewState* pViewState)
 , m_threadOver(false)
 , m_thread(NULL)
 {
-	m_thread = new boost::thread(std::tr1::bind(&CRender::ThreadProc, this));
+	m_thread = new std::thread(std::tr1::bind(&CRender::ThreadProc, this));
 }
 
 CMemoryCardView::CRender::~CRender()

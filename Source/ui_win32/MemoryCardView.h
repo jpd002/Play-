@@ -1,6 +1,5 @@
 #pragma once
 
-#include <boost/thread.hpp>
 #include <boost/signals2.hpp>
 #include <map>
 #include "win32/Window.h"
@@ -68,7 +67,7 @@ private:
 		const CMemoryCard*						m_memoryCard;
 
 		CMailBox								m_mailBox;
-		boost::thread*							m_thread;
+		std::thread*							m_thread;
 		bool									m_threadOver;
 	};
 
