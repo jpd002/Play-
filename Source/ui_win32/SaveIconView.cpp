@@ -62,7 +62,7 @@ CSaveIconView::CSaveIconView(HWND hParent, const RECT& rect)
 	Create(WS_EX_STATICEDGE, CLSNAME, _T(""), WS_VISIBLE | WS_CLIPCHILDREN | WS_CHILD, rect, hParent, NULL);
 	SetClassPtr();
 
-	m_thread = new boost::thread(std::tr1::bind(&CSaveIconView::ThreadProc, this));
+	m_thread = new std::thread(std::tr1::bind(&CSaveIconView::ThreadProc, this));
 }
 
 CSaveIconView::~CSaveIconView()
