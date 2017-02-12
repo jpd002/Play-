@@ -1,6 +1,6 @@
 #import "AppDelegate.h"
 #import "EmulatorViewController.h"
-#include "GSH_OpenGL.h"
+#include "../gs/GSH_OpenGL/GSH_OpenGL.h"
 
 @interface AppDelegate ()
 

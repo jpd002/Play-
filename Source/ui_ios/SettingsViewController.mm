@@ -2,7 +2,7 @@
 #include "../AppConfig.h"
 #include "PreferenceDefs.h"
 #include "AppDef.h"
-#include "GSH_OpenGL.h"
+#include "../gs/GSH_OpenGL/GSH_OpenGL.h"
 
 @implementation SettingsViewController
 

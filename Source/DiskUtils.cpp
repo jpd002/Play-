@@ -14,6 +14,9 @@
 #ifdef __ANDROID__
 #include "PosixFileStream.h"
 #endif
+#ifdef __APPLE__
+#include "TargetConditionals.h"
+#endif
 
 static Framework::CStream* CreateImageStream(const boost::filesystem::path& imagePath)
 {

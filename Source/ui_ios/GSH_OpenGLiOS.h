@@ -1,5 +1,6 @@
 #pragma once
 
+#import <QuartzCore/QuartzCore.h>
 #include "../gs/GSH_OpenGL/GSH_OpenGL.h"
 #include "opengl/OpenGlDef.h"
 
