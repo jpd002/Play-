@@ -36,7 +36,7 @@ C:\Projects
 First you'd need to clone Play-Build which provides you with the needed subprojects required to build Play!.
 Then setup the submodules and the dependency submodule(s) too.
 ```
-git clone https://github.com/jpd002/Play-.git
+git clone https://github.com/jpd002/Play-Build.git
 git submodule update -q --init --recursive
 git submodule foreach "git checkout -q master"
 cd Dependencies
@@ -71,13 +71,17 @@ cd build
 cmake .. -G"Unix Makefiles" -DCMAKE_BUILD_TYPE=Release
 cmake --build .
 # OR
-cmake .. -G"Xcode"
+cmake .. -G"Xcode" -DCMAKE_BUILD_TYPE=Release
 cmake --build . --config Release
 ```
 
 ### Building for UNIX ###
-if you dont have cmake or openal lib installed, you can install it using your OS packaging tool, e.g ubuntu `apt install cmake libalut-dev`
-on UNIX systems there is 2 ways to setup a build, using makefile or Ninja
+if you dont have cmake or openal lib installed, you'll also require Qt (preferably version 5.6) you can install it using your OS packaging tool, e.g ubuntu `apt install cmake libalut-dev`
+on UNIX systems there is 3 ways to setup a build, using qt creator, makefile or Ninja
+ - QT Creator
+    - Open Project -> `Play/build_cmake/CMakeLists.txt`
+
+ - Makefile/Ninja
 ```
 cd Play/build_cmake
 mkdir build
@@ -91,7 +95,7 @@ cmake --build .
 cmake .. -G"Ninja" -DCMAKE_PREFIX_PATH=/opt/qt56/
 cmake --build . --config Release
 ```
-Note `CMAKE_PREFIX_PATH` refers to the qt directory containing bin/libs folder, the above example uses a backport repo to install qt5.6 on trusty, if you install qt from their offical website, your `CMAKE_PREFIX_PATH` might look like this `~/Qt5.6.0/5.6/gcc_64/`
+Note `CMAKE_PREFIX_PATH` refers to the qt directory containing bin/libs folder, the above example uses a backport repo to install qt5.6 on trusty, if you install qt from qt offical website, your `CMAKE_PREFIX_PATH` might look like this `~/Qt5.6.0/5.6/gcc_64/`
 
 ### Building for Android ###
 
@@ -99,22 +103,57 @@ Building for Android has been tested on macOS and UNIX environments.
 Android can be built using Android Studio or through Gradle.
 
 - Android Studio:
-Files->Open Projects->Directory To Play/build_android
-Install NDK using sdk manager
-edit/create Play/build_android/local.properties, this file should contain sdk.dir when opened through Android Studio
-for OSX: on a new line add `ndk.dir=/Users/USER_NAME/Library/Android/sdk/ndk-bundle` replacing `USER_NAME` with your macOS username,
-for UNIX: on a new line add `ndk.dir=~/Android/Sdk/ndk-bundle`
-for Windows: ##### TODO #####
-note, this line would only be valid if you installed NDK through Android Studio's SDK manager.
-Once this is done, you can start the build
+   - Files->Open Projects->Directory To `Play/build_android`
+   - Install NDK using sdk manager
+   - edit/create `Play/build_android/local.properties`
+      - OSX: add a newline `ndk.dir=/Users/USER_NAME/Library/Android/sdk/ndk-bundle` replacing `USER_NAME` with your macOS username
+      - UNIX: add a newline `ndk.dir=~/Android/Sdk/ndk-bundle`
+      - Windows: add a newline `C:\Users\USER_NAME\AppData\Local\Android\sdk\ndk-bundle`
+      - Please Leave an empty new line at the end of the file
 
-- Gradle
-edit/create Play/build_android/local.properties, this file should contain `sdk.dir` when opened through Android Studio, otherwise it wont exist and you can create it. on a new line add `ndk.dir=/location/to/ndk`, if you installed the NDK using android SDK it should be in `/Users/USER_NAME/Library/Android/sdk/ndk-bundle` replacing `USER_NAME` with your macOS username, else you can download it manually and set the path as appropriate.
+Note, these examples are only valid if you installed NDK through Android Studio's SDK manager.
+Otherwise you must specify the correct location to Android NDK.
+Once this is done, you can start the build.
+
+- Gradle: Prerequisite Android SDK & NDK (Both can be installed through Android Studio)
+   - edit/create `Play/build_android/local.properties`
+      - OSX:
+        - add a newline `sdk.dir=/Users/USER_NAME/Library/Android/sdk` replacing `USER_NAME` with your macOS username
+        - add a newline `ndk.dir=/Users/USER_NAME/Library/Android/sdk/ndk-bundle` replacing `USER_NAME` with your macOS username
+      - UNIX:
+        - add a newline `sdk.dir=~/Android/Sdk`
+        - add a newline `ndk.dir=~/Android/Sdk/ndk-bundle`
+      - Windows:
+        - add a newline `sdk.dir=C:\Users\USER_NAME\AppData\Local\Android\sdk`
+        - add a newline `ndk.dir=C:\Users\USER_NAME\AppData\Local\Android\sdk\ndk-bundle`
+      - Please Leave an empty new line at the end of the file
+
+Note, these examples are only valid if you installed NDK through Android Studio's SDK manager.
+Otherwise you must specify the correct location to Android NDK.
+Once this is done, you can start the build.
 ```
 cd Play/build_android
-sh gradle assembleDebug
+sh gradlew assembleDebug
 ```
-##### TODO: add instructions about Release/Signed builds. #####
+##### about Release/Signed builds. #####
+
+Building through Android Studio, you have the option to “Generate Signed APK”.
+
+Building through Gradle, you must create a text file `Play/build_android/keystore.properties` and add the following properties to it, `storeFile`,`storePassword`,`keyAlias`,`keyPassword`.
+E.g of `keystore.properties`
+```
+storeFile=/location/to/my/key.jks
+storePassword=mysuperhardpassword
+keyAlias=myalias
+keyPassword=myevenharderpassword
+```
+Please Leave an empty new line at the end of the file
+```
+cd Play/build_android
+sh gradlew assembleRelease
+# or on Windows
+gradlew.bat assembleRelease
+```
 
 ### Building for iOS ###
 
