@@ -166,7 +166,7 @@ if (NOT BZIP2_FOUND)
 	MESSAGE("-- Using Provided BZip2 source")
 	if (NOT TARGET bz2)
 		add_subdirectory(
-			${CMAKE_CURRENT_SOURCE_DIR}/../../Dependencies/bzip2-1.0.6
+			${CMAKE_CURRENT_SOURCE_DIR}/../../Dependencies/build_cmake/bzip2-1.0.6
 			${CMAKE_CURRENT_BINARY_DIR}/bzip2-1.0.6
 		)
 	endif()
@@ -182,13 +182,12 @@ if(NOT ZLIB_FOUND)
 	MESSAGE("-- Using Provided zlib source")
 	if(NOT TARGET zlibstatic)
 		add_subdirectory(
-			${CMAKE_CURRENT_SOURCE_DIR}/../../Dependencies/zlib-1.2.8
+			${CMAKE_CURRENT_SOURCE_DIR}/../../Dependencies/build_cmake/zlib-1.2.8
 			${CMAKE_CURRENT_BINARY_DIR}/zlib-1.2.8
 		)
-		include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../../Dependencies/zlib-1.2.8)
-		include_directories(${CMAKE_CURRENT_BINARY_DIR}/zlib-1.2.8)
-		list(APPEND PROJECT_LIBS zlibstatic)
 	endif()
+	include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../../Dependencies/zlib-1.2.8)
+	list(APPEND PROJECT_LIBS zlibstatic)
 else()
 	include_directories(${ZLIB_INCLUDE_DIRS})
 	list(APPEND PROJECT_LIBS ${ZLIB_LIBRARIES})
