@@ -29,33 +29,20 @@ public:
 	uint32											GetSelectedItemIndex() const;
 
 protected:
-	virtual long									OnSize(unsigned int, unsigned int, unsigned int) override;
-	virtual long									OnCommand(unsigned short, unsigned short, HWND) override;
-	virtual LRESULT									OnNotify(WPARAM, NMHDR*) override;
+	long											OnSize(unsigned int, unsigned int, unsigned int) override;
+	long											OnCommand(unsigned short, unsigned short, HWND) override;
+	LRESULT											OnNotify(WPARAM, NMHDR*) override;
 
 private:
 	struct PACKETINFO
 	{
-		PACKETINFO()
-			: cmdIndexStart(0)
-			, treeViewItem(nullptr)
-		{
-
-		}
-
-		uint32		cmdIndexStart;
-		HTREEITEM	treeViewItem;
+		HTREEITEM treeViewItem = nullptr;
+		uint32    cmdIndexStart = 0;
 	};
 
 	struct WRITEINFO
 	{
-		WRITEINFO()
-			: treeViewItem(nullptr)
-		{
-
-		}
-
-		HTREEITEM	treeViewItem;
+		HTREEITEM treeViewItem = nullptr;
 	};
 
 	uint32											GetItemIndexFromTreeViewItem(TVITEM*) const;
