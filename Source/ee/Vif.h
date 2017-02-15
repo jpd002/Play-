@@ -88,7 +88,7 @@ protected:
 	{
 	public:
 								CFifoStream(uint8*, uint8*);
-		virtual					~CFifoStream();
+		virtual					~CFifoStream() = default;
 
 		void					Reset();
 

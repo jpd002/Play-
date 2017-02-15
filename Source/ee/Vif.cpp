@@ -1165,11 +1165,6 @@ CVif::CFifoStream::CFifoStream(uint8* ram, uint8* spr)
 
 }
 
-CVif::CFifoStream::~CFifoStream()
-{
-
-}
-
 void CVif::CFifoStream::Reset()
 {
 	m_bufferPosition = BUFFERSIZE;
