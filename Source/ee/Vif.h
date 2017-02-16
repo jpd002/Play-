@@ -116,6 +116,7 @@ protected:
 
 		uint128					m_buffer;
 		uint32					m_bufferPosition = BUFFERSIZE;
+		uint32					m_startAddress = 0;
 		uint32					m_nextAddress = 0;
 		uint32					m_endAddress = 0;
 		bool					m_tagIncluded = false;

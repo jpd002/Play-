@@ -1168,6 +1168,7 @@ CVif::CFifoStream::CFifoStream(uint8* ram, uint8* spr)
 void CVif::CFifoStream::Reset()
 {
 	m_bufferPosition = BUFFERSIZE;
+	m_startAddress = 0;
 	m_nextAddress = 0;
 	m_endAddress = 0;
 	m_tagIncluded = false;
@@ -1211,6 +1212,7 @@ void CVif::CFifoStream::SetDmaParams(uint32 address, uint32 size, bool tagInclud
 		address &= (PS2::EE_RAM_SIZE - 1);
 		assert((address + size) <= PS2::EE_RAM_SIZE);
 	}
+	m_startAddress = address;
 	m_nextAddress = address;
 	m_endAddress = address + size;
 	m_tagIncluded = tagIncluded;
@@ -1219,6 +1221,7 @@ void CVif::CFifoStream::SetDmaParams(uint32 address, uint32 size, bool tagInclud
 void CVif::CFifoStream::SetFifoParams(uint8* source, uint32 size)
 {
 	m_source = source;
+	m_startAddress = 0;
 	m_nextAddress = 0;
 	m_endAddress = size;
 	m_tagIncluded = false;
@@ -1244,19 +1247,33 @@ void CVif::CFifoStream::Align32()
 
 uint8* CVif::CFifoStream::GetDirectPointer() const
 {
-	assert(m_bufferPosition == BUFFERSIZE);
-	assert(m_tagIncluded == false);
-	assert((m_nextAddress & 0x0F) == 0);
-	return m_source + m_nextAddress;
+	assert(!m_tagIncluded);
+	if(m_bufferPosition == BUFFERSIZE)
+	{
+		return m_source + m_nextAddress;
+	}
+	else
+	{
+		assert((m_nextAddress - m_startAddress) >= 0x10);
+		return m_source + m_nextAddress + m_bufferPosition - 0x10;
+	}
 }
 
 void CVif::CFifoStream::Advance(uint32 size)
 {
-	assert(m_bufferPosition == BUFFERSIZE);
-	assert(m_tagIncluded == false);
-	assert((m_nextAddress & 0x0F) == 0);
 	assert((size & 0x0F) == 0);
-	m_nextAddress += size;
+	assert(!m_tagIncluded);
+	if(m_bufferPosition == BUFFERSIZE)
+	{
+		//Only increment address in this case
+		m_nextAddress += size;
+	}
+	else
+	{
+		assert((m_nextAddress - m_startAddress) >= 0x10);
+		m_nextAddress += size - 0x10;
+		m_buffer = *reinterpret_cast<uint128*>(&m_source[m_nextAddress]);
+	}
 }
 
 void CVif::CFifoStream::SyncBuffer()
