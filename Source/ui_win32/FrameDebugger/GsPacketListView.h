@@ -32,6 +32,7 @@ protected:
 	long											OnSize(unsigned int, unsigned int, unsigned int) override;
 	long											OnCommand(unsigned short, unsigned short, HWND) override;
 	LRESULT											OnNotify(WPARAM, NMHDR*) override;
+	long											OnCopy() override;
 
 private:
 	struct PACKETINFO
@@ -42,7 +43,8 @@ private:
 
 	struct WRITEINFO
 	{
-		HTREEITEM treeViewItem = nullptr;
+		HTREEITEM                 treeViewItem = nullptr;
+		CGSHandler::RegisterWrite registerWrite;
 	};
 
 	uint32											GetItemIndexFromTreeViewItem(TVITEM*) const;
@@ -50,6 +52,7 @@ private:
 	long											OnPacketsTreeViewCustomDraw(NMTVCUSTOMDRAW*);
 	void											OnPacketsTreeViewItemExpanding(NMTREEVIEW*);
 	void											OnPacketsTreeViewSelChanged(NMTREEVIEW*);
+	void											OnPacketsTreeViewKeyDown(const NMTVKEYDOWN*);
 
 	void											GoToWrite(uint32);
 	void											OnPrevDrawKick();

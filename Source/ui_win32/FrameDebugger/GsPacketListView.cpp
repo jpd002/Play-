@@ -3,6 +3,7 @@
 #include "string_cast.h"
 #include "string_format.h"
 #include "win32/DpiUtils.h"
+#include "../WinUtils.h"
 
 CGsPacketListView::CGsPacketListView(HWND parentWnd, const RECT& rect)
 : m_frameDump(nullptr)
@@ -149,10 +150,34 @@ LRESULT CGsPacketListView::OnNotify(WPARAM param, NMHDR* header)
 		case TVN_SELCHANGED:
 			OnPacketsTreeViewSelChanged(reinterpret_cast<NMTREEVIEW*>(header));
 			break;
+		case TVN_KEYDOWN:
+			OnPacketsTreeViewKeyDown(reinterpret_cast<NMTVKEYDOWN*>(header));
+			break;
 		}
 		return FALSE;
 	}
 	return FALSE;
+}
+
+long CGsPacketListView::OnCopy()
+{
+	HTREEITEM selectedItem = m_packetsTreeView->GetSelection();
+	if(selectedItem == NULL) return TRUE;
+
+	TVITEM treeViewItem = {};
+	treeViewItem.mask = TVIF_PARAM | TVIF_HANDLE;
+	m_packetsTreeView->GetItem(selectedItem, &treeViewItem);
+
+	uint32 selectedItemIndex = GetItemIndexFromTreeViewItem(&treeViewItem);
+	const auto& writeInfo = m_writeInfos[selectedItemIndex];
+	const auto& registerWrite = writeInfo.registerWrite;
+
+	auto text = string_format(_T("0x%02X -> 0x%016llX\r\n"), 
+		registerWrite.first, registerWrite.second);
+
+	WinUtils::CopyStringToClipboard(text);
+
+	return TRUE;
 }
 
 long CGsPacketListView::OnPacketsTreeViewCustomDraw(NMTVCUSTOMDRAW* customDraw)
@@ -215,7 +240,8 @@ void CGsPacketListView::OnPacketsTreeViewItemExpanding(NMTREEVIEW* treeView)
 			HTREEITEM newItem = m_packetsTreeView->InsertItem(treeView->itemNew.hItem, string_cast<std::tstring>(treeItemText).c_str());
 
 			auto& writeInfo = m_writeInfos[cmdIndex];
-			writeInfo.treeViewItem = newItem;
+			writeInfo.treeViewItem  = newItem;
+			writeInfo.registerWrite = registerWrite;
 
 			m_packetsTreeView->SetItemParam(newItem, cmdIndex++);
 		}
@@ -231,6 +257,19 @@ void CGsPacketListView::OnPacketsTreeViewSelChanged(NMTREEVIEW* treeView)
 	selchangedInfo.hwndFrom			= m_hWnd;
 	selchangedInfo.selectedCmdIndex = selectedCmdIndex;
 	SendMessage(GetParent(), WM_NOTIFY, reinterpret_cast<WPARAM>(m_hWnd), reinterpret_cast<LPARAM>(&selchangedInfo));
+}
+
+void CGsPacketListView::OnPacketsTreeViewKeyDown(const NMTVKEYDOWN* keyDown)
+{
+	switch(keyDown->wVKey)
+	{
+	case 'C':
+		if(GetAsyncKeyState(VK_CONTROL))
+		{
+			SendMessage(m_hWnd, WM_COPY, 0, 0);
+		}
+		break;
+	}
 }
 
 void CGsPacketListView::GoToWrite(uint32 writeIndex)
