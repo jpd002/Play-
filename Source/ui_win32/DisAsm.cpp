@@ -601,13 +601,6 @@ long CDisAsm::OnCommand(unsigned short nID, unsigned short nMsg, HWND hFrom)
 
 long CDisAsm::OnCopy()
 {
-	if(!OpenClipboard(m_hWnd))
-	{
-		return TRUE;
-	}
-
-	EmptyClipboard();
-
 	std::tstring text;
 
 	auto selectionRange = GetSelectionRange();
@@ -620,17 +613,7 @@ long CDisAsm::OnCopy()
 		text += GetInstructionDetailsText(address);
 	}
 
-	HGLOBAL hMemory = GlobalAlloc(GMEM_MOVEABLE, (text.length() + 1) * sizeof(TCHAR));
-	_tcscpy(reinterpret_cast<TCHAR*>(GlobalLock(hMemory)), text.c_str());
-	GlobalUnlock(hMemory);
-
-#ifdef _UNICODE
-	SetClipboardData(CF_UNICODETEXT, hMemory);
-#else
-	SetClipboardData(CF_TEXT, hMemory);
-#endif
-
-	CloseClipboard();
+	WinUtils::CopyStringToClipboard(text);
 
 	return TRUE;
 }

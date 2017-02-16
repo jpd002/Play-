@@ -29,3 +29,29 @@ TCHAR WinUtils::FixSlashes(TCHAR nCharacter)
 {
 	return (nCharacter == _T('/')) ? _T('\\') : nCharacter;
 }
+
+void WinUtils::CopyStringToClipboard(const std::tstring& stringToCopy)
+{
+	if(!OpenClipboard(NULL))
+	{
+		assert(false);
+		return;
+	}
+
+	EmptyClipboard();
+
+	auto memoryHandle = GlobalAlloc(GMEM_MOVEABLE, (stringToCopy.length() + 1) * sizeof(TCHAR));
+	{
+		auto memoryPtr = reinterpret_cast<TCHAR*>(GlobalLock(memoryHandle));
+		_tcscpy(memoryPtr, stringToCopy.c_str());
+		GlobalUnlock(memoryHandle);
+	}
+
+#ifdef _UNICODE
+	SetClipboardData(CF_UNICODETEXT, memoryHandle);
+#else
+	SetClipboardData(CF_TEXT, memoryHandle);
+#endif
+
+	CloseClipboard();
+}
