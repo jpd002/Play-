@@ -84,7 +84,7 @@ void CGIF::SaveState(Framework::CZipArchiveWriter& archive)
 	archive.InsertFile(registerFile);
 }
 
-uint32 CGIF::ProcessPacked(CGSHandler::RegisterWriteList& writeList, uint8* memory, uint32 address, uint32 end)
+uint32 CGIF::ProcessPacked(CGSHandler::RegisterWriteList& writeList, const uint8* memory, uint32 address, uint32 end)
 {
 	uint32 start = address;
 
@@ -95,7 +95,7 @@ uint32 CGIF::ProcessPacked(CGSHandler::RegisterWriteList& writeList, uint8* memo
 			uint64 temp = 0;
 			uint32 regDesc = (uint32)((m_regList >> ((m_regs - m_regsTemp) * 4)) & 0x0F);
 
-			uint128 packet = *reinterpret_cast<uint128*>(memory + address);
+			uint128 packet = *reinterpret_cast<const uint128*>(memory + address);
 
 			switch(regDesc)
 			{
@@ -213,7 +213,7 @@ uint32 CGIF::ProcessPacked(CGSHandler::RegisterWriteList& writeList, uint8* memo
 	return address - start;
 }
 
-uint32 CGIF::ProcessRegList(CGSHandler::RegisterWriteList& writeList, uint8* memory, uint32 address, uint32 end)
+uint32 CGIF::ProcessRegList(CGSHandler::RegisterWriteList& writeList, const uint8* memory, uint32 address, uint32 end)
 {
 	uint32 start = address;
 
@@ -252,7 +252,7 @@ uint32 CGIF::ProcessRegList(CGSHandler::RegisterWriteList& writeList, uint8* mem
 	return address - start;
 }
 
-uint32 CGIF::ProcessImage(uint8* memory, uint32 address, uint32 end)
+uint32 CGIF::ProcessImage(const uint8* memory, uint32 address, uint32 end)
 {
 	uint16 totalLoops = static_cast<uint16>((end - address) / 0x10);
 	totalLoops = std::min<uint16>(totalLoops, m_loops);
@@ -262,7 +262,7 @@ uint32 CGIF::ProcessImage(uint8* memory, uint32 address, uint32 end)
 	return (totalLoops * 0x10);
 }
 
-uint32 CGIF::ProcessSinglePacket(uint8* memory, uint32 address, uint32 end, const CGsPacketMetadata& packetMetadata)
+uint32 CGIF::ProcessSinglePacket(const uint8* memory, uint32 address, uint32 end, const CGsPacketMetadata& packetMetadata)
 {
 	static CGSHandler::RegisterWriteList writeList;
 	static const auto flushWriteList =
@@ -302,7 +302,7 @@ uint32 CGIF::ProcessSinglePacket(uint8* memory, uint32 address, uint32 end, cons
 			}
 
 			//We need to update the registers
-			auto tag = *reinterpret_cast<TAG*>(&memory[address]);
+			auto tag = *reinterpret_cast<const TAG*>(&memory[address]);
 			address += 0x10;
 #ifdef _DEBUG
 			CLog::GetInstance().Print(LOG_NAME, "TAG(loops = %d, eop = %d, pre = %d, prim = 0x%0.4X, cmd = %d, nreg = %d);\r\n",
@@ -370,7 +370,7 @@ uint32 CGIF::ProcessSinglePacket(uint8* memory, uint32 address, uint32 end, cons
 	return address - start;
 }
 
-uint32 CGIF::ProcessMultiplePackets(uint8* memory, uint32 address, uint32 end, const CGsPacketMetadata& packetMetadata)
+uint32 CGIF::ProcessMultiplePackets(const uint8* memory, uint32 address, uint32 end, const CGsPacketMetadata& packetMetadata)
 {
 	//This will attempt to process everything from [address, end[ even if it contains multiple GIF packets
 
