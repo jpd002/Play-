@@ -45,6 +45,7 @@ private:
     Ui::MainWindow *ui;
 
     QWindow* m_openglpanel;
+    QLabel *gameIDLabel;
     QLabel* fpsLabel;
     QLabel* m_dcLabel;
     QLabel* m_stateLabel;
