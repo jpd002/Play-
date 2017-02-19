@@ -1263,6 +1263,7 @@ void CVif::CFifoStream::Advance(uint32 size)
 {
 	assert((size & 0x0F) == 0);
 	assert(!m_tagIncluded);
+	assert((m_nextAddress + size) <= m_endAddress);
 	m_nextAddress += size;
 	if(m_bufferPosition != BUFFERSIZE)
 	{
