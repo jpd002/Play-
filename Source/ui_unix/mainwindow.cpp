@@ -215,6 +215,10 @@ void MainWindow::keyReleaseEvent(QKeyEvent *event)
 
 void MainWindow::CreateStatusBar()
 {
+    gameIDLabel = new QLabel(" GameID ");
+    gameIDLabel->setAlignment(Qt::AlignHCenter);
+    gameIDLabel->setMinimumSize(gameIDLabel->sizeHint());
+
     fpsLabel = new QLabel(" fps:00 ");
     fpsLabel->setAlignment(Qt::AlignHCenter);
     fpsLabel->setMinimumSize(fpsLabel->sizeHint());
@@ -229,6 +233,7 @@ void MainWindow::CreateStatusBar()
     m_stateLabel->setMinimumSize(m_dcLabel->sizeHint());
 
 
+    statusBar()->addWidget(gameIDLabel);
     statusBar()->addWidget(m_stateLabel);
     statusBar()->addWidget(fpsLabel);
     statusBar()->addWidget(m_dcLabel);
@@ -371,6 +376,7 @@ void MainWindow::on_actionAbout_triggered()
 void MainWindow::OnExecutableChange()
 {
     UpdateUI();
+    gameIDLabel->setText(QString(" %1 ").arg(g_virtualMachine->m_ee->m_os->GetExecutableName()));
 }
 
 void MainWindow::UpdateUI()
