@@ -6,7 +6,7 @@
 #include "IszImageStream.h"
 #include "CsoImageStream.h"
 #include "StdStream.h"
-#ifdef WIN32
+#ifdef _WIN32
 #include "VolumeStream.h"
 #else
 #include "Posix_VolumeStream.h"
@@ -43,7 +43,7 @@ DiskUtils::Iso9660Ptr DiskUtils::CreateDiskImageFromPath(const boost::filesystem
 	{
 		stream = std::make_shared<CCsoImageStream>(CreateImageStream(imagePath));
 	}
-#ifdef WIN32
+#ifdef _WIN32
 	else if(imagePath.string()[0] == '\\')
 	{
 		stream = std::make_shared<Framework::Win32::CVolumeStream>(imagePath.string()[4]);

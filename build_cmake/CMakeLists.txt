@@ -44,7 +44,6 @@ add_definitions(-D_IOP_EMULATE_MODULES)
 add_definitions(-DGLEW_STATIC)
 
 if(WIN32)
-	add_definitions(-DWIN32) #TODO: replace WIN32 preprocessors with _WIN32
 	add_definitions(-D_CRT_SECURE_NO_WARNINGS)
 	add_definitions(-D_SCL_SECURE_NO_WARNINGS)
 	add_definitions(-D_LIB)
