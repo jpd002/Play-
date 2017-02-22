@@ -30,6 +30,11 @@ public:
 	void					SaveState(Framework::CZipArchiveWriter&);
 
 private:
+	enum
+	{
+		MAX_TIMER = 4,
+	};
+
 	void					DisassembleGet(uint32);
 	void					DisassembleSet(uint32, uint32);
 
@@ -43,6 +48,6 @@ private:
 		uint32	clockRemain;
 	};
 
-	TIMER					m_timer[4];
+	TIMER					m_timer[MAX_TIMER];
 	CINTC&					m_intc;
 };

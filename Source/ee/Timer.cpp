@@ -20,7 +20,7 @@ void CTimer::Reset()
 
 void CTimer::Count(unsigned int ticks)
 {
-	for(unsigned int i = 0; i < 4; i++)
+	for(unsigned int i = 0; i < MAX_TIMER; i++)
 	{
 		auto& timer = m_timer[i];
 
@@ -236,7 +236,7 @@ void CTimer::DisassembleSet(uint32 nAddress, uint32 nValue)
 void CTimer::LoadState(Framework::CZipArchiveReader& archive)
 {
 	CRegisterStateFile registerFile(*archive.BeginReadFile(STATE_REGS_XML));
-	for(unsigned int i = 0; i < 4; i++)
+	for(unsigned int i = 0; i < MAX_TIMER; i++)
 	{
 		auto& timer = m_timer[i];
 		std::string timerPrefix = "TIMER" + std::to_string(i) + "_";
@@ -251,7 +251,7 @@ void CTimer::LoadState(Framework::CZipArchiveReader& archive)
 void CTimer::SaveState(Framework::CZipArchiveWriter& archive)
 {
 	CRegisterStateFile* registerFile = new CRegisterStateFile(STATE_REGS_XML);
-	for(unsigned int i = 0; i < 4; i++)
+	for(unsigned int i = 0; i < MAX_TIMER; i++)
 	{
 		const auto& timer = m_timer[i];
 		std::string timerPrefix = "TIMER" + std::to_string(i) + "_";
