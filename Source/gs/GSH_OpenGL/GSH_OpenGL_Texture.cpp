@@ -290,7 +290,7 @@ GLuint CGSH_OpenGL::PreparePalette(const TEX0& tex0)
 
 void CGSH_OpenGL::DumpTexture(unsigned int nWidth, unsigned int nHeight, uint32 checksum)
 {
-#ifdef WIN32
+#ifdef _WIN32
 	char sFilename[256];
 
 	for(unsigned int i = 0; i < UINT_MAX; i++)
