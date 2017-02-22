@@ -22,15 +22,15 @@ void CTimer::Count(unsigned int ticks)
 {
 	for(unsigned int i = 0; i < 4; i++)
 	{
-		TIMER* timer = &m_timer[i];
+		auto& timer = m_timer[i];
 
-		if(!(timer->nMODE & MODE_COUNT_ENABLE)) continue;
+		if(!(timer.nMODE & MODE_COUNT_ENABLE)) continue;
 
-		uint32 previousCount	= timer->nCOUNT;
-		uint32 nextCount		= timer->nCOUNT;
+		uint32 previousCount	= timer.nCOUNT;
+		uint32 nextCount		= timer.nCOUNT;
 
 		uint32 divider = 1;
-		switch(timer->nMODE & 0x03)
+		switch(timer.nMODE & 0x03)
 		{
 		case 0x00:
 			divider = 1;
@@ -47,40 +47,40 @@ void CTimer::Count(unsigned int ticks)
 		}
 
 		//Compute increment
-		uint32 totalTicks = timer->clockRemain + ticks;
+		uint32 totalTicks = timer.clockRemain + ticks;
 		uint32 countAdd = totalTicks / divider;
-		timer->clockRemain = totalTicks % divider;
+		timer.clockRemain = totalTicks % divider;
 		nextCount = previousCount + countAdd;
 
-		uint32 compare = (timer->nCOMP == 0) ? 0x10000 : timer->nCOMP;
+		uint32 compare = (timer.nCOMP == 0) ? 0x10000 : timer.nCOMP;
 		uint32 newFlags = 0;
 
 		//Check if it hit the reference value
 		if((previousCount < compare) && (nextCount >= compare))
 		{
 			newFlags |= MODE_EQUAL_FLAG;
-			if(timer->nMODE & MODE_ZERO_RETURN)
+			if(timer.nMODE & MODE_ZERO_RETURN)
 			{
-				timer->nCOUNT = nextCount - compare;
+				timer.nCOUNT = nextCount - compare;
 			}
 			else
 			{
-				timer->nCOUNT = nextCount;
+				timer.nCOUNT = nextCount;
 			}
 		}
 		else
 		{
-			timer->nCOUNT = nextCount;
+			timer.nCOUNT = nextCount;
 		}
 
-		if(timer->nCOUNT >= 0xFFFF)
+		if(timer.nCOUNT >= 0xFFFF)
 		{
 			newFlags |= MODE_OVERFLOW_FLAG;
-			timer->nCOUNT &= 0xFFFF;
+			timer.nCOUNT &= 0xFFFF;
 		}
-		timer->nMODE |= newFlags;
+		timer.nMODE |= newFlags;
 
-		uint32 nMask = (timer->nMODE & 0x300) << 2;
+		uint32 nMask = (timer.nMODE & 0x300) << 2;
 		bool interruptPending = (newFlags & nMask) != 0;
 		if(interruptPending)
 		{
