@@ -1,5 +1,4 @@
-#ifndef _TIMER_H_
-#define _TIMER_H_
+#pragma once
 
 #include "Types.h"
 #include "INTC.h"
@@ -18,7 +17,7 @@ public:
 	};
 
 							CTimer(CINTC&);
-	virtual					~CTimer();
+	virtual					~CTimer() = default;
 
 	void					Reset();
 
@@ -47,5 +46,3 @@ private:
 	TIMER					m_timer[4];
 	CINTC&					m_intc;
 };
-
-#endif

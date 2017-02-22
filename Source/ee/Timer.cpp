@@ -7,15 +7,10 @@
 
 #define STATE_REGS_XML	("timer/regs.xml")
 
-CTimer::CTimer(CINTC& intc) 
+CTimer::CTimer(CINTC& intc)
 : m_intc(intc)
 {
 	Reset();
-}
-
-CTimer::~CTimer()
-{
-
 }
 
 void CTimer::Reset()
