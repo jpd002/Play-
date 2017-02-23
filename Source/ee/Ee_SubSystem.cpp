@@ -333,6 +333,7 @@ void CSubSystem::CountTicks(int ticks)
 
 void CSubSystem::NotifyVBlankStart()
 {
+	m_timer.NotifyVBlankStart();
 	m_intc.AssertLine(CINTC::INTC_LINE_VBLANK_START);
 	if(m_os->CheckVBlankFlag())
 	{
@@ -344,6 +345,7 @@ void CSubSystem::NotifyVBlankStart()
 
 void CSubSystem::NotifyVBlankEnd()
 {
+	m_timer.NotifyVBlankEnd();
 	m_intc.AssertLine(CINTC::INTC_LINE_VBLANK_END);
 }
 

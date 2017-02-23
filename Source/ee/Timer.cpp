@@ -263,3 +263,32 @@ void CTimer::SaveState(Framework::CZipArchiveWriter& archive)
 	}
 	archive.InsertFile(registerFile);
 }
+
+void CTimer::NotifyVBlankStart()
+{
+	ProcessGateEdgeChange(MODE_GATE_SELECT_VBLANK, MODE_GATE_MODE_HIGHEDGE);
+}
+
+void CTimer::NotifyVBlankEnd()
+{
+	ProcessGateEdgeChange(MODE_GATE_SELECT_VBLANK, MODE_GATE_MODE_LOWEDGE);
+}
+
+void CTimer::ProcessGateEdgeChange(uint32 gate, uint32 edgeMode)
+{
+	for(unsigned int i = 0; i < MAX_TIMER; i++)
+	{
+		auto& timer = m_timer[i];
+		if(!(timer.nMODE & MODE_COUNT_ENABLE)) continue;
+		if(!(timer.nMODE & MODE_GATE_ENABLE)) continue;
+
+		if((timer.nMODE & MODE_GATE_SELECT) != gate) continue;
+
+		uint32 gateMode = (timer.nMODE & MODE_GATE_MODE);
+		if((edgeMode & gateMode) == edgeMode)
+		{
+			timer.nCOUNT = 0;
+			timer.clockRemain = 0;
+		}
+	}
+}
