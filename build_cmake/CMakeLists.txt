@@ -31,6 +31,12 @@ set(PROJECT_Version 0.30)
 add_definitions(-DPLAY_VERSION="${PROJECT_Version}")
 set(PROJECT_LIBS)
 
+if (WIN32 OR APPLE OR ANDROID)
+	set(USE_QT off CACHE BOOL "Use Qt UI for build")
+else()
+	set(USE_QT on CACHE BOOL "Use Qt UI for build")
+endif()
+
 set(CMAKE_MODULE_PATH
 	${CMAKE_CURRENT_SOURCE_DIR}/../../Dependencies/cmake-modules
 	${CMAKE_MODULE_PATH}
@@ -457,7 +463,7 @@ target_link_libraries(PlayCore ${PROJECT_LIBS})
 list(APPEND PROJECT_LIBS PlayCore)
 
 #UI
-if (UNIX AND NOT APPLE AND NOT ANDROID)
+if (USE_QT)
 	include_directories(
 		../
 		../Source/ui_unix/
@@ -521,12 +527,42 @@ if (UNIX AND NOT APPLE AND NOT ANDROID)
 	QT5_WRAP_UI(QT_UI_HEADERS ${QT_UIS})
 	QT5_WRAP_CPP(QT_MOC_SRCS ${QT_MOC_HEADERS})
 
-	add_executable(Play ${QT_SOURCES} ${QT_MOC_SRCS} ${QT_RES_SOURCES} ${QT_UI_HEADERS})
-	target_link_libraries(Play ${PROJECT_LIBS})
-endif (UNIX AND NOT APPLE AND NOT ANDROID)
+	if(NOT APPLE)
+		add_executable(Play ${QT_SOURCES} ${QT_MOC_SRCS} ${QT_RES_SOURCES} ${QT_UI_HEADERS})
+		target_link_libraries(Play ${PROJECT_LIBS})
+	elseif(APPLE)
+		set(OSX_RES
+			${CMAKE_CURRENT_SOURCE_DIR}/../build_macosx/AppIcon.icns
+			${CMAKE_CURRENT_SOURCE_DIR}/../patches.xml
+		)
+		# Add our Executable
+		add_executable(Play MACOSX_BUNDLE ${QT_SOURCES} ${QT_MOC_SRCS} ${QT_RES_SOURCES} ${QT_UI_HEADERS} ${OSX_RES})
 
-if(APPLE AND NOT IOS)
+		# Probably a better way to set the framework link libraries.
+		target_link_libraries(Play ${PROJECT_LIBS} "-ObjC -framework Cocoa -framework OpenGL -framework OpenAL -framework IOKit -framework AppKit -framework CoreData -framework Foundation")
 
+		# Set a custom plist file for the app bundle
+		# NOTE: for these values to be used Info.plist has to be edited
+		# NOTE: from cmake 3.7.0 you can use %b for month name abbreviations
+		string(TIMESTAMP DATE "%d-%m-%Y")
+		set_target_properties(
+			Play
+			PROPERTIES
+				MACOSX_BUNDLE_INFO_STRING "${PROJECT_NAME}"
+				MACOSX_BUNDLE_GUI_IDENTIFIER "com.virtualapplications.Play"
+				MACOSX_BUNDLE_LONG_VERSION_STRING "${PROJECT_NAME} Version ${PROJECT_Version}"
+				MACOSX_BUNDLE_BUNDLE_NAME ${PROJECT_NAME}
+				MACOSX_BUNDLE_SHORT_VERSION_STRING "${PROJECT_Version}"
+				MACOSX_BUNDLE_BUNDLE_VERSION ${DATE}
+				MACOSX_BUNDLE_COPYRIGHT "© Virtual Applications, 2017"
+				MACOSX_BUNDLE_ICON_FILE "AppIcon.icns"
+				MACOSX_BUNDLE_INFO_PLIST "${CMAKE_CURRENT_SOURCE_DIR}/../Source/ui_macosx/Info.plist.in"
+			RESOURCE "${OSX_RES}"
+		)
+	endif()
+endif (USE_QT)
+
+if(APPLE AND NOT IOS AND NOT USE_QT)
 	include_directories(
 		../
 		../Source/ui_macosx/
@@ -619,7 +655,7 @@ if(APPLE AND NOT IOS)
 				COMMENT "${CMAKE_CURRENT_SOURCE_DIR}/../Source/ui_macosx/${xib}.xib")
 
 	endforeach()
-endif(APPLE AND NOT IOS)
+endif(APPLE AND NOT IOS AND NOT USE_QT)
 
 if(TARGET_PLATFORM_IOS)
 	include_directories(
