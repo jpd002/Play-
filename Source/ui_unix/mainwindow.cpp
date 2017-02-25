@@ -134,13 +134,14 @@ void MainWindow::openGLWindow_resized()
 void MainWindow::on_actionOpen_Game_triggered()
 {
     QFileDialog dialog(this);
+    dialog.setDirectory(m_lastpath);
     dialog.setFileMode(QFileDialog::ExistingFile);
     dialog.setNameFilter(tr("All supported types(*.iso *.bin *.isz *.cso);;UltraISO Compressed Disk Images (*.isz);;CISO Compressed Disk Images (*.cso);;All files (*.*)"));
     if (dialog.exec())
     {
         auto fileName = dialog.selectedFiles().first();
+        m_lastpath = QFileInfo(fileName).path();
         CAppConfig::GetInstance().SetPreferenceString(PS2VM_CDROM0PATH, fileName.toStdString().c_str());
-
 
         if (g_virtualMachine != nullptr)
         {
@@ -160,15 +161,17 @@ void MainWindow::on_actionOpen_Game_triggered()
 void MainWindow::on_actionBoot_ELF_triggered()
 {
     QFileDialog dialog(this);
+    dialog.setDirectory(m_lastpath);
     dialog.setFileMode(QFileDialog::ExistingFile);
     dialog.setNameFilter(tr("ELF files (*.elf)"));
     if (dialog.exec())
     {
+        auto fileName = dialog.selectedFiles().first();
+        m_lastpath = QFileInfo(fileName).path();
         if (g_virtualMachine != nullptr)
         {
             try
             {
-                auto fileName = dialog.selectedFiles().first();
                 m_lastOpenCommand = new lastOpenCommand(BootType::ELF, fileName.toStdString().c_str());
                 BootElf(fileName.toStdString().c_str());
             } catch( const std::exception& e) {

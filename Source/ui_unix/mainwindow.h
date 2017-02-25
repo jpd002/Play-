@@ -5,6 +5,7 @@
 #include <QLabel>
 #include <QKeyEvent>
 #include <QXmlStreamReader>
+#include <QDir>
 
 #include "AppConfig.h"
 #include "PS2VM.h"
@@ -67,6 +68,7 @@ private:
 
     };
     lastOpenCommand* m_lastOpenCommand = nullptr;
+    QString m_lastpath = QDir::homePath();
 
     QString ReadElementValue(QXmlStreamReader &Rxml);
 protected:
