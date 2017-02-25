@@ -60,7 +60,7 @@ void ControllerConfigDialog::Save(int index, QWidget* tab)
         map.insert(oname, child);
 
     }
-    QString path(CAppConfig::GetBasePath().c_str());
+    QString path(CAppConfig::GetBasePath().string().c_str());
     QString filename="keymaps_%1.xml";
     filename = filename.arg(QString::number(index));
     QFile file(path +"/"+ filename);
@@ -96,7 +96,7 @@ void ControllerConfigDialog::Save(int index, QWidget* tab)
 void ControllerConfigDialog::Load(int index, QWidget* tab)
 {
     QXmlStreamReader Rxml;
-    QString path(CAppConfig::GetBasePath().c_str());
+    QString path(CAppConfig::GetBasePath().string().c_str());
     QString filename="keymaps_%1.xml";
     filename = filename.arg(QString::number(index));
     QFile file(path +"/"+ filename);
@@ -220,7 +220,7 @@ CPH_HidUnix::BindingPtr *ControllerConfigDialog::GetBinding(int pad)
     uint32 m_axis_bindings[4] = {0};
     CPH_HidUnix::BindingPtr*			m_bindings = new CPH_HidUnix::BindingPtr[PS2::CControllerInfo::MAX_BUTTONS];
     QXmlStreamReader Rxml;
-    QString path(CAppConfig::GetBasePath().c_str());
+    QString path(CAppConfig::GetBasePath().string().c_str());
     QString filename="keymaps_%1.xml";
     filename = filename.arg(QString::number(pad));
     QFile file(path +"/"+ filename);

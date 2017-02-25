@@ -143,14 +143,16 @@ if(WIN32)
 	include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../../Nuanceur/include)
 	list(APPEND PROJECT_LIBS Nuanceur)
 
-	if (NOT TARGET FrameworkWinUI)
-		add_subdirectory(
-			${CMAKE_CURRENT_SOURCE_DIR}/../../Framework/build_cmake/FrameworkWinUI
-			${CMAKE_CURRENT_BINARY_DIR}/FrameworkWinUI
-		)
+	if(NOT USE_QT)
+		if (NOT TARGET FrameworkWinUI)
+			add_subdirectory(
+				${CMAKE_CURRENT_SOURCE_DIR}/../../Framework/build_cmake/FrameworkWinUI
+				${CMAKE_CURRENT_BINARY_DIR}/FrameworkWinUI
+			)
+		endif()
+		include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../../Framework/include)
+		list(APPEND PROJECT_LIBS FrameworkWinUI)
 	endif()
-	include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../../Framework/include)
-	list(APPEND PROJECT_LIBS FrameworkWinUI)
 
 	find_package(DirectX9 REQUIRED)
 	list(APPEND PROJECT_LIBS ${DirectX_D3D9_LIBRARY})
@@ -464,6 +466,8 @@ list(APPEND PROJECT_LIBS PlayCore)
 
 #UI
 if (USE_QT)
+	add_definitions(-D_QT)
+
 	include_directories(
 		../
 		../Source/ui_unix/
@@ -527,7 +531,13 @@ if (USE_QT)
 	QT5_WRAP_UI(QT_UI_HEADERS ${QT_UIS})
 	QT5_WRAP_CPP(QT_MOC_SRCS ${QT_MOC_HEADERS})
 
-	if(NOT APPLE)
+	if(WIN32)
+		if(NOT OPENAL_FOUND)
+			list(APPEND QT_SOURCES ../tools/PsfPlayer/Source/win32_ui/SH_WaveOut.cpp)
+		endif()
+		add_executable(Play WIN32 ${QT_SOURCES} ${QT_MOC_SRCS} ${QT_RES_SOURCES} ${QT_UI_HEADERS})
+		target_link_libraries(Play ${PROJECT_LIBS})
+	elseif(NOT APPLE)
 		add_executable(Play ${QT_SOURCES} ${QT_MOC_SRCS} ${QT_RES_SOURCES} ${QT_UI_HEADERS})
 		target_link_libraries(Play ${PROJECT_LIBS})
 	elseif(APPLE)
@@ -759,7 +769,7 @@ if(TARGET_PLATFORM_IOS)
 
 endif(TARGET_PLATFORM_IOS)
 
-if (WIN32)
+if (WIN32 AND NOT USE_QT)
 	ENABLE_LANGUAGE(ASM_MASM)
 
 	include_directories(
@@ -860,7 +870,7 @@ if (WIN32)
 	target_link_libraries(Play PUBLIC ${PROJECT_LIBS})
 	add_precompiled_header(Play StdAfx.h FORCEINCLUDE SOURCE_CXX ../Source/ui_win32/StdAfx.cpp)
 	add_precompiled_header(PlayCore Pch.h FORCEINCLUDE SOURCE_CXX ../Source/Pch.cpp)
-endif (WIN32)
+endif (WIN32 AND NOT USE_QT)
 
 enable_testing()
 
