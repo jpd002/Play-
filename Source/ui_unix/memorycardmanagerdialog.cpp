@@ -105,6 +105,7 @@ void MemoryCardManagerDialog::on_savelistWidget_currentRowChanged(int currentRow
 
 
         ui->label_name->setText(QString::fromWCharArray(save->GetName()));
+        ui->label_name->setMinimumSize(ui->label_name->sizeHint());
         ui->label_id->setText(QString(save->GetId()));
         QString size("%1kb");
         ui->label_size->setText(size.arg(QString::number(save->GetSize()/1000)));
