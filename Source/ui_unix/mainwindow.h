@@ -41,6 +41,8 @@ private:
     void RegisterPreferences();
     void BootElf(const char*);
     void BootCDROM();
+    void saveState(int);
+    void loadState(int);
 
     Ui::MainWindow *ui;
 
@@ -82,8 +84,6 @@ private slots:
     void keyPressEvent(QKeyEvent *);
     void keyReleaseEvent(QKeyEvent *);
     void on_actionSettings_triggered();
-    void saveState();
-    void loadState();
     void on_actionPause_Resume_triggered();
     void on_actionAbout_triggered();
     void focusOutEvent(QFocusEvent*) Q_DECL_OVERRIDE;

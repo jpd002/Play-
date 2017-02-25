@@ -278,29 +278,26 @@ void MainWindow::SetupSaveLoadStateSlots()
         QAction* saveaction = new QAction(this);
         saveaction->setText(QString("Save Slot %1 - %2").arg(i).arg(info));
         saveaction->setEnabled(enable);
-        saveaction->setProperty("stateSlot", i);
         ui->menuSave_States->addAction(saveaction);
 
         QAction* loadaction = new QAction(this);
         loadaction->setText(QString("Load Slot %1 - %2").arg(i).arg(info));
         loadaction->setEnabled(enable);
-        loadaction->setProperty("stateSlot", i);
         ui->menuLoad_States->addAction(loadaction);
 
         if (enable)
         {
-            connect(saveaction, SIGNAL(triggered()), this, SLOT(saveState()));
-            connect(loadaction, SIGNAL(triggered()), this, SLOT(loadState()));
+            connect(saveaction, &QAction::triggered, std::bind(&MainWindow::saveState, this, i));
+            connect(loadaction, &QAction::triggered, std::bind(&MainWindow::loadState, this, i));
         }
 
     }
 }
 
-void MainWindow::saveState()
+void MainWindow::saveState(int m_stateSlot)
 {
     Framework::PathUtils::EnsurePathExists(GetStateDirectoryPath());
 
-    int m_stateSlot = sender()->property("stateSlot").toInt();
     g_virtualMachine->SaveState(GenerateStatePath(m_stateSlot).string().c_str());
 
     QDateTime* dt = new QDateTime;
@@ -309,8 +306,7 @@ void MainWindow::saveState()
     ui->menuLoad_States->actions().at(m_stateSlot-1)->setText(QString("Load Slot %1 - %2").arg(m_stateSlot).arg(datetime));
 }
 
-void MainWindow::loadState(){
-    int m_stateSlot = sender()->property("stateSlot").toInt();
+void MainWindow::loadState(int m_stateSlot){
     g_virtualMachine->LoadState(GenerateStatePath(m_stateSlot).string().c_str());
     g_virtualMachine->Resume();
 }
