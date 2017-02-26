@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <exception>
 #include <boost/filesystem/path.hpp>
+#include "string_format.h"
 #include "PS2OS.h"
 #include "StdStream.h"
 #ifdef __ANDROID__
@@ -3185,7 +3186,7 @@ BiosDebugThreadInfoArray CPS2OS::GetThreadsDebugInfo() const
 			threadInfo.stateDescription = "Sleeping";
 			break;
 		case THREAD_WAITING:
-			threadInfo.stateDescription = "Waiting (Semaphore: " + boost::lexical_cast<std::string>(thread->semaWait) + ")";
+			threadInfo.stateDescription = string_format("Waiting (Semaphore: %d)", thread->semaWait);
 			break;
 		case THREAD_SUSPENDED:
 			threadInfo.stateDescription = "Suspended";
@@ -3194,7 +3195,7 @@ BiosDebugThreadInfoArray CPS2OS::GetThreadsDebugInfo() const
 			threadInfo.stateDescription = "Suspended+Sleeping";
 			break;
 		case THREAD_SUSPENDED_WAITING:
-			threadInfo.stateDescription = "Suspended+Waiting (Semaphore: " + boost::lexical_cast<std::string>(thread->semaWait) + ")";
+			threadInfo.stateDescription =  string_format("Suspended+Waiting (Semaphore: %d)", thread->semaWait);
 			break;
 		case THREAD_ZOMBIE:
 			threadInfo.stateDescription = "Zombie";
