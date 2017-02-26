@@ -1378,17 +1378,18 @@ void CIopBios::SaveThreadContext(uint32 threadId)
 
 void CIopBios::LinkThread(uint32 threadId)
 {
-	THREAD* thread = m_threads[threadId];
-	uint32* nextThreadId = &ThreadLinkHead();
+	auto thread = m_threads[threadId];
+	auto nextThreadId = &ThreadLinkHead();
 	while(1)
 	{
+		assert((*nextThreadId) < MAX_THREAD);
 		if((*nextThreadId) == 0)
 		{
 			(*nextThreadId) = threadId;
 			thread->nextThreadId = 0;
 			break;
 		}
-		THREAD* currentThread = m_threads[(*nextThreadId)];
+		auto currentThread = m_threads[(*nextThreadId)];
 		if(currentThread->priority > thread->priority)
 		{
 			thread->nextThreadId = (*nextThreadId);
