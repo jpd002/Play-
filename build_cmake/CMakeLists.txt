@@ -637,6 +637,7 @@ if(APPLE AND IOS)
 	set(OSX_RES
 		${CMAKE_CURRENT_SOURCE_DIR}/../patches.xml
 		${CMAKE_CURRENT_SOURCE_DIR}/../Source/ui_ios/Base.lproj/Main.storyboard
+		${CMAKE_CURRENT_SOURCE_DIR}/../build_ios/Play!/Resources/games.db
 		${CMAKE_CURRENT_SOURCE_DIR}/../build_ios/Play!/Resources/boxart.png
 		${CMAKE_CURRENT_SOURCE_DIR}/../build_ios/Play!/Resources/select.png
 		${CMAKE_CURRENT_SOURCE_DIR}/../build_ios/Play!/Resources/start.png
