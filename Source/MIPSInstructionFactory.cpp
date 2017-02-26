@@ -5,11 +5,7 @@
 #include "offsetof_def.h"
 
 CMIPSInstructionFactory::CMIPSInstructionFactory(MIPS_REGSIZE nRegSize)
-: m_pCtx(NULL)
-, m_codeGen(NULL)
-, m_nAddress(0)
-, m_nOpcode(0)
-, m_regSize(nRegSize)
+: m_regSize(nRegSize)
 {
 
 }

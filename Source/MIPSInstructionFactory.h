@@ -33,9 +33,9 @@ protected:
 	void					Illegal();
 	void					SetupQuickVariables(uint32, CMipsJitter*, CMIPS*);
 
-	CMipsJitter*			m_codeGen;
-	CMIPS*					m_pCtx;
-	uint32					m_nOpcode;
-	uint32					m_nAddress;
+	CMipsJitter*			m_codeGen = nullptr;
+	CMIPS*					m_pCtx = nullptr;
+	uint32					m_nOpcode = 0;
+	uint32					m_nAddress = 0;
 	MIPS_REGSIZE			m_regSize;
 };
