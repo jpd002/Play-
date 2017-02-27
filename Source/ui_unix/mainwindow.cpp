@@ -297,26 +297,26 @@ void MainWindow::SetupSaveLoadStateSlots()
     }
 }
 
-void MainWindow::saveState(int m_stateSlot)
+void MainWindow::saveState(int stateSlot)
 {
     Framework::PathUtils::EnsurePathExists(GetStateDirectoryPath());
 
-    g_virtualMachine->SaveState(GenerateStatePath(m_stateSlot).string().c_str());
+    g_virtualMachine->SaveState(GenerateStatePath(stateSlot).string().c_str());
 
     QDateTime* dt = new QDateTime;
     QString datetime = dt->currentDateTime().toString("hh:mm dd.MM.yyyy");
-    ui->menuSave_States->actions().at(m_stateSlot-1)->setText(QString("Save Slot %1 - %2").arg(m_stateSlot).arg(datetime));
-    ui->menuLoad_States->actions().at(m_stateSlot-1)->setText(QString("Load Slot %1 - %2").arg(m_stateSlot).arg(datetime));
+    ui->menuSave_States->actions().at(stateSlot-1)->setText(QString("Save Slot %1 - %2").arg(stateSlot).arg(datetime));
+    ui->menuLoad_States->actions().at(stateSlot-1)->setText(QString("Load Slot %1 - %2").arg(stateSlot).arg(datetime));
 }
 
-void MainWindow::loadState(int m_stateSlot){
-    g_virtualMachine->LoadState(GenerateStatePath(m_stateSlot).string().c_str());
+void MainWindow::loadState(int stateSlot){
+    g_virtualMachine->LoadState(GenerateStatePath(stateSlot).string().c_str());
     g_virtualMachine->Resume();
 }
 
-QString MainWindow::SaveStateInfo(int m_stateSlot)
+QString MainWindow::SaveStateInfo(int stateSlot)
 {
-    QFileInfo file(GenerateStatePath(m_stateSlot).string().c_str());
+    QFileInfo file(GenerateStatePath(stateSlot).string().c_str());
     if (file.exists() && file.isFile()) {
         return file.created().toString("hh:mm dd.MM.yyyy");
     } else {
@@ -329,9 +329,9 @@ boost::filesystem::path MainWindow::GetStateDirectoryPath()
     return CAppConfig::GetBasePath() / boost::filesystem::path("states/");
 }
 
-boost::filesystem::path MainWindow::GenerateStatePath(int m_stateSlot)
+boost::filesystem::path MainWindow::GenerateStatePath(int stateSlot)
 {
-    std::string stateFileName = std::string(g_virtualMachine->m_ee->m_os->GetExecutableName()) + ".st" + std::to_string(m_stateSlot) + ".zip";
+    std::string stateFileName = std::string(g_virtualMachine->m_ee->m_os->GetExecutableName()) + ".st" + std::to_string(stateSlot) + ".zip";
     return GetStateDirectoryPath() / boost::filesystem::path(stateFileName);
 }
 
