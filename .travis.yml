@@ -15,6 +15,11 @@ matrix:
       env:
         - BUILD_TYPE="Unix Makefiles"
         - TARGET_OS=OSX
+    - os: osx
+      osx_image: xcode8.3
+      env:
+        - BUILD_TYPE=Xcode
+        - TARGET_OS=IOS
     - os: linux
       dist: precise
       language: android
