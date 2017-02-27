@@ -1,5 +1,3 @@
-set(CMAKE_OSX_DEPLOYMENT_TARGET "10.9" CACHE STRING "Minimum OS X deployment version")
-
 cmake_minimum_required(VERSION 2.8)
 project(Play)
 set(PROJECT_NAME "Play!")
@@ -490,6 +488,8 @@ if (UNIX AND NOT APPLE AND NOT ANDROID)
 endif (UNIX AND NOT APPLE AND NOT ANDROID)
 
 if(APPLE AND NOT IOS)
+
+	set(CMAKE_OSX_DEPLOYMENT_TARGET "10.9" CACHE STRING "Minimum OS X deployment version")
 
 	include_directories(
 		../
