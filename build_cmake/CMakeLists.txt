@@ -1,5 +1,22 @@
 cmake_minimum_required(VERSION 2.8)
 
+if(ANDROID)
+	message("-- Generating for Android --")
+	set(TARGET_PLATFORM_ANDROID TRUE)
+elseif(APPLE AND NOT IOS)
+	message("-- Generating for macOS --")
+	set(TARGET_PLATFORM_MACOS TRUE)
+elseif(APPLE AND IOS)
+	message("-- Generating for iOS --")
+	set(TARGET_PLATFORM_IOS TRUE)
+elseif(WIN32)
+	message("-- Generating for Win32 --")
+	set(TARGET_PLATFORM_WIN32 TRUE)
+else()
+	message("-- Generating for Unix compatible platform --")
+	set(TARGET_PLATFORM_UNIX TRUE)
+endif()
+
 # macOS deployment target needs to be set before 'project' to work
 if(APPLE AND NOT IOS)
 	set(CMAKE_OSX_DEPLOYMENT_TARGET "10.9" CACHE STRING "Minimum OS X deployment version")
