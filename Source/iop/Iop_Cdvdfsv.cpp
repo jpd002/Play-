@@ -183,7 +183,7 @@ bool CCdvdfsv::Invoke593(uint32 method, uint32* args, uint32 argsSize, uint32* r
 			assert(argsSize >= 4);
 			assert(retSize >= 4);
 			uint32 mode = args[0x00];
-			CLog::GetInstance().Print(LOG_NAME, "SetMediaMode(mode = %i);\r\n", mode); 
+			CLog::GetInstance().Print(LOG_NAME, "SetMediaMode(mode = %i);\r\n", mode);
 			ret[0x00] = 1;
 		}
 		break;
