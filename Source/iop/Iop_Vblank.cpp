@@ -5,68 +5,64 @@
 
 using namespace Iop;
 
-#define LOG_NAME						"iop_vblank"
-#define FUNCTION_WAITVBLANKSTART		"WaitVblankStart"
-#define FUNCTION_WAITVBLANKEND			"WaitVblankEnd"
-#define FUNCTION_REGISTERVBLANKHANDLER	"RegisterVblankHandler"
+#define LOG_NAME    "iop_vblank"
 
-CVblank::CVblank(CIopBios& bios) :
-m_bios(bios)
-{
+#define FUNCTION_WAITVBLANKSTART       "WaitVblankStart"
+#define FUNCTION_WAITVBLANKEND         "WaitVblankEnd"
+#define FUNCTION_REGISTERVBLANKHANDLER "RegisterVblankHandler"
 
-}
-
-CVblank::~CVblank()
+CVblank::CVblank(CIopBios& bios)
+: m_bios(bios)
 {
 
 }
 
 std::string CVblank::GetId() const
 {
-    return "vblank";
+	return "vblank";
 }
 
 std::string CVblank::GetFunctionName(unsigned int functionId) const
 {
-    switch(functionId)
-    {
-    case 4:
-        return FUNCTION_WAITVBLANKSTART;
-        break;
-    case 5:
-        return FUNCTION_WAITVBLANKEND;
-        break;
+	switch(functionId)
+	{
+	case 4:
+		return FUNCTION_WAITVBLANKSTART;
+		break;
+	case 5:
+		return FUNCTION_WAITVBLANKEND;
+		break;
 	case 8:
 		return FUNCTION_REGISTERVBLANKHANDLER;
 		break;
-    default:
-        return "unknown";
-        break;
-    }
+	default:
+		return "unknown";
+		break;
+	}
 }
 
 void CVblank::Invoke(CMIPS& context, unsigned int functionId)
 {
-    switch(functionId)
-    {
-    case 4:
-        WaitVblankStart();
-        break;
-    case 5:
-        WaitVblankEnd();
-        break;
+	switch(functionId)
+	{
+	case 4:
+		WaitVblankStart();
+		break;
+	case 5:
+		WaitVblankEnd();
+		break;
 	case 8:
-        context.m_State.nGPR[CMIPS::V0].nD0 = RegisterVblankHandler(
+		context.m_State.nGPR[CMIPS::V0].nD0 = RegisterVblankHandler(
 			context,
-            context.m_State.nGPR[CMIPS::A0].nV0,
-            context.m_State.nGPR[CMIPS::A1].nV0,
-            context.m_State.nGPR[CMIPS::A2].nV0,
+			context.m_State.nGPR[CMIPS::A0].nV0,
+			context.m_State.nGPR[CMIPS::A1].nV0,
+			context.m_State.nGPR[CMIPS::A2].nV0,
 			context.m_State.nGPR[CMIPS::A3].nV0);
 		break;
-    default:
-        CLog::GetInstance().Print(LOG_NAME, "Unknown function called (%d).\r\n", functionId);
-        break;
-    }
+	default:
+		CLog::GetInstance().Print(LOG_NAME, "Unknown function called (%d).\r\n", functionId);
+		break;
+	}
 }
 
 void CVblank::WaitVblankStart()
