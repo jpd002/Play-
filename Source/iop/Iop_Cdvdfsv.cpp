@@ -162,6 +162,17 @@ bool CCdvdfsv::Invoke593(uint32 method, uint32* args, uint32 argsSize, uint32* r
 		ret[0x00] = 0x00;
 		break;
 
+	case 0x05:
+		{
+			assert(argsSize >= 4);
+			assert(retSize >= 8);
+			uint32 mode = args[0x00];
+			CLog::GetInstance().Print(LOG_NAME, "TrayReq(mode = %d);\r\n", mode);
+			ret[0x00] = 0x01;    //Result
+			ret[0x01] = 0x00;    //Tray check
+		}
+		break;
+
 	case 0x0C:
 		//Status
 		assert(retSize >= 4);
