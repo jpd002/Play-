@@ -134,13 +134,14 @@ void MainWindow::openGLWindow_resized()
 void MainWindow::on_actionOpen_Game_triggered()
 {
     QFileDialog dialog(this);
+    dialog.setDirectory(m_lastpath);
     dialog.setFileMode(QFileDialog::ExistingFile);
     dialog.setNameFilter(tr("All supported types(*.iso *.bin *.isz *.cso);;UltraISO Compressed Disk Images (*.isz);;CISO Compressed Disk Images (*.cso);;All files (*.*)"));
     if (dialog.exec())
     {
         auto fileName = dialog.selectedFiles().first();
+        m_lastpath = QFileInfo(fileName).path();
         CAppConfig::GetInstance().SetPreferenceString(PS2VM_CDROM0PATH, fileName.toStdString().c_str());
-
 
         if (g_virtualMachine != nullptr)
         {
@@ -160,15 +161,17 @@ void MainWindow::on_actionOpen_Game_triggered()
 void MainWindow::on_actionBoot_ELF_triggered()
 {
     QFileDialog dialog(this);
+    dialog.setDirectory(m_lastpath);
     dialog.setFileMode(QFileDialog::ExistingFile);
     dialog.setNameFilter(tr("ELF files (*.elf)"));
     if (dialog.exec())
     {
+        auto fileName = dialog.selectedFiles().first();
+        m_lastpath = QFileInfo(fileName).path();
         if (g_virtualMachine != nullptr)
         {
             try
             {
-                auto fileName = dialog.selectedFiles().first();
                 m_lastOpenCommand = new lastOpenCommand(BootType::ELF, fileName.toStdString().c_str());
                 BootElf(fileName.toStdString().c_str());
             } catch( const std::exception& e) {
@@ -278,46 +281,42 @@ void MainWindow::SetupSaveLoadStateSlots()
         QAction* saveaction = new QAction(this);
         saveaction->setText(QString("Save Slot %1 - %2").arg(i).arg(info));
         saveaction->setEnabled(enable);
-        saveaction->setProperty("stateSlot", i);
         ui->menuSave_States->addAction(saveaction);
 
         QAction* loadaction = new QAction(this);
         loadaction->setText(QString("Load Slot %1 - %2").arg(i).arg(info));
         loadaction->setEnabled(enable);
-        loadaction->setProperty("stateSlot", i);
         ui->menuLoad_States->addAction(loadaction);
 
         if (enable)
         {
-            connect(saveaction, SIGNAL(triggered()), this, SLOT(saveState()));
-            connect(loadaction, SIGNAL(triggered()), this, SLOT(loadState()));
+            connect(saveaction, &QAction::triggered, std::bind(&MainWindow::saveState, this, i));
+            connect(loadaction, &QAction::triggered, std::bind(&MainWindow::loadState, this, i));
         }
 
     }
 }
 
-void MainWindow::saveState()
+void MainWindow::saveState(int stateSlot)
 {
     Framework::PathUtils::EnsurePathExists(GetStateDirectoryPath());
 
-    int m_stateSlot = sender()->property("stateSlot").toInt();
-    g_virtualMachine->SaveState(GenerateStatePath(m_stateSlot).string().c_str());
+    g_virtualMachine->SaveState(GenerateStatePath(stateSlot).string().c_str());
 
     QDateTime* dt = new QDateTime;
     QString datetime = dt->currentDateTime().toString("hh:mm dd.MM.yyyy");
-    ui->menuSave_States->actions().at(m_stateSlot-1)->setText(QString("Save Slot %1 - %2").arg(m_stateSlot).arg(datetime));
-    ui->menuLoad_States->actions().at(m_stateSlot-1)->setText(QString("Load Slot %1 - %2").arg(m_stateSlot).arg(datetime));
+    ui->menuSave_States->actions().at(stateSlot-1)->setText(QString("Save Slot %1 - %2").arg(stateSlot).arg(datetime));
+    ui->menuLoad_States->actions().at(stateSlot-1)->setText(QString("Load Slot %1 - %2").arg(stateSlot).arg(datetime));
 }
 
-void MainWindow::loadState(){
-    int m_stateSlot = sender()->property("stateSlot").toInt();
-    g_virtualMachine->LoadState(GenerateStatePath(m_stateSlot).string().c_str());
+void MainWindow::loadState(int stateSlot){
+    g_virtualMachine->LoadState(GenerateStatePath(stateSlot).string().c_str());
     g_virtualMachine->Resume();
 }
 
-QString MainWindow::SaveStateInfo(int m_stateSlot)
+QString MainWindow::SaveStateInfo(int stateSlot)
 {
-    QFileInfo file(GenerateStatePath(m_stateSlot).string().c_str());
+    QFileInfo file(GenerateStatePath(stateSlot).string().c_str());
     if (file.exists() && file.isFile()) {
         return file.created().toString("hh:mm dd.MM.yyyy");
     } else {
@@ -330,9 +329,9 @@ boost::filesystem::path MainWindow::GetStateDirectoryPath()
     return CAppConfig::GetBasePath() / boost::filesystem::path("states/");
 }
 
-boost::filesystem::path MainWindow::GenerateStatePath(int m_stateSlot)
+boost::filesystem::path MainWindow::GenerateStatePath(int stateSlot)
 {
-    std::string stateFileName = std::string(g_virtualMachine->m_ee->m_os->GetExecutableName()) + ".st" + std::to_string(m_stateSlot) + ".zip";
+    std::string stateFileName = std::string(g_virtualMachine->m_ee->m_os->GetExecutableName()) + ".st" + std::to_string(stateSlot) + ".zip";
     return GetStateDirectoryPath() / boost::filesystem::path(stateFileName);
 }
 

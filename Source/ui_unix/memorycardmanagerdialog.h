@@ -2,6 +2,7 @@
 #define MEMORYCARDMANAGERDIALOG_H
 
 #include <QDialog>
+#include <QDir>
 #include <boost/filesystem.hpp>
 #include "saves/SaveImporter.h"
 #include "saves/SaveExporter.h"
@@ -28,6 +29,8 @@ private:
     CMemoryCard									m_MemoryCard1;
     CMemoryCard*								m_pMemoryCard[2];
     CMemoryCard*								m_pCurrentMemoryCard;
+
+    QString                                     m_lastpath = QDir::homePath();
 
 private slots:
     void on_import_saves_button_clicked();

@@ -35,12 +35,13 @@ MemoryCardManagerDialog::~MemoryCardManagerDialog()
 void MemoryCardManagerDialog::on_import_saves_button_clicked()
 {
     QFileDialog dialog(this);
+    dialog.setDirectory(m_lastpath);
     dialog.setFileMode(QFileDialog::ExistingFiles);
     dialog.setNameFilter(tr("All Supported types (*.psu *.sps *.xps *.max);;EMS Memory Adapter Save Dumps (*.psu);;Sharkport/X-Port Save Dumps (*.sps; *.xps);;Action Replay MAX Save Dumps (*.max);;All files (*.*)"));
     if (dialog.exec())
     {
         QString fileName = dialog.selectedFiles().first();
-
+        m_lastpath = QFileInfo(fileName).path();
 
         try
         {
@@ -104,6 +105,7 @@ void MemoryCardManagerDialog::on_savelistWidget_currentRowChanged(int currentRow
 
 
         ui->label_name->setText(QString::fromWCharArray(save->GetName()));
+        ui->label_name->setMinimumSize(ui->label_name->sizeHint());
         ui->label_id->setText(QString(save->GetId()));
         QString size("%1kb");
         ui->label_size->setText(size.arg(QString::number(save->GetSize()/1000)));
