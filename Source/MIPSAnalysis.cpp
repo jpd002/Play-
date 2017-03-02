@@ -116,10 +116,11 @@ void CMIPSAnalysis::FindSubroutinesByStackAllocation(uint32 start, uint32 end)
 			{
 				opcode = m_ctx->m_pMemoryMap->GetInstruction(tempAddr);
 
-				//Check SW/SD RA, 0x0000(SP)
+				//Check SW/SD/SQ RA, 0x????(SP)
 				if(
-					((opcode & 0xFFFF0000) == 0xAFBF0000) ||		//SW
-					((opcode & 0xFFFF0000) == 0xFFBF0000))			//SD
+					((opcode & 0xFFFF0000) == 0xAFBF0000) ||    //SW
+					((opcode & 0xFFFF0000) == 0xFFBF0000) ||    //SD
+					((opcode & 0xFFFF0000) == 0x7FBF0000))      //SQ
 				{
 					returnAddr = (opcode & 0xFFFF);
 				}
