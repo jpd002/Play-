@@ -48,11 +48,6 @@ CSIF::CSIF(CDMAC& dmac, uint8* eeRam, uint8* iopRam)
 
 }
 
-CSIF::~CSIF()
-{
-
-}
-
 void CSIF::Reset()
 {
 	m_nMAINADDR		= 0;

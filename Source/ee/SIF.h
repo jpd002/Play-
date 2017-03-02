@@ -17,7 +17,7 @@ public:
 	typedef std::function<void (uint32)> CustomCommandHandler;
 
 									CSIF(CDMAC&, uint8*, uint8*);
-	virtual							~CSIF();
+	virtual							~CSIF() = default;
 
 	void							Reset();
 	
