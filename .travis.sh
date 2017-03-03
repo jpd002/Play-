@@ -56,7 +56,7 @@ travis_script()
             cmake .. -G"$BUILD_TYPE" -DCMAKE_BUILD_TYPE=Debug;
             cmake --build .
         elif [ "$TARGET_OS" = "IOS" ]; then
-            cmake .. -G"$BUILD_TYPE" -DCMAKE_TOOLCHAIN_FILE=../../../Dependencies/cmake-ios/ios.cmake
+            cmake .. -G"$BUILD_TYPE" -DCMAKE_TOOLCHAIN_FILE=../../../Dependencies/cmake-ios/ios.cmake -DTARGET_IOS=ON
             cmake --build .
         fi;
     fi;
