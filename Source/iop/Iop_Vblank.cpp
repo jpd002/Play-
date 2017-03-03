@@ -46,10 +46,10 @@ void CVblank::Invoke(CMIPS& context, unsigned int functionId)
 	switch(functionId)
 	{
 	case 4:
-		WaitVblankStart();
+		context.m_State.nGPR[CMIPS::V0].nD0 = WaitVblankStart();
 		break;
 	case 5:
-		WaitVblankEnd();
+		context.m_State.nGPR[CMIPS::V0].nD0 = WaitVblankEnd();
 		break;
 	case 8:
 		context.m_State.nGPR[CMIPS::V0].nD0 = RegisterVblankHandler(
@@ -65,23 +65,25 @@ void CVblank::Invoke(CMIPS& context, unsigned int functionId)
 	}
 }
 
-void CVblank::WaitVblankStart()
+int32 CVblank::WaitVblankStart()
 {
 #ifdef _DEBUG
 	CLog::GetInstance().Print(LOG_NAME, FUNCTION_WAITVBLANKSTART "();\r\n");
 #endif
 	m_bios.SleepThreadTillVBlankStart();
+	return 0;
 }
 
-void CVblank::WaitVblankEnd()
+int32 CVblank::WaitVblankEnd()
 {
 #ifdef _DEBUG
 	CLog::GetInstance().Print(LOG_NAME, FUNCTION_WAITVBLANKEND "();\r\n");
 #endif
 	m_bios.SleepThreadTillVBlankEnd();
+	return 0;
 }
 
-uint32 CVblank::RegisterVblankHandler(CMIPS& context, uint32 startEnd, uint32 priority, uint32 handlerPtr, uint32 handlerParam)
+int32 CVblank::RegisterVblankHandler(CMIPS& context, uint32 startEnd, uint32 priority, uint32 handlerPtr, uint32 handlerParam)
 {
 #ifdef _DEBUG
 	CLog::GetInstance().Print(LOG_NAME, FUNCTION_REGISTERVBLANKHANDLER "(startEnd = %d, priority = %d, handler = 0x%0.8X, arg = 0x%0.8X).\r\n",

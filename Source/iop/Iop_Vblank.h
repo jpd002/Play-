@@ -17,9 +17,9 @@ namespace Iop
 		void           Invoke(CMIPS&, unsigned int) override;
 
 	private:
-		void      WaitVblankStart();
-		void      WaitVblankEnd();
-		uint32    RegisterVblankHandler(CMIPS&, uint32, uint32, uint32, uint32);
+		int32     WaitVblankStart();
+		int32     WaitVblankEnd();
+		int32     RegisterVblankHandler(CMIPS&, uint32, uint32, uint32, uint32);
 
 		CIopBios& m_bios;
 	};
