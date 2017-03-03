@@ -18,9 +18,9 @@ else()
 endif()
 
 # macOS deployment target needs to be set before 'project' to work
-if(APPLE AND NOT IOS)
+if(TARGET_PLATFORM_MACOS)
 	set(CMAKE_OSX_DEPLOYMENT_TARGET "10.9" CACHE STRING "Minimum OS X deployment version")
-endif(APPLE AND NOT IOS)
+endif()
 
 project(Play)
 set(PROJECT_NAME "Play!")
