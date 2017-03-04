@@ -8,6 +8,7 @@
 #include "GSH_OpenGL.h"
 
 #define NUM_SAMPLES 8
+#define FRAMEBUFFER_HEIGHT 1024
 
 const GLenum CGSH_OpenGL::g_nativeClampModes[CGSHandler::CLAMP_MODE_MAX] =
 {
@@ -155,7 +156,7 @@ void CGSH_OpenGL::FlipImpl()
 
 	if(!framebuffer && (fb.GetBufWidth() != 0))
 	{
-		framebuffer = FramebufferPtr(new CFramebuffer(fb.GetBufPtr(), fb.GetBufWidth(), 1024, fb.nPSM, m_fbScale, m_multisampleEnabled));
+		framebuffer = FramebufferPtr(new CFramebuffer(fb.GetBufPtr(), fb.GetBufWidth(), FRAMEBUFFER_HEIGHT, fb.nPSM, m_fbScale, m_multisampleEnabled));
 		m_framebuffers.push_back(framebuffer);
 		PopulateFramebuffer(framebuffer);
 	}
@@ -979,7 +980,7 @@ void CGSH_OpenGL::SetupFramebuffer(uint64 frameReg, uint64 zbufReg, uint64 sciss
 	auto framebuffer = FindFramebuffer(frame);
 	if(!framebuffer)
 	{
-		framebuffer = FramebufferPtr(new CFramebuffer(frame.GetBasePtr(), frame.GetWidth(), 1024, frame.nPsm, m_fbScale, m_multisampleEnabled));
+		framebuffer = FramebufferPtr(new CFramebuffer(frame.GetBasePtr(), frame.GetWidth(), FRAMEBUFFER_HEIGHT, frame.nPsm, m_fbScale, m_multisampleEnabled));
 		m_framebuffers.push_back(framebuffer);
 		PopulateFramebuffer(framebuffer);
 	}
@@ -989,7 +990,7 @@ void CGSH_OpenGL::SetupFramebuffer(uint64 frameReg, uint64 zbufReg, uint64 sciss
 	auto depthbuffer = FindDepthbuffer(zbuf, frame);
 	if(!depthbuffer)
 	{
-		depthbuffer = DepthbufferPtr(new CDepthbuffer(zbuf.GetBasePtr(), frame.GetWidth(), 1024, zbuf.nPsm, m_fbScale, m_multisampleEnabled));
+		depthbuffer = DepthbufferPtr(new CDepthbuffer(zbuf.GetBasePtr(), frame.GetWidth(), FRAMEBUFFER_HEIGHT, zbuf.nPsm, m_fbScale, m_multisampleEnabled));
 		m_depthbuffers.push_back(depthbuffer);
 	}
 
