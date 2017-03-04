@@ -98,7 +98,7 @@ namespace Iop
 		uint32					SifSetCmdBuffer(uint32, uint32);
 		void					SifAddCmdHandler(uint32, uint32, uint32);
 		uint32					SifSendCmd(uint32, uint32, uint32, uint32, uint32, uint32);
-		uint32					SifBindRpc(uint32, uint32, uint32);
+		void					SifBindRpc(CMIPS&);
 		void					SifCallRpc(CMIPS&);
 		void					SifRegisterRpc(CMIPS&);
 		uint32					SifCheckStatRpc(uint32);
@@ -109,7 +109,9 @@ namespace Iop
 		uint32					SifGetOtherData(uint32, uint32, uint32, uint32, uint32);
 		void					FinishExecRequest(uint32, uint32);
 		void					FinishExecCmd();
+		void					FinishBindRpc(uint32, uint32);
 		void					SleepThread();
+		void					DelayThread(uint32);
 
 		CIopBios&				m_bios;
 		CSifMan&				m_sifMan;
@@ -122,6 +124,7 @@ namespace Iop
 		uint32					m_sifRpcLoopAddr = 0;
 		uint32					m_sifExecRequestAddr = 0;
 		uint32					m_sifExecCmdHandlerAddr = 0;
+		uint32					m_sifBindRpcAddr = 0;
 		DynamicModuleList		m_servers;
 	};
 
