@@ -227,6 +227,17 @@ if(TARGET_PLATFORM_IOS)
 	list(APPEND PROJECT_LIBS iCade_Static)
 endif()
 
+if(TARGET_PLATFORM_IOS)
+	if(NOT TARGET SDWebImage_Static)
+		add_subdirectory(
+			${CMAKE_CURRENT_SOURCE_DIR}/../../Dependencies/build_cmake/SDWebImage
+			${CMAKE_CURRENT_BINARY_DIR}/SDWebImage
+		)
+	endif()
+	include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../../Dependencies/SDWebImage)
+	list(APPEND PROJECT_LIBS SDWebImage_Static)
+endif()
+
 if(NOT (TARGET_PLATFORM_ANDROID OR TARGET_PLATFORM_IOS))
 	find_package(OpenGL REQUIRED)
 	list(APPEND PROJECT_LIBS ${OPENGL_LIBRARIES})
@@ -631,6 +642,7 @@ if(APPLE AND IOS)
 	find_library(COREANIMATION_LIBRARY NAMES CoreAnimation)
 	find_library(GAMECONTROLLER_LIBRARY NAMES GameController)
 	find_library(QUARTZCORE_LIBRARY NAMES QuartzCore)
+	find_library(IMAGEIO_LIBRARY NAMES ImageIO)
 
 	set (OSX_SOURCES
 		../Source/ui_ios/AppDelegate.mm
@@ -698,6 +710,7 @@ if(APPLE AND IOS)
 	target_link_libraries(Play $(COREANIMATION_LIBRARY))
 	target_link_libraries(Play ${GAMECONTROLLER_LIBRARY})
 	target_link_libraries(Play ${QUARTZCORE_LIBRARY})
+	target_link_libraries(Play ${IMAGEIO_LIBRARY})
 	target_link_libraries(Play ${PROJECT_LIBS} "-ObjC -lsqlite3 -framework OpenGLES -framework OpenAL")
 
 	# Set a custom plist file for the app bundle
