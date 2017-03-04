@@ -2,6 +2,13 @@ cmake_minimum_required(VERSION 2.8)
 
 option(TARGET_IOS "Enable building for iOS" OFF)
 
+# macOS deployment target needs to be set before 'project' to work
+if(APPLE AND NOT TARGET_IOS)
+	set(CMAKE_OSX_DEPLOYMENT_TARGET "10.9" CACHE STRING "Minimum OS X deployment version")
+endif()
+
+project(Play)
+
 if(ANDROID)
 	message("-- Generating for Android --")
 	set(TARGET_PLATFORM_ANDROID TRUE)
@@ -19,12 +26,6 @@ else()
 	set(TARGET_PLATFORM_UNIX TRUE)
 endif()
 
-# macOS deployment target needs to be set before 'project' to work
-if(TARGET_PLATFORM_MACOS)
-	set(CMAKE_OSX_DEPLOYMENT_TARGET "10.9" CACHE STRING "Minimum OS X deployment version")
-endif()
-
-project(Play)
 set(PROJECT_NAME "Play!")
 set(PROJECT_Version 0.30)
 add_definitions(-DPLAY_VERSION="${PROJECT_Version}")
