@@ -1,6 +1,6 @@
 #import <UIKit/UIKit.h>
 #import <GameController/GameController.h>
-#import "iCade-iOS/iCadeReaderView.h"
+#import "iCadeReaderView.h"
 #import "VirtualPadView.h"
 
 @interface EmulatorViewController : UIViewController <iCadeEventDelegate>

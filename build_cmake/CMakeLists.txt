@@ -216,6 +216,17 @@ else()
 	list(APPEND PROJECT_LIBS ${ZLIB_LIBRARIES})
 endif()
 
+if(TARGET_PLATFORM_IOS)
+	if(NOT TARGET iCade_Static)
+		add_subdirectory(
+			${CMAKE_CURRENT_SOURCE_DIR}/../../Dependencies/build_cmake/iCade-iOS
+			${CMAKE_CURRENT_BINARY_DIR}/iCade-iOS
+		)
+	endif()
+	include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../../Dependencies/iCade-iOS)
+	list(APPEND PROJECT_LIBS iCade_Static)
+endif()
+
 if(NOT (TARGET_PLATFORM_ANDROID OR TARGET_PLATFORM_IOS))
 	find_package(OpenGL REQUIRED)
 	list(APPEND PROJECT_LIBS ${OPENGL_LIBRARIES})
