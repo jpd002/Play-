@@ -123,7 +123,7 @@ public:
 								~CMIPS();
 	void						ToggleBreakpoint(uint32);
 	bool						IsBranch(uint32);
-	static long					GetBranch(uint16);
+	static int32				GetBranch(uint16);
 	static uint32				TranslateAddress64(CMIPS*, uint32);
 
 	void						Reset();

@@ -64,7 +64,7 @@ void CMIPS::ToggleBreakpoint(uint32 address)
 	m_breakpoints.insert(address);
 }
 
-long CMIPS::GetBranch(uint16 nData)
+int32 CMIPS::GetBranch(uint16 nData)
 {
 	if(nData & 0x8000)
 	{
