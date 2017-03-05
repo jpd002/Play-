@@ -9,6 +9,7 @@ using namespace Iop;
 
 #define FUNCTION_WAITVBLANKSTART       "WaitVblankStart"
 #define FUNCTION_WAITVBLANKEND         "WaitVblankEnd"
+#define FUNCTION_WAITVBLANK            "WaitVblank"
 #define FUNCTION_REGISTERVBLANKHANDLER "RegisterVblankHandler"
 
 CVblank::CVblank(CIopBios& bios)
@@ -32,6 +33,9 @@ std::string CVblank::GetFunctionName(unsigned int functionId) const
 	case 5:
 		return FUNCTION_WAITVBLANKEND;
 		break;
+	case 6:
+		return FUNCTION_WAITVBLANK;
+		break;
 	case 8:
 		return FUNCTION_REGISTERVBLANKHANDLER;
 		break;
@@ -50,6 +54,9 @@ void CVblank::Invoke(CMIPS& context, unsigned int functionId)
 		break;
 	case 5:
 		context.m_State.nGPR[CMIPS::V0].nD0 = WaitVblankEnd();
+		break;
+	case 6:
+		context.m_State.nGPR[CMIPS::V0].nD0 = WaitVblank();
 		break;
 	case 8:
 		context.m_State.nGPR[CMIPS::V0].nD0 = RegisterVblankHandler(
@@ -80,6 +87,16 @@ int32 CVblank::WaitVblankEnd()
 	CLog::GetInstance().Print(LOG_NAME, FUNCTION_WAITVBLANKEND "();\r\n");
 #endif
 	m_bios.SleepThreadTillVBlankEnd();
+	return 0;
+}
+
+int32 CVblank::WaitVblank()
+{
+#ifdef _DEBUG
+	CLog::GetInstance().Print(LOG_NAME, FUNCTION_WAITVBLANK "();\r\n");
+#endif
+	//TODO: Skip waiting if we're already in Vblank
+	m_bios.SleepThreadTillVBlankStart();
 	return 0;
 }
 
