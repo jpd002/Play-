@@ -631,7 +631,7 @@ if(APPLE AND NOT IOS)
 	endforeach()
 endif(APPLE AND NOT IOS)
 
-if(APPLE AND IOS)
+if(TARGET_PLATFORM_IOS)
 	include_directories(
 		../
 		../Source/ui_ios/
@@ -731,7 +731,7 @@ if(APPLE AND IOS)
 			RESOURCE "${OSX_RES}"
 	)
 
-endif(APPLE AND IOS)
+endif(TARGET_PLATFORM_IOS)
 
 if (WIN32)
 	ENABLE_LANGUAGE(ASM_MASM)
