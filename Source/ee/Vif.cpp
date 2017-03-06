@@ -1107,7 +1107,7 @@ void CVif::DisassembleCommand(CODE code)
 			CLog::GetInstance().Print(LOG_NAME, "STMOD(imm = 0x%x);\r\n", code.nIMM);
 			break;
 		case 0x06:
-			CLog::GetInstance().Print(LOG_NAME, "MSKPATH3();\r\n");
+			CLog::GetInstance().Print(LOG_NAME, "MSKPATH3(mask = %d);\r\n", (code.nIMM & 0x8000) ? 1 : 0);
 			break;
 		case 0x07:
 			CLog::GetInstance().Print(LOG_NAME, "MARK(imm = 0x%x);\r\n", code.nIMM);
