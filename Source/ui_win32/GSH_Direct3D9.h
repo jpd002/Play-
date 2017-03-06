@@ -25,7 +25,7 @@ public:
 	};
 
 									CGSH_Direct3D9(Framework::Win32::CWindow*);
-	virtual							~CGSH_Direct3D9();
+	virtual							~CGSH_Direct3D9() = default;
 
 	void							ProcessHostToLocalTransfer() override;
 	void							ProcessLocalToHostTransfer() override;

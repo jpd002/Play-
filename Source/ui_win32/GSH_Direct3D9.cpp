@@ -42,11 +42,6 @@ CGSH_Direct3D9::CGSH_Direct3D9(Framework::Win32::CWindow* outputWindow)
 	m_primitiveMode <<= 0;
 }
 
-CGSH_Direct3D9::~CGSH_Direct3D9()
-{
-
-}
-
 Framework::CBitmap CGSH_Direct3D9::GetFramebuffer(uint64 frameReg)
 {
 	Framework::CBitmap result;
