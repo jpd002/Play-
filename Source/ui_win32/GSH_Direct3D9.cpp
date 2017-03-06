@@ -317,6 +317,7 @@ Framework::CBitmap CGSH_Direct3D9::CreateBitmapFromTexture(const TexturePtr& tex
 				return 16;
 			case PSMT4:
 			case PSMT8:
+			case PSMT8H:
 				return 8;
 			default:
 				assert(false);
