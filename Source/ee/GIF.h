@@ -41,7 +41,7 @@ public:
 	static_assert(sizeof(TAG) == 0x10, "Size of TAG must be 16 bytes.");
 
 					CGIF(CGSHandler*&, uint8*, uint8*);
-	virtual			~CGIF();
+	virtual			~CGIF() = default;
 
 	void			Reset();
 	uint32			ReceiveDMA(uint32, uint32, uint32, bool);

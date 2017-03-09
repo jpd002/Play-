@@ -36,11 +36,6 @@ CGIF::CGIF(CGSHandler*& gs, uint8* ram, uint8* spr)
 
 }
 
-CGIF::~CGIF()
-{
-
-}
-
 void CGIF::Reset()
 {
 	m_path3Masked = false;
