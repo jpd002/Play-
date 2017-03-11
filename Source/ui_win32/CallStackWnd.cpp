@@ -132,11 +132,8 @@ void CCallStackWnd::Update()
 
 	auto modules = m_biosDebugInfoProvider ? m_biosDebugInfoProvider->GetModulesDebugInfo() : BiosDebugModuleInfoArray();
 
-	for(auto itemIterator(std::begin(callStackItems));
-		itemIterator != std::end(callStackItems); itemIterator++)
+	for(const auto& callStackItem : callStackItems)
 	{
-		const auto& callStackItem(*itemIterator);
-
 		//Add the current function
 		LVITEM item;
 		memset(&item, 0, sizeof(LVITEM));
@@ -146,7 +143,7 @@ void CCallStackWnd::Update()
 		item.lParam		= callStackItem;
 		unsigned int i = m_list->InsertItem(item);
 
-		std::tstring locationString = DebugUtils::PrintAddressLocation(callStackItem, m_context, modules);
+		auto locationString = DebugUtils::PrintAddressLocation(callStackItem, m_context, modules);
 		m_list->SetItemText(i, 0, locationString.c_str());
 	}
 
