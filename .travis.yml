@@ -22,8 +22,7 @@ matrix:
       sudo: required
       jdk: oraclejdk8
       env:
-        global:
-          - TARGET_OS=Android
+        - TARGET_OS=Android
       android:
         components:
         - tools
