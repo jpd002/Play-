@@ -60,7 +60,6 @@ travis_script()
             cmake --build .
         fi;
     fi;
-
 }
 
 set -e
