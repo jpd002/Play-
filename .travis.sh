@@ -41,7 +41,7 @@ travis_script()
         cd build_android
         chmod 755 gradlew
         ./gradlew
-        ./gradlew assembleDebug
+        ./gradlew assembleRelease
     else
         cd build_cmake
         mkdir build
@@ -53,11 +53,11 @@ travis_script()
             cmake .. -G"$BUILD_TYPE" -DCMAKE_PREFIX_PATH=/opt/qt56/;
             cmake --build .
         elif [ "$TARGET_OS" = "OSX" ]; then
-            cmake .. -G"$BUILD_TYPE" -DCMAKE_BUILD_TYPE=Debug;
-            cmake --build .
+            cmake .. -G"$BUILD_TYPE"
+            cmake --build . --config Release
         elif [ "$TARGET_OS" = "IOS" ]; then
             cmake .. -G"$BUILD_TYPE" -DCMAKE_TOOLCHAIN_FILE=../../../Dependencies/cmake-ios/ios.cmake -DTARGET_IOS=ON
-            cmake --build .
+            cmake --build . --config Release
         fi;
     fi;
 }
