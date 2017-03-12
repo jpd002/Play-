@@ -54,15 +54,8 @@ if(NOT CMAKE_BUILD_TYPE)
 		FORCE)
 endif()
 
-# definitions
-if(NOT MSVC)
-	MESSAGE("-- Build type: ${CMAKE_BUILD_TYPE}")
-	if(CMAKE_BUILD_TYPE STREQUAL "Release")
-		add_definitions(-DNDEBUG)
-	else()
-		add_definitions(-D_DEBUG)
-	endif()
-endif()
+set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -D_DEBUG")
+set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -DNDEBUG")
 
 add_definitions(-D_IOP_EMULATE_MODULES)
 add_definitions(-DGLEW_STATIC)
