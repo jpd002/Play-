@@ -21,7 +21,7 @@ endif()
 
 if(ANDROID)
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
-	include_directories("${CMAKE_ANDROID_NDK}/sources/android/cpufeatures/")
+	include_directories("${ANDROID_NDK}/sources/android/cpufeatures/")
 endif()
 
 if(NOT CMAKE_BUILD_TYPE)
@@ -209,7 +209,7 @@ endif()
 
 if(ANDROID)
 	if(NOT TARGET cpufeatures)
-		add_library(cpufeatures STATIC ${CMAKE_ANDROID_NDK}/sources/android/cpufeatures/cpu-features.c)
+		add_library(cpufeatures STATIC ${ANDROID_NDK}/sources/android/cpufeatures/cpu-features.c)
 	endif()
 	list(APPEND PROJECT_LIBS cpufeatures)
 	list(APPEND PROJECT_LIBS android log OpenSLES GLESv3 EGL)

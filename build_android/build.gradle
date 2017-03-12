@@ -42,7 +42,7 @@ android {
 		targetSdkVersion 24
 		externalNativeBuild {
 			cmake {
-				arguments "-DANDROID_ARM_NEON=TRUE", "-DANDROID_TOOLCHAIN=clang", "-DCMAKE_ANDROID_NDK="+android.ndkDirectory,
+				arguments "-DANDROID_ARM_NEON=TRUE", "-DANDROID_TOOLCHAIN=clang",
 						"-DANDROID_CPP_FEATURES=exceptions rtti", "-DANDROID_STL=c++_static"
 				cppFlags "-frtti"
 				targets "PlayCore"
