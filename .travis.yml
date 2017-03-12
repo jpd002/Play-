@@ -23,9 +23,6 @@ matrix:
       jdk: oraclejdk8
       env:
         global:
-          - ANDROID_TARGET=android-24
-          - ANDROID_ABI=armeabi-v7a
-          - BUILD_TYPE=Gradle
           - TARGET_OS=Android
       android:
         components:
@@ -34,7 +31,6 @@ matrix:
         - build-tools-24.0.3
         - android-24
         - extra-android-m2repository
-        - sys-img-${ANDROID_ABI}-${ANDROID_TARGET}
 
 language: cpp
 
