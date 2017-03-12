@@ -404,13 +404,9 @@ if (WIN32)
 	set(PLATFORM_SPECIFIC_SRC_FILES ../Source/VolumeStream.cpp)
 endif ()
 
-if (UNIX AND NOT APPLE)
-    set(PLATFORM_SPECIFIC_SRC_FILES ../Source/Posix_VolumeStream.cpp)
-endif ()
-
-if (APPLE AND NOT IOS)
+if(TARGET_PLATFORM_MACOS OR TARGET_PLATFORM_UNIX)
 	set(PLATFORM_SPECIFIC_SRC_FILES ../Source/Posix_VolumeStream.cpp)
-endif ()
+endif()
 
 if(ANDROID)
 	set(PLATFORM_SPECIFIC_SRC_FILES
