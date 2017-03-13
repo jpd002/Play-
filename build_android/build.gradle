@@ -11,15 +11,18 @@ buildscript {
 	}
 }
 
+project.ext {
+	keyStorePropFile = rootProject.file('keystore.properties')
+	signingEnabled = keyStorePropFile.exists()
+}
+
 project.afterEvaluate {
 	preBuild.dependsOn 'copyPatchFile'
 
-	def propsFile = rootProject.file('keystore.properties')
 	def configName = 'release'
-
-	if(propsFile.exists() && android.signingConfigs.hasProperty(configName)) {
+	if(project.ext.signingEnabled && android.signingConfigs.hasProperty(configName)) {
 		def props = new Properties()
-		props.load(new FileInputStream(propsFile))
+		props.load(new FileInputStream(project.ext.keyStorePropFile))
 		android.signingConfigs[configName].storeFile = file(props['storeFile'])
 		android.signingConfigs[configName].storePassword = props['storePassword']
 		android.signingConfigs[configName].keyAlias = props['keyAlias']
@@ -76,7 +79,9 @@ android {
 		}
 		release {
 			proguardFile getDefaultProguardFile('proguard-android.txt')
-			signingConfig signingConfigs.release
+			if(project.ext.signingEnabled) {
+				signingConfig signingConfigs.release
+			}
 		}
 	}
 
