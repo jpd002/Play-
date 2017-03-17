@@ -814,7 +814,6 @@ if (WIN32)
 		../Source/ui_win32/VirtualPad/VirtualPadWindow.cpp
 		../Source/ui_win32/WinUtils.cpp
 		../tools/PsfPlayer/Source/win32_ui/SH_WaveOut.cpp
-		../Source/VirtualPad.cpp
 		
 		${DEBUG_SRC}
 		${MANIFEST}
