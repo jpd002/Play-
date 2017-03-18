@@ -35,6 +35,7 @@ set(CMAKE_MODULE_PATH
 	${CMAKE_CURRENT_SOURCE_DIR}/../../Dependencies/cmake-modules
 	${CMAKE_MODULE_PATH}
 )
+include(PrecompiledHeader)
 
 # flags
 set(CMAKE_CXX_STANDARD 14)
@@ -389,6 +390,7 @@ set(COMMON_SRC_FILES
 	../Source/MIPSTags.cpp 
 	../Source/PadHandler.cpp 
 	../Source/PadListener.cpp
+	../Source/Pch.cpp
 	../Source/PH_Generic.cpp 
 	../Source/Profiler.cpp 
 	../Source/PS2VM.cpp 
@@ -444,6 +446,7 @@ if(ANDROID)
 else()
 	add_library(PlayCore STATIC ${COMMON_SRC_FILES} ${PLATFORM_SPECIFIC_SRC_FILES})
 endif()
+add_precompiled_header(PlayCore Pch.h FORCEINCLUDE SOURCE_CXX ../Source/Pch.cpp)
 
 
 if(NOT ANDROID)
@@ -821,10 +824,7 @@ if (WIN32)
 
 	add_executable(Play WIN32 ${WIN32_SRC} ../Source/ui_win32/Res.rc)
 	target_link_libraries(Play PUBLIC ${PROJECT_LIBS})
-	include(PrecompiledHeader)
-	set(pch_source ../Source/ui_win32/StdAfx.cpp)
-	add_precompiled_header(Play ../Source/ui_win32/StdAfx.h c++-header)
-	target_use_precompiled_header(Play ../Source/ui_win32/StdAfx.h c++-header FORCEINCLUDE)
+	add_precompiled_header(Play StdAfx.h FORCEINCLUDE SOURCE_CXX ../Source/ui_win32/StdAfx.cpp)
 endif (WIN32)
 
 enable_testing()
