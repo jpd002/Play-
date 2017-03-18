@@ -446,8 +446,6 @@ if(ANDROID)
 else()
 	add_library(PlayCore STATIC ${COMMON_SRC_FILES} ${PLATFORM_SPECIFIC_SRC_FILES})
 endif()
-add_precompiled_header(PlayCore Pch.h FORCEINCLUDE SOURCE_CXX ../Source/Pch.cpp)
-
 
 if(NOT ANDROID)
 	if(THREADS_HAVE_PTHREAD_ARG)
@@ -825,6 +823,7 @@ if (WIN32)
 	add_executable(Play WIN32 ${WIN32_SRC} ../Source/ui_win32/Res.rc)
 	target_link_libraries(Play PUBLIC ${PROJECT_LIBS})
 	add_precompiled_header(Play StdAfx.h FORCEINCLUDE SOURCE_CXX ../Source/ui_win32/StdAfx.cpp)
+	add_precompiled_header(PlayCore Pch.h FORCEINCLUDE SOURCE_CXX ../Source/Pch.cpp)
 endif (WIN32)
 
 enable_testing()
