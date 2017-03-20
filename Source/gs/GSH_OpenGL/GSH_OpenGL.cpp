@@ -1005,7 +1005,7 @@ void CGSH_OpenGL::SetupFramebuffer(uint64 frameReg, uint64 zbufReg, uint64 sciss
 	assert(result == GL_FRAMEBUFFER_COMPLETE);
 
 	m_renderState.framebufferHandle = framebuffer->m_framebuffer;
-	m_validGlState &= ~GLSTATE_FRAMEBUFFER;
+	m_validGlState |= GLSTATE_FRAMEBUFFER;    //glBindFramebuffer used to set just above
 
 	//We assume that we will be drawing to this framebuffer and that we'll need
 	//to resolve samples at some point if multisampling is enabled
