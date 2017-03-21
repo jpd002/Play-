@@ -698,11 +698,8 @@ void CGSH_OpenGL::SetRenderingContext(uint64 primReg)
 		CHECKGLERROR();
 	}
 
-	if(shaderCaps.hasFog &&
-		(
-			!m_renderState.isValid ||
-			(m_renderState.fogColReg != fogColReg)
-		))
+	if(!m_renderState.isValid ||
+		(m_renderState.fogColReg != fogColReg))
 	{
 		FlushVertexBuffer();
 		SetupFogColor(fogColReg);
