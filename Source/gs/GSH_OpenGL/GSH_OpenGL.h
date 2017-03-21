@@ -32,11 +32,11 @@ public:
 protected:
 	void							PalCache_Flush();
 	void							LoadPreferences();
-	virtual void					InitializeImpl() override;
-	virtual void					ReleaseImpl() override;
-	virtual void					ResetImpl() override;
-	virtual void					NotifyPreferencesChangedImpl() override;
-	virtual void					FlipImpl() override;
+	void							InitializeImpl() override;
+	void							ReleaseImpl() override;
+	void							ResetImpl() override;
+	void							NotifyPreferencesChangedImpl() override;
+	void							FlipImpl() override;
 
 	GLuint							m_presentFramebuffer = 0;
 
