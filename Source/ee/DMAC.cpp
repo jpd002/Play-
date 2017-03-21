@@ -11,6 +11,7 @@
 #define STATE_REGS_XML      ("dmac/regs.xml")
 #define STATE_REGS_CTRL     ("D_CTRL")
 #define STATE_REGS_STAT     ("D_STAT")
+#define STATE_REGS_ENABLE   ("D_ENABLE")
 #define STATE_REGS_PCR      ("D_PCR")
 #define STATE_REGS_SQWC     ("D_SQWC")
 #define STATE_REGS_RBSR     ("D_RBSR")
@@ -876,6 +877,7 @@ void CDMAC::LoadState(Framework::CZipArchiveReader& archive)
 	CRegisterStateFile registerFile(*archive.BeginReadFile(STATE_REGS_XML));
 	m_D_CTRL	<<= registerFile.GetRegister32(STATE_REGS_CTRL);
 	m_D_STAT	= registerFile.GetRegister32(STATE_REGS_STAT);
+	m_D_ENABLE	= registerFile.GetRegister32(STATE_REGS_ENABLE);
 	m_D_PCR		= registerFile.GetRegister32(STATE_REGS_PCR);
 	m_D_SQWC	<<= registerFile.GetRegister32(STATE_REGS_SQWC);
 	m_D_RBSR	= registerFile.GetRegister32(STATE_REGS_RBSR);
@@ -896,6 +898,7 @@ void CDMAC::SaveState(Framework::CZipArchiveWriter& archive)
 	CRegisterStateFile* registerFile = new CRegisterStateFile(STATE_REGS_XML);
 	registerFile->SetRegister32(STATE_REGS_CTRL,	m_D_CTRL);
 	registerFile->SetRegister32(STATE_REGS_STAT,	m_D_STAT);
+	registerFile->SetRegister32(STATE_REGS_ENABLE,	m_D_ENABLE);
 	registerFile->SetRegister32(STATE_REGS_PCR,		m_D_PCR);
 	registerFile->SetRegister32(STATE_REGS_SQWC,	m_D_SQWC);
 	registerFile->SetRegister32(STATE_REGS_RBSR,	m_D_RBSR);
