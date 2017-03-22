@@ -676,6 +676,7 @@ void CGSH_OpenGL::SetRenderingContext(uint64 primReg)
 	}
 
 	if(!m_renderState.isValid ||
+		!m_renderState.isFramebufferStateValid ||
 		(m_renderState.frameReg != frameReg) ||
 		(m_renderState.zbufReg != zbufReg) ||
 		(m_renderState.scissorReg != scissorReg) ||
@@ -687,6 +688,7 @@ void CGSH_OpenGL::SetRenderingContext(uint64 primReg)
 	}
 
 	if(!m_renderState.isValid ||
+		!m_renderState.isTextureStateValid ||
 		(m_renderState.tex0Reg != tex0Reg) ||
 		(m_renderState.tex1Reg != tex1Reg) ||
 		(m_renderState.texAReg != texAReg) ||
@@ -712,18 +714,20 @@ void CGSH_OpenGL::SetRenderingContext(uint64 primReg)
 	
 	CHECKGLERROR();
 
-	m_renderState.isValid    = true;
-	m_renderState.primReg    = primReg;
-	m_renderState.alphaReg   = alphaReg;
-	m_renderState.testReg    = testReg;
-	m_renderState.zbufReg    = zbufReg;
-	m_renderState.scissorReg = scissorReg;
-	m_renderState.frameReg   = frameReg;
-	m_renderState.tex0Reg    = tex0Reg;
-	m_renderState.tex1Reg    = tex1Reg;
-	m_renderState.texAReg    = texAReg;
-	m_renderState.clampReg   = clampReg;
-	m_renderState.fogColReg  = fogColReg;
+	m_renderState.isValid                 = true;
+	m_renderState.isTextureStateValid     = true;
+	m_renderState.isFramebufferStateValid = true;
+	m_renderState.primReg                 = primReg;
+	m_renderState.alphaReg                = alphaReg;
+	m_renderState.testReg                 = testReg;
+	m_renderState.zbufReg                 = zbufReg;
+	m_renderState.scissorReg              = scissorReg;
+	m_renderState.frameReg                = frameReg;
+	m_renderState.tex0Reg                 = tex0Reg;
+	m_renderState.tex1Reg                 = tex1Reg;
+	m_renderState.texAReg                 = texAReg;
+	m_renderState.clampReg                = clampReg;
+	m_renderState.fogColReg               = fogColReg;
 }
 
 void CGSH_OpenGL::SetupBlendingFunction(uint64 alphaReg)
@@ -1994,7 +1998,8 @@ void CGSH_OpenGL::ProcessHostToLocalTransfer()
 	if(m_trxCtx.nDirty)
 	{
 		FlushVertexBuffer();
-		m_renderState.isValid = false;
+		m_renderState.isTextureStateValid = false;
+		m_renderState.isFramebufferStateValid = false;
 
 		auto trxReg = make_convertible<TRXREG>(m_nReg[GS_REG_TRXREG]);
 		auto trxPos = make_convertible<TRXPOS>(m_nReg[GS_REG_TRXPOS]);
@@ -2114,7 +2119,7 @@ void CGSH_OpenGL::ProcessLocalToLocalTransfer()
 void CGSH_OpenGL::ProcessClutTransfer(uint32 csa, uint32)
 {
 	FlushVertexBuffer();
-	m_renderState.isValid = false;
+	m_renderState.isTextureStateValid = false;
 	PalCache_Invalidate(csa);
 }
 

@@ -71,7 +71,9 @@ private:
 	struct RENDERSTATE
 	{
 		bool		isValid;
-		
+		bool		isTextureStateValid;
+		bool		isFramebufferStateValid;
+
 		//Register State
 		uint64		primReg;
 		uint64		frameReg;
