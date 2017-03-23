@@ -432,7 +432,7 @@ void CSifCmd::BuildExportTable()
 			assembler.ADDU(CMIPS::S0, CMIPS::A0, CMIPS::R0);
 			assembler.ADDU(CMIPS::S1, CMIPS::A1, CMIPS::R0);
 
-			assembler.LI(CMIPS::A0, 1000);
+			assembler.LI(CMIPS::A0, 500);
 			assembler.JAL(delayThreadAddr);
 			assembler.NOP();
 
