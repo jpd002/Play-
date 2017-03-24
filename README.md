@@ -37,6 +37,7 @@ First you'd need to clone Play-Build which provides you with the needed subproje
 Then setup the submodules and the dependency submodule(s) too.
 ```
 git clone https://github.com/jpd002/Play-Build.git
+cd Play-Build
 git submodule update -q --init --recursive
 git submodule foreach "git checkout -q master"
 cd Dependencies
