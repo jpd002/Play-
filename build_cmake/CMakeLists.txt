@@ -467,6 +467,7 @@ if (UNIX AND NOT APPLE AND NOT ANDROID)
 	set(QT_SOURCES
 		../Source/ui_unix/main.cpp
 		../Source/ui_unix/mainwindow.cpp
+		../Source/ui_unix/ElidedLabel.cpp
 		../Source/ui_unix/GSH_OpenGLQt.cpp
 		../Source/ui_unix/StatsManager.cpp
 		../Source/ui_unix/PH_HidUnix.cpp
@@ -484,6 +485,7 @@ if (UNIX AND NOT APPLE AND NOT ANDROID)
 
 	set(QT_MOC_HEADERS
 		../Source/ui_unix/mainwindow.h
+		../Source/ui_unix/ElidedLabel.h
 		../Source/ui_unix/GSH_OpenGLQt.h
 		../Source/ui_unix/StatsManager.h
 		../Source/ui_unix/PH_HidUnix.h

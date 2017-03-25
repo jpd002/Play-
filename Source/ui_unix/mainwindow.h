@@ -12,6 +12,7 @@
 #include "PS2VM_Preferences.h"
 #include "StatsManager.h"
 #include "PH_HidUnix.h"
+#include "ElidedLabel.h"
 
 
 namespace Ui {
@@ -52,6 +53,7 @@ private:
     QLabel* fpsLabel;
     QLabel* m_dcLabel;
     QLabel* m_stateLabel;
+    ElidedLabel* m_msgLabel;
     CStatsManager* StatsManager;
     CPH_HidUnix* m_padhandler = nullptr;
     QTimer *m_fpstimer = nullptr;
