@@ -13,6 +13,7 @@ public:
 	typedef std::function<void ()> FunctionType;
 
 	void				SendCall(const FunctionType&, bool = false);
+	void				SendCall(FunctionType&&);
 	void				FlushCalls();
 
 	bool				IsPending() const;
