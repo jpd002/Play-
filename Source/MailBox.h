@@ -24,6 +24,14 @@ public:
 private:
 	struct MESSAGE
 	{
+		MESSAGE() = default;
+
+		MESSAGE(MESSAGE&&) = default;
+		MESSAGE(const MESSAGE&) = delete;
+
+		MESSAGE& operator =(MESSAGE&&) = default;
+		MESSAGE& operator =(const MESSAGE&) = delete;
+
 		FunctionType	function;
 		bool			sync;
 	};
