@@ -180,7 +180,20 @@ void CBasicBlock::Compile()
 
 void CBasicBlock::CompileRange(CMipsJitter* jitter)
 {
-	for(uint32 address = m_begin; address <= m_end; address += 4)
+	uint32 fixedEnd = m_end;
+
+	//Update block end because MipsAnalysis might not include an instruction
+	//in a delay slot when cutting a function into basic blocks
+	{
+		uint32 endOpcode = m_context.m_pMemoryMap->GetWord(m_end);
+		auto branchType = m_context.m_pArch->IsInstructionBranch(&m_context, m_end, endOpcode);
+		if(branchType == MIPS_BRANCH_NORMAL)
+		{
+			fixedEnd += 4;
+		}
+	}
+
+	for(uint32 address = m_begin; address <= fixedEnd; address += 4)
 	{
 		m_context.m_pArch->CompileInstruction(
 			address, 
