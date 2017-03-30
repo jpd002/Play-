@@ -22,11 +22,6 @@ CLoadcore::CLoadcore(CIopBios& bios, uint8* ram, CSifMan& sifMan)
 	sifMan.RegisterModule(MODULE_ID, this);
 }
 
-CLoadcore::~CLoadcore()
-{
-
-}
-
 std::string CLoadcore::GetId() const
 {
 	return "loadcore";

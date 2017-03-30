@@ -19,7 +19,7 @@ namespace Iop
 		typedef std::function<uint32 (const char*, const char*)> LoadExecutableHandler;
 
 									CLoadcore(CIopBios&, uint8*, CSifMan&);
-		virtual						~CLoadcore();
+		virtual						~CLoadcore() = default;
 
 		std::string					GetId() const override;
 		std::string					GetFunctionName(unsigned int) const override;
