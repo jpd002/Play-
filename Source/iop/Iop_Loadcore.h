@@ -2,6 +2,8 @@
 
 #include "Iop_Module.h"
 #include "Iop_SifMan.h"
+#include "zip/ZipArchiveWriter.h"
+#include "zip/ZipArchiveReader.h"
 #include <functional>
 
 class CIopBios;
@@ -21,10 +23,15 @@ namespace Iop
 									CLoadcore(CIopBios&, uint8*, CSifMan&);
 		virtual						~CLoadcore() = default;
 
+		void						SetModuleVersion(unsigned int);
+
 		std::string					GetId() const override;
 		std::string					GetFunctionName(unsigned int) const override;
 		void						Invoke(CMIPS&, unsigned int) override;
 		bool						Invoke(uint32, uint32*, uint32, uint32*, uint32, uint8*) override;
+
+		void						LoadState(Framework::CZipArchiveReader&);
+		void						SaveState(Framework::CZipArchiveWriter&);
 
 		void						SetLoadExecutableHandler(const LoadExecutableHandler&);
 
@@ -43,6 +50,7 @@ namespace Iop
 
 		CIopBios&					m_bios;
 		uint8*						m_ram;
+		unsigned int				m_moduleVersion = 1000;
 
 		LoadExecutableHandler		m_loadExecutableHandler;
 	};

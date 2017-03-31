@@ -287,6 +287,7 @@ void CIopBios::SaveState(Framework::CZipArchiveWriter& archive)
 
 	m_sifCmd->SaveState(archive);
 	m_cdvdman->SaveState(archive);
+	m_loadcore->SaveState(archive);
 #ifdef _IOP_EMULATE_MODULES
 	m_fileIo->SaveState(archive);
 #endif
@@ -323,6 +324,7 @@ void CIopBios::LoadState(Framework::CZipArchiveReader& archive)
 
 	m_sifCmd->LoadState(archive);
 	m_cdvdman->LoadState(archive);
+	m_loadcore->LoadState(archive);
 #ifdef _IOP_EMULATE_MODULES
 	m_fileIo->LoadState(archive);
 #endif
@@ -728,6 +730,7 @@ void CIopBios::ProcessModuleReset(const std::string& imagePath)
 	bool found = TryGetImageVersionFromPath(imagePath, &imageVersion);
 	if(!found) found = TryGetImageVersionFromContents(imagePath, &imageVersion);
 	assert(found);
+	m_loadcore->SetModuleVersion(imageVersion);
 #ifdef _IOP_EMULATE_MODULES
 	m_fileIo->SetModuleVersion(imageVersion);
 #endif

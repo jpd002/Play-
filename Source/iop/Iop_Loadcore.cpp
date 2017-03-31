@@ -2,10 +2,14 @@
 #include "Iop_Dynamic.h"
 #include "IopBios.h"
 #include "../Log.h"
+#include "../RegisterStateFile.h"
 
 using namespace Iop;
 
 #define LOG_NAME "iop_loadcore"
+
+#define STATE_VERSION_XML           ("iop_loadcore/version.xml")
+#define STATE_VERSION_MODULEVERSION ("moduleVersion")
 
 #define FUNCTION_FLUSHDCACHE					"FlushDcache"
 #define FUNCTION_REGISTERLIBRARYENTRIES			"RegisterLibraryEntries"
@@ -20,6 +24,11 @@ CLoadcore::CLoadcore(CIopBios& bios, uint8* ram, CSifMan& sifMan)
 , m_ram(ram)
 {
 	sifMan.RegisterModule(MODULE_ID, this);
+}
+
+void CLoadcore::SetModuleVersion(unsigned int moduleVersion)
+{
+	m_moduleVersion = moduleVersion;
 }
 
 std::string CLoadcore::GetId() const
@@ -111,6 +120,19 @@ bool CLoadcore::Invoke(uint32 method, uint32* args, uint32 argsSize, uint32* ret
 		break;
 	}
 	return true;
+}
+
+void CLoadcore::LoadState(Framework::CZipArchiveReader& archive)
+{
+	auto registerFile = CRegisterStateFile(*archive.BeginReadFile(STATE_VERSION_XML));
+	m_moduleVersion = registerFile.GetRegister32(STATE_VERSION_MODULEVERSION);
+}
+
+void CLoadcore::SaveState(Framework::CZipArchiveWriter& archive)
+{
+	auto registerFile = new CRegisterStateFile(STATE_VERSION_XML);
+	registerFile->SetRegister32(STATE_VERSION_MODULEVERSION, m_moduleVersion);
+	archive.InsertFile(registerFile);
 }
 
 void CLoadcore::SetLoadExecutableHandler(const LoadExecutableHandler& loadExecutableHandler)
@@ -276,5 +298,15 @@ void CLoadcore::Initialize(uint32* args, uint32 argsSize, uint32* ret, uint32 re
 	assert(argsSize == 0);
 	assert(retSize == 4);
 
-	ret[0] = 0x2E2E2E2E;
+	if(m_moduleVersion == 2020)
+	{
+		//Return '2020'
+		//This is needed by Super Bust-A-Move
+		ret[0] = 0x30323032;
+	}
+	else
+	{
+		//Return '....'
+		ret[0] = 0x2E2E2E2E;
+	}
 }
