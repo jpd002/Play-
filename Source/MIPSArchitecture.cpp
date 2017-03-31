@@ -1,12 +1,7 @@
 #include "MIPSArchitecture.h"
 
-CMIPSArchitecture::CMIPSArchitecture(MIPS_REGSIZE nRegSize) :
-CMIPSInstructionFactory(nRegSize)
-{
-
-}
-
-CMIPSArchitecture::~CMIPSArchitecture()
+CMIPSArchitecture::CMIPSArchitecture(MIPS_REGSIZE regSize)
+: CMIPSInstructionFactory(regSize)
 {
 
 }
