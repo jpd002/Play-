@@ -11,12 +11,12 @@ class CMA_VU : public CMIPSArchitecture
 {
 public:
 											CMA_VU();
-	virtual									~CMA_VU();
-	virtual void							CompileInstruction(uint32, CMipsJitter*, CMIPS*) override;
-	virtual void							GetInstructionMnemonic(CMIPS*, uint32, uint32, char*, unsigned int) override;
-	virtual void							GetInstructionOperands(CMIPS*, uint32, uint32, char*, unsigned int) override;
-	virtual MIPS_BRANCH_TYPE				IsInstructionBranch(CMIPS*, uint32, uint32) override;
-	virtual uint32							GetInstructionEffectiveAddress(CMIPS*, uint32, uint32) override;
+
+	void									CompileInstruction(uint32, CMipsJitter*, CMIPS*) override;
+	void									GetInstructionMnemonic(CMIPS*, uint32, uint32, char*, unsigned int) override;
+	void									GetInstructionOperands(CMIPS*, uint32, uint32, char*, unsigned int) override;
+	MIPS_BRANCH_TYPE						IsInstructionBranch(CMIPS*, uint32, uint32) override;
+	uint32									GetInstructionEffectiveAddress(CMIPS*, uint32, uint32) override;
 	VUShared::OPERANDSET					GetAffectedOperands(CMIPS*, uint32, uint32);
 
 	void									SetRelativePipeTime(uint32);
@@ -172,7 +172,6 @@ private:
 	{
 	public:
 											CLower();
-		virtual								~CLower();
 
 		void								SetupReflectionTables();
 		void								CompileInstruction(uint32, CMipsJitter*, CMIPS*) override;
@@ -199,19 +198,19 @@ private:
 		static InstructionFuncConstant		m_pOpVector2[0x20];
 		static InstructionFuncConstant		m_pOpVector3[0x20];
 
-		uint8								m_nIT;
-		uint8								m_nIS;
-		uint8								m_nID;
-		uint8								m_nFSF;
-		uint8								m_nFTF;
-		uint8								m_nDest;
-		uint8								m_nImm5;
-		uint16								m_nImm11;
-		uint16								m_nImm12;
-		uint16								m_nImm15;
-		uint16								m_nImm15S;
-		uint32								m_nImm24;
-		uint32								m_relativePipeTime;
+		uint8								m_nIT = 0;
+		uint8								m_nIS = 0;
+		uint8								m_nID = 0;
+		uint8								m_nFSF = 0;
+		uint8								m_nFTF = 0;
+		uint8								m_nDest = 0;
+		uint8								m_nImm5 = 0;
+		uint16								m_nImm11 = 0;
+		uint16								m_nImm12 = 0;
+		uint16								m_nImm15 = 0;
+		uint16								m_nImm15S = 0;
+		uint32								m_nImm24 = 0;
+		uint32								m_relativePipeTime = 0;
 
 		void								SetBranchAddress(bool, int32);
 		static bool							IsLOI(CMIPS*, uint32);

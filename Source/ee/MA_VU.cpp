@@ -7,11 +7,6 @@ CMA_VU::CMA_VU()
 	SetupReflectionTables();
 }
 
-CMA_VU::~CMA_VU()
-{
-
-}
-
 void CMA_VU::CompileInstruction(uint32 nAddress, CMipsJitter* codeGen, CMIPS* pCtx)
 {
 	SetupQuickVariables(nAddress, codeGen, pCtx);

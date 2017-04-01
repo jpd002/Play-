@@ -8,24 +8,6 @@
 
 CMA_VU::CLower::CLower()
 : CMIPSInstructionFactory(MIPS_REGSIZE_32)
-, m_nImm5(0)
-, m_nImm11(0)
-, m_nImm12(0)
-, m_nImm15(0)
-, m_nImm15S(0)
-, m_nImm24(0)
-, m_nIT(0)
-, m_nIS(0)
-, m_nID(0)
-, m_nFSF(0)
-, m_nFTF(0)
-, m_nDest(0)
-, m_relativePipeTime(0)
-{
-
-}
-
-CMA_VU::CLower::~CLower()
 {
 
 }
