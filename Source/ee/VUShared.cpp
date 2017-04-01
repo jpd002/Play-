@@ -664,7 +664,7 @@ void VUShared::ILWbase(CMipsJitter* codeGen, uint8 it)
 	codeGen->PullRel(offsetof(CMIPS, m_State.nCOP2VI[it]));
 }
 
-void VUShared::ILWR(CMipsJitter* codeGen, uint8 dest, uint8 it, uint8 is, uint32 baseAddress)
+void VUShared::ILWR(CMipsJitter* codeGen, uint8 dest, uint8 it, uint8 is)
 {
 	//Compute address
 	codeGen->PushRelRef(offsetof(CMIPS, m_vuMem));
@@ -752,7 +752,7 @@ void VUShared::ISWbase(CMipsJitter* codeGen, uint8 dest)
 	codeGen->PullTop();
 }
 
-void VUShared::ISWR(CMipsJitter* codeGen, uint8 dest, uint8 it, uint8 is, uint32 baseAddress)
+void VUShared::ISWR(CMipsJitter* codeGen, uint8 dest, uint8 it, uint8 is)
 {
 	//Compute value to store
 	codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2VI[it]));
@@ -800,7 +800,7 @@ void VUShared::LQbase(CMipsJitter* codeGen, uint8 dest, uint8 it)
 	}
 }
 
-void VUShared::LQD(CMipsJitter* codeGen, uint8 dest, uint8 it, uint8 is, uint32 baseAddress)
+void VUShared::LQD(CMipsJitter* codeGen, uint8 dest, uint8 it, uint8 is)
 {
 	codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2VI[is]));
 	codeGen->PushCst(1);
@@ -814,7 +814,7 @@ void VUShared::LQD(CMipsJitter* codeGen, uint8 dest, uint8 it, uint8 is, uint32 
 	VUShared::LQbase(codeGen, dest, it);
 }
 
-void VUShared::LQI(CMipsJitter* codeGen, uint8 dest, uint8 it, uint8 is, uint32 baseAddress)
+void VUShared::LQI(CMipsJitter* codeGen, uint8 dest, uint8 it, uint8 is)
 {
 	codeGen->PushRelRef(offsetof(CMIPS, m_vuMem));
 	VUShared::ComputeMemAccessAddr(codeGen, is, 0, 0);
@@ -1325,7 +1325,7 @@ void VUShared::SQbase(CMipsJitter* codeGen, uint8 dest, uint8 is)
 	}
 }
 
-void VUShared::SQD(CMipsJitter* codeGen, uint8 dest, uint8 is, uint8 it, uint32 baseAddress)
+void VUShared::SQD(CMipsJitter* codeGen, uint8 dest, uint8 is, uint8 it)
 {
 	//Decrement
 	codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2VI[it]));
@@ -1341,7 +1341,7 @@ void VUShared::SQD(CMipsJitter* codeGen, uint8 dest, uint8 is, uint8 it, uint32 
 	VUShared::SQbase(codeGen, dest, is);
 }
 
-void VUShared::SQI(CMipsJitter* codeGen, uint8 dest, uint8 is, uint8 it, uint32 baseAddress)
+void VUShared::SQI(CMipsJitter* codeGen, uint8 dest, uint8 is, uint8 it)
 {
 	codeGen->PushRelRef(offsetof(CMIPS, m_vuMem));
 	ComputeMemAccessAddr(codeGen, it, 0, 0);

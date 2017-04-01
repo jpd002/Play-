@@ -606,7 +606,7 @@ void CMA_VU::CLower::MOVE()
 //0D
 void CMA_VU::CLower::LQI()
 {
-	VUShared::LQI(m_codeGen, m_nDest, m_nIT, m_nIS, 0);
+	VUShared::LQI(m_codeGen, m_nDest, m_nIT, m_nIS);
 }
 
 //0E
@@ -778,7 +778,7 @@ void CMA_VU::CLower::MR32()
 //0D
 void CMA_VU::CLower::SQI()
 {
-	VUShared::SQI(m_codeGen, m_nDest, m_nIS, m_nIT, 0);
+	VUShared::SQI(m_codeGen, m_nDest, m_nIS, m_nIT);
 }
 
 //0E
@@ -845,7 +845,7 @@ void CMA_VU::CLower::ERSQRT()
 //0D
 void CMA_VU::CLower::LQD()
 {
-	VUShared::LQD(m_codeGen, m_nDest, m_nIT, m_nIS, 0);
+	VUShared::LQD(m_codeGen, m_nDest, m_nIT, m_nIS);
 }
 
 //0E
@@ -857,7 +857,7 @@ void CMA_VU::CLower::RSQRT()
 //0F
 void CMA_VU::CLower::ILWR()
 {
-	VUShared::ILWR(m_codeGen, m_nDest, m_nIT, m_nIS, 0);
+	VUShared::ILWR(m_codeGen, m_nDest, m_nIT, m_nIS);
 }
 
 //10
@@ -928,7 +928,7 @@ void CMA_VU::CLower::ERCPR()
 //0D
 void CMA_VU::CLower::SQD()
 {
-	VUShared::SQD(m_codeGen, m_nDest, m_nIS, m_nIT, 0);
+	VUShared::SQD(m_codeGen, m_nDest, m_nIS, m_nIT);
 }
 
 //0E
@@ -940,7 +940,7 @@ void CMA_VU::CLower::WAITQ()
 //0F
 void CMA_VU::CLower::ISWR()
 {
-	VUShared::ISWR(m_codeGen, m_nDest, m_nIT, m_nIS, 0);
+	VUShared::ISWR(m_codeGen, m_nDest, m_nIT, m_nIS);
 }
 
 //1C

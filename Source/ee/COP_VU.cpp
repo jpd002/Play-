@@ -641,7 +641,7 @@ void CCOP_VU::VMOVE()
 //0D
 void CCOP_VU::VLQI()
 {
-	VUShared::LQI(m_codeGen, m_nDest, m_nIT, m_nIS, PS2::VUMEM0ADDR);
+	VUShared::LQI(m_codeGen, m_nDest, m_nIT, m_nIS);
 }
 
 //0E
@@ -705,7 +705,7 @@ void CCOP_VU::VMR32()
 //0D
 void CCOP_VU::VSQI()
 {
-	VUShared::SQI(m_codeGen, m_nDest, m_nIS, m_nIT, PS2::VUMEM0ADDR);
+	VUShared::SQI(m_codeGen, m_nDest, m_nIS, m_nIT);
 }
 
 //0E
@@ -763,7 +763,7 @@ void CCOP_VU::VOPMULA()
 //0D
 void CCOP_VU::VLQD()
 {
-	VUShared::LQD(m_codeGen, m_nDest, m_nIT, m_nIS, PS2::VUMEM0ADDR);
+	VUShared::LQD(m_codeGen, m_nDest, m_nIT, m_nIS);
 }
 
 //0E
@@ -775,7 +775,7 @@ void CCOP_VU::VRSQRT()
 //0F
 void CCOP_VU::VILWR()
 {
-	VUShared::ILWR(m_codeGen, m_nDest, m_nIT, m_nIS, PS2::VUMEM0ADDR);
+	VUShared::ILWR(m_codeGen, m_nDest, m_nIT, m_nIS);
 }
 
 //10
@@ -827,7 +827,7 @@ void CCOP_VU::VNOP()
 //0D
 void CCOP_VU::VSQD()
 {
-	VUShared::SQD(m_codeGen, m_nDest, m_nIS, m_nIT, PS2::VUMEM0ADDR);
+	VUShared::SQD(m_codeGen, m_nDest, m_nIS, m_nIT);
 }
 
 //0E
@@ -839,7 +839,7 @@ void CCOP_VU::VWAITQ()
 //0F
 void CCOP_VU::VISWR()
 {
-	VUShared::ISWR(m_codeGen, m_nDest, m_nIT, m_nIS, PS2::VUMEM0ADDR);
+	VUShared::ISWR(m_codeGen, m_nDest, m_nIT, m_nIS);
 }
 
 //10
