@@ -27,20 +27,8 @@ enum CTRL_REG
 	CTRL_REG_CMSAR1   = 31,
 };
 
-CCOP_VU::CCOP_VU(MIPS_REGSIZE nRegSize) 
+CCOP_VU::CCOP_VU(MIPS_REGSIZE nRegSize)
 : CMIPSCoprocessor(nRegSize)
-, m_nFT(0)
-, m_nFS(0)
-, m_nFD(0)
-, m_nDest(0)
-, m_nFTF(0)
-, m_nFSF(0)
-, m_nBc(0)
-, m_nIT(0)
-, m_nIS(0)
-, m_nID(0)
-, m_nImm5(0)
-, m_nImm15(0)
 {
 	SetupReflectionTables();
 }

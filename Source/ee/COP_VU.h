@@ -163,20 +163,20 @@ private:
 	void								VISWR();
 	void								VRXOR();
 
-	uint8								m_nBc;
-	uint8								m_nDest;
-	uint8								m_nFSF;
-	uint8								m_nFTF;
+	uint8								m_nBc = 0;
+	uint8								m_nDest = 0;
+	uint8								m_nFSF = 0;
+	uint8								m_nFTF = 0;
 
-	uint8								m_nFS;
-	uint8								m_nFT;
-	uint8								m_nFD;
+	uint8								m_nFS = 0;
+	uint8								m_nFT = 0;
+	uint8								m_nFD = 0;
 
-	uint8								m_nIT;
-	uint8								m_nIS;
-	uint8								m_nID;
-	uint8								m_nImm5;
-	uint16								m_nImm15;
+	uint8								m_nIT = 0;
+	uint8								m_nIS = 0;
+	uint8								m_nID = 0;
+	uint8								m_nImm5 = 0;
+	uint16								m_nImm15 = 0;
 
 	//Reflection tables
 	static MIPSReflection::INSTRUCTION	m_cReflGeneral[64];
