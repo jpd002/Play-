@@ -6,8 +6,9 @@
 #include "VUShared.h"
 #include "offsetof_def.h"
 
-CMA_VU::CLower::CLower()
+CMA_VU::CLower::CLower(uint32 vuMemAddressMask)
 : CMIPSInstructionFactory(MIPS_REGSIZE_32)
+, m_vuMemAddressMask(vuMemAddressMask)
 {
 
 }
@@ -141,7 +142,8 @@ void CMA_VU::CLower::LQ()
 		m_codeGen,
 		m_nIS,
 		static_cast<uint32>(VUShared::GetImm11Offset(m_nImm11)),
-		0);
+		0,
+		m_vuMemAddressMask);
 	m_codeGen->AddRef();
 
 	VUShared::LQbase(m_codeGen, m_nDest, m_nIT);
@@ -157,7 +159,8 @@ void CMA_VU::CLower::SQ()
 		m_codeGen,
 		m_nIT,
 		static_cast<uint32>(VUShared::GetImm11Offset(m_nImm11)),
-		0);
+		0,
+		m_vuMemAddressMask);
 
 	m_codeGen->AddRef();
 
@@ -174,7 +177,8 @@ void CMA_VU::CLower::ILW()
 		m_codeGen,
 		m_nIS,
 		static_cast<uint32>(VUShared::GetImm11Offset(m_nImm11)),
-		VUShared::GetDestOffset(m_nDest));
+		VUShared::GetDestOffset(m_nDest),
+		m_vuMemAddressMask);
 
 	m_codeGen->AddRef();
 
@@ -194,7 +198,8 @@ void CMA_VU::CLower::ISW()
 		m_codeGen,
 		m_nIS,
 		static_cast<uint32>(VUShared::GetImm11Offset(m_nImm11)),
-		0);
+		0,
+		m_vuMemAddressMask);
 
 	VUShared::ISWbase(m_codeGen, m_nDest);
 }
@@ -588,7 +593,7 @@ void CMA_VU::CLower::MOVE()
 //0D
 void CMA_VU::CLower::LQI()
 {
-	VUShared::LQI(m_codeGen, m_nDest, m_nIT, m_nIS);
+	VUShared::LQI(m_codeGen, m_nDest, m_nIT, m_nIS, m_vuMemAddressMask);
 }
 
 //0E
@@ -760,7 +765,7 @@ void CMA_VU::CLower::MR32()
 //0D
 void CMA_VU::CLower::SQI()
 {
-	VUShared::SQI(m_codeGen, m_nDest, m_nIS, m_nIT);
+	VUShared::SQI(m_codeGen, m_nDest, m_nIS, m_nIT, m_vuMemAddressMask);
 }
 
 //0E
@@ -827,7 +832,7 @@ void CMA_VU::CLower::ERSQRT()
 //0D
 void CMA_VU::CLower::LQD()
 {
-	VUShared::LQD(m_codeGen, m_nDest, m_nIT, m_nIS);
+	VUShared::LQD(m_codeGen, m_nDest, m_nIT, m_nIS, m_vuMemAddressMask);
 }
 
 //0E
@@ -839,7 +844,7 @@ void CMA_VU::CLower::RSQRT()
 //0F
 void CMA_VU::CLower::ILWR()
 {
-	VUShared::ILWR(m_codeGen, m_nDest, m_nIT, m_nIS);
+	VUShared::ILWR(m_codeGen, m_nDest, m_nIT, m_nIS, m_vuMemAddressMask);
 }
 
 //10
@@ -910,7 +915,7 @@ void CMA_VU::CLower::ERCPR()
 //0D
 void CMA_VU::CLower::SQD()
 {
-	VUShared::SQD(m_codeGen, m_nDest, m_nIS, m_nIT);
+	VUShared::SQD(m_codeGen, m_nDest, m_nIS, m_nIT, m_vuMemAddressMask);
 }
 
 //0E
@@ -922,7 +927,7 @@ void CMA_VU::CLower::WAITQ()
 //0F
 void CMA_VU::CLower::ISWR()
 {
-	VUShared::ISWR(m_codeGen, m_nDest, m_nIT, m_nIS);
+	VUShared::ISWR(m_codeGen, m_nDest, m_nIT, m_nIS, m_vuMemAddressMask);
 }
 
 //1C

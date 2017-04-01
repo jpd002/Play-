@@ -12,6 +12,7 @@ CVu1Vm::CVu1Vm()
 , m_microMem1(new uint8[PS2::MICROMEM1SIZE])
 , m_status(PAUSED)
 //, m_threadDone(false)
+, m_maVu1(PS2::VUMEM1SIZE - 1)
 , m_vpu1_TOP(0)
 , m_vpu1_ITOP(0)
 {

@@ -6,6 +6,7 @@ CTestVm::CTestVm()
 , m_executor(m_cpu)
 , m_vuMem(new uint8[PS2::VUMEM1SIZE])
 , m_microMem(new uint8[PS2::MICROMEM1SIZE])
+, m_maVu(PS2::VUMEM1SIZE - 1)
 {
 	m_cpu.m_pMemoryMap->InsertReadMap(0x00000000, 0x00003FFF, m_vuMem,	0x00);
 	m_cpu.m_pMemoryMap->InsertWriteMap(0x00000000, 0x00003FFF, m_vuMem,	0x00);

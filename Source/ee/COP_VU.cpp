@@ -4,7 +4,6 @@
 #include "../Log.h"
 #include "../MIPS.h"
 #include "../MemoryUtils.h"
-#include "../Ps2Const.h"
 #include "offsetof_def.h"
 #include "Vpu.h"
 
@@ -629,7 +628,7 @@ void CCOP_VU::VMOVE()
 //0D
 void CCOP_VU::VLQI()
 {
-	VUShared::LQI(m_codeGen, m_nDest, m_nIT, m_nIS);
+	VUShared::LQI(m_codeGen, m_nDest, m_nIT, m_nIS, m_vuMemAddressMask);
 }
 
 //0E
@@ -693,7 +692,7 @@ void CCOP_VU::VMR32()
 //0D
 void CCOP_VU::VSQI()
 {
-	VUShared::SQI(m_codeGen, m_nDest, m_nIS, m_nIT);
+	VUShared::SQI(m_codeGen, m_nDest, m_nIS, m_nIT, m_vuMemAddressMask);
 }
 
 //0E
@@ -751,7 +750,7 @@ void CCOP_VU::VOPMULA()
 //0D
 void CCOP_VU::VLQD()
 {
-	VUShared::LQD(m_codeGen, m_nDest, m_nIT, m_nIS);
+	VUShared::LQD(m_codeGen, m_nDest, m_nIT, m_nIS, m_vuMemAddressMask);
 }
 
 //0E
@@ -763,7 +762,7 @@ void CCOP_VU::VRSQRT()
 //0F
 void CCOP_VU::VILWR()
 {
-	VUShared::ILWR(m_codeGen, m_nDest, m_nIT, m_nIS);
+	VUShared::ILWR(m_codeGen, m_nDest, m_nIT, m_nIS, m_vuMemAddressMask);
 }
 
 //10
@@ -815,7 +814,7 @@ void CCOP_VU::VNOP()
 //0D
 void CCOP_VU::VSQD()
 {
-	VUShared::SQD(m_codeGen, m_nDest, m_nIS, m_nIT);
+	VUShared::SQD(m_codeGen, m_nDest, m_nIS, m_nIT, m_vuMemAddressMask);
 }
 
 //0E
@@ -827,7 +826,7 @@ void CCOP_VU::VWAITQ()
 //0F
 void CCOP_VU::VISWR()
 {
-	VUShared::ISWR(m_codeGen, m_nDest, m_nIT, m_nIS);
+	VUShared::ISWR(m_codeGen, m_nDest, m_nIT, m_nIS, m_vuMemAddressMask);
 }
 
 //10

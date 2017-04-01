@@ -2,6 +2,7 @@
 
 #include "../MIPSCoprocessor.h"
 #include "../MIPSReflection.h"
+#include "../Ps2Const.h"
 
 class CCOP_VU : public CMIPSCoprocessor
 {
@@ -177,6 +178,7 @@ private:
 	uint8								m_nID = 0;
 	uint8								m_nImm5 = 0;
 	uint16								m_nImm15 = 0;
+	static const uint32					m_vuMemAddressMask = (PS2::VUMEM0SIZE - 1);
 
 	//Reflection tables
 	static MIPSReflection::INSTRUCTION	m_cReflGeneral[64];

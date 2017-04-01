@@ -72,7 +72,7 @@ namespace VUShared
 	void						VerifyVuReflectionTable(MIPSReflection::INSTRUCTION*, VUShared::VUINSTRUCTION*, size_t);
 
 	bool						DestinationHasElement(uint8, unsigned int);
-	void						ComputeMemAccessAddr(CMipsJitter*, unsigned int, uint32, uint32);
+	void						ComputeMemAccessAddr(CMipsJitter*, unsigned int, uint32, uint32, uint32);
 	uint32						GetDestOffset(uint8);
 	uint32*						GetVectorElement(CMIPS*, unsigned int, unsigned int);
 	size_t						GetVectorElement(unsigned int, unsigned int);
@@ -114,7 +114,7 @@ namespace VUShared
 	void						IADDI(CMipsJitter*, uint8, uint8, uint8);
 	void						IAND(CMipsJitter*, uint8, uint8, uint8);
 	void						ILWbase(CMipsJitter*, uint8);
-	void						ILWR(CMipsJitter*, uint8, uint8, uint8);
+	void						ILWR(CMipsJitter*, uint8, uint8, uint8, uint32);
 	void						IOR(CMipsJitter*, uint8, uint8, uint8);
 	void						ISUB(CMipsJitter*, uint8, uint8, uint8);
 	void						ITOF0(CMipsJitter*, uint8, uint8, uint8);
@@ -122,10 +122,10 @@ namespace VUShared
 	void						ITOF12(CMipsJitter*, uint8, uint8, uint8);
 	void						ITOF15(CMipsJitter*, uint8, uint8, uint8);
 	void						ISWbase(CMipsJitter*, uint8);
-	void						ISWR(CMipsJitter*, uint8, uint8, uint8);
+	void						ISWR(CMipsJitter*, uint8, uint8, uint8, uint32);
 	void						LQbase(CMipsJitter*, uint8, uint8);
-	void						LQD(CMipsJitter*, uint8, uint8, uint8);
-	void						LQI(CMipsJitter*, uint8, uint8, uint8);
+	void						LQD(CMipsJitter*, uint8, uint8, uint8, uint32);
+	void						LQI(CMipsJitter*, uint8, uint8, uint8, uint32);
 	void						MADD(CMipsJitter*, uint8, uint8, uint8, uint8, uint32);
 	void						MADDbc(CMipsJitter*, uint8, uint8, uint8, uint8, uint8, uint32);
 	void						MADDi(CMipsJitter*, uint8, uint8, uint8, uint32);
@@ -167,8 +167,8 @@ namespace VUShared
 	void						RSQRT(CMipsJitter*, uint8, uint8, uint8, uint8, uint32);
 	void						RXOR(CMipsJitter*, uint8, uint8);
 	void						SQbase(CMipsJitter*, uint8, uint8);
-	void						SQD(CMipsJitter*, uint8, uint8, uint8);
-	void						SQI(CMipsJitter*, uint8, uint8, uint8);
+	void						SQD(CMipsJitter*, uint8, uint8, uint8, uint32);
+	void						SQI(CMipsJitter*, uint8, uint8, uint8, uint32);
 	void						SQRT(CMipsJitter*, uint8, uint8, uint32);
 	void						SUB(CMipsJitter*, uint8, uint8, uint8, uint8, uint32);
 	void						SUBbc(CMipsJitter*, uint8, uint8, uint8, uint8, uint8, uint32);

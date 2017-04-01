@@ -43,7 +43,7 @@ bool VUShared::DestinationHasElement(uint8 nDest, unsigned int nElement)
 	return (nDest & (1 << (nElement ^ 0x03))) != 0;
 }
 
-void VUShared::ComputeMemAccessAddr(CMipsJitter* codeGen, unsigned int baseRegister, uint32 baseOffset, uint32 destOffset)
+void VUShared::ComputeMemAccessAddr(CMipsJitter* codeGen, unsigned int baseRegister, uint32 baseOffset, uint32 destOffset, uint32 addressMask)
 {
 	codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2VI[baseRegister]));
 	if(baseOffset != 0)
@@ -60,7 +60,7 @@ void VUShared::ComputeMemAccessAddr(CMipsJitter* codeGen, unsigned int baseRegis
 	}
 
 	//Mask address
-	codeGen->PushCst(0x3FFF);
+	codeGen->PushCst(addressMask);
 	codeGen->And();
 }
 
@@ -664,11 +664,11 @@ void VUShared::ILWbase(CMipsJitter* codeGen, uint8 it)
 	codeGen->PullRel(offsetof(CMIPS, m_State.nCOP2VI[it]));
 }
 
-void VUShared::ILWR(CMipsJitter* codeGen, uint8 dest, uint8 it, uint8 is)
+void VUShared::ILWR(CMipsJitter* codeGen, uint8 dest, uint8 it, uint8 is, uint32 addressMask)
 {
 	//Compute address
 	codeGen->PushRelRef(offsetof(CMIPS, m_vuMem));
-	ComputeMemAccessAddr(codeGen, is, 0, GetDestOffset(dest));
+	ComputeMemAccessAddr(codeGen, is, 0, GetDestOffset(dest), addressMask);
 	codeGen->AddRef();
 
 	ILWbase(codeGen, it);
@@ -752,7 +752,7 @@ void VUShared::ISWbase(CMipsJitter* codeGen, uint8 dest)
 	codeGen->PullTop();
 }
 
-void VUShared::ISWR(CMipsJitter* codeGen, uint8 dest, uint8 it, uint8 is)
+void VUShared::ISWR(CMipsJitter* codeGen, uint8 dest, uint8 it, uint8 is, uint32 addressMask)
 {
 	//Compute value to store
 	codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2VI[it]));
@@ -760,7 +760,7 @@ void VUShared::ISWR(CMipsJitter* codeGen, uint8 dest, uint8 it, uint8 is)
 	codeGen->And();
 
 	//Compute address
-	VUShared::ComputeMemAccessAddr(codeGen, is, 0, 0);
+	VUShared::ComputeMemAccessAddr(codeGen, is, 0, 0, addressMask);
 
 	ISWbase(codeGen, dest);
 }
@@ -800,7 +800,7 @@ void VUShared::LQbase(CMipsJitter* codeGen, uint8 dest, uint8 it)
 	}
 }
 
-void VUShared::LQD(CMipsJitter* codeGen, uint8 dest, uint8 it, uint8 is)
+void VUShared::LQD(CMipsJitter* codeGen, uint8 dest, uint8 it, uint8 is, uint32 addressMask)
 {
 	codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2VI[is]));
 	codeGen->PushCst(1);
@@ -808,16 +808,16 @@ void VUShared::LQD(CMipsJitter* codeGen, uint8 dest, uint8 it, uint8 is)
 	codeGen->PullRel(offsetof(CMIPS, m_State.nCOP2VI[is]));
 
 	codeGen->PushRelRef(offsetof(CMIPS, m_vuMem));
-	VUShared::ComputeMemAccessAddr(codeGen, is, 0, 0);
+	VUShared::ComputeMemAccessAddr(codeGen, is, 0, 0, addressMask);
 	codeGen->AddRef();
 
 	VUShared::LQbase(codeGen, dest, it);
 }
 
-void VUShared::LQI(CMipsJitter* codeGen, uint8 dest, uint8 it, uint8 is)
+void VUShared::LQI(CMipsJitter* codeGen, uint8 dest, uint8 it, uint8 is, uint32 addressMask)
 {
 	codeGen->PushRelRef(offsetof(CMIPS, m_vuMem));
-	VUShared::ComputeMemAccessAddr(codeGen, is, 0, 0);
+	VUShared::ComputeMemAccessAddr(codeGen, is, 0, 0, addressMask);
 	codeGen->AddRef();
 
 	VUShared::LQbase(codeGen, dest, it);
@@ -1325,7 +1325,7 @@ void VUShared::SQbase(CMipsJitter* codeGen, uint8 dest, uint8 is)
 	}
 }
 
-void VUShared::SQD(CMipsJitter* codeGen, uint8 dest, uint8 is, uint8 it)
+void VUShared::SQD(CMipsJitter* codeGen, uint8 dest, uint8 is, uint8 it, uint32 addressMask)
 {
 	//Decrement
 	codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2VI[it]));
@@ -1335,16 +1335,16 @@ void VUShared::SQD(CMipsJitter* codeGen, uint8 dest, uint8 is, uint8 it)
 
 	//Store
 	codeGen->PushRelRef(offsetof(CMIPS, m_vuMem));
-	ComputeMemAccessAddr(codeGen, it, 0, 0);
+	ComputeMemAccessAddr(codeGen, it, 0, 0, addressMask);
 	codeGen->AddRef();
 
 	VUShared::SQbase(codeGen, dest, is);
 }
 
-void VUShared::SQI(CMipsJitter* codeGen, uint8 dest, uint8 is, uint8 it)
+void VUShared::SQI(CMipsJitter* codeGen, uint8 dest, uint8 is, uint8 it, uint32 addressMask)
 {
 	codeGen->PushRelRef(offsetof(CMIPS, m_vuMem));
-	ComputeMemAccessAddr(codeGen, it, 0, 0);
+	ComputeMemAccessAddr(codeGen, it, 0, 0, addressMask);
 	codeGen->AddRef();
 
 	VUShared::SQbase(codeGen, dest, is);
