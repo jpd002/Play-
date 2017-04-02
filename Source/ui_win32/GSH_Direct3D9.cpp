@@ -23,7 +23,6 @@ struct PRESENTVERTEX
 	float u, v;
 };
 
-#define CUSTOMFVF (D3DFVF_XYZ | D3DFVF_DIFFUSE | D3DFVF_TEX1)
 #define PRESENTFVF (D3DFVF_XYZ | D3DFVF_TEX1)
 
 static const PRESENTVERTEX g_presentVertices[] = 
@@ -660,7 +659,7 @@ void CGSH_Direct3D9::OnDeviceReset()
 	m_device->SetRenderState(D3DRS_LIGHTING, FALSE);
 	m_device->SetTextureStageState(0, D3DTSS_TEXTURETRANSFORMFLAGS, D3DTTFF_COUNT2);
 
-	result = m_device->CreateVertexBuffer(4 * sizeof(CUSTOMVERTEX), D3DUSAGE_DYNAMIC | D3DUSAGE_WRITEONLY, CUSTOMFVF, D3DPOOL_DEFAULT, &m_drawVb, nullptr);
+	result = m_device->CreateVertexBuffer(4 * sizeof(CUSTOMVERTEX), D3DUSAGE_DYNAMIC | D3DUSAGE_WRITEONLY, 0, D3DPOOL_DEFAULT, &m_drawVb, nullptr);
 	assert(SUCCEEDED(result));
 
 	result = m_device->CreateVertexBuffer(4 * sizeof(PRESENTVERTEX), D3DUSAGE_DYNAMIC | D3DUSAGE_WRITEONLY, PRESENTFVF, D3DPOOL_DEFAULT, &m_presentVb, nullptr);
