@@ -838,6 +838,8 @@ void CGSH_Direct3D9::Prim_Line()
 		// copy the vertex buffer to the back buffer
 		result = m_device->DrawPrimitive(D3DPT_LINELIST, 0, 1);
 		assert(SUCCEEDED(result));
+
+		m_drawCallCount++;
 	}
 
 	if(m_primitiveMode.nFog)
@@ -967,6 +969,8 @@ void CGSH_Direct3D9::Prim_Triangle()
 		// copy the vertex buffer to the back buffer
 		result = m_device->DrawPrimitive(D3DPT_TRIANGLELIST, 0, 1);
 		assert(SUCCEEDED(result));
+
+		m_drawCallCount++;
 	}
 
 	if(m_primitiveMode.nFog)
@@ -1054,6 +1058,8 @@ void CGSH_Direct3D9::Prim_Sprite()
 		// copy the vertex buffer to the back buffer
 		result = m_device->DrawPrimitive(D3DPT_TRIANGLESTRIP, 0, 2);
 		assert(SUCCEEDED(result));
+
+		m_drawCallCount++;
 	}
 }
 
