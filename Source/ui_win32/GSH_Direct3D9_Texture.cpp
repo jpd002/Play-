@@ -18,6 +18,7 @@ void CGSH_Direct3D9::SetupTextureUpdaters()
 	m_textureUpdater[PSMT8]    = &CGSH_Direct3D9::TexUpdater_Psm48<CGsPixelFormats::CPixelIndexorPSMT8>;
 	m_textureUpdater[PSMT4]    = &CGSH_Direct3D9::TexUpdater_Psm48<CGsPixelFormats::CPixelIndexorPSMT4>;
 	m_textureUpdater[PSMT8H]   = &CGSH_Direct3D9::TexUpdater_Psm48H<24, 0xFF>;
+	m_textureUpdater[PSMT4HL]  = &CGSH_Direct3D9::TexUpdater_Psm48H<24, 0x0F>;
 }
 
 CGSH_Direct3D9::TEXTURE_INFO CGSH_Direct3D9::LoadTexture(const TEX0& tex0, uint32 maxMip, const MIPTBP1& miptbp1, const MIPTBP2& miptbp2)
@@ -77,6 +78,7 @@ CGSH_Direct3D9::TEXTURE_INFO CGSH_Direct3D9::LoadTexture(const TEX0& tex0, uint3
 		case PSMT8:
 		case PSMT4:
 		case PSMT8H:
+		case PSMT4HL:
 			textureFormat = D3DFMT_L8;
 			break;
 		default:
