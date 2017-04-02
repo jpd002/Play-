@@ -12,7 +12,11 @@
 #include <QStorageInfo>
 
 #include "GSH_OpenGLQt.h"
+#ifdef _WIN32
+#include "tools/PsfPlayer/Source/win32_ui/SH_WaveOut.h"
+#else
 #include "tools/PsfPlayer/Source/SH_OpenAL.h"
+#endif
 #include "DiskUtils.h"
 #include "PathUtils.h"
 #include <zlib.h>
@@ -107,7 +111,11 @@ void MainWindow::SetupSoundHandler()
         bool audioEnabled = CAppConfig::GetInstance().GetPreferenceBoolean(PREFERENCE_AUDIO_ENABLEOUTPUT);
         if(audioEnabled)
         {
+#ifdef _WIN32
+            g_virtualMachine->CreateSoundHandler(&CSH_WaveOut::HandlerFactory);
+#else
             g_virtualMachine->CreateSoundHandler(&CSH_OpenAL::HandlerFactory);
+#endif
         }
         else
         {
@@ -121,9 +129,10 @@ void MainWindow::openGLWindow_resized()
     if (g_virtualMachine != nullptr && g_virtualMachine->m_ee != nullptr  && g_virtualMachine->m_ee->m_gs != nullptr )
         {
             GLint w = m_openglpanel->size().width(), h = m_openglpanel->size().height();
+            auto presentationMode = static_cast<CGSHandler::PRESENTATION_MODE>(CAppConfig::GetInstance().GetPreferenceInteger(PREF_CGSHANDLER_PRESENTATION_MODE));
 
             CGSHandler::PRESENTATION_PARAMS presentationParams;
-            presentationParams.mode 			= (CGSHandler::PRESENTATION_MODE)CAppConfig::GetInstance().GetPreferenceInteger(PREF_CGSHANDLER_PRESENTATION_MODE);
+            presentationParams.mode 			= presentationMode;
             presentationParams.windowWidth 		= w;
             presentationParams.windowHeight 	= h;
             g_virtualMachine->m_ee->m_gs->SetPresentationParams(presentationParams);

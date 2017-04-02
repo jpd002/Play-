@@ -8,6 +8,11 @@ travis_before_install()
         sudo add-apt-repository --yes ppa:ubuntu-toolchain-r/test;
         sudo apt-get update -qq;
         sudo apt-get install -qq qt56base gcc-5 g++-5 cmake libalut-dev;
+    elif [ "$TARGET_OS" = "OSX" ]; then
+        if [ "$BUILD_UI" = "QT" ]; then
+            brew update
+            brew install qt5 || true
+        fi;
     elif [ "$TARGET_OS" = "Android" ]; then
         sudo add-apt-repository ppa:ubuntu-toolchain-r/test -y #is this needed?
         sudo apt-get update -y
@@ -53,7 +58,11 @@ travis_script()
             cmake .. -G"$BUILD_TYPE" -DCMAKE_PREFIX_PATH=/opt/qt56/;
             cmake --build .
         elif [ "$TARGET_OS" = "OSX" ]; then
-            cmake .. -G"$BUILD_TYPE"
+            if [ "$BUILD_UI" = "QT" ]; then
+                cmake .. -G"$BUILD_TYPE" -DCMAKE_PREFIX_PATH=/usr/local/opt/qt5/ -DUSE_QT:BOOL=ON
+            else
+                cmake .. -G"$BUILD_TYPE"
+            fi;
             cmake --build . --config Release
         elif [ "$TARGET_OS" = "IOS" ]; then
             cmake .. -G"$BUILD_TYPE" -DCMAKE_TOOLCHAIN_FILE=../../../Dependencies/cmake-ios/ios.cmake -DTARGET_IOS=ON

@@ -2,9 +2,12 @@ version: '{build}'
 environment:
   BUILD_TYPE: Visual Studio 14 2015 Win64
   TARGET_OS: WIN32
+
   matrix:
   - CONFIG_TYPE: Release
-  - CONFIG_TYPE: Debug
+    BUILD_UI: NATIVE
+  - CONFIG_TYPE: Release
+    BUILD_UI: QT
 build_script:
 - cmd: >-
     git clone -q https://github.com/jpd002/Play-Build.git C:\Projects\Play-Build
@@ -31,6 +34,8 @@ build_script:
 
     cd build
 
-    cmake .. -G"%BUILD_TYPE%" -DCMAKE_BUILD_TYPE=%CONFIG_TYPE%
+    if "%BUILD_UI%"=="NATIVE" ( cmake .. -G"%BUILD_TYPE%" -DCMAKE_BUILD_TYPE=%CONFIG_TYPE% )
+
+    if "%BUILD_UI%"=="QT" ( cmake .. -G"%BUILD_TYPE%" -DCMAKE_BUILD_TYPE=%CONFIG_TYPE% -DUSE_QT:BOOL=on -DCMAKE_PREFIX_PATH="C:\Qt\5.8\msvc2015_64" )
 
     cmake --build . --config %CONFIG_TYPE%

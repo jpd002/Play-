@@ -29,9 +29,11 @@ void CGSH_OpenGLQt::InitializeImpl()
     succeeded = m_context->makeCurrent(m_renderWindow);
     Q_ASSERT(succeeded);
 
+#ifndef __APPLE__
     glewExperimental = GL_TRUE;
     auto result = glewInit();
     Q_ASSERT(result == GLEW_OK);
+#endif
 
     CGSH_OpenGL::InitializeImpl();
 }
@@ -46,5 +48,8 @@ void CGSH_OpenGLQt::ReleaseImpl()
 void CGSH_OpenGLQt::PresentBackbuffer()
 {
     if (m_renderWindow->isExposed())
+    {
         m_context->swapBuffers(m_renderWindow);
+        m_context->makeCurrent(m_renderWindow);
+    }
 }

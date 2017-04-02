@@ -1,5 +1,5 @@
 #include "MailBox.h"
-#if defined(_WIN32)
+#if defined(_WIN32) && !defined(_QT)
 #include "win32/Win32Defs.h"
 #endif
 
