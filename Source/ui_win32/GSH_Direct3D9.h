@@ -233,7 +233,8 @@ private:
 	CGsTextureCache<TexturePtr>		m_textureCache;
 	FramebufferList					m_framebuffers;
 	DepthbufferList					m_depthbuffers;
-	TexturePtr						m_clutTexture;
+	TexturePtr						m_clutTexture4;
+	TexturePtr						m_clutTexture8;
 
 	VertexDeclarationPtr			m_vertexDeclaration;
 	VertexShaderMap					m_vertexShaders;

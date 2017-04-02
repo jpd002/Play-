@@ -691,7 +691,10 @@ void CGSH_Direct3D9::OnDeviceReset()
 	m_deviceWindowWidth = clientRect.Width();
 	m_deviceWindowHeight = clientRect.Height();
 
-	result = m_device->CreateTexture(256, 1, 1, D3DUSAGE_DYNAMIC, D3DFMT_A8R8G8B8, D3DPOOL_DEFAULT, &m_clutTexture, nullptr);
+	result = m_device->CreateTexture(16, 1, 1, D3DUSAGE_DYNAMIC, D3DFMT_A8R8G8B8, D3DPOOL_DEFAULT, &m_clutTexture4, nullptr);
+	assert(SUCCEEDED(result));
+
+	result = m_device->CreateTexture(256, 1, 1, D3DUSAGE_DYNAMIC, D3DFMT_A8R8G8B8, D3DPOOL_DEFAULT, &m_clutTexture8, nullptr);
 	assert(SUCCEEDED(result));
 
 	m_renderState.isValid = false;
@@ -705,7 +708,8 @@ void CGSH_Direct3D9::OnDeviceResetting()
 	m_framebuffers.clear();
 	m_depthbuffers.clear();
 	m_textureCache.Flush();
-	m_clutTexture.Reset();
+	m_clutTexture4.Reset();
+	m_clutTexture8.Reset();
 }
 
 float CGSH_Direct3D9::GetZ(float nZ)
@@ -1410,7 +1414,7 @@ void CGSH_Direct3D9::SetupTexture(uint64 tex0Reg, uint64 tex1Reg, uint64 miptbp1
 
 		auto clutTexture = GetClutTexture(tex0);
 
-		m_device->SetTexture(1, m_clutTexture);
+		m_device->SetTexture(1, clutTexture);
 		m_device->SetSamplerState(1, D3DSAMP_MINFILTER, D3DTEXF_POINT);
 		m_device->SetSamplerState(1, D3DSAMP_MAGFILTER, D3DTEXF_POINT);
 		m_device->SetSamplerState(1, D3DSAMP_MIPFILTER, D3DTEXF_NONE);
