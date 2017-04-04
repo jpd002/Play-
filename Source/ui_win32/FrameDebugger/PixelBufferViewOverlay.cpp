@@ -7,15 +7,20 @@
 CPixelBufferViewOverlay::CPixelBufferViewOverlay(HWND parentWnd)
 {
 	Create(0, Framework::Win32::CDefaultWndClass::GetName(), _T(""), WNDSTYLE, 
-		Framework::Win32::PointsToPixels(Framework::Win32::CRect(0, 0, 64, 32 + 21)), parentWnd, nullptr);
+		Framework::Win32::CRect(0, 0, 1, 1), parentWnd, nullptr);
 	SetClassPtr();
 
+	static const unsigned int buttonSize = 32;
 	m_saveButton = Framework::Win32::CButton(_T("Save"), m_hWnd,
-		Framework::Win32::PointsToPixels(Framework::Win32::CRect(0, 0, 32, 32)));
+		Framework::Win32::PointsToPixels(Framework::Win32::CRect(0, 0, buttonSize, buttonSize)));
 	m_fitButton = Framework::Win32::CButton(_T("Fit"), m_hWnd, 
-		Framework::Win32::PointsToPixels(Framework::Win32::CRect(32, 0, 64, 32)));
+		Framework::Win32::PointsToPixels(Framework::Win32::CRect(buttonSize, 0, buttonSize * 2, buttonSize)));
 	m_pixelBufferComboBox = Framework::Win32::CComboBox(m_hWnd,
-		Framework::Win32::PointsToPixels(Framework::Win32::CRect(0, 32, 64, 32 + 21)), CBS_DROPDOWNLIST);
+		Framework::Win32::PointsToPixels(Framework::Win32::CRect(0, buttonSize, buttonSize * 2, buttonSize + 1)), CBS_DROPDOWNLIST);
+
+	auto buttonsRect = Framework::Win32::PointsToPixels(Framework::Win32::CRect(0, 0, buttonSize * 2, buttonSize));
+	auto comboBoxRect = m_pixelBufferComboBox.GetClientRect();
+	SetWindowPos(m_hWnd, NULL, 0, 0, buttonsRect.Width(), buttonsRect.Height() + comboBoxRect.Height(), SWP_NOMOVE | SWP_NOZORDER);
 }
 
 void CPixelBufferViewOverlay::SetPixelBufferTitles(StringList titles)
