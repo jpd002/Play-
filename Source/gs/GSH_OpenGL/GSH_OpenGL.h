@@ -29,6 +29,8 @@ public:
 	void							ProcessClutTransfer(uint32, uint32) override;
 	void							ReadFramebuffer(uint32, uint32, void*) override;
 
+	Framework::CBitmap				GetScreenshot() override;
+
 protected:
 	void							PalCache_Flush();
 	void							LoadPreferences();
