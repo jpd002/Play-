@@ -477,12 +477,10 @@ void CGSHandler::WriteRegisterMassively(RegisterWriteList registerWrites, const 
 #endif
 
 	m_mailBox.SendCall(
-		std::move(
-			[this, massiveWrite = std::move(massiveWrite)] ()
-			{
-				WriteRegisterMassivelyImpl(massiveWrite);
-			}
-		)
+		[this, massiveWrite = std::move(massiveWrite)] ()
+		{
+			WriteRegisterMassivelyImpl(massiveWrite);
+		}
 	);
 }
 
