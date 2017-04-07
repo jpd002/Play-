@@ -217,8 +217,8 @@ public:
 		uint16			nV;
 		uint32			nReserved;
 
-		float			GetU()			{ return static_cast<float>(nU & 0x7FFF) / 16.0f; }
-		float			GetV()			{ return static_cast<float>(nV & 0x7FFF) / 16.0f; }
+		float			GetU() const    { return static_cast<float>(nU & 0x7FFF) / 16.0f; }
+		float			GetV() const    { return static_cast<float>(nV & 0x7FFF) / 16.0f; }
 	};
 	static_assert(sizeof(UV) == sizeof(uint64), "Size of UV struct must be 8 bytes.");
 
