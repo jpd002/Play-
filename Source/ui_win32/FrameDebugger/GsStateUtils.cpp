@@ -301,10 +301,10 @@ std::string CGsStateUtils::GetContextState(CGSHandler* gs, unsigned int contextI
 		result += string_format("Clamp:\r\n");
 		result += string_format("\tWrap Mode S: %s\r\n", g_wrapModeString[clamp.nWMS]);
 		result += string_format("\tWrap Mode T: %s\r\n", g_wrapModeString[clamp.nWMT]);
-		result += string_format("\tMin U: %d\r\n", clamp.GetMinU());
-		result += string_format("\tMax U: %d\r\n", clamp.GetMaxU());
-		result += string_format("\tMin V: %d\r\n", clamp.GetMinV());
-		result += string_format("\tMax V: %d\r\n", clamp.GetMaxV());
+		result += string_format("\tMin U / U Mask: %4d / 0x%03X\r\n", clamp.GetMinU(), clamp.GetMinU());
+		result += string_format("\tMax U / U Fix : %4d / 0x%03X\r\n", clamp.GetMaxU(), clamp.GetMaxU());
+		result += string_format("\tMin V / V Mask: %4d / 0x%03X\r\n", clamp.GetMinV(), clamp.GetMinV());
+		result += string_format("\tMax V / V Fix : %4d / 0x%03X\r\n", clamp.GetMaxV(), clamp.GetMaxV());
 	}
 
 	{
