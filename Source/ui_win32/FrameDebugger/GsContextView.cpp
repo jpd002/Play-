@@ -82,26 +82,7 @@ void CGsContextView::UpdateBufferView()
 	switch(selectedId)
 	{
 	case TAB_ID_FRAMEBUFFER:
-		{
-			uint64 frameReg = m_gs->GetRegisters()[GS_REG_FRAME_1 + m_contextId];
-			auto framebuffer = static_cast<CGSH_Direct3D9*>(m_gs)->GetFramebuffer(frameReg);
-			if(!framebuffer.IsEmpty())
-			{
-				RenderDrawKick(framebuffer);
-				if(m_fbDisplayMode == FB_DISPLAY_MODE_448P)
-				{
-					framebuffer = framebuffer.ResizeCanvas(640, 448);
-				}
-				else if(m_fbDisplayMode == FB_DISPLAY_MODE_448I)
-				{
-					framebuffer = framebuffer.ResizeCanvas(640, 224);
-					framebuffer = framebuffer.Resize(640, 448);
-				}
-			}
-			CPixelBufferView::PixelBufferArray pixelBuffers;
-			pixelBuffers.emplace_back("Raw", std::move(framebuffer));
-			m_bufferView->SetPixelBuffers(std::move(pixelBuffers));
-		}
+		UpdateFramebufferView();
 		break;
 	case TAB_ID_TEXTURE_BASE:
 	case TAB_ID_TEXTURE_MIP1:
@@ -149,6 +130,61 @@ void CGsContextView::UpdateBufferView()
 		}
 		break;
 	}
+}
+
+void CGsContextView::UpdateFramebufferView()
+{
+	uint64 frameReg = m_gs->GetRegisters()[GS_REG_FRAME_1 + m_contextId];
+	auto frame = make_convertible<CGSHandler::FRAME>(frameReg);
+
+	auto framebuffer = static_cast<CGSH_Direct3D9*>(m_gs)->GetFramebuffer(frameReg);
+	if(framebuffer.IsEmpty())
+	{
+		m_bufferView->SetPixelBuffers(CPixelBufferView::PixelBufferArray());
+		return;
+	}
+
+	//Clip framebuffer
+	if(m_fbDisplayMode == FB_DISPLAY_MODE_448P)
+	{
+		framebuffer = framebuffer.ResizeCanvas(640, 448);
+	}
+	else if(m_fbDisplayMode == FB_DISPLAY_MODE_448I)
+	{
+		framebuffer = framebuffer.ResizeCanvas(640, 224);
+	}
+
+	Framework::CBitmap alphaFramebuffer;
+	if(frame.nPsm == CGSHandler::PSMCT32)
+	{
+		assert(framebuffer.GetBitsPerPixel() == 32);
+		alphaFramebuffer = ExtractAlpha32(framebuffer);
+	}
+
+	auto postProcessFramebuffer =
+		[this](Framework::CBitmap src)
+		{
+			if(!src.IsEmpty())
+			{
+				RenderDrawKick(src);
+				if(m_fbDisplayMode == FB_DISPLAY_MODE_448I)
+				{
+					src = src.Resize(640, 448);
+				}
+			}
+			return src;
+		};
+
+	framebuffer = postProcessFramebuffer(std::move(framebuffer));
+	alphaFramebuffer = postProcessFramebuffer(std::move(alphaFramebuffer));
+
+	CPixelBufferView::PixelBufferArray pixelBuffers;
+	pixelBuffers.emplace_back("Raw", std::move(framebuffer));
+	if(!alphaFramebuffer.IsEmpty())
+	{
+		pixelBuffers.emplace_back("Alpha", std::move(alphaFramebuffer));
+	}
+	m_bufferView->SetPixelBuffers(std::move(pixelBuffers));
 }
 
 void CGsContextView::RenderDrawKick(Framework::CBitmap& bitmap)
@@ -222,6 +258,27 @@ Framework::CBitmap CGsContextView::LookupBitmap(const Framework::CBitmap& srcBit
 			dstPixels[x] = newColor;
 		}
 		srcPixels += srcBitmap.GetPitch();
+		dstPixels += dstBitmap.GetPitch() / 4;
+	}
+	return std::move(dstBitmap);
+}
+
+Framework::CBitmap CGsContextView::ExtractAlpha32(const Framework::CBitmap& srcBitmap)
+{
+	assert(!srcBitmap.IsEmpty());
+	assert(srcBitmap.GetBitsPerPixel() == 32);
+	auto dstBitmap = Framework::CBitmap(srcBitmap.GetWidth(), srcBitmap.GetHeight(), 32);
+	auto srcPixels = reinterpret_cast<uint32*>(srcBitmap.GetPixels());
+	auto dstPixels = reinterpret_cast<uint32*>(dstBitmap.GetPixels());
+	for(uint32 y = 0; y < srcBitmap.GetHeight(); y++)
+	{
+		for(uint32 x = 0; x < srcBitmap.GetWidth(); x++)
+		{
+			uint32 color = srcPixels[x];
+			uint32 alpha = color >> 24;
+			dstPixels[x] = (alpha) | (alpha << 8) | (alpha << 16) | 0xFF000000;
+		}
+		srcPixels += srcBitmap.GetPitch() / 4;
 		dstPixels += dstBitmap.GetPitch() / 4;
 	}
 	return std::move(dstBitmap);

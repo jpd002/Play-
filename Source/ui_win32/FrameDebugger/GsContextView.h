@@ -35,10 +35,12 @@ private:
 	typedef std::array<uint32, 256> ColorArray;
 
 	void											UpdateBufferView();
+	void											UpdateFramebufferView();
 	void											RenderDrawKick(Framework::CBitmap&);
 
 	static void										BrightenBitmap(Framework::CBitmap&);
 	static Framework::CBitmap						LookupBitmap(const Framework::CBitmap&, const ColorArray&);
+	static Framework::CBitmap						ExtractAlpha32(const Framework::CBitmap&);
 
 	std::unique_ptr<Framework::Win32::CSplitter>	m_mainSplitter;
 	std::unique_ptr<Framework::Win32::CTab>			m_bufferSelectionTab;
