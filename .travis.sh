@@ -44,7 +44,6 @@ travis_script()
 {
     if [ "$TARGET_OS" = "Android" ]; then
         pushd build_android
-        chmod 755 gradlew
         ./gradlew
         ./gradlew assembleRelease
         $ANDROID_HOME/build-tools/24.0.3/zipalign -v -p 4 ./build/outputs/apk/Play-release-unsigned.apk ./build/outputs/apk/Play-release.apk
