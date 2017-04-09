@@ -85,8 +85,6 @@ travis_script()
 travis_before_deploy()
 {
     export SHORT_HASH="${TRAVIS_COMMIT:0:8}"
-    echo $SHORT_HASH
-    pwd
     mkdir deploy
     pushd deploy
     mkdir $SHORT_HASH
