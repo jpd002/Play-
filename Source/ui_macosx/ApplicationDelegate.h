@@ -7,10 +7,12 @@
 	IBOutlet NSMenuItem*			pauseResumeMenuItem;
 	IBOutlet NSMenuItem*			loadStateMenuItem;
 	IBOutlet NSMenuItem*			saveStateMenuItem;
+	IBOutlet NSMenuItem*			screenCaptureMenuItem;
 }
 
 -(void)applicationDidFinishLaunching: (NSNotification*)notification;
 -(IBAction)showPreferences: (id)sender;
+-(IBAction)screenCaptureMenuSelected: (id)sender;
 -(IBAction)bootElfMenuSelected: (id)sender;
 -(IBAction)bootCdrom0MenuSelected: (id)sender;
 -(IBAction)bootDiskImageMenuSelected: (id)sender;
