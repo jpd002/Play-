@@ -19,6 +19,7 @@
 #include <boost/version.hpp>
 
 #include "PreferenceDefs.h"
+#include "ScreenShotUtils.h"
 
 #include "ui_mainwindow.h"
 #include "vfsmanagerdialog.h"
@@ -458,4 +459,14 @@ void MainWindow::on_actionController_Manager_triggered()
 {
     ControllerConfigDialog ccd;
     ccd.exec();
+}
+
+void MainWindow::on_actionCapture_Screen_triggered()
+{
+    CScreenShotUtils::TriggerGetScreenshot(g_virtualMachine,
+        [&](int res, const char* msg)->void
+        {
+            m_msgLabel->setText(msg);
+        }
+    );
 }

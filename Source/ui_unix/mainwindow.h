@@ -97,6 +97,7 @@ private slots:
     void on_actionMemory_Card_Manager_triggered();
     void on_actionVFS_Manager_triggered();
     void on_actionController_Manager_triggered();
+    void on_actionCapture_Screen_triggered();
 };
 
 #endif // MAINWINDOW_H
