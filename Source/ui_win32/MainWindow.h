@@ -106,6 +106,8 @@ private:
 
 	void							SetupSoundHandler();
 
+	void							ScreenCapture();
+
 	CPS2VM&							m_virtualMachine;
 
 	unsigned int					m_frames;

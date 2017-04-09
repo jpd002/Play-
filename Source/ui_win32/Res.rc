@@ -157,6 +157,8 @@ BEGIN
         MENUITEM "State Slot",                  ID_MAIN_VM_STATESLOT
         MENUITEM "Save State\tF7",              ID_MAIN_VM_SAVESTATE
         MENUITEM "Load State\tF8",              ID_MAIN_VM_LOADSTATE
+        MENUITEM SEPARATOR
+        MENUITEM "Screen Capture",              ID_VIRTUALMACHINE_SCREENCAPTURE
     END
     POPUP "&View"
     BEGIN
