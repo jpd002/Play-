@@ -5,7 +5,6 @@
 #include "win32/Window.h"
 #include "win32/ComPtr.h"
 #include "bitmap/Bitmap.h"
-#include "OutputWnd.h"
 #include "nuanceur/Builder.h"
 #ifdef _DEBUG
 #define D3D_DEBUG_INFO
@@ -209,7 +208,7 @@ private:
 	bool							m_alphaBlendingEnabled = true;
 	bool							m_alphaTestingEnabled = true;
 
-	COutputWnd*						m_outputWnd = nullptr;
+	Framework::Win32::CWindow*		m_outputWnd = nullptr;
 	Direct3DPtr						m_d3d;
 	DevicePtr						m_device;
 

@@ -35,7 +35,7 @@ static const PRESENTVERTEX g_presentVertices[] =
 };
 
 CGSH_Direct3D9::CGSH_Direct3D9(Framework::Win32::CWindow* outputWindow) 
-: m_outputWnd(dynamic_cast<COutputWnd*>(outputWindow))
+: m_outputWnd(outputWindow)
 {
 	memset(&m_renderState, 0, sizeof(m_renderState));
 	m_primitiveMode <<= 0;
