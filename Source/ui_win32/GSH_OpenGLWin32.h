@@ -8,7 +8,7 @@ class CGSH_OpenGLWin32 : public CGSH_OpenGL, public CSettingsDialogProvider
 {
 public:
 									CGSH_OpenGLWin32(Framework::Win32::CWindow*);
-	virtual							~CGSH_OpenGLWin32();
+	virtual							~CGSH_OpenGLWin32() = default;
 
 	static FactoryFunction			GetFactoryFunction(Framework::Win32::CWindow*);
 

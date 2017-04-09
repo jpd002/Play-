@@ -25,11 +25,6 @@ CGSH_OpenGLWin32::CGSH_OpenGLWin32(Framework::Win32::CWindow* outputWindow)
 
 }
 
-CGSH_OpenGLWin32::~CGSH_OpenGLWin32()
-{
-
-}
-
 CGSHandler::FactoryFunction CGSH_OpenGLWin32::GetFactoryFunction(Framework::Win32::CWindow* outputWindow)
 {
 	return std::bind(&CGSH_OpenGLWin32::GSHandlerFactory, outputWindow);
