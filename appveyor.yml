@@ -1,36 +1,73 @@
 version: '{build}'
 environment:
   BUILD_TYPE: Visual Studio 14 2015 Win64
-  TARGET_OS: WIN32
   matrix:
   - CONFIG_TYPE: Release
-  - CONFIG_TYPE: Debug
 build_script:
 - cmd: >-
-    git clone -q https://github.com/jpd002/Play-Build.git C:\Projects\Play-Build
+    set REPO_COMMIT_SHORT=%APPVEYOR_REPO_COMMIT:~0,8%
 
-    cd C:\Projects\Play-Build
-
-    git submodule update -q --init --recursive
-
-    git submodule foreach -q "git checkout -q master"
-
-    cd Dependencies
-
-    git submodule update --init
+    appveyor SetVariable -Name REPO_COMMIT_SHORT -Value %REPO_COMMIT_SHORT%
 
     cd ..
-
+    
+    rename Play PlaySource
+    
+    mkdir Play
+    
+    cd Play
+    
+    git clone -q https://github.com/jpd002/Play-Build.git Play-Build
+    
+    cd Play-Build
+    
+    git submodule update -q --init --recursive
+    
+    git submodule foreach -q "git checkout -q master"
+    
+    cd Dependencies
+    
+    git submodule update --init
+    
+    cd ..
+    
     rd /S /Q Play
-
-    move C:\Projects\Play Play
-
+    
+    move ..\..\PlaySource Play
+    
     cd Play\build_cmake
-
+    
     mkdir build
-
+    
     cd build
-
-    cmake .. -G"%BUILD_TYPE%" -DCMAKE_BUILD_TYPE=%CONFIG_TYPE%
-
+    
+    cmake .. -G"%BUILD_TYPE%"
+    
     cmake --build . --config %CONFIG_TYPE%
+    
+    cd ..
+    
+    cd ..
+    
+    "C:\Program Files (x86)\NSIS\makensis.exe" ./installer_win32/installer64.nsi
+    
+    cd ..
+    
+    cd ..
+    
+    mkdir %REPO_COMMIT_SHORT%
+    
+    move Play-Build\Play\installer_win32\*.exe %REPO_COMMIT_SHORT%
+
+artifacts:
+- path: $(REPO_COMMIT_SHORT)\*.exe
+  name: Binaries
+deploy:
+- provider: S3
+  access_key_id: AKIAJGVKEDYESR2BIP7Q
+  secret_access_key:
+    secure: JFQy5OF0YXW/H6mcQtfxbd4dAJ+m88p5UwOrazZnfHXecN2M08LklayUlaX/51tI
+  bucket: playbuilds
+  region: us-east-2
+  artifact: Binaries
+  set_public: true

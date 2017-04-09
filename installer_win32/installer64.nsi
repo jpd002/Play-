@@ -63,7 +63,7 @@ Section "Play! (required)"
   SetOutPath $INSTDIR
   
   ; Put file there
-  File "..\build_win32\x64\Play\Release\Play.exe"
+  File "..\build_cmake\build\Release\Play.exe"
   File "..\Readme.html"
   File "..\Changelog.html"
   File "..\Patches.xml"

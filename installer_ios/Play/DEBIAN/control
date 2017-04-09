@@ -1,0 +1,11 @@
+Package: com.virtualapplications.play
+Name: Play!
+Version: 0.30-20170123
+Architecture: iphoneos-arm
+Description: PlayStation2 Emulator
+Homepage: http://purei.org/
+Depiction: http://purei.org/index.php
+Icon: file:///Applications/Play!.app/icon@2x.png
+Maintainer: Jean-Philip Desjardins <jpd002@gmail.com>
+Author: Jean-Philip Desjardins <jpd002@gmail.com>
+Section: Games

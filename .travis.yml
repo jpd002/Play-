@@ -33,8 +33,24 @@ matrix:
 
 language: cpp
 
+deploy:
+  provider: s3
+  access_key_id: "AKIAIOZWS66IIMPP53WQ"
+  secret_access_key:
+    secure: "c6pP/hDBNXkz8AZH+5EgTXQPUuWSWEB4ukUxzNjgZFEKUFGS2g54HhjHChJU6k/d1R1yMrpm7khfA7vUysAekMt3yydd35jkZOMpKokEQWJQnji/REr9T4795FzWpVoQoZeHERcTkYgfknXg1xcd5XAip+BtVGvgPx9URB5qBk1bPWfTWEqVePOkoQr+nSdTuAUugXePmpTApOHxgJIy2bcjBsb3PF7tJkmlGVnhe/vljIfal1Xj4jaknIAwoXj9FEBvAjMy3ksrPAuXaUnPwfmx2FSp1RO26kR1B5ubRthvsrohQkt2wIg6p8RfdUeWXZH9XABtdBFwEDpNsE4gC9bWtbNLXNlSCRE9ISHa/HvGpQ0aLmv+6CmQP6k2tlGXfZqHGO6mOoGQy7IfJa60Nji6RR6fLyWxlmtfp6zz5X6JtUH873PSsDFEJElAAX9miS3PDFxxH+sf/RsUl9tFCZDYPc7khzw0/wgpx7UApFob3srdndb8t3ECcVwSkZ4f4O7D/i4rphxvG1ThG6Bh6b+PHlB4gxqagmo0YhgIUJOi9HXfJq74JInzICAIJGNA02YAEoxDQtAQ4SJeYF1Y7GJNueJp3SBZfJMW/Tjfoars0WCFGJD9/bREjHxbCJt7wOjqIn6aAzwyRs71ZxCHxnh1/fRUBSOFIj+03j7FYrg="
+  skip_cleanup: true
+  local_dir: deploy
+  bucket: "playbuilds"
+  region: us-east-2
+  acl: public_read
+  on:
+    all_branches: yes
+
 before_install:
   - bash .travis.sh travis_before_install
   
 script:
   - bash .travis.sh travis_script
+
+before_deploy:
+  - bash .travis.sh travis_before_deploy

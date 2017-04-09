@@ -8,6 +8,11 @@ travis_before_install()
         sudo add-apt-repository --yes ppa:ubuntu-toolchain-r/test;
         sudo apt-get update -qq;
         sudo apt-get install -qq qt56base gcc-5 g++-5 cmake libalut-dev;
+    elif [ "$TARGET_OS" = "OSX" ]; then
+        sudo npm install -g appdmg
+    elif [ "$TARGET_OS" = "IOS" ]; then
+        brew update
+        brew install dpkg
     elif [ "$TARGET_OS" = "Android" ]; then
         sudo add-apt-repository ppa:ubuntu-toolchain-r/test -y #is this needed?
         sudo apt-get update -y
@@ -38,15 +43,19 @@ travis_before_install()
 travis_script()
 {
     if [ "$TARGET_OS" = "Android" ]; then
-        cd build_android
+        pushd build_android
         chmod 755 gradlew
         ./gradlew
         ./gradlew assembleRelease
+        $ANDROID_HOME/build-tools/24.0.3/zipalign -v -p 4 ./build/outputs/apk/Play-release-unsigned.apk ./build/outputs/apk/Play-release.apk
+        $ANDROID_HOME/build-tools/24.0.3/apksigner sign --ks ../installer_android/deploy.keystore --ks-key-alias deploy --ks-pass env:ANDROID_KEYSTORE_PASS --key-pass env:ANDROID_KEYSTORE_PASS ./build/outputs/apk/Play-release.apk
+        popd 
     else
-        cd build_cmake
+        pushd build_cmake
+        
         mkdir build
-        cd build
-
+        pushd build
+        
         if [ "$TARGET_OS" = "Linux" ]; then
             if [ "$CXX" = "g++" ]; then export CXX="g++-5" CC="gcc-5"; fi
             source /opt/qt56/bin/qt56-env.sh || true
@@ -55,11 +64,47 @@ travis_script()
         elif [ "$TARGET_OS" = "OSX" ]; then
             cmake .. -G"$BUILD_TYPE"
             cmake --build . --config Release
+            appdmg ../../installer_macosx/spec.json Play.dmg
         elif [ "$TARGET_OS" = "IOS" ]; then
             cmake .. -G"$BUILD_TYPE" -DCMAKE_TOOLCHAIN_FILE=../../../Dependencies/cmake-ios/ios.cmake -DTARGET_IOS=ON
             cmake --build . --config Release
+            codesign -s "-" Release-iphoneos/Play.app
+            pushd ..
+            pushd ..
+            pushd installer_ios
+            ./build.sh
+            popd
+            popd
+            popd
         fi;
+        
+        popd
+        popd
     fi;
+}
+
+travis_before_deploy()
+{
+    export SHORT_HASH="${TRAVIS_COMMIT:0:8}"
+    echo $SHORT_HASH
+    pwd
+    mkdir deploy
+    pushd deploy
+    mkdir $SHORT_HASH
+    pushd $SHORT_HASH
+    if [ "$TARGET_OS" = "Android" ]; then
+        cp ../../build_android/build/outputs/apk/Play-release-unsigned.apk .
+        cp ../../build_android/build/outputs/apk/Play-release.apk .
+    fi;
+    if [ "$TARGET_OS" = "OSX" ]; then
+        cp ../../build_cmake/build/Play.dmg .
+    fi;
+    if [ "$TARGET_OS" = "IOS" ]; then
+        cp ../../installer_ios/Play.deb .
+        cp ../../installer_ios/Packages.bz2 .
+    fi;
+    popd
+    popd
 }
 
 set -e
