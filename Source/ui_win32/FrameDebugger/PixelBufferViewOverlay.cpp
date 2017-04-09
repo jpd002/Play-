@@ -38,6 +38,11 @@ int CPixelBufferViewOverlay::GetSelectedPixelBufferIndex()
 	return m_pixelBufferComboBox.GetSelection();
 }
 
+void CPixelBufferViewOverlay::SetSelectedPixelBufferIndex(int selectedIndex)
+{
+	m_pixelBufferComboBox.SetSelection(selectedIndex);
+}
+
 long CPixelBufferViewOverlay::OnCommand(unsigned short, unsigned short cmd, HWND wndFrom)
 {
 	if(CWindow::IsCommandSource(&m_saveButton, wndFrom))

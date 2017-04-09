@@ -27,6 +27,7 @@ public:
 	void    SetPixelBufferTitles(StringList);
 
 	int     GetSelectedPixelBufferIndex();
+	void    SetSelectedPixelBufferIndex(int);
 
 protected:
 	long    OnCommand(unsigned short, unsigned short, HWND) override;

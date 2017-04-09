@@ -36,7 +36,15 @@ void CPixelBufferView::SetPixelBuffers(PixelBufferArray pixelBuffers)
 		{
 			titles.push_back(pixelBuffer.first);
 		}
+		//Save previously selected index
+		int selectedIndex = m_overlay->GetSelectedPixelBufferIndex();
+		auto titleCount = titles.size();
 		m_overlay->SetPixelBufferTitles(std::move(titles));
+		//Restore selected index
+		if((selectedIndex != -1) && (selectedIndex < titleCount))
+		{
+			m_overlay->SetSelectedPixelBufferIndex(selectedIndex);
+		}
 	}
 	CreateSelectedPixelBufferTexture();
 	Refresh();
