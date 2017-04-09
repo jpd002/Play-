@@ -396,6 +396,7 @@ set(COMMON_SRC_FILES
 	../Source/PS2VM.cpp 
 	../Source/RegisterStateFile.cpp 
 	../Source/ScopedVmPauser.cpp
+	../Source/ScreenShotUtils.cpp
 	../Source/StructCollectionStateFile.cpp 
 	../Source/StructFile.cpp 
 	../Source/Utils.cpp
