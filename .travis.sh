@@ -46,8 +46,6 @@ travis_script()
         pushd build_android
         ./gradlew
         ./gradlew assembleRelease
-        $ANDROID_HOME/build-tools/24.0.3/zipalign -v -p 4 ./build/outputs/apk/Play-release-unsigned.apk ./build/outputs/apk/Play-release.apk
-        $ANDROID_HOME/build-tools/24.0.3/apksigner sign --ks ../installer_android/deploy.keystore --ks-key-alias deploy --ks-pass env:ANDROID_KEYSTORE_PASS --key-pass env:ANDROID_KEYSTORE_PASS ./build/outputs/apk/Play-release.apk
         popd 
     else
         pushd build_cmake
@@ -91,7 +89,9 @@ travis_before_deploy()
     pushd $SHORT_HASH
     if [ "$TARGET_OS" = "Android" ]; then
         cp ../../build_android/build/outputs/apk/Play-release-unsigned.apk .
-        cp ../../build_android/build/outputs/apk/Play-release.apk .
+        export ANDROID_BUILD_TOOLS=$ANDROID_HOME/build-tools/24.0.3
+        $ANDROID_BUILD_TOOLS/zipalign -v -p 4 Play-release-unsigned.apk Play-release.apk
+        $ANDROID_BUILD_TOOLS/apksigner sign --ks ../../installer_android/deploy.keystore --ks-key-alias deploy --ks-pass env:ANDROID_KEYSTORE_PASS --key-pass env:ANDROID_KEYSTORE_PASS Play-release.apk
     fi;
     if [ "$TARGET_OS" = "OSX" ]; then
         cp ../../build_cmake/build/Play.dmg .
