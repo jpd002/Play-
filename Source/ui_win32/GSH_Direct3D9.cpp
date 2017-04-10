@@ -34,6 +34,12 @@ static const PRESENTVERTEX g_presentVertices[] =
 	{  1,  1, 0, 1, 0 }
 };
 
+static uint8 MulBy2Clamp(uint8 value)
+{
+	if(value >= 0x80) return 0xFF;
+	return value << 1;
+}
+
 CGSH_Direct3D9::CGSH_Direct3D9(Framework::Win32::CWindow* outputWindow) 
 : m_outputWnd(outputWindow)
 {
@@ -1270,6 +1276,14 @@ void CGSH_Direct3D9::SetupBlendingFunction(uint64 alphaReg)
 		//1202 - Cd * As
 		m_device->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_ZERO);
 		m_device->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_SRCALPHA);
+	}
+	else if((alpha.nA == ALPHABLEND_ABD_CD) && (alpha.nB == ALPHABLEND_ABD_ZERO) && (alpha.nC == ALPHABLEND_C_FIX) && (alpha.nD == ALPHABLEND_ABD_CS))
+	{
+		//1220 -> Cd * FIX + Cs
+		uint8 fix = MulBy2Clamp(alpha.nFix);
+		m_device->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_ONE);
+		m_device->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_BLENDFACTOR);
+		m_device->SetRenderState(D3DRS_BLENDFACTOR, D3DCOLOR_ARGB(fix, fix, fix, fix));
 	}
 	else if((alpha.nA == ALPHABLEND_ABD_ZERO) && (alpha.nB == ALPHABLEND_ABD_CD) && (alpha.nC == ALPHABLEND_C_AS) && (alpha.nD == ALPHABLEND_ABD_CD))
 	{
