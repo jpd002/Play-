@@ -114,13 +114,14 @@
 #define ID_FD_SETTINGS_FB_448P          40192
 #define ID_FD_SETTINGS_FB_448I          40193
 #define ID_MAIN_OPTIONS_ENABLESOUND     40195
+#define ID_VIRTUALMACHINE_SCREENCAPTURE 40196
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        133
-#define _APS_NEXT_COMMAND_VALUE         40196
+#define _APS_NEXT_COMMAND_VALUE         40197
 #define _APS_NEXT_CONTROL_VALUE         1004
 #define _APS_NEXT_SYMED_VALUE           101
 #endif

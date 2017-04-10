@@ -375,7 +375,7 @@ void CGSHandler::Flip(bool showOnly)
 
 void CGSHandler::FlipImpl()
 {
-
+	OnFlipComplete();
 }
 
 void CGSHandler::MarkNewFrame()
@@ -1659,4 +1659,9 @@ void CGSHandler::ThreadProc()
 			m_mailBox.ReceiveCall();
 		}
 	}
+}
+
+Framework::CBitmap CGSHandler::GetScreenshot()
+{
+    throw std::runtime_error("Screenshot feature is not implemented in current backend.");
 }

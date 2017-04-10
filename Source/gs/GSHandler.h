@@ -7,6 +7,7 @@
 #include <array>
 #include <boost/signals2.hpp>
 
+#include "bitmap/Bitmap.h"
 #include "Types.h"
 #include "Convertible.h"
 #include "../MailBox.h"
@@ -628,6 +629,10 @@ public:
 	unsigned int							GetCrtHeight() const;
 	bool									GetCrtIsInterlaced() const;
 	bool									GetCrtIsFrameMode() const;
+
+	virtual Framework::CBitmap				GetScreenshot();
+
+	boost::signals2::signal<void()>			OnFlipComplete;
 
 	boost::signals2::signal<void (uint32)>	OnNewFrame;
 

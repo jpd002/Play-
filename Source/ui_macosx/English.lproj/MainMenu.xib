@@ -1,8 +1,7 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="10116" systemVersion="15E65" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES">
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="11762" systemVersion="16B2657" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES">
     <dependencies>
-        <deployment identifier="macosx"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="10116"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="11762"/>
     </dependencies>
     <objects>
         <customObject id="-2" userLabel="File's Owner" customClass="NSApplication">
@@ -18,6 +17,7 @@
                 <outlet property="loadStateMenuItem" destination="821" id="829"/>
                 <outlet property="pauseResumeMenuItem" destination="819" id="828"/>
                 <outlet property="saveStateMenuItem" destination="820" id="830"/>
+                <outlet property="screenCaptureMenuItem" destination="WTB-Yz-LPC" id="841"/>
             </connections>
         </customObject>
         <menu title="Main Menu" systemMenu="main" id="29">
@@ -367,6 +367,12 @@
                                 <modifierMask key="keyEquivalentModifierMask"/>
                                 <connections>
                                     <action selector="saveStateMenuSelected:" target="795" id="825"/>
+                                </connections>
+                            </menuItem>
+                            <menuItem title="Capture Screen" id="WTB-Yz-LPC">
+                                <modifierMask key="keyEquivalentModifierMask"/>
+                                <connections>
+                                    <action selector="screenCaptureMenuSelected:" target="795" id="826"/>
                                 </connections>
                             </menuItem>
                         </items>

@@ -19,6 +19,7 @@
 #include <boost/version.hpp>
 
 #include "PreferenceDefs.h"
+#include "ScreenShotUtils.h"
 
 #include "ui_mainwindow.h"
 #include "vfsmanagerdialog.h"
@@ -236,11 +237,17 @@ void MainWindow::CreateStatusBar()
     m_stateLabel->setMinimumSize(m_dcLabel->sizeHint());
 
 
-    statusBar()->addWidget(gameIDLabel);
+    m_msgLabel = new ElidedLabel();
+    m_msgLabel->setAlignment(Qt::AlignLeft);
+    QFontMetrics fm(m_msgLabel->font());
+    m_msgLabel->setMinimumSize(fm.boundingRect("...").size());
+    m_msgLabel->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Preferred);
+
     statusBar()->addWidget(m_stateLabel);
     statusBar()->addWidget(fpsLabel);
     statusBar()->addWidget(m_dcLabel);
-
+    statusBar()->addWidget(m_msgLabel, 1);
+    statusBar()->addWidget(gameIDLabel);
 
     m_fpstimer = new QTimer(this);
     connect(m_fpstimer, SIGNAL(timeout()), this, SLOT(setFPS()));
@@ -452,4 +459,14 @@ void MainWindow::on_actionController_Manager_triggered()
 {
     ControllerConfigDialog ccd;
     ccd.exec();
+}
+
+void MainWindow::on_actionCapture_Screen_triggered()
+{
+    CScreenShotUtils::TriggerGetScreenshot(g_virtualMachine,
+        [&](int res, const char* msg)->void
+        {
+            m_msgLabel->setText(msg);
+        }
+    );
 }

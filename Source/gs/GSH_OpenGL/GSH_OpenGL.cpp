@@ -2135,6 +2135,15 @@ void CGSH_OpenGL::ReadFramebuffer(uint32 width, uint32 height, void* buffer)
 #endif
 }
 
+Framework::CBitmap CGSH_OpenGL::GetScreenshot()
+{
+	GLint viewport[4];
+	glGetIntegerv(GL_VIEWPORT, viewport);
+	auto imgbuffer = Framework::CBitmap(viewport[2], viewport[3], 32);
+	glReadPixels(viewport[0], viewport[1], viewport[2], viewport[3], GL_RGBA, GL_UNSIGNED_BYTE, imgbuffer.GetPixels());
+	return imgbuffer.FlipVertical();
+}
+
 /////////////////////////////////////////////////////////////
 // Framebuffer
 /////////////////////////////////////////////////////////////

@@ -85,6 +85,8 @@
     <addaction name="actionPause_Resume"/>
     <addaction name="actionPause_when_focus_is_lost"/>
     <addaction name="actionReset"/>
+    <addaction name="separator"/>
+    <addaction name="actionCapture_Screen"/>
    </widget>
    <widget class="QMenu" name="menuHelp">
     <property name="title">
@@ -179,6 +181,11 @@
   <action name="actionController_Manager">
    <property name="text">
     <string>Controller Manager...</string>
+   </property>
+  </action>
+  <action name="actionCapture_Screen">
+   <property name="text">
+    <string>Capture Screen</string>
    </property>
   </action>
  </widget>

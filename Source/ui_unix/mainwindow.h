@@ -12,6 +12,7 @@
 #include "PS2VM_Preferences.h"
 #include "StatsManager.h"
 #include "PH_HidUnix.h"
+#include "ElidedLabel.h"
 
 
 namespace Ui {
@@ -52,6 +53,7 @@ private:
     QLabel* fpsLabel;
     QLabel* m_dcLabel;
     QLabel* m_stateLabel;
+    ElidedLabel* m_msgLabel;
     CStatsManager* StatsManager;
     CPH_HidUnix* m_padhandler = nullptr;
     QTimer *m_fpstimer = nullptr;
@@ -95,6 +97,7 @@ private slots:
     void on_actionMemory_Card_Manager_triggered();
     void on_actionVFS_Manager_triggered();
     void on_actionController_Manager_triggered();
+    void on_actionCapture_Screen_triggered();
 };
 
 #endif // MAINWINDOW_H
