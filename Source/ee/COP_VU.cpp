@@ -135,18 +135,18 @@ void CCOP_VU::CFC2()
 		switch(m_nFS)
 		{
 		case CTRL_REG_CLIP:
-			VUShared::CheckFlagPipeline(VUShared::g_pipeInfoClip, m_codeGen, 4);
+			VUShared::CheckFlagPipeline(VUShared::g_pipeInfoClip, m_codeGen, VUShared::LATENCY_MAC);
 			m_codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2CF));
 			break;
 		case CTRL_REG_STATUS:
-			VUShared::GetStatus(m_codeGen, offsetof(CMIPS, m_State.nCOP2T), 4);
+			VUShared::GetStatus(m_codeGen, offsetof(CMIPS, m_State.nCOP2T), VUShared::LATENCY_MAC);
 			m_codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2T));
 			break;
 		case CTRL_REG_R:
 			m_codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2R));
 			break;
 		case CTRL_REG_MAC:
-			VUShared::CheckFlagPipeline(VUShared::g_pipeInfoMac, m_codeGen, 4);
+			VUShared::CheckFlagPipeline(VUShared::g_pipeInfoMac, m_codeGen, VUShared::LATENCY_MAC);
 			m_codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2MF));
 			break;
 		case CTRL_REG_TPC:
