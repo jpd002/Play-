@@ -40,7 +40,9 @@ void CGsPacketListView::SetFrameDump(CFrameDump* frameDump)
 	m_frameDump = frameDump;
 
 	m_packetsTreeView->SetSelection(NULL);
+	m_packetsTreeView->SetRedraw(FALSE);
 	m_packetsTreeView->DeleteAllItems();
+	m_packetsTreeView->SetRedraw(TRUE);
 	m_packetInfos.clear();
 	m_writeInfos.clear();
 
