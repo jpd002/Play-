@@ -5,11 +5,6 @@
 #include "FpAddTruncate.h"
 #include "../FpUtils.h"
 
-#define LATENCY_MAC (4)
-#define LATENCY_DIV (7)
-#define LATENCY_SQRT (7)
-#define LATENCY_RSQRT (13)
-
 #define STATUS_Z 0x01
 #define STATUS_S 0x02
 #define STATUS_I 0x10
