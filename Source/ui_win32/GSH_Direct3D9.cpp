@@ -833,15 +833,12 @@ void CGSH_Direct3D9::Prim_Line()
 		result = m_drawVb->Unlock();
 		assert(SUCCEEDED(result));
 
-		// select which vertex format we are using
 		result = m_device->SetVertexDeclaration(m_vertexDeclaration);
 		assert(SUCCEEDED(result));
 
-		// select the vertex buffer to display
 		result = m_device->SetStreamSource(0, m_drawVb, 0, sizeof(CUSTOMVERTEX));
 		assert(SUCCEEDED(result));
 
-		// copy the vertex buffer to the back buffer
 		result = m_device->DrawPrimitive(D3DPT_LINELIST, 0, 1);
 		assert(SUCCEEDED(result));
 
@@ -964,15 +961,12 @@ void CGSH_Direct3D9::Prim_Triangle()
 		result = m_drawVb->Unlock();
 		assert(SUCCEEDED(result));
 
-		// select which vertex format we are using
 		result = m_device->SetVertexDeclaration(m_vertexDeclaration);
 		assert(SUCCEEDED(result));
 
-		// select the vertex buffer to display
 		result = m_device->SetStreamSource(0, m_drawVb, 0, sizeof(CUSTOMVERTEX));
 		assert(SUCCEEDED(result));
 
-		// copy the vertex buffer to the back buffer
 		result = m_device->DrawPrimitive(D3DPT_TRIANGLELIST, 0, 1);
 		assert(SUCCEEDED(result));
 
@@ -1053,15 +1047,12 @@ void CGSH_Direct3D9::Prim_Sprite()
 		result = m_drawVb->Unlock();
 		assert(SUCCEEDED(result));
 
-		// select which vertex format we are using
 		result = m_device->SetVertexDeclaration(m_vertexDeclaration);
 		assert(SUCCEEDED(result));
 
-		// select the vertex buffer to display
 		result = m_device->SetStreamSource(0, m_drawVb, 0, sizeof(CUSTOMVERTEX));
 		assert(SUCCEEDED(result));
 
-		// copy the vertex buffer to the back buffer
 		result = m_device->DrawPrimitive(D3DPT_TRIANGLESTRIP, 0, 2);
 		assert(SUCCEEDED(result));
 
