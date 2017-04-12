@@ -27,10 +27,12 @@ void CVuBasicBlock::CompileRange(CMipsJitter* jitter)
 		    hasPendingXgKick = false;
 	    };
 
+	uint32 relativePipeTime = 0;
+	uint32 writeFTime[32];
+	memset(writeFTime, 0, sizeof(writeFTime));
+
 	for(uint32 address = m_begin; address <= m_end; address += 8)
 	{
-		uint32 relativePipeTime = (address - m_begin) / 8;
-
 		uint32 addressLo = address + 0;
 		uint32 addressHi = address + 4;
 
@@ -148,6 +150,27 @@ void CVuBasicBlock::CompileRange(CMipsJitter* jitter)
 			assert(!hasPendingXgKick);
 			hasPendingXgKick = true;
 		}
+		//Adjust pipeTime
+		relativePipeTime++;
+
+		//--- Check FMAC hazards
+		if(loOps.readF0 != 0) relativePipeTime = std::max<uint32>(relativePipeTime, writeFTime[loOps.readF0]);
+		if(loOps.readF1 != 0) relativePipeTime = std::max<uint32>(relativePipeTime, writeFTime[loOps.readF1]);
+		if(hiOps.readF0 != 0) relativePipeTime = std::max<uint32>(relativePipeTime, writeFTime[hiOps.readF0]);
+		if(hiOps.readF1 != 0) relativePipeTime = std::max<uint32>(relativePipeTime, writeFTime[hiOps.readF1]);
+
+		if(loOps.writeF != 0)
+		{
+			assert(loOps.writeF < 32);
+			writeFTime[loOps.writeF] = relativePipeTime + VUShared::LATENCY_MAC;
+		}
+
+		if(hiOps.writeF != 0)
+		{
+			assert(hiOps.writeF < 32);
+			writeFTime[hiOps.writeF] = relativePipeTime + VUShared::LATENCY_MAC;
+		}
+		//----------------------
 
 		//Sanity check
 		assert(jitter->IsStackEmpty());
@@ -162,9 +185,8 @@ void CVuBasicBlock::CompileRange(CMipsJitter* jitter)
 
 	//Increment pipeTime
 	{
-		uint32 timeInc = ((m_end - m_begin) / 8) + 1;
 		jitter->PushRel(offsetof(CMIPS, m_State.pipeTime));
-		jitter->PushCst(timeInc);
+		jitter->PushCst(relativePipeTime);
 		jitter->Add();
 		jitter->PullRel(offsetof(CMIPS, m_State.pipeTime));
 	}
