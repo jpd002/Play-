@@ -178,7 +178,7 @@ void CGSH_Direct3D9::ProcessLocalToLocalTransfer()
 
 void CGSH_Direct3D9::ProcessClutTransfer(uint32, uint32)
 {
-
+	m_renderState.isValid = false;
 }
 
 void CGSH_Direct3D9::ReadFramebuffer(uint32, uint32, void*)
