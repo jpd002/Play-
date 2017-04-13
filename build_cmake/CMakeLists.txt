@@ -745,6 +745,8 @@ if (WIN32)
 			../Source/ui_win32/DebugView.cpp
 			../Source/ui_win32/FunctionsView.cpp
 			../Source/ui_win32/ThreadsViewWnd.cpp
+
+			../Source/ui_win32/ElfViewRes.rc
 		)
 	endif()
 	if(ARCH STREQUAL "x86")
