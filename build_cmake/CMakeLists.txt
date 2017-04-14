@@ -681,21 +681,21 @@ if(TARGET_PLATFORM_IOS)
 	set(OSX_RES
 		${CMAKE_CURRENT_SOURCE_DIR}/../patches.xml
 		${CMAKE_CURRENT_SOURCE_DIR}/../Source/ui_ios/Base.lproj/Main.storyboard
-		${CMAKE_CURRENT_SOURCE_DIR}/../build_ios/Play!/Images.xcassets/AppIcon.appiconset/icon@2x.png
-		${CMAKE_CURRENT_SOURCE_DIR}/../build_ios/Play!/Resources/games.db
-		${CMAKE_CURRENT_SOURCE_DIR}/../build_ios/Play!/Resources/boxart.png
-		${CMAKE_CURRENT_SOURCE_DIR}/../build_ios/Play!/Resources/select.png
-		${CMAKE_CURRENT_SOURCE_DIR}/../build_ios/Play!/Resources/start.png
-		${CMAKE_CURRENT_SOURCE_DIR}/../build_ios/Play!/Resources/up.png
-		${CMAKE_CURRENT_SOURCE_DIR}/../build_ios/Play!/Resources/down.png
-		${CMAKE_CURRENT_SOURCE_DIR}/../build_ios/Play!/Resources/left.png
-		${CMAKE_CURRENT_SOURCE_DIR}/../build_ios/Play!/Resources/right.png
-		${CMAKE_CURRENT_SOURCE_DIR}/../build_ios/Play!/Resources/triangle.png
-		${CMAKE_CURRENT_SOURCE_DIR}/../build_ios/Play!/Resources/cross.png
-		${CMAKE_CURRENT_SOURCE_DIR}/../build_ios/Play!/Resources/circle.png
-		${CMAKE_CURRENT_SOURCE_DIR}/../build_ios/Play!/Resources/square.png
-		${CMAKE_CURRENT_SOURCE_DIR}/../build_ios/Play!/Resources/lr.png
-		${CMAKE_CURRENT_SOURCE_DIR}/../build_ios/Play!/Resources/analogstick.png
+		${CMAKE_CURRENT_SOURCE_DIR}/../Source/ui_ios/Resources/icon@2x.png
+		${CMAKE_CURRENT_SOURCE_DIR}/../Source/ui_ios/Resources/games.db
+		${CMAKE_CURRENT_SOURCE_DIR}/../Source/ui_ios/Resources/boxart.png
+		${CMAKE_CURRENT_SOURCE_DIR}/../Source/ui_ios/Resources/select.png
+		${CMAKE_CURRENT_SOURCE_DIR}/../Source/ui_ios/Resources/start.png
+		${CMAKE_CURRENT_SOURCE_DIR}/../Source/ui_ios/Resources/up.png
+		${CMAKE_CURRENT_SOURCE_DIR}/../Source/ui_ios/Resources/down.png
+		${CMAKE_CURRENT_SOURCE_DIR}/../Source/ui_ios/Resources/left.png
+		${CMAKE_CURRENT_SOURCE_DIR}/../Source/ui_ios/Resources/right.png
+		${CMAKE_CURRENT_SOURCE_DIR}/../Source/ui_ios/Resources/triangle.png
+		${CMAKE_CURRENT_SOURCE_DIR}/../Source/ui_ios/Resources/cross.png
+		${CMAKE_CURRENT_SOURCE_DIR}/../Source/ui_ios/Resources/circle.png
+		${CMAKE_CURRENT_SOURCE_DIR}/../Source/ui_ios/Resources/square.png
+		${CMAKE_CURRENT_SOURCE_DIR}/../Source/ui_ios/Resources/lr.png
+		${CMAKE_CURRENT_SOURCE_DIR}/../Source/ui_ios/Resources/analogstick.png
 	)
 
 	# Add our Executable
