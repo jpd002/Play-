@@ -13,7 +13,7 @@ For more information, please visit [purei.org](http://purei.org).
 
 ### Repositories ###
 - [Play! Dependencies](https://github.com/jpd002/Play-Dependencies)
-- [Play! Framework](https://github.com/jpd002/Play--Framework) 
+- [Play! Framework](https://github.com/jpd002/Play--Framework)
 - [Play! CodeGen](https://github.com/jpd002/Play--CodeGen)
 - [Nuanceur](https://github.com/jpd002/Nuanceur)
 
@@ -44,10 +44,9 @@ cd Dependencies
 git submodule update --init
 cd ..
 ```
-Currently macOS, Windows, Linux & Android builds support cmake build.
 
 ### Building for Windows ###
-for Windows, you'd need to have cmake and DirectX sdk installed
+To build for Windows you will need to have CMake and DirectX SDK installed on your system.
 ```
 cd Play/build_cmake
 mkdir build
@@ -59,9 +58,10 @@ cmake .. -G"Visual Studio 14 2015 Win64"
 cmake --build . --config Release
 ```
 
-### Building for macOS ###
-if you dont have cmake installed, you can install it using brew with the following command `brew install cmake`
-on macOS there is 2 ways to setup a build, using makefile or Xcode
+### Building for macOS & iOS ###
+If you don't have CMake installed on your system, you can install it using brew with the following command: `brew install cmake`.
+
+There are two ways to generate a build for macOS, either by using makefiles or by using Xcode.
 ```
 cd Play/build_cmake
 mkdir build
@@ -75,6 +75,12 @@ cmake --build .
 cmake .. -G"Xcode" -DCMAKE_BUILD_TYPE=Release
 cmake --build . --config Release
 ```
+
+To generate a build for iOS, you will need to add the following parameters to the CMake invocation:
+`-DCMAKE_TOOLCHAIN_FILE=../../../Dependencies/cmake-ios/ios.cmake -DTARGET_IOS=ON`
+
+Example:
+`cmake .. -G"Xcode" -DCMAKE_TOOLCHAIN_FILE=../../../Dependencies/cmake-ios/ios.cmake -DTARGET_IOS=ON`
 
 ### Building for UNIX ###
 if you dont have cmake or openal lib installed, you'll also require Qt (preferably version 5.6) you can install it using your OS packaging tool, e.g ubuntu `apt install cmake libalut-dev`
@@ -155,9 +161,3 @@ sh gradlew assembleRelease
 # or on Windows
 gradlew.bat assembleRelease
 ```
-
-### Building for iOS ###
-
-Building for iOS has been tested with Xcode 6 and Xcode 7. 
-
-To build for those platforms, you need to first build boost using the [script](https://github.com/jpd002/Play-Dependencies/blob/master/BoostMac/boost.sh) provided in the [Dependencies](https://github.com/jpd002/Play-Dependencies) repository. This will create the boost Xcode framework files that are needed by the projects from this repository. Once this is done, you will be able to open `Play.xcodeproj` for either OSX and iOS and build the project normally.
