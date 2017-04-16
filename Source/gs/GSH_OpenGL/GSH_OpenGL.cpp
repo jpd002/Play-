@@ -509,11 +509,6 @@ unsigned int CGSH_OpenGL::GetCurrentReadCircuit()
 	return 0;
 }
 
-uint32 CGSH_OpenGL::RGBA16ToRGBA32(uint16 nColor)
-{
-	return (nColor & 0x8000 ? 0xFF000000 : 0) | ((nColor & 0x7C00) << 9) | ((nColor & 0x03E0) << 6) | ((nColor & 0x001F) << 3);
-}
-
 float CGSH_OpenGL::GetZ(float nZ)
 {
 	if(nZ == 0)

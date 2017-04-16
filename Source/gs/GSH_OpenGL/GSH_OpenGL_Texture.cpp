@@ -212,68 +212,11 @@ GLuint CGSH_OpenGL::PreparePalette(const TEX0& tex0)
 		return textureHandle;
 	}
 
-	uint32 convertedClut[256];
+	std::array<uint32, 256> convertedClut;
+	MakeLinearCLUT(tex0, convertedClut);
+
 	unsigned int entryCount = CGsPixelFormats::IsPsmIDTEX4(tex0.nPsm) ? 16 : 256;
-
-	if(CGsPixelFormats::IsPsmIDTEX4(tex0.nPsm))
-	{
-		if(tex0.nCPSM == PSMCT32 || tex0.nCPSM == PSMCT24)
-		{
-			assert(tex0.nCSA < 16);
-			uint32 clutOffset = (tex0.nCSA & 0xF) * 16;
-
-			for(unsigned int i = 0; i < 16; i++)
-			{
-				uint32 color = 
-					(static_cast<uint16>(m_pCLUT[i + clutOffset + 0x000])) | 
-					(static_cast<uint16>(m_pCLUT[i + clutOffset + 0x100]) << 16);
-				convertedClut[i] = color;
-			}
-		}
-		else if(tex0.nCPSM == PSMCT16 || tex0.nCPSM == PSMCT16S)
-		{
-			//CSA is 5-bit, shouldn't go over 31
-			assert(tex0.nCSA < 32);
-			uint32 clutOffset = tex0.nCSA * 16;
-
-			for(unsigned int i = 0; i < 16; i++)
-			{
-				convertedClut[i] = RGBA16ToRGBA32(m_pCLUT[i + clutOffset]);
-			}
-		}
-		else
-		{
-			assert(false);
-		}
-	}
-	else if(CGsPixelFormats::IsPsmIDTEX8(tex0.nPsm))
-	{
-		assert(tex0.nCSA == 0);
-
-		if(tex0.nCPSM == PSMCT32 || tex0.nCPSM == PSMCT24)
-		{
-			for(unsigned int i = 0; i < 256; i++)
-			{
-				uint32 color = 
-					(static_cast<uint16>(m_pCLUT[i + 0x000])) | 
-					(static_cast<uint16>(m_pCLUT[i + 0x100]) << 16);
-				convertedClut[i] = color;
-			}
-		}
-		else if(tex0.nCPSM == PSMCT16 || tex0.nCPSM == PSMCT16S)
-		{
-			for(unsigned int i = 0; i < 256; i++)
-			{
-				convertedClut[i] = RGBA16ToRGBA32(m_pCLUT[i]);
-			}
-		}
-		else
-		{
-			assert(false);
-		}
-	}
-
-	textureHandle = PalCache_Search(entryCount, convertedClut);
+	textureHandle = PalCache_Search(entryCount, convertedClut.data());
 	if(textureHandle != 0)
 	{
 		return textureHandle;
@@ -281,9 +224,9 @@ GLuint CGSH_OpenGL::PreparePalette(const TEX0& tex0)
 
 	glGenTextures(1, &textureHandle);
 	glBindTexture(GL_TEXTURE_2D, textureHandle);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, entryCount, 1, 0, GL_RGBA, GL_UNSIGNED_BYTE, convertedClut);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, entryCount, 1, 0, GL_RGBA, GL_UNSIGNED_BYTE, convertedClut.data());
 
-	PalCache_Insert(tex0, convertedClut, textureHandle);
+	PalCache_Insert(tex0, convertedClut.data(), textureHandle);
 
 	return textureHandle;
 }

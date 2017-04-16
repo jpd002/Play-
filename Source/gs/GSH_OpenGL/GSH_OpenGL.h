@@ -286,7 +286,6 @@ private:
 	TEXTURE_INFO					PrepareTexture(const TEX0&);
 	GLuint							PreparePalette(const TEX0&);
 
-	uint32							RGBA16ToRGBA32(uint16);
 	float							GetZ(float);
 
 	void							VertexKick(uint8, uint64);
