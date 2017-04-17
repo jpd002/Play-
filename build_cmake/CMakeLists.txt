@@ -58,6 +58,10 @@ endif()
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -D_DEBUG")
 set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -DNDEBUG")
 
+if (DEBUGGER_INCLUDED)
+	add_definitions(-DDEBUGGER_INCLUDED)
+endif()
+
 add_definitions(-D_IOP_EMULATE_MODULES)
 add_definitions(-DGLEW_STATIC)
 
@@ -384,6 +388,7 @@ set(COMMON_SRC_FILES
 	../Source/MIPSAssembler.cpp 
 	../Source/MIPSCoprocessor.cpp 
 	../Source/MipsExecutor.cpp 
+	../Source/MipsFunctionPatternDb.cpp 
 	../Source/MIPSInstructionFactory.cpp 
 	../Source/MipsJitter.cpp 
 	../Source/MIPSReflection.cpp 
@@ -733,13 +738,15 @@ if (WIN32)
 		../Source/ui_win32/
 		../Source/gs/GSH_OpenGL
 	)
-	if (CMAKE_BUILD_TYPE MATCHES DEBUG)
+	if (DEBUGGER_INCLUDED)
 		set(DEBUG_SRC
 			../Source/ui_win32/CallStackWnd.cpp
 			../Source/ui_win32/Debugger.cpp
 			../Source/ui_win32/DebugView.cpp
 			../Source/ui_win32/FunctionsView.cpp
 			../Source/ui_win32/ThreadsViewWnd.cpp
+
+			../Source/ui_win32/ElfViewRes.rc
 		)
 	endif()
 	if(ARCH STREQUAL "x86")
