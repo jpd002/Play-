@@ -3195,7 +3195,7 @@ BiosDebugThreadInfoArray CPS2OS::GetThreadsDebugInfo() const
 			threadInfo.stateDescription = "Suspended+Sleeping";
 			break;
 		case THREAD_SUSPENDED_WAITING:
-			threadInfo.stateDescription =  string_format("Suspended+Waiting (Semaphore: %d)", thread->semaWait);
+			threadInfo.stateDescription = string_format("Suspended+Waiting (Semaphore: %d)", thread->semaWait);
 			break;
 		case THREAD_ZOMBIE:
 			threadInfo.stateDescription = "Zombie";
