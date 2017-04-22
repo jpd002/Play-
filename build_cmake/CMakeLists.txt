@@ -643,7 +643,26 @@ if(TARGET_PLATFORM_UNIX)
 
 	add_executable(Play ${QT_SOURCES} ${QT_MOC_SRCS} ${QT_RES_SOURCES} ${QT_UI_HEADERS})
 	target_link_libraries(Play ${PROJECT_LIBS})
-endif(TARGET_PLATFORM_UNIX)
+
+	install(TARGETS Play DESTINATION bin RENAME Play PERMISSIONS OWNER_EXECUTE OWNER_WRITE OWNER_READ GROUP_EXECUTE GROUP_READ WORLD_EXECUTE WORLD_READ)
+	install(FILES ${CMAKE_SOURCE_DIR}/../build_unix/Play-launcher DESTINATION bin PERMISSIONS OWNER_EXECUTE OWNER_WRITE OWNER_READ GROUP_EXECUTE GROUP_READ WORLD_EXECUTE WORLD_READ)
+
+	install(FILES ${CMAKE_SOURCE_DIR}/../build_unix/Play.desktop DESTINATION share/applications)
+	install(FILES ${CMAKE_SOURCE_DIR}/../build_unix/assets/app_icon.png DESTINATION share/icons RENAME Play.png)
+
+	set(CPACK_GENERATOR "DEB")
+	set(CPACK_PACKAGE_NAME "Play")
+	set(CPACK_PACKAGE_VERSION  "0.30")
+	set(CPACK_DEBIAN_PACKAGE_ARCHITECTURE  "amd64")
+	set(CPACK_PACKAGE_DESCRIPTION  "Play! is an attempt at creating a PlayStation 2 emulator for the Win32, OSX, iOS and Android platforms.")
+	set(CPACK_PACKAGE_DESCRIPTION_SUMMARY  "PlayStation2 Emulator")
+	set(CPACK_DEBIAN_PACKAGE_SECTION  "Games")
+	set(CPACK_DEBIAN_PACKAGE_MAINTAINER "Jean-Philip Desjardins <jpd002@gmail.com>")
+	set(CPACK_DEBIAN_PACKAGE_DEPENDS "libc6 (>= 2.14), libgcc1 (>= 1:3.0), libgl1-mesa-glx | libgl1, libicu52 (>= 52~m1-1~), libopenal1 (>= 1:1.13), libstdc++6 (>= 5), libbz2-1.0")
+	set(CPACK_DEBIAN_PACKAGE_RECOMMENDS "qt56base | libqt5core5a (>= 5.6.0), qt56base | libqt5gui5 (>= 5.6.0) | qt56base | libqt5gui5-gles (>= 5.6.0), qt56base | libqt5widgets5 (>= 5.6.0), qt56base | zlib1g (>= 1:1.1.4)")
+
+	include(CPack)
+endif (TARGET_PLATFORM_UNIX)
 
 if(TARGET_PLATFORM_MACOS)
 
