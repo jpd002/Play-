@@ -1130,6 +1130,13 @@ void CMA_MIPSIV::DSUBU()
 	Template_Sub64(false);
 }
 
+//34
+void CMA_MIPSIV::TEQ()
+{
+	//Not implemented
+	assert(false);
+}
+
 //38
 void CMA_MIPSIV::DSLL()
 {
@@ -1309,7 +1316,7 @@ CMA_MIPSIV::InstructionFuncConstant CMA_MIPSIV::m_cOpSpecial[MAX_SPECIAL_OPS] =
 	//0x28
 	&CMA_MIPSIV::Illegal,		&CMA_MIPSIV::Illegal,		&CMA_MIPSIV::SLT,			&CMA_MIPSIV::SLTU,			&CMA_MIPSIV::DADD,  		&CMA_MIPSIV::DADDU,			&CMA_MIPSIV::DSUB,			&CMA_MIPSIV::DSUBU,
 	//0x30
-	&CMA_MIPSIV::Illegal,		&CMA_MIPSIV::Illegal,		&CMA_MIPSIV::Illegal,		&CMA_MIPSIV::Illegal,		&CMA_MIPSIV::Illegal,		&CMA_MIPSIV::Illegal,		&CMA_MIPSIV::Illegal,		&CMA_MIPSIV::Illegal,
+	&CMA_MIPSIV::Illegal,		&CMA_MIPSIV::Illegal,		&CMA_MIPSIV::Illegal,		&CMA_MIPSIV::Illegal,		&CMA_MIPSIV::TEQ,			&CMA_MIPSIV::Illegal,		&CMA_MIPSIV::Illegal,		&CMA_MIPSIV::Illegal,
 	//0x38
 	&CMA_MIPSIV::DSLL,			&CMA_MIPSIV::Illegal,		&CMA_MIPSIV::DSRL,			&CMA_MIPSIV::DSRA,			&CMA_MIPSIV::DSLL32,		&CMA_MIPSIV::Illegal,		&CMA_MIPSIV::DSRL32,		&CMA_MIPSIV::DSRA32,
 };

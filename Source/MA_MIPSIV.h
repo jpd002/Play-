@@ -187,6 +187,7 @@ private:
 	void							DADDU();
 	void							DSUB();
 	void							DSUBU();
+	void							TEQ();
 	void							DSLL();
 	void							DSRL();
 	void							DSRA();
