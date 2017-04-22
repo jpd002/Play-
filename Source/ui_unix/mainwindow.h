@@ -45,6 +45,7 @@ private:
     void BootCDROM();
     void saveState(int);
     void loadState(int);
+    void toggleFullscreen();
 
     Ui::MainWindow *ui;
 
@@ -98,6 +99,7 @@ private slots:
     void on_actionVFS_Manager_triggered();
     void on_actionController_Manager_triggered();
     void on_actionCapture_Screen_triggered();
+    void doubleClickEvent(QMouseEvent*);
 };
 
 #endif // MAINWINDOW_H

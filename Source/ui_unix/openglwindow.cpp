@@ -54,3 +54,8 @@ void OpenGLWindow::activeStateChanged()
         emit focusOut(new QFocusEvent(QEvent::FocusOut));
     }
 }
+
+void OpenGLWindow::mouseDoubleClickEvent(QMouseEvent * ev)
+{
+    emit doubleClick(ev);
+}

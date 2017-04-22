@@ -40,9 +40,10 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(m_openglpanel, SIGNAL(keyUp(QKeyEvent*)), this, SLOT(keyReleaseEvent(QKeyEvent*)));
     connect(m_openglpanel, SIGNAL(keyDown(QKeyEvent*)), this, SLOT(keyPressEvent(QKeyEvent*)));
 
-
     connect(m_openglpanel, SIGNAL(focusOut(QFocusEvent*)), this, SLOT(focusOutEvent(QFocusEvent*)));
     connect(m_openglpanel, SIGNAL(focusIn(QFocusEvent*)), this, SLOT(focusInEvent(QFocusEvent*)));
+
+    connect(m_openglpanel, SIGNAL(doubleClick(QMouseEvent*)), this, SLOT(doubleClickEvent(QMouseEvent*)));
 
     RegisterPreferences();
 
@@ -207,12 +208,19 @@ void MainWindow::on_actionExit_triggered()
 
 void MainWindow::keyPressEvent(QKeyEvent *event)
 {
-    if (m_padhandler != nullptr)
+    if(event->key() != Qt::Key_Escape && m_padhandler != nullptr)
             m_padhandler->InputValueCallbackPressed(event->key(), 0);
 }
 
 void MainWindow::keyReleaseEvent(QKeyEvent *event)
 {
+    if(event->key() == Qt::Key_Escape)
+    {
+        if(isFullScreen()) {
+            toggleFullscreen();
+        }
+        return;
+    }
     if (m_padhandler != nullptr)
             m_padhandler->InputValueCallbackReleased(event->key(), 0);
 }
@@ -426,6 +434,29 @@ void MainWindow::focusInEvent(QFocusEvent * event)
     }
 }
 
+void MainWindow::doubleClickEvent(QMouseEvent * ev)
+{
+    if (ev->button() == Qt::LeftButton)
+    {
+        toggleFullscreen();
+    }
+}
+
+void MainWindow::toggleFullscreen()
+{
+    if(isFullScreen())
+    {
+        showNormal();
+        statusBar()->show();
+        menuBar()->show();
+    }
+    else
+    {
+        showFullScreen();
+        statusBar()->hide();
+        menuBar()->hide();
+    }
+}
 void MainWindow::on_actionPause_when_focus_is_lost_triggered(bool checked)
 {
     m_pauseFocusLost = checked;
