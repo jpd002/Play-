@@ -45,7 +45,7 @@ void SettingsDialog::on_checkBox_enable_highres_clicked(bool checked)
     CAppConfig::GetInstance().SetPreferenceBoolean(PREF_CGSH_OPENGL_ENABLEHIGHRESMODE, checked);
 }
 
-void SettingsDialog::checkBox_force_bilinear_filtering(bool checked)
+void SettingsDialog::on_checkBox_force_bilinear_filtering_clicked(bool checked)
 {
 
     CAppConfig::GetInstance().SetPreferenceBoolean(PREF_CGSH_OPENGL_FORCEBILINEARTEXTURES, checked);
