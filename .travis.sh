@@ -87,6 +87,9 @@ travis_before_deploy()
     pushd deploy
     mkdir $SHORT_HASH
     pushd $SHORT_HASH
+    if [ -z "$ANDROID_KEYSTORE_PASS" ]; then
+        return
+    fi;
     if [ "$TARGET_OS" = "Android" ]; then
         cp ../../build_android/build/outputs/apk/Play-release-unsigned.apk .
         export ANDROID_BUILD_TOOLS=$ANDROID_HOME/build-tools/24.0.3
