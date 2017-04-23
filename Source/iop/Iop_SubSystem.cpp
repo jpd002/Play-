@@ -241,6 +241,17 @@ uint32 CSubSystem::WriteIoRegister(uint32 address, uint32 value)
 	return 0;
 }
 
+void CSubSystem::CheckPendingInterrupts()
+{
+	if(!m_cpu.m_State.nHasException)
+	{
+		if(m_intc.HasPendingInterrupt())
+		{
+			m_bios->HandleInterrupt();
+		}
+	}
+}
+
 bool CSubSystem::IsCpuIdle()
 {
 	if(m_bios->IsIdle())
@@ -290,13 +301,7 @@ void CSubSystem::CountTicks(int ticks)
 int CSubSystem::ExecuteCpu(int quota)
 {
 	int executed = 0;
-	if(!m_cpu.m_State.nHasException)
-	{
-		if(m_intc.HasPendingInterrupt())
-		{
-			m_bios->HandleInterrupt();
-		}
-	}
+	CheckPendingInterrupts();
 	if(!m_cpu.m_State.nHasException)
 	{
 		executed = (quota - m_executor.Execute(quota));
