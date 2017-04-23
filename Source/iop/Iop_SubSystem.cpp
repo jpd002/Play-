@@ -238,6 +238,16 @@ uint32 CSubSystem::WriteIoRegister(uint32 address, uint32 value)
 	{
 		CLog::GetInstance().Print(LOG_NAME, "Writing to an unknown hardware register (0x%0.8X, 0x%0.8X).\r\n", address, value);
 	}
+
+	if(
+		m_intc.HasPendingInterrupt() && 
+		(m_cpu.m_State.nHasException == MIPS_EXCEPTION_NONE) &&
+		((m_cpu.m_State.nCOP0[CCOP_SCU::STATUS] & CMIPS::STATUS_IE) == CMIPS::STATUS_IE)
+		)
+	{
+		m_cpu.m_State.nHasException = MIPS_EXCEPTION_CHECKPENDINGINT;
+	}
+
 	return 0;
 }
 
@@ -308,7 +318,22 @@ int CSubSystem::ExecuteCpu(int quota)
 	}
 	if(m_cpu.m_State.nHasException)
 	{
-		m_bios->HandleException();
+		switch(m_cpu.m_State.nHasException)
+		{
+		case MIPS_EXCEPTION_SYSCALL:
+			m_bios->HandleException();
+			assert(m_cpu.m_State.nHasException == MIPS_EXCEPTION_NONE);
+			break;
+		case MIPS_EXCEPTION_CHECKPENDINGINT:
+			{
+				m_cpu.m_State.nHasException = MIPS_EXCEPTION_NONE;
+				CheckPendingInterrupts();
+				//Needs to be cleared again because exception flag might be set by BIOS interrupt handler
+				m_cpu.m_State.nHasException = MIPS_EXCEPTION_NONE;
+			}
+			break;
+		}
+		assert(m_cpu.m_State.nHasException == MIPS_EXCEPTION_NONE);
 	}
 	return executed;
 }
