@@ -533,7 +533,7 @@ uint32 CSubSystem::IOPortWriteHandler(uint32 nAddress, uint32 nData)
 	if(
 		m_intc.IsInterruptPending() && 
 		(m_EE.m_State.nHasException == MIPS_EXCEPTION_NONE) &&
-		((m_EE.m_State.nCOP0[CCOP_SCU::STATUS] & INTERRUPTS_ENABLED_MASK) != INTERRUPTS_ENABLED_MASK)
+		((m_EE.m_State.nCOP0[CCOP_SCU::STATUS] & INTERRUPTS_ENABLED_MASK) == INTERRUPTS_ENABLED_MASK)
 		)
 	{
 		m_EE.m_State.nHasException = MIPS_EXCEPTION_CHECKPENDINGINT;
