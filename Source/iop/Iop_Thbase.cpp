@@ -30,14 +30,9 @@ using namespace Iop;
 #define FUNCTION_SYSCLOCKTOUSEC				"SysClockToUSec"
 #define FUNCTION_GETCURRENTTHREADPRIORITY	"GetCurrentThreadPriority"
 
-CThbase::CThbase(CIopBios& bios, uint8* ram) :
-m_ram(ram),
-m_bios(bios)
-{
-
-}
-
-CThbase::~CThbase()
+CThbase::CThbase(CIopBios& bios, uint8* ram)
+: m_ram(ram)
+, m_bios(bios)
 {
 
 }

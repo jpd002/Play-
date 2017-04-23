@@ -10,7 +10,7 @@ namespace Iop
 	{
 	public:
 						CThbase(CIopBios&, uint8*);
-		virtual			~CThbase();
+		virtual			~CThbase() = default;
 
 		std::string		GetId() const override;
 		std::string		GetFunctionName(unsigned int) const override;
