@@ -282,11 +282,6 @@ uint32 CThbase::ChangeThreadPriority(uint32 threadId, uint32 newPrio)
 	return m_bios.ChangeThreadPriority(threadId, newPrio);
 }
 
-uint32 CThbase::DelayThread(uint32 delay)
-{
-	return m_bios.DelayThread(delay);
-}
-
 uint32 CThbase::GetThreadId()
 {
 	return m_bios.GetCurrentThreadId();
@@ -325,6 +320,11 @@ int32 CThbase::CancelWakeupThread(uint32 threadId)
 int32 CThbase::iCancelWakeupThread(uint32 threadId)
 {
 	return m_bios.CancelWakeupThread(threadId, true);
+}
+
+uint32 CThbase::DelayThread(uint32 delay)
+{
+	return m_bios.DelayThread(delay);
 }
 
 uint32 CThbase::GetSystemTime(uint32 resultPtr)
