@@ -21,10 +21,11 @@ public:
 
 private slots:
     void on_checkBox_enable_highres_clicked(bool checked);
-    void checkBox_force_bilinear_filtering(bool checked);
+    void on_checkBox_force_bilinear_filtering_clicked(bool checked);
     void on_checkBox_enable_audio_clicked(bool checked);
     void on_comboBox_presentation_mode_currentIndexChanged(int index);
     void changePage(QListWidgetItem *current, QListWidgetItem *previous);
+
 private:
     Ui::SettingsDialog *ui;
 };
