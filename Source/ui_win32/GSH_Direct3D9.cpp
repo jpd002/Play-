@@ -663,6 +663,7 @@ void CGSH_Direct3D9::OnDeviceReset()
 	m_device->SetRenderState(D3DRS_CULLMODE, D3DCULL_NONE);
 	m_device->SetRenderState(D3DRS_ZENABLE, D3DZB_FALSE);
 	m_device->SetRenderState(D3DRS_LIGHTING, FALSE);
+	m_device->SetRenderState(D3DRS_SHADEMODE, D3DSHADE_GOURAUD);
 	m_device->SetTextureStageState(0, D3DTSS_TEXTURETRANSFORMFLAGS, D3DTTFF_COUNT2);
 
 	result = m_device->CreateVertexBuffer(4 * sizeof(CUSTOMVERTEX), D3DUSAGE_DYNAMIC | D3DUSAGE_WRITEONLY, 0, D3DPOOL_DEFAULT, &m_drawVb, nullptr);
@@ -761,15 +762,6 @@ void CGSH_Direct3D9::Prim_Line()
 
 	nZ1 = GetZ(nZ1);
 	nZ2 = GetZ(nZ2);
-
-	if(m_primitiveMode.nShading)
-	{
-		m_device->SetRenderState(D3DRS_SHADEMODE, D3DSHADE_GOURAUD);
-	}
-	else
-	{
-		m_device->SetRenderState(D3DRS_SHADEMODE, D3DSHADE_FLAT);
-	}
 
 	if(m_primitiveMode.nFog)
 	{
@@ -883,15 +875,6 @@ void CGSH_Direct3D9::Prim_Triangle()
 	nZ1 = GetZ(nZ1);
 	nZ2 = GetZ(nZ2);
 	nZ3 = GetZ(nZ3);
-
-	if(m_primitiveMode.nShading)
-	{
-		m_device->SetRenderState(D3DRS_SHADEMODE, D3DSHADE_GOURAUD);
-	}
-	else
-	{
-		m_device->SetRenderState(D3DRS_SHADEMODE, D3DSHADE_FLAT);
-	}
 
 	if(m_primitiveMode.nFog)
 	{
