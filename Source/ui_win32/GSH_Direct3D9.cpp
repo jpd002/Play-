@@ -928,6 +928,12 @@ void CGSH_Direct3D9::Prim_Triangle()
 		DWORD color1 = D3DCOLOR_ARGB(rgbaq[1].nA, rgbaq[1].nR, rgbaq[1].nG, rgbaq[1].nB);
 		DWORD color2 = D3DCOLOR_ARGB(rgbaq[2].nA, rgbaq[2].nR, rgbaq[2].nG, rgbaq[2].nB);
 
+		if(m_primitiveMode.nShading == 0)
+		{
+			//Flat shaded triangles use the last color set
+			color0 = color1 = color2;
+		}
+
 		CUSTOMVERTEX vertices[] =
 		{
 			{ nX1, nY1, nZ1, color0, nU1, nV1, nQ1 },

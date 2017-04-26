@@ -1496,6 +1496,12 @@ void CGSH_OpenGL::Prim_Triangle()
 		rgbaq[2].nR, rgbaq[2].nG,
 		rgbaq[2].nB, rgbaq[2].nA);
 
+	if(m_PrimitiveMode.nShading == 0)
+	{
+		//Flat shaded triangles use the last color set
+		color1 = color2 = color3;
+	}
+
 	PRIM_VERTEX vertices[] =
 	{
 		{	nX1,	nY1,	nZ1,	color1,	nS[0],	nT[0],	nQ[0],	nF1	},
