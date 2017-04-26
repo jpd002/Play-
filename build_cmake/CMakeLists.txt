@@ -521,6 +521,22 @@ set(COMMON_SRC_FILES
 	../Source/PS2VM.h
 	../Source/RegisterStateFile.cpp
 	../Source/RegisterStateFile.h
+	../Source/saves/Icon.cpp
+	../Source/saves/Icon.h
+	../Source/saves/MaxSaveImporter.cpp
+	../Source/saves/MaxSaveImporter.h
+	../Source/saves/PsuSaveImporter.cpp
+	../Source/saves/PsuSaveImporter.h
+	../Source/saves/Save.cpp
+	../Source/saves/Save.h
+	../Source/saves/SaveExporter.cpp
+	../Source/saves/SaveExporter.h
+	../Source/saves/SaveImporterBase.cpp
+	../Source/saves/SaveImporterBase.h
+	../Source/saves/SaveImporter.cpp
+	../Source/saves/SaveImporter.h
+	../Source/saves/XpsSaveImporter.cpp
+	../Source/saves/XpsSaveImporter.h
 	../Source/ScopedVmPauser.cpp
 	../Source/ScopedVmPauser.h
 	../Source/ScreenShotUtils.cpp
@@ -558,19 +574,6 @@ endif()
 if(OPENAL_FOUND)
 	list(APPEND PLATFORM_SPECIFIC_SRC_FILES
 		../tools/PsfPlayer/Source/SH_OpenAL.cpp
-	)
-endif()
-
-if(NOT ANDROID)
-	list(APPEND PLATFORM_SPECIFIC_SRC_FILES
-		../Source/saves/Icon.cpp
-		../Source/saves/MaxSaveImporter.cpp
-		../Source/saves/PsuSaveImporter.cpp
-		../Source/saves/Save.cpp
-		../Source/saves/SaveExporter.cpp
-		../Source/saves/SaveImporterBase.cpp
-		../Source/saves/SaveImporter.cpp
-		../Source/saves/XpsSaveImporter.cpp
 	)
 endif()
 
