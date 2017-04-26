@@ -1661,5 +1661,5 @@ void CGSHandler::ThreadProc()
 
 Framework::CBitmap CGSHandler::GetScreenshot()
 {
-    throw std::runtime_error("Screenshot feature is not implemented in current backend.");
+	throw std::runtime_error("Screenshot feature is not implemented in current backend.");
 }
