@@ -184,8 +184,8 @@ uint32 CMemoryMap_LSBF::GetInstruction(uint32 address)
 void CMemoryMap_LSBF::SetHalf(uint32 nAddress, uint16 nValue)
 {
 	assert((nAddress & 0x01) == 0);
-	const MEMORYMAPELEMENT* e = GetMap(m_writeMap, nAddress);
-	if(e == NULL) 
+	const auto e = GetMap(m_writeMap, nAddress);
+	if(!e)
 	{
 		printf("MemoryMap: Wrote to unmapped memory (0x%0.8X, 0x%0.4X).\r\n", nAddress, nValue);
 		return;
