@@ -155,10 +155,6 @@ if(WIN32)
 	list(APPEND PROJECT_LIBS ${DirectX_D3DX9_LIBRARY})
 	include_directories(${DirectX_D3D9_INCLUDE_DIR} ${DirectX_D3DX9_INCLUDE_DIR})
 
-	find_package(GDIPLUS REQUIRED)
-	list(APPEND PROJECT_LIBS ${GDIPLUS_LIBRARIES})
-	include_directories(${GDIPLUS_INCLUDE_DIR})
-
 	list(APPEND PROJECT_LIBS comctl32 uxtheme opengl32 glu32 dxguid dinput8 vfw32 winmm gdiplus d3dcompiler Boost::date_time)
 
 endif()
