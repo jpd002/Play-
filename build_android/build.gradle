@@ -76,12 +76,14 @@ android {
 		debug {
 			debuggable true
 			jniDebuggable true
+			buildConfigField "java.util.Date", "buildTime", "new java.util.Date(" + System.currentTimeMillis() + "L)"
 		}
 		release {
 			proguardFile getDefaultProguardFile('proguard-android.txt')
 			if(project.ext.signingEnabled) {
 				signingConfig signingConfigs.release
 			}
+			buildConfigField "java.util.Date", "buildTime", "new java.util.Date(" + System.currentTimeMillis() + "L)"
 		}
 	}
 
