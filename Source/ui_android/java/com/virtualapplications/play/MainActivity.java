@@ -169,23 +169,6 @@ public class MainActivity extends AppCompatActivity implements NavigationDrawerF
 		));
 	}
 
-	private static long getBuildDate(Context context) 
-	{
-		try
-		{
-			ApplicationInfo ai = context.getPackageManager().getApplicationInfo(context.getPackageName(), 0);
-			ZipFile zf = new ZipFile(ai.sourceDir);
-			ZipEntry ze = zf.getEntry("classes.dex");
-			long time = ze.getTime();
-			return time;
-		} 
-		catch (Exception e) 
-		{
-
-		}
-		return 0;
-	}
-
 	private void displaySimpleMessage(String title, String message)
 	{
 		AlertDialog.Builder builder = new AlertDialog.Builder(this);
@@ -260,8 +243,8 @@ public class MainActivity extends AppCompatActivity implements NavigationDrawerF
 
 	private void displayAboutDialog()
 	{
-		long buildDate = getBuildDate(this);
-		String buildDateString = new SimpleDateFormat("yyyy/MM/dd", Locale.getDefault()).format(buildDate);
+		Date buildDate = BuildConfig.buildTime;
+		String buildDateString = new SimpleDateFormat("yyyy/MM/dd hh:mm a", Locale.getDefault()).format(buildDate);
 		String aboutMessage = String.format("Build Date: %s", buildDateString);
 		displaySimpleMessage("About Play!", aboutMessage);
 	}
