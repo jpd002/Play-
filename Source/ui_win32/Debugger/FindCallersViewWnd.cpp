@@ -89,7 +89,7 @@ void CFindCallersViewWnd::FindCallers(CMIPS* context, uint32 address)
 
 	SetText(title.c_str());
 
-	for(int i = 0; i < MAX_ADDRESS; i += 4)
+	for(uint32 i = 0; i < MAX_ADDRESS; i += 4)
 	{
 		uint32 opcode = context->m_pMemoryMap->GetInstruction(i);
 		uint32 ea = context->m_pArch->GetInstructionEffectiveAddress(context, i, opcode);
