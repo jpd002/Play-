@@ -1335,6 +1335,49 @@ int32 CIopBios::CancelWakeupThread(uint32 threadId, bool inInterrupt)
 	return result;
 }
 
+int32 CIopBios::ReleaseWaitThread(uint32 threadId, bool inInterrupt)
+{
+#ifdef _DEBUG
+	CLog::GetInstance().Print(LOGNAME, "%d: ReleaseWaitThread(threadId = %d);\r\n", 
+		m_currentThreadId.Get(), threadId);
+#endif
+
+	if(threadId == 0)
+	{
+		threadId = m_currentThreadId;
+	}
+
+	if(threadId == m_currentThreadId)
+	{
+		return KERNEL_RESULT_ERROR_ILLEGAL_THID;
+	}
+
+	auto thread = GetThread(threadId);
+	if(!thread)
+	{
+		return KERNEL_RESULT_ERROR_UNKNOWN_THID;
+	}
+
+	if(
+		(thread->status == THREAD_STATUS_RUNNING) ||
+		(thread->status == THREAD_STATUS_DORMANT)
+		)
+	{
+		return KERNEL_RESULT_ERROR_NOT_WAIT;
+	}
+
+	assert(thread->status == THREAD_STATUS_SLEEPING);
+
+	thread->status = THREAD_STATUS_RUNNING;
+	LinkThread(threadId);
+	if(!inInterrupt)
+	{
+		m_rescheduleNeeded = true;
+	}
+
+	return KERNEL_RESULT_OK;
+}
+
 void CIopBios::SleepThreadTillVBlankStart()
 {
 	THREAD* thread = GetThread(m_currentThreadId);

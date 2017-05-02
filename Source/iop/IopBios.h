@@ -48,6 +48,7 @@ public:
 		KERNEL_RESULT_ERROR_UNKNOWN_MBXID    = -410,
 		KERNEL_RESULT_ERROR_UNKNOWN_VPLID    = -411,
 		KERNEL_RESULT_ERROR_NOT_DORMANT      = -414,
+		KERNEL_RESULT_ERROR_NOT_WAIT         = -416,
 		KERNEL_RESULT_ERROR_SEMA_ZERO        = -419,
 		KERNEL_RESULT_ERROR_EVF_CONDITION    = -421,
 		KERNEL_RESULT_ERROR_EVF_ILLEGAL_PAT  = -423,
@@ -187,6 +188,7 @@ public:
 	int32						SleepThread();
 	uint32						WakeupThread(uint32, bool);
 	int32						CancelWakeupThread(uint32, bool);
+	int32						ReleaseWaitThread(uint32, bool);
 
 	void						SleepThreadTillVBlankStart();
 	void						SleepThreadTillVBlankEnd();

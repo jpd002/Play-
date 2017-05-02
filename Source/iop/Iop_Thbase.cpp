@@ -13,6 +13,8 @@ using namespace Iop;
 #define FUNCTION_EXITTHREAD					"ExitThread"
 #define FUNCTION_TERMINATETHREAD			"TerminateThread"
 #define FUNCTION_CHANGETHREADPRIORITY		"ChangeThreadPriority"
+#define FUNCTION_RELEASEWAITTHREAD			"ReleaseWaitThread"
+#define FUNCTION_IRELEASEWAITTHREAD			"iReleaseWaitThread"
 #define FUNCTION_GETTHREADID				"GetThreadId"
 #define FUNCTION_REFERTHREADSTATUS			"ReferThreadStatus"
 #define FUNCTION_IREFERTHREADSTATUS			"iReferThreadStatus"
@@ -66,6 +68,12 @@ std::string CThbase::GetFunctionName(unsigned int functionId) const
 		break;
 	case 14:
 		return FUNCTION_CHANGETHREADPRIORITY;
+		break;
+	case 18:
+		return FUNCTION_RELEASEWAITTHREAD;
+		break;
+	case 19:
+		return FUNCTION_IRELEASEWAITTHREAD;
 		break;
 	case 20:
 		return FUNCTION_GETTHREADID;
@@ -161,6 +169,16 @@ void CThbase::Invoke(CMIPS& context, unsigned int functionId)
 			context.m_State.nGPR[CMIPS::A0].nV0,
 			context.m_State.nGPR[CMIPS::A1].nV0
 			));
+		break;
+	case 18:
+		context.m_State.nGPR[CMIPS::V0].nD0 = ReleaseWaitThread(
+			context.m_State.nGPR[CMIPS::A0].nV0
+		);
+		break;
+	case 19:
+		context.m_State.nGPR[CMIPS::V0].nD0 = iReleaseWaitThread(
+			context.m_State.nGPR[CMIPS::A0].nV0
+			);
 		break;
 	case 20:
 		context.m_State.nGPR[CMIPS::V0].nD0 = static_cast<int32>(GetThreadId());
@@ -280,6 +298,16 @@ uint32 CThbase::TerminateThread(uint32 threadId)
 uint32 CThbase::ChangeThreadPriority(uint32 threadId, uint32 newPrio)
 {
 	return m_bios.ChangeThreadPriority(threadId, newPrio);
+}
+
+int32 CThbase::ReleaseWaitThread(uint32 threadId)
+{
+	return m_bios.ReleaseWaitThread(threadId, false);
+}
+
+int32 CThbase::iReleaseWaitThread(uint32 threadId)
+{
+	return m_bios.ReleaseWaitThread(threadId, true);
 }
 
 uint32 CThbase::GetThreadId()
