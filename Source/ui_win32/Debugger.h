@@ -5,7 +5,7 @@
 #include "FunctionsView.h"
 #include "ThreadsViewWnd.h"
 #include "DebugView.h"
-#include "./Debugger/FindCallersViewWnd.h"
+#include "./Debugger/AddressListViewWnd.h"
 #include "../PS2VM.h"
 
 class CDebugger : public Framework::Win32::CMDIFrame, public boost::signals2::trackable
@@ -66,6 +66,10 @@ private:
 	CRegViewWnd*					GetRegisterViewWindow();
 	CCallStackWnd*					GetCallStackWindow();
 
+	//Search functions
+	static std::vector<uint32>		FindCallers(CMIPS*, uint32);
+	static std::vector<uint32>		FindValueRefs(CMIPS*, uint32);
+
 	//Event handlers
 	void							OnFunctionsViewFunctionDblClick(uint32);
 	void							OnFunctionsViewFunctionsStateChange();
@@ -87,7 +91,7 @@ private:
 	CFunctionsView*					m_pFunctionsView = nullptr;
 	CThreadsViewWnd*				m_threadsView = nullptr;
 	CDebugView*						m_pView[DEBUGVIEW_MAX];
-	CFindCallersViewWnd*			m_findCallersView = nullptr;
+	CAddressListViewWnd*			m_addressListView = nullptr;
 	unsigned int					m_nCurrentView;
 	CPS2VM&							m_virtualMachine;
 };
