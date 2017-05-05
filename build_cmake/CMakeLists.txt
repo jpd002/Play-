@@ -165,7 +165,7 @@ if (NOT TARGET Boost::boost)
 		${CMAKE_CURRENT_BINARY_DIR}/boost-cmake
 	)
 endif()
-list(APPEND PROJECT_LIBS Boost::boost Boost::system Boost::filesystem Boost::chrono)
+list(APPEND PROJECT_LIBS Boost::boost Boost::system Boost::filesystem)
 
 if(UNIX OR WIN32 AND NOT ANDROID AND NOT APPLE)
 	if (NOT TARGET glew_s)
