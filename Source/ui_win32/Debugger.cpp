@@ -242,7 +242,7 @@ void CDebugger::StepCPU()
 	GetCurrentView()->Step();
 }
 
-void CDebugger::FindValue()
+void CDebugger::FindWordValue(uint32 mask)
 {
 	Framework::Win32::CInputBox input(_T("Find Value in Memory"), _T("Enter value to find:"), _T("00000000"));
 	
@@ -255,7 +255,7 @@ void CDebugger::FindValue()
 
 	auto context = GetCurrentView()->GetContext();
 	auto title = string_format(_T("Search results for 0x%08X"), targetValue);
-	auto refs = FindValueRefs(context, targetValue);
+	auto refs = FindWordValueRefs(context, targetValue & mask, mask);
 
 	m_addressListView->SetTitle(std::move(title));
 	m_addressListView->SetAddressList(std::move(refs));
@@ -637,14 +637,13 @@ std::vector<uint32> CDebugger::FindCallers(CMIPS* context, uint32 address)
 	return callers;
 }
 
-std::vector<uint32> CDebugger::FindValueRefs(CMIPS* context, uint32 targetValue)
+std::vector<uint32> CDebugger::FindWordValueRefs(CMIPS* context, uint32 targetValue, uint32 valueMask)
 {
 	std::vector<uint32> refs;
 	for(uint32 i = 0; i < FIND_MAX_ADDRESS; i += 4)
 	{
 		uint32 valueAtAddress = context->m_pMemoryMap->GetWord(i);
-		if(valueAtAddress == targetValue)
-			//if((valueAtAddress & 0xFFFF) == targetValue)
+		if((valueAtAddress & valueMask) == targetValue)
 		{
 			refs.push_back(i);
 		}
@@ -697,8 +696,11 @@ long CDebugger::OnCommand(unsigned short nID, unsigned short nMsg, HWND hFrom)
 	case ID_VM_FINDEEFUNCTIONS:
 		FindEeFunctions();
 		break;
-	case ID_VM_FINDVALUE:
-		FindValue();
+	case ID_VM_FINDWORDVALUE:
+		FindWordValue(~0);
+		break;
+	case ID_VM_FINDWORDLOWHALFVALUE:
+		FindWordValue(0xFFFF);
 		break;
 	case ID_VIEW_MEMORY:
 		GetMemoryViewWindow()->Show(SW_SHOW);

@@ -41,7 +41,7 @@ private:
 	void							DestroyAccelerators();
 	void							Resume();
 	void							StepCPU();
-	void							FindValue();
+	void							FindWordValue(uint32);
 	void							AssembleJAL();
 	void							ReanalyzeEe();
 	void							FindEeFunctions();
@@ -68,7 +68,7 @@ private:
 
 	//Search functions
 	static std::vector<uint32>		FindCallers(CMIPS*, uint32);
-	static std::vector<uint32>		FindValueRefs(CMIPS*, uint32);
+	static std::vector<uint32>		FindWordValueRefs(CMIPS*, uint32, uint32);
 
 	//Event handlers
 	void							OnFunctionsViewFunctionDblClick(uint32);

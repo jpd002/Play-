@@ -106,7 +106,8 @@ BEGIN
         MENUITEM "Step CPU\tF10",               ID_VM_STEP
         MENUITEM "Dump INTC Handlers",          ID_VM_DUMPINTCHANDLERS
         MENUITEM "Dump DMAC Handlers",          ID_VM_DUMPDMACHANDLERS
-        MENUITEM "Find Value in Memory...",     ID_VM_FINDVALUE
+        MENUITEM "Find Word Value in Memory...", ID_VM_FINDWORDVALUE
+        MENUITEM "Find Word Low-Half Value in Memory...", ID_VM_FINDWORDLOWHALFVALUE
         MENUITEM "Assemble JAL...",             ID_VM_ASMJAL
         MENUITEM "Re-analyze EE Executable",    ID_VM_REANALYZE_EE
         MENUITEM "Find Common EE Functions",    ID_VM_FINDEEFUNCTIONS

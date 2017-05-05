@@ -78,7 +78,6 @@
 #define ID_MAIN_VM_LOADSTATE            40090
 #define ID_MAIN_VM_STATESLOT            40091
 #define ID_MAIN_VM_RESET                40092
-#define ID_VM_FINDVALUE                 40095
 #define ID_WINDOW_LAYOUT1024            40097
 #define ID_VIEW_EMOTIONENGINEVIEW       40098
 #define ID_VIEW_VECTORUNIT1VIEW         40099
@@ -115,13 +114,15 @@
 #define ID_FD_SETTINGS_FB_448I          40193
 #define ID_MAIN_OPTIONS_ENABLESOUND     40195
 #define ID_VIRTUALMACHINE_SCREENCAPTURE 40196
+#define ID_VM_FINDWORDVALUE             40198
+#define ID_VM_FINDWORDLOWHALFVALUE      40199
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        133
-#define _APS_NEXT_COMMAND_VALUE         40197
+#define _APS_NEXT_COMMAND_VALUE         40200
 #define _APS_NEXT_CONTROL_VALUE         1004
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
