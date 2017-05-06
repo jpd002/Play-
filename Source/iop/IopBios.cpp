@@ -2761,8 +2761,26 @@ unsigned int CIopBios::GetElfProgramToLoad(CELF& elf)
 
 void CIopBios::RelocateElf(CELF& elf, uint32 baseAddress)
 {
+	//The IOP's ELF loader doesn't seem to follow the ELF standard completely
+	//when it comes to relocations. The relocation function seems to use the
+	//.text section's base address for all adjustments. Using information from the
+	//section headers (either the section's start address or info field) will yield
+	//an incorrect result in some cases (ex.: RWA.IRA module from Burnout 3 and Burnout Revenge)
+
 	const auto& header = elf.GetHeader();
+	uint32 maxRelocAddress = 
+		[&]()
+		{
+			auto programHeader = elf.GetProgram(1);
+			if(!programHeader) return UINT32_MAX;
+			if(programHeader->nType != CELF::PT_LOAD) return UINT32_MAX;
+			return programHeader->nMemorySize;
+		}();
 	bool isVersion2 = (header.nType == ET_SCE_IOPRELEXEC2);
+	auto textSectionIndex = elf.FindSectionIndex(".text");
+	assert(textSectionIndex != 0);
+	auto textSection = elf.GetSection(textSectionIndex);
+	auto textSectionData = reinterpret_cast<uint8*>(const_cast<void*>(elf.GetSectionData(textSectionIndex)));
 	for(unsigned int i = 0; i < header.nSectHeaderCount; i++)
 	{
 		const auto* sectionHeader = elf.GetSection(i);
@@ -2770,20 +2788,17 @@ void CIopBios::RelocateElf(CELF& elf, uint32 baseAddress)
 		{
 			uint32 lastHi16 = -1;
 			uint32 instructionHi16 = -1;
-			unsigned int linkedSection = GetRelocationLinkedSectionIndex(elf, i);
 			unsigned int recordCount = sectionHeader->nSize / 8;
-			auto relocatedSection = elf.GetSection(linkedSection);
 			auto relocationRecord = reinterpret_cast<const uint32*>(elf.GetSectionData(i));
-			auto relocatedSectionData = reinterpret_cast<uint8*>(const_cast<void*>(elf.GetSectionData(linkedSection)));
-			if(relocatedSection == nullptr || relocationRecord == nullptr || relocatedSectionData == nullptr) continue;
-			uint32 sectionBase = relocatedSection->nStart;
+			uint32 sectionBase = 0;
 			for(unsigned int record = 0; record < recordCount; record++)
 			{
 				uint32 relocationAddress = relocationRecord[0] - sectionBase;
 				uint32 relocationType = relocationRecord[1] & 0xFF;
-				if(relocationAddress < relocatedSection->nSize) 
+				assert(relocationAddress < maxRelocAddress);
+				if(relocationAddress < maxRelocAddress)
 				{
-					uint32& instruction = *reinterpret_cast<uint32*>(&relocatedSectionData[relocationAddress]);
+					uint32& instruction = *reinterpret_cast<uint32*>(&textSectionData[relocationAddress]);
 					switch(relocationType)
 					{
 					case CELF::R_MIPS_32:
@@ -2804,7 +2819,7 @@ void CIopBios::RelocateElf(CELF& elf, uint32 baseAddress)
 							assert((record + 1) != recordCount);
 							assert((relocationRecord[3] & 0xFF) == CELF::R_MIPS_LO16);
 							uint32 nextRelocationAddress = relocationRecord[2] - sectionBase;
-							uint32 nextInstruction = *reinterpret_cast<uint32*>(&relocatedSectionData[nextRelocationAddress]);
+							uint32 nextInstruction = *reinterpret_cast<uint32*>(&textSectionData[nextRelocationAddress]);
 							uint32 offset = static_cast<int16>(nextInstruction) + (instruction << 16);
 							offset += baseAddress;
 							if(offset & 0x8000) offset += 0x10000;
@@ -2835,7 +2850,7 @@ void CIopBios::RelocateElf(CELF& elf, uint32 baseAddress)
 							instruction &= ~0xFFFF;
 							instruction |= offset & 0xFFFF;
 
-							uint32& prevInstruction = *reinterpret_cast<uint32*>(&relocatedSectionData[lastHi16]);
+							uint32& prevInstruction = *reinterpret_cast<uint32*>(&textSectionData[lastHi16]);
 							prevInstruction &= ~0xFFFF;
 							if(offset & 0x8000) offset += 0x10000;
 							prevInstruction |= offset >> 16;
@@ -2852,7 +2867,7 @@ void CIopBios::RelocateElf(CELF& elf, uint32 baseAddress)
 							offset >>= 16;
 							while(1)
 							{
-								uint32& prevInstruction = *reinterpret_cast<uint32*>(&relocatedSectionData[relocationAddress]);
+								uint32& prevInstruction = *reinterpret_cast<uint32*>(&textSectionData[relocationAddress]);
 
 								int32 mhiOffset = static_cast<int16>(prevInstruction);
 								mhiOffset *= 4;
@@ -2874,30 +2889,6 @@ void CIopBios::RelocateElf(CELF& elf, uint32 baseAddress)
 			}
 		}
 	}
-}
-
-uint32 CIopBios::GetRelocationLinkedSectionIndex(CELF& module, uint32 relocationSectionIndex)
-{
-	//The IOP's ELF loader doesn't seem to take in account a relocation table section's
-	//'info' field and only seems to use the .text section's base address for all adjustments
-	//Due to this, modules that are broken (ie.: Burnout 3's RWA.IRX) can be loaded properly
-	
-	//The approach that we use to apply relocations here requires us to have the relocated
-	//section's index. The means used to figure that index out might not work for all cases
-
-	auto relocationSection = module.GetSection(relocationSectionIndex);
-	auto relocationSectionName = module.GetSectionName(relocationSectionIndex);
-	if(relocationSectionName != nullptr)
-	{
-		//If relocation section name starts with '.rel'.
-		if(strstr(relocationSectionName, ".rel") == relocationSectionName)
-		{
-			auto relocatedSectionIndex = module.FindSectionIndex(relocationSectionName + 4);
-			if(relocatedSectionIndex != 0) return relocatedSectionIndex;
-		}
-	}
-
-	return relocationSection->nInfo;
 }
 
 void CIopBios::TriggerCallback(uint32 address, uint32 arg0, uint32 arg1)

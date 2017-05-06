@@ -487,7 +487,6 @@ private:
 	uint32							LoadExecutable(CELF&, ExecutableRange&);
 	unsigned int					GetElfProgramToLoad(CELF&);
 	void							RelocateElf(CELF&, uint32);
-	static uint32					GetRelocationLinkedSectionIndex(CELF&, uint32);
 	std::string						ReadModuleName(uint32);
 	void							DeleteModules();
 
