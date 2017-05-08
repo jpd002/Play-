@@ -148,10 +148,8 @@ bool CMipsExecutor::MustBreak() const
 {
 	uint32 currentPc = m_context.m_pAddrTranslator(&m_context, m_context.m_State.nPC);
 	CBasicBlock* block = FindBlockAt(currentPc);
-	for(auto breakPointIterator(m_context.m_breakpoints.begin());
-		breakPointIterator != m_context.m_breakpoints.end(); breakPointIterator++)
+	for(auto breakPointAddress : m_context.m_breakpoints)
 	{
-		uint32 breakPointAddress = *breakPointIterator;
 		if(currentPc == breakPointAddress) return true;
 		if(block != NULL)
 		{
@@ -341,7 +339,7 @@ void CMipsExecutor::PartitionFunction(uint32 functionAddress)
 	{
 		uint32 currentPoint = -1;
 		for(PartitionPointSet::const_iterator pointIterator(partitionPoints.begin());
-			pointIterator != partitionPoints.end(); pointIterator++)
+			pointIterator != partitionPoints.end(); ++pointIterator)
 		{
 			if(currentPoint != -1)
 			{
@@ -352,7 +350,7 @@ void CMipsExecutor::PartitionFunction(uint32 functionAddress)
 				{
 					uint32 middlePos = ((endPos + startPos) / 2) & ~0x03;
 					pointIterator = partitionPoints.insert(middlePos).first;
-					pointIterator--;
+					--pointIterator;
 					continue;
 				}
 			}
@@ -363,14 +361,13 @@ void CMipsExecutor::PartitionFunction(uint32 functionAddress)
 	//Create blocks
 	{
 		uint32 currentPoint = -1;
-		for(PartitionPointSet::const_iterator pointIterator(partitionPoints.begin());
-			pointIterator != partitionPoints.end(); pointIterator++)
+		for(auto partitionPoint : partitionPoints)
 		{
 			if(currentPoint != -1)
 			{
-				CreateBlock(currentPoint, *pointIterator - 4);
+				CreateBlock(currentPoint, partitionPoint - 4);
 			}
-			currentPoint = *pointIterator;
+			currentPoint = partitionPoint;
 		}
 	}
 }

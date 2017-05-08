@@ -263,7 +263,7 @@ void CSIF::LoadState(Framework::CZipArchiveReader& archive)
 	{
 		CStructCollectionStateFile callRepliesFile(*archive.BeginReadFile(STATE_CALL_REPLIES_XML));
 		for(CStructCollectionStateFile::StructIterator callReplyIterator(callRepliesFile.GetStructBegin());
-			callReplyIterator != callRepliesFile.GetStructEnd(); callReplyIterator++)
+			callReplyIterator != callRepliesFile.GetStructEnd(); ++callReplyIterator)
 		{
 			const CStructFile& structFile(callReplyIterator->second);
 			uint32 replyId = lexical_cast_hex<std::string>(callReplyIterator->first);
@@ -290,11 +290,10 @@ void CSIF::SaveState(Framework::CZipArchiveWriter& archive)
 
 	{
 		CStructCollectionStateFile* callRepliesFile = new CStructCollectionStateFile(STATE_CALL_REPLIES_XML);
-		for(CallReplyMap::const_iterator callReplyIterator(m_callReplies.begin());
-			callReplyIterator != m_callReplies.end(); callReplyIterator++)
+		for(const auto& callReplyIterator : m_callReplies)
 		{
-			const CALLREQUESTINFO& callReply(callReplyIterator->second);
-			std::string replyId = lexical_cast_hex<std::string>(callReplyIterator->first, 8);
+			const CALLREQUESTINFO& callReply(callReplyIterator.second);
+			std::string replyId = lexical_cast_hex<std::string>(callReplyIterator.first, 8);
 			CStructFile replyStruct;
 			{
 				SaveState_RpcCall(replyStruct, callReply.call);

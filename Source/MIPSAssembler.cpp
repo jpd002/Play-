@@ -42,15 +42,14 @@ void CMIPSAssembler::CreateLabelReference(LABEL label)
 
 void CMIPSAssembler::ResolveLabelReferences()
 {
-	for(LabelReferenceMapType::iterator labelRef(m_labelReferences.begin());
-		m_labelReferences.end() != labelRef; labelRef++)
+	for(const auto& labelRef : m_labelReferences)
 	{
-		LabelMapType::iterator label(m_labels.find(labelRef->first));
+		LabelMapType::iterator label(m_labels.find(labelRef.first));
 		if(label == m_labels.end())
 		{
 			throw std::runtime_error("Invalid label.");
 		}
-		size_t referencePos = labelRef->second.address;
+		size_t referencePos = labelRef.second.address;
 		size_t labelPos = label->second;
 		int offset = static_cast<int>(labelPos - referencePos - 1);
 		if(offset > SHRT_MAX || offset < SHRT_MIN)

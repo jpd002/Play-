@@ -71,7 +71,7 @@ void CSifCmd::LoadState(Framework::CZipArchiveReader& archive)
 	auto modulesFile = CStructCollectionStateFile(*archive.BeginReadFile(STATE_MODULES));
 	{
 		for(CStructCollectionStateFile::StructIterator structIterator(modulesFile.GetStructBegin());
-			structIterator != modulesFile.GetStructEnd(); structIterator++)
+			structIterator != modulesFile.GetStructEnd(); ++structIterator)
 		{
 			const auto& structFile(structIterator->second);
 			uint32 serverDataAddress = structFile.GetRegister32(STATE_MODULE_SERVER_DATA_ADDRESS);

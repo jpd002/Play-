@@ -47,17 +47,16 @@ void CStructFile::Read(Xml::CNode* rootNode)
 
 void CStructFile::Write(Xml::CNode* rootNode) const
 {
-    for(RegisterList::const_iterator registerIterator(m_registers.begin());
-        registerIterator != m_registers.end(); registerIterator++)
+    for(const auto& registerIterator : m_registers)
     {
-        const Register& reg(registerIterator->second);
+        const Register& reg(registerIterator.second);
         Xml::CNode* fieldNode = new Xml::CNode(STRUCT_FIELD, true);
         string valueString;
         for(unsigned int i = 0; i < reg.first; i++)
         {
             valueString = lexical_cast_hex<string>(reg.second.nV[i], 8) + valueString;
         }
-        fieldNode->InsertAttribute(STRUCT_FIELD_NAME, registerIterator->first.c_str());
+        fieldNode->InsertAttribute(STRUCT_FIELD_NAME, registerIterator.first.c_str());
         fieldNode->InsertAttribute(STRUCT_FIELD_VALUE, valueString.c_str());
         rootNode->InsertNode(fieldNode);
     }
