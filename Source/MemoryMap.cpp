@@ -70,10 +70,8 @@ void CMemoryMap::InsertMap(MemoryMapListType& memoryMap, uint32 start, uint32 en
 
 const CMemoryMap::MEMORYMAPELEMENT* CMemoryMap::GetMap(const MemoryMapListType& memoryMap, uint32 nAddress)
 {
-	for(MemoryMapListType::const_iterator element(memoryMap.begin());
-		memoryMap.end() != element; element++)
+	for(const auto& mapElement : memoryMap)
 	{
-		const MEMORYMAPELEMENT& mapElement(*element);
 		if(nAddress <= mapElement.nEnd)
 		{
 			if(!(nAddress >= mapElement.nStart)) return NULL;
