@@ -141,14 +141,14 @@ if(WIN32)
 	include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../../Nuanceur/include)
 	list(APPEND PROJECT_LIBS Nuanceur)
 
-	if (NOT TARGET FrameworkWinUI)
+	if (NOT TARGET Framework_Win32)
 		add_subdirectory(
-			${CMAKE_CURRENT_SOURCE_DIR}/../../Framework/build_cmake/FrameworkWinUI
-			${CMAKE_CURRENT_BINARY_DIR}/FrameworkWinUI
+			${CMAKE_CURRENT_SOURCE_DIR}/../../Framework/build_cmake/FrameworkWin32
+			${CMAKE_CURRENT_BINARY_DIR}/Framework_Win32
 		)
 	endif()
 	include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../../Framework/include)
-	list(APPEND PROJECT_LIBS FrameworkWinUI)
+	list(APPEND PROJECT_LIBS Framework_Win32)
 
 	find_package(DirectX9 REQUIRED)
 	list(APPEND PROJECT_LIBS ${DirectX_D3D9_LIBRARY})
