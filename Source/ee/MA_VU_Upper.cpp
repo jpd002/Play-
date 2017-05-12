@@ -141,7 +141,7 @@ void CMA_VU::CUpper::MAXi()
 //1E
 void CMA_VU::CUpper::MULi()
 {
-	VUShared::MULi(m_codeGen, m_nDest, m_nFD, m_nFS);
+	VUShared::MULi(m_codeGen, m_nDest, m_nFD, m_nFS, m_relativePipeTime);
 }
 
 //1F
@@ -153,7 +153,7 @@ void CMA_VU::CUpper::MINIi()
 //20
 void CMA_VU::CUpper::ADDq()
 {
-	VUShared::ADDq(m_codeGen, m_nDest, m_nFD, m_nFS);
+	VUShared::ADDq(m_codeGen, m_nDest, m_nFD, m_nFS, m_relativePipeTime);
 }
 
 //21
@@ -177,7 +177,7 @@ void CMA_VU::CUpper::MADDi()
 //24
 void CMA_VU::CUpper::SUBq()
 {
-	VUShared::SUBq(m_codeGen, m_nDest, m_nFD, m_nFS);
+	VUShared::SUBq(m_codeGen, m_nDest, m_nFD, m_nFS, m_relativePipeTime);
 }
 
 //25

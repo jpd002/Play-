@@ -365,7 +365,7 @@ void CCOP_VU::VMAXi()
 //1E
 void CCOP_VU::VMULi()
 {
-	VUShared::MULi(m_codeGen, m_nDest, m_nFD, m_nFS);
+	VUShared::MULi(m_codeGen, m_nDest, m_nFD, m_nFS, 0);
 }
 
 //1F
@@ -377,7 +377,7 @@ void CCOP_VU::VMINIi()
 //20
 void CCOP_VU::VADDq()
 {
-	VUShared::ADDq(m_codeGen, m_nDest, m_nFD, m_nFS);
+	VUShared::ADDq(m_codeGen, m_nDest, m_nFD, m_nFS, 0);
 }
 
 //21
@@ -401,7 +401,7 @@ void CCOP_VU::VMADDi()
 //24
 void CCOP_VU::VSUBq()
 {
-	VUShared::SUBq(m_codeGen, m_nDest, m_nFD, m_nFS);
+	VUShared::SUBq(m_codeGen, m_nDest, m_nFD, m_nFS, 0);
 }
 
 //25

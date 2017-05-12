@@ -100,7 +100,7 @@ namespace VUShared
 	void						ADD(CMipsJitter*, uint8, uint8, uint8, uint8, uint32);
 	void						ADDbc(CMipsJitter*, uint8, uint8, uint8, uint8, uint8, uint32);
 	void						ADDi(CMipsJitter*, uint8, uint8, uint8, uint32);
-	void						ADDq(CMipsJitter*, uint8, uint8, uint8);
+	void						ADDq(CMipsJitter*, uint8, uint8, uint8, uint32);
 	void						ADDA(CMipsJitter*, uint8, uint8, uint8);
 	void						ADDAbc(CMipsJitter*, uint8, uint8, uint8, uint8);
 	void						ADDAi(CMipsJitter*, uint8, uint8);
@@ -153,7 +153,7 @@ namespace VUShared
 	void						MTIR(CMipsJitter*, uint8, uint8, uint8);
 	void						MUL(CMipsJitter*, uint8, uint8, uint8, uint8, uint32);
 	void						MULbc(CMipsJitter*, uint8, uint8, uint8, uint8, uint8, uint32);
-	void						MULi(CMipsJitter*, uint8, uint8, uint8);
+	void						MULi(CMipsJitter*, uint8, uint8, uint8, uint32);
 	void						MULq(CMipsJitter*, uint8, uint8, uint8, uint32);
 	void						MULA(CMipsJitter*, uint8, uint8, uint8);
 	void						MULAbc(CMipsJitter*, uint8, uint8, uint8, uint8, uint32);
@@ -173,7 +173,7 @@ namespace VUShared
 	void						SUB(CMipsJitter*, uint8, uint8, uint8, uint8, uint32);
 	void						SUBbc(CMipsJitter*, uint8, uint8, uint8, uint8, uint8, uint32);
 	void						SUBi(CMipsJitter*, uint8, uint8, uint8, uint32);
-	void						SUBq(CMipsJitter*, uint8, uint8, uint8);
+	void						SUBq(CMipsJitter*, uint8, uint8, uint8, uint32);
 	void						SUBA(CMipsJitter*, uint8, uint8, uint8, uint32);
 	void						SUBAbc(CMipsJitter*, uint8, uint8, uint8, uint8, uint32);
 	void						SUBAi(CMipsJitter*, uint8, uint8, uint32);
