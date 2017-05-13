@@ -2,7 +2,6 @@
 #include "../MIPS.h"
 #include "../MemoryUtils.h"
 #include "offsetof_def.h"
-#include "FpMulTruncate.h"
 #include "FpAddTruncate.h"
 
 #define LATENCY_MAC     (4)
@@ -1149,22 +1148,10 @@ void VUShared::MULi(CMipsJitter* codeGen, uint8 nDest, uint8 nFd, uint8 nFs, uin
 		nFd = 32;
 	}
 
-#if 0
-	for(unsigned int i = 0; i < 4; i++)
-	{
-		if(!VUShared::DestinationHasElement(nDest, i)) continue;
-
-		codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2[nFs].nV[i]));
-		codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2I));
-		codeGen->Call(reinterpret_cast<void*>(&FpMulTruncate), 2, true);
-		codeGen->PullRel(offsetof(CMIPS, m_State.nCOP2[nFd].nV[i]));
-	}
-#else
 	codeGen->MD_PushRel(offsetof(CMIPS, m_State.nCOP2[nFs]));
 	codeGen->MD_PushRelExpand(offsetof(CMIPS, m_State.nCOP2I));
 	codeGen->MD_MulS();
 	PullVector(codeGen, nDest, offsetof(CMIPS, m_State.nCOP2[nFd]));
-#endif
 
 	TestSZFlags(codeGen, nDest, offsetof(CMIPS, m_State.nCOP2[nFd]), relativePipeTime);
 }
