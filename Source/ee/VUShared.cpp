@@ -412,6 +412,22 @@ void VUShared::MSUBA_base(CMipsJitter* codeGen, uint8 dest, size_t fs, size_t ft
 	TestSZFlags(codeGen, dest, offsetof(CMIPS, m_State.nCOP2A), relativePipeTime);
 }
 
+void VUShared::MUL_base(CMipsJitter* codeGen, uint8 dest, size_t fd, size_t fs, size_t ft, bool expand, uint32 relativePipeTime)
+{
+	codeGen->MD_PushRel(fs);
+	if(expand)
+	{
+		codeGen->MD_PushRelExpand(ft);
+	}
+	else
+	{
+		codeGen->MD_PushRel(ft);
+	}
+	codeGen->MD_MulS();
+	PullVector(codeGen, dest, fd);
+	TestSZFlags(codeGen, dest, fd, relativePipeTime);
+}
+
 void VUShared::ABS(CMipsJitter* codeGen, uint8 nDest, uint8 nFt, uint8 nFs)
 {
 	if(nFt == 0) return;
@@ -1108,61 +1124,40 @@ void VUShared::MTIR(CMipsJitter* codeGen, uint8 it, uint8 fs, uint8 fsf)
 	codeGen->PullRel(offsetof(CMIPS, m_State.nCOP2VI[it]));
 }
 
-void VUShared::MUL(CMipsJitter* codeGen, uint8 nDest, uint8 nFd, uint8 nFs, uint8 nFt, uint32 relativePipeTime)
+void VUShared::MUL(CMipsJitter* codeGen, uint8 dest, uint8 fd, uint8 fs, uint8 ft, uint32 relativePipeTime)
 {
-	if(nFd == 0)
-	{
-		//Use the temporary register to store the result
-		nFd = 32;
-	}
-
-	codeGen->MD_PushRel(offsetof(CMIPS, m_State.nCOP2[nFs]));
-	codeGen->MD_PushRel(offsetof(CMIPS, m_State.nCOP2[nFt]));
-	codeGen->MD_MulS();
-	PullVector(codeGen, nDest, offsetof(CMIPS, m_State.nCOP2[nFd]));
-
-	TestSZFlags(codeGen, nDest, offsetof(CMIPS, m_State.nCOP2[nFd]), relativePipeTime);
+	MUL_base(codeGen, dest,
+		offsetof(CMIPS, m_State.nCOP2[(fd != 0) ? fd : 32]),
+		offsetof(CMIPS, m_State.nCOP2[fs]),
+		offsetof(CMIPS, m_State.nCOP2[ft]),
+		false, relativePipeTime);
 }
 
-void VUShared::MULbc(CMipsJitter* codeGen, uint8 nDest, uint8 nFd, uint8 nFs, uint8 nFt, uint8 nBc, uint32 relativePipeTime)
+void VUShared::MULbc(CMipsJitter* codeGen, uint8 dest, uint8 fd, uint8 fs, uint8 ft, uint8 bc, uint32 relativePipeTime)
 {
-	if(nFd == 0)
-	{
-		//Use the temporary register to store the result
-		nFd = 32;
-	}
-
-	codeGen->MD_PushRel(offsetof(CMIPS, m_State.nCOP2[nFs]));
-	codeGen->MD_PushRelExpand(offsetof(CMIPS, m_State.nCOP2[nFt].nV[nBc]));
-	codeGen->MD_MulS();
-	PullVector(codeGen, nDest, offsetof(CMIPS, m_State.nCOP2[nFd]));
-
-	TestSZFlags(codeGen, nDest, offsetof(CMIPS, m_State.nCOP2[nFd]), relativePipeTime);
+	MUL_base(codeGen, dest,
+		offsetof(CMIPS, m_State.nCOP2[(fd != 0) ? fd : 32]),
+		offsetof(CMIPS, m_State.nCOP2[fs]),
+		offsetof(CMIPS, m_State.nCOP2[ft].nV[bc]),
+		true, relativePipeTime);
 }
 
-void VUShared::MULi(CMipsJitter* codeGen, uint8 nDest, uint8 nFd, uint8 nFs, uint32 relativePipeTime)
+void VUShared::MULi(CMipsJitter* codeGen, uint8 dest, uint8 fd, uint8 fs, uint32 relativePipeTime)
 {
-	if(nFd == 0)
-	{
-		//Use the temporary register to store the result
-		nFd = 32;
-	}
-
-	codeGen->MD_PushRel(offsetof(CMIPS, m_State.nCOP2[nFs]));
-	codeGen->MD_PushRelExpand(offsetof(CMIPS, m_State.nCOP2I));
-	codeGen->MD_MulS();
-	PullVector(codeGen, nDest, offsetof(CMIPS, m_State.nCOP2[nFd]));
-
-	TestSZFlags(codeGen, nDest, offsetof(CMIPS, m_State.nCOP2[nFd]), relativePipeTime);
+	MUL_base(codeGen, dest,
+		offsetof(CMIPS, m_State.nCOP2[(fd != 0) ? fd : 32]),
+		offsetof(CMIPS, m_State.nCOP2[fs]),
+		offsetof(CMIPS, m_State.nCOP2I),
+		true, relativePipeTime);
 }
 
-void VUShared::MULq(CMipsJitter* codeGen, uint8 nDest, uint8 nFd, uint8 nFs, uint32 relativePipeTime)
+void VUShared::MULq(CMipsJitter* codeGen, uint8 dest, uint8 fd, uint8 fs, uint32 relativePipeTime)
 {
-	codeGen->MD_PushRel(offsetof(CMIPS, m_State.nCOP2[nFs]));
-	codeGen->MD_PushRelExpand(offsetof(CMIPS, m_State.nCOP2Q));
-	codeGen->MD_MulS();
-	PullVector(codeGen, nDest, offsetof(CMIPS, m_State.nCOP2[nFd]));
-	TestSZFlags(codeGen, nDest, offsetof(CMIPS, m_State.nCOP2[nFd]), relativePipeTime);
+	MUL_base(codeGen, dest,
+		offsetof(CMIPS, m_State.nCOP2[(fd != 0) ? fd : 32]),
+		offsetof(CMIPS, m_State.nCOP2[fs]),
+		offsetof(CMIPS, m_State.nCOP2Q),
+		true, relativePipeTime);
 }
 
 void VUShared::MULA(CMipsJitter* codeGen, uint8 nDest, uint8 nFs, uint8 nFt)
