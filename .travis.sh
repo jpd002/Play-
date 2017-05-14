@@ -4,10 +4,11 @@ travis_before_install()
 {
     cd ..
     if [ "$TARGET_OS" = "Linux" ]; then
-        sudo add-apt-repository --yes ppa:beineri/opt-qt562-trusty;
-        sudo add-apt-repository --yes ppa:ubuntu-toolchain-r/test;
-        sudo apt-get update -qq;
-        sudo apt-get install -qq qt56base gcc-5 g++-5 cmake libalut-dev;
+        sudo add-apt-repository --yes ppa:beineri/opt-qt562-trusty
+        sudo add-apt-repository --yes ppa:ubuntu-toolchain-r/test
+        sudo apt-get update -qq
+        sudo apt-get install -qq qt56base gcc-5 g++-5 libalut-dev
+        curl -sSL https://cmake.org/files/v3.8/cmake-3.8.1-Linux-x86_64.tar.gz | sudo tar -xzC /opt
     elif [ "$TARGET_OS" = "OSX" ]; then
         sudo npm install -g appdmg
     elif [ "$TARGET_OS" = "IOS" ]; then
@@ -55,6 +56,7 @@ travis_script()
         
         if [ "$TARGET_OS" = "Linux" ]; then
             if [ "$CXX" = "g++" ]; then export CXX="g++-5" CC="gcc-5"; fi
+            export PATH=/opt/cmake-3.8.1-Linux-x86_64/bin/:$PATH
             source /opt/qt56/bin/qt56-env.sh || true
             cmake .. -G"$BUILD_TYPE" -DCMAKE_PREFIX_PATH=/opt/qt56/;
             cmake --build .
