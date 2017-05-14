@@ -323,7 +323,7 @@ void CMA_VU::CUpper::FTOI0()
 //07
 void CMA_VU::CUpper::MULAq()
 {
-	VUShared::MULAq(m_codeGen, m_nDest, m_nFS);
+	VUShared::MULAq(m_codeGen, m_nDest, m_nFS, m_relativePipeTime);
 }
 
 //0A
@@ -397,7 +397,7 @@ void CMA_VU::CUpper::FTOI12()
 //07
 void CMA_VU::CUpper::MULAi()
 {
-	VUShared::MULAi(m_codeGen, m_nDest, m_nFS);
+	VUShared::MULAi(m_codeGen, m_nDest, m_nFS, m_relativePipeTime);
 }
 
 //08
@@ -415,7 +415,7 @@ void CMA_VU::CUpper::SUBAi()
 //0A
 void CMA_VU::CUpper::MULA()
 {
-	VUShared::MULA(m_codeGen, m_nDest, m_nFS, m_nFT);
+	VUShared::MULA(m_codeGen, m_nDest, m_nFS, m_nFT, m_relativePipeTime);
 }
 
 //0B

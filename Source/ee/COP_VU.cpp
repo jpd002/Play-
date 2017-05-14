@@ -604,7 +604,7 @@ void CCOP_VU::VFTOI0()
 //07
 void CCOP_VU::VMULAq()
 {
-	VUShared::MULAq(m_codeGen, m_nDest, m_nFS);
+	VUShared::MULAq(m_codeGen, m_nDest, m_nFS, 0);
 }
 
 //0A
@@ -732,13 +732,13 @@ void CCOP_VU::VFTOI12()
 //07
 void CCOP_VU::VMULAi()
 {
-	VUShared::MULAi(m_codeGen, m_nDest, m_nFS);
+	VUShared::MULAi(m_codeGen, m_nDest, m_nFS, 0);
 }
 
 //0A
 void CCOP_VU::VMULA()
 {
-	VUShared::MULA(m_codeGen, m_nDest, m_nFS, m_nFT);
+	VUShared::MULA(m_codeGen, m_nDest, m_nFS, m_nFT, 0);
 }
 
 //0B

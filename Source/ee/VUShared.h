@@ -96,6 +96,7 @@ namespace VUShared
 	void						MSUB_base(CMipsJitter*, uint8, size_t, size_t, size_t, bool);
 	void						MSUBA_base(CMipsJitter*, uint8, size_t, size_t, bool, uint32);
 	void						MUL_base(CMipsJitter*, uint8, size_t, size_t, size_t, bool, uint32);
+	void						MULA_base(CMipsJitter*, uint8, size_t, size_t, bool, uint32);
 
 	//Shared instructions
 	void						ABS(CMipsJitter*, uint8, uint8, uint8);
@@ -157,10 +158,10 @@ namespace VUShared
 	void						MULbc(CMipsJitter*, uint8, uint8, uint8, uint8, uint8, uint32);
 	void						MULi(CMipsJitter*, uint8, uint8, uint8, uint32);
 	void						MULq(CMipsJitter*, uint8, uint8, uint8, uint32);
-	void						MULA(CMipsJitter*, uint8, uint8, uint8);
+	void						MULA(CMipsJitter*, uint8, uint8, uint8, uint32);
 	void						MULAbc(CMipsJitter*, uint8, uint8, uint8, uint8, uint32);
-	void						MULAi(CMipsJitter*, uint8, uint8);
-	void						MULAq(CMipsJitter*, uint8, uint8);
+	void						MULAi(CMipsJitter*, uint8, uint8, uint32);
+	void						MULAq(CMipsJitter*, uint8, uint8, uint32);
 	void						OPMSUB(CMipsJitter*, uint8, uint8, uint8, uint32);
 	void						OPMULA(CMipsJitter*, uint8, uint8);
 	void						RINIT(CMipsJitter*, uint8, uint8);
