@@ -88,7 +88,7 @@ namespace VUShared
 	void						GetStatus(CMipsJitter*, size_t, uint32);
 	void						SetStatus(CMipsJitter*, size_t);
 
-	void						ADDA_base(CMipsJitter*, uint8, size_t, size_t, bool);
+	void						ADDA_base(CMipsJitter*, uint8, size_t, size_t, bool, uint32);
 	void						MADD_base(CMipsJitter*, uint8, size_t, size_t, size_t, bool, uint32);
 	void						MADDA_base(CMipsJitter*, uint8, size_t, size_t, bool, uint32);
 	void						SUB_base(CMipsJitter*, uint8, size_t, size_t, size_t, bool, uint32);
@@ -103,9 +103,9 @@ namespace VUShared
 	void						ADDbc(CMipsJitter*, uint8, uint8, uint8, uint8, uint8, uint32);
 	void						ADDi(CMipsJitter*, uint8, uint8, uint8, uint32);
 	void						ADDq(CMipsJitter*, uint8, uint8, uint8, uint32);
-	void						ADDA(CMipsJitter*, uint8, uint8, uint8);
-	void						ADDAbc(CMipsJitter*, uint8, uint8, uint8, uint8);
-	void						ADDAi(CMipsJitter*, uint8, uint8);
+	void						ADDA(CMipsJitter*, uint8, uint8, uint8, uint32);
+	void						ADDAbc(CMipsJitter*, uint8, uint8, uint8, uint8, uint32);
+	void						ADDAi(CMipsJitter*, uint8, uint8, uint32);
 	void						CLIP(CMipsJitter*, uint8, uint8, uint32);
 	void						DIV(CMipsJitter*, uint8, uint8, uint8, uint8, uint32);
 	void						FTOI0(CMipsJitter*, uint8, uint8, uint8);

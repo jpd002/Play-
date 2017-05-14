@@ -277,7 +277,7 @@ void CMA_VU::CUpper::VECTOR3()
 //00
 void CMA_VU::CUpper::ADDAbc()
 {
-	VUShared::ADDAbc(m_codeGen, m_nDest, m_nFS, m_nFT, m_nBc);
+	VUShared::ADDAbc(m_codeGen, m_nDest, m_nFS, m_nFT, m_nBc, m_relativePipeTime);
 }
 
 //01
@@ -329,7 +329,7 @@ void CMA_VU::CUpper::MULAq()
 //0A
 void CMA_VU::CUpper::ADDA()
 {
-	VUShared::ADDA(m_codeGen, m_nDest, m_nFS, m_nFT);
+	VUShared::ADDA(m_codeGen, m_nDest, m_nFS, m_nFT, m_relativePipeTime);
 }
 
 //0B
@@ -403,7 +403,7 @@ void CMA_VU::CUpper::MULAi()
 //08
 void CMA_VU::CUpper::ADDAi()
 {
-	VUShared::ADDAi(m_codeGen, m_nDest, m_nFS);
+	VUShared::ADDAi(m_codeGen, m_nDest, m_nFS, m_relativePipeTime);
 }
 
 //09
