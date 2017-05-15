@@ -380,6 +380,7 @@ void CDebugger::FindEeFunctions()
 			{    "sceDbcSendData2: rpc error\n",                                     "DbcSendData2"         },
 			{    "The size of work area is too small",                               "MpegCreate"           },
 			{    "Need to re-setup libipu since sceMpegGetPicture was aborted\n",    "_MpegInternalFct"     },
+			{    "image buffer needs to be aligned to 64byte boundary(0x%08x)",      "_MpegInternalFct"     },
 		};
 
 		{
