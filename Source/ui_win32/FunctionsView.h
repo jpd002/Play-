@@ -1,5 +1,4 @@
-#ifndef _FUNCTIONSVIEW_H_
-#define _FUNCTIONSVIEW_H_
+#pragma once
 
 #include <boost/signals2.hpp>
 #include <functional>
@@ -11,17 +10,17 @@
 #include "../BiosDebugInfoProvider.h"
 #include "../ELF.h"
 
-class CFunctionsView : 
+class CFunctionsView :
 #ifdef FUNCTIONSVIEW_STANDALONE
 	public Framework::Win32::CWindow,
 #else
-	public Framework::Win32::CMDIChild, 
+	public Framework::Win32::CMDIChild,
 #endif
 	public boost::signals2::trackable
 {
 public:
 											CFunctionsView(HWND);
-	virtual									~CFunctionsView();
+	virtual									~CFunctionsView() = default;
 
 	void									SetContext(CMIPS*, CBiosDebugInfoProvider*);
 	void									Refresh();
@@ -49,19 +48,17 @@ private:
 	void									OnDeleteClick();
 	void									OnImportClick();
 
-	Framework::Win32::CListView*			m_pList;
-	Framework::Win32::CButton*				m_pNew;
-	Framework::Win32::CButton*				m_pRename;
-	Framework::Win32::CButton*				m_pDelete;
-	Framework::Win32::CButton*				m_pImport;
+	Framework::Win32::CListView*			m_pList = nullptr;
+	Framework::Win32::CButton*				m_pNew = nullptr;
+	Framework::Win32::CButton*				m_pRename = nullptr;
+	Framework::Win32::CButton*				m_pDelete = nullptr;
+	Framework::Win32::CButton*				m_pImport = nullptr;
 
 	Framework::FlatLayoutPtr				m_pLayout;
 
 	boost::signals2::connection				m_functionTagsChangeConnection;
 
-	CMIPS*									m_context;
+	CMIPS*									m_context = nullptr;
 	BiosDebugModuleInfoArray				m_modules;
-	CBiosDebugInfoProvider*					m_biosDebugInfoProvider;
+	CBiosDebugInfoProvider*					m_biosDebugInfoProvider = nullptr;
 };
-
-#endif

@@ -1,43 +1,25 @@
-#include <stdio.h>
 #include "FunctionsView.h"
 #include "layout/HorizontalLayout.h"
 #include "layout/LayoutStretch.h"
 #include "win32/LayoutWindow.h"
 #include "win32/InputBox.h"
 #include "string_cast.h"
-#include "PtrMacro.h"
 #include "string_format.h"
-
-#define CLSNAME _T("FunctionsView")
 
 #define DEFAULT_GROUPID		(1)
 #define DEFAULT_GROUPNAME	_T("Global")
 
 #define SCALE(x)	MulDiv(x, ydpi, 96)
 
-CFunctionsView::CFunctionsView(HWND hParent) 
-: m_context(nullptr)
-, m_biosDebugInfoProvider(nullptr)
+CFunctionsView::CFunctionsView(HWND hParent)
 {
-	if(!DoesWindowClassExist(CLSNAME))
-	{
-		WNDCLASSEX wc;
-		memset(&wc, 0, sizeof(WNDCLASSEX));
-		wc.cbSize			= sizeof(WNDCLASSEX);
-		wc.hCursor			= LoadCursor(NULL, IDC_ARROW);
-		wc.hbrBackground	= (HBRUSH)(COLOR_WINDOW); 
-		wc.hInstance		= GetModuleHandle(NULL);
-		wc.lpszClassName	= CLSNAME;
-		wc.lpfnWndProc		= CWindow::WndProc;
-		RegisterClassEx(&wc);
-	}
-
 	unsigned long windowStyle = WS_CLIPCHILDREN | WS_THICKFRAME | WS_CAPTION | WS_SYSMENU | WS_MAXIMIZEBOX;
 #ifndef FUNCTIONSVIEW_STANDALONE
 	windowStyle |= WS_CHILD;
 #endif
 	int ydpi = GetDeviceCaps(GetDC(NULL), LOGPIXELSY);
-	Create(NULL, CLSNAME, _T("Functions"), windowStyle, Framework::Win32::CRect(0, 0, SCALE(320), SCALE(240)), hParent, NULL);
+	Create(NULL, Framework::Win32::CDefaultWndClass().GetName(), _T("Functions"), windowStyle, 
+	    Framework::Win32::CRect(0, 0, SCALE(320), SCALE(240)), hParent, NULL);
 	SetClassPtr();
 
 	m_pList = new Framework::Win32::CListView(m_hWnd, Framework::Win32::CRect(0, 0, 0, 0), LVS_REPORT | LVS_SINGLESEL | LVS_SORTASCENDING | LVS_SHOWSELALWAYS);
@@ -64,11 +46,6 @@ CFunctionsView::CFunctionsView(HWND hParent)
 	SetSize(SCALE(469), SCALE(612));
 
 	RefreshLayout();
-}
-
-CFunctionsView::~CFunctionsView()
-{
-
 }
 
 void CFunctionsView::Refresh()
@@ -229,10 +206,8 @@ void CFunctionsView::InitializeModuleGrouper()
 	m_pList->RemoveAllGroups();
 	m_pList->EnableGroupView(true);
 	m_pList->InsertGroup(DEFAULT_GROUPNAME, DEFAULT_GROUPID);
-	for(auto moduleIterator(std::begin(m_modules));
-		std::end(m_modules) != moduleIterator; moduleIterator++)
+	for(const auto& module : m_modules)
 	{
-		const auto& module(*moduleIterator);
 		m_pList->InsertGroup(
 			string_cast<std::tstring>(module.name.c_str()).c_str(),
 			module.begin);
@@ -241,10 +216,8 @@ void CFunctionsView::InitializeModuleGrouper()
 
 uint32 CFunctionsView::GetFunctionGroupId(uint32 address)
 {
-	for(auto moduleIterator(std::begin(m_modules));
-		std::end(m_modules) != moduleIterator; moduleIterator++)
+	for(const auto& module : m_modules)
 	{
-		const auto& module(*moduleIterator);
 		if(address >= module.begin && address < module.end) return module.begin;
 	}
 	return DEFAULT_GROUPID;
@@ -284,7 +257,7 @@ void CFunctionsView::OnNewClick()
 		Framework::Win32::CInputBox inputBox(_T("New Function"), _T("New Function Name:"), _T(""));
 		const TCHAR* sValue = inputBox.GetValue(m_hWnd);
 		if(sValue == NULL) return;
-		_tcsncpy(sNameX, sValue, 255);	
+		_tcsncpy(sNameX, sValue, 255);
 	}
 
 	{
@@ -368,8 +341,6 @@ void CFunctionsView::OnImportClick()
 	RefreshList();
 
 	OnFunctionsStateChange();
-
-	printf("FunctionsView: Symbolic information found and loaded.\r\n");
 }
 
 void CFunctionsView::OnDeleteClick()
