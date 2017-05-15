@@ -5,8 +5,8 @@
 #include "win32/LayoutWindow.h"
 #include "win32/InputBox.h"
 #include "string_cast.h"
-#include "lexical_cast_ex.h"
 #include "PtrMacro.h"
+#include "string_format.h"
 
 #define CLSNAME _T("FunctionsView")
 
@@ -218,7 +218,7 @@ void CFunctionsView::RefreshList()
 	for(unsigned int i = 0; i < nCount; i++)
 	{
 		uint32 nAddress = m_pList->GetItemData(i);
-		m_pList->SetItemText(i, 1, (_T("0x") + lexical_cast_hex<std::tstring>(nAddress, 8)).c_str());
+		m_pList->SetItemText(i, 1, string_format(_T("0x%08X"), nAddress).c_str());
 	}
 
 	m_pList->SetRedraw(true);

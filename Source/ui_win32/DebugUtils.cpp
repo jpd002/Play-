@@ -1,10 +1,10 @@
 #include "DebugUtils.h"
-#include "lexical_cast_ex.h"
 #include "string_cast.h"
+#include "string_format.h"
 
 std::tstring DebugUtils::PrintAddressLocation(uint32 address, CMIPS* context, const BiosDebugModuleInfoArray& modules)
 {
-	std::tstring locationString = _T("0x") + lexical_cast_hex<std::tstring>(address, 8);
+	auto locationString = string_format(_T("0x%08X"), address);
 
 	auto module = FindModuleAtAddress(modules, address);
 	const char* functionName = nullptr;
