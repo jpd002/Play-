@@ -27,7 +27,7 @@ static Framework::CStream* CreateImageStream(const boost::filesystem::path& imag
 #endif
 }
 
-DiskUtils::Iso9660Ptr DiskUtils::CreateDiskImageFromPath(const boost::filesystem::path& imagePath)
+DiskUtils::OpticalMediaPtr DiskUtils::CreateOpticalMediaFromPath(const boost::filesystem::path& imagePath)
 {
 	assert(!imagePath.empty());
 
@@ -69,19 +69,7 @@ DiskUtils::Iso9660Ptr DiskUtils::CreateDiskImageFromPath(const boost::filesystem
 		stream = std::shared_ptr<Framework::CStream>(CreateImageStream(imagePath));
 	}
 
-	Iso9660Ptr result;
-	try
-	{
-		auto blockProvider = std::make_shared<ISO9660::CBlockProvider2048>(stream);
-		result = std::make_unique<CISO9660>(blockProvider);
-	}
-	catch(...)
-	{
-		//Failed with block size 2048, try with CD-ROM XA
-		auto blockProvider = std::make_shared<ISO9660::CBlockProviderCDROMXA>(stream);
-		result = std::make_unique<CISO9660>(blockProvider);
-	}
-	return result;
+	return std::make_unique<COpticalMedia>(stream);
 }
 
 DiskUtils::SystemConfigMap DiskUtils::ParseSystemConfigFile(Framework::CStream* systemCnfFile)
@@ -122,8 +110,9 @@ bool DiskUtils::TryGetDiskId(const boost::filesystem::path& imagePath, std::stri
 {
 	try
 	{
-		auto diskImage = CreateDiskImageFromPath(imagePath);
-		auto systemConfigFile = std::unique_ptr<Framework::CStream>(diskImage->Open("SYSTEM.CNF;1"));
+		auto opticalMedia = CreateOpticalMediaFromPath(imagePath);
+		auto fileSystem = opticalMedia->GetFileSystem();
+		auto systemConfigFile = std::unique_ptr<Framework::CStream>(fileSystem->Open("SYSTEM.CNF;1"));
 		if(!systemConfigFile) return false;
 
 		auto systemConfig = ParseSystemConfigFile(systemConfigFile.get());

@@ -21,7 +21,7 @@
 #include "PathUtils.h"
 #include "iop/IopBios.h"
 #include "iop/DirectoryDevice.h"
-#include "iop/IsoDevice.h"
+#include "iop/OpticalMediaDevice.h"
 #include "Log.h"
 #include "ISO9660/BlockProvider.h"
 #include "DiskUtils.h"
@@ -367,8 +367,8 @@ void CPS2VM::ResetVM()
 	m_iopOs->GetIoman()->RegisterDevice("host", Iop::CIoman::DevicePtr(new Iop::Ioman::CDirectoryDevice(PREF_PS2_HOST_DIRECTORY)));
 	m_iopOs->GetIoman()->RegisterDevice("mc0", Iop::CIoman::DevicePtr(new Iop::Ioman::CDirectoryDevice(PREF_PS2_MC0_DIRECTORY)));
 	m_iopOs->GetIoman()->RegisterDevice("mc1", Iop::CIoman::DevicePtr(new Iop::Ioman::CDirectoryDevice(PREF_PS2_MC1_DIRECTORY)));
-	m_iopOs->GetIoman()->RegisterDevice("cdrom", Iop::CIoman::DevicePtr(new Iop::Ioman::CIsoDevice(m_cdrom0)));
-	m_iopOs->GetIoman()->RegisterDevice("cdrom0", Iop::CIoman::DevicePtr(new Iop::Ioman::CIsoDevice(m_cdrom0)));
+	m_iopOs->GetIoman()->RegisterDevice("cdrom", Iop::CIoman::DevicePtr(new Iop::Ioman::COpticalMediaDevice(m_cdrom0)));
+	m_iopOs->GetIoman()->RegisterDevice("cdrom0", Iop::CIoman::DevicePtr(new Iop::Ioman::COpticalMediaDevice(m_cdrom0)));
 
 	m_iopOs->GetLoadcore()->SetLoadExecutableHandler(std::bind(&CPS2OS::LoadExecutable, m_ee->m_os, std::placeholders::_1, std::placeholders::_2));
 
@@ -676,8 +676,8 @@ void CPS2VM::CDROM0_Mount(const char* path)
 	{
 		try
 		{
-			m_cdrom0 = DiskUtils::CreateDiskImageFromPath(path);
-			SetIopCdImage(m_cdrom0.get());
+			m_cdrom0 = DiskUtils::CreateOpticalMediaFromPath(path);
+			SetIopOpticalMedia(m_cdrom0.get());
 		}
 		catch(const std::exception& Exception)
 		{
@@ -690,14 +690,14 @@ void CPS2VM::CDROM0_Mount(const char* path)
 
 void CPS2VM::CDROM0_Destroy()
 {
-	SetIopCdImage(nullptr);
+	SetIopOpticalMedia(nullptr);
 	m_cdrom0.reset();
 }
 
-void CPS2VM::SetIopCdImage(CISO9660* image)
+void CPS2VM::SetIopOpticalMedia(COpticalMedia* opticalMedia)
 {
-	m_iopOs->GetCdvdfsv()->SetIsoImage(image);
-	m_iopOs->GetCdvdman()->SetIsoImage(image);
+	m_iopOs->GetCdvdfsv()->SetOpticalMedia(opticalMedia);
+	m_iopOs->GetCdvdman()->SetOpticalMedia(opticalMedia);
 }
 
 void CPS2VM::RegisterModulesInPadHandler()

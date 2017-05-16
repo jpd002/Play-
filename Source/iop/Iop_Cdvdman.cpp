@@ -253,9 +253,9 @@ void CCdvdman::Invoke(CMIPS& ctx, unsigned int functionId)
 	}
 }
 
-void CCdvdman::SetIsoImage(CISO9660* image)
+void CCdvdman::SetOpticalMedia(COpticalMedia* opticalMedia)
 {
-	m_image = image;
+	m_opticalMedia = opticalMedia;
 }
 
 uint32 CCdvdman::CdInit(uint32 mode)
@@ -278,13 +278,14 @@ uint32 CCdvdman::CdRead(uint32 startSector, uint32 sectorCount, uint32 bufferPtr
 		//Does that make sure it's 2048 byte mode?
 		assert(mode[2] == 0);
 	}
-	if(m_image != NULL && bufferPtr != 0)
+	if(m_opticalMedia && (bufferPtr != 0))
 	{
 		uint8* buffer = &m_ram[bufferPtr];
-		uint32 sectorSize = 2048;
+		static const uint32 sectorSize = 2048;
+		auto fileSystem = m_opticalMedia->GetFileSystem();
 		for(unsigned int i = 0; i < sectorCount; i++)
 		{
-			m_image->ReadBlock(startSector + i, buffer);
+			fileSystem->ReadBlock(startSector + i, buffer);
 			buffer += sectorSize;
 		}
 	}
@@ -342,7 +343,7 @@ uint32 CCdvdman::CdSearchFile(uint32 fileInfoPtr, uint32 namePtr)
 
 	uint32 result = 0;
 
-	if(m_image != NULL && name != NULL && fileInfo != NULL)
+	if(m_opticalMedia && name && fileInfo)
 	{
 		std::string fixedPath(name);
 
@@ -355,7 +356,8 @@ uint32 CCdvdman::CdSearchFile(uint32 fileInfoPtr, uint32 namePtr)
 		}
 
 		ISO9660::CDirectoryRecord record;
-		if(m_image->GetFileRecord(&record, fixedPath.c_str()))
+		auto fileSystem = m_opticalMedia->GetFileSystem();
+		if(fileSystem->GetFileRecord(&record, fixedPath.c_str()))
 		{
 			fileInfo->sector	= record.GetPosition();
 			fileInfo->size		= record.GetDataLength();
@@ -444,9 +446,10 @@ uint32 CCdvdman::CdStRead(uint32 sectors, uint32 bufPtr, uint32 mode, uint32 err
 {
 	CLog::GetInstance().Print(LOG_NAME, FUNCTION_CDSTREAD "(sectors = %d, bufPtr = 0x%0.8X, mode = %d, errPtr = 0x%0.8X);\r\n",
 		sectors, bufPtr, mode, errPtr);
+	auto fileSystem = m_opticalMedia->GetFileSystem();
 	for(unsigned int i = 0; i < sectors; i++)
 	{
-		m_image->ReadBlock(m_streamPos, m_ram + (bufPtr + (i * 0x800)));
+		fileSystem->ReadBlock(m_streamPos, m_ram + (bufPtr + (i * 0x800)));
 		m_streamPos++;
 	}
 	if(errPtr != 0)

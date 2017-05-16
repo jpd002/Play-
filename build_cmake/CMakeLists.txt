@@ -451,8 +451,8 @@ set(COMMON_SRC_FILES
 	../Source/iop/Iop_Vblank.h
 	../Source/iop/IopBios.cpp
 	../Source/iop/IopBios.h
-	../Source/iop/IsoDevice.cpp
-	../Source/iop/IsoDevice.h
+	../Source/iop/OpticalMediaDevice.cpp
+	../Source/iop/OpticalMediaDevice.h
 	../Source/ISO9660/DirectoryRecord.cpp
 	../Source/ISO9660/DirectoryRecord.h
 	../Source/ISO9660/File.cpp
@@ -503,6 +503,8 @@ set(COMMON_SRC_FILES
 	../Source/MIPSReflection.h
 	../Source/MIPSTags.cpp
 	../Source/MIPSTags.h
+	../Source/OpticalMedia.cpp
+	../Source/OpticalMedia.h
 	../Source/PadHandler.cpp
 	../Source/PadHandler.h
 	../Source/PadListener.cpp

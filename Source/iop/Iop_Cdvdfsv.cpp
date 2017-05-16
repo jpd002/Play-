@@ -66,31 +66,34 @@ void CCdvdfsv::ProcessCommands(CSifMan* sifMan)
 
 		if(m_pendingCommand == COMMAND_READ)
 		{
-			if(m_iso != nullptr)
+			if(m_opticalMedia != nullptr)
 			{
+				auto fileSystem = m_opticalMedia->GetFileSystem();
 				for(unsigned int i = 0; i < m_pendingReadCount; i++)
 				{
-					m_iso->ReadBlock(m_pendingReadSector + i, eeRam + (m_pendingReadAddr + (i * sectorSize)));
+					fileSystem->ReadBlock(m_pendingReadSector + i, eeRam + (m_pendingReadAddr + (i * sectorSize)));
 				}
 			}
 		}
 		else if(m_pendingCommand == COMMAND_READIOP)
 		{
-			if(m_iso != nullptr)
+			if(m_opticalMedia != nullptr)
 			{
+				auto fileSystem = m_opticalMedia->GetFileSystem();
 				for(unsigned int i = 0; i < m_pendingReadCount; i++)
 				{
-					m_iso->ReadBlock(m_pendingReadSector + i, m_iopRam + (m_pendingReadAddr + (i * sectorSize)));
+					fileSystem->ReadBlock(m_pendingReadSector + i, m_iopRam + (m_pendingReadAddr + (i * sectorSize)));
 				}
 			}
 		}
 		else if(m_pendingCommand == COMMAND_STREAM_READ)
 		{
-			if(m_iso != nullptr)
+			if(m_opticalMedia != nullptr)
 			{
+				auto fileSystem = m_opticalMedia->GetFileSystem();
 				for(unsigned int i = 0; i < m_pendingReadCount; i++)
 				{
-					m_iso->ReadBlock(m_streamPos, eeRam + (m_pendingReadAddr + (i * sectorSize)));
+					fileSystem->ReadBlock(m_streamPos, eeRam + (m_pendingReadAddr + (i * sectorSize)));
 					m_streamPos++;
 				}
 			}
@@ -101,9 +104,9 @@ void CCdvdfsv::ProcessCommands(CSifMan* sifMan)
 	}
 }
 
-void CCdvdfsv::SetIsoImage(CISO9660* iso)
+void CCdvdfsv::SetOpticalMedia(COpticalMedia* opticalMedia)
 {
-	m_iso = iso;
+	m_opticalMedia = opticalMedia;
 }
 
 void CCdvdfsv::Invoke(CMIPS& context, unsigned int functionId)
@@ -441,7 +444,7 @@ void CCdvdfsv::SearchFile(uint32* args, uint32 argsSize, uint32* ret, uint32 ret
 
 	assert(retSize == 4);
 
-	if(m_iso == NULL)
+	if(!m_opticalMedia)
 	{
 		ret[0] = 0;
 		return;
@@ -485,7 +488,8 @@ void CCdvdfsv::SearchFile(uint32* args, uint32 argsSize, uint32* ret, uint32 ret
 	}
 
 	ISO9660::CDirectoryRecord record;
-	if(!m_iso->GetFileRecord(&record, fixedPath.c_str()))
+	auto fileSystem = m_opticalMedia->GetFileSystem();
+	if(!fileSystem->GetFileRecord(&record, fixedPath.c_str()))
 	{
 		ret[0] = 0;
 		return;

@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Iop_Module.h"
-#include "../ISO9660/ISO9660.h"
+#include "../OpticalMedia.h"
 #include "zip/ZipArchiveWriter.h"
 #include "zip/ZipArchiveReader.h"
 
@@ -28,7 +28,7 @@ namespace Iop
 		virtual std::string		GetFunctionName(unsigned int) const override;
 		virtual void			Invoke(CMIPS&, unsigned int) override;
 
-		void					SetIsoImage(CISO9660*);
+		void					SetOpticalMedia(COpticalMedia*);
 
 		void					LoadState(Framework::CZipArchiveReader&);
 		void					SaveState(Framework::CZipArchiveWriter&);
@@ -64,7 +64,7 @@ namespace Iop
 		uint32					CdLayerSearchFile(uint32, uint32, uint32);
 
 		CIopBios&				m_bios;
-		CISO9660*				m_image = nullptr;
+		COpticalMedia*			m_opticalMedia = nullptr;
 		uint8*					m_ram = nullptr;
 
 		uint32					m_callbackPtr = 0;

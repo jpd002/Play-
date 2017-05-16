@@ -6,7 +6,7 @@
 #include "MIPS.h"
 #include "MailBox.h"
 #include "PadHandler.h"
-#include "ISO9660/ISO9660.h"
+#include "OpticalMedia.h"
 #include "VirtualMachine.h"
 #include "ee/Ee_SubSystem.h"
 #include "iop/Iop_SubSystem.h"
@@ -90,7 +90,7 @@ public:
 	ProfileFrameDoneSignal		ProfileFrameDone;
 
 private:
-	typedef std::unique_ptr<CISO9660> Iso9660Ptr;
+	typedef std::unique_ptr<COpticalMedia> OpticalMediaPtr;
 
 	void						CreateVM();
 	void						ResetVM();
@@ -123,7 +123,7 @@ private:
 	void						CDROM0_Mount(const char*);
 	void						CDROM0_Reset();
 	void						CDROM0_Destroy();
-	void						SetIopCdImage(CISO9660*);
+	void						SetIopOpticalMedia(COpticalMedia*);
 
 	void						RegisterModulesInPadHandler();
 
@@ -152,7 +152,7 @@ private:
 	std::mutex					m_frameDumpCallbackMutex;
 	bool						m_dumpingFrame = false;
 
-	Iso9660Ptr					m_cdrom0;
+	OpticalMediaPtr				m_cdrom0;
 
 	enum
 	{
