@@ -1,3 +1,4 @@
+#include <cassert>
 #include "OpticalMedia.h"
 
 COpticalMedia::COpticalMedia(const StreamPtr& stream)
