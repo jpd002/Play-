@@ -888,7 +888,7 @@ void VUShared::LQI(CMipsJitter* codeGen, uint8 dest, uint8 it, uint8 is, uint32 
 void VUShared::MADD(CMipsJitter* codeGen, uint8 dest, uint8 fd, uint8 fs, uint8 ft, uint32 relativePipeTime)
 {
 	MADD_base(codeGen, dest,
-		offsetof(CMIPS, m_State.nCOP2[fd]),
+		offsetof(CMIPS, m_State.nCOP2[(fd != 0) ? fd : 32]),
 		offsetof(CMIPS, m_State.nCOP2[fs]),
 		offsetof(CMIPS, m_State.nCOP2[ft]),
 		false, relativePipeTime);
@@ -896,14 +896,8 @@ void VUShared::MADD(CMipsJitter* codeGen, uint8 dest, uint8 fd, uint8 fs, uint8 
 
 void VUShared::MADDbc(CMipsJitter* codeGen, uint8 dest, uint8 fd, uint8 fs, uint8 ft, uint8 bc, uint32 relativePipeTime)
 {
-	if(fd == 0)
-	{
-		//Use the temporary register to store the result
-		fd = 32;
-	}
-
 	MADD_base(codeGen, dest,
-		offsetof(CMIPS, m_State.nCOP2[fd]),
+		offsetof(CMIPS, m_State.nCOP2[(fd != 0) ? fd : 32]),
 		offsetof(CMIPS, m_State.nCOP2[fs]),
 		offsetof(CMIPS, m_State.nCOP2[ft].nV[bc]),
 		true, relativePipeTime);
@@ -912,7 +906,7 @@ void VUShared::MADDbc(CMipsJitter* codeGen, uint8 dest, uint8 fd, uint8 fs, uint
 void VUShared::MADDi(CMipsJitter* codeGen, uint8 dest, uint8 fd, uint8 fs, uint32 relativePipeTime)
 {
 	MADD_base(codeGen, dest,
-		offsetof(CMIPS, m_State.nCOP2[fd]),
+		offsetof(CMIPS, m_State.nCOP2[(fd != 0) ? fd : 32]),
 		offsetof(CMIPS, m_State.nCOP2[fs]),
 		offsetof(CMIPS, m_State.nCOP2I),
 		true, relativePipeTime);
@@ -921,7 +915,7 @@ void VUShared::MADDi(CMipsJitter* codeGen, uint8 dest, uint8 fd, uint8 fs, uint3
 void VUShared::MADDq(CMipsJitter* codeGen, uint8 dest, uint8 fd, uint8 fs, uint32 relativePipeTime)
 {
 	MADD_base(codeGen, dest,
-		offsetof(CMIPS, m_State.nCOP2[fd]),
+		offsetof(CMIPS, m_State.nCOP2[(fd != 0) ? fd : 32]),
 		offsetof(CMIPS, m_State.nCOP2[fs]),
 		offsetof(CMIPS, m_State.nCOP2Q),
 		true, relativePipeTime);
