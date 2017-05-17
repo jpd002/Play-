@@ -407,7 +407,7 @@ void CCOP_VU::VSUBq()
 //25
 void CCOP_VU::VMSUBq()
 {
-	VUShared::MSUBq(m_codeGen, m_nDest, m_nFD, m_nFS);
+	VUShared::MSUBq(m_codeGen, m_nDest, m_nFD, m_nFS, 0);
 }
 
 //26
@@ -419,7 +419,7 @@ void CCOP_VU::VSUBi()
 //27
 void CCOP_VU::VMSUBi()
 {
-	VUShared::MSUBi(m_codeGen, m_nDest, m_nFD, m_nFS);
+	VUShared::MSUBi(m_codeGen, m_nDest, m_nFD, m_nFS, 0);
 }
 
 //28

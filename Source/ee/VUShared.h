@@ -93,7 +93,7 @@ namespace VUShared
 	void						MADDA_base(CMipsJitter*, uint8, size_t, size_t, bool, uint32);
 	void						SUB_base(CMipsJitter*, uint8, size_t, size_t, size_t, bool, uint32);
 	void						SUBA_base(CMipsJitter*, uint8, size_t, size_t, bool, uint32);
-	void						MSUB_base(CMipsJitter*, uint8, size_t, size_t, size_t, bool);
+	void						MSUB_base(CMipsJitter*, uint8, size_t, size_t, size_t, bool, uint32);
 	void						MSUBA_base(CMipsJitter*, uint8, size_t, size_t, bool, uint32);
 	void						MUL_base(CMipsJitter*, uint8, size_t, size_t, size_t, bool, uint32);
 	void						MULA_base(CMipsJitter*, uint8, size_t, size_t, bool, uint32);
@@ -146,8 +146,8 @@ namespace VUShared
 	void						MR32(CMipsJitter*, uint8, uint8, uint8);
 	void						MSUB(CMipsJitter*, uint8, uint8, uint8, uint8, uint32);
 	void						MSUBbc(CMipsJitter*, uint8, uint8, uint8, uint8, uint8, uint32);
-	void						MSUBi(CMipsJitter*, uint8, uint8, uint8);
-	void						MSUBq(CMipsJitter*, uint8, uint8, uint8);
+	void						MSUBi(CMipsJitter*, uint8, uint8, uint8, uint32);
+	void						MSUBq(CMipsJitter*, uint8, uint8, uint8, uint32);
 	void						MSUBA(CMipsJitter*, uint8, uint8, uint8, uint32);
 	void						MSUBAbc(CMipsJitter*, uint8, uint8, uint8, uint8, uint32);
 	void						MSUBAi(CMipsJitter*, uint8, uint8, uint32);

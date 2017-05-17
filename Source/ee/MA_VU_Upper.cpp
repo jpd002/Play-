@@ -183,7 +183,7 @@ void CMA_VU::CUpper::SUBq()
 //25
 void CMA_VU::CUpper::MSUBq()
 {
-	VUShared::MSUBq(m_codeGen, m_nDest, m_nFD, m_nFS);
+	VUShared::MSUBq(m_codeGen, m_nDest, m_nFD, m_nFS, m_relativePipeTime);
 }
 
 //26
@@ -195,7 +195,7 @@ void CMA_VU::CUpper::SUBi()
 //27
 void CMA_VU::CUpper::MSUBi()
 {
-	VUShared::MSUBi(m_codeGen, m_nDest, m_nFD, m_nFS);
+	VUShared::MSUBi(m_codeGen, m_nDest, m_nFD, m_nFS, m_relativePipeTime);
 }
 
 //28
