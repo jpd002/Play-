@@ -155,8 +155,7 @@ bool CCdvdfsv::Invoke593(uint32 method, uint32* args, uint32 argsSize, uint32* r
 	case 0x03:
 		assert(retSize >= 4);
 		CLog::GetInstance().Print(LOG_NAME, "GetDiskType();\r\n");
-		//Returns PS2DVD for now.
-		ret[0x00] = 0x14;
+		ret[0x00] = m_cdvdman.CdGetDiskTypeDirect(m_opticalMedia);
 		break;
 
 	case 0x04:

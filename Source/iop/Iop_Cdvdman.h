@@ -21,6 +21,12 @@ namespace Iop
 			CDVD_STATUS_SEEK     = 18,
 		};
 
+		enum CDVD_DISKTYPE
+		{
+			CDVD_DISKTYPE_PS2CD  = 0x12,
+			CDVD_DISKTYPE_PS2DVD = 0x14,
+		};
+
 								CCdvdman(CIopBios&, uint8*);
 		virtual					~CCdvdman();
 
@@ -34,6 +40,7 @@ namespace Iop
 		void					SaveState(Framework::CZipArchiveWriter&);
 
 		uint32					CdReadClockDirect(uint8*);
+		uint32					CdGetDiskTypeDirect(COpticalMedia*);
 
 	private:
 		enum CDVD_FUNCTION

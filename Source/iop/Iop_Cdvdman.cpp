@@ -82,6 +82,23 @@ uint32 CCdvdman::CdReadClockDirect(uint8* clockBuffer)
 	return 1;
 }
 
+uint32 CCdvdman::CdGetDiskTypeDirect(COpticalMedia* opticalMedia)
+{
+	//Assert just to make sure that we're not handling different optical medias
+	//(Only one can be inserted at once)
+	assert(m_opticalMedia == opticalMedia);
+	switch(m_opticalMedia->GetTrackDataType(0))
+	{
+	case COpticalMedia::TRACK_DATA_TYPE_MODE2_2352:
+		return CCdvdman::CDVD_DISKTYPE_PS2CD;
+		break;
+	case COpticalMedia::TRACK_DATA_TYPE_MODE1_2048:
+	default:
+		return CCdvdman::CDVD_DISKTYPE_PS2DVD;
+		break;
+	}
+}
+
 std::string CCdvdman::GetId() const
 {
 	return "cdvdman";
@@ -386,8 +403,7 @@ uint32 CCdvdman::CdSync(uint32 mode)
 uint32 CCdvdman::CdGetDiskType()
 {
 	CLog::GetInstance().Print(LOG_NAME, FUNCTION_CDGETDISKTYPE "();\r\n");
-	//0x14 = PS2DVD
-	return 0x14;
+	return CdGetDiskTypeDirect(m_opticalMedia);
 }
 
 uint32 CCdvdman::CdDiskReady(uint32 mode)
