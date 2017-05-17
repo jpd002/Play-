@@ -3,6 +3,7 @@
 #include "ScreenShotUtils.h"
 #include "StdStream.h"
 #include "PathUtils.h"
+#include "string_format.h"
 
 #include <chrono>
 #include <ctime>
@@ -17,17 +18,15 @@ void CScreenShotUtils::TriggerGetScreenshot(CPS2VM* virtualMachine, Callback com
 			c.disconnect();
 			try
 			{
-				auto m_buffer = virtualMachine->m_ee->m_gs->GetScreenshot();
+				auto buffer = virtualMachine->m_ee->m_gs->GetScreenshot();
 				auto name = GenerateScreenShotPath(virtualMachine->m_ee->m_os->GetExecutableName());
 				Framework::CStdStream outputStream(name.string().c_str(), "wb");
-				Framework::CBMP::WriteBitmap(m_buffer, outputStream);
+				Framework::CBMP::WriteBitmap(buffer, outputStream);
 
-				std::ostringstream oss;
-				oss << "Screenshot saved as " << name.filename();
-				auto msgstr = oss.str();
+				auto msgstr = string_format("Screenshot saved as '%s'.", name.filename().string().c_str());
 				completionCallback(0, msgstr.c_str());
 			}
-			catch (const std::exception& e)
+			catch(const std::exception&)
 			{
 				completionCallback(-1, "Error occured while trying to save screenshot.");
 			}
