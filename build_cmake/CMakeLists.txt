@@ -210,6 +210,12 @@ else()
 	list(APPEND PROJECT_LIBS ${ZLIB_LIBRARIES})
 endif()
 
+# If ICU is available, add its libraries because Framework might need its functions
+find_package(ICUUC)
+if(ICUUC_FOUND)
+	list(APPEND PROJECT_LIBS ${ICUUC_LIBRARIES})
+endif()
+
 if(TARGET_PLATFORM_IOS)
 	if(NOT TARGET iCade_Static)
 		add_subdirectory(
@@ -240,11 +246,6 @@ if(NOT (TARGET_PLATFORM_ANDROID OR TARGET_PLATFORM_IOS))
 	if(CMAKE_THREAD_LIBS_INIT)
 		list(APPEND PROJECT_LIBS "${CMAKE_THREAD_LIBS_INIT}")
 	endif()
-endif()
-
-if (UNIX AND NOT APPLE AND NOT ANDROID)
-	find_package(ICUUC REQUIRED)
-	list(APPEND PROJECT_LIBS ${ICUUC_LIBRARIES})
 endif()
 
 if(ANDROID)
