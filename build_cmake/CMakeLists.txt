@@ -111,7 +111,7 @@ if (NOT TARGET Framework_OpenGl)
 endif()
 list(APPEND PROJECT_LIBS Framework_OpenGl)
 
-if(UNIX OR APPLE AND NOT ANDROID)
+if(TARGET_PLATFORM_MACOS OR TARGET_PLATFORM_IOS OR TARGET_PLATFORM_UNIX)
 	if (NOT TARGET Framework_OpenAl)
 		add_subdirectory(
 			${CMAKE_CURRENT_SOURCE_DIR}/../../Framework/build_cmake/FrameworkOpenAl
@@ -131,7 +131,7 @@ if (NOT TARGET CodeGen)
 endif()
 list(APPEND PROJECT_LIBS CodeGen)
 
-if(WIN32)
+if(TARGET_PLATFORM_WIN32)
 	if (NOT TARGET Nuanceur)
 		add_subdirectory(
 			${CMAKE_CURRENT_SOURCE_DIR}/../../Nuanceur/build_cmake
@@ -167,7 +167,7 @@ if (NOT TARGET Boost::boost)
 endif()
 list(APPEND PROJECT_LIBS Boost::boost Boost::system Boost::filesystem)
 
-if(UNIX OR WIN32 AND NOT ANDROID AND NOT APPLE)
+if(TARGET_PLATFORM_WIN32 OR TARGET_PLATFORM_UNIX)
 	if (NOT TARGET glew_s)
 		add_subdirectory(
 			${CMAKE_CURRENT_SOURCE_DIR}/../../Dependencies/glew-2.0.0
@@ -179,7 +179,7 @@ if(UNIX OR WIN32 AND NOT ANDROID AND NOT APPLE)
 endif()
 
 find_package(BZip2)
-if (NOT BZIP2_FOUND)
+if(NOT BZIP2_FOUND)
 	MESSAGE("-- Using Provided BZip2 source")
 	if (NOT TARGET bz2)
 		add_subdirectory(
