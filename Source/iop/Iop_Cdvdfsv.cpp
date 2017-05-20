@@ -179,7 +179,7 @@ bool CCdvdfsv::Invoke593(uint32 method, uint32* args, uint32 argsSize, uint32* r
 		//Status
 		assert(retSize >= 4);
 		CLog::GetInstance().Print(LOG_NAME, "Status();\r\n");
-		ret[0x00] = m_streaming ? CCdvdman::CDVD_STATUS_SEEK : CCdvdman::CDVD_STATUS_STOPPED;
+		ret[0x00] = m_streaming ? CCdvdman::CDVD_STATUS_SEEK : CCdvdman::CDVD_STATUS_PAUSED;
 		break;
 
 	case 0x16:
