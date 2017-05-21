@@ -67,6 +67,7 @@ namespace Iop
 		uint32				m_pendingReadCount = 0;
 		uint32				m_pendingReadAddr = 0;
 		bool				m_streaming = false;
+		uint32				m_streamBufferSize = 0;
 
 		CSifModuleAdapter	m_module592;
 		CSifModuleAdapter	m_module593;

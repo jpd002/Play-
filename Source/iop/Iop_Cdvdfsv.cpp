@@ -409,6 +409,12 @@ bool CCdvdfsv::StreamCmd(uint32* args, uint32 argsSize, uint32* ret, uint32 retS
 		ret[0] = 1;
 		CLog::GetInstance().Print(LOG_NAME, "StreamInit(bufsize = 0x%0.8X, numbuf = 0x%0.8X, buf = 0x%0.8X);\r\n",
 			sector, count, dstAddr);
+		m_streamBufferSize = sector;
+		break;
+	case 6:
+		//Status
+		ret[0] = m_streamBufferSize;
+		CLog::GetInstance().Print(LOG_NAME, "StreamStat();\r\n");
 		break;
 	case 4:
 	case 9:
