@@ -4,7 +4,10 @@
 #include <QDialog>
 #include <QAbstractButton>
 #include <QXmlStreamReader>
+
 #include "PH_HidUnix.h"
+#include "Config.h"
+
 
 namespace Ui {
 class ControllerConfigDialog;
@@ -17,15 +20,15 @@ class ControllerConfigDialog : public QDialog
 public:
     explicit ControllerConfigDialog(QWidget *parent = 0);
     ~ControllerConfigDialog();
-    static CPH_HidUnix::BindingPtr *GetBinding(int);
+
     static QString ReadElementValue(QXmlStreamReader &Rxml);
 
 private slots:
     void on_buttonBox_clicked(QAbstractButton *button);
+    void on_tableView_doubleClicked(const QModelIndex &index);
 
 private:
-    void Save(int index, QWidget *tab);
-    void Load(int index, QWidget *tab);
+    CInputBindingManager* m_inputManager;
     Ui::ControllerConfigDialog *ui;
 };
 

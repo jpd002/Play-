@@ -598,6 +598,8 @@ if(TARGET_PLATFORM_UNIX)
 		../Source/ui_unix/VfsDevice.cpp
 		../Source/ui_unix/controllerconfigdialog.cpp
 		../Source/ui_unix/InputEventManager.cpp
+		../Source/ui_unix/bindingmodel.cpp
+		../Source/ui_unix/inputeventselectiondialog.cpp
 	)
 
 	set(QT_MOC_HEADERS
@@ -617,6 +619,8 @@ if(TARGET_PLATFORM_UNIX)
 		../Source/ui_unix/VfsDevice.h
 		../Source/ui_unix/controllerconfigdialog.h
 		../Source/ui_unix/InputEventManager.h
+		../Source/ui_unix/bindingmodel.h
+		../Source/ui_unix/inputeventselectiondialog.h
 	)
 
 	set(QT_UIS
@@ -626,6 +630,7 @@ if(TARGET_PLATFORM_UNIX)
 		../build_unix/vfsmanagerdialog.ui
 		../build_unix/vfsdiscselectordialog.ui
 		../build_unix/controllerconfigdialog.ui
+		../build_unix/inputeventselectiondialog.ui
 	)
 
 	set(QT_RESOURCES
