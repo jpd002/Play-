@@ -87,9 +87,6 @@ void MainWindow::InitEmu()
     g_virtualMachine->CreatePadHandler(CPH_HidUnix::GetFactoryFunction());
     m_padhandler = static_cast<CPH_HidUnix*>(g_virtualMachine->GetPadHandler());
 
-    CPH_HidUnix::BindingPtr *binding = ControllerConfigDialog::GetBinding(1);
-    m_padhandler->UpdateBinding(binding);
-
     StatsManager = new CStatsManager();
     g_virtualMachine->m_ee->m_gs->OnNewFrame.connect(std::bind(&CStatsManager::OnNewFrame, StatsManager, std::placeholders::_1));
 

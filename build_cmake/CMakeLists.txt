@@ -597,7 +597,6 @@ if(TARGET_PLATFORM_UNIX)
 		../Source/ui_unix/vfsdiscselectordialog.cpp
 		../Source/ui_unix/VfsDevice.cpp
 		../Source/ui_unix/controllerconfigdialog.cpp
-		../Source/ui_unix/padqwidgetext.cpp
 		../Source/ui_unix/InputEventManager.cpp
 	)
 
@@ -617,7 +616,6 @@ if(TARGET_PLATFORM_UNIX)
 		../Source/ui_unix/vfsdiscselectordialog.h
 		../Source/ui_unix/VfsDevice.h
 		../Source/ui_unix/controllerconfigdialog.h
-		../Source/ui_unix/padqwidgetext.h
 		../Source/ui_unix/InputEventManager.h
 	)
 
