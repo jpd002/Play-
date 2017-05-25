@@ -83,6 +83,9 @@ std::string CSysclib::GetFunctionName(unsigned int functionId) const
 	case 34:
 		return "strstr";
 		break;
+	case 35:
+		return "strtok";
+		break;
 	case 36:
 		return "strtol";
 		break;
@@ -224,6 +227,12 @@ void CSysclib::Invoke(CMIPS& context, unsigned int functionId)
 		break;
 	case 34:
 		context.m_State.nGPR[CMIPS::V0].nD0 = __strstr(
+			context.m_State.nGPR[CMIPS::A0].nV0,
+			context.m_State.nGPR[CMIPS::A1].nV0
+		);
+		break;
+	case 35:
+		context.m_State.nGPR[CMIPS::V0].nD0 = __strtok(
 			context.m_State.nGPR[CMIPS::A0].nV0,
 			context.m_State.nGPR[CMIPS::A1].nV0
 		);
@@ -454,6 +463,40 @@ uint32 CSysclib::__strstr(uint32 str1Ptr, uint32 str2Ptr)
 	if(result == nullptr) return 0;
 	size_t ptrDiff = result - str1;
 	return str1Ptr + ptrDiff;
+}
+
+uint32 CSysclib::__strtok(uint32 sPtr, uint32 delimPtr)
+{
+	auto delim = reinterpret_cast<const char*>(m_ram + delimPtr);
+
+	if(sPtr != 0)
+	{
+		m_strtok_prevSPtr = sPtr;
+	}
+	else if(m_strtok_prevSPtr == 0)
+	{
+		//If sPtr == 0 && prevSPtr == 0
+		return 0;
+	}
+	auto s = reinterpret_cast<char*>(m_ram + m_strtok_prevSPtr);
+
+	auto str = s + strspn(s, delim);
+	s = str + strcspn(str, delim);
+	if(s == str)
+	{
+		m_strtok_prevSPtr = 0;
+		return 0;
+	}
+	if(*s)
+	{
+		(*s) = 0;
+		m_strtok_prevSPtr = (reinterpret_cast<uint8*>(s) - m_ram) + 1;
+	}
+	else
+	{
+		m_strtok_prevSPtr = 0;
+	}
+	return reinterpret_cast<uint8*>(str) - m_ram;
 }
 
 uint32 CSysclib::__strcspn(uint32 str1Ptr, uint32 str2Ptr)
