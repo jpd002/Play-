@@ -324,10 +324,12 @@ Framework::CBitmap CGSH_Direct3D9::CreateBitmapFromTexture(const TexturePtr& tex
 			case PSMT8:
 			case PSMT8H:
 			case PSMT4HL:
+			case PSMT4HH:
 				return 8;
 			default:
 				assert(false);
 			case PSMCT32:
+			case PSMCT24:
 				return 32;
 			}
 		}();
