@@ -1010,7 +1010,20 @@ void CGSH_Direct3D9::Prim_Sprite()
 		}
 		else
 		{
-			//TODO
+			ST st[2];
+			st[0] <<= m_vtxBuffer[1].nST;
+			st[1] <<= m_vtxBuffer[0].nST;
+
+			float q1 = rgbaq[1].nQ;
+			float q2 = rgbaq[0].nQ;
+			if(q1 == 0) q1 = 1;
+			if(q2 == 0) q2 = 1;
+
+			nU1 = st[0].nS / q1;
+			nU2 = st[1].nS / q2;
+
+			nV1 = st[0].nT / q1;
+			nV2 = st[1].nT / q2;
 		}
 	}
 
