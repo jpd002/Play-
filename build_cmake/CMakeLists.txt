@@ -160,7 +160,7 @@ if(TARGET_PLATFORM_WIN32)
 
 endif()
 
-if (NOT TARGET Boost::boost)
+if(NOT TARGET Boost::boost)
 	add_subdirectory(
 		${CMAKE_CURRENT_SOURCE_DIR}/../../Dependencies/boost-cmake
 		${CMAKE_CURRENT_BINARY_DIR}/boost-cmake
@@ -249,7 +249,7 @@ if(NOT (TARGET_PLATFORM_ANDROID OR TARGET_PLATFORM_IOS))
 	endif()
 endif()
 
-if(ANDROID)
+if(TARGET_PLATFORM_ANDROID)
 	if(NOT TARGET cpufeatures)
 		add_library(cpufeatures STATIC ${ANDROID_NDK}/sources/android/cpufeatures/cpu-features.c)
 	endif()
