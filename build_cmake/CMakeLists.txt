@@ -254,7 +254,6 @@ if(TARGET_PLATFORM_ANDROID)
 		add_library(cpufeatures STATIC ${ANDROID_NDK}/sources/android/cpufeatures/cpu-features.c)
 	endif()
 	list(APPEND PROJECT_LIBS cpufeatures)
-	list(APPEND PROJECT_LIBS android log OpenSLES GLESv3 EGL)
 endif()
 
 if(APPLE)
@@ -855,6 +854,8 @@ if(TARGET_PLATFORM_ANDROID)
 		../Source/ui_android/SH_OpenSL.cpp
 		../Source/ui_android/StatsManager.cpp
 		)
+	
+	list(APPEND PROJECT_LIBS android log OpenSLES GLESv3 EGL)
 	
 	add_library(Play SHARED ${ANDROID_SRC_FILES})
 	target_link_libraries(Play ${PROJECT_LIBS})
