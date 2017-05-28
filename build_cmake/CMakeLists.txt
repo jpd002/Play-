@@ -44,11 +44,6 @@ if(WIN32)
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /EHsc /MP")
 endif()
 
-if(ANDROID)
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
-	include_directories("${ANDROID_NDK}/sources/android/cpufeatures/")
-endif()
-
 if(NOT CMAKE_BUILD_TYPE)
 	set(CMAKE_BUILD_TYPE Release CACHE STRING
 		"Choose the type of build, options are: None Debug Release"
