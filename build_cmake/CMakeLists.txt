@@ -551,7 +551,7 @@ set(COMMON_SRC_FILES
 	../Source/VirtualPad.h
 )
 
-if (WIN32)
+if(TARGET_PLATFORM_WIN32)
 	set(PLATFORM_SPECIFIC_SRC_FILES ../Source/VolumeStream.cpp)
 endif ()
 
@@ -592,8 +592,7 @@ endif()
 target_link_libraries(PlayCore ${PROJECT_LIBS})
 list(APPEND PROJECT_LIBS PlayCore)
 
-#UI
-if (UNIX AND NOT APPLE AND NOT ANDROID)
+if(TARGET_PLATFORM_UNIX)
 	include_directories(
 		../
 		../Source/ui_unix/
@@ -661,9 +660,9 @@ if (UNIX AND NOT APPLE AND NOT ANDROID)
 
 	add_executable(Play ${QT_SOURCES} ${QT_MOC_SRCS} ${QT_RES_SOURCES} ${QT_UI_HEADERS})
 	target_link_libraries(Play ${PROJECT_LIBS})
-endif (UNIX AND NOT APPLE AND NOT ANDROID)
+endif(TARGET_PLATFORM_UNIX)
 
-if(APPLE AND NOT IOS)
+if(TARGET_PLATFORM_MACOS)
 
 	include_directories(
 		../
@@ -757,7 +756,7 @@ if(APPLE AND NOT IOS)
 				COMMENT "${CMAKE_CURRENT_SOURCE_DIR}/../Source/ui_macosx/${xib}.xib")
 
 	endforeach()
-endif(APPLE AND NOT IOS)
+endif(TARGET_PLATFORM_MACOS)
 
 if(TARGET_PLATFORM_IOS)
 	include_directories(
@@ -861,7 +860,7 @@ if(TARGET_PLATFORM_IOS)
 
 endif(TARGET_PLATFORM_IOS)
 
-if (WIN32)
+if(TARGET_PLATFORM_WIN32)
 	ENABLE_LANGUAGE(ASM_MASM)
 
 	include_directories(
@@ -964,7 +963,7 @@ if (WIN32)
 	target_link_libraries(Play PUBLIC ${PROJECT_LIBS})
 	add_precompiled_header(Play StdAfx.h FORCEINCLUDE SOURCE_CXX ../Source/ui_win32/StdAfx.cpp)
 	add_precompiled_header(PlayCore Pch.h FORCEINCLUDE SOURCE_CXX ../Source/Pch.cpp)
-endif (WIN32)
+endif(TARGET_PLATFORM_WIN32)
 
 enable_testing()
 
