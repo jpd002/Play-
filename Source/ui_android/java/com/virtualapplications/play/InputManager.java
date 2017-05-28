@@ -4,7 +4,7 @@ public class InputManager
 {
 	static 
 	{
-		System.loadLibrary("PlayCore");
+		System.loadLibrary("Play");
 	}
 
 	public static native void setButtonState(int button, boolean pressed);

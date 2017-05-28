@@ -7,7 +7,7 @@ public class NativeInterop
 {
 	static 
 	{
-		System.loadLibrary("PlayCore");
+		System.loadLibrary("Play");
 	}
 
 	public static native void setFilesDirPath(String dirPath);

@@ -559,29 +559,14 @@ if(TARGET_PLATFORM_MACOS OR TARGET_PLATFORM_UNIX)
 	set(PLATFORM_SPECIFIC_SRC_FILES ../Source/Posix_VolumeStream.cpp)
 endif()
 
-if(ANDROID)
-	set(PLATFORM_SPECIFIC_SRC_FILES
-		../Source/ui_android/GSH_OpenGLAndroid.cpp
-		../Source/ui_android/InputManager.cpp
-		../Source/ui_android/NativeInterop.cpp
-		../Source/ui_android/NativeShared.cpp
-		../Source/ui_android/SettingsManager.cpp
-		../Source/ui_android/SH_OpenSL.cpp
-		../Source/ui_android/StatsManager.cpp
-		)
-endif()
-
 if(OPENAL_FOUND)
 	list(APPEND PLATFORM_SPECIFIC_SRC_FILES
 		../tools/PsfPlayer/Source/SH_OpenAL.cpp
 	)
 endif()
 
-if(ANDROID)
-	add_library(PlayCore SHARED ${COMMON_SRC_FILES} ${PLATFORM_SPECIFIC_SRC_FILES})
-else()
-	add_library(PlayCore STATIC ${COMMON_SRC_FILES} ${PLATFORM_SPECIFIC_SRC_FILES})
-endif()
+add_library(PlayCore STATIC ${COMMON_SRC_FILES} ${PLATFORM_SPECIFIC_SRC_FILES})
+target_link_libraries(PlayCore Boost::boost)
 
 if(NOT ANDROID)
 	if(THREADS_HAVE_PTHREAD_ARG)
@@ -589,8 +574,7 @@ if(NOT ANDROID)
 	endif()
 endif()
 
-target_link_libraries(PlayCore ${PROJECT_LIBS})
-list(APPEND PROJECT_LIBS PlayCore)
+list(INSERT PROJECT_LIBS 0 PlayCore)
 
 if(TARGET_PLATFORM_UNIX)
 	include_directories(
@@ -859,6 +843,23 @@ if(TARGET_PLATFORM_IOS)
 	)
 
 endif(TARGET_PLATFORM_IOS)
+
+if(TARGET_PLATFORM_ANDROID)
+
+	set(ANDROID_SRC_FILES
+		../Source/ui_android/GSH_OpenGLAndroid.cpp
+		../Source/ui_android/InputManager.cpp
+		../Source/ui_android/NativeInterop.cpp
+		../Source/ui_android/NativeShared.cpp
+		../Source/ui_android/SettingsManager.cpp
+		../Source/ui_android/SH_OpenSL.cpp
+		../Source/ui_android/StatsManager.cpp
+		)
+	
+	add_library(Play SHARED ${ANDROID_SRC_FILES})
+	target_link_libraries(Play ${PROJECT_LIBS})
+	
+endif(TARGET_PLATFORM_ANDROID)
 
 if(TARGET_PLATFORM_WIN32)
 	ENABLE_LANGUAGE(ASM_MASM)
