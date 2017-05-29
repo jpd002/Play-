@@ -351,10 +351,6 @@ set(COMMON_SRC_FILES
 	../Source/gs/GSH_Null.h
 	../Source/gs/GSHandler.cpp
 	../Source/gs/GSHandler.h
-	../Source/gs/GSH_OpenGL/GSH_OpenGL.cpp
-	../Source/gs/GSH_OpenGL/GSH_OpenGL.h
-	../Source/gs/GSH_OpenGL/GSH_OpenGL_Shader.cpp
-	../Source/gs/GSH_OpenGL/GSH_OpenGL_Texture.cpp
 	../Source/gs/GsPixelFormats.cpp
 	../Source/gs/GsPixelFormats.h
 	../Source/iop/ArgumentIterator.cpp
@@ -569,6 +565,15 @@ if(NOT ANDROID)
 endif()
 
 list(INSERT PROJECT_LIBS 0 PlayCore)
+
+add_library(gsh_opengl STATIC 
+	../Source/gs/GSH_OpenGL/GSH_OpenGL.cpp
+	../Source/gs/GSH_OpenGL/GSH_OpenGL.h
+	../Source/gs/GSH_OpenGL/GSH_OpenGL_Shader.cpp
+	../Source/gs/GSH_OpenGL/GSH_OpenGL_Texture.cpp
+)
+target_link_libraries(gsh_opengl Boost::boost)
+list(INSERT PROJECT_LIBS 0 gsh_opengl)
 
 if(TARGET_PLATFORM_UNIX)
 	include_directories(
@@ -859,7 +864,22 @@ endif(TARGET_PLATFORM_ANDROID)
 
 if(TARGET_PLATFORM_WIN32)
 	ENABLE_LANGUAGE(ASM_MASM)
-
+	
+	add_library(gsh_opengl_win32 STATIC 
+		../Source/ui_win32/GSH_OpenGL_SettingsWnd.cpp
+		../Source/ui_win32/GSH_OpenGLWin32.cpp
+	)
+	target_link_libraries(gsh_opengl_win32 Boost::boost)
+	list(APPEND PROJECT_LIBS gsh_opengl_win32)
+	
+	add_library(gsh_d3d9 STATIC 
+		../Source/ui_win32/GSH_Direct3D9.cpp
+		../Source/ui_win32/GSH_Direct3D9_Shader.cpp
+		../Source/ui_win32/GSH_Direct3D9_Texture.cpp
+	)
+	target_link_libraries(gsh_d3d9 Boost::boost)
+	list(APPEND PROJECT_LIBS gsh_d3d9)
+	
 	include_directories(
 		../
 		../Source/ui_win32/
@@ -910,10 +930,6 @@ if(TARGET_PLATFORM_WIN32)
 		../Source/ui_win32/FrameDebugger/TabHost.cpp
 		../Source/ui_win32/FrameDebugger/Vu1ProgramView.cpp
 		../Source/ui_win32/FrameDebugger/Vu1Vm.cpp
-		../Source/ui_win32/GSH_Direct3D9.cpp
-		../Source/ui_win32/GSH_Direct3D9_Shader.cpp
-		../Source/ui_win32/GSH_Direct3D9_Texture.cpp
-		../Source/ui_win32/GSH_OpenGLWin32.cpp
 		../Source/ui_win32/IconMesh.cpp
 		../Source/ui_win32/Main.cpp
 		../Source/ui_win32/MainWindow.cpp
@@ -936,7 +952,6 @@ if(TARGET_PLATFORM_WIN32)
 		../Source/ui_win32/RegViewSCU.cpp
 		../Source/ui_win32/RegViewVU.cpp
 		../Source/ui_win32/RegViewWnd.cpp
-		../Source/ui_win32/GSH_OpenGL_SettingsWnd.cpp
 		../Source/ui_win32/SaveIconView.cpp
 		../Source/ui_win32/SaveView.cpp
 		../Source/ui_win32/StatsOverlayWindow.cpp
