@@ -968,14 +968,14 @@ add_executable(autotest
 	../tools/AutoTest/JUnitTestReportWriter.cpp
 	../tools/AutoTest/Main.cpp
 )
-target_link_libraries(autotest PlayCore)
+target_link_libraries(autotest ${PROJECT_LIBS})
 
 add_executable(McServTest
 	../tools/McServTest/AppConfig.cpp
 	../tools/McServTest/GameTestSheet.cpp
 	../tools/McServTest/Main.cpp
 )
-target_link_libraries(McServTest PlayCore)
+target_link_libraries(McServTest ${PROJECT_LIBS})
 
 add_test(NAME McServTest
 	WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/../tools/McServTest
@@ -991,7 +991,7 @@ add_executable(VuTest
 	../tools/VuTest/TriAceTest.cpp
 	../tools/VuTest/VuAssembler.cpp
 )
-target_link_libraries(VuTest PlayCore)
+target_link_libraries(VuTest ${PROJECT_LIBS})
 add_test(NAME VuTest
 	COMMAND VuTest
 )
