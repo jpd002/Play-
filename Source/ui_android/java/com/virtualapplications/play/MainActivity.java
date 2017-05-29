@@ -244,8 +244,10 @@ public class MainActivity extends AppCompatActivity implements NavigationDrawerF
 	private void displayAboutDialog()
 	{
 		Date buildDate = BuildConfig.buildTime;
-		String buildDateString = new SimpleDateFormat("yyyy/MM/dd hh:mm a", Locale.getDefault()).format(buildDate);
-		String aboutMessage = String.format("Build Date: %s", buildDateString);
+		String buildDateString = new SimpleDateFormat("yyyy/MM/dd K:mm a", Locale.getDefault()).format(buildDate);
+		String timestamp = buildDateString.substring(11, buildDateString.length()).startsWith("0:") 
+				? buildDateString.replace("0:", "12:") : buildDateString;
+		String aboutMessage = String.format("Build Date: %s", timestamp);
 		displaySimpleMessage("About Play!", aboutMessage);
 	}
 
