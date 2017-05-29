@@ -1,7 +1,6 @@
 .gradle
 build_android/build
 build_android/src/main/assets/patches.xml
-build_android/src/main/jni/ExternalDependencies.mk
 build_android/keystore.properties
 build_android/local.properties
 build_android/proguard-project.txt
