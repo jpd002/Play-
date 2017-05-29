@@ -157,7 +157,7 @@ uint32 CSIF::ReceiveDMA6(uint32 nSrcAddr, uint32 nSize, uint32 nDstAddr, bool is
 	{
 		auto hdr = reinterpret_cast<SIFCMDHEADER*>(m_eeRam + nSrcAddr);
 
-		CLog::GetInstance().Print(LOG_NAME, "Received command 0x%0.8X.\r\n", hdr->commandId);
+		CLog::GetInstance().Print(LOG_NAME, "Received command 0x%08X.\r\n", hdr->commandId);
 
 		switch(hdr->commandId)
 		{
@@ -190,7 +190,7 @@ uint32 CSIF::ReceiveDMA6(uint32 nSrcAddr, uint32 nSize, uint32 nDstAddr, bool is
 	else
 	{
 		assert(nDstAddr < PS2::IOP_RAM_SIZE);
-		CLog::GetInstance().Print(LOG_NAME, "WriteToIop(dstAddr = 0x%0.8X, srcAddr = 0x%0.8X, size = 0x%0.8X);\r\n", 
+		CLog::GetInstance().Print(LOG_NAME, "WriteToIop(dstAddr = 0x%08X, srcAddr = 0x%08X, size = 0x%08X);\r\n", 
 			nDstAddr, nSrcAddr, nSize);
 		nSize &= 0x7FFFFFFF;		//Fix for Gregory Horror Show's crash
 		if(nDstAddr >= 0 && nDstAddr <= CIopBios::CONTROL_BLOCK_END)
@@ -441,7 +441,7 @@ void CSIF::Cmd_Bind(const SIFCMDHEADER* hdr)
 	rend.buffer             = RPC_RECVADDR;
 	rend.cbuffer            = 0xDEADCAFE;
 
-	CLog::GetInstance().Print(LOG_NAME, "Bound client data (0x%0.8X) with server id 0x%0.8X.\r\n", bind->clientDataAddr, bind->serverId);
+	CLog::GetInstance().Print(LOG_NAME, "Bound client data (0x%08X) with server id 0x%08X.\r\n", bind->clientDataAddr, bind->serverId);
 
 	auto moduleIterator(m_modules.find(bind->serverId));
 	if(moduleIterator != m_modules.end())
@@ -460,7 +460,7 @@ void CSIF::Cmd_Call(const SIFCMDHEADER* hdr)
 	auto call = reinterpret_cast<const SIFRPCCALL*>(hdr);
 	bool sendReply = true;
 
-	CLog::GetInstance().Print(LOG_NAME, "Calling function 0x%0.8X of module 0x%0.8X.\r\n", call->rpcNumber, call->serverDataAddr);
+	CLog::GetInstance().Print(LOG_NAME, "Calling function 0x%08X of module 0x%08X.\r\n", call->rpcNumber, call->serverDataAddr);
 
 	uint32 nRecvAddr = (call->recv & (PS2::EE_RAM_SIZE - 1));
 
@@ -475,7 +475,7 @@ void CSIF::Cmd_Call(const SIFCMDHEADER* hdr)
 	}
 	else
 	{
-		CLog::GetInstance().Print(LOG_NAME, "Called an unknown module (0x%0.8X).\r\n", call->serverDataAddr);
+		CLog::GetInstance().Print(LOG_NAME, "Called an unknown module (0x%08X).\r\n", call->serverDataAddr);
 	}
 
 	{
@@ -512,7 +512,7 @@ void CSIF::Cmd_GetOtherData(const SIFCMDHEADER* hdr)
 {
 	auto otherData = reinterpret_cast<const SIFRPCOTHERDATA*>(hdr);
 
-	CLog::GetInstance().Print(LOG_NAME, "GetOtherData(dstPtr = 0x%0.8X, srcPtr = 0x%0.8X, size = 0x%0.8X);\r\n",
+	CLog::GetInstance().Print(LOG_NAME, "GetOtherData(dstPtr = 0x%08X, srcPtr = 0x%08X, size = 0x%08X);\r\n",
 		otherData->dstPtr, otherData->srcPtr, otherData->size);
 
 	uint32 dstPtr = otherData->dstPtr & (PS2::EE_RAM_SIZE - 1);
@@ -579,7 +579,7 @@ uint32 CSIF::GetRegister(uint32 nRegister)
 		nRegister &= ~0x80000000;
 		if(nRegister >= MAX_USERREG)
 		{
-			printf("SIF: Warning. Trying to read an unimplemented user register (0x%0.8X).\r\n", nRegister | 0x80000000);
+			printf("SIF: Warning. Trying to read an unimplemented user register (0x%08X).\r\n", nRegister | 0x80000000);
 			return 0;
 		}
 		return m_nUserReg[nRegister];
@@ -609,7 +609,7 @@ uint32 CSIF::GetRegister(uint32 nRegister)
 			return 1;
 			break;
 		default:
-			CLog::GetInstance().Print(LOG_NAME, "Warning. Trying to read an invalid system register (0x%0.8X).\r\n", nRegister);
+			CLog::GetInstance().Print(LOG_NAME, "Warning. Trying to read an invalid system register (0x%08X).\r\n", nRegister);
 			return 0;
 			break;
 		}
@@ -624,7 +624,7 @@ void CSIF::SetRegister(uint32 nRegister, uint32 nValue)
 		nRegister &= ~0x80000000;
 		if(nRegister >= MAX_USERREG)
 		{
-			printf("SIF: Warning. Trying to write to an unimplemented user register (0x%0.8X).\r\n", nRegister | 0x80000000);
+			printf("SIF: Warning. Trying to write to an unimplemented user register (0x%08X).\r\n", nRegister | 0x80000000);
 			return;
 		}
 		m_nUserReg[nRegister] = nValue;
@@ -646,7 +646,7 @@ void CSIF::SetRegister(uint32 nRegister, uint32 nValue)
 			//Set by RPC library (initialized state?)
 			break;
 		default:
-			CLog::GetInstance().Print(LOG_NAME, "Warning. Trying to write to an invalid system register (0x%0.8X).\r\n", nRegister);
+			CLog::GetInstance().Print(LOG_NAME, "Warning. Trying to write to an invalid system register (0x%08X).\r\n", nRegister);
 			break;
 		}
 	}

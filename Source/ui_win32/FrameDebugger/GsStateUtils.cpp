@@ -186,7 +186,7 @@ std::string CGsStateUtils::GetInputState(CGSHandler* gs)
 		float posX = static_cast<float>((vertex.nPosition >>  0) & 0xFFFF) / 16;
 		float posY = static_cast<float>((vertex.nPosition >> 16) & 0xFFFF) / 16;
 		uint32 posZ = static_cast<uint32>(vertex.nPosition >> 32);
-		result += string_format("\tVertex %i:  %+10.4f  %+10.4f  0x%0.8X  %+10.4f  %+10.4f\r\n", 
+		result += string_format("\tVertex %i:  %+10.4f  %+10.4f  0x%08X  %+10.4f  %+10.4f\r\n", 
 			i, posX, posY, posZ, posX - xyOffset.GetX(), posY - xyOffset.GetY());
 	}
 
@@ -214,7 +214,7 @@ std::string CGsStateUtils::GetInputState(CGSHandler* gs)
 		auto vertex = vertices[i];
 		CGSHandler::RGBAQ rgbaq;
 		rgbaq <<= vertex.nRGBAQ;
-		result += string_format("\tVertex %i:        0x%0.2X        0x%0.2X        0x%0.2X        0x%0.2X\r\n", 
+		result += string_format("\tVertex %i:        0x%02X        0x%02X        0x%02X        0x%02X\r\n", 
 			i, rgbaq.nR, rgbaq.nG, rgbaq.nB, rgbaq.nA);
 	}
 
@@ -223,7 +223,7 @@ std::string CGsStateUtils::GetInputState(CGSHandler* gs)
 	for(unsigned int i = 0; i < 3; i++)
 	{
 		auto vertex = vertices[i];
-		result += string_format("\tVertex %i:        0x%0.2X\r\n", 
+		result += string_format("\tVertex %i:        0x%02X\r\n", 
 			i, vertex.nFog);
 	}
 
@@ -237,16 +237,16 @@ std::string CGsStateUtils::GetContextState(CGSHandler* gs, unsigned int contextI
 	{
 		auto frame = make_convertible<CGSHandler::FRAME>(gs->GetRegisters()[GS_REG_FRAME_1 + contextId]);
 		result += string_format("Frame Buffer:\r\n");
-		result += string_format("\tPtr: 0x%0.8X\r\n", frame.GetBasePtr());
+		result += string_format("\tPtr: 0x%08X\r\n", frame.GetBasePtr());
 		result += string_format("\tWidth: %d\r\n", frame.GetWidth());
 		result += string_format("\tFormat: %s\r\n", g_pixelFormats[frame.nPsm]);
-		result += string_format("\tWrite Mask: 0x%0.8X\r\n", ~frame.nMask);
+		result += string_format("\tWrite Mask: 0x%08X\r\n", ~frame.nMask);
 	}
 
 	{
 		auto zbuf = make_convertible<CGSHandler::ZBUF>(gs->GetRegisters()[GS_REG_ZBUF_1 + contextId]);
 		result += string_format("Depth Buffer:\r\n");
-		result += string_format("\tPtr: 0x%0.8X\r\n", zbuf.GetBasePtr());
+		result += string_format("\tPtr: 0x%08X\r\n", zbuf.GetBasePtr());
 		result += string_format("\tFormat: %s\r\n", g_pixelFormats[zbuf.nPsm | 0x30]);
 		result += string_format("\tWrite Enabled: %s\r\n", g_yesNoString[(zbuf.nMask == 0)]);
 	}
@@ -255,14 +255,14 @@ std::string CGsStateUtils::GetContextState(CGSHandler* gs, unsigned int contextI
 		auto tex0 = make_convertible<CGSHandler::TEX0>(gs->GetRegisters()[GS_REG_TEX0_1 + contextId]);
 		auto tex1 = make_convertible<CGSHandler::TEX1>(gs->GetRegisters()[GS_REG_TEX1_1 + contextId]);
 		result += string_format("Texture:\r\n");
-		result += string_format("\tPtr: 0x%0.8X\r\n", tex0.GetBufPtr());
+		result += string_format("\tPtr: 0x%08X\r\n", tex0.GetBufPtr());
 		result += string_format("\tBuffer Width: %d\r\n", tex0.GetBufWidth());
 		result += string_format("\tFormat: %s\r\n", g_pixelFormats[tex0.nPsm]);
 		result += string_format("\tWidth: %d\r\n", tex0.GetWidth());
 		result += string_format("\tHeight: %d\r\n", tex0.GetHeight());
 		result += string_format("\tHas Alpha Component: %s\r\n", g_yesNoString[tex0.nColorComp]);
 		result += string_format("\tFunction: %s\r\n", g_textureFunctionString[tex0.nFunction]);
-		result += string_format("\tCLUT Ptr: 0x%0.8X\r\n", tex0.GetCLUTPtr());
+		result += string_format("\tCLUT Ptr: 0x%08X\r\n", tex0.GetCLUTPtr());
 		result += string_format("\tCLUT Format: %s\r\n", g_pixelFormats[tex0.nCPSM]);
 		result += string_format("\tCLUT Storage Mode: %d\r\n", tex0.nCSM + 1);
 		result += string_format("\tCLUT Entry Offset: %d\r\n", tex0.nCSA * 16);
@@ -280,19 +280,19 @@ std::string CGsStateUtils::GetContextState(CGSHandler* gs, unsigned int contextI
 		auto miptbp1 = make_convertible<CGSHandler::MIPTBP1>(gs->GetRegisters()[GS_REG_MIPTBP1_1 + contextId]);
 		auto miptbp2 = make_convertible<CGSHandler::MIPTBP2>(gs->GetRegisters()[GS_REG_MIPTBP2_1 + contextId]);
 		result += string_format("Mipmap:\r\n");
-		result += string_format("\tLevel 1: 0x%0.8X, %d\r\n", miptbp1.GetTbp1(), miptbp1.GetTbw1());
-		result += string_format("\tLevel 2: 0x%0.8X, %d\r\n", miptbp1.GetTbp2(), miptbp1.GetTbw2());
-		result += string_format("\tLevel 3: 0x%0.8X, %d\r\n", miptbp1.GetTbp3(), miptbp1.GetTbw3());
-		result += string_format("\tLevel 4: 0x%0.8X, %d\r\n", miptbp2.GetTbp4(), miptbp2.GetTbw4());
-		result += string_format("\tLevel 5: 0x%0.8X, %d\r\n", miptbp2.GetTbp5(), miptbp2.GetTbw5());
-		result += string_format("\tLevel 6: 0x%0.8X, %d\r\n", miptbp2.GetTbp6(), miptbp2.GetTbw6());
+		result += string_format("\tLevel 1: 0x%08X, %d\r\n", miptbp1.GetTbp1(), miptbp1.GetTbw1());
+		result += string_format("\tLevel 2: 0x%08X, %d\r\n", miptbp1.GetTbp2(), miptbp1.GetTbw2());
+		result += string_format("\tLevel 3: 0x%08X, %d\r\n", miptbp1.GetTbp3(), miptbp1.GetTbw3());
+		result += string_format("\tLevel 4: 0x%08X, %d\r\n", miptbp2.GetTbp4(), miptbp2.GetTbw4());
+		result += string_format("\tLevel 5: 0x%08X, %d\r\n", miptbp2.GetTbp5(), miptbp2.GetTbw5());
+		result += string_format("\tLevel 6: 0x%08X, %d\r\n", miptbp2.GetTbp6(), miptbp2.GetTbw6());
 	}
 
 	{
 		auto texA = make_convertible<CGSHandler::TEXA>(gs->GetRegisters()[GS_REG_TEXA]);
 		result += string_format("Texture Alpha:\r\n");
-		result += string_format("\tAlpha 0: 0x%0.2X\r\n", texA.nTA0);
-		result += string_format("\tAlpha 1: 0x%0.2X\r\n", texA.nTA1);
+		result += string_format("\tAlpha 0: 0x%02X\r\n", texA.nTA0);
+		result += string_format("\tAlpha 1: 0x%02X\r\n", texA.nTA1);
 		result += string_format("\tBlack Is Transparent: %s\r\n", g_yesNoString[texA.nAEM]);
 	}
 
@@ -317,7 +317,7 @@ std::string CGsStateUtils::GetContextState(CGSHandler* gs, unsigned int contextI
 		result += string_format("Alpha Testing:\r\n");
 		result += string_format("\tEnabled: %s\r\n", g_yesNoString[test.nAlphaEnabled]);
 		result += string_format("\tFunction: %s\r\n", g_alphaTestFunctionString[test.nAlphaMethod]);
-		result += string_format("\tRef Value: 0x%0.2X\r\n", test.nAlphaRef);
+		result += string_format("\tRef Value: 0x%02X\r\n", test.nAlphaRef);
 		result += string_format("\tFail Op: %s\r\n", g_alphaTestFailOpString[test.nAlphaFail]);
 	}
 
@@ -328,7 +328,7 @@ std::string CGsStateUtils::GetContextState(CGSHandler* gs, unsigned int contextI
 		result += string_format("\tFormula: (%s - %s) * %s + %s\r\n", 
 			g_alphaBlendAbdCoefString[alpha.nA], g_alphaBlendAbdCoefString[alpha.nB],
 			g_alphaBlendCCoefString[alpha.nC], g_alphaBlendAbdCoefString[alpha.nD]);
-		result += string_format("\tFixed Value: 0x%0.2X\r\n", alpha.nFix);
+		result += string_format("\tFixed Value: 0x%02X\r\n", alpha.nFix);
 	}
 
 	result += "\r\n";

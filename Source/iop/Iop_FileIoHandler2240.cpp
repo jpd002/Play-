@@ -337,7 +337,7 @@ uint32 CFileIoHandler2240::InvokeDevctl(uint32* args, uint32 argsSize, uint32* r
 		output[0] = 2;	//Disk ready
 		break;
 	default:
-		CLog::GetInstance().Print(LOG_NAME, "DevCtl -> Unknown(cmd = %0.8X);\r\n", command->cmdId);
+		CLog::GetInstance().Print(LOG_NAME, "DevCtl -> Unknown(cmd = %08X);\r\n", command->cmdId);
 		break;
 	}
 

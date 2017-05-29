@@ -280,7 +280,7 @@ void CPS2OS::DumpIntcHandlers()
 		auto handler = m_intcHandlers[i + 1];
 		if(handler == nullptr) continue;
 
-		printf("ID: %0.2i, Line: %i, Address: 0x%0.8X.\r\n", \
+		printf("ID: %02i, Line: %i, Address: 0x%08X.\r\n", \
 			i + 1,
 			handler->cause,
 			handler->address);
@@ -297,7 +297,7 @@ void CPS2OS::DumpDmacHandlers()
 		auto handler = m_dmacHandlers[i + 1];
 		if(handler == nullptr) continue;
 
-		printf("ID: %0.2i, Channel: %i, Address: 0x%0.8X.\r\n", \
+		printf("ID: %02i, Channel: %i, Address: 0x%08X.\r\n", \
 			i + 1,
 			handler->channel,
 			handler->address);
@@ -501,7 +501,7 @@ void CPS2OS::LoadExecutableInternal()
 				}
 				else
 				{
-					sprintf(syscallName, "syscall_%0.4X", syscallId);
+					sprintf(syscallName, "syscall_%04X", syscallId);
 				}
 				m_ee.m_Functions.InsertTag(address - 4, syscallName);
 			}
@@ -1385,7 +1385,7 @@ uint32 CPS2OS::TranslateAddress(CMIPS*, uint32 vaddrLo)
 
 void CPS2OS::sc_Unhandled()
 {
-	CLog::GetInstance().Print(LOG_NAME, "Unknown system call (0x%X) called from 0x%0.8X.\r\n", m_ee.m_State.nGPR[3].nV[0], m_ee.m_State.nPC);
+	CLog::GetInstance().Print(LOG_NAME, "Unknown system call (0x%X) called from 0x%08X.\r\n", m_ee.m_State.nGPR[3].nV[0], m_ee.m_State.nPC);
 }
 
 //02
@@ -2712,7 +2712,7 @@ void CPS2OS::sc_Deci2Call()
 		}
 		break;
 	default:
-		CLog::GetInstance().Print(LOG_NAME, "Unknown Deci2Call function (0x%0.8X) called. PC: 0x%0.8X.\r\n", function, m_ee.m_State.nPC);
+		CLog::GetInstance().Print(LOG_NAME, "Unknown Deci2Call function (0x%08X) called. PC: 0x%08X.\r\n", function, m_ee.m_State.nPC);
 		break;
 	}
 
@@ -2744,7 +2744,7 @@ void CPS2OS::HandleSyscall()
 	if(callInstruction != 0x0000000C)
 	{
 		//This will happen if an ADDIU R0, R0, $x instruction is encountered. Not sure if there's a use for that on the EE
-		CLog::GetInstance().Print(LOG_NAME, "System call exception occured but no SYSCALL instruction found (addr = 0x%0.8X, opcode = 0x%0.8X).\r\n",
+		CLog::GetInstance().Print(LOG_NAME, "System call exception occured but no SYSCALL instruction found (addr = 0x%08X, opcode = 0x%08X).\r\n",
 			searchAddress, callInstruction);
 		m_ee.m_State.nHasException = 0;
 		return;
@@ -2814,20 +2814,20 @@ std::string CPS2OS::GetSysCallDescription(uint8 function)
 		sprintf(description, SYSCALL_NAME_EXIT "();");
 		break;
 	case 0x06:
-		sprintf(description, SYSCALL_NAME_LOADEXECPS2 "(exec = 0x%0.8X, argc = %d, argv = 0x%0.8X);",
+		sprintf(description, SYSCALL_NAME_LOADEXECPS2 "(exec = 0x%08X, argc = %d, argv = 0x%08X);",
 			m_ee.m_State.nGPR[SC_PARAM0].nV[0],
 			m_ee.m_State.nGPR[SC_PARAM1].nV[0],
 			m_ee.m_State.nGPR[SC_PARAM2].nV[0]);
 		break;
 	case 0x07:
-		sprintf(description, SYSCALL_NAME_EXECPS2 "(pc = 0x%0.8X, gp = 0x%0.8X, argc = %d, argv = 0x%0.8X);",
+		sprintf(description, SYSCALL_NAME_EXECPS2 "(pc = 0x%08X, gp = 0x%08X, argc = %d, argv = 0x%08X);",
 			m_ee.m_State.nGPR[SC_PARAM0].nV[0],
 			m_ee.m_State.nGPR[SC_PARAM0].nV[1],
 			m_ee.m_State.nGPR[SC_PARAM0].nV[2],
 			m_ee.m_State.nGPR[SC_PARAM0].nV[3]);
 		break;
 	case 0x10:
-		sprintf(description, SYSCALL_NAME_ADDINTCHANDLER "(cause = %i, address = 0x%0.8X, next = 0x%0.8X, arg = 0x%0.8X);",
+		sprintf(description, SYSCALL_NAME_ADDINTCHANDLER "(cause = %i, address = 0x%08X, next = 0x%08X, arg = 0x%08X);",
 			m_ee.m_State.nGPR[SC_PARAM0].nV[0],
 			m_ee.m_State.nGPR[SC_PARAM1].nV[0],
 			m_ee.m_State.nGPR[SC_PARAM2].nV[0],
@@ -2839,7 +2839,7 @@ std::string CPS2OS::GetSysCallDescription(uint8 function)
 			m_ee.m_State.nGPR[SC_PARAM1].nV[0]);
 		break;
 	case 0x12:
-		sprintf(description, SYSCALL_NAME_ADDDMACHANDLER "(channel = %i, address = 0x%0.8X, next = %i, arg = %i);", \
+		sprintf(description, SYSCALL_NAME_ADDDMACHANDLER "(channel = %i, address = 0x%08X, next = %i, arg = %i);", \
 			m_ee.m_State.nGPR[SC_PARAM0].nV[0], \
 			m_ee.m_State.nGPR[SC_PARAM1].nV[0], \
 			m_ee.m_State.nGPR[SC_PARAM2].nV[0], \
@@ -2867,7 +2867,7 @@ std::string CPS2OS::GetSysCallDescription(uint8 function)
 			m_ee.m_State.nGPR[SC_PARAM0].nV[0]);
 		break;
 	case 0x18:
-		sprintf(description, SYSCALL_NAME_SETALARM "(time = %d, proc = 0x%0.8X, arg = 0x%0.8X);",
+		sprintf(description, SYSCALL_NAME_SETALARM "(time = %d, proc = 0x%08X, arg = 0x%08X);",
 			m_ee.m_State.nGPR[SC_PARAM0].nV[0], 
 			m_ee.m_State.nGPR[SC_PARAM1].nV[0], 
 			m_ee.m_State.nGPR[SC_PARAM2].nV[0]);
@@ -2893,15 +2893,15 @@ std::string CPS2OS::GetSysCallDescription(uint8 function)
 			m_ee.m_State.nGPR[SC_PARAM0].nV[0]);
 		break;
 	case 0x20:
-		sprintf(description, SYSCALL_NAME_CREATETHREAD "(thread = 0x%0.8X);", \
+		sprintf(description, SYSCALL_NAME_CREATETHREAD "(thread = 0x%08X);", \
 			m_ee.m_State.nGPR[SC_PARAM0].nV[0]);
 		break;
 	case 0x21:
-		sprintf(description, SYSCALL_NAME_DELETETHREAD "(id = 0x%0.8X);", \
+		sprintf(description, SYSCALL_NAME_DELETETHREAD "(id = 0x%08X);", \
 			m_ee.m_State.nGPR[SC_PARAM0].nV[0]);
 		break;
 	case 0x22:
-		sprintf(description, SYSCALL_NAME_STARTTHREAD "(id = 0x%0.8X, a0 = 0x%0.8X);", \
+		sprintf(description, SYSCALL_NAME_STARTTHREAD "(id = 0x%08X, a0 = 0x%08X);", \
 			m_ee.m_State.nGPR[SC_PARAM0].nV[0], \
 			m_ee.m_State.nGPR[SC_PARAM1].nV[0]);
 		break;
@@ -2912,16 +2912,16 @@ std::string CPS2OS::GetSysCallDescription(uint8 function)
 		sprintf(description, SYSCALL_NAME_EXITDELETETHREAD "();");
 		break;
 	case 0x25:
-		sprintf(description, SYSCALL_NAME_TERMINATETHREAD "(id = 0x%0.8X);", \
+		sprintf(description, SYSCALL_NAME_TERMINATETHREAD "(id = 0x%08X);", \
 			m_ee.m_State.nGPR[SC_PARAM0].nV[0]);
 		break;
 	case 0x29:
-		sprintf(description, SYSCALL_NAME_CHANGETHREADPRIORITY "(id = 0x%0.8X, priority = %i);", \
+		sprintf(description, SYSCALL_NAME_CHANGETHREADPRIORITY "(id = 0x%08X, priority = %i);", \
 			m_ee.m_State.nGPR[SC_PARAM0].nV[0], \
 			m_ee.m_State.nGPR[SC_PARAM1].nV[0]);
 		break;
 	case 0x2A:
-		sprintf(description, SYSCALL_NAME_ICHANGETHREADPRIORITY "(id = 0x%0.8X, priority = %i);", \
+		sprintf(description, SYSCALL_NAME_ICHANGETHREADPRIORITY "(id = 0x%08X, priority = %i);", \
 			m_ee.m_State.nGPR[SC_PARAM0].nV[0], \
 			m_ee.m_State.nGPR[SC_PARAM1].nV[0]);
 		break;
@@ -2933,12 +2933,12 @@ std::string CPS2OS::GetSysCallDescription(uint8 function)
 		sprintf(description, SYSCALL_NAME_GETTHREADID "();");
 		break;
 	case 0x30:
-		sprintf(description, SYSCALL_NAME_REFERTHREADSTATUS "(threadId = %d, infoPtr = 0x%0.8X);",
+		sprintf(description, SYSCALL_NAME_REFERTHREADSTATUS "(threadId = %d, infoPtr = 0x%08X);",
 			m_ee.m_State.nGPR[SC_PARAM0].nV[0],
 			m_ee.m_State.nGPR[SC_PARAM1].nV[0]);
 		break;
 	case 0x31:
-		sprintf(description, SYSCALL_NAME_IREFERTHREADSTATUS "(threadId = %d, infoPtr = 0x%0.8X);",
+		sprintf(description, SYSCALL_NAME_IREFERTHREADSTATUS "(threadId = %d, infoPtr = 0x%08X);",
 			m_ee.m_State.nGPR[SC_PARAM0].nV[0],
 			m_ee.m_State.nGPR[SC_PARAM1].nV[0]);
 		break;
@@ -2974,7 +2974,7 @@ std::string CPS2OS::GetSysCallDescription(uint8 function)
 			m_ee.m_State.nGPR[SC_PARAM0].nV[0]);
 		break;
 	case 0x3C:
-		sprintf(description, "SetupThread(gp = 0x%0.8X, stack = 0x%0.8X, stack_size = 0x%0.8X, args = 0x%0.8X, root_func = 0x%0.8X);", \
+		sprintf(description, "SetupThread(gp = 0x%08X, stack = 0x%08X, stack_size = 0x%08X, args = 0x%08X, root_func = 0x%08X);", \
 			m_ee.m_State.nGPR[SC_PARAM0].nV[0], \
 			m_ee.m_State.nGPR[SC_PARAM1].nV[0], \
 			m_ee.m_State.nGPR[SC_PARAM2].nV[0], \
@@ -2982,7 +2982,7 @@ std::string CPS2OS::GetSysCallDescription(uint8 function)
 			m_ee.m_State.nGPR[SC_PARAM4].nV[0]);
 		break;
 	case 0x3D:
-		sprintf(description, "SetupHeap(heap_start = 0x%0.8X, heap_size = 0x%0.8X);", \
+		sprintf(description, "SetupHeap(heap_start = 0x%08X, heap_size = 0x%08X);", \
 			m_ee.m_State.nGPR[SC_PARAM0].nV[0], \
 			m_ee.m_State.nGPR[SC_PARAM1].nV[0]);
 		break;
@@ -2990,7 +2990,7 @@ std::string CPS2OS::GetSysCallDescription(uint8 function)
 		sprintf(description, SYSCALL_NAME_ENDOFHEAP "();");
 		break;
 	case 0x40:
-		sprintf(description, SYSCALL_NAME_CREATESEMA "(sema = 0x%0.8X);", \
+		sprintf(description, SYSCALL_NAME_CREATESEMA "(sema = 0x%08X);", \
 			m_ee.m_State.nGPR[SC_PARAM0].nV[0]);
 		break;
 	case 0x41:
@@ -3018,12 +3018,12 @@ std::string CPS2OS::GetSysCallDescription(uint8 function)
 			m_ee.m_State.nGPR[SC_PARAM0].nV[0]);
 		break;
 	case 0x47:
-		sprintf(description, SYSCALL_NAME_REFERSEMASTATUS "(semaid = %i, status = 0x%0.8X);",
+		sprintf(description, SYSCALL_NAME_REFERSEMASTATUS "(semaid = %i, status = 0x%08X);",
 			m_ee.m_State.nGPR[SC_PARAM0].nV[0],
 			m_ee.m_State.nGPR[SC_PARAM1].nV[0]);
 		break;
 	case 0x48:
-		sprintf(description, SYSCALL_NAME_IREFERSEMASTATUS "(semaid = %i, status = 0x%0.8X);",
+		sprintf(description, SYSCALL_NAME_IREFERSEMASTATUS "(semaid = %i, status = 0x%08X);",
 			m_ee.m_State.nGPR[SC_PARAM0].nV[0],
 			m_ee.m_State.nGPR[SC_PARAM1].nV[0]);
 		break;
@@ -3037,16 +3037,16 @@ std::string CPS2OS::GetSysCallDescription(uint8 function)
 		sprintf(description, SYSCALL_NAME_GSGETIMR "();");
 		break;
 	case 0x71:
-		sprintf(description, SYSCALL_NAME_GSPUTIMR "(GS_IMR = 0x%0.8X);", \
+		sprintf(description, SYSCALL_NAME_GSPUTIMR "(GS_IMR = 0x%08X);", \
 			m_ee.m_State.nGPR[SC_PARAM0].nV[0]);
 		break;
 	case 0x73:
-		sprintf(description, SYSCALL_NAME_SETVSYNCFLAG "(ptr1 = 0x%0.8X, ptr2 = 0x%0.8X);", \
+		sprintf(description, SYSCALL_NAME_SETVSYNCFLAG "(ptr1 = 0x%08X, ptr2 = 0x%08X);", \
 			m_ee.m_State.nGPR[SC_PARAM0].nV[0], \
 			m_ee.m_State.nGPR[SC_PARAM1].nV[0]);
 		break;
 	case 0x74:
-		sprintf(description, SYSCALL_NAME_SETSYSCALL "(num = 0x%0.2X, address = 0x%0.8X);", \
+		sprintf(description, SYSCALL_NAME_SETSYSCALL "(num = 0x%02X, address = 0x%08X);", \
 			m_ee.m_State.nGPR[SC_PARAM0].nV[0], \
 			m_ee.m_State.nGPR[SC_PARAM1].nV[0]);
 		break;
@@ -3054,7 +3054,7 @@ std::string CPS2OS::GetSysCallDescription(uint8 function)
 		sprintf(description, SYSCALL_NAME_SIFDMASTAT "();");
 		break;
 	case 0x77:
-		sprintf(description, SYSCALL_NAME_SIFSETDMA "(list = 0x%0.8X, count = %i);", \
+		sprintf(description, SYSCALL_NAME_SIFSETDMA "(list = 0x%08X, count = %i);", \
 			m_ee.m_State.nGPR[SC_PARAM0].nV[0], \
 			m_ee.m_State.nGPR[SC_PARAM1].nV[0]);
 		break;
@@ -3062,16 +3062,16 @@ std::string CPS2OS::GetSysCallDescription(uint8 function)
 		sprintf(description, SYSCALL_NAME_SIFSETDCHAIN "();");
 		break;
 	case 0x79:
-		sprintf(description, "SifSetReg(register = 0x%0.8X, value = 0x%0.8X);", \
+		sprintf(description, "SifSetReg(register = 0x%08X, value = 0x%08X);", \
 			m_ee.m_State.nGPR[SC_PARAM0].nV[0], \
 			m_ee.m_State.nGPR[SC_PARAM1].nV[0]);
 		break;
 	case 0x7A:
-		sprintf(description, "SifGetReg(register = 0x%0.8X);", \
+		sprintf(description, "SifGetReg(register = 0x%08X);", \
 			m_ee.m_State.nGPR[SC_PARAM0].nV[0]);
 		break;
 	case 0x7C:
-		sprintf(description, SYSCALL_NAME_DECI2CALL "(func = 0x%0.8X, param = 0x%0.8X);",
+		sprintf(description, SYSCALL_NAME_DECI2CALL "(func = 0x%08X, param = 0x%08X);",
 			m_ee.m_State.nGPR[SC_PARAM0].nV[0],
 			m_ee.m_State.nGPR[SC_PARAM1].nV[0]);
 		break;

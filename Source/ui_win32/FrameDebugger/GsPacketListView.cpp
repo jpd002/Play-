@@ -74,7 +74,7 @@ void CGsPacketListView::SetFrameDump(CFrameDump* frameDump)
 		}
 		else
 		{
-			packetDescription = string_cast<std::tstring>(string_format("Image Packet (Size: 0x%0.8X)", 
+			packetDescription = string_cast<std::tstring>(string_format("Image Packet (Size: 0x%08X)", 
 				packet.imageData.size()));
 		}
 
@@ -238,7 +238,7 @@ void CGsPacketListView::OnPacketsTreeViewItemExpanding(NMTREEVIEW* treeView)
 		for(const auto& registerWrite : packet.registerWrites)
 		{
 			auto packetWriteDescription = CGSHandler::DisassembleWrite(registerWrite.first, registerWrite.second);
-			auto treeItemText = string_format("%0.4X: %s", cmdIndex - packetInfo.cmdIndexStart, packetWriteDescription.c_str());
+			auto treeItemText = string_format("%04X: %s", cmdIndex - packetInfo.cmdIndexStart, packetWriteDescription.c_str());
 			HTREEITEM newItem = m_packetsTreeView->InsertItem(treeView->itemNew.hItem, string_cast<std::tstring>(treeItemText).c_str());
 
 			auto& writeInfo = m_writeInfos[cmdIndex];

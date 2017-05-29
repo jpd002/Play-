@@ -88,7 +88,7 @@ bool CMcServ::Invoke(uint32 method, uint32* args, uint32 argsSize, uint32* ret, 
 		GetVersionInformation(args, argsSize, ret, retSize, ram);
 		break;
 	default:
-		CLog::GetInstance().Print(LOG_NAME, "Unknown method invoked (0x%0.8X).\r\n", method);
+		CLog::GetInstance().Print(LOG_NAME, "Unknown method invoked (0x%08X).\r\n", method);
 		break;
 	}
 	return true;
@@ -107,7 +107,7 @@ void CMcServ::GetInfo(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize
 	bool wantType		= args[5] != 0;
 	uint32* retBuffer	= reinterpret_cast<uint32*>(&ram[args[7]]);
 
-	CLog::GetInstance().Print(LOG_NAME, "GetInfo(port = %i, slot = %i, wantType = %i, wantFreeSpace = %i, wantFormatted = %i, retBuffer = 0x%0.8X);\r\n",
+	CLog::GetInstance().Print(LOG_NAME, "GetInfo(port = %i, slot = %i, wantType = %i, wantFreeSpace = %i, wantFormatted = %i, retBuffer = 0x%08X);\r\n",
 		port, slot, wantType, wantFreeSpace, wantFormatted, args[7]);
 
 	if(wantType)
@@ -247,7 +247,7 @@ void CMcServ::Seek(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, u
 {
 	FILECMD* cmd = reinterpret_cast<FILECMD*>(args);
 
-	CLog::GetInstance().Print(LOG_NAME, "Seek(handle = %i, offset = 0x%0.8X, origin = 0x%0.8X);\r\n",
+	CLog::GetInstance().Print(LOG_NAME, "Seek(handle = %i, offset = 0x%08X, origin = 0x%08X);\r\n",
 		cmd->handle, cmd->offset, cmd->origin);
 
 	auto file = GetFileFromHandle(cmd->handle);
@@ -283,7 +283,7 @@ void CMcServ::Read(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, u
 {
 	FILECMD* cmd = reinterpret_cast<FILECMD*>(args);
 
-	CLog::GetInstance().Print(LOG_NAME, "Read(handle = %i, size = 0x%0.8X, bufferAddress = 0x%0.8X, paramAddress = 0x%0.8X);\r\n",
+	CLog::GetInstance().Print(LOG_NAME, "Read(handle = %i, size = 0x%08X, bufferAddress = 0x%08X, paramAddress = 0x%08X);\r\n",
 		cmd->handle, cmd->size, cmd->bufferAddress, cmd->paramAddress);
 
 	auto file = GetFileFromHandle(cmd->handle);
@@ -311,7 +311,7 @@ void CMcServ::Write(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, 
 {
 	FILECMD* cmd = reinterpret_cast<FILECMD*>(args);
 
-	CLog::GetInstance().Print(LOG_NAME, "Write(handle = %i, nSize = 0x%0.8X, bufferAddress = 0x%0.8X, origin = 0x%0.8X);\r\n",
+	CLog::GetInstance().Print(LOG_NAME, "Write(handle = %i, nSize = 0x%08X, bufferAddress = 0x%08X, origin = 0x%08X);\r\n",
 		cmd->handle, cmd->size, cmd->bufferAddress, cmd->origin);
 
 	auto file = GetFileFromHandle(cmd->handle);
@@ -360,7 +360,7 @@ void CMcServ::ChDir(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, 
 	assert(argsSize >= 0x414);
 	CMD* cmd = reinterpret_cast<CMD*>(args);
 
-	CLog::GetInstance().Print(LOG_NAME, "ChDir(port = %i, slot = %i, tableAddress = 0x%0.8X, name = %s);\r\n",
+	CLog::GetInstance().Print(LOG_NAME, "ChDir(port = %i, slot = %i, tableAddress = 0x%08X, name = %s);\r\n",
 							  cmd->port, cmd->slot, cmd->tableAddress, cmd->name);
 
 	uint32 result = -1;
@@ -416,7 +416,7 @@ void CMcServ::GetDir(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize,
 
 	auto cmd = reinterpret_cast<const CMD*>(args);
 
-	CLog::GetInstance().Print(LOG_NAME, "GetDir(port = %i, slot = %i, flags = %i, maxEntries = %i, tableAddress = 0x%0.8X, name = %s);\r\n",
+	CLog::GetInstance().Print(LOG_NAME, "GetDir(port = %i, slot = %i, flags = %i, maxEntries = %i, tableAddress = 0x%08X, name = %s);\r\n",
 		cmd->port, cmd->slot, cmd->flags, cmd->maxEntries, cmd->tableAddress, cmd->name);
 
 	if(cmd->port > 1)

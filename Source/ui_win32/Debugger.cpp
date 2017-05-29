@@ -293,7 +293,7 @@ void CDebugger::ReanalyzeEe()
 		[this] (const TCHAR* prompt, uint32& address)
 		{
 			Framework::Win32::CInputBox addressInputBox(_T("Analyze EE"), prompt, 
-				string_format(_T("0x%0.8X"), address).c_str());
+				string_format(_T("0x%08X"), address).c_str());
 			auto addrValue = addressInputBox.GetValue(m_hWnd);
 			if(addrValue == nullptr) return false;
 			uint32 addrValueTemp = 0;
@@ -839,12 +839,12 @@ void CDebugger::OnFindCallersRequested(uint32 address)
 			auto functionName = context->m_Functions.Find(address);
 			if(functionName)
 			{
-				return string_format(_T("Find Callers For '%s' (0x%0.8X)"), 
+				return string_format(_T("Find Callers For '%s' (0x%08X)"), 
 					string_cast<std::tstring>(functionName).c_str(), address);
 			}
 			else
 			{
-				return string_format(_T("Find Callers For 0x%0.8X"), address);
+				return string_format(_T("Find Callers For 0x%08X"), address);
 			}
 		}();
 

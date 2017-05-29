@@ -222,7 +222,7 @@ void CMipsExecutor::CreateBlock(uint32 start, uint32 end)
 			else
 			{
 				//Delete the currently existing block otherwise
-				printf("MipsExecutor: Warning. Deleting block at %0.8X.\r\n", block->GetEndAddress());
+				printf("MipsExecutor: Warning. Deleting block at %08X.\r\n", block->GetEndAddress());
 				DeleteBlock(block);
 			}
 		}

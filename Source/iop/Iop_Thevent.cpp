@@ -131,7 +131,7 @@ void CThevent::Invoke(CMIPS& context, unsigned int functionId)
 			));
 		break;
 	default:
-		CLog::GetInstance().Print(LOG_NAME, "Unknown function (%d) called (%0.8X).\r\n", functionId, context.m_State.nPC);
+		CLog::GetInstance().Print(LOG_NAME, "Unknown function (%d) called (%08X).\r\n", functionId, context.m_State.nPC);
 		break;
 	}
 }

@@ -418,7 +418,7 @@ long CDisAsm::OnRightButtonUp(int nX, int nY)
 		{
 			TCHAR sTemp[256];
 			uint32 nAddress = m_ctx->m_pArch->GetInstructionEffectiveAddress(m_ctx, m_selected, nOpcode);
-			_sntprintf(sTemp, countof(sTemp), _T("Go to 0x%0.8X"), nAddress);
+			_sntprintf(sTemp, countof(sTemp), _T("Go to 0x%08X"), nAddress);
 			InsertMenu(hMenu, position++, MF_BYPOSITION, ID_DISASM_GOTOEA, sTemp);
 		}
 	}
@@ -426,14 +426,14 @@ long CDisAsm::OnRightButtonUp(int nX, int nY)
 	if(HistoryHasPrevious())
 	{
 		TCHAR sTemp[256];
-		_sntprintf(sTemp, countof(sTemp), _T("Go back (0x%0.8X)"), HistoryGetPrevious());
+		_sntprintf(sTemp, countof(sTemp), _T("Go back (0x%08X)"), HistoryGetPrevious());
 		InsertMenu(hMenu, position++, MF_BYPOSITION, ID_DISASM_GOTOPREV, sTemp);
 	}
 
 	if(HistoryHasNext())
 	{
 		TCHAR sTemp[256];
-		_sntprintf(sTemp, countof(sTemp), _T("Go forward (0x%0.8X)"), HistoryGetNext());
+		_sntprintf(sTemp, countof(sTemp), _T("Go forward (0x%08X)"), HistoryGetNext());
 		InsertMenu(hMenu, position++, MF_BYPOSITION, ID_DISASM_GOTONEXT, sTemp);
 	}
 
@@ -730,7 +730,7 @@ void CDisAsm::Paint(HDC hDC)
 
 		//Draw address
 		deviceContext.TextOut(m_renderMetrics.xtextStart, y + textOffset, 
-			string_format(_T("%0.8X"), address).c_str());
+			string_format(_T("%08X"), address).c_str());
 		
 		//Draw function boundaries
 		const auto* sub = m_ctx->m_analysis->FindSubroutine(address);

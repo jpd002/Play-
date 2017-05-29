@@ -163,7 +163,7 @@ void CGifPacketView::SetPacket(uint8* packet, uint32 packetSize)
 	for(unsigned int i = 0; i < registerWrites.size(); i++)
 	{
 		const auto& registerWrite(registerWrites[i]);
-		result += string_format("%0.4X: %s\r\n", i, CGSHandler::DisassembleWrite(registerWrite.first, registerWrite.second).c_str());
+		result += string_format("%04X: %s\r\n", i, CGSHandler::DisassembleWrite(registerWrite.first, registerWrite.second).c_str());
 	}
 
 	SetDisplayText(result.c_str());

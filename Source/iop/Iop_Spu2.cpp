@@ -109,7 +109,7 @@ void CSpu2::LogRead(uint32 address)
 		CLog::GetInstance().Print(LOG_NAME, " = C_IRQINFO\r\n");
 		break;
 	default:
-		CLog::GetInstance().Print(LOG_NAME, "Read an unknown register 0x%0.8X.\r\n", address);
+		CLog::GetInstance().Print(LOG_NAME, "Read an unknown register 0x%08X.\r\n", address);
 		break;
 	}
 }
@@ -119,7 +119,7 @@ void CSpu2::LogWrite(uint32 address, uint32 value)
 	switch(address)
 	{
 	default:
-		CLog::GetInstance().Print(LOG_NAME, "Wrote 0x%0.8X to unknown register 0x%0.8X.\r\n", value, address);
+		CLog::GetInstance().Print(LOG_NAME, "Wrote 0x%08X to unknown register 0x%08X.\r\n", value, address);
 		break;
 	}
 }

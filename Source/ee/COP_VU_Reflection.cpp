@@ -25,7 +25,7 @@ void CCOP_VU::ReflOpOff(INSTRUCTION* pInstr, CMIPS* pCtx, uint32 nAddress, uint3
 {
 	auto imm = static_cast<uint16>((nOpcode >> 0) & 0xFFFF);
 	nAddress += 4;
-	sprintf(sText, "$%0.8X", nAddress + CMIPS::GetBranch(imm));
+	sprintf(sText, "$%08X", nAddress + CMIPS::GetBranch(imm));
 }
 
 void CCOP_VU::ReflOpRtFd(INSTRUCTION* pInstr, CMIPS* pCtx, uint32 nAddress, uint32 nOpcode, char* sText, unsigned int nCount)
@@ -48,7 +48,7 @@ void CCOP_VU::ReflOpImm15(INSTRUCTION* pInstr, CMIPS* pCtx, uint32 nAddress, uin
 {
 	uint16 nImm	= static_cast<uint16>((nOpcode >> 6) & 0x7FFF);
 
-	sprintf(sText, "$%0.4X", nImm);
+	sprintf(sText, "$%04X", nImm);
 }
 
 void CCOP_VU::ReflOpAccFsFt(INSTRUCTION* pInstr, CMIPS* pCtx, uint32 nAddress, uint32 nOpcode, char* sText, unsigned int nCount)
@@ -66,7 +66,7 @@ void CCOP_VU::ReflOpFtOffRs(INSTRUCTION* pInstr, CMIPS* pCtx, uint32 nAddress, u
 	uint8 nFT	= static_cast<uint8> ((nOpcode >> 16) & 0x001F);
 	uint16 nImm = static_cast<uint16>((nOpcode >>  0) & 0xFFFF);
 
-	sprintf(sText, "VF%i, $%0.4X(%s)", nFT, nImm, CMIPS::m_sGPRName[nRS]);
+	sprintf(sText, "VF%i, $%04X(%s)", nFT, nImm, CMIPS::m_sGPRName[nRS]);
 }
 
 void CCOP_VU::ReflOpVi27(INSTRUCTION* pInstr, CMIPS* pCtx, uint32 nAddress, uint32 nOpcode, char* sText, unsigned int nCount)

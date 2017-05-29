@@ -459,7 +459,7 @@ void CSpuBase::SetReverbCurrentAddress(uint32 address)
 uint32 CSpuBase::ReceiveDma(uint8* buffer, uint32 blockSize, uint32 blockAmount)
 {
 #ifdef _DEBUG
-	CLog::GetInstance().Print(LOG_NAME, "Receiving DMA transfer to 0x%0.8X. Size = 0x%0.8X bytes.\r\n", 
+	CLog::GetInstance().Print(LOG_NAME, "Receiving DMA transfer to 0x%08X. Size = 0x%08X bytes.\r\n", 
 		m_transferAddr, blockSize * blockAmount);
 #endif
 	if(m_transferMode == TRANSFER_MODE_VOICE)

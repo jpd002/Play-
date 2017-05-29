@@ -8,7 +8,7 @@ using namespace MIPSReflection;
 void CMA_MIPSIV::ReflOpTarget(INSTRUCTION* pInstr, CMIPS* pCtx, uint32 nAddress, uint32 nOpcode, char* sText, unsigned int nCount)
 {
 	nAddress = (nAddress & 0xF0000000) | ((nOpcode & 0x03FFFFFF) << 2);
-	sprintf(sText, "$%0.8X", nAddress);
+	sprintf(sText, "$%08X", nAddress);
 }
 
 void CMA_MIPSIV::ReflOpRtRsImm(INSTRUCTION* pInstr, CMIPS* pCtx, uint32 nAddress, uint32 nOpcode, char* sText, unsigned int nCount)
@@ -20,7 +20,7 @@ void CMA_MIPSIV::ReflOpRtRsImm(INSTRUCTION* pInstr, CMIPS* pCtx, uint32 nAddress
 	nRT  = (uint8) ((nOpcode >> 16) & 0x001F);
 	nImm = (uint16)((nOpcode >>  0) & 0xFFFF);
 
-	sprintf(sText, "%s, %s, $%0.4X", CMIPS::m_sGPRName[nRT], CMIPS::m_sGPRName[nRS], nImm);
+	sprintf(sText, "%s, %s, $%04X", CMIPS::m_sGPRName[nRT], CMIPS::m_sGPRName[nRS], nImm);
 }
 
 void CMA_MIPSIV::ReflOpRtImm(INSTRUCTION* pInstr, CMIPS* pCtx, uint32 nAddress, uint32 nOpcode, char* sText, unsigned int nCount)
@@ -31,7 +31,7 @@ void CMA_MIPSIV::ReflOpRtImm(INSTRUCTION* pInstr, CMIPS* pCtx, uint32 nAddress, 
 	nRT  = (uint8) ((nOpcode >> 16) & 0x001F);
 	nImm = (uint16)((nOpcode >>  0) & 0xFFFF);
 
-	sprintf(sText, "%s, $%0.4X", CMIPS::m_sGPRName[nRT], nImm);
+	sprintf(sText, "%s, $%04X", CMIPS::m_sGPRName[nRT], nImm);
 }
 
 void CMA_MIPSIV::ReflOpRsRtOff(INSTRUCTION* pInstr, CMIPS* pCtx, uint32 nAddress, uint32 nOpcode, char* sText, unsigned int nCount)
@@ -44,7 +44,7 @@ void CMA_MIPSIV::ReflOpRsRtOff(INSTRUCTION* pInstr, CMIPS* pCtx, uint32 nAddress
 	nImm = (uint16)((nOpcode >>  0) & 0xFFFF);
 
 	nAddress += 4;
-	sprintf(sText, "%s, %s, $%0.8X", CMIPS::m_sGPRName[nRS], CMIPS::m_sGPRName[nRT], (nAddress + CMIPS::GetBranch(nImm)));
+	sprintf(sText, "%s, %s, $%08X", CMIPS::m_sGPRName[nRS], CMIPS::m_sGPRName[nRT], (nAddress + CMIPS::GetBranch(nImm)));
 }
 
 void CMA_MIPSIV::ReflOpRsOff(INSTRUCTION* pInstr, CMIPS* pCtx, uint32 nAddress, uint32 nOpcode, char* sText, unsigned int nCount)
@@ -56,7 +56,7 @@ void CMA_MIPSIV::ReflOpRsOff(INSTRUCTION* pInstr, CMIPS* pCtx, uint32 nAddress, 
 	nImm = (uint16)((nOpcode >>  0) & 0xFFFF);
 
 	nAddress += 4;
-	sprintf(sText, "%s, $%0.8X", CMIPS::m_sGPRName[nRS], (nAddress + CMIPS::GetBranch(nImm)));
+	sprintf(sText, "%s, $%08X", CMIPS::m_sGPRName[nRS], (nAddress + CMIPS::GetBranch(nImm)));
 }
 
 void CMA_MIPSIV::ReflOpRtOffRs(INSTRUCTION* pInstr, CMIPS* pCtx, uint32 nAddress, uint32 nOpcode, char* sText, unsigned int nCount)
@@ -69,7 +69,7 @@ void CMA_MIPSIV::ReflOpRtOffRs(INSTRUCTION* pInstr, CMIPS* pCtx, uint32 nAddress
 	nImm = (uint16)((nOpcode >>  0) & 0xFFFF);
 
 	nAddress += 4;
-	sprintf(sText, "%s, $%0.4X(%s)", CMIPS::m_sGPRName[nRT], nImm, CMIPS::m_sGPRName[nRS]);
+	sprintf(sText, "%s, $%04X(%s)", CMIPS::m_sGPRName[nRT], nImm, CMIPS::m_sGPRName[nRS]);
 }
 
 void CMA_MIPSIV::ReflOpHintOffRs(INSTRUCTION* pInstr, CMIPS* pCtx, uint32 nAddress, uint32 nOpcode, char* sText, unsigned int nCount)
@@ -79,7 +79,7 @@ void CMA_MIPSIV::ReflOpHintOffRs(INSTRUCTION* pInstr, CMIPS* pCtx, uint32 nAddre
 	uint16 nImm     = (uint16)((nOpcode >>  0) & 0xFFFF);
 
 	nAddress += 4;
-	sprintf(sText, "%i, $%0.4X(%s)", nHint, nImm, CMIPS::m_sGPRName[nRS]);
+	sprintf(sText, "%i, $%04X(%s)", nHint, nImm, CMIPS::m_sGPRName[nRS]);
 }
 
 void CMA_MIPSIV::ReflOpIdOffRs(INSTRUCTION* pInstr, CMIPS* pCtx, uint32 nAddress, uint32 nOpcode, char* sText, unsigned int nCount)
@@ -92,7 +92,7 @@ void CMA_MIPSIV::ReflOpIdOffRs(INSTRUCTION* pInstr, CMIPS* pCtx, uint32 nAddress
 	nImm = (uint16)((nOpcode >>  0) & 0xFFFF);
 
 	nAddress += 4;
-	sprintf(sText, "$%0.2X, $%0.4X(%s)", nRT, nImm, CMIPS::m_sGPRName[nRS]);
+	sprintf(sText, "$%02X, $%04X(%s)", nRT, nImm, CMIPS::m_sGPRName[nRS]);
 }
 
 void CMA_MIPSIV::ReflOpRdRsRt(INSTRUCTION* pInstr, CMIPS* pCtx, uint32 nAddress, uint32 nOpcode, char* sText, unsigned int nCount)

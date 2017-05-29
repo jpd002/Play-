@@ -273,7 +273,7 @@ void VUShared::ReflOpItIsImm5(INSTRUCTION* pInstr, CMIPS* pCtx, uint32 nAddress,
 		nImm |= 0xFFE0;
 	}
 
-	sprintf(sText, "VI%i, VI%i, $%0.4X", nIT, nIS, nImm);
+	sprintf(sText, "VI%i, VI%i, $%04X", nIT, nIS, nImm);
 }
 
 void VUShared::ReflOpItFsf(INSTRUCTION* pInstr, CMIPS* pCtx, uint32 nAddress, uint32 nOpcode, char* sText, unsigned int nCount)

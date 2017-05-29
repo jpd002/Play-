@@ -105,7 +105,7 @@ void CMemoryMap::SetByte(uint32 nAddress, uint8 nValue)
 	const MEMORYMAPELEMENT* e = GetMap(m_writeMap, nAddress);
 	if(e == NULL)
 	{
-		printf("MemoryMap: Wrote to unmapped memory (0x%0.8X, 0x%0.4X).\r\n", nAddress, nValue);
+		printf("MemoryMap: Wrote to unmapped memory (0x%08X, 0x%04X).\r\n", nAddress, nValue);
 		return;
 	}
 	switch(e->nType)
@@ -185,7 +185,7 @@ void CMemoryMap_LSBF::SetHalf(uint32 nAddress, uint16 nValue)
 	const auto e = GetMap(m_writeMap, nAddress);
 	if(!e)
 	{
-		printf("MemoryMap: Wrote to unmapped memory (0x%0.8X, 0x%0.4X).\r\n", nAddress, nValue);
+		printf("MemoryMap: Wrote to unmapped memory (0x%08X, 0x%04X).\r\n", nAddress, nValue);
 		return;
 	}
 	switch(e->nType)
@@ -208,7 +208,7 @@ void CMemoryMap_LSBF::SetWord(uint32 nAddress, uint32 nValue)
 	const MEMORYMAPELEMENT* e = GetMap(m_writeMap, nAddress);
 	if(e == NULL) 
 	{
-		printf("MemoryMap: Wrote to unmapped memory (0x%0.8X, 0x%0.8X).\r\n", nAddress, nValue);
+		printf("MemoryMap: Wrote to unmapped memory (0x%08X, 0x%08X).\r\n", nAddress, nValue);
 		return;
 	}
 	switch(e->nType)

@@ -47,7 +47,7 @@ std::string CRegViewVU::GetDisplayText()
 
 		if(m_viewMode == VIEWMODE_WORD)
 		{
-			sprintf(sLine, "%s:    0x%0.8X      0x%0.8X\r\n          0x%0.8X      0x%0.8X\r\n", sReg1,
+			sprintf(sLine, "%s:    0x%08X      0x%08X\r\n          0x%08X      0x%08X\r\n", sReg1,
 				state.nCOP2[i].nV0, state.nCOP2[i].nV1,
 				state.nCOP2[i].nV2, state.nCOP2[i].nV3
 			);
@@ -71,7 +71,7 @@ std::string CRegViewVU::GetDisplayText()
 
 	if(m_viewMode == VIEWMODE_WORD)
 	{
-		sprintf(sLine, "ACC  :    0x%0.8X      0x%0.8X\r\n          0x%0.8X      0x%0.8X\r\n",
+		sprintf(sLine, "ACC  :    0x%08X      0x%08X\r\n          0x%08X      0x%08X\r\n",
 			state.nCOP2A.nV0, state.nCOP2A.nV1,
 			state.nCOP2A.nV2, state.nCOP2A.nV3
 		);
@@ -94,13 +94,13 @@ std::string CRegViewVU::GetDisplayText()
 
 	if(m_viewMode == VIEWMODE_WORD)
 	{
-		sprintf(sLine, "Q    : 0x%0.8X\r\n", state.nCOP2Q);
+		sprintf(sLine, "Q    : 0x%08X\r\n", state.nCOP2Q);
 		result += sLine;
 
-		sprintf(sLine, "I    : 0x%0.8X\r\n", state.nCOP2I);
+		sprintf(sLine, "I    : 0x%08X\r\n", state.nCOP2I);
 		result += sLine;
 
-		sprintf(sLine, "P    : 0x%0.8X\r\n", state.nCOP2P);
+		sprintf(sLine, "P    : 0x%08X\r\n", state.nCOP2P);
 		result += sLine;
 	}
 	else if(m_viewMode == VIEWMODE_SINGLE)
@@ -119,22 +119,22 @@ std::string CRegViewVU::GetDisplayText()
 		assert(false);
 	}
 
-	sprintf(sLine, "R    : %+.7e (0x%0.8X)\r\n", *reinterpret_cast<const float*>(&state.nCOP2R), state.nCOP2R);
+	sprintf(sLine, "R    : %+.7e (0x%08X)\r\n", *reinterpret_cast<const float*>(&state.nCOP2R), state.nCOP2R);
 	result += sLine;
 
-	sprintf(sLine, "MACF : 0x%0.4X\r\n", state.nCOP2MF);
+	sprintf(sLine, "MACF : 0x%04X\r\n", state.nCOP2MF);
 	result += sLine;
 
-	sprintf(sLine, "STKF : 0x%0.4X\r\n", state.nCOP2SF);
+	sprintf(sLine, "STKF : 0x%04X\r\n", state.nCOP2SF);
 	result += sLine;
 
-	sprintf(sLine, "CLIP : 0x%0.6X\r\n", state.nCOP2CF & CLIP_FLAG_MASK);
+	sprintf(sLine, "CLIP : 0x%06X\r\n", state.nCOP2CF & CLIP_FLAG_MASK);
 	result += sLine;
 
-	sprintf(sLine, "PIPE : 0x%0.4X\r\n", state.pipeTime);
+	sprintf(sLine, "PIPE : 0x%04X\r\n", state.pipeTime);
 	result += sLine;
 
-	sprintf(sLine, "PIPEQ: 0x%0.4X - %+.7e\r\n", state.pipeQ.counter, *reinterpret_cast<const float*>(&state.pipeQ.heldValue));
+	sprintf(sLine, "PIPEQ: 0x%04X - %+.7e\r\n", state.pipeQ.counter, *reinterpret_cast<const float*>(&state.pipeQ.heldValue));
 	result += sLine;
 
 	result += PrintPipeline("PIPEM:", state.pipeMac);
@@ -156,7 +156,7 @@ std::string CRegViewVU::GetDisplayText()
 			sprintf(sReg2, "VI%i ", i + 1);
 		}
 
-		sprintf(sLine, "%s: 0x%0.4X    %s: 0x%0.4X\r\n", sReg1, state.nCOP2VI[i] & 0xFFFF, sReg2, state.nCOP2VI[i + 1] & 0xFFFF);
+		sprintf(sLine, "%s: 0x%04X    %s: 0x%04X\r\n", sReg1, state.nCOP2VI[i] & 0xFFFF, sReg2, state.nCOP2VI[i + 1] & 0xFFFF);
 		result += sLine;
 	}
 
@@ -184,7 +184,7 @@ std::string CRegViewVU::PrintPipeline(const char* title, const FLAG_PIPELINE& pi
 	for(unsigned int i = 0; i < (FLAG_PIPELINE_SLOTS / 2); i++)
 	{
 		const char* front = (i == 0) ? title : "      ";
-		result += string_format("%s 0x%0.4X:0x%0.6X, 0x%0.4X:0x%0.6X\r\n", front,
+		result += string_format("%s 0x%04X:0x%06X, 0x%04X:0x%06X\r\n", front,
 			pipeTimes[(i * 2) + 0], pipeValues[(i * 2) + 0],
 			pipeTimes[(i * 2) + 1], pipeValues[(i * 2) + 1]);
 	}

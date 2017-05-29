@@ -142,7 +142,7 @@ uint32 CIPU::GetRegister(uint32 nAddress)
 		break;
 
 	default:
-		CLog::GetInstance().Print(LOG_NAME, "Reading an unhandled register (0x%0.8X).\r\n", nAddress);
+		CLog::GetInstance().Print(LOG_NAME, "Reading an unhandled register (0x%08X).\r\n", nAddress);
 		break;
 	}
 
@@ -204,7 +204,7 @@ void CIPU::SetRegister(uint32 nAddress, uint32 nValue)
 		break;
 
 	default:
-		CLog::GetInstance().Print(LOG_NAME, "Writing 0x%0.8X to an unhandled register (0x%0.8X).\r\n", nValue, nAddress);
+		CLog::GetInstance().Print(LOG_NAME, "Writing 0x%08X to an unhandled register (0x%08X).\r\n", nValue, nAddress);
 		break;
 	}
 }
@@ -573,7 +573,7 @@ void CIPU::DisassembleSet(uint32 nAddress, uint32 nValue)
 	switch(nAddress)
 	{
 	case IPU_CMD + 0x0:
-		CLog::GetInstance().Print(LOG_NAME, "IPU_CMD = 0x%0.8X\r\n", nValue);
+		CLog::GetInstance().Print(LOG_NAME, "IPU_CMD = 0x%08X\r\n", nValue);
 		break;
 	case IPU_CMD + 0x4:
 	case IPU_CMD + 0x8:
@@ -581,7 +581,7 @@ void CIPU::DisassembleSet(uint32 nAddress, uint32 nValue)
 		break;
 
 	case IPU_CTRL + 0x0:
-		CLog::GetInstance().Print(LOG_NAME, "IPU_CTRL = 0x%0.8X\r\n", nValue);
+		CLog::GetInstance().Print(LOG_NAME, "IPU_CTRL = 0x%08X\r\n", nValue);
 		break;
 	case IPU_CTRL + 0x4:
 	case IPU_CTRL + 0x8:
@@ -592,7 +592,7 @@ void CIPU::DisassembleSet(uint32 nAddress, uint32 nValue)
 	case IPU_IN_FIFO + 0x4:
 	case IPU_IN_FIFO + 0x8:
 	case IPU_IN_FIFO + 0xC:
-		CLog::GetInstance().Print(LOG_NAME, "IPU_IN_FIFO = 0x%0.8X\r\n", nValue);
+		CLog::GetInstance().Print(LOG_NAME, "IPU_IN_FIFO = 0x%08X\r\n", nValue);
 		break;
 	}
 
@@ -671,7 +671,7 @@ void CIPU::DisassembleCommand(uint32 nValue)
 			(nValue >>  0) & 0x7FF);
 		break;
 	case 9:
-		CLog::GetInstance().Print(LOG_NAME, "SETTH(th0 = 0x%0.4X, th1 = 0x%0.4X);\r\n", nValue & 0x1FF, (nValue >> 16) & 0x1FF);
+		CLog::GetInstance().Print(LOG_NAME, "SETTH(th0 = 0x%04X, th1 = 0x%04X);\r\n", nValue & 0x1FF, (nValue >> 16) & 0x1FF);
 		break;
 	}
 }
@@ -1175,7 +1175,7 @@ bool CIPU::CBDECCommand::Execute()
 			{
 #ifdef _DECODE_LOGGING
 				static int currentMbIndex = 0;
-				CLog::GetInstance().Print(DECODE_LOG_NAME, "Macroblock(%d, CBP: 0x%0.2X)\r\n", 
+				CLog::GetInstance().Print(DECODE_LOG_NAME, "Macroblock(%d, CBP: 0x%02X)\r\n", 
 					currentMbIndex++, m_codedBlockPattern);
 #endif
 				if(m_command.dcr)

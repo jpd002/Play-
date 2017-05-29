@@ -157,7 +157,7 @@ void CTimrman::Invoke(CMIPS& context, unsigned int functionId)
 			);
 		break;
 	default:
-		CLog::GetInstance().Print(LOG_NAME, "(%0.8X): Unknown function (%d) called.\r\n", 
+		CLog::GetInstance().Print(LOG_NAME, "(%08X): Unknown function (%d) called.\r\n", 
 			context.m_State.nPC, functionId);
 		break;
 	}
@@ -204,7 +204,7 @@ int CTimrman::AllocHardTimer(CMIPS& context, uint32 source, uint32 size, uint32 
 int CTimrman::ReferHardTimer(uint32 source, uint32 size, uint32 mode, uint32 modeMask)
 {
 #ifdef _DEBUG
-	CLog::GetInstance().Print(LOG_NAME, FUNCTION_REFERHARDTIMER "(source = %d, size = %d, mode = 0x%0.8X, mask = 0x%0.8X);\r\n",
+	CLog::GetInstance().Print(LOG_NAME, FUNCTION_REFERHARDTIMER "(source = %d, size = %d, mode = 0x%08X, mask = 0x%08X);\r\n",
 		source, size, mode, modeMask);
 #endif
 	return 0;
@@ -213,7 +213,7 @@ int CTimrman::ReferHardTimer(uint32 source, uint32 size, uint32 mode, uint32 mod
 void CTimrman::SetTimerMode(CMIPS& context, uint32 timerId, uint32 mode)
 {
 #ifdef _DEBUG
-	CLog::GetInstance().Print(LOG_NAME, FUNCTION_SETTIMERMODE "(timerId = %d, mode = 0x%0.8X);\r\n",
+	CLog::GetInstance().Print(LOG_NAME, FUNCTION_SETTIMERMODE "(timerId = %d, mode = 0x%08X);\r\n",
 		timerId, mode);
 #endif
 	if(timerId == 0) return;
@@ -246,7 +246,7 @@ int CTimrman::GetTimerCounter(CMIPS& context, uint32 timerId)
 void CTimrman::SetTimerCompare(CMIPS& context, uint32 timerId, uint32 compare)
 {
 #ifdef _DEBUG
-	CLog::GetInstance().Print(LOG_NAME, FUNCTION_SETTIMERCOMPARE "(timerId = %d, compare = 0x%0.8X);\r\n",
+	CLog::GetInstance().Print(LOG_NAME, FUNCTION_SETTIMERCOMPARE "(timerId = %d, compare = 0x%08X);\r\n",
 		timerId, compare);
 #endif
 	if(timerId == 0) return;
@@ -269,7 +269,7 @@ int CTimrman::GetHardTimerIntrCode(uint32 timerId)
 int CTimrman::SetTimerCallback(CMIPS& context, int timerId, uint32 target, uint32 handler, uint32 arg)
 {
 #ifdef _DEBUG
-	CLog::GetInstance().Print(LOG_NAME, FUNCTION_SETTIMERCALLBACK "(timerId = %d, target = %d, handler = 0x%0.8X, arg = 0x%0.8X);\r\n",
+	CLog::GetInstance().Print(LOG_NAME, FUNCTION_SETTIMERCALLBACK "(timerId = %d, target = %d, handler = 0x%08X, arg = 0x%08X);\r\n",
 		timerId, target, handler, arg);
 #endif
 	if(timerId == 0) return 0;

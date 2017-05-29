@@ -273,7 +273,7 @@ uint32 CGSHandler::ReadPrivRegister(uint32 nAddress)
 		R_REG(nAddress, nData, m_nSIGLBLID);
 		break;
 	default:
-		CLog::GetInstance().Print(LOG_NAME, "Read an unhandled priviledged register (0x%0.8X).\r\n", nAddress);
+		CLog::GetInstance().Print(LOG_NAME, "Read an unhandled priviledged register (0x%08X).\r\n", nAddress);
 		nData = 0xCCCCCCCC;
 		break;
 	}
@@ -341,7 +341,7 @@ void CGSHandler::WritePrivRegister(uint32 nAddress, uint32 nData)
 		W_REG(nAddress, nData, m_nSIGLBLID);
 		break;
 	default:
-		CLog::GetInstance().Print(LOG_NAME, "Wrote to an unhandled priviledged register (0x%0.8X, 0x%0.8X).\r\n", nAddress, nData);
+		CLog::GetInstance().Print(LOG_NAME, "Wrote to an unhandled priviledged register (0x%08X, 0x%08X).\r\n", nAddress, nData);
 		break;
 	}
 
@@ -569,7 +569,7 @@ void CGSHandler::FeedImageDataImpl(const void* pData, uint32 nLength)
 			ProcessHostToLocalTransfer();
 
 #ifdef _DEBUG
-			CLog::GetInstance().Print(LOG_NAME, "Completed image transfer at 0x%0.8X (dirty = %d).\r\n", bltBuf.GetDstPtr(), m_trxCtx.nDirty);
+			CLog::GetInstance().Print(LOG_NAME, "Completed image transfer at 0x%08X (dirty = %d).\r\n", bltBuf.GetDstPtr(), m_trxCtx.nDirty);
 #endif
 		}
 	}
@@ -657,13 +657,13 @@ void CGSHandler::BeginTransfer()
 
 		if(trxDir == 0)
 		{
-			CLog::GetInstance().Print(LOG_NAME, "Starting transfer to 0x%0.8X, buffer size %d, psm: %d, size (%dx%d)\r\n",
+			CLog::GetInstance().Print(LOG_NAME, "Starting transfer to 0x%08X, buffer size %d, psm: %d, size (%dx%d)\r\n",
 				bltBuf.GetDstPtr(), bltBuf.GetDstWidth(), bltBuf.nDstPsm, trxReg.nRRW, trxReg.nRRH);
 		}
 		else if(trxDir == 1)
 		{
 			ProcessLocalToHostTransfer();
-			CLog::GetInstance().Print(LOG_NAME, "Starting transfer from 0x%0.8X, buffer size %d, psm: %d, size (%dx%d)\r\n",
+			CLog::GetInstance().Print(LOG_NAME, "Starting transfer from 0x%08X, buffer size %d, psm: %d, size (%dx%d)\r\n",
 				bltBuf.GetSrcPtr(), bltBuf.GetSrcWidth(), bltBuf.nSrcPsm, trxReg.nRRW, trxReg.nRRH);
 		}
 	}
@@ -1331,7 +1331,7 @@ std::string CGSHandler::DisassembleWrite(uint8 registerId, uint64 data)
 	case GS_REG_RGBAQ:
 		{
 			auto rgbaq = make_convertible<RGBAQ>(data);
-			result = string_format("RGBAQ(R: 0x%0.2X, G: 0x%0.2X, B: 0x%0.2X, A: 0x%0.2X, Q: %f)",
+			result = string_format("RGBAQ(R: 0x%02X, G: 0x%02X, B: 0x%02X, A: 0x%02X, Q: %f)",
 				rgbaq.nR, rgbaq.nG, rgbaq.nB, rgbaq.nA, rgbaq.nQ);
 		}
 		break;
@@ -1375,7 +1375,7 @@ std::string CGSHandler::DisassembleWrite(uint8 registerId, uint64 data)
 	case GS_REG_TEX0_2:
 		{
 			auto tex0 = make_convertible<TEX0>(data);
-			result = string_format("TEX0_%i(TBP: 0x%0.8X, TBW: %i, PSM: %i, TW: %i, TH: %i, TCC: %i, TFX: %i, CBP: 0x%0.8X, CPSM: %i, CSM: %i, CSA: %i, CLD: %i)",
+			result = string_format("TEX0_%i(TBP: 0x%08X, TBW: %i, PSM: %i, TW: %i, TH: %i, TCC: %i, TFX: %i, CBP: 0x%08X, CPSM: %i, CSM: %i, CSA: %i, CLD: %i)",
 				(registerId == GS_REG_TEX0_1) ? 1 : 2, tex0.GetBufPtr(), tex0.GetBufWidth(), tex0.nPsm, tex0.GetWidth(), tex0.GetHeight(), tex0.nColorComp,
 				tex0.nFunction, tex0.GetCLUTPtr(), tex0.nCPSM, tex0.nCSM, tex0.nCSA, tex0.nCLD);
 		}
@@ -1400,7 +1400,7 @@ std::string CGSHandler::DisassembleWrite(uint8 registerId, uint64 data)
 	case GS_REG_TEX2_2:
 		{
 			auto tex2 = make_convertible<TEX2>(data);
-			result = string_format("TEX2_%i(PSM: %i, CBP: 0x%0.8X, CPSM: %i, CSM: %i, CSA: %i, CLD: %i)",
+			result = string_format("TEX2_%i(PSM: %i, CBP: 0x%08X, CPSM: %i, CSM: %i, CSA: %i, CLD: %i)",
 				(registerId == GS_REG_TEX2_1) ? 1 : 2, tex2.nPsm, tex2.GetCLUTPtr(), tex2.nCPSM, tex2.nCSM, tex2.nCSA, tex2.nCLD);
 		}
 		break;
@@ -1430,7 +1430,7 @@ std::string CGSHandler::DisassembleWrite(uint8 registerId, uint64 data)
 	case GS_REG_MIPTBP1_2:
 		{
 			auto miptbp1 = make_convertible<MIPTBP1>(data);
-			result = string_format("MIPTBP1_%d(TBP1: 0x%0.8X, TBW1: %d, TBP2: 0x%0.8X, TBW2: %d, TBP3: 0x%0.8X, TBW3: %d)",
+			result = string_format("MIPTBP1_%d(TBP1: 0x%08X, TBW1: %d, TBP2: 0x%08X, TBW2: %d, TBP3: 0x%08X, TBW3: %d)",
 				(registerId == GS_REG_MIPTBP1_1) ? 1 : 2, 
 				miptbp1.GetTbp1(), miptbp1.GetTbw1(),
 				miptbp1.GetTbp2(), miptbp1.GetTbw2(),
@@ -1441,7 +1441,7 @@ std::string CGSHandler::DisassembleWrite(uint8 registerId, uint64 data)
 	case GS_REG_MIPTBP2_2:
 		{
 			auto miptbp2 = make_convertible<MIPTBP2>(data);
-			result = string_format("MIPTBP2_%d(TBP4: 0x%0.8X, TBW4: %d, TBP5: 0x%0.8X, TBW5: %d, TBP6: 0x%0.8X, TBW6: %d)",
+			result = string_format("MIPTBP2_%d(TBP4: 0x%08X, TBW4: %d, TBP5: 0x%08X, TBW5: %d, TBP6: 0x%08X, TBW6: %d)",
 				(registerId == GS_REG_MIPTBP2_1) ? 1 : 2, 
 				miptbp2.GetTbp4(), miptbp2.GetTbw4(),
 				miptbp2.GetTbp5(), miptbp2.GetTbw5(),
@@ -1451,14 +1451,14 @@ std::string CGSHandler::DisassembleWrite(uint8 registerId, uint64 data)
 	case GS_REG_TEXA:
 		{
 			auto texa = make_convertible<TEXA>(data);
-			result = string_format("TEXA(TA0: 0x%0.2X, AEM: %i, TA1: 0x%0.2X)",
+			result = string_format("TEXA(TA0: 0x%02X, AEM: %i, TA1: 0x%02X)",
 				texa.nTA0, texa.nAEM, texa.nTA1);
 		}
 		break;
 	case GS_REG_FOGCOL:
 		{
 			auto fogcol = make_convertible<FOGCOL>(data);
-			result = string_format("FOGCOL(R: 0x%0.2X, G: 0x%0.2X, B: 0x%0.2X)",
+			result = string_format("FOGCOL(R: 0x%02X, G: 0x%02X, B: 0x%02X)",
 				fogcol.nFCR, fogcol.nFCG, fogcol.nFCB);
 		}
 		break;
@@ -1469,7 +1469,7 @@ std::string CGSHandler::DisassembleWrite(uint8 registerId, uint64 data)
 	case GS_REG_ALPHA_2:
 		{
 			auto alpha = make_convertible<ALPHA>(data);
-			result = string_format("ALPHA_%i(A: %i, B: %i, C: %i, D: %i, FIX: 0x%0.2X)",
+			result = string_format("ALPHA_%i(A: %i, B: %i, C: %i, D: %i, FIX: 0x%02X)",
 				(registerId == GS_REG_ALPHA_1) ? 1 : 2, alpha.nA, alpha.nB, alpha.nC, alpha.nD, alpha.nFix);
 		}
 		break;
@@ -1485,7 +1485,7 @@ std::string CGSHandler::DisassembleWrite(uint8 registerId, uint64 data)
 	case GS_REG_TEST_2:
 		{
 			auto tst = make_convertible<TEST>(data);
-			result = string_format("TEST_%i(ATE: %i, ATST: %i, AREF: 0x%0.2X, AFAIL: %i, DATE: %i, DATM: %i, ZTE: %i, ZTST: %i)",
+			result = string_format("TEST_%i(ATE: %i, ATST: %i, AREF: 0x%02X, AFAIL: %i, DATE: %i, DATM: %i, ZTE: %i, ZTST: %i)",
 				(registerId == GS_REG_TEST_1) ? 1 : 2, tst.nAlphaEnabled, tst.nAlphaMethod, tst.nAlphaRef, tst.nAlphaFail,
 				tst.nDestAlphaEnabled, tst.nDestAlphaMode, tst.nDepthEnabled, tst.nDepthMethod);
 		}
@@ -1507,7 +1507,7 @@ std::string CGSHandler::DisassembleWrite(uint8 registerId, uint64 data)
 	case GS_REG_FRAME_2:
 		{
 			auto fr = make_convertible<FRAME>(data);
-			result = string_format("FRAME_%i(FBP: 0x%0.8X, FBW: %d, PSM: %d, FBMSK: 0x%0.8X)",
+			result = string_format("FRAME_%i(FBP: 0x%08X, FBW: %d, PSM: %d, FBMSK: 0x%08X)",
 				(registerId == GS_REG_FRAME_1) ? 1 : 2, fr.GetBasePtr(), fr.GetWidth(), fr.nPsm, fr.nMask);
 		}
 		break;
@@ -1515,14 +1515,14 @@ std::string CGSHandler::DisassembleWrite(uint8 registerId, uint64 data)
 	case GS_REG_ZBUF_2:
 		{
 			auto zbuf = make_convertible<ZBUF>(data);
-			result = string_format("ZBUF_%i(ZBP: 0x%0.8X, PSM: %i, ZMSK: %i)",
+			result = string_format("ZBUF_%i(ZBP: 0x%08X, PSM: %i, ZMSK: %i)",
 				(registerId == GS_REG_ZBUF_1) ? 1 : 2, zbuf.GetBasePtr(), zbuf.nPsm, zbuf.nMask);
 		}
 		break;
 	case GS_REG_BITBLTBUF:
 		{
 			auto buf = make_convertible<BITBLTBUF>(data);
-			result = string_format("BITBLTBUF(SBP: 0x%0.8X, SBW: %i, SPSM: %i, DBP: 0x%0.8X, DBW: %i, DPSM: %i)",
+			result = string_format("BITBLTBUF(SBP: 0x%08X, SBW: %i, SPSM: %i, DBP: 0x%08X, DBW: %i, DPSM: %i)",
 				buf.GetSrcPtr(), buf.GetSrcWidth(), buf.nSrcPsm, buf.GetDstPtr(), buf.GetDstWidth(), buf.nDstPsm);
 		}
 		break;
@@ -1546,7 +1546,7 @@ std::string CGSHandler::DisassembleWrite(uint8 registerId, uint64 data)
 	case GS_REG_SIGNAL:
 		{
 			auto signal = make_convertible<SIGNAL>(data);
-			result = string_format("SIGNAL(IDMSK: 0x%0.8X, ID: 0x%0.8X)",
+			result = string_format("SIGNAL(IDMSK: 0x%08X, ID: 0x%08X)",
 				signal.idmsk, signal.id);
 		}
 		break;
@@ -1556,12 +1556,12 @@ std::string CGSHandler::DisassembleWrite(uint8 registerId, uint64 data)
 	case GS_REG_LABEL:
 		{
 			auto label = make_convertible<LABEL>(data);
-			result = string_format("LABEL(IDMSK: 0x%0.8X, ID: 0x%0.8X)",
+			result = string_format("LABEL(IDMSK: 0x%08X, ID: 0x%08X)",
 				label.idmsk, label.id);
 		}
 		break;
 	default:
-		result = string_format("(Unknown register: 0x%0.2X)", registerId);
+		result = string_format("(Unknown register: 0x%02X)", registerId);
 		break;
 	}
 
@@ -1583,7 +1583,7 @@ void CGSHandler::LogPrivateWrite(uint32 address)
 	switch(regAddress)
 	{
 	case GS_PMODE:
-		CLog::GetInstance().Print(LOG_NAME, "PMODE(0x%0.8X);\r\n", m_nPMODE);
+		CLog::GetInstance().Print(LOG_NAME, "PMODE(0x%08X);\r\n", m_nPMODE);
 		break;
 	case GS_SMODE2:
 		{
@@ -1600,7 +1600,7 @@ void CGSHandler::LogPrivateWrite(uint32 address)
 		{
 			DISPFB dispfb;
 			dispfb <<= (regAddress == GS_DISPFB1) ? m_nDISPFB1.value.q : m_nDISPFB2.value.q;
-			CLog::GetInstance().Print(LOG_NAME, "DISPFB%d(FBP: 0x%0.8X, FBW: %d, PSM: %d, DBX: %d, DBY: %d);\r\n",
+			CLog::GetInstance().Print(LOG_NAME, "DISPFB%d(FBP: 0x%08X, FBW: %d, PSM: %d, DBX: %d, DBY: %d);\r\n",
 				(regAddress == GS_DISPFB1) ? 1 : 2,
 				dispfb.GetBufPtr(),
 				dispfb.GetBufWidth(),
