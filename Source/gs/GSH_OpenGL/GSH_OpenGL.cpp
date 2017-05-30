@@ -864,7 +864,7 @@ void CGSH_OpenGL::SetupBlendingFunction(uint64 alphaReg)
 		glBlendFuncSeparate(GL_ONE, GL_ZERO, GL_ONE, GL_ZERO);
 	}
 
-	glBlendEquation(nFunction);
+	glBlendEquationSeparate(nFunction, GL_FUNC_ADD);
 }
 
 void CGSH_OpenGL::SetupTestFunctions(uint64 testReg)
