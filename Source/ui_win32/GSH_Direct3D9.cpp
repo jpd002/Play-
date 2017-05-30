@@ -1196,6 +1196,8 @@ void CGSH_Direct3D9::SetupBlendingFunction(uint64 alphaReg)
 {
 	auto alpha = make_convertible<ALPHA>(alphaReg);
 
+	auto blendOp = D3DBLENDOP_ADD;
+
 	m_device->SetRenderState(D3DRS_SEPARATEALPHABLENDENABLE, D3DZB_TRUE);
 	m_device->SetRenderState(D3DRS_SRCBLENDALPHA, D3DBLEND_ONE);
 	m_device->SetRenderState(D3DRS_DESTBLENDALPHA, D3DBLEND_ZERO);
@@ -1281,6 +1283,13 @@ void CGSH_Direct3D9::SetupBlendingFunction(uint64 alphaReg)
 		m_device->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_BLENDFACTOR);
 		m_device->SetRenderState(D3DRS_BLENDFACTOR, D3DCOLOR_ARGB(fix, fix, fix, fix));
 	}
+	else if((alpha.nA == ALPHABLEND_ABD_ZERO) && (alpha.nB == ALPHABLEND_ABD_CS) && (alpha.nC == ALPHABLEND_C_AS) && (alpha.nD == ALPHABLEND_ABD_CD))
+	{
+		//2001 -> Cd - Cs * As
+		m_device->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_SRCALPHA);
+		m_device->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_ONE);
+		blendOp = D3DBLENDOP_REVSUBTRACT;
+	}
 	else if((alpha.nA == ALPHABLEND_ABD_ZERO) && (alpha.nB == ALPHABLEND_ABD_CD) && (alpha.nC == ALPHABLEND_C_AS) && (alpha.nD == ALPHABLEND_ABD_CD))
 	{
 		//2101 -> Cd * (1 - As)
@@ -1304,6 +1313,8 @@ void CGSH_Direct3D9::SetupBlendingFunction(uint64 alphaReg)
 		m_device->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_ONE);
 		m_device->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_ZERO);
 	}
+
+	m_device->SetRenderState(D3DRS_BLENDOP, blendOp);
 }
 
 void CGSH_Direct3D9::SetupTestFunctions(uint64 testReg)
