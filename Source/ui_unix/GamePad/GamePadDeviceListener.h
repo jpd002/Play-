@@ -33,8 +33,6 @@ public:
 	void					DisconnectInputEventCallback();
 	void					RePopulateAbs();
 	static bool				IsValidDevice(const fs::path&, inputdev_pair&);
-	static bool				ParseMAC(std::array<uint32, 6>&, std::string const& );
-	static std::array<uint32, 6>		GetDeviceID(libevdev *dev);
 private:
 	std::map<std::string, CGamePadDeviceListener::inputdevice>		m_devicelist;
 	std::map<std::string, std::unique_ptr<CGamePadInputEventListener>>	m_GPIEList;

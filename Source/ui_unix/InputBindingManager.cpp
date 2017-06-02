@@ -2,7 +2,7 @@
 #include <cstring>
 #include <libevdev.h>
 #include "InputBindingManager.h"
-#include "GamePad/GamePadDeviceListener.h"
+#include "GamePad/GamePadUtils.h"
 #include "string_format.h"
 
 #define CONFIG_PREFIX						("input")
@@ -306,7 +306,7 @@ void CInputBindingManager::CSimpleBinding::Save(Framework::CConfig& config, cons
 void CInputBindingManager::CSimpleBinding::Load(Framework::CConfig& config, const char* buttonBase)
 {
 	std::string prefBase = Framework::CConfig::MakePreferenceName(buttonBase, CONFIG_SIMPLEBINDING_PREFIX);
-	CGamePadDeviceListener::ParseMAC(m_device, config.GetPreferenceString(Framework::CConfig::MakePreferenceName(prefBase, CONFIG_BINDINGINFO_DEVICE).c_str()));
+	CGamePadUtils::ParseMAC(m_device, config.GetPreferenceString(Framework::CConfig::MakePreferenceName(prefBase, CONFIG_BINDINGINFO_DEVICE).c_str()));
 	m_keyCode = config.GetPreferenceInteger(Framework::CConfig::MakePreferenceName(prefBase, CONFIG_BINDINGINFO_ID).c_str());
 	m_type = config.GetPreferenceInteger(Framework::CConfig::MakePreferenceName(prefBase, CONFIG_BINDINGINFO_TYPE).c_str());
 }
@@ -444,7 +444,7 @@ void CInputBindingManager::CSimulatedAxisBinding::Load(Framework::CConfig& confi
 
 void CInputBindingManager::CSimulatedAxisBinding::LoadKeyBinding(Framework::CConfig& config, const char* prefBase, BINDINGINFO& binding)
 {
-	CGamePadDeviceListener::ParseMAC(binding.device, config.GetPreferenceString(Framework::CConfig::MakePreferenceName(prefBase, CONFIG_BINDINGINFO_DEVICE).c_str()));
+	CGamePadUtils::ParseMAC(binding.device, config.GetPreferenceString(Framework::CConfig::MakePreferenceName(prefBase, CONFIG_BINDINGINFO_DEVICE).c_str()));
 	binding.id = config.GetPreferenceInteger(Framework::CConfig::MakePreferenceName(prefBase, CONFIG_BINDINGINFO_ID).c_str());
 	binding.type = config.GetPreferenceInteger(Framework::CConfig::MakePreferenceName(prefBase, CONFIG_BINDINGINFO_TYPE).c_str());
 }
@@ -508,7 +508,7 @@ void CInputBindingManager::CPovHatBinding::Save(Framework::CConfig& config, cons
 void CInputBindingManager::CPovHatBinding::Load(Framework::CConfig& config, const char* buttonBase)
 {
 	std::string prefBase = Framework::CConfig::MakePreferenceName(buttonBase, CONFIG_POVHATBINDING_PREFIX);
-	CGamePadDeviceListener::ParseMAC(m_binding.device, config.GetPreferenceString(Framework::CConfig::MakePreferenceName(prefBase, CONFIG_BINDINGINFO_DEVICE).c_str()));
+	CGamePadUtils::ParseMAC(m_binding.device, config.GetPreferenceString(Framework::CConfig::MakePreferenceName(prefBase, CONFIG_BINDINGINFO_DEVICE).c_str()));
 	m_binding.id = config.GetPreferenceInteger(Framework::CConfig::MakePreferenceName(prefBase, CONFIG_BINDINGINFO_ID).c_str());
 	m_binding.type = config.GetPreferenceInteger(Framework::CConfig::MakePreferenceName(prefBase, CONFIG_BINDINGINFO_TYPE).c_str());
 	m_refValue = config.GetPreferenceInteger(Framework::CConfig::MakePreferenceName(prefBase, CONFIG_POVHATBINDING_REFVALUE).c_str());

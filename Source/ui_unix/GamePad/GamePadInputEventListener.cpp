@@ -1,5 +1,5 @@
 #include "GamePadInputEventListener.h"
-#include "GamePadDeviceListener.h"
+#include "GamePadUtils.h"
 #include <fcntl.h>
 #include <sys/signalfd.h>
 #include <poll.h>
@@ -95,7 +95,7 @@ void CGamePadInputEventListener::InputDeviceListenerThread()
 		PopulateAbsInfoList(dev);
 	}
 
-	auto device = CGamePadDeviceListener::GetDeviceID(dev);
+	auto device = CGamePadUtils::GetDeviceID(dev);
 
 	struct pollfd fds[2];
 	sigset_t mask;

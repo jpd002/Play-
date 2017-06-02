@@ -606,6 +606,7 @@ if(TARGET_PLATFORM_UNIX)
 		../Source/ui_unix/InputBindingManager.cpp
 		../Source/ui_unix/bindingmodel.cpp
 		../Source/ui_unix/inputeventselectiondialog.cpp
+		../Source/ui_unix/GamePad/GamePadUtils.cpp
 		../Source/ui_unix/GamePad/GamePadInputEventListener.cpp
 		../Source/ui_unix/GamePad/GamePadDeviceListener.cpp
 	)
@@ -629,6 +630,7 @@ if(TARGET_PLATFORM_UNIX)
 		../Source/ui_unix/InputBindingManager.h
 		../Source/ui_unix/bindingmodel.h
 		../Source/ui_unix/inputeventselectiondialog.h
+		../Source/ui_unix/GamePad/GamePadUtils.h
 		../Source/ui_unix/GamePad/GamePadInputEventListener.h
 		../Source/ui_unix/GamePad/GamePadDeviceListener.h
 	)
