@@ -456,6 +456,14 @@ public class MainActivity extends AppCompatActivity implements NavigationDrawerF
 				LayoutInflater vi = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 				v = vi.inflate(layoutid, null);
 			}
+			else
+			{
+				((TextView) v.findViewById(R.id.game_text)).setText("");
+				((TextView) v.findViewById(R.id.game_text)).setVisibility(View.VISIBLE);
+				ImageView preview = (ImageView) v.findViewById(R.id.game_icon);
+				preview.setImageResource(R.drawable.boxart);
+
+			}
 			final GameInfoStruct game = games.get(position);
 			if (game != null) {
 				createListItem(game, v, position);
