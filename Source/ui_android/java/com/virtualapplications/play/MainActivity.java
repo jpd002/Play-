@@ -478,20 +478,17 @@ public class MainActivity extends AppCompatActivity implements NavigationDrawerF
 			//If user has set values, then read them, if not read from database
 			if (!game.isDescriptionEmptyNull() && game.getFrontLink() != null && !game.getFrontLink().equals("")) {
 				childview.findViewById(R.id.childview).setOnLongClickListener(
-						gameInfo.configureLongClick(game.getTitleName(), game.getDescription(), game));
+						gameInfo.configureLongClick(game));
 
 				if (!game.getFrontLink().equals("404")) {
 					gameInfo.setCoverImage(game.getGameID(), childview, game.getFrontLink(), pos);
-					((TextView) childview.findViewById(R.id.game_text)).setVisibility(View.GONE);
 				} else {
 					ImageView preview = (ImageView) childview.findViewById(R.id.game_icon);
 					preview.setImageResource(R.drawable.boxart);
-					((TextView) childview.findViewById(R.id.game_text)).setVisibility(View.VISIBLE);
 				}
 			} else if (VirtualMachineManager.IsLoadableExecutableFileName(game.getFile().getName())) {
 				ImageView preview = (ImageView) childview.findViewById(R.id.game_icon);
 				preview.setImageResource(R.drawable.boxart);
-				((TextView) childview.findViewById(R.id.game_text)).setVisibility(View.VISIBLE);
 				childview.findViewById(R.id.childview).setOnLongClickListener(null);
 			} else {
 				childview.findViewById(R.id.childview).setOnLongClickListener(null);
@@ -501,16 +498,14 @@ public class MainActivity extends AppCompatActivity implements NavigationDrawerF
 				if (gameStats != null) {
 					games.set(pos, gameStats);
 					childview.findViewById(R.id.childview).setOnLongClickListener(
-							gameInfo.configureLongClick(gameStats.getTitleName(), gameStats.getDescription(), game));
+							gameInfo.configureLongClick(gameStats));
 
 					if (gameStats.getFrontLink() != null && !gameStats.getFrontLink().equals("404")) {
 						gameInfo.setCoverImage(gameStats.getGameID(), childview, gameStats.getFrontLink(), pos);
-						((TextView) childview.findViewById(R.id.game_text)).setVisibility(View.GONE);
 					}
 				} else {
 					ImageView preview = (ImageView) childview.findViewById(R.id.game_icon);
 					preview.setImageResource(R.drawable.boxart);
-					((TextView) childview.findViewById(R.id.game_text)).setVisibility(View.VISIBLE);
 				}
 			}
 
