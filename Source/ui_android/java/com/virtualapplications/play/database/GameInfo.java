@@ -115,14 +115,14 @@ public class GameInfo {
 		}
 	}
 
-	public Bitmap getImage(String key, View childview, String boxart, int pos) {
-		return getImage(key,childview,boxart, true, pos);
+	public void setCoverImage(String key, View childview, String boxart, int pos) {
+		setCoverImage(key,childview,boxart, true, pos);
 	}
-	public Bitmap getImage(final String key, final View childview, String boxart, boolean custom, final int pos) {
+	public void setCoverImage(final String key, final View childview, String boxart, boolean custom, final int pos) {
 		Bitmap cachedImage = getBitmapFromMemCache(key);
 		if (cachedImage != null) {
 			setImageViewCover(childview, cachedImage, pos);
-			return cachedImage;
+			return;
 		}
 		String path = mContext.getExternalFilesDir(null) + "/covers/";
 
@@ -146,12 +146,8 @@ public class GameInfo {
 
 				}
 			}).execute();
-
-
-			return null;
 		} else {
 			new GameImage(childview, boxart, pos).execute(key);
-			return null;
 		}
 	}
 	
@@ -309,7 +305,7 @@ public class GameInfo {
 	public GameInfoStruct getGameInfo(File game, View childview, GameInfoStruct gameInfoStruct, int pos) {
 		String serial = getSerial(game);
 		if (serial == null) {
-			getImage(game.getName(), childview, null, pos);
+			setCoverImage(game.getName(), childview, null, pos);
 			return null;
 		}
 		String suffix = serial.substring(5, serial.length());
