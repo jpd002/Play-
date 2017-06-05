@@ -165,7 +165,7 @@ public class GamesDbAPI extends AsyncTask<File, Integer, Document> {
 										childview.findViewById(R.id.childview).setOnLongClickListener(
 											gameInfo.configureLongClick(title, overview, gameInfoStruct));
 										if (boxart != null) {
-											gameInfo.getImage(remoteID, childview, boxart, pos);
+											gameInfo.setCoverImage(remoteID, childview, boxart, pos);
 										}
 									}
 									break;
@@ -250,7 +250,7 @@ public class GamesDbAPI extends AsyncTask<File, Integer, Document> {
 						childview.findViewById(R.id.childview).setOnLongClickListener(
 								gameInfo.configureLongClick(m_title, overview, gameInfoStruct));
 						if (coverImage != null) {
-							gameInfo.getImage(remoteID, childview, coverImage, pos);
+							gameInfo.setCoverImage(remoteID, childview, coverImage, pos);
 						}
 					}
 				}

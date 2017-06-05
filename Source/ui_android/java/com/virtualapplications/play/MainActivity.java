@@ -27,7 +27,6 @@ import android.support.v4.widget.DrawerLayout;
 import java.io.File;
 import java.text.*;
 import java.util.*;
-import java.util.zip.*;
 
 import com.virtualapplications.play.database.GameIndexer;
 import com.virtualapplications.play.database.GameInfo;
@@ -482,7 +481,7 @@ public class MainActivity extends AppCompatActivity implements NavigationDrawerF
 						gameInfo.configureLongClick(game.getTitleName(), game.getDescription(), game));
 
 				if (!game.getFrontLink().equals("404")) {
-					gameInfo.getImage(game.getGameID(), childview, game.getFrontLink(), pos);
+					gameInfo.setCoverImage(game.getGameID(), childview, game.getFrontLink(), pos);
 					((TextView) childview.findViewById(R.id.game_text)).setVisibility(View.GONE);
 				} else {
 					ImageView preview = (ImageView) childview.findViewById(R.id.game_icon);
@@ -505,7 +504,7 @@ public class MainActivity extends AppCompatActivity implements NavigationDrawerF
 							gameInfo.configureLongClick(gameStats.getTitleName(), gameStats.getDescription(), game));
 
 					if (gameStats.getFrontLink() != null && !gameStats.getFrontLink().equals("404")) {
-						gameInfo.getImage(gameStats.getGameID(), childview, gameStats.getFrontLink(), pos);
+						gameInfo.setCoverImage(gameStats.getGameID(), childview, gameStats.getFrontLink(), pos);
 						((TextView) childview.findViewById(R.id.game_text)).setVisibility(View.GONE);
 					}
 				} else {
