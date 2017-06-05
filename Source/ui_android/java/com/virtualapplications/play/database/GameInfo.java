@@ -260,13 +260,13 @@ public class GameInfo {
 		}
 	}
 	
-	public OnLongClickListener configureLongClick(final String title, final String overview, final GameInfoStruct gameFile) {
+	public OnLongClickListener configureLongClick(final GameInfoStruct gameFile) {
 		return new OnLongClickListener() {
 			public boolean onLongClick(View view) {
 				final AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
 				builder.setCancelable(true);
-				builder.setTitle(title);
-				builder.setMessage(overview);
+				builder.setTitle(gameFile.getTitleName());
+				builder.setMessage(gameFile.getDescription());
 				builder.setNegativeButton("Close",
 						new DialogInterface.OnClickListener() {
 							public void onClick(DialogInterface dialog, int which) {

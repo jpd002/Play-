@@ -130,18 +130,18 @@ public class GamesDbAPI extends AsyncTask<File, Integer, Document> {
 
 	@Override
 	protected void onPostExecute(Document doc) {
-		
+
 		if (doc != null && doc.getElementsByTagName("Game") != null) {
 			try {
 				final Element root = (Element) doc.getElementsByTagName("Game").item(0);
 				final String remoteID = getValue(root, "id");
-				
+
 				ContentResolver cr = mContext.getContentResolver();
 				String selection = Games.KEY_GAMEID + "=?";
 				String[] selectionArgs = { remoteID };
 				Cursor c = cr.query(Games.GAMES_URI, null, selection, selectionArgs, null);
 				String dataID = null;
-				
+
 				if (elastic) {
 					if (c != null && c.getCount() > 0) {
 						if (c.moveToFirst()) {
@@ -155,6 +155,9 @@ public class GamesDbAPI extends AsyncTask<File, Integer, Document> {
 									if (gameInfoStruct.getGameID() == null){
 										gameInfoStruct.setGameID(dataID, null);
 									}
+									if (gameInfoStruct.isTitleNameEmptyNull()){
+										gameInfoStruct.setTitleName(title, null);
+									}
 									if (gameInfoStruct.isDescriptionEmptyNull()){
 										gameInfoStruct.setDescription(overview, null);
 									}
@@ -163,9 +166,9 @@ public class GamesDbAPI extends AsyncTask<File, Integer, Document> {
 									}
 									if (childview != null) {
 										childview.findViewById(R.id.childview).setOnLongClickListener(
-											gameInfo.configureLongClick(title, overview, gameInfoStruct));
+											gameInfo.configureLongClick(gameInfoStruct));
 										if (boxart != null) {
-											gameInfo.setCoverImage(remoteID, childview, boxart, pos);
+											gameInfo.setCoverImage(gameInfoStruct.getGameID(), childview, gameInfoStruct.getFrontLink(), pos);
 										}
 									}
 									break;
@@ -234,9 +237,7 @@ public class GamesDbAPI extends AsyncTask<File, Integer, Document> {
 					if (gameInfoStruct.getGameID() == null){
 						gameInfoStruct.setGameID(remoteID, null);
 					}
-					if (!gameInfoStruct.isTitleNameEmptyNull()){
-						m_title = gameInfoStruct.getTitleName();
-					} else {
+					if (gameInfoStruct.isTitleNameEmptyNull()){
 						gameInfoStruct.setTitleName(m_title, null);
 					}
 					if (gameInfoStruct.isDescriptionEmptyNull()){
@@ -248,14 +249,14 @@ public class GamesDbAPI extends AsyncTask<File, Integer, Document> {
 
 					if (childview != null) {
 						childview.findViewById(R.id.childview).setOnLongClickListener(
-								gameInfo.configureLongClick(m_title, overview, gameInfoStruct));
-						if (coverImage != null) {
-							gameInfo.setCoverImage(remoteID, childview, coverImage, pos);
+								gameInfo.configureLongClick(gameInfoStruct));
+						if (gameInfoStruct.getFrontLink() != null) {
+							gameInfo.setCoverImage(gameInfoStruct.getGameID(), childview, gameInfoStruct.getFrontLink(), pos);
 						}
 					}
 				}
 			} catch (Exception e) {
-				
+
 			}
 		}
 	}
