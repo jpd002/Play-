@@ -205,46 +205,50 @@ public class GameInfo {
 		
 		@Override
 		protected Bitmap doInBackground(String... params) {
+			String path = mContext.getExternalFilesDir(null) + "/covers/";
 			key = params[0];
-			if (GamesDbAPI.isNetworkAvailable(mContext) && boxart != null) {
-				String api = null;
-				if (!boxart.startsWith("boxart/original/front/")) {
-					api = boxart;
-				} else if (boxart.equals("200")) {
-					//200 boxart has no link associated with it and was set by the user
-					return null;
-				} else {
-					api = "http://thegamesdb.net/banners/" + boxart;
-				}
-				try {
-					URL imageURL = new URL(api);
-					URLConnection conn1 = imageURL.openConnection();
-					
-					InputStream im = conn1.getInputStream();
-					BufferedInputStream bis = new BufferedInputStream(im, 512);
-					
-					BitmapFactory.Options options = new BitmapFactory.Options();
-					options.inJustDecodeBounds = true;
-					Bitmap bitmap = BitmapFactory.decodeStream(bis, null, options);
+			File file = new File(path, key + ".jpg");
+			if(!file.exists()) {
+				if (GamesDbAPI.isNetworkAvailable(mContext) && boxart != null) {
+					String api = null;
+					if (!boxart.startsWith("boxart/original/front/")) {
+						api = boxart;
+					} else if (boxart.equals("200")) {
+						//200 boxart has no link associated with it and was set by the user
+						return null;
+					} else {
+						api = "http://thegamesdb.net/banners/" + boxart;
+					}
+					try {
+						URL imageURL = new URL(api);
+						URLConnection conn1 = imageURL.openConnection();
 
-					options.inSampleSize = calculateInSampleSize(options);
-					options.inJustDecodeBounds = false;
-					bis.close();
-					im.close();
-					conn1 = imageURL.openConnection();
-					im = conn1.getInputStream();
-					bis = new BufferedInputStream(im, 512);
-					bitmap = BitmapFactory.decodeStream(bis, null, options);
+						InputStream im = conn1.getInputStream();
+						BufferedInputStream bis = new BufferedInputStream(im, 512);
 
-					bis.close();
-					im.close();
-					bis = null;
-					im = null;
+						BitmapFactory.Options options = new BitmapFactory.Options();
+						options.inJustDecodeBounds = true;
+						Bitmap bitmap = BitmapFactory.decodeStream(bis, null, options);
 
-					saveImage(key, bitmap);
-					return bitmap;
-				} catch (IOException e) {
-					
+						options.inSampleSize = calculateInSampleSize(options);
+						options.inJustDecodeBounds = false;
+						bis.close();
+						im.close();
+						conn1 = imageURL.openConnection();
+						im = conn1.getInputStream();
+						bis = new BufferedInputStream(im, 512);
+						bitmap = BitmapFactory.decodeStream(bis, null, options);
+
+						bis.close();
+						im.close();
+						bis = null;
+						im = null;
+
+						saveImage(key, bitmap);
+						return bitmap;
+					} catch (IOException e) {
+
+					}
 				}
 			}
 			return null;
