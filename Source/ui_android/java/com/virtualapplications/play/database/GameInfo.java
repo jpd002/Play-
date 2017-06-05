@@ -34,6 +34,8 @@ import com.virtualapplications.play.MainActivity;
 import com.virtualapplications.play.NativeInterop;
 import com.virtualapplications.play.database.SqliteHelper.Games;
 
+import static com.virtualapplications.play.MainActivity.launchGame;
+
 public class GameInfo {
 	
 	private Context mContext;
@@ -278,7 +280,7 @@ public class GameInfo {
 						new DialogInterface.OnClickListener() {
 							public void onClick(DialogInterface dialog, int which) {
 								dialog.dismiss();
-								((MainActivity)mContext).launchGame(gameFile);
+								launchGame(gameFile, mContext);
 								return;
 							}
 						});
