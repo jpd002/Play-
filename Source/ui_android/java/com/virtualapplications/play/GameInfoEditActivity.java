@@ -69,7 +69,7 @@ public class GameInfoEditActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 gi.removeBitmapFromMemCache(intent.getStringExtra("gameid"));
-                gi.getImage(intent.getStringExtra("gameid"), findViewById(R.id.coverlayout), intent.getStringExtra("cover"), false);
+                gi.getImage(intent.getStringExtra("gameid"), findViewById(R.id.coverlayout), intent.getStringExtra("cover"), false, 0);
                 default_cover = true;
 
             }
@@ -79,7 +79,7 @@ public class GameInfoEditActivity extends AppCompatActivity {
     private void setupView() {
         ((TextView)findViewById(R.id.editText)).setText(intent.getStringExtra("title"));
         ((TextView)findViewById(R.id.editText2)).setText(intent.getStringExtra("overview"));
-        gi.getImage(intent.getStringExtra("gameid"), findViewById(R.id.coverlayout), intent.getStringExtra("cover"));
+        gi.getImage(intent.getStringExtra("gameid"), findViewById(R.id.coverlayout), intent.getStringExtra("cover"), 0);
         selectedImage = null;
         default_cover =  false;
     }
