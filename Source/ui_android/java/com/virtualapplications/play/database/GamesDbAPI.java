@@ -42,6 +42,7 @@ public class GamesDbAPI extends AsyncTask<File, Integer, Document> {
 
 	private final String serial;
 	private final GameInfoStruct gameInfoStruct;
+	private final int pos;
 	private int index;
 	private View childview;
 	private Context mContext;
@@ -54,11 +55,12 @@ public class GamesDbAPI extends AsyncTask<File, Integer, Document> {
     private static final String games_url_id = "http://thegamesdb.net/api/GetGame.php?platform=sony+playstation+2&id=";
 	private static final String games_list = "http://thegamesdb.net/api/GetPlatformGames.php?platform=11";
 
-	public GamesDbAPI(Context mContext, String gameID, String serial, GameInfoStruct gameInfoStruct) {
+	public GamesDbAPI(Context mContext, String gameID, String serial, GameInfoStruct gameInfoStruct, int pos) {
 		this.elastic = false;
 		this.mContext = mContext;
 		this.gameID = gameID;
 		this.serial = serial;
+		this.pos = pos;
 		this.gameInfoStruct = gameInfoStruct;
 	}
 	
@@ -163,7 +165,7 @@ public class GamesDbAPI extends AsyncTask<File, Integer, Document> {
 										childview.findViewById(R.id.childview).setOnLongClickListener(
 											gameInfo.configureLongClick(title, overview, gameInfoStruct));
 										if (boxart != null) {
-											gameInfo.getImage(remoteID, childview, boxart);
+											gameInfo.getImage(remoteID, childview, boxart, pos);
 										}
 									}
 									break;
@@ -173,7 +175,7 @@ public class GamesDbAPI extends AsyncTask<File, Integer, Document> {
 					}
 					c.close();
 					if (dataID == null) {
-						GamesDbAPI gameDatabase = new GamesDbAPI(mContext, remoteID, serial, gameInfoStruct);
+						GamesDbAPI gameDatabase = new GamesDbAPI(mContext, remoteID, serial, gameInfoStruct, pos);
 						gameDatabase.setView(childview);
 						gameDatabase.execute(gameFile);
 					}
@@ -248,7 +250,7 @@ public class GamesDbAPI extends AsyncTask<File, Integer, Document> {
 						childview.findViewById(R.id.childview).setOnLongClickListener(
 								gameInfo.configureLongClick(m_title, overview, gameInfoStruct));
 						if (coverImage != null) {
-							gameInfo.getImage(remoteID, childview, coverImage);
+							gameInfo.getImage(remoteID, childview, coverImage, pos);
 						}
 					}
 				}

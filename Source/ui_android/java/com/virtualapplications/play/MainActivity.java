@@ -464,6 +464,9 @@ public class MainActivity extends AppCompatActivity implements NavigationDrawerF
 				preview.setImageResource(R.drawable.boxart);
 
 			}
+
+			((TextView) v.findViewById(R.id.currentPosition)).setText(String.valueOf(position));
+
 			final GameInfoStruct game = games.get(position);
 			if (game != null) {
 				createListItem(game, v, position);
@@ -479,7 +482,7 @@ public class MainActivity extends AppCompatActivity implements NavigationDrawerF
 						gameInfo.configureLongClick(game.getTitleName(), game.getDescription(), game));
 
 				if (!game.getFrontLink().equals("404")) {
-					gameInfo.getImage(game.getGameID(), childview, game.getFrontLink());
+					gameInfo.getImage(game.getGameID(), childview, game.getFrontLink(), pos);
 					((TextView) childview.findViewById(R.id.game_text)).setVisibility(View.GONE);
 				} else {
 					ImageView preview = (ImageView) childview.findViewById(R.id.game_icon);
@@ -494,7 +497,7 @@ public class MainActivity extends AppCompatActivity implements NavigationDrawerF
 			} else {
 				childview.findViewById(R.id.childview).setOnLongClickListener(null);
 				// passing game, as to pass and use (if) any user defined values
-				final GameInfoStruct gameStats = gameInfo.getGameInfo(game.getFile(), childview, game);
+				final GameInfoStruct gameStats = gameInfo.getGameInfo(game.getFile(), childview, game, pos);
 
 				if (gameStats != null) {
 					games.set(pos, gameStats);
@@ -502,7 +505,7 @@ public class MainActivity extends AppCompatActivity implements NavigationDrawerF
 							gameInfo.configureLongClick(gameStats.getTitleName(), gameStats.getDescription(), game));
 
 					if (gameStats.getFrontLink() != null && !gameStats.getFrontLink().equals("404")) {
-						gameInfo.getImage(gameStats.getGameID(), childview, gameStats.getFrontLink());
+						gameInfo.getImage(gameStats.getGameID(), childview, gameStats.getFrontLink(), pos);
 						((TextView) childview.findViewById(R.id.game_text)).setVisibility(View.GONE);
 					}
 				} else {

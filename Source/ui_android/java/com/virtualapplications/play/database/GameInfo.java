@@ -110,10 +110,10 @@ public class GameInfo {
 		}
 	}
 
-	public Bitmap getImage(String key, View childview, String boxart) {
-		return getImage(key,childview,boxart, true);
+	public Bitmap getImage(String key, View childview, String boxart, int pos) {
+		return getImage(key,childview,boxart, true, pos);
 	}
-	public Bitmap getImage(String key, View childview, String boxart, boolean custom) {
+	public Bitmap getImage(String key, View childview, String boxart, boolean custom, int pos) {
 		Bitmap cachedImage = getBitmapFromMemCache(key);
 		if (cachedImage != null) {
 			if (childview != null) {
@@ -133,14 +133,14 @@ public class GameInfo {
 			options.inPreferredConfig = Bitmap.Config.ARGB_8888;
 			Bitmap bitmap = BitmapFactory.decodeFile(file.getAbsolutePath(), options);
             addBitmapToMemoryCache(key, bitmap);
-			if (childview != null) {
+			if (childview != null && Integer.parseInt (((TextView) childview.findViewById(R.id.currentPosition)).getText().toString()) == pos) {
 				ImageView preview = (ImageView) childview.findViewById(R.id.game_icon);
 				preview.setImageBitmap(bitmap);
 				((TextView) childview.findViewById(R.id.game_text)).setVisibility(View.GONE);
 			}
 			return bitmap;
 		} else {
-			new GameImage(childview, boxart).execute(key);
+			new GameImage(childview, boxart, pos).execute(key);
 			return null;
 		}
 	}
@@ -151,10 +151,12 @@ public class GameInfo {
 		private String key;
 		private ImageView preview;
 		private String boxart;
+        private int pos;
 		
-		public GameImage(View childview, String boxart) {
+		public GameImage(View childview, String boxart, int pos) {
 			this.childview = childview;
 			this.boxart = boxart;
+            this.pos = pos;
 		}
 		
 		protected void onPreExecute() {
@@ -238,7 +240,7 @@ public class GameInfo {
 		protected void onPostExecute(Bitmap image) {
 			if (image != null) {
 				saveImage(key, image);
-				if (preview != null) {
+                if (childview != null && Integer.parseInt (((TextView) childview.findViewById(R.id.currentPosition)).getText().toString()) == pos) {
 					preview.setImageBitmap(image);
 					((TextView) childview.findViewById(R.id.game_text)).setVisibility(View.GONE);
 				}
@@ -288,10 +290,10 @@ public class GameInfo {
 		};
 	}
 	
-	public GameInfoStruct getGameInfo(File game, View childview, GameInfoStruct gameInfoStruct) {
+	public GameInfoStruct getGameInfo(File game, View childview, GameInfoStruct gameInfoStruct, int pos) {
 		String serial = getSerial(game);
 		if (serial == null) {
-			getImage(game.getName(), childview, null);
+			getImage(game.getName(), childview, null, pos);
 			return null;
 		}
 		String suffix = serial.substring(5, serial.length());
@@ -332,7 +334,7 @@ public class GameInfo {
 			}
 			return gameInfoStruct;
 		} else {
-			GamesDbAPI gameDatabase = new GamesDbAPI(mContext, gameID, serial, gameInfoStruct);
+			GamesDbAPI gameDatabase = new GamesDbAPI(mContext, gameID, serial, gameInfoStruct, pos);
 			gameDatabase.setView(childview);
 			gameDatabase.execute(game);
 			return null;
