@@ -20,18 +20,12 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 import android.os.Build;
-import android.os.StrictMode;
 import android.util.Log;
 import android.util.LruCache;
-import android.util.SparseArray;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.view.View.OnLongClickListener;
 import android.widget.ImageView;
-import android.widget.ImageView.ScaleType;
 import android.widget.TextView;
-
-import java.util.concurrent.ExecutionException;
 
 import com.virtualapplications.play.GameInfoEditActivity;
 import com.virtualapplications.play.GameInfoStruct;
@@ -77,6 +71,14 @@ public class GameInfo {
 		return mMemoryCache.remove(key);
 	}
 
+	private void setImageViewCover(View childview, Bitmap bitmap, int pos)
+	{
+		if (childview != null && Integer.parseInt (((TextView) childview.findViewById(R.id.currentPosition)).getText().toString()) == pos) {
+			ImageView preview = (ImageView) childview.findViewById(R.id.game_icon);
+			preview.setImageBitmap(bitmap);
+			childview.findViewById(R.id.game_text).setVisibility(View.GONE);
+		}
+	}
 
 	public void saveImage(String key, Bitmap image) {
 		saveImage(key, "", image);
@@ -119,11 +121,7 @@ public class GameInfo {
 	public Bitmap getImage(final String key, final View childview, String boxart, boolean custom, final int pos) {
 		Bitmap cachedImage = getBitmapFromMemCache(key);
 		if (cachedImage != null) {
-			if (childview != null) {
-				ImageView preview = (ImageView) childview.findViewById(R.id.game_icon);
-				preview.setImageBitmap(cachedImage);
-				((TextView) childview.findViewById(R.id.game_text)).setVisibility(View.GONE);
-			}
+			setImageViewCover(childview, cachedImage, pos);
 			return cachedImage;
 		}
 		String path = mContext.getExternalFilesDir(null) + "/covers/";
@@ -144,11 +142,8 @@ public class GameInfo {
 				}
 				@Override
 				protected void onPostExecute(Bitmap bitmap) {
-					if (childview != null && Integer.parseInt (((TextView) childview.findViewById(R.id.currentPosition)).getText().toString()) == pos) {
-						ImageView preview = (ImageView) childview.findViewById(R.id.game_icon);
-						preview.setImageBitmap(bitmap);
-						((TextView) childview.findViewById(R.id.game_text)).setVisibility(View.GONE);
-					}
+					setImageViewCover(childview, bitmap, pos);
+
 				}
 			}).execute();
 
@@ -264,10 +259,7 @@ public class GameInfo {
 		@Override
 		protected void onPostExecute(Bitmap image) {
 			if (image != null) {
-                if (childview != null && Integer.parseInt (((TextView) childview.findViewById(R.id.currentPosition)).getText().toString()) == pos) {
-					preview.setImageBitmap(image);
-					((TextView) childview.findViewById(R.id.game_text)).setVisibility(View.GONE);
-				}
+				setImageViewCover(childview, image, pos);
 			}
 		}
 	}
