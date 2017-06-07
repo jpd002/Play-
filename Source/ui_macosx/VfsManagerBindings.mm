@@ -163,7 +163,7 @@
 	[openPanel setCanChooseDirectories: YES];
 	[openPanel setCanCreateDirectories: YES];
 	[openPanel setCanChooseFiles: NO];
-	if([openPanel runModal] != NSOKButton)
+	if([openPanel runModal] != NSModalResponseOK)
 	{
 		return;
 	}
@@ -223,7 +223,7 @@
 	NSOpenPanel* openPanel = [NSOpenPanel openPanel];
 	NSArray* fileTypes = [NSArray arrayWithObjects: @"iso", @"isz", @"cso", @"bin", nil];
 	openPanel.allowedFileTypes = fileTypes;
-	if([openPanel runModal] != NSOKButton)
+	if([openPanel runModal] != NSModalResponseOK)
 	{
 		return;
 	}
