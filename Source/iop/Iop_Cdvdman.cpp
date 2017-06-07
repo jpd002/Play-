@@ -39,11 +39,6 @@ CCdvdman::CCdvdman(CIopBios& bios, uint8* ram)
 
 }
 
-CCdvdman::~CCdvdman()
-{
-
-}
-
 void CCdvdman::LoadState(Framework::CZipArchiveReader& archive)
 {
 	CRegisterStateFile registerFile(*archive.BeginReadFile(STATE_FILENAME));

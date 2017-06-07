@@ -28,7 +28,7 @@ namespace Iop
 		};
 
 								CCdvdman(CIopBios&, uint8*);
-		virtual					~CCdvdman();
+		virtual					~CCdvdman() = default;
 
 		virtual std::string		GetId() const override;
 		virtual std::string		GetFunctionName(unsigned int) const override;
