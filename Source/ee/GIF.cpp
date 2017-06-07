@@ -276,7 +276,7 @@ uint32 CGIF::ProcessSinglePacket(const uint8* memory, uint32 address, uint32 end
 #endif
 
 #if defined(_DEBUG) && defined(DEBUGGER_INCLUDED)
-	CLog::GetInstance().Print(LOG_NAME, "Received GIF packet on path %d at 0x%0.8X of 0x%0.8X bytes.\r\n", 
+	CLog::GetInstance().Print(LOG_NAME, "Received GIF packet on path %d at 0x%08X of 0x%08X bytes.\r\n", 
 		packetMetadata.pathIndex, address, end - address);
 #endif
 
@@ -300,7 +300,7 @@ uint32 CGIF::ProcessSinglePacket(const uint8* memory, uint32 address, uint32 end
 			auto tag = *reinterpret_cast<const TAG*>(&memory[address]);
 			address += 0x10;
 #ifdef _DEBUG
-			CLog::GetInstance().Print(LOG_NAME, "TAG(loops = %d, eop = %d, pre = %d, prim = 0x%0.4X, cmd = %d, nreg = %d);\r\n",
+			CLog::GetInstance().Print(LOG_NAME, "TAG(loops = %d, eop = %d, pre = %d, prim = 0x%04X, cmd = %d, nreg = %d);\r\n",
 				tag.loops, tag.eop, tag.pre, tag.prim, tag.cmd, tag.nreg);
 #endif
 
@@ -359,7 +359,7 @@ uint32 CGIF::ProcessSinglePacket(const uint8* memory, uint32 address, uint32 end
 	flushWriteList(m_gs, packetMetadata);
 
 #ifdef _DEBUG
-	CLog::GetInstance().Print(LOG_NAME, "Processed 0x%0.8X bytes.\r\n", address - start);
+	CLog::GetInstance().Print(LOG_NAME, "Processed 0x%08X bytes.\r\n", address - start);
 #endif
 
 	return address - start;
@@ -465,7 +465,7 @@ void CGIF::DisassembleGet(uint32 address)
 		CLog::GetInstance().Print(LOG_NAME, "= GIF_STAT.\r\n", address);
 		break;
 	default:
-		CLog::GetInstance().Print(LOG_NAME, "Reading unknown register 0x%0.8X.\r\n", address);
+		CLog::GetInstance().Print(LOG_NAME, "Reading unknown register 0x%08X.\r\n", address);
 		break;
 	}
 }
@@ -475,7 +475,7 @@ void CGIF::DisassembleSet(uint32 address, uint32 value)
 	switch(address)
 	{
 	default:
-		CLog::GetInstance().Print(LOG_NAME, "Writing unknown register 0x%0.8X, 0x%0.8X.\r\n", address, value);
+		CLog::GetInstance().Print(LOG_NAME, "Writing unknown register 0x%08X, 0x%08X.\r\n", address, value);
 		break;
 	}
 }

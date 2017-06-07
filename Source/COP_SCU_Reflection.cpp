@@ -32,7 +32,7 @@ void CCOP_SCU::ReflOpCcOff(INSTRUCTION* pInstr, CMIPS* pCtx, uint32 nAddress, ui
 {
 	uint16 nImm = static_cast<uint16>((nOpcode >>  0) & 0xFFFF);
 	nAddress += 4;
-	sprintf(sText, "CC%i, $%0.8X", (nOpcode >> 18) & 0x07, nAddress + CMIPS::GetBranch(nImm));
+	sprintf(sText, "CC%i, $%08X", (nOpcode >> 18) & 0x07, nAddress + CMIPS::GetBranch(nImm));
 }
 
 uint32 CCOP_SCU::ReflEaOffset(INSTRUCTION* pInstr, CMIPS* pCtx, uint32 nAddress, uint32 nOpcode)

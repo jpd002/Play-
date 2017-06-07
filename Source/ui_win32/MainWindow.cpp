@@ -503,7 +503,7 @@ void CMainWindow::DumpNextFrame()
 				Framework::PathUtils::EnsurePathExists(frameDumpDirectoryPath);
 				for(unsigned int i = 0; i < UINT_MAX; i++)
 				{
-					auto frameDumpFileName = string_format("framedump_%0.8d.dmp.zip", i);
+					auto frameDumpFileName = string_format("framedump_%08d.dmp.zip", i);
 					auto frameDumpPath = frameDumpDirectoryPath / boost::filesystem::path(frameDumpFileName);
 					if(!boost::filesystem::exists(frameDumpPath))
 					{

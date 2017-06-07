@@ -115,7 +115,7 @@ void CBasicBlock::Compile()
 		jmethod.method_size = m_function.GetSize();
 		jmethod.line_number_size = 0;
 
-		auto functionName = string_format("BasicBlock_0x%0.8X_0x%0.8X", m_begin, m_end);
+		auto functionName = string_format("BasicBlock_0x%08X_0x%08X", m_begin, m_end);
 
 		jmethod.method_name = const_cast<char*>(functionName.c_str());
 		iJIT_NotifyEvent(iJVM_EVENT_TYPE_METHOD_LOAD_FINISHED, reinterpret_cast<void*>(&jmethod));

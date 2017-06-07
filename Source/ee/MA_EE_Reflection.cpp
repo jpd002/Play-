@@ -17,7 +17,7 @@ void CMA_EE::ReflOpRsImm(INSTRUCTION* pInstr, CMIPS* pCtx, uint32 nAddress, uint
 	uint8 nRS	= static_cast<uint8> ((nOpcode >> 21) & 0x001F);
 	uint16 nImm = static_cast<uint16>((nOpcode >>  0) & 0xFFFF);
 
-	sprintf(sText, "%s, $%0.4X", CMIPS::m_sGPRName[nRS], nImm);
+	sprintf(sText, "%s, $%04X", CMIPS::m_sGPRName[nRS], nImm);
 }
 
 INSTRUCTION CMA_EE::m_cReflMmi[64] =

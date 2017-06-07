@@ -103,7 +103,7 @@ void CThsema::Invoke(CMIPS& context, unsigned int functionId)
 			));
 		break;
 	default:
-		CLog::GetInstance().Print(LOG_NAME, "Unknown function (%d) called at (%0.8X).\r\n", functionId, context.m_State.nPC);
+		CLog::GetInstance().Print(LOG_NAME, "Unknown function (%d) called at (%08X).\r\n", functionId, context.m_State.nPC);
 		break;
 	}
 }

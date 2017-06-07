@@ -171,12 +171,12 @@ void CELFSectionView::FillInformation()
 		_tcscpy(sTemp, _T("SHT_DYNSYM"));
 		break;
 	default:
-		_sntprintf(sTemp, countof(sTemp), _T("Unknown (0x%0.8X)"), pH->nType);
+		_sntprintf(sTemp, countof(sTemp), _T("Unknown (0x%08X)"), pH->nType);
 		break;
 	}
 	m_pType->SetText(sTemp);
 
-	_sntprintf(sTemp, countof(sTemp), _T("0x%0.8X"), pH->nFlags);
+	_sntprintf(sTemp, countof(sTemp), _T("0x%08X"), pH->nFlags);
 	if(pH->nFlags & 0x7)
 	{
 		_tcscat(sTemp, _T(" ("));
@@ -204,13 +204,13 @@ void CELFSectionView::FillInformation()
 	}
 	m_pFlags->SetText(sTemp);
 
-	_sntprintf(sTemp, countof(sTemp), _T("0x%0.8X"), pH->nStart);
+	_sntprintf(sTemp, countof(sTemp), _T("0x%08X"), pH->nStart);
 	m_pAddress->SetText(sTemp);
 
-	_sntprintf(sTemp, countof(sTemp), _T("0x%0.8X"), pH->nOffset);
+	_sntprintf(sTemp, countof(sTemp), _T("0x%08X"), pH->nOffset);
 	m_pOffset->SetText(sTemp);
 
-	_sntprintf(sTemp, countof(sTemp), _T("0x%0.8X"), pH->nSize);
+	_sntprintf(sTemp, countof(sTemp), _T("0x%08X"), pH->nSize);
 	m_pSize->SetText(sTemp);
 
 	_sntprintf(sTemp, countof(sTemp), _T("%i"), pH->nIndex);
@@ -219,10 +219,10 @@ void CELFSectionView::FillInformation()
 	_sntprintf(sTemp, countof(sTemp), _T("%i"), pH->nInfo);
 	m_pInfo->SetText(sTemp);
 
-	_sntprintf(sTemp, countof(sTemp), _T("0x%0.8X"), pH->nAlignment);
+	_sntprintf(sTemp, countof(sTemp), _T("0x%08X"), pH->nAlignment);
 	m_pAlignment->SetText(sTemp);
 
-	_sntprintf(sTemp, countof(sTemp), _T("0x%0.8X"), pH->nOther);
+	_sntprintf(sTemp, countof(sTemp), _T("0x%08X"), pH->nOther);
 	m_pEntrySize->SetText(sTemp);
 
 	if(pH->nType == CELF::SHT_DYNAMIC)
@@ -290,23 +290,23 @@ void CELFSectionView::FillDynamicSectionListView()
 			break;
 		case CELF::DT_PLTRELSZ:
 			_tcscpy(tempTag, _T("DT_PLTRELSZ"));
-			_sntprintf(tempVal, countof(tempVal), _T("0x%0.8X"), value);
+			_sntprintf(tempVal, countof(tempVal), _T("0x%08X"), value);
 			break;
 		case CELF::DT_PLTGOT:
 			_tcscpy(tempTag, _T("DT_PLTGOT"));
-			_sntprintf(tempVal, countof(tempVal), _T("0x%0.8X"), value);
+			_sntprintf(tempVal, countof(tempVal), _T("0x%08X"), value);
 			break;
 		case CELF::DT_HASH:
 			_tcscpy(tempTag, _T("DT_HASH"));
-			_sntprintf(tempVal, countof(tempVal), _T("0x%0.8X"), value);
+			_sntprintf(tempVal, countof(tempVal), _T("0x%08X"), value);
 			break;
 		case CELF::DT_STRTAB:
 			_tcscpy(tempTag, _T("DT_STRTAB"));
-			_sntprintf(tempVal, countof(tempVal), _T("0x%0.8X"), value);
+			_sntprintf(tempVal, countof(tempVal), _T("0x%08X"), value);
 			break;
 		case CELF::DT_SYMTAB:
 			_tcscpy(tempTag, _T("DT_SYMTAB"));
-			_sntprintf(tempVal, countof(tempVal), _T("0x%0.8X"), value);
+			_sntprintf(tempVal, countof(tempVal), _T("0x%08X"), value);
 			break;
 		case CELF::DT_SONAME:
 			_tcscpy(tempTag, _T("DT_SONAME"));
@@ -317,8 +317,8 @@ void CELFSectionView::FillDynamicSectionListView()
 			_tcscpy(tempVal, _T(""));
 			break;
 		default:
-			_sntprintf(tempTag, countof(tempTag), _T("Unknown (0x%0.8X)"), tag);
-			_sntprintf(tempVal, countof(tempVal), _T("0x%0.8X"), value);
+			_sntprintf(tempTag, countof(tempTag), _T("Unknown (0x%08X)"), tag);
+			_sntprintf(tempVal, countof(tempVal), _T("0x%08X"), value);
 			break;
 		}
 

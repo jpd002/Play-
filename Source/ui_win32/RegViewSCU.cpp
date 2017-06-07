@@ -30,7 +30,7 @@ std::string CRegViewSCU::GetDisplayText()
 	for(unsigned int i = 0; i < 32; i++)
 	{
 		char sTemp[256];
-		sprintf(sTemp, "%10s : 0x%0.8X\r\n", CCOP_SCU::m_sRegName[i], s->nCOP0[i]);
+		sprintf(sTemp, "%10s : 0x%08X\r\n", CCOP_SCU::m_sRegName[i], s->nCOP0[i]);
 		result += sTemp;
 	}
 

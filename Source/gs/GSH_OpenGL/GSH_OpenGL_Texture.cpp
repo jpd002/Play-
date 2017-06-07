@@ -239,7 +239,7 @@ void CGSH_OpenGL::DumpTexture(unsigned int nWidth, unsigned int nHeight, uint32 
 	for(unsigned int i = 0; i < UINT_MAX; i++)
 	{
 		struct _stat Stat;
-		sprintf(sFilename, "./textures/tex_%0.8X_%0.8X.bmp", i, checksum);
+		sprintf(sFilename, "./textures/tex_%08X_%08X.bmp", i, checksum);
 		if(_stat(sFilename, &Stat) == -1) break;
 	}
 

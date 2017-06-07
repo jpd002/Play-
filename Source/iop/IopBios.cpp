@@ -837,7 +837,7 @@ int32 CIopBios::GetCurrentThreadIdRaw() const
 uint32 CIopBios::CreateThread(uint32 threadProc, uint32 priority, uint32 stackSize, uint32 optionData, uint32 attributes)
 {
 #ifdef _DEBUG
-	CLog::GetInstance().Print(LOGNAME, "%d: CreateThread(threadProc = 0x%0.8X, priority = %d, stackSize = 0x%0.8X);\r\n", 
+	CLog::GetInstance().Print(LOGNAME, "%d: CreateThread(threadProc = 0x%08X, priority = %d, stackSize = 0x%08X);\r\n", 
 		m_currentThreadId.Get(), threadProc, priority, stackSize);
 #endif
 
@@ -928,7 +928,7 @@ int32 CIopBios::DeleteThread(uint32 threadId)
 int32 CIopBios::StartThread(uint32 threadId, uint32 param)
 {
 #ifdef _DEBUG
-	CLog::GetInstance().Print(LOGNAME, "%i: StartThread(threadId = %i, param = 0x%0.8X);\r\n", 
+	CLog::GetInstance().Print(LOGNAME, "%i: StartThread(threadId = %i, param = 0x%08X);\r\n", 
 		m_currentThreadId.Get(), threadId, param);
 #endif
 
@@ -962,7 +962,7 @@ int32 CIopBios::StartThread(uint32 threadId, uint32 param)
 int32 CIopBios::StartThreadArgs(uint32 threadId, uint32 args, uint32 argpPtr)
 {
 #ifdef _DEBUG
-	CLog::GetInstance().Print(LOGNAME, "%d: StartThreadArgs(threadId = %d, args = %d, argp = 0x%0.8X);\r\n", 
+	CLog::GetInstance().Print(LOGNAME, "%d: StartThreadArgs(threadId = %d, args = %d, argp = 0x%08X);\r\n", 
 		m_currentThreadId.Get(), threadId, args, argpPtr);
 #endif
 
@@ -1181,7 +1181,7 @@ int32 CIopBios::ChangeThreadPriority(uint32 threadId, uint32 newPrio)
 uint32 CIopBios::ReferThreadStatus(uint32 threadId, uint32 statusPtr, bool inInterrupt)
 {
 #ifdef _DEBUG
-	CLog::GetInstance().Print(LOGNAME, "%d: ReferThreadStatus(threadId = %d, statusPtr = 0x%0.8X, inInterrupt = %d);\r\n", 
+	CLog::GetInstance().Print(LOGNAME, "%d: ReferThreadStatus(threadId = %d, statusPtr = 0x%08X, inInterrupt = %d);\r\n", 
 		m_currentThreadId.Get(), threadId, statusPtr, inInterrupt);
 #endif
 
@@ -1714,7 +1714,7 @@ uint32 CIopBios::PollSemaphore(uint32 semaphoreId)
 
 uint32 CIopBios::ReferSemaphoreStatus(uint32 semaphoreId, uint32 statusPtr)
 {
-	CLog::GetInstance().Print(LOGNAME, "%d: ReferSemaphoreStatus(semaphoreId = %d, statusPtr = 0x%0.8X);\r\n", 
+	CLog::GetInstance().Print(LOGNAME, "%d: ReferSemaphoreStatus(semaphoreId = %d, statusPtr = 0x%08X);\r\n", 
 		m_currentThreadId.Get(), semaphoreId, statusPtr);
 
 	auto semaphore = m_semaphores[semaphoreId];
@@ -1737,7 +1737,7 @@ uint32 CIopBios::ReferSemaphoreStatus(uint32 semaphoreId, uint32 statusPtr)
 uint32 CIopBios::CreateEventFlag(uint32 attributes, uint32 options, uint32 initValue)
 {
 #ifdef _DEBUG
-	CLog::GetInstance().Print(LOGNAME, "%d: CreateEventFlag(attr = 0x%0.8X, opt = 0x%0.8X, initValue = 0x%0.8X);\r\n",
+	CLog::GetInstance().Print(LOGNAME, "%d: CreateEventFlag(attr = 0x%08X, opt = 0x%08X, initValue = 0x%08X);\r\n",
 		m_currentThreadId.Get(), attributes, options, initValue);
 #endif
 
@@ -1781,7 +1781,7 @@ uint32 CIopBios::DeleteEventFlag(uint32 eventId)
 uint32 CIopBios::SetEventFlag(uint32 eventId, uint32 value, bool inInterrupt)
 {
 #ifdef _DEBUG
-	CLog::GetInstance().Print(LOGNAME, "%d: SetEventFlag(eventId = %d, value = 0x%0.8X, inInterrupt = %d);\r\n",
+	CLog::GetInstance().Print(LOGNAME, "%d: SetEventFlag(eventId = %d, value = 0x%08X, inInterrupt = %d);\r\n",
 		m_currentThreadId.Get(), eventId, value, inInterrupt);
 #endif
 
@@ -1824,7 +1824,7 @@ uint32 CIopBios::SetEventFlag(uint32 eventId, uint32 value, bool inInterrupt)
 uint32 CIopBios::ClearEventFlag(uint32 eventId, uint32 value)
 {
 #ifdef _DEBUG
-	CLog::GetInstance().Print(LOGNAME, "%d: ClearEventFlag(eventId = %d, value = 0x%0.8X);\r\n",
+	CLog::GetInstance().Print(LOGNAME, "%d: ClearEventFlag(eventId = %d, value = 0x%08X);\r\n",
 		m_currentThreadId.Get(), eventId, value);
 #endif
 
@@ -1842,7 +1842,7 @@ uint32 CIopBios::ClearEventFlag(uint32 eventId, uint32 value)
 uint32 CIopBios::WaitEventFlag(uint32 eventId, uint32 value, uint32 mode, uint32 resultPtr)
 {
 #ifdef _DEBUG
-	CLog::GetInstance().Print(LOGNAME, "%d: WaitEventFlag(eventId = %d, value = 0x%0.8X, mode = 0x%0.2X, resultPtr = 0x%0.8X);\r\n",
+	CLog::GetInstance().Print(LOGNAME, "%d: WaitEventFlag(eventId = %d, value = 0x%08X, mode = 0x%02X, resultPtr = 0x%08X);\r\n",
 		m_currentThreadId.Get(), eventId, value, mode, resultPtr);
 #endif
 
@@ -1872,7 +1872,7 @@ uint32 CIopBios::WaitEventFlag(uint32 eventId, uint32 value, uint32 mode, uint32
 uint32 CIopBios::PollEventFlag(uint32 eventId, uint32 value, uint32 mode, uint32 resultPtr)
 {
 #ifdef _DEBUG
-	CLog::GetInstance().Print(LOGNAME, "%d: PollEventFlag(eventId = %d, value = 0x%0.8X, mode = 0x%0.2X, resultPtr = 0x%0.8X);\r\n",
+	CLog::GetInstance().Print(LOGNAME, "%d: PollEventFlag(eventId = %d, value = 0x%08X, mode = 0x%02X, resultPtr = 0x%08X);\r\n",
 		m_currentThreadId.Get(), eventId, value, mode, resultPtr);
 #endif
 
@@ -1900,7 +1900,7 @@ uint32 CIopBios::PollEventFlag(uint32 eventId, uint32 value, uint32 mode, uint32
 uint32 CIopBios::ReferEventFlagStatus(uint32 eventId, uint32 infoPtr)
 {
 #ifdef _DEBUG
-	CLog::GetInstance().Print(LOGNAME, "%d: ReferEventFlagStatus(eventId = %d, infoPtr = 0x%0.8X);\r\n",
+	CLog::GetInstance().Print(LOGNAME, "%d: ReferEventFlagStatus(eventId = %d, infoPtr = 0x%08X);\r\n",
 		m_currentThreadId.Get(), eventId, infoPtr);
 #endif
 
@@ -1997,7 +1997,7 @@ uint32 CIopBios::DeleteMessageBox(uint32 boxId)
 uint32 CIopBios::SendMessageBox(uint32 boxId, uint32 messagePtr, bool inInterrupt)
 {
 #ifdef _DEBUG
-	CLog::GetInstance().Print(LOGNAME, "%d: SendMessageBox(boxId = %d, messagePtr = 0x%0.8X, inInterrupt = %d);\r\n",
+	CLog::GetInstance().Print(LOGNAME, "%d: SendMessageBox(boxId = %d, messagePtr = 0x%08X, inInterrupt = %d);\r\n",
 		m_currentThreadId.Get(), boxId, messagePtr, inInterrupt);
 #endif
 
@@ -2056,7 +2056,7 @@ uint32 CIopBios::SendMessageBox(uint32 boxId, uint32 messagePtr, bool inInterrup
 uint32 CIopBios::ReceiveMessageBox(uint32 messagePtr, uint32 boxId)
 {
 #ifdef _DEBUG
-	CLog::GetInstance().Print(LOGNAME, "%d: ReceiveMessageBox(messagePtr = 0x%0.8X, boxId = %d);\r\n",
+	CLog::GetInstance().Print(LOGNAME, "%d: ReceiveMessageBox(messagePtr = 0x%08X, boxId = %d);\r\n",
 		m_currentThreadId.Get(), messagePtr, boxId);
 #endif
 
@@ -2094,7 +2094,7 @@ uint32 CIopBios::ReceiveMessageBox(uint32 messagePtr, uint32 boxId)
 uint32 CIopBios::PollMessageBox(uint32 messagePtr, uint32 boxId)
 {
 #ifdef _DEBUG
-	CLog::GetInstance().Print(LOGNAME, "%d: PollMessageBox(messagePtr = 0x%0.8X, boxId = %d);\r\n",
+	CLog::GetInstance().Print(LOGNAME, "%d: PollMessageBox(messagePtr = 0x%08X, boxId = %d);\r\n",
 		m_currentThreadId.Get(), messagePtr, boxId);
 #endif
 
@@ -2123,7 +2123,7 @@ uint32 CIopBios::PollMessageBox(uint32 messagePtr, uint32 boxId)
 uint32 CIopBios::ReferMessageBoxStatus(uint32 boxId, uint32 statusPtr)
 {
 #ifdef _DEBUG
-	CLog::GetInstance().Print(LOGNAME, "%d: ReferMessageBox(boxId = %d, statusPtr = 0x%0.8X);\r\n",
+	CLog::GetInstance().Print(LOGNAME, "%d: ReferMessageBox(boxId = %d, statusPtr = 0x%08X);\r\n",
 		m_currentThreadId.Get(), boxId, statusPtr);
 #endif
 
@@ -2592,7 +2592,7 @@ void CIopBios::HandleException()
 		else
 		{
 #ifdef _DEBUG
-			CLog::GetInstance().Print(LOGNAME, "%0.8X: Trying to call a function from non-existing module (%s, %d).\r\n", 
+			CLog::GetInstance().Print(LOGNAME, "%08X: Trying to call a function from non-existing module (%s, %d).\r\n", 
 				m_cpu.m_State.nPC, moduleName.c_str(), functionId);
 #endif
 		}
@@ -3135,7 +3135,7 @@ void CIopBios::PrepareModuleDebugInfo(CELF& elf, const ExecutableRange& moduleRa
 				else
 				{
 					char functionNameTemp[256];
-					sprintf(functionNameTemp, "unknown_%0.4X", functionId);
+					sprintf(functionNameTemp, "unknown_%04X", functionId);
 					functionName = functionNameTemp;
 				}
 				if(m_cpu.m_Functions.Find(address) == NULL)
@@ -3176,7 +3176,7 @@ void CIopBios::PrepareModuleDebugInfo(CELF& elf, const ExecutableRange& moduleRa
 		m_cpu.m_Functions.OnTagListChange();
 	}
 
-	CLog::GetInstance().Print(LOGNAME, "Loaded IOP module '%s' @ 0x%0.8X.\r\n", 
+	CLog::GetInstance().Print(LOGNAME, "Loaded IOP module '%s' @ 0x%08X.\r\n", 
 		modulePath.c_str(), moduleRange.first);
 }
 

@@ -56,7 +56,7 @@ long CMemoryViewMIPSWnd::OnSysCommand(unsigned int nCmd, LPARAM lParam)
 
 void CMemoryViewMIPSWnd::UpdateStatusBar()
 {
-	auto caption = string_format(_T("Address : 0x%0.8X"), m_memoryView->GetSelection());
+	auto caption = string_format(_T("Address : 0x%08X"), m_memoryView->GetSelection());
 	m_addressEdit->SetText(caption.c_str());
 }
 

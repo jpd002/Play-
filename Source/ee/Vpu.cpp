@@ -151,7 +151,7 @@ CVif& CVpu::GetVif()
 
 void CVpu::ExecuteMicroProgram(uint32 nAddress)
 {
-	CLog::GetInstance().Print(LOG_NAME, "Starting microprogram execution at 0x%0.8X.\r\n", nAddress);
+	CLog::GetInstance().Print(LOG_NAME, "Starting microprogram execution at 0x%08X.\r\n", nAddress);
 
 	m_ctx->m_State.nPC = nAddress;
 	m_ctx->m_State.pipeTime = 0;

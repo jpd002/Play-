@@ -69,14 +69,14 @@ void CCOP_FPU::ReflOpFtOffRs(INSTRUCTION* pInstr, CMIPS* pCtx, uint32 nAddress, 
 	uint8  nFT  = static_cast<uint8> ((nOpcode >> 16) & 0x001F);
 	uint16 nImm = static_cast<uint16>((nOpcode >>  0) & 0xFFFF);
 
-	sprintf(sText, "F%i, $%0.4X(%s)", nFT, nImm, CMIPS::m_sGPRName[nRS]);
+	sprintf(sText, "F%i, $%04X(%s)", nFT, nImm, CMIPS::m_sGPRName[nRS]);
 }
 
 void CCOP_FPU::ReflOpCcOff(INSTRUCTION* pInstr, CMIPS* pCtx, uint32 nAddress, uint32 nOpcode, char* sText, unsigned int nCount)
 {
 	uint16 nImm = static_cast<uint16>((nOpcode >>  0) & 0xFFFF);
 	nAddress += 4;
-	sprintf(sText, "CC%i, $%0.8X", (nOpcode >> 18) & 0x07, nAddress + CMIPS::GetBranch(nImm));
+	sprintf(sText, "CC%i, $%08X", (nOpcode >> 18) & 0x07, nAddress + CMIPS::GetBranch(nImm));
 }
 
 uint32 CCOP_FPU::ReflEaOffset(INSTRUCTION* pInstr, CMIPS* pCtx, uint32 nAddress, uint32 nOpcode)

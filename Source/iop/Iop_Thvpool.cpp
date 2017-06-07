@@ -80,14 +80,14 @@ void CThvpool::Invoke(CMIPS& context, unsigned int functionId)
 			));
 		break;
 	default:
-		CLog::GetInstance().Print(LOG_NAME, "Unknown function (%d) called at (%0.8X).\r\n", functionId, context.m_State.nPC);
+		CLog::GetInstance().Print(LOG_NAME, "Unknown function (%d) called at (%08X).\r\n", functionId, context.m_State.nPC);
 		break;
 	}
 }
 
 uint32 CThvpool::CreateVpl(uint32 paramPtr)
 {
-	CLog::GetInstance().Print(LOG_NAME, FUNCTION_CREATEVPL "(paramPtr = 0x%0.8X);\r\n",
+	CLog::GetInstance().Print(LOG_NAME, FUNCTION_CREATEVPL "(paramPtr = 0x%08X);\r\n",
 		paramPtr);
 	return m_bios.CreateVpl(paramPtr);
 }
@@ -101,21 +101,21 @@ uint32 CThvpool::DeleteVpl(uint32 vplId)
 
 uint32 CThvpool::pAllocateVpl(uint32 vplId, uint32 size)
 {
-	CLog::GetInstance().Print(LOG_NAME, FUNCTION_PALLOCATEVPL "(vplId = %d, size = 0x%0.8X);\r\n",
+	CLog::GetInstance().Print(LOG_NAME, FUNCTION_PALLOCATEVPL "(vplId = %d, size = 0x%08X);\r\n",
 		vplId, size);
 	return m_bios.pAllocateVpl(vplId, size);
 }
 
 uint32 CThvpool::FreeVpl(uint32 vplId, uint32 ptr)
 {
-	CLog::GetInstance().Print(LOG_NAME, FUNCTION_FREEVPL "(vplId = %d, ptr = 0x%0.8X);\r\n",
+	CLog::GetInstance().Print(LOG_NAME, FUNCTION_FREEVPL "(vplId = %d, ptr = 0x%08X);\r\n",
 		vplId, ptr);
 	return m_bios.FreeVpl(vplId, ptr);
 }
 
 uint32 CThvpool::ReferVplStatus(uint32 vplId, uint32 statPtr)
 {
-	CLog::GetInstance().Print(LOG_NAME, FUNCTION_REFERVPLSTATUS "(vplId = %d, statPtr = 0x%0.8X);\r\n",
+	CLog::GetInstance().Print(LOG_NAME, FUNCTION_REFERVPLSTATUS "(vplId = %d, statPtr = 0x%08X);\r\n",
 		vplId, statPtr);
 	return m_bios.ReferVplStatus(vplId, statPtr);
 }

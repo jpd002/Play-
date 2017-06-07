@@ -247,7 +247,7 @@ void CRootCounters::DisassembleRead(uint32 address)
 		CLog::GetInstance().Print(LOG_NAME, "CNT%d: = TARGET\r\n", counterId);
 		break;
 	default:
-		CLog::GetInstance().Print(LOG_NAME, "Reading an unknown register (0x%0.8X).\r\n", address);
+		CLog::GetInstance().Print(LOG_NAME, "Reading an unknown register (0x%08X).\r\n", address);
 		break;
 	}
 }
@@ -259,16 +259,16 @@ void CRootCounters::DisassembleWrite(uint32 address, uint32 value)
 	switch(registerId)
 	{
 	case CNT_COUNT:
-		CLog::GetInstance().Print(LOG_NAME, "CNT%d: COUNT = 0x%0.4X\r\n", counterId, value);
+		CLog::GetInstance().Print(LOG_NAME, "CNT%d: COUNT = 0x%04X\r\n", counterId, value);
 		break;
 	case CNT_MODE:
-		CLog::GetInstance().Print(LOG_NAME, "CNT%d: MODE = 0x%0.8X\r\n", counterId, value);
+		CLog::GetInstance().Print(LOG_NAME, "CNT%d: MODE = 0x%08X\r\n", counterId, value);
 		break;
 	case CNT_TARGET:
-		CLog::GetInstance().Print(LOG_NAME, "CNT%d: TARGET = 0x%0.4X\r\n", counterId, value);
+		CLog::GetInstance().Print(LOG_NAME, "CNT%d: TARGET = 0x%04X\r\n", counterId, value);
 		break;
 	default:
-		CLog::GetInstance().Print(LOG_NAME, "Writing to an unknown register (0x%0.8X, 0x%0.8X).\r\n", address, value);
+		CLog::GetInstance().Print(LOG_NAME, "Writing to an unknown register (0x%08X, 0x%08X).\r\n", address, value);
 		break;
 	}
 }

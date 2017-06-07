@@ -383,7 +383,7 @@ uint32 CCore::WriteRegisterChannel(unsigned int channelId, uint32 address, uint3
 void CCore::LogRead(uint32 address, uint32 value)
 {
 	auto logName = m_logName.c_str();
-#define LOG_GET(registerId) case registerId: CLog::GetInstance().Print(logName, "= " #registerId " = 0x%0.4X\r\n", value); break;
+#define LOG_GET(registerId) case registerId: CLog::GetInstance().Print(logName, "= " #registerId " = 0x%04X\r\n", value); break;
 
 	switch(address)
 	{
@@ -412,7 +412,7 @@ void CCore::LogRead(uint32 address, uint32 value)
 		LOG_GET(A_EEA_LO)
 
 	default:
-		CLog::GetInstance().Print(logName, "Read an unknown register 0x%0.4X.\r\n", address);
+		CLog::GetInstance().Print(logName, "Read an unknown register 0x%04X.\r\n", address);
 		break;
 	}
 
@@ -422,7 +422,7 @@ void CCore::LogRead(uint32 address, uint32 value)
 void CCore::LogWrite(uint32 address, uint32 value)
 {
 	auto logName = m_logName.c_str();
-#define LOG_SET(registerId) case registerId: CLog::GetInstance().Print(logName, #registerId " = 0x%0.4X\r\n", value); break;
+#define LOG_SET(registerId) case registerId: CLog::GetInstance().Print(logName, #registerId " = 0x%04X\r\n", value); break;
 
 	switch(address)
 	{
@@ -464,7 +464,7 @@ void CCore::LogWrite(uint32 address, uint32 value)
 		LOG_SET(P_BVOLR)
 
 	default:
-		CLog::GetInstance().Print(logName, "Write 0x%0.4X to an unknown register 0x%0.4X.\r\n", value, address);
+		CLog::GetInstance().Print(logName, "Write 0x%04X to an unknown register 0x%04X.\r\n", value, address);
 		break;
 	}
 
@@ -474,7 +474,7 @@ void CCore::LogWrite(uint32 address, uint32 value)
 void CCore::LogChannelRead(unsigned int channelId, uint32 address, uint32 value)
 {
 	auto logName = m_logName.c_str();
-#define LOG_GET(registerId) case registerId: CLog::GetInstance().Print(logName, "ch%0.2d: = " #registerId " = 0x%0.4X\r\n", channelId, value); break;
+#define LOG_GET(registerId) case registerId: CLog::GetInstance().Print(logName, "ch%02d: = " #registerId " = 0x%04X\r\n", channelId, value); break;
 
 	switch(address)
 	{
@@ -494,7 +494,7 @@ void CCore::LogChannelRead(unsigned int channelId, uint32 address, uint32 value)
 		LOG_GET(VA_NAX_LO)
 
 	default:
-		CLog::GetInstance().Print(logName, "ch%0.2d: Read an unknown register 0x%0.4X.\r\n", 
+		CLog::GetInstance().Print(logName, "ch%02d: Read an unknown register 0x%04X.\r\n", 
 			channelId, address);
 		break;
 	}
@@ -505,7 +505,7 @@ void CCore::LogChannelRead(unsigned int channelId, uint32 address, uint32 value)
 void CCore::LogChannelWrite(unsigned int channelId, uint32 address, uint32 value)
 {
 	auto logName = m_logName.c_str();
-#define LOG_SET(registerId) case registerId: CLog::GetInstance().Print(logName, "ch%0.2d: " #registerId " = 0x%0.4X\r\n", channelId, value); break;
+#define LOG_SET(registerId) case registerId: CLog::GetInstance().Print(logName, "ch%02d: " #registerId " = 0x%04X\r\n", channelId, value); break;
 
 	switch(address)
 	{
@@ -523,7 +523,7 @@ void CCore::LogChannelWrite(unsigned int channelId, uint32 address, uint32 value
 		LOG_SET(VA_LSAX_LO)
 
 	default:
-		CLog::GetInstance().Print(logName, "ch%0.2d: Wrote %0.4X to an unknown register 0x%0.4X.\r\n", 
+		CLog::GetInstance().Print(logName, "ch%02d: Wrote %04X to an unknown register 0x%04X.\r\n", 
 			channelId, value, address);
 		break;
 	}

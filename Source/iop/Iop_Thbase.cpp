@@ -259,7 +259,7 @@ void CThbase::Invoke(CMIPS& context, unsigned int functionId)
 		context.m_State.nGPR[CMIPS::V0].nD0 = static_cast<int32>(GetSystemTimeLow());
 		break;
 	default:
-		CLog::GetInstance().Print(LOG_NAME, "Unknown function (%d) called at (%0.8X).\r\n", functionId, context.m_State.nPC);
+		CLog::GetInstance().Print(LOG_NAME, "Unknown function (%d) called at (%08X).\r\n", functionId, context.m_State.nPC);
 		break;
 	}
 }
@@ -358,7 +358,7 @@ uint32 CThbase::DelayThread(uint32 delay)
 uint32 CThbase::GetSystemTime(uint32 resultPtr)
 {
 #ifdef _DEBUG
-	CLog::GetInstance().Print(LOG_NAME, "%d : " FUNCTION_GETSYSTEMTIME "(resultPtr = 0x%0.8X);\r\n",
+	CLog::GetInstance().Print(LOG_NAME, "%d : " FUNCTION_GETSYSTEMTIME "(resultPtr = 0x%08X);\r\n",
 		m_bios.GetCurrentThreadIdRaw(), resultPtr);
 #endif
 	uint64* result = nullptr;
@@ -385,7 +385,7 @@ uint32 CThbase::GetSystemTimeLow()
 uint32 CThbase::SetAlarm(uint32 timePtr, uint32 alarmFunction, uint32 param)
 {
 #ifdef _DEBUG
-	CLog::GetInstance().Print(LOG_NAME, "%d : SetAlarm(timePtr = 0x%0.8X, alarmFunction = 0x%0.8X, param = 0x%0.8X);\r\n",
+	CLog::GetInstance().Print(LOG_NAME, "%d : SetAlarm(timePtr = 0x%08X, alarmFunction = 0x%08X, param = 0x%08X);\r\n",
 		m_bios.GetCurrentThreadIdRaw(), timePtr, alarmFunction, param);
 #endif
 	return m_bios.SetAlarm(timePtr, alarmFunction, param);
@@ -394,7 +394,7 @@ uint32 CThbase::SetAlarm(uint32 timePtr, uint32 alarmFunction, uint32 param)
 uint32 CThbase::CancelAlarm(uint32 alarmFunction, uint32 param)
 {
 #ifdef _DEBUG
-	CLog::GetInstance().Print(LOG_NAME, "%d : CancelAlarm(alarmFunction = 0x%0.8X, param = 0x%0.8X);\r\n",
+	CLog::GetInstance().Print(LOG_NAME, "%d : CancelAlarm(alarmFunction = 0x%08X, param = 0x%08X);\r\n",
 		m_bios.GetCurrentThreadIdRaw(), alarmFunction, param);
 #endif
 	return m_bios.CancelAlarm(alarmFunction, param);
@@ -403,7 +403,7 @@ uint32 CThbase::CancelAlarm(uint32 alarmFunction, uint32 param)
 void CThbase::USecToSysClock(uint32 usec, uint32 timePtr)
 {
 #ifdef _DEBUG
-	CLog::GetInstance().Print(LOG_NAME, "%d : USecToSysClock(usec = 0x%0.8X, timePtr = 0x%0.8X);\r\n",
+	CLog::GetInstance().Print(LOG_NAME, "%d : USecToSysClock(usec = 0x%08X, timePtr = 0x%08X);\r\n",
 		m_bios.GetCurrentThreadIdRaw(), usec, timePtr);
 #endif
 	uint64* time = (timePtr != 0) ? reinterpret_cast<uint64*>(&m_ram[timePtr]) : NULL;
@@ -416,7 +416,7 @@ void CThbase::USecToSysClock(uint32 usec, uint32 timePtr)
 void CThbase::SysClockToUSec(uint32 timePtr, uint32 secPtr, uint32 usecPtr)
 {
 #ifdef _DEBUG
-	CLog::GetInstance().Print(LOG_NAME, "%d : SysClockToUSec(time = 0x%0.8X, sec = 0x%0.8X, usec = 0x%0.8X);\r\n",
+	CLog::GetInstance().Print(LOG_NAME, "%d : SysClockToUSec(time = 0x%08X, sec = 0x%08X, usec = 0x%08X);\r\n",
 		m_bios.GetCurrentThreadIdRaw(), timePtr, secPtr, usecPtr);
 #endif
 	uint64* time = (timePtr != 0) ? reinterpret_cast<uint64*>(&m_ram[timePtr]) : NULL;

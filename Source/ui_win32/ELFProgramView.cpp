@@ -103,30 +103,30 @@ void CELFProgramView::FillInformation()
 		_tcscpy(sTemp, _T("PT_PHDR"));
 		break;
 	default:
-		_sntprintf(sTemp, countof(sTemp), _T("Unknown (0x%0.8X)"), pH->nType);
+		_sntprintf(sTemp, countof(sTemp), _T("Unknown (0x%08X)"), pH->nType);
 		break;
 	}
 	m_pType->SetText(sTemp);
 
-	_sntprintf(sTemp, countof(sTemp), _T("0x%0.8X"), pH->nOffset);
+	_sntprintf(sTemp, countof(sTemp), _T("0x%08X"), pH->nOffset);
 	m_pOffset->SetText(sTemp);
 
-	_sntprintf(sTemp, countof(sTemp), _T("0x%0.8X"), pH->nVAddress);
+	_sntprintf(sTemp, countof(sTemp), _T("0x%08X"), pH->nVAddress);
 	m_pVAddr->SetText(sTemp);
 
-	_sntprintf(sTemp, countof(sTemp), _T("0x%0.8X"), pH->nPAddress);
+	_sntprintf(sTemp, countof(sTemp), _T("0x%08X"), pH->nPAddress);
 	m_pPAddr->SetText(sTemp);
 
-	_sntprintf(sTemp, countof(sTemp), _T("0x%0.8X"), pH->nFileSize);
+	_sntprintf(sTemp, countof(sTemp), _T("0x%08X"), pH->nFileSize);
 	m_pFileSize->SetText(sTemp);
 
-	_sntprintf(sTemp, countof(sTemp), _T("0x%0.8X"), pH->nMemorySize);
+	_sntprintf(sTemp, countof(sTemp), _T("0x%08X"), pH->nMemorySize);
 	m_pMemSize->SetText(sTemp);
 
-	_sntprintf(sTemp, countof(sTemp), _T("0x%0.8X"), pH->nFlags);
+	_sntprintf(sTemp, countof(sTemp), _T("0x%08X"), pH->nFlags);
 	m_pFlags->SetText(sTemp);
 
-	_sntprintf(sTemp, countof(sTemp), _T("0x%0.8X"), pH->nAlignment);
+	_sntprintf(sTemp, countof(sTemp), _T("0x%08X"), pH->nAlignment);
 	m_pAlign->SetText(sTemp);
 }
 

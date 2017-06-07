@@ -199,13 +199,13 @@ void CDmac::LogRead(uint32 address)
 			switch(registerId)
 			{
 			case CChannel::REG_MADR:
-				CLog::GetInstance().Print(LOG_NAME, "ch%0.2d: = MADR.\r\n", channelId);
+				CLog::GetInstance().Print(LOG_NAME, "ch%02d: = MADR.\r\n", channelId);
 				break;
 			case CChannel::REG_CHCR:
-				CLog::GetInstance().Print(LOG_NAME, "ch%0.2d: = CHCR.\r\n", channelId);
+				CLog::GetInstance().Print(LOG_NAME, "ch%02d: = CHCR.\r\n", channelId);
 				break;
 			default:
-				CLog::GetInstance().Print(LOG_NAME, "Read an unknown register 0x%0.8X.\r\n",
+				CLog::GetInstance().Print(LOG_NAME, "Read an unknown register 0x%08X.\r\n",
 					address);
 				break;
 			}
@@ -219,10 +219,10 @@ void CDmac::LogWrite(uint32 address, uint32 value)
 	switch(address)
 	{
 	case DPCR:
-		CLog::GetInstance().Print(LOG_NAME, "DPCR = 0x%0.8X.\r\n", value);
+		CLog::GetInstance().Print(LOG_NAME, "DPCR = 0x%08X.\r\n", value);
 		break;
 	case DICR:
-		CLog::GetInstance().Print(LOG_NAME, "DICR = 0x%0.8X.\r\n", value);
+		CLog::GetInstance().Print(LOG_NAME, "DICR = 0x%08X.\r\n", value);
 		break;
 	default:
 		{
@@ -231,19 +231,19 @@ void CDmac::LogWrite(uint32 address, uint32 value)
 			switch(registerId)
 			{
 			case CChannel::REG_MADR:
-				CLog::GetInstance().Print(LOG_NAME, "ch%0.2d: MADR = 0x%0.8X.\r\n", channelId, value);
+				CLog::GetInstance().Print(LOG_NAME, "ch%02d: MADR = 0x%08X.\r\n", channelId, value);
 				break;
 			case CChannel::REG_BCR:
-				CLog::GetInstance().Print(LOG_NAME, "ch%0.2d: BCR = 0x%0.8X.\r\n", channelId, value);
+				CLog::GetInstance().Print(LOG_NAME, "ch%02d: BCR = 0x%08X.\r\n", channelId, value);
 				break;
 			case CChannel::REG_BCR + 2:
-				CLog::GetInstance().Print(LOG_NAME, "ch%0.2d: BCR.ba = 0x%0.8X.\r\n", channelId, value);
+				CLog::GetInstance().Print(LOG_NAME, "ch%02d: BCR.ba = 0x%08X.\r\n", channelId, value);
 				break;
 			case CChannel::REG_CHCR:
-				CLog::GetInstance().Print(LOG_NAME, "ch%0.2d: CHCR = 0x%0.8X.\r\n", channelId, value);
+				CLog::GetInstance().Print(LOG_NAME, "ch%02d: CHCR = 0x%08X.\r\n", channelId, value);
 				break;
 			default:
-				CLog::GetInstance().Print(LOG_NAME, "Wrote 0x%0.8X to unknown register 0x%0.8X.\r\n",
+				CLog::GetInstance().Print(LOG_NAME, "Wrote 0x%08X to unknown register 0x%08X.\r\n",
 					value, address);
 				break;
 			}

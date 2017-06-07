@@ -95,7 +95,7 @@ void CSysmem::Invoke(CMIPS& context, unsigned int functionId)
 		m_stdio.__printf(context);
 		break;
 	default:
-		CLog::GetInstance().Print(LOG_NAME, "%s(%0.8X): Unknown function (%d) called.\r\n", __FUNCTION__, context.m_State.nPC, functionId);
+		CLog::GetInstance().Print(LOG_NAME, "%s(%08X): Unknown function (%d) called.\r\n", __FUNCTION__, context.m_State.nPC, functionId);
 		break;
 	}
 }
@@ -128,7 +128,7 @@ bool CSysmem::Invoke(uint32 method, uint32* args, uint32 argsSize, uint32* ret, 
 		ret[0] = QueryMaxFreeMemSize();
 		break;
 	default:
-		CLog::GetInstance().Print(LOG_NAME, "Unknown method invoked (0x%0.8X).\r\n", method);
+		CLog::GetInstance().Print(LOG_NAME, "Unknown method invoked (0x%08X).\r\n", method);
 		break;
 	}
 	return true;
@@ -156,7 +156,7 @@ uint32 CSysmem::QueryMaxFreeMemSize()
 
 uint32 CSysmem::AllocateMemory(uint32 size, uint32 flags, uint32 wantedAddress)
 {
-	CLog::GetInstance().Print(LOG_NAME, "AllocateMemory(size = 0x%0.8X, flags = 0x%0.8X, wantedAddress = 0x%0.8X);\r\n",
+	CLog::GetInstance().Print(LOG_NAME, "AllocateMemory(size = 0x%08X, flags = 0x%08X, wantedAddress = 0x%08X);\r\n",
 		size, flags, wantedAddress);
 
 	const uint32 blockSize = MIN_BLOCK_SIZE;
@@ -258,7 +258,7 @@ uint32 CSysmem::AllocateMemory(uint32 size, uint32 flags, uint32 wantedAddress)
 
 uint32 CSysmem::FreeMemory(uint32 address)
 {
-	CLog::GetInstance().Print(LOG_NAME, "FreeMemory(address = 0x%0.8X);\r\n", address);
+	CLog::GetInstance().Print(LOG_NAME, "FreeMemory(address = 0x%08X);\r\n", address);
 
 	address -= m_memoryBegin;
 	//Search for block pointing at the address
@@ -281,7 +281,7 @@ uint32 CSysmem::FreeMemory(uint32 address)
 	}
 	else
 	{
-		CLog::GetInstance().Print(LOG_NAME, "%s: Trying to unallocate an unexisting memory block (0x%0.8X).\r\n", __FUNCTION__, address);
+		CLog::GetInstance().Print(LOG_NAME, "%s: Trying to unallocate an unexisting memory block (0x%08X).\r\n", __FUNCTION__, address);
 	}
 	return 0;
 }
@@ -289,7 +289,7 @@ uint32 CSysmem::FreeMemory(uint32 address)
 uint32 CSysmem::SifAllocate(uint32 nSize)
 {
 	uint32 result = AllocateMemory(nSize, 0, 0); 
-	CLog::GetInstance().Print(LOG_NAME, "result = 0x%0.8X = Allocate(size = 0x%0.8X);\r\n", 
+	CLog::GetInstance().Print(LOG_NAME, "result = 0x%08X = Allocate(size = 0x%08X);\r\n", 
 		result, nSize);
 	return result;
 }
@@ -297,14 +297,14 @@ uint32 CSysmem::SifAllocate(uint32 nSize)
 uint32 CSysmem::SifAllocateSystemMemory(uint32 nSize, uint32 nFlags, uint32 nPtr)
 {
 	uint32 result = AllocateMemory(nSize, nFlags, nPtr);
-	CLog::GetInstance().Print(LOG_NAME, "result = 0x%0.8X = AllocateSystemMemory(flags = 0x%0.8X, size = 0x%0.8X, ptr = 0x%0.8X);\r\n", 
+	CLog::GetInstance().Print(LOG_NAME, "result = 0x%08X = AllocateSystemMemory(flags = 0x%08X, size = 0x%08X, ptr = 0x%08X);\r\n", 
 		result, nFlags, nSize, nPtr);
 	return result;
 }
 
 uint32 CSysmem::SifLoadMemory(uint32 address, const char* filePath)
 {
-	CLog::GetInstance().Print(LOG_NAME, "LoadMemory(address = 0x%0.8X, filePath = '%s');\r\n",
+	CLog::GetInstance().Print(LOG_NAME, "LoadMemory(address = 0x%08X, filePath = '%s');\r\n",
 		address, filePath);
 
 	auto fd = m_ioman.Open(Ioman::CDevice::OPEN_FLAG_RDONLY, filePath);
@@ -321,7 +321,7 @@ uint32 CSysmem::SifLoadMemory(uint32 address, const char* filePath)
 
 uint32 CSysmem::SifFreeMemory(uint32 address)
 {
-	CLog::GetInstance().Print(LOG_NAME, "FreeMemory(address = 0x%0.8X);\r\n", address);
+	CLog::GetInstance().Print(LOG_NAME, "FreeMemory(address = 0x%08X);\r\n", address);
 	FreeMemory(address);
 	return 0;
 }

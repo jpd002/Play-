@@ -132,7 +132,7 @@ bool CCdvdfsv::Invoke592(uint32 method, uint32* args, uint32 argsSize, uint32* r
 		}
 		break;
 	default:
-		CLog::GetInstance().Print(LOG_NAME, "Unknown method invoked (0x%0.8X, 0x%0.8X).\r\n", 0x592, method);
+		CLog::GetInstance().Print(LOG_NAME, "Unknown method invoked (0x%08X, 0x%08X).\r\n", 0x592, method);
 		break;
 	}
 	return true;
@@ -202,7 +202,7 @@ bool CCdvdfsv::Invoke593(uint32 method, uint32* args, uint32 argsSize, uint32* r
 		break;
 
 	default:
-		CLog::GetInstance().Print(LOG_NAME, "Unknown method invoked (0x%0.8X, 0x%0.8X).\r\n", 0x593, method);
+		CLog::GetInstance().Print(LOG_NAME, "Unknown method invoked (0x%08X, 0x%08X).\r\n", 0x593, method);
 		break;
 	}
 	return true;
@@ -223,7 +223,7 @@ bool CCdvdfsv::Invoke595(uint32 method, uint32* args, uint32 argsSize, uint32* r
 			assert(argsSize >= 4);
 			assert(retSize >= 4);
 			uint32 nBuffer = args[0x00];
-			CLog::GetInstance().Print(LOG_NAME, "GetToc(buffer = 0x%0.8X);\r\n", nBuffer);
+			CLog::GetInstance().Print(LOG_NAME, "GetToc(buffer = 0x%08X);\r\n", nBuffer);
 			ret[0x00] = 1;
 		}
 		break;
@@ -232,7 +232,7 @@ bool CCdvdfsv::Invoke595(uint32 method, uint32* args, uint32 argsSize, uint32* r
 		{
 			assert(argsSize >= 4);
 			uint32 seekSector = args[0];
-			CLog::GetInstance().Print(LOG_NAME, "Seek(sector = 0x%0.8X);\r\n", seekSector);
+			CLog::GetInstance().Print(LOG_NAME, "Seek(sector = 0x%08X);\r\n", seekSector);
 		}
 		break;
 
@@ -260,7 +260,7 @@ bool CCdvdfsv::Invoke595(uint32 method, uint32* args, uint32 argsSize, uint32* r
 		break;
 
 	default:
-		CLog::GetInstance().Print(LOG_NAME, "Unknown method invoked (0x%0.8X, 0x%0.8X).\r\n", 0x595, method);
+		CLog::GetInstance().Print(LOG_NAME, "Unknown method invoked (0x%08X, 0x%08X).\r\n", 0x595, method);
 		break;
 	}
 	return true;
@@ -271,7 +271,7 @@ bool CCdvdfsv::Invoke596(uint32 method, uint32* args, uint32 argsSize, uint32* r
 	switch(method)
 	{
 	default:
-		CLog::GetInstance().Print(LOG_NAME, "Unknown method invoked (0x%0.8X, 0x%0.8X).\r\n", 0x596, method);
+		CLog::GetInstance().Print(LOG_NAME, "Unknown method invoked (0x%08X, 0x%08X).\r\n", 0x596, method);
 		break;
 	}
 	return true;
@@ -285,7 +285,7 @@ bool CCdvdfsv::Invoke597(uint32 method, uint32* args, uint32 argsSize, uint32* r
 		SearchFile(args, argsSize, ret, retSize, ram);
 		break;
 	default:
-		CLog::GetInstance().Print(LOG_NAME, "Unknown method invoked (0x%0.8X, 0x%0.8X).\r\n", 0x597, method);
+		CLog::GetInstance().Print(LOG_NAME, "Unknown method invoked (0x%08X, 0x%08X).\r\n", 0x597, method);
 		break;
 	}
 	return true;
@@ -311,7 +311,7 @@ bool CCdvdfsv::Invoke59C(uint32 method, uint32* args, uint32 argsSize, uint32* r
 		}
 		break;
 	default:
-		CLog::GetInstance().Print(LOG_NAME, "Unknown method invoked (0x%0.8X, 0x%0.8X).\r\n", 0x59C, method);
+		CLog::GetInstance().Print(LOG_NAME, "Unknown method invoked (0x%08X, 0x%08X).\r\n", 0x59C, method);
 		break;
 	}
 	return true;
@@ -324,7 +324,7 @@ void CCdvdfsv::Read(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, 
 	uint32 dstAddr	= args[0x02];
 	uint32 mode		= args[0x03];
 
-	CLog::GetInstance().Print(LOG_NAME, "Read(sector = 0x%0.8X, count = 0x%0.8X, addr = 0x%0.8X, mode = 0x%0.8X);\r\n",
+	CLog::GetInstance().Print(LOG_NAME, "Read(sector = 0x%08X, count = 0x%08X, addr = 0x%08X, mode = 0x%08X);\r\n",
 		sector, count, dstAddr, mode);
 
 	//We write the result now, but ideally should be only written
@@ -348,7 +348,7 @@ void CCdvdfsv::ReadIopMem(uint32* args, uint32 argsSize, uint32* ret, uint32 ret
 	uint32 dstAddr	= args[0x02];
 	uint32 mode		= args[0x03];
 
-	CLog::GetInstance().Print(LOG_NAME, "ReadIopMem(sector = 0x%0.8X, count = 0x%0.8X, addr = 0x%0.8X, mode = 0x%0.8X);\r\n",
+	CLog::GetInstance().Print(LOG_NAME, "ReadIopMem(sector = 0x%08X, count = 0x%08X, addr = 0x%08X, mode = 0x%08X);\r\n",
 		sector, count, dstAddr, mode);
 
 	if(retSize >= 4)
@@ -373,7 +373,7 @@ bool CCdvdfsv::StreamCmd(uint32* args, uint32 argsSize, uint32* ret, uint32 retS
 	uint32 cmd		= args[0x03];
 	uint32 mode		= args[0x04];
 
-	CLog::GetInstance().Print(LOG_NAME, "StreamCmd(sector = 0x%0.8X, count = 0x%0.8X, addr = 0x%0.8X, cmd = 0x%0.8X, mode = 0x%0.8X);\r\n",
+	CLog::GetInstance().Print(LOG_NAME, "StreamCmd(sector = 0x%08X, count = 0x%08X, addr = 0x%08X, cmd = 0x%08X, mode = 0x%08X);\r\n",
 		sector, count, dstAddr, cmd, mode);
 
 	assert(m_pendingCommand == COMMAND_NONE);
@@ -384,7 +384,7 @@ bool CCdvdfsv::StreamCmd(uint32* args, uint32 argsSize, uint32* ret, uint32 retS
 		//Start
 		m_streamPos = sector;
 		ret[0] = 1;
-		CLog::GetInstance().Print(LOG_NAME, "StreamStart(pos = 0x%0.8X);\r\n", sector);
+		CLog::GetInstance().Print(LOG_NAME, "StreamStart(pos = 0x%08X);\r\n", sector);
 		m_streaming = true;
 		break;
 	case 2:
@@ -395,7 +395,7 @@ bool CCdvdfsv::StreamCmd(uint32* args, uint32 argsSize, uint32* ret, uint32 retS
 		m_pendingReadAddr   = dstAddr & (PS2::EE_RAM_SIZE - 1);
 		ret[0] = count;
 		immediateReply = false;
-		CLog::GetInstance().Print(LOG_NAME, "StreamRead(count = 0x%0.8X, dest = 0x%0.8X);\r\n",
+		CLog::GetInstance().Print(LOG_NAME, "StreamRead(count = 0x%08X, dest = 0x%08X);\r\n",
 			count, dstAddr);
 		break;
 	case 3:
@@ -407,7 +407,7 @@ bool CCdvdfsv::StreamCmd(uint32* args, uint32 argsSize, uint32* ret, uint32 retS
 	case 5:
 		//Init
 		ret[0] = 1;
-		CLog::GetInstance().Print(LOG_NAME, "StreamInit(bufsize = 0x%0.8X, numbuf = 0x%0.8X, buf = 0x%0.8X);\r\n",
+		CLog::GetInstance().Print(LOG_NAME, "StreamInit(bufsize = 0x%08X, numbuf = 0x%08X, buf = 0x%08X);\r\n",
 			sector, count, dstAddr);
 		m_streamBufferSize = sector;
 		break;
@@ -421,7 +421,7 @@ bool CCdvdfsv::StreamCmd(uint32* args, uint32 argsSize, uint32* ret, uint32 retS
 		//Seek
 		m_streamPos = sector;
 		ret[0] = 1;
-		CLog::GetInstance().Print(LOG_NAME, "StreamSeek(pos = 0x%0.8X);\r\n", sector);
+		CLog::GetInstance().Print(LOG_NAME, "StreamSeek(pos = 0x%08X);\r\n", sector);
 		break;
 	default:
 		CLog::GetInstance().Print(LOG_NAME, "Unknown stream command used.\r\n");

@@ -130,7 +130,7 @@ uint32 CTimer::GetRegister(uint32 nAddress)
 		break;
 
 	default:
-		CLog::GetInstance().Print(LOG_NAME, "Read an unhandled IO port (0x%0.8X).\r\n", nAddress);
+		CLog::GetInstance().Print(LOG_NAME, "Read an unhandled IO port (0x%08X).\r\n", nAddress);
 		break;
 	}
 
@@ -180,7 +180,7 @@ void CTimer::SetRegister(uint32 nAddress, uint32 nValue)
 		break;
 
 	default:
-		CLog::GetInstance().Print(LOG_NAME, "Wrote to an unhandled IO port (0x%0.8X, 0x%0.8X).\r\n", nAddress, nValue);
+		CLog::GetInstance().Print(LOG_NAME, "Wrote to an unhandled IO port (0x%08X, 0x%08X).\r\n", nAddress, nValue);
 		break;
 	}
 }
@@ -216,19 +216,19 @@ void CTimer::DisassembleSet(uint32 nAddress, uint32 nValue)
 	switch(nAddress & 0x7FF)
 	{
 	case 0x00:
-		CLog::GetInstance().Print(LOG_NAME, "T%i_COUNT = 0x%0.8X\r\n", nTimerId, nValue);
+		CLog::GetInstance().Print(LOG_NAME, "T%i_COUNT = 0x%08X\r\n", nTimerId, nValue);
 		break;
 
 	case 0x10:
-		CLog::GetInstance().Print(LOG_NAME, "T%i_MODE = 0x%0.8X\r\n", nTimerId, nValue);
+		CLog::GetInstance().Print(LOG_NAME, "T%i_MODE = 0x%08X\r\n", nTimerId, nValue);
 		break;
 
 	case 0x20:
-		CLog::GetInstance().Print(LOG_NAME, "T%i_COMP = 0x%0.8X\r\n", nTimerId, nValue);
+		CLog::GetInstance().Print(LOG_NAME, "T%i_COMP = 0x%08X\r\n", nTimerId, nValue);
 		break;
 
 	case 0x30:
-		CLog::GetInstance().Print(LOG_NAME, "T%i_HOLD = 0x%0.8X\r\n", nTimerId, nValue);
+		CLog::GetInstance().Print(LOG_NAME, "T%i_HOLD = 0x%08X\r\n", nTimerId, nValue);
 		break;
 	}
 }

@@ -49,7 +49,7 @@ void CStdio::Invoke(CMIPS& context, unsigned int functionId)
 		__printf(context);
 		break;
 	default:
-		CLog::GetInstance().Print(LOG_NAME, "Unknown function (%d) called. PC = (%0.8X).", 
+		CLog::GetInstance().Print(LOG_NAME, "Unknown function (%d) called. PC = (%08X).", 
 			functionId, context.m_State.nPC);
 		break;
 	}

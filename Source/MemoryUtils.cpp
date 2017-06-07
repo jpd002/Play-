@@ -97,7 +97,7 @@ void MemoryUtils_SetDoubleProxy(CMIPS* context, uint64 value64, uint32 address)
 	const CMemoryMap::MEMORYMAPELEMENT* e = context->m_pMemoryMap->GetWriteMap(address);
 	if(e == NULL) 
 	{
-		printf("MemoryMap: Wrote to unmapped memory (0x%0.8X, [0x%0.8X, 0x%0.8X]).\r\n", 
+		printf("MemoryMap: Wrote to unmapped memory (0x%08X, [0x%08X, 0x%08X]).\r\n", 
 			address, value.d0, value.d1);
 		return;
 	}
@@ -124,7 +124,7 @@ void MemoryUtils_SetQuadProxy(CMIPS* context, const uint128& value, uint32 addre
 	const CMemoryMap::MEMORYMAPELEMENT* e = context->m_pMemoryMap->GetWriteMap(address);
 	if(e == NULL) 
 	{
-		printf("MemoryMap: Wrote to unmapped memory (0x%0.8X, [0x%0.8X, 0x%0.8X, 0x%0.8X, 0x%0.8X]).\r\n", 
+		printf("MemoryMap: Wrote to unmapped memory (0x%08X, [0x%08X, 0x%08X, 0x%08X, 0x%08X]).\r\n", 
 			address, value.nV0, value.nV1, value.nV2, value.nV3);
 		return;
 	}
