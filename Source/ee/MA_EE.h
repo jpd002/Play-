@@ -6,7 +6,7 @@ class CMA_EE : public CMA_MIPSIV
 {
 public:
 										CMA_EE();
-	virtual								~CMA_EE();
+	virtual								~CMA_EE() = default;
 
 protected:
 	typedef void (CMA_EE::*InstructionFuncConstant)();

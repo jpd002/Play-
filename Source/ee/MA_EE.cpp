@@ -44,11 +44,6 @@ CMA_MIPSIV(MIPS_REGSIZE_64)
 	SetupReflectionTables();
 }
 
-CMA_EE::~CMA_EE()
-{
-
-}
-
 void CMA_EE::PushVector(unsigned int nReg)
 {
 	m_codeGen->MD_PushRel(offsetof(CMIPS, m_State.nGPR[nReg]));
