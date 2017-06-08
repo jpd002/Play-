@@ -1343,6 +1343,12 @@ void CMA_EE::PINTEH()
 	}
 }
 
+//0C
+void CMA_EE::PMULTUW()
+{
+	Generic_PMULTW(false);
+}
+
 //0E
 void CMA_EE::PCPYUD()
 {
@@ -1806,7 +1812,7 @@ CMA_EE::InstructionFuncConstant CMA_EE::m_pOpMmi3[0x20] =
 	//0x00
 	&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::PSRAVW,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,
 	//0x08
-	&CMA_EE::PMTHI,			&CMA_EE::PMTLO,			&CMA_EE::PINTEH,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::PCPYUD,		&CMA_EE::Illegal,
+	&CMA_EE::PMTHI,			&CMA_EE::PMTLO,			&CMA_EE::PINTEH,		&CMA_EE::Illegal,		&CMA_EE::PMULTUW,		&CMA_EE::Illegal,		&CMA_EE::PCPYUD,		&CMA_EE::Illegal,
 	//0x10
 	&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::POR,			&CMA_EE::PNOR,			&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,
 	//0x18

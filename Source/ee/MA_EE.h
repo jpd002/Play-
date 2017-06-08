@@ -146,6 +146,7 @@ private:
 	void								PMTHI();
 	void								PMTLO();
 	void								PINTEH();
+	void								PMULTUW();
 	void								PCPYUD();
 	void								POR();
 	void								PNOR();
