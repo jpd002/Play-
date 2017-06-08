@@ -160,6 +160,7 @@ private:
 	void								PMFHL_SH();
 
 	void								Generic_MADD(unsigned int unit, bool isSigned);
+	void								Generic_PMULTW(bool);
 	void								Generic_PSxxV(const TemplateOperationFunctionType&);
 
 	//Reflection tables
