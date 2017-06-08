@@ -988,6 +988,7 @@ add_test(NAME McServTest
 
 add_executable(VuTest
 	../tools/VuTest/AddTest.cpp
+        ../tools/VuTest/DivLatencyTest.cpp
 	../tools/VuTest/FlagsTest2.cpp
 	../tools/VuTest/FlagsTest.cpp
 	../tools/VuTest/Main.cpp

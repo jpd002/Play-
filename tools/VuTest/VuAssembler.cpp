@@ -70,6 +70,15 @@ uint32 CVuAssembler::Upper::MULi(DEST dest, VF_REGISTER fd, VF_REGISTER fs)
 	return result;
 }
 
+uint32 CVuAssembler::Upper::MULq(DEST dest, VF_REGISTER fd, VF_REGISTER fs)
+{
+	uint32 result = 0x0000001C;
+	result |= (fd << 6);
+	result |= (fs << 11);
+	result |= (dest << 21);
+	return result;
+}
+
 uint32 CVuAssembler::Upper::MULAbc(DEST dest, VF_REGISTER fs, VF_REGISTER ft, BROADCAST bc)
 {
 	uint32 result = 0x000001BC;
@@ -116,6 +125,16 @@ uint32 CVuAssembler::Upper::SUBbc(DEST dest, VF_REGISTER fd, VF_REGISTER fs, VF_
 //---------------------------------------------------------------------------------
 //LOWER OPs
 //---------------------------------------------------------------------------------
+
+uint32 CVuAssembler::Lower::DIV(VF_REGISTER fs, FIELD fsf, VF_REGISTER ft, FIELD ftf)
+{
+	uint32 result = 0x800003BC;
+	result |= (ftf << 23);
+	result |= (fsf << 21);
+	result |= (ft << 16);
+	result |= (fs << 11);
+	return result;
+}
 
 uint32 CVuAssembler::Lower::FMAND(VI_REGISTER it, VI_REGISTER is)
 {
