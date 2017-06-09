@@ -27,7 +27,7 @@ public class GameInfoEditActivity extends AppCompatActivity {
     private Bitmap selectedImage;
     private GameInfo gi;
     private boolean default_cover;
-
+    private GamesAdapter.CoverViewHolder viewHolder;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -39,9 +39,10 @@ public class GameInfoEditActivity extends AppCompatActivity {
         intent = getIntent();
         gi = new GameInfo(this);
 
+        viewHolder = new GamesAdapter.CoverViewHolder(findViewById(R.id.coverlayout));
         setupView();
 
-        View cover = findViewById(R.id.game_icon);
+        View cover = viewHolder.gameImageView;
         cover.setOnClickListener(new View.OnClickListener() {
 
             @Override
@@ -69,7 +70,7 @@ public class GameInfoEditActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 gi.removeBitmapFromMemCache(intent.getStringExtra("gameid"));
-                gi.setCoverImage(intent.getStringExtra("gameid"), findViewById(R.id.coverlayout), intent.getStringExtra("cover"), false, 0);
+                gi.setCoverImage(intent.getStringExtra("gameid"), viewHolder, intent.getStringExtra("cover"), false, 0);
                 default_cover = true;
 
             }
@@ -79,7 +80,7 @@ public class GameInfoEditActivity extends AppCompatActivity {
     private void setupView() {
         ((TextView)findViewById(R.id.editText)).setText(intent.getStringExtra("title"));
         ((TextView)findViewById(R.id.editText2)).setText(intent.getStringExtra("overview"));
-        gi.setCoverImage(intent.getStringExtra("gameid"), findViewById(R.id.coverlayout), intent.getStringExtra("cover"), 0);
+        gi.setCoverImage(intent.getStringExtra("gameid"), viewHolder, intent.getStringExtra("cover"), 0);
         selectedImage = null;
         default_cover =  false;
     }
@@ -101,7 +102,7 @@ public class GameInfoEditActivity extends AppCompatActivity {
                         options.inJustDecodeBounds = false;
                         selectedImage = BitmapFactory.decodeStream(getContentResolver().openInputStream(imageUri), null, options);
                         default_cover = false;
-                        ((ImageView)findViewById(R.id.game_icon)).setImageBitmap(selectedImage);
+                        viewHolder.gameImageView.setImageBitmap(selectedImage);
                     } catch (FileNotFoundException e) {
                         e.printStackTrace();
                     }
@@ -115,8 +116,8 @@ public class GameInfoEditActivity extends AppCompatActivity {
         final int width = options.outWidth;
         View v = LayoutInflater.from(this).inflate(R.layout.game_list_item, null, false);
         v.measure(0, 0);
-        int reqWidth = v.findViewById(R.id.game_icon).getMeasuredWidth();
-        int reqHeight = v.findViewById(R.id.game_icon).getMeasuredHeight();
+        int reqWidth = viewHolder.gameImageView.getMeasuredWidth();
+        int reqHeight = viewHolder.gameImageView.getMeasuredHeight();
 
         // TODO: Find a calculated width and height without ImageView
         int inSampleSize = 1;

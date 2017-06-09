@@ -35,6 +35,7 @@ import android.view.View;
 
 import com.virtualapplications.play.Constants;
 import com.virtualapplications.play.GameInfoStruct;
+import com.virtualapplications.play.GamesAdapter;
 import com.virtualapplications.play.R;
 import com.virtualapplications.play.database.SqliteHelper.Games;
 
@@ -44,7 +45,7 @@ public class GamesDbAPI extends AsyncTask<File, Integer, Boolean> {
 	private final GameInfoStruct gameInfoStruct;
 	private final int pos;
 	private int index;
-	private View childview;
+	private GamesAdapter.CoverViewHolder viewHolder;
 	private Context mContext;
 	private String gameID;
 	private File gameFile;
@@ -65,8 +66,8 @@ public class GamesDbAPI extends AsyncTask<File, Integer, Boolean> {
 		this.gameInfoStruct = gameInfoStruct;
 	}
 	
-	public void setView(View childview) {
-		this.childview = childview;
+	public void setView(GamesAdapter.CoverViewHolder viewHolder) {
+		this.viewHolder = viewHolder;
 	}
 
 	protected void onPreExecute() {
@@ -247,18 +248,18 @@ public class GamesDbAPI extends AsyncTask<File, Integer, Boolean> {
 	@Override
 	protected void onPostExecute(Boolean status) {
 		if (status) {
-			if (childview != null) {
-				childview.findViewById(R.id.childview).setOnLongClickListener(
+			if (viewHolder != null) {
+				viewHolder.childview.setOnLongClickListener(
 						gameInfo.configureLongClick(gameInfoStruct));
 				if (gameInfoStruct.getFrontLink() != null) {
-					gameInfo.setCoverImage(gameInfoStruct.getGameID(), childview, gameInfoStruct.getFrontLink(), pos);
+					gameInfo.setCoverImage(gameInfoStruct.getGameID(), viewHolder, gameInfoStruct.getFrontLink(), pos);
 				}
 			}
 		}
 		else if(!_terminate)
 		{
 			GamesDbAPI gameDatabase = new GamesDbAPI(mContext, gameID, serial, this.gameInfoStruct, pos);
-			gameDatabase.setView(childview);
+			gameDatabase.setView(viewHolder);
 			gameDatabase.execute(gameFile);
 		}
 	}
