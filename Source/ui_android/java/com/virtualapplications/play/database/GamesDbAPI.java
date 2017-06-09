@@ -132,16 +132,16 @@ public class GamesDbAPI extends AsyncTask<File, Integer, Boolean> {
 													!overview.equals("") && !boxart.equals("")) {
 												dataID = c.getString(c.getColumnIndex(Games.KEY_GAMEID));
 												if (gameInfoStruct.getGameID() == null){
-													gameInfoStruct.setGameID(dataID, null);
+													gameInfoStruct.setGameID(dataID, mContext);
 												}
 												if (gameInfoStruct.isTitleNameEmptyNull()){
-													gameInfoStruct.setTitleName(title, null);
+													gameInfoStruct.setTitleName(title, mContext);
 												}
 												if (gameInfoStruct.isDescriptionEmptyNull()){
-													gameInfoStruct.setDescription(overview, null);
+													gameInfoStruct.setDescription(overview, mContext);
 												}
 												if (gameInfoStruct.getFrontLink() == null || gameInfoStruct.getFrontLink().isEmpty()){
-													gameInfoStruct.setFrontLink(boxart, null);
+													gameInfoStruct.setFrontLink(boxart, mContext);
 												}
 												c.close();
 												return true;
@@ -208,16 +208,16 @@ public class GamesDbAPI extends AsyncTask<File, Integer, Boolean> {
 								String m_title = getValue(root, "GameTitle");
 
 								if (gameInfoStruct.getGameID() == null){
-									gameInfoStruct.setGameID(remoteID, null);
+									gameInfoStruct.setGameID(remoteID, mContext);
 								}
 								if (gameInfoStruct.isTitleNameEmptyNull()){
-									gameInfoStruct.setTitleName(m_title, null);
+									gameInfoStruct.setTitleName(m_title, mContext);
 								}
 								if (gameInfoStruct.isDescriptionEmptyNull()){
-									gameInfoStruct.setDescription(overview, null);
+									gameInfoStruct.setDescription(overview, mContext);
 								}
 								if (gameInfoStruct.getFrontLink() == null || gameInfoStruct.getFrontLink().isEmpty()){
-									gameInfoStruct.setFrontLink(coverImage, null);
+									gameInfoStruct.setFrontLink(coverImage, mContext);
 								}
 
 								return true;
