@@ -29,6 +29,7 @@ import android.widget.TextView;
 
 import com.virtualapplications.play.GameInfoEditActivity;
 import com.virtualapplications.play.GameInfoStruct;
+import com.virtualapplications.play.GamesAdapter;
 import com.virtualapplications.play.R;
 import com.virtualapplications.play.MainActivity;
 import com.virtualapplications.play.NativeInterop;
@@ -73,12 +74,11 @@ public class GameInfo {
 		return mMemoryCache.remove(key);
 	}
 
-	private void setImageViewCover(View childview, Bitmap bitmap, int pos)
+	private void setImageViewCover(GamesAdapter.CoverViewHolder viewHolder, Bitmap bitmap, int pos)
 	{
-		if (childview != null && Integer.parseInt (((TextView) childview.findViewById(R.id.currentPosition)).getText().toString()) == pos) {
-			ImageView preview = (ImageView) childview.findViewById(R.id.game_icon);
-			preview.setImageBitmap(bitmap);
-			childview.findViewById(R.id.game_text).setVisibility(View.GONE);
+		if (viewHolder != null && Integer.parseInt (viewHolder.currentPositionView.getText().toString()) == pos) {
+			viewHolder.gameImageView.setImageBitmap(bitmap);
+			viewHolder.gameTextView.setVisibility(View.GONE);
 		}
 	}
 
@@ -117,13 +117,13 @@ public class GameInfo {
 		}
 	}
 
-	public void setCoverImage(String key, View childview, String boxart, int pos) {
-		setCoverImage(key,childview,boxart, true, pos);
+	public void setCoverImage(String key, GamesAdapter.CoverViewHolder viewHolder, String boxart, int pos) {
+		setCoverImage(key,viewHolder,boxart, true, pos);
 	}
-	public void setCoverImage(final String key, final View childview, String boxart, boolean custom, final int pos) {
+	public void setCoverImage(final String key, final GamesAdapter.CoverViewHolder viewHolder, String boxart, boolean custom, final int pos) {
 		Bitmap cachedImage = getBitmapFromMemCache(key);
 		if (cachedImage != null) {
-			setImageViewCover(childview, cachedImage, pos);
+			setImageViewCover(viewHolder, cachedImage, pos);
 			return;
 		}
 		String path = mContext.getExternalFilesDir(null) + "/covers/";
@@ -144,32 +144,32 @@ public class GameInfo {
 				}
 				@Override
 				protected void onPostExecute(Bitmap bitmap) {
-					setImageViewCover(childview, bitmap, pos);
+					setImageViewCover(viewHolder, bitmap, pos);
 
 				}
 			}).execute();
 		} else {
-			new GameImage(childview, boxart, pos).execute(key);
+			new GameImage(viewHolder, boxart, pos).execute(key);
 		}
 	}
 	
 	public class GameImage extends AsyncTask<String, Integer, Bitmap> {
 		
-		private View childview;
+		private GamesAdapter.CoverViewHolder viewHolder;
 		private String key;
 		private ImageView preview;
 		private String boxart;
         private int pos;
 		
-		public GameImage(View childview, String boxart, int pos) {
-			this.childview = childview;
+		public GameImage(GamesAdapter.CoverViewHolder viewHolder, String boxart, int pos) {
+			this.viewHolder = viewHolder;
 			this.boxart = boxart;
             this.pos = pos;
 		}
 		
 		protected void onPreExecute() {
-			if (childview != null) {
-				preview = (ImageView) childview.findViewById(R.id.game_icon);
+			if (viewHolder != null) {
+				preview = viewHolder.gameImageView;
 			}
 		}
 		
@@ -257,7 +257,7 @@ public class GameInfo {
 		@Override
 		protected void onPostExecute(Bitmap image) {
 			if (image != null) {
-				setImageViewCover(childview, image, pos);
+				setImageViewCover(viewHolder, image, pos);
 			}
 		}
 	}
@@ -304,10 +304,10 @@ public class GameInfo {
 		};
 	}
 	
-	public GameInfoStruct getGameInfo(File game, View childview, GameInfoStruct gameInfoStruct, int pos) {
+	public GameInfoStruct getGameInfo(File game, GamesAdapter.CoverViewHolder viewHolder, GameInfoStruct gameInfoStruct, int pos) {
 		String serial = getSerial(game);
 		if (serial == null) {
-			setCoverImage(game.getName(), childview, null, pos);
+			setCoverImage(game.getName(), viewHolder, null, pos);
 			return null;
 		}
 		String suffix = serial.substring(5, serial.length());
@@ -349,7 +349,7 @@ public class GameInfo {
 			return gameInfoStruct;
 		} else {
 			GamesDbAPI gameDatabase = new GamesDbAPI(mContext, gameID, serial, gameInfoStruct, pos);
-			gameDatabase.setView(childview);
+			gameDatabase.setView(viewHolder);
 			gameDatabase.execute(game);
 			return null;
 		}
