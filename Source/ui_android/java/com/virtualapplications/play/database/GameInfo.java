@@ -310,12 +310,10 @@ public class GameInfo {
 			setCoverImage(game.getName(), viewHolder, null, pos);
 			return null;
 		}
-		String suffix = serial.substring(5, serial.length());
 		String gameID = null,  title = null, overview = null, boxart = null;
 		ContentResolver cr = mContext.getContentResolver();
-		String selection = Games.KEY_SERIAL + "=? OR " + Games.KEY_SERIAL + "=? OR " + Games.KEY_SERIAL + "=? OR "
-							+ Games.KEY_SERIAL + "=? OR " + Games.KEY_SERIAL + "=? OR " + Games.KEY_SERIAL + "=?";
-		String[] selectionArgs = { serial, "SLUS" + suffix, "SLES" + suffix, "SLPS" + suffix, "SLPM" + suffix, "SCES" + suffix };
+		String selection = Games.KEY_SERIAL + "=?";
+		String[] selectionArgs = { serial};
 		Cursor c = cr.query(Games.GAMES_URI, null, selection, selectionArgs, null);
 		if (c != null && c.getCount() > 0) {
 			if (c.moveToFirst()) {
