@@ -506,8 +506,8 @@ uint32 CCdvdman::CdReadDvdDualInfo(uint32 onDualPtr, uint32 layer1StartPtr)
 
 	auto onDual = reinterpret_cast<uint32*>(m_ram + onDualPtr);
 	auto layer1Start = reinterpret_cast<uint32*>(m_ram + layer1StartPtr);
-	(*onDual) = 0;
-	(*layer1Start) = 0;
+	(*onDual) = m_opticalMedia->GetDvdIsDualLayer() ? 1 : 0;
+	(*layer1Start) = m_opticalMedia->GetDvdSecondLayerStart() - 0x10;
 
 	return 1;
 }
