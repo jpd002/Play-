@@ -305,11 +305,11 @@ public class GameInfo {
 		};
 	}
 	
-	public GameInfoStruct getGameInfo(File game, GamesAdapter.CoverViewHolder viewHolder, GameInfoStruct gameInfoStruct, int pos) {
+	public void loadGameInfo(File game, GamesAdapter.CoverViewHolder viewHolder, GameInfoStruct gameInfoStruct, int pos)
+	{
 		GamesDbAPI gameDatabase = new GamesDbAPI(mContext, gameInfoStruct.getGameID(), gameInfoStruct.getSerial(), gameInfoStruct, pos);
 		gameDatabase.setView(viewHolder);
 		gameDatabase.execute(game);
-		return null;
 	}
 	
 	public String getSerial(File game) {

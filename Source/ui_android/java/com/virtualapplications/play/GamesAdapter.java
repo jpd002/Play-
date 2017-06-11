@@ -97,20 +97,9 @@ public class GamesAdapter extends ArrayAdapter<GameInfoStruct> {
             viewHolder.childview.setOnLongClickListener(null);
         } else {
             viewHolder.childview.setOnLongClickListener(null);
+            viewHolder.gameImageView.setImageResource(R.drawable.boxart);
             // passing game, as to pass and use (if) any user defined values
-            final GameInfoStruct gameStats = gameInfo.getGameInfo(game.getFile(), viewHolder, game, pos);
-
-            if (gameStats != null) {
-                games.set(pos, gameStats);
-                viewHolder.childview.setOnLongClickListener(
-                        gameInfo.configureLongClick(gameStats));
-
-                if (gameStats.getFrontLink() != null && !gameStats.getFrontLink().equals("404")) {
-                    gameInfo.setCoverImage(gameStats.getGameID(), viewHolder, gameStats.getFrontLink(), pos);
-                }
-            } else {
-                viewHolder.gameImageView.setImageResource(R.drawable.boxart);
-            }
+            gameInfo.loadGameInfo(game.getFile(), viewHolder, game, pos);
         }
 
 
