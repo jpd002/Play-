@@ -24,9 +24,7 @@ public class SqliteHelper {
 		public static final String TABLE_ID = "_id";
 		public static final String KEY_GAMEID = "GameID";
 		public static final String KEY_TITLE = "GameTitle";
-		public static final String KEY_OVERVIEW = "Overview";
 		public static final String KEY_SERIAL = "Serial";
-		public static final String KEY_BOXART = "Boxart";
 	}
 	
 	public static final class Covers implements BaseColumns {

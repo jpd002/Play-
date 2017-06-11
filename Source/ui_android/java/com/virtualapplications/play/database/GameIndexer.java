@@ -1,7 +1,9 @@
 package com.virtualapplications.play.database;
 
+import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
+import android.database.Cursor;
 import android.os.Environment;
 import android.util.Log;
 
@@ -128,7 +130,19 @@ public class GameIndexer {
                             values.put(IndexingDB.KEY_SERIAL, serial);
                             values.put(IndexingDB.KEY_SIZE, f.length());
                             values.put(IndexingDB.KEY_LAST_PLAYED, 0);
+                            if (serial != null)
+                            {
+                                ContentResolver cr = mContext.getContentResolver();
+                                Cursor c = cr.query(SqliteHelper.Games.GAMES_URI, new String[]{SqliteHelper.Games.KEY_GAMEID}, SqliteHelper.Games.KEY_SERIAL + "=?", new String[]{serial}, null);
+                                if (c != null) {
+                                    if (c.moveToFirst()) {
+                                        values.put(IndexingDB.KEY_GAMEID, c.getString(c.getColumnIndex(SqliteHelper.Games.KEY_GAMEID)));
+                                    }
+                                    c.close();
+                                }
+                            }
                             toIndex.add(values);
+
                             //Log.i("INDEX", "Name: " + name + " PATH: " + folderPath + " Serial: " + serial + " Size " + f.length());
                         }
                     }

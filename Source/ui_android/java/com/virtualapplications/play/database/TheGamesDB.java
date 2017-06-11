@@ -66,9 +66,7 @@ public class TheGamesDB extends ContentProvider {
 					   + Games.TABLE_ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
 					   + Games.KEY_GAMEID + " VARCHAR(255),"
 					   + Games.KEY_TITLE + " VARCHAR(255),"
-					   + Games.KEY_OVERVIEW + " VARCHAR(255),"
-					   + Games.KEY_SERIAL + " VARCHAR(255),"
-					   + Games.KEY_BOXART + " VARCHAR(255)"+ ");");
+					   + Games.KEY_SERIAL + " VARCHAR(255)"+ ");");
 
 			db.execSQL("CREATE TABLE " + Covers.TABLE_NAME + " ("
 					   + Covers.TABLE_ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
@@ -127,7 +125,7 @@ public class TheGamesDB extends ContentProvider {
 		}
 
 		db.beginTransaction();
-		SQLiteStatement stmt = db.compileStatement("INSERT INTO "+ TABLE_NAME + "(" +Games.KEY_GAMEID + " ," + Games.KEY_TITLE + "," + Games.KEY_OVERVIEW + "," + Games.KEY_SERIAL + "," + Games.KEY_BOXART + ") VALUES(?,?,?,?,?)");
+		SQLiteStatement stmt = db.compileStatement("INSERT INTO "+ TABLE_NAME + "(" + Games.KEY_GAMEID +  "," + Games.KEY_TITLE +  "," +  Games.KEY_SERIAL + ") VALUES(?,?,?)");
 
 		int numInserted = 0;
 		try {
@@ -138,26 +136,15 @@ public class TheGamesDB extends ContentProvider {
 				if (KEY_GAMEID != null) {
 					stmt.bindString(1, KEY_GAMEID);
 				}
-
 				String KEY_TITLE = (String)(value.get(Games.KEY_TITLE));
 				if (KEY_TITLE != null) {
 					stmt.bindString(2, KEY_TITLE);
 				}
-
-				String KEY_OVERVIEW = (String)(value.get(Games.KEY_OVERVIEW));
-				if (KEY_OVERVIEW != null) {
-					stmt.bindString(3, KEY_OVERVIEW);
-				}
-
 				String KEY_SERIAL = (String)(value.get(Games.KEY_SERIAL));
 				if (KEY_SERIAL != null) {
-					stmt.bindString(4, KEY_SERIAL);
+					stmt.bindString(3, KEY_SERIAL);
 				}
 
-				String KEY_BOXART = (String)(value.get(Games.KEY_BOXART));
-				if (KEY_BOXART != null) {
-					stmt.bindString(5, KEY_BOXART);
-				}
 
 				stmt.execute();
 				stmt.clearBindings();
@@ -213,9 +200,7 @@ public class TheGamesDB extends ContentProvider {
 						ContentValues game = new ContentValues();
 						game.put(Games.KEY_GAMEID, c.getString(c.getColumnIndex(Games.KEY_GAMEID)));
 						game.put(Games.KEY_TITLE, c.getString(c.getColumnIndex(Games.KEY_TITLE)));
-						game.put(Games.KEY_OVERVIEW, c.getString(c.getColumnIndex(Games.KEY_OVERVIEW)));
 						game.put(Games.KEY_SERIAL, c.getString(c.getColumnIndex(Games.KEY_SERIAL)));
-						game.put(Games.KEY_BOXART, c.getString(c.getColumnIndex(Games.KEY_BOXART)));
 						games.add(game);
 					} while (c.moveToNext());
 				}
@@ -393,9 +378,7 @@ public class TheGamesDB extends ContentProvider {
 		gamesMap.put(Games.TABLE_ID, Games.TABLE_ID);
 		gamesMap.put(Games.KEY_GAMEID, Games.KEY_GAMEID);
 		gamesMap.put(Games.KEY_TITLE, Games.KEY_TITLE);
-		gamesMap.put(Games.KEY_OVERVIEW, Games.KEY_OVERVIEW);
 		gamesMap.put(Games.KEY_SERIAL, Games.KEY_SERIAL);
-		gamesMap.put(Games.KEY_BOXART, Games.KEY_BOXART);
 
 		sUriMatcher.addURI(Games.AUTHORITY, Games.TABLE_NAME + "/#", GAMESID);
 

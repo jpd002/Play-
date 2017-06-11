@@ -305,52 +305,10 @@ public class GameInfo {
 	}
 	
 	public GameInfoStruct getGameInfo(File game, GamesAdapter.CoverViewHolder viewHolder, GameInfoStruct gameInfoStruct, int pos) {
-		String serial = getSerial(game);
-		if (serial == null) {
-			setCoverImage(game.getName(), viewHolder, null, pos);
-			return null;
-		}
-		String gameID = null,  title = null, overview = null, boxart = null;
-		ContentResolver cr = mContext.getContentResolver();
-		String selection = Games.KEY_SERIAL + "=?";
-		String[] selectionArgs = { serial};
-		Cursor c = cr.query(Games.GAMES_URI, null, selection, selectionArgs, null);
-		if (c != null && c.getCount() > 0) {
-			if (c.moveToFirst()) {
-				do {
-					gameID = c.getString(c.getColumnIndex(Games.KEY_GAMEID));
-					title = c.getString(c.getColumnIndex(Games.KEY_TITLE));
-					overview = c.getString(c.getColumnIndex(Games.KEY_OVERVIEW));
-					boxart = c.getString(c.getColumnIndex(Games.KEY_BOXART));
-					if (gameID != null && !gameID.equals("")) {
-						break;
-					}
-				} while (c.moveToNext());
-			}
-			c.close();
-		}
-		if (overview != null && boxart != null &&
-			!overview.equals("") && !boxart.equals("")) {
-			if (gameInfoStruct.isTitleNameEmptyNull()){
-				gameInfoStruct.setTitleName(title, mContext);
-			}
-
-			if (gameInfoStruct.isDescriptionEmptyNull()){
-				gameInfoStruct.setDescription(overview, mContext);
-			}
-			if (gameInfoStruct.getFrontLink() == null || gameInfoStruct.getFrontLink().isEmpty()){
-				gameInfoStruct.setFrontLink(boxart, mContext);
-			}
-			if (gameInfoStruct.getGameID() == null){
-				gameInfoStruct.setGameID(gameID, mContext);
-			}
-			return gameInfoStruct;
-		} else {
-			GamesDbAPI gameDatabase = new GamesDbAPI(mContext, gameID, serial, gameInfoStruct, pos);
-			gameDatabase.setView(viewHolder);
-			gameDatabase.execute(game);
-			return null;
-		}
+		GamesDbAPI gameDatabase = new GamesDbAPI(mContext, gameInfoStruct.getGameID(), gameInfoStruct.getSerial(), gameInfoStruct, pos);
+		gameDatabase.setView(viewHolder);
+		gameDatabase.execute(game);
+		return null;
 	}
 	
 	public String getSerial(File game) {

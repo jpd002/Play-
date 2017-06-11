@@ -14,6 +14,7 @@ import java.util.Comparator;
 import java.util.List;
 
 public class GameInfoStruct {
+    private String m_Serial;
     private String m_TitleName;
     private String m_ID;
     //private final String m_Serial;
@@ -23,7 +24,7 @@ public class GameInfoStruct {
     private String m_indexID;
     private long m_lastplayed;
 
-    public GameInfoStruct(String indexid, String m_id, String m_titlename, String overview, String m_frontLink, long last_played, File file) {
+    public GameInfoStruct(String indexid, String m_id, String m_titlename, String overview, String m_frontLink, long last_played, File file, String serial) {
         m_TitleName = m_titlename;
         m_ID = m_id;
         m_Overview = overview;
@@ -31,6 +32,7 @@ public class GameInfoStruct {
         m_indexID = indexid;
         m_lastplayed = last_played;
         m_File = file;
+        m_Serial = serial;
     }
 
     public GameInfoStruct(File file) {
@@ -162,5 +164,9 @@ public class GameInfoStruct {
             GI.deleteIndex(IndexingDB.KEY_ID + "=?", new String[]{m_indexID});
             GI.close();
         }
+    }
+
+    public String getSerial() {
+        return m_Serial;
     }
 }
