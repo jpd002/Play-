@@ -186,6 +186,18 @@ public class GamesDbAPI extends AsyncTask<File, Integer, Boolean> {
 				}
 			}
 		}
+		else
+		{
+			if (gameInfoStruct.isTitleNameEmptyNull()){
+				gameInfoStruct.setTitleName(gameInfoStruct.getFile().getName(), mContext);
+			}
+			if (gameInfoStruct.isDescriptionEmptyNull()){
+				gameInfoStruct.setDescription("No Game Description Found", mContext);
+			}
+			if (gameInfoStruct.getFrontLink() == null || gameInfoStruct.getFrontLink().isEmpty()){
+					gameInfoStruct.setFrontLink("404", mContext);
+			}
+		}
 	}
 
 	public static boolean isNetworkAvailable(Context mContext) {
