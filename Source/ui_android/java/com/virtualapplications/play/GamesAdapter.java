@@ -1,6 +1,7 @@
 package com.virtualapplications.play;
 
 import android.content.Context;
+import android.support.v7.app.AppCompatActivity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,15 +11,15 @@ import android.widget.TextView;
 
 import com.virtualapplications.play.database.GameInfo;
 
+import java.lang.ref.WeakReference;
 import java.util.List;
-
-import static com.virtualapplications.play.MainActivity.launchGame;
 
 public class GamesAdapter extends ArrayAdapter<GameInfoStruct> {
 
     private final int layoutid;
     private List<GameInfoStruct> games;
     private GameInfo gameInfo;
+    private final WeakReference<AppCompatActivity> _activity;
 
     public static class CoverViewHolder{
         CoverViewHolder(View v)
@@ -33,11 +34,12 @@ public class GamesAdapter extends ArrayAdapter<GameInfoStruct> {
         public TextView gameTextView;
         public TextView currentPositionView;
     }
-    public GamesAdapter(Context context, int ResourceId, List<GameInfoStruct> images, GameInfo gameInfo) {
-        super(context, ResourceId, images);
+    public GamesAdapter(AppCompatActivity activity, int ResourceId, List<GameInfoStruct> images, GameInfo gameInfo) {
+        super(activity, ResourceId, images);
         this.games = images;
         this.layoutid = ResourceId;
         this.gameInfo = gameInfo;
+        this._activity = new WeakReference<AppCompatActivity>(activity);
     }
 
     public int getCount() {
@@ -102,7 +104,13 @@ public class GamesAdapter extends ArrayAdapter<GameInfoStruct> {
 
         viewHolder.childview.setOnClickListener(new View.OnClickListener() {
             public void onClick(View view) {
-                launchGame(game, getContext());
+                if(_activity.get() != null)
+                {
+                    if(_activity.get() instanceof MainActivity)
+                    {
+                        ((MainActivity)_activity.get()).launchGame(game);
+                    }
+                }
                 return;
             }
         });

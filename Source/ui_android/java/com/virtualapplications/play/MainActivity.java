@@ -166,9 +166,9 @@ public class MainActivity extends AppCompatActivity implements NavigationDrawerF
 		));
 	}
 
-	private static void displaySimpleMessage(String title, String message, Context context)
+	private void displaySimpleMessage(String title, String message)
 	{
-		AlertDialog.Builder builder = new AlertDialog.Builder(context);
+		AlertDialog.Builder builder = new AlertDialog.Builder(this);
 
 		builder.setTitle(title);
 		builder.setMessage(message);
@@ -186,9 +186,9 @@ public class MainActivity extends AppCompatActivity implements NavigationDrawerF
 		dialog.show();
 	}
 
-	private static void displayGameNotFound(final GameInfoStruct game, final Context context)
+	private void displayGameNotFound(final GameInfoStruct game)
 	{
-		AlertDialog.Builder builder = new AlertDialog.Builder(context);
+		AlertDialog.Builder builder = new AlertDialog.Builder(this);
 
 		builder.setTitle(R.string.not_found);
 		builder.setMessage(R.string.game_unavailable);
@@ -197,7 +197,7 @@ public class MainActivity extends AppCompatActivity implements NavigationDrawerF
 				new DialogInterface.OnClickListener() {
 					@Override
 					public void onClick(DialogInterface dialog, int id) {
-						game.removeIndex(context);
+						game.removeIndex(MainActivity.this);
 						prepareFileListView(false);
 					}
 				}
@@ -245,7 +245,7 @@ public class MainActivity extends AppCompatActivity implements NavigationDrawerF
 		String timestamp = buildDateString.substring(11, buildDateString.length()).startsWith("0:") 
 				? buildDateString.replace("0:", "12:") : buildDateString;
 		String aboutMessage = String.format("Build Date: %s", timestamp);
-		displaySimpleMessage("About Play!", aboutMessage, this);
+		displaySimpleMessage("About Play!", aboutMessage);
 	}
 
 	@Override
@@ -422,16 +422,16 @@ public class MainActivity extends AppCompatActivity implements NavigationDrawerF
 		}
 	}
 
-	public static void launchGame(GameInfoStruct game, Context context) {
+	public void launchGame(GameInfoStruct game) {
 		if (game.getFile().exists()){
-			game.setlastplayed(context);
+			game.setlastplayed(this);
 			try {
-				VirtualMachineManager.launchDisk(context, game.getFile());
+				VirtualMachineManager.launchDisk(this, game.getFile());
 			} catch (Exception e) {
-				displaySimpleMessage("Error", e.getMessage(), context);
+				displaySimpleMessage("Error", e.getMessage());
 			}
 		} else {
-			displayGameNotFound(game, context);
+			displayGameNotFound(game);
 		}
 	}
 

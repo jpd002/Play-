@@ -30,8 +30,6 @@ import com.virtualapplications.play.MainActivity;
 
 import org.apache.commons.io.IOUtils;
 
-import static com.virtualapplications.play.MainActivity.launchGame;
-
 public class GameInfo {
 	
 	private Context mContext;
@@ -274,7 +272,10 @@ public class GameInfo {
 						new DialogInterface.OnClickListener() {
 							public void onClick(DialogInterface dialog, int which) {
 								dialog.dismiss();
-								launchGame(gameFile, mContext);
+								if(mContext instanceof MainActivity)
+								{
+									((MainActivity)mContext).launchGame(gameFile);
+								}
 								return;
 							}
 						});
@@ -288,7 +289,10 @@ public class GameInfo {
 								intent.putExtra("cover",gameFile.getFrontLink());
 								intent.putExtra("gameid",gameFile.getGameID());
 								intent.putExtra("indexid",gameFile.getIndexID());
-								((MainActivity)mContext).startActivityForResult(intent, 1);
+								if(mContext instanceof MainActivity)
+								{
+									((MainActivity) mContext).startActivityForResult(intent, 1);
+								}
 								return;
 							}
 						});
