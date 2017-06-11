@@ -147,7 +147,7 @@ public class GameInfo {
 					setImageViewCover(viewHolder, bitmap, pos);
 
 				}
-			}).execute();
+			}).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 		} else {
 			new GameImage(viewHolder, boxart, pos).execute(key);
 		}
