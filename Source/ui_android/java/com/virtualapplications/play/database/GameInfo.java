@@ -1,6 +1,6 @@
 package com.virtualapplications.play.database;
 
-import java.io.BufferedInputStream;
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -34,6 +34,8 @@ import com.virtualapplications.play.R;
 import com.virtualapplications.play.MainActivity;
 import com.virtualapplications.play.NativeInterop;
 import com.virtualapplications.play.database.SqliteHelper.Games;
+
+import org.apache.commons.io.IOUtils;
 
 import static com.virtualapplications.play.MainActivity.launchGame;
 
@@ -216,26 +218,25 @@ public class GameInfo {
 						api = "http://thegamesdb.net/banners/" + boxart;
 					}
 					InputStream im = null;
-					BufferedInputStream bis = null;
+					ByteArrayInputStream byteArrayInputStream = null;
 					try {
 						URL imageURL = new URL(api);
 						URLConnection conn1 = imageURL.openConnection();
 
 						im = conn1.getInputStream();
-						bis = new BufferedInputStream(im, 512);
+						byte[] imageArray = IOUtils.toByteArray(im);
+
+						byteArrayInputStream = new ByteArrayInputStream(imageArray);
+						byteArrayInputStream.mark(byteArrayInputStream.available());
 
 						BitmapFactory.Options options = new BitmapFactory.Options();
 						options.inJustDecodeBounds = true;
-						Bitmap bitmap = BitmapFactory.decodeStream(bis, null, options);
+						BitmapFactory.decodeStream(byteArrayInputStream, null, options);
+						byteArrayInputStream.reset();
 
 						options.inSampleSize = calculateInSampleSize(options);
 						options.inJustDecodeBounds = false;
-						bis.close();
-						im.close();
-						conn1 = imageURL.openConnection();
-						im = conn1.getInputStream();
-						bis = new BufferedInputStream(im, 512);
-						bitmap = BitmapFactory.decodeStream(bis, null, options);
+						Bitmap bitmap = BitmapFactory.decodeStream(byteArrayInputStream, null, options);
 
 						saveImage(key, bitmap);
 						return bitmap;
@@ -244,9 +245,9 @@ public class GameInfo {
 					} finally {
 						try {
 							im.close();
-							bis.close();
+							byteArrayInputStream.close();
+							byteArrayInputStream = null;
 							im = null;
-							bis = null;
 						} catch (IOException ex) {}
 					}
 				}
