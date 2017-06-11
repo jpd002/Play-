@@ -22,33 +22,24 @@ import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
 import android.content.Context;
-import android.content.ContentValues;
-import android.content.ContentResolver;
-import android.database.Cursor;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.StrictMode;
 import android.util.Log;
-import android.view.View;
 
 import com.virtualapplications.play.Constants;
 import com.virtualapplications.play.GameInfoStruct;
 import com.virtualapplications.play.GamesAdapter;
-import com.virtualapplications.play.R;
-import com.virtualapplications.play.database.SqliteHelper.Games;
 
 public class GamesDbAPI extends AsyncTask<File, Integer, Boolean> {
 
-	private final String serial;
 	private final GameInfoStruct gameInfoStruct;
 	private final int pos;
-	private int index;
 	private GamesAdapter.CoverViewHolder viewHolder;
 	private Context mContext;
 	private String gameID;
-	private File gameFile;
 	private GameInfo gameInfo;
 	private boolean elastic;
 
@@ -56,11 +47,10 @@ public class GamesDbAPI extends AsyncTask<File, Integer, Boolean> {
     private static final String games_url_id = "http://thegamesdb.net/api/GetGame.php?platform=sony+playstation+2&id=";
 	private static final String games_list = "http://thegamesdb.net/api/GetPlatformGames.php?platform=11";
 
-	public GamesDbAPI(Context mContext, String gameID, String serial, GameInfoStruct gameInfoStruct, int pos) {
+	public GamesDbAPI(Context mContext, GameInfoStruct gameInfoStruct, int pos) {
 		this.elastic = false;
 		this.mContext = mContext;
-		this.gameID = gameID;
-		this.serial = serial;
+		this.gameID = gameInfoStruct.getGameID();
 		this.pos = pos;
 		this.gameInfoStruct = gameInfoStruct;
 	}
@@ -84,9 +74,8 @@ public class GamesDbAPI extends AsyncTask<File, Integer, Boolean> {
 		if (GamesDbAPI.isNetworkAvailable(mContext)) {
 			try {
 				URL requestUrl;
-				if (params[0] != null) {
-					gameFile = params[0];
-					String filename = gameFile.getName();
+				if (gameInfoStruct.getFile() != null) {
+					String filename = gameInfoStruct.getFile().getName();
 					if (gameID != null) {
 						requestUrl = new URL(games_url_id + gameID);
 					} else {
@@ -117,7 +106,7 @@ public class GamesDbAPI extends AsyncTask<File, Integer, Boolean> {
 							if (elastic) {
 								this.gameID = remoteID;
 								this.elastic = false;
-								return doInBackground(gameFile);
+								return doInBackground();
 							} else {
 								final String title = getValue(root, "GameTitle");
 								final String overview = getValue(root, "Overview");
@@ -133,7 +122,6 @@ public class GamesDbAPI extends AsyncTask<File, Integer, Boolean> {
 								if (boxart != null) {
 									coverImage = getElementValue(boxart);
 								}
-
 
 								if (gameInfoStruct.getGameID() == null){
 									gameInfoStruct.setGameID(remoteID, mContext);
@@ -177,7 +165,8 @@ public class GamesDbAPI extends AsyncTask<File, Integer, Boolean> {
 
 	@Override
 	protected void onPostExecute(Boolean status) {
-		if (status) {
+		if (status)
+		{
 			if (viewHolder != null) {
 				viewHolder.childview.setOnLongClickListener(
 						gameInfo.configureLongClick(gameInfoStruct));

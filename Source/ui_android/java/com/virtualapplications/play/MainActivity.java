@@ -18,11 +18,9 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.widget.Toolbar;
 import android.view.*;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.widget.*;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.GridView;
-import android.widget.TextView;
 import android.support.v4.widget.DrawerLayout;
 import java.io.File;
 import java.text.*;
@@ -38,7 +36,7 @@ public class MainActivity extends AppCompatActivity implements NavigationDrawerF
 {
 	static Activity mActivity;
 	private int currentOrientation;
-	private static GameInfo gameInfo;
+	private GameInfo gameInfo;
 	protected NavigationDrawerFragment mNavigationDrawerFragment;
 
 	private List<GameInfoStruct> currentGames = new ArrayList<>();
@@ -374,7 +372,7 @@ public class MainActivity extends AppCompatActivity implements NavigationDrawerF
 		@Override
 		protected List<GameInfoStruct> doInBackground(String... paths) {
 			
-			GameIndexer GI = new GameIndexer(mActivity);
+			GameIndexer GI = new GameIndexer(MainActivity.this);
 			if (fullscan){
 				GI.fullScan();
 			} else {

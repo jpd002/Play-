@@ -13,7 +13,6 @@ import com.virtualapplications.play.database.GameInfo;
 import java.util.List;
 
 import static com.virtualapplications.play.MainActivity.launchGame;
-import static com.virtualapplications.play.R.id.childview;
 
 public class GamesAdapter extends ArrayAdapter<GameInfoStruct> {
 
@@ -42,7 +41,6 @@ public class GamesAdapter extends ArrayAdapter<GameInfoStruct> {
     }
 
     public int getCount() {
-        //return mThumbIds.length;
         return games.size();
     }
 
@@ -60,7 +58,7 @@ public class GamesAdapter extends ArrayAdapter<GameInfoStruct> {
         if (v == null) {
             LayoutInflater vi = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
             v = vi.inflate(layoutid, null);
-            viewHolder = new CoverViewHolder(v.findViewById(childview));
+            viewHolder = new CoverViewHolder(v.findViewById(R.id.childview));
             v.setTag(viewHolder);
         }
         else
@@ -99,10 +97,8 @@ public class GamesAdapter extends ArrayAdapter<GameInfoStruct> {
             viewHolder.childview.setOnLongClickListener(null);
             viewHolder.gameImageView.setImageResource(R.drawable.boxart);
             // passing game, as to pass and use (if) any user defined values
-            gameInfo.loadGameInfo(game.getFile(), viewHolder, game, pos);
+            gameInfo.loadGameInfo(viewHolder, game, pos);
         }
-
-
 
         viewHolder.childview.setOnClickListener(new View.OnClickListener() {
             public void onClick(View view) {

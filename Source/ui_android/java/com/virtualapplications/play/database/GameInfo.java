@@ -12,28 +12,21 @@ import java.net.URLConnection;
 
 import android.app.AlertDialog;
 import android.content.Context;
-import android.content.ContentResolver;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 import android.os.Build;
-import android.util.Log;
 import android.util.LruCache;
 import android.view.View;
 import android.view.View.OnLongClickListener;
 import android.widget.ImageView;
-import android.widget.TextView;
 
 import com.virtualapplications.play.GameInfoEditActivity;
 import com.virtualapplications.play.GameInfoStruct;
 import com.virtualapplications.play.GamesAdapter;
-import com.virtualapplications.play.R;
 import com.virtualapplications.play.MainActivity;
-import com.virtualapplications.play.NativeInterop;
-import com.virtualapplications.play.database.SqliteHelper.Games;
 
 import org.apache.commons.io.IOUtils;
 
@@ -305,16 +298,10 @@ public class GameInfo {
 		};
 	}
 	
-	public void loadGameInfo(File game, GamesAdapter.CoverViewHolder viewHolder, GameInfoStruct gameInfoStruct, int pos)
+	public void loadGameInfo(GamesAdapter.CoverViewHolder viewHolder, GameInfoStruct gameInfoStruct, int pos)
 	{
-		GamesDbAPI gameDatabase = new GamesDbAPI(mContext, gameInfoStruct.getGameID(), gameInfoStruct.getSerial(), gameInfoStruct, pos);
+		GamesDbAPI gameDatabase = new GamesDbAPI(mContext, gameInfoStruct, pos);
 		gameDatabase.setView(viewHolder);
-		gameDatabase.execute(game);
-	}
-	
-	public String getSerial(File game) {
-		String serial = NativeInterop.getDiskId(game.getPath());
-		Log.d("Play!", game.getName() + " [" + serial + "]");
-		return serial;
+		gameDatabase.execute();
 	}
 }
