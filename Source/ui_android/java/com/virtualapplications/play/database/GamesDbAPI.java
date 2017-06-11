@@ -55,7 +55,6 @@ public class GamesDbAPI extends AsyncTask<File, Integer, Boolean> {
 	private static final String games_url = "http://thegamesdb.net/api/GetGamesList.php?platform=sony+playstation+2&name=";
     private static final String games_url_id = "http://thegamesdb.net/api/GetGame.php?platform=sony+playstation+2&id=";
 	private static final String games_list = "http://thegamesdb.net/api/GetPlatformGames.php?platform=11";
-	private boolean _terminate = true;
 
 	public GamesDbAPI(Context mContext, String gameID, String serial, GameInfoStruct gameInfoStruct, int pos) {
 		this.elastic = false;
@@ -117,8 +116,8 @@ public class GamesDbAPI extends AsyncTask<File, Integer, Boolean> {
 
 							if (elastic) {
 								this.gameID = remoteID;
-								_terminate = false;
-								return false;
+								this.elastic = false;
+								return doInBackground(gameFile);
 							} else {
 								final String title = getValue(root, "GameTitle");
 								final String overview = getValue(root, "Overview");
@@ -186,12 +185,6 @@ public class GamesDbAPI extends AsyncTask<File, Integer, Boolean> {
 					gameInfo.setCoverImage(gameInfoStruct.getGameID(), viewHolder, gameInfoStruct.getFrontLink(), pos);
 				}
 			}
-		}
-		else if(!_terminate)
-		{
-			GamesDbAPI gameDatabase = new GamesDbAPI(mContext, gameID, serial, this.gameInfoStruct, pos);
-			gameDatabase.setView(viewHolder);
-			gameDatabase.execute(gameFile);
 		}
 	}
 
