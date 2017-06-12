@@ -244,8 +244,12 @@ public class GameInfo {
 
 					} finally {
 						try {
-							im.close();
-							byteArrayInputStream.close();
+							if (im != null) {
+								im.close();
+							}
+							if (byteArrayInputStream != null) {
+								byteArrayInputStream.close();
+							}
 							byteArrayInputStream = null;
 							im = null;
 						} catch (IOException ex) {}
