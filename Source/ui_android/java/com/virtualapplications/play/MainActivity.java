@@ -27,7 +27,6 @@ import android.support.v4.widget.DrawerLayout;
 import java.io.File;
 import java.text.*;
 import java.util.*;
-import java.util.zip.*;
 
 import com.virtualapplications.play.database.GameIndexer;
 import com.virtualapplications.play.database.GameInfo;
@@ -39,7 +38,7 @@ public class MainActivity extends AppCompatActivity implements NavigationDrawerF
 {
 	static Activity mActivity;
 	private int currentOrientation;
-	private GameInfo gameInfo;
+	private static GameInfo gameInfo;
 	protected NavigationDrawerFragment mNavigationDrawerFragment;
 
 	private List<GameInfoStruct> currentGames = new ArrayList<>();
@@ -169,9 +168,9 @@ public class MainActivity extends AppCompatActivity implements NavigationDrawerF
 		));
 	}
 
-	private void displaySimpleMessage(String title, String message)
+	private static void displaySimpleMessage(String title, String message, Context context)
 	{
-		AlertDialog.Builder builder = new AlertDialog.Builder(this);
+		AlertDialog.Builder builder = new AlertDialog.Builder(context);
 
 		builder.setTitle(title);
 		builder.setMessage(message);
@@ -189,9 +188,9 @@ public class MainActivity extends AppCompatActivity implements NavigationDrawerF
 		dialog.show();
 	}
 
-	private void displayGameNotFound(final GameInfoStruct game)
+	private static void displayGameNotFound(final GameInfoStruct game, final Context context)
 	{
-		AlertDialog.Builder builder = new AlertDialog.Builder(this);
+		AlertDialog.Builder builder = new AlertDialog.Builder(context);
 
 		builder.setTitle(R.string.not_found);
 		builder.setMessage(R.string.game_unavailable);
@@ -200,7 +199,7 @@ public class MainActivity extends AppCompatActivity implements NavigationDrawerF
 				new DialogInterface.OnClickListener() {
 					@Override
 					public void onClick(DialogInterface dialog, int id) {
-						game.removeIndex(getBaseContext());
+						game.removeIndex(context);
 						prepareFileListView(false);
 					}
 				}
@@ -248,7 +247,7 @@ public class MainActivity extends AppCompatActivity implements NavigationDrawerF
 		String timestamp = buildDateString.substring(11, buildDateString.length()).startsWith("0:") 
 				? buildDateString.replace("0:", "12:") : buildDateString;
 		String aboutMessage = String.format("Build Date: %s", timestamp);
-		displaySimpleMessage("About Play!", aboutMessage);
+		displaySimpleMessage("About Play!", aboutMessage, this);
 	}
 
 	@Override
@@ -412,7 +411,7 @@ public class MainActivity extends AppCompatActivity implements NavigationDrawerF
 				gameGrid.setNumColumns(1);
 				gameGrid.setAdapter(adapter);
 			} else {
-				GamesAdapter adapter = new GamesAdapter(this, R.layout.game_list_item, images);
+				GamesAdapter adapter = new GamesAdapter(this, R.layout.game_list_item, images, gameInfo);
 				/*
 				-1 = autofit
 				 */
@@ -425,109 +424,16 @@ public class MainActivity extends AppCompatActivity implements NavigationDrawerF
 		}
 	}
 
-	public class GamesAdapter extends ArrayAdapter<GameInfoStruct> {
-
-		private final int layoutid;
-		private List<GameInfoStruct> games;
-		
-		public GamesAdapter(Context context, int ResourceId, List<GameInfoStruct> images) {
-			super(context, ResourceId, images);
-			this.games = images;
-			this.layoutid = ResourceId;
-		}
-
-		public int getCount() {
-			//return mThumbIds.length;
-			return games.size();
-		}
-
-		public GameInfoStruct getItem(int position) {
-			return games.get(position);
-		}
-
-		public long getItemId(int position) {
-			return position;
-		}
-		
-		@Override
-		public View getView(int position, View convertView, ViewGroup parent) {
-			View v = convertView;
-			if (v == null) {
-				LayoutInflater vi = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-				v = vi.inflate(layoutid, null);
-			}
-			final GameInfoStruct game = games.get(position);
-			if (game != null) {
-				createListItem(game, v, position);
-			}
-			return v;
-		}
-
-		private View createListItem(final GameInfoStruct game, final View childview, int pos) {
-			((TextView) childview.findViewById(R.id.game_text)).setText(game.getTitleName());
-			//If user has set values, then read them, if not read from database
-			if (!game.isDescriptionEmptyNull() && game.getFrontLink() != null && !game.getFrontLink().equals("")) {
-				childview.findViewById(R.id.childview).setOnLongClickListener(
-						gameInfo.configureLongClick(game.getTitleName(), game.getDescription(), game));
-
-				if (!game.getFrontLink().equals("404")) {
-					gameInfo.getImage(game.getGameID(), childview, game.getFrontLink());
-					((TextView) childview.findViewById(R.id.game_text)).setVisibility(View.GONE);
-				} else {
-					ImageView preview = (ImageView) childview.findViewById(R.id.game_icon);
-					preview.setImageResource(R.drawable.boxart);
-					((TextView) childview.findViewById(R.id.game_text)).setVisibility(View.VISIBLE);
-				}
-			} else if (VirtualMachineManager.IsLoadableExecutableFileName(game.getFile().getName())) {
-				ImageView preview = (ImageView) childview.findViewById(R.id.game_icon);
-				preview.setImageResource(R.drawable.boxart);
-				((TextView) childview.findViewById(R.id.game_text)).setVisibility(View.VISIBLE);
-				childview.findViewById(R.id.childview).setOnLongClickListener(null);
-			} else {
-				childview.findViewById(R.id.childview).setOnLongClickListener(null);
-				// passing game, as to pass and use (if) any user defined values
-				final GameInfoStruct gameStats = gameInfo.getGameInfo(game.getFile(), childview, game);
-
-				if (gameStats != null) {
-					games.set(pos, gameStats);
-					childview.findViewById(R.id.childview).setOnLongClickListener(
-							gameInfo.configureLongClick(gameStats.getTitleName(), gameStats.getDescription(), game));
-
-					if (gameStats.getFrontLink() != null && !gameStats.getFrontLink().equals("404")) {
-						gameInfo.getImage(gameStats.getGameID(), childview, gameStats.getFrontLink());
-						((TextView) childview.findViewById(R.id.game_text)).setVisibility(View.GONE);
-					}
-				} else {
-					ImageView preview = (ImageView) childview.findViewById(R.id.game_icon);
-					preview.setImageResource(R.drawable.boxart);
-					((TextView) childview.findViewById(R.id.game_text)).setVisibility(View.VISIBLE);
-				}
-			}
-
-
-
-			childview.findViewById(R.id.childview).setOnClickListener(new OnClickListener() {
-				public void onClick(View view) {
-					launchGame(game);
-					return;
-				}
-			});
-			return childview;
-
-		}
-
-	}
-	
-	public void launchGame(GameInfoStruct game) {
+	public static void launchGame(GameInfoStruct game, Context context) {
 		if (game.getFile().exists()){
-			game.setlastplayed(mActivity);
+			game.setlastplayed(context);
 			try {
-				VirtualMachineManager.launchDisk(this, game.getFile());
+				VirtualMachineManager.launchDisk(context, game.getFile());
 			} catch (Exception e) {
-				displaySimpleMessage("Error", e.getMessage());
+				displaySimpleMessage("Error", e.getMessage(), context);
 			}
 		} else {
-			((MainActivity) mActivity).displayGameNotFound(game);
+			displayGameNotFound(game, context);
 		}
 	}
 
