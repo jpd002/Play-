@@ -36,8 +36,8 @@ public class TheGamesDB extends ContentProvider {
 	// Database Name
 	private static final String DATABASE_NAME = "games.db";
 
-    // Database Version
-    private static final int DATABASE_VERSION = 2;
+	// Database Version
+	private static final int DATABASE_VERSION = 3;
 
 	public static final String SQLITE_ID = "_id";
 
