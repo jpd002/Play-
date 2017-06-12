@@ -171,7 +171,7 @@ public class GamesDbAPI extends AsyncTask<File, Integer, Boolean> {
 				viewHolder.childview.setOnLongClickListener(
 						gameInfo.configureLongClick(gameInfoStruct));
 				if (gameInfoStruct.getFrontLink() != null) {
-					gameInfo.setCoverImage(gameInfoStruct.getGameID(), viewHolder, gameInfoStruct.getFrontLink(), pos);
+					gameInfo.setCoverImage(gameInfoStruct.getIndexID(), viewHolder, gameInfoStruct.getFrontLink(), pos);
 				}
 			}
 		}

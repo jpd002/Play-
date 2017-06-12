@@ -88,7 +88,7 @@ public class GamesAdapter extends ArrayAdapter<GameInfoStruct> {
                     gameInfo.configureLongClick(game));
 
             if (!game.getFrontLink().equals("404")) {
-                gameInfo.setCoverImage(game.getGameID(), viewHolder, game.getFrontLink(), pos);
+                gameInfo.setCoverImage(game.getIndexID(), viewHolder, game.getFrontLink(), pos);
             } else {
                 viewHolder.gameImageView.setImageResource(R.drawable.boxart);
             }

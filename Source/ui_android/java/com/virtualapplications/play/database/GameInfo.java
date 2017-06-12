@@ -27,6 +27,7 @@ import com.virtualapplications.play.GameInfoEditActivity;
 import com.virtualapplications.play.GameInfoStruct;
 import com.virtualapplications.play.GamesAdapter;
 import com.virtualapplications.play.MainActivity;
+import com.virtualapplications.play.R;
 
 import org.apache.commons.io.IOUtils;
 
@@ -72,6 +73,14 @@ public class GameInfo {
 		if (viewHolder != null && Integer.parseInt (viewHolder.currentPositionView.getText().toString()) == pos) {
 			viewHolder.gameImageView.setImageBitmap(bitmap);
 			viewHolder.gameTextView.setVisibility(View.GONE);
+		}
+	}
+
+	private void setDefaultImageViewCover(GamesAdapter.CoverViewHolder viewHolder, int pos)
+	{
+		if (viewHolder != null && Integer.parseInt (viewHolder.currentPositionView.getText().toString()) == pos) {
+			viewHolder.gameImageView.setImageResource(R.drawable.boxart);
+			viewHolder.gameTextView.setVisibility(View.VISIBLE);
 		}
 	}
 
@@ -200,11 +209,11 @@ public class GameInfo {
 			if(!file.exists()) {
 				if (GamesDbAPI.isNetworkAvailable(mContext) && boxart != null) {
 					String api = null;
-					if (!boxart.startsWith("boxart/original/front/")) {
-						api = boxart;
-					} else if (boxart.equals("200")) {
+					if (boxart.equals("200") || boxart.equals("404") ) {
 						//200 boxart has no link associated with it and was set by the user
 						return null;
+					} else if (!boxart.startsWith("boxart/original/front/")) {
+						api = boxart;
 					} else {
 						api = "http://thegamesdb.net/banners/" + boxart;
 					}
@@ -250,6 +259,10 @@ public class GameInfo {
 		protected void onPostExecute(Bitmap image) {
 			if (image != null) {
 				setImageViewCover(viewHolder, image, pos);
+			}
+			else
+			{
+				setDefaultImageViewCover(viewHolder, pos);
 			}
 		}
 	}

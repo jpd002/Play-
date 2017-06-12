@@ -231,7 +231,7 @@ public class MainActivity extends AppCompatActivity implements NavigationDrawerF
 
 		if (requestCode == 1 && resultCode == RESULT_OK){
 			if (data != null){
-				gameInfo.removeBitmapFromMemCache(data.getStringExtra("gameid"));
+				gameInfo.removeBitmapFromMemCache(data.getStringExtra("indexid"));
 			}
 			prepareFileListView(false);
 		}
