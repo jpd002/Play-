@@ -94,11 +94,14 @@ public class GameInfo {
 			fOut = new FileOutputStream(file, false);
 			image.compress(Bitmap.CompressFormat.JPEG, 85, fOut); // saving the Bitmap to a file compressed as a JPEG with 85% compression rate
 			fOut.flush();
-			fOut.close(); // do not forget to close the stream
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		} catch (IOException e) {
 			e.printStackTrace();
+		} finally {
+			try {
+				fOut.close();
+			} catch (IOException ex) {}
 		}
 	}
 
@@ -202,12 +205,14 @@ public class GameInfo {
 				} else {
 					api = "http://thegamesdb.net/banners/" + boxart;
 				}
+				InputStream im = null;
+				BufferedInputStream bis = null;
 				try {
 					URL imageURL = new URL(api);
 					URLConnection conn1 = imageURL.openConnection();
 					
-					InputStream im = conn1.getInputStream();
-					BufferedInputStream bis = new BufferedInputStream(im, 512);
+					im = conn1.getInputStream();
+					bis = new BufferedInputStream(im, 512);
 					
 					BitmapFactory.Options options = new BitmapFactory.Options();
 					options.inJustDecodeBounds = true;
@@ -221,14 +226,16 @@ public class GameInfo {
 					im = conn1.getInputStream();
 					bis = new BufferedInputStream(im, 512);
 					bitmap = BitmapFactory.decodeStream(bis, null, options);
-
-					bis.close();
-					im.close();
-					bis = null;
-					im = null;
 					return bitmap;
 				} catch (IOException e) {
 					
+				} finally {
+					try {
+						im.close();
+						bis.close();
+						im = null;
+						bis = null;
+					} catch (IOException ex) {}
 				}
 			}
 			return null;
