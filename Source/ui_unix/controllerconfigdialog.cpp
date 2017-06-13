@@ -32,6 +32,7 @@ ControllerConfigDialog::ControllerConfigDialog(QWidget *parent) :
 
 ControllerConfigDialog::~ControllerConfigDialog()
 {
+	delete m_inputManager;
 	delete ui;
 }
 

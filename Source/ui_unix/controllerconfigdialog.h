@@ -1,5 +1,4 @@
-#ifndef CONTROLLERCONFIGDIALOG_H
-#define CONTROLLERCONFIGDIALOG_H
+#pragma once
 
 #include <QDialog>
 #include <QAbstractButton>
@@ -21,8 +20,6 @@ public:
 	explicit ControllerConfigDialog(QWidget *parent = 0);
 	~ControllerConfigDialog();
 
-	static QString ReadElementValue(QXmlStreamReader &Rxml);
-
 private slots:
 	void on_buttonBox_clicked(QAbstractButton *button);
 	void on_tableView_doubleClicked(const QModelIndex &index);
@@ -33,5 +30,3 @@ private:
 	std::unique_ptr<CGamePadDeviceListener> m_inputDeviceManager;
 	Ui::ControllerConfigDialog *ui;
 };
-
-#endif // CONTROLLERCONFIGDIALOG_H
