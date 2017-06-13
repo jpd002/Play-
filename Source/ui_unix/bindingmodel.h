@@ -1,6 +1,7 @@
 #pragma once
 
 #include <QAbstractTableModel>
+#include <GamePad/GamePadDeviceListener.h>
 #include "ui_unix/PH_HidUnix.h"
 
 class CBindingModel : public QAbstractTableModel
@@ -15,7 +16,6 @@ public:
         QVariant		data(const QModelIndex &index, int role = Qt::DisplayRole) const Q_DECL_OVERRIDE;
         void			addData(const QStringList data) const;
         bool			setHeaderData(int section, Qt::Orientation orientation, const QVariant &value, int role = Qt::EditRole) Q_DECL_OVERRIDE;
-        void			DoubleClicked(const QModelIndex &index, QWidget *parent = 0);
         void			Refresh();
 
         void			Setup(CInputBindingManager*);

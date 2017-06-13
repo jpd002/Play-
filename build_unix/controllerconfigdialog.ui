@@ -25,8 +25,8 @@
   <property name="windowTitle">
    <string>Dialog</string>
   </property>
-  <layout class="QGridLayout" name="gridLayout_1">
-   <item row="0" column="0">
+  <layout class="QGridLayout" name="gridLayout_2">
+   <item row="0" column="0" colspan="2">
     <widget class="QTabWidget" name="tabWidget">
      <property name="enabled">
       <bool>true</bool>
@@ -55,7 +55,7 @@ QGroupBox::title {
       <attribute name="title">
        <string>Pad1</string>
       </attribute>
-      <layout class="QGridLayout" name="gridLayout_2">
+      <layout class="QGridLayout" name="gridLayout">
        <item row="0" column="0">
         <widget class="QTableView" name="tableView"/>
        </item>
@@ -70,6 +70,13 @@ QGroupBox::title {
     </widget>
    </item>
    <item row="1" column="0">
+    <widget class="QPushButton" name="ConfigAllButton">
+     <property name="text">
+      <string>Config All</string>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="1">
     <widget class="QDialogButtonBox" name="buttonBox">
      <property name="orientation">
       <enum>Qt::Horizontal</enum>

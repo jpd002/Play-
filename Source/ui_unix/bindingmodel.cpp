@@ -35,20 +35,22 @@ QVariant CBindingModel::data(const QModelIndex &index, int role) const
 		auto binding = m_inputManager->GetBinding(static_cast<PS2::CControllerInfo::BUTTON>(index.row()));
 		if (binding != nullptr)
 		{
-			const char* val = "";
 			switch (index.column())
 			{
 			case 0:
-				val = PS2::CControllerInfo::m_buttonName[index.row()];
+				{
+					std::string str(PS2::CControllerInfo::m_buttonName[index.row()]);
+					std::transform(str.begin(), str.end(),str.begin(), ::toupper);
+					return QVariant(str.c_str());
+				}
 			break;
 			case 1:
-				val = binding->GetBindingTypeName();
+			return QVariant(binding->GetBindingTypeName());
 			break;
 			case 2:
-				val = binding->GetDescription().c_str();
+			return QVariant(binding->GetDescription().c_str());
 			break;
 			}
-			return QVariant(val);
 		}
 	}
 	return QVariant();
@@ -86,15 +88,6 @@ QVariant CBindingModel::headerData(int section, Qt::Orientation orientation, int
 
 	return QAbstractTableModel::headerData(section, orientation, role);
 }
-
-void CBindingModel::DoubleClicked(const QModelIndex &index, QWidget* parent)
-{
-
-	InputEventSelectionDialog IESD;
-	IESD.Setup(PS2::CControllerInfo::m_buttonName[index.row()], m_inputManager, static_cast<PS2::CControllerInfo::BUTTON>(index.row()));
-	IESD.exec();
-}
-
 
 void CBindingModel::Refresh()
 {

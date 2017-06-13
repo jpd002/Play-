@@ -7,11 +7,11 @@
     <x>0</x>
     <y>0</y>
     <width>320</width>
-    <height>240</height>
+    <height>131</height>
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Dialog</string>
+   <string>Button Configuration</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
    <item row="0" column="0">
