@@ -2,8 +2,8 @@
 #include <stdexcept>
 #include "AppConfig.h"
 
-CPH_HidUnix::CPH_HidUnix()
- : m_inputManager(CAppConfig::GetInstance())
+CPH_HidUnix::CPH_HidUnix(CInputBindingManager* inputBindingManager)
+ : m_inputManager(inputBindingManager)
 {
 
 }
@@ -22,7 +22,7 @@ void CPH_HidUnix::Update(uint8* ram)
 		for(unsigned int i = 0; i < PS2::CControllerInfo::MAX_BUTTONS; i++)
 		{
 			auto button = static_cast<PS2::CControllerInfo::BUTTON>(i);
-			const auto& binding = m_inputManager.GetBinding(button);
+			const auto& binding = m_inputManager->GetBinding(button);
 			if(!binding) continue;
 			uint32 value = binding->GetValue();
 			auto currentButtonId = static_cast<PS2::CControllerInfo::BUTTON>(i);
@@ -38,10 +38,10 @@ void CPH_HidUnix::Update(uint8* ram)
 	}
 }
 
-CPadHandler::FactoryFunction CPH_HidUnix::GetFactoryFunction()
+CPadHandler::FactoryFunction CPH_HidUnix::GetFactoryFunction(CInputBindingManager* inputBindingManager)
 {
 	//Needs to be created in the same thread as UI
-	return std::bind(&CPH_HidUnix::PadHandlerFactory, new CPH_HidUnix());
+	return std::bind(&CPH_HidUnix::PadHandlerFactory, new CPH_HidUnix(inputBindingManager));
 }
 
 CPadHandler* CPH_HidUnix::PadHandlerFactory(CPH_HidUnix* handler)
@@ -61,5 +61,5 @@ void CPH_HidUnix::InputValueCallbackReleased(uint32 valueRef, uint32 type)
 
 void CPH_HidUnix::InputValueCallback(std::array<uint32, 6> device, uint32 value, uint32 action, uint32 type)
 {
-	m_inputManager.OnInputEventReceived(device, value, action);
+	m_inputManager->OnInputEventReceived(device, value, action);
 }

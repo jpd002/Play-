@@ -15,11 +15,19 @@
 ControllerConfigDialog::ControllerConfigDialog(QWidget *parent) :
 	QDialog(parent),
 	ui(new Ui::ControllerConfigDialog),
-	m_inputManager(new CInputBindingManager(CAppConfig::GetInstance())),
 	m_inputDeviceManager(std::make_unique<CGamePadDeviceListener>(true))
 {
 	ui->setupUi(this);
+}
 
+ControllerConfigDialog::~ControllerConfigDialog()
+{
+	delete ui;
+}
+
+void ControllerConfigDialog::SetInputBindingManager(CInputBindingManager *inputBindingManager)
+{
+	m_inputManager = inputBindingManager;
 	CBindingModel* model= new CBindingModel(this);
 	model->Setup(m_inputManager);
 	model->setHeaderData(0, Qt::Orientation::Horizontal, QVariant("Button"), Qt::DisplayRole);
@@ -28,12 +36,6 @@ ControllerConfigDialog::ControllerConfigDialog(QWidget *parent) :
 	ui->tableView->setModel(model);
 	ui->tableView->horizontalHeader()->setStretchLastSection(true);
 	ui->tableView->resizeColumnsToContents();
-}
-
-ControllerConfigDialog::~ControllerConfigDialog()
-{
-	delete m_inputManager;
-	delete ui;
 }
 
 void ControllerConfigDialog::on_buttonBox_clicked(QAbstractButton *button)
@@ -55,6 +57,10 @@ void ControllerConfigDialog::on_buttonBox_clicked(QAbstractButton *button)
 			static_cast<CBindingModel*>(ui->tableView->model())->Refresh();
 		break;
 		}
+	}
+	else if (button == ui->buttonBox->button(QDialogButtonBox::Cancel))
+	{
+		m_inputManager->Load();
 	}
 }
 

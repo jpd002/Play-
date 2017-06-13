@@ -68,6 +68,7 @@ MainWindow::~MainWindow()
         delete g_virtualMachine;
         g_virtualMachine = nullptr;
     }
+    delete m_InputBindingManager;
     delete ui;
 }
 
@@ -85,14 +86,14 @@ void MainWindow::InitEmu()
     g_virtualMachine->CreateGSHandler(CGSH_OpenGLQt::GetFactoryFunction(m_openglpanel));
     SetupSoundHandler();
 
-    g_virtualMachine->CreatePadHandler(CPH_HidUnix::GetFactoryFunction());
-    m_padhandler = static_cast<CPH_HidUnix*>(g_virtualMachine->GetPadHandler());
+    m_InputBindingManager = new CInputBindingManager(CAppConfig::GetInstance());
+    g_virtualMachine->CreatePadHandler(CPH_HidUnix::GetFactoryFunction(m_InputBindingManager));
 
     auto onInput = [=](std::array<uint32, 6> device, int code, int value, int type, const input_absinfo *abs)->void
     {
-        if(m_padhandler != nullptr)
+        if(m_InputBindingManager != nullptr)
         {
-            m_padhandler->InputValueCallback(device, code, value, type);
+            m_InputBindingManager->OnInputEventReceived(device, code, value);
         }
     };
     m_GPDL = std::make_unique<CGamePadDeviceListener>(onInput);
@@ -215,8 +216,10 @@ void MainWindow::on_actionExit_triggered()
 
 void MainWindow::keyPressEvent(QKeyEvent *event)
 {
-    if(event->key() != Qt::Key_Escape && m_padhandler != nullptr)
-            m_padhandler->InputValueCallbackPressed(event->key(), 0);
+    if(event->key() != Qt::Key_Escape && m_InputBindingManager != nullptr)
+    {
+        m_InputBindingManager->OnInputEventReceived({0}, event->key(), 1);
+    }
 }
 
 void MainWindow::keyReleaseEvent(QKeyEvent *event)
@@ -228,8 +231,10 @@ void MainWindow::keyReleaseEvent(QKeyEvent *event)
         }
         return;
     }
-    if (m_padhandler != nullptr)
-            m_padhandler->InputValueCallbackReleased(event->key(), 0);
+    if(m_InputBindingManager != nullptr)
+    {
+        m_InputBindingManager->OnInputEventReceived({0}, event->key(), 0);
+    }
 }
 
 void MainWindow::CreateStatusBar()
@@ -496,6 +501,7 @@ void MainWindow::on_actionVFS_Manager_triggered()
 void MainWindow::on_actionController_Manager_triggered()
 {
     ControllerConfigDialog ccd;
+    ccd.SetInputBindingManager(m_InputBindingManager);
     ccd.exec();
 
 }

@@ -20,6 +20,8 @@ public:
 	explicit ControllerConfigDialog(QWidget *parent = 0);
 	~ControllerConfigDialog();
 
+	void SetInputBindingManager(CInputBindingManager*);
+
 private slots:
 	void on_buttonBox_clicked(QAbstractButton *button);
 	void on_tableView_doubleClicked(const QModelIndex &index);

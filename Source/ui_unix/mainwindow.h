@@ -58,7 +58,7 @@ private:
     QLabel* m_stateLabel;
     ElidedLabel* m_msgLabel;
     CStatsManager* StatsManager;
-    CPH_HidUnix* m_padhandler = nullptr;
+    CInputBindingManager* m_InputBindingManager;
     QTimer *m_fpstimer = nullptr;
     CPS2VM* g_virtualMachine = nullptr;
     bool m_deactivatePause = false;
