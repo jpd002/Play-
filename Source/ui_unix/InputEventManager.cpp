@@ -1,6 +1,9 @@
-#include <QKeySequence>
+﻿#include <QKeySequence>
 #include <cstring>
+#include <libevdev.h>
 #include "InputEventManager.h"
+#include "GamePad/GamePadDeviceListener.h"
+#include "string_format.h"
 
 #define CONFIG_PREFIX						("input")
 #define CONFIG_BINDING_TYPE					("bindingtype")
@@ -9,6 +12,7 @@
 
 #define CONFIG_BINDINGINFO_DEVICE			("device")
 #define CONFIG_BINDINGINFO_ID				("id")
+#define CONFIG_BINDINGINFO_TYPE				("type")
 
 #define CONFIG_POVHATBINDING_PREFIX			("povhatbinding")
 #define CONFIG_POVHATBINDING_REFVALUE		("refvalue")
@@ -62,7 +66,7 @@ CInputBindingManager::~CInputBindingManager()
 {
 }
 
-void CInputBindingManager::OnInputEventReceived(const int device, uint32 id, uint32 value)
+void CInputBindingManager::OnInputEventReceived(std::array<uint32, 6> device, uint32 id, uint32 value)
 {
 	for(unsigned int i = 0; i < PS2::CControllerInfo::MAX_BUTTONS; i++)
 	{
@@ -123,36 +127,36 @@ void CInputBindingManager::Save()
 
 void CInputBindingManager::AutoConfigureKeyboard()
 {
-	SetSimpleBinding(PS2::CControllerInfo::START,		CInputBindingManager::BINDINGINFO(0, Qt::Key_Return));
-	SetSimpleBinding(PS2::CControllerInfo::SELECT,		CInputBindingManager::BINDINGINFO(0, Qt::Key_Backspace));
-	SetSimpleBinding(PS2::CControllerInfo::DPAD_LEFT,	CInputBindingManager::BINDINGINFO(0, Qt::Key_Left));
-	SetSimpleBinding(PS2::CControllerInfo::DPAD_RIGHT,	CInputBindingManager::BINDINGINFO(0, Qt::Key_Right));
-	SetSimpleBinding(PS2::CControllerInfo::DPAD_UP,		CInputBindingManager::BINDINGINFO(0, Qt::Key_Up));
-	SetSimpleBinding(PS2::CControllerInfo::DPAD_DOWN,	CInputBindingManager::BINDINGINFO(0, Qt::Key_Down));
-	SetSimpleBinding(PS2::CControllerInfo::SQUARE,		CInputBindingManager::BINDINGINFO(0, Qt::Key_A));
-	SetSimpleBinding(PS2::CControllerInfo::CROSS,		CInputBindingManager::BINDINGINFO(0, Qt::Key_Z));
-	SetSimpleBinding(PS2::CControllerInfo::TRIANGLE,	CInputBindingManager::BINDINGINFO(0, Qt::Key_S));
-	SetSimpleBinding(PS2::CControllerInfo::CIRCLE,		CInputBindingManager::BINDINGINFO(0, Qt::Key_X));
-	SetSimpleBinding(PS2::CControllerInfo::L1,			CInputBindingManager::BINDINGINFO(0, Qt::Key_1));
-	SetSimpleBinding(PS2::CControllerInfo::L2,			CInputBindingManager::BINDINGINFO(0, Qt::Key_2));
-	SetSimpleBinding(PS2::CControllerInfo::L3,			CInputBindingManager::BINDINGINFO(0, Qt::Key_3));
-	SetSimpleBinding(PS2::CControllerInfo::R1,			CInputBindingManager::BINDINGINFO(0, Qt::Key_8));
-	SetSimpleBinding(PS2::CControllerInfo::R2,			CInputBindingManager::BINDINGINFO(0, Qt::Key_9));
-	SetSimpleBinding(PS2::CControllerInfo::R3,			CInputBindingManager::BINDINGINFO(0, Qt::Key_0));
+	SetSimpleBinding(PS2::CControllerInfo::START,		CInputBindingManager::BINDINGINFO({0}, Qt::Key_Return));
+	SetSimpleBinding(PS2::CControllerInfo::SELECT,		CInputBindingManager::BINDINGINFO({0}, Qt::Key_Backspace));
+	SetSimpleBinding(PS2::CControllerInfo::DPAD_LEFT,	CInputBindingManager::BINDINGINFO({0}, Qt::Key_Left));
+	SetSimpleBinding(PS2::CControllerInfo::DPAD_RIGHT,	CInputBindingManager::BINDINGINFO({0}, Qt::Key_Right));
+	SetSimpleBinding(PS2::CControllerInfo::DPAD_UP,		CInputBindingManager::BINDINGINFO({0}, Qt::Key_Up));
+	SetSimpleBinding(PS2::CControllerInfo::DPAD_DOWN,	CInputBindingManager::BINDINGINFO({0}, Qt::Key_Down));
+	SetSimpleBinding(PS2::CControllerInfo::SQUARE,		CInputBindingManager::BINDINGINFO({0}, Qt::Key_A));
+	SetSimpleBinding(PS2::CControllerInfo::CROSS,		CInputBindingManager::BINDINGINFO({0}, Qt::Key_Z));
+	SetSimpleBinding(PS2::CControllerInfo::TRIANGLE,	CInputBindingManager::BINDINGINFO({0}, Qt::Key_S));
+	SetSimpleBinding(PS2::CControllerInfo::CIRCLE,		CInputBindingManager::BINDINGINFO({0}, Qt::Key_X));
+	SetSimpleBinding(PS2::CControllerInfo::L1,			CInputBindingManager::BINDINGINFO({0}, Qt::Key_1));
+	SetSimpleBinding(PS2::CControllerInfo::L2,			CInputBindingManager::BINDINGINFO({0}, Qt::Key_2));
+	SetSimpleBinding(PS2::CControllerInfo::L3,			CInputBindingManager::BINDINGINFO({0}, Qt::Key_3));
+	SetSimpleBinding(PS2::CControllerInfo::R1,			CInputBindingManager::BINDINGINFO({0}, Qt::Key_8));
+	SetSimpleBinding(PS2::CControllerInfo::R2,			CInputBindingManager::BINDINGINFO({0}, Qt::Key_9));
+	SetSimpleBinding(PS2::CControllerInfo::R3,			CInputBindingManager::BINDINGINFO({0}, Qt::Key_0));
 
 	SetSimulatedAxisBinding(PS2::CControllerInfo::ANALOG_LEFT_X,
-							CInputBindingManager::BINDINGINFO(0, Qt::Key_F),
-							CInputBindingManager::BINDINGINFO(0, Qt::Key_H));
+							CInputBindingManager::BINDINGINFO({0}, Qt::Key_F),
+							CInputBindingManager::BINDINGINFO({0}, Qt::Key_H));
 	SetSimulatedAxisBinding(PS2::CControllerInfo::ANALOG_LEFT_Y,
-							CInputBindingManager::BINDINGINFO(0, Qt::Key_T),
-							CInputBindingManager::BINDINGINFO(0, Qt::Key_G));
+							CInputBindingManager::BINDINGINFO({0}, Qt::Key_T),
+							CInputBindingManager::BINDINGINFO({0}, Qt::Key_G));
 
 	SetSimulatedAxisBinding(PS2::CControllerInfo::ANALOG_RIGHT_X,
-							CInputBindingManager::BINDINGINFO(0, Qt::Key_J),
-							CInputBindingManager::BINDINGINFO(0, Qt::Key_L));
+							CInputBindingManager::BINDINGINFO({0}, Qt::Key_J),
+							CInputBindingManager::BINDINGINFO({0}, Qt::Key_L));
 	SetSimulatedAxisBinding(PS2::CControllerInfo::ANALOG_RIGHT_Y,
-							CInputBindingManager::BINDINGINFO(0, Qt::Key_I),
-							CInputBindingManager::BINDINGINFO(0, Qt::Key_K));
+							CInputBindingManager::BINDINGINFO({0}, Qt::Key_I),
+							CInputBindingManager::BINDINGINFO({0}, Qt::Key_K));
 }
 
 const CInputBindingManager::CBinding* CInputBindingManager::GetBinding(PS2::CControllerInfo::BUTTON button) const
@@ -194,7 +198,7 @@ void CInputBindingManager::SetSimpleBinding(PS2::CControllerInfo::BUTTON button,
 	{
 		throw std::exception();
 	}
-	m_bindings[button].reset(new CSimpleBinding(binding.device, binding.id));
+	m_bindings[button].reset(new CSimpleBinding(binding.device, binding.id, binding.type));
 }
 
 void CInputBindingManager::SetPovHatBinding(PS2::CControllerInfo::BUTTON button, const BINDINGINFO& binding, uint32 refValue)
@@ -203,7 +207,7 @@ void CInputBindingManager::SetPovHatBinding(PS2::CControllerInfo::BUTTON button,
 	{
 		throw std::exception();
 	}
-	m_bindings[button].reset(new CPovHatBinding(binding.device, binding.id, refValue));
+	m_bindings[button].reset(new CPovHatBinding(binding, refValue));
 }
 
 void CInputBindingManager::SetSimulatedAxisBinding(PS2::CControllerInfo::BUTTON button, const BINDINGINFO& binding1, const BINDINGINFO& binding2)
@@ -226,14 +230,16 @@ CInputBindingManager::CSimpleBinding::CSimpleBinding()
 CInputBindingManager::CSimpleBinding::CSimpleBinding(Qt::Key keyCode)
 	: m_keyCode(keyCode)
 	, m_state(0)
-	, m_device(0)
+	, m_device({0})
+	, m_type(0)
 {
 
 }
-CInputBindingManager::CSimpleBinding::CSimpleBinding(int device, uint32 keyCode, int controllerType)
+CInputBindingManager::CSimpleBinding::CSimpleBinding(std::array<uint32, 6> device, uint32 keyCode, uint32 type)
 	: m_keyCode(keyCode)
 	, m_state(0)
 	, m_device(device)
+	, m_type(type)
 {
 
 }
@@ -243,7 +249,7 @@ CInputBindingManager::CSimpleBinding::~CSimpleBinding()
 
 }
 
-void CInputBindingManager::CSimpleBinding::ProcessEvent(int device, uint32 keyCode, uint32 state)
+void CInputBindingManager::CSimpleBinding::ProcessEvent(std::array<uint32, 6> device, uint32 keyCode, uint32 state)
 {
 	if(device != m_device || keyCode != m_keyCode) return;
 	m_state = state;
@@ -266,13 +272,21 @@ char* CInputBindingManager::CSimpleBinding::GetBindingTypeName() const
 
 std::string CInputBindingManager::CSimpleBinding::GetDescription() const
 {
-	if(m_device == 0)
+	if(m_device == std::array<uint32, 6>{0})
 	{
 		return QString("Key: %1").arg(QKeySequence(m_keyCode).toString()).toStdString();
 	}
 	else
 	{
-		return QString("Key: %1").arg(m_keyCode).toStdString();
+		const char* buttonname = libevdev_event_code_get_name(m_type, m_keyCode);
+		if (buttonname != NULL)
+		{
+			return QString("Key: %1").arg(buttonname).toStdString();
+		}
+		else
+		{
+			return QString("Key: %1").arg(QString::number(m_keyCode)).toStdString();
+		}
 	}
 }
 
@@ -284,22 +298,25 @@ void CInputBindingManager::CSimpleBinding::SetValue(uint32 state)
 void CInputBindingManager::CSimpleBinding::Save(Framework::CConfig& config, const char* buttonBase) const
 {
 	std::string prefBase = Framework::CConfig::MakePreferenceName(buttonBase, CONFIG_SIMPLEBINDING_PREFIX);
-	config.SetPreferenceInteger(Framework::CConfig::MakePreferenceName(prefBase, CONFIG_BINDINGINFO_DEVICE).c_str(), m_device);
+	config.SetPreferenceString(Framework::CConfig::MakePreferenceName(prefBase, CONFIG_BINDINGINFO_DEVICE).c_str(), string_format("%02x:%02x:%02x:%02x:%02x:%02x", m_device[0], m_device[1], m_device[2], m_device[3], m_device[4], m_device[5]).c_str());
 	config.SetPreferenceInteger(Framework::CConfig::MakePreferenceName(prefBase, CONFIG_BINDINGINFO_ID).c_str(), m_keyCode);
+	config.SetPreferenceInteger(Framework::CConfig::MakePreferenceName(prefBase, CONFIG_BINDINGINFO_TYPE).c_str(), m_type);
 }
 
 void CInputBindingManager::CSimpleBinding::Load(Framework::CConfig& config, const char* buttonBase)
 {
 	std::string prefBase = Framework::CConfig::MakePreferenceName(buttonBase, CONFIG_SIMPLEBINDING_PREFIX);
-	m_device = config.GetPreferenceInteger(Framework::CConfig::MakePreferenceName(prefBase, CONFIG_BINDINGINFO_DEVICE).c_str());
+	CGamePadDeviceListener::ParseMAC(m_device, config.GetPreferenceString(Framework::CConfig::MakePreferenceName(prefBase, CONFIG_BINDINGINFO_DEVICE).c_str()));
 	m_keyCode = config.GetPreferenceInteger(Framework::CConfig::MakePreferenceName(prefBase, CONFIG_BINDINGINFO_ID).c_str());
+	m_type = config.GetPreferenceInteger(Framework::CConfig::MakePreferenceName(prefBase, CONFIG_BINDINGINFO_TYPE).c_str());
 }
 
 void CInputBindingManager::CSimpleBinding::RegisterPreferences(Framework::CConfig& config, const char* buttonBase)
 {
 	std::string prefBase = Framework::CConfig::MakePreferenceName(buttonBase, CONFIG_SIMPLEBINDING_PREFIX);
-	config.RegisterPreferenceInteger(Framework::CConfig::MakePreferenceName(prefBase, CONFIG_BINDINGINFO_DEVICE).c_str(), 0);
+	config.RegisterPreferenceString(Framework::CConfig::MakePreferenceName(prefBase, CONFIG_BINDINGINFO_DEVICE).c_str(), "00:00:00:00:00");
 	config.RegisterPreferenceInteger(Framework::CConfig::MakePreferenceName(prefBase, CONFIG_BINDINGINFO_ID).c_str(), 0);
+	config.RegisterPreferenceInteger(Framework::CConfig::MakePreferenceName(prefBase, CONFIG_BINDINGINFO_TYPE).c_str(), 0);
 }
 
 ////////////////////////////////////////////////
@@ -315,8 +332,8 @@ CInputBindingManager::CSimulatedAxisBinding::CSimulatedAxisBinding(const BINDING
 }
 
 CInputBindingManager::CSimulatedAxisBinding::CSimulatedAxisBinding(int id1, int id2)
-	: m_key1Binding(BINDINGINFO(0,id1))
-	, m_key2Binding(BINDINGINFO(0,id2))
+	: m_key1Binding(BINDINGINFO({0},id1))
+	, m_key2Binding(BINDINGINFO({0},id2))
 {
 
 }
@@ -326,7 +343,7 @@ CInputBindingManager::CSimulatedAxisBinding::~CSimulatedAxisBinding()
 
 }
 
-void CInputBindingManager::CSimulatedAxisBinding::ProcessEvent(int device, uint32 keyCode, uint32 state)
+void CInputBindingManager::CSimulatedAxisBinding::ProcessEvent(std::array<uint32, 6> device, uint32 keyCode, uint32 state)
 {
 	if(keyCode == m_key1Binding.id && m_key1Binding.device == device)
 	{
@@ -369,32 +386,35 @@ char* CInputBindingManager::CSimulatedAxisBinding::GetBindingTypeName() const
 
 std::string CInputBindingManager::CSimulatedAxisBinding::GetDescription() const
 {
+
 	QString desc = QString("Key: %1 / Key: %2");
-	if(m_key1Binding.device == 0)
+	if(m_key1Binding.device == std::array<uint32, 6>{0})
 	{
 		desc = desc.arg(QKeySequence(m_key1Binding.id).toString());
 	}
 	else
 	{
-		desc = desc.arg(m_key1Binding.id);
+
+		desc = desc.arg(libevdev_event_code_get_name(m_key1Binding.type, m_key1Binding.id));
 	}
 
-	if(m_key2Binding.device == 0)
+	if(m_key2Binding.device == std::array<uint32, 6>{0})
 	{
 		desc = desc.arg(QKeySequence(m_key2Binding.id).toString());
 	}
 	else
 	{
-		desc = desc.arg(m_key2Binding.id);
+
+		desc = desc.arg(libevdev_event_code_get_name(m_key1Binding.type, m_key2Binding.id));
 	}
 
 	return desc.toStdString();
 }
 
-void CInputBindingManager::CSimulatedAxisBinding::SetValue(uint32)
+void CInputBindingManager::CSimulatedAxisBinding::SetValue(uint32 state)
 {
-	m_key1State = 0;
-	m_key2State = 0;
+	m_key1State = state;
+	m_key2State = state;
 }
 
 void CInputBindingManager::CSimulatedAxisBinding::CSimulatedAxisBinding::Save(Framework::CConfig& config, const char* buttonBase) const
@@ -408,8 +428,9 @@ void CInputBindingManager::CSimulatedAxisBinding::CSimulatedAxisBinding::Save(Fr
 
 void CInputBindingManager::CSimulatedAxisBinding::SaveKeyBinding(Framework::CConfig& config, const char* prefBase, const BINDINGINFO& binding) const
 {
-	config.SetPreferenceInteger(Framework::CConfig::MakePreferenceName(prefBase, CONFIG_BINDINGINFO_DEVICE).c_str(), binding.device);
+	config.SetPreferenceString(Framework::CConfig::MakePreferenceName(prefBase, CONFIG_BINDINGINFO_DEVICE).c_str(), string_format("%02x:%02x:%02x:%02x:%02x:%02x", binding.device[0], binding.device[1], binding.device[2], binding.device[3], binding.device[4], binding.device[5]).c_str());
 	config.SetPreferenceInteger(Framework::CConfig::MakePreferenceName(prefBase, CONFIG_BINDINGINFO_ID).c_str(), binding.id);
+	config.SetPreferenceInteger(Framework::CConfig::MakePreferenceName(prefBase, CONFIG_BINDINGINFO_TYPE).c_str(), binding.type);
 }
 
 void CInputBindingManager::CSimulatedAxisBinding::Load(Framework::CConfig& config, const char* buttonBase)
@@ -423,8 +444,9 @@ void CInputBindingManager::CSimulatedAxisBinding::Load(Framework::CConfig& confi
 
 void CInputBindingManager::CSimulatedAxisBinding::LoadKeyBinding(Framework::CConfig& config, const char* prefBase, BINDINGINFO& binding)
 {
-	binding.device = config.GetPreferenceInteger(Framework::CConfig::MakePreferenceName(prefBase, CONFIG_BINDINGINFO_DEVICE).c_str());
+	CGamePadDeviceListener::ParseMAC(binding.device, config.GetPreferenceString(Framework::CConfig::MakePreferenceName(prefBase, CONFIG_BINDINGINFO_DEVICE).c_str()));
 	binding.id = config.GetPreferenceInteger(Framework::CConfig::MakePreferenceName(prefBase, CONFIG_BINDINGINFO_ID).c_str());
+	binding.type = config.GetPreferenceInteger(Framework::CConfig::MakePreferenceName(prefBase, CONFIG_BINDINGINFO_TYPE).c_str());
 }
 
 void CInputBindingManager::CSimulatedAxisBinding::RegisterPreferences(Framework::CConfig& config, const char* buttonBase)
@@ -438,8 +460,9 @@ void CInputBindingManager::CSimulatedAxisBinding::RegisterPreferences(Framework:
 
 void CInputBindingManager::CSimulatedAxisBinding::RegisterKeyBindingPreferences(Framework::CConfig& config, const char* prefBase)
 {
-	config.RegisterPreferenceInteger(Framework::CConfig::MakePreferenceName(prefBase, CONFIG_BINDINGINFO_DEVICE).c_str(), 0);
+	config.RegisterPreferenceString(Framework::CConfig::MakePreferenceName(prefBase, CONFIG_BINDINGINFO_DEVICE).c_str(), "00:00:00:00:00");
 	config.RegisterPreferenceInteger(Framework::CConfig::MakePreferenceName(prefBase, CONFIG_BINDINGINFO_ID).c_str(), 0);
+	config.RegisterPreferenceInteger(Framework::CConfig::MakePreferenceName(prefBase, CONFIG_BINDINGINFO_TYPE).c_str(), 0);
 }
 
 ////////////////////////////////////////////////
@@ -451,8 +474,8 @@ CInputBindingManager::CPovHatBinding::CPovHatBinding()
 
 }
 
-CInputBindingManager::CPovHatBinding::CPovHatBinding(const int device, uint32 id, uint32 refValue)
-	: m_binding(device, id)
+CInputBindingManager::CPovHatBinding::CPovHatBinding(const BINDINGINFO& bind, uint32 refValue)
+	: m_binding(bind)
 	, m_refValue(refValue)
 {
 
@@ -476,20 +499,31 @@ char* CInputBindingManager::CPovHatBinding::GetBindingTypeName() const
 void CInputBindingManager::CPovHatBinding::Save(Framework::CConfig& config, const char* buttonBase) const
 {
 	std::string prefBase = Framework::CConfig::MakePreferenceName(buttonBase, CONFIG_POVHATBINDING_PREFIX);
-	config.SetPreferenceInteger(Framework::CConfig::MakePreferenceName(prefBase, CONFIG_BINDINGINFO_DEVICE).c_str(), m_binding.device);
+	config.SetPreferenceString(Framework::CConfig::MakePreferenceName(prefBase, CONFIG_BINDINGINFO_DEVICE).c_str(), string_format("%02x:%02x:%02x:%02x:%02x:%02x", m_binding.device[0], m_binding.device[1], m_binding.device[2], m_binding.device[3], m_binding.device[4], m_binding.device[5]).c_str());
 	config.SetPreferenceInteger(Framework::CConfig::MakePreferenceName(prefBase, CONFIG_BINDINGINFO_ID).c_str(), m_binding.id);
+	config.SetPreferenceInteger(Framework::CConfig::MakePreferenceName(prefBase, CONFIG_BINDINGINFO_TYPE).c_str(), m_binding.type);
 	config.SetPreferenceInteger(Framework::CConfig::MakePreferenceName(prefBase, CONFIG_POVHATBINDING_REFVALUE).c_str(), m_refValue);
 }
 
 void CInputBindingManager::CPovHatBinding::Load(Framework::CConfig& config, const char* buttonBase)
 {
 	std::string prefBase = Framework::CConfig::MakePreferenceName(buttonBase, CONFIG_POVHATBINDING_PREFIX);
-	m_binding.device = config.GetPreferenceInteger(Framework::CConfig::MakePreferenceName(prefBase, CONFIG_BINDINGINFO_DEVICE).c_str());
+	CGamePadDeviceListener::ParseMAC(m_binding.device, config.GetPreferenceString(Framework::CConfig::MakePreferenceName(prefBase, CONFIG_BINDINGINFO_DEVICE).c_str()));
 	m_binding.id = config.GetPreferenceInteger(Framework::CConfig::MakePreferenceName(prefBase, CONFIG_BINDINGINFO_ID).c_str());
+	m_binding.type = config.GetPreferenceInteger(Framework::CConfig::MakePreferenceName(prefBase, CONFIG_BINDINGINFO_TYPE).c_str());
 	m_refValue = config.GetPreferenceInteger(Framework::CConfig::MakePreferenceName(prefBase, CONFIG_POVHATBINDING_REFVALUE).c_str());
 }
 
-void CInputBindingManager::CPovHatBinding::ProcessEvent(const int device, uint32 id, uint32 value)
+void CInputBindingManager::CPovHatBinding::RegisterPreferences(Framework::CConfig& config, const char* buttonBase)
+{
+	std::string prefBase = Framework::CConfig::MakePreferenceName(buttonBase, CONFIG_POVHATBINDING_PREFIX);
+	config.RegisterPreferenceString(Framework::CConfig::MakePreferenceName(prefBase, CONFIG_BINDINGINFO_DEVICE).c_str(), "00:00:00:00:00");
+	config.RegisterPreferenceInteger(Framework::CConfig::MakePreferenceName(prefBase, CONFIG_BINDINGINFO_ID).c_str(), 0);
+	config.RegisterPreferenceInteger(Framework::CConfig::MakePreferenceName(prefBase, CONFIG_BINDINGINFO_TYPE).c_str(), 0);
+	config.RegisterPreferenceInteger(Framework::CConfig::MakePreferenceName(prefBase, CONFIG_POVHATBINDING_REFVALUE).c_str(), -1);
+}
+
+void CInputBindingManager::CPovHatBinding::ProcessEvent(std::array<uint32, 6> device, uint32 id, uint32 value)
 {
 	if(id != m_binding.id) return;
 	if(device != m_binding.device) return;
@@ -498,24 +532,24 @@ void CInputBindingManager::CPovHatBinding::ProcessEvent(const int device, uint32
 
 std::string CInputBindingManager::CPovHatBinding::GetDescription() const
 {
-	if(m_binding.device == 0)
+	if(m_binding.device == std::array<uint32, 6>{0})
 	{
 		return QString("Key: %1").arg(QKeySequence(m_binding.id).toString()).toStdString();
 	}
 	else
 	{
-		return QString("Key: %1").arg( m_binding.id).toStdString();
+		return QString("Key: %1").arg(libevdev_event_code_get_name(m_binding.type, m_binding.id)).toStdString();
 	}
 }
 
 uint32 CInputBindingManager::CPovHatBinding::GetValue() const
 {
-	if(m_value == -1) return 0;
+	if(m_value != m_refValue) return 0;
 	int32 normalizedRefValue = m_refValue / 100;
 	int32 normalizedValue = m_value / 100;
 	if(GetShortestDistanceBetweenAngles(normalizedValue, normalizedRefValue) <= 45)
 	{
-		return 1;
+		return m_refValue;
 	}
 	else
 	{
@@ -525,7 +559,7 @@ uint32 CInputBindingManager::CPovHatBinding::GetValue() const
 
 void CInputBindingManager::CPovHatBinding::SetValue(uint32 value)
 {
-	m_value = value ? m_refValue : -1;
+	m_value = value;
 }
 
 int32 CInputBindingManager::CPovHatBinding::GetShortestDistanceBetweenAngles(int32 angle1, int32 angle2)
@@ -540,12 +574,4 @@ int32 CInputBindingManager::CPovHatBinding::GetShortestDistanceBetweenAngles(int
 		angle = 360 - angle;
 	}
 	return angle;
-}
-
-void CInputBindingManager::CPovHatBinding::RegisterPreferences(Framework::CConfig& config, const char* buttonBase)
-{
-	std::string prefBase = Framework::CConfig::MakePreferenceName(buttonBase, CONFIG_POVHATBINDING_PREFIX);
-	config.RegisterPreferenceInteger(Framework::CConfig::MakePreferenceName(prefBase, CONFIG_BINDINGINFO_DEVICE).c_str(), 0);
-	config.RegisterPreferenceInteger(Framework::CConfig::MakePreferenceName(prefBase, CONFIG_BINDINGINFO_ID).c_str(), 0);
-	config.RegisterPreferenceInteger(Framework::CConfig::MakePreferenceName(prefBase, CONFIG_POVHATBINDING_REFVALUE).c_str(), -1);
 }

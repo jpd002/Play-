@@ -57,6 +57,7 @@ MainWindow::MainWindow(QWidget *parent) :
 MainWindow::~MainWindow()
 {
     CAppConfig::GetInstance().Save();
+	m_GPDL.reset();
     if (g_virtualMachine != nullptr)
     {
         g_virtualMachine->Pause();
@@ -86,6 +87,15 @@ void MainWindow::InitEmu()
 
     g_virtualMachine->CreatePadHandler(CPH_HidUnix::GetFactoryFunction());
     m_padhandler = static_cast<CPH_HidUnix*>(g_virtualMachine->GetPadHandler());
+
+    auto onInput = [=](std::array<uint32, 6> device, int code, int value, int type, const input_absinfo *abs)->void
+    {
+        if(m_padhandler != nullptr)
+        {
+            m_padhandler->InputValueCallback(device, code, value, type);
+        }
+    };
+    m_GPDL = std::make_unique<CGamePadDeviceListener>(onInput);
 
     StatsManager = new CStatsManager();
     g_virtualMachine->m_ee->m_gs->OnNewFrame.connect(std::bind(&CStatsManager::OnNewFrame, StatsManager, std::placeholders::_1));
@@ -487,6 +497,7 @@ void MainWindow::on_actionController_Manager_triggered()
 {
     ControllerConfigDialog ccd;
     ccd.exec();
+
 }
 
 void MainWindow::on_actionCapture_Screen_triggered()

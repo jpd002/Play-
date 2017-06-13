@@ -15,13 +15,13 @@ public:
     void					Update(uint8*) override;
 
     static FactoryFunction			GetFactoryFunction();
-    void				InputValueCallbackPressed(uint32 valueRef, int type);
-    void				InputValueCallbackReleased(uint32 valueRef, int type);
+    void				InputValueCallbackPressed(uint32 valueRef, uint32 type);
+    void				InputValueCallbackReleased(uint32 valueRef, uint32 type);
 
     static CPadHandler*		PadHandlerFactory(CPH_HidUnix*);
 
 
-    void				InputValueCallback(int, uint32 value, uint32 action, int type);
+    void				InputValueCallback(std::array<uint32, 6>, uint32 value, uint32 action, uint32 type);
     CInputBindingManager           m_inputManager;
 };
 
