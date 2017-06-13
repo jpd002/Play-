@@ -387,42 +387,42 @@ char* CInputBindingManager::CSimulatedAxisBinding::GetBindingTypeName() const
 std::string CInputBindingManager::CSimulatedAxisBinding::GetDescription() const
 {
 
-	QString desc = QString("Key: %1 / Key: %2");
+	std::string desc = ("Key: ");
 	if(m_key1Binding.device == std::array<uint32, 6>{0})
 	{
-		desc = desc.arg(QKeySequence(m_key1Binding.id).toString());
+		desc += QKeySequence(m_key1Binding.id).toString().toStdString();
 	}
 	else
 	{
 		const char* buttonname = libevdev_event_code_get_name(m_key1Binding.type, m_key1Binding.id);
 		if (buttonname != NULL)
 		{
-			desc = desc.arg(buttonname);
+			desc += buttonname;
 		}
 		else
 		{
-			desc = desc.arg(QString::number(m_key1Binding.id));
+			desc += string_format("%d", m_key1Binding.id);
 		}
 	}
-
+	desc += "/ Key: ";
 	if(m_key2Binding.device == std::array<uint32, 6>{0})
 	{
-		desc = desc.arg(QKeySequence(m_key2Binding.id).toString());
+		desc += QKeySequence(m_key2Binding.id).toString().toStdString();
 	}
 	else
 	{
 		const char* buttonname = libevdev_event_code_get_name(m_key2Binding.type, m_key2Binding.id);
 		if (buttonname != NULL)
 		{
-			desc = desc.arg(buttonname);
+			desc += buttonname;
 		}
 		else
 		{
-			desc = desc.arg(QString::number(m_key2Binding.id));
+			desc += string_format("%d", m_key2Binding.id);
 		}
 	}
 
-	return desc.toStdString();
+	return desc;
 }
 
 void CInputBindingManager::CSimulatedAxisBinding::SetValue(uint32 state)
@@ -546,20 +546,21 @@ void CInputBindingManager::CPovHatBinding::ProcessEvent(std::array<uint32, 6> de
 
 std::string CInputBindingManager::CPovHatBinding::GetDescription() const
 {
+	std::string key("Key: ");
 	if(m_binding.device == std::array<uint32, 6>{0})
 	{
-		return QString("Key: %1").arg(QKeySequence(m_binding.id).toString()).toStdString();
+		return key + QKeySequence(m_binding.id).toString().toStdString();
 	}
 	else
 	{
 		const char* buttonname = libevdev_event_code_get_name(m_binding.type, m_binding.id);
 		if (buttonname != NULL)
 		{
-			return QString("Key: %1").arg(buttonname).toStdString();
+			return  key + buttonname;
 		}
 		else
 		{
-			 return QString("Key: %1").arg(QString::number(m_binding.id)).toStdString();
+			return  key + string_format("%d", m_binding.id);
 		}
 	}
 }
