@@ -48,18 +48,3 @@ CPadHandler* CPH_HidUnix::PadHandlerFactory(CPH_HidUnix* handler)
 {
 	return handler;
 }
-
-void CPH_HidUnix::InputValueCallbackPressed(uint32 valueRef, uint32 type)
-{
-	InputValueCallback({0}, valueRef, 1, type);
-}
-
-void CPH_HidUnix::InputValueCallbackReleased(uint32 valueRef, uint32 type)
-{
-	InputValueCallback({0}, valueRef, 0, type);
-}
-
-void CPH_HidUnix::InputValueCallback(std::array<uint32, 6> device, uint32 value, uint32 action, uint32 type)
-{
-	m_inputManager->OnInputEventReceived(device, value, action);
-}
