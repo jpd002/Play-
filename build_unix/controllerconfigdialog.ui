@@ -26,6 +26,26 @@
    <string>Dialog</string>
   </property>
   <layout class="QGridLayout" name="gridLayout_2">
+   <item row="1" column="1">
+    <widget class="QDialogButtonBox" name="buttonBox">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="standardButtons">
+      <set>QDialogButtonBox::Apply|QDialogButtonBox::Cancel|QDialogButtonBox::Ok|QDialogButtonBox::RestoreDefaults</set>
+     </property>
+     <property name="centerButtons">
+      <bool>false</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="0">
+    <widget class="QPushButton" name="ConfigAllButton">
+     <property name="text">
+      <string>Config All</string>
+     </property>
+    </widget>
+   </item>
    <item row="0" column="0" colspan="2">
     <widget class="QTabWidget" name="tabWidget">
      <property name="enabled">
@@ -61,32 +81,6 @@ QGroupBox::title {
        </item>
       </layout>
      </widget>
-     <widget class="QWidget" name="tab_2">
-      <attribute name="title">
-       <string>Pad2</string>
-      </attribute>
-      <layout class="QGridLayout" name="gridLayout_14"/>
-     </widget>
-    </widget>
-   </item>
-   <item row="1" column="0">
-    <widget class="QPushButton" name="ConfigAllButton">
-     <property name="text">
-      <string>Config All</string>
-     </property>
-    </widget>
-   </item>
-   <item row="1" column="1">
-    <widget class="QDialogButtonBox" name="buttonBox">
-     <property name="orientation">
-      <enum>Qt::Horizontal</enum>
-     </property>
-     <property name="standardButtons">
-      <set>QDialogButtonBox::Apply|QDialogButtonBox::Cancel|QDialogButtonBox::Ok|QDialogButtonBox::RestoreDefaults</set>
-     </property>
-     <property name="centerButtons">
-      <bool>false</bool>
-     </property>
     </widget>
    </item>
   </layout>
