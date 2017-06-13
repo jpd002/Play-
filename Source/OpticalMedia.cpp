@@ -1,4 +1,5 @@
 #include <cassert>
+#include <cstring>
 #include "OpticalMedia.h"
 
 #define DVD_LAYER_MAX_BLOCKS 2295104
