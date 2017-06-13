@@ -265,7 +265,7 @@ CInputBindingManager::BINDINGTYPE CInputBindingManager::CSimpleBinding::GetBindi
 	return BINDING_SIMPLE;
 }
 
-char* CInputBindingManager::CSimpleBinding::GetBindingTypeName() const
+const char* CInputBindingManager::CSimpleBinding::GetBindingTypeName() const
 {
 	return CONFIG_SIMPLEBINDING_PREFIX;
 }
@@ -379,7 +379,7 @@ CInputBindingManager::BINDINGTYPE CInputBindingManager::CSimulatedAxisBinding::G
 	return BINDING_SIMULATEDAXIS;
 }
 
-char* CInputBindingManager::CSimulatedAxisBinding::GetBindingTypeName() const
+const char* CInputBindingManager::CSimulatedAxisBinding::GetBindingTypeName() const
 {
 	return CONFIG_SIMULATEDAXISBINDING_PREFIX;
 }
@@ -505,7 +505,7 @@ CInputBindingManager::BINDINGTYPE CInputBindingManager::CPovHatBinding::GetBindi
 	return BINDING_POVHAT;
 }
 
-char* CInputBindingManager::CPovHatBinding::GetBindingTypeName() const
+const char* CInputBindingManager::CPovHatBinding::GetBindingTypeName() const
 {
 	return CONFIG_POVHATBINDING_PREFIX;
 }

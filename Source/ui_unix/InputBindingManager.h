@@ -34,7 +34,7 @@ public:
 		virtual void				ProcessEvent(std::array<uint32, 6>, uint32, uint32) = 0;
 
 		virtual BINDINGTYPE			GetBindingType() const = 0;
-		virtual char*				GetBindingTypeName() const = 0;
+		virtual const char*			GetBindingTypeName() const = 0;
 		virtual uint32				GetValue() const = 0;
 		virtual void				SetValue(uint32) = 0;
 		virtual std::string			GetDescription() const = 0;
@@ -55,7 +55,7 @@ public:
 		static void				RegisterPreferences(Framework::CConfig&, const char*);
 
 		BINDINGTYPE				GetBindingType() const override;
-		char*					GetBindingTypeName() const override;
+		const char*				GetBindingTypeName() const override;
 		uint32					GetValue() const override;
 		void					SetValue(uint32) override;
 		std::string				GetDescription() const override;
@@ -82,7 +82,7 @@ public:
 		static void				RegisterPreferences(Framework::CConfig&, const char*);
 
 		BINDINGTYPE				GetBindingType() const override;
-		char*					GetBindingTypeName() const override;
+		const char*				GetBindingTypeName() const override;
 		void					ProcessEvent(std::array<uint32, 6>, uint32, uint32) override;
 
 		uint32					GetValue() const override;
@@ -114,7 +114,7 @@ public:
 
 
 		BINDINGTYPE				GetBindingType() const override;
-		char*					GetBindingTypeName() const override;
+		const char*				GetBindingTypeName() const override;
 		uint32					GetValue() const override;
 		void					SetValue(uint32);
 		std::string				GetDescription() const override;
