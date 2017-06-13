@@ -394,8 +394,15 @@ std::string CInputBindingManager::CSimulatedAxisBinding::GetDescription() const
 	}
 	else
 	{
-
-		desc = desc.arg(libevdev_event_code_get_name(m_key1Binding.type, m_key1Binding.id));
+		const char* buttonname = libevdev_event_code_get_name(m_key1Binding.type, m_key1Binding.id);
+		if (buttonname != NULL)
+		{
+			desc = desc.arg(buttonname);
+		}
+		else
+		{
+			desc = desc.arg(QString::number(m_key1Binding.id));
+		}
 	}
 
 	if(m_key2Binding.device == std::array<uint32, 6>{0})
@@ -404,8 +411,15 @@ std::string CInputBindingManager::CSimulatedAxisBinding::GetDescription() const
 	}
 	else
 	{
-
-		desc = desc.arg(libevdev_event_code_get_name(m_key1Binding.type, m_key2Binding.id));
+		const char* buttonname = libevdev_event_code_get_name(m_key2Binding.type, m_key2Binding.id);
+		if (buttonname != NULL)
+		{
+			desc = desc.arg(buttonname);
+		}
+		else
+		{
+			desc = desc.arg(QString::number(m_key2Binding.id));
+		}
 	}
 
 	return desc.toStdString();
@@ -538,7 +552,15 @@ std::string CInputBindingManager::CPovHatBinding::GetDescription() const
 	}
 	else
 	{
-		return QString("Key: %1").arg(libevdev_event_code_get_name(m_binding.type, m_binding.id)).toStdString();
+		const char* buttonname = libevdev_event_code_get_name(m_binding.type, m_binding.id);
+		if (buttonname != NULL)
+		{
+			return QString("Key: %1").arg(buttonname).toStdString();
+		}
+		else
+		{
+			 return QString("Key: %1").arg(QString::number(m_binding.id)).toStdString();
+		}
 	}
 }
 
