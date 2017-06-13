@@ -2,7 +2,7 @@
 #include "PadHandler.h"
 #include "Config.h"
 #include <memory>
-#include "InputEventManager.h"
+#include "InputBindingManager.h"
 
 class CPH_HidUnix : public CPadHandler
 {

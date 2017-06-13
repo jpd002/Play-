@@ -1,7 +1,7 @@
-﻿#include <QKeySequence>
+#include <QKeySequence>
 #include <cstring>
 #include <libevdev.h>
-#include "InputEventManager.h"
+#include "InputBindingManager.h"
 #include "GamePad/GamePadDeviceListener.h"
 #include "string_format.h"
 

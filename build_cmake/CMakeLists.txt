@@ -603,7 +603,7 @@ if(TARGET_PLATFORM_UNIX)
 		../Source/ui_unix/vfsdiscselectordialog.cpp
 		../Source/ui_unix/VfsDevice.cpp
 		../Source/ui_unix/controllerconfigdialog.cpp
-		../Source/ui_unix/InputEventManager.cpp
+		../Source/ui_unix/InputBindingManager.cpp
 		../Source/ui_unix/bindingmodel.cpp
 		../Source/ui_unix/inputeventselectiondialog.cpp
 		../Source/ui_unix/GamePad/GamePadInputEventListener.cpp
@@ -626,7 +626,7 @@ if(TARGET_PLATFORM_UNIX)
 		../Source/ui_unix/vfsdiscselectordialog.h
 		../Source/ui_unix/VfsDevice.h
 		../Source/ui_unix/controllerconfigdialog.h
-		../Source/ui_unix/InputEventManager.h
+		../Source/ui_unix/InputBindingManager.h
 		../Source/ui_unix/bindingmodel.h
 		../Source/ui_unix/inputeventselectiondialog.h
 		../Source/ui_unix/GamePad/GamePadInputEventListener.h
