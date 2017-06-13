@@ -1,9 +1,4 @@
 #include "bindingmodel.h"
-#include "vfsmanagerdialog.h"
-#include "ControllerInfo.h"
-#include "AppConfig.h"
-#include "PH_HidUnix.h"
-#include "inputeventselectiondialog.h"
 #include "ControllerInfo.h"
 
 #define CONFIG_PREFIX						("input")

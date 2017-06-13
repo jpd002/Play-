@@ -5,8 +5,7 @@
 #include <QXmlStreamReader>
 
 #include "GamePad/GamePadDeviceListener.h"
-#include "PH_HidUnix.h"
-#include "Config.h"
+#include "InputBindingManager.h"
 
 namespace Ui {
 class ControllerConfigDialog;

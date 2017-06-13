@@ -7,7 +7,6 @@
 #include <QAbstractButton>
 #include <QPushButton>
 
-#include "AppConfig.h"
 #include "bindingmodel.h"
 #include "ControllerInfo.h"
 #include "inputeventselectiondialog.h"

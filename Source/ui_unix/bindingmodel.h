@@ -1,8 +1,7 @@
 #pragma once
 
 #include <QAbstractTableModel>
-#include <GamePad/GamePadDeviceListener.h>
-#include "ui_unix/PH_HidUnix.h"
+#include "InputBindingManager.h"
 
 class CBindingModel : public QAbstractTableModel
 {
