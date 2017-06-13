@@ -539,6 +539,8 @@ void CSIF::Cmd_GetOtherData(const SIFCMDHEADER* hdr)
 
 void CSIF::SendCallReply(uint32 serverId, const void* returnData)
 {
+	CLog::GetInstance().Print(LOG_NAME, "Processing call reply from serverId: 0x%08X\r\n", serverId);
+
 	auto replyIterator(m_callReplies.find(serverId));
 	assert(replyIterator != m_callReplies.end());
 	if(replyIterator == m_callReplies.end()) return;
