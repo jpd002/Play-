@@ -272,7 +272,7 @@ char* CInputBindingManager::CSimpleBinding::GetBindingTypeName() const
 
 std::string CInputBindingManager::CSimpleBinding::GetDescription() const
 {
-	if(m_device == std::array<uint32, 6>{0})
+	if(m_type == 0)
 	{
 		return QString("Key: %1").arg(QKeySequence(m_keyCode).toString()).toStdString();
 	}
@@ -388,7 +388,7 @@ std::string CInputBindingManager::CSimulatedAxisBinding::GetDescription() const
 {
 
 	std::string desc = ("Key: ");
-	if(m_key1Binding.device == std::array<uint32, 6>{0})
+	if(m_key1Binding.type  == 0)
 	{
 		desc += QKeySequence(m_key1Binding.id).toString().toStdString();
 	}
@@ -405,7 +405,7 @@ std::string CInputBindingManager::CSimulatedAxisBinding::GetDescription() const
 		}
 	}
 	desc += "/ Key: ";
-	if(m_key2Binding.device == std::array<uint32, 6>{0})
+	if(m_key2Binding.type == 0)
 	{
 		desc += QKeySequence(m_key2Binding.id).toString().toStdString();
 	}
@@ -547,7 +547,7 @@ void CInputBindingManager::CPovHatBinding::ProcessEvent(std::array<uint32, 6> de
 std::string CInputBindingManager::CPovHatBinding::GetDescription() const
 {
 	std::string key("Key: ");
-	if(m_binding.device == std::array<uint32, 6>{0})
+	if(m_binding.type == 0)
 	{
 		return key + QKeySequence(m_binding.id).toString().toStdString();
 	}
