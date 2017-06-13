@@ -24,6 +24,8 @@ public class EmulatorActivity extends Activity
 	private Handler _statsTimerHandler;
 	private TextView _fpsTextView;
 	private TextView _profileTextView;
+	private boolean _surfaceCreated = false;
+	private boolean _activityRunning = false;
 
 	private DrawerLayout _drawerLayout;
 	protected EmulatorDrawerFragment _drawerFragment;
@@ -137,7 +139,16 @@ public class EmulatorActivity extends Activity
 	public void onPause()
 	{
 		super.onPause();
-		NativeInterop.pauseVirtualMachine();
+		_activityRunning = false;
+		updateVirtualMachineState();
+	}
+	
+	@Override
+	public void onResume()
+	{
+		super.onResume();
+		_activityRunning = true;
+		updateVirtualMachineState();
 	}
 	
 	@Override
@@ -274,6 +285,20 @@ public class EmulatorActivity extends Activity
 			1000);
 	}
 	
+	private void updateVirtualMachineState()
+	{
+		//State must not be touched if surface wasn't created
+		if(!_surfaceCreated) return;
+		if(_activityRunning)
+		{
+			NativeInterop.resumeVirtualMachine();
+		}
+		else
+		{
+			NativeInterop.pauseVirtualMachine();
+		}
+	}
+	
 	private class SurfaceCallback implements SurfaceHolder.Callback
 	{
 		@Override 
@@ -282,7 +307,8 @@ public class EmulatorActivity extends Activity
 			//Log.w(Constants.TAG, String.format("surfaceChanged -> format: %d, width: %d, height: %d", format, width, height));
 			Surface surface = holder.getSurface();
 			NativeInterop.setupGsHandler(surface);
-			NativeInterop.resumeVirtualMachine();
+			_surfaceCreated = true;
+			updateVirtualMachineState();
 		}
 		
 		@Override 
