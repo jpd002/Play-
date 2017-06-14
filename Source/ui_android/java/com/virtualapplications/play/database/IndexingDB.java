@@ -202,6 +202,18 @@ public class IndexingDB extends SQLiteOpenHelper {
     }
 
 
+    public void RemoveUnavailable()
+    {
+        List<GameInfoStruct> games = getIndexGISList(MainActivity.SORT_NONE);
+        for (GameInfoStruct game : games)
+        {
+            if (!game.getFile().exists())
+            {
+                deleteIndex(IndexingDB.KEY_ID + "=?", new String[]{game.getIndexID()});
+            }
+        }
+    }
+
     public int getIndexCount() {
         SQLiteDatabase db = this.getReadableDatabase();
 

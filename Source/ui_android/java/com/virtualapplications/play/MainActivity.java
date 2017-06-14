@@ -16,6 +16,7 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.app.*;
 import android.support.v7.app.ActionBar;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.*;
 import android.view.View;
 import android.widget.*;
@@ -28,12 +29,12 @@ import java.util.*;
 
 import com.virtualapplications.play.database.GameIndexer;
 import com.virtualapplications.play.database.GameInfo;
+import com.virtualapplications.play.database.IndexingDB;
 import com.virtualapplications.play.database.SqliteHelper.Games;
 
 import static com.virtualapplications.play.ThemeManager.getThemeColor;
 
-public class MainActivity extends AppCompatActivity implements NavigationDrawerFragment.NavigationDrawerCallbacks
-{
+public class MainActivity extends AppCompatActivity implements NavigationDrawerFragment.NavigationDrawerCallbacks, SharedPreferences.OnSharedPreferenceChangeListener {
 	static Activity mActivity;
 	private int currentOrientation;
 	private GameInfo gameInfo;
@@ -93,6 +94,14 @@ public class MainActivity extends AppCompatActivity implements NavigationDrawerF
 		}
 	}
 
+	@Override
+	public void onDestroy()
+	{
+		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+		prefs.unregisterOnSharedPreferenceChangeListener(this);
+		super.onDestroy();
+	}
+
 	private void Startup() {
 		NativeInterop.setFilesDirPath(Environment.getExternalStorageDirectory().getAbsolutePath());
 		NativeInterop.setAssetManager(getAssets());
@@ -110,6 +119,7 @@ public class MainActivity extends AppCompatActivity implements NavigationDrawerF
 		SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
 		sortMethod = sp.getInt("sortMethod", SORT_NONE);
 		onNavigationDrawerItemSelected(sortMethod);
+		sp.registerOnSharedPreferenceChangeListener(this);
 	}
 
 	@Override
@@ -263,24 +273,7 @@ public class MainActivity extends AppCompatActivity implements NavigationDrawerF
 		}
 		
 	}
-	
-	public static void fullStorageScan() {
-		((MainActivity) mActivity).prepareFileListView(false, true);
-	}
 
-	private void clearCoverCache() {
-		File dir = new File(getExternalFilesDir(null), "covers");
-		for (File file : dir.listFiles()) {
-			if (!file.isDirectory()) {
-				file.delete();
-			}
-		}
-	}
-	
-	public static void clearCache() {
-		((MainActivity) mActivity).clearCoverCache();
-	}
-	
 	@Override
 	public void onNavigationDrawerItemSelected(int position) {
 		switch (position) {
@@ -351,6 +344,28 @@ public class MainActivity extends AppCompatActivity implements NavigationDrawerF
 		}
 		super.onBackPressed();
 		finish();
+	}
+
+	@Override
+	public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+		if(key.equals(SettingsActivity.RESCAN))
+		{
+			if(sharedPreferences.getBoolean(SettingsActivity.RESCAN, false))
+			{
+				sharedPreferences.edit().putBoolean(SettingsActivity.RESCAN, false).apply();
+				prepareFileListView(false, true);
+			}
+		}
+		else if(key.equals(SettingsActivity.CLEAR_UNAVAILABLE))
+		{
+			if(sharedPreferences.getBoolean(SettingsActivity.CLEAR_UNAVAILABLE, false)) {
+				sharedPreferences.edit().putBoolean(SettingsActivity.CLEAR_UNAVAILABLE, false).apply();
+				IndexingDB iDB = new IndexingDB(this);
+				iDB.RemoveUnavailable();
+				iDB.close();
+				prepareFileListView(false);
+			}
+		}
 	}
 
 	private final class ImageFinder extends AsyncTask<String, Integer, List<GameInfoStruct>> {
@@ -447,7 +462,7 @@ public class MainActivity extends AppCompatActivity implements NavigationDrawerF
 		return false;
 	}
 
-	public static void prepareFileListView(boolean retainList)
+	public void prepareFileListView(boolean retainList)
 	{
 		((MainActivity) mActivity).prepareFileListView(retainList, false);
 	}

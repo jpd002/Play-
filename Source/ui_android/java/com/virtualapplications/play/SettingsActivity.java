@@ -7,6 +7,8 @@ import android.preference.*;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.*;
+
+import java.io.File;
 import java.util.*;
 import android.support.v7.widget.Toolbar;
 import android.graphics.Point;
@@ -15,6 +17,8 @@ import com.virtualapplications.play.database.IndexingDB;
 
 public class SettingsActivity extends PreferenceActivity implements SharedPreferences.OnSharedPreferenceChangeListener
 {
+	public static String RESCAN = "ui.rescan";
+	public static String CLEAR_UNAVAILABLE = "clear_unavailable";
 	@Override
 	public void onCreate(Bundle savedInstanceState)
 	{
@@ -135,31 +139,23 @@ public class SettingsActivity extends PreferenceActivity implements SharedPrefer
             addPreferencesFromResource(R.xml.settings_ui_fragment);
 
 			final PreferenceCategory preferenceCategory = (PreferenceCategory) findPreference("ui.storage");
-			final Preference button_f = (Preference)getPreferenceManager().findPreference("ui.rescan");
+			final Preference button_f = (Preference)getPreferenceManager().findPreference(RESCAN);
 			if (button_f != null) {
 				button_f.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
 					@Override
 					public boolean onPreferenceClick(Preference arg0) {
-						MainActivity.fullStorageScan();
+						button_f.getEditor().putBoolean(RESCAN, true).apply();
 						preferenceCategory.removePreference(button_f);
 						return true;
 					}
 				});
 			}
-			final Preference button_u = (Preference)getPreferenceManager().findPreference("ui.clear_unavailable");
+			final Preference button_u = (Preference)getPreferenceManager().findPreference(CLEAR_UNAVAILABLE);
 			if (button_u != null) {
 				button_u.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
 					@Override
 					public boolean onPreferenceClick(Preference arg0) {
-						IndexingDB iDB = new IndexingDB(getActivity());
-						List<GameInfoStruct> games = iDB.getIndexGISList(MainActivity.SORT_NONE);
-						iDB.close();
-						for (GameInfoStruct game : games){
-							if (!game.getFile().exists()) {
-								game.removeIndex(getActivity());
-							}
-						}
-						MainActivity.prepareFileListView(false);
+						button_u.getEditor().putBoolean(CLEAR_UNAVAILABLE, true).apply();
 						preferenceCategory.removePreference(button_u);
 						return true;
 					}
@@ -170,7 +166,7 @@ public class SettingsActivity extends PreferenceActivity implements SharedPrefer
                 button_c.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
                     @Override
                     public boolean onPreferenceClick(Preference arg0) {
-                        MainActivity.clearCache();
+						clearCoverCache();
 						preferenceCategory.removePreference(button_c);
                         return true;
                     }
@@ -182,6 +178,18 @@ public class SettingsActivity extends PreferenceActivity implements SharedPrefer
 		public void onDestroy()
 		{
 			super.onDestroy();
+		}
+
+		private void clearCoverCache()
+		{
+			File dir = new File(getActivity().getExternalFilesDir(null), "covers");
+			for (File file : dir.listFiles())
+			{
+				if (!file.isDirectory())
+				{
+					file.delete();
+				}
+			}
 		}
 	}
 }
