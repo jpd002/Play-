@@ -172,14 +172,17 @@ public class SettingsActivity extends PreferenceActivity implements SharedPrefer
 				case RESCAN:
 					preference.getEditor().putBoolean(RESCAN, true).apply();
 					preferenceCategory.removePreference(preference);
+					Toast.makeText(getActivity(), "Rescanning storage.", Toast.LENGTH_SHORT).show();
 					return true;
 				case CLEAR_UNAVAILABLE:
 					preference.getEditor().putBoolean(CLEAR_UNAVAILABLE, true).apply();
 					preferenceCategory.removePreference(preference);
+					Toast.makeText(getActivity(), "Removing unavailable games.", Toast.LENGTH_SHORT).show();
 					return true;
 				case CLEAR_CACHE:
 					clearCoverCache();
 					preferenceCategory.removePreference(preference);
+					Toast.makeText(getActivity(), "Clearing cover cache.", Toast.LENGTH_SHORT).show();
 					return true;
 				default:
 					return false;
