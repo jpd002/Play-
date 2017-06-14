@@ -132,8 +132,7 @@ public class SettingsActivity extends PreferenceActivity implements SharedPrefer
 		}
 	}
 
-	public static class UISettingsFragment extends PreferenceFragment
-	{
+	public static class UISettingsFragment extends PreferenceFragment implements Preference.OnPreferenceClickListener {
 		@Override
 		public void onCreate(Bundle savedInstanceState)
 		{
@@ -141,40 +140,9 @@ public class SettingsActivity extends PreferenceActivity implements SharedPrefer
             
             addPreferencesFromResource(R.xml.settings_ui_fragment);
 
-			final PreferenceCategory preferenceCategory = (PreferenceCategory) findPreference(UI_STORAGE);
-			final Preference button_f = (Preference)getPreferenceManager().findPreference(RESCAN);
-			if (button_f != null) {
-				button_f.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-					@Override
-					public boolean onPreferenceClick(Preference arg0) {
-						button_f.getEditor().putBoolean(RESCAN, true).apply();
-						preferenceCategory.removePreference(button_f);
-						return true;
-					}
-				});
-			}
-			final Preference button_u = (Preference)getPreferenceManager().findPreference(CLEAR_UNAVAILABLE);
-			if (button_u != null) {
-				button_u.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-					@Override
-					public boolean onPreferenceClick(Preference arg0) {
-						button_u.getEditor().putBoolean(CLEAR_UNAVAILABLE, true).apply();
-						preferenceCategory.removePreference(button_u);
-						return true;
-					}
-				});
-			}
-            final Preference button_c = (Preference)getPreferenceManager().findPreference(CLEAR_CACHE);
-            if (button_c != null) {
-                button_c.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-                    @Override
-                    public boolean onPreferenceClick(Preference arg0) {
-						clearCoverCache();
-						preferenceCategory.removePreference(button_c);
-                        return true;
-                    }
-                });
-            }
+			getPreferenceManager().findPreference(RESCAN).setOnPreferenceClickListener(this);
+			getPreferenceManager().findPreference(CLEAR_UNAVAILABLE).setOnPreferenceClickListener(this);
+            getPreferenceManager().findPreference(CLEAR_CACHE).setOnPreferenceClickListener(this);
 		}
 
 		@Override
@@ -192,6 +160,29 @@ public class SettingsActivity extends PreferenceActivity implements SharedPrefer
 				{
 					file.delete();
 				}
+			}
+		}
+
+		@Override
+		public boolean onPreferenceClick(Preference preference)
+		{
+			final PreferenceCategory preferenceCategory = (PreferenceCategory) findPreference(UI_STORAGE);
+			switch (preference.getKey())
+			{
+				case RESCAN:
+					preference.getEditor().putBoolean(RESCAN, true).apply();
+					preferenceCategory.removePreference(preference);
+					return true;
+				case CLEAR_UNAVAILABLE:
+					preference.getEditor().putBoolean(CLEAR_UNAVAILABLE, true).apply();
+					preferenceCategory.removePreference(preference);
+					return true;
+				case CLEAR_CACHE:
+					clearCoverCache();
+					preferenceCategory.removePreference(preference);
+					return true;
+				default:
+					return false;
 			}
 		}
 	}
