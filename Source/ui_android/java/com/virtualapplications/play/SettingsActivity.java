@@ -17,8 +17,11 @@ import com.virtualapplications.play.database.IndexingDB;
 
 public class SettingsActivity extends PreferenceActivity implements SharedPreferences.OnSharedPreferenceChangeListener
 {
-	public static String RESCAN = "ui.rescan";
-	public static String CLEAR_UNAVAILABLE = "clear_unavailable";
+	public static final String RESCAN = "ui.rescan";
+	public static final String CLEAR_UNAVAILABLE = "ui.clear_unavailable";
+	private static final String UI_STORAGE = "ui.storage";
+	private static final String CLEAR_CACHE = "ui.clearcache";
+
 	@Override
 	public void onCreate(Bundle savedInstanceState)
 	{
@@ -138,7 +141,7 @@ public class SettingsActivity extends PreferenceActivity implements SharedPrefer
             
             addPreferencesFromResource(R.xml.settings_ui_fragment);
 
-			final PreferenceCategory preferenceCategory = (PreferenceCategory) findPreference("ui.storage");
+			final PreferenceCategory preferenceCategory = (PreferenceCategory) findPreference(UI_STORAGE);
 			final Preference button_f = (Preference)getPreferenceManager().findPreference(RESCAN);
 			if (button_f != null) {
 				button_f.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
@@ -161,7 +164,7 @@ public class SettingsActivity extends PreferenceActivity implements SharedPrefer
 					}
 				});
 			}
-            final Preference button_c = (Preference)getPreferenceManager().findPreference("ui.clearcache");
+            final Preference button_c = (Preference)getPreferenceManager().findPreference(CLEAR_CACHE);
             if (button_c != null) {
                 button_c.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
                     @Override
