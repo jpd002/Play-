@@ -1,6 +1,5 @@
 package com.virtualapplications.play;
 
-import android.app.Activity;
 import android.content.SharedPreferences;
 import android.os.*;
 import android.preference.*;
@@ -11,9 +10,6 @@ import android.widget.*;
 import java.io.File;
 import java.util.*;
 import android.support.v7.widget.Toolbar;
-import android.graphics.Point;
-
-import com.virtualapplications.play.database.IndexingDB;
 
 public class SettingsActivity extends PreferenceActivity implements SharedPreferences.OnSharedPreferenceChangeListener
 {
@@ -137,12 +133,12 @@ public class SettingsActivity extends PreferenceActivity implements SharedPrefer
 		public void onCreate(Bundle savedInstanceState)
 		{
 			super.onCreate(savedInstanceState);
-            
-            addPreferencesFromResource(R.xml.settings_ui_fragment);
+
+			addPreferencesFromResource(R.xml.settings_ui_fragment);
 
 			getPreferenceManager().findPreference(RESCAN).setOnPreferenceClickListener(this);
 			getPreferenceManager().findPreference(CLEAR_UNAVAILABLE).setOnPreferenceClickListener(this);
-            getPreferenceManager().findPreference(CLEAR_CACHE).setOnPreferenceClickListener(this);
+			getPreferenceManager().findPreference(CLEAR_CACHE).setOnPreferenceClickListener(this);
 		}
 
 		@Override
