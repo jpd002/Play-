@@ -88,7 +88,7 @@ uint32 CMIPS::TranslateAddress64(CMIPS* pC, uint32 nVAddrLO)
 	return nVAddrLO & 0x1FFFFFFF;
 }
 
-bool CMIPS::GenerateInterrupt(uint32 nAddress)
+bool CMIPS::CanGenerateInterrupt() const
 {
 	//Check if interrupts are enabled
 	if(!(m_State.nCOP0[CCOP_SCU::STATUS] & STATUS_IE)) return false;
@@ -96,6 +96,12 @@ bool CMIPS::GenerateInterrupt(uint32 nAddress)
 	//Check if we're in exception mode (interrupts are disabled in exception mode)
 	if(m_State.nCOP0[CCOP_SCU::STATUS] & STATUS_EXL) return false;
 
+	return true;
+}
+
+bool CMIPS::GenerateInterrupt(uint32 nAddress)
+{
+	if(!CanGenerateInterrupt()) return false;
 	return CMIPS::GenerateException(nAddress);
 }
 

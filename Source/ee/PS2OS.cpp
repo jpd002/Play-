@@ -1344,7 +1344,14 @@ void CPS2OS::HandleInterrupt()
 		return;
 	}
 
-	m_ee.GenerateInterrupt(0x1FC00200);
+	if(!m_ee.CanGenerateInterrupt())
+	{
+		return;
+	}
+
+	ThreadSwitchContext(m_idleThreadId);
+	bool interrupted = m_ee.GenerateInterrupt(BIOS_ADDRESS_INTERRUPTHANDLER);
+	assert(interrupted);
 }
 
 void CPS2OS::HandleReturnFromException()
