@@ -107,6 +107,12 @@ if (NOT TARGET Framework_OpenGl)
 endif()
 list(APPEND PROJECT_LIBS Framework_OpenGl)
 
+if(TARGET_PLATFORM_UNIX)
+        find_package(LIBEVDEV REQUIRED)
+		include_directories(${LIBEVDEV_INCLUDE_DIR})
+		list(APPEND PROJECT_LIBS ${LIBEVDEV_LIBRARY})
+endif()
+
 if(TARGET_PLATFORM_MACOS OR TARGET_PLATFORM_IOS OR TARGET_PLATFORM_UNIX)
 	if (NOT TARGET Framework_OpenAl)
 		add_subdirectory(
@@ -600,6 +606,8 @@ if(TARGET_PLATFORM_UNIX)
 		../Source/ui_unix/InputEventManager.cpp
 		../Source/ui_unix/bindingmodel.cpp
 		../Source/ui_unix/inputeventselectiondialog.cpp
+		../Source/ui_unix/GamePad/GamePadInputEventListener.cpp
+		../Source/ui_unix/GamePad/GamePadDeviceListener.cpp
 	)
 
 	set(QT_MOC_HEADERS
@@ -621,6 +629,8 @@ if(TARGET_PLATFORM_UNIX)
 		../Source/ui_unix/InputEventManager.h
 		../Source/ui_unix/bindingmodel.h
 		../Source/ui_unix/inputeventselectiondialog.h
+		../Source/ui_unix/GamePad/GamePadInputEventListener.h
+		../Source/ui_unix/GamePad/GamePadDeviceListener.h
 	)
 
 	set(QT_UIS
