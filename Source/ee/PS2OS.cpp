@@ -660,26 +660,14 @@ void CPS2OS::AssembleInterruptHandler()
 
 	const uint32 stackFrameSize = 0x230;
 
+	//Invariant - Current thread is idle thread
+	//This means we don't need to save/load its context because
+	//it doesn't have any
+
 	//Epilogue (allocate stackFrameSize bytes)
 	assembler.LI(CMIPS::K0, BIOS_ADDRESS_KERNELSTACK_TOP);
 	assembler.ADDIU(CMIPS::K0, CMIPS::K0, 0x10000 - stackFrameSize);
 	
-	//Save context
-	for(unsigned int i = 0; i < 32; i++)
-	{
-		assembler.SQ(i, (i * 0x10), CMIPS::K0);
-	}
-
-	assembler.MFLO(CMIPS::V0);
-	assembler.MFLO1(CMIPS::V1);
-	assembler.SD(CMIPS::V0, 0x0200, CMIPS::K0);
-	assembler.SD(CMIPS::V1, 0x0208, CMIPS::K0);
-
-	assembler.MFHI(CMIPS::V0);
-	assembler.MFHI1(CMIPS::V1);
-	assembler.SD(CMIPS::V0, 0x0210, CMIPS::K0);
-	assembler.SD(CMIPS::V1, 0x0218, CMIPS::K0);
-
 	//Save EPC
 	assembler.MFC0(CMIPS::T0, CCOP_SCU::EPC);
 	assembler.SW(CMIPS::T0, 0x0220, CMIPS::K0);
@@ -767,22 +755,6 @@ void CPS2OS::AssembleInterruptHandler()
 	//Restore EPC
 	assembler.LW(CMIPS::T0, 0x0220, CMIPS::K0);
 	assembler.MTC0(CMIPS::T0, CCOP_SCU::EPC);
-
-	//Restore Context
-	assembler.LD(CMIPS::V0, 0x0210, CMIPS::K0);
-	assembler.LD(CMIPS::V1, 0x0218, CMIPS::K0);
-	assembler.MTHI(CMIPS::V0);
-	assembler.MTHI1(CMIPS::V1);
-
-	assembler.LD(CMIPS::V0, 0x0200, CMIPS::K0);
-	assembler.LD(CMIPS::V1, 0x0208, CMIPS::K0);
-	assembler.MTLO(CMIPS::V0);
-	assembler.MTLO1(CMIPS::V1);
-
-	for(unsigned int i = 0; i < 32; i++)
-	{
-		assembler.LQ(i, (i * 0x10), CMIPS::K0);
-	}
 
 	//Prologue
 	assembler.ERET();
