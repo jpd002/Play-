@@ -1124,35 +1124,39 @@ void CPS2OS::ThreadSwitchContext(uint32 id)
 	{
 		auto thread = m_threads[m_currentThreadId];
 		assert(thread);
-		thread->contextPtr = m_ee.m_State.nGPR[CMIPS::SP].nV0 - STACKRES;
-		assert(thread->contextPtr >= thread->stackBase);
-
-		auto context = reinterpret_cast<THREADCONTEXT*>(GetStructPtr(thread->contextPtr));
-
-		//Save the context
-		for(uint32 i = 0; i < 0x20; i++)
-		{
-			if(i == CMIPS::R0) continue;
-			if(i == CMIPS::K0) continue;
-			if(i == CMIPS::K1) continue;
-			context->gpr[i] = m_ee.m_State.nGPR[i];
-		}
-		for(uint32 i = 0; i < 0x20; i++)
-		{
-			context->cop1[i] = m_ee.m_State.nCOP1[i];
-		}
-		auto& sa = context->gpr[CMIPS::R0].nV0;
-		auto& hi = context->gpr[CMIPS::K0];
-		auto& lo = context->gpr[CMIPS::K1];
-		sa = m_ee.m_State.nSA >> 3;    //Act as if MFSA was used
-		hi.nV[0] = m_ee.m_State.nHI[0];  hi.nV[1] = m_ee.m_State.nHI[1];
-		hi.nV[2] = m_ee.m_State.nHI1[0]; hi.nV[3] = m_ee.m_State.nHI1[1];
-		lo.nV[0] = m_ee.m_State.nLO[0];  lo.nV[1] = m_ee.m_State.nLO[1];
-		lo.nV[2] = m_ee.m_State.nLO1[0]; lo.nV[3] = m_ee.m_State.nLO1[1];
-		context->cop1a = m_ee.m_State.nCOP1A;
-		context->fcsr = m_ee.m_State.nFCSR;
-
 		thread->epc = m_ee.m_State.nPC;
+
+		//Idle thread doesn't have a context
+		if(m_currentThreadId != m_idleThreadId)
+		{
+			thread->contextPtr = m_ee.m_State.nGPR[CMIPS::SP].nV0 - STACKRES;
+			assert(thread->contextPtr >= thread->stackBase);
+
+			auto context = reinterpret_cast<THREADCONTEXT*>(GetStructPtr(thread->contextPtr));
+
+			//Save the context
+			for(uint32 i = 0; i < 0x20; i++)
+			{
+				if(i == CMIPS::R0) continue;
+				if(i == CMIPS::K0) continue;
+				if(i == CMIPS::K1) continue;
+				context->gpr[i] = m_ee.m_State.nGPR[i];
+			}
+			for(uint32 i = 0; i < 0x20; i++)
+			{
+				context->cop1[i] = m_ee.m_State.nCOP1[i];
+			}
+			auto& sa = context->gpr[CMIPS::R0].nV0;
+			auto& hi = context->gpr[CMIPS::K0];
+			auto& lo = context->gpr[CMIPS::K1];
+			sa = m_ee.m_State.nSA >> 3;    //Act as if MFSA was used
+			hi.nV[0] = m_ee.m_State.nHI[0];  hi.nV[1] = m_ee.m_State.nHI[1];
+			hi.nV[2] = m_ee.m_State.nHI1[0]; hi.nV[3] = m_ee.m_State.nHI1[1];
+			lo.nV[0] = m_ee.m_State.nLO[0];  lo.nV[1] = m_ee.m_State.nLO[1];
+			lo.nV[2] = m_ee.m_State.nLO1[0]; lo.nV[3] = m_ee.m_State.nLO1[1];
+			context->cop1a = m_ee.m_State.nCOP1A;
+			context->fcsr = m_ee.m_State.nFCSR;
+		}
 	}
 
 	m_currentThreadId = id;
