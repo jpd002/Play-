@@ -88,6 +88,7 @@ void CGamePadInputEventListener::InputDeviceListenerThread()
 		fprintf(stderr, "CGamePadInputEventListener::InputDeviceListenerThread Failed to init libevdev (%s)\n", strerror(-initdev_result));
 		libevdev_free(dev);
 		close(fd);
+		return;
 	}
 	initdev_result = 0;
 
