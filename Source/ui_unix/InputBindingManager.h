@@ -94,7 +94,7 @@ public:
 		void					Load(Framework::CConfig&, const char*) override;
 
 	private:
-				static int32				GetShortestDistanceBetweenAngles(int32, int32);
+		static int32			GetShortestDistanceBetweenAngles(int32, int32);
 
 		BINDINGINFO				m_binding;
 		uint32					m_refValue = 0;

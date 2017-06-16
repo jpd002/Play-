@@ -65,6 +65,7 @@ void CGamePadInputEventListener::RePopulateAbs()
 		}
 	}
 }
+
 void CGamePadInputEventListener::InputDeviceListenerThread()
 {
 	if(access( m_device.c_str(), R_OK ) == -1)
