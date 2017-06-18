@@ -430,7 +430,8 @@ uint32 CSubSystem::IOPortReadHandler(uint32 nAddress)
 	}
 	else
 	{
-		printf("PS2VM: Read an unhandled IO port (0x%08X).\r\n", nAddress);
+		CLog::GetInstance().Print(LOG_NAME, "Read an unhandled IO port (0x%08X, PC: 0x%08X).\r\n",
+			nAddress, m_EE.m_State.nPC);
 	}
 
 	if((nAddress == CINTC::INTC_STAT) || (nAddress == CGSHandler::GS_CSR))
@@ -518,7 +519,8 @@ uint32 CSubSystem::IOPortWriteHandler(uint32 nAddress, uint32 nData)
 	}
 	else
 	{
-		printf("PS2VM: Wrote to an unhandled IO port (0x%08X, 0x%08X, PC: 0x%08X).\r\n", nAddress, nData, m_EE.m_State.nPC);
+		CLog::GetInstance().Print(LOG_NAME, "Wrote to an unhandled IO port (0x%08X, 0x%08X, PC: 0x%08X).\r\n",
+			nAddress, nData, m_EE.m_State.nPC);
 	}
 
 	if(
