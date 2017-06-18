@@ -1,7 +1,8 @@
-#include <stdio.h>
 #include <cassert>
 #include "MemoryMap.h"
+#include "Log.h"
 
+#define LOG_NAME "MemoryMap"
 
 void CMemoryMap::InsertReadMap(uint32 start, uint32 end, void* pointer, unsigned char key)
 {
@@ -101,7 +102,7 @@ void CMemoryMap::SetByte(uint32 nAddress, uint8 nValue)
 	const auto e = GetMap(m_writeMap, nAddress);
 	if(!e)
 	{
-		printf("MemoryMap: Wrote to unmapped memory (0x%08X, 0x%04X).\r\n", nAddress, nValue);
+		CLog::GetInstance().Print(LOG_NAME, "Wrote to unmapped memory (0x%08X, 0x%04X).\r\n", nAddress, nValue);
 		return;
 	}
 	switch(e->nType)
@@ -181,7 +182,7 @@ void CMemoryMap_LSBF::SetHalf(uint32 nAddress, uint16 nValue)
 	const auto e = GetMap(m_writeMap, nAddress);
 	if(!e)
 	{
-		printf("MemoryMap: Wrote to unmapped memory (0x%08X, 0x%04X).\r\n", nAddress, nValue);
+		CLog::GetInstance().Print(LOG_NAME, "Wrote to unmapped memory (0x%08X, 0x%04X).\r\n", nAddress, nValue);
 		return;
 	}
 	switch(e->nType)
@@ -204,7 +205,7 @@ void CMemoryMap_LSBF::SetWord(uint32 nAddress, uint32 nValue)
 	const auto e = GetMap(m_writeMap, nAddress);
 	if(!e)
 	{
-		printf("MemoryMap: Wrote to unmapped memory (0x%08X, 0x%08X).\r\n", nAddress, nValue);
+		CLog::GetInstance().Print(LOG_NAME, "Wrote to unmapped memory (0x%08X, 0x%08X).\r\n", nAddress, nValue);
 		return;
 	}
 	switch(e->nType)
