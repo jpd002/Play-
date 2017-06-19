@@ -8,11 +8,9 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.virtualapplications.play.database.GameInfo;
@@ -113,12 +111,10 @@ public class GameInfoEditActivity extends AppCompatActivity {
     private int calculateInSampleSize(BitmapFactory.Options options) {
         final int height = options.outHeight;
         final int width = options.outWidth;
-        View v = LayoutInflater.from(this).inflate(R.layout.game_list_item, null, false);
-        v.measure(0, 0);
-        int reqWidth = viewHolder.gameImageView.getMeasuredWidth();
-        int reqHeight = viewHolder.gameImageView.getMeasuredHeight();
 
-        // TODO: Find a calculated width and height without ImageView
+        int reqWidth = (int) getResources().getDimension(R.dimen.cover_width);
+        int reqHeight = (int) getResources().getDimension(R.dimen.cover_height);
+
         int inSampleSize = 1;
 
         if (height > reqHeight || width > reqWidth) {

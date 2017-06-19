@@ -21,7 +21,6 @@ import android.os.Build;
 import android.util.LruCache;
 import android.view.View;
 import android.view.View.OnLongClickListener;
-import android.widget.ImageView;
 
 import com.virtualapplications.play.GameInfoEditActivity;
 import com.virtualapplications.play.GameInfoStruct;
@@ -159,7 +158,6 @@ public class GameInfo {
 		
 		private GamesAdapter.CoverViewHolder viewHolder;
 		private String key;
-		private ImageView preview;
 		private String boxart;
         private int pos;
 		
@@ -168,23 +166,15 @@ public class GameInfo {
 			this.boxart = boxart;
             this.pos = pos;
 		}
-		
-		protected void onPreExecute() {
-			if (viewHolder != null) {
-				preview = viewHolder.gameImageView;
-			}
-		}
+
 		
 		private int calculateInSampleSize(BitmapFactory.Options options) {
 			final int height = options.outHeight;
 			final int width = options.outWidth;
-			int reqHeight = 420;
-			int reqWidth = 360;
-			if (preview != null) {
-				reqHeight = preview.getMeasuredHeight();
-				reqWidth = preview.getMeasuredWidth();
-			}
-			// TODO: Find a calculated width and height without ImageView
+
+			int reqHeight = (int) mContext.getResources().getDimension(R.dimen.cover_height);
+			int reqWidth = (int) mContext.getResources().getDimension(R.dimen.cover_width);
+
 			int inSampleSize = 1;
 			
 			if (height > reqHeight || width > reqWidth) {
