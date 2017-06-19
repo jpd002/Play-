@@ -20,8 +20,8 @@ public class ThemeManager
 		switch(position) 
 		{
 		case 0:
-			toolbarTheme = R.color.action_bar_Yellow;
-			theme = R.style.Yellow;
+			toolbarTheme = R.color.action_bar_Amber;
+			theme = R.style.Amber;
 			break;
 		default:
 		case 1:
