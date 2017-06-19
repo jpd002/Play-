@@ -65,10 +65,20 @@
 
     </style>
 
+    <style name="Green" parent="Theme.AppCompat.NoActionBar">
+        <!-- Customize your theme here. -->
+        <!-- colorPrimary is used for the default action bar background -->
+        <item name="colorPrimary">@color/action_bar_Green</item>
+
+        <!-- colorPrimaryDark is used for the status bar -->
+        <item name="colorPrimaryDark">#388E3C</item>
+    </style>
+
     <color name="action_bar_purple">#9C27B0</color>
     <color name="action_bar_Pink">#E91E63</color>
     <color name="action_bar_Amber">#FFC107</color>
     <color name="action_bar_Blue">#2196f3</color>
     <color name="action_bar_Teal">#009688</color>
     <color name="action_bar_Dark_Purple">#673AB7</color>
+    <color name="action_bar_Green">#4CAF50</color>
 </resources>

@@ -44,6 +44,10 @@ public class ThemeManager
 			toolbarTheme = R.color.action_bar_Dark_Purple;
 			theme = R.style.Dark_Purple;
 			break;
+		case 6:
+			toolbarTheme = R.color.action_bar_Green;
+			theme = R.style.Green;
+			break;
 		}
 		Toolbar toolbar = (Toolbar)activity.findViewById(R.id.my_awesome_toolbar);
 		if(toolbar != null)

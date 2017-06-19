@@ -78,7 +78,8 @@
         <item>Pink</item>
         <item>Purple</item>
         <item>Teal</item>
-		<item>Dark Purple</item>
+        <item>Dark Purple</item>
+        <item>Green</item>
     </string-array>
     
 	<!-- Emulator Drawer -->
