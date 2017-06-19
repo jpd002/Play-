@@ -7,7 +7,7 @@
         <item name="colorPrimary">@color/action_bar_purple</item>
 
         <!-- colorPrimaryDark is used for the status bar -->
-        <item name="colorPrimaryDark">#8a00b7</item>
+        <item name="colorPrimaryDark">#7B1FA2</item>
         <!--item name="colorPrimaryDark">#ff000000</item-->
 
     </style>
@@ -18,7 +18,7 @@
         <item name="colorPrimary">@color/action_bar_Pink</item>
 
         <!-- colorPrimaryDark is used for the status bar -->
-        <item name="colorPrimaryDark">#c2185b</item>
+        <item name="colorPrimaryDark">#C2185B</item>
         <!--item name="colorPrimaryDark">#ff000000</item-->
 
     </style>
@@ -29,7 +29,7 @@
         <item name="colorPrimary">@color/action_bar_Yellow</item>
 
         <!-- colorPrimaryDark is used for the status bar -->
-        <item name="colorPrimaryDark">#ffa000</item>
+        <item name="colorPrimaryDark">#FFA000</item>
 
     </style>
 
@@ -61,14 +61,14 @@
         <item name="colorPrimary">@color/action_bar_Dark_Purple</item>
 
         <!-- colorPrimaryDark is used for the status bar -->
-        <item name="colorPrimaryDark">#2e2d5e</item>
+        <item name="colorPrimaryDark">#512DA8</item>
 
     </style>
 
-    <color name="action_bar_purple">#c300ff</color>
-    <color name="action_bar_Pink">#ffff0095</color>
-    <color name="action_bar_Yellow">#ffc107</color>
+    <color name="action_bar_purple">#9C27B0</color>
+    <color name="action_bar_Pink">#E91E63</color>
+    <color name="action_bar_Yellow">#FFC107</color>
     <color name="action_bar_Blue">#2196f3</color>
     <color name="action_bar_Teal">#009688</color>
-	<color name="action_bar_Dark_Purple">#45438e</color>
+    <color name="action_bar_Dark_Purple">#673AB7</color>
 </resources>
