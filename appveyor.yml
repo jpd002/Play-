@@ -1,8 +1,12 @@
 version: '{build}'
 environment:
-  BUILD_TYPE: Visual Studio 14 2015 Win64
+  CONFIG_TYPE: Release
   matrix:
-  - CONFIG_TYPE: Release
+  - BUILD_TYPE: Visual Studio 14 2015
+    INSTALLER_SCRIPT: installer32.nsi
+  - BUILD_TYPE: Visual Studio 14 2015 Win64
+    INSTALLER_SCRIPT: installer64.nsi
+
 build_script:
 - cmd: >-
     set REPO_COMMIT_SHORT=%APPVEYOR_REPO_COMMIT:~0,8%
@@ -49,7 +53,7 @@ build_script:
     
     cd ..
     
-    "C:\Program Files (x86)\NSIS\makensis.exe" ./installer_win32/installer64.nsi
+    "C:\Program Files (x86)\NSIS\makensis.exe" ./installer_win32/%INSTALLER_SCRIPT%
     
     cd ..
     
