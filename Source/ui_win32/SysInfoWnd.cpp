@@ -1,16 +1,11 @@
 #include <windows.h>
 #include <tlhelp32.h>
+#include <intrin.h>
 #include "Types.h"
 #include "string_cast.h"
 #include "string_format.h"
 #include "SysInfoWnd.h"
 #include "win32/LayoutWindow.h"
-
-#ifdef _M_X64
-
-extern "C" void _SysInfo_CPUID(uint32, void*);
-
-#endif
 
 #pragma intrinsic(__rdtsc)
 
@@ -159,24 +154,9 @@ void CSysInfoWnd::UpdateSchedulerInfo()
 
 void CSysInfoWnd::UpdateProcessorFeatures()
 {
-	uint32 nFeatures = 0;
-
-#ifdef _M_X64
-
-	uint32 cpuIdResult[3];
-	_SysInfo_CPUID(1, cpuIdResult);
-	nFeatures = cpuIdResult[1];
-
-#else
-
-	__asm
-	{
-		mov eax, 0x00000001;
-		cpuid;
-		mov dword ptr[nFeatures], edx
-	}
-
-#endif
+	std::array<int, 4> cpuInfo;
+	__cpuid(cpuInfo.data(), 1);
+	uint32 nFeatures = cpuInfo[2];
 
 	m_pFeatures->ResetContent();
 
@@ -206,7 +186,6 @@ void CSysInfoWnd::UpdateProcessor()
 unsigned long WINAPI CSysInfoWnd::ThreadRDTSC(void* pParam)
 {
 	LARGE_INTEGER nTime;
-	char sCpu[13];
 
 	HANDLE hThread = GetCurrentThread();
 	SetThreadPriority(hThread, THREAD_PRIORITY_TIME_CRITICAL);
@@ -230,23 +209,13 @@ unsigned long WINAPI CSysInfoWnd::ThreadRDTSC(void* pParam)
 
 	SetThreadPriority(hThread, THREAD_PRIORITY_NORMAL);
 
-#ifdef _M_X64
+	std::array<int, 4> cpuInfo;
+	__cpuid(cpuInfo.data(), 0);
 
-	_SysInfo_CPUID(0, sCpu);
-
-#else
-
-	__asm
-	{
-		mov eax, 0x00000000;
-		cpuid;
-		mov dword ptr[sCpu + 0], ebx;
-		mov dword ptr[sCpu + 4], edx;
-		mov dword ptr[sCpu + 8], ecx;
-	}
-
-#endif
-
+	char sCpu[13];
+	memcpy(sCpu + 0, cpuInfo.data() + 1, 4);
+	memcpy(sCpu + 4, cpuInfo.data() + 3, 4);
+	memcpy(sCpu + 8, cpuInfo.data() + 2, 4);
 	sCpu[12] = '\0';
 
 	CSysInfoWnd* pWnd = reinterpret_cast<CSysInfoWnd*>(pParam);

@@ -863,8 +863,6 @@ if(TARGET_PLATFORM_ANDROID)
 endif(TARGET_PLATFORM_ANDROID)
 
 if(TARGET_PLATFORM_WIN32)
-	ENABLE_LANGUAGE(ASM_MASM)
-	
 	add_library(gsh_opengl_win32 STATIC 
 		../Source/ui_win32/GSH_OpenGL_SettingsWnd.cpp
 		../Source/ui_win32/GSH_OpenGLWin32.cpp
@@ -956,7 +954,6 @@ if(TARGET_PLATFORM_WIN32)
 		../Source/ui_win32/SaveView.cpp
 		../Source/ui_win32/StatsOverlayWindow.cpp
 		../Source/ui_win32/StdAfx.cpp
-		../Source/ui_win32/SysInfo_x64.asm
 		../Source/ui_win32/SysInfoWnd.cpp
 		../Source/ui_win32/ThreadCallStackViewWnd.cpp
 		../Source/ui_win32/VFSManagerWnd.cpp
