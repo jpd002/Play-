@@ -1,10 +1,9 @@
 #include <windows.h>
 #include <tlhelp32.h>
-#include <boost/lexical_cast.hpp>
 #include "Types.h"
 #include "string_cast.h"
+#include "string_format.h"
 #include "SysInfoWnd.h"
-#include "PtrMacro.h"
 #include "win32/LayoutWindow.h"
 
 #ifdef _M_X64
@@ -19,10 +18,6 @@ extern "C" void _SysInfo_CPUID(uint32, void*);
 #define WNDSTYLE		(WS_CAPTION | WS_POPUP | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_SYSMENU)
 #define WNDSTYLEEX		(WS_EX_DLGMODALFRAME)
 #define CPUFREQDELAY	(250)
-
-using namespace Framework;
-using namespace boost;
-using namespace std;
 
 const TCHAR* CSysInfoWnd::m_sFeature[32] =
 {
@@ -60,8 +55,8 @@ const TCHAR* CSysInfoWnd::m_sFeature[32] =
 	_T("PBE")
 };
 
-CSysInfoWnd::CSysInfoWnd(HWND hParent) :
-Win32::CModalWindow(hParent)
+CSysInfoWnd::CSysInfoWnd(HWND hParent)
+: Framework::Win32::CModalWindow(hParent)
 {
 	if(!DoesWindowClassExist(CLSNAME))
 	{
@@ -88,20 +83,20 @@ Win32::CModalWindow(hParent)
 	Create(WNDSTYLEEX, CLSNAME, _T("System Information"), WNDSTYLE, Framework::Win32::CRect(0, 0, width, height), hParent, NULL);
 	SetClassPtr();
 
-	m_pProcessor	= new Win32::CStatic(m_hWnd, _T(""));
-	m_pProcesses	= new Win32::CStatic(m_hWnd, _T(""));
-	m_pThreads		= new Win32::CStatic(m_hWnd, _T(""));
-	m_pFeatures		= new Win32::CListBox(m_hWnd, Framework::Win32::CRect(0, 0, 1, 1), WS_VSCROLL | LBS_SORT);
+	m_pProcessor	= new Framework::Win32::CStatic(m_hWnd, _T(""));
+	m_pProcesses	= new Framework::Win32::CStatic(m_hWnd, _T(""));
+	m_pThreads		= new Framework::Win32::CStatic(m_hWnd, _T(""));
+	m_pFeatures		= new Framework::Win32::CListBox(m_hWnd, Framework::Win32::CRect(0, 0, 1, 1), WS_VSCROLL | LBS_SORT);
 
 	int lineHeight = MulDiv(20, ydpi, 96);
 
-	m_pLayout = CVerticalLayout::Create();
-	m_pLayout->InsertObject(Win32::CLayoutWindow::CreateTextBoxBehavior(100, lineHeight, m_pProcesses));
-	m_pLayout->InsertObject(Win32::CLayoutWindow::CreateTextBoxBehavior(100, lineHeight, m_pThreads));
-	m_pLayout->InsertObject(Win32::CLayoutWindow::CreateTextBoxBehavior(100, lineHeight, new Win32::CStatic(m_hWnd, _T("Processor:"))));
-	m_pLayout->InsertObject(Win32::CLayoutWindow::CreateTextBoxBehavior(100, lineHeight, m_pProcessor));
-	m_pLayout->InsertObject(Win32::CLayoutWindow::CreateTextBoxBehavior(100, lineHeight, new Win32::CStatic(m_hWnd, _T("Processor Features:"))));
-	m_pLayout->InsertObject(Win32::CLayoutWindow::CreateCustomBehavior(lineHeight * 10, lineHeight*10, 1, 1, m_pFeatures));
+	m_pLayout = Framework::CVerticalLayout::Create();
+	m_pLayout->InsertObject(Framework::Win32::CLayoutWindow::CreateTextBoxBehavior(100, lineHeight, m_pProcesses));
+	m_pLayout->InsertObject(Framework::Win32::CLayoutWindow::CreateTextBoxBehavior(100, lineHeight, m_pThreads));
+	m_pLayout->InsertObject(Framework::Win32::CLayoutWindow::CreateTextBoxBehavior(100, lineHeight, new Framework::Win32::CStatic(m_hWnd, _T("Processor:"))));
+	m_pLayout->InsertObject(Framework::Win32::CLayoutWindow::CreateTextBoxBehavior(100, lineHeight, m_pProcessor));
+	m_pLayout->InsertObject(Framework::Win32::CLayoutWindow::CreateTextBoxBehavior(100, lineHeight, new Framework::Win32::CStatic(m_hWnd, _T("Processor Features:"))));
+	m_pLayout->InsertObject(Framework::Win32::CLayoutWindow::CreateCustomBehavior(lineHeight * 10, lineHeight*10, 1, 1, m_pFeatures));
 
 	m_nRDTSCThread = NULL;
 
@@ -158,8 +153,8 @@ void CSysInfoWnd::UpdateSchedulerInfo()
 		}
 	}
 
-	m_pProcesses->SetText((lexical_cast<tstring>(nProcesses) + _T(" processes running.")).c_str());
-	m_pThreads->SetText((lexical_cast<tstring>(nThreads) + _T(" threads running.")).c_str());
+	m_pProcesses->SetText(string_format(_T("%d processes running."), nProcesses).c_str());
+	m_pThreads->SetText(string_format(_T("%d threads running."), nThreads).c_str());
 }
 
 void CSysInfoWnd::UpdateProcessorFeatures()
@@ -212,7 +207,6 @@ unsigned long WINAPI CSysInfoWnd::ThreadRDTSC(void* pParam)
 {
 	LARGE_INTEGER nTime;
 	char sCpu[13];
-	TCHAR sTemp[256];
 
 	HANDLE hThread = GetCurrentThread();
 	SetThreadPriority(hThread, THREAD_PRIORITY_TIME_CRITICAL);
@@ -257,7 +251,8 @@ unsigned long WINAPI CSysInfoWnd::ThreadRDTSC(void* pParam)
 
 	CSysInfoWnd* pWnd = reinterpret_cast<CSysInfoWnd*>(pParam);
 
-	_sntprintf(sTemp, countof(sTemp), _T("%s @ ~%i MHz"), string_cast<tstring>(sCpu).c_str(), nDeltaStamp / 1000000);
+	TCHAR sTemp[256];
+	_sntprintf(sTemp, countof(sTemp), _T("%s @ ~%i MHz"), string_cast<std::tstring>(sCpu).c_str(), nDeltaStamp / 1000000);
 	pWnd->m_pProcessor->SetText(sTemp);
 
 	return 0xDEADBEEF;
