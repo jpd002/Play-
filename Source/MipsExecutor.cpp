@@ -7,20 +7,10 @@ static bool IsInsideRange(uint32 address, uint32 start, uint32 end)
 
 CMipsExecutor::CMipsExecutor(CMIPS& context, uint32 maxAddress)
 : m_context(context)
+, m_maxAddress(maxAddress)
 {
-	if(maxAddress < 0x10000)
-	{
-		maxAddress = 0x10000;
-	}
-	assert((maxAddress & 0xFFFF) == 0);
-	if(maxAddress == 0)
-	{
-		m_subTableCount = 0x10000;
-	}
-	else
-	{
-		m_subTableCount = maxAddress / 0x10000;
-	}
+	m_subTableCount = (m_maxAddress + 0xFFFF) / 0x10000;
+	assert(m_subTableCount != 0);
 	m_blockTable = new CBasicBlock**[m_subTableCount];
 	memset(m_blockTable, 0, sizeof(CBasicBlock**) * m_subTableCount);
 }

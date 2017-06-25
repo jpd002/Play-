@@ -35,6 +35,7 @@ protected:
 
 	BlockList					m_blocks;
 	CMIPS&						m_context;
+	uint32						m_maxAddress = 0;
 
 	CBasicBlock***				m_blockTable = nullptr;
 	uint32						m_subTableCount = 0;
