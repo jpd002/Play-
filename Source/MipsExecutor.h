@@ -1,5 +1,4 @@
-#ifndef _MIPSEXECUTOR_H_
-#define _MIPSEXECUTOR_H_
+#pragma once
 
 #include <list>
 #include "MIPS.h"
@@ -44,5 +43,3 @@ protected:
 	bool						m_breakpointsDisabledOnce = false;
 #endif
 };
-
-#endif
