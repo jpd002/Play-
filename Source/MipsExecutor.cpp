@@ -107,10 +107,7 @@ int CMipsExecutor::Execute(int cycles)
 				//We need to partition the space and compile the blocks
 				PartitionFunction(address);
 				block = FindBlockStartingAt(address);
-				if(block == NULL)
-				{
-					throw std::runtime_error("Couldn't create block starting at address.");
-				}
+				assert(block);
 			}
 		}
 		else if(block != NULL)
