@@ -112,10 +112,6 @@ int CMipsExecutor::Execute(int cycles)
 					throw std::runtime_error("Couldn't create block starting at address.");
 				}
 			}
-			if(!block->IsCompiled())
-			{
-				block->Compile();
-			}
 		}
 		else if(block != NULL)
 		{
@@ -260,7 +256,9 @@ void CMipsExecutor::DeleteBlock(CBasicBlock* block)
 
 CMipsExecutor::BasicBlockPtr CMipsExecutor::BlockFactory(CMIPS& context, uint32 start, uint32 end)
 {
-	return std::make_shared<CBasicBlock>(context, start, end);
+	auto result = std::make_shared<CBasicBlock>(context, start, end);
+	result->Compile();
+	return result;
 }
 
 void CMipsExecutor::PartitionFunction(uint32 functionAddress)

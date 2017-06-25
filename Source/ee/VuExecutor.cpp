@@ -51,6 +51,7 @@ CMipsExecutor::BasicBlockPtr CVuExecutor::BlockFactory(CMIPS& context, uint32 be
 	}
 
 	auto result = std::make_shared<CVuBasicBlock>(context, begin, end);
+	result->Compile();
 	m_cachedBlocks.insert(std::make_pair(checksum, result));
 	return result;
 }
