@@ -16,42 +16,39 @@ public class ThemeManager
 		String positionString = PreferenceManager.getDefaultSharedPreferences(activity).getString(THEME_SELECTION, "1");
 		int position = Integer.valueOf(positionString);
 		int theme;
-		int toolbarTheme;
-		switch(position) 
+		switch(position)
 		{
 		case 0:
-			toolbarTheme = R.color.action_bar_Yellow;
-			theme = R.style.Yellow;
+			theme = R.style.Amber;
 			break;
 		default:
 		case 1:
-			toolbarTheme = R.color.action_bar_Blue;
 			theme = R.style.Blue;
 			break;
 		case 2:
-			toolbarTheme = R.color.action_bar_Pink;
 			theme = R.style.Pink;
 			break;
 		case 3:
-			toolbarTheme = R.color.action_bar_purple;
 			theme = R.style.Purple;
 			break;
 		case 4:
-			toolbarTheme = R.color.action_bar_Teal;
 			theme = R.style.Teal;
 			break;
 		case 5:
-			toolbarTheme = R.color.action_bar_Dark_Purple;
 			theme = R.style.Dark_Purple;
 			break;
+		case 6:
+			theme = R.style.Green;
+			break;
 		}
+		activity.getTheme().applyStyle(theme, true);
 		Toolbar toolbar = (Toolbar)activity.findViewById(R.id.my_awesome_toolbar);
 		if(toolbar != null)
 		{
-			toolbar.setBackgroundResource(toolbarTheme);
+			int color = getThemeColor(activity, R.attr.colorPrimary);
+			toolbar.setBackgroundColor(color);
 		}
-		activity.getTheme().applyStyle(theme, true);
-		if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) 
+		if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
 		{
 			int color = getThemeColor(activity, R.attr.colorPrimaryDark);
 			activity.getWindow().addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
