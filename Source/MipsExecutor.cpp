@@ -5,11 +5,15 @@ static bool IsInsideRange(uint32 address, uint32 start, uint32 end)
 	return (address >= start) && (address <= end);
 }
 
+#define SUBTABLE_BITS 16
+#define SUBTABLE_SIZE (1 << SUBTABLE_BITS)
+#define SUBTABLE_MASK (SUBTABLE_SIZE - 1)
+
 CMipsExecutor::CMipsExecutor(CMIPS& context, uint32 maxAddress)
 : m_context(context)
 , m_maxAddress(maxAddress)
 {
-	m_subTableCount = (m_maxAddress + 0xFFFF) / 0x10000;
+	m_subTableCount = (m_maxAddress + SUBTABLE_MASK) / SUBTABLE_SIZE;
 	assert(m_subTableCount != 0);
 	m_blockTable = new CBasicBlock**[m_subTableCount];
 	memset(m_blockTable, 0, sizeof(CBasicBlock**) * m_subTableCount);
@@ -55,8 +59,8 @@ void CMipsExecutor::ClearActiveBlocksInRange(uint32 start, uint32 end)
 
 void CMipsExecutor::ClearActiveBlocksInRangeInternal(uint32 start, uint32 end, CBasicBlock* protectedBlock)
 {
-	uint32 hiStart = start >> 16;
-	uint32 hiEnd = end >> 16;
+	uint32 hiStart = start >> SUBTABLE_BITS;
+	uint32 hiEnd = end >> SUBTABLE_BITS;
 
 	//We need to increase the range to make sure we catch any
 	//block that are straddling table boundaries
@@ -70,9 +74,9 @@ void CMipsExecutor::ClearActiveBlocksInRangeInternal(uint32 start, uint32 end, C
 		CBasicBlock** table = m_blockTable[hi];
 		if(table == nullptr) continue;
 
-		for(uint32 lo = 0; lo < 0x10000; lo += 4)
+		for(uint32 lo = 0; lo < SUBTABLE_SIZE; lo += 4)
 		{
-			uint32 tableAddress = (hi << 16) | lo;
+			uint32 tableAddress = (hi << SUBTABLE_BITS) | lo;
 			auto block = table[lo / 4];
 			if(block == nullptr) continue;
 			if(block == protectedBlock) continue;
@@ -154,8 +158,8 @@ void CMipsExecutor::DisableBreakpointsOnce()
 
 CBasicBlock* CMipsExecutor::FindBlockAt(uint32 address) const
 {
-	uint32 hiAddress = address >> 16;
-	uint32 loAddress = address & 0xFFFF;
+	uint32 hiAddress = address >> SUBTABLE_BITS;
+	uint32 loAddress = address & SUBTABLE_MASK;
 	assert(hiAddress < m_subTableCount);
 	CBasicBlock**& subTable = m_blockTable[hiAddress];
 	if(subTable == NULL) return NULL;
@@ -165,8 +169,8 @@ CBasicBlock* CMipsExecutor::FindBlockAt(uint32 address) const
 
 CBasicBlock* CMipsExecutor::FindBlockStartingAt(uint32 address) const
 {
-	uint32 hiAddress = address >> 16;
-	uint32 loAddress = address & 0xFFFF;
+	uint32 hiAddress = address >> SUBTABLE_BITS;
+	uint32 loAddress = address & SUBTABLE_MASK;
 	assert(hiAddress < m_subTableCount);
 	CBasicBlock**& subTable = m_blockTable[hiAddress];
 	if(subTable == NULL) return NULL;
@@ -218,13 +222,13 @@ void CMipsExecutor::CreateBlock(uint32 start, uint32 end)
 		auto block = BlockFactory(m_context, start, end);
 		for(uint32 address = block->GetBeginAddress(); address <= block->GetEndAddress(); address += 4)
 		{
-			uint32 hiAddress = address >> 16;
-			uint32 loAddress = address & 0xFFFF;
+			uint32 hiAddress = address >> SUBTABLE_BITS;
+			uint32 loAddress = address & SUBTABLE_MASK;
 			assert(hiAddress < m_subTableCount);
 			CBasicBlock**& subTable = m_blockTable[hiAddress];
 			if(subTable == NULL)
 			{
-				const uint32 subTableSize = 0x10000 / 4;
+				const uint32 subTableSize = SUBTABLE_SIZE / 4;
 				subTable = new CBasicBlock*[subTableSize];
 				memset(subTable, 0, sizeof(CBasicBlock*) * subTableSize);
 			}
@@ -239,8 +243,8 @@ void CMipsExecutor::DeleteBlock(CBasicBlock* block)
 {
 	for(uint32 address = block->GetBeginAddress(); address <= block->GetEndAddress(); address += 4)
 	{
-		uint32 hiAddress = address >> 16;
-		uint32 loAddress = address & 0xFFFF;
+		uint32 hiAddress = address >> SUBTABLE_BITS;
+		uint32 loAddress = address & SUBTABLE_MASK;
 		assert(hiAddress < m_subTableCount);
 		CBasicBlock**& subTable = m_blockTable[hiAddress];
 		assert(subTable != NULL);
