@@ -7,10 +7,6 @@ static bool IsInsideRange(uint32 address, uint32 start, uint32 end)
 
 CMipsExecutor::CMipsExecutor(CMIPS& context, uint32 maxAddress)
 : m_context(context)
-, m_subTableCount(0)
-#ifdef DEBUGGER_INCLUDED
-, m_breakpointsDisabledOnce(false)
-#endif
 {
 	if(maxAddress < 0x10000)
 	{
@@ -112,7 +108,7 @@ int CMipsExecutor::Execute(int cycles)
 		if(!block || address != block->GetBeginAddress())
 		{
 			block = FindBlockStartingAt(address);
-			if(block == NULL)
+			if(!block)
 			{
 				//We need to partition the space and compile the blocks
 				PartitionFunction(address);
@@ -229,7 +225,7 @@ void CMipsExecutor::CreateBlock(uint32 start, uint32 end)
 	}
 	assert(FindBlockAt(end) == NULL);
 	{
-		BasicBlockPtr block = BlockFactory(m_context, start, end);
+		auto block = BlockFactory(m_context, start, end);
 		for(uint32 address = block->GetBeginAddress(); address <= block->GetEndAddress(); address += 4)
 		{
 			uint32 hiAddress = address >> 16;

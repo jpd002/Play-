@@ -36,11 +36,11 @@ protected:
 	BlockList					m_blocks;
 	CMIPS&						m_context;
 
-	CBasicBlock***				m_blockTable;
-	uint32						m_subTableCount;
+	CBasicBlock***				m_blockTable = nullptr;
+	uint32						m_subTableCount = 0;
 
 #ifdef DEBUGGER_INCLUDED
-	bool						m_breakpointsDisabledOnce;
+	bool						m_breakpointsDisabledOnce = false;
 #endif
 };
 
