@@ -71,8 +71,8 @@ void CMipsExecutor::ClearActiveBlocksInRangeInternal(uint32 start, uint32 end, C
 
 	for(uint32 hi = hiStart; hi <= hiEnd; hi++)
 	{
-		CBasicBlock** table = m_blockTable[hi];
-		if(table == nullptr) continue;
+		auto table = m_blockTable[hi];
+		if(!table) continue;
 
 		for(uint32 lo = 0; lo < SUBTABLE_SIZE; lo += 4)
 		{
@@ -161,9 +161,9 @@ CBasicBlock* CMipsExecutor::FindBlockAt(uint32 address) const
 	uint32 hiAddress = address >> SUBTABLE_BITS;
 	uint32 loAddress = address & SUBTABLE_MASK;
 	assert(hiAddress < m_subTableCount);
-	CBasicBlock**& subTable = m_blockTable[hiAddress];
-	if(subTable == NULL) return NULL;
-	CBasicBlock* result = subTable[loAddress / 4];
+	auto& subTable = m_blockTable[hiAddress];
+	if(!subTable) return nullptr;
+	auto result = subTable[loAddress / 4];
 	return result;
 }
 
@@ -172,12 +172,12 @@ CBasicBlock* CMipsExecutor::FindBlockStartingAt(uint32 address) const
 	uint32 hiAddress = address >> SUBTABLE_BITS;
 	uint32 loAddress = address & SUBTABLE_MASK;
 	assert(hiAddress < m_subTableCount);
-	CBasicBlock**& subTable = m_blockTable[hiAddress];
-	if(subTable == NULL) return NULL;
-	CBasicBlock* result = subTable[loAddress / 4];
+	auto& subTable = m_blockTable[hiAddress];
+	if(!subTable) return nullptr;
+	auto result = subTable[loAddress / 4];
 	if((address != 0) && (FindBlockAt(address - 4) == result))
 	{
-		return NULL;
+		return nullptr;
 	}
 	return result;
 }
@@ -185,7 +185,7 @@ CBasicBlock* CMipsExecutor::FindBlockStartingAt(uint32 address) const
 void CMipsExecutor::CreateBlock(uint32 start, uint32 end)
 {
 	{
-		CBasicBlock* block = FindBlockAt(start);
+		auto block = FindBlockAt(start);
 		if(block)
 		{
 			//If the block starts and ends at the same place, block already exists and doesn't need
@@ -201,13 +201,13 @@ void CMipsExecutor::CreateBlock(uint32 start, uint32 end)
 				//Repartition the existing block if end of both blocks are the same
 				DeleteBlock(block);
 				CreateBlock(otherBegin, start - 4);
-				assert(FindBlockAt(start) == NULL);
+				assert(!FindBlockAt(start));
 			}
 			else if(otherBegin == start)
 			{
 				DeleteBlock(block);
 				CreateBlock(end + 4, otherEnd);
-				assert(FindBlockAt(end) == NULL);
+				assert(!FindBlockAt(end));
 			}
 			else
 			{
@@ -217,7 +217,7 @@ void CMipsExecutor::CreateBlock(uint32 start, uint32 end)
 			}
 		}
 	}
-	assert(FindBlockAt(end) == NULL);
+	assert(!FindBlockAt(end));
 	{
 		auto block = BlockFactory(m_context, start, end);
 		for(uint32 address = block->GetBeginAddress(); address <= block->GetEndAddress(); address += 4)
@@ -225,14 +225,14 @@ void CMipsExecutor::CreateBlock(uint32 start, uint32 end)
 			uint32 hiAddress = address >> SUBTABLE_BITS;
 			uint32 loAddress = address & SUBTABLE_MASK;
 			assert(hiAddress < m_subTableCount);
-			CBasicBlock**& subTable = m_blockTable[hiAddress];
-			if(subTable == NULL)
+			auto& subTable = m_blockTable[hiAddress];
+			if(!subTable)
 			{
 				const uint32 subTableSize = SUBTABLE_SIZE / 4;
 				subTable = new CBasicBlock*[subTableSize];
 				memset(subTable, 0, sizeof(CBasicBlock*) * subTableSize);
 			}
-			assert(subTable[loAddress / 4] == NULL);
+			assert(!subTable[loAddress / 4]);
 			subTable[loAddress / 4] = block.get();
 		}
 		m_blocks.push_back(std::move(block));
@@ -246,10 +246,10 @@ void CMipsExecutor::DeleteBlock(CBasicBlock* block)
 		uint32 hiAddress = address >> SUBTABLE_BITS;
 		uint32 loAddress = address & SUBTABLE_MASK;
 		assert(hiAddress < m_subTableCount);
-		CBasicBlock**& subTable = m_blockTable[hiAddress];
-		assert(subTable != NULL);
-		assert(subTable[loAddress / 4] != NULL);
-		subTable[loAddress / 4] = NULL;
+		auto& subTable = m_blockTable[hiAddress];
+		assert(subTable);
+		assert(subTable[loAddress / 4]);
+		subTable[loAddress / 4] = nullptr;
 	}
 
 	//Remove block from our lists
