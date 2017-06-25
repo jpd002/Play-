@@ -50,11 +50,6 @@ CBasicBlock::CBasicBlock(CMIPS& context, uint32 begin, uint32 end)
 	assert(m_end >= m_begin);
 }
 
-CBasicBlock::~CBasicBlock()
-{
-
-}
-
 #ifdef AOT_BUILD_CACHE
 
 Framework::CStdStream*	CBasicBlock::m_aotBlockOutputStream(nullptr);

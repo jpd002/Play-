@@ -44,7 +44,7 @@ class CBasicBlock
 {
 public:
 									CBasicBlock(CMIPS&, uint32, uint32);
-	virtual							~CBasicBlock();
+	virtual							~CBasicBlock() = default;
 	unsigned int					Execute();
 	void							Compile();
 
