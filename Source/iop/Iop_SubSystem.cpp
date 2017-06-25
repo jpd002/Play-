@@ -264,21 +264,7 @@ void CSubSystem::CheckPendingInterrupts()
 
 bool CSubSystem::IsCpuIdle()
 {
-	if(m_bios->IsIdle())
-	{
-		return true;
-	}
-	else
-	{
-		uint32 physicalPc = m_cpu.m_pAddrTranslator(&m_cpu, m_cpu.m_State.nPC);
-		CBasicBlock* nextBlock = m_executor.FindBlockAt(physicalPc);
-		if(nextBlock && nextBlock->GetSelfLoopCount() > 5000)
-		{
-			//Go a little bit faster if we're "stuck"
-			return true;
-		}
-	}
-	return false;
+	return m_bios->IsIdle();
 }
 
 void CSubSystem::CountTicks(int ticks)

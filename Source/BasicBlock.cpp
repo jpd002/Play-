@@ -42,7 +42,6 @@ CBasicBlock::CBasicBlock(CMIPS& context, uint32 begin, uint32 end)
 : m_begin(begin)
 , m_end(end)
 , m_context(context)
-, m_selfLoopCount(0)
 #ifdef AOT_USE_CACHE
 , m_function(nullptr)
 #endif
@@ -261,14 +260,4 @@ bool CBasicBlock::IsCompiled() const
 #else
 	return (m_function != nullptr);
 #endif
-}
-
-unsigned int CBasicBlock::GetSelfLoopCount() const
-{
-	return m_selfLoopCount;
-}
-
-void CBasicBlock::SetSelfLoopCount(unsigned int selfLoopCount)
-{
-	m_selfLoopCount = selfLoopCount;
 }

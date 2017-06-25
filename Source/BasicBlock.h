@@ -51,8 +51,6 @@ public:
 	uint32							GetBeginAddress() const;
 	uint32							GetEndAddress() const;
 	bool							IsCompiled() const;
-	unsigned int					GetSelfLoopCount() const;
-	void							SetSelfLoopCount(unsigned int);
 
 #ifdef AOT_BUILD_CACHE
 	static void						SetAotBlockOutputStream(Framework::CStdStream*);
@@ -77,6 +75,4 @@ private:
 #else
 	void							(*m_function)(void*);
 #endif
-
-	unsigned int					m_selfLoopCount;
 };

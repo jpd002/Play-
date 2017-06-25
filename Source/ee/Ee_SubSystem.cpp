@@ -277,16 +277,7 @@ int CSubSystem::ExecuteCpu(int quota)
 
 bool CSubSystem::IsCpuIdle() const
 {
-	CBasicBlock* nextBlock = m_executor.FindBlockAt(m_EE.m_State.nPC);
-	if(nextBlock && nextBlock->GetSelfLoopCount() > 5000)
-	{
-		return true;
-	}
-	else if(m_os->IsIdle() || m_isIdle)
-	{
-		return true;
-	}
-	return false;
+	return m_os->IsIdle() || m_isIdle;
 }
 
 void CSubSystem::CountTicks(int ticks)

@@ -110,10 +110,6 @@ int CMipsExecutor::Execute(int cycles)
 				assert(block);
 			}
 		}
-		else if(block != NULL)
-		{
-			block->SetSelfLoopCount(block->GetSelfLoopCount() + 1);
-		}
 
 #ifdef DEBUGGER_INCLUDED
 		if(!m_breakpointsDisabledOnce && MustBreak()) break;
