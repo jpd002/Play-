@@ -10,11 +10,6 @@ CMipsExecutor(context, c_vuMaxAddress)
 
 }
 
-CVuExecutor::~CVuExecutor()
-{
-
-}
-
 void CVuExecutor::Reset()
 {
 	m_cachedBlocks.clear();
