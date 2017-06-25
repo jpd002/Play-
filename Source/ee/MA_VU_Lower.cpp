@@ -137,6 +137,8 @@ void CMA_VU::CLower::GenerateEATAN()
 //00
 void CMA_VU::CLower::LQ()
 {
+	if(m_nDest == 0) return;
+
 	m_codeGen->PushRelRef(offsetof(CMIPS, m_vuMem));
 	VUShared::ComputeMemAccessAddr(
 		m_codeGen,
