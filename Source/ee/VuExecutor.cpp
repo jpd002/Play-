@@ -2,10 +2,8 @@
 #include "VuBasicBlock.h"
 #include <zlib.h>
 
-static const uint32 c_vuMaxAddress = 0x4000;
-
-CVuExecutor::CVuExecutor(CMIPS& context) :
-CMipsExecutor(context, c_vuMaxAddress)
+CVuExecutor::CVuExecutor(CMIPS& context, uint32 maxAddress)
+: CMipsExecutor(context, maxAddress)
 {
 
 }
@@ -70,7 +68,7 @@ void CVuExecutor::PartitionFunction(uint32 functionAddress)
 	for(uint32 address = functionAddress; ; address += 4)
 	{
 		//Probably going too far...
-		if(address >= c_vuMaxAddress)
+		if(address >= m_maxAddress)
 		{
 			endAddress = address;
 			partitionPoints.insert(endAddress);

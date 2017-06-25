@@ -6,7 +6,7 @@
 class CVuExecutor : public CMipsExecutor
 {
 public:
-							CVuExecutor(CMIPS&);
+							CVuExecutor(CMIPS&, uint32);
 	virtual					~CVuExecutor() = default;
 
 	void					Reset() override;

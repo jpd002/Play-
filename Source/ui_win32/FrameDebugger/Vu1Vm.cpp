@@ -7,7 +7,7 @@
 
 CVu1Vm::CVu1Vm()
 : m_vu1(MEMORYMAP_ENDIAN_LSBF)
-, m_vu1Executor(m_vu1)
+, m_vu1Executor(m_vu1, PS2::MICROMEM1SIZE)
 , m_vuMem1(new uint8[PS2::VUMEM1SIZE])
 , m_microMem1(new uint8[PS2::MICROMEM1SIZE])
 , m_status(PAUSED)
