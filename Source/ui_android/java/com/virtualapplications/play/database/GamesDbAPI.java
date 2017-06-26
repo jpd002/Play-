@@ -22,31 +22,24 @@ import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
 import android.content.Context;
-import android.content.ContentValues;
-import android.content.ContentResolver;
-import android.database.Cursor;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.StrictMode;
 import android.util.Log;
-import android.view.View;
 
 import com.virtualapplications.play.Constants;
 import com.virtualapplications.play.GameInfoStruct;
-import com.virtualapplications.play.R;
-import com.virtualapplications.play.database.SqliteHelper.Games;
+import com.virtualapplications.play.GamesAdapter;
 
-public class GamesDbAPI extends AsyncTask<File, Integer, Document> {
+public class GamesDbAPI extends AsyncTask<File, Integer, Boolean> {
 
-	private final String serial;
 	private final GameInfoStruct gameInfoStruct;
-	private int index;
-	private View childview;
+	private final int pos;
+	private GamesAdapter.CoverViewHolder viewHolder;
 	private Context mContext;
 	private String gameID;
-	private File gameFile;
 	private GameInfo gameInfo;
 	private boolean elastic;
 
@@ -54,16 +47,16 @@ public class GamesDbAPI extends AsyncTask<File, Integer, Document> {
     private static final String games_url_id = "http://thegamesdb.net/api/GetGame.php?platform=sony+playstation+2&id=";
 	private static final String games_list = "http://thegamesdb.net/api/GetPlatformGames.php?platform=11";
 
-	public GamesDbAPI(Context mContext, String gameID, String serial, GameInfoStruct gameInfoStruct) {
+	public GamesDbAPI(Context mContext, GameInfoStruct gameInfoStruct, int pos) {
 		this.elastic = false;
 		this.mContext = mContext;
-		this.gameID = gameID;
-		this.serial = serial;
+		this.gameID = gameInfoStruct.getGameID();
+		this.pos = pos;
 		this.gameInfoStruct = gameInfoStruct;
 	}
 	
-	public void setView(View childview) {
-		this.childview = childview;
+	public void setView(GamesAdapter.CoverViewHolder viewHolder) {
+		this.viewHolder = viewHolder;
 	}
 
 	protected void onPreExecute() {
@@ -76,14 +69,13 @@ public class GamesDbAPI extends AsyncTask<File, Integer, Document> {
 	}
 
 	@Override
-	protected Document doInBackground(File... params) {
+	protected Boolean doInBackground(File... params) {
 		
 		if (GamesDbAPI.isNetworkAvailable(mContext)) {
 			try {
 				URL requestUrl;
-				if (params[0] != null) {
-					gameFile = params[0];
-					String filename = gameFile.getName();
+				if (gameInfoStruct.getFile() != null) {
+					String filename = gameInfoStruct.getFile().getName();
 					if (gameID != null) {
 						requestUrl = new URL(games_url_id + gameID);
 					} else {
@@ -105,12 +97,57 @@ public class GamesDbAPI extends AsyncTask<File, Integer, Document> {
 				{
 					InputStream inputStream = urlConnection.getInputStream();
 					String gameData = IOUtils.toString(inputStream, "UTF-8");
-					return getDomElement(gameData);
+					Document doc = getDomElement(gameData);
+					if (doc != null && doc.getElementsByTagName("Game") != null) {
+						try {
+							final Element root = (Element) doc.getElementsByTagName("Game").item(0);
+							final String remoteID = getValue(root, "id");
+
+							if (elastic) {
+								this.gameID = remoteID;
+								this.elastic = false;
+								return doInBackground();
+							} else {
+								final String title = getValue(root, "GameTitle");
+								final String overview = getValue(root, "Overview");
+
+								Element images = (Element) root.getElementsByTagName("Images").item(0);
+								Element boxart = null;
+								if (images.getElementsByTagName("boxart").getLength() > 1) {
+									boxart = (Element) images.getElementsByTagName("boxart").item(1);
+								} else if (images.getElementsByTagName("boxart").getLength() == 1) {
+									boxart = (Element) images.getElementsByTagName("boxart").item(0);
+								}
+								String coverImage = null;
+								if (boxart != null) {
+									coverImage = getElementValue(boxart);
+								}
+
+								if (gameInfoStruct.getGameID() == null){
+									gameInfoStruct.setGameID(remoteID, mContext);
+								}
+								if (gameInfoStruct.isTitleNameEmptyNull()){
+									gameInfoStruct.setTitleName(title, mContext);
+								}
+								if (gameInfoStruct.isDescriptionEmptyNull()){
+									gameInfoStruct.setDescription(overview, mContext);
+								}
+								if (gameInfoStruct.getFrontLink() == null || gameInfoStruct.getFrontLink().isEmpty()){
+									if (coverImage != null) {
+										gameInfoStruct.setFrontLink(coverImage, mContext);
+									}
+								}
+
+								return true;
+							}
+						} catch (Exception e) {
+
+						}
+					}
 				}
 				catch(Exception ex)
 				{
 					Log.w(Constants.TAG, String.format("Failed to obtain information: %s", ex.toString()));
-					return null;
 				}
 				finally 
 				{
@@ -123,137 +160,31 @@ public class GamesDbAPI extends AsyncTask<File, Integer, Document> {
 
 			}
 		}
-		return null;
+		return false;
 	}
 
 	@Override
-	protected void onPostExecute(Document doc) {
-		
-		if (doc != null && doc.getElementsByTagName("Game") != null) {
-			try {
-				final Element root = (Element) doc.getElementsByTagName("Game").item(0);
-				final String remoteID = getValue(root, "id");
-				
-				ContentResolver cr = mContext.getContentResolver();
-				String selection = Games.KEY_GAMEID + "=?";
-				String[] selectionArgs = { remoteID };
-				Cursor c = cr.query(Games.GAMES_URI, null, selection, selectionArgs, null);
-				String dataID = null;
-				
-				if (elastic) {
-					if (c != null && c.getCount() > 0) {
-						if (c.moveToFirst()) {
-							do {
-								String title = c.getString(c.getColumnIndex(Games.KEY_TITLE));
-								String overview = c.getString(c.getColumnIndex(Games.KEY_OVERVIEW));
-								String boxart = c.getString(c.getColumnIndex(Games.KEY_BOXART));
-								if (overview != null && boxart != null &&
-									!overview.equals("") && !boxart.equals("")) {
-									dataID = c.getString(c.getColumnIndex(Games.KEY_GAMEID));
-									if (gameInfoStruct.getGameID() == null){
-										gameInfoStruct.setGameID(dataID, null);
-									}
-									if (gameInfoStruct.isDescriptionEmptyNull()){
-										gameInfoStruct.setDescription(overview, null);
-									}
-									if (gameInfoStruct.getFrontLink() == null || gameInfoStruct.getFrontLink().isEmpty()){
-										gameInfoStruct.setFrontLink(boxart, null);
-									}
-									if (childview != null) {
-										childview.findViewById(R.id.childview).setOnLongClickListener(
-											gameInfo.configureLongClick(title, overview, gameInfoStruct));
-										if (boxart != null) {
-											gameInfo.getImage(remoteID, childview, boxart);
-										}
-									}
-									break;
-								}
-							} while (c.moveToNext());
-						}
-					}
-					c.close();
-					if (dataID == null) {
-						GamesDbAPI gameDatabase = new GamesDbAPI(mContext, remoteID, serial, gameInfoStruct);
-						gameDatabase.setView(childview);
-						gameDatabase.execute(gameFile);
-					}
-				} else {
-					ContentValues values = new ContentValues();
-					values.put(Games.KEY_GAMEID, remoteID);
-					final String title = getValue(root, "GameTitle");
-					values.put(Games.KEY_TITLE, title);
-					final String overview = getValue(root, "Overview");
-					values.put(Games.KEY_OVERVIEW, overview);
-
-					Element images = (Element) root.getElementsByTagName("Images").item(0);
-					Element boxart = null;
-					if (images.getElementsByTagName("boxart").getLength() > 1) {
-						boxart = (Element) images.getElementsByTagName("boxart").item(1);
-					} else if (images.getElementsByTagName("boxart").getLength() == 1) {
-						boxart = (Element) images.getElementsByTagName("boxart").item(0);
-					}
-					String coverImage = null;
-					if (boxart != null) {
-						coverImage = getElementValue(boxart);
-						values.put(Games.KEY_BOXART, coverImage);
-					} else {
-						values.put(Games.KEY_BOXART, "404");
-					}
-
-					/*
-					TODO:Adding the serial to the database this way is not ideal, as a mismatch will persist
-					but as it stands that's the only way to get the pcitures and prevent them from being downloaded every run
-					 */
-					if (c != null && c.getCount() > 0) {
-						if (c.moveToFirst()) {
-							do {
-								String db_serial = c.getString(c.getColumnIndex(Games.KEY_SERIAL));
-								if (db_serial == null || db_serial == serial){
-									values.put(Games.KEY_SERIAL, serial);
-									mContext.getContentResolver().update(Games.GAMES_URI, values, selection, selectionArgs);
-									break;
-								} else {
-									values.remove(Games.KEY_SERIAL);
-									mContext.getContentResolver().update(Games.GAMES_URI, values, selection, selectionArgs);
-								}
-
-
-							} while (c.moveToNext());
-
-						}
-					} else {
-						values.put(Games.KEY_SERIAL, serial);
-						mContext.getContentResolver().insert(Games.GAMES_URI, values);
-					}
-					c.close();
-
-					String m_title = getValue(root, "GameTitle");
-
-					if (gameInfoStruct.getGameID() == null){
-						gameInfoStruct.setGameID(remoteID, null);
-					}
-					if (!gameInfoStruct.isTitleNameEmptyNull()){
-						m_title = gameInfoStruct.getTitleName();
-					} else {
-						gameInfoStruct.setTitleName(m_title, null);
-					}
-					if (gameInfoStruct.isDescriptionEmptyNull()){
-						gameInfoStruct.setDescription(overview, null);
-					}
-					if (gameInfoStruct.getFrontLink() == null || gameInfoStruct.getFrontLink().isEmpty()){
-						gameInfoStruct.setFrontLink(coverImage, null);
-					}
-
-					if (childview != null) {
-						childview.findViewById(R.id.childview).setOnLongClickListener(
-								gameInfo.configureLongClick(m_title, overview, gameInfoStruct));
-						if (coverImage != null) {
-							gameInfo.getImage(remoteID, childview, coverImage);
-						}
-					}
+	protected void onPostExecute(Boolean status) {
+		if (status)
+		{
+			if (viewHolder != null) {
+				viewHolder.childview.setOnLongClickListener(
+						gameInfo.configureLongClick(gameInfoStruct));
+				if (gameInfoStruct.getFrontLink() != null) {
+					gameInfo.setCoverImage(gameInfoStruct.getIndexID(), viewHolder, gameInfoStruct.getFrontLink(), pos);
 				}
-			} catch (Exception e) {
-				
+			}
+		}
+		else
+		{
+			if (gameInfoStruct.isTitleNameEmptyNull()){
+				gameInfoStruct.setTitleName(gameInfoStruct.getFile().getName(), mContext);
+			}
+			if (gameInfoStruct.isDescriptionEmptyNull()){
+				gameInfoStruct.setDescription("No Game Description Found", mContext);
+			}
+			if (gameInfoStruct.getFrontLink() == null || gameInfoStruct.getFrontLink().isEmpty()){
+					gameInfoStruct.setFrontLink("404", mContext);
 			}
 		}
 	}

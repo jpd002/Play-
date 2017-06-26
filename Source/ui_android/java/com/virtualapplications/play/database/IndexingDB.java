@@ -176,8 +176,9 @@ public class IndexingDB extends SQLiteOpenHelper {
                     String OverView = cursor.getString(cursor.getColumnIndex(KEY_OVERVIEW));
                     String Path = cursor.getString(cursor.getColumnIndex(KEY_PATH));
                     String DiskName = cursor.getString(cursor.getColumnIndex(KEY_DISKNAME));
+                    String Serial = cursor.getString(cursor.getColumnIndex(KEY_SERIAL));
                     long last_played = cursor.getLong(cursor.getColumnIndex(KEY_LAST_PLAYED));
-                    GameInfoStruct values = new GameInfoStruct(IndexID, GameID, GameTitle, OverView, FrontCoverLink, last_played, new File(Path, DiskName));
+                    GameInfoStruct values = new GameInfoStruct(IndexID, GameID, GameTitle, OverView, FrontCoverLink, last_played, new File(Path, DiskName), Serial);
                     IndexList.add(values);
                 } while (cursor.moveToNext());
             }
@@ -200,6 +201,18 @@ public class IndexingDB extends SQLiteOpenHelper {
         db.close();
     }
 
+
+    public void RemoveUnavailable()
+    {
+        List<GameInfoStruct> games = getIndexGISList(MainActivity.SORT_NONE);
+        for (GameInfoStruct game : games)
+        {
+            if (!game.getFile().exists())
+            {
+                deleteIndex(IndexingDB.KEY_ID + "=?", new String[]{game.getIndexID()});
+            }
+        }
+    }
 
     public int getIndexCount() {
         SQLiteDatabase db = this.getReadableDatabase();

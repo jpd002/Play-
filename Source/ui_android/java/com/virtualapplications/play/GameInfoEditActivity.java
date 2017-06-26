@@ -27,7 +27,7 @@ public class GameInfoEditActivity extends AppCompatActivity {
     private Bitmap selectedImage;
     private GameInfo gi;
     private boolean default_cover;
-
+    private GamesAdapter.CoverViewHolder viewHolder;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -39,9 +39,10 @@ public class GameInfoEditActivity extends AppCompatActivity {
         intent = getIntent();
         gi = new GameInfo(this);
 
+        viewHolder = new GamesAdapter.CoverViewHolder(findViewById(R.id.coverlayout));
         setupView();
 
-        View cover = findViewById(R.id.game_icon);
+        View cover = viewHolder.gameImageView;
         cover.setOnClickListener(new View.OnClickListener() {
 
             @Override
@@ -68,10 +69,9 @@ public class GameInfoEditActivity extends AppCompatActivity {
 
             @Override
             public void onClick(View view) {
-                gi.removeBitmapFromMemCache(intent.getStringExtra("gameid"));
-                gi.getImage(intent.getStringExtra("gameid"), findViewById(R.id.coverlayout), intent.getStringExtra("cover"), false);
+                gi.removeBitmapFromMemCache(intent.getStringExtra("indexid"));
+                gi.setCoverImage(intent.getStringExtra("indexid"), viewHolder, intent.getStringExtra("cover"), false, 0);
                 default_cover = true;
-
             }
         });
     }
@@ -79,7 +79,7 @@ public class GameInfoEditActivity extends AppCompatActivity {
     private void setupView() {
         ((TextView)findViewById(R.id.editText)).setText(intent.getStringExtra("title"));
         ((TextView)findViewById(R.id.editText2)).setText(intent.getStringExtra("overview"));
-        gi.getImage(intent.getStringExtra("gameid"), findViewById(R.id.coverlayout), intent.getStringExtra("cover"));
+        gi.setCoverImage(intent.getStringExtra("indexid"), viewHolder, intent.getStringExtra("cover"), 0);
         selectedImage = null;
         default_cover =  false;
     }
@@ -101,7 +101,7 @@ public class GameInfoEditActivity extends AppCompatActivity {
                         options.inJustDecodeBounds = false;
                         selectedImage = BitmapFactory.decodeStream(getContentResolver().openInputStream(imageUri), null, options);
                         default_cover = false;
-                        ((ImageView)findViewById(R.id.game_icon)).setImageBitmap(selectedImage);
+                        viewHolder.gameImageView.setImageBitmap(selectedImage);
                     } catch (FileNotFoundException e) {
                         e.printStackTrace();
                     }
@@ -115,8 +115,8 @@ public class GameInfoEditActivity extends AppCompatActivity {
         final int width = options.outWidth;
         View v = LayoutInflater.from(this).inflate(R.layout.game_list_item, null, false);
         v.measure(0, 0);
-        int reqWidth = v.findViewById(R.id.game_icon).getMeasuredWidth();
-        int reqHeight = v.findViewById(R.id.game_icon).getMeasuredHeight();
+        int reqWidth = viewHolder.gameImageView.getMeasuredWidth();
+        int reqHeight = viewHolder.gameImageView.getMeasuredHeight();
 
         // TODO: Find a calculated width and height without ImageView
         int inSampleSize = 1;
@@ -151,17 +151,17 @@ public class GameInfoEditActivity extends AppCompatActivity {
                 ContentValues values = new ContentValues();
                 values.put(IndexingDB.KEY_GAMETITLE, ((TextView) findViewById(R.id.editText)).getText().toString());
                 values.put(IndexingDB.KEY_OVERVIEW, ((TextView) findViewById(R.id.editText2)).getText().toString());
-                GI.updateIndex(values, IndexingDB.KEY_ID + "=?", new String[]{intent.getStringExtra("indexid")});
-                GI.close();
                 if (intent.getStringExtra("cover") == null || intent.getStringExtra("cover").equals("404")){
                     values.put(IndexingDB.KEY_IMAGE, "200");
                 }
-                gi.removeBitmapFromMemCache(intent.getStringExtra("gameid"));
+                GI.updateIndex(values, IndexingDB.KEY_ID + "=?", new String[]{intent.getStringExtra("indexid")});
+                GI.close();
+                gi.removeBitmapFromMemCache(intent.getStringExtra("indexid"));
                 if (!default_cover && selectedImage != null){
-                    gi.removeBitmapFromMemCache(intent.getStringExtra("gameid"));
-                    gi.saveImage(intent.getStringExtra("gameid") , "-custom", selectedImage);
+                    gi.removeBitmapFromMemCache(intent.getStringExtra("indexid"));
+                    gi.saveImage(intent.getStringExtra("indexid") , "-custom", selectedImage);
                 } else if (default_cover) {
-                    gi.deleteImage(intent.getStringExtra("gameid") , "-custom");
+                    gi.deleteImage(intent.getStringExtra("indexid") , "-custom");
                 }
                 setResult(RESULT_OK, intent);
                 finish();

@@ -114,6 +114,12 @@
                     android:text=""
                     android:id="@+id/game_text" />
 
+                <TextView
+                    android:id="@+id/currentPosition"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="0"
+                    android:visibility="gone" />
             </LinearLayout>
 
         </LinearLayout>
