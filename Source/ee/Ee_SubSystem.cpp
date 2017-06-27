@@ -227,7 +227,7 @@ int CSubSystem::ExecuteCpu(int quota)
 	}
 	else if(!m_EE.m_State.nHasException)
 	{
-		executed = (quota - m_executor.Execute(quota));
+		executed = (quota - m_executor.Execute<CPS2OS::TranslateAddress>(quota));
 	}
 	if(m_EE.m_State.nHasException)
 	{

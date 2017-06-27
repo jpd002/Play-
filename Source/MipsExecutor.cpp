@@ -93,34 +93,6 @@ void CMipsExecutor::ClearActiveBlocksInRangeInternal(uint32 start, uint32 end, C
 	}
 }
 
-int CMipsExecutor::Execute(int cycles)
-{
-	CBasicBlock* block(nullptr);
-	while(cycles > 0)
-	{
-		uint32 address = m_context.m_pAddrTranslator(&m_context, m_context.m_State.nPC);
-		if(!block || address != block->GetBeginAddress())
-		{
-			block = FindBlockStartingAt(address);
-			if(!block)
-			{
-				//We need to partition the space and compile the blocks
-				PartitionFunction(address);
-				block = FindBlockStartingAt(address);
-				assert(block);
-			}
-		}
-
-#ifdef DEBUGGER_INCLUDED
-		if(!m_breakpointsDisabledOnce && MustBreak()) break;
-		m_breakpointsDisabledOnce = false;
-#endif
-		cycles -= block->Execute();
-		if(m_context.m_State.nHasException) break;
-	}
-	return cycles;
-}
-
 #ifdef DEBUGGER_INCLUDED
 
 bool CMipsExecutor::MustBreak() const
