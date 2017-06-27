@@ -1,6 +1,5 @@
 package com.virtualapplications.play.database;
 
-import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -25,10 +24,9 @@ import android.view.View.OnLongClickListener;
 import com.virtualapplications.play.GameInfoEditActivity;
 import com.virtualapplications.play.GameInfoStruct;
 import com.virtualapplications.play.GamesAdapter;
+import com.virtualapplications.play.ImageUtils;
 import com.virtualapplications.play.MainActivity;
 import com.virtualapplications.play.R;
-
-import org.apache.commons.io.IOUtils;
 
 public class GameInfo {
 	
@@ -166,30 +164,6 @@ public class GameInfo {
 			this.boxart = boxart;
             this.pos = pos;
 		}
-
-		
-		private int calculateInSampleSize(BitmapFactory.Options options) {
-			final int height = options.outHeight;
-			final int width = options.outWidth;
-
-			int reqHeight = (int) mContext.getResources().getDimension(R.dimen.cover_height);
-			int reqWidth = (int) mContext.getResources().getDimension(R.dimen.cover_width);
-
-			int inSampleSize = 1;
-			
-			if (height > reqHeight || width > reqWidth) {
-				
-				final int halfHeight = height / 2;
-				final int halfWidth = width / 2;
-				
-				while ((halfHeight / inSampleSize) > reqHeight
-					   && (halfWidth / inSampleSize) > reqWidth) {
-					inSampleSize *= 2;
-				}
-			}
-			
-			return inSampleSize;
-		}
 		
 		@Override
 		protected Bitmap doInBackground(String... params) {
@@ -208,25 +182,12 @@ public class GameInfo {
 						api = "http://thegamesdb.net/banners/" + boxart;
 					}
 					InputStream im = null;
-					ByteArrayInputStream byteArrayInputStream = null;
 					try {
 						URL imageURL = new URL(api);
 						URLConnection conn1 = imageURL.openConnection();
 
 						im = conn1.getInputStream();
-						byte[] imageArray = IOUtils.toByteArray(im);
-
-						byteArrayInputStream = new ByteArrayInputStream(imageArray);
-						byteArrayInputStream.mark(byteArrayInputStream.available());
-
-						BitmapFactory.Options options = new BitmapFactory.Options();
-						options.inJustDecodeBounds = true;
-						BitmapFactory.decodeStream(byteArrayInputStream, null, options);
-						byteArrayInputStream.reset();
-
-						options.inSampleSize = calculateInSampleSize(options);
-						options.inJustDecodeBounds = false;
-						Bitmap bitmap = BitmapFactory.decodeStream(byteArrayInputStream, null, options);
+						Bitmap bitmap = ImageUtils.getSampledImage(mContext, im);
 
 						saveImage(key, bitmap);
 						return bitmap;
@@ -237,10 +198,6 @@ public class GameInfo {
 							if (im != null) {
 								im.close();
 							}
-							if (byteArrayInputStream != null) {
-								byteArrayInputStream.close();
-							}
-							byteArrayInputStream = null;
 							im = null;
 						} catch (IOException ex) {}
 					}
