@@ -78,6 +78,7 @@ public:
 		D_SQWC		= 0x1000E030,
 		D_RBSR		= 0x1000E040,
 		D_RBOR		= 0x1000E050,
+		D_STADR		= 0x1000E060,
 
 		D_ENABLER	= 0x1000F520,
 		D_ENABLEW	= 0x1000F590,
@@ -155,6 +156,7 @@ private:
 	D_SQWC_REG			m_D_SQWC;
 	uint32				m_D_RBSR;
 	uint32				m_D_RBOR;
+	uint32				m_D_STADR;
 
 	Dmac::CChannel		m_D0;
 	Dmac::CChannel		m_D1;

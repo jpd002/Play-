@@ -16,6 +16,7 @@
 #define STATE_REGS_SQWC     ("D_SQWC")
 #define STATE_REGS_RBSR     ("D_RBSR")
 #define STATE_REGS_RBOR     ("D_RBOR")
+#define STATE_REGS_STADR    ("D_STADR")
 #define STATE_REGS_D8_SADR  ("D8_SADR")
 #define STATE_REGS_D9_SADR  ("D9_SADR")
 
@@ -79,6 +80,7 @@ void CDMAC::Reset()
 	m_D_SQWC	<<= 0;
 	m_D_RBSR	= 0;
 	m_D_RBOR	= 0;
+	m_D_STADR	= 0;
 
 	//Reset Channel 0
 	m_D0.Reset();
@@ -853,6 +855,14 @@ void CDMAC::SetRegister(uint32 nAddress, uint32 nData)
 	case D_RBOR + 0xC:
 		break;
 
+	case D_STADR + 0x0:
+		m_D_STADR = nData;
+		break;
+	case D_STADR + 0x4:
+	case D_STADR + 0x8:
+	case D_STADR + 0xC:
+		break;
+
 	case D_ENABLEW + 0x0:
 		m_D_ENABLE = nData;
 		break;
@@ -882,6 +892,7 @@ void CDMAC::LoadState(Framework::CZipArchiveReader& archive)
 	m_D_SQWC	<<= registerFile.GetRegister32(STATE_REGS_SQWC);
 	m_D_RBSR	= registerFile.GetRegister32(STATE_REGS_RBSR);
 	m_D_RBOR	= registerFile.GetRegister32(STATE_REGS_RBOR);
+	m_D_STADR	= registerFile.GetRegister32(STATE_REGS_STADR);
 	m_D8_SADR	= registerFile.GetRegister32(STATE_REGS_D8_SADR);
 	m_D9_SADR	= registerFile.GetRegister32(STATE_REGS_D9_SADR);
 
@@ -903,6 +914,7 @@ void CDMAC::SaveState(Framework::CZipArchiveWriter& archive)
 	registerFile->SetRegister32(STATE_REGS_SQWC,	m_D_SQWC);
 	registerFile->SetRegister32(STATE_REGS_RBSR,	m_D_RBSR);
 	registerFile->SetRegister32(STATE_REGS_RBOR,	m_D_RBOR);
+	registerFile->SetRegister32(STATE_REGS_STADR,	m_D_STADR);
 	registerFile->SetRegister32(STATE_REGS_D8_SADR, m_D8_SADR);
 	registerFile->SetRegister32(STATE_REGS_D9_SADR, m_D9_SADR);
 	archive.InsertFile(registerFile);
@@ -1055,6 +1067,7 @@ void CDMAC::DisassembleSet(uint32 nAddress, uint32 nData)
 		LOG_SET(D_SQWC)
 		LOG_SET(D_RBSR)
 		LOG_SET(D_RBOR)
+		LOG_SET(D_STADR)
 		LOG_SET(D_ENABLEW)
 
 	default:
