@@ -257,6 +257,7 @@ private:
 		static void							ReflOpAffWrPRdFs(VUShared::VUINSTRUCTION*, CMIPS*, uint32, uint32, VUShared::OPERANDSET&);
 		static void							ReflOpAffWrVi1Bv(VUShared::VUINSTRUCTION*, CMIPS*, uint32, uint32, VUShared::OPERANDSET&);
 
+		void								ApplySumSeries(size_t, const uint32*, const unsigned int*, unsigned int);
 		void								GenerateEATAN();
 
 		//General

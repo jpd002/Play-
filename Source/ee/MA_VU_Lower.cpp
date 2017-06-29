@@ -73,6 +73,30 @@ bool CMA_VU::CLower::IsLOI(CMIPS* ctx, uint32 address)
 	return (upperInstruction & 0x80000000) != 0;
 }
 
+void CMA_VU::CLower::ApplySumSeries(size_t target, const uint32* seriesConstants, const unsigned int* seriesExponents, unsigned int seriesLength)
+{
+	for(unsigned int i = 0; i < seriesLength; i++)
+	{
+		unsigned int exponent = seriesExponents[i];
+		float constant = *reinterpret_cast<const float*>(&seriesConstants[i]);
+
+		m_codeGen->FP_PushSingle(target);
+		for(unsigned int j = 0; j < exponent - 1; j++)
+		{
+			m_codeGen->FP_PushSingle(target);
+			m_codeGen->FP_Mul();
+		}
+
+		m_codeGen->FP_PushCst(constant);
+		m_codeGen->FP_Mul();
+
+		if(i != 0)
+		{
+			m_codeGen->FP_Add();
+		}
+	}
+}
+
 void CMA_VU::CLower::GenerateEATAN()
 {
 	static const uint32 pi4 = 0x3F490FDB;
@@ -100,26 +124,8 @@ void CMA_VU::CLower::GenerateEATAN()
 		15
 	};
 
-	for(unsigned int i = 0; i < seriesLength; i++)
-	{
-		unsigned int exponent = seriesExponents[i];
-		float constant = *reinterpret_cast<const float*>(&seriesConstants[i]);
-
-		m_codeGen->FP_PushSingle(offsetof(CMIPS, m_State.nCOP2T));
-		for(unsigned int j = 0; j < exponent - 1; j++)
-		{
-			m_codeGen->FP_PushSingle(offsetof(CMIPS, m_State.nCOP2T));
-			m_codeGen->FP_Mul();
-		}
-
-		m_codeGen->FP_PushCst(constant);
-		m_codeGen->FP_Mul();
-
-		if(i != 0)
-		{
-			m_codeGen->FP_Add();
-		}
-	}
+	ApplySumSeries(offsetof(CMIPS, m_State.nCOP2T),
+		seriesConstants, seriesExponents, seriesLength);
 
 	{
 		float constant = *reinterpret_cast<const float*>(&pi4);
@@ -730,26 +736,8 @@ void CMA_VU::CLower::ESIN()
 		9
 	};
 
-	for(unsigned int i = 0; i < seriesLength; i++)
-	{
-		unsigned int exponent = seriesExponents[i];
-		float constant = *reinterpret_cast<const float*>(&seriesConstants[i]);
-
-		m_codeGen->FP_PushSingle(offsetof(CMIPS, m_State.nCOP2[m_nIS].nV[m_nFSF]));
-		for(unsigned int j = 0; j < exponent - 1; j++)
-		{
-			m_codeGen->FP_PushSingle(offsetof(CMIPS, m_State.nCOP2[m_nIS].nV[m_nFSF]));
-			m_codeGen->FP_Mul();
-		}
-
-		m_codeGen->FP_PushCst(constant);
-		m_codeGen->FP_Mul();
-
-		if(i != 0)
-		{
-			m_codeGen->FP_Add();
-		}
-	}
+	ApplySumSeries(offsetof(CMIPS, m_State.nCOP2[m_nIS].nV[m_nFSF]),
+		seriesConstants, seriesExponents, seriesLength);
 
 	m_codeGen->FP_PullSingle(offsetof(CMIPS, m_State.nCOP2P));
 }
