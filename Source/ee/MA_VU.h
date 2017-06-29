@@ -333,6 +333,7 @@ private:
 		void								ELENG();
 		void								ESUM();
 		void								ERCPR();
+		void								EEXP();
 
 		//Vector3
 		void								SQD();

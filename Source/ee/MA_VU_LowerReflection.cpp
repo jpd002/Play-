@@ -676,7 +676,7 @@ INSTRUCTION CMA_VU::CLower::m_cReflVX2[32] =
 	{	"ELENG",	NULL,			CopyMnemonic,		ReflOpPFs,			NULL,				NULL			},
 	{	"ESUM",		NULL,			CopyMnemonic,		ReflOpPFs,			NULL,				NULL			},
 	{	"ERCPR",	NULL,			CopyMnemonic,		ReflOpPFsf,			NULL,				NULL			},
-	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
+	{	"EEXP",		NULL,			CopyMnemonic,		ReflOpPFsf,			NULL,				NULL			},
 };
 
 INSTRUCTION CMA_VU::CLower::m_cReflVX3[32] =
@@ -1060,7 +1060,7 @@ VUINSTRUCTION CMA_VU::CLower::m_cVuReflVX2[32] =
 	{	"ELENG",	NULL,			ReflOpAffWrPRdFs	},
 	{	"ESUM",		NULL,			NULL				},
 	{	"ERCPR",	NULL,			ReflOpAffWrPRdFs	},
-	{	NULL,		NULL,			NULL				},
+	{	"EEXP",		NULL,			ReflOpAffWrPRdFs	},
 };
 
 VUINSTRUCTION CMA_VU::CLower::m_cVuReflVX3[32] =

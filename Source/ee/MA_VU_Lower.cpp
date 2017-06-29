@@ -898,6 +898,48 @@ void CMA_VU::CLower::ERCPR()
 	m_codeGen->FP_PullSingle(offsetof(CMIPS, m_State.nCOP2P));
 }
 
+//1F
+void CMA_VU::CLower::EEXP()
+{
+	const unsigned int seriesLength = 6;
+	static const uint32 seriesConstants[seriesLength] =
+	{
+		0x3E7FFFA8,
+		0x3D0007F4,
+		0x3B29D3FF,
+		0x3933E553,
+		0x36B63510,
+		0x353961AC
+	};
+	static const unsigned int seriesExponents[seriesLength] =
+	{
+		1,
+		2,
+		3,
+		4,
+		5,
+		6
+	};
+
+	ApplySumSeries(offsetof(CMIPS, m_State.nCOP2[m_nIS].nV[m_nFSF]),
+		seriesConstants, seriesExponents, seriesLength);
+
+	m_codeGen->FP_PushCst(1.0f);
+	m_codeGen->FP_Add();
+
+	//Up to the fourth power
+	m_codeGen->PushTop();
+	m_codeGen->PushTop();
+	m_codeGen->PushTop();
+	m_codeGen->FP_Mul();
+	m_codeGen->FP_Mul();
+	m_codeGen->FP_Mul();
+
+	m_codeGen->FP_Rcpl();
+
+	m_codeGen->FP_PullSingle(offsetof(CMIPS, m_State.nCOP2P));
+}
+
 //////////////////////////////////////////////////
 //Vector3 Instructions
 //////////////////////////////////////////////////
@@ -1051,7 +1093,7 @@ CMA_VU::CLower::InstructionFuncConstant CMA_VU::CLower::m_pOpVector2[0x20] =
 	//0x10
 	&CMA_VU::CLower::RINIT,			&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,
 	//0x18
-	&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::ELENG,			&CMA_VU::CLower::ESUM,			&CMA_VU::CLower::ERCPR,			&CMA_VU::CLower::Illegal,
+	&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::ELENG,			&CMA_VU::CLower::ESUM,			&CMA_VU::CLower::ERCPR,			&CMA_VU::CLower::EEXP,
 };
 
 CMA_VU::CLower::InstructionFuncConstant CMA_VU::CLower::m_pOpVector3[0x20] =
