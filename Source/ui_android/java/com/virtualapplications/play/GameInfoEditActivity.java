@@ -3,22 +3,20 @@ package com.virtualapplications.play;
 import android.content.ContentValues;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.virtualapplications.play.database.GameInfo;
 import com.virtualapplications.play.database.IndexingDB;
 
-import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
 
 public class GameInfoEditActivity extends AppCompatActivity {
 
@@ -93,46 +91,22 @@ public class GameInfoEditActivity extends AppCompatActivity {
                 if(resultCode == RESULT_OK){
                     try {
                         final Uri imageUri = imageReturnedIntent.getData();
-                        BitmapFactory.Options options = new BitmapFactory.Options();
-                        options.inJustDecodeBounds = true;
-                        BitmapFactory.decodeStream(getContentResolver().openInputStream(imageUri), null, options);
-
-                        options.inSampleSize = calculateInSampleSize(options);
-                        options.inJustDecodeBounds = false;
-                        selectedImage = BitmapFactory.decodeStream(getContentResolver().openInputStream(imageUri), null, options);
+                        InputStream inputStream = getContentResolver().openInputStream(imageUri);
+                        selectedImage = ImageUtils.getSampledImage(this, inputStream);
                         default_cover = false;
                         viewHolder.gameImageView.setImageBitmap(selectedImage);
-                    } catch (FileNotFoundException e) {
+                        if(inputStream != null)
+                        {
+                            inputStream.close();
+                        }
+                    }
+                    catch(IOException e)
+                    {
                         e.printStackTrace();
                     }
 
                 }
         }
-    }
-
-    private int calculateInSampleSize(BitmapFactory.Options options) {
-        final int height = options.outHeight;
-        final int width = options.outWidth;
-        View v = LayoutInflater.from(this).inflate(R.layout.game_list_item, null, false);
-        v.measure(0, 0);
-        int reqWidth = viewHolder.gameImageView.getMeasuredWidth();
-        int reqHeight = viewHolder.gameImageView.getMeasuredHeight();
-
-        // TODO: Find a calculated width and height without ImageView
-        int inSampleSize = 1;
-
-        if (height > reqHeight || width > reqWidth) {
-
-            final int halfHeight = height / 2;
-            final int halfWidth = width / 2;
-
-            while ((halfHeight / inSampleSize) > reqHeight
-                    && (halfWidth / inSampleSize) > reqWidth) {
-                inSampleSize *= 2;
-            }
-        }
-
-        return inSampleSize;
     }
 
     @Override
