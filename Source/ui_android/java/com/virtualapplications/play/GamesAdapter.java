@@ -77,6 +77,12 @@ public class GamesAdapter extends ArrayAdapter<GameInfoStruct> {
         if (game != null) {
             createListItem(game, viewHolder, position);
         }
+
+        v.setAlpha(0);
+        v.setScaleX(0.5f);
+        v.setScaleY(0.5f);
+        v.animate().alpha(1).scaleX(1).scaleY(1).setDuration(250).start();
+
         return v;
     }
 
