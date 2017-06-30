@@ -321,34 +321,11 @@ uint32 CDMAC::GetRegister(uint32 nAddress)
 		return m_D1.ReadCHCR() >> 16;
 		break;
 
-	case D2_CHCR + 0x0:
-		return m_D2.ReadCHCR();
-		break;
-
-	case D2_CHCR + 0x4:
-	case D2_CHCR + 0x8:
-	case D2_CHCR + 0xC:
-		return 0;
-		break;
-
-	case D2_MADR + 0x0:
-		return m_D2.m_nMADR;
-		break;
-	case D2_MADR + 0x4:
-	case D2_MADR + 0x8:
-	case D2_MADR + 0xC:
-		return 0;
-		break;
-
-	case D2_TADR + 0x0:
-		return m_D2.m_nTADR;
-		break;
-
-	case D2_TADR + 0x4:
-	case D2_TADR + 0x8:
-	case D2_TADR + 0xC:
-		return 0;
-		break;
+	//Channel 2
+	REGISTER_READ(D2_CHCR, m_D2.ReadCHCR())
+	REGISTER_READ(D2_MADR, m_D2.m_nMADR)
+	REGISTER_READ(D2_QWC,  m_D2.m_nQWC)
+	REGISTER_READ(D2_TADR, m_D2.m_nTADR)
 
 	case D3_CHCR + 0x0:
 		return m_D3_CHCR;
