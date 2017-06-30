@@ -24,6 +24,7 @@
 #define FUNCTION_CDSTINIT			"CdStInit"
 #define FUNCTION_CDSTREAD			"CdStRead"
 #define FUNCTION_CDSTSTART			"CdStStart"
+#define FUNCTION_CDSTSTAT			"CdStStat"
 #define FUNCTION_CDSTSTOP			"CdStStop"
 #define FUNCTION_CDSETMMODE			"CdSetMmode"
 #define FUNCTION_CDSTSEEKF			"CdStSeekF"
@@ -148,6 +149,9 @@ std::string CCdvdman::GetFunctionName(unsigned int functionId) const
 	case 59:
 		return FUNCTION_CDSTSTART;
 		break;
+	case 60:
+		return FUNCTION_CDSTSTAT;
+		break;
 	case 61:
 		return FUNCTION_CDSTSTOP;
 		break;
@@ -236,6 +240,9 @@ void CCdvdman::Invoke(CMIPS& ctx, unsigned int functionId)
 		ctx.m_State.nGPR[CMIPS::V0].nV0 = CdStStart(
 			ctx.m_State.nGPR[CMIPS::A0].nV0,
 			ctx.m_State.nGPR[CMIPS::A1].nV0);
+		break;
+	case 60:
+		ctx.m_State.nGPR[CMIPS::V0].nV0 = CdStStat();
 		break;
 	case 61:
 		ctx.m_State.nGPR[CMIPS::V0].nV0 = CdStStop();
@@ -450,6 +457,7 @@ uint32 CCdvdman::CdStInit(uint32 bufMax, uint32 bankMax, uint32 bufPtr)
 	CLog::GetInstance().Print(LOG_NAME, FUNCTION_CDSTINIT "(bufMax = %d, bankMax = %d, bufPtr = 0x%08X);\r\n",
 		bufMax, bankMax, bufPtr);
 	m_streamPos = 0;
+	m_streamBufferSize = bufMax;
 	return 1;
 }
 
@@ -477,6 +485,12 @@ uint32 CCdvdman::CdStStart(uint32 sector, uint32 modePtr)
 		sector, modePtr);
 	m_streamPos = sector;
 	return 1;
+}
+
+uint32 CCdvdman::CdStStat()
+{
+	CLog::GetInstance().Print(LOG_NAME, FUNCTION_CDSTSTAT "();\r\n");
+	return m_streamBufferSize;
 }
 
 uint32 CCdvdman::CdStStop()
