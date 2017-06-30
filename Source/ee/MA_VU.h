@@ -339,6 +339,7 @@ private:
 		void								SQD();
 		void								WAITQ();
 		void								ISWR();
+		void								RXOR();
 		void								ERLENG();
 		void								WAITP();
 

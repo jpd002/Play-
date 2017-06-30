@@ -700,7 +700,7 @@ INSTRUCTION CMA_VU::CLower::m_cReflVX3[32] =
 	{	"WAITQ",	NULL,			CopyMnemonic,		NULL,				NULL,				NULL			},
 	{	"ISWR",		NULL,			CopyMnemonic,		ReflOpItIsDst,		NULL,				NULL			},
 	//0x10
-	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
+	{	"RXOR",		NULL,			CopyMnemonic,		ReflOpRFsf,			NULL,				NULL			},
 	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
 	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
 	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
@@ -1084,7 +1084,7 @@ VUINSTRUCTION CMA_VU::CLower::m_cVuReflVX3[32] =
 	{	"WAITQ",	NULL,			ReflOpAffQ			},
 	{	"ISWR",		NULL,			ReflOpAffRdItIs		},
 	//0x10
-	{	NULL,		NULL,			NULL				},
+	{	"RXOR",		NULL,			ReflOpAffRFsf		},
 	{	NULL,		NULL,			NULL				},
 	{	NULL,		NULL,			NULL				},
 	{	NULL,		NULL,			NULL				},
