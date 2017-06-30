@@ -327,6 +327,11 @@ uint32 CDMAC::GetRegister(uint32 nAddress)
 	REGISTER_READ(D2_QWC,  m_D2.m_nQWC)
 	REGISTER_READ(D2_TADR, m_D2.m_nTADR)
 
+	case D2_CHCR + 0x1:
+		//This is done by Parappa The Rapper 2
+		return m_D2.ReadCHCR() >> 8;
+		break;
+
 	case D3_CHCR + 0x0:
 		return m_D3_CHCR;
 		break;
