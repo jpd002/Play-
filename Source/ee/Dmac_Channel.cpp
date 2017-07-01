@@ -17,6 +17,7 @@
 #define STATE_REGS_ASR1			("ASR1")
 
 #define DMATAG_IRQ 0x8000
+#define DMATAG_ID  0x7000
 
 using namespace Dmac;
 
@@ -236,6 +237,26 @@ void CChannel::ExecuteSourceChain()
 		break;
 	}
 
+	bool isStallDrainChannel = false;
+	switch(m_dmac.m_D_CTRL.std)
+	{
+	case 0:
+		isStallDrainChannel = false;
+		break;
+	case 1:
+		isStallDrainChannel = (m_number == CDMAC::CHANNEL_ID_VIF1);
+		break;
+	default:
+		assert(false);
+		break;
+	}
+
+	//Pause transfer if channel is stalled
+	if(isStallDrainChannel && ((m_CHCR.nTAG & DMATAG_ID) == (DMATAG_REFS << 12)) && (m_nMADR >= m_dmac.m_D_STADR))
+	{
+		return;
+	}
+
 	//Execute current
 	if(m_nQWC != 0)
 	{
@@ -399,6 +420,12 @@ void CChannel::ExecuteSourceChain()
 			m_nQWC = 0;
 			assert(0);
 			break;
+		}
+
+		//Pause transfer if channel is stalled
+		if(isStallDrainChannel && (nID == DMATAG_REFS) && (m_nMADR >= m_dmac.m_D_STADR))
+		{
+			continue;
 		}
 
 		uint32 qwc = m_nQWC;
