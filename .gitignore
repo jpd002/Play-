@@ -5,6 +5,7 @@ build_android/keystore.properties
 build_android/local.properties
 build_android/proguard-project.txt
 build_android/.*
+!build_android/.idea/codeStyleSettings.xml
 build_android/*.apk
 build_android/Play.iml
 build_android/projectFilesBackup/
