@@ -10,8 +10,8 @@ import android.view.WindowManager;
 public class ThemeManager
 {
 	public static String THEME_SELECTION = "ui.theme_selection";
-	
-	public static void applyTheme(Activity activity) 
+
+	public static void applyTheme(Activity activity)
 	{
 		String positionString = PreferenceManager.getDefaultSharedPreferences(activity).getString(THEME_SELECTION, "1");
 		int position = Integer.valueOf(positionString);

@@ -8,9 +8,8 @@ class VirtualPadButton extends VirtualPadItem
 	private int _value;
 	private Bitmap _bitmap;
 	private String _caption;
-
 	private boolean _pressed = false;
-	
+
 	public VirtualPadButton(RectF bounds, int value, Bitmap bitmap, String caption)
 	{
 		super(bounds);
@@ -18,7 +17,7 @@ class VirtualPadButton extends VirtualPadItem
 		_bitmap = bitmap;
 		_caption = caption;
 	}
-	
+
 	@Override
 	public void onPointerDown(float x, float y)
 	{
@@ -26,7 +25,7 @@ class VirtualPadButton extends VirtualPadItem
 		InputManager.setButtonState(_value, true);
 		super.onPointerDown(x, y);
 	}
-	
+
 	@Override
 	public void onPointerUp()
 	{
@@ -34,7 +33,7 @@ class VirtualPadButton extends VirtualPadItem
 		InputManager.setButtonState(_value, false);
 		super.onPointerUp();
 	}
-	
+
 	@Override
 	public void draw(Canvas canvas)
 	{

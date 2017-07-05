@@ -11,37 +11,35 @@ import android.util.*;
 import android.view.*;
 import android.widget.*;
 import android.widget.Toast;
+
 import java.util.*;
 
 public class EmulatorActivity extends Activity
 {
 	private static final String PREFERENCE_UI_SHOWFPS = "ui.showfps";
 	private static final String PREFERENCE_UI_SHOWVIRTUALPAD = "ui.showvirtualpad";
-	
 	private SurfaceView _renderView;
-
 	private Timer _statsTimer = new Timer();
 	private Handler _statsTimerHandler;
 	private TextView _fpsTextView;
 	private TextView _profileTextView;
 	private boolean _surfaceCreated = false;
 	private boolean _activityRunning = false;
-
 	private DrawerLayout _drawerLayout;
 	protected EmulatorDrawerFragment _drawerFragment;
-	
+
 	public static void RegisterPreferences()
 	{
 		SettingsManager.registerPreferenceBoolean(PREFERENCE_UI_SHOWFPS, false);
 		SettingsManager.registerPreferenceBoolean(PREFERENCE_UI_SHOWVIRTUALPAD, true);
 	}
-	
-	@Override 
-	protected void onCreate(Bundle savedInstanceState) 
+
+	@Override
+	protected void onCreate(Bundle savedInstanceState)
 	{
 		super.onCreate(savedInstanceState);
 		//Log.w(Constants.TAG, "EmulatorActivity - onCreate");
-		
+
 		ThemeManager.applyTheme(this);
 		setContentView(R.layout.emulator);
 
@@ -52,89 +50,89 @@ public class EmulatorActivity extends Activity
 				View.SYSTEM_UI_FLAG_HIDE_NAVIGATION |
 				View.SYSTEM_UI_FLAG_FULLSCREEN |
 				View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
-	
+
 		_drawerFragment = (EmulatorDrawerFragment)getFragmentManager().findFragmentById(R.id.emulator_drawer);
 		_drawerFragment.setEventListener(
-			new EmulatorDrawerFragment.EventListener()
-			{
-				@Override
-				public void onExitSelected()
+				new EmulatorDrawerFragment.EventListener()
 				{
-					finish();
-				}
-				
-				@Override
-				public void onSaveStateSelected()
-				{
-					int messageStringId = R.string.emulator_save_state_ok;
-					try
+					@Override
+					public void onExitSelected()
 					{
-						NativeInterop.saveState(0);
+						finish();
 					}
-					catch(Exception e)
-					{
-						messageStringId = R.string.emulator_save_state_fail;
-					}
-					Toast toast = Toast.makeText(
-						getApplicationContext(), getString(messageStringId), Toast.LENGTH_SHORT
-					);
-					toast.show();
-					_drawerFragment.closeDrawer();
-				}
 
-				@Override
-				public void onLoadStateSelected()
-				{
-					int messageStringId = R.string.emulator_load_state_ok;
-					try
+					@Override
+					public void onSaveStateSelected()
 					{
-						NativeInterop.loadState(0);
+						int messageStringId = R.string.emulator_save_state_ok;
+						try
+						{
+							NativeInterop.saveState(0);
+						}
+						catch(Exception e)
+						{
+							messageStringId = R.string.emulator_save_state_fail;
+						}
+						Toast toast = Toast.makeText(
+								getApplicationContext(), getString(messageStringId), Toast.LENGTH_SHORT
+						);
+						toast.show();
+						_drawerFragment.closeDrawer();
 					}
-					catch(Exception e)
+
+					@Override
+					public void onLoadStateSelected()
 					{
-						messageStringId = R.string.emulator_load_state_fail;
+						int messageStringId = R.string.emulator_load_state_ok;
+						try
+						{
+							NativeInterop.loadState(0);
+						}
+						catch(Exception e)
+						{
+							messageStringId = R.string.emulator_load_state_fail;
+						}
+						Toast toast = Toast.makeText(
+								getApplicationContext(), getString(messageStringId), Toast.LENGTH_SHORT
+						);
+						toast.show();
+						_drawerFragment.closeDrawer();
 					}
-					Toast toast = Toast.makeText(
-						getApplicationContext(), getString(messageStringId), Toast.LENGTH_SHORT
-					);
-					toast.show();
-					_drawerFragment.closeDrawer();
 				}
-			}
 		);
-		
+
 		View fragmentView = findViewById(R.id.emulator_drawer);
 		_drawerLayout = (DrawerLayout)findViewById(R.id.emulator_drawer_layout);
 		_drawerFragment.setUp(fragmentView, _drawerLayout);
 	}
 
-	@Override 
-	protected void onPostCreate(Bundle savedInstanceState) 
+	@Override
+	protected void onPostCreate(Bundle savedInstanceState)
 	{
 		super.onPostCreate(savedInstanceState);
-		
+
 		_renderView = (SurfaceView)findViewById(R.id.emulator_view);
 		SurfaceHolder holder = _renderView.getHolder();
 		holder.addCallback(new SurfaceCallback());
-		
+
 		_fpsTextView = (TextView)findViewById(R.id.emulator_fps);
 		_profileTextView = (TextView)findViewById(R.id.emulator_profile);
-		
+
 		if(!SettingsManager.getPreferenceBoolean(PREFERENCE_UI_SHOWVIRTUALPAD))
 		{
 			View virtualPadView = (View)findViewById(R.id.emulator_virtualpad);
 			virtualPadView.setVisibility(View.GONE);
 		}
-		
+
 		if(
-			SettingsManager.getPreferenceBoolean(PREFERENCE_UI_SHOWFPS) ||
-			StatsManager.isProfiling()
-			)
+				SettingsManager.getPreferenceBoolean(PREFERENCE_UI_SHOWFPS) ||
+						StatsManager.isProfiling()
+				)
 		{
 			setupStatsTimer();
 		}
 	}
-	
+
 	@Override
 	public void onPause()
 	{
@@ -142,7 +140,7 @@ public class EmulatorActivity extends Activity
 		_activityRunning = false;
 		updateVirtualMachineState();
 	}
-	
+
 	@Override
 	public void onResume()
 	{
@@ -150,18 +148,18 @@ public class EmulatorActivity extends Activity
 		_activityRunning = true;
 		updateVirtualMachineState();
 	}
-	
+
 	@Override
 	public void onDestroy()
 	{
 		_statsTimer.cancel();
 		super.onDestroy();
 	}
-	
+
 	@Override
 	public boolean dispatchKeyEvent(KeyEvent event)
 	{
-		if(_drawerFragment.isDrawerOpened()) 
+		if(_drawerFragment.isDrawerOpened())
 		{
 			return super.dispatchKeyEvent(event);
 		}
@@ -218,7 +216,7 @@ public class EmulatorActivity extends Activity
 		//Log.w(Constants.TAG, String.format("Key event %d, device id %d.", event.getKeyCode(), event.getDeviceId()));
 		return super.dispatchKeyEvent(event);
 	}
-	
+
 	@Override
 	public boolean dispatchGenericMotionEvent(MotionEvent event)
 	{
@@ -250,41 +248,41 @@ public class EmulatorActivity extends Activity
 			_drawerFragment.openDrawer();
 		}
 	}
-	
+
 	private void setupStatsTimer()
 	{
-		_statsTimerHandler = 
-			new Handler()
-			{
-				@Override
-				public void handleMessage(Message message)
+		_statsTimerHandler =
+				new Handler()
 				{
-					int frames = StatsManager.getFrames();
-					int drawCalls = StatsManager.getDrawCalls();
-					int dcpf = (frames != 0) ? (drawCalls / frames) : 0;
-					_fpsTextView.setText(String.format("%d f/s, %d dc/f", frames, dcpf));
-					if(StatsManager.isProfiling())
+					@Override
+					public void handleMessage(Message message)
 					{
-						String profilingInfo = StatsManager.getProfilingInfo();
-						_profileTextView.setText(profilingInfo);
+						int frames = StatsManager.getFrames();
+						int drawCalls = StatsManager.getDrawCalls();
+						int dcpf = (frames != 0) ? (drawCalls / frames) : 0;
+						_fpsTextView.setText(String.format("%d f/s, %d dc/f", frames, dcpf));
+						if(StatsManager.isProfiling())
+						{
+							String profilingInfo = StatsManager.getProfilingInfo();
+							_profileTextView.setText(profilingInfo);
+						}
+						StatsManager.clearStats();
 					}
-					StatsManager.clearStats();
-				}
-			};
-		
+				};
+
 		_statsTimer.schedule(
-			new TimerTask() 
-			{
-				@Override
-				public void run()
+				new TimerTask()
 				{
-					_statsTimerHandler.obtainMessage().sendToTarget();
-				}
-			},
-			0,
-			1000);
+					@Override
+					public void run()
+					{
+						_statsTimerHandler.obtainMessage().sendToTarget();
+					}
+				},
+				0,
+				1000);
 	}
-	
+
 	private void updateVirtualMachineState()
 	{
 		//State must not be touched if surface wasn't created
@@ -298,10 +296,10 @@ public class EmulatorActivity extends Activity
 			NativeInterop.pauseVirtualMachine();
 		}
 	}
-	
+
 	private class SurfaceCallback implements SurfaceHolder.Callback
 	{
-		@Override 
+		@Override
 		public void surfaceChanged(SurfaceHolder holder, int format, int width, int height)
 		{
 			//Log.w(Constants.TAG, String.format("surfaceChanged -> format: %d, width: %d, height: %d", format, width, height));
@@ -310,14 +308,14 @@ public class EmulatorActivity extends Activity
 			_surfaceCreated = true;
 			updateVirtualMachineState();
 		}
-		
-		@Override 
+
+		@Override
 		public void surfaceCreated(SurfaceHolder holder)
 		{
 			Log.w(Constants.TAG, "surfaceCreated");
 		}
-		
-		@Override 
+
+		@Override
 		public void surfaceDestroyed(SurfaceHolder holder)
 		{
 			Log.w(Constants.TAG, "surfaceDestroyed");

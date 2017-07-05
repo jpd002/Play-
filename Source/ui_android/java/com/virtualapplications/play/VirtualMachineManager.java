@@ -7,7 +7,7 @@ import java.io.File;
 
 public class VirtualMachineManager
 {
-	public static void launchDisk(Context mContext, File game) throws Exception 
+	public static void launchDisk(Context mContext, File game) throws Exception
 	{
 		if(IsLoadableExecutableFileName(game.getPath()))
 		{
@@ -20,7 +20,7 @@ public class VirtualMachineManager
 		Intent intent = new Intent(mContext, EmulatorActivity.class);
 		mContext.startActivity(intent);
 	}
-	
+
 	public static boolean IsLoadableExecutableFileName(String fileName)
 	{
 		return fileName.toLowerCase().endsWith(".elf");

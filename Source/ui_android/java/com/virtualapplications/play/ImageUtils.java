@@ -64,8 +64,8 @@ public class ImageUtils
 		final int height = options.outHeight;
 		final int width = options.outWidth;
 
-		int reqWidth = (int) context.getResources().getDimension(R.dimen.cover_width);
-		int reqHeight = (int) context.getResources().getDimension(R.dimen.cover_height);
+		int reqWidth = (int)context.getResources().getDimension(R.dimen.cover_width);
+		int reqHeight = (int)context.getResources().getDimension(R.dimen.cover_height);
 
 		int inSampleSize = 1;
 

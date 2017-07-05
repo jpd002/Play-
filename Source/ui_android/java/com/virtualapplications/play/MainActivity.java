@@ -23,6 +23,7 @@ import android.widget.*;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.GridView;
 import android.support.v4.widget.DrawerLayout;
+
 import java.io.File;
 import java.text.*;
 import java.util.*;
@@ -34,14 +35,13 @@ import com.virtualapplications.play.database.SqliteHelper.Games;
 
 import static com.virtualapplications.play.ThemeManager.getThemeColor;
 
-public class MainActivity extends AppCompatActivity implements NavigationDrawerFragment.NavigationDrawerCallbacks, SharedPreferences.OnSharedPreferenceChangeListener {
+public class MainActivity extends AppCompatActivity implements NavigationDrawerFragment.NavigationDrawerCallbacks, SharedPreferences.OnSharedPreferenceChangeListener
+{
 	static Activity mActivity;
 	private int currentOrientation;
 	private GameInfo gameInfo;
 	protected NavigationDrawerFragment mNavigationDrawerFragment;
-
 	private List<GameInfoStruct> currentGames = new ArrayList<>();
-	
 	public static final int SORT_RECENT = 0;
 	public static final int SORT_HOMEBREW = 1;
 	public static final int SORT_NONE = 2;
@@ -58,16 +58,19 @@ public class MainActivity extends AppCompatActivity implements NavigationDrawerF
 		mActivity = MainActivity.this;
 
 		ThemeManager.applyTheme(this);
-		if (isAndroidTV(this)) {
+		if(isAndroidTV(this))
+		{
 			setContentView(R.layout.tele);
-		} else {
+		}
+		else
+		{
 			setContentView(R.layout.main);
 		}
 
 //		if (isAndroidTV(this)) {
 //			// Load the menus for Android TV
 //		} else {
-		Toolbar toolbar = (Toolbar) findViewById(R.id.my_awesome_toolbar);
+		Toolbar toolbar = (Toolbar)findViewById(R.id.my_awesome_toolbar);
 		setSupportActionBar(toolbar);
 		toolbar.bringToFront();
 		setUIcolor();
@@ -78,7 +81,7 @@ public class MainActivity extends AppCompatActivity implements NavigationDrawerF
 		// Set up the drawer.
 		mNavigationDrawerFragment.setUp(
 				R.id.navigation_drawer,
-				(DrawerLayout) findViewById(R.id.drawer_layout));
+				(DrawerLayout)findViewById(R.id.drawer_layout));
 
 		int attributeResourceId = getThemeColor(this, R.attr.colorPrimaryDark);
 		findViewById(R.id.navigation_drawer).setBackgroundColor(Color.parseColor(
@@ -86,10 +89,12 @@ public class MainActivity extends AppCompatActivity implements NavigationDrawerF
 		));
 //		}
 
-
-		if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+		if(ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED)
+		{
 			ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, Constants.READ_WRITE_PERMISSION);
-		} else {
+		}
+		else
+		{
 			Startup();
 		}
 	}
@@ -102,7 +107,8 @@ public class MainActivity extends AppCompatActivity implements NavigationDrawerF
 		super.onDestroy();
 	}
 
-	private void Startup() {
+	private void Startup()
+	{
 		NativeInterop.setFilesDirPath(Environment.getExternalStorageDirectory().getAbsolutePath());
 		NativeInterop.setAssetManager(getAssets());
 
@@ -123,38 +129,48 @@ public class MainActivity extends AppCompatActivity implements NavigationDrawerF
 	}
 
 	@Override
-	public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
-		switch (requestCode) {
-			case Constants.READ_WRITE_PERMISSION: {
-				// If request is cancelled, the result arrays are empty.
-				if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-					Startup();
-				} else {
-					AlertDialog.Builder builder = new AlertDialog.Builder(this);
-
-					builder.setTitle("Permission Request");
-					builder.setMessage("Please Grant Permission,\nWithout Read/Write Permission, PLAY! wouldn't be able to find your games or save your progress.");
-
-					builder.setPositiveButton("OK",
-							new DialogInterface.OnClickListener() {
-								@Override
-								public void onClick(DialogInterface dialog, int id) {
-									finish();
-								}
-							}
-					);
-
-					AlertDialog dialog = builder.create();
-					dialog.show();
-				}
-				return;
+	public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults)
+	{
+		switch(requestCode)
+		{
+		case Constants.READ_WRITE_PERMISSION:
+		{
+			// If request is cancelled, the result arrays are empty.
+			if(grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED)
+			{
+				Startup();
 			}
+			else
+			{
+				AlertDialog.Builder builder = new AlertDialog.Builder(this);
+
+				builder.setTitle("Permission Request");
+				builder.setMessage("Please Grant Permission,\nWithout Read/Write Permission, PLAY! wouldn't be able to find your games or save your progress.");
+
+				builder.setPositiveButton("OK",
+						new DialogInterface.OnClickListener()
+						{
+							@Override
+							public void onClick(DialogInterface dialog, int id)
+							{
+								finish();
+							}
+						}
+				);
+
+				AlertDialog dialog = builder.create();
+				dialog.show();
+			}
+			return;
+		}
 		}
 	}
 
-	private void setUIcolor(){
-		View content = findViewById(R.id.content_frame) ;
-		if (content != null) {
+	private void setUIcolor()
+	{
+		View content = findViewById(R.id.content_frame);
+		if(content != null)
+		{
 			int[] colors = new int[2];// you can increase array size to add more colors to gradient.
 			int topgradientcolor = getThemeColor(this, R.attr.colorPrimary);
 
@@ -184,9 +200,11 @@ public class MainActivity extends AppCompatActivity implements NavigationDrawerF
 		builder.setMessage(message);
 
 		builder.setPositiveButton("OK",
-				new DialogInterface.OnClickListener() {
+				new DialogInterface.OnClickListener()
+				{
 					@Override
-					public void onClick(DialogInterface dialog, int id) {
+					public void onClick(DialogInterface dialog, int id)
+					{
 
 					}
 				}
@@ -204,96 +222,108 @@ public class MainActivity extends AppCompatActivity implements NavigationDrawerF
 		builder.setMessage(R.string.game_unavailable);
 
 		builder.setPositiveButton("Yes",
-				new DialogInterface.OnClickListener() {
+				new DialogInterface.OnClickListener()
+				{
 					@Override
-					public void onClick(DialogInterface dialog, int id) {
+					public void onClick(DialogInterface dialog, int id)
+					{
 						game.removeIndex(MainActivity.this);
 						prepareFileListView(false);
 					}
 				}
 		);
 		builder.setNegativeButton("No",
-				new DialogInterface.OnClickListener() {
+				new DialogInterface.OnClickListener()
+				{
 					@Override
-					public void onClick(DialogInterface dialog, int id) {
+					public void onClick(DialogInterface dialog, int id)
+					{
 
 					}
 				}
 		);
 
-
 		AlertDialog dialog = builder.create();
 		dialog.show();
 	}
-	
+
 	private void displaySettingsActivity()
 	{
 		Intent intent = new Intent(getApplicationContext(), SettingsActivity.class);
 		startActivityForResult(intent, 0);
-
 	}
 
-	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-		if (requestCode == 0) {
+	protected void onActivityResult(int requestCode, int resultCode, Intent data)
+	{
+		if(requestCode == 0)
+		{
 			ThemeManager.applyTheme(this);
 			setUIcolor();
 		}
 
-		if (requestCode == 1 && resultCode == RESULT_OK){
-			if (data != null){
+		if(requestCode == 1 && resultCode == RESULT_OK)
+		{
+			if(data != null)
+			{
 				gameInfo.removeBitmapFromMemCache(data.getStringExtra("indexid"));
 			}
 			prepareFileListView(false);
 		}
 	}
 
-
 	private void displayAboutDialog()
 	{
 		Date buildDate = BuildConfig.buildTime;
 		String buildDateString = new SimpleDateFormat("yyyy/MM/dd K:mm a", Locale.getDefault()).format(buildDate);
-		String timestamp = buildDateString.substring(11, buildDateString.length()).startsWith("0:") 
+		String timestamp = buildDateString.substring(11, buildDateString.length()).startsWith("0:")
 				? buildDateString.replace("0:", "12:") : buildDateString;
 		String aboutMessage = String.format("Build Date: %s", timestamp);
 		displaySimpleMessage("About Play!", aboutMessage);
 	}
 
 	@Override
-	public void onConfigurationChanged(Configuration newConfig) {
+	public void onConfigurationChanged(Configuration newConfig)
+	{
 		super.onConfigurationChanged(newConfig);
 		mNavigationDrawerFragment.onConfigurationChanged(newConfig);
-		if (newConfig.orientation != currentOrientation) {
+		if(newConfig.orientation != currentOrientation)
+		{
 			currentOrientation = newConfig.orientation;
 			setUIcolor();
-			if (currentGames != null && !currentGames.isEmpty()) {
+			if(currentGames != null && !currentGames.isEmpty())
+			{
 				prepareFileListView(true);
-			} else {
+			}
+			else
+			{
 				prepareFileListView(false);
 			}
 		}
-		
 	}
 
 	@Override
-	public void onNavigationDrawerItemSelected(int position) {
-		switch (position) {
-			case SORT_RECENT:
-				sortMethod = SORT_RECENT;
-				navSubtitle = getString(R.string.file_list_recent);
-				break;
-			case SORT_HOMEBREW:
-				sortMethod = SORT_HOMEBREW;
-				navSubtitle = getString(R.string.file_list_homebrew);
-				break;
-			case SORT_NONE:
-			default:
-				sortMethod = SORT_NONE;
-				navSubtitle = getString(R.string.file_list_default);
-				break;
+	public void onNavigationDrawerItemSelected(int position)
+	{
+		switch(position)
+		{
+		case SORT_RECENT:
+			sortMethod = SORT_RECENT;
+			navSubtitle = getString(R.string.file_list_recent);
+			break;
+		case SORT_HOMEBREW:
+			sortMethod = SORT_HOMEBREW;
+			navSubtitle = getString(R.string.file_list_homebrew);
+			break;
+		case SORT_NONE:
+		default:
+			sortMethod = SORT_NONE;
+			navSubtitle = getString(R.string.file_list_default);
+			break;
 		}
 
 		ActionBar actionbar = getSupportActionBar();
-		if (actionbar != null){
+		if(actionbar != null)
+		{
 			actionbar.setSubtitle("Games - " + navSubtitle);
 		}
 
@@ -301,31 +331,34 @@ public class MainActivity extends AppCompatActivity implements NavigationDrawerF
 
 		SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
 		sp.edit().putInt("sortMethod", sortMethod).apply();
-
 	}
 
 	@Override
-	public void onNavigationDrawerBottomItemSelected(int position) {
-		switch (position) {
-			case 0:
-				displaySettingsActivity();
-				break;
-			case 1:
-				displayAboutDialog();
-				break;
-
+	public void onNavigationDrawerBottomItemSelected(int position)
+	{
+		switch(position)
+		{
+		case 0:
+			displaySettingsActivity();
+			break;
+		case 1:
+			displayAboutDialog();
+			break;
 		}
 	}
 
-	public void restoreActionBar() {
+	public void restoreActionBar()
+	{
 		android.support.v7.app.ActionBar actionBar = getSupportActionBar();
 		actionBar.setDisplayShowTitleEnabled(true);
 		actionBar.setTitle(R.string.app_name);
 		actionBar.setSubtitle("Games - " + navSubtitle);
 	}
 
-	public boolean onCreateOptionsMenu(Menu menu) {
-		if (!mNavigationDrawerFragment.isDrawerOpen()) {
+	public boolean onCreateOptionsMenu(Menu menu)
+	{
+		if(!mNavigationDrawerFragment.isDrawerOpen())
+		{
 			// Only show items in the action bar relevant to this screen
 			// if the drawer is not showing. Otherwise, let the drawer
 			// decide what to show in the action bar.
@@ -337,8 +370,10 @@ public class MainActivity extends AppCompatActivity implements NavigationDrawerF
 	}
 
 	@Override
-	public void onBackPressed() {
-		if (mNavigationDrawerFragment.mDrawerLayout != null && mNavigationDrawerFragment.isDrawerOpen()) {
+	public void onBackPressed()
+	{
+		if(mNavigationDrawerFragment.mDrawerLayout != null && mNavigationDrawerFragment.isDrawerOpen())
+		{
 			mNavigationDrawerFragment.mDrawerLayout.closeDrawer(NavigationDrawerFragment.mFragmentContainerView);
 			return;
 		}
@@ -347,7 +382,8 @@ public class MainActivity extends AppCompatActivity implements NavigationDrawerF
 	}
 
 	@Override
-	public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+	public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key)
+	{
 		if(key.equals(SettingsActivity.RESCAN))
 		{
 			if(sharedPreferences.getBoolean(SettingsActivity.RESCAN, false))
@@ -358,7 +394,8 @@ public class MainActivity extends AppCompatActivity implements NavigationDrawerF
 		}
 		else if(key.equals(SettingsActivity.CLEAR_UNAVAILABLE))
 		{
-			if(sharedPreferences.getBoolean(SettingsActivity.CLEAR_UNAVAILABLE, false)) {
+			if(sharedPreferences.getBoolean(SettingsActivity.CLEAR_UNAVAILABLE, false))
+			{
 				sharedPreferences.edit().putBoolean(SettingsActivity.CLEAR_UNAVAILABLE, false).apply();
 				IndexingDB iDB = new IndexingDB(this);
 				iDB.RemoveUnavailable();
@@ -368,37 +405,44 @@ public class MainActivity extends AppCompatActivity implements NavigationDrawerF
 		}
 	}
 
-	private final class ImageFinder extends AsyncTask<String, Integer, List<GameInfoStruct>> {
-
+	private final class ImageFinder extends AsyncTask<String, Integer, List<GameInfoStruct>>
+	{
 		private final boolean fullscan;
 		private ProgressDialog progDialog;
-		
-		public ImageFinder(boolean fullscan) {
+
+		public ImageFinder(boolean fullscan)
+		{
 			this.fullscan = fullscan;
 		}
 
-		
-		protected void onPreExecute() {
+		protected void onPreExecute()
+		{
 			progDialog = ProgressDialog.show(MainActivity.this,
-				getString(R.string.search_games),
-				getString(R.string.search_games_msg), true);
+					getString(R.string.search_games),
+					getString(R.string.search_games_msg), true);
 		}
-		
+
 		@Override
-		protected List<GameInfoStruct> doInBackground(String... paths) {
-			
+		protected List<GameInfoStruct> doInBackground(String... paths)
+		{
+
 			GameIndexer GI = new GameIndexer(MainActivity.this);
-			if (fullscan){
+			if(fullscan)
+			{
 				GI.fullScan();
-			} else {
+			}
+			else
+			{
 				GI.startupScan();
 			}
 			return GI.getIndexGISList(sortMethod);
 		}
-		
+
 		@Override
-		protected void onPostExecute(List<GameInfoStruct> images) {
-			if (progDialog != null && progDialog.isShowing()) {
+		protected void onPostExecute(List<GameInfoStruct> images)
+		{
+			if(progDialog != null && progDialog.isShowing())
+			{
 				progDialog.dismiss();
 			}
 			currentGames = images;
@@ -406,30 +450,38 @@ public class MainActivity extends AppCompatActivity implements NavigationDrawerF
 			populateImages(images);
 		}
 	}
-	
-	private void populateImages(List<GameInfoStruct> images) {
-		GridView gameGrid = (GridView) findViewById(R.id.game_grid);
-		if (gameGrid != null) {
+
+	private void populateImages(List<GameInfoStruct> images)
+	{
+		GridView gameGrid = (GridView)findViewById(R.id.game_grid);
+		if(gameGrid != null)
+		{
 			gameGrid.setAdapter(null);
-			if (isAndroidTV(this)) {
-				gameGrid.setOnItemClickListener(new OnItemClickListener() {
-					public void onItemClick(AdapterView<?> parent, View v, int position, long id) {
+			if(isAndroidTV(this))
+			{
+				gameGrid.setOnItemClickListener(new OnItemClickListener()
+				{
+					public void onItemClick(AdapterView<?> parent, View v, int position, long id)
+					{
 						v.performClick();
 					}
 				});
 			}
-			if (images == null || images.isEmpty()) {
+			if(images == null || images.isEmpty())
+			{
 				// Display warning that no disks exist
 				ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, (sortMethod == SORT_RECENT) ? new String[]{getString(R.string.no_recent_adapter)} : new String[]{getString(R.string.no_game_found_adapter)});
 				gameGrid.setNumColumns(1);
 				gameGrid.setAdapter(adapter);
-			} else {
+			}
+			else
+			{
 				GamesAdapter adapter = new GamesAdapter(this, R.layout.game_list_item, images, gameInfo);
 				/*
 				-1 = autofit
 				 */
 				gameGrid.setNumColumns(-1);
-				gameGrid.setColumnWidth((int) getResources().getDimension(R.dimen.cover_width));
+				gameGrid.setColumnWidth((int)getResources().getDimension(R.dimen.cover_width));
 
 				gameGrid.setAdapter(adapter);
 				gameGrid.invalidate();
@@ -437,25 +489,34 @@ public class MainActivity extends AppCompatActivity implements NavigationDrawerF
 		}
 	}
 
-	public void launchGame(GameInfoStruct game) {
-		if (game.getFile().exists()){
+	public void launchGame(GameInfoStruct game)
+	{
+		if(game.getFile().exists())
+		{
 			game.setlastplayed(this);
-			try {
+			try
+			{
 				VirtualMachineManager.launchDisk(this, game.getFile());
-			} catch (Exception e) {
+			}
+			catch(Exception e)
+			{
 				displaySimpleMessage("Error", e.getMessage());
 			}
-		} else {
+		}
+		else
+		{
 			displayGameNotFound(game);
 		}
 	}
 
-	
-	private boolean isAndroidTV(Context context) {
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
+	private boolean isAndroidTV(Context context)
+	{
+		if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH)
+		{
 			UiModeManager uiModeManager = (UiModeManager)
-			context.getSystemService(Context.UI_MODE_SERVICE);
-			if (uiModeManager.getCurrentModeType() == Configuration.UI_MODE_TYPE_TELEVISION) {
+					context.getSystemService(Context.UI_MODE_SERVICE);
+			if(uiModeManager.getCurrentModeType() == Configuration.UI_MODE_TYPE_TELEVISION)
+			{
 				return true;
 			}
 		}
@@ -464,18 +525,22 @@ public class MainActivity extends AppCompatActivity implements NavigationDrawerF
 
 	public void prepareFileListView(boolean retainList)
 	{
-		((MainActivity) mActivity).prepareFileListView(retainList, false);
+		((MainActivity)mActivity).prepareFileListView(retainList, false);
 	}
 
 	private void prepareFileListView(boolean retainList, boolean fullscan)
 	{
-		if (gameInfo == null) {
+		if(gameInfo == null)
+		{
 			gameInfo = new GameInfo(MainActivity.this);
 		}
 
-		if (retainList) {
+		if(retainList)
+		{
 			populateImages(currentGames);
-		} else {
+		}
+		else
+		{
 			new ImageFinder(fullscan).execute();
 		}
 	}

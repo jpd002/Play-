@@ -9,6 +9,7 @@ import android.widget.*;
 
 import java.io.File;
 import java.util.*;
+
 import android.support.v7.widget.Toolbar;
 
 public class SettingsActivity extends PreferenceActivity implements SharedPreferences.OnSharedPreferenceChangeListener
@@ -25,7 +26,7 @@ public class SettingsActivity extends PreferenceActivity implements SharedPrefer
 		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
 		prefs.registerOnSharedPreferenceChangeListener(this);
 	}
-	
+
 	@Override
 	public void onDestroy()
 	{
@@ -42,13 +43,16 @@ public class SettingsActivity extends PreferenceActivity implements SharedPrefer
 	}
 
 	@Override
-	protected void onPostCreate(Bundle savedInstanceState) {
+	protected void onPostCreate(Bundle savedInstanceState)
+	{
 		super.onPostCreate(savedInstanceState);
 		LinearLayout root = (LinearLayout)findViewById(android.R.id.list).getParent().getParent().getParent();
 		Toolbar bar = (Toolbar)LayoutInflater.from(this).inflate(R.layout.settings_toolbar, null, false);
-		bar.setNavigationOnClickListener(new View.OnClickListener() {
+		bar.setNavigationOnClickListener(new View.OnClickListener()
+		{
 			@Override
-			public void onClick(View v) {
+			public void onClick(View v)
+			{
 				onBackPressed();
 			}
 		});
@@ -56,7 +60,8 @@ public class SettingsActivity extends PreferenceActivity implements SharedPrefer
 	}
 
 	@Override
-	protected void onResume(){
+	protected void onResume()
+	{
 		super.onResume();
 		ThemeManager.applyTheme(this);
 	}
@@ -75,7 +80,7 @@ public class SettingsActivity extends PreferenceActivity implements SharedPrefer
 			ThemeManager.applyTheme(this);
 		}
 	}
-	
+
 	public static class EmulatorSettingsFragment extends PreferenceFragment
 	{
 		@Override
@@ -92,7 +97,7 @@ public class SettingsActivity extends PreferenceActivity implements SharedPrefer
 			readFromPreferences(getPreferenceScreen());
 			super.onDestroy();
 		}
-		
+
 		private void readFromPreferences(PreferenceGroup prefGroup)
 		{
 			for(int i = 0; i < prefGroup.getPreferenceCount(); i++)
@@ -109,7 +114,7 @@ public class SettingsActivity extends PreferenceActivity implements SharedPrefer
 				}
 			}
 		}
-		
+
 		private void writeToPreferences(PreferenceGroup prefGroup)
 		{
 			for(int i = 0; i < prefGroup.getPreferenceCount(); i++)
@@ -128,7 +133,8 @@ public class SettingsActivity extends PreferenceActivity implements SharedPrefer
 		}
 	}
 
-	public static class UISettingsFragment extends PreferenceFragment implements Preference.OnPreferenceClickListener {
+	public static class UISettingsFragment extends PreferenceFragment implements Preference.OnPreferenceClickListener
+	{
 		@Override
 		public void onCreate(Bundle savedInstanceState)
 		{
@@ -150,9 +156,9 @@ public class SettingsActivity extends PreferenceActivity implements SharedPrefer
 		private void clearCoverCache()
 		{
 			File dir = new File(getActivity().getExternalFilesDir(null), "covers");
-			for (File file : dir.listFiles())
+			for(File file : dir.listFiles())
 			{
-				if (!file.isDirectory())
+				if(!file.isDirectory())
 				{
 					file.delete();
 				}
@@ -162,26 +168,26 @@ public class SettingsActivity extends PreferenceActivity implements SharedPrefer
 		@Override
 		public boolean onPreferenceClick(Preference preference)
 		{
-			final PreferenceCategory preferenceCategory = (PreferenceCategory) findPreference(UI_STORAGE);
-			switch (preference.getKey())
+			final PreferenceCategory preferenceCategory = (PreferenceCategory)findPreference(UI_STORAGE);
+			switch(preference.getKey())
 			{
-				case RESCAN:
-					preference.getEditor().putBoolean(RESCAN, true).apply();
-					preferenceCategory.removePreference(preference);
-					Toast.makeText(getActivity(), "Rescanning storage.", Toast.LENGTH_SHORT).show();
-					return true;
-				case CLEAR_UNAVAILABLE:
-					preference.getEditor().putBoolean(CLEAR_UNAVAILABLE, true).apply();
-					preferenceCategory.removePreference(preference);
-					Toast.makeText(getActivity(), "Removing unavailable games.", Toast.LENGTH_SHORT).show();
-					return true;
-				case CLEAR_CACHE:
-					clearCoverCache();
-					preferenceCategory.removePreference(preference);
-					Toast.makeText(getActivity(), "Clearing cover cache.", Toast.LENGTH_SHORT).show();
-					return true;
-				default:
-					return false;
+			case RESCAN:
+				preference.getEditor().putBoolean(RESCAN, true).apply();
+				preferenceCategory.removePreference(preference);
+				Toast.makeText(getActivity(), "Rescanning storage.", Toast.LENGTH_SHORT).show();
+				return true;
+			case CLEAR_UNAVAILABLE:
+				preference.getEditor().putBoolean(CLEAR_UNAVAILABLE, true).apply();
+				preferenceCategory.removePreference(preference);
+				Toast.makeText(getActivity(), "Removing unavailable games.", Toast.LENGTH_SHORT).show();
+				return true;
+			case CLEAR_CACHE:
+				clearCoverCache();
+				preferenceCategory.removePreference(preference);
+				Toast.makeText(getActivity(), "Clearing cover cache.", Toast.LENGTH_SHORT).show();
+				return true;
+			default:
+				return false;
 			}
 		}
 	}
