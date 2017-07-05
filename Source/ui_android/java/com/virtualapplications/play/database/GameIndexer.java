@@ -90,7 +90,6 @@ public class GameIndexer
 
 	public void startupScan()
 	{
-
 		List<String> paths = getPaths();
 		if(paths.isEmpty())
 		{

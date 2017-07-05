@@ -74,7 +74,6 @@ public class GamesDbAPI extends AsyncTask<File, Integer, Boolean>
 	@Override
 	protected Boolean doInBackground(File... params)
 	{
-
 		if(GamesDbAPI.isNetworkAvailable(mContext))
 		{
 			try
