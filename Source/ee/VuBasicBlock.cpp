@@ -1,6 +1,8 @@
 #include "VuBasicBlock.h"
 #include "MA_VU.h"
 #include "offsetof_def.h"
+#include "MemoryUtils.h"
+#include "Vpu.h"
 
 CVuBasicBlock::CVuBasicBlock(CMIPS& context, uint32 begin, uint32 end)
 : CBasicBlock(context, begin, end)
@@ -39,6 +41,8 @@ void CVuBasicBlock::CompileRange(CMipsJitter* jitter)
 	}
 
 	auto integerBranchDelayInfo = GetIntegerBranchDelayInfo(fixedEnd);
+
+	uint32 pendingXgKick = 0;
 
 	for(uint32 address = m_begin; address <= fixedEnd; address += 8)
 	{
@@ -129,9 +133,29 @@ void CVuBasicBlock::CompileRange(CMipsJitter* jitter)
 			jitter->MD_PullRel(offsetof(CMIPS, m_State.nCOP2[savedReg]));
 		}
 
+		if(pendingXgKick != 0)
+		{
+			EmitXgKick(jitter, pendingXgKick);
+			pendingXgKick = 0;
+		}
+
+		if((opcodeLo & ~(0x1F << 11)) == 0x800006FC)
+		{
+			assert(pendingXgKick == 0);
+			pendingXgKick = opcodeLo;
+		}
+
 		//Sanity check
 		assert(jitter->IsStackEmpty());
 	}
+
+	if(pendingXgKick != 0)
+	{
+		EmitXgKick(jitter, pendingXgKick);
+		pendingXgKick = 0;
+	}
+
+	assert(pendingXgKick == 0);
 
 	//Increment pipeTime
 	{
@@ -239,4 +263,20 @@ bool CVuBasicBlock::CheckIsSpecialIntegerLoop(uint32 fixedEnd, unsigned int regI
 	}
 
 	return true;
+}
+
+void CVuBasicBlock::EmitXgKick(CMipsJitter* jitter, uint32 opcode)
+{
+	auto is = static_cast<uint8>((opcode >> 11) & 0x1F);
+
+	//Push context
+	jitter->PushCtx();
+
+	//Push value
+	jitter->PushRel(offsetof(CMIPS, m_State.nCOP2VI[is]));
+
+	//Compute Address
+	jitter->PushCst(CVpu::VU_XGKICK);
+
+	jitter->Call(reinterpret_cast<void*>(&MemoryUtils_SetWordProxy), 3, false);
 }

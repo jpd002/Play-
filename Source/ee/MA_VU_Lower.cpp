@@ -650,16 +650,7 @@ void CMA_VU::CLower::XTOP()
 //1B
 void CMA_VU::CLower::XGKICK()
 {
-	//Push context
-	m_codeGen->PushCtx();
-
-	//Push value
-	m_codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2VI[m_nIS]));
-
-	//Compute Address
-	m_codeGen->PushCst(CVpu::VU_XGKICK);
-
-	m_codeGen->Call(reinterpret_cast<void*>(&MemoryUtils_SetWordProxy), 3, false);
+	//Handled by VuBasicBlock
 }
 
 //1C
