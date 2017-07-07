@@ -6,7 +6,7 @@ class CVuBasicBlock : public CBasicBlock
 {
 public:
 					CVuBasicBlock(CMIPS&, uint32, uint32);
-	virtual			~CVuBasicBlock();
+	virtual			~CVuBasicBlock() = default;
 
 protected:
 	void			CompileRange(CMipsJitter*) override;

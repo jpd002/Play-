@@ -8,11 +8,6 @@ CVuBasicBlock::CVuBasicBlock(CMIPS& context, uint32 begin, uint32 end)
 
 }
 
-CVuBasicBlock::~CVuBasicBlock()
-{
-
-}
-
 void CVuBasicBlock::CompileRange(CMipsJitter* jitter)
 {
 	assert((m_begin & 0x07) == 0);
