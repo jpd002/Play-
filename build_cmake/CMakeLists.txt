@@ -702,7 +702,7 @@ if(TARGET_PLATFORM_MACOS)
 	)
 
 	set(OSX_RES
-		${CMAKE_CURRENT_SOURCE_DIR}/../build_macosx/AppIcon.icns
+		${CMAKE_CURRENT_SOURCE_DIR}/../Source/ui_macosx/AppIcon.icns
 		${CMAKE_CURRENT_SOURCE_DIR}/../patches.xml
 	)
 	# Add our Executable
