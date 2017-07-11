@@ -37,7 +37,6 @@ import static com.virtualapplications.play.ThemeManager.getThemeColor;
 
 public class MainActivity extends AppCompatActivity implements NavigationDrawerFragment.NavigationDrawerCallbacks, SharedPreferences.OnSharedPreferenceChangeListener
 {
-	static Activity mActivity;
 	private int currentOrientation;
 	private GameInfo gameInfo;
 	protected NavigationDrawerFragment mNavigationDrawerFragment;
@@ -55,7 +54,6 @@ public class MainActivity extends AppCompatActivity implements NavigationDrawerF
 		//Log.w(Constants.TAG, "MainActivity - onCreate");
 
 		currentOrientation = getResources().getConfiguration().orientation;
-		mActivity = MainActivity.this;
 
 		ThemeManager.applyTheme(this);
 		if(isAndroidTV(this))
@@ -525,7 +523,7 @@ public class MainActivity extends AppCompatActivity implements NavigationDrawerF
 
 	public void prepareFileListView(boolean retainList)
 	{
-		((MainActivity)mActivity).prepareFileListView(retainList, false);
+		prepareFileListView(retainList, false);
 	}
 
 	private void prepareFileListView(boolean retainList, boolean fullscan)
