@@ -394,6 +394,9 @@
     <ClCompile Include="..\..\..\Source\iop\Iop_Module.cpp">
       <Filter>Source Files\Purei Core\iop</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\Source\OpticalMedia.cpp">
+      <Filter>Source Files\Purei Core</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\Source\BasicBlock.h">
@@ -761,6 +764,9 @@
     </ClInclude>
     <ClInclude Include="..\..\..\Source\iop\Iop_Heaplib.h">
       <Filter>Source Files\Purei Core\iop</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Source\OpticalMedia.h">
+      <Filter>Source Files\Purei Core</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
