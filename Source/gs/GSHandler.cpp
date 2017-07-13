@@ -1543,6 +1543,9 @@ std::string CGSHandler::DisassembleWrite(uint8 registerId, uint64 data)
 	case GS_REG_TRXDIR:
 		result = string_format("TRXDIR(XDIR: %i)", data & 0x03);
 		break;
+	case GS_REG_HWREG:
+		result = string_format("HWREG(DATA: 0x%016llX)", data);
+		break;
 	case GS_REG_SIGNAL:
 		{
 			auto signal = make_convertible<SIGNAL>(data);
