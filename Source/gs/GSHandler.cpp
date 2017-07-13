@@ -1481,6 +1481,9 @@ std::string CGSHandler::DisassembleWrite(uint8 registerId, uint64 data)
 				(registerId == GS_REG_SCISSOR_1) ? 1 : 2, scissor.scax0, scissor.scax1, scissor.scay0, scissor.scay1);
 		}
 		break;
+	case GS_REG_COLCLAMP:
+		result = string_format("COLCLAMP(CLAMP: %d)", data & 1);
+		break;
 	case GS_REG_TEST_1:
 	case GS_REG_TEST_2:
 		{
