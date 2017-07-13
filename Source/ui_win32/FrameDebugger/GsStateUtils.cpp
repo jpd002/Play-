@@ -153,11 +153,8 @@ std::string CGsStateUtils::GetInputState(CGSHandler* gs)
 {
 	std::string result;
 
-	CGSHandler::PRIM prim;
-	prim <<= gs->GetRegisters()[GS_REG_PRIM];
-
-	CGSHandler::XYOFFSET xyOffset;
-	xyOffset <<= gs->GetRegisters()[GS_REG_XYOFFSET_1 + prim.nContext];
+	auto prim = make_convertible<CGSHandler::PRIM>(gs->GetRegisters()[GS_REG_PRIM]);
+	auto xyOffset = make_convertible<CGSHandler::XYOFFSET>(gs->GetRegisters()[GS_REG_XYOFFSET_1 + prim.nContext]);
 
 	bool usePrmode = (gs->GetRegisters()[GS_REG_PRMODECONT] & 1) == 0;
 
@@ -197,12 +194,9 @@ std::string CGsStateUtils::GetInputState(CGSHandler* gs)
 	for(unsigned int i = 0; i < 3; i++)
 	{
 		auto vertex = vertices[i];
-		CGSHandler::ST st;
-		CGSHandler::RGBAQ rgbaq;
-		CGSHandler::UV uv;
-		st <<= vertex.nST;
-		rgbaq <<= vertex.nRGBAQ;
-		uv <<= vertex.nUV;
+		auto st = make_convertible<CGSHandler::ST>(vertex.nST);
+		auto rgbaq = make_convertible<CGSHandler::RGBAQ>(vertex.nRGBAQ);
+		auto uv = make_convertible<CGSHandler::UV>(vertex.nUV);
 		result += string_format("\tVertex %i:  %+10.4f  %+10.4f  %+10.4f  %+10.4f  %+10.4f\r\n", 
 			i, st.nS, st.nT, rgbaq.nQ, uv.GetU(), uv.GetV());
 	}
@@ -212,8 +206,7 @@ std::string CGsStateUtils::GetInputState(CGSHandler* gs)
 	for(unsigned int i = 0; i < 3; i++)
 	{
 		auto vertex = vertices[i];
-		CGSHandler::RGBAQ rgbaq;
-		rgbaq <<= vertex.nRGBAQ;
+		auto rgbaq = make_convertible<CGSHandler::RGBAQ>(vertex.nRGBAQ);
 		result += string_format("\tVertex %i:        0x%02X        0x%02X        0x%02X        0x%02X\r\n", 
 			i, rgbaq.nR, rgbaq.nG, rgbaq.nB, rgbaq.nA);
 	}
