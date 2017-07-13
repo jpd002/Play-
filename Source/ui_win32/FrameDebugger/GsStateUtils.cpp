@@ -149,6 +149,12 @@ static const char* g_wrapModeString[4] =
 	"REGION_REPEAT"
 };
 
+static const char* g_colorClampModeString[2] =
+{
+	"MASK",
+	"CLAMP"
+};
+
 std::string CGsStateUtils::GetInputState(CGSHandler* gs)
 {
 	std::string result;
@@ -219,6 +225,11 @@ std::string CGsStateUtils::GetInputState(CGSHandler* gs)
 		result += string_format("\tVertex %i:        0x%02X\r\n", 
 			i, vertex.nFog);
 	}
+
+	result += "\r\n";
+
+	auto colClamp = gs->GetRegisters()[GS_REG_COLCLAMP];
+	result += string_format("Color Clamping: %s\r\n", g_colorClampModeString[colClamp & 1]);
 
 	return result;
 }
