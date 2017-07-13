@@ -14,6 +14,7 @@
 		7016687117C7307E003504E0 /* Storyboard.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 7016682917C72969003504E0 /* Storyboard.storyboard */; };
 		7016FCAD1CA887C2000A798D /* Iop_Thvpool.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7016FCAB1CA887C2000A798D /* Iop_Thvpool.cpp */; };
 		701E5CD317C0BDFB00261AFD /* SH_OpenAL.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 708FE7B317C0B66700BFCDB2 /* SH_OpenAL.cpp */; };
+		7026EC031F170FDD00AB8CA4 /* OpticalMedia.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7026EC011F170FDD00AB8CA4 /* OpticalMedia.cpp */; };
 		70383A3C17BF343800482B35 /* libz.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 70383A3B17BF343800482B35 /* libz.dylib */; };
 		70383A3F17BF347A00482B35 /* RegisterStateFile.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 70383A3D17BF346300482B35 /* RegisterStateFile.cpp */; };
 		70383A4117BF34B700482B35 /* COP_SCU_Reflection.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 70383A4017BF34B700482B35 /* COP_SCU_Reflection.cpp */; };
@@ -177,6 +178,8 @@
 		7016FCAA1CA885AF000A798D /* Psp_PsfSubSystem.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Psp_PsfSubSystem.h; path = ../Source/psp/Psp_PsfSubSystem.h; sourceTree = "<group>"; };
 		7016FCAB1CA887C2000A798D /* Iop_Thvpool.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Iop_Thvpool.cpp; path = ../../../Source/iop/Iop_Thvpool.cpp; sourceTree = "<group>"; };
 		7016FCAC1CA887C2000A798D /* Iop_Thvpool.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Iop_Thvpool.h; path = ../../../Source/iop/Iop_Thvpool.h; sourceTree = "<group>"; };
+		7026EC011F170FDD00AB8CA4 /* OpticalMedia.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = OpticalMedia.cpp; path = ../../../Source/OpticalMedia.cpp; sourceTree = "<group>"; };
+		7026EC021F170FDD00AB8CA4 /* OpticalMedia.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = OpticalMedia.h; path = ../../../Source/OpticalMedia.h; sourceTree = "<group>"; };
 		70383A3A17BF2E1C00482B35 /* BiosDebugInfoProvider.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = BiosDebugInfoProvider.h; path = ../../../Source/BiosDebugInfoProvider.h; sourceTree = "<group>"; };
 		70383A3B17BF343800482B35 /* libz.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libz.dylib; path = usr/lib/libz.dylib; sourceTree = SDKROOT; };
 		70383A3D17BF346300482B35 /* RegisterStateFile.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = RegisterStateFile.cpp; path = ../../../Source/RegisterStateFile.cpp; sourceTree = "<group>"; };
@@ -692,6 +695,8 @@
 				7E4B3CEA0F9E99A500675ED7 /* MIPSReflection.h */,
 				7E4B3CEB0F9E99A500675ED7 /* MIPSTags.cpp */,
 				7E4B3CEC0F9E99A500675ED7 /* MIPSTags.h */,
+				7026EC011F170FDD00AB8CA4 /* OpticalMedia.cpp */,
+				7026EC021F170FDD00AB8CA4 /* OpticalMedia.h */,
 				7E4B3CEE0F9E99A500675ED7 /* OsStructManager.h */,
 				70383A3D17BF346300482B35 /* RegisterStateFile.cpp */,
 				70383A3E17BF346300482B35 /* RegisterStateFile.h */,
@@ -962,6 +967,7 @@
 				7E6811790FB8F32E00AC53B5 /* VolumeDescriptor.cpp in Sources */,
 				7E27214A1213B38D00C0DEBF /* MipsJitter.cpp in Sources */,
 				7E2721CC1213B6D300C0DEBF /* PsxBios.cpp in Sources */,
+				7026EC031F170FDD00AB8CA4 /* OpticalMedia.cpp in Sources */,
 				708FE7E317C0B8BE00BFCDB2 /* PlaylistSelectViewController.m in Sources */,
 				7E2721D11213B6E500C0DEBF /* Ps2_PsfDevice.cpp in Sources */,
 				7E2721D21213B6E500C0DEBF /* PsfBios.cpp in Sources */,
