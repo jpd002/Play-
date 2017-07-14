@@ -267,13 +267,11 @@ bool CVuBasicBlock::CheckIsSpecialIntegerLoop(uint32 fixedEnd, unsigned int regI
 
 void CVuBasicBlock::EmitXgKick(CMipsJitter* jitter, uint32 opcode)
 {
-	auto is = static_cast<uint8>((opcode >> 11) & 0x1F);
-
 	//Push context
 	jitter->PushCtx();
 
 	//Push value
-	jitter->PushRel(offsetof(CMIPS, m_State.nCOP2VI[is]));
+	jitter->PushRel(offsetof(CMIPS, m_State.xgkickAddress));
 
 	//Compute Address
 	jitter->PushCst(CVpu::VU_XGKICK);

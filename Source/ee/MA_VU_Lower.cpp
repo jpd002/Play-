@@ -650,7 +650,9 @@ void CMA_VU::CLower::XTOP()
 //1B
 void CMA_VU::CLower::XGKICK()
 {
-	//Handled by VuBasicBlock
+	//Save XGKICK address to be used later
+	m_codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2VI[m_nIS]));
+	m_codeGen->PullRel(offsetof(CMIPS, m_State.xgkickAddress));
 }
 
 //1C
