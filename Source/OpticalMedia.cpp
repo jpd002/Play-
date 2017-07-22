@@ -66,7 +66,11 @@ void COpticalMedia::CheckDualLayerDvd(const StreamPtr& stream)
 	//We need to look for the start of the second layer
 	//The second layer is at most as big as the first one, so
 	//we can start looking from half of the disk image
-	auto searchBlockAddress = imageBlockCount / 2;
+
+	//NOTE: Wild Arms: Alter Code F seems to have a second layer that's a bit
+	//larger than the first one? That's why we start looking at 15 / 32 of the image's size
+
+	auto searchBlockAddress = imageBlockCount * 15 / 32;
 	stream->Seek(static_cast<uint64>(searchBlockAddress) * blockSize, Framework::STREAM_SEEK_SET);
 
 	//Scan all blocks from the search point, looking for a valid ISO9660 descriptor
