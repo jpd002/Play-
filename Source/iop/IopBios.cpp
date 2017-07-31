@@ -629,6 +629,17 @@ int32 CIopBios::LoadModule(CELF& elf, const char* path)
 		}
 	}
 
+	//Patch for Final Fantasy X PSF set ------------------------------
+	if(strstr(path, "ffxpatch.irx") != NULL)
+	{
+		const uint32 patchAddress = moduleRange.first + 0x113C8;
+		uint32 instruction = m_cpu.m_pMemoryMap->GetWord(patchAddress);
+		if(instruction == 0x03E00008)
+		{
+			m_cpu.m_pMemoryMap->SetWord(patchAddress, 0x00000000);
+		}
+	}
+
 	return loadedModuleId;
 }
 
