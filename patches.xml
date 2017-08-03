@@ -26,9 +26,19 @@
 		<Patch Address="0x002751B4" Value="0x00000000" Description="Nullify spin wait" />
 	</Executable>
 	
-	
 	<Executable Name="SLUS_212.74;1" Title="Outrun" Region="US">
 		<Patch Address="0x00141C88" Value="0x1000000A" Description="Disable NET SIF bind." />
 	</Executable>
 	
+	<Executable Name="SLUS_209.05;1" Title="The Incredibles" Region="US">
+		<Patch Address="0x0010ec20" Value="0x00000000" Description="Fix hang." />
+	</Executable>
+
+	<Executable Name="SLES_501.76;1" Title="Oni" Region="EU">
+		<Patch Address="0x001cef7c" Value="0x00000000 // bc0f $001cef7c" Description="Fix hang by skip branch if copro 0 condition false." />
+	</Executable>
+
+	<Executable Name="SLUS_212.17;1" Title="The Incredibles Rise of the Underminer" Region="US">
+		<Patch Address="0x001110e0" Value="0x00000000" Description="Fix hang." />
+	</Executable>
 </Patches>
