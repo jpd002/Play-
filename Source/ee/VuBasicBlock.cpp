@@ -127,6 +127,13 @@ void CVuBasicBlock::CompileRange(CMipsJitter* jitter)
 			jitter->PullRel(offsetof(CMIPS, m_State.nCOP2VI[integerBranchDelayInfo.regIndex]));
 		}
 
+		//If there's a pending XGKICK and the current lower instruction is
+		//an XGKICK, make sure we flush the pending one first
+		if(loIsXgKick && hasPendingXgKick)
+		{
+			clearPendingXgKick();
+		}
+
 		arch->CompileInstruction(addressLo, jitter, &m_context);
 
 		if(address == integerBranchDelayInfo.useRegAddress)
