@@ -1,3 +1,4 @@
+
 <Patches>
 	<Executable Name="SLES_506.72;1" Title="Baldur's Gate: Dark Alliance" Region="EU">
 		<Patch Address="0x00300478" Value="0x00000001" Description="Enable libcdvd tracing."/>
@@ -40,5 +41,9 @@
 
 	<Executable Name="SLUS_212.17;1" Title="The Incredibles Rise of the Underminer" Region="US">
 		<Patch Address="0x001110e0" Value="0x00000000" Description="Fix hang." />
+	</Executable>
+
+	<Executable Name="SLUS_209.04;1" Title="SpongeBob Squarepants The Movie" Region="US">
+		<Patch Address="0x0010f3e0" Value="0x00000000" Description="Fix hang." />
 	</Executable>
 </Patches>
