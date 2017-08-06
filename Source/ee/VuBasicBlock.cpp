@@ -42,7 +42,14 @@ void CVuBasicBlock::CompileRange(CMipsJitter* jitter)
 
 	auto integerBranchDelayInfo = GetIntegerBranchDelayInfo(fixedEnd);
 
-	uint32 pendingXgKick = 0;
+	bool hasPendingXgKick = false;
+	const auto clearPendingXgKick =
+		[&]()
+		{
+			assert(hasPendingXgKick);
+			EmitXgKick(jitter);
+			hasPendingXgKick = false;
+		};
 
 	for(uint32 address = m_begin; address <= fixedEnd; address += 8)
 	{
@@ -62,6 +69,8 @@ void CVuBasicBlock::CompileRange(CMipsJitter* jitter)
 		
 		//No lower instruction reads Q
 		assert(loOps.readQ == false);
+
+		bool loIsXgKick = (opcodeLo & ~(0x1F << 11)) == 0x800006FC;
 
 		if(loOps.syncQ)
 		{
@@ -133,29 +142,27 @@ void CVuBasicBlock::CompileRange(CMipsJitter* jitter)
 			jitter->MD_PullRel(offsetof(CMIPS, m_State.nCOP2[savedReg]));
 		}
 
-		if(pendingXgKick != 0)
+		if(hasPendingXgKick)
 		{
-			EmitXgKick(jitter, pendingXgKick);
-			pendingXgKick = 0;
+			clearPendingXgKick();
 		}
 
-		if((opcodeLo & ~(0x1F << 11)) == 0x800006FC)
+		if(loIsXgKick)
 		{
-			assert(pendingXgKick == 0);
-			pendingXgKick = opcodeLo;
+			assert(!hasPendingXgKick);
+			hasPendingXgKick = true;
 		}
 
 		//Sanity check
 		assert(jitter->IsStackEmpty());
 	}
 
-	if(pendingXgKick != 0)
+	if(hasPendingXgKick)
 	{
-		EmitXgKick(jitter, pendingXgKick);
-		pendingXgKick = 0;
+		clearPendingXgKick();
 	}
 
-	assert(pendingXgKick == 0);
+	assert(!hasPendingXgKick);
 
 	//Increment pipeTime
 	{
@@ -265,7 +272,7 @@ bool CVuBasicBlock::CheckIsSpecialIntegerLoop(uint32 fixedEnd, unsigned int regI
 	return true;
 }
 
-void CVuBasicBlock::EmitXgKick(CMipsJitter* jitter, uint32 opcode)
+void CVuBasicBlock::EmitXgKick(CMipsJitter* jitter)
 {
 	//Push context
 	jitter->PushCtx();

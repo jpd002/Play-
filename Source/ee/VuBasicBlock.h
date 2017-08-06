@@ -23,5 +23,5 @@ private:
 
 	INTEGER_BRANCH_DELAY_INFO	GetIntegerBranchDelayInfo(uint32) const;
 	bool						CheckIsSpecialIntegerLoop(uint32, unsigned int) const;
-	static void					EmitXgKick(CMipsJitter*, uint32);
+	static void					EmitXgKick(CMipsJitter*);
 };
