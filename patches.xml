@@ -1,4 +1,3 @@
-
 <Patches>
 	<Executable Name="SLES_506.72;1" Title="Baldur's Gate: Dark Alliance" Region="EU">
 		<Patch Address="0x00300478" Value="0x00000001" Description="Enable libcdvd tracing."/>
