@@ -45,7 +45,7 @@ build_script:
     
     cd build
     
-    cmake .. -G"%BUILD_TYPE%"
+    cmake .. -G"%BUILD_TYPE%" -T v140_xp
     
     cmake --build . --config %CONFIG_TYPE%
     
