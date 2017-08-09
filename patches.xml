@@ -3,29 +3,6 @@
 		<Patch Address="0x00300478" Value="0x00000001" Description="Enable libcdvd tracing."/>
 	</Executable>
 	
-	<Executable Name="SLPM_661.75;1" Title="Akumajou Dracula - Yami No Juin" Region="JP">
-		<Patch Address="0x009B47D0" Value="0x00000002" Description="Enable libcdvd tracing."/>
-		<Patch Address="0x00400868" Value="0x081D8174" Description="Redirect calls from printf stub to the real printf" />
-		<Patch Address="0x0040086C" Value="0x00000000" Description="Redirect calls from printf stub to the real printf" />
-		<Patch Address="0x00417284" Value="0x00000000" />
-		<!--
-			<Patch Address="0x0042FD58" Value="0x24020001" Description="cv patch"/>
-		-->
-	</Executable>
-	
-	<Executable Name="SLPM_669.65;1" Title="Guilty Gear XX Accent Core Plus" Region="JP">
-		<Patch Address="0x0011F528" Value="0x080B4E74" Description="Redirect calls from trace stub to real printf" />
-		<Patch Address="0x0011F52C" Value="0x00000000" Description="Redirect calls from trace stub to real printf" />
-		<Patch Address="0x00119C84" Value="0x00000000" Description="Cancels movie playing." />
-	</Executable>
-	
-	<Executable Name="SLUS_201.94;1" Title="Grandia 2" Region="US">
-		<Patch Address="0x0025FC24" Value="0x00000000" Description="Nullify spin wait" />
-		<Patch Address="0x0025FC3C" Value="0x00000000" Description="Nullify spin wait" />
-		<Patch Address="0x0025FC48" Value="0x00000000" Description="Nullify spin wait" />
-		<Patch Address="0x002751B4" Value="0x00000000" Description="Nullify spin wait" />
-	</Executable>
-	
 	<Executable Name="SLUS_212.74;1" Title="Outrun" Region="US">
 		<Patch Address="0x00141C88" Value="0x1000000A" Description="Disable NET SIF bind." />
 	</Executable>
