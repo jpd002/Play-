@@ -157,9 +157,11 @@ if(TARGET_PLATFORM_WIN32)
 	find_package(DirectX9 REQUIRED)
 	list(APPEND PROJECT_LIBS ${DirectX_D3D9_LIBRARY})
 	list(APPEND PROJECT_LIBS ${DirectX_D3DX9_LIBRARY})
+	list(APPEND PROJECT_LIBS ${DirectX_DXGUID_LIBRARY})
+	list(APPEND PROJECT_LIBS ${DirectX_D3DCOMPILER_LIBRARY})
 	include_directories(${DirectX_D3D9_INCLUDE_DIR} ${DirectX_D3DX9_INCLUDE_DIR})
 
-	list(APPEND PROJECT_LIBS comctl32 uxtheme opengl32 glu32 dxguid dinput8 vfw32 winmm gdiplus d3dcompiler Boost::date_time)
+	list(APPEND PROJECT_LIBS comctl32 uxtheme opengl32 glu32 dinput8 vfw32 winmm gdiplus Boost::date_time)
 
 endif()
 
