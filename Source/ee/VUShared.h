@@ -136,6 +136,7 @@ namespace VUShared
 	void						MADDA(CMipsJitter*, uint8, uint8, uint8, uint32);
 	void						MADDAbc(CMipsJitter*, uint8, uint8, uint8, uint8, uint32);
 	void						MADDAi(CMipsJitter*, uint8, uint8, uint32);
+	void						MADDAq(CMipsJitter*, uint8, uint8, uint32);
 	void						MAX(CMipsJitter*, uint8, uint8, uint8, uint8);
 	void						MAXbc(CMipsJitter*, uint8, uint8, uint8, uint8, uint8);
 	void						MAXi(CMipsJitter*, uint8, uint8, uint8);

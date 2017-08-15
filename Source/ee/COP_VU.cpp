@@ -671,6 +671,12 @@ void CCOP_VU::VABS()
 	VUShared::ABS(m_codeGen, m_nDest, m_nFT, m_nFS);
 }
 
+//08
+void CCOP_VU::VMADDAq()
+{
+	VUShared::MADDAq(m_codeGen, m_nDest, m_nFS, 0);
+}
+
 //09
 void CCOP_VU::VMSUBAq()
 {
@@ -894,7 +900,7 @@ CCOP_VU::InstructionFuncConstant CCOP_VU::m_pOpVx1[0x20] =
 	//0x00
 	&CCOP_VU::VADDAbc,		&CCOP_VU::VSUBAbc,		&CCOP_VU::VMADDAbc,		&CCOP_VU::VMSUBAbc,		&CCOP_VU::VITOF4,		&CCOP_VU::VFTOI4,		&CCOP_VU::VMULAbc,		&CCOP_VU::VABS,
 	//0x08
-	&CCOP_VU::Illegal,		&CCOP_VU::VMSUBAq,		&CCOP_VU::VMADDA,		&CCOP_VU::VMSUBA,		&CCOP_VU::VMR32,		&CCOP_VU::VSQI,			&CCOP_VU::VSQRT,		&CCOP_VU::VMFIR,
+	&CCOP_VU::VMADDAq,		&CCOP_VU::VMSUBAq,		&CCOP_VU::VMADDA,		&CCOP_VU::VMSUBA,		&CCOP_VU::VMR32,		&CCOP_VU::VSQI,			&CCOP_VU::VSQRT,		&CCOP_VU::VMFIR,
 	//0x10
 	&CCOP_VU::VRGET,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,
 	//0x18
