@@ -335,7 +335,7 @@ INSTRUCTION CCOP_VU::m_cReflVX1[32] =
 	{	"VABS",		NULL,			CopyMnemonic,		ReflOpFtFs,			NULL,				NULL			},
 	//0x08
 	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
-	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
+	{	"VMSUBA",	NULL,			CopyMnemonic,		ReflOpAccFsQ,		NULL,				NULL			},
 	{	"VMADDA",	NULL,			CopyMnemonic,		ReflOpAccFsFt,		NULL,				NULL			},
 	{	"VMSUBA",	NULL,			CopyMnemonic,		ReflOpAccFsFt,		NULL,				NULL			},
 	{	"VMR32",	NULL,			CopyMnemonic,		ReflOpFtFs,			NULL,				NULL			},
