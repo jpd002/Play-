@@ -51,7 +51,7 @@ public:
 	};
 
 								CVif(unsigned int, CVpu&, uint8*, uint8*);
-	virtual						~CVif();
+	virtual						~CVif() = default;
 
 	virtual void				Reset();
 	uint32						GetRegister(uint32);

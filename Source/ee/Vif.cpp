@@ -45,11 +45,6 @@ CVif::CVif(unsigned int number, CVpu& vpu, uint8* ram, uint8* spr)
 
 }
 
-CVif::~CVif()
-{
-
-}
-
 void CVif::Reset()
 {
 	memset(&m_STAT, 0, sizeof(STAT));
