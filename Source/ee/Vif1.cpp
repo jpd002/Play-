@@ -14,8 +14,8 @@
 #define STATE_REGS_TOPS			("TOPS")
 #define STATE_REGS_OFST			("OFST")
 
-CVif1::CVif1(unsigned int number, CVpu& vpu, CGIF& gif, uint8* ram, uint8* spr)
-: CVif(1, vpu, ram, spr)
+CVif1::CVif1(unsigned int number, CVpu& vpu, CGIF& gif, CINTC& intc, uint8* ram, uint8* spr)
+: CVif(1, vpu, intc, ram, spr)
 , m_gif(gif)
 {
 

@@ -10,6 +10,7 @@
 //#define DELAYED_MSCAL
 
 class CVpu;
+class CINTC;
 
 class CVif
 {
@@ -50,7 +51,7 @@ public:
 		VIF1_FIFO_END	= 0x10005FFF,
 	};
 
-								CVif(unsigned int, CVpu&, uint8*, uint8*);
+								CVif(unsigned int, CVpu&, CINTC&, uint8*, uint8*);
 	virtual						~CVif() = default;
 
 	virtual void				Reset();
@@ -65,7 +66,6 @@ public:
 	virtual uint32				ReceiveDMA(uint32, uint32, uint32, bool);
 
 	bool						IsWaitingForProgramEnd() const;
-	bool						IsStalledByInterrupt() const;
 
 protected:
 	enum
@@ -212,6 +212,7 @@ protected:
 
 	unsigned int		m_number = 0;
 	CVpu&				m_vpu;
+	CINTC&				m_intc;
 	uint8*				m_ram = nullptr;
 	uint8*				m_spr = nullptr;
 	CFifoStream			m_stream;

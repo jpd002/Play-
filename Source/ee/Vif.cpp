@@ -7,6 +7,7 @@
 #include "../MemoryStateFile.h"
 #include "Vpu.h"
 #include "Vif.h"
+#include "INTC.h"
 
 #define LOG_NAME ("vif")
 
@@ -34,10 +35,11 @@
 #define STATE_REGS_WRITETICK	("writeTick")
 #define STATE_REGS_FIFOINDEX	("fifoIndex")
 
-CVif::CVif(unsigned int number, CVpu& vpu, uint8* ram, uint8* spr)
+CVif::CVif(unsigned int number, CVpu& vpu, CINTC& intc, uint8* ram, uint8* spr)
 : m_number(number)
 , m_ram(ram)
 , m_spr(spr)
+, m_intc(intc)
 , m_stream(ram, spr)
 , m_vpu(vpu)
 , m_vifProfilerZone(CProfiler::GetInstance().RegisterZone(string_format("VIF%d", number).c_str()))
@@ -278,11 +280,6 @@ bool CVif::IsWaitingForProgramEnd() const
 	return (m_STAT.nVEW != 0);
 }
 
-bool CVif::IsStalledByInterrupt() const
-{
-	return (m_STAT.nVIS != 0);
-}
-
 void CVif::ProcessFifoWrite(uint32 address, uint32 value)
 {
 	assert(m_fifoIndex != FIFO_SIZE);
@@ -348,6 +345,7 @@ void CVif::ProcessPacket(StreamType& stream)
 			//Next command will be stalled
 			m_STAT.nVIS = 1;
 			m_STAT.nINT = 1;
+			m_intc.AssertLine(CINTC::INTC_LINE_VIF0 + m_number);
 		}
 
 		m_NUM = m_CODE.nNUM;

@@ -3,11 +3,12 @@
 #include "Vif.h"
 
 class CGIF;
+class CINTC;
 
 class CVif1 : public CVif
 {
 public:
-					CVif1(unsigned int, CVpu&, CGIF&, uint8*, uint8*);
+					CVif1(unsigned int, CVpu&, CGIF&, CINTC&, uint8*, uint8*);
 	virtual			~CVif1();
 
 	void			Reset() override;

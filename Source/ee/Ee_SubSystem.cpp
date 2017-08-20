@@ -55,8 +55,8 @@ CSubSystem::CSubSystem(uint8* iopRam, CIopBios& iopBios)
 	assert((reinterpret_cast<size_t>(m_vuMem0) & 0x0F) == 0);
 	assert((reinterpret_cast<size_t>(m_vuMem1) & 0x0F) == 0);
 
-	m_vpu0 = std::make_shared<CVpu>(0, CVpu::VPUINIT(m_microMem0, m_vuMem0, &m_VU0), m_gif, m_ram, m_spr);
-	m_vpu1 = std::make_shared<CVpu>(1, CVpu::VPUINIT(m_microMem1, m_vuMem1, &m_VU1), m_gif, m_ram, m_spr);
+	m_vpu0 = std::make_shared<CVpu>(0, CVpu::VPUINIT(m_microMem0, m_vuMem0, &m_VU0), m_gif, m_intc, m_ram, m_spr);
+	m_vpu1 = std::make_shared<CVpu>(1, CVpu::VPUINIT(m_microMem1, m_vuMem1, &m_VU1), m_gif, m_intc, m_ram, m_spr);
 
 	//EmotionEngine context setup
 	{
@@ -289,10 +289,6 @@ void CSubSystem::CountTicks(int ticks)
 	if(!m_vpu1->IsVuRunning() || (m_vpu1->IsVuRunning() && !m_vpu1->GetVif().IsWaitingForProgramEnd()))
 	{
 		m_dmac.ResumeDMA1();
-		if(m_vpu1->GetVif().IsStalledByInterrupt())
-		{
-			m_intc.AssertLine(CINTC::INTC_LINE_VIF1);
-		}
 	}
 	m_dmac.ResumeDMA2();
 	m_dmac.ResumeDMA8();

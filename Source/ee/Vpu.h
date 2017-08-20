@@ -10,6 +10,7 @@
 
 class CVif;
 class CGIF;
+class CINTC;
 
 class CVpu
 {
@@ -37,7 +38,7 @@ public:
 		CMIPS* context;
 	};
 
-							CVpu(unsigned int, const VPUINIT&, CGIF&, uint8*, uint8*);
+							CVpu(unsigned int, const VPUINIT&, CGIF&, CINTC&, uint8*, uint8*);
 	virtual					~CVpu();
 
 	void					Execute(int32);

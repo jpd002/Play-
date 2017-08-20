@@ -10,9 +10,9 @@
 
 #define LOG_NAME				("vpu")
 
-CVpu::CVpu(unsigned int number, const VPUINIT& vpuInit, CGIF& gif, uint8* ram, uint8* spr)
+CVpu::CVpu(unsigned int number, const VPUINIT& vpuInit, CGIF& gif, CINTC& intc, uint8* ram, uint8* spr)
 : m_number(number)
-, m_vif((number == 0) ? std::make_unique<CVif>(0, *this, ram, spr) : std::make_unique<CVif1>(1, *this, gif, ram, spr))
+, m_vif((number == 0) ? std::make_unique<CVif>(0, *this, intc, ram, spr) : std::make_unique<CVif1>(1, *this, gif, intc, ram, spr))
 , m_microMem(vpuInit.microMem)
 , m_vuMem(vpuInit.vuMem)
 , m_vuMemSize((number == 0) ? PS2::VUMEM0SIZE : PS2::VUMEM1SIZE)
