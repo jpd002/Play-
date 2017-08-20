@@ -1296,20 +1296,20 @@ void CGSHandler::MakeLinearCLUT(const TEX0& tex0, std::array<uint32, 256>& clut)
 	}
 	else if(CGsPixelFormats::IsPsmIDTEX8(tex0.nPsm))
 	{
-		assert(tex0.nCSA == 0);
-
 		if(tex0.nCPSM == PSMCT32 || tex0.nCPSM == PSMCT24)
 		{
 			for(unsigned int i = 0; i < 256; i++)
 			{
+				uint32 offset = ((tex0.nCSA * 16) + i) & 0xFF;
 				uint32 color = 
-					(static_cast<uint16>(m_pCLUT[i + 0x000])) | 
-					(static_cast<uint16>(m_pCLUT[i + 0x100]) << 16);
+					(static_cast<uint16>(m_pCLUT[offset + 0x000])) | 
+					(static_cast<uint16>(m_pCLUT[offset + 0x100]) << 16);
 				clut[i] = color;
 			}
 		}
 		else if(tex0.nCPSM == PSMCT16 || tex0.nCPSM == PSMCT16S)
 		{
+			assert(tex0.nCSA == 0);
 			for(unsigned int i = 0; i < 256; i++)
 			{
 				clut[i] = RGBA16ToRGBA32(m_pCLUT[i]);
