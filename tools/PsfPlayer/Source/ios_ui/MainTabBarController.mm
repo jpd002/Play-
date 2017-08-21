@@ -28,15 +28,17 @@
 
 -(void)onAudioSessionRouteChanged: (NSNotification*)notification
 {
+	//Pause if we're moving away from any output port that's not the built-in speaker
+	//to prevent playback from continuing when disconnecting headphones and other devices
 	AVAudioSessionRouteDescription* route = [notification.userInfo valueForKey: AVAudioSessionRouteChangePreviousRouteKey];
 	if([route.outputs count] > 0)
 	{
 		AVAudioSessionPortDescription* port = [route.outputs objectAtIndex: 0];
-		if([port.portType compare: AVAudioSessionPortHeadphones] == NSOrderedSame)
+		if([port.portType compare: AVAudioSessionPortBuiltInSpeaker] != NSOrderedSame)
 		{
 			if(m_playing)
 			{
-				[self onPlayButtonPress];
+				[self performSelectorOnMainThread: @selector(onPlayButtonPress) withObject: nil waitUntilDone: NO];
 			}
 		}
 	}
