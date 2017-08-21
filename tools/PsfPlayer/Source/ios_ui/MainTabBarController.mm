@@ -202,8 +202,6 @@
 	[self reset];
 	[m_fileInfoViewController setPlayButtonText: PLAY_STRING];
 	
-	self.selectedIndex = 1;
-	
 	unsigned int archiveId = playlistItem.archiveId;
 	
 	m_virtualMachine->Pause();
