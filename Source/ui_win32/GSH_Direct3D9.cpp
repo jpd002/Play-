@@ -1297,6 +1297,15 @@ void CGSH_Direct3D9::SetupBlendingFunction(uint64 alphaReg)
 		m_device->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_ONE);
 		blendOp = D3DBLENDOP_REVSUBTRACT;
 	}
+	else if((alpha.nA == ALPHABLEND_ABD_ZERO) && (alpha.nB == ALPHABLEND_ABD_CS) && (alpha.nC == ALPHABLEND_C_FIX) && (alpha.nD == ALPHABLEND_ABD_CD))
+	{
+		//2021 -> Cd - Cs * FIX
+		uint8 fix = MulBy2Clamp(alpha.nFix);
+		m_device->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_BLENDFACTOR);
+		m_device->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_ONE);
+		m_device->SetRenderState(D3DRS_BLENDFACTOR, D3DCOLOR_ARGB(fix, fix, fix, fix));
+		blendOp = D3DBLENDOP_REVSUBTRACT;
+	}
 	else if((alpha.nA == ALPHABLEND_ABD_ZERO) && (alpha.nB == ALPHABLEND_ABD_CD) && (alpha.nC == ALPHABLEND_C_AS) && (alpha.nD == ALPHABLEND_ABD_CD))
 	{
 		//2101 -> Cd * (1 - As)
