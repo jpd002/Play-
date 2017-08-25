@@ -255,7 +255,7 @@ void CPS2OS::Initialize()
 	CreateIdleThread();
 
 	m_ee.m_State.nPC = BIOS_ADDRESS_IDLETHREADPROC;
-	m_ee.m_State.nCOP0[CCOP_SCU::STATUS] |= CMIPS::STATUS_IE;
+	m_ee.m_State.nCOP0[CCOP_SCU::STATUS] |= (CMIPS::STATUS_IE | CMIPS::STATUS_EIE);
 }
 
 void CPS2OS::Release()
