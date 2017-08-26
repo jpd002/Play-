@@ -246,6 +246,9 @@ void CChannel::ExecuteSourceChain()
 	case 1:
 		isStallDrainChannel = (m_number == CDMAC::CHANNEL_ID_VIF1);
 		break;
+	case 2:
+		isStallDrainChannel = (m_number == CDMAC::CHANNEL_ID_GIF);
+		break;
 	default:
 		assert(false);
 		break;
