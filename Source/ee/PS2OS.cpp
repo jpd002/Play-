@@ -429,7 +429,7 @@ void CPS2OS::LoadELF(Framework::CStream& stream, const char* executablePath, con
 	m_executableName = 
 		[&] ()
 		{
-			auto executableName = strchr(executablePath, ':');
+			auto executableName = reinterpret_cast<const char*>(strchr(executablePath, ':'));
 			if(!executableName) return executablePath;
 			executableName++;
 			if(executableName[0] == '/' || executableName[0] == '\\') executableName++;
