@@ -323,10 +323,8 @@ void CPS2OS::BootFromVirtualPath(const char* executablePath, const ArgumentList&
 
 	try
 	{
-		const char* executableName = strchr(executablePath, ':') + 1;
-		if(executableName[0] == '/' || executableName[0] == '\\') executableName++;
 		Framework::CStream* file(ioman->GetFileStream(handle));
-		LoadELF(*file, executableName, arguments);
+		LoadELF(*file, executablePath, arguments);
 	}
 	catch(...)
 	{
@@ -402,7 +400,7 @@ std::pair<uint32, uint32> CPS2OS::GetExecutableRange() const
 	return std::pair<uint32, uint32>(minAddr, maxAddr);
 }
 
-void CPS2OS::LoadELF(Framework::CStream& stream, const char* sExecName, const ArgumentList& arguments)
+void CPS2OS::LoadELF(Framework::CStream& stream, const char* executablePath, const ArgumentList& arguments)
 {
 	CELF* elf(new CElfFile(stream));
 
@@ -425,15 +423,25 @@ void CPS2OS::LoadELF(Framework::CStream& stream, const char* sExecName, const Ar
 
 	m_elf = elf;
 
-	m_executableName = sExecName;
+	m_executablePath = executablePath;
 	m_currentArguments = arguments;
+
+	m_executableName = 
+		[&] ()
+		{
+			auto executableName = strchr(executablePath, ':');
+			if(!executableName) return executablePath;
+			executableName++;
+			if(executableName[0] == '/' || executableName[0] == '\\') executableName++;
+			return executableName;
+		}();
 
 	LoadExecutableInternal();
 	ApplyPatches();
 
 	OnExecutableChange();
 
-	CLog::GetInstance().Print(LOG_NAME, "Loaded '%s' executable file.\r\n", sExecName);
+	CLog::GetInstance().Print(LOG_NAME, "Loaded '%s' executable file.\r\n", executablePath);
 }
 
 void CPS2OS::LoadExecutableInternal()
@@ -2218,7 +2226,7 @@ void CPS2OS::sc_SetupThread()
 	//Copy arguments
 	{
 		ArgumentList completeArgList;
-		completeArgList.push_back(m_executableName);
+		completeArgList.push_back(m_executablePath);
 		completeArgList.insert(completeArgList.end(), m_currentArguments.begin(), m_currentArguments.end());
 
 		uint32 argsCount = static_cast<uint32>(completeArgList.size());
