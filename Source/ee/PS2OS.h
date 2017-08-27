@@ -358,11 +358,6 @@ private:
 	CSIF&									m_sif;
 	CIopBios&								m_iopBios;
 
-	uint32									m_semaWaitId;
-	uint32									m_semaWaitCount;
-	uint32									m_semaWaitCaller;
-	uint32									m_semaWaitThreadId;
-
 #ifdef DEBUGGER_INCLUDED
 	static const SYSCALL_NAME				g_syscallNames[];
 #endif

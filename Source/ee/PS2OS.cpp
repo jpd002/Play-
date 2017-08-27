@@ -237,11 +237,6 @@ void CPS2OS::Initialize()
 {
 	m_elf = nullptr;
 
-	m_semaWaitId = -1;
-	m_semaWaitCount = 0;
-	m_semaWaitCaller = 0;
-	m_semaWaitThreadId = -1;
-
 	SetVsyncFlagPtrs(0, 0);
 
 	AssembleCustomSyscallHandler();
@@ -264,9 +259,7 @@ void CPS2OS::Release()
 
 bool CPS2OS::IsIdle() const
 {
-	return 
-		(m_currentThreadId == m_idleThreadId) ||
-		(m_currentThreadId == m_semaWaitThreadId);
+	return (m_currentThreadId == m_idleThreadId);
 }
 
 void CPS2OS::DumpIntcHandlers()
@@ -1351,7 +1344,6 @@ void CPS2OS::HandleInterrupt()
 		return;
 	}
 
-	m_semaWaitCount = 0;
 	m_ee.GenerateInterrupt(0x1FC00200);
 }
 
@@ -2419,25 +2411,6 @@ void CPS2OS::sc_WaitSema()
 	{
 		m_ee.m_State.nGPR[SC_RETURN].nD0 = -1;
 		return;
-	}
-
-	//Check if we can activate a speed hack for a thread that is stuck
-	//in a loop checking the same semaphore over and over
-	//This helps skipping an idle loop in Castlevania: Curse of Darkness
-	if((m_semaWaitId == id) && (m_semaWaitCaller == m_ee.m_State.nGPR[CMIPS::RA].nV0))
-	{
-		m_semaWaitCount++;
-		if(m_semaWaitCount > 100)
-		{
-			m_semaWaitThreadId = m_currentThreadId;
-		}
-	}
-	else
-	{
-		m_semaWaitId = id;
-		m_semaWaitCaller = m_ee.m_State.nGPR[CMIPS::RA].nV0;
-		m_semaWaitCount = 0;
-		m_semaWaitThreadId = -1;
 	}
 
 	if(sema->count == 0)
