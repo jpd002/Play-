@@ -259,7 +259,8 @@ void CPS2OS::Release()
 
 bool CPS2OS::IsIdle() const
 {
-	return (m_currentThreadId == m_idleThreadId);
+	return m_ee.CanGenerateInterrupt() &&
+		(m_currentThreadId == m_idleThreadId);
 }
 
 void CPS2OS::DumpIntcHandlers()
