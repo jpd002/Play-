@@ -1093,6 +1093,12 @@ void CPS2OS::ThreadShakeAndBake()
 		return;
 	}
 
+	//SetupThread has not been called, not ready to switch threads yet
+	if(m_currentThreadId == 0)
+	{
+		return;
+	}
+
 	//Select thread to execute
 	{
 		uint32 nextThreadId = 0;
@@ -2261,6 +2267,7 @@ void CPS2OS::sc_SetupThread()
 	thread->contextPtr		= 0;
 
 	LinkThread(threadId);
+	assert(m_currentThreadId == 0);
 	m_currentThreadId = threadId;
 
 	m_ee.m_State.nGPR[SC_RETURN].nV[0] = stackAddr;
