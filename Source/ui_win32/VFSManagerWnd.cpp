@@ -11,6 +11,7 @@
 #include "../PS2VM_Preferences.h"
 #include "CdromSelectionWnd.h"
 #include "string_cast.h"
+#include "string_format.h"
 
 #define CLSNAME			_T("VFSManagerWnd")
 #define WNDSTYLE		(WS_CAPTION | WS_POPUP | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_SYSMENU)
@@ -272,11 +273,8 @@ CVFSManagerWnd::CCdrom0Device::CCdrom0Device()
 	}
 	else if(strlen(cdrom0Path) == 6 && !strncmp(cdrom0Path, "\\\\.\\", 4))
 	{
-		char devicePath[32];
-		sprintf(devicePath, "%c:\\", toupper(cdrom0Path[4]));
-
 		m_bindingType = CCdromSelectionWnd::BINDING_PHYSICAL;
-		m_devicePath  = devicePath;
+		m_devicePath  = string_format("%c:\\", toupper(cdrom0Path[4]));
 	}
 	else
 	{
@@ -337,12 +335,9 @@ bool CVFSManagerWnd::CCdrom0Device::RequestModification(HWND hParent)
 
 	binding = selectionWnd.GetBindingInfo();
 
-	char devicePath[32];
-	sprintf(devicePath, "%c:\\", binding.physicalDevice + 'A');
-
 	m_bindingType = binding.type;
 	m_imagePath   = binding.imagePath;
-	m_devicePath  = devicePath;
+	m_devicePath  = string_format("%c:\\", binding.physicalDevice + 'A');
 
 	return true;
 }
@@ -356,8 +351,7 @@ void CVFSManagerWnd::CCdrom0Device::Save()
 	}
 	else if(m_bindingType == CCdromSelectionWnd::BINDING_PHYSICAL)
 	{
-		char devicePath[32];
-		sprintf(devicePath, "\\\\.\\%c:", m_devicePath[0]);
-		CAppConfig::GetInstance().SetPreferenceString(PS2VM_CDROM0PATH, devicePath);
+		auto devicePath = string_format("\\\\.\\%c:", m_devicePath[0]);
+		CAppConfig::GetInstance().SetPreferenceString(PS2VM_CDROM0PATH, devicePath.c_str());
 	}
 }
