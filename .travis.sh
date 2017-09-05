@@ -4,10 +4,10 @@ travis_before_install()
 {
     cd ..
     if [ "$TARGET_OS" = "Linux" ]; then
-        sudo add-apt-repository --yes ppa:beineri/opt-qt562-trusty
+        sudo add-apt-repository --yes ppa:beineri/opt-qt591-trusty
         sudo add-apt-repository --yes ppa:ubuntu-toolchain-r/test
         sudo apt-get update -qq
-        sudo apt-get install -qq qt56base gcc-5 g++-5 libalut-dev
+        sudo apt-get install -qq qt591base gcc-5 g++-5 libalut-dev
         curl -sSL https://cmake.org/files/v3.8/cmake-3.8.1-Linux-x86_64.tar.gz | sudo tar -xzC /opt
     elif [ "$TARGET_OS" = "OSX" ]; then
         sudo npm install -g appdmg
@@ -57,9 +57,16 @@ travis_script()
         if [ "$TARGET_OS" = "Linux" ]; then
             if [ "$CXX" = "g++" ]; then export CXX="g++-5" CC="gcc-5"; fi
             export PATH=/opt/cmake-3.8.1-Linux-x86_64/bin/:$PATH
-            source /opt/qt56/bin/qt56-env.sh || true
-            cmake .. -G"$BUILD_TYPE" -DCMAKE_PREFIX_PATH=/opt/qt56/;
+            source /opt/qt591/bin/qt591-env.sh || true
+            cmake .. -G"$BUILD_TYPE" -DCMAKE_PREFIX_PATH=/opt/qt591/ -DCMAKE_INSTALL_PREFIX=./appdir/usr;
             cmake --build .
+            cmake --build . --target install
+            # AppImage Creation
+            wget -c "https://github.com/probonopd/linuxdeployqt/releases/download/continuous/linuxdeployqt-continuous-x86_64.AppImage"
+            chmod a+x linuxdeployqt*.AppImage
+            unset QTDIR; unset QT_PLUGIN_PATH ; unset LD_LIBRARY_PATH
+            ./linuxdeployqt*.AppImage ./appdir/usr/share/applications/*.desktop -bundle-non-qt-libs
+            ./linuxdeployqt*.AppImage ./appdir/usr/share/applications/*.desktop -appimage
         elif [ "$TARGET_OS" = "OSX" ]; then
             cmake .. -G"$BUILD_TYPE"
             cmake --build . --config Release
@@ -97,6 +104,9 @@ travis_before_deploy()
         export ANDROID_BUILD_TOOLS=$ANDROID_HOME/build-tools/25.0.0
         $ANDROID_BUILD_TOOLS/zipalign -v -p 4 Play-release-unsigned.apk Play-release.apk
         $ANDROID_BUILD_TOOLS/apksigner sign --ks ../../installer_android/deploy.keystore --ks-key-alias deploy --ks-pass env:ANDROID_KEYSTORE_PASS --key-pass env:ANDROID_KEYSTORE_PASS Play-release.apk
+    fi;
+    if [ "$TARGET_OS" = "Linux" ]; then
+        cp ../../build_cmake/build/Play.AppImage .
     fi;
     if [ "$TARGET_OS" = "OSX" ]; then
         cp ../../build_cmake/build/Play.dmg .
