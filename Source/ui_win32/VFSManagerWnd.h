@@ -2,6 +2,7 @@
 
 #include <string>
 #include <map>
+#include <memory>
 #include "win32/ModalWindow.h"
 #include "win32/Button.h"
 #include "win32/ListView.h"
@@ -11,7 +12,7 @@ class CVFSManagerWnd : public Framework::Win32::CModalWindow
 {
 public:
 									CVFSManagerWnd(HWND);
-									~CVFSManagerWnd();
+	virtual							~CVFSManagerWnd() = default;
 
 protected:
 	long							OnCommand(unsigned short, unsigned short, HWND) override;
@@ -65,7 +66,8 @@ private:
 		unsigned int				m_nBindingType;
 	};
 
-	typedef std::map<unsigned int, CDevice*> DeviceList;
+	typedef std::unique_ptr<CDevice> DevicePtr;
+	typedef std::map<unsigned int, DevicePtr> DeviceList;
 
 	void							RefreshLayout();
 	void							CreateListColumns();

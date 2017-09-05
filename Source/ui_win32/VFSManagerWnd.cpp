@@ -58,21 +58,13 @@ CVFSManagerWnd::CVFSManagerWnd(HWND hParent)
 
 	RefreshLayout();
 
-	m_devices[0] = new CDirectoryDevice("mc0",  PREF_PS2_MC0_DIRECTORY);
-	m_devices[1] = new CDirectoryDevice("mc1",  PREF_PS2_MC1_DIRECTORY);
-	m_devices[2] = new CDirectoryDevice("host", PREF_PS2_HOST_DIRECTORY);
-	m_devices[3] = new CCdrom0Device();
+	m_devices[0] = std::make_unique<CDirectoryDevice>("mc0",  PREF_PS2_MC0_DIRECTORY);
+	m_devices[1] = std::make_unique<CDirectoryDevice>("mc1",  PREF_PS2_MC1_DIRECTORY);
+	m_devices[2] = std::make_unique<CDirectoryDevice>("host", PREF_PS2_HOST_DIRECTORY);
+	m_devices[3] = std::make_unique<CCdrom0Device>();
 
 	CreateListColumns();
 	UpdateList();
-}
-
-CVFSManagerWnd::~CVFSManagerWnd()
-{
-	for(const auto& devicePair : m_devices)
-	{
-		delete devicePair.second;
-	}
 }
 
 long CVFSManagerWnd::OnCommand(unsigned short nID, unsigned short nCmd, HWND hSender)
@@ -104,7 +96,7 @@ LRESULT CVFSManagerWnd::OnNotify(WPARAM wParam, NMHDR* pHDR)
 				const auto deviceIterator = m_devices.find(m_pList->GetItemData(nSel));
 				if(deviceIterator != m_devices.end())
 				{
-					auto device = deviceIterator->second;
+					const auto& device = deviceIterator->second;
 					if(device->RequestModification(m_hWnd))
 					{
 						UpdateList();
@@ -158,7 +150,7 @@ void CVFSManagerWnd::UpdateList()
 {
 	for(const auto& devicePair : m_devices)
 	{
-		auto device = devicePair.second;
+		const auto& device = devicePair.second;
 		auto key = devicePair.first;
 
 		unsigned int index = m_pList->FindItemData(key);
@@ -183,7 +175,7 @@ void CVFSManagerWnd::Save()
 {
 	for(const auto& devicePair : m_devices)
 	{
-		auto device = devicePair.second;
+		const auto& device = devicePair.second;
 		device->Save();
 	}
 }
