@@ -1,14 +1,9 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 14
-VisualStudioVersion = 14.0.23107.0
+# Visual Studio 15
+VisualStudioVersion = 15.0.26730.12
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PsfPlayer", "PsfPlayer.vcxproj", "{06CD8F2E-F93C-4DE3-8100-C74290578573}"
-	ProjectSection(ProjectDependencies) = postProject
-		{AADF4E26-3746-466D-B3CA-25BBD29C5A39} = {AADF4E26-3746-466D-B3CA-25BBD29C5A39}
-		{8F91892C-9228-42F5-816F-CD2397070758} = {8F91892C-9228-42F5-816F-CD2397070758}
-		{D78DB25F-3D98-4322-BA2F-C677E3BE3095} = {D78DB25F-3D98-4322-BA2F-C677E3BE3095}
-	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Framework", "..\..\..\..\Framework\build_win32\Framework.vcxproj", "{553CE050-A97E-4E6E-AE84-057A1F0FA45D}"
 EndProject
@@ -229,5 +224,8 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{28F9E5B7-74EB-4DAA-A7C0-E09D2FF43291} = {3223C0FB-153B-4C2A-AE52-3BED2FBCEED9}
 		{55FA4E66-2FBB-4165-A9CA-D126D13879BD} = {3223C0FB-153B-4C2A-AE52-3BED2FBCEED9}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {E1D96A6F-F747-4DB4-B239-FC08DA805619}
 	EndGlobalSection
 EndGlobal

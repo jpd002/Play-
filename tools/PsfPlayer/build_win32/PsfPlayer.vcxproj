@@ -769,6 +769,10 @@
     <ProjectReference Include="..\..\..\..\Framework\build_win32\Framework.vcxproj">
       <Project>{553ce050-a97e-4e6e-ae84-057a1f0fa45d}</Project>
     </ProjectReference>
+    <ProjectReference Include="SH_XAudio2.vcxproj">
+      <Project>{aadf4e26-3746-466d-b3ca-25bbd29c5a39}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
