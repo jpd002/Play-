@@ -69,10 +69,9 @@ CVFSManagerWnd::CVFSManagerWnd(HWND hParent)
 
 CVFSManagerWnd::~CVFSManagerWnd()
 {
-	for(DeviceList::const_iterator deviceIterator(m_devices.begin());
-		m_devices.end() != deviceIterator; deviceIterator++)
+	for(const auto& devicePair : m_devices)
 	{
-		delete deviceIterator->second;
+		delete devicePair.second;
 	}
 }
 
@@ -102,11 +101,11 @@ LRESULT CVFSManagerWnd::OnNotify(WPARAM wParam, NMHDR* pHDR)
 			int nSel = m_pList->GetSelection();
 			if(nSel != -1)
 			{
-				DeviceList::const_iterator deviceIterator(m_devices.find(m_pList->GetItemData(nSel)));
+				const auto deviceIterator = m_devices.find(m_pList->GetItemData(nSel));
 				if(deviceIterator != m_devices.end())
 				{
-					CDevice* pDevice(deviceIterator->second);
-					if(pDevice->RequestModification(m_hWnd))
+					auto device = deviceIterator->second;
+					if(device->RequestModification(m_hWnd))
 					{
 						UpdateList();
 					}
@@ -157,37 +156,35 @@ void CVFSManagerWnd::CreateListColumns()
 
 void CVFSManagerWnd::UpdateList()
 {
-	for(DeviceList::const_iterator deviceIterator(m_devices.begin());
-		m_devices.end() != deviceIterator; deviceIterator++)
+	for(const auto& devicePair : m_devices)
 	{
-		CDevice* pDevice = deviceIterator->second;
-		unsigned int key = deviceIterator->first;
+		auto device = devicePair.second;
+		auto key = devicePair.first;
 
 		unsigned int index = m_pList->FindItemData(key);
 		if(index == -1)
 		{
-			std::tstring sDeviceName(string_cast<std::tstring>(pDevice->GetDeviceName()));
+			auto deviceName = string_cast<std::tstring>(device->GetDeviceName());
 
 			LVITEM itm;
 			memset(&itm, 0, sizeof(LVITEM));
 			itm.mask		= LVIF_TEXT | LVIF_PARAM;
-			itm.pszText		= const_cast<TCHAR*>(sDeviceName.c_str());
+			itm.pszText		= const_cast<TCHAR*>(deviceName.c_str());
 			itm.lParam		= key;
 			index = m_pList->InsertItem(itm);
 		}
 
-		m_pList->SetItemText(index, 1, string_cast<std::tstring>(pDevice->GetBindingType()).c_str());
-		m_pList->SetItemText(index, 2, string_cast<std::tstring>(pDevice->GetBinding()).c_str());
+		m_pList->SetItemText(index, 1, string_cast<std::tstring>(device->GetBindingType()).c_str());
+		m_pList->SetItemText(index, 2, string_cast<std::tstring>(device->GetBinding()).c_str());
 	}
 }
 
 void CVFSManagerWnd::Save()
 {
-	for(DeviceList::const_iterator deviceIterator(m_devices.begin());
-		m_devices.end() != deviceIterator; deviceIterator++)
+	for(const auto& devicePair : m_devices)
 	{
-		CDevice* pDevice = deviceIterator->second;
-		pDevice->Save();
+		auto device = devicePair.second;
+		device->Save();
 	}
 }
 
