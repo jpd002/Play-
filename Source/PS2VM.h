@@ -15,10 +15,6 @@
 #include "FrameDump.h"
 #include "Profiler.h"
 
-#define PREF_PS2_HOST_DIRECTORY				("ps2.host.directory")
-#define PREF_PS2_MC0_DIRECTORY				("ps2.mc0.directory")
-#define PREF_PS2_MC1_DIRECTORY				("ps2.mc1.directory")
-
 class CPS2VM : public CVirtualMachine
 {
 public:
