@@ -192,15 +192,6 @@ void CVFSManagerWnd::Save()
 }
 
 ///////////////////////////////////////////
-//CDevice Implementation
-///////////////////////////////////////////
-
-CVFSManagerWnd::CDevice::~CDevice()
-{
-
-}
-
-///////////////////////////////////////////
 //CDirectoryDevice Implementation
 ///////////////////////////////////////////
 
@@ -209,11 +200,6 @@ CVFSManagerWnd::CDirectoryDevice::CDirectoryDevice(const char* sName, const char
 	m_sName         = sName;
 	m_sPreference   = sPreference;
 	m_sValue        = CAppConfig::GetInstance().GetPreferenceString(m_sPreference);
-}
-
-CVFSManagerWnd::CDirectoryDevice::~CDirectoryDevice()
-{
-
 }
 
 const char* CVFSManagerWnd::CDirectoryDevice::GetDeviceName()
@@ -234,9 +220,6 @@ const char* CVFSManagerWnd::CDirectoryDevice::GetBinding()
 bool CVFSManagerWnd::CDirectoryDevice::RequestModification(HWND hParent)
 {
 	BROWSEINFO bi;
-	LPITEMIDLIST item;
-	TCHAR sPath[MAX_PATH];
-
 	memset(&bi, 0, sizeof(BROWSEINFO));
 	bi.hwndOwner	= hParent;
 	bi.lpszTitle	= _T("Select new folder for device");
@@ -244,13 +227,13 @@ bool CVFSManagerWnd::CDirectoryDevice::RequestModification(HWND hParent)
 	bi.lpfn			= BrowseCallback;
 	bi.lParam		= (LPARAM)this;
 
-	item = SHBrowseForFolder(&bi);
-	
+	auto item = SHBrowseForFolder(&bi);
 	if(item == NULL)
 	{
 		return false;
 	}
 
+	TCHAR sPath[MAX_PATH];
 	if(SHGetPathFromIDList(item, sPath) == 0)
 	{
 		MessageBox(hParent, _T("Invalid directory."), NULL, 16);
@@ -311,11 +294,6 @@ CVFSManagerWnd::CCdrom0Device::CCdrom0Device()
 		m_nBindingType	= CCdromSelectionWnd::BINDING_IMAGE;
 		m_sImagePath	= sPath;
 	}
-}
-
-CVFSManagerWnd::CCdrom0Device::~CCdrom0Device()
-{
-
 }
 
 const char* CVFSManagerWnd::CCdrom0Device::GetDeviceName()
