@@ -80,6 +80,8 @@ CPS2VM::CPS2VM()
 		CAppConfig::GetInstance().RegisterPreferenceString(setting, absolutePath.string().c_str());
 	}
 	
+	CAppConfig::GetInstance().RegisterPreferenceString(PS2VM_CDROM0PATH, "");
+
 	m_iop = std::make_unique<Iop::CSubSystem>(true);
 	m_iopOs = std::make_shared<CIopBios>(m_iop->m_cpu, m_iop->m_executor, m_iop->m_ram, PS2::IOP_RAM_SIZE, m_iop->m_scratchPad);
 
@@ -369,7 +371,6 @@ void CPS2VM::SaveDebugTags(const char* packageName)
 
 void CPS2VM::CreateVM()
 {
-	CDROM0_Initialize();
 	ResetVM();
 }
 
@@ -389,7 +390,7 @@ void CPS2VM::ResetVM()
 
 	m_iopOs->Reset(std::make_shared<Iop::CSifManPs2>(m_ee->m_sif, m_ee->m_ram, m_iop->m_ram));
 
-	CDROM0_Reset();
+	CDROM0_SyncPath();
 
 	m_iopOs->GetIoman()->RegisterDevice("host", Iop::CIoman::DevicePtr(new Iop::Ioman::CDirectoryDevice(PREF_PS2_HOST_DIRECTORY)));
 	m_iopOs->GetIoman()->RegisterDevice("mc0", Iop::CIoman::DevicePtr(new Iop::Ioman::CDirectoryDevice(PREF_PS2_MC0_DIRECTORY)));
@@ -413,7 +414,7 @@ void CPS2VM::ResetVM()
 
 void CPS2VM::DestroyVM()
 {
-	CDROM0_Destroy();
+	CDROM0_Reset();
 }
 
 bool CPS2VM::SaveVMState(const filesystem::path& statePath)
@@ -670,23 +671,14 @@ void CPS2VM::UpdateSpu()
 	}
 }
 
-void CPS2VM::CDROM0_Initialize()
-{
-	CAppConfig::GetInstance().RegisterPreferenceString(PS2VM_CDROM0PATH, "");
-	m_cdrom0.reset();
-}
-
-void CPS2VM::CDROM0_Reset()
-{
-	m_cdrom0.reset();
-	CDROM0_Mount(CAppConfig::GetInstance().GetPreferenceString(PS2VM_CDROM0PATH));
-}
-
-void CPS2VM::CDROM0_Mount(const char* path)
+void CPS2VM::CDROM0_SyncPath()
 {
 	//TODO: Check if there's an m_cdrom0 already
 	//TODO: Check if files are linked to this m_cdrom0 too and do something with them
 
+	CDROM0_Reset();
+
+	auto path = CAppConfig::GetInstance().GetPreferenceString(PS2VM_CDROM0PATH);
 	size_t pathLength = strlen(path);
 	if(pathLength != 0)
 	{
@@ -700,11 +692,9 @@ void CPS2VM::CDROM0_Mount(const char* path)
 			printf("PS2VM: Error mounting cdrom0 device: %s\r\n", Exception.what());
 		}
 	}
-
-	CAppConfig::GetInstance().SetPreferenceString(PS2VM_CDROM0PATH, path);
 }
 
-void CPS2VM::CDROM0_Destroy()
+void CPS2VM::CDROM0_Reset()
 {
 	SetIopOpticalMedia(nullptr);
 	m_cdrom0.reset();

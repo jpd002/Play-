@@ -120,10 +120,8 @@ private:
 
 	void						OnGsNewFrame();
 
-	void						CDROM0_Initialize();
-	void						CDROM0_Mount(const char*);
+	void						CDROM0_SyncPath();
 	void						CDROM0_Reset();
-	void						CDROM0_Destroy();
 	void						SetIopOpticalMedia(COpticalMedia*);
 
 	void						RegisterModulesInPadHandler();
