@@ -25,7 +25,7 @@ private:
 		virtual						~CDevice() = default;
 		virtual const char*			GetDeviceName() = 0;
 		virtual const char*			GetBindingType() = 0;
-		virtual const char*			GetBinding() = 0;
+		virtual std::tstring		GetBinding() = 0;
 		virtual bool				RequestModification(HWND) = 0;
 		virtual void				Save() = 0;
 	};
@@ -37,16 +37,16 @@ private:
 		virtual						~CDirectoryDevice() = default;
 		const char*					GetDeviceName() override;
 		const char*					GetBindingType() override;
-		const char*					GetBinding() override;
+		std::tstring				GetBinding() override;
 		bool						RequestModification(HWND) override;
 		void						Save() override;
 
 	private:
 		static int WINAPI			BrowseCallback(HWND, unsigned int, LPARAM, LPARAM);
 
-		const char*					m_sName;
-		const char*					m_sPreference;
-		std::string					m_sValue;
+		const char*					m_name;
+		const char*					m_preference;
+		std::tstring				m_path;
 	};
 
 	class CCdrom0Device : public CDevice
@@ -56,14 +56,14 @@ private:
 		virtual						~CCdrom0Device() = default;
 		const char*					GetDeviceName() override;
 		const char*					GetBindingType() override;
-		const char*					GetBinding() override;
+		std::tstring				GetBinding() override;
 		bool						RequestModification(HWND) override;
 		void						Save() override;
 
 	private:
-		std::string					m_sImagePath;
-		std::string					m_sDevicePath;
-		unsigned int				m_nBindingType;
+		std::tstring				m_imagePath;
+		std::string					m_devicePath;
+		unsigned int				m_bindingType;
 	};
 
 	typedef std::unique_ptr<CDevice> DevicePtr;

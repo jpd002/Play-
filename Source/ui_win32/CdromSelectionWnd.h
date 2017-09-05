@@ -1,12 +1,11 @@
 #pragma once
 
-#include "win32/ModalWindow.h"
+#include "win32/Dialog.h"
 #include "win32/Button.h"
 #include "win32/Edit.h"
 #include "win32/ComboBox.h"
-#include "layout/LayoutObject.h"
 
-class CCdromSelectionWnd : public Framework::Win32::CModalWindow
+class CCdromSelectionWnd : public Framework::Win32::CDialog
 {
 public:
 	enum BINDINGTYPE
@@ -17,36 +16,32 @@ public:
 
 	struct CDROMBINDING
 	{
-		BINDINGTYPE     nType;
-		const char*     sImagePath;
-		unsigned int    nPhysicalDevice;
+		BINDINGTYPE     type = BINDING_IMAGE;
+		std::tstring    imagePath;
+		unsigned int    physicalDevice = 0;
 	};
 
-	CCdromSelectionWnd(HWND, const TCHAR*, CDROMBINDING*);
+	CCdromSelectionWnd(HWND, const TCHAR*);
 
 	bool    WasConfirmed() const;
-	void    GetBindingInfo(CDROMBINDING*) const;
+
+	CDROMBINDING    GetBindingInfo() const;
+	void            SetBindingInfo(const CDROMBINDING&);
 
 protected:
 	long    OnCommand(unsigned short, unsigned short, HWND) override;
 
 private:
-	void    RefreshLayout();
 	void    UpdateControls();
 	void    PopulateDeviceList();
 	void    SelectImage();
 
-	bool            m_nConfirmed = false;
-	BINDINGTYPE     m_nType = BINDING_IMAGE;
-	std::string     m_sImagePath;
-	unsigned int    m_nPhysicalDevice = 0;
+	bool            m_confirmed = false;
+	CDROMBINDING    m_binding;
 
-	Framework::LayoutObjectPtr      m_pLayout;
-	Framework::Win32::CButton*      m_pImageRadio = nullptr;
-	Framework::Win32::CButton*      m_pDeviceRadio = nullptr;
-	Framework::Win32::CButton*      m_pImageBrowse = nullptr;
-	Framework::Win32::CEdit*        m_pImageEdit = nullptr;
-	Framework::Win32::CComboBox*    m_pDeviceCombo = nullptr;
-	Framework::Win32::CButton*      m_pOk = nullptr;
-	Framework::Win32::CButton*      m_pCancel = nullptr;
+	Framework::Win32::CButton       m_imageRadio;
+	Framework::Win32::CButton       m_imageBrowse;
+	Framework::Win32::CEdit         m_imageEdit;
+	Framework::Win32::CButton       m_deviceRadio;
+	Framework::Win32::CComboBox     m_deviceCombo;
 };

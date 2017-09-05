@@ -167,7 +167,7 @@ void CVFSManagerWnd::UpdateList()
 		}
 
 		m_pList->SetItemText(index, 1, string_cast<std::tstring>(device->GetBindingType()).c_str());
-		m_pList->SetItemText(index, 2, string_cast<std::tstring>(device->GetBinding()).c_str());
+		m_pList->SetItemText(index, 2, device->GetBinding().c_str());
 	}
 }
 
@@ -184,16 +184,17 @@ void CVFSManagerWnd::Save()
 //CDirectoryDevice Implementation
 ///////////////////////////////////////////
 
-CVFSManagerWnd::CDirectoryDevice::CDirectoryDevice(const char* sName, const char* sPreference)
+CVFSManagerWnd::CDirectoryDevice::CDirectoryDevice(const char* name, const char* preference)
+: m_name(name)
+, m_preference(preference)
 {
-	m_sName         = sName;
-	m_sPreference   = sPreference;
-	m_sValue        = CAppConfig::GetInstance().GetPreferenceString(m_sPreference);
+	auto path = CAppConfig::GetInstance().GetPreferenceString(m_preference);
+	m_path = string_cast<std::tstring>(path);
 }
 
 const char* CVFSManagerWnd::CDirectoryDevice::GetDeviceName()
 {
-	return m_sName;
+	return m_name;
 }
 
 const char* CVFSManagerWnd::CDirectoryDevice::GetBindingType()
@@ -201,9 +202,9 @@ const char* CVFSManagerWnd::CDirectoryDevice::GetBindingType()
 	return "Directory";
 }
 
-const char* CVFSManagerWnd::CDirectoryDevice::GetBinding()
+std::tstring CVFSManagerWnd::CDirectoryDevice::GetBinding()
 {
-	return m_sValue.c_str();
+	return m_path;
 }
 
 bool CVFSManagerWnd::CDirectoryDevice::RequestModification(HWND hParent)
@@ -222,8 +223,8 @@ bool CVFSManagerWnd::CDirectoryDevice::RequestModification(HWND hParent)
 		return false;
 	}
 
-	TCHAR sPath[MAX_PATH];
-	if(SHGetPathFromIDList(item, sPath) == 0)
+	TCHAR path[MAX_PATH];
+	if(SHGetPathFromIDList(item, path) == 0)
 	{
 		MessageBox(hParent, _T("Invalid directory."), NULL, 16);
 		CoTaskMemFree(item);
@@ -232,24 +233,24 @@ bool CVFSManagerWnd::CDirectoryDevice::RequestModification(HWND hParent)
 
 	CoTaskMemFree(item);
 
-	m_sValue = string_cast<std::string>(sPath).c_str();
+	m_path = path;
 
 	return true;
 }
 
 void CVFSManagerWnd::CDirectoryDevice::Save()
 {
-	CAppConfig::GetInstance().SetPreferenceString(m_sPreference, m_sValue.c_str());
+	auto cvtPath = string_cast<std::string>(m_path);
+	CAppConfig::GetInstance().SetPreferenceString(m_preference, cvtPath.c_str());
 }
 
 int CVFSManagerWnd::CDirectoryDevice::BrowseCallback(HWND hFrom, unsigned int nMsg, LPARAM lParam, LPARAM pData)
 {
-	CDirectoryDevice* pDevice = reinterpret_cast<CDirectoryDevice*>(pData);
+	auto device = reinterpret_cast<CDirectoryDevice*>(pData);
 	switch(nMsg)
 	{
 	case BFFM_INITIALIZED:
-		std::tstring sPath(string_cast<std::tstring>(pDevice->m_sValue.c_str()));
-		SendMessage(hFrom, BFFM_SETSELECTION, TRUE, reinterpret_cast<LPARAM>(sPath.c_str()));
+		SendMessage(hFrom, BFFM_SETSELECTION, TRUE, reinterpret_cast<LPARAM>(device->m_path.c_str()));
 		break;
 	}
 	return 0;
@@ -261,27 +262,26 @@ int CVFSManagerWnd::CDirectoryDevice::BrowseCallback(HWND hFrom, unsigned int nM
 
 CVFSManagerWnd::CCdrom0Device::CCdrom0Device()
 {
-	char sDevicePath[32];
-
-	const char* sPath = CAppConfig::GetInstance().GetPreferenceString(PS2VM_CDROM0PATH);
+	auto cdrom0Path = CAppConfig::GetInstance().GetPreferenceString(PS2VM_CDROM0PATH);
 	
 	//Detect the binding type from the path format
-	if(!strcmp(sPath, ""))
+	if(!strcmp(cdrom0Path, ""))
 	{
-		m_nBindingType	= CCdromSelectionWnd::BINDING_IMAGE;
-		m_sImagePath	= "";
+		m_bindingType = CCdromSelectionWnd::BINDING_IMAGE;
+		m_imagePath   = _T("");
 	}
-	else if(strlen(sPath) == 6 && !strncmp(sPath, "\\\\.\\", 4))
+	else if(strlen(cdrom0Path) == 6 && !strncmp(cdrom0Path, "\\\\.\\", 4))
 	{
-		sprintf(sDevicePath, "%c:\\", toupper(sPath[4]));
+		char devicePath[32];
+		sprintf(devicePath, "%c:\\", toupper(cdrom0Path[4]));
 
-		m_nBindingType	= CCdromSelectionWnd::BINDING_PHYSICAL;
-		m_sDevicePath	= sDevicePath;
+		m_bindingType = CCdromSelectionWnd::BINDING_PHYSICAL;
+		m_devicePath  = devicePath;
 	}
 	else
 	{
-		m_nBindingType	= CCdromSelectionWnd::BINDING_IMAGE;
-		m_sImagePath	= sPath;
+		m_bindingType = CCdromSelectionWnd::BINDING_IMAGE;
+		m_imagePath   = string_cast<std::tstring>(cdrom0Path);
 	}
 }
 
@@ -292,73 +292,72 @@ const char* CVFSManagerWnd::CCdrom0Device::GetDeviceName()
 
 const char* CVFSManagerWnd::CCdrom0Device::GetBindingType()
 {
-	if(m_nBindingType == CCdromSelectionWnd::BINDING_PHYSICAL)
+	if(m_bindingType == CCdromSelectionWnd::BINDING_PHYSICAL)
 	{
 		return "Physical Device";
 	}
-	if(m_nBindingType == CCdromSelectionWnd::BINDING_IMAGE)
+	else if(m_bindingType == CCdromSelectionWnd::BINDING_IMAGE)
 	{
 		return "Disk Image";
 	}
 	return "";
 }
 
-const char* CVFSManagerWnd::CCdrom0Device::GetBinding()
+std::tstring CVFSManagerWnd::CCdrom0Device::GetBinding()
 {
-	if(m_nBindingType == CCdromSelectionWnd::BINDING_IMAGE)
+	if(m_bindingType == CCdromSelectionWnd::BINDING_IMAGE)
 	{
-		if(m_sImagePath.length() == 0)
+		if(m_imagePath.empty())
 		{
-			return "(None)";
+			return _T("(None)");
 		}
 		else
 		{
-			return m_sImagePath.c_str();
+			return m_imagePath.c_str();
 		}
 	}
-	if(m_nBindingType == CCdromSelectionWnd::BINDING_PHYSICAL)
+	else if(m_bindingType == CCdromSelectionWnd::BINDING_PHYSICAL)
 	{
-		return m_sDevicePath.c_str();
+		return string_cast<std::tstring>(m_devicePath.c_str());
 	}
-	return "";
+	return _T("");
 }
 
 bool CVFSManagerWnd::CCdrom0Device::RequestModification(HWND hParent)
 {
-	CCdromSelectionWnd::CDROMBINDING Binding;
-	char sDevicePath[32];
+	CCdromSelectionWnd::CDROMBINDING binding;
+	binding.type           = static_cast<CCdromSelectionWnd::BINDINGTYPE>(m_bindingType);
+	binding.imagePath      = m_imagePath;
+	binding.physicalDevice = m_devicePath[0] - 'A';
 
-	Binding.nType				= (CCdromSelectionWnd::BINDINGTYPE)m_nBindingType;
-	Binding.sImagePath			= m_sImagePath.c_str();
-	Binding.nPhysicalDevice		= m_sDevicePath[0] - 'A';
+	CCdromSelectionWnd selectionWnd(hParent, _T("Modify cdrom0 Binding"));
+	selectionWnd.SetBindingInfo(binding);
+	selectionWnd.DoModal();
+	if(!selectionWnd.WasConfirmed()) return false;
 
-	CCdromSelectionWnd SelectionWnd(hParent, _T("Modify cdrom0 Binding"), &Binding);
+	binding = selectionWnd.GetBindingInfo();
 
-	SelectionWnd.DoModal();
+	char devicePath[32];
+	sprintf(devicePath, "%c:\\", binding.physicalDevice + 'A');
 
-	if(!SelectionWnd.WasConfirmed()) return false;
-
-	SelectionWnd.GetBindingInfo(&Binding);
-
-	sprintf(sDevicePath, "%c:\\", Binding.nPhysicalDevice + 'A');
-
-	m_nBindingType	= Binding.nType;
-	m_sImagePath	= Binding.sImagePath;
-	m_sDevicePath	= sDevicePath;
+	m_bindingType = binding.type;
+	m_imagePath   = binding.imagePath;
+	m_devicePath  = devicePath;
 
 	return true;
 }
 
 void CVFSManagerWnd::CCdrom0Device::Save()
 {
-	if(m_nBindingType == CCdromSelectionWnd::BINDING_IMAGE)
+	if(m_bindingType == CCdromSelectionWnd::BINDING_IMAGE)
 	{
-		CAppConfig::GetInstance().SetPreferenceString(PS2VM_CDROM0PATH, m_sImagePath.c_str());
+		auto cvtImagePath = string_cast<std::string>(m_imagePath);
+		CAppConfig::GetInstance().SetPreferenceString(PS2VM_CDROM0PATH, cvtImagePath.c_str());
 	}
-	if(m_nBindingType == CCdromSelectionWnd::BINDING_PHYSICAL)
+	else if(m_bindingType == CCdromSelectionWnd::BINDING_PHYSICAL)
 	{
-		char sDevicePath[32];
-		sprintf(sDevicePath, "\\\\.\\%c:", m_sDevicePath[0]);
-		CAppConfig::GetInstance().SetPreferenceString(PS2VM_CDROM0PATH, sDevicePath);
+		char devicePath[32];
+		sprintf(devicePath, "\\\\.\\%c:", m_devicePath[0]);
+		CAppConfig::GetInstance().SetPreferenceString(PS2VM_CDROM0PATH, devicePath);
 	}
 }
