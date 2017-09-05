@@ -57,7 +57,7 @@ travis_script()
         if [ "$TARGET_OS" = "Linux" ]; then
             if [ "$CXX" = "g++" ]; then export CXX="g++-5" CC="gcc-5"; fi
             export PATH=/opt/cmake-3.8.1-Linux-x86_64/bin/:$PATH
-            source /opt/qt591/bin/qt591-env.sh || true
+            source /opt/qt59/bin/qt59-env.sh || true
             cmake .. -G"$BUILD_TYPE" -DCMAKE_PREFIX_PATH=/opt/qt591/ -DCMAKE_INSTALL_PREFIX=./appdir/usr;
             cmake --build .
             cmake --build . --target install
