@@ -101,7 +101,6 @@ private:
 
 	void							OnNewFrame(uint32);
 
-	void							OnOutputWndSizeChange();
 	void							OnExecutableChange();
 
 	void							SetupSoundHandler();
