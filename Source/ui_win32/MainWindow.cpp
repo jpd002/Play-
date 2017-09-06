@@ -439,7 +439,8 @@ void CMainWindow::SaveState()
 	if(m_virtualMachine.m_ee->m_os->GetELF() == nullptr) return;
 
 	Framework::PathUtils::EnsurePathExists(GetStateDirectoryPath());
-	if(m_virtualMachine.SaveState(GenerateStatePath().string().c_str()) == 0)
+	auto statePath = GenerateStatePath();
+	if(m_virtualMachine.SaveState(statePath) == 0)
 	{
 		PrintStatusTextA("Saved state to slot %i.", m_stateSlot);
 	}
@@ -453,7 +454,8 @@ void CMainWindow::LoadState()
 {
 	if(m_virtualMachine.m_ee->m_os->GetELF() == nullptr) return;
 
-	if(m_virtualMachine.LoadState(GenerateStatePath().string().c_str()) == 0)
+	auto statePath = GenerateStatePath();
+	if(m_virtualMachine.LoadState(statePath) == 0)
 	{
 		PrintStatusTextA("Loaded state from slot %i.", m_stateSlot);
 	}
@@ -891,7 +893,7 @@ boost::filesystem::path CMainWindow::GetStateDirectoryPath()
 
 boost::filesystem::path CMainWindow::GenerateStatePath() const
 {
-	std::string stateFileName = std::string(m_virtualMachine.m_ee->m_os->GetExecutableName()) + ".st" + std::to_string(m_stateSlot) + ".zip";
+	auto stateFileName = string_format("%s.st%d.zip", m_virtualMachine.m_ee->m_os->GetExecutableName(), m_stateSlot);
 	return GetStateDirectoryPath() / boost::filesystem::path(stateFileName);
 }
 

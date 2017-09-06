@@ -10,6 +10,7 @@
 #include "Ps2Const.h"
 #include "iop/Iop_SifManPs2.h"
 #include "StdStream.h"
+#include "StdStreamUtils.h"
 #include "GZipStream.h"
 #include "MemoryStateFile.h"
 #include "zip/ZipArchiveWriter.h"
@@ -226,17 +227,17 @@ void CPS2VM::Destroy()
 	DestroyVM();
 }
 
-unsigned int CPS2VM::SaveState(const char* sPath)
+unsigned int CPS2VM::SaveState(const filesystem::path& statePath)
 {
 	unsigned int result = 0;
-	m_mailBox.SendCall(std::bind(&CPS2VM::SaveVMState, this, sPath, std::ref(result)), true);
+	m_mailBox.SendCall(std::bind(&CPS2VM::SaveVMState, this, statePath, std::ref(result)), true);
 	return result;
 }
 
-unsigned int CPS2VM::LoadState(const char* sPath)
+unsigned int CPS2VM::LoadState(const filesystem::path& statePath)
 {
 	unsigned int result = 0;
-	m_mailBox.SendCall(std::bind(&CPS2VM::LoadVMState, this, sPath, std::ref(result)), true);
+	m_mailBox.SendCall(std::bind(&CPS2VM::LoadVMState, this, statePath, std::ref(result)), true);
 	return result;
 }
 
@@ -389,7 +390,7 @@ void CPS2VM::DestroyVM()
 	CDROM0_Destroy();
 }
 
-void CPS2VM::SaveVMState(const char* sPath, unsigned int& result)
+void CPS2VM::SaveVMState(const filesystem::path& statePath, unsigned int& result)
 {
 	if(m_ee->m_gs == NULL)
 	{
@@ -400,7 +401,7 @@ void CPS2VM::SaveVMState(const char* sPath, unsigned int& result)
 
 	try
 	{
-		Framework::CStdStream stateStream(sPath, "wb");
+		auto stateStream = Framework::CreateOutputStdStream(statePath.native());
 		Framework::CZipArchiveWriter archive;
 
 		m_ee->SaveState(archive);
@@ -415,12 +416,10 @@ void CPS2VM::SaveVMState(const char* sPath, unsigned int& result)
 		return;
 	}
 
-	printf("PS2VM: Saved state to file '%s'.\r\n", sPath);
-
 	result = 0;
 }
 
-void CPS2VM::LoadVMState(const char* sPath, unsigned int& result)
+void CPS2VM::LoadVMState(const filesystem::path& statePath, unsigned int& result)
 {
 	if(m_ee->m_gs == NULL)
 	{
@@ -431,7 +430,7 @@ void CPS2VM::LoadVMState(const char* sPath, unsigned int& result)
 
 	try
 	{
-		Framework::CStdStream stateStream(sPath, "rb");
+		auto stateStream = Framework::CreateInputStdStream(statePath.native());
 		Framework::CZipArchiveReader archive(stateStream);
 		
 		try
@@ -452,8 +451,6 @@ void CPS2VM::LoadVMState(const char* sPath, unsigned int& result)
 		result = 1;
 		return;
 	}
-
-	printf("PS2VM: Loaded state from file '%s'.\r\n", sPath);
 
 	OnMachineStateChange();
 

@@ -63,8 +63,8 @@ public:
 	void						CreateSoundHandler(const CSoundHandler::FactoryFunction&);
 	void						DestroySoundHandler();
 
-	unsigned int				SaveState(const char*);
-	unsigned int				LoadState(const char*);
+	unsigned int				SaveState(const boost::filesystem::path&);
+	unsigned int				LoadState(const boost::filesystem::path&);
 
 	void						TriggerFrameDump(const FrameDumpCallback&);
 
@@ -91,8 +91,8 @@ private:
 	void						CreateVM();
 	void						ResetVM();
 	void						DestroyVM();
-	void						SaveVMState(const char*, unsigned int&);
-	void						LoadVMState(const char*, unsigned int&);
+	void						SaveVMState(const boost::filesystem::path&, unsigned int&);
+	void						LoadVMState(const boost::filesystem::path&, unsigned int&);
 
 	void						ReloadExecutable(const char*, const CPS2OS::ArgumentList&);
 
