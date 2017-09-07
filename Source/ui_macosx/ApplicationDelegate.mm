@@ -203,7 +203,8 @@
 
 -(IBAction)loadStateMenuSelected: (id)sender
 {
-	if(g_virtualMachine->LoadState("state.st0.zip"))
+	auto resultFuture = g_virtualMachine->LoadState("state.st0.zip");
+	if(!resultFuture.get())
 	{
 		NSRunCriticalAlertPanel(@"Error occured while trying to load state.", @"", NULL, NULL, NULL);
 	}
