@@ -26,7 +26,8 @@ void CGSH_OpenGLMacOSX::InitializeImpl()
 
 void CGSH_OpenGLMacOSX::ReleaseImpl()
 {
-	
+	CGSH_OpenGL::ReleaseImpl();
+	CGLSetCurrentContext(NULL);
 }
 
 void CGSH_OpenGLMacOSX::ReadFramebuffer(uint32, uint32, void*)
