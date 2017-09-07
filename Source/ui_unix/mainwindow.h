@@ -37,8 +37,6 @@ private:
     void Setupfpscounter();
     void SetupSaveLoadStateSlots();
     QString SaveStateInfo(int);
-    boost::filesystem::path GetStateDirectoryPath();
-    boost::filesystem::path GenerateStatePath(int);
     void OnRunningStateChange();
     void OnExecutableChange();
     void UpdateUI();

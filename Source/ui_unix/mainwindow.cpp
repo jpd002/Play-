@@ -326,9 +326,10 @@ void MainWindow::SetupSaveLoadStateSlots()
 
 void MainWindow::saveState(int stateSlot)
 {
-    Framework::PathUtils::EnsurePathExists(GetStateDirectoryPath());
+    Framework::PathUtils::EnsurePathExists(CPS2VM::GetStateDirectoryPath());
 
-    g_virtualMachine->SaveState(GenerateStatePath(stateSlot).string().c_str());
+    auto stateFilePath = g_virtualMachine->GenerateStatePath(stateSlot);
+    g_virtualMachine->SaveState(stateFilePath);
 
     QDateTime* dt = new QDateTime;
     QString datetime = dt->currentDateTime().toString("hh:mm dd.MM.yyyy");
@@ -337,29 +338,20 @@ void MainWindow::saveState(int stateSlot)
 }
 
 void MainWindow::loadState(int stateSlot){
-    g_virtualMachine->LoadState(GenerateStatePath(stateSlot).string().c_str());
+    auto stateFilePath = g_virtualMachine->GenerateStatePath(stateSlot);
+    g_virtualMachine->LoadState(stateFilePath);
     g_virtualMachine->Resume();
 }
 
 QString MainWindow::SaveStateInfo(int stateSlot)
 {
-    QFileInfo file(GenerateStatePath(stateSlot).string().c_str());
+    auto stateFilePath = g_virtualMachine->GenerateStatePath(stateSlot);
+    QFileInfo file(stateFilePath.string().c_str());
     if (file.exists() && file.isFile()) {
         return file.created().toString("hh:mm dd.MM.yyyy");
     } else {
         return "Empty";
     }
-}
-
-boost::filesystem::path MainWindow::GetStateDirectoryPath()
-{
-    return CAppConfig::GetBasePath() / boost::filesystem::path("states/");
-}
-
-boost::filesystem::path MainWindow::GenerateStatePath(int stateSlot)
-{
-    std::string stateFileName = std::string(g_virtualMachine->m_ee->m_os->GetExecutableName()) + ".st" + std::to_string(stateSlot) + ".zip";
-    return GetStateDirectoryPath() / boost::filesystem::path(stateFileName);
 }
 
 void MainWindow::on_actionPause_Resume_triggered()
