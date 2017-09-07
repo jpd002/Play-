@@ -2,6 +2,7 @@
 
 #include <thread>
 #include <future>
+#include "boost_filesystem_def.h"
 #include "AppDef.h"
 #include "Types.h"
 #include "MIPS.h"
