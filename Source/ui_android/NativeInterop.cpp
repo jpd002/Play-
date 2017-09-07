@@ -111,7 +111,8 @@ extern "C" JNIEXPORT void JNICALL Java_com_virtualapplications_play_NativeIntero
 	assert(g_virtualMachine != nullptr);
 	if(g_virtualMachine == nullptr) return;
 	auto stateFilePath = GenerateStatePath(slot);
-	if(g_virtualMachine->LoadState(stateFilePath.string().c_str()) != 0)
+	auto resultFuture = g_virtualMachine->LoadState(stateFilePath);
+	if(!resultFuture.get())
 	{
 		jclass exceptionClass = env->FindClass("java/lang/Exception");
 		env->ThrowNew(exceptionClass, "LoadState failed.");
@@ -125,7 +126,8 @@ extern "C" JNIEXPORT void JNICALL Java_com_virtualapplications_play_NativeIntero
 	if(g_virtualMachine == nullptr) return;
 	Framework::PathUtils::EnsurePathExists(GetStateDirectoryPath());
 	auto stateFilePath = GenerateStatePath(slot);
-	if(g_virtualMachine->SaveState(stateFilePath.string().c_str()) != 0)
+	auto resultFuture = g_virtualMachine->SaveState(stateFilePath);
+	if(!resultFuture.get())
 	{
 		jclass exceptionClass = env->FindClass("java/lang/Exception");
 		env->ThrowNew(exceptionClass, "SaveState failed.");
