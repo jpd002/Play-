@@ -65,6 +65,9 @@ public:
 	void						CreateSoundHandler(const CSoundHandler::FactoryFunction&);
 	void						DestroySoundHandler();
 
+	static boost::filesystem::path  GetStateDirectoryPath();
+	boost::filesystem::path         GenerateStatePath(unsigned int) const;
+
 	std::future<bool>			SaveState(const boost::filesystem::path&);
 	std::future<bool>			LoadState(const boost::filesystem::path&);
 

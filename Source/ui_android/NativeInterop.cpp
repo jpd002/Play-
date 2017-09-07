@@ -3,7 +3,6 @@
 #include <android/native_window.h>
 #include <android/native_window_jni.h>
 #include "android/AssetManager.h"
-#include "string_format.h"
 #include "PathUtils.h"
 #include "../AppConfig.h"
 #include "../DiskUtils.h"
@@ -19,18 +18,6 @@
 CPS2VM* g_virtualMachine = nullptr;
 
 #define PREF_AUDIO_ENABLEOUTPUT ("audio.enableoutput")
-
-static boost::filesystem::path GetStateDirectoryPath()
-{
-	return CAppConfig::GetBasePath() / boost::filesystem::path("states/");
-}
-
-static boost::filesystem::path GenerateStatePath(int slot)
-{
-	auto stateDirPath = GetStateDirectoryPath();
-	auto stateFileName = string_format("%s.st%d", g_virtualMachine->m_ee->m_os->GetExecutableName(), slot);
-	return stateDirPath / stateFileName;
-}
 
 static void SetupSoundHandler()
 {
@@ -110,7 +97,7 @@ extern "C" JNIEXPORT void JNICALL Java_com_virtualapplications_play_NativeIntero
 {
 	assert(g_virtualMachine != nullptr);
 	if(g_virtualMachine == nullptr) return;
-	auto stateFilePath = GenerateStatePath(slot);
+	auto stateFilePath = g_virtualMachine->GenerateStatePath(slot);
 	auto resultFuture = g_virtualMachine->LoadState(stateFilePath);
 	if(!resultFuture.get())
 	{
@@ -124,8 +111,8 @@ extern "C" JNIEXPORT void JNICALL Java_com_virtualapplications_play_NativeIntero
 {
 	assert(g_virtualMachine != nullptr);
 	if(g_virtualMachine == nullptr) return;
-	Framework::PathUtils::EnsurePathExists(GetStateDirectoryPath());
-	auto stateFilePath = GenerateStatePath(slot);
+	Framework::PathUtils::EnsurePathExists(CPS2VM::GetStateDirectoryPath());
+	auto stateFilePath = g_virtualMachine->GenerateStatePath(slot);
 	auto resultFuture = g_virtualMachine->SaveState(stateFilePath);
 	if(!resultFuture.get())
 	{

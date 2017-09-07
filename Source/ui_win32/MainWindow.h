@@ -96,8 +96,6 @@ private:
 	static boost::filesystem::path	GetFrameDumpDirectoryPath();
 
 	void							CreateStateSlotMenu();
-	static boost::filesystem::path	GetStateDirectoryPath();
-	boost::filesystem::path			GenerateStatePath() const;
 	void							UpdateUI();
 
 	void							OnNewFrame(uint32);

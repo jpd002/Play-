@@ -439,8 +439,8 @@ void CMainWindow::SaveState()
 {
 	if(m_virtualMachine.m_ee->m_os->GetELF() == nullptr) return;
 
-	Framework::PathUtils::EnsurePathExists(GetStateDirectoryPath());
-	auto statePath = GenerateStatePath();
+	Framework::PathUtils::EnsurePathExists(CPS2VM::GetStateDirectoryPath());
+	auto statePath = m_virtualMachine.GenerateStatePath(m_stateSlot);
 	auto future = m_virtualMachine.SaveState(statePath);
 	m_futureContinuationManager.Register(std::move(future),
 		[this, stateSlot = m_stateSlot] (bool succeeded)
@@ -457,7 +457,7 @@ void CMainWindow::LoadState()
 {
 	if(m_virtualMachine.m_ee->m_os->GetELF() == nullptr) return;
 
-	auto statePath = GenerateStatePath();
+	auto statePath = m_virtualMachine.GenerateStatePath(m_stateSlot);
 	auto future = m_virtualMachine.LoadState(statePath);
 	m_futureContinuationManager.Register(std::move(future),
 		[this, stateSlot = m_stateSlot] (const bool& succeeded)
@@ -889,17 +889,6 @@ void CMainWindow::CreateStateSlotMenu()
 
 	hMenu = GetSubMenu(GetMenu(m_hWnd), VMMENUPOS);
 	SetMenuItemInfo(hMenu, ID_MAIN_VM_STATESLOT, FALSE, &ItemInfo);
-}
-
-boost::filesystem::path CMainWindow::GetStateDirectoryPath()
-{
-	return CAppConfig::GetBasePath() / boost::filesystem::path("states/");
-}
-
-boost::filesystem::path CMainWindow::GenerateStatePath() const
-{
-	auto stateFileName = string_format("%s.st%d.zip", m_virtualMachine.m_ee->m_os->GetExecutableName(), m_stateSlot);
-	return GetStateDirectoryPath() / boost::filesystem::path(stateFileName);
 }
 
 void CMainWindow::UpdateUI()

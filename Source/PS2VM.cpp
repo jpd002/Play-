@@ -4,6 +4,7 @@
 #include <memory>
 #include <fenv.h>
 #include "make_unique.h"
+#include "string_format.h"
 #include "PS2VM.h"
 #include "PS2VM_Preferences.h"
 #include "ee/PS2OS.h"
@@ -225,6 +226,17 @@ void CPS2VM::Destroy()
 	m_mailBox.SendCall(std::bind(&CPS2VM::DestroyImpl, this));
 	m_thread.join();
 	DestroyVM();
+}
+
+boost::filesystem::path CPS2VM::GetStateDirectoryPath()
+{
+	return CAppConfig::GetBasePath() / boost::filesystem::path("states/");
+}
+
+boost::filesystem::path CPS2VM::GenerateStatePath(unsigned int slot) const
+{
+	auto stateFileName = string_format("%s.st%d.zip", m_ee->m_os->GetExecutableName(), slot);
+	return GetStateDirectoryPath() / boost::filesystem::path(stateFileName);
 }
 
 std::future<bool> CPS2VM::SaveState(const filesystem::path& statePath)
