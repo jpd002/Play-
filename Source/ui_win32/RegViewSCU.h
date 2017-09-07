@@ -1,5 +1,4 @@
-#ifndef _REGVIEWSCU_H_
-#define _REGVIEWSCU_H_
+#pragma once
 
 #include "RegViewPage.h"
 #include "../MIPS.h"
@@ -9,13 +8,11 @@ class CRegViewSCU : public CRegViewPage, public boost::signals2::trackable
 {
 public:
 									CRegViewSCU(HWND, const RECT&, CVirtualMachine&, CMIPS*);
-	virtual							~CRegViewSCU();
+	virtual							~CRegViewSCU() = default;
 
 private:
-	void							Update();
+	void							Update() override;
 	std::string						GetDisplayText();
 
-	CMIPS*							m_pCtx;
+	CMIPS*							m_ctx = nullptr;
 };
-
-#endif
