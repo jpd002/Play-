@@ -1,6 +1,7 @@
 #pragma once
 
 #include <thread>
+#include <future>
 #include "AppDef.h"
 #include "Types.h"
 #include "MIPS.h"
@@ -63,8 +64,8 @@ public:
 	void						CreateSoundHandler(const CSoundHandler::FactoryFunction&);
 	void						DestroySoundHandler();
 
-	unsigned int				SaveState(const boost::filesystem::path&);
-	unsigned int				LoadState(const boost::filesystem::path&);
+	std::future<bool>			SaveState(const boost::filesystem::path&);
+	std::future<bool>			LoadState(const boost::filesystem::path&);
 
 	void						TriggerFrameDump(const FrameDumpCallback&);
 
@@ -91,8 +92,8 @@ private:
 	void						CreateVM();
 	void						ResetVM();
 	void						DestroyVM();
-	void						SaveVMState(const boost::filesystem::path&, unsigned int&);
-	void						LoadVMState(const boost::filesystem::path&, unsigned int&);
+	bool						SaveVMState(const boost::filesystem::path&);
+	bool						LoadVMState(const boost::filesystem::path&);
 
 	void						ReloadExecutable(const char*, const CPS2OS::ArgumentList&);
 

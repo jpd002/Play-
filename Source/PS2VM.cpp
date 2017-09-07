@@ -227,18 +227,32 @@ void CPS2VM::Destroy()
 	DestroyVM();
 }
 
-unsigned int CPS2VM::SaveState(const filesystem::path& statePath)
+std::future<bool> CPS2VM::SaveState(const filesystem::path& statePath)
 {
-	unsigned int result = 0;
-	m_mailBox.SendCall(std::bind(&CPS2VM::SaveVMState, this, statePath, std::ref(result)), true);
-	return result;
+	auto promise = std::make_shared<std::promise<bool>>();
+	auto future = promise->get_future();
+	m_mailBox.SendCall(
+		[this, promise, statePath] ()
+		{
+			auto result = SaveVMState(statePath);
+			promise->set_value(result);
+		}
+	);
+	return future;
 }
 
-unsigned int CPS2VM::LoadState(const filesystem::path& statePath)
+std::future<bool> CPS2VM::LoadState(const filesystem::path& statePath)
 {
-	unsigned int result = 0;
-	m_mailBox.SendCall(std::bind(&CPS2VM::LoadVMState, this, statePath, std::ref(result)), true);
-	return result;
+	auto promise = std::make_shared<std::promise<bool>>();
+	auto future = promise->get_future();
+	m_mailBox.SendCall(
+		[this, promise, statePath] ()
+		{
+			auto result = LoadVMState(statePath);
+			promise->set_value(result);
+		}
+	);
+	return future;
 }
 
 void CPS2VM::TriggerFrameDump(const FrameDumpCallback& frameDumpCallback)
@@ -390,13 +404,12 @@ void CPS2VM::DestroyVM()
 	CDROM0_Destroy();
 }
 
-void CPS2VM::SaveVMState(const filesystem::path& statePath, unsigned int& result)
+bool CPS2VM::SaveVMState(const filesystem::path& statePath)
 {
 	if(m_ee->m_gs == NULL)
 	{
 		printf("PS2VM: GS Handler was not instancied. Cannot save state.\r\n");
-		result = 1;
-		return;
+		return false;
 	}
 
 	try
@@ -412,20 +425,18 @@ void CPS2VM::SaveVMState(const filesystem::path& statePath, unsigned int& result
 	}
 	catch(...)
 	{
-		result = 1;
-		return;
+		return false;
 	}
 
-	result = 0;
+	return true;
 }
 
-void CPS2VM::LoadVMState(const filesystem::path& statePath, unsigned int& result)
+bool CPS2VM::LoadVMState(const filesystem::path& statePath)
 {
 	if(m_ee->m_gs == NULL)
 	{
 		printf("PS2VM: GS Handler was not instancied. Cannot load state.\r\n");
-		result = 1;
-		return;
+		return false;
 	}
 
 	try
@@ -448,13 +459,12 @@ void CPS2VM::LoadVMState(const filesystem::path& statePath, unsigned int& result
 	}
 	catch(...)
 	{
-		result = 1;
-		return;
+		return false;
 	}
 
 	OnMachineStateChange();
 
-	result = 0;
+	return true;
 }
 
 void CPS2VM::PauseImpl()

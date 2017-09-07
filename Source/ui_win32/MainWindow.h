@@ -10,6 +10,7 @@
 #include "AviStream.h"
 #include "VirtualPad/VirtualPadWindow.h"
 #include "StatsOverlayWindow.h"
+#include "FutureContinuationManager.h"
 #ifdef DEBUGGER_INCLUDED
 #include "Debugger.h"
 #include "FrameDebugger/FrameDebugger.h"
@@ -135,6 +136,8 @@ private:
 	std::unique_ptr<CDebugger>		m_debugger;
 	std::unique_ptr<CFrameDebugger>	m_frameDebugger;
 #endif
+
+	CFutureContinuationManager		m_futureContinuationManager;
 
 	static double					m_statusBarPanelWidths[2];
 };

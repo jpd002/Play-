@@ -226,6 +226,7 @@ int CMainWindow::Loop()
 			TranslateMessage(&msg);
 			DispatchMessage(&msg);
 		}
+		m_futureContinuationManager.Execute();
 	}
 	return 0;
 }
@@ -440,14 +441,16 @@ void CMainWindow::SaveState()
 
 	Framework::PathUtils::EnsurePathExists(GetStateDirectoryPath());
 	auto statePath = GenerateStatePath();
-	if(m_virtualMachine.SaveState(statePath) == 0)
-	{
-		PrintStatusTextA("Saved state to slot %i.", m_stateSlot);
-	}
-	else
-	{
-		PrintStatusTextA("Error saving state to slot %i.", m_stateSlot);
-	}
+	auto future = m_virtualMachine.SaveState(statePath);
+	m_futureContinuationManager.Register(std::move(future),
+		[this, stateSlot = m_stateSlot] (bool succeeded)
+		{
+			auto message = string_format(
+				succeeded ? _T("Saved state to slot %i.") : _T("Error saving state to slot %i."),
+				stateSlot);
+			SetStatusText(message.c_str());
+		}
+	);
 }
 
 void CMainWindow::LoadState()
@@ -455,14 +458,16 @@ void CMainWindow::LoadState()
 	if(m_virtualMachine.m_ee->m_os->GetELF() == nullptr) return;
 
 	auto statePath = GenerateStatePath();
-	if(m_virtualMachine.LoadState(statePath) == 0)
-	{
-		PrintStatusTextA("Loaded state from slot %i.", m_stateSlot);
-	}
-	else
-	{
-		PrintStatusTextA("Error loading state from slot %i.", m_stateSlot);
-	}
+	auto future = m_virtualMachine.LoadState(statePath);
+	m_futureContinuationManager.Register(std::move(future),
+		[this, stateSlot = m_stateSlot] (const bool& succeeded)
+		{
+			auto message = string_format(
+				succeeded ? _T("Loaded state from slot %i.") : _T("Error loading state from slot %i."),
+				stateSlot);
+			SetStatusText(message.c_str());
+		}
+	);
 }
 
 void CMainWindow::ChangeStateSlot(unsigned int nSlot)
