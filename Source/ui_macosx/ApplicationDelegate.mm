@@ -61,6 +61,10 @@
 -(void)applicationWillTerminate: (NSNotification*)notification
 {
 	g_virtualMachine->Pause();
+	g_virtualMachine->DestroyPadHandler();
+	g_virtualMachine->DestroyGSHandler();
+	g_virtualMachine->DestroySoundHandler();
+	g_virtualMachine->Destroy();
 }
 
 -(void)setupOpenGlContext
