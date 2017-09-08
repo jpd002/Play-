@@ -5,6 +5,7 @@
 #import "../../tools/PsfPlayer/Source/SH_OpenAL.h"
 #import "Globals.h"
 #import "PreferenceDefs.h"
+#include "PathUtils.h"
 #include "ScreenShotUtils.h"
 #import "../ee/PS2OS.h"
 #import "../ScopedVmPauser.h"
@@ -198,12 +199,15 @@
 
 -(IBAction)saveStateMenuSelected: (id)sender
 {
-	g_virtualMachine->SaveState("state.st0.zip");
+	Framework::PathUtils::EnsurePathExists(CPS2VM::GetStateDirectoryPath());
+	auto stateFilePath = g_virtualMachine->GenerateStatePath(0);
+	g_virtualMachine->SaveState(stateFilePath);
 }
 
 -(IBAction)loadStateMenuSelected: (id)sender
 {
-	auto resultFuture = g_virtualMachine->LoadState("state.st0.zip");
+	auto stateFilePath = g_virtualMachine->GenerateStatePath(0);
+	auto resultFuture = g_virtualMachine->LoadState(stateFilePath);
 	if(!resultFuture.get())
 	{
 		NSRunCriticalAlertPanel(@"Error occured while trying to load state.", @"", NULL, NULL, NULL);
