@@ -593,44 +593,22 @@ void CMainWindow::ShowControllerSettings()
 
 void CMainWindow::ShowVfsManager()
 {
-	bool nPaused = false;
-
-	if(m_virtualMachine.GetStatus() == CVirtualMachine::RUNNING)
-	{
-		nPaused = true;
-		ResumePause();
-	}
+	CScopedVmPauser vmPauser(m_virtualMachine);
 
 	CVFSManagerWnd VFSManagerWnd(m_hWnd);
 	VFSManagerWnd.DoModal();
 
 	Redraw();
-
-	if(nPaused)
-	{
-		ResumePause();
-	}
 }
 
 void CMainWindow::ShowMcManager()
 {
-	bool nPaused = false;
-
-	if(m_virtualMachine.GetStatus() == CVirtualMachine::RUNNING)
-	{
-		nPaused = true;
-		ResumePause();
-	}
+	CScopedVmPauser vmPauser(m_virtualMachine);
 
 	CMcManagerWnd McManagerWnd(m_hWnd);
 	McManagerWnd.DoModal();
 
 	Redraw();
-
-	if(nPaused)
-	{
-		ResumePause();
-	}
 }
 
 void CMainWindow::ToggleSoundEnabled()
