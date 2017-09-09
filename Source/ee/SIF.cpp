@@ -65,7 +65,6 @@ void CSIF::Reset()
 	m_nMAINADDR		= 0;
 	m_nSUBADDR		= 0;
 	m_nMSFLAG		= 0;
-//	m_nSMFLAG		= 0x20000;
 	m_nSMFLAG		= 0x60000;
 
 	m_nEERecvAddr	= 0;
