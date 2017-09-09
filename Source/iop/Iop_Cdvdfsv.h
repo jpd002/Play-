@@ -4,6 +4,8 @@
 #include "Iop_SifMan.h"
 #include "../SifModuleAdapter.h"
 #include "../OpticalMedia.h"
+#include "zip/ZipArchiveWriter.h"
+#include "zip/ZipArchiveReader.h"
 
 namespace Iop
 {
@@ -21,6 +23,9 @@ namespace Iop
 
 		void				ProcessCommands(CSifMan*);
 		void				SetOpticalMedia(COpticalMedia*);
+
+		void				LoadState(Framework::CZipArchiveReader&);
+		void				SaveState(Framework::CZipArchiveWriter&);
 
 		enum MODULE_ID
 		{

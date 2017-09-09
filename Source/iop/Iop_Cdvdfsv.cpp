@@ -9,6 +9,17 @@ using namespace Iop;
 
 #define LOG_NAME "iop_cdvdfsv"
 
+#define STATE_FILENAME          ("iop_cdvdfsv/state.xml")
+
+#define STATE_PENDINGCOMMAND    ("PendingCommand")
+#define STATE_PENDINGREADSECTOR ("PendingReadSector")
+#define STATE_PENDINGREADCOUNT  ("PendingReadCount")
+#define STATE_PENDINGREADADDR   ("PendingReadAddr")
+
+#define STATE_STREAMING         ("Streaming")
+#define STATE_STREAMPOS         ("StreamPos")
+#define STATE_STREAMBUFFERSIZE  ("StreamBufferSize")
+
 CCdvdfsv::CCdvdfsv(CSifMan& sif, CCdvdman& cdvdman, uint8* iopRam)
 : m_cdvdman(cdvdman)
 , m_iopRam(iopRam)
@@ -102,6 +113,36 @@ void CCdvdfsv::ProcessCommands(CSifMan* sifMan)
 void CCdvdfsv::SetOpticalMedia(COpticalMedia* opticalMedia)
 {
 	m_opticalMedia = opticalMedia;
+}
+
+void CCdvdfsv::LoadState(Framework::CZipArchiveReader& archive)
+{
+	auto registerFile = CRegisterStateFile(*archive.BeginReadFile(STATE_FILENAME));
+
+	m_pendingCommand    = static_cast<COMMAND>(registerFile.GetRegister32(STATE_PENDINGCOMMAND));
+	m_pendingReadSector = registerFile.GetRegister32(STATE_PENDINGREADSECTOR);
+	m_pendingReadCount  = registerFile.GetRegister32(STATE_PENDINGREADCOUNT);
+	m_pendingReadAddr   = registerFile.GetRegister32(STATE_PENDINGREADADDR);
+
+	m_streaming        = registerFile.GetRegister32(STATE_STREAMING) != 0;
+	m_streamPos        = registerFile.GetRegister32(STATE_STREAMPOS);
+	m_streamBufferSize = registerFile.GetRegister32(STATE_STREAMBUFFERSIZE);
+}
+
+void CCdvdfsv::SaveState(Framework::CZipArchiveWriter& archive)
+{
+	auto registerFile = new CRegisterStateFile(STATE_FILENAME);
+
+	registerFile->SetRegister32(STATE_PENDINGCOMMAND,    m_pendingCommand);
+	registerFile->SetRegister32(STATE_PENDINGREADSECTOR, m_pendingReadSector);
+	registerFile->SetRegister32(STATE_PENDINGREADCOUNT,  m_pendingReadCount);
+	registerFile->SetRegister32(STATE_PENDINGREADADDR,   m_pendingReadAddr);
+
+	registerFile->SetRegister32(STATE_STREAMING,        m_streaming);
+	registerFile->SetRegister32(STATE_STREAMPOS,        m_streamPos);
+	registerFile->SetRegister32(STATE_STREAMBUFFERSIZE, m_streamBufferSize);
+
+	archive.InsertFile(registerFile);
 }
 
 void CCdvdfsv::Invoke(CMIPS& context, unsigned int functionId)
