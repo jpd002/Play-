@@ -47,11 +47,6 @@ public:
 	void							SaveState(Framework::CZipArchiveWriter&);
 
 private:
-	enum CONST_MAX_USERREG
-	{
-		MAX_USERREG = 0x10,
-	};
-
 	struct CALLREQUESTINFO
 	{
 		SIFRPCCALL					call;
@@ -101,8 +96,6 @@ private:
 
 	uint32							m_nEERecvAddr = 0;
 	uint32							m_nDataAddr = 0;
-
-	uint32							m_nUserReg[MAX_USERREG];
 
 	ModuleMap						m_modules;
 

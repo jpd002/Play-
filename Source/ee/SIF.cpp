@@ -76,8 +76,6 @@ void CSIF::Reset()
 	m_cmdBufferAddress	= 0;
 	m_cmdBufferSize		= 0;
 
-	memset(m_nUserReg, 0, sizeof(uint32) * MAX_USERREG);
-
 	m_packetQueue.clear();
 	m_packetProcessed = true;
 
@@ -650,81 +648,51 @@ void CSIF::SetCustomCommandHandler(const CustomCommandHandler& customCommandHand
 
 uint32 CSIF::GetRegister(uint32 nRegister)
 {
-/*
-	if(nRegister & 0x80000000)
+	switch(nRegister)
 	{
-		nRegister &= ~0x80000000;
-		if(nRegister >= MAX_USERREG)
-		{
-			printf("SIF: Warning. Trying to read an unimplemented user register (0x%08X).\r\n", nRegister | 0x80000000);
-			return 0;
-		}
-		return m_nUserReg[nRegister];
-	}
-	else
-*/
-	{
-		switch(nRegister)
-		{
-		case 0x00000001:
-			return m_nMAINADDR;
-			break;
-		case 0x00000002:
-			return m_nSUBADDR;
-			break;
-		case 0x00000003:
-			return m_nMSFLAG;
-			break;
-		case 0x00000004:
-			return m_nSMFLAG;
-			break;
-		case 0x80000000:
-			return SIF_RESETADDR;
-			break;
-		case 0x80000002:
-//			return 0;
-			return 1;
-			break;
-		default:
-			CLog::GetInstance().Print(LOG_NAME, "Warning. Trying to read an invalid system register (0x%08X).\r\n", nRegister);
-			return 0;
-			break;
-		}
+	case 0x00000001:
+		return m_nMAINADDR;
+		break;
+	case 0x00000002:
+		return m_nSUBADDR;
+		break;
+	case 0x00000003:
+		return m_nMSFLAG;
+		break;
+	case 0x00000004:
+		return m_nSMFLAG;
+		break;
+	case 0x80000000:
+		return SIF_RESETADDR;
+		break;
+	case 0x80000002:
+		return 1;
+		break;
+	default:
+		CLog::GetInstance().Print(LOG_NAME, "Warning. Trying to read an invalid system register (0x%08X).\r\n", nRegister);
+		return 0;
+		break;
 	}
 }
 
 void CSIF::SetRegister(uint32 nRegister, uint32 nValue)
 {
-/*
-	if(nRegister & 0x80000000)
+	switch(nRegister)
 	{
-		nRegister &= ~0x80000000;
-		if(nRegister >= MAX_USERREG)
-		{
-			printf("SIF: Warning. Trying to write to an unimplemented user register (0x%08X).\r\n", nRegister | 0x80000000);
-			return;
-		}
-		m_nUserReg[nRegister] = nValue;
-	}
-	else*/
-	{
-		switch(nRegister)
-		{
-		case 0x00000001:
-			m_nMAINADDR = nValue;
-			break;
-		case 0x80000000:
-			//Set by CMD library
-			break;
-		case 0x80000001:
-			//Set by CMD library
-			break;
-		case 0x80000002:
-			//Set by RPC library (initialized state?)
-			break;
-		default:
-			CLog::GetInstance().Print(LOG_NAME, "Warning. Trying to write to an invalid system register (0x%08X).\r\n", nRegister);
-			break;
-		}
+	case 0x00000001:
+		m_nMAINADDR = nValue;
+		break;
+	case 0x80000000:
+		//Set by CMD library
+		break;
+	case 0x80000001:
+		//Set by CMD library
+		break;
+	case 0x80000002:
+		//Set by RPC library (initialized state?)
+		break;
+	default:
+		CLog::GetInstance().Print(LOG_NAME, "Warning. Trying to write to an invalid system register (0x%08X).\r\n", nRegister);
+		break;
 	}
 }
