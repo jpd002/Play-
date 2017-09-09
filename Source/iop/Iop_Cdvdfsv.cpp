@@ -37,11 +37,6 @@ CCdvdfsv::CCdvdfsv(CSifMan& sif, CCdvdman& cdvdman, uint8* iopRam)
 	sif.RegisterModule(MODULE_ID_8, &m_module59C);
 }
 
-CCdvdfsv::~CCdvdfsv()
-{
-
-}
-
 std::string CCdvdfsv::GetId() const
 {
 	return "cdvdfsv";
