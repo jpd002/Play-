@@ -95,11 +95,29 @@ std::string DecodeSwitch(uint16 switchId)
 	std::string result;
 	switch(switchId >> 8)
 	{
+	case 0x14:
+		result = "NON";
+		break;
 	case 0x15:
-		result = "KEYON";
+		result = "KON";
+		break;
+	case 0x16:
+		result = "KOFF";
 		break;
 	case 0x17:
 		result = "ENDX";
+		break;
+	case 0x18:
+		result = "VMIXL";
+		break;
+	case 0x19:
+		result = "VMIXEL";
+		break;
+	case 0x1A:
+		result = "VMIXR";
+		break;
+	case 0x1B:
+		result = "VMIXER";
 		break;
 	default:
 		result = string_format("unknown (0x%02X)", switchId >> 8);
