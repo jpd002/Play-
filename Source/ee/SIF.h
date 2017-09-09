@@ -68,6 +68,7 @@ private:
 	void							SaveCallReplies(Framework::CZipArchiveWriter&);
 	void							SaveBindReplies(Framework::CZipArchiveWriter&);
 
+	static PacketQueue				LoadPacketQueue(Framework::CZipArchiveReader&);
 	static CallReplyMap				LoadCallReplies(Framework::CZipArchiveReader&);
 	static BindReplyMap				LoadBindReplies(Framework::CZipArchiveReader&);
 

@@ -2,6 +2,7 @@
 #include "../Log.h"
 #include "../Ps2Const.h"
 #include "../StructCollectionStateFile.h"
+#include "../MemoryStateFile.h"
 #include "../iop/IopBios.h"
 #include "SIF.h"
 #include "lexical_cast_ex.h"
@@ -13,6 +14,7 @@
 #define LOG_NAME					("sif")
 
 #define STATE_REGS_XML				("sif/regs.xml")
+#define STATE_PACKETQUEUE			("sif/packet_queue")
 #define STATE_CALL_REPLIES_XML		("sif/call_replies.xml")
 #define STATE_BIND_REPLIES_XML		("sif/bind_replies.xml")
 
@@ -22,6 +24,7 @@
 #define STATE_REG_SMFLAG          ("SMFLAG")
 #define STATE_REG_EERECVADDR      ("EERecvAddr")
 #define STATE_REG_DATAADDR        ("DataAddr")
+#define STATE_REG_PACKETPROCESSED ("packetProcessed")
 
 #define STATE_PACKET_HEADER_PACKETSIZE			("Packet_Header_PacketSize")
 #define STATE_PACKET_HEADER_DESTSIZE			("Packet_Header_DestSize")
@@ -269,7 +272,10 @@ void CSIF::LoadState(Framework::CZipArchiveReader& archive)
 		m_nSMFLAG         = registerFile.GetRegister32(STATE_REG_SMFLAG);
 		m_nEERecvAddr     = registerFile.GetRegister32(STATE_REG_EERECVADDR);
 		m_nDataAddr       = registerFile.GetRegister32(STATE_REG_DATAADDR);
+		m_packetProcessed = registerFile.GetRegister32(STATE_REG_PACKETPROCESSED) != 0;
 	}
+
+	m_packetQueue = LoadPacketQueue(archive);
 
 	m_callReplies = LoadCallReplies(archive);
 	m_bindReplies = LoadBindReplies(archive);
@@ -285,8 +291,11 @@ void CSIF::SaveState(Framework::CZipArchiveWriter& archive)
 		registerFile->SetRegister32(STATE_REG_SMFLAG,          m_nSMFLAG);
 		registerFile->SetRegister32(STATE_REG_EERECVADDR,      m_nEERecvAddr);
 		registerFile->SetRegister32(STATE_REG_DATAADDR,        m_nDataAddr);
+		registerFile->SetRegister32(STATE_REG_PACKETPROCESSED, m_packetProcessed);
 		archive.InsertFile(registerFile);
 	}
+
+	archive.InsertFile(new CMemoryStateFile(STATE_PACKETQUEUE, m_packetQueue.data(), m_packetQueue.size()));
 
 	SaveCallReplies(archive);
 	SaveBindReplies(archive);
@@ -323,6 +332,21 @@ void CSIF::SaveBindReplies(Framework::CZipArchiveWriter& archive)
 		bindRepliesFile->InsertStruct(replyId.c_str(), replyStruct);
 	}
 	archive.InsertFile(bindRepliesFile);
+}
+
+CSIF::PacketQueue CSIF::LoadPacketQueue(Framework::CZipArchiveReader& archive)
+{
+	PacketQueue packetQueue;
+	auto file = archive.BeginReadFile(STATE_PACKETQUEUE);
+	while(1)
+	{
+		static const uint32 bufferSize = 0x100;
+		uint8 buffer[bufferSize];
+		auto readSize = file->Read(buffer, bufferSize);
+		if(readSize == 0) break;
+		packetQueue.insert(std::end(packetQueue), buffer, buffer + readSize);
+	}
+	return packetQueue;
 }
 
 CSIF::CallReplyMap CSIF::LoadCallReplies(Framework::CZipArchiveReader& archive)
