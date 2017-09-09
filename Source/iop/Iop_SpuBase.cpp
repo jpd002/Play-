@@ -860,7 +860,7 @@ float CSpuBase::GetReverbCoef(unsigned int registerId) const
 
 void CSpuBase::UpdateAdsr(CHANNEL& channel)
 {
-	static unsigned int logIndex[8] = { 0, 4, 6, 8, 9, 10, 11, 12 };
+	static const unsigned int logIndex[8] = { 0, 4, 6, 8, 9, 10, 11, 12 };
 	int32 currentAdsrLevel = channel.adsrVolume;
 	if(channel.status == ATTACK)
 	{
