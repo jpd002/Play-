@@ -65,13 +65,19 @@ private:
 
 	void							DeleteModules();
 
-	void							SaveState_Header(const std::string&, CStructFile&, const SIFCMDHEADER&);
-	void							SaveState_RpcCall(CStructFile&, const SIFRPCCALL&);
-	void							SaveState_RequestEnd(CStructFile&, const SIFRPCREQUESTEND&);
+	void							SaveCallReplies(Framework::CZipArchiveWriter&);
+	void							SaveBindReplies(Framework::CZipArchiveWriter&);
 
-	void							LoadState_Header(const std::string&, const CStructFile&, SIFCMDHEADER&);
-	void							LoadState_RpcCall(const CStructFile&, SIFRPCCALL&);
-	void							LoadState_RequestEnd(const CStructFile&, SIFRPCREQUESTEND&);
+	CallReplyMap					LoadCallReplies(Framework::CZipArchiveReader&);
+	BindReplyMap					LoadBindReplies(Framework::CZipArchiveReader&);
+
+	static void						SaveState_Header(const std::string&, CStructFile&, const SIFCMDHEADER&);
+	static void						SaveState_RpcCall(CStructFile&, const SIFRPCCALL&);
+	static void						SaveState_RequestEnd(CStructFile&, const SIFRPCREQUESTEND&);
+
+	static void						LoadState_Header(const std::string&, const CStructFile&, SIFCMDHEADER&);
+	static void						LoadState_RpcCall(const CStructFile&, SIFRPCCALL&);
+	static void						LoadState_RequestEnd(const CStructFile&, SIFRPCREQUESTEND&);
 
 	void							Cmd_SetEERecvAddr(const SIFCMDHEADER*);
 	void							Cmd_Initialize(const SIFCMDHEADER*);

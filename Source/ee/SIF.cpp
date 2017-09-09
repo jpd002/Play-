@@ -5,6 +5,7 @@
 #include "../iop/IopBios.h"
 #include "SIF.h"
 #include "lexical_cast_ex.h"
+#include "string_format.h"
 
 #define		RPC_RECVADDR		0xDEADBEF0
 #define		SIF_RESETADDR		0		//Only works if equals to 0
@@ -13,6 +14,7 @@
 
 #define STATE_REGS_XML				("sif/regs.xml")
 #define STATE_CALL_REPLIES_XML		("sif/call_replies.xml")
+#define STATE_BIND_REPLIES_XML		("sif/bind_replies.xml")
 
 #define STATE_PACKET_HEADER_PACKETSIZE			("Packet_Header_PacketSize")
 #define STATE_PACKET_HEADER_DESTSIZE			("Packet_Header_DestSize")
@@ -252,27 +254,18 @@ void CSIF::SendDMA(void* pData, uint32 nSize)
 
 void CSIF::LoadState(Framework::CZipArchiveReader& archive)
 {
-	CRegisterStateFile registerFile(*archive.BeginReadFile(STATE_REGS_XML));
-	m_nMAINADDR		= registerFile.GetRegister32("MAINADDR");
-	m_nSUBADDR		= registerFile.GetRegister32("SUBADDR");
-	m_nMSFLAG		= registerFile.GetRegister32("MSFLAG");
-	m_nSMFLAG		= registerFile.GetRegister32("SMFLAG");
-	m_nEERecvAddr	= registerFile.GetRegister32("EERecvAddr");
-	m_nDataAddr		= registerFile.GetRegister32("DataAddr");
-
 	{
-		CStructCollectionStateFile callRepliesFile(*archive.BeginReadFile(STATE_CALL_REPLIES_XML));
-		for(CStructCollectionStateFile::StructIterator callReplyIterator(callRepliesFile.GetStructBegin());
-			callReplyIterator != callRepliesFile.GetStructEnd(); ++callReplyIterator)
-		{
-			const CStructFile& structFile(callReplyIterator->second);
-			uint32 replyId = lexical_cast_hex<std::string>(callReplyIterator->first);
-			CALLREQUESTINFO callReply;
-			LoadState_RpcCall(structFile, callReply.call); 
-			LoadState_RequestEnd(structFile, callReply.reply);
-			m_callReplies[replyId] = callReply;
-		}
+		CRegisterStateFile registerFile(*archive.BeginReadFile(STATE_REGS_XML));
+		m_nMAINADDR		= registerFile.GetRegister32("MAINADDR");
+		m_nSUBADDR		= registerFile.GetRegister32("SUBADDR");
+		m_nMSFLAG		= registerFile.GetRegister32("MSFLAG");
+		m_nSMFLAG		= registerFile.GetRegister32("SMFLAG");
+		m_nEERecvAddr	= registerFile.GetRegister32("EERecvAddr");
+		m_nDataAddr		= registerFile.GetRegister32("DataAddr");
 	}
+
+	m_callReplies = LoadCallReplies(archive);
+	m_bindReplies = LoadBindReplies(archive);
 }
 
 void CSIF::SaveState(Framework::CZipArchiveWriter& archive)
@@ -288,21 +281,72 @@ void CSIF::SaveState(Framework::CZipArchiveWriter& archive)
 		archive.InsertFile(registerFile);
 	}
 
+	SaveCallReplies(archive);
+	SaveBindReplies(archive);
+}
+
+void CSIF::SaveCallReplies(Framework::CZipArchiveWriter& archive)
+{
+	auto callRepliesFile = new CStructCollectionStateFile(STATE_CALL_REPLIES_XML);
+	for(const auto& callReplyIterator : m_callReplies)
 	{
-		CStructCollectionStateFile* callRepliesFile = new CStructCollectionStateFile(STATE_CALL_REPLIES_XML);
-		for(const auto& callReplyIterator : m_callReplies)
+		const auto& callReply(callReplyIterator.second);
+		auto replyId = string_format("%08x", callReplyIterator.first);
+		CStructFile replyStruct;
 		{
-			const CALLREQUESTINFO& callReply(callReplyIterator.second);
-			std::string replyId = lexical_cast_hex<std::string>(callReplyIterator.first, 8);
-			CStructFile replyStruct;
-			{
-				SaveState_RpcCall(replyStruct, callReply.call);
-				SaveState_RequestEnd(replyStruct, callReply.reply);
-			}
-			callRepliesFile->InsertStruct(replyId.c_str(), replyStruct);
+			SaveState_RpcCall(replyStruct, callReply.call);
+			SaveState_RequestEnd(replyStruct, callReply.reply);
 		}
-		archive.InsertFile(callRepliesFile);
+		callRepliesFile->InsertStruct(replyId.c_str(), replyStruct);
 	}
+	archive.InsertFile(callRepliesFile);
+}
+
+void CSIF::SaveBindReplies(Framework::CZipArchiveWriter& archive)
+{
+	auto bindRepliesFile = new CStructCollectionStateFile(STATE_BIND_REPLIES_XML);
+	for(const auto& bindReplyIterator : m_bindReplies)
+	{
+		const auto& bindReply(bindReplyIterator.second);
+		auto replyId = string_format("%08x", bindReplyIterator.first);
+		CStructFile replyStruct;
+		{
+			SaveState_RequestEnd(replyStruct, bindReply);
+		}
+		bindRepliesFile->InsertStruct(replyId.c_str(), replyStruct);
+	}
+	archive.InsertFile(bindRepliesFile);
+}
+
+CSIF::CallReplyMap CSIF::LoadCallReplies(Framework::CZipArchiveReader& archive)
+{
+	CallReplyMap callReplies;
+	auto callRepliesFile = CStructCollectionStateFile(*archive.BeginReadFile(STATE_CALL_REPLIES_XML));
+	for(const auto& structFilePair : callRepliesFile)
+	{
+		const auto& structFile(structFilePair.second);
+		uint32 replyId = lexical_cast_hex<std::string>(structFilePair.first);
+		CALLREQUESTINFO callReply;
+		LoadState_RpcCall(structFile, callReply.call); 
+		LoadState_RequestEnd(structFile, callReply.reply);
+		callReplies[replyId] = callReply;
+	}
+	return callReplies;
+}
+
+CSIF::BindReplyMap CSIF::LoadBindReplies(Framework::CZipArchiveReader& archive)
+{
+	BindReplyMap bindReplies;
+	auto bindRepliesFile = CStructCollectionStateFile(*archive.BeginReadFile(STATE_BIND_REPLIES_XML));
+	for(const auto& structFilePair : bindRepliesFile)
+	{
+		const auto& structFile(structFilePair.second);
+		uint32 replyId = lexical_cast_hex<std::string>(structFilePair.first);
+		SIFRPCREQUESTEND bindReply;
+		LoadState_RequestEnd(structFile, bindReply);
+		bindReplies[replyId] = bindReply;
+	}
+	return bindReplies;
 }
 
 void CSIF::SaveState_Header(const std::string& prefix, CStructFile& file, const SIFCMDHEADER& packetHeader)
