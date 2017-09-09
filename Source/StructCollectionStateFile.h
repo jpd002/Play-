@@ -1,5 +1,4 @@
-#ifndef _STRUCTCOLLECTIONSTATEFILE_H_
-#define _STRUCTCOLLECTIONSTATEFILE_H_
+#pragma once
 
 #include <map>
 #include "zip/ZipFile.h"
@@ -14,11 +13,11 @@ public:
 
 						CStructCollectionStateFile(const char*);
 						CStructCollectionStateFile(Framework::CStream&);
-	virtual				~CStructCollectionStateFile();
+	virtual				~CStructCollectionStateFile() = default;
 
 	void				InsertStruct(const char*, const CStructFile&);
 	void				Read(Framework::CStream&);
-	virtual void		Write(Framework::CStream&);
+	void				Write(Framework::CStream&) override;
 
 	StructIterator		GetStructBegin() const;
 	StructIterator		GetStructEnd() const;
@@ -27,4 +26,3 @@ private:
 	StructMap			m_structs;
 };
 
-#endif

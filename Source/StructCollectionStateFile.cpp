@@ -21,11 +21,6 @@ CStructCollectionStateFile::CStructCollectionStateFile(Framework::CStream& strea
 	Read(stream);
 }
 
-CStructCollectionStateFile::~CStructCollectionStateFile()
-{
-
-}
-
 CStructCollectionStateFile::StructIterator CStructCollectionStateFile::GetStructBegin() const
 {
 	return m_structs.begin();
