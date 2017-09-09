@@ -68,8 +68,8 @@ private:
 	void							SaveCallReplies(Framework::CZipArchiveWriter&);
 	void							SaveBindReplies(Framework::CZipArchiveWriter&);
 
-	CallReplyMap					LoadCallReplies(Framework::CZipArchiveReader&);
-	BindReplyMap					LoadBindReplies(Framework::CZipArchiveReader&);
+	static CallReplyMap				LoadCallReplies(Framework::CZipArchiveReader&);
+	static BindReplyMap				LoadBindReplies(Framework::CZipArchiveReader&);
 
 	static void						SaveState_Header(const std::string&, CStructFile&, const SIFCMDHEADER&);
 	static void						SaveState_RpcCall(CStructFile&, const SIFRPCCALL&);
