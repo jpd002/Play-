@@ -8,11 +8,6 @@ CMemoryStateFile::CMemoryStateFile(const char* name, const void* memory, size_t 
 
 }
 
-CMemoryStateFile::~CMemoryStateFile()
-{
-
-}
-
 void CMemoryStateFile::Write(Framework::CStream& stream)
 {
 	stream.Write(m_memory, m_size);
