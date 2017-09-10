@@ -1499,6 +1499,12 @@ void CIopBios::Reschedule()
 		return;
 	}
 
+	//Don't switch if interrupts are disabled
+	if((m_cpu.m_State.nCOP0[CCOP_SCU::STATUS] & CMIPS::STATUS_IE) != CMIPS::STATUS_IE)
+	{
+		return;
+	}
+
 	if(m_currentThreadId != -1)
 	{
 		SaveThreadContext(m_currentThreadId);
