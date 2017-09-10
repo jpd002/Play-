@@ -17,6 +17,8 @@ using namespace Iop;
 #define STATE_REGS_IRQADDR					("IRQADDR")
 #define STATE_REGS_TRANSFERADDR				("TRANSFERADDR")
 #define STATE_REGS_TRANSFERMODE				("TRANSFERMODE")
+#define STATE_REGS_CHANNELON				("CHANNELON")
+#define STATE_REGS_CHANNELREVERB			("CHANNELREVERB")
 #define STATE_REGS_REVERBWORKADDRSTART		("REVERBWORKADDRSTART")
 #define STATE_REGS_REVERBWORKADDREND		("REVERBWORKADDREND")
 #define STATE_REGS_REVERBCURRADDR			("REVERBCURRADDR")
@@ -187,6 +189,8 @@ void CSpuBase::LoadState(Framework::CZipArchiveReader& archive)
 	m_irqAddr = registerFile.GetRegister32(STATE_REGS_IRQADDR);
 	m_transferMode = registerFile.GetRegister32(STATE_REGS_TRANSFERMODE);
 	m_transferAddr = registerFile.GetRegister32(STATE_REGS_TRANSFERADDR);
+	m_channelOn.f = registerFile.GetRegister32(STATE_REGS_CHANNELON);
+	m_channelReverb.f = registerFile.GetRegister32(STATE_REGS_CHANNELREVERB);
 	m_reverbWorkAddrStart = registerFile.GetRegister32(STATE_REGS_REVERBWORKADDRSTART);
 	m_reverbWorkAddrEnd = registerFile.GetRegister32(STATE_REGS_REVERBWORKADDREND);
 	m_reverbCurrAddr = registerFile.GetRegister32(STATE_REGS_REVERBCURRADDR);
@@ -227,6 +231,8 @@ void CSpuBase::SaveState(Framework::CZipArchiveWriter& archive)
 	registerFile->SetRegister32(STATE_REGS_IRQADDR, m_irqAddr);
 	registerFile->SetRegister32(STATE_REGS_TRANSFERMODE, m_transferMode);
 	registerFile->SetRegister32(STATE_REGS_TRANSFERADDR, m_transferAddr);
+	registerFile->SetRegister32(STATE_REGS_CHANNELON, m_channelOn.f);
+	registerFile->SetRegister32(STATE_REGS_CHANNELREVERB, m_channelReverb.f);
 	registerFile->SetRegister32(STATE_REGS_REVERBWORKADDRSTART, m_reverbWorkAddrStart);
 	registerFile->SetRegister32(STATE_REGS_REVERBWORKADDREND, m_reverbWorkAddrEnd);
 	registerFile->SetRegister32(STATE_REGS_REVERBCURRADDR, m_reverbCurrAddr);
