@@ -31,6 +31,16 @@ CStructCollectionStateFile::StructIterator CStructCollectionStateFile::GetStruct
 	return m_structs.end();
 }
 
+CStructCollectionStateFile::StructIterator CStructCollectionStateFile::begin() const
+{
+	return m_structs.begin();
+}
+
+CStructCollectionStateFile::StructIterator CStructCollectionStateFile::end() const
+{
+	return m_structs.end();
+}
+
 void CStructCollectionStateFile::InsertStruct(const char* name, const CStructFile& structFile)
 {
 	m_structs[name] = structFile;

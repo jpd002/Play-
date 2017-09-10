@@ -22,19 +22,9 @@ public:
 	StructIterator		GetStructBegin() const;
 	StructIterator		GetStructEnd() const;
 
+	StructIterator		begin() const;
+	StructIterator		end() const;
+
 private:
 	StructMap			m_structs;
 };
-
-namespace std
-{
-	static CStructCollectionStateFile::StructIterator begin(const CStructCollectionStateFile& stateFile)
-	{
-		return stateFile.GetStructBegin();
-	}
-
-	static CStructCollectionStateFile::StructIterator end(const CStructCollectionStateFile& stateFile)
-	{
-		return stateFile.GetStructEnd();
-	}
-}
