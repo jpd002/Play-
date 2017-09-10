@@ -1,14 +1,11 @@
 #include "VuBasicBlock.h"
 #include "MA_VU.h"
 #include "offsetof_def.h"
+#include "MemoryUtils.h"
+#include "Vpu.h"
 
 CVuBasicBlock::CVuBasicBlock(CMIPS& context, uint32 begin, uint32 end)
 : CBasicBlock(context, begin, end)
-{
-
-}
-
-CVuBasicBlock::~CVuBasicBlock()
 {
 
 }
@@ -49,6 +46,15 @@ void CVuBasicBlock::CompileRange(CMipsJitter* jitter)
 
 	auto integerBranchDelayInfo = GetIntegerBranchDelayInfo(fixedEnd);
 
+	bool hasPendingXgKick = false;
+	const auto clearPendingXgKick =
+		[&]()
+		{
+			assert(hasPendingXgKick);
+			EmitXgKick(jitter);
+			hasPendingXgKick = false;
+		};
+
 	for(uint32 address = m_begin; address <= fixedEnd; address += 8)
 	{
 		uint32 addressLo = address + 0;
@@ -65,6 +71,8 @@ void CVuBasicBlock::CompileRange(CMipsJitter* jitter)
 		
 		//No lower instruction reads Q
 		assert(loOps.readQ == false);
+
+		bool loIsXgKick = (opcodeLo & ~(0x1F << 11)) == 0x800006FC;
 
 		if(loOps.syncQ)
 		{
@@ -121,6 +129,13 @@ void CVuBasicBlock::CompileRange(CMipsJitter* jitter)
 			jitter->PullRel(offsetof(CMIPS, m_State.nCOP2VI[integerBranchDelayInfo.regIndex]));
 		}
 
+		//If there's a pending XGKICK and the current lower instruction is
+		//an XGKICK, make sure we flush the pending one first
+		if(loIsXgKick && hasPendingXgKick)
+		{
+			clearPendingXgKick();
+		}
+
 		arch->CompileInstruction(addressLo, jitter, &m_context);
 
 		if(address == integerBranchDelayInfo.useRegAddress)
@@ -158,9 +173,27 @@ void CVuBasicBlock::CompileRange(CMipsJitter* jitter)
 		}
 		//----------------------
 
+		if(hasPendingXgKick)
+		{
+			clearPendingXgKick();
+		}
+
+		if(loIsXgKick)
+		{
+			assert(!hasPendingXgKick);
+			hasPendingXgKick = true;
+		}
+
 		//Sanity check
 		assert(jitter->IsStackEmpty());
 	}
+
+	if(hasPendingXgKick)
+	{
+		clearPendingXgKick();
+	}
+
+	assert(!hasPendingXgKick);
 
 	//Increment pipeTime
 	{
@@ -267,4 +300,18 @@ bool CVuBasicBlock::CheckIsSpecialIntegerLoop(uint32 fixedEnd, unsigned int regI
 	}
 
 	return true;
+}
+
+void CVuBasicBlock::EmitXgKick(CMipsJitter* jitter)
+{
+	//Push context
+	jitter->PushCtx();
+
+	//Push value
+	jitter->PushRel(offsetof(CMIPS, m_State.xgkickAddress));
+
+	//Compute Address
+	jitter->PushCst(CVpu::VU_XGKICK);
+
+	jitter->Call(reinterpret_cast<void*>(&MemoryUtils_SetWordProxy), 3, false);
 }

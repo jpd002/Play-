@@ -49,7 +49,7 @@ DiskUtils::OpticalMediaPtr DiskUtils::CreateOpticalMediaFromPath(const boost::fi
 		stream = std::make_shared<Framework::Win32::CVolumeStream>(imagePath.string()[4]);
 	}
 #elif !defined(__ANDROID__) && !TARGET_OS_IPHONE && !TARGET_IPHONE_SIMULATOR
-	else
+	else if(imagePath.string().find("/dev/") == 0)
 	{
 		try
 		{

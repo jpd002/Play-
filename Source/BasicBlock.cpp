@@ -42,17 +42,11 @@ CBasicBlock::CBasicBlock(CMIPS& context, uint32 begin, uint32 end)
 : m_begin(begin)
 , m_end(end)
 , m_context(context)
-, m_selfLoopCount(0)
 #ifdef AOT_USE_CACHE
 , m_function(nullptr)
 #endif
 {
 	assert(m_end >= m_begin);
-}
-
-CBasicBlock::~CBasicBlock()
-{
-
 }
 
 #ifdef AOT_BUILD_CACHE
@@ -115,7 +109,7 @@ void CBasicBlock::Compile()
 		jmethod.method_size = m_function.GetSize();
 		jmethod.line_number_size = 0;
 
-		auto functionName = string_format("BasicBlock_0x%0.8X_0x%0.8X", m_begin, m_end);
+		auto functionName = string_format("BasicBlock_0x%08X_0x%08X", m_begin, m_end);
 
 		jmethod.method_name = const_cast<char*>(functionName.c_str());
 		iJIT_NotifyEvent(iJVM_EVENT_TYPE_METHOD_LOAD_FINISHED, reinterpret_cast<void*>(&jmethod));
@@ -266,14 +260,4 @@ bool CBasicBlock::IsCompiled() const
 #else
 	return (m_function != nullptr);
 #endif
-}
-
-unsigned int CBasicBlock::GetSelfLoopCount() const
-{
-	return m_selfLoopCount;
-}
-
-void CBasicBlock::SetSelfLoopCount(unsigned int selfLoopCount)
-{
-	m_selfLoopCount = selfLoopCount;
 }

@@ -21,7 +21,7 @@ void CMA_VU::CLower::ReflOpIsOfs(INSTRUCTION* instr, CMIPS* context, uint32 addr
 
 	address += 8;
 
-	sprintf(text, "VI%i, $%0.8X", is, address + GetBranch(imm));
+	sprintf(text, "VI%i, $%08X", is, address + GetBranch(imm));
 }
 
 void CMA_VU::CLower::ReflOpIt(INSTRUCTION* instr, CMIPS* context, uint32 address, uint32 opcode, char* text, unsigned int count)
@@ -35,7 +35,7 @@ void CMA_VU::CLower::ReflOpImm12(INSTRUCTION* instr, CMIPS* context, uint32 addr
 {
 	uint16	imm	= static_cast<uint16>((opcode & 0x7FF) | (opcode & 0x00200000) >> 10);
 
-	sprintf(text, "0x%0.3X", imm);
+	sprintf(text, "0x%03X", imm);
 }
 
 void CMA_VU::CLower::ReflOpItImm12(INSTRUCTION* instr, CMIPS* context, uint32 address, uint32 opcode, char* text, unsigned int count)
@@ -43,7 +43,7 @@ void CMA_VU::CLower::ReflOpItImm12(INSTRUCTION* instr, CMIPS* context, uint32 ad
 	uint8	it	= static_cast<uint8>((opcode >> 16) & 0x001F);
 	uint16	imm	= static_cast<uint16>((opcode & 0x7FF) | (opcode & 0x00200000) >> 10);
 
-	sprintf(text, "VI%i, 0x%0.3X", it, imm);
+	sprintf(text, "VI%i, 0x%03X", it, imm);
 }
 
 void CMA_VU::CLower::ReflOpItIs(INSTRUCTION* instr, CMIPS* context, uint32 address, uint32 opcode, char* text, unsigned int count)
@@ -60,7 +60,7 @@ void CMA_VU::CLower::ReflOpOfs(INSTRUCTION* instr, CMIPS* context, uint32 addres
 
 	address += 8;
 
-	sprintf(text, "$%0.8X", address + GetBranch(imm));
+	sprintf(text, "$%08X", address + GetBranch(imm));
 }
 
 void CMA_VU::CLower::ReflOpItOfs(INSTRUCTION* instr, CMIPS* context, uint32 address, uint32 opcode, char* text, unsigned int count)
@@ -70,7 +70,7 @@ void CMA_VU::CLower::ReflOpItOfs(INSTRUCTION* instr, CMIPS* context, uint32 addr
 
 	address += 8;
 
-	sprintf(text, "VI%i, $%0.8X", it, address + GetBranch(imm));
+	sprintf(text, "VI%i, $%08X", it, address + GetBranch(imm));
 }
 
 void CMA_VU::CLower::ReflOpItIsOfs(INSTRUCTION* instr, CMIPS* context, uint32 address, uint32 opcode, char* text, unsigned int count)
@@ -81,7 +81,7 @@ void CMA_VU::CLower::ReflOpItIsOfs(INSTRUCTION* instr, CMIPS* context, uint32 ad
 
 	address += 8;
 
-	sprintf(text, "VI%i, VI%i, $%0.8X", it, is, address + GetBranch(imm));
+	sprintf(text, "VI%i, VI%i, $%08X", it, is, address + GetBranch(imm));
 }
 
 void CMA_VU::CLower::ReflOpItIsImm15(INSTRUCTION* instr, CMIPS* context, uint32 address, uint32 opcode, char* text, unsigned int count)
@@ -90,7 +90,7 @@ void CMA_VU::CLower::ReflOpItIsImm15(INSTRUCTION* instr, CMIPS* context, uint32 
 	uint8	is	= static_cast<uint8> ((opcode >> 11) & 0x001F);
 	uint16	imm	= static_cast<uint16>((opcode & 0x7FF) | (opcode & 0x01E00000) >> 10);
 
-	sprintf(text, "VI%i, VI%i, $%0.4X", it, is, imm);
+	sprintf(text, "VI%i, VI%i, $%04X", it, is, imm);
 }
 
 void CMA_VU::CLower::ReflOpItOfsIsDst(INSTRUCTION* instr, CMIPS* context, uint32 address, uint32 opcode, char* text, unsigned int count)
@@ -101,21 +101,21 @@ void CMA_VU::CLower::ReflOpItOfsIsDst(INSTRUCTION* instr, CMIPS* context, uint32
 	uint16 imm	= static_cast<uint16>((opcode >>  0) & 0x07FF);
 	if(imm & 0x400) imm |= 0xF800;
 
-	sprintf(text, "VI%i, $%0.4X(VI%i)%s", it, imm, is, m_sDestination[dest]);
+	sprintf(text, "VI%i, $%04X(VI%i)%s", it, imm, is, m_sDestination[dest]);
 }
 
 void CMA_VU::CLower::ReflOpImm24(INSTRUCTION* instr, CMIPS* context, uint32 address, uint32 opcode, char* text, unsigned int count)
 {
 	uint32 imm = opcode & 0xFFFFFF;
 
-	sprintf(text, "$%0.6X", imm);
+	sprintf(text, "$%06X", imm);
 }
 
 void CMA_VU::CLower::ReflOpVi1Imm24(INSTRUCTION* instr, CMIPS* context, uint32 address, uint32 opcode, char* text, unsigned int count)
 {
 	uint32 imm = opcode & 0xFFFFFF;
 
-	sprintf(text, "VI1, $%0.6X", imm);
+	sprintf(text, "VI1, $%06X", imm);
 }
 
 void CMA_VU::CLower::ReflOpFsDstOfsIt(INSTRUCTION* instr, CMIPS* context, uint32 address, uint32 opcode, char* text, unsigned int count)
@@ -126,7 +126,7 @@ void CMA_VU::CLower::ReflOpFsDstOfsIt(INSTRUCTION* instr, CMIPS* context, uint32
 	uint16 imm	= static_cast<uint16>((opcode >>  0) & 0x07FF);
 	if(imm & 0x400) imm |= 0xF800;
 
-	sprintf(text, "VF%i%s, $%0.4X(VI%i)", fs, m_sDestination[dest], imm, it);
+	sprintf(text, "VF%i%s, $%04X(VI%i)", fs, m_sDestination[dest], imm, it);
 }
 
 void CMA_VU::CLower::ReflOpFtDstOfsIs(INSTRUCTION* instr, CMIPS* context, uint32 address, uint32 opcode, char* text, unsigned int count)
@@ -137,7 +137,7 @@ void CMA_VU::CLower::ReflOpFtDstOfsIs(INSTRUCTION* instr, CMIPS* context, uint32
 	uint16 imm	= static_cast<uint16>((opcode >>  0) & 0x07FF);
 	if(imm & 0x400) imm |= 0xF800;
 
-	sprintf(text, "VF%i%s, $%0.4X(VI%i)", ft, m_sDestination[dest], imm, is);
+	sprintf(text, "VF%i%s, $%04X(VI%i)", ft, m_sDestination[dest], imm, is);
 }
 
 void CMA_VU::CLower::ReflOpFtDstFsDst(INSTRUCTION* instr, CMIPS* context, uint32 address, uint32 opcode, char* text, unsigned int count)
@@ -676,7 +676,7 @@ INSTRUCTION CMA_VU::CLower::m_cReflVX2[32] =
 	{	"ELENG",	NULL,			CopyMnemonic,		ReflOpPFs,			NULL,				NULL			},
 	{	"ESUM",		NULL,			CopyMnemonic,		ReflOpPFs,			NULL,				NULL			},
 	{	"ERCPR",	NULL,			CopyMnemonic,		ReflOpPFsf,			NULL,				NULL			},
-	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
+	{	"EEXP",		NULL,			CopyMnemonic,		ReflOpPFsf,			NULL,				NULL			},
 };
 
 INSTRUCTION CMA_VU::CLower::m_cReflVX3[32] =
@@ -700,7 +700,7 @@ INSTRUCTION CMA_VU::CLower::m_cReflVX3[32] =
 	{	"WAITQ",	NULL,			CopyMnemonic,		NULL,				NULL,				NULL			},
 	{	"ISWR",		NULL,			CopyMnemonic,		ReflOpItIsDst,		NULL,				NULL			},
 	//0x10
-	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
+	{	"RXOR",		NULL,			CopyMnemonic,		ReflOpRFsf,			NULL,				NULL			},
 	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
 	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
 	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
@@ -1060,7 +1060,7 @@ VUINSTRUCTION CMA_VU::CLower::m_cVuReflVX2[32] =
 	{	"ELENG",	NULL,			ReflOpAffWrPRdFs	},
 	{	"ESUM",		NULL,			NULL				},
 	{	"ERCPR",	NULL,			ReflOpAffWrPRdFs	},
-	{	NULL,		NULL,			NULL				},
+	{	"EEXP",		NULL,			ReflOpAffWrPRdFs	},
 };
 
 VUINSTRUCTION CMA_VU::CLower::m_cVuReflVX3[32] =
@@ -1084,7 +1084,7 @@ VUINSTRUCTION CMA_VU::CLower::m_cVuReflVX3[32] =
 	{	"WAITQ",	NULL,			ReflOpAffQ			},
 	{	"ISWR",		NULL,			ReflOpAffRdItIs		},
 	//0x10
-	{	NULL,		NULL,			NULL				},
+	{	"RXOR",		NULL,			ReflOpAffRFsf		},
 	{	NULL,		NULL,			NULL				},
 	{	NULL,		NULL,			NULL				},
 	{	NULL,		NULL,			NULL				},
@@ -1231,7 +1231,7 @@ void CMA_VU::CLower::GetInstructionOperands(CMIPS* context, uint32 address, uint
 {
 	if(IsLOI(context, address))
 	{
-		sprintf(text, "$%0.8X", opcode);
+		sprintf(text, "$%08X", opcode);
 		return;
 	}
 

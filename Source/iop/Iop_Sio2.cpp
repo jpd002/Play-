@@ -410,11 +410,11 @@ void CSio2::ProcessController(unsigned int portId, size_t outputOffset, uint32 d
 			padState.pollMask[0] = m_inputBuffer[3];
 			padState.pollMask[1] = m_inputBuffer[4];
 			padState.pollMask[2] = m_inputBuffer[5];
-			CLog::GetInstance().Print(LOG_NAME, "Pad %d: SetPollMask(mask = { 0x%0.2X, 0x%0.2X, 0x%0.2X });\r\n", 
+			CLog::GetInstance().Print(LOG_NAME, "Pad %d: SetPollMask(mask = { 0x%02X, 0x%02X, 0x%02X });\r\n", 
 				padId, padState.pollMask[0], padState.pollMask[1], padState.pollMask[2]);
 			break;
 		default:
-			CLog::GetInstance().Print(LOG_NAME, "Pad %d: Unknown command received (0x%0.2X).\r\n", padId, cmd);
+			CLog::GetInstance().Print(LOG_NAME, "Pad %d: Unknown command received (0x%02X).\r\n", padId, cmd);
 			break;
 		}
 	}
@@ -449,13 +449,13 @@ void CSio2::DisassembleRead(uint32 address, uint32 value)
 	switch(address)
 	{
 	case REG_DATA_IN:
-		CLog::GetInstance().Print(LOG_NAME, "= DATA_IN = 0x%0.8X\r\n", value);
+		CLog::GetInstance().Print(LOG_NAME, "= DATA_IN = 0x%08X\r\n", value);
 		break;
 	case REG_CTRL:
-		CLog::GetInstance().Print(LOG_NAME, "= REG_CTRL = 0x%0.8X\r\n", value);
+		CLog::GetInstance().Print(LOG_NAME, "= REG_CTRL = 0x%08X\r\n", value);
 		break;
 	default:
-		CLog::GetInstance().Print(LOG_NAME, "Read an unknown register 0x%0.8X.\r\n", address);
+		CLog::GetInstance().Print(LOG_NAME, "Read an unknown register 0x%08X.\r\n", address);
 		break;
 	}
 }
@@ -465,37 +465,37 @@ void CSio2::DisassembleWrite(uint32 address, uint32 value)
 	switch(address)
 	{
 	case REG_PORT0_CTRL1:
-		CLog::GetInstance().Print(LOG_NAME, "REG_PORT0_CTRL1 = 0x%0.8X\r\n", value);
+		CLog::GetInstance().Print(LOG_NAME, "REG_PORT0_CTRL1 = 0x%08X\r\n", value);
 		break;
 	case REG_PORT0_CTRL2:
-		CLog::GetInstance().Print(LOG_NAME, "REG_PORT0_CTRL2 = 0x%0.8X\r\n", value);
+		CLog::GetInstance().Print(LOG_NAME, "REG_PORT0_CTRL2 = 0x%08X\r\n", value);
 		break;
 	case REG_PORT1_CTRL1:
-		CLog::GetInstance().Print(LOG_NAME, "REG_PORT1_CTRL1 = 0x%0.8X\r\n", value);
+		CLog::GetInstance().Print(LOG_NAME, "REG_PORT1_CTRL1 = 0x%08X\r\n", value);
 		break;
 	case REG_PORT1_CTRL2:
-		CLog::GetInstance().Print(LOG_NAME, "REG_PORT1_CTRL2 = 0x%0.8X\r\n", value);
+		CLog::GetInstance().Print(LOG_NAME, "REG_PORT1_CTRL2 = 0x%08X\r\n", value);
 		break;
 	case REG_PORT2_CTRL1:
-		CLog::GetInstance().Print(LOG_NAME, "REG_PORT2_CTRL1 = 0x%0.8X\r\n", value);
+		CLog::GetInstance().Print(LOG_NAME, "REG_PORT2_CTRL1 = 0x%08X\r\n", value);
 		break;
 	case REG_PORT2_CTRL2:
-		CLog::GetInstance().Print(LOG_NAME, "REG_PORT2_CTRL2 = 0x%0.8X\r\n", value);
+		CLog::GetInstance().Print(LOG_NAME, "REG_PORT2_CTRL2 = 0x%08X\r\n", value);
 		break;
 	case REG_PORT3_CTRL1:
-		CLog::GetInstance().Print(LOG_NAME, "REG_PORT3_CTRL1 = 0x%0.8X\r\n", value);
+		CLog::GetInstance().Print(LOG_NAME, "REG_PORT3_CTRL1 = 0x%08X\r\n", value);
 		break;
 	case REG_PORT3_CTRL2:
-		CLog::GetInstance().Print(LOG_NAME, "REG_PORT3_CTRL2 = 0x%0.8X\r\n", value);
+		CLog::GetInstance().Print(LOG_NAME, "REG_PORT3_CTRL2 = 0x%08X\r\n", value);
 		break;
 	case REG_DATA_OUT:
-		CLog::GetInstance().Print(LOG_NAME, "DATA_OUT = 0x%0.8X\r\n", value);
+		CLog::GetInstance().Print(LOG_NAME, "DATA_OUT = 0x%08X\r\n", value);
 		break;
 	case REG_CTRL:
-		CLog::GetInstance().Print(LOG_NAME, "CTRL = 0x%0.8X\r\n", value);
+		CLog::GetInstance().Print(LOG_NAME, "CTRL = 0x%08X\r\n", value);
 		break;
 	default:
-		CLog::GetInstance().Print(LOG_NAME, "Write 0x%0.8X to an unknown register 0x%0.8X.\r\n", value, address);
+		CLog::GetInstance().Print(LOG_NAME, "Write 0x%08X to an unknown register 0x%08X.\r\n", value, address);
 		break;
 	}
 }

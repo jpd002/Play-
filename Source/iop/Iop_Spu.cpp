@@ -254,7 +254,7 @@ void CSpu::DisassembleRead(uint32 address)
 		unsigned int registerId = (address - SPU_GENERAL_BASE) / 2;
 		if(invalid || registerId >= MAX_GENERAL_REG_NAME)
 		{
-			CLog::GetInstance().Print(LOG_NAME, "Read an unknown register (0x%0.8X).\r\n", address);
+			CLog::GetInstance().Print(LOG_NAME, "Read an unknown register (0x%08X).\r\n", address);
 		}
 		else
 		{
@@ -286,11 +286,11 @@ void CSpu::DisassembleWrite(uint32 address, uint16 value)
 		unsigned int registerId = (address - SPU_GENERAL_BASE) / 2;
 		if(invalid || registerId >= MAX_GENERAL_REG_NAME)
 		{
-			CLog::GetInstance().Print(LOG_NAME, "Wrote to an unknown register (0x%0.8X, 0x%0.4X).\r\n", address, value);
+			CLog::GetInstance().Print(LOG_NAME, "Wrote to an unknown register (0x%08X, 0x%04X).\r\n", address, value);
 		}
 		else
 		{
-			CLog::GetInstance().Print(LOG_NAME, "%s = 0x%0.4X\r\n",
+			CLog::GetInstance().Print(LOG_NAME, "%s = 0x%04X\r\n",
 				g_generalRegisterName[registerId], value);
 		}
 	}
@@ -300,12 +300,12 @@ void CSpu::DisassembleWrite(uint32 address, uint16 value)
 		unsigned int registerId = address & 0x0F;
 		if(address & 0x1)
 		{
-			CLog::GetInstance().Print(LOG_NAME, "CH%i : Wrote to an unknown register (0x%X, 0x%0.4X).\r\n", 
+			CLog::GetInstance().Print(LOG_NAME, "CH%i : Wrote to an unknown register (0x%X, 0x%04X).\r\n", 
 				channel, registerId, value);
 		}
 		else
 		{
-			CLog::GetInstance().Print(LOG_NAME, "CH%i : %s = 0x%0.4X\r\n", 
+			CLog::GetInstance().Print(LOG_NAME, "CH%i : %s = 0x%04X\r\n", 
 				channel, g_channelRegisterName[registerId / 2], value);
 		}
 	}

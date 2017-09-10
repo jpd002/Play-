@@ -133,6 +133,8 @@ private:
 	void								VITOF4();
 	void								VFTOI4();
 	void								VABS();
+	void								VMADDAq();
+	void								VMSUBAq();
 	void								VMADDA();
 	void								VMSUBA();
 	void								VMR32();

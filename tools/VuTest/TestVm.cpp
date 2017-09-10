@@ -3,7 +3,7 @@
 
 CTestVm::CTestVm()
 : m_cpu(MEMORYMAP_ENDIAN_LSBF)
-, m_executor(m_cpu)
+, m_executor(m_cpu, PS2::MICROMEM1SIZE)
 , m_vuMem(new uint8[PS2::VUMEM1SIZE])
 , m_microMem(new uint8[PS2::MICROMEM1SIZE])
 , m_maVu(PS2::VUMEM1SIZE - 1)

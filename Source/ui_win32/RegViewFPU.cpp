@@ -45,7 +45,7 @@ std::string CRegViewFPU::RenderFCSR()
 	char sText[256];
 	std::string result;
 
-	sprintf(sText, "FCSR: 0x%0.8X\r\n", m_pCtx->m_State.nFCSR);
+	sprintf(sText, "FCSR: 0x%08X\r\n", m_pCtx->m_State.nFCSR);
 	result += sText;
 
 	sprintf(sText, "CC  : %i%i%i%i%i%i%i%ib\r\n", \
@@ -83,7 +83,7 @@ std::string CRegViewFPU::RenderWord()
 
 		uint32 nData = ((uint32*)s->nCOP1)[i];
 
-		sprintf(sText, "%s: 0x%0.8X\r\n", sReg, nData);
+		sprintf(sText, "%s: 0x%08X\r\n", sReg, nData);
 		result += sText;
 	}
 

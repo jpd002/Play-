@@ -1,74 +1,42 @@
 <resources>
 
-    <!-- Base application theme. -->
+    <!-- colorPrimary is used for the default action bar background and to create background gradient -->
+    <!-- colorPrimaryDark is used for the status bar and navigation drawer background -->
+
     <style name="Purple" parent="Theme.AppCompat.NoActionBar">
-        <!-- Customize your theme here. -->
-        <!-- colorPrimary is used for the default action bar background -->
-        <item name="colorPrimary">@color/action_bar_purple</item>
-
-        <!-- colorPrimaryDark is used for the status bar -->
-        <item name="colorPrimaryDark">#8a00b7</item>
-        <!--item name="colorPrimaryDark">#ff000000</item-->
-
+        <item name="colorPrimary">#9C27B0</item>
+        <item name="colorPrimaryDark">#7B1FA2</item>
     </style>
 
     <style name="Pink" parent="Theme.AppCompat.NoActionBar">
-        <!-- Customize your theme here. -->
-        <!-- colorPrimary is used for the default action bar background -->
-        <item name="colorPrimary">@color/action_bar_Pink</item>
-
-        <!-- colorPrimaryDark is used for the status bar -->
-        <item name="colorPrimaryDark">#c2185b</item>
-        <!--item name="colorPrimaryDark">#ff000000</item-->
-
+        <item name="colorPrimary">#E91E63</item>
+        <item name="colorPrimaryDark">#C2185B</item>
     </style>
 
-    <style name="Yellow" parent="Theme.AppCompat.NoActionBar">
-        <!-- Customize your theme here. -->
-        <!-- colorPrimary is used for the default action bar background -->
-        <item name="colorPrimary">@color/action_bar_Yellow</item>
-
-        <!-- colorPrimaryDark is used for the status bar -->
-        <item name="colorPrimaryDark">#ffa000</item>
-
+    <style name="Amber" parent="Theme.AppCompat.NoActionBar">
+        <item name="colorPrimary">#FFC107</item>
+        <item name="colorPrimaryDark">#FFA000</item>
     </style>
 
 
     <style name="Blue" parent="Theme.AppCompat.NoActionBar">
-        <!-- Customize your theme here. -->
-        <!-- colorPrimary is used for the default action bar background -->
-        <item name="colorPrimary">@color/action_bar_Blue</item>
-
-        <!-- colorPrimaryDark is used for the status bar -->
+        <item name="colorPrimary">#2196f3</item>
         <item name="colorPrimaryDark">#1976d2</item>
-
     </style>
 
 
     <style name="Teal" parent="Theme.AppCompat.NoActionBar">
-        <!-- Customize your theme here. -->
-        <!-- colorPrimary is used for the default action bar background -->
-        <item name="colorPrimary">@color/action_bar_Teal</item>
-
-        <!-- colorPrimaryDark is used for the status bar -->
+        <item name="colorPrimary">#009688</item>
         <item name="colorPrimaryDark">#00796b</item>
-
     </style>
 	
 	<style name="Dark_Purple" parent="Theme.AppCompat.NoActionBar">
-        <!-- Customize your theme here. -->
-        <!-- colorPrimary is used for the default action bar background -->
-        <item name="colorPrimary">@color/action_bar_Dark_Purple</item>
-
-        <!-- colorPrimaryDark is used for the status bar -->
-        <item name="colorPrimaryDark">#2e2d5e</item>
-
+        <item name="colorPrimary">#673AB7</item>
+        <item name="colorPrimaryDark">#512DA8</item>
     </style>
 
-    <color name="action_bar_purple">#c300ff</color>
-    <color name="action_bar_Pink">#ffff0095</color>
-    <color name="action_bar_Yellow">#ffc107</color>
-    <color name="action_bar_Blue">#2196f3</color>
-    <color name="action_bar_Teal">#009688</color>
-	<color name="action_bar_Dark_Purple">#45438e</color>
+    <style name="Green" parent="Theme.AppCompat.NoActionBar">
+        <item name="colorPrimary">#4CAF50</item>
+        <item name="colorPrimaryDark">#388E3C</item>
+    </style>
 </resources>

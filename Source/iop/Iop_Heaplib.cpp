@@ -72,14 +72,14 @@ void CHeaplib::Invoke(CMIPS& context, unsigned int functionId)
 
 int32 CHeaplib::CreateHeap(uint32 heapSize, uint32 flags)
 {
-	CLog::GetInstance().Print(LOG_NAME, FUNCTION_CREATEHEAP "(heapSize = 0x%0.8X, flags = %d);\r\n",
+	CLog::GetInstance().Print(LOG_NAME, FUNCTION_CREATEHEAP "(heapSize = 0x%08X, flags = %d);\r\n",
 		heapSize, flags);
 	return HEAP_PTR;
 }
 
 int32 CHeaplib::AllocHeapMemory(uint32 heapPtr, uint32 size)
 {
-	CLog::GetInstance().Print(LOG_NAME, FUNCTION_ALLOCHEAPMEMORY "(heapPtr = 0x%0.8X, size = 0x%0.8X);\r\n",
+	CLog::GetInstance().Print(LOG_NAME, FUNCTION_ALLOCHEAPMEMORY "(heapPtr = 0x%08X, size = 0x%08X);\r\n",
 		heapPtr, size);
 	assert(heapPtr == HEAP_PTR);
 	return m_sysMem.AllocateMemory(size, 0, 0);
@@ -87,7 +87,7 @@ int32 CHeaplib::AllocHeapMemory(uint32 heapPtr, uint32 size)
 
 int32 CHeaplib::FreeHeapMemory(uint32 heapPtr, uint32 allocPtr)
 {
-	CLog::GetInstance().Print(LOG_NAME, FUNCTION_FREEHEAPMEMORY "(heapPtr = 0x%0.8X, allocPtr = 0x%0.8X);\r\n",
+	CLog::GetInstance().Print(LOG_NAME, FUNCTION_FREEHEAPMEMORY "(heapPtr = 0x%08X, allocPtr = 0x%08X);\r\n",
 		heapPtr, allocPtr);
 	assert(heapPtr == HEAP_PTR);
 	m_sysMem.FreeMemory(allocPtr);

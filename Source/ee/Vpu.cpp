@@ -18,7 +18,7 @@ CVpu::CVpu(unsigned int number, const VPUINIT& vpuInit, CGIF& gif, uint8* ram, u
 , m_vuMemSize((number == 0) ? PS2::VUMEM0SIZE : PS2::VUMEM1SIZE)
 , m_ctx(vpuInit.context)
 , m_gif(gif)
-, m_executor(*vpuInit.context)
+, m_executor(*vpuInit.context, (number == 0) ? PS2::MICROMEM0SIZE : PS2::MICROMEM1SIZE)
 , m_vuProfilerZone(CProfiler::GetInstance().RegisterZone("VU"))
 #ifdef DEBUGGER_INCLUDED
 , m_microMemMiniState(new uint8[(number == 0) ? PS2::MICROMEM0SIZE : PS2::MICROMEM1SIZE])
@@ -151,7 +151,7 @@ CVif& CVpu::GetVif()
 
 void CVpu::ExecuteMicroProgram(uint32 nAddress)
 {
-	CLog::GetInstance().Print(LOG_NAME, "Starting microprogram execution at 0x%0.8X.\r\n", nAddress);
+	CLog::GetInstance().Print(LOG_NAME, "Starting microprogram execution at 0x%08X.\r\n", nAddress);
 
 	m_ctx->m_State.nPC = nAddress;
 	m_ctx->m_State.pipeTime = 0;

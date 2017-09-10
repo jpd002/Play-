@@ -263,7 +263,7 @@ uint32 CVif::ReceiveDMA(uint32 address, uint32 qwc, uint32 unused, bool tagInclu
 #endif
 
 #ifdef _DEBUG
-	CLog::GetInstance().Print(LOG_NAME, "vif%i : Processing packet @ 0x%0.8X, qwc = 0x%X, tagIncluded = %i\r\n",
+	CLog::GetInstance().Print(LOG_NAME, "vif%i : Processing packet @ 0x%08X, qwc = 0x%X, tagIncluded = %i\r\n",
 		m_number, address, qwc, static_cast<int>(tagIncluded));
 #endif
 
@@ -1011,7 +1011,7 @@ void CVif::DisassembleGet(uint32 address)
 		LOG_GET(VIF1_R3)
 
 	default:
-		CLog::GetInstance().Print(LOG_NAME, "Reading unknown register 0x%0.8X.\r\n", address);
+		CLog::GetInstance().Print(LOG_NAME, "Reading unknown register 0x%08X.\r\n", address);
 		break;
 	}
 
@@ -1022,15 +1022,15 @@ void CVif::DisassembleSet(uint32 address, uint32 value)
 {
 	if((address >= VIF0_FIFO_START) && (address < VIF0_FIFO_END))
 	{
-		CLog::GetInstance().Print(LOG_NAME, "VIF0_FIFO(0x%0.3X) = 0x%0.8X.\r\n", address & 0xFFF, value);
+		CLog::GetInstance().Print(LOG_NAME, "VIF0_FIFO(0x%03X) = 0x%08X.\r\n", address & 0xFFF, value);
 	}
 	else if((address >= VIF1_FIFO_START) && (address < VIF1_FIFO_END))
 	{
-		CLog::GetInstance().Print(LOG_NAME, "VIF1_FIFO(0x%0.3X) = 0x%0.8X.\r\n", address & 0xFFF, value);
+		CLog::GetInstance().Print(LOG_NAME, "VIF1_FIFO(0x%03X) = 0x%08X.\r\n", address & 0xFFF, value);
 	}
 	else
 	{
-#define LOG_SET(registerId) case registerId: CLog::GetInstance().Print(LOG_NAME, #registerId " = 0x%0.8X.\r\n", value); break;
+#define LOG_SET(registerId) case registerId: CLog::GetInstance().Print(LOG_NAME, #registerId " = 0x%08X.\r\n", value); break;
 
 		switch(address)
 		{
@@ -1041,7 +1041,7 @@ void CVif::DisassembleSet(uint32 address, uint32 value)
 			LOG_SET(VIF1_MARK)
 
 		default:
-			CLog::GetInstance().Print(LOG_NAME, "Writing unknown register 0x%0.8X, 0x%0.8X.\r\n", address, value);
+			CLog::GetInstance().Print(LOG_NAME, "Writing unknown register 0x%08X, 0x%08X.\r\n", address, value);
 			break;
 		}
 

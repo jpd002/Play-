@@ -7,7 +7,7 @@
 
 CVu1Vm::CVu1Vm()
 : m_vu1(MEMORYMAP_ENDIAN_LSBF)
-, m_vu1Executor(m_vu1)
+, m_vu1Executor(m_vu1, PS2::MICROMEM1SIZE)
 , m_vuMem1(new uint8[PS2::VUMEM1SIZE])
 , m_microMem1(new uint8[PS2::MICROMEM1SIZE])
 , m_status(PAUSED)
@@ -106,7 +106,7 @@ uint32 CVu1Vm::Vu1IoPortReadHandler(uint32 address)
 		result = m_vpu1_TOP;
 		break;
 	default:
-		CLog::GetInstance().Print(LOG_NAME, "Read an unhandled VU1 IO port (0x%0.8X).\r\n", address);
+		CLog::GetInstance().Print(LOG_NAME, "Read an unhandled VU1 IO port (0x%08X).\r\n", address);
 		break;
 	}
 	return result;
@@ -119,7 +119,7 @@ uint32 CVu1Vm::Vu1IoPortWriteHandler(uint32 address, uint32 value)
 	case CVpu::VU_XGKICK:
 		break;
 	default:
-		CLog::GetInstance().Print(LOG_NAME, "Wrote an unhandled VU1 IO port (0x%0.8X, 0x%0.8X).\r\n", 
+		CLog::GetInstance().Print(LOG_NAME, "Wrote an unhandled VU1 IO port (0x%08X, 0x%08X).\r\n", 
 			address, value);
 		break;
 	}

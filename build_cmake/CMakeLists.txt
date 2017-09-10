@@ -20,6 +20,14 @@ elseif(APPLE)
 	set(TARGET_PLATFORM_MACOS TRUE)
 elseif(WIN32)
 	message("-- Generating for Win32 --")
+	string(FIND ${CMAKE_GENERATOR} "Win64" HASWIN64)
+	if(NOT HASWIN64 EQUAL -1)
+		message("-- Arch: x64 --")
+		set(TARGET_PLATFORM_WIN32_X64 TRUE)
+	else()
+		message("-- Arch: x86 --")
+		set(TARGET_PLATFORM_WIN32_X86 TRUE)
+	endif()
 	set(TARGET_PLATFORM_WIN32 TRUE)
 else()
 	message("-- Generating for Unix compatible platform --")
@@ -42,11 +50,6 @@ set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 if(WIN32)
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /EHsc /MP")
-endif()
-
-if(ANDROID)
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
-	include_directories("${ANDROID_NDK}/sources/android/cpufeatures/")
 endif()
 
 if(NOT CMAKE_BUILD_TYPE)
@@ -78,7 +81,7 @@ if(WIN32)
 		add_definitions(-DVTUNE_ENABLED)
 		list(APPEND PROJECT_LIBS libittnotify jitprofiling)
 		if(DEFINED VTUNE_PATH)
-			if(ARCH STREQUAL "x86")
+			if(TARGET_PLATFORM_WIN32_X86)
 				link_directories($(VTUNE_PATH)\lib32)
 			else()
 				link_directories($(VTUNE_PATH)\lib64)
@@ -154,13 +157,15 @@ if(TARGET_PLATFORM_WIN32)
 	find_package(DirectX9 REQUIRED)
 	list(APPEND PROJECT_LIBS ${DirectX_D3D9_LIBRARY})
 	list(APPEND PROJECT_LIBS ${DirectX_D3DX9_LIBRARY})
+	list(APPEND PROJECT_LIBS ${DirectX_DXGUID_LIBRARY})
+	list(APPEND PROJECT_LIBS ${DirectX_D3DCOMPILER_LIBRARY})
 	include_directories(${DirectX_D3D9_INCLUDE_DIR} ${DirectX_D3DX9_INCLUDE_DIR})
 
-	list(APPEND PROJECT_LIBS comctl32 uxtheme opengl32 glu32 dxguid dinput8 vfw32 winmm gdiplus d3dcompiler Boost::date_time)
+	list(APPEND PROJECT_LIBS comctl32 uxtheme opengl32 glu32 dinput8 vfw32 winmm gdiplus Boost::date_time)
 
 endif()
 
-if (NOT TARGET Boost::boost)
+if(NOT TARGET Boost::boost)
 	add_subdirectory(
 		${CMAKE_CURRENT_SOURCE_DIR}/../../Dependencies/boost-cmake
 		${CMAKE_CURRENT_BINARY_DIR}/boost-cmake
@@ -249,12 +254,11 @@ if(NOT (TARGET_PLATFORM_ANDROID OR TARGET_PLATFORM_IOS))
 	endif()
 endif()
 
-if(ANDROID)
+if(TARGET_PLATFORM_ANDROID)
 	if(NOT TARGET cpufeatures)
 		add_library(cpufeatures STATIC ${ANDROID_NDK}/sources/android/cpufeatures/cpu-features.c)
 	endif()
 	list(APPEND PROJECT_LIBS cpufeatures)
-	list(APPEND PROJECT_LIBS android log OpenSLES GLESv3 EGL)
 endif()
 
 if(APPLE)
@@ -357,10 +361,6 @@ set(COMMON_SRC_FILES
 	../Source/gs/GSH_Null.h
 	../Source/gs/GSHandler.cpp
 	../Source/gs/GSHandler.h
-	../Source/gs/GSH_OpenGL/GSH_OpenGL.cpp
-	../Source/gs/GSH_OpenGL/GSH_OpenGL.h
-	../Source/gs/GSH_OpenGL/GSH_OpenGL_Shader.cpp
-	../Source/gs/GSH_OpenGL/GSH_OpenGL_Texture.cpp
 	../Source/gs/GsPixelFormats.cpp
 	../Source/gs/GsPixelFormats.h
 	../Source/iop/ArgumentIterator.cpp
@@ -551,24 +551,12 @@ set(COMMON_SRC_FILES
 	../Source/VirtualPad.h
 )
 
-if (WIN32)
+if(TARGET_PLATFORM_WIN32)
 	set(PLATFORM_SPECIFIC_SRC_FILES ../Source/VolumeStream.cpp)
 endif ()
 
 if(TARGET_PLATFORM_MACOS OR TARGET_PLATFORM_UNIX)
 	set(PLATFORM_SPECIFIC_SRC_FILES ../Source/Posix_VolumeStream.cpp)
-endif()
-
-if(ANDROID)
-	set(PLATFORM_SPECIFIC_SRC_FILES
-		../Source/ui_android/GSH_OpenGLAndroid.cpp
-		../Source/ui_android/InputManager.cpp
-		../Source/ui_android/NativeInterop.cpp
-		../Source/ui_android/NativeShared.cpp
-		../Source/ui_android/SettingsManager.cpp
-		../Source/ui_android/SH_OpenSL.cpp
-		../Source/ui_android/StatsManager.cpp
-		)
 endif()
 
 if(OPENAL_FOUND)
@@ -577,11 +565,8 @@ if(OPENAL_FOUND)
 	)
 endif()
 
-if(ANDROID)
-	add_library(PlayCore SHARED ${COMMON_SRC_FILES} ${PLATFORM_SPECIFIC_SRC_FILES})
-else()
-	add_library(PlayCore STATIC ${COMMON_SRC_FILES} ${PLATFORM_SPECIFIC_SRC_FILES})
-endif()
+add_library(PlayCore STATIC ${COMMON_SRC_FILES} ${PLATFORM_SPECIFIC_SRC_FILES})
+target_link_libraries(PlayCore Boost::boost)
 
 if(NOT ANDROID)
 	if(THREADS_HAVE_PTHREAD_ARG)
@@ -589,11 +574,18 @@ if(NOT ANDROID)
 	endif()
 endif()
 
-target_link_libraries(PlayCore ${PROJECT_LIBS})
-list(APPEND PROJECT_LIBS PlayCore)
+list(INSERT PROJECT_LIBS 0 PlayCore)
 
-#UI
-if (UNIX AND NOT APPLE AND NOT ANDROID)
+add_library(gsh_opengl STATIC 
+	../Source/gs/GSH_OpenGL/GSH_OpenGL.cpp
+	../Source/gs/GSH_OpenGL/GSH_OpenGL.h
+	../Source/gs/GSH_OpenGL/GSH_OpenGL_Shader.cpp
+	../Source/gs/GSH_OpenGL/GSH_OpenGL_Texture.cpp
+)
+target_link_libraries(gsh_opengl Boost::boost)
+list(INSERT PROJECT_LIBS 0 gsh_opengl)
+
+if(TARGET_PLATFORM_UNIX)
 	include_directories(
 		../
 		../Source/ui_unix/
@@ -661,9 +653,9 @@ if (UNIX AND NOT APPLE AND NOT ANDROID)
 
 	add_executable(Play ${QT_SOURCES} ${QT_MOC_SRCS} ${QT_RES_SOURCES} ${QT_UI_HEADERS})
 	target_link_libraries(Play ${PROJECT_LIBS})
-endif (UNIX AND NOT APPLE AND NOT ANDROID)
+endif(TARGET_PLATFORM_UNIX)
 
-if(APPLE AND NOT IOS)
+if(TARGET_PLATFORM_MACOS)
 
 	include_directories(
 		../
@@ -712,7 +704,7 @@ if(APPLE AND NOT IOS)
 	)
 
 	set(OSX_RES
-		${CMAKE_CURRENT_SOURCE_DIR}/../build_macosx/AppIcon.icns
+		${CMAKE_CURRENT_SOURCE_DIR}/../Source/ui_macosx/AppIcon.icns
 		${CMAKE_CURRENT_SOURCE_DIR}/../patches.xml
 	)
 	# Add our Executable
@@ -757,7 +749,7 @@ if(APPLE AND NOT IOS)
 				COMMENT "${CMAKE_CURRENT_SOURCE_DIR}/../Source/ui_macosx/${xib}.xib")
 
 	endforeach()
-endif(APPLE AND NOT IOS)
+endif(TARGET_PLATFORM_MACOS)
 
 if(TARGET_PLATFORM_IOS)
 	include_directories(
@@ -861,9 +853,41 @@ if(TARGET_PLATFORM_IOS)
 
 endif(TARGET_PLATFORM_IOS)
 
-if (WIN32)
-	ENABLE_LANGUAGE(ASM_MASM)
+if(TARGET_PLATFORM_ANDROID)
 
+	set(ANDROID_SRC_FILES
+		../Source/ui_android/GSH_OpenGLAndroid.cpp
+		../Source/ui_android/InputManager.cpp
+		../Source/ui_android/NativeInterop.cpp
+		../Source/ui_android/NativeShared.cpp
+		../Source/ui_android/SettingsManager.cpp
+		../Source/ui_android/SH_OpenSL.cpp
+		../Source/ui_android/StatsManager.cpp
+		)
+	
+	list(APPEND PROJECT_LIBS android log OpenSLES GLESv3 EGL)
+	
+	add_library(Play SHARED ${ANDROID_SRC_FILES})
+	target_link_libraries(Play ${PROJECT_LIBS})
+	
+endif(TARGET_PLATFORM_ANDROID)
+
+if(TARGET_PLATFORM_WIN32)
+	add_library(gsh_opengl_win32 STATIC 
+		../Source/ui_win32/GSH_OpenGL_SettingsWnd.cpp
+		../Source/ui_win32/GSH_OpenGLWin32.cpp
+	)
+	target_link_libraries(gsh_opengl_win32 Boost::boost)
+	list(APPEND PROJECT_LIBS gsh_opengl_win32)
+	
+	add_library(gsh_d3d9 STATIC 
+		../Source/ui_win32/GSH_Direct3D9.cpp
+		../Source/ui_win32/GSH_Direct3D9_Shader.cpp
+		../Source/ui_win32/GSH_Direct3D9_Texture.cpp
+	)
+	target_link_libraries(gsh_d3d9 Boost::boost)
+	list(APPEND PROJECT_LIBS gsh_d3d9)
+	
 	include_directories(
 		../
 		../Source/ui_win32/
@@ -880,7 +904,7 @@ if (WIN32)
 			../Source/ui_win32/ElfViewRes.rc
 		)
 	endif()
-	if(ARCH STREQUAL "x86")
+	if(TARGET_PLATFORM_WIN32_X86)
 		set(MANIFEST ../Source/ui_win32/Play-x86.manifest)
 	else()
 		set(MANIFEST ../Source/ui_win32/Play-x64.manifest)
@@ -914,10 +938,6 @@ if (WIN32)
 		../Source/ui_win32/FrameDebugger/TabHost.cpp
 		../Source/ui_win32/FrameDebugger/Vu1ProgramView.cpp
 		../Source/ui_win32/FrameDebugger/Vu1Vm.cpp
-		../Source/ui_win32/GSH_Direct3D9.cpp
-		../Source/ui_win32/GSH_Direct3D9_Shader.cpp
-		../Source/ui_win32/GSH_Direct3D9_Texture.cpp
-		../Source/ui_win32/GSH_OpenGLWin32.cpp
 		../Source/ui_win32/IconMesh.cpp
 		../Source/ui_win32/Main.cpp
 		../Source/ui_win32/MainWindow.cpp
@@ -940,12 +960,10 @@ if (WIN32)
 		../Source/ui_win32/RegViewSCU.cpp
 		../Source/ui_win32/RegViewVU.cpp
 		../Source/ui_win32/RegViewWnd.cpp
-		../Source/ui_win32/GSH_OpenGL_SettingsWnd.cpp
 		../Source/ui_win32/SaveIconView.cpp
 		../Source/ui_win32/SaveView.cpp
 		../Source/ui_win32/StatsOverlayWindow.cpp
 		../Source/ui_win32/StdAfx.cpp
-		../Source/ui_win32/SysInfo_x64.asm
 		../Source/ui_win32/SysInfoWnd.cpp
 		../Source/ui_win32/ThreadCallStackViewWnd.cpp
 		../Source/ui_win32/VFSManagerWnd.cpp
@@ -964,7 +982,7 @@ if (WIN32)
 	target_link_libraries(Play PUBLIC ${PROJECT_LIBS})
 	add_precompiled_header(Play StdAfx.h FORCEINCLUDE SOURCE_CXX ../Source/ui_win32/StdAfx.cpp)
 	add_precompiled_header(PlayCore Pch.h FORCEINCLUDE SOURCE_CXX ../Source/Pch.cpp)
-endif (WIN32)
+endif(TARGET_PLATFORM_WIN32)
 
 enable_testing()
 
@@ -972,14 +990,14 @@ add_executable(autotest
 	../tools/AutoTest/JUnitTestReportWriter.cpp
 	../tools/AutoTest/Main.cpp
 )
-target_link_libraries(autotest PlayCore)
+target_link_libraries(autotest ${PROJECT_LIBS})
 
 add_executable(McServTest
 	../tools/McServTest/AppConfig.cpp
 	../tools/McServTest/GameTestSheet.cpp
 	../tools/McServTest/Main.cpp
 )
-target_link_libraries(McServTest PlayCore)
+target_link_libraries(McServTest ${PROJECT_LIBS})
 
 add_test(NAME McServTest
 	WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/../tools/McServTest
@@ -996,7 +1014,7 @@ add_executable(VuTest
 	../tools/VuTest/TriAceTest.cpp
 	../tools/VuTest/VuAssembler.cpp
 )
-target_link_libraries(VuTest PlayCore)
+target_link_libraries(VuTest ${PROJECT_LIBS})
 add_test(NAME VuTest
 	COMMAND VuTest
 )

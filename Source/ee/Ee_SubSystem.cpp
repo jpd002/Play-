@@ -227,7 +227,7 @@ int CSubSystem::ExecuteCpu(int quota)
 	}
 	else if(!m_EE.m_State.nHasException)
 	{
-		executed = (quota - m_executor.Execute(quota));
+		executed = (quota - m_executor.Execute<CPS2OS::TranslateAddress>(quota));
 	}
 	if(m_EE.m_State.nHasException)
 	{
@@ -277,16 +277,7 @@ int CSubSystem::ExecuteCpu(int quota)
 
 bool CSubSystem::IsCpuIdle() const
 {
-	CBasicBlock* nextBlock = m_executor.FindBlockAt(m_EE.m_State.nPC);
-	if(nextBlock && nextBlock->GetSelfLoopCount() > 5000)
-	{
-		return true;
-	}
-	else if(m_os->IsIdle() || m_isIdle)
-	{
-		return true;
-	}
-	return false;
+	return m_os->IsIdle() || m_isIdle;
 }
 
 void CSubSystem::CountTicks(int ticks)
@@ -439,7 +430,8 @@ uint32 CSubSystem::IOPortReadHandler(uint32 nAddress)
 	}
 	else
 	{
-		printf("PS2VM: Read an unhandled IO port (0x%0.8X).\r\n", nAddress);
+		CLog::GetInstance().Print(LOG_NAME, "Read an unhandled IO port (0x%08X, PC: 0x%08X).\r\n",
+			nAddress, m_EE.m_State.nPC);
 	}
 
 	if((nAddress == CINTC::INTC_STAT) || (nAddress == CGSHandler::GS_CSR))
@@ -527,7 +519,8 @@ uint32 CSubSystem::IOPortWriteHandler(uint32 nAddress, uint32 nData)
 	}
 	else
 	{
-		printf("PS2VM: Wrote to an unhandled IO port (0x%0.8X, 0x%0.8X, PC: 0x%0.8X).\r\n", nAddress, nData, m_EE.m_State.nPC);
+		CLog::GetInstance().Print(LOG_NAME, "Wrote to an unhandled IO port (0x%08X, 0x%08X, PC: 0x%08X).\r\n",
+			nAddress, nData, m_EE.m_State.nPC);
 	}
 
 	if(
@@ -558,7 +551,7 @@ uint32 CSubSystem::Vu0IoPortReadHandler(uint32 address)
 		result = m_vpu0->GetVif().GetITOP();
 		break;
 	default:
-		CLog::GetInstance().Print(LOG_NAME, "Read an unhandled VU0 IO port (0x%0.8X).\r\n", address);
+		CLog::GetInstance().Print(LOG_NAME, "Read an unhandled VU0 IO port (0x%08X).\r\n", address);
 		break;
 	}
 	return result;
@@ -569,7 +562,7 @@ uint32 CSubSystem::Vu0IoPortWriteHandler(uint32 address, uint32 value)
 	switch(address)
 	{
 	default:
-		CLog::GetInstance().Print(LOG_NAME, "Wrote an unhandled VU0 IO port (0x%0.8X, 0x%0.8X).\r\n", 
+		CLog::GetInstance().Print(LOG_NAME, "Wrote an unhandled VU0 IO port (0x%08X, 0x%08X).\r\n", 
 								  address, value);
 		break;
 	}
@@ -595,7 +588,7 @@ uint32 CSubSystem::Vu1IoPortReadHandler(uint32 address)
 		result = m_vpu1->GetVif().GetTOP();
 		break;
 	default:
-		CLog::GetInstance().Print(LOG_NAME, "Read an unhandled VU1 IO port (0x%0.8X).\r\n", address);
+		CLog::GetInstance().Print(LOG_NAME, "Read an unhandled VU1 IO port (0x%08X).\r\n", address);
 		break;
 	}
 	return result;
@@ -609,7 +602,7 @@ uint32 CSubSystem::Vu1IoPortWriteHandler(uint32 address, uint32 value)
 		m_vpu1->ProcessXgKick(value);
 		break;
 	default:
-		CLog::GetInstance().Print(LOG_NAME, "Wrote an unhandled VU1 IO port (0x%0.8X, 0x%0.8X).\r\n", 
+		CLog::GetInstance().Print(LOG_NAME, "Wrote an unhandled VU1 IO port (0x%08X, 0x%08X).\r\n", 
 								  address, value);
 		break;
 	}

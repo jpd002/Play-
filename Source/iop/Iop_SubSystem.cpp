@@ -194,7 +194,7 @@ uint32 CSubSystem::ReadIoRegister(uint32 address)
 	}
 	else
 	{
-		CLog::GetInstance().Print(LOG_NAME, "Reading an unknown hardware register (0x%0.8X).\r\n", address);
+		CLog::GetInstance().Print(LOG_NAME, "Reading an unknown hardware register (0x%08X).\r\n", address);
 	}
 	return 0;
 }
@@ -236,7 +236,7 @@ uint32 CSubSystem::WriteIoRegister(uint32 address, uint32 value)
 	}
 	else
 	{
-		CLog::GetInstance().Print(LOG_NAME, "Writing to an unknown hardware register (0x%0.8X, 0x%0.8X).\r\n", address, value);
+		CLog::GetInstance().Print(LOG_NAME, "Writing to an unknown hardware register (0x%08X, 0x%08X).\r\n", address, value);
 	}
 
 	if(
@@ -264,26 +264,12 @@ void CSubSystem::CheckPendingInterrupts()
 
 bool CSubSystem::IsCpuIdle()
 {
-	if(m_bios->IsIdle())
-	{
-		return true;
-	}
-	else
-	{
-		uint32 physicalPc = m_cpu.m_pAddrTranslator(&m_cpu, m_cpu.m_State.nPC);
-		CBasicBlock* nextBlock = m_executor.FindBlockAt(physicalPc);
-		if(nextBlock && nextBlock->GetSelfLoopCount() > 5000)
-		{
-			//Go a little bit faster if we're "stuck"
-			return true;
-		}
-	}
-	return false;
+	return m_bios->IsIdle();
 }
 
 void CSubSystem::CountTicks(int ticks)
 {
-	static int g_dmaUpdateDelay = 10000;
+	static const int g_dmaUpdateDelay = 10000;
 	m_counters.Update(ticks);
 	m_bios->CountTicks(ticks);
 	m_dmaUpdateTicks += ticks;

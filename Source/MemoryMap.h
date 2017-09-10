@@ -31,7 +31,7 @@ public:
 		MEMORYMAP_TYPE						nType;
 	};
 
-	virtual									~CMemoryMap();
+	virtual									~CMemoryMap() = default;
 	uint8									GetByte(uint32);
 	virtual uint16							GetHalf(uint32) = 0;
 	virtual uint32							GetWord(uint32) = 0;

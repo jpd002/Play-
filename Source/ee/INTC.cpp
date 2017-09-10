@@ -59,7 +59,7 @@ uint32 CINTC::GetRegister(uint32 nAddress)
 		return m_INTC_MASK;
 		break;
 	default:
-		CLog::GetInstance().Print(LOG_NAME, "Read an unhandled register (0x%0.8X).\r\n", nAddress);
+		CLog::GetInstance().Print(LOG_NAME, "Read an unhandled register (0x%08X).\r\n", nAddress);
 		break;
 	}
 
@@ -77,7 +77,7 @@ void CINTC::SetRegister(uint32 nAddress, uint32 nValue)
 		m_INTC_MASK ^= nValue;
 		break;
 	default:
-		CLog::GetInstance().Print(LOG_NAME, "Wrote to an unhandled register (0x%0.8X).\r\n", nAddress);
+		CLog::GetInstance().Print(LOG_NAME, "Wrote to an unhandled register (0x%08X).\r\n", nAddress);
 		break;
 	}
 }

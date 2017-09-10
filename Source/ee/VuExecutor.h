@@ -1,5 +1,4 @@
-#ifndef _VUEXECUTOR_H_
-#define _VUEXECUTOR_H_
+#pragma once
 
 #include <unordered_map>
 #include "../MipsExecutor.h"
@@ -7,18 +6,16 @@
 class CVuExecutor : public CMipsExecutor
 {
 public:
-							CVuExecutor(CMIPS&);
-	virtual					~CVuExecutor();
+							CVuExecutor(CMIPS&, uint32);
+	virtual					~CVuExecutor() = default;
 
-	virtual void			Reset();
+	void					Reset() override;
 
 protected:
 	typedef std::unordered_multimap<uint32, BasicBlockPtr> CachedBlockMap;
 
-	virtual BasicBlockPtr	BlockFactory(CMIPS&, uint32, uint32);
-	virtual void			PartitionFunction(uint32);
+	BasicBlockPtr			BlockFactory(CMIPS&, uint32, uint32) override;
+	void					PartitionFunction(uint32) override;
 
 	CachedBlockMap			m_cachedBlocks;
 };
-
-#endif

@@ -21,9 +21,16 @@ public:
 	TRACK_DATA_TYPE   GetTrackDataType(uint32) const;
 	CISO9660*         GetFileSystem();
 
+	bool              GetDvdIsDualLayer() const;
+	uint32            GetDvdSecondLayerStart() const;
+
 private:
 	typedef std::unique_ptr<CISO9660> Iso9660Ptr;
 
+	void            CheckDualLayerDvd(const StreamPtr&);
+
 	TRACK_DATA_TYPE m_track0DataType = TRACK_DATA_TYPE_MODE1_2048;
+	bool            m_dvdIsDualLayer = false;
+	uint32          m_dvdSecondLayerStart = 0;
 	Iso9660Ptr      m_fileSystem;
 };

@@ -46,6 +46,14 @@ static void SetupSoundHandler()
 	}
 }
 
+static void ResetVirtualMachine()
+{
+	assert(g_virtualMachine != nullptr);
+	g_virtualMachine->Pause();
+	g_virtualMachine->Reset();
+	SetupSoundHandler();
+}
+
 extern "C" JNIEXPORT void JNICALL Java_com_virtualapplications_play_NativeInterop_setFilesDirPath(JNIEnv* env, jobject obj, jstring dirPathString)
 {
 	auto dirPath = env->GetStringUTFChars(dirPathString, 0);
@@ -128,9 +136,7 @@ extern "C" JNIEXPORT void JNICALL Java_com_virtualapplications_play_NativeIntero
 extern "C" JNIEXPORT void JNICALL Java_com_virtualapplications_play_NativeInterop_loadElf(JNIEnv* env, jobject obj, jstring selectedFilePath)
 {
 	assert(g_virtualMachine != nullptr);
-	g_virtualMachine->Pause();
-	g_virtualMachine->Reset();
-	SetupSoundHandler();
+	ResetVirtualMachine();
 	try
 	{
 		g_virtualMachine->m_ee->m_os->BootFromFile(GetStringFromJstring(env, selectedFilePath).c_str());
@@ -146,9 +152,7 @@ extern "C" JNIEXPORT void JNICALL Java_com_virtualapplications_play_NativeIntero
 {
 	assert(g_virtualMachine != nullptr);
 	CAppConfig::GetInstance().SetPreferenceString(PS2VM_CDROM0PATH, GetStringFromJstring(env, selectedFilePath).c_str());
-	g_virtualMachine->Pause();
-	g_virtualMachine->Reset();
-	SetupSoundHandler();
+	ResetVirtualMachine();
 	try
 	{
 		g_virtualMachine->m_ee->m_os->BootFromCDROM();

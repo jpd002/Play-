@@ -71,7 +71,7 @@ extern "C" uint32 LWR_Proxy(uint32 address, uint32 rt, CMIPS* context)
 	return rt;
 }
 
-uint64 LDL_Proxy(uint32 address, uint64 rt, CMIPS* context)
+extern "C" uint64 LDL_Proxy(uint32 address, uint64 rt, CMIPS* context)
 {
 	uint32 alignedAddress = address & ~0x07;
 	uint32 byteOffset = address & 0x07;
@@ -83,7 +83,7 @@ uint64 LDL_Proxy(uint32 address, uint64 rt, CMIPS* context)
 	return rt;
 }
 
-uint64 LDR_Proxy(uint32 address, uint64 rt, CMIPS* context)
+extern "C" uint64 LDR_Proxy(uint32 address, uint64 rt, CMIPS* context)
 {
 	uint32 alignedAddress = address & ~0x07;
 	uint32 byteOffset = address & 0x07;
@@ -119,7 +119,7 @@ extern "C" void SWR_Proxy(uint32 address, uint32 rt, CMIPS* context)
 	MemoryUtils_SetWordProxy(context, memory, alignedAddress);
 }
 
-void SDL_Proxy(uint32 address, uint64 rt, CMIPS* context)
+extern "C" void SDL_Proxy(uint32 address, uint64 rt, CMIPS* context)
 {
 	uint32 alignedAddress = address & ~0x07;
 	uint32 byteOffset = address & 0x07;
@@ -131,7 +131,7 @@ void SDL_Proxy(uint32 address, uint64 rt, CMIPS* context)
 	MemoryUtils_SetDoubleProxy(context, memory, alignedAddress);
 }
 
-void SDR_Proxy(uint32 address, uint64 rt, CMIPS* context)
+extern "C" void SDR_Proxy(uint32 address, uint64 rt, CMIPS* context)
 {
 	uint32 alignedAddress = address & ~0x07;
 	uint32 byteOffset = address & 0x07;

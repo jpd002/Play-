@@ -6,7 +6,7 @@ class CMA_EE : public CMA_MIPSIV
 {
 public:
 										CMA_EE();
-	virtual								~CMA_EE();
+	virtual								~CMA_EE() = default;
 
 protected:
 	typedef void (CMA_EE::*InstructionFuncConstant)();
@@ -146,6 +146,7 @@ private:
 	void								PMTHI();
 	void								PMTLO();
 	void								PINTEH();
+	void								PMULTUW();
 	void								PCPYUD();
 	void								POR();
 	void								PNOR();
@@ -160,6 +161,7 @@ private:
 	void								PMFHL_SH();
 
 	void								Generic_MADD(unsigned int unit, bool isSigned);
+	void								Generic_PMULTW(bool);
 	void								Generic_PSxxV(const TemplateOperationFunctionType&);
 
 	//Reflection tables

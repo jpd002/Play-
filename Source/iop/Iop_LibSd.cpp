@@ -102,7 +102,7 @@ std::string DecodeSwitch(uint16 switchId)
 		result = "ENDX";
 		break;
 	default:
-		result = string_format("unknown (0x%0.2X)", switchId >> 8);
+		result = string_format("unknown (0x%02X)", switchId >> 8);
 		break;
 	}
 	result += string_format(", CORE%d", switchId & 1);
@@ -118,64 +118,64 @@ void CLibSd::TraceCall(CMIPS& context, unsigned int functionId)
 			context.m_State.nGPR[CMIPS::A0].nV0);
 		break;
 	case 5:
-		CLog::GetInstance().Print(LOG_NAME, FUNCTION_SETPARAM "(entry = 0x%0.4X, value = 0x%0.4X);\r\n", 
+		CLog::GetInstance().Print(LOG_NAME, FUNCTION_SETPARAM "(entry = 0x%04X, value = 0x%04X);\r\n", 
 			context.m_State.nGPR[CMIPS::A0].nV0, context.m_State.nGPR[CMIPS::A1].nV0);
 		break;
 	case 6:
-		CLog::GetInstance().Print(LOG_NAME, FUNCTION_GETPARAM "(entry = 0x%0.4X);\r\n", 
+		CLog::GetInstance().Print(LOG_NAME, FUNCTION_GETPARAM "(entry = 0x%04X);\r\n", 
 			context.m_State.nGPR[CMIPS::A0].nV0);
 		break;
 	case 7:
-		CLog::GetInstance().Print(LOG_NAME, FUNCTION_SETSWITCH "(entry = 0x%0.4X, value = 0x%0.8X); //(%s)\r\n",
+		CLog::GetInstance().Print(LOG_NAME, FUNCTION_SETSWITCH "(entry = 0x%04X, value = 0x%08X); //(%s)\r\n",
 			context.m_State.nGPR[CMIPS::A0].nV0, context.m_State.nGPR[CMIPS::A1].nV0,
 			DecodeSwitch(static_cast<uint16>(context.m_State.nGPR[CMIPS::A0].nV0)).c_str());
 		break;
 	case 8:
-		CLog::GetInstance().Print(LOG_NAME, FUNCTION_GETSWITCH "(entry = 0x%0.4X); //(%s)\r\n", 
+		CLog::GetInstance().Print(LOG_NAME, FUNCTION_GETSWITCH "(entry = 0x%04X); //(%s)\r\n", 
 			context.m_State.nGPR[CMIPS::A0].nV0, 
 			DecodeSwitch(static_cast<uint16>(context.m_State.nGPR[CMIPS::A0].nV0)).c_str());
 		break;
 	case 9:
-		CLog::GetInstance().Print(LOG_NAME, FUNCTION_SETADDR "(entry = 0x%0.4X, value = 0x%0.8X);\r\n", 
+		CLog::GetInstance().Print(LOG_NAME, FUNCTION_SETADDR "(entry = 0x%04X, value = 0x%08X);\r\n", 
 			context.m_State.nGPR[CMIPS::A0].nV0, context.m_State.nGPR[CMIPS::A1].nV0);
 		break;
 	case 10:
-		CLog::GetInstance().Print(LOG_NAME, FUNCTION_GETADDR "(entry = 0x%0.4X);\r\n", context.m_State.nGPR[CMIPS::A0].nV0);
+		CLog::GetInstance().Print(LOG_NAME, FUNCTION_GETADDR "(entry = 0x%04X);\r\n", context.m_State.nGPR[CMIPS::A0].nV0);
 		break;
 	case 11:
-		CLog::GetInstance().Print(LOG_NAME, FUNCTION_SETCOREATTR "(entry = 0x%0.4X, value = 0x%0.4X);\r\n",
+		CLog::GetInstance().Print(LOG_NAME, FUNCTION_SETCOREATTR "(entry = 0x%04X, value = 0x%04X);\r\n",
 			context.m_State.nGPR[CMIPS::A0].nV0, context.m_State.nGPR[CMIPS::A1].nV0);
 		break;
 	case 17:
-		CLog::GetInstance().Print(LOG_NAME, FUNCTION_VOICETRANS "(channel = 0x%0.4X, mode = 0x%0.4X, maddr = 0x%0.8X, saddr = 0x%0.8X, size = 0x%0.8X);\r\n",
+		CLog::GetInstance().Print(LOG_NAME, FUNCTION_VOICETRANS "(channel = 0x%04X, mode = 0x%04X, maddr = 0x%08X, saddr = 0x%08X, size = 0x%08X);\r\n",
 			context.m_State.nGPR[CMIPS::A0].nV0, context.m_State.nGPR[CMIPS::A1].nV0, 
 			context.m_State.nGPR[CMIPS::A2].nV0, context.m_State.nGPR[CMIPS::A3].nV0, 
 			context.m_State.nGPR[CMIPS::T0].nV0);
 		break;
 	case 18:
-		CLog::GetInstance().Print(LOG_NAME, FUNCTION_BLOCKTRANS "(channel = 0x%0.4X, mode = 0x%0.4X, maddr = 0x%0.8X, size = 0x%0.8X);\r\n",
+		CLog::GetInstance().Print(LOG_NAME, FUNCTION_BLOCKTRANS "(channel = 0x%04X, mode = 0x%04X, maddr = 0x%08X, size = 0x%08X);\r\n",
 			context.m_State.nGPR[CMIPS::A0].nV0, context.m_State.nGPR[CMIPS::A1].nV0, 
 			context.m_State.nGPR[CMIPS::A2].nV0, context.m_State.nGPR[CMIPS::A3].nV0);
 		break;
 	case 19:
-		CLog::GetInstance().Print(LOG_NAME, FUNCTION_VOICETRANSSTATUS "(channel = 0x%0.4X, flag = 0x%0.4X);\r\n",
+		CLog::GetInstance().Print(LOG_NAME, FUNCTION_VOICETRANSSTATUS "(channel = 0x%04X, flag = 0x%04X);\r\n",
 			context.m_State.nGPR[CMIPS::A0].nV0, context.m_State.nGPR[CMIPS::A1].nV0);
 		break;
 	case 20:
-		CLog::GetInstance().Print(LOG_NAME, FUNCTION_BLOCKTRANSSTATUS "(channel = 0x%0.4X, flag = 0x%0.4X);\r\n",
+		CLog::GetInstance().Print(LOG_NAME, FUNCTION_BLOCKTRANSSTATUS "(channel = 0x%04X, flag = 0x%04X);\r\n",
 			context.m_State.nGPR[CMIPS::A0].nV0, context.m_State.nGPR[CMIPS::A1].nV0);
 		break;
 	case 21:
-		CLog::GetInstance().Print(LOG_NAME, FUNCTION_SETTRANSCALLBACK "(channel = 0x%0.4X, function = 0x%0.8X);\r\n",
+		CLog::GetInstance().Print(LOG_NAME, FUNCTION_SETTRANSCALLBACK "(channel = 0x%04X, function = 0x%08X);\r\n",
 			context.m_State.nGPR[CMIPS::A0].nV0, context.m_State.nGPR[CMIPS::A1].nV0);
 		break;
 	case 26:
-		CLog::GetInstance().Print(LOG_NAME, FUNCTION_SETTRANSINTRHANDLER "(channel = 0x%0.4X, function = 0x%0.8X, arg = 0x%0.8X);\r\n",
+		CLog::GetInstance().Print(LOG_NAME, FUNCTION_SETTRANSINTRHANDLER "(channel = 0x%04X, function = 0x%08X, arg = 0x%08X);\r\n",
 			context.m_State.nGPR[CMIPS::A0].nV0, context.m_State.nGPR[CMIPS::A1].nV0,
 			context.m_State.nGPR[CMIPS::A2].nV0);
 		break;
 	case 27:
-		CLog::GetInstance().Print(LOG_NAME, FUNCTION_SETSPU2INTRHANDLER "(function = 0x%0.8X, arg = 0x%0.8X);\r\n",
+		CLog::GetInstance().Print(LOG_NAME, FUNCTION_SETSPU2INTRHANDLER "(function = 0x%08X, arg = 0x%08X);\r\n",
 			context.m_State.nGPR[CMIPS::A0].nV0, context.m_State.nGPR[CMIPS::A1].nV0);
 		break;
 	default:

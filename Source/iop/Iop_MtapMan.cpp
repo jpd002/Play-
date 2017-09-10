@@ -46,7 +46,7 @@ bool CMtapMan::Invoke901(uint32 method, uint32* args, uint32 argsSize, uint32* r
 		ret[1] = PortOpen(args[0]);
 		break;
 	default:
-		CLog::GetInstance().Print(LOG_NAME, "Unknown method invoked (0x%0.8X, 0x%0.8X).\r\n", 0x901, method);
+		CLog::GetInstance().Print(LOG_NAME, "Unknown method invoked (0x%08X, 0x%08X).\r\n", 0x901, method);
 		break;
 	}
 	return true;
@@ -57,7 +57,7 @@ bool CMtapMan::Invoke902(uint32 method, uint32* args, uint32 argsSize, uint32* r
 	switch(method)
 	{
 	default:
-		CLog::GetInstance().Print(LOG_NAME, "Unknown method invoked (0x%0.8X, 0x%0.8X).\r\n", 0x902, method);
+		CLog::GetInstance().Print(LOG_NAME, "Unknown method invoked (0x%08X, 0x%08X).\r\n", 0x902, method);
 		break;
 	}
 	return true;
@@ -68,7 +68,7 @@ bool CMtapMan::Invoke903(uint32 method, uint32* args, uint32 argsSize, uint32* r
 	switch(method)
 	{
 	default:
-		CLog::GetInstance().Print(LOG_NAME, "Unknown method invoked (0x%0.8X, 0x%0.8X).\r\n", 0x903, method);
+		CLog::GetInstance().Print(LOG_NAME, "Unknown method invoked (0x%08X, 0x%08X).\r\n", 0x903, method);
 		break;
 	}
 	return true;

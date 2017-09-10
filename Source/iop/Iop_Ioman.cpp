@@ -94,7 +94,7 @@ void CIoman::RegisterDevice(const char* name, const DevicePtr& device)
 
 uint32 CIoman::Open(uint32 flags, const char* path)
 {
-	CLog::GetInstance().Print(LOG_NAME, "Open(flags = 0x%0.8X, path = '%s');\r\n", flags, path);
+	CLog::GetInstance().Print(LOG_NAME, "Open(flags = 0x%08X, path = '%s');\r\n", flags, path);
 
 	if(flags == 0)
 	{
@@ -251,7 +251,7 @@ uint32 CIoman::GetStat(const char* path, STAT* stat)
 
 uint32 CIoman::AddDrv(uint32 drvPtr)
 {
-	CLog::GetInstance().Print(LOG_NAME, FUNCTION_ADDDRV "(drvPtr = 0x%0.8X);\r\n",
+	CLog::GetInstance().Print(LOG_NAME, FUNCTION_ADDDRV "(drvPtr = 0x%08X);\r\n",
 		drvPtr);
 	return -1;
 }
@@ -332,7 +332,7 @@ void CIoman::Invoke(CMIPS& context, unsigned int functionId)
 		));
 		break;
 	default:
-		CLog::GetInstance().Print(LOG_NAME, "%s(%0.8X): Unknown function (%d) called.\r\n", __FUNCTION__, context.m_State.nPC, functionId);
+		CLog::GetInstance().Print(LOG_NAME, "%s(%08X): Unknown function (%d) called.\r\n", __FUNCTION__, context.m_State.nPC, functionId);
 		break;
 	}
 }

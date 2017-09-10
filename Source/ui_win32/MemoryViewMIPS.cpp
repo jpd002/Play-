@@ -55,7 +55,7 @@ HMENU CMemoryViewMIPS::CreateContextualMenu()
 		if((selection & 0x03) == 0)
 		{
 			uint32 valueAtSelection = m_context->m_pMemoryMap->GetWord(GetSelection());
-			auto followPointerText = string_format(_T("Follow Pointer (0x%0.8X)"), valueAtSelection);
+			auto followPointerText = string_format(_T("Follow Pointer (0x%08X)"), valueAtSelection);
 			AppendMenu(menu, MF_STRING, ID_MEMORYVIEWMIPS_FOLLOWPOINTER, followPointerText.c_str());
 		}
 	}

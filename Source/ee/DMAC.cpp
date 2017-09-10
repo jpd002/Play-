@@ -16,6 +16,7 @@
 #define STATE_REGS_SQWC     ("D_SQWC")
 #define STATE_REGS_RBSR     ("D_RBSR")
 #define STATE_REGS_RBOR     ("D_RBOR")
+#define STATE_REGS_STADR    ("D_STADR")
 #define STATE_REGS_D8_SADR  ("D8_SADR")
 #define STATE_REGS_D9_SADR  ("D9_SADR")
 
@@ -79,6 +80,7 @@ void CDMAC::Reset()
 	m_D_SQWC	<<= 0;
 	m_D_RBSR	= 0;
 	m_D_RBOR	= 0;
+	m_D_STADR	= 0;
 
 	//Reset Channel 0
 	m_D0.Reset();
@@ -319,33 +321,15 @@ uint32 CDMAC::GetRegister(uint32 nAddress)
 		return m_D1.ReadCHCR() >> 16;
 		break;
 
-	case D2_CHCR + 0x0:
-		return m_D2.ReadCHCR();
-		break;
+	//Channel 2
+	REGISTER_READ(D2_CHCR, m_D2.ReadCHCR())
+	REGISTER_READ(D2_MADR, m_D2.m_nMADR)
+	REGISTER_READ(D2_QWC,  m_D2.m_nQWC)
+	REGISTER_READ(D2_TADR, m_D2.m_nTADR)
 
-	case D2_CHCR + 0x4:
-	case D2_CHCR + 0x8:
-	case D2_CHCR + 0xC:
-		return 0;
-		break;
-
-	case D2_MADR + 0x0:
-		return m_D2.m_nMADR;
-		break;
-	case D2_MADR + 0x4:
-	case D2_MADR + 0x8:
-	case D2_MADR + 0xC:
-		return 0;
-		break;
-
-	case D2_TADR + 0x0:
-		return m_D2.m_nTADR;
-		break;
-
-	case D2_TADR + 0x4:
-	case D2_TADR + 0x8:
-	case D2_TADR + 0xC:
-		return 0;
+	case D2_CHCR + 0x1:
+		//This is done by Parappa The Rapper 2
+		return m_D2.ReadCHCR() >> 8;
 		break;
 
 	case D3_CHCR + 0x0:
@@ -455,7 +439,7 @@ uint32 CDMAC::GetRegister(uint32 nAddress)
 		break;
 
 	default:
-		CLog::GetInstance().Print(LOG_NAME, "Read an unhandled IO port (0x%0.8X).\r\n", nAddress);
+		CLog::GetInstance().Print(LOG_NAME, "Read an unhandled IO port (0x%08X).\r\n", nAddress);
 		break;
 	}
 
@@ -642,11 +626,11 @@ void CDMAC::SetRegister(uint32 nAddress, uint32 nData)
 	//D5_CHCR
 	case D5_CHCR + 0x0:
 		m_D5_CHCR = nData;
-		if(m_D5_CHCR & 0x100)
+		if(m_D5_CHCR & CHCR_STR)
 		{
 			m_receiveDma5(m_D5_MADR, m_D5_QWC * 0x10, 0, false);
-			m_D5_CHCR	&= ~0x100;
-			m_D_STAT	|= 0x20;
+			m_D5_CHCR &= ~CHCR_STR;
+			m_D_STAT  |= (1 << CHANNEL_ID_SIF0);
 		}
 		break;
 	case D5_CHCR + 0x4:
@@ -853,6 +837,14 @@ void CDMAC::SetRegister(uint32 nAddress, uint32 nData)
 	case D_RBOR + 0xC:
 		break;
 
+	case D_STADR + 0x0:
+		m_D_STADR = nData;
+		break;
+	case D_STADR + 0x4:
+	case D_STADR + 0x8:
+	case D_STADR + 0xC:
+		break;
+
 	case D_ENABLEW + 0x0:
 		m_D_ENABLE = nData;
 		break;
@@ -862,7 +854,7 @@ void CDMAC::SetRegister(uint32 nAddress, uint32 nData)
 		break;
 
 	default:
-		CLog::GetInstance().Print(LOG_NAME, "Wrote to an unhandled IO port (0x%0.8X, 0x%0.8X).\r\n", nAddress, nData);
+		CLog::GetInstance().Print(LOG_NAME, "Wrote to an unhandled IO port (0x%08X, 0x%08X).\r\n", nAddress, nData);
 		break;
 	}
 
@@ -882,6 +874,7 @@ void CDMAC::LoadState(Framework::CZipArchiveReader& archive)
 	m_D_SQWC	<<= registerFile.GetRegister32(STATE_REGS_SQWC);
 	m_D_RBSR	= registerFile.GetRegister32(STATE_REGS_RBSR);
 	m_D_RBOR	= registerFile.GetRegister32(STATE_REGS_RBOR);
+	m_D_STADR	= registerFile.GetRegister32(STATE_REGS_STADR);
 	m_D8_SADR	= registerFile.GetRegister32(STATE_REGS_D8_SADR);
 	m_D9_SADR	= registerFile.GetRegister32(STATE_REGS_D9_SADR);
 
@@ -903,6 +896,7 @@ void CDMAC::SaveState(Framework::CZipArchiveWriter& archive)
 	registerFile->SetRegister32(STATE_REGS_SQWC,	m_D_SQWC);
 	registerFile->SetRegister32(STATE_REGS_RBSR,	m_D_RBSR);
 	registerFile->SetRegister32(STATE_REGS_RBOR,	m_D_RBOR);
+	registerFile->SetRegister32(STATE_REGS_STADR,	m_D_STADR);
 	registerFile->SetRegister32(STATE_REGS_D8_SADR, m_D8_SADR);
 	registerFile->SetRegister32(STATE_REGS_D9_SADR, m_D9_SADR);
 	archive.InsertFile(registerFile);
@@ -982,7 +976,7 @@ void CDMAC::DisassembleGet(uint32 nAddress)
 		LOG_GET(D_ENABLER)
 
 	default:
-		CLog::GetInstance().Print(LOG_NAME, "Reading unknown register 0x%0.8X.\r\n", nAddress);
+		CLog::GetInstance().Print(LOG_NAME, "Reading unknown register 0x%08X.\r\n", nAddress);
 		break;
 	}
 
@@ -991,7 +985,7 @@ void CDMAC::DisassembleGet(uint32 nAddress)
 
 void CDMAC::DisassembleSet(uint32 nAddress, uint32 nData)
 {
-#define LOG_SET(registerId) case registerId: CLog::GetInstance().Print(LOG_NAME, #registerId " = 0x%0.8X.\r\n", nData); break;
+#define LOG_SET(registerId) case registerId: CLog::GetInstance().Print(LOG_NAME, #registerId " = 0x%08X.\r\n", nData); break;
 
 	switch(nAddress)
 	{
@@ -1055,10 +1049,11 @@ void CDMAC::DisassembleSet(uint32 nAddress, uint32 nData)
 		LOG_SET(D_SQWC)
 		LOG_SET(D_RBSR)
 		LOG_SET(D_RBOR)
+		LOG_SET(D_STADR)
 		LOG_SET(D_ENABLEW)
 
 	default:
-		CLog::GetInstance().Print(LOG_NAME, "Writing unknown register 0x%0.8X, 0x%0.8X.\r\n", nAddress, nData);
+		CLog::GetInstance().Print(LOG_NAME, "Writing unknown register 0x%08X, 0x%08X.\r\n", nAddress, nData);
 		break;
 	}
 

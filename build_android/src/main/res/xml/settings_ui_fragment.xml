@@ -8,6 +8,7 @@
             android:key="ui.rescan"
             android:title="@string/pref_ui_rescan_all_title"
             android:summary="@string/pref_ui_rescan_all_summary"
+            android:defaultValue="0"
             android:persistent="false" />
         <Preference
             android:key="ui.clear_unavailable"

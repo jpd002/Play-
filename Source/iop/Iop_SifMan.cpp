@@ -75,7 +75,7 @@ void CSifMan::Invoke(CMIPS& context, unsigned int functionId)
 			));
 		break;
 	default:
-		CLog::GetInstance().Print(LOG_NAME, "%0.8X: Unknown function (%d) called.\r\n", context.m_State.nPC, functionId);
+		CLog::GetInstance().Print(LOG_NAME, "%08X: Unknown function (%d) called.\r\n", context.m_State.nPC, functionId);
 		break;
 	}
 }
@@ -109,7 +109,7 @@ void CSifMan::GenerateHandlers(uint8* ram, CSysmem& sysMem)
 
 uint32 CSifMan::SifSetDma(uint32 structAddr, uint32 count)
 {
-	CLog::GetInstance().Print(LOG_NAME, FUNCTION_SIFSETDMA "(structAddr = 0x%0.8X, count = %d);\r\n",
+	CLog::GetInstance().Print(LOG_NAME, FUNCTION_SIFSETDMA "(structAddr = 0x%08X, count = %d);\r\n",
 		structAddr, count);
 	return count;
 }
@@ -123,7 +123,7 @@ uint32 CSifMan::SifDmaStat(uint32 transferId)
 
 uint32 CSifMan::SifSetDmaCallback(CMIPS& context, uint32 structAddr, uint32 count, uint32 callbackPtr, uint32 callbackParam)
 {
-	CLog::GetInstance().Print(LOG_NAME, FUNCTION_SIFSETDMACALLBACK "(structAddr = 0x%0.8X, count = %d, callbackPtr = 0x%0.8X, callbackParam = 0x%0.8X);\r\n",
+	CLog::GetInstance().Print(LOG_NAME, FUNCTION_SIFSETDMACALLBACK "(structAddr = 0x%08X, count = %d, callbackPtr = 0x%08X, callbackParam = 0x%08X);\r\n",
 		structAddr, count, callbackPtr, callbackParam);
 
 	//Modify context so we can execute the callback function

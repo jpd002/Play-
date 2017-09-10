@@ -52,12 +52,15 @@ namespace Iop
 		uint32			__strchr(uint32, uint32);
 		uint32			__strrchr(uint32, uint32);
 		uint32			__strstr(uint32, uint32);
+		uint32			__strtok(uint32, uint32);
 		uint32			__strcspn(uint32, uint32);
 		uint32			__strtol(uint32, uint32, uint32);
 		uint32			__wmemcopy(uint32, uint32, uint32);
 		uint32			__vsprintf(CMIPS&, uint32, uint32, uint32);
+
 		uint8*			m_ram = nullptr;
 		uint8*			m_spr = nullptr;
+		uint32			m_strtok_prevSPtr = 0;
 		CStdio&			m_stdio;
 	};
 }

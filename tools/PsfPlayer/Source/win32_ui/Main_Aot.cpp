@@ -29,8 +29,12 @@ typedef std::map<AOT_BLOCK_KEY, std::vector<uint32>> AotBlockMap;
 
 extern "C" uint32 LWL_Proxy(uint32, uint32, CMIPS*);
 extern "C" uint32 LWR_Proxy(uint32, uint32, CMIPS*);
+extern "C" uint64 LDR_Proxy(uint32, uint64, CMIPS*);
+extern "C" uint64 LDL_Proxy(uint32, uint64, CMIPS*);
 extern "C" void SWL_Proxy(uint32, uint32, CMIPS*);
 extern "C" void SWR_Proxy(uint32, uint32, CMIPS*);
+extern "C" void SDR_Proxy(uint32, uint64, CMIPS*);
+extern "C" void SDL_Proxy(uint32, uint64, CMIPS*);
 
 void Gather(const char* archivePathName, const char* outputPathName)
 {
@@ -306,16 +310,22 @@ void Compile(const char* databasePathName, const char* cpuArchName, const char* 
 	}
 
 	codeGen->RegisterExternalSymbols(objectFile.get());
-	objectFile->AddExternalSymbol("_MemoryUtils_GetByteProxy", reinterpret_cast<uintptr_t>(&MemoryUtils_GetByteProxy));
-	objectFile->AddExternalSymbol("_MemoryUtils_GetHalfProxy", reinterpret_cast<uintptr_t>(&MemoryUtils_GetHalfProxy));
-	objectFile->AddExternalSymbol("_MemoryUtils_GetWordProxy", reinterpret_cast<uintptr_t>(&MemoryUtils_GetWordProxy));
-	objectFile->AddExternalSymbol("_MemoryUtils_SetByteProxy", reinterpret_cast<uintptr_t>(&MemoryUtils_SetByteProxy));
-	objectFile->AddExternalSymbol("_MemoryUtils_SetHalfProxy", reinterpret_cast<uintptr_t>(&MemoryUtils_SetHalfProxy));
-	objectFile->AddExternalSymbol("_MemoryUtils_SetWordProxy", reinterpret_cast<uintptr_t>(&MemoryUtils_SetWordProxy));
+	objectFile->AddExternalSymbol("_MemoryUtils_GetByteProxy",   reinterpret_cast<uintptr_t>(&MemoryUtils_GetByteProxy));
+	objectFile->AddExternalSymbol("_MemoryUtils_GetHalfProxy",   reinterpret_cast<uintptr_t>(&MemoryUtils_GetHalfProxy));
+	objectFile->AddExternalSymbol("_MemoryUtils_GetWordProxy",   reinterpret_cast<uintptr_t>(&MemoryUtils_GetWordProxy));
+	objectFile->AddExternalSymbol("_MemoryUtils_GetDoubleProxy", reinterpret_cast<uintptr_t>(&MemoryUtils_GetDoubleProxy));
+	objectFile->AddExternalSymbol("_MemoryUtils_SetByteProxy",   reinterpret_cast<uintptr_t>(&MemoryUtils_SetByteProxy));
+	objectFile->AddExternalSymbol("_MemoryUtils_SetHalfProxy",   reinterpret_cast<uintptr_t>(&MemoryUtils_SetHalfProxy));
+	objectFile->AddExternalSymbol("_MemoryUtils_SetWordProxy",   reinterpret_cast<uintptr_t>(&MemoryUtils_SetWordProxy));
+	objectFile->AddExternalSymbol("_MemoryUtils_SetDoubleProxy", reinterpret_cast<uintptr_t>(&MemoryUtils_SetDoubleProxy));
 	objectFile->AddExternalSymbol("_LWL_Proxy", reinterpret_cast<uintptr_t>(&LWL_Proxy));
 	objectFile->AddExternalSymbol("_LWR_Proxy", reinterpret_cast<uintptr_t>(&LWR_Proxy));
+	objectFile->AddExternalSymbol("_LDL_Proxy", reinterpret_cast<uintptr_t>(&LDL_Proxy));
+	objectFile->AddExternalSymbol("_LDR_Proxy", reinterpret_cast<uintptr_t>(&LDR_Proxy));
 	objectFile->AddExternalSymbol("_SWL_Proxy", reinterpret_cast<uintptr_t>(&SWL_Proxy));
 	objectFile->AddExternalSymbol("_SWR_Proxy", reinterpret_cast<uintptr_t>(&SWR_Proxy));
+	objectFile->AddExternalSymbol("_SDL_Proxy", reinterpret_cast<uintptr_t>(&SDL_Proxy));
+	objectFile->AddExternalSymbol("_SDR_Proxy", reinterpret_cast<uintptr_t>(&SDR_Proxy));
 
 	//Initialize Jitter Service
 	auto jitter = new CMipsJitter(codeGen);

@@ -7,7 +7,7 @@ buildscript {
 	}
 
 	dependencies {
-		classpath 'com.android.tools.build:gradle:2.2.3'
+		classpath 'com.android.tools.build:gradle:2.3.3'
 	}
 }
 
@@ -36,10 +36,10 @@ android {
 	}
 
 	compileSdkVersion 'android-24'
-	buildToolsVersion '24.0.3'
+	buildToolsVersion '25.0.0'
 
 	defaultConfig {
-		versionCode 38
+		versionCode 40
 		versionName '0.30'
 		minSdkVersion 19
 		targetSdkVersion 24
@@ -48,7 +48,7 @@ android {
 				arguments "-DANDROID_ARM_NEON=TRUE", "-DANDROID_TOOLCHAIN=clang",
 						"-DANDROID_CPP_FEATURES=exceptions rtti", "-DANDROID_STL=c++_static"
 				cppFlags "-frtti"
-				targets "PlayCore"
+				targets "Play"
 			}
 			ndk {
 				abiFilters 'armeabi-v7a', 'x86', 'x86_64', 'arm64-v8a'

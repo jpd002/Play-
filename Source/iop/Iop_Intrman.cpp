@@ -130,7 +130,7 @@ void CIntrman::Invoke(CMIPS& context, unsigned int functionId)
 			));
 		break;
 	default:
-		CLog::GetInstance().Print(LOGNAME, "%0.8X: Unknown function (%d) called.\r\n", context.m_State.nPC, functionId);
+		CLog::GetInstance().Print(LOGNAME, "%08X: Unknown function (%d) called.\r\n", context.m_State.nPC, functionId);
 		break;
 	}
 }
@@ -138,7 +138,7 @@ void CIntrman::Invoke(CMIPS& context, unsigned int functionId)
 uint32 CIntrman::RegisterIntrHandler(uint32 line, uint32 mode, uint32 handler, uint32 arg)
 {
 #ifdef _DEBUG
-	CLog::GetInstance().Print(LOGNAME, FUNCTION_REGISTERINTRHANDLER "(line = %d, mode = %d, handler = 0x%0.8X, arg = 0x%0.8X);\r\n",
+	CLog::GetInstance().Print(LOGNAME, FUNCTION_REGISTERINTRHANDLER "(line = %d, mode = %d, handler = 0x%08X, arg = 0x%08X);\r\n",
 		line, mode, handler, arg);
 #endif
 	return m_bios.RegisterIntrHandler(line, mode, handler, arg);
@@ -171,7 +171,7 @@ uint32 CIntrman::EnableIntrLine(CMIPS& context, uint32 line)
 uint32 CIntrman::DisableIntrLine(CMIPS& context, uint32 line, uint32 res)
 {
 #ifdef _DEBUG
-	CLog::GetInstance().Print(LOGNAME, FUNCTION_DISABLEINTRLINE "(line = %d, res = %0.8X);\r\n",
+	CLog::GetInstance().Print(LOGNAME, FUNCTION_DISABLEINTRLINE "(line = %d, res = %08X);\r\n",
 		line, res);
 #endif
 	UNION64_32 mask(
@@ -208,7 +208,7 @@ uint32 CIntrman::DisableInterrupts(CMIPS& context)
 uint32 CIntrman::SuspendInterrupts(CMIPS& context, uint32 statePtr)
 {
 #ifdef _DEBUG
-	CLog::GetInstance().Print(LOGNAME, FUNCTION_SUSPENDINTERRUPTS "(statePtr = 0x%0.8X);\r\n", 
+	CLog::GetInstance().Print(LOGNAME, FUNCTION_SUSPENDINTERRUPTS "(statePtr = 0x%08X);\r\n", 
 		statePtr);
 #endif
 	uint32& statusRegister = context.m_State.nCOP0[CCOP_SCU::STATUS];

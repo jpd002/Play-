@@ -6,7 +6,7 @@ class CVuBasicBlock : public CBasicBlock
 {
 public:
 					CVuBasicBlock(CMIPS&, uint32, uint32);
-	virtual			~CVuBasicBlock();
+	virtual			~CVuBasicBlock() = default;
 
 protected:
 	void			CompileRange(CMipsJitter*) override;
@@ -23,4 +23,5 @@ private:
 
 	INTEGER_BRANCH_DELAY_INFO	GetIntegerBranchDelayInfo(uint32) const;
 	bool						CheckIsSpecialIntegerLoop(uint32, unsigned int) const;
+	static void					EmitXgKick(CMipsJitter*);
 };

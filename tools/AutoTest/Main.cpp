@@ -5,6 +5,61 @@
 #include "Utils.h"
 #include "JUnitTestReportWriter.h"
 #include "gs/GSH_Null.h"
+#ifdef _WIN32
+#include "ui_win32/GSH_OpenGLWin32.h"
+#include "ui_win32/GSH_Direct3D9.h"
+#endif
+
+#define GS_HANDLER_NAME_NULL  "null"
+#define GS_HANDLER_NAME_OGL   "ogl"
+#define GS_HANDLER_NAME_D3D9  "d3d9"
+
+#define DEFAULT_GS_HANDLER_NAME GS_HANDLER_NAME_NULL
+
+static std::set<std::string> g_validGsHandlersNames =
+{
+	GS_HANDLER_NAME_NULL,
+#ifdef _WIN32
+	GS_HANDLER_NAME_OGL,
+	GS_HANDLER_NAME_D3D9,
+#endif
+};
+
+#ifdef _WIN32
+
+class CTestWindow : public Framework::Win32::CWindow, public CSingleton<CTestWindow>
+{
+public:
+	CTestWindow()
+	{
+		Create(0, Framework::Win32::CDefaultWndClass::GetName(), _T(""), WS_OVERLAPPED, Framework::Win32::CRect(0, 0, 100, 100), NULL, NULL);
+		SetClassPtr();
+	}
+};
+
+#endif
+
+CGSHandler::FactoryFunction GetGsHandlerFactoryFunction(const std::string& gsHandlerName)
+{
+	if(gsHandlerName == GS_HANDLER_NAME_NULL)
+	{
+		return CGSH_Null::GetFactoryFunction();
+	}
+#ifdef _WIN32
+	else if(gsHandlerName == GS_HANDLER_NAME_OGL)
+	{
+		return CGSH_OpenGLWin32::GetFactoryFunction(&CTestWindow::GetInstance());
+	}
+	else if(gsHandlerName == GS_HANDLER_NAME_D3D9)
+	{
+		return CGSH_Direct3D9::GetFactoryFunction(&CTestWindow::GetInstance());
+	}
+#endif
+	else
+	{
+		throw std::runtime_error("Unknown GS handler name.");
+	}
+}
 
 std::vector<std::string> ReadLines(Framework::CStream& inputStream)
 {
@@ -56,7 +111,7 @@ TESTRESULT GetTestResult(const boost::filesystem::path& testFilePath)
 	return result;
 }
 
-void ExecuteEeTest(const boost::filesystem::path& testFilePath)
+void ExecuteEeTest(const boost::filesystem::path& testFilePath, const std::string& gsHandlerName)
 {
 	auto resultFilePath = testFilePath;
 	resultFilePath.replace_extension(".result");
@@ -68,7 +123,7 @@ void ExecuteEeTest(const boost::filesystem::path& testFilePath)
 	CPS2VM virtualMachine;
 	virtualMachine.Initialize();
 	virtualMachine.Reset();
-	virtualMachine.CreateGSHandler(CGSH_Null::GetFactoryFunction());
+	virtualMachine.CreateGSHandler(GetGsHandlerFactoryFunction(gsHandlerName));
 	virtualMachine.m_ee->m_os->OnRequestExit.connect(
 		[&executionOver] ()
 		{
@@ -133,7 +188,7 @@ void ExecuteIopTest(const boost::filesystem::path& testFilePath)
 	virtualMachine.Destroy();
 }
 
-void ScanAndExecuteTests(const boost::filesystem::path& testDirPath, const TestReportWriterPtr& testReportWriter)
+void ScanAndExecuteTests(const boost::filesystem::path& testDirPath, const TestReportWriterPtr& testReportWriter, const std::string& gsHandlerName)
 {
 	boost::filesystem::directory_iterator endIterator;
 	for(auto testPathIterator = boost::filesystem::directory_iterator(testDirPath);
@@ -142,13 +197,13 @@ void ScanAndExecuteTests(const boost::filesystem::path& testDirPath, const TestR
 		auto testPath = testPathIterator->path();
 		if(boost::filesystem::is_directory(testPath))
 		{
-			ScanAndExecuteTests(testPath, testReportWriter);
+			ScanAndExecuteTests(testPath, testReportWriter, gsHandlerName);
 			continue;
 		}
 		if(testPath.extension() == ".elf")
 		{
 			printf("Testing '%s': ", testPath.string().c_str());
-			ExecuteEeTest(testPath);
+			ExecuteEeTest(testPath, gsHandlerName);
 			auto result = GetTestResult(testPath);
 			printf("%s.\r\n", result.succeeded ? "SUCCEEDED" : "FAILED");
 			if(testReportWriter)
@@ -174,15 +229,35 @@ int main(int argc, const char** argv)
 {
 	if(argc < 2)
 	{
+		auto validGsHandlerNamesString = 
+			[]()
+			{
+				std::string result;
+				for(auto nameIterator = g_validGsHandlersNames.begin(); 
+					nameIterator != g_validGsHandlersNames.end(); ++nameIterator)
+				{
+					if(nameIterator != g_validGsHandlersNames.begin())
+					{
+						result += "|";
+					}
+					result += *nameIterator;
+				}
+				return result;
+			}();
+
 		printf("Usage: AutoTest [options] testDir\r\n");
 		printf("Options: \r\n");
 		printf("\t --junitreport <path>\t Writes JUnit format report at <path>.\r\n");
+		printf("\t --gshandler <%s>\tSelects which GS handler to instantiate (default is '%s').\r\n",
+			validGsHandlerNamesString.c_str(), DEFAULT_GS_HANDLER_NAME);
 		return -1;
 	}
 
 	TestReportWriterPtr testReportWriter;
 	boost::filesystem::path autoTestRoot;
 	boost::filesystem::path reportPath;
+	std::string gsHandlerName = DEFAULT_GS_HANDLER_NAME;
+	assert(g_validGsHandlersNames.find(gsHandlerName) != std::end(g_validGsHandlersNames));
 
 	for(int i = 1; i < argc; i++)
 	{
@@ -195,6 +270,21 @@ int main(int argc, const char** argv)
 			}
 			testReportWriter = std::make_shared<CJUnitTestReportWriter>();
 			reportPath = boost::filesystem::path(argv[i + 1]);
+			i++;
+		}
+		else if(!strcmp(argv[i], "--gshandler"))
+		{
+			if((i + 1) >= argc)
+			{
+				printf("Error: GS handler name must be specified for --gshandler option.\r\n");
+				return -1;
+			}
+			gsHandlerName = argv[i + 1];
+			if(g_validGsHandlersNames.find(gsHandlerName) == std::end(g_validGsHandlersNames))
+			{
+				printf("Error: Invalid GS handler name '%s'.\r\n", gsHandlerName.c_str());
+				return -1;
+			}
 			i++;
 		}
 		else
@@ -212,7 +302,7 @@ int main(int argc, const char** argv)
 
 	try
 	{
-		ScanAndExecuteTests(autoTestRoot, testReportWriter);
+		ScanAndExecuteTests(autoTestRoot, testReportWriter, gsHandlerName);
 	}
 	catch(const std::exception& exception)
 	{

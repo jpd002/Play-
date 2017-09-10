@@ -73,6 +73,30 @@ bool CMA_VU::CLower::IsLOI(CMIPS* ctx, uint32 address)
 	return (upperInstruction & 0x80000000) != 0;
 }
 
+void CMA_VU::CLower::ApplySumSeries(size_t target, const uint32* seriesConstants, const unsigned int* seriesExponents, unsigned int seriesLength)
+{
+	for(unsigned int i = 0; i < seriesLength; i++)
+	{
+		unsigned int exponent = seriesExponents[i];
+		float constant = *reinterpret_cast<const float*>(&seriesConstants[i]);
+
+		m_codeGen->FP_PushSingle(target);
+		for(unsigned int j = 0; j < exponent - 1; j++)
+		{
+			m_codeGen->FP_PushSingle(target);
+			m_codeGen->FP_Mul();
+		}
+
+		m_codeGen->FP_PushCst(constant);
+		m_codeGen->FP_Mul();
+
+		if(i != 0)
+		{
+			m_codeGen->FP_Add();
+		}
+	}
+}
+
 void CMA_VU::CLower::GenerateEATAN()
 {
 	static const uint32 pi4 = 0x3F490FDB;
@@ -100,26 +124,8 @@ void CMA_VU::CLower::GenerateEATAN()
 		15
 	};
 
-	for(unsigned int i = 0; i < seriesLength; i++)
-	{
-		unsigned int exponent = seriesExponents[i];
-		float constant = *reinterpret_cast<const float*>(&seriesConstants[i]);
-
-		m_codeGen->FP_PushSingle(offsetof(CMIPS, m_State.nCOP2T));
-		for(unsigned int j = 0; j < exponent - 1; j++)
-		{
-			m_codeGen->FP_PushSingle(offsetof(CMIPS, m_State.nCOP2T));
-			m_codeGen->FP_Mul();
-		}
-
-		m_codeGen->FP_PushCst(constant);
-		m_codeGen->FP_Mul();
-
-		if(i != 0)
-		{
-			m_codeGen->FP_Add();
-		}
-	}
+	ApplySumSeries(offsetof(CMIPS, m_State.nCOP2T),
+		seriesConstants, seriesExponents, seriesLength);
 
 	{
 		float constant = *reinterpret_cast<const float*>(&pi4);
@@ -137,6 +143,8 @@ void CMA_VU::CLower::GenerateEATAN()
 //00
 void CMA_VU::CLower::LQ()
 {
+	if(m_nDest == 0) return;
+
 	m_codeGen->PushRelRef(offsetof(CMIPS, m_vuMem));
 	VUShared::ComputeMemAccessAddr(
 		m_codeGen,
@@ -642,16 +650,9 @@ void CMA_VU::CLower::XTOP()
 //1B
 void CMA_VU::CLower::XGKICK()
 {
-	//Push context
-	m_codeGen->PushCtx();
-
-	//Push value
+	//Save XGKICK address to be used later
 	m_codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2VI[m_nIS]));
-
-	//Compute Address
-	m_codeGen->PushCst(CVpu::VU_XGKICK);
-
-	m_codeGen->Call(reinterpret_cast<void*>(&MemoryUtils_SetWordProxy), 3, false);
+	m_codeGen->PullRel(offsetof(CMIPS, m_State.xgkickAddress));
 }
 
 //1C
@@ -728,26 +729,8 @@ void CMA_VU::CLower::ESIN()
 		9
 	};
 
-	for(unsigned int i = 0; i < seriesLength; i++)
-	{
-		unsigned int exponent = seriesExponents[i];
-		float constant = *reinterpret_cast<const float*>(&seriesConstants[i]);
-
-		m_codeGen->FP_PushSingle(offsetof(CMIPS, m_State.nCOP2[m_nIS].nV[m_nFSF]));
-		for(unsigned int j = 0; j < exponent - 1; j++)
-		{
-			m_codeGen->FP_PushSingle(offsetof(CMIPS, m_State.nCOP2[m_nIS].nV[m_nFSF]));
-			m_codeGen->FP_Mul();
-		}
-
-		m_codeGen->FP_PushCst(constant);
-		m_codeGen->FP_Mul();
-
-		if(i != 0)
-		{
-			m_codeGen->FP_Add();
-		}
-	}
+	ApplySumSeries(offsetof(CMIPS, m_State.nCOP2[m_nIS].nV[m_nFSF]),
+		seriesConstants, seriesExponents, seriesLength);
 
 	m_codeGen->FP_PullSingle(offsetof(CMIPS, m_State.nCOP2P));
 }
@@ -908,6 +891,48 @@ void CMA_VU::CLower::ERCPR()
 	m_codeGen->FP_PullSingle(offsetof(CMIPS, m_State.nCOP2P));
 }
 
+//1F
+void CMA_VU::CLower::EEXP()
+{
+	const unsigned int seriesLength = 6;
+	static const uint32 seriesConstants[seriesLength] =
+	{
+		0x3E7FFFA8,
+		0x3D0007F4,
+		0x3B29D3FF,
+		0x3933E553,
+		0x36B63510,
+		0x353961AC
+	};
+	static const unsigned int seriesExponents[seriesLength] =
+	{
+		1,
+		2,
+		3,
+		4,
+		5,
+		6
+	};
+
+	ApplySumSeries(offsetof(CMIPS, m_State.nCOP2[m_nIS].nV[m_nFSF]),
+		seriesConstants, seriesExponents, seriesLength);
+
+	m_codeGen->FP_PushCst(1.0f);
+	m_codeGen->FP_Add();
+
+	//Up to the fourth power
+	m_codeGen->PushTop();
+	m_codeGen->PushTop();
+	m_codeGen->PushTop();
+	m_codeGen->FP_Mul();
+	m_codeGen->FP_Mul();
+	m_codeGen->FP_Mul();
+
+	m_codeGen->FP_Rcpl();
+
+	m_codeGen->FP_PullSingle(offsetof(CMIPS, m_State.nCOP2P));
+}
+
 //////////////////////////////////////////////////
 //Vector3 Instructions
 //////////////////////////////////////////////////
@@ -928,6 +953,12 @@ void CMA_VU::CLower::WAITQ()
 void CMA_VU::CLower::ISWR()
 {
 	VUShared::ISWR(m_codeGen, m_nDest, m_nIT, m_nIS, m_vuMemAddressMask);
+}
+
+//10
+void CMA_VU::CLower::RXOR()
+{
+	VUShared::RXOR(m_codeGen, m_nIS, m_nFSF);
 }
 
 //1C
@@ -1061,7 +1092,7 @@ CMA_VU::CLower::InstructionFuncConstant CMA_VU::CLower::m_pOpVector2[0x20] =
 	//0x10
 	&CMA_VU::CLower::RINIT,			&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,
 	//0x18
-	&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::ELENG,			&CMA_VU::CLower::ESUM,			&CMA_VU::CLower::ERCPR,			&CMA_VU::CLower::Illegal,
+	&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::ELENG,			&CMA_VU::CLower::ESUM,			&CMA_VU::CLower::ERCPR,			&CMA_VU::CLower::EEXP,
 };
 
 CMA_VU::CLower::InstructionFuncConstant CMA_VU::CLower::m_pOpVector3[0x20] =
@@ -1071,7 +1102,7 @@ CMA_VU::CLower::InstructionFuncConstant CMA_VU::CLower::m_pOpVector3[0x20] =
 	//0x08
 	&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::SQD,			&CMA_VU::CLower::WAITQ,			&CMA_VU::CLower::ISWR,
 	//0x10
-	&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,
+	&CMA_VU::CLower::RXOR,			&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,
 	//0x18
 	&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::ERLENG,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::WAITP,			&CMA_VU::CLower::Illegal,
 };

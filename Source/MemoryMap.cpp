@@ -1,11 +1,8 @@
-#include <assert.h>
-#include <stdio.h>
+#include <cassert>
 #include "MemoryMap.h"
+#include "Log.h"
 
-CMemoryMap::~CMemoryMap()
-{
-
-}
+#define LOG_NAME "MemoryMap"
 
 void CMemoryMap::InsertReadMap(uint32 start, uint32 end, void* pointer, unsigned char key)
 {
@@ -63,7 +60,7 @@ void CMemoryMap::InsertMap(MemoryMapListType& memoryMap, uint32 start, uint32 en
 	element.nStart		= start;
 	element.nEnd		= end;
 	element.handler		= handler;
-	element.pPointer	= NULL;
+	element.pPointer	= nullptr;
 	element.nType		= MEMORYMAP_TYPE_FUNCTION;
 	memoryMap.push_back(element);
 }
@@ -74,17 +71,17 @@ const CMemoryMap::MEMORYMAPELEMENT* CMemoryMap::GetMap(const MemoryMapListType& 
 	{
 		if(nAddress <= mapElement.nEnd)
 		{
-			if(!(nAddress >= mapElement.nStart)) return NULL;
+			if(!(nAddress >= mapElement.nStart)) return nullptr;
 			return &mapElement;
 		}
 	}
-	return NULL;
+	return nullptr;
 }
 
 uint8 CMemoryMap::GetByte(uint32 nAddress)
 {
-	const MEMORYMAPELEMENT* e = GetMap(m_readMap, nAddress);
-	if(e == NULL) return 0xCC;
+	const auto e = GetMap(m_readMap, nAddress);
+	if(!e) return 0xCC;
 	switch(e->nType)
 	{
 	case MEMORYMAP_TYPE_MEMORY:
@@ -102,10 +99,10 @@ uint8 CMemoryMap::GetByte(uint32 nAddress)
 
 void CMemoryMap::SetByte(uint32 nAddress, uint8 nValue)
 {
-	const MEMORYMAPELEMENT* e = GetMap(m_writeMap, nAddress);
-	if(e == NULL)
+	const auto e = GetMap(m_writeMap, nAddress);
+	if(!e)
 	{
-		printf("MemoryMap: Wrote to unmapped memory (0x%0.8X, 0x%0.4X).\r\n", nAddress, nValue);
+		CLog::GetInstance().Print(LOG_NAME, "Wrote to unmapped memory (0x%08X, 0x%04X).\r\n", nAddress, nValue);
 		return;
 	}
 	switch(e->nType)
@@ -129,8 +126,8 @@ void CMemoryMap::SetByte(uint32 nAddress, uint8 nValue)
 uint16 CMemoryMap_LSBF::GetHalf(uint32 nAddress)
 {
 	assert((nAddress & 0x01) == 0);
-	const MEMORYMAPELEMENT* e = GetMap(m_readMap, nAddress);
-	if(e == NULL) return 0xCCCC;
+	const auto e = GetMap(m_readMap, nAddress);
+	if(!e) return 0xCCCC;
 	switch(e->nType)
 	{
 	case MEMORYMAP_TYPE_MEMORY:
@@ -145,8 +142,8 @@ uint16 CMemoryMap_LSBF::GetHalf(uint32 nAddress)
 uint32 CMemoryMap_LSBF::GetWord(uint32 nAddress)
 {
 	assert((nAddress & 0x03) == 0);
-	const MEMORYMAPELEMENT* e = GetMap(m_readMap, nAddress);
-	if(e == NULL) return 0xCCCCCCCC;
+	const auto e = GetMap(m_readMap, nAddress);
+	if(!e) return 0xCCCCCCCC;
 	switch(e->nType)
 	{
 	case MEMORYMAP_TYPE_MEMORY:
@@ -165,8 +162,8 @@ uint32 CMemoryMap_LSBF::GetWord(uint32 nAddress)
 uint32 CMemoryMap_LSBF::GetInstruction(uint32 address)
 {
 	assert((address & 0x03) == 0);
-	const MEMORYMAPELEMENT* e = GetMap(m_instructionMap, address);
-	if(e == NULL) return 0xCCCCCCCC;
+	const auto e = GetMap(m_instructionMap, address);
+	if(!e) return 0xCCCCCCCC;
 	switch(e->nType)
 	{
 	case MEMORYMAP_TYPE_MEMORY:
@@ -185,7 +182,7 @@ void CMemoryMap_LSBF::SetHalf(uint32 nAddress, uint16 nValue)
 	const auto e = GetMap(m_writeMap, nAddress);
 	if(!e)
 	{
-		printf("MemoryMap: Wrote to unmapped memory (0x%0.8X, 0x%0.4X).\r\n", nAddress, nValue);
+		CLog::GetInstance().Print(LOG_NAME, "Wrote to unmapped memory (0x%08X, 0x%04X).\r\n", nAddress, nValue);
 		return;
 	}
 	switch(e->nType)
@@ -205,10 +202,10 @@ void CMemoryMap_LSBF::SetHalf(uint32 nAddress, uint16 nValue)
 void CMemoryMap_LSBF::SetWord(uint32 nAddress, uint32 nValue)
 {
 	assert((nAddress & 0x03) == 0);
-	const MEMORYMAPELEMENT* e = GetMap(m_writeMap, nAddress);
-	if(e == NULL) 
+	const auto e = GetMap(m_writeMap, nAddress);
+	if(!e)
 	{
-		printf("MemoryMap: Wrote to unmapped memory (0x%0.8X, 0x%0.8X).\r\n", nAddress, nValue);
+		CLog::GetInstance().Print(LOG_NAME, "Wrote to unmapped memory (0x%08X, 0x%08X).\r\n", nAddress, nValue);
 		return;
 	}
 	switch(e->nType)

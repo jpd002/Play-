@@ -44,11 +44,6 @@ CMA_MIPSIV(MIPS_REGSIZE_64)
 	SetupReflectionTables();
 }
 
-CMA_EE::~CMA_EE()
-{
-
-}
-
 void CMA_EE::PushVector(unsigned int nReg)
 {
 	m_codeGen->MD_PushRel(offsetof(CMIPS, m_State.nGPR[nReg]));
@@ -961,48 +956,7 @@ void CMA_EE::PMFLO()
 //0C
 void CMA_EE::PMULTW()
 {
-	for(unsigned int i = 0; i < 2; i++)
-	{
-		unsigned int regOffset = i * 2;
-
-		m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRS].nV[regOffset]));
-		m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[regOffset]));
-		m_codeGen->MultS();
-
-		m_codeGen->PushTop();
-
-		//LO
-		m_codeGen->ExtLow64();
-		{
-			m_codeGen->PushTop();
-			m_codeGen->SignExt();
-			m_codeGen->PullRel(GetLoOffset(regOffset + 1));
-		}
-		m_codeGen->PullRel(GetLoOffset(regOffset + 0));
-
-		//HI
-		m_codeGen->ExtHigh64();
-		{
-			m_codeGen->PushTop();
-			m_codeGen->SignExt();
-			m_codeGen->PullRel(GetHiOffset(regOffset + 1));
-		}
-		m_codeGen->PullRel(GetHiOffset(regOffset + 0));
-	}
-
-	if(m_nRD != 0)
-	{
-		for(unsigned int i = 0; i < 2; i++)
-		{
-			unsigned int regOffset = i * 2;
-
-			m_codeGen->PushRel(GetLoOffset(regOffset));
-			m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[regOffset + 0]));
-
-			m_codeGen->PushRel(GetHiOffset(regOffset));
-			m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[regOffset + 1]));
-		}
-	}
+	Generic_PMULTW(true);
 }
 
 //0D
@@ -1389,6 +1343,12 @@ void CMA_EE::PINTEH()
 	}
 }
 
+//0C
+void CMA_EE::PMULTUW()
+{
+	Generic_PMULTW(false);
+}
+
 //0E
 void CMA_EE::PCPYUD()
 {
@@ -1737,6 +1697,59 @@ void CMA_EE::Generic_MADD(unsigned int unit, bool isSigned)
 	}
 }
 
+void CMA_EE::Generic_PMULTW(bool isSigned)
+{
+	for(unsigned int i = 0; i < 2; i++)
+	{
+		unsigned int regOffset = i * 2;
+
+		m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRS].nV[regOffset]));
+		m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[regOffset]));
+		if(isSigned)
+		{
+			m_codeGen->MultS();
+		}
+		else
+		{
+			m_codeGen->Mult();
+		}
+
+		m_codeGen->PushTop();
+
+		//LO
+		m_codeGen->ExtLow64();
+		{
+			m_codeGen->PushTop();
+			m_codeGen->SignExt();
+			m_codeGen->PullRel(GetLoOffset(regOffset + 1));
+		}
+		m_codeGen->PullRel(GetLoOffset(regOffset + 0));
+
+		//HI
+		m_codeGen->ExtHigh64();
+		{
+			m_codeGen->PushTop();
+			m_codeGen->SignExt();
+			m_codeGen->PullRel(GetHiOffset(regOffset + 1));
+		}
+		m_codeGen->PullRel(GetHiOffset(regOffset + 0));
+	}
+
+	if(m_nRD != 0)
+	{
+		for(unsigned int i = 0; i < 2; i++)
+		{
+			unsigned int regOffset = i * 2;
+
+			m_codeGen->PushRel(GetLoOffset(regOffset));
+			m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[regOffset + 0]));
+
+			m_codeGen->PushRel(GetHiOffset(regOffset));
+			m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[regOffset + 1]));
+		}
+	}
+}
+
 void CMA_EE::Generic_PSxxV(const TemplateOperationFunctionType& function)
 {
 	if(m_nRD == 0) return;
@@ -1799,7 +1812,7 @@ CMA_EE::InstructionFuncConstant CMA_EE::m_pOpMmi3[0x20] =
 	//0x00
 	&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::PSRAVW,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,
 	//0x08
-	&CMA_EE::PMTHI,			&CMA_EE::PMTLO,			&CMA_EE::PINTEH,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::PCPYUD,		&CMA_EE::Illegal,
+	&CMA_EE::PMTHI,			&CMA_EE::PMTLO,			&CMA_EE::PINTEH,		&CMA_EE::Illegal,		&CMA_EE::PMULTUW,		&CMA_EE::Illegal,		&CMA_EE::PCPYUD,		&CMA_EE::Illegal,
 	//0x10
 	&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::POR,			&CMA_EE::PNOR,			&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,
 	//0x18

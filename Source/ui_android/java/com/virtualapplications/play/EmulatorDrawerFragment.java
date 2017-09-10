@@ -21,68 +21,70 @@ import android.widget.ArrayAdapter;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 
-public class EmulatorDrawerFragment extends Fragment 
+public class EmulatorDrawerFragment extends Fragment
 {
-	DrawerLayout    _drawerLayout;
-	View            _fragmentView;
-	ListView        _listView;
-	EventListener   _eventListener;
-	
+	DrawerLayout _drawerLayout;
+	View _fragmentView;
+	ListView _listView;
+	EventListener _eventListener;
+
 	public interface EventListener
 	{
 		void onExitSelected();
+
 		void onSaveStateSelected();
+
 		void onLoadStateSelected();
 	}
-	
-	public EmulatorDrawerFragment() 
+
+	public EmulatorDrawerFragment()
 	{
-		
+
 	}
-	
+
 	public void setEventListener(EventListener eventListener)
 	{
 		_eventListener = eventListener;
 	}
-	
+
 	@Override
-	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) 
+	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
 	{
 		LinearLayout layout = (LinearLayout)inflater.inflate(R.layout.fragment_emulator_drawer, container, false);
 		_listView = (ListView)layout.findViewById(R.id.fragment_emulator_drawer_list);
 		return layout;
 	}
-	
+
 	@Override
-	public void onActivityCreated(Bundle savedInstanceState) 
+	public void onActivityCreated(Bundle savedInstanceState)
 	{
 		super.onActivityCreated(savedInstanceState);
-		
+
 		_listView.setAdapter(
-			new ArrayAdapter<>(
-				getActivity(),
-				android.R.layout.simple_list_item_activated_1,
-				android.R.id.text1,
-				new String[]
-				{
-					getString(R.string.emulator_drawer_savestate),
-					getString(R.string.emulator_drawer_loadstate),
-					getString(R.string.emulator_drawer_exit),
-				}
-			)
+				new ArrayAdapter<>(
+						getActivity(),
+						android.R.layout.simple_list_item_activated_1,
+						android.R.id.text1,
+						new String[]
+								{
+										getString(R.string.emulator_drawer_savestate),
+										getString(R.string.emulator_drawer_loadstate),
+										getString(R.string.emulator_drawer_exit),
+								}
+				)
 		);
 		_listView.setOnItemClickListener(
-			new AdapterView.OnItemClickListener() 
-			{
-				@Override
-				public void onItemClick(AdapterView<?> parent, View view, int position, long id) 
+				new AdapterView.OnItemClickListener()
 				{
-					selectItem(position);
+					@Override
+					public void onItemClick(AdapterView<?> parent, View view, int position, long id)
+					{
+						selectItem(position);
+					}
 				}
-			}
 		);
 	}
-	
+
 	public void setUp(View fragmentView, DrawerLayout drawerLayout)
 	{
 		_fragmentView = fragmentView;
@@ -91,25 +93,25 @@ public class EmulatorDrawerFragment extends Fragment
 
 		int color = ThemeManager.getThemeColor(getActivity(), R.attr.colorPrimaryDark);
 		_fragmentView.setBackgroundColor(
-			Color.parseColor(("#" + Integer.toHexString(color)).replace("#ff", "#8e"))
+				Color.parseColor(("#" + Integer.toHexString(color)).replace("#ff", "#8e"))
 		);
 	}
-	
+
 	public void openDrawer()
 	{
 		_drawerLayout.openDrawer(_fragmentView);
 	}
-	
+
 	public void closeDrawer()
 	{
 		_drawerLayout.closeDrawer(_fragmentView);
 	}
-	
+
 	public boolean isDrawerOpened()
 	{
 		return (_drawerLayout != null) && (_drawerLayout.isDrawerOpen(_fragmentView));
 	}
-	
+
 	private void selectItem(int position)
 	{
 		if(_eventListener == null) return;

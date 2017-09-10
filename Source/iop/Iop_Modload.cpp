@@ -101,7 +101,7 @@ void CModload::Invoke(CMIPS& context, unsigned int functionId)
 		);
 		break;
 	default:
-		CLog::GetInstance().Print(LOG_NAME, "(%0.8X): Unknown function (%d) called.\r\n", 
+		CLog::GetInstance().Print(LOG_NAME, "(%08X): Unknown function (%d) called.\r\n", 
 			context.m_State.nPC, functionId);
 		break;
 	}
@@ -132,7 +132,7 @@ uint32 CModload::StartModule(uint32 moduleId, uint32 pathPtr, uint32 argsLength,
 {
 	const char* path = reinterpret_cast<const char*>(m_ram + pathPtr);
 	const char* args = reinterpret_cast<const char*>(m_ram + argsPtr);
-	CLog::GetInstance().Print(LOG_NAME, FUNCTION_STARTMODULE "(moduleId = %d, path = '%s', argsLength = %d, argsPtr = 0x%0.8X, resultPtr = 0x%0.8X);\r\n",
+	CLog::GetInstance().Print(LOG_NAME, FUNCTION_STARTMODULE "(moduleId = %d, path = '%s', argsLength = %d, argsPtr = 0x%08X, resultPtr = 0x%08X);\r\n",
 		moduleId, path, argsLength, argsPtr, resultPtr);
 	auto result = m_bios.StartModule(moduleId, path, args, argsLength);
 	return result;
@@ -140,7 +140,7 @@ uint32 CModload::StartModule(uint32 moduleId, uint32 pathPtr, uint32 argsLength,
 
 uint32 CModload::LoadModuleBuffer(uint32 modBufPtr)
 {
-	CLog::GetInstance().Print(LOG_NAME, FUNCTION_LOADMODULEBUFFER "(modBufPtr = 0x%0.8X);\r\n",
+	CLog::GetInstance().Print(LOG_NAME, FUNCTION_LOADMODULEBUFFER "(modBufPtr = 0x%08X);\r\n",
 		modBufPtr);
 	assert((modBufPtr & 0x03) == 0);
 	auto result = m_bios.LoadModule(modBufPtr);
@@ -149,7 +149,7 @@ uint32 CModload::LoadModuleBuffer(uint32 modBufPtr)
 
 uint32 CModload::GetModuleIdList(uint32 readBufPtr, uint32 readBufSize, uint32 moduleCountPtr)
 {
-	CLog::GetInstance().Print(LOG_NAME, FUNCTION_GETMODULEIDLIST "(readBufPtr = 0x%0.8X, readBufSize = 0x%0.8X, moduleCountPtr = 0x%0.8X);\r\n",
+	CLog::GetInstance().Print(LOG_NAME, FUNCTION_GETMODULEIDLIST "(readBufPtr = 0x%08X, readBufSize = 0x%08X, moduleCountPtr = 0x%08X);\r\n",
 		readBufPtr, readBufSize, moduleCountPtr);
 	auto moduleCount = (moduleCountPtr != 0) ? reinterpret_cast<uint32*>(m_ram + moduleCountPtr) : nullptr;
 	if(moduleCount)
@@ -161,7 +161,7 @@ uint32 CModload::GetModuleIdList(uint32 readBufPtr, uint32 readBufSize, uint32 m
 
 int32 CModload::ReferModuleStatus(uint32 moduleId, uint32 moduleStatusPtr)
 {
-	CLog::GetInstance().Print(LOG_NAME, FUNCTION_REFERMODULESTATUS "(moduleId = %d, moduleStatusPtr = 0x%0.8X);\r\n",
+	CLog::GetInstance().Print(LOG_NAME, FUNCTION_REFERMODULESTATUS "(moduleId = %d, moduleStatusPtr = 0x%08X);\r\n",
 		moduleId, moduleStatusPtr);
 	return KERNEL_RESULT_ERROR_UNKNOWN_MODULE;
 }

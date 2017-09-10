@@ -16,34 +16,33 @@ import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
-
 import org.xml.sax.InputSource;
 
 public class VirtualPadView extends SurfaceView
 {
 	private ArrayList<VirtualPadItem> _items = new ArrayList<VirtualPadItem>();
 	private HashMap<String, Bitmap> _itemBitmaps = new HashMap<String, Bitmap>();
-	
+
 	public VirtualPadView(Context context, AttributeSet attribs)
 	{
 		super(context, attribs);
 
-		_itemBitmaps.put("select",      BitmapFactory.decodeResource(getResources(), R.drawable.select));
-		_itemBitmaps.put("start",       BitmapFactory.decodeResource(getResources(), R.drawable.start));
-		_itemBitmaps.put("up",          BitmapFactory.decodeResource(getResources(), R.drawable.up));
-		_itemBitmaps.put("down",        BitmapFactory.decodeResource(getResources(), R.drawable.down));
-		_itemBitmaps.put("left",        BitmapFactory.decodeResource(getResources(), R.drawable.left));
-		_itemBitmaps.put("right",       BitmapFactory.decodeResource(getResources(), R.drawable.right));
-		_itemBitmaps.put("triangle",    BitmapFactory.decodeResource(getResources(), R.drawable.triangle));
-		_itemBitmaps.put("cross",       BitmapFactory.decodeResource(getResources(), R.drawable.cross));
-		_itemBitmaps.put("square",      BitmapFactory.decodeResource(getResources(), R.drawable.square));
-		_itemBitmaps.put("circle",      BitmapFactory.decodeResource(getResources(), R.drawable.circle));
-		_itemBitmaps.put("lr",          BitmapFactory.decodeResource(getResources(), R.drawable.lr));
+		_itemBitmaps.put("select", BitmapFactory.decodeResource(getResources(), R.drawable.select));
+		_itemBitmaps.put("start", BitmapFactory.decodeResource(getResources(), R.drawable.start));
+		_itemBitmaps.put("up", BitmapFactory.decodeResource(getResources(), R.drawable.up));
+		_itemBitmaps.put("down", BitmapFactory.decodeResource(getResources(), R.drawable.down));
+		_itemBitmaps.put("left", BitmapFactory.decodeResource(getResources(), R.drawable.left));
+		_itemBitmaps.put("right", BitmapFactory.decodeResource(getResources(), R.drawable.right));
+		_itemBitmaps.put("triangle", BitmapFactory.decodeResource(getResources(), R.drawable.triangle));
+		_itemBitmaps.put("cross", BitmapFactory.decodeResource(getResources(), R.drawable.cross));
+		_itemBitmaps.put("square", BitmapFactory.decodeResource(getResources(), R.drawable.square));
+		_itemBitmaps.put("circle", BitmapFactory.decodeResource(getResources(), R.drawable.circle));
+		_itemBitmaps.put("lr", BitmapFactory.decodeResource(getResources(), R.drawable.lr));
 		_itemBitmaps.put("analogStick", BitmapFactory.decodeResource(getResources(), R.drawable.analogstick));
-		
+
 		setWillNotDraw(false);
 	}
-	
+
 	private void createVirtualPad(int surfaceWidth, int surfaceHeight)
 	{
 		DisplayMetrics dm = new DisplayMetrics();
@@ -62,7 +61,7 @@ public class VirtualPadView extends SurfaceView
 			InputSource is = new InputSource();
 			is.setCharacterStream(new StringReader(padItemsText));
 			Document document = db.parse(is);
-			
+
 			NodeList itemNodes = document.getElementsByTagName("Item");
 			for(int i = 0; i < itemNodes.getLength(); i++)
 			{
@@ -99,7 +98,7 @@ public class VirtualPadView extends SurfaceView
 			_items.clear();
 		}
 	}
-	
+
 	@Override
 	protected void onSizeChanged(int w, int h, int oldw, int oldh)
 	{
@@ -107,7 +106,7 @@ public class VirtualPadView extends SurfaceView
 		createVirtualPad(w, h);
 		postInvalidate();
 	}
-	
+
 	@Override
 	public void draw(Canvas canvas)
 	{
@@ -117,7 +116,7 @@ public class VirtualPadView extends SurfaceView
 			item.draw(canvas);
 		}
 	}
-	
+
 	@Override
 	public boolean onTouchEvent(final MotionEvent event)
 	{

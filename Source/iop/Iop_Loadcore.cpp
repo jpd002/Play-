@@ -82,7 +82,7 @@ void CLoadcore::Invoke(CMIPS& context, unsigned int functionId)
 			));
 		break;
 	default:
-		CLog::GetInstance().Print(LOG_NAME, "Unknown function (%d) called (PC: 0x%0.8X).\r\n", 
+		CLog::GetInstance().Print(LOG_NAME, "Unknown function (%d) called (PC: 0x%08X).\r\n", 
 			functionId, context.m_State.nPC);
 		break;
 	}
@@ -142,7 +142,7 @@ void CLoadcore::SetLoadExecutableHandler(const LoadExecutableHandler& loadExecut
 
 uint32 CLoadcore::RegisterLibraryEntries(uint32 exportTablePtr)
 {
-	CLog::GetInstance().Print(LOG_NAME, FUNCTION_REGISTERLIBRARYENTRIES "(exportTable = 0x%0.8X);\r\n", exportTablePtr);
+	CLog::GetInstance().Print(LOG_NAME, FUNCTION_REGISTERLIBRARYENTRIES "(exportTable = 0x%08X);\r\n", exportTablePtr);
 	uint32* exportTable = reinterpret_cast<uint32*>(&m_ram[exportTablePtr]);
 	auto module = std::make_shared<CDynamic>(exportTable);
 	bool registered = m_bios.RegisterModule(module);
@@ -158,7 +158,7 @@ uint32 CLoadcore::QueryBootMode(uint32 param)
 
 uint32 CLoadcore::SetRebootTimeLibraryHandlingMode(uint32 libAddr, uint32 mode)
 {
-	CLog::GetInstance().Print(LOG_NAME, FUNCTION_SETREBOOTTIMELIBHANDLINGMODE "(libAddr = 0x%0.8X, mode = 0x%0.8X);\r\n",
+	CLog::GetInstance().Print(LOG_NAME, FUNCTION_SETREBOOTTIMELIBHANDLINGMODE "(libAddr = 0x%08X, mode = 0x%08X);\r\n",
 		libAddr, mode);
 	return 0;
 }
@@ -232,7 +232,7 @@ void CLoadcore::LoadModuleFromMemory(uint32* args, uint32 argsSize, uint32* ret,
 {
 	const char* moduleArgs = reinterpret_cast<const char*>(args) + 8 + PATH_MAX_SIZE;
 	uint32 moduleArgsSize = args[1];
-	CLog::GetInstance().Print(LOG_NAME, "Request to load module at 0x%0.8X received with %d bytes arguments payload.\r\n", args[0], moduleArgsSize);
+	CLog::GetInstance().Print(LOG_NAME, "Request to load module at 0x%08X received with %d bytes arguments payload.\r\n", args[0], moduleArgsSize);
 	auto moduleId = m_bios.LoadModule(args[0]);
 	if(moduleId >= 0)
 	{
@@ -253,7 +253,7 @@ bool CLoadcore::StopModule(uint32* args, uint32 argsSize, uint32* ret, uint32 re
 
 	memcpy(moduleArgs, reinterpret_cast<const char*>(args) + 8 + PATH_MAX_SIZE, ARGS_MAX_SIZE);
 
-	CLog::GetInstance().Print(LOG_NAME, "StopModule(moduleId = %d, args, argsSize = 0x%0.8X);\r\n", 
+	CLog::GetInstance().Print(LOG_NAME, "StopModule(moduleId = %d, args, argsSize = 0x%08X);\r\n", 
 		moduleId, moduleArgsSize);
 
 	auto result = m_bios.StopModule(moduleId);
