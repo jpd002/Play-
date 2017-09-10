@@ -94,6 +94,11 @@ void CRegisterStateFile::SetRegister64(const char* name, uint64 value)
 	m_registers[name] = Register(2, longValue);
 }
 
+void CRegisterStateFile::SetRegister128(const char* name, uint128 value)
+{
+	m_registers[name] = Register(4, value);
+}
+
 uint32 CRegisterStateFile::GetRegister32(const char* name) const
 {
 	auto registerIterator(m_registers.find(name));
@@ -106,4 +111,15 @@ uint64 CRegisterStateFile::GetRegister64(const char* name) const
 	auto registerIterator(m_registers.find(name));
 	if(registerIterator == m_registers.end()) return 0;
 	return registerIterator->second.second.nD0;
+}
+
+uint128 CRegisterStateFile::GetRegister128(const char* name) const
+{
+	auto registerIterator(m_registers.find(name));
+	if(registerIterator == m_registers.end())
+	{
+		uint128 zero = {};
+		return zero;
+	}
+	return registerIterator->second.second;
 }
