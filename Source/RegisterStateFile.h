@@ -20,7 +20,7 @@ public:
 	uint128				GetRegister128(const char*) const;
 
 	void				Read(Framework::CStream&);
-	virtual void		Write(Framework::CStream&) override;
+	void				Write(Framework::CStream&) override;
 
 private:
 	typedef std::pair<uint8, uint128> Register;
