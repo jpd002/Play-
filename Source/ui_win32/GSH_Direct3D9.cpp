@@ -1712,7 +1712,7 @@ CGSH_Direct3D9::CFramebuffer::CFramebuffer(DevicePtr& device, uint32 basePtr, ui
 {
 	HRESULT result = S_OK;
 	
-	result = D3DXCreateTexture(device, width, height, 1, D3DUSAGE_RENDERTARGET, D3DFMT_A8R8G8B8, D3DPOOL_DEFAULT, &m_renderTarget);
+	result = device->CreateTexture(width, height, 1, D3DUSAGE_RENDERTARGET, D3DFMT_A8R8G8B8, D3DPOOL_DEFAULT, &m_renderTarget, NULL);
 	assert(SUCCEEDED(result));
 }
 
