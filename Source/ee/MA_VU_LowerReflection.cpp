@@ -1058,7 +1058,7 @@ VUINSTRUCTION CMA_VU::CLower::m_cVuReflVX2[32] =
 	{	NULL,		NULL,			NULL				},
 	{	NULL,		NULL,			NULL				},
 	{	"ELENG",	NULL,			ReflOpAffWrPRdFs	},
-	{	"ESUM",		NULL,			NULL				},
+	{	"ESUM",		NULL,			ReflOpAffWrPRdFs	},
 	{	"ERCPR",	NULL,			ReflOpAffWrPRdFs	},
 	{	"EEXP",		NULL,			ReflOpAffWrPRdFs	},
 };
