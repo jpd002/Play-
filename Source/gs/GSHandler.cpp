@@ -191,7 +191,7 @@ void CGSHandler::SaveState(Framework::CZipArchiveWriter& archive)
 void CGSHandler::LoadState(Framework::CZipArchiveReader& archive)
 {
 	archive.BeginReadFile(STATE_RAM		)->Read(m_pRAM,		RAMSIZE);
-	archive.BeginReadFile(STATE_REGS	)->Read(m_nReg,		sizeof(uint64) * 0x80);
+	archive.BeginReadFile(STATE_REGS	)->Read(m_nReg,		sizeof(uint64) * CGSHandler::REGISTER_MAX);
 	archive.BeginReadFile(STATE_TRXCTX	)->Read(&m_trxCtx,	sizeof(TRXCONTEXT));
 
 	{
