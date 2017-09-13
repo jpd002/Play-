@@ -3,12 +3,10 @@
 #include <string>
 #include <map>
 #include <memory>
-#include "win32/ModalWindow.h"
-#include "win32/Button.h"
+#include "win32/Dialog.h"
 #include "win32/ListView.h"
-#include "layout/LayoutObject.h"
 
-class CVFSManagerWnd : public Framework::Win32::CModalWindow
+class CVFSManagerWnd : public Framework::Win32::CDialog
 {
 public:
 									CVFSManagerWnd(HWND);
@@ -69,15 +67,11 @@ private:
 	typedef std::unique_ptr<CDevice> DevicePtr;
 	typedef std::map<unsigned int, DevicePtr> DeviceList;
 
-	void							RefreshLayout();
 	void							CreateListColumns();
 	void							UpdateList();
 	void							Save();
 
-	Framework::LayoutObjectPtr		m_pLayout;
-	Framework::Win32::CButton*		m_pOk = nullptr;
-	Framework::Win32::CButton*		m_pCancel = nullptr;
-	Framework::Win32::CListView*	m_pList = nullptr;
+	Framework::Win32::CListView		m_deviceList;
 
 	DeviceList						m_devices;
 };

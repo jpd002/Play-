@@ -1,63 +1,19 @@
 #include <shlobj.h>
-#include <stdio.h>
+#include "resource.h"
 #include "VFSManagerWnd.h"
-#include "layout/LayoutEngine.h"
-#include "layout/LayoutStretch.h"
-#include "layout/HorizontalLayout.h"
-#include "win32/LayoutWindow.h"
-#include "win32/Static.h"
-#include "PtrMacro.h"
 #include "../AppConfig.h"
 #include "../PS2VM_Preferences.h"
 #include "CdromSelectionWnd.h"
 #include "string_cast.h"
 #include "string_format.h"
 
-#define CLSNAME			_T("VFSManagerWnd")
-#define WNDSTYLE		(WS_CAPTION | WS_POPUP | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_SYSMENU)
-#define WNDSTYLEEX		(WS_EX_DLGMODALFRAME)
-#define SCALE(x)		MulDiv(x, ydpi, 96)
-
-CVFSManagerWnd::CVFSManagerWnd(HWND hParent) 
-: CModalWindow(hParent)
+CVFSManagerWnd::CVFSManagerWnd(HWND parentWindow)
+: CDialog(MAKEINTRESOURCE(IDD_VFSMANAGER), parentWindow)
 {
-	if(!DoesWindowClassExist(CLSNAME))
-	{
-		WNDCLASSEX w;
-		memset(&w, 0, sizeof(WNDCLASSEX));
-		w.cbSize		= sizeof(WNDCLASSEX);
-		w.lpfnWndProc	= CWindow::WndProc;
-		w.lpszClassName	= CLSNAME;
-		w.hbrBackground	= (HBRUSH)GetSysColorBrush(COLOR_BTNFACE);
-		w.hInstance		= GetModuleHandle(NULL);
-		w.hCursor		= LoadCursor(NULL, IDC_ARROW);
-		w.style			= CS_HREDRAW | CS_VREDRAW;
-		RegisterClassEx(&w);
-	}
-
-	int ydpi = GetDeviceCaps(GetDC(NULL), LOGPIXELSY);
-
-	Create(WNDSTYLEEX, CLSNAME, _T("Virtual File System Manager"), WNDSTYLE, Framework::Win32::CRect(0, 0, SCALE(400), SCALE(250)), hParent, NULL);
 	SetClassPtr();
 
-	m_pList = new Framework::Win32::CListView(m_hWnd, Framework::Win32::CRect(0, 0, 1, 1), LVS_REPORT | LVS_SORTASCENDING);
-	m_pList->SetExtendedListViewStyle(m_pList->GetExtendedListViewStyle() | LVS_EX_FULLROWSELECT);
-
-	m_pOk		= new Framework::Win32::CButton(_T("OK"), m_hWnd, Framework::Win32::CRect(0, 0, 1, 1));
-	m_pCancel	= new Framework::Win32::CButton(_T("Cancel"), m_hWnd, Framework::Win32::CRect(0, 0, 1, 1));
-
-	m_pLayout =
-		Framework::VerticalLayoutContainer(
-			Framework::LayoutExpression(Framework::Win32::CLayoutWindow::CreateCustomBehavior(1, 1, 1, 1, m_pList)) +
-			Framework::LayoutExpression(Framework::Win32::CLayoutWindow::CreateTextBoxBehavior(SCALE(100), SCALE(50), new Framework::Win32::CStatic(m_hWnd, _T("Warning: Changing file system bindings while a program is running might be dangerous. Changes to 'cdrom0' bindings will take effect next time you load an executable."), SS_LEFT))) +
-			Framework::HorizontalLayoutContainer(
-				Framework::LayoutExpression(Framework::CLayoutStretch::Create()) +
-				Framework::LayoutExpression(Framework::Win32::CLayoutWindow::CreateButtonBehavior(SCALE(100), SCALE(23), m_pOk)) +
-				Framework::LayoutExpression(Framework::Win32::CLayoutWindow::CreateButtonBehavior(SCALE(100), SCALE(23), m_pCancel))
-			)
-		);
-
-	RefreshLayout();
+	m_deviceList = Framework::Win32::CListView(GetItem(IDC_VFSMANAGER_DEVICES));
+	m_deviceList.SetExtendedListViewStyle(m_deviceList.GetExtendedListViewStyle() | LVS_EX_FULLROWSELECT);
 
 	m_devices[0] = std::make_unique<CDirectoryDevice>("mc0",  PREF_PS2_MC0_DIRECTORY);
 	m_devices[1] = std::make_unique<CDirectoryDevice>("mc1",  PREF_PS2_MC1_DIRECTORY);
@@ -70,31 +26,32 @@ CVFSManagerWnd::CVFSManagerWnd(HWND hParent)
 
 long CVFSManagerWnd::OnCommand(unsigned short nID, unsigned short nCmd, HWND hSender)
 {
-	if(hSender == m_pOk->m_hWnd)
+	switch(nID)
 	{
+	case IDOK:
 		Save();
 		Destroy();
 		return TRUE;
-	}
-	else if(hSender == m_pCancel->m_hWnd)
-	{
+		break;
+	case IDCANCEL:
 		Destroy();
 		return TRUE;
+		break;
 	}
 	return FALSE;
 }
 
-LRESULT CVFSManagerWnd::OnNotify(WPARAM wParam, NMHDR* pHDR)
+LRESULT CVFSManagerWnd::OnNotify(WPARAM wParam, NMHDR* hdr)
 {
-	if(pHDR->hwndFrom == m_pList->m_hWnd)
+	if(hdr->idFrom == IDC_VFSMANAGER_DEVICES)
 	{
-		switch(pHDR->code)
+		switch(hdr->code)
 		{
 		case NM_DBLCLK:
-			int nSel = m_pList->GetSelection();
+			int nSel = m_deviceList.GetSelection();
 			if(nSel != -1)
 			{
-				const auto deviceIterator = m_devices.find(m_pList->GetItemData(nSel));
+				const auto deviceIterator = m_devices.find(m_deviceList.GetItemData(nSel));
 				if(deviceIterator != m_devices.end())
 				{
 					const auto& device = deviceIterator->second;
@@ -107,44 +64,31 @@ LRESULT CVFSManagerWnd::OnNotify(WPARAM wParam, NMHDR* pHDR)
 			break;
 		}
 	}
-
 	return FALSE;
-}
-
-void CVFSManagerWnd::RefreshLayout()
-{
-	RECT rc = GetClientRect();
-
-	SetRect(&rc, rc.left + 10, rc.top + 10, rc.right - 10, rc.bottom - 10);
-
-	m_pLayout->SetRect(rc.left, rc.top, rc.right, rc.bottom);
-	m_pLayout->RefreshGeometry();
-
-	Redraw();
 }
 
 void CVFSManagerWnd::CreateListColumns()
 {
 	LVCOLUMN col;
-	RECT rc = m_pList->GetClientRect();
+	RECT rc = m_deviceList.GetClientRect();
 
 	memset(&col, 0, sizeof(LVCOLUMN));
 	col.pszText = _T("Device");
 	col.mask	= LVCF_TEXT | LVCF_WIDTH;
 	col.cx		= rc.right / 4;
-	m_pList->InsertColumn(0, col);
+	m_deviceList.InsertColumn(0, col);
 
 	memset(&col, 0, sizeof(LVCOLUMN));
 	col.pszText = _T("Binding Type");
 	col.mask	= LVCF_TEXT | LVCF_WIDTH;
 	col.cx		= rc.right / 4;
-	m_pList->InsertColumn(1, col);
+	m_deviceList.InsertColumn(1, col);
 
 	memset(&col, 0, sizeof(LVCOLUMN));
 	col.pszText = _T("Binding Value");
 	col.mask	= LVCF_TEXT | LVCF_WIDTH;
 	col.cx		= rc.right / 2;
-	m_pList->InsertColumn(2, col);
+	m_deviceList.InsertColumn(2, col);
 }
 
 void CVFSManagerWnd::UpdateList()
@@ -154,7 +98,7 @@ void CVFSManagerWnd::UpdateList()
 		const auto& device = devicePair.second;
 		auto key = devicePair.first;
 
-		unsigned int index = m_pList->FindItemData(key);
+		unsigned int index = m_deviceList.FindItemData(key);
 		if(index == -1)
 		{
 			auto deviceName = string_cast<std::tstring>(device->GetDeviceName());
@@ -164,11 +108,11 @@ void CVFSManagerWnd::UpdateList()
 			itm.mask		= LVIF_TEXT | LVIF_PARAM;
 			itm.pszText		= const_cast<TCHAR*>(deviceName.c_str());
 			itm.lParam		= key;
-			index = m_pList->InsertItem(itm);
+			index = m_deviceList.InsertItem(itm);
 		}
 
-		m_pList->SetItemText(index, 1, string_cast<std::tstring>(device->GetBindingType()).c_str());
-		m_pList->SetItemText(index, 2, device->GetBinding().c_str());
+		m_deviceList.SetItemText(index, 1, string_cast<std::tstring>(device->GetBindingType()).c_str());
+		m_deviceList.SetItemText(index, 2, device->GetBinding().c_str());
 	}
 }
 

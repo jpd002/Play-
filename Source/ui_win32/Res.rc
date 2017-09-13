@@ -80,6 +80,17 @@ BEGIN
     COMBOBOX        IDC_CDROM_SELECTION_DEVICELIST,6,48,300,30,CBS_DROPDOWNLIST | CBS_SORT | WS_VSCROLL | WS_TABSTOP
 END
 
+IDD_VFSMANAGER DIALOGEX 0, 0, 311, 125
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Virtual File System Manager"
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,180,108,60,12
+    PUSHBUTTON      "Cancel",IDCANCEL,246,108,60,12
+    CONTROL         "",IDC_VFSMANAGER_DEVICES,"SysListView32",LVS_REPORT | LVS_SORTASCENDING | LVS_ALIGNLEFT | WS_BORDER | WS_TABSTOP,6,6,300,72
+    LTEXT           "Warning: Changing file system bindings while a program is running might be dangerous. Changes to 'cdrom0' bindings will take effect next time you load an executable.",IDC_STATIC,6,84,300,18
+END
+
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -111,6 +122,14 @@ BEGIN
         RIGHTMARGIN, 304
         TOPMARGIN, 7
         BOTTOMMARGIN, 76
+    END
+
+    IDD_VFSMANAGER, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 304
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 118
     END
 END
 #endif    // APSTUDIO_INVOKED
