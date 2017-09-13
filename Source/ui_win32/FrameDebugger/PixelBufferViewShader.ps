@@ -1,0 +1,16 @@
+texture g_bufferTexture;
+sampler2D g_bufferTextureSampler = sampler_state
+{
+	Texture = <g_bufferTexture>;
+};
+
+struct VertexOutput
+{
+	float4 position			: POSITION;
+	float2 texCoord			: TEXCOORD;
+};
+
+float4 main(VertexOutput input) : COLOR
+{
+	return tex2D(g_bufferTextureSampler, input.texCoord);
+}
