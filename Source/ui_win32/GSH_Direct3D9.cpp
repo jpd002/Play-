@@ -2,7 +2,7 @@
 #include "../Log.h"
 #include "../gs/GsPixelFormats.h"
 #include "D3D9TextureUtils.h"
-#include <d3dx9math.h>
+#include "math/Matrix4.h"
 
 #pragma comment (lib, "d3d9.lib")
 #pragma comment (lib, "d3dx9.lib")
@@ -520,20 +520,18 @@ void CGSH_Direct3D9::DrawActiveFramebuffer()
 	result = m_device->Clear(1, nullptr, D3DCLEAR_TARGET, D3DCOLOR_XRGB(0, 0, 0), 0, 0);
 	assert(SUCCEEDED(result));
 
-	D3DXMATRIX identityMatrix = {};
-	D3DXMatrixIdentity(&identityMatrix);
-	m_device->SetTransform(D3DTS_PROJECTION, &identityMatrix);
-	m_device->SetTransform(D3DTS_VIEW, &identityMatrix);
-	m_device->SetTransform(D3DTS_WORLD, &identityMatrix);
+	auto identityMatrix = CMatrix4::MakeIdentity();
+	m_device->SetTransform(D3DTS_PROJECTION, reinterpret_cast<D3DMATRIX*>(&identityMatrix));
+	m_device->SetTransform(D3DTS_VIEW, reinterpret_cast<D3DMATRIX*>(&identityMatrix));
+	m_device->SetTransform(D3DTS_WORLD, reinterpret_cast<D3DMATRIX*>(&identityMatrix));
 
 	if(framebuffer)
 	{
 		float u1 = static_cast<float>(dispWidth) / static_cast<float>(framebuffer->m_width);
 		float v1 = static_cast<float>(dispHeight) / static_cast<float>(framebuffer->m_height);
 
-		D3DXMATRIX textureMatrix = {};
-		D3DXMatrixScaling(&textureMatrix, u1, v1, 1);
-		m_device->SetTransform(D3DTS_TEXTURE0, &textureMatrix);
+		auto textureMatrix = CMatrix4::MakeScale(u1, v1, 1);
+		m_device->SetTransform(D3DTS_TEXTURE0, reinterpret_cast<D3DMATRIX*>(&textureMatrix));
 
 		result = m_device->SetStreamSource(0, m_presentVb, 0, sizeof(PRESENTVERTEX));
 		assert(SUCCEEDED(result));
@@ -552,26 +550,27 @@ void CGSH_Direct3D9::DrawActiveFramebuffer()
 	}
 }
 
-void CGSH_Direct3D9::SetReadCircuitMatrix(int width, int height)
+void CGSH_Direct3D9::MakeLinearZOrtho(float* matrix, float left, float right, float bottom, float top)
 {
-	//Setup projection matrix
-	D3DXMATRIX projMatrix;
-	D3DXMatrixOrthoLH(&projMatrix, static_cast<FLOAT>(width), static_cast<FLOAT>(height), 1.0f, 0.0f);
+	matrix[ 0] = 2.0f / (right - left);
+	matrix[ 1] = 0;
+	matrix[ 2] = 0;
+	matrix[ 3] = 0;
 
-	//Setup view matrix
-	D3DXMATRIX viewMatrix;
-	D3DXMatrixLookAtLH(&viewMatrix,
-						&D3DXVECTOR3(0.0f, 0.0f, 1.0f),
-						&D3DXVECTOR3(0.0f, 0.0f, 0.0f),
-						&D3DXVECTOR3(0.0f, -1.0f, 0.0f));
+	matrix[ 4] = 0;
+	matrix[ 5] = - 2.0f / (top - bottom);
+	matrix[ 6] = 0;
+	matrix[ 7] = 0;
 
-	//Setup world matrix
-	D3DXMATRIX worldMatrix;
-	D3DXMatrixTranslation(&worldMatrix, -static_cast<FLOAT>(width) / 2.0f, -static_cast<FLOAT>(height) / 2.0f, 0);
+	matrix[ 8] = 0;
+	matrix[ 9] = 0;
+	matrix[10] = 1;
+	matrix[11] = 0;
 
-	D3DXMATRIX tempMatrix;
-	D3DXMatrixMultiply(&tempMatrix, &worldMatrix, &viewMatrix);
-	D3DXMatrixMultiply(reinterpret_cast<D3DXMATRIX*>(&m_projMatrix), &tempMatrix, &projMatrix);
+	matrix[12] = - (right + left) / (right - left);
+	matrix[13] =   (top + bottom) / (top - bottom);
+	matrix[14] = 0;
+	matrix[15] = 1;
 }
 
 bool CGSH_Direct3D9::TestDevice()
@@ -1542,9 +1541,10 @@ void CGSH_Direct3D9::SetupFramebuffer(uint64 frameReg, uint64 scissorReg)
 	m_device->SetScissorRect(&scissorRect);
 	m_device->SetRenderState(D3DRS_SCISSORTESTENABLE, TRUE);
 
-	SetReadCircuitMatrix(projWidth, projHeight);
+	float projMatrix[16];
+	MakeLinearZOrtho(projMatrix, 0, projWidth, 0, projHeight);
 
-	m_device->SetVertexShaderConstantF(0, reinterpret_cast<float*>(&m_projMatrix), 4);
+	m_device->SetVertexShaderConstantF(0, projMatrix, 4);
 }
 
 void CGSH_Direct3D9::SetupDepthBuffer(uint64 zbufReg, uint64 frameReg)
