@@ -3,7 +3,6 @@
 #include "win32/Window.h"
 #include "win32/ComPtr.h"
 #include <d3d9.h>
-#include <d3dx9.h>
 #include <uxtheme.h>
 
 class CDirectXControl : public Framework::Win32::CWindow

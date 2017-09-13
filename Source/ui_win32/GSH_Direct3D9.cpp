@@ -4,9 +4,6 @@
 #include "D3D9TextureUtils.h"
 #include "math/Matrix4.h"
 
-#pragma comment (lib, "d3d9.lib")
-#pragma comment (lib, "d3dx9.lib")
-
 #define D3D_DEBUG_INFO
 //#define _WIREFRAME
 

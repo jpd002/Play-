@@ -8,9 +8,6 @@
 #define WNDSTYLE						(WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_TABSTOP)
 #define WNDSTYLEEX						(0)
 
-#pragma comment (lib, "d3d9.lib")
-#pragma comment (lib, "d3dx9.lib")
-
 CDirectXControl::CDirectXControl(HWND parentWnd, uint32 wndStyle)
 : m_deviceLost(false)
 , m_isThemeActive(false)
