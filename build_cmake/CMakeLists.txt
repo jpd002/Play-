@@ -154,12 +154,19 @@ if(TARGET_PLATFORM_WIN32)
 	include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../../Framework/include)
 	list(APPEND PROJECT_LIBS Framework_Win32)
 
-	find_package(DirectX9 REQUIRED)
-	list(APPEND PROJECT_LIBS ${DirectX_D3D9_LIBRARY})
-	list(APPEND PROJECT_LIBS ${DirectX_D3DCOMPILER_LIBRARY})
-	include_directories(${DirectX_D3D9_INCLUDE_DIR} ${DirectX_D3DX9_INCLUDE_DIR})
-
-	list(APPEND PROJECT_LIBS comctl32 uxtheme opengl32 glu32 dinput8 vfw32 winmm gdiplus Boost::date_time)
+	#If building for Windows XP, we need to use the provided d3dcompiler since it's not available in the SDK
+	if(CMAKE_GENERATOR_TOOLSET MATCHES "_xp$")
+		include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../../Dependencies/d3dcompiler_winxp/Include)
+		if(CMAKE_SIZEOF_VOID_P EQUAL 8)
+			list(APPEND PROJECT_LIBS ${CMAKE_CURRENT_SOURCE_DIR}/../../Dependencies/d3dcompiler_winxp/Lib/x64/d3dcompiler.lib)
+		else()
+			list(APPEND PROJECT_LIBS ${CMAKE_CURRENT_SOURCE_DIR}/../../Dependencies/d3dcompiler_winxp/Lib/x86/d3dcompiler.lib)
+		endif()
+	else()
+		list(APPEND PROJECT_LIBS d3dcompiler)
+	endif()
+	
+	list(APPEND PROJECT_LIBS comctl32 uxtheme opengl32 glu32 dinput8 d3d9 vfw32 winmm gdiplus Boost::date_time)
 
 endif()
 
