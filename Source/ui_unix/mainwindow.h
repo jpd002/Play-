@@ -14,6 +14,8 @@
 #include "PH_HidUnix.h"
 #include "ElidedLabel.h"
 
+#include "GamePad/GamePadInputEventListener.h"
+#include "GamePad/GamePadDeviceListener.h"
 
 namespace Ui {
 class MainWindow;
@@ -56,11 +58,12 @@ private:
     QLabel* m_stateLabel;
     ElidedLabel* m_msgLabel;
     CStatsManager* StatsManager;
-    CPH_HidUnix* m_padhandler = nullptr;
+    CInputBindingManager* m_InputBindingManager;
     QTimer *m_fpstimer = nullptr;
     CPS2VM* g_virtualMachine = nullptr;
     bool m_deactivatePause = false;
     bool m_pauseFocusLost = true;
+    std::unique_ptr<CGamePadDeviceListener> m_GPDL;
     enum BootType { CD, ELF };
     struct lastOpenCommand
     {

@@ -115,6 +115,12 @@ if (NOT TARGET Framework_OpenGl)
 endif()
 list(APPEND PROJECT_LIBS Framework_OpenGl)
 
+if(TARGET_PLATFORM_UNIX)
+        find_package(LIBEVDEV REQUIRED)
+		include_directories(${LIBEVDEV_INCLUDE_DIR})
+		list(APPEND PROJECT_LIBS ${LIBEVDEV_LIBRARY})
+endif()
+
 if(TARGET_PLATFORM_MACOS OR TARGET_PLATFORM_IOS OR TARGET_PLATFORM_UNIX)
 	if (NOT TARGET Framework_OpenAl)
 		add_subdirectory(
@@ -612,7 +618,12 @@ if(TARGET_PLATFORM_UNIX)
 		../Source/ui_unix/vfsdiscselectordialog.cpp
 		../Source/ui_unix/VfsDevice.cpp
 		../Source/ui_unix/controllerconfigdialog.cpp
-		../Source/ui_unix/padqwidgetext.cpp
+		../Source/ui_unix/InputBindingManager.cpp
+		../Source/ui_unix/bindingmodel.cpp
+		../Source/ui_unix/inputeventselectiondialog.cpp
+		../Source/ui_unix/GamePad/GamePadUtils.cpp
+		../Source/ui_unix/GamePad/GamePadInputEventListener.cpp
+		../Source/ui_unix/GamePad/GamePadDeviceListener.cpp
 	)
 
 	set(QT_MOC_HEADERS
@@ -631,7 +642,12 @@ if(TARGET_PLATFORM_UNIX)
 		../Source/ui_unix/vfsdiscselectordialog.h
 		../Source/ui_unix/VfsDevice.h
 		../Source/ui_unix/controllerconfigdialog.h
-		../Source/ui_unix/padqwidgetext.h
+		../Source/ui_unix/InputBindingManager.h
+		../Source/ui_unix/bindingmodel.h
+		../Source/ui_unix/inputeventselectiondialog.h
+		../Source/ui_unix/GamePad/GamePadUtils.h
+		../Source/ui_unix/GamePad/GamePadInputEventListener.h
+		../Source/ui_unix/GamePad/GamePadDeviceListener.h
 	)
 
 	set(QT_UIS
@@ -641,6 +657,7 @@ if(TARGET_PLATFORM_UNIX)
 		../build_unix/vfsmanagerdialog.ui
 		../build_unix/vfsdiscselectordialog.ui
 		../build_unix/controllerconfigdialog.ui
+		../build_unix/inputeventselectiondialog.ui
 	)
 
 	set(QT_RESOURCES
