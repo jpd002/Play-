@@ -46,15 +46,15 @@ cd ..
 ```
 
 ### Building for Windows ###
-To build for Windows you will need to have CMake and DirectX SDK installed on your system.
+To build for Windows you will need to have CMake installed on your system.
 ```
 cd Play/build_cmake
 mkdir build
 cd build
 ```
 ```
-# Not specifying -G would automatically pick Visual Studio 32bit
-cmake .. -G"Visual Studio 14 2015 Win64"
+# Not specifying -G would automatically generate 32-bit projects.
+cmake .. -G"Visual Studio 15 2017 Win64"
 cmake --build . --config Release
 ```
 
