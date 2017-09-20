@@ -21,17 +21,22 @@ CStructCollectionStateFile::CStructCollectionStateFile(Framework::CStream& strea
 	Read(stream);
 }
 
-CStructCollectionStateFile::~CStructCollectionStateFile()
-{
-
-}
-
 CStructCollectionStateFile::StructIterator CStructCollectionStateFile::GetStructBegin() const
 {
 	return m_structs.begin();
 }
 
 CStructCollectionStateFile::StructIterator CStructCollectionStateFile::GetStructEnd() const
+{
+	return m_structs.end();
+}
+
+CStructCollectionStateFile::StructIterator CStructCollectionStateFile::begin() const
+{
+	return m_structs.begin();
+}
+
+CStructCollectionStateFile::StructIterator CStructCollectionStateFile::end() const
 {
 	return m_structs.end();
 }

@@ -6,6 +6,8 @@
 #include "zip/ZipArchiveWriter.h"
 #include "zip/ZipArchiveReader.h"
 
+class CRegisterStateFile;
+
 namespace Iop
 {
 	class CSpuBase
@@ -236,6 +238,9 @@ namespace Iop
 			void			Reset();
 			void			SetMemory(uint8*, uint32);
 
+			void			LoadState(const CRegisterStateFile&, const std::string&);
+			void			SaveState(CRegisterStateFile*, const std::string&) const;
+
 			void			SetParams(uint32, uint32);
 			void			SetPitch(uint32, uint16);
 			void			GetSamples(int16*, unsigned int, unsigned int);
@@ -279,6 +284,8 @@ namespace Iop
 			bool			m_endFlag;
 			bool			m_irqPending = false;
 			bool			m_didChangeRepeat;
+
+			static_assert((sizeof(decltype(m_buffer)) % 16) == 0, "sizeof(m_buffer) must be a multiple of 16 (needed for saved state).");
 		};
 
 		class CBlockSampleReader
@@ -322,6 +329,7 @@ namespace Iop
 		uint32				m_ramSize;
 		unsigned int		m_spuNumber;
 		uint32				m_baseSamplingRate;
+
 		uint32				m_irqAddr = 0;
 		bool				m_irqPending = false;
 		uint16				m_transferMode;
@@ -343,5 +351,7 @@ namespace Iop
 		CBlockSampleReader	m_blockReader;
 		uint32				m_soundInputDataAddr = 0;
 		uint32				m_blockWritePtr = 0;
+
+		static_assert((sizeof(decltype(m_reverb)) % 16) == 0, "sizeof(m_reverb) must be a multiple of 16 (needed for saved state).");
 	};
 }

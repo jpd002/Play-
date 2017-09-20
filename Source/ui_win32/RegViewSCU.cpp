@@ -3,17 +3,12 @@
 #include "RegViewSCU.h"
 #include "../COP_SCU.h"
 
-CRegViewSCU::CRegViewSCU(HWND hParent, const RECT& rect, CVirtualMachine& virtualMachine, CMIPS* pC) 
-: CRegViewPage(hParent, rect)
-, m_pCtx(pC)
+CRegViewSCU::CRegViewSCU(HWND parentWnd, const RECT& rect, CVirtualMachine& virtualMachine, CMIPS* ctx)
+: CRegViewPage(parentWnd, rect)
+, m_ctx(ctx)
 {
 	virtualMachine.OnMachineStateChange.connect(boost::bind(&CRegViewSCU::Update, this));
 	virtualMachine.OnRunningStateChange.connect(boost::bind(&CRegViewSCU::Update, this));
-}
-
-CRegViewSCU::~CRegViewSCU()
-{
-
 }
 
 void CRegViewSCU::Update()
@@ -24,13 +19,13 @@ void CRegViewSCU::Update()
 
 std::string CRegViewSCU::GetDisplayText()
 {
-	MIPSSTATE* s = &m_pCtx->m_State;
+	const auto& state = m_ctx->m_State;
 	std::string result;
 
 	for(unsigned int i = 0; i < 32; i++)
 	{
 		char sTemp[256];
-		sprintf(sTemp, "%10s : 0x%08X\r\n", CCOP_SCU::m_sRegName[i], s->nCOP0[i]);
+		sprintf(sTemp, "%10s : 0x%08X\r\n", CCOP_SCU::m_sRegName[i], state.nCOP0[i]);
 		result += sTemp;
 	}
 

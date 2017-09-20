@@ -406,8 +406,6 @@ void CPS2VM::SaveVMState(const char* sPath, unsigned int& result)
 		m_ee->SaveState(archive);
 		m_iop->SaveState(archive);
 		m_ee->m_gs->SaveState(archive);
-		m_iopOs->GetPadman()->SaveState(archive);
-		//TODO: Save CDVDFSV state
 
 		archive.Write(stateStream);
 	}
@@ -441,7 +439,6 @@ void CPS2VM::LoadVMState(const char* sPath, unsigned int& result)
 			m_ee->LoadState(archive);
 			m_iop->LoadState(archive);
 			m_ee->m_gs->LoadState(archive);
-			m_iopOs->GetPadman()->LoadState(archive);
 		}
 		catch(...)
 		{

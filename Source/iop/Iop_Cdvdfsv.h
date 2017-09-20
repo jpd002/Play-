@@ -4,6 +4,8 @@
 #include "Iop_SifMan.h"
 #include "../SifModuleAdapter.h"
 #include "../OpticalMedia.h"
+#include "zip/ZipArchiveWriter.h"
+#include "zip/ZipArchiveReader.h"
 
 namespace Iop
 {
@@ -13,7 +15,7 @@ namespace Iop
 	{
 	public:
 							CCdvdfsv(CSifMan&, CCdvdman&, uint8*);
-		virtual				~CCdvdfsv();
+		virtual				~CCdvdfsv() = default;
 
 		std::string			GetId() const override;
 		std::string			GetFunctionName(unsigned int) const override;
@@ -21,6 +23,9 @@ namespace Iop
 
 		void				ProcessCommands(CSifMan*);
 		void				SetOpticalMedia(COpticalMedia*);
+
+		void				LoadState(Framework::CZipArchiveReader&);
+		void				SaveState(Framework::CZipArchiveWriter&);
 
 		enum MODULE_ID
 		{
@@ -35,7 +40,7 @@ namespace Iop
 		};
 
 	private:
-		enum COMMAND
+		enum COMMAND : uint32
 		{
 			COMMAND_NONE,
 			COMMAND_READ,
@@ -58,7 +63,6 @@ namespace Iop
 		void				SearchFile(uint32*, uint32, uint32*, uint32, uint8*);
 
 		CCdvdman&			m_cdvdman;
-		uint32				m_streamPos = 0;
 		uint8*				m_iopRam = nullptr;
 		COpticalMedia*		m_opticalMedia = nullptr;
 
@@ -66,7 +70,9 @@ namespace Iop
 		uint32				m_pendingReadSector = 0;
 		uint32				m_pendingReadCount = 0;
 		uint32				m_pendingReadAddr = 0;
+
 		bool				m_streaming = false;
+		uint32				m_streamPos = 0;
 		uint32				m_streamBufferSize = 0;
 
 		CSifModuleAdapter	m_module592;

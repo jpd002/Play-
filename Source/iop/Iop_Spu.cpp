@@ -3,7 +3,6 @@
 #include "Iop_Spu.h"
 #include "../Log.h"
 
-using namespace std;
 using namespace Iop;
 
 #define LOG_NAME ("spu")
