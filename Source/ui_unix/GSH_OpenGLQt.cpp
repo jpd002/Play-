@@ -46,5 +46,8 @@ void CGSH_OpenGLQt::ReleaseImpl()
 void CGSH_OpenGLQt::PresentBackbuffer()
 {
     if (m_renderWindow->isExposed())
+    {
         m_context->swapBuffers(m_renderWindow);
+        m_context->makeCurrent(m_renderWindow);
+    }
 }
