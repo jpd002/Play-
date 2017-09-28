@@ -1525,6 +1525,7 @@ void CPS2OS::sc_RemoveIntcHandler()
 		m_ee.m_State.nGPR[SC_RETURN].nD0 = static_cast<int32>(-1);
 		return;
 	}
+	assert(handler->cause == cause);
 
 	m_intcHandlerQueue.Unlink(id);
 	m_intcHandlers.Free(id);
@@ -1581,6 +1582,7 @@ void CPS2OS::sc_RemoveDmacHandler()
 		m_ee.m_State.nGPR[SC_RETURN].nD0 = static_cast<int32>(-1);
 		return;
 	}
+	assert(handler->channel == channel);
 
 	m_dmacHandlerQueue.Unlink(id);
 	m_dmacHandlers.Free(id);
