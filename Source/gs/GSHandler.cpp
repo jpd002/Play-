@@ -262,7 +262,7 @@ uint32 CGSHandler::ReadPrivRegister(uint32 nAddress)
 		//Force CSR to have the H-Blank bit set.
 		{
 			std::lock_guard<std::recursive_mutex> registerMutexLock(m_registerMutex);
-			m_nCSR |= 0x04;
+			m_nCSR |= CSR_HSYNC_INT;
 			R_REG(nAddress, nData, m_nCSR);
 		}
 		break;

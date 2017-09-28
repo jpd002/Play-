@@ -108,6 +108,7 @@ public:
 	{
 		CSR_SIGNAL_EVENT = 0x0001,
 		CSR_FINISH_EVENT = 0x0002,
+		CSR_HSYNC_INT    = 0x0004,
 		CSR_VSYNC_INT    = 0x0008,
 		CSR_RESET        = 0x0200,
 		CSR_FIELD        = 0x2000,
