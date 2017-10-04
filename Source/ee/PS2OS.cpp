@@ -1516,8 +1516,8 @@ void CPS2OS::sc_AddIntcHandler()
 //11
 void CPS2OS::sc_RemoveIntcHandler()
 {
-	uint32 cause	= m_ee.m_State.nGPR[SC_PARAM0].nV[0];
-	uint32 id		= m_ee.m_State.nGPR[SC_PARAM1].nV[0];
+	uint32 cause = m_ee.m_State.nGPR[SC_PARAM0].nV[0];
+	uint32 id    = m_ee.m_State.nGPR[SC_PARAM1].nV[0];
 
 	auto handler = m_intcHandlers[id];
 	if(!handler)
@@ -1573,8 +1573,8 @@ void CPS2OS::sc_AddDmacHandler()
 //13
 void CPS2OS::sc_RemoveDmacHandler()
 {
-	uint32 channel	= m_ee.m_State.nGPR[SC_PARAM0].nV[0];
-	uint32 id		= m_ee.m_State.nGPR[SC_PARAM1].nV[0];
+	uint32 channel = m_ee.m_State.nGPR[SC_PARAM0].nV[0];
+	uint32 id      = m_ee.m_State.nGPR[SC_PARAM1].nV[0];
 
 	auto handler = m_dmacHandlers[id];
 	if(!handler)
