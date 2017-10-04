@@ -663,7 +663,7 @@ void CMainWindow::LoadELF(const boost::filesystem::path& executablePath)
 	try
 	{
 		os.BootFromFile(executablePath);
-#if !defined(_DEBUG) && !defined(DEBUGGER_INCLUDED)
+#ifndef DEBUGGER_INCLUDED
 		m_virtualMachine.Resume();
 #endif
 		m_lastOpenCommand = std::make_shared<CLoadElfOpenCommand>(executablePath);
@@ -684,7 +684,7 @@ void CMainWindow::BootCDROM()
 	try
 	{
 		os.BootFromCDROM();
-#ifndef _DEBUG
+#ifndef DEBUGGER_INCLUDED
 		m_virtualMachine.Resume();
 #endif
 		m_lastOpenCommand = std::make_shared<CBootCdRomOpenCommand>();
