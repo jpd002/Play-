@@ -13,11 +13,11 @@
 #undef APSTUDIO_READONLY_SYMBOLS
 
 /////////////////////////////////////////////////////////////////////////////
-// English (U.S.) resources
+// Chinese (ZH.CN.) resources
 
 #if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
 #ifdef _WIN32
-LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+LANGUAGE LANG_Chinese, SUBLANG_Chinese_US
 #pragma code_page(1252)
 #endif //_WIN32
 
@@ -54,15 +54,15 @@ END
 
 IDR_MAINMENU MENU 
 BEGIN
-    POPUP "&File"
+    POPUP "文件(&F)"
     BEGIN
-        MENUITEM "&Open ELF...\tCtrl+O",        ID_FILE_OPENELF
+        MENUITEM "打开 ELF(&O)...\tCtrl+O",        ID_FILE_OPENELF
         MENUITEM SEPARATOR
-        MENUITEM "&Quit\tAlt+F4",               ID_FILE_QUIT
+        MENUITEM "退出(&Q)\tAlt+F4",               ID_FILE_QUIT
     END
-    POPUP "&Help"
+    POPUP "帮助(&H)"
     BEGIN
-        MENUITEM "&About...",                   ID_HELP_ABOUT
+        MENUITEM "关于(&A)...",                   ID_HELP_ABOUT
     END
 END
 
@@ -75,7 +75,7 @@ END
 // Icon with lowest ID value placed first to ensure application icon
 // remains consistent on all systems.
 IDI_MAINICON            ICON                    "images\\elfview.ico"
-#endif    // English (U.S.) resources
+#endif    // Chinese (ZH.CN.) resources
 /////////////////////////////////////////////////////////////////////////////
 
 
