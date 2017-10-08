@@ -35,7 +35,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Game Title"
+                    android:text="游戏标题"
                     android:id="@+id/textView" />
 
                 <EditText
@@ -52,7 +52,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Game Overview"
+                    android:text="游戏概述"
                     android:id="@+id/textView2" />
 
                 <EditText
@@ -72,7 +72,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Game Cover"
+                    android:text="游戏封面"
                     android:id="@+id/textView3" />
 
                 <LinearLayout
@@ -96,13 +96,13 @@
                         <Button
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Change"
+                            android:text="更改"
                             android:id="@+id/button" />
 
                         <Button
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Default"
+                            android:text="默认"
                             android:id="@+id/button2" />
                     </LinearLayout>
 
