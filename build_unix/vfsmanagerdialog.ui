@@ -29,7 +29,7 @@
    <item row="1" column="0">
     <widget class="QLabel" name="label">
      <property name="text">
-      <string>Warning: Changing file system bindings while a program is running might be dangerous. Changes to 'cdrom0' bindings will take effect next time you load an executable.</string>
+      <string>警告: 在程序运行时更改文件系统绑定可能会很危险。对 "cdrom0" 绑定的更改将在下次加载可执行文件时生效。</string>
      </property>
      <property name="alignment">
       <set>Qt::AlignCenter</set>
