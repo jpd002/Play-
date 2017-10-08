@@ -47,7 +47,7 @@
    </property>
    <widget class="QMenu" name="menuFor_The">
     <property name="title">
-     <string>File</string>
+     <string>文件</string>
     </property>
     <addaction name="actionOpen_Game"/>
     <addaction name="actionBoot_ELF"/>
@@ -56,7 +56,7 @@
    </widget>
    <widget class="QMenu" name="menuEdit">
     <property name="title">
-     <string>Options</string>
+     <string>选项</string>
     </property>
     <addaction name="actionSettings"/>
     <addaction name="actionMemory_Card_Manager"/>
@@ -65,17 +65,17 @@
    </widget>
    <widget class="QMenu" name="menuVirtualMachine">
     <property name="title">
-     <string>VirtualMachine</string>
+     <string>虚拟机</string>
     </property>
     <widget class="QMenu" name="menuSave_States">
      <property name="title">
-      <string>Save States</string>
+      <string>存档</string>
      </property>
      <addaction name="action_save_Slot_1_Empty"/>
     </widget>
     <widget class="QMenu" name="menuLoad_States">
      <property name="title">
-      <string>Load States</string>
+      <string>读档</string>
      </property>
      <addaction name="actionLoad_Slot_1_Empty"/>
     </widget>
@@ -90,7 +90,7 @@
    </widget>
    <widget class="QMenu" name="menuHelp">
     <property name="title">
-     <string>Help</string>
+     <string>帮助</string>
     </property>
     <addaction name="actionAbout"/>
    </widget>
@@ -102,7 +102,7 @@
   <widget class="QStatusBar" name="statusBar"/>
   <action name="actionOpen_Game">
    <property name="text">
-    <string>Boot Disk Image...</string>
+    <string>启动磁盘映像...</string>
    </property>
    <property name="toolTip">
     <string>Boot Disk Image...</string>
@@ -113,7 +113,7 @@
   </action>
   <action name="actionExit">
    <property name="text">
-    <string>Exit</string>
+    <string>退出</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+Q</string>
@@ -121,12 +121,12 @@
   </action>
   <action name="actionSettings">
    <property name="text">
-    <string>Settings...</string>
+    <string>设置...</string>
    </property>
   </action>
   <action name="actionBoot_ELF">
    <property name="text">
-    <string>Boot ELF...</string>
+    <string>启动 ELF...</string>
    </property>
    <property name="toolTip">
     <string>Boot ELF...</string>
@@ -134,22 +134,22 @@
   </action>
   <action name="actionLoad_Slot_1_Empty">
    <property name="text">
-    <string>Load Slot 1 - Empty</string>
+    <string>加载槽 1 - 空</string>
    </property>
   </action>
   <action name="action_save_Slot_1_Empty">
    <property name="text">
-    <string>Save Slot 1 - Empty</string>
+    <string>保存槽 1 - 空</string>
    </property>
   </action>
   <action name="actionPause_Resume">
    <property name="text">
-    <string>Pause/Resume</string>
+    <string>暂停/恢复</string>
    </property>
   </action>
   <action name="actionAbout">
    <property name="text">
-    <string>About...</string>
+    <string>关于...</string>
    </property>
   </action>
   <action name="actionPause_when_focus_is_lost">
@@ -157,7 +157,7 @@
     <bool>true</bool>
    </property>
    <property name="text">
-    <string>Pause when focus is lost</string>
+    <string>焦点丢失时暂停</string>
    </property>
   </action>
   <action name="actionReset">
@@ -165,27 +165,27 @@
     <bool>false</bool>
    </property>
    <property name="text">
-    <string>Reset</string>
+    <string>复位</string>
    </property>
   </action>
   <action name="actionMemory_Card_Manager">
    <property name="text">
-    <string>Memory Card Manager...</string>
+    <string>存储卡管理...</string>
    </property>
   </action>
   <action name="actionVFS_Manager">
    <property name="text">
-    <string>VFS Manager...</string>
+    <string>VFS 管理...</string>
    </property>
   </action>
   <action name="actionController_Manager">
    <property name="text">
-    <string>Controller Manager...</string>
+    <string>控制器管理...</string>
    </property>
   </action>
   <action name="actionCapture_Screen">
    <property name="text">
-    <string>Capture Screen</string>
+    <string>截取屏幕</string>
    </property>
   </action>
  </widget>
