@@ -54,7 +54,7 @@
      </property>
      <item>
       <property name="text">
-       <string>General</string>
+       <string>常规</string>
       </property>
       <property name="font">
        <font>
@@ -74,7 +74,7 @@
      </item>
      <item>
       <property name="text">
-       <string>Video</string>
+       <string>视频</string>
       </property>
       <property name="textAlignment">
        <set>AlignCenter</set>
@@ -89,7 +89,7 @@
      </item>
      <item>
       <property name="text">
-       <string>Audio</string>
+       <string>音频</string>
       </property>
       <property name="font">
        <font>
@@ -128,7 +128,7 @@
         </rect>
        </property>
        <property name="text">
-        <string>No Settings Currently Available In This Section.</string>
+        <string>这部分中当前没有可用的设置。</string>
        </property>
       </widget>
      </widget>
@@ -143,7 +143,7 @@
         </rect>
        </property>
        <property name="text">
-        <string>Enable High Resolution</string>
+        <string>启用高分辨率</string>
        </property>
       </widget>
       <widget class="QCheckBox" name="checkBox_force_bilinear_filtering">
@@ -156,7 +156,7 @@
         </rect>
        </property>
        <property name="text">
-        <string>Force Bilinear Filtering</string>
+        <string>强制双线性过滤</string>
        </property>
       </widget>
       <widget class="QComboBox" name="comboBox_presentation_mode">
@@ -173,17 +173,17 @@
        </property>
        <item>
         <property name="text">
-         <string>Fill Screen</string>
+         <string>全屏</string>
         </property>
        </item>
        <item>
         <property name="text">
-         <string>Fit Screen</string>
+         <string>适应屏幕</string>
         </property>
        </item>
        <item>
         <property name="text">
-         <string>Original Size</string>
+         <string>原始大小</string>
         </property>
        </item>
       </widget>
@@ -197,7 +197,7 @@
         </rect>
        </property>
        <property name="text">
-        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Presentation Mode:&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;演示模式:&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
        </property>
       </widget>
      </widget>
@@ -212,7 +212,7 @@
         </rect>
        </property>
        <property name="text">
-        <string>Enable Audio Output</string>
+        <string>启用音频输出</string>
        </property>
       </widget>
      </widget>
