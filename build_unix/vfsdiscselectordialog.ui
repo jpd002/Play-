@@ -35,7 +35,7 @@
    <item row="0" column="0">
     <widget class="QGroupBox" name="groupBox">
      <property name="title">
-      <string>ISO9660 Disk Image</string>
+      <string>ISO9660 磁盘镜像</string>
      </property>
      <layout class="QGridLayout" name="gridLayout">
       <item row="0" column="0">
@@ -63,7 +63,7 @@
            <bool>false</bool>
           </property>
           <property name="text">
-           <string>Browse...</string>
+           <string>浏览...</string>
           </property>
          </widget>
         </item>
@@ -75,7 +75,7 @@
    <item row="1" column="0">
     <widget class="QGroupBox" name="groupBox_2">
      <property name="title">
-      <string>Physical CD/DVD Reader Device</string>
+      <string>物理 CD/DVD 读取设备</string>
      </property>
      <layout class="QVBoxLayout" name="verticalLayout_3">
       <item>
@@ -109,7 +109,7 @@
            <bool>false</bool>
           </property>
           <property name="text">
-           <string>Refresh</string>
+           <string>刷新</string>
           </property>
          </widget>
         </item>
@@ -124,7 +124,7 @@
          </sizepolicy>
         </property>
         <property name="text">
-         <string>CD/DVD Device will be visible once the disc is inserted.</string>
+         <string>插入光盘后, 将显示 CD/DVD 设备。</string>
         </property>
         <property name="alignment">
          <set>Qt::AlignCenter</set>

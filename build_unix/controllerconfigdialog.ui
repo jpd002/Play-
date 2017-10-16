@@ -42,7 +42,7 @@
    <item row="1" column="0">
     <widget class="QPushButton" name="ConfigAllButton">
      <property name="text">
-      <string>Config All</string>
+      <string>配置所有</string>
      </property>
     </widget>
    </item>

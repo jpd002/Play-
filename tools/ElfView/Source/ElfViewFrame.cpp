@@ -78,7 +78,7 @@ long CElfViewFrame::OnCommand(unsigned short id, unsigned short msg, HWND hwndFr
 void CElfViewFrame::OpenElf()
 {
 	Win32::CFileDialog d;
-	d.m_OFN.lpstrFilter = _T("ELF Executable Files (*.elf; *.so)\0*.elf; *.so\0All files (*.*)\0*.*\0");
+	d.m_OFN.lpstrFilter = _T("ELF 可执行文件 (*.elf; *.so)\0*.elf; *.so\0所有文件 (*.*)\0*.*\0");
 
 	Enable(FALSE);
 	int nRet = d.SummonOpen(m_hWnd);
@@ -152,7 +152,7 @@ void CElfViewFrame::ShowAboutBox()
 {
 	typedef HRESULT (STDAPICALLTYPE *TaskDialogIndirectFunction)(const TASKDIALOGCONFIG*, int*, int*, BOOL*);
 
-	std::tstring windowTitle = _T("About ") + std::tstring(APP_NAME);
+	std::tstring windowTitle = _T("关于 ") + std::tstring(APP_NAME);
 	std::tstring versionMessage = std::tstring(APP_NAME) + _T(" v") + std::tstring(APP_VERSIONSTR);
 
 	bool succeeded = false;
@@ -171,7 +171,7 @@ void CElfViewFrame::ShowAboutBox()
 				dialogConfig.hwndParent			= m_hWnd;
 				dialogConfig.dwFlags			= TDF_ENABLE_HYPERLINKS | TDF_ALLOW_DIALOG_CANCELLATION;
 				dialogConfig.pszWindowTitle		= windowTitle.c_str();
-				dialogConfig.pszContent			= _T("Written by Jean-Philip Desjardins\r\n\r\nE-mail: <a href=\"") MAIL_HYPERLINK_NAME _T("\">") MAIL_HYPERLINK_VALUE _T("</a>\r\nOfficial Website: <a href=\"") WEBSITE_HYPERLINK_NAME _T("\">") WEBSITE_HYPERLINK_VALUE _T("</a>");
+				dialogConfig.pszContent			= _T("Written by Jean-Philip Desjardins\r\n\r\nE-mail: <a href=\"") MAIL_HYPERLINK_NAME _T("\">") MAIL_HYPERLINK_VALUE _T("</a>\r\n官方网站: <a href=\"") WEBSITE_HYPERLINK_NAME _T("\">") WEBSITE_HYPERLINK_VALUE _T("</a>");
 				dialogConfig.pszMainInstruction	= versionMessage.c_str();
 				dialogConfig.pfCallback			= &CElfViewFrame::TaskDialogCallback;
 				taskDialogIndirect(&dialogConfig, NULL, NULL, NULL);
@@ -187,7 +187,7 @@ void CElfViewFrame::ShowAboutBox()
 		message += versionMessage + _T("\r\n\r\n");
 		message += _T("Written by Jean-Philip Desjardins\r\n\r\n");
 		message += _T("E-mail: ") MAIL_HYPERLINK_VALUE _T("\r\n");
-		message += _T("Official Website: ") WEBSITE_HYPERLINK_VALUE;
+		message += _T("官方网站: ") WEBSITE_HYPERLINK_VALUE;
 		MessageBox(m_hWnd, message.c_str(), windowTitle.c_str(), 0);
 	}
 }
