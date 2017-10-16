@@ -68,6 +68,7 @@ void CEeExecutor::AddExceptionHandler()
 	kern_return_t result = mach_port_allocate(mach_task_self(), MACH_PORT_RIGHT_RECEIVE, &m_port);
 	assert(result == KERN_SUCCESS);
 
+	m_running = true;
 	m_handlerThread = std::thread([this] () { HandlerThreadProc(); });
 
 	result = mach_port_insert_right(mach_task_self(), m_port, m_port, MACH_MSG_TYPE_MAKE_SEND);
@@ -85,6 +86,9 @@ void CEeExecutor::RemoveExceptionHandler()
 {
 #if defined(_WIN32)
 	RemoveVectoredExceptionHandler(m_handler);
+#elif defined(__APPLE__)
+	m_running = false;
+	m_handlerThread.join();
 #endif
 	g_eeExecutor = nullptr;
 }
@@ -220,12 +224,13 @@ void CEeExecutor::HandlerThreadProc()
 	};
 #pragma pack(pop)
 
-	while(1)
+	while(m_running)
 	{
 		kern_return_t result = KERN_SUCCESS;
 		
 		INPUT_MESSAGE inMsg;
-		result = mach_msg(&inMsg.head, MACH_RCV_MSG | MACH_RCV_LARGE, 0, sizeof(inMsg), m_port, MACH_MSG_TIMEOUT_NONE, MACH_PORT_NULL);
+		result = mach_msg(&inMsg.head, MACH_RCV_MSG | MACH_RCV_LARGE | MACH_RCV_TIMEOUT, 0, sizeof(inMsg), m_port, 1000, MACH_PORT_NULL);
+		if(result == MACH_RCV_TIMED_OUT) continue;
 		assert(result == KERN_SUCCESS);
 		
 		assert(inMsg.head.msgh_id == 2406);	//MACH_EXCEPTION_RAISE_RPC
