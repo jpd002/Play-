@@ -7,7 +7,7 @@
 
 using namespace BootablesDb;
 
-#define DATABASE_VERSION 1
+#define DATABASE_VERSION 2
 
 static const char* g_dbFileName = "bootables.db";
 
@@ -16,6 +16,8 @@ static const char* g_bootablesTableCreateStatement =
 "("
 "    path TEXT PRIMARY KEY,"
 "    discId VARCHAR(10) DEFAULT '',"
+"    title TEXT DEFAULT '',"
+"    coverUrl TEXT DEFAULT '',"
 "    lastBootedTime INTEGER DEFAULT 0"
 ")";
 
@@ -42,16 +44,10 @@ CClient::CClient()
 
 Bootable CClient::GetBootable(const boost::filesystem::path& path)
 {
-	Bootable bootable;
-
 	Framework::CSqliteStatement statement(m_db, "SELECT * FROM bootables WHERE path = ?");
 	statement.BindText(1, Framework::PathUtils::GetNativeStringFromPath(path).c_str());
 	statement.StepWithResult();
-
-	bootable.discId = reinterpret_cast<const char*>(sqlite3_column_text(statement, 0));
-	bootable.lastBootedTime = sqlite3_column_int(statement, 1);
-
-	return bootable;
+	return ReadBootable(statement);
 }
 
 std::vector<Bootable> CClient::GetBootables()
@@ -61,10 +57,7 @@ std::vector<Bootable> CClient::GetBootables()
 	Framework::CSqliteStatement statement(m_db, "SELECT * FROM bootables");
 	while(statement.Step())
 	{
-		Bootable bootable;
-		bootable.path           = Framework::PathUtils::GetPathFromNativeString(reinterpret_cast<const char*>(sqlite3_column_text(statement, 0)));
-		bootable.discId         = reinterpret_cast<const char*>(sqlite3_column_text(statement, 1));
-		bootable.lastBootedTime = sqlite3_column_int(statement, 2);
+		auto bootable = ReadBootable(statement);
 		bootables.push_back(bootable);
 	}
 
@@ -86,12 +79,31 @@ void CClient::SetDiscId(const boost::filesystem::path& path, const char* discId)
 	statement.StepNoResult();
 }
 
+void CClient::SetTitle(const boost::filesystem::path& path, const char* title)
+{
+	Framework::CSqliteStatement statement(m_db, "UPDATE bootables SET title = ? WHERE path = ?");
+	statement.BindText(1, title, true);
+	statement.BindText(2, Framework::PathUtils::GetNativeStringFromPath(path).c_str());
+	statement.StepNoResult();
+}
+
 void CClient::SetLastBootedTime(const boost::filesystem::path& path, time_t lastBootedTime)
 {
 	Framework::CSqliteStatement statement(m_db, "UPDATE bootables SET lastBootedTime = ? WHERE path = ?");
 	statement.BindInteger(1, lastBootedTime);
 	statement.BindText(2, Framework::PathUtils::GetNativeStringFromPath(path).c_str());
 	statement.StepNoResult();
+}
+
+Bootable CClient::ReadBootable(Framework::CSqliteStatement& statement)
+{
+	Bootable bootable;
+	bootable.path           = Framework::PathUtils::GetPathFromNativeString(reinterpret_cast<const char*>(sqlite3_column_text(statement, 0)));
+	bootable.discId         = reinterpret_cast<const char*>(sqlite3_column_text(statement, 1));
+	bootable.title          = reinterpret_cast<const char*>(sqlite3_column_text(statement, 2));
+	bootable.coverUrl       = reinterpret_cast<const char*>(sqlite3_column_text(statement, 3));
+	bootable.lastBootedTime = sqlite3_column_int(statement, 4);
+	return bootable;
 }
 
 void CClient::CheckDbVersion()

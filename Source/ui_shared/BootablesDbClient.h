@@ -5,6 +5,7 @@
 #include "Types.h"
 #include "Singleton.h"
 #include "sqlite/SqliteDb.h"
+#include "sqlite/SqliteStatement.h"
 
 namespace BootablesDb
 {
@@ -12,6 +13,8 @@ namespace BootablesDb
 	{
 		boost::filesystem::path path;
 		std::string discId;
+		std::string title;
+		std::string coverUrl;
 		time_t lastBootedTime = 0;
 	};
 
@@ -27,9 +30,12 @@ namespace BootablesDb
 		void RegisterBootable(const boost::filesystem::path&);
 
 		void SetDiscId(const boost::filesystem::path&, const char*);
+		void SetTitle(const boost::filesystem::path&, const char*);
 		void SetLastBootedTime(const boost::filesystem::path&, time_t);
 
 	private:
+		static Bootable ReadBootable(Framework::CSqliteStatement&);
+
 		void CheckDbVersion();
 
 		boost::filesystem::path m_dbPath;
