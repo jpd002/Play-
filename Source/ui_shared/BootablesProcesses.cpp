@@ -1,5 +1,6 @@
 #include "BootablesProcesses.h"
 #include "BootablesDbClient.h"
+#include "LocalGamesDbClient.h"
 #include "DiskUtils.h"
 
 //Jobs
@@ -41,5 +42,18 @@ void ExtractDiscIds()
 
 void FetchGameTitles()
 {
-
+	auto bootables = BootablesDb::CClient::GetInstance().GetBootables();
+	for(const auto& bootable : bootables)
+	{
+		if(bootable.discId.empty()) continue;
+		try
+		{
+			auto game = LocalGamesDb::CClient::GetInstance().GetGame(bootable.discId.c_str());
+			BootablesDb::CClient::GetInstance().SetTitle(bootable.path, game.title.c_str());
+		}
+		catch(...)
+		{
+			//Log or something?
+		}
+	}
 }
