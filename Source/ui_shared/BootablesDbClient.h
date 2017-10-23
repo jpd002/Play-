@@ -31,6 +31,7 @@ namespace BootablesDb
 
 		void SetDiscId(const boost::filesystem::path&, const char*);
 		void SetTitle(const boost::filesystem::path&, const char*);
+		void SetCoverUrl(const boost::filesystem::path&, const char*);
 		void SetLastBootedTime(const boost::filesystem::path&, time_t);
 
 	private:

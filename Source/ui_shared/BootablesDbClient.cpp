@@ -87,6 +87,14 @@ void CClient::SetTitle(const boost::filesystem::path& path, const char* title)
 	statement.StepNoResult();
 }
 
+void CClient::SetCoverUrl(const boost::filesystem::path& path, const char* coverUrl)
+{
+	Framework::CSqliteStatement statement(m_db, "UPDATE bootables SET coverUrl = ? WHERE path = ?");
+	statement.BindText(1, coverUrl, true);
+	statement.BindText(2, Framework::PathUtils::GetNativeStringFromPath(path).c_str());
+	statement.StepNoResult();
+}
+
 void CClient::SetLastBootedTime(const boost::filesystem::path& path, time_t lastBootedTime)
 {
 	Framework::CSqliteStatement statement(m_db, "UPDATE bootables SET lastBootedTime = ? WHERE path = ?");

@@ -5,3 +5,4 @@
 void ScanBootables(const boost::filesystem::path&);
 void ExtractDiscIds();
 void FetchGameTitles();
+void FetchCoverUrls();
