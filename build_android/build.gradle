@@ -19,6 +19,7 @@ project.ext {
 
 project.afterEvaluate {
 	preBuild.dependsOn 'copyPatchesFile'
+	preBuild.dependsOn 'copyGamesDbFile'
 
 	def configName = 'release'
 	if(project.ext.signingEnabled && android.signingConfigs.hasProperty(configName)) {
@@ -95,6 +96,11 @@ android {
 
 	task copyPatchesFile(type: Copy) {
 		from '../patches.xml'
+		into 'src/main/assets'
+	}
+
+	task copyGamesDbFile(type: Copy) {
+		from '../games.db'
 		into 'src/main/assets'
 	}
 
