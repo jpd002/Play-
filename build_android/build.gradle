@@ -18,7 +18,7 @@ project.ext {
 }
 
 project.afterEvaluate {
-	preBuild.dependsOn 'copyPatchFile'
+	preBuild.dependsOn 'copyPatchesFile'
 
 	def configName = 'release'
 	if(project.ext.signingEnabled && android.signingConfigs.hasProperty(configName)) {
@@ -93,7 +93,7 @@ android {
 		exclude 'META-INF/NOTICE.txt'
 	}
 
-	task copyPatchFile(type: Copy) {
+	task copyPatchesFile(type: Copy) {
 		from '../patches.xml'
 		into 'src/main/assets'
 	}
