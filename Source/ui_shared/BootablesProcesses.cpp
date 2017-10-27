@@ -31,6 +31,16 @@ void ScanBootables(const boost::filesystem::path& parentPath)
 	}
 }
 
+void PurgeInexistingFiles()
+{
+	auto bootables = BootablesDb::CClient::GetInstance().GetBootables();
+	for(const auto& bootable : bootables)
+	{
+		if(boost::filesystem::exists(bootable.path)) continue;
+		BootablesDb::CClient::GetInstance().UnregisterBootable(bootable.path);
+	}
+}
+
 void ExtractDiscIds()
 {
 	auto bootables = BootablesDb::CClient::GetInstance().GetBootables();

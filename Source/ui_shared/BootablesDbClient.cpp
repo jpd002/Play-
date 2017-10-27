@@ -71,6 +71,13 @@ void CClient::RegisterBootable(const boost::filesystem::path& path)
 	statement.StepNoResult();
 }
 
+void CClient::UnregisterBootable(const boost::filesystem::path& path)
+{
+	Framework::CSqliteStatement statement(m_db, "DELETE FROM bootables WHERE path = ?");
+	statement.BindText(1, Framework::PathUtils::GetNativeStringFromPath(path).c_str());
+	statement.StepNoResult();
+}
+
 void CClient::SetDiscId(const boost::filesystem::path& path, const char* discId)
 {
 	Framework::CSqliteStatement statement(m_db, "UPDATE bootables SET discId = ? WHERE path = ?");
