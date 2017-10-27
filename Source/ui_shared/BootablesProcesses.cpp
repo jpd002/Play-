@@ -114,6 +114,9 @@ void FetchCoverUrls()
 	auto bootables = BootablesDb::CClient::GetInstance().GetBootables();
 	for(const auto& bootable : bootables)
 	{
+		//Don't fetch if bootable already has a coverUrl
+		if(!bootable.coverUrl.empty()) continue;
+		
 		if(bootable.discId.empty()) continue;
 		auto coverUrl = GetCoverUrl(bootable.discId.c_str());
 		BootablesDb::CClient::GetInstance().SetCoverUrl(bootable.path, coverUrl.c_str());
