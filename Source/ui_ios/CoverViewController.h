@@ -7,14 +7,14 @@
 //
 
 #import <UIKit/UIKit.h>
-#import "SqliteDatabase.h"
-#import <SDWebImage/UIImageView+WebCache.h>
-#import "CollectionView.h"
+#import "../ui_shared/BootablesDbClient.h"
+
+typedef std::vector<BootablesDb::Bootable> BootableArray;
 
 @interface CoverViewController : UICollectionViewController
-
-@property SqliteDatabase* database;
-@property CollectionView* coverView;
+{
+	BootableArray* _bootables;
+}
 
 - (IBAction)onExit:(id)handler;
 
