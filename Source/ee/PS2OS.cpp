@@ -1,7 +1,6 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <exception>
-#include <boost/filesystem/path.hpp>
 #include "string_format.h"
 #include "PS2OS.h"
 #include "StdStream.h"
@@ -304,10 +303,9 @@ void CPS2OS::DumpDmacHandlers()
 	}
 }
 
-void CPS2OS::BootFromFile(const char* sPath)
+void CPS2OS::BootFromFile(const boost::filesystem::path& execPath)
 {
-	filesystem::path execPath(sPath);
-	Framework::CStdStream stream(fopen(execPath.string().c_str(), "rb"));
+	auto stream = Framework::CreateInputStdStream(execPath.native());
 	LoadELF(stream, execPath.filename().string().c_str(), ArgumentList());
 }
 

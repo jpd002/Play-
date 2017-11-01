@@ -2,6 +2,7 @@
 
 #include <string>
 #include <boost/signals2.hpp>
+#include <boost/filesystem.hpp>
 #include "../ELF.h"
 #include "../MIPS.h"
 #include "../BiosDebugInfoProvider.h"
@@ -33,7 +34,7 @@ public:
 	void										DumpIntcHandlers();
 	void										DumpDmacHandlers();
 
-	void										BootFromFile(const char*);
+	void										BootFromFile(const boost::filesystem::path&);
 	void										BootFromVirtualPath(const char*, const ArgumentList&);
 	void										BootFromCDROM();
 	CELF*										GetELF();
