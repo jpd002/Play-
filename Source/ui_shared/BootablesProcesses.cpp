@@ -48,6 +48,7 @@ void ScanBootables(const boost::filesystem::path& parentPath)
 			continue;
 		}
 		BootablesDb::CClient::GetInstance().RegisterBootable(path);
+		BootablesDb::CClient::GetInstance().SetTitle(path, path.filename().string().c_str());
 	}
 }
 
