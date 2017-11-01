@@ -39,13 +39,13 @@
 	NSString* bootFromElfPath = nil;
 	if([args count] > 1)
 	{
-		bootFromElfPath = [args objectAtIndex:1];
+		bootFromElfPath = [args objectAtIndex: 1];
 	}
 	
-	//if(bootFromElfPath != nil)
-	//{
-	//	[self BootFromElf:bootFromElfPath];
-	//}
+	if(bootFromElfPath != nil)
+	{
+		[self bootFromElf: bootFromElfPath];
+	}
 #endif
 }
 
