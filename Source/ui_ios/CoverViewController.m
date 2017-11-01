@@ -111,7 +111,7 @@ static NSString* const reuseIdentifier = @"coverCell";
 		auto bootable = (*_bootables)[indexPath.row];
 		BootablesDb::CClient::GetInstance().SetLastBootedTime(bootable.path, time(nullptr));
 		EmulatorViewController* emulatorViewController = segue.destinationViewController;
-		emulatorViewController.imagePath = [NSString stringWithUTF8String: bootable.path.native().c_str()];
+		emulatorViewController.bootablePath = [NSString stringWithUTF8String: bootable.path.native().c_str()];
 		[self.collectionView deselectItemAtIndexPath: indexPath animated: NO];
 	}
 }

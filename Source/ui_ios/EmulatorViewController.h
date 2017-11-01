@@ -13,7 +13,7 @@
 @property(nonatomic, strong) id disconnectObserver;
 
 @property VirtualPadView* virtualPadView;
-@property NSString* imagePath;
+@property NSString* bootablePath;
 
 @property UILabel* fpsCounterLabel;
 @property uint32 frames;

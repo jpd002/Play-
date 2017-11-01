@@ -91,14 +91,14 @@ CPS2VM* g_virtualMachine = nullptr;
 	g_virtualMachine->Pause();
 	g_virtualMachine->Reset();
 
-	auto imagePath = boost::filesystem::path([self.imagePath fileSystemRepresentation]);
-	if(IsBootableExecutablePath(imagePath))
+	auto bootablePath = boost::filesystem::path([self.bootablePath fileSystemRepresentation]);
+	if(IsBootableExecutablePath(bootablePath))
 	{
-		g_virtualMachine->m_ee->m_os->BootFromFile(imagePath);
+		g_virtualMachine->m_ee->m_os->BootFromFile(bootablePath);
 	}
 	else
 	{
-		CAppConfig::GetInstance().SetPreferencePath(PREF_PS2_CDROM0_PATH, imagePath);
+		CAppConfig::GetInstance().SetPreferenceString(PS2VM_CDROM0PATH, bootablePath.string().c_str());
 		g_virtualMachine->Reset();
 		g_virtualMachine->m_ee->m_os->BootFromCDROM();
 	}
