@@ -41,11 +41,12 @@ void ScanBootables(const boost::filesystem::path& parentPath)
 			ScanBootables(path);
 			continue;
 		}
-		auto pathExtension = path.extension();
 		if(
-			(pathExtension != ".isz") &&
-			(pathExtension != ".elf")
-		) continue;
+		   !IsBootableExecutablePath(path) &&
+		   !IsBootableDiscImagePath(path))
+		{
+			continue;
+		}
 		BootablesDb::CClient::GetInstance().RegisterBootable(path);
 	}
 }
