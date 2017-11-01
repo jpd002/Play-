@@ -1,3 +1,4 @@
+#include <algorithm>
 #include "BootablesProcesses.h"
 #include "BootablesDbClient.h"
 #include "LocalGamesDbClient.h"
@@ -10,6 +11,24 @@
 // Remove games that might not be available anymore
 // Extract game ids from disk images
 // Pull disc cover URLs and titles from GamesDb/TheGamesDb
+
+bool IsBootableExecutablePath(const boost::filesystem::path& filePath)
+{
+	auto extension = filePath.extension().string();
+	std::transform(extension.begin(), extension.end(), extension.begin(), ::tolower);
+	return (extension == ".elf");
+}
+
+bool IsBootableDiscImagePath(const boost::filesystem::path& filePath)
+{
+	auto extension = filePath.extension().string();
+	std::transform(extension.begin(), extension.end(), extension.begin(), ::tolower);
+	return
+		(extension == ".iso") ||
+		(extension == ".isz") ||
+		(extension == ".cso") ||
+		(extension == ".bin");
+}
 
 void ScanBootables(const boost::filesystem::path& parentPath)
 {

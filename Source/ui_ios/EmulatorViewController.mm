@@ -6,7 +6,7 @@
 #include "../AppConfig.h"
 #include "PreferenceDefs.h"
 #include "GSH_OpenGLiOS.h"
-#include "IosUtils.h"
+#include "../ui_shared/BootablesProcesses.h"
 #include "PH_Generic.h"
 #include "../../tools/PsfPlayer/Source/SH_OpenAL.h"
 
@@ -92,7 +92,7 @@ CPS2VM* g_virtualMachine = nullptr;
 	g_virtualMachine->Reset();
 
 	auto imagePath = boost::filesystem::path([self.imagePath fileSystemRepresentation]);
-	if(IosUtils::IsLoadableExecutableFileName(self.imagePath))
+	if(IsBootableExecutablePath(imagePath))
 	{
 		g_virtualMachine->m_ee->m_os->BootFromFile(imagePath);
 	}
