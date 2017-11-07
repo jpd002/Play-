@@ -130,7 +130,7 @@ void ExecuteEeTest(const boost::filesystem::path& testFilePath, const std::strin
 			executionOver = true;
 		}
 	);
-	virtualMachine.m_ee->m_os->BootFromFile(testFilePath.string().c_str());
+	virtualMachine.m_ee->m_os->BootFromFile(testFilePath);
 	virtualMachine.m_iopOs->GetIoman()->SetFileStream(Iop::CIoman::FID_STDOUT, resultStream);
 	virtualMachine.Resume();
 
