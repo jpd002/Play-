@@ -656,7 +656,7 @@ void CMainWindow::ProcessCommandLine()
 
 void CMainWindow::LoadELF(const char* sFilename)
 {
-	CPS2OS& os = *m_virtualMachine.m_ee->m_os;
+	auto& os = *m_virtualMachine.m_ee->m_os;
 	m_virtualMachine.Pause();
 	m_virtualMachine.Reset();
 
@@ -666,7 +666,7 @@ void CMainWindow::LoadELF(const char* sFilename)
 #if !defined(_DEBUG) && !defined(DEBUGGER_INCLUDED)
 		m_virtualMachine.Resume();
 #endif
-		m_lastOpenCommand = OpenCommandPtr(new CLoadElfOpenCommand(sFilename));
+		m_lastOpenCommand = std::make_shared<CLoadElfOpenCommand>(sFilename);
 		PrintStatusTextA("Loaded executable '%s'.", os.GetExecutableName());
 	}
 	catch(const std::exception& Exception)
@@ -677,7 +677,7 @@ void CMainWindow::LoadELF(const char* sFilename)
 
 void CMainWindow::BootCDROM()
 {
-	CPS2OS& os = *m_virtualMachine.m_ee->m_os;
+	auto& os = *m_virtualMachine.m_ee->m_os;
 	m_virtualMachine.Pause();
 	m_virtualMachine.Reset();
 
@@ -687,7 +687,7 @@ void CMainWindow::BootCDROM()
 #ifndef _DEBUG
 		m_virtualMachine.Resume();
 #endif
-		m_lastOpenCommand = OpenCommandPtr(new CBootCdRomOpenCommand());
+		m_lastOpenCommand = std::make_shared<CBootCdRomOpenCommand>();
 		PrintStatusTextA("Loaded executable '%s' from cdrom0.", os.GetExecutableName());
 	}
 	catch(const std::exception& Exception)

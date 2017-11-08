@@ -36,24 +36,24 @@ private:
 	class COpenCommand
 	{
 	public:
-		virtual			~COpenCommand() {}
-		virtual void	Execute(CMainWindow*) = 0;
+		virtual         ~COpenCommand() = default;
+		virtual void    Execute(CMainWindow*) = 0;
 	};
 
 	class CBootCdRomOpenCommand : public COpenCommand
 	{
 	public:
-		void			Execute(CMainWindow*) override;
+		void    Execute(CMainWindow*) override;
 	};
 
 	class CLoadElfOpenCommand : public COpenCommand
 	{
 	public:
-						CLoadElfOpenCommand(const char*);
-		void			Execute(CMainWindow*) override;
+		        CLoadElfOpenCommand(const char*);
+		void    Execute(CMainWindow*) override;
 
 	private:
-		std::string		m_fileName;
+		std::string    m_fileName;
 	};
 
 	typedef std::shared_ptr<COpenCommand> OpenCommandPtr;
