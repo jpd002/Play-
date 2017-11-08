@@ -398,7 +398,7 @@ void CMainWindow::OpenELF()
 
 	if(nRet == 0) return;
 
-	LoadELF(string_cast<std::string>(d.GetPath()).c_str());
+	LoadELF(d.GetPath());
 }
 
 void CMainWindow::ResumePause()
@@ -639,7 +639,7 @@ void CMainWindow::ProcessCommandLine()
 		{
 			if((__argc - i) < 2) continue;
 			auto nextArg = __targv[i + 1];
-			LoadELF(string_cast<std::string>(nextArg).c_str());
+			LoadELF(nextArg);
 		}
 #ifdef DEBUGGER_INCLUDED
 		else if(_tcsstr(arg, _T("--debugger")) != nullptr)
@@ -654,7 +654,7 @@ void CMainWindow::ProcessCommandLine()
 	}
 }
 
-void CMainWindow::LoadELF(const char* sFilename)
+void CMainWindow::LoadELF(const boost::filesystem::path& executablePath)
 {
 	auto& os = *m_virtualMachine.m_ee->m_os;
 	m_virtualMachine.Pause();
@@ -662,11 +662,11 @@ void CMainWindow::LoadELF(const char* sFilename)
 
 	try
 	{
-		os.BootFromFile(sFilename);
+		os.BootFromFile(executablePath);
 #if !defined(_DEBUG) && !defined(DEBUGGER_INCLUDED)
 		m_virtualMachine.Resume();
 #endif
-		m_lastOpenCommand = std::make_shared<CLoadElfOpenCommand>(sFilename);
+		m_lastOpenCommand = std::make_shared<CLoadElfOpenCommand>(executablePath);
 		PrintStatusTextA("Loaded executable '%s'.", os.GetExecutableName());
 	}
 	catch(const std::exception& Exception)
@@ -1010,15 +1010,15 @@ void CMainWindow::CBootCdRomOpenCommand::Execute(CMainWindow* mainWindow)
 	mainWindow->BootCDROM();
 }
 
-CMainWindow::CLoadElfOpenCommand::CLoadElfOpenCommand(const char* fileName) :
-m_fileName(fileName)
+CMainWindow::CLoadElfOpenCommand::CLoadElfOpenCommand(const boost::filesystem::path& executablePath)
+: m_executablePath(executablePath)
 {
 
 }
 
 void CMainWindow::CLoadElfOpenCommand::Execute(CMainWindow* mainWindow)
 {
-	mainWindow->LoadELF(m_fileName.c_str());
+	mainWindow->LoadELF(m_executablePath);
 }
 
 void CMainWindow::ScreenCapture()

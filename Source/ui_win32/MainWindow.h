@@ -49,11 +49,11 @@ private:
 	class CLoadElfOpenCommand : public COpenCommand
 	{
 	public:
-		        CLoadElfOpenCommand(const char*);
+		        CLoadElfOpenCommand(const boost::filesystem::path&);
 		void    Execute(CMainWindow*) override;
 
 	private:
-		std::string    m_fileName;
+		boost::filesystem::path    m_executablePath;
 	};
 
 	typedef std::shared_ptr<COpenCommand> OpenCommandPtr;
@@ -84,7 +84,7 @@ private:
 
 	void							ProcessCommandLine();
 
-	void							LoadELF(const char*);
+	void							LoadELF(const boost::filesystem::path&);
 	void							RefreshLayout();
 	void							RefreshOverlaysLayout();
 	void							PrintVersion(TCHAR*, size_t);
