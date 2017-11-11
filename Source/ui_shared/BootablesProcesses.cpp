@@ -36,19 +36,26 @@ void ScanBootables(const boost::filesystem::path& parentPath)
 		pathIterator != boost::filesystem::directory_iterator(); pathIterator++)
 	{
 		auto& path = pathIterator->path();
-		if(boost::filesystem::is_directory(path))
+		try
 		{
-			ScanBootables(path);
-			continue;
+			if(boost::filesystem::is_directory(path))
+			{
+				ScanBootables(path);
+				continue;
+			}
+			if(
+			   !IsBootableExecutablePath(path) &&
+			   !IsBootableDiscImagePath(path))
+			{
+				continue;
+			}
+			BootablesDb::CClient::GetInstance().RegisterBootable(path);
+			BootablesDb::CClient::GetInstance().SetTitle(path, path.filename().string().c_str());
 		}
-		if(
-		   !IsBootableExecutablePath(path) &&
-		   !IsBootableDiscImagePath(path))
+		catch(const std::exception& exception)
 		{
-			continue;
+			//Failed to process a path, keep going
 		}
-		BootablesDb::CClient::GetInstance().RegisterBootable(path);
-		BootablesDb::CClient::GetInstance().SetTitle(path, path.filename().string().c_str());
 	}
 }
 
