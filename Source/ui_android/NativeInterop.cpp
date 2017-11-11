@@ -3,6 +3,7 @@
 #include <android/native_window.h>
 #include <android/native_window_jni.h>
 #include "android/AssetManager.h"
+#include "android/JavaVM.h"
 #include "PathUtils.h"
 #include "../AppConfig.h"
 #include "../DiskUtils.h"
@@ -39,6 +40,12 @@ static void ResetVirtualMachine()
 	g_virtualMachine->Pause();
 	g_virtualMachine->Reset();
 	SetupSoundHandler();
+}
+
+extern "C" JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM* vm, void* aReserved)
+{
+	Framework::CJavaVM::SetJavaVM(vm);
+	return JNI_VERSION_1_6;
 }
 
 extern "C" JNIEXPORT void JNICALL Java_com_virtualapplications_play_NativeInterop_setFilesDirPath(JNIEnv* env, jobject obj, jstring dirPathString)
