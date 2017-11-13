@@ -15,6 +15,7 @@
 #include "GSH_OpenGLAndroid.h"
 #include "SH_OpenSL.h"
 #include "StatsManager.h"
+#include "com_virtualapplications_play_Bootable.h"
 
 CPS2VM* g_virtualMachine = nullptr;
 
@@ -45,6 +46,7 @@ static void ResetVirtualMachine()
 extern "C" JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM* vm, void* aReserved)
 {
 	Framework::CJavaVM::SetJavaVM(vm);
+	com::virtualapplications::play::Bootable_ClassInfo::GetInstance().PrepareClassInfo();
 	return JNI_VERSION_1_6;
 }
 
