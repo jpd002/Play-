@@ -1,161 +1,116 @@
 #include "CdromSelectionWnd.h"
-#include "layout/LayoutStretch.h"
-#include "layout/LayoutEngine.h"
-#include "win32/LayoutWindow.h"
 #include "win32/FileDialog.h"
-#include "win32/DefaultWndClass.h"
+#include "resource.h"
 #include "string_cast.h"
 #include "FileFilters.h"
 #include <winioctl.h>
 
-#define WNDSTYLE	(WS_CAPTION | WS_POPUP | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_SYSMENU)
-#define WNDSTYLEEX	(WS_EX_DLGMODALFRAME)
-
-const char* GetVendorId(const _STORAGE_DEVICE_DESCRIPTOR* descriptor)
+static const char* GetVendorId(const _STORAGE_DEVICE_DESCRIPTOR* descriptor)
 {
 	return descriptor->VendorIdOffset != 0 ? reinterpret_cast<const char*>(descriptor) + descriptor->VendorIdOffset : NULL;
 }
 
-const char* GetProductId(const _STORAGE_DEVICE_DESCRIPTOR* descriptor)
+static const char* GetProductId(const _STORAGE_DEVICE_DESCRIPTOR* descriptor)
 {
 	return descriptor->ProductIdOffset != 0 ? reinterpret_cast<const char*>(descriptor) + descriptor->ProductIdOffset : NULL;
 }
 
-CCdromSelectionWnd::CCdromSelectionWnd(HWND hParent, const TCHAR* sTitle, CDROMBINDING* pInitBinding)
-: CModalWindow(hParent)
+CCdromSelectionWnd::CCdromSelectionWnd(HWND parentWindow, const TCHAR* title)
+: CDialog(MAKEINTRESOURCE(IDD_CDROM_SELECTION), parentWindow)
 {
-	if(pInitBinding != NULL)
-	{
-		m_nType				= pInitBinding->nType;
-		m_sImagePath		= pInitBinding->sImagePath;
-		m_nPhysicalDevice	= pInitBinding->nPhysicalDevice;
-	}
-
-	Create(WNDSTYLEEX, Framework::Win32::CDefaultWndClass::GetName(), sTitle, WNDSTYLE, Framework::Win32::CRect(0, 0, 300, 170), hParent, NULL);
 	SetClassPtr();
+	SetText(title);
 
-	m_pOk			= new Framework::Win32::CButton(_T("OK"), m_hWnd, Framework::Win32::CRect(0, 0, 1, 1));
-	m_pCancel		= new Framework::Win32::CButton(_T("Cancel"), m_hWnd, Framework::Win32::CRect(0, 0, 1, 1));
+	m_imageRadio = Framework::Win32::CButton(GetItem(IDC_CDROM_SELECTION_IMAGE));
+	m_imageEdit = Framework::Win32::CEdit(GetItem(IDC_CDROM_SELECTION_IMAGEPATH));
+	m_imageBrowse = Framework::Win32::CButton(GetItem(IDC_CDROM_SELECTION_BROWSEIMAGE));
 
-	m_pImageRadio	= new Framework::Win32::CButton(_T("ISO9660 Disk Image"), m_hWnd, Framework::Win32::CRect(0, 0, 1, 1), BS_RADIOBUTTON);
-	m_pDeviceRadio	= new Framework::Win32::CButton(_T("Physical CD/DVD Reader Device"), m_hWnd, Framework::Win32::CRect(0, 0, 1, 1), BS_RADIOBUTTON);
-
-	m_pImageEdit	= new Framework::Win32::CEdit(m_hWnd, Framework::Win32::CRect(0, 0, 1, 1), _T(""), ES_READONLY);
-	m_pImageBrowse	= new Framework::Win32::CButton(_T("..."), m_hWnd, Framework::Win32::CRect(0, 0, 1, 1));
-	m_pDeviceCombo	= new Framework::Win32::CComboBox(m_hWnd, Framework::Win32::CRect(0, 0, 1, 1), CBS_DROPDOWNLIST | WS_VSCROLL);
+	m_deviceRadio = Framework::Win32::CButton(GetItem(IDC_CDROM_SELECTION_DEVICE));
+	m_deviceCombo = Framework::Win32::CComboBox(GetItem(IDC_CDROM_SELECTION_DEVICELIST));
 
 	PopulateDeviceList();
-
-	m_pLayout =
-		Framework::VerticalLayoutContainer(
-			Framework::LayoutExpression(Framework::Win32::CLayoutWindow::CreateTextBoxBehavior(100, 15, m_pImageRadio)) +
-			Framework::HorizontalLayoutContainer(
-				Framework::LayoutExpression(Framework::Win32::CLayoutWindow::CreateTextBoxBehavior(100, 21, m_pImageEdit)) +
-				Framework::LayoutExpression(Framework::Win32::CLayoutWindow::CreateButtonBehavior(20, 21, m_pImageBrowse))
-			) +
-			Framework::LayoutExpression(Framework::Win32::CLayoutWindow::CreateTextBoxBehavior(100, 15, m_pDeviceRadio)) +
-			Framework::LayoutExpression(Framework::Win32::CLayoutWindow::CreateTextBoxBehavior(100, 20, m_pDeviceCombo)) +
-			Framework::LayoutExpression(Framework::CLayoutStretch::Create()) +
-			Framework::HorizontalLayoutContainer(
-				Framework::LayoutExpression(Framework::CLayoutStretch::Create()) +
-				Framework::LayoutExpression(Framework::Win32::CLayoutWindow::CreateButtonBehavior(100, 23, m_pOk)) +
-				Framework::LayoutExpression(Framework::Win32::CLayoutWindow::CreateButtonBehavior(100, 23, m_pCancel))
-			)
-		);
-
 	UpdateControls();
-
-	RefreshLayout();
-	m_pDeviceCombo->FixHeight(100);
 }
 
 bool CCdromSelectionWnd::WasConfirmed() const
 {
-	return m_nConfirmed;
+	return m_confirmed;
 }
 
-void CCdromSelectionWnd::GetBindingInfo(CDROMBINDING* pBinding) const
+CCdromSelectionWnd::CDROMBINDING CCdromSelectionWnd::GetBindingInfo() const
 {
-	if(pBinding == NULL) return;
+	return m_binding;
+}
 
-	pBinding->nType				= m_nType;
-	pBinding->sImagePath		= m_sImagePath.c_str();
-	pBinding->nPhysicalDevice	= m_nPhysicalDevice;
+void CCdromSelectionWnd::SetBindingInfo(const CDROMBINDING& binding)
+{
+	m_binding = binding;
+	UpdateControls();
 }
 
 long CCdromSelectionWnd::OnCommand(unsigned short nID, unsigned short nCmd, HWND hFrom)
 {
-	if(hFrom == m_pOk->m_hWnd)
+	switch(nID)
 	{
-		if(m_nType == BINDING_IMAGE)
+	case IDOK:
+		if(m_binding.type == BINDING_IMAGE)
 		{
-			if(m_sImagePath.length() == 0)
+			if(m_binding.imagePath.empty())
 			{
 				MessageBox(m_hWnd, _T("Please select a disk image to bind with this device."), NULL, 16);
 				return FALSE;
 			}
 		}
 
-		m_nConfirmed = true;
+		m_confirmed = true;
 		Destroy();
 		return FALSE;
-	}
-	if(hFrom == m_pCancel->m_hWnd)
-	{
+		break;
+
+	case IDCANCEL:
 		Destroy();
 		return FALSE;
-	}
-	if(hFrom == m_pImageRadio->m_hWnd)
-	{
-		m_nType = BINDING_IMAGE;
+		break;
+
+	case IDC_CDROM_SELECTION_IMAGE:
+		m_binding.type = BINDING_IMAGE;
 		UpdateControls();
-	}
-	if(hFrom == m_pImageBrowse->m_hWnd)
-	{
+		break;
+
+	case IDC_CDROM_SELECTION_BROWSEIMAGE:
 		SelectImage();
 		UpdateControls();
-	}
-	if(hFrom == m_pDeviceRadio->m_hWnd)
-	{
-		m_nType = BINDING_PHYSICAL;
-		m_nPhysicalDevice = m_pDeviceCombo->GetItemData(m_pDeviceCombo->GetSelection());
+		break;
+
+	case IDC_CDROM_SELECTION_DEVICE:
+		m_binding.type = BINDING_PHYSICAL;
+		m_binding.physicalDevice = m_deviceCombo.GetItemData(m_deviceCombo.GetSelection());
 		UpdateControls();
-	}
-	if(hFrom == m_pDeviceCombo->m_hWnd)
-	{
+		break;
+
+	case IDC_CDROM_SELECTION_DEVICELIST:
 		if(nCmd == CBN_SELCHANGE)
 		{
-			m_nPhysicalDevice = m_pDeviceCombo->GetItemData(m_pDeviceCombo->GetSelection());
+			m_binding.physicalDevice = m_deviceCombo.GetItemData(m_deviceCombo.GetSelection());
 			UpdateControls();
 		}
+		break;
 	}
 	return TRUE;
 }
 
 void CCdromSelectionWnd::UpdateControls()
 {
-	m_pImageRadio->SetCheck(m_nType == BINDING_IMAGE);
-	m_pImageEdit->Enable(m_nType == BINDING_IMAGE);
-	m_pImageBrowse->Enable(m_nType == BINDING_IMAGE);
-	m_pImageEdit->SetTextA(m_sImagePath.c_str());
+	m_imageRadio.SetCheck(m_binding.type == BINDING_IMAGE);
+	m_imageEdit.Enable(m_binding.type == BINDING_IMAGE);
+	m_imageEdit.SetText(m_binding.imagePath.c_str());
+	m_imageBrowse.Enable(m_binding.type == BINDING_IMAGE);
 
-	m_pDeviceRadio->SetCheck(m_nType == BINDING_PHYSICAL);
-	m_pDeviceCombo->Enable(m_nType == BINDING_PHYSICAL);
+	m_deviceRadio.SetCheck(m_binding.type == BINDING_PHYSICAL);
+	m_deviceCombo.Enable(m_binding.type == BINDING_PHYSICAL);
 
-	int nDeviceIndex = m_pDeviceCombo->FindItemData(m_nPhysicalDevice);
-	m_pDeviceCombo->SetSelection(nDeviceIndex != -1 ? nDeviceIndex : 0);
-}
-
-void CCdromSelectionWnd::RefreshLayout()
-{
-	RECT rc = GetClientRect();
-
-	SetRect(&rc, rc.left + 10, rc.top + 10, rc.right - 10, rc.bottom - 10);
-
-	m_pLayout->SetRect(rc.left, rc.top, rc.right, rc.bottom);
-	m_pLayout->RefreshGeometry();
-
-	Redraw();
+	int nDeviceIndex = m_deviceCombo.FindItemData(m_binding.physicalDevice);
+	m_deviceCombo.SetSelection((nDeviceIndex != -1) ? nDeviceIndex : 0);
 }
 
 void CCdromSelectionWnd::PopulateDeviceList()
@@ -206,22 +161,20 @@ void CCdromSelectionWnd::PopulateDeviceList()
 		TCHAR sDisplay[256];
 		_sntprintf(sDisplay, countof(sDisplay), _T("%s - %s%s"),  sDeviceRoot, sVendorId, sProductId);
 
-		unsigned int nIndex = m_pDeviceCombo->AddString(sDisplay);
-		m_pDeviceCombo->SetItemData(nIndex, i);
+		unsigned int nIndex = m_deviceCombo.AddString(sDisplay);
+		m_deviceCombo.SetItemData(nIndex, i);
 	}
 }
 
 void CCdromSelectionWnd::SelectImage()
 {
-	Framework::Win32::CFileDialog Dialog;
+	Framework::Win32::CFileDialog dialog;
+	dialog.m_OFN.lpstrFilter = DISKIMAGE_FILTER;
 
-	Dialog.m_OFN.lpstrFilter = DISKIMAGE_FILTER;
-
-	if(Dialog.SummonOpen(m_hWnd) != IDOK)
+	if(dialog.SummonOpen(m_hWnd) != IDOK)
 	{
 		return;
 	}
 
-	std::string sPath(string_cast<std::string>(Dialog.GetPath()));
-	m_sImagePath = sPath.c_str();
+	m_binding.imagePath = dialog.GetPath();
 }

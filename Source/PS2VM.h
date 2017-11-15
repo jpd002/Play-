@@ -1,6 +1,8 @@
 #pragma once
 
 #include <thread>
+#include <future>
+#include "boost_filesystem_def.h"
 #include "AppDef.h"
 #include "Types.h"
 #include "MIPS.h"
@@ -14,10 +16,6 @@
 #include "../tools/PsfPlayer/Source/SoundHandler.h"
 #include "FrameDump.h"
 #include "Profiler.h"
-
-#define PREF_PS2_HOST_DIRECTORY				("ps2.host.directory")
-#define PREF_PS2_MC0_DIRECTORY				("ps2.mc0.directory")
-#define PREF_PS2_MC1_DIRECTORY				("ps2.mc1.directory")
 
 class CPS2VM : public CVirtualMachine
 {
@@ -67,8 +65,11 @@ public:
 	void						CreateSoundHandler(const CSoundHandler::FactoryFunction&);
 	void						DestroySoundHandler();
 
-	unsigned int				SaveState(const char*);
-	unsigned int				LoadState(const char*);
+	static boost::filesystem::path  GetStateDirectoryPath();
+	boost::filesystem::path         GenerateStatePath(unsigned int) const;
+
+	std::future<bool>			SaveState(const boost::filesystem::path&);
+	std::future<bool>			LoadState(const boost::filesystem::path&);
 
 	void						TriggerFrameDump(const FrameDumpCallback&);
 
@@ -95,8 +96,8 @@ private:
 	void						CreateVM();
 	void						ResetVM();
 	void						DestroyVM();
-	void						SaveVMState(const char*, unsigned int&);
-	void						LoadVMState(const char*, unsigned int&);
+	bool						SaveVMState(const boost::filesystem::path&);
+	bool						LoadVMState(const boost::filesystem::path&);
 
 	void						ReloadExecutable(const char*, const CPS2OS::ArgumentList&);
 

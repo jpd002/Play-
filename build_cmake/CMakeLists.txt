@@ -115,6 +115,12 @@ if (NOT TARGET Framework_OpenGl)
 endif()
 list(APPEND PROJECT_LIBS Framework_OpenGl)
 
+if(TARGET_PLATFORM_UNIX)
+        find_package(LIBEVDEV REQUIRED)
+		include_directories(${LIBEVDEV_INCLUDE_DIR})
+		list(APPEND PROJECT_LIBS ${LIBEVDEV_LIBRARY})
+endif()
+
 if(TARGET_PLATFORM_MACOS OR TARGET_PLATFORM_IOS OR TARGET_PLATFORM_UNIX)
 	if (NOT TARGET Framework_OpenAl)
 		add_subdirectory(
@@ -154,14 +160,19 @@ if(TARGET_PLATFORM_WIN32)
 	include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../../Framework/include)
 	list(APPEND PROJECT_LIBS Framework_Win32)
 
-	find_package(DirectX9 REQUIRED)
-	list(APPEND PROJECT_LIBS ${DirectX_D3D9_LIBRARY})
-	list(APPEND PROJECT_LIBS ${DirectX_D3DX9_LIBRARY})
-	list(APPEND PROJECT_LIBS ${DirectX_DXGUID_LIBRARY})
-	list(APPEND PROJECT_LIBS ${DirectX_D3DCOMPILER_LIBRARY})
-	include_directories(${DirectX_D3D9_INCLUDE_DIR} ${DirectX_D3DX9_INCLUDE_DIR})
-
-	list(APPEND PROJECT_LIBS comctl32 uxtheme opengl32 glu32 dinput8 vfw32 winmm gdiplus Boost::date_time)
+	#If building for Windows XP, we need to use the provided d3dcompiler since it's not available in the SDK
+	if(CMAKE_GENERATOR_TOOLSET MATCHES "_xp$")
+		include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../../Dependencies/d3dcompiler_winxp/Include)
+		if(CMAKE_SIZEOF_VOID_P EQUAL 8)
+			list(APPEND PROJECT_LIBS ${CMAKE_CURRENT_SOURCE_DIR}/../../Dependencies/d3dcompiler_winxp/Lib/x64/d3dcompiler.lib)
+		else()
+			list(APPEND PROJECT_LIBS ${CMAKE_CURRENT_SOURCE_DIR}/../../Dependencies/d3dcompiler_winxp/Lib/x86/d3dcompiler.lib)
+		endif()
+	else()
+		list(APPEND PROJECT_LIBS d3dcompiler)
+	endif()
+	
+	list(APPEND PROJECT_LIBS comctl32 uxtheme opengl32 glu32 dinput8 d3d9 vfw32 winmm gdiplus Boost::date_time)
 
 endif()
 
@@ -607,7 +618,12 @@ if(TARGET_PLATFORM_UNIX)
 		../Source/ui_unix/vfsdiscselectordialog.cpp
 		../Source/ui_unix/VfsDevice.cpp
 		../Source/ui_unix/controllerconfigdialog.cpp
-		../Source/ui_unix/padqwidgetext.cpp
+		../Source/ui_unix/InputBindingManager.cpp
+		../Source/ui_unix/bindingmodel.cpp
+		../Source/ui_unix/inputeventselectiondialog.cpp
+		../Source/ui_unix/GamePad/GamePadUtils.cpp
+		../Source/ui_unix/GamePad/GamePadInputEventListener.cpp
+		../Source/ui_unix/GamePad/GamePadDeviceListener.cpp
 	)
 
 	set(QT_MOC_HEADERS
@@ -626,7 +642,12 @@ if(TARGET_PLATFORM_UNIX)
 		../Source/ui_unix/vfsdiscselectordialog.h
 		../Source/ui_unix/VfsDevice.h
 		../Source/ui_unix/controllerconfigdialog.h
-		../Source/ui_unix/padqwidgetext.h
+		../Source/ui_unix/InputBindingManager.h
+		../Source/ui_unix/bindingmodel.h
+		../Source/ui_unix/inputeventselectiondialog.h
+		../Source/ui_unix/GamePad/GamePadUtils.h
+		../Source/ui_unix/GamePad/GamePadInputEventListener.h
+		../Source/ui_unix/GamePad/GamePadDeviceListener.h
 	)
 
 	set(QT_UIS
@@ -636,6 +657,7 @@ if(TARGET_PLATFORM_UNIX)
 		../build_unix/vfsmanagerdialog.ui
 		../build_unix/vfsdiscselectordialog.ui
 		../build_unix/controllerconfigdialog.ui
+		../build_unix/inputeventselectiondialog.ui
 	)
 
 	set(QT_RESOURCES

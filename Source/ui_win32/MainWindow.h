@@ -10,6 +10,7 @@
 #include "AviStream.h"
 #include "VirtualPad/VirtualPadWindow.h"
 #include "StatsOverlayWindow.h"
+#include "FutureContinuationManager.h"
 #ifdef DEBUGGER_INCLUDED
 #include "Debugger.h"
 #include "FrameDebugger/FrameDebugger.h"
@@ -95,13 +96,10 @@ private:
 	static boost::filesystem::path	GetFrameDumpDirectoryPath();
 
 	void							CreateStateSlotMenu();
-	static boost::filesystem::path	GetStateDirectoryPath();
-	boost::filesystem::path			GenerateStatePath() const;
 	void							UpdateUI();
 
 	void							OnNewFrame(uint32);
 
-	void							OnOutputWndSizeChange();
 	void							OnExecutableChange();
 
 	void							SetupSoundHandler();
@@ -136,6 +134,8 @@ private:
 	std::unique_ptr<CDebugger>		m_debugger;
 	std::unique_ptr<CFrameDebugger>	m_frameDebugger;
 #endif
+
+	CFutureContinuationManager		m_futureContinuationManager;
 
 	static double					m_statusBarPanelWidths[2];
 };

@@ -1,18 +1,16 @@
-#ifndef _VFSMANAGERWND_H_
-#define _VFSMANAGERWND_H_
+#pragma once
 
 #include <string>
 #include <map>
-#include "win32/ModalWindow.h"
-#include "win32/Button.h"
+#include <memory>
+#include "win32/Dialog.h"
 #include "win32/ListView.h"
-#include "layout/LayoutObject.h"
 
-class CVFSManagerWnd : public Framework::Win32::CModalWindow
+class CVFSManagerWnd : public Framework::Win32::CDialog
 {
 public:
 									CVFSManagerWnd(HWND);
-									~CVFSManagerWnd();
+	virtual							~CVFSManagerWnd() = default;
 
 protected:
 	long							OnCommand(unsigned short, unsigned short, HWND) override;
@@ -22,10 +20,10 @@ private:
 	class CDevice
 	{
 	public:
-		virtual						~CDevice();
+		virtual						~CDevice() = default;
 		virtual const char*			GetDeviceName() = 0;
 		virtual const char*			GetBindingType() = 0;
-		virtual const char*			GetBinding() = 0;
+		virtual std::tstring		GetBinding() = 0;
 		virtual bool				RequestModification(HWND) = 0;
 		virtual void				Save() = 0;
 	};
@@ -34,51 +32,46 @@ private:
 	{
 	public:
 									CDirectoryDevice(const char*, const char*);
-		virtual						~CDirectoryDevice();
-		virtual const char*			GetDeviceName();
-		virtual const char*			GetBindingType();
-		virtual const char*			GetBinding();
-		virtual bool				RequestModification(HWND);
-		virtual void				Save();
+		virtual						~CDirectoryDevice() = default;
+		const char*					GetDeviceName() override;
+		const char*					GetBindingType() override;
+		std::tstring				GetBinding() override;
+		bool						RequestModification(HWND) override;
+		void						Save() override;
 
 	private:
 		static int WINAPI			BrowseCallback(HWND, unsigned int, LPARAM, LPARAM);
 
-		const char*                 m_sName;
-		const char*                 m_sPreference;
-        std::string                 m_sValue;
+		const char*					m_name;
+		const char*					m_preference;
+		std::tstring				m_path;
 	};
 
 	class CCdrom0Device : public CDevice
 	{
 	public:
 									CCdrom0Device();
-		virtual						~CCdrom0Device();
-		virtual const char*			GetDeviceName();
-		virtual const char*			GetBindingType();
-		virtual const char*			GetBinding();
-		virtual bool				RequestModification(HWND);
-		virtual void				Save();
+		virtual						~CCdrom0Device() = default;
+		const char*					GetDeviceName() override;
+		const char*					GetBindingType() override;
+		std::tstring				GetBinding() override;
+		bool						RequestModification(HWND) override;
+		void						Save() override;
 
 	private:
-        std::string                 m_sImagePath;
-        std::string                 m_sDevicePath;
-		unsigned int                m_nBindingType;
+		std::tstring				m_imagePath;
+		std::string					m_devicePath;
+		unsigned int				m_bindingType;
 	};
 
-    typedef std::map<unsigned int, CDevice*> DeviceList;
+	typedef std::unique_ptr<CDevice> DevicePtr;
+	typedef std::map<unsigned int, DevicePtr> DeviceList;
 
-    void							RefreshLayout();
 	void							CreateListColumns();
 	void							UpdateList();
 	void							Save();
 
-    Framework::LayoutObjectPtr      m_pLayout;
-	Framework::Win32::CButton*      m_pOk;
-	Framework::Win32::CButton*      m_pCancel;
-	Framework::Win32::CListView*    m_pList;
+	Framework::Win32::CListView		m_deviceList;
 
-	DeviceList                      m_devices;
+	DeviceList						m_devices;
 };
-
-#endif

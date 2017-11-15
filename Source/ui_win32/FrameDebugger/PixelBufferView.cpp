@@ -1,6 +1,7 @@
 #include "PixelBufferView.h"
 #include <assert.h>
 #include <vector>
+#include <D3Dcompiler.h>
 #include "../resource.h"
 #include "../D3D9TextureUtils.h"
 #include "win32/FileDialog.h"
@@ -21,8 +22,10 @@ CPixelBufferView::CPixelBufferView(HWND parent, const RECT& rect)
 {
 	m_overlay = std::make_unique<CPixelBufferViewOverlay>(m_hWnd);
 
-	m_checkerboardEffect = CreateEffectFromResource(MAKEINTRESOURCE(IDR_CHECKERBOARD_SHADER));
-	m_pixelBufferViewEffect = CreateEffectFromResource(MAKEINTRESOURCE(IDR_PIXELBUFFERVIEW_SHADER));
+	m_checkerboardVertexShader = CreateVertexShaderFromResource(MAKEINTRESOURCE(IDR_CHECKERBOARD_VERTEXSHADER));
+	m_checkerboardPixelShader = CreatePixelShaderFromResource(MAKEINTRESOURCE(IDR_CHECKERBOARD_PIXELSHADER));
+	m_pixelBufferViewVertexShader = CreateVertexShaderFromResource(MAKEINTRESOURCE(IDR_PIXELBUFFERVIEW_VERTEXSHADER));
+	m_pixelBufferViewPixelShader = CreatePixelShaderFromResource(MAKEINTRESOURCE(IDR_PIXELBUFFERVIEW_PIXELSHADER));
 	SetSizePosition(rect);
 }
 
@@ -69,26 +72,27 @@ void CPixelBufferView::Refresh()
 
 void CPixelBufferView::DrawCheckerboard()
 {
+	HRESULT result = S_OK;
+
 	m_device->SetVertexDeclaration(m_quadVertexDecl);
 	m_device->SetStreamSource(0, m_quadVertexBuffer, 0, sizeof(VERTEX));
 
 	RECT clientRect = GetClientRect();
-	SetEffectVector(m_checkerboardEffect, "g_screenSize", 
-		static_cast<float>(clientRect.right), static_cast<float>(clientRect.bottom), 0, 0);
 
-	m_checkerboardEffect->CommitChanges();
-
-	UINT passCount = 0;
-	m_checkerboardEffect->Begin(&passCount, D3DXFX_DONOTSAVESTATE);
-	for(unsigned int i = 0; i < passCount; i++)
+	float screenSizeVector[4] = 
 	{
-		m_checkerboardEffect->BeginPass(i);
+		static_cast<float>(clientRect.right),
+		static_cast<float>(clientRect.bottom),
+		0,
+		0
+	};
 
-		m_device->DrawPrimitive(D3DPT_TRIANGLESTRIP, 0, 2);
+	m_device->SetVertexShader(m_checkerboardVertexShader);
+	m_device->SetPixelShader(m_checkerboardPixelShader);
+	m_device->SetVertexShaderConstantF(0, screenSizeVector, 1);
 
-		m_checkerboardEffect->EndPass();
-	}
-	m_checkerboardEffect->End();
+	result = m_device->DrawPrimitive(D3DPT_TRIANGLESTRIP, 0, 2);
+	assert(SUCCEEDED(result));
 }
 
 void CPixelBufferView::DrawPixelBuffer()
@@ -97,36 +101,43 @@ void CPixelBufferView::DrawPixelBuffer()
 	if(!pixelBuffer) return;
 	const auto& pixelBufferBitmap = pixelBuffer->second;
 
+	HRESULT result = S_OK;
+
 	m_device->SetVertexDeclaration(m_quadVertexDecl);
 	m_device->SetStreamSource(0, m_quadVertexBuffer, 0, sizeof(VERTEX));
 
 	RECT clientRect = GetClientRect();
 
-	SetEffectVector(m_pixelBufferViewEffect, "g_screenSize", 
-		static_cast<float>(clientRect.right), static_cast<float>(clientRect.bottom), 0, 0);
-
-	SetEffectVector(m_pixelBufferViewEffect, "g_bufferSize",
-		static_cast<float>(pixelBufferBitmap.GetWidth()), static_cast<float>(pixelBufferBitmap.GetHeight()), 0, 0);
-
-	SetEffectVector(m_pixelBufferViewEffect, "g_panOffset", m_panX, m_panY, 0, 0);
-	SetEffectVector(m_pixelBufferViewEffect, "g_zoomFactor", m_zoomFactor, 0, 0, 0);
-
-	D3DXHANDLE textureParameter = m_pixelBufferViewEffect->GetParameterByName(NULL, "g_bufferTexture");
-	m_pixelBufferViewEffect->SetTexture(textureParameter, m_pixelBufferTexture);
-
-	m_pixelBufferViewEffect->CommitChanges();
-
-	UINT passCount = 0;
-	m_pixelBufferViewEffect->Begin(&passCount, D3DXFX_DONOTSAVESTATE);
-	for(unsigned int i = 0; i < passCount; i++)
+	float screenSizeVector[4] = 
 	{
-		m_pixelBufferViewEffect->BeginPass(i);
+		static_cast<float>(clientRect.right),
+		static_cast<float>(clientRect.bottom),
+		0,
+		0
+	};
 
-		m_device->DrawPrimitive(D3DPT_TRIANGLESTRIP, 0, 2);
+	float bufferSizeVector[4] =
+	{
+		static_cast<float>(pixelBufferBitmap.GetWidth()),
+		static_cast<float>(pixelBufferBitmap.GetHeight()),
+		0,
+		0
+	};
 
-		m_pixelBufferViewEffect->EndPass();
-	}
-	m_pixelBufferViewEffect->End();
+	float panOffsetVector[4] = { m_panX, m_panY, 0, 0 };
+	float zoomFactorVector[4] = { m_zoomFactor, 0, 0, 0 };
+
+	m_device->SetVertexShader(m_pixelBufferViewVertexShader);
+	m_device->SetPixelShader(m_pixelBufferViewPixelShader);
+	m_device->SetVertexShaderConstantF(0, screenSizeVector, 1);
+	m_device->SetVertexShaderConstantF(1, bufferSizeVector, 1);
+	m_device->SetVertexShaderConstantF(2, panOffsetVector, 1);
+	m_device->SetVertexShaderConstantF(3, zoomFactorVector, 1);
+
+	m_device->SetTexture(0, m_pixelBufferTexture);
+
+	result = m_device->DrawPrimitive(D3DPT_TRIANGLESTRIP, 0, 2);
+	assert(SUCCEEDED(result));
 }
 
 long CPixelBufferView::OnCommand(unsigned short id, unsigned short cmd, HWND hwndFrom)
@@ -229,8 +240,6 @@ void CPixelBufferView::OnDeviceReset()
 {
 	CreateResources();
 	CreateSelectedPixelBufferTexture();
-	if(!m_checkerboardEffect.IsEmpty()) m_checkerboardEffect->OnResetDevice();
-	if(!m_pixelBufferViewEffect.IsEmpty()) m_pixelBufferViewEffect->OnResetDevice();
 }
 
 void CPixelBufferView::OnDeviceResetting()
@@ -238,8 +247,6 @@ void CPixelBufferView::OnDeviceResetting()
 	m_quadVertexBuffer.Reset();
 	m_quadVertexDecl.Reset();
 	m_pixelBufferTexture.Reset();
-	if(!m_checkerboardEffect.IsEmpty()) m_checkerboardEffect->OnLostDevice();
-	if(!m_pixelBufferViewEffect.IsEmpty()) m_pixelBufferViewEffect->OnLostDevice();
 }
 
 const CPixelBufferView::PixelBuffer* CPixelBufferView::GetSelectedPixelBuffer()
@@ -384,32 +391,64 @@ void CPixelBufferView::CreateResources()
 	}
 }
 
-CPixelBufferView::EffectPtr CPixelBufferView::CreateEffectFromResource(const TCHAR* resourceName)
+CPixelBufferView::VertexShaderPtr CPixelBufferView::CreateVertexShaderFromResource(const TCHAR* resourceName)
 {
 	HRESULT result = S_OK;
 
-	HRSRC shaderResourceInfo = FindResource(GetModuleHandle(nullptr), resourceName, _T("TEXTFILE"));
+	auto shaderResourceInfo = FindResource(GetModuleHandle(nullptr), resourceName, _T("TEXTFILE"));
 	assert(shaderResourceInfo != nullptr);
 
-	HGLOBAL shaderResourceHandle = LoadResource(GetModuleHandle(nullptr), shaderResourceInfo);
-	DWORD shaderResourceSize = SizeofResource(GetModuleHandle(nullptr), shaderResourceInfo);
+	auto shaderResourceHandle = LoadResource(GetModuleHandle(nullptr), shaderResourceInfo);
+	auto shaderResourceSize = SizeofResource(GetModuleHandle(nullptr), shaderResourceInfo);
 
-	const char* shaderData = reinterpret_cast<const char*>(LockResource(shaderResourceHandle));
+	auto shaderResource = reinterpret_cast<const char*>(LockResource(shaderResourceHandle));
 
-	EffectPtr effect;
-	Framework::Win32::CComPtr<ID3DXBuffer> errors;
-	result = D3DXCreateEffect(m_device, shaderData, shaderResourceSize, nullptr, nullptr, 0, nullptr, &effect, &errors);
-	if(!errors.IsEmpty())
-	{
-		std::string errorText(reinterpret_cast<const char*>(errors->GetBufferPointer()), reinterpret_cast<const char*>(errors->GetBufferPointer()) + errors->GetBufferSize());
-		OutputDebugStringA("Failed to compile shader:\r\n");
-		OutputDebugStringA(errorText.c_str());
-	}
+	UINT compileFlags = 0;
+#ifdef _DEBUG
+	compileFlags |= D3DCOMPILE_DEBUG;
+#endif
+
+	Framework::Win32::CComPtr<ID3DBlob> shaderBinary;
+	Framework::Win32::CComPtr<ID3DBlob> compileErrors;
+	result = D3DCompile(shaderResource, shaderResourceSize, "vs", nullptr, nullptr, "main", 
+		"vs_3_0", compileFlags, 0, &shaderBinary, &compileErrors);
 	assert(SUCCEEDED(result));
 
-	UnlockResource(shaderResourceHandle);
+	VertexShaderPtr shader;
+	result = m_device->CreateVertexShader(reinterpret_cast<DWORD*>(shaderBinary->GetBufferPointer()), &shader);
+	assert(SUCCEEDED(result));
 
-	return effect;
+	return shader;
+}
+
+CPixelBufferView::PixelShaderPtr CPixelBufferView::CreatePixelShaderFromResource(const TCHAR* resourceName)
+{
+	HRESULT result = S_OK;
+
+	auto shaderResourceInfo = FindResource(GetModuleHandle(nullptr), resourceName, _T("TEXTFILE"));
+	assert(shaderResourceInfo != nullptr);
+
+	auto shaderResourceHandle = LoadResource(GetModuleHandle(nullptr), shaderResourceInfo);
+	auto shaderResourceSize = SizeofResource(GetModuleHandle(nullptr), shaderResourceInfo);
+
+	auto shaderResource = reinterpret_cast<const char*>(LockResource(shaderResourceHandle));
+
+	UINT compileFlags = 0;
+#ifdef _DEBUG
+	compileFlags |= D3DCOMPILE_DEBUG;
+#endif
+
+	Framework::Win32::CComPtr<ID3DBlob> shaderBinary;
+	Framework::Win32::CComPtr<ID3DBlob> compileErrors;
+	result = D3DCompile(shaderResource, shaderResourceSize, "ps", nullptr, nullptr, "main", 
+		"ps_3_0", compileFlags, 0, &shaderBinary, &compileErrors);
+	assert(SUCCEEDED(result));
+
+	PixelShaderPtr shader;
+	result = m_device->CreatePixelShader(reinterpret_cast<DWORD*>(shaderBinary->GetBufferPointer()), &shader);
+	assert(SUCCEEDED(result));
+
+	return shader;
 }
 
 CPixelBufferView::TexturePtr CPixelBufferView::CreateTextureFromBitmap(const Framework::CBitmap& bitmap)
@@ -455,18 +494,4 @@ CPixelBufferView::TexturePtr CPixelBufferView::CreateTextureFromBitmap(const Fra
 	}
 
 	return texture;
-}
-
-void CPixelBufferView::SetEffectVector(EffectPtr& effect, const char* parameterName, float x, float y, float z, float w)
-{
-	D3DXHANDLE parameter = effect->GetParameterByName(NULL, parameterName);
-	assert(parameter != NULL);
-
-	D3DXVECTOR4 value;
-	value.x = x;
-	value.y = y;
-	value.z = z;
-	value.w = w;
-
-	effect->SetVector(parameter, &value);
 }

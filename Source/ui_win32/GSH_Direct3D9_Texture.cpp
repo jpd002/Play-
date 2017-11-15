@@ -1,7 +1,7 @@
 #include <assert.h>
 #include <zlib.h>
 #include <sys/stat.h>
-#include <d3dx9.h>
+#include "math/Matrix4.h"
 #include "GSH_Direct3D9.h"
 #include "../gs/GsPixelFormats.h"
 
@@ -28,10 +28,8 @@ CGSH_Direct3D9::TEXTURE_INFO CGSH_Direct3D9::LoadTexture(const TEX0& tex0, uint3
 	TEXTURE_INFO result;
 
 	{
-		D3DXMATRIX textureMatrix;
-		D3DXMatrixIdentity(&textureMatrix);
-		D3DXMatrixScaling(&textureMatrix, 1, 1, 1);
-		m_device->SetTransform(D3DTS_TEXTURE0, &textureMatrix);
+		auto textureMatrix = CMatrix4::MakeIdentity();
+		m_device->SetTransform(D3DTS_TEXTURE0, reinterpret_cast<D3DMATRIX*>(&textureMatrix));
 	}
 
 	for(const auto& candidateFramebuffer : m_framebuffers)
@@ -44,10 +42,8 @@ CGSH_Direct3D9::TEXTURE_INFO CGSH_Direct3D9::LoadTexture(const TEX0& tex0, uint3
 			float scaleRatioY = static_cast<float>(tex0.GetHeight()) / static_cast<float>(candidateFramebuffer->m_height);
 
 			{
-				D3DXMATRIX textureMatrix;
-				D3DXMatrixIdentity(&textureMatrix);
-				D3DXMatrixScaling(&textureMatrix, scaleRatioX, scaleRatioY, 1);
-				m_device->SetTransform(D3DTS_TEXTURE0, &textureMatrix);
+				auto textureMatrix = CMatrix4::MakeScale(scaleRatioX, scaleRatioY, 1);
+				m_device->SetTransform(D3DTS_TEXTURE0, reinterpret_cast<D3DMATRIX*>(&textureMatrix));
 			}
 
 			result.texture = candidateFramebuffer->m_renderTarget;

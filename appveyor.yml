@@ -1,10 +1,11 @@
 version: '{build}'
+image: Visual Studio 2017
 environment:
   CONFIG_TYPE: Release
   matrix:
-  - BUILD_TYPE: Visual Studio 14 2015
+  - BUILD_TYPE: Visual Studio 15 2017
     INSTALLER_SCRIPT: installer32.nsi
-  - BUILD_TYPE: Visual Studio 14 2015 Win64
+  - BUILD_TYPE: Visual Studio 15 2017 Win64
     INSTALLER_SCRIPT: installer64.nsi
 
 build_script:
@@ -45,7 +46,7 @@ build_script:
     
     cd build
     
-    cmake .. -G"%BUILD_TYPE%" -T v140_xp
+    cmake .. -G"%BUILD_TYPE%" -T v141_xp
     
     cmake --build . --config %CONFIG_TYPE%
     

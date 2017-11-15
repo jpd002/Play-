@@ -1,0 +1,17 @@
+struct VertexOutput
+{
+	float4 position			: POSITION;
+	float2 texCoord			: TEXCOORD;
+};
+
+float4 main(VertexOutput input) : COLOR
+{
+	if(fmod(floor(input.texCoord.x) + floor(input.texCoord.y), 2) < 1)
+	{
+		return float4(1, 1, 1, 1);
+	}
+	else
+	{
+		return float4(0.75f, 0.75f, 0.75f, 1);
+	}
+}

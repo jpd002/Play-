@@ -1,10 +1,11 @@
-#ifndef CONTROLLERCONFIGDIALOG_H
-#define CONTROLLERCONFIGDIALOG_H
+#pragma once
 
 #include <QDialog>
 #include <QAbstractButton>
 #include <QXmlStreamReader>
-#include "PH_HidUnix.h"
+
+#include "GamePad/GamePadDeviceListener.h"
+#include "InputBindingManager.h"
 
 namespace Ui {
 class ControllerConfigDialog;
@@ -12,21 +13,21 @@ class ControllerConfigDialog;
 
 class ControllerConfigDialog : public QDialog
 {
-    Q_OBJECT
+	Q_OBJECT
 
 public:
-    explicit ControllerConfigDialog(QWidget *parent = 0);
-    ~ControllerConfigDialog();
-    static CPH_HidUnix::BindingPtr *GetBinding(int);
-    static QString ReadElementValue(QXmlStreamReader &Rxml);
+	explicit ControllerConfigDialog(QWidget *parent = 0);
+	~ControllerConfigDialog();
+
+	void SetInputBindingManager(CInputBindingManager*);
 
 private slots:
-    void on_buttonBox_clicked(QAbstractButton *button);
+	void on_buttonBox_clicked(QAbstractButton *button);
+	void on_tableView_doubleClicked(const QModelIndex &index);
+	void on_ConfigAllButton_clicked();
 
 private:
-    void Save(int index, QWidget *tab);
-    void Load(int index, QWidget *tab);
-    Ui::ControllerConfigDialog *ui;
+	CInputBindingManager* m_inputManager;
+	std::unique_ptr<CGamePadDeviceListener> m_inputDeviceManager;
+	Ui::ControllerConfigDialog *ui;
 };
-
-#endif // CONTROLLERCONFIGDIALOG_H

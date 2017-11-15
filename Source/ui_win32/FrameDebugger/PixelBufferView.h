@@ -39,7 +39,8 @@ private:
 	typedef Framework::Win32::CComPtr<IDirect3DTexture9> TexturePtr;
 	typedef Framework::Win32::CComPtr<IDirect3DVertexBuffer9> VertexBufferPtr;
 	typedef Framework::Win32::CComPtr<IDirect3DVertexDeclaration9> VertexDeclarationPtr;
-	typedef Framework::Win32::CComPtr<ID3DXEffect> EffectPtr;
+	typedef Framework::Win32::CComPtr<IDirect3DVertexShader9> VertexShaderPtr;
+	typedef Framework::Win32::CComPtr<IDirect3DPixelShader9> PixelShaderPtr;
 
 	struct VERTEX
 	{
@@ -57,16 +58,18 @@ private:
 	void					DrawCheckerboard();
 	void					DrawPixelBuffer();
 
-	EffectPtr				CreateEffectFromResource(const TCHAR*);
+	VertexShaderPtr			CreateVertexShaderFromResource(const TCHAR*);
+	PixelShaderPtr			CreatePixelShaderFromResource(const TCHAR*);
 	TexturePtr				CreateTextureFromBitmap(const Framework::CBitmap&);
-	void					SetEffectVector(EffectPtr&, const char*, float, float, float, float);
 
 	TexturePtr				m_pixelBufferTexture;
 	PixelBufferArray		m_pixelBuffers;
 	VertexDeclarationPtr	m_quadVertexDecl;
 	VertexBufferPtr			m_quadVertexBuffer;
-	EffectPtr				m_checkerboardEffect;
-	EffectPtr				m_pixelBufferViewEffect;
+	VertexShaderPtr			m_checkerboardVertexShader;
+	PixelShaderPtr			m_checkerboardPixelShader;
+	VertexShaderPtr			m_pixelBufferViewVertexShader;
+	PixelShaderPtr			m_pixelBufferViewPixelShader;
 
 	std::unique_ptr<CPixelBufferViewOverlay>	m_overlay;
 

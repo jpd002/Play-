@@ -57,6 +57,7 @@ MainWindow::MainWindow(QWidget *parent) :
 MainWindow::~MainWindow()
 {
     CAppConfig::GetInstance().Save();
+	m_GPDL.reset();
     if (g_virtualMachine != nullptr)
     {
         g_virtualMachine->Pause();
@@ -67,6 +68,7 @@ MainWindow::~MainWindow()
         delete g_virtualMachine;
         g_virtualMachine = nullptr;
     }
+    delete m_InputBindingManager;
     delete ui;
 }
 
@@ -84,11 +86,17 @@ void MainWindow::InitEmu()
     g_virtualMachine->CreateGSHandler(CGSH_OpenGLQt::GetFactoryFunction(m_openglpanel));
     SetupSoundHandler();
 
-    g_virtualMachine->CreatePadHandler(CPH_HidUnix::GetFactoryFunction());
-    m_padhandler = static_cast<CPH_HidUnix*>(g_virtualMachine->GetPadHandler());
+    m_InputBindingManager = new CInputBindingManager(CAppConfig::GetInstance());
+    g_virtualMachine->CreatePadHandler(CPH_HidUnix::GetFactoryFunction(m_InputBindingManager));
 
-    CPH_HidUnix::BindingPtr *binding = ControllerConfigDialog::GetBinding(1);
-    m_padhandler->UpdateBinding(binding);
+    auto onInput = [=](std::array<uint32, 6> device, int code, int value, int type, const input_absinfo *abs)->void
+    {
+        if(m_InputBindingManager != nullptr)
+        {
+            m_InputBindingManager->OnInputEventReceived(device, code, value);
+        }
+    };
+    m_GPDL = std::make_unique<CGamePadDeviceListener>(onInput);
 
     StatsManager = new CStatsManager();
     g_virtualMachine->m_ee->m_gs->OnNewFrame.connect(std::bind(&CStatsManager::OnNewFrame, StatsManager, std::placeholders::_1));
@@ -208,8 +216,10 @@ void MainWindow::on_actionExit_triggered()
 
 void MainWindow::keyPressEvent(QKeyEvent *event)
 {
-    if(event->key() != Qt::Key_Escape && m_padhandler != nullptr)
-            m_padhandler->InputValueCallbackPressed(event->key(), 0);
+    if(event->key() != Qt::Key_Escape && m_InputBindingManager != nullptr)
+    {
+        m_InputBindingManager->OnInputEventReceived({0}, event->key(), 1);
+    }
 }
 
 void MainWindow::keyReleaseEvent(QKeyEvent *event)
@@ -221,8 +231,10 @@ void MainWindow::keyReleaseEvent(QKeyEvent *event)
         }
         return;
     }
-    if (m_padhandler != nullptr)
-            m_padhandler->InputValueCallbackReleased(event->key(), 0);
+    if(m_InputBindingManager != nullptr)
+    {
+        m_InputBindingManager->OnInputEventReceived({0}, event->key(), 0);
+    }
 }
 
 void MainWindow::CreateStatusBar()
@@ -314,9 +326,10 @@ void MainWindow::SetupSaveLoadStateSlots()
 
 void MainWindow::saveState(int stateSlot)
 {
-    Framework::PathUtils::EnsurePathExists(GetStateDirectoryPath());
+    Framework::PathUtils::EnsurePathExists(CPS2VM::GetStateDirectoryPath());
 
-    g_virtualMachine->SaveState(GenerateStatePath(stateSlot).string().c_str());
+    auto stateFilePath = g_virtualMachine->GenerateStatePath(stateSlot);
+    g_virtualMachine->SaveState(stateFilePath);
 
     QDateTime* dt = new QDateTime;
     QString datetime = dt->currentDateTime().toString("hh:mm dd.MM.yyyy");
@@ -325,29 +338,20 @@ void MainWindow::saveState(int stateSlot)
 }
 
 void MainWindow::loadState(int stateSlot){
-    g_virtualMachine->LoadState(GenerateStatePath(stateSlot).string().c_str());
+    auto stateFilePath = g_virtualMachine->GenerateStatePath(stateSlot);
+    g_virtualMachine->LoadState(stateFilePath);
     g_virtualMachine->Resume();
 }
 
 QString MainWindow::SaveStateInfo(int stateSlot)
 {
-    QFileInfo file(GenerateStatePath(stateSlot).string().c_str());
+    auto stateFilePath = g_virtualMachine->GenerateStatePath(stateSlot);
+    QFileInfo file(stateFilePath.string().c_str());
     if (file.exists() && file.isFile()) {
         return file.created().toString("hh:mm dd.MM.yyyy");
     } else {
         return "Empty";
     }
-}
-
-boost::filesystem::path MainWindow::GetStateDirectoryPath()
-{
-    return CAppConfig::GetBasePath() / boost::filesystem::path("states/");
-}
-
-boost::filesystem::path MainWindow::GenerateStatePath(int stateSlot)
-{
-    std::string stateFileName = std::string(g_virtualMachine->m_ee->m_os->GetExecutableName()) + ".st" + std::to_string(stateSlot) + ".zip";
-    return GetStateDirectoryPath() / boost::filesystem::path(stateFileName);
 }
 
 void MainWindow::on_actionPause_Resume_triggered()
@@ -489,7 +493,9 @@ void MainWindow::on_actionVFS_Manager_triggered()
 void MainWindow::on_actionController_Manager_triggered()
 {
     ControllerConfigDialog ccd;
+    ccd.SetInputBindingManager(m_InputBindingManager);
     ccd.exec();
+
 }
 
 void MainWindow::on_actionCapture_Screen_triggered()

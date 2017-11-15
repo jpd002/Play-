@@ -166,7 +166,7 @@ private:
 
 	DepthbufferPtr					FindDepthbuffer(uint64, uint64) const;
 
-	void							SetReadCircuitMatrix(int, int);
+	void							MakeLinearZOrtho(float*, float, float, float, float);
 	void							VertexKick(uint8, uint64);
 
 	void							FillShaderCapsFromTexture(SHADERCAPS&, const uint64&);
@@ -240,7 +240,6 @@ private:
 	PixelShaderMap					m_pixelShaders;
 
 	RENDERSTATE						m_renderState;
-	D3DMATRIX						m_projMatrix;
 
 	VertexBufferPtr					m_drawVb;
 	VertexBufferPtr					m_presentVb;
