@@ -7,7 +7,7 @@ buildscript {
 	}
 
 	dependencies {
-		classpath 'com.android.tools.build:gradle:2.3.3'
+		classpath 'com.android.tools.build:gradle:3.0.0'
 	}
 }
 
@@ -36,7 +36,7 @@ android {
 	}
 
 	compileSdkVersion 'android-24'
-	buildToolsVersion '25.0.0'
+	buildToolsVersion '26.0.2'
 
 	defaultConfig {
 		versionCode 40
