@@ -67,79 +67,12 @@ if(WIN32)
 	add_definitions(-D_UNICODE -DUNICODE)
 endif()
 
-add_definitions(-D_IOP_EMULATE_MODULES)
-
-if (NOT TARGET PlayCore)
+if (NOT TARGET PsfCore)
 	add_subdirectory(
-		${CMAKE_CURRENT_SOURCE_DIR}/../../../build_cmake/PlayCore
-		${CMAKE_CURRENT_BINARY_DIR}/PlayCore
+		${CMAKE_CURRENT_SOURCE_DIR}/PsfCore
+		${CMAKE_CURRENT_BINARY_DIR}/PsfCore
 	)
 endif()
-list(APPEND PROJECT_LIBS PlayCore)
-
-find_package(ZLIB)
-if(NOT ZLIB_FOUND)
-	MESSAGE("-- Using Provided zlib source")
-	if(NOT TARGET zlibstatic)
-		add_subdirectory(
-			${CMAKE_CURRENT_SOURCE_DIR}/../../../../Dependencies/build_cmake/zlib-1.2.8
-			${CMAKE_CURRENT_BINARY_DIR}/zlib-1.2.8
-		)
-	endif()
-	list(APPEND PROJECT_LIBS zlibstatic)
-else()
-	include_directories(${ZLIB_INCLUDE_DIRS})
-	list(APPEND PROJECT_LIBS ${ZLIB_LIBRARIES})
-endif()
-
-if(NOT TARGET Boost::boost)
-	add_subdirectory(
-		${CMAKE_CURRENT_SOURCE_DIR}/../../../../Dependencies/boost-cmake
-		${CMAKE_CURRENT_BINARY_DIR}/boost-cmake
-	)
-endif()
-
-##PsfPlayerCore
-set(PSFCORE_SRC_FILES
-	../Source/AppConfig.cpp
-	../Source/Iop_PsfSubSystem.cpp
-	../Source/Playlist.cpp
-	../Source/PlaylistDiscoveryService.cpp
-	../Source/ps2/Ps2_PsfDevice.cpp
-	../Source/ps2/PsfBios.cpp
-	../Source/PsfArchive.cpp
-	../Source/PsfBase.cpp
-	../Source/PsfFs.cpp
-	../Source/PsfLoader.cpp
-	../Source/PsfPathToken.cpp
-	#../Source/PsfRarArchive.cpp
-	../Source/PsfStreamProvider.cpp
-	../Source/PsfTags.cpp
-	../Source/PsfVm.cpp
-	../Source/PsfZipArchive.cpp
-	../Source/psp/MA_ALLEGREX.cpp
-	../Source/psp/MA_ALLEGREX_Reflection.cpp
-	../Source/psp/Psp_Audio.cpp
-	../Source/psp/Psp_IoFileMgrForUser.cpp
-	../Source/psp/Psp_KernelLibrary.cpp
-	../Source/psp/Psp_PsfBios.cpp
-	../Source/psp/Psp_PsfDevice.cpp
-	../Source/psp/Psp_PsfSubSystem.cpp
-	../Source/psp/Psp_SasCore.cpp
-	../Source/psp/Psp_StdioForUser.cpp
-	../Source/psp/Psp_SysMemUserForUser.cpp
-	../Source/psp/Psp_ThreadManForUser.cpp
-	../Source/psp/PspBios.cpp
-	../Source/psx/PsxBios.cpp
-)
-
-if(APPLE)
-	set(PSFCORE_PLATFORM_SPECIFIC_SRC_FILES ../Source/macosx_ui/PsfPlayer_Prefix.pch)
-endif()
-
-add_library(PsfCore STATIC ${PSFCORE_SRC_FILES} ${PSFCORE_PLATFORM_SPECIFIC_SRC_FILES})
-target_link_libraries(PsfCore Boost::boost Boost::system Boost::filesystem ${PROJECT_LIBS})
-target_include_directories(PsfCore PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/../Source)
 list(APPEND PROJECT_LIBS PsfCore)
 
 #UI
@@ -169,7 +102,7 @@ if(APPLE)
 	set_target_properties(PsfPlayer PROPERTIES COMPILE_FLAGS "-x objective-c++")
 
 	# Probably a better way to set the framework link libraries.
-	target_link_libraries(PsfPlayer Boost::boost Boost::system Boost::filesystem ${PROJECT_LIBS} "-ObjC -framework Cocoa -framework OpenGL -framework OpenAL -framework IOKit  -framework AppKit  -framework CoreData  -framework Foundation")
+	target_link_libraries(PsfPlayer ${PROJECT_LIBS} "-ObjC -framework Cocoa -framework OpenGL -framework OpenAL -framework IOKit  -framework AppKit  -framework CoreData  -framework Foundation")
 	target_include_directories(PsfPlayer PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/../Source/macosx_ui/)
 	# Set a custom plist file for the app bundle
 	# NOTE: for these values to be used Info.plist has to be edited
