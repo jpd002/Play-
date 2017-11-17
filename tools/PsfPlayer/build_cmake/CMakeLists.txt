@@ -76,7 +76,7 @@ endif()
 list(APPEND PROJECT_LIBS PsfCore)
 
 #UI
-if(APPLE)
+if(TARGET_PLATFORM_MACOS)
 
 	set (OSX_SOURCES
 		../Source/macosx_ui/ApplicationDelegate.mm
@@ -146,5 +146,5 @@ if(APPLE)
 				COMMENT "${CMAKE_CURRENT_SOURCE_DIR}/../Source/macosx_ui/${xib}.xib")
 
 	endforeach()
-endif(APPLE)
+endif(TARGET_PLATFORM_MACOS)
 
