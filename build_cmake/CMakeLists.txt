@@ -159,7 +159,7 @@ add_library(gsh_opengl STATIC
 	../Source/gs/GSH_OpenGL/GSH_OpenGL_Shader.cpp
 	../Source/gs/GSH_OpenGL/GSH_OpenGL_Texture.cpp
 )
-target_link_libraries(gsh_opengl Boost::boost Framework_OpenGl)
+target_link_libraries(gsh_opengl Boost::boost Framework_OpenGl zlibstatic)
 list(INSERT PROJECT_LIBS 0 gsh_opengl)
 
 if(TARGET_PLATFORM_UNIX)
@@ -463,7 +463,7 @@ if(TARGET_PLATFORM_WIN32)
 		../Source/ui_win32/GSH_OpenGL_SettingsWnd.cpp
 		../Source/ui_win32/GSH_OpenGLWin32.cpp
 	)
-	target_link_libraries(gsh_opengl_win32 Boost::boost)
+	target_link_libraries(gsh_opengl_win32 PUBLIC Boost::boost Framework glew_s)
 	list(APPEND PROJECT_LIBS gsh_opengl_win32)
 	
 	add_library(gsh_d3d9 STATIC 
@@ -471,7 +471,7 @@ if(TARGET_PLATFORM_WIN32)
 		../Source/ui_win32/GSH_Direct3D9_Shader.cpp
 		../Source/ui_win32/GSH_Direct3D9_Texture.cpp
 	)
-	target_link_libraries(gsh_d3d9 Boost::boost)
+	target_link_libraries(gsh_d3d9 Boost::boost Framework zlibstatic Nuanceur)
 	list(APPEND PROJECT_LIBS gsh_d3d9)
 	
 	include_directories(
@@ -566,7 +566,6 @@ if(TARGET_PLATFORM_WIN32)
 	add_executable(Play WIN32 ${WIN32_SRC} ../Source/ui_win32/Res.rc)
 	target_link_libraries(Play PUBLIC ${PROJECT_LIBS})
 	add_precompiled_header(Play StdAfx.h FORCEINCLUDE SOURCE_CXX ../Source/ui_win32/StdAfx.cpp)
-	add_precompiled_header(PlayCore Pch.h FORCEINCLUDE SOURCE_CXX ../Source/Pch.cpp)
 endif(TARGET_PLATFORM_WIN32)
 
 enable_testing()

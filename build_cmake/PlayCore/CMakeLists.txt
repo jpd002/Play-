@@ -528,4 +528,8 @@ if(NOT ANDROID)
 	endif()
 endif()
 
+if(TARGET_PLATFORM_WIN32)
+	add_precompiled_header(PlayCore Pch.h FORCEINCLUDE SOURCE_CXX ../../Source/Pch.cpp)
+endif()
+
 set(PROJECT_LIBS)
