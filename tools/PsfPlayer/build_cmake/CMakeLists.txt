@@ -148,3 +148,58 @@ if(TARGET_PLATFORM_MACOS)
 	endforeach()
 endif(TARGET_PLATFORM_MACOS)
 
+if(TARGET_PLATFORM_WIN32)
+	add_library(SH_OpenAL SHARED ../Source/SH_OpenAL.cpp ../Source/win32_ui/SH_OpenAL/DllMain.cpp)
+	add_library(SH_WaveOut SHARED ../Source/win32_ui/SH_WaveOut.cpp ../Source/win32_ui/SH_WaveOut/DllMain.cpp)
+	add_library(SH_XAudio2 SHARED ../Source/win32_ui/SH_XAudio2.cpp ../Source/win32_ui/SH_XAudio2/DllMain.cpp)
+	target_link_libraries(SH_OpenAL PUBLIC ${OPENAL_LIBRARY} Framework_OpenAl)
+	target_link_libraries(SH_WaveOut PUBLIC "winmm.lib")
+	target_link_libraries(SH_XAudio2 PUBLIC "xaudio2.lib")
+
+	ENABLE_LANGUAGE(ASM_MASM)
+
+	include_directories(
+		../Source
+		../Source/win32_ui
+		../../../Source/ui_win32
+		../../../Source/gs/GSH_OpenGL
+		${CMAKE_CURRENT_SOURCE_DIR}/../../../../Dependencies/tdemu-1.10
+	)
+	if (CMAKE_BUILD_TYPE MATCHES DEBUG)
+		set(DEBUG_SRC
+			../../../Source/ui_win32/CallStackWnd.cpp
+			../../../Source/ui_win32/Debugger.cpp
+			../../../Source/ui_win32/DebugView.cpp
+			../../../Source/ui_win32/FunctionsView.cpp
+			../../../Source/ui_win32/ThreadsViewWnd.cpp
+		)
+	endif()
+
+	if(TARGET_PLATFORM_WIN32_X64)
+		set(MANIFEST ../Source/win32_ui/Play-x64.manifest)
+	else()
+		set(MANIFEST ../Source/win32_ui/Play-x86.manifest)
+	endif()
+
+	set(WIN32_SRC
+		../../../Source/ui_win32/DirectXControl.cpp
+		../Source/win32_ui/AboutWindow.cpp
+		../Source/win32_ui/AcceleratorTable.cpp
+		../Source/win32_ui/FileInformationPanel.cpp
+		../Source/win32_ui/Main.cpp
+		#../Source/win32_ui/Main_Aot.cpp
+		../Source/win32_ui/MainWindow.cpp
+		#../Source/win32_ui/MiniDebugger.cpp
+		../Source/win32_ui/PlaylistPanel.cpp
+		../Source/win32_ui/SpuRegView.cpp
+		../Source/win32_ui/SpuRegViewPanel.cpp
+		../Source/win32_ui/StdAfx.cpp
+	)
+
+	add_executable(PsfPlayer WIN32 ${WIN32_SRC} ../Source/win32_ui/Res.rc)
+	target_link_libraries(PsfPlayer PUBLIC ${PROJECT_LIBS} ${CMAKE_CURRENT_SOURCE_DIR}/../../../../Dependencies/TDEmu64.lib SH_OpenAL SH_WaveOut SH_XAudio2)
+	include(PrecompiledHeader)
+	set(pch_source ../Source/win32_ui/StdAfx.cpp)
+	add_precompiled_header(PsfPlayer ../Source/win32_ui/StdAfx.h c++-header)
+	target_use_precompiled_header(PsfPlayer ../Source/win32_ui/StdAfx.h c++-header FORCEINCLUDE)
+endif(TARGET_PLATFORM_WIN32)
