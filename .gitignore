@@ -12,6 +12,7 @@ build_android/projectFilesBackup/
 build_unix/build*
 build_cmake/build*
 build-build_cmake*
+tools/PsfPlayer/build_cmake/build
 Source/build-ui_*
 Debug
 DebugWithDebugger
