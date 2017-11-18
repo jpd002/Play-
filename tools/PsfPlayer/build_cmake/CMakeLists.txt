@@ -165,12 +165,24 @@ endif(TARGET_PLATFORM_MACOS)
 
 if(TARGET_PLATFORM_WIN32)
 	find_package(DirectX9 REQUIRED)
-	add_library(SH_OpenAL SHARED ../Source/SH_OpenAL.cpp ../Source/win32_ui/SH_OpenAL/DllMain.cpp)
+	set(AUDIO_LIBS)
+	if(OPENAL_FOUND)
+		add_library(SH_OpenAL SHARED ../Source/SH_OpenAL.cpp ../Source/win32_ui/SH_OpenAL/DllMain.cpp)
+		target_link_libraries(SH_OpenAL PRIVATE ${OPENAL_LIBRARY} Framework_OpenAl Framework)
+		list(APPEND AUDIO_LIBS SH_OpenAL)
+	endif()
+
+	find_package(XAudio)
+	if(XAudio_FOUND)
+		add_library(SH_XAudio2 SHARED ../Source/win32_ui/SH_XAudio2.cpp ../Source/win32_ui/SH_XAudio2/DllMain.cpp)
+		target_link_libraries(SH_XAudio2 PRIVATE ${XAudio_LIBRARY} Framework)
+		target_include_directories(SH_XAudio2 PRIVATE ${XAudio_INCLUDE_DIR})
+		list(APPEND AUDIO_LIBS SH_XAudio2)
+	endif()
+
 	add_library(SH_WaveOut SHARED ../Source/win32_ui/SH_WaveOut.cpp ../Source/win32_ui/SH_WaveOut/DllMain.cpp)
-	add_library(SH_XAudio2 SHARED ../Source/win32_ui/SH_XAudio2.cpp ../Source/win32_ui/SH_XAudio2/DllMain.cpp)
-	target_link_libraries(SH_OpenAL PUBLIC ${OPENAL_LIBRARY} Framework_OpenAl Framework)
-	target_link_libraries(SH_WaveOut PUBLIC "winmm.lib" Framework)
-	target_link_libraries(SH_XAudio2 PUBLIC "xaudio2.lib" Framework)
+	target_link_libraries(SH_WaveOut PRIVATE "winmm.lib" Framework)
+	list(APPEND AUDIO_LIBS SH_WaveOut)
 
 	ENABLE_LANGUAGE(ASM_MASM)
 
@@ -206,7 +218,7 @@ if(TARGET_PLATFORM_WIN32)
 	)
 
 	add_executable(PsfPlayer WIN32 ${WIN32_SRC} ../Source/win32_ui/Res.rc)
-	target_link_libraries(PsfPlayer PUBLIC ${DirectX_D3DX9_LIBRARY} ${PROJECT_LIBS} ${CMAKE_CURRENT_SOURCE_DIR}/../../../../Dependencies/tdemu-1.10/TDEmu64.lib SH_OpenAL SH_WaveOut SH_XAudio2)
+	target_link_libraries(PsfPlayer PUBLIC ${DirectX_D3DX9_LIBRARY} ${PROJECT_LIBS} ${CMAKE_CURRENT_SOURCE_DIR}/../../../../Dependencies/tdemu-1.10/TDEmu64.lib ${AUDIO_LIBS})
 	target_include_directories(PsfPlayer
 		PUBLIC
 			../Source
