@@ -75,6 +75,21 @@ if (NOT TARGET PsfCore)
 endif()
 list(APPEND PROJECT_LIBS PsfCore)
 
+find_package(OpenAL)
+if(OPENAL_FOUND)
+	if(TARGET_PLATFORM_MACOS OR TARGET_PLATFORM_IOS OR TARGET_PLATFORM_UNIX OR TARGET_PLATFORM_WIN32)
+		if (NOT TARGET Framework_OpenAl)
+			add_subdirectory(
+				${CMAKE_CURRENT_SOURCE_DIR}/../../../../Framework/build_cmake/FrameworkOpenAl
+				${CMAKE_CURRENT_BINARY_DIR}/FrameworkOpenAl
+			)
+		endif()
+		list(APPEND PROJECT_LIBS Framework_OpenAl)
+		find_package(OpenAL REQUIRED)
+		list(APPEND PROJECT_LIBS ${OPENAL_LIBRARY})
+	endif()
+endif()
+
 #UI
 if(TARGET_PLATFORM_MACOS)
 
@@ -149,22 +164,16 @@ if(TARGET_PLATFORM_MACOS)
 endif(TARGET_PLATFORM_MACOS)
 
 if(TARGET_PLATFORM_WIN32)
+	find_package(DirectX9 REQUIRED)
 	add_library(SH_OpenAL SHARED ../Source/SH_OpenAL.cpp ../Source/win32_ui/SH_OpenAL/DllMain.cpp)
 	add_library(SH_WaveOut SHARED ../Source/win32_ui/SH_WaveOut.cpp ../Source/win32_ui/SH_WaveOut/DllMain.cpp)
 	add_library(SH_XAudio2 SHARED ../Source/win32_ui/SH_XAudio2.cpp ../Source/win32_ui/SH_XAudio2/DllMain.cpp)
-	target_link_libraries(SH_OpenAL PUBLIC ${OPENAL_LIBRARY} Framework_OpenAl)
-	target_link_libraries(SH_WaveOut PUBLIC "winmm.lib")
-	target_link_libraries(SH_XAudio2 PUBLIC "xaudio2.lib")
+	target_link_libraries(SH_OpenAL PUBLIC ${OPENAL_LIBRARY} Framework_OpenAl Framework)
+	target_link_libraries(SH_WaveOut PUBLIC "winmm.lib" Framework)
+	target_link_libraries(SH_XAudio2 PUBLIC "xaudio2.lib" Framework)
 
 	ENABLE_LANGUAGE(ASM_MASM)
 
-	include_directories(
-		../Source
-		../Source/win32_ui
-		../../../Source/ui_win32
-		../../../Source/gs/GSH_OpenGL
-		${CMAKE_CURRENT_SOURCE_DIR}/../../../../Dependencies/tdemu-1.10
-	)
 	if (CMAKE_BUILD_TYPE MATCHES DEBUG)
 		set(DEBUG_SRC
 			../../../Source/ui_win32/CallStackWnd.cpp
@@ -197,9 +206,17 @@ if(TARGET_PLATFORM_WIN32)
 	)
 
 	add_executable(PsfPlayer WIN32 ${WIN32_SRC} ../Source/win32_ui/Res.rc)
-	target_link_libraries(PsfPlayer PUBLIC ${PROJECT_LIBS} ${CMAKE_CURRENT_SOURCE_DIR}/../../../../Dependencies/TDEmu64.lib SH_OpenAL SH_WaveOut SH_XAudio2)
+	target_link_libraries(PsfPlayer PUBLIC ${DirectX_D3DX9_LIBRARY} ${PROJECT_LIBS} ${CMAKE_CURRENT_SOURCE_DIR}/../../../../Dependencies/tdemu-1.10/TDEmu64.lib SH_OpenAL SH_WaveOut SH_XAudio2)
+	target_include_directories(PsfPlayer
+		PUBLIC
+			../Source
+			../Source/win32_ui
+			../../../Source/ui_win32
+			../../../Source/gs/GSH_OpenGL
+			${CMAKE_CURRENT_SOURCE_DIR}/../../../../Dependencies/tdemu-1.10
+			${DirectX_D3DX9_INCLUDE_DIR}
+	)
 	include(PrecompiledHeader)
-	set(pch_source ../Source/win32_ui/StdAfx.cpp)
-	add_precompiled_header(PsfPlayer ../Source/win32_ui/StdAfx.h c++-header)
-	target_use_precompiled_header(PsfPlayer ../Source/win32_ui/StdAfx.h c++-header FORCEINCLUDE)
+	add_precompiled_header(PsfPlayer StdAfx.h FORCEINCLUDE SOURCE_CXX ../Source/win32_ui/StdAfx.cpp)
+
 endif(TARGET_PLATFORM_WIN32)
