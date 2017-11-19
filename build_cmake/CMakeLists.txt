@@ -93,6 +93,9 @@ if(WIN32)
 	endif()
 endif()
 
+if(TARGET_PLATFORM_ANDROID OR TARGET_PLATFORM_IOS)
+	add_definitions(-DGLES_COMPATIBILITY)
+endif()
 
 if (NOT TARGET PlayCore)
 add_subdirectory(

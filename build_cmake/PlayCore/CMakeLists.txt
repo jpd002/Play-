@@ -92,8 +92,7 @@ if(WIN32)
 	endif()
 endif()
 
-if(ANDROID OR IOS)
-	add_definitions(-DGLES_COMPATIBILITY)
+if(TARGET_PLATFORM_ANDROID OR TARGET_PLATFORM_IOS)
 	add_definitions(-DDISABLE_LOGGING)
 endif()
 
