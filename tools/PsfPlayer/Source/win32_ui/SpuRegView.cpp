@@ -1,5 +1,6 @@
 #include "SpuRegView.h"
 #include "win32/Rect.h"
+#include <chrono>
 
 #define WNDSTYLE						(WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_TABSTOP)
 #define WNDSTYLEEX						(0)
@@ -22,11 +23,25 @@ CSpuRegView::CSpuRegView(HWND parentWnd, const RECT& rect, const TCHAR* title)
 	CreateColumns();
 	m_listView->SetExtendedListViewStyle(m_listView->GetExtendedListViewStyle() | LVS_EX_FULLROWSELECT);
 
-	SetTimer(m_hWnd, NULL, 16, NULL);
+	m_running = true;
+	m_thread = new std::thread([&]() {
+		while (m_running)
+		{
+			if (IsWindowVisible(m_hWnd))
+			{
+				std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now() + std::chrono::milliseconds(16);
+				Refresh();
+				std::this_thread::sleep_until(end);
+			}
+		}
+	});
 }
 
 CSpuRegView::~CSpuRegView()
 {
+	m_running = false;
+	if (m_thread->joinable()) m_thread->join();
+	delete m_thread;
 }
 
 long CSpuRegView::OnSize(unsigned int type, unsigned int x, unsigned int y)
@@ -44,15 +59,6 @@ long CSpuRegView::OnSize(unsigned int type, unsigned int x, unsigned int y)
 	}
 
 	return false;
-}
-
-long CSpuRegView::OnTimer(WPARAM param)
-{
-	if(IsWindowVisible(m_hWnd))
-	{
-		Refresh();
-	}
-	return TRUE;
 }
 
 void CSpuRegView::SetSpu(Iop::CSpuBase* spu)

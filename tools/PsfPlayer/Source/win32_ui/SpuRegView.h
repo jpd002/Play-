@@ -7,6 +7,7 @@
 #include "win32/LayoutWindow.h"
 #include "layout/VerticalLayout.h"
 #include "win32/Static.h"
+#include <thread>
 
 class CSpuRegView : public Framework::Win32::CWindow
 {
@@ -18,7 +19,6 @@ public:
 
 protected:
 	virtual long			OnSize(unsigned int, unsigned int, unsigned int) override;
-	virtual long			OnTimer(WPARAM) override;
 
 	void					Refresh();
 
@@ -32,4 +32,7 @@ private:
 	Framework::Win32::CListView*	m_listView;
 	Framework::Win32::CStatic*		m_extrainfo;
 	Framework::FlatLayoutPtr		m_pLayout;
+
+	std::thread*					m_thread;
+	std::atomic<bool>				m_running;
 };
