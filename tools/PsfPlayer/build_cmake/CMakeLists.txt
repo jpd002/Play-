@@ -164,7 +164,6 @@ if(TARGET_PLATFORM_MACOS)
 endif(TARGET_PLATFORM_MACOS)
 
 if(TARGET_PLATFORM_WIN32)
-	find_package(DirectX9 REQUIRED)
 	set(AUDIO_LIBS)
 	if(OPENAL_FOUND)
 		add_library(SH_OpenAL SHARED ../Source/SH_OpenAL.cpp ../Source/win32_ui/SH_OpenAL/DllMain.cpp)
@@ -218,7 +217,7 @@ if(TARGET_PLATFORM_WIN32)
 	)
 
 	add_executable(PsfPlayer WIN32 ${WIN32_SRC} ../Source/win32_ui/Res.rc)
-	target_link_libraries(PsfPlayer PUBLIC ${DirectX_D3DX9_LIBRARY} ${PROJECT_LIBS} ${CMAKE_CURRENT_SOURCE_DIR}/../../../../Dependencies/tdemu-1.10/TDEmu64.lib ${AUDIO_LIBS})
+	target_link_libraries(PsfPlayer PUBLIC ${PROJECT_LIBS} ${CMAKE_CURRENT_SOURCE_DIR}/../../../../Dependencies/tdemu-1.10/TDEmu64.lib ${AUDIO_LIBS})
 	target_include_directories(PsfPlayer
 		PUBLIC
 			../Source
@@ -226,7 +225,6 @@ if(TARGET_PLATFORM_WIN32)
 			../../../Source/ui_win32
 			../../../Source/gs/GSH_OpenGL
 			${CMAKE_CURRENT_SOURCE_DIR}/../../../../Dependencies/tdemu-1.10
-			${DirectX_D3DX9_INCLUDE_DIR}
 	)
 	include(PrecompiledHeader)
 	add_precompiled_header(PsfPlayer StdAfx.h FORCEINCLUDE SOURCE_CXX ../Source/win32_ui/StdAfx.cpp)
