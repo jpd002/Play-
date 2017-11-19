@@ -164,13 +164,6 @@ if(NOT (TARGET_PLATFORM_ANDROID OR TARGET_PLATFORM_IOS))
 	endif()
 endif()
 
-if(TARGET_PLATFORM_ANDROID)
-	if(NOT TARGET cpufeatures)
-		add_library(cpufeatures STATIC ${ANDROID_NDK}/sources/android/cpufeatures/cpu-features.c)
-	endif()
-	list(APPEND PROJECT_LIBS cpufeatures)
-endif()
-
 add_library(gsh_opengl STATIC 
 	../Source/gs/GSH_OpenGL/GSH_OpenGL.cpp
 	../Source/gs/GSH_OpenGL/GSH_OpenGL.h
