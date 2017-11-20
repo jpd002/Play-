@@ -46,6 +46,10 @@ set(CMAKE_MODULE_PATH
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+if(TARGET_PLATFORM_UNIX)
+	set(USE_QT ON CACHE BOOL "Use Qt UI")
+endif()
+
 if(WIN32)
 	set(CMAKE_CXX_FLAGS "/EHsc")
 endif()
@@ -91,7 +95,7 @@ if(OPENAL_FOUND)
 endif()
 
 #UI
-if(TARGET_PLATFORM_MACOS)
+if(TARGET_PLATFORM_MACOS AND NOT USE_QT)
 
 	set (OSX_SOURCES
 		../Source/macosx_ui/ApplicationDelegate.mm
@@ -161,9 +165,9 @@ if(TARGET_PLATFORM_MACOS)
 				COMMENT "${CMAKE_CURRENT_SOURCE_DIR}/../Source/macosx_ui/${xib}.xib")
 
 	endforeach()
-endif(TARGET_PLATFORM_MACOS)
+endif(TARGET_PLATFORM_MACOS  AND NOT USE_QT)
 
-if(TARGET_PLATFORM_WIN32)
+if(TARGET_PLATFORM_WIN32 AND NOT USE_QT)
 	set(AUDIO_LIBS)
 	if(OPENAL_FOUND)
 		add_library(SH_OpenAL SHARED ../Source/SH_OpenAL.cpp ../Source/win32_ui/SH_OpenAL/DllMain.cpp)
@@ -229,4 +233,42 @@ if(TARGET_PLATFORM_WIN32)
 	include(PrecompiledHeader)
 	add_precompiled_header(PsfPlayer StdAfx.h FORCEINCLUDE SOURCE_CXX ../Source/win32_ui/StdAfx.cpp)
 
-endif(TARGET_PLATFORM_WIN32)
+endif(TARGET_PLATFORM_WIN32 AND NOT USE_QT)
+
+if(USE_QT)
+
+		set(QT_SOURCES
+				../Source/unix_ui/main.cpp
+				../Source/unix_ui/mainwindow.cpp
+				../Source/unix_ui/playlistmodel.cpp
+		)
+
+		set(QT_MOC_HEADERS
+				../Source/unix_ui/mainwindow.h
+				../Source/unix_ui/playlistmodel.h
+				../Source/unix_ui/PlaylistItem.h
+		)
+
+		set(QT_UIS
+				../build_unix/mainwindow.ui
+		)
+
+		set(QT_RESOURCES
+		)
+
+		find_package(Qt5 REQUIRED COMPONENTS Widgets Core)
+		list(APPEND PROJECT_LIBS Qt5::Widgets Qt5::Core)
+		add_definitions(${QT_DEFINITIONS})
+
+		QT5_ADD_RESOURCES(QT_RES_SOURCES ${QT_RESOURCES})
+		QT5_WRAP_UI(QT_UI_HEADERS ${QT_UIS})
+		QT5_WRAP_CPP(QT_MOC_SRCS ${QT_MOC_HEADERS})
+
+		add_executable(PsfPlayer ${QT_SOURCES} ${QT_MOC_SRCS} ${QT_RES_SOURCES} ${QT_UI_HEADERS})
+		target_link_libraries(PsfPlayer ${PROJECT_LIBS})
+		target_include_directories(PsfPlayer PUBLIC
+			../
+			../Source/unix_ui/
+			${CMAKE_BINARY_DIR}
+		)
+endif (USE_QT)
