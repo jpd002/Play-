@@ -12,7 +12,17 @@ The screen must display games as a list of boxes.
 
 - Scanning process -
 
-Full scan vs Startup Scan?
+There are two separate scanning processes. A full scan and a startup scan.
+
+-- Full scan -- 
+
+A full scan goes through all potential locations on the system to find any bootable that might be present.
+
+-- Startup scan --
+
+The startup scan only goes through directories where games have been found before. This scanning strategy
+is used to improve the application's starting time while allowing new bootables to be discovered at places
+where the user is most likely to place them.
 
 .nomedia files
 
