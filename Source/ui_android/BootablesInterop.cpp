@@ -6,7 +6,7 @@
 //Operation
 //- Scan a first time
 
-extern "C" JNIEXPORT void JNICALL Java_com_virtualapplications_play_BootablesProcessesInterop_scanDirectory(JNIEnv* env, jobject obj, jstring scanPathString)
+extern "C" JNIEXPORT void JNICALL Java_com_virtualapplications_play_BootablesInterop_scanDirectory(JNIEnv* env, jobject obj, jstring scanPathString)
 {
 	try
 	{
@@ -23,7 +23,7 @@ extern "C" JNIEXPORT void JNICALL Java_com_virtualapplications_play_BootablesPro
 	}
 }
 
-extern "C" JNIEXPORT jobjectArray Java_com_virtualapplications_play_BootablesProcessesInterop_getBootables(JNIEnv* env, jobject obj)
+extern "C" JNIEXPORT jobjectArray Java_com_virtualapplications_play_BootablesInterop_getBootables(JNIEnv* env, jobject obj)
 {
 	auto bootables = BootablesDb::CClient::GetInstance().GetBootables();
 	const auto& bootableClassInfo = com::virtualapplications::play::Bootable_ClassInfo::GetInstance();
@@ -47,7 +47,7 @@ extern "C" JNIEXPORT jobjectArray Java_com_virtualapplications_play_BootablesPro
 	return bootablesJ;
 }
 
-extern "C" JNIEXPORT void Java_com_virtualapplications_play_BootablesProcessesInterop_setLastBootedTime(JNIEnv* env, jobject obj, jstring bootablePathString, jlong lastBootedTime)
+extern "C" JNIEXPORT void Java_com_virtualapplications_play_BootablesInterop_setLastBootedTime(JNIEnv* env, jobject obj, jstring bootablePathString, jlong lastBootedTime)
 {
 	auto bootablePath = boost::filesystem::path(GetStringFromJstring(env, bootablePathString));
 	BootablesDb::CClient::GetInstance().SetLastBootedTime(bootablePath, lastBootedTime);
