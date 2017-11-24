@@ -30,7 +30,7 @@ bool IsBootableDiscImagePath(const boost::filesystem::path& filePath)
 		(extension == ".bin");
 }
 
-void ScanBootables(const boost::filesystem::path& parentPath)
+void ScanBootables(const boost::filesystem::path& parentPath, bool recursive)
 {
 	for(auto pathIterator = boost::filesystem::directory_iterator(parentPath);
 		pathIterator != boost::filesystem::directory_iterator(); pathIterator++)
@@ -38,9 +38,9 @@ void ScanBootables(const boost::filesystem::path& parentPath)
 		auto& path = pathIterator->path();
 		try
 		{
-			if(boost::filesystem::is_directory(path))
+			if(recursive && boost::filesystem::is_directory(path))
 			{
-				ScanBootables(path);
+				ScanBootables(path, recursive);
 				continue;
 			}
 			if(
@@ -57,6 +57,18 @@ void ScanBootables(const boost::filesystem::path& parentPath)
 			//Failed to process a path, keep going
 		}
 	}
+}
+
+std::set<boost::filesystem::path> GetActiveBootableDirectories()
+{
+	std::set<boost::filesystem::path> result;
+	auto bootables = BootablesDb::CClient::GetInstance().GetBootables();
+	for(const auto& bootable : bootables)
+	{
+		auto parentPath = bootable.path.parent_path();
+		result.insert(parentPath);
+	}
+	return result;
 }
 
 void PurgeInexistingFiles()

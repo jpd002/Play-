@@ -7,7 +7,7 @@ public class BootablesInterop
 		System.loadLibrary("Play");
 	}
 
-	public static native void scanDirectory(String scanPath);
+	public static native void scanBootables(String[] rootDirectories);
 	public static native Bootable[] getBootables();
 	public static native void setLastBootedTime(String bootablePath, long lastBootedTime);
 }

@@ -3,24 +3,35 @@
 #include "com_virtualapplications_play_Bootable.h"
 #include "NativeShared.h"
 
-//Operation
-//- Scan a first time
-
-extern "C" JNIEXPORT void JNICALL Java_com_virtualapplications_play_BootablesInterop_scanDirectory(JNIEnv* env, jobject obj, jstring scanPathString)
+extern "C" JNIEXPORT void JNICALL Java_com_virtualapplications_play_BootablesInterop_scanBootables(JNIEnv* env, jobject obj, jobjectArray rootDirectories)
 {
 	try
 	{
-		auto scanPath = GetStringFromJstring(env, scanPathString);
-		Log_Print("Scanning for bootables in '%s'\r\n", scanPath.c_str());
-		ScanBootables(scanPath);
-		ExtractDiscIds();
-		FetchGameTitles();
-		//FetchCoverUrls();
+		auto activeDirectories = GetActiveBootableDirectories();
+		if(activeDirectories.empty())
+		{
+			auto rootDirectoryCount = env->GetArrayLength(rootDirectories);
+			for(int i = 0; i < rootDirectoryCount; i++)
+			{
+				auto rootDirectoryString = static_cast<jstring>(env->GetObjectArrayElement(rootDirectories, i));
+				auto rootDirectory = GetStringFromJstring(env, rootDirectoryString);
+				ScanBootables(rootDirectory, true);
+			}
+		}
+		else
+		{
+			for(const auto& activeDirectory : activeDirectories)
+			{
+				ScanBootables(activeDirectory, false);
+			}
+		}
 	}
 	catch(const std::exception& exception)
 	{
 		Log_Print("Caught an exception: '%s'\r\n", exception.what());
 	}
+	ExtractDiscIds();
+	FetchGameTitles();
 }
 
 extern "C" JNIEXPORT jobjectArray Java_com_virtualapplications_play_BootablesInterop_getBootables(JNIEnv* env, jobject obj)
