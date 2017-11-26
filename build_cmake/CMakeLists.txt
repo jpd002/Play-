@@ -823,10 +823,10 @@ if(TARGET_PLATFORM_IOS)
 	)
 
 	set(OSX_RES
+		${CMAKE_CURRENT_SOURCE_DIR}/../games.db
 		${CMAKE_CURRENT_SOURCE_DIR}/../patches.xml
 		${CMAKE_CURRENT_SOURCE_DIR}/../Source/ui_ios/Base.lproj/Main.storyboard
 		${CMAKE_CURRENT_SOURCE_DIR}/../Source/ui_ios/Resources/icon@2x.png
-		${CMAKE_CURRENT_SOURCE_DIR}/../Source/ui_ios/Resources/games.db
 		${CMAKE_CURRENT_SOURCE_DIR}/../Source/ui_ios/Resources/boxart.png
 		${CMAKE_CURRENT_SOURCE_DIR}/../Source/ui_ios/Resources/select.png
 		${CMAKE_CURRENT_SOURCE_DIR}/../Source/ui_ios/Resources/start.png

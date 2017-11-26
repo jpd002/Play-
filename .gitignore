@@ -19,6 +19,7 @@ Release
 ReleaseWithDebugger
 DebugAot
 ReleaseAot
+.vs
 *.aps
 *.ipch
 *.sdf

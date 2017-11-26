@@ -4,10 +4,11 @@ buildscript {
 	repositories {
 		mavenCentral()
 		jcenter()
+		maven { url "https://maven.google.com" }
 	}
 
 	dependencies {
-		classpath 'com.android.tools.build:gradle:2.3.3'
+		classpath 'com.android.tools.build:gradle:3.0.0'
 	}
 }
 
@@ -17,7 +18,8 @@ project.ext {
 }
 
 project.afterEvaluate {
-	preBuild.dependsOn 'copyPatchFile'
+	preBuild.dependsOn 'copyPatchesFile'
+	preBuild.dependsOn 'copyGamesDbFile'
 
 	def configName = 'release'
 	if(project.ext.signingEnabled && android.signingConfigs.hasProperty(configName)) {
@@ -36,7 +38,7 @@ android {
 	}
 
 	compileSdkVersion 'android-24'
-	buildToolsVersion '25.0.0'
+	buildToolsVersion '26.0.2'
 
 	defaultConfig {
 		versionCode 40
@@ -92,8 +94,13 @@ android {
 		exclude 'META-INF/NOTICE.txt'
 	}
 
-	task copyPatchFile(type: Copy) {
+	task copyPatchesFile(type: Copy) {
 		from '../patches.xml'
+		into 'src/main/assets'
+	}
+
+	task copyGamesDbFile(type: Copy) {
+		from '../games.db'
 		into 'src/main/assets'
 	}
 
