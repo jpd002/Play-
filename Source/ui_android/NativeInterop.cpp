@@ -16,6 +16,10 @@
 #include "SH_OpenSL.h"
 #include "StatsManager.h"
 #include "com_virtualapplications_play_Bootable.h"
+#include "http/java_io_InputStream.h"
+#include "http/java_io_OutputStream.h"
+#include "http/java_net_HttpURLConnection.h"
+#include "http/java_net_URL.h"
 
 CPS2VM* g_virtualMachine = nullptr;
 
@@ -46,6 +50,10 @@ static void ResetVirtualMachine()
 extern "C" JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM* vm, void* aReserved)
 {
 	Framework::CJavaVM::SetJavaVM(vm);
+	java::net::URL_ClassInfo::GetInstance().PrepareClassInfo();
+	java::net::HttpURLConnection_ClassInfo::GetInstance().PrepareClassInfo();
+	java::io::InputStream_ClassInfo::GetInstance().PrepareClassInfo();
+	java::io::OutputStream_ClassInfo::GetInstance().PrepareClassInfo();
 	com::virtualapplications::play::Bootable_ClassInfo::GetInstance().PrepareClassInfo();
 	return JNI_VERSION_1_6;
 }
