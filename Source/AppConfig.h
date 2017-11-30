@@ -1,5 +1,4 @@
-#ifndef _APPCONFIG_H_
-#define _APPCONFIG_H_
+#pragma once
 
 #include "Config.h"
 #include "Singleton.h"
@@ -15,5 +14,3 @@ public:
 private:
 	static CConfig::PathType	BuildConfigPath();
 };
-
-#endif
