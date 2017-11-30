@@ -17,6 +17,7 @@ namespace com
 				jfieldID path = NULL;
 				jfieldID discId = NULL;
 				jfieldID title = NULL;
+				jfieldID coverUrl = NULL;
 			};
 		}
 	}
