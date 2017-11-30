@@ -8,7 +8,7 @@ class CAppConfig : public Framework::CConfig, public CSingleton<CAppConfig>
 {
 public:
 								CAppConfig();
-	virtual						~CAppConfig();
+	virtual						~CAppConfig() = default;
 
 	static CConfig::PathType	GetBasePath();
 

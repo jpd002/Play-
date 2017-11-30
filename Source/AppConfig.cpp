@@ -10,11 +10,6 @@ CAppConfig::CAppConfig()
 
 }
 
-CAppConfig::~CAppConfig()
-{
-
-}
-
 Framework::CConfig::PathType CAppConfig::GetBasePath()
 {
 	auto result = Framework::PathUtils::GetPersonalDataPath() / BASE_DATA_PATH;
