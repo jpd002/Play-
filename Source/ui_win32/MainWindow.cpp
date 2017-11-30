@@ -708,7 +708,8 @@ void CMainWindow::BootDiskImage()
 
 	if(nRet == 0) return;
 
-	CAppConfig::GetInstance().SetPreferenceString(PS2VM_CDROM0PATH, string_cast<std::string>(d.GetPath()).c_str());
+	auto path = boost::filesystem::path(d.GetPath());
+	CAppConfig::GetInstance().SetPreferencePath(PS2VM_CDROM0PATH, path);
 	BootCDROM();
 }
 

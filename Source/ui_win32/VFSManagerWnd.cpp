@@ -207,23 +207,24 @@ int CVFSManagerWnd::CDirectoryDevice::BrowseCallback(HWND hFrom, unsigned int nM
 
 CVFSManagerWnd::CCdrom0Device::CCdrom0Device()
 {
-	auto cdrom0Path = CAppConfig::GetInstance().GetPreferenceString(PS2VM_CDROM0PATH);
-	
+	auto cdrom0Path = CAppConfig::GetInstance().GetPreferencePath(PS2VM_CDROM0PATH);
+	auto cdrom0PathString = cdrom0Path.string();
+
 	//Detect the binding type from the path format
-	if(!strcmp(cdrom0Path, ""))
+	if(cdrom0Path.empty())
 	{
 		m_bindingType = CCdromSelectionWnd::BINDING_IMAGE;
 		m_imagePath   = _T("");
 	}
-	else if(strlen(cdrom0Path) == 6 && !strncmp(cdrom0Path, "\\\\.\\", 4))
+	else if((cdrom0PathString.length() == 6) && !cdrom0PathString.compare(0, 4, "\\\\.\\"))
 	{
 		m_bindingType = CCdromSelectionWnd::BINDING_PHYSICAL;
-		m_devicePath  = string_format("%c:\\", toupper(cdrom0Path[4]));
+		m_devicePath  = string_format("%c:\\", toupper(cdrom0PathString[4]));
 	}
 	else
 	{
 		m_bindingType = CCdromSelectionWnd::BINDING_IMAGE;
-		m_imagePath   = string_cast<std::tstring>(cdrom0Path);
+		m_imagePath   = cdrom0Path.native();
 	}
 }
 
@@ -290,12 +291,11 @@ void CVFSManagerWnd::CCdrom0Device::Save()
 {
 	if(m_bindingType == CCdromSelectionWnd::BINDING_IMAGE)
 	{
-		auto cvtImagePath = string_cast<std::string>(m_imagePath);
-		CAppConfig::GetInstance().SetPreferenceString(PS2VM_CDROM0PATH, cvtImagePath.c_str());
+		CAppConfig::GetInstance().SetPreferencePath(PS2VM_CDROM0PATH, m_imagePath);
 	}
 	else if(m_bindingType == CCdromSelectionWnd::BINDING_PHYSICAL)
 	{
 		auto devicePath = string_format("\\\\.\\%c:", m_devicePath[0]);
-		CAppConfig::GetInstance().SetPreferenceString(PS2VM_CDROM0PATH, devicePath.c_str());
+		CAppConfig::GetInstance().SetPreferencePath(PS2VM_CDROM0PATH, devicePath);
 	}
 }
