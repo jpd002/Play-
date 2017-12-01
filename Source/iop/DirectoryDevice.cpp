@@ -10,11 +10,6 @@ CDirectoryDevice::CDirectoryDevice(const char* basePathPreferenceName)
 
 }
 
-CDirectoryDevice::~CDirectoryDevice()
-{
-
-}
-
 Framework::CStream* CDirectoryDevice::GetFile(uint32 accessType, const char* devicePath)
 {
 	const char* mode(NULL);

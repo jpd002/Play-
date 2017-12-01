@@ -1,5 +1,4 @@
-#ifndef _DIRECTORYDEVICE_H_
-#define _DIRECTORYDEVICE_H_
+#pragma once
 
 #include <string>
 #include "Ioman_Device.h"
@@ -12,7 +11,7 @@ namespace Iop
 		{
 		public:
 											CDirectoryDevice(const char*);
-			virtual							~CDirectoryDevice();
+			virtual							~CDirectoryDevice() = default;
 			virtual Framework::CStream*		GetFile(uint32, const char*);
 
 		private:
@@ -20,5 +19,3 @@ namespace Iop
 		};
 	}
 }
-
-#endif
