@@ -9,6 +9,7 @@
 #include "StdStreamUtils.h"
 #include "McManagerWnd.h"
 #include "../AppConfig.h"
+#include "../PS2VM_Preferences.h"
 #include "../AppDef.h"
 
 #define CLSNAME			_T("CMcManagerWnd")
@@ -20,8 +21,8 @@ namespace filesystem = boost::filesystem;
 
 CMcManagerWnd::CMcManagerWnd(HWND hParent) 
 : CModalWindow(hParent)
-, m_MemoryCard0(CAppConfig::GetInstance().GetPreferenceString("ps2.mc0.directory"))
-, m_MemoryCard1(CAppConfig::GetInstance().GetPreferenceString("ps2.mc1.directory"))
+, m_MemoryCard0(CAppConfig::GetInstance().GetPreferenceString(PREF_PS2_MC0_DIRECTORY))
+, m_MemoryCard1(CAppConfig::GetInstance().GetPreferenceString(PREF_PS2_MC1_DIRECTORY))
 {
 	m_pImportButton		= NULL;
 	m_pCloseButton		= NULL;

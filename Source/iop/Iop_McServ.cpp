@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <boost/algorithm/string.hpp>
 #include "../AppConfig.h"
+#include "../PS2VM_Preferences.h"
 #include "../Log.h"
 #include "Iop_McServ.h"
 
@@ -12,8 +13,8 @@ namespace filesystem = boost::filesystem;
 
 const char* CMcServ::m_mcPathPreference[2] =
 {
-	"ps2.mc0.directory",
-	"ps2.mc1.directory",
+	PREF_PS2_MC0_DIRECTORY,
+	PREF_PS2_MC1_DIRECTORY,
 };
 
 CMcServ::CMcServ(CSifMan& sif)
