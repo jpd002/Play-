@@ -91,13 +91,14 @@ CPS2VM* g_virtualMachine = nullptr;
 	g_virtualMachine->Pause();
 	g_virtualMachine->Reset();
 
+	auto imagePath = boost::filesystem::path([self.imagePath fileSystemRepresentation]);
 	if(IosUtils::IsLoadableExecutableFileName(self.imagePath))
 	{
-		g_virtualMachine->m_ee->m_os->BootFromFile([self.imagePath UTF8String]);
+		g_virtualMachine->m_ee->m_os->BootFromFile(imagePath);
 	}
 	else
 	{
-		CAppConfig::GetInstance().SetPreferenceString(PS2VM_CDROM0PATH, [self.imagePath UTF8String]);
+		CAppConfig::GetInstance().SetPreferenceString(PS2VM_CDROM0PATH, imagePath.string().c_str());
 		g_virtualMachine->Reset();
 		g_virtualMachine->m_ee->m_os->BootFromCDROM();
 	}
