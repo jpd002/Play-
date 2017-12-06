@@ -139,8 +139,9 @@
 {
 	if(self = [super init])
 	{
-		auto preferenceValue = CAppConfig::GetInstance().GetPreferenceString(PS2VM_CDROM0PATH);
-		self.value = preferenceValue ? [NSString stringWithUTF8String: preferenceValue] : @"";
+		auto preferenceValue = CAppConfig::GetInstance().GetPreferencePath(PS2VM_CDROM0PATH);
+		auto nativeString = preferenceValue.native();
+		self.value = [[NSFileManager defaultManager] stringWithFileSystemRepresentation: nativeString.c_str() length: nativeString.size()];
 	}
 	return self;
 }
@@ -174,7 +175,8 @@
 
 -(void)save
 {
-	CAppConfig::GetInstance().SetPreferenceString(PS2VM_CDROM0PATH, [self.value UTF8String]);
+	auto pathString = [self.value length] ? [self.value fileSystemRepresentation] : "";
+	CAppConfig::GetInstance().SetPreferencePath(PS2VM_CDROM0PATH, pathString);
 }
 
 @end
