@@ -7,10 +7,6 @@
 @end
 
 @interface OutputWindowController : NSWindowController
-{
-	NSOpenGLView*					_openGlView;
-	id<OutputWindowDelegate>		_delegate;
-}
 
 @property(assign, nonatomic) IBOutlet NSOpenGLView* openGlView;
 @property(assign, nonatomic) id<OutputWindowDelegate> delegate;

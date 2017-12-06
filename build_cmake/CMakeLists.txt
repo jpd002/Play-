@@ -731,7 +731,7 @@ if(TARGET_PLATFORM_MACOS)
 	)
 	# Add our Executable
 	add_executable(Play MACOSX_BUNDLE ${OSX_SOURCES} ${OSX_HEADERS} ${OSX_RES})
-	set_target_properties(Play PROPERTIES COMPILE_FLAGS "-x objective-c++")
+	set_target_properties(Play PROPERTIES COMPILE_FLAGS "-x objective-c++ -fobjc-arc")
 
 	# Probably a better way to set the framework link libraries.
 	target_link_libraries(Play ${PROJECT_LIBS} "-ObjC -framework Cocoa -framework OpenGL -framework OpenAL -framework IOKit -framework AppKit -framework CoreData -framework Foundation")

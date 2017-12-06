@@ -6,9 +6,6 @@
 
 @implementation OutputWindowController
 
-@synthesize openGlView = _openGlView;
-@synthesize delegate = _delegate;
-
 -(NSApplicationPresentationOptions)window: (NSWindow*)window willUseFullScreenPresentationOptions:(NSApplicationPresentationOptions)proposedOptions
 {
 	return (NSApplicationPresentationFullScreen | NSApplicationPresentationHideDock | NSApplicationPresentationAutoHideMenuBar);

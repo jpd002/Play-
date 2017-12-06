@@ -7,8 +7,6 @@
 
 @implementation PreferencesWindowController
 
-@synthesize currentViewController;
-
 static PreferencesWindowController* g_sharedInstance = nil;
 
 +(PreferencesWindowController*)defaultController
@@ -30,8 +28,6 @@ static PreferencesWindowController* g_sharedInstance = nil;
 -(void)windowWillClose: (NSNotification*)notification
 {
 	[NSApp stopModal];
-	[self release];
-	g_sharedInstance = nil;
 }
 
 -(void)awakeFromNib
@@ -47,19 +43,19 @@ static PreferencesWindowController* g_sharedInstance = nil;
 	switch(item.tag)
 	{
 	case 0:
-		currentViewController = [[VideoSettingsViewController alloc] init];
+		self.currentViewController = [[VideoSettingsViewController alloc] init];
 		break;
 	case 1:
-		currentViewController = [[AudioSettingsViewController alloc] init];
+		self.currentViewController = [[AudioSettingsViewController alloc] init];
 		break;
 	case 2:
-		currentViewController = [[VfsManagerViewController alloc] init];
+		self.currentViewController = [[VfsManagerViewController alloc] init];
 		break;
 	default:
 		assert(false);
 		break;
 	}
-	NSView* contentView = currentViewController.view;
+	NSView* contentView = self.currentViewController.view;
 	self.window.contentView = nil;
 	auto currentFrame = self.window.frame;
 	auto currentTop = currentFrame.origin.y + currentFrame.size.height;

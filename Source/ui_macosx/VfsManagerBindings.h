@@ -1,11 +1,9 @@
 #import <Cocoa/Cocoa.h>
 
 @interface VfsManagerBinding : NSObject
-{
 
-}
+@property NSString* deviceName;
 
--(NSString*)deviceName;
 -(NSString*)bindingType;
 -(NSString*)bindingValue;
 -(void)requestModification;
@@ -13,10 +11,9 @@
 
 @end
 
-@interface VfsManagerBindings : NSObject <NSTableViewDataSource>
-{
-	NSMutableArray*		m_bindings;
-}
+@interface VfsManagerBindings : NSObject<NSTableViewDataSource>
+
+@property NSMutableArray* bindings;
 
 -(VfsManagerBindings*)init;
 -(void)save;
@@ -25,14 +22,11 @@
 @end
 
 @interface VfsManagerDirectoryBinding : VfsManagerBinding
-{
-	NSString*	m_deviceName;
-	NSString*	m_preference;
-	NSString*	m_value;
-}
+
+@property NSString* preferenceName;
+@property NSString* value;
 
 -(VfsManagerDirectoryBinding*)init: (NSString*)deviceName preferenceName: (NSString*)preferenceName;
--(NSString*)deviceName;
 -(NSString*)bindingType;
 -(NSString*)bindingValue;
 -(void)requestModification;
@@ -41,12 +35,10 @@
 @end
 
 @interface VfsManagerCdrom0Binding : VfsManagerBinding
-{
-	NSString*	m_value;
-}
+
+@property NSString* value;
 
 -(VfsManagerCdrom0Binding*)init;
--(NSString*)deviceName;
 -(NSString*)bindingType;
 -(NSString*)bindingValue;
 -(void)requestModification;

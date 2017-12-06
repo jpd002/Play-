@@ -6,40 +6,20 @@
 
 -(VfsManagerBindings*)init
 {
-	self = [super init];
-	m_bindings = [[NSMutableArray alloc] init];
+	if(self = [super init])
 	{
-		NSObject* objectToAdd = [[VfsManagerCdrom0Binding alloc] init];
-		[objectToAdd autorelease];
-		[m_bindings addObject: objectToAdd];
-	}
-	{
-		NSObject* objectToAdd = [[VfsManagerDirectoryBinding alloc] init: @"mc0" preferenceName: @"ps2.mc0.directory"];
-		[objectToAdd autorelease];
-		[m_bindings addObject: objectToAdd];
-	}
-	{
-		NSObject* objectToAdd = [[VfsManagerDirectoryBinding alloc] init: @"mc1" preferenceName: @"ps2.mc1.directory"];
-		[objectToAdd autorelease];
-		[m_bindings addObject: objectToAdd];
-	}
-	{
-		NSObject* objectToAdd = [[VfsManagerDirectoryBinding alloc] init: @"host" preferenceName: @"ps2.host.directory"];
-		[objectToAdd autorelease];
-		[m_bindings addObject: objectToAdd];
+		self.bindings = [[NSMutableArray alloc] init];
+		[self.bindings addObject: [[VfsManagerCdrom0Binding alloc] init]];
+		[self.bindings addObject: [[VfsManagerDirectoryBinding alloc] init: @"mc0" preferenceName: @PREF_PS2_MC0_DIRECTORY]];
+		[self.bindings addObject: [[VfsManagerDirectoryBinding alloc] init: @"mc1" preferenceName: @PREF_PS2_MC1_DIRECTORY]];
+		[self.bindings addObject: [[VfsManagerDirectoryBinding alloc] init: @"host" preferenceName: @PREF_PS2_HOST_DIRECTORY]];
 	}
 	return self;
 }
 
--(void)dealloc
-{
-	[m_bindings release];
-	[super dealloc];
-}
-
 -(void)save
 {
-	NSEnumerator* bindingIterator = [m_bindings objectEnumerator];
+	NSEnumerator* bindingIterator = [self.bindings objectEnumerator];
 	VfsManagerBinding* binding = nil;
 	while(binding = [bindingIterator nextObject])
 	{
@@ -49,13 +29,13 @@
 
 -(NSInteger)numberOfRowsInTableView: (NSTableView*)tableView
 {
-	return [m_bindings count];
+	return [self.bindings count];
 }
 
 -(id)tableView: (NSTableView*)tableView objectValueForTableColumn: (NSTableColumn*)tableColumn row: (NSInteger)row
 {
-	if(row >= [m_bindings count]) return @"";
-	VfsManagerBinding* binding = [m_bindings objectAtIndex: row];
+	if(row >= [self.bindings count]) return @"";
+	VfsManagerBinding* binding = [self.bindings objectAtIndex: row];
 	if([[tableColumn identifier] isEqualToString: @"deviceName"])
 	{
 		return [binding deviceName];
@@ -73,8 +53,8 @@
 
 -(VfsManagerBinding*)getBindingAt: (NSUInteger)index
 {
-	if(index >= [m_bindings count]) return nil;
-	return [m_bindings objectAtIndex: index];
+	if(index >= [self.bindings count]) return nil;
+	return [self.bindings objectAtIndex: index];
 }
 
 @end
@@ -82,12 +62,6 @@
 //---------------------------------------------------------------------------
 
 @implementation VfsManagerBinding
-
--(NSString*)deviceName
-{
-	[self doesNotRecognizeSelector: _cmd];
-	return nil;
-}
 
 -(NSString*)bindingValue
 {
@@ -119,32 +93,14 @@
 
 -(VfsManagerDirectoryBinding*)init: (NSString*)deviceName preferenceName: (NSString*)preferenceName
 {
-	self = [super init];
-	m_deviceName = deviceName;
-	m_preference = preferenceName;
-	const char* preferenceValue = CAppConfig::GetInstance().GetPreferenceString([preferenceName UTF8String]);
-	if(preferenceValue == NULL)
+	if(self = [super init])
 	{
-		m_value = @"";
-	}
-	else
-	{
-		m_value = [[NSString alloc] initWithUTF8String: preferenceValue];
+		self.deviceName = deviceName;
+		self.preferenceName = preferenceName;
+		auto preferenceValue = CAppConfig::GetInstance().GetPreferenceString([preferenceName UTF8String]);
+		self.value = preferenceValue ? [NSString stringWithUTF8String: preferenceValue] : @"";
 	}
 	return self;
-}
-
--(void)dealloc
-{
-	[m_deviceName release];
-	[m_value release];
-	[m_preference release];
-	[super dealloc];
-}
-
--(NSString*)deviceName
-{
-	return m_deviceName;
 }
 
 -(NSString*)bindingType
@@ -154,7 +110,7 @@
 
 -(NSString*)bindingValue
 {
-	return m_value;
+	return self.value;
 }
 
 -(void)requestModification
@@ -167,15 +123,12 @@
 	{
 		return;
 	}
-	NSString* filename = [[openPanel URL] path];
-	[filename retain];
-	[m_value release];
-	m_value = filename;
+	self.value = [[openPanel URL] path];
 }
 
 -(void)save
 {
-	CAppConfig::GetInstance().SetPreferenceString([m_preference UTF8String], [m_value UTF8String]);
+	CAppConfig::GetInstance().SetPreferenceString([self.preferenceName UTF8String], [self.value UTF8String]);
 }
 
 @end
@@ -184,23 +137,12 @@
 
 -(VfsManagerCdrom0Binding*)init
 {
-	self = [super init];
-	const char* preferenceValue = CAppConfig::GetInstance().GetPreferenceString(PS2VM_CDROM0PATH);
-	if(preferenceValue == NULL)
+	if(self = [super init])
 	{
-		m_value = @"";
-	}
-	else
-	{
-		m_value = [[NSString alloc] initWithUTF8String: preferenceValue];
+		auto preferenceValue = CAppConfig::GetInstance().GetPreferenceString(PS2VM_CDROM0PATH);
+		self.value = preferenceValue ? [NSString stringWithUTF8String: preferenceValue] : @"";
 	}
 	return self;
-}
-
--(void)dealloc
-{
-	[m_value release];
-	[super dealloc];
 }
 
 -(NSString*)deviceName
@@ -215,7 +157,7 @@
 
 -(NSString*)bindingValue
 {
-	return m_value;
+	return self.value;
 }
 
 -(void)requestModification
@@ -227,15 +169,12 @@
 	{
 		return;
 	}
-	NSString* filename = [[openPanel URL] path];
-	[filename retain];
-	[m_value release];
-	m_value = filename;	
+	self.value = [[openPanel URL] path];
 }
 
 -(void)save
 {
-	CAppConfig::GetInstance().SetPreferenceString(PS2VM_CDROM0PATH, [m_value UTF8String]);
+	CAppConfig::GetInstance().SetPreferenceString(PS2VM_CDROM0PATH, [self.value UTF8String]);
 }
 
 @end

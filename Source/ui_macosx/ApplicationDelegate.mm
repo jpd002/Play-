@@ -78,8 +78,8 @@
 		0
 	};
 		
-	NSOpenGLPixelFormat* pixelFormat = [[[NSOpenGLPixelFormat alloc] initWithAttributes: pixelFormatAttributes] autorelease];
-	NSOpenGLContext* context = [[[NSOpenGLContext alloc] initWithFormat: pixelFormat shareContext:nil] autorelease];
+	NSOpenGLPixelFormat* pixelFormat = [[NSOpenGLPixelFormat alloc] initWithAttributes: pixelFormatAttributes];
+	NSOpenGLContext* context = [[NSOpenGLContext alloc] initWithFormat: pixelFormat shareContext: nil];
 	[outputWindowController.openGlView setPixelFormat: pixelFormat];
 	[outputWindowController.openGlView setOpenGLContext: context];
 }
@@ -113,7 +113,7 @@
 		{
 			if(res == -1)
 			{
-				NSString* msg_str = [[[NSString alloc] initWithUTF8String:msg] autorelease];
+				NSString* msg_str = [NSString stringWithUTF8String: msg];
 				dispatch_async(dispatch_get_main_queue(),
 				^
 					{
