@@ -39,6 +39,8 @@ static PreferencesWindowController* g_sharedInstance = nil;
 
 -(IBAction)onToolBarButtonPressed: (id)sender
 {
+	//Clear previous content view to make sure viewWillDisappear will be called
+	self.window.contentView = nil;
 	NSToolbarItem* item = (NSToolbarItem*)sender;
 	switch(item.tag)
 	{
