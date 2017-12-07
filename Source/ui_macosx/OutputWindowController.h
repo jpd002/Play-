@@ -8,8 +8,8 @@
 
 @interface OutputWindowController : NSWindowController
 
-@property(assign, nonatomic) IBOutlet NSOpenGLView* openGlView;
-@property(assign, nonatomic) id<OutputWindowDelegate> delegate;
+@property(weak, nonatomic) IBOutlet NSOpenGLView* openGlView;
+@property(weak, nonatomic) id<OutputWindowDelegate> delegate;
 
 -(NSSize)contentSize;
 
