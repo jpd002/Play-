@@ -263,7 +263,7 @@ CMemoryCardView::CRender::CRender(HWND hWnd, const CViewState* pViewState)
 , m_threadOver(false)
 , m_thread(NULL)
 {
-	m_thread = new std::thread(std::tr1::bind(&CRender::ThreadProc, this));
+	m_thread = new std::thread(std::bind(&CRender::ThreadProc, this));
 }
 
 CMemoryCardView::CRender::~CRender()
@@ -302,7 +302,7 @@ void CMemoryCardView::CRender::ThreadProc()
 
 void CMemoryCardView::CRender::SetMemoryCard(const CMemoryCard* memoryCard)
 {
-	m_mailBox.SendCall(std::tr1::bind(&CRender::ThreadSetMemoryCard, this, memoryCard));
+	m_mailBox.SendCall(std::bind(&CRender::ThreadSetMemoryCard, this, memoryCard));
 }
 
 void CMemoryCardView::CRender::ThreadSetMemoryCard(const CMemoryCard* memoryCard)

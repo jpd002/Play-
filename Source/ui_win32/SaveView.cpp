@@ -49,12 +49,12 @@ CSaveView::CSaveView(HWND hParent)
 	m_pDeletingIcon	= new Framework::Win32::CButton(_T("Deleting Icon"), m_hWnd, rc, BS_PUSHLIKE | BS_CHECKBOX);
 	m_pIconViewWnd	= new CSaveIconView(m_hWnd, rc);
 
-	m_CommandSink.RegisterCallback(m_pOpenFolder->m_hWnd,	std::tr1::bind(&CSaveView::OpenSaveFolder, this));
-	m_CommandSink.RegisterCallback(m_pNormalIcon->m_hWnd,	std::tr1::bind(&CSaveView::SetIconType, this, CSave::ICON_NORMAL));
-	m_CommandSink.RegisterCallback(m_pCopyingIcon->m_hWnd,	std::tr1::bind(&CSaveView::SetIconType, this, CSave::ICON_COPYING));
-	m_CommandSink.RegisterCallback(m_pDeletingIcon->m_hWnd,	std::tr1::bind(&CSaveView::SetIconType, this, CSave::ICON_DELETING));
-	m_CommandSink.RegisterCallback(m_pExport->m_hWnd,		std::tr1::bind(&CSaveView::Export, this));
-	m_CommandSink.RegisterCallback(m_pDelete->m_hWnd,		std::tr1::bind(&CSaveView::Delete, this));
+	m_CommandSink.RegisterCallback(m_pOpenFolder->m_hWnd,	std::bind(&CSaveView::OpenSaveFolder, this));
+	m_CommandSink.RegisterCallback(m_pNormalIcon->m_hWnd,	std::bind(&CSaveView::SetIconType, this, CSave::ICON_NORMAL));
+	m_CommandSink.RegisterCallback(m_pCopyingIcon->m_hWnd,	std::bind(&CSaveView::SetIconType, this, CSave::ICON_COPYING));
+	m_CommandSink.RegisterCallback(m_pDeletingIcon->m_hWnd,	std::bind(&CSaveView::SetIconType, this, CSave::ICON_DELETING));
+	m_CommandSink.RegisterCallback(m_pExport->m_hWnd,		std::bind(&CSaveView::Export, this));
+	m_CommandSink.RegisterCallback(m_pDelete->m_hWnd,		std::bind(&CSaveView::Delete, this));
 
 	Framework::FlatLayoutPtr pSubLayout0 = Framework::CHorizontalLayout::Create();
 	{

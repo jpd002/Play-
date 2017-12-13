@@ -62,7 +62,7 @@ CSaveIconView::CSaveIconView(HWND hParent, const RECT& rect)
 	Create(WS_EX_STATICEDGE, CLSNAME, _T(""), WS_VISIBLE | WS_CLIPCHILDREN | WS_CHILD, rect, hParent, NULL);
 	SetClassPtr();
 
-	m_thread = new std::thread(std::tr1::bind(&CSaveIconView::ThreadProc, this));
+	m_thread = new std::thread(std::bind(&CSaveIconView::ThreadProc, this));
 }
 
 CSaveIconView::~CSaveIconView()
@@ -74,12 +74,12 @@ CSaveIconView::~CSaveIconView()
 
 void CSaveIconView::SetSave(const CSave* save)
 {
-	m_mailBox.SendCall(std::tr1::bind(&CSaveIconView::ThreadSetSave, this, save));
+	m_mailBox.SendCall(std::bind(&CSaveIconView::ThreadSetSave, this, save));
 }
 
 void CSaveIconView::SetIconType(CSave::ICONTYPE iconType)
 {
-	m_mailBox.SendCall(std::tr1::bind(&CSaveIconView::ThreadSetIconType, this, iconType));
+	m_mailBox.SendCall(std::bind(&CSaveIconView::ThreadSetIconType, this, iconType));
 }
 
 void CSaveIconView::ThreadProc()

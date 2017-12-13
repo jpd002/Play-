@@ -33,6 +33,6 @@ private:
 	FrameInfluenceArray		m_frameInfluences;
 };
 
-typedef std::tr1::shared_ptr<CIconMesh> IconMeshPtr;
+typedef std::shared_ptr<CIconMesh> IconMeshPtr;
 
 #endif
