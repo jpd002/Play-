@@ -15,7 +15,7 @@ class CEeExecutor : public CMipsExecutor
 {
 public:
 							CEeExecutor(CMIPS&, uint8*);
-	virtual					~CEeExecutor();
+	virtual					~CEeExecutor() = default;
 
 	void					AddExceptionHandler();
 	void					RemoveExceptionHandler();

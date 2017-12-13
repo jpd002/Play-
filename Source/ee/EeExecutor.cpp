@@ -39,11 +39,6 @@ CEeExecutor::CEeExecutor(CMIPS& context, uint8* ram)
 	m_pageSize = framework_getpagesize();
 }
 
-CEeExecutor::~CEeExecutor()
-{
-
-}
-
 void CEeExecutor::AddExceptionHandler()
 {
 	assert(g_eeExecutor == nullptr);
