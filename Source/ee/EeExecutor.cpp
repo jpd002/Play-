@@ -79,12 +79,17 @@ void CEeExecutor::AddExceptionHandler()
 
 void CEeExecutor::RemoveExceptionHandler()
 {
+#ifndef DISABLE_PROTECTION
+
 #if defined(_WIN32)
 	RemoveVectoredExceptionHandler(m_handler);
 #elif defined(__APPLE__)
 	m_running = false;
 	m_handlerThread.join();
 #endif
+	
+#endif //!DISABLE_PROTECTION
+	
 	g_eeExecutor = nullptr;
 }
 
