@@ -1,107 +1,107 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <!-- Application Navigation -->
-    
+	<!-- Application Navigation -->
+
 	<string name="main_menu_settings">Settings</string>
 	<string name="main_menu_about">About</string>
 	<string name="main_menu_exit">Exit</string>
 
 	<string name="game_info">No info</string>
 
-    <string name="search_games">Building collection&#8230;</string>
-    <string name="search_games_msg">Please wait&#8230;</string>
-    <string name="updating_db">Updating collection&#8230;</string>
+	<string name="search_games">Building collection&#8230;</string>
+	<string name="search_games_msg">Please wait&#8230;</string>
+	<string name="updating_db">Updating collection&#8230;</string>
 
-    <string name="navigation_drawer_open">Navigation drawer open</string>
-    <string name="navigation_drawer_close">Navigation drawer closed</string>
-    
-    <string name="menu_title_open">Menu</string>
-    <string name="menu_title_shut">Games</string>
-    <string name="menu_title_look">Search</string>
-    
-    <string name="file_list_recent">Recent</string>
-    <string name="file_list_homebrew">Homebrew</string>
-    <string name="file_list_default">Unsorted</string>
+	<string name="navigation_drawer_open">Navigation drawer open</string>
+	<string name="navigation_drawer_close">Navigation drawer closed</string>
 
-    <string name="game_unavailable">Game is unavailable.\nWould you like to remove it from the list?</string>
-    <string name="not_found">Not Found</string>
-    <string name="no_game_found_adapter">No PS2 Game(s) Found, Please add your games to your device, then close and open this app.</string>
+	<string name="menu_title_open">Menu</string>
+	<string name="menu_title_shut">Games</string>
+	<string name="menu_title_look">Search</string>
 
-    <!-- Application Preferences -->
-    
-    <string name="title_activity_settings">Settings</string>
-    
-    <string name="preferences_screen_emu">Emulator Settings</string>
-    
-    <string name="pref_emu_general">General Settings</string>
+	<string name="file_list_recent">Recent</string>
+	<string name="file_list_homebrew">Homebrew</string>
+	<string name="file_list_default">Unsorted</string>
 
-    <string name="pref_emu_general_fps_display_title">Show Frame and Draw Call Counters</string>
-    <string name="pref_emu_general_fps_display_summary">Enables display of &quot;frames per second&quot; (f/s) and &quot;draw calls per frame&quot; (dc/f) statistics on screen.</string>
-    
-    <string name="pref_emu_general_pad_display_title">Show Virtual Pad</string>
-    <string name="pref_emu_general_pad_display_summary">Enables display of on-screen virtual controller pad.</string>
-    
-    <string name="pref_emu_video">Video Settings</string>
+	<string name="game_unavailable">Game is unavailable.\nWould you like to remove it from the list?</string>
+	<string name="not_found">Not Found</string>
+	<string name="no_game_found_adapter">No PS2 Game(s) Found, Please add your games to your device, then close and open this app.</string>
 
-    <string name="pref_emu_video_enable_highres_title">Enable High Resolution Mode</string>
-    <string name="pref_emu_video_enable_highres_summary">Enables usage of 2x sized framebuffers for rendering.</string>
+	<!-- Application Preferences -->
 
-    <string name="pref_emu_video_force_bilinear_title">Force Bilinear Filtering</string>
-    <string name="pref_emu_video_force_bilinear_summary">Forces usage of bilinear filtering on all textures.</string>
+	<string name="title_activity_settings">Settings</string>
 
-    <string name="pref_emu_audio">Audio Settings</string>
+	<string name="preferences_screen_emu">Emulator Settings</string>
 
-    <string name="pref_emu_audio_enable_output_title">Enable Audio Output</string>
-    <string name="pref_emu_audio_enable_output_summary">Enables audio output.</string>
-    
-    <string name="preferences_screen_ui">UI Settings</string>
-    
-    <string name="preferences_ui">Storage Options</string>
-    
-    <string name="pref_ui_rescan_all_title">Rescan Storage</string>
-    <string name="pref_ui_rescan_all_summary">Scan storage for new games</string>
+	<string name="pref_emu_general">General Settings</string>
 
-    <string name="pref_ui_clear_unavailable_title">Clear Unavailable Games</string>
-    <string name="pref_ui_clear_unavailable_summary">Remove any game currently inaccessible from the game list</string>
-    
-    <string name="pref_ui_reset_cache_title">Reset Cache</string>
-    <string name="pref_ui_reset_cache_summary">Clear stored cover images</string>
-    
-    <string name="preferences_theme">Theme Settings</string>
-    
-    <string name="pref_title_theme_selection">Theme Selection</string>
+	<string name="pref_emu_general_fps_display_title">Show Frame and Draw Call Counters</string>
+	<string name="pref_emu_general_fps_display_summary">Enables display of &quot;frames per second&quot; (f/s) and &quot;draw calls per frame&quot; (dc/f) statistics on screen.</string>
 
-    <string-array name="pref_theme_selection_titles">
-        <item>Amber</item>
-        <item>Blue (Default)</item>
-        <item>Pink</item>
-        <item>Purple</item>
-        <item>Teal</item>
-        <item>Dark Purple</item>
-        <item>Green</item>
-    </string-array>
-    
+	<string name="pref_emu_general_pad_display_title">Show Virtual Pad</string>
+	<string name="pref_emu_general_pad_display_summary">Enables display of on-screen virtual controller pad.</string>
+
+	<string name="pref_emu_video">Video Settings</string>
+
+	<string name="pref_emu_video_enable_highres_title">Enable High Resolution Mode</string>
+	<string name="pref_emu_video_enable_highres_summary">Enables usage of 2x sized framebuffers for rendering.</string>
+
+	<string name="pref_emu_video_force_bilinear_title">Force Bilinear Filtering</string>
+	<string name="pref_emu_video_force_bilinear_summary">Forces usage of bilinear filtering on all textures.</string>
+
+	<string name="pref_emu_audio">Audio Settings</string>
+
+	<string name="pref_emu_audio_enable_output_title">Enable Audio Output</string>
+	<string name="pref_emu_audio_enable_output_summary">Enables audio output.</string>
+
+	<string name="preferences_screen_ui">UI Settings</string>
+
+	<string name="preferences_ui">Storage Options</string>
+
+	<string name="pref_ui_rescan_all_title">Rescan Storage</string>
+	<string name="pref_ui_rescan_all_summary">Scan storage for new games</string>
+
+	<string name="pref_ui_clear_unavailable_title">Clear Unavailable Games</string>
+	<string name="pref_ui_clear_unavailable_summary">Remove any game currently inaccessible from the game list</string>
+
+	<string name="pref_ui_reset_cache_title">Reset Cache</string>
+	<string name="pref_ui_reset_cache_summary">Clear stored cover images</string>
+
+	<string name="preferences_theme">Theme Settings</string>
+
+	<string name="pref_title_theme_selection">Theme Selection</string>
+
+	<string-array name="pref_theme_selection_titles">
+		<item>Amber</item>
+		<item>Blue (Default)</item>
+		<item>Pink</item>
+		<item>Purple</item>
+		<item>Teal</item>
+		<item>Dark Purple</item>
+		<item>Green</item>
+	</string-array>
+
 	<!-- Emulator Drawer -->
-	
+
 	<string name="emulator_drawer_exit">Exit</string>
 	<string name="emulator_drawer_savestate">Save State</string>
 	<string name="emulator_drawer_loadstate">Load State</string>
-	
+
 	<string name="emulator_save_state_ok">State saved successfully.</string>
 	<string name="emulator_save_state_fail">Couldn\'t save state.</string>
-	
+
 	<string name="emulator_load_state_ok">State loaded successfully.</string>
 	<string name="emulator_load_state_fail">Couldn\'t load state.</string>
-	
+
 	<!-- Error Reporting / Debugging -->
-	
+
 	<string name="report_issue">Previous Crash Detected</string>
-	
+
 	<string name="dismiss">Dismiss</string>
 	<string name="report">Report</string>
-	
+
 	<string name="platform">Copying logcat content to clipboard\nPlease paste in the issue report</string>
 	<string name="log_saved">Log saved to \"Files Dir\" path</string>
-    <string name="no_recent_adapter">No recently played PS2 game found.</string>
+	<string name="no_recent_adapter">No recently played PS2 game found.</string>
 </resources>

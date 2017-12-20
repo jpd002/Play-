@@ -1,107 +1,107 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <!-- Application Navigation -->
-    
+	<!-- Application Navigation -->
+
 	<string name="main_menu_settings">设置</string>
 	<string name="main_menu_about">关于</string>
 	<string name="main_menu_exit">退出</string>
 
 	<string name="game_info">无信息</string>
 
-    <string name="search_games">建立收藏&#8230;</string>
-    <string name="search_games_msg">请稍候&#8230;</string>
-    <string name="updating_db">更新收藏&#8230;</string>
+	<string name="search_games">建立收藏&#8230;</string>
+	<string name="search_games_msg">请稍候&#8230;</string>
+	<string name="updating_db">更新收藏&#8230;</string>
 
-    <string name="navigation_drawer_open">导航栏打开</string>
-    <string name="navigation_drawer_close">导航栏关闭</string>
-    
-    <string name="menu_title_open">菜单</string>
-    <string name="menu_title_shut">游戏</string>
-    <string name="menu_title_look">搜索</string>
-    
-    <string name="file_list_recent">最近</string>
-    <string name="file_list_homebrew">自制</string>
-    <string name="file_list_default">未分类</string>
+	<string name="navigation_drawer_open">导航栏打开</string>
+	<string name="navigation_drawer_close">导航栏关闭</string>
 
-    <string name="game_unavailable">游戏不可用。\n您要将其从列表中删除吗？</string>
-    <string name="not_found">未找到</string>
-    <string name="no_game_found_adapter">没有找到 PS2 游戏, 请添加您的游戏到您的设备, 然后关闭并打开这个应用程序。</string>
+	<string name="menu_title_open">菜单</string>
+	<string name="menu_title_shut">游戏</string>
+	<string name="menu_title_look">搜索</string>
 
-    <!-- Application Preferences -->
-    
-    <string name="title_activity_settings">设置</string>
-    
-    <string name="preferences_screen_emu">模拟器设置</string>
-    
-    <string name="pref_emu_general">常规设置</string>
+	<string name="file_list_recent">最近</string>
+	<string name="file_list_homebrew">自制</string>
+	<string name="file_list_default">未分类</string>
 
-    <string name="pref_emu_general_fps_display_title">显示帧和绘制调用计数器</string>
-    <string name="pref_emu_general_fps_display_summary">启用显示 &quot;每秒帧数&quot; (f/s) 和 &quot;每秒绘制调用&quot; (dc/f) 屏幕统计。</string>
-    
-    <string name="pref_emu_general_pad_display_title">显示虚拟按键</string>
-    <string name="pref_emu_general_pad_display_summary">显示屏幕上的虚拟按键。</string>
-    
-    <string name="pref_emu_video">视频设置</string>
+	<string name="game_unavailable">游戏不可用。\n您要将其从列表中删除吗？</string>
+	<string name="not_found">未找到</string>
+	<string name="no_game_found_adapter">没有找到 PS2 游戏, 请添加您的游戏到您的设备, 然后关闭并打开这个应用程序。</string>
 
-    <string name="pref_emu_video_enable_highres_title">启用高分辨率模式</string>
-    <string name="pref_emu_video_enable_highres_summary">启用 2x 大小的帧缓冲区进行渲染。</string>
+	<!-- Application Preferences -->
 
-    <string name="pref_emu_video_force_bilinear_title">强制双线性过滤</string>
-    <string name="pref_emu_video_force_bilinear_summary">强制在所有纹理上使用双线性过滤。</string>
+	<string name="title_activity_settings">设置</string>
 
-    <string name="pref_emu_audio">音频设置</string>
+	<string name="preferences_screen_emu">模拟器设置</string>
 
-    <string name="pref_emu_audio_enable_output_title">启用音频输出</string>
-    <string name="pref_emu_audio_enable_output_summary">启用音频输出。</string>
-    
-    <string name="preferences_screen_ui">界面设置</string>
-    
-    <string name="preferences_ui">存储选项</string>
-    
-    <string name="pref_ui_rescan_all_title">重新扫描存储</string>
-    <string name="pref_ui_rescan_all_summary">扫描存储的新游戏</string>
+	<string name="pref_emu_general">常规设置</string>
 
-    <string name="pref_ui_clear_unavailable_title">清除不可用的游戏</string>
-    <string name="pref_ui_clear_unavailable_summary">从游戏列表中删除当前无法访问的游戏</string>
-    
-    <string name="pref_ui_reset_cache_title">重置缓存</string>
-    <string name="pref_ui_reset_cache_summary">清除存储的封面图片</string>
-    
-    <string name="preferences_theme">主题设置</string>
-    
-    <string name="pref_title_theme_selection">主题选择</string>
+	<string name="pref_emu_general_fps_display_title">显示帧和绘制调用计数器</string>
+	<string name="pref_emu_general_fps_display_summary">启用显示 &quot;每秒帧数&quot; (f/s) 和 &quot;每秒绘制调用&quot; (dc/f) 屏幕统计。</string>
 
-    <string-array name="pref_theme_selection_titles">
-        <item>琥珀色</item>
-        <item>蓝色 (默认)</item>
-        <item>粉红色</item>
-        <item>紫色</item>
-        <item>绿色</item>
-        <item>深紫色</item>
-        <item>绿色</item>
-    </string-array>
-    
+	<string name="pref_emu_general_pad_display_title">显示虚拟按键</string>
+	<string name="pref_emu_general_pad_display_summary">显示屏幕上的虚拟按键。</string>
+
+	<string name="pref_emu_video">视频设置</string>
+
+	<string name="pref_emu_video_enable_highres_title">启用高分辨率模式</string>
+	<string name="pref_emu_video_enable_highres_summary">启用 2x 大小的帧缓冲区进行渲染。</string>
+
+	<string name="pref_emu_video_force_bilinear_title">强制双线性过滤</string>
+	<string name="pref_emu_video_force_bilinear_summary">强制在所有纹理上使用双线性过滤。</string>
+
+	<string name="pref_emu_audio">音频设置</string>
+
+	<string name="pref_emu_audio_enable_output_title">启用音频输出</string>
+	<string name="pref_emu_audio_enable_output_summary">启用音频输出。</string>
+
+	<string name="preferences_screen_ui">界面设置</string>
+
+	<string name="preferences_ui">存储选项</string>
+
+	<string name="pref_ui_rescan_all_title">重新扫描存储</string>
+	<string name="pref_ui_rescan_all_summary">扫描存储的新游戏</string>
+
+	<string name="pref_ui_clear_unavailable_title">清除不可用的游戏</string>
+	<string name="pref_ui_clear_unavailable_summary">从游戏列表中删除当前无法访问的游戏</string>
+
+	<string name="pref_ui_reset_cache_title">重置缓存</string>
+	<string name="pref_ui_reset_cache_summary">清除存储的封面图片</string>
+
+	<string name="preferences_theme">主题设置</string>
+
+	<string name="pref_title_theme_selection">主题选择</string>
+
+	<string-array name="pref_theme_selection_titles">
+		<item>琥珀色</item>
+		<item>蓝色 (默认)</item>
+		<item>粉红色</item>
+		<item>紫色</item>
+		<item>绿色</item>
+		<item>深紫色</item>
+		<item>绿色</item>
+	</string-array>
+
 	<!-- Emulator Drawer -->
-	
+
 	<string name="emulator_drawer_exit">退出</string>
 	<string name="emulator_drawer_savestate">存档</string>
 	<string name="emulator_drawer_loadstate">读档</string>
-	
+
 	<string name="emulator_save_state_ok">存档已保存。</string>
 	<string name="emulator_save_state_fail">无法保存存档。</string>
-	
+
 	<string name="emulator_load_state_ok">存档已加载。</string>
 	<string name="emulator_load_state_fail">无法加载存档。</string>
-	
+
 	<!-- Error Reporting / Debugging -->
-	
+
 	<string name="report_issue">检测到上一个崩溃</string>
-	
+
 	<string name="dismiss">搁置</string>
 	<string name="report">报告</string>
-	
+
 	<string name="platform">将 logcat 内容复制到剪贴板\n请在问题报告中粘贴</string>
 	<string name="log_saved">日志保存到 \"Files Dir\" 路径</string>
-    <string name="no_recent_adapter">最近没有玩过PS2游戏。</string>
+	<string name="no_recent_adapter">最近没有玩过PS2游戏。</string>
 </resources>
