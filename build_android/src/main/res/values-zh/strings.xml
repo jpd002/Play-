@@ -104,4 +104,17 @@
 	<string name="platform">将 logcat 内容复制到剪贴板\n请在问题报告中粘贴</string>
 	<string name="log_saved">日志保存到 \"Files Dir\" 路径</string>
 	<string name="no_recent_adapter">最近没有玩过PS2游戏。</string>
+	
+	<!-- Editor Menu -->
+	<string name="editor_menu_save">保存</string>
+	<string name="editor_menu_reset">重置</string>
+	<string name="editor_menu_cancel">取消</string>
+	
+	<!-- Game Info Edit Activity -->
+	<string name="gameinfo_edit_activity_gametitle">游戏标题</string>
+	<string name="gameinfo_edit_activity_gameoverview">游戏概述</string>
+	<string name="gameinfo_edit_activity_gamecover">游戏封面</string>
+	<string name="gameinfo_edit_activity_gamecover_change">更改</string>
+	<string name="gameinfo_edit_activity_gamecover_default">默认</string>
+	
 </resources>

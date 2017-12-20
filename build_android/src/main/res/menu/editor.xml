@@ -4,19 +4,19 @@
     <item 
         android:id="@+id/action_save"
         android:icon="@drawable/ic_cab_done_holo_dark"
-        android:title="Save"
+        android:title="@string/editor_menu_save"
         app:showAsAction="ifRoom"
         android:orderInCategory="1"/>
     <item
         android:id="@+id/action_reset"
         android:icon="@drawable/ic_menu_refresh"
         android:orderInCategory="2"
-        android:title="Reset"
+        android:title="@string/editor_menu_reset"
         app:showAsAction="ifRoom"/>
     <item
         android:id="@+id/action_clear_cancel"
         android:icon="@drawable/abc_ic_clear_mtrl_alpha"
         android:orderInCategory="3"
-        android:title="Cancel"
+        android:title="@string/editor_menu_cancel"
         app:showAsAction="ifRoom"/>
 </menu>

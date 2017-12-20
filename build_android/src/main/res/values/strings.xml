@@ -104,4 +104,17 @@
 	<string name="platform">Copying logcat content to clipboard\nPlease paste in the issue report</string>
 	<string name="log_saved">Log saved to \"Files Dir\" path</string>
 	<string name="no_recent_adapter">No recently played PS2 game found.</string>
+	
+	<!-- Editor Menu -->
+	<string name="editor_menu_save">Save</string>
+	<string name="editor_menu_reset">Reset</string>
+	<string name="editor_menu_cancel">Cancel</string>
+	
+	<!-- Game Info Edit Activity -->
+	<string name="gameinfo_edit_activity_gametitle">Game Title</string>
+	<string name="gameinfo_edit_activity_gameoverview">Game Overview</string>
+	<string name="gameinfo_edit_activity_gamecover">Game Cover</string>
+	<string name="gameinfo_edit_activity_gamecover_change">Change</string>
+	<string name="gameinfo_edit_activity_gamecover_default">Default</string>
+	
 </resources>
