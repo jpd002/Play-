@@ -1,61 +1,57 @@
-#ifndef VFSDEVICE_H
-#define VFSDEVICE_H
+#pragma once
+
 #include <QWidget>
 #include <map>
 
 class CDevice
 {
 public:
-    CDevice();
-    virtual						~CDevice();
-    virtual const char*			GetDeviceName() = 0 ;
-    virtual const char*			GetBindingType() = 0;
-    virtual const char*			GetBinding() = 0;
-    virtual bool                RequestModification(QWidget*) = 0;
-    virtual void				Save() = 0;
-    enum BINDINGTYPE
-    {
-        BINDING_IMAGE = 1,
-        BINDING_PHYSICAL = 2,
-    };
-    typedef std::map<unsigned int, CDevice *> DeviceList;
+	virtual ~CDevice() = default;
+	virtual const char* GetDeviceName() = 0;
+	virtual const char* GetBindingType() = 0;
+	virtual const char* GetBinding() = 0;
+	virtual bool        RequestModification(QWidget*) = 0;
+	virtual void        Save() = 0;
 };
-
-
+typedef std::map<unsigned int, CDevice*> DeviceList;
 
 class CDirectoryDevice : public CDevice
 {
 public:
-    CDirectoryDevice(const char*, const char*);
-    virtual                     ~CDirectoryDevice();
+	CDirectoryDevice(const char*, const char*);
+	virtual ~CDirectoryDevice() = default;
 
-    virtual const char*			GetDeviceName() override;
-    virtual const char*			GetBindingType() override;
-    virtual const char*			GetBinding() override;
-    virtual bool                RequestModification(QWidget*) override;
-    virtual void				Save() override;
+	const char* GetDeviceName() override;
+	const char* GetBindingType() override;
+	const char* GetBinding() override;
+	bool        RequestModification(QWidget*) override;
+	void        Save() override;
+
 private:
-
-    const char*                 m_sName;
-    const char*                 m_sPreference;
-    std::string                 m_sValue;
+	const char* m_sName;
+	const char* m_sPreference;
+	std::string m_sValue;
 };
 
 class CCdrom0Device : public CDevice
 {
 public:
-    CCdrom0Device();
-    virtual                     ~CCdrom0Device();
+	enum BINDINGTYPE
+	{
+		BINDING_IMAGE = 1,
+		BINDING_PHYSICAL = 2,
+	};
 
-    virtual const char*			GetDeviceName() override;
-    virtual const char*			GetBindingType() override;
-    virtual const char*			GetBinding() override;
-    virtual bool                RequestModification(QWidget*) override;
-    virtual void				Save() override;
+	CCdrom0Device();
+	virtual ~CCdrom0Device() = default;
+
+	const char* GetDeviceName() override;
+	const char* GetBindingType() override;
+	const char* GetBinding() override;
+	bool        RequestModification(QWidget*) override;
+	void        Save() override;
 
 private:
-    std::string                 m_sImagePath;
-    BINDINGTYPE                 m_nBindingType;
+	std::string m_sImagePath;
+	BINDINGTYPE m_nBindingType;
 };
-
-#endif // VFSDEVICE_H
