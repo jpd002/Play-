@@ -59,8 +59,8 @@ CSubSystem::CSubSystem(bool ps2Mode)
 	m_cpu.m_pCOP[0] = &m_copScu;
 	m_cpu.m_pAddrTranslator = &CMIPS::TranslateAddress64;
 
-	m_dmac.SetReceiveFunction(4, bind(&CSpuBase::ReceiveDma, &m_spuCore0, PLACEHOLDER_1, PLACEHOLDER_2, PLACEHOLDER_3));
-	m_dmac.SetReceiveFunction(8, bind(&CSpuBase::ReceiveDma, &m_spuCore1, PLACEHOLDER_1, PLACEHOLDER_2, PLACEHOLDER_3));
+	m_dmac.SetReceiveFunction(4, std::bind(&CSpuBase::ReceiveDma, &m_spuCore0, PLACEHOLDER_1, PLACEHOLDER_2, PLACEHOLDER_3));
+	m_dmac.SetReceiveFunction(8, std::bind(&CSpuBase::ReceiveDma, &m_spuCore1, PLACEHOLDER_1, PLACEHOLDER_2, PLACEHOLDER_3));
 }
 
 CSubSystem::~CSubSystem()

@@ -94,7 +94,7 @@ void CPadMan::SetButtonState(unsigned int nPadNumber, CControllerInfo::BUTTON nB
 {
 	if(m_nPadDataAddress == 0) return;
 
-	ExecutePadDataFunction(bind(&CPadMan::PDF_SetButtonState, PLACEHOLDER_1, nButton, nPressed),
+	ExecutePadDataFunction(std::bind(&CPadMan::PDF_SetButtonState, PLACEHOLDER_1, nButton, nPressed),
 		ram + m_nPadDataAddress, PADNUM);
 }
 
