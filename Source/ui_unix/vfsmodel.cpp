@@ -1,5 +1,6 @@
 #include "vfsmodel.h"
 #include "vfsmanagerdialog.h"
+#include "PS2VM_Preferences.h"
 
 VFSModel::VFSModel(QObject* parent)
     : QAbstractTableModel(parent)
@@ -57,9 +58,9 @@ QVariant VFSModel::data(const QModelIndex& index, int role) const
 
 void VFSModel::SetupDevices()
 {
-	m_devices[0] = new CDirectoryDevice("mc0", "ps2.mc0.directory");
-	m_devices[1] = new CDirectoryDevice("mc1", "ps2.mc1.directory");
-	m_devices[2] = new CDirectoryDevice("host", "ps2.host.directory");
+	m_devices[0] = new CDirectoryDevice("mc0", PREF_PS2_MC0_DIRECTORY);
+	m_devices[1] = new CDirectoryDevice("mc1", PREF_PS2_MC1_DIRECTORY);
+	m_devices[2] = new CDirectoryDevice("host", PREF_PS2_HOST_DIRECTORY);
 	m_devices[3] = new CCdrom0Device();
 }
 
