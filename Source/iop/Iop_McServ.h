@@ -48,7 +48,7 @@ namespace Iop
 		};
 
 							CMcServ(CSifMan&);
-		virtual				~CMcServ();
+		virtual				~CMcServ() = default;
 
 		static const char*	GetMcPathPreference(unsigned int);
 

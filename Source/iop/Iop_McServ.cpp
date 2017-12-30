@@ -22,11 +22,6 @@ CMcServ::CMcServ(CSifMan& sif)
 	sif.RegisterModule(MODULE_ID, this);
 }
 
-CMcServ::~CMcServ()
-{
-
-}
-
 const char* CMcServ::GetMcPathPreference(unsigned int port)
 {
 	return m_mcPathPreference[port];
