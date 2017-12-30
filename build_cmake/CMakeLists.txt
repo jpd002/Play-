@@ -530,6 +530,7 @@ set(COMMON_SRC_FILES
 	../Source/Profiler.h
 	../Source/PS2VM.cpp
 	../Source/PS2VM.h
+	../Source/PS2VM_Preferences.h
 	../Source/RegisterStateFile.cpp
 	../Source/RegisterStateFile.h
 	../Source/saves/Icon.cpp
