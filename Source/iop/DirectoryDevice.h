@@ -12,7 +12,7 @@ namespace Iop
 		public:
 											CDirectoryDevice(const char*);
 			virtual							~CDirectoryDevice() = default;
-			virtual Framework::CStream*		GetFile(uint32, const char*);
+			Framework::CStream*				GetFile(uint32, const char*) override;
 
 		private:
 			std::string						m_basePathPreferenceName;
