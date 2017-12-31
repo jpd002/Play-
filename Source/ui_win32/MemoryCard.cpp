@@ -9,11 +9,6 @@ CMemoryCard::CMemoryCard(const filesystem::path& basePath)
 	ScanSaves();
 }
 
-CMemoryCard::~CMemoryCard()
-{
-
-}
-
 size_t CMemoryCard::GetSaveCount() const
 {
 	return m_saves.size();

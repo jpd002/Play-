@@ -11,7 +11,7 @@ public:
 	typedef std::vector<SavePtr>		SaveList;
 
 									CMemoryCard(const boost::filesystem::path&);
-	virtual							~CMemoryCard();
+	virtual							~CMemoryCard() = default;
 
 	size_t							GetSaveCount() const;
 	const CSave*					GetSaveByIndex(size_t) const;
