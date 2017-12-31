@@ -21,8 +21,8 @@ namespace filesystem = boost::filesystem;
 
 CMcManagerWnd::CMcManagerWnd(HWND hParent) 
 : CModalWindow(hParent)
-, m_MemoryCard0(CAppConfig::GetInstance().GetPreferenceString(PREF_PS2_MC0_DIRECTORY))
-, m_MemoryCard1(CAppConfig::GetInstance().GetPreferenceString(PREF_PS2_MC1_DIRECTORY))
+, m_MemoryCard0(CAppConfig::GetInstance().GetPreferencePath(PREF_PS2_MC0_DIRECTORY))
+, m_MemoryCard1(CAppConfig::GetInstance().GetPreferencePath(PREF_PS2_MC1_DIRECTORY))
 {
 	m_pImportButton		= NULL;
 	m_pCloseButton		= NULL;

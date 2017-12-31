@@ -133,8 +133,8 @@ CVFSManagerWnd::CDirectoryDevice::CDirectoryDevice(const char* name, const char*
 : m_name(name)
 , m_preference(preference)
 {
-	auto path = CAppConfig::GetInstance().GetPreferenceString(m_preference);
-	m_path = string_cast<std::tstring>(path);
+	auto path = CAppConfig::GetInstance().GetPreferencePath(m_preference);
+	m_path = path.native();
 }
 
 const char* CVFSManagerWnd::CDirectoryDevice::GetDeviceName()
@@ -185,8 +185,7 @@ bool CVFSManagerWnd::CDirectoryDevice::RequestModification(HWND hParent)
 
 void CVFSManagerWnd::CDirectoryDevice::Save()
 {
-	auto cvtPath = string_cast<std::string>(m_path);
-	CAppConfig::GetInstance().SetPreferenceString(m_preference, cvtPath.c_str());
+	CAppConfig::GetInstance().SetPreferencePath(m_preference, m_path);
 }
 
 int CVFSManagerWnd::CDirectoryDevice::BrowseCallback(HWND hFrom, unsigned int nMsg, LPARAM lParam, LPARAM pData)
