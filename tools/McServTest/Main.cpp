@@ -14,8 +14,8 @@ void PrepareTestEnvironment(const CGameTestSheet::EnvironmentActionArray& enviro
 	auto memoryCardPath = boost::filesystem::path("./memorycard");
 	boost::filesystem::remove_all(memoryCardPath);
 
-	CAppConfig::GetInstance().RegisterPreferenceString(mcPathPreference, "");
-	CAppConfig::GetInstance().SetPreferenceString(mcPathPreference, memoryCardPath.string().c_str());
+	CAppConfig::GetInstance().RegisterPreferencePath(mcPathPreference, "");
+	CAppConfig::GetInstance().SetPreferencePath(mcPathPreference, memoryCardPath);
 	
 	for(const auto& environmentAction : environment)
 	{
