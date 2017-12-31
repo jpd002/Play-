@@ -61,23 +61,21 @@ CPS2VM::CPS2VM()
 , m_gsSyncProfilerZone(CProfiler::GetInstance().RegisterZone("GSSYNC"))
 , m_otherProfilerZone(CProfiler::GetInstance().RegisterZone("OTHER"))
 {
-	static const char* basicDirectorySettings[] =
+	static const std::pair<const char*, const char*> basicDirectorySettings[] =
 	{
-		PREF_PS2_HOST_DIRECTORY, PREF_PS2_HOST_DIRECTORY_DEFAULT,
-		PREF_PS2_MC0_DIRECTORY, PREF_PS2_MC0_DIRECTORY_DEFAULT,
-		PREF_PS2_MC1_DIRECTORY, PREF_PS2_MC1_DIRECTORY_DEFAULT,
-		NULL, NULL
+		std::make_pair(PREF_PS2_HOST_DIRECTORY, PREF_PS2_HOST_DIRECTORY_DEFAULT),
+		std::make_pair(PREF_PS2_MC0_DIRECTORY, PREF_PS2_MC0_DIRECTORY_DEFAULT),
+		std::make_pair(PREF_PS2_MC1_DIRECTORY, PREF_PS2_MC1_DIRECTORY_DEFAULT),
 	};
 
-	for(unsigned int i = 0; basicDirectorySettings[i] != NULL; i += 2)
+	for(const auto& basicDirectorySetting : basicDirectorySettings)
 	{
-		const char* setting = basicDirectorySettings[i + 0];
-		const char* path = basicDirectorySettings[i + 1];
+		auto setting = basicDirectorySetting.first;
+		auto path = basicDirectorySetting.second;
 
-		Framework::CConfig::PathType absolutePath = CAppConfig::GetBasePath() / path;
+		auto absolutePath = CAppConfig::GetBasePath() / path;
 		Framework::PathUtils::EnsurePathExists(absolutePath);
-		//TODO: We ought to add a function to write a "path" in the settings. Since it can be wchar_t or char.
-		CAppConfig::GetInstance().RegisterPreferenceString(setting, absolutePath.string().c_str());
+		CAppConfig::GetInstance().RegisterPreferencePath(setting, absolutePath);
 	}
 	
 	CAppConfig::GetInstance().RegisterPreferencePath(PREF_PS2_CDROM0_PATH, "");

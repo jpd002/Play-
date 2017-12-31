@@ -382,7 +382,7 @@ void CMcServ::ChDir(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, 
 			newCurrentDirectory = m_currentDirectory / requestedDirectory;
 		}
 
-		filesystem::path mcPath(CAppConfig::GetInstance().GetPreferenceString(m_mcPathPreference[cmd->port]));
+		auto mcPath = CAppConfig::GetInstance().GetPreferencePath(m_mcPathPreference[cmd->port]);
 		mcPath /= newCurrentDirectory;
 
 		if(filesystem::exists(mcPath) && filesystem::is_directory(mcPath))
@@ -428,7 +428,7 @@ void CMcServ::GetDir(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize,
 		{
 			m_pathFinder.Reset();
 
-			filesystem::path mcPath(CAppConfig::GetInstance().GetPreferenceString(m_mcPathPreference[cmd->port]));
+			auto mcPath = CAppConfig::GetInstance().GetPreferencePath(m_mcPathPreference[cmd->port]);
 			if(cmd->name[0] != '/')
 			{
 				mcPath /= m_currentDirectory;
@@ -540,7 +540,7 @@ Framework::CStdStream* CMcServ::GetFileFromHandle(uint32 handle)
 
 boost::filesystem::path CMcServ::GetAbsoluteFilePath(unsigned int port, unsigned int slot, const char* name) const
 {
-	auto mcPath = filesystem::path(CAppConfig::GetInstance().GetPreferenceString(m_mcPathPreference[port]));
+	auto mcPath = CAppConfig::GetInstance().GetPreferencePath(m_mcPathPreference[port]);
 	auto requestedFilePath = boost::filesystem::path(name);
 
 	if(!requestedFilePath.root_directory().empty())
