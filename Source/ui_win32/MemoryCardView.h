@@ -4,9 +4,9 @@
 #include <map>
 #include "win32/Window.h"
 #include "win32/ClientDeviceContext.h"
-#include "MemoryCard.h"
 #include "IconMesh.h"
 #include "../MailBox.h"
+#include "../saves/MemoryCard.h"
 
 class CMemoryCardView : public Framework::Win32::CWindow
 {

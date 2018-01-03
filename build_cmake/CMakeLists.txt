@@ -537,6 +537,7 @@ set(COMMON_SRC_FILES
 	../Source/saves/Icon.h
 	../Source/saves/MaxSaveImporter.cpp
 	../Source/saves/MaxSaveImporter.h
+	../Source/saves/MemoryCard.cpp
 	../Source/saves/PsuSaveImporter.cpp
 	../Source/saves/PsuSaveImporter.h
 	../Source/saves/Save.cpp
@@ -613,7 +614,6 @@ if(TARGET_PLATFORM_UNIX)
 		../Source/ui_unix/settingsdialog.cpp
 		../Source/ui_unix/openglwindow.cpp
 		../Source/ui_unix/memorycardmanagerdialog.cpp
-		../Source/ui_unix/MemoryCard.cpp
 		../Source/ui_unix/vfsmanagerdialog.cpp
 		../Source/ui_unix/vfsmodel.cpp
 		../Source/ui_unix/vfsdiscselectordialog.cpp
@@ -965,7 +965,6 @@ if(TARGET_PLATFORM_WIN32)
 		../Source/ui_win32/Main.cpp
 		../Source/ui_win32/MainWindow.cpp
 		../Source/ui_win32/McManagerWnd.cpp
-		../Source/ui_win32/MemoryCard.cpp
 		../Source/ui_win32/MemoryCardView.cpp
 		../Source/ui_win32/MemoryView.cpp
 		../Source/ui_win32/MemoryViewMIPS.cpp

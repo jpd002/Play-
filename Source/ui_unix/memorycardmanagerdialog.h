@@ -6,7 +6,7 @@
 #include <boost/filesystem.hpp>
 #include "saves/SaveImporter.h"
 #include "saves/SaveExporter.h"
-#include "MemoryCard.h"
+#include "saves/MemoryCard.h"
 
 namespace Ui {
 class MemoryCardManagerDialog;

@@ -4,10 +4,10 @@
 #include "win32/ComboBox.h"
 #include "win32/Button.h"
 #include "win32/Layouts.h"
-#include "MemoryCard.h"
 #include "MemoryCardView.h"
 #include "SaveView.h"
 #include "../saves/SaveImporter.h"
+#include "../saves/MemoryCard.h"
 
 class CMcManagerWnd : public Framework::Win32::CModalWindow, public boost::signals2::trackable
 {

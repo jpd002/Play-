@@ -2,7 +2,7 @@
 
 #include <memory>
 #include <boost/filesystem/path.hpp>
-#include "../saves/Save.h"
+#include "Save.h"
 
 class CMemoryCard
 {
@@ -11,7 +11,7 @@ public:
 	typedef std::vector<SavePtr>		SaveList;
 
 									CMemoryCard(const boost::filesystem::path&);
-	virtual							~CMemoryCard();
+	virtual							~CMemoryCard() = default;
 
 	size_t							GetSaveCount() const;
 	const CSave*					GetSaveByIndex(size_t) const;
