@@ -637,7 +637,6 @@ if(TARGET_PLATFORM_UNIX)
 		../Source/ui_unix/PreferenceDefs.h
 		../Source/ui_unix/openglwindow.h
 		../Source/ui_unix/memorycardmanagerdialog.h
-		../Source/ui_unix/MemoryCard.h
 		../Source/ui_unix/vfsmanagerdialog.h
 		../Source/ui_unix/vfsmodel.h
 		../Source/ui_unix/vfsdiscselectordialog.h
