@@ -37,21 +37,21 @@ QVariant VFSModel::data(const QModelIndex& index, int role) const
 {
 	if(role == Qt::DisplayRole)
 	{
-		CDevice*    m_device = m_devices.at(index.row());
-		const char* val = "";
+		auto device = m_devices.at(index.row());
+		std::string val;
 		switch(index.column())
 		{
 		case 0:
-			val = m_device->GetDeviceName();
+			val = device->GetDeviceName();
 			break;
 		case 1:
-			val = m_device->GetBindingType();
+			val = device->GetBindingType();
 			break;
 		case 2:
-			val = m_device->GetBinding();
+			val = device->GetBinding();
 			break;
 		}
-		return QVariant(val);
+		return QVariant(val.c_str());
 	}
 	return QVariant();
 }

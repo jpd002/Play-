@@ -28,9 +28,9 @@ public:
 	void        Save() override;
 
 private:
-	const char* m_sName;
-	const char* m_sPreference;
-	std::string m_sValue;
+	const char* m_name;
+	const char* m_preference;
+	std::string m_value;
 };
 
 class CCdrom0Device : public CDevice
@@ -52,6 +52,6 @@ public:
 	void        Save() override;
 
 private:
-	std::string m_sImagePath;
-	BINDINGTYPE m_nBindingType;
+	std::string m_imagePath;
+	BINDINGTYPE m_bindingType;
 };

@@ -10,16 +10,16 @@
 //CDirectoryDevice Implementation
 ///////////////////////////////////////////
 
-CDirectoryDevice::CDirectoryDevice(const char* sName, const char* sPreference)
+CDirectoryDevice::CDirectoryDevice(const char* name, const char* preference)
 {
-	m_sName = sName;
-	m_sPreference = sPreference;
-	m_sValue = CAppConfig::GetInstance().GetPreferenceString(m_sPreference);
+	m_name = name;
+	m_preference = preference;
+	m_value = CAppConfig::GetInstance().GetPreferenceString(preference);
 }
 
 const char* CDirectoryDevice::GetDeviceName()
 {
-	return m_sName;
+	return m_name;
 }
 
 const char* CDirectoryDevice::GetBindingType()
@@ -29,12 +29,12 @@ const char* CDirectoryDevice::GetBindingType()
 
 const char* CDirectoryDevice::GetBinding()
 {
-	return m_sValue.c_str();
+	return m_value.c_str();
 }
 
 void CDirectoryDevice::Save()
 {
-	CAppConfig::GetInstance().SetPreferenceString(m_sPreference, m_sValue.c_str());
+	CAppConfig::GetInstance().SetPreferenceString(m_preference, m_value.c_str());
 }
 
 bool CDirectoryDevice::RequestModification(QWidget* parent)
@@ -46,7 +46,7 @@ bool CDirectoryDevice::RequestModification(QWidget* parent)
 	if(dialog.exec())
 	{
 		QString fileName = dialog.selectedFiles().first();
-		m_sValue = fileName.toStdString();
+		m_value = fileName.toStdString();
 		return true;
 	}
 	else
@@ -61,27 +61,17 @@ bool CDirectoryDevice::RequestModification(QWidget* parent)
 
 CCdrom0Device::CCdrom0Device()
 {
-	const char* sPath = CAppConfig::GetInstance().GetPreferenceString(PS2VM_CDROM0PATH);
-
+	auto path = QString(CAppConfig::GetInstance().GetPreferenceString(PS2VM_CDROM0PATH));
 	//Detect the binding type from the path format
-	QString m_sPath(sPath);
-	if(m_sPath.startsWith("\\\\.\\", Qt::CaseInsensitive) || m_sPath.startsWith("/dev/", Qt::CaseInsensitive))
+	if(path.startsWith("\\\\.\\", Qt::CaseInsensitive) || path.startsWith("/dev/", Qt::CaseInsensitive))
 	{
-		m_nBindingType = CCdrom0Device::BINDING_PHYSICAL;
-		m_sImagePath = sPath;
+		m_bindingType = CCdrom0Device::BINDING_PHYSICAL;
 	}
 	else
 	{
-		m_nBindingType = CCdrom0Device::BINDING_IMAGE;
-		if(!strcmp(sPath, ""))
-		{
-			m_sImagePath = "";
-		}
-		else
-		{
-			m_sImagePath = sPath;
-		}
+		m_bindingType = CCdrom0Device::BINDING_IMAGE;
 	}
+	m_imagePath = path.toStdString();
 }
 
 const char* CCdrom0Device::GetDeviceName()
@@ -91,11 +81,11 @@ const char* CCdrom0Device::GetDeviceName()
 
 const char* CCdrom0Device::GetBindingType()
 {
-	if(m_nBindingType == CCdrom0Device::BINDING_PHYSICAL)
+	if(m_bindingType == CCdrom0Device::BINDING_PHYSICAL)
 	{
 		return "Physical Device";
 	}
-	if(m_nBindingType == CCdrom0Device::BINDING_IMAGE)
+	if(m_bindingType == CCdrom0Device::BINDING_IMAGE)
 	{
 		return "Disk Image";
 	}
@@ -104,30 +94,29 @@ const char* CCdrom0Device::GetBindingType()
 
 const char* CCdrom0Device::GetBinding()
 {
-	if(m_sImagePath.length() == 0)
+	if(m_imagePath.empty())
 	{
 		return "(None)";
 	}
 	else
 	{
-		return m_sImagePath.c_str();
+		return m_imagePath.c_str();
 	}
 }
 
 void CCdrom0Device::Save()
 {
-	CAppConfig::GetInstance().SetPreferenceString(PS2VM_CDROM0PATH, m_sImagePath.c_str());
+	CAppConfig::GetInstance().SetPreferenceString(PS2VM_CDROM0PATH, m_imagePath.c_str());
 }
 
 bool CCdrom0Device::RequestModification(QWidget* parent)
 {
-	bool res = false;
-	auto vfsds = new VFSDiscSelectorDialog(m_sImagePath, m_nBindingType, parent);
+	auto vfsds = new VFSDiscSelectorDialog(m_imagePath, m_bindingType, parent);
 	VFSDiscSelectorDialog::connect(vfsds, &VFSDiscSelectorDialog::onFinish, [=](QString res, BINDINGTYPE type) {
-		m_nBindingType = type;
-		m_sImagePath = res.toStdString();
+		m_bindingType = type;
+		m_imagePath = res.toStdString();
 	});
-	res = QDialog::Accepted == vfsds->exec();
+	bool res = QDialog::Accepted == vfsds->exec();
 	delete vfsds;
 	return res;
 }
