@@ -63,7 +63,9 @@ CCdrom0Device::CCdrom0Device()
 {
 	auto path = QString(CAppConfig::GetInstance().GetPreferenceString(PS2VM_CDROM0PATH));
 	//Detect the binding type from the path format
-	if(path.startsWith("\\\\.\\", Qt::CaseInsensitive) || path.startsWith("/dev/", Qt::CaseInsensitive))
+	if(
+		path.startsWith("\\\\.\\", Qt::CaseInsensitive) ||
+		path.startsWith("/dev/", Qt::CaseInsensitive))
 	{
 		m_bindingType = CCdrom0Device::BINDING_PHYSICAL;
 	}
