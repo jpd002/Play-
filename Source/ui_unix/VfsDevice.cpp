@@ -61,11 +61,12 @@ bool CDirectoryDevice::RequestModification(QWidget* parent)
 
 CCdrom0Device::CCdrom0Device()
 {
-	auto path = QString(CAppConfig::GetInstance().GetPreferenceString(PS2VM_CDROM0PATH));
+	auto path = CAppConfig::GetInstance().GetPreferencePath(PS2VM_CDROM0PATH);
+	auto pathString = QString(path.native().c_str());
 	//Detect the binding type from the path format
 	if(
-		path.startsWith("\\\\.\\", Qt::CaseInsensitive) ||
-		path.startsWith("/dev/", Qt::CaseInsensitive))
+		pathString.startsWith("\\\\.\\", Qt::CaseInsensitive) ||
+		pathString.startsWith("/dev/", Qt::CaseInsensitive))
 	{
 		m_bindingType = CCdrom0Device::BINDING_PHYSICAL;
 	}
@@ -73,7 +74,7 @@ CCdrom0Device::CCdrom0Device()
 	{
 		m_bindingType = CCdrom0Device::BINDING_IMAGE;
 	}
-	m_imagePath = path.toStdString();
+	m_imagePath = path.native();
 }
 
 const char* CCdrom0Device::GetDeviceName()
@@ -108,7 +109,7 @@ std::string CCdrom0Device::GetBinding()
 
 void CCdrom0Device::Save()
 {
-	CAppConfig::GetInstance().SetPreferenceString(PS2VM_CDROM0PATH, m_imagePath.c_str());
+	CAppConfig::GetInstance().SetPreferencePath(PS2VM_CDROM0PATH, m_imagePath);
 }
 
 bool CCdrom0Device::RequestModification(QWidget* parent)
