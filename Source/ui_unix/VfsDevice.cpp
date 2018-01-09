@@ -27,9 +27,9 @@ const char* CDirectoryDevice::GetBindingType()
 	return "Directory";
 }
 
-const char* CDirectoryDevice::GetBinding()
+std::string CDirectoryDevice::GetBinding()
 {
-	return m_value.c_str();
+	return m_value;
 }
 
 void CDirectoryDevice::Save()
@@ -94,7 +94,7 @@ const char* CCdrom0Device::GetBindingType()
 	return "";
 }
 
-const char* CCdrom0Device::GetBinding()
+std::string CCdrom0Device::GetBinding()
 {
 	if(m_imagePath.empty())
 	{
@@ -102,7 +102,7 @@ const char* CCdrom0Device::GetBinding()
 	}
 	else
 	{
-		return m_imagePath.c_str();
+		return m_imagePath;
 	}
 }
 

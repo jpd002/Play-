@@ -9,7 +9,7 @@ public:
 	virtual ~CDevice() = default;
 	virtual const char* GetDeviceName() = 0;
 	virtual const char* GetBindingType() = 0;
-	virtual const char* GetBinding() = 0;
+	virtual std::string GetBinding() = 0;
 	virtual bool        RequestModification(QWidget*) = 0;
 	virtual void        Save() = 0;
 };
@@ -23,7 +23,7 @@ public:
 
 	const char* GetDeviceName() override;
 	const char* GetBindingType() override;
-	const char* GetBinding() override;
+	std::string GetBinding() override;
 	bool        RequestModification(QWidget*) override;
 	void        Save() override;
 
@@ -47,7 +47,7 @@ public:
 
 	const char* GetDeviceName() override;
 	const char* GetBindingType() override;
-	const char* GetBinding() override;
+	std::string GetBinding() override;
 	bool        RequestModification(QWidget*) override;
 	void        Save() override;
 
