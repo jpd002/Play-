@@ -48,4 +48,7 @@ private:
 	std::atomic<bool>					m_running;
 	std::atomic<bool>					m_isCounting;
 
+Q_SIGNALS:
+	void								setSelectedButtonLabelText(QString);
+	void								setCountDownLabelText(QString);
 };

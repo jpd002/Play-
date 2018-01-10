@@ -10,6 +10,10 @@ InputEventSelectionDialog::InputEventSelectionDialog(QWidget *parent) :
 	setWindowFlags(Qt::Window | Qt::WindowCloseButtonHint);
 	setFixedSize(size());
 
+	// workaround to avoid direct thread ui access
+	connect(this, SIGNAL(setSelectedButtonLabelText(QString)), ui->selectedbuttonlabel, SLOT(setText(QString)));
+	connect(this, SIGNAL(setCountDownLabelText(QString)), ui->countdownlabel, SLOT(setText(QString)));
+
 	m_isCounting = false;
 	m_running = true;
 	m_thread = std::thread([this]{ CountDownThreadLoop(); });
@@ -49,7 +53,7 @@ void InputEventSelectionDialog::Setup(const char* text, CInputBindingManager *in
 					return;
 				}
 				setCounter(1);
-				ui->selectedbuttonlabel->setText("Selected Key: " + key);
+				setSelectedButtonLabelText("Selected Key: " + key);
 				m_key1.id = code;
 				m_key1.device = device;
 				m_key1.type = type;
@@ -62,7 +66,7 @@ void InputEventSelectionDialog::Setup(const char* text, CInputBindingManager *in
 				m_key1.type = type;
 				m_key1.value = value;
 				m_key1.bindtype = CInputBindingManager::BINDINGTYPE::BINDING_POVHAT;
-				ui->selectedbuttonlabel->setText("Selected Key: " + key);
+				setSelectedButtonLabelText("Selected Key: " + key);
 			}
 		}
 		else
@@ -71,7 +75,7 @@ void InputEventSelectionDialog::Setup(const char* text, CInputBindingManager *in
 			{
 				if(click_count == 0)
 				{
-					ui->selectedbuttonlabel->setText("(-) Key Selected: " + key);
+					setSelectedButtonLabelText("(-) Key Selected: " + key);
 					m_key1.id = code;
 					m_key1.device = device;
 					m_key1.type = type;
@@ -82,12 +86,12 @@ void InputEventSelectionDialog::Setup(const char* text, CInputBindingManager *in
 					m_key2.id = code;
 					m_key2.device = device;
 					m_key2.type = type;
-					ui->selectedbuttonlabel->setText("(+) Key Selected: " + key);
+					setSelectedButtonLabelText("(+) Key Selected: " + key);
 				}
 			}
 			else
 			{
-				ui->selectedbuttonlabel->setText("Selected Key: " + key);
+				setSelectedButtonLabelText("Selected Key: " + key);
 				m_key1.id = code;
 				m_key1.device = device;
 				m_key1.type = type;
@@ -117,13 +121,13 @@ void InputEventSelectionDialog::keyPressEvent(QKeyEvent* ev)
 			m_key1.id = ev->key();
 			m_key1.device = {0};
 			m_key1.bindtype = CInputBindingManager::BINDINGTYPE::BINDING_SIMULATEDAXIS;
-			ui->selectedbuttonlabel->setText("(-) Key Selected: " + key);
+			setSelectedButtonLabelText("(-) Key Selected: " + key);
 		}
 		else
 		{
 			m_key2.id = ev->key();
 			m_key2.device = {0};
-			ui->selectedbuttonlabel->setText("(+) Key Selected: " + key);
+			setSelectedButtonLabelText("(+) Key Selected: " + key);
 		}
 	}
 	else
@@ -131,7 +135,7 @@ void InputEventSelectionDialog::keyPressEvent(QKeyEvent* ev)
 		m_key1.id = ev->key();
 		m_key1.device = {0};
 		m_key1.bindtype = CInputBindingManager::BINDINGTYPE::BINDING_SIMPLE;
-		ui->selectedbuttonlabel->setText("Key Selected: " + key);
+		setSelectedButtonLabelText("Key Selected: " + key);
 	}
 }
 
@@ -153,7 +157,7 @@ void InputEventSelectionDialog::CountDownThreadLoop()
 		{
 			if(diff.count() < 3)
 			{
-				ui->countdownlabel->setText(m_countingtext.arg(static_cast<int>(3 - diff.count())));
+				setCountDownLabelText(m_countingtext.arg(static_cast<int>(3 - diff.count())));
 			}
 			else
 			{
@@ -170,7 +174,7 @@ void InputEventSelectionDialog::CountDownThreadLoop()
 						{
 							click_count++;
 							m_isCounting = 0;
-							ui->countdownlabel->setText(m_countingtext.arg(3));
+							setCountDownLabelText(m_countingtext.arg(3));
 							continue;
 						}
 						else if(m_key2.id > 0)
@@ -186,7 +190,7 @@ void InputEventSelectionDialog::CountDownThreadLoop()
 		}
 		else if(diff.count() < 3)
 		{
-			ui->countdownlabel->setText(m_countingtext.arg(3));
+			setCountDownLabelText(m_countingtext.arg(3));
 		}
 	}
 }
@@ -198,12 +202,12 @@ bool InputEventSelectionDialog::setCounter(int value)
 		if(click_count == 0)
 		{
 			m_key1.id = -1;
-			ui->selectedbuttonlabel->setText("Selected Key: None");
+			setSelectedButtonLabelText("Selected Key: None");
 		}
 		else
 		{
 			m_key2.id = -1;
-			ui->selectedbuttonlabel->setText("(+) Selected Key: None");
+			setSelectedButtonLabelText("(+) Selected Key: None");
 		}
 		m_isCounting = false;
 		return false;
