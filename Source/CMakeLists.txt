@@ -1,47 +1,15 @@
 cmake_minimum_required(VERSION 3.5)
 
-if(CMAKE_CURRENT_SOURCE_DIR STREQUAL "${CMAKE_SOURCE_DIR}")
-	option(TARGET_IOS "Enable building for iOS" OFF)
-
-	# macOS deployment target needs to be set before 'project' to work
-	if(APPLE AND NOT TARGET_IOS)
-		set(CMAKE_OSX_DEPLOYMENT_TARGET "10.9" CACHE STRING "Minimum OS X deployment version")
-	endif()
-	
-	if(ANDROID)
-		message("-- Generating for Android --")
-		set(TARGET_PLATFORM_ANDROID TRUE)
-	elseif(APPLE AND TARGET_IOS)
-		message("-- Generating for iOS --")
-		set(TARGET_PLATFORM_IOS TRUE)
-	elseif(APPLE)
-		message("-- Generating for macOS --")
-		set(TARGET_PLATFORM_MACOS TRUE)
-	elseif(WIN32)
-		message("-- Generating for Win32 --")
-		string(FIND ${CMAKE_GENERATOR} "Win64" HASWIN64)
-		if(NOT HASWIN64 EQUAL -1)
-			message("-- Arch: x64 --")
-			set(TARGET_PLATFORM_WIN32_X64 TRUE)
-		else()
-			message("-- Arch: x86 --")
-			set(TARGET_PLATFORM_WIN32_X86 TRUE)
-		endif()
-		set(TARGET_PLATFORM_WIN32 TRUE)
-	else()
-		message("-- Generating for Unix compatible platform --")
-		set(TARGET_PLATFORM_UNIX TRUE)
-	endif()
-endif()
+set(CMAKE_MODULE_PATH
+	${CMAKE_CURRENT_SOURCE_DIR}/../../Dependencies/cmake-modules
+	${CMAKE_MODULE_PATH}
+)
+include(Header)
 
 project(PlayCore)
 
 set(PROJECT_LIBS)
 
-set(CMAKE_MODULE_PATH
-	${CMAKE_CURRENT_SOURCE_DIR}/../../Dependencies/cmake-modules
-	${CMAKE_MODULE_PATH}
-)
 include(PrecompiledHeader)
 
 # flags

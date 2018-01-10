@@ -1,48 +1,16 @@
 cmake_minimum_required(VERSION 3.5)
 
-option(TARGET_IOS "Enable building for iOS" OFF)
-
-# macOS deployment target needs to be set before 'project' to work
-if(APPLE AND NOT TARGET_IOS)
-	set(CMAKE_OSX_DEPLOYMENT_TARGET "10.9" CACHE STRING "Minimum OS X deployment version")
-endif()
-
-project(Play)
-
-if(ANDROID)
-	message("-- Generating for Android --")
-	set(TARGET_PLATFORM_ANDROID TRUE)
-elseif(APPLE AND TARGET_IOS)
-	message("-- Generating for iOS --")
-	set(TARGET_PLATFORM_IOS TRUE)
-elseif(APPLE)
-	message("-- Generating for macOS --")
-	set(TARGET_PLATFORM_MACOS TRUE)
-elseif(WIN32)
-	message("-- Generating for Win32 --")
-	string(FIND ${CMAKE_GENERATOR} "Win64" HASWIN64)
-	if(NOT HASWIN64 EQUAL -1)
-		message("-- Arch: x64 --")
-		set(TARGET_PLATFORM_WIN32_X64 TRUE)
-	else()
-		message("-- Arch: x86 --")
-		set(TARGET_PLATFORM_WIN32_X86 TRUE)
-	endif()
-	set(TARGET_PLATFORM_WIN32 TRUE)
-else()
-	message("-- Generating for Unix compatible platform --")
-	set(TARGET_PLATFORM_UNIX TRUE)
-endif()
+set(CMAKE_MODULE_PATH
+	${CMAKE_CURRENT_SOURCE_DIR}/../Dependencies/cmake-modules
+	${CMAKE_MODULE_PATH}
+)
+include(Header)
 
 set(PROJECT_NAME "Play!")
 set(PROJECT_Version 0.30)
 add_definitions(-DPLAY_VERSION="${PROJECT_Version}")
 set(PROJECT_LIBS)
 
-set(CMAKE_MODULE_PATH
-	${CMAKE_CURRENT_SOURCE_DIR}/../Dependencies/cmake-modules
-	${CMAKE_MODULE_PATH}
-)
 include(PrecompiledHeader)
 
 # flags
@@ -249,7 +217,7 @@ if(TARGET_PLATFORM_UNIX)
 	add_executable(Play ${QT_SOURCES} ${QT_MOC_SRCS} ${QT_RES_SOURCES} ${QT_UI_HEADERS})
 	target_link_libraries(Play ${PROJECT_LIBS})
 	target_include_directories(Play PRIVATE
-		../
+		./
 		Source/ui_unix/
 		${LIBEVDEV_INCLUDE_DIR}
 		${CMAKE_BINARY_DIR}
@@ -310,7 +278,7 @@ if(TARGET_PLATFORM_MACOS)
 	# Probably a better way to set the framework link libraries.
 	target_link_libraries(Play ${PROJECT_LIBS} "-ObjC -framework Cocoa -framework OpenGL -framework OpenAL -framework IOKit -framework AppKit -framework CoreData -framework Foundation")
 	target_include_directories(Play PRIVATE
-		../
+		./
 		Source/ui_macosx/
 	)
 	# Set a custom plist file for the app bundle
@@ -571,7 +539,7 @@ if(TARGET_PLATFORM_WIN32)
 	add_executable(Play WIN32 ${WIN32_SRC} Source/ui_win32/Res.rc)
 	target_link_libraries(Play PUBLIC ${PROJECT_LIBS})
 	target_include_directories(Play PRIVATE
-		../
+		./
 		Source/ui_win32/
 		Source/gs/GSH_OpenGL
 	)
