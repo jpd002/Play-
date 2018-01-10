@@ -142,17 +142,14 @@ endif()
 find_package(ZLIB)
 if(NOT ZLIB_FOUND)
 	MESSAGE("-- Using Provided zlib source")
-	if(NOT TARGET zlibstatic)
+	if(NOT TARGET ZLIB::ZLIB)
 		add_subdirectory(
 			${CMAKE_CURRENT_SOURCE_DIR}/../../Dependencies/build_cmake/zlib-1.2.8
 			${CMAKE_CURRENT_BINARY_DIR}/zlib-1.2.8
 		)
 	endif()
-	set(ZLIB_LIBRARIES zlibstatic CACHE)
-else()
-	include_directories(${ZLIB_INCLUDE_DIRS})
-	list(APPEND PROJECT_LIBS ${ZLIB_LIBRARIES})
 endif()
+list(APPEND PROJECT_LIBS ZLIB::ZLIB)
 
 if(NOT (TARGET_PLATFORM_ANDROID OR TARGET_PLATFORM_IOS))
 	find_package(OpenGL REQUIRED)
@@ -170,7 +167,7 @@ add_library(gsh_opengl STATIC
 	../Source/gs/GSH_OpenGL/GSH_OpenGL_Shader.cpp
 	../Source/gs/GSH_OpenGL/GSH_OpenGL_Texture.cpp
 )
-target_link_libraries(gsh_opengl Boost::boost Framework_OpenGl ${${ZLIB_LIBRARIES}})
+target_link_libraries(gsh_opengl Boost::boost Framework_OpenGl ZLIB::ZLIB)
 list(INSERT PROJECT_LIBS 0 gsh_opengl)
 
 if(TARGET_PLATFORM_UNIX)
@@ -482,7 +479,7 @@ if(TARGET_PLATFORM_WIN32)
 		../Source/ui_win32/GSH_Direct3D9_Shader.cpp
 		../Source/ui_win32/GSH_Direct3D9_Texture.cpp
 	)
-	target_link_libraries(gsh_d3d9 Boost::boost Framework ${ZLIB_LIBRARIES} Nuanceur)
+	target_link_libraries(gsh_d3d9 Boost::boost Framework ZLIB::ZLIB Nuanceur)
 	list(APPEND PROJECT_LIBS gsh_d3d9)
 	
 	include_directories(

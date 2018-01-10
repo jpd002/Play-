@@ -82,17 +82,14 @@ list(APPEND PROJECT_LIBS PlayCore)
 find_package(ZLIB)
 if(NOT ZLIB_FOUND)
 	MESSAGE("-- Using Provided zlib source")
-	if(NOT TARGET zlibstatic)
+	if(NOT TARGET ZLIB::ZLIB)
 		add_subdirectory(
 			${CMAKE_CURRENT_SOURCE_DIR}/../../../../../Dependencies/build_cmake/zlib-1.2.8
 			${CMAKE_CURRENT_BINARY_DIR}/zlib-1.2.8
 		)
 	endif()
-	list(APPEND PROJECT_LIBS zlibstatic)
-else()
-	include_directories(${ZLIB_INCLUDE_DIRS})
-	list(APPEND PROJECT_LIBS ${ZLIB_LIBRARIES})
 endif()
+list(APPEND PROJECT_LIBS ZLIB::ZLIB)
 
 if(NOT TARGET Boost::boost)
 	add_subdirectory(

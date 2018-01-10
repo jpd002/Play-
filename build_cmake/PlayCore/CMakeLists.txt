@@ -185,13 +185,13 @@ endif()
 find_package(BZip2)
 if(NOT BZIP2_FOUND)
 	MESSAGE("-- Using Provided BZip2 source")
-	if (NOT TARGET bz2)
+	if (NOT TARGET BZip2::BZip2)
 		add_subdirectory(
 			${CMAKE_CURRENT_SOURCE_DIR}/../../../Dependencies/build_cmake/bzip2-1.0.6
 			${CMAKE_CURRENT_BINARY_DIR}/bzip2-1.0.6
 		)
 	endif()
-	list(APPEND PROJECT_LIBS bz2)
+	list(APPEND PROJECT_LIBS BZip2::BZip2)
 else()
 	include_directories(${BZIP2_INCLUDE_DIR})
 	list(APPEND PROJECT_LIBS ${BZIP2_LIBRARIES})
@@ -206,11 +206,8 @@ if(NOT ZLIB_FOUND)
 			${CMAKE_CURRENT_BINARY_DIR}/zlib-1.2.8
 		)
 	endif()
-	list(APPEND PROJECT_LIBS zlibstatic)
-else()
-	include_directories(${ZLIB_INCLUDE_DIRS})
-	list(APPEND PROJECT_LIBS ${ZLIB_LIBRARIES})
 endif()
+list(APPEND PROJECT_LIBS ZLIB::ZLIB)
 
 set(COMMON_SRC_FILES
 	../../Source/AppConfig.cpp
