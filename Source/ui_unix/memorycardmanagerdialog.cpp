@@ -6,12 +6,13 @@
 #include "StdStream.h"
 #include "StdStreamUtils.h"
 #include "AppConfig.h"
+#include "../PS2VM_Preferences.h"
 
 MemoryCardManagerDialog::MemoryCardManagerDialog(QWidget* parent)
     : QDialog(parent)
     , ui(new Ui::MemoryCardManagerDialog)
-    , m_MemoryCard0(CAppConfig::GetInstance().GetPreferenceString("ps2.mc0.directory"))
-    , m_MemoryCard1(CAppConfig::GetInstance().GetPreferenceString("ps2.mc1.directory"))
+    , m_MemoryCard0(CAppConfig::GetInstance().GetPreferenceString(PREF_PS2_MC0_DIRECTORY))
+    , m_MemoryCard1(CAppConfig::GetInstance().GetPreferenceString(PREF_PS2_MC1_DIRECTORY))
 {
 	ui->setupUi(this);
 
