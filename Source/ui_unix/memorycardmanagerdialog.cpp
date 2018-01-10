@@ -1,12 +1,11 @@
-#include "memorycardmanagerdialog.h"
-#include "ui_memorycardmanager.h"
 #include <QFileDialog>
-
-#include "StdStream.h"
-#include "StdStreamUtils.h"
-#include <AppConfig.h>
 #include <QDateTime>
 #include <QMessageBox>
+#include "memorycardmanagerdialog.h"
+#include "ui_memorycardmanager.h"
+#include "StdStream.h"
+#include "StdStreamUtils.h"
+#include "AppConfig.h"
 
 MemoryCardManagerDialog::MemoryCardManagerDialog(QWidget* parent)
     : QDialog(parent)
