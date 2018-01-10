@@ -9,10 +9,16 @@ InputEventSelectionDialog::InputEventSelectionDialog(QWidget *parent) :
 	ui->setupUi(this);
 	setWindowFlags(Qt::Window | Qt::WindowCloseButtonHint);
 	setFixedSize(size());
+
+	m_isCounting = false;
+	m_running = true;
+	m_thread = std::thread([this]{ CountDownThreadLoop(); });
 }
 
 InputEventSelectionDialog::~InputEventSelectionDialog()
 {
+	m_running = false;
+	if(m_thread.joinable()) m_thread.join();
 	delete ui;
 }
 
@@ -20,12 +26,16 @@ void InputEventSelectionDialog::Setup(const char* text, CInputBindingManager *in
 									  PS2::CControllerInfo::BUTTON button, std::unique_ptr<CGamePadDeviceListener>const &GPDL)
 {
 	m_inputManager = inputManager;
-	ui->label->setText(labeltext.arg(text));
+	ui->bindinglabel->setText(m_bindingtext.arg(text));
 	m_button = button;
 
 	auto onInput = [=](std::array<unsigned int, 6> device, int code, int value, int type, const input_absinfo *abs)->void
 	{
-		if(value == 0 || type == 4) return;
+		if(type == 4) return;
+		if(!(type == 3 && abs->flat))
+		{
+			if(!setCounter(value)) return;
+		}
 		QString key = QString(libevdev_event_code_get_name(type, code));
 		if(type == 3)
 		{
@@ -33,54 +43,56 @@ void InputEventSelectionDialog::Setup(const char* text, CInputBindingManager *in
 			{
 				int midVal = abs->maximum/2;
 				int triggerVal = abs->maximum/10;
-				if (value < midVal + triggerVal && value > midVal - triggerVal) return;
-				ui->label->setText(ui->label->text() + "\n\nSelected Key: " + key);
+				if (value < midVal + triggerVal && value > midVal - triggerVal)
+				{
+					setCounter(0);
+					return;
+				}
+				setCounter(1);
+				ui->selectedbuttonlabel->setText("Selected Key: " + key);
 				m_key1.id = code;
 				m_key1.device = device;
 				m_key1.type = type;
-				m_inputManager->SetSimpleBinding(m_button,m_key1);
+				m_key1.bindtype = CInputBindingManager::BINDINGTYPE::BINDING_SIMPLE;
 			}
 			else
 			{
 				m_key1.id = code;
 				m_key1.device = device;
 				m_key1.type = type;
-				m_inputManager->SetPovHatBinding(m_button,m_key1, value);
-				ui->label->setText(ui->label->text() + "\n\nSelected Key: " + key);
+				m_key1.value = value;
+				m_key1.bindtype = CInputBindingManager::BINDINGTYPE::BINDING_POVHAT;
+				ui->selectedbuttonlabel->setText("Selected Key: " + key);
 			}
-			accept();
 		}
 		else
 		{
 			if(PS2::CControllerInfo::IsAxis(m_button))
 			{
-				if(click_count++ == 0)
+				if(click_count == 0)
 				{
+					ui->selectedbuttonlabel->setText("(-) Key Selected: " + key);
 					m_key1.id = code;
 					m_key1.device = device;
 					m_key1.type = type;
-					ui->label->setText("(-) Key Selected: " + key + "\nPlease Select (+) Key");
-					return;
+					m_key1.bindtype = CInputBindingManager::BINDINGTYPE::BINDING_SIMULATEDAXIS;
 				}
 				else
 				{
-					CInputBindingManager::BINDINGINFO m_key2;
 					m_key2.id = code;
 					m_key2.device = device;
 					m_key2.type = type;
-					m_inputManager->SetSimulatedAxisBinding(m_button, m_key1, m_key2);
+					ui->selectedbuttonlabel->setText("(+) Key Selected: " + key);
 				}
 			}
 			else
 			{
-				ui->label->setText(ui->label->text() + "\n\nSelected Key: " + key);
+				ui->selectedbuttonlabel->setText("Selected Key: " + key);
 				m_key1.id = code;
 				m_key1.device = device;
 				m_key1.type = type;
-				m_inputManager->SetSimpleBinding(m_button,m_key1);
+				m_key1.bindtype = CInputBindingManager::BINDINGTYPE::BINDING_SIMPLE;
 			}
-			accept();
-
 		}
 	};
 
@@ -91,34 +103,115 @@ void InputEventSelectionDialog::keyPressEvent(QKeyEvent* ev)
 {
 	if(ev->key() == Qt::Key_Escape)
 	{
+		m_running = false;
 		reject();
 		return;
 	}
+	setCounter(1);
 
 	QString key = QKeySequence(ev->key()).toString();
-	ui->label->setText(ui->label->text() + "\n\nSelected Key: " + key);
 	if(PS2::CControllerInfo::IsAxis(m_button))
 	{
-		if(click_count++ == 0)
+		if(click_count == 0)
 		{
 			m_key1.id = ev->key();
 			m_key1.device = {0};
-			ui->label->setText("(-) Key Selected: " + key + "\nPlease Select (+) Key");
-			return;
+			m_key1.bindtype = CInputBindingManager::BINDINGTYPE::BINDING_SIMULATEDAXIS;
+			ui->selectedbuttonlabel->setText("(-) Key Selected: " + key);
 		}
 		else
 		{
-			CInputBindingManager::BINDINGINFO m_key2;
 			m_key2.id = ev->key();
 			m_key2.device = {0};
-			m_inputManager->SetSimulatedAxisBinding(m_button, m_key1, m_key2);
+			ui->selectedbuttonlabel->setText("(+) Key Selected: " + key);
 		}
 	}
 	else
 	{
 		m_key1.id = ev->key();
 		m_key1.device = {0};
-		m_inputManager->SetSimpleBinding(m_button,m_key1);
+		m_key1.bindtype = CInputBindingManager::BINDINGTYPE::BINDING_SIMPLE;
+		ui->selectedbuttonlabel->setText("Key Selected: " + key);
 	}
-	accept();
+}
+
+void InputEventSelectionDialog::keyReleaseEvent(QKeyEvent* ev)
+{
+	if(!ev->isAutoRepeat())
+	{
+		setCounter(0);
+	}
+}
+
+void InputEventSelectionDialog::CountDownThreadLoop()
+{
+	while(m_running)
+	{
+		auto time_now = std::chrono::system_clock::now();
+		std::chrono::duration<double> diff = time_now - m_countStart;
+		if(m_isCounting)
+		{
+			if(diff.count() < 3)
+			{
+				ui->countdownlabel->setText(m_countingtext.arg(static_cast<int>(3 - diff.count())));
+			}
+			else
+			{
+				switch(m_key1.bindtype)
+				{
+					case CInputBindingManager::BINDINGTYPE::BINDING_SIMPLE:
+						m_inputManager->SetSimpleBinding(m_button, m_key1);
+						break;
+					case CInputBindingManager::BINDINGTYPE::BINDING_POVHAT:
+						m_inputManager->SetPovHatBinding(m_button,m_key1, m_key1.value);
+						break;
+					case CInputBindingManager::BINDINGTYPE::BINDING_SIMULATEDAXIS:
+						if(click_count == 0)
+						{
+							click_count++;
+							m_isCounting = 0;
+							ui->countdownlabel->setText(m_countingtext.arg(3));
+							continue;
+						}
+						else if(m_key2.id > 0)
+						{
+							m_inputManager->SetSimulatedAxisBinding(m_button, m_key1, m_key2);
+						}
+						break;
+				}
+
+				m_running = false;
+				accept();
+			}
+		}
+		else if(diff.count() < 3)
+		{
+			ui->countdownlabel->setText(m_countingtext.arg(3));
+		}
+	}
+}
+
+bool InputEventSelectionDialog::setCounter(int value)
+{
+	if(value == 0)
+	{
+		if(click_count == 0)
+		{
+			m_key1.id = -1;
+			ui->selectedbuttonlabel->setText("Selected Key: None");
+		}
+		else
+		{
+			m_key2.id = -1;
+			ui->selectedbuttonlabel->setText("(+) Selected Key: None");
+		}
+		m_isCounting = false;
+		return false;
+	}
+	else if(m_isCounting == false)
+	{
+		m_countStart = std::chrono::system_clock::now();
+		m_isCounting = true;
+	}
+	return true;
 }
