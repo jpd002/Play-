@@ -65,31 +65,29 @@ void ControllerConfigDialog::on_buttonBox_clicked(QAbstractButton *button)
 
 void ControllerConfigDialog::on_tableView_doubleClicked(const QModelIndex &index)
 {
-	std::string button(PS2::CControllerInfo::m_buttonName[index.row()]);
-	std::transform(button.begin(), button.end(),button.begin(), ::toupper);
-
-	InputEventSelectionDialog IESD;
-	IESD.Setup(button.c_str(), m_inputManager,
-			   static_cast<PS2::CControllerInfo::BUTTON>(index.row()), m_inputDeviceManager);
-	IESD.exec();
-	m_inputDeviceManager.get()->DisconnectInputEventCallback();
+	OpenBindConfigDialog(index.row());
 }
 
 void ControllerConfigDialog::on_ConfigAllButton_clicked()
 {
 	for(int i = 0; i < PS2::CControllerInfo::MAX_BUTTONS; ++i)
 	{
-		std::string button(PS2::CControllerInfo::m_buttonName[i]);
-		std::transform(button.begin(), button.end(),button.begin(), ::toupper);
-
-		InputEventSelectionDialog IESD;
-		IESD.Setup(button.c_str(), m_inputManager,
-				   static_cast<PS2::CControllerInfo::BUTTON>(i), m_inputDeviceManager);
-		auto res = IESD.exec();
-		m_inputDeviceManager.get()->DisconnectInputEventCallback();
-		if(!res)
+		if(!OpenBindConfigDialog(i))
 		{
 			break;
 		}
 	}
+}
+
+int ControllerConfigDialog::OpenBindConfigDialog(int index)
+{
+	std::string button(PS2::CControllerInfo::m_buttonName[index]);
+	std::transform(button.begin(), button.end(),button.begin(), ::toupper);
+
+	InputEventSelectionDialog IESD;
+	IESD.Setup(button.c_str(), m_inputManager,
+			   static_cast<PS2::CControllerInfo::BUTTON>(index), m_inputDeviceManager);
+	auto res = IESD.exec();
+	m_inputDeviceManager.get()->DisconnectInputEventCallback();
+	return res;
 }
