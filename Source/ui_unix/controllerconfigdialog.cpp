@@ -85,14 +85,10 @@ void ControllerConfigDialog::on_ConfigAllButton_clicked()
 		InputEventSelectionDialog IESD;
 		IESD.Setup(button.c_str(), m_inputManager,
 				   static_cast<PS2::CControllerInfo::BUTTON>(i), m_inputDeviceManager);
-		if(IESD.exec())
+		auto res = IESD.exec();
+		m_inputDeviceManager.get()->DisconnectInputEventCallback();
+		if(!res)
 		{
-			m_inputDeviceManager.get()->DisconnectInputEventCallback();
-			std::this_thread::sleep_for(std::chrono::seconds(2));
-		}
-		else
-		{
-			m_inputDeviceManager.get()->DisconnectInputEventCallback();
 			break;
 		}
 	}
