@@ -45,9 +45,10 @@ void InputEventSelectionDialog::Setup(const char* text, CInputBindingManager *in
 		{
 			if(abs->flat)
 			{
-				int midVal = abs->maximum/2;
-				int triggerVal = abs->maximum/10;
-				if (value < midVal + triggerVal && value > midVal - triggerVal)
+				int triggerRange = abs->maximum/100*20;
+				int triggerVal1 = abs->maximum - triggerRange;
+				int triggerVal2 = abs->minimum + triggerRange;
+				if(value < triggerVal1 && triggerVal2 < value)
 				{
 					setCounter(0);
 					return;
