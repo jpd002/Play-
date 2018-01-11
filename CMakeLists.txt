@@ -6,10 +6,14 @@ set(CMAKE_MODULE_PATH
 )
 include(Header)
 
+set(BUILD_PSFPLAYER OFF CACHE BOOL "Build PsfPlayer")
+set(BUILD_PLAY ON CACHE BOOL "Build Play! Emulator")
+
 set(PROJECT_NAME "Play!")
 set(PROJECT_Version 0.30)
 add_definitions(-DPLAY_VERSION="${PROJECT_Version}")
 set(PROJECT_LIBS)
+
 
 include(PrecompiledHeader)
 
@@ -46,22 +50,28 @@ if(WIN32)
 	endif()
 endif()
 
-if(TARGET_PLATFORM_UNIX)
-	add_subdirectory(Source/ui_unix/)
-endif(TARGET_PLATFORM_UNIX)
+if(BUILD_PLAY)
+	if(TARGET_PLATFORM_UNIX)
+		add_subdirectory(Source/ui_unix/)
+	endif(TARGET_PLATFORM_UNIX)
 
-if(TARGET_PLATFORM_MACOS)
-	add_subdirectory(Source/ui_macosx/)
-endif(TARGET_PLATFORM_MACOS)
+	if(TARGET_PLATFORM_MACOS)
+		add_subdirectory(Source/ui_macosx/)
+	endif(TARGET_PLATFORM_MACOS)
 
-if(TARGET_PLATFORM_IOS)
-	add_subdirectory(Source/ui_ios/)
-endif(TARGET_PLATFORM_IOS)
+	if(TARGET_PLATFORM_IOS)
+		add_subdirectory(Source/ui_ios/)
+	endif(TARGET_PLATFORM_IOS)
 
-if(TARGET_PLATFORM_ANDROID)
-	add_subdirectory(Source/ui_android/)
-endif(TARGET_PLATFORM_ANDROID)
+	if(TARGET_PLATFORM_ANDROID)
+		add_subdirectory(Source/ui_android/)
+	endif(TARGET_PLATFORM_ANDROID)
 
-if(TARGET_PLATFORM_WIN32)
-	add_subdirectory(Source/ui_win32)
-endif(TARGET_PLATFORM_WIN32)
+	if(TARGET_PLATFORM_WIN32)
+		add_subdirectory(Source/ui_win32)
+	endif(TARGET_PLATFORM_WIN32)
+endif(BUILD_PLAY)
+
+if(BUILD_PSFPLAYER)
+	add_subdirectory(tools/PsfPlayer)
+endif(BUILD_PSFPLAYER)
