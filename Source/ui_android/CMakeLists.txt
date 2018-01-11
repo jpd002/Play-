@@ -28,24 +28,6 @@ if(NOT TARGET gsh_opengl)
 endif()
 list(INSERT PROJECT_LIBS 0 gsh_opengl)
 
-# If ICU is available, add its libraries because Framework might need its functions
-find_package(ICUUC)
-if(ICUUC_FOUND)
-	list(APPEND PROJECT_LIBS ${ICUUC_LIBRARIES})
-endif()
-
-find_package(ZLIB)
-if(NOT ZLIB_FOUND)
-	MESSAGE("-- Using Provided zlib source")
-	if(NOT TARGET ZLIB::ZLIB)
-		add_subdirectory(
-			${CMAKE_CURRENT_SOURCE_DIR}/../../../Dependencies/build_cmake/zlib-1.2.8
-			${CMAKE_CURRENT_BINARY_DIR}/zlib-1.2.8
-		)
-	endif()
-endif()
-list(APPEND PROJECT_LIBS ZLIB::ZLIB)
-
 set(ANDROID_SRC_FILES
 	GSH_OpenGLAndroid.cpp
 	InputManager.cpp

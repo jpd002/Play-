@@ -28,32 +28,8 @@ if(NOT TARGET gsh_opengl)
 endif()
 list(INSERT PROJECT_LIBS 0 gsh_opengl)
 
-# If ICU is available, add its libraries because Framework might need its functions
-find_package(ICUUC)
-if(ICUUC_FOUND)
-	list(APPEND PROJECT_LIBS ${ICUUC_LIBRARIES})
-endif()
-
-find_package(ZLIB)
-if(NOT ZLIB_FOUND)
-	MESSAGE("-- Using Provided zlib source")
-	if(NOT TARGET ZLIB::ZLIB)
-		add_subdirectory(
-			${CMAKE_CURRENT_SOURCE_DIR}/../../../Dependencies/build_cmake/zlib-1.2.8
-			${CMAKE_CURRENT_BINARY_DIR}/zlib-1.2.8
-		)
-	endif()
-endif()
-list(APPEND PROJECT_LIBS ZLIB::ZLIB)
-
-find_package(Threads REQUIRED)
-if(CMAKE_THREAD_LIBS_INIT)
-	list(APPEND PROJECT_LIBS "${CMAKE_THREAD_LIBS_INIT}")
-endif()
-
 find_package(LIBEVDEV REQUIRED)
 list(APPEND PROJECT_LIBS ${LIBEVDEV_LIBRARY})
-
 
 set(QT_SOURCES
 	main.cpp

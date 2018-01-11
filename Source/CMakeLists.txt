@@ -12,22 +12,6 @@ set(PROJECT_LIBS)
 
 include(PrecompiledHeader)
 
-# flags
-set(CMAKE_CXX_STANDARD 14)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
-if(WIN32)
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /EHsc /MP")
-endif()
-
-if(NOT CMAKE_BUILD_TYPE)
-	set(CMAKE_BUILD_TYPE Release CACHE STRING
-		"Choose the type of build, options are: None Debug Release"
-		FORCE)
-endif()
-
-set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -D_DEBUG")
-set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -DNDEBUG")
-
 if(DEBUGGER_INCLUDED)
 	add_definitions(-DDEBUGGER_INCLUDED)
 endif()
@@ -170,6 +154,19 @@ if(NOT ZLIB_FOUND)
 	endif()
 endif()
 list(APPEND PROJECT_LIBS ZLIB::ZLIB)
+
+# If ICU is available, add its libraries because Framework might need its functions
+find_package(ICUUC)
+if(ICUUC_FOUND)
+	list(APPEND PROJECT_LIBS ${ICUUC_LIBRARIES})
+endif()
+
+if(NOT (TARGET_PLATFORM_ANDROID OR TARGET_PLATFORM_IOS))
+	find_package(Threads REQUIRED)
+	if(CMAKE_THREAD_LIBS_INIT)
+		list(APPEND PROJECT_LIBS "${CMAKE_THREAD_LIBS_INIT}")
+	endif()
+endif()
 
 set(COMMON_SRC_FILES
 	AppConfig.cpp
