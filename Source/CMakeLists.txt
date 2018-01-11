@@ -490,4 +490,38 @@ if(TARGET_PLATFORM_WIN32)
 	add_precompiled_header(PlayCore Pch.h FORCEINCLUDE SOURCE_CXX Pch.cpp)
 endif()
 
-set(PROJECT_LIBS)
+list(APPEND PROJECT_LIBS PlayCore)
+
+enable_testing()
+
+add_executable(autotest
+	../tools/AutoTest/JUnitTestReportWriter.cpp
+	../tools/AutoTest/Main.cpp
+)
+target_link_libraries(autotest ${PROJECT_LIBS})
+
+add_executable(McServTest
+	../tools/McServTest/AppConfig.cpp
+	../tools/McServTest/GameTestSheet.cpp
+	../tools/McServTest/Main.cpp
+)
+target_link_libraries(McServTest ${PROJECT_LIBS})
+
+add_test(NAME McServTest
+	WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/../tools/McServTest
+	COMMAND McServTest
+)
+
+add_executable(VuTest
+	../tools/VuTest/AddTest.cpp
+	../tools/VuTest/FlagsTest2.cpp
+	../tools/VuTest/FlagsTest.cpp
+	../tools/VuTest/Main.cpp
+	../tools/VuTest/TestVm.cpp
+	../tools/VuTest/TriAceTest.cpp
+	../tools/VuTest/VuAssembler.cpp
+)
+target_link_libraries(VuTest ${PROJECT_LIBS})
+add_test(NAME VuTest
+	COMMAND VuTest
+)
