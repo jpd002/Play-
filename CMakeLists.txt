@@ -8,6 +8,7 @@ include(Header)
 
 set(BUILD_PSFPLAYER OFF CACHE BOOL "Build PsfPlayer")
 set(BUILD_PLAY ON CACHE BOOL "Build Play! Emulator")
+set(BUILD_TESTS ON CACHE BOOL "Build Tests")
 
 set(PROJECT_NAME "Play!")
 set(PROJECT_Version 0.30)
@@ -72,13 +73,13 @@ if(BUILD_PLAY)
 	endif(TARGET_PLATFORM_WIN32)
 endif(BUILD_PLAY)
 
-enable_testing()
+if(BUILD_TESTS)
+	enable_testing()
 
-add_subdirectory(tools/AutoTest/)
-
-add_subdirectory(tools/McServTest/)
-
-add_subdirectory(tools/VuTest/)
+	add_subdirectory(tools/AutoTest/)
+	add_subdirectory(tools/McServTest/)
+	add_subdirectory(tools/VuTest/)
+endif()
 
 if(BUILD_PSFPLAYER)
 	add_subdirectory(tools/PsfPlayer)
