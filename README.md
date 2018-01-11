@@ -48,7 +48,7 @@ cd ..
 ### Building for Windows ###
 To build for Windows you will need to have CMake installed on your system.
 ```
-cd Play/build_cmake
+cd Play
 mkdir build
 cd build
 ```
@@ -63,7 +63,7 @@ If you don't have CMake installed on your system, you can install it using brew 
 
 There are two ways to generate a build for macOS, either by using makefiles or by using Xcode.
 ```
-cd Play/build_cmake
+cd Play
 mkdir build
 cd build
 ```
@@ -86,11 +86,11 @@ Example:
 if you dont have cmake or openal lib installed, you'll also require Qt (preferably version 5.6) you can install it using your OS packaging tool, e.g ubuntu `apt install cmake libalut-dev`
 on UNIX systems there is 3 ways to setup a build, using qt creator, makefile or Ninja
  - QT Creator
-    - Open Project -> `Play/build_cmake/CMakeLists.txt`
+    - Open Project -> `Play/CMakeLists.txt`
 
  - Makefile/Ninja
 ```
-cd Play/build_cmake
+cd Play
 mkdir build
 cd build
 ```
