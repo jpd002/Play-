@@ -49,8 +49,6 @@ travis_script()
         ./gradlew assembleRelease
         popd 
     else
-        pushd build_cmake
-        
         mkdir build
         pushd build
         
@@ -69,15 +67,12 @@ travis_script()
             cmake --build . --config Release
             codesign -s "-" Release-iphoneos/Play.app
             pushd ..
-            pushd ..
             pushd installer_ios
             ./build.sh
             popd
             popd
-            popd
         fi;
         
-        popd
         popd
     fi;
 }
@@ -99,7 +94,7 @@ travis_before_deploy()
         $ANDROID_BUILD_TOOLS/apksigner sign --ks ../../installer_android/deploy.keystore --ks-key-alias deploy --ks-pass env:ANDROID_KEYSTORE_PASS --key-pass env:ANDROID_KEYSTORE_PASS Play-release.apk
     fi;
     if [ "$TARGET_OS" = "OSX" ]; then
-        cp ../../build_cmake/build/Play.dmg .
+        cp ../../build/Play.dmg .
     fi;
     if [ "$TARGET_OS" = "IOS" ]; then
         cp ../../installer_ios/Play.deb .
