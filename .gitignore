@@ -1,4 +1,5 @@
 .gradle
+build
 build_android/build
 build_android/src/main/assets/patches.xml
 build_android/keystore.properties
