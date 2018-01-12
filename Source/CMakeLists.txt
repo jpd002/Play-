@@ -77,39 +77,6 @@ if (NOT TARGET CodeGen)
 endif()
 list(APPEND PROJECT_LIBS CodeGen)
 
-if(TARGET_PLATFORM_WIN32)
-	if (NOT TARGET Nuanceur)
-		add_subdirectory(
-			${CMAKE_CURRENT_SOURCE_DIR}/../../Nuanceur/build_cmake
-			${CMAKE_CURRENT_BINARY_DIR}/Nuanceur
-		)
-	endif()
-	list(APPEND PROJECT_LIBS Nuanceur)
-
-	if (NOT TARGET Framework_Win32)
-		add_subdirectory(
-			${CMAKE_CURRENT_SOURCE_DIR}/../../Framework/build_cmake/FrameworkWin32
-			${CMAKE_CURRENT_BINARY_DIR}/Framework_Win32
-		)
-	endif()
-	list(APPEND PROJECT_LIBS Framework_Win32)
-
-	#If building for Windows XP, we need to use the provided d3dcompiler since it's not available in the SDK
-	if(CMAKE_GENERATOR_TOOLSET MATCHES "_xp$")
-		include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../../Dependencies/d3dcompiler_winxp/Include)
-		if(CMAKE_SIZEOF_VOID_P EQUAL 8)
-			list(APPEND PROJECT_LIBS ${CMAKE_CURRENT_SOURCE_DIR}/../../Dependencies/d3dcompiler_winxp/Lib/x64/d3dcompiler.lib)
-		else()
-			list(APPEND PROJECT_LIBS ${CMAKE_CURRENT_SOURCE_DIR}/../../Dependencies/d3dcompiler_winxp/Lib/x86/d3dcompiler.lib)
-		endif()
-	else()
-		list(APPEND PROJECT_LIBS d3dcompiler)
-	endif()
-	
-	list(APPEND PROJECT_LIBS comctl32 uxtheme opengl32 glu32 dinput8 d3d9 vfw32 winmm gdiplus Boost::date_time)
-
-endif()
-
 if(NOT TARGET Boost::boost)
 	add_subdirectory(
 		${CMAKE_CURRENT_SOURCE_DIR}/../../Dependencies/boost-cmake
@@ -486,39 +453,3 @@ endif()
 if(TARGET_PLATFORM_WIN32)
 	add_precompiled_header(PlayCore Pch.h FORCEINCLUDE SOURCE_CXX Pch.cpp)
 endif()
-
-list(APPEND PROJECT_LIBS PlayCore)
-
-enable_testing()
-
-add_executable(autotest
-	../tools/AutoTest/JUnitTestReportWriter.cpp
-	../tools/AutoTest/Main.cpp
-)
-target_link_libraries(autotest ${PROJECT_LIBS})
-
-add_executable(McServTest
-	../tools/McServTest/AppConfig.cpp
-	../tools/McServTest/GameTestSheet.cpp
-	../tools/McServTest/Main.cpp
-)
-target_link_libraries(McServTest ${PROJECT_LIBS})
-
-add_test(NAME McServTest
-	WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/../tools/McServTest
-	COMMAND McServTest
-)
-
-add_executable(VuTest
-	../tools/VuTest/AddTest.cpp
-	../tools/VuTest/FlagsTest2.cpp
-	../tools/VuTest/FlagsTest.cpp
-	../tools/VuTest/Main.cpp
-	../tools/VuTest/TestVm.cpp
-	../tools/VuTest/TriAceTest.cpp
-	../tools/VuTest/VuAssembler.cpp
-)
-target_link_libraries(VuTest ${PROJECT_LIBS})
-add_test(NAME VuTest
-	COMMAND VuTest
-)

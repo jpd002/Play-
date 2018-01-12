@@ -72,6 +72,14 @@ if(BUILD_PLAY)
 	endif(TARGET_PLATFORM_WIN32)
 endif(BUILD_PLAY)
 
+enable_testing()
+
+add_subdirectory(tools/AutoTest/)
+
+add_subdirectory(tools/McServTest/)
+
+add_subdirectory(tools/VuTest/)
+
 if(BUILD_PSFPLAYER)
 	add_subdirectory(tools/PsfPlayer)
 endif(BUILD_PSFPLAYER)

@@ -28,11 +28,13 @@ if(NOT TARGET gsh_opengl)
 endif()
 list(INSERT PROJECT_LIBS 0 gsh_opengl)
 
-add_library(gsh_opengl_win32 STATIC 
-	GSH_OpenGL_SettingsWnd.cpp
-	GSH_OpenGLWin32.cpp
-)
-target_link_libraries(gsh_opengl_win32 PUBLIC Boost::boost Framework glew_s)
+if (NOT TARGET gsh_opengl_win32)
+	add_library(gsh_opengl_win32 STATIC
+		GSH_OpenGL_SettingsWnd.cpp
+		GSH_OpenGLWin32.cpp
+	)
+	target_link_libraries(gsh_opengl_win32 PUBLIC Boost::boost Framework glew_s)
+endif()
 list(APPEND PROJECT_LIBS gsh_opengl_win32)
 
 #If building for Windows XP, we need to use the provided d3dcompiler since it's not available in the SDK
