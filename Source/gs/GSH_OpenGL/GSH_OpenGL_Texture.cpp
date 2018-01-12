@@ -2,7 +2,6 @@
 #include <sys/stat.h>
 #include <limits.h>
 #include <algorithm>
-#include <zlib.h>
 #include "GSH_OpenGL.h"
 #include "StdStream.h"
 #include "bitmap/BMP.h"
