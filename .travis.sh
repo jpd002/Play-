@@ -61,11 +61,11 @@ travis_script()
         elif [ "$TARGET_OS" = "OSX" ]; then
             cmake .. -G"$BUILD_TYPE"
             cmake --build . --config Release
-            appdmg ../../installer_macosx/spec.json Play.dmg
+            appdmg ../installer_macosx/spec.json Play.dmg
         elif [ "$TARGET_OS" = "IOS" ]; then
-            cmake .. -G"$BUILD_TYPE" -DCMAKE_TOOLCHAIN_FILE=../../../Dependencies/cmake-ios/ios.cmake -DTARGET_IOS=ON
+            cmake .. -G"$BUILD_TYPE" -DCMAKE_TOOLCHAIN_FILE=../../Dependencies/cmake-ios/ios.cmake -DTARGET_IOS=ON
             cmake --build . --config Release
-            codesign -s "-" Release-iphoneos/Play.app
+            codesign -s "-" Source/ui_ios/Release-iphoneos/Play.app
             pushd ..
             pushd installer_ios
             ./build.sh
@@ -88,17 +88,17 @@ travis_before_deploy()
         return
     fi;
     if [ "$TARGET_OS" = "Android" ]; then
-        cp ../../build_android/build/outputs/apk/release/Play-release-unsigned.apk .
+        cp ../build_android/build/outputs/apk/release/Play-release-unsigned.apk .
         export ANDROID_BUILD_TOOLS=$ANDROID_HOME/build-tools/26.0.2
         $ANDROID_BUILD_TOOLS/zipalign -v -p 4 Play-release-unsigned.apk Play-release.apk
-        $ANDROID_BUILD_TOOLS/apksigner sign --ks ../../installer_android/deploy.keystore --ks-key-alias deploy --ks-pass env:ANDROID_KEYSTORE_PASS --key-pass env:ANDROID_KEYSTORE_PASS Play-release.apk
+        $ANDROID_BUILD_TOOLS/apksigner sign --ks ../installer_android/deploy.keystore --ks-key-alias deploy --ks-pass env:ANDROID_KEYSTORE_PASS --key-pass env:ANDROID_KEYSTORE_PASS Play-release.apk
     fi;
     if [ "$TARGET_OS" = "OSX" ]; then
-        cp ../../build/Play.dmg .
+        cp ../build/Play.dmg .
     fi;
     if [ "$TARGET_OS" = "IOS" ]; then
-        cp ../../installer_ios/Play.deb .
-        cp ../../installer_ios/Packages.bz2 .
+        cp ../installer_ios/Play.deb .
+        cp ../installer_ios/Packages.bz2 .
     fi;
     popd
     popd
