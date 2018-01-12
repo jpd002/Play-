@@ -1,7 +1,7 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
-#include "Source/PsfLoader.h"
-#include "Source/SH_OpenAL.h"
+#include "PsfLoader.h"
+#include "SH_OpenAL.h"
 #include "PsfTags.h"
 #include "AppConfig.h"
 
