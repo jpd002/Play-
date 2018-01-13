@@ -37,18 +37,14 @@ if(TARGET_PLATFORM_WIN32)
 	list(APPEND PROJECT_LIBS Framework_Win32)
 
 	#If building for Windows XP, we need to use the provided d3dcompiler since it's not available in the SDK
-	if(CMAKE_GENERATOR_TOOLSET MATCHES "_xp$")
-	include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../../../Dependencies/d3dcompiler_winxp/Include)
-		if(CMAKE_SIZEOF_VOID_P EQUAL 8)
-			list(APPEND PROJECT_LIBS ${CMAKE_CURRENT_SOURCE_DIR}/../../../Dependencies/d3dcompiler_winxp/Lib/x64/d3dcompiler.lib)
-		else()
-			list(APPEND PROJECT_LIBS ${CMAKE_CURRENT_SOURCE_DIR}/../../../Dependencies/d3dcompiler_winxp/Lib/x86/d3dcompiler.lib)
-		endif()
-	else()
-		list(APPEND PROJECT_LIBS d3dcompiler)
+	if(CMAKE_GENERATOR_TOOLSET MATCHES "_xp$" AND NOT TARGET d3dcompiler)
+		add_subdirectory(
+			${CMAKE_CURRENT_SOURCE_DIR}/../../../Dependencies/d3dcompiler_winxp
+			${CMAKE_CURRENT_BINARY_DIR}/d3dcompiler_winxp
+		)
 	endif()
 
-list(APPEND PROJECT_LIBS uxtheme opengl32 glu32 dinput8 d3d9 vfw32 winmm gdiplus Boost::date_time)
+	list(APPEND PROJECT_LIBS uxtheme opengl32 glu32 dinput8 d3d9 vfw32 winmm gdiplus Boost::date_time d3dcompiler)
 
 	if(NOT TARGET gsh_opengl_win32)
 		add_library(gsh_opengl_win32 STATIC 
