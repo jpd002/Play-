@@ -29,6 +29,14 @@ if (NOT TARGET Framework_Win32)
 endif()
 list(APPEND PROJECT_LIBS Framework_Win32)
 
+if(NOT TARGET tdemu)
+	add_subdirectory(
+		${CMAKE_CURRENT_SOURCE_DIR}/../../../../../Dependencies/tdemu-1.10
+		${CMAKE_CURRENT_BINARY_DIR}/tdemu-1.10
+	)
+endif()
+list(APPEND PROJECT_LIBS tdemu)
+
 set(AUDIO_LIBS)
 find_package(OpenAL)
 if(OPENAL_FOUND)
@@ -83,13 +91,12 @@ set(WIN32_SRC
 )
 
 add_executable(PsfPlayer WIN32 ${WIN32_SRC} Res.rc)
-target_link_libraries(PsfPlayer PUBLIC d3d9 uxtheme ${PROJECT_LIBS} ${CMAKE_CURRENT_SOURCE_DIR}/../../../../../Dependencies/tdemu-1.10/TDEmu64.lib ${AUDIO_LIBS})
+target_link_libraries(PsfPlayer PUBLIC d3d9 uxtheme ${PROJECT_LIBS} ${AUDIO_LIBS})
 target_include_directories(PsfPlayer
 	PUBLIC
 		./
 		../../../../Source/ui_win32
 		../../../../Source/gs/GSH_OpenGL
-		${CMAKE_CURRENT_SOURCE_DIR}/../../../../../Dependencies/tdemu-1.10
 )
 include(PrecompiledHeader)
 add_precompiled_header(PsfPlayer StdAfx.h FORCEINCLUDE SOURCE_CXX StdAfx.cpp)
