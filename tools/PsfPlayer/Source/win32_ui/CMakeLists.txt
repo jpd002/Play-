@@ -83,7 +83,7 @@ set(WIN32_SRC
 )
 
 add_executable(PsfPlayer WIN32 ${WIN32_SRC} Res.rc)
-target_link_libraries(PsfPlayer PUBLIC d3d9 uxtheme Comctl32 ${PROJECT_LIBS} ${CMAKE_CURRENT_SOURCE_DIR}/../../../../../Dependencies/tdemu-1.10/TDEmu64.lib ${AUDIO_LIBS})
+target_link_libraries(PsfPlayer PUBLIC d3d9 uxtheme ${PROJECT_LIBS} ${CMAKE_CURRENT_SOURCE_DIR}/../../../../../Dependencies/tdemu-1.10/TDEmu64.lib ${AUDIO_LIBS})
 target_include_directories(PsfPlayer
 	PUBLIC
 		./

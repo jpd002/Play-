@@ -72,7 +72,7 @@ if(TARGET_PLATFORM_WIN32)
 	endif()
 list(APPEND PROJECT_LIBS Framework_Win32)
 
-list(APPEND PROJECT_LIBS comctl32 uxtheme opengl32 glu32 dinput8 d3d9 vfw32 winmm gdiplus Boost::date_time)
+list(APPEND PROJECT_LIBS uxtheme opengl32 glu32 dinput8 d3d9 vfw32 winmm gdiplus Boost::date_time)
 
 endif()
 
