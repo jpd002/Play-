@@ -8,10 +8,6 @@ include(Header)
 
 project(PlayUI)
 
-set(PROJECT_NAME "Play!")
-set(PROJECT_Version 0.30)
-add_definitions(-DPLAY_VERSION="${PROJECT_Version}")
-
 if(NOT TARGET PlayCore)
 	add_subdirectory(
 		${CMAKE_CURRENT_SOURCE_DIR}/../

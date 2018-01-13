@@ -8,12 +8,7 @@ include(Header)
 
 project(PsfPlayer)
 
-add_definitions(-D_CRT_SECURE_NO_WARNINGS)
-add_definitions(-D_SCL_SECURE_NO_WARNINGS)
-add_definitions(-D_LIB)
-add_definitions(-D_UNICODE -DUNICODE)
-
-if (NOT TARGET PsfCore)
+if(NOT TARGET PsfCore)
 	add_subdirectory(
 		${CMAKE_CURRENT_SOURCE_DIR}/../
 		${CMAKE_CURRENT_BINARY_DIR}/PsfCore
@@ -21,7 +16,7 @@ if (NOT TARGET PsfCore)
 endif()
 list(APPEND PROJECT_LIBS PsfCore)
 
-if (NOT TARGET Framework_Win32)
+if(NOT TARGET Framework_Win32)
 	add_subdirectory(
 		${CMAKE_CURRENT_SOURCE_DIR}/../../../../../Framework/build_cmake/FrameworkWin32
 		${CMAKE_CURRENT_BINARY_DIR}/Framework_Win32
@@ -59,7 +54,7 @@ list(APPEND AUDIO_LIBS SH_WaveOut)
 
 ENABLE_LANGUAGE(ASM_MASM)
 
-if (CMAKE_BUILD_TYPE MATCHES DEBUG)
+if(CMAKE_BUILD_TYPE MATCHES DEBUG)
 	set(DEBUG_SRC
 		../../../../Source/ui_win32/CallStackWnd.cpp
 		../../../../Source/ui_win32/Debugger.cpp

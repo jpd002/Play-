@@ -7,21 +7,14 @@ set(CMAKE_MODULE_PATH
 include(Header)
 
 project(PsfCore)
+
 set(PROJECT_LIBS)
 set(PSF_PROJECT_NAME "PsfPlayer")
 set(PSF_PROJECT_VERSION "1.05")
 
-
-if(TARGET_PLATFORM_WIN32)
-	add_definitions(-D_CRT_SECURE_NO_WARNINGS)
-	add_definitions(-D_SCL_SECURE_NO_WARNINGS)
-	add_definitions(-D_LIB)
-	add_definitions(-D_UNICODE -DUNICODE)
-endif()
-
 add_definitions(-D_IOP_EMULATE_MODULES)
 
-if (NOT TARGET PlayCore)
+if(NOT TARGET PlayCore)
 	add_subdirectory(
 		${CMAKE_CURRENT_SOURCE_DIR}/../../../Source
 		${CMAKE_CURRENT_BINARY_DIR}/PlayCore
@@ -32,7 +25,7 @@ list(APPEND PROJECT_LIBS PlayCore)
 find_package(OpenAL)
 if(OPENAL_FOUND)
 	if(TARGET_PLATFORM_MACOS OR TARGET_PLATFORM_IOS OR TARGET_PLATFORM_UNIX OR TARGET_PLATFORM_WIN32)
-		if (NOT TARGET Framework_OpenAl)
+		if(NOT TARGET Framework_OpenAl)
 			add_subdirectory(
 				${CMAKE_CURRENT_SOURCE_DIR}/../../../../Framework/build_cmake/FrameworkOpenAl
 				${CMAKE_CURRENT_BINARY_DIR}/FrameworkOpenAl

@@ -7,7 +7,8 @@ set(CMAKE_MODULE_PATH
 include(Header)
 
 project(PsfPlayer)
-if (NOT TARGET PsfCore)
+
+if(NOT TARGET PsfCore)
 	add_subdirectory(
 		${CMAKE_CURRENT_SOURCE_DIR}/../
 		${CMAKE_CURRENT_BINARY_DIR}/PsfCore

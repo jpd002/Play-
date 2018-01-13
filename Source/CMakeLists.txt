@@ -9,6 +9,8 @@ include(Header)
 project(PlayCore)
 
 set(PROJECT_LIBS)
+set(PROJECT_NAME "Play!")
+set(PROJECT_Version 0.30)
 
 include(PrecompiledHeader)
 
@@ -23,7 +25,7 @@ if(TARGET_PLATFORM_ANDROID OR TARGET_PLATFORM_IOS)
 endif()
 
 # targets, packages and dependencies
-if (NOT TARGET Framework)
+if(NOT TARGET Framework)
 	add_subdirectory(
 		${CMAKE_CURRENT_SOURCE_DIR}/../../Framework/build_cmake/Framework
 		${CMAKE_CURRENT_BINARY_DIR}/Framework
@@ -32,7 +34,7 @@ endif()
 list(APPEND PROJECT_LIBS Framework)
 
 if(TARGET_PLATFORM_MACOS OR TARGET_PLATFORM_IOS OR TARGET_PLATFORM_UNIX)
-	if (NOT TARGET Framework_OpenAl)
+	if(NOT TARGET Framework_OpenAl)
 		add_subdirectory(
 			${CMAKE_CURRENT_SOURCE_DIR}/../../Framework/build_cmake/FrameworkOpenAl
 			${CMAKE_CURRENT_BINARY_DIR}/FrameworkOpenAl
@@ -43,7 +45,7 @@ if(TARGET_PLATFORM_MACOS OR TARGET_PLATFORM_IOS OR TARGET_PLATFORM_UNIX)
 	list(APPEND PROJECT_LIBS ${OPENAL_LIBRARY})
 endif()
 
-if (NOT TARGET CodeGen)
+if(NOT TARGET CodeGen)
 	add_subdirectory(
 		${CMAKE_CURRENT_SOURCE_DIR}/../../CodeGen/build_cmake
 		${CMAKE_CURRENT_BINARY_DIR}/CodeGen
@@ -62,7 +64,7 @@ list(APPEND PROJECT_LIBS Boost::boost Boost::system Boost::filesystem)
 find_package(BZip2)
 if(NOT BZIP2_FOUND)
 	MESSAGE("-- Using Provided BZip2 source")
-	if (NOT TARGET BZip2::BZip2)
+	if(NOT TARGET BZip2::BZip2)
 		add_subdirectory(
 			${CMAKE_CURRENT_SOURCE_DIR}/../../Dependencies/build_cmake/bzip2-1.0.6
 			${CMAKE_CURRENT_BINARY_DIR}/bzip2-1.0.6
@@ -387,7 +389,7 @@ set(COMMON_SRC_FILES
 
 if(TARGET_PLATFORM_WIN32)
 	set(PLATFORM_SPECIFIC_SRC_FILES VolumeStream.cpp)
-endif ()
+endif()
 
 if(TARGET_PLATFORM_MACOS OR TARGET_PLATFORM_UNIX)
 	set(PLATFORM_SPECIFIC_SRC_FILES Posix_VolumeStream.cpp)

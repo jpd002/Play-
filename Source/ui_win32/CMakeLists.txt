@@ -8,10 +8,6 @@ include(Header)
 
 project(PlayUI)
 
-set(PROJECT_NAME "Play!")
-set(PROJECT_Version 0.30)
-add_definitions(-DPLAY_VERSION="${PROJECT_Version}")
-
 if(NOT TARGET PlayCore)
 	add_subdirectory(
 		${CMAKE_CURRENT_SOURCE_DIR}/../
@@ -28,7 +24,7 @@ if(NOT TARGET gsh_opengl)
 endif()
 list(INSERT PROJECT_LIBS 0 gsh_opengl)
 
-if (NOT TARGET gsh_opengl_win32)
+if(NOT TARGET gsh_opengl_win32)
 	add_library(gsh_opengl_win32 STATIC
 		GSH_OpenGL_SettingsWnd.cpp
 		GSH_OpenGLWin32.cpp

@@ -9,7 +9,7 @@ include(Header)
 
 project(PsfPlayer)
 
-if (NOT TARGET PsfCore)
+if(NOT TARGET PsfCore)
 	add_subdirectory(
 		${CMAKE_CURRENT_SOURCE_DIR}/../
 		${CMAKE_CURRENT_BINARY_DIR}/PsfCore
@@ -64,7 +64,7 @@ set_target_properties(
 # Make sure we can find the 'ibtool' program. If we can NOT find it we
 # skip generation of this project
 find_program(IBTOOL ibtool HINTS "/usr/bin" "${OSX_DEVELOPER_ROOT}/usr/bin")
-if (${IBTOOL} STREQUAL "IBTOOL-NOTFOUND")
+if(${IBTOOL} STREQUAL "IBTOOL-NOTFOUND")
 	message(SEND_ERROR "ibtool can not be found and is needed to compile the .xib files. It should have been installed with the Apple developer tools. The default system paths were searched in addition to ${OSX_DEVELOPER_ROOT}/usr/bin")
 endif()
 
