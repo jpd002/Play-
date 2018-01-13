@@ -1,5 +1,4 @@
 #include <assert.h>
-#include <zlib.h>
 #include <sys/stat.h>
 #include "math/Matrix4.h"
 #include "GSH_Direct3D9.h"

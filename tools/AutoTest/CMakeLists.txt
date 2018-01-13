@@ -73,7 +73,7 @@ list(APPEND PROJECT_LIBS uxtheme opengl32 glu32 dinput8 d3d9 vfw32 winmm gdiplus
 			../../Source/ui_win32/GSH_Direct3D9_Shader.cpp
 			../../Source/ui_win32/GSH_Direct3D9_Texture.cpp
 		)
-		target_link_libraries(gsh_d3d9 Boost::boost ZLIB::ZLIB Nuanceur)
+		target_link_libraries(gsh_d3d9 Boost::boost Nuanceur)
 	endif()
 	list(APPEND PROJECT_LIBS gsh_d3d9)
 endif()

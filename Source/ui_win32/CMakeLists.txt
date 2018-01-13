@@ -51,7 +51,7 @@ if(NOT TARGET gsh_d3d9)
 		GSH_Direct3D9_Shader.cpp
 		GSH_Direct3D9_Texture.cpp
 	)
-	target_link_libraries(gsh_d3d9 Boost::boost Framework ZLIB::ZLIB Nuanceur d3dcompiler)
+	target_link_libraries(gsh_d3d9 Boost::boost Framework Nuanceur d3dcompiler)
 endif()
 list(APPEND PROJECT_LIBS gsh_d3d9)
 
