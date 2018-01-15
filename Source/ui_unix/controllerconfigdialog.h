@@ -27,6 +27,7 @@ private slots:
 	void on_ConfigAllButton_clicked();
 
 private:
+	int OpenBindConfigDialog(int index);
 	CInputBindingManager* m_inputManager;
 	std::unique_ptr<CGamePadDeviceListener> m_inputDeviceManager;
 	Ui::ControllerConfigDialog *ui;
