@@ -152,7 +152,7 @@
 	}
 	NSURL* url = openPanel.URL;
 	NSString* filePath = [url path];
-	CAppConfig::GetInstance().SetPreferencePath(PS2VM_CDROM0PATH, [filePath fileSystemRepresentation]);
+	CAppConfig::GetInstance().SetPreferencePath(PREF_PS2_CDROM0_PATH, [filePath fileSystemRepresentation]);
 	
 	[self bootFromCdrom0];
 }

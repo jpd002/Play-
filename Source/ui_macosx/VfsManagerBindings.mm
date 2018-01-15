@@ -139,7 +139,7 @@
 {
 	if(self = [super init])
 	{
-		auto preferenceValue = CAppConfig::GetInstance().GetPreferencePath(PS2VM_CDROM0PATH);
+		auto preferenceValue = CAppConfig::GetInstance().GetPreferencePath(PREF_PS2_CDROM0_PATH);
 		auto nativeString = preferenceValue.native();
 		self.value = [[NSFileManager defaultManager] stringWithFileSystemRepresentation: nativeString.c_str() length: nativeString.size()];
 	}
@@ -176,7 +176,7 @@
 -(void)save
 {
 	auto pathString = [self.value length] ? [self.value fileSystemRepresentation] : "";
-	CAppConfig::GetInstance().SetPreferencePath(PS2VM_CDROM0PATH, pathString);
+	CAppConfig::GetInstance().SetPreferencePath(PREF_PS2_CDROM0_PATH, pathString);
 }
 
 @end

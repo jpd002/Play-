@@ -98,7 +98,7 @@ CPS2VM* g_virtualMachine = nullptr;
 	}
 	else
 	{
-		CAppConfig::GetInstance().SetPreferencePath(PS2VM_CDROM0PATH, imagePath);
+		CAppConfig::GetInstance().SetPreferencePath(PREF_PS2_CDROM0_PATH, imagePath);
 		g_virtualMachine->Reset();
 		g_virtualMachine->m_ee->m_os->BootFromCDROM();
 	}

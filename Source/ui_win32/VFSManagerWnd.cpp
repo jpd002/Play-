@@ -207,7 +207,7 @@ int CVFSManagerWnd::CDirectoryDevice::BrowseCallback(HWND hFrom, unsigned int nM
 
 CVFSManagerWnd::CCdrom0Device::CCdrom0Device()
 {
-	auto cdrom0Path = CAppConfig::GetInstance().GetPreferencePath(PS2VM_CDROM0PATH);
+	auto cdrom0Path = CAppConfig::GetInstance().GetPreferencePath(PREF_PS2_CDROM0_PATH);
 	auto cdrom0PathString = cdrom0Path.string();
 
 	//Detect the binding type from the path format
@@ -291,11 +291,11 @@ void CVFSManagerWnd::CCdrom0Device::Save()
 {
 	if(m_bindingType == CCdromSelectionWnd::BINDING_IMAGE)
 	{
-		CAppConfig::GetInstance().SetPreferencePath(PS2VM_CDROM0PATH, m_imagePath);
+		CAppConfig::GetInstance().SetPreferencePath(PREF_PS2_CDROM0_PATH, m_imagePath);
 	}
 	else if(m_bindingType == CCdromSelectionWnd::BINDING_PHYSICAL)
 	{
 		auto devicePath = string_format("\\\\.\\%c:", m_devicePath[0]);
-		CAppConfig::GetInstance().SetPreferencePath(PS2VM_CDROM0PATH, devicePath);
+		CAppConfig::GetInstance().SetPreferencePath(PREF_PS2_CDROM0_PATH, devicePath);
 	}
 }

@@ -80,7 +80,7 @@ CPS2VM::CPS2VM()
 		CAppConfig::GetInstance().RegisterPreferenceString(setting, absolutePath.string().c_str());
 	}
 	
-	CAppConfig::GetInstance().RegisterPreferencePath(PS2VM_CDROM0PATH, "");
+	CAppConfig::GetInstance().RegisterPreferencePath(PREF_PS2_CDROM0_PATH, "");
 
 	m_iop = std::make_unique<Iop::CSubSystem>(true);
 	m_iopOs = std::make_shared<CIopBios>(m_iop->m_cpu, m_iop->m_executor, m_iop->m_ram, PS2::IOP_RAM_SIZE, m_iop->m_scratchPad);
@@ -678,7 +678,7 @@ void CPS2VM::CDROM0_SyncPath()
 
 	CDROM0_Reset();
 
-	auto path = CAppConfig::GetInstance().GetPreferencePath(PS2VM_CDROM0PATH);
+	auto path = CAppConfig::GetInstance().GetPreferencePath(PREF_PS2_CDROM0_PATH);
 	if(!path.empty())
 	{
 		try

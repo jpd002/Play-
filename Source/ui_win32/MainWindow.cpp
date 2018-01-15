@@ -709,7 +709,7 @@ void CMainWindow::BootDiskImage()
 	if(nRet == 0) return;
 
 	auto path = boost::filesystem::path(d.GetPath());
-	CAppConfig::GetInstance().SetPreferencePath(PS2VM_CDROM0PATH, path);
+	CAppConfig::GetInstance().SetPreferencePath(PREF_PS2_CDROM0_PATH, path);
 	BootCDROM();
 }
 

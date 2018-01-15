@@ -61,7 +61,7 @@ bool CDirectoryDevice::RequestModification(QWidget* parent)
 
 CCdrom0Device::CCdrom0Device()
 {
-	auto path = CAppConfig::GetInstance().GetPreferencePath(PS2VM_CDROM0PATH);
+	auto path = CAppConfig::GetInstance().GetPreferencePath(PREF_PS2_CDROM0_PATH);
 	auto pathString = QString(path.native().c_str());
 	//Detect the binding type from the path format
 	if(
@@ -109,7 +109,7 @@ std::string CCdrom0Device::GetBinding()
 
 void CCdrom0Device::Save()
 {
-	CAppConfig::GetInstance().SetPreferencePath(PS2VM_CDROM0PATH, m_imagePath);
+	CAppConfig::GetInstance().SetPreferencePath(PREF_PS2_CDROM0_PATH, m_imagePath);
 }
 
 bool CCdrom0Device::RequestModification(QWidget* parent)

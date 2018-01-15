@@ -140,7 +140,7 @@ extern "C" JNIEXPORT void JNICALL Java_com_virtualapplications_play_NativeIntero
 extern "C" JNIEXPORT void JNICALL Java_com_virtualapplications_play_NativeInterop_bootDiskImage(JNIEnv* env, jobject obj, jstring selectedFilePath)
 {
 	assert(g_virtualMachine != nullptr);
-	CAppConfig::GetInstance().SetPreferencePath(PS2VM_CDROM0PATH, GetStringFromJstring(env, selectedFilePath));
+	CAppConfig::GetInstance().SetPreferencePath(PREF_PS2_CDROM0_PATH, GetStringFromJstring(env, selectedFilePath));
 	ResetVirtualMachine();
 	try
 	{
