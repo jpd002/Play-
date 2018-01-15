@@ -14,7 +14,8 @@ CDirectoryDevice::CDirectoryDevice(const char* name, const char* preference)
 {
 	m_name = name;
 	m_preference = preference;
-	m_value = CAppConfig::GetInstance().GetPreferenceString(preference);
+	auto value = CAppConfig::GetInstance().GetPreferencePath(preference);
+	m_value = value.native();
 }
 
 const char* CDirectoryDevice::GetDeviceName()
@@ -34,7 +35,7 @@ std::string CDirectoryDevice::GetBinding()
 
 void CDirectoryDevice::Save()
 {
-	CAppConfig::GetInstance().SetPreferenceString(m_preference, m_value.c_str());
+	CAppConfig::GetInstance().SetPreferencePath(m_preference, m_value);
 }
 
 bool CDirectoryDevice::RequestModification(QWidget* parent)
