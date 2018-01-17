@@ -21,7 +21,6 @@ if(PROFILE)
 endif()
 
 add_definitions(-D_IOP_EMULATE_MODULES)
-add_definitions(-DGLEW_STATIC)
 
 if(WIN32)
 	add_definitions(-D_CRT_SECURE_NO_WARNINGS)
@@ -84,16 +83,6 @@ if(NOT TARGET Boost::boost)
 	)
 endif()
 list(APPEND PROJECT_LIBS Boost::boost Boost::system Boost::filesystem)
-
-if(TARGET_PLATFORM_WIN32 OR TARGET_PLATFORM_UNIX)
-	if (NOT TARGET glew_s)
-		add_subdirectory(
-			${CMAKE_CURRENT_SOURCE_DIR}/../../Dependencies/glew-2.0.0
-			${CMAKE_CURRENT_BINARY_DIR}/glew-2.0.0
-		)
-	endif()
-	list(APPEND PROJECT_LIBS glew_s)
-endif()
 
 find_package(BZip2)
 if(NOT BZIP2_FOUND)

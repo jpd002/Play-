@@ -33,7 +33,7 @@ if (NOT TARGET gsh_opengl_win32)
 		GSH_OpenGL_SettingsWnd.cpp
 		GSH_OpenGLWin32.cpp
 	)
-	target_link_libraries(gsh_opengl_win32 PUBLIC Boost::boost Framework glew_s)
+	target_link_libraries(gsh_opengl_win32 PUBLIC Boost::boost Framework gsh_opengl)
 endif()
 list(APPEND PROJECT_LIBS gsh_opengl_win32)
 
