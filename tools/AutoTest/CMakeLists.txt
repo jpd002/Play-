@@ -15,11 +15,6 @@ if (NOT TARGET PlayCore)
 endif()
 
 if(TARGET_PLATFORM_WIN32)
-	add_definitions(-D_CRT_SECURE_NO_WARNINGS)
-	add_definitions(-D_SCL_SECURE_NO_WARNINGS)
-	add_definitions(-D_LIB)
-	add_definitions(-D_UNICODE -DUNICODE)
-
 	if(NOT TARGET gsh_opengl)
 		add_subdirectory(
 			../../Source/gs/GSH_OpenGL

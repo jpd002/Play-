@@ -18,38 +18,6 @@ set(PROJECT_LIBS)
 
 include(PrecompiledHeader)
 
-if(DEBUGGER_INCLUDED)
-	add_definitions(-DDEBUGGER_INCLUDED)
-endif()
-
-#TODO figure out if these go into Core or UI
-if(PROFILE)
-	add_definitions(-DPROFILE)
-endif()
-
-add_definitions(-D_IOP_EMULATE_MODULES)
-
-if(WIN32)
-	add_definitions(-D_CRT_SECURE_NO_WARNINGS)
-	add_definitions(-D_SCL_SECURE_NO_WARNINGS)
-	add_definitions(-D_LIB)
-	add_definitions(-D_UNICODE -DUNICODE)
-	if(DEFINED VTUNE_ENABLED)
-		add_definitions(-DVTUNE_ENABLED)
-		list(APPEND PROJECT_LIBS libittnotify jitprofiling)
-		if(DEFINED VTUNE_PATH)
-			if(TARGET_PLATFORM_WIN32_X86)
-				link_directories($(VTUNE_PATH)\lib32)
-			else()
-				link_directories($(VTUNE_PATH)\lib64)
-			endif()
-			include_directories($(VTUNE_PATH)\include)
-		else()
-			MESSAGE(FATAL_ERROR "VTUNE_PATH was not defined")
-		endif()
-	endif()
-endif()
-
 if(BUILD_PLAY)
 	if(TARGET_PLATFORM_UNIX)
 		add_subdirectory(Source/ui_unix/)
