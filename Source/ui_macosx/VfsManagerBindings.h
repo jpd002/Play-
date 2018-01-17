@@ -2,10 +2,9 @@
 
 @interface VfsManagerBinding : NSObject
 
-@property NSString* deviceName;
-
--(NSString*)bindingType;
--(NSString*)bindingValue;
+@property (copy) NSString* deviceName;
+@property (readonly, copy) NSString* bindingType;
+@property (readonly, copy) NSString* bindingValue;
 -(void)requestModification;
 -(void)save;
 
@@ -23,12 +22,12 @@
 
 @interface VfsManagerDirectoryBinding : VfsManagerBinding
 
-@property NSString* preferenceName;
-@property NSString* value;
+@property (copy) NSString* preferenceName;
+@property (copy) NSString* value;
 
 -(VfsManagerDirectoryBinding*)init: (NSString*)deviceName preferenceName: (NSString*)preferenceName;
--(NSString*)bindingType;
--(NSString*)bindingValue;
+@property (readonly, copy) NSString* bindingType;
+@property (readonly, copy) NSString* bindingValue;
 -(void)requestModification;
 -(void)save;
 
@@ -36,11 +35,11 @@
 
 @interface VfsManagerCdrom0Binding : VfsManagerBinding
 
-@property NSString* value;
+@property (copy) NSString* value;
 
 -(VfsManagerCdrom0Binding*)init;
--(NSString*)bindingType;
--(NSString*)bindingValue;
+@property (readonly, copy) NSString* bindingType;
+@property (readonly, copy) NSString* bindingValue;
 -(void)requestModification;
 -(void)save;
 
