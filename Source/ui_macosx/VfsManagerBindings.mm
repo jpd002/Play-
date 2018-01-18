@@ -86,8 +86,9 @@
 		self.deviceName = deviceName;
 		self.bindingType = @"Directory";
 		self.preferenceName = preferenceName;
-		auto preferenceValue = CAppConfig::GetInstance().GetPreferenceString([preferenceName UTF8String]);
-		self.bindingValue = preferenceValue ? [NSString stringWithUTF8String: preferenceValue] : @"";
+		auto preferenceValue = CAppConfig::GetInstance().GetPreferencePath([preferenceName UTF8String]);
+		auto nativeString = preferenceValue.native();
+		self.bindingValue = [[NSFileManager defaultManager] stringWithFileSystemRepresentation: nativeString.c_str() length: nativeString.size()];
 	}
 	return self;
 }
@@ -107,7 +108,8 @@
 
 -(void)save
 {
-	CAppConfig::GetInstance().SetPreferenceString([self.preferenceName UTF8String], [self.bindingValue UTF8String]);
+	auto pathString = [self.bindingValue length] ? [self.bindingValue fileSystemRepresentation] : "";
+	CAppConfig::GetInstance().SetPreferencePath([self.preferenceName UTF8String], pathString);
 }
 
 @end
