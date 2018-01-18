@@ -38,15 +38,15 @@
 	VfsManagerBinding* binding = [self.bindings objectAtIndex: row];
 	if([[tableColumn identifier] isEqualToString: @"deviceName"])
 	{
-		return [binding deviceName];
+		return binding.deviceName;
 	}
 	else if([[tableColumn identifier] isEqualToString: @"bindingType"])
 	{
-		return [binding bindingType];
+		return binding.bindingType;
 	}
 	else if([[tableColumn identifier] isEqualToString: @"bindingValue"])
 	{
-		return [binding bindingValue];
+		return binding.bindingValue;
 	}
 	return @"";
 }
@@ -62,18 +62,6 @@
 //---------------------------------------------------------------------------
 
 @implementation VfsManagerBinding
-
--(NSString*)bindingValue
-{
-	[self doesNotRecognizeSelector: _cmd];
-	return nil;
-}
-
--(NSString*)bindingType
-{
-	[self doesNotRecognizeSelector: _cmd];
-	return nil;
-}
 
 -(void)requestModification
 {
@@ -96,21 +84,12 @@
 	if(self = [super init])
 	{
 		self.deviceName = deviceName;
+		self.bindingType = @"Directory";
 		self.preferenceName = preferenceName;
 		auto preferenceValue = CAppConfig::GetInstance().GetPreferenceString([preferenceName UTF8String]);
-		self.value = preferenceValue ? [NSString stringWithUTF8String: preferenceValue] : @"";
+		self.bindingValue = preferenceValue ? [NSString stringWithUTF8String: preferenceValue] : @"";
 	}
 	return self;
-}
-
--(NSString*)bindingType
-{
-	return @"Directory";
-}
-
--(NSString*)bindingValue
-{
-	return self.value;
 }
 
 -(void)requestModification
@@ -123,12 +102,12 @@
 	{
 		return;
 	}
-	self.value = [[openPanel URL] path];
+	self.bindingValue = [[openPanel URL] path];
 }
 
 -(void)save
 {
-	CAppConfig::GetInstance().SetPreferenceString([self.preferenceName UTF8String], [self.value UTF8String]);
+	CAppConfig::GetInstance().SetPreferenceString([self.preferenceName UTF8String], [self.bindingValue UTF8String]);
 }
 
 @end
@@ -139,26 +118,13 @@
 {
 	if(self = [super init])
 	{
+		self.deviceName = @"cdrom0";
+		self.bindingType = @"Disk Image";
 		auto preferenceValue = CAppConfig::GetInstance().GetPreferencePath(PREF_PS2_CDROM0_PATH);
 		auto nativeString = preferenceValue.native();
-		self.value = [[NSFileManager defaultManager] stringWithFileSystemRepresentation: nativeString.c_str() length: nativeString.size()];
+		self.bindingValue = [[NSFileManager defaultManager] stringWithFileSystemRepresentation: nativeString.c_str() length: nativeString.size()];
 	}
 	return self;
-}
-
--(NSString*)deviceName
-{
-	return @"cdrom0";
-}
-
--(NSString*)bindingType
-{
-	return @"Disk Image";
-}
-
--(NSString*)bindingValue
-{
-	return self.value;
 }
 
 -(void)requestModification
@@ -170,12 +136,12 @@
 	{
 		return;
 	}
-	self.value = [[openPanel URL] path];
+	self.bindingValue = [[openPanel URL] path];
 }
 
 -(void)save
 {
-	auto pathString = [self.value length] ? [self.value fileSystemRepresentation] : "";
+	auto pathString = [self.bindingValue length] ? [self.bindingValue fileSystemRepresentation] : "";
 	CAppConfig::GetInstance().SetPreferencePath(PREF_PS2_CDROM0_PATH, pathString);
 }
 
