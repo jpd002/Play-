@@ -11,6 +11,7 @@
 #define ADDRESSCHARS		8
 #define PAGESIZE			10
 #define UNITCHARS			2
+#define UNITBYTES			1
 
 CMemoryView::CMemoryView(HWND parentWnd, const RECT& rect)
 : m_font(reinterpret_cast<HFONT>(GetStockObject(ANSI_FIXED_FONT)))
@@ -132,6 +133,7 @@ void CMemoryView::Paint(HDC hDC)
 		}
 
 		unsigned int bytesForCurrentLine = renderParams.bytesPerLine;
+		unsigned int unitsPerLine = renderParams.bytesPerLine / UNITBYTES;
 		if((address + bytesForCurrentLine) >= m_size)
 		{
 			bytesForCurrentLine = (m_size - address);
@@ -141,13 +143,15 @@ void CMemoryView::Paint(HDC hDC)
 		deviceContext.TextOut(x, y, lexical_cast_hex<std::tstring>(address, ADDRESSCHARS).c_str());
 		x += (ADDRESSCHARS * fontSize.cx) + m_renderMetrics.lineSectionSpacing;
 
-		for(unsigned int j = 0; j < bytesForCurrentLine; j++)
+		unsigned int unitsForCurrentLine = bytesForCurrentLine / UNITBYTES;
+		for(unsigned int j = 0; j < unitsForCurrentLine; j++)
 		{
-			deviceContext.TextOut(x, y, lexical_cast_hex<std::tstring>(GetByte(address + j), 2).c_str());
+			uint32 currentAddress = address + (j * UNITBYTES);
+			deviceContext.TextOut(x, y, lexical_cast_hex<std::tstring>(GetByte(currentAddress), 2).c_str());
 			x += (UNITCHARS * fontSize.cx) + m_renderMetrics.unitSpacing;
 		}
 		//Compensate for incomplete lines (when bytesForCurrentLine < bytesPerLine)
-		x += (renderParams.bytesPerLine - bytesForCurrentLine) * (UNITCHARS * fontSize.cx + m_renderMetrics.unitSpacing);
+		x += (unitsPerLine - unitsForCurrentLine) * (UNITCHARS * fontSize.cx + m_renderMetrics.unitSpacing);
 
 		x += m_renderMetrics.lineSectionSpacing;
 
@@ -308,13 +312,14 @@ long CMemoryView::OnLeftButtonUp(int x, int y)
 	if(x < 0) return FALSE;
 
 	unsigned int selectedLine = y / (fontSize.cy + m_renderMetrics.yspace);
-	unsigned int selectedByte = x / ((UNITCHARS * fontSize.cx) + m_renderMetrics.unitSpacing);
+	unsigned int selectedLineUnit = x / ((UNITCHARS * fontSize.cx) + m_renderMetrics.unitSpacing);
+	unsigned int selectedLineByte = selectedLineUnit * UNITBYTES;
 
 	auto renderParams = GetRenderParams();
 
-	if(selectedByte >= renderParams.bytesPerLine) return FALSE;
+	if(selectedLineByte >= renderParams.bytesPerLine) return FALSE;
 
-	SetSelectionStart(renderParams.address + selectedByte + (selectedLine * renderParams.bytesPerLine));
+	SetSelectionStart(renderParams.address + selectedLineByte + (selectedLine * renderParams.bytesPerLine));
 
 	return FALSE;
 }
@@ -338,10 +343,10 @@ long CMemoryView::OnKeyDown(WPARAM key, LPARAM)
 	switch(key)
 	{
 	case VK_RIGHT:
-		SetSelectionStart(m_selectionStart + 1);
+		SetSelectionStart(m_selectionStart + UNITBYTES);
 		break;
 	case VK_LEFT:
-		SetSelectionStart(m_selectionStart - 1);
+		SetSelectionStart(m_selectionStart - UNITBYTES);
 		break;
 	case VK_UP:
 	case VK_DOWN:
@@ -372,8 +377,10 @@ void CMemoryView::UpdateCaretPosition()
 		(m_selectionStart <= (renderParams.address + (renderParams.lines * renderParams.bytesPerLine)))
 		)
 	{
-		unsigned int selectionStart = m_selectionStart - renderParams.address;
-		int x = m_renderMetrics.xmargin + (ADDRESSCHARS * fontSize.cx) + m_renderMetrics.lineSectionSpacing + (selectionStart % renderParams.bytesPerLine) * ((UNITCHARS * fontSize.cx) + m_renderMetrics.unitSpacing);
+		uint32 selectionStart = m_selectionStart - renderParams.address;
+		assert((selectionStart % UNITBYTES) == 0);
+		uint32 selectionStartUnit = (selectionStart % renderParams.bytesPerLine) / UNITBYTES;
+		int x = m_renderMetrics.xmargin + (ADDRESSCHARS * fontSize.cx) + m_renderMetrics.lineSectionSpacing + selectionStartUnit * ((UNITCHARS * fontSize.cx) + m_renderMetrics.unitSpacing);
 		int y = m_renderMetrics.ymargin + (fontSize.cy + m_renderMetrics.yspace) * (selectionStart / renderParams.bytesPerLine);
 		SetCaretPos(x, y);
 	}
@@ -430,9 +437,10 @@ CMemoryView::RENDERPARAMS CMemoryView::GetRenderParams()
 		//  + (2 * m_renderMetrics.lineSectionSpacing)                       Two Spacings (between address and units, units and chars)
 		//  + (ADDRESSCHARS * cx)                                            Address
 		//  + unitsPerLine * (UNITCHARS * cx + m_renderMetrics.unitSpacing)  Units
-		//  + bytesPerLine * cx                                              Chars
-		renderParams.bytesPerLine = clientRect.right - (2 * m_renderMetrics.xmargin) - (2 * m_renderMetrics.lineSectionSpacing) - (ADDRESSCHARS * fontSize.cx);
-		renderParams.bytesPerLine /= ((UNITCHARS * fontSize.cx + m_renderMetrics.unitSpacing) + (fontSize.cx));
+		//  + unitsPerLine * UNITBYTES * cx                                  Chars
+		unsigned int unitsPerLine = clientRect.right - (2 * m_renderMetrics.xmargin) - (2 * m_renderMetrics.lineSectionSpacing) - (ADDRESSCHARS * fontSize.cx);
+		unitsPerLine /= ((UNITCHARS * fontSize.cx + m_renderMetrics.unitSpacing) + (UNITBYTES * fontSize.cx));
+		renderParams.bytesPerLine = unitsPerLine * UNITBYTES;
 	}
 	else
 	{
