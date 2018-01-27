@@ -55,7 +55,7 @@ private:
 		unsigned int	xmargin = 0;
 		unsigned int	ymargin = 0;
 		unsigned int	yspace = 0;
-		unsigned int	byteSpacing = 0;
+		unsigned int	unitSpacing = 0;
 		unsigned int	lineSectionSpacing = 0;
 	};
 
