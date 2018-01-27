@@ -28,11 +28,6 @@ CMemoryView::CMemoryView(HWND parentWnd, const RECT& rect)
 	UpdateScrollRange();
 }
 
-CMemoryView::~CMemoryView()
-{
-
-}
-
 uint32 CMemoryView::GetSelection()
 {
 	return m_selectionStart;

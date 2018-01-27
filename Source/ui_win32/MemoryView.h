@@ -10,7 +10,7 @@ class CMemoryView : public Framework::Win32::CCustomDrawn
 {
 public:
 											CMemoryView(HWND, const RECT&);
-	virtual									~CMemoryView();
+	virtual									~CMemoryView() = default;
 	
 	void									SetMemorySize(uint32);
 
