@@ -17,6 +17,8 @@ public:
 	uint32									GetBytesPerLine() const;
 	void									SetBytesPerLine(uint32);
 
+	void									SetDisplayUnit(uint32);
+
 	uint32									GetSelection();
 	void									SetSelectionStart(unsigned int);
 
@@ -25,9 +27,12 @@ public:
 protected:
 	enum
 	{
+		MAX_UNITS = 10,
 		ID_MEMORYVIEW_COLUMNS_AUTO = 40001,
 		ID_MEMORYVIEW_COLUMNS_16BYTES,
 		ID_MEMORYVIEW_COLUMNS_32BYTES,
+		ID_MEMORYVIEW_UNIT_BASE,
+		ID_MEMORYVIEW_UNIT_MAX = ID_MEMORYVIEW_UNIT_BASE + MAX_UNITS,
 		ID_MEMORYVIEW_MENU_MAX
 	};
 
@@ -50,6 +55,16 @@ protected:
 	Framework::Win32::CFont					m_font;
 
 private:
+	typedef std::tstring (CMemoryView::*UnitRenderer)(uint32);
+
+	struct UNITINFO
+	{
+		unsigned int bytesPerUnit = 0;
+		unsigned int charsPerUnit = 0;
+		UnitRenderer renderer = nullptr;
+		const TCHAR* description = nullptr;
+	};
+
 	struct RENDERMETRICS
 	{
 		unsigned int	xmargin = 0;
@@ -64,6 +79,7 @@ private:
 		unsigned int	lines = 0;
 		unsigned int	totallyVisibleLines = 0;
 		unsigned int	bytesPerLine = 0;
+		const UNITINFO*	unit = nullptr;
 		uint32			address = 0;
 	};
 
@@ -74,8 +90,14 @@ private:
 	void									EnsureSelectionVisible();
 	RENDERPARAMS							GetRenderParams();
 
+	std::tstring							RenderByteUnit(uint32);
+	std::tstring							RenderWordUnit(uint32);
+	std::tstring							RenderSingleUnit(uint32);
+
+	static const UNITINFO					g_units[];
 	uint32									m_selectionStart = 0;
 	uint32									m_size = 0;
 	uint32									m_bytesPerLine = 0;
+	uint32									m_selectedUnit = 0;
 	RENDERMETRICS							m_renderMetrics;
 };
