@@ -635,6 +635,7 @@ void CCOP_VU::VLQI()
 void CCOP_VU::VDIV()
 {
 	VUShared::DIV(m_codeGen, m_nFS, m_nFSF, m_nFT, m_nFTF, 0);
+	VUShared::FlushPipeline(VUShared::g_pipeInfoQ, m_codeGen);
 }
 
 //0F
@@ -711,6 +712,7 @@ void CCOP_VU::VSQI()
 void CCOP_VU::VSQRT()
 {
 	VUShared::SQRT(m_codeGen, m_nFT, m_nFTF, 0);
+	VUShared::FlushPipeline(VUShared::g_pipeInfoQ, m_codeGen);
 }
 
 //0F
@@ -769,6 +771,7 @@ void CCOP_VU::VLQD()
 void CCOP_VU::VRSQRT()
 {
 	VUShared::RSQRT(m_codeGen, m_nFS, m_nFSF, m_nFT, m_nFTF, 0);
+	VUShared::FlushPipeline(VUShared::g_pipeInfoQ, m_codeGen);
 }
 
 //0F
