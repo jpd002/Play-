@@ -1,5 +1,4 @@
-#ifndef _PSXBIOS_H_
-#define _PSXBIOS_H_
+#pragma once
 
 #include "iop/Iop_BiosBase.h"
 #include "OsStructManager.h"
@@ -154,5 +153,3 @@ private:
 	static SyscallHandler	m_handlerB0[MAX_HANDLER_B0];
 	static SyscallHandler	m_handlerC0[MAX_HANDLER_C0];
 };
-
-#endif
