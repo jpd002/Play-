@@ -162,7 +162,7 @@ CMainWindow::CMainWindow(CPsfVm& virtualMachine)
 	m_trayPopupMenu = LoadMenu(GetModuleHandle(NULL), MAKEINTRESOURCE(IDR_TRAY_POPUP));
 	m_configPopupMenu = LoadMenu(GetModuleHandle(NULL), MAKEINTRESOURCE(IDR_CONFIG_POPUP));
 
-	m_virtualMachine.OnNewFrame.connect(std::tr1::bind(&CMainWindow::OnNewFrame, this));
+	m_virtualMachine.OnNewFrame.connect(std::bind(&CMainWindow::OnNewFrame, this));
 
 	m_toolTip = new Framework::Win32::CToolTip(m_hWnd);
 	m_toolTip->Activate(true);
@@ -220,16 +220,16 @@ CMainWindow::CMainWindow(CPsfVm& virtualMachine)
 		trayIcon->SetIcon(LoadIcon(GetModuleHandle(NULL), MAKEINTRESOURCE(IDI_MAIN)));
 		trayIcon->SetTip(_T("PsfPlayer"));
 
-		m_trayIconServer->RegisterHandler(std::tr1::bind(&CMainWindow::OnTrayIconEvent, this, 
-			std::tr1::placeholders::_1, std::tr1::placeholders::_2));
+		m_trayIconServer->RegisterHandler(std::bind(&CMainWindow::OnTrayIconEvent, this, 
+			std::placeholders::_1, std::placeholders::_2));
 	}
 
 	//Create play list panel
 	m_playlistPanel = new CPlaylistPanel(m_hWnd, m_playlist);
-	m_playlistPanel->OnItemDblClick.connect(std::tr1::bind(&CMainWindow::OnPlaylistItemDblClick, this, std::tr1::placeholders::_1));
-	m_playlistPanel->OnAddClick.connect(std::tr1::bind(&CMainWindow::OnPlaylistAddClick, this));
-	m_playlistPanel->OnRemoveClick.connect(std::tr1::bind(&CMainWindow::OnPlaylistRemoveClick, this, std::tr1::placeholders::_1));
-	m_playlistPanel->OnSaveClick.connect(std::tr1::bind(&CMainWindow::OnPlaylistSaveClick, this));
+	m_playlistPanel->OnItemDblClick.connect(std::bind(&CMainWindow::OnPlaylistItemDblClick, this, std::placeholders::_1));
+	m_playlistPanel->OnAddClick.connect(std::bind(&CMainWindow::OnPlaylistAddClick, this));
+	m_playlistPanel->OnRemoveClick.connect(std::bind(&CMainWindow::OnPlaylistRemoveClick, this, std::placeholders::_1));
+	m_playlistPanel->OnSaveClick.connect(std::bind(&CMainWindow::OnPlaylistSaveClick, this));
 
 	//Create file information panel
 	m_fileInformationPanel = new CFileInformationPanel(m_hWnd);
@@ -751,7 +751,7 @@ void CMainWindow::ChangeAudioPlugin(unsigned int pluginIdx)
 	SOUNDHANDLER_INFO* handlerInfo = m_handlerInfo + pluginIdx;
 	m_selectedAudioPlugin = handlerInfo->id;
 	CAppConfig::GetInstance().SetPreferenceInteger(PREF_SOUNDHANDLER_ID, m_selectedAudioPlugin);
-	m_virtualMachine.SetSpuHandler(std::tr1::bind(&CMainWindow::CreateHandler, this, handlerInfo->dllName));
+	m_virtualMachine.SetSpuHandler(std::bind(&CMainWindow::CreateHandler, this, handlerInfo->dllName));
 	UpdateAudioPluginMenu();
 }
 
