@@ -2,6 +2,7 @@
 
 #include "iop/Iop_BiosBase.h"
 #include "OsStructManager.h"
+#include "OsVariableWrapper.h"
 #include "MIPS.h"
 
 class CPsxBios : public Iop::CBiosBase
@@ -80,7 +81,6 @@ private:
 	typedef void (CPsxBios::*SyscallHandler)();
 
 	void						LongJump(uint32, uint32 = 0);
-	uint32&						LongJmpBuffer() const;
 
 	void						SaveCpuState();
 	void						LoadCpuState();
@@ -119,7 +119,7 @@ private:
 	void						sc_StopPAD();
 	void						sc_PAD_dr();
 	void						sc_ReturnFromException();
-	void						sc_HookEntryInt();
+	void						sc_SetCustomExitFromException();
 	void						sc_puts();
 	void						sc_InitCARD();
 	void						sc_StartCARD();
@@ -147,7 +147,9 @@ private:
 	uint8*						m_ram;
 	uint32						m_ramSize;
 
-	COsStructManager<EVENT>	m_events;
+	OsVariableWrapper<uint32> m_exitFromExceptionStateAddr;
+
+	COsStructManager<EVENT>  m_events;
 
 	static SyscallHandler	m_handlerA0[MAX_HANDLER_A0];
 	static SyscallHandler	m_handlerB0[MAX_HANDLER_B0];
