@@ -207,6 +207,9 @@ void CSpu::WriteRegister(uint32 address, uint16 value)
 		case REVERB_WORK:
 			m_base.SetReverbWorkAddressStart(value * 8);
 			break;
+		case IRQ_ADDR:
+			m_base.SetIrqAddress(value * 8);
+			break;
 		case BUFFER_ADDR:
 			m_base.SetTransferAddress(value * 8);
 			break;
