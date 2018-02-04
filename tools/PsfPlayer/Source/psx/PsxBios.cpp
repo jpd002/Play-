@@ -29,11 +29,11 @@ using namespace Framework;
 #define C0_EXCEPTIONHANDLER_BEGIN	(C0TABLE_BEGIN + C0TABLE_SIZE)
 #define C0_EXCEPTIONHANDLER_SIZE	(0x1000)
 
-CPsxBios::CPsxBios(CMIPS& cpu, uint8* ram, uint32 ramSize) :
-m_cpu(cpu),
-m_ram(ram),
-m_ramSize(ramSize),
-m_events(reinterpret_cast<EVENT*>(&m_ram[EVENTS_BEGIN]), 1, MAX_EVENT)
+CPsxBios::CPsxBios(CMIPS& cpu, uint8* ram, uint32 ramSize)
+: m_cpu(cpu)
+, m_ram(ram)
+, m_ramSize(ramSize)
+, m_events(reinterpret_cast<EVENT*>(&m_ram[EVENTS_BEGIN]), 1, MAX_EVENT)
 {
 	Reset();
 }
@@ -380,7 +380,6 @@ void CPsxBios::HandleInterrupt()
 			}
 		}
 		m_cpu.m_State.nPC = INTR_HANDLER;
-//		m_cpu.m_pMemoryMap->SetWord(CIntc::STATUS, ~0x40);
 	}
 }
 
@@ -388,7 +387,6 @@ void CPsxBios::HandleException()
 {
 	assert(m_cpu.m_State.nHasException);
 	uint32 searchAddress = m_cpu.m_State.nCOP0[CCOP_SCU::EPC];
-//	uint32 searchAddress = m_cpu.m_State.nGPR[CMIPS::K1].nV0;
 	uint32 callInstruction = m_cpu.m_pMemoryMap->GetWord(searchAddress);
 	if(callInstruction != 0x0000000C)
 	{
@@ -826,7 +824,6 @@ void CPsxBios::sc_TestEvent()
 	if(eventPtr != NULL)
 	{
 		m_cpu.m_State.nGPR[SC_RETURN].nD0 = eventPtr->fired;
-//		m_cpu.m_State.nGPR[SC_RETURN].nD0 = 0;
 	}
 }
 
