@@ -374,7 +374,7 @@ void CPsxBios::HandleInterrupt()
 		{
 			EVENT* eventPtr = m_events[i];
 			if(eventPtr == NULL) continue;
-			if(cause & 0x08 && eventPtr->classId == 0xF0000009)
+			if((cause & (1 << CIntc::LINE_DMAC)) && eventPtr->classId == 0xF0000009)
 			{
 				eventPtr->fired = 1;
 			}
