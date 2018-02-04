@@ -14,7 +14,6 @@
 #define SC_RETURN	(CMIPS::V0)
 
 using namespace Iop;
-using namespace Framework;
 
 #define LONGJMP_BUFFER				(0x0200)
 #define INTR_HANDLER				(0x1000)
@@ -115,12 +114,12 @@ void CPsxBios::LoadExe(const uint8* exe)
 	}
 }
 
-void CPsxBios::SaveState(CZipArchiveWriter& archive)
+void CPsxBios::SaveState(Framework::CZipArchiveWriter& archive)
 {
 
 }
 
-void CPsxBios::LoadState(CZipArchiveReader& archive)
+void CPsxBios::LoadState(Framework::CZipArchiveReader& archive)
 {
 
 }
