@@ -148,6 +148,7 @@ private:
 	uint32						m_ramSize;
 
 	OsVariableWrapper<uint32> m_exitFromExceptionStateAddr;
+	OsVariableWrapper<uint32> m_sysHeapPointerAddr;
 
 	COsStructManager<EVENT>  m_events;
 

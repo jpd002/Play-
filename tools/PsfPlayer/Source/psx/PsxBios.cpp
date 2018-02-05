@@ -16,6 +16,7 @@
 using namespace Iop;
 
 #define EXITFROMEXCEPTION_STATE_ADDR    (0x0200)
+#define SYSHEAP_POINTER_ADDR            (0x0204)
 #define INTR_HANDLER                    (0x1000)
 #define EVENT_CHECKER                   (0x1200)
 #define KERNEL_STACK                    (0x2000)
@@ -27,14 +28,19 @@ using namespace Iop;
 #define C0TABLE_SIZE                    (0x1C * 4)
 #define C0_EXCEPTIONHANDLER_BEGIN       (C0TABLE_BEGIN + C0TABLE_SIZE)
 #define C0_EXCEPTIONHANDLER_SIZE        (0x1000)
+#define HEAP_START                      (C0_EXCEPTIONHANDLER_BEGIN + C0_EXCEPTIONHANDLER_SIZE)
+#define HEAP_SIZE                       (0x2000)
+#define BIOS_MEMORY_END                 (HEAP_START + HEAP_SIZE)
 
 CPsxBios::CPsxBios(CMIPS& cpu, uint8* ram, uint32 ramSize)
 : m_cpu(cpu)
 , m_ram(ram)
 , m_ramSize(ramSize)
 , m_exitFromExceptionStateAddr(reinterpret_cast<uint32*>(m_ram + EXITFROMEXCEPTION_STATE_ADDR))
+, m_sysHeapPointerAddr(reinterpret_cast<uint32*>(m_ram + SYSHEAP_POINTER_ADDR))
 , m_events(reinterpret_cast<EVENT*>(&m_ram[EVENTS_BEGIN]), 1, MAX_EVENT)
 {
+	static_assert(BIOS_MEMORY_END <= 0x10000, "BIOS memory size must not exceed 64k");
 	Reset();
 }
 
@@ -86,6 +92,7 @@ void CPsxBios::Reset()
 	}
 
 	m_exitFromExceptionStateAddr = 0;
+	m_sysHeapPointerAddr = HEAP_START;
 
 	memset(m_events.GetBase(), 0, EVENTS_SIZE);
 }
@@ -595,7 +602,9 @@ void CPsxBios::DisassembleSyscall(uint32 searchAddress)
 				m_cpu.m_State.nGPR[SC_PARAM1].nV0);
 			break;
 		case 0x08:
-			CLog::GetInstance().Print(LOG_NAME, "SysInitMemory();\r\n");
+			CLog::GetInstance().Print(LOG_NAME, "SysInitMemory(address = 0x%08X, size = 0x%X);\r\n",
+				m_cpu.m_State.nGPR[SC_PARAM0].nV0,
+				m_cpu.m_State.nGPR[SC_PARAM1].nV0);
 			break;
 		case 0x0A:
 			CLog::GetInstance().Print(LOG_NAME, "ChangeClearRCnt(param0 = %i, param1 = %i);\r\n",
@@ -760,7 +769,11 @@ void CPsxBios::sc_SysMalloc()
 {
 	uint32 length = m_cpu.m_State.nGPR[SC_PARAM0].nV0;
 
-	m_cpu.m_State.nGPR[SC_RETURN].nV0 = 0;
+	assert((m_sysHeapPointerAddr + length) <= (HEAP_START + HEAP_SIZE));
+	uint32 result = m_sysHeapPointerAddr;
+	m_sysHeapPointerAddr += length;
+
+	m_cpu.m_State.nGPR[SC_RETURN].nV0 = result;
 }
 
 //B0 - 07
@@ -942,7 +955,10 @@ void CPsxBios::sc_SysDeqIntRP()
 //C0 - 08
 void CPsxBios::sc_SysInitMemory()
 {
-
+	//Two parameters are passed, but don't seem to be used somehow?
+	//TODO: Reset PCB and TCB addresses
+	m_sysHeapPointerAddr = HEAP_START;
+	memset(m_ram + HEAP_START, 0, HEAP_SIZE);
 }
 
 //C0 - 0A
