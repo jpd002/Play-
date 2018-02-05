@@ -15,6 +15,12 @@ public:
 		return (*this);
 	}
 
+	Type& operator +=(const Type& addend)
+	{
+		(*m_storage) += addend;
+		return (*m_storage);
+	}
+
 	operator Type() const
 	{
 		return *m_storage;
