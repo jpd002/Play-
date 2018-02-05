@@ -68,6 +68,37 @@ private:
 		uint32 fired;
 	};
 
+	struct CB_TABLE
+	{
+		uint32 address;
+		uint32 size;
+	};
+
+	struct PROCESS
+	{
+		uint32 currentThreadControlBlockAddr;
+	};
+
+	enum THREAD_STATUS
+	{
+		THREAD_STATUS_FREE      = 0x1000,
+		THREAD_STATUS_ALLOCATED = 0x4000,
+	};
+
+	struct THREAD
+	{
+		uint32 status;
+		uint32 reserved0;
+		uint32 gpr[0x20];
+		uint32 pc;
+		uint32 hi;
+		uint32 lo;
+		uint32 sr;
+		uint32 cause;
+		uint32 reserved1[9];
+	};
+	static_assert(sizeof(THREAD) == 0xC0, "Size of THREAD must be 192 bytes.");
+
 	enum
 	{
 		MAX_EVENT = 32,
@@ -82,8 +113,10 @@ private:
 
 	void						LongJump(uint32, uint32 = 0);
 
+	PROCESS*					GetProcess();
 	void						SaveCpuState();
 	void						LoadCpuState();
+	uint32						AllocateSysMemory(uint32);
 
 	void						DisassembleSyscall(uint32);
 

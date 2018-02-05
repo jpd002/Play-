@@ -15,11 +15,12 @@
 
 using namespace Iop;
 
+#define PCB_TABLE_ADDRESS               (0x0108)
+#define TCB_TABLE_ADDRESS               (0x0110)
 #define EXITFROMEXCEPTION_STATE_ADDR    (0x0200)
 #define SYSHEAP_POINTER_ADDR            (0x0204)
 #define INTR_HANDLER                    (0x1000)
 #define EVENT_CHECKER                   (0x1200)
-#define KERNEL_STACK                    (0x2000)
 #define EVENTS_BEGIN                    (0x3000)
 #define EVENTS_SIZE                     (sizeof(CPsxBios::EVENT) * CPsxBios::MAX_EVENT)
 #define B0TABLE_BEGIN                   (EVENTS_BEGIN + EVENTS_SIZE)
@@ -95,6 +96,35 @@ void CPsxBios::Reset()
 	m_sysHeapPointerAddr = HEAP_START;
 
 	memset(m_events.GetBase(), 0, EVENTS_SIZE);
+
+	//Allocate process control block
+	{
+		auto cbTable = reinterpret_cast<CB_TABLE*>(m_ram + PCB_TABLE_ADDRESS);
+		cbTable->address = AllocateSysMemory(sizeof(PROCESS));
+		cbTable->size = sizeof(PROCESS);
+	}
+
+	//Allocate thread control block
+	{
+		static const uint32 maxTcb = 4;
+		auto cbTable = reinterpret_cast<CB_TABLE*>(m_ram + TCB_TABLE_ADDRESS);
+		cbTable->address = AllocateSysMemory(sizeof(THREAD) * maxTcb);
+		cbTable->size = sizeof(THREAD) * maxTcb;
+	}
+
+	//Setup main thread
+	{
+		auto process = GetProcess();
+		auto threadCbAddr = 
+			[&]()
+			{
+				auto cbTable = reinterpret_cast<CB_TABLE*>(m_ram + TCB_TABLE_ADDRESS);
+				auto threadCb = reinterpret_cast<THREAD*>(m_ram + cbTable->address);
+				threadCb->status = THREAD_STATUS_ALLOCATED;
+				return cbTable->address;
+			}();
+		process->currentThreadControlBlockAddr = threadCbAddr;
+	}
 }
 
 void CPsxBios::LoadExe(const uint8* exe)
@@ -338,38 +368,65 @@ void CPsxBios::LongJump(uint32 bufferAddress, uint32 value)
 	m_cpu.m_State.nGPR[CMIPS::V0].nD0 = value == 0 ? 1 : value;
 }
 
+CPsxBios::PROCESS* CPsxBios::GetProcess()
+{
+	auto processCbTable = reinterpret_cast<CB_TABLE*>(m_ram + PCB_TABLE_ADDRESS);
+	assert(processCbTable->address != 0);
+	assert(processCbTable->size != 0);
+
+	return reinterpret_cast<PROCESS*>(m_ram + processCbTable->address);
+}
+
 void CPsxBios::SaveCpuState()
 {
-	uint32 address = KERNEL_STACK;
-	for(unsigned int i = 0; i < 32; i++)
+	auto process = GetProcess();
+	assert(process->currentThreadControlBlockAddr != 0);
+
+	auto thread = reinterpret_cast<THREAD*>(m_ram + process->currentThreadControlBlockAddr);
+	assert(thread->status == THREAD_STATUS_ALLOCATED);
+	thread->pc = m_cpu.m_State.nPC;
+	for(uint32 i = 0; i < 32; i++)
 	{
 		if(i == CMIPS::R0) continue;
 		if(i == CMIPS::K0) continue;
 		if(i == CMIPS::K1) continue;
-		m_cpu.m_pMemoryMap->SetWord(address, m_cpu.m_State.nGPR[i].nV0);
-		address += 4;
+		thread->gpr[i] = m_cpu.m_State.nGPR[i].nV0;
 	}
+	thread->sr = m_cpu.m_State.nCOP0[CCOP_SCU::STATUS];
+	thread->sr &= ~(CMIPS::STATUS_EXL | CMIPS::STATUS_ERL);
 }
 
 void CPsxBios::LoadCpuState()
 {
-	uint32 address = KERNEL_STACK;
-	for(unsigned int i = 0; i < 32; i++)
+	auto process = GetProcess();
+	assert(process->currentThreadControlBlockAddr != 0);
+
+	auto thread = reinterpret_cast<THREAD*>(m_ram + process->currentThreadControlBlockAddr);
+	assert(thread->status == THREAD_STATUS_ALLOCATED);
+	m_cpu.m_State.nPC = thread->pc;
+	for(uint32 i = 0; i < 32; i++)
 	{
 		if(i == CMIPS::R0) continue;
 		if(i == CMIPS::K0) continue;
 		if(i == CMIPS::K1) continue;
-		m_cpu.m_State.nGPR[i].nD0 = static_cast<int32>(m_cpu.m_pMemoryMap->GetWord(address));
-		address += 4;
+		m_cpu.m_State.nGPR[i].nV0 = thread->gpr[i];
 	}
+	m_cpu.m_State.nCOP0[CCOP_SCU::STATUS] = thread->sr;
+}
+
+uint32 CPsxBios::AllocateSysMemory(uint32 size)
+{
+	assert((m_sysHeapPointerAddr + size) <= (HEAP_START + HEAP_SIZE));
+	uint32 result = m_sysHeapPointerAddr;
+	m_sysHeapPointerAddr += size;
+	return result;
 }
 
 void CPsxBios::HandleInterrupt()
 {
-	if(m_cpu.GenerateInterrupt(0xBFC00000))
+	if(m_cpu.GenerateInterrupt(m_cpu.m_State.nPC))
 	{
 		SaveCpuState();
-		m_cpu.m_State.nGPR[CMIPS::K1].nV0 = m_cpu.m_State.nCOP0[CCOP_SCU::EPC];
 		uint32 status = m_cpu.m_pMemoryMap->GetWord(CIntc::STATUS0);
 		uint32 mask = m_cpu.m_pMemoryMap->GetWord(CIntc::MASK0);
 		uint32 cause = status & mask;
@@ -767,12 +824,8 @@ void CPsxBios::sc_SetMem()
 //B0 - 00
 void CPsxBios::sc_SysMalloc()
 {
-	uint32 length = m_cpu.m_State.nGPR[SC_PARAM0].nV0;
-
-	assert((m_sysHeapPointerAddr + length) <= (HEAP_START + HEAP_SIZE));
-	uint32 result = m_sysHeapPointerAddr;
-	m_sysHeapPointerAddr += length;
-
+	uint32 size = m_cpu.m_State.nGPR[SC_PARAM0].nV0;
+	uint32 result = AllocateSysMemory(size);
 	m_cpu.m_State.nGPR[SC_RETURN].nV0 = result;
 }
 
@@ -890,7 +943,6 @@ void CPsxBios::sc_ReturnFromException()
 {
 	uint32& status = m_cpu.m_State.nCOP0[CCOP_SCU::STATUS];
 	assert(status & (CMIPS::STATUS_ERL | CMIPS::STATUS_EXL));
-	m_cpu.m_State.nPC = m_cpu.m_State.nGPR[CMIPS::K1].nV0;
 	if(status & CMIPS::STATUS_ERL)
 	{
 		status &= ~CMIPS::STATUS_ERL;
