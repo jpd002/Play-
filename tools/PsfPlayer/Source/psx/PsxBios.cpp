@@ -666,6 +666,14 @@ void CPsxBios::DisassembleSyscall(uint32 searchAddress)
 		uint32 functionId = m_cpu.m_State.nGPR[CMIPS::T1].nV0;
 		switch(functionId)
 		{
+		case 0x00:
+			CLog::GetInstance().Print(LOG_NAME, "EnqueueTimerAndVblankIrqs(priority = %d);\r\n",
+				m_cpu.m_State.nGPR[SC_PARAM0].nV0);
+			break;
+		case 0x01:
+			CLog::GetInstance().Print(LOG_NAME, "EnqueueSyscallHandler(priority = %d);\r\n",
+				m_cpu.m_State.nGPR[SC_PARAM0].nV0);
+			break;
 		case 0x03:
 			CLog::GetInstance().Print(LOG_NAME, "SysDeqIntRP(index = %i, queue = 0x%X);\r\n",
 				m_cpu.m_State.nGPR[SC_PARAM0].nV0,
@@ -680,6 +688,10 @@ void CPsxBios::DisassembleSyscall(uint32 searchAddress)
 			CLog::GetInstance().Print(LOG_NAME, "ChangeClearRCnt(param0 = %i, param1 = %i);\r\n",
 				m_cpu.m_State.nGPR[SC_PARAM0].nV0,
 				m_cpu.m_State.nGPR[SC_PARAM1].nV0);
+			break;
+		case 0x0C:
+			CLog::GetInstance().Print(LOG_NAME, "InitDefInt(priority = %d);\r\n",
+				m_cpu.m_State.nGPR[SC_PARAM0].nV0);
 			break;
 		default:
 			CLog::GetInstance().Print(LOG_NAME, "Unknown system call encountered (0xC0, 0x%X).\r\n", functionId);
@@ -1084,6 +1096,18 @@ void CPsxBios::sc_ChangeClearPad()
 	uint32 param = m_cpu.m_State.nGPR[SC_PARAM0].nV0;
 }
 
+//C0 - 00
+void CPsxBios::sc_EnqueueTimerAndVblankIrqs()
+{
+
+}
+
+//C0 - 01
+void CPsxBios::sc_EnqueueSyscallHandler()
+{
+
+}
+
 //C0 - 03
 void CPsxBios::sc_SysDeqIntRP()
 {
@@ -1105,6 +1129,12 @@ void CPsxBios::sc_ChangeClearRCnt()
 {
 	uint32 param0 = m_cpu.m_State.nGPR[SC_PARAM0].nV0;
 	uint32 param1 = m_cpu.m_State.nGPR[SC_PARAM1].nV0;
+}
+
+//C0 - 0C
+void CPsxBios::sc_InitDefInt()
+{
+
 }
 
 void CPsxBios::sc_EnterCriticalSection()
@@ -1234,11 +1264,11 @@ CPsxBios::SyscallHandler CPsxBios::m_handlerB0[MAX_HANDLER_B0] =
 CPsxBios::SyscallHandler CPsxBios::m_handlerC0[MAX_HANDLER_C0] = 
 {
 	//0x00
-	&CPsxBios::sc_Illegal,       &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal,         &CPsxBios::sc_SysDeqIntRP, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal,
+	&CPsxBios::sc_EnqueueTimerAndVblankIrqs, &CPsxBios::sc_EnqueueSyscallHandler, &CPsxBios::sc_Illegal,         &CPsxBios::sc_SysDeqIntRP, &CPsxBios::sc_Illegal,    &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal,
 	//0x08
-	&CPsxBios::sc_SysInitMemory, &CPsxBios::sc_Illegal, &CPsxBios::sc_ChangeClearRCnt, &CPsxBios::sc_Illegal,     &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal,
+	&CPsxBios::sc_SysInitMemory,             &CPsxBios::sc_Illegal,               &CPsxBios::sc_ChangeClearRCnt, &CPsxBios::sc_Illegal,     &CPsxBios::sc_InitDefInt, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal,
 	//0x10
-	&CPsxBios::sc_Illegal,       &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal,         &CPsxBios::sc_Illegal,     &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal,
+	&CPsxBios::sc_Illegal,                   &CPsxBios::sc_Illegal,               &CPsxBios::sc_Illegal,         &CPsxBios::sc_Illegal,     &CPsxBios::sc_Illegal,    &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal,
 	//0x18
-	&CPsxBios::sc_Illegal,       &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal,         &CPsxBios::sc_Illegal,     &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal
+	&CPsxBios::sc_Illegal,                   &CPsxBios::sc_Illegal,               &CPsxBios::sc_Illegal,         &CPsxBios::sc_Illegal,     &CPsxBios::sc_Illegal,    &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal
 };

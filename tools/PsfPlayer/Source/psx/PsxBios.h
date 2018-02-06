@@ -164,9 +164,12 @@ private:
 	void						sc_ChangeClearPad();
 
 	//C0
+	void						sc_EnqueueTimerAndVblankIrqs();
+	void						sc_EnqueueSyscallHandler();
 	void						sc_SysDeqIntRP();
 	void						sc_SysInitMemory();
 	void						sc_ChangeClearRCnt();
+	void						sc_InitDefInt();
 
 	void						sc_EnterCriticalSection();
 	void						sc_ExitCriticalSection();
