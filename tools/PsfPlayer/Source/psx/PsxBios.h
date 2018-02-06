@@ -152,6 +152,7 @@ private:
 	void						sc_StopPAD();
 	void						sc_PAD_dr();
 	void						sc_ReturnFromException();
+	void						sc_SetDefaultExitFromException();
 	void						sc_SetCustomExitFromException();
 	void						sc_puts();
 	void						sc_InitCARD();
