@@ -610,6 +610,16 @@ void CPsxBios::DisassembleSyscall(uint32 searchAddress)
 			CLog::GetInstance().Print(LOG_NAME, "DisableEvent(event = 0x%X);\r\n",
 				m_cpu.m_State.nGPR[SC_PARAM0].nV0);
 			break;
+		case 0x0E:
+			CLog::GetInstance().Print(LOG_NAME, "OpenThread(pc = 0x%08X, sp = 0x%08X, gp = 0x%08X);\r\n",
+				m_cpu.m_State.nGPR[SC_PARAM0].nV0,
+				m_cpu.m_State.nGPR[SC_PARAM1].nV0,
+				m_cpu.m_State.nGPR[SC_PARAM2].nV0);
+			break;
+		case 0x10:
+			CLog::GetInstance().Print(LOG_NAME, "ChangeThread(threadId = 0x%X);\r\n",
+				m_cpu.m_State.nGPR[SC_PARAM0].nV0);
+			break;
 		case 0x14:
 			CLog::GetInstance().Print(LOG_NAME, "StopPAD();\r\n");
 			break;
@@ -929,6 +939,73 @@ void CPsxBios::sc_DisableEvent()
 	}
 }
 
+//B0 - 0E
+void CPsxBios::sc_OpenThread()
+{
+	uint32 threadPc = m_cpu.m_State.nGPR[SC_PARAM0].nV0;
+	uint32 threadSp = m_cpu.m_State.nGPR[SC_PARAM1].nV0;
+	uint32 threadGp = m_cpu.m_State.nGPR[SC_PARAM2].nV0;
+
+	auto threadCbTable = reinterpret_cast<CB_TABLE*>(m_ram + TCB_TABLE_ADDRESS);
+	assert(threadCbTable->address != 0);
+	assert(threadCbTable->size != 0);
+	assert((threadCbTable->size % sizeof(THREAD)) == 0);
+
+	auto threads = reinterpret_cast<THREAD*>(m_ram + threadCbTable->address);
+	auto threadCount = threadCbTable->size / sizeof(THREAD);
+
+	uint32 threadId = -1;
+	for(uint32 i = 0; i < threadCount; i++)
+	{
+		auto thread = &threads[i];
+		if(thread->status == THREAD_STATUS_ALLOCATED) continue;
+		assert(thread->status == THREAD_STATUS_FREE);
+		threadId = i;
+		break;
+	}
+
+	if(threadId == -1)
+	{
+		m_cpu.m_State.nGPR[SC_RETURN].nD0 = -1;
+		return;
+	}
+
+	auto thread = &threads[threadId];
+	thread->status = THREAD_STATUS_ALLOCATED;
+	thread->pc = threadPc;
+	thread->gpr[CMIPS::SP] = threadSp;
+	thread->gpr[CMIPS::FP] = threadSp;
+	thread->gpr[CMIPS::GP] = threadGp;
+
+	m_cpu.m_State.nGPR[SC_RETURN].nD0 = threadId;
+}
+
+//B0 - 10
+void CPsxBios::sc_ChangeThread()
+{
+	uint32 threadId = m_cpu.m_State.nGPR[SC_PARAM0].nV0;
+	m_cpu.m_State.nGPR[SC_RETURN].nD0 = 1;
+
+	SaveCpuState();
+
+	//Update current thread id
+	{
+		auto process = GetProcess();
+
+		auto threadCbTable = reinterpret_cast<CB_TABLE*>(m_ram + TCB_TABLE_ADDRESS);
+		assert(threadCbTable->address != 0);
+		assert(threadCbTable->size != 0);
+		assert((threadCbTable->size % sizeof(THREAD)) == 0);
+
+		auto threadCount = threadCbTable->size / sizeof(THREAD);
+		assert(threadId < threadCount);
+
+		process->currentThreadControlBlockAddr = threadCbTable->address + threadId * sizeof(THREAD);
+	}
+
+	LoadCpuState();
+}
+
 //B0 - 14
 void CPsxBios::sc_StopPAD()
 {
@@ -1120,9 +1197,9 @@ CPsxBios::SyscallHandler CPsxBios::m_handlerB0[MAX_HANDLER_B0] =
 	//0x00
 	&CPsxBios::sc_SysMalloc,                   &CPsxBios::sc_Illegal,                    &CPsxBios::sc_Illegal,   &CPsxBios::sc_Illegal,        &CPsxBios::sc_Illegal,     &CPsxBios::sc_Illegal,      &CPsxBios::sc_Illegal,    &CPsxBios::sc_DeliverEvent,
 	//0x08
-	&CPsxBios::sc_OpenEvent,                   &CPsxBios::sc_CloseEvent,                 &CPsxBios::sc_WaitEvent, &CPsxBios::sc_TestEvent,      &CPsxBios::sc_EnableEvent, &CPsxBios::sc_DisableEvent, &CPsxBios::sc_Illegal,    &CPsxBios::sc_Illegal,
+	&CPsxBios::sc_OpenEvent,                   &CPsxBios::sc_CloseEvent,                 &CPsxBios::sc_WaitEvent, &CPsxBios::sc_TestEvent,      &CPsxBios::sc_EnableEvent, &CPsxBios::sc_DisableEvent, &CPsxBios::sc_OpenThread, &CPsxBios::sc_Illegal,
 	//0x10
-	&CPsxBios::sc_Illegal,                     &CPsxBios::sc_Illegal,                    &CPsxBios::sc_Illegal,   &CPsxBios::sc_Illegal,        &CPsxBios::sc_StopPAD,     &CPsxBios::sc_Illegal,      &CPsxBios::sc_PAD_dr,     &CPsxBios::sc_ReturnFromException,
+	&CPsxBios::sc_ChangeThread,                &CPsxBios::sc_Illegal,                    &CPsxBios::sc_Illegal,   &CPsxBios::sc_Illegal,        &CPsxBios::sc_StopPAD,     &CPsxBios::sc_Illegal,      &CPsxBios::sc_PAD_dr,     &CPsxBios::sc_ReturnFromException,
 	//0x18
 	&CPsxBios::sc_SetDefaultExitFromException, &CPsxBios::sc_SetCustomExitFromException, &CPsxBios::sc_Illegal,   &CPsxBios::sc_Illegal,        &CPsxBios::sc_Illegal,     &CPsxBios::sc_Illegal,      &CPsxBios::sc_Illegal,    &CPsxBios::sc_Illegal,
 	//0x20
