@@ -901,6 +901,13 @@ void CPsxBios::sc_CloseEvent()
 void CPsxBios::sc_WaitEvent()
 {
 	uint32 eventId = m_cpu.m_State.nGPR[SC_PARAM0].nV0;
+	auto event = m_events[eventId];
+	if(!event)
+	{
+		m_cpu.m_State.nGPR[SC_RETURN].nD0 = -1;
+		return;
+	}
+	assert(event->fired);
 }
 
 //B0 - 0B
