@@ -1109,12 +1109,15 @@ void CPsxBios::sc_ChangeClearRCnt()
 
 void CPsxBios::sc_EnterCriticalSection()
 {
-
+	bool isIntEnabled = (m_cpu.m_State.nCOP0[CCOP_SCU::STATUS] & CMIPS::STATUS_IE) != 0;
+	m_cpu.m_State.nCOP0[CCOP_SCU::STATUS] &= ~CMIPS::STATUS_IE;
+	
+	m_cpu.m_State.nGPR[SC_RETURN].nD0 = static_cast<int32>(isIntEnabled ? 1 : 0);
 }
 
 void CPsxBios::sc_ExitCriticalSection()
 {
-
+	m_cpu.m_State.nCOP0[CCOP_SCU::STATUS] |= CMIPS::STATUS_IE;
 }
 
 void CPsxBios::sc_Illegal()
