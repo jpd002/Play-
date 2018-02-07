@@ -306,7 +306,8 @@ void CPS2OS::DumpDmacHandlers()
 void CPS2OS::BootFromFile(const boost::filesystem::path& execPath)
 {
 	auto stream = Framework::CreateInputStdStream(execPath.native());
-	LoadELF(stream, execPath.filename().string().c_str(), ArgumentList());
+	auto virtualExecutablePath = "host:" + execPath.filename().string();
+	LoadELF(stream, virtualExecutablePath.c_str(), ArgumentList());
 }
 
 void CPS2OS::BootFromVirtualPath(const char* executablePath, const ArgumentList& arguments)
