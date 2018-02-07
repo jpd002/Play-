@@ -68,6 +68,9 @@ std::string CSysclib::GetFunctionName(unsigned int functionId) const
 	case 24:
 		return "strcspn";
 		break;
+	case 25:
+		return "index";
+		break;
 	case 27:
 		return "strlen";
 		break;
@@ -197,6 +200,12 @@ void CSysclib::Invoke(CMIPS& context, unsigned int functionId)
 		break;
 	case 24:
 		context.m_State.nGPR[CMIPS::V0].nD0 = __strcspn(
+			context.m_State.nGPR[CMIPS::A0].nV0,
+			context.m_State.nGPR[CMIPS::A1].nV0
+		);
+		break;
+	case 25:
+		context.m_State.nGPR[CMIPS::V0].nD0 = __index(
 			context.m_State.nGPR[CMIPS::A0].nV0,
 			context.m_State.nGPR[CMIPS::A1].nV0
 		);
@@ -505,6 +514,14 @@ uint32 CSysclib::__strcspn(uint32 str1Ptr, uint32 str2Ptr)
 	auto str2 = reinterpret_cast<const char*>(m_ram + str2Ptr);
 	auto result = strcspn(str1, str2);
 	return result;
+}
+
+uint32 CSysclib::__index(uint32 sPtr, uint32 c)
+{
+	auto s = reinterpret_cast<const char*>(m_ram + sPtr);
+	auto result = strchr(s, c);
+	if(result == nullptr) return 0;
+	return reinterpret_cast<const uint8*>(result) - m_ram;
 }
 
 uint32 CSysclib::__strtol(uint32 stringPtr, uint32 endPtrPtr, uint32 radix)

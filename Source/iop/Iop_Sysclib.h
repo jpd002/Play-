@@ -54,6 +54,7 @@ namespace Iop
 		uint32			__strstr(uint32, uint32);
 		uint32			__strtok(uint32, uint32);
 		uint32			__strcspn(uint32, uint32);
+		uint32			__index(uint32, uint32);
 		uint32			__strtol(uint32, uint32, uint32);
 		uint32			__wmemcopy(uint32, uint32, uint32);
 		uint32			__vsprintf(CMIPS&, uint32, uint32, uint32);
