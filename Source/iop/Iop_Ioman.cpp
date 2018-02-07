@@ -166,7 +166,14 @@ uint32 CIoman::Read(uint32 handle, uint32 size, void* buffer)
 	try
 	{
 		Framework::CStream* stream = GetFileStream(handle);
-		result = static_cast<uint32>(stream->Read(buffer, size));
+		if(stream->IsEOF())
+		{
+			result = 0;
+		}
+		else
+		{
+			result = static_cast<uint32>(stream->Read(buffer, size));
+		}
 	}
 	catch(const std::exception& except)
 	{
