@@ -2717,6 +2717,7 @@ void CIopBios::DeleteModules()
 	m_modload.reset();
 #ifdef _IOP_EMULATE_MODULES
 	m_padman.reset();
+	m_mtapman.reset();
 	m_mcserv.reset();
 	m_cdvdfsv.reset();
 	m_fileIo.reset();
