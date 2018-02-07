@@ -554,6 +554,7 @@ private:
 	Iop::FileIoPtr					m_fileIo;
 	Iop::PadManPtr					m_padman;
 	Iop::MtapManPtr					m_mtapman;
+	Iop::ModulePtr					m_mcserv;
 	Iop::CdvdfsvPtr					m_cdvdfsv;
 #endif
 };

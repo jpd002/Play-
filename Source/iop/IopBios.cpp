@@ -219,7 +219,10 @@ void CIopBios::Reset(const Iop::SifManPtr& sifMan)
 		m_cdvdfsv = std::make_shared<Iop::CCdvdfsv>(*m_sifMan, *m_cdvdman, m_ram);
 		RegisterModule(m_cdvdfsv);
 	}
-	RegisterModule(std::make_shared<Iop::CMcServ>(*m_sifMan));
+	{
+		m_mcserv = std::make_shared<Iop::CMcServ>(*m_sifMan);
+		RegisterModule(m_mcserv);
+	}
 	//RegisterModule(std::make_shared<Iop::CNaplink>(*m_sifMan, *m_ioman));
 	{
 		m_padman = std::make_shared<Iop::CPadMan>();
@@ -557,6 +560,13 @@ int32 CIopBios::LoadModule(const char* path)
 	if(!strcmp(path, "rom0:XMTAPMAN"))
 	{
 		return LoadHleModule(m_mtapman);
+	}
+	if(
+		!strcmp(path, "rom0:XMCMAN") ||
+		!strcmp(path, "rom0:XMCSERV")
+		)
+	{
+		return LoadHleModule(m_mcserv);
 	}
 #endif
 	uint32 handle = m_ioman->Open(Iop::Ioman::CDevice::OPEN_FLAG_RDONLY, path);
@@ -2707,6 +2717,7 @@ void CIopBios::DeleteModules()
 	m_modload.reset();
 #ifdef _IOP_EMULATE_MODULES
 	m_padman.reset();
+	m_mcserv.reset();
 	m_cdvdfsv.reset();
 	m_fileIo.reset();
 #endif
