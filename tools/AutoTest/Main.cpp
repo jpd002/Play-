@@ -2,7 +2,6 @@
 #include <boost/filesystem.hpp>
 #include "StdStream.h"
 #include "StdStreamUtils.h"
-#include "Utils.h"
 #include "JUnitTestReportWriter.h"
 #include "gs/GSH_Null.h"
 #ifdef _WIN32
