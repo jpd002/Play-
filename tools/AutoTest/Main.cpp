@@ -64,10 +64,10 @@ CGSHandler::FactoryFunction GetGsHandlerFactoryFunction(const std::string& gsHan
 std::vector<std::string> ReadLines(Framework::CStream& inputStream)
 {
 	std::vector<std::string> lines;
-	lines.push_back(Utils::GetLine(&inputStream));
+	lines.push_back(inputStream.ReadLine());
 	while(!inputStream.IsEOF())
 	{
-		lines.push_back(Utils::GetLine(&inputStream));
+		lines.push_back(inputStream.ReadLine());
 	}
 	return lines;
 }

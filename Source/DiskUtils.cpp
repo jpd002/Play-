@@ -88,7 +88,7 @@ DiskUtils::OpticalMediaPtr DiskUtils::CreateOpticalMediaFromPath(const boost::fi
 DiskUtils::SystemConfigMap DiskUtils::ParseSystemConfigFile(Framework::CStream* systemCnfFile)
 {
 	SystemConfigMap result;
-	auto line = Utils::GetLine(systemCnfFile);
+	auto line = systemCnfFile->ReadLine();
 	while(!systemCnfFile->IsEOF())
 	{
 		auto trimmedEnd = std::remove_if(line.begin(), line.end(), isspace);
@@ -99,7 +99,7 @@ DiskUtils::SystemConfigMap DiskUtils::ParseSystemConfigFile(Framework::CStream* 
 		{
 			result.insert(std::make_pair(components[0], components[1]));
 		}
-		line = Utils::GetLine(systemCnfFile);
+		line = systemCnfFile->ReadLine();
 	}
 	return result;
 }

@@ -393,8 +393,6 @@ set(COMMON_SRC_FILES
 	StructCollectionStateFile.h
 	StructFile.cpp
 	StructFile.h
-	Utils.cpp
-	Utils.h
 	VirtualPad.cpp
 	VirtualPad.h
 )
