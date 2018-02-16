@@ -6,6 +6,7 @@
 #include "IszImageStream.h"
 #include "CsoImageStream.h"
 #include "StdStream.h"
+#include "s3stream/S3ObjectStream.h"
 #ifdef _WIN32
 #include "VolumeStream.h"
 #else
@@ -20,6 +21,7 @@
 
 static Framework::CStream* CreateImageStream(const boost::filesystem::path& imagePath)
 {
+	return new CS3ObjectStream("ps2bootables", imagePath.c_str());
 #ifdef __ANDROID__
 	return new Framework::CPosixFileStream(imagePath.string().c_str(), O_RDONLY);
 #else
