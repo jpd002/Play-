@@ -1,5 +1,6 @@
 #include "http/HttpClientFactory.h"
 #include "string_format.h"
+#include "xml/Parser.h"
 #include <openssl/sha.h>
 #include <openssl/hmac.h>
 #include <map>
@@ -216,8 +217,48 @@ HeadObjectResult CAmazonS3Client::HeadObject(std::string objectName)
 	}
 
 	HeadObjectResult result;
-	auto contentLength = response.headers.find("Content-Length");
-	result.contentLength = atol(contentLength->second.c_str());
+
+	auto contentLengthIterator = response.headers.find("Content-Length");
+	if(contentLengthIterator != std::end(response.headers))
+	{
+		result.contentLength = atol(contentLengthIterator->second.c_str());
+	}
+
+	auto etagIterator = response.headers.find("ETag");
+	if(etagIterator != std::end(response.headers))
+	{
+		result.etag = etagIterator->second;
+	}
+
+	return result;
+}
+
+ListObjectsResult CAmazonS3Client::ListObjects(std::string bucketName)
+{
+	Request rq;
+	rq.method = Framework::Http::HTTP_VERB::GET;
+	rq.uri    = "/";
+
+	auto response = ExecuteRequest(rq);
+	if(response.statusCode != Framework::Http::HTTP_STATUS_CODE::OK)
+	{
+		throw std::runtime_error("Failed to list objects");
+	}
+
+	ListObjectsResult result;
+
+	auto documentNode = std::unique_ptr<Framework::Xml::CNode>(Framework::Xml::CParser::ParseDocument(response.data));
+	auto contentsNodes = documentNode->SelectNodes("ListBucketResult/Contents");
+	for(const auto& contentsNode : contentsNodes)
+	{
+		Object object;
+		if(auto keyNode = contentsNode->Select("Key"))
+		{
+			object.key = keyNode->GetInnerText();
+		}
+		result.objects.push_back(object);
+	}
+
 	return result;
 }
 

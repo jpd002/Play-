@@ -29,6 +29,17 @@ struct GetObjectResult
 struct HeadObjectResult
 {
 	uint64 contentLength = 0;
+	std::string etag;
+};
+
+struct Object
+{
+	std::string key;
+};
+
+struct ListObjectsResult
+{
+	std::vector<Object> objects;
 };
 
 class CAmazonS3Client
@@ -39,6 +50,7 @@ public:
 	GetBucketLocationResult GetBucketLocation(const GetBucketLocationRequest&);
 	GetObjectResult GetObject(const GetObjectRequest&);
 	HeadObjectResult HeadObject(std::string);
+	ListObjectsResult ListObjects(std::string);
 
 private:
 	struct Request
