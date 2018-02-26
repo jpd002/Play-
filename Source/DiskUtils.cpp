@@ -21,11 +21,15 @@
 
 static Framework::CStream* CreateImageStream(const boost::filesystem::path& imagePath)
 {
-	return new CS3ObjectStream("ps2bootables", imagePath.c_str());
+	auto imagePathString = imagePath.string();
+	if(imagePathString.find("s3://") == 0)
+	{
+		return new CS3ObjectStream("ps2bootables", imagePathString.c_str() + 5);
+	}
 #ifdef __ANDROID__
-	return new Framework::CPosixFileStream(imagePath.string().c_str(), O_RDONLY);
+	return new Framework::CPosixFileStream(imagePathString.c_str(), O_RDONLY);
 #else
-	return new Framework::CStdStream(imagePath.string().c_str(), "rb");
+	return new Framework::CStdStream(imagePathString.c_str(), "rb");
 #endif
 }
 
