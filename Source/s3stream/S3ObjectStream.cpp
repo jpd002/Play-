@@ -138,9 +138,8 @@ static std::string TrimQuotes(std::string input)
 void CS3ObjectStream::GetObjectInfo()
 {
 #if 0
-	if(false)
 	{
-		CAmazonS3Client client(accessKeyId, secretAccessKey);
+		CAmazonS3Client client(CS3Config::GetInstance().GetAccessKeyId(), CS3Config::GetInstance().GetSecretAccessKey());
 
 		GetBucketLocationRequest request;
 		request.bucket = "ps2bootables";
