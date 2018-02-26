@@ -120,6 +120,21 @@ std::string CS3ObjectStream::GenerateReadCacheKey(const std::pair<uint64, uint64
 	return string_format("%s-%ld-%ld", m_objectEtag.c_str(), range.first, range.second);
 }
 
+static std::string TrimQuotes(std::string input)
+{
+	if(input.empty()) return input;
+	if(input[0] == '"')
+	{
+		input = std::string(input.begin() + 1, input.end());
+	}
+	if(input.empty()) return input;
+	if(input[input.size() - 1] == '"')
+	{
+		input = std::string(input.begin(), input.end() - 1);
+	}
+	return input;
+}
+
 void CS3ObjectStream::GetObjectInfo()
 {
 #if 0
@@ -141,5 +156,5 @@ void CS3ObjectStream::GetObjectInfo()
 	request.bucket = m_bucketName;
 	auto objectHeader = client.HeadObject(m_objectName);
 	m_objectSize = objectHeader.contentLength;
-	m_objectEtag = objectHeader.etag;
+	m_objectEtag = TrimQuotes(objectHeader.etag);
 }
