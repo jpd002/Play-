@@ -2,6 +2,7 @@
 #include <map>
 #include <algorithm>
 #include <cassert>
+#include <cstdlib>
 #include <cstring>
 #include <ctime>
 #include "HashUtils.h"
