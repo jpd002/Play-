@@ -1,38 +1,12 @@
 #include "http/HttpClientFactory.h"
-#include "string_format.h"
-#include "xml/Parser.h"
-#include <openssl/sha.h>
-#include <openssl/hmac.h>
 #include <map>
 #include <cassert>
 #include <algorithm>
 #include <cstring>
-#include <vector>
+#include "HashUtils.h"
+#include "string_format.h"
+#include "xml/Parser.h"
 #include "AmazonS3Client.h"
-
-std::array<uint8, 0x20> computeSha256(const void* data, size_t dataSize)
-{
-	std::array<uint8, 0x20> result;
-	SHA256_CTX c;
-	SHA256_Init(&c);
-	SHA256_Update(&c, data, dataSize);
-	SHA256_Final(result.data(), &c);
-	return result;
-}
-
-std::array<uint8, 0x20> computeHmacSha256(const void* key, size_t keySize, const void* data, size_t dataSize)
-{
-	unsigned int resultSize = 0;
-	uint8 result[EVP_MAX_MD_SIZE];
-	HMAC(EVP_sha256(), key, keySize, reinterpret_cast<const unsigned char*>(data), dataSize, result, &resultSize);
-	if(resultSize != 0x20)
-	{
-		throw std::runtime_error("Invalid result size");
-	}
-	std::array<uint8, 0x20> finalResult;
-	memcpy(finalResult.data(), result, 0x20);
-	return finalResult;
-}
 
 std::string hashToString(const std::array<uint8, 0x20> hash)
 {
@@ -127,7 +101,7 @@ std::string buildStringToSign(const std::string& timestamp, const std::string& s
 	result += scope;
 	result += "\n";
 
-	auto canonicalRequestHash = hashToString(computeSha256(canonicalRequest.data(), canonicalRequest.size()));
+	auto canonicalRequestHash = hashToString(Framework::HashUtils::ComputeSha256(canonicalRequest.data(), canonicalRequest.size()));
 	result += canonicalRequestHash;
 
 	return result;
@@ -137,10 +111,10 @@ std::array<uint8, 0x20> buildSigningKey(const std::string& secretAccessKey, cons
 {
 	auto signKey = "AWS4" + secretAccessKey;
 
-	auto result = computeHmacSha256(signKey.c_str(), signKey.length(), date.c_str(), date.length());
-	result = computeHmacSha256(result.data(), result.size(), region.c_str(), region.length());
-	result = computeHmacSha256(result.data(), result.size(), service.c_str(), service.length());
-	result = computeHmacSha256(result.data(), result.size(), requestType.c_str(), requestType.length());
+	auto result = Framework::HashUtils::ComputeHmacSha256(signKey.c_str(), signKey.length(), date.c_str(), date.length());
+	result = Framework::HashUtils::ComputeHmacSha256(result.data(), result.size(), region.c_str(), region.length());
+	result = Framework::HashUtils::ComputeHmacSha256(result.data(), result.size(), service.c_str(), service.length());
+	result = Framework::HashUtils::ComputeHmacSha256(result.data(), result.size(), requestType.c_str(), requestType.length());
 	return result;
 }
 
@@ -273,7 +247,7 @@ Framework::Http::RequestResult CAmazonS3Client::ExecuteRequest(const Request& re
 	auto requestType = std::string("aws4_request");
 
 	auto content = std::string();
-	auto contentHashString = hashToString(computeSha256(content.data(), content.size()));
+	auto contentHashString = hashToString(Framework::HashUtils::ComputeSha256(content.data(), content.size()));
 
 	auto scope = string_format("%s/%s/%s/%s", date.c_str(), m_region.c_str(), service.c_str(), requestType.c_str());
 	auto timestamp = timeToString(timeInfo);
@@ -294,7 +268,7 @@ Framework::Http::RequestResult CAmazonS3Client::ExecuteRequest(const Request& re
 #endif
 
 	auto signingKey = buildSigningKey(m_secretAccessKey, date, m_region, service, requestType);
-	auto signature = hashToString(computeHmacSha256(signingKey.data(), signingKey.size(), stringToSign.c_str(), stringToSign.length()));
+	auto signature = hashToString(Framework::HashUtils::ComputeHmacSha256(signingKey.data(), signingKey.size(), stringToSign.c_str(), stringToSign.length()));
 
 	auto authorizationString = string_format("AWS4-HMAC-SHA256 Credential=%s/%s, SignedHeaders=host;x-amz-content-sha256;x-amz-date, Signature=%s",
 	    m_accessKeyId.c_str(), scope.c_str(), signature.c_str());
