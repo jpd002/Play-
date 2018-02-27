@@ -119,6 +119,12 @@ if(ICUUC_FOUND)
 	list(APPEND PROJECT_LIBS ${ICUUC_LIBRARIES})
 endif()
 
+if(TARGET_PLATFORM_UNIX)
+		find_package(LIBEVDEV REQUIRED)
+		include_directories(${LIBEVDEV_INCLUDE_DIR})
+		list(APPEND PROJECT_LIBS ${LIBEVDEV_LIBRARY})
+endif()
+
 if(TARGET_PLATFORM_IOS)
 	if(NOT TARGET iCade_Static)
 		add_subdirectory(
