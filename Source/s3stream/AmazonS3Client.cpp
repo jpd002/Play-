@@ -3,6 +3,7 @@
 #include <cassert>
 #include <algorithm>
 #include <cstring>
+#include <cstdlib>
 #include "HashUtils.h"
 #include "string_format.h"
 #include "xml/Parser.h"
