@@ -9,7 +9,7 @@
 #include "xml/Parser.h"
 #include "AmazonS3Client.h"
 
-std::string hashToString(const std::array<uint8, 0x20> hash)
+static std::string hashToString(const std::array<uint8, 0x20> hash)
 {
 	std::string result;
 	for(uint32 i = 0; i < 0x20; i += 8)
