@@ -7,10 +7,13 @@
 #include "PathUtils.h"
 #include "string_format.h"
 #include "StdStreamUtils.h"
+#include "Log.h"
 
 #define PREF_S3_OBJECTSTREAM_ACCESSKEYID "s3.objectstream.accesskeyid"
 #define PREF_S3_OBJECTSTREAM_SECRETACCESSKEY "s3.objectstream.secretaccesskey"
 #define CACHE_PATH "s3objectstream_cache"
+
+#define LOG_NAME "s3objectstream"
 
 class CS3Config : public CSingleton<CS3Config>
 {
@@ -51,12 +54,20 @@ uint64 CS3ObjectStream::Read(void* buffer, uint64 size)
 	fflush(output);
 #endif
 
-	if(boost::filesystem::exists(readCacheFilePath))
+	try
 	{
-		auto readCacheFileStream = Framework::CreateInputStdStream(readCacheFilePath.native());
-		auto cacheRead = readCacheFileStream.Read(buffer, size);
-		assert(cacheRead == size);
-		return size;
+		if(boost::filesystem::exists(readCacheFilePath))
+		{
+			auto readCacheFileStream = Framework::CreateInputStdStream(readCacheFilePath.native());
+			auto cacheRead = readCacheFileStream.Read(buffer, size);
+			assert(cacheRead == size);
+			return size;
+		}
+	}
+	catch(const std::exception& exception)
+	{
+		//Not a problem if we failed to read cache
+		CLog::GetInstance().Print(LOG_NAME, "Failed to read cache: '%s'.\r\n", exception.what());
 	}
 
 	assert(size > 0);
@@ -70,9 +81,15 @@ uint64 CS3ObjectStream::Read(void* buffer, uint64 size)
 	memcpy(buffer, objectContent.data.data(), size);
 	m_objectPosition += size;
 
+	try
 	{
 		auto readCacheFileStream = Framework::CreateOutputStdStream(readCacheFilePath.native());
 		readCacheFileStream.Write(objectContent.data.data(), size);
+	}
+	catch(const std::exception& exception)
+	{
+		//Not a problem if we failed to write cache
+		CLog::GetInstance().Print(LOG_NAME, "Failed to write cache: '%s'.\r\n", exception.what());
 	}
 
 	return size;
