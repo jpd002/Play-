@@ -122,7 +122,7 @@ endif()
 if(TARGET_PLATFORM_IOS)
 	if(NOT TARGET iCade_Static)
 		add_subdirectory(
-			${CMAKE_CURRENT_SOURCE_DIR}/../../../Dependencies/build_cmake/iCade-iOS
+			${CMAKE_CURRENT_SOURCE_DIR}/../../Dependencies/build_cmake/iCade-iOS
 			${CMAKE_CURRENT_BINARY_DIR}/iCade-iOS
 		)
 	endif()
@@ -132,7 +132,7 @@ endif()
 if(TARGET_PLATFORM_IOS)
 	if(NOT TARGET SDWebImage_Static)
 		add_subdirectory(
-			${CMAKE_CURRENT_SOURCE_DIR}/../../../Dependencies/build_cmake/SDWebImage
+			${CMAKE_CURRENT_SOURCE_DIR}/../../Dependencies/build_cmake/SDWebImage
 			${CMAKE_CURRENT_BINARY_DIR}/SDWebImage
 		)
 	endif()
