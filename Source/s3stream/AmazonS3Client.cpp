@@ -239,6 +239,9 @@ ListObjectsResult CAmazonS3Client::ListObjects(std::string bucketName)
 
 Framework::Http::RequestResult CAmazonS3Client::ExecuteRequest(const Request& request)
 {
+	assert(!m_accessKeyId.empty());
+	assert(!m_secretAccessKey.empty());
+
 	time_t rawTime;
 	time(&rawTime);
 	auto timeInfo = gmtime(&rawTime);
