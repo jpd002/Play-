@@ -137,23 +137,27 @@ static std::string TrimQuotes(std::string input)
 
 void CS3ObjectStream::GetObjectInfo()
 {
-#if 0
+	//Obtain bucket region
 	{
 		CAmazonS3Client client(CS3Config::GetInstance().GetAccessKeyId(), CS3Config::GetInstance().GetSecretAccessKey());
 
 		GetBucketLocationRequest request;
-		request.bucket = "ps2bootables";
+		request.bucket = m_bucketName;
 
-		client.GetBucketLocation(request);
+		auto result = client.GetBucketLocation(request);
+		m_bucketRegion = result.locationConstraint;
 	}
-#else
-	m_bucketRegion = "us-west-2";
-#endif
 
-	CAmazonS3Client client(CS3Config::GetInstance().GetAccessKeyId(), CS3Config::GetInstance().GetSecretAccessKey(), m_bucketRegion);
-	GetBucketLocationRequest request;
-	request.bucket = m_bucketName;
-	auto objectHeader = client.HeadObject(m_objectName);
-	m_objectSize = objectHeader.contentLength;
-	m_objectEtag = TrimQuotes(objectHeader.etag);
+	//Obtain object info
+	{
+		CAmazonS3Client client(CS3Config::GetInstance().GetAccessKeyId(), CS3Config::GetInstance().GetSecretAccessKey(), m_bucketRegion);
+
+		HeadObjectRequest request;
+		request.bucket = m_bucketName;
+		request.object = m_objectName;
+
+		auto objectHeader = client.HeadObject(request);
+		m_objectSize = objectHeader.contentLength;
+		m_objectEtag = TrimQuotes(objectHeader.etag);
+	}
 }

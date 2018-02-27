@@ -9,6 +9,8 @@
 #include "xml/Parser.h"
 #include "AmazonS3Client.h"
 
+#define S3_HOSTNAME "s3.amazonaws.com"
+
 static std::string hashToString(const std::array<uint8, 0x20> hash)
 {
 	std::string result;
@@ -142,20 +144,38 @@ CAmazonS3Client::CAmazonS3Client(std::string accessKeyId, std::string secretAcce
 GetBucketLocationResult CAmazonS3Client::GetBucketLocation(const GetBucketLocationRequest& request)
 {
 	Request rq;
-	rq.method = Framework::Http::HTTP_VERB::GET;
-	rq.uri    = "/";
-	rq.query  = "location=";
-	ExecuteRequest(rq);
+	rq.method  = Framework::Http::HTTP_VERB::GET;
+	rq.host    = string_format("%s." S3_HOSTNAME, request.bucket.c_str());
+	rq.urlHost = S3_HOSTNAME;
+	rq.uri     = "/";
+	rq.query   = "location=";
+	
+	auto response = ExecuteRequest(rq);
+	if(response.statusCode != Framework::Http::HTTP_STATUS_CODE::OK)
+	{
+		throw std::runtime_error("Failed to get bucket location.");
+	}
 
 	GetBucketLocationResult result;
+
+	auto documentNode = std::unique_ptr<Framework::Xml::CNode>(Framework::Xml::CParser::ParseDocument(response.data));
+	auto locationConstraintNode = documentNode->Select("LocationConstraint");
+	if(locationConstraintNode)
+	{
+		auto locationConstraint = locationConstraintNode->GetInnerText();
+		result.locationConstraint = locationConstraint ? locationConstraint : "";
+	}
+
 	return result;
 }
 
 GetObjectResult CAmazonS3Client::GetObject(const GetObjectRequest& request)
 {
 	Request rq;
-	rq.method = Framework::Http::HTTP_VERB::GET;
-	rq.uri    = "/" + Framework::Http::CHttpClient::UrlEncode(request.object);
+	rq.method  = Framework::Http::HTTP_VERB::GET;
+	rq.uri     = "/" + Framework::Http::CHttpClient::UrlEncode(request.object);
+	rq.host    = string_format("%s." S3_HOSTNAME, request.bucket.c_str());
+	rq.urlHost = rq.host;
 
 	if(request.range.first != request.range.second)
 	{
@@ -179,11 +199,13 @@ GetObjectResult CAmazonS3Client::GetObject(const GetObjectRequest& request)
 	return result;
 }
 
-HeadObjectResult CAmazonS3Client::HeadObject(std::string objectName)
+HeadObjectResult CAmazonS3Client::HeadObject(const HeadObjectRequest& request)
 {
 	Request rq;
-	rq.method = Framework::Http::HTTP_VERB::HEAD;
-	rq.uri    = "/" + Framework::Http::CHttpClient::UrlEncode(objectName);
+	rq.method  = Framework::Http::HTTP_VERB::HEAD;
+	rq.uri     = "/" + Framework::Http::CHttpClient::UrlEncode(request.object);
+	rq.host    = string_format("%s." S3_HOSTNAME, request.bucket.c_str());
+	rq.urlHost = rq.host;
 
 	auto response = ExecuteRequest(rq);
 	if(response.statusCode != Framework::Http::HTTP_STATUS_CODE::OK)
@@ -208,11 +230,13 @@ HeadObjectResult CAmazonS3Client::HeadObject(std::string objectName)
 	return result;
 }
 
-ListObjectsResult CAmazonS3Client::ListObjects(std::string bucketName)
+ListObjectsResult CAmazonS3Client::ListObjects(std::string bucket)
 {
 	Request rq;
-	rq.method = Framework::Http::HTTP_VERB::GET;
-	rq.uri    = "/";
+	rq.method  = Framework::Http::HTTP_VERB::GET;
+	rq.uri     = "/";
+	rq.host    = string_format("%s." S3_HOSTNAME, bucket.c_str());
+	rq.urlHost = rq.host;
 
 	auto response = ExecuteRequest(rq);
 	if(response.statusCode != Framework::Http::HTTP_STATUS_CODE::OK)
@@ -241,6 +265,8 @@ Framework::Http::RequestResult CAmazonS3Client::ExecuteRequest(const Request& re
 {
 	assert(!m_accessKeyId.empty());
 	assert(!m_secretAccessKey.empty());
+	assert(!request.host.empty());
+	assert(!request.urlHost.empty());
 
 	time_t rawTime;
 	time(&rawTime);
@@ -257,7 +283,7 @@ Framework::Http::RequestResult CAmazonS3Client::ExecuteRequest(const Request& re
 	auto timestamp = timeToString(timeInfo);
 
 	Framework::Http::HeaderMap headers;
-	headers.insert(std::make_pair("Host", "ps2bootables.s3.amazonaws.com"));
+	headers.insert(std::make_pair("Host", request.host));
 	headers.insert(std::make_pair("x-amz-content-sha256", contentHashString));
 	headers.insert(std::make_pair("x-amz-date", timestamp));
 
@@ -279,7 +305,7 @@ Framework::Http::RequestResult CAmazonS3Client::ExecuteRequest(const Request& re
 	headers.insert(std::make_pair("Authorization", authorizationString));
 	headers.insert(request.headers.begin(), request.headers.end());
 
-	std::string url = "https://ps2bootables.s3.amazonaws.com" + request.uri;
+	auto url = string_format("https://%s%s", request.urlHost.c_str(), request.uri.c_str());
 	if(!request.query.empty())
 	{
 		url += "?";

@@ -26,6 +26,12 @@ struct GetObjectResult
 	std::vector<uint8> data;
 };
 
+struct HeadObjectRequest
+{
+	std::string bucket;
+	std::string object;
+};
+
 struct HeadObjectResult
 {
 	uint64 contentLength = 0;
@@ -49,13 +55,15 @@ public:
 
 	GetBucketLocationResult GetBucketLocation(const GetBucketLocationRequest&);
 	GetObjectResult GetObject(const GetObjectRequest&);
-	HeadObjectResult HeadObject(std::string);
+	HeadObjectResult HeadObject(const HeadObjectRequest&);
 	ListObjectsResult ListObjects(std::string);
 
 private:
 	struct Request
 	{
 		Framework::Http::HTTP_VERB method;
+		std::string host;
+		std::string urlHost;
 		std::string uri;
 		std::string query;
 		Framework::Http::HeaderMap headers;
