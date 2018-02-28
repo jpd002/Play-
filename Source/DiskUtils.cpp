@@ -24,7 +24,14 @@ static Framework::CStream* CreateImageStream(const boost::filesystem::path& imag
 	auto imagePathString = imagePath.string();
 	if(imagePathString.find("s3://") == 0)
 	{
-		return new CS3ObjectStream("ps2bootables", imagePathString.c_str() + 5);
+		auto fullObjectPath = std::string(imagePathString.c_str() + 5);
+		auto objectPathPos = fullObjectPath.find('/');
+		if(objectPathPos == std::string::npos)
+		{
+			throw std::runtime_error("Invalid S3 object path.");
+		}
+		auto bucketName = std::string(fullObjectPath.begin(), fullObjectPath.begin() + objectPathPos);
+		return new CS3ObjectStream(bucketName.c_str(), fullObjectPath.c_str() + objectPathPos + 1);
 	}
 #ifdef __ANDROID__
 	return new Framework::CPosixFileStream(imagePathString.c_str(), O_RDONLY);
