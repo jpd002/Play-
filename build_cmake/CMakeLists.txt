@@ -148,7 +148,7 @@ if(NOT ZLIB_FOUND)
 			${CMAKE_CURRENT_BINARY_DIR}/zlib-1.2.8
 		)
 	endif()
-	set(ZLIB_LIBRARIES zlibstatic CACHE)
+	set(ZLIB_LIBRARIES zlibstatic CACHE STRING "")
 else()
 	include_directories(${ZLIB_INCLUDE_DIRS})
 	list(APPEND PROJECT_LIBS ${ZLIB_LIBRARIES})
@@ -477,6 +477,18 @@ if(TARGET_PLATFORM_WIN32)
 	target_link_libraries(gsh_opengl_win32 PUBLIC Boost::boost Framework glew_s)
 	list(APPEND PROJECT_LIBS gsh_opengl_win32)
 	
+	#If building for Windows XP, we need to use the provided d3dcompiler since it's not available in the SDK
+	if(CMAKE_GENERATOR_TOOLSET MATCHES "_xp$")
+		include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../../Dependencies/d3dcompiler_winxp/Include)
+		if(CMAKE_SIZEOF_VOID_P EQUAL 8)
+			list(APPEND PROJECT_LIBS ${CMAKE_CURRENT_SOURCE_DIR}/../../Dependencies/d3dcompiler_winxp/Lib/x64/d3dcompiler.lib)
+		else()
+			list(APPEND PROJECT_LIBS ${CMAKE_CURRENT_SOURCE_DIR}/../../Dependencies/d3dcompiler_winxp/Lib/x86/d3dcompiler.lib)
+		endif()
+	else()
+		list(APPEND PROJECT_LIBS d3dcompiler)
+	endif()
+
 	add_library(gsh_d3d9 STATIC 
 		../Source/ui_win32/GSH_Direct3D9.cpp
 		../Source/ui_win32/GSH_Direct3D9_Shader.cpp
