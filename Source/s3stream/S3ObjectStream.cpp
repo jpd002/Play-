@@ -11,7 +11,7 @@
 
 #define PREF_S3_OBJECTSTREAM_ACCESSKEYID "s3.objectstream.accesskeyid"
 #define PREF_S3_OBJECTSTREAM_SECRETACCESSKEY "s3.objectstream.secretaccesskey"
-#define CACHE_PATH "s3objectstream_cache"
+#define CACHE_PATH "Play Data Files/s3objectstream_cache"
 
 #define LOG_NAME "s3objectstream"
 
@@ -129,7 +129,7 @@ bool CS3ObjectStream::IsEOF()
 
 boost::filesystem::path CS3ObjectStream::GetCachePath()
 {
-	return CAppConfig::GetInstance().GetBasePath() / CACHE_PATH;
+	return Framework::PathUtils::GetCachePath() / CACHE_PATH;
 }
 
 std::string CS3ObjectStream::GenerateReadCacheKey(const std::pair<uint64, uint64>& range) const
