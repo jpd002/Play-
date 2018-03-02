@@ -1,4 +1,3 @@
-#include <zlib.h>
 #include <stdexcept>
 #include "Ps2_PsfDevice.h"
 #include "PtrStream.h"

@@ -6,7 +6,7 @@
 #include "COP_SCU.h"
 #include "COP_FPU.h"
 #include "MIPS.h"
-#include "MIPSExecutor.h"
+#include "MipsExecutor.h"
 #include "../PsfVmSubSystem.h"
 #include "Psp_PsfBios.h"
 #include "MemStream.h"
