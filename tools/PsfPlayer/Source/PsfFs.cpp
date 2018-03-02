@@ -2,6 +2,7 @@
 #include <stdexcept>
 #include <assert.h>
 #include <algorithm>
+#include <cstring>
 #include "PsfFs.h"
 #include "PtrStream.h"
 #include "stricmp.h"

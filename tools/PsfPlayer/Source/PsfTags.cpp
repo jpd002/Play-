@@ -3,6 +3,7 @@
 #include "string_cast_win1252.h"
 #include "Utf8.h"
 #include <cassert>
+#include <cstring>
 
 using namespace Framework;
 
