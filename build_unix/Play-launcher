@@ -1,0 +1,9 @@
+#!/bin/sh
+LIBRARY_PATH="/opt/qt56/lib/;$LD_LIBRARY_PATH"
+if ls ~/Qt*/*/*/lib/* 1> /dev/null 2>&1; then
+    for QtLib in $(ls -r ~/Qt*/*/*/lib -d)
+	do
+		LIBRARY_PATH="$LIBRARY_PATH;$QtLib"
+	done
+fi
+LD_LIBRARY_PATH=$LIBRARY_PATH /usr/bin/Play

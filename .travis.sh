@@ -59,7 +59,7 @@ travis_script()
             export PATH=/opt/cmake-3.8.1-Linux-x86_64/bin/:$PATH
             source /opt/qt56/bin/qt56-env.sh || true
             cmake .. -G"$BUILD_TYPE" -DCMAKE_PREFIX_PATH=/opt/qt56/;
-            cmake --build .
+            cmake --build . --target package
         elif [ "$TARGET_OS" = "OSX" ]; then
             cmake .. -G"$BUILD_TYPE"
             cmake --build . --config Release
@@ -91,6 +91,9 @@ travis_before_deploy()
     pushd $SHORT_HASH
     if [ -z "$ANDROID_KEYSTORE_PASS" ]; then
         return
+    fi;
+    if [ "$TARGET_OS" = "Linux" ]; then
+        cp ../../build_cmake/build/Play-0.30-Linux.deb .
     fi;
     if [ "$TARGET_OS" = "Android" ]; then
         cp ../../build_android/build/outputs/apk/release/Play-release-unsigned.apk .

@@ -1,0 +1,10 @@
+[Desktop Entry]
+Name=Play!
+TryExec=/usr/bin/Play
+Exec=/usr/bin/Play-launcher
+Icon=Play.png
+Version=0.30
+Terminal=false
+Type=Application
+Categories=Game;Emulator;
+
