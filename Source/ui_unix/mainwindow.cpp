@@ -151,7 +151,7 @@ void MainWindow::on_actionOpen_Game_triggered()
     {
         auto fileName = dialog.selectedFiles().first();
         m_lastpath = QFileInfo(fileName).path();
-        CAppConfig::GetInstance().SetPreferenceString(PREF_PS2_CDROM0_PATH, fileName.toStdString().c_str());
+        CAppConfig::GetInstance().SetPreferencePath(PREF_PS2_CDROM0_PATH, fileName.toStdString());
 
         if (g_virtualMachine != nullptr)
         {
