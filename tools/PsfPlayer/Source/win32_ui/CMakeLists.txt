@@ -70,7 +70,22 @@ else()
 	set(MANIFEST Play-x86.manifest)
 endif()
 
+if(DEBUGGER_INCLUDED)
+	set(DEBUG_SRC
+		../../../../Source/ui_win32/DebugExpressionEvaluator.cpp
+		../../../../Source/ui_win32/DisAsm.cpp
+		../../../../Source/ui_win32/FunctionsView.cpp
+		../../../../Source/ui_win32/MemoryView.cpp
+		../../../../Source/ui_win32/MemoryViewMIPS.cpp
+		../../../../Source/ui_win32/RegViewGeneral.cpp
+		../../../../Source/ui_win32/RegViewPage.cpp
+		../../../../Source/ui_win32/WinUtils.cpp
+		MiniDebugger.cpp
+	)
+endif()
+
 set(WIN32_SRC
+
 	../../../../Source/ui_win32/DirectXControl.cpp
 	AboutWindow.cpp
 	AcceleratorTable.cpp
@@ -78,14 +93,13 @@ set(WIN32_SRC
 	Main.cpp
 	#Main_Aot.cpp
 	MainWindow.cpp
-	#MiniDebugger.cpp
 	PlaylistPanel.cpp
 	SpuRegView.cpp
 	SpuRegViewPanel.cpp
 	StdAfx.cpp
 )
 
-add_executable(PsfPlayer WIN32 ${WIN32_SRC} Res.rc)
+add_executable(PsfPlayer WIN32 ${WIN32_SRC} ${DEBUG_SRC} Res.rc)
 target_link_libraries(PsfPlayer PUBLIC d3d9 uxtheme ${PROJECT_LIBS} ${AUDIO_LIBS})
 target_include_directories(PsfPlayer
 	PUBLIC
