@@ -20,6 +20,13 @@ CPH_HidMacOSX::CPH_HidMacOSX()
 	m_bindings[PS2::CControllerInfo::TRIANGLE]			= std::make_shared<CSimpleBinding>(kHIDUsage_KeyboardS);
 	m_bindings[PS2::CControllerInfo::CIRCLE]			= std::make_shared<CSimpleBinding>(kHIDUsage_KeyboardX);
 		
+	m_bindings[PS2::CControllerInfo::L1]				= std::make_shared<CSimpleBinding>(kHIDUsage_Keyboard1);
+	m_bindings[PS2::CControllerInfo::L2]				= std::make_shared<CSimpleBinding>(kHIDUsage_Keyboard2);
+	m_bindings[PS2::CControllerInfo::L3]				= std::make_shared<CSimpleBinding>(kHIDUsage_Keyboard3);
+	m_bindings[PS2::CControllerInfo::R1]				= std::make_shared<CSimpleBinding>(kHIDUsage_Keyboard8);
+	m_bindings[PS2::CControllerInfo::R2]				= std::make_shared<CSimpleBinding>(kHIDUsage_Keyboard9);
+	m_bindings[PS2::CControllerInfo::R3]				= std::make_shared<CSimpleBinding>(kHIDUsage_Keyboard0);
+
 	m_hidManager = IOHIDManagerCreate(kCFAllocatorDefault, 0);
 	{
 		CFDictionaryRef matchingDict = CreateDeviceMatchingDictionary(kHIDPage_GenericDesktop, kHIDUsage_GD_Keyboard);
