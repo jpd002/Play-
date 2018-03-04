@@ -15,7 +15,7 @@ set(PROJECT_Version 0.30)
 include(PrecompiledHeader)
 
 if(DEBUGGER_INCLUDED)
-	add_definitions(-DDEBUGGER_INCLUDED)
+	list(APPEND DEFINITIONS_LIST DEBUGGER_INCLUDED=1)
 endif()
 
 add_definitions(-D_IOP_EMULATE_MODULES)
@@ -410,6 +410,7 @@ target_include_directories(PlayCore
 		${CMAKE_CURRENT_SOURCE_DIR}/../../Framework/include
 		${CMAKE_CURRENT_SOURCE_DIR}/../../CodeGen/include
 )
+target_compile_definitions(PlayCore PUBLIC ${DEFINITIONS_LIST})
 if(NOT ANDROID)
 	if(THREADS_HAVE_PTHREAD_ARG)
 		target_compile_options(PUBLIC PlayCore "-pthread")
