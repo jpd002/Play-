@@ -65,9 +65,9 @@ if(CMAKE_BUILD_TYPE MATCHES DEBUG)
 endif()
 
 if(TARGET_PLATFORM_WIN32_X64)
-	set(MANIFEST Play-x64.manifest)
+	set(MANIFEST PsfPlayer-x64.manifest)
 else()
-	set(MANIFEST Play-x86.manifest)
+	set(MANIFEST PsfPlayer-x86.manifest)
 endif()
 
 if(DEBUGGER_INCLUDED)
@@ -97,6 +97,8 @@ set(WIN32_SRC
 	SpuRegView.cpp
 	SpuRegViewPanel.cpp
 	StdAfx.cpp
+
+	${MANIFEST}
 )
 
 add_executable(PsfPlayer WIN32 ${WIN32_SRC} ${DEBUG_SRC} Res.rc)
