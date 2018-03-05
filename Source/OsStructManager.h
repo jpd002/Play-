@@ -1,4 +1,5 @@
 #pragma once
+#include <cassert>
 
 template<typename StructType>
 class COsStructManager

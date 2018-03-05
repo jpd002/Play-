@@ -40,7 +40,7 @@ build_script:
     
     move ..\..\PlaySource Play
     
-    cd Play\build_cmake
+    cd Play
     
     mkdir build
     
@@ -50,7 +50,6 @@ build_script:
     
     cmake --build . --config %CONFIG_TYPE%
     
-    cd ..
     
     cd ..
     

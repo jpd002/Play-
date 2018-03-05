@@ -2,7 +2,7 @@
 #include "COP_SCU.h"
 #include "Log.h"
 #include "iop/Iop_Intc.h"
-#include "MipsAssembler.h"
+#include "MIPSAssembler.h"
 #include "xml/Node.h"
 #include "xml/Writer.h"
 

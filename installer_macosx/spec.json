@@ -4,7 +4,7 @@
 	"icon-size": 80,
 	"contents":
 	[
-		{ "x": 160, "y": 300, "type": "file", "path": "../build_cmake/build/Release/Play.app" },
+		{ "x": 160, "y": 300, "type": "file", "path": "../build/Source/ui_macosx/Release/Play.app" },
 		{ "x": 480, "y": 300, "type": "link", "path": "/Applications" }
 	]
 }
