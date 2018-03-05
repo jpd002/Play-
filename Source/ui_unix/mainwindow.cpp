@@ -48,6 +48,12 @@ MainWindow::MainWindow(QWidget *parent) :
     RegisterPreferences();
 
     m_pauseFocusLost = CAppConfig::GetInstance().GetPreferenceBoolean(PREF_UI_PAUSEWHENFOCUSLOST);
+    auto last_path = CAppConfig::GetInstance().GetPreferencePath(PREF_PS2_CDROM0_PATH);
+    if (boost::filesystem::exists(last_path))
+    {
+        last_path = last_path.parent_path();
+        m_lastpath = QString(last_path.native().c_str());
+    }
 
     CreateStatusBar();
     UpdateUI();
@@ -151,7 +157,7 @@ void MainWindow::on_actionOpen_Game_triggered()
     {
         auto fileName = dialog.selectedFiles().first();
         m_lastpath = QFileInfo(fileName).path();
-        CAppConfig::GetInstance().SetPreferenceString(PREF_PS2_CDROM0_PATH, fileName.toStdString().c_str());
+        CAppConfig::GetInstance().SetPreferencePath(PREF_PS2_CDROM0_PATH, fileName.toStdString());
 
         if (g_virtualMachine != nullptr)
         {
