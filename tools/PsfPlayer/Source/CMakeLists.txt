@@ -12,8 +12,6 @@ set(PROJECT_LIBS)
 set(PSF_PROJECT_NAME "PsfPlayer")
 set(PSF_PROJECT_VERSION "1.05")
 
-add_definitions(-D_IOP_EMULATE_MODULES)
-
 if(NOT TARGET PlayCore)
 	add_subdirectory(
 		${CMAKE_CURRENT_SOURCE_DIR}/../../../Source
