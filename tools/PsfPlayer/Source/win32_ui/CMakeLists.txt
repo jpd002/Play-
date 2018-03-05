@@ -109,3 +109,7 @@ target_include_directories(PsfPlayer
 )
 include(PrecompiledHeader)
 add_precompiled_header(PsfPlayer StdAfx.h FORCEINCLUDE SOURCE_CXX StdAfx.cpp)
+
+add_custom_command(TARGET PsfPlayer POST_BUILD
+	COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_PROPERTY:tdemu,IMPORTED_LOCATION> "${CMAKE_CURRENT_BINARY_DIR}/$<CONFIG>"
+)
