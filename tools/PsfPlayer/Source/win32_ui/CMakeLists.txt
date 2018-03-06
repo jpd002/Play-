@@ -65,9 +65,9 @@ if(CMAKE_BUILD_TYPE MATCHES DEBUG)
 endif()
 
 if(TARGET_PLATFORM_WIN32_X64)
-	set(MANIFEST Play-x64.manifest)
+	set(MANIFEST PsfPlayer-x64.manifest)
 else()
-	set(MANIFEST Play-x86.manifest)
+	set(MANIFEST PsfPlayer-x86.manifest)
 endif()
 
 if(DEBUGGER_INCLUDED)
@@ -97,6 +97,8 @@ set(WIN32_SRC
 	SpuRegView.cpp
 	SpuRegViewPanel.cpp
 	StdAfx.cpp
+
+	${MANIFEST}
 )
 
 add_executable(PsfPlayer WIN32 ${WIN32_SRC} ${DEBUG_SRC} Res.rc)
@@ -109,3 +111,7 @@ target_include_directories(PsfPlayer
 )
 include(PrecompiledHeader)
 add_precompiled_header(PsfPlayer StdAfx.h FORCEINCLUDE SOURCE_CXX StdAfx.cpp)
+
+add_custom_command(TARGET PsfPlayer POST_BUILD
+	COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_PROPERTY:tdemu,IMPORTED_LOCATION> "${CMAKE_CURRENT_BINARY_DIR}/$<CONFIG>"
+)
