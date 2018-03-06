@@ -46,7 +46,7 @@ build_script:
     
     cd build
     
-    cmake .. -G"%BUILD_TYPE%" -T v141_xp
+    cmake .. -G"%BUILD_TYPE%" -T v141_xp -DBUILD_PSFPLAYER=on
     
     cmake --build . --config %CONFIG_TYPE%
     
