@@ -180,7 +180,7 @@ GetObjectResult CAmazonS3Client::GetObject(const GetObjectRequest& request)
 
 	if(request.range.first != request.range.second)
 	{
-		auto rangeHeader = string_format("bytes=%ld-%ld", request.range.first, request.range.second);
+		auto rangeHeader = string_format("bytes=%llu-%llu", request.range.first, request.range.second);
 		rq.headers.insert(std::make_pair("Range", rangeHeader));
 	}
 
@@ -219,7 +219,7 @@ HeadObjectResult CAmazonS3Client::HeadObject(const HeadObjectRequest& request)
 	auto contentLengthIterator = response.headers.find("Content-Length");
 	if(contentLengthIterator != std::end(response.headers))
 	{
-		result.contentLength = atol(contentLengthIterator->second.c_str());
+		result.contentLength = atoll(contentLengthIterator->second.c_str());
 	}
 
 	auto etagIterator = response.headers.find("ETag");

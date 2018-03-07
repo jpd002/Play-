@@ -134,7 +134,7 @@ boost::filesystem::path CS3ObjectStream::GetCachePath()
 
 std::string CS3ObjectStream::GenerateReadCacheKey(const std::pair<uint64, uint64>& range) const
 {
-	return string_format("%s-%ld-%ld", m_objectEtag.c_str(), range.first, range.second);
+	return string_format("%s-%llu-%llu", m_objectEtag.c_str(), range.first, range.second);
 }
 
 static std::string TrimQuotes(std::string input)
