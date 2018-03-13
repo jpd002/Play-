@@ -54,44 +54,52 @@ uint64 CS3ObjectStream::Read(void* buffer, uint64 size)
 	fflush(output);
 #endif
 
-	try
-	{
-		if(boost::filesystem::exists(readCacheFilePath))
+	bool cachedReadSucceeded = 
+		[&]()
 		{
-			auto readCacheFileStream = Framework::CreateInputStdStream(readCacheFilePath.native());
-			auto cacheRead = readCacheFileStream.Read(buffer, size);
-			assert(cacheRead == size);
-			return size;
+			try
+			{
+				if(boost::filesystem::exists(readCacheFilePath))
+				{
+					auto readCacheFileStream = Framework::CreateInputStdStream(readCacheFilePath.native());
+					auto cacheRead = readCacheFileStream.Read(buffer, size);
+					assert(cacheRead == size);
+					return true;
+				}
+			}
+			catch(const std::exception& exception)
+			{
+				//Not a problem if we failed to read cache
+				CLog::GetInstance().Print(LOG_NAME, "Failed to read cache: '%s'.\r\n", exception.what());
+			}
+			return false;
+		} ();
+
+	if(!cachedReadSucceeded)
+	{
+		assert(size > 0);
+		CAmazonS3Client client(CS3Config::GetInstance().GetAccessKeyId(), CS3Config::GetInstance().GetSecretAccessKey(), m_bucketRegion);
+		GetObjectRequest request;
+		request.object = m_objectName;
+		request.bucket = m_bucketName;
+		request.range = range;
+		auto objectContent = client.GetObject(request);
+		assert(objectContent.data.size() == size);
+		memcpy(buffer, objectContent.data.data(), size);
+
+		try
+		{
+			auto readCacheFileStream = Framework::CreateOutputStdStream(readCacheFilePath.native());
+			readCacheFileStream.Write(objectContent.data.data(), size);
+		}
+		catch(const std::exception& exception)
+		{
+			//Not a problem if we failed to write cache
+			CLog::GetInstance().Print(LOG_NAME, "Failed to write cache: '%s'.\r\n", exception.what());
 		}
 	}
-	catch(const std::exception& exception)
-	{
-		//Not a problem if we failed to read cache
-		CLog::GetInstance().Print(LOG_NAME, "Failed to read cache: '%s'.\r\n", exception.what());
-	}
 
-	assert(size > 0);
-	CAmazonS3Client client(CS3Config::GetInstance().GetAccessKeyId(), CS3Config::GetInstance().GetSecretAccessKey(), m_bucketRegion);
-	GetObjectRequest request;
-	request.object = m_objectName;
-	request.bucket = m_bucketName;
-	request.range = range;
-	auto objectContent = client.GetObject(request);
-	assert(objectContent.data.size() == size);
-	memcpy(buffer, objectContent.data.data(), size);
 	m_objectPosition += size;
-
-	try
-	{
-		auto readCacheFileStream = Framework::CreateOutputStdStream(readCacheFilePath.native());
-		readCacheFileStream.Write(objectContent.data.data(), size);
-	}
-	catch(const std::exception& exception)
-	{
-		//Not a problem if we failed to write cache
-		CLog::GetInstance().Print(LOG_NAME, "Failed to write cache: '%s'.\r\n", exception.what());
-	}
-
 	return size;
 }
 
