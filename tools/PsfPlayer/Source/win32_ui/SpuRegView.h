@@ -8,6 +8,7 @@
 #include "layout/VerticalLayout.h"
 #include "win32/Static.h"
 #include <thread>
+#include <atomic>
 
 class CSpuRegView : public Framework::Win32::CWindow
 {

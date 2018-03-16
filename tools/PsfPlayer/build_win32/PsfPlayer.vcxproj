@@ -224,7 +224,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
     <Manifest>
-      <AdditionalManifestFiles>$(ProjectDir)\..\Source\win32_ui\manifest.xml</AdditionalManifestFiles>
+      <AdditionalManifestFiles>$(ProjectDir)\..\Source\win32_ui\PsfPlayer-x86.manifest</AdditionalManifestFiles>
     </Manifest>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='DebugAot|Win32'">
@@ -239,7 +239,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
     <Manifest>
-      <AdditionalManifestFiles>$(ProjectDir)\..\Source\win32_ui\manifest.xml</AdditionalManifestFiles>
+      <AdditionalManifestFiles>$(ProjectDir)\..\Source\win32_ui\PsfPlayer-x86.manifest</AdditionalManifestFiles>
     </Manifest>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='DebugWithDebugger|Win32'">
@@ -254,7 +254,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
     <Manifest>
-      <AdditionalManifestFiles>$(ProjectDir)\..\Source\win32_ui\manifest.xml</AdditionalManifestFiles>
+      <AdditionalManifestFiles>$(ProjectDir)\..\Source\win32_ui\PsfPlayer-x86.manifest</AdditionalManifestFiles>
     </Manifest>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -269,7 +269,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
     <Manifest>
-      <AdditionalManifestFiles>$(ProjectDir)\..\Source\win32_ui\manifest64.xml</AdditionalManifestFiles>
+      <AdditionalManifestFiles>$(ProjectDir)\..\Source\win32_ui\PsfPlayer-x64.manifest</AdditionalManifestFiles>
     </Manifest>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='DebugAot|x64'">
@@ -284,7 +284,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
     <Manifest>
-      <AdditionalManifestFiles>$(ProjectDir)\..\Source\win32_ui\manifest64.xml</AdditionalManifestFiles>
+      <AdditionalManifestFiles>$(ProjectDir)\..\Source\win32_ui\PsfPlayer-x64.manifest</AdditionalManifestFiles>
     </Manifest>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='DebugWithDebugger|x64'">
@@ -299,7 +299,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
     <Manifest>
-      <AdditionalManifestFiles>$(ProjectDir)\..\Source\win32_ui\manifest64.xml</AdditionalManifestFiles>
+      <AdditionalManifestFiles>$(ProjectDir)\..\Source\win32_ui\PsfPlayer-x64.manifest</AdditionalManifestFiles>
     </Manifest>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -317,7 +317,7 @@
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
     <Manifest>
-      <AdditionalManifestFiles>$(ProjectDir)\..\Source\win32_ui\manifest.xml</AdditionalManifestFiles>
+      <AdditionalManifestFiles>$(ProjectDir)\..\Source\win32_ui\PsfPlayer-x86.manifest</AdditionalManifestFiles>
     </Manifest>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseAot|Win32'">
@@ -335,7 +335,7 @@
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
     <Manifest>
-      <AdditionalManifestFiles>$(ProjectDir)\..\Source\win32_ui\manifest.xml</AdditionalManifestFiles>
+      <AdditionalManifestFiles>$(ProjectDir)\..\Source\win32_ui\PsfPlayer-x86.manifest</AdditionalManifestFiles>
     </Manifest>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -353,7 +353,7 @@
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
     <Manifest>
-      <AdditionalManifestFiles>$(ProjectDir)\..\Source\win32_ui\manifest64.xml</AdditionalManifestFiles>
+      <AdditionalManifestFiles>$(ProjectDir)\..\Source\win32_ui\PsfPlayer-x64.manifest</AdditionalManifestFiles>
     </Manifest>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseAot|x64'">
@@ -371,7 +371,7 @@
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
     <Manifest>
-      <AdditionalManifestFiles>$(ProjectDir)\..\Source\win32_ui\manifest64.xml</AdditionalManifestFiles>
+      <AdditionalManifestFiles>$(ProjectDir)\..\Source\win32_ui\PsfPlayer-x64.manifest</AdditionalManifestFiles>
     </Manifest>
   </ItemDefinitionGroup>
   <ItemGroup>
