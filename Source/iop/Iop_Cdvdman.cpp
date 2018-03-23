@@ -8,6 +8,7 @@
 #define STATE_FILENAME			("iop_cdvdman/state.xml")
 #define STATE_CALLBACK_ADDRESS	("CallbackAddress")
 #define STATE_STATUS			("Status")
+#define STATE_PENDING_COMMAND	("PendingCommand")
 
 #define FUNCTION_CDINIT				"CdInit"
 #define FUNCTION_CDREAD				"CdRead"
@@ -43,15 +44,17 @@ CCdvdman::CCdvdman(CIopBios& bios, uint8* ram)
 void CCdvdman::LoadState(Framework::CZipArchiveReader& archive)
 {
 	CRegisterStateFile registerFile(*archive.BeginReadFile(STATE_FILENAME));
-	m_callbackPtr = registerFile.GetRegister32(STATE_CALLBACK_ADDRESS);
-	m_status = registerFile.GetRegister32(STATE_STATUS);
+	m_callbackPtr    = registerFile.GetRegister32(STATE_CALLBACK_ADDRESS);
+	m_status         = registerFile.GetRegister32(STATE_STATUS);
+	m_pendingCommand = static_cast<COMMAND>(registerFile.GetRegister32(STATE_PENDING_COMMAND));
 }
 
 void CCdvdman::SaveState(Framework::CZipArchiveWriter& archive)
 {
 	auto registerFile = new CRegisterStateFile(STATE_FILENAME);
 	registerFile->SetRegister32(STATE_CALLBACK_ADDRESS, m_callbackPtr);
-	registerFile->SetRegister32(STATE_STATUS, m_status);
+	registerFile->SetRegister32(STATE_STATUS,           m_status);
+	registerFile->SetRegister32(STATE_PENDING_COMMAND,  m_pendingCommand);
 	archive.InsertFile(registerFile);
 }
 
@@ -272,6 +275,26 @@ void CCdvdman::Invoke(CMIPS& ctx, unsigned int functionId)
 	}
 }
 
+void CCdvdman::ProcessCommands()
+{
+	if(m_pendingCommand != COMMAND_NONE)
+	{
+		switch(m_pendingCommand)
+		{
+		case COMMAND_SEEK:
+			if(m_callbackPtr != 0)
+			{
+				m_bios.TriggerCallback(m_callbackPtr, CDVD_FUNCTION_SEEK, 0);
+			}
+			break;
+		default:
+			assert(false);
+			break;
+		}
+		m_pendingCommand = COMMAND_NONE;
+	}
+}
+
 void CCdvdman::SetOpticalMedia(COpticalMedia* opticalMedia)
 {
 	m_opticalMedia = opticalMedia;
@@ -320,10 +343,8 @@ uint32 CCdvdman::CdSeek(uint32 sector)
 {
 	CLog::GetInstance().Print(LOG_NAME, FUNCTION_CDSEEK "(sector = 0x%X);\r\n",
 		sector);
-	if(m_callbackPtr != 0)
-	{
-		m_bios.TriggerCallback(m_callbackPtr, CDVD_FUNCTION_SEEK, 0);
-	}
+	assert(m_pendingCommand == COMMAND_NONE);
+	m_pendingCommand = COMMAND_SEEK;
 	return 1;
 }
 

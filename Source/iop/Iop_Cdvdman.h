@@ -34,6 +34,7 @@ namespace Iop
 		virtual std::string		GetFunctionName(unsigned int) const override;
 		virtual void			Invoke(CMIPS&, unsigned int) override;
 
+		void					ProcessCommands();
 		void					SetOpticalMedia(COpticalMedia*);
 
 		void					LoadState(Framework::CZipArchiveReader&);
@@ -43,6 +44,12 @@ namespace Iop
 		uint32					CdGetDiskTypeDirect(COpticalMedia*);
 
 	private:
+		enum COMMAND : uint32
+		{
+			COMMAND_NONE,
+			COMMAND_SEEK
+		};
+
 		enum CDVD_FUNCTION
 		{
 			CDVD_FUNCTION_OPEN = 1,
@@ -79,6 +86,7 @@ namespace Iop
 		uint32					m_status = CDVD_STATUS_STOPPED;
 		uint32					m_streamPos = 0;
 		uint32					m_streamBufferSize = 0;
+		COMMAND					m_pendingCommand = COMMAND_NONE;
 	};
 
 	typedef std::shared_ptr<CCdvdman> CdvdmanPtr;
