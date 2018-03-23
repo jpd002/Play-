@@ -60,9 +60,10 @@ namespace Iop
 
 		struct SIFCMDDATA
 		{
+			//There might be an additional GP member in here, but some games such as
+			//Shadow Hearts 2 rely on the fact that this structure is 8 bytes long
 			uint32		sifCmdHandler;
 			uint32		data;
-			uint32		gp;
 		};
 		
 		enum
