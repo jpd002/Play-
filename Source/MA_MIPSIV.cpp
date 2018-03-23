@@ -854,9 +854,12 @@ void CMA_MIPSIV::JALR()
 	m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRS].nV[0]));
 	m_codeGen->PullRel(offsetof(CMIPS, m_State.nDelayedJumpAddr));
 
-	//Save address in register
-	m_codeGen->PushCst(m_nAddress + 8);
-	m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[0]));
+	if(m_nRD != 0)
+	{
+		//Save address in register
+		m_codeGen->PushCst(m_nAddress + 8);
+		m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[0]));
+	}
 }
 
 //0A
