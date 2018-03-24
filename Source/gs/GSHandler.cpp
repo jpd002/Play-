@@ -1243,9 +1243,9 @@ void CGSHandler::ReadCLUT8(const TEX0& tex0)
 
 bool CGSHandler::IsCompatibleFramebufferPSM(unsigned int psmFb, unsigned int psmTex)
 {
-	if(psmTex == CGSHandler::PSMCT24)
+	if((psmTex == CGSHandler::PSMCT32) || (psmTex == CGSHandler::PSMCT24))
 	{
-		return (psmFb == CGSHandler::PSMCT24) || (psmFb == CGSHandler::PSMCT32);
+		return (psmFb == CGSHandler::PSMCT32) || (psmFb == CGSHandler::PSMCT24);
 	}
 	else
 	{
