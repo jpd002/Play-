@@ -35,6 +35,7 @@ CGSH_Direct3D9::TEXTURE_INFO CGSH_Direct3D9::LoadTexture(const TEX0& tex0, uint3
 	{
 		if(candidateFramebuffer->m_basePtr == tex0.GetBufPtr() &&
 			candidateFramebuffer->m_width == tex0.GetBufWidth() &&
+			IsCompatibleFramebufferPSM(candidateFramebuffer->m_psm, tex0.nPsm) &&
 			candidateFramebuffer->m_canBeUsedAsTexture)
 		{
 			float scaleRatioX = static_cast<float>(tex0.GetWidth()) / static_cast<float>(candidateFramebuffer->m_width);

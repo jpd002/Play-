@@ -32,18 +32,6 @@ void CGSH_OpenGL::SetupTextureUpdaters()
 	m_textureUpdater[PSMT4HH]		= &CGSH_OpenGL::TexUpdater_Psm48H<28, 0x0F>;
 }
 
-bool CGSH_OpenGL::IsCompatibleFramebufferPSM(unsigned int psmFb, unsigned int psmTex)
-{
-	if(psmTex == CGSHandler::PSMCT24)
-	{
-		return (psmFb == CGSHandler::PSMCT24) || (psmFb == CGSHandler::PSMCT32);
-	}
-	else
-	{
-		return (psmFb == psmTex);
-	}
-}
-
 uint32 CGSH_OpenGL::GetFramebufferBitDepth(uint32 psm)
 {
 	if((psm == PSMCT32) || (psm == PSMCT24))

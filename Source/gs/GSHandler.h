@@ -804,6 +804,8 @@ protected:
 	void									ReadCLUT4(const TEX0&);
 	void									ReadCLUT8(const TEX0&);
 
+	static bool								IsCompatibleFramebufferPSM(unsigned int, unsigned int);
+
 	bool									m_loggingEnabled;
 
 	uint64									m_nPMODE;			//0x12000000

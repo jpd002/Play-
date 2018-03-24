@@ -1241,6 +1241,18 @@ void CGSHandler::ReadCLUT8(const TEX0& tex0)
 	}
 }
 
+bool CGSHandler::IsCompatibleFramebufferPSM(unsigned int psmFb, unsigned int psmTex)
+{
+	if(psmTex == CGSHandler::PSMCT24)
+	{
+		return (psmFb == CGSHandler::PSMCT24) || (psmFb == CGSHandler::PSMCT32);
+	}
+	else
+	{
+		return (psmFb == psmTex);
+	}
+}
+
 void CGSHandler::MakeLinearCLUT(const TEX0& tex0, std::array<uint32, 256>& clut) const
 {
 	static const auto RGBA16ToRGBA32 =

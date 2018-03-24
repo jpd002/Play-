@@ -332,7 +332,6 @@ private:
 	TECHNIQUE						GetTechniqueFromTest(const uint64&);
 
 	void							SetupTexture(uint64, uint64, uint64, uint64, uint64);
-	static bool						IsCompatibleFramebufferPSM(unsigned int, unsigned int);
 	static uint32					GetFramebufferBitDepth(uint32);
 	static TEXTUREFORMAT_INFO		GetTextureFormatInfo(uint32);
 
