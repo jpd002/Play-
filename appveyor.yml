@@ -63,6 +63,8 @@ build_script:
     mkdir %REPO_COMMIT_SHORT%
     
     move Play-Build\Play\installer_win32\*.exe %REPO_COMMIT_SHORT%
+    
+    move Play-Build\Play\tools\PsfPlayer\installer_win32\*.exe %REPO_COMMIT_SHORT%
 
 artifacts:
 - path: $(REPO_COMMIT_SHORT)\*.exe
