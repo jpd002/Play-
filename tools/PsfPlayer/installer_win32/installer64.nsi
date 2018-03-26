@@ -63,12 +63,10 @@ Section "PsfPlayer (required)"
   SetOutPath $INSTDIR
   
   ; Put file there
-  File "..\build_win32\x64\Release\PsfPlayer.exe"
-  File "..\build_win32\x64\Release\SH_WaveOut.dll"
-  File "..\build_win32\x64\Release\SH_OpenAL.dll"
-  File "..\build_win32\x64\Release\SH_XAudio2.dll"
-  File "..\build_win32\x64\Release\TDEmu64.dll"
-  File "..\build_win32\x64\Release\zlib.dll"
+  File "..\..\..\build\tools\PsfPlayer\Source\win32_ui\Release\PsfPlayer.exe"
+  File "..\..\..\build\tools\PsfPlayer\Source\win32_ui\Release\SH_WaveOut.dll"
+  File "..\..\..\build\tools\PsfPlayer\Source\win32_ui\Release\SH_XAudio2.dll"
+  File "..\..\..\build\tools\PsfPlayer\Source\win32_ui\Release\TDEmu64.dll"
   File "..\changelog.html"
   
   ; Write the installation path into the registry
@@ -85,7 +83,7 @@ Section "PsfPlayer (required)"
   
 SectionEnd
 
-!include "..\..\..\installer_win32\vcredist2013_x64.nsh"
+!include "..\..\..\installer_win32\vcredist2015_x64.nsh"
 
 ; Optional section (can be disabled by the user)
 Section "Start Menu Shortcuts"
@@ -112,7 +110,6 @@ Section "Uninstall"
   ; Remove files and uninstaller
   Delete $INSTDIR\PsfPlayer.exe
   Delete $INSTDIR\SH_WaveOut.dll
-  Delete $INSTDIR\SH_OpenAL.dll
   Delete $INSTDIR\SH_XAudio2.dll
   Delete $INSTDIR\TDEmu64.dll
   Delete $INSTDIR\changelog.html
