@@ -50,8 +50,8 @@ public:
 
 	COsStructManager(StructType* structBase, uint32 idBase, uint32 structMax)
 	: m_structBase(structBase)
-	, m_idBase(idBase)
 	, m_structMax(structMax)
+	, m_idBase(idBase)
 	{
 		assert(m_idBase != 0);
 	}
