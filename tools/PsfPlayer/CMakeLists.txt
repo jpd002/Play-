@@ -21,6 +21,10 @@ if(TARGET_PLATFORM_WIN32 AND NOT USE_QT)
 	add_subdirectory(Source/win32_ui/)
 endif(TARGET_PLATFORM_WIN32 AND NOT USE_QT)
 
+if(TARGET_PLATFORM_IOS)
+	add_subdirectory(Source/ios_ui/)
+endif(TARGET_PLATFORM_IOS)
+
 if(USE_QT)
 	add_subdirectory(Source/unix_ui/)
 endif (USE_QT)
