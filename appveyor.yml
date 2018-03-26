@@ -50,10 +50,11 @@ build_script:
     
     cmake --build . --config %CONFIG_TYPE%
     
-    
     cd ..
     
     "C:\Program Files (x86)\NSIS\makensis.exe" ./installer_win32/%INSTALLER_SCRIPT%
+    
+    "C:\Program Files (x86)\NSIS\makensis.exe" ./tools/PsfPlayer/installer_win32/%INSTALLER_SCRIPT%
     
     cd ..
     
