@@ -63,7 +63,7 @@ travis_script()
             cmake --build . --config Release
             appdmg ../installer_macosx/spec.json Play.dmg
         elif [ "$TARGET_OS" = "IOS" ]; then
-            cmake .. -G"$BUILD_TYPE" -DCMAKE_TOOLCHAIN_FILE=../../Dependencies/cmake-ios/ios.cmake -DTARGET_IOS=ON
+            cmake .. -G"$BUILD_TYPE" -DCMAKE_TOOLCHAIN_FILE=../../Dependencies/cmake-ios/ios.cmake -DTARGET_IOS=ON -DBUILD_PSFPLAYER=ON
             cmake --build . --config Release
             codesign -s "-" Source/ui_ios/Release-iphoneos/Play.app
             pushd ..
