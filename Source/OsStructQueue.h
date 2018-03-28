@@ -142,6 +142,6 @@ public:
 	}
 
 private:
-	uint32*			m_headIdPtr = nullptr;
 	StructManager&	m_items;
+	uint32*			m_headIdPtr = nullptr;
 };

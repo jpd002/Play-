@@ -4,9 +4,9 @@
 #include "lexical_cast_ex.h"
 
 CMIPSAssembler::CMIPSAssembler(uint32* ptr)
-: m_nextLabelId(1)
-, m_ptr(ptr)
+: m_ptr(ptr)
 , m_startPtr(ptr)
+, m_nextLabelId(1)
 {
 
 }
