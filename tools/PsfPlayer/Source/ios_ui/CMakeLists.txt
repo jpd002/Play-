@@ -43,7 +43,13 @@ set (OSX_HEADERS
 )
 
 set (OSX_RES
+	${CMAKE_CURRENT_SOURCE_DIR}/Icon.png
+	${CMAKE_CURRENT_SOURCE_DIR}/Images.xcassets
+	${CMAKE_CURRENT_SOURCE_DIR}/PlaylistBarIcon.png
+	${CMAKE_CURRENT_SOURCE_DIR}/PlaylistBarIcon@2x.png
 	${CMAKE_CURRENT_SOURCE_DIR}/Storyboard.storyboard
+	${CMAKE_CURRENT_SOURCE_DIR}/TrackInfoBarIcon.png
+	${CMAKE_CURRENT_SOURCE_DIR}/TrackInfoBarIcon@2x.png
 )
 
 # Add our Executable
@@ -73,5 +79,7 @@ set_target_properties(
 		MACOSX_BUNDLE_COPYRIGHT "Copyright (c) 2006-2017, Jean-Philip Desjardins. All Rights Reserved."
 		MACOSX_BUNDLE_INFO_PLIST "${CMAKE_CURRENT_SOURCE_DIR}/Info.plist.in"
 		XCODE_ATTRIBUTE_TARGETED_DEVICE_FAMILY "1,2"
+		XCODE_ATTRIBUTE_ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME "LaunchImage"
 		RESOURCE "${OSX_RES}"
 )
+
