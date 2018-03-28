@@ -7,6 +7,8 @@ set(CMAKE_MODULE_PATH
 include(Header)
 
 project(PsfPlayer)
+set(PSF_PROJECT_NAME "PsfPlayer")
+set(PSF_PROJECT_VERSION "1.05")
 
 if(NOT TARGET PsfCore)
 	add_subdirectory(
@@ -58,17 +60,18 @@ target_include_directories(PsfPlayer PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 
 # Set a custom plist file for the app bundle
 # NOTE: for these values to be used Info.plist has to be edited
+string(TIMESTAMP DATE "%Y-%m-%d")
 set_target_properties(
 	PsfPlayer
 	PROPERTIES
 		MACOSX_BUNDLE_INFO_STRING "${PSF_PROJECT_NAME}"
-		MACOSX_BUNDLE_GUI_IDENTIFIER "com.virtualapplications.psfplayer"
+		MACOSX_BUNDLE_GUI_IDENTIFIER "com.virtualapplications.PsfPlayer"
 		MACOSX_BUNDLE_LONG_VERSION_STRING "${PSF_PROJECT_NAME} Version ${PSF_PROJECT_VERSION}"
 		MACOSX_BUNDLE_BUNDLE_NAME ${PSF_PROJECT_NAME}
 		MACOSX_BUNDLE_SHORT_VERSION_STRING "${PSF_PROJECT_VERSION}"
-		MACOSX_BUNDLE_BUNDLE_VERSION ${PSF_PROJECT_NAME}
+		MACOSX_BUNDLE_BUNDLE_VERSION ${DATE}
 		MACOSX_BUNDLE_COPYRIGHT "Copyright (c) 2006-2017, Jean-Philip Desjardins. All Rights Reserved."
 		MACOSX_BUNDLE_INFO_PLIST "${CMAKE_CURRENT_SOURCE_DIR}/Info.plist.in"
+		XCODE_ATTRIBUTE_TARGETED_DEVICE_FAMILY "1,2"
 		RESOURCE "${OSX_RES}"
 )
-
