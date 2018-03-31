@@ -7,7 +7,7 @@ CSpuRegViewPanel::CSpuRegViewPanel(HWND parentWnd, const TCHAR* title)
 {
 	SetClassPtr();
 
-	m_regView = new CSpuRegView(m_hWnd, GetClientRect(), title);
+	m_regView = new CSpuRegView(m_hWnd, title);
 
 	RefreshLayout();
 }

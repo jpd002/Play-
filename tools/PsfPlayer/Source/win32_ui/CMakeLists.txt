@@ -32,6 +32,11 @@ if(NOT TARGET tdemu)
 endif()
 list(APPEND PROJECT_LIBS tdemu)
 
+find_package(DirectX9 REQUIRED)
+list(APPEND PROJECT_LIBS ${DirectX_D3D9_LIBRARY})
+list(APPEND PROJECT_LIBS ${DirectX_D3DX9_LIBRARY})
+include_directories(${DirectX_D3D9_INCLUDE_DIR} ${DirectX_D3DX9_INCLUDE_DIR})
+
 set(AUDIO_LIBS)
 find_package(OpenAL)
 if(OPENAL_FOUND)
