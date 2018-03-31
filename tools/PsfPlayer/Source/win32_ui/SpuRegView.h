@@ -9,7 +9,7 @@ class CSpuRegView : public CDirectXControl
 {
 public:
 							CSpuRegView(HWND, const TCHAR*);
-	virtual					~CSpuRegView();
+	virtual					~CSpuRegView() = default;
 
 	void					SetSpu(Iop::CSpuBase*);
 

@@ -23,11 +23,6 @@ CSpuRegView::CSpuRegView(HWND parentWnd, const TCHAR* title)
 	SetTimer(m_hWnd, NULL, 16, NULL);
 }
 
-CSpuRegView::~CSpuRegView()
-{
-
-}
-
 long CSpuRegView::OnSize(unsigned int type, unsigned int x, unsigned int y)
 {
 	InitializeScrollBars();
