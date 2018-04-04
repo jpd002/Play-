@@ -64,6 +64,7 @@ else()
 endif()
 
 if(DEBUGGER_INCLUDED)
+	add_definitions("-DFUNCTIONSVIEW_STANDALONE")
 	set(DEBUG_SRC
 		../../../../Source/ui_win32/DebugExpressionEvaluator.cpp
 		../../../../Source/ui_win32/DisAsm.cpp
