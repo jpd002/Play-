@@ -57,18 +57,6 @@ add_library(SH_WaveOut SHARED SH_WaveOut.cpp SH_WaveOut/DllMain.cpp)
 target_link_libraries(SH_WaveOut PRIVATE "winmm.lib" Framework)
 list(APPEND AUDIO_LIBS SH_WaveOut)
 
-ENABLE_LANGUAGE(ASM_MASM)
-
-if(CMAKE_BUILD_TYPE MATCHES DEBUG)
-	set(DEBUG_SRC
-		../../../../Source/ui_win32/CallStackWnd.cpp
-		../../../../Source/ui_win32/Debugger.cpp
-		../../../../Source/ui_win32/DebugView.cpp
-		../../../../Source/ui_win32/FunctionsView.cpp
-		../../../../Source/ui_win32/ThreadsViewWnd.cpp
-	)
-endif()
-
 if(TARGET_PLATFORM_WIN32_X64)
 	set(MANIFEST PsfPlayer-x64.manifest)
 else()
