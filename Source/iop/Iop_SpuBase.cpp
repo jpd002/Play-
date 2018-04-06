@@ -503,6 +503,7 @@ uint32 CSpuBase::ReceiveDma(uint8* buffer, uint32 blockSize, uint32 blockAmount)
 			blockAmount = std::min<uint32>(blockAmount, 0x10);
 			return blockAmount;
 		}
+		assert((m_ctrl & CONTROL_DMA) == CONTROL_DMA_WRITE);
 		unsigned int blocksTransfered = 0;
 		for(unsigned int i = 0; i < blockAmount; i++)
 		{
