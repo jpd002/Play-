@@ -914,11 +914,17 @@ void CPsxBios::sc_WaitEvent()
 void CPsxBios::sc_TestEvent()
 {
 	uint32 eventId = m_cpu.m_State.nGPR[SC_PARAM0].nV0;
-	EVENT* eventPtr = m_events[eventId];
-	if(eventPtr != NULL)
+	auto eventPtr = m_events[eventId];
+
+	assert(eventPtr);
+	if(!eventPtr)
 	{
-		m_cpu.m_State.nGPR[SC_RETURN].nD0 = eventPtr->fired;
+		m_cpu.m_State.nGPR[SC_RETURN].nD0 = 0;
+		return;
 	}
+
+	m_cpu.m_State.nGPR[SC_RETURN].nD0 = eventPtr->fired;
+	eventPtr->fired = 0;
 }
 
 //B0 - 0C
