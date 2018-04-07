@@ -522,7 +522,6 @@ void CIopBios::FinishModuleStart()
 
 	if(!stopRequest)
 	{
-		assert(moduleResidentState != MODULE_RESIDENT_STATE::NO_RESIDENT_END);
 		assert(loadedModule->state == MODULE_STATE::STOPPED);
 		loadedModule->state			= MODULE_STATE::STARTED;
 		loadedModule->residentState	= moduleResidentState;
