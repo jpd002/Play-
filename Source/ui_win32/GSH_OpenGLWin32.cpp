@@ -71,6 +71,11 @@ void CGSH_OpenGLWin32::InitializeImpl()
 	//Clear any error that might rise from GLEW getting function pointers
 	glGetError();
 
+	if(wglSwapIntervalEXT)
+	{
+		wglSwapIntervalEXT(-1);
+	}
+
 	CGSH_OpenGL::InitializeImpl();
 }
 
