@@ -1,9 +1,9 @@
-#include <boost/lexical_cast.hpp>
 #include <assert.h>
 #include "Iop_Spu2_Core.h"
 #include "../Log.h"
+#include "string_format.h"
 
-#define LOG_NAME_PREFIX ("iop_spu2_core_")
+#define LOG_NAME_FORMAT ("iop_spu2_core_%d")
 #define SPU_BASE_SAMPLING_RATE (48000)
 
 using namespace Iop;
@@ -56,7 +56,7 @@ CCore::CCore(unsigned int coreId, CSpuBase& spuBase)
 : m_coreId(coreId)
 , m_spuBase(spuBase)
 {
-	m_logName = LOG_NAME_PREFIX + boost::lexical_cast<std::string>(m_coreId);
+	m_logName = string_format(LOG_NAME_FORMAT, m_coreId);
 
 	m_readDispatch.core		= &CCore::ReadRegisterCore;
 	m_readDispatch.channel	= &CCore::ReadRegisterChannel;
