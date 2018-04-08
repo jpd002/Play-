@@ -62,6 +62,12 @@ target_link_libraries(PsfPlayer ${COREGRAPHICS_LIBRARY})
 target_link_libraries(PsfPlayer ${MEDIAPLAYER_LIBRARY})
 target_link_libraries(PsfPlayer ${PROJECT_LIBS} "-ObjC")
 
+# AOT stuff
+if(USE_AOT_CACHE)
+	target_link_libraries(PsfPlayer "${CMAKE_CURRENT_SOURCE_DIR}/../../build_aot/output/macho/$(CURRENT_ARCH)/PsfBlocks.o")
+	set_target_properties(PsfPlayer PROPERTIES XCODE_ATTRIBUTE_ENABLE_BITCODE "NO")
+endif()
+
 target_include_directories(PsfPlayer PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 
 # Set a custom plist file for the app bundle
