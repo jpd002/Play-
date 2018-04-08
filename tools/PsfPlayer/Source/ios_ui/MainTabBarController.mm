@@ -98,7 +98,13 @@
 	
 	m_virtualMachine->Pause();
 	m_virtualMachine->Reset();
-		
+	
+	//Force all views to be loaded
+	for(UIViewController* viewController in self.viewControllers)
+	{
+		viewController.view;
+	}
+	
 	m_playlistViewController = (PlaylistViewController*)self.viewControllers[0];
 	m_playlistViewController.delegate = self;
 	
