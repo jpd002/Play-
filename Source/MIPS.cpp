@@ -12,10 +12,6 @@ const char* CMIPS::m_sGPRName[] =
 };
 
 CMIPS::CMIPS(MEMORYMAP_ENDIANESS nEnd) 
-: m_pAddrTranslator(nullptr)
-, m_pArch(nullptr)
-, m_analysis(nullptr)
-, m_pMemoryMap(nullptr)
 {
 	m_analysis = new CMIPSAnalysis(this);
 	switch(nEnd)
@@ -28,10 +24,10 @@ CMIPS::CMIPS(MEMORYMAP_ENDIANESS nEnd)
 		break;
 	}
 
-	m_pCOP[0] = NULL;
-	m_pCOP[1] = NULL;
-	m_pCOP[2] = NULL;
-	m_pCOP[3] = NULL;
+	m_pCOP[0] = nullptr;
+	m_pCOP[1] = nullptr;
+	m_pCOP[2] = nullptr;
+	m_pCOP[3] = nullptr;
 
 	Reset();
 }

@@ -137,16 +137,16 @@ public:
 
 	void*						m_vuMem = nullptr;
 
-	CMIPSArchitecture*			m_pArch;
+	CMIPSArchitecture*			m_pArch = nullptr;
 	CMIPSCoprocessor*			m_pCOP[4];
-	CMemoryMap*					m_pMemoryMap;
+	CMemoryMap*					m_pMemoryMap = nullptr;
 	BreakpointSet				m_breakpoints;
 
-	CMIPSAnalysis*				m_analysis;
+	CMIPSAnalysis*				m_analysis = nullptr;
 	CMIPSTags					m_Comments;
 	CMIPSTags					m_Functions;
 
-	AddressTranslator			m_pAddrTranslator;
+	AddressTranslator			m_pAddrTranslator = nullptr;
 
 	enum REGISTER
 	{
