@@ -151,6 +151,7 @@
 
 -(void)onPrevButtonPress
 {
+	if(!m_playlist) return;
 	if(m_playlist->GetItemCount() == 0) return;
 	if(m_repeatMode == PLAYLIST_SHUFFLE)
 	{
@@ -173,6 +174,7 @@
 
 -(void)onNextButtonPress
 {
+	if(!m_playlist) return;
 	if(m_playlist->GetItemCount() == 0) return;
 	unsigned int itemCount = m_playlist->GetItemCount();
 	if(m_repeatMode == PLAYLIST_SHUFFLE)
