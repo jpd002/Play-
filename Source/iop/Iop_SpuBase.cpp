@@ -528,7 +528,9 @@ uint32 CSpuBase::ReceiveDma(uint8* buffer, uint32 blockSize, uint32 blockAmount)
 
 		uint32 availableBytes = SOUND_INPUT_DATA_SIZE - m_blockWritePtr;
 		uint32 availableBlocks = availableBytes / blockSize;
-		blockAmount = std::min(blockAmount, availableBlocks);
+
+		//Throttle transfer to avoid issues. Fixes problems with Max Payne.
+		blockAmount = std::min({ blockAmount, availableBlocks, 1U });
 
 		uint32 dstAddr = m_soundInputDataAddr + m_blockWritePtr;
 		memcpy(m_ram + dstAddr, buffer, blockAmount * blockSize);
