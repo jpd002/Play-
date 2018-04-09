@@ -165,7 +165,7 @@ uint32 CIoman::Read(uint32 handle, uint32 size, void* buffer)
 	uint32 result = 0xFFFFFFFF;
 	try
 	{
-		Framework::CStream* stream = GetFileStream(handle);
+		auto stream = GetFileStream(handle);
 		if(stream->IsEOF())
 		{
 			result = 0;
@@ -189,7 +189,7 @@ uint32 CIoman::Write(uint32 handle, uint32 size, const void* buffer)
 	uint32 result = 0xFFFFFFFF;
 	try
 	{
-		Framework::CStream* stream = GetFileStream(handle);
+		auto stream = GetFileStream(handle);
 		result = static_cast<uint32>(stream->Write(buffer, size));
 		if((handle == FID_STDOUT) || (handle == FID_STDERR))
 		{
@@ -215,7 +215,7 @@ uint32 CIoman::Seek(uint32 handle, uint32 position, uint32 whence)
 	uint32 result = 0xFFFFFFFF;
 	try
 	{
-		Framework::CStream* stream = GetFileStream(handle);
+		auto stream = GetFileStream(handle);
 		switch(whence)
 		{
 		case SEEK_DIR_SET:
