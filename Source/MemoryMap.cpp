@@ -81,7 +81,11 @@ const CMemoryMap::MEMORYMAPELEMENT* CMemoryMap::GetMap(const MemoryMapListType& 
 uint8 CMemoryMap::GetByte(uint32 nAddress)
 {
 	const auto e = GetMap(m_readMap, nAddress);
-	if(!e) return 0xCC;
+	if(!e)
+	{
+		CLog::GetInstance().Print(LOG_NAME, "Read byte from unmapped memory (0x%08X).\r\n", nAddress);
+		return 0xCC;
+	}
 	switch(e->nType)
 	{
 	case MEMORYMAP_TYPE_MEMORY:
@@ -102,7 +106,7 @@ void CMemoryMap::SetByte(uint32 nAddress, uint8 nValue)
 	const auto e = GetMap(m_writeMap, nAddress);
 	if(!e)
 	{
-		CLog::GetInstance().Print(LOG_NAME, "Wrote to unmapped memory (0x%08X, 0x%04X).\r\n", nAddress, nValue);
+		CLog::GetInstance().Print(LOG_NAME, "Wrote byte to unmapped memory (0x%08X, 0x%02X).\r\n", nAddress, nValue);
 		return;
 	}
 	switch(e->nType)
@@ -127,7 +131,11 @@ uint16 CMemoryMap_LSBF::GetHalf(uint32 nAddress)
 {
 	assert((nAddress & 0x01) == 0);
 	const auto e = GetMap(m_readMap, nAddress);
-	if(!e) return 0xCCCC;
+	if(!e)
+	{
+		CLog::GetInstance().Print(LOG_NAME, "Read half from unmapped memory (0x%08X).\r\n", nAddress);
+		return 0xCCCC;
+	}
 	switch(e->nType)
 	{
 	case MEMORYMAP_TYPE_MEMORY:
@@ -143,7 +151,11 @@ uint32 CMemoryMap_LSBF::GetWord(uint32 nAddress)
 {
 	assert((nAddress & 0x03) == 0);
 	const auto e = GetMap(m_readMap, nAddress);
-	if(!e) return 0xCCCCCCCC;
+	if(!e)
+	{
+		CLog::GetInstance().Print(LOG_NAME, "Read word from unmapped memory (0x%08X).\r\n", nAddress);
+		return 0xCCCCCCCC;
+	}
 	switch(e->nType)
 	{
 	case MEMORYMAP_TYPE_MEMORY:
@@ -182,7 +194,7 @@ void CMemoryMap_LSBF::SetHalf(uint32 nAddress, uint16 nValue)
 	const auto e = GetMap(m_writeMap, nAddress);
 	if(!e)
 	{
-		CLog::GetInstance().Print(LOG_NAME, "Wrote to unmapped memory (0x%08X, 0x%04X).\r\n", nAddress, nValue);
+		CLog::GetInstance().Print(LOG_NAME, "Wrote half to unmapped memory (0x%08X, 0x%04X).\r\n", nAddress, nValue);
 		return;
 	}
 	switch(e->nType)
@@ -205,7 +217,7 @@ void CMemoryMap_LSBF::SetWord(uint32 nAddress, uint32 nValue)
 	const auto e = GetMap(m_writeMap, nAddress);
 	if(!e)
 	{
-		CLog::GetInstance().Print(LOG_NAME, "Wrote to unmapped memory (0x%08X, 0x%08X).\r\n", nAddress, nValue);
+		CLog::GetInstance().Print(LOG_NAME, "Wrote word to unmapped memory (0x%08X, 0x%08X).\r\n", nAddress, nValue);
 		return;
 	}
 	switch(e->nType)
