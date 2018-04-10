@@ -256,7 +256,7 @@ void CSIF::SendDMA(void* pData, uint32 nSize)
 
 	m_dmac.SetRegister(CDMAC::D5_MADR, m_nEERecvAddr);
 	m_dmac.SetRegister(CDMAC::D5_QWC,  nQuads);
-	m_dmac.SetRegister(CDMAC::D5_CHCR, 0x00000100);
+	m_dmac.SetRegister(CDMAC::D5_CHCR, CDMAC::CHCR_STR);
 }
 
 void CSIF::LoadState(Framework::CZipArchiveReader& archive)
