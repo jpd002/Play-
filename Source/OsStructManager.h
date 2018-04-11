@@ -83,7 +83,7 @@ public:
 	{
 		for(unsigned int i = 0; i < m_structMax; i++)
 		{
-			if(!m_structBase[i].isValid) 
+			if(!m_structBase[i].isValid)
 			{
 				m_structBase[i].isValid = true;
 				return (i + m_idBase);
