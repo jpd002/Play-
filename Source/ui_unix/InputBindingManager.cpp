@@ -349,8 +349,7 @@ void CInputBindingManager::CSimulatedAxisBinding::ProcessEvent(std::array<uint32
 	{
 		m_key1State = state;
 	}
-
-	if(keyCode == m_key2Binding.id && m_key2Binding.device == device)
+	else if(keyCode == m_key2Binding.id && m_key2Binding.device == device)
 	{
 		m_key2State = state;
 	}
@@ -427,8 +426,8 @@ std::string CInputBindingManager::CSimulatedAxisBinding::GetDescription() const
 
 void CInputBindingManager::CSimulatedAxisBinding::SetValue(uint32 state)
 {
-	m_key1State = state;
-	m_key2State = state;
+	m_key1State = 0;
+	m_key2State = 0;
 }
 
 void CInputBindingManager::CSimulatedAxisBinding::CSimulatedAxisBinding::Save(Framework::CConfig& config, const char* buttonBase) const
