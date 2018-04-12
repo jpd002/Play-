@@ -66,12 +66,11 @@ private:
     struct lastOpenCommand
     {
         BootType type;
-        const char* filename;
-
-        lastOpenCommand(BootType m_type, const char* m_filename) : type(m_type),filename(m_filename){}
-
+		std::string filename;
+		lastOpenCommand() = default;
+        lastOpenCommand(BootType m_type, std::string m_filename) : type(m_type),filename(m_filename){}
     };
-    lastOpenCommand* m_lastOpenCommand = nullptr;
+	lastOpenCommand m_lastOpenCommand;
     QString m_lastpath = QDir::homePath();
 
     QString ReadElementValue(QXmlStreamReader &Rxml);

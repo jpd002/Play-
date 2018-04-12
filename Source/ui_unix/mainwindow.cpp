@@ -163,7 +163,7 @@ void MainWindow::on_actionOpen_Game_triggered()
         {
             try
             {
-                m_lastOpenCommand = new lastOpenCommand(BootType::CD, fileName.toStdString().c_str());
+				m_lastOpenCommand = lastOpenCommand(BootType::CD, fileName.toStdString());
                 BootCDROM();
             } catch( const std::exception& e) {
                 QMessageBox messageBox;
@@ -188,7 +188,7 @@ void MainWindow::on_actionBoot_ELF_triggered()
         {
             try
             {
-                m_lastOpenCommand = new lastOpenCommand(BootType::ELF, fileName.toStdString().c_str());
+				m_lastOpenCommand = lastOpenCommand(BootType::ELF, fileName.toStdString());
                 BootElf(fileName.toStdString().c_str());
             } catch( const std::exception& e) {
                 QMessageBox messageBox;
@@ -224,7 +224,7 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
 {
     if(event->key() != Qt::Key_Escape && m_InputBindingManager != nullptr)
     {
-        m_InputBindingManager->OnInputEventReceived({0}, event->key(), 1);
+		m_InputBindingManager->OnInputEventReceived({0}, event->key(), 1);
     }
 }
 
@@ -406,7 +406,7 @@ void MainWindow::OnExecutableChange()
 void MainWindow::UpdateUI()
 {
     ui->actionPause_when_focus_is_lost->setChecked(m_pauseFocusLost);
-    ui->actionReset->setEnabled(m_lastOpenCommand != nullptr);
+	ui->actionReset->setEnabled(!m_lastOpenCommand.filename.empty());
     SetOpenGlPanelSize();
     SetupSaveLoadStateSlots();
 }
@@ -475,11 +475,11 @@ void MainWindow::on_actionPause_when_focus_is_lost_triggered(bool checked)
 
 void MainWindow::on_actionReset_triggered()
 {
-    if (m_lastOpenCommand != nullptr){
-        if (m_lastOpenCommand->type == BootType::CD){
+	if (!m_lastOpenCommand.filename.empty()){
+		if (m_lastOpenCommand.type == BootType::CD){
             BootCDROM();
-        } else if (m_lastOpenCommand->type == BootType::ELF) {
-            BootElf(m_lastOpenCommand->filename);
+		} else if (m_lastOpenCommand.type == BootType::ELF) {
+			BootElf(m_lastOpenCommand.filename.c_str());
         }
     }
 }
