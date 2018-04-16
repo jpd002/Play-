@@ -608,9 +608,9 @@ void CSpuBase::Render(int16* samples, unsigned int sampleCount, unsigned int sam
 		//Update channels
 		for(unsigned int i = 0; i < 24; i++)
 		{
-			CHANNEL& channel(m_channel[i]);
+			auto& channel(m_channel[i]);
 			if(channel.status == STOPPED) continue;
-			CSampleReader& reader(m_reader[i]);
+			auto& reader(m_reader[i]);
 			if(channel.status == KEY_ON)
 			{
 				reader.SetParams(channel.address, channel.repeat);
