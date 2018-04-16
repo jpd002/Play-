@@ -38,8 +38,6 @@
 #define ONSCREEN_TICKS		(FRAME_TICKS * 9 / 10)
 #define VBLANK_TICKS		(FRAME_TICKS / 10)
 
-#define SPU_UPDATE_TICKS	(PS2::IOP_CLOCK_OVER_FREQ / 1000)
-
 namespace filesystem = boost::filesystem;
 
 CPS2VM::CPS2VM()
@@ -638,12 +636,12 @@ void CPS2VM::UpdateSpu()
 	unsigned int blockOffset = (BLOCK_SIZE * m_currentSpuBlock);
 	int16* samplesSpu0 = m_samples + blockOffset;
 
-	m_iop->m_spuCore0.Render(samplesSpu0, BLOCK_SIZE, 44100);
+	m_iop->m_spuCore0.Render(samplesSpu0, BLOCK_SIZE, DST_SAMPLE_RATE);
 
 	if(m_iop->m_spuCore1.IsEnabled())
 	{
 		int16 samplesSpu1[BLOCK_SIZE];
-		m_iop->m_spuCore1.Render(samplesSpu1, BLOCK_SIZE, 44100);
+		m_iop->m_spuCore1.Render(samplesSpu1, BLOCK_SIZE, DST_SAMPLE_RATE);
 
 		for(unsigned int i = 0; i < BLOCK_SIZE; i++)
 		{
@@ -663,7 +661,7 @@ void CPS2VM::UpdateSpu()
 			{
 				m_soundHandler->RecycleBuffers();
 			}
-			m_soundHandler->Write(m_samples, BLOCK_SIZE * BLOCK_COUNT, 44100);
+			m_soundHandler->Write(m_samples, BLOCK_SIZE * BLOCK_COUNT, DST_SAMPLE_RATE);
 		}
 		m_currentSpuBlock = 0;
 	}

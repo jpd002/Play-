@@ -153,9 +153,13 @@ private:
 
 	OpticalMediaPtr				m_cdrom0;
 
+	//SPU update parameters
 	enum
 	{
-		SAMPLE_COUNT = 44,
+		DST_SAMPLE_RATE = 44100,
+		UPDATE_RATE = 1000,       //Number of SPU updates per second (on PS2 time scale)
+		SPU_UPDATE_TICKS = PS2::IOP_CLOCK_OVER_FREQ / UPDATE_RATE,
+		SAMPLE_COUNT = DST_SAMPLE_RATE / UPDATE_RATE,
 		BLOCK_SIZE = SAMPLE_COUNT * 2,
 		BLOCK_COUNT = 400,
 	};
