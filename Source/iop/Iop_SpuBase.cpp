@@ -1182,12 +1182,10 @@ void CSpuBase::CSampleReader::UnpackSamples(int16* dst)
 	if(flags & 0x01)
 	{
 		m_endFlag = true;
+		m_nextSampleAddr = m_repeatAddr;
 
-		if(flags == 0x03)
-		{
-			m_nextSampleAddr = m_repeatAddr;
-		}
-		else
+		//If flags is in { 0x01, 0x05, 0x07 }, mute channel (Xenogears requires that)
+		if(flags != 0x03)
 		{
 			m_done = true;
 		}
