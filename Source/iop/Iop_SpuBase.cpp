@@ -12,6 +12,8 @@ using namespace Iop;
 #define TIME_SCALE (0x1000)
 #define LOG_NAME ("iop_spubase")
 
+#define INVALID_ADDRESS (~0UL)
+
 #define STATE_PATH_FORMAT					("iop_spu/spu_%d.xml")
 #define STATE_REGS_CTRL						("CTRL")
 #define STATE_REGS_IRQADDR					("IRQADDR")
@@ -173,7 +175,7 @@ void CSpuBase::Reset()
 	m_channelOn.f = 0;
 	m_channelReverb.f = 0;
 	m_reverbTicks = 0;
-	m_irqAddr = 0;
+	m_irqAddr = INVALID_ADDRESS;
 	m_irqPending = false;
 	m_transferMode = 0;
 	m_transferAddr = 0;
@@ -310,7 +312,7 @@ void CSpuBase::SetControl(uint16 value)
 	m_ctrl = value;
 	if((m_ctrl & CONTROL_IRQ) == 0)
 	{
-		m_irqPending = false;
+		ClearIrqPending();
 	}
 }
 
@@ -596,6 +598,7 @@ void CSpuBase::MixSamples(int32 inputSample, int32 volumeLevel, int16* output)
 void CSpuBase::Render(int16* samples, unsigned int sampleCount, unsigned int sampleRate)
 {
 	bool updateReverb = m_reverbEnabled && (m_ctrl & CONTROL_REVERB);
+	bool checkIrqs = (m_ctrl & CONTROL_IRQ) && (m_irqAddr != INVALID_ADDRESS);
 
 	assert((sampleCount & 0x01) == 0);
 	//ticks are 44100Hz ticks
@@ -609,7 +612,7 @@ void CSpuBase::Render(int16* samples, unsigned int sampleCount, unsigned int sam
 		for(unsigned int i = 0; i < 24; i++)
 		{
 			auto& channel(m_channel[i]);
-			if(channel.status == STOPPED) continue;
+			if((channel.status == STOPPED) && !checkIrqs) continue;
 			auto& reader(m_reader[i]);
 			if(channel.status == KEY_ON)
 			{
@@ -624,7 +627,9 @@ void CSpuBase::Render(int16* samples, unsigned int sampleCount, unsigned int sam
 				{
 					channel.status = STOPPED;
 					channel.adsrVolume = 0;
-					continue;
+					reader.ClearIsDone();
+					//No point in continuing if we don't need to check interrupts
+					if(!checkIrqs) continue;
 				}
 				if(reader.DidChangeRepeat())
 				{
@@ -642,7 +647,7 @@ void CSpuBase::Render(int16* samples, unsigned int sampleCount, unsigned int sam
 			reader.GetSamples(&readSample, 1, sampleRate);
 			channel.current = reader.GetCurrent();
 
-			if((m_ctrl & CONTROL_IRQ) && reader.GetIrqPending())
+			if(checkIrqs && reader.GetIrqPending())
 			{
 				m_irqPending = true;
 			}
@@ -979,7 +984,7 @@ void CSpuBase::CSampleReader::Reset()
 {
 	m_nextSampleAddr = 0;
 	m_repeatAddr = 0;
-	m_irqAddr = 0;
+	m_irqAddr = INVALID_ADDRESS;
 	memset(m_buffer, 0, sizeof(m_buffer));
 	m_pitch = 0;
 	m_srcSampleIdx = 0;
@@ -1108,12 +1113,6 @@ void CSpuBase::CSampleReader::AdvanceBuffer()
 
 void CSpuBase::CSampleReader::UnpackSamples(int16* dst)
 {
-	if(m_done)
-	{
-		memset(dst, 0, sizeof(int16) * BUFFER_SAMPLES);
-		return;
-	}
-
 	int32 workBuffer[BUFFER_SAMPLES];
 
 	uint8* nextSample = m_ram + m_nextSampleAddr;
@@ -1215,6 +1214,11 @@ void CSpuBase::CSampleReader::SetIrqAddress(uint32 irqAddr)
 bool CSpuBase::CSampleReader::IsDone() const
 {
 	return m_done;
+}
+
+void CSpuBase::CSampleReader::ClearIsDone()
+{
+	m_done = false;
 }
 
 bool CSpuBase::CSampleReader::GetEndFlag() const

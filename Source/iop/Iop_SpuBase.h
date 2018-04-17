@@ -249,6 +249,7 @@ namespace Iop
 			uint32			GetCurrent() const;
 			void			SetIrqAddress(uint32);
 			bool			IsDone() const;
+			void			ClearIsDone();
 			bool			GetEndFlag() const;
 			void			ClearEndFlag();
 			bool			GetIrqPending() const;
