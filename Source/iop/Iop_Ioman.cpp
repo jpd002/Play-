@@ -3,6 +3,7 @@
 #include "StdStream.h"
 #include "../Log.h"
 #include <stdexcept>
+#include <cctype>
 
 using namespace Iop;
 
@@ -12,6 +13,13 @@ using namespace Iop;
 
 #define FUNCTION_ADDDRV    "AddDrv"
 #define FUNCTION_DELDRV    "DelDrv"
+
+static std::string RightTrim(std::string inputString)
+{
+	auto nonSpaceEnd = std::find_if(inputString.rbegin(), inputString.rend(), [] (int ch) { return !std::isspace(ch); });
+	inputString.erase(nonSpaceEnd.base(), inputString.end());
+	return inputString;
+}
 
 CIoman::CIoman(uint8* ram)
 : m_ram(ram)
@@ -119,6 +127,8 @@ uint32 CIoman::Open(uint32 flags, const char* path)
 		{
 			throw std::runtime_error("Device not found.");
 		}
+		//Some games (Street Fighter EX3) provide paths with trailing spaces
+		devicePath = RightTrim(devicePath);
 		auto stream = deviceIterator->second->GetFile(flags, devicePath.c_str());
 		if(!stream)
 		{
