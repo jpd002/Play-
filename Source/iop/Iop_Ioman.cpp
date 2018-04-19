@@ -107,13 +107,13 @@ uint32 CIoman::Open(uint32 flags, const char* path)
 	try
 	{
 		std::string fullPath(path);
-		std::string::size_type position = fullPath.find(":");
+		auto position = fullPath.find(":");
 		if(position == std::string::npos) 
 		{
 			throw std::runtime_error("Invalid path.");
 		}
-		std::string deviceName(fullPath.begin(), fullPath.begin() + position);
-		std::string devicePath(fullPath.begin() + position + 1, fullPath.end());
+		auto deviceName = std::string(fullPath.begin(), fullPath.begin() + position);
+		auto devicePath = std::string(fullPath.begin() + position + 1, fullPath.end());
 		auto deviceIterator = m_devices.find(deviceName);
 		if(deviceIterator == m_devices.end())
 		{
