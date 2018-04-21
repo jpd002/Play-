@@ -9,6 +9,11 @@ travis_before_install()
         sudo apt-get update -qq
         sudo apt-get install -qq qt56base gcc-5 g++-5 libalut-dev libevdev-dev
         curl -sSL https://cmake.org/files/v3.8/cmake-3.8.1-Linux-x86_64.tar.gz | sudo tar -xzC /opt
+    elif [ "$TARGET_OS" = "Linux_Clang_Format" ]; then
+        wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | sudo apt-key add -
+        sudo apt-add-repository -y "deb http://apt.llvm.org/trusty/ llvm-toolchain-trusty-3.4 main"
+        sudo apt-get update -qq
+        sudo apt-get install -qq clang-format-3.4
     elif [ "$TARGET_OS" = "OSX" ]; then
         sudo npm install -g appdmg
     elif [ "$TARGET_OS" = "IOS" ]; then
@@ -48,6 +53,12 @@ travis_script()
         ./gradlew
         ./gradlew assembleRelease
         popd 
+    elif [ "$TARGET_OS" = "Linux_Clang_Format" ]; then
+        find ./Source/ ./tools/ -iname *.h -o -iname *.cpp -o -iname *.m  -iname *.mm | xargs clang-format -output-replacements-xml | grep -m 1 "<replacement " >/dev/null
+        if [ $? -ne 1 ]; then
+            echo "Please Run clang-format on your changes";
+            exit -1;
+        fi
     else
         mkdir build
         pushd build
