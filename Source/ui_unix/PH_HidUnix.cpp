@@ -1,11 +1,10 @@
 #include "PH_HidUnix.h"
-#include <stdexcept>
 #include "AppConfig.h"
+#include <stdexcept>
 
 CPH_HidUnix::CPH_HidUnix(CInputBindingManager* inputBindingManager)
- : m_inputManager(inputBindingManager)
+    : m_inputManager(inputBindingManager)
 {
-
 }
 
 CPH_HidUnix::~CPH_HidUnix()
@@ -15,17 +14,18 @@ CPH_HidUnix::~CPH_HidUnix()
 void CPH_HidUnix::Update(uint8* ram)
 {
 	for(auto listenerIterator(std::begin(m_listeners));
-		listenerIterator != std::end(m_listeners); listenerIterator++)
+	    listenerIterator != std::end(m_listeners); listenerIterator++)
 	{
 		auto* listener(*listenerIterator);
 
 		for(unsigned int i = 0; i < PS2::CControllerInfo::MAX_BUTTONS; i++)
 		{
-			auto button = static_cast<PS2::CControllerInfo::BUTTON>(i);
+			auto        button = static_cast<PS2::CControllerInfo::BUTTON>(i);
 			const auto& binding = m_inputManager->GetBinding(button);
-			if(!binding) continue;
+			if(!binding)
+				continue;
 			uint32 value = binding->GetValue();
-			auto currentButtonId = static_cast<PS2::CControllerInfo::BUTTON>(i);
+			auto   currentButtonId = static_cast<PS2::CControllerInfo::BUTTON>(i);
 			if(PS2::CControllerInfo::IsAxis(currentButtonId))
 			{
 				listener->SetAxisState(0, currentButtonId, value & 0xFF, ram);

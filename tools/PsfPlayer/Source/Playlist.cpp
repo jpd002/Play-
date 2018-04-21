@@ -1,41 +1,38 @@
-#include <boost/filesystem/operations.hpp>
-#include <boost/filesystem/path.hpp>
+#include "Playlist.h"
 #include "StdStream.h"
+#include "StdStreamUtils.h"
+#include "Utf8.h"
 #include "path_uncomplete.h"
+#include "stricmp.h"
 #include "string_cast.h"
 #include "xml/Parser.h"
-#include "xml/Writer.h"
 #include "xml/Utils.h"
-#include "Utf8.h"
-#include "Playlist.h"
-#include "stricmp.h"
-#include "StdStreamUtils.h"
+#include "xml/Writer.h"
+#include <boost/filesystem/operations.hpp>
+#include <boost/filesystem/path.hpp>
 
-#define PLAYLIST_NODE_TAG				"Playlist"
-#define PLAYLIST_ITEM_NODE_TAG			"Item"
-#define PLAYLIST_ITEM_PATH_ATTRIBUTE	("Path")
-#define PLAYLIST_ITEM_TITLE_ATTRIBUTE	("Title")
-#define PLAYLIST_ITEM_LENGTH_ATTRIBUTE	("Length")
+#define PLAYLIST_NODE_TAG "Playlist"
+#define PLAYLIST_ITEM_NODE_TAG "Item"
+#define PLAYLIST_ITEM_PATH_ATTRIBUTE ("Path")
+#define PLAYLIST_ITEM_TITLE_ATTRIBUTE ("Title")
+#define PLAYLIST_ITEM_LENGTH_ATTRIBUTE ("Length")
 
 const char* CPlaylist::g_loadableExtensions[] =
-{
-	"psf",
-	"minipsf",
-	"psf2",
-	"minipsf2",
-	"psfp",
-	"minipsfp"
-};
+    {
+        "psf",
+        "minipsf",
+        "psf2",
+        "minipsf2",
+        "psfp",
+        "minipsfp"};
 
 CPlaylist::CPlaylist()
-: m_currentItemId(0)
+    : m_currentItemId(0)
 {
-
 }
 
 CPlaylist::~CPlaylist()
 {
-
 }
 
 const CPlaylist::ITEM& CPlaylist::GetItem(unsigned int index) const
@@ -175,13 +172,13 @@ void CPlaylist::Read(const boost::filesystem::path& playlistPath)
 	auto parentPath = playlistPath.parent_path();
 
 	auto items = document->SelectNodes(PLAYLIST_NODE_TAG "/" PLAYLIST_ITEM_NODE_TAG);
-	for(auto nodeIterator(std::begin(items)); 
-		nodeIterator != std::end(items); nodeIterator++)
+	for(auto nodeIterator(std::begin(items));
+	    nodeIterator != std::end(items); nodeIterator++)
 	{
-		auto itemNode = (*nodeIterator);
+		auto                    itemNode = (*nodeIterator);
 		boost::filesystem::path itemPath = Framework::Utf8::ConvertFrom(itemNode->GetAttribute(PLAYLIST_ITEM_PATH_ATTRIBUTE));
-		const char* title = itemNode->GetAttribute(PLAYLIST_ITEM_TITLE_ATTRIBUTE);
-		const char* length = itemNode->GetAttribute(PLAYLIST_ITEM_LENGTH_ATTRIBUTE);
+		const char*             title = itemNode->GetAttribute(PLAYLIST_ITEM_TITLE_ATTRIBUTE);
+		const char*             length = itemNode->GetAttribute(PLAYLIST_ITEM_LENGTH_ATTRIBUTE);
 
 		if(!itemPath.is_complete())
 		{
@@ -211,17 +208,17 @@ void CPlaylist::Read(const boost::filesystem::path& playlistPath)
 void CPlaylist::Write(const boost::filesystem::path& playlistPath)
 {
 	std::unique_ptr<Framework::Xml::CNode> document(new Framework::Xml::CNode());
-	auto playlistNode = document->InsertNode(new Framework::Xml::CNode(PLAYLIST_NODE_TAG, true));
+	auto                                   playlistNode = document->InsertNode(new Framework::Xml::CNode(PLAYLIST_NODE_TAG, true));
 
 	auto parentPath = playlistPath.parent_path();
 
-	for(auto itemIterator(std::begin(m_items)); 
-		itemIterator != std::end(m_items); itemIterator++)
+	for(auto itemIterator(std::begin(m_items));
+	    itemIterator != std::end(m_items); itemIterator++)
 	{
 		const auto& item(*itemIterator);
 
 		boost::filesystem::path itemPath(item.path);
-		auto itemRelativePath(naive_uncomplete(itemPath, parentPath));
+		auto                    itemRelativePath(naive_uncomplete(itemPath, parentPath));
 
 		auto itemNode = playlistNode->InsertNode(new Framework::Xml::CNode(PLAYLIST_ITEM_NODE_TAG, true));
 		itemNode->InsertAttribute(PLAYLIST_ITEM_PATH_ATTRIBUTE, Framework::Utf8::ConvertTo(itemRelativePath.wstring()).c_str());

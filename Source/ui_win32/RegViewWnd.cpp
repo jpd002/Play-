@@ -1,7 +1,7 @@
 #include "RegViewWnd.h"
+#include "RegViewFPU.h"
 #include "RegViewGeneral.h"
 #include "RegViewSCU.h"
-#include "RegViewFPU.h"
 #include "RegViewVU.h"
 #include "win32/DefaultWndClass.h"
 

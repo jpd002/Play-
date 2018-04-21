@@ -1,12 +1,12 @@
-#include <QFileDialog>
-#include <QDateTime>
-#include <QMessageBox>
 #include "memorycardmanagerdialog.h"
-#include "ui_memorycardmanager.h"
+#include "../PS2VM_Preferences.h"
+#include "AppConfig.h"
 #include "StdStream.h"
 #include "StdStreamUtils.h"
-#include "AppConfig.h"
-#include "../PS2VM_Preferences.h"
+#include "ui_memorycardmanager.h"
+#include <QDateTime>
+#include <QFileDialog>
+#include <QMessageBox>
 
 MemoryCardManagerDialog::MemoryCardManagerDialog(QWidget* parent)
     : QDialog(parent)

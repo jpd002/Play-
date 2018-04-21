@@ -1,25 +1,25 @@
-#include <stdexcept>
-#include <assert.h>
-#include <boost/filesystem/path.hpp>
-#include <boost/filesystem/operations.hpp>
 #include "PsfVm.h"
 #include "Log.h"
 #include "MA_MIPSIV.h"
-#include "xml/Writer.h"
 #include "xml/Parser.h"
+#include "xml/Writer.h"
+#include <assert.h>
+#include <boost/filesystem/operations.hpp>
+#include <boost/filesystem/path.hpp>
+#include <stdexcept>
 
 #define LOG_NAME ("psfvm")
 
 using namespace Iop;
 namespace filesystem = boost::filesystem;
 
-CPsfVm::CPsfVm() :
-m_status(PAUSED),
-m_singleStep(false),
-m_soundHandler(NULL)
+CPsfVm::CPsfVm()
+    : m_status(PAUSED)
+    , m_singleStep(false)
+    , m_soundHandler(NULL)
 {
 	m_isThreadOver = false;
-	m_thread = std::thread([&] () { ThreadProc(); });
+	m_thread = std::thread([&]() { ThreadProc(); });
 }
 
 CPsfVm::~CPsfVm()
@@ -51,10 +51,10 @@ void CPsfVm::SetSubSystem(const PsfVmSubSystemPtr& subSystem)
 
 #ifdef DEBUGGER_INCLUDED
 
-#define TAGS_PATH				("./tags/")
-#define TAGS_SECTION_TAGS		("tags")
-#define TAGS_SECTION_FUNCTIONS	("functions")
-#define TAGS_SECTION_COMMENTS	("comments")
+#define TAGS_PATH ("./tags/")
+#define TAGS_SECTION_TAGS ("tags")
+#define TAGS_SECTION_FUNCTIONS ("functions")
+#define TAGS_SECTION_COMMENTS ("comments")
 
 std::string CPsfVm::MakeTagPackagePath(const char* packageName)
 {
@@ -70,23 +70,23 @@ void CPsfVm::LoadDebugTags(const char* packageName)
 {
 	try
 	{
-		std::string packagePath = MakeTagPackagePath(packageName);
+		std::string                              packagePath = MakeTagPackagePath(packageName);
 		boost::scoped_ptr<Framework::Xml::CNode> document(Framework::Xml::CParser::ParseDocument(Framework::CStdStream(packagePath.c_str(), "rb")));
-		Framework::Xml::CNode* tagsSection = document->Select(TAGS_SECTION_TAGS);
-		if(tagsSection == NULL) return;
+		Framework::Xml::CNode*                   tagsSection = document->Select(TAGS_SECTION_TAGS);
+		if(tagsSection == NULL)
+			return;
 		m_subSystem->GetCpu().m_Functions.Unserialize(tagsSection, TAGS_SECTION_FUNCTIONS);
 		m_subSystem->GetCpu().m_Comments.Unserialize(tagsSection, TAGS_SECTION_COMMENTS);
 		m_subSystem->LoadDebugTags(tagsSection);
 	}
 	catch(...)
 	{
-
 	}
 }
 
 void CPsfVm::SaveDebugTags(const char* packageName)
 {
-	std::string packagePath = MakeTagPackagePath(packageName);
+	std::string                              packagePath = MakeTagPackagePath(packageName);
 	boost::scoped_ptr<Framework::Xml::CNode> document(new Framework::Xml::CNode(TAGS_SECTION_TAGS, true));
 	m_subSystem->GetCpu().m_Functions.Serialize(document.get(), TAGS_SECTION_FUNCTIONS);
 	m_subSystem->GetCpu().m_Comments.Serialize(document.get(), TAGS_SECTION_COMMENTS);
@@ -103,7 +103,8 @@ CVirtualMachine::STATUS CPsfVm::GetStatus() const
 
 void CPsfVm::Pause()
 {
-	if(m_status == PAUSED) return;
+	if(m_status == PAUSED)
+		return;
 	m_mailBox.SendCall(std::bind(&CPsfVm::PauseImpl, this), true);
 }
 
@@ -198,7 +199,8 @@ void CPsfVm::SetReverbEnabled(bool enabled)
 void CPsfVm::SetReverbEnabledImpl(bool enabled)
 {
 	assert(m_subSystem != NULL);
-	if(m_subSystem == NULL) return;
+	if(m_subSystem == NULL)
+		return;
 	m_subSystem->GetSpuCore(0).SetReverbEnabled(enabled);
 	m_subSystem->GetSpuCore(1).SetReverbEnabled(enabled);
 }
@@ -211,7 +213,8 @@ void CPsfVm::SetVolumeAdjust(float volumeAdjust)
 void CPsfVm::SetVolumeAdjustImpl(float volumeAdjust)
 {
 	assert(m_subSystem != NULL);
-	if(m_subSystem == NULL) return;
+	if(m_subSystem == NULL)
+		return;
 	m_subSystem->GetSpuCore(0).SetVolumeAdjust(volumeAdjust);
 	m_subSystem->GetSpuCore(1).SetVolumeAdjust(volumeAdjust);
 }
@@ -226,7 +229,7 @@ void CPsfVm::ThreadProc()
 		}
 		if(m_status == PAUSED)
 		{
-			 //Sleep during 100ms
+			//Sleep during 100ms
 			std::this_thread::sleep_for(std::chrono::milliseconds(100));
 		}
 		else

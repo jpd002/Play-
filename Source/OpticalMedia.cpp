@@ -1,6 +1,6 @@
+#include "OpticalMedia.h"
 #include <cassert>
 #include <cstring>
-#include "OpticalMedia.h"
 
 #define DVD_LAYER_MAX_BLOCKS 2295104
 
@@ -53,12 +53,13 @@ void COpticalMedia::CheckDualLayerDvd(const StreamPtr& stream)
 	//Heuristic to detect dual layer DVD disc images
 
 	static const uint32 blockSize = 2048;
-	auto imageSize = stream->GetLength();
-	uint32 imageBlockCount = static_cast<uint32>(imageSize / blockSize);
+	auto                imageSize = stream->GetLength();
+	uint32              imageBlockCount = static_cast<uint32>(imageSize / blockSize);
 
 	//DL discs may be smaller than the capacity of a SL DVD, but we assume
 	//that games that use DL discs use more than the SL DVD capacity
-	if(imageBlockCount < DVD_LAYER_MAX_BLOCKS) return;
+	if(imageBlockCount < DVD_LAYER_MAX_BLOCKS)
+		return;
 
 	//Bigger than the capacity of a SL DVD, certainly a dual layer disc
 	m_dvdIsDualLayer = true;
@@ -81,9 +82,8 @@ void COpticalMedia::CheckDualLayerDvd(const StreamPtr& stream)
 		char blockHeader[blockHeaderSize];
 		stream->Read(blockHeader, blockHeaderSize);
 		if(
-			(blockHeader[0] == 0x01) && 
-			(!strncmp(blockHeader + 1, "CD001", 5))
-			)
+		    (blockHeader[0] == 0x01) &&
+		    (!strncmp(blockHeader + 1, "CD001", 5)))
 		{
 			//We've found a valid ISO9660 descriptor
 			m_dvdSecondLayerStart = lba;

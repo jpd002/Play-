@@ -1,8 +1,8 @@
 #pragma once
 
-#include <list>
 #include "GSHandler.h"
 #include "GsCachedArea.h"
+#include <list>
 
 #define TEX0_CLUTINFO_MASK (~0xFFFFFFE000000000ULL)
 
@@ -46,11 +46,13 @@ public:
 		uint64 maskedTex0 = static_cast<uint64>(tex0) & TEX0_CLUTINFO_MASK;
 
 		for(auto textureIterator(m_textureCache.begin());
-			textureIterator != m_textureCache.end(); textureIterator++)
+		    textureIterator != m_textureCache.end(); textureIterator++)
 		{
 			auto texture = *textureIterator;
-			if(!texture->m_live) continue;
-			if(maskedTex0 != texture->m_tex0) continue;
+			if(!texture->m_live)
+				continue;
+			if(maskedTex0 != texture->m_tex0)
+				continue;
 			m_textureCache.erase(textureIterator);
 			m_textureCache.push_front(texture);
 			return texture.get();
@@ -66,9 +68,9 @@ public:
 
 		texture->m_cachedArea.SetArea(tex0.nPsm, tex0.GetBufPtr(), tex0.GetBufWidth(), tex0.GetHeight());
 
-		texture->m_tex0          = static_cast<uint64>(tex0) & TEX0_CLUTINFO_MASK;
+		texture->m_tex0 = static_cast<uint64>(tex0) & TEX0_CLUTINFO_MASK;
 		texture->m_textureHandle = std::move(textureHandle);
-		texture->m_live          = true;
+		texture->m_live = true;
 
 		m_textureCache.pop_back();
 		m_textureCache.push_front(texture);
@@ -76,19 +78,19 @@ public:
 
 	void InvalidateRange(uint32 start, uint32 size)
 	{
-		std::for_each(std::begin(m_textureCache), std::end(m_textureCache), 
-			[start, size] (TexturePtr& texture) { if(texture->m_live) { texture->m_cachedArea.Invalidate(start, size); } });
+		std::for_each(std::begin(m_textureCache), std::end(m_textureCache),
+		              [start, size](TexturePtr& texture) { if(texture->m_live) { texture->m_cachedArea.Invalidate(start, size); } });
 	}
 
 	void Flush()
 	{
-		std::for_each(std::begin(m_textureCache), std::end(m_textureCache), 
-			[] (TexturePtr& texture) { texture->Reset(); });
+		std::for_each(std::begin(m_textureCache), std::end(m_textureCache),
+		              [](TexturePtr& texture) { texture->Reset(); });
 	}
 
 private:
 	typedef std::shared_ptr<CTexture> TexturePtr;
-	typedef std::list<TexturePtr> TextureList;
+	typedef std::list<TexturePtr>     TextureList;
 
-	TextureList    m_textureCache;
+	TextureList m_textureCache;
 };

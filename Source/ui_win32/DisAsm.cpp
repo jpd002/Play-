@@ -1,41 +1,41 @@
-#include <stdio.h>
-#include <boost/bind.hpp>
 #include "DisAsm.h"
-#include "resource.h"
-#include "win32/InputBox.h"
-#include "win32/Font.h"
-#include "win32/DefaultWndClass.h"
-#include "win32/DpiUtils.h"
-#include "win32/ClientDeviceContext.h"
-#include "string_cast.h"
-#include "string_format.h"
-#include "lexical_cast_ex.h"
-#include "WinUtils.h"
 #include "../Ps2Const.h"
 #include "DebugExpressionEvaluator.h"
+#include "WinUtils.h"
+#include "lexical_cast_ex.h"
+#include "resource.h"
+#include "string_cast.h"
+#include "string_format.h"
+#include "win32/ClientDeviceContext.h"
+#include "win32/DefaultWndClass.h"
+#include "win32/DpiUtils.h"
+#include "win32/Font.h"
+#include "win32/InputBox.h"
+#include <boost/bind.hpp>
+#include <stdio.h>
 
-#define ID_DISASM_GOTOPC		40001
-#define ID_DISASM_GOTOADDRESS	40002
-#define ID_DISASM_GOTOEA		40003
-#define ID_DISASM_EDITCOMMENT	40004
-#define ID_DISASM_FINDCALLERS	40005
-#define ID_DISASM_GOTOPREV		40006
-#define ID_DISASM_GOTONEXT		40007
+#define ID_DISASM_GOTOPC 40001
+#define ID_DISASM_GOTOADDRESS 40002
+#define ID_DISASM_GOTOEA 40003
+#define ID_DISASM_EDITCOMMENT 40004
+#define ID_DISASM_FINDCALLERS 40005
+#define ID_DISASM_GOTOPREV 40006
+#define ID_DISASM_GOTONEXT 40007
 
 CDisAsm::CDisAsm(HWND parentWnd, const RECT& rect, CVirtualMachine& virtualMachine, CMIPS* ctx)
-: m_virtualMachine(virtualMachine)
-, m_font(Framework::Win32::CreateFont(_T("Courier New"), 8))
-, m_ctx(ctx)
-, m_selected(0)
-, m_selectionEnd(-1)
-, m_address(0)
-, m_instructionSize(4)
+    : m_virtualMachine(virtualMachine)
+    , m_font(Framework::Win32::CreateFont(_T("Courier New"), 8))
+    , m_ctx(ctx)
+    , m_selected(0)
+    , m_selectionEnd(-1)
+    , m_address(0)
+    , m_instructionSize(4)
 {
 	HistoryReset();
 
 	m_arrowBitmap = LoadBitmap(GetModuleHandle(NULL), MAKEINTRESOURCE(IDB_ARROW));
 	m_arrowMaskBitmap = WinUtils::CreateMask(m_arrowBitmap, 0xFF00FF);
-	
+
 	m_breakpointBitmap = LoadBitmap(GetModuleHandle(NULL), MAKEINTRESOURCE(IDB_BREAKPOINT));
 	m_breakpointMaskBitmap = WinUtils::CreateMask(m_breakpointBitmap, 0xFF00FF);
 
@@ -119,9 +119,9 @@ void CDisAsm::GotoAddress()
 	}
 
 	Framework::Win32::CInputBox i(
-		_T("Goto Address"),
-		_T("Enter new address:"),
-		(_T("0x") + lexical_cast_hex<std::tstring>(m_address, 8)).c_str());
+	    _T("Goto Address"),
+	    _T("Enter new address:"),
+	    (_T("0x") + lexical_cast_hex<std::tstring>(m_address, 8)).c_str());
 
 	const TCHAR* sValue = i.GetValue(m_hWnd);
 	if(sValue != NULL)
@@ -193,7 +193,7 @@ void CDisAsm::EditComment()
 		return;
 	}
 
-	const char* comment = m_ctx->m_Comments.Find(m_selected);
+	const char*  comment = m_ctx->m_Comments.Find(m_selected);
 	std::tstring commentConv;
 
 	if(comment != nullptr)
@@ -206,7 +206,7 @@ void CDisAsm::EditComment()
 	}
 
 	Framework::Win32::CInputBox i(_T("Edit Comment"), _T("Enter new comment:"), commentConv.c_str());
-	const TCHAR* value = i.GetValue(m_hWnd);
+	const TCHAR*                value = i.GetValue(m_hWnd);
 
 	if(value != nullptr)
 	{
@@ -228,7 +228,7 @@ void CDisAsm::FindCallers()
 
 unsigned int CDisAsm::GetLineCount()
 {
-	auto clientRect = GetClientRect();
+	auto         clientRect = GetClientRect();
 	unsigned int lineStep = (m_renderMetrics.fontSizeY + m_renderMetrics.yspace);
 	unsigned int lines = (clientRect.Bottom() - (m_renderMetrics.ymargin * 2)) / lineStep;
 	lines++;
@@ -240,8 +240,10 @@ bool CDisAsm::IsAddressVisible(uint32 nAddress)
 	uint32 nTop = m_address;
 	uint32 nBottom = nTop + ((GetLineCount() - 1) * m_instructionSize);
 
-	if(nAddress < nTop) return false;
-	if(nAddress > nBottom) return false;
+	if(nAddress < nTop)
+		return false;
+	if(nAddress > nBottom)
+		return false;
 
 	return true;
 }
@@ -265,8 +267,8 @@ CDisAsm::SelectionRangeType CDisAsm::GetSelectionRange()
 
 void CDisAsm::HistoryReset()
 {
-	m_historyPosition	= -1;
-	m_historySize		= 0;
+	m_historyPosition = -1;
+	m_historySize = 0;
 	memset(m_history, 0, sizeof(uint32) * HISTORY_STACK_MAX);
 }
 
@@ -285,7 +287,8 @@ void CDisAsm::HistorySave(uint32 nAddress)
 
 void CDisAsm::HistoryGoBack()
 {
-	if(m_historyPosition == -1) return;
+	if(m_historyPosition == -1)
+		return;
 
 	uint32 address = HistoryGetPrevious();
 	m_history[m_historyPosition] = m_address;
@@ -297,7 +300,8 @@ void CDisAsm::HistoryGoBack()
 
 void CDisAsm::HistoryGoForward()
 {
-	if(m_historyPosition == m_historySize) return;
+	if(m_historyPosition == m_historySize)
+		return;
 
 	uint32 address = HistoryGetNext();
 	m_historyPosition++;
@@ -314,7 +318,8 @@ uint32 CDisAsm::HistoryGetPrevious()
 
 uint32 CDisAsm::HistoryGetNext()
 {
-	if(m_historyPosition == m_historySize) return 0;
+	if(m_historyPosition == m_historySize)
+		return 0;
 	return m_history[m_historyPosition + 1];
 }
 
@@ -330,7 +335,8 @@ bool CDisAsm::HistoryHasNext()
 
 void CDisAsm::UpdateMouseSelection(unsigned int nX, unsigned int nY)
 {
-	if(nX <= m_renderMetrics.xmargin) return;
+	if(nX <= m_renderMetrics.xmargin)
+		return;
 
 	uint32 nNew = nY / (m_renderMetrics.fontSizeY + m_renderMetrics.yspace);
 	nNew = (m_address + (nNew * m_instructionSize));
@@ -342,7 +348,8 @@ void CDisAsm::UpdateMouseSelection(unsigned int nX, unsigned int nY)
 	else
 	{
 		m_selectionEnd = -1;
-		if(nNew == m_selected) return;
+		if(nNew == m_selected)
+			return;
 		m_selected = nNew;
 	}
 
@@ -381,7 +388,8 @@ void CDisAsm::UpdatePosition(int delta)
 
 long CDisAsm::OnSetFocus()
 {
-	if(m_focus) return TRUE;
+	if(m_focus)
+		return TRUE;
 	m_focus = true;
 	Redraw();
 	return TRUE;
@@ -408,7 +416,7 @@ long CDisAsm::OnRightButtonUp(int nX, int nY)
 	pt.y = nY;
 	ClientToScreen(m_hWnd, &pt);
 
-	HMENU hMenu = CreatePopupMenu();
+	HMENU        hMenu = CreatePopupMenu();
 	unsigned int position = BuildContextMenu(hMenu);
 
 	if(m_selected != MIPS_INVALID_PC)
@@ -416,7 +424,7 @@ long CDisAsm::OnRightButtonUp(int nX, int nY)
 		uint32 nOpcode = GetInstruction(m_selected);
 		if(m_ctx->m_pArch->IsInstructionBranch(m_ctx, m_selected, nOpcode) == MIPS_BRANCH_NORMAL)
 		{
-			TCHAR sTemp[256];
+			TCHAR  sTemp[256];
 			uint32 nAddress = m_ctx->m_pArch->GetInstructionEffectiveAddress(m_ctx, m_selected, nOpcode);
 			_sntprintf(sTemp, countof(sTemp), _T("Go to 0x%08X"), nAddress);
 			InsertMenu(hMenu, position++, MF_BYPOSITION, ID_DISASM_GOTOEA, sTemp);
@@ -437,14 +445,15 @@ long CDisAsm::OnRightButtonUp(int nX, int nY)
 		InsertMenu(hMenu, position++, MF_BYPOSITION, ID_DISASM_GOTONEXT, sTemp);
 	}
 
-	TrackPopupMenu(hMenu, 0, pt.x, pt.y, 0, m_hWnd, NULL); 
+	TrackPopupMenu(hMenu, 0, pt.x, pt.y, 0, m_hWnd, NULL);
 
 	return FALSE;
 }
 
 long CDisAsm::OnMouseMove(WPARAM nButton, int nX, int nY)
 {
-	if(!(nButton & MK_LBUTTON)) return TRUE;
+	if(!(nButton & MK_LBUTTON))
+		return TRUE;
 	if(m_focus)
 	{
 		UpdateMouseSelection(nX, nY);
@@ -527,23 +536,25 @@ long CDisAsm::OnKeyDown(WPARAM nKey, LPARAM)
 		}
 		break;
 	case VK_RIGHT:
-		if (m_selected != MIPS_INVALID_PC)
+		if(m_selected != MIPS_INVALID_PC)
 		{
 			uint32 nOpcode = GetInstruction(m_selected);
-			if (m_ctx->m_pArch->IsInstructionBranch(m_ctx, m_selected, nOpcode) == MIPS_BRANCH_NORMAL)
+			if(m_ctx->m_pArch->IsInstructionBranch(m_ctx, m_selected, nOpcode) == MIPS_BRANCH_NORMAL)
 			{
-				m_address = m_selected;		// Ensure history tracks where we came from
+				m_address = m_selected; // Ensure history tracks where we came from
 				GotoEA();
 				SetSelectedAddress(m_address);
 			}
-			else if (HistoryHasNext()){
+			else if(HistoryHasNext())
+			{
 				HistoryGoForward();
 				SetSelectedAddress(m_address);
 			}
 		}
 		break;
 	case VK_LEFT:
-		if (HistoryHasPrevious()){
+		if(HistoryHasPrevious())
+		{
 			HistoryGoBack();
 			SetSelectedAddress(m_address);
 		}
@@ -556,7 +567,6 @@ long CDisAsm::OnLeftButtonDblClk(int nX, int nY)
 {
 	if(nX > m_renderMetrics.xmargin)
 	{
-
 	}
 	else
 	{
@@ -618,8 +628,8 @@ long CDisAsm::OnCopy()
 	return TRUE;
 }
 
-static void DrawMaskedBitmap(HDC dstDc, Framework::Win32::CRect& dstRect, 
-	HBITMAP srcBitmap, HBITMAP srcMaskBitmap, Framework::Win32::CRect& srcRect)
+static void DrawMaskedBitmap(HDC dstDc, Framework::Win32::CRect& dstRect,
+                             HBITMAP srcBitmap, HBITMAP srcMaskBitmap, Framework::Win32::CRect& srcRect)
 {
 	SetTextColor(dstDc, RGB(0x00, 0x00, 0x00));
 
@@ -627,8 +637,8 @@ static void DrawMaskedBitmap(HDC dstDc, Framework::Win32::CRect& dstRect,
 		HDC memDc = CreateCompatibleDC(dstDc);
 		SelectObject(memDc, srcMaskBitmap);
 		StretchBlt(
-			dstDc, dstRect.Left(), dstRect.Top(), dstRect.Width(), dstRect.Height(), 
-			memDc, srcRect.Left(), srcRect.Top(), srcRect.Width(), srcRect.Height(), SRCAND);
+		    dstDc, dstRect.Left(), dstRect.Top(), dstRect.Width(), dstRect.Height(),
+		    memDc, srcRect.Left(), srcRect.Top(), srcRect.Width(), srcRect.Height(), SRCAND);
 		DeleteDC(memDc);
 	}
 
@@ -636,8 +646,8 @@ static void DrawMaskedBitmap(HDC dstDc, Framework::Win32::CRect& dstRect,
 		HDC memDc = CreateCompatibleDC(dstDc);
 		SelectObject(memDc, srcBitmap);
 		StretchBlt(
-			dstDc, dstRect.Left(), dstRect.Top(), dstRect.Width(), dstRect.Height(), 
-			memDc, srcRect.Left(), srcRect.Top(), srcRect.Width(), srcRect.Height(), SRCPAINT);
+		    dstDc, dstRect.Left(), dstRect.Top(), dstRect.Width(), dstRect.Height(),
+		    memDc, srcRect.Left(), srcRect.Top(), srcRect.Width(), srcRect.Height(), SRCPAINT);
 		DeleteDC(memDc);
 	}
 }
@@ -681,7 +691,7 @@ void CDisAsm::Paint(HDC hDC)
 	for(int i = 0; i < lines; i++)
 	{
 		uint32 address = m_address + (i * m_instructionSize);
-		
+
 		auto iconArea = Framework::Win32::CRect(0, y, m_renderMetrics.xmargin, y + lineStep);
 
 		//Draw breakpoint icon
@@ -706,9 +716,8 @@ void CDisAsm::Paint(HDC hDC)
 		bool selected = false;
 
 		if(
-			(address >= SelectionRange.first) && 
-			(address <= SelectionRange.second)
-			)
+		    (address >= SelectionRange.first) &&
+		    (address <= SelectionRange.second))
 		{
 			RECT rsel;
 			SetRect(&rsel, m_renderMetrics.xmargin, y, rwin.right, y + lineStep);
@@ -729,9 +738,9 @@ void CDisAsm::Paint(HDC hDC)
 		}
 
 		//Draw address
-		deviceContext.TextOut(m_renderMetrics.xtextStart, y + textOffset, 
-			string_format(_T("%08X"), address).c_str());
-		
+		deviceContext.TextOut(m_renderMetrics.xtextStart, y + textOffset,
+		                      string_format(_T("%08X"), address).c_str());
+
 		//Draw function boundaries
 		const auto* sub = m_ctx->m_analysis->FindSubroutine(address);
 		if(sub != nullptr)
@@ -766,10 +775,10 @@ void CDisAsm::Paint(HDC hDC)
 unsigned int CDisAsm::BuildContextMenu(HMENU menuHandle)
 {
 	unsigned int position = 0;
-	InsertMenu(menuHandle, position++, MF_BYPOSITION, ID_DISASM_GOTOPC,			_T("Goto PC"));
-	InsertMenu(menuHandle, position++, MF_BYPOSITION, ID_DISASM_GOTOADDRESS,	_T("Goto Address..."));
-	InsertMenu(menuHandle, position++, MF_BYPOSITION, ID_DISASM_EDITCOMMENT,	_T("Edit Comment..."));
-	InsertMenu(menuHandle, position++, MF_BYPOSITION, ID_DISASM_FINDCALLERS,	_T("Find Callers"));
+	InsertMenu(menuHandle, position++, MF_BYPOSITION, ID_DISASM_GOTOPC, _T("Goto PC"));
+	InsertMenu(menuHandle, position++, MF_BYPOSITION, ID_DISASM_GOTOADDRESS, _T("Goto Address..."));
+	InsertMenu(menuHandle, position++, MF_BYPOSITION, ID_DISASM_EDITCOMMENT, _T("Edit Comment..."));
+	InsertMenu(menuHandle, position++, MF_BYPOSITION, ID_DISASM_FINDCALLERS, _T("Find Callers"));
 	return position;
 }
 
@@ -780,7 +789,7 @@ std::tstring CDisAsm::GetInstructionDetailsText(uint32 address)
 	std::tstring result;
 
 	result += lexical_cast_hex<std::tstring>(address, 8) + _T("    ");
-	result += lexical_cast_hex<std::tstring>(opcode,  8) + _T("    ");
+	result += lexical_cast_hex<std::tstring>(opcode, 8) + _T("    ");
 
 	char disasm[256];
 	m_ctx->m_pArch->GetInstructionMnemonic(m_ctx, address, opcode, disasm, countof(disasm));
@@ -814,7 +823,7 @@ void CDisAsm::DrawInstructionDetails(Framework::Win32::CDeviceContext& deviceCon
 {
 	uint32 data = GetInstruction(address);
 	deviceContext.TextOut(m_renderMetrics.fontSizeX * 15, y, lexical_cast_hex<std::tstring>(data, 8).c_str());
-		
+
 	{
 		char disAsm[256];
 		m_ctx->m_pArch->GetInstructionMnemonic(m_ctx, address, data, disAsm, 256);
@@ -830,7 +839,7 @@ void CDisAsm::DrawInstructionDetails(Framework::Win32::CDeviceContext& deviceCon
 
 void CDisAsm::DrawInstructionMetadata(Framework::Win32::CDeviceContext& deviceContext, uint32 address, int y, bool selected)
 {
-	bool commentDrawn = false;
+	bool         commentDrawn = false;
 	unsigned int metadataPosition = GetMetadataPosition();
 
 	//Draw function name
@@ -850,7 +859,7 @@ void CDisAsm::DrawInstructionMetadata(Framework::Win32::CDeviceContext& deviceCo
 		uint32 opcode = GetInstruction(address);
 		if(m_ctx->m_pArch->IsInstructionBranch(m_ctx, address, opcode) == MIPS_BRANCH_NORMAL)
 		{
-			uint32 effAddr = m_ctx->m_pArch->GetInstructionEffectiveAddress(m_ctx, address, opcode);
+			uint32      effAddr = m_ctx->m_pArch->GetInstructionEffectiveAddress(m_ctx, address, opcode);
 			const char* tag = m_ctx->m_Functions.Find(effAddr);
 			if(tag != nullptr)
 			{

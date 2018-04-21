@@ -2,7 +2,7 @@
 
 @interface AudioSettingsViewController : NSViewController
 {
-	IBOutlet NSButton*    enableAudioOutputCheckBox;
+	IBOutlet NSButton* enableAudioOutputCheckBox;
 }
 
 @end

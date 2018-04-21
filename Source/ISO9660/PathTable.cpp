@@ -1,7 +1,7 @@
-#include <assert.h>
 #include "PathTable.h"
 #include "File.h"
 #include "stricmp.h"
+#include <assert.h>
 
 using namespace ISO9660;
 
@@ -21,7 +21,6 @@ CPathTable::CPathTable(CBlockProvider* blockProvider, uint32 tableLba)
 
 CPathTable::~CPathTable()
 {
-
 }
 
 uint32 CPathTable::GetDirectoryAddress(unsigned int recordIndex) const
@@ -56,8 +55,10 @@ unsigned int CPathTable::FindDirectory(const char* sName, unsigned int nParent) 
 	for(const auto& recordPair : m_records)
 	{
 		const auto& record = recordPair.second;
-		if(record.GetParentRecord() != nParent) continue;
-		if(stricmp(sName, record.GetName())) continue;
+		if(record.GetParentRecord() != nParent)
+			continue;
+		if(stricmp(sName, record.GetName()))
+			continue;
 		return static_cast<unsigned int>(recordPair.first) + 1;
 	}
 

@@ -1,38 +1,37 @@
 #include "GsPacketListView.h"
 #include "../../FrameDump.h"
+#include "../WinUtils.h"
 #include "string_cast.h"
 #include "string_format.h"
 #include "win32/DpiUtils.h"
-#include "../WinUtils.h"
 
 CGsPacketListView::CGsPacketListView(HWND parentWnd, const RECT& rect)
-: m_frameDump(nullptr)
+    : m_frameDump(nullptr)
 {
-	Create(0, Framework::Win32::CDefaultWndClass::GetName(), _T(""), WS_CHILD | WS_VISIBLE | WS_CLIPCHILDREN | WS_CLIPCHILDREN, 
-		Framework::Win32::CRect(0, 0, 1024, 768), parentWnd, nullptr);
+	Create(0, Framework::Win32::CDefaultWndClass::GetName(), _T(""), WS_CHILD | WS_VISIBLE | WS_CLIPCHILDREN | WS_CLIPCHILDREN,
+	       Framework::Win32::CRect(0, 0, 1024, 768), parentWnd, nullptr);
 	SetClassPtr();
 
-	m_packetsTreeView = std::make_unique<Framework::Win32::CTreeView>(m_hWnd, 
-		Framework::Win32::PointsToPixels(Framework::Win32::CRect(0, 0, 300, 300)),
-		TVS_LINESATROOT | TVS_HASBUTTONS | TVS_SHOWSELALWAYS | TVS_HASLINES);
+	m_packetsTreeView = std::make_unique<Framework::Win32::CTreeView>(m_hWnd,
+	                                                                  Framework::Win32::PointsToPixels(Framework::Win32::CRect(0, 0, 300, 300)),
+	                                                                  TVS_LINESATROOT | TVS_HASBUTTONS | TVS_SHOWSELALWAYS | TVS_HASLINES);
 
 	{
 		LOGFONT fontInfo;
-		HFONT packetsTreeViewFont = m_packetsTreeView->GetFont();
+		HFONT   packetsTreeViewFont = m_packetsTreeView->GetFont();
 		GetObject(packetsTreeViewFont, sizeof(LOGFONT), &fontInfo);
 		fontInfo.lfWeight = FW_BOLD;
 		m_drawCallItemFont = CreateFontIndirect(&fontInfo);
 	}
 
-	m_prevDrawKickButton = std::make_unique<Framework::Win32::CButton>(_T("Prev Draw Kick"), 
-		m_hWnd, Framework::Win32::PointsToPixels(Framework::Win32::CRect(0, 0, 100, 25)));
-	m_nextDrawKickButton = std::make_unique<Framework::Win32::CButton>(_T("Next Draw Kick"), 
-		m_hWnd, Framework::Win32::PointsToPixels(Framework::Win32::CRect(100, 0, 200, 25)));
+	m_prevDrawKickButton = std::make_unique<Framework::Win32::CButton>(_T("Prev Draw Kick"),
+	                                                                   m_hWnd, Framework::Win32::PointsToPixels(Framework::Win32::CRect(0, 0, 100, 25)));
+	m_nextDrawKickButton = std::make_unique<Framework::Win32::CButton>(_T("Next Draw Kick"),
+	                                                                   m_hWnd, Framework::Win32::PointsToPixels(Framework::Win32::CRect(100, 0, 200, 25)));
 }
 
 CGsPacketListView::~CGsPacketListView()
 {
-
 }
 
 void CGsPacketListView::SetFrameDump(CFrameDump* frameDump)
@@ -46,7 +45,8 @@ void CGsPacketListView::SetFrameDump(CFrameDump* frameDump)
 	m_packetInfos.clear();
 	m_writeInfos.clear();
 
-	if(m_frameDump == nullptr) return;
+	if(m_frameDump == nullptr)
+		return;
 
 	m_packetsTreeView->SetRedraw(false);
 
@@ -54,7 +54,7 @@ void CGsPacketListView::SetFrameDump(CFrameDump* frameDump)
 
 	m_packetInfos.reserve(m_frameDump->GetPackets().size());
 
-	uint32 packetIndex = 0, cmdIndex = 0;
+	uint32      packetIndex = 0, cmdIndex = 0;
 	const auto& drawingKicks = m_frameDump->GetDrawingKicks();
 	for(const auto& packet : m_frameDump->GetPackets())
 	{
@@ -64,27 +64,28 @@ void CGsPacketListView::SetFrameDump(CFrameDump* frameDump)
 		auto upperBoundIterator = drawingKicks.lower_bound(cmdIndex + packet.registerWrites.size());
 
 		int kickCount = static_cast<int>(std::distance(lowerBoundIterator, upperBoundIterator));
-		
+
 		std::tstring packetDescription;
 
 		if(isRegisterPacket)
 		{
-			packetDescription = string_cast<std::tstring>(string_format("Register Packet (Write Count: %d, Draw Count: %d, Path: %d)", 
-				packet.registerWrites.size(), kickCount, packet.metadata.pathIndex));
+			packetDescription = string_cast<std::tstring>(string_format("Register Packet (Write Count: %d, Draw Count: %d, Path: %d)",
+			                                                            packet.registerWrites.size(), kickCount, packet.metadata.pathIndex));
 		}
 		else
 		{
-			packetDescription = string_cast<std::tstring>(string_format("Image Packet (Size: 0x%08X)", 
-				packet.imageData.size()));
+			packetDescription = string_cast<std::tstring>(string_format("Image Packet (Size: 0x%08X)",
+			                                                            packet.imageData.size()));
 		}
 
 		TVINSERTSTRUCT insertStruct = {};
-		insertStruct.hParent		= TVI_ROOT;
-		insertStruct.item.pszText	= const_cast<LPWSTR>(packetDescription.c_str());
-		insertStruct.item.cChildren	= 1;
-		insertStruct.item.lParam	= packetIndex;
-		insertStruct.item.mask		= TVIF_TEXT | TVIF_PARAM;
-		if(isRegisterPacket) insertStruct.item.mask |= TVIF_CHILDREN;
+		insertStruct.hParent = TVI_ROOT;
+		insertStruct.item.pszText = const_cast<LPWSTR>(packetDescription.c_str());
+		insertStruct.item.cChildren = 1;
+		insertStruct.item.lParam = packetIndex;
+		insertStruct.item.mask = TVIF_TEXT | TVIF_PARAM;
+		if(isRegisterPacket)
+			insertStruct.item.mask |= TVIF_CHILDREN;
 		HTREEITEM packetRootItem = m_packetsTreeView->InsertItem(&insertStruct);
 
 		PACKETINFO packetInfo;
@@ -98,7 +99,7 @@ void CGsPacketListView::SetFrameDump(CFrameDump* frameDump)
 
 	m_writeInfos.resize(cmdIndex, WRITEINFO());
 
-#endif	//DEBUGGER_INCLUDED
+#endif //DEBUGGER_INCLUDED
 
 	m_packetsTreeView->SetRedraw(true);
 
@@ -108,7 +109,8 @@ void CGsPacketListView::SetFrameDump(CFrameDump* frameDump)
 uint32 CGsPacketListView::GetSelectedItemIndex() const
 {
 	HTREEITEM selectedItem = m_packetsTreeView->GetSelection();
-	if(selectedItem == nullptr) return -1;
+	if(selectedItem == nullptr)
+		return -1;
 	TVITEM item = {};
 	item.mask |= LVIF_PARAM;
 	m_packetsTreeView->GetItem(selectedItem, &item);
@@ -117,9 +119,9 @@ uint32 CGsPacketListView::GetSelectedItemIndex() const
 
 long CGsPacketListView::OnSize(unsigned int, unsigned int, unsigned int)
 {
-	auto clientRect = GetClientRect();
-	Framework::Win32::CRect packetsTreeViewRect(0, Framework::Win32::PointsToPixels(30), 
-		clientRect.Right(), clientRect.Bottom());
+	auto                    clientRect = GetClientRect();
+	Framework::Win32::CRect packetsTreeViewRect(0, Framework::Win32::PointsToPixels(30),
+	                                            clientRect.Right(), clientRect.Bottom());
 	m_packetsTreeView->SetSizePosition(packetsTreeViewRect);
 	return TRUE;
 }
@@ -164,18 +166,19 @@ LRESULT CGsPacketListView::OnNotify(WPARAM param, NMHDR* header)
 long CGsPacketListView::OnCopy()
 {
 	HTREEITEM selectedItem = m_packetsTreeView->GetSelection();
-	if(selectedItem == NULL) return TRUE;
+	if(selectedItem == NULL)
+		return TRUE;
 
 	TVITEM treeViewItem = {};
 	treeViewItem.mask = TVIF_PARAM | TVIF_HANDLE;
 	m_packetsTreeView->GetItem(selectedItem, &treeViewItem);
 
-	uint32 selectedItemIndex = GetItemIndexFromTreeViewItem(&treeViewItem);
+	uint32      selectedItemIndex = GetItemIndexFromTreeViewItem(&treeViewItem);
 	const auto& writeInfo = m_writeInfos[selectedItemIndex];
 	const auto& registerWrite = writeInfo.registerWrite;
 
-	auto text = string_format(_T("0x%02X -> 0x%016llX\r\n"), 
-		registerWrite.first, registerWrite.second);
+	auto text = string_format(_T("0x%02X -> 0x%016llX\r\n"),
+	                          registerWrite.first, registerWrite.second);
 
 	WinUtils::CopyStringToClipboard(text);
 
@@ -192,8 +195,9 @@ long CGsPacketListView::OnPacketsTreeViewCustomDraw(NMTVCUSTOMDRAW* customDraw)
 	{
 		HTREEITEM drawItem = reinterpret_cast<HTREEITEM>(customDraw->nmcd.dwItemSpec);
 		HTREEITEM drawItemParent = m_packetsTreeView->GetItemParent(drawItem);
-		if(drawItemParent == nullptr) return CDRF_DODEFAULT;
-		uint32 drawItemPacketIndex = m_packetsTreeView->GetItemParam<uint32>(drawItem);
+		if(drawItemParent == nullptr)
+			return CDRF_DODEFAULT;
+		uint32      drawItemPacketIndex = m_packetsTreeView->GetItemParam<uint32>(drawItem);
 		const auto& drawingKicks = m_frameDump->GetDrawingKicks();
 		if(drawingKicks.find(drawItemPacketIndex) != std::end(drawingKicks))
 		{
@@ -229,7 +233,7 @@ void CGsPacketListView::OnPacketsTreeViewItemExpanding(NMTREEVIEW* treeView)
 {
 	if((treeView->itemNew.state & TVIS_EXPANDEDONCE) == 0)
 	{
-		uint32 packetIndex = treeView->itemNew.lParam;
+		uint32      packetIndex = treeView->itemNew.lParam;
 		const auto& packet = m_frameDump->GetPackets()[packetIndex];
 		const auto& packetInfo = m_packetInfos[packetIndex];
 
@@ -237,12 +241,12 @@ void CGsPacketListView::OnPacketsTreeViewItemExpanding(NMTREEVIEW* treeView)
 
 		for(const auto& registerWrite : packet.registerWrites)
 		{
-			auto packetWriteDescription = CGSHandler::DisassembleWrite(registerWrite.first, registerWrite.second);
-			auto treeItemText = string_format("%04X: %s", cmdIndex - packetInfo.cmdIndexStart, packetWriteDescription.c_str());
+			auto      packetWriteDescription = CGSHandler::DisassembleWrite(registerWrite.first, registerWrite.second);
+			auto      treeItemText = string_format("%04X: %s", cmdIndex - packetInfo.cmdIndexStart, packetWriteDescription.c_str());
 			HTREEITEM newItem = m_packetsTreeView->InsertItem(treeView->itemNew.hItem, string_cast<std::tstring>(treeItemText).c_str());
 
 			auto& writeInfo = m_writeInfos[cmdIndex];
-			writeInfo.treeViewItem  = newItem;
+			writeInfo.treeViewItem = newItem;
 			writeInfo.registerWrite = registerWrite;
 
 			m_packetsTreeView->SetItemParam(newItem, cmdIndex++);
@@ -252,11 +256,11 @@ void CGsPacketListView::OnPacketsTreeViewItemExpanding(NMTREEVIEW* treeView)
 
 void CGsPacketListView::OnPacketsTreeViewSelChanged(NMTREEVIEW* treeView)
 {
-	uint32 selectedCmdIndex = GetItemIndexFromTreeViewItem(&treeView->itemNew);
+	uint32          selectedCmdIndex = GetItemIndexFromTreeViewItem(&treeView->itemNew);
 	SELCHANGED_INFO selchangedInfo;
 	memset(&selchangedInfo, 0, sizeof(SELCHANGED_INFO));
-	selchangedInfo.code				= NOTIFICATION_SELCHANGED;
-	selchangedInfo.hwndFrom			= m_hWnd;
+	selchangedInfo.code = NOTIFICATION_SELCHANGED;
+	selchangedInfo.hwndFrom = m_hWnd;
 	selchangedInfo.selectedCmdIndex = selectedCmdIndex;
 	SendMessage(GetParent(), WM_NOTIFY, reinterpret_cast<WPARAM>(m_hWnd), reinterpret_cast<LPARAM>(&selchangedInfo));
 }
@@ -276,8 +280,8 @@ void CGsPacketListView::OnPacketsTreeViewKeyDown(const NMTVKEYDOWN* keyDown)
 
 void CGsPacketListView::GoToWrite(uint32 writeIndex)
 {
-	auto packetInfoIterator = std::lower_bound(std::begin(m_packetInfos), std::end(m_packetInfos), writeIndex, 
-		[] (const PACKETINFO& p1, uint32 i2) { return p1.cmdIndexStart < i2; });
+	auto packetInfoIterator = std::lower_bound(std::begin(m_packetInfos), std::end(m_packetInfos), writeIndex,
+	                                           [](const PACKETINFO& p1, uint32 i2) { return p1.cmdIndexStart < i2; });
 	packetInfoIterator = std::prev(packetInfoIterator);
 	assert(packetInfoIterator != std::end(m_packetInfos));
 
@@ -292,7 +296,8 @@ void CGsPacketListView::GoToWrite(uint32 writeIndex)
 
 void CGsPacketListView::OnPrevDrawKick()
 {
-	if(m_frameDump == nullptr) return;
+	if(m_frameDump == nullptr)
+		return;
 
 	unsigned int selectedItemIndex = 0;
 
@@ -307,7 +312,8 @@ void CGsPacketListView::OnPrevDrawKick()
 	}
 
 	const auto& drawingKicks = m_frameDump->GetDrawingKicks();
-	if(drawingKicks.empty()) return;
+	if(drawingKicks.empty())
+		return;
 
 	auto prevKickIndexIterator = std::prev(drawingKicks.lower_bound(selectedItemIndex));
 	if(prevKickIndexIterator == std::end(drawingKicks))
@@ -321,7 +327,8 @@ void CGsPacketListView::OnPrevDrawKick()
 
 void CGsPacketListView::OnNextDrawKick()
 {
-	if(m_frameDump == nullptr) return;
+	if(m_frameDump == nullptr)
+		return;
 
 	unsigned int selectedItemIndex = 0;
 
@@ -336,7 +343,7 @@ void CGsPacketListView::OnNextDrawKick()
 	}
 
 	const auto& drawingKicks = m_frameDump->GetDrawingKicks();
-	auto nextKickIndexIterator = drawingKicks.upper_bound(selectedItemIndex);
+	auto        nextKickIndexIterator = drawingKicks.upper_bound(selectedItemIndex);
 	if(nextKickIndexIterator == std::end(drawingKicks))
 	{
 		//Nothing to do here

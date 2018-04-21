@@ -1,11 +1,12 @@
-#include "MA_MIPSIV.h"
 #include "Jitter.h"
+#include "MA_MIPSIV.h"
 #include "MIPS.h"
 #include "offsetof_def.h"
 
 void CMA_MIPSIV::Template_Add32(bool isSigned)
 {
-	if(m_nRD == 0) return;
+	if(m_nRD == 0)
+		return;
 
 	m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRS].nV[0]));
 	m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[0]));
@@ -24,7 +25,8 @@ void CMA_MIPSIV::Template_Add32(bool isSigned)
 
 void CMA_MIPSIV::Template_Add64(bool isSigned)
 {
-	if(m_nRD == 0) return;
+	if(m_nRD == 0)
+		return;
 
 	assert(m_regSize == MIPS_REGSIZE_64);
 
@@ -36,7 +38,8 @@ void CMA_MIPSIV::Template_Add64(bool isSigned)
 
 void CMA_MIPSIV::Template_Sub32(bool isSigned)
 {
-	if(m_nRD == 0) return;
+	if(m_nRD == 0)
+		return;
 
 	m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRS].nV[0]));
 	m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[0]));
@@ -55,7 +58,8 @@ void CMA_MIPSIV::Template_Sub32(bool isSigned)
 
 void CMA_MIPSIV::Template_Sub64(bool isSigned)
 {
-	if(m_nRD == 0) return;
+	if(m_nRD == 0)
+		return;
 
 	assert(m_regSize == MIPS_REGSIZE_64);
 
@@ -67,7 +71,8 @@ void CMA_MIPSIV::Template_Sub64(bool isSigned)
 
 void CMA_MIPSIV::Template_LoadUnsigned32(void* pProxyFunction)
 {
-	if(m_nRT == 0) return;
+	if(m_nRT == 0)
+		return;
 
 	//TODO: Need to check if this used correctly... LBU, LHU and LW uses this (why LW? and why sign extend on LBU and LHU?)
 
@@ -90,7 +95,8 @@ void CMA_MIPSIV::Template_LoadUnsigned32(void* pProxyFunction)
 
 void CMA_MIPSIV::Template_ShiftCst32(const TemplateParamedOperationFunctionType& Function)
 {
-	if(m_nRD == 0) return;
+	if(m_nRD == 0)
+		return;
 
 	m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[0]));
 	Function(m_nSA);
@@ -107,7 +113,8 @@ void CMA_MIPSIV::Template_ShiftCst32(const TemplateParamedOperationFunctionType&
 
 void CMA_MIPSIV::Template_ShiftVar32(const TemplateOperationFunctionType& function)
 {
-	if(m_nRD == 0) return;
+	if(m_nRD == 0)
+		return;
 
 	m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[0]));
 	m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRS].nV[0]));
@@ -305,7 +312,8 @@ void CMA_MIPSIV::Template_Div32(bool isSigned, unsigned int unit, unsigned int r
 
 void CMA_MIPSIV::Template_MovEqual(bool isEqual)
 {
-	if(m_nRD == 0) return;
+	if(m_nRD == 0)
+		return;
 
 	if(m_regSize == MIPS_REGSIZE_32)
 	{
@@ -400,7 +408,7 @@ void CMA_MIPSIV::Template_BranchEq(bool condition, bool likely)
 		m_codeGen->PushRel64(offsetof(CMIPS, m_State.nGPR[m_nRS].nV[0]));
 		m_codeGen->PushRel64(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[0]));
 		m_codeGen->Cmp64(Jitter::CONDITION_NE);
-		
+
 		m_codeGen->PushCst(0);
 	}
 

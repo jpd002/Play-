@@ -1,5 +1,5 @@
-#include <stdlib.h>
 #include "PathTableRecord.h"
+#include <stdlib.h>
 
 using namespace ISO9660;
 
@@ -19,7 +19,6 @@ CPathTableRecord::CPathTableRecord(Framework::CStream& stream)
 
 CPathTableRecord::~CPathTableRecord()
 {
-
 }
 
 uint8 CPathTableRecord::GetNameLength() const

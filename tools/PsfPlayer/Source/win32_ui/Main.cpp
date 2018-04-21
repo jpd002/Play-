@@ -1,7 +1,7 @@
-#include "PsfVm.h"
-#include "PsfLoader.h"
 #include "MainWindow.h"
 #include "MiniDebugger.h"
+#include "PsfLoader.h"
+#include "PsfVm.h"
 #include <boost/filesystem.hpp>
 
 namespace filesystem = boost::filesystem;

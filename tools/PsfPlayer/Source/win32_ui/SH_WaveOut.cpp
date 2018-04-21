@@ -1,12 +1,12 @@
-#include <stdexcept>
-#include <assert.h>
 #include "SH_WaveOut.h"
+#include <assert.h>
+#include <stdexcept>
 
 #define SAMPLE_RATE 44100
 //#define SAMPLES_PER_UPDATE	(44 * 2)
 
 CSH_WaveOut::CSH_WaveOut()
-: m_waveOut(NULL)
+    : m_waveOut(NULL)
 {
 	InitializeWaveOut();
 }
@@ -30,18 +30,18 @@ void CSH_WaveOut::InitializeWaveOut()
 
 	WAVEFORMATEX waveFormat;
 	memset(&waveFormat, 0, sizeof(WAVEFORMATEX));
-	waveFormat.nSamplesPerSec	= SAMPLE_RATE;
-	waveFormat.wBitsPerSample	= 16;
-	waveFormat.nChannels		= 2;
-	waveFormat.cbSize			= 0;
-	waveFormat.wFormatTag		= WAVE_FORMAT_PCM;
-	waveFormat.nBlockAlign		= (waveFormat.wBitsPerSample / 8) * waveFormat.nChannels;
-	waveFormat.nAvgBytesPerSec	= waveFormat.nBlockAlign * waveFormat.nSamplesPerSec;
+	waveFormat.nSamplesPerSec = SAMPLE_RATE;
+	waveFormat.wBitsPerSample = 16;
+	waveFormat.nChannels = 2;
+	waveFormat.cbSize = 0;
+	waveFormat.wFormatTag = WAVE_FORMAT_PCM;
+	waveFormat.nBlockAlign = (waveFormat.wBitsPerSample / 8) * waveFormat.nChannels;
+	waveFormat.nAvgBytesPerSec = waveFormat.nBlockAlign * waveFormat.nSamplesPerSec;
 
-	if(waveOutOpen(&m_waveOut, WAVE_MAPPER, &waveFormat, 
-		reinterpret_cast<DWORD_PTR>(&CSH_WaveOut::WaveOutProcStub), 
-		reinterpret_cast<DWORD_PTR>(this), 
-		CALLBACK_FUNCTION) != MMSYSERR_NOERROR)
+	if(waveOutOpen(&m_waveOut, WAVE_MAPPER, &waveFormat,
+	               reinterpret_cast<DWORD_PTR>(&CSH_WaveOut::WaveOutProcStub),
+	               reinterpret_cast<DWORD_PTR>(this),
+	               CALLBACK_FUNCTION) != MMSYSERR_NOERROR)
 	{
 		throw std::runtime_error("Couldn't initialize WaveOut device.");
 	}
@@ -65,7 +65,7 @@ void CSH_WaveOut::DestroyWaveOut()
 		WAVEHDR& buffer(m_buffer[i]);
 		if(buffer.lpData != NULL)
 		{
-			delete [] buffer.lpData;
+			delete[] buffer.lpData;
 		}
 	}
 
@@ -96,7 +96,8 @@ WAVEHDR* CSH_WaveOut::GetFreeBuffer()
 	for(unsigned int i = 0; i < MAX_BUFFERS; i++)
 	{
 		WAVEHDR* buffer(&m_buffer[i]);
-		if(buffer->dwFlags & WHDR_DONE) return buffer;
+		if(buffer->dwFlags & WHDR_DONE)
+			return buffer;
 	}
 	return NULL;
 }
@@ -112,7 +113,6 @@ void CSH_WaveOut::Reset()
 
 void CSH_WaveOut::RecycleBuffers()
 {
-
 }
 
 bool CSH_WaveOut::HasFreeBuffers()
@@ -123,20 +123,21 @@ bool CSH_WaveOut::HasFreeBuffers()
 void CSH_WaveOut::Write(int16* buffer, unsigned int sampleCount, unsigned int sampleRate)
 {
 	WAVEHDR* waveHeader = GetFreeBuffer();
-	if(waveHeader == NULL) return;
+	if(waveHeader == NULL)
+		return;
 
 	if(waveHeader->dwFlags & WHDR_PREPARED)
 	{
 		waveOutUnprepareHeader(m_waveOut, waveHeader, sizeof(WAVEHDR));
 		waveHeader->dwFlags = 0;
-		delete [] waveHeader->lpData;
+		delete[] waveHeader->lpData;
 		waveHeader->lpData = NULL;
 	}
 
 	size_t bufferSize = sampleCount * sizeof(int16);
 
-	waveHeader->dwBufferLength	= bufferSize;
-	waveHeader->lpData			= new CHAR[bufferSize];
+	waveHeader->dwBufferLength = bufferSize;
+	waveHeader->lpData = new CHAR[bufferSize];
 	memcpy(waveHeader->lpData, buffer, bufferSize);
 
 	waveOutPrepareHeader(m_waveOut, waveHeader, sizeof(WAVEHDR));

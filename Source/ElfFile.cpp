@@ -1,17 +1,14 @@
 #include "ElfFile.h"
 
 CElfFile::CElfFile(Framework::CStream& stream)
-: CElfFileContainer(stream)
-, CELF(GetFileContent())
+    : CElfFileContainer(stream)
+    , CELF(GetFileContent())
 {
-
 }
 
 CElfFile::~CElfFile()
 {
-
 }
-
 
 CElfFileContainer::CElfFileContainer(Framework::CStream& input)
 {
@@ -22,7 +19,7 @@ CElfFileContainer::CElfFileContainer(Framework::CStream& input)
 
 CElfFileContainer::~CElfFileContainer()
 {
-	delete [] m_content;
+	delete[] m_content;
 }
 
 uint8* CElfFileContainer::GetFileContent() const

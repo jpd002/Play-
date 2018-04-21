@@ -1,26 +1,26 @@
 #include "GamePadDeviceListener.h"
 #include "GamePadUtils.h"
+#include <csignal>
 #include <fcntl.h>
-#include <sys/signalfd.h>
 #include <poll.h>
 #include <sys/inotify.h>
-#include <csignal>
+#include <sys/signalfd.h>
 
-#define EVENT_SIZE		( sizeof (struct inotify_event) )
-#define EVENT_BUF_LEN	( 1024 * ( EVENT_SIZE + NAME_MAX + 1) )
-#define WATCH_FLAGS		( IN_CREATE | IN_DELETE )
+#define EVENT_SIZE (sizeof(struct inotify_event))
+#define EVENT_BUF_LEN (1024 * (EVENT_SIZE + NAME_MAX + 1))
+#define WATCH_FLAGS (IN_CREATE | IN_DELETE)
 
 CGamePadDeviceListener::CGamePadDeviceListener(OnInputEvent OnInputEventCallBack, bool filter)
-	: OnInputEventCallBack(OnInputEventCallBack),
-	m_running(true),
-	m_filter(filter)
+    : OnInputEventCallBack(OnInputEventCallBack)
+    , m_running(true)
+    , m_filter(filter)
 {
-	m_thread = std::thread([this](){InputDeviceListenerThread();});
+	m_thread = std::thread([this]() { InputDeviceListenerThread(); });
 	UpdateDeviceList();
 }
 
 CGamePadDeviceListener::CGamePadDeviceListener(bool filter)
-	: CGamePadDeviceListener(nullptr, filter)
+    : CGamePadDeviceListener(nullptr, filter)
 {
 }
 
@@ -111,7 +111,7 @@ void CGamePadDeviceListener::InputDeviceListenerThread()
 	}
 
 	struct pollfd fds[2];
-	sigset_t mask;
+	sigset_t      mask;
 
 	fds[0].fd = fd;
 	fds[0].events = POLLIN;
@@ -124,12 +124,13 @@ void CGamePadDeviceListener::InputDeviceListenerThread()
 	sigprocmask(SIG_BLOCK, &mask, NULL);
 
 	std::string devinput_dir("/dev/input");
-	int wd = inotify_add_watch(fd, devinput_dir.c_str(), WATCH_FLAGS);
-	char buffer[EVENT_BUF_LEN];
+	int         wd = inotify_add_watch(fd, devinput_dir.c_str(), WATCH_FLAGS);
+	char        buffer[EVENT_BUF_LEN];
 
 	while(m_running)
 	{
-		if(poll(fds, 2, 500) == 0) continue;
+		if(poll(fds, 2, 500) == 0)
+			continue;
 
 		int length = read(fd, buffer, EVENT_BUF_LEN);
 		if(length < 0)
@@ -138,9 +139,9 @@ void CGamePadDeviceListener::InputDeviceListenerThread()
 			continue;
 		}
 
-		for(int i=0; i < length;)
+		for(int i = 0; i < length;)
 		{
-			struct inotify_event *event = (struct inotify_event *) &buffer[i];
+			struct inotify_event* event = (struct inotify_event*)&buffer[i];
 			if(event->len)
 			{
 				if(strstr(event->name, "event"))
@@ -167,7 +168,7 @@ void CGamePadDeviceListener::InputDeviceListenerThread()
 
 bool CGamePadDeviceListener::IsValidDevice(const fs::path& inputdev_path, inputdev_pair& devinfo)
 {
-	if(access( inputdev_path.string().c_str(), R_OK ) == -1)
+	if(access(inputdev_path.string().c_str(), R_OK) == -1)
 	{
 		return false;
 	}
@@ -180,8 +181,8 @@ bool CGamePadDeviceListener::IsValidDevice(const fs::path& inputdev_path, inputd
 		return res;
 	}
 
-	struct libevdev *dev = NULL;
-	int initdev_result = libevdev_new_from_fd(fd, &dev);
+	struct libevdev* dev = NULL;
+	int              initdev_result = libevdev_new_from_fd(fd, &dev);
 	if(initdev_result < 0)
 	{
 		fprintf(stderr, "CGamePadDeviceListener::IsValidDevice: Failed to init libevdev (%s)\n", strerror(-initdev_result));
@@ -201,7 +202,8 @@ bool CGamePadDeviceListener::IsValidDevice(const fs::path& inputdev_path, inputd
 	CGamePadDeviceListener::inputdevice id;
 	id.name = name;
 	id.uniq_id = device;
-	id.path = inputdev_path.string();;
+	id.path = inputdev_path.string();
+	;
 	devinfo = std::make_pair(inputdev_path.filename().string(), id);
 	res = true;
 

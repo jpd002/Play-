@@ -6,7 +6,7 @@ std::tstring DebugUtils::PrintAddressLocation(uint32 address, CMIPS* context, co
 {
 	auto locationString = string_format(_T("0x%08X"), address);
 
-	auto module = FindModuleAtAddress(modules, address);
+	auto        module = FindModuleAtAddress(modules, address);
 	const char* functionName = nullptr;
 	if(auto subroutine = context->m_analysis->FindSubroutine(address))
 	{
@@ -39,7 +39,7 @@ std::tstring DebugUtils::PrintAddressLocation(uint32 address, CMIPS* context, co
 const BIOS_DEBUG_MODULE_INFO* DebugUtils::FindModuleAtAddress(const BiosDebugModuleInfoArray& modules, uint32 address)
 {
 	for(auto moduleIterator(std::begin(modules));
-		moduleIterator != std::end(modules); moduleIterator++)
+	    moduleIterator != std::end(modules); moduleIterator++)
 	{
 		const auto& module = (*moduleIterator);
 		if(address >= module.begin && address < module.end)

@@ -1,21 +1,19 @@
-#include <assert.h>
-#include "MpegVideoState.h"
 #include "VideoStream_ReadDcDifferential.h"
-#include "MPEG2/DcSizeLuminanceTable.h"
 #include "MPEG2/DcSizeChrominanceTable.h"
+#include "MPEG2/DcSizeLuminanceTable.h"
+#include "MpegVideoState.h"
+#include <assert.h>
 
 using namespace VideoStream;
 
 ReadDcDifferential::ReadDcDifferential()
-: m_channel(0)
-, m_size(0)
+    : m_channel(0)
+    , m_size(0)
 {
-
 }
 
 ReadDcDifferential::~ReadDcDifferential()
 {
-
 }
 
 void ReadDcDifferential::SetChannel(unsigned int channel)
@@ -31,20 +29,24 @@ void ReadDcDifferential::Reset()
 
 void ReadDcDifferential::Execute(void* context, Framework::CBitStream& stream)
 {
-	MPEG_VIDEO_STATE* state(reinterpret_cast<MPEG_VIDEO_STATE*>(context));
+	MPEG_VIDEO_STATE*    state(reinterpret_cast<MPEG_VIDEO_STATE*>(context));
 	BLOCK_DECODER_STATE& decoderState(state->blockDecoderState);
 
 	while(1)
 	{
 		switch(m_programState)
 		{
-		case STATE_READSIZE:				goto Label_ReadSize;
-		case STATE_READDIFF:				goto Label_ReadDiff;
-		case STATE_DONE:					goto Label_Done;
-		default:							assert(0);
+		case STATE_READSIZE:
+			goto Label_ReadSize;
+		case STATE_READDIFF:
+			goto Label_ReadDiff;
+		case STATE_DONE:
+			goto Label_Done;
+		default:
+			assert(0);
 		}
 
-Label_ReadSize:
+	Label_ReadSize:
 		switch(m_channel)
 		{
 		case 0:
@@ -58,7 +60,7 @@ Label_ReadSize:
 		m_programState = STATE_READDIFF;
 		continue;
 
-Label_ReadDiff:
+	Label_ReadDiff:
 		if(m_size == 0)
 		{
 			decoderState.dcDifferential = 0;
@@ -78,7 +80,7 @@ Label_ReadDiff:
 		m_programState = STATE_DONE;
 		continue;
 
-Label_Done:
+	Label_Done:
 		return;
 	}
 }

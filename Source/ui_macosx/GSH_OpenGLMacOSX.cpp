@@ -3,14 +3,12 @@
 #include "StdStream.h"
 
 CGSH_OpenGLMacOSX::CGSH_OpenGLMacOSX(CGLContextObj context)
-: m_context(context)
+    : m_context(context)
 {
-
 }
 
 CGSH_OpenGLMacOSX::~CGSH_OpenGLMacOSX()
 {
-
 }
 
 CGSHandler::FactoryFunction CGSH_OpenGLMacOSX::GetFactoryFunction(CGLContextObj context)
@@ -32,7 +30,6 @@ void CGSH_OpenGLMacOSX::ReleaseImpl()
 
 void CGSH_OpenGLMacOSX::ReadFramebuffer(uint32, uint32, void*)
 {
-	
 }
 
 void CGSH_OpenGLMacOSX::PresentBackbuffer()

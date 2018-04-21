@@ -1,77 +1,71 @@
-#include <assert.h>
 #include "Iop_RootCounters.h"
-#include "Iop_Intc.h"
-#include "string_format.h"
 #include "../Log.h"
 #include "../RegisterStateFile.h"
+#include "Iop_Intc.h"
+#include "string_format.h"
+#include <assert.h>
 
 #define LOG_NAME ("iop_counters")
 
-#define STATE_REGS_XML	("iop_counters/regs.xml")
+#define STATE_REGS_XML ("iop_counters/regs.xml")
 
 using namespace Iop;
 
 const uint32 CRootCounters::g_counterInterruptLines[MAX_COUNTERS] =
-{
-	CIntc::LINE_RTC0,
-	CIntc::LINE_RTC1,
-	CIntc::LINE_RTC2,
-	CIntc::LINE_RTC3,
-	CIntc::LINE_RTC4,
-	CIntc::LINE_RTC5
-};
+    {
+        CIntc::LINE_RTC0,
+        CIntc::LINE_RTC1,
+        CIntc::LINE_RTC2,
+        CIntc::LINE_RTC3,
+        CIntc::LINE_RTC4,
+        CIntc::LINE_RTC5};
 
 const uint32 CRootCounters::g_counterBaseAddresses[MAX_COUNTERS] =
-{
-	CNT0_BASE,
-	CNT1_BASE,
-	CNT2_BASE,
-	CNT3_BASE,
-	CNT4_BASE,
-	CNT5_BASE
-};
+    {
+        CNT0_BASE,
+        CNT1_BASE,
+        CNT2_BASE,
+        CNT3_BASE,
+        CNT4_BASE,
+        CNT5_BASE};
 
 const uint32 CRootCounters::g_counterSources[MAX_COUNTERS] =
-{
-	COUNTER_SOURCE_SYSCLOCK | COUNTER_SOURCE_PIXEL | COUNTER_SOURCE_HOLD,
-	COUNTER_SOURCE_SYSCLOCK | COUNTER_SOURCE_HLINE | COUNTER_SOURCE_HOLD,
-	COUNTER_SOURCE_SYSCLOCK,
-	COUNTER_SOURCE_SYSCLOCK,
-	COUNTER_SOURCE_SYSCLOCK,
-	COUNTER_SOURCE_SYSCLOCK
-};
+    {
+        COUNTER_SOURCE_SYSCLOCK | COUNTER_SOURCE_PIXEL | COUNTER_SOURCE_HOLD,
+        COUNTER_SOURCE_SYSCLOCK | COUNTER_SOURCE_HLINE | COUNTER_SOURCE_HOLD,
+        COUNTER_SOURCE_SYSCLOCK,
+        COUNTER_SOURCE_SYSCLOCK,
+        COUNTER_SOURCE_SYSCLOCK,
+        COUNTER_SOURCE_SYSCLOCK};
 
 const uint32 CRootCounters::g_counterSizes[MAX_COUNTERS] =
-{
-	16,
-	16,
-	16,
-	32,
-	32,
-	32
-};
+    {
+        16,
+        16,
+        16,
+        32,
+        32,
+        32};
 
 const uint32 CRootCounters::g_counterMaxScales[MAX_COUNTERS] =
-{
-	1,
-	1,
-	8,
-	1,
-	256,
-	256
-};
+    {
+        1,
+        1,
+        8,
+        1,
+        256,
+        256};
 
 CRootCounters::CRootCounters(unsigned int clockFreq, Iop::CIntc& intc)
-: m_hsyncClocks(clockFreq / (480 * 60))
-, m_pixelClocks(clockFreq / (640 * 480 * 60))
-, m_intc(intc)
+    : m_hsyncClocks(clockFreq / (480 * 60))
+    , m_pixelClocks(clockFreq / (640 * 480 * 60))
+    , m_intc(intc)
 {
 	Reset();
 }
 
 CRootCounters::~CRootCounters()
 {
-
 }
 
 unsigned int CRootCounters::GetCounterIdByAddress(uint32 address)
@@ -90,11 +84,11 @@ void CRootCounters::LoadState(Framework::CZipArchiveReader& archive)
 	for(unsigned int i = 0; i < MAX_COUNTERS; i++)
 	{
 		auto& counter = m_counter[i];
-		auto counterPrefix = string_format("COUNTER_%d_", i);
-		counter.count		= registerFile.GetRegister32((counterPrefix + "COUNT").c_str());
-		counter.mode	  <<= registerFile.GetRegister32((counterPrefix + "MODE").c_str());
-		counter.target		= registerFile.GetRegister32((counterPrefix + "TGT").c_str());
-		counter.clockRemain	= registerFile.GetRegister32((counterPrefix + "REM").c_str());
+		auto  counterPrefix = string_format("COUNTER_%d_", i);
+		counter.count = registerFile.GetRegister32((counterPrefix + "COUNT").c_str());
+		counter.mode <<= registerFile.GetRegister32((counterPrefix + "MODE").c_str());
+		counter.target = registerFile.GetRegister32((counterPrefix + "TGT").c_str());
+		counter.clockRemain = registerFile.GetRegister32((counterPrefix + "REM").c_str());
 	}
 }
 
@@ -104,7 +98,7 @@ void CRootCounters::SaveState(Framework::CZipArchiveWriter& archive)
 	for(unsigned int i = 0; i < MAX_COUNTERS; i++)
 	{
 		const auto& counter = m_counter[i];
-		auto counterPrefix = string_format("COUNTER_%d_", i);
+		auto        counterPrefix = string_format("COUNTER_%d_", i);
 		registerFile->SetRegister32((counterPrefix + "COUNT").c_str(), counter.count);
 		registerFile->SetRegister32((counterPrefix + "MODE").c_str(), counter.mode);
 		registerFile->SetRegister32((counterPrefix + "TGT").c_str(), counter.target);
@@ -118,7 +112,8 @@ void CRootCounters::Update(unsigned int ticks)
 	for(unsigned int i = 0; i < MAX_COUNTERS; i++)
 	{
 		COUNTER& counter = m_counter[i];
-		if(i == 2 && counter.mode.en) continue;
+		if(i == 2 && counter.mode.en)
+			continue;
 		//Compute count increment
 		unsigned int clockRatio = 1;
 		if(i == 0 && counter.mode.clc)
@@ -135,8 +130,8 @@ void CRootCounters::Update(unsigned int ticks)
 			clockRatio = 8;
 		}
 		if(
-			((i == 4) || (i == 5)) && 
-			(counter.mode.div != COUNTER_SCALE_1))
+		    ((i == 4) || (i == 5)) &&
+		    (counter.mode.div != COUNTER_SCALE_1))
 		{
 			switch(counter.mode.div)
 			{

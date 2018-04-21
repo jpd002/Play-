@@ -2,6 +2,6 @@
 
 @interface CoverViewCell : UICollectionViewCell
 
-@property (nonatomic, retain) IBOutlet UILabel      *nameLabel;
+@property(nonatomic, retain) IBOutlet UILabel* nameLabel;
 
 @end

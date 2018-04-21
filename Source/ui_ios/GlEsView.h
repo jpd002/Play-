@@ -1,5 +1,5 @@
-#import <UIKit/UIKit.h>
 #include "opengl/OpenGlDef.h"
+#import <UIKit/UIKit.h>
 
 @interface GlEsView : UIView
 {

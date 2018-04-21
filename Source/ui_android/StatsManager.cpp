@@ -1,6 +1,6 @@
-#include <jni.h>
 #include "StatsManager.h"
 #include "string_format.h"
+#include <jni.h>
 
 void CStatsManager::OnNewFrame(uint32 drawCalls)
 {
@@ -26,36 +26,35 @@ uint32 CStatsManager::GetDrawCalls()
 std::string CStatsManager::GetProfilingInfo()
 {
 	std::lock_guard<std::mutex> profileZonesLock(m_profilerZonesMutex);
-	
+
 	std::string result;
-	uint64 totalTime = 0;
+	uint64      totalTime = 0;
 
 	for(const auto& zonePair : m_profilerZones)
 	{
 		const auto& zoneInfo = zonePair.second;
 		totalTime += zoneInfo.currentValue;
 	}
-	
+
 	static const uint64 timeScale = 1000000;
-	
+
 	for(const auto& zonePair : m_profilerZones)
 	{
 		const auto& zoneInfo = zonePair.second;
-		float avgRatioSpent = (totalTime != 0) ? static_cast<double>(zoneInfo.currentValue) / static_cast<double>(totalTime) : 0;
-		float avgMsSpent = (m_frames != 0) ? static_cast<double>(zoneInfo.currentValue) / static_cast<double>(m_frames * timeScale) : 0;
-		float minMsSpent = (zoneInfo.minValue != ~0ULL) ? static_cast<double>(zoneInfo.minValue) / static_cast<double>(timeScale) : 0;
-		float maxMsSpent = static_cast<double>(zoneInfo.maxValue) / static_cast<double>(timeScale);
+		float       avgRatioSpent = (totalTime != 0) ? static_cast<double>(zoneInfo.currentValue) / static_cast<double>(totalTime) : 0;
+		float       avgMsSpent = (m_frames != 0) ? static_cast<double>(zoneInfo.currentValue) / static_cast<double>(m_frames * timeScale) : 0;
+		float       minMsSpent = (zoneInfo.minValue != ~0ULL) ? static_cast<double>(zoneInfo.minValue) / static_cast<double>(timeScale) : 0;
+		float       maxMsSpent = static_cast<double>(zoneInfo.maxValue) / static_cast<double>(timeScale);
 
-		result += string_format("%10s %6.2f%% %6.2fms %6.2fms %6.2fms\r\n", 
-			zonePair.first.c_str(), avgRatioSpent * 100.f, avgMsSpent, minMsSpent, maxMsSpent
-		);
+		result += string_format("%10s %6.2f%% %6.2fms %6.2fms %6.2fms\r\n",
+		                        zonePair.first.c_str(), avgRatioSpent * 100.f, avgMsSpent, minMsSpent, maxMsSpent);
 	}
-	
+
 	{
 		float totalAvgMsSpent = (m_frames != 0) ? static_cast<double>(totalTime) / static_cast<double>(m_frames * timeScale) : 0;
 		result += string_format("                   %6.2fms\r\n", totalAvgMsSpent);
 	}
-	
+
 	return result;
 }
 
@@ -67,7 +66,10 @@ void CStatsManager::ClearStats()
 	m_frames = 0;
 	m_drawCalls = 0;
 #ifdef PROFILE
-	for(auto& zonePair : m_profilerZones) { zonePair.second.currentValue = 0; }
+	for(auto& zonePair : m_profilerZones)
+	{
+		zonePair.second.currentValue = 0;
+	}
 #endif
 }
 
@@ -124,4 +126,3 @@ extern "C" JNIEXPORT jstring JNICALL Java_com_virtualapplications_play_StatsMana
 	jstring result = env->NewStringUTF(info.c_str());
 	return result;
 }
-

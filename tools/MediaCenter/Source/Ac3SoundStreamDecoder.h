@@ -6,13 +6,13 @@
 class Ac3SoundStreamDecoder
 {
 public:
-					Ac3SoundStreamDecoder();
-	virtual			~Ac3SoundStreamDecoder();
+	Ac3SoundStreamDecoder();
+	virtual ~Ac3SoundStreamDecoder();
 
-	void			Execute(Framework::CBitStream&);
+	void Execute(Framework::CBitStream&);
 
 private:
-	void			ReadBsi(Framework::CBitStream&);
+	void ReadBsi(Framework::CBitStream&);
 };
 
 #endif

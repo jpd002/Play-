@@ -1,39 +1,38 @@
-#include <stdio.h>
-#include <algorithm>
-#include "../uint128.h"
-#include "../Ps2Const.h"
-#include "../Log.h"
-#include "../FrameDump.h"
-#include "../RegisterStateFile.h"
 #include "GIF.h"
+#include "../FrameDump.h"
+#include "../Log.h"
+#include "../Ps2Const.h"
+#include "../RegisterStateFile.h"
+#include "../uint128.h"
+#include <algorithm>
+#include <stdio.h>
 
 #define LOG_NAME ("gif")
 
-#define STATE_REGS_XML        ("gif/regs.xml")
-#define STATE_REGS_M3P        ("M3P")
+#define STATE_REGS_XML ("gif/regs.xml")
+#define STATE_REGS_M3P ("M3P")
 #define STATE_REGS_ACTIVEPATH ("ActivePath")
-#define STATE_REGS_LOOPS      ("LOOPS")
-#define STATE_REGS_CMD        ("CMD")
-#define STATE_REGS_REGS       ("REGS")
-#define STATE_REGS_REGSTEMP   ("REGSTEMP")
-#define STATE_REGS_REGLIST    ("REGLIST")
-#define STATE_REGS_EOP        ("EOP")
-#define STATE_REGS_QTEMP      ("QTEMP")
+#define STATE_REGS_LOOPS ("LOOPS")
+#define STATE_REGS_CMD ("CMD")
+#define STATE_REGS_REGS ("REGS")
+#define STATE_REGS_REGSTEMP ("REGSTEMP")
+#define STATE_REGS_REGLIST ("REGLIST")
+#define STATE_REGS_EOP ("EOP")
+#define STATE_REGS_QTEMP ("QTEMP")
 
 CGIF::CGIF(CGSHandler*& gs, uint8* ram, uint8* spr)
-: m_gs(gs)
-, m_ram(ram)
-, m_spr(spr)
-, m_loops(0)
-, m_cmd(0)
-, m_regs(0)
-, m_regsTemp(0)
-, m_regList(0)
-, m_eop(false)
-, m_qtemp(0)
-, m_gifProfilerZone(CProfiler::GetInstance().RegisterZone("GIF"))
+    : m_gs(gs)
+    , m_ram(ram)
+    , m_spr(spr)
+    , m_loops(0)
+    , m_cmd(0)
+    , m_regs(0)
+    , m_regsTemp(0)
+    , m_regList(0)
+    , m_eop(false)
+    , m_qtemp(0)
+    , m_gifProfilerZone(CProfiler::GetInstance().RegisterZone("GIF"))
 {
-
 }
 
 void CGIF::Reset()
@@ -54,28 +53,28 @@ void CGIF::LoadState(Framework::CZipArchiveReader& archive)
 {
 	CRegisterStateFile registerFile(*archive.BeginReadFile(STATE_REGS_XML));
 	m_path3Masked = registerFile.GetRegister32(STATE_REGS_M3P) != 0;
-	m_activePath  = registerFile.GetRegister32(STATE_REGS_ACTIVEPATH);
-	m_loops       = static_cast<uint16>(registerFile.GetRegister32(STATE_REGS_LOOPS));
-	m_cmd         = static_cast<uint8>(registerFile.GetRegister32(STATE_REGS_CMD));
-	m_regs        = static_cast<uint8>(registerFile.GetRegister32(STATE_REGS_REGS));
-	m_regsTemp    = static_cast<uint8>(registerFile.GetRegister32(STATE_REGS_REGSTEMP));
-	m_regList     = registerFile.GetRegister64(STATE_REGS_REGLIST);
-	m_eop         = registerFile.GetRegister32(STATE_REGS_EOP) != 0;
-	m_qtemp       = registerFile.GetRegister32(STATE_REGS_QTEMP);
+	m_activePath = registerFile.GetRegister32(STATE_REGS_ACTIVEPATH);
+	m_loops = static_cast<uint16>(registerFile.GetRegister32(STATE_REGS_LOOPS));
+	m_cmd = static_cast<uint8>(registerFile.GetRegister32(STATE_REGS_CMD));
+	m_regs = static_cast<uint8>(registerFile.GetRegister32(STATE_REGS_REGS));
+	m_regsTemp = static_cast<uint8>(registerFile.GetRegister32(STATE_REGS_REGSTEMP));
+	m_regList = registerFile.GetRegister64(STATE_REGS_REGLIST);
+	m_eop = registerFile.GetRegister32(STATE_REGS_EOP) != 0;
+	m_qtemp = registerFile.GetRegister32(STATE_REGS_QTEMP);
 }
 
 void CGIF::SaveState(Framework::CZipArchiveWriter& archive)
 {
 	CRegisterStateFile* registerFile = new CRegisterStateFile(STATE_REGS_XML);
-	registerFile->SetRegister32(STATE_REGS_M3P,        m_path3Masked ? 1 : 0);
+	registerFile->SetRegister32(STATE_REGS_M3P, m_path3Masked ? 1 : 0);
 	registerFile->SetRegister32(STATE_REGS_ACTIVEPATH, m_activePath);
-	registerFile->SetRegister32(STATE_REGS_LOOPS,      m_loops);
-	registerFile->SetRegister32(STATE_REGS_CMD,        m_cmd);
-	registerFile->SetRegister32(STATE_REGS_REGS,       m_regs);
-	registerFile->SetRegister32(STATE_REGS_REGSTEMP,   m_regsTemp);
-	registerFile->SetRegister64(STATE_REGS_REGLIST,    m_regList);
-	registerFile->SetRegister32(STATE_REGS_EOP,        m_eop ? 1 : 0);
-	registerFile->SetRegister32(STATE_REGS_QTEMP,      m_qtemp);
+	registerFile->SetRegister32(STATE_REGS_LOOPS, m_loops);
+	registerFile->SetRegister32(STATE_REGS_CMD, m_cmd);
+	registerFile->SetRegister32(STATE_REGS_REGS, m_regs);
+	registerFile->SetRegister32(STATE_REGS_REGSTEMP, m_regsTemp);
+	registerFile->SetRegister64(STATE_REGS_REGLIST, m_regList);
+	registerFile->SetRegister32(STATE_REGS_EOP, m_eop ? 1 : 0);
+	registerFile->SetRegister32(STATE_REGS_QTEMP, m_qtemp);
 	archive.InsertFile(registerFile);
 }
 
@@ -100,7 +99,7 @@ uint32 CGIF::ProcessPacked(CGSHandler::RegisterWriteList& writeList, const uint8
 				break;
 			case 0x01:
 				//RGBA
-				temp  = (packet.nV[0] & 0xFF);
+				temp = (packet.nV[0] & 0xFF);
 				temp |= (packet.nV[1] & 0xFF) << 8;
 				temp |= (packet.nV[2] & 0xFF) << 16;
 				temp |= (packet.nV[3] & 0xFF) << 24;
@@ -114,13 +113,13 @@ uint32 CGIF::ProcessPacked(CGSHandler::RegisterWriteList& writeList, const uint8
 				break;
 			case 0x03:
 				//UV
-				temp  = (packet.nV[0] & 0x7FFF);
+				temp = (packet.nV[0] & 0x7FFF);
 				temp |= (packet.nV[1] & 0x7FFF) << 16;
 				writeList.push_back(CGSHandler::RegisterWrite(GS_REG_UV, temp));
 				break;
 			case 0x04:
 				//XYZF2
-				temp  = (packet.nV[0] & 0xFFFF);
+				temp = (packet.nV[0] & 0xFFFF);
 				temp |= (packet.nV[1] & 0xFFFF) << 16;
 				temp |= (uint64)(packet.nV[2] & 0x0FFFFFF0) << 28;
 				temp |= (uint64)(packet.nV[3] & 0x00000FF0) << 52;
@@ -135,7 +134,7 @@ uint32 CGIF::ProcessPacked(CGSHandler::RegisterWriteList& writeList, const uint8
 				break;
 			case 0x05:
 				//XYZ2
-				temp  = (packet.nV[0] & 0xFFFF);
+				temp = (packet.nV[0] & 0xFFFF);
 				temp |= (packet.nV[1] & 0xFFFF) << 16;
 				temp |= (uint64)(packet.nV[2] & 0xFFFFFFFF) << 32;
 				if(packet.nV[3] & 0x8000)
@@ -224,13 +223,14 @@ uint32 CGIF::ProcessRegList(CGSHandler::RegisterWriteList& writeList, const uint
 			assert(address < end);
 
 			uint128 packet;
-			uint32 nRegDesc = (uint32)((m_regList >> (j * 4)) & 0x0F);
+			uint32  nRegDesc = (uint32)((m_regList >> (j * 4)) & 0x0F);
 
 			packet.nV[0] = *(uint32*)&memory[address + 0x00];
 			packet.nV[1] = *(uint32*)&memory[address + 0x04];
 			address += 0x08;
 
-			if(nRegDesc == 0x0F) continue;
+			if(nRegDesc == 0x0F)
+				continue;
 
 			writeList.push_back(CGSHandler::RegisterWrite(static_cast<uint8>(nRegDesc), packet.nD0));
 		}
@@ -260,15 +260,14 @@ uint32 CGIF::ProcessImage(const uint8* memory, uint32 address, uint32 end)
 uint32 CGIF::ProcessSinglePacket(const uint8* memory, uint32 address, uint32 end, const CGsPacketMetadata& packetMetadata)
 {
 	static CGSHandler::RegisterWriteList writeList;
-	static const auto flushWriteList =
-		[] (CGSHandler* gs, const CGsPacketMetadata& packetMetadata)
-		{
-			if(!writeList.empty())
-			{
-				auto currentCapacity = writeList.capacity();
-				gs->WriteRegisterMassively(std::move(writeList), &packetMetadata);
-				writeList.reserve(currentCapacity);
-			}
+	static const auto                    flushWriteList =
+	    [](CGSHandler* gs, const CGsPacketMetadata& packetMetadata) {
+		    if(!writeList.empty())
+		    {
+			    auto currentCapacity = writeList.capacity();
+			    gs->WriteRegisterMassively(std::move(writeList), &packetMetadata);
+			    writeList.reserve(currentCapacity);
+		    }
 		};
 
 #ifdef PROFILE
@@ -276,8 +275,8 @@ uint32 CGIF::ProcessSinglePacket(const uint8* memory, uint32 address, uint32 end
 #endif
 
 #if defined(_DEBUG) && defined(DEBUGGER_INCLUDED)
-	CLog::GetInstance().Print(LOG_NAME, "Received GIF packet on path %d at 0x%08X of 0x%08X bytes.\r\n", 
-		packetMetadata.pathIndex, address, end - address);
+	CLog::GetInstance().Print(LOG_NAME, "Received GIF packet on path %d at 0x%08X of 0x%08X bytes.\r\n",
+	                          packetMetadata.pathIndex, address, end - address);
 #endif
 
 	assert((m_activePath == 0) || (m_activePath == packetMetadata.pathIndex));
@@ -301,14 +300,14 @@ uint32 CGIF::ProcessSinglePacket(const uint8* memory, uint32 address, uint32 end
 			address += 0x10;
 #ifdef _DEBUG
 			CLog::GetInstance().Print(LOG_NAME, "TAG(loops = %d, eop = %d, pre = %d, prim = 0x%04X, cmd = %d, nreg = %d);\r\n",
-				tag.loops, tag.eop, tag.pre, tag.prim, tag.cmd, tag.nreg);
+			                          tag.loops, tag.eop, tag.pre, tag.prim, tag.cmd, tag.nreg);
 #endif
 
-			m_loops		= tag.loops;
-			m_cmd		= tag.cmd;
-			m_regs		= tag.nreg;
-			m_regList	= tag.regs;
-			m_eop		= (tag.eop != 0);
+			m_loops = tag.loops;
+			m_cmd = tag.cmd;
+			m_regs = tag.nreg;
+			m_regList = tag.regs;
+			m_eop = (tag.eop != 0);
 
 			if(m_cmd != 1)
 			{
@@ -318,7 +317,8 @@ uint32 CGIF::ProcessSinglePacket(const uint8* memory, uint32 address, uint32 end
 				}
 			}
 
-			if(m_regs == 0) m_regs = 0x10;
+			if(m_regs == 0)
+				m_regs = 0x10;
 			m_regsTemp = m_regs;
 			m_activePath = packetMetadata.pathIndex;
 			continue;
@@ -413,7 +413,7 @@ uint32 CGIF::ReceiveDMA(uint32 address, uint32 qwc, uint32 unused, bool tagInclu
 		assert(qwc >= 0);
 		address += 0x10;
 	}
-	
+
 	address += ProcessMultiplePackets(memory, address, end, CGsPacketMetadata(3));
 	assert(address <= end);
 

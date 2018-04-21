@@ -1,9 +1,9 @@
-#include <stdio.h>
 #include <assert.h>
 #include <math.h>
+#include <stdio.h>
 
-#include "../../Log.h"
 #include "../../AppConfig.h"
+#include "../../Log.h"
 #include "../GsPixelFormats.h"
 #include "GSH_OpenGL.h"
 
@@ -11,40 +11,37 @@
 #define FRAMEBUFFER_HEIGHT 1024
 
 const GLenum CGSH_OpenGL::g_nativeClampModes[CGSHandler::CLAMP_MODE_MAX] =
-{
-	GL_REPEAT,
-	GL_CLAMP_TO_EDGE,
-	GL_REPEAT,
-	GL_REPEAT
-};
+    {
+        GL_REPEAT,
+        GL_CLAMP_TO_EDGE,
+        GL_REPEAT,
+        GL_REPEAT};
 
 const unsigned int CGSH_OpenGL::g_shaderClampModes[CGSHandler::CLAMP_MODE_MAX] =
-{
-	TEXTURE_CLAMP_MODE_STD,
-	TEXTURE_CLAMP_MODE_STD,
-	TEXTURE_CLAMP_MODE_REGION_CLAMP,
-	TEXTURE_CLAMP_MODE_REGION_REPEAT
-};
+    {
+        TEXTURE_CLAMP_MODE_STD,
+        TEXTURE_CLAMP_MODE_STD,
+        TEXTURE_CLAMP_MODE_REGION_CLAMP,
+        TEXTURE_CLAMP_MODE_REGION_REPEAT};
 
 const unsigned int CGSH_OpenGL::g_alphaTestInverse[CGSHandler::ALPHA_TEST_MAX] =
-{
-	ALPHA_TEST_ALWAYS,
-	ALPHA_TEST_NEVER,
-	ALPHA_TEST_GEQUAL,
-	ALPHA_TEST_GREATER,
-	ALPHA_TEST_NOTEQUAL,
-	ALPHA_TEST_LESS,
-	ALPHA_TEST_LEQUAL,
-	ALPHA_TEST_EQUAL
-};
+    {
+        ALPHA_TEST_ALWAYS,
+        ALPHA_TEST_NEVER,
+        ALPHA_TEST_GEQUAL,
+        ALPHA_TEST_GREATER,
+        ALPHA_TEST_NOTEQUAL,
+        ALPHA_TEST_LESS,
+        ALPHA_TEST_LEQUAL,
+        ALPHA_TEST_EQUAL};
 
 static uint32 MakeColor(uint8 r, uint8 g, uint8 b, uint8 a)
 {
 	return (a << 24) | (b << 16) | (g << 8) | (r);
 }
 
-CGSH_OpenGL::CGSH_OpenGL() 
-: m_pCvtBuffer(nullptr)
+CGSH_OpenGL::CGSH_OpenGL()
+    : m_pCvtBuffer(nullptr)
 {
 	RegisterPreferences();
 	LoadPreferences();
@@ -57,7 +54,7 @@ CGSH_OpenGL::CGSH_OpenGL()
 
 CGSH_OpenGL::~CGSH_OpenGL()
 {
-	delete [] m_pCvtBuffer;
+	delete[] m_pCvtBuffer;
 }
 
 void CGSH_OpenGL::InitializeImpl()
@@ -116,10 +113,10 @@ void CGSH_OpenGL::FlipImpl()
 	m_validGlState = 0;
 
 	DISPLAY d;
-	DISPFB fb;
+	DISPFB  fb;
 	{
 		std::lock_guard<std::recursive_mutex> registerMutexLock(m_registerMutex);
-		unsigned int readCircuit = GetCurrentReadCircuit();
+		unsigned int                          readCircuit = GetCurrentReadCircuit();
 		switch(readCircuit)
 		{
 		case 0:
@@ -137,16 +134,16 @@ void CGSH_OpenGL::FlipImpl()
 	unsigned int dispHeight = (d.nH + 1);
 
 	bool halfHeight = GetCrtIsInterlaced() && GetCrtIsFrameMode();
-	if(halfHeight) dispHeight /= 2;
+	if(halfHeight)
+		dispHeight /= 2;
 
 	FramebufferPtr framebuffer;
 	for(const auto& candidateFramebuffer : m_framebuffers)
 	{
 		if(
-			(candidateFramebuffer->m_basePtr == fb.GetBufPtr()) &&
-			(GetFramebufferBitDepth(candidateFramebuffer->m_psm) == GetFramebufferBitDepth(fb.nPSM)) &&
-			(candidateFramebuffer->m_width == fb.GetBufWidth())
-			)
+		    (candidateFramebuffer->m_basePtr == fb.GetBufPtr()) &&
+		    (GetFramebufferBitDepth(candidateFramebuffer->m_psm) == GetFramebufferBitDepth(fb.nPSM)) &&
+		    (candidateFramebuffer->m_width == fb.GetBufWidth()))
 		{
 			//We have a winner
 			framebuffer = candidateFramebuffer;
@@ -189,40 +186,39 @@ void CGSH_OpenGL::FlipImpl()
 		glViewport(0, 0, m_presentationParams.windowWidth, m_presentationParams.windowHeight);
 		break;
 	case PRESENTATION_MODE_FIT:
+	{
+		int viewportWidth[2];
+		int viewportHeight[2];
 		{
-			int viewportWidth[2];
-			int viewportHeight[2];
-			{
-				viewportWidth[0] = m_presentationParams.windowWidth;
-				viewportHeight[0] = (sourceWidth != 0) ? (m_presentationParams.windowWidth * sourceHeight) / sourceWidth : 0;
-			}
-			{
-				viewportWidth[1] = (sourceHeight != 0) ? (m_presentationParams.windowHeight * sourceWidth) / sourceHeight : 0;
-				viewportHeight[1] = m_presentationParams.windowHeight;
-			}
-			int selectedViewport = 0;
-			if(
-			   (viewportWidth[0] > static_cast<int>(m_presentationParams.windowWidth)) ||
-			   (viewportHeight[0] > static_cast<int>(m_presentationParams.windowHeight))
-			   )
-			{
-				selectedViewport = 1;
-				assert(
-					   viewportWidth[1] <= static_cast<int>(m_presentationParams.windowWidth) &&
-					   viewportHeight[1] <= static_cast<int>(m_presentationParams.windowHeight));
-			}
-			int offsetX = static_cast<int>(m_presentationParams.windowWidth - viewportWidth[selectedViewport]) / 2;
-			int offsetY = static_cast<int>(m_presentationParams.windowHeight - viewportHeight[selectedViewport]) / 2;
-			glViewport(offsetX, offsetY, viewportWidth[selectedViewport], viewportHeight[selectedViewport]);
+			viewportWidth[0] = m_presentationParams.windowWidth;
+			viewportHeight[0] = (sourceWidth != 0) ? (m_presentationParams.windowWidth * sourceHeight) / sourceWidth : 0;
 		}
-		break;
+		{
+			viewportWidth[1] = (sourceHeight != 0) ? (m_presentationParams.windowHeight * sourceWidth) / sourceHeight : 0;
+			viewportHeight[1] = m_presentationParams.windowHeight;
+		}
+		int selectedViewport = 0;
+		if(
+		    (viewportWidth[0] > static_cast<int>(m_presentationParams.windowWidth)) ||
+		    (viewportHeight[0] > static_cast<int>(m_presentationParams.windowHeight)))
+		{
+			selectedViewport = 1;
+			assert(
+			    viewportWidth[1] <= static_cast<int>(m_presentationParams.windowWidth) &&
+			    viewportHeight[1] <= static_cast<int>(m_presentationParams.windowHeight));
+		}
+		int offsetX = static_cast<int>(m_presentationParams.windowWidth - viewportWidth[selectedViewport]) / 2;
+		int offsetY = static_cast<int>(m_presentationParams.windowHeight - viewportHeight[selectedViewport]) / 2;
+		glViewport(offsetX, offsetY, viewportWidth[selectedViewport], viewportHeight[selectedViewport]);
+	}
+	break;
 	case PRESENTATION_MODE_ORIGINAL:
-		{
-			int offsetX = static_cast<int>(m_presentationParams.windowWidth - sourceWidth) / 2;
-			int offsetY = static_cast<int>(m_presentationParams.windowHeight - sourceHeight) / 2;
-			glViewport(offsetX, offsetY, sourceWidth, sourceHeight);
-		}
-		break;
+	{
+		int offsetX = static_cast<int>(m_presentationParams.windowWidth - sourceWidth) / 2;
+		int offsetY = static_cast<int>(m_presentationParams.windowHeight - sourceHeight) / 2;
+		glViewport(offsetX, offsetY, sourceWidth, sourceHeight);
+	}
+	break;
 	}
 
 	if(framebuffer)
@@ -282,11 +278,9 @@ void CGSH_OpenGL::LoadState(Framework::CZipArchiveReader& archive)
 {
 	CGSHandler::LoadState(archive);
 	m_mailBox.SendCall(
-		[this] ()
-		{
-			m_textureCache.InvalidateRange(0, RAMSIZE);
-		}
-	);
+	    [this]() {
+		    m_textureCache.InvalidateRange(0, RAMSIZE);
+		});
 }
 
 void CGSH_OpenGL::RegisterPreferences()
@@ -349,12 +343,12 @@ Framework::OpenGl::CBuffer CGSH_OpenGL::GeneratePresentVertexBuffer()
 	auto buffer = Framework::OpenGl::CBuffer::Create();
 
 	static const float bufferContents[] =
-	{
-		//Pos         UV
-		-1.0f, -1.0f, 0.0f,  1.0f,
-		-1.0f,  3.0f, 0.0f, -1.0f,
-		 3.0f, -1.0f, 2.0f,  1.0f,
-	};
+	    {
+	        //Pos         UV
+	        -1.0f, -1.0f, 0.0f, 1.0f,
+	        -1.0f, 3.0f, 0.0f, -1.0f,
+	        3.0f, -1.0f, 2.0f, 1.0f,
+	    };
 
 	glBindBuffer(GL_ARRAY_BUFFER, buffer);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(bufferContents), bufferContents, GL_STATIC_DRAW);
@@ -371,16 +365,16 @@ Framework::OpenGl::CVertexArray CGSH_OpenGL::GeneratePresentVertexArray()
 	auto vertexArray = Framework::OpenGl::CVertexArray::Create();
 
 	glBindVertexArray(vertexArray);
-	
+
 	glBindBuffer(GL_ARRAY_BUFFER, m_presentVertexBuffer);
 
 	glEnableVertexAttribArray(static_cast<GLuint>(PRIM_VERTEX_ATTRIB::POSITION));
-	glVertexAttribPointer(static_cast<GLuint>(PRIM_VERTEX_ATTRIB::POSITION), 2, GL_FLOAT, 
-		GL_FALSE, sizeof(float) * 4, reinterpret_cast<const GLvoid*>(0));
+	glVertexAttribPointer(static_cast<GLuint>(PRIM_VERTEX_ATTRIB::POSITION), 2, GL_FLOAT,
+	                      GL_FALSE, sizeof(float) * 4, reinterpret_cast<const GLvoid*>(0));
 
 	glEnableVertexAttribArray(static_cast<GLuint>(PRIM_VERTEX_ATTRIB::TEXCOORD));
-	glVertexAttribPointer(static_cast<GLuint>(PRIM_VERTEX_ATTRIB::TEXCOORD), 2, GL_FLOAT, 
-		GL_FALSE, sizeof(float) * 4, reinterpret_cast<const GLvoid*>(8));
+	glVertexAttribPointer(static_cast<GLuint>(PRIM_VERTEX_ATTRIB::TEXCOORD), 2, GL_FLOAT,
+	                      GL_FALSE, sizeof(float) * 4, reinterpret_cast<const GLvoid*>(8));
 
 	glBindVertexArray(0);
 
@@ -394,13 +388,13 @@ Framework::OpenGl::CBuffer CGSH_OpenGL::GenerateCopyToFbVertexBuffer()
 	auto buffer = Framework::OpenGl::CBuffer::Create();
 
 	static const float bufferContents[] =
-	{
-		//Pos       UV
-		-1.0f, -1.0f, 0.0f, 0.0f,
-		 1.0f, -1.0f, 1.0f, 0.0f,
-		-1.0f,  1.0f, 0.0f, 1.0f,
-		 1.0f,  1.0f, 1.0f, 1.0f,
-	};
+	    {
+	        //Pos       UV
+	        -1.0f, -1.0f, 0.0f, 0.0f,
+	        1.0f, -1.0f, 1.0f, 0.0f,
+	        -1.0f, 1.0f, 0.0f, 1.0f,
+	        1.0f, 1.0f, 1.0f, 1.0f,
+	    };
 
 	glBindBuffer(GL_ARRAY_BUFFER, buffer);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(bufferContents), bufferContents, GL_STATIC_DRAW);
@@ -421,12 +415,12 @@ Framework::OpenGl::CVertexArray CGSH_OpenGL::GenerateCopyToFbVertexArray()
 	glBindBuffer(GL_ARRAY_BUFFER, m_copyToFbVertexBuffer);
 
 	glEnableVertexAttribArray(static_cast<GLuint>(PRIM_VERTEX_ATTRIB::POSITION));
-	glVertexAttribPointer(static_cast<GLuint>(PRIM_VERTEX_ATTRIB::POSITION), 2, GL_FLOAT, 
-		GL_FALSE, sizeof(float) * 4, reinterpret_cast<const GLvoid*>(0));
+	glVertexAttribPointer(static_cast<GLuint>(PRIM_VERTEX_ATTRIB::POSITION), 2, GL_FLOAT,
+	                      GL_FALSE, sizeof(float) * 4, reinterpret_cast<const GLvoid*>(0));
 
 	glEnableVertexAttribArray(static_cast<GLuint>(PRIM_VERTEX_ATTRIB::TEXCOORD));
-	glVertexAttribPointer(static_cast<GLuint>(PRIM_VERTEX_ATTRIB::TEXCOORD), 2, GL_FLOAT, 
-		GL_FALSE, sizeof(float) * 4, reinterpret_cast<const GLvoid*>(8));
+	glVertexAttribPointer(static_cast<GLuint>(PRIM_VERTEX_ATTRIB::TEXCOORD), 2, GL_FLOAT,
+	                      GL_FALSE, sizeof(float) * 4, reinterpret_cast<const GLvoid*>(8));
 
 	glBindVertexArray(0);
 
@@ -444,20 +438,20 @@ Framework::OpenGl::CVertexArray CGSH_OpenGL::GeneratePrimVertexArray()
 	glBindBuffer(GL_ARRAY_BUFFER, m_primBuffer);
 
 	glEnableVertexAttribArray(static_cast<GLuint>(PRIM_VERTEX_ATTRIB::POSITION));
-	glVertexAttribPointer(static_cast<GLuint>(PRIM_VERTEX_ATTRIB::POSITION), 3, GL_FLOAT, 
-		GL_FALSE, sizeof(PRIM_VERTEX), reinterpret_cast<const GLvoid*>(offsetof(PRIM_VERTEX, x)));
+	glVertexAttribPointer(static_cast<GLuint>(PRIM_VERTEX_ATTRIB::POSITION), 3, GL_FLOAT,
+	                      GL_FALSE, sizeof(PRIM_VERTEX), reinterpret_cast<const GLvoid*>(offsetof(PRIM_VERTEX, x)));
 
 	glEnableVertexAttribArray(static_cast<GLuint>(PRIM_VERTEX_ATTRIB::COLOR));
-	glVertexAttribPointer(static_cast<GLuint>(PRIM_VERTEX_ATTRIB::COLOR), 4, GL_UNSIGNED_BYTE, 
-		GL_TRUE, sizeof(PRIM_VERTEX), reinterpret_cast<const GLvoid*>(offsetof(PRIM_VERTEX, color)));
+	glVertexAttribPointer(static_cast<GLuint>(PRIM_VERTEX_ATTRIB::COLOR), 4, GL_UNSIGNED_BYTE,
+	                      GL_TRUE, sizeof(PRIM_VERTEX), reinterpret_cast<const GLvoid*>(offsetof(PRIM_VERTEX, color)));
 
 	glEnableVertexAttribArray(static_cast<GLuint>(PRIM_VERTEX_ATTRIB::TEXCOORD));
-	glVertexAttribPointer(static_cast<GLuint>(PRIM_VERTEX_ATTRIB::TEXCOORD), 3, GL_FLOAT, 
-		GL_FALSE, sizeof(PRIM_VERTEX), reinterpret_cast<const GLvoid*>(offsetof(PRIM_VERTEX, s)));
+	glVertexAttribPointer(static_cast<GLuint>(PRIM_VERTEX_ATTRIB::TEXCOORD), 3, GL_FLOAT,
+	                      GL_FALSE, sizeof(PRIM_VERTEX), reinterpret_cast<const GLvoid*>(offsetof(PRIM_VERTEX, s)));
 
 	glEnableVertexAttribArray(static_cast<GLuint>(PRIM_VERTEX_ATTRIB::FOG));
-	glVertexAttribPointer(static_cast<GLuint>(PRIM_VERTEX_ATTRIB::FOG), 1, GL_FLOAT, 
-		GL_FALSE, sizeof(PRIM_VERTEX), reinterpret_cast<const GLvoid*>(offsetof(PRIM_VERTEX, f)));
+	glVertexAttribPointer(static_cast<GLuint>(PRIM_VERTEX_ATTRIB::FOG), 1, GL_FLOAT,
+	                      GL_FALSE, sizeof(PRIM_VERTEX), reinterpret_cast<const GLvoid*>(offsetof(PRIM_VERTEX, f)));
 
 	glBindVertexArray(0);
 
@@ -479,32 +473,34 @@ Framework::OpenGl::CBuffer CGSH_OpenGL::GenerateUniformBlockBuffer(size_t blockS
 
 void CGSH_OpenGL::MakeLinearZOrtho(float* matrix, float left, float right, float bottom, float top)
 {
-	matrix[ 0] = 2.0f / (right - left);
-	matrix[ 1] = 0;
-	matrix[ 2] = 0;
-	matrix[ 3] = 0;
+	matrix[0] = 2.0f / (right - left);
+	matrix[1] = 0;
+	matrix[2] = 0;
+	matrix[3] = 0;
 
-	matrix[ 4] = 0;
-	matrix[ 5] = 2.0f / (top - bottom);
-	matrix[ 6] = 0;
-	matrix[ 7] = 0;
+	matrix[4] = 0;
+	matrix[5] = 2.0f / (top - bottom);
+	matrix[6] = 0;
+	matrix[7] = 0;
 
-	matrix[ 8] = 0;
-	matrix[ 9] = 0;
+	matrix[8] = 0;
+	matrix[9] = 0;
 	matrix[10] = 1;
 	matrix[11] = 0;
 
-	matrix[12] = - (right + left) / (right - left);
-	matrix[13] = - (top + bottom) / (top - bottom);
+	matrix[12] = -(right + left) / (right - left);
+	matrix[13] = -(top + bottom) / (top - bottom);
 	matrix[14] = 0;
 	matrix[15] = 1;
 }
 
 unsigned int CGSH_OpenGL::GetCurrentReadCircuit()
 {
-//	assert((m_nPMODE & 0x3) != 0x03);
-	if(m_nPMODE & 0x1) return 0;
-	if(m_nPMODE & 0x2) return 1;
+	//	assert((m_nPMODE & 0x3) != 0x03);
+	if(m_nPMODE & 0x1)
+		return 0;
+	if(m_nPMODE & 0x2)
+		return 1;
 	//Getting here is bad
 	return 0;
 }
@@ -515,10 +511,12 @@ float CGSH_OpenGL::GetZ(float nZ)
 	{
 		return -1;
 	}
-	
+
 	nZ -= m_nMaxZ;
-	if(nZ > m_nMaxZ) return 1.0;
-	if(nZ < -m_nMaxZ) return -1.0;
+	if(nZ > m_nMaxZ)
+		return 1.0;
+	if(nZ < -m_nMaxZ)
+		return -1.0;
 	return nZ / m_nMaxZ;
 }
 
@@ -609,14 +607,14 @@ void CGSH_OpenGL::SetRenderingContext(uint64 primReg)
 	//--------------------------------------------------------
 
 	if(!m_renderState.isValid ||
-		(static_cast<uint32>(m_renderState.shaderCaps) != static_cast<uint32>(shaderCaps)))
+	   (static_cast<uint32>(m_renderState.shaderCaps) != static_cast<uint32>(shaderCaps)))
 	{
 		FlushVertexBuffer();
 		m_renderState.shaderCaps = shaderCaps;
 	}
 
 	if(!m_renderState.isValid ||
-		(m_renderState.technique != technique))
+	   (m_renderState.technique != technique))
 	{
 		FlushVertexBuffer();
 		m_renderState.technique = technique;
@@ -627,26 +625,26 @@ void CGSH_OpenGL::SetRenderingContext(uint64 primReg)
 	//--------------------------------------------------------
 
 	if(!m_renderState.isValid ||
-		(m_renderState.primReg != primReg))
+	   (m_renderState.primReg != primReg))
 	{
 		FlushVertexBuffer();
 
 		//Humm, not quite sure about this
-//		if(prim.nAntiAliasing)
-//		{
-//			glEnable(GL_BLEND);
-//		}
-//		else
-//		{
-//			glDisable(GL_BLEND);
-//		}
+		//		if(prim.nAntiAliasing)
+		//		{
+		//			glEnable(GL_BLEND);
+		//		}
+		//		else
+		//		{
+		//			glDisable(GL_BLEND);
+		//		}
 
 		m_renderState.blendEnabled = prim.nAlpha ? GL_TRUE : GL_FALSE;
 		m_validGlState &= ~GLSTATE_BLEND;
 	}
 
 	if(!m_renderState.isValid ||
-		(m_renderState.alphaReg != alphaReg))
+	   (m_renderState.alphaReg != alphaReg))
 	{
 		FlushVertexBuffer();
 		SetupBlendingFunction(alphaReg);
@@ -654,7 +652,7 @@ void CGSH_OpenGL::SetRenderingContext(uint64 primReg)
 	}
 
 	if(!m_renderState.isValid ||
-		(m_renderState.testReg != testReg))
+	   (m_renderState.testReg != testReg))
 	{
 		FlushVertexBuffer();
 		SetupTestFunctions(testReg);
@@ -662,8 +660,8 @@ void CGSH_OpenGL::SetRenderingContext(uint64 primReg)
 	}
 
 	if(!m_renderState.isValid ||
-		(m_renderState.zbufReg != zbufReg) ||
-		(m_renderState.testReg != testReg))
+	   (m_renderState.zbufReg != zbufReg) ||
+	   (m_renderState.testReg != testReg))
 	{
 		FlushVertexBuffer();
 		SetupDepthBuffer(zbufReg, testReg);
@@ -671,11 +669,11 @@ void CGSH_OpenGL::SetRenderingContext(uint64 primReg)
 	}
 
 	if(!m_renderState.isValid ||
-		!m_renderState.isFramebufferStateValid ||
-		(m_renderState.frameReg != frameReg) ||
-		(m_renderState.zbufReg != zbufReg) ||
-		(m_renderState.scissorReg != scissorReg) ||
-		(m_renderState.testReg != testReg))
+	   !m_renderState.isFramebufferStateValid ||
+	   (m_renderState.frameReg != frameReg) ||
+	   (m_renderState.zbufReg != zbufReg) ||
+	   (m_renderState.scissorReg != scissorReg) ||
+	   (m_renderState.testReg != testReg))
 	{
 		FlushVertexBuffer();
 		SetupFramebuffer(frameReg, zbufReg, scissorReg, testReg);
@@ -683,12 +681,12 @@ void CGSH_OpenGL::SetRenderingContext(uint64 primReg)
 	}
 
 	if(!m_renderState.isValid ||
-		!m_renderState.isTextureStateValid ||
-		(m_renderState.tex0Reg != tex0Reg) ||
-		(m_renderState.tex1Reg != tex1Reg) ||
-		(m_renderState.texAReg != texAReg) ||
-		(m_renderState.clampReg != clampReg) ||
-		(m_renderState.primReg != primReg))
+	   !m_renderState.isTextureStateValid ||
+	   (m_renderState.tex0Reg != tex0Reg) ||
+	   (m_renderState.tex1Reg != tex1Reg) ||
+	   (m_renderState.texAReg != texAReg) ||
+	   (m_renderState.clampReg != clampReg) ||
+	   (m_renderState.primReg != primReg))
 	{
 		FlushVertexBuffer();
 		SetupTexture(primReg, tex0Reg, tex1Reg, texAReg, clampReg);
@@ -696,7 +694,7 @@ void CGSH_OpenGL::SetRenderingContext(uint64 primReg)
 	}
 
 	if(!m_renderState.isValid ||
-		(m_renderState.fogColReg != fogColReg))
+	   (m_renderState.fogColReg != fogColReg))
 	{
 		FlushVertexBuffer();
 		SetupFogColor(fogColReg);
@@ -706,28 +704,28 @@ void CGSH_OpenGL::SetRenderingContext(uint64 primReg)
 	auto offset = make_convertible<XYOFFSET>(m_nReg[GS_REG_XYOFFSET_1 + context]);
 	m_nPrimOfsX = offset.GetX();
 	m_nPrimOfsY = offset.GetY();
-	
+
 	CHECKGLERROR();
 
-	m_renderState.isValid                 = true;
-	m_renderState.isTextureStateValid     = true;
+	m_renderState.isValid = true;
+	m_renderState.isTextureStateValid = true;
 	m_renderState.isFramebufferStateValid = true;
-	m_renderState.primReg                 = primReg;
-	m_renderState.alphaReg                = alphaReg;
-	m_renderState.testReg                 = testReg;
-	m_renderState.zbufReg                 = zbufReg;
-	m_renderState.scissorReg              = scissorReg;
-	m_renderState.frameReg                = frameReg;
-	m_renderState.tex0Reg                 = tex0Reg;
-	m_renderState.tex1Reg                 = tex1Reg;
-	m_renderState.texAReg                 = texAReg;
-	m_renderState.clampReg                = clampReg;
-	m_renderState.fogColReg               = fogColReg;
+	m_renderState.primReg = primReg;
+	m_renderState.alphaReg = alphaReg;
+	m_renderState.testReg = testReg;
+	m_renderState.zbufReg = zbufReg;
+	m_renderState.scissorReg = scissorReg;
+	m_renderState.frameReg = frameReg;
+	m_renderState.tex0Reg = tex0Reg;
+	m_renderState.tex1Reg = tex1Reg;
+	m_renderState.texAReg = texAReg;
+	m_renderState.clampReg = clampReg;
+	m_renderState.fogColReg = fogColReg;
 }
 
 void CGSH_OpenGL::SetupBlendingFunction(uint64 alphaReg)
 {
-	int nFunction = GL_FUNC_ADD;
+	int  nFunction = GL_FUNC_ADD;
 	auto alpha = make_convertible<ALPHA>(alphaReg);
 
 	if((alpha.nA == alpha.nB) && (alpha.nD == ALPHABLEND_ABD_CS))
@@ -942,9 +940,9 @@ void CGSH_OpenGL::SetupDepthBuffer(uint64 zbufReg, uint64 testReg)
 	bool depthWriteEnabled = (zbuf.nMask ? false : true);
 	//If alpha test is enabled for always failing and update only colors, depth writes are disabled
 	if(
-		(test.nAlphaEnabled == 1) && 
-		(test.nAlphaMethod == ALPHA_TEST_NEVER) && 
-		((test.nAlphaFail == ALPHA_TEST_FAIL_FBONLY) || (test.nAlphaFail == ALPHA_TEST_FAIL_RGBONLY)))
+	    (test.nAlphaEnabled == 1) &&
+	    (test.nAlphaMethod == ALPHA_TEST_NEVER) &&
+	    ((test.nAlphaFail == ALPHA_TEST_FAIL_FBONLY) || (test.nAlphaFail == ALPHA_TEST_FAIL_RGBONLY)))
 	{
 		depthWriteEnabled = false;
 	}
@@ -954,7 +952,8 @@ void CGSH_OpenGL::SetupDepthBuffer(uint64 zbufReg, uint64 testReg)
 
 void CGSH_OpenGL::SetupFramebuffer(uint64 frameReg, uint64 zbufReg, uint64 scissorReg, uint64 testReg)
 {
-	if(frameReg == 0) return;
+	if(frameReg == 0)
+		return;
 
 	auto frame = make_convertible<FRAME>(frameReg);
 	auto zbuf = make_convertible<ZBUF>(zbufReg);
@@ -1020,7 +1019,7 @@ void CGSH_OpenGL::SetupFramebuffer(uint64 frameReg, uint64 zbufReg, uint64 sciss
 	assert(result == GL_FRAMEBUFFER_COMPLETE);
 
 	m_renderState.framebufferHandle = framebuffer->m_framebuffer;
-	m_validGlState |= GLSTATE_FRAMEBUFFER;    //glBindFramebuffer used to set just above
+	m_validGlState |= GLSTATE_FRAMEBUFFER; //glBindFramebuffer used to set just above
 
 	//We assume that we will be drawing to this framebuffer and that we'll need
 	//to resolve samples at some point if multisampling is enabled
@@ -1062,10 +1061,13 @@ bool CGSH_OpenGL::CanRegionRepeatClampModeSimplified(uint32 clampMin, uint32 cla
 {
 	for(unsigned int j = 1; j < 0x3FF; j = ((j << 1) | 1))
 	{
-		if(clampMin < j) break;
-		if(clampMin != j) continue;
+		if(clampMin < j)
+			break;
+		if(clampMin != j)
+			continue;
 
-		if((clampMin & clampMax) != 0) break;
+		if((clampMin & clampMax) != 0)
+			break;
 
 		return true;
 	}
@@ -1089,8 +1091,10 @@ void CGSH_OpenGL::FillShaderCapsFromTexture(SHADERCAPS& shaderCaps, const uint64
 		clampMode[0] = g_shaderClampModes[clamp.nWMS];
 		clampMode[1] = g_shaderClampModes[clamp.nWMT];
 
-		if(clampMode[0] == TEXTURE_CLAMP_MODE_REGION_REPEAT && CanRegionRepeatClampModeSimplified(clamp.GetMinU(), clamp.GetMaxU())) clampMode[0] = TEXTURE_CLAMP_MODE_REGION_REPEAT_SIMPLE;
-		if(clampMode[1] == TEXTURE_CLAMP_MODE_REGION_REPEAT && CanRegionRepeatClampModeSimplified(clamp.GetMinV(), clamp.GetMaxV())) clampMode[1] = TEXTURE_CLAMP_MODE_REGION_REPEAT_SIMPLE;
+		if(clampMode[0] == TEXTURE_CLAMP_MODE_REGION_REPEAT && CanRegionRepeatClampModeSimplified(clamp.GetMinU(), clamp.GetMaxU()))
+			clampMode[0] = TEXTURE_CLAMP_MODE_REGION_REPEAT_SIMPLE;
+		if(clampMode[1] == TEXTURE_CLAMP_MODE_REGION_REPEAT && CanRegionRepeatClampModeSimplified(clamp.GetMinV(), clamp.GetMaxV()))
+			clampMode[1] = TEXTURE_CLAMP_MODE_REGION_REPEAT_SIMPLE;
 
 		shaderCaps.texClampS = clampMode[0];
 		shaderCaps.texClampT = clampMode[1];
@@ -1172,7 +1176,6 @@ CGSH_OpenGL::TECHNIQUE CGSH_OpenGL::GetTechniqueFromTest(const uint64& testReg)
 	{
 		if((test.nAlphaMethod == ALPHA_TEST_NEVER) && (test.nAlphaFail != ALPHA_TEST_FAIL_KEEP))
 		{
-
 		}
 		else
 		{
@@ -1251,9 +1254,9 @@ void CGSH_OpenGL::SetupTexture(uint64 primReg, uint64 tex0Reg, uint64 tex1Reg, u
 		m_renderState.texture0MinFilter = GL_LINEAR;
 	}
 
-	unsigned int clampMin[2] = { 0, 0 };
-	unsigned int clampMax[2] = { 0, 0 };
-	float textureScaleRatio[2] = { texInfo.scaleRatioX, texInfo.scaleRatioY };
+	unsigned int clampMin[2] = {0, 0};
+	unsigned int clampMax[2] = {0, 0};
+	float        textureScaleRatio[2] = {texInfo.scaleRatioX, texInfo.scaleRatioY};
 	m_renderState.texture0WrapS = g_nativeClampModes[clamp.nWMS];
 	m_renderState.texture0WrapT = g_nativeClampModes[clamp.nWMT];
 
@@ -1287,8 +1290,8 @@ void CGSH_OpenGL::SetupTexture(uint64 primReg, uint64 tex0Reg, uint64 tex1Reg, u
 		}
 	}
 
-	if(CGsPixelFormats::IsPsmIDTEX(tex0.nPsm) && 
-		(m_renderState.texture0MinFilter != GL_NEAREST || m_renderState.texture0MagFilter != GL_NEAREST))
+	if(CGsPixelFormats::IsPsmIDTEX(tex0.nPsm) &&
+	   (m_renderState.texture0MinFilter != GL_NEAREST || m_renderState.texture0MagFilter != GL_NEAREST))
 	{
 		//We'll need to filter the texture manually
 		m_renderState.texture0MinFilter = GL_NEAREST;
@@ -1323,26 +1326,22 @@ void CGSH_OpenGL::SetupTexture(uint64 primReg, uint64 tex0Reg, uint64 tex1Reg, u
 
 CGSH_OpenGL::FramebufferPtr CGSH_OpenGL::FindFramebuffer(const FRAME& frame) const
 {
-	auto framebufferIterator = std::find_if(std::begin(m_framebuffers), std::end(m_framebuffers), 
-		[&] (const FramebufferPtr& framebuffer)
-		{
-			return (framebuffer->m_basePtr == frame.GetBasePtr()) &&
-				(framebuffer->m_psm == frame.nPsm) &&
-				(framebuffer->m_width == frame.GetWidth());
-		}
-	);
+	auto framebufferIterator = std::find_if(std::begin(m_framebuffers), std::end(m_framebuffers),
+	                                        [&](const FramebufferPtr& framebuffer) {
+		                                        return (framebuffer->m_basePtr == frame.GetBasePtr()) &&
+		                                               (framebuffer->m_psm == frame.nPsm) &&
+		                                               (framebuffer->m_width == frame.GetWidth());
+		                                    });
 
 	return (framebufferIterator != std::end(m_framebuffers)) ? *(framebufferIterator) : FramebufferPtr();
 }
 
 CGSH_OpenGL::DepthbufferPtr CGSH_OpenGL::FindDepthbuffer(const ZBUF& zbuf, const FRAME& frame) const
 {
-	auto depthbufferIterator = std::find_if(std::begin(m_depthbuffers), std::end(m_depthbuffers), 
-		[&] (const DepthbufferPtr& depthbuffer)
-		{
-			return (depthbuffer->m_basePtr == zbuf.GetBasePtr()) && (depthbuffer->m_width == frame.GetWidth());
-		}
-	);
+	auto depthbufferIterator = std::find_if(std::begin(m_depthbuffers), std::end(m_depthbuffers),
+	                                        [&](const DepthbufferPtr& depthbuffer) {
+		                                        return (depthbuffer->m_basePtr == zbuf.GetBasePtr()) && (depthbuffer->m_width == frame.GetWidth());
+		                                    });
 
 	return (depthbufferIterator != std::end(m_depthbuffers)) ? *(depthbufferIterator) : DepthbufferPtr();
 }
@@ -1356,21 +1355,23 @@ void CGSH_OpenGL::Prim_Point()
 	auto xyz = make_convertible<XYZ>(m_VtxBuffer[0].nPosition);
 	auto rgbaq = make_convertible<RGBAQ>(m_VtxBuffer[0].nRGBAQ);
 
-	float x = xyz.GetX(); float y = xyz.GetY(); float z = xyz.GetZ();
+	float x = xyz.GetX();
+	float y = xyz.GetY();
+	float z = xyz.GetZ();
 
 	x -= m_nPrimOfsX;
 	y -= m_nPrimOfsY;
 	z = GetZ(z);
 
 	auto color = MakeColor(
-		rgbaq.nR, rgbaq.nG,
-		rgbaq.nB, rgbaq.nA);
+	    rgbaq.nR, rgbaq.nG,
+	    rgbaq.nB, rgbaq.nA);
 
 	PRIM_VERTEX vertex =
-	{
-		//x, y, z, color, s, t, q, f
-		  x, y, z, color, 0, 0, 1, 0,
-	};
+	    {
+	        //x, y, z, color, s, t, q, f
+	        x, y, z, color, 0, 0, 1, 0,
+	    };
 
 	assert((m_vertexBuffer.size() + 1) <= VERTEX_BUFFER_SIZE);
 	m_vertexBuffer.push_back(vertex);
@@ -1382,8 +1383,12 @@ void CGSH_OpenGL::Prim_Line()
 	xyz[0] <<= m_VtxBuffer[1].nPosition;
 	xyz[1] <<= m_VtxBuffer[0].nPosition;
 
-	float nX1 = xyz[0].GetX();	float nY1 = xyz[0].GetY();	float nZ1 = xyz[0].GetZ();
-	float nX2 = xyz[1].GetX();	float nY2 = xyz[1].GetY();	float nZ2 = xyz[1].GetZ();
+	float nX1 = xyz[0].GetX();
+	float nY1 = xyz[0].GetY();
+	float nZ1 = xyz[0].GetZ();
+	float nX2 = xyz[1].GetX();
+	float nY2 = xyz[1].GetY();
+	float nZ2 = xyz[1].GetZ();
 
 	nX1 -= m_nPrimOfsX;
 	nX2 -= m_nPrimOfsX;
@@ -1398,23 +1403,23 @@ void CGSH_OpenGL::Prim_Line()
 	rgbaq[0] <<= m_VtxBuffer[1].nRGBAQ;
 	rgbaq[1] <<= m_VtxBuffer[0].nRGBAQ;
 
-	float nS[2] = { 0 ,0 };
-	float nT[2] = { 0, 0 };
-	float nQ[2] = { 1, 1 };
+	float nS[2] = {0, 0};
+	float nT[2] = {0, 0};
+	float nQ[2] = {1, 1};
 
 	auto color1 = MakeColor(
-		rgbaq[0].nR, rgbaq[0].nG,
-		rgbaq[0].nB, rgbaq[0].nA);
+	    rgbaq[0].nR, rgbaq[0].nG,
+	    rgbaq[0].nB, rgbaq[0].nA);
 
 	auto color2 = MakeColor(
-		rgbaq[1].nR, rgbaq[1].nG,
-		rgbaq[1].nB, rgbaq[1].nA);
+	    rgbaq[1].nR, rgbaq[1].nG,
+	    rgbaq[1].nB, rgbaq[1].nA);
 
 	PRIM_VERTEX vertices[] =
-	{
-		{	nX1,	nY1,	nZ1,	color1,	nS[0],	nT[0],	nQ[0],	0	},
-		{	nX2,	nY2,	nZ2,	color2,	nS[1],	nT[1],	nQ[1],	0	},
-	};
+	    {
+	        {nX1, nY1, nZ1, color1, nS[0], nT[0], nQ[0], 0},
+	        {nX2, nY2, nZ2, color2, nS[1], nT[1], nQ[1], 0},
+	    };
 
 	assert((m_vertexBuffer.size() + 2) <= VERTEX_BUFFER_SIZE);
 	m_vertexBuffer.insert(m_vertexBuffer.end(), std::begin(vertices), std::end(vertices));
@@ -1461,9 +1466,9 @@ void CGSH_OpenGL::Prim_Triangle()
 		nF1 = nF2 = nF3 = 0.0;
 	}
 
-	float nS[3] = { 0 ,0, 0 };
-	float nT[3] = { 0, 0, 0 };
-	float nQ[3] = { 1, 1, 1 };
+	float nS[3] = {0, 0, 0};
+	float nT[3] = {0, 0, 0};
+	float nQ[3] = {1, 1, 1};
 
 	if(m_PrimitiveMode.nTexture)
 	{
@@ -1489,8 +1494,12 @@ void CGSH_OpenGL::Prim_Triangle()
 			st[1] <<= m_VtxBuffer[1].nST;
 			st[2] <<= m_VtxBuffer[0].nST;
 
-			nS[0] = st[0].nS; nS[1] = st[1].nS; nS[2] = st[2].nS;
-			nT[0] = st[0].nT; nT[1] = st[1].nT; nT[2] = st[2].nT;
+			nS[0] = st[0].nS;
+			nS[1] = st[1].nS;
+			nS[2] = st[2].nS;
+			nT[0] = st[0].nT;
+			nT[1] = st[1].nT;
+			nT[2] = st[2].nT;
 
 			bool isQ0Neg = (rgbaq[0].nQ < 0);
 			bool isQ1Neg = (rgbaq[1].nQ < 0);
@@ -1499,21 +1508,23 @@ void CGSH_OpenGL::Prim_Triangle()
 			assert(isQ0Neg == isQ1Neg);
 			assert(isQ1Neg == isQ2Neg);
 
-			nQ[0] = rgbaq[0].nQ; nQ[1] = rgbaq[1].nQ; nQ[2] = rgbaq[2].nQ;
+			nQ[0] = rgbaq[0].nQ;
+			nQ[1] = rgbaq[1].nQ;
+			nQ[2] = rgbaq[2].nQ;
 		}
 	}
 
 	auto color1 = MakeColor(
-		rgbaq[0].nR, rgbaq[0].nG,
-		rgbaq[0].nB, rgbaq[0].nA);
+	    rgbaq[0].nR, rgbaq[0].nG,
+	    rgbaq[0].nB, rgbaq[0].nA);
 
 	auto color2 = MakeColor(
-		rgbaq[1].nR, rgbaq[1].nG,
-		rgbaq[1].nB, rgbaq[1].nA);
+	    rgbaq[1].nR, rgbaq[1].nG,
+	    rgbaq[1].nB, rgbaq[1].nA);
 
 	auto color3 = MakeColor(
-		rgbaq[2].nR, rgbaq[2].nG,
-		rgbaq[2].nB, rgbaq[2].nA);
+	    rgbaq[2].nR, rgbaq[2].nG,
+	    rgbaq[2].nB, rgbaq[2].nA);
 
 	if(m_PrimitiveMode.nShading == 0)
 	{
@@ -1522,11 +1533,11 @@ void CGSH_OpenGL::Prim_Triangle()
 	}
 
 	PRIM_VERTEX vertices[] =
-	{
-		{	nX1,	nY1,	nZ1,	color1,	nS[0],	nT[0],	nQ[0],	nF1	},
-		{	nX2,	nY2,	nZ2,	color2,	nS[1],	nT[1],	nQ[1],	nF2	},
-		{	nX3,	nY3,	nZ3,	color3,	nS[2],	nT[2],	nQ[2],	nF3	},
-	};
+	    {
+	        {nX1, nY1, nZ1, color1, nS[0], nT[0], nQ[0], nF1},
+	        {nX2, nY2, nZ2, color2, nS[1], nT[1], nQ[1], nF2},
+	        {nX3, nY3, nZ3, color3, nS[2], nT[2], nQ[2], nF3},
+	    };
 
 	assert((m_vertexBuffer.size() + 3) <= VERTEX_BUFFER_SIZE);
 	m_vertexBuffer.insert(m_vertexBuffer.end(), std::begin(vertices), std::end(vertices));
@@ -1544,8 +1555,11 @@ void CGSH_OpenGL::Prim_Sprite()
 	xyz[0] <<= m_VtxBuffer[1].nPosition;
 	xyz[1] <<= m_VtxBuffer[0].nPosition;
 
-	float nX1 = xyz[0].GetX();	float nY1 = xyz[0].GetY();
-	float nX2 = xyz[1].GetX();	float nY2 = xyz[1].GetY();	float nZ = xyz[1].GetZ();
+	float nX1 = xyz[0].GetX();
+	float nY1 = xyz[0].GetY();
+	float nX2 = xyz[1].GetX();
+	float nY2 = xyz[1].GetY();
+	float nZ = xyz[1].GetZ();
 
 	RGBAQ rgbaq[2];
 	rgbaq[0] <<= m_VtxBuffer[1].nRGBAQ;
@@ -1559,8 +1573,8 @@ void CGSH_OpenGL::Prim_Sprite()
 
 	nZ = GetZ(nZ);
 
-	float nS[2] = { 0 ,0 };
-	float nT[2] = { 0, 0 };
+	float nS[2] = {0, 0};
+	float nT[2] = {0, 0};
 
 	if(m_PrimitiveMode.nTexture)
 	{
@@ -1585,8 +1599,10 @@ void CGSH_OpenGL::Prim_Sprite()
 
 			float nQ1 = rgbaq[1].nQ;
 			float nQ2 = rgbaq[0].nQ;
-			if(nQ1 == 0) nQ1 = 1;
-			if(nQ2 == 0) nQ2 = 1;
+			if(nQ1 == 0)
+				nQ1 = 1;
+			if(nQ2 == 0)
+				nQ2 = 1;
 
 			nS[0] = st[0].nS / nQ1;
 			nS[1] = st[1].nS / nQ2;
@@ -1597,19 +1613,19 @@ void CGSH_OpenGL::Prim_Sprite()
 	}
 
 	auto color = MakeColor(
-		rgbaq[1].nR, rgbaq[1].nG,
-		rgbaq[1].nB, rgbaq[1].nA);
+	    rgbaq[1].nR, rgbaq[1].nG,
+	    rgbaq[1].nB, rgbaq[1].nA);
 
 	PRIM_VERTEX vertices[] =
-	{
-		{	nX1,	nY1,	nZ,	color,	nS[0],	nT[0],	1,	0	},
-		{	nX2,	nY1,	nZ,	color,	nS[1],	nT[0],	1,	0	},
-		{	nX1,	nY2,	nZ,	color,	nS[0],	nT[1],	1,	0	},
+	    {
+	        {nX1, nY1, nZ, color, nS[0], nT[0], 1, 0},
+	        {nX2, nY1, nZ, color, nS[1], nT[0], 1, 0},
+	        {nX1, nY2, nZ, color, nS[0], nT[1], 1, 0},
 
-		{	nX1,	nY2,	nZ,	color,	nS[0],	nT[1],	1,	0	},
-		{	nX2,	nY1,	nZ,	color,	nS[1],	nT[0],	1,	0	},
-		{	nX2,	nY2,	nZ,	color,	nS[1],	nT[1],	1,	0	},
-	};
+	        {nX1, nY2, nZ, color, nS[0], nT[1], 1, 0},
+	        {nX2, nY1, nZ, color, nS[1], nT[0], 1, 0},
+	        {nX2, nY2, nZ, color, nS[1], nT[1], 1, 0},
+	    };
 
 	assert((m_vertexBuffer.size() + 6) <= VERTEX_BUFFER_SIZE);
 	m_vertexBuffer.insert(m_vertexBuffer.end(), std::begin(vertices), std::end(vertices));
@@ -1623,7 +1639,8 @@ void CGSH_OpenGL::Prim_Sprite()
 
 void CGSH_OpenGL::FlushVertexBuffer()
 {
-	if(m_vertexBuffer.empty()) return;
+	if(m_vertexBuffer.empty())
+		return;
 
 	assert(m_renderState.isValid == true);
 
@@ -1705,7 +1722,7 @@ void CGSH_OpenGL::DoRenderPass()
 	{
 		glEnable(GL_SCISSOR_TEST);
 		glScissor(m_renderState.scissorX * m_fbScale, m_renderState.scissorY * m_fbScale,
-			m_renderState.scissorWidth * m_fbScale, m_renderState.scissorHeight * m_fbScale);
+		          m_renderState.scissorWidth * m_fbScale, m_renderState.scissorHeight * m_fbScale);
 		m_validGlState |= GLSTATE_SCISSOR;
 	}
 
@@ -1724,8 +1741,8 @@ void CGSH_OpenGL::DoRenderPass()
 	if((m_validGlState & GLSTATE_COLORMASK) == 0)
 	{
 		glColorMask(
-			m_renderState.colorMaskR, m_renderState.colorMaskG,
-			m_renderState.colorMaskB, m_renderState.colorMaskA);
+		    m_renderState.colorMaskR, m_renderState.colorMaskG,
+		    m_renderState.colorMaskB, m_renderState.colorMaskA);
 		m_validGlState |= GLSTATE_COLORMASK;
 	}
 
@@ -1801,10 +1818,12 @@ void CGSH_OpenGL::DrawToDepth(unsigned int primitiveType, uint64 primReg)
 	//Space Harrier does this
 
 	//Must be flat, no texture map, no fog, no blend and no aa
-	if((primReg & 0x1F8) != 0) return;
+	if((primReg & 0x1F8) != 0)
+		return;
 
 	//Must be a sprite
-	if(primitiveType != PRIM_SPRITE) return;
+	if(primitiveType != PRIM_SPRITE)
+		return;
 
 	//Invalidate state
 	FlushVertexBuffer();
@@ -1834,9 +1853,9 @@ void CGSH_OpenGL::DrawToDepth(unsigned int primitiveType, uint64 primReg)
 }
 
 void CGSH_OpenGL::CopyToFb(
-	int32 srcX0, int32 srcY0, int32 srcX1, int32 srcY1,
-	int32 srcWidth, int32 srcHeight,
-	int32 dstX0, int32 dstY0, int32 dstX1, int32 dstY1)
+    int32 srcX0, int32 srcY0, int32 srcX1, int32 srcY1,
+    int32 srcWidth, int32 srcHeight,
+    int32 dstX0, int32 dstY0, int32 dstX1, int32 dstY1)
 {
 	m_validGlState &= ~(GLSTATE_BLEND | GLSTATE_COLORMASK | GLSTATE_SCISSOR | GLSTATE_PROGRAM);
 	m_validGlState &= ~(GLSTATE_VIEWPORT | GLSTATE_DEPTHTEST | GLSTATE_DEPTHMASK);
@@ -1886,33 +1905,33 @@ void CGSH_OpenGL::WriteRegisterImpl(uint8 nRegister, uint64 nData)
 	switch(nRegister)
 	{
 	case GS_REG_PRIM:
+	{
+		unsigned int newPrimitiveType = static_cast<unsigned int>(nData & 0x07);
+		if(newPrimitiveType != m_primitiveType)
 		{
-			unsigned int newPrimitiveType = static_cast<unsigned int>(nData & 0x07);
-			if(newPrimitiveType != m_primitiveType)
-			{
-				FlushVertexBuffer();
-			}
-			m_primitiveType = newPrimitiveType;
-			switch(m_primitiveType)
-			{
-			case PRIM_POINT:
-				m_nVtxCount = 1;
-				break;
-			case PRIM_LINE:
-			case PRIM_LINESTRIP:
-				m_nVtxCount = 2;
-				break;
-			case PRIM_TRIANGLE:
-			case PRIM_TRIANGLESTRIP:
-			case PRIM_TRIANGLEFAN:
-				m_nVtxCount = 3;
-				break;
-			case PRIM_SPRITE:
-				m_nVtxCount = 2;
-				break;
-			}
+			FlushVertexBuffer();
 		}
-		break;
+		m_primitiveType = newPrimitiveType;
+		switch(m_primitiveType)
+		{
+		case PRIM_POINT:
+			m_nVtxCount = 1;
+			break;
+		case PRIM_LINE:
+		case PRIM_LINESTRIP:
+			m_nVtxCount = 2;
+			break;
+		case PRIM_TRIANGLE:
+		case PRIM_TRIANGLESTRIP:
+		case PRIM_TRIANGLEFAN:
+			m_nVtxCount = 3;
+			break;
+		case PRIM_SPRITE:
+			m_nVtxCount = 2;
+			break;
+		}
+	}
+	break;
 
 	case GS_REG_XYZ2:
 	case GS_REG_XYZ3:
@@ -1925,28 +1944,30 @@ void CGSH_OpenGL::WriteRegisterImpl(uint8 nRegister, uint64 nData)
 
 void CGSH_OpenGL::VertexKick(uint8 nRegister, uint64 nValue)
 {
-	if(m_nVtxCount == 0) return;
+	if(m_nVtxCount == 0)
+		return;
 
 	bool nDrawingKick = (nRegister == GS_REG_XYZ2) || (nRegister == GS_REG_XYZF2);
 	bool nFog = (nRegister == GS_REG_XYZF2) || (nRegister == GS_REG_XYZF3);
 
-	if(!m_drawEnabled) nDrawingKick = false;
+	if(!m_drawEnabled)
+		nDrawingKick = false;
 
 	if(nFog)
 	{
-		m_VtxBuffer[m_nVtxCount - 1].nPosition	= nValue & 0x00FFFFFFFFFFFFFFULL;
-		m_VtxBuffer[m_nVtxCount - 1].nRGBAQ		= m_nReg[GS_REG_RGBAQ];
-		m_VtxBuffer[m_nVtxCount - 1].nUV		= m_nReg[GS_REG_UV];
-		m_VtxBuffer[m_nVtxCount - 1].nST		= m_nReg[GS_REG_ST];
-		m_VtxBuffer[m_nVtxCount - 1].nFog		= (uint8)(nValue >> 56);
+		m_VtxBuffer[m_nVtxCount - 1].nPosition = nValue & 0x00FFFFFFFFFFFFFFULL;
+		m_VtxBuffer[m_nVtxCount - 1].nRGBAQ = m_nReg[GS_REG_RGBAQ];
+		m_VtxBuffer[m_nVtxCount - 1].nUV = m_nReg[GS_REG_UV];
+		m_VtxBuffer[m_nVtxCount - 1].nST = m_nReg[GS_REG_ST];
+		m_VtxBuffer[m_nVtxCount - 1].nFog = (uint8)(nValue >> 56);
 	}
 	else
 	{
-		m_VtxBuffer[m_nVtxCount - 1].nPosition	= nValue;
-		m_VtxBuffer[m_nVtxCount - 1].nRGBAQ		= m_nReg[GS_REG_RGBAQ];
-		m_VtxBuffer[m_nVtxCount - 1].nUV		= m_nReg[GS_REG_UV];
-		m_VtxBuffer[m_nVtxCount - 1].nST		= m_nReg[GS_REG_ST];
-		m_VtxBuffer[m_nVtxCount - 1].nFog		= (uint8)(m_nReg[GS_REG_FOG] >> 56);
+		m_VtxBuffer[m_nVtxCount - 1].nPosition = nValue;
+		m_VtxBuffer[m_nVtxCount - 1].nRGBAQ = m_nReg[GS_REG_RGBAQ];
+		m_VtxBuffer[m_nVtxCount - 1].nUV = m_nReg[GS_REG_UV];
+		m_VtxBuffer[m_nVtxCount - 1].nST = m_nReg[GS_REG_ST];
+		m_VtxBuffer[m_nVtxCount - 1].nFog = (uint8)(m_nReg[GS_REG_FOG] >> 56);
 	}
 
 	m_nVtxCount--;
@@ -1970,35 +1991,42 @@ void CGSH_OpenGL::VertexKick(uint8 nRegister, uint64 nValue)
 		switch(m_primitiveType)
 		{
 		case PRIM_POINT:
-			if(nDrawingKick) Prim_Point();
+			if(nDrawingKick)
+				Prim_Point();
 			m_nVtxCount = 1;
 			break;
 		case PRIM_LINE:
-			if(nDrawingKick) Prim_Line();
+			if(nDrawingKick)
+				Prim_Line();
 			m_nVtxCount = 2;
 			break;
 		case PRIM_LINESTRIP:
-			if(nDrawingKick) Prim_Line();
+			if(nDrawingKick)
+				Prim_Line();
 			memcpy(&m_VtxBuffer[1], &m_VtxBuffer[0], sizeof(VERTEX));
 			m_nVtxCount = 1;
 			break;
 		case PRIM_TRIANGLE:
-			if(nDrawingKick) Prim_Triangle();
+			if(nDrawingKick)
+				Prim_Triangle();
 			m_nVtxCount = 3;
 			break;
 		case PRIM_TRIANGLESTRIP:
-			if(nDrawingKick) Prim_Triangle();
+			if(nDrawingKick)
+				Prim_Triangle();
 			memcpy(&m_VtxBuffer[2], &m_VtxBuffer[1], sizeof(VERTEX));
 			memcpy(&m_VtxBuffer[1], &m_VtxBuffer[0], sizeof(VERTEX));
 			m_nVtxCount = 1;
 			break;
 		case PRIM_TRIANGLEFAN:
-			if(nDrawingKick) Prim_Triangle();
+			if(nDrawingKick)
+				Prim_Triangle();
 			memcpy(&m_VtxBuffer[1], &m_VtxBuffer[0], sizeof(VERTEX));
 			m_nVtxCount = 1;
 			break;
 		case PRIM_SPRITE:
-			if(nDrawingKick) Prim_Sprite();
+			if(nDrawingKick)
+				Prim_Sprite();
 			m_nVtxCount = 2;
 			break;
 		}
@@ -2012,7 +2040,7 @@ void CGSH_OpenGL::VertexKick(uint8 nRegister, uint64 nValue)
 
 void CGSH_OpenGL::ProcessHostToLocalTransfer()
 {
-	auto bltBuf = make_convertible<BITBLTBUF>(m_nReg[GS_REG_BITBLTBUF]);
+	auto   bltBuf = make_convertible<BITBLTBUF>(m_nReg[GS_REG_BITBLTBUF]);
 	uint32 transferAddress = bltBuf.GetDstPtr();
 
 	if(m_trxCtx.nDirty)
@@ -2039,7 +2067,8 @@ void CGSH_OpenGL::ProcessHostToLocalTransfer()
 		bool isUpperByteTransfer = (bltBuf.nDstPsm == PSMT8H) || (bltBuf.nDstPsm == PSMT4HL) || (bltBuf.nDstPsm == PSMT4HH);
 		for(const auto& framebuffer : m_framebuffers)
 		{
-			if((framebuffer->m_psm == PSMCT24) && isUpperByteTransfer) continue;
+			if((framebuffer->m_psm == PSMCT24) && isUpperByteTransfer)
+				continue;
 			framebuffer->m_cachedArea.Invalidate(transferAddress + transferOffset, transferSize);
 		}
 	}
@@ -2053,21 +2082,24 @@ void CGSH_OpenGL::ProcessLocalToHostTransfer()
 	auto trxPos = make_convertible<TRXPOS>(m_nReg[GS_REG_TRXPOS]);
 	auto trxReg = make_convertible<TRXREG>(m_nReg[GS_REG_TRXREG]);
 
-	if(bltBuf.nSrcPsm != PSMCT32) return;
+	if(bltBuf.nSrcPsm != PSMCT32)
+		return;
 
 	uint32 transferAddress = bltBuf.GetSrcPtr();
-	if(transferAddress != 0) return;
+	if(transferAddress != 0)
+		return;
 
-	if((trxReg.nRRW != 32) || (trxReg.nRRH != 32)) return;
-	if((trxPos.nSSAX != 0) || (trxPos.nSSAY != 0)) return;
+	if((trxReg.nRRW != 32) || (trxReg.nRRH != 32))
+		return;
+	if((trxPos.nSSAX != 0) || (trxPos.nSSAY != 0))
+		return;
 
-	auto framebufferIterator = std::find_if(m_framebuffers.begin(), m_framebuffers.end(), 
-		[] (const FramebufferPtr& framebuffer)
-		{
-			return (framebuffer->m_psm == PSMCT32) && (framebuffer->m_basePtr == 0);
-		}
-	);
-	if(framebufferIterator == std::end(m_framebuffers)) return;
+	auto framebufferIterator = std::find_if(m_framebuffers.begin(), m_framebuffers.end(),
+	                                        [](const FramebufferPtr& framebuffer) {
+		                                        return (framebuffer->m_psm == PSMCT32) && (framebuffer->m_basePtr == 0);
+		                                    });
+	if(framebufferIterator == std::end(m_framebuffers))
+		return;
 	const auto& framebuffer = (*framebufferIterator);
 
 	FlushVertexBuffer();
@@ -2092,29 +2124,25 @@ void CGSH_OpenGL::ProcessLocalToHostTransfer()
 		}
 	}
 
-	delete [] pixels;
+	delete[] pixels;
 }
 
 void CGSH_OpenGL::ProcessLocalToLocalTransfer()
 {
 	auto bltBuf = make_convertible<BITBLTBUF>(m_nReg[GS_REG_BITBLTBUF]);
-	auto srcFramebufferIterator = std::find_if(m_framebuffers.begin(), m_framebuffers.end(), 
-		[&] (const FramebufferPtr& framebuffer) 
-		{
-			return (framebuffer->m_basePtr == bltBuf.GetSrcPtr()) &&
-				(framebuffer->m_width == bltBuf.GetSrcWidth());
-		}
-	);
-	auto dstFramebufferIterator = std::find_if(m_framebuffers.begin(), m_framebuffers.end(), 
-		[&] (const FramebufferPtr& framebuffer) 
-		{
-			return (framebuffer->m_basePtr == bltBuf.GetDstPtr()) && 
-				(framebuffer->m_width == bltBuf.GetDstWidth());
-		}
-	);
+	auto srcFramebufferIterator = std::find_if(m_framebuffers.begin(), m_framebuffers.end(),
+	                                           [&](const FramebufferPtr& framebuffer) {
+		                                           return (framebuffer->m_basePtr == bltBuf.GetSrcPtr()) &&
+		                                                  (framebuffer->m_width == bltBuf.GetSrcWidth());
+		                                       });
+	auto dstFramebufferIterator = std::find_if(m_framebuffers.begin(), m_framebuffers.end(),
+	                                           [&](const FramebufferPtr& framebuffer) {
+		                                           return (framebuffer->m_basePtr == bltBuf.GetDstPtr()) &&
+		                                                  (framebuffer->m_width == bltBuf.GetDstWidth());
+		                                       });
 	if(
-		srcFramebufferIterator != std::end(m_framebuffers) && 
-		dstFramebufferIterator != std::end(m_framebuffers))
+	    srcFramebufferIterator != std::end(m_framebuffers) &&
+	    dstFramebufferIterator != std::end(m_framebuffers))
 	{
 		FlushVertexBuffer();
 		m_renderState.isValid = false;
@@ -2127,9 +2155,9 @@ void CGSH_OpenGL::ProcessLocalToLocalTransfer()
 
 		//Copy buffers
 		glBlitFramebuffer(
-			0, 0, srcFramebuffer->m_width * m_fbScale, srcFramebuffer->m_height * m_fbScale, 
-			0, 0, srcFramebuffer->m_width * m_fbScale, srcFramebuffer->m_height * m_fbScale, 
-			GL_COLOR_BUFFER_BIT, GL_NEAREST);
+		    0, 0, srcFramebuffer->m_width * m_fbScale, srcFramebuffer->m_height * m_fbScale,
+		    0, 0, srcFramebuffer->m_width * m_fbScale, srcFramebuffer->m_height * m_fbScale,
+		    GL_COLOR_BUFFER_BIT, GL_NEAREST);
 		CHECKGLERROR();
 
 		glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
@@ -2145,7 +2173,7 @@ void CGSH_OpenGL::ProcessClutTransfer(uint32 csa, uint32)
 
 void CGSH_OpenGL::ReadFramebuffer(uint32 width, uint32 height, void* buffer)
 {
-	//TODO: Implement this in a better way. This is only used for movie recording on Win32 for now.
+//TODO: Implement this in a better way. This is only used for movie recording on Win32 for now.
 #ifdef GLES_COMPATIBILITY
 	assert(false);
 #else
@@ -2169,10 +2197,10 @@ Framework::CBitmap CGSH_OpenGL::GetScreenshot()
 /////////////////////////////////////////////////////////////
 
 CGSH_OpenGL::CFramebuffer::CFramebuffer(uint32 basePtr, uint32 width, uint32 height, uint32 psm, uint32 scale, bool multisampled)
-: m_basePtr(basePtr)
-, m_width(width)
-, m_height(height)
-, m_psm(psm)
+    : m_basePtr(basePtr)
+    , m_width(width)
+    , m_height(height)
+    , m_psm(psm)
 {
 	m_cachedArea.SetArea(psm, basePtr, width, height);
 
@@ -2190,7 +2218,7 @@ CGSH_OpenGL::CFramebuffer::CFramebuffer(uint32 basePtr, uint32 width, uint32 hei
 		glRenderbufferStorageMultisample(GL_RENDERBUFFER, NUM_SAMPLES, GL_RGBA8, m_width * scale, m_height * scale);
 		CHECKGLERROR();
 	}
-		
+
 	//Build framebuffer
 	glGenFramebuffers(1, &m_framebuffer);
 	glBindFramebuffer(GL_FRAMEBUFFER, m_framebuffer);
@@ -2245,21 +2273,21 @@ void CGSH_OpenGL::PopulateFramebuffer(const FramebufferPtr& framebuffer)
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, m_copyToFbTexture);
 	glTexImage2D(GL_TEXTURE_2D, 0, texFormat.internalFormat, framebuffer->m_width, framebuffer->m_height,
-		0, texFormat.format, texFormat.type, nullptr);
+	             0, texFormat.format, texFormat.type, nullptr);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-	((this)->*(m_textureUpdater[framebuffer->m_psm]))(framebuffer->m_basePtr, 
-		framebuffer->m_width / 64, 0, 0, framebuffer->m_width, framebuffer->m_height);
+	((this)->*(m_textureUpdater[framebuffer->m_psm]))(framebuffer->m_basePtr,
+	                                                  framebuffer->m_width / 64, 0, 0, framebuffer->m_width, framebuffer->m_height);
 	CHECKGLERROR();
 
 	glBindFramebuffer(GL_FRAMEBUFFER, framebuffer->m_framebuffer);
 
 	CopyToFb(
-		0, 0, framebuffer->m_width, framebuffer->m_height,
-		framebuffer->m_width, framebuffer->m_height,
-		0, 0, framebuffer->m_width * m_fbScale, framebuffer->m_height * m_fbScale);
+	    0, 0, framebuffer->m_width, framebuffer->m_height,
+	    framebuffer->m_width, framebuffer->m_height,
+	    0, 0, framebuffer->m_width * m_fbScale, framebuffer->m_height * m_fbScale);
 	framebuffer->m_resolveNeeded = true;
 
 	CHECKGLERROR();
@@ -2272,14 +2300,15 @@ void CGSH_OpenGL::CommitFramebufferDirtyPages(const FramebufferPtr& framebuffer,
 	public:
 		void EnableCopyToFb(const FramebufferPtr& framebuffer, GLuint copyToFbTexture)
 		{
-			if(m_copyToFbEnabled) return;
+			if(m_copyToFbEnabled)
+				return;
 
 			glDisable(GL_SCISSOR_TEST);
 
 			glActiveTexture(GL_TEXTURE0);
 			glBindTexture(GL_TEXTURE_2D, copyToFbTexture);
-			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, framebuffer->m_width, framebuffer->m_height, 
-				0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
+			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, framebuffer->m_width, framebuffer->m_height,
+			             0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
@@ -2334,12 +2363,12 @@ void CGSH_OpenGL::CommitFramebufferDirtyPages(const FramebufferPtr& framebuffer,
 		copyToFbEnabler.EnableCopyToFb(framebuffer, m_copyToFbTexture);
 
 		((this)->*(m_textureUpdater[framebuffer->m_psm]))(framebuffer->m_basePtr, framebuffer->m_width / 64,
-			texX, texY, texWidth, texHeight);
+		                                                  texX, texY, texWidth, texHeight);
 
 		CopyToFb(
-			texX,             texY,             (texX + texWidth),             (texY + texHeight),
-			framebuffer->m_width, framebuffer->m_height,
-			texX * m_fbScale, texY * m_fbScale, (texX + texWidth) * m_fbScale, (texY + texHeight) * m_fbScale);
+		    texX, texY, (texX + texWidth), (texY + texHeight),
+		    framebuffer->m_width, framebuffer->m_height,
+		    texX * m_fbScale, texY * m_fbScale, (texX + texWidth) * m_fbScale, (texY + texHeight) * m_fbScale);
 		framebuffer->m_resolveNeeded = true;
 
 		CHECKGLERROR();
@@ -2352,7 +2381,8 @@ void CGSH_OpenGL::CommitFramebufferDirtyPages(const FramebufferPtr& framebuffer,
 
 void CGSH_OpenGL::ResolveFramebufferMultisample(const FramebufferPtr& framebuffer, uint32 scale)
 {
-	if(!framebuffer->m_resolveNeeded) return;
+	if(!framebuffer->m_resolveNeeded)
+		return;
 
 	m_validGlState &= ~(GLSTATE_SCISSOR | GLSTATE_FRAMEBUFFER);
 
@@ -2360,9 +2390,9 @@ void CGSH_OpenGL::ResolveFramebufferMultisample(const FramebufferPtr& framebuffe
 	glBindFramebuffer(GL_FRAMEBUFFER, framebuffer->m_resolveFramebuffer);
 	glBindFramebuffer(GL_READ_FRAMEBUFFER, framebuffer->m_framebuffer);
 	glBlitFramebuffer(
-		0, 0, framebuffer->m_width * scale, framebuffer->m_height * scale, 
-		0, 0, framebuffer->m_width * scale, framebuffer->m_height * scale, 
-		GL_COLOR_BUFFER_BIT, GL_NEAREST);
+	    0, 0, framebuffer->m_width * scale, framebuffer->m_height * scale,
+	    0, 0, framebuffer->m_width * scale, framebuffer->m_height * scale,
+	    GL_COLOR_BUFFER_BIT, GL_NEAREST);
 	CHECKGLERROR();
 
 	framebuffer->m_resolveNeeded = false;
@@ -2373,11 +2403,11 @@ void CGSH_OpenGL::ResolveFramebufferMultisample(const FramebufferPtr& framebuffe
 /////////////////////////////////////////////////////////////
 
 CGSH_OpenGL::CDepthbuffer::CDepthbuffer(uint32 basePtr, uint32 width, uint32 height, uint32 psm, uint32 scale, bool multisampled)
-: m_basePtr(basePtr)
-, m_width(width)
-, m_height(height)
-, m_psm(psm)
-, m_depthBuffer(0)
+    : m_basePtr(basePtr)
+    , m_width(width)
+    , m_height(height)
+    , m_psm(psm)
+    , m_depthBuffer(0)
 {
 	//Build depth attachment
 	glGenRenderbuffers(1, &m_depthBuffer);

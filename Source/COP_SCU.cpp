@@ -1,51 +1,50 @@
-#include <string.h>
-#include <stdio.h>
-#include <stddef.h>
 #include "COP_SCU.h"
-#include "MIPS.h"
 #include "Jitter.h"
+#include "MIPS.h"
 #include "offsetof_def.h"
+#include <stddef.h>
+#include <stdio.h>
+#include <string.h>
 
-const char* CCOP_SCU::m_sRegName[] = 
-{
-	"Index",
-	"Random",
-	"EntryLo0",
-	"EntryLo1",
-	"Context",
-	"PageMask",
-	"Wired",
-	"*RESERVED*",
-	"BadVAddr",
-	"Count",
-	"EntryHi",
-	"Compare",
-	"Status",
-	"Cause",
-	"EPC",
-	"PrevID",
-	"Config",
-	"LLAddr",
-	"WatchLo",
-	"WatchHi",
-	"XContext",
-	"CPCOND0",
-	"*RESERVED*",
-	"*RESERVED*",
-	"*RESERVED*",
-	"*RESERVED*",
-	"PErr",
-	"CacheErr",
-	"TagLo",
-	"TagHi",
-	"ErrorEPC",
-	"*RESERVED*"
-};
+const char* CCOP_SCU::m_sRegName[] =
+    {
+        "Index",
+        "Random",
+        "EntryLo0",
+        "EntryLo1",
+        "Context",
+        "PageMask",
+        "Wired",
+        "*RESERVED*",
+        "BadVAddr",
+        "Count",
+        "EntryHi",
+        "Compare",
+        "Status",
+        "Cause",
+        "EPC",
+        "PrevID",
+        "Config",
+        "LLAddr",
+        "WatchLo",
+        "WatchHi",
+        "XContext",
+        "CPCOND0",
+        "*RESERVED*",
+        "*RESERVED*",
+        "*RESERVED*",
+        "*RESERVED*",
+        "PErr",
+        "CacheErr",
+        "TagLo",
+        "TagHi",
+        "ErrorEPC",
+        "*RESERVED*"};
 
 CCOP_SCU::CCOP_SCU(MIPS_REGSIZE nRegSize)
-: CMIPSCoprocessor(nRegSize)
-, m_nRT(0)
-, m_nRD(0)
+    : CMIPSCoprocessor(nRegSize)
+    , m_nRT(0)
+    , m_nRD(0)
 {
 	SetupReflectionTables();
 }
@@ -54,8 +53,8 @@ void CCOP_SCU::CompileInstruction(uint32 nAddress, CMipsJitter* codeGen, CMIPS* 
 {
 	SetupQuickVariables(nAddress, codeGen, pCtx);
 
-	m_nRT	= (uint8)((m_nOpcode >> 16) & 0x1F);
-	m_nRD	= (uint8)((m_nOpcode >> 11) & 0x1F);
+	m_nRT = (uint8)((m_nOpcode >> 16) & 0x1F);
+	m_nRD = (uint8)((m_nOpcode >> 11) & 0x1F);
 
 	((this)->*(m_pOpGeneral[(m_nOpcode >> 21) & 0x1F]))();
 }
@@ -211,7 +210,7 @@ void CCOP_SCU::ERET()
 	m_codeGen->PushRel(offsetof(CMIPS, m_State.nCOP0[STATUS]));
 	m_codeGen->PushCst(CMIPS::STATUS_ERL);
 	m_codeGen->And();
-	
+
 	m_codeGen->PushCst(0);
 	m_codeGen->BeginIf(Jitter::CONDITION_NE);
 	{
@@ -270,46 +269,46 @@ void CCOP_SCU::DI()
 //Opcode Tables
 //////////////////////////////////////////////////
 
-CCOP_SCU::InstructionFuncConstant CCOP_SCU::m_pOpGeneral[0x20] = 
-{
-	//0x00
-	&CCOP_SCU::MFC0,		&CCOP_SCU::Illegal,		&CCOP_SCU::Illegal,		&CCOP_SCU::Illegal,		&CCOP_SCU::MTC0,		&CCOP_SCU::Illegal,		&CCOP_SCU::Illegal,		&CCOP_SCU::Illegal,
-	//0x08
-	&CCOP_SCU::BC0,			&CCOP_SCU::Illegal,		&CCOP_SCU::Illegal,		&CCOP_SCU::Illegal,		&CCOP_SCU::Illegal,		&CCOP_SCU::Illegal,		&CCOP_SCU::Illegal,		&CCOP_SCU::Illegal,
-	//0x10
-	&CCOP_SCU::C0,			&CCOP_SCU::Illegal,		&CCOP_SCU::Illegal,		&CCOP_SCU::Illegal,		&CCOP_SCU::Illegal,		&CCOP_SCU::Illegal,		&CCOP_SCU::Illegal,		&CCOP_SCU::Illegal,
-	//0x18
-	&CCOP_SCU::Illegal,		&CCOP_SCU::Illegal,		&CCOP_SCU::Illegal,		&CCOP_SCU::Illegal,		&CCOP_SCU::Illegal,		&CCOP_SCU::Illegal,		&CCOP_SCU::Illegal,		&CCOP_SCU::Illegal,
+CCOP_SCU::InstructionFuncConstant CCOP_SCU::m_pOpGeneral[0x20] =
+    {
+        //0x00
+        &CCOP_SCU::MFC0, &CCOP_SCU::Illegal, &CCOP_SCU::Illegal, &CCOP_SCU::Illegal, &CCOP_SCU::MTC0, &CCOP_SCU::Illegal, &CCOP_SCU::Illegal, &CCOP_SCU::Illegal,
+        //0x08
+        &CCOP_SCU::BC0, &CCOP_SCU::Illegal, &CCOP_SCU::Illegal, &CCOP_SCU::Illegal, &CCOP_SCU::Illegal, &CCOP_SCU::Illegal, &CCOP_SCU::Illegal, &CCOP_SCU::Illegal,
+        //0x10
+        &CCOP_SCU::C0, &CCOP_SCU::Illegal, &CCOP_SCU::Illegal, &CCOP_SCU::Illegal, &CCOP_SCU::Illegal, &CCOP_SCU::Illegal, &CCOP_SCU::Illegal, &CCOP_SCU::Illegal,
+        //0x18
+        &CCOP_SCU::Illegal, &CCOP_SCU::Illegal, &CCOP_SCU::Illegal, &CCOP_SCU::Illegal, &CCOP_SCU::Illegal, &CCOP_SCU::Illegal, &CCOP_SCU::Illegal, &CCOP_SCU::Illegal,
 };
 
-CCOP_SCU::InstructionFuncConstant CCOP_SCU::m_pOpBC0[0x20] = 
-{
-	//0x00
-	&CCOP_SCU::BC0F,		&CCOP_SCU::BC0T,		&CCOP_SCU::BC0FL,		&CCOP_SCU::Illegal,		&CCOP_SCU::Illegal,		&CCOP_SCU::Illegal,		&CCOP_SCU::Illegal,		&CCOP_SCU::Illegal,
-	//0x08
-	&CCOP_SCU::Illegal,		&CCOP_SCU::Illegal,		&CCOP_SCU::Illegal,		&CCOP_SCU::Illegal,		&CCOP_SCU::Illegal,		&CCOP_SCU::Illegal,		&CCOP_SCU::Illegal,		&CCOP_SCU::Illegal,
-	//0x10
-	&CCOP_SCU::Illegal,		&CCOP_SCU::Illegal,		&CCOP_SCU::Illegal,		&CCOP_SCU::Illegal,		&CCOP_SCU::Illegal,		&CCOP_SCU::Illegal,		&CCOP_SCU::Illegal,		&CCOP_SCU::Illegal,
-	//0x18
-	&CCOP_SCU::Illegal,		&CCOP_SCU::Illegal,		&CCOP_SCU::Illegal,		&CCOP_SCU::Illegal,		&CCOP_SCU::Illegal,		&CCOP_SCU::Illegal,		&CCOP_SCU::Illegal,		&CCOP_SCU::Illegal,
+CCOP_SCU::InstructionFuncConstant CCOP_SCU::m_pOpBC0[0x20] =
+    {
+        //0x00
+        &CCOP_SCU::BC0F, &CCOP_SCU::BC0T, &CCOP_SCU::BC0FL, &CCOP_SCU::Illegal, &CCOP_SCU::Illegal, &CCOP_SCU::Illegal, &CCOP_SCU::Illegal, &CCOP_SCU::Illegal,
+        //0x08
+        &CCOP_SCU::Illegal, &CCOP_SCU::Illegal, &CCOP_SCU::Illegal, &CCOP_SCU::Illegal, &CCOP_SCU::Illegal, &CCOP_SCU::Illegal, &CCOP_SCU::Illegal, &CCOP_SCU::Illegal,
+        //0x10
+        &CCOP_SCU::Illegal, &CCOP_SCU::Illegal, &CCOP_SCU::Illegal, &CCOP_SCU::Illegal, &CCOP_SCU::Illegal, &CCOP_SCU::Illegal, &CCOP_SCU::Illegal, &CCOP_SCU::Illegal,
+        //0x18
+        &CCOP_SCU::Illegal, &CCOP_SCU::Illegal, &CCOP_SCU::Illegal, &CCOP_SCU::Illegal, &CCOP_SCU::Illegal, &CCOP_SCU::Illegal, &CCOP_SCU::Illegal, &CCOP_SCU::Illegal,
 };
 
 CCOP_SCU::InstructionFuncConstant CCOP_SCU::m_pOpC0[0x40] =
-{
-	//0x00
-	&CCOP_SCU::Illegal,		&CCOP_SCU::Illegal,		&CCOP_SCU::TLBWI,		&CCOP_SCU::Illegal,		&CCOP_SCU::Illegal,		&CCOP_SCU::Illegal,		&CCOP_SCU::Illegal,		&CCOP_SCU::Illegal,
-	//0x08
-	&CCOP_SCU::Illegal,		&CCOP_SCU::Illegal,		&CCOP_SCU::Illegal,		&CCOP_SCU::Illegal,		&CCOP_SCU::Illegal,		&CCOP_SCU::Illegal,		&CCOP_SCU::Illegal,		&CCOP_SCU::Illegal,
-	//0x10
-	&CCOP_SCU::Illegal,		&CCOP_SCU::Illegal,		&CCOP_SCU::Illegal,		&CCOP_SCU::Illegal,		&CCOP_SCU::Illegal,		&CCOP_SCU::Illegal,		&CCOP_SCU::Illegal,		&CCOP_SCU::Illegal,
-	//0x18
-	&CCOP_SCU::ERET,		&CCOP_SCU::Illegal,		&CCOP_SCU::Illegal,		&CCOP_SCU::Illegal,		&CCOP_SCU::Illegal,		&CCOP_SCU::Illegal,		&CCOP_SCU::Illegal,		&CCOP_SCU::Illegal,
-	//0x20
-	&CCOP_SCU::Illegal,		&CCOP_SCU::Illegal,		&CCOP_SCU::Illegal,		&CCOP_SCU::Illegal,		&CCOP_SCU::Illegal,		&CCOP_SCU::Illegal,		&CCOP_SCU::Illegal,		&CCOP_SCU::Illegal,
-	//0x28
-	&CCOP_SCU::Illegal,		&CCOP_SCU::Illegal,		&CCOP_SCU::Illegal,		&CCOP_SCU::Illegal,		&CCOP_SCU::Illegal,		&CCOP_SCU::Illegal,		&CCOP_SCU::Illegal,		&CCOP_SCU::Illegal,
-	//0x30
-	&CCOP_SCU::Illegal,		&CCOP_SCU::Illegal,		&CCOP_SCU::Illegal,		&CCOP_SCU::Illegal,		&CCOP_SCU::Illegal,		&CCOP_SCU::Illegal,		&CCOP_SCU::Illegal,		&CCOP_SCU::Illegal,
-	//0x38
-	&CCOP_SCU::EI,			&CCOP_SCU::DI,			&CCOP_SCU::Illegal,		&CCOP_SCU::Illegal,		&CCOP_SCU::Illegal,		&CCOP_SCU::Illegal,		&CCOP_SCU::Illegal,		&CCOP_SCU::Illegal,
+    {
+        //0x00
+        &CCOP_SCU::Illegal, &CCOP_SCU::Illegal, &CCOP_SCU::TLBWI, &CCOP_SCU::Illegal, &CCOP_SCU::Illegal, &CCOP_SCU::Illegal, &CCOP_SCU::Illegal, &CCOP_SCU::Illegal,
+        //0x08
+        &CCOP_SCU::Illegal, &CCOP_SCU::Illegal, &CCOP_SCU::Illegal, &CCOP_SCU::Illegal, &CCOP_SCU::Illegal, &CCOP_SCU::Illegal, &CCOP_SCU::Illegal, &CCOP_SCU::Illegal,
+        //0x10
+        &CCOP_SCU::Illegal, &CCOP_SCU::Illegal, &CCOP_SCU::Illegal, &CCOP_SCU::Illegal, &CCOP_SCU::Illegal, &CCOP_SCU::Illegal, &CCOP_SCU::Illegal, &CCOP_SCU::Illegal,
+        //0x18
+        &CCOP_SCU::ERET, &CCOP_SCU::Illegal, &CCOP_SCU::Illegal, &CCOP_SCU::Illegal, &CCOP_SCU::Illegal, &CCOP_SCU::Illegal, &CCOP_SCU::Illegal, &CCOP_SCU::Illegal,
+        //0x20
+        &CCOP_SCU::Illegal, &CCOP_SCU::Illegal, &CCOP_SCU::Illegal, &CCOP_SCU::Illegal, &CCOP_SCU::Illegal, &CCOP_SCU::Illegal, &CCOP_SCU::Illegal, &CCOP_SCU::Illegal,
+        //0x28
+        &CCOP_SCU::Illegal, &CCOP_SCU::Illegal, &CCOP_SCU::Illegal, &CCOP_SCU::Illegal, &CCOP_SCU::Illegal, &CCOP_SCU::Illegal, &CCOP_SCU::Illegal, &CCOP_SCU::Illegal,
+        //0x30
+        &CCOP_SCU::Illegal, &CCOP_SCU::Illegal, &CCOP_SCU::Illegal, &CCOP_SCU::Illegal, &CCOP_SCU::Illegal, &CCOP_SCU::Illegal, &CCOP_SCU::Illegal, &CCOP_SCU::Illegal,
+        //0x38
+        &CCOP_SCU::EI, &CCOP_SCU::DI, &CCOP_SCU::Illegal, &CCOP_SCU::Illegal, &CCOP_SCU::Illegal, &CCOP_SCU::Illegal, &CCOP_SCU::Illegal, &CCOP_SCU::Illegal,
 };

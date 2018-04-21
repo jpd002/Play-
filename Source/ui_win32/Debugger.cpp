@@ -1,34 +1,34 @@
-#include "../iop/IopBios.h"
-#include <stdio.h>
-#include <io.h>
-#include <fcntl.h>
-#include <iostream>
+#include "Debugger.h"
 #include "../AppConfig.h"
 #include "../MIPSAssembler.h"
+#include "../MipsFunctionPatternDb.h"
 #include "../Ps2Const.h"
 #include "../ee/PS2OS.h"
-#include "../MipsFunctionPatternDb.h"
+#include "../iop/IopBios.h"
 #include "StdStream.h"
-#include "win32/AcceleratorTableGenerator.h"
-#include "win32/InputBox.h"
-#include "win32/DpiUtils.h"
-#include "xml/Parser.h"
-#include "Debugger.h"
 #include "resource.h"
 #include "string_cast.h"
 #include "string_format.h"
+#include "win32/AcceleratorTableGenerator.h"
+#include "win32/DpiUtils.h"
+#include "win32/InputBox.h"
+#include "xml/Parser.h"
+#include <fcntl.h>
+#include <io.h>
+#include <iostream>
+#include <stdio.h>
 
-#define CLSNAME			_T("CDebugger")
+#define CLSNAME _T("CDebugger")
 
-#define WM_EXECUNLOAD	(WM_USER + 0)
-#define WM_EXECCHANGE	(WM_USER + 1)
+#define WM_EXECUNLOAD (WM_USER + 0)
+#define WM_EXECCHANGE (WM_USER + 1)
 
-#define PREF_DEBUGGER_MEMORYVIEW_BYTEWIDTH	"debugger.memoryview.bytewidth"
+#define PREF_DEBUGGER_MEMORYVIEW_BYTEWIDTH "debugger.memoryview.bytewidth"
 
 #define FIND_MAX_ADDRESS 0x02000000
 
 CDebugger::CDebugger(CPS2VM& virtualMachine)
-: m_virtualMachine(virtualMachine)
+    : m_virtualMachine(virtualMachine)
 {
 	RegisterPreferences();
 
@@ -36,15 +36,15 @@ CDebugger::CDebugger(CPS2VM& virtualMachine)
 	{
 		WNDCLASSEX wc;
 		memset(&wc, 0, sizeof(WNDCLASSEX));
-		wc.cbSize			= sizeof(WNDCLASSEX);
-		wc.hCursor			= LoadCursor(NULL, IDC_ARROW);
-		wc.hbrBackground	= (HBRUSH)GetStockObject(GRAY_BRUSH); 
-		wc.hInstance		= GetModuleHandle(NULL);
-		wc.lpszClassName	= CLSNAME;
-		wc.lpfnWndProc		= CWindow::WndProc;
+		wc.cbSize = sizeof(WNDCLASSEX);
+		wc.hCursor = LoadCursor(NULL, IDC_ARROW);
+		wc.hbrBackground = (HBRUSH)GetStockObject(GRAY_BRUSH);
+		wc.hInstance = GetModuleHandle(NULL);
+		wc.lpszClassName = CLSNAME;
+		wc.lpfnWndProc = CWindow::WndProc;
 		RegisterClassEx(&wc);
 	}
-	
+
 	Create(NULL, CLSNAME, _T(""), WS_OVERLAPPEDWINDOW | WS_CLIPCHILDREN, Framework::Win32::CRect(0, 0, 640, 480), NULL, NULL);
 	SetClassPtr();
 
@@ -72,20 +72,20 @@ CDebugger::CDebugger(CPS2VM& virtualMachine)
 	//Address List View Initialization
 	m_addressListView = new CAddressListViewWnd(m_pMDIClient->m_hWnd);
 	m_addressListView->Show(SW_HIDE);
-	m_addressListView->AddressSelected.connect([&] (uint32 address) { OnFindCallersAddressDblClick(address); });
+	m_addressListView->AddressSelected.connect([&](uint32 address) { OnFindCallersAddressDblClick(address); });
 
 	//Debug Views Initialization
 	m_nCurrentView = -1;
 
 	memset(m_pView, 0, sizeof(m_pView));
-	m_pView[DEBUGVIEW_EE]	= new CDebugView(m_pMDIClient->m_hWnd, m_virtualMachine, &m_virtualMachine.m_ee->m_EE, 
-		std::bind(&CPS2VM::StepEe, &m_virtualMachine), m_virtualMachine.m_ee->m_os, "EmotionEngine");
-	m_pView[DEBUGVIEW_VU0]	= new CDebugView(m_pMDIClient->m_hWnd, m_virtualMachine, &m_virtualMachine.m_ee->m_VU0, 
-		std::bind(&CPS2VM::StepVu0, &m_virtualMachine), nullptr, "Vector Unit 0", CDisAsmWnd::DISASM_VU);
-	m_pView[DEBUGVIEW_VU1]	= new CDebugView(m_pMDIClient->m_hWnd, m_virtualMachine, &m_virtualMachine.m_ee->m_VU1, 
-		std::bind(&CPS2VM::StepVu1, &m_virtualMachine), nullptr, "Vector Unit 1", CDisAsmWnd::DISASM_VU);
-	m_pView[DEBUGVIEW_IOP]  = new CDebugView(m_pMDIClient->m_hWnd, m_virtualMachine, &m_virtualMachine.m_iop->m_cpu, 
-		std::bind(&CPS2VM::StepIop, &m_virtualMachine), m_virtualMachine.m_iopOs.get(), "IO Processor");
+	m_pView[DEBUGVIEW_EE] = new CDebugView(m_pMDIClient->m_hWnd, m_virtualMachine, &m_virtualMachine.m_ee->m_EE,
+	                                       std::bind(&CPS2VM::StepEe, &m_virtualMachine), m_virtualMachine.m_ee->m_os, "EmotionEngine");
+	m_pView[DEBUGVIEW_VU0] = new CDebugView(m_pMDIClient->m_hWnd, m_virtualMachine, &m_virtualMachine.m_ee->m_VU0,
+	                                        std::bind(&CPS2VM::StepVu0, &m_virtualMachine), nullptr, "Vector Unit 0", CDisAsmWnd::DISASM_VU);
+	m_pView[DEBUGVIEW_VU1] = new CDebugView(m_pMDIClient->m_hWnd, m_virtualMachine, &m_virtualMachine.m_ee->m_VU1,
+	                                        std::bind(&CPS2VM::StepVu1, &m_virtualMachine), nullptr, "Vector Unit 1", CDisAsmWnd::DISASM_VU);
+	m_pView[DEBUGVIEW_IOP] = new CDebugView(m_pMDIClient->m_hWnd, m_virtualMachine, &m_virtualMachine.m_iop->m_cpu,
+	                                        std::bind(&CPS2VM::StepIop, &m_virtualMachine), m_virtualMachine.m_iopOs.get(), "IO Processor");
 
 	m_virtualMachine.m_ee->m_os->OnExecutableChange.connect(boost::bind(&CDebugger::OnExecutableChange, this));
 	m_virtualMachine.m_ee->m_os->OnExecutableUnloading.connect(boost::bind(&CDebugger::OnExecutableUnloading, this));
@@ -131,30 +131,30 @@ void CDebugger::RegisterPreferences()
 {
 	CAppConfig& config(CAppConfig::GetInstance());
 
-	config.RegisterPreferenceInteger("debugger.disasm.posx",				0);
-	config.RegisterPreferenceInteger("debugger.disasm.posy",				0);
-	config.RegisterPreferenceInteger("debugger.disasm.sizex",				0);
-	config.RegisterPreferenceInteger("debugger.disasm.sizey",				0);
-	config.RegisterPreferenceBoolean("debugger.disasm.visible",				true);
+	config.RegisterPreferenceInteger("debugger.disasm.posx", 0);
+	config.RegisterPreferenceInteger("debugger.disasm.posy", 0);
+	config.RegisterPreferenceInteger("debugger.disasm.sizex", 0);
+	config.RegisterPreferenceInteger("debugger.disasm.sizey", 0);
+	config.RegisterPreferenceBoolean("debugger.disasm.visible", true);
 
-	config.RegisterPreferenceInteger("debugger.regview.posx",				0);
-	config.RegisterPreferenceInteger("debugger.regview.posy",				0);
-	config.RegisterPreferenceInteger("debugger.regview.sizex",				0);
-	config.RegisterPreferenceInteger("debugger.regview.sizey",				0);
-	config.RegisterPreferenceBoolean("debugger.regview.visible",			true);
+	config.RegisterPreferenceInteger("debugger.regview.posx", 0);
+	config.RegisterPreferenceInteger("debugger.regview.posy", 0);
+	config.RegisterPreferenceInteger("debugger.regview.sizex", 0);
+	config.RegisterPreferenceInteger("debugger.regview.sizey", 0);
+	config.RegisterPreferenceBoolean("debugger.regview.visible", true);
 
-	config.RegisterPreferenceInteger("debugger.memoryview.posx",			0);
-	config.RegisterPreferenceInteger("debugger.memoryview.posy",			0);
-	config.RegisterPreferenceInteger("debugger.memoryview.sizex",			0);
-	config.RegisterPreferenceInteger("debugger.memoryview.sizey",			0);
-	config.RegisterPreferenceBoolean("debugger.memoryview.visible",			true);
-	config.RegisterPreferenceInteger(PREF_DEBUGGER_MEMORYVIEW_BYTEWIDTH,	0);
+	config.RegisterPreferenceInteger("debugger.memoryview.posx", 0);
+	config.RegisterPreferenceInteger("debugger.memoryview.posy", 0);
+	config.RegisterPreferenceInteger("debugger.memoryview.sizex", 0);
+	config.RegisterPreferenceInteger("debugger.memoryview.sizey", 0);
+	config.RegisterPreferenceBoolean("debugger.memoryview.visible", true);
+	config.RegisterPreferenceInteger(PREF_DEBUGGER_MEMORYVIEW_BYTEWIDTH, 0);
 
-	config.RegisterPreferenceInteger("debugger.callstack.posx",				0);
-	config.RegisterPreferenceInteger("debugger.callstack.posy",				0);
-	config.RegisterPreferenceInteger("debugger.callstack.sizex",			0);
-	config.RegisterPreferenceInteger("debugger.callstack.sizey",			0);
-	config.RegisterPreferenceBoolean("debugger.callstack.visible",			true);
+	config.RegisterPreferenceInteger("debugger.callstack.posx", 0);
+	config.RegisterPreferenceInteger("debugger.callstack.posy", 0);
+	config.RegisterPreferenceInteger("debugger.callstack.sizex", 0);
+	config.RegisterPreferenceInteger("debugger.callstack.sizey", 0);
+	config.RegisterPreferenceBoolean("debugger.callstack.visible", true);
 }
 
 void CDebugger::UpdateTitle()
@@ -163,10 +163,10 @@ void CDebugger::UpdateTitle()
 
 	if(GetCurrentView() != NULL)
 	{
-		sTitle += 
-			_T(" - [ ") + 
-			string_cast<std::tstring>(GetCurrentView()->GetName()) +
-			_T(" ]");
+		sTitle +=
+		    _T(" - [ ") +
+		    string_cast<std::tstring>(GetCurrentView()->GetName()) +
+		    _T(" ]");
 	}
 
 	SetText(sTitle.c_str());
@@ -233,7 +233,7 @@ void CDebugger::StepCPU()
 		MessageBeep(-1);
 		return;
 	}
-	
+
 	if(::GetParent(GetFocus()) != GetDisassemblyWindow()->m_hWnd)
 	{
 		GetDisassemblyWindow()->SetFocus();
@@ -245,13 +245,15 @@ void CDebugger::StepCPU()
 void CDebugger::FindWordValue(uint32 mask)
 {
 	Framework::Win32::CInputBox input(_T("Find Value in Memory"), _T("Enter value to find:"), _T("00000000"));
-	
+
 	auto valueString = input.GetValue(m_hWnd);
-	if(!valueString) return;
+	if(!valueString)
+		return;
 
 	uint32 targetValue = 0;
-	auto scanned = _stscanf(valueString, _T("%x"), &targetValue);
-	if(scanned == 0) return;
+	auto   scanned = _stscanf(valueString, _T("%x"), &targetValue);
+	if(scanned == 0)
+		return;
 
 	auto context = GetCurrentView()->GetContext();
 	auto title = string_format(_T("Search results for 0x%08X"), targetValue);
@@ -269,10 +271,12 @@ void CDebugger::AssembleJAL()
 	Framework::Win32::CInputBox InputAssemble(_T("Assemble JAL"), _T("Enter address to assemble JAL to:"), _T("00000000"));
 
 	const TCHAR* sTarget = InputTarget.GetValue(m_hWnd);
-	if(sTarget == NULL) return;
+	if(sTarget == NULL)
+		return;
 
 	const TCHAR* sAssemble = InputAssemble.GetValue(m_hWnd);
-	if(sAssemble == NULL) return;
+	if(sAssemble == NULL)
+		return;
 
 	uint32 nValueTarget = 0, nValueAssemble = 0;
 	_stscanf(sTarget, _T("%x"), &nValueTarget);
@@ -283,30 +287,33 @@ void CDebugger::AssembleJAL()
 
 void CDebugger::ReanalyzeEe()
 {
-	if(m_virtualMachine.m_ee->m_os->GetELF() == nullptr) return;
+	if(m_virtualMachine.m_ee->m_os->GetELF() == nullptr)
+		return;
 
-	auto executableRange = m_virtualMachine.m_ee->m_os->GetExecutableRange();
+	auto   executableRange = m_virtualMachine.m_ee->m_os->GetExecutableRange();
 	uint32 minAddr = executableRange.first;
 	uint32 maxAddr = executableRange.second & ~0x03;
 
-	auto getAddress = 
-		[this] (const TCHAR* prompt, uint32& address)
-		{
-			Framework::Win32::CInputBox addressInputBox(_T("Analyze EE"), prompt, 
-				string_format(_T("0x%08X"), address).c_str());
-			auto addrValue = addressInputBox.GetValue(m_hWnd);
-			if(addrValue == nullptr) return false;
-			uint32 addrValueTemp = 0;
-			int cvtCount = _stscanf(addrValue, _T("%x"), &addrValueTemp);
-			if(cvtCount != 0)
-			{
-				address = addrValueTemp & ~0x3;
-			}
-			return true;
+	auto getAddress =
+	    [this](const TCHAR* prompt, uint32& address) {
+		    Framework::Win32::CInputBox addressInputBox(_T("Analyze EE"), prompt,
+		                                                string_format(_T("0x%08X"), address).c_str());
+		    auto addrValue = addressInputBox.GetValue(m_hWnd);
+		    if(addrValue == nullptr)
+			    return false;
+		    uint32 addrValueTemp = 0;
+		    int    cvtCount = _stscanf(addrValue, _T("%x"), &addrValueTemp);
+		    if(cvtCount != 0)
+		    {
+			    address = addrValueTemp & ~0x3;
+		    }
+		    return true;
 		};
 
-	if(!getAddress(_T("Start Address:"), minAddr)) return;
-	if(!getAddress(_T("End Address:"), maxAddr)) return;
+	if(!getAddress(_T("Start Address:"), minAddr))
+		return;
+	if(!getAddress(_T("End Address:"), maxAddr))
+		return;
 
 	if(minAddr > maxAddr)
 	{
@@ -323,25 +330,26 @@ void CDebugger::ReanalyzeEe()
 
 void CDebugger::FindEeFunctions()
 {
-	if(m_virtualMachine.m_ee->m_os->GetELF() == nullptr) return;
+	if(m_virtualMachine.m_ee->m_os->GetELF() == nullptr)
+		return;
 
-	auto executableRange = m_virtualMachine.m_ee->m_os->GetExecutableRange();
+	auto   executableRange = m_virtualMachine.m_ee->m_os->GetExecutableRange();
 	uint32 minAddr = executableRange.first;
 	uint32 maxAddr = executableRange.second & ~0x03;
 
 	{
-		Framework::CStdStream patternStream("ee_functions.xml", "rb");
+		Framework::CStdStream                    patternStream("ee_functions.xml", "rb");
 		boost::scoped_ptr<Framework::Xml::CNode> document(Framework::Xml::CParser::ParseDocument(patternStream));
-		CMipsFunctionPatternDb patternDb(document.get());
+		CMipsFunctionPatternDb                   patternDb(document.get());
 
 		for(auto patternIterator(std::begin(patternDb.GetPatterns()));
-			patternIterator != std::end(patternDb.GetPatterns()); ++patternIterator)
+		    patternIterator != std::end(patternDb.GetPatterns()); ++patternIterator)
 		{
 			auto pattern = *patternIterator;
 			for(uint32 address = minAddr; address <= maxAddr; address += 4)
 			{
 				uint32* text = reinterpret_cast<uint32*>(m_virtualMachine.m_ee->m_ram + address);
-				uint32 textSize = (maxAddr - address);
+				uint32  textSize = (maxAddr - address);
 				if(pattern.Matches(text, textSize))
 				{
 					m_virtualMachine.m_ee->m_EE.m_Functions.InsertTag(address, pattern.name.c_str());
@@ -350,51 +358,53 @@ void CDebugger::FindEeFunctions()
 			}
 		}
 	}
-	
+
 	{
 		//Identify functions that reference special string literals (TODO: Move that inside a file)
-		static const std::map<std::string, std::string> stringFuncs = 
-		{
-			{    "SceSifrpcBind",                                                    "SifBindRpc"           },
-			{    "SceSifrpcCall",                                                    "SifCallRpc"           },
-			{    "SceStdioOpenSema",                                                 "Open"                 },
-			{    "SceStdioCloseSema",                                                "Close"                },
-			{    "SceStdioLseekSema",                                                "Lseek"                },
-			{    "SceStdioReadSema",                                                 "Read"                 },
-			{    "SceStdioWriteSema",                                                "Write"                },
-			{    "SceStdioIoctlSema",                                                "Ioctl"                },
-			{    "SceStdioIoctl2Sema",                                               "Ioctl2"               },
-			{    "SceStdioMkdirSema",                                                "Mkdir"                },
-			{    "call cdread cmd\n",                                                "CdRead"               },
-			{    "N cmd wait\n",                                                     "CdSync"               },
-			{    "S cmd wait\n",                                                     "CdSyncS"              },
-			{    "Scmd fail sema cur_cmd:%d keep_cmd:%d\n",                          "CdCheckSCmd"          },
-			{    "sceGsExecLoadImage: DMA Ch.2 does not terminate\r\n",              "GsExecLoadImage"      },
-			{    "sceGsExecStoreImage: DMA Ch.1 does not terminate\r\n",             "GsExecStoreImage"     },
-			{    "sceGsPutDrawEnv: DMA Ch.2 does not terminate\r\n",                 "GsPutDrawEnv"         },
-			{    "sceGsSetDefLoadImage: too big size\r\n",                           "GsSetDefLoadImage"    },
-			{    "sceGsSyncPath: DMA Ch.1 does not terminate\r\n",                   "GsSyncPath"           },
-			{    "libpad: buffer addr is not 64 byte align. %08x\n",                 "PadPortOpen"          },
-			{    "sceDbcReceiveData: rpc error\n",                                   "DbcReceiveData"       },
-			{    "sceDbcSendData: rpc error\n",                                      "DbcSendData"          },
-			{    "sceDbcSendData2: rpc error\n",                                     "DbcSendData2"         },
-			{    "The size of work area is too small",                               "MpegCreate"           },
-			{    "Need to re-setup libipu since sceMpegGetPicture was aborted\n",    "_MpegInternalFct"     },
-			{    "image buffer needs to be aligned to 64byte boundary(0x%08x)",      "_MpegInternalFct"     },
-		};
+		static const std::map<std::string, std::string> stringFuncs =
+		    {
+		        {"SceSifrpcBind", "SifBindRpc"},
+		        {"SceSifrpcCall", "SifCallRpc"},
+		        {"SceStdioOpenSema", "Open"},
+		        {"SceStdioCloseSema", "Close"},
+		        {"SceStdioLseekSema", "Lseek"},
+		        {"SceStdioReadSema", "Read"},
+		        {"SceStdioWriteSema", "Write"},
+		        {"SceStdioIoctlSema", "Ioctl"},
+		        {"SceStdioIoctl2Sema", "Ioctl2"},
+		        {"SceStdioMkdirSema", "Mkdir"},
+		        {"call cdread cmd\n", "CdRead"},
+		        {"N cmd wait\n", "CdSync"},
+		        {"S cmd wait\n", "CdSyncS"},
+		        {"Scmd fail sema cur_cmd:%d keep_cmd:%d\n", "CdCheckSCmd"},
+		        {"sceGsExecLoadImage: DMA Ch.2 does not terminate\r\n", "GsExecLoadImage"},
+		        {"sceGsExecStoreImage: DMA Ch.1 does not terminate\r\n", "GsExecStoreImage"},
+		        {"sceGsPutDrawEnv: DMA Ch.2 does not terminate\r\n", "GsPutDrawEnv"},
+		        {"sceGsSetDefLoadImage: too big size\r\n", "GsSetDefLoadImage"},
+		        {"sceGsSyncPath: DMA Ch.1 does not terminate\r\n", "GsSyncPath"},
+		        {"libpad: buffer addr is not 64 byte align. %08x\n", "PadPortOpen"},
+		        {"sceDbcReceiveData: rpc error\n", "DbcReceiveData"},
+		        {"sceDbcSendData: rpc error\n", "DbcSendData"},
+		        {"sceDbcSendData2: rpc error\n", "DbcSendData2"},
+		        {"The size of work area is too small", "MpegCreate"},
+		        {"Need to re-setup libipu since sceMpegGetPicture was aborted\n", "_MpegInternalFct"},
+		        {"image buffer needs to be aligned to 64byte boundary(0x%08x)", "_MpegInternalFct"},
+		    };
 
 		{
-			auto& eeFunctions = m_virtualMachine.m_ee->m_EE.m_Functions;
+			auto&       eeFunctions = m_virtualMachine.m_ee->m_EE.m_Functions;
 			const auto& eeComments = m_virtualMachine.m_ee->m_EE.m_Comments;
 			const auto& eeAnalysis = m_virtualMachine.m_ee->m_EE.m_analysis;
-			for(auto tagIterator = eeComments.GetTagsBegin(); 
-				tagIterator != eeComments.GetTagsEnd(); tagIterator++)
+			for(auto tagIterator = eeComments.GetTagsBegin();
+			    tagIterator != eeComments.GetTagsEnd(); tagIterator++)
 			{
 				const auto& tag = *tagIterator;
-				auto subroutine = eeAnalysis->FindSubroutine(tag.first);
-				if(subroutine == nullptr) continue;
+				auto        subroutine = eeAnalysis->FindSubroutine(tag.first);
+				if(subroutine == nullptr)
+					continue;
 				auto stringFunc = stringFuncs.find(tag.second);
-				if(stringFunc == std::end(stringFuncs)) continue;
+				if(stringFunc == std::end(stringFuncs))
+					continue;
 				eeFunctions.InsertTag(subroutine->start, stringFunc->second.c_str());
 			}
 		}
@@ -475,8 +485,9 @@ void CDebugger::InitializeConsole()
 	SetConsoleScreenBufferSize(GetStdHandle(STD_OUTPUT_HANDLE), ScreenBufferInfo.dwSize);
 
 	(*stdout) = *_fdopen(_open_osfhandle(
-		reinterpret_cast<intptr_t>(GetStdHandle(STD_OUTPUT_HANDLE)),
-		_O_TEXT), "w");
+	                         reinterpret_cast<intptr_t>(GetStdHandle(STD_OUTPUT_HANDLE)),
+	                         _O_TEXT),
+	                     "w");
 
 	setvbuf(stdout, NULL, _IONBF, 0);
 	std::ios::sync_with_stdio();
@@ -485,7 +496,8 @@ void CDebugger::InitializeConsole()
 
 void CDebugger::ActivateView(unsigned int nView)
 {
-	if(m_nCurrentView == nView) return;
+	if(m_nCurrentView == nView)
+		return;
 
 	if(m_nCurrentView != -1)
 	{
@@ -513,69 +525,69 @@ void CDebugger::ActivateView(unsigned int nView)
 	}
 
 	m_findCallersRequestConnection = GetCurrentView()->GetDisassemblyWindow()->GetDisAsm()->FindCallersRequested.connect(
-		[&] (uint32 address) { OnFindCallersRequested(address); });
+	    [&](uint32 address) { OnFindCallersRequested(address); });
 }
 
 void CDebugger::SaveViewLayout()
 {
-	SerializeWindowGeometry(GetDisassemblyWindow(), \
-		"debugger.disasm.posx", \
-		"debugger.disasm.posy", \
-		"debugger.disasm.sizex", \
-		"debugger.disasm.sizey", \
-		"debugger.disasm.visible");
+	SerializeWindowGeometry(GetDisassemblyWindow(),
+	                        "debugger.disasm.posx",
+	                        "debugger.disasm.posy",
+	                        "debugger.disasm.sizex",
+	                        "debugger.disasm.sizey",
+	                        "debugger.disasm.visible");
 
-	SerializeWindowGeometry(GetRegisterViewWindow(), \
-		"debugger.regview.posx", \
-		"debugger.regview.posy", \
-		"debugger.regview.sizex", \
-		"debugger.regview.sizey", \
-		"debugger.regview.visible");
+	SerializeWindowGeometry(GetRegisterViewWindow(),
+	                        "debugger.regview.posx",
+	                        "debugger.regview.posy",
+	                        "debugger.regview.sizex",
+	                        "debugger.regview.sizey",
+	                        "debugger.regview.visible");
 
-	SerializeWindowGeometry(GetMemoryViewWindow(), \
-		"debugger.memoryview.posx", \
-		"debugger.memoryview.posy", \
-		"debugger.memoryview.sizex", \
-		"debugger.memoryview.sizey", \
-		"debugger.memoryview.visible");
+	SerializeWindowGeometry(GetMemoryViewWindow(),
+	                        "debugger.memoryview.posx",
+	                        "debugger.memoryview.posy",
+	                        "debugger.memoryview.sizex",
+	                        "debugger.memoryview.sizey",
+	                        "debugger.memoryview.visible");
 
-	SerializeWindowGeometry(GetCallStackWindow(), \
-		"debugger.callstack.posx", \
-		"debugger.callstack.posy", \
-		"debugger.callstack.sizex", \
-		"debugger.callstack.sizey", \
-		"debugger.callstack.visible");
+	SerializeWindowGeometry(GetCallStackWindow(),
+	                        "debugger.callstack.posx",
+	                        "debugger.callstack.posy",
+	                        "debugger.callstack.sizex",
+	                        "debugger.callstack.sizey",
+	                        "debugger.callstack.visible");
 }
 
 void CDebugger::LoadViewLayout()
 {
-	UnserializeWindowGeometry(GetDisassemblyWindow(), \
-		"debugger.disasm.posx", \
-		"debugger.disasm.posy", \
-		"debugger.disasm.sizex", \
-		"debugger.disasm.sizey", \
-		"debugger.disasm.visible");
+	UnserializeWindowGeometry(GetDisassemblyWindow(),
+	                          "debugger.disasm.posx",
+	                          "debugger.disasm.posy",
+	                          "debugger.disasm.sizex",
+	                          "debugger.disasm.sizey",
+	                          "debugger.disasm.visible");
 
-	UnserializeWindowGeometry(GetRegisterViewWindow(), \
-		"debugger.regview.posx", \
-		"debugger.regview.posy", \
-		"debugger.regview.sizex", \
-		"debugger.regview.sizey", \
-		"debugger.regview.visible");
+	UnserializeWindowGeometry(GetRegisterViewWindow(),
+	                          "debugger.regview.posx",
+	                          "debugger.regview.posy",
+	                          "debugger.regview.sizex",
+	                          "debugger.regview.sizey",
+	                          "debugger.regview.visible");
 
-	UnserializeWindowGeometry(GetMemoryViewWindow(), \
-		"debugger.memoryview.posx", \
-		"debugger.memoryview.posy", \
-		"debugger.memoryview.sizex", \
-		"debugger.memoryview.sizey", \
-		"debugger.memoryview.visible");
+	UnserializeWindowGeometry(GetMemoryViewWindow(),
+	                          "debugger.memoryview.posx",
+	                          "debugger.memoryview.posy",
+	                          "debugger.memoryview.sizex",
+	                          "debugger.memoryview.sizey",
+	                          "debugger.memoryview.visible");
 
-	UnserializeWindowGeometry(GetCallStackWindow(), \
-		"debugger.callstack.posx", \
-		"debugger.callstack.posy", \
-		"debugger.callstack.sizex", \
-		"debugger.callstack.sizey", \
-		"debugger.callstack.visible");
+	UnserializeWindowGeometry(GetCallStackWindow(),
+	                          "debugger.callstack.posx",
+	                          "debugger.callstack.posy",
+	                          "debugger.callstack.sizex",
+	                          "debugger.callstack.sizey",
+	                          "debugger.callstack.visible");
 }
 
 void CDebugger::SaveBytesPerLine()
@@ -594,7 +606,8 @@ void CDebugger::LoadBytesPerLine()
 
 CDebugView* CDebugger::GetCurrentView()
 {
-	if(m_nCurrentView == -1) return NULL;
+	if(m_nCurrentView == -1)
+		return NULL;
 	return m_pView[m_nCurrentView];
 }
 
@@ -655,15 +668,15 @@ std::vector<uint32> CDebugger::FindWordValueRefs(CMIPS* context, uint32 targetVa
 void CDebugger::CreateAccelerators()
 {
 	Framework::Win32::CAcceleratorTableGenerator generator;
-	generator.Insert(ID_VIEW_FUNCTIONS,			'F',	FCONTROL | FVIRTKEY);
-	generator.Insert(ID_VIEW_THREADS,			'T',	FCONTROL | FVIRTKEY);
-	generator.Insert(ID_VM_STEP,				VK_F10,	FVIRTKEY);
-	generator.Insert(ID_VM_RESUME,				VK_F5,	FVIRTKEY);
-	generator.Insert(ID_VIEW_CALLSTACK,			'A',	FCONTROL | FVIRTKEY);
-	generator.Insert(ID_VIEW_EEVIEW,			'1',	FALT | FVIRTKEY);
-	generator.Insert(ID_VIEW_VU0VIEW,			'2',	FALT | FVIRTKEY);
-	generator.Insert(ID_VIEW_VU1VIEW,			'3',	FALT | FVIRTKEY);
-	generator.Insert(ID_VIEW_IOPVIEW,			'4',	FALT | FVIRTKEY);
+	generator.Insert(ID_VIEW_FUNCTIONS, 'F', FCONTROL | FVIRTKEY);
+	generator.Insert(ID_VIEW_THREADS, 'T', FCONTROL | FVIRTKEY);
+	generator.Insert(ID_VM_STEP, VK_F10, FVIRTKEY);
+	generator.Insert(ID_VM_RESUME, VK_F5, FVIRTKEY);
+	generator.Insert(ID_VIEW_CALLSTACK, 'A', FCONTROL | FVIRTKEY);
+	generator.Insert(ID_VIEW_EEVIEW, '1', FALT | FVIRTKEY);
+	generator.Insert(ID_VIEW_VU0VIEW, '2', FALT | FVIRTKEY);
+	generator.Insert(ID_VIEW_VU1VIEW, '3', FALT | FVIRTKEY);
+	generator.Insert(ID_VIEW_IOPVIEW, '4', FALT | FVIRTKEY);
 	m_nAccTable = generator.Create();
 }
 
@@ -833,19 +846,18 @@ void CDebugger::OnFindCallersRequested(uint32 address)
 {
 	auto context = GetCurrentView()->GetContext();
 	auto callers = FindCallers(context, address);
-	auto title = 
-		[&] ()
-		{
-			auto functionName = context->m_Functions.Find(address);
-			if(functionName)
-			{
-				return string_format(_T("Find Callers For '%s' (0x%08X)"), 
-					string_cast<std::tstring>(functionName).c_str(), address);
-			}
-			else
-			{
-				return string_format(_T("Find Callers For 0x%08X"), address);
-			}
+	auto title =
+	    [&]() {
+		    auto functionName = context->m_Functions.Find(address);
+		    if(functionName)
+		    {
+			    return string_format(_T("Find Callers For '%s' (0x%08X)"),
+			                         string_cast<std::tstring>(functionName).c_str(), address);
+		    }
+		    else
+		    {
+			    return string_format(_T("Find Callers For 0x%08X"), address);
+		    }
 		}();
 
 	m_addressListView->SetAddressList(std::move(callers));
@@ -864,7 +876,7 @@ void CDebugger::OnFindCallersAddressDblClick(uint32 address)
 void CDebugger::OnExecutableChangeMsg()
 {
 	m_pELFView->SetELF(m_virtualMachine.m_ee->m_os->GetELF());
-//	m_pFunctionsView->SetELF(m_virtualMachine.m_os->GetELF());
+	//	m_pFunctionsView->SetELF(m_virtualMachine.m_os->GetELF());
 
 	LoadDebugTags();
 
@@ -876,7 +888,7 @@ void CDebugger::OnExecutableUnloadingMsg()
 {
 	SaveDebugTags();
 	m_pELFView->SetELF(NULL);
-//	m_pFunctionsView->SetELF(NULL);
+	//	m_pFunctionsView->SetELF(NULL);
 }
 
 void CDebugger::LoadDebugTags()

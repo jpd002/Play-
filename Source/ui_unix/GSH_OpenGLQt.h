@@ -18,6 +18,6 @@ public:
 	void PresentBackbuffer() override;
 
 private:
-	QWindow* m_renderWindow = nullptr;
+	QWindow*        m_renderWindow = nullptr;
 	QOpenGLContext* m_context = nullptr;
 };

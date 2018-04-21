@@ -1,13 +1,13 @@
-#include <cassert>
-#include <cstring>
 #include "S3ObjectStream.h"
 #include "AmazonS3Client.h"
-#include "Singleton.h"
 #include "AppConfig.h"
-#include "PathUtils.h"
-#include "string_format.h"
-#include "StdStreamUtils.h"
 #include "Log.h"
+#include "PathUtils.h"
+#include "Singleton.h"
+#include "StdStreamUtils.h"
+#include "string_format.h"
+#include <cassert>
+#include <cstring>
 
 #define PREF_S3_OBJECTSTREAM_ACCESSKEYID "s3.objectstream.accesskeyid"
 #define PREF_S3_OBJECTSTREAM_SECRETACCESSKEY "s3.objectstream.secretaccesskey"
@@ -54,31 +54,30 @@ uint64 CS3ObjectStream::Read(void* buffer, uint64 size)
 	fflush(output);
 #endif
 
-	bool cachedReadSucceeded = 
-		[&]()
-		{
-			try
-			{
-				if(boost::filesystem::exists(readCacheFilePath))
-				{
-					auto readCacheFileStream = Framework::CreateInputStdStream(readCacheFilePath.native());
-					auto cacheRead = readCacheFileStream.Read(buffer, size);
-					assert(cacheRead == size);
-					return true;
-				}
-			}
-			catch(const std::exception& exception)
-			{
-				//Not a problem if we failed to read cache
-				CLog::GetInstance().Print(LOG_NAME, "Failed to read cache: '%s'.\r\n", exception.what());
-			}
-			return false;
-		} ();
+	bool cachedReadSucceeded =
+	    [&]() {
+		    try
+		    {
+			    if(boost::filesystem::exists(readCacheFilePath))
+			    {
+				    auto readCacheFileStream = Framework::CreateInputStdStream(readCacheFilePath.native());
+				    auto cacheRead = readCacheFileStream.Read(buffer, size);
+				    assert(cacheRead == size);
+				    return true;
+			    }
+		    }
+		    catch(const std::exception& exception)
+		    {
+			    //Not a problem if we failed to read cache
+			    CLog::GetInstance().Print(LOG_NAME, "Failed to read cache: '%s'.\r\n", exception.what());
+		    }
+		    return false;
+		}();
 
 	if(!cachedReadSucceeded)
 	{
 		assert(size > 0);
-		CAmazonS3Client client(CS3Config::GetInstance().GetAccessKeyId(), CS3Config::GetInstance().GetSecretAccessKey(), m_bucketRegion);
+		CAmazonS3Client  client(CS3Config::GetInstance().GetAccessKeyId(), CS3Config::GetInstance().GetSecretAccessKey(), m_bucketRegion);
 		GetObjectRequest request;
 		request.object = m_objectName;
 		request.bucket = m_bucketName;
@@ -147,12 +146,14 @@ std::string CS3ObjectStream::GenerateReadCacheKey(const std::pair<uint64, uint64
 
 static std::string TrimQuotes(std::string input)
 {
-	if(input.empty()) return input;
+	if(input.empty())
+		return input;
 	if(input[0] == '"')
 	{
 		input = std::string(input.begin() + 1, input.end());
 	}
-	if(input.empty()) return input;
+	if(input.empty())
+		return input;
 	if(input[input.size() - 1] == '"')
 	{
 		input = std::string(input.begin(), input.end() - 1);

@@ -4,6 +4,6 @@
 
 namespace IosUtils
 {
-	bool IsLoadableExecutableFileName(NSString*);
-	bool IsLoadableDiskImageFileName(NSString*);
+bool IsLoadableExecutableFileName(NSString*);
+bool IsLoadableDiskImageFileName(NSString*);
 }

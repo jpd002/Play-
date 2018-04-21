@@ -4,12 +4,10 @@
 
 CProfiler::CProfiler()
 {
-
 }
 
 CProfiler::~CProfiler()
 {
-
 }
 
 CProfiler::ZoneHandle CProfiler::RegisterZone(const char* name)
@@ -18,7 +16,8 @@ CProfiler::ZoneHandle CProfiler::RegisterZone(const char* name)
 	for(unsigned int i = 0; i < m_zones.size(); i++)
 	{
 		const auto& zone(m_zones[i]);
-		if(zone.name == name) return i;
+		if(zone.name == name)
+			return i;
 	}
 	auto newZone = ZONE();
 	newZone.name = name;
@@ -49,7 +48,7 @@ void CProfiler::CountCurrentZone()
 void CProfiler::EnterZone(ZoneHandle zoneHandle)
 {
 	assert(std::this_thread::get_id() == m_workThreadId);
-	
+
 	auto thisTime = std::chrono::high_resolution_clock::now();
 
 	if(!m_zoneStack.empty())

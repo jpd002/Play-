@@ -1,6 +1,6 @@
-#include <cassert>
 #include "GsCachedArea.h"
 #include "GsPixelFormats.h"
+#include <cassert>
 
 static bool DoMemoryRangesOverlap(uint32 start1, uint32 size1, uint32 start2, uint32 size2)
 {
@@ -10,9 +10,11 @@ static bool DoMemoryRangesOverlap(uint32 start1, uint32 size1, uint32 start2, ui
 	uint32 min2 = start2;
 	uint32 max2 = start2 + size2;
 
-	if(max1 <= min2) return false;
-	if(min1 >= max2) return false;
-	
+	if(max1 <= min2)
+		return false;
+	if(min1 >= max2)
+		return false;
+
 	return true;
 }
 
@@ -31,10 +33,10 @@ void CGsCachedArea::SetArea(uint32 psm, uint32 bufPtr, uint32 bufWidth, uint32 h
 
 CGsCachedArea::PageRect CGsCachedArea::GetAreaPageRect() const
 {
-	auto texturePageSize = CGsPixelFormats::GetPsmPageSize(m_psm);
+	auto   texturePageSize = CGsPixelFormats::GetPsmPageSize(m_psm);
 	uint32 pageCountX = (m_bufWidth + texturePageSize.first - 1) / texturePageSize.first;
 	uint32 pageCountY = (m_height + texturePageSize.second - 1) / texturePageSize.second;
-	return PageRect { 0, 0, pageCountX, pageCountY };
+	return PageRect{0, 0, pageCountX, pageCountY};
 }
 
 CGsCachedArea::PageRect CGsCachedArea::GetDirtyPageRect() const
@@ -55,25 +57,26 @@ CGsCachedArea::PageRect CGsCachedArea::GetDirtyPageRect() const
 				break;
 			}
 		}
-		if(done) break;
+		if(done)
+			break;
 	}
 
 	if((startX == areaRect.width) || (startY == areaRect.height))
 	{
-		return PageRect { 0, 0, 0, 0 };
+		return PageRect{0, 0, 0, 0};
 	}
 
 	const auto getHorzSpan =
-		[&] (uint32 bx, uint32 by)
-		{
-			uint32 span = 0;
-			for(uint32 x = bx; x < areaRect.width; x++)
-			{
-				uint32 pageIndex = x + (by * areaRect.width);
-				if(!IsPageDirty(pageIndex)) break;
-				span++;
-			}
-			return span;
+	    [&](uint32 bx, uint32 by) {
+		    uint32 span = 0;
+		    for(uint32 x = bx; x < areaRect.width; x++)
+		    {
+			    uint32 pageIndex = x + (by * areaRect.width);
+			    if(!IsPageDirty(pageIndex))
+				    break;
+			    span++;
+		    }
+		    return span;
 		};
 
 	//Check how high is the dirty rect
@@ -82,11 +85,12 @@ CGsCachedArea::PageRect CGsCachedArea::GetDirtyPageRect() const
 	for(uint32 y = startY + 1; y < areaRect.height; y++)
 	{
 		uint32 lineSpanX = getHorzSpan(startX, y);
-		if(lineSpanX < spanX) break;
+		if(lineSpanX < spanX)
+			break;
 		spanY++;
 	}
 
-	return PageRect { startX, startY, spanX, spanY };
+	return PageRect{startX, startY, spanX, spanY};
 }
 
 uint32 CGsCachedArea::GetPageCount() const
@@ -114,7 +118,8 @@ void CGsCachedArea::Invalidate(uint32 memoryStart, uint32 memorySize)
 		for(unsigned int i = 0; i < pageCount; i++)
 		{
 			uint32 pageIndex = pageStart + i;
-			if(pageIndex >= areaPageCount) break;
+			if(pageIndex >= areaPageCount)
+				break;
 			SetPageDirty(pageIndex);
 		}
 
@@ -156,7 +161,7 @@ void CGsCachedArea::ClearDirtyPages()
 
 void CGsCachedArea::ClearDirtyPages(const PageRect& rect)
 {
-	auto areaRect = GetAreaPageRect();
+	auto   areaRect = GetAreaPageRect();
 	uint32 endX = rect.x + rect.width;
 	uint32 endY = rect.y + rect.height;
 

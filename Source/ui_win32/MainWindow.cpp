@@ -1,78 +1,78 @@
-#include <stdio.h>
-#include <boost/lexical_cast.hpp>
-#include <iomanip>
-#include <functional>
-#include "string_format.h"
-#include "string_cast.h"
-#include "StdStreamUtils.h"
-#include "PathUtils.h"
-#include "win32/FileDialog.h"
-#include "win32/AcceleratorTableGenerator.h"
-#include "win32/MenuItem.h"
-#include "win32/DpiUtils.h"
 #include "MainWindow.h"
+#include "../../tools/PsfPlayer/Source/win32_ui/SH_WaveOut.h"
+#include "../AppConfig.h"
+#include "../PH_Generic.h"
 #include "../PS2VM.h"
 #include "../PS2VM_Preferences.h"
 #include "../ScopedVmPauser.h"
-#include "../AppConfig.h"
 #include "../ee/PS2OS.h"
 #include "../gs/GSH_Null.h"
-#include "GSH_OpenGLWin32.h"
-#include "../PH_Generic.h"
-#include "PH_DirectInput.h"
-#include "ScreenShotUtils.h"
-#include "VFSManagerWnd.h"
-#include "McManagerWnd.h"
-#include "Debugger.h"
-#include "SysInfoWnd.h"
 #include "AboutWnd.h"
-#include "resource.h"
+#include "Debugger.h"
 #include "FileFilters.h"
-#include "../../tools/PsfPlayer/Source/win32_ui/SH_WaveOut.h"
+#include "GSH_OpenGLWin32.h"
+#include "McManagerWnd.h"
+#include "PH_DirectInput.h"
+#include "PathUtils.h"
+#include "ScreenShotUtils.h"
+#include "StdStreamUtils.h"
+#include "SysInfoWnd.h"
+#include "VFSManagerWnd.h"
+#include "resource.h"
+#include "string_cast.h"
+#include "string_format.h"
+#include "win32/AcceleratorTableGenerator.h"
+#include "win32/DpiUtils.h"
+#include "win32/FileDialog.h"
+#include "win32/MenuItem.h"
+#include <boost/lexical_cast.hpp>
+#include <functional>
+#include <iomanip>
+#include <stdio.h>
 
-#define CLSNAME						_T("MainWindow")
-#define WNDSTYLE					(WS_CLIPCHILDREN | WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX | WS_MAXIMIZEBOX | WS_SIZEBOX)
+#define CLSNAME _T("MainWindow")
+#define WNDSTYLE (WS_CLIPCHILDREN | WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX | WS_MAXIMIZEBOX | WS_SIZEBOX)
 
-#define STATUSPANEL					0
-#define FPSPANEL					1
+#define STATUSPANEL 0
+#define FPSPANEL 1
 
-#define FILEMENUPOS					0
-#define VMMENUPOS					1
-#define VIEWMENUPOS					2
+#define FILEMENUPOS 0
+#define VMMENUPOS 1
+#define VIEWMENUPOS 2
 
-#define ID_MAIN_VM_STATESLOT_0		(0xBEEF)
-#define MAX_STATESLOTS				10
+#define ID_MAIN_VM_STATESLOT_0 (0xBEEF)
+#define MAX_STATESLOTS 10
 
-#define ID_MAIN_DEBUG_SHOWDEBUG			(0xDEAD)
-#define ID_MAIN_DEBUG_SHOWFRAMEDEBUG	(0xDEAE)
-#define ID_MAIN_DEBUG_DUMPFRAME			(0xDEAF)
-#define ID_MAIN_DEBUG_ENABLEGSDRAW		(0xDEB0)
+#define ID_MAIN_DEBUG_SHOWDEBUG (0xDEAD)
+#define ID_MAIN_DEBUG_SHOWFRAMEDEBUG (0xDEAE)
+#define ID_MAIN_DEBUG_DUMPFRAME (0xDEAF)
+#define ID_MAIN_DEBUG_ENABLEGSDRAW (0xDEB0)
 
-#define ID_MAIN_PROFILE_RESETSTATS		(0xDFAD)
+#define ID_MAIN_PROFILE_RESETSTATS (0xDFAD)
 
-#define PREF_UI_PAUSEWHENFOCUSLOST	"ui.pausewhenfocuslost"
-#define PREF_UI_SOUNDENABLED		"ui.soundenabled"
+#define PREF_UI_PAUSEWHENFOCUSLOST "ui.pausewhenfocuslost"
+#define PREF_UI_SOUNDENABLED "ui.soundenabled"
 
 //#define USE_VIRTUALPAD
 
 double CMainWindow::m_statusBarPanelWidths[2] =
-{
-	0.7,
-	0.3,
+    {
+        0.7,
+        0.3,
 };
 
 CMainWindow::CMainWindow(CPS2VM& virtualMachine)
-: m_virtualMachine(virtualMachine)
-, m_recordingAvi(false)
-, m_recordBuffer(nullptr)
-, m_recordBufferWidth(0)
-, m_recordBufferHeight(0)
-, m_recordAviMutex(NULL)
-, m_frames(0)
-, m_drawCallCount(0)
-, m_stateSlot(0)
-, m_outputWnd(nullptr)
-, m_accTable(NULL)
+    : m_virtualMachine(virtualMachine)
+    , m_recordingAvi(false)
+    , m_recordBuffer(nullptr)
+    , m_recordBufferWidth(0)
+    , m_recordBufferHeight(0)
+    , m_recordAviMutex(NULL)
+    , m_frames(0)
+    , m_drawCallCount(0)
+    , m_stateSlot(0)
+    , m_outputWnd(nullptr)
+    , m_accTable(NULL)
 {
 	m_recordAviMutex = CreateMutex(NULL, FALSE, NULL);
 
@@ -85,13 +85,13 @@ CMainWindow::CMainWindow(CPS2VM& virtualMachine)
 	{
 		WNDCLASSEX wc;
 		memset(&wc, 0, sizeof(WNDCLASSEX));
-		wc.cbSize			= sizeof(WNDCLASSEX);
-		wc.hCursor			= LoadCursor(NULL, IDC_ARROW);
-		wc.hbrBackground	= (HBRUSH)(COLOR_WINDOW); 
-		wc.hInstance		= GetModuleHandle(NULL);
-		wc.lpszClassName	= CLSNAME;
-		wc.lpfnWndProc		= CWindow::WndProc;
-		wc.style			= CS_OWNDC | CS_HREDRAW | CS_VREDRAW;
+		wc.cbSize = sizeof(WNDCLASSEX);
+		wc.hCursor = LoadCursor(NULL, IDC_ARROW);
+		wc.hbrBackground = (HBRUSH)(COLOR_WINDOW);
+		wc.hInstance = GetModuleHandle(NULL);
+		wc.lpszClassName = CLSNAME;
+		wc.lpfnWndProc = CWindow::WndProc;
+		wc.style = CS_OWNDC | CS_HREDRAW | CS_VREDRAW;
 		RegisterClassEx(&wc);
 	}
 
@@ -125,8 +125,8 @@ CMainWindow::CMainWindow(CPS2VM& virtualMachine)
 
 	m_statusBar = Framework::Win32::CStatusBar(m_hWnd);
 	m_statusBar.SetParts(2, m_statusBarPanelWidths);
-	m_statusBar.SetText(STATUSPANEL,	sVersion);
-	m_statusBar.SetText(FPSPANEL,		_T(""));
+	m_statusBar.SetText(STATUSPANEL, sVersion);
+	m_statusBar.SetText(FPSPANEL, _T(""));
 
 	//m_virtualMachine.CreateGSHandler(CGSH_Null::GetFactoryFunction());
 	m_virtualMachine.CreateGSHandler(CGSH_OpenGLWin32::GetFactoryFunction(m_outputWnd));
@@ -327,7 +327,6 @@ long CMainWindow::OnCommand(unsigned short nID, unsigned short nCmd, HWND hSende
 	case ID_MAIN_HELP_ABOUT:
 		ShowAbout();
 		break;
-
 	}
 	return TRUE;
 }
@@ -335,7 +334,7 @@ long CMainWindow::OnCommand(unsigned short nID, unsigned short nCmd, HWND hSende
 long CMainWindow::OnTimer(WPARAM)
 {
 	uint32 dcpf = (m_frames != 0) ? (m_drawCallCount / m_frames) : 0;
-	auto caption = string_format(_T("%d f/s, %d dc/f"), m_frames, dcpf);
+	auto   caption = string_format(_T("%d f/s, %d dc/f"), m_frames, dcpf);
 	m_statusBar.SetText(FPSPANEL, caption.c_str());
 
 #ifdef PROFILE
@@ -360,7 +359,7 @@ long CMainWindow::OnActivateApp(bool nActive, unsigned long nThreadId)
 				m_deactivatePause = true;
 			}
 		}
-		
+
 		if((nActive == true) && (m_deactivatePause == true))
 		{
 			ResumePause();
@@ -396,7 +395,8 @@ void CMainWindow::OpenELF()
 	Enable(TRUE);
 	SetFocus();
 
-	if(nRet == 0) return;
+	if(nRet == 0)
+		return;
 
 	LoadELF(d.GetPath());
 }
@@ -437,37 +437,35 @@ void CMainWindow::PauseWhenFocusLost()
 
 void CMainWindow::SaveState()
 {
-	if(m_virtualMachine.m_ee->m_os->GetELF() == nullptr) return;
+	if(m_virtualMachine.m_ee->m_os->GetELF() == nullptr)
+		return;
 
 	Framework::PathUtils::EnsurePathExists(CPS2VM::GetStateDirectoryPath());
 	auto statePath = m_virtualMachine.GenerateStatePath(m_stateSlot);
 	auto future = m_virtualMachine.SaveState(statePath);
 	m_futureContinuationManager.Register(std::move(future),
-		[this, stateSlot = m_stateSlot] (bool succeeded)
-		{
-			auto message = string_format(
-				succeeded ? _T("Saved state to slot %i.") : _T("Error saving state to slot %i."),
-				stateSlot);
-			SetStatusText(message.c_str());
-		}
-	);
+	                                     [ this, stateSlot = m_stateSlot ](bool succeeded) {
+		                                     auto message = string_format(
+		                                         succeeded ? _T("Saved state to slot %i.") : _T("Error saving state to slot %i."),
+		                                         stateSlot);
+		                                     SetStatusText(message.c_str());
+		                                 });
 }
 
 void CMainWindow::LoadState()
 {
-	if(m_virtualMachine.m_ee->m_os->GetELF() == nullptr) return;
+	if(m_virtualMachine.m_ee->m_os->GetELF() == nullptr)
+		return;
 
 	auto statePath = m_virtualMachine.GenerateStatePath(m_stateSlot);
 	auto future = m_virtualMachine.LoadState(statePath);
 	m_futureContinuationManager.Register(std::move(future),
-		[this, stateSlot = m_stateSlot] (const bool& succeeded)
-		{
-			auto message = string_format(
-				succeeded ? _T("Loaded state from slot %i.") : _T("Error loading state from slot %i."),
-				stateSlot);
-			SetStatusText(message.c_str());
-		}
-	);
+	                                     [ this, stateSlot = m_stateSlot ](const bool& succeeded) {
+		                                     auto message = string_format(
+		                                         succeeded ? _T("Loaded state from slot %i.") : _T("Error loading state from slot %i."),
+		                                         stateSlot);
+		                                     SetStatusText(message.c_str());
+		                                 });
 }
 
 void CMainWindow::ChangeStateSlot(unsigned int nSlot)
@@ -502,39 +500,37 @@ void CMainWindow::ShowFrameDebugger()
 void CMainWindow::DumpNextFrame()
 {
 	m_virtualMachine.TriggerFrameDump(
-		[&] (const CFrameDump& frameDump)
-		{
-			try
-			{
-				auto frameDumpDirectoryPath = GetFrameDumpDirectoryPath();
-				Framework::PathUtils::EnsurePathExists(frameDumpDirectoryPath);
-				for(unsigned int i = 0; i < UINT_MAX; i++)
-				{
-					auto frameDumpFileName = string_format("framedump_%08d.dmp.zip", i);
-					auto frameDumpPath = frameDumpDirectoryPath / boost::filesystem::path(frameDumpFileName);
-					if(!boost::filesystem::exists(frameDumpPath))
-					{
-						auto dumpStream = Framework::CreateOutputStdStream(frameDumpPath.native());
-						frameDump.Write(dumpStream);
-						PrintStatusTextA("Dumped frame to '%s'.", frameDumpFileName.c_str());
-						return;
-					}
-				}
-			}
-			catch(...)
-			{
-
-			}
-			PrintStatusTextA("Failed to dump frame.");
-		}
-	);
+	    [&](const CFrameDump& frameDump) {
+		    try
+		    {
+			    auto frameDumpDirectoryPath = GetFrameDumpDirectoryPath();
+			    Framework::PathUtils::EnsurePathExists(frameDumpDirectoryPath);
+			    for(unsigned int i = 0; i < UINT_MAX; i++)
+			    {
+				    auto frameDumpFileName = string_format("framedump_%08d.dmp.zip", i);
+				    auto frameDumpPath = frameDumpDirectoryPath / boost::filesystem::path(frameDumpFileName);
+				    if(!boost::filesystem::exists(frameDumpPath))
+				    {
+					    auto dumpStream = Framework::CreateOutputStdStream(frameDumpPath.native());
+					    frameDump.Write(dumpStream);
+					    PrintStatusTextA("Dumped frame to '%s'.", frameDumpFileName.c_str());
+					    return;
+				    }
+			    }
+		    }
+		    catch(...)
+		    {
+		    }
+		    PrintStatusTextA("Failed to dump frame.");
+		});
 }
 
 void CMainWindow::ToggleGsDraw()
 {
 #ifdef DEBUGGER_INCLUDED
 	auto gs = m_virtualMachine.GetGSHandler();
-	if(gs == nullptr) return;
+	if(gs == nullptr)
+		return;
 	bool newState = !gs->GetDrawEnabled();
 	gs->SetDrawEnabled(newState);
 	Framework::Win32::CMenuItem::FindById(GetMenu(m_hWnd), ID_MAIN_DEBUG_ENABLEGSDRAW).Check(newState);
@@ -562,7 +558,8 @@ void CMainWindow::ShowAbout()
 
 void CMainWindow::ShowSettingsDialog(CSettingsDialogProvider* provider)
 {
-	if(!provider) return;
+	if(!provider)
+		return;
 
 	CScopedVmPauser vmPauser(m_virtualMachine);
 
@@ -594,7 +591,8 @@ void CMainWindow::ShowVideoSettings()
 
 void CMainWindow::ShowControllerSettings()
 {
-	if(!m_virtualMachine.m_pad) return;
+	if(!m_virtualMachine.m_pad)
+		return;
 	ShowSettingsDialog(dynamic_cast<CSettingsDialogProvider*>(m_virtualMachine.m_pad));
 }
 
@@ -637,7 +635,8 @@ void CMainWindow::ProcessCommandLine()
 		}
 		else if(_tcsstr(arg, _T("--elf")) != nullptr)
 		{
-			if((__argc - i) < 2) continue;
+			if((__argc - i) < 2)
+				continue;
 			auto nextArg = __targv[i + 1];
 			LoadELF(nextArg);
 		}
@@ -706,7 +705,8 @@ void CMainWindow::BootDiskImage()
 	Enable(TRUE);
 	SetFocus();
 
-	if(nRet == 0) return;
+	if(nRet == 0)
+		return;
 
 	auto path = boost::filesystem::path(d.GetPath());
 	CAppConfig::GetInstance().SetPreferencePath(PREF_PS2_CDROM0_PATH, path);
@@ -722,16 +722,17 @@ void CMainWindow::RecordAvi()
 		while(1)
 		{
 			DWORD result = MsgWaitForMultipleObjects(1, &m_recordAviMutex, FALSE, INFINITE, QS_ALLINPUT);
-			if(result == WAIT_OBJECT_0) break;
+			if(result == WAIT_OBJECT_0)
+				break;
 			MSG msg;
 			GetMessage(&msg, NULL, 0, 0);
 			TranslateMessage(&msg);
 			DispatchMessage(&msg);
 		}
-		
+
 		{
 			m_aviStream.Close();
-			delete [] m_recordBuffer;
+			delete[] m_recordBuffer;
 			m_recordBuffer = NULL;
 			m_recordBufferWidth = 0;
 			m_recordBufferHeight = 0;
@@ -751,7 +752,7 @@ void CMainWindow::RecordAvi()
 			return;
 		}
 
-		RECT rc = m_outputWnd->GetWindowRect();
+		RECT         rc = m_outputWnd->GetWindowRect();
 		unsigned int nViewW = rc.right - rc.left;
 		unsigned int nViewH = rc.bottom - rc.top;
 
@@ -805,19 +806,19 @@ void CMainWindow::RefreshOverlaysLayout()
 	auto clientScreenRect = Framework::Win32::CRect(0, 0, outputWidth, outputHeight);
 	clientScreenRect.ClientToScreen(m_hWnd);
 
-	SetWindowPos(m_virtualPadWnd.m_hWnd, NULL, 
-		clientScreenRect.Left(), clientScreenRect.Top(), 
-		clientScreenRect.Width(), clientScreenRect.Height(),
-		SWP_NOZORDER | SWP_NOACTIVATE);
-	SetWindowPos(m_statsOverlayWnd.m_hWnd, NULL, 
-		clientScreenRect.Left(), clientScreenRect.Top(), 
-		clientScreenRect.Width(), clientScreenRect.Height(),
-		SWP_NOZORDER | SWP_NOACTIVATE);
+	SetWindowPos(m_virtualPadWnd.m_hWnd, NULL,
+	             clientScreenRect.Left(), clientScreenRect.Top(),
+	             clientScreenRect.Width(), clientScreenRect.Height(),
+	             SWP_NOZORDER | SWP_NOACTIVATE);
+	SetWindowPos(m_statsOverlayWnd.m_hWnd, NULL,
+	             clientScreenRect.Left(), clientScreenRect.Top(),
+	             clientScreenRect.Width(), clientScreenRect.Height(),
+	             SWP_NOZORDER | SWP_NOACTIVATE);
 }
 
 void CMainWindow::PrintStatusTextA(const char* format, ...)
 {
-	char text[256];
+	char    text[256];
 	va_list args;
 
 	va_start(args, format);
@@ -835,16 +836,16 @@ void CMainWindow::SetStatusText(const TCHAR* text)
 void CMainWindow::CreateAccelerators()
 {
 	Framework::Win32::CAcceleratorTableGenerator generator;
-	generator.Insert(ID_MAIN_FILE_LOADELF,				'O',			FVIRTKEY | FCONTROL);
-	generator.Insert(ID_MAIN_VM_RESUME,					VK_F5,			FVIRTKEY);
-	generator.Insert(ID_MAIN_VM_SAVESTATE,				VK_F7,			FVIRTKEY);
-	generator.Insert(ID_MAIN_VM_LOADSTATE,				VK_F8,			FVIRTKEY);
-	generator.Insert(ID_MAIN_VIEW_FITTOSCREEN,			'J',			FVIRTKEY | FCONTROL);
-	generator.Insert(ID_MAIN_VIEW_FILLSCREEN,			'K',			FVIRTKEY | FCONTROL);
-	generator.Insert(ID_MAIN_VIEW_ACTUALSIZE,			'L',			FVIRTKEY | FCONTROL);
-	generator.Insert(ID_MAIN_DEBUG_DUMPFRAME,			VK_F11,			FVIRTKEY);
+	generator.Insert(ID_MAIN_FILE_LOADELF, 'O', FVIRTKEY | FCONTROL);
+	generator.Insert(ID_MAIN_VM_RESUME, VK_F5, FVIRTKEY);
+	generator.Insert(ID_MAIN_VM_SAVESTATE, VK_F7, FVIRTKEY);
+	generator.Insert(ID_MAIN_VM_LOADSTATE, VK_F8, FVIRTKEY);
+	generator.Insert(ID_MAIN_VIEW_FITTOSCREEN, 'J', FVIRTKEY | FCONTROL);
+	generator.Insert(ID_MAIN_VIEW_FILLSCREEN, 'K', FVIRTKEY | FCONTROL);
+	generator.Insert(ID_MAIN_VIEW_ACTUALSIZE, 'L', FVIRTKEY | FCONTROL);
+	generator.Insert(ID_MAIN_DEBUG_DUMPFRAME, VK_F11, FVIRTKEY);
 #ifdef PROFILE
-	generator.Insert(ID_MAIN_PROFILE_RESETSTATS,		VK_F3,			FVIRTKEY);
+	generator.Insert(ID_MAIN_PROFILE_RESETSTATS, VK_F3, FVIRTKEY);
 #endif
 	m_accTable = generator.Create();
 }
@@ -852,18 +853,18 @@ void CMainWindow::CreateAccelerators()
 void CMainWindow::CreateDebugMenu()
 {
 	HMENU hMenu = CreatePopupMenu();
-	InsertMenu(hMenu, 0, MF_STRING,					ID_MAIN_DEBUG_SHOWDEBUG,		_T("Show Debugger"));
-	InsertMenu(hMenu, 1, MF_SEPARATOR,				0,								nullptr);
-	InsertMenu(hMenu, 2, MF_STRING,					ID_MAIN_DEBUG_DUMPFRAME,		_T("Dump Next Frame\tF11"));
-	InsertMenu(hMenu, 3, MF_STRING,					ID_MAIN_DEBUG_SHOWFRAMEDEBUG,	_T("Show Frame Debugger"));
-	InsertMenu(hMenu, 4, MF_STRING | MF_CHECKED,	ID_MAIN_DEBUG_ENABLEGSDRAW,		_T("GS Draw Enabled"));
+	InsertMenu(hMenu, 0, MF_STRING, ID_MAIN_DEBUG_SHOWDEBUG, _T("Show Debugger"));
+	InsertMenu(hMenu, 1, MF_SEPARATOR, 0, nullptr);
+	InsertMenu(hMenu, 2, MF_STRING, ID_MAIN_DEBUG_DUMPFRAME, _T("Dump Next Frame\tF11"));
+	InsertMenu(hMenu, 3, MF_STRING, ID_MAIN_DEBUG_SHOWFRAMEDEBUG, _T("Show Frame Debugger"));
+	InsertMenu(hMenu, 4, MF_STRING | MF_CHECKED, ID_MAIN_DEBUG_ENABLEGSDRAW, _T("GS Draw Enabled"));
 
 	MENUITEMINFO ItemInfo;
 	memset(&ItemInfo, 0, sizeof(MENUITEMINFO));
-	ItemInfo.cbSize		= sizeof(MENUITEMINFO);
-	ItemInfo.fMask		= MIIM_STRING | MIIM_SUBMENU;
-	ItemInfo.dwTypeData	= _T("Debug");
-	ItemInfo.hSubMenu	= hMenu;
+	ItemInfo.cbSize = sizeof(MENUITEMINFO);
+	ItemInfo.fMask = MIIM_STRING | MIIM_SUBMENU;
+	ItemInfo.dwTypeData = _T("Debug");
+	ItemInfo.hSubMenu = hMenu;
 
 	InsertMenuItem(GetMenu(m_hWnd), 3, TRUE, &ItemInfo);
 }
@@ -884,9 +885,9 @@ void CMainWindow::CreateStateSlotMenu()
 
 	MENUITEMINFO ItemInfo;
 	memset(&ItemInfo, 0, sizeof(MENUITEMINFO));
-	ItemInfo.cbSize		= sizeof(MENUITEMINFO);
-	ItemInfo.fMask		= MIIM_SUBMENU;
-	ItemInfo.hSubMenu	= hMenu;
+	ItemInfo.cbSize = sizeof(MENUITEMINFO);
+	ItemInfo.fMask = MIIM_SUBMENU;
+	ItemInfo.hSubMenu = hMenu;
 
 	hMenu = GetSubMenu(GetMenu(m_hWnd), VMMENUPOS);
 	SetMenuItemInfo(hMenu, ID_MAIN_VM_STATESLOT, FALSE, &ItemInfo);
@@ -894,14 +895,14 @@ void CMainWindow::CreateStateSlotMenu()
 
 void CMainWindow::UpdateUI()
 {
-	CPS2OS& os = *m_virtualMachine.m_ee->m_os;
+	CPS2OS&                     os = *m_virtualMachine.m_ee->m_os;
 	Framework::Win32::CMenuItem mainMenu(GetMenu(m_hWnd));
 
 	//Fix the file menu
 	{
 		HMENU hMenu = GetSubMenu(GetMenu(m_hWnd), FILEMENUPOS);
 
-		ModifyMenu(hMenu, ID_MAIN_FILE_RECORDAVI, MF_BYCOMMAND | MF_STRING, ID_MAIN_FILE_RECORDAVI, m_recordingAvi ? _T("Stop Recording AVI") : _T("Record AVI...")); 
+		ModifyMenu(hMenu, ID_MAIN_FILE_RECORDAVI, MF_BYCOMMAND | MF_STRING, ID_MAIN_FILE_RECORDAVI, m_recordingAvi ? _T("Stop Recording AVI") : _T("Record AVI..."));
 	}
 
 	//Fix the virtual machine sub menu
@@ -920,7 +921,7 @@ void CMainWindow::UpdateUI()
 		MENUITEMINFO MenuItem;
 		memset(&MenuItem, 0, sizeof(MENUITEMINFO));
 		MenuItem.cbSize = sizeof(MENUITEMINFO);
-		MenuItem.fMask	= MIIM_SUBMENU;
+		MenuItem.fMask = MIIM_SUBMENU;
 
 		GetMenuItemInfo(hMenu, ID_MAIN_VM_STATESLOT, FALSE, &MenuItem);
 		hMenu = MenuItem.hSubMenu;
@@ -930,8 +931,8 @@ void CMainWindow::UpdateUI()
 		{
 			memset(&MenuItem, 0, sizeof(MENUITEMINFO));
 			MenuItem.cbSize = sizeof(MENUITEMINFO);
-			MenuItem.fMask	= MIIM_STATE;
-			MenuItem.fState	= (m_stateSlot == i) ? MFS_CHECKED : MFS_UNCHECKED;
+			MenuItem.fMask = MIIM_STATE;
+			MenuItem.fState = (m_stateSlot == i) ? MFS_CHECKED : MFS_UNCHECKED;
 
 			SetMenuItemInfo(hMenu, ID_MAIN_VM_STATESLOT_0 + i, FALSE, &MenuItem);
 		}
@@ -953,7 +954,7 @@ void CMainWindow::UpdateUI()
 		enableSoundMenuItem.Check(CAppConfig::GetInstance().GetPreferenceBoolean(PREF_UI_SOUNDENABLED));
 	}
 
-	TCHAR sTitle[256];
+	TCHAR       sTitle[256];
 	const char* sExec = os.GetExecutableName();
 	if(strlen(sExec))
 	{
@@ -1012,9 +1013,8 @@ void CMainWindow::CBootCdRomOpenCommand::Execute(CMainWindow* mainWindow)
 }
 
 CMainWindow::CLoadElfOpenCommand::CLoadElfOpenCommand(const boost::filesystem::path& executablePath)
-: m_executablePath(executablePath)
+    : m_executablePath(executablePath)
 {
-
 }
 
 void CMainWindow::CLoadElfOpenCommand::Execute(CMainWindow* mainWindow)
@@ -1025,9 +1025,7 @@ void CMainWindow::CLoadElfOpenCommand::Execute(CMainWindow* mainWindow)
 void CMainWindow::ScreenCapture()
 {
 	CScreenShotUtils::TriggerGetScreenshot(&m_virtualMachine,
-		[&](int res, const char* msg)->void
-		{
-			m_statusBar.SetText(STATUSPANEL, string_cast<std::tstring>(msg).c_str());
-		}
-	);
+	                                       [&](int res, const char* msg) -> void {
+		                                       m_statusBar.SetText(STATUSPANEL, string_cast<std::tstring>(msg).c_str());
+		                                   });
 }

@@ -1,68 +1,67 @@
-#include <windows.h>
-#include <tlhelp32.h>
-#include <intrin.h>
+#include "SysInfoWnd.h"
 #include "Types.h"
 #include "string_cast.h"
 #include "string_format.h"
-#include "SysInfoWnd.h"
 #include "win32/LayoutWindow.h"
+#include <intrin.h>
+#include <tlhelp32.h>
+#include <windows.h>
 
 #pragma intrinsic(__rdtsc)
 
-#define CLSNAME			_T("SysInfoWnd")
-#define WNDSTYLE		(WS_CAPTION | WS_POPUP | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_SYSMENU)
-#define WNDSTYLEEX		(WS_EX_DLGMODALFRAME)
-#define CPUFREQDELAY	(250)
+#define CLSNAME _T("SysInfoWnd")
+#define WNDSTYLE (WS_CAPTION | WS_POPUP | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_SYSMENU)
+#define WNDSTYLEEX (WS_EX_DLGMODALFRAME)
+#define CPUFREQDELAY (250)
 
 const TCHAR* CSysInfoWnd::m_sFeature[32] =
-{
-	_T("FPU"),
-	_T("VME"),
-	_T("DE"),
-	_T("PSE"),
-	_T("TSC"),
-	_T("MSR"),
-	_T("PAE"),
-	_T("MCE"),
-	_T("CX8"),
-	_T("APIC"),
-	_T("*RESERVED*"),
-	_T("SEP"),
-	_T("MTRR"),
-	_T("PGE"),
-	_T("MCA"),
-	_T("CMOV"),
-	_T("PAT"),
-	_T("PSE36"),
-	_T("PSN"),
-	_T("CLFL"),
-	_T("*RESERVED*"),
-	_T("DTES"),
-	_T("ACPI"),
-	_T("MMX"),
-	_T("FXSR"),
-	_T("SSE"),
-	_T("SSE2"),
-	_T("SS"),
-	_T("HTT"),
-	_T("TM"),
-	_T("IA-64"),
-	_T("PBE")
-};
+    {
+        _T("FPU"),
+        _T("VME"),
+        _T("DE"),
+        _T("PSE"),
+        _T("TSC"),
+        _T("MSR"),
+        _T("PAE"),
+        _T("MCE"),
+        _T("CX8"),
+        _T("APIC"),
+        _T("*RESERVED*"),
+        _T("SEP"),
+        _T("MTRR"),
+        _T("PGE"),
+        _T("MCA"),
+        _T("CMOV"),
+        _T("PAT"),
+        _T("PSE36"),
+        _T("PSN"),
+        _T("CLFL"),
+        _T("*RESERVED*"),
+        _T("DTES"),
+        _T("ACPI"),
+        _T("MMX"),
+        _T("FXSR"),
+        _T("SSE"),
+        _T("SSE2"),
+        _T("SS"),
+        _T("HTT"),
+        _T("TM"),
+        _T("IA-64"),
+        _T("PBE")};
 
 CSysInfoWnd::CSysInfoWnd(HWND hParent)
-: Framework::Win32::CModalWindow(hParent)
+    : Framework::Win32::CModalWindow(hParent)
 {
 	if(!DoesWindowClassExist(CLSNAME))
 	{
 		WNDCLASSEX w;
 		memset(&w, 0, sizeof(WNDCLASSEX));
-		w.cbSize		= sizeof(WNDCLASSEX);
-		w.lpfnWndProc	= CWindow::WndProc;
-		w.lpszClassName	= CLSNAME;
-		w.hbrBackground	= (HBRUSH)GetSysColorBrush(COLOR_BTNFACE);
-		w.hInstance		= GetModuleHandle(NULL);
-		w.hCursor		= LoadCursor(NULL, IDC_ARROW);
+		w.cbSize = sizeof(WNDCLASSEX);
+		w.lpfnWndProc = CWindow::WndProc;
+		w.lpszClassName = CLSNAME;
+		w.hbrBackground = (HBRUSH)GetSysColorBrush(COLOR_BTNFACE);
+		w.hInstance = GetModuleHandle(NULL);
+		w.hCursor = LoadCursor(NULL, IDC_ARROW);
 		RegisterClassEx(&w);
 	}
 
@@ -78,10 +77,10 @@ CSysInfoWnd::CSysInfoWnd(HWND hParent)
 	Create(WNDSTYLEEX, CLSNAME, _T("System Information"), WNDSTYLE, Framework::Win32::CRect(0, 0, width, height), hParent, NULL);
 	SetClassPtr();
 
-	m_pProcessor	= new Framework::Win32::CStatic(m_hWnd, _T(""));
-	m_pProcesses	= new Framework::Win32::CStatic(m_hWnd, _T(""));
-	m_pThreads		= new Framework::Win32::CStatic(m_hWnd, _T(""));
-	m_pFeatures		= new Framework::Win32::CListBox(m_hWnd, Framework::Win32::CRect(0, 0, 1, 1), WS_VSCROLL | LBS_SORT);
+	m_pProcessor = new Framework::Win32::CStatic(m_hWnd, _T(""));
+	m_pProcesses = new Framework::Win32::CStatic(m_hWnd, _T(""));
+	m_pThreads = new Framework::Win32::CStatic(m_hWnd, _T(""));
+	m_pFeatures = new Framework::Win32::CListBox(m_hWnd, Framework::Win32::CRect(0, 0, 1, 1), WS_VSCROLL | LBS_SORT);
 
 	int lineHeight = MulDiv(20, ydpi, 96);
 
@@ -91,7 +90,7 @@ CSysInfoWnd::CSysInfoWnd(HWND hParent)
 	m_pLayout->InsertObject(Framework::Win32::CLayoutWindow::CreateTextBoxBehavior(100, lineHeight, new Framework::Win32::CStatic(m_hWnd, _T("Processor:"))));
 	m_pLayout->InsertObject(Framework::Win32::CLayoutWindow::CreateTextBoxBehavior(100, lineHeight, m_pProcessor));
 	m_pLayout->InsertObject(Framework::Win32::CLayoutWindow::CreateTextBoxBehavior(100, lineHeight, new Framework::Win32::CStatic(m_hWnd, _T("Processor Features:"))));
-	m_pLayout->InsertObject(Framework::Win32::CLayoutWindow::CreateCustomBehavior(lineHeight * 10, lineHeight*10, 1, 1, m_pFeatures));
+	m_pLayout->InsertObject(Framework::Win32::CLayoutWindow::CreateCustomBehavior(lineHeight * 10, lineHeight * 10, 1, 1, m_pFeatures));
 
 	m_nRDTSCThread = NULL;
 
@@ -118,9 +117,9 @@ long CSysInfoWnd::OnTimer(WPARAM)
 
 void CSysInfoWnd::UpdateSchedulerInfo()
 {
-	int nThreads, nProcesses;
-	HANDLE hSnapshot;
-	THREADENTRY32 ti;
+	int            nThreads, nProcesses;
+	HANDLE         hSnapshot;
+	THREADENTRY32  ti;
 	PROCESSENTRY32 pi;
 
 	nThreads = 0;
@@ -163,8 +162,10 @@ void CSysInfoWnd::UpdateProcessorFeatures()
 	for(int i = 0; i < 32; i++)
 	{
 		//Reserved features
-		if(i == 10) continue;
-		if(i == 20) continue;
+		if(i == 10)
+			continue;
+		if(i == 20)
+			continue;
 
 		if((nFeatures & (1 << i)) != 0)
 		{
@@ -200,7 +201,8 @@ unsigned long WINAPI CSysInfoWnd::ThreadRDTSC(void* pParam)
 	while(1)
 	{
 		QueryPerformanceCounter(&nTime);
-		if((uint64)nTime.QuadPart >= nDone) break;
+		if((uint64)nTime.QuadPart >= nDone)
+			break;
 	}
 
 	uint64 nStamp2 = __rdtsc();

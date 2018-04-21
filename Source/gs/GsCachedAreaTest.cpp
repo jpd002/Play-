@@ -1,6 +1,6 @@
 #include "GsCachedAreaTest.h"
-#include "GsCachedArea.h"
 #include "GSHandler.h"
+#include "GsCachedArea.h"
 #include "GsPixelFormats.h"
 
 void CGsCachedAreaTest::Execute()
@@ -59,7 +59,7 @@ void CGsCachedAreaTest::CheckDirtyRect()
 		CGsCachedArea area;
 		area.SetArea(CGSHandler::PSMCT32, 0, 512, 512);
 
-		auto areaRect = area.GetAreaPageRect();
+		auto   areaRect = area.GetAreaPageRect();
 		uint32 dirtyX = 3;
 		uint32 dirtyY = 2;
 		area.SetPageDirty(dirtyX + (dirtyY * areaRect.width));
@@ -89,26 +89,26 @@ void CGsCachedAreaTest::CheckClearDirtyPages()
 	CGsCachedArea area;
 	area.SetArea(CGSHandler::PSMCT32, 0, 512, 512);
 
-	auto areaRect = area.GetAreaPageRect();
+	auto   areaRect = area.GetAreaPageRect();
 	uint32 dirtyX = 3;
 	uint32 dirtyY = 2;
 	area.SetPageDirty(dirtyX + (dirtyY * areaRect.width));
 	assert(area.HasDirtyPages());
 
-	area.ClearDirtyPages(CGsCachedArea::PageRect { 0, 0, 1, 1 });
+	area.ClearDirtyPages(CGsCachedArea::PageRect{0, 0, 1, 1});
 	assert(area.HasDirtyPages());
 
-	area.ClearDirtyPages(CGsCachedArea::PageRect { 0, 0, 3, 2 });
+	area.ClearDirtyPages(CGsCachedArea::PageRect{0, 0, 3, 2});
 	assert(area.HasDirtyPages());
 
-	area.ClearDirtyPages(CGsCachedArea::PageRect { 3, 2, 1, 1 });
+	area.ClearDirtyPages(CGsCachedArea::PageRect{3, 2, 1, 1});
 	assert(!area.HasDirtyPages());
 }
 
 void CGsCachedAreaTest::CheckInvalidate()
 {
-	auto pixelFormat = CGSHandler::PSMCT32;
-	auto pageSize = CGsPixelFormats::GetPsmPageSize(pixelFormat);
+	auto   pixelFormat = CGSHandler::PSMCT32;
+	auto   pageSize = CGsPixelFormats::GetPsmPageSize(pixelFormat);
 	uint32 areaWidth = 512;
 	uint32 areaPageWidth = areaWidth / pageSize.first;
 

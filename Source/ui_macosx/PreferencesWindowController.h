@@ -2,13 +2,13 @@
 
 @interface PreferencesWindowController : NSWindowController
 {
-	IBOutlet NSToolbar*		toolbar;
+	IBOutlet NSToolbar* toolbar;
 }
 
-@property (strong) NSViewController* currentViewController;
+@property(strong) NSViewController* currentViewController;
 
-+(PreferencesWindowController*)defaultController;
--(void)show;
--(IBAction)onToolBarButtonPressed: (id)sender;
++ (PreferencesWindowController*)defaultController;
+- (void)show;
+- (IBAction)onToolBarButtonPressed:(id)sender;
 
 @end

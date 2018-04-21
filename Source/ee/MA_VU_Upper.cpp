@@ -1,32 +1,31 @@
-#include "MA_VU.h"
 #include "../MIPS.h"
+#include "MA_VU.h"
 #include "VUShared.h"
 #include "Vif.h"
 
 #undef MAX
 
-CMA_VU::CUpper::CUpper() 
-: CMIPSInstructionFactory(MIPS_REGSIZE_32)
-, m_nFT(0)
-, m_nFS(0)
-, m_nFD(0)
-, m_nBc(0)
-, m_nDest(0)
-, m_relativePipeTime(0)
+CMA_VU::CUpper::CUpper()
+    : CMIPSInstructionFactory(MIPS_REGSIZE_32)
+    , m_nFT(0)
+    , m_nFS(0)
+    , m_nFD(0)
+    , m_nBc(0)
+    , m_nDest(0)
+    , m_relativePipeTime(0)
 {
-
 }
 
 void CMA_VU::CUpper::CompileInstruction(uint32 nAddress, CMipsJitter* codeGen, CMIPS* pCtx)
 {
 	SetupQuickVariables(nAddress, codeGen, pCtx);
 
-	m_nDest		= (uint8 )((m_nOpcode >> 21) & 0x000F);
-	m_nFT		= (uint8 )((m_nOpcode >> 16) & 0x001F);
-	m_nFS		= (uint8 )((m_nOpcode >> 11) & 0x001F);
-	m_nFD		= (uint8 )((m_nOpcode >>  6) & 0x001F);
+	m_nDest = (uint8)((m_nOpcode >> 21) & 0x000F);
+	m_nFT = (uint8)((m_nOpcode >> 16) & 0x001F);
+	m_nFS = (uint8)((m_nOpcode >> 11) & 0x001F);
+	m_nFD = (uint8)((m_nOpcode >> 6) & 0x001F);
 
-	m_nBc		= (uint8 )((m_nOpcode >>  0) & 0x0003);
+	m_nBc = (uint8)((m_nOpcode >> 0) & 0x0003);
 
 	((this)->*(m_pOpVector[m_nOpcode & 0x3F]))();
 
@@ -461,7 +460,6 @@ void CMA_VU::CUpper::MSUBAi()
 //0B
 void CMA_VU::CUpper::NOP()
 {
-
 }
 
 //////////////////////////////////////////////////
@@ -469,69 +467,69 @@ void CMA_VU::CUpper::NOP()
 //////////////////////////////////////////////////
 
 CMA_VU::CUpper::InstructionFuncConstant CMA_VU::CUpper::m_pOpVector[0x40] =
-{
-	//0x00
-	&CMA_VU::CUpper::ADDbc,			&CMA_VU::CUpper::ADDbc,			&CMA_VU::CUpper::ADDbc,			&CMA_VU::CUpper::ADDbc,			&CMA_VU::CUpper::SUBbc,			&CMA_VU::CUpper::SUBbc,			&CMA_VU::CUpper::SUBbc,			&CMA_VU::CUpper::SUBbc,
-	//0x08
-	&CMA_VU::CUpper::MADDbc,		&CMA_VU::CUpper::MADDbc,		&CMA_VU::CUpper::MADDbc,		&CMA_VU::CUpper::MADDbc,		&CMA_VU::CUpper::MSUBbc, 		&CMA_VU::CUpper::MSUBbc,		&CMA_VU::CUpper::MSUBbc,		&CMA_VU::CUpper::MSUBbc,
-	//0x10
-	&CMA_VU::CUpper::MAXbc,			&CMA_VU::CUpper::MAXbc,			&CMA_VU::CUpper::MAXbc,			&CMA_VU::CUpper::MAXbc,			&CMA_VU::CUpper::MINIbc,		&CMA_VU::CUpper::MINIbc,		&CMA_VU::CUpper::MINIbc,		&CMA_VU::CUpper::MINIbc,
-	//0x18
-	&CMA_VU::CUpper::MULbc,			&CMA_VU::CUpper::MULbc,			&CMA_VU::CUpper::MULbc,			&CMA_VU::CUpper::MULbc,			&CMA_VU::CUpper::MULq,			&CMA_VU::CUpper::MAXi,			&CMA_VU::CUpper::MULi,			&CMA_VU::CUpper::MINIi,
-	//0x20
-	&CMA_VU::CUpper::ADDq,			&CMA_VU::CUpper::MADDq,			&CMA_VU::CUpper::ADDi,			&CMA_VU::CUpper::MADDi,			&CMA_VU::CUpper::SUBq,			&CMA_VU::CUpper::MSUBq,			&CMA_VU::CUpper::SUBi,			&CMA_VU::CUpper::MSUBi,
-	//0x28
-	&CMA_VU::CUpper::ADD,			&CMA_VU::CUpper::MADD,			&CMA_VU::CUpper::MUL,			&CMA_VU::CUpper::MAX,			&CMA_VU::CUpper::SUB,			&CMA_VU::CUpper::MSUB,			&CMA_VU::CUpper::OPMSUB,		&CMA_VU::CUpper::MINI,
-	//0x30
-	&CMA_VU::CUpper::Illegal,		&CMA_VU::CUpper::Illegal,		&CMA_VU::CUpper::Illegal,		&CMA_VU::CUpper::Illegal,		&CMA_VU::CUpper::Illegal,		&CMA_VU::CUpper::Illegal,		&CMA_VU::CUpper::Illegal,		&CMA_VU::CUpper::Illegal,
-	//0x38
-	&CMA_VU::CUpper::Illegal,		&CMA_VU::CUpper::Illegal,		&CMA_VU::CUpper::Illegal,		&CMA_VU::CUpper::Illegal,		&CMA_VU::CUpper::VECTOR0,		&CMA_VU::CUpper::VECTOR1,		&CMA_VU::CUpper::VECTOR2,		&CMA_VU::CUpper::VECTOR3,
+    {
+        //0x00
+        &CMA_VU::CUpper::ADDbc, &CMA_VU::CUpper::ADDbc, &CMA_VU::CUpper::ADDbc, &CMA_VU::CUpper::ADDbc, &CMA_VU::CUpper::SUBbc, &CMA_VU::CUpper::SUBbc, &CMA_VU::CUpper::SUBbc, &CMA_VU::CUpper::SUBbc,
+        //0x08
+        &CMA_VU::CUpper::MADDbc, &CMA_VU::CUpper::MADDbc, &CMA_VU::CUpper::MADDbc, &CMA_VU::CUpper::MADDbc, &CMA_VU::CUpper::MSUBbc, &CMA_VU::CUpper::MSUBbc, &CMA_VU::CUpper::MSUBbc, &CMA_VU::CUpper::MSUBbc,
+        //0x10
+        &CMA_VU::CUpper::MAXbc, &CMA_VU::CUpper::MAXbc, &CMA_VU::CUpper::MAXbc, &CMA_VU::CUpper::MAXbc, &CMA_VU::CUpper::MINIbc, &CMA_VU::CUpper::MINIbc, &CMA_VU::CUpper::MINIbc, &CMA_VU::CUpper::MINIbc,
+        //0x18
+        &CMA_VU::CUpper::MULbc, &CMA_VU::CUpper::MULbc, &CMA_VU::CUpper::MULbc, &CMA_VU::CUpper::MULbc, &CMA_VU::CUpper::MULq, &CMA_VU::CUpper::MAXi, &CMA_VU::CUpper::MULi, &CMA_VU::CUpper::MINIi,
+        //0x20
+        &CMA_VU::CUpper::ADDq, &CMA_VU::CUpper::MADDq, &CMA_VU::CUpper::ADDi, &CMA_VU::CUpper::MADDi, &CMA_VU::CUpper::SUBq, &CMA_VU::CUpper::MSUBq, &CMA_VU::CUpper::SUBi, &CMA_VU::CUpper::MSUBi,
+        //0x28
+        &CMA_VU::CUpper::ADD, &CMA_VU::CUpper::MADD, &CMA_VU::CUpper::MUL, &CMA_VU::CUpper::MAX, &CMA_VU::CUpper::SUB, &CMA_VU::CUpper::MSUB, &CMA_VU::CUpper::OPMSUB, &CMA_VU::CUpper::MINI,
+        //0x30
+        &CMA_VU::CUpper::Illegal, &CMA_VU::CUpper::Illegal, &CMA_VU::CUpper::Illegal, &CMA_VU::CUpper::Illegal, &CMA_VU::CUpper::Illegal, &CMA_VU::CUpper::Illegal, &CMA_VU::CUpper::Illegal, &CMA_VU::CUpper::Illegal,
+        //0x38
+        &CMA_VU::CUpper::Illegal, &CMA_VU::CUpper::Illegal, &CMA_VU::CUpper::Illegal, &CMA_VU::CUpper::Illegal, &CMA_VU::CUpper::VECTOR0, &CMA_VU::CUpper::VECTOR1, &CMA_VU::CUpper::VECTOR2, &CMA_VU::CUpper::VECTOR3,
 };
 
 CMA_VU::CUpper::InstructionFuncConstant CMA_VU::CUpper::m_pOpVector0[0x20] =
-{
-	//0x00
-	&CMA_VU::CUpper::ADDAbc,		&CMA_VU::CUpper::SUBAbc,		&CMA_VU::CUpper::MADDAbc,		&CMA_VU::CUpper::MSUBAbc,		&CMA_VU::CUpper::ITOF0,			&CMA_VU::CUpper::FTOI0,			&CMA_VU::CUpper::MULAbc,		&CMA_VU::CUpper::MULAq,
-	//0x08
-	&CMA_VU::CUpper::Illegal,		&CMA_VU::CUpper::Illegal,		&CMA_VU::CUpper::ADDA,			&CMA_VU::CUpper::SUBA,			&CMA_VU::CUpper::Illegal,		&CMA_VU::CUpper::Illegal,		&CMA_VU::CUpper::Illegal,		&CMA_VU::CUpper::Illegal,
-	//0x10
-	&CMA_VU::CUpper::Illegal,		&CMA_VU::CUpper::Illegal,		&CMA_VU::CUpper::Illegal,		&CMA_VU::CUpper::Illegal,		&CMA_VU::CUpper::Illegal,		&CMA_VU::CUpper::Illegal,		&CMA_VU::CUpper::Illegal,		&CMA_VU::CUpper::Illegal,
-	//0x18
-	&CMA_VU::CUpper::Illegal,		&CMA_VU::CUpper::Illegal,		&CMA_VU::CUpper::Illegal,		&CMA_VU::CUpper::Illegal,		&CMA_VU::CUpper::Illegal,		&CMA_VU::CUpper::Illegal,		&CMA_VU::CUpper::Illegal,		&CMA_VU::CUpper::Illegal,
+    {
+        //0x00
+        &CMA_VU::CUpper::ADDAbc, &CMA_VU::CUpper::SUBAbc, &CMA_VU::CUpper::MADDAbc, &CMA_VU::CUpper::MSUBAbc, &CMA_VU::CUpper::ITOF0, &CMA_VU::CUpper::FTOI0, &CMA_VU::CUpper::MULAbc, &CMA_VU::CUpper::MULAq,
+        //0x08
+        &CMA_VU::CUpper::Illegal, &CMA_VU::CUpper::Illegal, &CMA_VU::CUpper::ADDA, &CMA_VU::CUpper::SUBA, &CMA_VU::CUpper::Illegal, &CMA_VU::CUpper::Illegal, &CMA_VU::CUpper::Illegal, &CMA_VU::CUpper::Illegal,
+        //0x10
+        &CMA_VU::CUpper::Illegal, &CMA_VU::CUpper::Illegal, &CMA_VU::CUpper::Illegal, &CMA_VU::CUpper::Illegal, &CMA_VU::CUpper::Illegal, &CMA_VU::CUpper::Illegal, &CMA_VU::CUpper::Illegal, &CMA_VU::CUpper::Illegal,
+        //0x18
+        &CMA_VU::CUpper::Illegal, &CMA_VU::CUpper::Illegal, &CMA_VU::CUpper::Illegal, &CMA_VU::CUpper::Illegal, &CMA_VU::CUpper::Illegal, &CMA_VU::CUpper::Illegal, &CMA_VU::CUpper::Illegal, &CMA_VU::CUpper::Illegal,
 };
 
 CMA_VU::CUpper::InstructionFuncConstant CMA_VU::CUpper::m_pOpVector1[0x20] =
-{
-	//0x00
-	&CMA_VU::CUpper::ADDAbc,		&CMA_VU::CUpper::SUBAbc,		&CMA_VU::CUpper::MADDAbc,		&CMA_VU::CUpper::MSUBAbc,		&CMA_VU::CUpper::ITOF4,			&CMA_VU::CUpper::FTOI4,			&CMA_VU::CUpper::MULAbc,		&CMA_VU::CUpper::ABS,
-	//0x08
-	&CMA_VU::CUpper::Illegal,		&CMA_VU::CUpper::MSUBAq,		&CMA_VU::CUpper::MADDA,			&CMA_VU::CUpper::MSUBA,			&CMA_VU::CUpper::Illegal,		&CMA_VU::CUpper::Illegal,		&CMA_VU::CUpper::Illegal,		&CMA_VU::CUpper::Illegal,
-	//0x10
-	&CMA_VU::CUpper::Illegal,		&CMA_VU::CUpper::Illegal,		&CMA_VU::CUpper::Illegal,		&CMA_VU::CUpper::Illegal,		&CMA_VU::CUpper::Illegal,		&CMA_VU::CUpper::Illegal,		&CMA_VU::CUpper::Illegal,		&CMA_VU::CUpper::Illegal,
-	//0x18
-	&CMA_VU::CUpper::Illegal,		&CMA_VU::CUpper::Illegal,		&CMA_VU::CUpper::Illegal,		&CMA_VU::CUpper::Illegal,		&CMA_VU::CUpper::Illegal,		&CMA_VU::CUpper::Illegal,		&CMA_VU::CUpper::Illegal,		&CMA_VU::CUpper::Illegal,
+    {
+        //0x00
+        &CMA_VU::CUpper::ADDAbc, &CMA_VU::CUpper::SUBAbc, &CMA_VU::CUpper::MADDAbc, &CMA_VU::CUpper::MSUBAbc, &CMA_VU::CUpper::ITOF4, &CMA_VU::CUpper::FTOI4, &CMA_VU::CUpper::MULAbc, &CMA_VU::CUpper::ABS,
+        //0x08
+        &CMA_VU::CUpper::Illegal, &CMA_VU::CUpper::MSUBAq, &CMA_VU::CUpper::MADDA, &CMA_VU::CUpper::MSUBA, &CMA_VU::CUpper::Illegal, &CMA_VU::CUpper::Illegal, &CMA_VU::CUpper::Illegal, &CMA_VU::CUpper::Illegal,
+        //0x10
+        &CMA_VU::CUpper::Illegal, &CMA_VU::CUpper::Illegal, &CMA_VU::CUpper::Illegal, &CMA_VU::CUpper::Illegal, &CMA_VU::CUpper::Illegal, &CMA_VU::CUpper::Illegal, &CMA_VU::CUpper::Illegal, &CMA_VU::CUpper::Illegal,
+        //0x18
+        &CMA_VU::CUpper::Illegal, &CMA_VU::CUpper::Illegal, &CMA_VU::CUpper::Illegal, &CMA_VU::CUpper::Illegal, &CMA_VU::CUpper::Illegal, &CMA_VU::CUpper::Illegal, &CMA_VU::CUpper::Illegal, &CMA_VU::CUpper::Illegal,
 };
 
 CMA_VU::CUpper::InstructionFuncConstant CMA_VU::CUpper::m_pOpVector2[0x20] =
-{
-	//0x00
-	&CMA_VU::CUpper::ADDAbc,		&CMA_VU::CUpper::SUBAbc,		&CMA_VU::CUpper::MADDAbc,		&CMA_VU::CUpper::MSUBAbc,		&CMA_VU::CUpper::ITOF12, 		&CMA_VU::CUpper::FTOI12,		&CMA_VU::CUpper::MULAbc,		&CMA_VU::CUpper::MULAi,
-	//0x08
-	&CMA_VU::CUpper::ADDAi,			&CMA_VU::CUpper::SUBAi,			&CMA_VU::CUpper::MULA,			&CMA_VU::CUpper::OPMULA,		&CMA_VU::CUpper::Illegal,		&CMA_VU::CUpper::Illegal,		&CMA_VU::CUpper::Illegal,		&CMA_VU::CUpper::Illegal,
-	//0x10
-	&CMA_VU::CUpper::Illegal,		&CMA_VU::CUpper::Illegal,		&CMA_VU::CUpper::Illegal,		&CMA_VU::CUpper::Illegal,		&CMA_VU::CUpper::Illegal,		&CMA_VU::CUpper::Illegal,		&CMA_VU::CUpper::Illegal,		&CMA_VU::CUpper::Illegal,
-	//0x18
-	&CMA_VU::CUpper::Illegal,		&CMA_VU::CUpper::Illegal,		&CMA_VU::CUpper::Illegal,		&CMA_VU::CUpper::Illegal,		&CMA_VU::CUpper::Illegal,		&CMA_VU::CUpper::Illegal,		&CMA_VU::CUpper::Illegal,		&CMA_VU::CUpper::Illegal,
+    {
+        //0x00
+        &CMA_VU::CUpper::ADDAbc, &CMA_VU::CUpper::SUBAbc, &CMA_VU::CUpper::MADDAbc, &CMA_VU::CUpper::MSUBAbc, &CMA_VU::CUpper::ITOF12, &CMA_VU::CUpper::FTOI12, &CMA_VU::CUpper::MULAbc, &CMA_VU::CUpper::MULAi,
+        //0x08
+        &CMA_VU::CUpper::ADDAi, &CMA_VU::CUpper::SUBAi, &CMA_VU::CUpper::MULA, &CMA_VU::CUpper::OPMULA, &CMA_VU::CUpper::Illegal, &CMA_VU::CUpper::Illegal, &CMA_VU::CUpper::Illegal, &CMA_VU::CUpper::Illegal,
+        //0x10
+        &CMA_VU::CUpper::Illegal, &CMA_VU::CUpper::Illegal, &CMA_VU::CUpper::Illegal, &CMA_VU::CUpper::Illegal, &CMA_VU::CUpper::Illegal, &CMA_VU::CUpper::Illegal, &CMA_VU::CUpper::Illegal, &CMA_VU::CUpper::Illegal,
+        //0x18
+        &CMA_VU::CUpper::Illegal, &CMA_VU::CUpper::Illegal, &CMA_VU::CUpper::Illegal, &CMA_VU::CUpper::Illegal, &CMA_VU::CUpper::Illegal, &CMA_VU::CUpper::Illegal, &CMA_VU::CUpper::Illegal, &CMA_VU::CUpper::Illegal,
 };
 
 CMA_VU::CUpper::InstructionFuncConstant CMA_VU::CUpper::m_pOpVector3[0x20] =
-{
-	//0x00
-	&CMA_VU::CUpper::ADDAbc,		&CMA_VU::CUpper::SUBAbc,		&CMA_VU::CUpper::MADDAbc,		&CMA_VU::CUpper::MSUBAbc,		&CMA_VU::CUpper::ITOF15,		&CMA_VU::CUpper::FTOI15,		&CMA_VU::CUpper::MULAbc,		&CMA_VU::CUpper::CLIP,
-	//0x08
-	&CMA_VU::CUpper::MADDAi,		&CMA_VU::CUpper::MSUBAi,		&CMA_VU::CUpper::Illegal,		&CMA_VU::CUpper::NOP,			&CMA_VU::CUpper::Illegal,		&CMA_VU::CUpper::Illegal,		&CMA_VU::CUpper::Illegal,		&CMA_VU::CUpper::Illegal,
-	//0x10
-	&CMA_VU::CUpper::Illegal,		&CMA_VU::CUpper::Illegal,		&CMA_VU::CUpper::Illegal,		&CMA_VU::CUpper::Illegal,		&CMA_VU::CUpper::Illegal,		&CMA_VU::CUpper::Illegal,		&CMA_VU::CUpper::Illegal,		&CMA_VU::CUpper::Illegal,
-	//0x18
-	&CMA_VU::CUpper::Illegal,		&CMA_VU::CUpper::Illegal,		&CMA_VU::CUpper::Illegal,		&CMA_VU::CUpper::Illegal,		&CMA_VU::CUpper::Illegal,		&CMA_VU::CUpper::Illegal,		&CMA_VU::CUpper::Illegal,		&CMA_VU::CUpper::Illegal,
+    {
+        //0x00
+        &CMA_VU::CUpper::ADDAbc, &CMA_VU::CUpper::SUBAbc, &CMA_VU::CUpper::MADDAbc, &CMA_VU::CUpper::MSUBAbc, &CMA_VU::CUpper::ITOF15, &CMA_VU::CUpper::FTOI15, &CMA_VU::CUpper::MULAbc, &CMA_VU::CUpper::CLIP,
+        //0x08
+        &CMA_VU::CUpper::MADDAi, &CMA_VU::CUpper::MSUBAi, &CMA_VU::CUpper::Illegal, &CMA_VU::CUpper::NOP, &CMA_VU::CUpper::Illegal, &CMA_VU::CUpper::Illegal, &CMA_VU::CUpper::Illegal, &CMA_VU::CUpper::Illegal,
+        //0x10
+        &CMA_VU::CUpper::Illegal, &CMA_VU::CUpper::Illegal, &CMA_VU::CUpper::Illegal, &CMA_VU::CUpper::Illegal, &CMA_VU::CUpper::Illegal, &CMA_VU::CUpper::Illegal, &CMA_VU::CUpper::Illegal, &CMA_VU::CUpper::Illegal,
+        //0x18
+        &CMA_VU::CUpper::Illegal, &CMA_VU::CUpper::Illegal, &CMA_VU::CUpper::Illegal, &CMA_VU::CUpper::Illegal, &CMA_VU::CUpper::Illegal, &CMA_VU::CUpper::Illegal, &CMA_VU::CUpper::Illegal, &CMA_VU::CUpper::Illegal,
 };

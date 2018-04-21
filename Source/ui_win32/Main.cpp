@@ -6,7 +6,7 @@
 
 int WINAPI _tWinMain(HINSTANCE, HINSTANCE, LPTSTR, int)
 {
-	CPS2VM virtualMachine;
+	CPS2VM      virtualMachine;
 	CMainWindow MainWindow(virtualMachine);
 	MainWindow.Loop();
 #ifdef VTUNE_ENABLED

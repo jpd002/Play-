@@ -5,12 +5,10 @@ namespace filesystem = boost::filesystem;
 
 CXpsSaveImporter::CXpsSaveImporter()
 {
-
 }
 
 CXpsSaveImporter::~CXpsSaveImporter()
 {
-
 }
 
 void CXpsSaveImporter::Import(Framework::CStream& input, const boost::filesystem::path& outputPath)
@@ -94,7 +92,7 @@ void CXpsSaveImporter::ExtractFiles(Framework::CStream& input, const boost::file
 				while(nLength != 0)
 				{
 					const int bufferSize = 1024;
-					char sBuffer[bufferSize];
+					char      sBuffer[bufferSize];
 
 					unsigned int nRead = std::min<unsigned int>(nLength, bufferSize);
 					input.Read(sBuffer, nRead);

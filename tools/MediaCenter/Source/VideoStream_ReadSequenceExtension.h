@@ -7,28 +7,28 @@
 
 namespace VideoStream
 {
-	class ReadSequenceExtension : public Program
+class ReadSequenceExtension : public Program
+{
+public:
+	ReadSequenceExtension();
+	virtual ~ReadSequenceExtension();
+
+	void Reset();
+	void Execute(void*, Framework::CBitStream&);
+
+private:
+	enum PROGRAM_STATE
 	{
-	public:
-								ReadSequenceExtension();
-		virtual					~ReadSequenceExtension();
-
-		void					Reset();
-		void					Execute(void*, Framework::CBitStream&);
-
-	private:
-		enum PROGRAM_STATE
-		{
-			STATE_INIT,
-			STATE_READSTRUCT,
-			STATE_DONE,
-		};
-
-		typedef ReadStructure<SEQUENCE_EXTENSION> ReadSequenceExtensionStructure;
-
-		ReadSequenceExtensionStructure		m_readSequenceExtensionProgram;
-		PROGRAM_STATE						m_programState;
+		STATE_INIT,
+		STATE_READSTRUCT,
+		STATE_DONE,
 	};
+
+	typedef ReadStructure<SEQUENCE_EXTENSION> ReadSequenceExtensionStructure;
+
+	ReadSequenceExtensionStructure m_readSequenceExtensionProgram;
+	PROGRAM_STATE                  m_programState;
+};
 };
 
 #endif

@@ -1,7 +1,7 @@
 #include "GsContextView.h"
-#include "GsStateUtils.h"
 #include "../../gs/GsPixelFormats.h"
 #include "../GSH_Direct3D9.h"
+#include "GsStateUtils.h"
 #include "win32/VerticalSplitter.h"
 
 #define WNDSTYLE (WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN)
@@ -19,8 +19,8 @@ enum TAB_IDS
 };
 
 CGsContextView::CGsContextView(HWND parent, const RECT& rect, CGSHandler* gs, unsigned int contextId)
-: m_contextId(contextId)
-, m_gs(gs)
+    : m_contextId(contextId)
+    , m_gs(gs)
 {
 	Create(0, Framework::Win32::CDefaultWndClass::GetName(), NULL, WNDSTYLE, rect, parent, NULL);
 	SetClassPtr();
@@ -29,21 +29,21 @@ CGsContextView::CGsContextView(HWND parent, const RECT& rect, CGSHandler* gs, un
 
 	m_bufferSelectionTab = std::make_unique<Framework::Win32::CTab>(*m_mainSplitter, Framework::Win32::CRect(0, 0, 1, 1), TCS_BOTTOM);
 	m_bufferSelectionTab->SetTabData(
-		m_bufferSelectionTab->InsertTab(_T("Framebuffer")), TAB_ID_FRAMEBUFFER);
+	    m_bufferSelectionTab->InsertTab(_T("Framebuffer")), TAB_ID_FRAMEBUFFER);
 	m_bufferSelectionTab->SetTabData(
-		m_bufferSelectionTab->InsertTab(_T("Texture (Base)")), TAB_ID_TEXTURE_BASE);
+	    m_bufferSelectionTab->InsertTab(_T("Texture (Base)")), TAB_ID_TEXTURE_BASE);
 	m_bufferSelectionTab->SetTabData(
-		m_bufferSelectionTab->InsertTab(_T("Texture (Mip 1)")), TAB_ID_TEXTURE_MIP1);
+	    m_bufferSelectionTab->InsertTab(_T("Texture (Mip 1)")), TAB_ID_TEXTURE_MIP1);
 	m_bufferSelectionTab->SetTabData(
-		m_bufferSelectionTab->InsertTab(_T("Texture (Mip 2)")), TAB_ID_TEXTURE_MIP2);
+	    m_bufferSelectionTab->InsertTab(_T("Texture (Mip 2)")), TAB_ID_TEXTURE_MIP2);
 	m_bufferSelectionTab->SetTabData(
-		m_bufferSelectionTab->InsertTab(_T("Texture (Mip 3)")), TAB_ID_TEXTURE_MIP3);
+	    m_bufferSelectionTab->InsertTab(_T("Texture (Mip 3)")), TAB_ID_TEXTURE_MIP3);
 	m_bufferSelectionTab->SetTabData(
-		m_bufferSelectionTab->InsertTab(_T("Texture (Mip 4)")), TAB_ID_TEXTURE_MIP4);
+	    m_bufferSelectionTab->InsertTab(_T("Texture (Mip 4)")), TAB_ID_TEXTURE_MIP4);
 	m_bufferSelectionTab->SetTabData(
-		m_bufferSelectionTab->InsertTab(_T("Texture (Mip 5)")), TAB_ID_TEXTURE_MIP5);
+	    m_bufferSelectionTab->InsertTab(_T("Texture (Mip 5)")), TAB_ID_TEXTURE_MIP5);
 	m_bufferSelectionTab->SetTabData(
-		m_bufferSelectionTab->InsertTab(_T("Texture (Mip 6)")), TAB_ID_TEXTURE_MIP6);
+	    m_bufferSelectionTab->InsertTab(_T("Texture (Mip 6)")), TAB_ID_TEXTURE_MIP6);
 
 	m_bufferView = std::make_unique<CPixelBufferView>(*m_bufferSelectionTab, Framework::Win32::CRect(0, 0, 1, 1));
 
@@ -58,7 +58,6 @@ CGsContextView::CGsContextView(HWND parent, const RECT& rect, CGSHandler* gs, un
 
 CGsContextView::~CGsContextView()
 {
-
 }
 
 void CGsContextView::SetFbDisplayMode(FB_DISPLAY_MODE fbDisplayMode)
@@ -77,7 +76,7 @@ void CGsContextView::UpdateState(CGSHandler* gs, CGsPacketMetadata*, DRAWINGKICK
 
 void CGsContextView::UpdateBufferView()
 {
-	int selectionIndex = m_bufferSelectionTab->GetSelection();
+	int    selectionIndex = m_bufferSelectionTab->GetSelection();
 	uint32 selectedId = m_bufferSelectionTab->GetTabData(selectionIndex);
 	switch(selectedId)
 	{
@@ -91,51 +90,51 @@ void CGsContextView::UpdateBufferView()
 	case TAB_ID_TEXTURE_MIP4:
 	case TAB_ID_TEXTURE_MIP5:
 	case TAB_ID_TEXTURE_MIP6:
+	{
+		uint64 tex0Reg = m_gs->GetRegisters()[GS_REG_TEX0_1 + m_contextId];
+		uint64 tex1Reg = m_gs->GetRegisters()[GS_REG_TEX1_1 + m_contextId];
+		uint64 miptbp1Reg = m_gs->GetRegisters()[GS_REG_MIPTBP1_1 + m_contextId];
+		uint64 miptbp2Reg = m_gs->GetRegisters()[GS_REG_MIPTBP2_1 + m_contextId];
+		auto   tex0 = make_convertible<CGSHandler::TEX0>(tex0Reg);
+		auto   tex1 = make_convertible<CGSHandler::TEX1>(tex1Reg);
+
+		uint32             mipLevel = selectedId - TAB_ID_TEXTURE_BASE;
+		Framework::CBitmap texture, clutTexture;
+
+		if(mipLevel <= tex1.nMaxMip)
 		{
-			uint64 tex0Reg = m_gs->GetRegisters()[GS_REG_TEX0_1 + m_contextId];
-			uint64 tex1Reg = m_gs->GetRegisters()[GS_REG_TEX1_1 + m_contextId];
-			uint64 miptbp1Reg = m_gs->GetRegisters()[GS_REG_MIPTBP1_1 + m_contextId];
-			uint64 miptbp2Reg = m_gs->GetRegisters()[GS_REG_MIPTBP2_1 + m_contextId];
-			auto tex0 = make_convertible<CGSHandler::TEX0>(tex0Reg);
-			auto tex1 = make_convertible<CGSHandler::TEX1>(tex1Reg);
-
-			uint32 mipLevel = selectedId - TAB_ID_TEXTURE_BASE;
-			Framework::CBitmap texture, clutTexture;
-
-			if(mipLevel <= tex1.nMaxMip)
-			{
-				texture = static_cast<CGSH_Direct3D9*>(m_gs)->GetTexture(tex0Reg, tex1.nMaxMip, miptbp1Reg, miptbp2Reg, mipLevel);
-			}
-
-			if(!texture.IsEmpty() && CGsPixelFormats::IsPsmIDTEX(tex0.nPsm))
-			{
-				ColorArray convertedClut;
-				m_gs->MakeLinearCLUT(tex0, convertedClut);
-				clutTexture = LookupBitmap(texture, convertedClut);
-			}
-
-			if(!texture.IsEmpty() && CGsPixelFormats::IsPsmIDTEX4(tex0.nPsm))
-			{
-				//Too hard to see if pixel brightness is not boosted
-				BrightenBitmap(texture);
-			}
-
-			CPixelBufferView::PixelBufferArray pixelBuffers;
-			pixelBuffers.emplace_back("Raw", std::move(texture));
-			if(!clutTexture.IsEmpty())
-			{
-				pixelBuffers.emplace_back("+ CLUT", std::move(clutTexture));
-			}
-			m_bufferView->SetPixelBuffers(std::move(pixelBuffers));
+			texture = static_cast<CGSH_Direct3D9*>(m_gs)->GetTexture(tex0Reg, tex1.nMaxMip, miptbp1Reg, miptbp2Reg, mipLevel);
 		}
-		break;
+
+		if(!texture.IsEmpty() && CGsPixelFormats::IsPsmIDTEX(tex0.nPsm))
+		{
+			ColorArray convertedClut;
+			m_gs->MakeLinearCLUT(tex0, convertedClut);
+			clutTexture = LookupBitmap(texture, convertedClut);
+		}
+
+		if(!texture.IsEmpty() && CGsPixelFormats::IsPsmIDTEX4(tex0.nPsm))
+		{
+			//Too hard to see if pixel brightness is not boosted
+			BrightenBitmap(texture);
+		}
+
+		CPixelBufferView::PixelBufferArray pixelBuffers;
+		pixelBuffers.emplace_back("Raw", std::move(texture));
+		if(!clutTexture.IsEmpty())
+		{
+			pixelBuffers.emplace_back("+ CLUT", std::move(clutTexture));
+		}
+		m_bufferView->SetPixelBuffers(std::move(pixelBuffers));
+	}
+	break;
 	}
 }
 
 void CGsContextView::UpdateFramebufferView()
 {
 	uint64 frameReg = m_gs->GetRegisters()[GS_REG_FRAME_1 + m_contextId];
-	auto frame = make_convertible<CGSHandler::FRAME>(frameReg);
+	auto   frame = make_convertible<CGSHandler::FRAME>(frameReg);
 
 	auto framebuffer = static_cast<CGSH_Direct3D9*>(m_gs)->GetFramebuffer(frameReg);
 	if(framebuffer.IsEmpty())
@@ -162,17 +161,16 @@ void CGsContextView::UpdateFramebufferView()
 	}
 
 	auto postProcessFramebuffer =
-		[this](Framework::CBitmap src)
-		{
-			if(!src.IsEmpty())
-			{
-				RenderDrawKick(src);
-				if(m_fbDisplayMode == FB_DISPLAY_MODE_448I)
-				{
-					src = src.Resize(640, 448);
-				}
-			}
-			return src;
+	    [this](Framework::CBitmap src) {
+		    if(!src.IsEmpty())
+		    {
+			    RenderDrawKick(src);
+			    if(m_fbDisplayMode == FB_DISPLAY_MODE_448I)
+			    {
+				    src = src.Resize(640, 448);
+			    }
+		    }
+		    return src;
 		};
 
 	framebuffer = postProcessFramebuffer(std::move(framebuffer));
@@ -189,8 +187,10 @@ void CGsContextView::UpdateFramebufferView()
 
 void CGsContextView::RenderDrawKick(Framework::CBitmap& bitmap)
 {
-	if(m_drawingKick.primType == CGSHandler::PRIM_INVALID) return;
-	if(m_drawingKick.context != m_contextId) return;
+	if(m_drawingKick.primType == CGSHandler::PRIM_INVALID)
+		return;
+	if(m_drawingKick.context != m_contextId)
+		return;
 
 	auto primHighlightColor = Framework::CColor(0, 0xFF, 0, 0xFF);
 
@@ -199,30 +199,30 @@ void CGsContextView::RenderDrawKick(Framework::CBitmap& bitmap)
 	case CGSHandler::PRIM_TRIANGLE:
 	case CGSHandler::PRIM_TRIANGLESTRIP:
 	case CGSHandler::PRIM_TRIANGLEFAN:
-		{
-			int x1 = static_cast<int16>(m_drawingKick.vertex[0].x) / 16;
-			int y1 = static_cast<int16>(m_drawingKick.vertex[0].y) / 16;
-			int x2 = static_cast<int16>(m_drawingKick.vertex[1].x) / 16;
-			int y2 = static_cast<int16>(m_drawingKick.vertex[1].y) / 16;
-			int x3 = static_cast<int16>(m_drawingKick.vertex[2].x) / 16;
-			int y3 = static_cast<int16>(m_drawingKick.vertex[2].y) / 16;
-			bitmap.DrawLine(x1, y1, x2, y2, primHighlightColor);
-			bitmap.DrawLine(x1, y1, x3, y3, primHighlightColor);
-			bitmap.DrawLine(x2, y2, x3, y3, primHighlightColor);
-		}
-		break;
+	{
+		int x1 = static_cast<int16>(m_drawingKick.vertex[0].x) / 16;
+		int y1 = static_cast<int16>(m_drawingKick.vertex[0].y) / 16;
+		int x2 = static_cast<int16>(m_drawingKick.vertex[1].x) / 16;
+		int y2 = static_cast<int16>(m_drawingKick.vertex[1].y) / 16;
+		int x3 = static_cast<int16>(m_drawingKick.vertex[2].x) / 16;
+		int y3 = static_cast<int16>(m_drawingKick.vertex[2].y) / 16;
+		bitmap.DrawLine(x1, y1, x2, y2, primHighlightColor);
+		bitmap.DrawLine(x1, y1, x3, y3, primHighlightColor);
+		bitmap.DrawLine(x2, y2, x3, y3, primHighlightColor);
+	}
+	break;
 	case CGSHandler::PRIM_SPRITE:
-		{
-			int x1 = static_cast<int16>(m_drawingKick.vertex[0].x) / 16;
-			int y1 = static_cast<int16>(m_drawingKick.vertex[0].y) / 16;
-			int x2 = static_cast<int16>(m_drawingKick.vertex[1].x) / 16;
-			int y2 = static_cast<int16>(m_drawingKick.vertex[1].y) / 16;
-			bitmap.DrawLine(x1, y1, x1, y2, primHighlightColor);
-			bitmap.DrawLine(x1, y2, x2, y2, primHighlightColor);
-			bitmap.DrawLine(x2, y2, x2, y1, primHighlightColor);
-			bitmap.DrawLine(x2, y1, x1, y1, primHighlightColor);
-		}
-		break;
+	{
+		int x1 = static_cast<int16>(m_drawingKick.vertex[0].x) / 16;
+		int y1 = static_cast<int16>(m_drawingKick.vertex[0].y) / 16;
+		int x2 = static_cast<int16>(m_drawingKick.vertex[1].x) / 16;
+		int y2 = static_cast<int16>(m_drawingKick.vertex[1].y) / 16;
+		bitmap.DrawLine(x1, y1, x1, y2, primHighlightColor);
+		bitmap.DrawLine(x1, y2, x2, y2, primHighlightColor);
+		bitmap.DrawLine(x2, y2, x2, y1, primHighlightColor);
+		bitmap.DrawLine(x2, y1, x1, y1, primHighlightColor);
+	}
+	break;
 	}
 }
 
@@ -252,7 +252,7 @@ Framework::CBitmap CGsContextView::LookupBitmap(const Framework::CBitmap& srcBit
 	{
 		for(uint32 x = 0; x < srcBitmap.GetWidth(); x++)
 		{
-			uint8 index = srcPixels[x];
+			uint8  index = srcPixels[x];
 			uint32 color = clut[index];
 			uint32 newColor = CGSH_Direct3D9::Color_Ps2ToDx9(color);
 			dstPixels[x] = newColor;

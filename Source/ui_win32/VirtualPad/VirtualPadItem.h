@@ -1,33 +1,33 @@
 #pragma once
 
+#include "../../PH_Generic.h"
+#include <GdiPlus.h>
 #include <Windows.h>
 #include <minmax.h>
-#include <GdiPlus.h>
-#include "../../PH_Generic.h"
 
 class CVirtualPadItem
 {
 public:
-	virtual         ~CVirtualPadItem();
+	virtual ~CVirtualPadItem();
 
-	virtual void    Draw(Gdiplus::Graphics&) = 0;
-	virtual void    OnMouseDown(int, int);
-	virtual void    OnMouseMove(int, int);
-	virtual void    OnMouseUp();
+	virtual void Draw(Gdiplus::Graphics&) = 0;
+	virtual void OnMouseDown(int, int);
+	virtual void OnMouseMove(int, int);
+	virtual void OnMouseUp();
 
-	void    SetPadHandler(CPH_Generic*);
+	void SetPadHandler(CPH_Generic*);
 
-	Gdiplus::RectF    GetBounds() const;
-	void              SetBounds(const Gdiplus::RectF&);
+	Gdiplus::RectF GetBounds() const;
+	void           SetBounds(const Gdiplus::RectF&);
 
-	void    SetImage(Gdiplus::Bitmap*);
+	void SetImage(Gdiplus::Bitmap*);
 
-	uint32    GetPointerId() const;
-	void      SetPointerId(uint32);
+	uint32 GetPointerId() const;
+	void   SetPointerId(uint32);
 
 protected:
-	Gdiplus::RectF      m_bounds = Gdiplus::RectF(0, 0, 0, 0);
-	Gdiplus::Bitmap*    m_image = nullptr;
-	uint32              m_pointerId = 0;
-	CPH_Generic*        m_padHandler = nullptr;
+	Gdiplus::RectF   m_bounds = Gdiplus::RectF(0, 0, 0, 0);
+	Gdiplus::Bitmap* m_image = nullptr;
+	uint32           m_pointerId = 0;
+	CPH_Generic*     m_padHandler = nullptr;
 };

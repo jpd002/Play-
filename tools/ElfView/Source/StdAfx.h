@@ -2,22 +2,22 @@
 #define _STDAFX_H_
 
 #include <assert.h>
-#include <string.h>
 #include <stdio.h>
+#include <string.h>
 
-#include <string>
 #include <list>
-#include <vector>
+#include <string>
 #include <unordered_map>
+#include <vector>
 
 #include <windows.h>
 
-#include "Types.h"
-#include "Stream.h"
 #include "StdStream.h"
-#include "win32/Window.h"
-#include "win32/Layouts.h"
+#include "Stream.h"
+#include "Types.h"
 #include "win32/CustomDrawn.h"
 #include "win32/DeviceContext.h"
+#include "win32/Layouts.h"
+#include "win32/Window.h"
 
 #endif

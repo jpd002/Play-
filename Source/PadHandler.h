@@ -2,23 +2,23 @@
 #define _PADHANDLER_H_
 
 #include "PadListener.h"
-#include <list>
 #include <functional>
+#include <list>
 
 class CPadHandler
 {
 public:
-	typedef std::function<CPadHandler* (void)> FactoryFunction;
+	typedef std::function<CPadHandler*(void)> FactoryFunction;
 
-										CPadHandler();
-	virtual								~CPadHandler();
-	virtual void						Update(uint8*) = 0;
-	void								InsertListener(CPadListener*);
-	void								RemoveAllListeners();
+	CPadHandler();
+	virtual ~CPadHandler();
+	virtual void Update(uint8*) = 0;
+	void         InsertListener(CPadListener*);
+	void         RemoveAllListeners();
 
 protected:
-	typedef std::list<CPadListener*>	ListenerList;
-	ListenerList						m_listeners;
+	typedef std::list<CPadListener*> ListenerList;
+	ListenerList                     m_listeners;
 };
 
 #endif

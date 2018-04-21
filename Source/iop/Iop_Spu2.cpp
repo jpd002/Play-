@@ -1,8 +1,8 @@
-#include <assert.h>
-#include "make_unique.h"
 #include "Iop_Spu2.h"
 #include "../Log.h"
+#include "make_unique.h"
 #include "placeholder_def.h"
+#include <assert.h>
 
 #define LOG_NAME ("iop_spu2")
 
@@ -28,7 +28,6 @@ CSpu2::CSpu2(CSpuBase& spuBase0, CSpuBase& spuBase1)
 
 CSpu2::~CSpu2()
 {
-
 }
 
 void CSpu2::Reset()
@@ -42,7 +41,8 @@ void CSpu2::Reset()
 CCore* CSpu2::GetCore(unsigned int coreId)
 {
 	assert(coreId < CORE_NUM);
-	if(coreId >= CORE_NUM) return nullptr;
+	if(coreId >= CORE_NUM)
+		return nullptr;
 	return m_core[coreId].get();
 }
 

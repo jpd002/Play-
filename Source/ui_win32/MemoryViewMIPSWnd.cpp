@@ -1,6 +1,6 @@
+#include "MemoryViewMIPSWnd.h"
 #include "string_format.h"
 #include "win32/DpiUtils.h"
-#include "MemoryViewMIPSWnd.h"
 
 #define WNDSTYLE (WS_CLIPCHILDREN | WS_THICKFRAME | WS_CAPTION | WS_SYSMENU | WS_CHILD | WS_MAXIMIZEBOX)
 

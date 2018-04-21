@@ -5,19 +5,17 @@
 
 namespace Psp
 {
-	class CKernelLibrary : public CModule
-	{
-	public:
-						CKernelLibrary();
-		virtual			~CKernelLibrary();
-		
-		std::string		GetName() const;
-		void			Invoke(uint32, CMIPS&);
+class CKernelLibrary : public CModule
+{
+public:
+	CKernelLibrary();
+	virtual ~CKernelLibrary();
 
-	private:
+	std::string GetName() const;
+	void        Invoke(uint32, CMIPS&);
 
-
-	};
+private:
+};
 }
 
 #endif

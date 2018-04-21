@@ -1,8 +1,8 @@
 #include "BasicBlock.h"
-#include "MemStream.h"
-#include "offsetof_def.h"
-#include "MipsJitter.h"
 #include "Jitter_CodeGenFactory.h"
+#include "MemStream.h"
+#include "MipsJitter.h"
+#include "offsetof_def.h"
 
 #if defined(AOT_BUILD_CACHE) || defined(AOT_USE_CACHE)
 #define AOT_ENABLED
@@ -10,15 +10,15 @@
 
 #ifdef AOT_ENABLED
 
-#include <zlib.h>
 #include "StdStream.h"
 #include "StdStreamUtils.h"
+#include <zlib.h>
 
 #endif
 
 #ifdef VTUNE_ENABLED
-#include <jitprofiling.h>
 #include "string_format.h"
+#include <jitprofiling.h>
 #endif
 
 #ifdef AOT_USE_CACHE
@@ -26,24 +26,24 @@
 #pragma pack(push, 1)
 struct AOT_BLOCK
 {
-	AOT_BLOCK_KEY	key;
-	void*			fct;
+	AOT_BLOCK_KEY key;
+	void*         fct;
 };
 #pragma pack(pop)
 
 extern "C" {
-	extern AOT_BLOCK _aot_firstBlock;
-	extern uint32 _aot_blockCount;
+extern AOT_BLOCK _aot_firstBlock;
+extern uint32    _aot_blockCount;
 }
 
 #endif
 
 CBasicBlock::CBasicBlock(CMIPS& context, uint32 begin, uint32 end)
-: m_begin(begin)
-, m_end(end)
-, m_context(context)
+    : m_begin(begin)
+    , m_end(end)
+    , m_context(context)
 #ifdef AOT_USE_CACHE
-, m_function(nullptr)
+    , m_function(nullptr)
 #endif
 {
 	assert(m_end >= m_begin);
@@ -51,8 +51,8 @@ CBasicBlock::CBasicBlock(CMIPS& context, uint32 begin, uint32 end)
 
 #ifdef AOT_BUILD_CACHE
 
-Framework::CStdStream*	CBasicBlock::m_aotBlockOutputStream(nullptr);
-std::mutex				CBasicBlock::m_aotBlockOutputStreamMutex;
+Framework::CStdStream* CBasicBlock::m_aotBlockOutputStream(nullptr);
+std::mutex             CBasicBlock::m_aotBlockOutputStreamMutex;
 
 void CBasicBlock::SetAotBlockOutputStream(Framework::CStdStream* outputStream)
 {
@@ -70,9 +70,9 @@ void CBasicBlock::Compile()
 	{
 		static
 #ifdef AOT_BUILD_CACHE
-		__declspec(thread)
+		    __declspec(thread)
 #endif
-		CMipsJitter* jitter = nullptr;
+		        CMipsJitter* jitter = nullptr;
 		if(jitter == nullptr)
 		{
 			Jitter::CCodeGen* codeGen = Jitter::CreateCodeGen();
@@ -81,22 +81,21 @@ void CBasicBlock::Compile()
 			for(unsigned int i = 0; i < 4; i++)
 			{
 				jitter->SetVariableAsConstant(
-					offsetof(CMIPS, m_State.nGPR[CMIPS::R0].nV[i]),
-					0
-					);
+				    offsetof(CMIPS, m_State.nGPR[CMIPS::R0].nV[i]),
+				    0);
 			}
 		}
 
 		jitter->SetStream(&stream);
 		jitter->Begin();
 		CompileRange(jitter);
-//		codeGen.DumpVariables(0);
-//		codeGen.EndQuota();
+		//		codeGen.DumpVariables(0);
+		//		codeGen.EndQuota();
 		jitter->End();
 	}
 
 	m_function = CMemoryFunction(stream.GetBuffer(), stream.GetSize());
-	
+
 #ifdef VTUNE_ENABLED
 	if(iJIT_IsProfilingActive() == iJIT_SAMPLING_ON)
 	{
@@ -121,7 +120,7 @@ void CBasicBlock::Compile()
 #ifdef AOT_ENABLED
 
 	size_t blockSize = ((m_end - m_begin) / 4) + 1;
-	auto blockData = new uint32[blockSize];
+	auto   blockData = new uint32[blockSize];
 
 	for(uint32 i = 0; i < blockSize; i++)
 	{
@@ -137,19 +136,18 @@ void CBasicBlock::Compile()
 	AOT_BLOCK* blocksBegin = &_aot_firstBlock;
 	AOT_BLOCK* blocksEnd = blocksBegin + _aot_blockCount;
 
-	AOT_BLOCK blockRef = { blockChecksum, m_begin, m_end, nullptr };
+	AOT_BLOCK blockRef = {blockChecksum, m_begin, m_end, nullptr};
 
-	static const auto blockComparer = 
-		[] (const AOT_BLOCK& item1, const AOT_BLOCK& item2)
-		{
-			return item1.key < item2.key;
+	static const auto blockComparer =
+	    [](const AOT_BLOCK& item1, const AOT_BLOCK& item2) {
+		    return item1.key < item2.key;
 		};
 
-//	assert(std::is_sorted(blocksBegin, blocksEnd, blockComparer));
+	//	assert(std::is_sorted(blocksBegin, blocksEnd, blockComparer));
 
 	bool blockExists = std::binary_search(blocksBegin, blocksEnd, blockRef, blockComparer);
 	auto blockIterator = std::lower_bound(blocksBegin, blocksEnd, blockRef, blockComparer);
-	
+
 	assert(blockExists);
 	assert(blockIterator != blocksEnd);
 	assert(blockIterator->key.crc == blockChecksum);
@@ -175,13 +173,13 @@ void CBasicBlock::Compile()
 void CBasicBlock::CompileRange(CMipsJitter* jitter)
 {
 	uint32 fixedEnd = m_end;
-	bool needsPcAdjust = false;
+	bool   needsPcAdjust = false;
 
 	//Update block end because MipsAnalysis might not include an instruction
 	//in a delay slot when cutting a function into basic blocks
 	{
 		uint32 endOpcode = m_context.m_pMemoryMap->GetWord(m_end);
-		auto branchType = m_context.m_pArch->IsInstructionBranch(&m_context, m_end, endOpcode);
+		auto   branchType = m_context.m_pArch->IsInstructionBranch(&m_context, m_end, endOpcode);
 		if(branchType == MIPS_BRANCH_NORMAL)
 		{
 			fixedEnd += 4;
@@ -192,9 +190,9 @@ void CBasicBlock::CompileRange(CMipsJitter* jitter)
 	for(uint32 address = m_begin; address <= fixedEnd; address += 4)
 	{
 		m_context.m_pArch->CompileInstruction(
-			address, 
-			jitter,
-			&m_context);
+		    address,
+		    jitter,
+		    &m_context);
 		//Sanity check
 		assert(jitter->IsStackEmpty());
 	}

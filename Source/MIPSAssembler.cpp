@@ -1,14 +1,13 @@
 #include "MIPSAssembler.h"
 #include "MIPS.h"
-#include <limits.h>
 #include "lexical_cast_ex.h"
+#include <limits.h>
 
 CMIPSAssembler::CMIPSAssembler(uint32* ptr)
-: m_ptr(ptr)
-, m_startPtr(ptr)
-, m_nextLabelId(1)
+    : m_ptr(ptr)
+    , m_startPtr(ptr)
+    , m_nextLabelId(1)
 {
-
 }
 
 CMIPSAssembler::~CMIPSAssembler()
@@ -51,7 +50,7 @@ void CMIPSAssembler::ResolveLabelReferences()
 		}
 		size_t referencePos = labelRef.second.address;
 		size_t labelPos = label->second;
-		int offset = static_cast<int>(labelPos - referencePos - 1);
+		int    offset = static_cast<int>(labelPos - referencePos - 1);
 		if(offset > SHRT_MAX || offset < SHRT_MIN)
 		{
 			throw std::runtime_error("Jump length too long.");
@@ -71,13 +70,13 @@ void CMIPSAssembler::ADDIU(unsigned int rt, unsigned int rs, uint16 immediate)
 
 void CMIPSAssembler::ADDU(unsigned int rd, unsigned int rs, unsigned int rt)
 {
-	(*m_ptr) = (rs << 21)  | (rt << 16) | (rd << 11) | (0x21);
+	(*m_ptr) = (rs << 21) | (rt << 16) | (rd << 11) | (0x21);
 	m_ptr++;
 }
 
 void CMIPSAssembler::AND(unsigned int rd, unsigned int rs, unsigned int rt)
 {
-	(*m_ptr) = (rs << 21)  | (rt << 16) | (rd << 11) | (0x24);
+	(*m_ptr) = (rs << 21) | (rt << 16) | (rd << 11) | (0x24);
 	m_ptr++;
 }
 

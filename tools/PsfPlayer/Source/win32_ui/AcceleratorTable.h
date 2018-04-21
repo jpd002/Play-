@@ -5,19 +5,20 @@
 
 namespace Framework
 {
-	namespace Win32
-	{
-		class CAcceleratorTable
-		{
-		public:
-						CAcceleratorTable(HACCEL);
-			virtual		~CAcceleratorTable();
+namespace Win32
+{
+class CAcceleratorTable
+{
+public:
+	CAcceleratorTable(HACCEL);
+	virtual ~CAcceleratorTable();
 
-						operator HACCEL() const;
-		private:
-			HACCEL		m_accel;
-		};
-	}
+	operator HACCEL() const;
+
+private:
+	HACCEL m_accel;
+};
+}
 }
 
 #endif

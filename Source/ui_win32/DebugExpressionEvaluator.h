@@ -1,14 +1,14 @@
 #ifndef _DEBUGEXPRESSIONEVALUATOR_H_
 #define _DEBUGEXPRESSIONEVALUATOR_H_
 
-#include <vector>
-#include "Types.h"
 #include "../MIPS.h"
+#include "Types.h"
+#include <vector>
 
 class CDebugExpressionEvaluator
 {
 public:
-	static uint32	Evaluate(const char*, CMIPS*);
+	static uint32 Evaluate(const char*, CMIPS*);
 
 private:
 	enum TOKEN_TYPE
@@ -21,7 +21,7 @@ private:
 
 	struct TOKEN
 	{
-		TOKEN_TYPE type;
+		TOKEN_TYPE  type;
 		std::string value;
 	};
 
@@ -37,8 +37,8 @@ private:
 
 	typedef std::vector<TOKEN> TokenArray;
 
-	static TokenArray	Parse(const char*);
-	static uint32		Evaluate(const TokenArray&, CMIPS*);
+	static TokenArray Parse(const char*);
+	static uint32     Evaluate(const TokenArray&, CMIPS*);
 };
 
 #endif

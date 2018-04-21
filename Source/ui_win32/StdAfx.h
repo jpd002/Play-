@@ -7,31 +7,31 @@
 
 #include <windows.h>
 
-#include <string>
-#include <vector>
+#include <condition_variable>
+#include <functional>
 #include <list>
 #include <map>
-#include <set>
-#include <functional>
 #include <memory>
-#include <thread>
 #include <mutex>
-#include <condition_variable>
+#include <set>
+#include <string>
+#include <thread>
+#include <vector>
 
-#include <boost/signals2.hpp>
-#include <boost/lexical_cast.hpp>
 #include <boost/filesystem.hpp>
+#include <boost/lexical_cast.hpp>
+#include <boost/signals2.hpp>
 
-#include "Types.h"
-#include "Stream.h"
 #include "StdStream.h"
-#include "xml/Node.h"
+#include "Stream.h"
+#include "Types.h"
 #include "make_unique.h"
+#include "xml/Node.h"
 
-#include "win32/Window.h"
 #include "win32/Button.h"
 #include "win32/Edit.h"
 #include "win32/ListBox.h"
 #include "win32/ListView.h"
+#include "win32/Window.h"
 
 #endif

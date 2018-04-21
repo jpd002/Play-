@@ -1,26 +1,24 @@
 #include "Iop_Stdio.h"
+#include "../Log.h"
 #include "Iop_Ioman.h"
-#include <boost/lexical_cast.hpp>
 #include "lexical_cast_ex.h"
 #include "string_format.h"
-#include "../Log.h"
+#include <boost/lexical_cast.hpp>
 
-#define LOG_NAME			"iop_stdio"
+#define LOG_NAME "iop_stdio"
 
-#define FUNCTION_PRINTF		"printf"
+#define FUNCTION_PRINTF "printf"
 
 using namespace Iop;
 
 CStdio::CStdio(uint8* ram, CIoman& ioman)
-: m_ram(ram)
-, m_ioman(ioman)
+    : m_ram(ram)
+    , m_ioman(ioman)
 {
-
 }
 
 CStdio::~CStdio()
 {
-
 }
 
 std::string CStdio::GetId() const
@@ -49,8 +47,8 @@ void CStdio::Invoke(CMIPS& context, unsigned int functionId)
 		__printf(context);
 		break;
 	default:
-		CLog::GetInstance().Print(LOG_NAME, "Unknown function (%d) called. PC = (%08X).", 
-			functionId, context.m_State.nPC);
+		CLog::GetInstance().Print(LOG_NAME, "Unknown function (%d) called. PC = (%08X).",
+		                          functionId, context.m_State.nPC);
 		break;
 	}
 }
@@ -63,12 +61,12 @@ std::string CStdio::PrintFormatted(const char* format, CArgumentIterator& args)
 		char character = *(format++);
 		if(character == '%')
 		{
-			bool paramDone = false;
-			bool inPrecision = false;
-			bool showSign = false;
-			char fillChar = ' ';
+			bool        paramDone = false;
+			bool        inPrecision = false;
+			bool        showSign = false;
+			char        fillChar = ' ';
 			std::string precision;
-			while(!paramDone && *format != 0) 
+			while(!paramDone && *format != 0)
 			{
 				char type = *(format++);
 				if(type == '%')
@@ -94,7 +92,7 @@ std::string CStdio::PrintFormatted(const char* format, CArgumentIterator& args)
 				}
 				else if(type == 'd' || type == 'i')
 				{
-					int number = args.GetNext();
+					int          number = args.GetNext();
 					unsigned int precisionValue = precision.length() ? boost::lexical_cast<unsigned int>(precision) : 1;
 					if(showSign && (number >= 0))
 					{
@@ -112,7 +110,7 @@ std::string CStdio::PrintFormatted(const char* format, CArgumentIterator& args)
 				}
 				else if(type == 'x' || type == 'X' || type == 'p')
 				{
-					uint32 number = args.GetNext();
+					uint32      number = args.GetNext();
 					std::string format;
 					if(precision.empty())
 					{
@@ -160,7 +158,7 @@ std::string CStdio::PrintFormatted(const char* format, CArgumentIterator& args)
 void CStdio::__printf(CMIPS& context)
 {
 	CCallArgumentIterator args(context);
-	auto format = reinterpret_cast<const char*>(m_ram + args.GetNext());
-	auto output = PrintFormatted(format, args);
+	auto                  format = reinterpret_cast<const char*>(m_ram + args.GetNext());
+	auto                  output = PrintFormatted(format, args);
 	m_ioman.Write(CIoman::FID_STDOUT, output.length(), output.c_str());
 }

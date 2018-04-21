@@ -2,22 +2,18 @@
 
 CVirtualPadItem::~CVirtualPadItem()
 {
-
 }
 
 void CVirtualPadItem::OnMouseDown(int, int)
 {
-
 }
 
 void CVirtualPadItem::OnMouseMove(int, int)
 {
-
 }
 
 void CVirtualPadItem::OnMouseUp()
 {
-
 }
 
 void CVirtualPadItem::SetPadHandler(CPH_Generic* padHandler)

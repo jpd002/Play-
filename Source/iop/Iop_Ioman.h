@@ -1,89 +1,89 @@
 #pragma once
 
+#include "Ioman_Device.h"
+#include "Iop_Module.h"
+#include "Stream.h"
 #include <map>
 #include <memory>
-#include "Iop_Module.h"
-#include "Ioman_Device.h"
-#include "Stream.h"
 
 namespace Iop
 {
-	class CIoman : public CModule
+class CIoman : public CModule
+{
+public:
+	enum
 	{
-	public:
-		enum
-		{
-			FID_STDOUT = 1,
-			FID_STDERR = 2
-		};
-
-		enum
-		{
-			SEEK_DIR_SET = 0,
-			SEEK_DIR_CUR = 1,
-			SEEK_DIR_END = 2
-		};
-
-		struct STAT
-		{
-			uint32			mode;
-			uint32			attr;
-			uint32			loSize;
-			uint8			creationTime[8];
-			uint8			lastAccessTime[8];
-			uint8			lastModificationTime[8];
-			uint32			hiSize;
-			uint32			reserved[6];
-		};
-		static_assert(sizeof(STAT) == 64, "STAT structure must be 64 bytes long.");
-
-		class CFile
-		{
-		public:
-						CFile(uint32, CIoman&);
-						CFile(const CFile&) = delete;
-			virtual		~CFile();
-
-						operator uint32();
-			CFile&		operator =(const CFile&) = delete;
-
-		private:
-			uint32		m_handle;
-			CIoman&		m_ioman;
-		};
-
-		typedef std::shared_ptr<Ioman::CDevice> DevicePtr;
-
-								CIoman(uint8*);
-		virtual					~CIoman();
-
-		std::string				GetId() const override;
-		std::string				GetFunctionName(unsigned int) const override;
-		void					Invoke(CMIPS&, unsigned int) override;
-
-		void					RegisterDevice(const char*, const DevicePtr&);
-
-		uint32					Open(uint32, const char*);
-		uint32					Close(uint32);
-		uint32					Read(uint32, uint32, void*);
-		uint32					Write(uint32, uint32, const void*);
-		uint32					Seek(uint32, uint32, uint32);
-		uint32					GetStat(const char*, STAT*);
-		uint32					AddDrv(uint32);
-		uint32					DelDrv(uint32);
-
-		Framework::CStream*		GetFileStream(uint32);
-		void					SetFileStream(uint32, Framework::CStream*);
-
-	private:
-		typedef std::map<uint32, Framework::CStream*> FileMapType;
-		typedef std::map<std::string, DevicePtr> DeviceMapType;
-
-		FileMapType				m_files;
-		DeviceMapType			m_devices;
-		uint8*					m_ram;
-		uint32					m_nextFileHandle;
+		FID_STDOUT = 1,
+		FID_STDERR = 2
 	};
 
-	typedef std::shared_ptr<CIoman> IomanPtr;
+	enum
+	{
+		SEEK_DIR_SET = 0,
+		SEEK_DIR_CUR = 1,
+		SEEK_DIR_END = 2
+	};
+
+	struct STAT
+	{
+		uint32 mode;
+		uint32 attr;
+		uint32 loSize;
+		uint8  creationTime[8];
+		uint8  lastAccessTime[8];
+		uint8  lastModificationTime[8];
+		uint32 hiSize;
+		uint32 reserved[6];
+	};
+	static_assert(sizeof(STAT) == 64, "STAT structure must be 64 bytes long.");
+
+	class CFile
+	{
+	public:
+		CFile(uint32, CIoman&);
+		CFile(const CFile&) = delete;
+		virtual ~CFile();
+
+		operator uint32();
+		CFile& operator=(const CFile&) = delete;
+
+	private:
+		uint32  m_handle;
+		CIoman& m_ioman;
+	};
+
+	typedef std::shared_ptr<Ioman::CDevice> DevicePtr;
+
+	CIoman(uint8*);
+	virtual ~CIoman();
+
+	std::string GetId() const override;
+	std::string GetFunctionName(unsigned int) const override;
+	void        Invoke(CMIPS&, unsigned int) override;
+
+	void RegisterDevice(const char*, const DevicePtr&);
+
+	uint32 Open(uint32, const char*);
+	uint32 Close(uint32);
+	uint32 Read(uint32, uint32, void*);
+	uint32 Write(uint32, uint32, const void*);
+	uint32 Seek(uint32, uint32, uint32);
+	uint32 GetStat(const char*, STAT*);
+	uint32 AddDrv(uint32);
+	uint32 DelDrv(uint32);
+
+	Framework::CStream* GetFileStream(uint32);
+	void                SetFileStream(uint32, Framework::CStream*);
+
+private:
+	typedef std::map<uint32, Framework::CStream*> FileMapType;
+	typedef std::map<std::string, DevicePtr>      DeviceMapType;
+
+	FileMapType   m_files;
+	DeviceMapType m_devices;
+	uint8*        m_ram;
+	uint32        m_nextFileHandle;
+};
+
+typedef std::shared_ptr<CIoman> IomanPtr;
 }

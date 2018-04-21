@@ -1,18 +1,16 @@
-#include <stdexcept>
 #include "Ps2_PsfDevice.h"
 #include "PtrStream.h"
 #include "stricmp.h"
+#include <stdexcept>
 
 using namespace PS2;
 
 CPsfDevice::CPsfDevice()
 {
-
 }
 
 CPsfDevice::~CPsfDevice()
 {
-
 }
 
 void CPsfDevice::AppendArchive(const CPsfBase& archive)

@@ -1,46 +1,46 @@
-#include "make_unique.h"
-#include "../Log.h"
-#include "../RegisterStateFile.h"
-#include "../Ps2Const.h"
+#include "Vpu.h"
 #include "../FrameDump.h"
+#include "../Log.h"
+#include "../Ps2Const.h"
+#include "../RegisterStateFile.h"
+#include "GIF.h"
 #include "Vif.h"
 #include "Vif1.h"
-#include "GIF.h"
-#include "Vpu.h"
+#include "make_unique.h"
 
-#define LOG_NAME				("vpu")
+#define LOG_NAME ("vpu")
 
 CVpu::CVpu(unsigned int number, const VPUINIT& vpuInit, CGIF& gif, CINTC& intc, uint8* ram, uint8* spr)
-: m_number(number)
-, m_vif((number == 0) ? std::make_unique<CVif>(0, *this, intc, ram, spr) : std::make_unique<CVif1>(1, *this, gif, intc, ram, spr))
-, m_microMem(vpuInit.microMem)
-, m_vuMem(vpuInit.vuMem)
-, m_vuMemSize((number == 0) ? PS2::VUMEM0SIZE : PS2::VUMEM1SIZE)
-, m_ctx(vpuInit.context)
-, m_gif(gif)
-, m_executor(*vpuInit.context, (number == 0) ? PS2::MICROMEM0SIZE : PS2::MICROMEM1SIZE)
-, m_vuProfilerZone(CProfiler::GetInstance().RegisterZone("VU"))
+    : m_number(number)
+    , m_vif((number == 0) ? std::make_unique<CVif>(0, *this, intc, ram, spr) : std::make_unique<CVif1>(1, *this, gif, intc, ram, spr))
+    , m_microMem(vpuInit.microMem)
+    , m_vuMem(vpuInit.vuMem)
+    , m_vuMemSize((number == 0) ? PS2::VUMEM0SIZE : PS2::VUMEM1SIZE)
+    , m_ctx(vpuInit.context)
+    , m_gif(gif)
+    , m_executor(*vpuInit.context, (number == 0) ? PS2::MICROMEM0SIZE : PS2::MICROMEM1SIZE)
+    , m_vuProfilerZone(CProfiler::GetInstance().RegisterZone("VU"))
 #ifdef DEBUGGER_INCLUDED
-, m_microMemMiniState(new uint8[(number == 0) ? PS2::MICROMEM0SIZE : PS2::MICROMEM1SIZE])
-, m_vuMemMiniState(new uint8[(number == 0) ? PS2::VUMEM0SIZE : PS2::VUMEM1SIZE])
-, m_topMiniState(0)
-, m_itopMiniState(0)
+    , m_microMemMiniState(new uint8[(number == 0) ? PS2::MICROMEM0SIZE : PS2::MICROMEM1SIZE])
+    , m_vuMemMiniState(new uint8[(number == 0) ? PS2::VUMEM0SIZE : PS2::VUMEM1SIZE])
+    , m_topMiniState(0)
+    , m_itopMiniState(0)
 #endif
 {
-
 }
 
 CVpu::~CVpu()
 {
 #ifdef DEBUGGER_INCLUDED
-	delete [] m_microMemMiniState;
-	delete [] m_vuMemMiniState;
+	delete[] m_microMemMiniState;
+	delete[] m_vuMemMiniState;
 #endif
 }
 
 void CVpu::Execute(int32 quota)
 {
-	if(!m_running) return;
+	if(!m_running)
+		return;
 
 #ifdef PROFILE
 	CProfilerZone profilerZone(m_vuProfilerZone);
@@ -166,7 +166,8 @@ void CVpu::ExecuteMicroProgram(uint32 nAddress)
 	for(unsigned int i = 0; i < 100; i++)
 	{
 		Execute(5000);
-		if(!m_running) break;
+		if(!m_running)
+			break;
 	}
 }
 
@@ -180,14 +181,14 @@ void CVpu::ProcessXgKick(uint32 address)
 	address &= 0x3FF;
 	address *= 0x10;
 
-//	assert(nAddress < PS2::VUMEM1SIZE);
+	//	assert(nAddress < PS2::VUMEM1SIZE);
 
 	CGsPacketMetadata metadata;
 #ifdef DEBUGGER_INCLUDED
-	metadata.pathIndex				= 1;
-	metadata.vuMemPacketAddress		= address;
-	metadata.vpu1Top				= GetVuTopMiniState();
-	metadata.vpu1Itop				= GetVuItopMiniState();
+	metadata.pathIndex = 1;
+	metadata.vuMemPacketAddress = address;
+	metadata.vpu1Top = GetVuTopMiniState();
+	metadata.vpu1Itop = GetVuItopMiniState();
 	memcpy(&metadata.vu1State, &GetVuMiniState(), sizeof(MIPSSTATE));
 	memcpy(metadata.vuMem1, GetVuMemoryMiniState(), PS2::VUMEM1SIZE);
 	memcpy(metadata.microMem1, GetMicroMemoryMiniState(), PS2::MICROMEM1SIZE);

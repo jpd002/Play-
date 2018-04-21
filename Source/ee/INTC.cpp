@@ -2,22 +2,20 @@
 #include "../Log.h"
 #include "../RegisterStateFile.h"
 
-#define LOG_NAME		("intc")
+#define LOG_NAME ("intc")
 
-#define STATE_REGS_XML	("intc/regs.xml")
+#define STATE_REGS_XML ("intc/regs.xml")
 
 CINTC::CINTC(CDMAC& dmac, CGSHandler*& gs)
-: m_INTC_STAT(0)
-, m_INTC_MASK(0)
-, m_dmac(dmac)
-, m_gs(gs)
+    : m_INTC_STAT(0)
+    , m_INTC_MASK(0)
+    , m_dmac(dmac)
+    , m_gs(gs)
 {
-
 }
 
 CINTC::~CINTC()
 {
-
 }
 
 void CINTC::Reset()

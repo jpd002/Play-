@@ -6,10 +6,10 @@
 class CPsuSaveImporter : public CSaveImporterBase
 {
 public:
-							CPsuSaveImporter();
-	virtual					~CPsuSaveImporter();
+	CPsuSaveImporter();
+	virtual ~CPsuSaveImporter();
 
-	virtual void			Import(Framework::CStream&, const boost::filesystem::path&);
+	virtual void Import(Framework::CStream&, const boost::filesystem::path&);
 };
 
 #endif

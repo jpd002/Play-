@@ -2,8 +2,8 @@
 
 @interface VideoSettingsViewController : NSViewController
 {
-	IBOutlet NSButton*    enableHighResModeCheckBox;
-	IBOutlet NSButton*    forceBilinearFilteringCheckBox;
+	IBOutlet NSButton* enableHighResModeCheckBox;
+	IBOutlet NSButton* forceBilinearFilteringCheckBox;
 }
 
 @end

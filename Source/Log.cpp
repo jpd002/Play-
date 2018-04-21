@@ -1,9 +1,9 @@
-#include <stdarg.h>
-#include <time.h>
 #include "Log.h"
 #include "AppConfig.h"
 #include "PathUtils.h"
 #include "StdStreamUtils.h"
+#include <stdarg.h>
+#include <time.h>
 
 #define LOG_PATH "logs"
 
@@ -17,13 +17,12 @@ CLog::CLog()
 
 CLog::~CLog()
 {
-
 }
 
 void CLog::Print(const char* logName, const char* format, ...)
 {
 #if defined(_DEBUG) && !defined(DISABLE_LOGGING)
-	auto& logStream(GetLog(logName));
+	auto&   logStream(GetLog(logName));
 	va_list args;
 	va_start(args, format);
 	vfprintf(logStream, format, args);

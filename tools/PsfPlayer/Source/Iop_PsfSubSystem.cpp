@@ -4,15 +4,15 @@
 
 using namespace Iop;
 
-#define FRAMES_PER_SEC	(60)
+#define FRAMES_PER_SEC (60)
 
 CPsfSubSystem::CPsfSubSystem(bool ps2Mode)
-: m_iop(ps2Mode)
-, m_frameTicks(0)
-, m_spuUpdateTicks(0)
-, m_spuUpdateCounter(0)
-, m_frameCounter(0)
-, m_currentBlock(0)
+    : m_iop(ps2Mode)
+    , m_frameTicks(0)
+    , m_spuUpdateTicks(0)
+    , m_spuUpdateCounter(0)
+    , m_frameCounter(0)
+    , m_currentBlock(0)
 {
 	uint32 cpuFreq = ps2Mode ? PS2::IOP_CLOCK_OVER_FREQ : PS2::IOP_CLOCK_BASE_FREQ;
 	m_frameTicks = (cpuFreq / FRAMES_PER_SEC);
@@ -94,7 +94,7 @@ void CPsfSubSystem::Update(bool singleStep, CSoundHandler* soundHandler)
 		{
 			m_spuUpdateCounter += m_spuUpdateTicks;
 			unsigned int blockOffset = (BLOCK_SIZE * m_currentBlock);
-			int16* samplesSpu0 = m_samples + blockOffset;
+			int16*       samplesSpu0 = m_samples + blockOffset;
 
 			m_iop.m_spuCore0.Render(samplesSpu0, BLOCK_SIZE, 44100);
 

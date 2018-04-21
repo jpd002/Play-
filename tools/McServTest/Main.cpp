@@ -1,11 +1,11 @@
-#include <stdio.h>
-#include <assert.h>
-#include "iop/Iop_McServ.h"
-#include "iop/Iop_SifManNull.h"
 #include "AppConfig.h"
+#include "GameTestSheet.h"
 #include "PathUtils.h"
 #include "StdStreamUtils.h"
-#include "GameTestSheet.h"
+#include "iop/Iop_McServ.h"
+#include "iop/Iop_SifManNull.h"
+#include <assert.h>
+#include <stdio.h>
 
 void PrepareTestEnvironment(const CGameTestSheet::EnvironmentActionArray& environment)
 {
@@ -16,7 +16,7 @@ void PrepareTestEnvironment(const CGameTestSheet::EnvironmentActionArray& enviro
 
 	CAppConfig::GetInstance().RegisterPreferencePath(mcPathPreference, "");
 	CAppConfig::GetInstance().SetPreferencePath(mcPathPreference, memoryCardPath);
-	
+
 	for(const auto& environmentAction : environment)
 	{
 		if(environmentAction.type == CGameTestSheet::ENVIRONMENT_ACTION_CREATE_DIRECTORY)
@@ -37,7 +37,7 @@ void PrepareTestEnvironment(const CGameTestSheet::EnvironmentActionArray& enviro
 void ExecuteTest(const CGameTestSheet::TEST& test)
 {
 	Iop::CSifManNull sifMan;
-	Iop::CMcServ mcServ(sifMan);
+	Iop::CMcServ     mcServ(sifMan);
 
 	if(!test.currentDirectory.empty())
 	{
@@ -86,10 +86,10 @@ int main(int argc, const char** argv)
 
 	boost::filesystem::directory_iterator endDirectoryIterator;
 	for(boost::filesystem::directory_iterator directoryIterator(testsPath);
-		directoryIterator != endDirectoryIterator; directoryIterator++)
+	    directoryIterator != endDirectoryIterator; directoryIterator++)
 	{
-		auto testPath = directoryIterator->path();
-		auto stream = Framework::CreateInputStdStream(testPath.native());
+		auto           testPath = directoryIterator->path();
+		auto           stream = Framework::CreateInputStdStream(testPath.native());
 		CGameTestSheet testSheet(stream);
 
 		for(const auto& test : testSheet.GetTests())

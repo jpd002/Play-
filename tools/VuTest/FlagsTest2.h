@@ -5,5 +5,5 @@
 class CFlagsTest2 : public CTest
 {
 public:
-	void	Execute(CTestVm&) override;
+	void Execute(CTestVm&) override;
 };

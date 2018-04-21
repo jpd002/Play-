@@ -1,20 +1,19 @@
-#include <stdio.h>
 #include "ELFView.h"
 #include "PtrMacro.h"
-#include <boost/lexical_cast.hpp>
 #include "string_cast.h"
+#include <boost/lexical_cast.hpp>
+#include <stdio.h>
 
 using namespace Framework;
 
-CELFView::CELFView(HWND hParent) 
-: COptionWnd<CMDIChild>(hParent, _T("ELF File Viewer"))
-, m_pELF(NULL)
-, m_pHeaderView(NULL)
-, m_pSymbolView(NULL)
-, m_pSectionView(NULL)
-, m_pProgramView(NULL)
+CELFView::CELFView(HWND hParent)
+    : COptionWnd<CMDIChild>(hParent, _T("ELF File Viewer"))
+    , m_pELF(NULL)
+    , m_pHeaderView(NULL)
+    , m_pSymbolView(NULL)
+    , m_pSectionView(NULL)
+    , m_pProgramView(NULL)
 {
-
 }
 
 CELFView::~CELFView()
@@ -49,7 +48,8 @@ void CELFView::SetELF(CELF* pELF)
 
 	m_pELF = pELF;
 
-	if(m_pELF == NULL) return;
+	if(m_pELF == NULL)
+		return;
 
 	HWND hCont = GetContainer()->m_hWnd;
 
@@ -72,17 +72,17 @@ void CELFView::SetELF(CELF* pELF)
 void CELFView::PopulateList()
 {
 	InsertOption(NULL, _T("Header"), m_pHeaderView->m_hWnd);
-	HTREEITEM hItem = InsertOption(NULL, _T("Sections"), NULL);
+	HTREEITEM        hItem = InsertOption(NULL, _T("Sections"), NULL);
 	const ELFHEADER& header = m_pELF->GetHeader();
 
 	const char* sStrTab = (const char*)m_pELF->GetSectionData(header.nSectHeaderStringTableIndex);
 	for(unsigned int i = 0; i < header.nSectHeaderCount; i++)
 	{
 		std::tstring sDisplay;
-		const char* sName(NULL);
+		const char*  sName(NULL);
 
 		ELFSECTIONHEADER* pSect = m_pELF->GetSection(i);
-		
+
 		if(sStrTab != NULL)
 		{
 			sName = sStrTab + pSect->nStringTableIndex;
@@ -113,7 +113,7 @@ void CELFView::PopulateList()
 		for(unsigned int i = 0; i < header.nProgHeaderCount; i++)
 		{
 			std::tstring sDisplay(_T("Segment ") + boost::lexical_cast<std::tstring>(i));
-			HTREEITEM programItem = InsertOption(hItem, sDisplay.c_str(), m_pProgramView->m_hWnd);
+			HTREEITEM    programItem = InsertOption(hItem, sDisplay.c_str(), m_pProgramView->m_hWnd);
 			m_programItems[programItem] = i;
 		}
 		GetTreeView()->Expand(hItem, TVE_EXPAND);

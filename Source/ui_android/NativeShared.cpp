@@ -13,7 +13,7 @@ void Log_Print(const char* fmt, ...)
 
 std::string GetStringFromJstring(JNIEnv* env, jstring javaString)
 {
-	auto nativeString = env->GetStringUTFChars(javaString, JNI_FALSE);
+	auto        nativeString = env->GetStringUTFChars(javaString, JNI_FALSE);
 	std::string result(nativeString);
 	env->ReleaseStringUTFChars(javaString, nativeString);
 	return result;

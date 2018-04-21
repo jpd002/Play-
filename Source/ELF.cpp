@@ -1,16 +1,16 @@
-#include <assert.h>
-#include <string.h>
-#include <stdexcept>
 #include "ELF.h"
 #include "PtrStream.h"
+#include <assert.h>
+#include <stdexcept>
+#include <string.h>
 
-CELF::CELF(uint8* content) 
-: m_content(content)
+CELF::CELF(uint8* content)
+    : m_content(content)
 {
 	Framework::CPtrStream stream(m_content, -1);
 
 	stream.Read(&m_Header, sizeof(ELFHEADER));
-	
+
 	if(m_Header.nId[0] != 0x7F || m_Header.nId[1] != 'E' || m_Header.nId[2] != 'L' || m_Header.nId[3] != 'F')
 	{
 		throw std::runtime_error("This file isn't a valid ELF file.");
@@ -46,8 +46,8 @@ CELF::CELF(uint8* content)
 
 CELF::~CELF()
 {
-	delete [] m_pProgram;
-	delete [] m_pSection;
+	delete[] m_pProgram;
+	delete[] m_pSection;
 }
 
 uint8* CELF::GetContent() const
@@ -72,30 +72,35 @@ ELFSECTIONHEADER* CELF::GetSection(unsigned int nIndex)
 const void* CELF::GetSectionData(unsigned int nIndex)
 {
 	auto section = GetSection(nIndex);
-	if(section == nullptr) return nullptr;
+	if(section == nullptr)
+		return nullptr;
 	return m_content + section->nOffset;
 }
 
 const char* CELF::GetSectionName(unsigned int sectionIndex)
 {
 	auto stringTableData = reinterpret_cast<const char*>(GetSectionData(m_Header.nSectHeaderStringTableIndex));
-	if(stringTableData == nullptr) return nullptr;
+	if(stringTableData == nullptr)
+		return nullptr;
 	auto sectionHeader = GetSection(sectionIndex);
-	if(sectionHeader == nullptr) return nullptr;
+	if(sectionHeader == nullptr)
+		return nullptr;
 	return stringTableData + sectionHeader->nStringTableIndex;
 }
 
 ELFSECTIONHEADER* CELF::FindSection(const char* requestedSectionName)
 {
 	auto sectionIndex = FindSectionIndex(requestedSectionName);
-	if(sectionIndex == 0) return nullptr;
+	if(sectionIndex == 0)
+		return nullptr;
 	return GetSection(sectionIndex);
 }
 
 unsigned int CELF::FindSectionIndex(const char* requestedSectionName)
 {
 	auto stringTableData = reinterpret_cast<const char*>(GetSectionData(m_Header.nSectHeaderStringTableIndex));
-	if(stringTableData == nullptr) return 0;
+	if(stringTableData == nullptr)
+		return 0;
 	for(unsigned int i = 0; i < m_Header.nSectHeaderCount; i++)
 	{
 		auto sectionHeader = GetSection(i);
@@ -111,7 +116,8 @@ unsigned int CELF::FindSectionIndex(const char* requestedSectionName)
 const void* CELF::FindSectionData(const char* requestedSectionName)
 {
 	auto section = FindSection(requestedSectionName);
-	if(section == nullptr) return nullptr;
+	if(section == nullptr)
+		return nullptr;
 	return m_content + section->nOffset;
 }
 

@@ -5,22 +5,22 @@
 
 #include <windows.h>
 
-#include <string>
-#include <vector>
+#include <functional>
 #include <list>
 #include <map>
-#include <set>
-#include <functional>
 #include <memory>
-#include <thread>
 #include <mutex>
+#include <set>
+#include <string>
+#include <thread>
+#include <vector>
 
-#include <boost/signals2.hpp>
-#include <boost/lexical_cast.hpp>
 #include <boost/filesystem/path.hpp>
+#include <boost/lexical_cast.hpp>
+#include <boost/signals2.hpp>
 
-#include "Types.h"
 #include "Stream.h"
+#include "Types.h"
 #include "xml/Node.h"
 
 #include "Jitter.h"

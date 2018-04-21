@@ -1,7 +1,7 @@
-#include <jni.h>
 #include "SettingsManager.h"
-#include "NativeShared.h"
 #include "../AppConfig.h"
+#include "NativeShared.h"
+#include <jni.h>
 
 void CSettingsManager::Save()
 {

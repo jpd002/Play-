@@ -1,19 +1,19 @@
-#include <jni.h>
-#include <cassert>
-#include <android/native_window.h>
-#include <android/native_window_jni.h>
-#include "android/AssetManager.h"
-#include "PathUtils.h"
 #include "../AppConfig.h"
 #include "../DiskUtils.h"
 #include "../PH_Generic.h"
 #include "../PS2VM.h"
 #include "../PS2VM_Preferences.h"
 #include "../gs/GSH_Null.h"
-#include "NativeShared.h"
 #include "GSH_OpenGLAndroid.h"
+#include "NativeShared.h"
+#include "PathUtils.h"
 #include "SH_OpenSL.h"
 #include "StatsManager.h"
+#include "android/AssetManager.h"
+#include <android/native_window.h>
+#include <android/native_window_jni.h>
+#include <cassert>
+#include <jni.h>
 
 CPS2VM* g_virtualMachine = nullptr;
 
@@ -75,28 +75,32 @@ extern "C" JNIEXPORT jboolean JNICALL Java_com_virtualapplications_play_NativeIn
 
 extern "C" JNIEXPORT jboolean JNICALL Java_com_virtualapplications_play_NativeInterop_isVirtualMachineRunning(JNIEnv* env, jobject obj)
 {
-	if(g_virtualMachine == nullptr) return false;
+	if(g_virtualMachine == nullptr)
+		return false;
 	return g_virtualMachine->GetStatus() == CVirtualMachine::RUNNING;
 }
 
 extern "C" JNIEXPORT void JNICALL Java_com_virtualapplications_play_NativeInterop_resumeVirtualMachine(JNIEnv* env, jobject obj)
 {
 	assert(g_virtualMachine != nullptr);
-	if(g_virtualMachine == nullptr) return;
+	if(g_virtualMachine == nullptr)
+		return;
 	g_virtualMachine->Resume();
 }
 
 extern "C" JNIEXPORT void JNICALL Java_com_virtualapplications_play_NativeInterop_pauseVirtualMachine(JNIEnv* env, jobject obj)
 {
 	assert(g_virtualMachine != nullptr);
-	if(g_virtualMachine == nullptr) return;
+	if(g_virtualMachine == nullptr)
+		return;
 	g_virtualMachine->Pause();
 }
 
 extern "C" JNIEXPORT void JNICALL Java_com_virtualapplications_play_NativeInterop_loadState(JNIEnv* env, jobject obj, jint slot)
 {
 	assert(g_virtualMachine != nullptr);
-	if(g_virtualMachine == nullptr) return;
+	if(g_virtualMachine == nullptr)
+		return;
 	auto stateFilePath = g_virtualMachine->GenerateStatePath(slot);
 	auto resultFuture = g_virtualMachine->LoadState(stateFilePath);
 	if(!resultFuture.get())
@@ -110,7 +114,8 @@ extern "C" JNIEXPORT void JNICALL Java_com_virtualapplications_play_NativeIntero
 extern "C" JNIEXPORT void JNICALL Java_com_virtualapplications_play_NativeInterop_saveState(JNIEnv* env, jobject obj, jint slot)
 {
 	assert(g_virtualMachine != nullptr);
-	if(g_virtualMachine == nullptr) return;
+	if(g_virtualMachine == nullptr)
+		return;
 	Framework::PathUtils::EnsurePathExists(CPS2VM::GetStateDirectoryPath());
 	auto stateFilePath = g_virtualMachine->GenerateStatePath(slot);
 	auto resultFuture = g_virtualMachine->SaveState(stateFilePath);
@@ -161,7 +166,7 @@ extern "C" JNIEXPORT void JNICALL Java_com_virtualapplications_play_NativeIntero
 	{
 		g_virtualMachine->CreateGSHandler(CGSH_OpenGLAndroid::GetFactoryFunction(nativeWindow));
 		g_virtualMachine->m_ee->m_gs->OnNewFrame.connect(
-			boost::bind(&CStatsManager::OnNewFrame, &CStatsManager::GetInstance(), _1));
+		    boost::bind(&CStatsManager::OnNewFrame, &CStatsManager::GetInstance(), _1));
 	}
 	else
 	{
@@ -172,7 +177,7 @@ extern "C" JNIEXPORT void JNICALL Java_com_virtualapplications_play_NativeIntero
 extern "C" JNIEXPORT jstring JNICALL Java_com_virtualapplications_play_NativeInterop_getDiskId(JNIEnv* env, jobject obj, jstring diskImagePath)
 {
 	std::string diskId;
-	bool succeeded = DiskUtils::TryGetDiskId(GetStringFromJstring(env, diskImagePath).c_str(), &diskId);
+	bool        succeeded = DiskUtils::TryGetDiskId(GetStringFromJstring(env, diskImagePath).c_str(), &diskId);
 	if(!succeeded)
 	{
 		return NULL;

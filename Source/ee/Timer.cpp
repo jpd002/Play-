@@ -1,14 +1,14 @@
-#include <stdio.h>
+#include "Timer.h"
 #include "../Log.h"
 #include "../RegisterStateFile.h"
-#include "Timer.h"
+#include <stdio.h>
 
 #define LOG_NAME ("timer")
 
-#define STATE_REGS_XML	("timer/regs.xml")
+#define STATE_REGS_XML ("timer/regs.xml")
 
 CTimer::CTimer(CINTC& intc)
-: m_intc(intc)
+    : m_intc(intc)
 {
 	Reset();
 }
@@ -24,10 +24,11 @@ void CTimer::Count(unsigned int ticks)
 	{
 		auto& timer = m_timer[i];
 
-		if(!(timer.nMODE & MODE_COUNT_ENABLE)) continue;
+		if(!(timer.nMODE & MODE_COUNT_ENABLE))
+			continue;
 
-		uint32 previousCount	= timer.nCOUNT;
-		uint32 nextCount		= timer.nCOUNT;
+		uint32 previousCount = timer.nCOUNT;
+		uint32 nextCount = timer.nCOUNT;
 
 		uint32 divider = 1;
 		switch(timer.nMODE & 0x03)
@@ -42,7 +43,7 @@ void CTimer::Count(unsigned int ticks)
 			divider = 256;
 			break;
 		case 0x03:
-			divider = 9437;		// PAL
+			divider = 9437; // PAL
 			break;
 		}
 
@@ -81,7 +82,7 @@ void CTimer::Count(unsigned int ticks)
 		timer.nMODE |= newFlags;
 
 		uint32 nMask = (timer.nMODE & 0x300) << 2;
-		bool interruptPending = (newFlags & nMask) != 0;
+		bool   interruptPending = (newFlags & nMask) != 0;
 		if(interruptPending)
 		{
 			m_intc.AssertLine(CINTC::INTC_LINE_TIMER0 + i);
@@ -238,13 +239,13 @@ void CTimer::LoadState(Framework::CZipArchiveReader& archive)
 	CRegisterStateFile registerFile(*archive.BeginReadFile(STATE_REGS_XML));
 	for(unsigned int i = 0; i < MAX_TIMER; i++)
 	{
-		auto& timer = m_timer[i];
+		auto&       timer = m_timer[i];
 		std::string timerPrefix = "TIMER" + std::to_string(i) + "_";
-		timer.nCOUNT		= registerFile.GetRegister32((timerPrefix + "COUNT").c_str());
-		timer.nMODE			= registerFile.GetRegister32((timerPrefix + "MODE").c_str());
-		timer.nCOMP			= registerFile.GetRegister32((timerPrefix + "COMP").c_str());
-		timer.nHOLD			= registerFile.GetRegister32((timerPrefix + "HOLD").c_str());
-		timer.clockRemain	= registerFile.GetRegister32((timerPrefix + "REM").c_str());
+		timer.nCOUNT = registerFile.GetRegister32((timerPrefix + "COUNT").c_str());
+		timer.nMODE = registerFile.GetRegister32((timerPrefix + "MODE").c_str());
+		timer.nCOMP = registerFile.GetRegister32((timerPrefix + "COMP").c_str());
+		timer.nHOLD = registerFile.GetRegister32((timerPrefix + "HOLD").c_str());
+		timer.clockRemain = registerFile.GetRegister32((timerPrefix + "REM").c_str());
 	}
 }
 
@@ -279,10 +280,13 @@ void CTimer::ProcessGateEdgeChange(uint32 gate, uint32 edgeMode)
 	for(unsigned int i = 0; i < MAX_TIMER; i++)
 	{
 		auto& timer = m_timer[i];
-		if(!(timer.nMODE & MODE_COUNT_ENABLE)) continue;
-		if(!(timer.nMODE & MODE_GATE_ENABLE)) continue;
+		if(!(timer.nMODE & MODE_COUNT_ENABLE))
+			continue;
+		if(!(timer.nMODE & MODE_GATE_ENABLE))
+			continue;
 
-		if((timer.nMODE & MODE_GATE_SELECT) != gate) continue;
+		if((timer.nMODE & MODE_GATE_SELECT) != gate)
+			continue;
 
 		uint32 gateMode = (timer.nMODE & MODE_GATE_MODE);
 		if((edgeMode & gateMode) == edgeMode)

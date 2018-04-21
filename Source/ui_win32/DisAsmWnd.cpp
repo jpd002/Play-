@@ -5,8 +5,8 @@
 
 CDisAsmWnd::CDisAsmWnd(HWND parentWnd, CVirtualMachine& virtualMachine, CMIPS* ctx, DISASM_TYPE disAsmType)
 {
-	Create(NULL, Framework::Win32::CDefaultWndClass::GetName(), _T("Disassembly"), WNDSTYLE, 
-		Framework::Win32::CRect(0, 0, 320, 240), parentWnd, NULL);
+	Create(NULL, Framework::Win32::CDefaultWndClass::GetName(), _T("Disassembly"), WNDSTYLE,
+	       Framework::Win32::CRect(0, 0, 320, 240), parentWnd, NULL);
 
 	SetClassPtr();
 

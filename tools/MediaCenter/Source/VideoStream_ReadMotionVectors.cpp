@@ -1,21 +1,19 @@
-#include <assert.h>
 #include "VideoStream_ReadMotionVectors.h"
-#include "MpegVideoState.h"
 #include "MPEG2/MotionCodeTable.h"
+#include "MpegVideoState.h"
+#include <assert.h>
 
 using namespace VideoStream;
 
 ReadMotionVectors::ReadMotionVectors()
-: m_hrSize(0)
-, m_vrSize(0)
-, m_motionVector(nullptr)
+    : m_hrSize(0)
+    , m_vrSize(0)
+    , m_motionVector(nullptr)
 {
-
 }
 
 ReadMotionVectors::~ReadMotionVectors()
 {
-
 }
 
 void ReadMotionVectors::SetRSizes(uint8 hsize, uint8 vsize)
@@ -37,25 +35,33 @@ void ReadMotionVectors::Reset()
 
 void ReadMotionVectors::Execute(void* context, Framework::CBitStream& stream)
 {
-	MPEG_VIDEO_STATE* state(reinterpret_cast<MPEG_VIDEO_STATE*>(context));
-	PICTURE_HEADER& pictureHeader(state->pictureHeader);
+	MPEG_VIDEO_STATE*    state(reinterpret_cast<MPEG_VIDEO_STATE*>(context));
+	PICTURE_HEADER&      pictureHeader(state->pictureHeader);
 	BLOCK_DECODER_STATE& decoderState(state->blockDecoderState);
 
 	while(1)
 	{
 		switch(m_programState)
 		{
-		case STATE_INIT:							goto Label_Init;
-		case STATE_SINGLE_READVECTOR:				goto Label_Single_ReadVector;
-		case STATE_DOUBLE_FIRST_READFIELDSELECT:	goto Label_Double_First_ReadFieldSelect;
-		case STATE_DOUBLE_FIRST_READVECTOR:			goto Label_Double_First_ReadVector;
-		case STATE_DOUBLE_SECOND_READFIELDSELECT:	goto Label_Double_Second_ReadFieldSelect;
-		case STATE_DOUBLE_SECOND_READVECTOR:		goto Label_Double_Second_ReadVector;
-		case STATE_DONE:							goto Label_Done;
-		default:									assert(0);
+		case STATE_INIT:
+			goto Label_Init;
+		case STATE_SINGLE_READVECTOR:
+			goto Label_Single_ReadVector;
+		case STATE_DOUBLE_FIRST_READFIELDSELECT:
+			goto Label_Double_First_ReadFieldSelect;
+		case STATE_DOUBLE_FIRST_READVECTOR:
+			goto Label_Double_First_ReadVector;
+		case STATE_DOUBLE_SECOND_READFIELDSELECT:
+			goto Label_Double_Second_ReadFieldSelect;
+		case STATE_DOUBLE_SECOND_READVECTOR:
+			goto Label_Double_Second_ReadVector;
+		case STATE_DONE:
+			goto Label_Done;
+		default:
+			assert(0);
 		}
 
-Label_Init:
+	Label_Init:
 		if(decoderState.motionVectorCount == 1)
 		{
 			m_motionVectorReader.Reset();
@@ -67,40 +73,40 @@ Label_Init:
 		}
 		continue;
 
-Label_Single_ReadVector:
+	Label_Single_ReadVector:
 		m_motionVectorReader.Execute(context, stream);
 		m_motionVector[0] = ReadMotionVector::ComputeMotionVector(m_motionVector[0], decoderState.motionCode[0], decoderState.motionResidual[0], m_hrSize);
 		m_motionVector[1] = ReadMotionVector::ComputeMotionVector(m_motionVector[1], decoderState.motionCode[1], decoderState.motionResidual[1], m_vrSize);
 		m_programState = STATE_DONE;
 		continue;
 
-Label_Double_First_ReadFieldSelect:
-		{
-			uint8 fieldSelect = static_cast<uint8>(stream.GetBits_MSBF(1));
-			m_motionVectorReader.Reset();
-			m_programState = STATE_DOUBLE_FIRST_READVECTOR;
-		}
+	Label_Double_First_ReadFieldSelect:
+	{
+		uint8 fieldSelect = static_cast<uint8>(stream.GetBits_MSBF(1));
+		m_motionVectorReader.Reset();
+		m_programState = STATE_DOUBLE_FIRST_READVECTOR;
+	}
 		continue;
 
-Label_Double_First_ReadVector:
+	Label_Double_First_ReadVector:
 		m_motionVectorReader.Execute(context, stream);
 		m_programState = STATE_DOUBLE_SECOND_READFIELDSELECT;
 		continue;
 
-Label_Double_Second_ReadFieldSelect:
-		{
-			uint8 fieldSelect = static_cast<uint8>(stream.GetBits_MSBF(1));
-			m_motionVectorReader.Reset();
-			m_programState = STATE_DOUBLE_SECOND_READVECTOR;
-		}
+	Label_Double_Second_ReadFieldSelect:
+	{
+		uint8 fieldSelect = static_cast<uint8>(stream.GetBits_MSBF(1));
+		m_motionVectorReader.Reset();
+		m_programState = STATE_DOUBLE_SECOND_READVECTOR;
+	}
 		continue;
 
-Label_Double_Second_ReadVector:
+	Label_Double_Second_ReadVector:
 		m_motionVectorReader.Execute(context, stream);
 		m_programState = STATE_DONE;
 		continue;
 
-Label_Done:
+	Label_Done:
 		return;
 	}
 }

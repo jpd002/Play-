@@ -4,11 +4,11 @@
 
 namespace Iop
 {
-	struct MEMORYBLOCK
-	{
-		uint32	isValid;
-		uint32	nextBlockId;
-		uint32	address;
-		uint32	size;
-	};
+struct MEMORYBLOCK
+{
+	uint32 isValid;
+	uint32 nextBlockId;
+	uint32 address;
+	uint32 size;
+};
 };

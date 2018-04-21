@@ -1,9 +1,9 @@
 #include "SpuRegViewPanel.h"
-#include "win32/Rect.h"
 #include "resource.h"
+#include "win32/Rect.h"
 
 CSpuRegViewPanel::CSpuRegViewPanel(HWND parentWnd, const TCHAR* title)
-: Framework::Win32::CDialog(MAKEINTRESOURCE(IDD_SPUREGVIEW), parentWnd)
+    : Framework::Win32::CDialog(MAKEINTRESOURCE(IDD_SPUREGVIEW), parentWnd)
 {
 	SetClassPtr();
 

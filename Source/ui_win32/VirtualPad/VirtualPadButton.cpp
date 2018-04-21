@@ -1,14 +1,12 @@
 #include "VirtualPadButton.h"
 
 CVirtualPadButton::CVirtualPadButton()
-: m_font(&Gdiplus::FontFamily(L"Arial"), 10)
+    : m_font(&Gdiplus::FontFamily(L"Arial"), 10)
 {
-
 }
 
 CVirtualPadButton::~CVirtualPadButton()
 {
-
 }
 
 void CVirtualPadButton::Draw(Gdiplus::Graphics& graphics)
@@ -29,7 +27,7 @@ void CVirtualPadButton::Draw(Gdiplus::Graphics& graphics)
 			attr.SetColorMatrix(&matrix);
 
 			Gdiplus::RectF imageSize;
-			Gdiplus::Unit imageUnit;
+			Gdiplus::Unit  imageUnit;
 			m_image->GetBounds(&imageSize, &imageUnit);
 			graphics.DrawImage(m_image, m_bounds, imageSize.X, imageSize.Y, imageSize.Width, imageSize.Height, imageUnit, &attr);
 		}
@@ -45,11 +43,10 @@ void CVirtualPadButton::Draw(Gdiplus::Graphics& graphics)
 
 		Gdiplus::RectF boundingBox(0, 0, 0, 0);
 		graphics.MeasureString(m_caption.c_str(), m_caption.size(), &m_font,
-			Gdiplus::PointF(0, 0), &boundingBox);
+		                       Gdiplus::PointF(0, 0), &boundingBox);
 		Gdiplus::PointF textOrigin(
-			m_bounds.X + (m_bounds.Width - boundingBox.Width) / 2,
-			m_bounds.Y + (m_bounds.Height - boundingBox.Height) / 2
-		);
+		    m_bounds.X + (m_bounds.Width - boundingBox.Width) / 2,
+		    m_bounds.Y + (m_bounds.Height - boundingBox.Height) / 2);
 		graphics.DrawString(m_caption.c_str(), m_caption.size(), &m_font, textOrigin, &fontBrush);
 	}
 }

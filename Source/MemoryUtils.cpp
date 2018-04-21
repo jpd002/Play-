@@ -22,7 +22,7 @@ uint32 MemoryUtils_GetWordProxy(CMIPS* pCtx, uint32 nAddress)
 uint64 MemoryUtils_GetDoubleProxy(CMIPS* context, uint32 address)
 {
 	assert((address & 0x07) == 0);
-	auto e = context->m_pMemoryMap->GetReadMap(address);
+	auto      e = context->m_pMemoryMap->GetReadMap(address);
 	INTEGER64 result;
 #ifdef _DEBUG
 	result.q = 0xCCCCCCCCCCCCCCCCull;
@@ -51,7 +51,7 @@ uint64 MemoryUtils_GetDoubleProxy(CMIPS* context, uint32 address)
 uint128 MemoryUtils_GetQuadProxy(CMIPS* context, uint32 address)
 {
 	address &= ~0x0F;
-	auto e = context->m_pMemoryMap->GetReadMap(address);
+	auto    e = context->m_pMemoryMap->GetReadMap(address);
 	uint128 result;
 #ifdef _DEBUG
 	memset(&result, 0xCC, sizeof(result));
@@ -101,7 +101,7 @@ void MemoryUtils_SetDoubleProxy(CMIPS* context, uint64 value64, uint32 address)
 	if(!e)
 	{
 		CLog::GetInstance().Print(LOG_NAME, "Wrote to unmapped memory (0x%08X, [0x%08X, 0x%08X]).\r\n",
-			address, value.d0, value.d1);
+		                          address, value.d0, value.d1);
 		return;
 	}
 	switch(e->nType)
@@ -127,8 +127,8 @@ void MemoryUtils_SetQuadProxy(CMIPS* context, const uint128& value, uint32 addre
 	auto e = context->m_pMemoryMap->GetWriteMap(address);
 	if(!e)
 	{
-		CLog::GetInstance().Print(LOG_NAME, "Wrote to unmapped memory (0x%08X, [0x%08X, 0x%08X, 0x%08X, 0x%08X]).\r\n", 
-			address, value.nV0, value.nV1, value.nV2, value.nV3);
+		CLog::GetInstance().Print(LOG_NAME, "Wrote to unmapped memory (0x%08X, [0x%08X, 0x%08X, 0x%08X, 0x%08X]).\r\n",
+		                          address, value.nV0, value.nV1, value.nV2, value.nV3);
 		return;
 	}
 	switch(e->nType)

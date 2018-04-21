@@ -1,11 +1,11 @@
-#include <stddef.h>
+#include "MA_EE.h"
 #include "../MIPS.h"
 #include "../MemoryUtils.h"
-#include "MA_EE.h"
 #include "offsetof_def.h"
+#include <stddef.h>
 
-CMA_EE::CMA_EE() :
-CMA_MIPSIV(MIPS_REGSIZE_64)
+CMA_EE::CMA_EE()
+    : CMA_MIPSIV(MIPS_REGSIZE_64)
 {
 	m_pOpGeneral[0x1E] = std::bind(&CMA_EE::LQ, this);
 	m_pOpGeneral[0x1F] = std::bind(&CMA_EE::SQ, this);
@@ -105,7 +105,8 @@ size_t CMA_EE::GetHiOffset(unsigned int index)
 //1E
 void CMA_EE::LQ()
 {
-	if(m_nRT == 0) return;
+	if(m_nRT == 0)
+		return;
 
 	ComputeMemAccessAddr();
 
@@ -199,7 +200,8 @@ void CMA_EE::MADDU()
 //04
 void CMA_EE::PLZCW()
 {
-	if(m_nRD == 0) return;
+	if(m_nRD == 0)
+		return;
 
 	for(unsigned int i = 0; i < 2; i++)
 	{
@@ -224,7 +226,8 @@ void CMA_EE::MMI2()
 //10
 void CMA_EE::MFHI1()
 {
-	if(m_nRD == 0) return;
+	if(m_nRD == 0)
+		return;
 
 	m_codeGen->PushRel(offsetof(CMIPS, m_State.nHI1[0]));
 	m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[0]));
@@ -246,7 +249,8 @@ void CMA_EE::MTHI1()
 //12
 void CMA_EE::MFLO1()
 {
-	if(m_nRD == 0) return;
+	if(m_nRD == 0)
+		return;
 
 	m_codeGen->PushRel(offsetof(CMIPS, m_State.nLO1[0]));
 	m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[0]));
@@ -322,7 +326,8 @@ void CMA_EE::PMFHL()
 //34
 void CMA_EE::PSLLH()
 {
-	if(m_nRD == 0) return;
+	if(m_nRD == 0)
+		return;
 
 	PushVector(m_nRT);
 	m_codeGen->MD_SllH(m_nSA);
@@ -332,7 +337,8 @@ void CMA_EE::PSLLH()
 //36
 void CMA_EE::PSRLH()
 {
-	if(m_nRD == 0) return;
+	if(m_nRD == 0)
+		return;
 
 	PushVector(m_nRT);
 	m_codeGen->MD_SrlH(m_nSA);
@@ -342,7 +348,8 @@ void CMA_EE::PSRLH()
 //37
 void CMA_EE::PSRAH()
 {
-	if(m_nRD == 0) return;
+	if(m_nRD == 0)
+		return;
 
 	PushVector(m_nRT);
 	m_codeGen->MD_SraH(m_nSA);
@@ -352,7 +359,8 @@ void CMA_EE::PSRAH()
 //3C
 void CMA_EE::PSLLW()
 {
-	if(m_nRD == 0) return;
+	if(m_nRD == 0)
+		return;
 
 	PushVector(m_nRT);
 	m_codeGen->MD_SllW(m_nSA);
@@ -362,7 +370,8 @@ void CMA_EE::PSLLW()
 //3E
 void CMA_EE::PSRLW()
 {
-	if(m_nRD == 0) return;
+	if(m_nRD == 0)
+		return;
 
 	PushVector(m_nRT);
 	m_codeGen->MD_SrlW(m_nSA);
@@ -372,7 +381,8 @@ void CMA_EE::PSRLW()
 //3F
 void CMA_EE::PSRAW()
 {
-	if(m_nRD == 0) return;
+	if(m_nRD == 0)
+		return;
 
 	PushVector(m_nRT);
 	m_codeGen->MD_SraW(m_nSA);
@@ -386,7 +396,8 @@ void CMA_EE::PSRAW()
 //00
 void CMA_EE::PADDW()
 {
-	if(m_nRD == 0) return;
+	if(m_nRD == 0)
+		return;
 
 	PushVector(m_nRS);
 	PushVector(m_nRT);
@@ -397,7 +408,8 @@ void CMA_EE::PADDW()
 //01
 void CMA_EE::PSUBW()
 {
-	if(m_nRD == 0) return;
+	if(m_nRD == 0)
+		return;
 
 	PushVector(m_nRS);
 	PushVector(m_nRT);
@@ -408,7 +420,8 @@ void CMA_EE::PSUBW()
 //02
 void CMA_EE::PCGTW()
 {
-	if(m_nRD == 0) return;
+	if(m_nRD == 0)
+		return;
 
 	PushVector(m_nRS);
 	PushVector(m_nRT);
@@ -419,7 +432,8 @@ void CMA_EE::PCGTW()
 //03
 void CMA_EE::PMAXW()
 {
-	if(m_nRD == 0) return;
+	if(m_nRD == 0)
+		return;
 
 	PushVector(m_nRS);
 	PushVector(m_nRT);
@@ -430,7 +444,8 @@ void CMA_EE::PMAXW()
 //04
 void CMA_EE::PADDH()
 {
-	if(m_nRD == 0) return;
+	if(m_nRD == 0)
+		return;
 
 	PushVector(m_nRS);
 	PushVector(m_nRT);
@@ -441,7 +456,8 @@ void CMA_EE::PADDH()
 //05
 void CMA_EE::PSUBH()
 {
-	if(m_nRD == 0) return;
+	if(m_nRD == 0)
+		return;
 
 	PushVector(m_nRS);
 	PushVector(m_nRT);
@@ -452,7 +468,8 @@ void CMA_EE::PSUBH()
 //06
 void CMA_EE::PCGTH()
 {
-	if(m_nRD == 0) return;
+	if(m_nRD == 0)
+		return;
 
 	PushVector(m_nRS);
 	PushVector(m_nRT);
@@ -463,7 +480,8 @@ void CMA_EE::PCGTH()
 //07
 void CMA_EE::PMAXH()
 {
-	if(m_nRD == 0) return;
+	if(m_nRD == 0)
+		return;
 
 	PushVector(m_nRS);
 	PushVector(m_nRT);
@@ -474,7 +492,8 @@ void CMA_EE::PMAXH()
 //08
 void CMA_EE::PADDB()
 {
-	if(m_nRD == 0) return;
+	if(m_nRD == 0)
+		return;
 
 	PushVector(m_nRS);
 	PushVector(m_nRT);
@@ -485,7 +504,8 @@ void CMA_EE::PADDB()
 //09
 void CMA_EE::PSUBB()
 {
-	if(m_nRD == 0) return;
+	if(m_nRD == 0)
+		return;
 
 	PushVector(m_nRS);
 	PushVector(m_nRT);
@@ -496,7 +516,8 @@ void CMA_EE::PSUBB()
 //0A
 void CMA_EE::PCGTB()
 {
-	if(m_nRD == 0) return;
+	if(m_nRD == 0)
+		return;
 
 	PushVector(m_nRS);
 	PushVector(m_nRT);
@@ -507,7 +528,8 @@ void CMA_EE::PCGTB()
 //10
 void CMA_EE::PADDSW()
 {
-	if(m_nRD == 0) return;
+	if(m_nRD == 0)
+		return;
 
 	PushVector(m_nRS);
 	PushVector(m_nRT);
@@ -518,7 +540,8 @@ void CMA_EE::PADDSW()
 //11
 void CMA_EE::PSUBSW()
 {
-	if(m_nRD == 0) return;
+	if(m_nRD == 0)
+		return;
 
 	PushVector(m_nRS);
 	PushVector(m_nRT);
@@ -529,7 +552,8 @@ void CMA_EE::PSUBSW()
 //12
 void CMA_EE::PEXTLW()
 {
-	if(m_nRD == 0) return;
+	if(m_nRD == 0)
+		return;
 
 	PushVector(m_nRS);
 	PushVector(m_nRT);
@@ -540,7 +564,8 @@ void CMA_EE::PEXTLW()
 //13
 void CMA_EE::PPACW()
 {
-	if(m_nRD == 0) return;
+	if(m_nRD == 0)
+		return;
 
 	//RS = A
 	//RT = B
@@ -571,7 +596,8 @@ void CMA_EE::PPACW()
 //14
 void CMA_EE::PADDSH()
 {
-	if(m_nRD == 0) return;
+	if(m_nRD == 0)
+		return;
 
 	PushVector(m_nRS);
 	PushVector(m_nRT);
@@ -582,7 +608,8 @@ void CMA_EE::PADDSH()
 //15
 void CMA_EE::PSUBSH()
 {
-	if(m_nRD == 0) return;
+	if(m_nRD == 0)
+		return;
 
 	PushVector(m_nRS);
 	PushVector(m_nRT);
@@ -593,7 +620,8 @@ void CMA_EE::PSUBSH()
 //16
 void CMA_EE::PEXTLH()
 {
-	if(m_nRD == 0) return;
+	if(m_nRD == 0)
+		return;
 
 	PushVector(m_nRS);
 	PushVector(m_nRT);
@@ -604,7 +632,8 @@ void CMA_EE::PEXTLH()
 //17
 void CMA_EE::PPACH()
 {
-	if(m_nRD == 0) return;
+	if(m_nRD == 0)
+		return;
 
 	PushVector(m_nRS);
 	PushVector(m_nRT);
@@ -615,7 +644,8 @@ void CMA_EE::PPACH()
 //18
 void CMA_EE::PADDSB()
 {
-	if(m_nRD == 0) return;
+	if(m_nRD == 0)
+		return;
 
 	PushVector(m_nRS);
 	PushVector(m_nRT);
@@ -626,7 +656,8 @@ void CMA_EE::PADDSB()
 //1A
 void CMA_EE::PEXTLB()
 {
-	if(m_nRD == 0) return;
+	if(m_nRD == 0)
+		return;
 
 	PushVector(m_nRS);
 	PushVector(m_nRT);
@@ -637,7 +668,8 @@ void CMA_EE::PEXTLB()
 //1B
 void CMA_EE::PPACB()
 {
-	if(m_nRD == 0) return;
+	if(m_nRD == 0)
+		return;
 
 	PushVector(m_nRS);
 	PushVector(m_nRT);
@@ -648,7 +680,8 @@ void CMA_EE::PPACB()
 //1E
 void CMA_EE::PEXT5()
 {
-	if(m_nRD == 0) return;
+	if(m_nRD == 0)
+		return;
 
 	for(unsigned int i = 0; i < 4; i++)
 	{
@@ -682,7 +715,8 @@ void CMA_EE::PEXT5()
 //1F
 void CMA_EE::PPAC5()
 {
-	if(m_nRD == 0) return;
+	if(m_nRD == 0)
+		return;
 
 	for(unsigned int i = 0; i < 4; i++)
 	{
@@ -720,7 +754,8 @@ void CMA_EE::PPAC5()
 //01
 void CMA_EE::PABSW()
 {
-	if(m_nRD == 0) return;
+	if(m_nRD == 0)
+		return;
 
 	//RD = (RT != 0x80000000) ? |RT| : 0x7FFFFFFF;
 
@@ -763,7 +798,8 @@ void CMA_EE::PABSW()
 //02
 void CMA_EE::PCEQW()
 {
-	if(m_nRD == 0) return;
+	if(m_nRD == 0)
+		return;
 
 	PushVector(m_nRS);
 	PushVector(m_nRT);
@@ -774,7 +810,8 @@ void CMA_EE::PCEQW()
 //03
 void CMA_EE::PMINW()
 {
-	if(m_nRD == 0) return;
+	if(m_nRD == 0)
+		return;
 
 	PushVector(m_nRS);
 	PushVector(m_nRT);
@@ -785,7 +822,8 @@ void CMA_EE::PMINW()
 //06
 void CMA_EE::PCEQH()
 {
-	if(m_nRD == 0) return;
+	if(m_nRD == 0)
+		return;
 
 	PushVector(m_nRS);
 	PushVector(m_nRT);
@@ -796,7 +834,8 @@ void CMA_EE::PCEQH()
 //07
 void CMA_EE::PMINH()
 {
-	if(m_nRD == 0) return;
+	if(m_nRD == 0)
+		return;
 
 	PushVector(m_nRS);
 	PushVector(m_nRT);
@@ -807,7 +846,8 @@ void CMA_EE::PMINH()
 //0A
 void CMA_EE::PCEQB()
 {
-	if(m_nRD == 0) return;
+	if(m_nRD == 0)
+		return;
 
 	PushVector(m_nRS);
 	PushVector(m_nRT);
@@ -818,7 +858,8 @@ void CMA_EE::PCEQB()
 //10
 void CMA_EE::PADDUW()
 {
-	if(m_nRD == 0) return;
+	if(m_nRD == 0)
+		return;
 
 	PushVector(m_nRS);
 	PushVector(m_nRT);
@@ -829,7 +870,8 @@ void CMA_EE::PADDUW()
 //12
 void CMA_EE::PEXTUW()
 {
-	if(m_nRD == 0) return;
+	if(m_nRD == 0)
+		return;
 
 	PushVector(m_nRS);
 	PushVector(m_nRT);
@@ -840,7 +882,8 @@ void CMA_EE::PEXTUW()
 //14
 void CMA_EE::PADDUH()
 {
-	if(m_nRD == 0) return;
+	if(m_nRD == 0)
+		return;
 
 	PushVector(m_nRS);
 	PushVector(m_nRT);
@@ -851,7 +894,8 @@ void CMA_EE::PADDUH()
 //15
 void CMA_EE::PSUBUH()
 {
-	if(m_nRD == 0) return;
+	if(m_nRD == 0)
+		return;
 
 	PushVector(m_nRS);
 	PushVector(m_nRT);
@@ -862,7 +906,8 @@ void CMA_EE::PSUBUH()
 //16
 void CMA_EE::PEXTUH()
 {
-	if(m_nRD == 0) return;
+	if(m_nRD == 0)
+		return;
 
 	PushVector(m_nRS);
 	PushVector(m_nRT);
@@ -873,7 +918,8 @@ void CMA_EE::PEXTUH()
 //18
 void CMA_EE::PADDUB()
 {
-	if(m_nRD == 0) return;
+	if(m_nRD == 0)
+		return;
 
 	PushVector(m_nRS);
 	PushVector(m_nRT);
@@ -884,7 +930,8 @@ void CMA_EE::PADDUB()
 //19
 void CMA_EE::PSUBUB()
 {
-	if(m_nRD == 0) return;
+	if(m_nRD == 0)
+		return;
 
 	PushVector(m_nRS);
 	PushVector(m_nRT);
@@ -895,7 +942,8 @@ void CMA_EE::PSUBUB()
 //1A
 void CMA_EE::PEXTUB()
 {
-	if(m_nRD == 0) return;
+	if(m_nRD == 0)
+		return;
 
 	PushVector(m_nRS);
 	PushVector(m_nRT);
@@ -920,19 +968,20 @@ void CMA_EE::QFSRV()
 //02
 void CMA_EE::PSLLVW()
 {
-	Generic_PSxxV([this] () { m_codeGen->Shl(); });
+	Generic_PSxxV([this]() { m_codeGen->Shl(); });
 }
 
 //03
 void CMA_EE::PSRLVW()
 {
-	Generic_PSxxV([this] () { m_codeGen->Srl(); });
+	Generic_PSxxV([this]() { m_codeGen->Srl(); });
 }
 
 //08
 void CMA_EE::PMFHI()
 {
-	if(m_nRD == 0) return;
+	if(m_nRD == 0)
+		return;
 
 	for(unsigned int i = 0; i < 4; i++)
 	{
@@ -944,7 +993,8 @@ void CMA_EE::PMFHI()
 //09
 void CMA_EE::PMFLO()
 {
-	if(m_nRD == 0) return;
+	if(m_nRD == 0)
+		return;
 
 	for(unsigned int i = 0; i < 4; i++)
 	{
@@ -971,19 +1021,20 @@ void CMA_EE::PDIVW()
 //0E
 void CMA_EE::PCPYLD()
 {
-	if(m_nRD == 0) return;
+	if(m_nRD == 0)
+		return;
 
 	//A0
 	m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRS].nV[0]));
 	m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRS].nV[1]));
-	
+
 	m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[3]));
 	m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[2]));
 
 	//B0
 	m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[0]));
 	m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[1]));
-	
+
 	m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[1]));
 	m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[0]));
 }
@@ -992,16 +1043,15 @@ void CMA_EE::PCPYLD()
 void CMA_EE::PMADDH()
 {
 	static const size_t offsets[8] =
-	{
-		offsetof(CMIPS, m_State.nLO[0]),
-		offsetof(CMIPS, m_State.nLO[1]),
-		offsetof(CMIPS, m_State.nHI[0]),
-		offsetof(CMIPS, m_State.nHI[1]),
-		offsetof(CMIPS, m_State.nLO1[0]),
-		offsetof(CMIPS, m_State.nLO1[1]),
-		offsetof(CMIPS, m_State.nHI1[0]),
-		offsetof(CMIPS, m_State.nHI1[1])
-	};
+	    {
+	        offsetof(CMIPS, m_State.nLO[0]),
+	        offsetof(CMIPS, m_State.nLO[1]),
+	        offsetof(CMIPS, m_State.nHI[0]),
+	        offsetof(CMIPS, m_State.nHI[1]),
+	        offsetof(CMIPS, m_State.nLO1[0]),
+	        offsetof(CMIPS, m_State.nLO1[1]),
+	        offsetof(CMIPS, m_State.nHI1[0]),
+	        offsetof(CMIPS, m_State.nHI1[1])};
 
 	for(unsigned int i = 0; i < 4; i++)
 	{
@@ -1059,20 +1109,20 @@ void CMA_EE::PMADDH()
 void CMA_EE::PHMADH()
 {
 	static const size_t offsets[4] =
-	{
-		offsetof(CMIPS, m_State.nLO[0]),
-		offsetof(CMIPS, m_State.nHI[0]),
-		offsetof(CMIPS, m_State.nLO1[0]),
-		offsetof(CMIPS, m_State.nHI1[0]),
-	};
+	    {
+	        offsetof(CMIPS, m_State.nLO[0]),
+	        offsetof(CMIPS, m_State.nHI[0]),
+	        offsetof(CMIPS, m_State.nLO1[0]),
+	        offsetof(CMIPS, m_State.nHI1[0]),
+	    };
 
 	static const size_t clearOffsets[4] =
-	{
-		offsetof(CMIPS, m_State.nLO[1]),
-		offsetof(CMIPS, m_State.nHI[1]),
-		offsetof(CMIPS, m_State.nLO1[1]),
-		offsetof(CMIPS, m_State.nHI1[1]),
-	};
+	    {
+	        offsetof(CMIPS, m_State.nLO[1]),
+	        offsetof(CMIPS, m_State.nHI[1]),
+	        offsetof(CMIPS, m_State.nLO1[1]),
+	        offsetof(CMIPS, m_State.nHI1[1]),
+	    };
 
 	for(unsigned int i = 0; i < 4; i++)
 	{
@@ -1122,7 +1172,8 @@ void CMA_EE::PHMADH()
 //12
 void CMA_EE::PAND()
 {
-	if(m_nRD == 0) return;
+	if(m_nRD == 0)
+		return;
 
 	PushVector(m_nRS);
 	PushVector(m_nRT);
@@ -1133,7 +1184,8 @@ void CMA_EE::PAND()
 //13
 void CMA_EE::PXOR()
 {
-	if(m_nRD == 0) return;
+	if(m_nRD == 0)
+		return;
 
 	PushVector(m_nRS);
 	PushVector(m_nRT);
@@ -1144,7 +1196,8 @@ void CMA_EE::PXOR()
 //1B
 void CMA_EE::PREVH()
 {
-	if(m_nRD == 0) return;
+	if(m_nRD == 0)
+		return;
 
 	for(unsigned int i = 0; i < 2; i++)
 	{
@@ -1169,16 +1222,15 @@ void CMA_EE::PREVH()
 void CMA_EE::PMULTH()
 {
 	static const size_t offsets[8] =
-	{
-		offsetof(CMIPS, m_State.nLO[0]),
-		offsetof(CMIPS, m_State.nLO[1]),
-		offsetof(CMIPS, m_State.nHI[0]),
-		offsetof(CMIPS, m_State.nHI[1]),
-		offsetof(CMIPS, m_State.nLO1[0]),
-		offsetof(CMIPS, m_State.nLO1[1]),
-		offsetof(CMIPS, m_State.nHI1[0]),
-		offsetof(CMIPS, m_State.nHI1[1])
-	};
+	    {
+	        offsetof(CMIPS, m_State.nLO[0]),
+	        offsetof(CMIPS, m_State.nLO[1]),
+	        offsetof(CMIPS, m_State.nHI[0]),
+	        offsetof(CMIPS, m_State.nHI[1]),
+	        offsetof(CMIPS, m_State.nLO1[0]),
+	        offsetof(CMIPS, m_State.nLO1[1]),
+	        offsetof(CMIPS, m_State.nHI1[0]),
+	        offsetof(CMIPS, m_State.nHI1[1])};
 
 	for(unsigned int i = 0; i < 4; i++)
 	{
@@ -1231,7 +1283,8 @@ void CMA_EE::PMULTH()
 //1E
 void CMA_EE::PEXEW()
 {
-	if(m_nRD == 0) return;
+	if(m_nRD == 0)
+		return;
 
 	size_t offset[4];
 
@@ -1263,7 +1316,8 @@ void CMA_EE::PEXEW()
 //1F
 void CMA_EE::PROT3W()
 {
-	if(m_nRD == 0) return;
+	if(m_nRD == 0)
+		return;
 
 	size_t offset[4];
 
@@ -1299,7 +1353,7 @@ void CMA_EE::PROT3W()
 //03
 void CMA_EE::PSRAVW()
 {
-	Generic_PSxxV([this] () { m_codeGen->Sra(); });
+	Generic_PSxxV([this]() { m_codeGen->Sra(); });
 }
 
 //08
@@ -1325,7 +1379,8 @@ void CMA_EE::PMTLO()
 //0A
 void CMA_EE::PINTEH()
 {
-	if(m_nRD == 0) return;
+	if(m_nRD == 0)
+		return;
 
 	for(unsigned int i = 0; i < 4; i++)
 	{
@@ -1352,19 +1407,20 @@ void CMA_EE::PMULTUW()
 //0E
 void CMA_EE::PCPYUD()
 {
-	if(m_nRD == 0) return;
+	if(m_nRD == 0)
+		return;
 
 	//A
 	m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRS].nV[2]));
 	m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRS].nV[3]));
-	
+
 	m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[1]));
 	m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[0]));
 
 	//B
 	m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[2]));
 	m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[3]));
-	
+
 	m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[3]));
 	m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[2]));
 }
@@ -1372,7 +1428,8 @@ void CMA_EE::PCPYUD()
 //12
 void CMA_EE::POR()
 {
-	if(m_nRD == 0) return;
+	if(m_nRD == 0)
+		return;
 
 	PushVector(m_nRS);
 	PushVector(m_nRT);
@@ -1383,7 +1440,8 @@ void CMA_EE::POR()
 //13
 void CMA_EE::PNOR()
 {
-	if(m_nRD == 0) return;
+	if(m_nRD == 0)
+		return;
 
 	PushVector(m_nRS);
 	PushVector(m_nRT);
@@ -1395,7 +1453,8 @@ void CMA_EE::PNOR()
 //1A
 void CMA_EE::PEXCH()
 {
-	if(m_nRD == 0) return;
+	if(m_nRD == 0)
+		return;
 
 	for(unsigned int i = 0; i < 4; i += 2)
 	{
@@ -1429,7 +1488,8 @@ void CMA_EE::PEXCH()
 //1B
 void CMA_EE::PCPYH()
 {
-	if(m_nRD == 0) return;
+	if(m_nRD == 0)
+		return;
 
 	for(unsigned int i = 0; i < 4; i += 2)
 	{
@@ -1449,7 +1509,8 @@ void CMA_EE::PCPYH()
 //1E
 void CMA_EE::PEXCW()
 {
-	if(m_nRD == 0) return;
+	if(m_nRD == 0)
+		return;
 
 	size_t offset[4];
 
@@ -1485,7 +1546,8 @@ void CMA_EE::PEXCW()
 //00
 void CMA_EE::PMFHL_LW()
 {
-	if(m_nRD == 0) return;
+	if(m_nRD == 0)
+		return;
 
 	m_codeGen->PushRel(offsetof(CMIPS, m_State.nLO[0]));
 	m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[0]));
@@ -1503,7 +1565,8 @@ void CMA_EE::PMFHL_LW()
 //01
 void CMA_EE::PMFHL_UW()
 {
-	if(m_nRD == 0) return;
+	if(m_nRD == 0)
+		return;
 
 	m_codeGen->PushRel(offsetof(CMIPS, m_State.nLO[1]));
 	m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[0]));
@@ -1521,26 +1584,26 @@ void CMA_EE::PMFHL_UW()
 //03
 void CMA_EE::PMFHL_LH()
 {
-	if(m_nRD == 0) return;
+	if(m_nRD == 0)
+		return;
 
 	static const size_t offsets[8] =
-	{
-		offsetof(CMIPS, m_State.nLO[0]),
-		offsetof(CMIPS, m_State.nLO[1]),
-		offsetof(CMIPS, m_State.nHI[0]),
-		offsetof(CMIPS, m_State.nHI[1]),
-		offsetof(CMIPS, m_State.nLO1[0]),
-		offsetof(CMIPS, m_State.nLO1[1]),
-		offsetof(CMIPS, m_State.nHI1[0]),
-		offsetof(CMIPS, m_State.nHI1[1])
-	};
+	    {
+	        offsetof(CMIPS, m_State.nLO[0]),
+	        offsetof(CMIPS, m_State.nLO[1]),
+	        offsetof(CMIPS, m_State.nHI[0]),
+	        offsetof(CMIPS, m_State.nHI[1]),
+	        offsetof(CMIPS, m_State.nLO1[0]),
+	        offsetof(CMIPS, m_State.nLO1[1]),
+	        offsetof(CMIPS, m_State.nHI1[0]),
+	        offsetof(CMIPS, m_State.nHI1[1])};
 
 	for(unsigned int i = 0; i < 4; i++)
 	{
 		m_codeGen->PushRel(offsets[(i * 2) + 0]);
 		m_codeGen->PushCst(0xFFFF);
 		m_codeGen->And();
-	
+
 		m_codeGen->PushRel(offsets[(i * 2) + 1]);
 		m_codeGen->Shl(16);
 
@@ -1552,41 +1615,40 @@ void CMA_EE::PMFHL_LH()
 //04
 void CMA_EE::PMFHL_SH()
 {
-	if(m_nRD == 0) return;
+	if(m_nRD == 0)
+		return;
 
 	static const auto emitClamp =
-		[] (CMipsJitter* codeGen, size_t offsetToClamp)
-		{
-			codeGen->PushRel(offsetToClamp);
-			codeGen->PushCst(0x7FFF);
-			codeGen->BeginIf(Jitter::CONDITION_GT);
-			{
-				codeGen->PushCst(0x7FFF);
-				codeGen->PullRel(offsetToClamp);
-			}
-			codeGen->EndIf();
+	    [](CMipsJitter* codeGen, size_t offsetToClamp) {
+		    codeGen->PushRel(offsetToClamp);
+		    codeGen->PushCst(0x7FFF);
+		    codeGen->BeginIf(Jitter::CONDITION_GT);
+		    {
+			    codeGen->PushCst(0x7FFF);
+			    codeGen->PullRel(offsetToClamp);
+		    }
+		    codeGen->EndIf();
 
-			codeGen->PushRel(offsetToClamp);
-			codeGen->PushCst(0xFFFF8000);
-			codeGen->BeginIf(Jitter::CONDITION_LT);
-			{
-				codeGen->PushCst(0x8000);
-				codeGen->PullRel(offsetToClamp);
-			}
-			codeGen->EndIf();
+		    codeGen->PushRel(offsetToClamp);
+		    codeGen->PushCst(0xFFFF8000);
+		    codeGen->BeginIf(Jitter::CONDITION_LT);
+		    {
+			    codeGen->PushCst(0x8000);
+			    codeGen->PullRel(offsetToClamp);
+		    }
+		    codeGen->EndIf();
 		};
 
 	static const size_t offsets[8] =
-	{
-		offsetof(CMIPS, m_State.nLO[0]),
-		offsetof(CMIPS, m_State.nLO[1]),
-		offsetof(CMIPS, m_State.nHI[0]),
-		offsetof(CMIPS, m_State.nHI[1]),
-		offsetof(CMIPS, m_State.nLO1[0]),
-		offsetof(CMIPS, m_State.nLO1[1]),
-		offsetof(CMIPS, m_State.nHI1[0]),
-		offsetof(CMIPS, m_State.nHI1[1])
-	};
+	    {
+	        offsetof(CMIPS, m_State.nLO[0]),
+	        offsetof(CMIPS, m_State.nLO[1]),
+	        offsetof(CMIPS, m_State.nHI[0]),
+	        offsetof(CMIPS, m_State.nHI[1]),
+	        offsetof(CMIPS, m_State.nLO1[0]),
+	        offsetof(CMIPS, m_State.nLO1[1]),
+	        offsetof(CMIPS, m_State.nHI1[0]),
+	        offsetof(CMIPS, m_State.nHI1[1])};
 
 	static const size_t tempOffset = offsetof(CMIPS, m_State.nCOP2T);
 
@@ -1752,7 +1814,8 @@ void CMA_EE::Generic_PMULTW(bool isSigned)
 
 void CMA_EE::Generic_PSxxV(const TemplateOperationFunctionType& function)
 {
-	if(m_nRD == 0) return;
+	if(m_nRD == 0)
+		return;
 
 	for(unsigned int i = 0; i < 2; i++)
 	{
@@ -1771,62 +1834,62 @@ void CMA_EE::Generic_PSxxV(const TemplateOperationFunctionType& function)
 //Opcode Tables
 //////////////////////////////////////////////////
 
-CMA_EE::InstructionFuncConstant CMA_EE::m_pOpMmi0[0x20] = 
-{
-	//0x00
-	&CMA_EE::PADDW,			&CMA_EE::PSUBW,			&CMA_EE::PCGTW,			&CMA_EE::PMAXW,			&CMA_EE::PADDH,			&CMA_EE::PSUBH,			&CMA_EE::PCGTH,			&CMA_EE::PMAXH,
-	//0x08
-	&CMA_EE::PADDB,			&CMA_EE::PSUBB,			&CMA_EE::PCGTB,			&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,
-	//0x10
-	&CMA_EE::PADDSW,		&CMA_EE::PSUBSW,		&CMA_EE::PEXTLW,		&CMA_EE::PPACW,			&CMA_EE::PADDSH,		&CMA_EE::PSUBSH,		&CMA_EE::PEXTLH,		&CMA_EE::PPACH,
-	//0x18
-	&CMA_EE::PADDSB,		&CMA_EE::Illegal,		&CMA_EE::PEXTLB,		&CMA_EE::PPACB,			&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::PEXT5,			&CMA_EE::PPAC5,
+CMA_EE::InstructionFuncConstant CMA_EE::m_pOpMmi0[0x20] =
+    {
+        //0x00
+        &CMA_EE::PADDW, &CMA_EE::PSUBW, &CMA_EE::PCGTW, &CMA_EE::PMAXW, &CMA_EE::PADDH, &CMA_EE::PSUBH, &CMA_EE::PCGTH, &CMA_EE::PMAXH,
+        //0x08
+        &CMA_EE::PADDB, &CMA_EE::PSUBB, &CMA_EE::PCGTB, &CMA_EE::Illegal, &CMA_EE::Illegal, &CMA_EE::Illegal, &CMA_EE::Illegal, &CMA_EE::Illegal,
+        //0x10
+        &CMA_EE::PADDSW, &CMA_EE::PSUBSW, &CMA_EE::PEXTLW, &CMA_EE::PPACW, &CMA_EE::PADDSH, &CMA_EE::PSUBSH, &CMA_EE::PEXTLH, &CMA_EE::PPACH,
+        //0x18
+        &CMA_EE::PADDSB, &CMA_EE::Illegal, &CMA_EE::PEXTLB, &CMA_EE::PPACB, &CMA_EE::Illegal, &CMA_EE::Illegal, &CMA_EE::PEXT5, &CMA_EE::PPAC5,
 };
 
-CMA_EE::InstructionFuncConstant CMA_EE::m_pOpMmi1[0x20] = 
-{
-	//0x00
-	&CMA_EE::Illegal,		&CMA_EE::PABSW,			&CMA_EE::PCEQW,			&CMA_EE::PMINW,			&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::PCEQH,			&CMA_EE::PMINH,
-	//0x08
-	&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::PCEQB,			&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,
-	//0x10
-	&CMA_EE::PADDUW,		&CMA_EE::Illegal,		&CMA_EE::PEXTUW,		&CMA_EE::Illegal,		&CMA_EE::PADDUH,		&CMA_EE::PSUBUH,		&CMA_EE::PEXTUH,		&CMA_EE::Illegal,
-	//0x18
-	&CMA_EE::PADDUB,		&CMA_EE::PSUBUB,		&CMA_EE::PEXTUB,		&CMA_EE::QFSRV,			&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,
+CMA_EE::InstructionFuncConstant CMA_EE::m_pOpMmi1[0x20] =
+    {
+        //0x00
+        &CMA_EE::Illegal, &CMA_EE::PABSW, &CMA_EE::PCEQW, &CMA_EE::PMINW, &CMA_EE::Illegal, &CMA_EE::Illegal, &CMA_EE::PCEQH, &CMA_EE::PMINH,
+        //0x08
+        &CMA_EE::Illegal, &CMA_EE::Illegal, &CMA_EE::PCEQB, &CMA_EE::Illegal, &CMA_EE::Illegal, &CMA_EE::Illegal, &CMA_EE::Illegal, &CMA_EE::Illegal,
+        //0x10
+        &CMA_EE::PADDUW, &CMA_EE::Illegal, &CMA_EE::PEXTUW, &CMA_EE::Illegal, &CMA_EE::PADDUH, &CMA_EE::PSUBUH, &CMA_EE::PEXTUH, &CMA_EE::Illegal,
+        //0x18
+        &CMA_EE::PADDUB, &CMA_EE::PSUBUB, &CMA_EE::PEXTUB, &CMA_EE::QFSRV, &CMA_EE::Illegal, &CMA_EE::Illegal, &CMA_EE::Illegal, &CMA_EE::Illegal,
 };
 
-CMA_EE::InstructionFuncConstant CMA_EE::m_pOpMmi2[0x20] = 
-{
-	//0x00
-	&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::PSLLVW,		&CMA_EE::PSRLVW,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,
-	//0x08
-	&CMA_EE::PMFHI,			&CMA_EE::PMFLO,			&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::PMULTW,		&CMA_EE::PDIVW,			&CMA_EE::PCPYLD,		&CMA_EE::Illegal,
-	//0x10
-	&CMA_EE::PMADDH,		&CMA_EE::PHMADH,		&CMA_EE::PAND,			&CMA_EE::PXOR,			&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,
-	//0x18
-	&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::PREVH,			&CMA_EE::PMULTH,		&CMA_EE::Illegal,		&CMA_EE::PEXEW,			&CMA_EE::PROT3W,
+CMA_EE::InstructionFuncConstant CMA_EE::m_pOpMmi2[0x20] =
+    {
+        //0x00
+        &CMA_EE::Illegal, &CMA_EE::Illegal, &CMA_EE::PSLLVW, &CMA_EE::PSRLVW, &CMA_EE::Illegal, &CMA_EE::Illegal, &CMA_EE::Illegal, &CMA_EE::Illegal,
+        //0x08
+        &CMA_EE::PMFHI, &CMA_EE::PMFLO, &CMA_EE::Illegal, &CMA_EE::Illegal, &CMA_EE::PMULTW, &CMA_EE::PDIVW, &CMA_EE::PCPYLD, &CMA_EE::Illegal,
+        //0x10
+        &CMA_EE::PMADDH, &CMA_EE::PHMADH, &CMA_EE::PAND, &CMA_EE::PXOR, &CMA_EE::Illegal, &CMA_EE::Illegal, &CMA_EE::Illegal, &CMA_EE::Illegal,
+        //0x18
+        &CMA_EE::Illegal, &CMA_EE::Illegal, &CMA_EE::Illegal, &CMA_EE::PREVH, &CMA_EE::PMULTH, &CMA_EE::Illegal, &CMA_EE::PEXEW, &CMA_EE::PROT3W,
 };
 
-CMA_EE::InstructionFuncConstant CMA_EE::m_pOpMmi3[0x20] = 
-{
-	//0x00
-	&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::PSRAVW,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,
-	//0x08
-	&CMA_EE::PMTHI,			&CMA_EE::PMTLO,			&CMA_EE::PINTEH,		&CMA_EE::Illegal,		&CMA_EE::PMULTUW,		&CMA_EE::Illegal,		&CMA_EE::PCPYUD,		&CMA_EE::Illegal,
-	//0x10
-	&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::POR,			&CMA_EE::PNOR,			&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,
-	//0x18
-	&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::PEXCH,			&CMA_EE::PCPYH,			&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::PEXCW,			&CMA_EE::Illegal,
+CMA_EE::InstructionFuncConstant CMA_EE::m_pOpMmi3[0x20] =
+    {
+        //0x00
+        &CMA_EE::Illegal, &CMA_EE::Illegal, &CMA_EE::Illegal, &CMA_EE::PSRAVW, &CMA_EE::Illegal, &CMA_EE::Illegal, &CMA_EE::Illegal, &CMA_EE::Illegal,
+        //0x08
+        &CMA_EE::PMTHI, &CMA_EE::PMTLO, &CMA_EE::PINTEH, &CMA_EE::Illegal, &CMA_EE::PMULTUW, &CMA_EE::Illegal, &CMA_EE::PCPYUD, &CMA_EE::Illegal,
+        //0x10
+        &CMA_EE::Illegal, &CMA_EE::Illegal, &CMA_EE::POR, &CMA_EE::PNOR, &CMA_EE::Illegal, &CMA_EE::Illegal, &CMA_EE::Illegal, &CMA_EE::Illegal,
+        //0x18
+        &CMA_EE::Illegal, &CMA_EE::Illegal, &CMA_EE::PEXCH, &CMA_EE::PCPYH, &CMA_EE::Illegal, &CMA_EE::Illegal, &CMA_EE::PEXCW, &CMA_EE::Illegal,
 };
 
-CMA_EE::InstructionFuncConstant CMA_EE::m_pOpPmfhl[0x20] = 
-{
-	//0x00
-	&CMA_EE::PMFHL_LW,		&CMA_EE::PMFHL_UW,		&CMA_EE::Illegal,		&CMA_EE::PMFHL_LH,		&CMA_EE::PMFHL_SH,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,
-	//0x08
-	&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,
-	//0x10
-	&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,
-	//0x18
-	&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,
+CMA_EE::InstructionFuncConstant CMA_EE::m_pOpPmfhl[0x20] =
+    {
+        //0x00
+        &CMA_EE::PMFHL_LW, &CMA_EE::PMFHL_UW, &CMA_EE::Illegal, &CMA_EE::PMFHL_LH, &CMA_EE::PMFHL_SH, &CMA_EE::Illegal, &CMA_EE::Illegal, &CMA_EE::Illegal,
+        //0x08
+        &CMA_EE::Illegal, &CMA_EE::Illegal, &CMA_EE::Illegal, &CMA_EE::Illegal, &CMA_EE::Illegal, &CMA_EE::Illegal, &CMA_EE::Illegal, &CMA_EE::Illegal,
+        //0x10
+        &CMA_EE::Illegal, &CMA_EE::Illegal, &CMA_EE::Illegal, &CMA_EE::Illegal, &CMA_EE::Illegal, &CMA_EE::Illegal, &CMA_EE::Illegal, &CMA_EE::Illegal,
+        //0x18
+        &CMA_EE::Illegal, &CMA_EE::Illegal, &CMA_EE::Illegal, &CMA_EE::Illegal, &CMA_EE::Illegal, &CMA_EE::Illegal, &CMA_EE::Illegal, &CMA_EE::Illegal,
 };

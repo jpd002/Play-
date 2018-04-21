@@ -1,17 +1,16 @@
-#include <stdio.h>
-#include <string.h>
 #include "MIPS.h"
 #include "COP_SCU.h"
+#include <stdio.h>
+#include <string.h>
 
 const char* CMIPS::m_sGPRName[] =
-{
-	"R0",	"AT",	"V0",	"V1",	"A0",	"A1",	"A2",	"A3",
-	"T0",	"T1",	"T2",	"T3",	"T4",	"T5",	"T6",	"T7",
-	"S0",	"S1",	"S2",	"S3",	"S4",	"S5",	"S6",	"S7",
-	"T8",	"T9",	"K0",	"K1",	"GP",	"SP",	"FP",	"RA"
-};
+    {
+        "R0", "AT", "V0", "V1", "A0", "A1", "A2", "A3",
+        "T0", "T1", "T2", "T3", "T4", "T5", "T6", "T7",
+        "S0", "S1", "S2", "S3", "S4", "S5", "S6", "S7",
+        "T8", "T9", "K0", "K1", "GP", "SP", "FP", "RA"};
 
-CMIPS::CMIPS(MEMORYMAP_ENDIANESS nEnd) 
+CMIPS::CMIPS(MEMORYMAP_ENDIANESS nEnd)
 {
 	m_analysis = new CMIPSAnalysis(this);
 	switch(nEnd)
@@ -87,17 +86,20 @@ uint32 CMIPS::TranslateAddress64(CMIPS* pC, uint32 nVAddrLO)
 bool CMIPS::CanGenerateInterrupt() const
 {
 	//Check if interrupts are enabled
-	if(!(m_State.nCOP0[CCOP_SCU::STATUS] & STATUS_IE)) return false;
+	if(!(m_State.nCOP0[CCOP_SCU::STATUS] & STATUS_IE))
+		return false;
 
 	//Check if we're in exception mode (interrupts are disabled in exception mode)
-	if(m_State.nCOP0[CCOP_SCU::STATUS] & STATUS_EXL) return false;
+	if(m_State.nCOP0[CCOP_SCU::STATUS] & STATUS_EXL)
+		return false;
 
 	return true;
 }
 
 bool CMIPS::GenerateInterrupt(uint32 nAddress)
 {
-	if(!CanGenerateInterrupt()) return false;
+	if(!CanGenerateInterrupt())
+		return false;
 	return CMIPS::GenerateException(nAddress);
 }
 

@@ -1,33 +1,33 @@
-#include <assert.h>
 #include "COP_VU.h"
-#include "VUShared.h"
 #include "../Log.h"
 #include "../MIPS.h"
 #include "../MemoryUtils.h"
-#include "offsetof_def.h"
+#include "VUShared.h"
 #include "Vpu.h"
+#include "offsetof_def.h"
+#include <assert.h>
 
 #undef MAX
 
-#define LOG_NAME				("vpu")
+#define LOG_NAME ("vpu")
 
 enum CTRL_REG
 {
-	CTRL_REG_STATUS   = 16,
-	CTRL_REG_MAC      = 17,
-	CTRL_REG_CLIP     = 18,
-	CTRL_REG_R        = 20,
-	CTRL_REG_I        = 21,
-	CTRL_REG_Q        = 22,
-	CTRL_REG_TPC      = 26,
-	CTRL_REG_CMSAR0   = 27,
-	CTRL_REG_FBRST    = 28,
+	CTRL_REG_STATUS = 16,
+	CTRL_REG_MAC = 17,
+	CTRL_REG_CLIP = 18,
+	CTRL_REG_R = 20,
+	CTRL_REG_I = 21,
+	CTRL_REG_Q = 22,
+	CTRL_REG_TPC = 26,
+	CTRL_REG_CMSAR0 = 27,
+	CTRL_REG_FBRST = 28,
 	CTRL_REG_VPU_STAT = 29,
-	CTRL_REG_CMSAR1   = 31,
+	CTRL_REG_CMSAR1 = 31,
 };
 
 CCOP_VU::CCOP_VU(MIPS_REGSIZE nRegSize)
-: CMIPSCoprocessor(nRegSize)
+    : CMIPSCoprocessor(nRegSize)
 {
 	SetupReflectionTables();
 }
@@ -36,22 +36,22 @@ void CCOP_VU::CompileInstruction(uint32 nAddress, CMipsJitter* codeGen, CMIPS* p
 {
 	SetupQuickVariables(nAddress, codeGen, pCtx);
 
-	m_nDest			= (uint8)((m_nOpcode >> 21) & 0x0F);
-	
-	m_nFSF			= ((m_nDest >> 0) & 0x03);
-	m_nFTF			= ((m_nDest >> 2) & 0x03);
+	m_nDest = (uint8)((m_nOpcode >> 21) & 0x0F);
 
-	m_nFT			= (uint8)((m_nOpcode >> 16) & 0x1F);
-	m_nFS			= (uint8)((m_nOpcode >> 11) & 0x1F);
-	m_nFD			= (uint8)((m_nOpcode >>  6) & 0x1F);
+	m_nFSF = ((m_nDest >> 0) & 0x03);
+	m_nFTF = ((m_nDest >> 2) & 0x03);
 
-	m_nBc			= (uint8)((m_nOpcode >>  0) & 0x03);
+	m_nFT = (uint8)((m_nOpcode >> 16) & 0x1F);
+	m_nFS = (uint8)((m_nOpcode >> 11) & 0x1F);
+	m_nFD = (uint8)((m_nOpcode >> 6) & 0x1F);
 
-	m_nIT			= m_nFT;
-	m_nIS			= m_nFS;
-	m_nID			= m_nFD;
-	m_nImm5			= m_nID;
-	m_nImm15		= (uint16)((m_nOpcode >> 6) & 0x7FFF);
+	m_nBc = (uint8)((m_nOpcode >> 0) & 0x03);
+
+	m_nIT = m_nFT;
+	m_nIS = m_nFS;
+	m_nID = m_nFD;
+	m_nImm5 = m_nID;
+	m_nImm15 = (uint16)((m_nOpcode >> 6) & 0x7FFF);
 
 	switch((m_nOpcode >> 26) & 0x3F)
 	{
@@ -80,7 +80,8 @@ void CCOP_VU::CompileInstruction(uint32 nAddress, CMipsJitter* codeGen, CMIPS* p
 //36
 void CCOP_VU::LQC2()
 {
-	if(m_nFT == 0) return;
+	if(m_nFT == 0)
+		return;
 
 	ComputeMemAccessAddr();
 
@@ -112,7 +113,8 @@ void CCOP_VU::SQC2()
 //01
 void CCOP_VU::QMFC2()
 {
-	if(m_nFT == 0) return;
+	if(m_nFT == 0)
+		return;
 
 	for(unsigned int i = 0; i < 4; i++)
 	{
@@ -124,7 +126,8 @@ void CCOP_VU::QMFC2()
 //02
 void CCOP_VU::CFC2()
 {
-	if(m_nFT == 0) return;
+	if(m_nFT == 0)
+		return;
 
 	if(m_nFS < 16)
 	{
@@ -178,7 +181,8 @@ void CCOP_VU::CFC2()
 //05
 void CCOP_VU::QMTC2()
 {
-	if(m_nFS == 0) return;
+	if(m_nFS == 0)
+		return;
 
 	for(unsigned int i = 0; i < 4; i++)
 	{
@@ -243,22 +247,23 @@ void CCOP_VU::CTC2()
 			m_codeGen->PullTop();
 			break;
 		case CTRL_REG_CMSAR1:
-			{
-				m_codeGen->PushCst(0xFFFF);
-				m_codeGen->And();
-				uint32 valueCursor = m_codeGen->GetTopCursor();
+		{
+			m_codeGen->PushCst(0xFFFF);
+			m_codeGen->And();
+			uint32 valueCursor = m_codeGen->GetTopCursor();
 
-				//Push context
-				m_codeGen->PushCtx();
-				//Push value
-				m_codeGen->PushCursor(valueCursor);
-				//Compute Address
-				m_codeGen->PushCst(CVpu::VU_CMSAR1);
-				m_codeGen->Call(reinterpret_cast<void*>(&MemoryUtils_SetWordProxy), 3, false);
-				//Clear stack
-				assert(m_codeGen->GetTopCursor() == valueCursor); m_codeGen->PullTop();
-			}
-			break;
+			//Push context
+			m_codeGen->PushCtx();
+			//Push value
+			m_codeGen->PushCursor(valueCursor);
+			//Compute Address
+			m_codeGen->PushCst(CVpu::VU_CMSAR1);
+			m_codeGen->Call(reinterpret_cast<void*>(&MemoryUtils_SetWordProxy), 3, false);
+			//Clear stack
+			assert(m_codeGen->GetTopCursor() == valueCursor);
+			m_codeGen->PullTop();
+		}
+		break;
 		default:
 			assert(false);
 			m_codeGen->PullTop();
@@ -855,81 +860,81 @@ void CCOP_VU::VRXOR()
 //////////////////////////////////////////////////
 
 CCOP_VU::InstructionFuncConstant CCOP_VU::m_pOpCop2[0x20] =
-{
-	//0x00
-	&CCOP_VU::Illegal,			&CCOP_VU::QMFC2,			&CCOP_VU::CFC2,			&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::QMTC2,			&CCOP_VU::CTC2,			&CCOP_VU::Illegal,
-	//0x08
-	&CCOP_VU::BC2,				&CCOP_VU::Illegal,			&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,			&CCOP_VU::Illegal,		&CCOP_VU::Illegal,
-	//0x10
-	&CCOP_VU::V,				&CCOP_VU::V,				&CCOP_VU::V,			&CCOP_VU::V,			&CCOP_VU::V,			&CCOP_VU::V,				&CCOP_VU::V,			&CCOP_VU::V,
-	//0x18
-	&CCOP_VU::V,				&CCOP_VU::V,				&CCOP_VU::V,			&CCOP_VU::V,			&CCOP_VU::V,			&CCOP_VU::V,				&CCOP_VU::V,			&CCOP_VU::V,
+    {
+        //0x00
+        &CCOP_VU::Illegal, &CCOP_VU::QMFC2, &CCOP_VU::CFC2, &CCOP_VU::Illegal, &CCOP_VU::Illegal, &CCOP_VU::QMTC2, &CCOP_VU::CTC2, &CCOP_VU::Illegal,
+        //0x08
+        &CCOP_VU::BC2, &CCOP_VU::Illegal, &CCOP_VU::Illegal, &CCOP_VU::Illegal, &CCOP_VU::Illegal, &CCOP_VU::Illegal, &CCOP_VU::Illegal, &CCOP_VU::Illegal,
+        //0x10
+        &CCOP_VU::V, &CCOP_VU::V, &CCOP_VU::V, &CCOP_VU::V, &CCOP_VU::V, &CCOP_VU::V, &CCOP_VU::V, &CCOP_VU::V,
+        //0x18
+        &CCOP_VU::V, &CCOP_VU::V, &CCOP_VU::V, &CCOP_VU::V, &CCOP_VU::V, &CCOP_VU::V, &CCOP_VU::V, &CCOP_VU::V,
 };
 
 CCOP_VU::InstructionFuncConstant CCOP_VU::m_pOpVector[0x40] =
-{
-	//0x00
-	&CCOP_VU::VADDbc,		&CCOP_VU::VADDbc,		&CCOP_VU::VADDbc,		&CCOP_VU::VADDbc,		&CCOP_VU::VSUBbc,		&CCOP_VU::VSUBbc,		&CCOP_VU::VSUBbc,		&CCOP_VU::VSUBbc,
-	//0x08
-	&CCOP_VU::VMADDbc,		&CCOP_VU::VMADDbc,		&CCOP_VU::VMADDbc,		&CCOP_VU::VMADDbc,		&CCOP_VU::VMSUBbc,		&CCOP_VU::VMSUBbc,		&CCOP_VU::VMSUBbc,		&CCOP_VU::VMSUBbc,
-	//0x10
-	&CCOP_VU::VMAXbc,		&CCOP_VU::VMAXbc,		&CCOP_VU::VMAXbc,		&CCOP_VU::VMAXbc,		&CCOP_VU::VMINIbc,		&CCOP_VU::VMINIbc,		&CCOP_VU::VMINIbc,		&CCOP_VU::VMINIbc,
-	//0x18
-	&CCOP_VU::VMULbc,		&CCOP_VU::VMULbc,		&CCOP_VU::VMULbc,		&CCOP_VU::VMULbc,		&CCOP_VU::VMULq,		&CCOP_VU::VMAXi,		&CCOP_VU::VMULi,		&CCOP_VU::VMINIi,
-	//0x20
-	&CCOP_VU::VADDq,		&CCOP_VU::VMADDq,		&CCOP_VU::VADDi,		&CCOP_VU::VMADDi,		&CCOP_VU::VSUBq,		&CCOP_VU::VMSUBq,		&CCOP_VU::VSUBi,		&CCOP_VU::VMSUBi,
-	//0x28
-	&CCOP_VU::VADD,			&CCOP_VU::VMADD,		&CCOP_VU::VMUL,			&CCOP_VU::VMAX,			&CCOP_VU::VSUB,			&CCOP_VU::VMSUB,		&CCOP_VU::VOPMSUB,		&CCOP_VU::VMINI,
-	//0x30
-	&CCOP_VU::VIADD,		&CCOP_VU::VISUB,		&CCOP_VU::VIADDI,		&CCOP_VU::Illegal,		&CCOP_VU::VIAND,		&CCOP_VU::VIOR,			&CCOP_VU::Illegal,		&CCOP_VU::Illegal,
-	//0x38
-	&CCOP_VU::VCALLMS,		&CCOP_VU::VCALLMSR,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::VX0,			&CCOP_VU::VX1,			&CCOP_VU::VX2,			&CCOP_VU::VX3,
+    {
+        //0x00
+        &CCOP_VU::VADDbc, &CCOP_VU::VADDbc, &CCOP_VU::VADDbc, &CCOP_VU::VADDbc, &CCOP_VU::VSUBbc, &CCOP_VU::VSUBbc, &CCOP_VU::VSUBbc, &CCOP_VU::VSUBbc,
+        //0x08
+        &CCOP_VU::VMADDbc, &CCOP_VU::VMADDbc, &CCOP_VU::VMADDbc, &CCOP_VU::VMADDbc, &CCOP_VU::VMSUBbc, &CCOP_VU::VMSUBbc, &CCOP_VU::VMSUBbc, &CCOP_VU::VMSUBbc,
+        //0x10
+        &CCOP_VU::VMAXbc, &CCOP_VU::VMAXbc, &CCOP_VU::VMAXbc, &CCOP_VU::VMAXbc, &CCOP_VU::VMINIbc, &CCOP_VU::VMINIbc, &CCOP_VU::VMINIbc, &CCOP_VU::VMINIbc,
+        //0x18
+        &CCOP_VU::VMULbc, &CCOP_VU::VMULbc, &CCOP_VU::VMULbc, &CCOP_VU::VMULbc, &CCOP_VU::VMULq, &CCOP_VU::VMAXi, &CCOP_VU::VMULi, &CCOP_VU::VMINIi,
+        //0x20
+        &CCOP_VU::VADDq, &CCOP_VU::VMADDq, &CCOP_VU::VADDi, &CCOP_VU::VMADDi, &CCOP_VU::VSUBq, &CCOP_VU::VMSUBq, &CCOP_VU::VSUBi, &CCOP_VU::VMSUBi,
+        //0x28
+        &CCOP_VU::VADD, &CCOP_VU::VMADD, &CCOP_VU::VMUL, &CCOP_VU::VMAX, &CCOP_VU::VSUB, &CCOP_VU::VMSUB, &CCOP_VU::VOPMSUB, &CCOP_VU::VMINI,
+        //0x30
+        &CCOP_VU::VIADD, &CCOP_VU::VISUB, &CCOP_VU::VIADDI, &CCOP_VU::Illegal, &CCOP_VU::VIAND, &CCOP_VU::VIOR, &CCOP_VU::Illegal, &CCOP_VU::Illegal,
+        //0x38
+        &CCOP_VU::VCALLMS, &CCOP_VU::VCALLMSR, &CCOP_VU::Illegal, &CCOP_VU::Illegal, &CCOP_VU::VX0, &CCOP_VU::VX1, &CCOP_VU::VX2, &CCOP_VU::VX3,
 };
 
 CCOP_VU::InstructionFuncConstant CCOP_VU::m_pOpVx0[0x20] =
-{
-	//0x00
-	&CCOP_VU::VADDAbc,		&CCOP_VU::VSUBAbc,		&CCOP_VU::VMADDAbc,		&CCOP_VU::VMSUBAbc,		&CCOP_VU::VITOF0,		&CCOP_VU::VFTOI0,		&CCOP_VU::VMULAbc,		&CCOP_VU::VMULAq,
-	//0x08
-	&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::VADDA,		&CCOP_VU::VSUBA,		&CCOP_VU::VMOVE,		&CCOP_VU::VLQI,			&CCOP_VU::VDIV,			&CCOP_VU::VMTIR,
-	//0x10
-	&CCOP_VU::VRNEXT,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,
-	//0x18
-	&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,
+    {
+        //0x00
+        &CCOP_VU::VADDAbc, &CCOP_VU::VSUBAbc, &CCOP_VU::VMADDAbc, &CCOP_VU::VMSUBAbc, &CCOP_VU::VITOF0, &CCOP_VU::VFTOI0, &CCOP_VU::VMULAbc, &CCOP_VU::VMULAq,
+        //0x08
+        &CCOP_VU::Illegal, &CCOP_VU::Illegal, &CCOP_VU::VADDA, &CCOP_VU::VSUBA, &CCOP_VU::VMOVE, &CCOP_VU::VLQI, &CCOP_VU::VDIV, &CCOP_VU::VMTIR,
+        //0x10
+        &CCOP_VU::VRNEXT, &CCOP_VU::Illegal, &CCOP_VU::Illegal, &CCOP_VU::Illegal, &CCOP_VU::Illegal, &CCOP_VU::Illegal, &CCOP_VU::Illegal, &CCOP_VU::Illegal,
+        //0x18
+        &CCOP_VU::Illegal, &CCOP_VU::Illegal, &CCOP_VU::Illegal, &CCOP_VU::Illegal, &CCOP_VU::Illegal, &CCOP_VU::Illegal, &CCOP_VU::Illegal, &CCOP_VU::Illegal,
 };
 
 CCOP_VU::InstructionFuncConstant CCOP_VU::m_pOpVx1[0x20] =
-{
-	//0x00
-	&CCOP_VU::VADDAbc,		&CCOP_VU::VSUBAbc,		&CCOP_VU::VMADDAbc,		&CCOP_VU::VMSUBAbc,		&CCOP_VU::VITOF4,		&CCOP_VU::VFTOI4,		&CCOP_VU::VMULAbc,		&CCOP_VU::VABS,
-	//0x08
-	&CCOP_VU::VMADDAq,		&CCOP_VU::VMSUBAq,		&CCOP_VU::VMADDA,		&CCOP_VU::VMSUBA,		&CCOP_VU::VMR32,		&CCOP_VU::VSQI,			&CCOP_VU::VSQRT,		&CCOP_VU::VMFIR,
-	//0x10
-	&CCOP_VU::VRGET,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,
-	//0x18
-	&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,
+    {
+        //0x00
+        &CCOP_VU::VADDAbc, &CCOP_VU::VSUBAbc, &CCOP_VU::VMADDAbc, &CCOP_VU::VMSUBAbc, &CCOP_VU::VITOF4, &CCOP_VU::VFTOI4, &CCOP_VU::VMULAbc, &CCOP_VU::VABS,
+        //0x08
+        &CCOP_VU::VMADDAq, &CCOP_VU::VMSUBAq, &CCOP_VU::VMADDA, &CCOP_VU::VMSUBA, &CCOP_VU::VMR32, &CCOP_VU::VSQI, &CCOP_VU::VSQRT, &CCOP_VU::VMFIR,
+        //0x10
+        &CCOP_VU::VRGET, &CCOP_VU::Illegal, &CCOP_VU::Illegal, &CCOP_VU::Illegal, &CCOP_VU::Illegal, &CCOP_VU::Illegal, &CCOP_VU::Illegal, &CCOP_VU::Illegal,
+        //0x18
+        &CCOP_VU::Illegal, &CCOP_VU::Illegal, &CCOP_VU::Illegal, &CCOP_VU::Illegal, &CCOP_VU::Illegal, &CCOP_VU::Illegal, &CCOP_VU::Illegal, &CCOP_VU::Illegal,
 };
 
 CCOP_VU::InstructionFuncConstant CCOP_VU::m_pOpVx2[0x20] =
-{
-	//0x00
-	&CCOP_VU::VADDAbc,		&CCOP_VU::VSUBAbc,		&CCOP_VU::VMADDAbc,		&CCOP_VU::VMSUBAbc,		&CCOP_VU::VITOF12,		&CCOP_VU::VFTOI12,		&CCOP_VU::VMULAbc,		&CCOP_VU::VMULAi,
-	//0x08
-	&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::VMULA,		&CCOP_VU::VOPMULA,		&CCOP_VU::Illegal,		&CCOP_VU::VLQD,			&CCOP_VU::VRSQRT,		&CCOP_VU::VILWR,
-	//0x10
-	&CCOP_VU::VRINIT,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,
-	//0x18
-	&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,
+    {
+        //0x00
+        &CCOP_VU::VADDAbc, &CCOP_VU::VSUBAbc, &CCOP_VU::VMADDAbc, &CCOP_VU::VMSUBAbc, &CCOP_VU::VITOF12, &CCOP_VU::VFTOI12, &CCOP_VU::VMULAbc, &CCOP_VU::VMULAi,
+        //0x08
+        &CCOP_VU::Illegal, &CCOP_VU::Illegal, &CCOP_VU::VMULA, &CCOP_VU::VOPMULA, &CCOP_VU::Illegal, &CCOP_VU::VLQD, &CCOP_VU::VRSQRT, &CCOP_VU::VILWR,
+        //0x10
+        &CCOP_VU::VRINIT, &CCOP_VU::Illegal, &CCOP_VU::Illegal, &CCOP_VU::Illegal, &CCOP_VU::Illegal, &CCOP_VU::Illegal, &CCOP_VU::Illegal, &CCOP_VU::Illegal,
+        //0x18
+        &CCOP_VU::Illegal, &CCOP_VU::Illegal, &CCOP_VU::Illegal, &CCOP_VU::Illegal, &CCOP_VU::Illegal, &CCOP_VU::Illegal, &CCOP_VU::Illegal, &CCOP_VU::Illegal,
 };
 
 CCOP_VU::InstructionFuncConstant CCOP_VU::m_pOpVx3[0x20] =
-{
-	//0x00
-	&CCOP_VU::VADDAbc,		&CCOP_VU::VSUBAbc,		&CCOP_VU::VMADDAbc,		&CCOP_VU::VMSUBAbc,		&CCOP_VU::VITOF15,		&CCOP_VU::VFTOI15,		&CCOP_VU::VMULAbc,		&CCOP_VU::VCLIP,
-	//0x08
-	&CCOP_VU::VMADDAi,		&CCOP_VU::VMSUBAi,		&CCOP_VU::Illegal,		&CCOP_VU::VNOP,			&CCOP_VU::Illegal,		&CCOP_VU::VSQD,			&CCOP_VU::VWAITQ,		&CCOP_VU::VISWR,
-	//0x10
-	&CCOP_VU::VRXOR,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,
-	//0x18
-	&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,
+    {
+        //0x00
+        &CCOP_VU::VADDAbc, &CCOP_VU::VSUBAbc, &CCOP_VU::VMADDAbc, &CCOP_VU::VMSUBAbc, &CCOP_VU::VITOF15, &CCOP_VU::VFTOI15, &CCOP_VU::VMULAbc, &CCOP_VU::VCLIP,
+        //0x08
+        &CCOP_VU::VMADDAi, &CCOP_VU::VMSUBAi, &CCOP_VU::Illegal, &CCOP_VU::VNOP, &CCOP_VU::Illegal, &CCOP_VU::VSQD, &CCOP_VU::VWAITQ, &CCOP_VU::VISWR,
+        //0x10
+        &CCOP_VU::VRXOR, &CCOP_VU::Illegal, &CCOP_VU::Illegal, &CCOP_VU::Illegal, &CCOP_VU::Illegal, &CCOP_VU::Illegal, &CCOP_VU::Illegal, &CCOP_VU::Illegal,
+        //0x18
+        &CCOP_VU::Illegal, &CCOP_VU::Illegal, &CCOP_VU::Illegal, &CCOP_VU::Illegal, &CCOP_VU::Illegal, &CCOP_VU::Illegal, &CCOP_VU::Illegal, &CCOP_VU::Illegal,
 };

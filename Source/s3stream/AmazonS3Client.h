@@ -1,8 +1,8 @@
 #pragma once
 
+#include "http/HttpClient.h"
 #include <string>
 #include <vector>
-#include "http/HttpClient.h"
 
 struct GetBucketLocationRequest
 {
@@ -34,7 +34,7 @@ struct HeadObjectRequest
 
 struct HeadObjectResult
 {
-	uint64 contentLength = 0;
+	uint64      contentLength = 0;
 	std::string etag;
 };
 
@@ -54,18 +54,18 @@ public:
 	CAmazonS3Client(std::string, std::string, std::string = "us-east-1");
 
 	GetBucketLocationResult GetBucketLocation(const GetBucketLocationRequest&);
-	GetObjectResult GetObject(const GetObjectRequest&);
-	HeadObjectResult HeadObject(const HeadObjectRequest&);
-	ListObjectsResult ListObjects(std::string);
+	GetObjectResult         GetObject(const GetObjectRequest&);
+	HeadObjectResult        HeadObject(const HeadObjectRequest&);
+	ListObjectsResult       ListObjects(std::string);
 
 private:
 	struct Request
 	{
 		Framework::Http::HTTP_VERB method;
-		std::string host;
-		std::string urlHost;
-		std::string uri;
-		std::string query;
+		std::string                host;
+		std::string                urlHost;
+		std::string                uri;
+		std::string                query;
 		Framework::Http::HeaderMap headers;
 	};
 

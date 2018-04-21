@@ -6,14 +6,14 @@
 //  Copyright (c) 2015 Jean-Philip Desjardins. All rights reserved.
 //
 
-#import <UIKit/UIKit.h>
+#import "CollectionView.h"
 #import "SqliteDatabase.h"
 #import <SDWebImage/UIImageView+WebCache.h>
-#import "CollectionView.h"
+#import <UIKit/UIKit.h>
 
 @interface CoverViewController : UICollectionViewController
 
 @property SqliteDatabase* database;
-@property CollectionView *coverView;
+@property CollectionView* coverView;
 
 @end
