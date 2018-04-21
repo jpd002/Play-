@@ -1,19 +1,17 @@
-#include <stdexcept>
 #include "MaxSaveImporter.h"
 #include "LzAri.h"
 #include "MemStream.h"
 #include "StdStreamUtils.h"
+#include <stdexcept>
 
 namespace filesystem = boost::filesystem;
 
 CMaxSaveImporter::CMaxSaveImporter()
 {
-
 }
 
 CMaxSaveImporter::~CMaxSaveImporter()
 {
-
 }
 
 void CMaxSaveImporter::Import(Framework::CStream& inputStream, const filesystem::path& basePath)
@@ -69,7 +67,7 @@ void CMaxSaveImporter::Import(Framework::CStream& inputStream, const filesystem:
 			while(fileSize != 0)
 			{
 				const int bufferSize = 1024;
-				char buffer[bufferSize];
+				char      buffer[bufferSize];
 
 				unsigned int readAmount = std::min<unsigned int>(fileSize, bufferSize);
 				directoryDataStream.Read(buffer, readAmount);

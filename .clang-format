@@ -8,5 +8,5 @@ SpaceBeforeParens: Never
 PointerBindsToType: true
 AccessModifierOffset: -4
 AlignConsecutiveDeclarations: true
-BreakConstructorInitializers: BeforeComma
+BreakConstructorInitializersBeforeComma: true
 AllowShortFunctionsOnASingleLine: None

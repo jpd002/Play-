@@ -1,14 +1,14 @@
 #pragma once
 
-#include <list>
-#include "MIPS.h"
 #include "BasicBlock.h"
+#include "MIPS.h"
+#include <list>
 
 class CMipsExecutor
 {
 public:
-								CMipsExecutor(CMIPS&, uint32);
-	virtual						~CMipsExecutor();
+	CMipsExecutor(CMIPS&, uint32);
+	virtual ~CMipsExecutor();
 
 	template <uint32 (*TranslateFunction)(CMIPS*, uint32) = CMIPS::TranslateAddress64>
 	int Execute(int cycles)
@@ -31,45 +31,47 @@ public:
 			}
 
 #ifdef DEBUGGER_INCLUDED
-			if(!m_breakpointsDisabledOnce && MustBreak()) break;
+			if(!m_breakpointsDisabledOnce && MustBreak())
+				break;
 			m_breakpointsDisabledOnce = false;
 #endif
 			cycles -= block->Execute();
-			if(m_context.m_State.nHasException) break;
+			if(m_context.m_State.nHasException)
+				break;
 		}
 		return cycles;
 	}
 
-	CBasicBlock*				FindBlockAt(uint32) const;
-	CBasicBlock*				FindBlockStartingAt(uint32) const;
-	void						DeleteBlock(CBasicBlock*);
-	virtual void				Reset();
-	void						ClearActiveBlocks();
-	virtual void				ClearActiveBlocksInRange(uint32, uint32);
+	CBasicBlock* FindBlockAt(uint32) const;
+	CBasicBlock* FindBlockStartingAt(uint32) const;
+	void         DeleteBlock(CBasicBlock*);
+	virtual void Reset();
+	void         ClearActiveBlocks();
+	virtual void ClearActiveBlocksInRange(uint32, uint32);
 
 #ifdef DEBUGGER_INCLUDED
-	bool						MustBreak() const;
-	void						DisableBreakpointsOnce();
+	bool MustBreak() const;
+	void DisableBreakpointsOnce();
 #endif
 
 protected:
 	typedef std::shared_ptr<CBasicBlock> BasicBlockPtr;
-	typedef std::list<BasicBlockPtr> BlockList;
+	typedef std::list<BasicBlockPtr>     BlockList;
 
-	void						CreateBlock(uint32, uint32);
-	virtual BasicBlockPtr		BlockFactory(CMIPS&, uint32, uint32);
-	virtual void				PartitionFunction(uint32);
-	
-	void						ClearActiveBlocksInRangeInternal(uint32, uint32, CBasicBlock*);
+	void                  CreateBlock(uint32, uint32);
+	virtual BasicBlockPtr BlockFactory(CMIPS&, uint32, uint32);
+	virtual void          PartitionFunction(uint32);
 
-	BlockList					m_blocks;
-	CMIPS&						m_context;
-	uint32						m_maxAddress = 0;
+	void ClearActiveBlocksInRangeInternal(uint32, uint32, CBasicBlock*);
 
-	CBasicBlock***				m_blockTable = nullptr;
-	uint32						m_subTableCount = 0;
+	BlockList m_blocks;
+	CMIPS&    m_context;
+	uint32    m_maxAddress = 0;
+
+	CBasicBlock*** m_blockTable = nullptr;
+	uint32         m_subTableCount = 0;
 
 #ifdef DEBUGGER_INCLUDED
-	bool						m_breakpointsDisabledOnce = false;
+	bool m_breakpointsDisabledOnce = false;
 #endif
 };

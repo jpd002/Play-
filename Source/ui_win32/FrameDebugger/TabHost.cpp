@@ -1,10 +1,10 @@
 #include "TabHost.h"
 #include <assert.h>
 
-#define WNDSTYLE					(WS_CLIPCHILDREN | WS_CLIPSIBLINGS | WS_CHILD | WS_VISIBLE)
+#define WNDSTYLE (WS_CLIPCHILDREN | WS_CLIPSIBLINGS | WS_CHILD | WS_VISIBLE)
 
 CTabHost::CTabHost(HWND parent, const RECT& rect)
-: m_currentSelection(-1)
+    : m_currentSelection(-1)
 {
 	Create(0, Framework::Win32::CDefaultWndClass::GetName(), _T(""), WNDSTYLE, rect, parent, nullptr);
 	SetClassPtr();
@@ -14,7 +14,6 @@ CTabHost::CTabHost(HWND parent, const RECT& rect)
 
 CTabHost::~CTabHost()
 {
-
 }
 
 Framework::Win32::CWindow* CTabHost::GetTab(unsigned int tabIndex)
@@ -98,10 +97,10 @@ void CTabHost::OnTabSelChanged()
 
 	SELCHANGED_INFO selchangedInfo;
 	memset(&selchangedInfo, 0, sizeof(SELCHANGED_INFO));
-	selchangedInfo.code				= NOTIFICATION_SELCHANGED;
-	selchangedInfo.hwndFrom			= m_hWnd;
-	selchangedInfo.selectedIndex	= m_currentSelection;
-	selchangedInfo.selectedWindow	= m_tabItems[m_currentSelection];
+	selchangedInfo.code = NOTIFICATION_SELCHANGED;
+	selchangedInfo.hwndFrom = m_hWnd;
+	selchangedInfo.selectedIndex = m_currentSelection;
+	selchangedInfo.selectedWindow = m_tabItems[m_currentSelection];
 	SendMessage(GetParent(), WM_NOTIFY, reinterpret_cast<WPARAM>(m_hWnd), reinterpret_cast<LPARAM>(&selchangedInfo));
 
 	SetWindowPos(*m_tab, HWND_BOTTOM, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE);

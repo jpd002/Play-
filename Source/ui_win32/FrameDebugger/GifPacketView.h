@@ -6,8 +6,8 @@
 class CGifPacketView : public CRegViewPage
 {
 public:
-									CGifPacketView(HWND, const RECT&);
-	virtual							~CGifPacketView();
+	CGifPacketView(HWND, const RECT&);
+	virtual ~CGifPacketView();
 
-	void							SetPacket(uint8*, uint32);
+	void SetPacket(uint8*, uint32);
 };

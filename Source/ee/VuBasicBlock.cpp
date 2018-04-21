@@ -1,13 +1,12 @@
 #include "VuBasicBlock.h"
 #include "MA_VU.h"
-#include "offsetof_def.h"
 #include "MemoryUtils.h"
 #include "Vpu.h"
+#include "offsetof_def.h"
 
 CVuBasicBlock::CVuBasicBlock(CMIPS& context, uint32 begin, uint32 end)
-: CBasicBlock(context, begin, end)
+    : CBasicBlock(context, begin, end)
 {
-
 }
 
 void CVuBasicBlock::CompileRange(CMipsJitter* jitter)
@@ -17,7 +16,7 @@ void CVuBasicBlock::CompileRange(CMipsJitter* jitter)
 	auto arch = static_cast<CMA_VU*>(m_context.m_pArch);
 
 	uint32 fixedEnd = m_end;
-	bool needsPcAdjust = false;
+	bool   needsPcAdjust = false;
 
 	//Make sure the delay slot instruction is present in the block.
 	//CVuExecutor can sometimes cut the blocks in a way that removes the delay slot instruction for branches.
@@ -42,13 +41,12 @@ void CVuBasicBlock::CompileRange(CMipsJitter* jitter)
 
 	auto integerBranchDelayInfo = GetIntegerBranchDelayInfo(fixedEnd);
 
-	bool hasPendingXgKick = false;
+	bool       hasPendingXgKick = false;
 	const auto clearPendingXgKick =
-		[&]()
-		{
-			assert(hasPendingXgKick);
-			EmitXgKick(jitter);
-			hasPendingXgKick = false;
+	    [&]() {
+		    assert(hasPendingXgKick);
+		    EmitXgKick(jitter);
+		    hasPendingXgKick = false;
 		};
 
 	for(uint32 address = m_begin; address <= fixedEnd; address += 8)
@@ -66,7 +64,7 @@ void CVuBasicBlock::CompileRange(CMipsJitter* jitter)
 
 		//No upper instruction writes to Q
 		assert(hiOps.syncQ == false);
-		
+
 		//No lower instruction reads Q
 		assert(loOps.readQ == false);
 
@@ -88,9 +86,8 @@ void CVuBasicBlock::CompileRange(CMipsJitter* jitter)
 		{
 			assert(hiOps.writeF != loOps.writeF);
 			if(
-				(hiOps.writeF == loOps.readF0) ||
-				(hiOps.writeF == loOps.readF1)
-				)
+			    (hiOps.writeF == loOps.readF0) ||
+			    (hiOps.writeF == loOps.readF1))
 			{
 				savedReg = hiOps.writeF;
 				jitter->MD_PushRel(offsetof(CMIPS, m_State.nCOP2[savedReg]));
@@ -210,8 +207,8 @@ CVuBasicBlock::INTEGER_BRANCH_DELAY_INFO CVuBasicBlock::GetIntegerBranchDelayInf
 	// If the relevant set instruction is not part of this block, use initial value of the integer register.
 
 	INTEGER_BRANCH_DELAY_INFO result;
-	auto arch = static_cast<CMA_VU*>(m_context.m_pArch);
-	uint32 adjustedEnd = fixedEnd - 4;
+	auto                      arch = static_cast<CMA_VU*>(m_context.m_pArch);
+	uint32                    adjustedEnd = fixedEnd - 4;
 
 	// Check if we have a conditional branch instruction.
 	uint32 branchOpcodeAddr = adjustedEnd - 8;
@@ -228,9 +225,8 @@ CVuBasicBlock::INTEGER_BRANCH_DELAY_INFO CVuBasicBlock::GetIntegerBranchDelayInf
 		{
 			auto branchLoOps = arch->GetAffectedOperands(&m_context, branchOpcodeAddr, branchOpcodeLo);
 			if(
-				(branchLoOps.readI0 == priorLoOps.writeI) || 
-				(branchLoOps.readI1 == priorLoOps.writeI)
-				)
+			    (branchLoOps.readI0 == priorLoOps.writeI) ||
+			    (branchLoOps.readI1 == priorLoOps.writeI))
 			{
 				//Check if our block is a "special" loop. Disable delayed integer processing if it's the case
 				//TODO: Handle that case better
@@ -238,9 +234,9 @@ CVuBasicBlock::INTEGER_BRANCH_DELAY_INFO CVuBasicBlock::GetIntegerBranchDelayInf
 				if(!isSpecialLoop)
 				{
 					// we need to use the value of intReg 4 steps prior or use initial value.
-					result.regIndex       = priorLoOps.writeI;
+					result.regIndex = priorLoOps.writeI;
 					result.saveRegAddress = std::max(adjustedEnd - 5 * 8, m_begin);
-					result.useRegAddress  = adjustedEnd - 8;
+					result.useRegAddress = adjustedEnd - 8;
 				}
 			}
 		}
@@ -256,9 +252,10 @@ bool CVuBasicBlock::CheckIsSpecialIntegerLoop(uint32 fixedEnd, unsigned int regI
 	//tests that integer register
 	//Required by BGDA that has that kind of loop inside its VU microcode
 
-	auto arch = static_cast<CMA_VU*>(m_context.m_pArch);
+	auto   arch = static_cast<CMA_VU*>(m_context.m_pArch);
 	uint32 length = (fixedEnd - m_begin) / 8;
-	if(length != 4) return false;
+	if(length != 4)
+		return false;
 	for(uint32 index = 0; index <= length; index++)
 	{
 		uint32 address = m_begin + (index * 8);
@@ -267,12 +264,14 @@ bool CVuBasicBlock::CheckIsSpecialIntegerLoop(uint32 fixedEnd, unsigned int regI
 		{
 			assert(IsConditionalBranch(opcodeLo));
 			uint32 branchTarget = arch->GetInstructionEffectiveAddress(&m_context, address, opcodeLo);
-			if(branchTarget != m_begin) return false;
+			if(branchTarget != m_begin)
+				return false;
 		}
 		else
 		{
 			auto loOps = arch->GetAffectedOperands(&m_context, address, opcodeLo);
-			if(loOps.writeI != regI) return false;
+			if(loOps.writeI != regI)
+				return false;
 		}
 	}
 

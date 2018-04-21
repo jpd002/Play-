@@ -5,11 +5,11 @@
 class CVuBasicBlock : public CBasicBlock
 {
 public:
-					CVuBasicBlock(CMIPS&, uint32, uint32);
-	virtual			~CVuBasicBlock() = default;
+	CVuBasicBlock(CMIPS&, uint32, uint32);
+	virtual ~CVuBasicBlock() = default;
 
 protected:
-	void			CompileRange(CMipsJitter*) override;
+	void CompileRange(CMipsJitter*) override;
 
 private:
 	struct INTEGER_BRANCH_DELAY_INFO
@@ -19,9 +19,9 @@ private:
 		uint32       useRegAddress = MIPS_INVALID_PC;
 	};
 
-	static bool					IsConditionalBranch(uint32);
+	static bool IsConditionalBranch(uint32);
 
-	INTEGER_BRANCH_DELAY_INFO	GetIntegerBranchDelayInfo(uint32) const;
-	bool						CheckIsSpecialIntegerLoop(uint32, unsigned int) const;
-	static void					EmitXgKick(CMipsJitter*);
+	INTEGER_BRANCH_DELAY_INFO GetIntegerBranchDelayInfo(uint32) const;
+	bool                      CheckIsSpecialIntegerLoop(uint32, unsigned int) const;
+	static void               EmitXgKick(CMipsJitter*);
 };

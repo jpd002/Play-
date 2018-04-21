@@ -1,15 +1,14 @@
-#include <windows.h>
 #include "..\..\SH_OpenAL.h"
+#include <windows.h>
 
 int WINAPI DllMain(HINSTANCE, DWORD, LPVOID)
 {
 	return TRUE;
 }
 
-extern "C"
+extern "C" {
+__declspec(dllexport) CSoundHandler* HandlerFactory()
 {
-	__declspec(dllexport) CSoundHandler* HandlerFactory()
-	{
-		return new CSH_OpenAL();
-	}
+	return new CSH_OpenAL();
+}
 }

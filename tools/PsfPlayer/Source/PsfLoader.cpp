@@ -1,10 +1,10 @@
 #include "PsfLoader.h"
 #include "StdStream.h"
 
-#include "psx/PsxBios.h"
-#include "ps2/PsfBios.h"
 #include "Iop_PsfSubSystem.h"
 #include "Ps2Const.h"
+#include "ps2/PsfBios.h"
+#include "psx/PsxBios.h"
 
 #include "psp/Psp_PsfSubSystem.h"
 
@@ -16,7 +16,7 @@ void CPsfLoader::LoadPsf(CPsfVm& virtualMachine, const CPsfPathToken& filePath, 
 {
 	auto streamProvider = CreatePsfStreamProvider(archivePath);
 
-	auto pathString = filePath.GetWidePath();
+	auto   pathString = filePath.GetWidePath();
 	size_t pathLength = pathString.length();
 	if(pathString[pathLength - 1] == '2')
 	{
@@ -47,7 +47,7 @@ void CPsfLoader::LoadPsx(CPsfVm& virtualMachine, const CPsfPathToken& filePath, 
 void CPsfLoader::LoadPsxRecurse(CPsfVm& virtualMachine, CPsxBios* bios, const CPsfPathToken& filePath, CPsfStreamProvider* streamProvider, CPsfBase::TagMap* tags)
 {
 	Framework::CStream* input(streamProvider->GetStreamForPath(filePath));
-	CPsfBase psfFile(*input);
+	CPsfBase            psfFile(*input);
 	delete input;
 
 	if(psfFile.GetVersion() != CPsfBase::VERSION_PLAYSTATION)
@@ -93,7 +93,7 @@ void CPsfLoader::LoadPsxRecurse(CPsfVm& virtualMachine, CPsxBios* bios, const CP
 			{
 				break;
 			}
-			auto libFilePath = streamProvider->GetSiblingPath(filePath, libPath);
+			auto   libFilePath = streamProvider->GetSiblingPath(filePath, libPath);
 			uint32 sp = virtualMachine.GetCpu().m_State.nGPR[CMIPS::SP].nV0;
 			uint32 pc = virtualMachine.GetCpu().m_State.nPC;
 			LoadPsxRecurse(virtualMachine, bios, libFilePath, streamProvider);
@@ -120,7 +120,7 @@ void CPsfLoader::LoadPs2(CPsfVm& virtualMachine, const CPsfPathToken& filePath, 
 void CPsfLoader::LoadPs2Recurse(CPsfVm& virtualMachine, PS2::CPsfBios* bios, const CPsfPathToken& filePath, CPsfStreamProvider* streamProvider, CPsfBase::TagMap* tags)
 {
 	Framework::CStream* input(streamProvider->GetStreamForPath(filePath));
-	CPsfBase psfFile(*input);
+	CPsfBase            psfFile(*input);
 	delete input;
 
 	if(psfFile.GetVersion() != CPsfBase::VERSION_PLAYSTATION2)
@@ -155,7 +155,7 @@ void CPsfLoader::LoadPsp(CPsfVm& virtualMachine, const CPsfPathToken& filePath, 
 void CPsfLoader::LoadPspRecurse(CPsfVm& virtualMachine, Psp::CPsfBios* bios, const CPsfPathToken& filePath, CPsfStreamProvider* streamProvider, CPsfBase::TagMap* tags)
 {
 	Framework::CStream* input(streamProvider->GetStreamForPath(filePath));
-	CPsfBase psfFile(*input);
+	CPsfBase            psfFile(*input);
 	delete input;
 
 	if(psfFile.GetVersion() != CPsfBase::VERSION_PLAYSTATIONPORTABLE)

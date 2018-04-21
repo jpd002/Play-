@@ -1,5 +1,5 @@
-#include <string.h>
 #include "DirectoryRecord.h"
+#include <string.h>
 
 using namespace ISO9660;
 
@@ -32,7 +32,6 @@ CDirectoryRecord::CDirectoryRecord(Framework::CStream* stream)
 
 CDirectoryRecord::~CDirectoryRecord()
 {
-	
 }
 
 uint8 CDirectoryRecord::GetLength() const

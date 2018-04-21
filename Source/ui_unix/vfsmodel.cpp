@@ -1,6 +1,6 @@
 #include "vfsmodel.h"
-#include "vfsmanagerdialog.h"
 #include "PS2VM_Preferences.h"
+#include "vfsmanagerdialog.h"
 
 VFSModel::VFSModel(QObject* parent)
     : QAbstractTableModel(parent)
@@ -37,7 +37,7 @@ QVariant VFSModel::data(const QModelIndex& index, int role) const
 {
 	if(role == Qt::DisplayRole)
 	{
-		auto device = m_devices.at(index.row());
+		auto        device = m_devices.at(index.row());
 		std::string val;
 		switch(index.column())
 		{

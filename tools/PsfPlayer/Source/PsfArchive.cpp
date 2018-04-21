@@ -1,12 +1,12 @@
 #include "PsfArchive.h"
 #include "PsfRarArchive.h"
 #include "PsfZipArchive.h"
-#include "stricmp.h"
 #include "make_unique.h"
+#include "stricmp.h"
 
 CPsfArchive::PsfArchivePtr CPsfArchive::CreateFromPath(const boost::filesystem::path& filePath)
 {
-	auto extension = filePath.extension().string();
+	auto          extension = filePath.extension().string();
 	PsfArchivePtr result;
 	if(!strcmp(extension.c_str(), ".zip"))
 	{

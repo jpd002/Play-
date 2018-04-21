@@ -2,8 +2,8 @@
 #include "../MIPS.h"
 
 CMA_VU::CMA_VU(uint32 vuMemAddressMask)
-: CMIPSArchitecture(MIPS_REGSIZE_64)
-, m_Lower(vuMemAddressMask)
+    : CMIPSArchitecture(MIPS_REGSIZE_64)
+    , m_Lower(vuMemAddressMask)
 {
 	SetupReflectionTables();
 }

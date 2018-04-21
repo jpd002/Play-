@@ -1,6 +1,6 @@
-#include <string.h>
 #include "MipsFunctionPatternDb.h"
 #include "xml/FilteringNodeIterator.h"
+#include <string.h>
 
 CMipsFunctionPatternDb::CMipsFunctionPatternDb(Framework::Xml::CNode* node)
 {
@@ -9,7 +9,6 @@ CMipsFunctionPatternDb::CMipsFunctionPatternDb(Framework::Xml::CNode* node)
 
 CMipsFunctionPatternDb::~CMipsFunctionPatternDb()
 {
-
 }
 
 const CMipsFunctionPatternDb::PatternArray& CMipsFunctionPatternDb::GetPatterns() const
@@ -20,20 +19,22 @@ const CMipsFunctionPatternDb::PatternArray& CMipsFunctionPatternDb::GetPatterns(
 void CMipsFunctionPatternDb::Read(Framework::Xml::CNode* node)
 {
 	auto patternsNode = node->Select("FunctionPatterns");
-	if(!patternsNode) return;
+	if(!patternsNode)
+		return;
 
 	m_patterns.reserve(patternsNode->GetChildCount());
 
-	for(Framework::Xml::CFilteringNodeIterator patternNodeIterator(patternsNode, "FunctionPattern"); 
-		!patternNodeIterator.IsEnd(); patternNodeIterator++)
+	for(Framework::Xml::CFilteringNodeIterator patternNodeIterator(patternsNode, "FunctionPattern");
+	    !patternNodeIterator.IsEnd(); patternNodeIterator++)
 	{
 		auto patternNode = (*patternNodeIterator);
 
 		const char* patternName = patternNode->GetAttribute("Name");
-		if(patternName == NULL) continue;
+		if(patternName == NULL)
+			continue;
 
 		const char* patternSource = patternNode->GetInnerText();
-		
+
 		Pattern pattern = ParsePattern(patternSource);
 		pattern.name = patternName;
 		m_patterns.push_back(pattern);
@@ -45,12 +46,13 @@ CMipsFunctionPatternDb::Pattern CMipsFunctionPatternDb::ParsePattern(const char*
 	Pattern result;
 	result.items.reserve(0x40);
 
-	bool insideComment = false;
+	bool        insideComment = false;
 	std::string currValue;
 	while(1)
 	{
 		char currChar = (*source++);
-		if(currChar == 0) break;
+		if(currChar == 0)
+			break;
 		if(insideComment)
 		{
 			if(currChar == '\n')
@@ -69,7 +71,7 @@ CMipsFunctionPatternDb::Pattern CMipsFunctionPatternDb::ParsePattern(const char*
 			if(currValue.length() != 0)
 			{
 				//Parse value
-				PATTERNITEM item = { 0 };
+				PATTERNITEM item = {0};
 				if(ParsePatternItem(currValue.c_str(), item))
 				{
 					result.items.push_back(item);
@@ -115,20 +117,25 @@ bool CMipsFunctionPatternDb::ParsePatternItem(const char* source, PATTERNITEM& r
 bool CMipsFunctionPatternDb::Pattern::Matches(uint32* text, uint32 textSize) const
 {
 	textSize /= 4;
-	if(textSize < items.size()) return false;
+	if(textSize < items.size())
+		return false;
 
 	unsigned int itemIndex = 0;
 	unsigned int textIndex = 0;
 	unsigned int matchCount = 0;
 	while(1)
 	{
-		if(itemIndex == items.size()) break;
-		if(textIndex == textSize) break;
+		if(itemIndex == items.size())
+			break;
+		if(textIndex == textSize)
+			break;
 		uint32 srcValue = text[textIndex++];
-		if(textIndex != 1 && srcValue == 0) continue;
+		if(textIndex != 1 && srcValue == 0)
+			continue;
 		const PATTERNITEM& item(items[itemIndex++]);
 		srcValue &= item.mask;
-		if(srcValue != item.value) return false;
+		if(srcValue != item.value)
+			return false;
 		matchCount++;
 	}
 

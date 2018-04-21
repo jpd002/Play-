@@ -11,7 +11,8 @@ void CPsfZipArchive::Open(const boost::filesystem::path& filePath)
 	for(const auto& fileHeaderPair : m_archive->GetFileHeaders())
 	{
 		const auto& fileHeader(fileHeaderPair.second);
-		if(fileHeader.uncompressedSize == 0) continue;
+		if(fileHeader.uncompressedSize == 0)
+			continue;
 		FILEINFO fileInfo;
 		fileInfo.name = fileHeaderPair.first;
 		fileInfo.length = fileHeader.uncompressedSize;

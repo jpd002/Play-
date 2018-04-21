@@ -4,4 +4,3 @@
 #import <string>
 
 NSString* stringWithWchar(const std::wstring& input);
-

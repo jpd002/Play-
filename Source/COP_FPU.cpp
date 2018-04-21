@@ -1,25 +1,24 @@
-#include <string.h>
-#include <stdio.h>
 #include "COP_FPU.h"
-#include "MIPS.h"
 #include "Jitter.h"
-#include "offsetof_def.h"
+#include "MIPS.h"
 #include "MemoryUtils.h"
+#include "offsetof_def.h"
+#include <stdio.h>
+#include <string.h>
 
 const uint32 CCOP_FPU::m_ccMask[8] =
-{
-	0x00800000,
-	0x02000000,
-	0x04000000,
-	0x08000000,
-	0x10000000,
-	0x20000000,
-	0x40000000,
-	0x80000000
-};
+    {
+        0x00800000,
+        0x02000000,
+        0x04000000,
+        0x08000000,
+        0x10000000,
+        0x20000000,
+        0x40000000,
+        0x80000000};
 
 CCOP_FPU::CCOP_FPU(MIPS_REGSIZE regSize)
-: CMIPSCoprocessor(regSize)
+    : CMIPSCoprocessor(regSize)
 {
 	SetupReflectionTables();
 }
@@ -521,54 +520,54 @@ void CCOP_FPU::SWC1()
 //Opcode Tables
 //////////////////////////////////////////////////
 
-CCOP_FPU::InstructionFuncConstant CCOP_FPU::m_opGeneral[0x20] = 
-{
-	//0x00
-	&CCOP_FPU::MFC1,		&CCOP_FPU::Illegal,		&CCOP_FPU::CFC1,		&CCOP_FPU::Illegal,		&CCOP_FPU::MTC1,		&CCOP_FPU::Illegal,		&CCOP_FPU::CTC1,		&CCOP_FPU::Illegal,
-	//0x08
-	&CCOP_FPU::BC1,			&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,
-	//0x10
-	&CCOP_FPU::S,			&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,		&CCOP_FPU::W,			&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,
-	//0x18
-	&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,
+CCOP_FPU::InstructionFuncConstant CCOP_FPU::m_opGeneral[0x20] =
+    {
+        //0x00
+        &CCOP_FPU::MFC1, &CCOP_FPU::Illegal, &CCOP_FPU::CFC1, &CCOP_FPU::Illegal, &CCOP_FPU::MTC1, &CCOP_FPU::Illegal, &CCOP_FPU::CTC1, &CCOP_FPU::Illegal,
+        //0x08
+        &CCOP_FPU::BC1, &CCOP_FPU::Illegal, &CCOP_FPU::Illegal, &CCOP_FPU::Illegal, &CCOP_FPU::Illegal, &CCOP_FPU::Illegal, &CCOP_FPU::Illegal, &CCOP_FPU::Illegal,
+        //0x10
+        &CCOP_FPU::S, &CCOP_FPU::Illegal, &CCOP_FPU::Illegal, &CCOP_FPU::Illegal, &CCOP_FPU::W, &CCOP_FPU::Illegal, &CCOP_FPU::Illegal, &CCOP_FPU::Illegal,
+        //0x18
+        &CCOP_FPU::Illegal, &CCOP_FPU::Illegal, &CCOP_FPU::Illegal, &CCOP_FPU::Illegal, &CCOP_FPU::Illegal, &CCOP_FPU::Illegal, &CCOP_FPU::Illegal, &CCOP_FPU::Illegal,
 };
 
 CCOP_FPU::InstructionFuncConstant CCOP_FPU::m_opSingle[0x40] =
-{
-	//0x00
-	&CCOP_FPU::ADD_S,		&CCOP_FPU::SUB_S,		&CCOP_FPU::MUL_S,		&CCOP_FPU::DIV_S,		&CCOP_FPU::SQRT_S,		&CCOP_FPU::ABS_S,		&CCOP_FPU::MOV_S,		&CCOP_FPU::NEG_S,
-	//0x08
-	&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,		&CCOP_FPU::TRUNC_W_S,	&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,
-	//0x10
-	&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,		&CCOP_FPU::RSQRT_S,		&CCOP_FPU::Illegal,
-	//0x18
-	&CCOP_FPU::ADDA_S,		&CCOP_FPU::SUBA_S,		&CCOP_FPU::MULA_S,		&CCOP_FPU::Illegal,		&CCOP_FPU::MADD_S,		&CCOP_FPU::MSUB_S,		&CCOP_FPU::MADDA_S,		&CCOP_FPU::MSUBA_S,
-	//0x20
-	&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,		&CCOP_FPU::CVT_W_S,		&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,
-	//0x28
-	&CCOP_FPU::MAX_S,		&CCOP_FPU::MIN_S,	    &CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,
-	//0x30
-	&CCOP_FPU::C_F_S,		&CCOP_FPU::Illegal,		&CCOP_FPU::C_EQ_S,		&CCOP_FPU::Illegal,		&CCOP_FPU::C_LT_S,		&CCOP_FPU::Illegal,		&CCOP_FPU::C_LE_S,		&CCOP_FPU::Illegal,
-	//0x38
-	&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,		&CCOP_FPU::C_LT_S,		&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,
+    {
+        //0x00
+        &CCOP_FPU::ADD_S, &CCOP_FPU::SUB_S, &CCOP_FPU::MUL_S, &CCOP_FPU::DIV_S, &CCOP_FPU::SQRT_S, &CCOP_FPU::ABS_S, &CCOP_FPU::MOV_S, &CCOP_FPU::NEG_S,
+        //0x08
+        &CCOP_FPU::Illegal, &CCOP_FPU::Illegal, &CCOP_FPU::Illegal, &CCOP_FPU::Illegal, &CCOP_FPU::Illegal, &CCOP_FPU::TRUNC_W_S, &CCOP_FPU::Illegal, &CCOP_FPU::Illegal,
+        //0x10
+        &CCOP_FPU::Illegal, &CCOP_FPU::Illegal, &CCOP_FPU::Illegal, &CCOP_FPU::Illegal, &CCOP_FPU::Illegal, &CCOP_FPU::Illegal, &CCOP_FPU::RSQRT_S, &CCOP_FPU::Illegal,
+        //0x18
+        &CCOP_FPU::ADDA_S, &CCOP_FPU::SUBA_S, &CCOP_FPU::MULA_S, &CCOP_FPU::Illegal, &CCOP_FPU::MADD_S, &CCOP_FPU::MSUB_S, &CCOP_FPU::MADDA_S, &CCOP_FPU::MSUBA_S,
+        //0x20
+        &CCOP_FPU::Illegal, &CCOP_FPU::Illegal, &CCOP_FPU::Illegal, &CCOP_FPU::Illegal, &CCOP_FPU::CVT_W_S, &CCOP_FPU::Illegal, &CCOP_FPU::Illegal, &CCOP_FPU::Illegal,
+        //0x28
+        &CCOP_FPU::MAX_S, &CCOP_FPU::MIN_S, &CCOP_FPU::Illegal, &CCOP_FPU::Illegal, &CCOP_FPU::Illegal, &CCOP_FPU::Illegal, &CCOP_FPU::Illegal, &CCOP_FPU::Illegal,
+        //0x30
+        &CCOP_FPU::C_F_S, &CCOP_FPU::Illegal, &CCOP_FPU::C_EQ_S, &CCOP_FPU::Illegal, &CCOP_FPU::C_LT_S, &CCOP_FPU::Illegal, &CCOP_FPU::C_LE_S, &CCOP_FPU::Illegal,
+        //0x38
+        &CCOP_FPU::Illegal, &CCOP_FPU::Illegal, &CCOP_FPU::Illegal, &CCOP_FPU::Illegal, &CCOP_FPU::C_LT_S, &CCOP_FPU::Illegal, &CCOP_FPU::Illegal, &CCOP_FPU::Illegal,
 };
 
 CCOP_FPU::InstructionFuncConstant CCOP_FPU::m_opWord[0x40] =
-{
-	//0x00
-	&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,
-	//0x08
-	&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,
-	//0x10
-	&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,
-	//0x18
-	&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,
-	//0x20
-	&CCOP_FPU::CVT_S_W,		&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,
-	//0x28
-	&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,
-	//0x30
-	&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,
-	//0x38
-	&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,
+    {
+        //0x00
+        &CCOP_FPU::Illegal, &CCOP_FPU::Illegal, &CCOP_FPU::Illegal, &CCOP_FPU::Illegal, &CCOP_FPU::Illegal, &CCOP_FPU::Illegal, &CCOP_FPU::Illegal, &CCOP_FPU::Illegal,
+        //0x08
+        &CCOP_FPU::Illegal, &CCOP_FPU::Illegal, &CCOP_FPU::Illegal, &CCOP_FPU::Illegal, &CCOP_FPU::Illegal, &CCOP_FPU::Illegal, &CCOP_FPU::Illegal, &CCOP_FPU::Illegal,
+        //0x10
+        &CCOP_FPU::Illegal, &CCOP_FPU::Illegal, &CCOP_FPU::Illegal, &CCOP_FPU::Illegal, &CCOP_FPU::Illegal, &CCOP_FPU::Illegal, &CCOP_FPU::Illegal, &CCOP_FPU::Illegal,
+        //0x18
+        &CCOP_FPU::Illegal, &CCOP_FPU::Illegal, &CCOP_FPU::Illegal, &CCOP_FPU::Illegal, &CCOP_FPU::Illegal, &CCOP_FPU::Illegal, &CCOP_FPU::Illegal, &CCOP_FPU::Illegal,
+        //0x20
+        &CCOP_FPU::CVT_S_W, &CCOP_FPU::Illegal, &CCOP_FPU::Illegal, &CCOP_FPU::Illegal, &CCOP_FPU::Illegal, &CCOP_FPU::Illegal, &CCOP_FPU::Illegal, &CCOP_FPU::Illegal,
+        //0x28
+        &CCOP_FPU::Illegal, &CCOP_FPU::Illegal, &CCOP_FPU::Illegal, &CCOP_FPU::Illegal, &CCOP_FPU::Illegal, &CCOP_FPU::Illegal, &CCOP_FPU::Illegal, &CCOP_FPU::Illegal,
+        //0x30
+        &CCOP_FPU::Illegal, &CCOP_FPU::Illegal, &CCOP_FPU::Illegal, &CCOP_FPU::Illegal, &CCOP_FPU::Illegal, &CCOP_FPU::Illegal, &CCOP_FPU::Illegal, &CCOP_FPU::Illegal,
+        //0x38
+        &CCOP_FPU::Illegal, &CCOP_FPU::Illegal, &CCOP_FPU::Illegal, &CCOP_FPU::Illegal, &CCOP_FPU::Illegal, &CCOP_FPU::Illegal, &CCOP_FPU::Illegal, &CCOP_FPU::Illegal,
 };

@@ -1,7 +1,8 @@
 #pragma once
 #include <string>
 
-class Playlist {
+class Playlist
+{
 public:
 	struct Item
 	{
@@ -13,10 +14,11 @@ public:
 			path = m_path;
 		}
 
-		~Item(){
+		~Item()
+		{
 		}
 
 		std::wstring game, title, length;
-		std::string path;
+		std::string  path;
 	};
 };

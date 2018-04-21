@@ -1,25 +1,25 @@
-#include <boost/filesystem.hpp>
-#include <boost/lexical_cast.hpp>
-#include "../../AppConfig.h"
 #include "FrameDebugger.h"
-#include "win32/AcceleratorTableGenerator.h"
-#include "win32/Rect.h"
-#include "win32/HorizontalSplitter.h"
-#include "win32/FileDialog.h"
-#include "win32/MenuItem.h"
+#include "../../AppConfig.h"
 #include "../resource.h"
 #include "StdStreamUtils.h"
 #include "lexical_cast_ex.h"
 #include "string_cast.h"
 #include "string_format.h"
+#include "win32/AcceleratorTableGenerator.h"
+#include "win32/FileDialog.h"
+#include "win32/HorizontalSplitter.h"
+#include "win32/MenuItem.h"
+#include "win32/Rect.h"
+#include <boost/filesystem.hpp>
+#include <boost/lexical_cast.hpp>
 
-#define WNDSTYLE					(WS_CLIPCHILDREN | WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX | WS_MAXIMIZEBOX | WS_SIZEBOX)
-#define WNDTITLE					_T("Play! - Frame Debugger")
+#define WNDSTYLE (WS_CLIPCHILDREN | WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX | WS_MAXIMIZEBOX | WS_SIZEBOX)
+#define WNDTITLE _T("Play! - Frame Debugger")
 
-#define PREF_FRAMEDEBUGGER_FRAMEBUFFER_DISPLAYMODE    "framedebugger.framebuffer.displaymode"
+#define PREF_FRAMEDEBUGGER_FRAMEBUFFER_DISPLAYMODE "framedebugger.framebuffer.displaymode"
 
 CFrameDebugger::CFrameDebugger()
-: m_accTable(nullptr)
+    : m_accTable(nullptr)
 {
 	CAppConfig::GetInstance().RegisterPreferenceInteger(PREF_FRAMEDEBUGGER_FRAMEBUFFER_DISPLAYMODE, CGsContextView::FB_DISPLAY_MODE_RAW);
 	m_fbDisplayMode = static_cast<CGsContextView::FB_DISPLAY_MODE>(CAppConfig::GetInstance().GetPreferenceInteger(PREF_FRAMEDEBUGGER_FRAMEBUFFER_DISPLAYMODE));
@@ -163,11 +163,11 @@ LRESULT CFrameDebugger::OnNotify(WPARAM param, NMHDR* header)
 		switch(header->code)
 		{
 		case CGsPacketListView::NOTIFICATION_SELCHANGED:
-			{
-				auto selchangedInfo = reinterpret_cast<CGsPacketListView::SELCHANGED_INFO*>(header);
-				UpdateDisplay(selchangedInfo->selectedCmdIndex);
-			}
-			break;
+		{
+			auto selchangedInfo = reinterpret_cast<CGsPacketListView::SELCHANGED_INFO*>(header);
+			UpdateDisplay(selchangedInfo->selectedCmdIndex);
+		}
+		break;
 		}
 		return FALSE;
 	}
@@ -190,7 +190,7 @@ long CFrameDebugger::OnSysCommand(unsigned int nCmd, LPARAM lParam)
 void CFrameDebugger::CreateAcceleratorTables()
 {
 	Framework::Win32::CAcceleratorTableGenerator generator;
-	generator.Insert(ID_FD_VU1_STEP,			VK_F10, FVIRTKEY);
+	generator.Insert(ID_FD_VU1_STEP, VK_F10, FVIRTKEY);
 	m_accTable = generator.Create();
 }
 
@@ -234,7 +234,7 @@ void CFrameDebugger::UpdateDisplay(int32 targetCmdIndex)
 
 	m_gs->Reset();
 
-	uint8* gsRam = m_gs->GetRam();
+	uint8*  gsRam = m_gs->GetRam();
 	uint64* gsRegisters = m_gs->GetRegisters();
 	memcpy(gsRam, m_frameDump.GetInitialGsRam(), CGSHandler::RAMSIZE);
 	memcpy(gsRegisters, m_frameDump.GetInitialGsRegisters(), CGSHandler::REGISTER_MAX * sizeof(uint64));
@@ -243,17 +243,17 @@ void CFrameDebugger::UpdateDisplay(int32 targetCmdIndex)
 	CGsPacket::RegisterWriteArray registerWrites;
 
 	const auto flushRegisterWrites =
-		[&]()
-		{
-			auto currentCapacity = registerWrites.capacity();
-			m_gs->WriteRegisterMassively(std::move(registerWrites), nullptr);
-			registerWrites.reserve(currentCapacity);
+	    [&]() {
+		    auto currentCapacity = registerWrites.capacity();
+		    m_gs->WriteRegisterMassively(std::move(registerWrites), nullptr);
+		    registerWrites.reserve(currentCapacity);
 		};
 
 	int32 cmdIndex = 0;
 	for(const auto& packet : m_frameDump.GetPackets())
 	{
-		if((cmdIndex - 1) >= targetCmdIndex) break;
+		if((cmdIndex - 1) >= targetCmdIndex)
+			break;
 
 		m_currentMetadata = packet.metadata;
 
@@ -266,7 +266,8 @@ void CFrameDebugger::UpdateDisplay(int32 targetCmdIndex)
 		{
 			for(const auto& registerWrite : packet.registerWrites)
 			{
-				if((cmdIndex - 1) >= targetCmdIndex) break;
+				if((cmdIndex - 1) >= targetCmdIndex)
+					break;
 				registerWrites.push_back(registerWrite);
 				cmdIndex++;
 			}
@@ -319,7 +320,7 @@ void CFrameDebugger::LoadFrameDump(const TCHAR* dumpPathName)
 	try
 	{
 		boost::filesystem::path dumpPath(dumpPathName);
-		auto inputStream = Framework::CreateInputStdStream(dumpPath.native());
+		auto                    inputStream = Framework::CreateInputStdStream(dumpPath.native());
 		m_frameDump.Read(inputStream);
 		m_frameDump.IdentifyDrawingKicks();
 	}

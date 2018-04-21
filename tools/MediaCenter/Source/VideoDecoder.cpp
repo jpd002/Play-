@@ -1,16 +1,16 @@
 #include "VideoDecoder.h"
-#include "StreamBitStream.h"
-#include "StdStream.h"
 #include "MemStream.h"
 #include "ProgramStreamDecoder.h"
-#include "VideoStream_Decoder.h"
 #include "RawMpeg2Container.h"
+#include "StdStream.h"
+#include "StreamBitStream.h"
+#include "VideoStream_Decoder.h"
 #include <assert.h>
 
 #if 0
 
-#include "XaSoundStreamDecoder.h"
 #include "Ac3SoundStreamDecoder.h"
+#include "XaSoundStreamDecoder.h"
 
 CMemStream									g_soundStream;
 ProgramStreamDecoder::PRIVATE_STREAM1_INFO	g_soundStreamInfo;
@@ -77,9 +77,9 @@ bool SoundStreamHandler(CBitStream& stream, const ProgramStreamDecoder::PRIVATE_
 #endif
 
 CVideoDecoder::CVideoDecoder(std::string path)
-: m_threadDone(false)
+    : m_threadDone(false)
 {
-	m_decoderThread = std::thread([=] () { DecoderThreadProc(path); });
+	m_decoderThread = std::thread([=]() { DecoderThreadProc(path); });
 }
 
 CVideoDecoder::~CVideoDecoder()
@@ -93,11 +93,11 @@ CVideoDecoder::~CVideoDecoder()
 
 void CVideoDecoder::DecoderThreadProc(std::string path)
 {
-	Framework::CMemStream videoStream;
+	Framework::CMemStream       videoStream;
 	Framework::CStreamBitStream videoBitStream(videoStream);
 
 	Framework::CStdStream stream(path.c_str(), "rb");
-	uint32 firstWord = stream.Read32();
+	uint32                firstWord = stream.Read32();
 	stream.Seek(0, Framework::STREAM_SEEK_END);
 	uint64 fileSize = stream.Tell();
 	stream.Seek(0, Framework::STREAM_SEEK_SET);
@@ -107,18 +107,17 @@ void CVideoDecoder::DecoderThreadProc(std::string path)
 	if(firstWord == 0xba010000)
 	{
 		auto programStreamDecoder = new ProgramStreamDecoder(stream);
-	//	programStreamDecoder->RegisterPrivateStream1Handler(std::tr1::bind(&SoundStreamHandler, PLACEHOLDER_1, PLACEHOLDER_2, PLACEHOLDER_3));
+		//	programStreamDecoder->RegisterPrivateStream1Handler(std::tr1::bind(&SoundStreamHandler, PLACEHOLDER_1, PLACEHOLDER_2, PLACEHOLDER_3));
 		programStreamDecoder->RegisterVideoStreamHandler(
-			[&] (Framework::CBitStream& stream, uint32 size)
-			{
-				assert(videoStream.IsEOF());
-				videoStream.ResetBuffer();
-				for(unsigned int i = 0; i < size; i++)
-				{
-					videoStream.Write8(static_cast<uint8>(stream.GetBits_MSBF(8)));
-				}
-				videoStream.Seek(0, Framework::STREAM_SEEK_SET);
-				return false;
+		    [&](Framework::CBitStream& stream, uint32 size) {
+			    assert(videoStream.IsEOF());
+			    videoStream.ResetBuffer();
+			    for(unsigned int i = 0; i < size; i++)
+			    {
+				    videoStream.Write8(static_cast<uint8>(stream.GetBits_MSBF(8)));
+			    }
+			    videoStream.Seek(0, Framework::STREAM_SEEK_SET);
+			    return false;
 			});
 		container = programStreamDecoder;
 	}
@@ -126,22 +125,21 @@ void CVideoDecoder::DecoderThreadProc(std::string path)
 	{
 		auto rawMpeg2Container = new CRawMpeg2Container(stream);
 		rawMpeg2Container->RegisterVideoStreamHandler(
-			[&] (uint8* buffer, uint32 bufferSize)
-			{
-				assert(videoStream.IsEOF());
-				videoStream.ResetBuffer();
-				videoStream.Write(buffer, bufferSize);
-				videoStream.Seek(0, Framework::STREAM_SEEK_SET);
+		    [&](uint8* buffer, uint32 bufferSize) {
+			    assert(videoStream.IsEOF());
+			    videoStream.ResetBuffer();
+			    videoStream.Write(buffer, bufferSize);
+			    videoStream.Seek(0, Framework::STREAM_SEEK_SET);
 			});
 		container = rawMpeg2Container;
 	}
 
-	MPEG_VIDEO_STATE videoState;
+	MPEG_VIDEO_STATE     videoState;
 	VideoStream::Decoder videoStreamDecoder;
 	videoStreamDecoder.InitializeState(&videoState);
 	videoStreamDecoder.Reset();
-	videoStreamDecoder.RegisterOnMacroblockDecodedHandler([&] (MPEG_VIDEO_STATE* state) { OnMacroblockDecoded(state); });
-	videoStreamDecoder.RegisterOnPictureDecodedHandler([&] (MPEG_VIDEO_STATE* state) { OnPictureDecoded(state); });
+	videoStreamDecoder.RegisterOnMacroblockDecodedHandler([&](MPEG_VIDEO_STATE* state) { OnMacroblockDecoded(state); });
+	videoStreamDecoder.RegisterOnPictureDecodedHandler([&](MPEG_VIDEO_STATE* state) { OnPictureDecoded(state); });
 
 	while(!m_threadDone)
 	{
@@ -159,7 +157,7 @@ void CVideoDecoder::DecoderThreadProc(std::string path)
 #endif
 			}
 		}
-/*
+		/*
 		if(!g_soundStream.IsEOF())
 		{
 			switch(g_soundStreamInfo.subStreamNumber)
@@ -184,7 +182,6 @@ void CVideoDecoder::DecoderThreadProc(std::string path)
 		}
 		else if(status == ProgramStreamDecoder::STATUS_INTERRUPTED)
 		{
-			
 		}
 	}
 }
@@ -193,16 +190,16 @@ void CVideoDecoder::OnMacroblockDecoded(MPEG_VIDEO_STATE* state)
 {
 	const int blockWidth = 16;
 	const int blockHeight = 16;
-	
-	MACROBLOCK& macroblock(state->macroblock);
-	PICTURE_HEADER& pictureHeader(state->pictureHeader);
-	SEQUENCE_HEADER& sequenceHeader(state->sequenceHeader);
+
+	MACROBLOCK&          macroblock(state->macroblock);
+	PICTURE_HEADER&      pictureHeader(state->pictureHeader);
+	SEQUENCE_HEADER&     sequenceHeader(state->sequenceHeader);
 	BLOCK_DECODER_STATE& decoderState(state->blockDecoderState);
-	
+
 	if(
-		(m_currentFrame.IsEmpty()) ||
-		(m_currentFrame.GetWidth() != sequenceHeader.horizontalSize) || 
-		(m_currentFrame.GetHeight() != sequenceHeader.verticalSize))
+	    (m_currentFrame.IsEmpty()) ||
+	    (m_currentFrame.GetWidth() != sequenceHeader.horizontalSize) ||
+	    (m_currentFrame.GetHeight() != sequenceHeader.verticalSize))
 	{
 		m_currentFrame = FRAME(sequenceHeader.horizontalSize, sequenceHeader.verticalSize);
 	}
@@ -249,13 +246,14 @@ void CVideoDecoder::OnMacroblockDecoded(MPEG_VIDEO_STATE* state)
 
 		CopyBlock8x8(prevBlockCr, (macroblockX * 8), (macroblockY * 8), motionX, motionY, m_previousFrame.cr);
 		CopyBlock8x8(prevBlockCb, (macroblockX * 8), (macroblockY * 8), motionX, motionY, m_previousFrame.cb);
-		
-		int16* prevBlocks[6] = { prevBlockY[0], prevBlockY[1], prevBlockY[2], prevBlockY[3], prevBlockCr, prevBlockCb };
-		int16* currBlocks[6] = { macroblock.blockY[0], macroblock.blockY[1], macroblock.blockY[2], macroblock.blockY[3], macroblock.blockCr, macroblock.blockCb };
+
+		int16* prevBlocks[6] = {prevBlockY[0], prevBlockY[1], prevBlockY[2], prevBlockY[3], prevBlockCr, prevBlockCb};
+		int16* currBlocks[6] = {macroblock.blockY[0], macroblock.blockY[1], macroblock.blockY[2], macroblock.blockY[3], macroblock.blockCr, macroblock.blockCb};
 
 		for(unsigned int i = 0; i < 6; i++)
 		{
-			if(!(decoderState.codedBlockPattern & (1 << (5 - i)))) continue;
+			if(!(decoderState.codedBlockPattern & (1 << (5 - i))))
+				continue;
 
 			int16* dstBlock = prevBlocks[i];
 			int16* srcBlock = currBlocks[i];
@@ -280,14 +278,14 @@ void CVideoDecoder::OnMacroblockDecoded(MPEG_VIDEO_STATE* state)
 
 void CVideoDecoder::OnPictureDecoded(MPEG_VIDEO_STATE* state)
 {
-	MACROBLOCK& macroblock(state->macroblock);
-	PICTURE_HEADER& pictureHeader(state->pictureHeader);
+	MACROBLOCK&      macroblock(state->macroblock);
+	PICTURE_HEADER&  pictureHeader(state->pictureHeader);
 	SEQUENCE_HEADER& sequenceHeader(state->sequenceHeader);
 
 	if(
-		(m_frame.IsEmpty()) ||
-		(m_frame.GetWidth() != sequenceHeader.horizontalSize) || 
-		(m_frame.GetHeight() != sequenceHeader.verticalSize))
+	    (m_frame.IsEmpty()) ||
+	    (m_frame.GetWidth() != sequenceHeader.horizontalSize) ||
+	    (m_frame.GetHeight() != sequenceHeader.verticalSize))
 	{
 		m_frame = Framework::CBitmap(sequenceHeader.horizontalSize, sequenceHeader.verticalSize, 32);
 	}
@@ -301,27 +299,47 @@ void CVideoDecoder::OnPictureDecoded(MPEG_VIDEO_STATE* state)
 	{
 		for(unsigned int i = 0; i < sequenceHeader.horizontalSize; i++)
 		{
-			float nY  = pixelsY[i + (j * sequenceHeader.horizontalSize)];
-			float nCb = pixelsCb[i / 2 + (j / 2* sequenceHeader.horizontalSize / 2)];
+			float nY = pixelsY[i + (j * sequenceHeader.horizontalSize)];
+			float nCb = pixelsCb[i / 2 + (j / 2 * sequenceHeader.horizontalSize / 2)];
 			float nCr = pixelsCr[i / 2 + (j / 2 * sequenceHeader.horizontalSize / 2)];
-			
+
 			//float nY = 128;
 			//float nCb = 128;
 			//float nCr = 128;
-			
-			float nR = nY							+ 1.402f	* (nCr - 128);
-			float nG = nY - 0.34414f * (nCb - 128)	- 0.71414f	* (nCr - 128);
-			float nB = nY + 1.772f	 * (nCb - 128);
 
-		
-			if(nR < 0) { nR = 0; } if(nR > 255) { nR = 255; }
-			if(nG < 0) { nG = 0; } if(nG > 255) { nG = 255; }
-			if(nB < 0) { nB = 0; } if(nB > 255) { nB = 255; }
-			
+			float nR = nY + 1.402f * (nCr - 128);
+			float nG = nY - 0.34414f * (nCb - 128) - 0.71414f * (nCr - 128);
+			float nB = nY + 1.772f * (nCb - 128);
+
+			if(nR < 0)
+			{
+				nR = 0;
+			}
+			if(nR > 255)
+			{
+				nR = 255;
+			}
+			if(nG < 0)
+			{
+				nG = 0;
+			}
+			if(nG > 255)
+			{
+				nG = 255;
+			}
+			if(nB < 0)
+			{
+				nB = 0;
+			}
+			if(nB > 255)
+			{
+				nB = 255;
+			}
+
 			pixels[i + (j * sequenceHeader.horizontalSize)] = (((uint8)nB) << 16) | (((uint8)nG) << 8) | (((uint8)nR) << 0);
 		}
 	}
-	
+
 	if(pictureHeader.pictureCodingType != PICTURE_TYPE_B)
 	{
 		m_previousFrame = m_currentFrame;
@@ -344,8 +362,10 @@ void CVideoDecoder::CopyBlock8x8(Framework::CBitmap& dst, unsigned int x, unsign
 			unsigned dstX = (i + x);
 			unsigned dstY = (j + y);
 
-			if(dstX >= dst.GetWidth()) continue;
-			if(dstY >= dst.GetHeight()) continue;
+			if(dstX >= dst.GetWidth())
+				continue;
+			if(dstY >= dst.GetHeight())
+				continue;
 
 			dstPixels[dstX + (dstY * dst.GetWidth())] = srcPixels[i + (j * blockWidth)];
 		}
@@ -374,8 +394,10 @@ void CVideoDecoder::CopyBlock8x8(int16* dstPixels, unsigned int x, unsigned int 
 				unsigned int srcX = (i + x + baseX);
 				unsigned int srcY = (j + y + baseY);
 
-				if(srcX >= src.GetWidth()) continue;
-				if(srcY >= src.GetHeight()) continue;
+				if(srcX >= src.GetWidth())
+					continue;
+				if(srcY >= src.GetHeight())
+					continue;
 
 				dstPixels[i + (j * blockWidth)] = srcPixels[srcX + (srcY * src.GetWidth())];
 			}
@@ -390,8 +412,10 @@ void CVideoDecoder::CopyBlock8x8(int16* dstPixels, unsigned int x, unsigned int 
 				unsigned int srcX = (i + x + baseX);
 				unsigned int srcY = (j + y + baseY);
 
-				if(srcX >= src.GetWidth()) continue;
-				if(srcY >= src.GetHeight()) continue;
+				if(srcX >= src.GetWidth())
+					continue;
+				if(srcY >= src.GetHeight())
+					continue;
 
 				int pixel0 = srcPixels[srcX + ((srcY + 0) * src.GetWidth())];
 				int pixel1 = srcPixels[srcX + ((srcY + 1) * src.GetWidth())];
@@ -409,8 +433,10 @@ void CVideoDecoder::CopyBlock8x8(int16* dstPixels, unsigned int x, unsigned int 
 				unsigned int srcX = (i + x + baseX);
 				unsigned int srcY = (j + y + baseY);
 
-				if(srcX >= src.GetWidth()) continue;
-				if(srcY >= src.GetHeight()) continue;
+				if(srcX >= src.GetWidth())
+					continue;
+				if(srcY >= src.GetHeight())
+					continue;
 
 				int pixel0 = srcPixels[srcX + 0 + (srcY * src.GetWidth())];
 				int pixel1 = srcPixels[srcX + 1 + (srcY * src.GetWidth())];
@@ -428,8 +454,10 @@ void CVideoDecoder::CopyBlock8x8(int16* dstPixels, unsigned int x, unsigned int 
 				unsigned int srcX = (i + x + baseX);
 				unsigned int srcY = (j + y + baseY);
 
-				if(srcX >= src.GetWidth()) continue;
-				if(srcY >= src.GetHeight()) continue;
+				if(srcX >= src.GetWidth())
+					continue;
+				if(srcY >= src.GetHeight())
+					continue;
 
 				int pixel0 = srcPixels[srcX + 0 + ((srcY + 0) * src.GetWidth())];
 				int pixel1 = srcPixels[srcX + 1 + ((srcY + 0) * src.GetWidth())];
@@ -446,19 +474,21 @@ void CVideoDecoder::CopyMacroblock(Framework::CBitmap& dst, unsigned int x, unsi
 {
 	const int blockWidth = 16;
 	const int blockHeight = 16;
-	
+
 	uint32* dstPixels = reinterpret_cast<uint32*>(dst.GetPixels());
-	
+
 	for(unsigned int j = 0; j < blockHeight; j++)
 	{
 		for(unsigned int i = 0; i < blockWidth; i++)
 		{
 			unsigned dstX = (i + x);
 			unsigned dstY = (j + y);
-			
-			if(dstX >= dst.GetWidth()) continue;
-			if(dstY >= dst.GetHeight()) continue;
-			
+
+			if(dstX >= dst.GetWidth())
+				continue;
+			if(dstY >= dst.GetHeight())
+				continue;
+
 			dstPixels[dstX + (dstY * dst.GetWidth())] = srcPixels[i + (j * blockWidth)];
 		}
 	}
@@ -469,7 +499,6 @@ void CVideoDecoder::CopyMacroblock(Framework::CBitmap& dst, unsigned int x, unsi
 
 CVideoDecoder::FRAME::FRAME()
 {
-
 }
 
 CVideoDecoder::FRAME::FRAME(unsigned int width, unsigned int height)
@@ -481,10 +510,9 @@ CVideoDecoder::FRAME::FRAME(unsigned int width, unsigned int height)
 
 CVideoDecoder::FRAME::~FRAME()
 {
-
 }
 
-CVideoDecoder::FRAME& CVideoDecoder::FRAME::operator =(FRAME&& src)
+CVideoDecoder::FRAME& CVideoDecoder::FRAME::operator=(FRAME&& src)
 {
 	y = std::move(src.y);
 	cr = std::move(src.cr);

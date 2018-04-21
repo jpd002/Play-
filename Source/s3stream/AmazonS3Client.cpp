@@ -1,14 +1,14 @@
+#include "AmazonS3Client.h"
+#include "HashUtils.h"
 #include "http/HttpClientFactory.h"
-#include <map>
+#include "string_format.h"
+#include "xml/Parser.h"
 #include <algorithm>
 #include <cassert>
 #include <cstdlib>
 #include <cstring>
 #include <ctime>
-#include "HashUtils.h"
-#include "string_format.h"
-#include "xml/Parser.h"
-#include "AmazonS3Client.h"
+#include <map>
 
 #define S3_HOSTNAME "s3.amazonaws.com"
 
@@ -18,9 +18,8 @@ static std::string hashToString(const std::array<uint8, 0x20> hash)
 	for(uint32 i = 0; i < 0x20; i += 8)
 	{
 		result += string_format("%02x%02x%02x%02x%02x%02x%02x%02x",
-		    hash[i + 0], hash[i + 1], hash[i + 2], hash[i + 3],
-		    hash[i + 4], hash[i + 5], hash[i + 6], hash[i + 7]
-		);
+		                        hash[i + 0], hash[i + 1], hash[i + 2], hash[i + 3],
+		                        hash[i + 4], hash[i + 5], hash[i + 6], hash[i + 7]);
 	}
 	return result;
 }
@@ -70,16 +69,15 @@ std::string buildCanonicalRequest(Framework::Http::HTTP_VERB method, const std::
 	result += "\n";
 
 	//SignedHeaders
-	for(auto headerPairIterator	= headers.begin();
+	for(auto headerPairIterator = headers.begin();
 	    headerPairIterator != headers.end(); headerPairIterator++)
 	{
 		bool isEnd =
-		    [&] ()
-		    {
+		    [&]() {
 			    auto headerPairIteratorCopy = headerPairIterator;
-				headerPairIteratorCopy++;
-				return headerPairIteratorCopy == std::end(headers);
-		    }();
+			    headerPairIteratorCopy++;
+			    return headerPairIteratorCopy == std::end(headers);
+			}();
 		auto headerKey = headerPairIterator->first;
 		std::transform(headerKey.begin(), headerKey.end(), headerKey.begin(), &::tolower);
 		result += headerKey;
@@ -125,8 +123,8 @@ std::array<uint8, 0x20> buildSigningKey(const std::string& secretAccessKey, cons
 std::string timeToString(const tm* timeInfo)
 {
 	static const size_t bufferSize = 0x100;
-	char output[bufferSize];
-	auto result = strftime(output, bufferSize, "%Y%m%dT%H%M%SZ", timeInfo);
+	char                output[bufferSize];
+	auto                result = strftime(output, bufferSize, "%Y%m%dT%H%M%SZ", timeInfo);
 	if(result == 0)
 	{
 		throw std::runtime_error("Failed to convert time");
@@ -139,18 +137,17 @@ CAmazonS3Client::CAmazonS3Client(std::string accessKeyId, std::string secretAcce
     , m_secretAccessKey(std::move(secretAccessKey))
     , m_region(std::move(region))
 {
-
 }
 
 GetBucketLocationResult CAmazonS3Client::GetBucketLocation(const GetBucketLocationRequest& request)
 {
 	Request rq;
-	rq.method  = Framework::Http::HTTP_VERB::GET;
-	rq.host    = string_format("%s." S3_HOSTNAME, request.bucket.c_str());
+	rq.method = Framework::Http::HTTP_VERB::GET;
+	rq.host = string_format("%s." S3_HOSTNAME, request.bucket.c_str());
 	rq.urlHost = S3_HOSTNAME;
-	rq.uri     = "/";
-	rq.query   = "location=";
-	
+	rq.uri = "/";
+	rq.query = "location=";
+
 	auto response = ExecuteRequest(rq);
 	if(response.statusCode != Framework::Http::HTTP_STATUS_CODE::OK)
 	{
@@ -173,9 +170,9 @@ GetBucketLocationResult CAmazonS3Client::GetBucketLocation(const GetBucketLocati
 GetObjectResult CAmazonS3Client::GetObject(const GetObjectRequest& request)
 {
 	Request rq;
-	rq.method  = Framework::Http::HTTP_VERB::GET;
-	rq.uri     = "/" + Framework::Http::CHttpClient::UrlEncode(request.object);
-	rq.host    = string_format("%s." S3_HOSTNAME, request.bucket.c_str());
+	rq.method = Framework::Http::HTTP_VERB::GET;
+	rq.uri = "/" + Framework::Http::CHttpClient::UrlEncode(request.object);
+	rq.host = string_format("%s." S3_HOSTNAME, request.bucket.c_str());
 	rq.urlHost = rq.host;
 
 	if(request.range.first != request.range.second)
@@ -187,14 +184,13 @@ GetObjectResult CAmazonS3Client::GetObject(const GetObjectRequest& request)
 	auto response = ExecuteRequest(rq);
 	if(
 	    (response.statusCode != Framework::Http::HTTP_STATUS_CODE::OK) &&
-	    (response.statusCode != Framework::Http::HTTP_STATUS_CODE::PARTIAL_CONTENT)
-	)
+	    (response.statusCode != Framework::Http::HTTP_STATUS_CODE::PARTIAL_CONTENT))
 	{
 		throw std::runtime_error("Failed to get object.");
 	}
 
 	GetObjectResult result;
-	uint32 dataLength = response.data.GetLength();
+	uint32          dataLength = response.data.GetLength();
 	result.data.resize(dataLength);
 	response.data.Read(result.data.data(), dataLength);
 	return result;
@@ -203,9 +199,9 @@ GetObjectResult CAmazonS3Client::GetObject(const GetObjectRequest& request)
 HeadObjectResult CAmazonS3Client::HeadObject(const HeadObjectRequest& request)
 {
 	Request rq;
-	rq.method  = Framework::Http::HTTP_VERB::HEAD;
-	rq.uri     = "/" + Framework::Http::CHttpClient::UrlEncode(request.object);
-	rq.host    = string_format("%s." S3_HOSTNAME, request.bucket.c_str());
+	rq.method = Framework::Http::HTTP_VERB::HEAD;
+	rq.uri = "/" + Framework::Http::CHttpClient::UrlEncode(request.object);
+	rq.host = string_format("%s." S3_HOSTNAME, request.bucket.c_str());
 	rq.urlHost = rq.host;
 
 	auto response = ExecuteRequest(rq);
@@ -234,9 +230,9 @@ HeadObjectResult CAmazonS3Client::HeadObject(const HeadObjectRequest& request)
 ListObjectsResult CAmazonS3Client::ListObjects(std::string bucket)
 {
 	Request rq;
-	rq.method  = Framework::Http::HTTP_VERB::GET;
-	rq.uri     = "/";
-	rq.host    = string_format("%s." S3_HOSTNAME, bucket.c_str());
+	rq.method = Framework::Http::HTTP_VERB::GET;
+	rq.uri = "/";
+	rq.host = string_format("%s." S3_HOSTNAME, bucket.c_str());
 	rq.urlHost = rq.host;
 
 	auto response = ExecuteRequest(rq);
@@ -302,7 +298,7 @@ Framework::Http::RequestResult CAmazonS3Client::ExecuteRequest(const Request& re
 	auto signature = hashToString(Framework::HashUtils::ComputeHmacSha256(signingKey.data(), signingKey.size(), stringToSign.c_str(), stringToSign.length()));
 
 	auto authorizationString = string_format("AWS4-HMAC-SHA256 Credential=%s/%s, SignedHeaders=host;x-amz-content-sha256;x-amz-date, Signature=%s",
-	    m_accessKeyId.c_str(), scope.c_str(), signature.c_str());
+	                                         m_accessKeyId.c_str(), scope.c_str(), signature.c_str());
 	headers.insert(std::make_pair("Authorization", authorizationString));
 	headers.insert(request.headers.begin(), request.headers.end());
 

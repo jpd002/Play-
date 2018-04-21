@@ -1,19 +1,17 @@
-#include "Log.h"
 #include "Psp_KernelLibrary.h"
 #include "COP_SCU.h"
+#include "Log.h"
 
-#define LOGNAME		("Psp_KernelLibrary")
+#define LOGNAME ("Psp_KernelLibrary")
 
 using namespace Psp;
 
 CKernelLibrary::CKernelLibrary()
 {
-
 }
 
 CKernelLibrary::~CKernelLibrary()
 {
-
 }
 
 std::string CKernelLibrary::GetName() const

@@ -6,15 +6,14 @@
 class COutputWnd : public Framework::Win32::CWindow
 {
 public:
-										COutputWnd(HWND);
-	virtual								~COutputWnd();
+	COutputWnd(HWND);
+	virtual ~COutputWnd();
 
 protected:
-	long								OnPaint() override;
-	long								OnEraseBkgnd() override;
+	long OnPaint() override;
+	long OnEraseBkgnd() override;
 
 private:
-
 };
 
 #endif

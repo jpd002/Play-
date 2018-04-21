@@ -10,8 +10,8 @@ static bool IsInsideRange(uint32 address, uint32 start, uint32 end)
 #define SUBTABLE_MASK (SUBTABLE_SIZE - 1)
 
 CMipsExecutor::CMipsExecutor(CMIPS& context, uint32 maxAddress)
-: m_context(context)
-, m_maxAddress(maxAddress)
+    : m_context(context)
+    , m_maxAddress(maxAddress)
 {
 	m_subTableCount = (m_maxAddress + SUBTABLE_MASK) / SUBTABLE_SIZE;
 	assert(m_subTableCount != 0);
@@ -26,10 +26,10 @@ CMipsExecutor::~CMipsExecutor()
 		CBasicBlock** subTable = m_blockTable[i];
 		if(subTable != NULL)
 		{
-			delete [] subTable;
+			delete[] subTable;
 		}
 	}
-	delete [] m_blockTable;
+	delete[] m_blockTable;
 }
 
 void CMipsExecutor::Reset()
@@ -44,11 +44,11 @@ void CMipsExecutor::ClearActiveBlocks()
 		CBasicBlock** subTable = m_blockTable[i];
 		if(subTable != NULL)
 		{
-			delete [] subTable;
+			delete[] subTable;
 			m_blockTable[i] = NULL;
 		}
 	}
-	
+
 	m_blocks.clear();
 }
 
@@ -64,24 +64,29 @@ void CMipsExecutor::ClearActiveBlocksInRangeInternal(uint32 start, uint32 end, C
 
 	//We need to increase the range to make sure we catch any
 	//block that are straddling table boundaries
-	if(hiStart != 0) hiStart--;
-	if(hiEnd != (m_subTableCount - 1)) hiEnd++;
+	if(hiStart != 0)
+		hiStart--;
+	if(hiEnd != (m_subTableCount - 1))
+		hiEnd++;
 
 	std::set<CBasicBlock*> blocksToDelete;
 
 	for(uint32 hi = hiStart; hi <= hiEnd; hi++)
 	{
 		auto table = m_blockTable[hi];
-		if(!table) continue;
+		if(!table)
+			continue;
 
 		for(uint32 lo = 0; lo < SUBTABLE_SIZE; lo += 4)
 		{
 			uint32 tableAddress = (hi << SUBTABLE_BITS) | lo;
-			auto block = table[lo / 4];
-			if(block == nullptr) continue;
-			if(block == protectedBlock) continue;
-			if(!IsInsideRange(block->GetBeginAddress(), start, end) 
-				&& !IsInsideRange(block->GetEndAddress(), start, end)) continue;
+			auto   block = table[lo / 4];
+			if(block == nullptr)
+				continue;
+			if(block == protectedBlock)
+				continue;
+			if(!IsInsideRange(block->GetBeginAddress(), start, end) && !IsInsideRange(block->GetEndAddress(), start, end))
+				continue;
 			table[lo / 4] = nullptr;
 			blocksToDelete.insert(block);
 		}
@@ -89,7 +94,7 @@ void CMipsExecutor::ClearActiveBlocksInRangeInternal(uint32 start, uint32 end, C
 
 	if(!blocksToDelete.empty())
 	{
-		m_blocks.remove_if([&] (const BasicBlockPtr& block) { return blocksToDelete.find(block.get()) != std::end(blocksToDelete); });
+		m_blocks.remove_if([&](const BasicBlockPtr& block) { return blocksToDelete.find(block.get()) != std::end(blocksToDelete); });
 	}
 }
 
@@ -97,14 +102,16 @@ void CMipsExecutor::ClearActiveBlocksInRangeInternal(uint32 start, uint32 end, C
 
 bool CMipsExecutor::MustBreak() const
 {
-	uint32 currentPc = m_context.m_pAddrTranslator(&m_context, m_context.m_State.nPC);
+	uint32       currentPc = m_context.m_pAddrTranslator(&m_context, m_context.m_State.nPC);
 	CBasicBlock* block = FindBlockAt(currentPc);
 	for(auto breakPointAddress : m_context.m_breakpoints)
 	{
-		if(currentPc == breakPointAddress) return true;
+		if(currentPc == breakPointAddress)
+			return true;
 		if(block != NULL)
 		{
-			if(breakPointAddress >= block->GetBeginAddress() && breakPointAddress <= block->GetEndAddress()) return true;
+			if(breakPointAddress >= block->GetBeginAddress() && breakPointAddress <= block->GetEndAddress())
+				return true;
 		}
 	}
 	return false;
@@ -123,7 +130,8 @@ CBasicBlock* CMipsExecutor::FindBlockAt(uint32 address) const
 	uint32 loAddress = address & SUBTABLE_MASK;
 	assert(hiAddress < m_subTableCount);
 	auto& subTable = m_blockTable[hiAddress];
-	if(!subTable) return nullptr;
+	if(!subTable)
+		return nullptr;
 	auto result = subTable[loAddress / 4];
 	return result;
 }
@@ -134,7 +142,8 @@ CBasicBlock* CMipsExecutor::FindBlockStartingAt(uint32 address) const
 	uint32 loAddress = address & SUBTABLE_MASK;
 	assert(hiAddress < m_subTableCount);
 	auto& subTable = m_blockTable[hiAddress];
-	if(!subTable) return nullptr;
+	if(!subTable)
+		return nullptr;
 	auto result = subTable[loAddress / 4];
 	if((address != 0) && (FindBlockAt(address - 4) == result))
 	{
@@ -214,7 +223,7 @@ void CMipsExecutor::DeleteBlock(CBasicBlock* block)
 	}
 
 	//Remove block from our lists
-	auto blockIterator = std::find_if(std::begin(m_blocks), std::end(m_blocks), [&] (const BasicBlockPtr& blockPtr) { return blockPtr.get() == block; });
+	auto blockIterator = std::find_if(std::begin(m_blocks), std::end(m_blocks), [&](const BasicBlockPtr& blockPtr) { return blockPtr.get() == block; });
 	assert(blockIterator != std::end(m_blocks));
 	m_blocks.erase(blockIterator);
 }
@@ -229,14 +238,14 @@ CMipsExecutor::BasicBlockPtr CMipsExecutor::BlockFactory(CMIPS& context, uint32 
 void CMipsExecutor::PartitionFunction(uint32 functionAddress)
 {
 	typedef std::set<uint32> PartitionPointSet;
-	uint32 endAddress = 0;
-	PartitionPointSet partitionPoints;
+	uint32                   endAddress = 0;
+	PartitionPointSet        partitionPoints;
 
 	//Insert begin point
 	partitionPoints.insert(functionAddress);
 
 	//Find the end
-	for(uint32 address = functionAddress; ; address += 4)
+	for(uint32 address = functionAddress;; address += 4)
 	{
 		//Probably going too far...
 		if((address - functionAddress) > 0x10000)
@@ -259,7 +268,7 @@ void CMipsExecutor::PartitionFunction(uint32 functionAddress)
 	//Find partition points within the function
 	for(uint32 address = functionAddress; address <= endAddress; address += 4)
 	{
-		uint32 opcode = m_context.m_pMemoryMap->GetInstruction(address);
+		uint32           opcode = m_context.m_pMemoryMap->GetInstruction(address);
 		MIPS_BRANCH_TYPE branchType = m_context.m_pArch->IsInstructionBranch(&m_context, address, opcode);
 		if(branchType == MIPS_BRANCH_NORMAL)
 		{
@@ -292,7 +301,7 @@ void CMipsExecutor::PartitionFunction(uint32 functionAddress)
 	{
 		uint32 currentPoint = -1;
 		for(PartitionPointSet::const_iterator pointIterator(partitionPoints.begin());
-			pointIterator != partitionPoints.end(); ++pointIterator)
+		    pointIterator != partitionPoints.end(); ++pointIterator)
 		{
 			if(currentPoint != -1)
 			{

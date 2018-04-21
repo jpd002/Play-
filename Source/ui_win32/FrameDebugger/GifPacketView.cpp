@@ -1,24 +1,22 @@
 #include "GifPacketView.h"
-#include "win32/DeviceContext.h"
-#include "../../gs/GSHandler.h"
 #include "../../ee/GIF.h"
+#include "../../gs/GSHandler.h"
 #include "../../uint128.h"
 #include "string_format.h"
+#include "win32/DeviceContext.h"
 
 CGifPacketView::CGifPacketView(HWND parentWnd, const RECT& rect)
-: CRegViewPage(parentWnd, rect)
+    : CRegViewPage(parentWnd, rect)
 {
-
 }
 
 CGifPacketView::~CGifPacketView()
 {
-
 }
 
 std::string DumpPacked(uint8*& packet, const CGIF::TAG& tag, CGSHandler::RegisterWriteList& registerWrites)
 {
-	uint64 qtemp = 0;
+	uint64      qtemp = 0;
 	std::string result;
 
 	for(unsigned int i = 0; i < tag.loops; i++)
@@ -39,11 +37,11 @@ std::string DumpPacked(uint8*& packet, const CGIF::TAG& tag, CGSHandler::Registe
 			case 0x01:
 				//RGBA
 				{
-					uint64 temp	 = (input.nV[0] & 0xFF);
-					temp		|= (input.nV[1] & 0xFF) << 8;
-					temp		|= (input.nV[2] & 0xFF) << 16;
-					temp		|= (input.nV[3] & 0xFF) << 24;
-					temp		|= ((uint64)qtemp << 32);
+					uint64 temp = (input.nV[0] & 0xFF);
+					temp |= (input.nV[1] & 0xFF) << 8;
+					temp |= (input.nV[2] & 0xFF) << 16;
+					temp |= (input.nV[3] & 0xFF) << 24;
+					temp |= ((uint64)qtemp << 32);
 					registerWrites.push_back(CGSHandler::RegisterWrite(GS_REG_RGBAQ, temp));
 				}
 				break;
@@ -55,31 +53,31 @@ std::string DumpPacked(uint8*& packet, const CGIF::TAG& tag, CGSHandler::Registe
 			case 0x03:
 				//UV
 				{
-					uint64 temp	 = (input.nV[0] & 0x7FFF);
-					temp		|= (input.nV[1] & 0x7FFF) << 16;
+					uint64 temp = (input.nV[0] & 0x7FFF);
+					temp |= (input.nV[1] & 0x7FFF) << 16;
 					registerWrites.push_back(CGSHandler::RegisterWrite(GS_REG_UV, temp));
 				}
 				break;
 			case 0x04:
 				//XYZF2
 				{
-					uint64 temp	 = (input.nV[0] & 0xFFFF);
-					temp		|= (input.nV[1] & 0xFFFF) << 16;
-					temp		|= (uint64)(input.nV[2] & 0x0FFFFFF0) << 28;
-					temp		|= (uint64)(input.nV[3] & 0x00000FF0) << 52;
+					uint64 temp = (input.nV[0] & 0xFFFF);
+					temp |= (input.nV[1] & 0xFFFF) << 16;
+					temp |= (uint64)(input.nV[2] & 0x0FFFFFF0) << 28;
+					temp |= (uint64)(input.nV[3] & 0x00000FF0) << 52;
 					registerWrites.push_back(CGSHandler::RegisterWrite(((input.nV[3] & 0x8000) != 0) ? GS_REG_XYZF3 : GS_REG_XYZF2, temp));
 				}
 				break;
 			case 0x05:
 				//XYZ2
 				{
-					uint64 temp  = (input.nV[0] & 0xFFFF);
-					temp        |= (input.nV[1] & 0xFFFF) << 16;
-					temp        |= (uint64)(input.nV[2] & 0xFFFFFFFF) << 32;
+					uint64 temp = (input.nV[0] & 0xFFFF);
+					temp |= (input.nV[1] & 0xFFFF) << 16;
+					temp |= (uint64)(input.nV[2] & 0xFFFFFFFF) << 32;
 					registerWrites.push_back(CGSHandler::RegisterWrite(((input.nV[3] & 0x8000) != 0) ? GS_REG_XYZ3 : GS_REG_XYZ2, temp));
 				}
 				break;
-/*
+			/*
 			case 0x06:
 				//TEX0_1
 				writeList.push_back(CGSHandler::RegisterWrite(GS_REG_TEX0_1, nPacket.nD0));
@@ -138,8 +136,10 @@ void CGifPacketView::SetPacket(uint8* packet, uint32 packetSize)
 			break;
 		}
 
-		if(tagSize == 0) break;
-		if(tagSize > packetSize) break;
+		if(tagSize == 0)
+			break;
+		if(tagSize > packetSize)
+			break;
 
 		if(tag.cmd == 0)
 		{

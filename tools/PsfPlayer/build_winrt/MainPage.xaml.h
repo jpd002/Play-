@@ -1,29 +1,30 @@
 ﻿#pragma once
 
 #include "MainPage.g.h"
-#include "PsfVm.h"
 #include "Playlist.h"
+#include "PsfVm.h"
 #include "winrt_ui/PlaylistItemAdapter.h"
 
 namespace PsfPlayer
 {
-	public ref class MainPage sealed
-	{
-	public:
-		typedef Windows::Foundation::Collections::IVector<PlaylistItemAdapter^>^ PlaylistItemArray; 
+public
+ref class MainPage sealed
+{
+public:
+	typedef Windows::Foundation::Collections::IVector<PlaylistItemAdapter ^> ^ PlaylistItemArray;
 
-										MainPage();
+	MainPage();
 
-		property PlaylistItemArray		PlaylistItems;
+	property PlaylistItemArray PlaylistItems;
 
-	protected:
-		virtual void					OnNavigatedTo(Windows::UI::Xaml::Navigation::NavigationEventArgs^ e) override;
+protected:
+	virtual void OnNavigatedTo(Windows::UI::Xaml::Navigation::NavigationEventArgs ^ e) override;
 
-	private:
-		void							ejectButton_Click(Platform::Object^ sender, Windows::UI::Xaml::RoutedEventArgs^ e);
-		void							playButton_Click(Platform::Object^ sender, Windows::UI::Xaml::RoutedEventArgs^ e);
+private:
+	void ejectButton_Click(Platform::Object ^ sender, Windows::UI::Xaml::RoutedEventArgs ^ e);
+	void playButton_Click(Platform::Object ^ sender, Windows::UI::Xaml::RoutedEventArgs ^ e);
 
-		CPsfVm							m_virtualMachine;
-		CPlaylist						m_playlist;
-	};
+	CPsfVm    m_virtualMachine;
+	CPlaylist m_playlist;
+};
 }

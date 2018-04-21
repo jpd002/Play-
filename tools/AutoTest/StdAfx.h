@@ -1,19 +1,19 @@
 #ifndef _STDAFX_H_
 #define _STDAFX_H_
 
-#include <string>
-#include <vector>
+#include <functional>
 #include <list>
 #include <map>
-#include <set>
-#include <functional>
 #include <memory>
+#include <set>
+#include <string>
+#include <vector>
 
-#include <boost/signals2.hpp>
 #include <boost/lexical_cast.hpp>
+#include <boost/signals2.hpp>
 
-#include "Types.h"
 #include "Stream.h"
+#include "Types.h"
 #include "xml/Node.h"
 
 #endif

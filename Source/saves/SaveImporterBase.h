@@ -1,9 +1,9 @@
 #ifndef _SAVEIMPORTERBASE_H_
 #define _SAVEIMPORTERBASE_H_
 
+#include "Stream.h"
 #include <boost/filesystem.hpp>
 #include <functional>
-#include "Stream.h"
 
 class CSaveImporterBase
 {
@@ -15,21 +15,21 @@ public:
 		OVERWRITE_NO
 	};
 
-	typedef std::function< OVERWRITE_PROMPT_RETURN (const boost::filesystem::path&) > OverwritePromptHandlerType;
+	typedef std::function<OVERWRITE_PROMPT_RETURN(const boost::filesystem::path&)> OverwritePromptHandlerType;
 
-									CSaveImporterBase();
-	virtual							~CSaveImporterBase();
+	CSaveImporterBase();
+	virtual ~CSaveImporterBase();
 
-	virtual void					Import(Framework::CStream&, const boost::filesystem::path&) = 0;
+	virtual void Import(Framework::CStream&, const boost::filesystem::path&) = 0;
 
-	void							SetOverwritePromptHandler(const OverwritePromptHandlerType&);
+	void SetOverwritePromptHandler(const OverwritePromptHandlerType&);
 
 protected:
-	bool							CanExtractFile(const boost::filesystem::path&);
+	bool CanExtractFile(const boost::filesystem::path&);
 
 private:
-	bool							m_overwriteAll;
-	OverwritePromptHandlerType		m_overwritePromptHandler;
+	bool                       m_overwriteAll;
+	OverwritePromptHandlerType m_overwritePromptHandler;
 };
 
 #endif

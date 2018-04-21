@@ -6,13 +6,15 @@
 
 namespace Psp
 {
-	class CModule
+class CModule
+{
+public:
+	virtual ~CModule()
 	{
-	public:
-		virtual					~CModule()		{}
-		virtual void			Invoke(uint32, CMIPS&)	= 0;
-		virtual std::string		GetName() const			= 0;
-	};
+	}
+	virtual void        Invoke(uint32, CMIPS&) = 0;
+	virtual std::string GetName() const = 0;
+};
 };
 
 #endif

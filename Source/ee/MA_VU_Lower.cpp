@@ -1,16 +1,15 @@
-#include <stddef.h>
 #include "../MIPS.h"
 #include "../MemoryUtils.h"
 #include "MA_VU.h"
-#include "Vpu.h"
 #include "VUShared.h"
+#include "Vpu.h"
 #include "offsetof_def.h"
+#include <stddef.h>
 
 CMA_VU::CLower::CLower(uint32 vuMemAddressMask)
-: CMIPSInstructionFactory(MIPS_REGSIZE_32)
-, m_vuMemAddressMask(vuMemAddressMask)
+    : CMIPSInstructionFactory(MIPS_REGSIZE_32)
+    , m_vuMemAddressMask(vuMemAddressMask)
 {
-
 }
 
 void CMA_VU::CLower::CompileInstruction(uint32 address, CMipsJitter* codeGen, CMIPS* context)
@@ -22,20 +21,20 @@ void CMA_VU::CLower::CompileInstruction(uint32 address, CMipsJitter* codeGen, CM
 		return;
 	}
 
-	m_nDest		= (uint8 )((m_nOpcode >> 21) & 0x000F);
+	m_nDest = (uint8)((m_nOpcode >> 21) & 0x000F);
 
-	m_nFSF		= ((m_nDest >> 0) & 0x03);
-	m_nFTF		= ((m_nDest >> 2) & 0x03);
+	m_nFSF = ((m_nDest >> 0) & 0x03);
+	m_nFTF = ((m_nDest >> 2) & 0x03);
 
-	m_nIT		= (uint8 )((m_nOpcode >> 16) & 0x001F);
-	m_nIS		= (uint8 )((m_nOpcode >> 11) & 0x001F);
-	m_nID		= (uint8 )((m_nOpcode >>  6) & 0x001F);
-	m_nImm5		= m_nID;
-	m_nImm11	= (uint16)((m_nOpcode >>  0) & 0x07FF);
-	m_nImm12	= (uint16)((m_nOpcode & 0x7FF) | (m_nOpcode & 0x00200000) >> 10);
-	m_nImm15	= (uint16)((m_nOpcode & 0x7FF) | (m_nOpcode & 0x01E00000) >> 10);
-	m_nImm15S	= m_nImm15 | (m_nImm15 & 0x4000 ? 0x8000 : 0x0000);
-	m_nImm24	= m_nOpcode & 0x00FFFFFF;
+	m_nIT = (uint8)((m_nOpcode >> 16) & 0x001F);
+	m_nIS = (uint8)((m_nOpcode >> 11) & 0x001F);
+	m_nID = (uint8)((m_nOpcode >> 6) & 0x001F);
+	m_nImm5 = m_nID;
+	m_nImm11 = (uint16)((m_nOpcode >> 0) & 0x07FF);
+	m_nImm12 = (uint16)((m_nOpcode & 0x7FF) | (m_nOpcode & 0x00200000) >> 10);
+	m_nImm15 = (uint16)((m_nOpcode & 0x7FF) | (m_nOpcode & 0x01E00000) >> 10);
+	m_nImm15S = m_nImm15 | (m_nImm15 & 0x4000 ? 0x8000 : 0x0000);
+	m_nImm24 = m_nOpcode & 0x00FFFFFF;
 
 	if(m_nOpcode != OPCODE_NOP)
 	{
@@ -78,7 +77,7 @@ void CMA_VU::CLower::ApplySumSeries(size_t target, const uint32* seriesConstants
 	for(unsigned int i = 0; i < seriesLength; i++)
 	{
 		unsigned int exponent = seriesExponents[i];
-		float constant = *reinterpret_cast<const float*>(&seriesConstants[i]);
+		float        constant = *reinterpret_cast<const float*>(&seriesConstants[i]);
 
 		m_codeGen->FP_PushSingle(target);
 		for(unsigned int j = 0; j < exponent - 1; j++)
@@ -100,32 +99,31 @@ void CMA_VU::CLower::ApplySumSeries(size_t target, const uint32* seriesConstants
 void CMA_VU::CLower::GenerateEATAN()
 {
 	static const uint32 pi4 = 0x3F490FDB;
-	const unsigned int seriesLength = 8;
+	const unsigned int  seriesLength = 8;
 	static const uint32 seriesConstants[seriesLength] =
-	{
-		0x3F7FFFF5,
-		0xBEAAA61C,
-		0x3E4C40A6,
-		0xBE0E6C63,
-		0x3DC577DF,
-		0xBD6501C4,
-		0x3CB31652,
-		0xBB84D7E7,
-	};
+	    {
+	        0x3F7FFFF5,
+	        0xBEAAA61C,
+	        0x3E4C40A6,
+	        0xBE0E6C63,
+	        0x3DC577DF,
+	        0xBD6501C4,
+	        0x3CB31652,
+	        0xBB84D7E7,
+	    };
 	static const unsigned int seriesExponents[seriesLength] =
-	{
-		1,
-		3,
-		5,
-		7,
-		9,
-		11,
-		13,
-		15
-	};
+	    {
+	        1,
+	        3,
+	        5,
+	        7,
+	        9,
+	        11,
+	        13,
+	        15};
 
 	ApplySumSeries(offsetof(CMIPS, m_State.nCOP2T),
-		seriesConstants, seriesExponents, seriesLength);
+	               seriesConstants, seriesExponents, seriesLength);
 
 	{
 		float constant = *reinterpret_cast<const float*>(&pi4);
@@ -143,15 +141,16 @@ void CMA_VU::CLower::GenerateEATAN()
 //00
 void CMA_VU::CLower::LQ()
 {
-	if(m_nDest == 0) return;
+	if(m_nDest == 0)
+		return;
 
 	m_codeGen->PushRelRef(offsetof(CMIPS, m_vuMem));
 	VUShared::ComputeMemAccessAddr(
-		m_codeGen,
-		m_nIS,
-		static_cast<uint32>(VUShared::GetImm11Offset(m_nImm11)),
-		0,
-		m_vuMemAddressMask);
+	    m_codeGen,
+	    m_nIS,
+	    static_cast<uint32>(VUShared::GetImm11Offset(m_nImm11)),
+	    0,
+	    m_vuMemAddressMask);
 	m_codeGen->AddRef();
 
 	VUShared::LQbase(m_codeGen, m_nDest, m_nIT);
@@ -164,11 +163,11 @@ void CMA_VU::CLower::SQ()
 
 	//Compute address
 	VUShared::ComputeMemAccessAddr(
-		m_codeGen,
-		m_nIT,
-		static_cast<uint32>(VUShared::GetImm11Offset(m_nImm11)),
-		0,
-		m_vuMemAddressMask);
+	    m_codeGen,
+	    m_nIT,
+	    static_cast<uint32>(VUShared::GetImm11Offset(m_nImm11)),
+	    0,
+	    m_vuMemAddressMask);
 
 	m_codeGen->AddRef();
 
@@ -182,11 +181,11 @@ void CMA_VU::CLower::ILW()
 
 	//Compute address
 	VUShared::ComputeMemAccessAddr(
-		m_codeGen,
-		m_nIS,
-		static_cast<uint32>(VUShared::GetImm11Offset(m_nImm11)),
-		VUShared::GetDestOffset(m_nDest),
-		m_vuMemAddressMask);
+	    m_codeGen,
+	    m_nIS,
+	    static_cast<uint32>(VUShared::GetImm11Offset(m_nImm11)),
+	    VUShared::GetDestOffset(m_nDest),
+	    m_vuMemAddressMask);
 
 	m_codeGen->AddRef();
 
@@ -203,11 +202,11 @@ void CMA_VU::CLower::ISW()
 
 	//Compute address
 	VUShared::ComputeMemAccessAddr(
-		m_codeGen,
-		m_nIS,
-		static_cast<uint32>(VUShared::GetImm11Offset(m_nImm11)),
-		0,
-		m_vuMemAddressMask);
+	    m_codeGen,
+	    m_nIS,
+	    static_cast<uint32>(VUShared::GetImm11Offset(m_nImm11)),
+	    0,
+	    m_vuMemAddressMask);
 
 	VUShared::ISWbase(m_codeGen, m_nDest);
 }
@@ -215,7 +214,8 @@ void CMA_VU::CLower::ISW()
 //08
 void CMA_VU::CLower::IADDIU()
 {
-	if(m_nIT == 0) return;
+	if(m_nIT == 0)
+		return;
 
 	VUShared::PushIntegerRegister(m_codeGen, m_nIS);
 	m_codeGen->PushCst(static_cast<uint16>(m_nImm15));
@@ -226,7 +226,8 @@ void CMA_VU::CLower::IADDIU()
 //09
 void CMA_VU::CLower::ISUBIU()
 {
-	if(m_nIT == 0) return;
+	if(m_nIT == 0)
+		return;
 
 	VUShared::PushIntegerRegister(m_codeGen, m_nIS);
 	m_codeGen->PushCst(static_cast<uint16>(m_nImm15));
@@ -627,7 +628,8 @@ void CMA_VU::CLower::MFP()
 {
 	for(unsigned int i = 0; i < 4; i++)
 	{
-		if(!VUShared::DestinationHasElement(m_nDest, i)) continue;
+		if(!VUShared::DestinationHasElement(m_nDest, i))
+			continue;
 
 		m_codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2P));
 		m_codeGen->PullRel(offsetof(CMIPS, m_State.nCOP2[m_nIT].nV[i]));
@@ -712,25 +714,23 @@ void CMA_VU::CLower::ESQRT()
 void CMA_VU::CLower::ESIN()
 {
 	static const unsigned int seriesLength = 5;
-	static const uint32 seriesConstants[seriesLength] =
-	{
-		0x3F800000,
-		0xBE2AAAA4,
-		0x3C08873E,
-		0xB94FB21F,
-		0x362E9C14
-	};
+	static const uint32       seriesConstants[seriesLength] =
+	    {
+	        0x3F800000,
+	        0xBE2AAAA4,
+	        0x3C08873E,
+	        0xB94FB21F,
+	        0x362E9C14};
 	static const unsigned int seriesExponents[seriesLength] =
-	{
-		1,
-		3,
-		5,
-		7,
-		9
-	};
+	    {
+	        1,
+	        3,
+	        5,
+	        7,
+	        9};
 
 	ApplySumSeries(offsetof(CMIPS, m_State.nCOP2[m_nIS].nV[m_nFSF]),
-		seriesConstants, seriesExponents, seriesLength);
+	               seriesConstants, seriesExponents, seriesLength);
 
 	m_codeGen->FP_PullSingle(offsetof(CMIPS, m_State.nCOP2P));
 }
@@ -894,28 +894,26 @@ void CMA_VU::CLower::ERCPR()
 //1F
 void CMA_VU::CLower::EEXP()
 {
-	const unsigned int seriesLength = 6;
+	const unsigned int  seriesLength = 6;
 	static const uint32 seriesConstants[seriesLength] =
-	{
-		0x3E7FFFA8,
-		0x3D0007F4,
-		0x3B29D3FF,
-		0x3933E553,
-		0x36B63510,
-		0x353961AC
-	};
+	    {
+	        0x3E7FFFA8,
+	        0x3D0007F4,
+	        0x3B29D3FF,
+	        0x3933E553,
+	        0x36B63510,
+	        0x353961AC};
 	static const unsigned int seriesExponents[seriesLength] =
-	{
-		1,
-		2,
-		3,
-		4,
-		5,
-		6
-	};
+	    {
+	        1,
+	        2,
+	        3,
+	        4,
+	        5,
+	        6};
 
 	ApplySumSeries(offsetof(CMIPS, m_State.nCOP2[m_nIS].nV[m_nFSF]),
-		seriesConstants, seriesExponents, seriesLength);
+	               seriesConstants, seriesExponents, seriesLength);
 
 	m_codeGen->FP_PushCst(1.0f);
 	m_codeGen->FP_Add();
@@ -1004,105 +1002,105 @@ void CMA_VU::CLower::WAITP()
 //////////////////////////////////////////////////
 
 CMA_VU::CLower::InstructionFuncConstant CMA_VU::CLower::m_pOpGeneral[0x80] =
-{
-	//0x00
-	&CMA_VU::CLower::LQ,			&CMA_VU::CLower::SQ,			&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::ILW,			&CMA_VU::CLower::ISW,			&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,
-	//0x08
-	&CMA_VU::CLower::IADDIU,		&CMA_VU::CLower::ISUBIU,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,
-	//0x10
-	&CMA_VU::CLower::FCEQ,			&CMA_VU::CLower::FCSET,			&CMA_VU::CLower::FCAND,			&CMA_VU::CLower::FCOR,			&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::FSSET,			&CMA_VU::CLower::FSAND,			&CMA_VU::CLower::FSOR,
-	//0x18
-	&CMA_VU::CLower::FMEQ,			&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::FMAND,			&CMA_VU::CLower::FMOR,			&CMA_VU::CLower::FCGET,			&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,
-	//0x20
-	&CMA_VU::CLower::B,				&CMA_VU::CLower::BAL,			&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::JR,			&CMA_VU::CLower::JALR,			&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,
-	//0x28
-	&CMA_VU::CLower::IBEQ,			&CMA_VU::CLower::IBNE,			&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::IBLTZ,			&CMA_VU::CLower::IBGTZ,			&CMA_VU::CLower::IBLEZ,			&CMA_VU::CLower::IBGEZ,
-	//0x30
-	&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,
-	//0x38
-	&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,
-	//0x40
-	&CMA_VU::CLower::LOWEROP,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,
-	//0x48
-	&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,
-	//0x50
-	&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,
-	//0x58
-	&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,
-	//0x60
-	&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,
-	//0x68
-	&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,
-	//0x70
-	&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,
-	//0x78
-	&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,
+    {
+        //0x00
+        &CMA_VU::CLower::LQ, &CMA_VU::CLower::SQ, &CMA_VU::CLower::Illegal, &CMA_VU::CLower::Illegal, &CMA_VU::CLower::ILW, &CMA_VU::CLower::ISW, &CMA_VU::CLower::Illegal, &CMA_VU::CLower::Illegal,
+        //0x08
+        &CMA_VU::CLower::IADDIU, &CMA_VU::CLower::ISUBIU, &CMA_VU::CLower::Illegal, &CMA_VU::CLower::Illegal, &CMA_VU::CLower::Illegal, &CMA_VU::CLower::Illegal, &CMA_VU::CLower::Illegal, &CMA_VU::CLower::Illegal,
+        //0x10
+        &CMA_VU::CLower::FCEQ, &CMA_VU::CLower::FCSET, &CMA_VU::CLower::FCAND, &CMA_VU::CLower::FCOR, &CMA_VU::CLower::Illegal, &CMA_VU::CLower::FSSET, &CMA_VU::CLower::FSAND, &CMA_VU::CLower::FSOR,
+        //0x18
+        &CMA_VU::CLower::FMEQ, &CMA_VU::CLower::Illegal, &CMA_VU::CLower::FMAND, &CMA_VU::CLower::FMOR, &CMA_VU::CLower::FCGET, &CMA_VU::CLower::Illegal, &CMA_VU::CLower::Illegal, &CMA_VU::CLower::Illegal,
+        //0x20
+        &CMA_VU::CLower::B, &CMA_VU::CLower::BAL, &CMA_VU::CLower::Illegal, &CMA_VU::CLower::Illegal, &CMA_VU::CLower::JR, &CMA_VU::CLower::JALR, &CMA_VU::CLower::Illegal, &CMA_VU::CLower::Illegal,
+        //0x28
+        &CMA_VU::CLower::IBEQ, &CMA_VU::CLower::IBNE, &CMA_VU::CLower::Illegal, &CMA_VU::CLower::Illegal, &CMA_VU::CLower::IBLTZ, &CMA_VU::CLower::IBGTZ, &CMA_VU::CLower::IBLEZ, &CMA_VU::CLower::IBGEZ,
+        //0x30
+        &CMA_VU::CLower::Illegal, &CMA_VU::CLower::Illegal, &CMA_VU::CLower::Illegal, &CMA_VU::CLower::Illegal, &CMA_VU::CLower::Illegal, &CMA_VU::CLower::Illegal, &CMA_VU::CLower::Illegal, &CMA_VU::CLower::Illegal,
+        //0x38
+        &CMA_VU::CLower::Illegal, &CMA_VU::CLower::Illegal, &CMA_VU::CLower::Illegal, &CMA_VU::CLower::Illegal, &CMA_VU::CLower::Illegal, &CMA_VU::CLower::Illegal, &CMA_VU::CLower::Illegal, &CMA_VU::CLower::Illegal,
+        //0x40
+        &CMA_VU::CLower::LOWEROP, &CMA_VU::CLower::Illegal, &CMA_VU::CLower::Illegal, &CMA_VU::CLower::Illegal, &CMA_VU::CLower::Illegal, &CMA_VU::CLower::Illegal, &CMA_VU::CLower::Illegal, &CMA_VU::CLower::Illegal,
+        //0x48
+        &CMA_VU::CLower::Illegal, &CMA_VU::CLower::Illegal, &CMA_VU::CLower::Illegal, &CMA_VU::CLower::Illegal, &CMA_VU::CLower::Illegal, &CMA_VU::CLower::Illegal, &CMA_VU::CLower::Illegal, &CMA_VU::CLower::Illegal,
+        //0x50
+        &CMA_VU::CLower::Illegal, &CMA_VU::CLower::Illegal, &CMA_VU::CLower::Illegal, &CMA_VU::CLower::Illegal, &CMA_VU::CLower::Illegal, &CMA_VU::CLower::Illegal, &CMA_VU::CLower::Illegal, &CMA_VU::CLower::Illegal,
+        //0x58
+        &CMA_VU::CLower::Illegal, &CMA_VU::CLower::Illegal, &CMA_VU::CLower::Illegal, &CMA_VU::CLower::Illegal, &CMA_VU::CLower::Illegal, &CMA_VU::CLower::Illegal, &CMA_VU::CLower::Illegal, &CMA_VU::CLower::Illegal,
+        //0x60
+        &CMA_VU::CLower::Illegal, &CMA_VU::CLower::Illegal, &CMA_VU::CLower::Illegal, &CMA_VU::CLower::Illegal, &CMA_VU::CLower::Illegal, &CMA_VU::CLower::Illegal, &CMA_VU::CLower::Illegal, &CMA_VU::CLower::Illegal,
+        //0x68
+        &CMA_VU::CLower::Illegal, &CMA_VU::CLower::Illegal, &CMA_VU::CLower::Illegal, &CMA_VU::CLower::Illegal, &CMA_VU::CLower::Illegal, &CMA_VU::CLower::Illegal, &CMA_VU::CLower::Illegal, &CMA_VU::CLower::Illegal,
+        //0x70
+        &CMA_VU::CLower::Illegal, &CMA_VU::CLower::Illegal, &CMA_VU::CLower::Illegal, &CMA_VU::CLower::Illegal, &CMA_VU::CLower::Illegal, &CMA_VU::CLower::Illegal, &CMA_VU::CLower::Illegal, &CMA_VU::CLower::Illegal,
+        //0x78
+        &CMA_VU::CLower::Illegal, &CMA_VU::CLower::Illegal, &CMA_VU::CLower::Illegal, &CMA_VU::CLower::Illegal, &CMA_VU::CLower::Illegal, &CMA_VU::CLower::Illegal, &CMA_VU::CLower::Illegal, &CMA_VU::CLower::Illegal,
 };
 
 CMA_VU::CLower::InstructionFuncConstant CMA_VU::CLower::m_pOpLower[0x40] =
-{
-	//0x00
-	&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,
-	//0x08
-	&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,
-	//0x10
-	&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,
-	//0x18
-	&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,
-	//0x20
-	&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,
-	//0x28
-	&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,
-	//0x30
-	&CMA_VU::CLower::IADD,			&CMA_VU::CLower::ISUB,			&CMA_VU::CLower::IADDI,			&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::IAND,			&CMA_VU::CLower::IOR,			&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,
-	//0x38
-	&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::VECTOR0,		&CMA_VU::CLower::VECTOR1,		&CMA_VU::CLower::VECTOR2,		&CMA_VU::CLower::VECTOR3,
+    {
+        //0x00
+        &CMA_VU::CLower::Illegal, &CMA_VU::CLower::Illegal, &CMA_VU::CLower::Illegal, &CMA_VU::CLower::Illegal, &CMA_VU::CLower::Illegal, &CMA_VU::CLower::Illegal, &CMA_VU::CLower::Illegal, &CMA_VU::CLower::Illegal,
+        //0x08
+        &CMA_VU::CLower::Illegal, &CMA_VU::CLower::Illegal, &CMA_VU::CLower::Illegal, &CMA_VU::CLower::Illegal, &CMA_VU::CLower::Illegal, &CMA_VU::CLower::Illegal, &CMA_VU::CLower::Illegal, &CMA_VU::CLower::Illegal,
+        //0x10
+        &CMA_VU::CLower::Illegal, &CMA_VU::CLower::Illegal, &CMA_VU::CLower::Illegal, &CMA_VU::CLower::Illegal, &CMA_VU::CLower::Illegal, &CMA_VU::CLower::Illegal, &CMA_VU::CLower::Illegal, &CMA_VU::CLower::Illegal,
+        //0x18
+        &CMA_VU::CLower::Illegal, &CMA_VU::CLower::Illegal, &CMA_VU::CLower::Illegal, &CMA_VU::CLower::Illegal, &CMA_VU::CLower::Illegal, &CMA_VU::CLower::Illegal, &CMA_VU::CLower::Illegal, &CMA_VU::CLower::Illegal,
+        //0x20
+        &CMA_VU::CLower::Illegal, &CMA_VU::CLower::Illegal, &CMA_VU::CLower::Illegal, &CMA_VU::CLower::Illegal, &CMA_VU::CLower::Illegal, &CMA_VU::CLower::Illegal, &CMA_VU::CLower::Illegal, &CMA_VU::CLower::Illegal,
+        //0x28
+        &CMA_VU::CLower::Illegal, &CMA_VU::CLower::Illegal, &CMA_VU::CLower::Illegal, &CMA_VU::CLower::Illegal, &CMA_VU::CLower::Illegal, &CMA_VU::CLower::Illegal, &CMA_VU::CLower::Illegal, &CMA_VU::CLower::Illegal,
+        //0x30
+        &CMA_VU::CLower::IADD, &CMA_VU::CLower::ISUB, &CMA_VU::CLower::IADDI, &CMA_VU::CLower::Illegal, &CMA_VU::CLower::IAND, &CMA_VU::CLower::IOR, &CMA_VU::CLower::Illegal, &CMA_VU::CLower::Illegal,
+        //0x38
+        &CMA_VU::CLower::Illegal, &CMA_VU::CLower::Illegal, &CMA_VU::CLower::Illegal, &CMA_VU::CLower::Illegal, &CMA_VU::CLower::VECTOR0, &CMA_VU::CLower::VECTOR1, &CMA_VU::CLower::VECTOR2, &CMA_VU::CLower::VECTOR3,
 };
 
 CMA_VU::CLower::InstructionFuncConstant CMA_VU::CLower::m_pOpVector0[0x20] =
-{
-	//0x00
-	&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,
-	//0x08
-	&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::MOVE,			&CMA_VU::CLower::LQI,			&CMA_VU::CLower::DIV,			&CMA_VU::CLower::MTIR,
-	//0x10
-	&CMA_VU::CLower::RNEXT,			&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,
-	//0x18
-	&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::MFP,			&CMA_VU::CLower::XTOP,			&CMA_VU::CLower::XGKICK,		&CMA_VU::CLower::ESADD,			&CMA_VU::CLower::EATANxy,		&CMA_VU::CLower::ESQRT, 		&CMA_VU::CLower::ESIN,
+    {
+        //0x00
+        &CMA_VU::CLower::Illegal, &CMA_VU::CLower::Illegal, &CMA_VU::CLower::Illegal, &CMA_VU::CLower::Illegal, &CMA_VU::CLower::Illegal, &CMA_VU::CLower::Illegal, &CMA_VU::CLower::Illegal, &CMA_VU::CLower::Illegal,
+        //0x08
+        &CMA_VU::CLower::Illegal, &CMA_VU::CLower::Illegal, &CMA_VU::CLower::Illegal, &CMA_VU::CLower::Illegal, &CMA_VU::CLower::MOVE, &CMA_VU::CLower::LQI, &CMA_VU::CLower::DIV, &CMA_VU::CLower::MTIR,
+        //0x10
+        &CMA_VU::CLower::RNEXT, &CMA_VU::CLower::Illegal, &CMA_VU::CLower::Illegal, &CMA_VU::CLower::Illegal, &CMA_VU::CLower::Illegal, &CMA_VU::CLower::Illegal, &CMA_VU::CLower::Illegal, &CMA_VU::CLower::Illegal,
+        //0x18
+        &CMA_VU::CLower::Illegal, &CMA_VU::CLower::MFP, &CMA_VU::CLower::XTOP, &CMA_VU::CLower::XGKICK, &CMA_VU::CLower::ESADD, &CMA_VU::CLower::EATANxy, &CMA_VU::CLower::ESQRT, &CMA_VU::CLower::ESIN,
 };
 
 CMA_VU::CLower::InstructionFuncConstant CMA_VU::CLower::m_pOpVector1[0x20] =
-{
-	//0x00
-	&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,
-	//0x08
-	&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::MR32,			&CMA_VU::CLower::SQI,			&CMA_VU::CLower::SQRT,			&CMA_VU::CLower::MFIR,
-	//0x10
-	&CMA_VU::CLower::RGET,			&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,
-	//0x18
-	&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::XITOP,			&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::EATANxz,		&CMA_VU::CLower::ERSQRT,		&CMA_VU::CLower::Illegal,
+    {
+        //0x00
+        &CMA_VU::CLower::Illegal, &CMA_VU::CLower::Illegal, &CMA_VU::CLower::Illegal, &CMA_VU::CLower::Illegal, &CMA_VU::CLower::Illegal, &CMA_VU::CLower::Illegal, &CMA_VU::CLower::Illegal, &CMA_VU::CLower::Illegal,
+        //0x08
+        &CMA_VU::CLower::Illegal, &CMA_VU::CLower::Illegal, &CMA_VU::CLower::Illegal, &CMA_VU::CLower::Illegal, &CMA_VU::CLower::MR32, &CMA_VU::CLower::SQI, &CMA_VU::CLower::SQRT, &CMA_VU::CLower::MFIR,
+        //0x10
+        &CMA_VU::CLower::RGET, &CMA_VU::CLower::Illegal, &CMA_VU::CLower::Illegal, &CMA_VU::CLower::Illegal, &CMA_VU::CLower::Illegal, &CMA_VU::CLower::Illegal, &CMA_VU::CLower::Illegal, &CMA_VU::CLower::Illegal,
+        //0x18
+        &CMA_VU::CLower::Illegal, &CMA_VU::CLower::Illegal, &CMA_VU::CLower::XITOP, &CMA_VU::CLower::Illegal, &CMA_VU::CLower::Illegal, &CMA_VU::CLower::EATANxz, &CMA_VU::CLower::ERSQRT, &CMA_VU::CLower::Illegal,
 };
 
 CMA_VU::CLower::InstructionFuncConstant CMA_VU::CLower::m_pOpVector2[0x20] =
-{
-	//0x00
-	&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,
-	//0x08
-	&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::LQD,			&CMA_VU::CLower::RSQRT,			&CMA_VU::CLower::ILWR,
-	//0x10
-	&CMA_VU::CLower::RINIT,			&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,
-	//0x18
-	&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::ELENG,			&CMA_VU::CLower::ESUM,			&CMA_VU::CLower::ERCPR,			&CMA_VU::CLower::EEXP,
+    {
+        //0x00
+        &CMA_VU::CLower::Illegal, &CMA_VU::CLower::Illegal, &CMA_VU::CLower::Illegal, &CMA_VU::CLower::Illegal, &CMA_VU::CLower::Illegal, &CMA_VU::CLower::Illegal, &CMA_VU::CLower::Illegal, &CMA_VU::CLower::Illegal,
+        //0x08
+        &CMA_VU::CLower::Illegal, &CMA_VU::CLower::Illegal, &CMA_VU::CLower::Illegal, &CMA_VU::CLower::Illegal, &CMA_VU::CLower::Illegal, &CMA_VU::CLower::LQD, &CMA_VU::CLower::RSQRT, &CMA_VU::CLower::ILWR,
+        //0x10
+        &CMA_VU::CLower::RINIT, &CMA_VU::CLower::Illegal, &CMA_VU::CLower::Illegal, &CMA_VU::CLower::Illegal, &CMA_VU::CLower::Illegal, &CMA_VU::CLower::Illegal, &CMA_VU::CLower::Illegal, &CMA_VU::CLower::Illegal,
+        //0x18
+        &CMA_VU::CLower::Illegal, &CMA_VU::CLower::Illegal, &CMA_VU::CLower::Illegal, &CMA_VU::CLower::Illegal, &CMA_VU::CLower::ELENG, &CMA_VU::CLower::ESUM, &CMA_VU::CLower::ERCPR, &CMA_VU::CLower::EEXP,
 };
 
 CMA_VU::CLower::InstructionFuncConstant CMA_VU::CLower::m_pOpVector3[0x20] =
-{
-	//0x00
-	&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,
-	//0x08
-	&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::SQD,			&CMA_VU::CLower::WAITQ,			&CMA_VU::CLower::ISWR,
-	//0x10
-	&CMA_VU::CLower::RXOR,			&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,
-	//0x18
-	&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::ERLENG,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::WAITP,			&CMA_VU::CLower::Illegal,
+    {
+        //0x00
+        &CMA_VU::CLower::Illegal, &CMA_VU::CLower::Illegal, &CMA_VU::CLower::Illegal, &CMA_VU::CLower::Illegal, &CMA_VU::CLower::Illegal, &CMA_VU::CLower::Illegal, &CMA_VU::CLower::Illegal, &CMA_VU::CLower::Illegal,
+        //0x08
+        &CMA_VU::CLower::Illegal, &CMA_VU::CLower::Illegal, &CMA_VU::CLower::Illegal, &CMA_VU::CLower::Illegal, &CMA_VU::CLower::Illegal, &CMA_VU::CLower::SQD, &CMA_VU::CLower::WAITQ, &CMA_VU::CLower::ISWR,
+        //0x10
+        &CMA_VU::CLower::RXOR, &CMA_VU::CLower::Illegal, &CMA_VU::CLower::Illegal, &CMA_VU::CLower::Illegal, &CMA_VU::CLower::Illegal, &CMA_VU::CLower::Illegal, &CMA_VU::CLower::Illegal, &CMA_VU::CLower::Illegal,
+        //0x18
+        &CMA_VU::CLower::Illegal, &CMA_VU::CLower::Illegal, &CMA_VU::CLower::Illegal, &CMA_VU::CLower::Illegal, &CMA_VU::CLower::ERLENG, &CMA_VU::CLower::Illegal, &CMA_VU::CLower::WAITP, &CMA_VU::CLower::Illegal,
 };

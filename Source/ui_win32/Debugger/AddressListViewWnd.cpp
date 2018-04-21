@@ -1,8 +1,8 @@
 #include "AddressListViewWnd.h"
-#include "win32/DpiUtils.h"
 #include "../resource.h"
-#include "string_format.h"
 #include "string_cast.h"
+#include "string_format.h"
+#include "win32/DpiUtils.h"
 
 #define WND_STYLE (WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_THICKFRAME | WS_CAPTION | WS_SYSMENU | WS_CHILD | WS_MAXIMIZEBOX)
 
@@ -47,15 +47,15 @@ long CAddressListViewWnd::OnCommand(unsigned short, unsigned short cmd, HWND sen
 		switch(cmd)
 		{
 		case LBN_DBLCLK:
+		{
+			auto selection = m_addressListBox.GetCurrentSelection();
+			if(selection != -1)
 			{
-				auto selection = m_addressListBox.GetCurrentSelection();
-				if(selection != -1)
-				{
-					auto selectedAddress = m_addressListBox.GetItemData(selection);
-					AddressSelected(selectedAddress);
-				}
+				auto selectedAddress = m_addressListBox.GetItemData(selection);
+				AddressSelected(selectedAddress);
 			}
-			break;
+		}
+		break;
 		}
 	}
 	return TRUE;

@@ -1,20 +1,18 @@
-#include <zlib.h>
-#include <stdexcept>
-#include <assert.h>
-#include <algorithm>
-#include <cstring>
 #include "PsfFs.h"
 #include "PtrStream.h"
 #include "stricmp.h"
+#include <algorithm>
+#include <assert.h>
+#include <cstring>
+#include <stdexcept>
+#include <zlib.h>
 
 CPsfFs::CPsfFs()
 {
-
 }
 
 CPsfFs::~CPsfFs()
 {
-
 }
 
 void CPsfFs::AppendArchive(const CPsfBase& archive)
@@ -27,7 +25,8 @@ void CPsfFs::ReadFile(Framework::CStream& stream, FILE& file)
 {
 	//Read size table
 	unsigned int sizeTableEntryCount = (file.size + file.blockSize - 1) / file.blockSize;
-	if(sizeTableEntryCount == 0) return;
+	if(sizeTableEntryCount == 0)
+		return;
 
 	uint32* sizeTable = reinterpret_cast<uint32*>(alloca(sizeTableEntryCount * sizeof(uint32)));
 	stream.Read(sizeTable, sizeof(uint32) * sizeTableEntryCount);
@@ -95,7 +94,7 @@ void CPsfFs::ReadDirectory(Framework::CStream& stream, DIRECTORY& baseDirectory)
 
 Framework::CStream* CPsfFs::GetFile(const char* path)
 {
-	std::string transformPath(path);
+	std::string            transformPath(path);
 	std::string::size_type position = transformPath.find('\\');
 	while(position != std::string::npos)
 	{
@@ -113,7 +112,7 @@ Framework::CStream* CPsfFs::GetFile(const char* path)
 CPsfFs::NODE* CPsfFs::GetFileFindNode(const DIRECTORY& directory, const char* path)
 {
 	for(auto nodeIterator = std::begin(directory.fileList);
-		nodeIterator != std::end(directory.fileList); nodeIterator++)
+	    nodeIterator != std::end(directory.fileList); nodeIterator++)
 	{
 		NODE* node(*nodeIterator);
 		if(!stricmp(node->name, path))
@@ -127,7 +126,8 @@ CPsfFs::NODE* CPsfFs::GetFileFindNode(const DIRECTORY& directory, const char* pa
 
 const CPsfFs::FILE* CPsfFs::GetFileDetail(const DIRECTORY& directory, const char* path) const
 {
-	if(*path == '/') path++;
+	if(*path == '/')
+		path++;
 	const char* separator = strchr(path, '/');
 
 	std::string filename(path, separator ? separator : path + strlen(path));

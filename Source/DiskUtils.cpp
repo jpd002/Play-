@@ -1,11 +1,11 @@
-#include <boost/algorithm/string.hpp>
-#include "make_unique.h"
-#include "stricmp.h"
 #include "DiskUtils.h"
-#include "IszImageStream.h"
 #include "CsoImageStream.h"
+#include "IszImageStream.h"
 #include "StdStream.h"
+#include "make_unique.h"
 #include "s3stream/S3ObjectStream.h"
+#include "stricmp.h"
+#include <boost/algorithm/string.hpp>
 #ifdef _WIN32
 #include "VolumeStream.h"
 #else
@@ -44,7 +44,7 @@ DiskUtils::OpticalMediaPtr DiskUtils::CreateOpticalMediaFromPath(const boost::fi
 	assert(!imagePath.empty());
 
 	std::shared_ptr<Framework::CStream> stream;
-	auto extension = imagePath.extension().string();
+	auto                                extension = imagePath.extension().string();
 
 	//Gotta think of something better than that...
 	if(!stricmp(extension.c_str(), ".isz"))
@@ -87,11 +87,11 @@ DiskUtils::OpticalMediaPtr DiskUtils::CreateOpticalMediaFromPath(const boost::fi
 DiskUtils::SystemConfigMap DiskUtils::ParseSystemConfigFile(Framework::CStream* systemCnfFile)
 {
 	SystemConfigMap result;
-	auto line = systemCnfFile->ReadLine();
+	auto            line = systemCnfFile->ReadLine();
 	while(!systemCnfFile->IsEOF())
 	{
-		auto trimmedEnd = std::remove_if(line.begin(), line.end(), isspace);
-		auto trimmedLine = std::string(line.begin(), trimmedEnd);
+		auto                     trimmedEnd = std::remove_if(line.begin(), line.end(), isspace);
+		auto                     trimmedLine = std::string(line.begin(), trimmedEnd);
 		std::vector<std::string> components;
 		boost::split(components, trimmedLine, boost::is_any_of("="), boost::algorithm::token_compress_on);
 		if(components.size() >= 2)
@@ -125,11 +125,13 @@ bool DiskUtils::TryGetDiskId(const boost::filesystem::path& imagePath, std::stri
 		auto opticalMedia = CreateOpticalMediaFromPath(imagePath);
 		auto fileSystem = opticalMedia->GetFileSystem();
 		auto systemConfigFile = std::unique_ptr<Framework::CStream>(fileSystem->Open("SYSTEM.CNF;1"));
-		if(!systemConfigFile) return false;
+		if(!systemConfigFile)
+			return false;
 
 		auto systemConfig = ParseSystemConfigFile(systemConfigFile.get());
 		auto bootItemIterator = systemConfig.find("BOOT2");
-		if(bootItemIterator == std::end(systemConfig)) return false;
+		if(bootItemIterator == std::end(systemConfig))
+			return false;
 
 		auto diskId = GetDiskIdFromPath(bootItemIterator->second);
 		if(diskIdPtr)

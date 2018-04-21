@@ -1,20 +1,20 @@
 #pragma once
-#include "PadHandler.h"
 #include "Config.h"
-#include <memory>
 #include "InputBindingManager.h"
+#include "PadHandler.h"
+#include <memory>
 
 class CPH_HidUnix : public CPadHandler
 {
 public:
 	CPH_HidUnix(CInputBindingManager*);
-	virtual						~CPH_HidUnix();
+	virtual ~CPH_HidUnix();
 
-	void						Update(uint8*) override;
+	void Update(uint8*) override;
 
-	static FactoryFunction		GetFactoryFunction(CInputBindingManager*);
+	static FactoryFunction GetFactoryFunction(CInputBindingManager*);
 
 private:
-	static CPadHandler*			PadHandlerFactory(CPH_HidUnix*);
-	CInputBindingManager		*m_inputManager;
+	static CPadHandler*   PadHandlerFactory(CPH_HidUnix*);
+	CInputBindingManager* m_inputManager;
 };

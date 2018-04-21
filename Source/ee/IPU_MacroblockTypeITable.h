@@ -5,29 +5,28 @@
 
 namespace IPU
 {
-	
-	class CMacroblockTypeITable : public MPEG2::CVLCTable
+
+class CMacroblockTypeITable : public MPEG2::CVLCTable
+{
+public:
+	CMacroblockTypeITable();
+	static MPEG2::CVLCTable* GetInstance();
+
+	enum MAXBITS
 	{
-	public:
-									CMacroblockTypeITable();
-		static MPEG2::CVLCTable*	GetInstance();
-
-		enum MAXBITS
-		{
-			MAXBITS = 2,
-		};
-
-		enum ENTRYCOUNT
-		{
-			ENTRYCOUNT = 2,
-		};
-
-	private:
-		static MPEG2::VLCTABLEENTRY	m_pTable[ENTRYCOUNT];
-		static unsigned int			m_pIndexTable[MAXBITS];
-		static MPEG2::CVLCTable*	m_pInstance;
+		MAXBITS = 2,
 	};
 
+	enum ENTRYCOUNT
+	{
+		ENTRYCOUNT = 2,
+	};
+
+private:
+	static MPEG2::VLCTABLEENTRY m_pTable[ENTRYCOUNT];
+	static unsigned int         m_pIndexTable[MAXBITS];
+	static MPEG2::CVLCTable*    m_pInstance;
+};
 }
 
 #endif

@@ -1,10 +1,10 @@
-#include "resource.h"
-#include "../gs/GSH_OpenGL/GSH_OpenGL.h"
-#include "../AppConfig.h"
 #include "GSH_OpenGL_SettingsWnd.h"
+#include "../AppConfig.h"
+#include "../gs/GSH_OpenGL/GSH_OpenGL.h"
+#include "resource.h"
 
 CGSH_OpenGL_SettingsWnd::CGSH_OpenGL_SettingsWnd(HWND parentWindow)
-: CDialog(MAKEINTRESOURCE(IDD_GSHOPENGL_SETTINGS), parentWindow)
+    : CDialog(MAKEINTRESOURCE(IDD_GSHOPENGL_SETTINGS), parentWindow)
 {
 	SetClassPtr();
 
@@ -17,7 +17,6 @@ CGSH_OpenGL_SettingsWnd::CGSH_OpenGL_SettingsWnd(HWND parentWindow)
 
 CGSH_OpenGL_SettingsWnd::~CGSH_OpenGL_SettingsWnd()
 {
-
 }
 
 long CGSH_OpenGL_SettingsWnd::OnCommand(unsigned short id, unsigned short cmd, HWND senderWnd)

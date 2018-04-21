@@ -1,45 +1,45 @@
 #include "PsxBios.h"
 #include "COP_SCU.h"
 #include "Log.h"
-#include "iop/Iop_Intc.h"
 #include "MIPSAssembler.h"
+#include "iop/Iop_Intc.h"
 #include "xml/Node.h"
 #include "xml/Writer.h"
 
-#define LOG_NAME	("psxbios")
-#define SC_PARAM0	(CMIPS::A0)
-#define SC_PARAM1	(CMIPS::A1)
-#define SC_PARAM2	(CMIPS::A2)
-#define SC_PARAM3	(CMIPS::A3)
-#define SC_RETURN	(CMIPS::V0)
+#define LOG_NAME ("psxbios")
+#define SC_PARAM0 (CMIPS::A0)
+#define SC_PARAM1 (CMIPS::A1)
+#define SC_PARAM2 (CMIPS::A2)
+#define SC_PARAM3 (CMIPS::A3)
+#define SC_RETURN (CMIPS::V0)
 
 using namespace Iop;
 
-#define PCB_TABLE_ADDRESS               (0x0108)
-#define TCB_TABLE_ADDRESS               (0x0110)
-#define EXITFROMEXCEPTION_STATE_ADDR    (0x0200)
-#define SYSHEAP_POINTER_ADDR            (0x0204)
-#define INTR_HANDLER                    (0x1000)
-#define EVENT_CHECKER                   (0x1200)
-#define EVENTS_BEGIN                    (0x3000)
-#define EVENTS_SIZE                     (sizeof(CPsxBios::EVENT) * CPsxBios::MAX_EVENT)
-#define B0TABLE_BEGIN                   (EVENTS_BEGIN + EVENTS_SIZE)
-#define B0TABLE_SIZE                    (0x5D * 4)
-#define C0TABLE_BEGIN                   (B0TABLE_BEGIN + B0TABLE_SIZE)
-#define C0TABLE_SIZE                    (0x1C * 4)
-#define C0_EXCEPTIONHANDLER_BEGIN       (C0TABLE_BEGIN + C0TABLE_SIZE)
-#define C0_EXCEPTIONHANDLER_SIZE        (0x1000)
-#define HEAP_START                      (C0_EXCEPTIONHANDLER_BEGIN + C0_EXCEPTIONHANDLER_SIZE)
-#define HEAP_SIZE                       (0x2000)
-#define BIOS_MEMORY_END                 (HEAP_START + HEAP_SIZE)
+#define PCB_TABLE_ADDRESS (0x0108)
+#define TCB_TABLE_ADDRESS (0x0110)
+#define EXITFROMEXCEPTION_STATE_ADDR (0x0200)
+#define SYSHEAP_POINTER_ADDR (0x0204)
+#define INTR_HANDLER (0x1000)
+#define EVENT_CHECKER (0x1200)
+#define EVENTS_BEGIN (0x3000)
+#define EVENTS_SIZE (sizeof(CPsxBios::EVENT) * CPsxBios::MAX_EVENT)
+#define B0TABLE_BEGIN (EVENTS_BEGIN + EVENTS_SIZE)
+#define B0TABLE_SIZE (0x5D * 4)
+#define C0TABLE_BEGIN (B0TABLE_BEGIN + B0TABLE_SIZE)
+#define C0TABLE_SIZE (0x1C * 4)
+#define C0_EXCEPTIONHANDLER_BEGIN (C0TABLE_BEGIN + C0TABLE_SIZE)
+#define C0_EXCEPTIONHANDLER_SIZE (0x1000)
+#define HEAP_START (C0_EXCEPTIONHANDLER_BEGIN + C0_EXCEPTIONHANDLER_SIZE)
+#define HEAP_SIZE (0x2000)
+#define BIOS_MEMORY_END (HEAP_START + HEAP_SIZE)
 
 CPsxBios::CPsxBios(CMIPS& cpu, uint8* ram, uint32 ramSize)
-: m_cpu(cpu)
-, m_ram(ram)
-, m_ramSize(ramSize)
-, m_exitFromExceptionStateAddr(reinterpret_cast<uint32*>(m_ram + EXITFROMEXCEPTION_STATE_ADDR))
-, m_sysHeapPointerAddr(reinterpret_cast<uint32*>(m_ram + SYSHEAP_POINTER_ADDR))
-, m_events(reinterpret_cast<EVENT*>(&m_ram[EVENTS_BEGIN]), 1, MAX_EVENT)
+    : m_cpu(cpu)
+    , m_ram(ram)
+    , m_ramSize(ramSize)
+    , m_exitFromExceptionStateAddr(reinterpret_cast<uint32*>(m_ram + EXITFROMEXCEPTION_STATE_ADDR))
+    , m_sysHeapPointerAddr(reinterpret_cast<uint32*>(m_ram + SYSHEAP_POINTER_ADDR))
+    , m_events(reinterpret_cast<EVENT*>(&m_ram[EVENTS_BEGIN]), 1, MAX_EVENT)
 {
 	static_assert(BIOS_MEMORY_END <= 0x10000, "BIOS memory size must not exceed 64k");
 	Reset();
@@ -47,7 +47,7 @@ CPsxBios::CPsxBios(CMIPS& cpu, uint8* ram, uint32 ramSize)
 
 void CPsxBios::Reset()
 {
-	uint32 syscallAddress[3] = { 0xA0, 0xB0, 0xC0 };
+	uint32 syscallAddress[3] = {0xA0, 0xB0, 0xC0};
 
 	for(unsigned int i = 0; i < 3; i++)
 	{
@@ -60,7 +60,7 @@ void CPsxBios::Reset()
 	//Assembly a dummy JR RA at 0 because Vagrant Story jumps at 0
 	{
 		CMIPSAssembler assembler(reinterpret_cast<uint32*>(m_ram + 0x0));
-		assembler.LUI(CMIPS::K0, 0x0000);    //This is required by Xenogears' SFX PSFs
+		assembler.LUI(CMIPS::K0, 0x0000); //This is required by Xenogears' SFX PSFs
 		assembler.JR(CMIPS::RA);
 		assembler.NOP();
 	}
@@ -107,7 +107,7 @@ void CPsxBios::Reset()
 	//Allocate thread control block
 	{
 		static const uint32 maxTcb = 4;
-		auto cbTable = reinterpret_cast<CB_TABLE*>(m_ram + TCB_TABLE_ADDRESS);
+		auto                cbTable = reinterpret_cast<CB_TABLE*>(m_ram + TCB_TABLE_ADDRESS);
 		cbTable->address = AllocateSysMemory(sizeof(THREAD) * maxTcb);
 		cbTable->size = sizeof(THREAD) * maxTcb;
 	}
@@ -115,13 +115,12 @@ void CPsxBios::Reset()
 	//Setup main thread
 	{
 		auto process = GetProcess();
-		auto threadCbAddr = 
-			[&]()
-			{
-				auto cbTable = reinterpret_cast<CB_TABLE*>(m_ram + TCB_TABLE_ADDRESS);
-				auto threadCb = reinterpret_cast<THREAD*>(m_ram + cbTable->address);
-				threadCb->status = THREAD_STATUS_ALLOCATED;
-				return cbTable->address;
+		auto threadCbAddr =
+		    [&]() {
+			    auto cbTable = reinterpret_cast<CB_TABLE*>(m_ram + TCB_TABLE_ADDRESS);
+			    auto threadCb = reinterpret_cast<THREAD*>(m_ram + cbTable->address);
+			    threadCb->status = THREAD_STATUS_ALLOCATED;
+			    return cbTable->address;
 			}();
 		process->currentThreadControlBlockAddr = threadCbAddr;
 	}
@@ -135,9 +134,9 @@ void CPsxBios::LoadExe(const uint8* exe)
 		throw std::runtime_error("Invalid PSX executable.");
 	}
 
-	m_cpu.m_State.nPC					= exeHeader->pc0 & 0x1FFFFFFF;
-	m_cpu.m_State.nGPR[CMIPS::GP].nD0	= exeHeader->gp0;
-	m_cpu.m_State.nGPR[CMIPS::SP].nD0	= exeHeader->stackAddr;
+	m_cpu.m_State.nPC = exeHeader->pc0 & 0x1FFFFFFF;
+	m_cpu.m_State.nGPR[CMIPS::GP].nD0 = exeHeader->gp0;
+	m_cpu.m_State.nGPR[CMIPS::SP].nD0 = exeHeader->stackAddr;
 
 	exe += 0x800;
 	if(exeHeader->textAddr != 0)
@@ -155,22 +154,18 @@ void CPsxBios::LoadExe(const uint8* exe)
 
 void CPsxBios::SaveState(Framework::CZipArchiveWriter& archive)
 {
-
 }
 
 void CPsxBios::LoadState(Framework::CZipArchiveReader& archive)
 {
-
 }
 
 void CPsxBios::NotifyVBlankStart()
 {
-
 }
 
 void CPsxBios::NotifyVBlankEnd()
 {
-
 }
 
 bool CPsxBios::IsIdle()
@@ -182,12 +177,10 @@ bool CPsxBios::IsIdle()
 
 void CPsxBios::LoadDebugTags(Framework::Xml::CNode* root)
 {
-
 }
 
 void CPsxBios::SaveDebugTags(Framework::Xml::CNode* root)
 {
-
 }
 
 BiosDebugModuleInfoArray CPsxBios::GetModulesDebugInfo() const
@@ -204,12 +197,11 @@ BiosDebugThreadInfoArray CPsxBios::GetThreadsDebugInfo() const
 
 void CPsxBios::CountTicks(uint32 ticks)
 {
-
 }
 
 void CPsxBios::AssembleEventChecker()
 {
-	CMIPSAssembler assembler(reinterpret_cast<uint32*>(m_ram + EVENT_CHECKER));
+	CMIPSAssembler        assembler(reinterpret_cast<uint32*>(m_ram + EVENT_CHECKER));
 	CMIPSAssembler::LABEL checkEventLabel = assembler.CreateLabel();
 	CMIPSAssembler::LABEL doneEventLabel = assembler.CreateLabel();
 
@@ -217,7 +209,7 @@ void CPsxBios::AssembleEventChecker()
 	unsigned int eventMax = CMIPS::S1;
 	unsigned int eventToCheck = CMIPS::S2;
 	unsigned int needClearInt = CMIPS::S3;
-	int stackAlloc = 5 * 4;
+	int          stackAlloc = 5 * 4;
 
 	//prolog
 	assembler.ADDIU(CMIPS::SP, CMIPS::SP, -stackAlloc);
@@ -235,12 +227,12 @@ void CPsxBios::AssembleEventChecker()
 	//checkEvent
 	{
 		assembler.MarkLabel(checkEventLabel);
-		
+
 		//check if valid
 		assembler.LW(CMIPS::T0, offsetof(EVENT, isValid), currentEvent);
 		assembler.BEQ(CMIPS::T0, CMIPS::R0, doneEventLabel);
 		assembler.NOP();
-		
+
 		//check if good event class
 		assembler.LW(CMIPS::T0, offsetof(EVENT, classId), currentEvent);
 		assembler.BNE(CMIPS::T0, eventToCheck, doneEventLabel);
@@ -287,7 +279,7 @@ void CPsxBios::AssembleEventChecker()
 void CPsxBios::AssembleInterruptHandler()
 {
 	//Assemble interrupt handler
-	CMIPSAssembler assembler(reinterpret_cast<uint32*>(m_ram + INTR_HANDLER));
+	CMIPSAssembler        assembler(reinterpret_cast<uint32*>(m_ram + INTR_HANDLER));
 	CMIPSAssembler::LABEL skipRootCounter2EventLabel = assembler.CreateLabel();
 	CMIPSAssembler::LABEL returnExceptionLabel = assembler.CreateLabel();
 	CMIPSAssembler::LABEL clearIntcCause = assembler.CreateLabel();
@@ -332,7 +324,7 @@ void CPsxBios::AssembleInterruptHandler()
 	assembler.ADDIU(CMIPS::T1, CMIPS::R0, 0x14);
 	assembler.JR(CMIPS::T0);
 	assembler.NOP();
-	
+
 	assembler.BEQ(CMIPS::R0, CMIPS::R0, returnExceptionLabel);
 	assembler.NOP();
 
@@ -387,9 +379,12 @@ void CPsxBios::SaveCpuState()
 	thread->pc = m_cpu.m_State.nPC;
 	for(uint32 i = 0; i < 32; i++)
 	{
-		if(i == CMIPS::R0) continue;
-		if(i == CMIPS::K0) continue;
-		if(i == CMIPS::K1) continue;
+		if(i == CMIPS::R0)
+			continue;
+		if(i == CMIPS::K0)
+			continue;
+		if(i == CMIPS::K1)
+			continue;
 		thread->gpr[i] = m_cpu.m_State.nGPR[i].nV0;
 	}
 	thread->sr = m_cpu.m_State.nCOP0[CCOP_SCU::STATUS];
@@ -406,9 +401,12 @@ void CPsxBios::LoadCpuState()
 	m_cpu.m_State.nPC = thread->pc;
 	for(uint32 i = 0; i < 32; i++)
 	{
-		if(i == CMIPS::R0) continue;
-		if(i == CMIPS::K0) continue;
-		if(i == CMIPS::K1) continue;
+		if(i == CMIPS::R0)
+			continue;
+		if(i == CMIPS::K0)
+			continue;
+		if(i == CMIPS::K1)
+			continue;
 		m_cpu.m_State.nGPR[i].nV0 = thread->gpr[i];
 	}
 	m_cpu.m_State.nCOP0[CCOP_SCU::STATUS] = thread->sr;
@@ -433,7 +431,8 @@ void CPsxBios::HandleInterrupt()
 		for(unsigned int i = 1; i <= MAX_EVENT; i++)
 		{
 			EVENT* eventPtr = m_events[i];
-			if(eventPtr == NULL) continue;
+			if(eventPtr == NULL)
+				continue;
 			if((cause & (1 << CIntc::LINE_DMAC)) && eventPtr->classId == 0xF0000009)
 			{
 				eventPtr->fired = 1;
@@ -506,50 +505,50 @@ void CPsxBios::DisassembleSyscall(uint32 searchAddress)
 		{
 		case 0x13:
 			CLog::GetInstance().Print(LOG_NAME, "setjmp(buffer = 0x%0.8X);\r\n",
-				m_cpu.m_State.nGPR[SC_PARAM0].nV0);
+			                          m_cpu.m_State.nGPR[SC_PARAM0].nV0);
 			break;
 		case 0x14:
 			CLog::GetInstance().Print(LOG_NAME, "longjmp(buffer = 0x%0.8X, value = %i);\r\n",
-				m_cpu.m_State.nGPR[SC_PARAM0].nV0,
-				m_cpu.m_State.nGPR[SC_PARAM1].nV0);
+			                          m_cpu.m_State.nGPR[SC_PARAM0].nV0,
+			                          m_cpu.m_State.nGPR[SC_PARAM1].nV0);
 			break;
 		case 0x19:
 			CLog::GetInstance().Print(LOG_NAME, "strcpy(dst = 0x%0.8X, src = 0x%0.8X);\r\n",
-				m_cpu.m_State.nGPR[SC_PARAM0].nV0,
-				m_cpu.m_State.nGPR[SC_PARAM1].nV0);
+			                          m_cpu.m_State.nGPR[SC_PARAM0].nV0,
+			                          m_cpu.m_State.nGPR[SC_PARAM1].nV0);
 			break;
 		case 0x28:
 			CLog::GetInstance().Print(LOG_NAME, "bzero(address = 0x%0.8X, length = 0x%x);\r\n",
-				m_cpu.m_State.nGPR[SC_PARAM0].nV0,
-				m_cpu.m_State.nGPR[SC_PARAM1].nV0);
+			                          m_cpu.m_State.nGPR[SC_PARAM0].nV0,
+			                          m_cpu.m_State.nGPR[SC_PARAM1].nV0);
 			break;
 		case 0x2A:
 			CLog::GetInstance().Print(LOG_NAME, "memcpy(dst = 0x%0.8X, src = 0x%0.8X, length = 0x%x);\r\n",
-				m_cpu.m_State.nGPR[SC_PARAM0].nV0,
-				m_cpu.m_State.nGPR[SC_PARAM1].nV0,
-				m_cpu.m_State.nGPR[SC_PARAM2].nV0);
+			                          m_cpu.m_State.nGPR[SC_PARAM0].nV0,
+			                          m_cpu.m_State.nGPR[SC_PARAM1].nV0,
+			                          m_cpu.m_State.nGPR[SC_PARAM2].nV0);
 			break;
 		case 0x2B:
 			CLog::GetInstance().Print(LOG_NAME, "memset(address = 0x%0.8X, value = 0x%x, length = 0x%x);\r\n",
-				m_cpu.m_State.nGPR[SC_PARAM0].nV0,
-				m_cpu.m_State.nGPR[SC_PARAM1].nV0,
-				m_cpu.m_State.nGPR[SC_PARAM2].nV0);
+			                          m_cpu.m_State.nGPR[SC_PARAM0].nV0,
+			                          m_cpu.m_State.nGPR[SC_PARAM1].nV0,
+			                          m_cpu.m_State.nGPR[SC_PARAM2].nV0);
 			break;
 		case 0x2F:
 			CLog::GetInstance().Print(LOG_NAME, "rand();\r\n");
 			break;
 		case 0x30:
 			CLog::GetInstance().Print(LOG_NAME, "srand(seed = %d);\r\n",
-				m_cpu.m_State.nGPR[SC_PARAM0].nV0);
+			                          m_cpu.m_State.nGPR[SC_PARAM0].nV0);
 			break;
 		case 0x39:
 			CLog::GetInstance().Print(LOG_NAME, "InitHeap(block = 0x%0.8X, n = 0x%0.8X);\r\n",
-				m_cpu.m_State.nGPR[SC_PARAM0].nV0,
-				m_cpu.m_State.nGPR[SC_PARAM1].nV0);
+			                          m_cpu.m_State.nGPR[SC_PARAM0].nV0,
+			                          m_cpu.m_State.nGPR[SC_PARAM1].nV0);
 			break;
 		case 0x3F:
 			CLog::GetInstance().Print(LOG_NAME, "printf(fmt = 0x%0.8X);\r\n",
-				m_cpu.m_State.nGPR[SC_PARAM0].nV0);
+			                          m_cpu.m_State.nGPR[SC_PARAM0].nV0);
 			break;
 		case 0x44:
 			CLog::GetInstance().Print(LOG_NAME, "FlushCache();\r\n");
@@ -562,7 +561,7 @@ void CPsxBios::DisassembleSyscall(uint32 searchAddress)
 			break;
 		case 0x9F:
 			CLog::GetInstance().Print(LOG_NAME, "SetMem(size = %i);\r\n",
-				m_cpu.m_State.nGPR[SC_PARAM0].nV0);
+			                          m_cpu.m_State.nGPR[SC_PARAM0].nV0);
 			break;
 		default:
 			CLog::GetInstance().Print(LOG_NAME, "Unknown system call encountered (0xA0, 0x%X).\r\n", functionId);
@@ -576,49 +575,49 @@ void CPsxBios::DisassembleSyscall(uint32 searchAddress)
 		{
 		case 0x00:
 			CLog::GetInstance().Print(LOG_NAME, "SysMalloc(size = 0x%X);\r\n",
-				m_cpu.m_State.nGPR[SC_PARAM0].nV0);
+			                          m_cpu.m_State.nGPR[SC_PARAM0].nV0);
 			break;
 		case 0x07:
 			CLog::GetInstance().Print(LOG_NAME, "DeliverEvent(class = 0x%X, event = 0x%X);\r\n",
-				m_cpu.m_State.nGPR[SC_PARAM0].nV0,
-				m_cpu.m_State.nGPR[SC_PARAM1].nV0);
+			                          m_cpu.m_State.nGPR[SC_PARAM0].nV0,
+			                          m_cpu.m_State.nGPR[SC_PARAM1].nV0);
 			break;
 		case 0x08:
 			CLog::GetInstance().Print(LOG_NAME, "OpenEvent(class = 0x%X, spec = 0x%X, mode = 0x%X, func = 0x%X);\r\n",
-				m_cpu.m_State.nGPR[SC_PARAM0].nV0,
-				m_cpu.m_State.nGPR[SC_PARAM1].nV0,
-				m_cpu.m_State.nGPR[SC_PARAM2].nV0,
-				m_cpu.m_State.nGPR[SC_PARAM3].nV0);
+			                          m_cpu.m_State.nGPR[SC_PARAM0].nV0,
+			                          m_cpu.m_State.nGPR[SC_PARAM1].nV0,
+			                          m_cpu.m_State.nGPR[SC_PARAM2].nV0,
+			                          m_cpu.m_State.nGPR[SC_PARAM3].nV0);
 			break;
 		case 0x09:
 			CLog::GetInstance().Print(LOG_NAME, "CloseEvent(event = 0x%X);\r\n",
-				m_cpu.m_State.nGPR[SC_PARAM0].nV0);
+			                          m_cpu.m_State.nGPR[SC_PARAM0].nV0);
 			break;
 		case 0x0A:
 			CLog::GetInstance().Print(LOG_NAME, "WaitEvent(event = 0x%X);\r\n",
-				m_cpu.m_State.nGPR[SC_PARAM0].nV0);
+			                          m_cpu.m_State.nGPR[SC_PARAM0].nV0);
 			break;
 		case 0x0B:
 			CLog::GetInstance().Print(LOG_NAME, "TestEvent(event = 0x%X);\r\n",
-				m_cpu.m_State.nGPR[SC_PARAM0].nV0);
+			                          m_cpu.m_State.nGPR[SC_PARAM0].nV0);
 			break;
 		case 0x0C:
 			CLog::GetInstance().Print(LOG_NAME, "EnableEvent(event = 0x%X);\r\n",
-				m_cpu.m_State.nGPR[SC_PARAM0].nV0);
+			                          m_cpu.m_State.nGPR[SC_PARAM0].nV0);
 			break;
 		case 0x0D:
 			CLog::GetInstance().Print(LOG_NAME, "DisableEvent(event = 0x%X);\r\n",
-				m_cpu.m_State.nGPR[SC_PARAM0].nV0);
+			                          m_cpu.m_State.nGPR[SC_PARAM0].nV0);
 			break;
 		case 0x0E:
 			CLog::GetInstance().Print(LOG_NAME, "OpenThread(pc = 0x%08X, sp = 0x%08X, gp = 0x%08X);\r\n",
-				m_cpu.m_State.nGPR[SC_PARAM0].nV0,
-				m_cpu.m_State.nGPR[SC_PARAM1].nV0,
-				m_cpu.m_State.nGPR[SC_PARAM2].nV0);
+			                          m_cpu.m_State.nGPR[SC_PARAM0].nV0,
+			                          m_cpu.m_State.nGPR[SC_PARAM1].nV0,
+			                          m_cpu.m_State.nGPR[SC_PARAM2].nV0);
 			break;
 		case 0x10:
 			CLog::GetInstance().Print(LOG_NAME, "ChangeThread(threadId = 0x%X);\r\n",
-				m_cpu.m_State.nGPR[SC_PARAM0].nV0);
+			                          m_cpu.m_State.nGPR[SC_PARAM0].nV0);
 			break;
 		case 0x14:
 			CLog::GetInstance().Print(LOG_NAME, "StopPAD();\r\n");
@@ -634,11 +633,11 @@ void CPsxBios::DisassembleSyscall(uint32 searchAddress)
 			break;
 		case 0x19:
 			CLog::GetInstance().Print(LOG_NAME, "SetCustomExitFromException(stateAddress = 0x%0.8X);\r\n",
-				m_cpu.m_State.nGPR[SC_PARAM0].nV0);
+			                          m_cpu.m_State.nGPR[SC_PARAM0].nV0);
 			break;
 		case 0x3F:
 			CLog::GetInstance().Print(LOG_NAME, "puts(s = 0x%0.8X);\r\n",
-				m_cpu.m_State.nGPR[SC_PARAM0].nV0);
+			                          m_cpu.m_State.nGPR[SC_PARAM0].nV0);
 			break;
 		case 0x4A:
 			CLog::GetInstance().Print(LOG_NAME, "InitCARD();\r\n");
@@ -654,7 +653,7 @@ void CPsxBios::DisassembleSyscall(uint32 searchAddress)
 			break;
 		case 0x5B:
 			CLog::GetInstance().Print(LOG_NAME, "ChangeClearPad(param = %i);\r\n",
-				m_cpu.m_State.nGPR[SC_PARAM0].nV0);
+			                          m_cpu.m_State.nGPR[SC_PARAM0].nV0);
 			break;
 		default:
 			CLog::GetInstance().Print(LOG_NAME, "Unknown system call encountered (0xB0, 0x%X).\r\n", functionId);
@@ -668,30 +667,30 @@ void CPsxBios::DisassembleSyscall(uint32 searchAddress)
 		{
 		case 0x00:
 			CLog::GetInstance().Print(LOG_NAME, "EnqueueTimerAndVblankIrqs(priority = %d);\r\n",
-				m_cpu.m_State.nGPR[SC_PARAM0].nV0);
+			                          m_cpu.m_State.nGPR[SC_PARAM0].nV0);
 			break;
 		case 0x01:
 			CLog::GetInstance().Print(LOG_NAME, "EnqueueSyscallHandler(priority = %d);\r\n",
-				m_cpu.m_State.nGPR[SC_PARAM0].nV0);
+			                          m_cpu.m_State.nGPR[SC_PARAM0].nV0);
 			break;
 		case 0x03:
 			CLog::GetInstance().Print(LOG_NAME, "SysDeqIntRP(index = %i, queue = 0x%X);\r\n",
-				m_cpu.m_State.nGPR[SC_PARAM0].nV0,
-				m_cpu.m_State.nGPR[SC_PARAM1].nV0);
+			                          m_cpu.m_State.nGPR[SC_PARAM0].nV0,
+			                          m_cpu.m_State.nGPR[SC_PARAM1].nV0);
 			break;
 		case 0x08:
 			CLog::GetInstance().Print(LOG_NAME, "SysInitMemory(address = 0x%08X, size = 0x%X);\r\n",
-				m_cpu.m_State.nGPR[SC_PARAM0].nV0,
-				m_cpu.m_State.nGPR[SC_PARAM1].nV0);
+			                          m_cpu.m_State.nGPR[SC_PARAM0].nV0,
+			                          m_cpu.m_State.nGPR[SC_PARAM1].nV0);
 			break;
 		case 0x0A:
 			CLog::GetInstance().Print(LOG_NAME, "ChangeClearRCnt(param0 = %i, param1 = %i);\r\n",
-				m_cpu.m_State.nGPR[SC_PARAM0].nV0,
-				m_cpu.m_State.nGPR[SC_PARAM1].nV0);
+			                          m_cpu.m_State.nGPR[SC_PARAM0].nV0,
+			                          m_cpu.m_State.nGPR[SC_PARAM1].nV0);
 			break;
 		case 0x0C:
 			CLog::GetInstance().Print(LOG_NAME, "InitDefInt(priority = %d);\r\n",
-				m_cpu.m_State.nGPR[SC_PARAM0].nV0);
+			                          m_cpu.m_State.nGPR[SC_PARAM0].nV0);
 			break;
 		default:
 			CLog::GetInstance().Print(LOG_NAME, "Unknown system call encountered (0xC0, 0x%X).\r\n", functionId);
@@ -750,9 +749,8 @@ void CPsxBios::sc_strcpy()
 	uint32 src = m_cpu.m_pAddrTranslator(&m_cpu, m_cpu.m_State.nGPR[SC_PARAM1].nV0);
 
 	strcpy(
-		reinterpret_cast<char*>(m_ram + dst),
-		reinterpret_cast<char*>(m_ram + src)
-		);
+	    reinterpret_cast<char*>(m_ram + dst),
+	    reinterpret_cast<char*>(m_ram + src));
 
 	m_cpu.m_State.nGPR[SC_RETURN].nV0 = dst;
 }
@@ -785,7 +783,7 @@ void CPsxBios::sc_memcpy()
 void CPsxBios::sc_memset()
 {
 	uint32 address = m_cpu.m_pAddrTranslator(&m_cpu, m_cpu.m_State.nGPR[SC_PARAM0].nV0);
-	uint8 value = static_cast<uint8>(m_cpu.m_State.nGPR[SC_PARAM1].nV0);
+	uint8  value = static_cast<uint8>(m_cpu.m_State.nGPR[SC_PARAM1].nV0);
 	uint32 length = m_cpu.m_State.nGPR[SC_PARAM2].nV0;
 	if((address + length) > m_ramSize)
 	{
@@ -825,19 +823,16 @@ void CPsxBios::sc_printf()
 //A0 - 44
 void CPsxBios::sc_FlushCache()
 {
-
 }
 
 //A0 - 70
 void CPsxBios::sc_bu_init()
 {
-	
 }
 
 //A0 - 72
 void CPsxBios::sc_96_remove()
 {
-	
 }
 
 //A0 - 9F
@@ -875,11 +870,11 @@ void CPsxBios::sc_OpenEvent()
 		throw std::exception();
 	}
 	EVENT* eventPtr = m_events[eventId];
-	eventPtr->classId	= classId;
-	eventPtr->spec		= spec;
-	eventPtr->mode		= mode;
-	eventPtr->func		= func;
-	eventPtr->fired		= 0;
+	eventPtr->classId = classId;
+	eventPtr->spec = spec;
+	eventPtr->mode = mode;
+	eventPtr->func = func;
+	eventPtr->fired = 0;
 
 	m_cpu.m_State.nGPR[SC_RETURN].nD0 = static_cast<int32>(eventId);
 }
@@ -901,7 +896,7 @@ void CPsxBios::sc_CloseEvent()
 void CPsxBios::sc_WaitEvent()
 {
 	uint32 eventId = m_cpu.m_State.nGPR[SC_PARAM0].nV0;
-	auto event = m_events[eventId];
+	auto   event = m_events[eventId];
 	if(!event)
 	{
 		m_cpu.m_State.nGPR[SC_RETURN].nD0 = -1;
@@ -914,7 +909,7 @@ void CPsxBios::sc_WaitEvent()
 void CPsxBios::sc_TestEvent()
 {
 	uint32 eventId = m_cpu.m_State.nGPR[SC_PARAM0].nV0;
-	auto eventPtr = m_events[eventId];
+	auto   eventPtr = m_events[eventId];
 
 	assert(eventPtr);
 	if(!eventPtr)
@@ -983,7 +978,8 @@ void CPsxBios::sc_OpenThread()
 	for(uint32 i = 0; i < threadCount; i++)
 	{
 		auto thread = &threads[i];
-		if(thread->status == THREAD_STATUS_ALLOCATED) continue;
+		if(thread->status == THREAD_STATUS_ALLOCATED)
+			continue;
 		assert(thread->status == THREAD_STATUS_FREE);
 		threadId = i;
 		break;
@@ -1034,13 +1030,11 @@ void CPsxBios::sc_ChangeThread()
 //B0 - 14
 void CPsxBios::sc_StopPAD()
 {
-
 }
 
 //B0 - 16
 void CPsxBios::sc_PAD_dr()
 {
-	
 }
 
 //B0 - 17
@@ -1082,13 +1076,11 @@ void CPsxBios::sc_puts()
 //B0 - 4A
 void CPsxBios::sc_InitCARD()
 {
-	
 }
 
 //B0 - 4B
 void CPsxBios::sc_StartCARD()
 {
-	
 }
 
 //B0 - 56
@@ -1112,13 +1104,11 @@ void CPsxBios::sc_ChangeClearPad()
 //C0 - 00
 void CPsxBios::sc_EnqueueTimerAndVblankIrqs()
 {
-
 }
 
 //C0 - 01
 void CPsxBios::sc_EnqueueSyscallHandler()
 {
-
 }
 
 //C0 - 03
@@ -1147,14 +1137,13 @@ void CPsxBios::sc_ChangeClearRCnt()
 //C0 - 0C
 void CPsxBios::sc_InitDefInt()
 {
-
 }
 
 void CPsxBios::sc_EnterCriticalSection()
 {
 	bool isIntEnabled = (m_cpu.m_State.nCOP0[CCOP_SCU::STATUS] & CMIPS::STATUS_IE) != 0;
 	m_cpu.m_State.nCOP0[CCOP_SCU::STATUS] &= ~CMIPS::STATUS_IE;
-	
+
 	m_cpu.m_State.nGPR[SC_RETURN].nD0 = static_cast<int32>(isIntEnabled ? 1 : 0);
 }
 
@@ -1170,118 +1159,115 @@ void CPsxBios::sc_Illegal()
 #endif
 }
 
-CPsxBios::SyscallHandler CPsxBios::m_handlerA0[MAX_HANDLER_A0] = 
-{
-	//0x00
-	&CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal,  &CPsxBios::sc_Illegal,   &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal,    &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal,
-	//0x08
-	&CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal,  &CPsxBios::sc_Illegal,   &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal,    &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal,
-	//0x10
-	&CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal,  &CPsxBios::sc_Illegal,   &CPsxBios::sc_setjmp,  &CPsxBios::sc_longjmp,    &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal,
-	//0x18
-	&CPsxBios::sc_Illegal, &CPsxBios::sc_strcpy,   &CPsxBios::sc_Illegal,   &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal,    &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal,
-	//0x20
-	&CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal,  &CPsxBios::sc_Illegal,   &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal,    &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal,
-	//0x28
-	&CPsxBios::sc_bzero,   &CPsxBios::sc_Illegal,  &CPsxBios::sc_memcpy,    &CPsxBios::sc_memset,  &CPsxBios::sc_Illegal,    &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_rand,
-	//0x30
-	&CPsxBios::sc_srand,   &CPsxBios::sc_Illegal,  &CPsxBios::sc_Illegal,   &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal,    &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal,
-	//0x38
-	&CPsxBios::sc_Illegal, &CPsxBios::sc_InitHeap, &CPsxBios::sc_Illegal,   &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal,    &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_printf,
-	//0x40
-	&CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal,  &CPsxBios::sc_Illegal,   &CPsxBios::sc_Illegal, &CPsxBios::sc_FlushCache, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal,
-	//0x48
-	&CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal,  &CPsxBios::sc_Illegal,   &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal,    &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal,
-	//0x50
-	&CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal,  &CPsxBios::sc_Illegal,   &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal,    &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal,
-	//0x58
-	&CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal,  &CPsxBios::sc_Illegal,   &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal,    &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal,
-	//0x60
-	&CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal,  &CPsxBios::sc_Illegal,   &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal,    &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal,
-	//0x68
-	&CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal,  &CPsxBios::sc_Illegal,   &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal,    &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal,
-	//0x70
-	&CPsxBios::sc_bu_init, &CPsxBios::sc_Illegal,  &CPsxBios::sc_96_remove, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal,    &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal,
-	//0x78
-	&CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal,  &CPsxBios::sc_Illegal,   &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal,    &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal,
-	//0x80
-	&CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal,  &CPsxBios::sc_Illegal,   &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal,    &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal,
-	//0x88
-	&CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal,  &CPsxBios::sc_Illegal,   &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal,    &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal,
-	//0x90
-	&CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal,  &CPsxBios::sc_Illegal,   &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal,    &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal,
-	//0x98
-	&CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal,  &CPsxBios::sc_Illegal,   &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal,    &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_SetMem,
-	//0xA0
-	&CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal,  &CPsxBios::sc_Illegal,   &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal,    &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal,
-	//0xA8
-	&CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal,  &CPsxBios::sc_Illegal,   &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal,    &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal,
-	//0xB0
-	&CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal,  &CPsxBios::sc_Illegal,   &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal,    &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal,
-	//0xB8
-	&CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal,  &CPsxBios::sc_Illegal,   &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal,    &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal,
-	//0xC0
-	&CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal,  &CPsxBios::sc_Illegal,   &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal,    &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal,
-	//0xC8
-	&CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal,  &CPsxBios::sc_Illegal,   &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal,    &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal,
-	//0xD0
-	&CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal,  &CPsxBios::sc_Illegal,   &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal,    &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal,
-	//0xD8
-	&CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal,  &CPsxBios::sc_Illegal,   &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal,    &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal,
-	//0xE0
-	&CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal,  &CPsxBios::sc_Illegal,   &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal,    &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal,
-	//0xE8
-	&CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal,  &CPsxBios::sc_Illegal,   &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal,    &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal,
-	//0xF0
-	&CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal,  &CPsxBios::sc_Illegal,   &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal,    &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal,
-	//0xF8
-	&CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal,  &CPsxBios::sc_Illegal,   &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal,    &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal
-};
+CPsxBios::SyscallHandler CPsxBios::m_handlerA0[MAX_HANDLER_A0] =
+    {
+        //0x00
+        &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal,
+        //0x08
+        &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal,
+        //0x10
+        &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_setjmp, &CPsxBios::sc_longjmp, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal,
+        //0x18
+        &CPsxBios::sc_Illegal, &CPsxBios::sc_strcpy, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal,
+        //0x20
+        &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal,
+        //0x28
+        &CPsxBios::sc_bzero, &CPsxBios::sc_Illegal, &CPsxBios::sc_memcpy, &CPsxBios::sc_memset, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_rand,
+        //0x30
+        &CPsxBios::sc_srand, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal,
+        //0x38
+        &CPsxBios::sc_Illegal, &CPsxBios::sc_InitHeap, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_printf,
+        //0x40
+        &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_FlushCache, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal,
+        //0x48
+        &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal,
+        //0x50
+        &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal,
+        //0x58
+        &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal,
+        //0x60
+        &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal,
+        //0x68
+        &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal,
+        //0x70
+        &CPsxBios::sc_bu_init, &CPsxBios::sc_Illegal, &CPsxBios::sc_96_remove, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal,
+        //0x78
+        &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal,
+        //0x80
+        &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal,
+        //0x88
+        &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal,
+        //0x90
+        &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal,
+        //0x98
+        &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_SetMem,
+        //0xA0
+        &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal,
+        //0xA8
+        &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal,
+        //0xB0
+        &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal,
+        //0xB8
+        &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal,
+        //0xC0
+        &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal,
+        //0xC8
+        &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal,
+        //0xD0
+        &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal,
+        //0xD8
+        &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal,
+        //0xE0
+        &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal,
+        //0xE8
+        &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal,
+        //0xF0
+        &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal,
+        //0xF8
+        &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal};
 
-CPsxBios::SyscallHandler CPsxBios::m_handlerB0[MAX_HANDLER_B0] = 
-{
-	//0x00
-	&CPsxBios::sc_SysMalloc,                   &CPsxBios::sc_Illegal,                    &CPsxBios::sc_Illegal,   &CPsxBios::sc_Illegal,        &CPsxBios::sc_Illegal,     &CPsxBios::sc_Illegal,      &CPsxBios::sc_Illegal,    &CPsxBios::sc_DeliverEvent,
-	//0x08
-	&CPsxBios::sc_OpenEvent,                   &CPsxBios::sc_CloseEvent,                 &CPsxBios::sc_WaitEvent, &CPsxBios::sc_TestEvent,      &CPsxBios::sc_EnableEvent, &CPsxBios::sc_DisableEvent, &CPsxBios::sc_OpenThread, &CPsxBios::sc_Illegal,
-	//0x10
-	&CPsxBios::sc_ChangeThread,                &CPsxBios::sc_Illegal,                    &CPsxBios::sc_Illegal,   &CPsxBios::sc_Illegal,        &CPsxBios::sc_StopPAD,     &CPsxBios::sc_Illegal,      &CPsxBios::sc_PAD_dr,     &CPsxBios::sc_ReturnFromException,
-	//0x18
-	&CPsxBios::sc_SetDefaultExitFromException, &CPsxBios::sc_SetCustomExitFromException, &CPsxBios::sc_Illegal,   &CPsxBios::sc_Illegal,        &CPsxBios::sc_Illegal,     &CPsxBios::sc_Illegal,      &CPsxBios::sc_Illegal,    &CPsxBios::sc_Illegal,
-	//0x20
-	&CPsxBios::sc_Illegal,                     &CPsxBios::sc_Illegal,                    &CPsxBios::sc_Illegal,   &CPsxBios::sc_Illegal,        &CPsxBios::sc_Illegal,     &CPsxBios::sc_Illegal,      &CPsxBios::sc_Illegal,    &CPsxBios::sc_Illegal,
-	//0x28
-	&CPsxBios::sc_Illegal,                     &CPsxBios::sc_Illegal,                    &CPsxBios::sc_Illegal,   &CPsxBios::sc_Illegal,        &CPsxBios::sc_Illegal,     &CPsxBios::sc_Illegal,      &CPsxBios::sc_Illegal,    &CPsxBios::sc_Illegal,
-	//0x30
-	&CPsxBios::sc_Illegal,                     &CPsxBios::sc_Illegal,                    &CPsxBios::sc_Illegal,   &CPsxBios::sc_Illegal,        &CPsxBios::sc_Illegal,     &CPsxBios::sc_Illegal,      &CPsxBios::sc_Illegal,    &CPsxBios::sc_Illegal,
-	//0x38
-	&CPsxBios::sc_Illegal,                     &CPsxBios::sc_Illegal,                    &CPsxBios::sc_Illegal,   &CPsxBios::sc_Illegal,        &CPsxBios::sc_Illegal,     &CPsxBios::sc_Illegal,      &CPsxBios::sc_Illegal,    &CPsxBios::sc_puts,
-	//0x40
-	&CPsxBios::sc_Illegal,                     &CPsxBios::sc_Illegal,                    &CPsxBios::sc_Illegal,   &CPsxBios::sc_Illegal,        &CPsxBios::sc_Illegal,     &CPsxBios::sc_Illegal,      &CPsxBios::sc_Illegal,    &CPsxBios::sc_Illegal,
-	//0x48
-	&CPsxBios::sc_Illegal,                     &CPsxBios::sc_Illegal,                    &CPsxBios::sc_InitCARD,  &CPsxBios::sc_StartCARD,      &CPsxBios::sc_Illegal,     &CPsxBios::sc_Illegal,      &CPsxBios::sc_Illegal,    &CPsxBios::sc_Illegal,
-	//0x50
-	&CPsxBios::sc_Illegal,                     &CPsxBios::sc_Illegal,                    &CPsxBios::sc_Illegal,   &CPsxBios::sc_Illegal,        &CPsxBios::sc_Illegal,     &CPsxBios::sc_Illegal,      &CPsxBios::sc_GetC0Table, &CPsxBios::sc_GetB0Table,
-	//0x58
-	&CPsxBios::sc_Illegal,                     &CPsxBios::sc_Illegal,                    &CPsxBios::sc_Illegal,   &CPsxBios::sc_ChangeClearPad, &CPsxBios::sc_Illegal,     &CPsxBios::sc_Illegal,      &CPsxBios::sc_Illegal,    &CPsxBios::sc_Illegal,
-	//0x60
-	&CPsxBios::sc_Illegal,                     &CPsxBios::sc_Illegal,                    &CPsxBios::sc_Illegal,   &CPsxBios::sc_Illegal,        &CPsxBios::sc_Illegal,     &CPsxBios::sc_Illegal,      &CPsxBios::sc_Illegal,    &CPsxBios::sc_Illegal,
-	//0x68
-	&CPsxBios::sc_Illegal,                     &CPsxBios::sc_Illegal,                    &CPsxBios::sc_Illegal,   &CPsxBios::sc_Illegal,        &CPsxBios::sc_Illegal,     &CPsxBios::sc_Illegal,      &CPsxBios::sc_Illegal,    &CPsxBios::sc_Illegal,
-	//0x70
-	&CPsxBios::sc_Illegal,                     &CPsxBios::sc_Illegal,                    &CPsxBios::sc_Illegal,   &CPsxBios::sc_Illegal,        &CPsxBios::sc_Illegal,     &CPsxBios::sc_Illegal,      &CPsxBios::sc_Illegal,    &CPsxBios::sc_Illegal,
-	//0x78
-	&CPsxBios::sc_Illegal,                     &CPsxBios::sc_Illegal,                    &CPsxBios::sc_Illegal,   &CPsxBios::sc_Illegal,        &CPsxBios::sc_Illegal,     &CPsxBios::sc_Illegal,      &CPsxBios::sc_Illegal,    &CPsxBios::sc_Illegal
-};
+CPsxBios::SyscallHandler CPsxBios::m_handlerB0[MAX_HANDLER_B0] =
+    {
+        //0x00
+        &CPsxBios::sc_SysMalloc, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_DeliverEvent,
+        //0x08
+        &CPsxBios::sc_OpenEvent, &CPsxBios::sc_CloseEvent, &CPsxBios::sc_WaitEvent, &CPsxBios::sc_TestEvent, &CPsxBios::sc_EnableEvent, &CPsxBios::sc_DisableEvent, &CPsxBios::sc_OpenThread, &CPsxBios::sc_Illegal,
+        //0x10
+        &CPsxBios::sc_ChangeThread, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_StopPAD, &CPsxBios::sc_Illegal, &CPsxBios::sc_PAD_dr, &CPsxBios::sc_ReturnFromException,
+        //0x18
+        &CPsxBios::sc_SetDefaultExitFromException, &CPsxBios::sc_SetCustomExitFromException, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal,
+        //0x20
+        &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal,
+        //0x28
+        &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal,
+        //0x30
+        &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal,
+        //0x38
+        &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_puts,
+        //0x40
+        &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal,
+        //0x48
+        &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_InitCARD, &CPsxBios::sc_StartCARD, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal,
+        //0x50
+        &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_GetC0Table, &CPsxBios::sc_GetB0Table,
+        //0x58
+        &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_ChangeClearPad, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal,
+        //0x60
+        &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal,
+        //0x68
+        &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal,
+        //0x70
+        &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal,
+        //0x78
+        &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal};
 
-CPsxBios::SyscallHandler CPsxBios::m_handlerC0[MAX_HANDLER_C0] = 
-{
-	//0x00
-	&CPsxBios::sc_EnqueueTimerAndVblankIrqs, &CPsxBios::sc_EnqueueSyscallHandler, &CPsxBios::sc_Illegal,         &CPsxBios::sc_SysDeqIntRP, &CPsxBios::sc_Illegal,    &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal,
-	//0x08
-	&CPsxBios::sc_SysInitMemory,             &CPsxBios::sc_Illegal,               &CPsxBios::sc_ChangeClearRCnt, &CPsxBios::sc_Illegal,     &CPsxBios::sc_InitDefInt, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal,
-	//0x10
-	&CPsxBios::sc_Illegal,                   &CPsxBios::sc_Illegal,               &CPsxBios::sc_Illegal,         &CPsxBios::sc_Illegal,     &CPsxBios::sc_Illegal,    &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal,
-	//0x18
-	&CPsxBios::sc_Illegal,                   &CPsxBios::sc_Illegal,               &CPsxBios::sc_Illegal,         &CPsxBios::sc_Illegal,     &CPsxBios::sc_Illegal,    &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal
-};
+CPsxBios::SyscallHandler CPsxBios::m_handlerC0[MAX_HANDLER_C0] =
+    {
+        //0x00
+        &CPsxBios::sc_EnqueueTimerAndVblankIrqs, &CPsxBios::sc_EnqueueSyscallHandler, &CPsxBios::sc_Illegal, &CPsxBios::sc_SysDeqIntRP, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal,
+        //0x08
+        &CPsxBios::sc_SysInitMemory, &CPsxBios::sc_Illegal, &CPsxBios::sc_ChangeClearRCnt, &CPsxBios::sc_Illegal, &CPsxBios::sc_InitDefInt, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal,
+        //0x10
+        &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal,
+        //0x18
+        &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal};

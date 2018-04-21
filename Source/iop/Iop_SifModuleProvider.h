@@ -2,11 +2,11 @@
 
 namespace Iop
 {
-	class CSifMan;
+class CSifMan;
 
-	class CSifModuleProvider
-	{
-	public:
-		virtual void    RegisterSifModules(CSifMan&) = 0;
-	};
+class CSifModuleProvider
+{
+public:
+	virtual void RegisterSifModules(CSifMan&) = 0;
+};
 }

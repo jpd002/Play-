@@ -1,10 +1,10 @@
-#import <Cocoa/Cocoa.h>
 #import "VfsManagerBindings.h"
+#import <Cocoa/Cocoa.h>
 
 @interface VfsManagerViewController : NSViewController
 {
-	IBOutlet VfsManagerBindings*    bindings;
-	IBOutlet NSTableView*           bindingsTableView;
+	IBOutlet VfsManagerBindings* bindings;
+	IBOutlet NSTableView* bindingsTableView;
 }
 
 @end

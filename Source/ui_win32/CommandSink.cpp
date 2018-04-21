@@ -5,12 +5,10 @@ using namespace std;
 
 CCommandSink::CCommandSink()
 {
-
 }
 
 CCommandSink::~CCommandSink()
 {
-
 }
 
 void CCommandSink::RegisterCallback(HWND hWnd, CallbackType Callback)

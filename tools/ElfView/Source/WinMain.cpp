@@ -1,6 +1,6 @@
-#include <windows.h>
 #include "ElfViewFrame.h"
 #include <boost/algorithm/string.hpp>
+#include <windows.h>
 
 int WINAPI WinMain(HINSTANCE instance, HINSTANCE prevInstance, LPSTR params, int showCmd)
 {
@@ -10,5 +10,5 @@ int WINAPI WinMain(HINSTANCE instance, HINSTANCE prevInstance, LPSTR params, int
 	elfViewFrame.Center();
 	elfViewFrame.Show(SW_SHOW);
 	Framework::Win32::CWindow::DlgMsgLoop(elfViewFrame);
-    return 0;
+	return 0;
 }

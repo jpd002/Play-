@@ -1,12 +1,12 @@
-#include "win32/Font.h"
+#include "RegViewPage.h"
 #include "win32/ClientDeviceContext.h"
 #include "win32/DpiUtils.h"
-#include "RegViewPage.h"
+#include "win32/Font.h"
 
-#define CLSNAME			_T("CRegViewPage")
+#define CLSNAME _T("CRegViewPage")
 
 CRegViewPage::CRegViewPage(HWND hParent, const RECT& rect)
-: m_font(Framework::Win32::CreateFont(_T("Courier New"), 8))
+    : m_font(Framework::Win32::CreateFont(_T("Courier New"), 8))
 {
 	//Fill in render metrics
 	{
@@ -22,12 +22,12 @@ CRegViewPage::CRegViewPage(HWND hParent, const RECT& rect)
 	{
 		WNDCLASSEX w;
 		memset(&w, 0, sizeof(WNDCLASSEX));
-		w.cbSize		= sizeof(WNDCLASSEX);
-		w.lpfnWndProc	= CWindow::WndProc;
-		w.lpszClassName	= CLSNAME;
-		w.hbrBackground	= NULL;
-		w.hInstance		= GetModuleHandle(NULL);
-		w.hCursor		= LoadCursor(NULL, IDC_ARROW);
+		w.cbSize = sizeof(WNDCLASSEX);
+		w.lpfnWndProc = CWindow::WndProc;
+		w.lpszClassName = CLSNAME;
+		w.hbrBackground = NULL;
+		w.hInstance = GetModuleHandle(NULL);
+		w.hCursor = LoadCursor(NULL, IDC_ARROW);
 		RegisterClassEx(&w);
 	}
 
@@ -37,7 +37,6 @@ CRegViewPage::CRegViewPage(HWND hParent, const RECT& rect)
 
 CRegViewPage::~CRegViewPage()
 {
-	
 }
 
 void CRegViewPage::SetDisplayText(const char* text)
@@ -80,9 +79,9 @@ long CRegViewPage::OnVScroll(unsigned int nType, unsigned int nThumbPos)
 
 	SCROLLINFO si;
 	memset(&si, 0, sizeof(SCROLLINFO));
-	si.cbSize		= sizeof(SCROLLINFO);
-	si.nPos			= nPosition;
-	si.fMask		= SIF_POS;
+	si.cbSize = sizeof(SCROLLINFO);
+	si.nPos = nPosition;
+	si.fMask = SIF_POS;
 	SetScrollInfo(m_hWnd, SB_VERT, &si, TRUE);
 
 	Redraw();
@@ -131,7 +130,7 @@ unsigned int CRegViewPage::GetLineCount(const char* sText)
 
 unsigned int CRegViewPage::GetVisibleLineCount()
 {
-	auto clientRect = GetClientRect();
+	auto         clientRect = GetClientRect();
 	unsigned int lineStep = (m_renderMetrics.fontSizeY + m_renderMetrics.yspace);
 	unsigned int lines = (clientRect.Bottom() - (m_renderMetrics.ymargin * 2)) / lineStep;
 	return lines;
@@ -196,10 +195,10 @@ void CRegViewPage::UpdateScroll()
 
 	SCROLLINFO si;
 	memset(&si, 0, sizeof(SCROLLINFO));
-	si.cbSize	= sizeof(SCROLLINFO);
-	si.fMask	= SIF_RANGE;
-	si.nMin		= 0;
-	si.nMax		= nTotal;
+	si.cbSize = sizeof(SCROLLINFO);
+	si.fMask = SIF_RANGE;
+	si.nMin = 0;
+	si.nMax = nTotal;
 	SetScrollInfo(m_hWnd, SB_VERT, &si, TRUE);
 }
 
@@ -207,8 +206,8 @@ unsigned int CRegViewPage::GetScrollPosition()
 {
 	SCROLLINFO si;
 	memset(&si, 0, sizeof(SCROLLINFO));
-	si.cbSize	= sizeof(SCROLLINFO);
-	si.fMask	= SIF_POS;
+	si.cbSize = sizeof(SCROLLINFO);
+	si.fMask = SIF_POS;
 	GetScrollInfo(m_hWnd, SB_VERT, &si);
 	return si.nPos;
 }
@@ -217,8 +216,8 @@ unsigned int CRegViewPage::GetScrollThumbPosition()
 {
 	SCROLLINFO si;
 	memset(&si, 0, sizeof(SCROLLINFO));
-	si.cbSize	= sizeof(SCROLLINFO);
-	si.fMask	= SIF_TRACKPOS;
+	si.cbSize = sizeof(SCROLLINFO);
+	si.fMask = SIF_TRACKPOS;
 	GetScrollInfo(m_hWnd, SB_VERT, &si);
 	return si.nTrackPos;
 }

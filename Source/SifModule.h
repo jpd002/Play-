@@ -5,6 +5,6 @@
 class CSifModule
 {
 public:
-	virtual			~CSifModule() = default;
-	virtual bool	Invoke(uint32, uint32*, uint32, uint32*, uint32, uint8*) = 0;
+	virtual ~CSifModule() = default;
+	virtual bool Invoke(uint32, uint32*, uint32, uint32*, uint32, uint8*) = 0;
 };

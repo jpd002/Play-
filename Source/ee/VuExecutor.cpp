@@ -3,9 +3,8 @@
 #include <zlib.h>
 
 CVuExecutor::CVuExecutor(CMIPS& context, uint32 maxAddress)
-: CMipsExecutor(context, maxAddress)
+    : CMipsExecutor(context, maxAddress)
 {
-
 }
 
 void CVuExecutor::Reset()
@@ -16,8 +15,8 @@ void CVuExecutor::Reset()
 
 CMipsExecutor::BasicBlockPtr CVuExecutor::BlockFactory(CMIPS& context, uint32 begin, uint32 end)
 {
-	uint32 blockSize = ((end - begin) + 4) / 4;
-	uint32 blockSizeByte = blockSize * 4;
+	uint32  blockSize = ((end - begin) + 4) / 4;
+	uint32  blockSizeByte = blockSize * 4;
 	uint32* blockMemory = reinterpret_cast<uint32*>(alloca(blockSizeByte));
 	for(uint32 address = begin; address <= end; address += 8)
 	{
@@ -59,14 +58,14 @@ CMipsExecutor::BasicBlockPtr CVuExecutor::BlockFactory(CMIPS& context, uint32 be
 void CVuExecutor::PartitionFunction(uint32 functionAddress)
 {
 	typedef std::set<uint32> PartitionPointSet;
-	uint32 endAddress = 0;
-	PartitionPointSet partitionPoints;
+	uint32                   endAddress = 0;
+	PartitionPointSet        partitionPoints;
 
 	//Insert begin point
 	partitionPoints.insert(functionAddress);
 
 	//Find the end
-	for(uint32 address = functionAddress; ; address += 4)
+	for(uint32 address = functionAddress;; address += 4)
 	{
 		//Probably going too far...
 		if(address >= m_maxAddress)
@@ -89,7 +88,7 @@ void CVuExecutor::PartitionFunction(uint32 functionAddress)
 	//Find partition points within the function
 	for(uint32 address = functionAddress; address <= endAddress; address += 4)
 	{
-		uint32 opcode = m_context.m_pMemoryMap->GetInstruction(address);
+		uint32           opcode = m_context.m_pMemoryMap->GetInstruction(address);
 		MIPS_BRANCH_TYPE branchType = m_context.m_pArch->IsInstructionBranch(&m_context, address, opcode);
 		if(branchType == MIPS_BRANCH_NORMAL)
 		{
@@ -131,7 +130,7 @@ void CVuExecutor::PartitionFunction(uint32 functionAddress)
 		}
 		currentPoint = point;
 	}
-/*
+	/*
 	//Convenient cutting for debugging purposes
 	for(uint32 address = functionAddress; address <= endAddress; address += 8)
 	{

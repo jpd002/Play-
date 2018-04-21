@@ -1,24 +1,22 @@
-#include <string.h>
-#include <limits.h>
 #include "ISO9660.h"
-#include "StdStream.h"
-#include "File.h"
 #include "DirectoryRecord.h"
+#include "File.h"
+#include "StdStream.h"
 #include "stricmp.h"
+#include <limits.h>
+#include <string.h>
 
 using namespace ISO9660;
 
 CISO9660::CISO9660(const BlockProviderPtr& blockProvider)
-: m_blockProvider(blockProvider)
-, m_volumeDescriptor(blockProvider.get())
-, m_pathTable(blockProvider.get(), m_volumeDescriptor.GetLPathTableAddress())
+    : m_blockProvider(blockProvider)
+    , m_volumeDescriptor(blockProvider.get())
+    , m_pathTable(blockProvider.get(), m_volumeDescriptor.GetLPathTableAddress())
 {
-
 }
 
 CISO9660::~CISO9660()
 {
-
 }
 
 void CISO9660::ReadBlock(uint32 address, void* data)
@@ -34,7 +32,8 @@ void CISO9660::ReadBlock(uint32 address, void* data)
 bool CISO9660::GetFileRecord(CDirectoryRecord* record, const char* filename)
 {
 	//Remove the first '/'
-	if(filename[0] == '/' || filename[0] == '\\') filename++;
+	if(filename[0] == '/' || filename[0] == '\\')
+		filename++;
 
 	unsigned int recordIndex = m_pathTable.FindRoot();
 
@@ -42,7 +41,8 @@ bool CISO9660::GetFileRecord(CDirectoryRecord* record, const char* filename)
 	{
 		//Find the next '/'
 		const char* next = strchr(filename, '/');
-		if(next == nullptr) break;
+		if(next == nullptr)
+			break;
 
 		std::string dir(filename, next);
 		recordIndex = m_pathTable.FindDirectory(dir.c_str(), recordIndex);
@@ -67,8 +67,10 @@ bool CISO9660::GetFileRecordFromDirectory(CDirectoryRecord* record, uint32 addre
 	{
 		CDirectoryRecord entry(&directory);
 
-		if(entry.GetLength() == 0) break;
-		if(strnicmp(entry.GetName(), filename, strlen(filename))) continue;
+		if(entry.GetLength() == 0)
+			break;
+		if(strnicmp(entry.GetName(), filename, strlen(filename)))
+			continue;
 
 		(*record) = entry;
 		return true;

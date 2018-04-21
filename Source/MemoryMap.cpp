@@ -1,6 +1,6 @@
-#include <cassert>
 #include "MemoryMap.h"
 #include "Log.h"
+#include <cassert>
 
 #define LOG_NAME "MemoryMap"
 
@@ -47,21 +47,21 @@ const CMemoryMap::MEMORYMAPELEMENT* CMemoryMap::GetWriteMap(uint32 address) cons
 void CMemoryMap::InsertMap(MemoryMapListType& memoryMap, uint32 start, uint32 end, void* pointer, unsigned char key)
 {
 	MEMORYMAPELEMENT element;
-	element.nStart		= start;
-	element.nEnd		= end;
-	element.pPointer	= pointer;
-	element.nType		= MEMORYMAP_TYPE_MEMORY;
+	element.nStart = start;
+	element.nEnd = end;
+	element.pPointer = pointer;
+	element.nType = MEMORYMAP_TYPE_MEMORY;
 	memoryMap.push_back(element);
 }
 
 void CMemoryMap::InsertMap(MemoryMapListType& memoryMap, uint32 start, uint32 end, const MemoryMapHandlerType& handler, unsigned char key)
 {
 	MEMORYMAPELEMENT element;
-	element.nStart		= start;
-	element.nEnd		= end;
-	element.handler		= handler;
-	element.pPointer	= nullptr;
-	element.nType		= MEMORYMAP_TYPE_FUNCTION;
+	element.nStart = start;
+	element.nEnd = end;
+	element.handler = handler;
+	element.pPointer = nullptr;
+	element.nType = MEMORYMAP_TYPE_FUNCTION;
 	memoryMap.push_back(element);
 }
 
@@ -71,7 +71,8 @@ const CMemoryMap::MEMORYMAPELEMENT* CMemoryMap::GetMap(const MemoryMapListType& 
 	{
 		if(nAddress <= mapElement.nEnd)
 		{
-			if(!(nAddress >= mapElement.nStart)) return nullptr;
+			if(!(nAddress >= mapElement.nStart))
+				return nullptr;
 			return &mapElement;
 		}
 	}
@@ -175,7 +176,8 @@ uint32 CMemoryMap_LSBF::GetInstruction(uint32 address)
 {
 	assert((address & 0x03) == 0);
 	const auto e = GetMap(m_instructionMap, address);
-	if(!e) return 0xCCCCCCCC;
+	if(!e)
+		return 0xCCCCCCCC;
 	switch(e->nType)
 	{
 	case MEMORYMAP_TYPE_MEMORY:

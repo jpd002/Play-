@@ -3,14 +3,12 @@
 namespace filesystem = boost::filesystem;
 
 CSaveImporterBase::CSaveImporterBase()
-: m_overwriteAll(false)
+    : m_overwriteAll(false)
 {
-
 }
 
 CSaveImporterBase::~CSaveImporterBase()
 {
-
 }
 
 void CSaveImporterBase::SetOverwritePromptHandler(const OverwritePromptHandlerType& overwritePromptHandler)
@@ -20,9 +18,12 @@ void CSaveImporterBase::SetOverwritePromptHandler(const OverwritePromptHandlerTy
 
 bool CSaveImporterBase::CanExtractFile(const filesystem::path& filePath)
 {
-	if(!filesystem::exists(filePath)) return true;
-	if(m_overwriteAll) return true;
-	if(!m_overwritePromptHandler) return true;
+	if(!filesystem::exists(filePath))
+		return true;
+	if(m_overwriteAll)
+		return true;
+	if(!m_overwritePromptHandler)
+		return true;
 
 	auto result = m_overwritePromptHandler(filesystem::absolute(filePath).string());
 
@@ -37,6 +38,6 @@ bool CSaveImporterBase::CanExtractFile(const filesystem::path& filePath)
 		return false;
 		break;
 	}
-	
+
 	return false;
 }

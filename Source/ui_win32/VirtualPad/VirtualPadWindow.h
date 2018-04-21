@@ -1,25 +1,25 @@
 #pragma once
 
-#include <minmax.h>
-#include <GdiPlus.h>
-#include <memory>
-#include <map>
-#include "win32/Window.h"
 #include "VirtualPadItem.h"
+#include "win32/Window.h"
+#include <GdiPlus.h>
+#include <map>
+#include <memory>
+#include <minmax.h>
 
 class CVirtualPadWindow : public Framework::Win32::CWindow
 {
 public:
-	           CVirtualPadWindow();
-	           CVirtualPadWindow(HWND);
-	virtual    ~CVirtualPadWindow();
+	CVirtualPadWindow();
+	CVirtualPadWindow(HWND);
+	virtual ~CVirtualPadWindow();
 
-	CVirtualPadWindow&    operator =(CVirtualPadWindow&&);
+	CVirtualPadWindow& operator=(CVirtualPadWindow&&);
 
-	void    SetPadHandler(CPH_Generic*);
+	void SetPadHandler(CPH_Generic*);
 
 protected:
-	long    OnSize(unsigned int, unsigned int ,unsigned int) override;
+	long    OnSize(unsigned int, unsigned int, unsigned int) override;
 	long    OnLeftButtonDown(int, int) override;
 	long    OnLeftButtonUp(int, int) override;
 	long    OnMouseMove(WPARAM, int, int) override;
@@ -28,18 +28,18 @@ protected:
 private:
 	typedef std::shared_ptr<CVirtualPadItem> ItemPtr;
 	typedef std::shared_ptr<Gdiplus::Bitmap> BitmapPtr;
-	typedef std::vector<ItemPtr> ItemArray;
+	typedef std::vector<ItemPtr>             ItemArray;
 	typedef std::map<std::string, BitmapPtr> BitmapMap;
 
-	void    Reset();
-	void    MoveFrom(CVirtualPadWindow&&);
+	void Reset();
+	void MoveFrom(CVirtualPadWindow&&);
 
-	void    RecreateItems(unsigned int, unsigned int);
-	void    UpdateSurface();
+	void RecreateItems(unsigned int, unsigned int);
+	void UpdateSurface();
 
-	static BitmapPtr    LoadBitmapFromResource(int);
+	static BitmapPtr LoadBitmapFromResource(int);
 
-	ULONG_PTR    m_gdiPlusToken = 0;
-	ItemArray    m_items;
-	BitmapMap    m_itemImages;
+	ULONG_PTR m_gdiPlusToken = 0;
+	ItemArray m_items;
+	BitmapMap m_itemImages;
 };

@@ -1,13 +1,12 @@
 #include "AppConfig.h"
 #include "PathUtils.h"
 
-#define BASE_DATA_PATH			(L"Play Data Files")
-#define CONFIG_FILENAME			(L"config.xml")
+#define BASE_DATA_PATH (L"Play Data Files")
+#define CONFIG_FILENAME (L"config.xml")
 
 CAppConfig::CAppConfig()
-: CConfig(BuildConfigPath())
+    : CConfig(BuildConfigPath())
 {
-
 }
 
 Framework::CConfig::PathType CAppConfig::GetBasePath()

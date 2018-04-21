@@ -1,28 +1,28 @@
-#include <stdio.h>
 #include "ELFSymbolView.h"
 #include "PtrMacro.h"
-#include <boost/lexical_cast.hpp>
+#include "lexical_cast_ex.h"
+#include "string_cast.h"
 #include "win32/Header.h"
 #include "win32/Rect.h"
-#include "string_cast.h"
-#include "lexical_cast_ex.h"
+#include <boost/lexical_cast.hpp>
+#include <stdio.h>
 
 #define CLSNAME _T("CELFSymbolView")
 
 CELFSymbolView::CELFSymbolView(HWND hParent, CELF* pELF)
-: m_pELF(pELF)
-, m_listView(NULL)
+    : m_pELF(pELF)
+    , m_listView(NULL)
 {
 	if(!DoesWindowClassExist(CLSNAME))
 	{
 		WNDCLASSEX wc;
 		memset(&wc, 0, sizeof(WNDCLASSEX));
-		wc.cbSize			= sizeof(WNDCLASSEX);
-		wc.hCursor			= LoadCursor(NULL, IDC_ARROW);
-		wc.hbrBackground	= (HBRUSH)(COLOR_WINDOW); 
-		wc.hInstance		= GetModuleHandle(NULL);
-		wc.lpszClassName	= CLSNAME;
-		wc.lpfnWndProc		= CWindow::WndProc;
+		wc.cbSize = sizeof(WNDCLASSEX);
+		wc.hCursor = LoadCursor(NULL, IDC_ARROW);
+		wc.hbrBackground = (HBRUSH)(COLOR_WINDOW);
+		wc.hInstance = GetModuleHandle(NULL);
+		wc.lpszClassName = CLSNAME;
+		wc.lpfnWndProc = CWindow::WndProc;
 		RegisterClassEx(&wc);
 	}
 
@@ -34,33 +34,33 @@ CELFSymbolView::CELFSymbolView(HWND hParent, CELF* pELF)
 
 	LVCOLUMN col;
 	memset(&col, 0, sizeof(LVCOLUMN));
-	col.pszText		= _T("Name");
-	col.mask		= LVCF_TEXT;
+	col.pszText = _T("Name");
+	col.mask = LVCF_TEXT;
 	m_listView->InsertColumn(0, col);
 
 	memset(&col, 0, sizeof(LVCOLUMN));
-	col.pszText		= _T("Address");
-	col.mask		= LVCF_TEXT;
+	col.pszText = _T("Address");
+	col.mask = LVCF_TEXT;
 	m_listView->InsertColumn(1, col);
 
 	memset(&col, 0, sizeof(LVCOLUMN));
-	col.pszText		= _T("Size");
-	col.mask		= LVCF_TEXT;
+	col.pszText = _T("Size");
+	col.mask = LVCF_TEXT;
 	m_listView->InsertColumn(2, col);
 
 	memset(&col, 0, sizeof(LVCOLUMN));
-	col.pszText		= _T("Type");
-	col.mask		= LVCF_TEXT;
+	col.pszText = _T("Type");
+	col.mask = LVCF_TEXT;
 	m_listView->InsertColumn(3, col);
 
 	memset(&col, 0, sizeof(LVCOLUMN));
-	col.pszText		= _T("Binding");
-	col.mask		= LVCF_TEXT;
+	col.pszText = _T("Binding");
+	col.mask = LVCF_TEXT;
 	m_listView->InsertColumn(4, col);
 
 	memset(&col, 0, sizeof(LVCOLUMN));
-	col.pszText		= _T("Section");
-	col.mask		= LVCF_TEXT;
+	col.pszText = _T("Section");
+	col.mask = LVCF_TEXT;
 	m_listView->InsertColumn(5, col);
 
 	RefreshLayout();
@@ -147,8 +147,10 @@ LRESULT CELFSymbolView::OnNotify(WPARAM wParam, NMHDR* hdr)
 					item.mask = HDI_FORMAT;
 					header.GetItem(0, &item);
 					item.fmt &= ~(HDF_SORTUP | HDF_SORTDOWN);
-					if(m_sortState == SORT_STATE_NAME_ASC) item.fmt |= HDF_SORTUP;
-					if(m_sortState == SORT_STATE_NAME_DESC) item.fmt |= HDF_SORTDOWN;
+					if(m_sortState == SORT_STATE_NAME_ASC)
+						item.fmt |= HDF_SORTUP;
+					if(m_sortState == SORT_STATE_NAME_DESC)
+						item.fmt |= HDF_SORTDOWN;
 					header.SetItem(0, &item);
 				}
 
@@ -159,8 +161,10 @@ LRESULT CELFSymbolView::OnNotify(WPARAM wParam, NMHDR* hdr)
 					item.mask = HDI_FORMAT;
 					header.GetItem(1, &item);
 					item.fmt &= ~(HDF_SORTUP | HDF_SORTDOWN);
-					if(m_sortState == SORT_STATE_ADDRESS_ASC) item.fmt |= HDF_SORTUP;
-					if(m_sortState == SORT_STATE_ADDRESS_DESC) item.fmt |= HDF_SORTDOWN;
+					if(m_sortState == SORT_STATE_ADDRESS_ASC)
+						item.fmt |= HDF_SORTUP;
+					if(m_sortState == SORT_STATE_ADDRESS_DESC)
+						item.fmt |= HDF_SORTDOWN;
 					header.SetItem(1, &item);
 				}
 			}
@@ -203,12 +207,14 @@ void CELFSymbolView::PopulateList()
 	const char* sectionName = ".symtab";
 
 	ELFSECTIONHEADER* pSymTab = m_pELF->FindSection(sectionName);
-	if(pSymTab == NULL) return;
+	if(pSymTab == NULL)
+		return;
 
 	const char* pStrTab = (const char*)m_pELF->GetSectionData(pSymTab->nIndex);
-	if(pStrTab == NULL) return;
+	if(pStrTab == NULL)
+		return;
 
-	ELFSYMBOL* pSym = (ELFSYMBOL*)m_pELF->FindSectionData(sectionName);
+	ELFSYMBOL*   pSym = (ELFSYMBOL*)m_pELF->FindSectionData(sectionName);
 	unsigned int nCount = pSymTab->nSize / sizeof(ELFSYMBOL);
 
 	m_items.resize(nCount);
@@ -217,9 +223,9 @@ void CELFSymbolView::PopulateList()
 		ITEM& item(m_items[i]);
 		TCHAR sTemp[256];
 
-		item.name		= string_cast<std::tstring>(pStrTab + pSym[i].nName);
-		item.address	= _T("0x") + lexical_cast_hex<std::tstring>(pSym[i].nValue, 8);
-		item.size		= _T("0x") + lexical_cast_hex<std::tstring>(pSym[i].nSize, 8);
+		item.name = string_cast<std::tstring>(pStrTab + pSym[i].nName);
+		item.address = _T("0x") + lexical_cast_hex<std::tstring>(pSym[i].nValue, 8);
+		item.size = _T("0x") + lexical_cast_hex<std::tstring>(pSym[i].nSize, 8);
 
 		switch(pSym[i].nInfo & 0x0F)
 		{
@@ -281,8 +287,9 @@ void CELFSymbolView::PopulateList()
 
 void CELFSymbolView::GetItemInfo(LVITEM* outItem) const
 {
-	if(outItem->iItem >= m_items.size()) return;
-	const ITEM& item(m_items[outItem->iItem]);
+	if(outItem->iItem >= m_items.size())
+		return;
+	const ITEM&         item(m_items[outItem->iItem]);
 	const PooledString* itemText(NULL);
 	switch(outItem->iSubItem)
 	{

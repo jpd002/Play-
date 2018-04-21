@@ -6,6 +6,11 @@ matrix:
         - BUILD_TYPE="Unix Makefiles"
         - TARGET_OS=Linux
       sudo: require
+    - os: linux
+      dist: trusty
+      env:
+        - TARGET_OS=Linux_Clang_Format
+      sudo: require
     - os: osx
       osx_image: xcode9.1
       env:

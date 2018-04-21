@@ -19,14 +19,17 @@ void CVuAnalysis::Analyse(CMIPS* ctx, uint32 begin, uint32 end)
 		uint32 upperInstruction = ctx->m_pMemoryMap->GetInstruction(address + 4);
 
 		//Check for LOI (skip)
-		if(upperInstruction & 0x80000000) continue;
+		if(upperInstruction & 0x80000000)
+			continue;
 
 		//Check for BAL
 		if((lowerInstruction & 0xFE000000) == (0x21 << 25))
 		{
 			uint32 jumpTarget = address + VUShared::GetBranch(lowerInstruction & 0x07FF) + 8;
-			if(jumpTarget < begin) continue;
-			if(jumpTarget >= end) continue;
+			if(jumpTarget < begin)
+				continue;
+			if(jumpTarget >= end)
+				continue;
 			subroutineAddresses.insert(jumpTarget);
 		}
 	}
@@ -45,13 +48,13 @@ void CVuAnalysis::Analyse(CMIPS* ctx, uint32 begin, uint32 end)
 		}
 
 		//Check for LOI (skip)
-		if(upperInstruction & 0x80000000) continue;
+		if(upperInstruction & 0x80000000)
+			continue;
 
 		//Check for JR or END bit
 		if(
-			(lowerInstruction & 0xFE000000) == (0x24 << 25) ||
-			(upperInstruction & 0x40000000)
-			)
+		    (lowerInstruction & 0xFE000000) == (0x24 << 25) ||
+		    (upperInstruction & 0x40000000))
 		{
 			subroutineAddresses.insert(potentialRoutineStart);
 			potentialRoutineStart = address + 8;
@@ -62,7 +65,8 @@ void CVuAnalysis::Analyse(CMIPS* ctx, uint32 begin, uint32 end)
 	for(const auto& subroutineAddress : subroutineAddresses)
 	{
 		//Don't bother if we already found it
-		if(ctx->m_analysis->FindSubroutine(subroutineAddress)) continue;
+		if(ctx->m_analysis->FindSubroutine(subroutineAddress))
+			continue;
 
 		//Otherwise, try to find a function that already exists
 		for(uint32 address = subroutineAddress; address <= end; address += 8)
@@ -71,13 +75,13 @@ void CVuAnalysis::Analyse(CMIPS* ctx, uint32 begin, uint32 end)
 			uint32 upperInstruction = ctx->m_pMemoryMap->GetInstruction(address + 4);
 
 			//Check for LOI (skip)
-			if(upperInstruction & 0x80000000) continue;
+			if(upperInstruction & 0x80000000)
+				continue;
 
 			//Check for JR or END bit
 			if(
-				(lowerInstruction & 0xFE000000) == (0x24 << 25) ||
-				(upperInstruction & 0x40000000)
-				)
+			    (lowerInstruction & 0xFE000000) == (0x24 << 25) ||
+			    (upperInstruction & 0x40000000))
 			{
 				ctx->m_analysis->InsertSubroutine(subroutineAddress, address + 8, 0, 0, 0, 0);
 				routineCount++;
@@ -98,7 +102,8 @@ void CVuAnalysis::Analyse(CMIPS* ctx, uint32 begin, uint32 end)
 	for(uint32 address = begin; address <= end; address += 8)
 	{
 		//Address already associated with subroutine, don't bother
-		if(ctx->m_analysis->FindSubroutine(address)) continue;
+		if(ctx->m_analysis->FindSubroutine(address))
+			continue;
 
 		uint32 lowerInstruction = ctx->m_pMemoryMap->GetInstruction(address + 0);
 		uint32 upperInstruction = ctx->m_pMemoryMap->GetInstruction(address + 4);

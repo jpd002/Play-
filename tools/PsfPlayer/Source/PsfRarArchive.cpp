@@ -1,9 +1,9 @@
 #include "PsfRarArchive.h"
-#include <vector>
+#include "stricmp.h"
+#include "string_cast.h"
 #include <boost/algorithm/string.hpp>
 #include <unrar/rar.hpp>
-#include "string_cast.h"
-#include "stricmp.h"
+#include <vector>
 
 static Archive* ConvertArchive(void* archivePtr)
 {
@@ -98,7 +98,8 @@ void CPsfRarArchive::ReadFileContents(const char* fileName, void* buffer, unsign
 					while(1)
 					{
 						uint code = dataIo.UnpRead(&unstoreBuffer[0], unstoreBuffer.size());
-						if(code == 0 || code == -1) break;
+						if(code == 0 || code == -1)
+							break;
 						code = code < toReadSize ? code : toReadSize;
 						dataIo.UnpWrite(&unstoreBuffer[0], code);
 						if(toReadSize >= 0)

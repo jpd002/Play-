@@ -1,16 +1,15 @@
 #include "PH_DirectInput.h"
-#include "PH_DirectInput/ControllerSettingsWnd.h"
 #include "../AppConfig.h"
+#include "PH_DirectInput/ControllerSettingsWnd.h"
 
 CPH_DirectInput::CPH_DirectInput(HWND hWnd)
-: m_inputManager(CAppConfig::GetInstance())
+    : m_inputManager(CAppConfig::GetInstance())
 {
 	m_inputManager.PushFocusWindow(hWnd);
 }
 
 CPH_DirectInput::~CPH_DirectInput()
 {
-
 }
 
 CPadHandler::FactoryFunction CPH_DirectInput::GetFactoryFunction(HWND hWnd)
@@ -29,7 +28,7 @@ void CPH_DirectInput::Update(uint8* ram)
 	{
 		for(unsigned int i = 0; i < PS2::CControllerInfo::MAX_BUTTONS; i++)
 		{
-			auto button = static_cast<PS2::CControllerInfo::BUTTON>(i);
+			auto   button = static_cast<PS2::CControllerInfo::BUTTON>(i);
 			uint32 value = m_inputManager.GetBindingValue(button);
 			if(PS2::CControllerInfo::IsAxis(button))
 			{
@@ -50,5 +49,4 @@ Framework::Win32::CWindow* CPH_DirectInput::CreateSettingsDialog(HWND parent)
 
 void CPH_DirectInput::OnSettingsDialogDestroyed()
 {
-
 }

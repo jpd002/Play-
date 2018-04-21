@@ -1,11 +1,11 @@
-#include <assert.h>
-#include <sys/stat.h>
-#include <limits.h>
-#include <algorithm>
+#include "../GsPixelFormats.h"
 #include "GSH_OpenGL.h"
 #include "StdStream.h"
 #include "bitmap/BMP.h"
-#include "../GsPixelFormats.h"
+#include <algorithm>
+#include <assert.h>
+#include <limits.h>
+#include <sys/stat.h>
 
 #define TEX0_CLUTINFO_MASK (~0xFFFFFFE000000000ULL)
 
@@ -20,16 +20,16 @@ void CGSH_OpenGL::SetupTextureUpdaters()
 		m_textureUpdater[i] = &CGSH_OpenGL::TexUpdater_Invalid;
 	}
 
-	m_textureUpdater[PSMCT32]		= &CGSH_OpenGL::TexUpdater_Psm32;
-	m_textureUpdater[PSMCT24]		= &CGSH_OpenGL::TexUpdater_Psm32;
-	m_textureUpdater[PSMCT16]		= &CGSH_OpenGL::TexUpdater_Psm16<CGsPixelFormats::CPixelIndexorPSMCT16>;
-	m_textureUpdater[PSMCT24_UNK]	= &CGSH_OpenGL::TexUpdater_Psm32;
-	m_textureUpdater[PSMCT16S]		= &CGSH_OpenGL::TexUpdater_Psm16<CGsPixelFormats::CPixelIndexorPSMCT16S>;
-	m_textureUpdater[PSMT8]			= &CGSH_OpenGL::TexUpdater_Psm48<CGsPixelFormats::CPixelIndexorPSMT8>;
-	m_textureUpdater[PSMT4]			= &CGSH_OpenGL::TexUpdater_Psm48<CGsPixelFormats::CPixelIndexorPSMT4>;
-	m_textureUpdater[PSMT8H]		= &CGSH_OpenGL::TexUpdater_Psm48H<24, 0xFF>;
-	m_textureUpdater[PSMT4HL]		= &CGSH_OpenGL::TexUpdater_Psm48H<24, 0x0F>;
-	m_textureUpdater[PSMT4HH]		= &CGSH_OpenGL::TexUpdater_Psm48H<28, 0x0F>;
+	m_textureUpdater[PSMCT32] = &CGSH_OpenGL::TexUpdater_Psm32;
+	m_textureUpdater[PSMCT24] = &CGSH_OpenGL::TexUpdater_Psm32;
+	m_textureUpdater[PSMCT16] = &CGSH_OpenGL::TexUpdater_Psm16<CGsPixelFormats::CPixelIndexorPSMCT16>;
+	m_textureUpdater[PSMCT24_UNK] = &CGSH_OpenGL::TexUpdater_Psm32;
+	m_textureUpdater[PSMCT16S] = &CGSH_OpenGL::TexUpdater_Psm16<CGsPixelFormats::CPixelIndexorPSMCT16S>;
+	m_textureUpdater[PSMT8] = &CGSH_OpenGL::TexUpdater_Psm48<CGsPixelFormats::CPixelIndexorPSMT8>;
+	m_textureUpdater[PSMT4] = &CGSH_OpenGL::TexUpdater_Psm48<CGsPixelFormats::CPixelIndexorPSMT4>;
+	m_textureUpdater[PSMT8H] = &CGSH_OpenGL::TexUpdater_Psm48H<24, 0xFF>;
+	m_textureUpdater[PSMT4HL] = &CGSH_OpenGL::TexUpdater_Psm48H<24, 0x0F>;
+	m_textureUpdater[PSMT4HH] = &CGSH_OpenGL::TexUpdater_Psm48H<28, 0x0F>;
 }
 
 uint32 CGSH_OpenGL::GetFramebufferBitDepth(uint32 psm)
@@ -56,19 +56,19 @@ CGSH_OpenGL::TEXTUREFORMAT_INFO CGSH_OpenGL::GetTextureFormatInfo(uint32 psm)
 	case PSMCT32:
 	case PSMCT24:
 	case PSMCT24_UNK:
-		return TEXTUREFORMAT_INFO { GL_RGBA8, GL_RGBA, GL_UNSIGNED_BYTE };
+		return TEXTUREFORMAT_INFO{GL_RGBA8, GL_RGBA, GL_UNSIGNED_BYTE};
 	case PSMCT16:
 	case PSMCT16S:
-		return TEXTUREFORMAT_INFO { GL_RGB5_A1, GL_RGBA, GL_UNSIGNED_SHORT_5_5_5_1 };
+		return TEXTUREFORMAT_INFO{GL_RGB5_A1, GL_RGBA, GL_UNSIGNED_SHORT_5_5_5_1};
 	case PSMT8:
 	case PSMT4:
 	case PSMT8H:
 	case PSMT4HL:
 	case PSMT4HH:
-		return TEXTUREFORMAT_INFO { GL_R8, GL_RED, GL_UNSIGNED_BYTE };
+		return TEXTUREFORMAT_INFO{GL_R8, GL_RED, GL_UNSIGNED_BYTE};
 	default:
 		assert(false);
-		return TEXTUREFORMAT_INFO { GL_RGBA8, GL_RGBA, GL_UNSIGNED_BYTE };
+		return TEXTUREFORMAT_INFO{GL_RGBA8, GL_RGBA, GL_UNSIGNED_BYTE};
 	}
 }
 
@@ -78,33 +78,35 @@ CGSH_OpenGL::TEXTURE_INFO CGSH_OpenGL::PrepareTexture(const TEX0& tex0)
 
 	for(const auto& candidateFramebuffer : m_framebuffers)
 	{
-		bool canBeUsed = false;
+		bool  canBeUsed = false;
 		float offsetX = 0;
 
 		//Case: TEX0 points at the start of a frame buffer with the same width
 		if(candidateFramebuffer->m_basePtr == tex0.GetBufPtr() &&
-			candidateFramebuffer->m_width == tex0.GetBufWidth() &&
-			IsCompatibleFramebufferPSM(candidateFramebuffer->m_psm, tex0.nPsm))
+		   candidateFramebuffer->m_width == tex0.GetBufWidth() &&
+		   IsCompatibleFramebufferPSM(candidateFramebuffer->m_psm, tex0.nPsm))
 		{
 			canBeUsed = true;
 		}
 
 		//Another case: TEX0 is pointing to the start of a page within our framebuffer (BGDA does this)
 		else if(candidateFramebuffer->m_basePtr <= tex0.GetBufPtr() &&
-			candidateFramebuffer->m_width == tex0.GetBufWidth() &&
-			candidateFramebuffer->m_psm == tex0.nPsm)
+		        candidateFramebuffer->m_width == tex0.GetBufWidth() &&
+		        candidateFramebuffer->m_psm == tex0.nPsm)
 		{
 			uint32 framebufferOffset = tex0.GetBufPtr() - candidateFramebuffer->m_basePtr;
 
 			//Bail if offset is not aligned on a page boundary
-			if((framebufferOffset & (CGsPixelFormats::PAGESIZE - 1)) != 0) continue;
+			if((framebufferOffset & (CGsPixelFormats::PAGESIZE - 1)) != 0)
+				continue;
 
-			auto framebufferPageSize = CGsPixelFormats::GetPsmPageSize(candidateFramebuffer->m_psm);
+			auto   framebufferPageSize = CGsPixelFormats::GetPsmPageSize(candidateFramebuffer->m_psm);
 			uint32 framebufferPageCountX = candidateFramebuffer->m_width / framebufferPageSize.first;
 			uint32 framebufferPageIndex = framebufferOffset / CGsPixelFormats::PAGESIZE;
 
 			//Bail if pointed page isn't on the first line
-			if(framebufferPageIndex >= framebufferPageCountX) continue;
+			if(framebufferPageIndex >= framebufferPageCountX)
+				continue;
 
 			canBeUsed = true;
 			offsetX = static_cast<float>(framebufferPageIndex * framebufferPageSize.first) / static_cast<float>(candidateFramebuffer->m_width);
@@ -122,9 +124,9 @@ CGSH_OpenGL::TEXTURE_INFO CGSH_OpenGL::PrepareTexture(const TEX0& tex0)
 			float scaleRatioY = static_cast<float>(tex0.GetHeight()) / static_cast<float>(candidateFramebuffer->m_height);
 
 			texInfo.textureHandle = candidateFramebuffer->m_texture;
-			texInfo.offsetX       = offsetX;
-			texInfo.scaleRatioX   = scaleRatioX;
-			texInfo.scaleRatioY   = scaleRatioY;
+			texInfo.offsetX = offsetX;
+			texInfo.scaleRatioX = scaleRatioX;
+			texInfo.scaleRatioY = scaleRatioY;
 
 			return texInfo;
 		}
@@ -158,8 +160,8 @@ CGSH_OpenGL::TEXTURE_INFO CGSH_OpenGL::PrepareTexture(const TEX0& tex0)
 
 	glBindTexture(GL_TEXTURE_2D, texture->m_textureHandle);
 	auto& cachedArea = texture->m_cachedArea;
-	auto texturePageSize = CGsPixelFormats::GetPsmPageSize(tex0.nPsm);
-	auto areaRect = cachedArea.GetAreaPageRect();
+	auto  texturePageSize = CGsPixelFormats::GetPsmPageSize(tex0.nPsm);
+	auto  areaRect = cachedArea.GetAreaPageRect();
 
 	while(cachedArea.HasDirtyPages())
 	{
@@ -171,8 +173,10 @@ CGSH_OpenGL::TEXTURE_INFO CGSH_OpenGL::PrepareTexture(const TEX0& tex0)
 		uint32 texY = dirtyRect.y * texturePageSize.second;
 		uint32 texWidth = dirtyRect.width * texturePageSize.first;
 		uint32 texHeight = dirtyRect.height * texturePageSize.second;
-		if(texX >= tex0.GetWidth()) continue;
-		if(texY >= tex0.GetHeight()) continue;
+		if(texX >= tex0.GetWidth())
+			continue;
+		if(texY >= tex0.GetHeight())
+			continue;
 		//assert(texX < tex0.GetWidth());
 		//assert(texY < tex0.GetHeight());
 		if((texX + texWidth) > tex0.GetWidth())
@@ -227,7 +231,8 @@ void CGSH_OpenGL::DumpTexture(unsigned int nWidth, unsigned int nHeight, uint32 
 	{
 		struct _stat Stat;
 		sprintf(sFilename, "./textures/tex_%08X_%08X.bmp", i, checksum);
-		if(_stat(sFilename, &Stat) == -1) break;
+		if(_stat(sFilename, &Stat) == -1)
+			break;
 	}
 
 	Framework::CBitmap bitmap(nWidth, nHeight, 32);
@@ -273,11 +278,11 @@ void CGSH_OpenGL::TexUpdater_Psm16(uint32 bufPtr, uint32 bufWidth, unsigned int 
 		for(unsigned int x = 0; x < texWidth; x++)
 		{
 			auto pixel = indexor.GetPixel(texX + x, texY + y);
-			auto cvtPixel = 
-				(((pixel & 0x001F) >>  0) << 11) |	//R
-				(((pixel & 0x03E0) >>  5) <<  6) |	//G
-				(((pixel & 0x7C00) >> 10) <<  1) |	//B
-				(pixel >> 15);						//A
+			auto cvtPixel =
+			    (((pixel & 0x001F) >> 0) << 11) | //R
+			    (((pixel & 0x03E0) >> 5) << 6) |  //G
+			    (((pixel & 0x7C00) >> 10) << 1) | //B
+			    (pixel >> 15);                    //A
 			dst[x] = cvtPixel;
 		}
 
@@ -336,13 +341,12 @@ void CGSH_OpenGL::TexUpdater_Psm48H(uint32 bufPtr, uint32 bufWidth, unsigned int
 /////////////////////////////////////////////////////////////
 
 CGSH_OpenGL::CPalette::CPalette()
-: m_isIDTEX4(false)
-, m_cpsm(0)
-, m_csa(0)
-, m_texture(0)
-, m_live(false)
+    : m_isIDTEX4(false)
+    , m_cpsm(0)
+    , m_csa(0)
+    , m_texture(0)
+    , m_live(false)
 {
-
 }
 
 CGSH_OpenGL::CPalette::~CPalette()
@@ -362,7 +366,8 @@ void CGSH_OpenGL::CPalette::Free()
 
 void CGSH_OpenGL::CPalette::Invalidate(uint32 csa)
 {
-	if(!m_live) return;
+	if(!m_live)
+		return;
 
 	m_live = false;
 }
@@ -374,13 +379,17 @@ void CGSH_OpenGL::CPalette::Invalidate(uint32 csa)
 GLuint CGSH_OpenGL::PalCache_Search(const TEX0& tex0)
 {
 	for(auto paletteIterator(m_paletteCache.begin());
-		paletteIterator != m_paletteCache.end(); paletteIterator++)
+	    paletteIterator != m_paletteCache.end(); paletteIterator++)
 	{
 		auto palette = *paletteIterator;
-		if(!palette->m_live) continue;
-		if(CGsPixelFormats::IsPsmIDTEX4(tex0.nPsm) != palette->m_isIDTEX4) continue;
-		if(tex0.nCPSM != palette->m_cpsm) continue;
-		if(tex0.nCSA != palette->m_csa) continue;
+		if(!palette->m_live)
+			continue;
+		if(CGsPixelFormats::IsPsmIDTEX4(tex0.nPsm) != palette->m_isIDTEX4)
+			continue;
+		if(tex0.nCPSM != palette->m_cpsm)
+			continue;
+		if(tex0.nCSA != palette->m_csa)
+			continue;
 		m_paletteCache.erase(paletteIterator);
 		m_paletteCache.push_front(palette);
 		return palette->m_texture;
@@ -392,16 +401,19 @@ GLuint CGSH_OpenGL::PalCache_Search(const TEX0& tex0)
 GLuint CGSH_OpenGL::PalCache_Search(unsigned int entryCount, const uint32* contents)
 {
 	for(auto paletteIterator(m_paletteCache.begin());
-		paletteIterator != m_paletteCache.end(); paletteIterator++)
+	    paletteIterator != m_paletteCache.end(); paletteIterator++)
 	{
 		auto palette = *paletteIterator;
-		
-		if(palette->m_texture == 0) continue;
-		
-		unsigned int palEntryCount = palette->m_isIDTEX4 ? 16 : 256;
-		if(palEntryCount != entryCount) continue;
 
-		if(memcmp(contents, palette->m_contents, sizeof(uint32) * entryCount) != 0) continue;
+		if(palette->m_texture == 0)
+			continue;
+
+		unsigned int palEntryCount = palette->m_isIDTEX4 ? 16 : 256;
+		if(palEntryCount != entryCount)
+			continue;
+
+		if(memcmp(contents, palette->m_contents, sizeof(uint32) * entryCount) != 0)
+			continue;
 
 		palette->m_live = true;
 
@@ -420,11 +432,11 @@ void CGSH_OpenGL::PalCache_Insert(const TEX0& tex0, const uint32* contents, GLui
 
 	unsigned int entryCount = CGsPixelFormats::IsPsmIDTEX4(tex0.nPsm) ? 16 : 256;
 
-	texture->m_isIDTEX4		= CGsPixelFormats::IsPsmIDTEX4(tex0.nPsm);
-	texture->m_cpsm			= tex0.nCPSM;
-	texture->m_csa			= tex0.nCSA;
-	texture->m_texture		= textureHandle;
-	texture->m_live			= true;
+	texture->m_isIDTEX4 = CGsPixelFormats::IsPsmIDTEX4(tex0.nPsm);
+	texture->m_cpsm = tex0.nCPSM;
+	texture->m_csa = tex0.nCSA;
+	texture->m_texture = textureHandle;
+	texture->m_live = true;
 	memcpy(texture->m_contents, contents, entryCount * sizeof(uint32));
 
 	m_paletteCache.pop_back();
@@ -434,11 +446,11 @@ void CGSH_OpenGL::PalCache_Insert(const TEX0& tex0, const uint32* contents, GLui
 void CGSH_OpenGL::PalCache_Invalidate(uint32 csa)
 {
 	std::for_each(std::begin(m_paletteCache), std::end(m_paletteCache),
-		[csa] (PalettePtr& palette) { palette->Invalidate(csa); });
+	              [csa](PalettePtr& palette) { palette->Invalidate(csa); });
 }
 
 void CGSH_OpenGL::PalCache_Flush()
 {
-	std::for_each(std::begin(m_paletteCache), std::end(m_paletteCache), 
-		[] (PalettePtr& palette) { palette->Free(); });
+	std::for_each(std::begin(m_paletteCache), std::end(m_paletteCache),
+	              [](PalettePtr& palette) { palette->Free(); });
 }

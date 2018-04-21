@@ -1,53 +1,52 @@
-#include <string.h>
-#include <boost/lexical_cast.hpp>
-#include "string_format.h"
 #include "InputManager.h"
+#include "string_format.h"
 #include "win32/GuidUtils.h"
+#include <boost/lexical_cast.hpp>
+#include <string.h>
 
-#define CONFIG_PREFIX						("input")
-#define CONFIG_BINDING_TYPE					("bindingtype")
+#define CONFIG_PREFIX ("input")
+#define CONFIG_BINDING_TYPE ("bindingtype")
 
-#define CONFIG_SIMPLEBINDING_PREFIX			("simplebinding")
+#define CONFIG_SIMPLEBINDING_PREFIX ("simplebinding")
 
-#define CONFIG_BINDINGINFO_DEVICE			("device")
-#define CONFIG_BINDINGINFO_ID				("id")
+#define CONFIG_BINDINGINFO_DEVICE ("device")
+#define CONFIG_BINDINGINFO_ID ("id")
 
-#define CONFIG_POVHATBINDING_PREFIX			("povhatbinding")
-#define CONFIG_POVHATBINDING_REFVALUE		("refvalue")
+#define CONFIG_POVHATBINDING_PREFIX ("povhatbinding")
+#define CONFIG_POVHATBINDING_REFVALUE ("refvalue")
 
-#define CONFIG_SIMULATEDAXISBINDING_PREFIX	("simulatedaxisbinding")
-#define CONFIG_SIMULATEDAXISBINDING_KEY1	("key1")
-#define CONFIG_SIMULATEDAXISBINDING_KEY2	("key2")
+#define CONFIG_SIMULATEDAXISBINDING_PREFIX ("simulatedaxisbinding")
+#define CONFIG_SIMULATEDAXISBINDING_KEY1 ("key1")
+#define CONFIG_SIMULATEDAXISBINDING_KEY2 ("key2")
 
 using namespace PH_DirectInput;
 
 uint32 CInputManager::m_buttonDefaultValue[PS2::CControllerInfo::MAX_BUTTONS] =
-{
-	0x7FFF,
-	0x7FFF,
-	0x7FFF,
-	0x7FFF,
-	false,
-	false,
-	false,
-	false,
-	false,
-	false,
-	false,
-	false,
-	false,
-	false,
-	false,
-	false,
-	false,
-	false,
-	false,
-	false
-};
+    {
+        0x7FFF,
+        0x7FFF,
+        0x7FFF,
+        0x7FFF,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false};
 
 CInputManager::CInputManager(Framework::CConfig& config)
-: m_config(config)
-, m_directInputManager(new Framework::DirectInput::CManager())
+    : m_config(config)
+    , m_directInputManager(new Framework::DirectInput::CManager())
 {
 	for(unsigned int i = 0; i < PS2::CControllerInfo::MAX_BUTTONS; i++)
 	{
@@ -62,8 +61,8 @@ CInputManager::CInputManager(Framework::CConfig& config)
 	}
 	Load();
 
-	m_directInputManager->RegisterInputEventHandler(std::bind(&CInputManager::OnInputEventReceived, 
-		this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
+	m_directInputManager->RegisterInputEventHandler(std::bind(&CInputManager::OnInputEventReceived,
+	                                                          this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
 
 	m_directInputManager->CreateKeyboard();
 	m_directInputManager->CreateJoysticks();
@@ -94,7 +93,8 @@ void CInputManager::Load()
 		BINDINGTYPE bindingType = BINDING_UNBOUND;
 		std::string prefBase = Framework::CConfig::MakePreferenceName(CONFIG_PREFIX, PS2::CControllerInfo::m_buttonName[i]);
 		bindingType = static_cast<BINDINGTYPE>(m_config.GetPreferenceInteger((prefBase + "." + std::string(CONFIG_BINDING_TYPE)).c_str()));
-		if(bindingType == BINDING_UNBOUND) continue;
+		if(bindingType == BINDING_UNBOUND)
+			continue;
 		BindingPtr binding;
 		switch(bindingType)
 		{
@@ -127,7 +127,8 @@ void CInputManager::Save()
 	for(unsigned int i = 0; i < PS2::CControllerInfo::MAX_BUTTONS; i++)
 	{
 		BindingPtr& binding = m_bindings[i];
-		if(binding == NULL) continue;
+		if(binding == NULL)
+			continue;
 		std::string prefBase = Framework::CConfig::MakePreferenceName(CONFIG_PREFIX, PS2::CControllerInfo::m_buttonName[i]);
 		m_config.SetPreferenceInteger(Framework::CConfig::MakePreferenceName(prefBase, CONFIG_BINDING_TYPE).c_str(), binding->GetBindingType());
 		binding->Save(m_config, prefBase.c_str());
@@ -136,36 +137,36 @@ void CInputManager::Save()
 
 void CInputManager::AutoConfigureKeyboard()
 {
-	SetSimpleBinding(PS2::CControllerInfo::START,		CInputManager::BINDINGINFO(GUID_SysKeyboard, DIK_RETURN));
-	SetSimpleBinding(PS2::CControllerInfo::SELECT,		CInputManager::BINDINGINFO(GUID_SysKeyboard, DIK_LSHIFT));
-	SetSimpleBinding(PS2::CControllerInfo::DPAD_LEFT,	CInputManager::BINDINGINFO(GUID_SysKeyboard, DIK_LEFT));
-	SetSimpleBinding(PS2::CControllerInfo::DPAD_RIGHT,	CInputManager::BINDINGINFO(GUID_SysKeyboard, DIK_RIGHT));
-	SetSimpleBinding(PS2::CControllerInfo::DPAD_UP,		CInputManager::BINDINGINFO(GUID_SysKeyboard, DIK_UP));
-	SetSimpleBinding(PS2::CControllerInfo::DPAD_DOWN,	CInputManager::BINDINGINFO(GUID_SysKeyboard, DIK_DOWN));
-	SetSimpleBinding(PS2::CControllerInfo::SQUARE,		CInputManager::BINDINGINFO(GUID_SysKeyboard, DIK_A));
-	SetSimpleBinding(PS2::CControllerInfo::CROSS,		CInputManager::BINDINGINFO(GUID_SysKeyboard, DIK_Z));
-	SetSimpleBinding(PS2::CControllerInfo::TRIANGLE,	CInputManager::BINDINGINFO(GUID_SysKeyboard, DIK_S));
-	SetSimpleBinding(PS2::CControllerInfo::CIRCLE,		CInputManager::BINDINGINFO(GUID_SysKeyboard, DIK_X));
-	SetSimpleBinding(PS2::CControllerInfo::L1,			CInputManager::BINDINGINFO(GUID_SysKeyboard, DIK_1));
-	SetSimpleBinding(PS2::CControllerInfo::L2,			CInputManager::BINDINGINFO(GUID_SysKeyboard, DIK_2));
-	SetSimpleBinding(PS2::CControllerInfo::L3,			CInputManager::BINDINGINFO(GUID_SysKeyboard, DIK_3));
-	SetSimpleBinding(PS2::CControllerInfo::R1,			CInputManager::BINDINGINFO(GUID_SysKeyboard, DIK_8));
-	SetSimpleBinding(PS2::CControllerInfo::R2,			CInputManager::BINDINGINFO(GUID_SysKeyboard, DIK_9));
-	SetSimpleBinding(PS2::CControllerInfo::R3,			CInputManager::BINDINGINFO(GUID_SysKeyboard, DIK_0));
+	SetSimpleBinding(PS2::CControllerInfo::START, CInputManager::BINDINGINFO(GUID_SysKeyboard, DIK_RETURN));
+	SetSimpleBinding(PS2::CControllerInfo::SELECT, CInputManager::BINDINGINFO(GUID_SysKeyboard, DIK_LSHIFT));
+	SetSimpleBinding(PS2::CControllerInfo::DPAD_LEFT, CInputManager::BINDINGINFO(GUID_SysKeyboard, DIK_LEFT));
+	SetSimpleBinding(PS2::CControllerInfo::DPAD_RIGHT, CInputManager::BINDINGINFO(GUID_SysKeyboard, DIK_RIGHT));
+	SetSimpleBinding(PS2::CControllerInfo::DPAD_UP, CInputManager::BINDINGINFO(GUID_SysKeyboard, DIK_UP));
+	SetSimpleBinding(PS2::CControllerInfo::DPAD_DOWN, CInputManager::BINDINGINFO(GUID_SysKeyboard, DIK_DOWN));
+	SetSimpleBinding(PS2::CControllerInfo::SQUARE, CInputManager::BINDINGINFO(GUID_SysKeyboard, DIK_A));
+	SetSimpleBinding(PS2::CControllerInfo::CROSS, CInputManager::BINDINGINFO(GUID_SysKeyboard, DIK_Z));
+	SetSimpleBinding(PS2::CControllerInfo::TRIANGLE, CInputManager::BINDINGINFO(GUID_SysKeyboard, DIK_S));
+	SetSimpleBinding(PS2::CControllerInfo::CIRCLE, CInputManager::BINDINGINFO(GUID_SysKeyboard, DIK_X));
+	SetSimpleBinding(PS2::CControllerInfo::L1, CInputManager::BINDINGINFO(GUID_SysKeyboard, DIK_1));
+	SetSimpleBinding(PS2::CControllerInfo::L2, CInputManager::BINDINGINFO(GUID_SysKeyboard, DIK_2));
+	SetSimpleBinding(PS2::CControllerInfo::L3, CInputManager::BINDINGINFO(GUID_SysKeyboard, DIK_3));
+	SetSimpleBinding(PS2::CControllerInfo::R1, CInputManager::BINDINGINFO(GUID_SysKeyboard, DIK_8));
+	SetSimpleBinding(PS2::CControllerInfo::R2, CInputManager::BINDINGINFO(GUID_SysKeyboard, DIK_9));
+	SetSimpleBinding(PS2::CControllerInfo::R3, CInputManager::BINDINGINFO(GUID_SysKeyboard, DIK_0));
 
 	SetSimulatedAxisBinding(PS2::CControllerInfo::ANALOG_LEFT_X,
-		CInputManager::BINDINGINFO(GUID_SysKeyboard, DIK_F),
-		CInputManager::BINDINGINFO(GUID_SysKeyboard, DIK_H));
+	                        CInputManager::BINDINGINFO(GUID_SysKeyboard, DIK_F),
+	                        CInputManager::BINDINGINFO(GUID_SysKeyboard, DIK_H));
 	SetSimulatedAxisBinding(PS2::CControllerInfo::ANALOG_LEFT_Y,
-		CInputManager::BINDINGINFO(GUID_SysKeyboard, DIK_T),
-		CInputManager::BINDINGINFO(GUID_SysKeyboard, DIK_G));
+	                        CInputManager::BINDINGINFO(GUID_SysKeyboard, DIK_T),
+	                        CInputManager::BINDINGINFO(GUID_SysKeyboard, DIK_G));
 
 	SetSimulatedAxisBinding(PS2::CControllerInfo::ANALOG_RIGHT_X,
-		CInputManager::BINDINGINFO(GUID_SysKeyboard, DIK_J),
-		CInputManager::BINDINGINFO(GUID_SysKeyboard, DIK_L));
+	                        CInputManager::BINDINGINFO(GUID_SysKeyboard, DIK_J),
+	                        CInputManager::BINDINGINFO(GUID_SysKeyboard, DIK_L));
 	SetSimulatedAxisBinding(PS2::CControllerInfo::ANALOG_RIGHT_Y,
-		CInputManager::BINDINGINFO(GUID_SysKeyboard, DIK_I),
-		CInputManager::BINDINGINFO(GUID_SysKeyboard, DIK_K));
+	                        CInputManager::BINDINGINFO(GUID_SysKeyboard, DIK_I),
+	                        CInputManager::BINDINGINFO(GUID_SysKeyboard, DIK_K));
 }
 
 const CInputManager::CBinding* CInputManager::GetBinding(PS2::CControllerInfo::BUTTON button) const
@@ -196,7 +197,8 @@ void CInputManager::ResetBindingValues()
 	for(unsigned int i = 0; i < PS2::CControllerInfo::MAX_BUTTONS; i++)
 	{
 		auto binding = m_bindings[i];
-		if(!binding) continue;
+		if(!binding)
+			continue;
 		binding->SetValue(m_buttonDefaultValue[i]);
 	}
 }
@@ -233,14 +235,15 @@ void CInputManager::OnInputEventReceived(const GUID& device, uint32 id, uint32 v
 	for(unsigned int i = 0; i < PS2::CControllerInfo::MAX_BUTTONS; i++)
 	{
 		auto binding = m_bindings[i];
-		if(!binding) continue;
+		if(!binding)
+			continue;
 		binding->ProcessEvent(device, id, value);
 	}
 }
 
 std::tstring CInputManager::GetBindingInfoDescription(Framework::DirectInput::CManager* directInputManager, const BINDINGINFO& binding)
 {
-	DIDEVICEINSTANCE deviceInstance;
+	DIDEVICEINSTANCE       deviceInstance;
 	DIDEVICEOBJECTINSTANCE objectInstance;
 	if(!directInputManager->GetDeviceInfo(binding.device, &deviceInstance))
 	{
@@ -276,15 +279,13 @@ std::tstring CInputManager::GetBindingDescription(PS2::CControllerInfo::BUTTON b
 // SimpleBinding
 ////////////////////////////////////////////////
 
-CInputManager::CSimpleBinding::CSimpleBinding(const GUID& device, uint32 id) 
-: m_binding(device, id)
+CInputManager::CSimpleBinding::CSimpleBinding(const GUID& device, uint32 id)
+    : m_binding(device, id)
 {
-
 }
 
 CInputManager::CSimpleBinding::~CSimpleBinding()
 {
-
 }
 
 CInputManager::BINDINGTYPE CInputManager::CSimpleBinding::GetBindingType() const
@@ -313,8 +314,10 @@ std::tstring CInputManager::CSimpleBinding::GetDescription(Framework::DirectInpu
 
 void CInputManager::CSimpleBinding::ProcessEvent(const GUID& device, uint32 id, uint32 value)
 {
-	if(id != m_binding.id) return;
-	if(device != m_binding.device) return;
+	if(id != m_binding.id)
+		return;
+	if(device != m_binding.device)
+		return;
 	m_value = value;
 }
 
@@ -339,16 +342,14 @@ void CInputManager::CSimpleBinding::RegisterPreferences(Framework::CConfig& conf
 // PovHatBinding
 ////////////////////////////////////////////////
 
-CInputManager::CPovHatBinding::CPovHatBinding(const GUID& device, uint32 id, uint32 refValue) 
-: m_binding(device, id)
-, m_refValue(refValue)
+CInputManager::CPovHatBinding::CPovHatBinding(const GUID& device, uint32 id, uint32 refValue)
+    : m_binding(device, id)
+    , m_refValue(refValue)
 {
-
 }
 
 CInputManager::CPovHatBinding::~CPovHatBinding()
 {
-
 }
 
 CInputManager::BINDINGTYPE CInputManager::CPovHatBinding::GetBindingType() const
@@ -379,14 +380,17 @@ std::tstring CInputManager::CPovHatBinding::GetDescription(Framework::DirectInpu
 
 void CInputManager::CPovHatBinding::ProcessEvent(const GUID& device, uint32 id, uint32 value)
 {
-	if(id != m_binding.id) return;
-	if(device != m_binding.device) return;
+	if(id != m_binding.id)
+		return;
+	if(device != m_binding.device)
+		return;
 	m_value = value;
 }
 
 uint32 CInputManager::CPovHatBinding::GetValue() const
 {
-	if(m_value == -1) return 0;
+	if(m_value == -1)
+		return 0;
 	int32 normalizedRefValue = m_refValue / 100;
 	int32 normalizedValue = m_value / 100;
 	if(GetShortestDistanceBetweenAngles(normalizedValue, normalizedRefValue) <= 45)
@@ -406,10 +410,14 @@ void CInputManager::CPovHatBinding::SetValue(uint32 value)
 
 int32 CInputManager::CPovHatBinding::GetShortestDistanceBetweenAngles(int32 angle1, int32 angle2)
 {
-	if(angle1 >  180) angle1 -= 360;
-	if(angle1 < -180) angle1 += 360;
-	if(angle2 >  180) angle2 -= 360;
-	if(angle2 < -180) angle2 += 360;
+	if(angle1 > 180)
+		angle1 -= 360;
+	if(angle1 < -180)
+		angle1 += 360;
+	if(angle2 > 180)
+		angle2 -= 360;
+	if(angle2 < -180)
+		angle2 += 360;
 	int32 angle = abs(angle1 - angle2);
 	if(angle > 180)
 	{
@@ -431,15 +439,13 @@ void CInputManager::CPovHatBinding::RegisterPreferences(Framework::CConfig& conf
 ////////////////////////////////////////////////
 
 CInputManager::CSimulatedAxisBinding::CSimulatedAxisBinding(const BINDINGINFO& binding1, const BINDINGINFO& binding2)
-: m_key1Binding(binding1)
-, m_key2Binding(binding2)
+    : m_key1Binding(binding1)
+    , m_key2Binding(binding2)
 {
-
 }
 
 CInputManager::CSimulatedAxisBinding::~CSimulatedAxisBinding()
 {
-
 }
 
 void CInputManager::CSimulatedAxisBinding::RegisterPreferences(Framework::CConfig& config, const char* buttonBase)

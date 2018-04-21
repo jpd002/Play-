@@ -1,14 +1,12 @@
 #include "VuAssembler.h"
 
 CVuAssembler::CVuAssembler(uint32* ptr)
-: m_ptr(ptr)
+    : m_ptr(ptr)
 {
-
 }
 
 CVuAssembler::~CVuAssembler()
 {
-
 }
 
 void CVuAssembler::Write(uint32 upperOp, uint32 lowerOp)
@@ -25,7 +23,7 @@ void CVuAssembler::Write(uint32 upperOp, uint32 lowerOp)
 uint32 CVuAssembler::Upper::ADDi(DEST dest, VF_REGISTER fd, VF_REGISTER fs)
 {
 	uint32 result = 0x00000022;
-	result |= (fd <<  6);
+	result |= (fd << 6);
 	result |= (fs << 11);
 	result |= (dest << 21);
 	return result;
@@ -44,7 +42,7 @@ uint32 CVuAssembler::Upper::MADDbc(DEST dest, VF_REGISTER fd, VF_REGISTER fs, VF
 {
 	uint32 result = 0x00000008;
 	result |= bc;
-	result |= (fd <<  6);
+	result |= (fd << 6);
 	result |= (fs << 11);
 	result |= (ft << 16);
 	result |= (dest << 21);
@@ -64,7 +62,7 @@ uint32 CVuAssembler::Upper::MADDAbc(DEST dest, VF_REGISTER fs, VF_REGISTER ft, B
 uint32 CVuAssembler::Upper::MULi(DEST dest, VF_REGISTER fd, VF_REGISTER fs)
 {
 	uint32 result = 0x0000001E;
-	result |= (fd <<  6);
+	result |= (fd << 6);
 	result |= (fs << 11);
 	result |= (dest << 21);
 	return result;
@@ -96,7 +94,7 @@ uint32 CVuAssembler::Upper::OPMULA(VF_REGISTER fs, VF_REGISTER ft)
 uint32 CVuAssembler::Upper::OPMSUB(VF_REGISTER fd, VF_REGISTER fs, VF_REGISTER ft)
 {
 	uint32 result = 0x01C0002E;
-	result |= (fd <<  6);
+	result |= (fd << 6);
 	result |= (fs << 11);
 	result |= (ft << 16);
 	return result;
@@ -106,7 +104,7 @@ uint32 CVuAssembler::Upper::SUBbc(DEST dest, VF_REGISTER fd, VF_REGISTER fs, VF_
 {
 	uint32 result = 0x00000004;
 	result |= bc;
-	result |= (fd <<  6);
+	result |= (fd << 6);
 	result |= (fs << 11);
 	result |= (ft << 16);
 	result |= (dest << 21);

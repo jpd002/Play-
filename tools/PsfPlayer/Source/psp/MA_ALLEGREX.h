@@ -8,50 +8,48 @@
 class CMA_ALLEGREX : public CMA_MIPSIV
 {
 public:
-										CMA_ALLEGREX();
-	virtual								~CMA_ALLEGREX();
+	CMA_ALLEGREX();
+	virtual ~CMA_ALLEGREX();
 
 protected:
 	enum
 	{
-		MAX_SPECIAL3_OPS	= 0x40,
-		MAX_BSHFL_OPS		= 0x20,
+		MAX_SPECIAL3_OPS = 0x40,
+		MAX_BSHFL_OPS = 0x20,
 	};
 
-	InstructionFunction					m_pOpSpecial3[MAX_SPECIAL3_OPS];
-	InstructionFunction					m_pOpBshfl[MAX_BSHFL_OPS];
+	InstructionFunction m_pOpSpecial3[MAX_SPECIAL3_OPS];
+	InstructionFunction m_pOpBshfl[MAX_BSHFL_OPS];
 
-	void								SetupReflectionTables();
+	void SetupReflectionTables();
 
-	static void							ReflOpExt(MIPSReflection::INSTRUCTION*, CMIPS*, uint32, uint32, char*, unsigned int);
-	static void							ReflOpIns(MIPSReflection::INSTRUCTION*, CMIPS*, uint32, uint32, char*, unsigned int);
-	static void							ReflOpRdRt(MIPSReflection::INSTRUCTION*, CMIPS*, uint32, uint32, char*, unsigned int);
+	static void ReflOpExt(MIPSReflection::INSTRUCTION*, CMIPS*, uint32, uint32, char*, unsigned int);
+	static void ReflOpIns(MIPSReflection::INSTRUCTION*, CMIPS*, uint32, uint32, char*, unsigned int);
+	static void ReflOpRdRt(MIPSReflection::INSTRUCTION*, CMIPS*, uint32, uint32, char*, unsigned int);
 
-	MIPSReflection::SUBTABLE			m_ReflSpecial3Table;
-	MIPSReflection::SUBTABLE			m_ReflBshflTable;
+	MIPSReflection::SUBTABLE m_ReflSpecial3Table;
+	MIPSReflection::SUBTABLE m_ReflBshflTable;
 
-	MIPSReflection::INSTRUCTION			m_ReflSpecial3[64];
-	MIPSReflection::INSTRUCTION			m_ReflBshfl[32];
+	MIPSReflection::INSTRUCTION m_ReflSpecial3[64];
+	MIPSReflection::INSTRUCTION m_ReflBshfl[32];
 
 private:
-	void								SPECIAL3();
+	void SPECIAL3();
 
 	//SPECIAL
-	void								MAX();
-	void								MIN();
+	void MAX();
+	void MIN();
 
 	//SPECIAL3
-	void								EXT();
-	void								INS();
-	void								BSHFL();
+	void EXT();
+	void INS();
+	void BSHFL();
 
 	//BSHFL
-	void								SEB();
-	void								SEH();
+	void SEB();
+	void SEH();
 
 	//Reflection tables
-	static MIPSReflection::INSTRUCTION	m_cReflSpecial3[64];
-	static MIPSReflection::INSTRUCTION	m_cReflBshfl[32];
-
+	static MIPSReflection::INSTRUCTION m_cReflSpecial3[64];
+	static MIPSReflection::INSTRUCTION m_cReflBshfl[32];
 };
-

@@ -1,9 +1,9 @@
-#include <algorithm>
-#include <stdexcept>
-#include <string.h>
-#include <assert.h>
 #include "CsoImageStream.h"
 #include "zlib.h"
+#include <algorithm>
+#include <assert.h>
+#include <stdexcept>
+#include <string.h>
 
 typedef uint32 uint32_le;
 typedef uint64 uint64_le;
@@ -12,17 +12,21 @@ static const uint32 CSO_READ_BUFFER_SIZE = 256 * 1024;
 
 struct CsoHeader
 {
-	uint8 magic[4];
+	uint8     magic[4];
 	uint32_le header_size;
 	uint64_le total_bytes;
 	uint32_le frame_size;
-	uint8 ver;
-	uint8 align;
-	uint8 reserved[2];
+	uint8     ver;
+	uint8     align;
+	uint8     reserved[2];
 };
 
 CCsoImageStream::CCsoImageStream(CStream* baseStream)
-	: m_baseStream(baseStream), m_readBuffer(nullptr), m_zlibBuffer(nullptr), m_index(nullptr), m_position(0)
+    : m_baseStream(baseStream)
+    , m_readBuffer(nullptr)
+    , m_zlibBuffer(nullptr)
+    , m_index(nullptr)
+    , m_position(0)
 {
 	if(baseStream == nullptr)
 	{
@@ -35,9 +39,9 @@ CCsoImageStream::CCsoImageStream(CStream* baseStream)
 
 CCsoImageStream::~CCsoImageStream()
 {
-	delete [] m_readBuffer;
-	delete [] m_zlibBuffer;
-	delete [] m_index;
+	delete[] m_readBuffer;
+	delete[] m_zlibBuffer;
+	delete[] m_index;
 }
 
 void CCsoImageStream::ReadFileHeader()
@@ -106,7 +110,7 @@ void CCsoImageStream::InitializeBuffers()
 
 void CCsoImageStream::Seek(int64 position, Framework::STREAM_SEEK_DIRECTION origin)
 {
-	switch (origin)
+	switch(origin)
 	{
 	case Framework::STREAM_SEEK_CUR:
 		m_position += position;
@@ -167,7 +171,7 @@ uint32 CCsoImageStream::ReadFromNextFrame(uint8* dest, uint64 maxBytes)
 	const uint32 bytes = static_cast<uint32>(std::min(maxBytes, static_cast<uint64>(m_frameSize - offset)));
 
 	// Grab the index data for the frame we're about to read.
-	const bool compressed = (m_index[frame + 0] & 0x80000000) == 0;
+	const bool   compressed = (m_index[frame + 0] & 0x80000000) == 0;
 	const uint32 index0 = m_index[frame + 0] & 0x7FFFFFFF;
 	const uint32 index1 = m_index[frame + 1] & 0x7FFFFFFF;
 

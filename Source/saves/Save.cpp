@@ -1,14 +1,14 @@
-#include <boost/filesystem/operations.hpp>
-#include <exception>
-#include "string_cast_sjis.h"
 #include "Save.h"
 #include "StdStream.h"
 #include "StdStreamUtils.h"
+#include "string_cast_sjis.h"
+#include <boost/filesystem/operations.hpp>
+#include <exception>
 
 namespace filesystem = boost::filesystem;
 
-CSave::CSave(const filesystem::path& basePath) 
-: m_basePath(basePath)
+CSave::CSave(const filesystem::path& basePath)
+    : m_basePath(basePath)
 {
 	filesystem::path iconSysPath = m_basePath / "icon.sys";
 
@@ -44,7 +44,6 @@ CSave::CSave(const filesystem::path& basePath)
 
 CSave::~CSave()
 {
-
 }
 
 const wchar_t* CSave::GetName() const
@@ -60,11 +59,11 @@ const char* CSave::GetId() const
 unsigned int CSave::GetSize() const
 {
 	filesystem::directory_iterator itEnd;
-	unsigned int nSize = 0;
+	unsigned int                   nSize = 0;
 
 	for(filesystem::directory_iterator itElement(m_basePath);
-		itElement != itEnd;
-		itElement++)
+	    itElement != itEnd;
+	    itElement++)
 	{
 		if(!filesystem::is_directory(*itElement))
 		{

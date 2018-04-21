@@ -1,30 +1,30 @@
 #include "PsfBase.h"
 #include "MemStream.h"
+#include <algorithm>
 #include <assert.h>
-#include <string.h>
 #include <ctype.h>
 #include <stdexcept>
-#include <algorithm>
+#include <string.h>
 #include <zlib.h>
 
 using namespace Framework;
 
-CPsfBase::CPsfBase(CStream& stream) 
-: m_reserved(NULL)
-, m_program(NULL)
-, m_uncompProgramSize(0)
+CPsfBase::CPsfBase(CStream& stream)
+    : m_reserved(NULL)
+    , m_program(NULL)
+    , m_uncompProgramSize(0)
 {
-    char signature[4];
-    stream.Read(signature, 3);
-    signature[3] = 0;
-    if(strcmp(signature, "PSF"))
-    {
-        throw std::runtime_error("Invalid PSF file (Invalid signature).");
-    }
-    m_version = stream.Read8();
-    m_reservedSize = stream.Read32();
-    m_programSize = stream.Read32();
-    m_programCrc = stream.Read32();
+	char signature[4];
+	stream.Read(signature, 3);
+	signature[3] = 0;
+	if(strcmp(signature, "PSF"))
+	{
+		throw std::runtime_error("Invalid PSF file (Invalid signature).");
+	}
+	m_version = stream.Read8();
+	m_reservedSize = stream.Read32();
+	m_programSize = stream.Read32();
+	m_programCrc = stream.Read32();
 
 	if(m_reservedSize != 0)
 	{
@@ -42,8 +42,8 @@ CPsfBase::CPsfBase(CStream& stream)
 
 CPsfBase::~CPsfBase()
 {
-	delete [] m_reserved;
-	delete [] m_program;
+	delete[] m_reserved;
+	delete[] m_program;
 }
 
 uint8 CPsfBase::GetVersion() const
@@ -63,18 +63,19 @@ uint32 CPsfBase::GetProgramUncompressedSize() const
 
 uint8* CPsfBase::GetReserved() const
 {
-    return m_reserved;
+	return m_reserved;
 }
 
 uint32 CPsfBase::GetReservedSize() const
 {
-    return m_reservedSize;
+	return m_reservedSize;
 }
 
 const char* CPsfBase::GetTagValue(const char* name) const
 {
 	TagMap::const_iterator tagIterator(m_tags.find(name));
-	if(tagIterator == m_tags.end()) return NULL;
+	if(tagIterator == m_tags.end())
+		return NULL;
 	return tagIterator->second.c_str();
 }
 
@@ -93,21 +94,21 @@ void CPsfBase::ReadProgram(CStream& stream)
 	assert(m_program == NULL);
 
 	CMemStream outputStream;
-	uint8* compressedProgram = new uint8[m_programSize];
+	uint8*     compressedProgram = new uint8[m_programSize];
 	stream.Read(compressedProgram, m_programSize);
 
 	{
-		z_stream zStream;
+		z_stream  zStream;
 		const int bufferSize = 0x4000;
-		uint8 buffer[bufferSize];
+		uint8     buffer[bufferSize];
 		memset(&zStream, 0, sizeof(zStream));
 		inflateInit(&zStream);
-		zStream.avail_in	= m_programSize;
-		zStream.next_in		= reinterpret_cast<Bytef*>(compressedProgram);
+		zStream.avail_in = m_programSize;
+		zStream.next_in = reinterpret_cast<Bytef*>(compressedProgram);
 		while(1)
 		{
-			zStream.avail_out	= bufferSize;
-			zStream.next_out	= reinterpret_cast<Bytef*>(buffer);
+			zStream.avail_out = bufferSize;
+			zStream.next_out = reinterpret_cast<Bytef*>(buffer);
 			int result = inflate(&zStream, 0);
 			if(result < 0)
 			{
@@ -122,7 +123,7 @@ void CPsfBase::ReadProgram(CStream& stream)
 		inflateEnd(&zStream);
 	}
 
-	delete [] compressedProgram;
+	delete[] compressedProgram;
 
 	m_uncompProgramSize = outputStream.GetSize();
 
@@ -145,7 +146,8 @@ void CPsfBase::ReadTags(CStream& stream)
 	while(1)
 	{
 		char nextCharacter = stream.Read8();
-		if(stream.IsEOF()) break;
+		if(stream.IsEOF())
+			break;
 		if(nextCharacter == 0x0D)
 		{
 			continue;

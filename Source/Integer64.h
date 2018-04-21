@@ -5,8 +5,7 @@
 
 struct INTEGER64
 {
-	union
-	{
+	union {
 		uint64 q;
 		struct
 		{

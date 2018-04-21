@@ -2,27 +2,24 @@
 #define _COMMANDSINK_H_
 
 #include "win32/Window.h"
-#include <map>
 #include <boost/function.hpp>
+#include <map>
 
 class CCommandSink
 {
 public:
-	typedef boost::function< long () > CallbackType;
+	typedef boost::function<long()> CallbackType;
 
-						CCommandSink();
-	virtual				~CCommandSink();
+	CCommandSink();
+	virtual ~CCommandSink();
 
-	void				RegisterCallback(HWND, CallbackType);
-	long				OnCommand(unsigned short, unsigned short, HWND);
+	void RegisterCallback(HWND, CallbackType);
+	long OnCommand(unsigned short, unsigned short, HWND);
 
 private:
-
 	typedef std::map<HWND, CallbackType> CallbackList;
 
-	CallbackList		m_Callbacks;
-
-
+	CallbackList m_Callbacks;
 };
 
 #endif

@@ -2,18 +2,18 @@
 
 using namespace PS2;
 
-#define PSF_DEVICENAME	"psf"
+#define PSF_DEVICENAME "psf"
 
 CPsfBios::CPsfBios(CMIPS& cpu, CMipsExecutor& cpuExecutor, uint8* ram, uint32 ramSize, uint8* spr)
-: m_bios(cpu, cpuExecutor, ram, ramSize, spr)
-, m_psfDevice(new CPsfDevice())
+    : m_bios(cpu, cpuExecutor, ram, ramSize, spr)
+    , m_psfDevice(new CPsfDevice())
 {
 	m_bios.Reset(NULL);
 
 	Iop::CIoman* ioman = m_bios.GetIoman();
-	ioman->RegisterDevice(PSF_DEVICENAME,	m_psfDevice);
-	ioman->RegisterDevice("host0",			m_psfDevice);
-	ioman->RegisterDevice("hefile",			m_psfDevice);
+	ioman->RegisterDevice(PSF_DEVICENAME, m_psfDevice);
+	ioman->RegisterDevice("host0", m_psfDevice);
+	ioman->RegisterDevice("hefile", m_psfDevice);
 }
 
 void CPsfBios::AppendArchive(const CPsfBase& psfFile)
@@ -24,7 +24,7 @@ void CPsfBios::AppendArchive(const CPsfBase& psfFile)
 void CPsfBios::Start()
 {
 	std::string execPath = std::string(PSF_DEVICENAME) + ":/psf2.irx";
-	auto moduleId = m_bios.LoadModule(execPath.c_str());
+	auto        moduleId = m_bios.LoadModule(execPath.c_str());
 	assert(moduleId >= 0);
 	m_bios.StartModule(moduleId, execPath.c_str(), nullptr, 0);
 }
@@ -46,12 +46,10 @@ void CPsfBios::CountTicks(uint32 ticks)
 
 void CPsfBios::SaveState(Framework::CZipArchiveWriter& archive)
 {
-
 }
 
 void CPsfBios::LoadState(Framework::CZipArchiveReader& archive)
 {
-
 }
 
 void CPsfBios::NotifyVBlankStart()

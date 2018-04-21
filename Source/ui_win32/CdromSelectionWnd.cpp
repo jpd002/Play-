@@ -1,8 +1,8 @@
 #include "CdromSelectionWnd.h"
-#include "win32/FileDialog.h"
+#include "FileFilters.h"
 #include "resource.h"
 #include "string_cast.h"
-#include "FileFilters.h"
+#include "win32/FileDialog.h"
 #include <winioctl.h>
 
 static const char* GetVendorId(const _STORAGE_DEVICE_DESCRIPTOR* descriptor)
@@ -16,7 +16,7 @@ static const char* GetProductId(const _STORAGE_DEVICE_DESCRIPTOR* descriptor)
 }
 
 CCdromSelectionWnd::CCdromSelectionWnd(HWND parentWindow, const TCHAR* title)
-: CDialog(MAKEINTRESOURCE(IDD_CDROM_SELECTION), parentWindow)
+    : CDialog(MAKEINTRESOURCE(IDD_CDROM_SELECTION), parentWindow)
 {
 	SetClassPtr();
 	SetText(title);
@@ -118,11 +118,13 @@ void CCdromSelectionWnd::PopulateDeviceList()
 	uint32 nDrives = GetLogicalDrives();
 	for(uint32 i = 0; i < 32; i++)
 	{
-		if((nDrives & (1 << i)) == 0) continue;
+		if((nDrives & (1 << i)) == 0)
+			continue;
 
 		TCHAR sDeviceRoot[32];
 		_sntprintf(sDeviceRoot, countof(sDeviceRoot), _T("%c:\\"), _T('A') + i);
-		if(GetDriveType(sDeviceRoot) != DRIVE_CDROM) continue;
+		if(GetDriveType(sDeviceRoot) != DRIVE_CDROM)
+			continue;
 
 		TCHAR sDevicePath[32];
 		_sntprintf(sDevicePath, countof(sDevicePath), _T("\\\\.\\%c:"), _T('A') + i);
@@ -137,8 +139,8 @@ void CCdromSelectionWnd::PopulateDeviceList()
 		{
 			STORAGE_PROPERTY_QUERY Query;
 			memset(&Query, 0, sizeof(STORAGE_PROPERTY_QUERY));
-			Query.PropertyId	= StorageDeviceProperty;
-			Query.QueryType		= PropertyStandardQuery;
+			Query.PropertyId = StorageDeviceProperty;
+			Query.QueryType = PropertyStandardQuery;
 
 			DWORD nRetSize = 0;
 			uint8 nBuffer[512];
@@ -159,7 +161,7 @@ void CCdromSelectionWnd::PopulateDeviceList()
 		}
 
 		TCHAR sDisplay[256];
-		_sntprintf(sDisplay, countof(sDisplay), _T("%s - %s%s"),  sDeviceRoot, sVendorId, sProductId);
+		_sntprintf(sDisplay, countof(sDisplay), _T("%s - %s%s"), sDeviceRoot, sVendorId, sProductId);
 
 		unsigned int nIndex = m_deviceCombo.AddString(sDisplay);
 		m_deviceCombo.SetItemData(nIndex, i);

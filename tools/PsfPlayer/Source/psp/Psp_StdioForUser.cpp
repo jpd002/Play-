@@ -1,6 +1,6 @@
 #include "Psp_StdioForUser.h"
-#include "Psp_IoFileMgrForUser.h"
 #include "Log.h"
+#include "Psp_IoFileMgrForUser.h"
 
 #define LOGNAME ("Psp_StdioForUser")
 
@@ -8,12 +8,10 @@ using namespace Psp;
 
 CStdioForUser::CStdioForUser()
 {
-
 }
 
 CStdioForUser::~CStdioForUser()
 {
-
 }
 
 std::string CStdioForUser::GetName() const

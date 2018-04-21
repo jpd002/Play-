@@ -1,15 +1,15 @@
 #include "FunctionsView.h"
 #include "layout/HorizontalLayout.h"
 #include "layout/LayoutStretch.h"
-#include "win32/LayoutWindow.h"
-#include "win32/InputBox.h"
 #include "string_cast.h"
 #include "string_format.h"
+#include "win32/InputBox.h"
+#include "win32/LayoutWindow.h"
 
-#define DEFAULT_GROUPID		(1)
-#define DEFAULT_GROUPNAME	_T("Global")
+#define DEFAULT_GROUPID (1)
+#define DEFAULT_GROUPNAME _T("Global")
 
-#define SCALE(x)	MulDiv(x, ydpi, 96)
+#define SCALE(x) MulDiv(x, ydpi, 96)
 
 CFunctionsView::CFunctionsView(HWND hParent)
 {
@@ -18,8 +18,8 @@ CFunctionsView::CFunctionsView(HWND hParent)
 	windowStyle |= WS_CHILD;
 #endif
 	int ydpi = GetDeviceCaps(GetDC(NULL), LOGPIXELSY);
-	Create(NULL, Framework::Win32::CDefaultWndClass().GetName(), _T("Functions"), windowStyle, 
-	    Framework::Win32::CRect(0, 0, SCALE(320), SCALE(240)), hParent, NULL);
+	Create(NULL, Framework::Win32::CDefaultWndClass().GetName(), _T("Functions"), windowStyle,
+	       Framework::Win32::CRect(0, 0, SCALE(320), SCALE(240)), hParent, NULL);
 	SetClassPtr();
 
 	m_pList = new Framework::Win32::CListView(m_hWnd, Framework::Win32::CRect(0, 0, 0, 0), LVS_REPORT | LVS_SINGLESEL | LVS_SORTASCENDING | LVS_SHOWSELALWAYS);
@@ -27,10 +27,10 @@ CFunctionsView::CFunctionsView(HWND hParent)
 
 	CreateListColumns();
 
-	m_pNew		= new Framework::Win32::CButton(_T("New..."), m_hWnd, Framework::Win32::CRect(0, 0, 0, 0));
-	m_pRename	= new Framework::Win32::CButton(_T("Rename..."), m_hWnd, Framework::Win32::CRect(0, 0, 0, 0));
-	m_pDelete	= new Framework::Win32::CButton(_T("Delete"), m_hWnd, Framework::Win32::CRect(0, 0, 0, 0));
-	m_pImport	= new Framework::Win32::CButton(_T("Load ELF symbols"), m_hWnd, Framework::Win32::CRect(0, 0, 0, 0));
+	m_pNew = new Framework::Win32::CButton(_T("New..."), m_hWnd, Framework::Win32::CRect(0, 0, 0, 0));
+	m_pRename = new Framework::Win32::CButton(_T("Rename..."), m_hWnd, Framework::Win32::CRect(0, 0, 0, 0));
+	m_pDelete = new Framework::Win32::CButton(_T("Delete"), m_hWnd, Framework::Win32::CRect(0, 0, 0, 0));
+	m_pImport = new Framework::Win32::CButton(_T("Load ELF symbols"), m_hWnd, Framework::Win32::CRect(0, 0, 0, 0));
 
 	Framework::FlatLayoutPtr pSubLayout0 = Framework::CHorizontalLayout::Create();
 	pSubLayout0->InsertObject(Framework::CLayoutStretch::Create());
@@ -112,13 +112,13 @@ void CFunctionsView::CreateListColumns()
 	LVCOLUMN col;
 
 	memset(&col, 0, sizeof(LVCOLUMN));
-	col.pszText		= _T("Name");
-	col.mask		= LVCF_TEXT;
+	col.pszText = _T("Name");
+	col.mask = LVCF_TEXT;
 	m_pList->InsertColumn(0, col);
 
 	memset(&col, 0, sizeof(LVCOLUMN));
-	col.pszText		= _T("Address");
-	col.mask		= LVCF_TEXT;
+	col.pszText = _T("Address");
+	col.mask = LVCF_TEXT;
 	m_pList->InsertColumn(1, col);
 }
 
@@ -132,7 +132,8 @@ void CFunctionsView::ResizeListColumns()
 
 void CFunctionsView::RefreshLayout()
 {
-	if(m_pLayout == NULL) return;
+	if(m_pLayout == NULL)
+		return;
 
 	RECT rc = GetClientRect();
 
@@ -151,7 +152,8 @@ void CFunctionsView::RefreshList()
 	m_pList->SetRedraw(false);
 	m_pList->DeleteAllItems();
 
-	if(!m_context) return;
+	if(!m_context)
+		return;
 	if(m_biosDebugInfoProvider)
 	{
 		m_modules = m_biosDebugInfoProvider->GetModulesDebugInfo();
@@ -172,16 +174,16 @@ void CFunctionsView::RefreshList()
 	}
 
 	for(auto itTag(m_context->m_Functions.GetTagsBegin());
-		itTag != m_context->m_Functions.GetTagsEnd(); itTag++)
+	    itTag != m_context->m_Functions.GetTagsEnd(); itTag++)
 	{
 		LVITEM it;
 
 		std::tstring sTag(string_cast<std::tstring>(itTag->second));
 
 		memset(&it, 0, sizeof(LVITEM));
-		it.pszText	= const_cast<LPTSTR>(sTag.c_str());
-		it.lParam	= itTag->first;
-		it.mask		= LVIF_PARAM | LVIF_TEXT;
+		it.pszText = const_cast<LPTSTR>(sTag.c_str());
+		it.lParam = itTag->first;
+		it.mask = LVIF_PARAM | LVIF_TEXT;
 		if(groupingEnabled)
 		{
 			it.iGroupId = GetFunctionGroupId(itTag->first);
@@ -209,8 +211,8 @@ void CFunctionsView::InitializeModuleGrouper()
 	for(const auto& module : m_modules)
 	{
 		m_pList->InsertGroup(
-			string_cast<std::tstring>(module.name.c_str()).c_str(),
-			module.begin);
+		    string_cast<std::tstring>(module.name.c_str()).c_str(),
+		    module.begin);
 	}
 }
 
@@ -218,7 +220,8 @@ uint32 CFunctionsView::GetFunctionGroupId(uint32 address)
 {
 	for(const auto& module : m_modules)
 	{
-		if(address >= module.begin && address < module.end) return module.begin;
+		if(address >= module.begin && address < module.end)
+			return module.begin;
 	}
 	return DEFAULT_GROUPID;
 }
@@ -234,36 +237,40 @@ void CFunctionsView::SetContext(CMIPS* context, CBiosDebugInfoProvider* biosDebu
 	m_biosDebugInfoProvider = biosDebugInfoProvider;
 
 	m_functionTagsChangeConnection = m_context->m_Functions.OnTagListChange.connect(
-		boost::bind(&CFunctionsView::RefreshList, this));
+	    boost::bind(&CFunctionsView::RefreshList, this));
 	RefreshList();
 }
 
 void CFunctionsView::OnListDblClick()
 {
 	int nItem = m_pList->GetSelection();
-	if(nItem == -1) return;
+	if(nItem == -1)
+		return;
 	uint32 nAddress = (uint32)m_pList->GetItemData(nItem);
 	OnFunctionDblClick(nAddress);
 }
 
 void CFunctionsView::OnNewClick()
 {
-	if(!m_context) return;
+	if(!m_context)
+		return;
 
-	TCHAR sNameX[256];
+	TCHAR  sNameX[256];
 	uint32 nAddress = 0;
 
 	{
 		Framework::Win32::CInputBox inputBox(_T("New Function"), _T("New Function Name:"), _T(""));
-		const TCHAR* sValue = inputBox.GetValue(m_hWnd);
-		if(sValue == NULL) return;
+		const TCHAR*                sValue = inputBox.GetValue(m_hWnd);
+		if(sValue == NULL)
+			return;
 		_tcsncpy(sNameX, sValue, 255);
 	}
 
 	{
 		Framework::Win32::CInputBox inputBox(_T("New Function"), _T("New Function Address:"), _T("00000000"));
-		const TCHAR* sValue = inputBox.GetValue(m_hWnd);
-		if(sValue == NULL) return;
+		const TCHAR*                sValue = inputBox.GetValue(m_hWnd);
+		if(sValue == NULL)
+			return;
 		if(sValue != NULL)
 		{
 			_stscanf(sValue, _T("%x"), &nAddress);
@@ -283,12 +290,14 @@ void CFunctionsView::OnNewClick()
 
 void CFunctionsView::OnRenameClick()
 {
-	if(!m_context) return;
+	if(!m_context)
+		return;
 
 	int nItem = m_pList->GetSelection();
-	if(nItem == -1) return;
-	
-	uint32 nAddress = m_pList->GetItemData(nItem);
+	if(nItem == -1)
+		return;
+
+	uint32      nAddress = m_pList->GetItemData(nItem);
 	const char* sName = m_context->m_Functions.Find(nAddress);
 
 	if(sName == NULL)
@@ -298,9 +307,10 @@ void CFunctionsView::OnRenameClick()
 	}
 
 	Framework::Win32::CInputBox RenameInput(_T("Rename Function"), _T("New Function Name:"), string_cast<std::tstring>(sName).c_str());
-	const TCHAR* sNewNameX = RenameInput.GetValue(m_hWnd);
-	
-	if(sNewNameX == NULL) return;
+	const TCHAR*                sNewNameX = RenameInput.GetValue(m_hWnd);
+
+	if(sNewNameX == NULL)
+		return;
 
 	m_context->m_Functions.InsertTag(nAddress, string_cast<std::string>(sNewNameX).c_str());
 	RefreshList();
@@ -310,30 +320,36 @@ void CFunctionsView::OnRenameClick()
 
 void CFunctionsView::OnImportClick()
 {
-	if(!m_context) return;
+	if(!m_context)
+		return;
 
 	for(auto moduleIterator(std::begin(m_modules));
-		std::end(m_modules) != moduleIterator; moduleIterator++)
+	    std::end(m_modules) != moduleIterator; moduleIterator++)
 	{
 		const auto& module(*moduleIterator);
-		CELF* moduleImage = reinterpret_cast<CELF*>(module.param);
+		CELF*       moduleImage = reinterpret_cast<CELF*>(module.param);
 
-		if(moduleImage == NULL) continue;
+		if(moduleImage == NULL)
+			continue;
 
 		ELFSECTIONHEADER* pSymTab = moduleImage->FindSection(".symtab");
-		if(pSymTab == NULL) continue;
+		if(pSymTab == NULL)
+			continue;
 
 		const char* pStrTab = (const char*)moduleImage->GetSectionData(pSymTab->nIndex);
-		if(pStrTab == NULL) continue;
+		if(pStrTab == NULL)
+			continue;
 
-		ELFSYMBOL* pSym = (ELFSYMBOL*)moduleImage->FindSectionData(".symtab");
+		ELFSYMBOL*   pSym = (ELFSYMBOL*)moduleImage->FindSectionData(".symtab");
 		unsigned int nCount = pSymTab->nSize / sizeof(ELFSYMBOL);
 
 		for(unsigned int i = 0; i < nCount; i++)
 		{
-			if((pSym[i].nInfo & 0x0F) != 0x02) continue;
+			if((pSym[i].nInfo & 0x0F) != 0x02)
+				continue;
 			ELFSECTIONHEADER* symbolSection = moduleImage->GetSection(pSym[i].nSectionIndex);
-			if(symbolSection == NULL) continue;
+			if(symbolSection == NULL)
+				continue;
 			m_context->m_Functions.InsertTag(module.begin + (pSym[i].nValue - symbolSection->nStart), pStrTab + pSym[i].nName);
 		}
 	}
@@ -345,10 +361,12 @@ void CFunctionsView::OnImportClick()
 
 void CFunctionsView::OnDeleteClick()
 {
-	if(!m_context) return;
+	if(!m_context)
+		return;
 
 	int nItem = m_pList->GetSelection();
-	if(nItem == -1) return;
+	if(nItem == -1)
+		return;
 	if(MessageBox(m_hWnd, _T("Delete this function?"), NULL, MB_ICONQUESTION | MB_YESNO) != IDYES)
 	{
 		return;

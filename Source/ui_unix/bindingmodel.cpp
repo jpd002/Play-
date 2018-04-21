@@ -1,11 +1,11 @@
 #include "bindingmodel.h"
 #include "ControllerInfo.h"
 
-#define CONFIG_PREFIX						("input")
-#define CONFIG_BINDING_TYPE					("bindingtype")
+#define CONFIG_PREFIX ("input")
+#define CONFIG_BINDING_TYPE ("bindingtype")
 
-CBindingModel::CBindingModel(QObject *parent)
-	:QAbstractTableModel(parent)
+CBindingModel::CBindingModel(QObject* parent)
+    : QAbstractTableModel(parent)
 {
 }
 
@@ -13,38 +13,38 @@ CBindingModel::~CBindingModel()
 {
 }
 
-int CBindingModel::rowCount(const QModelIndex & /*parent*/) const
+int CBindingModel::rowCount(const QModelIndex& /*parent*/) const
 {
 	return PS2::CControllerInfo::MAX_BUTTONS;
 }
 
-int CBindingModel::columnCount(const QModelIndex & /*parent*/) const
+int CBindingModel::columnCount(const QModelIndex& /*parent*/) const
 {
 	return 3;
 }
 
-QVariant CBindingModel::data(const QModelIndex &index, int role) const
+QVariant CBindingModel::data(const QModelIndex& index, int role) const
 {
-	if (role == Qt::DisplayRole)
+	if(role == Qt::DisplayRole)
 	{
 		auto binding = m_inputManager->GetBinding(static_cast<PS2::CControllerInfo::BUTTON>(index.row()));
-		if (binding != nullptr)
+		if(binding != nullptr)
 		{
-			switch (index.column())
+			switch(index.column())
 			{
 			case 0:
-				{
-					std::string str(PS2::CControllerInfo::m_buttonName[index.row()]);
-					std::transform(str.begin(), str.end(),str.begin(), ::toupper);
-					return QVariant(str.c_str());
-				}
+			{
+				std::string str(PS2::CControllerInfo::m_buttonName[index.row()]);
+				std::transform(str.begin(), str.end(), str.begin(), ::toupper);
+				return QVariant(str.c_str());
+			}
 			break;
 			case 1:
-			return QVariant(binding->GetBindingTypeName());
-			break;
+				return QVariant(binding->GetBindingTypeName());
+				break;
 			case 2:
-			return QVariant(binding->GetDescription().c_str());
-			break;
+				return QVariant(binding->GetDescription().c_str());
+				break;
 			}
 		}
 	}
@@ -56,9 +56,9 @@ void CBindingModel::Setup(CInputBindingManager* inputManager)
 	m_inputManager = inputManager;
 }
 
-bool CBindingModel::setHeaderData(int section, Qt::Orientation orientation, const QVariant &value, int role)
+bool CBindingModel::setHeaderData(int section, Qt::Orientation orientation, const QVariant& value, int role)
 {
-	if (orientation == Qt::Horizontal)
+	if(orientation == Qt::Horizontal)
 	{
 
 		if(role == Qt::DisplayRole)
@@ -72,11 +72,11 @@ bool CBindingModel::setHeaderData(int section, Qt::Orientation orientation, cons
 
 QVariant CBindingModel::headerData(int section, Qt::Orientation orientation, int role) const
 {
-	if (orientation == Qt::Horizontal)
+	if(orientation == Qt::Horizontal)
 	{
 		if(role == Qt::DisplayRole)
 		{
-			if (section < m_h_header.size())
+			if(section < m_h_header.size())
 				return m_h_header.at(section);
 		}
 	}

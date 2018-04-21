@@ -1,13 +1,12 @@
-#include <string.h>
-#include <assert.h>
-#include <memory>
 #include "GameTestSheet.h"
 #include "xml/Parser.h"
 #include "xml/Utils.h"
+#include <assert.h>
+#include <memory>
+#include <string.h>
 
 CGameTestSheet::CGameTestSheet()
 {
-
 }
 
 CGameTestSheet::CGameTestSheet(Framework::CStream& stream)
@@ -17,7 +16,6 @@ CGameTestSheet::CGameTestSheet(Framework::CStream& stream)
 
 CGameTestSheet::~CGameTestSheet()
 {
-
 }
 
 CGameTestSheet::ENVIRONMENT CGameTestSheet::GetEnvironment(uint32 id) const
@@ -46,14 +44,15 @@ void CGameTestSheet::ParseSheet(Framework::CStream& stream)
 		auto environmentNodes = document->SelectNodes("Game/Environments/Environment");
 		for(const auto& environmentNode : environmentNodes)
 		{
-			auto id = Framework::Xml::GetAttributeIntValue(environmentNode, "Id");
+			auto                   id = Framework::Xml::GetAttributeIntValue(environmentNode, "Id");
 			EnvironmentActionArray actions;
 			for(const auto& actionNode : environmentNode->GetChildren())
 			{
-				if(!actionNode->IsTag()) continue;
+				if(!actionNode->IsTag())
+					continue;
 				auto actionType = actionNode->GetText();
 				auto actionName = Framework::Xml::GetAttributeStringValue(actionNode, "Name");
-				int actionSize = 0;
+				int  actionSize = 0;
 				Framework::Xml::GetAttributeIntValue(actionNode, "Size", &actionSize);
 				ENVIRONMENT_ACTION action;
 				action.name = actionName;

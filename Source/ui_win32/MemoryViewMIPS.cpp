@@ -1,15 +1,15 @@
-#include <boost/bind.hpp>
-#include "win32/InputBox.h"
-#include "win32/Font.h"
-#include "string_cast.h"
-#include "string_format.h"
 #include "MemoryViewMIPS.h"
 #include "DebugExpressionEvaluator.h"
+#include "string_cast.h"
+#include "string_format.h"
+#include "win32/Font.h"
+#include "win32/InputBox.h"
+#include <boost/bind.hpp>
 
 CMemoryViewMIPS::CMemoryViewMIPS(HWND hParent, const RECT& rect, CVirtualMachine& virtualMachine, CMIPS* context)
-: CMemoryView(hParent, rect)
-, m_virtualMachine(virtualMachine)
-, m_context(context)
+    : CMemoryView(hParent, rect)
+    , m_virtualMachine(virtualMachine)
+    , m_context(context)
 {
 	m_font = Framework::Win32::CreateFont(_T("Courier New"), 8);
 
@@ -20,7 +20,6 @@ CMemoryViewMIPS::CMemoryViewMIPS(HWND hParent, const RECT& rect, CVirtualMachine
 
 CMemoryViewMIPS::~CMemoryViewMIPS()
 {
-
 }
 
 long CMemoryViewMIPS::OnCommand(unsigned short nID, unsigned short nCmd, HWND hSender)
@@ -55,7 +54,7 @@ HMENU CMemoryViewMIPS::CreateContextualMenu()
 		if((selection & 0x03) == 0)
 		{
 			uint32 valueAtSelection = m_context->m_pMemoryMap->GetWord(GetSelection());
-			auto followPointerText = string_format(_T("Follow Pointer (0x%08X)"), valueAtSelection);
+			auto   followPointerText = string_format(_T("Follow Pointer (0x%08X)"), valueAtSelection);
 			AppendMenu(menu, MF_STRING, ID_MEMORYVIEWMIPS_FOLLOWPOINTER, followPointerText.c_str());
 		}
 	}
@@ -77,7 +76,7 @@ void CMemoryViewMIPS::GotoAddress()
 	}
 
 	Framework::Win32::CInputBox i(_T("Goto Address"), _T("Enter new address:"), _T("00000000"));
-	const TCHAR* sValue = i.GetValue(m_hWnd);
+	const TCHAR*                sValue = i.GetValue(m_hWnd);
 
 	if(sValue != NULL)
 	{

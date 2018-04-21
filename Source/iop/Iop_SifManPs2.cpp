@@ -3,17 +3,15 @@
 
 using namespace Iop;
 
-CSifManPs2::CSifManPs2(CSIF& sif, uint8* eeRam, uint8* iopRam) 
-: m_sif(sif)
-, m_eeRam(eeRam)
-, m_iopRam(iopRam)
+CSifManPs2::CSifManPs2(CSIF& sif, uint8* eeRam, uint8* iopRam)
+    : m_sif(sif)
+    , m_eeRam(eeRam)
+    , m_iopRam(iopRam)
 {
-
 }
 
 CSifManPs2::~CSifManPs2()
 {
-
 }
 
 void CSifManPs2::RegisterModule(uint32 id, CSifModule* module)

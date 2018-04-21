@@ -1,21 +1,21 @@
 #include "PlaylistPanel.h"
-#include "win32/Rect.h"
-#include "win32/FileDialog.h"
 #include "TimeToString.h"
-#include "string_cast.h"
 #include "layout/LayoutEngine.h"
 #include "resource.h"
+#include "string_cast.h"
+#include "win32/FileDialog.h"
+#include "win32/Rect.h"
 
 CPlaylistPanel::CPlaylistPanel(HWND parentWnd, CPlaylist& playlist)
-: Framework::Win32::CDialog(MAKEINTRESOURCE(IDD_PLAYLISTPANEL), parentWnd)
-, m_playlistView(NULL)
-, m_moveUpButton(NULL)
-, m_moveDownButton(NULL)
-, m_addButton(NULL)
-, m_removeButton(NULL)
-, m_saveButton(NULL)
-, m_playlist(playlist)
-, m_playingItemIndex(-1)
+    : Framework::Win32::CDialog(MAKEINTRESOURCE(IDD_PLAYLISTPANEL), parentWnd)
+    , m_playlistView(NULL)
+    , m_moveUpButton(NULL)
+    , m_moveDownButton(NULL)
+    , m_addButton(NULL)
+    , m_removeButton(NULL)
+    , m_saveButton(NULL)
+    , m_playlist(playlist)
+    , m_playingItemIndex(-1)
 {
 	SetClassPtr();
 
@@ -24,17 +24,17 @@ CPlaylistPanel::CPlaylistPanel(HWND parentWnd, CPlaylist& playlist)
 
 	{
 		LOGFONT fontInfo;
-		HFONT playlistViewFont = m_playlistView->GetFont();
+		HFONT   playlistViewFont = m_playlistView->GetFont();
 		GetObject(playlistViewFont, sizeof(LOGFONT), &fontInfo);
 		fontInfo.lfWeight = FW_BOLD;
 		m_playingItemFont = CreateFontIndirect(&fontInfo);
 	}
 
-	m_moveUpButton		= new Framework::Win32::CButton(GetItem(IDC_UP_BUTTON));
-	m_moveDownButton	= new Framework::Win32::CButton(GetItem(IDC_DOWN_BUTTON));
-	m_addButton			= new Framework::Win32::CButton(GetItem(IDC_ADD_BUTTON));
-	m_removeButton		= new Framework::Win32::CButton(GetItem(IDC_REMOVE_BUTTON));
-	m_saveButton		= new Framework::Win32::CButton(GetItem(IDC_SAVE_BUTTON));
+	m_moveUpButton = new Framework::Win32::CButton(GetItem(IDC_UP_BUTTON));
+	m_moveDownButton = new Framework::Win32::CButton(GetItem(IDC_DOWN_BUTTON));
+	m_addButton = new Framework::Win32::CButton(GetItem(IDC_ADD_BUTTON));
+	m_removeButton = new Framework::Win32::CButton(GetItem(IDC_REMOVE_BUTTON));
+	m_saveButton = new Framework::Win32::CButton(GetItem(IDC_SAVE_BUTTON));
 
 	RECT buttonSize;
 	SetRect(&buttonSize, 0, 0, 16, 16);
@@ -43,18 +43,16 @@ CPlaylistPanel::CPlaylistPanel(HWND parentWnd, CPlaylist& playlist)
 	unsigned int buttonWidth = buttonSize.right - buttonSize.left;
 	unsigned int buttonHeight = buttonSize.bottom - buttonSize.top;
 
-	m_layout = 
-		Framework::VerticalLayoutContainer(
-			Framework::LayoutExpression(Framework::Win32::CLayoutWindow::CreateCustomBehavior(300, 200, 1, 1, m_playlistView)) +
-			Framework::HorizontalLayoutContainer(
-				Framework::LayoutExpression(Framework::Win32::CLayoutWindow::CreateButtonBehavior(buttonWidth, buttonHeight, m_moveUpButton)) +
-				Framework::LayoutExpression(Framework::Win32::CLayoutWindow::CreateButtonBehavior(buttonWidth, buttonHeight, m_moveDownButton)) +
-				Framework::LayoutExpression(Framework::CLayoutStretch::Create()) +
-				Framework::LayoutExpression(Framework::Win32::CLayoutWindow::CreateButtonBehavior(buttonWidth, buttonHeight, m_addButton)) +
-				Framework::LayoutExpression(Framework::Win32::CLayoutWindow::CreateButtonBehavior(buttonWidth, buttonHeight, m_removeButton)) +
-				Framework::LayoutExpression(Framework::Win32::CLayoutWindow::CreateButtonBehavior(buttonWidth, buttonHeight, m_saveButton))
-			)
-		);
+	m_layout =
+	    Framework::VerticalLayoutContainer(
+	        Framework::LayoutExpression(Framework::Win32::CLayoutWindow::CreateCustomBehavior(300, 200, 1, 1, m_playlistView)) +
+	        Framework::HorizontalLayoutContainer(
+	            Framework::LayoutExpression(Framework::Win32::CLayoutWindow::CreateButtonBehavior(buttonWidth, buttonHeight, m_moveUpButton)) +
+	            Framework::LayoutExpression(Framework::Win32::CLayoutWindow::CreateButtonBehavior(buttonWidth, buttonHeight, m_moveDownButton)) +
+	            Framework::LayoutExpression(Framework::CLayoutStretch::Create()) +
+	            Framework::LayoutExpression(Framework::Win32::CLayoutWindow::CreateButtonBehavior(buttonWidth, buttonHeight, m_addButton)) +
+	            Framework::LayoutExpression(Framework::Win32::CLayoutWindow::CreateButtonBehavior(buttonWidth, buttonHeight, m_removeButton)) +
+	            Framework::LayoutExpression(Framework::Win32::CLayoutWindow::CreateButtonBehavior(buttonWidth, buttonHeight, m_saveButton))));
 
 	CreateColumns();
 
@@ -68,7 +66,6 @@ CPlaylistPanel::CPlaylistPanel(HWND parentWnd, CPlaylist& playlist)
 
 CPlaylistPanel::~CPlaylistPanel()
 {
-
 }
 
 void CPlaylistPanel::SetPlayingItemIndex(unsigned int playingItemIndex)
@@ -129,7 +126,8 @@ long CPlaylistPanel::OnSize(unsigned int, unsigned int, unsigned int)
 
 void CPlaylistPanel::OnPlaylistViewDblClick(NMITEMACTIVATE* itemActivate)
 {
-	if(itemActivate->iItem == -1) return;
+	if(itemActivate->iItem == -1)
+		return;
 	OnItemDblClick(itemActivate->iItem);
 }
 
@@ -160,16 +158,20 @@ void CPlaylistPanel::OnPlaylistViewCustomDraw(NMLVCUSTOMDRAW* customDraw)
 void CPlaylistPanel::OnMoveUpButtonClick()
 {
 	int selection = m_playlistView->GetSelection();
-	if(selection == -1) return;
-	if(selection == 0) return;
+	if(selection == -1)
+		return;
+	if(selection == 0)
+		return;
 	ExchangeItems(selection - 1, selection);
 }
 
 void CPlaylistPanel::OnMoveDownButtonClick()
 {
 	int selection = m_playlistView->GetSelection();
-	if(selection == -1) return;
-	if(selection == m_playlistView->GetItemCount() - 1) return;
+	if(selection == -1)
+		return;
+	if(selection == m_playlistView->GetItemCount() - 1)
+		return;
 	ExchangeItems(selection + 1, selection);
 }
 
@@ -181,7 +183,8 @@ void CPlaylistPanel::OnAddButtonClick()
 void CPlaylistPanel::OnRemoveButtonClick()
 {
 	int selection = m_playlistView->GetSelection();
-	if(selection == -1) return;
+	if(selection == -1)
+		return;
 	OnRemoveClick(selection);
 }
 
@@ -194,9 +197,9 @@ void CPlaylistPanel::AddItem(const TCHAR* title, const TCHAR* length)
 {
 	LVITEM item;
 	memset(&item, 0, sizeof(LVITEM));
-	item.pszText	= const_cast<TCHAR*>(title);
-	item.iItem		= m_playlistView->GetItemCount();
-	item.mask		= LVIF_TEXT;
+	item.pszText = const_cast<TCHAR*>(title);
+	item.iItem = m_playlistView->GetItemCount();
+	item.mask = LVIF_TEXT;
 
 	int itemIdx = m_playlistView->InsertItem(item);
 	m_playlistView->SetItemText(itemIdx, 1, length);
@@ -218,8 +221,8 @@ void CPlaylistPanel::ExchangeItems(unsigned int dst, unsigned int src)
 {
 	m_playlist.ExchangeItems(dst, src);
 	m_playlistView->SetSelection(dst);
-	m_playlistView->SetItemState(src,	0,								LVIS_FOCUSED | LVIS_SELECTED);
-	m_playlistView->SetItemState(dst,	LVIS_FOCUSED | LVIS_SELECTED,	LVIS_FOCUSED | LVIS_SELECTED);
+	m_playlistView->SetItemState(src, 0, LVIS_FOCUSED | LVIS_SELECTED);
+	m_playlistView->SetItemState(dst, LVIS_FOCUSED | LVIS_SELECTED, LVIS_FOCUSED | LVIS_SELECTED);
 	m_playlistView->EnsureItemVisible(dst, true);
 	if(src == m_playingItemIndex)
 	{
@@ -235,13 +238,13 @@ void CPlaylistPanel::CreateColumns()
 {
 	LVCOLUMN column;
 	memset(&column, 0, sizeof(LVCOLUMN));
-	column.pszText	= _T("Title");
-	column.mask		= LVCF_TEXT;
+	column.pszText = _T("Title");
+	column.mask = LVCF_TEXT;
 	m_playlistView->InsertColumn(0, column);
 
 	memset(&column, 0, sizeof(LVCOLUMN));
-	column.pszText	= _T("Length");
-	column.mask		= LVCF_TEXT;
+	column.pszText = _T("Length");
+	column.mask = LVCF_TEXT;
 	m_playlistView->InsertColumn(1, column);
 }
 

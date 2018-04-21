@@ -1,7 +1,7 @@
 #pragma once
 
-#include <d3d9.h>
 #include "bitmap\Bitmap.h"
+#include <d3d9.h>
 
 template <typename PixelType>
 static void CopyTextureToBitmap(Framework::CBitmap& bitmap, IDirect3DTexture9* texture, uint32 mipLevel)

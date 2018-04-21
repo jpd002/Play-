@@ -1,7 +1,7 @@
 #include "PsfTags.h"
+#include "Utf8.h"
 #include "string_cast_sjis.h"
 #include "string_cast_win1252.h"
-#include "Utf8.h"
 #include <cassert>
 #include <cstring>
 
@@ -13,7 +13,7 @@ CPsfTags::CPsfTags()
 }
 
 CPsfTags::CPsfTags(const TagMap& tags)
-: m_tags(tags)
+    : m_tags(tags)
 {
 	Init();
 	if(m_tags.find("utf8") != m_tags.end())
@@ -25,7 +25,6 @@ CPsfTags::CPsfTags(const TagMap& tags)
 
 CPsfTags::~CPsfTags()
 {
-
 }
 
 void CPsfTags::Init()
@@ -61,7 +60,8 @@ bool CPsfTags::HasTag(const char* tagName) const
 std::string CPsfTags::GetRawTagValue(const char* tagName) const
 {
 	auto tagIterator = m_tags.find(tagName);
-	if(tagIterator == m_tags.end()) return "";
+	if(tagIterator == m_tags.end())
+		return "";
 	return tagIterator->second;
 }
 
@@ -123,7 +123,7 @@ double CPsfTags::ConvertTimeString(const wchar_t* value)
 		else if(currentState == STATE_CHECK_HAS_OTHER_SEPARATOR)
 		{
 			const wchar_t* separator = FindSeparator()(value);
-			std::wstring minutesStr, hoursStr;
+			std::wstring   minutesStr, hoursStr;
 			if(separator == NULL)
 			{
 				//No colon found -> first unit is minutes

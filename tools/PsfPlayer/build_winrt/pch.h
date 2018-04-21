@@ -5,16 +5,16 @@
 
 #pragma once
 
-#include <memory>
 #include <functional>
+#include <map>
+#include <memory>
+#include <string>
 #include <thread>
 #include <vector>
-#include <map>
-#include <string>
 
-#include <boost/signals2.hpp>
 #include <boost/filesystem.hpp>
+#include <boost/signals2.hpp>
 
+#include "App.xaml.h"
 #include <collection.h>
 #include <ppltasks.h>
-#include "App.xaml.h"

@@ -5,12 +5,10 @@ namespace filesystem = boost::filesystem;
 
 CPsuSaveImporter::CPsuSaveImporter()
 {
-
 }
 
 CPsuSaveImporter::~CPsuSaveImporter()
 {
-
 }
 
 void CPsuSaveImporter::Import(Framework::CStream& input, const filesystem::path& basePath)
@@ -58,7 +56,7 @@ void CPsuSaveImporter::Import(Framework::CStream& input, const filesystem::path&
 
 				while(nEntrySizeDrain != 0)
 				{
-					char sBuffer[1024];
+					char         sBuffer[1024];
 					unsigned int nRead = std::min<unsigned int>(nEntrySizeDrain, 1024);
 
 					input.Read(sBuffer, nRead);

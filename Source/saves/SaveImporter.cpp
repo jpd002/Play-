@@ -1,10 +1,10 @@
-#include <boost/filesystem/path.hpp>
-#include <boost/filesystem/operations.hpp>
 #include "SaveImporter.h"
-#include "StdStreamUtils.h"
-#include "PsuSaveImporter.h"
-#include "XpsSaveImporter.h"
 #include "MaxSaveImporter.h"
+#include "PsuSaveImporter.h"
+#include "StdStreamUtils.h"
+#include "XpsSaveImporter.h"
+#include <boost/filesystem/operations.hpp>
+#include <boost/filesystem/path.hpp>
 
 namespace filesystem = boost::filesystem;
 

@@ -5,13 +5,15 @@
 
 namespace VideoStream
 {
-	class Program
+class Program
+{
+public:
+	virtual ~Program()
 	{
-	public:
-		virtual					~Program() {}
-		virtual void			Reset()										= 0;
-		virtual void			Execute(void*, Framework::CBitStream&)		= 0;
-	};
+	}
+	virtual void Reset() = 0;
+	virtual void Execute(void*, Framework::CBitStream&) = 0;
+};
 }
 
 #endif

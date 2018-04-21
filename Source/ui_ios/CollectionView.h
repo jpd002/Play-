@@ -10,12 +10,12 @@
 
 @interface CollectionView : NSObject
 {
-    NSArray* diskImages;
+	NSArray* diskImages;
 }
 
 @property NSArray* diskImages;
 
-+ (CollectionView*) getInstance;
-- (NSArray*) buildCollection;
++ (CollectionView*)getInstance;
+- (NSArray*)buildCollection;
 
 @end

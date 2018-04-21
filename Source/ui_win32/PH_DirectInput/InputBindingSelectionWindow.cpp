@@ -1,26 +1,26 @@
 #include "InputBindingSelectionWindow.h"
-#include "win32/Rect.h"
-#include "win32/DpiUtils.h"
 #include "layout/LayoutEngine.h"
 #include "string_cast.h"
+#include "win32/DpiUtils.h"
+#include "win32/Rect.h"
 
-#define WNDSTYLE	(WS_CAPTION | WS_POPUP | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_SYSMENU)
-#define WNDSTYLEEX	(WS_EX_DLGMODALFRAME)
+#define WNDSTYLE (WS_CAPTION | WS_POPUP | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_SYSMENU)
+#define WNDSTYLEEX (WS_EX_DLGMODALFRAME)
 
 using namespace PH_DirectInput;
 
 CInputBindingSelectionWindow::CInputBindingSelectionWindow(
-	HWND parent, CInputManager& inputManager, PS2::CControllerInfo::BUTTON button) 
-: CModalWindow(parent)
-, m_inputManager(inputManager)
-, m_button(button)
-, m_currentBindingLabel(NULL)
-, m_isActive(false)
-, m_selected(false)
-, m_selectedValue(-1)
-, m_selectedId(0)
-, m_selectedDevice(GUID())
-, m_directInputManagerHandlerId(0)
+    HWND parent, CInputManager& inputManager, PS2::CControllerInfo::BUTTON button)
+    : CModalWindow(parent)
+    , m_inputManager(inputManager)
+    , m_button(button)
+    , m_currentBindingLabel(NULL)
+    , m_isActive(false)
+    , m_selected(false)
+    , m_selectedValue(-1)
+    , m_selectedId(0)
+    , m_selectedDevice(GUID())
+    , m_directInputManagerHandlerId(0)
 {
 	std::tstring title = _T("Select new binding for ") + string_cast<std::tstring>(PS2::CControllerInfo::m_buttonName[m_button]);
 
@@ -30,21 +30,20 @@ CInputBindingSelectionWindow::CInputBindingSelectionWindow(
 
 	const CInputManager::CBinding* binding = inputManager.GetBinding(button);
 	m_currentBindingLabel = new Framework::Win32::CStatic(
-		m_hWnd, 
-		binding ? inputManager.GetBindingDescription(button).c_str() : _T("Unbound"), 
-		SS_CENTER);
+	    m_hWnd,
+	    binding ? inputManager.GetBindingDescription(button).c_str() : _T("Unbound"),
+	    SS_CENTER);
 
-	m_layout = 
-		Framework::VerticalLayoutContainer(
-			Framework::CLayoutStretch::Create() +
-			Framework::Win32::CLayoutWindow::CreateTextBoxBehavior(100, Framework::Win32::PointsToPixels(21), m_currentBindingLabel) +
-			Framework::CLayoutStretch::Create()
-		);
+	m_layout =
+	    Framework::VerticalLayoutContainer(
+	        Framework::CLayoutStretch::Create() +
+	        Framework::Win32::CLayoutWindow::CreateTextBoxBehavior(100, Framework::Win32::PointsToPixels(21), m_currentBindingLabel) +
+	        Framework::CLayoutStretch::Create());
 
 	RefreshLayout();
 
 	m_directInputManagerHandlerId = inputManager.GetDirectInputManager()->RegisterInputEventHandler(std::bind(
-		&CInputBindingSelectionWindow::ProcessEvent, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
+	    &CInputBindingSelectionWindow::ProcessEvent, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
 	m_inputManager.PushFocusWindow(m_hWnd);
 
 	SetTimer(m_hWnd, 0, 50, NULL);
@@ -93,14 +92,17 @@ void CInputBindingSelectionWindow::RefreshLayout()
 
 void CInputBindingSelectionWindow::ProcessEvent(const GUID& device, uint32 id, uint32 value)
 {
-	if(!m_isActive) return;
-	if(m_selected) return;
+	if(!m_isActive)
+		return;
+	if(m_selected)
+		return;
 	DIDEVICEOBJECTINSTANCE objectInstance;
 	if(m_inputManager.GetDirectInputManager()->GetDeviceObjectInfo(device, id, &objectInstance))
 	{
 		if(objectInstance.dwType & DIDFT_AXIS)
 		{
-			if(!PS2::CControllerInfo::IsAxis(m_button)) return;
+			if(!PS2::CControllerInfo::IsAxis(m_button))
+				return;
 			float axisValue = static_cast<float>(static_cast<int16>(value - 0x7FFF)) / 32768.f;
 			if(abs(axisValue) < 0.85)
 			{
@@ -109,13 +111,17 @@ void CInputBindingSelectionWindow::ProcessEvent(const GUID& device, uint32 id, u
 		}
 		else if(objectInstance.dwType & DIDFT_BUTTON)
 		{
-			if(PS2::CControllerInfo::IsAxis(m_button)) return;
-			if(!value) return;
+			if(PS2::CControllerInfo::IsAxis(m_button))
+				return;
+			if(!value)
+				return;
 		}
 		else if(objectInstance.dwType & DIDFT_POV)
 		{
-			if(value == -1) return;
-			if(((value / 100) % 90) != 0) return;
+			if(value == -1)
+				return;
+			if(((value / 100) % 90) != 0)
+				return;
 			m_selectedValue = value;
 		}
 		else

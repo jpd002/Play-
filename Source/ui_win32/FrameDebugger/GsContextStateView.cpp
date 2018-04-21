@@ -2,15 +2,13 @@
 #include "GsStateUtils.h"
 
 CGsContextStateView::CGsContextStateView(HWND parent, const RECT& rect, unsigned int contextId)
-: CRegViewPage(parent, rect)
-, m_contextId(contextId)
+    : CRegViewPage(parent, rect)
+    , m_contextId(contextId)
 {
-
 }
 
 CGsContextStateView::~CGsContextStateView()
 {
-
 }
 
 void CGsContextStateView::UpdateState(CGSHandler* gs)

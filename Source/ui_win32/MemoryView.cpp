@@ -1,35 +1,34 @@
-#include <stdio.h>
-#include <string.h>
-#include "win32/ClientDeviceContext.h"
-#include "win32/DefaultWndClass.h"
-#include "win32/Font.h"
-#include "win32/DpiUtils.h"
+#include "MemoryView.h"
+#include "lexical_cast_ex.h"
 #include "string_cast.h"
 #include "string_format.h"
-#include "lexical_cast_ex.h"
-#include "MemoryView.h"
+#include "win32/ClientDeviceContext.h"
+#include "win32/DefaultWndClass.h"
+#include "win32/DpiUtils.h"
+#include "win32/Font.h"
+#include <stdio.h>
+#include <string.h>
 
-#define ADDRESSCHARS		8
-#define PAGESIZE			10
+#define ADDRESSCHARS 8
+#define PAGESIZE 10
 
 const CMemoryView::UNITINFO CMemoryView::g_units[] =
-{
-	{ 1, 2,  &CMemoryView::RenderByteUnit,   _T("8-bit Integers") },
-	{ 4, 8,  &CMemoryView::RenderWordUnit,   _T("32-bit Integers") },
-	{ 4, 11, &CMemoryView::RenderSingleUnit, _T("Single Precision Floating Point Numbers") }
-};
+    {
+        {1, 2, &CMemoryView::RenderByteUnit, _T("8-bit Integers")},
+        {4, 8, &CMemoryView::RenderWordUnit, _T("32-bit Integers")},
+        {4, 11, &CMemoryView::RenderSingleUnit, _T("Single Precision Floating Point Numbers")}};
 
 CMemoryView::CMemoryView(HWND parentWnd, const RECT& rect)
-: m_font(reinterpret_cast<HFONT>(GetStockObject(ANSI_FIXED_FONT)))
+    : m_font(reinterpret_cast<HFONT>(GetStockObject(ANSI_FIXED_FONT)))
 {
 	static_assert(countof(CMemoryView::g_units) <= CMemoryView::MAX_UNITS, "Too many units are defined.");
 
 	{
-		m_renderMetrics.xmargin				= Framework::Win32::PointsToPixels(5);
-		m_renderMetrics.ymargin				= Framework::Win32::PointsToPixels(5);
-		m_renderMetrics.yspace				= Framework::Win32::PointsToPixels(0);
-		m_renderMetrics.unitSpacing			= Framework::Win32::PointsToPixels(3);
-		m_renderMetrics.lineSectionSpacing	= Framework::Win32::PointsToPixels(10);
+		m_renderMetrics.xmargin = Framework::Win32::PointsToPixels(5);
+		m_renderMetrics.ymargin = Framework::Win32::PointsToPixels(5);
+		m_renderMetrics.yspace = Framework::Win32::PointsToPixels(0);
+		m_renderMetrics.unitSpacing = Framework::Win32::PointsToPixels(3);
+		m_renderMetrics.lineSectionSpacing = Framework::Win32::PointsToPixels(10);
 	}
 
 	Create(WS_EX_CLIENTEDGE, Framework::Win32::CDefaultWndClass::GetName(), _T(""), WS_VISIBLE | WS_VSCROLL | WS_CHILD, rect, parentWnd, NULL);
@@ -62,7 +61,8 @@ void CMemoryView::UpdateScrollRange()
 	if(renderParams.bytesPerLine != 0)
 	{
 		totalLines = (m_size / renderParams.bytesPerLine);
-		if((m_size % renderParams.bytesPerLine) != 0) totalLines++;
+		if((m_size % renderParams.bytesPerLine) != 0)
+			totalLines++;
 	}
 	else
 	{
@@ -71,26 +71,26 @@ void CMemoryView::UpdateScrollRange()
 
 	SCROLLINFO si;
 	memset(&si, 0, sizeof(SCROLLINFO));
-	si.cbSize		= sizeof(SCROLLINFO);
-	si.nMin			= 0;
+	si.cbSize = sizeof(SCROLLINFO);
+	si.nMin = 0;
 	if(totalLines <= renderParams.totallyVisibleLines)
 	{
-		si.nMax		= 0;
+		si.nMax = 0;
 	}
 	else
 	{
-		si.nMax		= totalLines - renderParams.totallyVisibleLines;
+		si.nMax = totalLines - renderParams.totallyVisibleLines;
 	}
-	si.fMask		= SIF_RANGE | SIF_DISABLENOSCROLL;
-	SetScrollInfo(m_hWnd, SB_VERT, &si, TRUE); 
+	si.fMask = SIF_RANGE | SIF_DISABLENOSCROLL;
+	SetScrollInfo(m_hWnd, SB_VERT, &si, TRUE);
 }
 
 unsigned int CMemoryView::GetScrollOffset()
 {
 	SCROLLINFO si;
 	memset(&si, 0, sizeof(SCROLLINFO));
-	si.cbSize	= sizeof(SCROLLINFO);
-	si.fMask	= SIF_POS;
+	si.cbSize = sizeof(SCROLLINFO);
+	si.fMask = SIF_POS;
 	GetScrollInfo(m_hWnd, SB_VERT, &si);
 	return si.nPos;
 }
@@ -99,8 +99,8 @@ unsigned int CMemoryView::GetScrollThumbPosition()
 {
 	SCROLLINFO si;
 	memset(&si, 0, sizeof(SCROLLINFO));
-	si.cbSize	= sizeof(SCROLLINFO);
-	si.fMask	= SIF_TRACKPOS;
+	si.cbSize = sizeof(SCROLLINFO);
+	si.fMask = SIF_TRACKPOS;
 	GetScrollInfo(m_hWnd, SB_VERT, &si);
 	return si.nTrackPos;
 }
@@ -112,7 +112,7 @@ HMENU CMemoryView::CreateContextualMenu()
 	{
 		HMENU bytesPerLineMenu = CreatePopupMenu();
 
-		AppendMenu(bytesPerLineMenu, MF_STRING | ((m_bytesPerLine == 0) ? MF_CHECKED : MF_UNCHECKED), ID_MEMORYVIEW_COLUMNS_AUTO,     _T("Auto"));
+		AppendMenu(bytesPerLineMenu, MF_STRING | ((m_bytesPerLine == 0) ? MF_CHECKED : MF_UNCHECKED), ID_MEMORYVIEW_COLUMNS_AUTO, _T("Auto"));
 		AppendMenu(bytesPerLineMenu, MF_STRING | ((m_bytesPerLine == 16) ? MF_CHECKED : MF_UNCHECKED), ID_MEMORYVIEW_COLUMNS_16BYTES, _T("16 bytes"));
 		AppendMenu(bytesPerLineMenu, MF_STRING | ((m_bytesPerLine == 32) ? MF_CHECKED : MF_UNCHECKED), ID_MEMORYVIEW_COLUMNS_32BYTES, _T("32 bytes"));
 
@@ -145,9 +145,9 @@ void CMemoryView::Paint(HDC hDC)
 
 	auto fontSize = Framework::Win32::GetFixedFontSize(m_font);
 
-	auto renderParams = GetRenderParams();
+	auto         renderParams = GetRenderParams();
 	unsigned int y = m_renderMetrics.ymargin;
-	uint32 address = renderParams.address;
+	uint32       address = renderParams.address;
 
 	for(unsigned int i = 0; i < renderParams.lines; i++)
 	{
@@ -236,7 +236,7 @@ void CMemoryView::SetDisplayUnit(uint32 displayUnit)
 long CMemoryView::OnVScroll(unsigned int scrollType, unsigned int)
 {
 	SCROLLINFO si;
-	int offset = (int)GetScrollOffset();
+	int        offset = (int)GetScrollOffset();
 	switch(scrollType)
 	{
 	case SB_LINEDOWN:
@@ -261,9 +261,9 @@ long CMemoryView::OnVScroll(unsigned int scrollType, unsigned int)
 	}
 
 	memset(&si, 0, sizeof(SCROLLINFO));
-	si.cbSize		= sizeof(SCROLLINFO);
-	si.nPos			= offset;
-	si.fMask		= SIF_POS;
+	si.cbSize = sizeof(SCROLLINFO);
+	si.nPos = offset;
+	si.fMask = SIF_POS;
 	SetScrollInfo(m_hWnd, SB_VERT, &si, TRUE);
 
 	UpdateCaretPosition();
@@ -349,8 +349,10 @@ long CMemoryView::OnLeftButtonUp(int x, int y)
 	y -= m_renderMetrics.ymargin;
 	x -= m_renderMetrics.xmargin + (ADDRESSCHARS * fontSize.cx) + m_renderMetrics.lineSectionSpacing;
 
-	if(y < 0) return FALSE;
-	if(x < 0) return FALSE;
+	if(y < 0)
+		return FALSE;
+	if(x < 0)
+		return FALSE;
 
 	auto renderParams = GetRenderParams();
 
@@ -358,7 +360,8 @@ long CMemoryView::OnLeftButtonUp(int x, int y)
 	unsigned int selectedLineUnit = x / ((renderParams.unit->charsPerUnit * fontSize.cx) + m_renderMetrics.unitSpacing);
 	unsigned int selectedLineByte = selectedLineUnit * renderParams.unit->bytesPerUnit;
 
-	if(selectedLineByte >= renderParams.bytesPerLine) return FALSE;
+	if(selectedLineByte >= renderParams.bytesPerLine)
+		return FALSE;
 
 	SetSelectionStart(renderParams.address + selectedLineByte + (selectedLine * renderParams.bytesPerLine));
 
@@ -374,7 +377,7 @@ long CMemoryView::OnRightButtonUp(int x, int y)
 	pt.y = y;
 	ClientToScreen(m_hWnd, &pt);
 
-	TrackPopupMenu(contextualMenu, 0, pt.x, pt.y, 0, m_hWnd, NULL); 
+	TrackPopupMenu(contextualMenu, 0, pt.x, pt.y, 0, m_hWnd, NULL);
 
 	return FALSE;
 }
@@ -384,31 +387,31 @@ long CMemoryView::OnKeyDown(WPARAM key, LPARAM)
 	switch(key)
 	{
 	case VK_RIGHT:
-		{
-			auto renderParams = GetRenderParams();
-			SetSelectionStart(m_selectionStart + renderParams.unit->bytesPerUnit);
-		}
-		break;
+	{
+		auto renderParams = GetRenderParams();
+		SetSelectionStart(m_selectionStart + renderParams.unit->bytesPerUnit);
+	}
+	break;
 	case VK_LEFT:
-		{
-			auto renderParams = GetRenderParams();
-			SetSelectionStart(m_selectionStart - renderParams.unit->bytesPerUnit);
-		}
-		break;
+	{
+		auto renderParams = GetRenderParams();
+		SetSelectionStart(m_selectionStart - renderParams.unit->bytesPerUnit);
+	}
+	break;
 	case VK_UP:
 	case VK_DOWN:
-		{
-			auto renderParams = GetRenderParams();
-			SetSelectionStart(m_selectionStart + ((key == VK_UP) ? (-static_cast<int>(renderParams.bytesPerLine)) : (renderParams.bytesPerLine)));
-		}
-		break;
+	{
+		auto renderParams = GetRenderParams();
+		SetSelectionStart(m_selectionStart + ((key == VK_UP) ? (-static_cast<int>(renderParams.bytesPerLine)) : (renderParams.bytesPerLine)));
+	}
+	break;
 	case VK_PRIOR:
 	case VK_NEXT:
-		{
-			auto renderParams = GetRenderParams();
-			SetSelectionStart(m_selectionStart + ((key == VK_PRIOR) ? (-static_cast<int>(renderParams.bytesPerLine * PAGESIZE)) : (renderParams.bytesPerLine * PAGESIZE)));
-		}
-		break;
+	{
+		auto renderParams = GetRenderParams();
+		SetSelectionStart(m_selectionStart + ((key == VK_PRIOR) ? (-static_cast<int>(renderParams.bytesPerLine * PAGESIZE)) : (renderParams.bytesPerLine * PAGESIZE)));
+	}
+	break;
 	}
 
 	return TRUE;
@@ -419,16 +422,15 @@ void CMemoryView::UpdateCaretPosition()
 	auto fontSize = Framework::Win32::GetFixedFontSize(m_font);
 	auto renderParams = GetRenderParams();
 	if(
-		(renderParams.bytesPerLine != 0) &&
-		(m_selectionStart >= renderParams.address) && 
-		(m_selectionStart <= (renderParams.address + (renderParams.lines * renderParams.bytesPerLine)))
-		)
+	    (renderParams.bytesPerLine != 0) &&
+	    (m_selectionStart >= renderParams.address) &&
+	    (m_selectionStart <= (renderParams.address + (renderParams.lines * renderParams.bytesPerLine))))
 	{
 		uint32 selectionStart = m_selectionStart - renderParams.address;
 		assert((selectionStart % renderParams.unit->bytesPerUnit) == 0);
 		uint32 selectionStartUnit = (selectionStart % renderParams.bytesPerLine) / renderParams.unit->bytesPerUnit;
-		int x = m_renderMetrics.xmargin + (ADDRESSCHARS * fontSize.cx) + m_renderMetrics.lineSectionSpacing + selectionStartUnit * ((renderParams.unit->charsPerUnit * fontSize.cx) + m_renderMetrics.unitSpacing);
-		int y = m_renderMetrics.ymargin + (fontSize.cy + m_renderMetrics.yspace) * (selectionStart / renderParams.bytesPerLine);
+		int    x = m_renderMetrics.xmargin + (ADDRESSCHARS * fontSize.cx) + m_renderMetrics.lineSectionSpacing + selectionStartUnit * ((renderParams.unit->charsPerUnit * fontSize.cx) + m_renderMetrics.unitSpacing);
+		int    y = m_renderMetrics.ymargin + (fontSize.cy + m_renderMetrics.yspace) * (selectionStart / renderParams.bytesPerLine);
 		SetCaretPos(x, y);
 	}
 	else
@@ -439,11 +441,13 @@ void CMemoryView::UpdateCaretPosition()
 
 void CMemoryView::EnsureSelectionVisible()
 {
-	auto renderParams = GetRenderParams();
+	auto   renderParams = GetRenderParams();
 	uint32 address = m_selectionStart;
 
-	if(renderParams.bytesPerLine == 0) return;
-	if(address >= m_size) return;
+	if(renderParams.bytesPerLine == 0)
+		return;
+	if(address >= m_size)
+		return;
 
 	uint32 visibleMin = renderParams.address;
 	uint32 visibleMax = renderParams.address + (renderParams.bytesPerLine * renderParams.totallyVisibleLines);
@@ -458,9 +462,9 @@ void CMemoryView::EnsureSelectionVisible()
 
 	SCROLLINFO si;
 	memset(&si, 0, sizeof(SCROLLINFO));
-	si.cbSize		= sizeof(SCROLLINFO);
-	si.nPos			= line;
-	si.fMask		= SIF_POS;
+	si.cbSize = sizeof(SCROLLINFO);
+	si.nPos = line;
+	si.fMask = SIF_POS;
 	SetScrollInfo(m_hWnd, SB_VERT, &si, TRUE);
 
 	Redraw();
@@ -478,10 +482,10 @@ CMemoryView::RENDERPARAMS CMemoryView::GetRenderParams()
 
 	renderParams.totallyVisibleLines = (clientRect.bottom - (m_renderMetrics.ymargin * 2)) / (fontSize.cy + m_renderMetrics.yspace);
 	renderParams.lines = renderParams.totallyVisibleLines + 1;
-	
+
 	if(m_bytesPerLine == 0)
 	{
-		//lineSize = 
+		//lineSize =
 		//    (2 * m_renderMetrics.xmargin)                                  Two Margins
 		//  + (2 * m_renderMetrics.lineSectionSpacing)                       Two Spacings (between address and units, units and chars)
 		//  + (ADDRESSCHARS * cx)                                            Address
@@ -510,20 +514,19 @@ std::tstring CMemoryView::RenderByteUnit(uint32 address)
 std::tstring CMemoryView::RenderWordUnit(uint32 address)
 {
 	uint32 unitValue =
-		(GetByte(address + 0) <<  0) |
-		(GetByte(address + 1) <<  8) |
-		(GetByte(address + 2) << 16) |
-		(GetByte(address + 3) << 24);
+	    (GetByte(address + 0) << 0) |
+	    (GetByte(address + 1) << 8) |
+	    (GetByte(address + 2) << 16) |
+	    (GetByte(address + 3) << 24);
 	return string_format(_T("%08X"), unitValue);
 }
 
 std::tstring CMemoryView::RenderSingleUnit(uint32 address)
 {
 	uint32 unitValue =
-		(GetByte(address + 0) <<  0) |
-		(GetByte(address + 1) <<  8) |
-		(GetByte(address + 2) << 16) |
-		(GetByte(address + 3) << 24);
+	    (GetByte(address + 0) << 0) |
+	    (GetByte(address + 1) << 8) |
+	    (GetByte(address + 2) << 16) |
+	    (GetByte(address + 3) << 24);
 	return string_format(_T("%+04.4e"), *reinterpret_cast<const float*>(&unitValue));
 }
-

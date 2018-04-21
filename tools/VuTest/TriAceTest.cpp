@@ -12,63 +12,52 @@ void CTriAceTest::Execute(CTestVm& virtualMachine)
 	CVuAssembler assembler(microMem);
 
 	assembler.Write(
-		CVuAssembler::Upper::NOP() | CVuAssembler::Upper::I_BIT,
-		0x42FECCCD
-	);
+	    CVuAssembler::Upper::NOP() | CVuAssembler::Upper::I_BIT,
+	    0x42FECCCD);
 
 	//X
 	assembler.Write(
-		CVuAssembler::Upper::MULi(CVuAssembler::DEST_X, CVuAssembler::VF2, CVuAssembler::VF1) | CVuAssembler::Upper::I_BIT,
-		0x42546666
-	);
+	    CVuAssembler::Upper::MULi(CVuAssembler::DEST_X, CVuAssembler::VF2, CVuAssembler::VF1) | CVuAssembler::Upper::I_BIT,
+	    0x42546666);
 
 	assembler.Write(
-		CVuAssembler::Upper::ADDi(CVuAssembler::DEST_X, CVuAssembler::VF3, CVuAssembler::VF2) | CVuAssembler::Upper::I_BIT,
-		0x43D80D3E
-	);
+	    CVuAssembler::Upper::ADDi(CVuAssembler::DEST_X, CVuAssembler::VF3, CVuAssembler::VF2) | CVuAssembler::Upper::I_BIT,
+	    0x43D80D3E);
 
 	//Y
 	assembler.Write(
-		CVuAssembler::Upper::MULi(CVuAssembler::DEST_Y, CVuAssembler::VF2, CVuAssembler::VF1) | CVuAssembler::Upper::I_BIT,
-		0xC7F079B3
-	);
+	    CVuAssembler::Upper::MULi(CVuAssembler::DEST_Y, CVuAssembler::VF2, CVuAssembler::VF1) | CVuAssembler::Upper::I_BIT,
+	    0xC7F079B3);
 
 	assembler.Write(
-		CVuAssembler::Upper::ADDi(CVuAssembler::DEST_Y, CVuAssembler::VF3, CVuAssembler::VF2) | CVuAssembler::Upper::I_BIT,
-		0x43A0DA10
-	);
+	    CVuAssembler::Upper::ADDi(CVuAssembler::DEST_Y, CVuAssembler::VF3, CVuAssembler::VF2) | CVuAssembler::Upper::I_BIT,
+	    0x43A0DA10);
 
 	//Z
 	assembler.Write(
-		CVuAssembler::Upper::MULi(CVuAssembler::DEST_Z, CVuAssembler::VF2, CVuAssembler::VF1) | CVuAssembler::Upper::I_BIT,
-		0x43A02666
-	);
+	    CVuAssembler::Upper::MULi(CVuAssembler::DEST_Z, CVuAssembler::VF2, CVuAssembler::VF1) | CVuAssembler::Upper::I_BIT,
+	    0x43A02666);
 
 	assembler.Write(
-		CVuAssembler::Upper::ADDi(CVuAssembler::DEST_Z, CVuAssembler::VF3, CVuAssembler::VF2) | CVuAssembler::Upper::I_BIT,
-		0x43546E14
-	);
+	    CVuAssembler::Upper::ADDi(CVuAssembler::DEST_Z, CVuAssembler::VF3, CVuAssembler::VF2) | CVuAssembler::Upper::I_BIT,
+	    0x43546E14);
 
 	//W
 	assembler.Write(
-		CVuAssembler::Upper::MULi(CVuAssembler::DEST_W, CVuAssembler::VF2, CVuAssembler::VF1) | CVuAssembler::Upper::I_BIT,
-		0x42F23333
-	);
+	    CVuAssembler::Upper::MULi(CVuAssembler::DEST_W, CVuAssembler::VF2, CVuAssembler::VF1) | CVuAssembler::Upper::I_BIT,
+	    0x42F23333);
 
 	assembler.Write(
-		CVuAssembler::Upper::ADDi(CVuAssembler::DEST_W, CVuAssembler::VF3, CVuAssembler::VF2) | CVuAssembler::Upper::I_BIT,
-		0x3DD3DD98
-	);
+	    CVuAssembler::Upper::ADDi(CVuAssembler::DEST_W, CVuAssembler::VF3, CVuAssembler::VF2) | CVuAssembler::Upper::I_BIT,
+	    0x3DD3DD98);
 
 	assembler.Write(
-		CVuAssembler::Upper::NOP() | CVuAssembler::Upper::E_BIT,
-		CVuAssembler::Lower::NOP()
-	);
+	    CVuAssembler::Upper::NOP() | CVuAssembler::Upper::E_BIT,
+	    CVuAssembler::Lower::NOP());
 
 	assembler.Write(
-		CVuAssembler::Upper::NOP(),
-		CVuAssembler::Lower::NOP()
-	);
+	    CVuAssembler::Upper::NOP(),
+	    CVuAssembler::Lower::NOP());
 
 	virtualMachine.m_cpu.m_State.nCOP2[1].nV0 = 0xB063B75B;
 	virtualMachine.m_cpu.m_State.nCOP2[1].nV1 = 0x8701CE82;

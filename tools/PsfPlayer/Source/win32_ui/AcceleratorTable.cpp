@@ -2,10 +2,9 @@
 
 using namespace Framework::Win32;
 
-CAcceleratorTable::CAcceleratorTable(HACCEL accel) :
-m_accel(accel)
+CAcceleratorTable::CAcceleratorTable(HACCEL accel)
+    : m_accel(accel)
 {
-
 }
 
 CAcceleratorTable::~CAcceleratorTable()

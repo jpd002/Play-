@@ -1,50 +1,48 @@
-#include <cassert>
-#include <algorithm>
-#include "string_format.h"
-#include "../RegisterStateFile.h"
-#include "../FrameDump.h"
-#include "GIF.h"
-#include "Dmac_Channel.h"
-#include "Vpu.h"
 #include "Vif1.h"
+#include "../FrameDump.h"
+#include "../RegisterStateFile.h"
+#include "Dmac_Channel.h"
+#include "GIF.h"
+#include "Vpu.h"
+#include "string_format.h"
+#include <algorithm>
+#include <cassert>
 
-#define STATE_PATH_FORMAT		("vpu/vif1_%d.xml")
-#define STATE_REGS_BASE			("BASE")
-#define STATE_REGS_TOP			("TOP")
-#define STATE_REGS_TOPS			("TOPS")
-#define STATE_REGS_OFST			("OFST")
+#define STATE_PATH_FORMAT ("vpu/vif1_%d.xml")
+#define STATE_REGS_BASE ("BASE")
+#define STATE_REGS_TOP ("TOP")
+#define STATE_REGS_TOPS ("TOPS")
+#define STATE_REGS_OFST ("OFST")
 
 CVif1::CVif1(unsigned int number, CVpu& vpu, CGIF& gif, CINTC& intc, uint8* ram, uint8* spr)
-: CVif(1, vpu, intc, ram, spr)
-, m_gif(gif)
+    : CVif(1, vpu, intc, ram, spr)
+    , m_gif(gif)
 {
-
 }
 
 CVif1::~CVif1()
 {
-
 }
 
 void CVif1::Reset()
 {
 	CVif::Reset();
-	m_BASE	= 0;
-	m_TOP	= 0;
-	m_TOPS	= 0;
-	m_OFST	= 0;
+	m_BASE = 0;
+	m_TOP = 0;
+	m_TOPS = 0;
+	m_OFST = 0;
 }
 
 void CVif1::SaveState(Framework::CZipArchiveWriter& archive)
 {
 	CVif::SaveState(archive);
 
-	auto path = string_format(STATE_PATH_FORMAT, m_number);
+	auto                path = string_format(STATE_PATH_FORMAT, m_number);
 	CRegisterStateFile* registerFile = new CRegisterStateFile(path.c_str());
-	registerFile->SetRegister32(STATE_REGS_BASE,	m_BASE);
-	registerFile->SetRegister32(STATE_REGS_TOP,		m_TOP);
-	registerFile->SetRegister32(STATE_REGS_TOPS,	m_TOPS);
-	registerFile->SetRegister32(STATE_REGS_OFST,	m_OFST);
+	registerFile->SetRegister32(STATE_REGS_BASE, m_BASE);
+	registerFile->SetRegister32(STATE_REGS_TOP, m_TOP);
+	registerFile->SetRegister32(STATE_REGS_TOPS, m_TOPS);
+	registerFile->SetRegister32(STATE_REGS_OFST, m_OFST);
 	archive.InsertFile(registerFile);
 }
 
@@ -52,12 +50,12 @@ void CVif1::LoadState(Framework::CZipArchiveReader& archive)
 {
 	CVif::LoadState(archive);
 
-	auto path = string_format(STATE_PATH_FORMAT, m_number);
+	auto               path = string_format(STATE_PATH_FORMAT, m_number);
 	CRegisterStateFile registerFile(*archive.BeginReadFile(path.c_str()));
-	m_BASE	= registerFile.GetRegister32(STATE_REGS_BASE);
-	m_TOP	= registerFile.GetRegister32(STATE_REGS_TOP);
-	m_TOPS	= registerFile.GetRegister32(STATE_REGS_TOPS);
-	m_OFST	= registerFile.GetRegister32(STATE_REGS_OFST);
+	m_BASE = registerFile.GetRegister32(STATE_REGS_BASE);
+	m_TOP = registerFile.GetRegister32(STATE_REGS_TOP);
+	m_TOPS = registerFile.GetRegister32(STATE_REGS_TOPS);
+	m_OFST = registerFile.GetRegister32(STATE_REGS_OFST);
 }
 
 uint32 CVif1::GetTOP() const
@@ -162,7 +160,7 @@ void CVif1::Cmd_DIRECT(StreamType& stream, CODE nCommand)
 
 	if(nSize != 0)
 	{
-		auto packet = stream.GetDirectPointer();
+		auto   packet = stream.GetDirectPointer();
 		uint32 processed = m_gif.ProcessMultiplePackets(packet, 0, nSize, CGsPacketMetadata(2));
 		assert(processed <= nSize);
 		stream.Advance(processed);
@@ -184,7 +182,7 @@ void CVif1::Cmd_DIRECT(StreamType& stream, CODE nCommand)
 void CVif1::Cmd_UNPACK(StreamType& stream, CODE nCommand, uint32 nDstAddr)
 {
 	bool nFlg = (m_CODE.nIMM & 0x8000) != 0;
-	if(nFlg) 
+	if(nFlg)
 	{
 		nDstAddr += m_TOPS;
 	}
