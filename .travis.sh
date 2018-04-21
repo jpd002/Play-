@@ -11,9 +11,9 @@ travis_before_install()
         curl -sSL https://cmake.org/files/v3.8/cmake-3.8.1-Linux-x86_64.tar.gz | sudo tar -xzC /opt
     elif [ "$TARGET_OS" = "Linux_Clang_Format" ]; then
         wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | sudo apt-key add -
-        sudo apt-add-repository -y "deb http://apt.llvm.org/trusty/ llvm-toolchain-trusty-3.4 main"
+        sudo apt-add-repository -y "deb http://apt.llvm.org/trusty/ llvm-toolchain-trusty-4.0 main"
         sudo apt-get update -qq
-        sudo apt-get install -qq clang-format-3.4
+        sudo apt-get install -qq clang-format-4.0
     elif [ "$TARGET_OS" = "OSX" ]; then
         sudo npm install -g appdmg
     elif [ "$TARGET_OS" = "IOS" ]; then
