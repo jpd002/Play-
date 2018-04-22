@@ -332,6 +332,11 @@ uint32 CDMAC::GetRegister(uint32 nAddress)
 		return m_D2.ReadCHCR() >> 8;
 		break;
 
+	case D2_CHCR + 0x2:
+		//This is done by Hot Shots Golf Fore
+		return m_D2.ReadCHCR() >> 16;
+		break;
+
 	case D3_CHCR + 0x0:
 		return m_D3_CHCR;
 		break;
