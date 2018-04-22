@@ -103,14 +103,8 @@ void CEeExecutor::ClearActiveBlocksInRange(uint32 start, uint32 end)
 {
 	uint32 rangeSize = end - start;
 	SetMemoryProtected(m_ram + start, rangeSize, false);
-	CBasicBlock* currentBlock = nullptr;
-	if(m_context.m_State.nPC >= start && m_context.m_State.nPC < end)
-	{
-		//We are currently executing a block in that range, we need to protect it
-		//We assume that we're not writing in the same place as the currently executed block
-		currentBlock = FindBlockStartingAt(m_context.m_State.nPC);
-		assert(currentBlock != nullptr);
-	}
+	auto currentBlock = FindBlockStartingAt(m_context.m_State.nPC);
+	assert(currentBlock != nullptr);
 	ClearActiveBlocksInRangeInternal(start, end, currentBlock);
 }
 
