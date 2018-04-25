@@ -143,6 +143,7 @@ public:
 		R_MIPS_26 = 4,
 		R_MIPS_HI16 = 5,
 		R_MIPS_LO16 = 6,
+		R_MIPS_GPREL16 = 7,
 	};
 
 						CELF(uint8*);
