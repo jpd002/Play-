@@ -6,7 +6,7 @@ set(CMAKE_MODULE_PATH
 )
 include(Header)
 
-project(Play)
+project(PlayUI)
 
 if(NOT TARGET PlayCore)
 	add_subdirectory(

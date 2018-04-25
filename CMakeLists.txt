@@ -6,6 +6,8 @@ set(CMAKE_MODULE_PATH
 )
 include(Header)
 
+project(Play)
+
 set(BUILD_PLAY ON CACHE BOOL "Build Play! Emulator")
 set(BUILD_PSFPLAYER OFF CACHE BOOL "Build PsfPlayer")
 set(BUILD_TESTS ON CACHE BOOL "Build Tests")
