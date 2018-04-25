@@ -2957,7 +2957,11 @@ void CIopBios::RelocateElf(CELF& elf, uint32 baseAddress)
 						}
 						break;
 					default:
-						throw std::runtime_error("Unknown relocation type.");
+						//Some games use relocation types that might not be supported by the IOP's ELF loader
+						//- R_MIPS_GPREL16: Used by Sega Ages 2500 Volume 8: Virtua Racing
+						CLog::GetInstance().Print(LOGNAME, "Unsupported ELF relocation type encountered (%d).\r\n",
+							relocationType);
+						assert(false);
 						break;
 					}
 				}
