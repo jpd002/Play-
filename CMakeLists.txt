@@ -23,7 +23,6 @@ set(PROJECT_Version 0.30)
 add_definitions(-DPLAY_VERSION="${PROJECT_Version}")
 set(PROJECT_LIBS)
 
-
 include(PrecompiledHeader)
 
 if(BUILD_PLAY)

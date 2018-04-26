@@ -9,8 +9,6 @@ include(Header)
 project(PlayCore)
 
 set(PROJECT_LIBS)
-set(PROJECT_NAME "Play!")
-set(PROJECT_Version 0.30)
 
 include(PrecompiledHeader)
 
