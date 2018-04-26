@@ -1,12 +1,11 @@
 cmake_minimum_required(VERSION 3.5)
+project(Play)
 
 set(CMAKE_MODULE_PATH
 	${CMAKE_CURRENT_SOURCE_DIR}/../Dependencies/cmake-modules
 	${CMAKE_MODULE_PATH}
 )
 include(Header)
-
-project(Play)
 
 set(BUILD_PLAY ON CACHE BOOL "Build Play! Emulator")
 set(BUILD_PSFPLAYER OFF CACHE BOOL "Build PsfPlayer")
