@@ -7,53 +7,53 @@
 using namespace Iop;
 using namespace PS2;
 
-#define LOG_NAME			("iop_subsystem")
+#define LOG_NAME ("iop_subsystem")
 
-#define STATE_CPU			("iop_cpu")
-#define STATE_RAM			("iop_ram")
-#define STATE_SCRATCH		("iop_scratch")
-#define STATE_SPURAM		("iop_spuram")
+#define STATE_CPU ("iop_cpu")
+#define STATE_RAM ("iop_ram")
+#define STATE_SCRATCH ("iop_scratch")
+#define STATE_SPURAM ("iop_spuram")
 
-CSubSystem::CSubSystem(bool ps2Mode) 
-: m_cpu(MEMORYMAP_ENDIAN_LSBF)
-, m_executor(m_cpu, (IOP_RAM_SIZE * 4))
-, m_ram(new uint8[IOP_RAM_SIZE])
-, m_scratchPad(new uint8[IOP_SCRATCH_SIZE])
-, m_spuRam(new uint8[SPU_RAM_SIZE])
-, m_dmac(m_ram, m_intc)
-, m_counters(ps2Mode ? IOP_CLOCK_OVER_FREQ : IOP_CLOCK_BASE_FREQ, m_intc)
-, m_spuCore0(m_spuRam, SPU_RAM_SIZE, 0)
-, m_spuCore1(m_spuRam, SPU_RAM_SIZE, 1)
-, m_spu(m_spuCore0)
-, m_spu2(m_spuCore0, m_spuCore1)
+CSubSystem::CSubSystem(bool ps2Mode)
+    : m_cpu(MEMORYMAP_ENDIAN_LSBF)
+    , m_executor(m_cpu, (IOP_RAM_SIZE * 4))
+    , m_ram(new uint8[IOP_RAM_SIZE])
+    , m_scratchPad(new uint8[IOP_SCRATCH_SIZE])
+    , m_spuRam(new uint8[SPU_RAM_SIZE])
+    , m_dmac(m_ram, m_intc)
+    , m_counters(ps2Mode ? IOP_CLOCK_OVER_FREQ : IOP_CLOCK_BASE_FREQ, m_intc)
+    , m_spuCore0(m_spuRam, SPU_RAM_SIZE, 0)
+    , m_spuCore1(m_spuRam, SPU_RAM_SIZE, 1)
+    , m_spu(m_spuCore0)
+    , m_spu2(m_spuCore0, m_spuCore1)
 #ifdef _IOP_EMULATE_MODULES
-, m_sio2(m_intc)
+    , m_sio2(m_intc)
 #endif
-, m_cpuArch(MIPS_REGSIZE_32)
-, m_copScu(MIPS_REGSIZE_32)
-, m_dmaUpdateTicks(0)
+    , m_cpuArch(MIPS_REGSIZE_32)
+    , m_copScu(MIPS_REGSIZE_32)
+    , m_dmaUpdateTicks(0)
 {
 	//Read memory map
-	m_cpu.m_pMemoryMap->InsertReadMap((0 * IOP_RAM_SIZE),    (0 * IOP_RAM_SIZE) + IOP_RAM_SIZE - 1,      m_ram,                                                                  0x01);
-	m_cpu.m_pMemoryMap->InsertReadMap((1 * IOP_RAM_SIZE),    (1 * IOP_RAM_SIZE) + IOP_RAM_SIZE - 1,      m_ram,                                                                  0x02);
-	m_cpu.m_pMemoryMap->InsertReadMap((2 * IOP_RAM_SIZE),    (2 * IOP_RAM_SIZE) + IOP_RAM_SIZE - 1,      m_ram,                                                                  0x03);
-	m_cpu.m_pMemoryMap->InsertReadMap((3 * IOP_RAM_SIZE),    (3 * IOP_RAM_SIZE) + IOP_RAM_SIZE - 1,      m_ram,                                                                  0x04);
-	m_cpu.m_pMemoryMap->InsertReadMap(IOP_SCRATCH_ADDR,      IOP_SCRATCH_ADDR + IOP_SCRATCH_SIZE - 1,    m_scratchPad,                                                           0x05);
-	m_cpu.m_pMemoryMap->InsertReadMap(HW_REG_BEGIN,          HW_REG_END,                                 std::bind(&CSubSystem::ReadIoRegister, this, std::placeholders::_1),    0x06);
+	m_cpu.m_pMemoryMap->InsertReadMap((0 * IOP_RAM_SIZE), (0 * IOP_RAM_SIZE) + IOP_RAM_SIZE - 1, m_ram, 0x01);
+	m_cpu.m_pMemoryMap->InsertReadMap((1 * IOP_RAM_SIZE), (1 * IOP_RAM_SIZE) + IOP_RAM_SIZE - 1, m_ram, 0x02);
+	m_cpu.m_pMemoryMap->InsertReadMap((2 * IOP_RAM_SIZE), (2 * IOP_RAM_SIZE) + IOP_RAM_SIZE - 1, m_ram, 0x03);
+	m_cpu.m_pMemoryMap->InsertReadMap((3 * IOP_RAM_SIZE), (3 * IOP_RAM_SIZE) + IOP_RAM_SIZE - 1, m_ram, 0x04);
+	m_cpu.m_pMemoryMap->InsertReadMap(IOP_SCRATCH_ADDR, IOP_SCRATCH_ADDR + IOP_SCRATCH_SIZE - 1, m_scratchPad, 0x05);
+	m_cpu.m_pMemoryMap->InsertReadMap(HW_REG_BEGIN, HW_REG_END, std::bind(&CSubSystem::ReadIoRegister, this, std::placeholders::_1), 0x06);
 
 	//Write memory map
-	m_cpu.m_pMemoryMap->InsertWriteMap((0 * IOP_RAM_SIZE),    (0 * IOP_RAM_SIZE) + IOP_RAM_SIZE - 1,      m_ram,                                                                                          0x01);
-	m_cpu.m_pMemoryMap->InsertWriteMap((1 * IOP_RAM_SIZE),    (1 * IOP_RAM_SIZE) + IOP_RAM_SIZE - 1,      m_ram,                                                                                          0x02);
-	m_cpu.m_pMemoryMap->InsertWriteMap((2 * IOP_RAM_SIZE),    (2 * IOP_RAM_SIZE) + IOP_RAM_SIZE - 1,      m_ram,                                                                                          0x03);
-	m_cpu.m_pMemoryMap->InsertWriteMap((3 * IOP_RAM_SIZE),    (3 * IOP_RAM_SIZE) + IOP_RAM_SIZE - 1,      m_ram,                                                                                          0x04);
-	m_cpu.m_pMemoryMap->InsertWriteMap(IOP_SCRATCH_ADDR,      IOP_SCRATCH_ADDR + IOP_SCRATCH_SIZE - 1,    m_scratchPad,                                                                                   0x05);
-	m_cpu.m_pMemoryMap->InsertWriteMap(HW_REG_BEGIN,          HW_REG_END,                                 std::bind(&CSubSystem::WriteIoRegister, this, std::placeholders::_1, std::placeholders::_2),    0x06);
+	m_cpu.m_pMemoryMap->InsertWriteMap((0 * IOP_RAM_SIZE), (0 * IOP_RAM_SIZE) + IOP_RAM_SIZE - 1, m_ram, 0x01);
+	m_cpu.m_pMemoryMap->InsertWriteMap((1 * IOP_RAM_SIZE), (1 * IOP_RAM_SIZE) + IOP_RAM_SIZE - 1, m_ram, 0x02);
+	m_cpu.m_pMemoryMap->InsertWriteMap((2 * IOP_RAM_SIZE), (2 * IOP_RAM_SIZE) + IOP_RAM_SIZE - 1, m_ram, 0x03);
+	m_cpu.m_pMemoryMap->InsertWriteMap((3 * IOP_RAM_SIZE), (3 * IOP_RAM_SIZE) + IOP_RAM_SIZE - 1, m_ram, 0x04);
+	m_cpu.m_pMemoryMap->InsertWriteMap(IOP_SCRATCH_ADDR, IOP_SCRATCH_ADDR + IOP_SCRATCH_SIZE - 1, m_scratchPad, 0x05);
+	m_cpu.m_pMemoryMap->InsertWriteMap(HW_REG_BEGIN, HW_REG_END, std::bind(&CSubSystem::WriteIoRegister, this, std::placeholders::_1, std::placeholders::_2), 0x06);
 
 	//Instruction memory map
-	m_cpu.m_pMemoryMap->InsertInstructionMap((0 * IOP_RAM_SIZE),    (0 * IOP_RAM_SIZE) + IOP_RAM_SIZE - 1,    m_ram,    0x01);
-	m_cpu.m_pMemoryMap->InsertInstructionMap((1 * IOP_RAM_SIZE),    (1 * IOP_RAM_SIZE) + IOP_RAM_SIZE - 1,    m_ram,    0x02);
-	m_cpu.m_pMemoryMap->InsertInstructionMap((2 * IOP_RAM_SIZE),    (2 * IOP_RAM_SIZE) + IOP_RAM_SIZE - 1,    m_ram,    0x03);
-	m_cpu.m_pMemoryMap->InsertInstructionMap((3 * IOP_RAM_SIZE),    (3 * IOP_RAM_SIZE) + IOP_RAM_SIZE - 1,    m_ram,    0x04);
+	m_cpu.m_pMemoryMap->InsertInstructionMap((0 * IOP_RAM_SIZE), (0 * IOP_RAM_SIZE) + IOP_RAM_SIZE - 1, m_ram, 0x01);
+	m_cpu.m_pMemoryMap->InsertInstructionMap((1 * IOP_RAM_SIZE), (1 * IOP_RAM_SIZE) + IOP_RAM_SIZE - 1, m_ram, 0x02);
+	m_cpu.m_pMemoryMap->InsertInstructionMap((2 * IOP_RAM_SIZE), (2 * IOP_RAM_SIZE) + IOP_RAM_SIZE - 1, m_ram, 0x03);
+	m_cpu.m_pMemoryMap->InsertInstructionMap((3 * IOP_RAM_SIZE), (3 * IOP_RAM_SIZE) + IOP_RAM_SIZE - 1, m_ram, 0x04);
 
 	m_cpu.m_pArch = &m_cpuArch;
 	m_cpu.m_pCOP[0] = &m_copScu;
@@ -66,9 +66,9 @@ CSubSystem::CSubSystem(bool ps2Mode)
 CSubSystem::~CSubSystem()
 {
 	m_bios.reset();
-	delete [] m_ram;
-	delete [] m_scratchPad;
-	delete [] m_spuRam;
+	delete[] m_ram;
+	delete[] m_scratchPad;
+	delete[] m_spuRam;
 }
 
 void CSubSystem::SetBios(const BiosBasePtr& bios)
@@ -90,10 +90,10 @@ void CSubSystem::NotifyVBlankEnd()
 
 void CSubSystem::SaveState(Framework::CZipArchiveWriter& archive)
 {
-	archive.InsertFile(new CMemoryStateFile(STATE_CPU,		&m_cpu.m_State, sizeof(MIPSSTATE)));
-	archive.InsertFile(new CMemoryStateFile(STATE_RAM,		m_ram,			IOP_RAM_SIZE));
-	archive.InsertFile(new CMemoryStateFile(STATE_SCRATCH,	m_scratchPad,	IOP_SCRATCH_SIZE));
-	archive.InsertFile(new CMemoryStateFile(STATE_SPURAM,	m_spuRam,		SPU_RAM_SIZE));
+	archive.InsertFile(new CMemoryStateFile(STATE_CPU, &m_cpu.m_State, sizeof(MIPSSTATE)));
+	archive.InsertFile(new CMemoryStateFile(STATE_RAM, m_ram, IOP_RAM_SIZE));
+	archive.InsertFile(new CMemoryStateFile(STATE_SCRATCH, m_scratchPad, IOP_SCRATCH_SIZE));
+	archive.InsertFile(new CMemoryStateFile(STATE_SPURAM, m_spuRam, SPU_RAM_SIZE));
 	m_intc.SaveState(archive);
 	m_dmac.SaveState(archive);
 	m_counters.SaveState(archive);
@@ -107,10 +107,10 @@ void CSubSystem::SaveState(Framework::CZipArchiveWriter& archive)
 
 void CSubSystem::LoadState(Framework::CZipArchiveReader& archive)
 {
-	archive.BeginReadFile(STATE_CPU			)->Read(&m_cpu.m_State,	sizeof(MIPSSTATE));
-	archive.BeginReadFile(STATE_RAM			)->Read(m_ram,			IOP_RAM_SIZE);
-	archive.BeginReadFile(STATE_SCRATCH		)->Read(m_scratchPad,	IOP_SCRATCH_SIZE);
-	archive.BeginReadFile(STATE_SPURAM		)->Read(m_spuRam,		SPU_RAM_SIZE);
+	archive.BeginReadFile(STATE_CPU)->Read(&m_cpu.m_State, sizeof(MIPSSTATE));
+	archive.BeginReadFile(STATE_RAM)->Read(m_ram, IOP_RAM_SIZE);
+	archive.BeginReadFile(STATE_SCRATCH)->Read(m_scratchPad, IOP_SCRATCH_SIZE);
+	archive.BeginReadFile(STATE_SPURAM)->Read(m_spuRam, SPU_RAM_SIZE);
 	m_intc.LoadState(archive);
 	m_dmac.LoadState(archive);
 	m_counters.LoadState(archive);
@@ -171,9 +171,8 @@ uint32 CSubSystem::ReadIoRegister(uint32 address)
 		return m_intc.ReadRegister(address);
 	}
 	else if(
-		(address >= CRootCounters::ADDR_BEGIN1 && address <= CRootCounters::ADDR_END1) ||
-		(address >= CRootCounters::ADDR_BEGIN2 && address <= CRootCounters::ADDR_END2)
-		)
+	    (address >= CRootCounters::ADDR_BEGIN1 && address <= CRootCounters::ADDR_END1) ||
+	    (address >= CRootCounters::ADDR_BEGIN2 && address <= CRootCounters::ADDR_END2))
 	{
 		return m_counters.ReadRegister(address);
 	}
@@ -218,9 +217,8 @@ uint32 CSubSystem::WriteIoRegister(uint32 address, uint32 value)
 		m_intc.WriteRegister(address, value);
 	}
 	else if(
-		(address >= CRootCounters::ADDR_BEGIN1 && address <= CRootCounters::ADDR_END1) ||
-		(address >= CRootCounters::ADDR_BEGIN2 && address <= CRootCounters::ADDR_END2)
-		)
+	    (address >= CRootCounters::ADDR_BEGIN1 && address <= CRootCounters::ADDR_END1) ||
+	    (address >= CRootCounters::ADDR_BEGIN2 && address <= CRootCounters::ADDR_END2))
 	{
 		m_counters.WriteRegister(address, value);
 	}
@@ -240,10 +238,9 @@ uint32 CSubSystem::WriteIoRegister(uint32 address, uint32 value)
 	}
 
 	if(
-		m_intc.HasPendingInterrupt() && 
-		(m_cpu.m_State.nHasException == MIPS_EXCEPTION_NONE) &&
-		((m_cpu.m_State.nCOP0[CCOP_SCU::STATUS] & CMIPS::STATUS_IE) == CMIPS::STATUS_IE)
-		)
+	    m_intc.HasPendingInterrupt() &&
+	    (m_cpu.m_State.nHasException == MIPS_EXCEPTION_NONE) &&
+	    ((m_cpu.m_State.nCOP0[CCOP_SCU::STATUS] & CMIPS::STATUS_IE) == CMIPS::STATUS_IE))
 	{
 		m_cpu.m_State.nHasException = MIPS_EXCEPTION_CHECKPENDINGINT;
 	}
@@ -311,13 +308,13 @@ int CSubSystem::ExecuteCpu(int quota)
 			assert(m_cpu.m_State.nHasException == MIPS_EXCEPTION_NONE);
 			break;
 		case MIPS_EXCEPTION_CHECKPENDINGINT:
-			{
-				m_cpu.m_State.nHasException = MIPS_EXCEPTION_NONE;
-				CheckPendingInterrupts();
-				//Needs to be cleared again because exception flag might be set by BIOS interrupt handler
-				m_cpu.m_State.nHasException = MIPS_EXCEPTION_NONE;
-			}
-			break;
+		{
+			m_cpu.m_State.nHasException = MIPS_EXCEPTION_NONE;
+			CheckPendingInterrupts();
+			//Needs to be cleared again because exception flag might be set by BIOS interrupt handler
+			m_cpu.m_State.nHasException = MIPS_EXCEPTION_NONE;
+		}
+		break;
 		}
 		assert(m_cpu.m_State.nHasException == MIPS_EXCEPTION_NONE);
 	}

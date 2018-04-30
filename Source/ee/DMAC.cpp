@@ -7,32 +7,32 @@
 #include "../COP_SCU.h"
 #include "placeholder_def.h"
 
-#define LOG_NAME            ("dmac")
-#define STATE_REGS_XML      ("dmac/regs.xml")
-#define STATE_REGS_CTRL     ("D_CTRL")
-#define STATE_REGS_STAT     ("D_STAT")
-#define STATE_REGS_ENABLE   ("D_ENABLE")
-#define STATE_REGS_PCR      ("D_PCR")
-#define STATE_REGS_SQWC     ("D_SQWC")
-#define STATE_REGS_RBSR     ("D_RBSR")
-#define STATE_REGS_RBOR     ("D_RBOR")
-#define STATE_REGS_STADR    ("D_STADR")
-#define STATE_REGS_D8_SADR  ("D8_SADR")
-#define STATE_REGS_D9_SADR  ("D9_SADR")
+#define LOG_NAME ("dmac")
+#define STATE_REGS_XML ("dmac/regs.xml")
+#define STATE_REGS_CTRL ("D_CTRL")
+#define STATE_REGS_STAT ("D_STAT")
+#define STATE_REGS_ENABLE ("D_ENABLE")
+#define STATE_REGS_PCR ("D_PCR")
+#define STATE_REGS_SQWC ("D_SQWC")
+#define STATE_REGS_RBSR ("D_RBSR")
+#define STATE_REGS_RBOR ("D_RBOR")
+#define STATE_REGS_STADR ("D_STADR")
+#define STATE_REGS_D8_SADR ("D8_SADR")
+#define STATE_REGS_D9_SADR ("D9_SADR")
 
-#define MADR_WRITE_MASK			(~0x0000000F)
-#define SPR_MADR_WRITE_MASK		(~0x8000000F)
+#define MADR_WRITE_MASK (~0x0000000F)
+#define SPR_MADR_WRITE_MASK (~0x8000000F)
 
-#define SADR_WRITE_MASK			((PS2::EE_SPR_SIZE - 1) & ~0x0F)
+#define SADR_WRITE_MASK ((PS2::EE_SPR_SIZE - 1) & ~0x0F)
 
-#define REGISTER_READ(addr, value)		\
-	case (addr) + 0x0:					\
-		return (value);					\
-		break;							\
-	case (addr) + 0x4:					\
-	case (addr) + 0x8:					\
-	case (addr) + 0xC:					\
-		return 0;						\
+#define REGISTER_READ(addr, value) \
+	case(addr) + 0x0:              \
+		return (value);            \
+		break;                     \
+	case(addr) + 0x4:              \
+	case(addr) + 0x8:              \
+	case(addr) + 0xC:              \
+		return 0;                  \
 		break;
 
 using namespace Dmac;
@@ -43,44 +43,44 @@ static uint32 DummyTransferFunction(uint32 address, uint32 size, uint32, bool)
 }
 
 CDMAC::CDMAC(uint8* ram, uint8* spr, uint8* vuMem0, CMIPS& ee)
-: m_ram(ram)
-, m_spr(spr)
-, m_vuMem0(vuMem0)
-, m_ee(ee)
-, m_D_STAT(0)
-, m_D_ENABLE(0)
-, m_D0(*this, 0, DummyTransferFunction)
-, m_D1(*this, 1, DummyTransferFunction)
-, m_D2(*this, 2, DummyTransferFunction)
-, m_D3_CHCR(0)
-, m_D3_MADR(0)
-, m_D3_QWC(0)
-, m_D4(*this, 4, DummyTransferFunction)
-, m_D5_CHCR(0)
-, m_D5_MADR(0)
-, m_D5_QWC(0)
-, m_D6_CHCR(0)
-, m_D6_MADR(0)
-, m_D6_QWC(0)
-, m_D6_TADR(0)
-, m_D8(*this, 8, std::bind(&CDMAC::ReceiveDMA8, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4))
-, m_D8_SADR(0)
-, m_D9(*this, 9, std::bind(&CDMAC::ReceiveDMA9, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4))
-, m_D9_SADR(0)
+    : m_ram(ram)
+    , m_spr(spr)
+    , m_vuMem0(vuMem0)
+    , m_ee(ee)
+    , m_D_STAT(0)
+    , m_D_ENABLE(0)
+    , m_D0(*this, 0, DummyTransferFunction)
+    , m_D1(*this, 1, DummyTransferFunction)
+    , m_D2(*this, 2, DummyTransferFunction)
+    , m_D3_CHCR(0)
+    , m_D3_MADR(0)
+    , m_D3_QWC(0)
+    , m_D4(*this, 4, DummyTransferFunction)
+    , m_D5_CHCR(0)
+    , m_D5_MADR(0)
+    , m_D5_QWC(0)
+    , m_D6_CHCR(0)
+    , m_D6_MADR(0)
+    , m_D6_QWC(0)
+    , m_D6_TADR(0)
+    , m_D8(*this, 8, std::bind(&CDMAC::ReceiveDMA8, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4))
+    , m_D8_SADR(0)
+    , m_D9(*this, 9, std::bind(&CDMAC::ReceiveDMA9, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4))
+    , m_D9_SADR(0)
 {
 	Reset();
 }
 
 void CDMAC::Reset()
 {
-	m_D_CTRL	<<= 0;
-	m_D_STAT	= 0;
-	m_D_ENABLE	= 0;
-	m_D_PCR		= 0;
-	m_D_SQWC	<<= 0;
-	m_D_RBSR	= 0;
-	m_D_RBOR	= 0;
-	m_D_STADR	= 0;
+	m_D_CTRL <<= 0;
+	m_D_STAT = 0;
+	m_D_ENABLE = 0;
+	m_D_PCR = 0;
+	m_D_SQWC <<= 0;
+	m_D_RBSR = 0;
+	m_D_RBOR = 0;
+	m_D_STADR = 0;
 
 	//Reset Channel 0
 	m_D0.Reset();
@@ -149,8 +149,8 @@ void CDMAC::SetChannelTransferFunction(unsigned int channel, const DmaReceiveHan
 
 bool CDMAC::IsInterruptPending()
 {
-	uint16 mask		= static_cast<uint16>((m_D_STAT & 0x63FF0000) >> 16);
-	uint16 status	= static_cast<uint16>((m_D_STAT & 0x0000E3FF) >>  0);
+	uint16 mask = static_cast<uint16>((m_D_STAT & 0x63FF0000) >> 16);
+	uint16 status = static_cast<uint16>((m_D_STAT & 0x0000E3FF) >> 0);
 
 	return ((mask & status) != 0);
 }
@@ -188,8 +188,8 @@ uint32 CDMAC::ResumeDMA3(const void* pBuffer, uint32 nSize)
 
 	memcpy(pDst, pBuffer, nSize * 0x10);
 
-	m_D3_MADR	+= (nSize * 0x10);
-	m_D3_QWC	-= nSize;
+	m_D3_MADR += (nSize * 0x10);
+	m_D3_QWC -= nSize;
 
 	if(m_D3_QWC == 0)
 	{
@@ -299,17 +299,17 @@ uint32 CDMAC::GetRegister(uint32 nAddress)
 
 	switch(nAddress)
 	{
-	//Channel 0
-	REGISTER_READ(D0_CHCR, m_D0.ReadCHCR())
-	REGISTER_READ(D0_MADR, m_D0.m_nMADR)
-	REGISTER_READ(D0_QWC,  m_D0.m_nQWC)
-	REGISTER_READ(D0_TADR, m_D0.m_nTADR)
-	
-	//Channel 1
-	REGISTER_READ(D1_CHCR, m_D1.ReadCHCR())
-	REGISTER_READ(D1_MADR, m_D1.m_nMADR)
-	REGISTER_READ(D1_QWC,  m_D1.m_nQWC)
-	REGISTER_READ(D1_TADR, m_D1.m_nTADR)
+		//Channel 0
+		REGISTER_READ(D0_CHCR, m_D0.ReadCHCR())
+		REGISTER_READ(D0_MADR, m_D0.m_nMADR)
+		REGISTER_READ(D0_QWC, m_D0.m_nQWC)
+		REGISTER_READ(D0_TADR, m_D0.m_nTADR)
+
+		//Channel 1
+		REGISTER_READ(D1_CHCR, m_D1.ReadCHCR())
+		REGISTER_READ(D1_MADR, m_D1.m_nMADR)
+		REGISTER_READ(D1_QWC, m_D1.m_nQWC)
+		REGISTER_READ(D1_TADR, m_D1.m_nTADR)
 
 	case D1_CHCR + 0x1:
 		//This is done by FFXII
@@ -321,11 +321,11 @@ uint32 CDMAC::GetRegister(uint32 nAddress)
 		return m_D1.ReadCHCR() >> 16;
 		break;
 
-	//Channel 2
-	REGISTER_READ(D2_CHCR, m_D2.ReadCHCR())
-	REGISTER_READ(D2_MADR, m_D2.m_nMADR)
-	REGISTER_READ(D2_QWC,  m_D2.m_nQWC)
-	REGISTER_READ(D2_TADR, m_D2.m_nTADR)
+		//Channel 2
+		REGISTER_READ(D2_CHCR, m_D2.ReadCHCR())
+		REGISTER_READ(D2_MADR, m_D2.m_nMADR)
+		REGISTER_READ(D2_QWC, m_D2.m_nQWC)
+		REGISTER_READ(D2_TADR, m_D2.m_nTADR)
 
 	case D2_CHCR + 0x1:
 		//This is done by Parappa The Rapper 2
@@ -400,23 +400,23 @@ uint32 CDMAC::GetRegister(uint32 nAddress)
 		return 0;
 		break;
 
-	//Channel 8
-	REGISTER_READ(D8_CHCR, m_D8.ReadCHCR())
-	REGISTER_READ(D8_MADR, m_D8.m_nMADR)
-	REGISTER_READ(D8_QWC,  m_D8.m_nQWC)
-	REGISTER_READ(D8_SADR, m_D8_SADR)
+		//Channel 8
+		REGISTER_READ(D8_CHCR, m_D8.ReadCHCR())
+		REGISTER_READ(D8_MADR, m_D8.m_nMADR)
+		REGISTER_READ(D8_QWC, m_D8.m_nQWC)
+		REGISTER_READ(D8_SADR, m_D8_SADR)
 
 	case D8_CHCR + 0x1:
 		//This is done by Front Mission 4
 		return m_D8.ReadCHCR() >> 8;
 		break;
 
-	//Channel 9
-	REGISTER_READ(D9_CHCR, m_D9.ReadCHCR())
-	REGISTER_READ(D9_MADR, m_D9.m_nMADR)
-	REGISTER_READ(D9_QWC,  m_D9.m_nQWC)
-	REGISTER_READ(D9_TADR, m_D9.m_nTADR)
-	REGISTER_READ(D9_SADR, m_D9_SADR)
+		//Channel 9
+		REGISTER_READ(D9_CHCR, m_D9.ReadCHCR())
+		REGISTER_READ(D9_MADR, m_D9.m_nMADR)
+		REGISTER_READ(D9_QWC, m_D9.m_nQWC)
+		REGISTER_READ(D9_TADR, m_D9.m_nTADR)
+		REGISTER_READ(D9_SADR, m_D9_SADR)
 
 	//General Registers
 	case D_CTRL:
@@ -635,7 +635,7 @@ void CDMAC::SetRegister(uint32 nAddress, uint32 nData)
 		{
 			m_receiveDma5(m_D5_MADR, m_D5_QWC * 0x10, 0, false);
 			m_D5_CHCR &= ~CHCR_STR;
-			m_D_STAT  |= (1 << CHANNEL_ID_SIF0);
+			m_D_STAT |= (1 << CHANNEL_ID_SIF0);
 		}
 		break;
 	case D5_CHCR + 0x4:
@@ -789,19 +789,19 @@ void CDMAC::SetRegister(uint32 nAddress, uint32 nData)
 		break;
 
 	case D_STAT + 0x0:
-		{
-			uint32 nStat = nData & 0x0000FFFF;
-			uint32 nMask = nData & 0xFFFF0000;
+	{
+		uint32 nStat = nData & 0x0000FFFF;
+		uint32 nMask = nData & 0xFFFF0000;
 
-			//Set the masks
-			m_D_STAT ^= nMask;
+		//Set the masks
+		m_D_STAT ^= nMask;
 
-			//Clear the interrupt status
-			m_D_STAT &= ~nStat;
+		//Clear the interrupt status
+		m_D_STAT &= ~nStat;
 
-			UpdateCpCond();
-		}
-		break;
+		UpdateCpCond();
+	}
+	break;
 	case D_STAT + 0x4:
 	case D_STAT + 0x8:
 	case D_STAT + 0xC:
@@ -866,22 +866,21 @@ void CDMAC::SetRegister(uint32 nAddress, uint32 nData)
 #ifdef _DEBUG
 	DisassembleSet(nAddress, nData);
 #endif
-
 }
 
 void CDMAC::LoadState(Framework::CZipArchiveReader& archive)
 {
 	CRegisterStateFile registerFile(*archive.BeginReadFile(STATE_REGS_XML));
-	m_D_CTRL	<<= registerFile.GetRegister32(STATE_REGS_CTRL);
-	m_D_STAT	= registerFile.GetRegister32(STATE_REGS_STAT);
-	m_D_ENABLE	= registerFile.GetRegister32(STATE_REGS_ENABLE);
-	m_D_PCR		= registerFile.GetRegister32(STATE_REGS_PCR);
-	m_D_SQWC	<<= registerFile.GetRegister32(STATE_REGS_SQWC);
-	m_D_RBSR	= registerFile.GetRegister32(STATE_REGS_RBSR);
-	m_D_RBOR	= registerFile.GetRegister32(STATE_REGS_RBOR);
-	m_D_STADR	= registerFile.GetRegister32(STATE_REGS_STADR);
-	m_D8_SADR	= registerFile.GetRegister32(STATE_REGS_D8_SADR);
-	m_D9_SADR	= registerFile.GetRegister32(STATE_REGS_D9_SADR);
+	m_D_CTRL <<= registerFile.GetRegister32(STATE_REGS_CTRL);
+	m_D_STAT = registerFile.GetRegister32(STATE_REGS_STAT);
+	m_D_ENABLE = registerFile.GetRegister32(STATE_REGS_ENABLE);
+	m_D_PCR = registerFile.GetRegister32(STATE_REGS_PCR);
+	m_D_SQWC <<= registerFile.GetRegister32(STATE_REGS_SQWC);
+	m_D_RBSR = registerFile.GetRegister32(STATE_REGS_RBSR);
+	m_D_RBOR = registerFile.GetRegister32(STATE_REGS_RBOR);
+	m_D_STADR = registerFile.GetRegister32(STATE_REGS_STADR);
+	m_D8_SADR = registerFile.GetRegister32(STATE_REGS_D8_SADR);
+	m_D9_SADR = registerFile.GetRegister32(STATE_REGS_D9_SADR);
 
 	m_D0.LoadState(archive);
 	m_D1.LoadState(archive);
@@ -894,14 +893,14 @@ void CDMAC::LoadState(Framework::CZipArchiveReader& archive)
 void CDMAC::SaveState(Framework::CZipArchiveWriter& archive)
 {
 	CRegisterStateFile* registerFile = new CRegisterStateFile(STATE_REGS_XML);
-	registerFile->SetRegister32(STATE_REGS_CTRL,	m_D_CTRL);
-	registerFile->SetRegister32(STATE_REGS_STAT,	m_D_STAT);
-	registerFile->SetRegister32(STATE_REGS_ENABLE,	m_D_ENABLE);
-	registerFile->SetRegister32(STATE_REGS_PCR,		m_D_PCR);
-	registerFile->SetRegister32(STATE_REGS_SQWC,	m_D_SQWC);
-	registerFile->SetRegister32(STATE_REGS_RBSR,	m_D_RBSR);
-	registerFile->SetRegister32(STATE_REGS_RBOR,	m_D_RBOR);
-	registerFile->SetRegister32(STATE_REGS_STADR,	m_D_STADR);
+	registerFile->SetRegister32(STATE_REGS_CTRL, m_D_CTRL);
+	registerFile->SetRegister32(STATE_REGS_STAT, m_D_STAT);
+	registerFile->SetRegister32(STATE_REGS_ENABLE, m_D_ENABLE);
+	registerFile->SetRegister32(STATE_REGS_PCR, m_D_PCR);
+	registerFile->SetRegister32(STATE_REGS_SQWC, m_D_SQWC);
+	registerFile->SetRegister32(STATE_REGS_RBSR, m_D_RBSR);
+	registerFile->SetRegister32(STATE_REGS_RBOR, m_D_RBOR);
+	registerFile->SetRegister32(STATE_REGS_STADR, m_D_STADR);
 	registerFile->SetRegister32(STATE_REGS_D8_SADR, m_D8_SADR);
 	registerFile->SetRegister32(STATE_REGS_D9_SADR, m_D9_SADR);
 	archive.InsertFile(registerFile);
@@ -931,7 +930,10 @@ void CDMAC::UpdateCpCond()
 
 void CDMAC::DisassembleGet(uint32 nAddress)
 {
-#define LOG_GET(registerId) case registerId: CLog::GetInstance().Print(LOG_NAME, "= " #registerId ".\r\n"); break;
+#define LOG_GET(registerId)                                            \
+	case registerId:                                                   \
+		CLog::GetInstance().Print(LOG_NAME, "= " #registerId ".\r\n"); \
+		break;
 
 	switch(nAddress)
 	{
@@ -990,7 +992,10 @@ void CDMAC::DisassembleGet(uint32 nAddress)
 
 void CDMAC::DisassembleSet(uint32 nAddress, uint32 nData)
 {
-#define LOG_SET(registerId) case registerId: CLog::GetInstance().Print(LOG_NAME, #registerId " = 0x%08X.\r\n", nData); break;
+#define LOG_SET(registerId)                                                       \
+	case registerId:                                                              \
+		CLog::GetInstance().Print(LOG_NAME, #registerId " = 0x%08X.\r\n", nData); \
+		break;
 
 	switch(nAddress)
 	{

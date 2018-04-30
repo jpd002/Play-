@@ -19,7 +19,6 @@ CPathTableRecord::CPathTableRecord(Framework::CStream& stream)
 
 CPathTableRecord::~CPathTableRecord()
 {
-
 }
 
 uint8 CPathTableRecord::GetNameLength() const

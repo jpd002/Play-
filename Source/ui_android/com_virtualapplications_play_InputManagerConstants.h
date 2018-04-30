@@ -5,7 +5,8 @@
 #ifndef _Included_com_virtualapplications_play_InputManagerConstants
 #define _Included_com_virtualapplications_play_InputManagerConstants
 #ifdef __cplusplus
-extern "C" {
+extern "C"
+{
 #endif
 #undef com_virtualapplications_play_InputManagerConstants_ANALOG_LEFT_X
 #define com_virtualapplications_play_InputManagerConstants_ANALOG_LEFT_X 0L

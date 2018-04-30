@@ -5,11 +5,11 @@
 class CMemoryViewPtr : public CMemoryView
 {
 public:
-						CMemoryViewPtr(HWND, const RECT&);
-	void				SetData(void*, uint32);
+	CMemoryViewPtr(HWND, const RECT&);
+	void SetData(void*, uint32);
 
 protected:
-	virtual uint8		GetByte(uint32) override;
+	virtual uint8 GetByte(uint32) override;
 
-	void*				m_pData;
+	void* m_pData;
 };

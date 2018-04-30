@@ -5,12 +5,10 @@ namespace filesystem = boost::filesystem;
 
 CPsuSaveImporter::CPsuSaveImporter()
 {
-
 }
 
 CPsuSaveImporter::~CPsuSaveImporter()
 {
-
 }
 
 void CPsuSaveImporter::Import(Framework::CStream& input, const filesystem::path& basePath)

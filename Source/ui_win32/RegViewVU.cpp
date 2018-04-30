@@ -7,8 +7,8 @@
 #define CLIP_FLAG_MASK 0xFFFFFF
 
 CRegViewVU::CRegViewVU(HWND hParent, const RECT& rect, CVirtualMachine& virtualMachine, CMIPS* ctx)
-: CRegViewPage(hParent, rect)
-, m_ctx(ctx)
+    : CRegViewPage(hParent, rect)
+    , m_ctx(ctx)
 {
 	virtualMachine.OnMachineStateChange.connect(boost::bind(&CRegViewVU::Update, this));
 	virtualMachine.OnRunningStateChange.connect(boost::bind(&CRegViewVU::Update, this));
@@ -48,18 +48,16 @@ std::string CRegViewVU::GetDisplayText()
 		if(m_viewMode == VIEWMODE_WORD)
 		{
 			sprintf(sLine, "%s:    0x%08X      0x%08X\r\n          0x%08X      0x%08X\r\n", sReg1,
-				state.nCOP2[i].nV0, state.nCOP2[i].nV1,
-				state.nCOP2[i].nV2, state.nCOP2[i].nV3
-			);
+			        state.nCOP2[i].nV0, state.nCOP2[i].nV1,
+			        state.nCOP2[i].nV2, state.nCOP2[i].nV3);
 		}
 		else if(m_viewMode == VIEWMODE_SINGLE)
 		{
 			sprintf(sLine, "%s: %+.7e %+.7e\r\n       %+.7e %+.7e\r\n", sReg1,
-				*reinterpret_cast<const float*>(&state.nCOP2[i].nV0),
-				*reinterpret_cast<const float*>(&state.nCOP2[i].nV1),
-				*reinterpret_cast<const float*>(&state.nCOP2[i].nV2),
-				*reinterpret_cast<const float*>(&state.nCOP2[i].nV3)
-			);
+			        *reinterpret_cast<const float*>(&state.nCOP2[i].nV0),
+			        *reinterpret_cast<const float*>(&state.nCOP2[i].nV1),
+			        *reinterpret_cast<const float*>(&state.nCOP2[i].nV2),
+			        *reinterpret_cast<const float*>(&state.nCOP2[i].nV3));
 		}
 		else
 		{
@@ -72,18 +70,16 @@ std::string CRegViewVU::GetDisplayText()
 	if(m_viewMode == VIEWMODE_WORD)
 	{
 		sprintf(sLine, "ACC  :    0x%08X      0x%08X\r\n          0x%08X      0x%08X\r\n",
-			state.nCOP2A.nV0, state.nCOP2A.nV1,
-			state.nCOP2A.nV2, state.nCOP2A.nV3
-		);
+		        state.nCOP2A.nV0, state.nCOP2A.nV1,
+		        state.nCOP2A.nV2, state.nCOP2A.nV3);
 	}
 	else if(m_viewMode == VIEWMODE_SINGLE)
 	{
 		sprintf(sLine, "ACC  : %+.7e %+.7e\r\n       %+.7e %+.7e\r\n",
-			*reinterpret_cast<const float*>(&state.nCOP2A.nV0),
-			*reinterpret_cast<const float*>(&state.nCOP2A.nV1),
-			*reinterpret_cast<const float*>(&state.nCOP2A.nV2),
-			*reinterpret_cast<const float*>(&state.nCOP2A.nV3)
-		);
+		        *reinterpret_cast<const float*>(&state.nCOP2A.nV0),
+		        *reinterpret_cast<const float*>(&state.nCOP2A.nV1),
+		        *reinterpret_cast<const float*>(&state.nCOP2A.nV2),
+		        *reinterpret_cast<const float*>(&state.nCOP2A.nV3));
 	}
 	else
 	{
@@ -185,8 +181,8 @@ std::string CRegViewVU::PrintPipeline(const char* title, const FLAG_PIPELINE& pi
 	{
 		const char* front = (i == 0) ? title : "      ";
 		result += string_format("%s 0x%04X:0x%06X, 0x%04X:0x%06X\r\n", front,
-			pipeTimes[(i * 2) + 0], pipeValues[(i * 2) + 0],
-			pipeTimes[(i * 2) + 1], pipeValues[(i * 2) + 1]);
+		                        pipeTimes[(i * 2) + 0], pipeValues[(i * 2) + 0],
+		                        pipeTimes[(i * 2) + 1], pipeValues[(i * 2) + 1]);
 	}
 
 	return result;
@@ -194,14 +190,14 @@ std::string CRegViewVU::PrintPipeline(const char* title, const FLAG_PIPELINE& pi
 
 long CRegViewVU::OnRightButtonUp(int nX, int nY)
 {
-	POINT pt = { nX, nY };
+	POINT pt = {nX, nY};
 	ClientToScreen(m_hWnd, &pt);
 
 	HMENU hMenu = CreatePopupMenu();
-	InsertMenu(hMenu, 0, MF_BYPOSITION | (m_viewMode == VIEWMODE_WORD ? MF_CHECKED : 0),   MENUCMD_BASE + VIEWMODE_WORD,   _T("32 Bits Integers"));
+	InsertMenu(hMenu, 0, MF_BYPOSITION | (m_viewMode == VIEWMODE_WORD ? MF_CHECKED : 0), MENUCMD_BASE + VIEWMODE_WORD, _T("32 Bits Integers"));
 	InsertMenu(hMenu, 1, MF_BYPOSITION | (m_viewMode == VIEWMODE_SINGLE ? MF_CHECKED : 0), MENUCMD_BASE + VIEWMODE_SINGLE, _T("Single Precision Floating-Point Numbers"));
 
-	TrackPopupMenu(hMenu, 0, pt.x, pt.y, 0, m_hWnd, NULL); 
+	TrackPopupMenu(hMenu, 0, pt.x, pt.y, 0, m_hWnd, NULL);
 
 	return FALSE;
 }

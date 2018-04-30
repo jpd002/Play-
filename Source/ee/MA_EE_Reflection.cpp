@@ -14,8 +14,8 @@ void CMA_EE::ReflOpRdRt(INSTRUCTION* pInstr, CMIPS* pCtx, uint32 nAddress, uint3
 
 void CMA_EE::ReflOpRsImm(INSTRUCTION* pInstr, CMIPS* pCtx, uint32 nAddress, uint32 nOpcode, char* sText, unsigned int nCount)
 {
-	uint8 nRS	= static_cast<uint8> ((nOpcode >> 21) & 0x001F);
-	uint16 nImm = static_cast<uint16>((nOpcode >>  0) & 0xFFFF);
+	uint8 nRS = static_cast<uint8>((nOpcode >> 21) & 0x001F);
+	uint16 nImm = static_cast<uint16>((nOpcode >> 0) & 0xFFFF);
 
 	sprintf(sText, "%s, $%04X", CMIPS::m_sGPRName[nRS], nImm);
 }
@@ -300,83 +300,83 @@ INSTRUCTION CMA_EE::m_cReflPmfhl[32] =
 
 void CMA_EE::SetupReflectionTables()
 {
-	static_assert(sizeof(m_ReflMmi)		== sizeof(m_cReflMmi),		"Array sizes don't match");
-	static_assert(sizeof(m_ReflMmi0)	== sizeof(m_cReflMmi0),		"Array sizes don't match");
-	static_assert(sizeof(m_ReflMmi1)	== sizeof(m_cReflMmi1),		"Array sizes don't match");
-	static_assert(sizeof(m_ReflMmi2)	== sizeof(m_cReflMmi2),		"Array sizes don't match");
-	static_assert(sizeof(m_ReflMmi3)	== sizeof(m_cReflMmi3),		"Array sizes don't match");
-	static_assert(sizeof(m_ReflPmfhl)	== sizeof(m_cReflPmfhl),	"Array sizes don't match");
+	static_assert(sizeof(m_ReflMmi) == sizeof(m_cReflMmi), "Array sizes don't match");
+	static_assert(sizeof(m_ReflMmi0) == sizeof(m_cReflMmi0), "Array sizes don't match");
+	static_assert(sizeof(m_ReflMmi1) == sizeof(m_cReflMmi1), "Array sizes don't match");
+	static_assert(sizeof(m_ReflMmi2) == sizeof(m_cReflMmi2), "Array sizes don't match");
+	static_assert(sizeof(m_ReflMmi3) == sizeof(m_cReflMmi3), "Array sizes don't match");
+	static_assert(sizeof(m_ReflPmfhl) == sizeof(m_cReflPmfhl), "Array sizes don't match");
 
-	memcpy(m_ReflMmi,	m_cReflMmi,		sizeof(m_cReflMmi));
-	memcpy(m_ReflMmi0,	m_cReflMmi0,	sizeof(m_cReflMmi0));
-	memcpy(m_ReflMmi1,	m_cReflMmi1,	sizeof(m_cReflMmi1));
-	memcpy(m_ReflMmi2,	m_cReflMmi2,	sizeof(m_cReflMmi2));
-	memcpy(m_ReflMmi3,	m_cReflMmi3,	sizeof(m_cReflMmi3));
-	memcpy(m_ReflPmfhl,	m_cReflPmfhl,	sizeof(m_cReflPmfhl));
+	memcpy(m_ReflMmi, m_cReflMmi, sizeof(m_cReflMmi));
+	memcpy(m_ReflMmi0, m_cReflMmi0, sizeof(m_cReflMmi0));
+	memcpy(m_ReflMmi1, m_cReflMmi1, sizeof(m_cReflMmi1));
+	memcpy(m_ReflMmi2, m_cReflMmi2, sizeof(m_cReflMmi2));
+	memcpy(m_ReflMmi3, m_cReflMmi3, sizeof(m_cReflMmi3));
+	memcpy(m_ReflPmfhl, m_cReflPmfhl, sizeof(m_cReflPmfhl));
 
-	m_ReflMmiTable.pTable						= m_ReflMmi;
-	m_ReflMmiTable.nShift						= 0;
-	m_ReflMmiTable.nMask						= 0x3F;
+	m_ReflMmiTable.pTable = m_ReflMmi;
+	m_ReflMmiTable.nShift = 0;
+	m_ReflMmiTable.nMask = 0x3F;
 
-	m_ReflMmi0Table.pTable						= m_ReflMmi0;
-	m_ReflMmi0Table.nShift						= 6;
-	m_ReflMmi0Table.nMask						= 0x1F;
+	m_ReflMmi0Table.pTable = m_ReflMmi0;
+	m_ReflMmi0Table.nShift = 6;
+	m_ReflMmi0Table.nMask = 0x1F;
 
-	m_ReflMmi1Table.pTable						= m_ReflMmi1;
-	m_ReflMmi1Table.nShift						= 6;
-	m_ReflMmi1Table.nMask						= 0x1F;
+	m_ReflMmi1Table.pTable = m_ReflMmi1;
+	m_ReflMmi1Table.nShift = 6;
+	m_ReflMmi1Table.nMask = 0x1F;
 
-	m_ReflMmi2Table.pTable						= m_ReflMmi2;
-	m_ReflMmi2Table.nShift						= 6;
-	m_ReflMmi2Table.nMask						= 0x1F;
+	m_ReflMmi2Table.pTable = m_ReflMmi2;
+	m_ReflMmi2Table.nShift = 6;
+	m_ReflMmi2Table.nMask = 0x1F;
 
-	m_ReflMmi3Table.pTable						= m_ReflMmi3;
-	m_ReflMmi3Table.nShift						= 6;
-	m_ReflMmi3Table.nMask						= 0x1F;
+	m_ReflMmi3Table.pTable = m_ReflMmi3;
+	m_ReflMmi3Table.nShift = 6;
+	m_ReflMmi3Table.nMask = 0x1F;
 
-	m_ReflPmfhlTable.pTable						= m_ReflPmfhl;
-	m_ReflPmfhlTable.nShift						= 6;
-	m_ReflPmfhlTable.nMask						= 0x1F;
+	m_ReflPmfhlTable.pTable = m_ReflPmfhl;
+	m_ReflPmfhlTable.nShift = 6;
+	m_ReflPmfhlTable.nMask = 0x1F;
 
 	//Fix MIPSIV tables
-	m_ReflGeneral[0x1C].sMnemonic				= "MMI";
-	m_ReflGeneral[0x1C].pSubTable				= &m_ReflMmiTable;
-	m_ReflGeneral[0x1C].pGetMnemonic			= SubTableMnemonic;
-	m_ReflGeneral[0x1C].pGetOperands			= SubTableOperands;
-	m_ReflGeneral[0x1C].pIsBranch				= SubTableIsBranch;
-	m_ReflGeneral[0x1C].pGetEffectiveAddress	= SubTableEffAddr;
+	m_ReflGeneral[0x1C].sMnemonic = "MMI";
+	m_ReflGeneral[0x1C].pSubTable = &m_ReflMmiTable;
+	m_ReflGeneral[0x1C].pGetMnemonic = SubTableMnemonic;
+	m_ReflGeneral[0x1C].pGetOperands = SubTableOperands;
+	m_ReflGeneral[0x1C].pIsBranch = SubTableIsBranch;
+	m_ReflGeneral[0x1C].pGetEffectiveAddress = SubTableEffAddr;
 
-	m_ReflGeneral[0x1E].sMnemonic				= "LQ";
-	m_ReflGeneral[0x1E].pGetMnemonic			= MIPSReflection::CopyMnemonic;
-	m_ReflGeneral[0x1E].pGetOperands			= ReflOpRtOffRs;
+	m_ReflGeneral[0x1E].sMnemonic = "LQ";
+	m_ReflGeneral[0x1E].pGetMnemonic = MIPSReflection::CopyMnemonic;
+	m_ReflGeneral[0x1E].pGetOperands = ReflOpRtOffRs;
 
-	m_ReflGeneral[0x1F].sMnemonic				= "SQ";
-	m_ReflGeneral[0x1F].pGetMnemonic			= MIPSReflection::CopyMnemonic;
-	m_ReflGeneral[0x1F].pGetOperands			= ReflOpRtOffRs;
+	m_ReflGeneral[0x1F].sMnemonic = "SQ";
+	m_ReflGeneral[0x1F].pGetMnemonic = MIPSReflection::CopyMnemonic;
+	m_ReflGeneral[0x1F].pGetOperands = ReflOpRtOffRs;
 
-	m_ReflRegImm[0x18].sMnemonic				= "MTSAB";
-	m_ReflRegImm[0x18].pGetMnemonic				= MIPSReflection::CopyMnemonic;
-	m_ReflRegImm[0x18].pGetOperands				= ReflOpRsImm;
+	m_ReflRegImm[0x18].sMnemonic = "MTSAB";
+	m_ReflRegImm[0x18].pGetMnemonic = MIPSReflection::CopyMnemonic;
+	m_ReflRegImm[0x18].pGetOperands = ReflOpRsImm;
 
-	m_ReflRegImm[0x19].sMnemonic				= "MTSAH";
-	m_ReflRegImm[0x19].pGetMnemonic				= MIPSReflection::CopyMnemonic;
-	m_ReflRegImm[0x19].pGetOperands				= ReflOpRsImm;
+	m_ReflRegImm[0x19].sMnemonic = "MTSAH";
+	m_ReflRegImm[0x19].pGetMnemonic = MIPSReflection::CopyMnemonic;
+	m_ReflRegImm[0x19].pGetOperands = ReflOpRsImm;
 
-	m_ReflSpecial[0x28].sMnemonic				= "MFSA";
-	m_ReflSpecial[0x28].pGetMnemonic			= MIPSReflection::CopyMnemonic;
-	m_ReflSpecial[0x28].pGetOperands			= ReflOpRd;
+	m_ReflSpecial[0x28].sMnemonic = "MFSA";
+	m_ReflSpecial[0x28].pGetMnemonic = MIPSReflection::CopyMnemonic;
+	m_ReflSpecial[0x28].pGetOperands = ReflOpRd;
 
-	m_ReflSpecial[0x29].sMnemonic				= "MTSA";
-	m_ReflSpecial[0x29].pGetMnemonic			= MIPSReflection::CopyMnemonic;
-	m_ReflSpecial[0x29].pGetOperands			= ReflOpRs;
+	m_ReflSpecial[0x29].sMnemonic = "MTSA";
+	m_ReflSpecial[0x29].pGetMnemonic = MIPSReflection::CopyMnemonic;
+	m_ReflSpecial[0x29].pGetOperands = ReflOpRs;
 
 	//Fix MULT/MULTU operands
-	m_ReflSpecial[0x18].pGetOperands			= ReflOpRdRsRt;
-	m_ReflSpecial[0x19].pGetOperands			= ReflOpRdRsRt;
+	m_ReflSpecial[0x18].pGetOperands = ReflOpRdRsRt;
+	m_ReflSpecial[0x19].pGetOperands = ReflOpRdRsRt;
 
-	m_ReflMmi[0x08].pSubTable					= &m_ReflMmi0Table;
-	m_ReflMmi[0x09].pSubTable					= &m_ReflMmi2Table;
-	m_ReflMmi[0x28].pSubTable					= &m_ReflMmi1Table;
-	m_ReflMmi[0x29].pSubTable					= &m_ReflMmi3Table;
-	m_ReflMmi[0x30].pSubTable					= &m_ReflPmfhlTable;
+	m_ReflMmi[0x08].pSubTable = &m_ReflMmi0Table;
+	m_ReflMmi[0x09].pSubTable = &m_ReflMmi2Table;
+	m_ReflMmi[0x28].pSubTable = &m_ReflMmi1Table;
+	m_ReflMmi[0x29].pSubTable = &m_ReflMmi3Table;
+	m_ReflMmi[0x30].pSubTable = &m_ReflPmfhlTable;
 }

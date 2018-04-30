@@ -4,15 +4,13 @@
 using namespace Framework;
 
 ProgramStreamDecoder::ProgramStreamDecoder(Framework::CStream& inputStream)
-: m_inputStream(inputStream)
-, m_stream(inputStream)
+    : m_inputStream(inputStream)
+    , m_stream(inputStream)
 {
-
 }
 
 ProgramStreamDecoder::~ProgramStreamDecoder()
 {
-
 }
 
 void ProgramStreamDecoder::RegisterVideoStreamHandler(const VideoStreamHandler& handler)
@@ -36,30 +34,30 @@ ProgramStreamDecoder::STATUS ProgramStreamDecoder::Read()
 			{
 				m_stream.Advance(24);
 				uint8 commandType = static_cast<uint8>(m_stream.GetBits_MSBF(8));
-				
+
 				switch(commandType)
 				{
-					case 0xBA:
-						ReadProgramStreamPackHeader(m_stream);
-						break;
-					case 0xBB:
-						ReadSystemHeader(m_stream);
-						break;
-					case 0xBD:
-						if(!ReadPrivateStream1(m_stream))
-						{
-							return STATUS_INTERRUPTED;
-						}
-						break;
-					case 0xBF:
-						ReadPrivateStream2(m_stream);
-						break;
-					case 0xE0:
-						if(!ReadVideoStream(m_stream))
-						{
-							return STATUS_INTERRUPTED;
-						}
-						break;
+				case 0xBA:
+					ReadProgramStreamPackHeader(m_stream);
+					break;
+				case 0xBB:
+					ReadSystemHeader(m_stream);
+					break;
+				case 0xBD:
+					if(!ReadPrivateStream1(m_stream))
+					{
+						return STATUS_INTERRUPTED;
+					}
+					break;
+				case 0xBF:
+					ReadPrivateStream2(m_stream);
+					break;
+				case 0xE0:
+					if(!ReadVideoStream(m_stream))
+					{
+						return STATUS_INTERRUPTED;
+					}
+					break;
 				}
 			}
 			else
@@ -90,19 +88,19 @@ void ProgramStreamDecoder::ReadAndValidateMarker(CBitStream& stream, unsigned in
 uint32 ProgramStreamDecoder::ReadPesExtension(CBitStream& stream)
 {
 	ReadAndValidateMarker(stream, 2, 0x02);
-	uint32 scramblingControl		= stream.GetBits_MSBF(2);
-	uint32 priority					= stream.GetBits_MSBF(1);
-	uint32 dataAlignmentIndicator	= stream.GetBits_MSBF(1);
-	uint32 copyright				= stream.GetBits_MSBF(1);
-	uint32 original					= stream.GetBits_MSBF(1);
-	uint32 ptsDtsFlags				= stream.GetBits_MSBF(2);
-	uint32 escrFlag					= stream.GetBits_MSBF(1);
-	uint32 esRateFlag				= stream.GetBits_MSBF(1);
-	uint32 dsmTrickModeFlag			= stream.GetBits_MSBF(1);
-	uint32 additionalCopyInfoFlag	= stream.GetBits_MSBF(1);
-	uint32 crcFlag					= stream.GetBits_MSBF(1);
-	uint32 extensionFlag			= stream.GetBits_MSBF(1);
-	uint32 headerDataLength			= stream.GetBits_MSBF(8);
+	uint32 scramblingControl = stream.GetBits_MSBF(2);
+	uint32 priority = stream.GetBits_MSBF(1);
+	uint32 dataAlignmentIndicator = stream.GetBits_MSBF(1);
+	uint32 copyright = stream.GetBits_MSBF(1);
+	uint32 original = stream.GetBits_MSBF(1);
+	uint32 ptsDtsFlags = stream.GetBits_MSBF(2);
+	uint32 escrFlag = stream.GetBits_MSBF(1);
+	uint32 esRateFlag = stream.GetBits_MSBF(1);
+	uint32 dsmTrickModeFlag = stream.GetBits_MSBF(1);
+	uint32 additionalCopyInfoFlag = stream.GetBits_MSBF(1);
+	uint32 crcFlag = stream.GetBits_MSBF(1);
+	uint32 extensionFlag = stream.GetBits_MSBF(1);
+	uint32 headerDataLength = stream.GetBits_MSBF(8);
 	//packetLength -= 3;
 
 	uint32 calculatedDataLength = 0;
@@ -157,15 +155,15 @@ uint32 ProgramStreamDecoder::ReadPesExtension(CBitStream& stream)
 
 	if(extensionFlag)
 	{
-		uint32 privateDataFlag					= stream.GetBits_MSBF(1);
-		uint32 packHeaderFieldFlag				= stream.GetBits_MSBF(1);
+		uint32 privateDataFlag = stream.GetBits_MSBF(1);
+		uint32 packHeaderFieldFlag = stream.GetBits_MSBF(1);
 		uint32 programPacketSequenceCounterFlag = stream.GetBits_MSBF(1);
-		uint32 pstdBufferFlag					= stream.GetBits_MSBF(1);
+		uint32 pstdBufferFlag = stream.GetBits_MSBF(1);
 		ReadAndValidateMarker(stream, 3, 0x7);
-		uint32 extensionFlag2					= stream.GetBits_MSBF(1);
+		uint32 extensionFlag2 = stream.GetBits_MSBF(1);
 
 		calculatedDataLength += 1;
-		
+
 		assert(privateDataFlag == 0);
 		assert(packHeaderFieldFlag == 0);
 		assert(programPacketSequenceCounterFlag == 0);
@@ -175,7 +173,7 @@ uint32 ProgramStreamDecoder::ReadPesExtension(CBitStream& stream)
 			ReadAndValidateMarker(stream, 2, 0x01);
 			uint32 bufferScale = stream.GetBits_MSBF(1);
 			uint32 bufferSize = stream.GetBits_MSBF(13);
-			
+
 			calculatedDataLength += 2;
 		}
 
@@ -211,7 +209,7 @@ void ProgramStreamDecoder::ReadProgramStreamPackHeader(CBitStream& stream)
 	ReadAndValidateMarker(stream, 2, 0x03);
 	uint32 reserved = stream.GetBits_MSBF(5);
 	uint32 stuffingLength = stream.GetBits_MSBF(3);
-	
+
 	for(unsigned int i = 0; i < stuffingLength; i++)
 	{
 		uint8 stuff = static_cast<uint8>(stream.GetBits_MSBF(8));
@@ -241,9 +239,9 @@ bool ProgramStreamDecoder::ReadPrivateStream1(CBitStream& stream)
 	packetLength -= ReadPesExtension(stream);
 
 	//Read private stream 1 stuff
-	streamInfo.subStreamNumber		= static_cast<uint8>(stream.GetBits_MSBF(8));
-	streamInfo.frameCount			= static_cast<uint8>(stream.GetBits_MSBF(8));
-	streamInfo.firstAccessUnit		= static_cast<uint16>(stream.GetBits_MSBF(16));
+	streamInfo.subStreamNumber = static_cast<uint8>(stream.GetBits_MSBF(8));
+	streamInfo.frameCount = static_cast<uint8>(stream.GetBits_MSBF(8));
+	streamInfo.firstAccessUnit = static_cast<uint16>(stream.GetBits_MSBF(16));
 	packetLength -= 4;
 
 	if(m_privateStream1Handler)
@@ -273,9 +271,9 @@ bool ProgramStreamDecoder::ReadVideoStream(CBitStream& stream)
 {
 	bool result = true;
 	uint32 packetLength = static_cast<uint16>(stream.GetBits_MSBF(16));
-	
+
 	packetLength -= ReadPesExtension(stream);
-	
+
 	if(m_videoStreamHandler)
 	{
 		result = m_videoStreamHandler(stream, packetLength);

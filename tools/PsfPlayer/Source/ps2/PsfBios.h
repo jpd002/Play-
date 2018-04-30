@@ -10,34 +10,34 @@ namespace PS2
 	class CPsfBios : public Iop::CBiosBase
 	{
 	public:
-									CPsfBios(CMIPS&, CMipsExecutor&, uint8*, uint32, uint8*);
-		virtual						~CPsfBios() = default;
-		void						HandleException() override;
-		void						HandleInterrupt() override;
-		void						CountTicks(uint32) override;
+		CPsfBios(CMIPS&, CMipsExecutor&, uint8*, uint32, uint8*);
+		virtual ~CPsfBios() = default;
+		void HandleException() override;
+		void HandleInterrupt() override;
+		void CountTicks(uint32) override;
 
-		void						SaveState(Framework::CZipArchiveWriter&) override;
-		void						LoadState(Framework::CZipArchiveReader&) override;
+		void SaveState(Framework::CZipArchiveWriter&) override;
+		void LoadState(Framework::CZipArchiveReader&) override;
 
-		void						NotifyVBlankStart() override;
-		void						NotifyVBlankEnd() override;
+		void NotifyVBlankStart() override;
+		void NotifyVBlankEnd() override;
 
-		bool						IsIdle() override;
+		bool IsIdle() override;
 
 #ifdef DEBUGGER_INCLUDED
-		void						LoadDebugTags(Framework::Xml::CNode*) override;
-		void						SaveDebugTags(Framework::Xml::CNode*) override;
+		void LoadDebugTags(Framework::Xml::CNode*) override;
+		void SaveDebugTags(Framework::Xml::CNode*) override;
 
-		BiosDebugModuleInfoArray	GetModulesDebugInfo() const override;
-		BiosDebugThreadInfoArray	GetThreadsDebugInfo() const override;
+		BiosDebugModuleInfoArray GetModulesDebugInfo() const override;
+		BiosDebugThreadInfoArray GetThreadsDebugInfo() const override;
 #endif
 
-		void						AppendArchive(const CPsfBase&);
-		void						Start();
+		void AppendArchive(const CPsfBase&);
+		void Start();
 
 	private:
-		Iop::CIoman::DevicePtr		m_psfDevice;
-		CIopBios					m_bios;
+		Iop::CIoman::DevicePtr m_psfDevice;
+		CIopBios m_bios;
 	};
 }
 

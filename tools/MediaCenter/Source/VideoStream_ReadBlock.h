@@ -9,17 +9,17 @@ namespace VideoStream
 	class ReadBlock : public Program
 	{
 	public:
-						ReadBlock();
-		virtual			~ReadBlock();
+		ReadBlock();
+		virtual ~ReadBlock();
 
-		void			Reset();
-		void			Execute(void*, Framework::CBitStream&);
+		void Reset();
+		void Execute(void*, Framework::CBitStream&);
 
 	private:
 		struct BLOCKENTRY
 		{
-			int16*			block;
-			unsigned int	channel;
+			int16* block;
+			unsigned int channel;
 		};
 
 		enum PROGRAM_STATE
@@ -30,14 +30,14 @@ namespace VideoStream
 			STATE_MOVENEXT,
 			STATE_DONE,
 		};
-		
-		void			ProcessBlock(void*, int16*);
-		void			DequantizeBlock(void*, int16*);
-		void			InverseScan(void*, int16*);
 
-		PROGRAM_STATE	m_programState;
-		unsigned int	m_currentBlockIndex;
-		ReadDct			m_dctReader;
+		void ProcessBlock(void*, int16*);
+		void DequantizeBlock(void*, int16*);
+		void InverseScan(void*, int16*);
+
+		PROGRAM_STATE m_programState;
+		unsigned int m_currentBlockIndex;
+		ReadDct m_dctReader;
 	};
 }
 

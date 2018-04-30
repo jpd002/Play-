@@ -8,11 +8,11 @@ namespace VideoStream
 	class ReadMacroblockModes : public Program
 	{
 	public:
-						ReadMacroblockModes();
-		virtual			~ReadMacroblockModes();
+		ReadMacroblockModes();
+		virtual ~ReadMacroblockModes();
 
-		void			Reset();
-		void			Execute(void*, Framework::CBitStream&);
+		void Reset();
+		void Execute(void*, Framework::CBitStream&);
 
 	private:
 		enum PROGRAM_STATE
@@ -25,7 +25,7 @@ namespace VideoStream
 			STATE_DONE,
 		};
 
-		PROGRAM_STATE	m_programState;
+		PROGRAM_STATE m_programState;
 	};
 }
 

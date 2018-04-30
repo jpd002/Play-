@@ -17,7 +17,6 @@ CLog::CLog()
 
 CLog::~CLog()
 {
-
 }
 
 void CLog::Print(const char* logName, const char* format, ...)

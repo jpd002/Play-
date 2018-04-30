@@ -1,10 +1,10 @@
 #include "AviStream.h"
 
 CAviStream::CAviStream(unsigned int nWidth, unsigned int nHeight)
-: m_pFile(NULL)
-, m_pStream(NULL)
-, m_pCompStream(NULL)
-, m_nOpen(false)
+    : m_pFile(NULL)
+    , m_pStream(NULL)
+    , m_pCompStream(NULL)
+    , m_nOpen(false)
 {
 	AVIFileInit();
 	SetSize(nWidth, nHeight);
@@ -22,13 +22,13 @@ void CAviStream::SetSize(unsigned int nWidth, unsigned int nHeight)
 	m_nHeight = nHeight;
 
 	memset(&m_Format, 0, sizeof(BITMAPINFOHEADER));
-	m_Format.biSize			= sizeof(BITMAPINFOHEADER);
-	m_Format.biWidth		= nWidth;
-	m_Format.biHeight		= nHeight;
-	m_Format.biPlanes		= 1;
-	m_Format.biBitCount		= 24;
-	m_Format.biSizeImage	= nWidth * nHeight * 4;
-	m_Format.biCompression	= BI_RGB;
+	m_Format.biSize = sizeof(BITMAPINFOHEADER);
+	m_Format.biWidth = nWidth;
+	m_Format.biHeight = nHeight;
+	m_Format.biPlanes = 1;
+	m_Format.biBitCount = 24;
+	m_Format.biSizeImage = nWidth * nHeight * 4;
+	m_Format.biCompression = BI_RGB;
 }
 
 bool CAviStream::Open(HWND parentWnd, const TCHAR* sFilename)
@@ -46,11 +46,11 @@ bool CAviStream::Open(HWND parentWnd, const TCHAR* sFilename)
 
 	AVISTREAMINFO si;
 	memset(&si, 0, sizeof(AVISTREAMINFO));
-	si.fccType					= streamtypeVIDEO;
-	si.fccHandler				= 0;
-	si.dwScale					= 1;
-	si.dwRate					= 60;			//60 frames per second
-	si.dwSuggestedBufferSize	= m_nWidth * m_nHeight * 4;
+	si.fccType = streamtypeVIDEO;
+	si.fccHandler = 0;
+	si.dwScale = 1;
+	si.dwRate = 60; //60 frames per second
+	si.dwSuggestedBufferSize = m_nWidth * m_nHeight * 4;
 	SetRect(&si.rcFrame, 0, 0, m_nWidth, m_nHeight);
 
 	if(AVIFileCreateStream(m_pFile, &m_pStream, &si))

@@ -32,7 +32,6 @@ CDirectoryRecord::CDirectoryRecord(Framework::CStream* stream)
 
 CDirectoryRecord::~CDirectoryRecord()
 {
-	
 }
 
 uint8 CDirectoryRecord::GetLength() const

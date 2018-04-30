@@ -3,7 +3,7 @@
 #include "resource.h"
 
 CSpuRegViewPanel::CSpuRegViewPanel(HWND parentWnd, const TCHAR* title)
-: Framework::Win32::CDialog(MAKEINTRESOURCE(IDD_SPUREGVIEW), parentWnd)
+    : Framework::Win32::CDialog(MAKEINTRESOURCE(IDD_SPUREGVIEW), parentWnd)
 {
 	SetClassPtr();
 

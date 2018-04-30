@@ -4,11 +4,10 @@
 using namespace Iop;
 
 CSysclib::CSysclib(uint8* ram, uint8* spr, CStdio& stdio)
-: m_ram(ram)
-, m_spr(spr)
-, m_stdio(stdio)
+    : m_ram(ram)
+    , m_spr(spr)
+    , m_stdio(stdio)
 {
-
 }
 
 std::string CSysclib::GetId() const
@@ -119,146 +118,133 @@ void CSysclib::Invoke(CMIPS& context, unsigned int functionId)
 		break;
 	case 6:
 		context.m_State.nGPR[CMIPS::V0].nD0 = toupper(
-			context.m_State.nGPR[CMIPS::A0].nV0);
+		    context.m_State.nGPR[CMIPS::A0].nV0);
 		break;
 	case 7:
 		context.m_State.nGPR[CMIPS::V0].nD0 = tolower(
-			context.m_State.nGPR[CMIPS::A0].nV0);
+		    context.m_State.nGPR[CMIPS::A0].nV0);
 		break;
 	case 8:
 		context.m_State.nGPR[CMIPS::V0].nD0 = __look_ctype_table(
-			context.m_State.nGPR[CMIPS::A0].nV0);
+		    context.m_State.nGPR[CMIPS::A0].nV0);
 		break;
 	case 11:
 		context.m_State.nGPR[CMIPS::V0].nD0 = static_cast<int32>(__memcmp(
-			reinterpret_cast<void*>(&m_ram[context.m_State.nGPR[CMIPS::A0].nV0]),
-			reinterpret_cast<void*>(&m_ram[context.m_State.nGPR[CMIPS::A1].nV0]),
-			context.m_State.nGPR[CMIPS::A2].nV0
-			));
+		    reinterpret_cast<void*>(&m_ram[context.m_State.nGPR[CMIPS::A0].nV0]),
+		    reinterpret_cast<void*>(&m_ram[context.m_State.nGPR[CMIPS::A1].nV0]),
+		    context.m_State.nGPR[CMIPS::A2].nV0));
 		break;
 	case 12:
 		context.m_State.nGPR[CMIPS::V0].nD0 = context.m_State.nGPR[CMIPS::A0].nD0;
 		__memcpy(
-			&m_ram[context.m_State.nGPR[CMIPS::A0].nV0],
-			&m_ram[context.m_State.nGPR[CMIPS::A1].nV0],
-			context.m_State.nGPR[CMIPS::A2].nV0);
+		    &m_ram[context.m_State.nGPR[CMIPS::A0].nV0],
+		    &m_ram[context.m_State.nGPR[CMIPS::A1].nV0],
+		    context.m_State.nGPR[CMIPS::A2].nV0);
 		break;
 	case 13:
 		context.m_State.nGPR[CMIPS::V0].nD0 = context.m_State.nGPR[CMIPS::A0].nD0;
 		__memmove(
-			&m_ram[context.m_State.nGPR[CMIPS::A0].nV0],
-			&m_ram[context.m_State.nGPR[CMIPS::A1].nV0],
-			context.m_State.nGPR[CMIPS::A2].nV0);
+		    &m_ram[context.m_State.nGPR[CMIPS::A0].nV0],
+		    &m_ram[context.m_State.nGPR[CMIPS::A1].nV0],
+		    context.m_State.nGPR[CMIPS::A2].nV0);
 		break;
 	case 14:
 		context.m_State.nGPR[CMIPS::V0].nD0 = __memset(
-			context.m_State.nGPR[CMIPS::A0].nV0,
-			context.m_State.nGPR[CMIPS::A1].nV0,
-			context.m_State.nGPR[CMIPS::A2].nV0);
+		    context.m_State.nGPR[CMIPS::A0].nV0,
+		    context.m_State.nGPR[CMIPS::A1].nV0,
+		    context.m_State.nGPR[CMIPS::A2].nV0);
 		break;
 	case 16:
 		//bcopy
 		memmove(
-			&m_ram[context.m_State.nGPR[CMIPS::A1].nV0],
-			&m_ram[context.m_State.nGPR[CMIPS::A0].nV0],
-			context.m_State.nGPR[CMIPS::A2].nV0);
+		    &m_ram[context.m_State.nGPR[CMIPS::A1].nV0],
+		    &m_ram[context.m_State.nGPR[CMIPS::A0].nV0],
+		    context.m_State.nGPR[CMIPS::A2].nV0);
 		break;
 	case 17:
 		//bzero
 		__memset(
-			context.m_State.nGPR[CMIPS::A0].nV0,
-			0,
-			context.m_State.nGPR[CMIPS::A1].nV0);
+		    context.m_State.nGPR[CMIPS::A0].nV0,
+		    0,
+		    context.m_State.nGPR[CMIPS::A1].nV0);
 		break;
 	case 19:
 		context.m_State.nGPR[CMIPS::V0].nD0 = static_cast<int32>(__sprintf(context));
 		break;
 	case 20:
 		context.m_State.nGPR[CMIPS::V0].nD0 = __strcat(
-			context.m_State.nGPR[CMIPS::A0].nV0,
-			context.m_State.nGPR[CMIPS::A1].nV0
-			);
+		    context.m_State.nGPR[CMIPS::A0].nV0,
+		    context.m_State.nGPR[CMIPS::A1].nV0);
 		break;
 	case 21:
 		context.m_State.nGPR[CMIPS::V0].nD0 = __strchr(
-			context.m_State.nGPR[CMIPS::A0].nV0,
-			context.m_State.nGPR[CMIPS::A1].nV0
-		);
+		    context.m_State.nGPR[CMIPS::A0].nV0,
+		    context.m_State.nGPR[CMIPS::A1].nV0);
 		break;
 	case 22:
 		context.m_State.nGPR[CMIPS::V0].nD0 = static_cast<int32>(__strcmp(
-			reinterpret_cast<char*>(&m_ram[context.m_State.nGPR[CMIPS::A0].nV0]),
-			reinterpret_cast<char*>(&m_ram[context.m_State.nGPR[CMIPS::A1].nV0])
-			));
+		    reinterpret_cast<char*>(&m_ram[context.m_State.nGPR[CMIPS::A0].nV0]),
+		    reinterpret_cast<char*>(&m_ram[context.m_State.nGPR[CMIPS::A1].nV0])));
 		break;
 	case 23:
 		context.m_State.nGPR[CMIPS::V0].nD0 = context.m_State.nGPR[CMIPS::A0].nD0;
 		__strcpy(
-			reinterpret_cast<char*>(&m_ram[context.m_State.nGPR[CMIPS::A0].nV0]),
-			reinterpret_cast<char*>(&m_ram[context.m_State.nGPR[CMIPS::A1].nV0])
-			);
+		    reinterpret_cast<char*>(&m_ram[context.m_State.nGPR[CMIPS::A0].nV0]),
+		    reinterpret_cast<char*>(&m_ram[context.m_State.nGPR[CMIPS::A1].nV0]));
 		break;
 	case 24:
 		context.m_State.nGPR[CMIPS::V0].nD0 = __strcspn(
-			context.m_State.nGPR[CMIPS::A0].nV0,
-			context.m_State.nGPR[CMIPS::A1].nV0
-		);
+		    context.m_State.nGPR[CMIPS::A0].nV0,
+		    context.m_State.nGPR[CMIPS::A1].nV0);
 		break;
 	case 25:
 		context.m_State.nGPR[CMIPS::V0].nD0 = __index(
-			context.m_State.nGPR[CMIPS::A0].nV0,
-			context.m_State.nGPR[CMIPS::A1].nV0
-		);
+		    context.m_State.nGPR[CMIPS::A0].nV0,
+		    context.m_State.nGPR[CMIPS::A1].nV0);
 		break;
 	case 27:
 		context.m_State.nGPR[CMIPS::V0].nD0 = static_cast<int32>(__strlen(
-			reinterpret_cast<char*>(&m_ram[context.m_State.nGPR[CMIPS::A0].nV0])
-			));
+		    reinterpret_cast<char*>(&m_ram[context.m_State.nGPR[CMIPS::A0].nV0])));
 		break;
 	case 29:
 		context.m_State.nGPR[CMIPS::V0].nD0 = static_cast<int32>(__strncmp(
-			reinterpret_cast<char*>(&m_ram[context.m_State.nGPR[CMIPS::A0].nV0]),
-			reinterpret_cast<char*>(&m_ram[context.m_State.nGPR[CMIPS::A1].nV0]),
-			context.m_State.nGPR[CMIPS::A2].nV0));
+		    reinterpret_cast<char*>(&m_ram[context.m_State.nGPR[CMIPS::A0].nV0]),
+		    reinterpret_cast<char*>(&m_ram[context.m_State.nGPR[CMIPS::A1].nV0]),
+		    context.m_State.nGPR[CMIPS::A2].nV0));
 		break;
 	case 30:
 		context.m_State.nGPR[CMIPS::V0].nD0 = context.m_State.nGPR[CMIPS::A0].nD0;
 		__strncpy(
-			reinterpret_cast<char*>(&m_ram[context.m_State.nGPR[CMIPS::A0].nV0]),
-			reinterpret_cast<char*>(&m_ram[context.m_State.nGPR[CMIPS::A1].nV0]),
-			context.m_State.nGPR[CMIPS::A2].nV0);
+		    reinterpret_cast<char*>(&m_ram[context.m_State.nGPR[CMIPS::A0].nV0]),
+		    reinterpret_cast<char*>(&m_ram[context.m_State.nGPR[CMIPS::A1].nV0]),
+		    context.m_State.nGPR[CMIPS::A2].nV0);
 		break;
 	case 32:
 		context.m_State.nGPR[CMIPS::V0].nD0 = __strrchr(
-			context.m_State.nGPR[CMIPS::A0].nV0,
-			context.m_State.nGPR[CMIPS::A1].nV0
-		);
+		    context.m_State.nGPR[CMIPS::A0].nV0,
+		    context.m_State.nGPR[CMIPS::A1].nV0);
 		break;
 	case 34:
 		context.m_State.nGPR[CMIPS::V0].nD0 = __strstr(
-			context.m_State.nGPR[CMIPS::A0].nV0,
-			context.m_State.nGPR[CMIPS::A1].nV0
-		);
+		    context.m_State.nGPR[CMIPS::A0].nV0,
+		    context.m_State.nGPR[CMIPS::A1].nV0);
 		break;
 	case 35:
 		context.m_State.nGPR[CMIPS::V0].nD0 = __strtok(
-			context.m_State.nGPR[CMIPS::A0].nV0,
-			context.m_State.nGPR[CMIPS::A1].nV0
-		);
+		    context.m_State.nGPR[CMIPS::A0].nV0,
+		    context.m_State.nGPR[CMIPS::A1].nV0);
 		break;
 	case 36:
 		context.m_State.nGPR[CMIPS::V0].nD0 = static_cast<int32>(__strtol(
-			context.m_State.nGPR[CMIPS::A0].nV0,
-			context.m_State.nGPR[CMIPS::A1].nV0,
-			context.m_State.nGPR[CMIPS::A2].nV0
-			));
+		    context.m_State.nGPR[CMIPS::A0].nV0,
+		    context.m_State.nGPR[CMIPS::A1].nV0,
+		    context.m_State.nGPR[CMIPS::A2].nV0));
 		break;
 	case 40:
 		context.m_State.nGPR[CMIPS::V0].nD0 = static_cast<int32>(__wmemcopy(
-			context.m_State.nGPR[CMIPS::A0].nV0,
-			context.m_State.nGPR[CMIPS::A1].nV0,
-			context.m_State.nGPR[CMIPS::A2].nV0
-			));
+		    context.m_State.nGPR[CMIPS::A0].nV0,
+		    context.m_State.nGPR[CMIPS::A1].nV0,
+		    context.m_State.nGPR[CMIPS::A2].nV0));
 		break;
 	case 41:
 		//wmemset
@@ -276,11 +262,10 @@ void CSysclib::Invoke(CMIPS& context, unsigned int functionId)
 		break;
 	case 42:
 		context.m_State.nGPR[CMIPS::V0].nD0 = static_cast<int32>(__vsprintf(
-			context,
-			context.m_State.nGPR[CMIPS::A0].nV0,
-			context.m_State.nGPR[CMIPS::A1].nV0,
-			context.m_State.nGPR[CMIPS::A2].nV0
-			));
+		    context,
+		    context.m_State.nGPR[CMIPS::A0].nV0,
+		    context.m_State.nGPR[CMIPS::A1].nV0,
+		    context.m_State.nGPR[CMIPS::A2].nV0));
 		break;
 	default:
 		printf("%s(%08X): Unknown function (%d) called.\r\n", __FUNCTION__, context.m_State.nPC, functionId);
@@ -352,27 +337,26 @@ void CSysclib::__longjmp(CMIPS& context)
 uint32 CSysclib::__look_ctype_table(uint32 character)
 {
 	static const uint8 ctype_table[128] =
-	{
-		0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20,
-		0x20, 0x08, 0x08, 0x08, 0x08, 0x08, 0x20, 0x20,
-		0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20,
-		0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20,
+	    {
+	        0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20,
+	        0x20, 0x08, 0x08, 0x08, 0x08, 0x08, 0x20, 0x20,
+	        0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20,
+	        0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20,
 
-		0x18, 0x10, 0x10, 0x10, 0x10, 0x10, 0x10, 0x10,
-		0x10, 0x10, 0x10, 0x10, 0x10, 0x10, 0x10, 0x10,
-		0x04, 0x04, 0x04, 0x04, 0x04, 0x04, 0x04, 0x04,
-		0x04, 0x04, 0x10, 0x10, 0x10, 0x10, 0x10, 0x10,
+	        0x18, 0x10, 0x10, 0x10, 0x10, 0x10, 0x10, 0x10,
+	        0x10, 0x10, 0x10, 0x10, 0x10, 0x10, 0x10, 0x10,
+	        0x04, 0x04, 0x04, 0x04, 0x04, 0x04, 0x04, 0x04,
+	        0x04, 0x04, 0x10, 0x10, 0x10, 0x10, 0x10, 0x10,
 
-		0x10, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x01,
-		0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01,
-		0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01,
-		0x01, 0x01, 0x01, 0x10, 0x10, 0x10, 0x10, 0x10,
+	        0x10, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x01,
+	        0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01,
+	        0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01,
+	        0x01, 0x01, 0x01, 0x10, 0x10, 0x10, 0x10, 0x10,
 
-		0x10, 0x42, 0x42, 0x42, 0x42, 0x42, 0x42, 0x02,
-		0x02, 0x02, 0x02, 0x02, 0x02, 0x02, 0x02, 0x02,
-		0x02, 0x02, 0x02, 0x02, 0x02, 0x02, 0x02, 0x02,
-		0x02, 0x02, 0x02, 0x10, 0x10, 0x10, 0x10, 0x20
-	};
+	        0x10, 0x42, 0x42, 0x42, 0x42, 0x42, 0x42, 0x02,
+	        0x02, 0x02, 0x02, 0x02, 0x02, 0x02, 0x02, 0x02,
+	        0x02, 0x02, 0x02, 0x02, 0x02, 0x02, 0x02, 0x02,
+	        0x02, 0x02, 0x02, 0x10, 0x10, 0x10, 0x10, 0x20};
 
 	assert(character < 128);
 

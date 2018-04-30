@@ -18,53 +18,53 @@ namespace Psp
 	public:
 		enum
 		{
-			DEFAULT_RAMSIZE	= 0x02000000,
+			DEFAULT_RAMSIZE = 0x02000000,
 		};
 
-											CPsfSubSystem(uint32 = DEFAULT_RAMSIZE);
-		virtual								~CPsfSubSystem();
+		CPsfSubSystem(uint32 = DEFAULT_RAMSIZE);
+		virtual ~CPsfSubSystem();
 
-		void								Reset() override;
-		CMIPS&								GetCpu() override;
-		CMipsExecutor&						GetCpuExecutor() override;
-		uint8*								GetRam() override;
-		uint8*								GetSpr() override;
-		Iop::CSpuBase&						GetSpuCore(unsigned int) override;
+		void Reset() override;
+		CMIPS& GetCpu() override;
+		CMipsExecutor& GetCpuExecutor() override;
+		uint8* GetRam() override;
+		uint8* GetSpr() override;
+		Iop::CSpuBase& GetSpuCore(unsigned int) override;
 
 #ifdef DEBUGGER_INCLUDED
-		bool								MustBreak() override;
-		void								DisableBreakpointsOnce() override;
-		CBiosDebugInfoProvider*				GetBiosDebugInfoProvider() override;
-		void								LoadDebugTags(Framework::Xml::CNode*) override;
-		void								SaveDebugTags(Framework::Xml::CNode*) override;
+		bool MustBreak() override;
+		void DisableBreakpointsOnce() override;
+		CBiosDebugInfoProvider* GetBiosDebugInfoProvider() override;
+		void LoadDebugTags(Framework::Xml::CNode*) override;
+		void SaveDebugTags(Framework::Xml::CNode*) override;
 #endif
 
-		void								Update(bool, CSoundHandler*) override;
+		void Update(bool, CSoundHandler*) override;
 
-		Psp::CPsfBios&						GetBios();
+		Psp::CPsfBios& GetBios();
 
 	private:
 		enum SPURAMSIZE
 		{
-			SPURAMSIZE	= 0x400000,
+			SPURAMSIZE = 0x400000,
 		};
 
-		int									ExecuteCpu(bool);
+		int ExecuteCpu(bool);
 
-		CMIPS								m_cpu;
-		CMipsExecutor						m_executor;
-		CMA_ALLEGREX						m_cpuArch;
-		CCOP_SCU							m_copScu;
-		CCOP_FPU							m_copFpu;
-		uint8*								m_ram;
-		uint32								m_ramSize;
-		uint8*								m_spuRam;
-		Iop::CSpuBase						m_spuCore0;
-		Iop::CSpuBase						m_spuCore1;
-		Framework::CMemStream				m_audioStream;
-		int									m_samplesToFrame;
+		CMIPS m_cpu;
+		CMipsExecutor m_executor;
+		CMA_ALLEGREX m_cpuArch;
+		CCOP_SCU m_copScu;
+		CCOP_FPU m_copFpu;
+		uint8* m_ram;
+		uint32 m_ramSize;
+		uint8* m_spuRam;
+		Iop::CSpuBase m_spuCore0;
+		Iop::CSpuBase m_spuCore1;
+		Framework::CMemStream m_audioStream;
+		int m_samplesToFrame;
 
-		Psp::CPsfBios						m_bios;
+		Psp::CPsfBios m_bios;
 	};
 
 	typedef std::shared_ptr<CPsfSubSystem> PsfSubSystemPtr;

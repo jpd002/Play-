@@ -4,14 +4,14 @@
 #include "PsfTags.h"
 
 CPlaylistDiscoveryService::CPlaylistDiscoveryService()
-: m_threadActive(false)
-, m_commandQueue(5)
-, m_resultQueue(5)
-, m_runId(0)
-, m_charEncoding(CPsfTags::CE_WINDOWS_1252)
+    : m_threadActive(false)
+    , m_commandQueue(5)
+    , m_resultQueue(5)
+    , m_runId(0)
+    , m_charEncoding(CPsfTags::CE_WINDOWS_1252)
 {
 	m_threadActive = true;
-	m_thread = std::thread([&] () { ThreadProc(); });
+	m_thread = std::thread([&]() { ThreadProc(); });
 }
 
 CPlaylistDiscoveryService::~CPlaylistDiscoveryService()
@@ -28,10 +28,10 @@ void CPlaylistDiscoveryService::SetCharEncoding(const CPsfTags::CHAR_ENCODING& c
 void CPlaylistDiscoveryService::AddItemInRun(const CPsfPathToken& filePath, const boost::filesystem::path& archivePath, unsigned int itemId)
 {
 	COMMAND command;
-	command.runId		= m_runId;
-	command.itemId		= itemId;
-	command.filePath	= filePath;
-	command.archivePath	= archivePath;
+	command.runId = m_runId;
+	command.itemId = itemId;
+	command.filePath = filePath;
+	command.archivePath = archivePath;
 	m_pendingCommands.push_back(command);
 }
 
@@ -55,7 +55,7 @@ void CPlaylistDiscoveryService::ProcessPendingItems(CPlaylist& playlist)
 			break;
 		}
 	}
-	
+
 	{
 		RESULT result;
 		if(m_resultQueue.TryPop(result))
@@ -77,7 +77,7 @@ void CPlaylistDiscoveryService::ProcessPendingItems(CPlaylist& playlist)
 void CPlaylistDiscoveryService::ThreadProc()
 {
 	ResultQueue pendingResults;
-	
+
 	while(m_threadActive)
 	{
 		COMMAND command;
@@ -90,7 +90,7 @@ void CPlaylistDiscoveryService::ThreadProc()
 				CPsfBase psfFile(*inputStream);
 				CPsfTags tags(CPsfTags::TagMap(psfFile.GetTagsBegin(), psfFile.GetTagsEnd()));
 				tags.SetDefaultCharEncoding(m_charEncoding);
-				
+
 				RESULT result;
 				result.runId = command.runId;
 				result.itemId = command.itemId;
@@ -102,7 +102,7 @@ void CPlaylistDiscoveryService::ThreadProc()
 				//assert(0);
 			}
 		}
-		
+
 		while(pendingResults.size() != 0)
 		{
 			const auto& command(*pendingResults.begin());
@@ -115,7 +115,7 @@ void CPlaylistDiscoveryService::ThreadProc()
 				break;
 			}
 		}
-		
+
 		std::this_thread::sleep_for(std::chrono::milliseconds(100));
 	}
 }

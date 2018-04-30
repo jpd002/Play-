@@ -5,8 +5,7 @@
 
 struct uint128
 {
-	union
-	{
+	union {
 		struct
 		{
 			uint32 nV[4];

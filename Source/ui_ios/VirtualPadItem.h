@@ -8,9 +8,9 @@
 @property CPH_Generic* padHandler;
 @property UIImage* image;
 
--(void)draw: (CGContextRef)context;
--(void)onPointerDown: (CGPoint)position;
--(void)onPointerMove: (CGPoint)position;
--(void)onPointerUp;
+- (void)draw:(CGContextRef)context;
+- (void)onPointerDown:(CGPoint)position;
+- (void)onPointerMove:(CGPoint)position;
+- (void)onPointerUp;
 
 @end

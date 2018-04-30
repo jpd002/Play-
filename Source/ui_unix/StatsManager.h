@@ -9,26 +9,26 @@
 class CStatsManager : public CSingleton<CStatsManager>
 {
 public:
-	void			OnNewFrame(uint32);
-	
-	uint32			GetFrames();
-	uint32			GetDrawCalls();
+	void OnNewFrame(uint32);
+
+	uint32 GetFrames();
+	uint32 GetDrawCalls();
 #ifdef PROFILE
-	std::string		GetProfilingInfo();
+	std::string GetProfilingInfo();
 #endif
 
-	void			ClearStats();
-	
+	void ClearStats();
+
 #ifdef PROFILE
-	void			OnProfileFrameDone(const CProfiler::ZoneArray&);
+	void OnProfileFrameDone(const CProfiler::ZoneArray&);
 #endif
-	
+
 private:
-	std::mutex		m_statsMutex;
-	
-	uint32			m_frames = 0;
-	uint32			m_drawCalls = 0;
-	
+	std::mutex m_statsMutex;
+
+	uint32 m_frames = 0;
+	uint32 m_drawCalls = 0;
+
 #ifdef PROFILE
 	struct ZONEINFO
 	{
@@ -39,7 +39,7 @@ private:
 
 	typedef std::map<std::string, ZONEINFO> ZoneMap;
 
-	std::mutex				m_profilerZonesMutex;
-	ZoneMap					m_profilerZones;
+	std::mutex m_profilerZonesMutex;
+	ZoneMap m_profilerZones;
 #endif
 };

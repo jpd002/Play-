@@ -1,26 +1,25 @@
 #include "FrameBufferWindow.h"
 
-#define CLSNAME		_T("COutputWnd")
+#define CLSNAME _T("COutputWnd")
 
 using namespace Framework;
 
 PIXELFORMATDESCRIPTOR CFrameBufferWindow::m_PFD =
-{
-	sizeof(PIXELFORMATDESCRIPTOR),
-	1,
-	PFD_DRAW_TO_WINDOW | PFD_SUPPORT_OPENGL | PFD_DOUBLEBUFFER,
-	PFD_TYPE_RGBA,
-	32,
-	0, 0, 0, 0, 0, 0,
-	0, 0, 0, 0, 0, 0,
-	0,
-	32,
-	0,
-	0,
-	PFD_MAIN_PLANE,
-	0,
-	0, 0, 0
-};
+    {
+        sizeof(PIXELFORMATDESCRIPTOR),
+        1,
+        PFD_DRAW_TO_WINDOW | PFD_SUPPORT_OPENGL | PFD_DOUBLEBUFFER,
+        PFD_TYPE_RGBA,
+        32,
+        0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0,
+        0,
+        32,
+        0,
+        0,
+        PFD_MAIN_PLANE,
+        0,
+        0, 0, 0};
 
 CFrameBufferWindow::CFrameBufferWindow(HWND hParent)
 {
@@ -28,13 +27,13 @@ CFrameBufferWindow::CFrameBufferWindow(HWND hParent)
 	{
 		WNDCLASSEX wc;
 		memset(&wc, 0, sizeof(WNDCLASSEX));
-		wc.cbSize			= sizeof(WNDCLASSEX);
-		wc.hCursor			= LoadCursor(NULL, IDC_ARROW);
-		wc.hbrBackground	= NULL;
-		wc.hInstance		= GetModuleHandle(NULL);
-		wc.lpszClassName	= CLSNAME;
-		wc.lpfnWndProc		= CWindow::WndProc;
-		wc.style			= CS_OWNDC | CS_HREDRAW | CS_VREDRAW;
+		wc.cbSize = sizeof(WNDCLASSEX);
+		wc.hCursor = LoadCursor(NULL, IDC_ARROW);
+		wc.hbrBackground = NULL;
+		wc.hInstance = GetModuleHandle(NULL);
+		wc.lpszClassName = CLSNAME;
+		wc.lpfnWndProc = CWindow::WndProc;
+		wc.style = CS_OWNDC | CS_HREDRAW | CS_VREDRAW;
 		RegisterClassEx(&wc);
 	}
 
@@ -63,9 +62,9 @@ CFrameBufferWindow::~CFrameBufferWindow()
 
 long CFrameBufferWindow::OnPaint()
 {
-//	PAINTSTRUCT ps;
-//	BeginPaint(m_hWnd, &ps);
-//	EndPaint(m_hWnd, &ps);
+	//	PAINTSTRUCT ps;
+	//	BeginPaint(m_hWnd, &ps);
+	//	EndPaint(m_hWnd, &ps);
 	return TRUE;
 }
 
@@ -89,7 +88,7 @@ long CFrameBufferWindow::OnTimer(WPARAM timerId)
 	{
 		glTexCoord2f(0.0f, 0.0f);
 		glVertex2f(0.0f, 0.0f);
-		
+
 		glTexCoord2f(m_texWidth, 0.0f);
 		glVertex2f(1.0f, 0.0f);
 
@@ -136,7 +135,7 @@ void CFrameBufferWindow::SetImage(unsigned int width, unsigned int height, uint8
 	glTexParameteri(GL_TEXTURE_RECTANGLE_ARB, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_RECTANGLE_ARB, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexImage2D(GL_TEXTURE_RECTANGLE_ARB, 0, GL_RGBA8, width, height, 0, GL_BGRA, GL_UNSIGNED_BYTE, buffer);
-//	glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
+	//	glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
 
 	m_texWidth = width;
 	m_texHeight = height;

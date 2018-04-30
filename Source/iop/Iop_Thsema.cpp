@@ -6,24 +6,22 @@
 
 using namespace Iop;
 
-#define FUNCTION_CREATESEMAPHORE	"CreateSemaphore"
-#define FUNCTION_DELETESEMAPHORE	"DeleteSemaphore"
-#define FUNCTION_SIGNALSEMAPHORE	"SignalSemaphore"
-#define FUNCTION_ISIGNALSEMAPHORE	"iSignalSemaphore"
-#define FUNCTION_WAITSEMAPHORE		"WaitSemaphore"
-#define FUNCTION_POLLSEMAPHORE		"PollSemaphore"
-#define FUNCTION_REFERSEMASTATUS	"ReferSemaStatus"
+#define FUNCTION_CREATESEMAPHORE "CreateSemaphore"
+#define FUNCTION_DELETESEMAPHORE "DeleteSemaphore"
+#define FUNCTION_SIGNALSEMAPHORE "SignalSemaphore"
+#define FUNCTION_ISIGNALSEMAPHORE "iSignalSemaphore"
+#define FUNCTION_WAITSEMAPHORE "WaitSemaphore"
+#define FUNCTION_POLLSEMAPHORE "PollSemaphore"
+#define FUNCTION_REFERSEMASTATUS "ReferSemaStatus"
 
 CThsema::CThsema(CIopBios& bios, uint8* ram)
-: m_bios(bios)
-, m_ram(ram)
+    : m_bios(bios)
+    , m_ram(ram)
 {
-
 }
 
 CThsema::~CThsema()
 {
-
 }
 
 std::string CThsema::GetId() const
@@ -68,39 +66,32 @@ void CThsema::Invoke(CMIPS& context, unsigned int functionId)
 	{
 	case 4:
 		context.m_State.nGPR[CMIPS::V0].nD0 = static_cast<int32>(CreateSemaphore(
-			reinterpret_cast<SEMAPHORE*>(&m_ram[context.m_State.nGPR[CMIPS::A0].nV0])
-			));
+		    reinterpret_cast<SEMAPHORE*>(&m_ram[context.m_State.nGPR[CMIPS::A0].nV0])));
 		break;
 	case 5:
 		context.m_State.nGPR[CMIPS::V0].nD0 = static_cast<int32>(DeleteSemaphore(
-			context.m_State.nGPR[CMIPS::A0].nV0
-			));
+		    context.m_State.nGPR[CMIPS::A0].nV0));
 		break;
 	case 6:
 		context.m_State.nGPR[CMIPS::V0].nD0 = static_cast<int32>(SignalSemaphore(
-			context.m_State.nGPR[CMIPS::A0].nV0
-			));
+		    context.m_State.nGPR[CMIPS::A0].nV0));
 		break;
 	case 7:
 		context.m_State.nGPR[CMIPS::V0].nD0 = static_cast<int32>(iSignalSemaphore(
-			context.m_State.nGPR[CMIPS::A0].nV0
-			));
+		    context.m_State.nGPR[CMIPS::A0].nV0));
 		break;
 	case 8:
 		context.m_State.nGPR[CMIPS::V0].nD0 = static_cast<int32>(WaitSemaphore(
-			context.m_State.nGPR[CMIPS::A0].nV0
-			));
+		    context.m_State.nGPR[CMIPS::A0].nV0));
 		break;
 	case 9:
 		context.m_State.nGPR[CMIPS::V0].nD0 = static_cast<int32>(PollSemaphore(
-			context.m_State.nGPR[CMIPS::A0].nV0
-			));
+		    context.m_State.nGPR[CMIPS::A0].nV0));
 		break;
 	case 11:
 		context.m_State.nGPR[CMIPS::V0].nD0 = static_cast<int32>(ReferSemaphoreStatus(
-			context.m_State.nGPR[CMIPS::A0].nV0,
-			context.m_State.nGPR[CMIPS::A1].nV0
-			));
+		    context.m_State.nGPR[CMIPS::A0].nV0,
+		    context.m_State.nGPR[CMIPS::A1].nV0));
 		break;
 	default:
 		CLog::GetInstance().Print(LOG_NAME, "Unknown function (%d) called at (%08X).\r\n", functionId, context.m_State.nPC);

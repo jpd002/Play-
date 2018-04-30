@@ -26,7 +26,7 @@ uint32 CStatsManager::GetDrawCalls()
 std::string CStatsManager::GetProfilingInfo()
 {
 	std::lock_guard<std::mutex> profileZonesLock(m_profilerZonesMutex);
-	
+
 	std::string result;
 	uint64 totalTime = 0;
 
@@ -44,11 +44,10 @@ std::string CStatsManager::GetProfilingInfo()
 		float minMsSpent = (zoneInfo.minValue != ~0ULL) ? static_cast<double>(zoneInfo.minValue) / static_cast<double>(1000) : 0;
 		float maxMsSpent = static_cast<double>(zoneInfo.maxValue) / static_cast<double>(1000);
 
-		result += string_format("%10s %6.2f%% %6.2fms %6.2fms %6.2fms\r\n", 
-			zonePair.first.c_str(), avgRatioSpent * 100.f, avgMsSpent, minMsSpent, maxMsSpent
-		);
+		result += string_format("%10s %6.2f%% %6.2fms %6.2fms %6.2fms\r\n",
+		                        zonePair.first.c_str(), avgRatioSpent * 100.f, avgMsSpent, minMsSpent, maxMsSpent);
 	}
-	
+
 	return result;
 }
 
@@ -60,7 +59,10 @@ void CStatsManager::ClearStats()
 	m_frames = 0;
 	m_drawCalls = 0;
 #ifdef PROFILE
-	for(auto& zonePair : m_profilerZones) { zonePair.second.currentValue = 0; }
+	for(auto& zonePair : m_profilerZones)
+	{
+		zonePair.second.currentValue = 0;
+	}
 #endif
 }
 

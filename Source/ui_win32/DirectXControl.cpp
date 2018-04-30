@@ -4,26 +4,26 @@
 #include <vsstyle.h>
 #include <vssym32.h>
 
-#define CLSNAME							_T("DirectXControl")
-#define WNDSTYLE						(WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_TABSTOP)
-#define WNDSTYLEEX						(0)
+#define CLSNAME _T("DirectXControl")
+#define WNDSTYLE (WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_TABSTOP)
+#define WNDSTYLEEX (0)
 
 CDirectXControl::CDirectXControl(HWND parentWnd, uint32 wndStyle)
-: m_deviceLost(false)
-, m_isThemeActive(false)
-, m_theme(NULL)
-, m_mouseInside(false)
+    : m_deviceLost(false)
+    , m_isThemeActive(false)
+    , m_theme(NULL)
+    , m_mouseInside(false)
 {
 	if(!DoesWindowClassExist(CLSNAME))
 	{
 		WNDCLASSEX w;
 		memset(&w, 0, sizeof(WNDCLASSEX));
-		w.cbSize		= sizeof(WNDCLASSEX);
-		w.lpfnWndProc	= CWindow::WndProc;
-		w.lpszClassName	= CLSNAME;
+		w.cbSize = sizeof(WNDCLASSEX);
+		w.lpfnWndProc = CWindow::WndProc;
+		w.lpszClassName = CLSNAME;
 		w.hbrBackground = NULL;
-		w.hInstance		= GetModuleHandle(NULL);
-		w.hCursor		= LoadCursor(NULL, IDC_ARROW);
+		w.hInstance = GetModuleHandle(NULL);
+		w.hCursor = LoadCursor(NULL, IDC_ARROW);
 		RegisterClassEx(&w);
 	}
 
@@ -44,8 +44,8 @@ CDirectXControl::~CDirectXControl()
 
 D3DCOLOR CDirectXControl::ConvertSysColor(DWORD color)
 {
-	uint8 r = static_cast<uint8>(color >>  0);
-	uint8 g = static_cast<uint8>(color >>  8);
+	uint8 r = static_cast<uint8>(color >> 0);
+	uint8 g = static_cast<uint8>(color >> 8);
 	uint8 b = static_cast<uint8>(color >> 16);
 	return D3DCOLOR_XRGB(r, g, b);
 }
@@ -111,11 +111,11 @@ long CDirectXControl::OnNcCalcSize(WPARAM wParam, LPARAM lParam)
 
 		InflateRect(&dstRect, -1, -1);
 
-		SetRect(&m_borderRect, 
-			dstRect.left - srcRect.left,
-			dstRect.top - srcRect.top,
-			srcRect.right - dstRect.right,
-			srcRect.bottom - dstRect.bottom); 
+		SetRect(&m_borderRect,
+		        dstRect.left - srcRect.left,
+		        dstRect.top - srcRect.top,
+		        srcRect.right - dstRect.right,
+		        srcRect.bottom - dstRect.bottom);
 
 		CopyRect(clientRect, &dstRect);
 	}
@@ -139,10 +139,10 @@ long CDirectXControl::OnNcPaint(WPARAM wParam)
 
 		RECT clientRect;
 		CopyRect(&clientRect, &windowRect);
-		clientRect.left		+= m_borderRect.left;
-		clientRect.top		+= m_borderRect.top;
-		clientRect.right	-= m_borderRect.right;
-		clientRect.bottom	-= m_borderRect.bottom;
+		clientRect.left += m_borderRect.left;
+		clientRect.top += m_borderRect.top;
+		clientRect.right -= m_borderRect.right;
+		clientRect.bottom -= m_borderRect.bottom;
 
 		ExcludeClipRect(hDC, clientRect.left, clientRect.top, clientRect.right, clientRect.bottom);
 
@@ -178,9 +178,9 @@ long CDirectXControl::OnMouseMove(WPARAM, int, int)
 	}
 	TRACKMOUSEEVENT trackMouse;
 	memset(&trackMouse, 0, sizeof(TRACKMOUSEEVENT));
-	trackMouse.cbSize		= sizeof(TRACKMOUSEEVENT);
-	trackMouse.dwFlags		= TME_LEAVE;
-	trackMouse.hwndTrack	= m_hWnd;
+	trackMouse.cbSize = sizeof(TRACKMOUSEEVENT);
+	trackMouse.dwFlags = TME_LEAVE;
+	trackMouse.hwndTrack = m_hWnd;
 	TrackMouseEvent(&trackMouse);
 	return TRUE;
 }
@@ -226,7 +226,7 @@ void CDirectXControl::Initialize()
 
 void CDirectXControl::InitializeTheme()
 {
-	typedef void (WINAPI *DllGetVersionProc)(DLLVERSIONINFO*);
+	typedef void(WINAPI * DllGetVersionProc)(DLLVERSIONINFO*);
 
 	HMODULE comCtlModule = LoadLibrary(_T("comctl32.dll"));
 	DllGetVersionProc comCtlGetVersion = reinterpret_cast<DllGetVersionProc>(GetProcAddress(comCtlModule, "DllGetVersion"));
@@ -254,11 +254,11 @@ void CDirectXControl::CreateDevice()
 {
 	D3DPRESENT_PARAMETERS d3dpp(CreatePresentParams());
 	HRESULT result = m_d3d->CreateDevice(D3DADAPTER_DEFAULT,
-		D3DDEVTYPE_HAL,
-		m_hWnd,
-		D3DCREATE_SOFTWARE_VERTEXPROCESSING,
-		&d3dpp,
-		&m_device);
+	                                     D3DDEVTYPE_HAL,
+	                                     m_hWnd,
+	                                     D3DCREATE_SOFTWARE_VERTEXPROCESSING,
+	                                     &d3dpp,
+	                                     &m_device);
 
 	if(FAILED(result))
 	{
@@ -323,13 +323,13 @@ D3DPRESENT_PARAMETERS CDirectXControl::CreatePresentParams()
 
 	D3DPRESENT_PARAMETERS d3dpp;
 	memset(&d3dpp, 0, sizeof(D3DPRESENT_PARAMETERS));
-	d3dpp.Windowed					= TRUE;
-	d3dpp.SwapEffect				= D3DSWAPEFFECT_DISCARD;
-	d3dpp.hDeviceWindow				= m_hWnd;
-	d3dpp.BackBufferFormat			= D3DFMT_X8R8G8B8;
-	d3dpp.BackBufferWidth			= clientAreaWidth;
-	d3dpp.BackBufferHeight			= clientAreaHeight;
-	d3dpp.EnableAutoDepthStencil	= TRUE;
-	d3dpp.AutoDepthStencilFormat	= D3DFMT_D16;
+	d3dpp.Windowed = TRUE;
+	d3dpp.SwapEffect = D3DSWAPEFFECT_DISCARD;
+	d3dpp.hDeviceWindow = m_hWnd;
+	d3dpp.BackBufferFormat = D3DFMT_X8R8G8B8;
+	d3dpp.BackBufferWidth = clientAreaWidth;
+	d3dpp.BackBufferHeight = clientAreaHeight;
+	d3dpp.EnableAutoDepthStencil = TRUE;
+	d3dpp.AutoDepthStencilFormat = D3DFMT_D16;
 	return d3dpp;
 }

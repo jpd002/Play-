@@ -7,17 +7,17 @@
 class CRegViewPage : public Framework::Win32::CCustomDrawn
 {
 public:
-									CRegViewPage(HWND, const RECT&);
-	virtual							~CRegViewPage();
+	CRegViewPage(HWND, const RECT&);
+	virtual ~CRegViewPage();
 
-	virtual void					Update();
+	virtual void Update();
 
 protected:
-	void							SetDisplayText(const char*);
-	long							OnVScroll(unsigned int, unsigned int) override;
-	long							OnSize(unsigned int, unsigned int, unsigned int) override;
-	long							OnMouseWheel(int, int, short) override;
-	long							OnLeftButtonDown(int, int) override;
+	void SetDisplayText(const char*);
+	long OnVScroll(unsigned int, unsigned int) override;
+	long OnSize(unsigned int, unsigned int, unsigned int) override;
+	long OnMouseWheel(int, int, short) override;
+	long OnLeftButtonDown(int, int) override;
 
 private:
 	struct RENDERMETRICS
@@ -29,16 +29,16 @@ private:
 		int fontSizeY = 0;
 	};
 
-	void							Paint(HDC);
+	void Paint(HDC);
 
-	static unsigned int				GetLineCount(const char*);
-	unsigned int					GetVisibleLineCount();
-	void							UpdateScroll();
+	static unsigned int GetLineCount(const char*);
+	unsigned int GetVisibleLineCount();
+	void UpdateScroll();
 
-	unsigned int					GetScrollPosition();
-	unsigned int					GetScrollThumbPosition();
+	unsigned int GetScrollPosition();
+	unsigned int GetScrollThumbPosition();
 
-	Framework::Win32::CFont			m_font;
-	std::string						m_text;
-	RENDERMETRICS					m_renderMetrics;
+	Framework::Win32::CFont m_font;
+	std::string m_text;
+	RENDERMETRICS m_renderMetrics;
 };

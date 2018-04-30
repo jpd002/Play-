@@ -26,14 +26,14 @@ struct FILEVERTEXATTRIB
 #pragma pack(pop)
 
 CIcon::CIcon(Framework::CStream& stream)
-: m_pTexture(NULL)
-, m_pTexCoords(NULL)
-, m_pFrames(NULL)
-, m_pShapes(NULL)
-, m_nShapeCount(0)
-, m_nVertexCount(0)
-, m_nTextureType(0)
-, m_nFrameCount(0)
+    : m_pTexture(NULL)
+    , m_pTexCoords(NULL)
+    , m_pFrames(NULL)
+    , m_pShapes(NULL)
+    , m_nShapeCount(0)
+    , m_nVertexCount(0)
+    , m_nTextureType(0)
+    , m_nFrameCount(0)
 {
 	ReadHeader(stream);
 	ReadVertices(stream);
@@ -43,22 +43,22 @@ CIcon::CIcon(Framework::CStream& stream)
 
 CIcon::~CIcon()
 {
-	delete [] m_pTexture;
-	delete [] m_pTexCoords;
+	delete[] m_pTexture;
+	delete[] m_pTexCoords;
 
 	for(unsigned int i = 0; i < m_nFrameCount; i++)
 	{
-		delete [] m_pFrames[i].pKeys;
+		delete[] m_pFrames[i].pKeys;
 	}
 
-	delete [] m_pFrames;
+	delete[] m_pFrames;
 
 	for(unsigned int i = 0; i < m_nShapeCount; i++)
 	{
-		delete [] m_pShapes[i];
+		delete[] m_pShapes[i];
 	}
 
-	delete [] m_pShapes;
+	delete[] m_pShapes;
 }
 
 const CIcon::VERTEX* CIcon::GetShape(unsigned int nShapeIdx) const
@@ -112,10 +112,10 @@ void CIcon::ReadHeader(Framework::CStream& iconStream)
 	m_nVertexCount = iconStream.Read32();
 
 	if((m_nTextureType != 0x06) &&
-		(m_nTextureType != 0x07) &&
-		(m_nTextureType != 0x0C) &&
-		(m_nTextureType != 0x0E) &&
-		(m_nTextureType != 0x0F))
+	   (m_nTextureType != 0x07) &&
+	   (m_nTextureType != 0x0C) &&
+	   (m_nTextureType != 0x0E) &&
+	   (m_nTextureType != 0x0F))
 	{
 		throw std::runtime_error("Unknown texture format.");
 	}
@@ -156,7 +156,7 @@ void CIcon::ReadVertices(Framework::CStream& iconStream)
 void CIcon::ReadAnimations(Framework::CStream& iconStream)
 {
 	uint32 nMagic = iconStream.Read32();
-	
+
 	if(nMagic != 0x01)
 	{
 		throw std::runtime_error("Invalid icon file (Animation Header Broken).");
@@ -217,7 +217,7 @@ void CIcon::UncompressTexture(Framework::CStream& iconStream)
 			}
 		}
 		else
-		{			
+		{
 			uint16 nValue = iconStream.Read16();
 			for(unsigned int i = 0; i < nCode; i++)
 			{

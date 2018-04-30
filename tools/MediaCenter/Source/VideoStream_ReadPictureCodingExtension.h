@@ -10,11 +10,11 @@ namespace VideoStream
 	class ReadPictureCodingExtension : public Program
 	{
 	public:
-										ReadPictureCodingExtension();
-		virtual							~ReadPictureCodingExtension();
+		ReadPictureCodingExtension();
+		virtual ~ReadPictureCodingExtension();
 
-		void							Reset();
-		void							Execute(void*, Framework::CBitStream&);
+		void Reset();
+		void Execute(void*, Framework::CBitStream&);
 
 	private:
 		enum PROGRAM_STATE
@@ -26,8 +26,8 @@ namespace VideoStream
 
 		typedef ReadStructure<PICTURE_CODING_EXTENSION> ReadPictureCodingExtensionStructure;
 
-		ReadPictureCodingExtensionStructure		m_readPictureCodingExtensionProgram;
-		PROGRAM_STATE							m_programState;
+		ReadPictureCodingExtensionStructure m_readPictureCodingExtensionProgram;
+		PROGRAM_STATE m_programState;
 	};
 }
 

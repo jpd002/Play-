@@ -7,23 +7,21 @@
 class CMemoryCard
 {
 public:
-	typedef std::shared_ptr<CSave>		SavePtr;
-	typedef std::vector<SavePtr>		SaveList;
+	typedef std::shared_ptr<CSave> SavePtr;
+	typedef std::vector<SavePtr> SaveList;
 
-									CMemoryCard(const boost::filesystem::path&);
-	virtual							~CMemoryCard() = default;
+	CMemoryCard(const boost::filesystem::path&);
+	virtual ~CMemoryCard() = default;
 
-	size_t							GetSaveCount() const;
-	const CSave*					GetSaveByIndex(size_t) const;
+	size_t GetSaveCount() const;
+	const CSave* GetSaveByIndex(size_t) const;
 
-	boost::filesystem::path			GetBasePath() const;
-	void							RefreshContents();
+	boost::filesystem::path GetBasePath() const;
+	void RefreshContents();
 
 private:
+	void ScanSaves();
 
-	void							ScanSaves();
-
-	SaveList						m_saves;
-	boost::filesystem::path			m_basePath;
-
+	SaveList m_saves;
+	boost::filesystem::path m_basePath;
 };

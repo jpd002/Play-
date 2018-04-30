@@ -54,26 +54,25 @@ uint64 CS3ObjectStream::Read(void* buffer, uint64 size)
 	fflush(output);
 #endif
 
-	bool cachedReadSucceeded = 
-		[&]()
-		{
-			try
-			{
-				if(boost::filesystem::exists(readCacheFilePath))
-				{
-					auto readCacheFileStream = Framework::CreateInputStdStream(readCacheFilePath.native());
-					auto cacheRead = readCacheFileStream.Read(buffer, size);
-					assert(cacheRead == size);
-					return true;
-				}
-			}
-			catch(const std::exception& exception)
-			{
-				//Not a problem if we failed to read cache
-				CLog::GetInstance().Print(LOG_NAME, "Failed to read cache: '%s'.\r\n", exception.what());
-			}
-			return false;
-		} ();
+	bool cachedReadSucceeded =
+	    [&]() {
+		    try
+		    {
+			    if(boost::filesystem::exists(readCacheFilePath))
+			    {
+				    auto readCacheFileStream = Framework::CreateInputStdStream(readCacheFilePath.native());
+				    auto cacheRead = readCacheFileStream.Read(buffer, size);
+				    assert(cacheRead == size);
+				    return true;
+			    }
+		    }
+		    catch(const std::exception& exception)
+		    {
+			    //Not a problem if we failed to read cache
+			    CLog::GetInstance().Print(LOG_NAME, "Failed to read cache: '%s'.\r\n", exception.what());
+		    }
+		    return false;
+	    }();
 
 	if(!cachedReadSucceeded)
 	{

@@ -12,21 +12,21 @@
 #include "../PS2VM_Preferences.h"
 #include "../AppDef.h"
 
-#define CLSNAME			_T("CMcManagerWnd")
-#define WNDSTYLE		(WS_CAPTION | WS_POPUP | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_SYSMENU)
-#define WNDSTYLEEX		(WS_EX_DLGMODALFRAME)
-#define SCALE(x)		MulDiv(x, ydpi, 96)
+#define CLSNAME _T("CMcManagerWnd")
+#define WNDSTYLE (WS_CAPTION | WS_POPUP | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_SYSMENU)
+#define WNDSTYLEEX (WS_EX_DLGMODALFRAME)
+#define SCALE(x) MulDiv(x, ydpi, 96)
 
 namespace filesystem = boost::filesystem;
 
-CMcManagerWnd::CMcManagerWnd(HWND hParent) 
-: CModalWindow(hParent)
-, m_MemoryCard0(CAppConfig::GetInstance().GetPreferencePath(PREF_PS2_MC0_DIRECTORY))
-, m_MemoryCard1(CAppConfig::GetInstance().GetPreferencePath(PREF_PS2_MC1_DIRECTORY))
+CMcManagerWnd::CMcManagerWnd(HWND hParent)
+    : CModalWindow(hParent)
+    , m_MemoryCard0(CAppConfig::GetInstance().GetPreferencePath(PREF_PS2_MC0_DIRECTORY))
+    , m_MemoryCard1(CAppConfig::GetInstance().GetPreferencePath(PREF_PS2_MC1_DIRECTORY))
 {
-	m_pImportButton		= NULL;
-	m_pCloseButton		= NULL;
-	m_pMemoryCardList	= NULL;
+	m_pImportButton = NULL;
+	m_pCloseButton = NULL;
+	m_pMemoryCardList = NULL;
 
 	m_pMemoryCard[0] = &m_MemoryCard0;
 	m_pMemoryCard[1] = &m_MemoryCard1;
@@ -37,13 +37,13 @@ CMcManagerWnd::CMcManagerWnd(HWND hParent)
 	{
 		WNDCLASSEX wc;
 		memset(&wc, 0, sizeof(WNDCLASSEX));
-		wc.cbSize			= sizeof(WNDCLASSEX);
-		wc.hCursor			= LoadCursor(NULL, IDC_ARROW);
-		wc.hbrBackground	= (HBRUSH)GetSysColorBrush(COLOR_BTNFACE); 
-		wc.hInstance		= GetModuleHandle(NULL);
-		wc.lpszClassName	= CLSNAME;
-		wc.lpfnWndProc		= CWindow::WndProc;
-		wc.style			= CS_OWNDC | CS_HREDRAW | CS_VREDRAW;
+		wc.cbSize = sizeof(WNDCLASSEX);
+		wc.hCursor = LoadCursor(NULL, IDC_ARROW);
+		wc.hbrBackground = (HBRUSH)GetSysColorBrush(COLOR_BTNFACE);
+		wc.hInstance = GetModuleHandle(NULL);
+		wc.lpszClassName = CLSNAME;
+		wc.lpfnWndProc = CWindow::WndProc;
+		wc.style = CS_OWNDC | CS_HREDRAW | CS_VREDRAW;
 		RegisterClassEx(&wc);
 	}
 
@@ -54,11 +54,11 @@ CMcManagerWnd::CMcManagerWnd(HWND hParent)
 
 	RECT rc = GetClientRect();
 
-	m_pMemoryCardList	= new Framework::Win32::CComboBox(m_hWnd, rc, CBS_DROPDOWNLIST | WS_VSCROLL);
-	m_pImportButton		= new Framework::Win32::CButton(_T("Import Save(s)..."), m_hWnd, rc);
-	m_pCloseButton		= new Framework::Win32::CButton(_T("Close"), m_hWnd, rc);
-	m_pMemoryCardView	= new CMemoryCardView(m_hWnd, rc);
-	m_pSaveView			= new CSaveView(m_hWnd);
+	m_pMemoryCardList = new Framework::Win32::CComboBox(m_hWnd, rc, CBS_DROPDOWNLIST | WS_VSCROLL);
+	m_pImportButton = new Framework::Win32::CButton(_T("Import Save(s)..."), m_hWnd, rc);
+	m_pCloseButton = new Framework::Win32::CButton(_T("Close"), m_hWnd, rc);
+	m_pMemoryCardView = new CMemoryCardView(m_hWnd, rc);
+	m_pSaveView = new CSaveView(m_hWnd);
 
 	m_pSaveView->OnDeleteClick.connect(bind(&CMcManagerWnd::Delete, this, PLACEHOLDER_1));
 	m_pMemoryCardView->OnSelectionChange.connect(bind(&CSaveView::SetSave, m_pSaveView, PLACEHOLDER_1));
@@ -98,7 +98,6 @@ CMcManagerWnd::CMcManagerWnd(HWND hParent)
 
 CMcManagerWnd::~CMcManagerWnd()
 {
-
 }
 
 void CMcManagerWnd::RefreshLayout()
@@ -149,12 +148,12 @@ long CMcManagerWnd::OnCommand(unsigned short nId, unsigned short nCmd, HWND hWnd
 void CMcManagerWnd::Import()
 {
 	Framework::Win32::CFileDialog FileDialog;
-	FileDialog.m_OFN.lpstrFilter = 
-		_T("All supported types\0*.psu;*.sps;*.xps;*.max\0")
-		_T("EMS Memory Adapter Save Dumps (*.psu)\0*.psu\0")
-		_T("Sharkport/X-Port Save Dumps (*.sps; *.xps)\0*.sps;*.xps\0")
-		_T("Action Replay MAX Save Dumps (*.max)\0*.max\0")
-		_T("All files (*.*)\0*.*\0");
+	FileDialog.m_OFN.lpstrFilter =
+	    _T("All supported types\0*.psu;*.sps;*.xps;*.max\0")
+	    _T("EMS Memory Adapter Save Dumps (*.psu)\0*.psu\0")
+	    _T("Sharkport/X-Port Save Dumps (*.sps; *.xps)\0*.sps;*.xps\0")
+	    _T("Action Replay MAX Save Dumps (*.max)\0*.max\0")
+	    _T("All files (*.*)\0*.*\0");
 
 	Enable(FALSE);
 	unsigned int nRet = FileDialog.SummonOpen(m_hWnd);
@@ -165,8 +164,8 @@ void CMcManagerWnd::Import()
 	try
 	{
 		auto input(Framework::CreateInputStdStream(std::tstring(FileDialog.GetPath())));
-		CSaveImporter::ImportSave(input, m_pCurrentMemoryCard->GetBasePath(), 
-			std::bind(&CMcManagerWnd::OnImportOverwrite, this, PLACEHOLDER_1));
+		CSaveImporter::ImportSave(input, m_pCurrentMemoryCard->GetBasePath(),
+		                          std::bind(&CMcManagerWnd::OnImportOverwrite, this, PLACEHOLDER_1));
 	}
 	catch(const std::exception& Exception)
 	{
@@ -180,7 +179,7 @@ void CMcManagerWnd::Import()
 	m_pCurrentMemoryCard->RefreshContents();
 	m_pMemoryCardView->SetMemoryCard(m_pCurrentMemoryCard);
 
-	MessageBox(m_hWnd, _T("Save imported successfully."), APP_NAME, MB_ICONINFORMATION); 
+	MessageBox(m_hWnd, _T("Save imported successfully."), APP_NAME, MB_ICONINFORMATION);
 }
 
 void CMcManagerWnd::Delete(const CSave* pSave)
@@ -202,10 +201,10 @@ void CMcManagerWnd::Delete(const CSave* pSave)
 	//Construct the FILEOP structure
 	SHFILEOPSTRUCT FileOp;
 	memset(&FileOp, 0, sizeof(SHFILEOPSTRUCT));
-	FileOp.hwnd		= m_hWnd;
-	FileOp.wFunc	= FO_DELETE;
-	FileOp.fFlags	= FOF_NOCONFIRMATION;
-	FileOp.pFrom	= sFromList;
+	FileOp.hwnd = m_hWnd;
+	FileOp.wFunc = FO_DELETE;
+	FileOp.fFlags = FOF_NOCONFIRMATION;
+	FileOp.pFrom = sFromList;
 	SHFileOperation(&FileOp);
 
 	m_pCurrentMemoryCard->RefreshContents();

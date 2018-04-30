@@ -26,7 +26,7 @@ void CMailBox::WaitForCall(unsigned int timeOut)
 
 void CMailBox::FlushCalls()
 {
-	SendCall([] () { }, true);
+	SendCall([]() {}, true);
 }
 
 void CMailBox::SendCall(const FunctionType& function, bool waitForCompletion)
@@ -36,10 +36,10 @@ void CMailBox::SendCall(const FunctionType& function, bool waitForCompletion)
 	{
 		MESSAGE message;
 		message.function = function;
-		message.sync     = waitForCompletion;
+		message.sync = waitForCompletion;
 		m_calls.push_back(std::move(message));
 	}
-	
+
 	m_waitCondition.notify_all();
 
 	if(waitForCompletion)
@@ -65,14 +65,14 @@ void CMailBox::SendCall(const FunctionType& function, bool waitForCompletion)
 void CMailBox::SendCall(FunctionType&& function)
 {
 	std::lock_guard<std::mutex> callLock(m_callMutex);
-	
+
 	{
 		MESSAGE message;
 		message.function = std::move(function);
-		message.sync     = false;
+		message.sync = false;
 		m_calls.push_back(std::move(message));
 	}
-	
+
 	m_waitCondition.notify_all();
 }
 

@@ -7,9 +7,9 @@
 #include "DebugExpressionEvaluator.h"
 
 CMemoryViewMIPS::CMemoryViewMIPS(HWND hParent, const RECT& rect, CVirtualMachine& virtualMachine, CMIPS* context)
-: CMemoryView(hParent, rect)
-, m_virtualMachine(virtualMachine)
-, m_context(context)
+    : CMemoryView(hParent, rect)
+    , m_virtualMachine(virtualMachine)
+    , m_context(context)
 {
 	m_font = Framework::Win32::CreateFont(_T("Courier New"), 8);
 
@@ -20,7 +20,6 @@ CMemoryViewMIPS::CMemoryViewMIPS(HWND hParent, const RECT& rect, CVirtualMachine
 
 CMemoryViewMIPS::~CMemoryViewMIPS()
 {
-
 }
 
 long CMemoryViewMIPS::OnCommand(unsigned short nID, unsigned short nCmd, HWND hSender)

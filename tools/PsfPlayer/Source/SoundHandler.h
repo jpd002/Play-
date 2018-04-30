@@ -6,15 +6,16 @@
 class CSoundHandler
 {
 public:
-	typedef std::function<CSoundHandler* (void)> FactoryFunction;
+	typedef std::function<CSoundHandler*(void)> FactoryFunction;
 
-	virtual				~CSoundHandler() {}
+	virtual ~CSoundHandler()
+	{
+	}
 
-	virtual void		Reset() = 0;
-	virtual void		Write(int16*, unsigned int, unsigned int) = 0;
-	virtual bool		HasFreeBuffers() = 0;
-	virtual void		RecycleBuffers() = 0;
+	virtual void Reset() = 0;
+	virtual void Write(int16*, unsigned int, unsigned int) = 0;
+	virtual bool HasFreeBuffers() = 0;
+	virtual void RecycleBuffers() = 0;
 
 private:
-
 };

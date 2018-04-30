@@ -32,8 +32,8 @@ namespace PS2
 			MAX_BUTTONS
 		};
 
-		static const char*	m_buttonName[MAX_BUTTONS];
+		static const char* m_buttonName[MAX_BUTTONS];
 
-		static bool			IsAxis(BUTTON);
+		static bool IsAxis(BUTTON);
 	};
 };

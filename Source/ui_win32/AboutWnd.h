@@ -10,15 +10,15 @@
 class CAboutWnd : public Framework::Win32::CModalWindow
 {
 public:
-									CAboutWnd(HWND);
-									~CAboutWnd();
+	CAboutWnd(HWND);
+	~CAboutWnd();
 
 private:
-	void							RefreshLayout();
-    std::tstring                    GetBoostVersion();
+	void RefreshLayout();
+	std::tstring GetBoostVersion();
 
-    Framework::FlatLayoutPtr        m_pLayout;
-	Framework::Win32::CStatic*      m_pImage;
+	Framework::FlatLayoutPtr m_pLayout;
+	Framework::Win32::CStatic* m_pImage;
 };
 
 #endif

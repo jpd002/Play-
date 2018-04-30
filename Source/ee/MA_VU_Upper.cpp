@@ -5,28 +5,27 @@
 
 #undef MAX
 
-CMA_VU::CUpper::CUpper() 
-: CMIPSInstructionFactory(MIPS_REGSIZE_32)
-, m_nFT(0)
-, m_nFS(0)
-, m_nFD(0)
-, m_nBc(0)
-, m_nDest(0)
-, m_relativePipeTime(0)
+CMA_VU::CUpper::CUpper()
+    : CMIPSInstructionFactory(MIPS_REGSIZE_32)
+    , m_nFT(0)
+    , m_nFS(0)
+    , m_nFD(0)
+    , m_nBc(0)
+    , m_nDest(0)
+    , m_relativePipeTime(0)
 {
-
 }
 
 void CMA_VU::CUpper::CompileInstruction(uint32 nAddress, CMipsJitter* codeGen, CMIPS* pCtx)
 {
 	SetupQuickVariables(nAddress, codeGen, pCtx);
 
-	m_nDest		= (uint8 )((m_nOpcode >> 21) & 0x000F);
-	m_nFT		= (uint8 )((m_nOpcode >> 16) & 0x001F);
-	m_nFS		= (uint8 )((m_nOpcode >> 11) & 0x001F);
-	m_nFD		= (uint8 )((m_nOpcode >>  6) & 0x001F);
+	m_nDest = (uint8)((m_nOpcode >> 21) & 0x000F);
+	m_nFT = (uint8)((m_nOpcode >> 16) & 0x001F);
+	m_nFS = (uint8)((m_nOpcode >> 11) & 0x001F);
+	m_nFD = (uint8)((m_nOpcode >> 6) & 0x001F);
 
-	m_nBc		= (uint8 )((m_nOpcode >>  0) & 0x0003);
+	m_nBc = (uint8)((m_nOpcode >> 0) & 0x0003);
 
 	((this)->*(m_pOpVector[m_nOpcode & 0x3F]))();
 
@@ -461,7 +460,6 @@ void CMA_VU::CUpper::MSUBAi()
 //0B
 void CMA_VU::CUpper::NOP()
 {
-
 }
 
 //////////////////////////////////////////////////

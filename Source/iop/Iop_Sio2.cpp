@@ -6,44 +6,43 @@
 
 #define LOG_NAME ("iop_sio2")
 
-#define STATE_REGS                 ("sio2/regs")
-#define STATE_CTRL1                ("sio2/ctrl1")
-#define STATE_CTRL2                ("sio2/ctrl2")
-#define STATE_PAD                  ("sio2/pad")
-#define STATE_INPUT                ("sio2/input")
-#define STATE_OUTPUT               ("sio2/output")
+#define STATE_REGS ("sio2/regs")
+#define STATE_CTRL1 ("sio2/ctrl1")
+#define STATE_CTRL2 ("sio2/ctrl2")
+#define STATE_PAD ("sio2/pad")
+#define STATE_INPUT ("sio2/input")
+#define STATE_OUTPUT ("sio2/output")
 
-#define STATE_REGS_XML             ("sio2/regs.xml")
+#define STATE_REGS_XML ("sio2/regs.xml")
 #define STATE_REGS_CURRENTREGINDEX ("CurrentRegIndex")
 
 using namespace Iop;
 
-static const uint8 DUALSHOCK2_MODEL[6] = 
-{
-	0x03,	//Model
-	0x02,	//Mode Count
-	0x00,	//Mode Current Offset
-	0x02,	//Actuator Count
-	0x01,	//Actuator Comb Count
-	0x00
+static const uint8 DUALSHOCK2_MODEL[6] =
+    {
+        0x03, //Model
+        0x02, //Mode Count
+        0x00, //Mode Current Offset
+        0x02, //Actuator Count
+        0x01, //Actuator Comb Count
+        0x00};
+
+static const uint8 DUALSHOCK2_ID[5][5] =
+    {
+        {0x00, 0x01, 0x02, 0x00, 0x0A}, //Actuator 0 info
+        {0x00, 0x01, 0x01, 0x01, 0x14}, //Actuator 1 info
+        {0x00, 0x02, 0x00, 0x01, 0x00}, //Actuator Comb 0 info
+        {0x00, 0x00, 0x04, 0x00, 0x00}, //Mode 0 info
+        {0x00, 0x00, 0x07, 0x00, 0x00}  //Mode 1 info
 };
 
-static const uint8 DUALSHOCK2_ID[5][5] = 
-{
-	{0x00, 0x01, 0x02, 0x00, 0x0A},		//Actuator 0 info
-	{0x00, 0x01, 0x01, 0x01, 0x14},		//Actuator 1 info
-	{0x00, 0x02, 0x00, 0x01, 0x00},		//Actuator Comb 0 info
-	{0x00, 0x00, 0x04, 0x00, 0x00},		//Mode 0 info
-	{0x00, 0x00, 0x07, 0x00, 0x00}		//Mode 1 info
-};
-
-#define ID_DIGITAL	0x41
-#define ID_ANALOG	0x73
-#define ID_ANALOGP	0x79
-#define ID_CONFIG	0xF3
+#define ID_DIGITAL 0x41
+#define ID_ANALOG 0x73
+#define ID_ANALOGP 0x79
+#define ID_CONFIG 0xF3
 
 CSio2::CSio2(Iop::CIntc& intc)
-: m_intc(intc)
+    : m_intc(intc)
 {
 	Reset();
 }
@@ -71,16 +70,15 @@ void CSio2::Reset()
 void CSio2::LoadState(Framework::CZipArchiveReader& archive)
 {
 	static const auto readBuffer =
-		[] (ByteBufferType& outputBuffer, Framework::CStream& inputStream)
-		{
-			outputBuffer.clear();
-			while(!inputStream.IsEOF())
-			{
-				uint8 buffer[256];
-				uint32 read = inputStream.Read(buffer, 256);
-				outputBuffer.insert(outputBuffer.end(), buffer, buffer + read);
-			}
-		};
+	    [](ByteBufferType& outputBuffer, Framework::CStream& inputStream) {
+		    outputBuffer.clear();
+		    while(!inputStream.IsEOF())
+		    {
+			    uint8 buffer[256];
+			    uint32 read = inputStream.Read(buffer, 256);
+			    outputBuffer.insert(outputBuffer.end(), buffer, buffer + read);
+		    }
+	    };
 
 	{
 		CRegisterStateFile registerFile(*archive.BeginReadFile(STATE_REGS_XML));
@@ -107,11 +105,11 @@ void CSio2::SaveState(Framework::CZipArchiveWriter& archive)
 		archive.InsertFile(registerFile);
 	}
 
-	archive.InsertFile(new CMemoryStateFile(STATE_REGS,   &m_regs,     sizeof(m_regs)));
-	archive.InsertFile(new CMemoryStateFile(STATE_CTRL1,  &m_ctrl1,    sizeof(m_ctrl1)));
-	archive.InsertFile(new CMemoryStateFile(STATE_CTRL2,  &m_ctrl2,    sizeof(m_ctrl2)));
-	archive.InsertFile(new CMemoryStateFile(STATE_PAD,    &m_padState, sizeof(m_padState)));
-	archive.InsertFile(new CMemoryStateFile(STATE_INPUT,  inputBuffer.data(), inputBuffer.size()));
+	archive.InsertFile(new CMemoryStateFile(STATE_REGS, &m_regs, sizeof(m_regs)));
+	archive.InsertFile(new CMemoryStateFile(STATE_CTRL1, &m_ctrl1, sizeof(m_ctrl1)));
+	archive.InsertFile(new CMemoryStateFile(STATE_CTRL2, &m_ctrl2, sizeof(m_ctrl2)));
+	archive.InsertFile(new CMemoryStateFile(STATE_PAD, &m_padState, sizeof(m_padState)));
+	archive.InsertFile(new CMemoryStateFile(STATE_INPUT, inputBuffer.data(), inputBuffer.size()));
 	archive.InsertFile(new CMemoryStateFile(STATE_OUTPUT, outputBuffer.data(), outputBuffer.size()));
 }
 
@@ -138,12 +136,11 @@ void CSio2::SetAxisState(unsigned int padNumber, PS2::CControllerInfo::BUTTON ax
 	if(axis >= 4) return;
 
 	static const unsigned int axisIndex[4] =
-	{
-		2,
-		3,
-		0,
-		1
-	};
+	    {
+	        2,
+	        3,
+	        0,
+	        1};
 
 	auto& padState = m_padState[padNumber];
 	padState.analogStickState[axisIndex[axis]] = axisValue;
@@ -179,20 +176,20 @@ void CSio2::WriteRegister(uint32 address, uint32 value)
 		case REG_PORT1_CTRL1:
 		case REG_PORT2_CTRL1:
 		case REG_PORT3_CTRL1:
-			{
-				unsigned int portId = (address - REG_PORT0_CTRL1) / 8;
-				m_ctrl1[portId] = value;
-			}
-			break;
+		{
+			unsigned int portId = (address - REG_PORT0_CTRL1) / 8;
+			m_ctrl1[portId] = value;
+		}
+		break;
 		case REG_PORT0_CTRL2:
 		case REG_PORT1_CTRL2:
 		case REG_PORT2_CTRL2:
 		case REG_PORT3_CTRL2:
-			{
-				unsigned int portId = (address - REG_PORT0_CTRL2) / 8;
-				m_ctrl2[portId] = value;
-			}
-			break;
+		{
+			unsigned int portId = (address - REG_PORT0_CTRL2) / 8;
+			m_ctrl2[portId] = value;
+		}
+		break;
 		case REG_CTRL:
 			if(value == 0x0C)
 			{
@@ -260,7 +257,7 @@ void CSio2::ProcessController(unsigned int portId, size_t outputOffset, uint32 d
 		//Write header
 		m_outputBuffer[outputOffset + 0x00] = 0xFF;
 		m_outputBuffer[outputOffset + 0x01] = padState.configMode ? ID_CONFIG : padState.mode;
-		m_outputBuffer[outputOffset + 0x02] = 0x5A;		//?
+		m_outputBuffer[outputOffset + 0x02] = 0x5A; //?
 
 		uint8 cmd = m_inputBuffer[1];
 		switch(cmd)
@@ -297,7 +294,7 @@ void CSio2::ProcessController(unsigned int portId, size_t outputOffset, uint32 d
 			}
 			CLog::GetInstance().Print(LOG_NAME, "Pad %d: QueryButtonMask();\r\n", padId);
 			break;
-		case 0x42:		//Read Data
+		case 0x42: //Read Data
 			assert(dstSize == 5 || dstSize == 9 || dstSize == 21);
 			//Pad data goes here
 			m_outputBuffer[outputOffset + 0x03] = static_cast<uint8>(padState.buttonState >> 8);
@@ -313,52 +310,52 @@ void CSio2::ProcessController(unsigned int portId, size_t outputOffset, uint32 d
 				if(dstSize == 21)
 				{
 					//Pressure stuff
-					m_outputBuffer[outputOffset + 0x09] = ((padState.buttonState & 0x2000) == 0) ? 0xFF : 0x00;  //Left
-					m_outputBuffer[outputOffset + 0x0A] = ((padState.buttonState & 0x8000) == 0) ? 0xFF : 0x00;  //Right
-					m_outputBuffer[outputOffset + 0x0B] = ((padState.buttonState & 0x1000) == 0) ? 0xFF : 0x00;  //Up
-					m_outputBuffer[outputOffset + 0x0C] = ((padState.buttonState & 0x4000) == 0) ? 0xFF : 0x00;  //Down
+					m_outputBuffer[outputOffset + 0x09] = ((padState.buttonState & 0x2000) == 0) ? 0xFF : 0x00; //Left
+					m_outputBuffer[outputOffset + 0x0A] = ((padState.buttonState & 0x8000) == 0) ? 0xFF : 0x00; //Right
+					m_outputBuffer[outputOffset + 0x0B] = ((padState.buttonState & 0x1000) == 0) ? 0xFF : 0x00; //Up
+					m_outputBuffer[outputOffset + 0x0C] = ((padState.buttonState & 0x4000) == 0) ? 0xFF : 0x00; //Down
 
-					m_outputBuffer[outputOffset + 0x0D] = ((padState.buttonState & 0x0010) == 0) ? 0xFF : 0x00;  //Triangle
-					m_outputBuffer[outputOffset + 0x0E] = ((padState.buttonState & 0x0020) == 0) ? 0xFF : 0x00;  //Circle
-					m_outputBuffer[outputOffset + 0x0F] = ((padState.buttonState & 0x0040) == 0) ? 0xFF : 0x00;  //Cross
-					m_outputBuffer[outputOffset + 0x10] = ((padState.buttonState & 0x0080) == 0) ? 0xFF : 0x00;  //Square
+					m_outputBuffer[outputOffset + 0x0D] = ((padState.buttonState & 0x0010) == 0) ? 0xFF : 0x00; //Triangle
+					m_outputBuffer[outputOffset + 0x0E] = ((padState.buttonState & 0x0020) == 0) ? 0xFF : 0x00; //Circle
+					m_outputBuffer[outputOffset + 0x0F] = ((padState.buttonState & 0x0040) == 0) ? 0xFF : 0x00; //Cross
+					m_outputBuffer[outputOffset + 0x10] = ((padState.buttonState & 0x0080) == 0) ? 0xFF : 0x00; //Square
 
-					m_outputBuffer[outputOffset + 0x11] = ((padState.buttonState & 0x0004) == 0) ? 0xFF : 0x00;  //L1
-					m_outputBuffer[outputOffset + 0x12] = ((padState.buttonState & 0x0008) == 0) ? 0xFF : 0x00;  //R1
-					m_outputBuffer[outputOffset + 0x13] = ((padState.buttonState & 0x0001) == 0) ? 0xFF : 0x00;  //L2
-					m_outputBuffer[outputOffset + 0x14] = ((padState.buttonState & 0x0002) == 0) ? 0xFF : 0x00;  //R2
+					m_outputBuffer[outputOffset + 0x11] = ((padState.buttonState & 0x0004) == 0) ? 0xFF : 0x00; //L1
+					m_outputBuffer[outputOffset + 0x12] = ((padState.buttonState & 0x0008) == 0) ? 0xFF : 0x00; //R1
+					m_outputBuffer[outputOffset + 0x13] = ((padState.buttonState & 0x0001) == 0) ? 0xFF : 0x00; //L2
+					m_outputBuffer[outputOffset + 0x14] = ((padState.buttonState & 0x0002) == 0) ? 0xFF : 0x00; //R2
 				}
 			}
 			CLog::GetInstance().Print(LOG_NAME, "Pad %d: ReadData();\r\n", padId);
 			break;
-		case 0x43:		//Enter Config Mode
+		case 0x43: //Enter Config Mode
 			padState.configMode = (m_inputBuffer[3] == 0x01);
 			CLog::GetInstance().Print(LOG_NAME, "Pad %d: EnterConfigMode(config = %d);\r\n", padId, m_inputBuffer[3]);
 			break;
-		case 0x44:		//Set Mode & Lock
+		case 0x44: //Set Mode & Lock
+		{
+			assert(dstSize == 5 || dstSize == 9);
+			uint8 mode = m_inputBuffer[3];
+			uint8 lock = m_inputBuffer[4];
+			//cmdBuffer[4] == 0x03 -> Mode Lock
+			m_outputBuffer[outputOffset + 0x03] = 0x00;
+			m_outputBuffer[outputOffset + 0x04] = 0x00;
+			if(dstSize == 9)
 			{
-				assert(dstSize == 5 || dstSize == 9);
-				uint8 mode = m_inputBuffer[3];
-				uint8 lock = m_inputBuffer[4];
-				//cmdBuffer[4] == 0x03 -> Mode Lock
-				m_outputBuffer[outputOffset + 0x03] = 0x00;
-				m_outputBuffer[outputOffset + 0x04] = 0x00;
-				if(dstSize == 9)
-				{
-					m_outputBuffer[outputOffset + 0x05] = 0x00;
-					m_outputBuffer[outputOffset + 0x06] = 0x00;
-					m_outputBuffer[outputOffset + 0x07] = 0x00;
-					m_outputBuffer[outputOffset + 0x08] = 0x00;
-				}
-				padState.mode = (mode == 0x01) ? ID_ANALOG : ID_DIGITAL;
-				CLog::GetInstance().Print(LOG_NAME, "Pad %d: SetModeAndLock(mode = %d, lock = %d);\r\n", padId, mode, lock);
+				m_outputBuffer[outputOffset + 0x05] = 0x00;
+				m_outputBuffer[outputOffset + 0x06] = 0x00;
+				m_outputBuffer[outputOffset + 0x07] = 0x00;
+				m_outputBuffer[outputOffset + 0x08] = 0x00;
 			}
-			break;
-		case 0x45:		//Query Model
+			padState.mode = (mode == 0x01) ? ID_ANALOG : ID_DIGITAL;
+			CLog::GetInstance().Print(LOG_NAME, "Pad %d: SetModeAndLock(mode = %d, lock = %d);\r\n", padId, mode, lock);
+		}
+		break;
+		case 0x45: //Query Model
 			assert(dstSize == 9);
 			assert(padState.configMode);
 			std::copy(std::begin(DUALSHOCK2_MODEL), std::end(DUALSHOCK2_MODEL), m_outputBuffer.begin() + outputOffset + 0x03);
-			m_outputBuffer[outputOffset + 5] = (padState.mode == ID_DIGITAL) ? 0x00 : 0x01;		//0x01 if analog pad
+			m_outputBuffer[outputOffset + 5] = (padState.mode == ID_DIGITAL) ? 0x00 : 0x01; //0x01 if analog pad
 			CLog::GetInstance().Print(LOG_NAME, "Pad %d: QueryModel();\r\n", padId);
 			break;
 		case 0x46:
@@ -393,11 +390,11 @@ void CSio2::ProcessController(unsigned int portId, size_t outputOffset, uint32 d
 			}
 			CLog::GetInstance().Print(LOG_NAME, "Pad %d: QueryMode(mode = %d);\r\n", padId, m_inputBuffer[3]);
 			break;
-		case 0x4D:		//SetVibration
+		case 0x4D: //SetVibration
 			assert(dstSize == 9);
 			CLog::GetInstance().Print(LOG_NAME, "Pad %d: SetVibration();\r\n", padId);
 			break;
-		case 0x4F:		//SetPollMask
+		case 0x4F: //SetPollMask
 			assert(dstSize == 9);
 			assert(padState.configMode);
 			padState.mode = ID_ANALOGP;
@@ -410,8 +407,8 @@ void CSio2::ProcessController(unsigned int portId, size_t outputOffset, uint32 d
 			padState.pollMask[0] = m_inputBuffer[3];
 			padState.pollMask[1] = m_inputBuffer[4];
 			padState.pollMask[2] = m_inputBuffer[5];
-			CLog::GetInstance().Print(LOG_NAME, "Pad %d: SetPollMask(mask = { 0x%02X, 0x%02X, 0x%02X });\r\n", 
-				padId, padState.pollMask[0], padState.pollMask[1], padState.pollMask[2]);
+			CLog::GetInstance().Print(LOG_NAME, "Pad %d: SetPollMask(mask = { 0x%02X, 0x%02X, 0x%02X });\r\n",
+			                          padId, padState.pollMask[0], padState.pollMask[1], padState.pollMask[2]);
 			break;
 		default:
 			CLog::GetInstance().Print(LOG_NAME, "Pad %d: Unknown command received (0x%02X).\r\n", padId, cmd);

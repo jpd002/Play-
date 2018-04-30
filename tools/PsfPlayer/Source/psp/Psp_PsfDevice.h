@@ -9,15 +9,15 @@ namespace Psp
 	class CPsfDevice : public CIoDevice
 	{
 	public:
-								CPsfDevice();
-		virtual					~CPsfDevice();
+		CPsfDevice();
+		virtual ~CPsfDevice();
 
-		Framework::CStream*		GetFile(const char*, uint32);
+		Framework::CStream* GetFile(const char*, uint32);
 
-		void					AppendArchive(const CPsfBase&);
+		void AppendArchive(const CPsfBase&);
 
 	private:
-		CPsfFs					m_fileSystem;
+		CPsfFs m_fileSystem;
 	};
 
 	typedef std::shared_ptr<CPsfDevice> PsfDevicePtr;

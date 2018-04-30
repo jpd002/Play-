@@ -6,20 +6,20 @@
 #include "ElfViewRes.h"
 
 CELFProgramView::CELFProgramView(HWND hParent, CELF* pELF)
-: CDialog(MAKEINTRESOURCE(IDD_ELFVIEW_PROGRAMVIEW), hParent)
-, m_nProgram(-1)
-, m_pELF(pELF)
+    : CDialog(MAKEINTRESOURCE(IDD_ELFVIEW_PROGRAMVIEW), hParent)
+    , m_nProgram(-1)
+    , m_pELF(pELF)
 {
 	SetClassPtr();
 
-	m_pType		= new Framework::Win32::CEdit(GetItem(IDC_ELFVIEW_PROGRAMVIEW_TYPE_EDIT));
-	m_pOffset	= new Framework::Win32::CEdit(GetItem(IDC_ELFVIEW_PROGRAMVIEW_OFFSET_EDIT));
-	m_pVAddr	= new Framework::Win32::CEdit(GetItem(IDC_ELFVIEW_PROGRAMVIEW_VADDR_EDIT));
-	m_pPAddr	= new Framework::Win32::CEdit(GetItem(IDC_ELFVIEW_PROGRAMVIEW_PADDR_EDIT));
-	m_pFileSize	= new Framework::Win32::CEdit(GetItem(IDC_ELFVIEW_PROGRAMVIEW_FILESIZE_EDIT));
-	m_pMemSize	= new Framework::Win32::CEdit(GetItem(IDC_ELFVIEW_PROGRAMVIEW_MEMSIZE_EDIT));
-	m_pFlags	= new Framework::Win32::CEdit(GetItem(IDC_ELFVIEW_PROGRAMVIEW_FLAGS_EDIT));
-	m_pAlign	= new Framework::Win32::CEdit(GetItem(IDC_ELFVIEW_PROGRAMVIEW_ALIGN_EDIT));
+	m_pType = new Framework::Win32::CEdit(GetItem(IDC_ELFVIEW_PROGRAMVIEW_TYPE_EDIT));
+	m_pOffset = new Framework::Win32::CEdit(GetItem(IDC_ELFVIEW_PROGRAMVIEW_OFFSET_EDIT));
+	m_pVAddr = new Framework::Win32::CEdit(GetItem(IDC_ELFVIEW_PROGRAMVIEW_VADDR_EDIT));
+	m_pPAddr = new Framework::Win32::CEdit(GetItem(IDC_ELFVIEW_PROGRAMVIEW_PADDR_EDIT));
+	m_pFileSize = new Framework::Win32::CEdit(GetItem(IDC_ELFVIEW_PROGRAMVIEW_FILESIZE_EDIT));
+	m_pMemSize = new Framework::Win32::CEdit(GetItem(IDC_ELFVIEW_PROGRAMVIEW_MEMSIZE_EDIT));
+	m_pFlags = new Framework::Win32::CEdit(GetItem(IDC_ELFVIEW_PROGRAMVIEW_FLAGS_EDIT));
+	m_pAlign = new Framework::Win32::CEdit(GetItem(IDC_ELFVIEW_PROGRAMVIEW_ALIGN_EDIT));
 
 	RECT columnEditBoxSize;
 	SetRect(&columnEditBoxSize, 0, 0, 70, 12);
@@ -59,7 +59,6 @@ CELFProgramView::CELFProgramView(HWND hParent, CELF* pELF)
 
 CELFProgramView::~CELFProgramView()
 {
-
 }
 
 long CELFProgramView::OnSize(unsigned int nType, unsigned int nX, unsigned int nY)

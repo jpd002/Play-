@@ -13,7 +13,7 @@ CPsfTags::CPsfTags()
 }
 
 CPsfTags::CPsfTags(const TagMap& tags)
-: m_tags(tags)
+    : m_tags(tags)
 {
 	Init();
 	if(m_tags.find("utf8") != m_tags.end())
@@ -25,7 +25,6 @@ CPsfTags::CPsfTags(const TagMap& tags)
 
 CPsfTags::~CPsfTags()
 {
-
 }
 
 void CPsfTags::Init()

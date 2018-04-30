@@ -7,10 +7,9 @@
 #include "offsetof_def.h"
 
 CMA_VU::CLower::CLower(uint32 vuMemAddressMask)
-: CMIPSInstructionFactory(MIPS_REGSIZE_32)
-, m_vuMemAddressMask(vuMemAddressMask)
+    : CMIPSInstructionFactory(MIPS_REGSIZE_32)
+    , m_vuMemAddressMask(vuMemAddressMask)
 {
-
 }
 
 void CMA_VU::CLower::CompileInstruction(uint32 address, CMipsJitter* codeGen, CMIPS* context)
@@ -22,20 +21,20 @@ void CMA_VU::CLower::CompileInstruction(uint32 address, CMipsJitter* codeGen, CM
 		return;
 	}
 
-	m_nDest		= (uint8 )((m_nOpcode >> 21) & 0x000F);
+	m_nDest = (uint8)((m_nOpcode >> 21) & 0x000F);
 
-	m_nFSF		= ((m_nDest >> 0) & 0x03);
-	m_nFTF		= ((m_nDest >> 2) & 0x03);
+	m_nFSF = ((m_nDest >> 0) & 0x03);
+	m_nFTF = ((m_nDest >> 2) & 0x03);
 
-	m_nIT		= (uint8 )((m_nOpcode >> 16) & 0x001F);
-	m_nIS		= (uint8 )((m_nOpcode >> 11) & 0x001F);
-	m_nID		= (uint8 )((m_nOpcode >>  6) & 0x001F);
-	m_nImm5		= m_nID;
-	m_nImm11	= (uint16)((m_nOpcode >>  0) & 0x07FF);
-	m_nImm12	= (uint16)((m_nOpcode & 0x7FF) | (m_nOpcode & 0x00200000) >> 10);
-	m_nImm15	= (uint16)((m_nOpcode & 0x7FF) | (m_nOpcode & 0x01E00000) >> 10);
-	m_nImm15S	= m_nImm15 | (m_nImm15 & 0x4000 ? 0x8000 : 0x0000);
-	m_nImm24	= m_nOpcode & 0x00FFFFFF;
+	m_nIT = (uint8)((m_nOpcode >> 16) & 0x001F);
+	m_nIS = (uint8)((m_nOpcode >> 11) & 0x001F);
+	m_nID = (uint8)((m_nOpcode >> 6) & 0x001F);
+	m_nImm5 = m_nID;
+	m_nImm11 = (uint16)((m_nOpcode >> 0) & 0x07FF);
+	m_nImm12 = (uint16)((m_nOpcode & 0x7FF) | (m_nOpcode & 0x00200000) >> 10);
+	m_nImm15 = (uint16)((m_nOpcode & 0x7FF) | (m_nOpcode & 0x01E00000) >> 10);
+	m_nImm15S = m_nImm15 | (m_nImm15 & 0x4000 ? 0x8000 : 0x0000);
+	m_nImm24 = m_nOpcode & 0x00FFFFFF;
 
 	if(m_nOpcode != OPCODE_NOP)
 	{
@@ -102,30 +101,29 @@ void CMA_VU::CLower::GenerateEATAN()
 	static const uint32 pi4 = 0x3F490FDB;
 	const unsigned int seriesLength = 8;
 	static const uint32 seriesConstants[seriesLength] =
-	{
-		0x3F7FFFF5,
-		0xBEAAA61C,
-		0x3E4C40A6,
-		0xBE0E6C63,
-		0x3DC577DF,
-		0xBD6501C4,
-		0x3CB31652,
-		0xBB84D7E7,
-	};
+	    {
+	        0x3F7FFFF5,
+	        0xBEAAA61C,
+	        0x3E4C40A6,
+	        0xBE0E6C63,
+	        0x3DC577DF,
+	        0xBD6501C4,
+	        0x3CB31652,
+	        0xBB84D7E7,
+	    };
 	static const unsigned int seriesExponents[seriesLength] =
-	{
-		1,
-		3,
-		5,
-		7,
-		9,
-		11,
-		13,
-		15
-	};
+	    {
+	        1,
+	        3,
+	        5,
+	        7,
+	        9,
+	        11,
+	        13,
+	        15};
 
 	ApplySumSeries(offsetof(CMIPS, m_State.nCOP2T),
-		seriesConstants, seriesExponents, seriesLength);
+	               seriesConstants, seriesExponents, seriesLength);
 
 	{
 		float constant = *reinterpret_cast<const float*>(&pi4);
@@ -147,11 +145,11 @@ void CMA_VU::CLower::LQ()
 
 	m_codeGen->PushRelRef(offsetof(CMIPS, m_vuMem));
 	VUShared::ComputeMemAccessAddr(
-		m_codeGen,
-		m_nIS,
-		static_cast<uint32>(VUShared::GetImm11Offset(m_nImm11)),
-		0,
-		m_vuMemAddressMask);
+	    m_codeGen,
+	    m_nIS,
+	    static_cast<uint32>(VUShared::GetImm11Offset(m_nImm11)),
+	    0,
+	    m_vuMemAddressMask);
 	m_codeGen->AddRef();
 
 	VUShared::LQbase(m_codeGen, m_nDest, m_nIT);
@@ -164,11 +162,11 @@ void CMA_VU::CLower::SQ()
 
 	//Compute address
 	VUShared::ComputeMemAccessAddr(
-		m_codeGen,
-		m_nIT,
-		static_cast<uint32>(VUShared::GetImm11Offset(m_nImm11)),
-		0,
-		m_vuMemAddressMask);
+	    m_codeGen,
+	    m_nIT,
+	    static_cast<uint32>(VUShared::GetImm11Offset(m_nImm11)),
+	    0,
+	    m_vuMemAddressMask);
 
 	m_codeGen->AddRef();
 
@@ -182,11 +180,11 @@ void CMA_VU::CLower::ILW()
 
 	//Compute address
 	VUShared::ComputeMemAccessAddr(
-		m_codeGen,
-		m_nIS,
-		static_cast<uint32>(VUShared::GetImm11Offset(m_nImm11)),
-		VUShared::GetDestOffset(m_nDest),
-		m_vuMemAddressMask);
+	    m_codeGen,
+	    m_nIS,
+	    static_cast<uint32>(VUShared::GetImm11Offset(m_nImm11)),
+	    VUShared::GetDestOffset(m_nDest),
+	    m_vuMemAddressMask);
 
 	m_codeGen->AddRef();
 
@@ -203,11 +201,11 @@ void CMA_VU::CLower::ISW()
 
 	//Compute address
 	VUShared::ComputeMemAccessAddr(
-		m_codeGen,
-		m_nIS,
-		static_cast<uint32>(VUShared::GetImm11Offset(m_nImm11)),
-		0,
-		m_vuMemAddressMask);
+	    m_codeGen,
+	    m_nIS,
+	    static_cast<uint32>(VUShared::GetImm11Offset(m_nImm11)),
+	    0,
+	    m_vuMemAddressMask);
 
 	VUShared::ISWbase(m_codeGen, m_nDest);
 }
@@ -713,24 +711,22 @@ void CMA_VU::CLower::ESIN()
 {
 	static const unsigned int seriesLength = 5;
 	static const uint32 seriesConstants[seriesLength] =
-	{
-		0x3F800000,
-		0xBE2AAAA4,
-		0x3C08873E,
-		0xB94FB21F,
-		0x362E9C14
-	};
+	    {
+	        0x3F800000,
+	        0xBE2AAAA4,
+	        0x3C08873E,
+	        0xB94FB21F,
+	        0x362E9C14};
 	static const unsigned int seriesExponents[seriesLength] =
-	{
-		1,
-		3,
-		5,
-		7,
-		9
-	};
+	    {
+	        1,
+	        3,
+	        5,
+	        7,
+	        9};
 
 	ApplySumSeries(offsetof(CMIPS, m_State.nCOP2[m_nIS].nV[m_nFSF]),
-		seriesConstants, seriesExponents, seriesLength);
+	               seriesConstants, seriesExponents, seriesLength);
 
 	m_codeGen->FP_PullSingle(offsetof(CMIPS, m_State.nCOP2P));
 }
@@ -896,26 +892,24 @@ void CMA_VU::CLower::EEXP()
 {
 	const unsigned int seriesLength = 6;
 	static const uint32 seriesConstants[seriesLength] =
-	{
-		0x3E7FFFA8,
-		0x3D0007F4,
-		0x3B29D3FF,
-		0x3933E553,
-		0x36B63510,
-		0x353961AC
-	};
+	    {
+	        0x3E7FFFA8,
+	        0x3D0007F4,
+	        0x3B29D3FF,
+	        0x3933E553,
+	        0x36B63510,
+	        0x353961AC};
 	static const unsigned int seriesExponents[seriesLength] =
-	{
-		1,
-		2,
-		3,
-		4,
-		5,
-		6
-	};
+	    {
+	        1,
+	        2,
+	        3,
+	        4,
+	        5,
+	        6};
 
 	ApplySumSeries(offsetof(CMIPS, m_State.nCOP2[m_nIS].nV[m_nFSF]),
-		seriesConstants, seriesExponents, seriesLength);
+	               seriesConstants, seriesExponents, seriesLength);
 
 	m_codeGen->FP_PushCst(1.0f);
 	m_codeGen->FP_Add();

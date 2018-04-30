@@ -8,7 +8,7 @@
 class CDebugExpressionEvaluator
 {
 public:
-	static uint32	Evaluate(const char*, CMIPS*);
+	static uint32 Evaluate(const char*, CMIPS*);
 
 private:
 	enum TOKEN_TYPE
@@ -37,8 +37,8 @@ private:
 
 	typedef std::vector<TOKEN> TokenArray;
 
-	static TokenArray	Parse(const char*);
-	static uint32		Evaluate(const TokenArray&, CMIPS*);
+	static TokenArray Parse(const char*);
+	static uint32 Evaluate(const TokenArray&, CMIPS*);
 };
 
 #endif

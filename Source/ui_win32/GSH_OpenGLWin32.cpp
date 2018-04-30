@@ -2,27 +2,25 @@
 #include "GSH_OpenGL_SettingsWnd.h"
 
 PIXELFORMATDESCRIPTOR CGSH_OpenGLWin32::m_pfd =
-{
-	sizeof(PIXELFORMATDESCRIPTOR),
-	1,
-	PFD_DRAW_TO_WINDOW | PFD_SUPPORT_OPENGL | PFD_DOUBLEBUFFER,
-	PFD_TYPE_RGBA,
-	32,
-	0, 0, 0, 0, 0, 0,
-	0, 0, 0, 0, 0, 0,
-	0,
-	32,
-	0,
-	0,
-	PFD_MAIN_PLANE,
-	0,
-	0, 0, 0
-};
+    {
+        sizeof(PIXELFORMATDESCRIPTOR),
+        1,
+        PFD_DRAW_TO_WINDOW | PFD_SUPPORT_OPENGL | PFD_DOUBLEBUFFER,
+        PFD_TYPE_RGBA,
+        32,
+        0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0,
+        0,
+        32,
+        0,
+        0,
+        PFD_MAIN_PLANE,
+        0,
+        0, 0, 0};
 
 CGSH_OpenGLWin32::CGSH_OpenGLWin32(Framework::Win32::CWindow* outputWindow)
-: m_outputWnd(outputWindow)
+    : m_outputWnd(outputWindow)
 {
-
 }
 
 CGSHandler::FactoryFunction CGSH_OpenGLWin32::GetFactoryFunction(Framework::Win32::CWindow* outputWindow)
@@ -41,13 +39,12 @@ void CGSH_OpenGLWin32::InitializeImpl()
 	auto createContextAttribsARB = reinterpret_cast<PFNWGLCREATECONTEXTATTRIBSARBPROC>(wglGetProcAddress("wglCreateContextAttribsARB"));
 	if(createContextAttribsARB != nullptr)
 	{
-		static const int attributes[] = 
-		{
-			WGL_CONTEXT_MAJOR_VERSION_ARB, 3,
-			WGL_CONTEXT_MINOR_VERSION_ARB, 2,
-			WGL_CONTEXT_PROFILE_MASK_ARB, WGL_CONTEXT_CORE_PROFILE_BIT_ARB,
-			0
-		};
+		static const int attributes[] =
+		    {
+		        WGL_CONTEXT_MAJOR_VERSION_ARB, 3,
+		        WGL_CONTEXT_MINOR_VERSION_ARB, 2,
+		        WGL_CONTEXT_PROFILE_MASK_ARB, WGL_CONTEXT_CORE_PROFILE_BIT_ARB,
+		        0};
 
 		auto newContext = createContextAttribsARB(m_dc, nullptr, attributes);
 		assert(newContext != nullptr);
@@ -84,7 +81,7 @@ void CGSH_OpenGLWin32::ReleaseImpl()
 	CGSH_OpenGL::ReleaseImpl();
 
 	wglMakeCurrent(NULL, NULL);
-	
+
 	auto deleteResult = wglDeleteContext(m_context);
 	assert(deleteResult == TRUE);
 }

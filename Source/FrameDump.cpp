@@ -2,14 +2,14 @@
 #include "MemoryStateFile.h"
 #include "RegisterStateFile.h"
 
-#define STATE_INITIAL_GSRAM                "init/gsram"
-#define STATE_INITIAL_GSREGS               "init/gsregs"
-#define STATE_INITIAL_GSPRIVREGS           "init/gsprivregs"
-#define STATE_PACKET_METADATA_PREFIX       "packet_metadata_"
+#define STATE_INITIAL_GSRAM "init/gsram"
+#define STATE_INITIAL_GSREGS "init/gsregs"
+#define STATE_INITIAL_GSPRIVREGS "init/gsprivregs"
+#define STATE_PACKET_METADATA_PREFIX "packet_metadata_"
 #define STATE_PACKET_REGISTERWRITES_PREFIX "packet_registerwrites_"
-#define STATE_PACKET_IMAGEDATA_PREFIX      "packet_imagedata_"
+#define STATE_PACKET_IMAGEDATA_PREFIX "packet_imagedata_"
 
-#define STATE_PRIVREG_SMODE2               "SMODE2"
+#define STATE_PRIVREG_SMODE2 "SMODE2"
 
 CFrameDump::CFrameDump()
 {
@@ -19,7 +19,7 @@ CFrameDump::CFrameDump()
 
 CFrameDump::~CFrameDump()
 {
-	delete [] m_initialGsRam;
+	delete[] m_initialGsRam;
 }
 
 void CFrameDump::Reset()
@@ -78,7 +78,7 @@ void CFrameDump::Read(Framework::CStream& input)
 	Reset();
 
 	Framework::CZipArchiveReader archive(input);
-	
+
 	archive.BeginReadFile(STATE_INITIAL_GSRAM)->Read(m_initialGsRam, CGSHandler::RAMSIZE);
 	archive.BeginReadFile(STATE_INITIAL_GSREGS)->Read(m_initialGsRegisters, sizeof(uint64) * CGSHandler::REGISTER_MAX);
 
@@ -135,8 +135,8 @@ void CFrameDump::Write(Framework::CStream& output) const
 {
 	Framework::CZipArchiveWriter archive;
 
-	archive.InsertFile(new CMemoryStateFile(STATE_INITIAL_GSRAM,	m_initialGsRam,			CGSHandler::RAMSIZE));
-	archive.InsertFile(new CMemoryStateFile(STATE_INITIAL_GSREGS,	m_initialGsRegisters,	sizeof(uint64) * CGSHandler::REGISTER_MAX));
+	archive.InsertFile(new CMemoryStateFile(STATE_INITIAL_GSRAM, m_initialGsRam, CGSHandler::RAMSIZE));
+	archive.InsertFile(new CMemoryStateFile(STATE_INITIAL_GSREGS, m_initialGsRegisters, sizeof(uint64) * CGSHandler::REGISTER_MAX));
 
 	{
 		auto privRegsStateFile = new CRegisterStateFile(STATE_INITIAL_GSPRIVREGS);
@@ -171,8 +171,8 @@ void CFrameDump::IdentifyDrawingKicks()
 
 	DRAWINGKICK_INFO drawingKickInfo;
 
-	static const unsigned int g_initVertexCounts[8] = { 1, 2, 2, 3, 3, 3, 2, 0 };
-	static const unsigned int g_nextVertexCounts[8] = { 1, 2, 1, 3, 1, 1, 2, 0 };
+	static const unsigned int g_initVertexCounts[8] = {1, 2, 2, 3, 3, 3, 2, 0};
+	static const unsigned int g_nextVertexCounts[8] = {1, 2, 1, 3, 1, 1, 2, 0};
 
 	CGSHandler::PRIM currentPrim;
 	currentPrim <<= GetInitialGsRegisters()[GS_REG_PRIM];
@@ -194,16 +194,16 @@ void CFrameDump::IdentifyDrawingKicks()
 				vertexCount = g_initVertexCounts[currentPrim.nType];
 			}
 			else if(
-				(registerWrite.first == GS_REG_XYOFFSET_1) ||
-				(registerWrite.first == GS_REG_XYOFFSET_2))
+			    (registerWrite.first == GS_REG_XYOFFSET_1) ||
+			    (registerWrite.first == GS_REG_XYOFFSET_2))
 			{
 				currentOfs[registerWrite.first - GS_REG_XYOFFSET_1] <<= registerWrite.second;
 			}
 			else if(
-				(registerWrite.first == GS_REG_XYZ2) || 
-				(registerWrite.first == GS_REG_XYZ3) ||
-				(registerWrite.first == GS_REG_XYZF2) ||
-				(registerWrite.first == GS_REG_XYZF3))
+			    (registerWrite.first == GS_REG_XYZ2) ||
+			    (registerWrite.first == GS_REG_XYZ3) ||
+			    (registerWrite.first == GS_REG_XYZF2) ||
+			    (registerWrite.first == GS_REG_XYZF3))
 			{
 				if(vertexCount != 0)
 				{
@@ -213,7 +213,7 @@ void CFrameDump::IdentifyDrawingKicks()
 
 					drawingKickInfo.primType = currentPrim.nType;
 					drawingKickInfo.context = currentPrim.nContext;
-					drawingKickInfo.vertex[vertexCount].x = ((registerWrite.second >>  0) & 0xFFFF) - offset.nOffsetX;
+					drawingKickInfo.vertex[vertexCount].x = ((registerWrite.second >> 0) & 0xFFFF) - offset.nOffsetX;
 					drawingKickInfo.vertex[vertexCount].y = ((registerWrite.second >> 16) & 0xFFFF) - offset.nOffsetY;
 
 					if(vertexCount == 0)

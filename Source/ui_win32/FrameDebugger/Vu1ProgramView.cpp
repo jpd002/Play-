@@ -7,8 +7,8 @@
 #define WNDSTYLE (WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN)
 
 CVu1ProgramView::CVu1ProgramView(HWND parent, const RECT& rect, CVu1Vm& virtualMachine)
-: m_virtualMachine(virtualMachine)
-, m_vuMemPacketAddress(0)
+    : m_virtualMachine(virtualMachine)
+    , m_vuMemPacketAddress(0)
 {
 	Create(0, Framework::Win32::CDefaultWndClass::GetName(), NULL, WNDSTYLE, rect, parent, NULL);
 	SetClassPtr();
@@ -42,7 +42,6 @@ CVu1ProgramView::CVu1ProgramView(HWND parent, const RECT& rect, CVu1Vm& virtualM
 
 CVu1ProgramView::~CVu1ProgramView()
 {
-
 }
 
 void CVu1ProgramView::UpdateState(CGSHandler* gs, CGsPacketMetadata* metadata, DRAWINGKICK_INFO*)

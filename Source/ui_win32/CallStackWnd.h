@@ -11,26 +11,26 @@
 class CCallStackWnd : public Framework::Win32::CMDIChild, public boost::signals2::trackable
 {
 public:
-	typedef boost::signals2::signal<void (uint32)> OnFunctionDblClickSignal;
+	typedef boost::signals2::signal<void(uint32)> OnFunctionDblClickSignal;
 
-									CCallStackWnd(HWND, CVirtualMachine&, CMIPS*, CBiosDebugInfoProvider*);
-	virtual							~CCallStackWnd();
+	CCallStackWnd(HWND, CVirtualMachine&, CMIPS*, CBiosDebugInfoProvider*);
+	virtual ~CCallStackWnd();
 
-	OnFunctionDblClickSignal		OnFunctionDblClick;
+	OnFunctionDblClickSignal OnFunctionDblClick;
 
 protected:
-	long							OnSize(unsigned int, unsigned int, unsigned int) override;
-	long							OnSysCommand(unsigned int, LPARAM) override;
-	LRESULT							OnNotify(WPARAM, NMHDR*) override;
+	long OnSize(unsigned int, unsigned int, unsigned int) override;
+	long OnSysCommand(unsigned int, LPARAM) override;
+	LRESULT OnNotify(WPARAM, NMHDR*) override;
 
 private:
-	void							RefreshLayout();
-	void							CreateColumns();
-	void							Update();
-	void							OnListDblClick();
+	void RefreshLayout();
+	void CreateColumns();
+	void Update();
+	void OnListDblClick();
 
-	CVirtualMachine&				m_virtualMachine;
-	CMIPS*							m_context;
-	Framework::Win32::CListView*	m_list;
-	CBiosDebugInfoProvider*			m_biosDebugInfoProvider;
+	CVirtualMachine& m_virtualMachine;
+	CMIPS* m_context;
+	Framework::Win32::CListView* m_list;
+	CBiosDebugInfoProvider* m_biosDebugInfoProvider;
 };

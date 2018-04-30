@@ -3,9 +3,8 @@
 #include <zlib.h>
 
 CVuExecutor::CVuExecutor(CMIPS& context, uint32 maxAddress)
-: CMipsExecutor(context, maxAddress)
+    : CMipsExecutor(context, maxAddress)
 {
-
 }
 
 void CVuExecutor::Reset()
@@ -66,7 +65,7 @@ void CVuExecutor::PartitionFunction(uint32 functionAddress)
 	partitionPoints.insert(functionAddress);
 
 	//Find the end
-	for(uint32 address = functionAddress; ; address += 4)
+	for(uint32 address = functionAddress;; address += 4)
 	{
 		//Probably going too far...
 		if(address >= m_maxAddress)
@@ -131,7 +130,7 @@ void CVuExecutor::PartitionFunction(uint32 functionAddress)
 		}
 		currentPoint = point;
 	}
-/*
+	/*
 	//Convenient cutting for debugging purposes
 	for(uint32 address = functionAddress; address <= endAddress; address += 8)
 	{

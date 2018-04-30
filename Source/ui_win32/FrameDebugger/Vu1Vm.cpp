@@ -6,28 +6,28 @@
 #define LOG_NAME "Vu1Vm"
 
 CVu1Vm::CVu1Vm()
-: m_vu1(MEMORYMAP_ENDIAN_LSBF)
-, m_vu1Executor(m_vu1, PS2::MICROMEM1SIZE)
-, m_vuMem1(new uint8[PS2::VUMEM1SIZE])
-, m_microMem1(new uint8[PS2::MICROMEM1SIZE])
-, m_status(PAUSED)
-//, m_threadDone(false)
-, m_maVu1(PS2::VUMEM1SIZE - 1)
-, m_vpu1_TOP(0)
-, m_vpu1_ITOP(0)
+    : m_vu1(MEMORYMAP_ENDIAN_LSBF)
+    , m_vu1Executor(m_vu1, PS2::MICROMEM1SIZE)
+    , m_vuMem1(new uint8[PS2::VUMEM1SIZE])
+    , m_microMem1(new uint8[PS2::MICROMEM1SIZE])
+    , m_status(PAUSED)
+    //, m_threadDone(false)
+    , m_maVu1(PS2::VUMEM1SIZE - 1)
+    , m_vpu1_TOP(0)
+    , m_vpu1_ITOP(0)
 {
 	//Vector Unit 1 context setup
 	{
-		m_vu1.m_pMemoryMap->InsertReadMap(0x00000000, 0x00003FFF, m_vuMem1,																		0x00);
-		m_vu1.m_pMemoryMap->InsertReadMap(0x00008000, 0x00008FFF, [&] (uint32 address, uint32 value) { return Vu1IoPortReadHandler(address); },	0x01);
+		m_vu1.m_pMemoryMap->InsertReadMap(0x00000000, 0x00003FFF, m_vuMem1, 0x00);
+		m_vu1.m_pMemoryMap->InsertReadMap(0x00008000, 0x00008FFF, [&](uint32 address, uint32 value) { return Vu1IoPortReadHandler(address); }, 0x01);
 
-		m_vu1.m_pMemoryMap->InsertWriteMap(0x00000000, 0x00003FFF, m_vuMem1,																				0x00);
-		m_vu1.m_pMemoryMap->InsertWriteMap(0x00008000, 0x00008FFF, [&] (uint32 address, uint32 value) { return Vu1IoPortWriteHandler(address, value); },	0x01);
+		m_vu1.m_pMemoryMap->InsertWriteMap(0x00000000, 0x00003FFF, m_vuMem1, 0x00);
+		m_vu1.m_pMemoryMap->InsertWriteMap(0x00008000, 0x00008FFF, [&](uint32 address, uint32 value) { return Vu1IoPortWriteHandler(address, value); }, 0x01);
 
 		m_vu1.m_pMemoryMap->InsertInstructionMap(0x00000000, 0x00003FFF, m_microMem1, 0x01);
 
-		m_vu1.m_pArch			= &m_maVu1;
-		m_vu1.m_pAddrTranslator	= CMIPS::TranslateAddress64;
+		m_vu1.m_pArch = &m_maVu1;
+		m_vu1.m_pAddrTranslator = CMIPS::TranslateAddress64;
 
 		m_vu1.m_vuMem = m_vuMem1;
 	}
@@ -37,18 +37,16 @@ CVu1Vm::CVu1Vm()
 
 CVu1Vm::~CVu1Vm()
 {
-	delete [] m_vuMem1;
-	delete [] m_microMem1;
+	delete[] m_vuMem1;
+	delete[] m_microMem1;
 }
 
 void CVu1Vm::Pause()
 {
-
 }
 
 void CVu1Vm::Resume()
 {
-
 }
 
 void CVu1Vm::Reset()
@@ -119,8 +117,8 @@ uint32 CVu1Vm::Vu1IoPortWriteHandler(uint32 address, uint32 value)
 	case CVpu::VU_XGKICK:
 		break;
 	default:
-		CLog::GetInstance().Print(LOG_NAME, "Wrote an unhandled VU1 IO port (0x%08X, 0x%08X).\r\n", 
-			address, value);
+		CLog::GetInstance().Print(LOG_NAME, "Wrote an unhandled VU1 IO port (0x%08X, 0x%08X).\r\n",
+		                          address, value);
 		break;
 	}
 	return 0;

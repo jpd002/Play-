@@ -10,7 +10,7 @@ using namespace ISO9660;
 CVolumeDescriptor::CVolumeDescriptor(CBlockProvider* blockProvider)
 {
 	CFile stream(blockProvider, VOLUME_DESCRIPTOR_LBA * CBlockProvider::BLOCKSIZE);
-	
+
 	stream.Read(&m_type, 1);
 
 	if(m_type != 0x01)
@@ -39,7 +39,6 @@ CVolumeDescriptor::CVolumeDescriptor(CBlockProvider* blockProvider)
 
 CVolumeDescriptor::~CVolumeDescriptor()
 {
-
 }
 
 uint32 CVolumeDescriptor::GetLPathTableAddress() const

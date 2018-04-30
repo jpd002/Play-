@@ -4,18 +4,21 @@ template <typename Type>
 struct OsVariableWrapper
 {
 public:
-	explicit OsVariableWrapper(Type* storage) : m_storage(storage) { }
+	explicit OsVariableWrapper(Type* storage)
+	    : m_storage(storage)
+	{
+	}
 	OsVariableWrapper(const OsVariableWrapper&) = delete;
 
-	OsVariableWrapper& operator =(const OsVariableWrapper&) = delete;
+	OsVariableWrapper& operator=(const OsVariableWrapper&) = delete;
 
-	OsVariableWrapper& operator =(const Type& value)
+	OsVariableWrapper& operator=(const Type& value)
 	{
 		(*m_storage) = value;
 		return (*this);
 	}
 
-	Type& operator +=(const Type& addend)
+	Type& operator+=(const Type& addend)
 	{
 		(*m_storage) += addend;
 		return (*m_storage);
@@ -32,5 +35,5 @@ public:
 	}
 
 private:
-	Type*		m_storage;
+	Type* m_storage;
 };

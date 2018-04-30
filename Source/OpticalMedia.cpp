@@ -81,9 +81,8 @@ void COpticalMedia::CheckDualLayerDvd(const StreamPtr& stream)
 		char blockHeader[blockHeaderSize];
 		stream->Read(blockHeader, blockHeaderSize);
 		if(
-			(blockHeader[0] == 0x01) && 
-			(!strncmp(blockHeader + 1, "CD001", 5))
-			)
+		    (blockHeader[0] == 0x01) &&
+		    (!strncmp(blockHeader + 1, "CD001", 5)))
 		{
 			//We've found a valid ISO9660 descriptor
 			m_dvdSecondLayerStart = lba;

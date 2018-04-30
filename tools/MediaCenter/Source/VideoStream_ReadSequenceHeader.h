@@ -10,32 +10,32 @@ namespace VideoStream
 	class ReadSequenceHeader : public Program
 	{
 	public:
-								ReadSequenceHeader();
-		virtual					~ReadSequenceHeader();
+		ReadSequenceHeader();
+		virtual ~ReadSequenceHeader();
 
-		void					Reset();
-		void					Execute(void*, Framework::CBitStream&);
+		void Reset();
+		void Execute(void*, Framework::CBitStream&);
 
 		class ReadSequenceHeaderStruct : public ReadStructure<SEQUENCE_HEADER>
 		{
 		public:
-								ReadSequenceHeaderStruct();
-			virtual				~ReadSequenceHeaderStruct();
+			ReadSequenceHeaderStruct();
+			virtual ~ReadSequenceHeaderStruct();
 		};
 
 		class QuantizerMatrixReader : public Program
 		{
 		public:
-								QuantizerMatrixReader();
-			virtual				~QuantizerMatrixReader();
+			QuantizerMatrixReader();
+			virtual ~QuantizerMatrixReader();
 
-			void				Reset();
-			void				Execute(void*, Framework::CBitStream&);
-			void				SetTable(uint8*);
+			void Reset();
+			void Execute(void*, Framework::CBitStream&);
+			void SetTable(uint8*);
 
 		private:
-			uint8*				m_table;
-			unsigned int		m_currentIndex;
+			uint8* m_table;
+			unsigned int m_currentIndex;
 		};
 
 	private:
@@ -50,9 +50,9 @@ namespace VideoStream
 			STATE_DONE,
 		};
 
-		PROGRAM_STATE					m_programState;
-		ReadSequenceHeaderStruct		m_structureReader;
-		QuantizerMatrixReader			m_quantizerMatrixReader;
+		PROGRAM_STATE m_programState;
+		ReadSequenceHeaderStruct m_structureReader;
+		QuantizerMatrixReader m_quantizerMatrixReader;
 	};
 }
 

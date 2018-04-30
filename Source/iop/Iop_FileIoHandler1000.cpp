@@ -7,9 +7,8 @@
 using namespace Iop;
 
 CFileIoHandler1000::CFileIoHandler1000(CIoman* ioman)
-: CHandler(ioman)
+    : CHandler(ioman)
 {
-
 }
 
 void CFileIoHandler1000::Invoke(uint32 method, uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, uint8* ram)

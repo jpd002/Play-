@@ -20,10 +20,12 @@ struct TESTRESULT
 class CTestReportWriter
 {
 public:
-	virtual			~CTestReportWriter() {}
-	
-	virtual void	ReportTestEntry(const std::string& name, const TESTRESULT&) = 0;
-	virtual void	Write(const boost::filesystem::path& reportPath) = 0;
+	virtual ~CTestReportWriter()
+	{
+	}
+
+	virtual void ReportTestEntry(const std::string& name, const TESTRESULT&) = 0;
+	virtual void Write(const boost::filesystem::path& reportPath) = 0;
 };
 
 typedef std::shared_ptr<CTestReportWriter> TestReportWriterPtr;

@@ -2,21 +2,21 @@
 #include "win32/DpiUtils.h"
 #include "string_cast.h"
 
-#define WNDSTYLE	(WS_CHILD | WS_VISIBLE | WS_CLIPCHILDREN | WS_CLIPSIBLINGS)
+#define WNDSTYLE (WS_CHILD | WS_VISIBLE | WS_CLIPCHILDREN | WS_CLIPSIBLINGS)
 
 CPixelBufferViewOverlay::CPixelBufferViewOverlay(HWND parentWnd)
 {
-	Create(0, Framework::Win32::CDefaultWndClass::GetName(), _T(""), WNDSTYLE, 
-		Framework::Win32::CRect(0, 0, 1, 1), parentWnd, nullptr);
+	Create(0, Framework::Win32::CDefaultWndClass::GetName(), _T(""), WNDSTYLE,
+	       Framework::Win32::CRect(0, 0, 1, 1), parentWnd, nullptr);
 	SetClassPtr();
 
 	static const unsigned int buttonSize = 32;
 	m_saveButton = Framework::Win32::CButton(_T("Save"), m_hWnd,
-		Framework::Win32::PointsToPixels(Framework::Win32::CRect(0, 0, buttonSize, buttonSize)));
-	m_fitButton = Framework::Win32::CButton(_T("Fit"), m_hWnd, 
-		Framework::Win32::PointsToPixels(Framework::Win32::CRect(buttonSize, 0, buttonSize * 2, buttonSize)));
+	                                         Framework::Win32::PointsToPixels(Framework::Win32::CRect(0, 0, buttonSize, buttonSize)));
+	m_fitButton = Framework::Win32::CButton(_T("Fit"), m_hWnd,
+	                                        Framework::Win32::PointsToPixels(Framework::Win32::CRect(buttonSize, 0, buttonSize * 2, buttonSize)));
 	m_pixelBufferComboBox = Framework::Win32::CComboBox(m_hWnd,
-		Framework::Win32::PointsToPixels(Framework::Win32::CRect(0, buttonSize, buttonSize * 2, buttonSize + 1)), CBS_DROPDOWNLIST);
+	                                                    Framework::Win32::PointsToPixels(Framework::Win32::CRect(0, buttonSize, buttonSize * 2, buttonSize + 1)), CBS_DROPDOWNLIST);
 
 	auto buttonsRect = Framework::Win32::PointsToPixels(Framework::Win32::CRect(0, 0, buttonSize * 2, buttonSize));
 	auto comboBoxRect = m_pixelBufferComboBox.GetClientRect();

@@ -8,12 +8,12 @@ namespace VideoStream
 	class ReadDcDifferential : public Program
 	{
 	public:
-						ReadDcDifferential();
-		virtual			~ReadDcDifferential();
+		ReadDcDifferential();
+		virtual ~ReadDcDifferential();
 
-		void			Reset();
-		void			SetChannel(unsigned int);
-		void			Execute(void*, Framework::CBitStream&);
+		void Reset();
+		void SetChannel(unsigned int);
+		void Execute(void*, Framework::CBitStream&);
 
 	private:
 		enum PROGRAM_STATE
@@ -23,9 +23,9 @@ namespace VideoStream
 			STATE_DONE,
 		};
 
-		PROGRAM_STATE	m_programState;
-		unsigned int	m_channel;
-		uint8			m_size;
+		PROGRAM_STATE m_programState;
+		unsigned int m_channel;
+		uint8 m_size;
 	};
 }
 

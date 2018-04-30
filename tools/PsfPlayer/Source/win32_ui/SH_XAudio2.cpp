@@ -5,9 +5,9 @@
 #define SAMPLE_RATE 44100
 
 CSH_XAudio2::CSH_XAudio2()
-: m_masteringVoice(nullptr)
-, m_sourceVoice(nullptr)
-, m_voiceCallback(nullptr)
+    : m_masteringVoice(nullptr)
+    , m_sourceVoice(nullptr)
+    , m_voiceCallback(nullptr)
 {
 	memset(&m_buffers, 0, sizeof(m_buffers));
 	InitializeXAudio2();
@@ -48,13 +48,13 @@ void CSH_XAudio2::InitializeXAudio2()
 	{
 		WAVEFORMATEX waveFormat = {};
 		memset(&waveFormat, 0, sizeof(WAVEFORMATEX));
-		waveFormat.nSamplesPerSec	= SAMPLE_RATE;
-		waveFormat.wBitsPerSample	= 16;
-		waveFormat.nChannels		= 2;
-		waveFormat.cbSize			= 0;
-		waveFormat.wFormatTag		= WAVE_FORMAT_PCM;
-		waveFormat.nBlockAlign		= (waveFormat.wBitsPerSample / 8) * waveFormat.nChannels;
-		waveFormat.nAvgBytesPerSec	= waveFormat.nBlockAlign * waveFormat.nSamplesPerSec;
+		waveFormat.nSamplesPerSec = SAMPLE_RATE;
+		waveFormat.wBitsPerSample = 16;
+		waveFormat.nChannels = 2;
+		waveFormat.cbSize = 0;
+		waveFormat.wFormatTag = WAVE_FORMAT_PCM;
+		waveFormat.nBlockAlign = (waveFormat.wBitsPerSample / 8) * waveFormat.nChannels;
+		waveFormat.nAvgBytesPerSec = waveFormat.nBlockAlign * waveFormat.nSamplesPerSec;
 
 		result = m_xaudio2->CreateSourceVoice(&m_sourceVoice, &waveFormat, 0, 2.0f, m_voiceCallback);
 		assert(SUCCEEDED(result));
@@ -72,7 +72,6 @@ void CSH_XAudio2::Reset()
 
 void CSH_XAudio2::RecycleBuffers()
 {
-
 }
 
 CSH_XAudio2::BUFFERINFO* CSH_XAudio2::GetFreeBuffer()
@@ -105,7 +104,7 @@ void CSH_XAudio2::Write(int16* buffer, unsigned int sampleCount, unsigned int sa
 	size_t bufferSize = sampleCount * sizeof(int16);
 	if(bufferSize != bufferInfo->dataSize)
 	{
-		delete [] bufferInfo->data;
+		delete[] bufferInfo->data;
 		bufferInfo->data = new uint8[bufferSize];
 		bufferInfo->dataSize = bufferSize;
 	}
@@ -113,9 +112,9 @@ void CSH_XAudio2::Write(int16* buffer, unsigned int sampleCount, unsigned int sa
 	bufferInfo->inUse = true;
 
 	XAUDIO2_BUFFER buf = {};
-	buf.AudioBytes	= bufferSize;
-	buf.pAudioData	= bufferInfo->data;
-	buf.pContext	= bufferInfo;
+	buf.AudioBytes = bufferSize;
+	buf.pAudioData = bufferInfo->data;
+	buf.pContext = bufferInfo;
 	HRESULT result = m_sourceVoice->SubmitSourceBuffer(&buf);
 	assert(SUCCEEDED(result));
 }

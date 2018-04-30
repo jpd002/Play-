@@ -7,16 +7,16 @@
 class CRawMpeg2Container : public CVideoContainer
 {
 public:
-	typedef std::function<void (uint8*, uint32)> VideoStreamHandler;
+	typedef std::function<void(uint8*, uint32)> VideoStreamHandler;
 
-							CRawMpeg2Container(Framework::CStream&);
-	virtual					~CRawMpeg2Container();
+	CRawMpeg2Container(Framework::CStream&);
+	virtual ~CRawMpeg2Container();
 
-	virtual STATUS			Read();
+	virtual STATUS Read();
 
-	void					RegisterVideoStreamHandler(const VideoStreamHandler&);
+	void RegisterVideoStreamHandler(const VideoStreamHandler&);
 
 private:
-	Framework::CStream&		m_inputStream;
-	VideoStreamHandler		m_videoStreamHandler;
+	Framework::CStream& m_inputStream;
+	VideoStreamHandler m_videoStreamHandler;
 };

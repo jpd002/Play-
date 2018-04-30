@@ -5,12 +5,10 @@ namespace filesystem = boost::filesystem;
 
 CXpsSaveImporter::CXpsSaveImporter()
 {
-
 }
 
 CXpsSaveImporter::~CXpsSaveImporter()
 {
-
 }
 
 void CXpsSaveImporter::Import(Framework::CStream& input, const boost::filesystem::path& outputPath)

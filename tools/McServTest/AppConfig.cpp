@@ -1,18 +1,16 @@
 #include "AppConfig.h"
 #include "PathUtils.h"
 
-#define BASE_DATA_PATH			(L"McServTest Data Files")
-#define CONFIG_FILENAME			(L"config.xml")
+#define BASE_DATA_PATH (L"McServTest Data Files")
+#define CONFIG_FILENAME (L"config.xml")
 
 CAppConfig::CAppConfig()
-: CConfig(BuildConfigPath())
+    : CConfig(BuildConfigPath())
 {
-
 }
 
 CAppConfig::~CAppConfig()
 {
-
 }
 
 Framework::CConfig::PathType CAppConfig::GetBasePath()

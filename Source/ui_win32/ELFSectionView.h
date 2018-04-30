@@ -12,37 +12,37 @@
 class CELFSectionView : public Framework::Win32::CDialog
 {
 public:
-									CELFSectionView(HWND, CELF*);
-	virtual							~CELFSectionView();
+	CELFSectionView(HWND, CELF*);
+	virtual ~CELFSectionView();
 
-	void							SetSectionIndex(uint16);
+	void SetSectionIndex(uint16);
 
 protected:
-	long							OnSize(unsigned int, unsigned int, unsigned int) override;
-	long							OnSetFocus() override;
+	long OnSize(unsigned int, unsigned int, unsigned int) override;
+	long OnSetFocus() override;
 
 private:
-	void							RefreshLayout();
-	void							FillInformation();
+	void RefreshLayout();
+	void FillInformation();
 
-	void							CreateDynamicSectionListViewColumns();
-	void							FillDynamicSectionListView();
+	void CreateDynamicSectionListViewColumns();
+	void FillDynamicSectionListView();
 
-	CELF*							m_pELF;
-	uint16							m_nSection;
+	CELF* m_pELF;
+	uint16 m_nSection;
 
-	Framework::FlatLayoutPtr		m_pLayout;
-	Framework::Win32::CEdit*		m_pType;
-	Framework::Win32::CEdit*		m_pFlags;
-	Framework::Win32::CEdit*		m_pAddress;
-	Framework::Win32::CEdit*		m_pOffset;
-	Framework::Win32::CEdit*		m_pSize;
-	Framework::Win32::CEdit*		m_pLink;
-	Framework::Win32::CEdit*		m_pInfo;
-	Framework::Win32::CEdit*		m_pAlignment;
-	Framework::Win32::CEdit*		m_pEntrySize;
-	Framework::Win32::CStatic*		m_contentsPlaceHolder;
+	Framework::FlatLayoutPtr m_pLayout;
+	Framework::Win32::CEdit* m_pType;
+	Framework::Win32::CEdit* m_pFlags;
+	Framework::Win32::CEdit* m_pAddress;
+	Framework::Win32::CEdit* m_pOffset;
+	Framework::Win32::CEdit* m_pSize;
+	Framework::Win32::CEdit* m_pLink;
+	Framework::Win32::CEdit* m_pInfo;
+	Framework::Win32::CEdit* m_pAlignment;
+	Framework::Win32::CEdit* m_pEntrySize;
+	Framework::Win32::CStatic* m_contentsPlaceHolder;
 
-	CMemoryViewPtr*					m_memoryView;
-	Framework::Win32::CListView*	m_dynamicSectionListView;
+	CMemoryViewPtr* m_memoryView;
+	Framework::Win32::CListView* m_dynamicSectionListView;
 };

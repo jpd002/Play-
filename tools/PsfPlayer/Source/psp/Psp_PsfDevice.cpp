@@ -5,12 +5,10 @@ using namespace Psp;
 
 CPsfDevice::CPsfDevice()
 {
-
 }
 
 CPsfDevice::~CPsfDevice()
 {
-
 }
 
 Framework::CStream* CPsfDevice::GetFile(const char* path, uint32 flags)

@@ -17,38 +17,38 @@ public:
 
 	enum LINES
 	{
-		INTC_LINE_GS			= 0,
-		INTC_LINE_DMAC			= 1,
-		INTC_LINE_VBLANK_START	= 2,
-		INTC_LINE_VBLANK_END	= 3,
-		INTC_LINE_VIF0			= 4,
-		INTC_LINE_VIF1			= 5,
-		INTC_LINE_IPU			= 8,
-		INTC_LINE_TIMER0		= 9,
-		INTC_LINE_TIMER1		= 10,
-		INTC_LINE_TIMER2		= 11,
-		INTC_LINE_TIMER3		= 12,
+		INTC_LINE_GS = 0,
+		INTC_LINE_DMAC = 1,
+		INTC_LINE_VBLANK_START = 2,
+		INTC_LINE_VBLANK_END = 3,
+		INTC_LINE_VIF0 = 4,
+		INTC_LINE_VIF1 = 5,
+		INTC_LINE_IPU = 8,
+		INTC_LINE_TIMER0 = 9,
+		INTC_LINE_TIMER1 = 10,
+		INTC_LINE_TIMER2 = 11,
+		INTC_LINE_TIMER3 = 12,
 	};
 
-					CINTC(CDMAC&, CGSHandler*&);
-	virtual			~CINTC();
+	CINTC(CDMAC&, CGSHandler*&);
+	virtual ~CINTC();
 
-	void			Reset();
-	bool			IsInterruptPending() const;
+	void Reset();
+	bool IsInterruptPending() const;
 
-	uint32			GetRegister(uint32);
-	void			SetRegister(uint32, uint32);
+	uint32 GetRegister(uint32);
+	void SetRegister(uint32, uint32);
 
-	void			AssertLine(uint32);
+	void AssertLine(uint32);
 
-	void			LoadState(Framework::CZipArchiveReader&);
-	void			SaveState(Framework::CZipArchiveWriter&);
+	void LoadState(Framework::CZipArchiveReader&);
+	void SaveState(Framework::CZipArchiveWriter&);
 
 private:
-	uint32			GetStat() const;
+	uint32 GetStat() const;
 
-	uint32			m_INTC_STAT;
-	uint32			m_INTC_MASK;
-	CDMAC&			m_dmac;
-	CGSHandler*&	m_gs;
+	uint32 m_INTC_STAT;
+	uint32 m_INTC_MASK;
+	CDMAC& m_dmac;
+	CGSHandler*& m_gs;
 };

@@ -7,8 +7,8 @@
 
 namespace DebugUtils
 {
-	std::tstring					PrintAddressLocation(uint32, CMIPS*, const BiosDebugModuleInfoArray&);
-	const BIOS_DEBUG_MODULE_INFO*	FindModuleAtAddress(const BiosDebugModuleInfoArray&, uint32);
+	std::tstring PrintAddressLocation(uint32, CMIPS*, const BiosDebugModuleInfoArray&);
+	const BIOS_DEBUG_MODULE_INFO* FindModuleAtAddress(const BiosDebugModuleInfoArray&, uint32);
 }
 
 #endif

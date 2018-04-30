@@ -40,31 +40,30 @@ App::App()
 /// search results, and so forth.
 /// </summary>
 /// <param name="args">Details about the launch request and process.</param>
-void App::OnLaunched(Windows::ApplicationModel::Activation::LaunchActivatedEventArgs^ args)
+void App::OnLaunched(Windows::ApplicationModel::Activation::LaunchActivatedEventArgs ^ args)
 {
-	auto rootFrame = dynamic_cast<Frame^>(Window::Current->Content);
+	auto rootFrame = dynamic_cast<Frame ^>(Window::Current->Content);
 
 	// Do not repeat app initialization when the Window already has content,
 	// just ensure that the window is active
-	if (rootFrame == nullptr)
+	if(rootFrame == nullptr)
 	{
 		// Create a Frame to act as the navigation context and associate it with
 		// a SuspensionManager key
 		rootFrame = ref new Frame();
 
-		if (args->PreviousExecutionState == ApplicationExecutionState::Terminated)
+		if(args->PreviousExecutionState == ApplicationExecutionState::Terminated)
 		{
 			// TODO: Restore the saved session state only when appropriate, scheduling the
 			// final launch steps after the restore is complete
-
 		}
 
-		if (rootFrame->Content == nullptr)
+		if(rootFrame->Content == nullptr)
 		{
 			// When the navigation stack isn't restored navigate to the first page,
 			// configuring the new page by passing required information as a navigation
 			// parameter
-			if (!rootFrame->Navigate(TypeName(MainPage::typeid), args->Arguments))
+			if(!rootFrame->Navigate(TypeName(MainPage::typeid), args->Arguments))
 			{
 				throw ref new FailureException("Failed to create initial page");
 			}
@@ -76,12 +75,12 @@ void App::OnLaunched(Windows::ApplicationModel::Activation::LaunchActivatedEvent
 	}
 	else
 	{
-		if (rootFrame->Content == nullptr)
+		if(rootFrame->Content == nullptr)
 		{
 			// When the navigation stack isn't restored navigate to the first page,
 			// configuring the new page by passing required information as a navigation
 			// parameter
-			if (!rootFrame->Navigate(TypeName(MainPage::typeid), args->Arguments))
+			if(!rootFrame->Navigate(TypeName(MainPage::typeid), args->Arguments))
 			{
 				throw ref new FailureException("Failed to create initial page");
 			}
@@ -98,10 +97,10 @@ void App::OnLaunched(Windows::ApplicationModel::Activation::LaunchActivatedEvent
 /// </summary>
 /// <param name="sender">The source of the suspend request.</param>
 /// <param name="e">Details about the suspend request.</param>
-void App::OnSuspending(Object^ sender, SuspendingEventArgs^ e)
+void App::OnSuspending(Object ^ sender, SuspendingEventArgs ^ e)
 {
-	(void) sender;	// Unused parameter
-	(void) e;	// Unused parameter
+	(void)sender; // Unused parameter
+	(void)e;      // Unused parameter
 
 	//TODO: Save application state and stop any background activity
 }

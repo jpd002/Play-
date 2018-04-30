@@ -5,18 +5,20 @@
 //#define LOGGING
 #define SAMPLE_RATE 44100
 
-ALCint g_attrList[] = 
-{
-	ALC_FREQUENCY,	SAMPLE_RATE,
-	0,				0
-};
+ALCint g_attrList[] =
+    {
+        ALC_FREQUENCY, SAMPLE_RATE,
+        0, 0};
 
-#define CHECK_AL_ERROR() { assert(alGetError() == AL_NO_ERROR); }
+#define CHECK_AL_ERROR()                     \
+	{                                        \
+		assert(alGetError() == AL_NO_ERROR); \
+	}
 
-CSH_OpenAL::CSH_OpenAL() :
-m_context(m_device, g_attrList),
-m_lastUpdateTime(0),
-m_mustSync(true)
+CSH_OpenAL::CSH_OpenAL()
+    : m_context(m_device, g_attrList)
+    , m_lastUpdateTime(0)
+    , m_mustSync(true)
 {
 	m_context.MakeCurrent();
 	alGenBuffers(MAX_BUFFERS, m_bufferNames);
@@ -74,10 +76,10 @@ void CSH_OpenAL::Write(int16* samples, unsigned int sampleCount, unsigned int sa
 
 	alBufferData(buffer, AL_FORMAT_STEREO16, samples, sampleCount * sizeof(int16), sampleRate);
 	CHECK_AL_ERROR();
-	
+
 	alSourceQueueBuffers(m_source, 1, &buffer);
 	CHECK_AL_ERROR();
-	
+
 	ALint sourceState = m_source.GetState();
 	if(sourceState != AL_PLAYING)
 	{

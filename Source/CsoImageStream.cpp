@@ -22,7 +22,11 @@ struct CsoHeader
 };
 
 CCsoImageStream::CCsoImageStream(CStream* baseStream)
-	: m_baseStream(baseStream), m_readBuffer(nullptr), m_zlibBuffer(nullptr), m_index(nullptr), m_position(0)
+    : m_baseStream(baseStream)
+    , m_readBuffer(nullptr)
+    , m_zlibBuffer(nullptr)
+    , m_index(nullptr)
+    , m_position(0)
 {
 	if(baseStream == nullptr)
 	{
@@ -35,9 +39,9 @@ CCsoImageStream::CCsoImageStream(CStream* baseStream)
 
 CCsoImageStream::~CCsoImageStream()
 {
-	delete [] m_readBuffer;
-	delete [] m_zlibBuffer;
-	delete [] m_index;
+	delete[] m_readBuffer;
+	delete[] m_zlibBuffer;
+	delete[] m_index;
 }
 
 void CCsoImageStream::ReadFileHeader()
@@ -106,7 +110,7 @@ void CCsoImageStream::InitializeBuffers()
 
 void CCsoImageStream::Seek(int64 position, Framework::STREAM_SEEK_DIRECTION origin)
 {
-	switch (origin)
+	switch(origin)
 	{
 	case Framework::STREAM_SEEK_CUR:
 		m_position += position;

@@ -2,11 +2,10 @@
 
 using namespace Framework;
 
-CElfViewEx::CElfViewEx(HWND parentWnd) 
-: CELFView(parentWnd)
-, m_elf(NULL)
+CElfViewEx::CElfViewEx(HWND parentWnd)
+    : CELFView(parentWnd)
+    , m_elf(NULL)
 {
-
 }
 
 CElfViewEx::~CElfViewEx()

@@ -7,19 +7,18 @@
 #include "MemoryUtils.h"
 
 const uint32 CCOP_FPU::m_ccMask[8] =
-{
-	0x00800000,
-	0x02000000,
-	0x04000000,
-	0x08000000,
-	0x10000000,
-	0x20000000,
-	0x40000000,
-	0x80000000
-};
+    {
+        0x00800000,
+        0x02000000,
+        0x04000000,
+        0x08000000,
+        0x10000000,
+        0x20000000,
+        0x40000000,
+        0x80000000};
 
 CCOP_FPU::CCOP_FPU(MIPS_REGSIZE regSize)
-: CMIPSCoprocessor(regSize)
+    : CMIPSCoprocessor(regSize)
 {
 	SetupReflectionTables();
 }

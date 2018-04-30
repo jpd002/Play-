@@ -3,9 +3,8 @@
 #include "AppConfig.h"
 
 CPH_HidUnix::CPH_HidUnix(CInputBindingManager* inputBindingManager)
- : m_inputManager(inputBindingManager)
+    : m_inputManager(inputBindingManager)
 {
-
 }
 
 CPH_HidUnix::~CPH_HidUnix()
@@ -15,7 +14,7 @@ CPH_HidUnix::~CPH_HidUnix()
 void CPH_HidUnix::Update(uint8* ram)
 {
 	for(auto listenerIterator(std::begin(m_listeners));
-		listenerIterator != std::end(m_listeners); listenerIterator++)
+	    listenerIterator != std::end(m_listeners); listenerIterator++)
 	{
 		auto* listener(*listenerIterator);
 

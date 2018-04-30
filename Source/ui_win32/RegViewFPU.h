@@ -8,14 +8,14 @@
 class CRegViewFPU : public CRegViewPage, public boost::signals2::trackable
 {
 public:
-									CRegViewFPU(HWND, const RECT&, CVirtualMachine&, CMIPS*);
-	virtual							~CRegViewFPU();
+	CRegViewFPU(HWND, const RECT&, CVirtualMachine&, CMIPS*);
+	virtual ~CRegViewFPU();
 
-	void							Update() override;
+	void Update() override;
 
 protected:
-	long							OnRightButtonUp(int, int) override;
-	long							OnCommand(unsigned short, unsigned short, HWND) override;
+	long OnRightButtonUp(int, int) override;
+	long OnCommand(unsigned short, unsigned short, HWND) override;
 
 private:
 	enum VIEWMODE
@@ -25,15 +25,15 @@ private:
 		VIEWMODE_MAX,
 	};
 
-	std::string 					GetDisplayText();
+	std::string GetDisplayText();
 
-	std::string						RenderWord();
-	std::string						RenderSingle();
-	std::string						RenderFCSR();
+	std::string RenderWord();
+	std::string RenderSingle();
+	std::string RenderFCSR();
 
-	void							OnMachineStateChange();
-	void							OnRunningStateChange();
+	void OnMachineStateChange();
+	void OnRunningStateChange();
 
-	VIEWMODE						m_nViewMode;
-	CMIPS*							m_pCtx;
+	VIEWMODE m_nViewMode;
+	CMIPS* m_pCtx;
 };

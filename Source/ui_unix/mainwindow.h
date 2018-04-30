@@ -17,89 +17,99 @@
 #include "GamePad/GamePadInputEventListener.h"
 #include "GamePad/GamePadDeviceListener.h"
 
-namespace Ui {
-class MainWindow;
+namespace Ui
+{
+	class MainWindow;
 }
 
 class MainWindow : public QMainWindow
 {
-    Q_OBJECT
+	Q_OBJECT
 
 public:
-    explicit MainWindow(QWidget *parent = 0);
-    ~MainWindow();
+	explicit MainWindow(QWidget* parent = 0);
+	~MainWindow();
 
 private:
-    void SetOpenGlPanelSize();
-    void CreateStatusBar();
-    void InitEmu();
-    void SetupSoundHandler();
-    void Setupfpscounter();
-    void SetupSaveLoadStateSlots();
-    QString SaveStateInfo(int);
-    void OnRunningStateChange();
-    void OnExecutableChange();
-    void UpdateUI();
-    void RegisterPreferences();
-    void BootElf(const char*);
-    void BootCDROM();
-    void saveState(int);
-    void loadState(int);
-    void toggleFullscreen();
+	void SetOpenGlPanelSize();
+	void CreateStatusBar();
+	void InitEmu();
+	void SetupSoundHandler();
+	void Setupfpscounter();
+	void SetupSaveLoadStateSlots();
+	QString SaveStateInfo(int);
+	void OnRunningStateChange();
+	void OnExecutableChange();
+	void UpdateUI();
+	void RegisterPreferences();
+	void BootElf(const char*);
+	void BootCDROM();
+	void saveState(int);
+	void loadState(int);
+	void toggleFullscreen();
 
-    Ui::MainWindow *ui;
+	Ui::MainWindow* ui;
 
-    QWindow* m_openglpanel;
-    QLabel *gameIDLabel;
-    QLabel* fpsLabel;
-    QLabel* m_dcLabel;
-    QLabel* m_stateLabel;
-    ElidedLabel* m_msgLabel;
-    CStatsManager* StatsManager;
-    CInputBindingManager* m_InputBindingManager;
-    QTimer *m_fpstimer = nullptr;
-    CPS2VM* g_virtualMachine = nullptr;
-    bool m_deactivatePause = false;
-    bool m_pauseFocusLost = true;
-    std::unique_ptr<CGamePadDeviceListener> m_GPDL;
-    enum BootType { CD, ELF };
-    struct lastOpenCommand
-    {
-        BootType type;
+	QWindow* m_openglpanel;
+	QLabel* gameIDLabel;
+	QLabel* fpsLabel;
+	QLabel* m_dcLabel;
+	QLabel* m_stateLabel;
+	ElidedLabel* m_msgLabel;
+	CStatsManager* StatsManager;
+	CInputBindingManager* m_InputBindingManager;
+	QTimer* m_fpstimer = nullptr;
+	CPS2VM* g_virtualMachine = nullptr;
+	bool m_deactivatePause = false;
+	bool m_pauseFocusLost = true;
+	std::unique_ptr<CGamePadDeviceListener> m_GPDL;
+	enum BootType
+	{
+		CD,
+		ELF
+	};
+	struct lastOpenCommand
+	{
+		BootType type;
 		std::string filename;
 		lastOpenCommand() = default;
-        lastOpenCommand(BootType m_type, std::string m_filename) : type(m_type),filename(m_filename){}
-    };
+		lastOpenCommand(BootType m_type, std::string m_filename)
+		    : type(m_type)
+		    , filename(m_filename)
+		{
+		}
+	};
 	lastOpenCommand m_lastOpenCommand;
-    QString m_lastpath = QDir::homePath();
+	QString m_lastpath = QDir::homePath();
 
-    QString ReadElementValue(QXmlStreamReader &Rxml);
+	QString ReadElementValue(QXmlStreamReader& Rxml);
+
 protected:
-    void closeEvent(QCloseEvent*) Q_DECL_OVERRIDE;
-    void showEvent(QShowEvent*) Q_DECL_OVERRIDE;
+	void closeEvent(QCloseEvent*) Q_DECL_OVERRIDE;
+	void showEvent(QShowEvent*) Q_DECL_OVERRIDE;
 
 public slots:
-    void openGLWindow_resized();
-    void setFPS();
+	void openGLWindow_resized();
+	void setFPS();
 
 private slots:
-    void on_actionOpen_Game_triggered();
-    void on_actionBoot_ELF_triggered();
-    void on_actionExit_triggered();
-    void keyPressEvent(QKeyEvent *);
-    void keyReleaseEvent(QKeyEvent *);
-    void on_actionSettings_triggered();
-    void on_actionPause_Resume_triggered();
-    void on_actionAbout_triggered();
-    void focusOutEvent(QFocusEvent*) Q_DECL_OVERRIDE;
-    void focusInEvent(QFocusEvent*) Q_DECL_OVERRIDE;
-    void on_actionPause_when_focus_is_lost_triggered(bool checked);
-    void on_actionReset_triggered();
-    void on_actionMemory_Card_Manager_triggered();
-    void on_actionVFS_Manager_triggered();
-    void on_actionController_Manager_triggered();
-    void on_actionCapture_Screen_triggered();
-    void doubleClickEvent(QMouseEvent*);
+	void on_actionOpen_Game_triggered();
+	void on_actionBoot_ELF_triggered();
+	void on_actionExit_triggered();
+	void keyPressEvent(QKeyEvent*);
+	void keyReleaseEvent(QKeyEvent*);
+	void on_actionSettings_triggered();
+	void on_actionPause_Resume_triggered();
+	void on_actionAbout_triggered();
+	void focusOutEvent(QFocusEvent*) Q_DECL_OVERRIDE;
+	void focusInEvent(QFocusEvent*) Q_DECL_OVERRIDE;
+	void on_actionPause_when_focus_is_lost_triggered(bool checked);
+	void on_actionReset_triggered();
+	void on_actionMemory_Card_Manager_triggered();
+	void on_actionVFS_Manager_triggered();
+	void on_actionController_Manager_triggered();
+	void on_actionCapture_Screen_triggered();
+	void doubleClickEvent(QMouseEvent*);
 };
 
 #endif // MAINWINDOW_H

@@ -4,16 +4,16 @@
 
 using namespace Iop;
 
-#define LOG_NAME    "iop_mtapman"
+#define LOG_NAME "iop_mtapman"
 
 CMtapMan::CMtapMan()
 {
 	m_module901 = CSifModuleAdapter(std::bind(&CMtapMan::Invoke901, this,
-		std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, std::placeholders::_5, std::placeholders::_6));
+	                                          std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, std::placeholders::_5, std::placeholders::_6));
 	m_module902 = CSifModuleAdapter(std::bind(&CMtapMan::Invoke902, this,
-		std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, std::placeholders::_5, std::placeholders::_6));
+	                                          std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, std::placeholders::_5, std::placeholders::_6));
 	m_module903 = CSifModuleAdapter(std::bind(&CMtapMan::Invoke903, this,
-		std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, std::placeholders::_5, std::placeholders::_6));
+	                                          std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, std::placeholders::_5, std::placeholders::_6));
 }
 
 std::string CMtapMan::GetId() const

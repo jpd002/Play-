@@ -6,10 +6,10 @@
 #include "string_cast.h"
 #include "string_format.h"
 
-#define DEFAULT_GROUPID		(1)
-#define DEFAULT_GROUPNAME	_T("Global")
+#define DEFAULT_GROUPID (1)
+#define DEFAULT_GROUPNAME _T("Global")
 
-#define SCALE(x)	MulDiv(x, ydpi, 96)
+#define SCALE(x) MulDiv(x, ydpi, 96)
 
 CFunctionsView::CFunctionsView(HWND hParent)
 {
@@ -18,8 +18,8 @@ CFunctionsView::CFunctionsView(HWND hParent)
 	windowStyle |= WS_CHILD;
 #endif
 	int ydpi = GetDeviceCaps(GetDC(NULL), LOGPIXELSY);
-	Create(NULL, Framework::Win32::CDefaultWndClass().GetName(), _T("Functions"), windowStyle, 
-	    Framework::Win32::CRect(0, 0, SCALE(320), SCALE(240)), hParent, NULL);
+	Create(NULL, Framework::Win32::CDefaultWndClass().GetName(), _T("Functions"), windowStyle,
+	       Framework::Win32::CRect(0, 0, SCALE(320), SCALE(240)), hParent, NULL);
 	SetClassPtr();
 
 	m_pList = new Framework::Win32::CListView(m_hWnd, Framework::Win32::CRect(0, 0, 0, 0), LVS_REPORT | LVS_SINGLESEL | LVS_SORTASCENDING | LVS_SHOWSELALWAYS);
@@ -27,10 +27,10 @@ CFunctionsView::CFunctionsView(HWND hParent)
 
 	CreateListColumns();
 
-	m_pNew		= new Framework::Win32::CButton(_T("New..."), m_hWnd, Framework::Win32::CRect(0, 0, 0, 0));
-	m_pRename	= new Framework::Win32::CButton(_T("Rename..."), m_hWnd, Framework::Win32::CRect(0, 0, 0, 0));
-	m_pDelete	= new Framework::Win32::CButton(_T("Delete"), m_hWnd, Framework::Win32::CRect(0, 0, 0, 0));
-	m_pImport	= new Framework::Win32::CButton(_T("Load ELF symbols"), m_hWnd, Framework::Win32::CRect(0, 0, 0, 0));
+	m_pNew = new Framework::Win32::CButton(_T("New..."), m_hWnd, Framework::Win32::CRect(0, 0, 0, 0));
+	m_pRename = new Framework::Win32::CButton(_T("Rename..."), m_hWnd, Framework::Win32::CRect(0, 0, 0, 0));
+	m_pDelete = new Framework::Win32::CButton(_T("Delete"), m_hWnd, Framework::Win32::CRect(0, 0, 0, 0));
+	m_pImport = new Framework::Win32::CButton(_T("Load ELF symbols"), m_hWnd, Framework::Win32::CRect(0, 0, 0, 0));
 
 	Framework::FlatLayoutPtr pSubLayout0 = Framework::CHorizontalLayout::Create();
 	pSubLayout0->InsertObject(Framework::CLayoutStretch::Create());
@@ -112,13 +112,13 @@ void CFunctionsView::CreateListColumns()
 	LVCOLUMN col;
 
 	memset(&col, 0, sizeof(LVCOLUMN));
-	col.pszText		= _T("Name");
-	col.mask		= LVCF_TEXT;
+	col.pszText = _T("Name");
+	col.mask = LVCF_TEXT;
 	m_pList->InsertColumn(0, col);
 
 	memset(&col, 0, sizeof(LVCOLUMN));
-	col.pszText		= _T("Address");
-	col.mask		= LVCF_TEXT;
+	col.pszText = _T("Address");
+	col.mask = LVCF_TEXT;
 	m_pList->InsertColumn(1, col);
 }
 
@@ -172,16 +172,16 @@ void CFunctionsView::RefreshList()
 	}
 
 	for(auto itTag(m_context->m_Functions.GetTagsBegin());
-		itTag != m_context->m_Functions.GetTagsEnd(); itTag++)
+	    itTag != m_context->m_Functions.GetTagsEnd(); itTag++)
 	{
 		LVITEM it;
 
 		std::tstring sTag(string_cast<std::tstring>(itTag->second));
 
 		memset(&it, 0, sizeof(LVITEM));
-		it.pszText	= const_cast<LPTSTR>(sTag.c_str());
-		it.lParam	= itTag->first;
-		it.mask		= LVIF_PARAM | LVIF_TEXT;
+		it.pszText = const_cast<LPTSTR>(sTag.c_str());
+		it.lParam = itTag->first;
+		it.mask = LVIF_PARAM | LVIF_TEXT;
 		if(groupingEnabled)
 		{
 			it.iGroupId = GetFunctionGroupId(itTag->first);
@@ -209,8 +209,8 @@ void CFunctionsView::InitializeModuleGrouper()
 	for(const auto& module : m_modules)
 	{
 		m_pList->InsertGroup(
-			string_cast<std::tstring>(module.name.c_str()).c_str(),
-			module.begin);
+		    string_cast<std::tstring>(module.name.c_str()).c_str(),
+		    module.begin);
 	}
 }
 
@@ -234,7 +234,7 @@ void CFunctionsView::SetContext(CMIPS* context, CBiosDebugInfoProvider* biosDebu
 	m_biosDebugInfoProvider = biosDebugInfoProvider;
 
 	m_functionTagsChangeConnection = m_context->m_Functions.OnTagListChange.connect(
-		boost::bind(&CFunctionsView::RefreshList, this));
+	    boost::bind(&CFunctionsView::RefreshList, this));
 	RefreshList();
 }
 
@@ -287,7 +287,7 @@ void CFunctionsView::OnRenameClick()
 
 	int nItem = m_pList->GetSelection();
 	if(nItem == -1) return;
-	
+
 	uint32 nAddress = m_pList->GetItemData(nItem);
 	const char* sName = m_context->m_Functions.Find(nAddress);
 
@@ -299,7 +299,7 @@ void CFunctionsView::OnRenameClick()
 
 	Framework::Win32::CInputBox RenameInput(_T("Rename Function"), _T("New Function Name:"), string_cast<std::tstring>(sName).c_str());
 	const TCHAR* sNewNameX = RenameInput.GetValue(m_hWnd);
-	
+
 	if(sNewNameX == NULL) return;
 
 	m_context->m_Functions.InsertTag(nAddress, string_cast<std::string>(sNewNameX).c_str());
@@ -313,7 +313,7 @@ void CFunctionsView::OnImportClick()
 	if(!m_context) return;
 
 	for(auto moduleIterator(std::begin(m_modules));
-		std::end(m_modules) != moduleIterator; moduleIterator++)
+	    std::end(m_modules) != moduleIterator; moduleIterator++)
 	{
 		const auto& module(*moduleIterator);
 		CELF* moduleImage = reinterpret_cast<CELF*>(module.param);

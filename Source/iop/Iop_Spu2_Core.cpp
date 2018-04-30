@@ -9,59 +9,57 @@
 using namespace Iop;
 using namespace Iop::Spu2;
 
-#define MAX_ADDRESS_REGISTER		(22)
-#define MAX_COEFFICIENT_REGISTER	(10)
+#define MAX_ADDRESS_REGISTER (22)
+#define MAX_COEFFICIENT_REGISTER (10)
 
 static unsigned int g_addressRegisterMapping[MAX_ADDRESS_REGISTER] =
-{
-	CSpuBase::FB_SRC_A,
-	CSpuBase::FB_SRC_B,
-	CSpuBase::IIR_DEST_A0,
-	CSpuBase::IIR_DEST_A1,
-	CSpuBase::ACC_SRC_A0,
-	CSpuBase::ACC_SRC_A1,
-	CSpuBase::ACC_SRC_B0,
-	CSpuBase::ACC_SRC_B1,
-	CSpuBase::IIR_SRC_A0,
-	CSpuBase::IIR_SRC_A1,
-	CSpuBase::IIR_DEST_B0,
-	CSpuBase::IIR_DEST_B1,
-	CSpuBase::ACC_SRC_C0,
-	CSpuBase::ACC_SRC_C1,
-	CSpuBase::ACC_SRC_D0,
-	CSpuBase::ACC_SRC_D1,
-	CSpuBase::IIR_SRC_B1,
-	CSpuBase::IIR_SRC_B0,
-	CSpuBase::MIX_DEST_A0,
-	CSpuBase::MIX_DEST_A1,
-	CSpuBase::MIX_DEST_B0,
-	CSpuBase::MIX_DEST_B1
-};
+    {
+        CSpuBase::FB_SRC_A,
+        CSpuBase::FB_SRC_B,
+        CSpuBase::IIR_DEST_A0,
+        CSpuBase::IIR_DEST_A1,
+        CSpuBase::ACC_SRC_A0,
+        CSpuBase::ACC_SRC_A1,
+        CSpuBase::ACC_SRC_B0,
+        CSpuBase::ACC_SRC_B1,
+        CSpuBase::IIR_SRC_A0,
+        CSpuBase::IIR_SRC_A1,
+        CSpuBase::IIR_DEST_B0,
+        CSpuBase::IIR_DEST_B1,
+        CSpuBase::ACC_SRC_C0,
+        CSpuBase::ACC_SRC_C1,
+        CSpuBase::ACC_SRC_D0,
+        CSpuBase::ACC_SRC_D1,
+        CSpuBase::IIR_SRC_B1,
+        CSpuBase::IIR_SRC_B0,
+        CSpuBase::MIX_DEST_A0,
+        CSpuBase::MIX_DEST_A1,
+        CSpuBase::MIX_DEST_B0,
+        CSpuBase::MIX_DEST_B1};
 
 static unsigned int g_coefficientRegisterMapping[MAX_COEFFICIENT_REGISTER] =
-{
-	CSpuBase::IIR_ALPHA,
-	CSpuBase::ACC_COEF_A,
-	CSpuBase::ACC_COEF_B,
-	CSpuBase::ACC_COEF_C,
-	CSpuBase::ACC_COEF_D,
-	CSpuBase::IIR_COEF,
-	CSpuBase::FB_ALPHA,
-	CSpuBase::FB_X,
-	CSpuBase::IN_COEF_L,
-	CSpuBase::IN_COEF_R
-};
+    {
+        CSpuBase::IIR_ALPHA,
+        CSpuBase::ACC_COEF_A,
+        CSpuBase::ACC_COEF_B,
+        CSpuBase::ACC_COEF_C,
+        CSpuBase::ACC_COEF_D,
+        CSpuBase::IIR_COEF,
+        CSpuBase::FB_ALPHA,
+        CSpuBase::FB_X,
+        CSpuBase::IN_COEF_L,
+        CSpuBase::IN_COEF_R};
 
 CCore::CCore(unsigned int coreId, CSpuBase& spuBase)
-: m_coreId(coreId)
-, m_spuBase(spuBase)
+    : m_coreId(coreId)
+    , m_spuBase(spuBase)
 {
 	m_logName = string_format(LOG_NAME_FORMAT, m_coreId);
 
-	m_readDispatch.core		= &CCore::ReadRegisterCore;
-	m_readDispatch.channel	= &CCore::ReadRegisterChannel;
+	m_readDispatch.core = &CCore::ReadRegisterCore;
+	m_readDispatch.channel = &CCore::ReadRegisterChannel;
 
-	m_writeDispatch.core	= &CCore::WriteRegisterCore;
+	m_writeDispatch.core = &CCore::WriteRegisterCore;
 	m_writeDispatch.channel = &CCore::WriteRegisterChannel;
 
 	Reset();
@@ -69,12 +67,10 @@ CCore::CCore(unsigned int coreId, CSpuBase& spuBase)
 
 CCore::~CCore()
 {
-
 }
 
 void CCore::Reset()
 {
-
 }
 
 CSpuBase& CCore::GetSpuBase() const
@@ -383,7 +379,10 @@ uint32 CCore::WriteRegisterChannel(unsigned int channelId, uint32 address, uint3
 void CCore::LogRead(uint32 address, uint32 value)
 {
 	auto logName = m_logName.c_str();
-#define LOG_GET(registerId) case registerId: CLog::GetInstance().Print(logName, "= " #registerId " = 0x%04X\r\n", value); break;
+#define LOG_GET(registerId)                                                          \
+	case registerId:                                                                 \
+		CLog::GetInstance().Print(logName, "= " #registerId " = 0x%04X\r\n", value); \
+		break;
 
 	switch(address)
 	{
@@ -422,7 +421,10 @@ void CCore::LogRead(uint32 address, uint32 value)
 void CCore::LogWrite(uint32 address, uint32 value)
 {
 	auto logName = m_logName.c_str();
-#define LOG_SET(registerId) case registerId: CLog::GetInstance().Print(logName, #registerId " = 0x%04X\r\n", value); break;
+#define LOG_SET(registerId)                                                     \
+	case registerId:                                                            \
+		CLog::GetInstance().Print(logName, #registerId " = 0x%04X\r\n", value); \
+		break;
 
 	switch(address)
 	{
@@ -474,7 +476,10 @@ void CCore::LogWrite(uint32 address, uint32 value)
 void CCore::LogChannelRead(unsigned int channelId, uint32 address, uint32 value)
 {
 	auto logName = m_logName.c_str();
-#define LOG_GET(registerId) case registerId: CLog::GetInstance().Print(logName, "ch%02d: = " #registerId " = 0x%04X\r\n", channelId, value); break;
+#define LOG_GET(registerId)                                                                             \
+	case registerId:                                                                                    \
+		CLog::GetInstance().Print(logName, "ch%02d: = " #registerId " = 0x%04X\r\n", channelId, value); \
+		break;
 
 	switch(address)
 	{
@@ -494,8 +499,8 @@ void CCore::LogChannelRead(unsigned int channelId, uint32 address, uint32 value)
 		LOG_GET(VA_NAX_LO)
 
 	default:
-		CLog::GetInstance().Print(logName, "ch%02d: Read an unknown register 0x%04X.\r\n", 
-			channelId, address);
+		CLog::GetInstance().Print(logName, "ch%02d: Read an unknown register 0x%04X.\r\n",
+		                          channelId, address);
 		break;
 	}
 
@@ -505,7 +510,10 @@ void CCore::LogChannelRead(unsigned int channelId, uint32 address, uint32 value)
 void CCore::LogChannelWrite(unsigned int channelId, uint32 address, uint32 value)
 {
 	auto logName = m_logName.c_str();
-#define LOG_SET(registerId) case registerId: CLog::GetInstance().Print(logName, "ch%02d: " #registerId " = 0x%04X\r\n", channelId, value); break;
+#define LOG_SET(registerId)                                                                           \
+	case registerId:                                                                                  \
+		CLog::GetInstance().Print(logName, "ch%02d: " #registerId " = 0x%04X\r\n", channelId, value); \
+		break;
 
 	switch(address)
 	{
@@ -523,8 +531,8 @@ void CCore::LogChannelWrite(unsigned int channelId, uint32 address, uint32 value
 		LOG_SET(VA_LSAX_LO)
 
 	default:
-		CLog::GetInstance().Print(logName, "ch%02d: Wrote %04X to an unknown register 0x%04X.\r\n", 
-			channelId, value, address);
+		CLog::GetInstance().Print(logName, "ch%02d: Wrote %04X to an unknown register 0x%04X.\r\n",
+		                          channelId, value, address);
 		break;
 	}
 

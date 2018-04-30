@@ -8,14 +8,14 @@ using namespace Iop;
 using namespace Iop::Dmac;
 
 #define STATE_REGS_XML_FORMAT ("iop_dmac/channel_%d.xml")
-#define STATE_REGS_CHCR       ("CHCR")
-#define STATE_REGS_BCR        ("BCR")
-#define STATE_REGS_MADR       ("MADR")
+#define STATE_REGS_CHCR ("CHCR")
+#define STATE_REGS_BCR ("BCR")
+#define STATE_REGS_MADR ("MADR")
 
-CChannel::CChannel(uint32 baseAddress, unsigned int number, CDmac& dmac) 
-: m_dmac(dmac)
-, m_number(number)
-, m_baseAddress(baseAddress)
+CChannel::CChannel(uint32 baseAddress, unsigned int number, CDmac& dmac)
+    : m_dmac(dmac)
+    , m_number(number)
+    , m_baseAddress(baseAddress)
 {
 	Reset();
 }
@@ -32,8 +32,8 @@ void CChannel::LoadState(Framework::CZipArchiveReader& archive)
 	auto path = string_format(STATE_REGS_XML_FORMAT, m_number);
 	auto registerFile = CRegisterStateFile(*archive.BeginReadFile(path.c_str()));
 	m_CHCR <<= registerFile.GetRegister32(STATE_REGS_CHCR);
-	m_BCR  <<= registerFile.GetRegister32(STATE_REGS_BCR);
-	m_MADR   = registerFile.GetRegister32(STATE_REGS_MADR);
+	m_BCR <<= registerFile.GetRegister32(STATE_REGS_BCR);
+	m_MADR = registerFile.GetRegister32(STATE_REGS_MADR);
 }
 
 void CChannel::SaveState(Framework::CZipArchiveWriter& archive)
@@ -41,7 +41,7 @@ void CChannel::SaveState(Framework::CZipArchiveWriter& archive)
 	auto path = string_format(STATE_REGS_XML_FORMAT, m_number);
 	auto registerFile = new CRegisterStateFile(path.c_str());
 	registerFile->SetRegister32(STATE_REGS_CHCR, m_CHCR);
-	registerFile->SetRegister32(STATE_REGS_BCR,  m_BCR);
+	registerFile->SetRegister32(STATE_REGS_BCR, m_BCR);
 	registerFile->SetRegister32(STATE_REGS_MADR, m_MADR);
 	archive.InsertFile(registerFile);
 }

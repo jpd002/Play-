@@ -10,7 +10,7 @@ class CSaveImporter
 public:
 	typedef CSaveImporterBase::OverwritePromptHandlerType OverwritePromptHandlerType;
 
-	static void			ImportSave(Framework::CStream&, const boost::filesystem::path&, const OverwritePromptHandlerType&);
+	static void ImportSave(Framework::CStream&, const boost::filesystem::path&, const OverwritePromptHandlerType&);
 };
 
 #endif

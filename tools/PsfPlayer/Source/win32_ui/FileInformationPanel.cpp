@@ -6,28 +6,28 @@
 #include "resource.h"
 
 CFileInformationPanel::CFileInformationPanel(HWND parentWnd)
-: Framework::Win32::CDialog(MAKEINTRESOURCE(IDD_FILEINFORMATIONPANEL), parentWnd)
-, m_title(NULL)
-, m_artist(NULL)
-, m_game(NULL)
-, m_year(NULL)
-, m_genre(NULL)
-, m_comment(NULL)
-, m_copyright(NULL)
-, m_psfBy(NULL)
-, m_rawTags(NULL)
+    : Framework::Win32::CDialog(MAKEINTRESOURCE(IDD_FILEINFORMATIONPANEL), parentWnd)
+    , m_title(NULL)
+    , m_artist(NULL)
+    , m_game(NULL)
+    , m_year(NULL)
+    , m_genre(NULL)
+    , m_comment(NULL)
+    , m_copyright(NULL)
+    , m_psfBy(NULL)
+    , m_rawTags(NULL)
 {
-    SetClassPtr();
+	SetClassPtr();
 
-	m_title		= new Framework::Win32::CEdit(GetItem(IDC_TITLE_EDIT));
-	m_artist	= new Framework::Win32::CEdit(GetItem(IDC_ARTIST_EDIT));
-	m_game		= new Framework::Win32::CEdit(GetItem(IDC_GAME_EDIT));
-	m_year		= new Framework::Win32::CEdit(GetItem(IDC_YEAR_EDIT));
-	m_genre		= new Framework::Win32::CEdit(GetItem(IDC_GENRE_EDIT));
-	m_comment	= new Framework::Win32::CEdit(GetItem(IDC_COMMENT_EDIT));
-	m_copyright	= new Framework::Win32::CEdit(GetItem(IDC_COPYRIGHT_EDIT));
-	m_psfBy		= new Framework::Win32::CEdit(GetItem(IDC_PSFBY_EDIT));
-	m_rawTags	= new Framework::Win32::CEdit(GetItem(IDC_RAWTAGS_EDIT));
+	m_title = new Framework::Win32::CEdit(GetItem(IDC_TITLE_EDIT));
+	m_artist = new Framework::Win32::CEdit(GetItem(IDC_ARTIST_EDIT));
+	m_game = new Framework::Win32::CEdit(GetItem(IDC_GAME_EDIT));
+	m_year = new Framework::Win32::CEdit(GetItem(IDC_YEAR_EDIT));
+	m_genre = new Framework::Win32::CEdit(GetItem(IDC_GENRE_EDIT));
+	m_comment = new Framework::Win32::CEdit(GetItem(IDC_COMMENT_EDIT));
+	m_copyright = new Framework::Win32::CEdit(GetItem(IDC_COPYRIGHT_EDIT));
+	m_psfBy = new Framework::Win32::CEdit(GetItem(IDC_PSFBY_EDIT));
+	m_rawTags = new Framework::Win32::CEdit(GetItem(IDC_RAWTAGS_EDIT));
 
 	RECT columnEditBoxSize;
 	SetRect(&columnEditBoxSize, 0, 0, 168, 12);
@@ -41,60 +41,41 @@ CFileInformationPanel::CFileInformationPanel(HWND parentWnd)
 	unsigned int columnLabelWidth = columnLabelSize.right - columnLabelSize.left;
 	unsigned int columnLabelHeight = columnLabelSize.bottom - columnLabelSize.top;
 
-	m_layout = 
-		Framework::VerticalLayoutContainer
-		(
-			Framework::HorizontalLayoutContainer
-			(
-				Framework::LayoutExpression(Framework::Win32::CLayoutWindow::CreateButtonBehavior(columnLabelWidth, columnLabelHeight, new Framework::Win32::CStatic(GetItem(IDC_TITLE_LABEL)))) +
-				Framework::LayoutExpression(Framework::Win32::CLayoutWindow::CreateTextBoxBehavior(columnEditBoxWidth, columnEditBoxHeight, m_title))
-			) +
-			Framework::HorizontalLayoutContainer
-			(
-				Framework::LayoutExpression(Framework::Win32::CLayoutWindow::CreateButtonBehavior(columnLabelWidth, columnLabelHeight, new Framework::Win32::CStatic(GetItem(IDC_ARTIST_LABEL)))) +
-				Framework::LayoutExpression(Framework::Win32::CLayoutWindow::CreateTextBoxBehavior(columnEditBoxWidth, columnEditBoxHeight, m_artist))
-			) +
-			Framework::HorizontalLayoutContainer
-			(
-				Framework::LayoutExpression(Framework::Win32::CLayoutWindow::CreateButtonBehavior(columnLabelWidth, columnLabelHeight, new Framework::Win32::CStatic(GetItem(IDC_GAME_LABEL)))) +
-				Framework::LayoutExpression(Framework::Win32::CLayoutWindow::CreateTextBoxBehavior(columnEditBoxWidth, columnEditBoxHeight, m_game))
-			) +
-			Framework::HorizontalLayoutContainer
-			(
-				Framework::LayoutExpression(Framework::Win32::CLayoutWindow::CreateButtonBehavior(columnLabelWidth, columnLabelHeight, new Framework::Win32::CStatic(GetItem(IDC_YEAR_LABEL)))) +
-				Framework::LayoutExpression(Framework::Win32::CLayoutWindow::CreateTextBoxBehavior(columnEditBoxWidth, columnEditBoxHeight, m_year))
-			) +
-			Framework::HorizontalLayoutContainer
-			(
-				Framework::LayoutExpression(Framework::Win32::CLayoutWindow::CreateButtonBehavior(columnLabelWidth, columnLabelHeight, new Framework::Win32::CStatic(GetItem(IDC_GENRE_LABEL)))) +
-				Framework::LayoutExpression(Framework::Win32::CLayoutWindow::CreateTextBoxBehavior(columnEditBoxWidth, columnEditBoxHeight, m_genre))
-			) +
-			Framework::HorizontalLayoutContainer
-			(
-				Framework::LayoutExpression(Framework::Win32::CLayoutWindow::CreateButtonBehavior(columnLabelWidth, columnLabelHeight, new Framework::Win32::CStatic(GetItem(IDC_COMMENT_LABEL)))) +
-				Framework::LayoutExpression(Framework::Win32::CLayoutWindow::CreateTextBoxBehavior(columnEditBoxWidth, columnEditBoxHeight, m_comment))
-			) +
-			Framework::HorizontalLayoutContainer
-			(
-				Framework::LayoutExpression(Framework::Win32::CLayoutWindow::CreateButtonBehavior(columnLabelWidth, columnLabelHeight, new Framework::Win32::CStatic(GetItem(IDC_COPYRIGHT_LABEL)))) +
-				Framework::LayoutExpression(Framework::Win32::CLayoutWindow::CreateTextBoxBehavior(columnEditBoxWidth, columnEditBoxHeight, m_copyright))
-			) +
-			Framework::HorizontalLayoutContainer
-			(
-				Framework::LayoutExpression(Framework::Win32::CLayoutWindow::CreateButtonBehavior(columnLabelWidth, columnLabelHeight, new Framework::Win32::CStatic(GetItem(IDC_PSFBY_LABEL)))) +
-				Framework::LayoutExpression(Framework::Win32::CLayoutWindow::CreateTextBoxBehavior(columnEditBoxWidth, columnEditBoxHeight, m_psfBy))
-			) +
-			Framework::LayoutExpression(Framework::Win32::CLayoutWindow::CreateTextBoxBehavior(100, 2, new Framework::Win32::CStatic(GetItem(IDC_VERTICAL_SEPARATOR)))) +
-			Framework::LayoutExpression(Framework::Win32::CLayoutWindow::CreateTextBoxBehavior(columnLabelWidth, columnLabelHeight, new Framework::Win32::CStatic(GetItem(IDC_RAWTAGS_LABEL)))) +
-			Framework::LayoutExpression(Framework::Win32::CLayoutWindow::CreateCustomBehavior(100, 20, 1, 1, m_rawTags))
-		);
+	m_layout =
+	    Framework::VerticalLayoutContainer(
+	        Framework::HorizontalLayoutContainer(
+	            Framework::LayoutExpression(Framework::Win32::CLayoutWindow::CreateButtonBehavior(columnLabelWidth, columnLabelHeight, new Framework::Win32::CStatic(GetItem(IDC_TITLE_LABEL)))) +
+	            Framework::LayoutExpression(Framework::Win32::CLayoutWindow::CreateTextBoxBehavior(columnEditBoxWidth, columnEditBoxHeight, m_title))) +
+	        Framework::HorizontalLayoutContainer(
+	            Framework::LayoutExpression(Framework::Win32::CLayoutWindow::CreateButtonBehavior(columnLabelWidth, columnLabelHeight, new Framework::Win32::CStatic(GetItem(IDC_ARTIST_LABEL)))) +
+	            Framework::LayoutExpression(Framework::Win32::CLayoutWindow::CreateTextBoxBehavior(columnEditBoxWidth, columnEditBoxHeight, m_artist))) +
+	        Framework::HorizontalLayoutContainer(
+	            Framework::LayoutExpression(Framework::Win32::CLayoutWindow::CreateButtonBehavior(columnLabelWidth, columnLabelHeight, new Framework::Win32::CStatic(GetItem(IDC_GAME_LABEL)))) +
+	            Framework::LayoutExpression(Framework::Win32::CLayoutWindow::CreateTextBoxBehavior(columnEditBoxWidth, columnEditBoxHeight, m_game))) +
+	        Framework::HorizontalLayoutContainer(
+	            Framework::LayoutExpression(Framework::Win32::CLayoutWindow::CreateButtonBehavior(columnLabelWidth, columnLabelHeight, new Framework::Win32::CStatic(GetItem(IDC_YEAR_LABEL)))) +
+	            Framework::LayoutExpression(Framework::Win32::CLayoutWindow::CreateTextBoxBehavior(columnEditBoxWidth, columnEditBoxHeight, m_year))) +
+	        Framework::HorizontalLayoutContainer(
+	            Framework::LayoutExpression(Framework::Win32::CLayoutWindow::CreateButtonBehavior(columnLabelWidth, columnLabelHeight, new Framework::Win32::CStatic(GetItem(IDC_GENRE_LABEL)))) +
+	            Framework::LayoutExpression(Framework::Win32::CLayoutWindow::CreateTextBoxBehavior(columnEditBoxWidth, columnEditBoxHeight, m_genre))) +
+	        Framework::HorizontalLayoutContainer(
+	            Framework::LayoutExpression(Framework::Win32::CLayoutWindow::CreateButtonBehavior(columnLabelWidth, columnLabelHeight, new Framework::Win32::CStatic(GetItem(IDC_COMMENT_LABEL)))) +
+	            Framework::LayoutExpression(Framework::Win32::CLayoutWindow::CreateTextBoxBehavior(columnEditBoxWidth, columnEditBoxHeight, m_comment))) +
+	        Framework::HorizontalLayoutContainer(
+	            Framework::LayoutExpression(Framework::Win32::CLayoutWindow::CreateButtonBehavior(columnLabelWidth, columnLabelHeight, new Framework::Win32::CStatic(GetItem(IDC_COPYRIGHT_LABEL)))) +
+	            Framework::LayoutExpression(Framework::Win32::CLayoutWindow::CreateTextBoxBehavior(columnEditBoxWidth, columnEditBoxHeight, m_copyright))) +
+	        Framework::HorizontalLayoutContainer(
+	            Framework::LayoutExpression(Framework::Win32::CLayoutWindow::CreateButtonBehavior(columnLabelWidth, columnLabelHeight, new Framework::Win32::CStatic(GetItem(IDC_PSFBY_LABEL)))) +
+	            Framework::LayoutExpression(Framework::Win32::CLayoutWindow::CreateTextBoxBehavior(columnEditBoxWidth, columnEditBoxHeight, m_psfBy))) +
+	        Framework::LayoutExpression(Framework::Win32::CLayoutWindow::CreateTextBoxBehavior(100, 2, new Framework::Win32::CStatic(GetItem(IDC_VERTICAL_SEPARATOR)))) +
+	        Framework::LayoutExpression(Framework::Win32::CLayoutWindow::CreateTextBoxBehavior(columnLabelWidth, columnLabelHeight, new Framework::Win32::CStatic(GetItem(IDC_RAWTAGS_LABEL)))) +
+	        Framework::LayoutExpression(Framework::Win32::CLayoutWindow::CreateCustomBehavior(100, 20, 1, 1, m_rawTags)));
 
 	RefreshLayout();
 }
 
 CFileInformationPanel::~CFileInformationPanel()
 {
-
 }
 
 void CFileInformationPanel::SetTags(const CPsfTags& tags)
@@ -129,12 +110,12 @@ void CFileInformationPanel::UpdateFields()
 
 	std::tstring rawTagsString;
 	for(CPsfTags::ConstTagIterator tagIterator(m_tags.GetTagsBegin());
-		tagIterator != m_tags.GetTagsEnd(); tagIterator++)
+	    tagIterator != m_tags.GetTagsEnd(); tagIterator++)
 	{
-		rawTagsString += 
-			string_cast<std::tstring>(tagIterator->first) + 
-			_T("=") + 
-			string_cast<std::tstring>(m_tags.DecodeTagValue(tagIterator->second.c_str())) + _T("\r\n");
+		rawTagsString +=
+		    string_cast<std::tstring>(tagIterator->first) +
+		    _T("=") +
+		    string_cast<std::tstring>(m_tags.DecodeTagValue(tagIterator->second.c_str())) + _T("\r\n");
 	}
 	m_rawTags->SetText(rawTagsString.c_str());
 }

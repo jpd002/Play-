@@ -13,32 +13,32 @@ namespace PH_DirectInput
 	class CControllerSettingsWnd : public Framework::Win32::CModalWindow
 	{
 	public:
-											CControllerSettingsWnd(HWND, CInputManager&);
-		virtual								~CControllerSettingsWnd();
+		CControllerSettingsWnd(HWND, CInputManager&);
+		virtual ~CControllerSettingsWnd();
 
 	protected:
-		long								OnCommand(unsigned short, unsigned short, HWND) override;
-		LRESULT								OnNotify(WPARAM, NMHDR*) override;
-		long								OnTimer(WPARAM) override;
+		long OnCommand(unsigned short, unsigned short, HWND) override;
+		LRESULT OnNotify(WPARAM, NMHDR*) override;
+		long OnTimer(WPARAM) override;
 
 	private:
-		void								RefreshLayout();
-		void								AutoConfigKeyboard();
-		void								AutoConfigJoystick();
-		void								UpdateBindings();
-		void								UpdateBindingValues();
-		void								PopulateList();
-		void								OnListItemDblClick();
+		void RefreshLayout();
+		void AutoConfigKeyboard();
+		void AutoConfigJoystick();
+		void UpdateBindings();
+		void UpdateBindingValues();
+		void PopulateList();
+		void OnListItemDblClick();
 
-		Framework::LayoutObjectPtr			m_layout;
-		Framework::Win32::CListView*		m_bindingList;
-		Framework::Win32::CButton*			m_ok;
-		Framework::Win32::CButton*			m_cancel;
-		Framework::Win32::CButton*			m_autoConfigButton;
-		CInputManager&						m_inputManager;
+		Framework::LayoutObjectPtr m_layout;
+		Framework::Win32::CListView* m_bindingList;
+		Framework::Win32::CButton* m_ok;
+		Framework::Win32::CButton* m_cancel;
+		Framework::Win32::CButton* m_autoConfigButton;
+		CInputManager& m_inputManager;
 
-		bool								m_valuesCached;
-		uint32								m_cachedValues[PS2::CControllerInfo::MAX_BUTTONS];
+		bool m_valuesCached;
+		uint32 m_cachedValues[PS2::CControllerInfo::MAX_BUTTONS];
 	};
 }
 

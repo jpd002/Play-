@@ -7,7 +7,7 @@
 
 namespace Ui
 {
-class VFSDiscSelectorDialog;
+	class VFSDiscSelectorDialog;
 }
 
 class VFSDiscSelectorDialog : public QDialog
@@ -35,6 +35,6 @@ private:
 	void Refresh_disc_drive();
 
 	Ui::VFSDiscSelectorDialog* ui;
-	QString                    m_path;
-	QList<QStorageInfo>        m_discInfo;
+	QString m_path;
+	QList<QStorageInfo> m_discInfo;
 };

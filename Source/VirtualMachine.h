@@ -11,11 +11,11 @@ public:
 		PAUSED = 2,
 	};
 
-	virtual								~CVirtualMachine() {};
-	virtual STATUS						GetStatus() const = 0;
-	virtual void						Pause() = 0;
-	virtual void						Resume() = 0;
+	virtual ~CVirtualMachine(){};
+	virtual STATUS GetStatus() const = 0;
+	virtual void Pause() = 0;
+	virtual void Resume() = 0;
 
-	boost::signals2::signal<void ()>	OnMachineStateChange;
-	boost::signals2::signal<void ()>	OnRunningStateChange;
+	boost::signals2::signal<void()> OnMachineStateChange;
+	boost::signals2::signal<void()> OnRunningStateChange;
 };

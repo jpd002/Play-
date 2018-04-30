@@ -4,10 +4,10 @@
 
 #define MENUCMD_BASE 40000
 
-CRegViewFPU::CRegViewFPU(HWND hParent, const RECT& rect, CVirtualMachine& virtualMachine, CMIPS* pC) 
-: CRegViewPage(hParent, rect)
-, m_pCtx(pC)
-, m_nViewMode(VIEWMODE_SINGLE)
+CRegViewFPU::CRegViewFPU(HWND hParent, const RECT& rect, CVirtualMachine& virtualMachine, CMIPS* pC)
+    : CRegViewPage(hParent, rect)
+    , m_pCtx(pC)
+    , m_nViewMode(VIEWMODE_SINGLE)
 {
 	virtualMachine.OnMachineStateChange.connect(boost::bind(&CRegViewFPU::OnMachineStateChange, this));
 	virtualMachine.OnRunningStateChange.connect(boost::bind(&CRegViewFPU::OnRunningStateChange, this));
@@ -15,7 +15,6 @@ CRegViewFPU::CRegViewFPU(HWND hParent, const RECT& rect, CVirtualMachine& virtua
 
 CRegViewFPU::~CRegViewFPU()
 {
-
 }
 
 void CRegViewFPU::Update()
@@ -48,15 +47,15 @@ std::string CRegViewFPU::RenderFCSR()
 	sprintf(sText, "FCSR: 0x%08X\r\n", m_pCtx->m_State.nFCSR);
 	result += sText;
 
-	sprintf(sText, "CC  : %i%i%i%i%i%i%i%ib\r\n", \
-		(m_pCtx->m_State.nFCSR & 0x80000000) != 0 ? 1 : 0, \
-		(m_pCtx->m_State.nFCSR & 0x40000000) != 0 ? 1 : 0, \
-		(m_pCtx->m_State.nFCSR & 0x20000000) != 0 ? 1 : 0, \
-		(m_pCtx->m_State.nFCSR & 0x10000000) != 0 ? 1 : 0, \
-		(m_pCtx->m_State.nFCSR & 0x04000000) != 0 ? 1 : 0, \
-		(m_pCtx->m_State.nFCSR & 0x08000000) != 0 ? 1 : 0, \
-		(m_pCtx->m_State.nFCSR & 0x02000000) != 0 ? 1 : 0, \
-		(m_pCtx->m_State.nFCSR & 0x00800000) != 0 ? 1 : 0);
+	sprintf(sText, "CC  : %i%i%i%i%i%i%i%ib\r\n",
+	        (m_pCtx->m_State.nFCSR & 0x80000000) != 0 ? 1 : 0,
+	        (m_pCtx->m_State.nFCSR & 0x40000000) != 0 ? 1 : 0,
+	        (m_pCtx->m_State.nFCSR & 0x20000000) != 0 ? 1 : 0,
+	        (m_pCtx->m_State.nFCSR & 0x10000000) != 0 ? 1 : 0,
+	        (m_pCtx->m_State.nFCSR & 0x04000000) != 0 ? 1 : 0,
+	        (m_pCtx->m_State.nFCSR & 0x08000000) != 0 ? 1 : 0,
+	        (m_pCtx->m_State.nFCSR & 0x02000000) != 0 ? 1 : 0,
+	        (m_pCtx->m_State.nFCSR & 0x00800000) != 0 ? 1 : 0);
 	result += sText;
 
 	return result;
@@ -114,10 +113,10 @@ std::string CRegViewFPU::RenderSingle()
 		float nValue = *(float*)(&nData);
 
 		sprintf(sText, "%s: %+.24e\r\n", sReg, nValue);
-	
+
 		result += sText;
 	}
-	
+
 	float nValue = *(float*)(&s->nCOP1A);
 	sprintf(sText, "ACC : %+.24e\r\n", nValue);
 	result += sText;
@@ -128,14 +127,14 @@ std::string CRegViewFPU::RenderSingle()
 
 long CRegViewFPU::OnRightButtonUp(int nX, int nY)
 {
-	POINT pt = { nX, nY };
+	POINT pt = {nX, nY};
 	ClientToScreen(m_hWnd, &pt);
 
 	HMENU hMenu = CreatePopupMenu();
-	InsertMenu(hMenu, 0, MF_BYPOSITION | (m_nViewMode == VIEWMODE_WORD ? MF_CHECKED : 0),   MENUCMD_BASE + VIEWMODE_WORD,   _T("32 Bits Integers"));
+	InsertMenu(hMenu, 0, MF_BYPOSITION | (m_nViewMode == VIEWMODE_WORD ? MF_CHECKED : 0), MENUCMD_BASE + VIEWMODE_WORD, _T("32 Bits Integers"));
 	InsertMenu(hMenu, 1, MF_BYPOSITION | (m_nViewMode == VIEWMODE_SINGLE ? MF_CHECKED : 0), MENUCMD_BASE + VIEWMODE_SINGLE, _T("Single Precision Floating-Point Numbers"));
 
-	TrackPopupMenu(hMenu, 0, pt.x, pt.y, 0, m_hWnd, NULL); 
+	TrackPopupMenu(hMenu, 0, pt.x, pt.y, 0, m_hWnd, NULL);
 
 	return FALSE;
 }

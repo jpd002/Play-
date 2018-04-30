@@ -22,49 +22,49 @@ public:
 		uint32 selectedCmdIndex;
 	};
 
-													CGsPacketListView(HWND, const RECT&);
-	virtual											~CGsPacketListView();
+	CGsPacketListView(HWND, const RECT&);
+	virtual ~CGsPacketListView();
 
-	void											SetFrameDump(CFrameDump*);
-	uint32											GetSelectedItemIndex() const;
+	void SetFrameDump(CFrameDump*);
+	uint32 GetSelectedItemIndex() const;
 
 protected:
-	long											OnSize(unsigned int, unsigned int, unsigned int) override;
-	long											OnCommand(unsigned short, unsigned short, HWND) override;
-	LRESULT											OnNotify(WPARAM, NMHDR*) override;
-	long											OnCopy() override;
+	long OnSize(unsigned int, unsigned int, unsigned int) override;
+	long OnCommand(unsigned short, unsigned short, HWND) override;
+	LRESULT OnNotify(WPARAM, NMHDR*) override;
+	long OnCopy() override;
 
 private:
 	struct PACKETINFO
 	{
 		HTREEITEM treeViewItem = nullptr;
-		uint32    cmdIndexStart = 0;
+		uint32 cmdIndexStart = 0;
 	};
 
 	struct WRITEINFO
 	{
-		HTREEITEM                 treeViewItem = nullptr;
+		HTREEITEM treeViewItem = nullptr;
 		CGSHandler::RegisterWrite registerWrite;
 	};
 
-	uint32											GetItemIndexFromTreeViewItem(TVITEM*) const;
+	uint32 GetItemIndexFromTreeViewItem(TVITEM*) const;
 
-	long											OnPacketsTreeViewCustomDraw(NMTVCUSTOMDRAW*);
-	void											OnPacketsTreeViewItemExpanding(NMTREEVIEW*);
-	void											OnPacketsTreeViewSelChanged(NMTREEVIEW*);
-	void											OnPacketsTreeViewKeyDown(const NMTVKEYDOWN*);
+	long OnPacketsTreeViewCustomDraw(NMTVCUSTOMDRAW*);
+	void OnPacketsTreeViewItemExpanding(NMTREEVIEW*);
+	void OnPacketsTreeViewSelChanged(NMTREEVIEW*);
+	void OnPacketsTreeViewKeyDown(const NMTVKEYDOWN*);
 
-	void											GoToWrite(uint32);
-	void											OnPrevDrawKick();
-	void											OnNextDrawKick();
+	void GoToWrite(uint32);
+	void OnPrevDrawKick();
+	void OnNextDrawKick();
 
-	std::unique_ptr<Framework::Win32::CTreeView>	m_packetsTreeView;
-	Framework::Win32::CFont							m_drawCallItemFont;
+	std::unique_ptr<Framework::Win32::CTreeView> m_packetsTreeView;
+	Framework::Win32::CFont m_drawCallItemFont;
 
-	std::unique_ptr<Framework::Win32::CButton>		m_prevDrawKickButton;
-	std::unique_ptr<Framework::Win32::CButton>		m_nextDrawKickButton;
+	std::unique_ptr<Framework::Win32::CButton> m_prevDrawKickButton;
+	std::unique_ptr<Framework::Win32::CButton> m_nextDrawKickButton;
 
-	CFrameDump*										m_frameDump = nullptr;
-	std::vector<PACKETINFO>							m_packetInfos;
-	std::vector<WRITEINFO>							m_writeInfos;
+	CFrameDump* m_frameDump = nullptr;
+	std::vector<PACKETINFO> m_packetInfos;
+	std::vector<WRITEINFO> m_writeInfos;
 };

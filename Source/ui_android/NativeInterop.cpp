@@ -161,7 +161,7 @@ extern "C" JNIEXPORT void JNICALL Java_com_virtualapplications_play_NativeIntero
 	{
 		g_virtualMachine->CreateGSHandler(CGSH_OpenGLAndroid::GetFactoryFunction(nativeWindow));
 		g_virtualMachine->m_ee->m_gs->OnNewFrame.connect(
-			boost::bind(&CStatsManager::OnNewFrame, &CStatsManager::GetInstance(), _1));
+		    boost::bind(&CStatsManager::OnNewFrame, &CStatsManager::GetInstance(), _1));
 	}
 	else
 	{

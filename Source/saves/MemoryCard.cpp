@@ -4,7 +4,7 @@
 namespace filesystem = boost::filesystem;
 
 CMemoryCard::CMemoryCard(const filesystem::path& basePath)
-: m_basePath(basePath)
+    : m_basePath(basePath)
 {
 	ScanSaves();
 }
@@ -36,7 +36,7 @@ void CMemoryCard::ScanSaves()
 	{
 		filesystem::directory_iterator endIterator;
 		for(filesystem::directory_iterator elementIterator(m_basePath);
-			elementIterator != endIterator; elementIterator++)
+		    elementIterator != endIterator; elementIterator++)
 		{
 			filesystem::path element(*elementIterator);
 

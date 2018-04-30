@@ -9,27 +9,31 @@ public:
 	class iterator
 	{
 	public:
-		iterator(const StructManager& container, uint32* idPtr) : m_container(container), m_idPtr(idPtr) {}
+		iterator(const StructManager& container, uint32* idPtr)
+		    : m_container(container)
+		    , m_idPtr(idPtr)
+		{
+		}
 
-		iterator& operator ++()
+		iterator& operator++()
 		{
 			MoveNext();
 			return (*this);
 		}
 
-		iterator operator ++(int)
+		iterator operator++(int)
 		{
 			iterator copy(*this);
 			MoveNext();
 			return copy;
 		}
 
-		bool operator !=(const iterator& rhs) const
+		bool operator!=(const iterator& rhs) const
 		{
 			return m_idPtr != rhs.m_idPtr;
 		}
 
-		std::pair<uint32, StructType*> operator *() const
+		std::pair<uint32, StructType*> operator*() const
 		{
 			assert(m_idPtr);
 			return std::make_pair(*m_idPtr, m_container[*m_idPtr]);
@@ -52,14 +56,13 @@ public:
 	};
 
 	COsStructQueue(StructManager& items, uint32* headIdPtr)
-		: m_items(items)
-		, m_headIdPtr(headIdPtr)
+	    : m_items(items)
+	    , m_headIdPtr(headIdPtr)
 	{
-
 	}
 
 	COsStructQueue(const COsStructQueue&) = delete;
-	COsStructQueue& operator =(const COsStructQueue) = delete;
+	COsStructQueue& operator=(const COsStructQueue) = delete;
 
 	bool IsEmpty() const
 	{
@@ -142,6 +145,6 @@ public:
 	}
 
 private:
-	StructManager&	m_items;
-	uint32*			m_headIdPtr = nullptr;
+	StructManager& m_items;
+	uint32* m_headIdPtr = nullptr;
 };

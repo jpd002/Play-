@@ -20,9 +20,9 @@ void MIPSReflection::CopyMnemonic(INSTRUCTION* pInstr, CMIPS* pCtx, uint32 nOpco
 void MIPSReflection::SubTableMnemonic(INSTRUCTION* pInstr, CMIPS* pCtx, uint32 nOpcode, char* sText, unsigned int nCount)
 {
 	pInstr = DereferenceInstruction(pInstr->pSubTable, nOpcode);
-	if(pInstr->pGetMnemonic == NULL) 
+	if(pInstr->pGetMnemonic == NULL)
 	{
-		strncpy(sText, "???", nCount); 
+		strncpy(sText, "???", nCount);
 		return;
 	}
 	pInstr->pGetMnemonic(pInstr, pCtx, nOpcode, sText, nCount);
@@ -31,9 +31,9 @@ void MIPSReflection::SubTableMnemonic(INSTRUCTION* pInstr, CMIPS* pCtx, uint32 n
 void MIPSReflection::SubTableOperands(INSTRUCTION* pInstr, CMIPS* pCtx, uint32 nAddress, uint32 nOpcode, char* sText, unsigned int nCount)
 {
 	pInstr = DereferenceInstruction(pInstr->pSubTable, nOpcode);
-	if(pInstr->pGetOperands == NULL) 
+	if(pInstr->pGetOperands == NULL)
 	{
-		strncpy(sText, "", nCount); 
+		strncpy(sText, "", nCount);
 		return;
 	}
 	pInstr->pGetOperands(pInstr, pCtx, nAddress, nOpcode, sText, nCount);

@@ -10,8 +10,8 @@ static bool IsInsideRange(uint32 address, uint32 start, uint32 end)
 #define SUBTABLE_MASK (SUBTABLE_SIZE - 1)
 
 CMipsExecutor::CMipsExecutor(CMIPS& context, uint32 maxAddress)
-: m_context(context)
-, m_maxAddress(maxAddress)
+    : m_context(context)
+    , m_maxAddress(maxAddress)
 {
 	m_subTableCount = (m_maxAddress + SUBTABLE_MASK) / SUBTABLE_SIZE;
 	assert(m_subTableCount != 0);
@@ -26,10 +26,10 @@ CMipsExecutor::~CMipsExecutor()
 		CBasicBlock** subTable = m_blockTable[i];
 		if(subTable != NULL)
 		{
-			delete [] subTable;
+			delete[] subTable;
 		}
 	}
-	delete [] m_blockTable;
+	delete[] m_blockTable;
 }
 
 void CMipsExecutor::Reset()
@@ -44,11 +44,11 @@ void CMipsExecutor::ClearActiveBlocks()
 		CBasicBlock** subTable = m_blockTable[i];
 		if(subTable != NULL)
 		{
-			delete [] subTable;
+			delete[] subTable;
 			m_blockTable[i] = NULL;
 		}
 	}
-	
+
 	m_blocks.clear();
 }
 
@@ -80,8 +80,7 @@ void CMipsExecutor::ClearActiveBlocksInRangeInternal(uint32 start, uint32 end, C
 			auto block = table[lo / 4];
 			if(block == nullptr) continue;
 			if(block == protectedBlock) continue;
-			if(!IsInsideRange(block->GetBeginAddress(), start, end) 
-				&& !IsInsideRange(block->GetEndAddress(), start, end)) continue;
+			if(!IsInsideRange(block->GetBeginAddress(), start, end) && !IsInsideRange(block->GetEndAddress(), start, end)) continue;
 			table[lo / 4] = nullptr;
 			blocksToDelete.insert(block);
 		}
@@ -89,7 +88,7 @@ void CMipsExecutor::ClearActiveBlocksInRangeInternal(uint32 start, uint32 end, C
 
 	if(!blocksToDelete.empty())
 	{
-		m_blocks.remove_if([&] (const BasicBlockPtr& block) { return blocksToDelete.find(block.get()) != std::end(blocksToDelete); });
+		m_blocks.remove_if([&](const BasicBlockPtr& block) { return blocksToDelete.find(block.get()) != std::end(blocksToDelete); });
 	}
 }
 
@@ -214,7 +213,7 @@ void CMipsExecutor::DeleteBlock(CBasicBlock* block)
 	}
 
 	//Remove block from our lists
-	auto blockIterator = std::find_if(std::begin(m_blocks), std::end(m_blocks), [&] (const BasicBlockPtr& blockPtr) { return blockPtr.get() == block; });
+	auto blockIterator = std::find_if(std::begin(m_blocks), std::end(m_blocks), [&](const BasicBlockPtr& blockPtr) { return blockPtr.get() == block; });
 	assert(blockIterator != std::end(m_blocks));
 	m_blocks.erase(blockIterator);
 }
@@ -236,7 +235,7 @@ void CMipsExecutor::PartitionFunction(uint32 functionAddress)
 	partitionPoints.insert(functionAddress);
 
 	//Find the end
-	for(uint32 address = functionAddress; ; address += 4)
+	for(uint32 address = functionAddress;; address += 4)
 	{
 		//Probably going too far...
 		if((address - functionAddress) > 0x10000)
@@ -292,7 +291,7 @@ void CMipsExecutor::PartitionFunction(uint32 functionAddress)
 	{
 		uint32 currentPoint = -1;
 		for(PartitionPointSet::const_iterator pointIterator(partitionPoints.begin());
-			pointIterator != partitionPoints.end(); ++pointIterator)
+		    pointIterator != partitionPoints.end(); ++pointIterator)
 		{
 			if(currentPoint != -1)
 			{

@@ -2,15 +2,13 @@
 #include "MipsJitter.h"
 
 CMipsJitter::CMipsJitter(Jitter::CCodeGen* codeGen)
-: CJitter(codeGen)
-, m_lastBlockLabel(-1)
+    : CJitter(codeGen)
+    , m_lastBlockLabel(-1)
 {
-
 }
 
 CMipsJitter::~CMipsJitter()
 {
-
 }
 
 void CMipsJitter::Begin()

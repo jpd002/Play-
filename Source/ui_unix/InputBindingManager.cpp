@@ -5,48 +5,47 @@
 #include "GamePad/GamePadUtils.h"
 #include "string_format.h"
 
-#define CONFIG_PREFIX						("input")
-#define CONFIG_BINDING_TYPE					("bindingtype")
+#define CONFIG_PREFIX ("input")
+#define CONFIG_BINDING_TYPE ("bindingtype")
 
-#define CONFIG_SIMPLEBINDING_PREFIX			("simplebinding")
+#define CONFIG_SIMPLEBINDING_PREFIX ("simplebinding")
 
-#define CONFIG_BINDINGINFO_DEVICE			("device")
-#define CONFIG_BINDINGINFO_ID				("id")
-#define CONFIG_BINDINGINFO_TYPE				("type")
+#define CONFIG_BINDINGINFO_DEVICE ("device")
+#define CONFIG_BINDINGINFO_ID ("id")
+#define CONFIG_BINDINGINFO_TYPE ("type")
 
-#define CONFIG_POVHATBINDING_PREFIX			("povhatbinding")
-#define CONFIG_POVHATBINDING_REFVALUE		("refvalue")
+#define CONFIG_POVHATBINDING_PREFIX ("povhatbinding")
+#define CONFIG_POVHATBINDING_REFVALUE ("refvalue")
 
-#define CONFIG_SIMULATEDAXISBINDING_PREFIX	("simulatedaxisbinding")
-#define CONFIG_SIMULATEDAXISBINDING_KEY1	("key1")
-#define CONFIG_SIMULATEDAXISBINDING_KEY2	("key2")
+#define CONFIG_SIMULATEDAXISBINDING_PREFIX ("simulatedaxisbinding")
+#define CONFIG_SIMULATEDAXISBINDING_KEY1 ("key1")
+#define CONFIG_SIMULATEDAXISBINDING_KEY2 ("key2")
 
 uint32 CInputBindingManager::m_buttonDefaultValue[PS2::CControllerInfo::MAX_BUTTONS] =
-{
-	0x7F,
-	0x7F,
-	0x7F,
-	0x7F,
-	0,
-	0,
-	0,
-	0,
-	0,
-	0,
-	0,
-	0,
-	0,
-	0,
-	0,
-	0,
-	0,
-	0,
-	0,
-	0
-};
+    {
+        0x7F,
+        0x7F,
+        0x7F,
+        0x7F,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0};
 
 CInputBindingManager::CInputBindingManager(Framework::CConfig& config)
-	: m_config(config)
+    : m_config(config)
 {
 	for(unsigned int i = 0; i < PS2::CControllerInfo::MAX_BUTTONS; i++)
 	{
@@ -90,13 +89,13 @@ void CInputBindingManager::Load()
 		{
 		case BINDING_SIMPLE:
 			binding.reset(new CSimpleBinding());
-		break;
+			break;
 		case BINDING_POVHAT:
 			binding.reset(new CPovHatBinding());
-		break;
+			break;
 		case BINDING_SIMULATEDAXIS:
 			binding.reset(new CSimulatedAxisBinding());
-		break;
+			break;
 		}
 		if(binding)
 		{
@@ -127,36 +126,36 @@ void CInputBindingManager::Save()
 
 void CInputBindingManager::AutoConfigureKeyboard()
 {
-	SetSimpleBinding(PS2::CControllerInfo::START,		CInputBindingManager::BINDINGINFO({0}, Qt::Key_Return));
-	SetSimpleBinding(PS2::CControllerInfo::SELECT,		CInputBindingManager::BINDINGINFO({0}, Qt::Key_Backspace));
-	SetSimpleBinding(PS2::CControllerInfo::DPAD_LEFT,	CInputBindingManager::BINDINGINFO({0}, Qt::Key_Left));
-	SetSimpleBinding(PS2::CControllerInfo::DPAD_RIGHT,	CInputBindingManager::BINDINGINFO({0}, Qt::Key_Right));
-	SetSimpleBinding(PS2::CControllerInfo::DPAD_UP,		CInputBindingManager::BINDINGINFO({0}, Qt::Key_Up));
-	SetSimpleBinding(PS2::CControllerInfo::DPAD_DOWN,	CInputBindingManager::BINDINGINFO({0}, Qt::Key_Down));
-	SetSimpleBinding(PS2::CControllerInfo::SQUARE,		CInputBindingManager::BINDINGINFO({0}, Qt::Key_A));
-	SetSimpleBinding(PS2::CControllerInfo::CROSS,		CInputBindingManager::BINDINGINFO({0}, Qt::Key_Z));
-	SetSimpleBinding(PS2::CControllerInfo::TRIANGLE,	CInputBindingManager::BINDINGINFO({0}, Qt::Key_S));
-	SetSimpleBinding(PS2::CControllerInfo::CIRCLE,		CInputBindingManager::BINDINGINFO({0}, Qt::Key_X));
-	SetSimpleBinding(PS2::CControllerInfo::L1,			CInputBindingManager::BINDINGINFO({0}, Qt::Key_1));
-	SetSimpleBinding(PS2::CControllerInfo::L2,			CInputBindingManager::BINDINGINFO({0}, Qt::Key_2));
-	SetSimpleBinding(PS2::CControllerInfo::L3,			CInputBindingManager::BINDINGINFO({0}, Qt::Key_3));
-	SetSimpleBinding(PS2::CControllerInfo::R1,			CInputBindingManager::BINDINGINFO({0}, Qt::Key_8));
-	SetSimpleBinding(PS2::CControllerInfo::R2,			CInputBindingManager::BINDINGINFO({0}, Qt::Key_9));
-	SetSimpleBinding(PS2::CControllerInfo::R3,			CInputBindingManager::BINDINGINFO({0}, Qt::Key_0));
+	SetSimpleBinding(PS2::CControllerInfo::START, CInputBindingManager::BINDINGINFO({0}, Qt::Key_Return));
+	SetSimpleBinding(PS2::CControllerInfo::SELECT, CInputBindingManager::BINDINGINFO({0}, Qt::Key_Backspace));
+	SetSimpleBinding(PS2::CControllerInfo::DPAD_LEFT, CInputBindingManager::BINDINGINFO({0}, Qt::Key_Left));
+	SetSimpleBinding(PS2::CControllerInfo::DPAD_RIGHT, CInputBindingManager::BINDINGINFO({0}, Qt::Key_Right));
+	SetSimpleBinding(PS2::CControllerInfo::DPAD_UP, CInputBindingManager::BINDINGINFO({0}, Qt::Key_Up));
+	SetSimpleBinding(PS2::CControllerInfo::DPAD_DOWN, CInputBindingManager::BINDINGINFO({0}, Qt::Key_Down));
+	SetSimpleBinding(PS2::CControllerInfo::SQUARE, CInputBindingManager::BINDINGINFO({0}, Qt::Key_A));
+	SetSimpleBinding(PS2::CControllerInfo::CROSS, CInputBindingManager::BINDINGINFO({0}, Qt::Key_Z));
+	SetSimpleBinding(PS2::CControllerInfo::TRIANGLE, CInputBindingManager::BINDINGINFO({0}, Qt::Key_S));
+	SetSimpleBinding(PS2::CControllerInfo::CIRCLE, CInputBindingManager::BINDINGINFO({0}, Qt::Key_X));
+	SetSimpleBinding(PS2::CControllerInfo::L1, CInputBindingManager::BINDINGINFO({0}, Qt::Key_1));
+	SetSimpleBinding(PS2::CControllerInfo::L2, CInputBindingManager::BINDINGINFO({0}, Qt::Key_2));
+	SetSimpleBinding(PS2::CControllerInfo::L3, CInputBindingManager::BINDINGINFO({0}, Qt::Key_3));
+	SetSimpleBinding(PS2::CControllerInfo::R1, CInputBindingManager::BINDINGINFO({0}, Qt::Key_8));
+	SetSimpleBinding(PS2::CControllerInfo::R2, CInputBindingManager::BINDINGINFO({0}, Qt::Key_9));
+	SetSimpleBinding(PS2::CControllerInfo::R3, CInputBindingManager::BINDINGINFO({0}, Qt::Key_0));
 
 	SetSimulatedAxisBinding(PS2::CControllerInfo::ANALOG_LEFT_X,
-							CInputBindingManager::BINDINGINFO({0}, Qt::Key_F),
-							CInputBindingManager::BINDINGINFO({0}, Qt::Key_H));
+	                        CInputBindingManager::BINDINGINFO({0}, Qt::Key_F),
+	                        CInputBindingManager::BINDINGINFO({0}, Qt::Key_H));
 	SetSimulatedAxisBinding(PS2::CControllerInfo::ANALOG_LEFT_Y,
-							CInputBindingManager::BINDINGINFO({0}, Qt::Key_T),
-							CInputBindingManager::BINDINGINFO({0}, Qt::Key_G));
+	                        CInputBindingManager::BINDINGINFO({0}, Qt::Key_T),
+	                        CInputBindingManager::BINDINGINFO({0}, Qt::Key_G));
 
 	SetSimulatedAxisBinding(PS2::CControllerInfo::ANALOG_RIGHT_X,
-							CInputBindingManager::BINDINGINFO({0}, Qt::Key_J),
-							CInputBindingManager::BINDINGINFO({0}, Qt::Key_L));
+	                        CInputBindingManager::BINDINGINFO({0}, Qt::Key_J),
+	                        CInputBindingManager::BINDINGINFO({0}, Qt::Key_L));
 	SetSimulatedAxisBinding(PS2::CControllerInfo::ANALOG_RIGHT_Y,
-							CInputBindingManager::BINDINGINFO({0}, Qt::Key_I),
-							CInputBindingManager::BINDINGINFO({0}, Qt::Key_K));
+	                        CInputBindingManager::BINDINGINFO({0}, Qt::Key_I),
+	                        CInputBindingManager::BINDINGINFO({0}, Qt::Key_K));
 }
 
 const CInputBindingManager::CBinding* CInputBindingManager::GetBinding(PS2::CControllerInfo::BUTTON button) const
@@ -224,29 +223,25 @@ void CInputBindingManager::SetSimulatedAxisBinding(PS2::CControllerInfo::BUTTON 
 ////////////////////////////////////////////////
 CInputBindingManager::CSimpleBinding::CSimpleBinding()
 {
-
 }
 
 CInputBindingManager::CSimpleBinding::CSimpleBinding(Qt::Key keyCode)
-	: m_keyCode(keyCode)
-	, m_state(0)
-	, m_device({0})
-	, m_type(0)
+    : m_keyCode(keyCode)
+    , m_state(0)
+    , m_device({0})
+    , m_type(0)
 {
-
 }
 CInputBindingManager::CSimpleBinding::CSimpleBinding(std::array<uint32, 6> device, uint32 keyCode, uint32 type)
-	: m_keyCode(keyCode)
-	, m_state(0)
-	, m_device(device)
-	, m_type(type)
+    : m_keyCode(keyCode)
+    , m_state(0)
+    , m_device(device)
+    , m_type(type)
 {
-
 }
 
 CInputBindingManager::CSimpleBinding::~CSimpleBinding()
 {
-
 }
 
 void CInputBindingManager::CSimpleBinding::ProcessEvent(std::array<uint32, 6> device, uint32 keyCode, uint32 state)
@@ -279,7 +274,7 @@ std::string CInputBindingManager::CSimpleBinding::GetDescription() const
 	else
 	{
 		const char* buttonname = libevdev_event_code_get_name(m_type, m_keyCode);
-		if (buttonname != NULL)
+		if(buttonname != NULL)
 		{
 			return QString("Key: %1").arg(buttonname).toStdString();
 		}
@@ -322,25 +317,24 @@ void CInputBindingManager::CSimpleBinding::RegisterPreferences(Framework::CConfi
 ////////////////////////////////////////////////
 // PovHatBinding
 ////////////////////////////////////////////////
-CInputBindingManager::CSimulatedAxisBinding::CSimulatedAxisBinding(){}
+CInputBindingManager::CSimulatedAxisBinding::CSimulatedAxisBinding()
+{
+}
 
 CInputBindingManager::CSimulatedAxisBinding::CSimulatedAxisBinding(const BINDINGINFO& binding1, const BINDINGINFO& binding2)
-	: m_key1Binding(binding1)
-	, m_key2Binding(binding2)
+    : m_key1Binding(binding1)
+    , m_key2Binding(binding2)
 {
-
 }
 
 CInputBindingManager::CSimulatedAxisBinding::CSimulatedAxisBinding(int id1, int id2)
-	: m_key1Binding(BINDINGINFO({0},id1))
-	, m_key2Binding(BINDINGINFO({0},id2))
+    : m_key1Binding(BINDINGINFO({0}, id1))
+    , m_key2Binding(BINDINGINFO({0}, id2))
 {
-
 }
 
 CInputBindingManager::CSimulatedAxisBinding::~CSimulatedAxisBinding()
 {
-
 }
 
 void CInputBindingManager::CSimulatedAxisBinding::ProcessEvent(std::array<uint32, 6> device, uint32 keyCode, uint32 state)
@@ -387,14 +381,14 @@ std::string CInputBindingManager::CSimulatedAxisBinding::GetDescription() const
 {
 
 	std::string desc = ("Key: ");
-	if(m_key1Binding.type  == 0)
+	if(m_key1Binding.type == 0)
 	{
 		desc += QKeySequence(m_key1Binding.id).toString().toStdString();
 	}
 	else
 	{
 		const char* buttonname = libevdev_event_code_get_name(m_key1Binding.type, m_key1Binding.id);
-		if (buttonname != NULL)
+		if(buttonname != NULL)
 		{
 			desc += buttonname;
 		}
@@ -411,7 +405,7 @@ std::string CInputBindingManager::CSimulatedAxisBinding::GetDescription() const
 	else
 	{
 		const char* buttonname = libevdev_event_code_get_name(m_key2Binding.type, m_key2Binding.id);
-		if (buttonname != NULL)
+		if(buttonname != NULL)
 		{
 			desc += buttonname;
 		}
@@ -484,19 +478,16 @@ void CInputBindingManager::CSimulatedAxisBinding::RegisterKeyBindingPreferences(
 
 CInputBindingManager::CPovHatBinding::CPovHatBinding()
 {
-
 }
 
 CInputBindingManager::CPovHatBinding::CPovHatBinding(const BINDINGINFO& bind, uint32 refValue)
-	: m_binding(bind)
-	, m_refValue(refValue)
+    : m_binding(bind)
+    , m_refValue(refValue)
 {
-
 }
 
 CInputBindingManager::CPovHatBinding::~CPovHatBinding()
 {
-
 }
 
 CInputBindingManager::BINDINGTYPE CInputBindingManager::CPovHatBinding::GetBindingType() const
@@ -553,13 +544,13 @@ std::string CInputBindingManager::CPovHatBinding::GetDescription() const
 	else
 	{
 		const char* buttonname = libevdev_event_code_get_name(m_binding.type, m_binding.id);
-		if (buttonname != NULL)
+		if(buttonname != NULL)
 		{
-			return  key + buttonname;
+			return key + buttonname;
 		}
 		else
 		{
-			return  key + string_format("%d", m_binding.id);
+			return key + string_format("%d", m_binding.id);
 		}
 	}
 }
@@ -586,9 +577,9 @@ void CInputBindingManager::CPovHatBinding::SetValue(uint32 value)
 
 int32 CInputBindingManager::CPovHatBinding::GetShortestDistanceBetweenAngles(int32 angle1, int32 angle2)
 {
-	if(angle1 >  180) angle1 -= 360;
+	if(angle1 > 180) angle1 -= 360;
 	if(angle1 < -180) angle1 += 360;
-	if(angle2 >  180) angle2 -= 360;
+	if(angle2 > 180) angle2 -= 360;
 	if(angle2 < -180) angle2 += 360;
 	int32 angle = abs(angle1 - angle2);
 	if(angle > 180)

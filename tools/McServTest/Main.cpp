@@ -16,7 +16,7 @@ void PrepareTestEnvironment(const CGameTestSheet::EnvironmentActionArray& enviro
 
 	CAppConfig::GetInstance().RegisterPreferencePath(mcPathPreference, "");
 	CAppConfig::GetInstance().SetPreferencePath(mcPathPreference, memoryCardPath);
-	
+
 	for(const auto& environmentAction : environment)
 	{
 		if(environmentAction.type == CGameTestSheet::ENVIRONMENT_ACTION_CREATE_DIRECTORY)
@@ -86,7 +86,7 @@ int main(int argc, const char** argv)
 
 	boost::filesystem::directory_iterator endDirectoryIterator;
 	for(boost::filesystem::directory_iterator directoryIterator(testsPath);
-		directoryIterator != endDirectoryIterator; directoryIterator++)
+	    directoryIterator != endDirectoryIterator; directoryIterator++)
 	{
 		auto testPath = directoryIterator->path();
 		auto stream = Framework::CreateInputStdStream(testPath.native());

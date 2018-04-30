@@ -13,18 +13,18 @@ public:
 		DISASM_VU
 	};
 
-						CDisAsmWnd(HWND, CVirtualMachine&, CMIPS*, DISASM_TYPE);
-	virtual				~CDisAsmWnd();
+	CDisAsmWnd(HWND, CVirtualMachine&, CMIPS*, DISASM_TYPE);
+	virtual ~CDisAsmWnd();
 
-	void				Refresh();
-	CDisAsm*			GetDisAsm() const;
+	void Refresh();
+	CDisAsm* GetDisAsm() const;
 
 protected:
-	long				OnSize(unsigned int, unsigned int, unsigned int) override;
-	long				OnSysCommand(unsigned int, LPARAM) override;
-	long				OnSetFocus() override;
+	long OnSize(unsigned int, unsigned int, unsigned int) override;
+	long OnSysCommand(unsigned int, LPARAM) override;
+	long OnSetFocus() override;
 
 private:
-	void				RefreshLayout();
-	CDisAsm*			m_disAsm = nullptr;
+	void RefreshLayout();
+	CDisAsm* m_disAsm = nullptr;
 };

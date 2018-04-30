@@ -66,8 +66,8 @@ CCdrom0Device::CCdrom0Device()
 	auto pathString = QString(path.native().c_str());
 	//Detect the binding type from the path format
 	if(
-		pathString.startsWith("\\\\.\\", Qt::CaseInsensitive) ||
-		pathString.startsWith("/dev/", Qt::CaseInsensitive))
+	    pathString.startsWith("\\\\.\\", Qt::CaseInsensitive) ||
+	    pathString.startsWith("/dev/", Qt::CaseInsensitive))
 	{
 		m_bindingType = CCdrom0Device::BINDING_PHYSICAL;
 	}

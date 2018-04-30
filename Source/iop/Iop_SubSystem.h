@@ -20,53 +20,53 @@ namespace Iop
 	class CSubSystem
 	{
 	public:
-							CSubSystem(bool ps2Mode);
-		virtual				~CSubSystem();
+		CSubSystem(bool ps2Mode);
+		virtual ~CSubSystem();
 
-		void				Reset();
-		int					ExecuteCpu(int);
-		bool				IsCpuIdle();
-		void				CountTicks(int);
+		void Reset();
+		int ExecuteCpu(int);
+		bool IsCpuIdle();
+		void CountTicks(int);
 
-		void				SetBios(const BiosBasePtr&);
+		void SetBios(const BiosBasePtr&);
 
-		void				NotifyVBlankStart();
-		void				NotifyVBlankEnd();
+		void NotifyVBlankStart();
+		void NotifyVBlankEnd();
 
-		void				SaveState(Framework::CZipArchiveWriter&);
-		void				LoadState(Framework::CZipArchiveReader&);
+		void SaveState(Framework::CZipArchiveWriter&);
+		void LoadState(Framework::CZipArchiveReader&);
 
-		uint8*				m_ram;
-		uint8*				m_scratchPad;
-		uint8*				m_spuRam;
-		CIntc				m_intc;
-		CRootCounters		m_counters;
-		CDmac				m_dmac;
-		CSpuBase			m_spuCore0;
-		CSpuBase			m_spuCore1;
-		CSpu				m_spu;
-		CSpu2				m_spu2;
+		uint8* m_ram;
+		uint8* m_scratchPad;
+		uint8* m_spuRam;
+		CIntc m_intc;
+		CRootCounters m_counters;
+		CDmac m_dmac;
+		CSpuBase m_spuCore0;
+		CSpuBase m_spuCore1;
+		CSpu m_spu;
+		CSpu2 m_spu2;
 #ifdef _IOP_EMULATE_MODULES
-		CSio2				m_sio2;
+		CSio2 m_sio2;
 #endif
-		CMIPS				m_cpu;
-		CMA_MIPSIV			m_cpuArch;
-		CCOP_SCU			m_copScu;
-		CMipsExecutor		m_executor;
-		BiosBasePtr			m_bios;
+		CMIPS m_cpu;
+		CMA_MIPSIV m_cpuArch;
+		CCOP_SCU m_copScu;
+		CMipsExecutor m_executor;
+		BiosBasePtr m_bios;
 
 	private:
 		enum
 		{
-			HW_REG_BEGIN	= 0x1F801000,
-			HW_REG_END		= 0x1F9FFFFF
+			HW_REG_BEGIN = 0x1F801000,
+			HW_REG_END = 0x1F9FFFFF
 		};
 
-		uint32				ReadIoRegister(uint32);
-		uint32				WriteIoRegister(uint32, uint32);
+		uint32 ReadIoRegister(uint32);
+		uint32 WriteIoRegister(uint32, uint32);
 
-		void				CheckPendingInterrupts();
+		void CheckPendingInterrupts();
 
-		int					m_dmaUpdateTicks;
+		int m_dmaUpdateTicks;
 	};
 }

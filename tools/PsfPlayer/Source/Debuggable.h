@@ -8,13 +8,13 @@
 class CDebuggable
 {
 public:
-	typedef std::function<CMIPS& ()> GetCpuFuncType;
-	typedef std::function<void ()> StepFuncType;
+	typedef std::function<CMIPS&()> GetCpuFuncType;
+	typedef std::function<void()> StepFuncType;
 
-	GetCpuFuncType				GetCpu;
-	StepFuncType				Step;
+	GetCpuFuncType GetCpu;
+	StepFuncType Step;
 
-	CBiosDebugInfoProvider*		biosDebugInfoProvider;
+	CBiosDebugInfoProvider* biosDebugInfoProvider;
 };
 
 #endif

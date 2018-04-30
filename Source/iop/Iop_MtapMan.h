@@ -12,12 +12,12 @@ namespace Iop
 	public:
 		CMtapMan();
 
-		std::string    GetId() const override;
-		std::string    GetFunctionName(unsigned int) const override;
+		std::string GetId() const override;
+		std::string GetFunctionName(unsigned int) const override;
 
-		void    RegisterSifModules(CSifMan&) override;
+		void RegisterSifModules(CSifMan&) override;
 
-		void    Invoke(CMIPS&, unsigned int) override;
+		void Invoke(CMIPS&, unsigned int) override;
 
 	private:
 		enum MODULE_ID
@@ -27,15 +27,15 @@ namespace Iop
 			MODULE_ID_3 = 0x80000903,
 		};
 
-		bool    Invoke901(uint32, uint32*, uint32, uint32*, uint32, uint8*);
-		bool    Invoke902(uint32, uint32*, uint32, uint32*, uint32, uint8*);
-		bool    Invoke903(uint32, uint32*, uint32, uint32*, uint32, uint8*);
+		bool Invoke901(uint32, uint32*, uint32, uint32*, uint32, uint8*);
+		bool Invoke902(uint32, uint32*, uint32, uint32*, uint32, uint8*);
+		bool Invoke903(uint32, uint32*, uint32, uint32*, uint32, uint8*);
 
-		uint32    PortOpen(uint32);
+		uint32 PortOpen(uint32);
 
-		CSifModuleAdapter    m_module901;
-		CSifModuleAdapter    m_module902;
-		CSifModuleAdapter    m_module903;
+		CSifModuleAdapter m_module901;
+		CSifModuleAdapter m_module902;
+		CSifModuleAdapter m_module903;
 	};
 
 	typedef std::shared_ptr<CMtapMan> MtapManPtr;

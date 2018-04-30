@@ -1,14 +1,12 @@
 #include "RawMpeg2Container.h"
 
 CRawMpeg2Container::CRawMpeg2Container(Framework::CStream& inputStream)
-: m_inputStream(inputStream)
+    : m_inputStream(inputStream)
 {
-
 }
 
 CRawMpeg2Container::~CRawMpeg2Container()
 {
-
 }
 
 void CRawMpeg2Container::RegisterVideoStreamHandler(const VideoStreamHandler& videoStreamHandler)

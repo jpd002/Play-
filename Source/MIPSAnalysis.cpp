@@ -3,14 +3,12 @@
 #include "MIPS.h"
 
 CMIPSAnalysis::CMIPSAnalysis(CMIPS* ctx)
-: m_ctx(ctx)
+    : m_ctx(ctx)
 {
-
 }
 
 CMIPSAnalysis::~CMIPSAnalysis()
 {
-
 }
 
 void CMIPSAnalysis::Clear()
@@ -30,12 +28,12 @@ void CMIPSAnalysis::InsertSubroutine(uint32 start, uint32 end, uint32 stackAlloc
 	assert(FindSubroutine(end) == nullptr);
 
 	SUBROUTINE subroutine;
-	subroutine.start				= start;
-	subroutine.end					= end;
-	subroutine.stackAllocStart		= stackAllocStart;
-	subroutine.stackAllocEnd		= stackAllocEnd;
-	subroutine.stackSize			= stackSize;
-	subroutine.returnAddrPos		= returnAddrPos;
+	subroutine.start = start;
+	subroutine.end = end;
+	subroutine.stackAllocStart = stackAllocStart;
+	subroutine.stackAllocEnd = stackAllocEnd;
+	subroutine.stackSize = stackSize;
+	subroutine.returnAddrPos = returnAddrPos;
 
 	m_subroutines.insert(std::make_pair(start, subroutine));
 }
@@ -118,9 +116,9 @@ void CMIPSAnalysis::FindSubroutinesByStackAllocation(uint32 start, uint32 end)
 
 				//Check SW/SD/SQ RA, 0x????(SP)
 				if(
-					((opcode & 0xFFFF0000) == 0xAFBF0000) ||    //SW
-					((opcode & 0xFFFF0000) == 0xFFBF0000) ||    //SD
-					((opcode & 0xFFFF0000) == 0x7FBF0000))      //SQ
+				    ((opcode & 0xFFFF0000) == 0xAFBF0000) || //SW
+				    ((opcode & 0xFFFF0000) == 0xFFBF0000) || //SD
+				    ((opcode & 0xFFFF0000) == 0x7FBF0000))   //SQ
 				{
 					returnAddr = (opcode & 0xFFFF);
 				}
@@ -133,7 +131,7 @@ void CMIPSAnalysis::FindSubroutinesByStackAllocation(uint32 start, uint32 end)
 					//Check above
 					//ADDIU SP, SP, 0x????
 					//JR RA
-					
+
 					opcode = m_ctx->m_pMemoryMap->GetInstruction(tempAddr - 4);
 					if(IsStackFreeingInstruction(opcode))
 					{
@@ -179,8 +177,8 @@ void CMIPSAnalysis::FindSubroutinesByJumpTargets(uint32 start, uint32 end, uint3
 	{
 		uint32 opcode = m_ctx->m_pMemoryMap->GetInstruction(address);
 		if(
-			(opcode & 0xFC000000) == 0x0C000000 ||
-			(opcode & 0xFC000000) == 0x08000000)
+		    (opcode & 0xFC000000) == 0x0C000000 ||
+		    (opcode & 0xFC000000) == 0x08000000)
 		{
 			uint32 jumpTarget = (opcode & 0x03FFFFFF) * 4;
 			if(jumpTarget < start) continue;
@@ -229,31 +227,30 @@ void CMIPSAnalysis::ExpandSubroutines(uint32 executableStart, uint32 executableE
 	static const uint32 searchLimit = 0x1000;
 
 	const auto& findFreeSubroutineEnd =
-		[this](uint32 begin, uint32 end) -> uint32
+	    [this](uint32 begin, uint32 end) -> uint32 {
+		for(uint32 address = begin; address <= begin + searchLimit; address += 4)
 		{
-			for(uint32 address = begin; address <= begin + searchLimit; address += 4)
+			if(FindSubroutine(address) != nullptr) return MIPS_INVALID_PC;
+
+			uint32 opcode = m_ctx->m_pMemoryMap->GetInstruction(address);
+
+			//Check for JR RA or J
+			if((opcode == 0x03E00008) || ((opcode & 0xFC000000) == 0x08000000))
 			{
-				if(FindSubroutine(address) != nullptr) return MIPS_INVALID_PC;
-
-				uint32 opcode = m_ctx->m_pMemoryMap->GetInstruction(address);
-
-				//Check for JR RA or J
-				if((opcode == 0x03E00008) || ((opcode & 0xFC000000) == 0x08000000))
-				{
-					//+4 for delay slot
-					return address + 4;
-				}
-
-				//Check for BEQ R0, R0, $label
-				if((opcode & 0xFFFF0000) == 0x10000000)
-				{
-					//+4 for delay slot
-					return address + 4;
-				}
+				//+4 for delay slot
+				return address + 4;
 			}
 
-			return MIPS_INVALID_PC;
-		};
+			//Check for BEQ R0, R0, $label
+			if((opcode & 0xFFFF0000) == 0x10000000)
+			{
+				//+4 for delay slot
+				return address + 4;
+			}
+		}
+
+		return MIPS_INVALID_PC;
+	};
 
 	for(auto& subroutinePair : m_subroutines)
 	{
@@ -267,10 +264,10 @@ void CMIPSAnalysis::ExpandSubroutines(uint32 executableStart, uint32 executableE
 		for(uint32 address = subroutine.start; address <= subroutine.end; address += 4)
 		{
 			uint32 opcode = m_ctx->m_pMemoryMap->GetInstruction(address);
-			
+
 			auto branchType = m_ctx->m_pArch->IsInstructionBranch(m_ctx, address, opcode);
 			if(branchType != MIPS_BRANCH_NORMAL) continue;
-			
+
 			uint32 branchTarget = m_ctx->m_pArch->GetInstructionEffectiveAddress(m_ctx, address, opcode);
 
 			//Check if pointing inside our subroutine. If so, don't bother
@@ -289,7 +286,7 @@ void CMIPSAnalysis::ExpandSubroutines(uint32 executableStart, uint32 executableE
 			if(FindSubroutine(branchTarget) != nullptr) continue;
 
 			uint32 routineEnd = findFreeSubroutineEnd(branchTarget, executableEnd);
-			if(routineEnd == MIPS_INVALID_PC) 
+			if(routineEnd == MIPS_INVALID_PC)
 			{
 				continue;
 			}
@@ -323,10 +320,10 @@ static bool TryGetStringAtAddress(CMIPS* context, uint32 address, std::string& r
 		uint8 byte = context->m_pMemoryMap->GetByte(address);
 		if(byte == 0) break;
 		if(byte > 0x7F) return false;
-		if((byte < 0x20) && 
-			(byte != '\t') &&
-			(byte != '\n') &&
-			(byte != '\r'))
+		if((byte < 0x20) &&
+		   (byte != '\t') &&
+		   (byte != '\n') &&
+		   (byte != '\r'))
 		{
 			return false;
 		}
@@ -341,8 +338,8 @@ void CMIPSAnalysis::AnalyseStringReferences()
 	for(auto subroutinePair : m_subroutines)
 	{
 		const auto& subroutine = subroutinePair.second;
-		uint32 registerValue[0x20] = { 0 };
-		bool registerWritten[0x20] = { false };
+		uint32 registerValue[0x20] = {0};
+		bool registerWritten[0x20] = {false};
 		for(uint32 address = subroutine.start; address <= subroutine.end; address += 4)
 		{
 			uint32 op = m_ctx->m_pMemoryMap->GetInstruction(address);
@@ -416,7 +413,7 @@ CMIPSAnalysis::CallStackItemArray CMIPSAnalysis::GetCallStack(CMIPS* context, ui
 		{
 			//We haven't called a sub routine yet... The RA is good, but we
 			//don't know wether stack memory has been allocated or not
-		
+
 			//ADDIU SP, SP, 0x????
 			//If the PC is after this instruction, then, we've allocated stack
 

@@ -1,10 +1,9 @@
 #include "ArgumentIterator.h"
 
-CCallArgumentIterator::CCallArgumentIterator(CMIPS& context) 
-: m_context(context)
-, m_current(0)
+CCallArgumentIterator::CCallArgumentIterator(CMIPS& context)
+    : m_context(context)
+    , m_current(0)
 {
-
 }
 
 uint32 CCallArgumentIterator::GetNext()
@@ -21,10 +20,9 @@ uint32 CCallArgumentIterator::GetNext()
 }
 
 CValistArgumentIterator::CValistArgumentIterator(CMIPS& context, uint32 argsPtr)
-: m_context(context)
-, m_argsPtr(argsPtr)
+    : m_context(context)
+    , m_argsPtr(argsPtr)
 {
-
 }
 
 uint32 CValistArgumentIterator::GetNext()

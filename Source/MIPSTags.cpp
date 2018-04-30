@@ -3,9 +3,9 @@
 #include "lexical_cast_ex.h"
 #include "xml/FilteringNodeIterator.h"
 
-#define TAG_ELEMENT_NAME				("tag")
-#define TAG_ELEMENT_ATTRIBUTE_ADDRESS	("address")
-#define TAG_ELEMENT_ATTRIBUTE_VALUE		("value")
+#define TAG_ELEMENT_NAME ("tag")
+#define TAG_ELEMENT_ATTRIBUTE_ADDRESS ("address")
+#define TAG_ELEMENT_ATTRIBUTE_VALUE ("value")
 
 void CMIPSTags::InsertTag(uint32 nAddress, const char* sTag)
 {
@@ -75,8 +75,8 @@ void CMIPSTags::Unserialize(const char* sPath)
 		{
 			char sTag[256];
 
-			uint32 nKey		= Stream.Read32();
-			uint8 nLength	= Stream.Read8();
+			uint32 nKey = Stream.Read32();
+			uint8 nLength = Stream.Read8();
 
 			Stream.Read(sTag, nLength);
 			sTag[nLength] = 0;
@@ -86,7 +86,6 @@ void CMIPSTags::Unserialize(const char* sPath)
 	}
 	catch(...)
 	{
-		
 	}
 }
 
@@ -118,11 +117,11 @@ void CMIPSTags::Serialize(Framework::Xml::CNode* parentNode) const
 void CMIPSTags::Unserialize(Framework::Xml::CNode* parentNode)
 {
 	for(Framework::Xml::CFilteringNodeIterator nodeIterator(parentNode, TAG_ELEMENT_NAME);
-		!nodeIterator.IsEnd(); nodeIterator++)
+	    !nodeIterator.IsEnd(); nodeIterator++)
 	{
 		auto node = *nodeIterator;
 		auto addressText = node->GetAttribute(TAG_ELEMENT_ATTRIBUTE_ADDRESS);
-		auto valueText   = node->GetAttribute(TAG_ELEMENT_ATTRIBUTE_VALUE);
+		auto valueText = node->GetAttribute(TAG_ELEMENT_ATTRIBUTE_VALUE);
 		if(!addressText || !valueText) continue;
 		uint32 address = lexical_cast_hex<std::string>(addressText);
 		InsertTag(address, valueText);

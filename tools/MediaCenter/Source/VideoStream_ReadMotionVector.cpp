@@ -15,7 +15,6 @@ ReadMotionVector::ReadMotionVector()
 
 ReadMotionVector::~ReadMotionVector()
 {
-
 }
 
 void ReadMotionVector::SetRSizes(uint8 hsize, uint8 vsize)
@@ -63,72 +62,79 @@ void ReadMotionVector::Execute(void* context, Framework::CBitStream& stream)
 	{
 		switch(m_programState)
 		{
-		case STATE_INIT:					goto Label_Init;
-		case STATE_READHMOTIONCODE:			goto Label_ReadHMotionCode;
-		case STATE_READHMOTIONRESIDUAL:		goto Label_ReadHMotionResidual;
-		case STATE_READVMOTIONCODE:			goto Label_ReadVMotionCode;
-		case STATE_READVMOTIONRESIDUAL:		goto Label_ReadVMotionResidual;
-		case STATE_DONE:					goto Label_Done;
-		default:							assert(0);
+		case STATE_INIT:
+			goto Label_Init;
+		case STATE_READHMOTIONCODE:
+			goto Label_ReadHMotionCode;
+		case STATE_READHMOTIONRESIDUAL:
+			goto Label_ReadHMotionResidual;
+		case STATE_READVMOTIONCODE:
+			goto Label_ReadVMotionCode;
+		case STATE_READVMOTIONRESIDUAL:
+			goto Label_ReadVMotionResidual;
+		case STATE_DONE:
+			goto Label_Done;
+		default:
+			assert(0);
 		}
 
-Label_Init:
+	Label_Init:
 		m_programState = STATE_READHMOTIONCODE;
 		continue;
 
-Label_ReadHMotionCode:
-		{
-			decoderState.motionCode[0] = static_cast<int16>(MPEG2::CMotionCodeTable::GetInstance()->GetSymbol(&stream));
+	Label_ReadHMotionCode:
+	{
+		decoderState.motionCode[0] = static_cast<int16>(MPEG2::CMotionCodeTable::GetInstance()->GetSymbol(&stream));
 #ifdef _DECODE_LOGGING
-			CLog::GetInstance().Print(DECODE_LOG_NAME, "Symbol(%d, 'motion code') = %d\r\n",
-				g_currentVdec++, decoderState.motionCode[0]);
+		CLog::GetInstance().Print(DECODE_LOG_NAME, "Symbol(%d, 'motion code') = %d\r\n",
+		                          g_currentVdec++, decoderState.motionCode[0]);
 #endif
-			decoderState.motionResidual[0] = 0;
-			if(decoderState.motionCode[0] != 0 && m_hrSize != 0)
-			{
-				m_programState = STATE_READHMOTIONRESIDUAL;
-			}
-			else
-			{
-				m_programState = STATE_READVMOTIONCODE;
-			}
-		}
-		continue;
-
-Label_ReadHMotionResidual:
+		decoderState.motionResidual[0] = 0;
+		if(decoderState.motionCode[0] != 0 && m_hrSize != 0)
 		{
-			decoderState.motionResidual[0] = static_cast<uint16>(stream.GetBits_MSBF(m_hrSize));
+			m_programState = STATE_READHMOTIONRESIDUAL;
+		}
+		else
+		{
 			m_programState = STATE_READVMOTIONCODE;
 		}
+	}
 		continue;
 
-Label_ReadVMotionCode:
-		{
-			decoderState.motionCode[1] = static_cast<int16>(MPEG2::CMotionCodeTable::GetInstance()->GetSymbol(&stream));
+	Label_ReadHMotionResidual:
+	{
+		decoderState.motionResidual[0] = static_cast<uint16>(stream.GetBits_MSBF(m_hrSize));
+		m_programState = STATE_READVMOTIONCODE;
+	}
+		continue;
+
+	Label_ReadVMotionCode:
+	{
+		decoderState.motionCode[1] = static_cast<int16>(MPEG2::CMotionCodeTable::GetInstance()->GetSymbol(&stream));
 #ifdef _DECODE_LOGGING
-			CLog::GetInstance().Print(DECODE_LOG_NAME, "Symbol(%d, 'motion code') = %d\r\n",
-				g_currentVdec++, decoderState.motionCode[1]);
+		CLog::GetInstance().Print(DECODE_LOG_NAME, "Symbol(%d, 'motion code') = %d\r\n",
+		                          g_currentVdec++, decoderState.motionCode[1]);
 #endif
-			decoderState.motionResidual[1] = 0;
-			if(decoderState.motionCode[1] != 0 && m_vrSize != 0)
-			{
-				m_programState = STATE_READVMOTIONRESIDUAL;
-			}
-			else
-			{
-				m_programState = STATE_DONE;
-			}
-		}
-		continue;
-
-Label_ReadVMotionResidual:
+		decoderState.motionResidual[1] = 0;
+		if(decoderState.motionCode[1] != 0 && m_vrSize != 0)
 		{
-			decoderState.motionResidual[1] = static_cast<uint16>(stream.GetBits_MSBF(m_vrSize));
+			m_programState = STATE_READVMOTIONRESIDUAL;
+		}
+		else
+		{
 			m_programState = STATE_DONE;
 		}
+	}
 		continue;
 
-Label_Done:
+	Label_ReadVMotionResidual:
+	{
+		decoderState.motionResidual[1] = static_cast<uint16>(stream.GetBits_MSBF(m_vrSize));
+		m_programState = STATE_DONE;
+	}
+		continue;
+
+	Label_Done:
 		return;
 	}
 }

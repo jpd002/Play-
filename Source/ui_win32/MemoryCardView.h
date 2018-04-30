@@ -11,75 +11,75 @@
 class CMemoryCardView : public Framework::Win32::CWindow
 {
 public:
-	typedef boost::signals2::signal<void (const CSave*)> SelectionChangeSignal;
+	typedef boost::signals2::signal<void(const CSave*)> SelectionChangeSignal;
 
-										CMemoryCardView(HWND, const RECT&);
-										~CMemoryCardView();
+	CMemoryCardView(HWND, const RECT&);
+	~CMemoryCardView();
 
-	void								SetMemoryCard(CMemoryCard*);
+	void SetMemoryCard(CMemoryCard*);
 
-	SelectionChangeSignal				OnSelectionChange;
+	SelectionChangeSignal OnSelectionChange;
 
 protected:
-	long								OnPaint() override;
-	long								OnVScroll(unsigned int, unsigned int) override;
-	long								OnLeftButtonDown(int, int) override;
-	long								OnMouseWheel(int, int, short) override;
-	long								OnSize(unsigned int, unsigned int, unsigned int) override;
-	long								OnKeyDown(WPARAM, LPARAM) override;
+	long OnPaint() override;
+	long OnVScroll(unsigned int, unsigned int) override;
+	long OnLeftButtonDown(int, int) override;
+	long OnMouseWheel(int, int, short) override;
+	long OnSize(unsigned int, unsigned int, unsigned int) override;
+	long OnKeyDown(WPARAM, LPARAM) override;
 
 private:
 	struct CViewState
 	{
 	public:
-		int								GetCanvasSize(unsigned int);
-		void							Reset(RECT*);
-		void							EnsureItemFullyVisible(unsigned int);
+		int GetCanvasSize(unsigned int);
+		void Reset(RECT*);
+		void EnsureItemFullyVisible(unsigned int);
 
-		unsigned int					m_nItemWidth;
-		unsigned int					m_nItemHeight;
-		unsigned int					m_nSelection;
-		int								m_nScrollPosition;
-		RECT							m_ClientRect;
+		unsigned int m_nItemWidth;
+		unsigned int m_nItemHeight;
+		unsigned int m_nSelection;
+		int m_nScrollPosition;
+		RECT m_ClientRect;
 	};
 
 	class CRender
 	{
 	public:
-												CRender(HWND, const CViewState*);
-												~CRender();
+		CRender(HWND, const CViewState*);
+		~CRender();
 
-		void									Animate();
-		void									DrawScene();
-		void									SetMemoryCard(const CMemoryCard*);
+		void Animate();
+		void DrawScene();
+		void SetMemoryCard(const CMemoryCard*);
 
 	private:
 		typedef std::map<unsigned int, IconMeshPtr> IconList;
 
-		void									ThreadProc();
-		void									ThreadSetMemoryCard(const CMemoryCard*);
+		void ThreadProc();
+		void ThreadSetMemoryCard(const CMemoryCard*);
 
-		Framework::Win32::CClientDeviceContext	m_deviceContext;
-		static const PIXELFORMATDESCRIPTOR		m_PFD;
-		HGLRC									m_hRC;
-		IconList								m_icons;
-		const CViewState*						m_viewState;
-		const CMemoryCard*						m_memoryCard;
+		Framework::Win32::CClientDeviceContext m_deviceContext;
+		static const PIXELFORMATDESCRIPTOR m_PFD;
+		HGLRC m_hRC;
+		IconList m_icons;
+		const CViewState* m_viewState;
+		const CMemoryCard* m_memoryCard;
 
-		CMailBox								m_mailBox;
-		std::thread*							m_thread;
-		bool									m_threadOver;
+		CMailBox m_mailBox;
+		std::thread* m_thread;
+		bool m_threadOver;
 	};
 
-	void								UpdateScroll();
-	void								UpdateScrollPosition();
-	void								UpdateGeometry();
-	void								SetSelection(unsigned int);
-	void								EnsureItemFullyVisible(unsigned int);
+	void UpdateScroll();
+	void UpdateScrollPosition();
+	void UpdateGeometry();
+	void SetSelection(unsigned int);
+	void EnsureItemFullyVisible(unsigned int);
 
-	unsigned int						m_itemCount;
-	CViewState							m_viewState;
-	
-	CMemoryCard*						m_memoryCard;
-	CRender*							m_render;
+	unsigned int m_itemCount;
+	CViewState m_viewState;
+
+	CMemoryCard* m_memoryCard;
+	CRender* m_render;
 };

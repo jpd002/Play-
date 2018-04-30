@@ -14,8 +14,8 @@ namespace ISO9660
 			BLOCKSIZE = 0x800ULL
 		};
 
-		virtual				~CBlockProvider() {};
-		virtual void		ReadBlock(uint32, void*) = 0;
+		virtual ~CBlockProvider(){};
+		virtual void ReadBlock(uint32, void*) = 0;
 	};
 
 	class CBlockProvider2048 : public CBlockProvider
@@ -24,14 +24,12 @@ namespace ISO9660
 		typedef std::shared_ptr<Framework::CStream> StreamPtr;
 
 		CBlockProvider2048(const StreamPtr& stream)
-			: m_stream(stream)
+		    : m_stream(stream)
 		{
-
 		}
 
 		virtual ~CBlockProvider2048()
 		{
-
 		}
 
 		void ReadBlock(uint32 address, void* block) override
@@ -50,14 +48,12 @@ namespace ISO9660
 		typedef std::shared_ptr<Framework::CStream> StreamPtr;
 
 		CBlockProviderCDROMXA(const StreamPtr& stream)
-			: m_stream(stream)
+		    : m_stream(stream)
 		{
-
 		}
 
 		virtual ~CBlockProviderCDROMXA()
 		{
-
 		}
 
 		void ReadBlock(uint32 address, void* block) override

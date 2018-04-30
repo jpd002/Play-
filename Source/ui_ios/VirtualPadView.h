@@ -10,7 +10,7 @@
 @property NSArray<VirtualPadItem*>* items;
 @property NSDictionary<NSString*, UIImage*>* itemImages;
 
--(VirtualPadView*)initWithFrame: (CGRect)frame padHandler: (CPH_Generic*) padHandler;
--(void)rebuildPadItems;
+- (VirtualPadView*)initWithFrame:(CGRect)frame padHandler:(CPH_Generic*)padHandler;
+- (void)rebuildPadItems;
 
 @end

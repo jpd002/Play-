@@ -12,18 +12,18 @@
 
 #if TARGET_CPU_ARM
 #define DISABLE_PROTECTION
-#define STATE_FLAVOR			ARM_THREAD_STATE32
-#define STATE_FLAVOR_COUNT		ARM_THREAD_STATE32_COUNT
+#define STATE_FLAVOR ARM_THREAD_STATE32
+#define STATE_FLAVOR_COUNT ARM_THREAD_STATE32_COUNT
 #elif TARGET_CPU_ARM64
 #define DISABLE_PROTECTION
-#define STATE_FLAVOR			ARM_THREAD_STATE64
-#define STATE_FLAVOR_COUNT		ARM_THREAD_STATE64_COUNT
+#define STATE_FLAVOR ARM_THREAD_STATE64
+#define STATE_FLAVOR_COUNT ARM_THREAD_STATE64_COUNT
 #elif TARGET_CPU_X86
-#define STATE_FLAVOR			x86_THREAD_STATE32
-#define STATE_FLAVOR_COUNT		x86_THREAD_STATE32_COUNT
+#define STATE_FLAVOR x86_THREAD_STATE32
+#define STATE_FLAVOR_COUNT x86_THREAD_STATE32_COUNT
 #elif TARGET_CPU_X86_64
-#define STATE_FLAVOR			x86_THREAD_STATE64
-#define STATE_FLAVOR_COUNT		x86_THREAD_STATE64_COUNT
+#define STATE_FLAVOR x86_THREAD_STATE64
+#define STATE_FLAVOR_COUNT x86_THREAD_STATE64_COUNT
 #else
 #error Unsupported CPU architecture
 #endif
@@ -33,8 +33,8 @@
 static CEeExecutor* g_eeExecutor = nullptr;
 
 CEeExecutor::CEeExecutor(CMIPS& context, uint8* ram)
-: CMipsExecutor(context, 0x20000000)
-, m_ram(ram)
+    : CMipsExecutor(context, 0x20000000)
+    , m_ram(ram)
 {
 	m_pageSize = framework_getpagesize();
 }
@@ -53,9 +53,9 @@ void CEeExecutor::AddExceptionHandler()
 	assert(m_handler != NULL);
 #elif defined(__unix__) || defined(__ANDROID__)
 	struct sigaction sigAction;
-	sigAction.sa_handler	= nullptr;
-	sigAction.sa_sigaction	= &HandleException;
-	sigAction.sa_flags		= SA_SIGINFO;
+	sigAction.sa_handler = nullptr;
+	sigAction.sa_sigaction = &HandleException;
+	sigAction.sa_flags = SA_SIGINFO;
 	sigemptyset(&sigAction.sa_mask);
 	int result = sigaction(SIGSEGV, &sigAction, nullptr);
 	assert(result >= 0);
@@ -64,11 +64,11 @@ void CEeExecutor::AddExceptionHandler()
 	assert(result == KERN_SUCCESS);
 
 	m_running = true;
-	m_handlerThread = std::thread([this] () { HandlerThreadProc(); });
+	m_handlerThread = std::thread([this]() { HandlerThreadProc(); });
 
 	result = mach_port_insert_right(mach_task_self(), m_port, m_port, MACH_MSG_TYPE_MAKE_SEND);
 	assert(result == KERN_SUCCESS);
-	
+
 	result = thread_set_exception_ports(mach_thread_self(), EXC_MASK_BAD_ACCESS, m_port, EXCEPTION_STATE | MACH_EXCEPTION_CODES, STATE_FLAVOR);
 	assert(result == KERN_SUCCESS);
 
@@ -87,9 +87,9 @@ void CEeExecutor::RemoveExceptionHandler()
 	m_running = false;
 	m_handlerThread.join();
 #endif
-	
+
 #endif //!DISABLE_PROTECTION
-	
+
 	g_eeExecutor = nullptr;
 }
 
@@ -221,38 +221,38 @@ void CEeExecutor::HandlerThreadProc()
 	while(m_running)
 	{
 		kern_return_t result = KERN_SUCCESS;
-		
+
 		INPUT_MESSAGE inMsg;
 		result = mach_msg(&inMsg.head, MACH_RCV_MSG | MACH_RCV_LARGE | MACH_RCV_TIMEOUT, 0, sizeof(inMsg), m_port, 1000, MACH_PORT_NULL);
 		if(result == MACH_RCV_TIMED_OUT) continue;
 		assert(result == KERN_SUCCESS);
-		
-		assert(inMsg.head.msgh_id == 2406);	//MACH_EXCEPTION_RAISE_RPC
-		
+
+		assert(inMsg.head.msgh_id == 2406); //MACH_EXCEPTION_RAISE_RPC
+
 		bool success = HandleAccessFault(inMsg.code[1]);
-		
+
 		OUTPUT_MESSAGE outMsg;
-		outMsg.head.msgh_bits			= MACH_MSGH_BITS(MACH_MSGH_BITS_REMOTE(inMsg.head.msgh_bits), 0);
-		outMsg.head.msgh_remote_port	= inMsg.head.msgh_remote_port;
-		outMsg.head.msgh_local_port		= MACH_PORT_NULL;
-		outMsg.head.msgh_id				= inMsg.head.msgh_id + 100;
-		outMsg.head.msgh_size			= sizeof(outMsg);
-		outMsg.ndr						= inMsg.ndr;
+		outMsg.head.msgh_bits = MACH_MSGH_BITS(MACH_MSGH_BITS_REMOTE(inMsg.head.msgh_bits), 0);
+		outMsg.head.msgh_remote_port = inMsg.head.msgh_remote_port;
+		outMsg.head.msgh_local_port = MACH_PORT_NULL;
+		outMsg.head.msgh_id = inMsg.head.msgh_id + 100;
+		outMsg.head.msgh_size = sizeof(outMsg);
+		outMsg.ndr = inMsg.ndr;
 
 		if(success)
 		{
-			outMsg.result		= KERN_SUCCESS;
-			outMsg.flavor		= STATE_FLAVOR;
-			outMsg.stateCount	= STATE_FLAVOR_COUNT;
+			outMsg.result = KERN_SUCCESS;
+			outMsg.flavor = STATE_FLAVOR;
+			outMsg.stateCount = STATE_FLAVOR_COUNT;
 			memcpy(outMsg.state, inMsg.state, STATE_FLAVOR_COUNT * sizeof(natural_t));
 		}
 		else
 		{
-			outMsg.result		= KERN_FAILURE;
-			outMsg.flavor		= 0;
-			outMsg.stateCount	= 0;
+			outMsg.result = KERN_FAILURE;
+			outMsg.flavor = 0;
+			outMsg.stateCount = 0;
 		}
-		
+
 		result = mach_msg(&outMsg.head, MACH_SEND_MSG | MACH_RCV_LARGE, sizeof(outMsg), 0, MACH_PORT_NULL, MACH_MSG_TIMEOUT_NONE, MACH_PORT_NULL);
 		assert(result == KERN_SUCCESS);
 	}

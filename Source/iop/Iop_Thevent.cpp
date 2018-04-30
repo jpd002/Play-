@@ -6,27 +6,25 @@ using namespace Iop;
 
 #define LOG_NAME ("iop_thevent")
 
-#define FUNCTION_CREATEEVENTFLAG			"CreateEventFlag"
-#define FUNCTION_DELETEEVENTFLAG			"DeleteEventFlag"
-#define FUNCTION_SETEVENTFLAG				"SetEventFlag"
-#define FUNCTION_ISETEVENTFLAG				"iSetEventFlag"
-#define FUNCTION_CLEAREVENTFLAG				"ClearEventFlag"
-#define FUNCTION_ICLEAREVENTFLAG			"iClearEventFlag"
-#define FUNCTION_WAITEVENTFLAG				"WaitEventFlag"
-#define FUNCTION_POLLEVENTFLAG				"PollEventFlag"
-#define FUNCTION_REFEREVENTFLAGSTATUS		"ReferEventFlagStatus"
-#define FUNCTION_IREFEREVENTFLAGSTATUS		"iReferEventFlagStatus"
+#define FUNCTION_CREATEEVENTFLAG "CreateEventFlag"
+#define FUNCTION_DELETEEVENTFLAG "DeleteEventFlag"
+#define FUNCTION_SETEVENTFLAG "SetEventFlag"
+#define FUNCTION_ISETEVENTFLAG "iSetEventFlag"
+#define FUNCTION_CLEAREVENTFLAG "ClearEventFlag"
+#define FUNCTION_ICLEAREVENTFLAG "iClearEventFlag"
+#define FUNCTION_WAITEVENTFLAG "WaitEventFlag"
+#define FUNCTION_POLLEVENTFLAG "PollEventFlag"
+#define FUNCTION_REFEREVENTFLAGSTATUS "ReferEventFlagStatus"
+#define FUNCTION_IREFEREVENTFLAGSTATUS "iReferEventFlagStatus"
 
-CThevent::CThevent(CIopBios& bios, uint8* ram) 
-: m_bios(bios)
-, m_ram(ram)
+CThevent::CThevent(CIopBios& bios, uint8* ram)
+    : m_bios(bios)
+    , m_ram(ram)
 {
-
 }
 
 CThevent::~CThevent()
 {
-
 }
 
 std::string CThevent::GetId() const
@@ -80,55 +78,47 @@ void CThevent::Invoke(CMIPS& context, unsigned int functionId)
 	{
 	case 4:
 		context.m_State.nGPR[CMIPS::V0].nD0 = static_cast<int32>(CreateEventFlag(
-			reinterpret_cast<EVENT*>(&m_ram[context.m_State.nGPR[CMIPS::A0].nV0])
-			));
+		    reinterpret_cast<EVENT*>(&m_ram[context.m_State.nGPR[CMIPS::A0].nV0])));
 		break;
 	case 5:
 		context.m_State.nGPR[CMIPS::V0].nD0 = static_cast<int32>(DeleteEventFlag(
-			context.m_State.nGPR[CMIPS::A0].nV0
-			));
+		    context.m_State.nGPR[CMIPS::A0].nV0));
 		break;
 	case 6:
 		context.m_State.nGPR[CMIPS::V0].nD0 = static_cast<int32>(SetEventFlag(
-			context.m_State.nGPR[CMIPS::A0].nV0,
-			context.m_State.nGPR[CMIPS::A1].nV0
-			));
+		    context.m_State.nGPR[CMIPS::A0].nV0,
+		    context.m_State.nGPR[CMIPS::A1].nV0));
 		break;
 	case 7:
 		context.m_State.nGPR[CMIPS::V0].nD0 = static_cast<int32>(iSetEventFlag(
-			context.m_State.nGPR[CMIPS::A0].nV0,
-			context.m_State.nGPR[CMIPS::A1].nV0
-			));
+		    context.m_State.nGPR[CMIPS::A0].nV0,
+		    context.m_State.nGPR[CMIPS::A1].nV0));
 		break;
 	case 8:
 	case 9:
 		context.m_State.nGPR[CMIPS::V0].nD0 = static_cast<int32>(ClearEventFlag(
-			context.m_State.nGPR[CMIPS::A0].nV0,
-			context.m_State.nGPR[CMIPS::A1].nV0
-			));
+		    context.m_State.nGPR[CMIPS::A0].nV0,
+		    context.m_State.nGPR[CMIPS::A1].nV0));
 		break;
 	case 10:
 		context.m_State.nGPR[CMIPS::V0].nD0 = static_cast<int32>(WaitEventFlag(
-			context.m_State.nGPR[CMIPS::A0].nV0,
-			context.m_State.nGPR[CMIPS::A1].nV0,
-			context.m_State.nGPR[CMIPS::A2].nV0,
-			context.m_State.nGPR[CMIPS::A3].nV0
-			));
+		    context.m_State.nGPR[CMIPS::A0].nV0,
+		    context.m_State.nGPR[CMIPS::A1].nV0,
+		    context.m_State.nGPR[CMIPS::A2].nV0,
+		    context.m_State.nGPR[CMIPS::A3].nV0));
 		break;
 	case 11:
 		context.m_State.nGPR[CMIPS::V0].nD0 = static_cast<int32>(PollEventFlag(
-			context.m_State.nGPR[CMIPS::A0].nV0,
-			context.m_State.nGPR[CMIPS::A1].nV0,
-			context.m_State.nGPR[CMIPS::A2].nV0,
-			context.m_State.nGPR[CMIPS::A3].nV0
-		));
+		    context.m_State.nGPR[CMIPS::A0].nV0,
+		    context.m_State.nGPR[CMIPS::A1].nV0,
+		    context.m_State.nGPR[CMIPS::A2].nV0,
+		    context.m_State.nGPR[CMIPS::A3].nV0));
 		break;
 	case 13:
 	case 14:
 		context.m_State.nGPR[CMIPS::V0].nD0 = static_cast<int32>(ReferEventFlagStatus(
-			context.m_State.nGPR[CMIPS::A0].nV0,
-			context.m_State.nGPR[CMIPS::A1].nV0
-			));
+		    context.m_State.nGPR[CMIPS::A0].nV0,
+		    context.m_State.nGPR[CMIPS::A1].nV0));
 		break;
 	default:
 		CLog::GetInstance().Print(LOG_NAME, "Unknown function (%d) called (%08X).\r\n", functionId, context.m_State.nPC);

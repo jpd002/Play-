@@ -7,7 +7,6 @@
 
 CGameTestSheet::CGameTestSheet()
 {
-
 }
 
 CGameTestSheet::CGameTestSheet(Framework::CStream& stream)
@@ -17,7 +16,6 @@ CGameTestSheet::CGameTestSheet(Framework::CStream& stream)
 
 CGameTestSheet::~CGameTestSheet()
 {
-
 }
 
 CGameTestSheet::ENVIRONMENT CGameTestSheet::GetEnvironment(uint32 id) const

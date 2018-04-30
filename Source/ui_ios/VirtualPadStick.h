@@ -9,7 +9,7 @@
 @property CGPoint pressPosition;
 @property CGPoint offset;
 
--(void)onPointerDown: (CGPoint)position;
--(void)onPointerUp;
+- (void)onPointerDown:(CGPoint)position;
+- (void)onPointerUp;
 
 @end

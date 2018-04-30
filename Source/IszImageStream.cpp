@@ -8,7 +8,7 @@
 #include "StdStream.h"
 
 CIszImageStream::CIszImageStream(CStream* baseStream)
-: m_baseStream(baseStream)
+    : m_baseStream(baseStream)
 {
 	if(baseStream == nullptr)
 	{
@@ -36,9 +36,9 @@ CIszImageStream::CIszImageStream(CStream* baseStream)
 
 CIszImageStream::~CIszImageStream()
 {
-	delete [] m_cachedBlock;
-	delete [] m_readBuffer;
-	delete [] m_blockDescriptorTable;
+	delete[] m_cachedBlock;
+	delete[] m_readBuffer;
+	delete[] m_blockDescriptorTable;
 	delete m_baseStream;
 }
 
@@ -117,7 +117,7 @@ void CIszImageStream::ReadBlockDescriptorTable()
 		m_blockDescriptorTable[i].storageType = static_cast<uint8>(value >> 22);
 	}
 
-	delete [] cryptedTable;
+	delete[] cryptedTable;
 }
 
 uint64 CIszImageStream::GetTotalSize() const
@@ -199,8 +199,8 @@ void CIszImageStream::ReadGzipBlock(uint32 compressedBlockSize)
 	m_baseStream->Read(m_readBuffer, compressedBlockSize);
 	uLongf destLength = m_header.blockSize;
 	if(uncompress(
-				  reinterpret_cast<Bytef*>(m_cachedBlock), &destLength,
-				  reinterpret_cast<Bytef*>(m_readBuffer), compressedBlockSize) != Z_OK)
+	       reinterpret_cast<Bytef*>(m_cachedBlock), &destLength,
+	       reinterpret_cast<Bytef*>(m_readBuffer), compressedBlockSize) != Z_OK)
 	{
 		throw std::runtime_error("Error decompressing zlib block.");
 	}
@@ -215,8 +215,8 @@ void CIszImageStream::ReadBz2Block(uint32 compressedBlockSize)
 	m_readBuffer[2] = 'h';
 	unsigned int destLength = m_header.blockSize;
 	if(BZ2_bzBuffToBuffDecompress(
-								  reinterpret_cast<char*>(m_cachedBlock), &destLength,
-								  reinterpret_cast<char*>(m_readBuffer), compressedBlockSize, 0, 0) != BZ_OK)
+	       reinterpret_cast<char*>(m_cachedBlock), &destLength,
+	       reinterpret_cast<char*>(m_readBuffer), compressedBlockSize, 0, 0) != BZ_OK)
 	{
 		throw std::runtime_error("Error decompressing bz2 block.");
 	}

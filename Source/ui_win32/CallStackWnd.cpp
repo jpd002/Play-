@@ -5,27 +5,27 @@
 #include "DebugUtils.h"
 #include "../MIPS.h"
 
-#define CLSNAME		_T("CallStackWnd")
+#define CLSNAME _T("CallStackWnd")
 
 CCallStackWnd::CCallStackWnd(HWND hParent, CVirtualMachine& virtualMachine, CMIPS* context, CBiosDebugInfoProvider* biosDebugInfoProvider)
-: m_virtualMachine(virtualMachine)
-, m_context(context)
-, m_list(nullptr)
-, m_biosDebugInfoProvider(biosDebugInfoProvider)
+    : m_virtualMachine(virtualMachine)
+    , m_context(context)
+    , m_list(nullptr)
+    , m_biosDebugInfoProvider(biosDebugInfoProvider)
 {
 	if(!DoesWindowClassExist(CLSNAME))
 	{
 		WNDCLASSEX wc;
 		memset(&wc, 0, sizeof(WNDCLASSEX));
-		wc.cbSize			= sizeof(WNDCLASSEX);
-		wc.hCursor			= LoadCursor(NULL, IDC_ARROW);
-		wc.hbrBackground	= (HBRUSH)(COLOR_WINDOW); 
-		wc.hInstance		= GetModuleHandle(NULL);
-		wc.lpszClassName	= CLSNAME;
-		wc.lpfnWndProc		= CWindow::WndProc;
+		wc.cbSize = sizeof(WNDCLASSEX);
+		wc.hCursor = LoadCursor(NULL, IDC_ARROW);
+		wc.hbrBackground = (HBRUSH)(COLOR_WINDOW);
+		wc.hInstance = GetModuleHandle(NULL);
+		wc.lpszClassName = CLSNAME;
+		wc.lpfnWndProc = CWindow::WndProc;
 		RegisterClassEx(&wc);
 	}
-	
+
 	Create(NULL, CLSNAME, _T("Call Stack"), WS_CLIPCHILDREN | WS_THICKFRAME | WS_CAPTION | WS_SYSMENU | WS_CHILD | WS_MAXIMIZEBOX, Framework::Win32::CRect(0, 0, 320, 240), hParent, NULL);
 	SetClassPtr();
 
@@ -100,7 +100,7 @@ void CCallStackWnd::CreateColumns()
 
 	memset(&col, 0, sizeof(LVCOLUMN));
 	col.pszText = _T("Function");
-	col.mask	= LVCF_TEXT;
+	col.mask = LVCF_TEXT;
 	m_list->InsertColumn(0, col);
 }
 
@@ -121,9 +121,9 @@ void CCallStackWnd::Update()
 		//Cannot go further
 		LVITEM item;
 		memset(&item, 0, sizeof(LVITEM));
-		item.pszText	= _T("Call stack unavailable at this state.");
-		item.mask		= LVIF_TEXT | LVIF_PARAM;
-		item.lParam		= MIPS_INVALID_PC;
+		item.pszText = _T("Call stack unavailable at this state.");
+		item.mask = LVIF_TEXT | LVIF_PARAM;
+		item.lParam = MIPS_INVALID_PC;
 		m_list->InsertItem(item);
 
 		m_list->SetRedraw(true);
@@ -137,10 +137,10 @@ void CCallStackWnd::Update()
 		//Add the current function
 		LVITEM item;
 		memset(&item, 0, sizeof(LVITEM));
-		item.pszText	= _T("");
-		item.iItem		= m_list->GetItemCount();
-		item.mask		= LVIF_TEXT | LVIF_PARAM;
-		item.lParam		= callStackItem;
+		item.pszText = _T("");
+		item.iItem = m_list->GetItemCount();
+		item.mask = LVIF_TEXT | LVIF_PARAM;
+		item.lParam = callStackItem;
 		unsigned int i = m_list->InsertItem(item);
 
 		auto locationString = DebugUtils::PrintAddressLocation(callStackItem, m_context, modules);

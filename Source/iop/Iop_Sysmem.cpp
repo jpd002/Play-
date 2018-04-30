@@ -6,29 +6,29 @@ using namespace Iop;
 
 #define LOG_NAME ("iop_sysmem")
 
-#define FUNCTION_ALLOCATEMEMORY			"AllocateMemory"
-#define FUNCTION_FREEMEMORY				"FreeMemory"
-#define FUNCTION_PRINTF					"printf"
-#define FUNCTION_QUERYMEMSIZE			"QueryMemSize"
-#define FUNCTION_QUERYMAXFREEMEMSIZE	"QueryMaxFreeMemSize"
+#define FUNCTION_ALLOCATEMEMORY "AllocateMemory"
+#define FUNCTION_FREEMEMORY "FreeMemory"
+#define FUNCTION_PRINTF "printf"
+#define FUNCTION_QUERYMEMSIZE "QueryMemSize"
+#define FUNCTION_QUERYMAXFREEMEMSIZE "QueryMaxFreeMemSize"
 
-#define MIN_BLOCK_SIZE  0x100
+#define MIN_BLOCK_SIZE 0x100
 
 CSysmem::CSysmem(uint8* ram, uint32 memoryBegin, uint32 memoryEnd, BlockListType& blocks, CStdio& stdio, CIoman& ioman, CSifMan& sifMan)
-: m_iopRam(ram)
-, m_memoryBegin(memoryBegin)
-, m_memoryEnd(memoryEnd)
-, m_stdio(stdio)
-, m_ioman(ioman)
-, m_memorySize(memoryEnd - memoryBegin)
-, m_blocks(blocks)
+    : m_iopRam(ram)
+    , m_memoryBegin(memoryBegin)
+    , m_memoryEnd(memoryEnd)
+    , m_stdio(stdio)
+    , m_ioman(ioman)
+    , m_memorySize(memoryEnd - memoryBegin)
+    , m_blocks(blocks)
 {
 	//Initialize block map
 	m_headBlockId = m_blocks.Allocate();
 	auto block = m_blocks[m_headBlockId];
-	block->address		= m_memorySize;
-	block->size			= 0;
-	block->nextBlockId	= BlockListType::INVALID_ID;
+	block->address = m_memorySize;
+	block->size = 0;
+	block->nextBlockId = BlockListType::INVALID_ID;
 
 	//Register sif module
 	sifMan.RegisterModule(MODULE_ID, this);
@@ -36,7 +36,6 @@ CSysmem::CSysmem(uint8* ram, uint32 memoryBegin, uint32 memoryEnd, BlockListType
 
 CSysmem::~CSysmem()
 {
-
 }
 
 std::string CSysmem::GetId() const
@@ -75,15 +74,13 @@ void CSysmem::Invoke(CMIPS& context, unsigned int functionId)
 	{
 	case 4:
 		context.m_State.nGPR[CMIPS::V0].nD0 = static_cast<int32>(AllocateMemory(
-			context.m_State.nGPR[CMIPS::A1].nV[0],
-			context.m_State.nGPR[CMIPS::A0].nV[0],
-			context.m_State.nGPR[CMIPS::A2].nV[0]
-			));
+		    context.m_State.nGPR[CMIPS::A1].nV[0],
+		    context.m_State.nGPR[CMIPS::A0].nV[0],
+		    context.m_State.nGPR[CMIPS::A2].nV[0]));
 		break;
 	case 5:
 		context.m_State.nGPR[CMIPS::V0].nD0 = static_cast<int32>(FreeMemory(
-			context.m_State.nGPR[CMIPS::A0].nV[0]
-			));
+		    context.m_State.nGPR[CMIPS::A0].nV[0]));
 		break;
 	case 6:
 		context.m_State.nGPR[CMIPS::V0].nD0 = m_memorySize;
@@ -157,7 +154,7 @@ uint32 CSysmem::QueryMaxFreeMemSize()
 uint32 CSysmem::AllocateMemory(uint32 size, uint32 flags, uint32 wantedAddress)
 {
 	CLog::GetInstance().Print(LOG_NAME, "AllocateMemory(size = 0x%08X, flags = 0x%08X, wantedAddress = 0x%08X);\r\n",
-		size, flags, wantedAddress);
+	                          size, flags, wantedAddress);
 
 	const uint32 blockSize = MIN_BLOCK_SIZE;
 
@@ -185,7 +182,7 @@ uint32 CSysmem::AllocateMemory(uint32 size, uint32 flags, uint32 wantedAddress)
 			nextBlockId = &nextBlock->nextBlockId;
 			nextBlock = m_blocks[*nextBlockId];
 		}
-		
+
 		if(nextBlock != nullptr)
 		{
 			uint32 newBlockId = m_blocks.Allocate();
@@ -195,9 +192,9 @@ uint32 CSysmem::AllocateMemory(uint32 size, uint32 flags, uint32 wantedAddress)
 				return 0;
 			}
 			auto newBlock = m_blocks[newBlockId];
-			newBlock->address		= begin;
-			newBlock->size			= size;
-			newBlock->nextBlockId	= *nextBlockId;
+			newBlock->address = begin;
+			newBlock->size = size;
+			newBlock->nextBlockId = *nextBlockId;
 			*nextBlockId = newBlockId;
 			return begin + m_memoryBegin;
 		}
@@ -220,9 +217,8 @@ uint32 CSysmem::AllocateMemory(uint32 size, uint32 flags, uint32 wantedAddress)
 				break;
 			}
 			if(
-				(begin <= wantedAddress) && 
-				((end - begin) >= size)
-				)
+			    (begin <= wantedAddress) &&
+			    ((end - begin) >= size))
 			{
 				break;
 			}
@@ -230,7 +226,7 @@ uint32 CSysmem::AllocateMemory(uint32 size, uint32 flags, uint32 wantedAddress)
 			nextBlockId = &nextBlock->nextBlockId;
 			nextBlock = m_blocks[*nextBlockId];
 		}
-		
+
 		if(nextBlock != nullptr)
 		{
 			uint32 newBlockId = m_blocks.Allocate();
@@ -240,9 +236,9 @@ uint32 CSysmem::AllocateMemory(uint32 size, uint32 flags, uint32 wantedAddress)
 				return 0;
 			}
 			auto newBlock = m_blocks[newBlockId];
-			newBlock->address		= wantedAddress;
-			newBlock->size			= size;
-			newBlock->nextBlockId	= *nextBlockId;
+			newBlock->address = wantedAddress;
+			newBlock->size = size;
+			newBlock->nextBlockId = *nextBlockId;
 			*nextBlockId = newBlockId;
 			return wantedAddress + m_memoryBegin;
 		}
@@ -288,24 +284,24 @@ uint32 CSysmem::FreeMemory(uint32 address)
 
 uint32 CSysmem::SifAllocate(uint32 nSize)
 {
-	uint32 result = AllocateMemory(nSize, 0, 0); 
-	CLog::GetInstance().Print(LOG_NAME, "result = 0x%08X = Allocate(size = 0x%08X);\r\n", 
-		result, nSize);
+	uint32 result = AllocateMemory(nSize, 0, 0);
+	CLog::GetInstance().Print(LOG_NAME, "result = 0x%08X = Allocate(size = 0x%08X);\r\n",
+	                          result, nSize);
 	return result;
 }
 
 uint32 CSysmem::SifAllocateSystemMemory(uint32 nSize, uint32 nFlags, uint32 nPtr)
 {
 	uint32 result = AllocateMemory(nSize, nFlags, nPtr);
-	CLog::GetInstance().Print(LOG_NAME, "result = 0x%08X = AllocateSystemMemory(flags = 0x%08X, size = 0x%08X, ptr = 0x%08X);\r\n", 
-		result, nFlags, nSize, nPtr);
+	CLog::GetInstance().Print(LOG_NAME, "result = 0x%08X = AllocateSystemMemory(flags = 0x%08X, size = 0x%08X, ptr = 0x%08X);\r\n",
+	                          result, nFlags, nSize, nPtr);
 	return result;
 }
 
 uint32 CSysmem::SifLoadMemory(uint32 address, const char* filePath)
 {
 	CLog::GetInstance().Print(LOG_NAME, "LoadMemory(address = 0x%08X, filePath = '%s');\r\n",
-		address, filePath);
+	                          address, filePath);
 
 	auto fd = m_ioman.Open(Ioman::CDevice::OPEN_FLAG_RDONLY, filePath);
 	if(static_cast<int32>(fd) < 0)

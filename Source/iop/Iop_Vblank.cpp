@@ -5,17 +5,16 @@
 
 using namespace Iop;
 
-#define LOG_NAME    "iop_vblank"
+#define LOG_NAME "iop_vblank"
 
-#define FUNCTION_WAITVBLANKSTART       "WaitVblankStart"
-#define FUNCTION_WAITVBLANKEND         "WaitVblankEnd"
-#define FUNCTION_WAITVBLANK            "WaitVblank"
+#define FUNCTION_WAITVBLANKSTART "WaitVblankStart"
+#define FUNCTION_WAITVBLANKEND "WaitVblankEnd"
+#define FUNCTION_WAITVBLANK "WaitVblank"
 #define FUNCTION_REGISTERVBLANKHANDLER "RegisterVblankHandler"
 
 CVblank::CVblank(CIopBios& bios)
-: m_bios(bios)
+    : m_bios(bios)
 {
-
 }
 
 std::string CVblank::GetId() const
@@ -60,11 +59,11 @@ void CVblank::Invoke(CMIPS& context, unsigned int functionId)
 		break;
 	case 8:
 		context.m_State.nGPR[CMIPS::V0].nD0 = RegisterVblankHandler(
-			context,
-			context.m_State.nGPR[CMIPS::A0].nV0,
-			context.m_State.nGPR[CMIPS::A1].nV0,
-			context.m_State.nGPR[CMIPS::A2].nV0,
-			context.m_State.nGPR[CMIPS::A3].nV0);
+		    context,
+		    context.m_State.nGPR[CMIPS::A0].nV0,
+		    context.m_State.nGPR[CMIPS::A1].nV0,
+		    context.m_State.nGPR[CMIPS::A2].nV0,
+		    context.m_State.nGPR[CMIPS::A3].nV0);
 		break;
 	default:
 		CLog::GetInstance().Print(LOG_NAME, "Unknown function called (%d).\r\n", functionId);
@@ -104,7 +103,7 @@ int32 CVblank::RegisterVblankHandler(CMIPS& context, uint32 startEnd, uint32 pri
 {
 #ifdef _DEBUG
 	CLog::GetInstance().Print(LOG_NAME, FUNCTION_REGISTERVBLANKHANDLER "(startEnd = %d, priority = %d, handler = 0x%08X, arg = 0x%08X).\r\n",
-		startEnd, priority, handlerPtr, handlerParam);
+	                          startEnd, priority, handlerPtr, handlerParam);
 #endif
 	uint32 intrLine = startEnd ? CIntc::LINE_EVBLANK : CIntc::LINE_VBLANK;
 

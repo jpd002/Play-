@@ -9,15 +9,13 @@
 using namespace VideoStream;
 
 ReadDct::ReadDct()
-: m_coeffTable(NULL)
-, m_block(NULL)
+    : m_coeffTable(NULL)
+    , m_block(NULL)
 {
-
 }
 
 ReadDct::~ReadDct()
 {
-
 }
 
 void ReadDct::Reset()
@@ -46,44 +44,50 @@ void ReadDct::Execute(void* context, Framework::CBitStream& stream)
 	{
 		switch(m_programState)
 		{
-		case STATE_INIT:					goto Label_Init;
-		case STATE_READDCDIFFERENTIAL:		goto Label_ReadDcDifferential;
-		case STATE_CHECKEOB:				goto Label_CheckEob;
-		case STATE_READCOEFF:				goto Label_ReadCoeff;
-		case STATE_SKIPEOB:					goto Label_SkipEob;
-		default:							assert(0);
+		case STATE_INIT:
+			goto Label_Init;
+		case STATE_READDCDIFFERENTIAL:
+			goto Label_ReadDcDifferential;
+		case STATE_CHECKEOB:
+			goto Label_CheckEob;
+		case STATE_READCOEFF:
+			goto Label_ReadCoeff;
+		case STATE_SKIPEOB:
+			goto Label_SkipEob;
+		default:
+			assert(0);
 		}
 
-Label_Init:
-		{
+	Label_Init:
+	{
 #ifdef _DECODE_LOGGING
-			static int currentBlockIndex = 0;
-			CLog::GetInstance().Print(DECODE_LOG_NAME, "Block(%d) = ", currentBlockIndex++);
+		static int currentBlockIndex = 0;
+		CLog::GetInstance().Print(DECODE_LOG_NAME, "Block(%d) = ", currentBlockIndex++);
 #endif
-			bool isIntra = (pictureHeader.pictureCodingType == PICTURE_TYPE_I || decoderState.macroblockType & MACROBLOCK_MODE_INTRA);
+		bool isIntra = (pictureHeader.pictureCodingType == PICTURE_TYPE_I || decoderState.macroblockType & MACROBLOCK_MODE_INTRA);
 
-			m_dcDiffReader.Reset();
-			if(pictureCodingExtension.intraVlcFormat && isIntra)
-			{
-				m_coeffTable = &MPEG2::CDctCoefficientTable1::GetInstance();
-			}
-			else
-			{
-				m_coeffTable = &MPEG2::CDctCoefficientTable0::GetInstance();
-			}
-
-			if(isIntra)
-			{
-				m_programState = STATE_READDCDIFFERENTIAL;
-			}
-			else
-			{
-				m_programState = STATE_CHECKEOB;
-			}
+		m_dcDiffReader.Reset();
+		if(pictureCodingExtension.intraVlcFormat && isIntra)
+		{
+			m_coeffTable = &MPEG2::CDctCoefficientTable1::GetInstance();
 		}
+		else
+		{
+			m_coeffTable = &MPEG2::CDctCoefficientTable0::GetInstance();
+		}
+
+		if(isIntra)
+		{
+			m_programState = STATE_READDCDIFFERENTIAL;
+		}
+		else
+		{
+			m_programState = STATE_CHECKEOB;
+		}
+	}
 		continue;
 
-Label_ReadDcDifferential:
+	Label_ReadDcDifferential:
 		m_dcDiffReader.SetChannel(m_channel);
 		m_dcDiffReader.Execute(context, stream);
 		m_block[0] = static_cast<int16>(decoderState.dcPredictor[m_channel] + decoderState.dcDifferential);
@@ -95,7 +99,7 @@ Label_ReadDcDifferential:
 		m_programState = STATE_CHECKEOB;
 		continue;
 
-Label_CheckEob:
+	Label_CheckEob:
 		if((m_blockIndex != 0) && m_coeffTable->IsEndOfBlock(&stream))
 		{
 			m_programState = STATE_SKIPEOB;
@@ -106,38 +110,38 @@ Label_CheckEob:
 		}
 		continue;
 
-Label_ReadCoeff:
+	Label_ReadCoeff:
+	{
+		MPEG2::RUNLEVELPAIR runLevelPair;
+		if(m_blockIndex == 0)
 		{
-			MPEG2::RUNLEVELPAIR runLevelPair;
-			if(m_blockIndex == 0)
-			{
-				m_coeffTable->GetRunLevelPairDc(&stream, &runLevelPair, isMpeg2);
-			}
-			else
-			{
-				m_coeffTable->GetRunLevelPair(&stream, &runLevelPair, isMpeg2);
-			}
-			m_blockIndex += runLevelPair.run;
-		
-			if(m_blockIndex < 0x40)
-			{
-				m_block[m_blockIndex] = static_cast<int16>(runLevelPair.level);
-#ifdef _DECODE_LOGGING
-				CLog::GetInstance().Print(DECODE_LOG_NAME, "[%d]: %d ", m_blockIndex, runLevelPair.level);
-#endif
-			}
-			else
-			{
-				assert(0);
-				break;
-			}
-
-			m_blockIndex++;
-			m_programState = STATE_CHECKEOB;
+			m_coeffTable->GetRunLevelPairDc(&stream, &runLevelPair, isMpeg2);
 		}
+		else
+		{
+			m_coeffTable->GetRunLevelPair(&stream, &runLevelPair, isMpeg2);
+		}
+		m_blockIndex += runLevelPair.run;
+
+		if(m_blockIndex < 0x40)
+		{
+			m_block[m_blockIndex] = static_cast<int16>(runLevelPair.level);
+#ifdef _DECODE_LOGGING
+			CLog::GetInstance().Print(DECODE_LOG_NAME, "[%d]: %d ", m_blockIndex, runLevelPair.level);
+#endif
+		}
+		else
+		{
+			assert(0);
+			break;
+		}
+
+		m_blockIndex++;
+		m_programState = STATE_CHECKEOB;
+	}
 		continue;
 
-Label_SkipEob:
+	Label_SkipEob:
 		m_coeffTable->SkipEndOfBlock(&stream);
 #ifdef _DECODE_LOGGING
 		CLog::GetInstance().Print(DECODE_LOG_NAME, "\r\n");

@@ -9,8 +9,8 @@
 class CSaveExporter
 {
 public:
-	static void		ExportPSU(Framework::CStream&, const boost::filesystem::path&);
-	
+	static void ExportPSU(Framework::CStream&, const boost::filesystem::path&);
+
 private:
 #pragma pack(push, 1)
 
@@ -18,30 +18,29 @@ private:
 	{
 		struct TIME
 		{
-			uint8	nUnknown;
-			uint8	nSecond;
-			uint8	nMinute;
-			uint8	nHour;
-			uint8	nDay;
-			uint8	nMonth;
-			uint16	nYear;
+			uint8 nUnknown;
+			uint8 nSecond;
+			uint8 nMinute;
+			uint8 nHour;
+			uint8 nDay;
+			uint8 nMonth;
+			uint16 nYear;
 		};
 
-		uint32	nFlags;
-		uint32	nSize;
-		TIME	CreationTime;
-		uint32	nSector;
-		uint32	nChecksum;
-		TIME	ModificationTime;
-		uint8	Padding[0x20];
-		uint8	sName[0x1C0];
+		uint32 nFlags;
+		uint32 nSize;
+		TIME CreationTime;
+		uint32 nSector;
+		uint32 nChecksum;
+		TIME ModificationTime;
+		uint8 Padding[0x20];
+		uint8 sName[0x1C0];
 	};
 	static_assert(sizeof(PSUENTRY) == 0x200, "Size of PSUENTRY structure must be 0x200 bytes");
 
 #pragma pack(pop)
 
-	static void		PSU_CopyTime(PSUENTRY::TIME*, const boost::posix_time::ptime&);
-
+	static void PSU_CopyTime(PSUENTRY::TIME*, const boost::posix_time::ptime&);
 };
 
 #endif

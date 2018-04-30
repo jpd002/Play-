@@ -46,25 +46,25 @@ void CCOP_VU::ReflOpRtId(INSTRUCTION* pInstr, CMIPS* pCtx, uint32 nAddress, uint
 
 void CCOP_VU::ReflOpImm15(INSTRUCTION* pInstr, CMIPS* pCtx, uint32 nAddress, uint32 nOpcode, char* sText, unsigned int nCount)
 {
-	uint16 nImm	= static_cast<uint16>((nOpcode >> 6) & 0x7FFF);
+	uint16 nImm = static_cast<uint16>((nOpcode >> 6) & 0x7FFF);
 
 	sprintf(sText, "$%04X", nImm);
 }
 
 void CCOP_VU::ReflOpAccFsFt(INSTRUCTION* pInstr, CMIPS* pCtx, uint32 nAddress, uint32 nOpcode, char* sText, unsigned int nCount)
 {
-	uint8 nFT	= static_cast<uint8>((nOpcode >> 16) & 0x001F);
-	uint8 nFS	= static_cast<uint8>((nOpcode >> 11) & 0x001F);
-	uint8 nDest	= static_cast<uint8>((nOpcode >> 21) & 0x000F);
+	uint8 nFT = static_cast<uint8>((nOpcode >> 16) & 0x001F);
+	uint8 nFS = static_cast<uint8>((nOpcode >> 11) & 0x001F);
+	uint8 nDest = static_cast<uint8>((nOpcode >> 21) & 0x000F);
 
 	sprintf(sText, "ACC%s, VF%i%s, VF%i%s", m_sDestination[nDest], nFS, m_sDestination[nDest], nFT, m_sDestination[nDest]);
 }
 
 void CCOP_VU::ReflOpFtOffRs(INSTRUCTION* pInstr, CMIPS* pCtx, uint32 nAddress, uint32 nOpcode, char* sText, unsigned int nCount)
 {
-	uint8 nRS	= static_cast<uint8> ((nOpcode >> 21) & 0x001F);
-	uint8 nFT	= static_cast<uint8> ((nOpcode >> 16) & 0x001F);
-	uint16 nImm = static_cast<uint16>((nOpcode >>  0) & 0xFFFF);
+	uint8 nRS = static_cast<uint8>((nOpcode >> 21) & 0x001F);
+	uint8 nFT = static_cast<uint8>((nOpcode >> 16) & 0x001F);
+	uint16 nImm = static_cast<uint16>((nOpcode >> 0) & 0xFFFF);
 
 	sprintf(sText, "VF%i, $%04X(%s)", nFT, nImm, CMIPS::m_sGPRName[nRS]);
 }
@@ -76,7 +76,7 @@ void CCOP_VU::ReflOpVi27(INSTRUCTION* pInstr, CMIPS* pCtx, uint32 nAddress, uint
 
 uint32 CCOP_VU::ReflEaOffset(INSTRUCTION* pInstr, CMIPS* pCtx, uint32 nAddress, uint32 nOpcode)
 {
-	auto imm = static_cast<uint16>((nOpcode >>  0) & 0xFFFF);
+	auto imm = static_cast<uint16>((nOpcode >> 0) & 0xFFFF);
 	nAddress += 4;
 	return (nAddress + CMIPS::GetBranch(imm));
 }
@@ -446,68 +446,68 @@ INSTRUCTION CCOP_VU::m_cReflVX3[32] =
 
 void CCOP_VU::SetupReflectionTables()
 {
-	static_assert(sizeof(m_ReflGeneral)	== sizeof(m_cReflGeneral),	"Array sizes don't match");
-	static_assert(sizeof(m_ReflCop2)	== sizeof(m_cReflCop2),		"Array sizes don't match");
-	static_assert(sizeof(m_ReflBc2)		== sizeof(m_cReflBc2),		"Array sizes don't match");
-	static_assert(sizeof(m_ReflV)		== sizeof(m_cReflV),		"Array sizes don't match");
-	static_assert(sizeof(m_ReflVX0)		== sizeof(m_cReflVX0),		"Array sizes don't match");
-	static_assert(sizeof(m_ReflVX1)		== sizeof(m_cReflVX1),		"Array sizes don't match");
-	static_assert(sizeof(m_ReflVX2)		== sizeof(m_cReflVX2),		"Array sizes don't match");
-	static_assert(sizeof(m_ReflVX3)		== sizeof(m_cReflVX3),		"Array sizes don't match");
+	static_assert(sizeof(m_ReflGeneral) == sizeof(m_cReflGeneral), "Array sizes don't match");
+	static_assert(sizeof(m_ReflCop2) == sizeof(m_cReflCop2), "Array sizes don't match");
+	static_assert(sizeof(m_ReflBc2) == sizeof(m_cReflBc2), "Array sizes don't match");
+	static_assert(sizeof(m_ReflV) == sizeof(m_cReflV), "Array sizes don't match");
+	static_assert(sizeof(m_ReflVX0) == sizeof(m_cReflVX0), "Array sizes don't match");
+	static_assert(sizeof(m_ReflVX1) == sizeof(m_cReflVX1), "Array sizes don't match");
+	static_assert(sizeof(m_ReflVX2) == sizeof(m_cReflVX2), "Array sizes don't match");
+	static_assert(sizeof(m_ReflVX3) == sizeof(m_cReflVX3), "Array sizes don't match");
 
-	memcpy(m_ReflGeneral,	m_cReflGeneral,	sizeof(m_cReflGeneral));
-	memcpy(m_ReflCop2,		m_cReflCop2,	sizeof(m_cReflCop2));
-	memcpy(m_ReflBc2,		m_cReflBc2,		sizeof(m_cReflBc2));
-	memcpy(m_ReflV,			m_cReflV,		sizeof(m_cReflV));
-	memcpy(m_ReflVX0,		m_cReflVX0,		sizeof(m_cReflVX0));
-	memcpy(m_ReflVX1,		m_cReflVX1,		sizeof(m_cReflVX1));
-	memcpy(m_ReflVX2,		m_cReflVX2,		sizeof(m_cReflVX2));
-	memcpy(m_ReflVX3,		m_cReflVX3,		sizeof(m_cReflVX3));
+	memcpy(m_ReflGeneral, m_cReflGeneral, sizeof(m_cReflGeneral));
+	memcpy(m_ReflCop2, m_cReflCop2, sizeof(m_cReflCop2));
+	memcpy(m_ReflBc2, m_cReflBc2, sizeof(m_cReflBc2));
+	memcpy(m_ReflV, m_cReflV, sizeof(m_cReflV));
+	memcpy(m_ReflVX0, m_cReflVX0, sizeof(m_cReflVX0));
+	memcpy(m_ReflVX1, m_cReflVX1, sizeof(m_cReflVX1));
+	memcpy(m_ReflVX2, m_cReflVX2, sizeof(m_cReflVX2));
+	memcpy(m_ReflVX3, m_cReflVX3, sizeof(m_cReflVX3));
 
-	m_ReflGeneralTable.nShift		= 26;
-	m_ReflGeneralTable.nMask		= 0x3F;
-	m_ReflGeneralTable.pTable		= m_ReflGeneral;
+	m_ReflGeneralTable.nShift = 26;
+	m_ReflGeneralTable.nMask = 0x3F;
+	m_ReflGeneralTable.pTable = m_ReflGeneral;
 
-	m_ReflCop2Table.nShift			= 21;
-	m_ReflCop2Table.nMask			= 0x1F;
-	m_ReflCop2Table.pTable			= m_ReflCop2;
+	m_ReflCop2Table.nShift = 21;
+	m_ReflCop2Table.nMask = 0x1F;
+	m_ReflCop2Table.pTable = m_ReflCop2;
 
-	m_ReflBc2Table.nShift			= 16;
-	m_ReflBc2Table.nMask			= 0x03;
-	m_ReflBc2Table.pTable			= m_ReflBc2;
+	m_ReflBc2Table.nShift = 16;
+	m_ReflBc2Table.nMask = 0x03;
+	m_ReflBc2Table.pTable = m_ReflBc2;
 
-	m_ReflVTable.nShift				= 0;
-	m_ReflVTable.nMask				= 0x3F;
-	m_ReflVTable.pTable				= m_ReflV;
+	m_ReflVTable.nShift = 0;
+	m_ReflVTable.nMask = 0x3F;
+	m_ReflVTable.pTable = m_ReflV;
 
-	m_ReflVX0Table.nShift			= 6;
-	m_ReflVX0Table.nMask			= 0x1F;
-	m_ReflVX0Table.pTable			= m_ReflVX0;
+	m_ReflVX0Table.nShift = 6;
+	m_ReflVX0Table.nMask = 0x1F;
+	m_ReflVX0Table.pTable = m_ReflVX0;
 
-	m_ReflVX1Table.nShift			= 6;
-	m_ReflVX1Table.nMask			= 0x1F;
-	m_ReflVX1Table.pTable			= m_ReflVX1;
+	m_ReflVX1Table.nShift = 6;
+	m_ReflVX1Table.nMask = 0x1F;
+	m_ReflVX1Table.pTable = m_ReflVX1;
 
-	m_ReflVX2Table.nShift			= 6;
-	m_ReflVX2Table.nMask			= 0x1F;
-	m_ReflVX2Table.pTable			= m_ReflVX2;
+	m_ReflVX2Table.nShift = 6;
+	m_ReflVX2Table.nMask = 0x1F;
+	m_ReflVX2Table.pTable = m_ReflVX2;
 
-	m_ReflVX3Table.nShift			= 6;
-	m_ReflVX3Table.nMask			= 0x1F;
-	m_ReflVX3Table.pTable			= m_ReflVX3;
+	m_ReflVX3Table.nShift = 6;
+	m_ReflVX3Table.nMask = 0x1F;
+	m_ReflVX3Table.pTable = m_ReflVX3;
 
-	m_ReflGeneral[0x12].pSubTable	= &m_ReflCop2Table;
+	m_ReflGeneral[0x12].pSubTable = &m_ReflCop2Table;
 
-	m_ReflCop2[0x08].pSubTable		= &m_ReflBc2Table;
+	m_ReflCop2[0x08].pSubTable = &m_ReflBc2Table;
 	for(unsigned int i = 0x10; i < 0x20; i++)
 	{
-		m_ReflCop2[i].pSubTable		= &m_ReflVTable;
+		m_ReflCop2[i].pSubTable = &m_ReflVTable;
 	}
 
-	m_ReflV[0x3C].pSubTable			= &m_ReflVX0Table;
-	m_ReflV[0x3D].pSubTable			= &m_ReflVX1Table;
-	m_ReflV[0x3E].pSubTable			= &m_ReflVX2Table;
-	m_ReflV[0x3F].pSubTable			= &m_ReflVX3Table;
+	m_ReflV[0x3C].pSubTable = &m_ReflVX0Table;
+	m_ReflV[0x3D].pSubTable = &m_ReflVX1Table;
+	m_ReflV[0x3E].pSubTable = &m_ReflVX2Table;
+	m_ReflV[0x3F].pSubTable = &m_ReflVX3Table;
 }
 
 void CCOP_VU::GetInstruction(uint32 nOpcode, char* sText)
@@ -523,8 +523,8 @@ void CCOP_VU::GetInstruction(uint32 nOpcode, char* sText)
 	CMIPS* pCtx = NULL;
 
 	INSTRUCTION Instr;
-	Instr.pGetMnemonic	= SubTableMnemonic;
-	Instr.pSubTable		= &m_ReflGeneralTable;
+	Instr.pGetMnemonic = SubTableMnemonic;
+	Instr.pSubTable = &m_ReflGeneralTable;
 	Instr.pGetMnemonic(&Instr, pCtx, nOpcode, sText, nCount);
 }
 
@@ -541,9 +541,9 @@ void CCOP_VU::GetArguments(uint32 nAddress, uint32 nOpcode, char* sText)
 	CMIPS* pCtx = NULL;
 
 	INSTRUCTION Instr;
-	Instr.pGetOperands	= SubTableOperands;
-	Instr.pSubTable		= &m_ReflGeneralTable;
-	Instr.pGetOperands(&Instr, pCtx, nAddress, nOpcode, sText, 256);	
+	Instr.pGetOperands = SubTableOperands;
+	Instr.pSubTable = &m_ReflGeneralTable;
+	Instr.pGetOperands(&Instr, pCtx, nAddress, nOpcode, sText, 256);
 }
 
 MIPS_BRANCH_TYPE CCOP_VU::IsBranch(uint32 nOpcode)
@@ -553,8 +553,8 @@ MIPS_BRANCH_TYPE CCOP_VU::IsBranch(uint32 nOpcode)
 	CMIPS* pCtx = NULL;
 
 	INSTRUCTION Instr;
-	Instr.pIsBranch		= SubTableIsBranch;
-	Instr.pSubTable		= &m_ReflGeneralTable;
+	Instr.pIsBranch = SubTableIsBranch;
+	Instr.pSubTable = &m_ReflGeneralTable;
 	return Instr.pIsBranch(&Instr, pCtx, nOpcode);
 }
 
@@ -565,7 +565,7 @@ uint32 CCOP_VU::GetEffectiveAddress(uint32 nAddress, uint32 nOpcode)
 	CMIPS* pCtx = NULL;
 
 	INSTRUCTION Instr;
-	Instr.pGetEffectiveAddress	= SubTableEffAddr;
-	Instr.pSubTable				= &m_ReflGeneralTable;
+	Instr.pGetEffectiveAddress = SubTableEffAddr;
+	Instr.pSubTable = &m_ReflGeneralTable;
 	return Instr.pGetEffectiveAddress(&Instr, pCtx, nAddress, nOpcode);
 }

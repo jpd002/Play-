@@ -8,9 +8,11 @@ namespace VideoStream
 	class Program
 	{
 	public:
-		virtual					~Program() {}
-		virtual void			Reset()										= 0;
-		virtual void			Execute(void*, Framework::CBitStream&)		= 0;
+		virtual ~Program()
+		{
+		}
+		virtual void Reset() = 0;
+		virtual void Execute(void*, Framework::CBitStream&) = 0;
 	};
 }
 

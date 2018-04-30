@@ -8,95 +8,92 @@ using namespace Iop;
 #define LOG_NAME ("spu")
 #define MAX_GENERAL_REG_NAME (64)
 
-static const char* g_channelRegisterName[8] = 
-{
-	"VOL_LEFT",
-	"VOL_RIGHT",
-	"PITCH",
-	"ADDRESS",
-	"ADSR_LEVEL",
-	"ADSR_RATE",
-	"ADSR_VOLUME",
-	"REPEAT"
-};
+static const char* g_channelRegisterName[8] =
+    {
+        "VOL_LEFT",
+        "VOL_RIGHT",
+        "PITCH",
+        "ADDRESS",
+        "ADSR_LEVEL",
+        "ADSR_RATE",
+        "ADSR_VOLUME",
+        "REPEAT"};
 
 static const char* g_generalRegisterName[MAX_GENERAL_REG_NAME] =
-{
-	"MAIN_VOL_LEFT",
-	"MAIN_VOL_RIGHT",
-	"REVERB_LEFT",
-	"REVERB_RIGHT",
-	"VOICE_ON_0",
-	"VOICE_ON_1",
-	"VOICE_OFF_0",
-	"VOICE_OFF_1",
-	"FM_0",
-	"FM_1",
-	"NOISE_0",
-	"NOISE_1",
-	"REVERB_0",
-	"REVERB_1",
-	"CHANNEL_ON_0",
-	"CHANNEL_ON_1",
-	NULL,
-	"REVERB_WORK",
-	"IRQ_ADDR",
-	"BUFFER_ADDR",
-	"SPU_DATA",
-	"SPU_CTRL0",
-	"SPU_STATUS0",
-	"SPU_STATUS1",
-	"CD_VOL_LEFT",
-	"CD_VOL_RIGHT",
-	"EXT_VOL_LEFT",
-	"EXT_VOL_RIGHT",
-	NULL,
-	NULL,
-	NULL,
-	NULL,
-	"FB_SRC_A",
-	"FB_SRC_B",
-	"IIR_ALPHA",
-	"ACC_COEF_A",
-	"ACC_COEF_B",
-	"ACC_COEF_C",
-	"ACC_COEF_D",
-	"IIR_COEF",
-	"FB_ALPHA",
-	"FB_X",
-	"IIR_DEST_A0",
-	"IIR_DEST_A1",
-	"ACC_SRC_A0",
-	"ACC_SRC_A1",
-	"ACC_SRC_B0",
-	"ACC_SRC_B1",
-	"IIR_SRC_A0",
-	"IIR_SRC_A1",
-	"IIR_DEST_B0",
-	"IIR_DEST_B1",
-	"ACC_SRC_C0",
-	"ACC_SRC_C1",
-	"ACC_SRC_D0",
-	"ACC_SRC_D1",
-	"IIR_SRC_B1",
-	"IIR_SRC_B0",
-	"MIX_DEST_A0",
-	"MIX_DEST_A1",
-	"MIX_DEST_B0",
-	"MIX_DEST_B1",
-	"IN_COEF_L",
-	"IN_COEF_R"
-};
+    {
+        "MAIN_VOL_LEFT",
+        "MAIN_VOL_RIGHT",
+        "REVERB_LEFT",
+        "REVERB_RIGHT",
+        "VOICE_ON_0",
+        "VOICE_ON_1",
+        "VOICE_OFF_0",
+        "VOICE_OFF_1",
+        "FM_0",
+        "FM_1",
+        "NOISE_0",
+        "NOISE_1",
+        "REVERB_0",
+        "REVERB_1",
+        "CHANNEL_ON_0",
+        "CHANNEL_ON_1",
+        NULL,
+        "REVERB_WORK",
+        "IRQ_ADDR",
+        "BUFFER_ADDR",
+        "SPU_DATA",
+        "SPU_CTRL0",
+        "SPU_STATUS0",
+        "SPU_STATUS1",
+        "CD_VOL_LEFT",
+        "CD_VOL_RIGHT",
+        "EXT_VOL_LEFT",
+        "EXT_VOL_RIGHT",
+        NULL,
+        NULL,
+        NULL,
+        NULL,
+        "FB_SRC_A",
+        "FB_SRC_B",
+        "IIR_ALPHA",
+        "ACC_COEF_A",
+        "ACC_COEF_B",
+        "ACC_COEF_C",
+        "ACC_COEF_D",
+        "IIR_COEF",
+        "FB_ALPHA",
+        "FB_X",
+        "IIR_DEST_A0",
+        "IIR_DEST_A1",
+        "ACC_SRC_A0",
+        "ACC_SRC_A1",
+        "ACC_SRC_B0",
+        "ACC_SRC_B1",
+        "IIR_SRC_A0",
+        "IIR_SRC_A1",
+        "IIR_DEST_B0",
+        "IIR_DEST_B1",
+        "ACC_SRC_C0",
+        "ACC_SRC_C1",
+        "ACC_SRC_D0",
+        "ACC_SRC_D1",
+        "IIR_SRC_B1",
+        "IIR_SRC_B0",
+        "MIX_DEST_A0",
+        "MIX_DEST_A1",
+        "MIX_DEST_B0",
+        "MIX_DEST_B1",
+        "IN_COEF_L",
+        "IN_COEF_R"};
 
-CSpu::CSpu(CSpuBase& base) :
-m_base(base)
+CSpu::CSpu(CSpuBase& base)
+    : m_base(base)
 {
 	Reset();
 }
 
 CSpu::~CSpu()
 {
-
 }
 
 void CSpu::Reset()
@@ -261,7 +258,7 @@ void CSpu::DisassembleRead(uint32 address)
 		else
 		{
 			CLog::GetInstance().Print(LOG_NAME, "= %s\r\n",
-				g_generalRegisterName[registerId]);
+			                          g_generalRegisterName[registerId]);
 		}
 	}
 	else
@@ -274,8 +271,8 @@ void CSpu::DisassembleRead(uint32 address)
 		}
 		else
 		{
-			CLog::GetInstance().Print(LOG_NAME, "CH%i : = %s\r\n", 
-				channel, g_channelRegisterName[registerId / 2]);
+			CLog::GetInstance().Print(LOG_NAME, "CH%i : = %s\r\n",
+			                          channel, g_channelRegisterName[registerId / 2]);
 		}
 	}
 }
@@ -293,7 +290,7 @@ void CSpu::DisassembleWrite(uint32 address, uint16 value)
 		else
 		{
 			CLog::GetInstance().Print(LOG_NAME, "%s = 0x%04X\r\n",
-				g_generalRegisterName[registerId], value);
+			                          g_generalRegisterName[registerId], value);
 		}
 	}
 	else
@@ -302,13 +299,13 @@ void CSpu::DisassembleWrite(uint32 address, uint16 value)
 		unsigned int registerId = address & 0x0F;
 		if(address & 0x1)
 		{
-			CLog::GetInstance().Print(LOG_NAME, "CH%i : Wrote to an unknown register (0x%X, 0x%04X).\r\n", 
-				channel, registerId, value);
+			CLog::GetInstance().Print(LOG_NAME, "CH%i : Wrote to an unknown register (0x%X, 0x%04X).\r\n",
+			                          channel, registerId, value);
 		}
 		else
 		{
-			CLog::GetInstance().Print(LOG_NAME, "CH%i : %s = 0x%04X\r\n", 
-				channel, g_channelRegisterName[registerId / 2], value);
+			CLog::GetInstance().Print(LOG_NAME, "CH%i : %s = 0x%04X\r\n",
+			                          channel, g_channelRegisterName[registerId / 2], value);
 		}
 	}
 }

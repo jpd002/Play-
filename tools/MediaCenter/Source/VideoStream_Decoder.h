@@ -17,17 +17,17 @@ namespace VideoStream
 	public:
 		typedef ReadSlice::OnMacroblockDecodedHandler OnMacroblockDecodedHandler;
 		typedef ReadSlice::OnPictureDecodedHandler OnPictureDecodedHandler;
-		
-										Decoder();
-		virtual							~Decoder();
 
-		void							InitializeState(MPEG_VIDEO_STATE*);
+		Decoder();
+		virtual ~Decoder();
 
-		void							Reset();
-		void							Execute(void*, Framework::CBitStream&);
+		void InitializeState(MPEG_VIDEO_STATE*);
 
-		void							RegisterOnMacroblockDecodedHandler(const OnMacroblockDecodedHandler&);
-		void							RegisterOnPictureDecodedHandler(const OnPictureDecodedHandler&);
+		void Reset();
+		void Execute(void*, Framework::CBitStream&);
+
+		void RegisterOnMacroblockDecodedHandler(const OnMacroblockDecodedHandler&);
+		void RegisterOnPictureDecodedHandler(const OnPictureDecodedHandler&);
 
 	private:
 		enum PROGRAM_STATE
@@ -41,19 +41,19 @@ namespace VideoStream
 			STATE_FINISHEXECUTE,
 		};
 
-		PROGRAM_STATE					m_programState;
-		uint32							m_marker;
-		uint8							m_commandType;
-		uint8							m_extensionType;
+		PROGRAM_STATE m_programState;
+		uint32 m_marker;
+		uint8 m_commandType;
+		uint8 m_extensionType;
 
-		Program*						m_subProgram;
+		Program* m_subProgram;
 
-		ReadPictureHeader				m_readPictureHeader;
-		ReadPictureCodingExtension		m_readPictureCodingExtensionProgram;
-		ReadSequenceExtension			m_readSequenceExtensionProgram;
-		ReadSequenceHeader				m_readSequenceHeaderProgram;
-		ReadGroupOfPicturesHeader		m_readGroupOfPicturesHeaderProgram;
-		ReadSlice						m_readSliceProgram;
+		ReadPictureHeader m_readPictureHeader;
+		ReadPictureCodingExtension m_readPictureCodingExtensionProgram;
+		ReadSequenceExtension m_readSequenceExtensionProgram;
+		ReadSequenceHeader m_readSequenceHeaderProgram;
+		ReadGroupOfPicturesHeader m_readGroupOfPicturesHeaderProgram;
+		ReadSlice m_readSliceProgram;
 	};
 }
 

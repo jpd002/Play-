@@ -13,16 +13,16 @@ namespace VideoStream
 	class ReadMacroblock
 	{
 	public:
-		typedef std::function<void (MPEG_VIDEO_STATE*)> OnMacroblockDecodedHandler;
-		
-								ReadMacroblock();
-		virtual					~ReadMacroblock();
+		typedef std::function<void(MPEG_VIDEO_STATE*)> OnMacroblockDecodedHandler;
 
-		void					Reset();
-		void					Execute(void*, Framework::CBitStream&);
+		ReadMacroblock();
+		virtual ~ReadMacroblock();
 
-		void					RegisterOnMacroblockDecodedHandler(const OnMacroblockDecodedHandler&);
-		
+		void Reset();
+		void Execute(void*, Framework::CBitStream&);
+
+		void RegisterOnMacroblockDecodedHandler(const OnMacroblockDecodedHandler&);
+
 	private:
 		enum PROGRAM_STATE
 		{
@@ -43,14 +43,14 @@ namespace VideoStream
 			STATE_READBLOCK,
 		};
 
-		ReadMacroblockModes				m_macroblockModesReader;
-		ReadMotionVectors				m_motionVectorsReader;
-		ReadMotionVector				m_singleMotionVectorReader;
-		ReadBlock						m_blockReader;
+		ReadMacroblockModes m_macroblockModesReader;
+		ReadMotionVectors m_motionVectorsReader;
+		ReadMotionVector m_singleMotionVectorReader;
+		ReadBlock m_blockReader;
 
-		PROGRAM_STATE					m_programState;
-		
-		OnMacroblockDecodedHandler		m_OnMacroblockDecodedHandler;
+		PROGRAM_STATE m_programState;
+
+		OnMacroblockDecodedHandler m_OnMacroblockDecodedHandler;
 	};
 };
 

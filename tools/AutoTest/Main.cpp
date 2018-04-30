@@ -9,18 +9,18 @@
 #include "ui_win32/GSH_Direct3D9.h"
 #endif
 
-#define GS_HANDLER_NAME_NULL  "null"
-#define GS_HANDLER_NAME_OGL   "ogl"
-#define GS_HANDLER_NAME_D3D9  "d3d9"
+#define GS_HANDLER_NAME_NULL "null"
+#define GS_HANDLER_NAME_OGL "ogl"
+#define GS_HANDLER_NAME_D3D9 "d3d9"
 
 #define DEFAULT_GS_HANDLER_NAME GS_HANDLER_NAME_NULL
 
 static std::set<std::string> g_validGsHandlersNames =
-{
-	GS_HANDLER_NAME_NULL,
+    {
+        GS_HANDLER_NAME_NULL,
 #ifdef _WIN32
-	GS_HANDLER_NAME_OGL,
-	GS_HANDLER_NAME_D3D9,
+        GS_HANDLER_NAME_OGL,
+        GS_HANDLER_NAME_D3D9,
 #endif
 };
 
@@ -105,7 +105,6 @@ TESTRESULT GetTestResult(const boost::filesystem::path& testFilePath)
 	}
 	catch(...)
 	{
-
 	}
 	return result;
 }
@@ -124,11 +123,9 @@ void ExecuteEeTest(const boost::filesystem::path& testFilePath, const std::strin
 	virtualMachine.Reset();
 	virtualMachine.CreateGSHandler(GetGsHandlerFactoryFunction(gsHandlerName));
 	virtualMachine.m_ee->m_os->OnRequestExit.connect(
-		[&executionOver] ()
-		{
-			executionOver = true;
-		}
-	);
+	    [&executionOver]() {
+		    executionOver = true;
+	    });
 	virtualMachine.m_ee->m_os->BootFromFile(testFilePath);
 	virtualMachine.m_iopOs->GetIoman()->SetFileStream(Iop::CIoman::FID_STDOUT, resultStream);
 	virtualMachine.Resume();
@@ -166,14 +163,12 @@ void ExecuteIopTest(const boost::filesystem::path& testFilePath)
 	virtualMachine.Reset();
 	int32 rootModuleId = virtualMachine.m_iopOs->LoadModuleFromHost(moduleData.data());
 	virtualMachine.m_iopOs->OnModuleStarted.connect(
-		[&executionOver, &rootModuleId] (uint32 moduleId)
-		{
-			if(rootModuleId == moduleId)
-			{
-				executionOver = true;
-			}
-		}
-	);
+	    [&executionOver, &rootModuleId](uint32 moduleId) {
+		    if(rootModuleId == moduleId)
+		    {
+			    executionOver = true;
+		    }
+	    });
 	virtualMachine.m_iopOs->StartModule(rootModuleId, "", nullptr, 0);
 	virtualMachine.m_iopOs->GetIoman()->SetFileStream(Iop::CIoman::FID_STDOUT, resultStream);
 	virtualMachine.Resume();
@@ -191,7 +186,7 @@ void ScanAndExecuteTests(const boost::filesystem::path& testDirPath, const TestR
 {
 	boost::filesystem::directory_iterator endIterator;
 	for(auto testPathIterator = boost::filesystem::directory_iterator(testDirPath);
-		testPathIterator != endIterator; testPathIterator++)
+	    testPathIterator != endIterator; testPathIterator++)
 	{
 		auto testPath = testPathIterator->path();
 		if(boost::filesystem::is_directory(testPath))
@@ -228,27 +223,26 @@ int main(int argc, const char** argv)
 {
 	if(argc < 2)
 	{
-		auto validGsHandlerNamesString = 
-			[]()
-			{
-				std::string result;
-				for(auto nameIterator = g_validGsHandlersNames.begin(); 
-					nameIterator != g_validGsHandlersNames.end(); ++nameIterator)
-				{
-					if(nameIterator != g_validGsHandlersNames.begin())
-					{
-						result += "|";
-					}
-					result += *nameIterator;
-				}
-				return result;
-			}();
+		auto validGsHandlerNamesString =
+		    []() {
+			    std::string result;
+			    for(auto nameIterator = g_validGsHandlersNames.begin();
+			        nameIterator != g_validGsHandlersNames.end(); ++nameIterator)
+			    {
+				    if(nameIterator != g_validGsHandlersNames.begin())
+				    {
+					    result += "|";
+				    }
+				    result += *nameIterator;
+			    }
+			    return result;
+		    }();
 
 		printf("Usage: AutoTest [options] testDir\r\n");
 		printf("Options: \r\n");
 		printf("\t --junitreport <path>\t Writes JUnit format report at <path>.\r\n");
 		printf("\t --gshandler <%s>\tSelects which GS handler to instantiate (default is '%s').\r\n",
-			validGsHandlerNamesString.c_str(), DEFAULT_GS_HANDLER_NAME);
+		       validGsHandlerNamesString.c_str(), DEFAULT_GS_HANDLER_NAME);
 		return -1;
 	}
 

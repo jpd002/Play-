@@ -2,8 +2,8 @@
 
 using namespace Iop;
 
-CDynamic::CDynamic(uint32* exportTable) 
-: m_exportTable(exportTable)
+CDynamic::CDynamic(uint32* exportTable)
+    : m_exportTable(exportTable)
 {
 	//Name is 8 bytes long without zero, so we need to make sure it's properly null-terminated
 	const unsigned int nameLength = 8;
@@ -15,7 +15,6 @@ CDynamic::CDynamic(uint32* exportTable)
 
 CDynamic::~CDynamic()
 {
-
 }
 
 std::string CDynamic::GetId() const

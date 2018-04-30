@@ -10,12 +10,13 @@ namespace Framework
 		class CAcceleratorTable
 		{
 		public:
-						CAcceleratorTable(HACCEL);
-			virtual		~CAcceleratorTable();
+			CAcceleratorTable(HACCEL);
+			virtual ~CAcceleratorTable();
 
-						operator HACCEL() const;
+			operator HACCEL() const;
+
 		private:
-			HACCEL		m_accel;
+			HACCEL m_accel;
 		};
 	}
 }

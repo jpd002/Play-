@@ -5,10 +5,10 @@ using namespace MIPSReflection;
 
 void CMA_ALLEGREX::ReflOpExt(INSTRUCTION* pInstr, CMIPS* pCtx, uint32 nAddress, uint32 nOpcode, char* sText, unsigned int nCount)
 {
-	uint8 rs	= static_cast<uint8>((nOpcode >> 21) & 0x001F);
-	uint8 rt	= static_cast<uint8>((nOpcode >> 16) & 0x001F);
-	uint8 size	= static_cast<uint8>((nOpcode >> 11) & 0x001F);
-	uint8 pos	= static_cast<uint8>((nOpcode >>  6) & 0x001F);
+	uint8 rs = static_cast<uint8>((nOpcode >> 21) & 0x001F);
+	uint8 rt = static_cast<uint8>((nOpcode >> 16) & 0x001F);
+	uint8 size = static_cast<uint8>((nOpcode >> 11) & 0x001F);
+	uint8 pos = static_cast<uint8>((nOpcode >> 6) & 0x001F);
 
 	size = size + 1;
 
@@ -17,10 +17,10 @@ void CMA_ALLEGREX::ReflOpExt(INSTRUCTION* pInstr, CMIPS* pCtx, uint32 nAddress, 
 
 void CMA_ALLEGREX::ReflOpIns(INSTRUCTION* pInstr, CMIPS* pCtx, uint32 nAddress, uint32 nOpcode, char* sText, unsigned int nCount)
 {
-	uint8 rs	= static_cast<uint8>((nOpcode >> 21) & 0x001F);
-	uint8 rt	= static_cast<uint8>((nOpcode >> 16) & 0x001F);
-	uint8 size	= static_cast<uint8>((nOpcode >> 11) & 0x001F);
-	uint8 pos	= static_cast<uint8>((nOpcode >>  6) & 0x001F);
+	uint8 rs = static_cast<uint8>((nOpcode >> 21) & 0x001F);
+	uint8 rt = static_cast<uint8>((nOpcode >> 16) & 0x001F);
+	uint8 size = static_cast<uint8>((nOpcode >> 11) & 0x001F);
+	uint8 pos = static_cast<uint8>((nOpcode >> 6) & 0x001F);
 
 	size = size - pos + 1;
 
@@ -155,30 +155,30 @@ INSTRUCTION CMA_ALLEGREX::m_cReflBshfl[32] =
 
 void CMA_ALLEGREX::SetupReflectionTables()
 {
-    BOOST_STATIC_ASSERT(sizeof(m_ReflSpecial3) == sizeof(m_cReflSpecial3));
+	BOOST_STATIC_ASSERT(sizeof(m_ReflSpecial3) == sizeof(m_cReflSpecial3));
 	BOOST_STATIC_ASSERT(sizeof(m_ReflBshfl) == sizeof(m_cReflBshfl));
 
-	memcpy(m_ReflSpecial3,	m_cReflSpecial3,	sizeof(m_cReflSpecial3));
-	memcpy(m_ReflBshfl,		m_cReflBshfl,		sizeof(m_cReflBshfl));
+	memcpy(m_ReflSpecial3, m_cReflSpecial3, sizeof(m_cReflSpecial3));
+	memcpy(m_ReflBshfl, m_cReflBshfl, sizeof(m_cReflBshfl));
 
-	m_ReflSpecial3Table.pTable					= m_ReflSpecial3;
-	m_ReflSpecial3Table.nShift					= 0;
-	m_ReflSpecial3Table.nMask					= 0x3F;
+	m_ReflSpecial3Table.pTable = m_ReflSpecial3;
+	m_ReflSpecial3Table.nShift = 0;
+	m_ReflSpecial3Table.nMask = 0x3F;
 
-	m_ReflBshflTable.pTable						= m_ReflBshfl;
-	m_ReflBshflTable.nShift						= 6;
-	m_ReflBshflTable.nMask						= 0x1F;
+	m_ReflBshflTable.pTable = m_ReflBshfl;
+	m_ReflBshflTable.nShift = 6;
+	m_ReflBshflTable.nMask = 0x1F;
 
-	m_ReflSpecial3[0x20].pSubTable				= &m_ReflBshflTable;
+	m_ReflSpecial3[0x20].pSubTable = &m_ReflBshflTable;
 
 	//Fix MIPSIV tables
-	m_ReflGeneral[0x1F].sMnemonic				= "SPECIAL3";
-	m_ReflGeneral[0x1F].pSubTable				= &m_ReflSpecial3Table;
-	m_ReflGeneral[0x1F].pGetMnemonic			= SubTableMnemonic;
-	m_ReflGeneral[0x1F].pGetOperands			= SubTableOperands;
-	m_ReflGeneral[0x1F].pIsBranch				= SubTableIsBranch;
-	m_ReflGeneral[0x1F].pGetEffectiveAddress	= SubTableEffAddr;
+	m_ReflGeneral[0x1F].sMnemonic = "SPECIAL3";
+	m_ReflGeneral[0x1F].pSubTable = &m_ReflSpecial3Table;
+	m_ReflGeneral[0x1F].pGetMnemonic = SubTableMnemonic;
+	m_ReflGeneral[0x1F].pGetOperands = SubTableOperands;
+	m_ReflGeneral[0x1F].pIsBranch = SubTableIsBranch;
+	m_ReflGeneral[0x1F].pGetEffectiveAddress = SubTableEffAddr;
 
-	m_ReflSpecial[0x2C].sMnemonic				= "MAX";
-	m_ReflSpecial[0x2D].sMnemonic				= "MIN";
+	m_ReflSpecial[0x2C].sMnemonic = "MAX";
+	m_ReflSpecial[0x2D].sMnemonic = "MIN";
 }

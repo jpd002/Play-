@@ -31,146 +31,146 @@ public:
 
 	typedef std::unique_ptr<Ee::CSubSystem> EeSubSystemPtr;
 	typedef std::unique_ptr<Iop::CSubSystem> IopSubSystemPtr;
-	typedef std::function<void (const CFrameDump&)> FrameDumpCallback;
-	typedef boost::signals2::signal<void (const CProfiler::ZoneArray&)> ProfileFrameDoneSignal;
+	typedef std::function<void(const CFrameDump&)> FrameDumpCallback;
+	typedef boost::signals2::signal<void(const CProfiler::ZoneArray&)> ProfileFrameDoneSignal;
 
-								CPS2VM();
-	virtual						~CPS2VM();
+	CPS2VM();
+	virtual ~CPS2VM();
 
-	void						Initialize();
-	void						Destroy();
+	void Initialize();
+	void Destroy();
 
-	void						StepEe();
-	void						StepIop();
-	void						StepVu0();
-	void						StepVu1();
+	void StepEe();
+	void StepIop();
+	void StepVu0();
+	void StepVu1();
 
-	void						Resume() override;
-	void						Pause() override;
-	void						Reset();
+	void Resume() override;
+	void Pause() override;
+	void Reset();
 
-	STATUS						GetStatus() const override;
+	STATUS GetStatus() const override;
 
-	void						DumpEEIntcHandlers();
-	void						DumpEEDmacHandlers();
+	void DumpEEIntcHandlers();
+	void DumpEEDmacHandlers();
 
-	void						CreateGSHandler(const CGSHandler::FactoryFunction&);
-	CGSHandler*					GetGSHandler();
-	void						DestroyGSHandler();
+	void CreateGSHandler(const CGSHandler::FactoryFunction&);
+	CGSHandler* GetGSHandler();
+	void DestroyGSHandler();
 
-	void						CreatePadHandler(const CPadHandler::FactoryFunction&);
-	CPadHandler*				GetPadHandler();
-	void						DestroyPadHandler();
+	void CreatePadHandler(const CPadHandler::FactoryFunction&);
+	CPadHandler* GetPadHandler();
+	void DestroyPadHandler();
 
-	void						CreateSoundHandler(const CSoundHandler::FactoryFunction&);
-	void						DestroySoundHandler();
+	void CreateSoundHandler(const CSoundHandler::FactoryFunction&);
+	void DestroySoundHandler();
 
-	static boost::filesystem::path  GetStateDirectoryPath();
-	boost::filesystem::path         GenerateStatePath(unsigned int) const;
+	static boost::filesystem::path GetStateDirectoryPath();
+	boost::filesystem::path GenerateStatePath(unsigned int) const;
 
-	std::future<bool>			SaveState(const boost::filesystem::path&);
-	std::future<bool>			LoadState(const boost::filesystem::path&);
+	std::future<bool> SaveState(const boost::filesystem::path&);
+	std::future<bool> LoadState(const boost::filesystem::path&);
 
-	void						TriggerFrameDump(const FrameDumpCallback&);
+	void TriggerFrameDump(const FrameDumpCallback&);
 
-	CPU_UTILISATION_INFO		GetCpuUtilisationInfo() const;
+	CPU_UTILISATION_INFO GetCpuUtilisationInfo() const;
 
 #ifdef DEBUGGER_INCLUDED
-	std::string					MakeDebugTagsPackagePath(const char*);
-	void						LoadDebugTags(const char*);
-	void						SaveDebugTags(const char*);
+	std::string MakeDebugTagsPackagePath(const char*);
+	void LoadDebugTags(const char*);
+	void SaveDebugTags(const char*);
 #endif
 
-	CPadHandler*				m_pad;
+	CPadHandler* m_pad;
 
-	EeSubSystemPtr				m_ee;
-	IopSubSystemPtr				m_iop;
+	EeSubSystemPtr m_ee;
+	IopSubSystemPtr m_iop;
 
-	IopBiosPtr					m_iopOs;
+	IopBiosPtr m_iopOs;
 
-	ProfileFrameDoneSignal		ProfileFrameDone;
+	ProfileFrameDoneSignal ProfileFrameDone;
 
 private:
 	typedef std::unique_ptr<COpticalMedia> OpticalMediaPtr;
 
-	void						CreateVM();
-	void						ResetVM();
-	void						DestroyVM();
-	bool						SaveVMState(const boost::filesystem::path&);
-	bool						LoadVMState(const boost::filesystem::path&);
+	void CreateVM();
+	void ResetVM();
+	void DestroyVM();
+	bool SaveVMState(const boost::filesystem::path&);
+	bool LoadVMState(const boost::filesystem::path&);
 
-	void						ReloadExecutable(const char*, const CPS2OS::ArgumentList&);
+	void ReloadExecutable(const char*, const CPS2OS::ArgumentList&);
 
-	void						ResumeImpl();
-	void						PauseImpl();
-	void						DestroyImpl();
-	
-	void						CreateGsHandlerImpl(const CGSHandler::FactoryFunction&);
-	void						DestroyGsHandlerImpl();
+	void ResumeImpl();
+	void PauseImpl();
+	void DestroyImpl();
 
-	void						CreatePadHandlerImpl(const CPadHandler::FactoryFunction&);
-	void						DestroyPadHandlerImpl();
-	
-	void						CreateSoundHandlerImpl(const CSoundHandler::FactoryFunction&);
-	void						DestroySoundHandlerImpl();
+	void CreateGsHandlerImpl(const CGSHandler::FactoryFunction&);
+	void DestroyGsHandlerImpl();
 
-	void						UpdateEe();
-	void						UpdateIop();
-	void						UpdateSpu();
+	void CreatePadHandlerImpl(const CPadHandler::FactoryFunction&);
+	void DestroyPadHandlerImpl();
 
-	void						OnGsNewFrame();
+	void CreateSoundHandlerImpl(const CSoundHandler::FactoryFunction&);
+	void DestroySoundHandlerImpl();
 
-	void						CDROM0_SyncPath();
-	void						CDROM0_Reset();
-	void						SetIopOpticalMedia(COpticalMedia*);
+	void UpdateEe();
+	void UpdateIop();
+	void UpdateSpu();
 
-	void						RegisterModulesInPadHandler();
+	void OnGsNewFrame();
 
-	void						EmuThread();
+	void CDROM0_SyncPath();
+	void CDROM0_Reset();
+	void SetIopOpticalMedia(COpticalMedia*);
 
-	std::thread					m_thread;
-	CMailBox					m_mailBox;
-	STATUS						m_nStatus;
-	bool						m_nEnd;
+	void RegisterModulesInPadHandler();
 
-	int							m_vblankTicks = 0;
-	bool						m_inVblank = 0;
-	int							m_spuUpdateTicks = 0;
-	int							m_eeExecutionTicks = 0;
-	int							m_iopExecutionTicks = 0;
+	void EmuThread();
 
-	CPU_UTILISATION_INFO		m_cpuUtilisation;
+	std::thread m_thread;
+	CMailBox m_mailBox;
+	STATUS m_nStatus;
+	bool m_nEnd;
 
-	bool						m_singleStepEe;
-	bool						m_singleStepIop;
-	bool						m_singleStepVu0;
-	bool						m_singleStepVu1;
+	int m_vblankTicks = 0;
+	bool m_inVblank = 0;
+	int m_spuUpdateTicks = 0;
+	int m_eeExecutionTicks = 0;
+	int m_iopExecutionTicks = 0;
 
-	CFrameDump					m_frameDump;
-	FrameDumpCallback			m_frameDumpCallback;
-	std::mutex					m_frameDumpCallbackMutex;
-	bool						m_dumpingFrame = false;
+	CPU_UTILISATION_INFO m_cpuUtilisation;
 
-	OpticalMediaPtr				m_cdrom0;
+	bool m_singleStepEe;
+	bool m_singleStepIop;
+	bool m_singleStepVu0;
+	bool m_singleStepVu1;
+
+	CFrameDump m_frameDump;
+	FrameDumpCallback m_frameDumpCallback;
+	std::mutex m_frameDumpCallbackMutex;
+	bool m_dumpingFrame = false;
+
+	OpticalMediaPtr m_cdrom0;
 
 	//SPU update parameters
 	enum
 	{
 		DST_SAMPLE_RATE = 44100,
-		UPDATE_RATE = 1000,       //Number of SPU updates per second (on PS2 time scale)
+		UPDATE_RATE = 1000, //Number of SPU updates per second (on PS2 time scale)
 		SPU_UPDATE_TICKS = PS2::IOP_CLOCK_OVER_FREQ / UPDATE_RATE,
 		SAMPLE_COUNT = DST_SAMPLE_RATE / UPDATE_RATE,
 		BLOCK_SIZE = SAMPLE_COUNT * 2,
 		BLOCK_COUNT = 400,
 	};
 
-	int16						m_samples[BLOCK_SIZE * BLOCK_COUNT];
-	int							m_currentSpuBlock = 0;
-	CSoundHandler*				m_soundHandler = nullptr;
+	int16 m_samples[BLOCK_SIZE * BLOCK_COUNT];
+	int m_currentSpuBlock = 0;
+	CSoundHandler* m_soundHandler = nullptr;
 
-	CProfiler::ZoneHandle		m_eeProfilerZone = 0;
-	CProfiler::ZoneHandle		m_iopProfilerZone = 0;
-	CProfiler::ZoneHandle		m_spuProfilerZone = 0;
-	CProfiler::ZoneHandle		m_gsSyncProfilerZone = 0;
-	CProfiler::ZoneHandle		m_otherProfilerZone = 0;
+	CProfiler::ZoneHandle m_eeProfilerZone = 0;
+	CProfiler::ZoneHandle m_iopProfilerZone = 0;
+	CProfiler::ZoneHandle m_spuProfilerZone = 0;
+	CProfiler::ZoneHandle m_gsSyncProfilerZone = 0;
+	CProfiler::ZoneHandle m_otherProfilerZone = 0;
 };

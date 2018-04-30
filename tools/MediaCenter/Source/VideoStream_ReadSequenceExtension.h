@@ -10,11 +10,11 @@ namespace VideoStream
 	class ReadSequenceExtension : public Program
 	{
 	public:
-								ReadSequenceExtension();
-		virtual					~ReadSequenceExtension();
+		ReadSequenceExtension();
+		virtual ~ReadSequenceExtension();
 
-		void					Reset();
-		void					Execute(void*, Framework::CBitStream&);
+		void Reset();
+		void Execute(void*, Framework::CBitStream&);
 
 	private:
 		enum PROGRAM_STATE
@@ -26,8 +26,8 @@ namespace VideoStream
 
 		typedef ReadStructure<SEQUENCE_EXTENSION> ReadSequenceExtensionStructure;
 
-		ReadSequenceExtensionStructure		m_readSequenceExtensionProgram;
-		PROGRAM_STATE						m_programState;
+		ReadSequenceExtensionStructure m_readSequenceExtensionProgram;
+		PROGRAM_STATE m_programState;
 	};
 };
 

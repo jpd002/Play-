@@ -6,24 +6,22 @@
 
 using namespace Iop;
 
-#define FUNCTION_CREATEMBX			"CreateMbx"
-#define FUNCTION_DELETEMBX			"DeleteMbx"
-#define FUNCTION_SENDMBX			"SendMbx"
-#define FUNCTION_ISENDMBX			"iSendMbx"
-#define FUNCTION_RECEIVEMBX			"ReceiveMbx"
-#define FUNCTION_POLLMBX			"PollMbx"
-#define FUNCTION_REFERMBXSTATUS		"ReferMbxStatus"
+#define FUNCTION_CREATEMBX "CreateMbx"
+#define FUNCTION_DELETEMBX "DeleteMbx"
+#define FUNCTION_SENDMBX "SendMbx"
+#define FUNCTION_ISENDMBX "iSendMbx"
+#define FUNCTION_RECEIVEMBX "ReceiveMbx"
+#define FUNCTION_POLLMBX "PollMbx"
+#define FUNCTION_REFERMBXSTATUS "ReferMbxStatus"
 
 CThmsgbx::CThmsgbx(CIopBios& bios, uint8* ram)
-: m_bios(bios)
-, m_ram(ram)
+    : m_bios(bios)
+    , m_ram(ram)
 {
-
 }
 
 CThmsgbx::~CThmsgbx()
 {
-
 }
 
 std::string CThmsgbx::GetId() const
@@ -68,43 +66,36 @@ void CThmsgbx::Invoke(CMIPS& context, unsigned int functionId)
 	{
 	case 4:
 		context.m_State.nGPR[CMIPS::V0].nV0 = CreateMbx(
-			reinterpret_cast<MSGBX*>(&m_ram[context.m_State.nGPR[CMIPS::A0].nV0])
-			);
+		    reinterpret_cast<MSGBX*>(&m_ram[context.m_State.nGPR[CMIPS::A0].nV0]));
 		break;
 	case 5:
 		context.m_State.nGPR[CMIPS::V0].nV0 = DeleteMbx(
-			context.m_State.nGPR[CMIPS::A0].nV0
-			);
+		    context.m_State.nGPR[CMIPS::A0].nV0);
 		break;
 	case 6:
 		context.m_State.nGPR[CMIPS::V0].nV0 = SendMbx(
-			context.m_State.nGPR[CMIPS::A0].nV0,
-			context.m_State.nGPR[CMIPS::A1].nV0
-			);
+		    context.m_State.nGPR[CMIPS::A0].nV0,
+		    context.m_State.nGPR[CMIPS::A1].nV0);
 		break;
 	case 7:
 		context.m_State.nGPR[CMIPS::V0].nV0 = iSendMbx(
-			context.m_State.nGPR[CMIPS::A0].nV0,
-			context.m_State.nGPR[CMIPS::A1].nV0
-		);
+		    context.m_State.nGPR[CMIPS::A0].nV0,
+		    context.m_State.nGPR[CMIPS::A1].nV0);
 		break;
 	case 8:
 		context.m_State.nGPR[CMIPS::V0].nV0 = ReceiveMbx(
-			context.m_State.nGPR[CMIPS::A0].nV0,
-			context.m_State.nGPR[CMIPS::A1].nV0
-			);
+		    context.m_State.nGPR[CMIPS::A0].nV0,
+		    context.m_State.nGPR[CMIPS::A1].nV0);
 		break;
 	case 9:
 		context.m_State.nGPR[CMIPS::V0].nV0 = PollMbx(
-			context.m_State.nGPR[CMIPS::A0].nV0,
-			context.m_State.nGPR[CMIPS::A1].nV0
-			);
+		    context.m_State.nGPR[CMIPS::A0].nV0,
+		    context.m_State.nGPR[CMIPS::A1].nV0);
 		break;
 	case 11:
 		context.m_State.nGPR[CMIPS::V0].nV0 = ReferMbxStatus(
-			context.m_State.nGPR[CMIPS::A0].nV0,
-			context.m_State.nGPR[CMIPS::A1].nV0
-			);
+		    context.m_State.nGPR[CMIPS::A0].nV0,
+		    context.m_State.nGPR[CMIPS::A1].nV0);
 		break;
 	default:
 		CLog::GetInstance().Print(LOG_NAME, "Unknown function (%d) called at (%08X).\r\n", functionId, context.m_State.nPC);

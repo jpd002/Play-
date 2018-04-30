@@ -9,7 +9,6 @@ CMipsFunctionPatternDb::CMipsFunctionPatternDb(Framework::Xml::CNode* node)
 
 CMipsFunctionPatternDb::~CMipsFunctionPatternDb()
 {
-
 }
 
 const CMipsFunctionPatternDb::PatternArray& CMipsFunctionPatternDb::GetPatterns() const
@@ -24,8 +23,8 @@ void CMipsFunctionPatternDb::Read(Framework::Xml::CNode* node)
 
 	m_patterns.reserve(patternsNode->GetChildCount());
 
-	for(Framework::Xml::CFilteringNodeIterator patternNodeIterator(patternsNode, "FunctionPattern"); 
-		!patternNodeIterator.IsEnd(); patternNodeIterator++)
+	for(Framework::Xml::CFilteringNodeIterator patternNodeIterator(patternsNode, "FunctionPattern");
+	    !patternNodeIterator.IsEnd(); patternNodeIterator++)
 	{
 		auto patternNode = (*patternNodeIterator);
 
@@ -33,7 +32,7 @@ void CMipsFunctionPatternDb::Read(Framework::Xml::CNode* node)
 		if(patternName == NULL) continue;
 
 		const char* patternSource = patternNode->GetInnerText();
-		
+
 		Pattern pattern = ParsePattern(patternSource);
 		pattern.name = patternName;
 		m_patterns.push_back(pattern);
@@ -69,7 +68,7 @@ CMipsFunctionPatternDb::Pattern CMipsFunctionPatternDb::ParsePattern(const char*
 			if(currValue.length() != 0)
 			{
 				//Parse value
-				PATTERNITEM item = { 0 };
+				PATTERNITEM item = {0};
 				if(ParsePatternItem(currValue.c_str(), item))
 				{
 					result.items.push_back(item);
