@@ -35,6 +35,7 @@ void CMA_ALLEGREX::ReflOpRdRt(INSTRUCTION* pInstr, CMIPS* pCtx, uint32 nAddress,
 	sprintf(sText, "%s, %s", CMIPS::m_sGPRName[rd], CMIPS::m_sGPRName[rt]);
 }
 
+// clang-format off
 INSTRUCTION CMA_ALLEGREX::m_cReflSpecial3[64] =
 {
 	//0x00
@@ -150,6 +151,7 @@ INSTRUCTION CMA_ALLEGREX::m_cReflBshfl[32] =
 	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
 	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
 };
+// clang-format on
 
 void CMA_ALLEGREX::SetupReflectionTables()
 {
