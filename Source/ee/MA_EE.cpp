@@ -1771,6 +1771,7 @@ void CMA_EE::Generic_PSxxV(const TemplateOperationFunctionType& function)
 //Opcode Tables
 //////////////////////////////////////////////////
 
+// clang-format off
 CMA_EE::InstructionFuncConstant CMA_EE::m_pOpMmi0[0x20] = 
 {
 	//0x00
@@ -1830,3 +1831,4 @@ CMA_EE::InstructionFuncConstant CMA_EE::m_pOpPmfhl[0x20] =
 	//0x18
 	&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,
 };
+// clang-format on

@@ -335,6 +335,7 @@ void CMA_VU::CLower::ReflOpAffWrVi1Bv(VUINSTRUCTION*, CMIPS*, uint32, uint32 opc
 	operandSet.branchValue = true;
 }
 
+// clang-format off
 INSTRUCTION CMA_VU::CLower::m_cReflGeneral[128] =
 {
 	//0x00
@@ -1102,6 +1103,7 @@ VUINSTRUCTION CMA_VU::CLower::m_cVuReflVX3[32] =
 	{	"WAITP",	NULL,			ReflOpAffRdP		},
 	{	NULL,		NULL,			NULL				},
 };
+// clang-format on
 
 void CMA_VU::CLower::SetupReflectionTables()
 {

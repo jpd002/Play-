@@ -3079,6 +3079,7 @@ std::string CPS2OS::GetSysCallDescription(uint8 function)
 //System Call Handlers Table
 //////////////////////////////////////////////////
 
+// clang-format off
 CPS2OS::SystemCallHandler CPS2OS::m_sysCall[0x80] =
 {
 	//0x00
@@ -3114,6 +3115,7 @@ CPS2OS::SystemCallHandler CPS2OS::m_sysCall[0x80] =
 	//0x78
 	&CPS2OS::sc_SifSetDChain,		&CPS2OS::sc_SifSetReg,				&CPS2OS::sc_SifGetReg,				&CPS2OS::sc_Unhandled,				&CPS2OS::sc_Deci2Call,			&CPS2OS::sc_Unhandled,			&CPS2OS::sc_MachineType,		&CPS2OS::sc_GetMemorySize,
 };
+// clang-format on
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
 //Debug Stuff

@@ -86,6 +86,7 @@ uint32 CCOP_FPU::ReflEaOffset(INSTRUCTION* pInstr, CMIPS* pCtx, uint32 nAddress,
 	return (nAddress + CMIPS::GetBranch(nImm));
 }
 
+// clang-format off
 INSTRUCTION CCOP_FPU::m_cReflGeneral[64] =
 {
 	//0x00
@@ -362,6 +363,7 @@ INSTRUCTION CCOP_FPU::m_cReflW[64] =
 	{	NULL,			NULL,			NULL,				NULL,				NULL,				NULL			},
 	{	NULL,			NULL,			NULL,				NULL,				NULL,				NULL			},
 };
+// clang-format on
 
 void CCOP_FPU::SetupReflectionTables()
 {

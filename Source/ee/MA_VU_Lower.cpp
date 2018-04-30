@@ -1003,6 +1003,7 @@ void CMA_VU::CLower::WAITP()
 //Opcode Tables
 //////////////////////////////////////////////////
 
+// clang-format off
 CMA_VU::CLower::InstructionFuncConstant CMA_VU::CLower::m_pOpGeneral[0x80] =
 {
 	//0x00
@@ -1106,3 +1107,4 @@ CMA_VU::CLower::InstructionFuncConstant CMA_VU::CLower::m_pOpVector3[0x20] =
 	//0x18
 	&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::ERLENG,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::WAITP,			&CMA_VU::CLower::Illegal,
 };
+// clang-format on

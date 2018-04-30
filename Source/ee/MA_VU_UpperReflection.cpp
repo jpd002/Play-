@@ -15,6 +15,7 @@ void CMA_VU::CUpper::ReflOpFtFs(INSTRUCTION* pInstr, CMIPS* pCtx, uint32 nAddres
 	sprintf(sText, "VF%i%s, VF%i%s", nFT, m_sDestination[nDest], nFS, m_sDestination[nDest]);
 }
 
+// clang-format off
 INSTRUCTION CMA_VU::CUpper::m_cReflV[64] =
 {
 	//0x00
@@ -486,6 +487,7 @@ VUINSTRUCTION CMA_VU::CUpper::m_cVuReflVX3[32] =
 	{	NULL,		NULL,			NULL				},
 	{	NULL,		NULL,			NULL				},
 };
+// clang-format on
 
 void CMA_VU::CUpper::SetupReflectionTables()
 {

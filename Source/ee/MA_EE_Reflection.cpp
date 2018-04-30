@@ -20,6 +20,7 @@ void CMA_EE::ReflOpRsImm(INSTRUCTION* pInstr, CMIPS* pCtx, uint32 nAddress, uint
 	sprintf(sText, "%s, $%04X", CMIPS::m_sGPRName[nRS], nImm);
 }
 
+// clang-format off
 INSTRUCTION CMA_EE::m_cReflMmi[64] =
 {
 	//0x00
@@ -295,6 +296,7 @@ INSTRUCTION CMA_EE::m_cReflPmfhl[32] =
 	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
 	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
 };
+// clang-format on
 
 void CMA_EE::SetupReflectionTables()
 {

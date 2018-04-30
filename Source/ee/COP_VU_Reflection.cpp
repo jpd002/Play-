@@ -81,6 +81,7 @@ uint32 CCOP_VU::ReflEaOffset(INSTRUCTION* pInstr, CMIPS* pCtx, uint32 nAddress, 
 	return (nAddress + CMIPS::GetBranch(imm));
 }
 
+// clang-format off
 INSTRUCTION CCOP_VU::m_cReflGeneral[64] =
 {
 	//0x00
@@ -441,6 +442,7 @@ INSTRUCTION CCOP_VU::m_cReflVX3[32] =
 	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
 	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
 };
+// clang-format on
 
 void CCOP_VU::SetupReflectionTables()
 {

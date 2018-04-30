@@ -1170,6 +1170,7 @@ void CPsxBios::sc_Illegal()
 #endif
 }
 
+// clang-format off
 CPsxBios::SyscallHandler CPsxBios::m_handlerA0[MAX_HANDLER_A0] = 
 {
 	//0x00
@@ -1285,3 +1286,4 @@ CPsxBios::SyscallHandler CPsxBios::m_handlerC0[MAX_HANDLER_C0] =
 	//0x18
 	&CPsxBios::sc_Illegal,                   &CPsxBios::sc_Illegal,               &CPsxBios::sc_Illegal,         &CPsxBios::sc_Illegal,     &CPsxBios::sc_Illegal,    &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal, &CPsxBios::sc_Illegal
 };
+// clang-format on

@@ -6,6 +6,7 @@
 #include "Jitter.h"
 #include "offsetof_def.h"
 
+// clang-format off
 const char* CCOP_SCU::m_sRegName[] = 
 {
 	"Index",
@@ -41,6 +42,7 @@ const char* CCOP_SCU::m_sRegName[] =
 	"ErrorEPC",
 	"*RESERVED*"
 };
+// clang-format on
 
 CCOP_SCU::CCOP_SCU(MIPS_REGSIZE nRegSize)
 : CMIPSCoprocessor(nRegSize)
@@ -270,6 +272,7 @@ void CCOP_SCU::DI()
 //Opcode Tables
 //////////////////////////////////////////////////
 
+// clang-format off
 CCOP_SCU::InstructionFuncConstant CCOP_SCU::m_pOpGeneral[0x20] = 
 {
 	//0x00
@@ -313,3 +316,4 @@ CCOP_SCU::InstructionFuncConstant CCOP_SCU::m_pOpC0[0x40] =
 	//0x38
 	&CCOP_SCU::EI,			&CCOP_SCU::DI,			&CCOP_SCU::Illegal,		&CCOP_SCU::Illegal,		&CCOP_SCU::Illegal,		&CCOP_SCU::Illegal,		&CCOP_SCU::Illegal,		&CCOP_SCU::Illegal,
 };
+// clang-format on

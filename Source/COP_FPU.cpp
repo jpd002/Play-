@@ -521,6 +521,7 @@ void CCOP_FPU::SWC1()
 //Opcode Tables
 //////////////////////////////////////////////////
 
+// clang-format off
 CCOP_FPU::InstructionFuncConstant CCOP_FPU::m_opGeneral[0x20] = 
 {
 	//0x00
@@ -572,3 +573,4 @@ CCOP_FPU::InstructionFuncConstant CCOP_FPU::m_opWord[0x40] =
 	//0x38
 	&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,		&CCOP_FPU::Illegal,
 };
+// clang-format on

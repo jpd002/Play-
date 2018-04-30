@@ -234,6 +234,7 @@ uint32 CMA_MIPSIV::ReflCOPEffeAddr(INSTRUCTION* pInstr, CMIPS* pCtx, uint32 nAdd
 	}
 }
 
+// clang-format off
 INSTRUCTION CMA_MIPSIV::m_cReflGeneral[64] =
 {
 	//0x00
@@ -425,6 +426,7 @@ INSTRUCTION CMA_MIPSIV::m_cReflRegImm[32] =
 	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
 	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
 };
+// clang-format on
 
 void CMA_MIPSIV::SetupReflectionTables()
 {

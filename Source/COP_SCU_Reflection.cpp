@@ -42,6 +42,7 @@ uint32 CCOP_SCU::ReflEaOffset(INSTRUCTION* pInstr, CMIPS* pCtx, uint32 nAddress,
 	return (nAddress + CMIPS::GetBranch(nImm));
 }
 
+// clang-format off
 INSTRUCTION CCOP_SCU::m_cReflGeneral[64] =
 {
 	//0x00
@@ -334,6 +335,7 @@ INSTRUCTION CCOP_SCU::m_cReflMtPerf[2] =
 	{	"MTPS",			NULL,			CopyMnemonic,		ReflOpRt,			NULL,				NULL			},
 	{	"MTPC",			NULL,			CopyMnemonic,		ReflOpRtPcr,		NULL,				NULL			},
 };
+// clang-format on
 
 void CCOP_SCU::SetupReflectionTables()
 {

@@ -1284,6 +1284,7 @@ void CMA_MIPSIV::BGEZALL()
 //Opcode Tables
 //////////////////////////////////////////////////
 
+// clang-format off
 CMA_MIPSIV::InstructionFuncConstant CMA_MIPSIV::m_cOpGeneral[MAX_GENERAL_OPS] =
 {
 	//0x00
@@ -1335,3 +1336,4 @@ CMA_MIPSIV::InstructionFuncConstant CMA_MIPSIV::m_cOpRegImm[MAX_REGIMM_OPS] =
 	//0x18
 	&CMA_MIPSIV::Illegal,		&CMA_MIPSIV::Illegal,		&CMA_MIPSIV::Illegal,		&CMA_MIPSIV::Illegal,		&CMA_MIPSIV::Illegal,		&CMA_MIPSIV::Illegal,		&CMA_MIPSIV::Illegal,		&CMA_MIPSIV::Illegal,
 };
+// clang-format on

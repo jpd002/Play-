@@ -854,6 +854,7 @@ void CCOP_VU::VRXOR()
 //Opcode Tables
 //////////////////////////////////////////////////
 
+// clang-format off
 CCOP_VU::InstructionFuncConstant CCOP_VU::m_pOpCop2[0x20] =
 {
 	//0x00
@@ -933,3 +934,4 @@ CCOP_VU::InstructionFuncConstant CCOP_VU::m_pOpVx3[0x20] =
 	//0x18
 	&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,		&CCOP_VU::Illegal,
 };
+// clang-format on
