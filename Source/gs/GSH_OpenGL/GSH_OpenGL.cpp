@@ -348,6 +348,7 @@ Framework::OpenGl::CBuffer CGSH_OpenGL::GeneratePresentVertexBuffer()
 {
 	auto buffer = Framework::OpenGl::CBuffer::Create();
 
+	// clang-format off
 	static const float bufferContents[] =
 	{
 		//Pos         UV
@@ -355,6 +356,7 @@ Framework::OpenGl::CBuffer CGSH_OpenGL::GeneratePresentVertexBuffer()
 		-1.0f,  3.0f, 0.0f, -1.0f,
 		 3.0f, -1.0f, 2.0f,  1.0f,
 	};
+	// clang-format on
 
 	glBindBuffer(GL_ARRAY_BUFFER, buffer);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(bufferContents), bufferContents, GL_STATIC_DRAW);
@@ -393,6 +395,7 @@ Framework::OpenGl::CBuffer CGSH_OpenGL::GenerateCopyToFbVertexBuffer()
 {
 	auto buffer = Framework::OpenGl::CBuffer::Create();
 
+	// clang-format off
 	static const float bufferContents[] =
 	{
 		//Pos       UV
@@ -401,7 +404,8 @@ Framework::OpenGl::CBuffer CGSH_OpenGL::GenerateCopyToFbVertexBuffer()
 		-1.0f,  1.0f, 0.0f, 1.0f,
 		 1.0f,  1.0f, 1.0f, 1.0f,
 	};
-
+	// clang-format on
+	
 	glBindBuffer(GL_ARRAY_BUFFER, buffer);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(bufferContents), bufferContents, GL_STATIC_DRAW);
 
@@ -1366,11 +1370,13 @@ void CGSH_OpenGL::Prim_Point()
 		rgbaq.nR, rgbaq.nG,
 		rgbaq.nB, rgbaq.nA);
 
+	// clang-format off
 	PRIM_VERTEX vertex =
 	{
 		//x, y, z, color, s, t, q, f
 		  x, y, z, color, 0, 0, 1, 0,
 	};
+	// clang-format on
 
 	assert((m_vertexBuffer.size() + 1) <= VERTEX_BUFFER_SIZE);
 	m_vertexBuffer.push_back(vertex);
@@ -1410,11 +1416,13 @@ void CGSH_OpenGL::Prim_Line()
 		rgbaq[1].nR, rgbaq[1].nG,
 		rgbaq[1].nB, rgbaq[1].nA);
 
+	// clang-format off
 	PRIM_VERTEX vertices[] =
 	{
 		{	nX1,	nY1,	nZ1,	color1,	nS[0],	nT[0],	nQ[0],	0	},
 		{	nX2,	nY2,	nZ2,	color2,	nS[1],	nT[1],	nQ[1],	0	},
 	};
+	// clang-format on
 
 	assert((m_vertexBuffer.size() + 2) <= VERTEX_BUFFER_SIZE);
 	m_vertexBuffer.insert(m_vertexBuffer.end(), std::begin(vertices), std::end(vertices));
@@ -1521,12 +1529,14 @@ void CGSH_OpenGL::Prim_Triangle()
 		color1 = color2 = color3;
 	}
 
+	// clang-format off
 	PRIM_VERTEX vertices[] =
 	{
 		{	nX1,	nY1,	nZ1,	color1,	nS[0],	nT[0],	nQ[0],	nF1	},
 		{	nX2,	nY2,	nZ2,	color2,	nS[1],	nT[1],	nQ[1],	nF2	},
 		{	nX3,	nY3,	nZ3,	color3,	nS[2],	nT[2],	nQ[2],	nF3	},
 	};
+	// clang-format on
 
 	assert((m_vertexBuffer.size() + 3) <= VERTEX_BUFFER_SIZE);
 	m_vertexBuffer.insert(m_vertexBuffer.end(), std::begin(vertices), std::end(vertices));

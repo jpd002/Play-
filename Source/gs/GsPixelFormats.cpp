@@ -1,5 +1,6 @@
 #include "GsPixelFormats.h"
 
+// clang-format off
 const int CGsPixelFormats::STORAGEPSMCT32::m_nBlockSwizzleTable[4][8] =
 {
 	{	0,	1,	4,	5,	16,	17,	20,	21	},
@@ -93,6 +94,7 @@ const int CGsPixelFormats::STORAGEPSMT4::m_nColumnWordTable[2][2][8] =
 		{	10,	11,	14,	15,	2,	3,	6,	7,	},
 	},
 };
+// clang-format on
 
 unsigned int CGsPixelFormats::GetPsmPixelSize(unsigned int psm)
 {
