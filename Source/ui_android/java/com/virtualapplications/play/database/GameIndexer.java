@@ -39,7 +39,7 @@ public class GameIndexer
 	public static HashSet<String> getExternalMounts()
 	{
 		final HashSet<String> out = new HashSet<String>();
-		String reg = "(?i).*vold.*(vfat|ntfs|exfat|fat32|ext3|ext4|fuse).*rw.*";
+		String reg = "(?i).*vold.*(vfat|ntfs|exfat|fat32|ext3|ext4|fuse|sdfat).*rw.*";
 		String s = "";
 		try
 		{
