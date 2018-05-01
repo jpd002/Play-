@@ -30,49 +30,49 @@
 #include "FileFilters.h"
 #include "../../tools/PsfPlayer/Source/win32_ui/SH_WaveOut.h"
 
-#define CLSNAME						_T("MainWindow")
-#define WNDSTYLE					(WS_CLIPCHILDREN | WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX | WS_MAXIMIZEBOX | WS_SIZEBOX)
+#define CLSNAME _T("MainWindow")
+#define WNDSTYLE (WS_CLIPCHILDREN | WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX | WS_MAXIMIZEBOX | WS_SIZEBOX)
 
-#define STATUSPANEL					0
-#define FPSPANEL					1
+#define STATUSPANEL 0
+#define FPSPANEL 1
 
-#define FILEMENUPOS					0
-#define VMMENUPOS					1
-#define VIEWMENUPOS					2
+#define FILEMENUPOS 0
+#define VMMENUPOS 1
+#define VIEWMENUPOS 2
 
-#define ID_MAIN_VM_STATESLOT_0		(0xBEEF)
-#define MAX_STATESLOTS				10
+#define ID_MAIN_VM_STATESLOT_0 (0xBEEF)
+#define MAX_STATESLOTS 10
 
-#define ID_MAIN_DEBUG_SHOWDEBUG			(0xDEAD)
-#define ID_MAIN_DEBUG_SHOWFRAMEDEBUG	(0xDEAE)
-#define ID_MAIN_DEBUG_DUMPFRAME			(0xDEAF)
-#define ID_MAIN_DEBUG_ENABLEGSDRAW		(0xDEB0)
+#define ID_MAIN_DEBUG_SHOWDEBUG (0xDEAD)
+#define ID_MAIN_DEBUG_SHOWFRAMEDEBUG (0xDEAE)
+#define ID_MAIN_DEBUG_DUMPFRAME (0xDEAF)
+#define ID_MAIN_DEBUG_ENABLEGSDRAW (0xDEB0)
 
-#define ID_MAIN_PROFILE_RESETSTATS		(0xDFAD)
+#define ID_MAIN_PROFILE_RESETSTATS (0xDFAD)
 
-#define PREF_UI_PAUSEWHENFOCUSLOST	"ui.pausewhenfocuslost"
-#define PREF_UI_SOUNDENABLED		"ui.soundenabled"
+#define PREF_UI_PAUSEWHENFOCUSLOST "ui.pausewhenfocuslost"
+#define PREF_UI_SOUNDENABLED "ui.soundenabled"
 
 //#define USE_VIRTUALPAD
 
 double CMainWindow::m_statusBarPanelWidths[2] =
-{
-	0.7,
-	0.3,
+    {
+        0.7,
+        0.3,
 };
 
 CMainWindow::CMainWindow(CPS2VM& virtualMachine)
-: m_virtualMachine(virtualMachine)
-, m_recordingAvi(false)
-, m_recordBuffer(nullptr)
-, m_recordBufferWidth(0)
-, m_recordBufferHeight(0)
-, m_recordAviMutex(NULL)
-, m_frames(0)
-, m_drawCallCount(0)
-, m_stateSlot(0)
-, m_outputWnd(nullptr)
-, m_accTable(NULL)
+    : m_virtualMachine(virtualMachine)
+    , m_recordingAvi(false)
+    , m_recordBuffer(nullptr)
+    , m_recordBufferWidth(0)
+    , m_recordBufferHeight(0)
+    , m_recordAviMutex(NULL)
+    , m_frames(0)
+    , m_drawCallCount(0)
+    , m_stateSlot(0)
+    , m_outputWnd(nullptr)
+    , m_accTable(NULL)
 {
 	m_recordAviMutex = CreateMutex(NULL, FALSE, NULL);
 
@@ -85,13 +85,13 @@ CMainWindow::CMainWindow(CPS2VM& virtualMachine)
 	{
 		WNDCLASSEX wc;
 		memset(&wc, 0, sizeof(WNDCLASSEX));
-		wc.cbSize			= sizeof(WNDCLASSEX);
-		wc.hCursor			= LoadCursor(NULL, IDC_ARROW);
-		wc.hbrBackground	= (HBRUSH)(COLOR_WINDOW); 
-		wc.hInstance		= GetModuleHandle(NULL);
-		wc.lpszClassName	= CLSNAME;
-		wc.lpfnWndProc		= CWindow::WndProc;
-		wc.style			= CS_OWNDC | CS_HREDRAW | CS_VREDRAW;
+		wc.cbSize = sizeof(WNDCLASSEX);
+		wc.hCursor = LoadCursor(NULL, IDC_ARROW);
+		wc.hbrBackground = (HBRUSH)(COLOR_WINDOW);
+		wc.hInstance = GetModuleHandle(NULL);
+		wc.lpszClassName = CLSNAME;
+		wc.lpfnWndProc = CWindow::WndProc;
+		wc.style = CS_OWNDC | CS_HREDRAW | CS_VREDRAW;
 		RegisterClassEx(&wc);
 	}
 
@@ -125,8 +125,8 @@ CMainWindow::CMainWindow(CPS2VM& virtualMachine)
 
 	m_statusBar = Framework::Win32::CStatusBar(m_hWnd);
 	m_statusBar.SetParts(2, m_statusBarPanelWidths);
-	m_statusBar.SetText(STATUSPANEL,	sVersion);
-	m_statusBar.SetText(FPSPANEL,		_T(""));
+	m_statusBar.SetText(STATUSPANEL, sVersion);
+	m_statusBar.SetText(FPSPANEL, _T(""));
 
 	//m_virtualMachine.CreateGSHandler(CGSH_Null::GetFactoryFunction());
 	m_virtualMachine.CreateGSHandler(CGSH_OpenGLWin32::GetFactoryFunction(m_outputWnd));
@@ -327,7 +327,6 @@ long CMainWindow::OnCommand(unsigned short nID, unsigned short nCmd, HWND hSende
 	case ID_MAIN_HELP_ABOUT:
 		ShowAbout();
 		break;
-
 	}
 	return TRUE;
 }
@@ -360,7 +359,7 @@ long CMainWindow::OnActivateApp(bool nActive, unsigned long nThreadId)
 				m_deactivatePause = true;
 			}
 		}
-		
+
 		if((nActive == true) && (m_deactivatePause == true))
 		{
 			ResumePause();
@@ -443,14 +442,12 @@ void CMainWindow::SaveState()
 	auto statePath = m_virtualMachine.GenerateStatePath(m_stateSlot);
 	auto future = m_virtualMachine.SaveState(statePath);
 	m_futureContinuationManager.Register(std::move(future),
-		[this, stateSlot = m_stateSlot] (bool succeeded)
-		{
-			auto message = string_format(
-				succeeded ? _T("Saved state to slot %i.") : _T("Error saving state to slot %i."),
-				stateSlot);
-			SetStatusText(message.c_str());
-		}
-	);
+	                                     [this, stateSlot = m_stateSlot](bool succeeded) {
+		                                     auto message = string_format(
+		                                         succeeded ? _T("Saved state to slot %i.") : _T("Error saving state to slot %i."),
+		                                         stateSlot);
+		                                     SetStatusText(message.c_str());
+	                                     });
 }
 
 void CMainWindow::LoadState()
@@ -460,14 +457,12 @@ void CMainWindow::LoadState()
 	auto statePath = m_virtualMachine.GenerateStatePath(m_stateSlot);
 	auto future = m_virtualMachine.LoadState(statePath);
 	m_futureContinuationManager.Register(std::move(future),
-		[this, stateSlot = m_stateSlot] (const bool& succeeded)
-		{
-			auto message = string_format(
-				succeeded ? _T("Loaded state from slot %i.") : _T("Error loading state from slot %i."),
-				stateSlot);
-			SetStatusText(message.c_str());
-		}
-	);
+	                                     [this, stateSlot = m_stateSlot](const bool& succeeded) {
+		                                     auto message = string_format(
+		                                         succeeded ? _T("Loaded state from slot %i.") : _T("Error loading state from slot %i."),
+		                                         stateSlot);
+		                                     SetStatusText(message.c_str());
+	                                     });
 }
 
 void CMainWindow::ChangeStateSlot(unsigned int nSlot)
@@ -502,32 +497,29 @@ void CMainWindow::ShowFrameDebugger()
 void CMainWindow::DumpNextFrame()
 {
 	m_virtualMachine.TriggerFrameDump(
-		[&] (const CFrameDump& frameDump)
-		{
-			try
-			{
-				auto frameDumpDirectoryPath = GetFrameDumpDirectoryPath();
-				Framework::PathUtils::EnsurePathExists(frameDumpDirectoryPath);
-				for(unsigned int i = 0; i < UINT_MAX; i++)
-				{
-					auto frameDumpFileName = string_format("framedump_%08d.dmp.zip", i);
-					auto frameDumpPath = frameDumpDirectoryPath / boost::filesystem::path(frameDumpFileName);
-					if(!boost::filesystem::exists(frameDumpPath))
-					{
-						auto dumpStream = Framework::CreateOutputStdStream(frameDumpPath.native());
-						frameDump.Write(dumpStream);
-						PrintStatusTextA("Dumped frame to '%s'.", frameDumpFileName.c_str());
-						return;
-					}
-				}
-			}
-			catch(...)
-			{
-
-			}
-			PrintStatusTextA("Failed to dump frame.");
-		}
-	);
+	    [&](const CFrameDump& frameDump) {
+		    try
+		    {
+			    auto frameDumpDirectoryPath = GetFrameDumpDirectoryPath();
+			    Framework::PathUtils::EnsurePathExists(frameDumpDirectoryPath);
+			    for(unsigned int i = 0; i < UINT_MAX; i++)
+			    {
+				    auto frameDumpFileName = string_format("framedump_%08d.dmp.zip", i);
+				    auto frameDumpPath = frameDumpDirectoryPath / boost::filesystem::path(frameDumpFileName);
+				    if(!boost::filesystem::exists(frameDumpPath))
+				    {
+					    auto dumpStream = Framework::CreateOutputStdStream(frameDumpPath.native());
+					    frameDump.Write(dumpStream);
+					    PrintStatusTextA("Dumped frame to '%s'.", frameDumpFileName.c_str());
+					    return;
+				    }
+			    }
+		    }
+		    catch(...)
+		    {
+		    }
+		    PrintStatusTextA("Failed to dump frame.");
+	    });
 }
 
 void CMainWindow::ToggleGsDraw()
@@ -728,10 +720,10 @@ void CMainWindow::RecordAvi()
 			TranslateMessage(&msg);
 			DispatchMessage(&msg);
 		}
-		
+
 		{
 			m_aviStream.Close();
-			delete [] m_recordBuffer;
+			delete[] m_recordBuffer;
 			m_recordBuffer = NULL;
 			m_recordBufferWidth = 0;
 			m_recordBufferHeight = 0;
@@ -805,14 +797,14 @@ void CMainWindow::RefreshOverlaysLayout()
 	auto clientScreenRect = Framework::Win32::CRect(0, 0, outputWidth, outputHeight);
 	clientScreenRect.ClientToScreen(m_hWnd);
 
-	SetWindowPos(m_virtualPadWnd.m_hWnd, NULL, 
-		clientScreenRect.Left(), clientScreenRect.Top(), 
-		clientScreenRect.Width(), clientScreenRect.Height(),
-		SWP_NOZORDER | SWP_NOACTIVATE);
-	SetWindowPos(m_statsOverlayWnd.m_hWnd, NULL, 
-		clientScreenRect.Left(), clientScreenRect.Top(), 
-		clientScreenRect.Width(), clientScreenRect.Height(),
-		SWP_NOZORDER | SWP_NOACTIVATE);
+	SetWindowPos(m_virtualPadWnd.m_hWnd, NULL,
+	             clientScreenRect.Left(), clientScreenRect.Top(),
+	             clientScreenRect.Width(), clientScreenRect.Height(),
+	             SWP_NOZORDER | SWP_NOACTIVATE);
+	SetWindowPos(m_statsOverlayWnd.m_hWnd, NULL,
+	             clientScreenRect.Left(), clientScreenRect.Top(),
+	             clientScreenRect.Width(), clientScreenRect.Height(),
+	             SWP_NOZORDER | SWP_NOACTIVATE);
 }
 
 void CMainWindow::PrintStatusTextA(const char* format, ...)
@@ -835,16 +827,16 @@ void CMainWindow::SetStatusText(const TCHAR* text)
 void CMainWindow::CreateAccelerators()
 {
 	Framework::Win32::CAcceleratorTableGenerator generator;
-	generator.Insert(ID_MAIN_FILE_LOADELF,				'O',			FVIRTKEY | FCONTROL);
-	generator.Insert(ID_MAIN_VM_RESUME,					VK_F5,			FVIRTKEY);
-	generator.Insert(ID_MAIN_VM_SAVESTATE,				VK_F7,			FVIRTKEY);
-	generator.Insert(ID_MAIN_VM_LOADSTATE,				VK_F8,			FVIRTKEY);
-	generator.Insert(ID_MAIN_VIEW_FITTOSCREEN,			'J',			FVIRTKEY | FCONTROL);
-	generator.Insert(ID_MAIN_VIEW_FILLSCREEN,			'K',			FVIRTKEY | FCONTROL);
-	generator.Insert(ID_MAIN_VIEW_ACTUALSIZE,			'L',			FVIRTKEY | FCONTROL);
-	generator.Insert(ID_MAIN_DEBUG_DUMPFRAME,			VK_F11,			FVIRTKEY);
+	generator.Insert(ID_MAIN_FILE_LOADELF, 'O', FVIRTKEY | FCONTROL);
+	generator.Insert(ID_MAIN_VM_RESUME, VK_F5, FVIRTKEY);
+	generator.Insert(ID_MAIN_VM_SAVESTATE, VK_F7, FVIRTKEY);
+	generator.Insert(ID_MAIN_VM_LOADSTATE, VK_F8, FVIRTKEY);
+	generator.Insert(ID_MAIN_VIEW_FITTOSCREEN, 'J', FVIRTKEY | FCONTROL);
+	generator.Insert(ID_MAIN_VIEW_FILLSCREEN, 'K', FVIRTKEY | FCONTROL);
+	generator.Insert(ID_MAIN_VIEW_ACTUALSIZE, 'L', FVIRTKEY | FCONTROL);
+	generator.Insert(ID_MAIN_DEBUG_DUMPFRAME, VK_F11, FVIRTKEY);
 #ifdef PROFILE
-	generator.Insert(ID_MAIN_PROFILE_RESETSTATS,		VK_F3,			FVIRTKEY);
+	generator.Insert(ID_MAIN_PROFILE_RESETSTATS, VK_F3, FVIRTKEY);
 #endif
 	m_accTable = generator.Create();
 }
@@ -852,18 +844,18 @@ void CMainWindow::CreateAccelerators()
 void CMainWindow::CreateDebugMenu()
 {
 	HMENU hMenu = CreatePopupMenu();
-	InsertMenu(hMenu, 0, MF_STRING,					ID_MAIN_DEBUG_SHOWDEBUG,		_T("Show Debugger"));
-	InsertMenu(hMenu, 1, MF_SEPARATOR,				0,								nullptr);
-	InsertMenu(hMenu, 2, MF_STRING,					ID_MAIN_DEBUG_DUMPFRAME,		_T("Dump Next Frame\tF11"));
-	InsertMenu(hMenu, 3, MF_STRING,					ID_MAIN_DEBUG_SHOWFRAMEDEBUG,	_T("Show Frame Debugger"));
-	InsertMenu(hMenu, 4, MF_STRING | MF_CHECKED,	ID_MAIN_DEBUG_ENABLEGSDRAW,		_T("GS Draw Enabled"));
+	InsertMenu(hMenu, 0, MF_STRING, ID_MAIN_DEBUG_SHOWDEBUG, _T("Show Debugger"));
+	InsertMenu(hMenu, 1, MF_SEPARATOR, 0, nullptr);
+	InsertMenu(hMenu, 2, MF_STRING, ID_MAIN_DEBUG_DUMPFRAME, _T("Dump Next Frame\tF11"));
+	InsertMenu(hMenu, 3, MF_STRING, ID_MAIN_DEBUG_SHOWFRAMEDEBUG, _T("Show Frame Debugger"));
+	InsertMenu(hMenu, 4, MF_STRING | MF_CHECKED, ID_MAIN_DEBUG_ENABLEGSDRAW, _T("GS Draw Enabled"));
 
 	MENUITEMINFO ItemInfo;
 	memset(&ItemInfo, 0, sizeof(MENUITEMINFO));
-	ItemInfo.cbSize		= sizeof(MENUITEMINFO);
-	ItemInfo.fMask		= MIIM_STRING | MIIM_SUBMENU;
-	ItemInfo.dwTypeData	= _T("Debug");
-	ItemInfo.hSubMenu	= hMenu;
+	ItemInfo.cbSize = sizeof(MENUITEMINFO);
+	ItemInfo.fMask = MIIM_STRING | MIIM_SUBMENU;
+	ItemInfo.dwTypeData = _T("Debug");
+	ItemInfo.hSubMenu = hMenu;
 
 	InsertMenuItem(GetMenu(m_hWnd), 3, TRUE, &ItemInfo);
 }
@@ -884,9 +876,9 @@ void CMainWindow::CreateStateSlotMenu()
 
 	MENUITEMINFO ItemInfo;
 	memset(&ItemInfo, 0, sizeof(MENUITEMINFO));
-	ItemInfo.cbSize		= sizeof(MENUITEMINFO);
-	ItemInfo.fMask		= MIIM_SUBMENU;
-	ItemInfo.hSubMenu	= hMenu;
+	ItemInfo.cbSize = sizeof(MENUITEMINFO);
+	ItemInfo.fMask = MIIM_SUBMENU;
+	ItemInfo.hSubMenu = hMenu;
 
 	hMenu = GetSubMenu(GetMenu(m_hWnd), VMMENUPOS);
 	SetMenuItemInfo(hMenu, ID_MAIN_VM_STATESLOT, FALSE, &ItemInfo);
@@ -901,7 +893,7 @@ void CMainWindow::UpdateUI()
 	{
 		HMENU hMenu = GetSubMenu(GetMenu(m_hWnd), FILEMENUPOS);
 
-		ModifyMenu(hMenu, ID_MAIN_FILE_RECORDAVI, MF_BYCOMMAND | MF_STRING, ID_MAIN_FILE_RECORDAVI, m_recordingAvi ? _T("Stop Recording AVI") : _T("Record AVI...")); 
+		ModifyMenu(hMenu, ID_MAIN_FILE_RECORDAVI, MF_BYCOMMAND | MF_STRING, ID_MAIN_FILE_RECORDAVI, m_recordingAvi ? _T("Stop Recording AVI") : _T("Record AVI..."));
 	}
 
 	//Fix the virtual machine sub menu
@@ -920,7 +912,7 @@ void CMainWindow::UpdateUI()
 		MENUITEMINFO MenuItem;
 		memset(&MenuItem, 0, sizeof(MENUITEMINFO));
 		MenuItem.cbSize = sizeof(MENUITEMINFO);
-		MenuItem.fMask	= MIIM_SUBMENU;
+		MenuItem.fMask = MIIM_SUBMENU;
 
 		GetMenuItemInfo(hMenu, ID_MAIN_VM_STATESLOT, FALSE, &MenuItem);
 		hMenu = MenuItem.hSubMenu;
@@ -930,8 +922,8 @@ void CMainWindow::UpdateUI()
 		{
 			memset(&MenuItem, 0, sizeof(MENUITEMINFO));
 			MenuItem.cbSize = sizeof(MENUITEMINFO);
-			MenuItem.fMask	= MIIM_STATE;
-			MenuItem.fState	= (m_stateSlot == i) ? MFS_CHECKED : MFS_UNCHECKED;
+			MenuItem.fMask = MIIM_STATE;
+			MenuItem.fState = (m_stateSlot == i) ? MFS_CHECKED : MFS_UNCHECKED;
 
 			SetMenuItemInfo(hMenu, ID_MAIN_VM_STATESLOT_0 + i, FALSE, &MenuItem);
 		}
@@ -1012,9 +1004,8 @@ void CMainWindow::CBootCdRomOpenCommand::Execute(CMainWindow* mainWindow)
 }
 
 CMainWindow::CLoadElfOpenCommand::CLoadElfOpenCommand(const boost::filesystem::path& executablePath)
-: m_executablePath(executablePath)
+    : m_executablePath(executablePath)
 {
-
 }
 
 void CMainWindow::CLoadElfOpenCommand::Execute(CMainWindow* mainWindow)
@@ -1025,9 +1016,7 @@ void CMainWindow::CLoadElfOpenCommand::Execute(CMainWindow* mainWindow)
 void CMainWindow::ScreenCapture()
 {
 	CScreenShotUtils::TriggerGetScreenshot(&m_virtualMachine,
-		[&](int res, const char* msg)->void
-		{
-			m_statusBar.SetText(STATUSPANEL, string_cast<std::tstring>(msg).c_str());
-		}
-	);
+	                                       [&](int res, const char* msg) -> void {
+		                                       m_statusBar.SetText(STATUSPANEL, string_cast<std::tstring>(msg).c_str());
+	                                       });
 }

@@ -8,20 +8,20 @@ using namespace Iop;
 
 #define LOG_NAME "iop_loadcore"
 
-#define STATE_VERSION_XML           ("iop_loadcore/version.xml")
+#define STATE_VERSION_XML ("iop_loadcore/version.xml")
 #define STATE_VERSION_MODULEVERSION ("moduleVersion")
 
-#define FUNCTION_FLUSHDCACHE					"FlushDcache"
-#define FUNCTION_REGISTERLIBRARYENTRIES			"RegisterLibraryEntries"
-#define FUNCTION_QUERYBOOTMODE					"QueryBootMode"
-#define FUNCTION_SETREBOOTTIMELIBHANDLINGMODE	"SetRebootTimeLibraryHandlingMode"
+#define FUNCTION_FLUSHDCACHE "FlushDcache"
+#define FUNCTION_REGISTERLIBRARYENTRIES "RegisterLibraryEntries"
+#define FUNCTION_QUERYBOOTMODE "QueryBootMode"
+#define FUNCTION_SETREBOOTTIMELIBHANDLINGMODE "SetRebootTimeLibraryHandlingMode"
 
 #define PATH_MAX_SIZE 252
 #define ARGS_MAX_SIZE 252
 
 CLoadcore::CLoadcore(CIopBios& bios, uint8* ram, CSifMan& sifMan)
-: m_bios(bios)
-, m_ram(ram)
+    : m_bios(bios)
+    , m_ram(ram)
 {
 	sifMan.RegisterModule(MODULE_ID, this);
 }
@@ -67,23 +67,20 @@ void CLoadcore::Invoke(CMIPS& context, unsigned int functionId)
 		break;
 	case 6:
 		context.m_State.nGPR[CMIPS::V0].nD0 = static_cast<int32>(RegisterLibraryEntries(
-			context.m_State.nGPR[CMIPS::A0].nV0
-			));
+		    context.m_State.nGPR[CMIPS::A0].nV0));
 		break;
 	case 12:
 		context.m_State.nGPR[CMIPS::V0].nD0 = static_cast<int32>(QueryBootMode(
-			context.m_State.nGPR[CMIPS::A0].nV0
-			));
+		    context.m_State.nGPR[CMIPS::A0].nV0));
 		break;
 	case 27:
 		context.m_State.nGPR[CMIPS::V0].nD0 = static_cast<int32>(SetRebootTimeLibraryHandlingMode(
-			context.m_State.nGPR[CMIPS::A0].nV0,
-			context.m_State.nGPR[CMIPS::A1].nV0
-			));
+		    context.m_State.nGPR[CMIPS::A0].nV0,
+		    context.m_State.nGPR[CMIPS::A1].nV0));
 		break;
 	default:
-		CLog::GetInstance().Print(LOG_NAME, "Unknown function (%d) called (PC: 0x%08X).\r\n", 
-			functionId, context.m_State.nPC);
+		CLog::GetInstance().Print(LOG_NAME, "Unknown function (%d) called (PC: 0x%08X).\r\n",
+		                          functionId, context.m_State.nPC);
 		break;
 	}
 }
@@ -100,7 +97,7 @@ bool CLoadcore::Invoke(uint32 method, uint32* args, uint32 argsSize, uint32* ret
 		break;
 	case 0x06:
 		LoadModuleFromMemory(args, argsSize, ret, retSize);
-		return false;	//Block EE till module is loaded
+		return false; //Block EE till module is loaded
 		break;
 	case 0x07:
 		return StopModule(args, argsSize, ret, retSize);
@@ -158,7 +155,7 @@ uint32 CLoadcore::QueryBootMode(uint32 param)
 uint32 CLoadcore::SetRebootTimeLibraryHandlingMode(uint32 libAddr, uint32 mode)
 {
 	CLog::GetInstance().Print(LOG_NAME, FUNCTION_SETREBOOTTIMELIBHANDLINGMODE "(libAddr = 0x%08X, mode = 0x%08X);\r\n",
-		libAddr, mode);
+	                          libAddr, mode);
 	return 0;
 }
 
@@ -223,8 +220,8 @@ void CLoadcore::LoadExecutable(uint32* args, uint32 argsSize, uint32* ret, uint3
 	}
 
 	//This function returns something negative upon failure
-	ret[0] = result;		//epc or result (if negative)
-	ret[1] = 0x00000000;	//gp
+	ret[0] = result;     //epc or result (if negative)
+	ret[1] = 0x00000000; //gp
 }
 
 void CLoadcore::LoadModuleFromMemory(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize)
@@ -252,8 +249,8 @@ bool CLoadcore::StopModule(uint32* args, uint32 argsSize, uint32* ret, uint32 re
 
 	memcpy(moduleArgs, reinterpret_cast<const char*>(args) + 8 + PATH_MAX_SIZE, ARGS_MAX_SIZE);
 
-	CLog::GetInstance().Print(LOG_NAME, "StopModule(moduleId = %d, args, argsSize = 0x%08X);\r\n", 
-		moduleId, moduleArgsSize);
+	CLog::GetInstance().Print(LOG_NAME, "StopModule(moduleId = %d, args, argsSize = 0x%08X);\r\n",
+	                          moduleId, moduleArgsSize);
 
 	auto result = m_bios.StopModule(moduleId);
 	ret[0] = result;

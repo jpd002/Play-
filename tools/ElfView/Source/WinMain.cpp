@@ -10,5 +10,5 @@ int WINAPI WinMain(HINSTANCE instance, HINSTANCE prevInstance, LPSTR params, int
 	elfViewFrame.Center();
 	elfViewFrame.Show(SW_SHOW);
 	Framework::Win32::CWindow::DlgMsgLoop(elfViewFrame);
-    return 0;
+	return 0;
 }

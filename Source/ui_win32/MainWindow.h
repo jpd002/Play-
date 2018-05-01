@@ -21,121 +21,121 @@
 class CMainWindow : public Framework::Win32::CWindow, public boost::signals2::trackable
 {
 public:
-									CMainWindow(CPS2VM&);
-									~CMainWindow();
-	int								Loop();
+	CMainWindow(CPS2VM&);
+	~CMainWindow();
+	int Loop();
 
 protected:
-	long							OnTimer(WPARAM) override;
-	long							OnCommand(unsigned short, unsigned short, HWND) override;
-	long							OnActivateApp(bool, unsigned long) override;
-	long							OnSize(unsigned int, unsigned int, unsigned int) override;
-	long							OnMove(int, int) override;
+	long OnTimer(WPARAM) override;
+	long OnCommand(unsigned short, unsigned short, HWND) override;
+	long OnActivateApp(bool, unsigned long) override;
+	long OnSize(unsigned int, unsigned int, unsigned int) override;
+	long OnMove(int, int) override;
 
 private:
 	class COpenCommand
 	{
 	public:
-		virtual         ~COpenCommand() = default;
-		virtual void    Execute(CMainWindow*) = 0;
+		virtual ~COpenCommand() = default;
+		virtual void Execute(CMainWindow*) = 0;
 	};
 
 	class CBootCdRomOpenCommand : public COpenCommand
 	{
 	public:
-		void    Execute(CMainWindow*) override;
+		void Execute(CMainWindow*) override;
 	};
 
 	class CLoadElfOpenCommand : public COpenCommand
 	{
 	public:
-		        CLoadElfOpenCommand(const boost::filesystem::path&);
-		void    Execute(CMainWindow*) override;
+		CLoadElfOpenCommand(const boost::filesystem::path&);
+		void Execute(CMainWindow*) override;
 
 	private:
-		boost::filesystem::path    m_executablePath;
+		boost::filesystem::path m_executablePath;
 	};
 
 	typedef std::shared_ptr<COpenCommand> OpenCommandPtr;
 
-	void							OpenELF();
-	void							BootCDROM();
-	void							BootDiskImage();
-	void							RecordAvi();
-	void							ResumePause();
-	void							Reset();
-	void							PauseWhenFocusLost();
-	void							SaveState();
-	void							LoadState();
-	void							ChangeStateSlot(unsigned int);
-	void							ChangeViewMode(CGSHandler::PRESENTATION_MODE);
-	void							ShowDebugger();
-	void							ShowFrameDebugger();
-	void							DumpNextFrame();
-	void							ToggleGsDraw();
-	void							ShowSysInfo();
-	void							ShowAbout();
-	void							ShowSettingsDialog(CSettingsDialogProvider*);
-	void							ShowVideoSettings();
-	void							ShowControllerSettings();
-	void							ShowVfsManager();
-	void							ShowMcManager();
-	void							ToggleSoundEnabled();
+	void OpenELF();
+	void BootCDROM();
+	void BootDiskImage();
+	void RecordAvi();
+	void ResumePause();
+	void Reset();
+	void PauseWhenFocusLost();
+	void SaveState();
+	void LoadState();
+	void ChangeStateSlot(unsigned int);
+	void ChangeViewMode(CGSHandler::PRESENTATION_MODE);
+	void ShowDebugger();
+	void ShowFrameDebugger();
+	void DumpNextFrame();
+	void ToggleGsDraw();
+	void ShowSysInfo();
+	void ShowAbout();
+	void ShowSettingsDialog(CSettingsDialogProvider*);
+	void ShowVideoSettings();
+	void ShowControllerSettings();
+	void ShowVfsManager();
+	void ShowMcManager();
+	void ToggleSoundEnabled();
 
-	void							ProcessCommandLine();
+	void ProcessCommandLine();
 
-	void							LoadELF(const boost::filesystem::path&);
-	void							RefreshLayout();
-	void							RefreshOverlaysLayout();
-	void							PrintVersion(TCHAR*, size_t);
-	void							PrintStatusTextA(const char*, ...);
-	void							SetStatusText(const TCHAR*);
-	void							CreateAccelerators();
-	
-	void							CreateDebugMenu();
-	static boost::filesystem::path	GetFrameDumpDirectoryPath();
+	void LoadELF(const boost::filesystem::path&);
+	void RefreshLayout();
+	void RefreshOverlaysLayout();
+	void PrintVersion(TCHAR*, size_t);
+	void PrintStatusTextA(const char*, ...);
+	void SetStatusText(const TCHAR*);
+	void CreateAccelerators();
 
-	void							CreateStateSlotMenu();
-	void							UpdateUI();
+	void CreateDebugMenu();
+	static boost::filesystem::path GetFrameDumpDirectoryPath();
 
-	void							OnNewFrame(uint32);
+	void CreateStateSlotMenu();
+	void UpdateUI();
 
-	void							OnExecutableChange();
+	void OnNewFrame(uint32);
 
-	void							SetupSoundHandler();
+	void OnExecutableChange();
 
-	void							ScreenCapture();
+	void SetupSoundHandler();
 
-	CPS2VM&							m_virtualMachine;
+	void ScreenCapture();
 
-	unsigned int					m_frames;
-	uint32							m_drawCallCount;
-	HACCEL							m_accTable;
+	CPS2VM& m_virtualMachine;
 
-	unsigned int					m_stateSlot;
+	unsigned int m_frames;
+	uint32 m_drawCallCount;
+	HACCEL m_accTable;
 
-	bool							m_pauseFocusLost;
-	bool							m_deactivatePause;
+	unsigned int m_stateSlot;
 
-	OpenCommandPtr					m_lastOpenCommand;
+	bool m_pauseFocusLost;
+	bool m_deactivatePause;
 
-	CAviStream						m_aviStream;
-	bool							m_recordingAvi;
-	uint8*							m_recordBuffer;
-	HANDLE							m_recordAviMutex;
-	unsigned int					m_recordBufferWidth;
-	unsigned int					m_recordBufferHeight;
+	OpenCommandPtr m_lastOpenCommand;
 
-	Framework::Win32::CStatusBar	m_statusBar;
-	COutputWnd*						m_outputWnd;
-	CVirtualPadWindow				m_virtualPadWnd;
-	CStatsOverlayWindow				m_statsOverlayWnd;
+	CAviStream m_aviStream;
+	bool m_recordingAvi;
+	uint8* m_recordBuffer;
+	HANDLE m_recordAviMutex;
+	unsigned int m_recordBufferWidth;
+	unsigned int m_recordBufferHeight;
+
+	Framework::Win32::CStatusBar m_statusBar;
+	COutputWnd* m_outputWnd;
+	CVirtualPadWindow m_virtualPadWnd;
+	CStatsOverlayWindow m_statsOverlayWnd;
 #ifdef DEBUGGER_INCLUDED
-	std::unique_ptr<CDebugger>		m_debugger;
-	std::unique_ptr<CFrameDebugger>	m_frameDebugger;
+	std::unique_ptr<CDebugger> m_debugger;
+	std::unique_ptr<CFrameDebugger> m_frameDebugger;
 #endif
 
-	CFutureContinuationManager		m_futureContinuationManager;
+	CFutureContinuationManager m_futureContinuationManager;
 
-	static double					m_statusBarPanelWidths[2];
+	static double m_statusBarPanelWidths[2];
 };

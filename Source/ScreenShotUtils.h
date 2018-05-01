@@ -5,11 +5,11 @@
 class CScreenShotUtils : public Framework::CConfig
 {
 public:
-	typedef std::function<void(int, const char*)>		Callback;
+	typedef std::function<void(int, const char*)> Callback;
 
-	static void								TriggerGetScreenshot(CPS2VM*, Callback);
+	static void TriggerGetScreenshot(CPS2VM*, Callback);
 
 private:
-	static CConfig::PathType				GetScreenShotDirectoryPath();
-	static CConfig::PathType				GenerateScreenShotPath(const char* gameID);
+	static CConfig::PathType GetScreenShotDirectoryPath();
+	static CConfig::PathType GenerateScreenShotPath(const char* gameID);
 };

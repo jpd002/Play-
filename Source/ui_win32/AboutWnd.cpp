@@ -11,12 +11,12 @@
 #include "resource.h"
 #include "../PS2VM.h"
 
-#define WNDSTYLE	(WS_CAPTION | WS_POPUP | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_SYSMENU)
-#define WNDSTYLEEX	(WS_EX_DLGMODALFRAME)
-#define SCALE(x)	MulDiv(x, ydpi, 96)
+#define WNDSTYLE (WS_CAPTION | WS_POPUP | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_SYSMENU)
+#define WNDSTYLEEX (WS_EX_DLGMODALFRAME)
+#define SCALE(x) MulDiv(x, ydpi, 96)
 
-CAboutWnd::CAboutWnd(HWND parentWnd) 
-: Framework::Win32::CModalWindow(parentWnd)
+CAboutWnd::CAboutWnd(HWND parentWnd)
+    : Framework::Win32::CModalWindow(parentWnd)
 {
 	if(parentWnd != NULL)
 	{
@@ -26,7 +26,7 @@ CAboutWnd::CAboutWnd(HWND parentWnd)
 	int ydpi = GetDeviceCaps(GetDC(NULL), LOGPIXELSY);
 
 	Create(WNDSTYLEEX, Framework::Win32::CDefaultWndClass().GetName(), _T("About Play!"), WNDSTYLE,
-		Framework::Win32::CRect(0, 0, SCALE(360), SCALE(125)), parentWnd, NULL);
+	       Framework::Win32::CRect(0, 0, SCALE(360), SCALE(125)), parentWnd, NULL);
 	SetClassPtr();
 
 	m_pImage = new Framework::Win32::CStatic(m_hWnd, Framework::Win32::CRect(0, 0, 1, 1), SS_ICON);
@@ -36,7 +36,7 @@ CAboutWnd::CAboutWnd(HWND parentWnd)
 	auto zlibVersion(string_cast<std::tstring>(ZLIB_VERSION));
 
 	auto version = string_format(_T("Version %s (%s) - zlib v%s - boost v%s"),
-		APP_VERSIONSTR, date.c_str(), zlibVersion.c_str(), GetBoostVersion().c_str());
+	                             APP_VERSIONSTR, date.c_str(), zlibVersion.c_str(), GetBoostVersion().c_str());
 
 	auto pSubLayout0 = Framework::CVerticalLayout::Create(3);
 	pSubLayout0->InsertObject(Framework::Win32::CLayoutWindow::CreateTextBoxBehavior(100, SCALE(30), new Framework::Win32::CStatic(m_hWnd, version.c_str(), SS_EDITCONTROL)));
@@ -63,7 +63,6 @@ CAboutWnd::CAboutWnd(HWND parentWnd)
 
 CAboutWnd::~CAboutWnd()
 {
-
 }
 
 void CAboutWnd::RefreshLayout()
@@ -80,8 +79,7 @@ void CAboutWnd::RefreshLayout()
 
 std::tstring CAboutWnd::GetBoostVersion()
 {
-	return 
-		boost::lexical_cast<std::tstring>(BOOST_VERSION / 100000) + _T(".") +
-		boost::lexical_cast<std::tstring>(BOOST_VERSION / 100 % 1000) + _T(".") +
-		boost::lexical_cast<std::tstring>(BOOST_VERSION % 100);
+	return boost::lexical_cast<std::tstring>(BOOST_VERSION / 100000) + _T(".") +
+	       boost::lexical_cast<std::tstring>(BOOST_VERSION / 100 % 1000) + _T(".") +
+	       boost::lexical_cast<std::tstring>(BOOST_VERSION % 100);
 }

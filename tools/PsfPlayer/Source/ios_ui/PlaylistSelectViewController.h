@@ -2,17 +2,17 @@
 
 @protocol PlaylistSelectViewControllerDelegate
 
--(void)onPlaylistSelected: (NSString*)path;
+- (void)onPlaylistSelected:(NSString*)path;
 
 @end
 
 @interface PlaylistSelectViewController : UIViewController
 {
-	NSArray*		m_archives;
+	NSArray* m_archives;
 }
 
-@property (nonatomic, assign) id<PlaylistSelectViewControllerDelegate> delegate;
+@property(nonatomic, assign) id<PlaylistSelectViewControllerDelegate> delegate;
 
--(IBAction)onCancel: (id)handler;
+- (IBAction)onCancel:(id)handler;
 
 @end

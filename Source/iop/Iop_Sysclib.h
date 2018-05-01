@@ -8,12 +8,12 @@ namespace Iop
 	class CSysclib : public CModule
 	{
 	public:
-						CSysclib(uint8*, uint8*, CStdio&);
-		virtual			~CSysclib() = default;
+		CSysclib(uint8*, uint8*, CStdio&);
+		virtual ~CSysclib() = default;
 
-		std::string		GetId() const override;
-		std::string		GetFunctionName(unsigned int) const override;
-		void			Invoke(CMIPS&, unsigned int) override;
+		std::string GetId() const override;
+		std::string GetFunctionName(unsigned int) const override;
+		void Invoke(CMIPS&, unsigned int) override;
 
 	private:
 		struct JMP_BUF
@@ -33,35 +33,35 @@ namespace Iop
 		};
 		static_assert(sizeof(JMP_BUF) == 48, "Size of JMP_BUF must be 48.");
 
-		uint8*			GetPtr(uint32, uint32) const;
+		uint8* GetPtr(uint32, uint32) const;
 
-		int32			__setjmp(CMIPS&);
-		void			__longjmp(CMIPS&);
-		uint32			__look_ctype_table(uint32);
-		uint32			__memcmp(const void*, const void*, uint32);
-		void			__memcpy(void*, const void*, unsigned int);
-		void			__memmove(void*, const void*, uint32);
-		uint32			__memset(uint32, uint32, uint32);
-		uint32			__sprintf(CMIPS& context);
-		uint32			__strcat(uint32, uint32);
-		uint32			__strlen(const char*);
-		uint32			__strcmp(const char*, const char*);
-		void			__strcpy(char*, const char*);
-		uint32			__strncmp(const char*, const char*, uint32);
-		void			__strncpy(char*, const char*, unsigned int);
-		uint32			__strchr(uint32, uint32);
-		uint32			__strrchr(uint32, uint32);
-		uint32			__strstr(uint32, uint32);
-		uint32			__strtok(uint32, uint32);
-		uint32			__strcspn(uint32, uint32);
-		uint32			__index(uint32, uint32);
-		uint32			__strtol(uint32, uint32, uint32);
-		uint32			__wmemcopy(uint32, uint32, uint32);
-		uint32			__vsprintf(CMIPS&, uint32, uint32, uint32);
+		int32 __setjmp(CMIPS&);
+		void __longjmp(CMIPS&);
+		uint32 __look_ctype_table(uint32);
+		uint32 __memcmp(const void*, const void*, uint32);
+		void __memcpy(void*, const void*, unsigned int);
+		void __memmove(void*, const void*, uint32);
+		uint32 __memset(uint32, uint32, uint32);
+		uint32 __sprintf(CMIPS& context);
+		uint32 __strcat(uint32, uint32);
+		uint32 __strlen(const char*);
+		uint32 __strcmp(const char*, const char*);
+		void __strcpy(char*, const char*);
+		uint32 __strncmp(const char*, const char*, uint32);
+		void __strncpy(char*, const char*, unsigned int);
+		uint32 __strchr(uint32, uint32);
+		uint32 __strrchr(uint32, uint32);
+		uint32 __strstr(uint32, uint32);
+		uint32 __strtok(uint32, uint32);
+		uint32 __strcspn(uint32, uint32);
+		uint32 __index(uint32, uint32);
+		uint32 __strtol(uint32, uint32, uint32);
+		uint32 __wmemcopy(uint32, uint32, uint32);
+		uint32 __vsprintf(CMIPS&, uint32, uint32, uint32);
 
-		uint8*			m_ram = nullptr;
-		uint8*			m_spr = nullptr;
-		uint32			m_strtok_prevSPtr = 0;
-		CStdio&			m_stdio;
+		uint8* m_ram = nullptr;
+		uint8* m_spr = nullptr;
+		uint32 m_strtok_prevSPtr = 0;
+		CStdio& m_stdio;
 	};
 }

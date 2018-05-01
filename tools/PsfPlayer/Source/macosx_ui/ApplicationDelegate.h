@@ -10,15 +10,15 @@
 #import "Playlist.h"
 #include "PsfVm.h"
 
-@interface ApplicationDelegate : NSObject 
+@interface ApplicationDelegate : NSObject
 {
-	CPsfVm*					m_virtualMachine;
-	IBOutlet Playlist*		m_playlist;
-	IBOutlet NSTableView*	m_playListView;
+	CPsfVm* m_virtualMachine;
+	IBOutlet Playlist* m_playlist;
+	IBOutlet NSTableView* m_playListView;
 }
 
--(id)init;
--(void)OnFileOpen: (id)sender;
--(void)LoadPsf: (NSString*)fileName;
+- (id)init;
+- (void)OnFileOpen:(id)sender;
+- (void)LoadPsf:(NSString*)fileName;
 
 @end

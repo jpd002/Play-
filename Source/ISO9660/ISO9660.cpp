@@ -9,16 +9,14 @@
 using namespace ISO9660;
 
 CISO9660::CISO9660(const BlockProviderPtr& blockProvider)
-: m_blockProvider(blockProvider)
-, m_volumeDescriptor(blockProvider.get())
-, m_pathTable(blockProvider.get(), m_volumeDescriptor.GetLPathTableAddress())
+    : m_blockProvider(blockProvider)
+    , m_volumeDescriptor(blockProvider.get())
+    , m_pathTable(blockProvider.get(), m_volumeDescriptor.GetLPathTableAddress())
 {
-
 }
 
 CISO9660::~CISO9660()
 {
-
 }
 
 void CISO9660::ReadBlock(uint32 address, void* data)

@@ -13,9 +13,9 @@
 #define WND_STYLE (WS_CLIPCHILDREN | WS_THICKFRAME | WS_CAPTION | WS_SYSMENU | WS_CHILD | WS_MAXIMIZEBOX)
 
 CThreadsViewWnd::CThreadsViewWnd(HWND parentWnd, CVirtualMachine& virtualMachine)
-: m_listView(nullptr)
-, m_context(nullptr)
-, m_biosDebugInfoProvider(nullptr)
+    : m_listView(nullptr)
+    , m_context(nullptr)
+    , m_biosDebugInfoProvider(nullptr)
 {
 	auto windowRect = Framework::Win32::PointsToPixels(Framework::Win32::CRect(0, 0, 700, 300));
 
@@ -36,7 +36,6 @@ CThreadsViewWnd::CThreadsViewWnd(HWND parentWnd, CVirtualMachine& virtualMachine
 
 CThreadsViewWnd::~CThreadsViewWnd()
 {
-
 }
 
 void CThreadsViewWnd::SetContext(CMIPS* context, CBiosDebugInfoProvider* biosDebugInfoProvider)
@@ -54,22 +53,22 @@ void CThreadsViewWnd::CreateColumns()
 
 	memset(&col, 0, sizeof(LVCOLUMN));
 	col.pszText = _T("Id");
-	col.mask	= LVCF_TEXT;
+	col.mask = LVCF_TEXT;
 	m_listView.InsertColumn(0, col);
 
 	memset(&col, 0, sizeof(LVCOLUMN));
 	col.pszText = _T("Priority");
-	col.mask	= LVCF_TEXT;
+	col.mask = LVCF_TEXT;
 	m_listView.InsertColumn(1, col);
 
 	memset(&col, 0, sizeof(LVCOLUMN));
 	col.pszText = _T("Location");
-	col.mask	= LVCF_TEXT;
+	col.mask = LVCF_TEXT;
 	m_listView.InsertColumn(2, col);
 
 	memset(&col, 0, sizeof(LVCOLUMN));
 	col.pszText = _T("State");
-	col.mask	= LVCF_TEXT;
+	col.mask = LVCF_TEXT;
 	m_listView.InsertColumn(3, col);
 }
 
@@ -149,15 +148,15 @@ void CThreadsViewWnd::Update()
 	auto moduleInfos = m_biosDebugInfoProvider->GetModulesDebugInfo();
 
 	for(auto threadInfoIterator(std::begin(threadInfos));
-		threadInfoIterator != std::end(threadInfos); threadInfoIterator++)
+	    threadInfoIterator != std::end(threadInfos); threadInfoIterator++)
 	{
 		const auto& threadInfo = *threadInfoIterator;
 
 		LVITEM item;
 		memset(&item, 0, sizeof(LVITEM));
-		item.iItem		= m_listView.GetItemCount();
-		item.lParam		= threadInfo.id;
-		item.mask		= LVIF_PARAM;
+		item.iItem = m_listView.GetItemCount();
+		item.lParam = threadInfo.id;
+		item.mask = LVIF_PARAM;
 		int itemIndex = m_listView.InsertItem(item);
 
 		m_listView.SetItemText(itemIndex, 0, boost::lexical_cast<std::tstring>(threadInfo.id).c_str());
@@ -179,8 +178,8 @@ void CThreadsViewWnd::OnListDblClick()
 
 	auto threadInfos = m_biosDebugInfoProvider->GetThreadsDebugInfo();
 
-	auto threadInfoIterator = std::find_if(std::begin(threadInfos), std::end(threadInfos), 
-		[&] (const BIOS_DEBUG_THREAD_INFO& threadInfo) { return threadInfo.id == threadId; });
+	auto threadInfoIterator = std::find_if(std::begin(threadInfos), std::end(threadInfos),
+	                                       [&](const BIOS_DEBUG_THREAD_INFO& threadInfo) { return threadInfo.id == threadId; });
 	if(threadInfoIterator == std::end(threadInfos)) return;
 
 	const auto& threadInfo(*threadInfoIterator);

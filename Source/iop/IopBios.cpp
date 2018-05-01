@@ -36,68 +36,68 @@
 
 #define LOGNAME "iop_bios"
 
-#define STATE_MODULES						("iopbios/dyn_modules.xml")
-#define STATE_MODULE_IMPORT_TABLE_ADDRESS	("ImportTableAddress")
+#define STATE_MODULES ("iopbios/dyn_modules.xml")
+#define STATE_MODULE_IMPORT_TABLE_ADDRESS ("ImportTableAddress")
 
-#define BIOS_THREAD_LINK_HEAD_BASE			(CIopBios::CONTROL_BLOCK_START + 0x0000)
-#define BIOS_CURRENT_THREAD_ID_BASE			(CIopBios::CONTROL_BLOCK_START + 0x0008)
-#define BIOS_CURRENT_TIME_BASE				(CIopBios::CONTROL_BLOCK_START + 0x0010)
-#define BIOS_MODULESTARTREQUEST_HEAD_BASE	(CIopBios::CONTROL_BLOCK_START + 0x0018)
-#define BIOS_MODULESTARTREQUEST_FREE_BASE	(CIopBios::CONTROL_BLOCK_START + 0x0020)
-#define BIOS_HANDLERS_BASE					(CIopBios::CONTROL_BLOCK_START + 0x0100)
-#define BIOS_HANDLERS_END					(BIOS_THREADS_BASE - 1)
-#define BIOS_THREADS_BASE					(CIopBios::CONTROL_BLOCK_START + 0x0200)
-#define BIOS_THREADS_SIZE					(sizeof(CIopBios::THREAD) * CIopBios::MAX_THREAD)
-#define BIOS_SEMAPHORES_BASE				(BIOS_THREADS_BASE + BIOS_THREADS_SIZE)
-#define BIOS_SEMAPHORES_SIZE				(sizeof(CIopBios::SEMAPHORE) * CIopBios::MAX_SEMAPHORE)
-#define BIOS_EVENTFLAGS_BASE				(BIOS_SEMAPHORES_BASE + BIOS_SEMAPHORES_SIZE)
-#define BIOS_EVENTFLAGS_SIZE				(sizeof(CIopBios::EVENTFLAG) * CIopBios::MAX_EVENTFLAG)
-#define BIOS_INTRHANDLER_BASE				(BIOS_EVENTFLAGS_BASE + BIOS_EVENTFLAGS_SIZE)
-#define BIOS_INTRHANDLER_SIZE				(sizeof(CIopBios::INTRHANDLER) * CIopBios::MAX_INTRHANDLER)
-#define BIOS_MESSAGEBOX_BASE				(BIOS_INTRHANDLER_BASE + BIOS_INTRHANDLER_SIZE)
-#define BIOS_MESSAGEBOX_SIZE				(sizeof(CIopBios::MESSAGEBOX) * CIopBios::MAX_MESSAGEBOX)
-#define BIOS_VPL_BASE						(BIOS_MESSAGEBOX_BASE + BIOS_MESSAGEBOX_SIZE)
-#define BIOS_VPL_SIZE						(sizeof(CIopBios::VPL) * CIopBios::MAX_VPL)
-#define BIOS_MEMORYBLOCK_BASE				(BIOS_VPL_BASE + BIOS_VPL_SIZE)
-#define BIOS_MEMORYBLOCK_SIZE				(sizeof(Iop::MEMORYBLOCK) * CIopBios::MAX_MEMORYBLOCK)
-#define BIOS_MODULESTARTREQUEST_BASE		(BIOS_MEMORYBLOCK_BASE + BIOS_MEMORYBLOCK_SIZE)
-#define BIOS_MODULESTARTREQUEST_SIZE		(sizeof(CIopBios::MODULESTARTREQUEST) * CIopBios::MAX_MODULESTARTREQUEST)
-#define BIOS_LOADEDMODULE_BASE				(BIOS_MODULESTARTREQUEST_BASE + BIOS_MODULESTARTREQUEST_SIZE)
-#define BIOS_LOADEDMODULE_SIZE				(sizeof(CIopBios::LOADEDMODULE) * CIopBios::MAX_LOADEDMODULE)
-#define BIOS_CALCULATED_END					(BIOS_LOADEDMODULE_BASE + BIOS_LOADEDMODULE_SIZE)
+#define BIOS_THREAD_LINK_HEAD_BASE (CIopBios::CONTROL_BLOCK_START + 0x0000)
+#define BIOS_CURRENT_THREAD_ID_BASE (CIopBios::CONTROL_BLOCK_START + 0x0008)
+#define BIOS_CURRENT_TIME_BASE (CIopBios::CONTROL_BLOCK_START + 0x0010)
+#define BIOS_MODULESTARTREQUEST_HEAD_BASE (CIopBios::CONTROL_BLOCK_START + 0x0018)
+#define BIOS_MODULESTARTREQUEST_FREE_BASE (CIopBios::CONTROL_BLOCK_START + 0x0020)
+#define BIOS_HANDLERS_BASE (CIopBios::CONTROL_BLOCK_START + 0x0100)
+#define BIOS_HANDLERS_END (BIOS_THREADS_BASE - 1)
+#define BIOS_THREADS_BASE (CIopBios::CONTROL_BLOCK_START + 0x0200)
+#define BIOS_THREADS_SIZE (sizeof(CIopBios::THREAD) * CIopBios::MAX_THREAD)
+#define BIOS_SEMAPHORES_BASE (BIOS_THREADS_BASE + BIOS_THREADS_SIZE)
+#define BIOS_SEMAPHORES_SIZE (sizeof(CIopBios::SEMAPHORE) * CIopBios::MAX_SEMAPHORE)
+#define BIOS_EVENTFLAGS_BASE (BIOS_SEMAPHORES_BASE + BIOS_SEMAPHORES_SIZE)
+#define BIOS_EVENTFLAGS_SIZE (sizeof(CIopBios::EVENTFLAG) * CIopBios::MAX_EVENTFLAG)
+#define BIOS_INTRHANDLER_BASE (BIOS_EVENTFLAGS_BASE + BIOS_EVENTFLAGS_SIZE)
+#define BIOS_INTRHANDLER_SIZE (sizeof(CIopBios::INTRHANDLER) * CIopBios::MAX_INTRHANDLER)
+#define BIOS_MESSAGEBOX_BASE (BIOS_INTRHANDLER_BASE + BIOS_INTRHANDLER_SIZE)
+#define BIOS_MESSAGEBOX_SIZE (sizeof(CIopBios::MESSAGEBOX) * CIopBios::MAX_MESSAGEBOX)
+#define BIOS_VPL_BASE (BIOS_MESSAGEBOX_BASE + BIOS_MESSAGEBOX_SIZE)
+#define BIOS_VPL_SIZE (sizeof(CIopBios::VPL) * CIopBios::MAX_VPL)
+#define BIOS_MEMORYBLOCK_BASE (BIOS_VPL_BASE + BIOS_VPL_SIZE)
+#define BIOS_MEMORYBLOCK_SIZE (sizeof(Iop::MEMORYBLOCK) * CIopBios::MAX_MEMORYBLOCK)
+#define BIOS_MODULESTARTREQUEST_BASE (BIOS_MEMORYBLOCK_BASE + BIOS_MEMORYBLOCK_SIZE)
+#define BIOS_MODULESTARTREQUEST_SIZE (sizeof(CIopBios::MODULESTARTREQUEST) * CIopBios::MAX_MODULESTARTREQUEST)
+#define BIOS_LOADEDMODULE_BASE (BIOS_MODULESTARTREQUEST_BASE + BIOS_MODULESTARTREQUEST_SIZE)
+#define BIOS_LOADEDMODULE_SIZE (sizeof(CIopBios::LOADEDMODULE) * CIopBios::MAX_LOADEDMODULE)
+#define BIOS_CALCULATED_END (BIOS_LOADEDMODULE_BASE + BIOS_LOADEDMODULE_SIZE)
 
-#define SYSCALL_EXITTHREAD				0x666
-#define SYSCALL_RETURNFROMEXCEPTION		0x667
-#define SYSCALL_RESCHEDULE				0x668
-#define SYSCALL_SLEEPTHREAD				0x669
-#define SYSCALL_PROCESSMODULESTART		0x66A
-#define SYSCALL_FINISHMODULESTART		0x66B
-#define SYSCALL_DELAYTHREADTICKS		0x66C
+#define SYSCALL_EXITTHREAD 0x666
+#define SYSCALL_RETURNFROMEXCEPTION 0x667
+#define SYSCALL_RESCHEDULE 0x668
+#define SYSCALL_SLEEPTHREAD 0x669
+#define SYSCALL_PROCESSMODULESTART 0x66A
+#define SYSCALL_FINISHMODULESTART 0x66B
+#define SYSCALL_DELAYTHREADTICKS 0x66C
 
 //This is the space needed to preserve at most four arguments in the stack frame (as per MIPS calling convention)
-#define STACK_FRAME_RESERVE_SIZE		0x10
+#define STACK_FRAME_RESERVE_SIZE 0x10
 
 CIopBios::CIopBios(CMIPS& cpu, CMipsExecutor& cpuExecutor, uint8* ram, uint32 ramSize, uint8* spr)
-: m_cpu(cpu)
-, m_cpuExecutor(cpuExecutor)
-, m_ram(ram)
-, m_ramSize(ramSize)
-, m_spr(spr)
-, m_threadFinishAddress(0)
-, m_returnFromExceptionAddress(0)
-, m_idleFunctionAddress(0)
-, m_moduleStarterThreadProcAddress(0)
-, m_moduleStarterThreadId(0)
-, m_alarmThreadProcAddress(0)
-, m_threads(reinterpret_cast<THREAD*>(&m_ram[BIOS_THREADS_BASE]), 1, MAX_THREAD)
-, m_memoryBlocks(reinterpret_cast<Iop::MEMORYBLOCK*>(&ram[BIOS_MEMORYBLOCK_BASE]), 1, MAX_MEMORYBLOCK)
-, m_semaphores(reinterpret_cast<SEMAPHORE*>(&m_ram[BIOS_SEMAPHORES_BASE]), 1, MAX_SEMAPHORE)
-, m_eventFlags(reinterpret_cast<EVENTFLAG*>(&m_ram[BIOS_EVENTFLAGS_BASE]), 1, MAX_EVENTFLAG)
-, m_intrHandlers(reinterpret_cast<INTRHANDLER*>(&m_ram[BIOS_INTRHANDLER_BASE]), 1, MAX_INTRHANDLER)
-, m_messageBoxes(reinterpret_cast<MESSAGEBOX*>(&m_ram[BIOS_MESSAGEBOX_BASE]), 1, MAX_MESSAGEBOX)
-, m_vpls(reinterpret_cast<VPL*>(&m_ram[BIOS_VPL_BASE]), 1, MAX_VPL)
-, m_loadedModules(reinterpret_cast<LOADEDMODULE*>(&m_ram[BIOS_LOADEDMODULE_BASE]), 1, MAX_LOADEDMODULE)
-, m_currentThreadId(reinterpret_cast<uint32*>(m_ram + BIOS_CURRENT_THREAD_ID_BASE))
+    : m_cpu(cpu)
+    , m_cpuExecutor(cpuExecutor)
+    , m_ram(ram)
+    , m_ramSize(ramSize)
+    , m_spr(spr)
+    , m_threadFinishAddress(0)
+    , m_returnFromExceptionAddress(0)
+    , m_idleFunctionAddress(0)
+    , m_moduleStarterThreadProcAddress(0)
+    , m_moduleStarterThreadId(0)
+    , m_alarmThreadProcAddress(0)
+    , m_threads(reinterpret_cast<THREAD*>(&m_ram[BIOS_THREADS_BASE]), 1, MAX_THREAD)
+    , m_memoryBlocks(reinterpret_cast<Iop::MEMORYBLOCK*>(&ram[BIOS_MEMORYBLOCK_BASE]), 1, MAX_MEMORYBLOCK)
+    , m_semaphores(reinterpret_cast<SEMAPHORE*>(&m_ram[BIOS_SEMAPHORES_BASE]), 1, MAX_SEMAPHORE)
+    , m_eventFlags(reinterpret_cast<EVENTFLAG*>(&m_ram[BIOS_EVENTFLAGS_BASE]), 1, MAX_EVENTFLAG)
+    , m_intrHandlers(reinterpret_cast<INTRHANDLER*>(&m_ram[BIOS_INTRHANDLER_BASE]), 1, MAX_INTRHANDLER)
+    , m_messageBoxes(reinterpret_cast<MESSAGEBOX*>(&m_ram[BIOS_MESSAGEBOX_BASE]), 1, MAX_MESSAGEBOX)
+    , m_vpls(reinterpret_cast<VPL*>(&m_ram[BIOS_VPL_BASE]), 1, MAX_VPL)
+    , m_loadedModules(reinterpret_cast<LOADEDMODULE*>(&m_ram[BIOS_LOADEDMODULE_BASE]), 1, MAX_LOADEDMODULE)
+    , m_currentThreadId(reinterpret_cast<uint32*>(m_ram + BIOS_CURRENT_THREAD_ID_BASE))
 {
 	static_assert(BIOS_CALCULATED_END <= CIopBios::CONTROL_BLOCK_END, "Control block size is too small");
 }
@@ -280,7 +280,7 @@ void CIopBios::SaveState(Framework::CZipArchiveWriter& archive)
 				CStructFile moduleStruct;
 				{
 					uint32 importTableAddress = reinterpret_cast<uint8*>(dynamicModule->GetExportTable()) - m_ram;
-					moduleStruct.SetRegister32(STATE_MODULE_IMPORT_TABLE_ADDRESS, importTableAddress); 
+					moduleStruct.SetRegister32(STATE_MODULE_IMPORT_TABLE_ADDRESS, importTableAddress);
 				}
 				modulesFile->InsertStruct(dynamicModule->GetId().c_str(), moduleStruct);
 			}
@@ -301,8 +301,8 @@ void CIopBios::SaveState(Framework::CZipArchiveWriter& archive)
 void CIopBios::LoadState(Framework::CZipArchiveReader& archive)
 {
 	//Remove all dynamic modules
-	for(auto modulePairIterator = m_modules.begin(); 
-		modulePairIterator != m_modules.end();)
+	for(auto modulePairIterator = m_modules.begin();
+	    modulePairIterator != m_modules.end();)
 	{
 		if(dynamic_cast<Iop::CDynamic*>(modulePairIterator->second.get()) != nullptr)
 		{
@@ -316,8 +316,8 @@ void CIopBios::LoadState(Framework::CZipArchiveReader& archive)
 
 	CStructCollectionStateFile modulesFile(*archive.BeginReadFile(STATE_MODULES));
 	{
-		for(auto structIterator(modulesFile.GetStructBegin()); 
-			structIterator != modulesFile.GetStructEnd(); structIterator++)
+		for(auto structIterator(modulesFile.GetStructBegin());
+		    structIterator != modulesFile.GetStructEnd(); structIterator++)
 		{
 			const CStructFile& structFile(structIterator->second);
 			uint32 importTableAddress = structFile.GetRegister32(STATE_MODULE_IMPORT_TABLE_ADDRESS);
@@ -343,7 +343,6 @@ void CIopBios::LoadState(Framework::CZipArchiveReader& archive)
 		m_cpu.m_analysis->Analyse(moduleTag.begin, moduleTag.end);
 	}
 #endif
-
 }
 
 bool CIopBios::IsIdle()
@@ -395,15 +394,15 @@ void CIopBios::RequestModuleStart(bool stopRequest, uint32 moduleId, const char*
 		moduleStartRequest->nextPtr = 0;
 	}
 
-	moduleStartRequest->moduleId	= moduleId;
-	moduleStartRequest->stopRequest	= stopRequest;
+	moduleStartRequest->moduleId = moduleId;
+	moduleStartRequest->stopRequest = stopRequest;
 
 	assert((strlen(path) + 1) <= MODULESTARTREQUEST::MAX_PATH_SIZE);
 	strncpy(moduleStartRequest->path, path, MODULESTARTREQUEST::MAX_PATH_SIZE);
 	moduleStartRequest->path[MODULESTARTREQUEST::MAX_PATH_SIZE - 1] = 0;
 
 	memcpy(moduleStartRequest->args, args, argsLength);
-	moduleStartRequest->argsLength	= argsLength;
+	moduleStartRequest->argsLength = argsLength;
 
 	//Make sure thread runs at proper priority (Burnout 3 changes priority)
 	ChangeThreadPriority(m_moduleStarterThreadId, MODULE_INIT_PRIORITY);
@@ -413,14 +412,13 @@ void CIopBios::RequestModuleStart(bool stopRequest, uint32 moduleId, const char*
 void CIopBios::ProcessModuleStart()
 {
 	static const auto pushToStack =
-		[] (uint8* dst, uint32& stackAddress, const uint8* src, uint32 size)
-		{
-			uint32 fixedSize = ((size + 0x3) & ~0x3);
-			uint32 copyAddress = stackAddress - size;
-			stackAddress -= fixedSize;
-			memcpy(dst + copyAddress, src, size);
-			return copyAddress;
-		};
+	    [](uint8* dst, uint32& stackAddress, const uint8* src, uint32 size) {
+		    uint32 fixedSize = ((size + 0x3) & ~0x3);
+		    uint32 copyAddress = stackAddress - size;
+		    stackAddress -= fixedSize;
+		    memcpy(dst + copyAddress, src, size);
+		    return copyAddress;
+	    };
 
 	assert(m_currentThreadId == m_moduleStarterThreadId);
 
@@ -433,7 +431,7 @@ void CIopBios::ProcessModuleStart()
 	}
 
 	auto moduleStartRequest = reinterpret_cast<MODULESTARTREQUEST*>(m_ram + requestPtr);
-	
+
 	//Unlink from active list and link in free list
 	{
 		ModuleStartRequestHead() = moduleStartRequest->nextPtr;
@@ -465,17 +463,17 @@ void CIopBios::ProcessModuleStart()
 		ParamListType paramList;
 
 		paramList.push_back(pushToStack(
-			m_ram,
-			m_cpu.m_State.nGPR[CMIPS::SP].nV0,
-			reinterpret_cast<const uint8*>(path),
-			static_cast<uint32>(strlen(path)) + 1));
+		    m_ram,
+		    m_cpu.m_State.nGPR[CMIPS::SP].nV0,
+		    reinterpret_cast<const uint8*>(path),
+		    static_cast<uint32>(strlen(path)) + 1));
 		if(argsLength != 0)
 		{
 			uint32 stackArgsBase = pushToStack(
-				m_ram,
-				m_cpu.m_State.nGPR[CMIPS::SP].nV0,
-				reinterpret_cast<const uint8*>(args), 
-				argsLength);
+			    m_ram,
+			    m_cpu.m_State.nGPR[CMIPS::SP].nV0,
+			    reinterpret_cast<const uint8*>(args),
+			    argsLength);
 			unsigned int argsPos = 0;
 			while(argsPos < argsLength)
 			{
@@ -490,10 +488,10 @@ void CIopBios::ProcessModuleStart()
 		for(auto param = paramList.rbegin(); paramList.rend() != param; param++)
 		{
 			m_cpu.m_State.nGPR[CMIPS::A1].nV0 = pushToStack(
-				m_ram,
-				m_cpu.m_State.nGPR[CMIPS::SP].nV0,
-				reinterpret_cast<const uint8*>(&(*param)),
-				4);
+			    m_ram,
+			    m_cpu.m_State.nGPR[CMIPS::SP].nV0,
+			    reinterpret_cast<const uint8*>(&(*param)),
+			    4);
 		}
 	}
 	else
@@ -523,8 +521,8 @@ void CIopBios::FinishModuleStart()
 	if(!stopRequest)
 	{
 		assert(loadedModule->state == MODULE_STATE::STOPPED);
-		loadedModule->state			= MODULE_STATE::STARTED;
-		loadedModule->residentState	= moduleResidentState;
+		loadedModule->state = MODULE_STATE::STARTED;
+		loadedModule->residentState = moduleResidentState;
 
 		OnModuleStarted(moduleId);
 	}
@@ -548,11 +546,10 @@ int32 CIopBios::LoadModule(const char* path)
 #ifdef _IOP_EMULATE_MODULES
 	//HACK: This is needed to make 'doom.elf' read input properly
 	if(
-		!strcmp(path, "rom0:SIO2MAN") || 
-		!strcmp(path, "rom0:PADMAN") || 
-		!strcmp(path, "rom0:XSIO2MAN") || 
-		!strcmp(path, "rom0:XPADMAN")
-		)
+	    !strcmp(path, "rom0:SIO2MAN") ||
+	    !strcmp(path, "rom0:PADMAN") ||
+	    !strcmp(path, "rom0:XSIO2MAN") ||
+	    !strcmp(path, "rom0:XPADMAN"))
 	{
 		return LoadHleModule(m_padman);
 	}
@@ -561,9 +558,8 @@ int32 CIopBios::LoadModule(const char* path)
 		return LoadHleModule(m_mtapman);
 	}
 	if(
-		!strcmp(path, "rom0:XMCMAN") ||
-		!strcmp(path, "rom0:XMCSERV")
-		)
+	    !strcmp(path, "rom0:XMCMAN") ||
+	    !strcmp(path, "rom0:XMCSERV"))
 	{
 		return LoadHleModule(m_mcserv);
 	}
@@ -618,14 +614,14 @@ int32 CIopBios::LoadModule(CELF& elf, const char* path)
 	{
 		moduleName = path;
 	}
-	
+
 	//Fill in module info
 	strncpy(loadedModule->name, moduleName.c_str(), LOADEDMODULE::MAX_NAME_SIZE);
-	loadedModule->start			= moduleRange.first;
-	loadedModule->end			= moduleRange.second;
-	loadedModule->entryPoint	= entryPoint;
-	loadedModule->gp			= iopMod ? (iopMod->gp + moduleRange.first) : 0;
-	loadedModule->state			= MODULE_STATE::STOPPED;
+	loadedModule->start = moduleRange.first;
+	loadedModule->end = moduleRange.second;
+	loadedModule->entryPoint = entryPoint;
+	loadedModule->gp = iopMod ? (iopMod->gp + moduleRange.first) : 0;
+	loadedModule->state = MODULE_STATE::STOPPED;
 
 #ifdef DEBUGGER_INCLUDED
 	PrepareModuleDebugInfo(elf, moduleRange, moduleName, path);
@@ -661,14 +657,14 @@ int32 CIopBios::UnloadModule(uint32 loadedModuleId)
 	auto loadedModule = m_loadedModules[loadedModuleId];
 	if(loadedModule == nullptr)
 	{
-		CLog::GetInstance().Print(LOGNAME, "UnloadModule failed because specified module (%d) doesn't exist.\r\n", 
-			loadedModuleId);
+		CLog::GetInstance().Print(LOGNAME, "UnloadModule failed because specified module (%d) doesn't exist.\r\n",
+		                          loadedModuleId);
 		return -1;
 	}
 	if(loadedModule->state != MODULE_STATE::STOPPED)
 	{
 		CLog::GetInstance().Print(LOGNAME, "UnloadModule failed because specified module (%d) wasn't stopped.\r\n",
-			loadedModuleId);
+		                          loadedModuleId);
 		return -1;
 	}
 
@@ -704,20 +700,20 @@ int32 CIopBios::StopModule(uint32 loadedModuleId)
 	auto loadedModule = m_loadedModules[loadedModuleId];
 	if(loadedModule == nullptr)
 	{
-		CLog::GetInstance().Print(LOGNAME, "StopModule failed because specified module (%d) doesn't exist.\r\n", 
-			loadedModuleId);
+		CLog::GetInstance().Print(LOGNAME, "StopModule failed because specified module (%d) doesn't exist.\r\n",
+		                          loadedModuleId);
 		return -1;
 	}
 	if(loadedModule->state != MODULE_STATE::STARTED)
 	{
 		CLog::GetInstance().Print(LOGNAME, "StopModule failed because specified module (%d) wasn't started.\r\n",
-			loadedModuleId);
+		                          loadedModuleId);
 		return -1;
 	}
 	if(loadedModule->residentState != MODULE_RESIDENT_STATE::REMOVABLE_RESIDENT_END)
 	{
 		CLog::GetInstance().Print(LOGNAME, "StopModule failed because specified module (%d) isn't removable.\r\n",
-			loadedModuleId);
+		                          loadedModuleId);
 		return -1;
 	}
 	RequestModuleStart(true, loadedModuleId, "other", nullptr, 0);
@@ -768,10 +764,9 @@ bool CIopBios::TryGetImageVersionFromPath(const std::string& imagePath, unsigned
 		const char* pattern;
 	};
 	static const IMAGE_FILE_PATTERN g_imageFilePatterns[] =
-	{
-		{	"IOPRP",	"IOPRP%d.IMG;1"		},
-		{	"DNAS",		"DNAS%d.IMG;1"		}
-	};
+	    {
+	        {"IOPRP", "IOPRP%d.IMG;1"},
+	        {"DNAS", "DNAS%d.IMG;1"}};
 
 	for(const auto imageFilePattern : g_imageFilePatterns)
 	{
@@ -861,8 +856,8 @@ int32 CIopBios::GetCurrentThreadIdRaw() const
 uint32 CIopBios::CreateThread(uint32 threadProc, uint32 priority, uint32 stackSize, uint32 optionData, uint32 attributes)
 {
 #ifdef _DEBUG
-	CLog::GetInstance().Print(LOGNAME, "%d: CreateThread(threadProc = 0x%08X, priority = %d, stackSize = 0x%08X);\r\n", 
-		m_currentThreadId.Get(), threadProc, priority, stackSize);
+	CLog::GetInstance().Print(LOGNAME, "%d: CreateThread(threadProc = 0x%08X, priority = %d, stackSize = 0x%08X);\r\n",
+	                          m_currentThreadId.Get(), threadProc, priority, stackSize);
 #endif
 
 	//Thread proc address needs to be 4-bytes aligned
@@ -922,8 +917,8 @@ uint32 CIopBios::CreateThread(uint32 threadProc, uint32 priority, uint32 stackSi
 int32 CIopBios::DeleteThread(uint32 threadId)
 {
 #ifdef _DEBUG
-	CLog::GetInstance().Print(LOGNAME, "%d: DeleteThread(threadId = %d);\r\n", 
-		m_currentThreadId.Get(), threadId);
+	CLog::GetInstance().Print(LOGNAME, "%d: DeleteThread(threadId = %d);\r\n",
+	                          m_currentThreadId.Get(), threadId);
 #endif
 
 	if(threadId == 0)
@@ -952,8 +947,8 @@ int32 CIopBios::DeleteThread(uint32 threadId)
 int32 CIopBios::StartThread(uint32 threadId, uint32 param)
 {
 #ifdef _DEBUG
-	CLog::GetInstance().Print(LOGNAME, "%i: StartThread(threadId = %i, param = 0x%08X);\r\n", 
-		m_currentThreadId.Get(), threadId, param);
+	CLog::GetInstance().Print(LOGNAME, "%i: StartThread(threadId = %i, param = 0x%08X);\r\n",
+	                          m_currentThreadId.Get(), threadId, param);
 #endif
 
 	auto thread = GetThread(threadId);
@@ -966,7 +961,7 @@ int32 CIopBios::StartThread(uint32 threadId, uint32 param)
 	if(thread->status != THREAD_STATUS_DORMANT)
 	{
 		CLog::GetInstance().Print(LOGNAME, "%d: Failed to start thread %d, thread not dormant.\r\n",
-			m_currentThreadId.Get(), threadId);
+		                          m_currentThreadId.Get(), threadId);
 		assert(false);
 		return -1;
 	}
@@ -986,8 +981,8 @@ int32 CIopBios::StartThread(uint32 threadId, uint32 param)
 int32 CIopBios::StartThreadArgs(uint32 threadId, uint32 args, uint32 argpPtr)
 {
 #ifdef _DEBUG
-	CLog::GetInstance().Print(LOGNAME, "%d: StartThreadArgs(threadId = %d, args = %d, argp = 0x%08X);\r\n", 
-		m_currentThreadId.Get(), threadId, args, argpPtr);
+	CLog::GetInstance().Print(LOGNAME, "%d: StartThreadArgs(threadId = %d, args = %d, argp = 0x%08X);\r\n",
+	                          m_currentThreadId.Get(), threadId, args, argpPtr);
 #endif
 
 	auto thread = GetThread(threadId);
@@ -1000,20 +995,19 @@ int32 CIopBios::StartThreadArgs(uint32 threadId, uint32 args, uint32 argpPtr)
 	if(thread->status != THREAD_STATUS_DORMANT)
 	{
 		CLog::GetInstance().Print(LOGNAME, "%d: Failed to start thread %d, thread not dormant.\r\n",
-			m_currentThreadId.Get(), threadId);
+		                          m_currentThreadId.Get(), threadId);
 		assert(false);
 		return -1;
 	}
 
 	static const auto pushToStack =
-		[] (uint8* dst, uint32& stackAddress, const uint8* src, uint32 size)
-		{
-			uint32 fixedSize = ((size + 0x3) & ~0x3);
-			uint32 copyAddress = stackAddress - size;
-			stackAddress -= fixedSize;
-			memcpy(dst + copyAddress, src, size);
-			return copyAddress;
-		};
+	    [](uint8* dst, uint32& stackAddress, const uint8* src, uint32 size) {
+		    uint32 fixedSize = ((size + 0x3) & ~0x3);
+		    uint32 copyAddress = stackAddress - size;
+		    stackAddress -= fixedSize;
+		    memcpy(dst + copyAddress, src, size);
+		    return copyAddress;
+	    };
 
 	thread->status = THREAD_STATUS_RUNNING;
 	LinkThread(threadId);
@@ -1045,8 +1039,8 @@ void CIopBios::ExitThread()
 uint32 CIopBios::TerminateThread(uint32 threadId)
 {
 #ifdef _DEBUG
-	CLog::GetInstance().Print(LOGNAME, "%d: TerminateThread(threadId = %d);\r\n", 
-		m_currentThreadId.Get(), threadId);
+	CLog::GetInstance().Print(LOGNAME, "%d: TerminateThread(threadId = %d);\r\n",
+	                          m_currentThreadId.Get(), threadId);
 #endif
 
 	assert(threadId != m_currentThreadId);
@@ -1079,8 +1073,8 @@ uint32 CIopBios::TerminateThread(uint32 threadId)
 int32 CIopBios::DelayThread(uint32 delay)
 {
 #ifdef _DEBUG
-	CLog::GetInstance().Print(LOGNAME, "%i: DelayThread(delay = %i);\r\n", 
-		m_currentThreadId.Get(), delay);
+	CLog::GetInstance().Print(LOGNAME, "%i: DelayThread(delay = %i);\r\n",
+	                          m_currentThreadId.Get(), delay);
 #endif
 
 	THREAD* thread = GetThread(m_currentThreadId);
@@ -1131,7 +1125,7 @@ uint32 CIopBios::SetAlarm(uint32 timePtr, uint32 alarmFunction, uint32 param)
 
 	auto thread = GetThread(alarmThreadId);
 	thread->context.gpr[CMIPS::SP] -= 0x20;
-	
+
 	uint32* delay = reinterpret_cast<uint32*>(m_ram + timePtr);
 	assert(delay[1] == 0);
 
@@ -1174,8 +1168,8 @@ uint32 CIopBios::CancelAlarm(uint32 alarmFunction, uint32 param)
 int32 CIopBios::ChangeThreadPriority(uint32 threadId, uint32 newPrio)
 {
 #ifdef _DEBUG
-	CLog::GetInstance().Print(LOGNAME, "%d: ChangeThreadPriority(threadId = %d, newPrio = %d);\r\n", 
-		m_currentThreadId.Get(), threadId, newPrio);
+	CLog::GetInstance().Print(LOGNAME, "%d: ChangeThreadPriority(threadId = %d, newPrio = %d);\r\n",
+	                          m_currentThreadId.Get(), threadId, newPrio);
 #endif
 
 	if(threadId == 0)
@@ -1205,8 +1199,8 @@ int32 CIopBios::ChangeThreadPriority(uint32 threadId, uint32 newPrio)
 uint32 CIopBios::ReferThreadStatus(uint32 threadId, uint32 statusPtr, bool inInterrupt)
 {
 #ifdef _DEBUG
-	CLog::GetInstance().Print(LOGNAME, "%d: ReferThreadStatus(threadId = %d, statusPtr = 0x%08X, inInterrupt = %d);\r\n", 
-		m_currentThreadId.Get(), threadId, statusPtr, inInterrupt);
+	CLog::GetInstance().Print(LOGNAME, "%d: ReferThreadStatus(threadId = %d, statusPtr = 0x%08X, inInterrupt = %d);\r\n",
+	                          m_currentThreadId.Get(), threadId, statusPtr, inInterrupt);
 #endif
 
 	if(threadId == 0)
@@ -1271,16 +1265,16 @@ uint32 CIopBios::ReferThreadStatus(uint32 threadId, uint32 statusPtr, bool inInt
 	}
 
 	auto threadInfo = reinterpret_cast<THREAD_INFO*>(m_ram + statusPtr);
-	threadInfo->attributes      = 0;
-	threadInfo->option          = thread->optionData;
-	threadInfo->attributes      = thread->attributes;
-	threadInfo->status          = threadStatus;
-	threadInfo->entryPoint      = thread->threadProc;
-	threadInfo->stackAddr       = thread->stackBase;
-	threadInfo->stackSize       = thread->stackSize;
-	threadInfo->initPriority    = thread->initPriority;
+	threadInfo->attributes = 0;
+	threadInfo->option = thread->optionData;
+	threadInfo->attributes = thread->attributes;
+	threadInfo->status = threadStatus;
+	threadInfo->entryPoint = thread->threadProc;
+	threadInfo->stackAddr = thread->stackBase;
+	threadInfo->stackSize = thread->stackSize;
+	threadInfo->initPriority = thread->initPriority;
 	threadInfo->currentPriority = thread->priority;
-	threadInfo->waitType        = waitType;
+	threadInfo->waitType = waitType;
 
 	return KERNEL_RESULT_OK;
 }
@@ -1288,8 +1282,8 @@ uint32 CIopBios::ReferThreadStatus(uint32 threadId, uint32 statusPtr, bool inInt
 int32 CIopBios::SleepThread()
 {
 #ifdef _DEBUG
-	CLog::GetInstance().Print(LOGNAME, "%i: SleepThread();\r\n", 
-		m_currentThreadId.Get());
+	CLog::GetInstance().Print(LOGNAME, "%i: SleepThread();\r\n",
+	                          m_currentThreadId.Get());
 #endif
 
 	THREAD* thread = GetThread(m_currentThreadId);
@@ -1314,8 +1308,8 @@ int32 CIopBios::SleepThread()
 uint32 CIopBios::WakeupThread(uint32 threadId, bool inInterrupt)
 {
 #ifdef _DEBUG
-	CLog::GetInstance().Print(LOGNAME, "%d: WakeupThread(threadId = %d);\r\n", 
-		m_currentThreadId.Get(), threadId);
+	CLog::GetInstance().Print(LOGNAME, "%d: WakeupThread(threadId = %d);\r\n",
+	                          m_currentThreadId.Get(), threadId);
 #endif
 
 	THREAD* thread = GetThread(threadId);
@@ -1338,8 +1332,8 @@ uint32 CIopBios::WakeupThread(uint32 threadId, bool inInterrupt)
 int32 CIopBios::CancelWakeupThread(uint32 threadId, bool inInterrupt)
 {
 #ifdef _DEBUG
-	CLog::GetInstance().Print(LOGNAME, "%d: CancelWakeupThread(threadId = %d);\r\n", 
-		m_currentThreadId.Get(), threadId);
+	CLog::GetInstance().Print(LOGNAME, "%d: CancelWakeupThread(threadId = %d);\r\n",
+	                          m_currentThreadId.Get(), threadId);
 #endif
 
 	if(threadId == 0)
@@ -1362,8 +1356,8 @@ int32 CIopBios::CancelWakeupThread(uint32 threadId, bool inInterrupt)
 int32 CIopBios::ReleaseWaitThread(uint32 threadId, bool inInterrupt)
 {
 #ifdef _DEBUG
-	CLog::GetInstance().Print(LOGNAME, "%d: ReleaseWaitThread(threadId = %d);\r\n", 
-		m_currentThreadId.Get(), threadId);
+	CLog::GetInstance().Print(LOGNAME, "%d: ReleaseWaitThread(threadId = %d);\r\n",
+	                          m_currentThreadId.Get(), threadId);
 #endif
 
 	if(threadId == 0)
@@ -1383,9 +1377,8 @@ int32 CIopBios::ReleaseWaitThread(uint32 threadId, bool inInterrupt)
 	}
 
 	if(
-		(thread->status == THREAD_STATUS_RUNNING) ||
-		(thread->status == THREAD_STATUS_DORMANT)
-		)
+	    (thread->status == THREAD_STATUS_RUNNING) ||
+	    (thread->status == THREAD_STATUS_DORMANT))
 	{
 		return KERNEL_RESULT_ERROR_NOT_WAIT;
 	}
@@ -1600,8 +1593,8 @@ void CIopBios::NotifyVBlankEnd()
 uint32 CIopBios::CreateSemaphore(uint32 initialCount, uint32 maxCount)
 {
 #ifdef _DEBUG
-	CLog::GetInstance().Print(LOGNAME, "%i: CreateSemaphore(initialCount = %i, maxCount = %i);\r\n", 
-		m_currentThreadId.Get(), initialCount, maxCount);
+	CLog::GetInstance().Print(LOGNAME, "%i: CreateSemaphore(initialCount = %i, maxCount = %i);\r\n",
+	                          m_currentThreadId.Get(), initialCount, maxCount);
 #endif
 
 	uint32 semaphoreId = m_semaphores.Allocate();
@@ -1613,10 +1606,10 @@ uint32 CIopBios::CreateSemaphore(uint32 initialCount, uint32 maxCount)
 
 	SEMAPHORE* semaphore = m_semaphores[semaphoreId];
 
-	semaphore->count		= initialCount;
-	semaphore->maxCount		= maxCount;
-	semaphore->id			= semaphoreId;
-	semaphore->waitCount	= 0;
+	semaphore->count = initialCount;
+	semaphore->maxCount = maxCount;
+	semaphore->id = semaphoreId;
+	semaphore->waitCount = 0;
 
 	return semaphore->id;
 }
@@ -1625,14 +1618,14 @@ uint32 CIopBios::DeleteSemaphore(uint32 semaphoreId)
 {
 #ifdef _DEBUG
 	CLog::GetInstance().Print(LOGNAME, "%i: DeleteSemaphore(semaphoreId = %i);\r\n",
-		m_currentThreadId.Get(), semaphoreId);
+	                          m_currentThreadId.Get(), semaphoreId);
 #endif
 
 	SEMAPHORE* semaphore = m_semaphores[semaphoreId];
 	if(semaphore == NULL)
 	{
 		CLog::GetInstance().Print(LOGNAME, "%i: Warning, trying to access invalid semaphore with id %i.\r\n",
-			m_currentThreadId.Get(), semaphoreId);
+		                          m_currentThreadId.Get(), semaphoreId);
 		return -1;
 	}
 
@@ -1645,15 +1638,15 @@ uint32 CIopBios::DeleteSemaphore(uint32 semaphoreId)
 uint32 CIopBios::SignalSemaphore(uint32 semaphoreId, bool inInterrupt)
 {
 #ifdef _DEBUG
-	CLog::GetInstance().Print(LOGNAME, "%d: SignalSemaphore(semaphoreId = %d, inInterrupt = %d);\r\n", 
-		m_currentThreadId.Get(), semaphoreId, inInterrupt);
+	CLog::GetInstance().Print(LOGNAME, "%d: SignalSemaphore(semaphoreId = %d, inInterrupt = %d);\r\n",
+	                          m_currentThreadId.Get(), semaphoreId, inInterrupt);
 #endif
 
 	SEMAPHORE* semaphore = m_semaphores[semaphoreId];
 	if(semaphore == NULL)
 	{
 		CLog::GetInstance().Print(LOGNAME, "%d: Warning, trying to access invalid semaphore with id %d.\r\n",
-			m_currentThreadId.Get(), semaphoreId);
+		                          m_currentThreadId.Get(), semaphoreId);
 		return -1;
 	}
 
@@ -1693,15 +1686,15 @@ uint32 CIopBios::SignalSemaphore(uint32 semaphoreId, bool inInterrupt)
 uint32 CIopBios::WaitSemaphore(uint32 semaphoreId)
 {
 #ifdef _DEBUG
-	CLog::GetInstance().Print(LOGNAME, "%d: WaitSemaphore(semaphoreId = %d);\r\n", 
-		m_currentThreadId.Get(), semaphoreId);
+	CLog::GetInstance().Print(LOGNAME, "%d: WaitSemaphore(semaphoreId = %d);\r\n",
+	                          m_currentThreadId.Get(), semaphoreId);
 #endif
 
 	SEMAPHORE* semaphore = m_semaphores[semaphoreId];
 	if(semaphore == NULL)
 	{
 		CLog::GetInstance().Print(LOGNAME, "%d: Warning, trying to access invalid semaphore with id %d.\r\n",
-			m_currentThreadId.Get(), semaphoreId);
+		                          m_currentThreadId.Get(), semaphoreId);
 		return -1;
 	}
 
@@ -1709,8 +1702,8 @@ uint32 CIopBios::WaitSemaphore(uint32 semaphoreId)
 	{
 		uint32 threadId = m_currentThreadId;
 		THREAD* thread = GetThread(threadId);
-		thread->status			= THREAD_STATUS_WAITING_SEMAPHORE;
-		thread->waitSemaphore	= semaphoreId;
+		thread->status = THREAD_STATUS_WAITING_SEMAPHORE;
+		thread->waitSemaphore = semaphoreId;
 		UnlinkThread(threadId);
 		semaphore->waitCount++;
 		m_rescheduleNeeded = true;
@@ -1724,8 +1717,8 @@ uint32 CIopBios::WaitSemaphore(uint32 semaphoreId)
 
 uint32 CIopBios::PollSemaphore(uint32 semaphoreId)
 {
-	CLog::GetInstance().Print(LOGNAME, "%d: PollSemaphore(semaphoreId = %d);\r\n", 
-		m_currentThreadId.Get(), semaphoreId);
+	CLog::GetInstance().Print(LOGNAME, "%d: PollSemaphore(semaphoreId = %d);\r\n",
+	                          m_currentThreadId.Get(), semaphoreId);
 
 	auto semaphore = m_semaphores[semaphoreId];
 	if(semaphore == nullptr)
@@ -1745,8 +1738,8 @@ uint32 CIopBios::PollSemaphore(uint32 semaphoreId)
 
 uint32 CIopBios::ReferSemaphoreStatus(uint32 semaphoreId, uint32 statusPtr)
 {
-	CLog::GetInstance().Print(LOGNAME, "%d: ReferSemaphoreStatus(semaphoreId = %d, statusPtr = 0x%08X);\r\n", 
-		m_currentThreadId.Get(), semaphoreId, statusPtr);
+	CLog::GetInstance().Print(LOGNAME, "%d: ReferSemaphoreStatus(semaphoreId = %d, statusPtr = 0x%08X);\r\n",
+	                          m_currentThreadId.Get(), semaphoreId, statusPtr);
 
 	auto semaphore = m_semaphores[semaphoreId];
 	if(semaphore == nullptr)
@@ -1755,12 +1748,12 @@ uint32 CIopBios::ReferSemaphoreStatus(uint32 semaphoreId, uint32 statusPtr)
 	}
 
 	auto status = reinterpret_cast<SEMAPHORE_STATUS*>(m_ram + statusPtr);
-	status->attrib			= 0;
-	status->option			= 0;
-	status->initCount		= 0;
-	status->maxCount		= semaphore->maxCount;
-	status->currentCount	= semaphore->count;
-	status->numWaitThreads	= semaphore->waitCount;
+	status->attrib = 0;
+	status->option = 0;
+	status->initCount = 0;
+	status->maxCount = semaphore->maxCount;
+	status->currentCount = semaphore->count;
+	status->numWaitThreads = semaphore->waitCount;
 
 	return 0;
 }
@@ -1769,7 +1762,7 @@ uint32 CIopBios::CreateEventFlag(uint32 attributes, uint32 options, uint32 initV
 {
 #ifdef _DEBUG
 	CLog::GetInstance().Print(LOGNAME, "%d: CreateEventFlag(attr = 0x%08X, opt = 0x%08X, initValue = 0x%08X);\r\n",
-		m_currentThreadId.Get(), attributes, options, initValue);
+	                          m_currentThreadId.Get(), attributes, options, initValue);
 #endif
 
 	uint32 eventId = m_eventFlags.Allocate();
@@ -1781,10 +1774,10 @@ uint32 CIopBios::CreateEventFlag(uint32 attributes, uint32 options, uint32 initV
 
 	EVENTFLAG* eventFlag = m_eventFlags[eventId];
 
-	eventFlag->id			= eventId;
-	eventFlag->value		= initValue;
-	eventFlag->options		= options;
-	eventFlag->attributes	= attributes;
+	eventFlag->id = eventId;
+	eventFlag->value = initValue;
+	eventFlag->options = options;
+	eventFlag->attributes = attributes;
 
 	return eventFlag->id;
 }
@@ -1793,14 +1786,14 @@ uint32 CIopBios::DeleteEventFlag(uint32 eventId)
 {
 #ifdef _DEBUG
 	CLog::GetInstance().Print(LOGNAME, "%d: DeleteEventFlag(eventId = %d);\r\n",
-		m_currentThreadId.Get(), eventId);
+	                          m_currentThreadId.Get(), eventId);
 #endif
 
 	auto eventFlag = m_eventFlags[eventId];
 	if(!eventFlag)
 	{
 		CLog::GetInstance().Print(LOGNAME, "%d: Warning, trying to access invalid event flag with id %d.\r\n",
-			m_currentThreadId.Get(), eventId);
+		                          m_currentThreadId.Get(), eventId);
 		return KERNEL_RESULT_ERROR_UNKNOWN_EVFID;
 	}
 
@@ -1813,7 +1806,7 @@ uint32 CIopBios::SetEventFlag(uint32 eventId, uint32 value, bool inInterrupt)
 {
 #ifdef _DEBUG
 	CLog::GetInstance().Print(LOGNAME, "%d: SetEventFlag(eventId = %d, value = 0x%08X, inInterrupt = %d);\r\n",
-		m_currentThreadId.Get(), eventId, value, inInterrupt);
+	                          m_currentThreadId.Get(), eventId, value, inInterrupt);
 #endif
 
 	auto eventFlag = m_eventFlags[eventId];
@@ -1831,8 +1824,8 @@ uint32 CIopBios::SetEventFlag(uint32 eventId, uint32 value, bool inInterrupt)
 		if(thread->status != THREAD_STATUS_WAITING_EVENTFLAG) continue;
 		if(thread->waitEventFlag == eventId)
 		{
-			bool success = ProcessEventFlag(thread->waitEventFlagMode, eventFlag->value, thread->waitEventFlagMask, 
-				(thread->waitEventFlagResultPtr != 0) ? reinterpret_cast<uint32*>(m_ram + thread->waitEventFlagResultPtr) : nullptr);
+			bool success = ProcessEventFlag(thread->waitEventFlagMode, eventFlag->value, thread->waitEventFlagMask,
+			                                (thread->waitEventFlagResultPtr != 0) ? reinterpret_cast<uint32*>(m_ram + thread->waitEventFlagResultPtr) : nullptr);
 			if(success)
 			{
 				thread->waitEventFlag = 0;
@@ -1856,7 +1849,7 @@ uint32 CIopBios::ClearEventFlag(uint32 eventId, uint32 value)
 {
 #ifdef _DEBUG
 	CLog::GetInstance().Print(LOGNAME, "%d: ClearEventFlag(eventId = %d, value = 0x%08X);\r\n",
-		m_currentThreadId.Get(), eventId, value);
+	                          m_currentThreadId.Get(), eventId, value);
 #endif
 
 	EVENTFLAG* eventFlag = m_eventFlags[eventId];
@@ -1874,7 +1867,7 @@ uint32 CIopBios::WaitEventFlag(uint32 eventId, uint32 value, uint32 mode, uint32
 {
 #ifdef _DEBUG
 	CLog::GetInstance().Print(LOGNAME, "%d: WaitEventFlag(eventId = %d, value = 0x%08X, mode = 0x%02X, resultPtr = 0x%08X);\r\n",
-		m_currentThreadId.Get(), eventId, value, mode, resultPtr);
+	                          m_currentThreadId.Get(), eventId, value, mode, resultPtr);
 #endif
 
 	auto eventFlag = m_eventFlags[eventId];
@@ -1883,17 +1876,17 @@ uint32 CIopBios::WaitEventFlag(uint32 eventId, uint32 value, uint32 mode, uint32
 		return -1;
 	}
 
-	bool success = ProcessEventFlag(mode, eventFlag->value, value, 
-		(resultPtr != 0) ? reinterpret_cast<uint32*>(m_ram + resultPtr) : nullptr);
+	bool success = ProcessEventFlag(mode, eventFlag->value, value,
+	                                (resultPtr != 0) ? reinterpret_cast<uint32*>(m_ram + resultPtr) : nullptr);
 	if(!success)
 	{
 		auto thread = GetThread(m_currentThreadId);
-		thread->status					= THREAD_STATUS_WAITING_EVENTFLAG;
+		thread->status = THREAD_STATUS_WAITING_EVENTFLAG;
 		UnlinkThread(thread->id);
-		thread->waitEventFlag			= eventId;
-		thread->waitEventFlagMode		= mode;
-		thread->waitEventFlagMask		= value;
-		thread->waitEventFlagResultPtr	= resultPtr;
+		thread->waitEventFlag = eventId;
+		thread->waitEventFlagMode = mode;
+		thread->waitEventFlagMask = value;
+		thread->waitEventFlagResultPtr = resultPtr;
 		m_rescheduleNeeded = true;
 	}
 
@@ -1904,7 +1897,7 @@ uint32 CIopBios::PollEventFlag(uint32 eventId, uint32 value, uint32 mode, uint32
 {
 #ifdef _DEBUG
 	CLog::GetInstance().Print(LOGNAME, "%d: PollEventFlag(eventId = %d, value = 0x%08X, mode = 0x%02X, resultPtr = 0x%08X);\r\n",
-		m_currentThreadId.Get(), eventId, value, mode, resultPtr);
+	                          m_currentThreadId.Get(), eventId, value, mode, resultPtr);
 #endif
 
 	auto eventFlag = m_eventFlags[eventId];
@@ -1918,8 +1911,8 @@ uint32 CIopBios::PollEventFlag(uint32 eventId, uint32 value, uint32 mode, uint32
 		return KERNEL_RESULT_ERROR_EVF_ILLEGAL_PAT;
 	}
 
-	bool success = ProcessEventFlag(mode, eventFlag->value, value, 
-		(resultPtr != 0) ? reinterpret_cast<uint32*>(m_ram + resultPtr) : nullptr);
+	bool success = ProcessEventFlag(mode, eventFlag->value, value,
+	                                (resultPtr != 0) ? reinterpret_cast<uint32*>(m_ram + resultPtr) : nullptr);
 	if(!success)
 	{
 		return KERNEL_RESULT_ERROR_EVF_CONDITION;
@@ -1932,7 +1925,7 @@ uint32 CIopBios::ReferEventFlagStatus(uint32 eventId, uint32 infoPtr)
 {
 #ifdef _DEBUG
 	CLog::GetInstance().Print(LOGNAME, "%d: ReferEventFlagStatus(eventId = %d, infoPtr = 0x%08X);\r\n",
-		m_currentThreadId.Get(), eventId, infoPtr);
+	                          m_currentThreadId.Get(), eventId, infoPtr);
 #endif
 
 	EVENTFLAG* eventFlag = m_eventFlags[eventId];
@@ -1947,11 +1940,11 @@ uint32 CIopBios::ReferEventFlagStatus(uint32 eventId, uint32 infoPtr)
 	}
 
 	EVENTFLAGINFO* eventFlagInfo(reinterpret_cast<EVENTFLAGINFO*>(m_ram + infoPtr));
-	eventFlagInfo->attributes	= eventFlag->attributes;
-	eventFlagInfo->options		= eventFlag->options;
-	eventFlagInfo->initBits		= 0;
-	eventFlagInfo->currBits		= eventFlag->value;
-	eventFlagInfo->numThreads	= 0;
+	eventFlagInfo->attributes = eventFlag->attributes;
+	eventFlagInfo->options = eventFlag->options;
+	eventFlagInfo->initBits = 0;
+	eventFlagInfo->currBits = eventFlag->value;
+	eventFlagInfo->numThreads = 0;
 
 	return 0;
 }
@@ -1990,7 +1983,7 @@ uint32 CIopBios::CreateMessageBox()
 {
 #ifdef _DEBUG
 	CLog::GetInstance().Print(LOGNAME, "%d: CreateMessageBox();\r\n",
-		m_currentThreadId.Get());
+	                          m_currentThreadId.Get());
 #endif
 
 	uint32 boxId = m_messageBoxes.Allocate();
@@ -2011,7 +2004,7 @@ uint32 CIopBios::DeleteMessageBox(uint32 boxId)
 {
 #ifdef _DEBUG
 	CLog::GetInstance().Print(LOGNAME, "%d: DeleteMessageBox(boxId = %d);\r\n",
-		m_currentThreadId.Get(), boxId);
+	                          m_currentThreadId.Get(), boxId);
 #endif
 
 	auto box = m_messageBoxes[boxId];
@@ -2029,7 +2022,7 @@ uint32 CIopBios::SendMessageBox(uint32 boxId, uint32 messagePtr, bool inInterrup
 {
 #ifdef _DEBUG
 	CLog::GetInstance().Print(LOGNAME, "%d: SendMessageBox(boxId = %d, messagePtr = 0x%08X, inInterrupt = %d);\r\n",
-		m_currentThreadId.Get(), boxId, messagePtr, inInterrupt);
+	                          m_currentThreadId.Get(), boxId, messagePtr, inInterrupt);
 #endif
 
 	auto box = m_messageBoxes[boxId];
@@ -2060,7 +2053,7 @@ uint32 CIopBios::SendMessageBox(uint32 boxId, uint32 messagePtr, bool inInterrup
 			{
 				m_rescheduleNeeded = true;
 			}
-			
+
 			return KERNEL_RESULT_OK;
 		}
 	}
@@ -2088,7 +2081,7 @@ uint32 CIopBios::ReceiveMessageBox(uint32 messagePtr, uint32 boxId)
 {
 #ifdef _DEBUG
 	CLog::GetInstance().Print(LOGNAME, "%d: ReceiveMessageBox(messagePtr = 0x%08X, boxId = %d);\r\n",
-		m_currentThreadId.Get(), messagePtr, boxId);
+	                          m_currentThreadId.Get(), messagePtr, boxId);
 #endif
 
 	auto box = m_messageBoxes[boxId];
@@ -2112,10 +2105,10 @@ uint32 CIopBios::ReceiveMessageBox(uint32 messagePtr, uint32 boxId)
 	else
 	{
 		THREAD* thread = GetThread(m_currentThreadId);
-		thread->status					= THREAD_STATUS_WAITING_MESSAGEBOX;
+		thread->status = THREAD_STATUS_WAITING_MESSAGEBOX;
 		UnlinkThread(thread->id);
-		thread->waitMessageBox			= boxId;
-		thread->waitMessageBoxResultPtr	= messagePtr;
+		thread->waitMessageBox = boxId;
+		thread->waitMessageBoxResultPtr = messagePtr;
 		m_rescheduleNeeded = true;
 	}
 
@@ -2126,7 +2119,7 @@ uint32 CIopBios::PollMessageBox(uint32 messagePtr, uint32 boxId)
 {
 #ifdef _DEBUG
 	CLog::GetInstance().Print(LOGNAME, "%d: PollMessageBox(messagePtr = 0x%08X, boxId = %d);\r\n",
-		m_currentThreadId.Get(), messagePtr, boxId);
+	                          m_currentThreadId.Get(), messagePtr, boxId);
 #endif
 
 	auto box = m_messageBoxes[boxId];
@@ -2155,7 +2148,7 @@ uint32 CIopBios::ReferMessageBoxStatus(uint32 boxId, uint32 statusPtr)
 {
 #ifdef _DEBUG
 	CLog::GetInstance().Print(LOGNAME, "%d: ReferMessageBox(boxId = %d, statusPtr = 0x%08X);\r\n",
-		m_currentThreadId.Get(), boxId, statusPtr);
+	                          m_currentThreadId.Get(), boxId, statusPtr);
 #endif
 
 	auto box = m_messageBoxes[boxId];
@@ -2165,11 +2158,11 @@ uint32 CIopBios::ReferMessageBoxStatus(uint32 boxId, uint32 statusPtr)
 	}
 
 	auto status = reinterpret_cast<MESSAGEBOX_STATUS*>(m_ram + statusPtr);
-	status->attr          = 0;
-	status->option        = 0;
-	status->numMessage    = box->numMessage;
+	status->attr = 0;
+	status->option = 0;
+	status->numMessage = box->numMessage;
 	status->numWaitThread = 0;
-	status->messagePtr    = box->nextMsgPtr;
+	status->messagePtr = box->nextMsgPtr;
 
 	return KERNEL_RESULT_OK;
 }
@@ -2207,16 +2200,16 @@ uint32 CIopBios::CreateVpl(uint32 paramPtr)
 	}
 
 	auto vpl = m_vpls[vplId];
-	vpl->attr        = param->attr;
-	vpl->option      = param->option;
-	vpl->poolPtr     = poolPtr;
-	vpl->size        = param->size;
+	vpl->attr = param->attr;
+	vpl->option = param->option;
+	vpl->poolPtr = poolPtr;
+	vpl->size = param->size;
 	vpl->headBlockId = headBlockId;
 
 	auto headBlock = m_memoryBlocks[headBlockId];
 	headBlock->nextBlockId = MemoryBlockList::INVALID_ID;
-	headBlock->address     = vpl->size;
-	headBlock->size        = 0;
+	headBlock->address = vpl->size;
+	headBlock->size = 0;
 
 	return vplId;
 }
@@ -2230,7 +2223,7 @@ uint32 CIopBios::DeleteVpl(uint32 vplId)
 	}
 
 	m_sysmem->FreeMemory(vpl->poolPtr);
-	
+
 	//Free blocks
 	auto nextBlockId = vpl->headBlockId;
 	auto nextBlock = m_memoryBlocks[nextBlockId];
@@ -2241,7 +2234,7 @@ uint32 CIopBios::DeleteVpl(uint32 vplId)
 		nextBlock = m_memoryBlocks[nextBlockId];
 		m_memoryBlocks.Free(currentBlockId);
 	}
-	
+
 	m_vpls.Free(vplId);
 
 	return 0;
@@ -2292,8 +2285,8 @@ uint32 CIopBios::pAllocateVpl(uint32 vplId, uint32 size)
 			return -1;
 		}
 		auto newBlock = m_memoryBlocks[newBlockId];
-		newBlock->address     = begin;
-		newBlock->size        = allocSize;
+		newBlock->address = begin;
+		newBlock->size = allocSize;
 		newBlock->nextBlockId = *nextBlockId;
 		*nextBlockId = newBlockId;
 		return begin + vpl->poolPtr;
@@ -2349,9 +2342,9 @@ uint32 CIopBios::ReferVplStatus(uint32 vplId, uint32 statPtr)
 	uint32 freeSize = GetVplFreeSize(vplId);
 
 	auto stat = reinterpret_cast<VPL_STATUS*>(m_ram + statPtr);
-	stat->attr     = vpl->attr;
-	stat->option   = vpl->option;
-	stat->size     = size;
+	stat->attr = vpl->attr;
+	stat->option = vpl->option;
+	stat->size = size;
 	stat->freeSize = freeSize;
 
 	return 0;
@@ -2443,10 +2436,10 @@ int32 CIopBios::RegisterIntrHandler(uint32 line, uint32 mode, uint32 handler, ui
 	}
 
 	auto intrHandler = m_intrHandlers[handlerId];
-	intrHandler->line		= line;
-	intrHandler->mode		= mode;
-	intrHandler->handler	= handler;
-	intrHandler->arg		= arg;
+	intrHandler->line = line;
+	intrHandler->mode = mode;
+	intrHandler->handler = handler;
+	intrHandler->arg = arg;
 
 	return KERNEL_RESULT_OK;
 }
@@ -2507,7 +2500,7 @@ uint32 CIopBios::AssembleIdleFunction(CMIPSAssembler& assembler)
 uint32 CIopBios::AssembleModuleStarterThreadProc(CMIPSAssembler& assembler)
 {
 	uint32 address = BIOS_HANDLERS_BASE + assembler.GetProgramSize() * 4;
-	
+
 	auto startLabel = assembler.CreateLabel();
 
 	assembler.MarkLabel(startLabel);
@@ -2534,7 +2527,7 @@ uint32 CIopBios::AssembleAlarmThreadProc(CMIPSAssembler& assembler)
 	assembler.SW(CMIPS::RA, 0x10, CMIPS::SP);
 	assembler.SW(CMIPS::S0, 0x14, CMIPS::SP);
 
-	assembler.MOV(CMIPS::S0, CMIPS::A0);		//S0 has the info struct ptr
+	assembler.MOV(CMIPS::S0, CMIPS::A0); //S0 has the info struct ptr
 
 	//Delay thread
 	assembler.MarkLabel(delayThreadLabel);
@@ -2623,8 +2616,8 @@ void CIopBios::HandleException()
 		else
 		{
 #ifdef _DEBUG
-			CLog::GetInstance().Print(LOGNAME, "%08X: Trying to call a function from non-existing module (%s, %d).\r\n", 
-				m_cpu.m_State.nPC, moduleName.c_str(), functionId);
+			CLog::GetInstance().Print(LOGNAME, "%08X: Trying to call a function from non-existing module (%s, %d).\r\n",
+			                          m_cpu.m_State.nPC, moduleName.c_str(), functionId);
 #endif
 		}
 	}
@@ -2646,11 +2639,11 @@ void CIopBios::HandleInterrupt()
 		//Find first concerned interrupt
 		unsigned int line = -1;
 		UNION64_32 status(
-			m_cpu.m_pMemoryMap->GetWord(Iop::CIntc::STATUS0),
-			m_cpu.m_pMemoryMap->GetWord(Iop::CIntc::STATUS1));
+		    m_cpu.m_pMemoryMap->GetWord(Iop::CIntc::STATUS0),
+		    m_cpu.m_pMemoryMap->GetWord(Iop::CIntc::STATUS1));
 		UNION64_32 mask(
-			m_cpu.m_pMemoryMap->GetWord(Iop::CIntc::MASK0),
-			m_cpu.m_pMemoryMap->GetWord(Iop::CIntc::MASK1));
+		    m_cpu.m_pMemoryMap->GetWord(Iop::CIntc::MASK0),
+		    m_cpu.m_pMemoryMap->GetWord(Iop::CIntc::MASK1));
 		status.f &= mask.f;
 		for(unsigned int i = 0; i < 0x40; i++)
 		{
@@ -2793,9 +2786,9 @@ uint32 CIopBios::LoadExecutable(CELF& elf, ExecutableRange& executableRange)
 	RelocateElf(elf, baseAddress);
 
 	memcpy(
-		m_ram + baseAddress, 
-		elf.GetContent() + programHeader->nOffset, 
-		programHeader->nFileSize);
+	    m_ram + baseAddress,
+	    elf.GetContent() + programHeader->nOffset,
+	    programHeader->nFileSize);
 
 	executableRange.first = baseAddress;
 	executableRange.second = baseAddress + programHeader->nMemorySize;
@@ -2844,14 +2837,13 @@ void CIopBios::RelocateElf(CELF& elf, uint32 baseAddress)
 	//an incorrect result in some cases (ex.: RWA.IRA module from Burnout 3 and Burnout Revenge)
 
 	const auto& header = elf.GetHeader();
-	uint32 maxRelocAddress = 
-		[&]()
-		{
-			auto programHeader = elf.GetProgram(1);
-			if(!programHeader) return UINT32_MAX;
-			if(programHeader->nType != CELF::PT_LOAD) return UINT32_MAX;
-			return programHeader->nMemorySize;
-		}();
+	uint32 maxRelocAddress =
+	    [&]() {
+		    auto programHeader = elf.GetProgram(1);
+		    if(!programHeader) return UINT32_MAX;
+		    if(programHeader->nType != CELF::PT_LOAD) return UINT32_MAX;
+		    return programHeader->nMemorySize;
+	    }();
 	bool isVersion2 = (header.nType == ET_SCE_IOPRELEXEC2);
 	auto textSectionIndex = elf.FindSectionIndex(".text");
 	assert(textSectionIndex != 0);
@@ -2878,17 +2870,17 @@ void CIopBios::RelocateElf(CELF& elf, uint32 baseAddress)
 					switch(relocationType)
 					{
 					case CELF::R_MIPS_32:
-						{
-							instruction += baseAddress;
-						}
-						break;
+					{
+						instruction += baseAddress;
+					}
+					break;
 					case CELF::R_MIPS_26:
-						{
-							uint32 offset = (instruction & 0x03FFFFFF) + (baseAddress >> 2);
-							instruction &= ~0x03FFFFFF;
-							instruction |= offset;
-						}
-						break;
+					{
+						uint32 offset = (instruction & 0x03FFFFFF) + (baseAddress >> 2);
+						instruction &= ~0x03FFFFFF;
+						instruction |= offset;
+					}
+					break;
 					case CELF::R_MIPS_HI16:
 						if(isVersion2)
 						{
@@ -2934,33 +2926,33 @@ void CIopBios::RelocateElf(CELF& elf, uint32 baseAddress)
 						}
 						break;
 					case R_MIPSSCE_MHI16:
+					{
+						assert(isVersion2);
+						assert((record + 1) != recordCount);
+						assert((relocationRecord[3] & 0xFF) == R_MIPSSCE_ADDEND);
+						uint32 offset = relocationRecord[2] + baseAddress;
+						if(offset & 0x8000) offset += 0x10000;
+						offset >>= 16;
+						while(1)
 						{
-							assert(isVersion2);
-							assert((record + 1) != recordCount);
-							assert((relocationRecord[3] & 0xFF) == R_MIPSSCE_ADDEND);
-							uint32 offset = relocationRecord[2] + baseAddress;
-							if(offset & 0x8000) offset += 0x10000;
-							offset >>= 16;
-							while(1)
-							{
-								uint32& prevInstruction = *reinterpret_cast<uint32*>(&textSectionData[relocationAddress]);
+							uint32& prevInstruction = *reinterpret_cast<uint32*>(&textSectionData[relocationAddress]);
 
-								int32 mhiOffset = static_cast<int16>(prevInstruction);
-								mhiOffset *= 4;
+							int32 mhiOffset = static_cast<int16>(prevInstruction);
+							mhiOffset *= 4;
 
-								prevInstruction &= ~0xFFFF;
-								prevInstruction |= offset;
+							prevInstruction &= ~0xFFFF;
+							prevInstruction |= offset;
 
-								if(mhiOffset == 0) break;
-								relocationAddress += mhiOffset;
-							}
+							if(mhiOffset == 0) break;
+							relocationAddress += mhiOffset;
 						}
-						break;
+					}
+					break;
 					default:
 						//Some games use relocation types that might not be supported by the IOP's ELF loader
 						//- R_MIPS_GPREL16: Used by Sega Ages 2500 Volume 8: Virtua Racing
 						CLog::GetInstance().Print(LOGNAME, "Unsupported ELF relocation type encountered (%d).\r\n",
-							relocationType);
+						                          relocationType);
 						assert(false);
 						break;
 					}
@@ -3007,11 +2999,11 @@ void CIopBios::TriggerCallback(uint32 address, uint32 arg0, uint32 arg1)
 
 #ifdef DEBUGGER_INCLUDED
 
-#define TAGS_SECTION_IOP_MODULES						("modules")
-#define TAGS_SECTION_IOP_MODULES_MODULE					("module")
-#define TAGS_SECTION_IOP_MODULES_MODULE_BEGINADDRESS	("beginAddress")
-#define TAGS_SECTION_IOP_MODULES_MODULE_ENDADDRESS		("endAddress")
-#define TAGS_SECTION_IOP_MODULES_MODULE_NAME			("name")
+#define TAGS_SECTION_IOP_MODULES ("modules")
+#define TAGS_SECTION_IOP_MODULES_MODULE ("module")
+#define TAGS_SECTION_IOP_MODULES_MODULE_BEGINADDRESS ("beginAddress")
+#define TAGS_SECTION_IOP_MODULES_MODULE_ENDADDRESS ("endAddress")
+#define TAGS_SECTION_IOP_MODULES_MODULE_NAME ("name")
 
 void CIopBios::LoadDebugTags(Framework::Xml::CNode* root)
 {
@@ -3019,20 +3011,20 @@ void CIopBios::LoadDebugTags(Framework::Xml::CNode* root)
 	if(moduleSection == NULL) return;
 
 	for(Framework::Xml::CFilteringNodeIterator nodeIterator(moduleSection, TAGS_SECTION_IOP_MODULES_MODULE);
-		!nodeIterator.IsEnd(); nodeIterator++)
+	    !nodeIterator.IsEnd(); nodeIterator++)
 	{
 		auto moduleNode(*nodeIterator);
-		const char* moduleName		= moduleNode->GetAttribute(TAGS_SECTION_IOP_MODULES_MODULE_NAME);
-		const char* beginAddress	= moduleNode->GetAttribute(TAGS_SECTION_IOP_MODULES_MODULE_BEGINADDRESS);
-		const char* endAddress		= moduleNode->GetAttribute(TAGS_SECTION_IOP_MODULES_MODULE_ENDADDRESS);
+		const char* moduleName = moduleNode->GetAttribute(TAGS_SECTION_IOP_MODULES_MODULE_NAME);
+		const char* beginAddress = moduleNode->GetAttribute(TAGS_SECTION_IOP_MODULES_MODULE_BEGINADDRESS);
+		const char* endAddress = moduleNode->GetAttribute(TAGS_SECTION_IOP_MODULES_MODULE_ENDADDRESS);
 		if(!moduleName || !beginAddress || !endAddress) continue;
 		if(FindModuleDebugInfo(moduleName) != std::end(m_moduleTags)) continue;
 
 		BIOS_DEBUG_MODULE_INFO module;
-		module.name		= moduleName;
-		module.begin	= lexical_cast_hex<std::string>(beginAddress);
-		module.end		= lexical_cast_hex<std::string>(endAddress);
-		module.param	= NULL;
+		module.name = moduleName;
+		module.begin = lexical_cast_hex<std::string>(beginAddress);
+		module.end = lexical_cast_hex<std::string>(endAddress);
+		module.param = NULL;
 		m_moduleTags.push_back(module);
 	}
 }
@@ -3044,9 +3036,9 @@ void CIopBios::SaveDebugTags(Framework::Xml::CNode* root)
 	for(const auto& module : m_moduleTags)
 	{
 		auto moduleNode = new Framework::Xml::CNode(TAGS_SECTION_IOP_MODULES_MODULE, true);
-		moduleNode->InsertAttribute(TAGS_SECTION_IOP_MODULES_MODULE_BEGINADDRESS,	lexical_cast_hex<std::string>(module.begin, 8).c_str());
-		moduleNode->InsertAttribute(TAGS_SECTION_IOP_MODULES_MODULE_ENDADDRESS,		lexical_cast_hex<std::string>(module.end, 8).c_str());
-		moduleNode->InsertAttribute(TAGS_SECTION_IOP_MODULES_MODULE_NAME,			module.name.c_str());
+		moduleNode->InsertAttribute(TAGS_SECTION_IOP_MODULES_MODULE_BEGINADDRESS, lexical_cast_hex<std::string>(module.begin, 8).c_str());
+		moduleNode->InsertAttribute(TAGS_SECTION_IOP_MODULES_MODULE_ENDADDRESS, lexical_cast_hex<std::string>(module.end, 8).c_str());
+		moduleNode->InsertAttribute(TAGS_SECTION_IOP_MODULES_MODULE_NAME, module.name.c_str());
 		moduleSection->InsertNode(moduleNode);
 	}
 
@@ -3067,8 +3059,8 @@ BiosDebugThreadInfoArray CIopBios::GetThreadsDebugInfo() const
 		if(!thread) continue;
 
 		BIOS_DEBUG_THREAD_INFO threadInfo;
-		threadInfo.id			= thread->id;
-		threadInfo.priority		= thread->priority;
+		threadInfo.id = thread->id;
+		threadInfo.priority = thread->priority;
 		if(m_currentThreadId == threadInfo.id)
 		{
 			threadInfo.pc = m_cpu.m_State.nPC;
@@ -3134,10 +3126,10 @@ void CIopBios::PrepareModuleDebugInfo(CELF& elf, const ExecutableRange& moduleRa
 		}
 
 		auto& module(*moduleIterator);
-		module.name		= moduleName;
-		module.begin	= moduleRange.first;
-		module.end		= moduleRange.second;
-		module.param	= NULL;
+		module.name = moduleName;
+		module.begin = moduleRange.first;
+		module.end = moduleRange.second;
+		module.param = NULL;
 	}
 
 	m_cpu.m_analysis->Analyse(moduleRange.first, moduleRange.second);
@@ -3149,7 +3141,7 @@ void CIopBios::PrepareModuleDebugInfo(CELF& elf, const ExecutableRange& moduleRa
 		if(m_cpu.m_pMemoryMap->GetWord(address) == 0x41E00000)
 		{
 			if(m_cpu.m_pMemoryMap->GetWord(address + 4) != 0) continue;
-			
+
 			uint32 version = m_cpu.m_pMemoryMap->GetWord(address + 8);
 			std::string moduleName = ReadModuleName(address + 0xC);
 			IopModuleMapType::iterator module(m_modules.find(moduleName));
@@ -3213,28 +3205,24 @@ void CIopBios::PrepareModuleDebugInfo(CELF& elf, const ExecutableRange& moduleRa
 		m_cpu.m_Functions.OnTagListChange();
 	}
 
-	CLog::GetInstance().Print(LOGNAME, "Loaded IOP module '%s' @ 0x%08X.\r\n", 
-		modulePath.c_str(), moduleRange.first);
+	CLog::GetInstance().Print(LOGNAME, "Loaded IOP module '%s' @ 0x%08X.\r\n",
+	                          modulePath.c_str(), moduleRange.first);
 }
 
 BiosDebugModuleInfoIterator CIopBios::FindModuleDebugInfo(const std::string& name)
 {
 	return std::find_if(std::begin(m_moduleTags), std::end(m_moduleTags),
-		[=] (const BIOS_DEBUG_MODULE_INFO& module) 
-		{
-			return name == module.name;
-		}
-	);
+	                    [=](const BIOS_DEBUG_MODULE_INFO& module) {
+		                    return name == module.name;
+	                    });
 }
 
 BiosDebugModuleInfoIterator CIopBios::FindModuleDebugInfo(uint32 beginAddress, uint32 endAddress)
 {
 	return std::find_if(std::begin(m_moduleTags), std::end(m_moduleTags),
-		[=] (const BIOS_DEBUG_MODULE_INFO& module) 
-		{
-			return (beginAddress == module.begin) && (endAddress == module.end);
-		}
-	);
+	                    [=](const BIOS_DEBUG_MODULE_INFO& module) {
+		                    return (beginAddress == module.begin) && (endAddress == module.end);
+	                    });
 }
 
 #endif

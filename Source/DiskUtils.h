@@ -10,8 +10,8 @@ namespace DiskUtils
 	typedef std::unique_ptr<COpticalMedia> OpticalMediaPtr;
 	typedef std::map<std::string, std::string> SystemConfigMap;
 
-	OpticalMediaPtr			CreateOpticalMediaFromPath(const boost::filesystem::path&);
-	SystemConfigMap			ParseSystemConfigFile(Framework::CStream*);
+	OpticalMediaPtr CreateOpticalMediaFromPath(const boost::filesystem::path&);
+	SystemConfigMap ParseSystemConfigFile(Framework::CStream*);
 
-	bool					TryGetDiskId(const boost::filesystem::path&, std::string*);
+	bool TryGetDiskId(const boost::filesystem::path&, std::string*);
 }

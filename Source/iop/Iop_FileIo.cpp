@@ -7,14 +7,14 @@
 
 #define LOG_NAME ("iop_fileio")
 
-#define STATE_VERSION_XML           ("iop_fileio/version.xml")
+#define STATE_VERSION_XML ("iop_fileio/version.xml")
 #define STATE_VERSION_MODULEVERSION ("moduleVersion")
 
 using namespace Iop;
 
-CFileIo::CFileIo(CSifMan& sifMan, CIoman& ioman) 
-: m_sifMan(sifMan)
-, m_ioman(ioman)
+CFileIo::CFileIo(CSifMan& sifMan, CIoman& ioman)
+    : m_sifMan(sifMan)
+    , m_ioman(ioman)
 {
 	m_sifMan.RegisterModule(SIF_MODULE_ID, this);
 	m_handler = std::make_unique<CFileIoHandler1000>(&m_ioman);
@@ -87,7 +87,6 @@ void CFileIo::ProcessCommands()
 //--------------------------------------------------
 
 CFileIo::CHandler::CHandler(CIoman* ioman)
-: m_ioman(ioman)
+    : m_ioman(ioman)
 {
-
 }

@@ -1,8 +1,8 @@
 #include "playlistmodel.h"
 #include "PsfTags.h"
 
-PlaylistModel::PlaylistModel(QObject *parent)
-	:QAbstractTableModel(parent)
+PlaylistModel::PlaylistModel(QObject* parent)
+    : QAbstractTableModel(parent)
 {
 }
 
@@ -25,16 +25,16 @@ int PlaylistModel::addPlaylistItem(std::string fileName, CPsfBase::TagMap tagsma
 
 	emit QAbstractTableModel::endInsertRows();
 
-	return m_playlist.size()-1;
+	return m_playlist.size() - 1;
 }
 
 int PlaylistModel::removePlaylistItem(int index)
 {
 	emit QAbstractTableModel::beginRemoveRows(QModelIndex(), index, index);
-	m_playlist.erase(m_playlist.begin()+index);
+	m_playlist.erase(m_playlist.begin() + index);
 	emit QAbstractTableModel::endRemoveRows();
 
-	return m_playlist.size()-1;
+	return m_playlist.size() - 1;
 }
 
 Playlist::Item* PlaylistModel::at(int row)
@@ -42,17 +42,17 @@ Playlist::Item* PlaylistModel::at(int row)
 	return &m_playlist.at(row);
 }
 
-int PlaylistModel::rowCount(const QModelIndex & /*parent*/) const
+int PlaylistModel::rowCount(const QModelIndex& /*parent*/) const
 {
 	return m_playlist.size();
 }
 
-int PlaylistModel::columnCount(const QModelIndex & /*parent*/) const
+int PlaylistModel::columnCount(const QModelIndex& /*parent*/) const
 {
 	return 3;
 }
 
-QVariant PlaylistModel::data(const QModelIndex &index, int role) const
+QVariant PlaylistModel::data(const QModelIndex& index, int role) const
 {
 	if(role == Qt::DisplayRole)
 	{
@@ -75,7 +75,7 @@ QVariant PlaylistModel::data(const QModelIndex &index, int role) const
 	return QVariant();
 }
 
-bool PlaylistModel::setHeaderData(int section, Qt::Orientation orientation, const QVariant &value, int role)
+bool PlaylistModel::setHeaderData(int section, Qt::Orientation orientation, const QVariant& value, int role)
 {
 	if(orientation == Qt::Horizontal)
 	{
@@ -93,7 +93,7 @@ QVariant PlaylistModel::headerData(int section, Qt::Orientation orientation, int
 {
 	if(orientation == Qt::Horizontal)
 	{
-	   if(role == Qt::DisplayRole)
+		if(role == Qt::DisplayRole)
 		{
 			if(section < m_header.size())
 				return m_header.at(section);

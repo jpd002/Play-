@@ -3,8 +3,8 @@
 
 @interface VfsManagerViewController : NSViewController
 {
-	IBOutlet VfsManagerBindings*    bindings;
-	IBOutlet NSTableView*           bindingsTableView;
+	IBOutlet VfsManagerBindings* bindings;
+	IBOutlet NSTableView* bindingsTableView;
 }
 
 @end

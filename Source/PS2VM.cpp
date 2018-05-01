@@ -28,43 +28,43 @@
 #include "ISO9660/BlockProvider.h"
 #include "DiskUtils.h"
 
-#define LOG_NAME		("ps2vm")
+#define LOG_NAME ("ps2vm")
 
-#define PREF_PS2_HOST_DIRECTORY_DEFAULT		("vfs/host")
-#define PREF_PS2_MC0_DIRECTORY_DEFAULT		("vfs/mc0")
-#define PREF_PS2_MC1_DIRECTORY_DEFAULT		("vfs/mc1")
+#define PREF_PS2_HOST_DIRECTORY_DEFAULT ("vfs/host")
+#define PREF_PS2_MC0_DIRECTORY_DEFAULT ("vfs/mc0")
+#define PREF_PS2_MC1_DIRECTORY_DEFAULT ("vfs/mc1")
 
-#define FRAME_TICKS			(PS2::EE_CLOCK_FREQ / 60)
-#define ONSCREEN_TICKS		(FRAME_TICKS * 9 / 10)
-#define VBLANK_TICKS		(FRAME_TICKS / 10)
+#define FRAME_TICKS (PS2::EE_CLOCK_FREQ / 60)
+#define ONSCREEN_TICKS (FRAME_TICKS * 9 / 10)
+#define VBLANK_TICKS (FRAME_TICKS / 10)
 
 namespace filesystem = boost::filesystem;
 
 CPS2VM::CPS2VM()
-: m_nStatus(PAUSED)
-, m_nEnd(false)
-, m_pad(NULL)
-, m_singleStepEe(false)
-, m_singleStepIop(false)
-, m_singleStepVu0(false)
-, m_singleStepVu1(false)
-, m_vblankTicks(0)
-, m_inVblank(false)
-, m_eeExecutionTicks(0)
-, m_iopExecutionTicks(0)
-, m_spuUpdateTicks(SPU_UPDATE_TICKS)
-, m_eeProfilerZone(CProfiler::GetInstance().RegisterZone("EE"))
-, m_iopProfilerZone(CProfiler::GetInstance().RegisterZone("IOP"))
-, m_spuProfilerZone(CProfiler::GetInstance().RegisterZone("SPU"))
-, m_gsSyncProfilerZone(CProfiler::GetInstance().RegisterZone("GSSYNC"))
-, m_otherProfilerZone(CProfiler::GetInstance().RegisterZone("OTHER"))
+    : m_nStatus(PAUSED)
+    , m_nEnd(false)
+    , m_pad(NULL)
+    , m_singleStepEe(false)
+    , m_singleStepIop(false)
+    , m_singleStepVu0(false)
+    , m_singleStepVu1(false)
+    , m_vblankTicks(0)
+    , m_inVblank(false)
+    , m_eeExecutionTicks(0)
+    , m_iopExecutionTicks(0)
+    , m_spuUpdateTicks(SPU_UPDATE_TICKS)
+    , m_eeProfilerZone(CProfiler::GetInstance().RegisterZone("EE"))
+    , m_iopProfilerZone(CProfiler::GetInstance().RegisterZone("IOP"))
+    , m_spuProfilerZone(CProfiler::GetInstance().RegisterZone("SPU"))
+    , m_gsSyncProfilerZone(CProfiler::GetInstance().RegisterZone("GSSYNC"))
+    , m_otherProfilerZone(CProfiler::GetInstance().RegisterZone("OTHER"))
 {
 	static const std::pair<const char*, const char*> basicDirectorySettings[] =
-	{
-		std::make_pair(PREF_PS2_HOST_DIRECTORY, PREF_PS2_HOST_DIRECTORY_DEFAULT),
-		std::make_pair(PREF_PS2_MC0_DIRECTORY, PREF_PS2_MC0_DIRECTORY_DEFAULT),
-		std::make_pair(PREF_PS2_MC1_DIRECTORY, PREF_PS2_MC1_DIRECTORY_DEFAULT),
-	};
+	    {
+	        std::make_pair(PREF_PS2_HOST_DIRECTORY, PREF_PS2_HOST_DIRECTORY_DEFAULT),
+	        std::make_pair(PREF_PS2_MC0_DIRECTORY, PREF_PS2_MC0_DIRECTORY_DEFAULT),
+	        std::make_pair(PREF_PS2_MC1_DIRECTORY, PREF_PS2_MC1_DIRECTORY_DEFAULT),
+	    };
 
 	for(const auto& basicDirectorySetting : basicDirectorySettings)
 	{
@@ -75,7 +75,7 @@ CPS2VM::CPS2VM()
 		Framework::PathUtils::EnsurePathExists(absolutePath);
 		CAppConfig::GetInstance().RegisterPreferencePath(setting, absolutePath);
 	}
-	
+
 	CAppConfig::GetInstance().RegisterPreferencePath(PREF_PS2_CDROM0_PATH, "");
 
 	m_iop = std::make_unique<Iop::CSubSystem>(true);
@@ -101,7 +101,7 @@ CPS2VM::~CPS2VM()
 void CPS2VM::CreateGSHandler(const CGSHandler::FactoryFunction& factoryFunction)
 {
 	if(m_ee->m_gs != nullptr) return;
-	m_mailBox.SendCall([this, factoryFunction] () { CreateGsHandlerImpl(factoryFunction); }, true);
+	m_mailBox.SendCall([this, factoryFunction]() { CreateGsHandlerImpl(factoryFunction); }, true);
 }
 
 CGSHandler* CPS2VM::GetGSHandler()
@@ -112,13 +112,13 @@ CGSHandler* CPS2VM::GetGSHandler()
 void CPS2VM::DestroyGSHandler()
 {
 	if(m_ee->m_gs == nullptr) return;
-	m_mailBox.SendCall([this] () { DestroyGsHandlerImpl(); }, true);
+	m_mailBox.SendCall([this]() { DestroyGsHandlerImpl(); }, true);
 }
 
 void CPS2VM::CreatePadHandler(const CPadHandler::FactoryFunction& factoryFunction)
 {
 	if(m_pad != nullptr) return;
-	m_mailBox.SendCall([this, factoryFunction] () { CreatePadHandlerImpl(factoryFunction); }, true);
+	m_mailBox.SendCall([this, factoryFunction]() { CreatePadHandlerImpl(factoryFunction); }, true);
 }
 
 CPadHandler* CPS2VM::GetPadHandler()
@@ -129,19 +129,19 @@ CPadHandler* CPS2VM::GetPadHandler()
 void CPS2VM::DestroyPadHandler()
 {
 	if(m_pad == nullptr) return;
-	m_mailBox.SendCall([this] () { DestroyPadHandlerImpl(); }, true);
+	m_mailBox.SendCall([this]() { DestroyPadHandlerImpl(); }, true);
 }
 
 void CPS2VM::CreateSoundHandler(const CSoundHandler::FactoryFunction& factoryFunction)
 {
 	if(m_soundHandler != nullptr) return;
-	m_mailBox.SendCall([this, factoryFunction] () { CreateSoundHandlerImpl(factoryFunction); }, true);
+	m_mailBox.SendCall([this, factoryFunction]() { CreateSoundHandlerImpl(factoryFunction); }, true);
 }
 
 void CPS2VM::DestroySoundHandler()
 {
 	if(m_soundHandler == nullptr) return;
-	m_mailBox.SendCall([this] () { DestroySoundHandlerImpl(); }, true);
+	m_mailBox.SendCall([this]() { DestroySoundHandlerImpl(); }, true);
 }
 
 CVirtualMachine::STATUS CPS2VM::GetStatus() const
@@ -200,14 +200,14 @@ void CPS2VM::Reset()
 
 void CPS2VM::DumpEEIntcHandlers()
 {
-//	if(m_pOS == NULL) return;
+	//	if(m_pOS == NULL) return;
 	if(m_nStatus != PAUSED) return;
 	m_ee->m_os->DumpIntcHandlers();
 }
 
 void CPS2VM::DumpEEDmacHandlers()
 {
-//	if(m_pOS == NULL) return;
+	//	if(m_pOS == NULL) return;
 	if(m_nStatus != PAUSED) return;
 	m_ee->m_os->DumpDmacHandlers();
 }
@@ -216,7 +216,7 @@ void CPS2VM::Initialize()
 {
 	CreateVM();
 	m_nEnd = false;
-	m_thread = std::thread([&] () { EmuThread(); });
+	m_thread = std::thread([&]() { EmuThread(); });
 }
 
 void CPS2VM::Destroy()
@@ -242,12 +242,10 @@ std::future<bool> CPS2VM::SaveState(const filesystem::path& statePath)
 	auto promise = std::make_shared<std::promise<bool>>();
 	auto future = promise->get_future();
 	m_mailBox.SendCall(
-		[this, promise, statePath] ()
-		{
-			auto result = SaveVMState(statePath);
-			promise->set_value(result);
-		}
-	);
+	    [this, promise, statePath]() {
+		    auto result = SaveVMState(statePath);
+		    promise->set_value(result);
+	    });
 	return future;
 }
 
@@ -256,26 +254,22 @@ std::future<bool> CPS2VM::LoadState(const filesystem::path& statePath)
 	auto promise = std::make_shared<std::promise<bool>>();
 	auto future = promise->get_future();
 	m_mailBox.SendCall(
-		[this, promise, statePath] ()
-		{
-			auto result = LoadVMState(statePath);
-			promise->set_value(result);
-		}
-	);
+	    [this, promise, statePath]() {
+		    auto result = LoadVMState(statePath);
+		    promise->set_value(result);
+	    });
 	return future;
 }
 
 void CPS2VM::TriggerFrameDump(const FrameDumpCallback& frameDumpCallback)
 {
 	m_mailBox.SendCall(
-		[=] ()
-		{
-			std::unique_lock<std::mutex> frameDumpCallbackMutexLock(m_frameDumpCallbackMutex);
-			if(m_frameDumpCallback) return;
-			m_frameDumpCallback = frameDumpCallback;
-		},
-		false
-	);
+	    [=]() {
+		    std::unique_lock<std::mutex> frameDumpCallbackMutexLock(m_frameDumpCallbackMutex);
+		    if(m_frameDumpCallback) return;
+		    m_frameDumpCallback = frameDumpCallback;
+	    },
+	    false);
 }
 
 CPS2VM::CPU_UTILISATION_INFO CPS2VM::GetCpuUtilisationInfo() const
@@ -285,16 +279,16 @@ CPS2VM::CPU_UTILISATION_INFO CPS2VM::GetCpuUtilisationInfo() const
 
 #ifdef DEBUGGER_INCLUDED
 
-#define TAGS_SECTION_TAGS			("tags")
-#define TAGS_SECTION_EE_FUNCTIONS	("ee_functions")
-#define TAGS_SECTION_EE_COMMENTS	("ee_comments")
-#define TAGS_SECTION_VU1_FUNCTIONS	("vu1_functions")
-#define TAGS_SECTION_VU1_COMMENTS	("vu1_comments")
-#define TAGS_SECTION_IOP			("iop")
-#define TAGS_SECTION_IOP_FUNCTIONS	("functions")
-#define TAGS_SECTION_IOP_COMMENTS	("comments")
+#define TAGS_SECTION_TAGS ("tags")
+#define TAGS_SECTION_EE_FUNCTIONS ("ee_functions")
+#define TAGS_SECTION_EE_COMMENTS ("ee_comments")
+#define TAGS_SECTION_VU1_FUNCTIONS ("vu1_functions")
+#define TAGS_SECTION_VU1_COMMENTS ("vu1_comments")
+#define TAGS_SECTION_IOP ("iop")
+#define TAGS_SECTION_IOP_FUNCTIONS ("functions")
+#define TAGS_SECTION_IOP_COMMENTS ("comments")
 
-#define TAGS_PATH		("tags/")
+#define TAGS_PATH ("tags/")
 
 std::string CPS2VM::MakeDebugTagsPackagePath(const char* packageName)
 {
@@ -329,7 +323,6 @@ void CPS2VM::LoadDebugTags(const char* packageName)
 	}
 	catch(...)
 	{
-
 	}
 }
 
@@ -339,7 +332,7 @@ void CPS2VM::SaveDebugTags(const char* packageName)
 	{
 		std::string packagePath = MakeDebugTagsPackagePath(packageName);
 		Framework::CStdStream stream(packagePath.c_str(), "wb");
-		boost::scoped_ptr<Framework::Xml::CNode> document(new Framework::Xml::CNode(TAGS_SECTION_TAGS, true)); 
+		boost::scoped_ptr<Framework::Xml::CNode> document(new Framework::Xml::CNode(TAGS_SECTION_TAGS, true));
 		m_ee->m_EE.m_Functions.Serialize(document.get(), TAGS_SECTION_EE_FUNCTIONS);
 		m_ee->m_EE.m_Comments.Serialize(document.get(), TAGS_SECTION_EE_COMMENTS);
 		m_ee->m_VU1.m_Functions.Serialize(document.get(), TAGS_SECTION_VU1_FUNCTIONS);
@@ -355,7 +348,6 @@ void CPS2VM::SaveDebugTags(const char* packageName)
 	}
 	catch(...)
 	{
-
 	}
 }
 
@@ -452,7 +444,7 @@ bool CPS2VM::LoadVMState(const filesystem::path& statePath)
 	{
 		auto stateStream = Framework::CreateInputStdStream(statePath.native());
 		Framework::CZipArchiveReader archive(stateStream);
-		
+
 		try
 		{
 			m_ee->LoadState(archive);
@@ -800,10 +792,10 @@ void CPS2VM::EmuThread()
 			}
 #ifdef DEBUGGER_INCLUDED
 			if(
-			   m_ee->m_executor.MustBreak() || 
-			   m_iop->m_executor.MustBreak() ||
-			   m_ee->m_vpu1->MustBreak() ||
-			   m_singleStepEe || m_singleStepIop || m_singleStepVu0 || m_singleStepVu1)
+			    m_ee->m_executor.MustBreak() ||
+			    m_iop->m_executor.MustBreak() ||
+			    m_ee->m_vpu1->MustBreak() ||
+			    m_singleStepEe || m_singleStepIop || m_singleStepVu0 || m_singleStepVu1)
 			{
 				m_nStatus = PAUSED;
 				m_singleStepEe = false;

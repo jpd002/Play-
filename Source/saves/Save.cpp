@@ -7,8 +7,8 @@
 
 namespace filesystem = boost::filesystem;
 
-CSave::CSave(const filesystem::path& basePath) 
-: m_basePath(basePath)
+CSave::CSave(const filesystem::path& basePath)
+    : m_basePath(basePath)
 {
 	filesystem::path iconSysPath = m_basePath / "icon.sys";
 
@@ -44,7 +44,6 @@ CSave::CSave(const filesystem::path& basePath)
 
 CSave::~CSave()
 {
-
 }
 
 const wchar_t* CSave::GetName() const
@@ -63,8 +62,8 @@ unsigned int CSave::GetSize() const
 	unsigned int nSize = 0;
 
 	for(filesystem::directory_iterator itElement(m_basePath);
-		itElement != itEnd;
-		itElement++)
+	    itElement != itEnd;
+	    itElement++)
 	{
 		if(!filesystem::is_directory(*itElement))
 		{

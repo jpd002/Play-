@@ -6,9 +6,8 @@
 using namespace Iop::Ioman;
 
 CDirectoryDevice::CDirectoryDevice(const char* basePathPreferenceName)
-: m_basePathPreferenceName(basePathPreferenceName)
+    : m_basePathPreferenceName(basePathPreferenceName)
 {
-
 }
 
 template <typename StringType>
@@ -39,7 +38,7 @@ Framework::CStream* CDirectoryDevice::GetFile(uint32 accessType, const char* dev
 	case OPEN_FLAG_RDONLY:
 		mode = "rb";
 		break;
-	case (OPEN_FLAG_RDWR | OPEN_FLAG_CREAT):
+	case(OPEN_FLAG_RDWR | OPEN_FLAG_CREAT):
 		mode = "w+";
 		break;
 	default:

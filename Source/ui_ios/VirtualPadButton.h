@@ -8,7 +8,7 @@
 @property PS2::CControllerInfo::BUTTON code;
 @property NSString* caption;
 
--(void)onPointerDown: (CGPoint)position;
--(void)onPointerUp;
+- (void)onPointerDown:(CGPoint)position;
+- (void)onPointerUp;
 
 @end

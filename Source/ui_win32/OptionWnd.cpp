@@ -3,28 +3,28 @@
 #include "win32/LayoutWindow.h"
 #include "win32/MDIChild.h"
 
-#define CLSNAME		_T("OptionWindow")
-#define WNDSTYLE	(WS_THICKFRAME | WS_CAPTION | WS_SYSMENU | WS_CHILD | WS_MAXIMIZEBOX | WS_CLIPCHILDREN)
+#define CLSNAME _T("OptionWindow")
+#define WNDSTYLE (WS_THICKFRAME | WS_CAPTION | WS_SYSMENU | WS_CHILD | WS_MAXIMIZEBOX | WS_CLIPCHILDREN)
 
 using namespace Framework;
 
 #define SCALE(x) MulDiv(x, ydpi, 96)
 
-template <typename T> 
+template <typename T>
 COptionWnd<T>::COptionWnd(HWND hParent, const TCHAR* sTitle)
-: m_pTreeView(nullptr)
-, m_pContainer(nullptr)
+    : m_pTreeView(nullptr)
+    , m_pContainer(nullptr)
 {
 	if(!DoesWindowClassExist(CLSNAME))
 	{
 		WNDCLASSEX wc;
 		memset(&wc, 0, sizeof(WNDCLASSEX));
-		wc.cbSize			= sizeof(WNDCLASSEX);
-		wc.hCursor			= LoadCursor(NULL, IDC_ARROW);
-		wc.hbrBackground	= (HBRUSH)(COLOR_WINDOW); 
-		wc.hInstance		= GetModuleHandle(NULL);
-		wc.lpszClassName	= CLSNAME;
-		wc.lpfnWndProc		= CWindow::WndProc;
+		wc.cbSize = sizeof(WNDCLASSEX);
+		wc.hCursor = LoadCursor(NULL, IDC_ARROW);
+		wc.hbrBackground = (HBRUSH)(COLOR_WINDOW);
+		wc.hInstance = GetModuleHandle(NULL);
+		wc.lpszClassName = CLSNAME;
+		wc.lpfnWndProc = CWindow::WndProc;
 		RegisterClassEx(&wc);
 	}
 
@@ -33,8 +33,8 @@ COptionWnd<T>::COptionWnd(HWND hParent, const TCHAR* sTitle)
 	Create(NULL, CLSNAME, sTitle, WNDSTYLE, Framework::Win32::CRect(0, 0, SCALE(640), SCALE(480)), hParent, NULL);
 	SetClassPtr();
 
-	m_pTreeView		= new Win32::CTreeView(m_hWnd, Framework::Win32::CRect(0, 0, 1, 1), TVS_LINESATROOT | TVS_HASBUTTONS | TVS_SHOWSELALWAYS | TVS_HASLINES);
-	m_pContainer	= new Win32::CStatic(m_hWnd, Framework::Win32::CRect(0, 0, 1, 1));
+	m_pTreeView = new Win32::CTreeView(m_hWnd, Framework::Win32::CRect(0, 0, 1, 1), TVS_LINESATROOT | TVS_HASBUTTONS | TVS_SHOWSELALWAYS | TVS_HASLINES);
+	m_pContainer = new Win32::CStatic(m_hWnd, Framework::Win32::CRect(0, 0, 1, 1));
 
 	m_pLayout = CHorizontalLayout::Create();
 	m_pLayout->InsertObject(Win32::CLayoutWindow::CreateCustomBehavior(25, SCALE(20), 1, 0, m_pTreeView, false));
@@ -43,19 +43,17 @@ COptionWnd<T>::COptionWnd(HWND hParent, const TCHAR* sTitle)
 	RefreshLayout();
 }
 
-template <typename T> 
+template <typename T>
 COptionWnd<T>::~COptionWnd()
 {
-
 }
 
 template <typename T>
 void COptionWnd<T>::OnItemAppearing(HTREEITEM item)
 {
-
 }
 
-template <typename T> 
+template <typename T>
 LRESULT COptionWnd<T>::OnNotify(WPARAM wParam, NMHDR* pH)
 {
 	if(m_pTreeView != NULL)
@@ -149,11 +147,11 @@ template <typename T>
 HTREEITEM COptionWnd<T>::InsertOption(HTREEITEM hParent, const TCHAR* sName, HWND hWnd)
 {
 	TVINSERTSTRUCT s;
-	s.hParent		= hParent;
-	s.hInsertAfter	= TVI_LAST;
-	s.item.pszText	= (LPTSTR)sName;
-	s.item.lParam	= (LPARAM)hWnd;
-	s.item.mask		= TVIF_TEXT | TVIF_PARAM;
+	s.hParent = hParent;
+	s.hInsertAfter = TVI_LAST;
+	s.item.pszText = (LPTSTR)sName;
+	s.item.lParam = (LPARAM)hWnd;
+	s.item.mask = TVIF_TEXT | TVIF_PARAM;
 	return m_pTreeView->InsertItem(&s);
 }
 

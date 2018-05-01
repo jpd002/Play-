@@ -11,53 +11,53 @@ class CGIF
 public:
 	enum REGISTER
 	{
-		GIF_STAT	= 0x10003020
+		GIF_STAT = 0x10003020
 	};
 
 	enum
 	{
-		GIF_STAT_M3P		= 0x002,
-		GIF_STAT_APATH3		= 0xC00,
+		GIF_STAT_M3P = 0x002,
+		GIF_STAT_APATH3 = 0xC00,
 	};
 
 	enum
 	{
-		REGS_START	= 0x10003000,
-		REGS_END	= 0x100030B0,
+		REGS_START = 0x10003000,
+		REGS_END = 0x100030B0,
 	};
 
 	struct TAG
 	{
-		unsigned int	loops		: 15;
-		unsigned int	eop			: 1;
-		unsigned int	reserved0	: 16;
-		unsigned int	reserved1	: 14;
-		unsigned int	pre			: 1;
-		unsigned int	prim		: 11;
-		unsigned int	cmd			: 2;
-		unsigned int	nreg		: 4;
-		uint64			regs;
+		unsigned int loops : 15;
+		unsigned int eop : 1;
+		unsigned int reserved0 : 16;
+		unsigned int reserved1 : 14;
+		unsigned int pre : 1;
+		unsigned int prim : 11;
+		unsigned int cmd : 2;
+		unsigned int nreg : 4;
+		uint64 regs;
 	};
 	static_assert(sizeof(TAG) == 0x10, "Size of TAG must be 16 bytes.");
 
-					CGIF(CGSHandler*&, uint8*, uint8*);
-	virtual			~CGIF() = default;
+	CGIF(CGSHandler*&, uint8*, uint8*);
+	virtual ~CGIF() = default;
 
-	void			Reset();
-	uint32			ReceiveDMA(uint32, uint32, uint32, bool);
+	void Reset();
+	uint32 ReceiveDMA(uint32, uint32, uint32, bool);
 
-	uint32			ProcessSinglePacket(const uint8*, uint32, uint32, const CGsPacketMetadata&);
-	uint32			ProcessMultiplePackets(const uint8*, uint32, uint32, const CGsPacketMetadata&);
+	uint32 ProcessSinglePacket(const uint8*, uint32, uint32, const CGsPacketMetadata&);
+	uint32 ProcessMultiplePackets(const uint8*, uint32, uint32, const CGsPacketMetadata&);
 
-	uint32			GetRegister(uint32);
-	void			SetRegister(uint32, uint32);
+	uint32 GetRegister(uint32);
+	void SetRegister(uint32, uint32);
 
-	CGSHandler*		GetGsHandler();
+	CGSHandler* GetGsHandler();
 
-	void			SetPath3Masked(bool);
+	void SetPath3Masked(bool);
 
-	void			LoadState(Framework::CZipArchiveReader&);
-	void			SaveState(Framework::CZipArchiveWriter&);
+	void LoadState(Framework::CZipArchiveReader&);
+	void SaveState(Framework::CZipArchiveWriter&);
 
 private:
 	enum SIGNAL_STATE
@@ -67,27 +67,27 @@ private:
 		SIGNAL_STATE_PENDING,
 	};
 
-	uint32			ProcessPacked(CGSHandler::RegisterWriteList&, const uint8*, uint32, uint32);
-	uint32			ProcessRegList(CGSHandler::RegisterWriteList&, const uint8*, uint32, uint32);
-	uint32			ProcessImage(const uint8*, uint32, uint32);
+	uint32 ProcessPacked(CGSHandler::RegisterWriteList&, const uint8*, uint32, uint32);
+	uint32 ProcessRegList(CGSHandler::RegisterWriteList&, const uint8*, uint32, uint32);
+	uint32 ProcessImage(const uint8*, uint32, uint32);
 
-	void			DisassembleGet(uint32);
-	void			DisassembleSet(uint32, uint32);
+	void DisassembleGet(uint32);
+	void DisassembleSet(uint32, uint32);
 
-	bool			m_path3Masked = false;
-	uint32			m_activePath = 0;
+	bool m_path3Masked = false;
+	uint32 m_activePath = 0;
 
-	uint16			m_loops;
-	uint8			m_cmd;
-	uint8			m_regs;
-	uint8			m_regsTemp;
-	uint64			m_regList;
-	bool			m_eop;
-	uint32			m_qtemp;
-	SIGNAL_STATE	m_signalState = SIGNAL_STATE_NONE;
-	uint8*			m_ram;
-	uint8*			m_spr;
-	CGSHandler*&	m_gs;
+	uint16 m_loops;
+	uint8 m_cmd;
+	uint8 m_regs;
+	uint8 m_regsTemp;
+	uint64 m_regList;
+	bool m_eop;
+	uint32 m_qtemp;
+	SIGNAL_STATE m_signalState = SIGNAL_STATE_NONE;
+	uint8* m_ram;
+	uint8* m_spr;
+	CGSHandler*& m_gs;
 
 	CProfiler::ZoneHandle m_gifProfilerZone = 0;
 };

@@ -47,15 +47,15 @@ long CAddressListViewWnd::OnCommand(unsigned short, unsigned short cmd, HWND sen
 		switch(cmd)
 		{
 		case LBN_DBLCLK:
+		{
+			auto selection = m_addressListBox.GetCurrentSelection();
+			if(selection != -1)
 			{
-				auto selection = m_addressListBox.GetCurrentSelection();
-				if(selection != -1)
-				{
-					auto selectedAddress = m_addressListBox.GetItemData(selection);
-					AddressSelected(selectedAddress);
-				}
+				auto selectedAddress = m_addressListBox.GetItemData(selection);
+				AddressSelected(selectedAddress);
 			}
-			break;
+		}
+		break;
 		}
 	}
 	return TRUE;

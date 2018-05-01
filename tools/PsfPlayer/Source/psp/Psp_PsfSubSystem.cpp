@@ -3,32 +3,32 @@
 
 using namespace Psp;
 
-#define SAMPLES_PER_FRAME	(44100 / 60)
+#define SAMPLES_PER_FRAME (44100 / 60)
 
 CPsfSubSystem::CPsfSubSystem(uint32 ramSize)
-: m_ram(new uint8[ramSize])
-, m_ramSize(ramSize)
-, m_spuRam(new uint8[SPURAMSIZE])
-, m_cpu(MEMORYMAP_ENDIAN_LSBF)
-, m_copScu(MIPS_REGSIZE_32)
-, m_copFpu(MIPS_REGSIZE_32)
-, m_executor(m_cpu, ramSize)
-, m_spuCore0(m_spuRam, SPURAMSIZE, 0)
-, m_spuCore1(m_spuRam, SPURAMSIZE, 1)
-, m_bios(m_cpu, m_ram, ramSize)
+    : m_ram(new uint8[ramSize])
+    , m_ramSize(ramSize)
+    , m_spuRam(new uint8[SPURAMSIZE])
+    , m_cpu(MEMORYMAP_ENDIAN_LSBF)
+    , m_copScu(MIPS_REGSIZE_32)
+    , m_copFpu(MIPS_REGSIZE_32)
+    , m_executor(m_cpu, ramSize)
+    , m_spuCore0(m_spuRam, SPURAMSIZE, 0)
+    , m_spuCore1(m_spuRam, SPURAMSIZE, 1)
+    , m_bios(m_cpu, m_ram, ramSize)
 {
 	//Read memory map
-	m_cpu.m_pMemoryMap->InsertReadMap(			0x00000000, m_ramSize,		m_ram,	0x01);
+	m_cpu.m_pMemoryMap->InsertReadMap(0x00000000, m_ramSize, m_ram, 0x01);
 
 	//Write memory map
-	m_cpu.m_pMemoryMap->InsertWriteMap(			0x00000000, m_ramSize,		m_ram,	0x01);
+	m_cpu.m_pMemoryMap->InsertWriteMap(0x00000000, m_ramSize, m_ram, 0x01);
 
 	//Instruction memory map
-	m_cpu.m_pMemoryMap->InsertInstructionMap(	0x00000000, m_ramSize,		m_ram,	0x01);
+	m_cpu.m_pMemoryMap->InsertInstructionMap(0x00000000, m_ramSize, m_ram, 0x01);
 
-	m_cpu.m_pArch			= &m_cpuArch;
-	m_cpu.m_pCOP[0]			= &m_copScu;
-	m_cpu.m_pCOP[1]			= &m_copFpu;
+	m_cpu.m_pArch = &m_cpuArch;
+	m_cpu.m_pCOP[0] = &m_copScu;
+	m_cpu.m_pCOP[1] = &m_copFpu;
 	m_cpu.m_pAddrTranslator = &CMIPS::TranslateAddress64;
 
 	Reset();
@@ -36,8 +36,8 @@ CPsfSubSystem::CPsfSubSystem(uint32 ramSize)
 
 CPsfSubSystem::~CPsfSubSystem()
 {
-	delete [] m_ram;
-	delete [] m_spuRam;
+	delete[] m_ram;
+	delete[] m_spuRam;
 }
 
 void CPsfSubSystem::Reset()

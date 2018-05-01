@@ -9,11 +9,10 @@
 
 CStatsOverlayWindow::CStatsOverlayWindow()
 {
-	
 }
 
 CStatsOverlayWindow::CStatsOverlayWindow(HWND parentWnd)
-: m_font(Framework::Win32::CreateFont(_T("Courier New"), 11))
+    : m_font(Framework::Win32::CreateFont(_T("Courier New"), 11))
 {
 	//Fill in render metrics
 	{
@@ -31,10 +30,9 @@ CStatsOverlayWindow::CStatsOverlayWindow(HWND parentWnd)
 
 CStatsOverlayWindow::~CStatsOverlayWindow()
 {
-
 }
 
-CStatsOverlayWindow& CStatsOverlayWindow::operator =(CStatsOverlayWindow&& rhs)
+CStatsOverlayWindow& CStatsOverlayWindow::operator=(CStatsOverlayWindow&& rhs)
 {
 	CWindow::Reset();
 	CWindow::MoveFrom(std::move(rhs));
@@ -80,7 +78,7 @@ void CStatsOverlayWindow::Update(unsigned int frames)
 			float avgMsSpent = (frames != 0) ? static_cast<double>(zoneInfo.currentValue) / static_cast<double>(frames * timeScale) : 0;
 			float minMsSpent = (zoneInfo.minValue != ~0ULL) ? static_cast<double>(zoneInfo.minValue) / static_cast<double>(timeScale) : 0;
 			float maxMsSpent = static_cast<double>(zoneInfo.maxValue) / static_cast<double>(timeScale);
-			memDc.TextOut(x + 0  , y, string_cast<std::tstring>(zonePair.first).c_str());
+			memDc.TextOut(x + 0, y, string_cast<std::tstring>(zonePair.first).c_str());
 			memDc.TextOut(x + (m_renderMetrics.fontSizeX * 10), y, string_format(_T("%6.2f%%"), avgRatioSpent * 100.f).c_str());
 			memDc.TextOut(x + (m_renderMetrics.fontSizeX * 20), y, string_format(_T("%6.2fms"), avgMsSpent).c_str());
 			memDc.TextOut(x + (m_renderMetrics.fontSizeX * 30), y, string_format(_T("%6.2fms"), minMsSpent).c_str());
@@ -111,13 +109,16 @@ void CStatsOverlayWindow::Update(unsigned int frames)
 			y += m_renderMetrics.fontSizeY + m_renderMetrics.spaceY;
 		}
 
-		for(auto& zonePair : m_profilerZones) { zonePair.second.currentValue = 0; }
+		for(auto& zonePair : m_profilerZones)
+		{
+			zonePair.second.currentValue = 0;
+		}
 		m_cpuUtilisation = CPS2VM::CPU_UTILISATION_INFO();
 	}
 
-	POINT dstPt = { windowRect.Left(), windowRect.Top() };
-	SIZE dstSize = { windowRect.Width(), windowRect.Height() };
-	POINT srcPt = { 0, 0 };
+	POINT dstPt = {windowRect.Left(), windowRect.Top()};
+	SIZE dstSize = {windowRect.Width(), windowRect.Height()};
+	POINT srcPt = {0, 0};
 
 	BOOL result = UpdateLayeredWindow(m_hWnd, screenDc, &dstPt, &dstSize, memDc, &srcPt, RGB(0, 0, 0), nullptr, ULW_COLORKEY);
 	assert(result == TRUE);
@@ -145,8 +146,8 @@ void CStatsOverlayWindow::OnProfileFrameDone(CPS2VM& virtualMachine, const CProf
 	}
 
 	auto cpuUtilisation = virtualMachine.GetCpuUtilisationInfo();
-	m_cpuUtilisation.eeTotalTicks  += cpuUtilisation.eeTotalTicks;
-	m_cpuUtilisation.eeIdleTicks   += cpuUtilisation.eeIdleTicks;
+	m_cpuUtilisation.eeTotalTicks += cpuUtilisation.eeTotalTicks;
+	m_cpuUtilisation.eeIdleTicks += cpuUtilisation.eeIdleTicks;
 	m_cpuUtilisation.iopTotalTicks += cpuUtilisation.iopTotalTicks;
-	m_cpuUtilisation.iopIdleTicks  += cpuUtilisation.iopIdleTicks;
+	m_cpuUtilisation.iopIdleTicks += cpuUtilisation.iopIdleTicks;
 }

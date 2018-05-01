@@ -10,15 +10,15 @@
 #include "string_format.h"
 
 CPixelBufferView::CPixelBufferView(HWND parent, const RECT& rect)
-: CDirectXControl(parent)
-, m_zoomFactor(1)
-, m_panX(0)
-, m_panY(0)
-, m_dragging(false)
-, m_dragBaseX(0)
-, m_dragBaseY(0)
-, m_panXDragBase(0)
-, m_panYDragBase(0)
+    : CDirectXControl(parent)
+    , m_zoomFactor(1)
+    , m_panX(0)
+    , m_panY(0)
+    , m_dragging(false)
+    , m_dragBaseX(0)
+    , m_dragBaseY(0)
+    , m_panXDragBase(0)
+    , m_panYDragBase(0)
 {
 	m_overlay = std::make_unique<CPixelBufferViewOverlay>(m_hWnd);
 
@@ -79,13 +79,12 @@ void CPixelBufferView::DrawCheckerboard()
 
 	RECT clientRect = GetClientRect();
 
-	float screenSizeVector[4] = 
-	{
-		static_cast<float>(clientRect.right),
-		static_cast<float>(clientRect.bottom),
-		0,
-		0
-	};
+	float screenSizeVector[4] =
+	    {
+	        static_cast<float>(clientRect.right),
+	        static_cast<float>(clientRect.bottom),
+	        0,
+	        0};
 
 	m_device->SetVertexShader(m_checkerboardVertexShader);
 	m_device->SetPixelShader(m_checkerboardPixelShader);
@@ -108,24 +107,22 @@ void CPixelBufferView::DrawPixelBuffer()
 
 	RECT clientRect = GetClientRect();
 
-	float screenSizeVector[4] = 
-	{
-		static_cast<float>(clientRect.right),
-		static_cast<float>(clientRect.bottom),
-		0,
-		0
-	};
+	float screenSizeVector[4] =
+	    {
+	        static_cast<float>(clientRect.right),
+	        static_cast<float>(clientRect.bottom),
+	        0,
+	        0};
 
 	float bufferSizeVector[4] =
-	{
-		static_cast<float>(pixelBufferBitmap.GetWidth()),
-		static_cast<float>(pixelBufferBitmap.GetHeight()),
-		0,
-		0
-	};
+	    {
+	        static_cast<float>(pixelBufferBitmap.GetWidth()),
+	        static_cast<float>(pixelBufferBitmap.GetHeight()),
+	        0,
+	        0};
 
-	float panOffsetVector[4] = { m_panX, m_panY, 0, 0 };
-	float zoomFactorVector[4] = { m_zoomFactor, 0, 0, 0 };
+	float panOffsetVector[4] = {m_panX, m_panY, 0, 0};
+	float zoomFactorVector[4] = {m_zoomFactor, 0, 0, 0};
 
 	m_device->SetVertexShader(m_pixelBufferViewVertexShader);
 	m_device->SetPixelShader(m_pixelBufferViewPixelShader);
@@ -214,12 +211,14 @@ long CPixelBufferView::OnMouseWheel(int x, int y, short z)
 	if(newZoom != 0)
 	{
 		auto clientRect = GetClientRect();
-		POINT mousePoint = { x, y };
+		POINT mousePoint = {x, y};
 		ScreenToClient(m_hWnd, &mousePoint);
 		float relPosX = static_cast<float>(mousePoint.x) / static_cast<float>(clientRect.Right());
 		float relPosY = static_cast<float>(mousePoint.y) / static_cast<float>(clientRect.Bottom());
-		relPosX = std::max(relPosX, 0.f); relPosX = std::min(relPosX, 1.f);
-		relPosY = std::max(relPosY, 0.f); relPosY = std::min(relPosY, 1.f);
+		relPosX = std::max(relPosX, 0.f);
+		relPosX = std::min(relPosX, 1.f);
+		relPosY = std::max(relPosY, 0.f);
+		relPosY = std::min(relPosY, 1.f);
 
 		relPosX = (relPosX - 0.5f) * 2;
 		relPosY = (relPosY - 0.5f) * 2;
@@ -252,7 +251,7 @@ void CPixelBufferView::OnDeviceResetting()
 const CPixelBufferView::PixelBuffer* CPixelBufferView::GetSelectedPixelBuffer()
 {
 	if(m_pixelBuffers.empty()) return nullptr;
-	
+
 	int selectedPixelBufferIndex = m_overlay->GetSelectedPixelBufferIndex();
 	if(selectedPixelBufferIndex < 0) return nullptr;
 
@@ -339,15 +338,15 @@ void CPixelBufferView::FitBitmap()
 void CPixelBufferView::CreateResources()
 {
 	static const VERTEX g_quadVertexBufferVertices[4] =
-	{
-		{ -1, -1, 0, 0, 1 },
-		{ -1,  1, 0, 0, 0 },
-		{  1, -1, 0, 1, 1 },
-		{  1,  1, 0, 1, 0 },
-	};
+	    {
+	        {-1, -1, 0, 0, 1},
+	        {-1, 1, 0, 0, 0},
+	        {1, -1, 0, 1, 1},
+	        {1, 1, 0, 1, 0},
+	    };
 
 	HRESULT result = S_OK;
-	
+
 	result = m_device->CreateVertexBuffer(sizeof(g_quadVertexBufferVertices), D3DUSAGE_WRITEONLY, 0, D3DPOOL_DEFAULT, &m_quadVertexBuffer, nullptr);
 	assert(SUCCEEDED(result));
 
@@ -364,20 +363,20 @@ void CPixelBufferView::CreateResources()
 
 	{
 		std::vector<D3DVERTEXELEMENT9> vertexElements;
-		
+
 		{
 			D3DVERTEXELEMENT9 element = {};
-			element.Offset	= offsetof(VERTEX, position);
-			element.Type	= D3DDECLTYPE_FLOAT3;
-			element.Usage	= D3DDECLUSAGE_POSITION;
+			element.Offset = offsetof(VERTEX, position);
+			element.Type = D3DDECLTYPE_FLOAT3;
+			element.Usage = D3DDECLUSAGE_POSITION;
 			vertexElements.push_back(element);
 		}
 
 		{
 			D3DVERTEXELEMENT9 element = {};
-			element.Offset	= offsetof(VERTEX, texCoord);
-			element.Type	= D3DDECLTYPE_FLOAT2;
-			element.Usage	= D3DDECLUSAGE_TEXCOORD;
+			element.Offset = offsetof(VERTEX, texCoord);
+			element.Type = D3DDECLTYPE_FLOAT2;
+			element.Usage = D3DDECLUSAGE_TEXCOORD;
 			vertexElements.push_back(element);
 		}
 
@@ -410,8 +409,8 @@ CPixelBufferView::VertexShaderPtr CPixelBufferView::CreateVertexShaderFromResour
 
 	Framework::Win32::CComPtr<ID3DBlob> shaderBinary;
 	Framework::Win32::CComPtr<ID3DBlob> compileErrors;
-	result = D3DCompile(shaderResource, shaderResourceSize, "vs", nullptr, nullptr, "main", 
-		"vs_3_0", compileFlags, 0, &shaderBinary, &compileErrors);
+	result = D3DCompile(shaderResource, shaderResourceSize, "vs", nullptr, nullptr, "main",
+	                    "vs_3_0", compileFlags, 0, &shaderBinary, &compileErrors);
 	assert(SUCCEEDED(result));
 
 	VertexShaderPtr shader;
@@ -440,8 +439,8 @@ CPixelBufferView::PixelShaderPtr CPixelBufferView::CreatePixelShaderFromResource
 
 	Framework::Win32::CComPtr<ID3DBlob> shaderBinary;
 	Framework::Win32::CComPtr<ID3DBlob> compileErrors;
-	result = D3DCompile(shaderResource, shaderResourceSize, "ps", nullptr, nullptr, "main", 
-		"ps_3_0", compileFlags, 0, &shaderBinary, &compileErrors);
+	result = D3DCompile(shaderResource, shaderResourceSize, "ps", nullptr, nullptr, "main",
+	                    "ps_3_0", compileFlags, 0, &shaderBinary, &compileErrors);
 	assert(SUCCEEDED(result));
 
 	PixelShaderPtr shader;
@@ -458,19 +457,18 @@ CPixelBufferView::TexturePtr CPixelBufferView::CreateTextureFromBitmap(const Fra
 	if(!bitmap.IsEmpty())
 	{
 		D3DFORMAT textureFormat =
-			[bitmap]()
-			{
-				switch(bitmap.GetBitsPerPixel())
-				{
-				case 8:
-					return D3DFMT_L8;
-				case 16:
-					return D3DFMT_A1R5G5B5;
-				case 32:
-				default:
-					return D3DFMT_A8R8G8B8;
-				}
-			}();
+		    [bitmap]() {
+			    switch(bitmap.GetBitsPerPixel())
+			    {
+			    case 8:
+				    return D3DFMT_L8;
+			    case 16:
+				    return D3DFMT_A1R5G5B5;
+			    case 32:
+			    default:
+				    return D3DFMT_A8R8G8B8;
+			    }
+		    }();
 
 		HRESULT result = S_OK;
 		result = m_device->CreateTexture(bitmap.GetWidth(), bitmap.GetHeight(), 1, D3DUSAGE_DYNAMIC, textureFormat, D3DPOOL_DEFAULT, &texture, nullptr);

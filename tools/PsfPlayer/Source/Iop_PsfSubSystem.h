@@ -8,34 +8,34 @@ namespace Iop
 	class CPsfSubSystem : public CPsfVmSubSystem
 	{
 	public:
-											CPsfSubSystem(bool ps2Mode);
-		virtual								~CPsfSubSystem() = default;
+		CPsfSubSystem(bool ps2Mode);
+		virtual ~CPsfSubSystem() = default;
 
-		void								Reset() override;
-		CMIPS&								GetCpu() override;
-		CMipsExecutor&						GetCpuExecutor() override;
-		uint8*								GetRam() override;
-		uint8*								GetSpr() override;
-		Iop::CSpuBase&						GetSpuCore(unsigned int) override;
+		void Reset() override;
+		CMIPS& GetCpu() override;
+		CMipsExecutor& GetCpuExecutor() override;
+		uint8* GetRam() override;
+		uint8* GetSpr() override;
+		Iop::CSpuBase& GetSpuCore(unsigned int) override;
 
 #ifdef DEBUGGER_INCLUDED
-		bool								MustBreak() override;
-		void								DisableBreakpointsOnce() override;
-		CBiosDebugInfoProvider*				GetBiosDebugInfoProvider() override;
-		void								LoadDebugTags(Framework::Xml::CNode*) override;
-		void								SaveDebugTags(Framework::Xml::CNode*) override;
+		bool MustBreak() override;
+		void DisableBreakpointsOnce() override;
+		CBiosDebugInfoProvider* GetBiosDebugInfoProvider() override;
+		void LoadDebugTags(Framework::Xml::CNode*) override;
+		void SaveDebugTags(Framework::Xml::CNode*) override;
 #endif
 
-		void								SetBios(const Iop::BiosBasePtr&);
+		void SetBios(const Iop::BiosBasePtr&);
 
-		void								Update(bool, CSoundHandler*) override;
+		void Update(bool, CSoundHandler*) override;
 
 	private:
-		CSubSystem							m_iop;
-		uint32								m_frameTicks;
-		uint32								m_spuUpdateTicks;
-		int									m_frameCounter;
-		int									m_spuUpdateCounter;
+		CSubSystem m_iop;
+		uint32 m_frameTicks;
+		uint32 m_spuUpdateTicks;
+		int m_frameCounter;
+		int m_spuUpdateCounter;
 
 		enum
 		{
@@ -44,8 +44,8 @@ namespace Iop
 			BLOCK_COUNT = 10,
 		};
 
-		int16								m_samples[BLOCK_SIZE * BLOCK_COUNT];
-		int									m_currentBlock;
+		int16 m_samples[BLOCK_SIZE * BLOCK_COUNT];
+		int m_currentBlock;
 	};
 
 	typedef std::shared_ptr<CPsfSubSystem> PsfSubSystemPtr;

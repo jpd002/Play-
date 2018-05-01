@@ -45,9 +45,9 @@ const char* CCOP_SCU::m_sRegName[] =
 // clang-format on
 
 CCOP_SCU::CCOP_SCU(MIPS_REGSIZE nRegSize)
-: CMIPSCoprocessor(nRegSize)
-, m_nRT(0)
-, m_nRD(0)
+    : CMIPSCoprocessor(nRegSize)
+    , m_nRT(0)
+    , m_nRD(0)
 {
 	SetupReflectionTables();
 }
@@ -56,8 +56,8 @@ void CCOP_SCU::CompileInstruction(uint32 nAddress, CMipsJitter* codeGen, CMIPS* 
 {
 	SetupQuickVariables(nAddress, codeGen, pCtx);
 
-	m_nRT	= (uint8)((m_nOpcode >> 16) & 0x1F);
-	m_nRD	= (uint8)((m_nOpcode >> 11) & 0x1F);
+	m_nRT = (uint8)((m_nOpcode >> 16) & 0x1F);
+	m_nRD = (uint8)((m_nOpcode >> 11) & 0x1F);
 
 	((this)->*(m_pOpGeneral[(m_nOpcode >> 21) & 0x1F]))();
 }
@@ -213,7 +213,7 @@ void CCOP_SCU::ERET()
 	m_codeGen->PushRel(offsetof(CMIPS, m_State.nCOP0[STATUS]));
 	m_codeGen->PushCst(CMIPS::STATUS_ERL);
 	m_codeGen->And();
-	
+
 	m_codeGen->PushCst(0);
 	m_codeGen->BeginIf(Jitter::CONDITION_NE);
 	{

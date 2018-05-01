@@ -3,11 +3,11 @@
 
 @interface SqliteDatabase : NSObject
 {
-    sqlite3 *_db;
+	sqlite3* _db;
 }
 
 - (void)loadDatabase;
 
-- (NSDictionary *)getDiskInfo:(NSString *)serial;
+- (NSDictionary*)getDiskInfo:(NSString*)serial;
 
 @end

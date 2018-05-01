@@ -2,12 +2,10 @@
 
 CPadHandler::CPadHandler()
 {
-
 }
 
 CPadHandler::~CPadHandler()
 {
-
 }
 
 void CPadHandler::InsertListener(CPadListener* pListener)
@@ -17,5 +15,5 @@ void CPadHandler::InsertListener(CPadListener* pListener)
 
 void CPadHandler::RemoveAllListeners()
 {
-    m_listeners.clear();
+	m_listeners.clear();
 }

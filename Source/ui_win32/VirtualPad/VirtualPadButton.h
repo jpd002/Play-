@@ -6,23 +6,23 @@
 class CVirtualPadButton : public CVirtualPadItem
 {
 public:
-	                CVirtualPadButton();
-	                CVirtualPadButton(const CVirtualPadButton&) = delete;
-	virtual         ~CVirtualPadButton();
-	
-	CVirtualPadButton&    operator =(const CVirtualPadButton&) = delete;
+	CVirtualPadButton();
+	CVirtualPadButton(const CVirtualPadButton&) = delete;
+	virtual ~CVirtualPadButton();
 
-	virtual void    Draw(Gdiplus::Graphics&) override;
-	virtual void    OnMouseDown(int, int) override;
-	virtual void    OnMouseUp() override;
+	CVirtualPadButton& operator=(const CVirtualPadButton&) = delete;
 
-	void    SetCode(PS2::CControllerInfo::BUTTON);
-	void    SetCaption(const std::wstring&);
+	virtual void Draw(Gdiplus::Graphics&) override;
+	virtual void OnMouseDown(int, int) override;
+	virtual void OnMouseUp() override;
+
+	void SetCode(PS2::CControllerInfo::BUTTON);
+	void SetCaption(const std::wstring&);
 
 protected:
-	std::wstring     m_caption;
-	bool             m_pressed = false;
-	Gdiplus::Font    m_font;
+	std::wstring m_caption;
+	bool m_pressed = false;
+	Gdiplus::Font m_font;
 
-	PS2::CControllerInfo::BUTTON    m_code;
+	PS2::CControllerInfo::BUTTON m_code;
 };

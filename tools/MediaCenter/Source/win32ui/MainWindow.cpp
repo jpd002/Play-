@@ -4,12 +4,12 @@
 #include "resource.h"
 #include <boost/filesystem.hpp>
 
-#define APP_NAME			_T("Play! Media Center")
-#define WNDSTYLE			(WS_CAPTION | WS_POPUP | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_SYSMENU | WS_MINIMIZEBOX)
-#define WNDSTYLEEX			(0)
+#define APP_NAME _T("Play! Media Center")
+#define WNDSTYLE (WS_CAPTION | WS_POPUP | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_SYSMENU | WS_MINIMIZEBOX)
+#define WNDSTYLEEX (0)
 
-CMainWindow::CMainWindow() 
-: m_frameBufferWindow(nullptr)
+CMainWindow::CMainWindow()
+    : m_frameBufferWindow(nullptr)
 {
 	Framework::Win32::CRect clientRect(0, 0, 640, 480);
 	AdjustWindowRectEx(clientRect, WNDSTYLE, TRUE, WNDSTYLEEX);
@@ -58,8 +58,8 @@ void CMainWindow::OnFileOpen()
 		boost::filesystem::path filePath(dialog.GetPath());
 		auto myString = filePath.string();
 		m_videoDecoder = std::make_shared<CVideoDecoder>(filePath.string());
-		m_onNewFrameConnection = m_videoDecoder->NewFrame.connect([&] (const Framework::CBitmap& frame) { OnNewFrame(frame); });
-/*
+		m_onNewFrameConnection = m_videoDecoder->NewFrame.connect([&](const Framework::CBitmap& frame) { OnNewFrame(frame); });
+		/*
 		boost::filesystem::path filePath(dialog.GetPath());
 		std::wstring fileExtension = filePath.extension().wstring();
 		if(!wcsicmp(fileExtension.c_str(), PLAYLIST_EXTENSION))

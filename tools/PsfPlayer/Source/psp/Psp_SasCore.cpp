@@ -1,39 +1,93 @@
 #include "Psp_SasCore.h"
 #include "Log.h"
 
-#define LOGNAME	("Psp_SasCore")
+#define LOGNAME ("Psp_SasCore")
 
 using namespace Psp;
 
-#define SPURAM_ALLOC_BASEADDRESS	(0x40000)
+#define SPURAM_ALLOC_BASEADDRESS (0x40000)
 
 CSasCore::REVERBINFO CSasCore::g_ReverbStudioC =
-{
-	0x6FE0,
-	{
-		0x00E3,  0x00A9,  0x6F60,  0x4FA8,  0xBCE0,  0x4510,  0xBEF0,  0xA680,
-		0x5680,  0x52C0,  0x0DFB,  0x0B58,  0x0D09,  0x0A3C,  0x0BD9,  0x0973,
-		0x0B59,  0x08DA,  0x08D9,  0x05E9,  0x07EC,  0x04B0,  0x06EF,  0x03D2,
-		0x05EA,  0x031D,  0x031C,  0x0238,  0x0154,  0x00AA,  0x8000,  0x8000,
-	}
-};
+    {
+        0x6FE0,
+        {
+            0x00E3,
+            0x00A9,
+            0x6F60,
+            0x4FA8,
+            0xBCE0,
+            0x4510,
+            0xBEF0,
+            0xA680,
+            0x5680,
+            0x52C0,
+            0x0DFB,
+            0x0B58,
+            0x0D09,
+            0x0A3C,
+            0x0BD9,
+            0x0973,
+            0x0B59,
+            0x08DA,
+            0x08D9,
+            0x05E9,
+            0x07EC,
+            0x04B0,
+            0x06EF,
+            0x03D2,
+            0x05EA,
+            0x031D,
+            0x031C,
+            0x0238,
+            0x0154,
+            0x00AA,
+            0x8000,
+            0x8000,
+        }};
 
 CSasCore::REVERBINFO CSasCore::g_ReverbSpace =
-{
-	0xF6C0,
-	{
-		0x033D,  0x0231,  0x7E00,  0x5000,  0xB400,  0xB000,  0x4C00,  0xB000,
-		0x6000,  0x5400,  0x1ED6,  0x1A31,  0x1D14,  0x183B,  0x1BC2,  0x16B2,
-		0x1A32,  0x15EF,  0x15EE,  0x1055,  0x1334,  0x0F2D,  0x11F6,  0x0C5D,
-		0x1056,  0x0AE1,  0x0AE0,  0x07A2,  0x0464,  0x0232,  0x8000,  0x8000,
-	}
-};
+    {
+        0xF6C0,
+        {
+            0x033D,
+            0x0231,
+            0x7E00,
+            0x5000,
+            0xB400,
+            0xB000,
+            0x4C00,
+            0xB000,
+            0x6000,
+            0x5400,
+            0x1ED6,
+            0x1A31,
+            0x1D14,
+            0x183B,
+            0x1BC2,
+            0x16B2,
+            0x1A32,
+            0x15EF,
+            0x15EE,
+            0x1055,
+            0x1334,
+            0x0F2D,
+            0x11F6,
+            0x0C5D,
+            0x1056,
+            0x0AE1,
+            0x0AE0,
+            0x07A2,
+            0x0464,
+            0x0232,
+            0x8000,
+            0x8000,
+        }};
 
 CSasCore::CSasCore(uint8* ram)
-: m_spuRam(NULL)
-, m_spuRamSize(0)
-, m_ram(ram)
-, m_grain(0)
+    : m_spuRam(NULL)
+    , m_spuRamSize(0)
+    , m_ram(ram)
+    , m_grain(0)
 {
 	m_spu[0] = NULL;
 	m_spu[1] = NULL;
@@ -41,7 +95,6 @@ CSasCore::CSasCore(uint8* ram)
 
 CSasCore::~CSasCore()
 {
-
 }
 
 std::string CSasCore::GetName() const
@@ -61,8 +114,8 @@ void CSasCore::SetSpuInfo(Iop::CSpuBase* spu0, Iop::CSpuBase* spu1, uint8* spuRa
 	m_spuRam[1] = 0x07;
 
 	SPUMEMBLOCK endBlock;
-	endBlock.address	= m_spuRamSize;
-	endBlock.size		= -1;
+	endBlock.address = m_spuRamSize;
+	endBlock.size = -1;
 	m_blocks.push_back(endBlock);
 }
 
@@ -102,8 +155,8 @@ uint32 CSasCore::AllocMemory(uint32 size)
 		if(space >= size)
 		{
 			SPUMEMBLOCK newBlock;
-			newBlock.address	= currentAddress;
-			newBlock.size		= size;
+			newBlock.address = currentAddress;
+			newBlock.size = size;
 			m_blocks.insert(blockIterator, newBlock);
 			return currentAddress;
 		}
@@ -117,7 +170,7 @@ uint32 CSasCore::AllocMemory(uint32 size)
 void CSasCore::FreeMemory(uint32 address)
 {
 	for(MemBlockList::iterator blockIterator(m_blocks.begin());
-		blockIterator != m_blocks.end(); blockIterator++)
+	    blockIterator != m_blocks.end(); blockIterator++)
 	{
 		const SPUMEMBLOCK& block(*blockIterator);
 		if(block.address == address)
@@ -134,7 +187,7 @@ void CSasCore::FreeMemory(uint32 address)
 void CSasCore::VerifyAllocationMap()
 {
 	for(MemBlockList::iterator blockIterator(m_blocks.begin());
-		blockIterator != m_blocks.end(); blockIterator++)
+	    blockIterator != m_blocks.end(); blockIterator++)
 	{
 		MemBlockList::iterator nextBlockIterator = blockIterator;
 		nextBlockIterator++;
@@ -171,7 +224,7 @@ uint32 CSasCore::Init(uint32 contextAddr, uint32 grain, uint32 unknown2, uint32 
 {
 #ifdef _DEBUG
 	CLog::GetInstance().Print(LOGNAME, "Init(contextAddr = 0x%0.8X, grain = %d, unk = 0x%0.8X, unk = 0x%0.8X, frequency = %d);\r\n",
-		contextAddr, grain, unknown2, unknown3, frequency);
+	                          contextAddr, grain, unknown2, unknown3, frequency);
 #endif
 	m_grain = grain;
 	return 0;
@@ -211,7 +264,7 @@ uint32 CSasCore::SetVoice(uint32 contextAddr, uint32 voice, uint32 dataPtr, uint
 {
 #ifdef _DEBUG
 	CLog::GetInstance().Print(LOGNAME, "SetVoice(contextAddr = 0x%0.8X, voice = %d, dataPtr = 0x%0.8X, dataSize = 0x%0.8X, loop = %d);\r\n",
-		contextAddr, voice, dataPtr, dataSize, loop);
+	                          contextAddr, voice, dataPtr, dataSize, loop);
 #endif
 	assert(dataPtr != NULL);
 	if(dataPtr == NULL)
@@ -249,7 +302,7 @@ uint32 CSasCore::SetPitch(uint32 contextAddr, uint32 voice, uint32 pitch)
 {
 #ifdef _DEBUG
 	CLog::GetInstance().Print(LOGNAME, "SetPitch(contextAddr = 0x%0.8X, voice = %d, pitch = 0x%0.4X);\r\n",
-		contextAddr, voice, pitch);
+	                          contextAddr, voice, pitch);
 #endif
 	Iop::CSpuBase::CHANNEL* channel = GetSpuChannel(voice);
 	if(channel == NULL) return -1;
@@ -261,7 +314,7 @@ uint32 CSasCore::SetVolume(uint32 contextAddr, uint32 voice, uint32 left, uint32
 {
 #ifdef _DEBUG
 	CLog::GetInstance().Print(LOGNAME, "SetVolume(contextAddr = 0x%0.8X, voice = %d, left = 0x%0.4X, right = 0x%0.4X, effectLeft = 0x%0.4X, effectRight = 0x%0.4X);\r\n",
-		contextAddr, voice, left, right, effectLeft, effectRight);
+	                          contextAddr, voice, left, right, effectLeft, effectRight);
 #endif
 	Iop::CSpuBase::CHANNEL* channel = GetSpuChannel(voice);
 	if(channel == NULL) return -1;
@@ -274,7 +327,7 @@ uint32 CSasCore::SetSimpleADSR(uint32 contextAddr, uint32 voice, uint32 adsr1, u
 {
 #ifdef _DEBUG
 	CLog::GetInstance().Print(LOGNAME, "SetSimpleADSR(contextAddr = 0x%0.8X, voice = %d, adsr1 = 0x%0.4X, adsr2 = 0x%0.4X);\r\n",
-		contextAddr, voice, adsr1, adsr2);
+	                          contextAddr, voice, adsr1, adsr2);
 #endif
 	Iop::CSpuBase::CHANNEL* channel = GetSpuChannel(voice);
 	if(channel == NULL) return -1;
@@ -389,7 +442,7 @@ uint32 CSasCore::SetEffectType(uint32 contextAddr, uint32 effectType)
 {
 #ifdef _DEBUG
 	CLog::GetInstance().Print(LOGNAME, "SetEffectType(contextAddr = 0x%0.8X, effectType = 0x%0.8X);\r\n",
-		contextAddr, effectType);
+	                          contextAddr, effectType);
 #endif
 	switch(effectType)
 	{
@@ -407,7 +460,7 @@ uint32 CSasCore::SetEffectParam(uint32 contextAddr, uint32 dt, uint32 fb)
 {
 #ifdef _DEBUG
 	CLog::GetInstance().Print(LOGNAME, "SetEffectParam(contextAddr = 0x%0.8X, dt = 0x%0.2X, fb = 0x%0.2X);\r\n",
-		contextAddr, dt, fb);
+	                          contextAddr, dt, fb);
 #endif
 	return 0;
 }
@@ -416,7 +469,7 @@ uint32 CSasCore::SetEffectVolume(uint32 contextAddr, uint32 volumeLeft, uint32 v
 {
 #ifdef _DEBUG
 	CLog::GetInstance().Print(LOGNAME, "SetEffectVolume(contextAddr = 0x%0.8X, left = 0x%0.2X, right = 0x%0.2X);\r\n",
-		contextAddr, volumeLeft, volumeRight);
+	                          contextAddr, volumeLeft, volumeRight);
 #endif
 	return 0;
 }
@@ -425,7 +478,7 @@ uint32 CSasCore::SetEffect(uint32 contextAddr, uint32 drySwitch, uint32 wetSwitc
 {
 #ifdef _DEBUG
 	CLog::GetInstance().Print(LOGNAME, "SetEffect(contextAddr = 0x%0.8X, dry = %d, wet = %d);\r\n",
-		contextAddr, drySwitch, wetSwitch);
+	                          contextAddr, drySwitch, wetSwitch);
 #endif
 	if(drySwitch)
 	{
@@ -445,92 +498,92 @@ void CSasCore::Invoke(uint32 methodId, CMIPS& context)
 	{
 	case 0x42778A9F:
 		context.m_State.nGPR[CMIPS::V0].nV0 = Init(
-			context.m_State.nGPR[CMIPS::A0].nV0,
-			context.m_State.nGPR[CMIPS::A1].nV0,
-			context.m_State.nGPR[CMIPS::A2].nV0,
-			context.m_State.nGPR[CMIPS::A3].nV0,
-			context.m_State.nGPR[CMIPS::T0].nV0);
+		    context.m_State.nGPR[CMIPS::A0].nV0,
+		    context.m_State.nGPR[CMIPS::A1].nV0,
+		    context.m_State.nGPR[CMIPS::A2].nV0,
+		    context.m_State.nGPR[CMIPS::A3].nV0,
+		    context.m_State.nGPR[CMIPS::T0].nV0);
 		break;
 	case 0xA3589D81:
 		context.m_State.nGPR[CMIPS::V0].nV0 = Core(
-			context.m_State.nGPR[CMIPS::A0].nV0,
-			context.m_State.nGPR[CMIPS::A1].nV0);
+		    context.m_State.nGPR[CMIPS::A0].nV0,
+		    context.m_State.nGPR[CMIPS::A1].nV0);
 		break;
 	case 0x99944089:
 		context.m_State.nGPR[CMIPS::V0].nV0 = SetVoice(
-			context.m_State.nGPR[CMIPS::A0].nV0,
-			context.m_State.nGPR[CMIPS::A1].nV0,
-			context.m_State.nGPR[CMIPS::A2].nV0,
-			context.m_State.nGPR[CMIPS::A3].nV0,
-			context.m_State.nGPR[CMIPS::T0].nV0);
+		    context.m_State.nGPR[CMIPS::A0].nV0,
+		    context.m_State.nGPR[CMIPS::A1].nV0,
+		    context.m_State.nGPR[CMIPS::A2].nV0,
+		    context.m_State.nGPR[CMIPS::A3].nV0,
+		    context.m_State.nGPR[CMIPS::T0].nV0);
 		break;
 	case 0xAD84D37F:
 		context.m_State.nGPR[CMIPS::V0].nV0 = SetPitch(
-			context.m_State.nGPR[CMIPS::A0].nV0,
-			context.m_State.nGPR[CMIPS::A1].nV0,
-			context.m_State.nGPR[CMIPS::A2].nV0);
+		    context.m_State.nGPR[CMIPS::A0].nV0,
+		    context.m_State.nGPR[CMIPS::A1].nV0,
+		    context.m_State.nGPR[CMIPS::A2].nV0);
 		break;
 	case 0x440CA7D8:
 		context.m_State.nGPR[CMIPS::V0].nV0 = SetVolume(
-			context.m_State.nGPR[CMIPS::A0].nV0,
-			context.m_State.nGPR[CMIPS::A1].nV0,
-			context.m_State.nGPR[CMIPS::A2].nV0,
-			context.m_State.nGPR[CMIPS::A3].nV0,
-			context.m_State.nGPR[CMIPS::T0].nV0,
-			context.m_State.nGPR[CMIPS::T1].nV0);
+		    context.m_State.nGPR[CMIPS::A0].nV0,
+		    context.m_State.nGPR[CMIPS::A1].nV0,
+		    context.m_State.nGPR[CMIPS::A2].nV0,
+		    context.m_State.nGPR[CMIPS::A3].nV0,
+		    context.m_State.nGPR[CMIPS::T0].nV0,
+		    context.m_State.nGPR[CMIPS::T1].nV0);
 		break;
 	case 0xCBCD4F79:
 		context.m_State.nGPR[CMIPS::V0].nV0 = SetSimpleADSR(
-			context.m_State.nGPR[CMIPS::A0].nV0,
-			context.m_State.nGPR[CMIPS::A1].nV0,
-			context.m_State.nGPR[CMIPS::A2].nV0,
-			context.m_State.nGPR[CMIPS::A3].nV0);
+		    context.m_State.nGPR[CMIPS::A0].nV0,
+		    context.m_State.nGPR[CMIPS::A1].nV0,
+		    context.m_State.nGPR[CMIPS::A2].nV0,
+		    context.m_State.nGPR[CMIPS::A3].nV0);
 		break;
 	case 0x76F01ACA:
 		context.m_State.nGPR[CMIPS::V0].nV0 = SetKeyOn(
-			context.m_State.nGPR[CMIPS::A0].nV0,
-			context.m_State.nGPR[CMIPS::A1].nV0);
+		    context.m_State.nGPR[CMIPS::A0].nV0,
+		    context.m_State.nGPR[CMIPS::A1].nV0);
 		break;
 	case 0xA0CF2FA4:
 		context.m_State.nGPR[CMIPS::V0].nV0 = SetKeyOff(
-			context.m_State.nGPR[CMIPS::A0].nV0,
-			context.m_State.nGPR[CMIPS::A1].nV0);
+		    context.m_State.nGPR[CMIPS::A0].nV0,
+		    context.m_State.nGPR[CMIPS::A1].nV0);
 		break;
 	case 0x07F58C24:
 		context.m_State.nGPR[CMIPS::V0].nV0 = GetAllEnvelope(
-			context.m_State.nGPR[CMIPS::A0].nV0,
-			context.m_State.nGPR[CMIPS::A1].nV0);
+		    context.m_State.nGPR[CMIPS::A0].nV0,
+		    context.m_State.nGPR[CMIPS::A1].nV0);
 		break;
 	case 0x2C8E6AB3:
 		context.m_State.nGPR[CMIPS::V0].nV0 = GetPauseFlag(
-			context.m_State.nGPR[CMIPS::A0].nV0);
+		    context.m_State.nGPR[CMIPS::A0].nV0);
 		break;
 	case 0x68A46B95:
 		context.m_State.nGPR[CMIPS::V0].nV0 = GetEndFlag(
-			context.m_State.nGPR[CMIPS::A0].nV0);
+		    context.m_State.nGPR[CMIPS::A0].nV0);
 		break;
 	case 0x33D4AB37:
 		context.m_State.nGPR[CMIPS::V0].nV0 = SetEffectType(
-			context.m_State.nGPR[CMIPS::A0].nV0,
-			context.m_State.nGPR[CMIPS::A1].nV0);
+		    context.m_State.nGPR[CMIPS::A0].nV0,
+		    context.m_State.nGPR[CMIPS::A1].nV0);
 		break;
 	case 0x267A6DD2:
 		context.m_State.nGPR[CMIPS::V0].nV0 = SetEffectParam(
-			context.m_State.nGPR[CMIPS::A0].nV0,
-			context.m_State.nGPR[CMIPS::A1].nV0,
-			context.m_State.nGPR[CMIPS::A2].nV0);
+		    context.m_State.nGPR[CMIPS::A0].nV0,
+		    context.m_State.nGPR[CMIPS::A1].nV0,
+		    context.m_State.nGPR[CMIPS::A2].nV0);
 		break;
 	case 0xD5A229C9:
 		context.m_State.nGPR[CMIPS::V0].nV0 = SetEffectVolume(
-			context.m_State.nGPR[CMIPS::A0].nV0,
-			context.m_State.nGPR[CMIPS::A1].nV0,
-			context.m_State.nGPR[CMIPS::A2].nV0);
+		    context.m_State.nGPR[CMIPS::A0].nV0,
+		    context.m_State.nGPR[CMIPS::A1].nV0,
+		    context.m_State.nGPR[CMIPS::A2].nV0);
 		break;
 	case 0xF983B186:
 		context.m_State.nGPR[CMIPS::V0].nV0 = SetEffect(
-			context.m_State.nGPR[CMIPS::A0].nV0,
-			context.m_State.nGPR[CMIPS::A1].nV0,
-			context.m_State.nGPR[CMIPS::A2].nV0);
+		    context.m_State.nGPR[CMIPS::A0].nV0,
+		    context.m_State.nGPR[CMIPS::A1].nV0,
+		    context.m_State.nGPR[CMIPS::A2].nV0);
 		break;
 	default:
 		CLog::GetInstance().Print(LOGNAME, "Unknown function called 0x%0.8X\r\n", methodId);

@@ -3,17 +3,16 @@
 #include "string_cast.h"
 #include "../ee/VuAnalysis.h"
 
-#define ID_DISASM_ANALYSE		40100
+#define ID_DISASM_ANALYSE 40100
 
 CDisAsmVu::CDisAsmVu(HWND hParent, const RECT& rect, CVirtualMachine& virtualMachine, CMIPS* ctx)
-: CDisAsm(hParent, rect, virtualMachine, ctx)
+    : CDisAsm(hParent, rect, virtualMachine, ctx)
 {
 	m_instructionSize = 8;
 }
 
 CDisAsmVu::~CDisAsmVu()
 {
-
 }
 
 long CDisAsmVu::OnCommand(unsigned short id, unsigned short msg, HWND hwndFrom)
@@ -44,7 +43,7 @@ std::tstring CDisAsmVu::GetInstructionDetailsText(uint32 address)
 	std::tstring result;
 
 	result += lexical_cast_hex<std::tstring>(address, 8) + _T("    ");
-	result += lexical_cast_hex<std::tstring>(upperInstruction,  8) + _T(" ") + lexical_cast_hex<std::tstring>(lowerInstruction,  8) + _T("    ");
+	result += lexical_cast_hex<std::tstring>(upperInstruction, 8) + _T(" ") + lexical_cast_hex<std::tstring>(lowerInstruction, 8) + _T("    ");
 
 	char disasm[256];
 
@@ -92,7 +91,7 @@ void CDisAsmVu::DrawInstructionDetails(Framework::Win32::CDeviceContext& deviceC
 
 	std::tstring instructionCode = lexical_cast_hex<std::tstring>(upperInstruction, 8) + _T(" ") + lexical_cast_hex<std::tstring>(lowerInstruction, 8);
 	deviceContext.TextOut(m_renderMetrics.fontSizeX * 15, y, instructionCode.c_str());
-		
+
 	{
 		char disAsm[256];
 		m_ctx->m_pArch->GetInstructionMnemonic(m_ctx, address + 4, upperInstruction, disAsm, 256);

@@ -7,8 +7,8 @@
 class CGsInputStateView : public CRegViewPage, public IFrameDebuggerTab
 {
 public:
-							CGsInputStateView(HWND, const RECT&);
-	virtual					~CGsInputStateView();
+	CGsInputStateView(HWND, const RECT&);
+	virtual ~CGsInputStateView();
 
-	void					UpdateState(CGSHandler*, CGsPacketMetadata*, DRAWINGKICK_INFO*) override;
+	void UpdateState(CGSHandler*, CGsPacketMetadata*, DRAWINGKICK_INFO*) override;
 };

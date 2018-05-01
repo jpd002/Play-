@@ -10,12 +10,10 @@ using namespace VideoStream;
 
 ReadMacroblock::ReadMacroblock()
 {
-
 }
 
 ReadMacroblock::~ReadMacroblock()
 {
-
 }
 
 void ReadMacroblock::RegisterOnMacroblockDecodedHandler(const OnMacroblockDecodedHandler& handler)
@@ -40,58 +38,74 @@ void ReadMacroblock::Execute(void* context, Framework::CBitStream& stream)
 	{
 		switch(m_programState)
 		{
-		case STATE_INIT:					goto Label_Init;
-		case STATE_ESCAPE:					goto Label_Escape;
-		case STATE_SKIPESCAPE:				goto Label_SkipEscape;
-		case STATE_READMBINCREMENT:			goto Label_ReadMbIncrement;
-		case STATE_READMBMODES:				goto Label_ReadMbModes;
-		case STATE_READDCTTYPE:				goto Label_ReadDctType;
-		case STATE_CHECKMBMODES:			goto Label_CheckMbModes;
-		case STATE_CHECKMBMODES_QSC:		goto Label_CheckMbModes_Qsc;
-		case STATE_CHECKMBMODES_FWM_INIT:	goto Label_CheckMbModes_Fwm_Init;
-		case STATE_CHECKMBMODES_FWM:		goto Label_CheckMbModes_Fwm;
-		case STATE_CHECKMBMODES_BKM_INIT:	goto Label_CheckMbModes_Bkm_Init;
-		case STATE_CHECKMBMODES_BKM:		goto Label_CheckMbModes_Bkm;
-		case STATE_CHECKMBMODES_CBP:		goto Label_CheckMbModes_Cbp;
-		case STATE_READBLOCKINIT:			goto Label_ReadBlockInit;
-		case STATE_READBLOCK:				goto Label_ReadBlock;
-		default:							assert(0);
+		case STATE_INIT:
+			goto Label_Init;
+		case STATE_ESCAPE:
+			goto Label_Escape;
+		case STATE_SKIPESCAPE:
+			goto Label_SkipEscape;
+		case STATE_READMBINCREMENT:
+			goto Label_ReadMbIncrement;
+		case STATE_READMBMODES:
+			goto Label_ReadMbModes;
+		case STATE_READDCTTYPE:
+			goto Label_ReadDctType;
+		case STATE_CHECKMBMODES:
+			goto Label_CheckMbModes;
+		case STATE_CHECKMBMODES_QSC:
+			goto Label_CheckMbModes_Qsc;
+		case STATE_CHECKMBMODES_FWM_INIT:
+			goto Label_CheckMbModes_Fwm_Init;
+		case STATE_CHECKMBMODES_FWM:
+			goto Label_CheckMbModes_Fwm;
+		case STATE_CHECKMBMODES_BKM_INIT:
+			goto Label_CheckMbModes_Bkm_Init;
+		case STATE_CHECKMBMODES_BKM:
+			goto Label_CheckMbModes_Bkm;
+		case STATE_CHECKMBMODES_CBP:
+			goto Label_CheckMbModes_Cbp;
+		case STATE_READBLOCKINIT:
+			goto Label_ReadBlockInit;
+		case STATE_READBLOCK:
+			goto Label_ReadBlock;
+		default:
+			assert(0);
 		}
 
-Label_Init:
+	Label_Init:
 		decoderState.mbIncrement = 0;
 		m_programState = STATE_ESCAPE;
 		continue;
 
-Label_Escape:
+	Label_Escape:
+	{
+		uint32 escapeSequence = stream.PeekBits_MSBF(11);
+		if(escapeSequence != 0x08)
 		{
-			uint32 escapeSequence = stream.PeekBits_MSBF(11);
-			if(escapeSequence != 0x08)
-			{
-				m_programState = STATE_READMBINCREMENT;
-			}
-			else
-			{
-				m_programState = STATE_SKIPESCAPE;
-			}
+			m_programState = STATE_READMBINCREMENT;
 		}
+		else
+		{
+			m_programState = STATE_SKIPESCAPE;
+		}
+	}
 		continue;
 
-Label_SkipEscape:
+	Label_SkipEscape:
 		stream.Advance(11);
 #ifdef _DECODE_LOGGING
 		CLog::GetInstance().Print(DECODE_LOG_NAME, "Symbol(%d, 'mb increment') = %d\r\n",
-			g_currentVdec++, 35);
+		                          g_currentVdec++, 35);
 #endif
 		decoderState.mbIncrement += 33;
 		m_programState = STATE_ESCAPE;
 		continue;
 
-Label_ReadMbIncrement:
+	Label_ReadMbIncrement:
 		uint32 increment = MPEG2::CMacroblockAddressIncrementTable::GetInstance()->GetSymbol(&stream);
 #ifdef _DECODE_LOGGING
 		CLog::GetInstance().Print(DECODE_LOG_NAME, "Symbol(%d, 'mb increment') = %d\r\n",
-			g_currentVdec++, increment);
+		                          g_currentVdec++, increment);
 #endif
 		decoderState.mbIncrement += increment;
 		if(decoderState.mbIncrement != 1)
@@ -103,19 +117,19 @@ Label_ReadMbIncrement:
 				int16 resetValue = 0;
 				switch(pictureCodingExtension.intraDcPrecision)
 				{
-					case 0:
-						resetValue = 128;
-						break;
-					case 1:
-						resetValue = 256;
-						break;
-					case 2:
-						resetValue = 512;
-						break;
-					default:
-						resetValue = 0;
-						assert(0);
-						break;
+				case 0:
+					resetValue = 128;
+					break;
+				case 1:
+					resetValue = 256;
+					break;
+				case 2:
+					resetValue = 512;
+					break;
+				default:
+					resetValue = 0;
+					assert(0);
+					break;
 				}
 				decoderState.dcPredictor[0] = resetValue;
 				decoderState.dcPredictor[1] = resetValue;
@@ -132,16 +146,15 @@ Label_ReadMbIncrement:
 		m_programState = STATE_READMBMODES;
 		continue;
 
-Label_ReadMbModes:
+	Label_ReadMbModes:
 		m_macroblockModesReader.Execute(context, stream);
 #ifdef _DECODE_LOGGING
 		CLog::GetInstance().Print(DECODE_LOG_NAME, "Symbol(%d, 'mb type') = %d\r\n",
-			g_currentVdec++, decoderState.macroblockType);
+		                          g_currentVdec++, decoderState.macroblockType);
 #endif
 		if(
-			(!pictureCodingExtension.framePredFrameDct) &&
-			(decoderState.macroblockType & (MACROBLOCK_MODE_BLOCK_PATTERN | MACROBLOCK_MODE_INTRA))
-			)
+		    (!pictureCodingExtension.framePredFrameDct) &&
+		    (decoderState.macroblockType & (MACROBLOCK_MODE_BLOCK_PATTERN | MACROBLOCK_MODE_INTRA)))
 		{
 			m_programState = STATE_READDCTTYPE;
 		}
@@ -151,16 +164,16 @@ Label_ReadMbModes:
 		}
 		continue;
 
-Label_ReadDctType:
+	Label_ReadDctType:
 		decoderState.dctType = static_cast<uint8>(stream.GetBits_MSBF(1));
 		m_programState = STATE_CHECKMBMODES;
 		continue;
 
-Label_CheckMbModes:
+	Label_CheckMbModes:
 		m_programState = STATE_CHECKMBMODES_QSC;
 		continue;
 
-Label_CheckMbModes_Qsc:
+	Label_CheckMbModes_Qsc:
 		if(decoderState.macroblockType & MACROBLOCK_MODE_QUANT)
 		{
 			decoderState.quantizerScaleCode = static_cast<uint8>(stream.GetBits_MSBF(5));
@@ -168,7 +181,7 @@ Label_CheckMbModes_Qsc:
 		m_programState = STATE_CHECKMBMODES_FWM_INIT;
 		continue;
 
-Label_CheckMbModes_Fwm_Init:
+	Label_CheckMbModes_Fwm_Init:
 		if(sequenceHeader.isMpeg2)
 		{
 			m_motionVectorsReader.Reset();
@@ -182,7 +195,7 @@ Label_CheckMbModes_Fwm_Init:
 		m_programState = STATE_CHECKMBMODES_FWM;
 		continue;
 
-Label_CheckMbModes_Fwm:
+	Label_CheckMbModes_Fwm:
 		if(decoderState.macroblockType & MACROBLOCK_MODE_MOTION_FORWARD) //or intra & concealment motion vectors
 		{
 			if(sequenceHeader.isMpeg2)
@@ -193,16 +206,16 @@ Label_CheckMbModes_Fwm:
 			else
 			{
 				m_singleMotionVectorReader.Execute(context, stream);
-				decoderState.forwardMotionVector[0] = 
-					ReadMotionVector::ComputeMotionVector(decoderState.forwardMotionVector[0], decoderState.motionCode[0], decoderState.motionResidual[0], pictureHeader.forwardFCode - 1);
-				decoderState.forwardMotionVector[1] = 
-					ReadMotionVector::ComputeMotionVector(decoderState.forwardMotionVector[1], decoderState.motionCode[1], decoderState.motionResidual[1], pictureHeader.forwardFCode - 1);
+				decoderState.forwardMotionVector[0] =
+				    ReadMotionVector::ComputeMotionVector(decoderState.forwardMotionVector[0], decoderState.motionCode[0], decoderState.motionResidual[0], pictureHeader.forwardFCode - 1);
+				decoderState.forwardMotionVector[1] =
+				    ReadMotionVector::ComputeMotionVector(decoderState.forwardMotionVector[1], decoderState.motionCode[1], decoderState.motionResidual[1], pictureHeader.forwardFCode - 1);
 			}
 		}
 		m_programState = STATE_CHECKMBMODES_BKM_INIT;
 		continue;
 
-Label_CheckMbModes_Bkm_Init:
+	Label_CheckMbModes_Bkm_Init:
 		if(sequenceHeader.isMpeg2)
 		{
 			m_motionVectorsReader.Reset();
@@ -216,7 +229,7 @@ Label_CheckMbModes_Bkm_Init:
 		m_programState = STATE_CHECKMBMODES_BKM;
 		continue;
 
-Label_CheckMbModes_Bkm:
+	Label_CheckMbModes_Bkm:
 		if(decoderState.macroblockType & MACROBLOCK_MODE_MOTION_BACKWARD)
 		{
 			if(sequenceHeader.isMpeg2)
@@ -232,7 +245,7 @@ Label_CheckMbModes_Bkm:
 		m_programState = STATE_CHECKMBMODES_CBP;
 		continue;
 
-Label_CheckMbModes_Cbp:
+	Label_CheckMbModes_Cbp:
 		if(decoderState.macroblockType & MACROBLOCK_MODE_BLOCK_PATTERN)
 		{
 			//Need to verify that
@@ -241,9 +254,8 @@ Label_CheckMbModes_Cbp:
 		else
 		{
 			if(
-				(pictureHeader.pictureCodingType == PICTURE_TYPE_I) ||
-				(decoderState.macroblockType & MACROBLOCK_MODE_INTRA)
-				)
+			    (pictureHeader.pictureCodingType == PICTURE_TYPE_I) ||
+			    (decoderState.macroblockType & MACROBLOCK_MODE_INTRA))
 			{
 				decoderState.codedBlockPattern = 0x3F;
 			}
@@ -255,39 +267,39 @@ Label_CheckMbModes_Cbp:
 		m_programState = STATE_READBLOCKINIT;
 		continue;
 
-Label_ReadBlockInit:
+	Label_ReadBlockInit:
 		m_blockReader.Reset();
 #ifdef _DECODE_LOGGING
 		if(decoderState.codedBlockPattern != 0)
 		{
 			static int currentMbIndex = 0;
-			CLog::GetInstance().Print(DECODE_LOG_NAME, "Macroblock(%d, CBP: 0x%0.2X)\r\n", 
-				currentMbIndex++, decoderState.codedBlockPattern);
+			CLog::GetInstance().Print(DECODE_LOG_NAME, "Macroblock(%d, CBP: 0x%0.2X)\r\n",
+			                          currentMbIndex++, decoderState.codedBlockPattern);
 		}
 #endif
 		m_programState = STATE_READBLOCK;
 		continue;
 
-Label_ReadBlock:
+	Label_ReadBlock:
 		m_blockReader.Execute(context, stream);
 		if(!(decoderState.macroblockType & MACROBLOCK_MODE_INTRA))
 		{
 			int16 resetValue = 0;
 			switch(pictureCodingExtension.intraDcPrecision)
 			{
-				case 0:
-					resetValue = 128;
-					break;
-				case 1:
-					resetValue = 256;
-					break;
-				case 2:
-					resetValue = 512;
-					break;
-				default:
-					resetValue = 0;
-					assert(0);
-					break;
+			case 0:
+				resetValue = 128;
+				break;
+			case 1:
+				resetValue = 256;
+				break;
+			case 2:
+				resetValue = 512;
+				break;
+			default:
+				resetValue = 0;
+				assert(0);
+				break;
 			}
 			decoderState.dcPredictor[0] = resetValue;
 			decoderState.dcPredictor[1] = resetValue;

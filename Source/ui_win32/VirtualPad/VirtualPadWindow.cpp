@@ -13,7 +13,6 @@
 
 CVirtualPadWindow::CVirtualPadWindow()
 {
-
 }
 
 CVirtualPadWindow::CVirtualPadWindow(HWND parentWnd)
@@ -22,17 +21,17 @@ CVirtualPadWindow::CVirtualPadWindow(HWND parentWnd)
 	auto result = Gdiplus::GdiplusStartup(&m_gdiPlusToken, &startupInput, NULL);
 	assert(result == Gdiplus::Ok);
 
-	m_itemImages["left"]        = LoadBitmapFromResource(IDB_VIRTUALPAD_LEFT);
-	m_itemImages["right"]       = LoadBitmapFromResource(IDB_VIRTUALPAD_RIGHT);
-	m_itemImages["up"]          = LoadBitmapFromResource(IDB_VIRTUALPAD_UP);
-	m_itemImages["down"]        = LoadBitmapFromResource(IDB_VIRTUALPAD_DOWN);
-	m_itemImages["triangle"]    = LoadBitmapFromResource(IDB_VIRTUALPAD_TRIANGLE);
-	m_itemImages["square"]      = LoadBitmapFromResource(IDB_VIRTUALPAD_SQUARE);
-	m_itemImages["circle"]      = LoadBitmapFromResource(IDB_VIRTUALPAD_CIRCLE);
-	m_itemImages["cross"]       = LoadBitmapFromResource(IDB_VIRTUALPAD_CROSS);
-	m_itemImages["start"]       = LoadBitmapFromResource(IDB_VIRTUALPAD_START);
-	m_itemImages["select"]      = LoadBitmapFromResource(IDB_VIRTUALPAD_SELECT);
-	m_itemImages["lr"]          = LoadBitmapFromResource(IDB_VIRTUALPAD_LR);
+	m_itemImages["left"] = LoadBitmapFromResource(IDB_VIRTUALPAD_LEFT);
+	m_itemImages["right"] = LoadBitmapFromResource(IDB_VIRTUALPAD_RIGHT);
+	m_itemImages["up"] = LoadBitmapFromResource(IDB_VIRTUALPAD_UP);
+	m_itemImages["down"] = LoadBitmapFromResource(IDB_VIRTUALPAD_DOWN);
+	m_itemImages["triangle"] = LoadBitmapFromResource(IDB_VIRTUALPAD_TRIANGLE);
+	m_itemImages["square"] = LoadBitmapFromResource(IDB_VIRTUALPAD_SQUARE);
+	m_itemImages["circle"] = LoadBitmapFromResource(IDB_VIRTUALPAD_CIRCLE);
+	m_itemImages["cross"] = LoadBitmapFromResource(IDB_VIRTUALPAD_CROSS);
+	m_itemImages["start"] = LoadBitmapFromResource(IDB_VIRTUALPAD_START);
+	m_itemImages["select"] = LoadBitmapFromResource(IDB_VIRTUALPAD_SELECT);
+	m_itemImages["lr"] = LoadBitmapFromResource(IDB_VIRTUALPAD_LR);
 	m_itemImages["analogStick"] = LoadBitmapFromResource(IDB_VIRTUALPAD_ANALOGSTICK);
 
 	Create(WS_EX_LAYERED, Framework::Win32::CDefaultWndClass::GetName(), _T(""), WS_POPUP, Framework::Win32::CRect(0, 0, 128, 128), parentWnd, NULL);
@@ -44,7 +43,7 @@ CVirtualPadWindow::~CVirtualPadWindow()
 	Reset();
 }
 
-CVirtualPadWindow& CVirtualPadWindow::operator =(CVirtualPadWindow&& rhs)
+CVirtualPadWindow& CVirtualPadWindow::operator=(CVirtualPadWindow&& rhs)
 {
 	Reset();
 	MoveFrom(std::move(rhs));
@@ -170,7 +169,7 @@ CVirtualPadWindow::BitmapPtr CVirtualPadWindow::LoadBitmapFromResource(int resou
 void CVirtualPadWindow::RecreateItems(unsigned int width, unsigned int height)
 {
 	auto itemDefs = CVirtualPad::GetItems(width, height);
-	
+
 	m_items.clear();
 	for(const auto& itemDef : itemDefs)
 	{
@@ -208,13 +207,13 @@ void CVirtualPadWindow::UpdateSurface()
 	auto memDc = Framework::Win32::CMemoryDeviceContext(screenDc);
 
 	BITMAPINFO bitmapInfo = {};
-	bitmapInfo.bmiHeader.biSize        = sizeof(BITMAPINFOHEADER);
-	bitmapInfo.bmiHeader.biWidth       = windowRect.Width();
-	bitmapInfo.bmiHeader.biHeight      = windowRect.Height();
-	bitmapInfo.bmiHeader.biPlanes      = 1;
-	bitmapInfo.bmiHeader.biBitCount    = 32;
+	bitmapInfo.bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
+	bitmapInfo.bmiHeader.biWidth = windowRect.Width();
+	bitmapInfo.bmiHeader.biHeight = windowRect.Height();
+	bitmapInfo.bmiHeader.biPlanes = 1;
+	bitmapInfo.bmiHeader.biBitCount = 32;
 	bitmapInfo.bmiHeader.biCompression = BI_RGB;
-	
+
 	auto memBitmap = Framework::Win32::CBitmap(CreateDIBSection(memDc, &bitmapInfo, DIB_RGB_COLORS, nullptr, NULL, 0));
 	memDc.SelectObject(memBitmap);
 
@@ -224,9 +223,9 @@ void CVirtualPadWindow::UpdateSurface()
 		item->Draw(graphics);
 	}
 
-	POINT dstPt = { windowRect.Left(), windowRect.Top() };
-	SIZE dstSize = { windowRect.Width(), windowRect.Height() };
-	POINT srcPt = { 0, 0 };
+	POINT dstPt = {windowRect.Left(), windowRect.Top()};
+	SIZE dstSize = {windowRect.Width(), windowRect.Height()};
+	POINT srcPt = {0, 0};
 
 	BLENDFUNCTION blendFunc = {};
 	blendFunc.BlendOp = AC_SRC_OVER;

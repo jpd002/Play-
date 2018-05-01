@@ -2,158 +2,194 @@
 #include "string_format.h"
 #include "../GSH_Direct3D9.h"
 
-static const char* g_yesNoString[2] = 
-{
-	"NO",
-	"YES"
-};
+static const char* g_yesNoString[2] =
+    {
+        "NO",
+        "YES"};
 
 static const char* g_pixelFormats[0x40] =
-{
-	//0x00
-	"PSMCT32",		"PSMCT24",		"PSMCT16",		"(INVALID)",
-	//0x04
-	"(INVALID)",	"(INVALID)",	"(INVALID)",	"(INVALID)",
-	//0x08
-	"(INVALID)",	"(INVALID)",	"PSMCT16S",		"(INVALID)",
-	//0x0C
-	"(INVALID)",	"(INVALID)",	"(INVALID)",	"(INVALID)",
+    {
+        //0x00
+        "PSMCT32",
+        "PSMCT24",
+        "PSMCT16",
+        "(INVALID)",
+        //0x04
+        "(INVALID)",
+        "(INVALID)",
+        "(INVALID)",
+        "(INVALID)",
+        //0x08
+        "(INVALID)",
+        "(INVALID)",
+        "PSMCT16S",
+        "(INVALID)",
+        //0x0C
+        "(INVALID)",
+        "(INVALID)",
+        "(INVALID)",
+        "(INVALID)",
 
-	//0x10
-	"(INVALID)",	"(INVALID)",	"(INVALID)",	"PSMT8",
-	//0x14
-	"PSMT4",		"(INVALID)",	"(INVALID)",	"(INVALID)",
-	//0x18
-	"(INVALID)",	"(INVALID)",	"(INVALID)",	"PSMT8H",
-	//0x1C
-	"(INVALID)",	"(INVALID)",	"(INVALID)",	"(INVALID)",
+        //0x10
+        "(INVALID)",
+        "(INVALID)",
+        "(INVALID)",
+        "PSMT8",
+        //0x14
+        "PSMT4",
+        "(INVALID)",
+        "(INVALID)",
+        "(INVALID)",
+        //0x18
+        "(INVALID)",
+        "(INVALID)",
+        "(INVALID)",
+        "PSMT8H",
+        //0x1C
+        "(INVALID)",
+        "(INVALID)",
+        "(INVALID)",
+        "(INVALID)",
 
-	//0x20
-	"(INVALID)",	"(INVALID)",	"(INVALID)",	"(INVALID)",
-	//0x24
-	"PSMT4HL",		"(INVALID)",	"(INVALID)",	"(INVALID)",
-	//0x28
-	"(INVALID)",	"(INVALID)",	"(INVALID)",	"(INVALID)",
-	//0x2C
-	"PSMT4HH",		"(INVALID)",	"(INVALID)",	"(INVALID)",
+        //0x20
+        "(INVALID)",
+        "(INVALID)",
+        "(INVALID)",
+        "(INVALID)",
+        //0x24
+        "PSMT4HL",
+        "(INVALID)",
+        "(INVALID)",
+        "(INVALID)",
+        //0x28
+        "(INVALID)",
+        "(INVALID)",
+        "(INVALID)",
+        "(INVALID)",
+        //0x2C
+        "PSMT4HH",
+        "(INVALID)",
+        "(INVALID)",
+        "(INVALID)",
 
-	//0x30
-	"PSMZ32",		"PSMZ24",		"PSMZ16",		"(INVALID)",
-	//0x34
-	"(INVALID)",	"(INVALID)",	"(INVALID)",	"(INVALID)",
-	//0x38
-	"(INVALID)",	"(INVALID)",	"PSMZ16S",		"(INVALID)",
-	//0x3C
-	"(INVALID)",	"(INVALID)",	"(INVALID)",	"(INVALID)",
+        //0x30
+        "PSMZ32",
+        "PSMZ24",
+        "PSMZ16",
+        "(INVALID)",
+        //0x34
+        "(INVALID)",
+        "(INVALID)",
+        "(INVALID)",
+        "(INVALID)",
+        //0x38
+        "(INVALID)",
+        "(INVALID)",
+        "PSMZ16S",
+        "(INVALID)",
+        //0x3C
+        "(INVALID)",
+        "(INVALID)",
+        "(INVALID)",
+        "(INVALID)",
 };
 
 static const char* g_primitiveTypeString[8] =
-{
-	"POINT",
-	"LINE",
-	"LINESTRIP",
-	"TRIANGLE",
-	"TRIANGLESTRIP",
-	"TRIANGLEFAN",
-	"SPRITE",
-	"(INVALID)"
-};
+    {
+        "POINT",
+        "LINE",
+        "LINESTRIP",
+        "TRIANGLE",
+        "TRIANGLESTRIP",
+        "TRIANGLEFAN",
+        "SPRITE",
+        "(INVALID)"};
 
 static const char* g_depthTestFunctionString[4] =
-{
-	"NEVER",
-	"ALWAYS",
-	"GEQUAL",
-	"GREATER"
-};
+    {
+        "NEVER",
+        "ALWAYS",
+        "GEQUAL",
+        "GREATER"};
 
 static const char* g_alphaTestFunctionString[8] =
-{
-	"NEVER",
-	"ALWAYS",
-	"LESS",
-	"LEQUAL",
-	"EQUAL",
-	"GEQUAL",
-	"GREATER",
-	"NOTEQUAL"
-};
+    {
+        "NEVER",
+        "ALWAYS",
+        "LESS",
+        "LEQUAL",
+        "EQUAL",
+        "GEQUAL",
+        "GREATER",
+        "NOTEQUAL"};
 
 static const char* g_alphaTestFailOpString[4] =
-{
-	"KEEP",
-	"FB_ONLY",
-	"ZB_ONLY",
-	"RGB_ONLY"
-};
+    {
+        "KEEP",
+        "FB_ONLY",
+        "ZB_ONLY",
+        "RGB_ONLY"};
 
 static const char* g_alphaBlendAbdCoefString[4] =
-{
-	"Cs",
-	"Cd",
-	"0",
-	"(INVALID)"
-};
+    {
+        "Cs",
+        "Cd",
+        "0",
+        "(INVALID)"};
 
 static const char* g_alphaBlendCCoefString[4] =
-{
-	"As",
-	"Ad",
-	"FIX",
-	"(INVALID)"
-};
+    {
+        "As",
+        "Ad",
+        "FIX",
+        "(INVALID)"};
 
 static const char* g_textureFunctionString[4] =
-{
-	"MODULATE",
-	"DECAL",
-	"HIGHLIGHT",
-	"HIGHLIGHT2"
-};
+    {
+        "MODULATE",
+        "DECAL",
+        "HIGHLIGHT",
+        "HIGHLIGHT2"};
 
 static const char* g_textureClutLoadControlString[8] =
-{
-	"DO NOT LOAD",
-	"LOAD",
-	"LOAD AND COPY CBP TO CBP0",
-	"LOAD AND COPY CBP TO CBP1",
-	"LOAD IF CBP != CBP0 AND COPY CBP TO CBP0",
-	"LOAD IF CBP != CBP1 AND COPY CBP TO CBP1",
-	"(INVALID)",
-	"(INVALID)",
+    {
+        "DO NOT LOAD",
+        "LOAD",
+        "LOAD AND COPY CBP TO CBP0",
+        "LOAD AND COPY CBP TO CBP1",
+        "LOAD IF CBP != CBP0 AND COPY CBP TO CBP0",
+        "LOAD IF CBP != CBP1 AND COPY CBP TO CBP1",
+        "(INVALID)",
+        "(INVALID)",
 };
 
 static const char* g_textureMagFilterString[2] =
-{
-	"NEAREST",
-	"LINEAR"
-};
+    {
+        "NEAREST",
+        "LINEAR"};
 
 static const char* g_textureMinFilterString[8] =
-{
-	"NEAREST",
-	"LINEAR",
-	"NEAREST_MIPMAP_NEAREST",
-	"NEAREST_MIPMAP_LINEAR",
-	"LINEAR_MIPMAP_NEAREST",
-	"LINEAR_MIPMAP_LINEAR",
-	"(INVALID)",
-	"(INVALID)"
-};
+    {
+        "NEAREST",
+        "LINEAR",
+        "NEAREST_MIPMAP_NEAREST",
+        "NEAREST_MIPMAP_LINEAR",
+        "LINEAR_MIPMAP_NEAREST",
+        "LINEAR_MIPMAP_LINEAR",
+        "(INVALID)",
+        "(INVALID)"};
 
 static const char* g_wrapModeString[4] =
-{
-	"REPEAT",
-	"CLAMP",
-	"REGION_CLAMP",
-	"REGION_REPEAT"
-};
+    {
+        "REPEAT",
+        "CLAMP",
+        "REGION_CLAMP",
+        "REGION_REPEAT"};
 
 static const char* g_colorClampModeString[2] =
-{
-	"MASK",
-	"CLAMP"
-};
+    {
+        "MASK",
+        "CLAMP"};
 
 std::string CGsStateUtils::GetInputState(CGSHandler* gs)
 {
@@ -165,7 +201,7 @@ std::string CGsStateUtils::GetInputState(CGSHandler* gs)
 	bool usePrmode = (gs->GetRegisters()[GS_REG_PRMODECONT] & 1) == 0;
 
 	result += string_format("Use PRMODE: %s\r\n", g_yesNoString[usePrmode]);
-	
+
 	result += string_format("Primitive:\r\n");
 	result += string_format("\tContext: %d\r\n", prim.nContext + 1);
 	result += string_format("\tType: %s\r\n", g_primitiveTypeString[prim.nType]);
@@ -186,11 +222,11 @@ std::string CGsStateUtils::GetInputState(CGSHandler* gs)
 	for(unsigned int i = 0; i < 3; i++)
 	{
 		auto vertex = vertices[i];
-		float posX = static_cast<float>((vertex.nPosition >>  0) & 0xFFFF) / 16;
+		float posX = static_cast<float>((vertex.nPosition >> 0) & 0xFFFF) / 16;
 		float posY = static_cast<float>((vertex.nPosition >> 16) & 0xFFFF) / 16;
 		uint32 posZ = static_cast<uint32>(vertex.nPosition >> 32);
-		result += string_format("\tVertex %i:  %+10.4f  %+10.4f  0x%08X  %+10.4f  %+10.4f\r\n", 
-			i, posX, posY, posZ, posX - xyOffset.GetX(), posY - xyOffset.GetY());
+		result += string_format("\tVertex %i:  %+10.4f  %+10.4f  0x%08X  %+10.4f  %+10.4f\r\n",
+		                        i, posX, posY, posZ, posX - xyOffset.GetX(), posY - xyOffset.GetY());
 	}
 
 	result += "\r\n";
@@ -203,8 +239,8 @@ std::string CGsStateUtils::GetInputState(CGSHandler* gs)
 		auto st = make_convertible<CGSHandler::ST>(vertex.nST);
 		auto rgbaq = make_convertible<CGSHandler::RGBAQ>(vertex.nRGBAQ);
 		auto uv = make_convertible<CGSHandler::UV>(vertex.nUV);
-		result += string_format("\tVertex %i:  %+10.4f  %+10.4f  %+10.4f  %+10.4f  %+10.4f\r\n", 
-			i, st.nS, st.nT, rgbaq.nQ, uv.GetU(), uv.GetV());
+		result += string_format("\tVertex %i:  %+10.4f  %+10.4f  %+10.4f  %+10.4f  %+10.4f\r\n",
+		                        i, st.nS, st.nT, rgbaq.nQ, uv.GetU(), uv.GetV());
 	}
 
 	result += string_format("Color:\r\n");
@@ -213,8 +249,8 @@ std::string CGsStateUtils::GetInputState(CGSHandler* gs)
 	{
 		auto vertex = vertices[i];
 		auto rgbaq = make_convertible<CGSHandler::RGBAQ>(vertex.nRGBAQ);
-		result += string_format("\tVertex %i:        0x%02X        0x%02X        0x%02X        0x%02X\r\n", 
-			i, rgbaq.nR, rgbaq.nG, rgbaq.nB, rgbaq.nA);
+		result += string_format("\tVertex %i:        0x%02X        0x%02X        0x%02X        0x%02X\r\n",
+		                        i, rgbaq.nR, rgbaq.nG, rgbaq.nB, rgbaq.nA);
 	}
 
 	result += string_format("Fog:\r\n");
@@ -222,8 +258,8 @@ std::string CGsStateUtils::GetInputState(CGSHandler* gs)
 	for(unsigned int i = 0; i < 3; i++)
 	{
 		auto vertex = vertices[i];
-		result += string_format("\tVertex %i:        0x%02X\r\n", 
-			i, vertex.nFog);
+		result += string_format("\tVertex %i:        0x%02X\r\n",
+		                        i, vertex.nFog);
 	}
 
 	result += "\r\n";
@@ -317,7 +353,7 @@ std::string CGsStateUtils::GetContextState(CGSHandler* gs, unsigned int contextI
 		result += string_format("Depth Testing:\r\n");
 		result += string_format("\tEnabled: %s\r\n", g_yesNoString[test.nDepthEnabled]);
 		result += string_format("\tFunction: %s\r\n", g_depthTestFunctionString[test.nDepthMethod]);
-	
+
 		result += string_format("Alpha Testing:\r\n");
 		result += string_format("\tEnabled: %s\r\n", g_yesNoString[test.nAlphaEnabled]);
 		result += string_format("\tFunction: %s\r\n", g_alphaTestFunctionString[test.nAlphaMethod]);
@@ -329,9 +365,9 @@ std::string CGsStateUtils::GetContextState(CGSHandler* gs, unsigned int contextI
 		auto alpha = make_convertible<CGSHandler::ALPHA>(gs->GetRegisters()[GS_REG_ALPHA_1 + contextId]);
 		result += string_format("Alpha Blending:\r\n");
 		result += string_format("\tA: %d, B: %d, C: %d, D: %d\r\n", alpha.nA, alpha.nB, alpha.nC, alpha.nD);
-		result += string_format("\tFormula: (%s - %s) * %s + %s\r\n", 
-			g_alphaBlendAbdCoefString[alpha.nA], g_alphaBlendAbdCoefString[alpha.nB],
-			g_alphaBlendCCoefString[alpha.nC], g_alphaBlendAbdCoefString[alpha.nD]);
+		result += string_format("\tFormula: (%s - %s) * %s + %s\r\n",
+		                        g_alphaBlendAbdCoefString[alpha.nA], g_alphaBlendAbdCoefString[alpha.nB],
+		                        g_alphaBlendCCoefString[alpha.nC], g_alphaBlendAbdCoefString[alpha.nD]);
 		result += string_format("\tFixed Value: 0x%02X\r\n", alpha.nFix);
 	}
 

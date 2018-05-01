@@ -21,7 +21,6 @@ CPathTable::CPathTable(CBlockProvider* blockProvider, uint32 tableLba)
 
 CPathTable::~CPathTable()
 {
-
 }
 
 uint32 CPathTable::GetDirectoryAddress(unsigned int recordIndex) const

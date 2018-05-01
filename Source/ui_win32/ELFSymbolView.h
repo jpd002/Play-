@@ -8,20 +8,20 @@
 class CELFSymbolView : public Framework::Win32::CWindow
 {
 public:
-									CELFSymbolView(HWND, CELF*);
-	virtual							~CELFSymbolView();
+	CELFSymbolView(HWND, CELF*);
+	virtual ~CELFSymbolView();
 
 private:
 	typedef boost::flyweight<std::tstring> PooledString;
 
 	struct ITEM
 	{
-		PooledString	name;
-		PooledString	address;
-		PooledString	size;
-		PooledString	type;
-		PooledString	binding;
-		PooledString	section;
+		PooledString name;
+		PooledString address;
+		PooledString size;
+		PooledString type;
+		PooledString binding;
+		PooledString section;
 	};
 
 	typedef std::vector<ITEM> ItemArray;
@@ -35,19 +35,19 @@ private:
 		SORT_STATE_ADDRESS_DESC,
 	};
 
-	long							OnSize(unsigned int, unsigned int, unsigned int) override;
-	LRESULT							OnNotify(WPARAM, NMHDR*) override;
+	long OnSize(unsigned int, unsigned int, unsigned int) override;
+	LRESULT OnNotify(WPARAM, NMHDR*) override;
 
-	static int						ItemNameComparer(const ITEM&, const ITEM&);
-	static int						ItemAddressComparer(const ITEM&, const ITEM&);
+	static int ItemNameComparer(const ITEM&, const ITEM&);
+	static int ItemAddressComparer(const ITEM&, const ITEM&);
 
-	void							RefreshLayout();
-	void							PopulateList();
-	void							GetItemInfo(LVITEM*) const;
+	void RefreshLayout();
+	void PopulateList();
+	void GetItemInfo(LVITEM*) const;
 
-	CELF*							m_pELF;
-	Framework::Win32::CListView*	m_listView;
-	ItemArray						m_items;
+	CELF* m_pELF;
+	Framework::Win32::CListView* m_listView;
+	ItemArray m_items;
 
-	SORT_STATE						m_sortState;
+	SORT_STATE m_sortState;
 };

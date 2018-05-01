@@ -6,12 +6,10 @@
 
 CAboutWindow::CAboutWindow()
 {
-
 }
 
 CAboutWindow::~CAboutWindow()
 {
-
 }
 
 void CAboutWindow::DoModal(HWND parentWnd)
@@ -29,15 +27,15 @@ void CAboutWindow::DoModal(HWND parentWnd)
 
 	TASKDIALOGCONFIG taskDialog;
 	memset(&taskDialog, 0, sizeof(TASKDIALOGCONFIG));
-	taskDialog.cbSize				= sizeof(TASKDIALOGCONFIG);
-	taskDialog.dwFlags				= TDF_ALLOW_DIALOG_CANCELLATION | TDF_ENABLE_HYPERLINKS;
-	taskDialog.hInstance			= GetModuleHandle(NULL);
-	taskDialog.hwndParent			= parentWnd;
-	taskDialog.pszWindowTitle		= _T("About");
-	taskDialog.pszMainInstruction	= aboutMainInstruction.c_str();
-	taskDialog.pszContent			= aboutContent.c_str();
-	taskDialog.pszMainIcon			= MAKEINTRESOURCE(IDI_MAIN);
-	taskDialog.pfCallback			= &CAboutWindow::TaskDialogCallback;
+	taskDialog.cbSize = sizeof(TASKDIALOGCONFIG);
+	taskDialog.dwFlags = TDF_ALLOW_DIALOG_CANCELLATION | TDF_ENABLE_HYPERLINKS;
+	taskDialog.hInstance = GetModuleHandle(NULL);
+	taskDialog.hwndParent = parentWnd;
+	taskDialog.pszWindowTitle = _T("About");
+	taskDialog.pszMainInstruction = aboutMainInstruction.c_str();
+	taskDialog.pszContent = aboutContent.c_str();
+	taskDialog.pszMainIcon = MAKEINTRESOURCE(IDI_MAIN);
+	taskDialog.pfCallback = &CAboutWindow::TaskDialogCallback;
 	TaskDialogIndirectEmulate(&taskDialog, NULL, NULL, NULL);
 }
 

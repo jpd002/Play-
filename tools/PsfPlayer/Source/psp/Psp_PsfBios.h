@@ -9,33 +9,33 @@ namespace Psp
 	class CPsfBios : public CBiosDebugInfoProvider
 	{
 	public:
-									CPsfBios(CMIPS&, uint8*, uint32);
-		virtual						~CPsfBios();
+		CPsfBios(CMIPS&, uint8*, uint32);
+		virtual ~CPsfBios();
 
-		void						AppendArchive(const CPsfBase&);
-		void						Start();
-		void						Reset();
+		void AppendArchive(const CPsfBase&);
+		void Start();
+		void Reset();
 
-		CSasCore*					GetSasCore();
-		CAudio*						GetAudio();
+		CSasCore* GetSasCore();
+		CAudio* GetAudio();
 
-		void						HandleException();
-		void						HandleInterrupt();
-		void						CountTicks(uint32);
+		void HandleException();
+		void HandleInterrupt();
+		void CountTicks(uint32);
 
-		bool						IsIdle();
+		bool IsIdle();
 
 #ifdef DEBUGGER_INCLUDED
-		void						LoadDebugTags(Framework::Xml::CNode*);
-		void						SaveDebugTags(Framework::Xml::CNode*);
+		void LoadDebugTags(Framework::Xml::CNode*);
+		void SaveDebugTags(Framework::Xml::CNode*);
 
-		BiosDebugModuleInfoArray	GetModulesDebugInfo() const override;
-		BiosDebugThreadInfoArray	GetThreadsDebugInfo() const override;
+		BiosDebugModuleInfoArray GetModulesDebugInfo() const override;
+		BiosDebugThreadInfoArray GetThreadsDebugInfo() const override;
 #endif
 
 	private:
-		CBios						m_bios;
-		PsfDevicePtr				m_psfDevice;
+		CBios m_bios;
+		PsfDevicePtr m_psfDevice;
 	};
 }
 

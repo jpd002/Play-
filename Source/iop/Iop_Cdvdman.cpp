@@ -3,49 +3,48 @@
 #include "IopBios.h"
 #include "Iop_Cdvdman.h"
 
-#define LOG_NAME			"iop_cdvdman"
+#define LOG_NAME "iop_cdvdman"
 
-#define STATE_FILENAME			("iop_cdvdman/state.xml")
-#define STATE_CALLBACK_ADDRESS	("CallbackAddress")
-#define STATE_STATUS			("Status")
-#define STATE_PENDING_COMMAND	("PendingCommand")
+#define STATE_FILENAME ("iop_cdvdman/state.xml")
+#define STATE_CALLBACK_ADDRESS ("CallbackAddress")
+#define STATE_STATUS ("Status")
+#define STATE_PENDING_COMMAND ("PendingCommand")
 
-#define FUNCTION_CDINIT				"CdInit"
-#define FUNCTION_CDREAD				"CdRead"
-#define FUNCTION_CDSEEK				"CdSeek"
-#define FUNCTION_CDGETERROR			"CdGetError"
-#define FUNCTION_CDSEARCHFILE		"CdSearchFile"
-#define FUNCTION_CDSYNC				"CdSync"
-#define FUNCTION_CDGETDISKTYPE		"CdGetDiskType"
-#define FUNCTION_CDDISKREADY		"CdDiskReady"
-#define FUNCTION_CDTRAYREQ			"CdTrayReq"
-#define FUNCTION_CDREADCLOCK		"CdReadClock"
-#define FUNCTION_CDSTATUS			"CdStatus"
-#define FUNCTION_CDCALLBACK			"CdCallback"
-#define FUNCTION_CDSTINIT			"CdStInit"
-#define FUNCTION_CDSTREAD			"CdStRead"
-#define FUNCTION_CDSTSTART			"CdStStart"
-#define FUNCTION_CDSTSTAT			"CdStStat"
-#define FUNCTION_CDSTSTOP			"CdStStop"
-#define FUNCTION_CDSETMMODE			"CdSetMmode"
-#define FUNCTION_CDSTSEEKF			"CdStSeekF"
-#define FUNCTION_CDREADDVDDUALINFO	"CdReadDvdDualInfo"
-#define FUNCTION_CDLAYERSEARCHFILE	"CdLayerSearchFile"
+#define FUNCTION_CDINIT "CdInit"
+#define FUNCTION_CDREAD "CdRead"
+#define FUNCTION_CDSEEK "CdSeek"
+#define FUNCTION_CDGETERROR "CdGetError"
+#define FUNCTION_CDSEARCHFILE "CdSearchFile"
+#define FUNCTION_CDSYNC "CdSync"
+#define FUNCTION_CDGETDISKTYPE "CdGetDiskType"
+#define FUNCTION_CDDISKREADY "CdDiskReady"
+#define FUNCTION_CDTRAYREQ "CdTrayReq"
+#define FUNCTION_CDREADCLOCK "CdReadClock"
+#define FUNCTION_CDSTATUS "CdStatus"
+#define FUNCTION_CDCALLBACK "CdCallback"
+#define FUNCTION_CDSTINIT "CdStInit"
+#define FUNCTION_CDSTREAD "CdStRead"
+#define FUNCTION_CDSTSTART "CdStStart"
+#define FUNCTION_CDSTSTAT "CdStStat"
+#define FUNCTION_CDSTSTOP "CdStStop"
+#define FUNCTION_CDSETMMODE "CdSetMmode"
+#define FUNCTION_CDSTSEEKF "CdStSeekF"
+#define FUNCTION_CDREADDVDDUALINFO "CdReadDvdDualInfo"
+#define FUNCTION_CDLAYERSEARCHFILE "CdLayerSearchFile"
 
 using namespace Iop;
 
 CCdvdman::CCdvdman(CIopBios& bios, uint8* ram)
-: m_bios(bios)
-, m_ram(ram)
+    : m_bios(bios)
+    , m_ram(ram)
 {
-
 }
 
 void CCdvdman::LoadState(Framework::CZipArchiveReader& archive)
 {
 	CRegisterStateFile registerFile(*archive.BeginReadFile(STATE_FILENAME));
-	m_callbackPtr    = registerFile.GetRegister32(STATE_CALLBACK_ADDRESS);
-	m_status         = registerFile.GetRegister32(STATE_STATUS);
+	m_callbackPtr = registerFile.GetRegister32(STATE_CALLBACK_ADDRESS);
+	m_status = registerFile.GetRegister32(STATE_STATUS);
 	m_pendingCommand = static_cast<COMMAND>(registerFile.GetRegister32(STATE_PENDING_COMMAND));
 }
 
@@ -53,8 +52,8 @@ void CCdvdman::SaveState(Framework::CZipArchiveWriter& archive)
 {
 	auto registerFile = new CRegisterStateFile(STATE_FILENAME);
 	registerFile->SetRegister32(STATE_CALLBACK_ADDRESS, m_callbackPtr);
-	registerFile->SetRegister32(STATE_STATUS,           m_status);
-	registerFile->SetRegister32(STATE_PENDING_COMMAND,  m_pendingCommand);
+	registerFile->SetRegister32(STATE_STATUS, m_status);
+	registerFile->SetRegister32(STATE_PENDING_COMMAND, m_pendingCommand);
 	archive.InsertFile(registerFile);
 }
 
@@ -69,14 +68,14 @@ uint32 CCdvdman::CdReadClockDirect(uint8* clockBuffer)
 {
 	auto currentTime = time(0);
 	auto localTime = localtime(&currentTime);
-	clockBuffer[0] = 0;                                                           //Status (0 = ok, anything else = error)
-	clockBuffer[1] = Uint8ToBcd(static_cast<uint8>(localTime->tm_sec));           //Seconds
-	clockBuffer[2] = Uint8ToBcd(static_cast<uint8>(localTime->tm_min));           //Minutes
-	clockBuffer[3] = Uint8ToBcd(static_cast<uint8>(localTime->tm_hour));          //Hour
-	clockBuffer[4] = 0;                                                           //Padding
-	clockBuffer[5] = Uint8ToBcd(static_cast<uint8>(localTime->tm_mday));          //Day
-	clockBuffer[6] = Uint8ToBcd(static_cast<uint8>(localTime->tm_mon + 1));       //Month
-	clockBuffer[7] = Uint8ToBcd(static_cast<uint8>(localTime->tm_year % 100));    //Year
+	clockBuffer[0] = 0;                                                        //Status (0 = ok, anything else = error)
+	clockBuffer[1] = Uint8ToBcd(static_cast<uint8>(localTime->tm_sec));        //Seconds
+	clockBuffer[2] = Uint8ToBcd(static_cast<uint8>(localTime->tm_min));        //Minutes
+	clockBuffer[3] = Uint8ToBcd(static_cast<uint8>(localTime->tm_hour));       //Hour
+	clockBuffer[4] = 0;                                                        //Padding
+	clockBuffer[5] = Uint8ToBcd(static_cast<uint8>(localTime->tm_mday));       //Day
+	clockBuffer[6] = Uint8ToBcd(static_cast<uint8>(localTime->tm_mon + 1));    //Month
+	clockBuffer[7] = Uint8ToBcd(static_cast<uint8>(localTime->tm_year % 100)); //Year
 	//Returns 1 on success and 0 on error
 	return 1;
 }
@@ -185,23 +184,22 @@ void CCdvdman::Invoke(CMIPS& ctx, unsigned int functionId)
 		break;
 	case 6:
 		ctx.m_State.nGPR[CMIPS::V0].nV0 = CdRead(
-			ctx.m_State.nGPR[CMIPS::A0].nV0,
-			ctx.m_State.nGPR[CMIPS::A1].nV0,
-			ctx.m_State.nGPR[CMIPS::A2].nV0,
-			ctx.m_State.nGPR[CMIPS::A3].nV0);
+		    ctx.m_State.nGPR[CMIPS::A0].nV0,
+		    ctx.m_State.nGPR[CMIPS::A1].nV0,
+		    ctx.m_State.nGPR[CMIPS::A2].nV0,
+		    ctx.m_State.nGPR[CMIPS::A3].nV0);
 		break;
 	case 7:
 		ctx.m_State.nGPR[CMIPS::V0].nV0 = CdSeek(
-			ctx.m_State.nGPR[CMIPS::A0].nV0
-			);
+		    ctx.m_State.nGPR[CMIPS::A0].nV0);
 		break;
 	case 8:
 		ctx.m_State.nGPR[CMIPS::V0].nV0 = CdGetError();
 		break;
 	case 10:
 		ctx.m_State.nGPR[CMIPS::V0].nV0 = CdSearchFile(
-			ctx.m_State.nGPR[CMIPS::A0].nV0,
-			ctx.m_State.nGPR[CMIPS::A1].nV0);
+		    ctx.m_State.nGPR[CMIPS::A0].nV0,
+		    ctx.m_State.nGPR[CMIPS::A1].nV0);
 		break;
 	case 11:
 		ctx.m_State.nGPR[CMIPS::V0].nV0 = CdSync(ctx.m_State.nGPR[CMIPS::A0].nV0);
@@ -214,8 +212,8 @@ void CCdvdman::Invoke(CMIPS& ctx, unsigned int functionId)
 		break;
 	case 14:
 		ctx.m_State.nGPR[CMIPS::V0].nV0 = CdTrayReq(
-			ctx.m_State.nGPR[CMIPS::A0].nV0,
-			ctx.m_State.nGPR[CMIPS::A1].nV0);
+		    ctx.m_State.nGPR[CMIPS::A0].nV0,
+		    ctx.m_State.nGPR[CMIPS::A1].nV0);
 		break;
 	case 24:
 		ctx.m_State.nGPR[CMIPS::V0].nV0 = CdReadClock(ctx.m_State.nGPR[CMIPS::A0].nV0);
@@ -228,21 +226,21 @@ void CCdvdman::Invoke(CMIPS& ctx, unsigned int functionId)
 		break;
 	case 56:
 		ctx.m_State.nGPR[CMIPS::V0].nV0 = CdStInit(
-			ctx.m_State.nGPR[CMIPS::A0].nV0,
-			ctx.m_State.nGPR[CMIPS::A1].nV0,
-			ctx.m_State.nGPR[CMIPS::A2].nV0);
+		    ctx.m_State.nGPR[CMIPS::A0].nV0,
+		    ctx.m_State.nGPR[CMIPS::A1].nV0,
+		    ctx.m_State.nGPR[CMIPS::A2].nV0);
 		break;
 	case 57:
 		ctx.m_State.nGPR[CMIPS::V0].nV0 = CdStRead(
-			ctx.m_State.nGPR[CMIPS::A0].nV0,
-			ctx.m_State.nGPR[CMIPS::A1].nV0,
-			ctx.m_State.nGPR[CMIPS::A2].nV0,
-			ctx.m_State.nGPR[CMIPS::A3].nV0);
+		    ctx.m_State.nGPR[CMIPS::A0].nV0,
+		    ctx.m_State.nGPR[CMIPS::A1].nV0,
+		    ctx.m_State.nGPR[CMIPS::A2].nV0,
+		    ctx.m_State.nGPR[CMIPS::A3].nV0);
 		break;
 	case 59:
 		ctx.m_State.nGPR[CMIPS::V0].nV0 = CdStStart(
-			ctx.m_State.nGPR[CMIPS::A0].nV0,
-			ctx.m_State.nGPR[CMIPS::A1].nV0);
+		    ctx.m_State.nGPR[CMIPS::A0].nV0,
+		    ctx.m_State.nGPR[CMIPS::A1].nV0);
 		break;
 	case 60:
 		ctx.m_State.nGPR[CMIPS::V0].nV0 = CdStStat();
@@ -255,22 +253,22 @@ void CCdvdman::Invoke(CMIPS& ctx, unsigned int functionId)
 		break;
 	case 77:
 		ctx.m_State.nGPR[CMIPS::V0].nV0 = CdStSeekF(
-			ctx.m_State.nGPR[CMIPS::A0].nV0);
+		    ctx.m_State.nGPR[CMIPS::A0].nV0);
 		break;
 	case 83:
 		ctx.m_State.nGPR[CMIPS::V0].nV0 = CdReadDvdDualInfo(
-			ctx.m_State.nGPR[CMIPS::A0].nV0,
-			ctx.m_State.nGPR[CMIPS::A1].nV0);
+		    ctx.m_State.nGPR[CMIPS::A0].nV0,
+		    ctx.m_State.nGPR[CMIPS::A1].nV0);
 		break;
 	case 84:
 		ctx.m_State.nGPR[CMIPS::V0].nV0 = CdLayerSearchFile(
-			ctx.m_State.nGPR[CMIPS::A0].nV0,
-			ctx.m_State.nGPR[CMIPS::A1].nV0,
-			ctx.m_State.nGPR[CMIPS::A2].nV0);
+		    ctx.m_State.nGPR[CMIPS::A0].nV0,
+		    ctx.m_State.nGPR[CMIPS::A1].nV0,
+		    ctx.m_State.nGPR[CMIPS::A2].nV0);
 		break;
 	default:
-		CLog::GetInstance().Print(LOG_NAME, "Unknown function called (%d).\r\n", 
-			functionId);
+		CLog::GetInstance().Print(LOG_NAME, "Unknown function called (%d).\r\n",
+		                          functionId);
 		break;
 	}
 }
@@ -313,7 +311,7 @@ uint32 CCdvdman::CdInit(uint32 mode)
 uint32 CCdvdman::CdRead(uint32 startSector, uint32 sectorCount, uint32 bufferPtr, uint32 modePtr)
 {
 	CLog::GetInstance().Print(LOG_NAME, FUNCTION_CDREAD "(startSector = 0x%X, sectorCount = 0x%X, bufferPtr = 0x%08X, modePtr = 0x%08X);\r\n",
-		startSector, sectorCount, bufferPtr, modePtr);
+	                          startSector, sectorCount, bufferPtr, modePtr);
 	if(modePtr != 0)
 	{
 		uint8* mode = &m_ram[modePtr];
@@ -342,7 +340,7 @@ uint32 CCdvdman::CdRead(uint32 startSector, uint32 sectorCount, uint32 bufferPtr
 uint32 CCdvdman::CdSeek(uint32 sector)
 {
 	CLog::GetInstance().Print(LOG_NAME, FUNCTION_CDSEEK "(sector = 0x%X);\r\n",
-		sector);
+	                          sector);
 	assert(m_pendingCommand == COMMAND_NONE);
 	m_pendingCommand = COMMAND_SEEK;
 	return 1;
@@ -358,10 +356,10 @@ uint32 CCdvdman::CdSearchFile(uint32 fileInfoPtr, uint32 namePtr)
 {
 	struct FILEINFO
 	{
-		uint32		sector;
-		uint32		size;
-		char		name[16];
-		uint8		date[8];
+		uint32 sector;
+		uint32 size;
+		char name[16];
+		uint8 date[8];
 	};
 
 	const char* name = NULL;
@@ -378,7 +376,7 @@ uint32 CCdvdman::CdSearchFile(uint32 fileInfoPtr, uint32 namePtr)
 
 #ifdef _DEBUG
 	CLog::GetInstance().Print(LOG_NAME, FUNCTION_CDSEARCHFILE "(fileInfo = 0x%08X, name = '%s');\r\n",
-		fileInfoPtr, name);
+	                          fileInfoPtr, name);
 #endif
 
 	uint32 result = 0;
@@ -399,8 +397,8 @@ uint32 CCdvdman::CdSearchFile(uint32 fileInfoPtr, uint32 namePtr)
 		auto fileSystem = m_opticalMedia->GetFileSystem();
 		if(fileSystem->GetFileRecord(&record, fixedPath.c_str()))
 		{
-			fileInfo->sector	= record.GetPosition();
-			fileInfo->size		= record.GetDataLength();
+			fileInfo->sector = record.GetPosition();
+			fileInfo->size = record.GetDataLength();
 			strncpy(fileInfo->name, record.GetName(), 16);
 			fileInfo->name[15] = 0;
 			memset(fileInfo->date, 0, 8);
@@ -415,7 +413,7 @@ uint32 CCdvdman::CdSearchFile(uint32 fileInfoPtr, uint32 namePtr)
 uint32 CCdvdman::CdSync(uint32 mode)
 {
 	CLog::GetInstance().Print(LOG_NAME, FUNCTION_CDSYNC "(mode = %i);\r\n",
-		mode);
+	                          mode);
 	if(m_status == CDVD_STATUS_READING)
 	{
 		m_status = CDVD_STATUS_PAUSED;
@@ -432,7 +430,7 @@ uint32 CCdvdman::CdGetDiskType()
 uint32 CCdvdman::CdDiskReady(uint32 mode)
 {
 	CLog::GetInstance().Print(LOG_NAME, FUNCTION_CDDISKREADY "(mode = %i);\r\n",
-		mode);
+	                          mode);
 	m_status = CDVD_STATUS_PAUSED;
 	return 2;
 }
@@ -440,7 +438,7 @@ uint32 CCdvdman::CdDiskReady(uint32 mode)
 uint32 CCdvdman::CdTrayReq(uint32 mode, uint32 trayCntPtr)
 {
 	CLog::GetInstance().Print(LOG_NAME, FUNCTION_CDTRAYREQ "(mode = %d, trayCntPtr = 0x%08X);\r\n",
-		mode, trayCntPtr);
+	                          mode, trayCntPtr);
 
 	auto trayCnt = reinterpret_cast<uint32*>(m_ram + trayCntPtr);
 	(*trayCnt) = 0;
@@ -451,7 +449,7 @@ uint32 CCdvdman::CdTrayReq(uint32 mode, uint32 trayCntPtr)
 uint32 CCdvdman::CdReadClock(uint32 clockPtr)
 {
 	CLog::GetInstance().Print(LOG_NAME, FUNCTION_CDREADCLOCK "(clockPtr = 0x%08X);\r\n",
-		clockPtr);
+	                          clockPtr);
 
 	auto clockBuffer = m_ram + clockPtr;
 	return CdReadClockDirect(clockBuffer);
@@ -466,7 +464,7 @@ uint32 CCdvdman::CdStatus()
 uint32 CCdvdman::CdCallback(uint32 callbackPtr)
 {
 	CLog::GetInstance().Print(LOG_NAME, FUNCTION_CDCALLBACK "(callbackPtr = 0x%08X);\r\n",
-		callbackPtr);
+	                          callbackPtr);
 
 	uint32 oldCallbackPtr = m_callbackPtr;
 	m_callbackPtr = callbackPtr;
@@ -476,7 +474,7 @@ uint32 CCdvdman::CdCallback(uint32 callbackPtr)
 uint32 CCdvdman::CdStInit(uint32 bufMax, uint32 bankMax, uint32 bufPtr)
 {
 	CLog::GetInstance().Print(LOG_NAME, FUNCTION_CDSTINIT "(bufMax = %d, bankMax = %d, bufPtr = 0x%08X);\r\n",
-		bufMax, bankMax, bufPtr);
+	                          bufMax, bankMax, bufPtr);
 	m_streamPos = 0;
 	m_streamBufferSize = bufMax;
 	return 1;
@@ -485,7 +483,7 @@ uint32 CCdvdman::CdStInit(uint32 bufMax, uint32 bankMax, uint32 bufPtr)
 uint32 CCdvdman::CdStRead(uint32 sectors, uint32 bufPtr, uint32 mode, uint32 errPtr)
 {
 	CLog::GetInstance().Print(LOG_NAME, FUNCTION_CDSTREAD "(sectors = %d, bufPtr = 0x%08X, mode = %d, errPtr = 0x%08X);\r\n",
-		sectors, bufPtr, mode, errPtr);
+	                          sectors, bufPtr, mode, errPtr);
 	auto fileSystem = m_opticalMedia->GetFileSystem();
 	for(unsigned int i = 0; i < sectors; i++)
 	{
@@ -503,7 +501,7 @@ uint32 CCdvdman::CdStRead(uint32 sectors, uint32 bufPtr, uint32 mode, uint32 err
 uint32 CCdvdman::CdStStart(uint32 sector, uint32 modePtr)
 {
 	CLog::GetInstance().Print(LOG_NAME, FUNCTION_CDSTSTART "(sector = %d, modePtr = 0x%08X);\r\n",
-		sector, modePtr);
+	                          sector, modePtr);
 	m_streamPos = sector;
 	return 1;
 }
@@ -529,7 +527,7 @@ uint32 CCdvdman::CdSetMmode(uint32 mode)
 uint32 CCdvdman::CdStSeekF(uint32 sector)
 {
 	CLog::GetInstance().Print(LOG_NAME, FUNCTION_CDSTSEEKF "(sector = %d);\r\n",
-		sector);
+	                          sector);
 	m_streamPos = sector;
 	return 1;
 }
@@ -537,7 +535,7 @@ uint32 CCdvdman::CdStSeekF(uint32 sector)
 uint32 CCdvdman::CdReadDvdDualInfo(uint32 onDualPtr, uint32 layer1StartPtr)
 {
 	CLog::GetInstance().Print(LOG_NAME, FUNCTION_CDREADDVDDUALINFO "(onDualPtr = 0x%08X, layer1StartPtr = 0x%08X);\r\n",
-		onDualPtr, layer1StartPtr);
+	                          onDualPtr, layer1StartPtr);
 
 	auto onDual = reinterpret_cast<uint32*>(m_ram + onDualPtr);
 	auto layer1Start = reinterpret_cast<uint32*>(m_ram + layer1StartPtr);
@@ -550,7 +548,7 @@ uint32 CCdvdman::CdReadDvdDualInfo(uint32 onDualPtr, uint32 layer1StartPtr)
 uint32 CCdvdman::CdLayerSearchFile(uint32 fileInfoPtr, uint32 namePtr, uint32 layer)
 {
 	CLog::GetInstance().Print(LOG_NAME, FUNCTION_CDLAYERSEARCHFILE "(fileInfoPtr = 0x%08X, namePtr = 0x%08X, layer = %d);\r\n",
-		fileInfoPtr, namePtr, layer);
+	                          fileInfoPtr, namePtr, layer);
 	assert(layer == 0);
 	return CdSearchFile(fileInfoPtr, namePtr);
 }

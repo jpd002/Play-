@@ -5,10 +5,10 @@
 
 #define LOG_NAME ("timer")
 
-#define STATE_REGS_XML	("timer/regs.xml")
+#define STATE_REGS_XML ("timer/regs.xml")
 
 CTimer::CTimer(CINTC& intc)
-: m_intc(intc)
+    : m_intc(intc)
 {
 	Reset();
 }
@@ -26,8 +26,8 @@ void CTimer::Count(unsigned int ticks)
 
 		if(!(timer.nMODE & MODE_COUNT_ENABLE)) continue;
 
-		uint32 previousCount	= timer.nCOUNT;
-		uint32 nextCount		= timer.nCOUNT;
+		uint32 previousCount = timer.nCOUNT;
+		uint32 nextCount = timer.nCOUNT;
 
 		uint32 divider = 1;
 		switch(timer.nMODE & 0x03)
@@ -42,7 +42,7 @@ void CTimer::Count(unsigned int ticks)
 			divider = 256;
 			break;
 		case 0x03:
-			divider = 9437;		// PAL
+			divider = 9437; // PAL
 			break;
 		}
 
@@ -240,11 +240,11 @@ void CTimer::LoadState(Framework::CZipArchiveReader& archive)
 	{
 		auto& timer = m_timer[i];
 		std::string timerPrefix = "TIMER" + std::to_string(i) + "_";
-		timer.nCOUNT		= registerFile.GetRegister32((timerPrefix + "COUNT").c_str());
-		timer.nMODE			= registerFile.GetRegister32((timerPrefix + "MODE").c_str());
-		timer.nCOMP			= registerFile.GetRegister32((timerPrefix + "COMP").c_str());
-		timer.nHOLD			= registerFile.GetRegister32((timerPrefix + "HOLD").c_str());
-		timer.clockRemain	= registerFile.GetRegister32((timerPrefix + "REM").c_str());
+		timer.nCOUNT = registerFile.GetRegister32((timerPrefix + "COUNT").c_str());
+		timer.nMODE = registerFile.GetRegister32((timerPrefix + "MODE").c_str());
+		timer.nCOMP = registerFile.GetRegister32((timerPrefix + "COMP").c_str());
+		timer.nHOLD = registerFile.GetRegister32((timerPrefix + "HOLD").c_str());
+		timer.clockRemain = registerFile.GetRegister32((timerPrefix + "REM").c_str());
 	}
 }
 

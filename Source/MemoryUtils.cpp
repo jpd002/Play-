@@ -101,7 +101,7 @@ void MemoryUtils_SetDoubleProxy(CMIPS* context, uint64 value64, uint32 address)
 	if(!e)
 	{
 		CLog::GetInstance().Print(LOG_NAME, "Wrote to unmapped memory (0x%08X, [0x%08X, 0x%08X]).\r\n",
-			address, value.d0, value.d1);
+		                          address, value.d0, value.d1);
 		return;
 	}
 	switch(e->nType)
@@ -127,8 +127,8 @@ void MemoryUtils_SetQuadProxy(CMIPS* context, const uint128& value, uint32 addre
 	auto e = context->m_pMemoryMap->GetWriteMap(address);
 	if(!e)
 	{
-		CLog::GetInstance().Print(LOG_NAME, "Wrote to unmapped memory (0x%08X, [0x%08X, 0x%08X, 0x%08X, 0x%08X]).\r\n", 
-			address, value.nV0, value.nV1, value.nV2, value.nV3);
+		CLog::GetInstance().Print(LOG_NAME, "Wrote to unmapped memory (0x%08X, [0x%08X, 0x%08X, 0x%08X, 0x%08X]).\r\n",
+		                          address, value.nV0, value.nV1, value.nV2, value.nV3);
 		return;
 	}
 	switch(e->nType)

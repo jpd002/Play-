@@ -7,55 +7,54 @@
 #include "opengl/OpenGlDef.h"
 #include "PtrMacro.h"
 
-#define CLSNAME		_T("CSaveView_CIconView")
+#define CLSNAME _T("CSaveView_CIconView")
 
 const PIXELFORMATDESCRIPTOR CSaveIconView::m_PFD =
-{
-	sizeof(PIXELFORMATDESCRIPTOR),
-	1,
-	PFD_DRAW_TO_WINDOW | PFD_SUPPORT_OPENGL | PFD_DOUBLEBUFFER,
-	PFD_TYPE_RGBA,
-	32,
-	0, 0, 0, 0, 0, 0,
-	0, 0, 0, 0, 0, 0,
-	0,
-	32,
-	0,
-	0,
-	PFD_MAIN_PLANE,
-	0,
-	0, 0, 0
-};
+    {
+        sizeof(PIXELFORMATDESCRIPTOR),
+        1,
+        PFD_DRAW_TO_WINDOW | PFD_SUPPORT_OPENGL | PFD_DOUBLEBUFFER,
+        PFD_TYPE_RGBA,
+        32,
+        0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0,
+        0,
+        32,
+        0,
+        0,
+        PFD_MAIN_PLANE,
+        0,
+        0, 0, 0};
 
 CSaveIconView::CSaveIconView(HWND hParent, const RECT& rect)
-: m_nGrabbing(false)
-, m_iconMesh(NULL)
-, m_iconType(CSave::ICON_NORMAL)
-, m_nRotationX(0)
-, m_nRotationY(0)
-, m_nGrabPosX(0)
-, m_nGrabPosY(0)
-, m_nGrabDistX(0)
-, m_nGrabDistY(0)
-, m_nGrabRotX(0)
-, m_nGrabRotY(0)
-, m_nZoom(-7.0f)
-, m_save(NULL)
-, m_hRC(NULL)
-, m_thread(NULL)
-, m_threadOver(false)
+    : m_nGrabbing(false)
+    , m_iconMesh(NULL)
+    , m_iconType(CSave::ICON_NORMAL)
+    , m_nRotationX(0)
+    , m_nRotationY(0)
+    , m_nGrabPosX(0)
+    , m_nGrabPosY(0)
+    , m_nGrabDistX(0)
+    , m_nGrabDistY(0)
+    , m_nGrabRotX(0)
+    , m_nGrabRotY(0)
+    , m_nZoom(-7.0f)
+    , m_save(NULL)
+    , m_hRC(NULL)
+    , m_thread(NULL)
+    , m_threadOver(false)
 {
 	if(!DoesWindowClassExist(CLSNAME))
 	{
 		WNDCLASSEX wc;
 		memset(&wc, 0, sizeof(WNDCLASSEX));
-		wc.cbSize			= sizeof(WNDCLASSEX);
-		wc.hCursor			= NULL;
-		wc.hbrBackground	= NULL; 
-		wc.hInstance		= GetModuleHandle(NULL);
-		wc.lpszClassName	= CLSNAME;
-		wc.lpfnWndProc		= CWindow::WndProc;
-		wc.style			= CS_OWNDC | CS_HREDRAW | CS_VREDRAW;
+		wc.cbSize = sizeof(WNDCLASSEX);
+		wc.hCursor = NULL;
+		wc.hbrBackground = NULL;
+		wc.hInstance = GetModuleHandle(NULL);
+		wc.lpszClassName = CLSNAME;
+		wc.lpfnWndProc = CWindow::WndProc;
+		wc.style = CS_OWNDC | CS_HREDRAW | CS_VREDRAW;
 		RegisterClassEx(&wc);
 	}
 
@@ -93,12 +92,12 @@ void CSaveIconView::ThreadProc()
 
 	glEnable(GL_TEXTURE_2D);
 	glClearColor(1.0, 1.0, 1.0, 1.0);
-	
+
 	while(!m_threadOver)
 	{
 		while(m_mailBox.IsPending())
 		{
-            m_mailBox.ReceiveCall();
+			m_mailBox.ReceiveCall();
 		}
 
 		if(m_iconMesh)
@@ -166,7 +165,7 @@ long CSaveIconView::OnMouseMove(WPARAM wParam, int nX, int nY)
 		m_nRotationX = m_nGrabRotX + static_cast<float>(m_nGrabDistY);
 		m_nRotationY = m_nGrabRotY + static_cast<float>(m_nGrabDistX);
 	}
-	return TRUE;	
+	return TRUE;
 }
 
 long CSaveIconView::OnSetCursor(HWND hWnd, unsigned int nX, unsigned int nY)
@@ -205,7 +204,6 @@ void CSaveIconView::LoadIcon()
 	}
 	catch(...)
 	{
-
 	}
 }
 
@@ -268,7 +266,7 @@ void CSaveIconView::DrawBackground()
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
 	glOrtho(0, 1, 1, 0, 0, 1);
-	
+
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
 

@@ -6,15 +6,14 @@
 
 using namespace Framework;
 
-CELFView::CELFView(HWND hParent) 
-: COptionWnd<CMDIChild>(hParent, _T("ELF File Viewer"))
-, m_pELF(NULL)
-, m_pHeaderView(NULL)
-, m_pSymbolView(NULL)
-, m_pSectionView(NULL)
-, m_pProgramView(NULL)
+CELFView::CELFView(HWND hParent)
+    : COptionWnd<CMDIChild>(hParent, _T("ELF File Viewer"))
+    , m_pELF(NULL)
+    , m_pHeaderView(NULL)
+    , m_pSymbolView(NULL)
+    , m_pSectionView(NULL)
+    , m_pProgramView(NULL)
 {
-
 }
 
 CELFView::~CELFView()
@@ -82,7 +81,7 @@ void CELFView::PopulateList()
 		const char* sName(NULL);
 
 		ELFSECTIONHEADER* pSect = m_pELF->GetSection(i);
-		
+
 		if(sStrTab != NULL)
 		{
 			sName = sStrTab + pSect->nStringTableIndex;

@@ -8,8 +8,8 @@ namespace IPU
 	class CMacroblockTypeBTable : public MPEG2::CVLCTable
 	{
 	public:
-										CMacroblockTypeBTable();
-		static CVLCTable*				GetInstance();
+		CMacroblockTypeBTable();
+		static CVLCTable* GetInstance();
 
 		enum MAXBITS
 		{
@@ -22,9 +22,9 @@ namespace IPU
 		};
 
 	private:
-		static MPEG2::VLCTABLEENTRY		m_pTable[ENTRYCOUNT];
-		static unsigned int				m_pIndexTable[MAXBITS];
-		static MPEG2::CVLCTable*		m_pInstance;
+		static MPEG2::VLCTABLEENTRY m_pTable[ENTRYCOUNT];
+		static unsigned int m_pIndexTable[MAXBITS];
+		static MPEG2::CVLCTable* m_pInstance;
 	};
 }
 

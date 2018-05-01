@@ -16,8 +16,8 @@ CGSH_Direct3D9::VertexShaderPtr CGSH_Direct3D9::CreateVertexShader(SHADERCAPS ca
 
 	Framework::Win32::CComPtr<ID3DBlob> shaderBinary;
 	Framework::Win32::CComPtr<ID3DBlob> compileErrors;
-	result = D3DCompile(shaderSource.c_str(), shaderSource.length() + 1, "vs", nullptr, nullptr, "main", 
-		"vs_3_0", compileFlags, 0, &shaderBinary, &compileErrors);
+	result = D3DCompile(shaderSource.c_str(), shaderSource.length() + 1, "vs", nullptr, nullptr, "main",
+	                    "vs_3_0", compileFlags, 0, &shaderBinary, &compileErrors);
 	assert(SUCCEEDED(result));
 
 	VertexShaderPtr shader;
@@ -32,8 +32,8 @@ CGSH_Direct3D9::PixelShaderPtr CGSH_Direct3D9::CreatePixelShader(SHADERCAPS caps
 	HRESULT result = S_OK;
 	auto shaderCode = GeneratePixelShader(caps);
 
-	auto shaderSource = Nuanceur::CHlslShaderGenerator::Generate("main", shaderCode, 
-		Nuanceur::CHlslShaderGenerator::FLAG_COMBINED_SAMPLER_TEXTURE);
+	auto shaderSource = Nuanceur::CHlslShaderGenerator::Generate("main", shaderCode,
+	                                                             Nuanceur::CHlslShaderGenerator::FLAG_COMBINED_SAMPLER_TEXTURE);
 
 	UINT compileFlags = 0;
 #ifdef _DEBUG
@@ -42,8 +42,8 @@ CGSH_Direct3D9::PixelShaderPtr CGSH_Direct3D9::CreatePixelShader(SHADERCAPS caps
 
 	Framework::Win32::CComPtr<ID3DBlob> shaderBinary;
 	Framework::Win32::CComPtr<ID3DBlob> compileErrors;
-	result = D3DCompile(shaderSource.c_str(), shaderSource.length() + 1, "ps", nullptr, nullptr, "main", 
-		"ps_3_0", compileFlags, 0, &shaderBinary, &compileErrors);
+	result = D3DCompile(shaderSource.c_str(), shaderSource.length() + 1, "ps", nullptr, nullptr, "main",
+	                    "ps_3_0", compileFlags, 0, &shaderBinary, &compileErrors);
 	assert(SUCCEEDED(result));
 
 	PixelShaderPtr shader;
@@ -136,7 +136,7 @@ Nuanceur::CShaderBuilder CGSH_Direct3D9::GeneratePixelShader(SHADERCAPS caps)
 			{
 			case TEX0_FUNCTION_MODULATE:
 				textureColor = Clamp(textureColor * inputColor * NewFloat4(b, 2, 2, 2, 2),
-					NewFloat4(b, 0, 0, 0, 0), NewFloat4(b, 1, 1, 1, 1));
+				                     NewFloat4(b, 0, 0, 0, 0), NewFloat4(b, 1, 1, 1, 1));
 				break;
 			case TEX0_FUNCTION_DECAL:
 				break;

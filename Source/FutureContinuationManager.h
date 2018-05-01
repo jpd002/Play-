@@ -17,8 +17,8 @@ public:
 
 	void Execute()
 	{
-		auto newEnd = std::remove_if(m_futures.begin(), m_futures.end(), 
-			[] (const FuturePtr& future) { return future->IsDone(); } );
+		auto newEnd = std::remove_if(m_futures.begin(), m_futures.end(),
+		                             [](const FuturePtr& future) { return future->IsDone(); });
 		m_futures.erase(newEnd, m_futures.end());
 	}
 
@@ -31,16 +31,16 @@ private:
 	};
 	typedef std::unique_ptr<CFuture> FuturePtr;
 
-	template<typename ResultType>
+	template <typename ResultType>
 	class CFutureWrapper : public CFuture
 	{
 	public:
-		typedef std::function<void (const ResultType&)> CallbackType;
+		typedef std::function<void(const ResultType&)> CallbackType;
 
 		CFutureWrapper(std::future<ResultType> future, CallbackType callback)
-			: m_future(std::move(future)), m_callback(std::move(callback))
+		    : m_future(std::move(future))
+		    , m_callback(std::move(callback))
 		{
-			
 		}
 
 		bool IsDone() override

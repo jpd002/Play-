@@ -11,31 +11,28 @@
 #include "stricmp.h"
 #include "StdStreamUtils.h"
 
-#define PLAYLIST_NODE_TAG				"Playlist"
-#define PLAYLIST_ITEM_NODE_TAG			"Item"
-#define PLAYLIST_ITEM_PATH_ATTRIBUTE	("Path")
-#define PLAYLIST_ITEM_TITLE_ATTRIBUTE	("Title")
-#define PLAYLIST_ITEM_LENGTH_ATTRIBUTE	("Length")
+#define PLAYLIST_NODE_TAG "Playlist"
+#define PLAYLIST_ITEM_NODE_TAG "Item"
+#define PLAYLIST_ITEM_PATH_ATTRIBUTE ("Path")
+#define PLAYLIST_ITEM_TITLE_ATTRIBUTE ("Title")
+#define PLAYLIST_ITEM_LENGTH_ATTRIBUTE ("Length")
 
 const char* CPlaylist::g_loadableExtensions[] =
-{
-	"psf",
-	"minipsf",
-	"psf2",
-	"minipsf2",
-	"psfp",
-	"minipsfp"
-};
+    {
+        "psf",
+        "minipsf",
+        "psf2",
+        "minipsf2",
+        "psfp",
+        "minipsfp"};
 
 CPlaylist::CPlaylist()
-: m_currentItemId(0)
+    : m_currentItemId(0)
 {
-
 }
 
 CPlaylist::~CPlaylist()
 {
-
 }
 
 const CPlaylist::ITEM& CPlaylist::GetItem(unsigned int index) const
@@ -175,8 +172,8 @@ void CPlaylist::Read(const boost::filesystem::path& playlistPath)
 	auto parentPath = playlistPath.parent_path();
 
 	auto items = document->SelectNodes(PLAYLIST_NODE_TAG "/" PLAYLIST_ITEM_NODE_TAG);
-	for(auto nodeIterator(std::begin(items)); 
-		nodeIterator != std::end(items); nodeIterator++)
+	for(auto nodeIterator(std::begin(items));
+	    nodeIterator != std::end(items); nodeIterator++)
 	{
 		auto itemNode = (*nodeIterator);
 		boost::filesystem::path itemPath = Framework::Utf8::ConvertFrom(itemNode->GetAttribute(PLAYLIST_ITEM_PATH_ATTRIBUTE));
@@ -215,8 +212,8 @@ void CPlaylist::Write(const boost::filesystem::path& playlistPath)
 
 	auto parentPath = playlistPath.parent_path();
 
-	for(auto itemIterator(std::begin(m_items)); 
-		itemIterator != std::end(m_items); itemIterator++)
+	for(auto itemIterator(std::begin(m_items));
+	    itemIterator != std::end(m_items); itemIterator++)
 	{
 		const auto& item(*itemIterator);
 

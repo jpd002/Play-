@@ -8,11 +8,11 @@ namespace Psp
 	class CStdioForUser : public CModule
 	{
 	public:
-						CStdioForUser();
-		virtual			~CStdioForUser();
+		CStdioForUser();
+		virtual ~CStdioForUser();
 
-		std::string		GetName() const;
-		void			Invoke(uint32, CMIPS&);
+		std::string GetName() const;
+		void Invoke(uint32, CMIPS&);
 	};
 }
 

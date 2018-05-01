@@ -1,10 +1,10 @@
 #include "GamePadUtils.h"
 #include <cstring>
 
-std::array<uint32, 6> CGamePadUtils::GetDeviceID(libevdev *dev)
+std::array<uint32, 6> CGamePadUtils::GetDeviceID(libevdev* dev)
 {
 	std::array<uint32, 6> device{0};
-	if (libevdev_get_uniq(dev) != NULL)
+	if(libevdev_get_uniq(dev) != NULL)
 	{
 		if(!CGamePadUtils::ParseMAC(device, libevdev_get_uniq(dev)))
 		{
@@ -31,12 +31,13 @@ std::array<uint32, 6> CGamePadUtils::GetDeviceID(libevdev *dev)
 	return device;
 }
 
-bool CGamePadUtils::ParseMAC(std::array<uint32, 6>& out, std::string const& in) {
+bool CGamePadUtils::ParseMAC(std::array<uint32, 6>& out, std::string const& in)
+{
 	uint32 bytes[6] = {0};
-	if (std::sscanf(in.c_str(),
-					"%02x:%02x:%02x:%02x:%02x:%02x",
-					&bytes[0], &bytes[1], &bytes[2],
-					&bytes[3], &bytes[4], &bytes[5]) != 6)
+	if(std::sscanf(in.c_str(),
+	               "%02x:%02x:%02x:%02x:%02x:%02x",
+	               &bytes[0], &bytes[1], &bytes[2],
+	               &bytes[3], &bytes[4], &bytes[5]) != 6)
 	{
 		return false;
 	}

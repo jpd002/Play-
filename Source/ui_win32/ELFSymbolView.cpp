@@ -10,19 +10,19 @@
 #define CLSNAME _T("CELFSymbolView")
 
 CELFSymbolView::CELFSymbolView(HWND hParent, CELF* pELF)
-: m_pELF(pELF)
-, m_listView(NULL)
+    : m_pELF(pELF)
+    , m_listView(NULL)
 {
 	if(!DoesWindowClassExist(CLSNAME))
 	{
 		WNDCLASSEX wc;
 		memset(&wc, 0, sizeof(WNDCLASSEX));
-		wc.cbSize			= sizeof(WNDCLASSEX);
-		wc.hCursor			= LoadCursor(NULL, IDC_ARROW);
-		wc.hbrBackground	= (HBRUSH)(COLOR_WINDOW); 
-		wc.hInstance		= GetModuleHandle(NULL);
-		wc.lpszClassName	= CLSNAME;
-		wc.lpfnWndProc		= CWindow::WndProc;
+		wc.cbSize = sizeof(WNDCLASSEX);
+		wc.hCursor = LoadCursor(NULL, IDC_ARROW);
+		wc.hbrBackground = (HBRUSH)(COLOR_WINDOW);
+		wc.hInstance = GetModuleHandle(NULL);
+		wc.lpszClassName = CLSNAME;
+		wc.lpfnWndProc = CWindow::WndProc;
 		RegisterClassEx(&wc);
 	}
 
@@ -34,33 +34,33 @@ CELFSymbolView::CELFSymbolView(HWND hParent, CELF* pELF)
 
 	LVCOLUMN col;
 	memset(&col, 0, sizeof(LVCOLUMN));
-	col.pszText		= _T("Name");
-	col.mask		= LVCF_TEXT;
+	col.pszText = _T("Name");
+	col.mask = LVCF_TEXT;
 	m_listView->InsertColumn(0, col);
 
 	memset(&col, 0, sizeof(LVCOLUMN));
-	col.pszText		= _T("Address");
-	col.mask		= LVCF_TEXT;
+	col.pszText = _T("Address");
+	col.mask = LVCF_TEXT;
 	m_listView->InsertColumn(1, col);
 
 	memset(&col, 0, sizeof(LVCOLUMN));
-	col.pszText		= _T("Size");
-	col.mask		= LVCF_TEXT;
+	col.pszText = _T("Size");
+	col.mask = LVCF_TEXT;
 	m_listView->InsertColumn(2, col);
 
 	memset(&col, 0, sizeof(LVCOLUMN));
-	col.pszText		= _T("Type");
-	col.mask		= LVCF_TEXT;
+	col.pszText = _T("Type");
+	col.mask = LVCF_TEXT;
 	m_listView->InsertColumn(3, col);
 
 	memset(&col, 0, sizeof(LVCOLUMN));
-	col.pszText		= _T("Binding");
-	col.mask		= LVCF_TEXT;
+	col.pszText = _T("Binding");
+	col.mask = LVCF_TEXT;
 	m_listView->InsertColumn(4, col);
 
 	memset(&col, 0, sizeof(LVCOLUMN));
-	col.pszText		= _T("Section");
-	col.mask		= LVCF_TEXT;
+	col.pszText = _T("Section");
+	col.mask = LVCF_TEXT;
 	m_listView->InsertColumn(5, col);
 
 	RefreshLayout();
@@ -217,9 +217,9 @@ void CELFSymbolView::PopulateList()
 		ITEM& item(m_items[i]);
 		TCHAR sTemp[256];
 
-		item.name		= string_cast<std::tstring>(pStrTab + pSym[i].nName);
-		item.address	= _T("0x") + lexical_cast_hex<std::tstring>(pSym[i].nValue, 8);
-		item.size		= _T("0x") + lexical_cast_hex<std::tstring>(pSym[i].nSize, 8);
+		item.name = string_cast<std::tstring>(pStrTab + pSym[i].nName);
+		item.address = _T("0x") + lexical_cast_hex<std::tstring>(pSym[i].nValue, 8);
+		item.size = _T("0x") + lexical_cast_hex<std::tstring>(pSym[i].nSize, 8);
 
 		switch(pSym[i].nInfo & 0x0F)
 		{

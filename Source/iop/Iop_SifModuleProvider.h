@@ -7,6 +7,6 @@ namespace Iop
 	class CSifModuleProvider
 	{
 	public:
-		virtual void    RegisterSifModules(CSifMan&) = 0;
+		virtual void RegisterSifModules(CSifMan&) = 0;
 	};
 }

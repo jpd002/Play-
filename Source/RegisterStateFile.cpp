@@ -7,20 +7,18 @@
 #include "lexical_cast_ex.h"
 
 CRegisterStateFile::CRegisterStateFile(const char* name)
-: CZipFile(name)
+    : CZipFile(name)
 {
-	
 }
 
 CRegisterStateFile::CRegisterStateFile(Framework::CStream& stream)
-: CZipFile("")
+    : CZipFile("")
 {
 	Read(stream);
 }
 
 CRegisterStateFile::~CRegisterStateFile()
 {
-
 }
 
 void CRegisterStateFile::Read(Framework::CStream& stream)
@@ -29,7 +27,7 @@ void CRegisterStateFile::Read(Framework::CStream& stream)
 	auto rootNode = std::unique_ptr<Framework::Xml::CNode>(Framework::Xml::CParser::ParseDocument(stream));
 	auto registerList = rootNode->SelectNodes("RegisterFile/Register");
 	for(Framework::Xml::CNode::NodeIterator nodeIterator(registerList.begin());
-		nodeIterator != registerList.end(); nodeIterator++)
+	    nodeIterator != registerList.end(); nodeIterator++)
 	{
 		try
 		{
@@ -52,7 +50,6 @@ void CRegisterStateFile::Read(Framework::CStream& stream)
 		}
 		catch(...)
 		{
-
 		}
 	}
 }
@@ -61,7 +58,7 @@ void CRegisterStateFile::Write(Framework::CStream& stream)
 {
 	auto rootNode = new Framework::Xml::CNode("RegisterFile", true);
 	for(auto registerIterator(m_registers.begin());
-		registerIterator != m_registers.end(); registerIterator++)
+	    registerIterator != m_registers.end(); registerIterator++)
 	{
 		const Register& reg(registerIterator->second);
 		auto registerNode = new Framework::Xml::CNode("Register", true);

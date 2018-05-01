@@ -5,24 +5,23 @@
 #include "offsetof_def.h"
 
 CMIPSInstructionFactory::CMIPSInstructionFactory(MIPS_REGSIZE nRegSize)
-: m_regSize(nRegSize)
+    : m_regSize(nRegSize)
 {
-
 }
 
 void CMIPSInstructionFactory::SetupQuickVariables(uint32 nAddress, CMipsJitter* codeGen, CMIPS* pCtx)
 {
-	m_pCtx			= pCtx;
-	m_codeGen		= codeGen;
-	m_nAddress		= nAddress;
+	m_pCtx = pCtx;
+	m_codeGen = codeGen;
+	m_nAddress = nAddress;
 
-	m_nOpcode		= m_pCtx->m_pMemoryMap->GetInstruction(m_nAddress);
+	m_nOpcode = m_pCtx->m_pMemoryMap->GetInstruction(m_nAddress);
 }
 
 void CMIPSInstructionFactory::ComputeMemAccessAddr()
 {
-	uint8 nRS			= (uint8) ((m_nOpcode >> 21) & 0x001F);
-	uint16 nImmediate	= (uint16)((m_nOpcode >>  0) & 0xFFFF);
+	uint8 nRS = (uint8)((m_nOpcode >> 21) & 0x001F);
+	uint16 nImmediate = (uint16)((m_nOpcode >> 0) & 0xFFFF);
 
 	if(m_pCtx->m_pAddrTranslator == &CMIPS::TranslateAddress64)
 	{

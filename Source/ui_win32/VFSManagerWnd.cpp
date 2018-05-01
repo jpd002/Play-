@@ -8,15 +8,15 @@
 #include "string_format.h"
 
 CVFSManagerWnd::CVFSManagerWnd(HWND parentWindow)
-: CDialog(MAKEINTRESOURCE(IDD_VFSMANAGER), parentWindow)
+    : CDialog(MAKEINTRESOURCE(IDD_VFSMANAGER), parentWindow)
 {
 	SetClassPtr();
 
 	m_deviceList = Framework::Win32::CListView(GetItem(IDC_VFSMANAGER_DEVICES));
 	m_deviceList.SetExtendedListViewStyle(m_deviceList.GetExtendedListViewStyle() | LVS_EX_FULLROWSELECT);
 
-	m_devices[0] = std::make_unique<CDirectoryDevice>("mc0",  PREF_PS2_MC0_DIRECTORY);
-	m_devices[1] = std::make_unique<CDirectoryDevice>("mc1",  PREF_PS2_MC1_DIRECTORY);
+	m_devices[0] = std::make_unique<CDirectoryDevice>("mc0", PREF_PS2_MC0_DIRECTORY);
+	m_devices[1] = std::make_unique<CDirectoryDevice>("mc1", PREF_PS2_MC1_DIRECTORY);
 	m_devices[2] = std::make_unique<CDirectoryDevice>("host", PREF_PS2_HOST_DIRECTORY);
 	m_devices[3] = std::make_unique<CCdrom0Device>();
 
@@ -74,20 +74,20 @@ void CVFSManagerWnd::CreateListColumns()
 
 	memset(&col, 0, sizeof(LVCOLUMN));
 	col.pszText = _T("Device");
-	col.mask	= LVCF_TEXT | LVCF_WIDTH;
-	col.cx		= rc.right / 4;
+	col.mask = LVCF_TEXT | LVCF_WIDTH;
+	col.cx = rc.right / 4;
 	m_deviceList.InsertColumn(0, col);
 
 	memset(&col, 0, sizeof(LVCOLUMN));
 	col.pszText = _T("Binding Type");
-	col.mask	= LVCF_TEXT | LVCF_WIDTH;
-	col.cx		= rc.right / 4;
+	col.mask = LVCF_TEXT | LVCF_WIDTH;
+	col.cx = rc.right / 4;
 	m_deviceList.InsertColumn(1, col);
 
 	memset(&col, 0, sizeof(LVCOLUMN));
 	col.pszText = _T("Binding Value");
-	col.mask	= LVCF_TEXT | LVCF_WIDTH;
-	col.cx		= rc.right / 2;
+	col.mask = LVCF_TEXT | LVCF_WIDTH;
+	col.cx = rc.right / 2;
 	m_deviceList.InsertColumn(2, col);
 }
 
@@ -105,9 +105,9 @@ void CVFSManagerWnd::UpdateList()
 
 			LVITEM itm;
 			memset(&itm, 0, sizeof(LVITEM));
-			itm.mask		= LVIF_TEXT | LVIF_PARAM;
-			itm.pszText		= const_cast<TCHAR*>(deviceName.c_str());
-			itm.lParam		= key;
+			itm.mask = LVIF_TEXT | LVIF_PARAM;
+			itm.pszText = const_cast<TCHAR*>(deviceName.c_str());
+			itm.lParam = key;
 			index = m_deviceList.InsertItem(itm);
 		}
 
@@ -130,8 +130,8 @@ void CVFSManagerWnd::Save()
 ///////////////////////////////////////////
 
 CVFSManagerWnd::CDirectoryDevice::CDirectoryDevice(const char* name, const char* preference)
-: m_name(name)
-, m_preference(preference)
+    : m_name(name)
+    , m_preference(preference)
 {
 	auto path = CAppConfig::GetInstance().GetPreferencePath(m_preference);
 	m_path = path.native();
@@ -156,11 +156,11 @@ bool CVFSManagerWnd::CDirectoryDevice::RequestModification(HWND hParent)
 {
 	BROWSEINFO bi;
 	memset(&bi, 0, sizeof(BROWSEINFO));
-	bi.hwndOwner	= hParent;
-	bi.lpszTitle	= _T("Select new folder for device");
-	bi.ulFlags		= BIF_RETURNONLYFSDIRS;
-	bi.lpfn			= BrowseCallback;
-	bi.lParam		= (LPARAM)this;
+	bi.hwndOwner = hParent;
+	bi.lpszTitle = _T("Select new folder for device");
+	bi.ulFlags = BIF_RETURNONLYFSDIRS;
+	bi.lpfn = BrowseCallback;
+	bi.lParam = (LPARAM)this;
 
 	auto item = SHBrowseForFolder(&bi);
 	if(item == NULL)
@@ -213,17 +213,17 @@ CVFSManagerWnd::CCdrom0Device::CCdrom0Device()
 	if(cdrom0Path.empty())
 	{
 		m_bindingType = CCdromSelectionWnd::BINDING_IMAGE;
-		m_imagePath   = _T("");
+		m_imagePath = _T("");
 	}
 	else if((cdrom0PathString.length() == 6) && !cdrom0PathString.compare(0, 4, "\\\\.\\"))
 	{
 		m_bindingType = CCdromSelectionWnd::BINDING_PHYSICAL;
-		m_devicePath  = string_format("%c:\\", toupper(cdrom0PathString[4]));
+		m_devicePath = string_format("%c:\\", toupper(cdrom0PathString[4]));
 	}
 	else
 	{
 		m_bindingType = CCdromSelectionWnd::BINDING_IMAGE;
-		m_imagePath   = cdrom0Path.native();
+		m_imagePath = cdrom0Path.native();
 	}
 }
 
@@ -268,8 +268,8 @@ std::tstring CVFSManagerWnd::CCdrom0Device::GetBinding()
 bool CVFSManagerWnd::CCdrom0Device::RequestModification(HWND hParent)
 {
 	CCdromSelectionWnd::CDROMBINDING binding;
-	binding.type           = static_cast<CCdromSelectionWnd::BINDINGTYPE>(m_bindingType);
-	binding.imagePath      = m_imagePath;
+	binding.type = static_cast<CCdromSelectionWnd::BINDINGTYPE>(m_bindingType);
+	binding.imagePath = m_imagePath;
 	binding.physicalDevice = m_devicePath[0] - 'A';
 
 	CCdromSelectionWnd selectionWnd(hParent, _T("Modify cdrom0 Binding"));
@@ -280,8 +280,8 @@ bool CVFSManagerWnd::CCdrom0Device::RequestModification(HWND hParent)
 	binding = selectionWnd.GetBindingInfo();
 
 	m_bindingType = binding.type;
-	m_imagePath   = binding.imagePath;
-	m_devicePath  = string_format("%c:\\", binding.physicalDevice + 'A');
+	m_imagePath = binding.imagePath;
+	m_devicePath = string_format("%c:\\", binding.physicalDevice + 'A');
 
 	return true;
 }

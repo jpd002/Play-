@@ -12,28 +12,28 @@
 class CThreadsViewWnd : public Framework::Win32::CMDIChild, public boost::signals2::trackable
 {
 public:
-											CThreadsViewWnd(HWND, CVirtualMachine&);
-	virtual									~CThreadsViewWnd();
+	CThreadsViewWnd(HWND, CVirtualMachine&);
+	virtual ~CThreadsViewWnd();
 
-	void									SetContext(CMIPS*, CBiosDebugInfoProvider*);
+	void SetContext(CMIPS*, CBiosDebugInfoProvider*);
 
-	boost::signals2::signal<void (uint32)>	OnGotoAddress;
+	boost::signals2::signal<void(uint32)> OnGotoAddress;
 
 protected:
-	long									OnSize(unsigned int, unsigned int, unsigned int) override;
-	long									OnSysCommand(unsigned int, LPARAM) override;
-	LRESULT									OnNotify(WPARAM, NMHDR*) override;
+	long OnSize(unsigned int, unsigned int, unsigned int) override;
+	long OnSysCommand(unsigned int, LPARAM) override;
+	LRESULT OnNotify(WPARAM, NMHDR*) override;
 
 private:
-	void									CreateColumns();
-	void									Update();
-	void									RefreshLayout();
-	void									OnListDblClick();
+	void CreateColumns();
+	void Update();
+	void RefreshLayout();
+	void OnListDblClick();
 
-	Framework::Win32::CListView				m_listView;
+	Framework::Win32::CListView m_listView;
 
-	CMIPS*									m_context;
-	CBiosDebugInfoProvider*					m_biosDebugInfoProvider;
+	CMIPS* m_context;
+	CBiosDebugInfoProvider* m_biosDebugInfoProvider;
 };
 
 #endif

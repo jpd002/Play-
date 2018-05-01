@@ -6,24 +6,24 @@
 #include "ElfViewRes.h"
 
 CELFSectionView::CELFSectionView(HWND hParent, CELF* pELF)
-: CDialog(MAKEINTRESOURCE(IDD_ELFVIEW_SECTIONVIEW), hParent)
-, m_nSection(-1)
-, m_pELF(pELF)
-, m_dynamicSectionListView(NULL)
-, m_memoryView(NULL)
+    : CDialog(MAKEINTRESOURCE(IDD_ELFVIEW_SECTIONVIEW), hParent)
+    , m_nSection(-1)
+    , m_pELF(pELF)
+    , m_dynamicSectionListView(NULL)
+    , m_memoryView(NULL)
 {
 	SetClassPtr();
 
-	m_pType					= new Framework::Win32::CEdit(GetItem(IDC_ELFVIEW_SECTIONVIEW_TYPE_EDIT));
-	m_pFlags				= new Framework::Win32::CEdit(GetItem(IDC_ELFVIEW_SECTIONVIEW_FLAGS_EDIT));
-	m_pAddress				= new Framework::Win32::CEdit(GetItem(IDC_ELFVIEW_SECTIONVIEW_ADDRESS_EDIT));
-	m_pOffset				= new Framework::Win32::CEdit(GetItem(IDC_ELFVIEW_SECTIONVIEW_OFFSET_EDIT));
-	m_pSize					= new Framework::Win32::CEdit(GetItem(IDC_ELFVIEW_SECTIONVIEW_SIZE_EDIT));
-	m_pLink					= new Framework::Win32::CEdit(GetItem(IDC_ELFVIEW_SECTIONVIEW_LINK_EDIT));
-	m_pInfo					= new Framework::Win32::CEdit(GetItem(IDC_ELFVIEW_SECTIONVIEW_INFO_EDIT));
-	m_pAlignment			= new Framework::Win32::CEdit(GetItem(IDC_ELFVIEW_SECTIONVIEW_ALIGN_EDIT));
-	m_pEntrySize			= new Framework::Win32::CEdit(GetItem(IDC_ELFVIEW_SECTIONVIEW_ENTRYSIZE_EDIT));
-	m_contentsPlaceHolder	= new Framework::Win32::CStatic(GetItem(IDC_ELFVIEW_SECTIONVIEW_CONTENTS_PLACEHOLDER));
+	m_pType = new Framework::Win32::CEdit(GetItem(IDC_ELFVIEW_SECTIONVIEW_TYPE_EDIT));
+	m_pFlags = new Framework::Win32::CEdit(GetItem(IDC_ELFVIEW_SECTIONVIEW_FLAGS_EDIT));
+	m_pAddress = new Framework::Win32::CEdit(GetItem(IDC_ELFVIEW_SECTIONVIEW_ADDRESS_EDIT));
+	m_pOffset = new Framework::Win32::CEdit(GetItem(IDC_ELFVIEW_SECTIONVIEW_OFFSET_EDIT));
+	m_pSize = new Framework::Win32::CEdit(GetItem(IDC_ELFVIEW_SECTIONVIEW_SIZE_EDIT));
+	m_pLink = new Framework::Win32::CEdit(GetItem(IDC_ELFVIEW_SECTIONVIEW_LINK_EDIT));
+	m_pInfo = new Framework::Win32::CEdit(GetItem(IDC_ELFVIEW_SECTIONVIEW_INFO_EDIT));
+	m_pAlignment = new Framework::Win32::CEdit(GetItem(IDC_ELFVIEW_SECTIONVIEW_ALIGN_EDIT));
+	m_pEntrySize = new Framework::Win32::CEdit(GetItem(IDC_ELFVIEW_SECTIONVIEW_ENTRYSIZE_EDIT));
+	m_contentsPlaceHolder = new Framework::Win32::CStatic(GetItem(IDC_ELFVIEW_SECTIONVIEW_CONTENTS_PLACEHOLDER));
 
 	//Create content views
 	{
@@ -249,13 +249,13 @@ void CELFSectionView::CreateDynamicSectionListViewColumns()
 	LVCOLUMN col;
 
 	memset(&col, 0, sizeof(LVCOLUMN));
-	col.pszText		= _T("Type");
-	col.mask		= LVCF_TEXT;
+	col.pszText = _T("Type");
+	col.mask = LVCF_TEXT;
 	m_dynamicSectionListView->InsertColumn(0, col);
 
 	memset(&col, 0, sizeof(LVCOLUMN));
-	col.pszText		= _T("Value");
-	col.mask		= LVCF_TEXT;
+	col.pszText = _T("Value");
+	col.mask = LVCF_TEXT;
 	m_dynamicSectionListView->InsertColumn(1, col);
 
 	RECT rc = m_dynamicSectionListView->GetClientRect();
@@ -274,8 +274,8 @@ void CELFSectionView::FillDynamicSectionListView()
 
 	for(unsigned int i = 0; i < pH->nSize; i += 8, dynamicData += 2)
 	{
-		uint32 tag		= *(dynamicData + 0);
-		uint32 value	= *(dynamicData + 1);
+		uint32 tag = *(dynamicData + 0);
+		uint32 value = *(dynamicData + 1);
 
 		if(tag == 0) break;
 

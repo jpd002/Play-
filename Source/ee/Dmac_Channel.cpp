@@ -6,51 +6,50 @@
 #include "Dmac_Channel.h"
 #include "DMAC.h"
 
-#define LOG_NAME				("dmac")
-#define STATE_REGS_XML_FORMAT	("dmac/channel_%d.xml")
-#define STATE_REGS_CHCR			("CHCR")
-#define STATE_REGS_MADR			("MADR")
-#define STATE_REGS_QWC			("QWC")
-#define STATE_REGS_TADR			("TADR")
-#define STATE_REGS_SCCTRL		("SCCTRL")
-#define STATE_REGS_ASR0			("ASR0")
-#define STATE_REGS_ASR1			("ASR1")
+#define LOG_NAME ("dmac")
+#define STATE_REGS_XML_FORMAT ("dmac/channel_%d.xml")
+#define STATE_REGS_CHCR ("CHCR")
+#define STATE_REGS_MADR ("MADR")
+#define STATE_REGS_QWC ("QWC")
+#define STATE_REGS_TADR ("TADR")
+#define STATE_REGS_SCCTRL ("SCCTRL")
+#define STATE_REGS_ASR0 ("ASR0")
+#define STATE_REGS_ASR1 ("ASR1")
 
 #define DMATAG_IRQ 0x8000
-#define DMATAG_ID  0x7000
+#define DMATAG_ID 0x7000
 
 using namespace Dmac;
 
-CChannel::CChannel(CDMAC& dmac, unsigned int nNumber, const DmaReceiveHandler& pReceive) 
-: m_dmac(dmac)
-, m_number(nNumber)
-, m_receive(pReceive)
+CChannel::CChannel(CDMAC& dmac, unsigned int nNumber, const DmaReceiveHandler& pReceive)
+    : m_dmac(dmac)
+    , m_number(nNumber)
+    , m_receive(pReceive)
 {
-
 }
 
 void CChannel::Reset()
 {
 	memset(&m_CHCR, 0, sizeof(CHCR));
-	m_nMADR		= 0;
-	m_nQWC		= 0;
-	m_nTADR		= 0;
-	m_nSCCTRL	= 0;
-	m_nASR[0]	= 0;
-	m_nASR[1]	= 0;
+	m_nMADR = 0;
+	m_nQWC = 0;
+	m_nTADR = 0;
+	m_nSCCTRL = 0;
+	m_nASR[0] = 0;
+	m_nASR[1] = 0;
 }
 
 void CChannel::SaveState(Framework::CZipArchiveWriter& archive)
 {
 	auto path = string_format(STATE_REGS_XML_FORMAT, m_number);
 	CRegisterStateFile* registerFile = new CRegisterStateFile(path.c_str());
-	registerFile->SetRegister32(STATE_REGS_CHCR,	m_CHCR);
-	registerFile->SetRegister32(STATE_REGS_MADR,	m_nMADR);
-	registerFile->SetRegister32(STATE_REGS_QWC,		m_nQWC);
-	registerFile->SetRegister32(STATE_REGS_TADR,	m_nTADR);
-	registerFile->SetRegister32(STATE_REGS_SCCTRL,	m_nSCCTRL);
-	registerFile->SetRegister32(STATE_REGS_ASR0,	m_nASR[0]);
-	registerFile->SetRegister32(STATE_REGS_ASR1,	m_nASR[1]);
+	registerFile->SetRegister32(STATE_REGS_CHCR, m_CHCR);
+	registerFile->SetRegister32(STATE_REGS_MADR, m_nMADR);
+	registerFile->SetRegister32(STATE_REGS_QWC, m_nQWC);
+	registerFile->SetRegister32(STATE_REGS_TADR, m_nTADR);
+	registerFile->SetRegister32(STATE_REGS_SCCTRL, m_nSCCTRL);
+	registerFile->SetRegister32(STATE_REGS_ASR0, m_nASR[0]);
+	registerFile->SetRegister32(STATE_REGS_ASR1, m_nASR[1]);
 	archive.InsertFile(registerFile);
 }
 
@@ -58,13 +57,13 @@ void CChannel::LoadState(Framework::CZipArchiveReader& archive)
 {
 	auto path = string_format(STATE_REGS_XML_FORMAT, m_number);
 	CRegisterStateFile registerFile(*archive.BeginReadFile(path.c_str()));
-	m_CHCR		<<= registerFile.GetRegister32(STATE_REGS_CHCR);
-	m_nMADR		= registerFile.GetRegister32(STATE_REGS_MADR);
-	m_nQWC		= registerFile.GetRegister32(STATE_REGS_QWC);
-	m_nTADR		= registerFile.GetRegister32(STATE_REGS_TADR);
-	m_nSCCTRL	= registerFile.GetRegister32(STATE_REGS_SCCTRL);
-	m_nASR[0]	= registerFile.GetRegister32(STATE_REGS_ASR0);
-	m_nASR[1]	= registerFile.GetRegister32(STATE_REGS_ASR1);
+	m_CHCR <<= registerFile.GetRegister32(STATE_REGS_CHCR);
+	m_nMADR = registerFile.GetRegister32(STATE_REGS_MADR);
+	m_nQWC = registerFile.GetRegister32(STATE_REGS_QWC);
+	m_nTADR = registerFile.GetRegister32(STATE_REGS_TADR);
+	m_nSCCTRL = registerFile.GetRegister32(STATE_REGS_SCCTRL);
+	m_nASR[0] = registerFile.GetRegister32(STATE_REGS_ASR0);
+	m_nASR[1] = registerFile.GetRegister32(STATE_REGS_ASR1);
 }
 
 uint32 CChannel::ReadCHCR()
@@ -130,7 +129,7 @@ void CChannel::Execute()
 			}
 			break;
 		case 0x01:
-		case 0x03:		//FFXII uses 3 here, assuming source chain mode
+		case 0x03: //FFXII uses 3 here, assuming source chain mode
 			ExecuteSourceChain();
 			break;
 		default:
@@ -172,8 +171,8 @@ void CChannel::ExecuteNormal()
 
 	uint32 nRecv = m_receive(m_nMADR, qwc, m_CHCR.nDIR, false);
 
-	m_nMADR	+= nRecv * 0x10;
-	m_nQWC	-= nRecv;
+	m_nMADR += nRecv * 0x10;
+	m_nQWC -= nRecv;
 
 	if(m_nQWC == 0)
 	{
@@ -198,12 +197,12 @@ void CChannel::ExecuteInterleave()
 	{
 		//Transfer
 		{
-			uint32 qwc  = m_dmac.m_D_SQWC.tqwc;
+			uint32 qwc = m_dmac.m_D_SQWC.tqwc;
 			uint32 recv = m_receive(m_nMADR, qwc, CHCR_DIR_FROM, false);
 			assert(recv == qwc);
 
 			m_nMADR += recv * 0x10;
-			m_nQWC  -= recv;
+			m_nQWC -= recv;
 		}
 
 		//Skip
@@ -265,8 +264,8 @@ void CChannel::ExecuteSourceChain()
 	{
 		uint32 nRecv = m_receive(m_nMADR, m_nQWC, CHCR_DIR_FROM, false);
 
-		m_nMADR	+= nRecv * 0x10;
-		m_nQWC	-= nRecv;
+		m_nMADR += nRecv * 0x10;
+		m_nQWC -= nRecv;
 
 		if(m_nQWC != 0)
 		{
@@ -368,36 +367,36 @@ void CChannel::ExecuteSourceChain()
 		{
 		case DMATAG_REFE:
 			//REFE - Data to transfer is pointer in memory address, transfer is done
-			m_nMADR		= (uint32)((nTag >>  32) & 0xFFFFFFFF);
-			m_nQWC		= (uint32)((nTag >>   0) & 0x0000FFFF);
-			m_nTADR		= m_nTADR + 0x10;
+			m_nMADR = (uint32)((nTag >> 32) & 0xFFFFFFFF);
+			m_nQWC = (uint32)((nTag >> 0) & 0x0000FFFF);
+			m_nTADR = m_nTADR + 0x10;
 			break;
 		case DMATAG_CNT:
 			//CNT - Data to transfer is after the tag, next tag is after the data
-			m_nMADR		= m_nTADR + 0x10;
-			m_nQWC		= (uint32)(nTag & 0xFFFF);
-			m_nTADR		= (m_nQWC * 0x10) + m_nMADR;
+			m_nMADR = m_nTADR + 0x10;
+			m_nQWC = (uint32)(nTag & 0xFFFF);
+			m_nTADR = (m_nQWC * 0x10) + m_nMADR;
 			break;
 		case DMATAG_NEXT:
 			//NEXT - Transfers data after tag, next tag is at position in ADDR field
-			m_nMADR		= m_nTADR + 0x10;
-			m_nQWC		= (uint32)((nTag >>   0) & 0x0000FFFF);
-			m_nTADR		= (uint32)((nTag >>  32) & 0xFFFFFFFF);
+			m_nMADR = m_nTADR + 0x10;
+			m_nQWC = (uint32)((nTag >> 0) & 0x0000FFFF);
+			m_nTADR = (uint32)((nTag >> 32) & 0xFFFFFFFF);
 			break;
 		case DMATAG_REF:
 		case DMATAG_REFS:
 			//REF/REFS - Data to transfer is pointed in memory address, next tag is after this tag
-			m_nMADR		= (uint32)((nTag >>  32) & 0xFFFFFFFF);
-			m_nQWC		= (uint32)((nTag >>   0) & 0x0000FFFF);
-			m_nTADR		= m_nTADR + 0x10;
+			m_nMADR = (uint32)((nTag >> 32) & 0xFFFFFFFF);
+			m_nQWC = (uint32)((nTag >> 0) & 0x0000FFFF);
+			m_nTADR = m_nTADR + 0x10;
 			break;
 		case DMATAG_CALL:
 			//CALL - Transfers QWC after the tag, saves next address in ASR, TADR = ADDR
 			assert(m_CHCR.nASP < 2);
-			m_nMADR				= m_nTADR + 0x10;
-			m_nQWC				= (uint32)(nTag & 0xFFFF);
-			m_nASR[m_CHCR.nASP]	= m_nMADR + (m_nQWC * 0x10);
-			m_nTADR				= (uint32)((nTag >>  32) & 0xFFFFFFFF);
+			m_nMADR = m_nTADR + 0x10;
+			m_nQWC = (uint32)(nTag & 0xFFFF);
+			m_nASR[m_CHCR.nASP] = m_nMADR + (m_nQWC * 0x10);
+			m_nTADR = (uint32)((nTag >> 32) & 0xFFFFFFFF);
 			m_CHCR.nASP++;
 			break;
 		case DMATAG_RET:
@@ -409,15 +408,15 @@ void CChannel::ExecuteSourceChain()
 				m_CHCR.nASP--;
 				m_nTADR = m_nASR[m_CHCR.nASP];
 			}
-			else 
+			else
 			{
 				m_nSCCTRL |= SCCTRL_RETTOP;
 			}
 			break;
 		case DMATAG_END:
 			//END - Data to transfer is after the tag, transfer is finished
-			m_nMADR		= m_nTADR + 0x10;
-			m_nQWC		= (uint32)(nTag & 0xFFFF);
+			m_nMADR = m_nTADR + 0x10;
+			m_nQWC = (uint32)(nTag & 0xFFFF);
 			break;
 		default:
 			m_nQWC = 0;
@@ -446,8 +445,8 @@ void CChannel::ExecuteSourceChain()
 		{
 			uint32 nRecv = m_receive(m_nMADR, qwc, CHCR_DIR_FROM, false);
 
-			m_nMADR		+= nRecv * 0x10;
-			m_nQWC		-= nRecv;
+			m_nMADR += nRecv * 0x10;
+			m_nQWC -= nRecv;
 		}
 
 		if(isMfifo)

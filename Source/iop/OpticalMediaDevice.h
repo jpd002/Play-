@@ -13,7 +13,7 @@ namespace Iop
 		public:
 			typedef std::unique_ptr<COpticalMedia> OpticalMediaPtr;
 
-			        COpticalMediaDevice(OpticalMediaPtr&);
+			COpticalMediaDevice(OpticalMediaPtr&);
 			virtual ~COpticalMediaDevice() = default;
 
 			Framework::CStream* GetFile(uint32, const char*) override;

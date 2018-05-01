@@ -1,22 +1,20 @@
 #include "Iop_Intc.h"
 #include "../RegisterStateFile.h"
 
-#define STATE_REGS_XML		("iop_intc/regs.xml")
-#define STATE_REGS_STATUS	("STATUS")
-#define STATE_REGS_MASK		("MASK")
+#define STATE_REGS_XML ("iop_intc/regs.xml")
+#define STATE_REGS_STATUS ("STATUS")
+#define STATE_REGS_MASK ("MASK")
 
 using namespace Iop;
 
-CIntc::CIntc() 
-: m_mask(0)
-, m_status(0)
+CIntc::CIntc()
+    : m_mask(0)
+    , m_status(0)
 {
-
 }
 
 CIntc::~CIntc()
 {
-
 }
 
 void CIntc::Reset()
@@ -28,8 +26,8 @@ void CIntc::Reset()
 void CIntc::LoadState(Framework::CZipArchiveReader& archive)
 {
 	CRegisterStateFile registerFile(*archive.BeginReadFile(STATE_REGS_XML));
-	m_status.f	= registerFile.GetRegister64(STATE_REGS_STATUS);
-	m_mask.f	= registerFile.GetRegister64(STATE_REGS_MASK);
+	m_status.f = registerFile.GetRegister64(STATE_REGS_STATUS);
+	m_mask.f = registerFile.GetRegister64(STATE_REGS_MASK);
 }
 
 void CIntc::SaveState(Framework::CZipArchiveWriter& archive)

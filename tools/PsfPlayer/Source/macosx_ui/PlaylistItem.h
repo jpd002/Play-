@@ -8,18 +8,18 @@
 
 #import <Cocoa/Cocoa.h>
 
-@interface PlaylistItem : NSObject 
+@interface PlaylistItem : NSObject
 {
-	NSString*	m_path;
-	NSString*	m_game;
-	NSString*	m_title;
-	NSString*	m_length;
+	NSString* m_path;
+	NSString* m_game;
+	NSString* m_title;
+	NSString* m_length;
 }
 
--(id)init: (NSString*)path game: (NSString*)game title: (NSString*)title length: (NSString*)length;
--(void)dealloc;
--(NSString*)game;
--(NSString*)title;
--(NSString*)length;
+- (id)init:(NSString*)path game:(NSString*)game title:(NSString*)title length:(NSString*)length;
+- (void)dealloc;
+- (NSString*)game;
+- (NSString*)title;
+- (NSString*)length;
 
 @end

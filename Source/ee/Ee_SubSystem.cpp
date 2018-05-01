@@ -8,45 +8,45 @@
 
 using namespace Ee;
 
-#define LOG_NAME		("ee_subsystem")
+#define LOG_NAME ("ee_subsystem")
 
-#define STATE_EE		("ee")
-#define STATE_VU0		("vu0")
-#define STATE_VU1		("vu1")
-#define STATE_RAM		("ram")
-#define STATE_SPR		("spr")
-#define STATE_VUMEM0	("vumem0")
-#define STATE_MICROMEM0	("micromem0")
-#define STATE_VUMEM1	("vumem1")
-#define STATE_MICROMEM1	("micromem1")
+#define STATE_EE ("ee")
+#define STATE_VU0 ("vu0")
+#define STATE_VU1 ("vu1")
+#define STATE_RAM ("ram")
+#define STATE_SPR ("spr")
+#define STATE_VUMEM0 ("vumem0")
+#define STATE_MICROMEM0 ("micromem0")
+#define STATE_VUMEM1 ("vumem1")
+#define STATE_MICROMEM1 ("micromem1")
 
-#define FAKE_IOP_RAM_SIZE	(0x1000)
+#define FAKE_IOP_RAM_SIZE (0x1000)
 
 CSubSystem::CSubSystem(uint8* iopRam, CIopBios& iopBios)
-: m_ram(reinterpret_cast<uint8*>(framework_aligned_alloc(PS2::EE_RAM_SIZE, framework_getpagesize())))
-, m_bios(new uint8[PS2::EE_BIOS_SIZE])
-, m_spr(new uint8[PS2::EE_SPR_SIZE])
-, m_fakeIopRam(new uint8[FAKE_IOP_RAM_SIZE])
-, m_vuMem0(reinterpret_cast<uint8*>(framework_aligned_alloc(PS2::VUMEM0SIZE, 0x10)))
-, m_microMem0(new uint8[PS2::MICROMEM0SIZE])
-, m_vuMem1(reinterpret_cast<uint8*>(framework_aligned_alloc(PS2::VUMEM1SIZE, 0x10)))
-, m_microMem1(new uint8[PS2::MICROMEM1SIZE])
-, m_EE(MEMORYMAP_ENDIAN_LSBF)
-, m_VU0(MEMORYMAP_ENDIAN_LSBF)
-, m_VU1(MEMORYMAP_ENDIAN_LSBF)
-, m_executor(m_EE, m_ram)
-, m_dmac(m_ram, m_spr, m_vuMem0, m_EE)
-, m_gif(m_gs, m_ram, m_spr)
-, m_sif(m_dmac, m_ram, iopRam)
-, m_intc(m_dmac, m_gs)
-, m_ipu(m_intc)
-, m_timer(m_intc)
-, m_MAVU0(PS2::VUMEM0SIZE - 1)
-, m_MAVU1(PS2::VUMEM1SIZE - 1)
-, m_COP_SCU(MIPS_REGSIZE_64)
-, m_COP_FPU(MIPS_REGSIZE_64)
-, m_COP_VU(MIPS_REGSIZE_64)
-, m_iopBios(iopBios)
+    : m_ram(reinterpret_cast<uint8*>(framework_aligned_alloc(PS2::EE_RAM_SIZE, framework_getpagesize())))
+    , m_bios(new uint8[PS2::EE_BIOS_SIZE])
+    , m_spr(new uint8[PS2::EE_SPR_SIZE])
+    , m_fakeIopRam(new uint8[FAKE_IOP_RAM_SIZE])
+    , m_vuMem0(reinterpret_cast<uint8*>(framework_aligned_alloc(PS2::VUMEM0SIZE, 0x10)))
+    , m_microMem0(new uint8[PS2::MICROMEM0SIZE])
+    , m_vuMem1(reinterpret_cast<uint8*>(framework_aligned_alloc(PS2::VUMEM1SIZE, 0x10)))
+    , m_microMem1(new uint8[PS2::MICROMEM1SIZE])
+    , m_EE(MEMORYMAP_ENDIAN_LSBF)
+    , m_VU0(MEMORYMAP_ENDIAN_LSBF)
+    , m_VU1(MEMORYMAP_ENDIAN_LSBF)
+    , m_executor(m_EE, m_ram)
+    , m_dmac(m_ram, m_spr, m_vuMem0, m_EE)
+    , m_gif(m_gs, m_ram, m_spr)
+    , m_sif(m_dmac, m_ram, iopRam)
+    , m_intc(m_dmac, m_gs)
+    , m_ipu(m_intc)
+    , m_timer(m_intc)
+    , m_MAVU0(PS2::VUMEM0SIZE - 1)
+    , m_MAVU1(PS2::VUMEM1SIZE - 1)
+    , m_COP_SCU(MIPS_REGSIZE_64)
+    , m_COP_FPU(MIPS_REGSIZE_64)
+    , m_COP_VU(MIPS_REGSIZE_64)
+    , m_iopBios(iopBios)
 {
 	//Some alignment checks, this is needed because of SIMD instructions used in generated code
 	assert((reinterpret_cast<size_t>(&m_EE.m_State) & 0x0F) == 0);
@@ -61,83 +61,83 @@ CSubSystem::CSubSystem(uint8* iopRam, CIopBios& iopBios)
 	//EmotionEngine context setup
 	{
 		//Read map
-		m_EE.m_pMemoryMap->InsertReadMap(0x00000000,            0x01FFFFFF,                                     m_ram,                                                        0x00);
-		m_EE.m_pMemoryMap->InsertReadMap(PS2::EE_SPR_ADDR,      PS2::EE_SPR_ADDR + PS2::EE_SPR_SIZE - 1,        m_spr,                                                        0x01);
-		m_EE.m_pMemoryMap->InsertReadMap(0x10000000,            0x10FFFFFF,                                     std::bind(&CSubSystem::IOPortReadHandler, this, PLACEHOLDER_1),    0x02);
-		m_EE.m_pMemoryMap->InsertReadMap(PS2::MICROMEM0ADDR,    PS2::MICROMEM0ADDR + PS2::MICROMEM0SIZE - 1,    m_microMem0,                                                  0x03);
-		m_EE.m_pMemoryMap->InsertReadMap(PS2::VUMEM0ADDR,       PS2::VUMEM0ADDR + PS2::VUMEM0SIZE - 1,          m_vuMem0,                                                     0x04);
-		m_EE.m_pMemoryMap->InsertReadMap(PS2::MICROMEM1ADDR,    PS2::MICROMEM1ADDR + PS2::MICROMEM1SIZE - 1,    m_microMem1,                                                  0x05);
-		m_EE.m_pMemoryMap->InsertReadMap(PS2::VUMEM1ADDR,       PS2::VUMEM1ADDR + PS2::VUMEM1SIZE - 1,          m_vuMem1,                                                     0x06);
-		m_EE.m_pMemoryMap->InsertReadMap(0x12000000,            0x12FFFFFF,                                     std::bind(&CSubSystem::IOPortReadHandler, this, PLACEHOLDER_1),    0x07);
-		m_EE.m_pMemoryMap->InsertReadMap(0x1C000000,            0x1C001000,                                     m_fakeIopRam,                                                 0x08);
-		m_EE.m_pMemoryMap->InsertReadMap(0x1FC00000,            0x1FFFFFFF,                                     m_bios,                                                       0x09);
+		m_EE.m_pMemoryMap->InsertReadMap(0x00000000, 0x01FFFFFF, m_ram, 0x00);
+		m_EE.m_pMemoryMap->InsertReadMap(PS2::EE_SPR_ADDR, PS2::EE_SPR_ADDR + PS2::EE_SPR_SIZE - 1, m_spr, 0x01);
+		m_EE.m_pMemoryMap->InsertReadMap(0x10000000, 0x10FFFFFF, std::bind(&CSubSystem::IOPortReadHandler, this, PLACEHOLDER_1), 0x02);
+		m_EE.m_pMemoryMap->InsertReadMap(PS2::MICROMEM0ADDR, PS2::MICROMEM0ADDR + PS2::MICROMEM0SIZE - 1, m_microMem0, 0x03);
+		m_EE.m_pMemoryMap->InsertReadMap(PS2::VUMEM0ADDR, PS2::VUMEM0ADDR + PS2::VUMEM0SIZE - 1, m_vuMem0, 0x04);
+		m_EE.m_pMemoryMap->InsertReadMap(PS2::MICROMEM1ADDR, PS2::MICROMEM1ADDR + PS2::MICROMEM1SIZE - 1, m_microMem1, 0x05);
+		m_EE.m_pMemoryMap->InsertReadMap(PS2::VUMEM1ADDR, PS2::VUMEM1ADDR + PS2::VUMEM1SIZE - 1, m_vuMem1, 0x06);
+		m_EE.m_pMemoryMap->InsertReadMap(0x12000000, 0x12FFFFFF, std::bind(&CSubSystem::IOPortReadHandler, this, PLACEHOLDER_1), 0x07);
+		m_EE.m_pMemoryMap->InsertReadMap(0x1C000000, 0x1C001000, m_fakeIopRam, 0x08);
+		m_EE.m_pMemoryMap->InsertReadMap(0x1FC00000, 0x1FFFFFFF, m_bios, 0x09);
 
 		//Write map
-		m_EE.m_pMemoryMap->InsertWriteMap(0x00000000,            0x01FFFFFF,                                     m_ram,                                                                             0x00);
-		m_EE.m_pMemoryMap->InsertWriteMap(PS2::EE_SPR_ADDR,      PS2::EE_SPR_ADDR + PS2::EE_SPR_SIZE - 1,        m_spr,                                                                             0x01);
-		m_EE.m_pMemoryMap->InsertWriteMap(0x10000000,            0x10FFFFFF,                                     std::bind(&CSubSystem::IOPortWriteHandler, this, PLACEHOLDER_1, PLACEHOLDER_2),         0x02);
-		m_EE.m_pMemoryMap->InsertWriteMap(PS2::MICROMEM0ADDR,    PS2::MICROMEM0ADDR + PS2::MICROMEM0SIZE - 1,    std::bind(&CSubSystem::Vu0MicroMemWriteHandler, this, PLACEHOLDER_1, PLACEHOLDER_2),    0x03);
-		m_EE.m_pMemoryMap->InsertWriteMap(PS2::VUMEM0ADDR,       PS2::VUMEM0ADDR + PS2::VUMEM0SIZE - 1,          m_vuMem0,                                                                          0x04);
-		m_EE.m_pMemoryMap->InsertWriteMap(PS2::MICROMEM1ADDR,    PS2::MICROMEM1ADDR + PS2::MICROMEM1SIZE - 1,    std::bind(&CSubSystem::Vu1MicroMemWriteHandler, this, PLACEHOLDER_1, PLACEHOLDER_2),    0x05);
-		m_EE.m_pMemoryMap->InsertWriteMap(PS2::VUMEM1ADDR,       PS2::VUMEM1ADDR + PS2::VUMEM1SIZE - 1,          m_vuMem1,                                                                          0x06);
-		m_EE.m_pMemoryMap->InsertWriteMap(0x12000000,            0x12FFFFFF,                                     std::bind(&CSubSystem::IOPortWriteHandler,	this, PLACEHOLDER_1, PLACEHOLDER_2),        0x07);
+		m_EE.m_pMemoryMap->InsertWriteMap(0x00000000, 0x01FFFFFF, m_ram, 0x00);
+		m_EE.m_pMemoryMap->InsertWriteMap(PS2::EE_SPR_ADDR, PS2::EE_SPR_ADDR + PS2::EE_SPR_SIZE - 1, m_spr, 0x01);
+		m_EE.m_pMemoryMap->InsertWriteMap(0x10000000, 0x10FFFFFF, std::bind(&CSubSystem::IOPortWriteHandler, this, PLACEHOLDER_1, PLACEHOLDER_2), 0x02);
+		m_EE.m_pMemoryMap->InsertWriteMap(PS2::MICROMEM0ADDR, PS2::MICROMEM0ADDR + PS2::MICROMEM0SIZE - 1, std::bind(&CSubSystem::Vu0MicroMemWriteHandler, this, PLACEHOLDER_1, PLACEHOLDER_2), 0x03);
+		m_EE.m_pMemoryMap->InsertWriteMap(PS2::VUMEM0ADDR, PS2::VUMEM0ADDR + PS2::VUMEM0SIZE - 1, m_vuMem0, 0x04);
+		m_EE.m_pMemoryMap->InsertWriteMap(PS2::MICROMEM1ADDR, PS2::MICROMEM1ADDR + PS2::MICROMEM1SIZE - 1, std::bind(&CSubSystem::Vu1MicroMemWriteHandler, this, PLACEHOLDER_1, PLACEHOLDER_2), 0x05);
+		m_EE.m_pMemoryMap->InsertWriteMap(PS2::VUMEM1ADDR, PS2::VUMEM1ADDR + PS2::VUMEM1SIZE - 1, m_vuMem1, 0x06);
+		m_EE.m_pMemoryMap->InsertWriteMap(0x12000000, 0x12FFFFFF, std::bind(&CSubSystem::IOPortWriteHandler, this, PLACEHOLDER_1, PLACEHOLDER_2), 0x07);
 
 		//Instruction map
-		m_EE.m_pMemoryMap->InsertInstructionMap(0x00000000, 0x01FFFFFF, m_ram,  0x00);
+		m_EE.m_pMemoryMap->InsertInstructionMap(0x00000000, 0x01FFFFFF, m_ram, 0x00);
 		m_EE.m_pMemoryMap->InsertInstructionMap(0x1FC00000, 0x1FFFFFFF, m_bios, 0x01);
 
-		m_EE.m_pArch			= &m_EEArch;
-		m_EE.m_pCOP[0]			= &m_COP_SCU;
-		m_EE.m_pCOP[1]			= &m_COP_FPU;
-		m_EE.m_pCOP[2]			= &m_COP_VU;
+		m_EE.m_pArch = &m_EEArch;
+		m_EE.m_pCOP[0] = &m_COP_SCU;
+		m_EE.m_pCOP[1] = &m_COP_FPU;
+		m_EE.m_pCOP[2] = &m_COP_VU;
 
-		m_EE.m_pAddrTranslator	= CPS2OS::TranslateAddress;
+		m_EE.m_pAddrTranslator = CPS2OS::TranslateAddress;
 	}
 
 	//Vector Unit 0 context setup
 	{
-		m_VU0.m_pMemoryMap->InsertReadMap(0x00000000, 0x00000FFF, m_vuMem0,														0x01);
-		m_VU0.m_pMemoryMap->InsertReadMap(0x00001000, 0x00001FFF, m_vuMem0,														0x02);
-		m_VU0.m_pMemoryMap->InsertReadMap(0x00002000, 0x00002FFF, m_vuMem0,														0x03);
-		m_VU0.m_pMemoryMap->InsertReadMap(0x00003000, 0x00003FFF, m_vuMem0,														0x04);
-		m_VU0.m_pMemoryMap->InsertReadMap(0x00004000, 0x00008FFF, std::bind(&CSubSystem::Vu0IoPortReadHandler, this, PLACEHOLDER_1),	0x05);
+		m_VU0.m_pMemoryMap->InsertReadMap(0x00000000, 0x00000FFF, m_vuMem0, 0x01);
+		m_VU0.m_pMemoryMap->InsertReadMap(0x00001000, 0x00001FFF, m_vuMem0, 0x02);
+		m_VU0.m_pMemoryMap->InsertReadMap(0x00002000, 0x00002FFF, m_vuMem0, 0x03);
+		m_VU0.m_pMemoryMap->InsertReadMap(0x00003000, 0x00003FFF, m_vuMem0, 0x04);
+		m_VU0.m_pMemoryMap->InsertReadMap(0x00004000, 0x00008FFF, std::bind(&CSubSystem::Vu0IoPortReadHandler, this, PLACEHOLDER_1), 0x05);
 
-		m_VU0.m_pMemoryMap->InsertWriteMap(0x00000000, 0x00000FFF, m_vuMem0,																		0x01);
-		m_VU0.m_pMemoryMap->InsertWriteMap(0x00001000, 0x00001FFF, m_vuMem0,																		0x02);
-		m_VU0.m_pMemoryMap->InsertWriteMap(0x00002000, 0x00002FFF, m_vuMem0,																		0x03);
-		m_VU0.m_pMemoryMap->InsertWriteMap(0x00003000, 0x00003FFF, m_vuMem0,																		0x04);
-		m_VU0.m_pMemoryMap->InsertWriteMap(0x00004000, 0x00008FFF, std::bind(&CSubSystem::Vu0IoPortWriteHandler, this, PLACEHOLDER_1, PLACEHOLDER_2),	0x05);
+		m_VU0.m_pMemoryMap->InsertWriteMap(0x00000000, 0x00000FFF, m_vuMem0, 0x01);
+		m_VU0.m_pMemoryMap->InsertWriteMap(0x00001000, 0x00001FFF, m_vuMem0, 0x02);
+		m_VU0.m_pMemoryMap->InsertWriteMap(0x00002000, 0x00002FFF, m_vuMem0, 0x03);
+		m_VU0.m_pMemoryMap->InsertWriteMap(0x00003000, 0x00003FFF, m_vuMem0, 0x04);
+		m_VU0.m_pMemoryMap->InsertWriteMap(0x00004000, 0x00008FFF, std::bind(&CSubSystem::Vu0IoPortWriteHandler, this, PLACEHOLDER_1, PLACEHOLDER_2), 0x05);
 
 		m_VU0.m_pMemoryMap->InsertInstructionMap(0x00000000, 0x00000FFF, m_microMem0, 0x00);
 
-		m_VU0.m_pArch			= &m_MAVU0;
-		m_VU0.m_pAddrTranslator	= CMIPS::TranslateAddress64;
+		m_VU0.m_pArch = &m_MAVU0;
+		m_VU0.m_pAddrTranslator = CMIPS::TranslateAddress64;
 	}
 
 	//Vector Unit 1 context setup
 	{
-		m_VU1.m_pMemoryMap->InsertReadMap(0x00000000, 0x00003FFF, m_vuMem1,															0x00);
-		m_VU1.m_pMemoryMap->InsertReadMap(0x00008000, 0x00008FFF, std::bind(&CSubSystem::Vu1IoPortReadHandler, this, PLACEHOLDER_1),		0x01);
+		m_VU1.m_pMemoryMap->InsertReadMap(0x00000000, 0x00003FFF, m_vuMem1, 0x00);
+		m_VU1.m_pMemoryMap->InsertReadMap(0x00008000, 0x00008FFF, std::bind(&CSubSystem::Vu1IoPortReadHandler, this, PLACEHOLDER_1), 0x01);
 
-		m_VU1.m_pMemoryMap->InsertWriteMap(0x00000000, 0x00003FFF, m_vuMem1,																		0x00);
-		m_VU1.m_pMemoryMap->InsertWriteMap(0x00008000, 0x00008FFF, std::bind(&CSubSystem::Vu1IoPortWriteHandler, this, PLACEHOLDER_1, PLACEHOLDER_2),	0x01);
+		m_VU1.m_pMemoryMap->InsertWriteMap(0x00000000, 0x00003FFF, m_vuMem1, 0x00);
+		m_VU1.m_pMemoryMap->InsertWriteMap(0x00008000, 0x00008FFF, std::bind(&CSubSystem::Vu1IoPortWriteHandler, this, PLACEHOLDER_1, PLACEHOLDER_2), 0x01);
 
 		m_VU1.m_pMemoryMap->InsertInstructionMap(0x00000000, 0x00003FFF, m_microMem1, 0x01);
 
-		m_VU1.m_pArch			= &m_MAVU1;
-		m_VU1.m_pAddrTranslator	= CMIPS::TranslateAddress64;
+		m_VU1.m_pArch = &m_MAVU1;
+		m_VU1.m_pAddrTranslator = CMIPS::TranslateAddress64;
 	}
 
 	m_EE.m_vuMem = m_vuMem0;
 	m_VU0.m_vuMem = m_vuMem0;
 	m_VU1.m_vuMem = m_vuMem1;
 
-	m_dmac.SetChannelTransferFunction(CDMAC::CHANNEL_ID_VIF0,   std::bind(&CVif::ReceiveDMA, &m_vpu0->GetVif(), PLACEHOLDER_1, PLACEHOLDER_2, PLACEHOLDER_3, PLACEHOLDER_4));
-	m_dmac.SetChannelTransferFunction(CDMAC::CHANNEL_ID_VIF1,   std::bind(&CVif::ReceiveDMA, &m_vpu1->GetVif(), PLACEHOLDER_1, PLACEHOLDER_2, PLACEHOLDER_3, PLACEHOLDER_4));
-	m_dmac.SetChannelTransferFunction(CDMAC::CHANNEL_ID_GIF,    std::bind(&CGIF::ReceiveDMA, &m_gif, PLACEHOLDER_1, PLACEHOLDER_2, PLACEHOLDER_3, PLACEHOLDER_4));
+	m_dmac.SetChannelTransferFunction(CDMAC::CHANNEL_ID_VIF0, std::bind(&CVif::ReceiveDMA, &m_vpu0->GetVif(), PLACEHOLDER_1, PLACEHOLDER_2, PLACEHOLDER_3, PLACEHOLDER_4));
+	m_dmac.SetChannelTransferFunction(CDMAC::CHANNEL_ID_VIF1, std::bind(&CVif::ReceiveDMA, &m_vpu1->GetVif(), PLACEHOLDER_1, PLACEHOLDER_2, PLACEHOLDER_3, PLACEHOLDER_4));
+	m_dmac.SetChannelTransferFunction(CDMAC::CHANNEL_ID_GIF, std::bind(&CGIF::ReceiveDMA, &m_gif, PLACEHOLDER_1, PLACEHOLDER_2, PLACEHOLDER_3, PLACEHOLDER_4));
 	m_dmac.SetChannelTransferFunction(CDMAC::CHANNEL_ID_TO_IPU, std::bind(&CIPU::ReceiveDMA4, &m_ipu, PLACEHOLDER_1, PLACEHOLDER_2, PLACEHOLDER_4, m_ram));
-	m_dmac.SetChannelTransferFunction(CDMAC::CHANNEL_ID_SIF0,   std::bind(&CSIF::ReceiveDMA5, &m_sif, PLACEHOLDER_1, PLACEHOLDER_2, PLACEHOLDER_3, PLACEHOLDER_4));
-	m_dmac.SetChannelTransferFunction(CDMAC::CHANNEL_ID_SIF1,   std::bind(&CSIF::ReceiveDMA6, &m_sif, PLACEHOLDER_1, PLACEHOLDER_2, PLACEHOLDER_3, PLACEHOLDER_4));
+	m_dmac.SetChannelTransferFunction(CDMAC::CHANNEL_ID_SIF0, std::bind(&CSIF::ReceiveDMA5, &m_sif, PLACEHOLDER_1, PLACEHOLDER_2, PLACEHOLDER_3, PLACEHOLDER_4));
+	m_dmac.SetChannelTransferFunction(CDMAC::CHANNEL_ID_SIF1, std::bind(&CSIF::ReceiveDMA6, &m_sif, PLACEHOLDER_1, PLACEHOLDER_2, PLACEHOLDER_3, PLACEHOLDER_4));
 
 	m_ipu.SetDMA3ReceiveHandler(std::bind(&CDMAC::ResumeDMA3, &m_dmac, PLACEHOLDER_1, PLACEHOLDER_2));
 
@@ -150,13 +150,13 @@ CSubSystem::~CSubSystem()
 	m_executor.Reset();
 	delete m_os;
 	framework_aligned_free(m_ram);
-	delete [] m_bios;
-	delete [] m_spr;
-	delete [] m_fakeIopRam;
+	delete[] m_bios;
+	delete[] m_spr;
+	delete[] m_fakeIopRam;
 	framework_aligned_free(m_vuMem0);
-	delete [] m_microMem0;
+	delete[] m_microMem0;
 	framework_aligned_free(m_vuMem1);
-	delete [] m_microMem1;
+	delete[] m_microMem1;
 }
 
 void CSubSystem::SetVpu0(std::shared_ptr<CVpu> newVpu0)
@@ -174,14 +174,14 @@ void CSubSystem::Reset()
 	m_os->Release();
 	m_executor.Reset();
 
-	memset(m_ram,			0, PS2::EE_RAM_SIZE);
-	memset(m_spr,			0, PS2::EE_SPR_SIZE);
-	memset(m_bios,			0, PS2::EE_BIOS_SIZE);
-	memset(m_fakeIopRam,	0, FAKE_IOP_RAM_SIZE);
-	memset(m_vuMem0,		0, PS2::VUMEM0SIZE);
-	memset(m_microMem0,		0, PS2::MICROMEM0SIZE);
-	memset(m_vuMem1,		0, PS2::VUMEM1SIZE);
-	memset(m_microMem1,		0, PS2::MICROMEM1SIZE);
+	memset(m_ram, 0, PS2::EE_RAM_SIZE);
+	memset(m_spr, 0, PS2::EE_SPR_SIZE);
+	memset(m_bios, 0, PS2::EE_BIOS_SIZE);
+	memset(m_fakeIopRam, 0, FAKE_IOP_RAM_SIZE);
+	memset(m_vuMem0, 0, PS2::VUMEM0SIZE);
+	memset(m_microMem0, 0, PS2::MICROMEM0SIZE);
+	memset(m_vuMem1, 0, PS2::VUMEM1SIZE);
+	memset(m_microMem1, 0, PS2::MICROMEM1SIZE);
 
 	//Reset Contexts
 	m_EE.Reset();
@@ -248,24 +248,24 @@ int CSubSystem::ExecuteCpu(int quota)
 			}
 			break;
 		case MIPS_EXCEPTION_IDLE:
-			{
-				m_isIdle = true;
-				m_EE.m_State.nHasException = MIPS_EXCEPTION_NONE;
-			}
-			break;
+		{
+			m_isIdle = true;
+			m_EE.m_State.nHasException = MIPS_EXCEPTION_NONE;
+		}
+		break;
 		case MIPS_EXCEPTION_CHECKPENDINGINT:
-			{
-				m_EE.m_State.nHasException = MIPS_EXCEPTION_NONE;
-				CheckPendingInterrupts();
-			}
-			break;
+		{
+			m_EE.m_State.nHasException = MIPS_EXCEPTION_NONE;
+			CheckPendingInterrupts();
+		}
+		break;
 		case MIPS_EXCEPTION_RETURNFROMEXCEPTION:
-			{
-				m_EE.m_State.nHasException = MIPS_EXCEPTION_NONE;
-				m_os->HandleReturnFromException();
-				CheckPendingInterrupts();
-			}
-			break;
+		{
+			m_EE.m_State.nHasException = MIPS_EXCEPTION_NONE;
+			m_os->HandleReturnFromException();
+			CheckPendingInterrupts();
+		}
+		break;
 		default:
 			assert(0);
 			break;
@@ -340,15 +340,15 @@ void CSubSystem::NotifyVBlankEnd()
 
 void CSubSystem::SaveState(Framework::CZipArchiveWriter& archive)
 {
-	archive.InsertFile(new CMemoryStateFile(STATE_EE,			&m_EE.m_State,	sizeof(MIPSSTATE)));
-	archive.InsertFile(new CMemoryStateFile(STATE_VU0,			&m_VU0.m_State,	sizeof(MIPSSTATE)));
-	archive.InsertFile(new CMemoryStateFile(STATE_VU1,			&m_VU1.m_State,	sizeof(MIPSSTATE)));
-	archive.InsertFile(new CMemoryStateFile(STATE_RAM,			m_ram,			PS2::EE_RAM_SIZE));
-	archive.InsertFile(new CMemoryStateFile(STATE_SPR,			m_spr,			PS2::EE_SPR_SIZE));
-	archive.InsertFile(new CMemoryStateFile(STATE_VUMEM0,		m_vuMem0,		PS2::VUMEM0SIZE));
-	archive.InsertFile(new CMemoryStateFile(STATE_MICROMEM0,	m_microMem0,	PS2::MICROMEM0SIZE));
-	archive.InsertFile(new CMemoryStateFile(STATE_VUMEM1,		m_vuMem1,		PS2::VUMEM1SIZE));
-	archive.InsertFile(new CMemoryStateFile(STATE_MICROMEM1,	m_microMem1,	PS2::MICROMEM1SIZE));
+	archive.InsertFile(new CMemoryStateFile(STATE_EE, &m_EE.m_State, sizeof(MIPSSTATE)));
+	archive.InsertFile(new CMemoryStateFile(STATE_VU0, &m_VU0.m_State, sizeof(MIPSSTATE)));
+	archive.InsertFile(new CMemoryStateFile(STATE_VU1, &m_VU1.m_State, sizeof(MIPSSTATE)));
+	archive.InsertFile(new CMemoryStateFile(STATE_RAM, m_ram, PS2::EE_RAM_SIZE));
+	archive.InsertFile(new CMemoryStateFile(STATE_SPR, m_spr, PS2::EE_SPR_SIZE));
+	archive.InsertFile(new CMemoryStateFile(STATE_VUMEM0, m_vuMem0, PS2::VUMEM0SIZE));
+	archive.InsertFile(new CMemoryStateFile(STATE_MICROMEM0, m_microMem0, PS2::MICROMEM0SIZE));
+	archive.InsertFile(new CMemoryStateFile(STATE_VUMEM1, m_vuMem1, PS2::VUMEM1SIZE));
+	archive.InsertFile(new CMemoryStateFile(STATE_MICROMEM1, m_microMem1, PS2::MICROMEM1SIZE));
 
 	m_dmac.SaveState(archive);
 	m_intc.SaveState(archive);
@@ -361,15 +361,15 @@ void CSubSystem::SaveState(Framework::CZipArchiveWriter& archive)
 
 void CSubSystem::LoadState(Framework::CZipArchiveReader& archive)
 {
-	archive.BeginReadFile(STATE_EE			)->Read(&m_EE.m_State,	sizeof(MIPSSTATE));
-	archive.BeginReadFile(STATE_VU0			)->Read(&m_VU0.m_State,	sizeof(MIPSSTATE));
-	archive.BeginReadFile(STATE_VU1			)->Read(&m_VU1.m_State,	sizeof(MIPSSTATE));
-	archive.BeginReadFile(STATE_RAM			)->Read(m_ram,			PS2::EE_RAM_SIZE);
-	archive.BeginReadFile(STATE_SPR			)->Read(m_spr,			PS2::EE_SPR_SIZE);
-	archive.BeginReadFile(STATE_VUMEM0		)->Read(m_vuMem0,		PS2::VUMEM0SIZE);
-	archive.BeginReadFile(STATE_MICROMEM0	)->Read(m_microMem0,	PS2::MICROMEM0SIZE);
-	archive.BeginReadFile(STATE_VUMEM1		)->Read(m_vuMem1,		PS2::VUMEM1SIZE);
-	archive.BeginReadFile(STATE_MICROMEM1	)->Read(m_microMem1,	PS2::MICROMEM1SIZE);
+	archive.BeginReadFile(STATE_EE)->Read(&m_EE.m_State, sizeof(MIPSSTATE));
+	archive.BeginReadFile(STATE_VU0)->Read(&m_VU0.m_State, sizeof(MIPSSTATE));
+	archive.BeginReadFile(STATE_VU1)->Read(&m_VU1.m_State, sizeof(MIPSSTATE));
+	archive.BeginReadFile(STATE_RAM)->Read(m_ram, PS2::EE_RAM_SIZE);
+	archive.BeginReadFile(STATE_SPR)->Read(m_spr, PS2::EE_SPR_SIZE);
+	archive.BeginReadFile(STATE_VUMEM0)->Read(m_vuMem0, PS2::VUMEM0SIZE);
+	archive.BeginReadFile(STATE_MICROMEM0)->Read(m_microMem0, PS2::MICROMEM0SIZE);
+	archive.BeginReadFile(STATE_VUMEM1)->Read(m_vuMem1, PS2::VUMEM1SIZE);
+	archive.BeginReadFile(STATE_MICROMEM1)->Read(m_microMem1, PS2::MICROMEM1SIZE);
 
 	m_dmac.LoadState(archive);
 	m_intc.LoadState(archive);
@@ -427,7 +427,7 @@ uint32 CSubSystem::IOPortReadHandler(uint32 nAddress)
 	else
 	{
 		CLog::GetInstance().Print(LOG_NAME, "Read an unhandled IO port (0x%08X, PC: 0x%08X).\r\n",
-			nAddress, m_EE.m_State.nPC);
+		                          nAddress, m_EE.m_State.nPC);
 	}
 
 	if((nAddress == CINTC::INTC_STAT) || (nAddress == CGSHandler::GS_CSR))
@@ -516,14 +516,13 @@ uint32 CSubSystem::IOPortWriteHandler(uint32 nAddress, uint32 nData)
 	else
 	{
 		CLog::GetInstance().Print(LOG_NAME, "Wrote to an unhandled IO port (0x%08X, 0x%08X, PC: 0x%08X).\r\n",
-			nAddress, nData, m_EE.m_State.nPC);
+		                          nAddress, nData, m_EE.m_State.nPC);
 	}
 
 	if(
-		m_intc.IsInterruptPending() && 
-		(m_EE.m_State.nHasException == MIPS_EXCEPTION_NONE) &&
-		((m_EE.m_State.nCOP0[CCOP_SCU::STATUS] & INTERRUPTS_ENABLED_MASK) == INTERRUPTS_ENABLED_MASK)
-		)
+	    m_intc.IsInterruptPending() &&
+	    (m_EE.m_State.nHasException == MIPS_EXCEPTION_NONE) &&
+	    ((m_EE.m_State.nCOP0[CCOP_SCU::STATUS] & INTERRUPTS_ENABLED_MASK) == INTERRUPTS_ENABLED_MASK))
 	{
 		m_EE.m_State.nHasException = MIPS_EXCEPTION_CHECKPENDINGINT;
 	}
@@ -558,8 +557,8 @@ uint32 CSubSystem::Vu0IoPortWriteHandler(uint32 address, uint32 value)
 	switch(address)
 	{
 	default:
-		CLog::GetInstance().Print(LOG_NAME, "Wrote an unhandled VU0 IO port (0x%08X, 0x%08X).\r\n", 
-								  address, value);
+		CLog::GetInstance().Print(LOG_NAME, "Wrote an unhandled VU0 IO port (0x%08X, 0x%08X).\r\n",
+		                          address, value);
 		break;
 	}
 	return 0;
@@ -598,8 +597,8 @@ uint32 CSubSystem::Vu1IoPortWriteHandler(uint32 address, uint32 value)
 		m_vpu1->ProcessXgKick(value);
 		break;
 	default:
-		CLog::GetInstance().Print(LOG_NAME, "Wrote an unhandled VU1 IO port (0x%08X, 0x%08X).\r\n", 
-								  address, value);
+		CLog::GetInstance().Print(LOG_NAME, "Wrote an unhandled VU1 IO port (0x%08X, 0x%08X).\r\n",
+		                          address, value);
 		break;
 	}
 	return 0;
@@ -607,8 +606,8 @@ uint32 CSubSystem::Vu1IoPortWriteHandler(uint32 address, uint32 value)
 
 void CSubSystem::CopyVuState(CMIPS& dst, const CMIPS& src)
 {
-	memcpy(&dst.m_State.nCOP2,   &src.m_State.nCOP2,   sizeof(dst.m_State.nCOP2));
-	memcpy(&dst.m_State.nCOP2A,  &src.m_State.nCOP2A,  sizeof(dst.m_State.nCOP2A));
+	memcpy(&dst.m_State.nCOP2, &src.m_State.nCOP2, sizeof(dst.m_State.nCOP2));
+	memcpy(&dst.m_State.nCOP2A, &src.m_State.nCOP2A, sizeof(dst.m_State.nCOP2A));
 	memcpy(&dst.m_State.nCOP2VI, &src.m_State.nCOP2VI, sizeof(dst.m_State.nCOP2VI));
 	dst.m_State.nCOP2SF = src.m_State.nCOP2SF;
 	dst.m_State.nCOP2CF = src.m_State.nCOP2CF;
@@ -649,12 +648,12 @@ void CSubSystem::CheckPendingInterrupts()
 	if(!m_EE.m_State.nHasException)
 	{
 		if(
-			m_intc.IsInterruptPending()
+		    m_intc.IsInterruptPending()
 #ifdef DEBUGGER_INCLUDED
-//			&& !m_singleStepEe
-			&& !m_executor.MustBreak()
+		    //			&& !m_singleStepEe
+		    && !m_executor.MustBreak()
 #endif
-			)
+		)
 		{
 			m_os->HandleInterrupt();
 		}

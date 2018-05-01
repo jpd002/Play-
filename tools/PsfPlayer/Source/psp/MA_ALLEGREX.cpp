@@ -4,7 +4,7 @@
 #include "offsetof_def.h"
 
 CMA_ALLEGREX::CMA_ALLEGREX()
-: CMA_MIPSIV(MIPS_REGSIZE_32)
+    : CMA_MIPSIV(MIPS_REGSIZE_32)
 {
 	for(unsigned int i = 0; i < MAX_SPECIAL3_OPS; i++)
 	{
@@ -36,7 +36,6 @@ CMA_ALLEGREX::CMA_ALLEGREX()
 
 CMA_ALLEGREX::~CMA_ALLEGREX()
 {
-
 }
 
 void CMA_ALLEGREX::SPECIAL3()
@@ -93,8 +92,8 @@ void CMA_ALLEGREX::MIN()
 //00
 void CMA_ALLEGREX::EXT()
 {
-	uint8 size	= static_cast<uint8>((m_nOpcode >> 11) & 0x001F);
-	uint8 pos	= static_cast<uint8>((m_nOpcode >>  6) & 0x001F);
+	uint8 size = static_cast<uint8>((m_nOpcode >> 11) & 0x001F);
+	uint8 pos = static_cast<uint8>((m_nOpcode >> 6) & 0x001F);
 
 	assert(size != 0);
 	size = size + 1;
@@ -113,8 +112,8 @@ void CMA_ALLEGREX::EXT()
 //04
 void CMA_ALLEGREX::INS()
 {
-	uint8 size	= static_cast<uint8>((m_nOpcode >> 11) & 0x001F);
-	uint8 pos	= static_cast<uint8>((m_nOpcode >>  6) & 0x001F);
+	uint8 size = static_cast<uint8>((m_nOpcode >> 11) & 0x001F);
+	uint8 pos = static_cast<uint8>((m_nOpcode >> 6) & 0x001F);
 
 	size = size - pos + 1;
 	assert(size != 0);
@@ -150,7 +149,7 @@ void CMA_ALLEGREX::BSHFL()
 void CMA_ALLEGREX::SEB()
 {
 	m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[0]));
-    m_codeGen->SignExt8();
+	m_codeGen->SignExt8();
 	m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[0]));
 }
 
@@ -158,6 +157,6 @@ void CMA_ALLEGREX::SEB()
 void CMA_ALLEGREX::SEH()
 {
 	m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[0]));
-    m_codeGen->SignExt16();
+	m_codeGen->SignExt16();
 	m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[0]));
 }

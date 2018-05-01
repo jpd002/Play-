@@ -7,16 +7,15 @@ using namespace std;
 
 CVolumeStream::CVolumeStream(char nDriveLetter)
 {
-	char sPath[7] = 
-	{
-		'\\',
-		'\\',
-		'.',
-		'\\',
-		nDriveLetter,
-		':',
-		'\0'
-	};
+	char sPath[7] =
+	    {
+	        '\\',
+	        '\\',
+	        '.',
+	        '\\',
+	        nDriveLetter,
+	        ':',
+	        '\0'};
 
 	m_nVolume = CreateFileA(sPath, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_READONLY, NULL);
 	m_nPosition = 0;
@@ -72,7 +71,7 @@ uint64 CVolumeStream::Read(void* pBuffer, uint64 nSize)
 		nSectorOffset = (size_t)(m_nPosition & (m_nSectorSize - 1));
 		nSectorRemain = (size_t)(m_nSectorSize - nSectorOffset);
 		nCopy = min((size_t)nSize, nSectorRemain);
-		
+
 		memcpy(pDst, pSrc + nSectorOffset, nCopy);
 
 		m_nPosition += nCopy;

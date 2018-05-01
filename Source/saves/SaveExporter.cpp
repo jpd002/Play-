@@ -7,8 +7,8 @@ void CSaveExporter::ExportPSU(Framework::CStream& outputStream, const boost::fil
 {
 	uint32 nSector = 0x18D;
 
-	boost::posix_time::ptime baseTime = 
-		boost::posix_time::from_time_t(boost::filesystem::last_write_time(savePath));
+	boost::posix_time::ptime baseTime =
+	    boost::posix_time::from_time_t(boost::filesystem::last_write_time(savePath));
 
 	//Save base directory entry
 	{
@@ -19,29 +19,29 @@ void CSaveExporter::ExportPSU(Framework::CStream& outputStream, const boost::fil
 
 		const boost::filesystem::directory_iterator itEnd;
 		for(boost::filesystem::directory_iterator itElement(savePath);
-			itElement != itEnd;
-			itElement++)
+		    itElement != itEnd;
+		    itElement++)
 		{
 			if(boost::filesystem::is_directory(*itElement)) continue;
 			Entry.nSize++;
 		}
 
-		Entry.nFlags					= 0x8427;
-		Entry.nSector					= nSector;
+		Entry.nFlags = 0x8427;
+		Entry.nSector = nSector;
 
-		PSU_CopyTime(&Entry.CreationTime,		baseTime);
-		PSU_CopyTime(&Entry.ModificationTime,	baseTime);
+		PSU_CopyTime(&Entry.CreationTime, baseTime);
+		PSU_CopyTime(&Entry.ModificationTime, baseTime);
 
 		strncpy(reinterpret_cast<char*>(Entry.sName), savePath.filename().string().c_str(), 0x1C0);
 
 		outputStream.Write(&Entry, sizeof(PSUENTRY));
 	}
 
-	static const char* sRelDirName[2] = 
-	{
-		".",
-		"..",
-	};
+	static const char* sRelDirName[2] =
+	    {
+	        ".",
+	        "..",
+	    };
 
 	//Save "relative" directories
 	for(unsigned int i = 0; i < 2; i++)
@@ -49,11 +49,11 @@ void CSaveExporter::ExportPSU(Framework::CStream& outputStream, const boost::fil
 		PSUENTRY Entry;
 		memset(&Entry, 0, sizeof(PSUENTRY));
 
-		Entry.nFlags					= 0x8427;
-		Entry.nSector					= 0;
+		Entry.nFlags = 0x8427;
+		Entry.nSector = 0;
 
-		PSU_CopyTime(&Entry.CreationTime,		baseTime);
-		PSU_CopyTime(&Entry.ModificationTime,	baseTime);
+		PSU_CopyTime(&Entry.CreationTime, baseTime);
+		PSU_CopyTime(&Entry.ModificationTime, baseTime);
 
 		strncpy(reinterpret_cast<char*>(Entry.sName), sRelDirName[i], 0x1C0);
 
@@ -65,25 +65,25 @@ void CSaveExporter::ExportPSU(Framework::CStream& outputStream, const boost::fil
 	//Save individual file entries
 	const boost::filesystem::directory_iterator itEnd;
 	for(boost::filesystem::directory_iterator itElement(savePath);
-		itElement != itEnd;
-		itElement++)
+	    itElement != itEnd;
+	    itElement++)
 	{
 		if(boost::filesystem::is_directory(*itElement)) continue;
 
 		boost::filesystem::path saveItemPath(*itElement);
 
-		boost::posix_time::ptime itemTime = 
-			boost::posix_time::from_time_t(boost::filesystem::last_write_time(saveItemPath));
+		boost::posix_time::ptime itemTime =
+		    boost::posix_time::from_time_t(boost::filesystem::last_write_time(saveItemPath));
 
 		PSUENTRY Entry;
 		memset(&Entry, 0, sizeof(PSUENTRY));
 
-		Entry.nFlags					= 0x8497;
-		Entry.nSize						= static_cast<uint32>(boost::filesystem::file_size(saveItemPath));
-		Entry.nSector					= nSector;
+		Entry.nFlags = 0x8497;
+		Entry.nSize = static_cast<uint32>(boost::filesystem::file_size(saveItemPath));
+		Entry.nSector = nSector;
 
-		PSU_CopyTime(&Entry.CreationTime,		itemTime);
-		PSU_CopyTime(&Entry.ModificationTime,	itemTime);
+		PSU_CopyTime(&Entry.CreationTime, itemTime);
+		PSU_CopyTime(&Entry.ModificationTime, itemTime);
 
 		strncpy(reinterpret_cast<char*>(Entry.sName), saveItemPath.filename().string().c_str(), 0x1C0);
 
@@ -112,7 +112,7 @@ void CSaveExporter::ExportPSU(Framework::CStream& outputStream, const boost::fil
 
 			unsigned int nPosition = Entry.nSize;
 			memset(sBuffer, 0, 0x400);
-			
+
 			outputStream.Write(sBuffer, 0x400 - (nPosition & 0x3FF));
 		}
 
@@ -122,10 +122,10 @@ void CSaveExporter::ExportPSU(Framework::CStream& outputStream, const boost::fil
 
 void CSaveExporter::PSU_CopyTime(PSUENTRY::TIME* pDst, const boost::posix_time::ptime& pSrc)
 {
-	pDst->nSecond	= static_cast<uint8>(pSrc.time_of_day().seconds());
-	pDst->nMinute	= static_cast<uint8>(pSrc.time_of_day().minutes());
-	pDst->nHour		= static_cast<uint8>(pSrc.time_of_day().hours());
-	pDst->nDay		= static_cast<uint8>(pSrc.date().day());
-	pDst->nMonth	= static_cast<uint8>(pSrc.date().month());
-	pDst->nYear		= pSrc.date().year();
+	pDst->nSecond = static_cast<uint8>(pSrc.time_of_day().seconds());
+	pDst->nMinute = static_cast<uint8>(pSrc.time_of_day().minutes());
+	pDst->nHour = static_cast<uint8>(pSrc.time_of_day().hours());
+	pDst->nDay = static_cast<uint8>(pSrc.date().day());
+	pDst->nMonth = static_cast<uint8>(pSrc.date().month());
+	pDst->nYear = pSrc.date().year();
 }

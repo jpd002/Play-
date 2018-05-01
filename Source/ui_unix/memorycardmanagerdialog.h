@@ -10,7 +10,7 @@
 
 namespace Ui
 {
-class MemoryCardManagerDialog;
+	class MemoryCardManagerDialog;
 }
 
 class MemoryCardManagerDialog : public QDialog
@@ -23,13 +23,13 @@ public:
 
 private:
 	CSaveImporterBase::OVERWRITE_PROMPT_RETURN OnImportOverwrite(const boost::filesystem::path&);
-	void                                       populateSaveList();
+	void populateSaveList();
 
 	Ui::MemoryCardManagerDialog* ui;
-	CMemoryCard                  m_MemoryCard0;
-	CMemoryCard                  m_MemoryCard1;
-	CMemoryCard*                 m_pMemoryCard[2];
-	CMemoryCard*                 m_pCurrentMemoryCard;
+	CMemoryCard m_MemoryCard0;
+	CMemoryCard m_MemoryCard1;
+	CMemoryCard* m_pMemoryCard[2];
+	CMemoryCard* m_pCurrentMemoryCard;
 
 	QString m_lastpath = QDir::homePath();
 

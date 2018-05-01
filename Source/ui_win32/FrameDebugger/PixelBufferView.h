@@ -12,28 +12,28 @@ public:
 	typedef std::pair<std::string, Framework::CBitmap> PixelBuffer;
 	typedef std::vector<PixelBuffer> PixelBufferArray;
 
-							CPixelBufferView(HWND, const RECT&);
-	virtual					~CPixelBufferView() = default;
+	CPixelBufferView(HWND, const RECT&);
+	virtual ~CPixelBufferView() = default;
 
-	void					SetPixelBuffers(PixelBufferArray);
+	void SetPixelBuffers(PixelBufferArray);
 
-	void					FitBitmap();
+	void FitBitmap();
 
 protected:
-	void					Refresh() override;
+	void Refresh() override;
 
-	long					OnCommand(unsigned short, unsigned short, HWND) override;
-	long					OnSize(unsigned int, unsigned int, unsigned int) override;
+	long OnCommand(unsigned short, unsigned short, HWND) override;
+	long OnSize(unsigned int, unsigned int, unsigned int) override;
 
-	long					OnLeftButtonDown(int, int) override;
-	long					OnLeftButtonUp(int, int) override;
+	long OnLeftButtonDown(int, int) override;
+	long OnLeftButtonUp(int, int) override;
 
-	long					OnMouseMove(WPARAM, int, int) override;
+	long OnMouseMove(WPARAM, int, int) override;
 
-	long					OnMouseWheel(int, int, short) override;
+	long OnMouseWheel(int, int, short) override;
 
-	void					OnDeviceReset() override;
-	void					OnDeviceResetting() override;
+	void OnDeviceReset() override;
+	void OnDeviceResetting() override;
 
 private:
 	typedef Framework::Win32::CComPtr<IDirect3DTexture9> TexturePtr;
@@ -44,43 +44,43 @@ private:
 
 	struct VERTEX
 	{
-		float	position[3];
-		float	texCoord[2];
+		float position[3];
+		float texCoord[2];
 	};
 
-	const PixelBuffer*		GetSelectedPixelBuffer();
-	void					CreateSelectedPixelBufferTexture();
+	const PixelBuffer* GetSelectedPixelBuffer();
+	void CreateSelectedPixelBufferTexture();
 
-	void						OnSaveBitmap();
-	static Framework::CBitmap	ConvertBGRToRGB(Framework::CBitmap);
+	void OnSaveBitmap();
+	static Framework::CBitmap ConvertBGRToRGB(Framework::CBitmap);
 
-	void					CreateResources();
-	void					DrawCheckerboard();
-	void					DrawPixelBuffer();
+	void CreateResources();
+	void DrawCheckerboard();
+	void DrawPixelBuffer();
 
-	VertexShaderPtr			CreateVertexShaderFromResource(const TCHAR*);
-	PixelShaderPtr			CreatePixelShaderFromResource(const TCHAR*);
-	TexturePtr				CreateTextureFromBitmap(const Framework::CBitmap&);
+	VertexShaderPtr CreateVertexShaderFromResource(const TCHAR*);
+	PixelShaderPtr CreatePixelShaderFromResource(const TCHAR*);
+	TexturePtr CreateTextureFromBitmap(const Framework::CBitmap&);
 
-	TexturePtr				m_pixelBufferTexture;
-	PixelBufferArray		m_pixelBuffers;
-	VertexDeclarationPtr	m_quadVertexDecl;
-	VertexBufferPtr			m_quadVertexBuffer;
-	VertexShaderPtr			m_checkerboardVertexShader;
-	PixelShaderPtr			m_checkerboardPixelShader;
-	VertexShaderPtr			m_pixelBufferViewVertexShader;
-	PixelShaderPtr			m_pixelBufferViewPixelShader;
+	TexturePtr m_pixelBufferTexture;
+	PixelBufferArray m_pixelBuffers;
+	VertexDeclarationPtr m_quadVertexDecl;
+	VertexBufferPtr m_quadVertexBuffer;
+	VertexShaderPtr m_checkerboardVertexShader;
+	PixelShaderPtr m_checkerboardPixelShader;
+	VertexShaderPtr m_pixelBufferViewVertexShader;
+	PixelShaderPtr m_pixelBufferViewPixelShader;
 
-	std::unique_ptr<CPixelBufferViewOverlay>	m_overlay;
+	std::unique_ptr<CPixelBufferViewOverlay> m_overlay;
 
-	float					m_panX;
-	float					m_panY;
-	float					m_zoomFactor;
+	float m_panX;
+	float m_panY;
+	float m_zoomFactor;
 
-	bool					m_dragging;
-	int						m_dragBaseX;
-	int						m_dragBaseY;
+	bool m_dragging;
+	int m_dragBaseX;
+	int m_dragBaseY;
 
-	float					m_panXDragBase;
-	float					m_panYDragBase;
+	float m_panXDragBase;
+	float m_panYDragBase;
 };

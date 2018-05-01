@@ -3,37 +3,35 @@
 #include <QOpenGLContext>
 
 CGSH_OpenGLQt::CGSH_OpenGLQt(QWindow* renderWindow)
-: m_renderWindow(renderWindow)
+    : m_renderWindow(renderWindow)
 {
-
 }
 
 CGSH_OpenGLQt::~CGSH_OpenGLQt()
 {
-
 }
 
 CGSH_OpenGL::FactoryFunction CGSH_OpenGLQt::GetFactoryFunction(QWindow* renderWindow)
 {
-	return [renderWindow] () { return new CGSH_OpenGLQt(renderWindow); };
+	return [renderWindow]() { return new CGSH_OpenGLQt(renderWindow); };
 }
 
 void CGSH_OpenGLQt::InitializeImpl()
 {
-    m_context = new QOpenGLContext();
-    m_context->setFormat(m_renderWindow->requestedFormat());
+	m_context = new QOpenGLContext();
+	m_context->setFormat(m_renderWindow->requestedFormat());
 
-    bool succeeded = m_context->create();
-    Q_ASSERT(succeeded);
+	bool succeeded = m_context->create();
+	Q_ASSERT(succeeded);
 
-    succeeded = m_context->makeCurrent(m_renderWindow);
-    Q_ASSERT(succeeded);
+	succeeded = m_context->makeCurrent(m_renderWindow);
+	Q_ASSERT(succeeded);
 
-    glewExperimental = GL_TRUE;
-    auto result = glewInit();
-    Q_ASSERT(result == GLEW_OK);
+	glewExperimental = GL_TRUE;
+	auto result = glewInit();
+	Q_ASSERT(result == GLEW_OK);
 
-    CGSH_OpenGL::InitializeImpl();
+	CGSH_OpenGL::InitializeImpl();
 }
 
 void CGSH_OpenGLQt::ReleaseImpl()
@@ -45,9 +43,9 @@ void CGSH_OpenGLQt::ReleaseImpl()
 
 void CGSH_OpenGLQt::PresentBackbuffer()
 {
-    if (m_renderWindow->isExposed())
-    {
-        m_context->swapBuffers(m_renderWindow);
-        m_context->makeCurrent(m_renderWindow);
-    }
+	if(m_renderWindow->isExposed())
+	{
+		m_context->swapBuffers(m_renderWindow);
+		m_context->makeCurrent(m_renderWindow);
+	}
 }

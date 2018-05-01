@@ -10,8 +10,8 @@ public:
 	virtual const char* GetDeviceName() = 0;
 	virtual const char* GetBindingType() = 0;
 	virtual std::string GetBinding() = 0;
-	virtual bool        RequestModification(QWidget*) = 0;
-	virtual void        Save() = 0;
+	virtual bool RequestModification(QWidget*) = 0;
+	virtual void Save() = 0;
 };
 typedef std::map<unsigned int, CDevice*> DeviceList;
 
@@ -24,8 +24,8 @@ public:
 	const char* GetDeviceName() override;
 	const char* GetBindingType() override;
 	std::string GetBinding() override;
-	bool        RequestModification(QWidget*) override;
-	void        Save() override;
+	bool RequestModification(QWidget*) override;
+	void Save() override;
 
 private:
 	const char* m_name;
@@ -48,8 +48,8 @@ public:
 	const char* GetDeviceName() override;
 	const char* GetBindingType() override;
 	std::string GetBinding() override;
-	bool        RequestModification(QWidget*) override;
-	void        Save() override;
+	bool RequestModification(QWidget*) override;
+	void Save() override;
 
 private:
 	std::string m_imagePath;

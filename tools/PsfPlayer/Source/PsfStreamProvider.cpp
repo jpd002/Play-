@@ -17,7 +17,7 @@ std::unique_ptr<CPsfStreamProvider> CreatePsfStreamProvider(const boost::filesys
 
 //CPhysicalPsfStreamProvider
 //----------------------------------------------------------
-Framework::CStream*	CPhysicalPsfStreamProvider::GetStreamForPath(const CPsfPathToken& pathToken)
+Framework::CStream* CPhysicalPsfStreamProvider::GetStreamForPath(const CPsfPathToken& pathToken)
 {
 	auto path = GetFilePathFromPathToken(pathToken);
 	return new Framework::CStdStream(Framework::CreateInputStdStream(path.native()));
@@ -49,7 +49,6 @@ CArchivePsfStreamProvider::CArchivePsfStreamProvider(const boost::filesystem::pa
 
 CArchivePsfStreamProvider::~CArchivePsfStreamProvider()
 {
-
 }
 
 CPsfPathToken CArchivePsfStreamProvider::GetPathTokenFromFilePath(const std::string& filePath)

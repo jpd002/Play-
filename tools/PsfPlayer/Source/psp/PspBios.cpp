@@ -11,175 +11,175 @@
 
 using namespace Psp;
 
-#define LOGNAME				("PspBios")
+#define LOGNAME ("PspBios")
 
-#define RELOC_SECTION_ID	(0x700000A0)
+#define RELOC_SECTION_ID (0x700000A0)
 
-#define BIOS_THREAD_LINK_HEAD_BASE		(Psp::CBios::CONTROL_BLOCK_START + 0x0000)
-#define BIOS_CURRENT_THREAD_ID_BASE		(Psp::CBios::CONTROL_BLOCK_START + 0x0008)
-#define BIOS_CURRENT_TIME_BASE			(Psp::CBios::CONTROL_BLOCK_START + 0x0010)
-#define BIOS_HANDLERS_BASE				(Psp::CBios::CONTROL_BLOCK_START + 0x0080)
-#define BIOS_HANDLERS_END				(BIOS_HEAPBLOCK_BASE - 1)
-#define BIOS_HEAPBLOCK_BASE				(Psp::CBios::CONTROL_BLOCK_START + 0x0100)
-#define BIOS_HEAPBLOCK_SIZE				(sizeof(Psp::CBios::HEAPBLOCK) * Psp::CBios::MAX_HEAPBLOCKS)
-#define BIOS_MODULE_TRAMPOLINE_BASE		(BIOS_HEAPBLOCK_BASE + BIOS_HEAPBLOCK_SIZE)
-#define BIOS_MODULE_TRAMPOLINE_END		(sizeof(Psp::CBios::MODULETRAMPOLINE) * Psp::CBios::MAX_MODULETRAMPOLINES)
-#define BIOS_THREAD_BASE				(BIOS_MODULE_TRAMPOLINE_BASE + BIOS_MODULE_TRAMPOLINE_END)
-#define BIOS_THREAD_END					(sizeof(Psp::CBios::THREAD) * Psp::CBios::MAX_THREADS)
-#define BIOS_MESSAGEBOX_BASE			(BIOS_THREAD_BASE + BIOS_THREAD_END)
-#define BIOS_MESSAGEBOX_END				(sizeof(Psp::CBios::MESSAGEBOX) * Psp::CBios::MAX_MESSAGEBOXES)
-#define BIOS_MESSAGE_BASE				(BIOS_MESSAGEBOX_BASE + BIOS_MESSAGEBOX_END)
-#define BIOS_MESSAGE_END				(sizeof(Psp::CBios::MESSAGE) * Psp::CBios::MAX_MESSAGES)
-#define BIOS_CALCULATED_END				(BIOS_MESSAGE_BASE + BIOS_MESSAGE_END)
+#define BIOS_THREAD_LINK_HEAD_BASE (Psp::CBios::CONTROL_BLOCK_START + 0x0000)
+#define BIOS_CURRENT_THREAD_ID_BASE (Psp::CBios::CONTROL_BLOCK_START + 0x0008)
+#define BIOS_CURRENT_TIME_BASE (Psp::CBios::CONTROL_BLOCK_START + 0x0010)
+#define BIOS_HANDLERS_BASE (Psp::CBios::CONTROL_BLOCK_START + 0x0080)
+#define BIOS_HANDLERS_END (BIOS_HEAPBLOCK_BASE - 1)
+#define BIOS_HEAPBLOCK_BASE (Psp::CBios::CONTROL_BLOCK_START + 0x0100)
+#define BIOS_HEAPBLOCK_SIZE (sizeof(Psp::CBios::HEAPBLOCK) * Psp::CBios::MAX_HEAPBLOCKS)
+#define BIOS_MODULE_TRAMPOLINE_BASE (BIOS_HEAPBLOCK_BASE + BIOS_HEAPBLOCK_SIZE)
+#define BIOS_MODULE_TRAMPOLINE_END (sizeof(Psp::CBios::MODULETRAMPOLINE) * Psp::CBios::MAX_MODULETRAMPOLINES)
+#define BIOS_THREAD_BASE (BIOS_MODULE_TRAMPOLINE_BASE + BIOS_MODULE_TRAMPOLINE_END)
+#define BIOS_THREAD_END (sizeof(Psp::CBios::THREAD) * Psp::CBios::MAX_THREADS)
+#define BIOS_MESSAGEBOX_BASE (BIOS_THREAD_BASE + BIOS_THREAD_END)
+#define BIOS_MESSAGEBOX_END (sizeof(Psp::CBios::MESSAGEBOX) * Psp::CBios::MAX_MESSAGEBOXES)
+#define BIOS_MESSAGE_BASE (BIOS_MESSAGEBOX_BASE + BIOS_MESSAGEBOX_END)
+#define BIOS_MESSAGE_END (sizeof(Psp::CBios::MESSAGE) * Psp::CBios::MAX_MESSAGES)
+#define BIOS_CALCULATED_END (BIOS_MESSAGE_BASE + BIOS_MESSAGE_END)
 
 CBios::MODULEFUNCTION CBios::g_IoFileMgrForUserFunctions[] =
-{
-	{	0x27EB27B8,		"sceIoLseek"		},
-	{	0x109F50BC,		"sceIoOpen"			},
-	{	0x42EC03AC,		"sceIoWrite"		},
-	{	0x6A638D83,		"sceIoRead"			},
-	{	0x810C4BC3,		"sceIoClose"		},
-	{	0xA0B5A7C2,		"sceIoReadAsync"	},
-	{	NULL,			NULL				},
+    {
+        {0x27EB27B8, "sceIoLseek"},
+        {0x109F50BC, "sceIoOpen"},
+        {0x42EC03AC, "sceIoWrite"},
+        {0x6A638D83, "sceIoRead"},
+        {0x810C4BC3, "sceIoClose"},
+        {0xA0B5A7C2, "sceIoReadAsync"},
+        {NULL, NULL},
 };
 
 CBios::MODULEFUNCTION CBios::g_SysMemUserForUserFunctions[] =
-{
-	{	0x91DE343C,		"sceKernelSetCompiledSdkVersion"	},
-	{	0xF77D77CB,		"sceKernelSetCompilerVersion"		},
-	{	0x237DBD4F,		"sceKernelAllocPartitionMemory"		},
-	{	0x9D9A5BA1,		"sceKernelGetBlockHeadAddr"			},
-	{	0xFE707FDF,		"sceKernelAllocMemoryBlock"			},
-	{	0xDB83A952,		"sceKernelGetMemoryBlockAddr"		},
-	{	0x50F61D8A,		"sceKernelFreeMemoryBlock"			},
+    {
+        {0x91DE343C, "sceKernelSetCompiledSdkVersion"},
+        {0xF77D77CB, "sceKernelSetCompilerVersion"},
+        {0x237DBD4F, "sceKernelAllocPartitionMemory"},
+        {0x9D9A5BA1, "sceKernelGetBlockHeadAddr"},
+        {0xFE707FDF, "sceKernelAllocMemoryBlock"},
+        {0xDB83A952, "sceKernelGetMemoryBlockAddr"},
+        {0x50F61D8A, "sceKernelFreeMemoryBlock"},
 };
 
 CBios::MODULEFUNCTION CBios::g_ThreadManForUserFunctions[] =
-{
-	{	0x446D8DE6,		"sceKernelCreateThread"		},
-	{	0xF475845D,		"sceKernelStartThread"		},
-	{	0x278C0DF5,		"sceKernelWaitThreadEnd"	},
-	{	0x9FA03CD3,		"sceKernelDeleteThread"		},
-	{	0xCEADEB47,		"sceKernelDelayThread"		},
-	{	0xAA73C935,		"sceKernelExitThread"		},
-	{	0xE81CAF8F,		"sceKernelCreateCallback"	},
-	{	0xD6DA4BA1,		"sceKernelCreateSema"		},
-	{	0x4E3A1105,		"sceKernelWaitSema"			},
-	{	0x3F53E640,		"sceKernelSignalSema"		},
-	{	0x28B6489C,		"sceKernelDeleteSema"		},
-	{	0x8125221D,		"sceKernelCreateMbx"		},
-	{	0xE9B3061E,		"sceKernelSendMbx"			},
-	{	0x0D81716A,		"sceKernelPollMbx"			},
-	{	NULL,			NULL						},
+    {
+        {0x446D8DE6, "sceKernelCreateThread"},
+        {0xF475845D, "sceKernelStartThread"},
+        {0x278C0DF5, "sceKernelWaitThreadEnd"},
+        {0x9FA03CD3, "sceKernelDeleteThread"},
+        {0xCEADEB47, "sceKernelDelayThread"},
+        {0xAA73C935, "sceKernelExitThread"},
+        {0xE81CAF8F, "sceKernelCreateCallback"},
+        {0xD6DA4BA1, "sceKernelCreateSema"},
+        {0x4E3A1105, "sceKernelWaitSema"},
+        {0x3F53E640, "sceKernelSignalSema"},
+        {0x28B6489C, "sceKernelDeleteSema"},
+        {0x8125221D, "sceKernelCreateMbx"},
+        {0xE9B3061E, "sceKernelSendMbx"},
+        {0x0D81716A, "sceKernelPollMbx"},
+        {NULL, NULL},
 };
 
 CBios::MODULEFUNCTION CBios::g_StdioForUserFunctions[] =
-{
-	{	0xA6BAB2E9,		"sceKernelStdout"					},
-	{	NULL,			NULL								},
+    {
+        {0xA6BAB2E9, "sceKernelStdout"},
+        {NULL, NULL},
 };
 
 CBios::MODULEFUNCTION CBios::g_LoadExecForUserFunctions[] =
-{
-	{	0x4AC57943,		"sceKernelRegisterExitCallback"		},
-	{	NULL,			NULL								},
+    {
+        {0x4AC57943, "sceKernelRegisterExitCallback"},
+        {NULL, NULL},
 };
 
 CBios::MODULEFUNCTION CBios::g_UtilsForUserFunctions[] =
-{
-	{	0xB435DEC5,		"sceKernelDcacheWritebackInvalidateAll"		},
-	{	NULL,			NULL										},
+    {
+        {0xB435DEC5, "sceKernelDcacheWritebackInvalidateAll"},
+        {NULL, NULL},
 };
 
 CBios::MODULEFUNCTION CBios::g_SasCoreFunctions[] =
-{
-	{	0x76F01ACA,		"sasSetKeyOn"			},
-	{	0xA0CF2FA4,		"sasSetKeyOff"			},
-	{	0x019B25EB,		"sasSetADSR"			},
-	{	0xCBCD4F79,		"sasSetSimpleADSR"		},
-	{	0xAD84D37F,		"sasSetPitch"			},
-	{	0x99944089,		"sasSetVoice"			},
-	{	0xE1CD9561,		"sasSetVoicePCM"		},
-	{	0x440CA7D8,		"sasSetVolume"			},
-	{	0x2C8E6AB3,		"sasGetPauseFlag"		},
-	{	0x68A46B95,		"sasGetEndFlag"			},
-	{	0x07F58C24,		"sasGetAllEnvelope"		},
-	{	0xA3589D81,		"sasCore"				},
-	{	0x42778A9F,		"sasInit"				},
-	{	0x33D4AB37,		"sasSetEffectType"		},
-	{	0x267A6DD2,		"sasSetEffectParam"		},
-	{	0xD5A229C9,		"sasSetEffectVolume"	},
-	{	0xF983B186,		"sasSetEffect"			},
-	{	NULL,			NULL					},
+    {
+        {0x76F01ACA, "sasSetKeyOn"},
+        {0xA0CF2FA4, "sasSetKeyOff"},
+        {0x019B25EB, "sasSetADSR"},
+        {0xCBCD4F79, "sasSetSimpleADSR"},
+        {0xAD84D37F, "sasSetPitch"},
+        {0x99944089, "sasSetVoice"},
+        {0xE1CD9561, "sasSetVoicePCM"},
+        {0x440CA7D8, "sasSetVolume"},
+        {0x2C8E6AB3, "sasGetPauseFlag"},
+        {0x68A46B95, "sasGetEndFlag"},
+        {0x07F58C24, "sasGetAllEnvelope"},
+        {0xA3589D81, "sasCore"},
+        {0x42778A9F, "sasInit"},
+        {0x33D4AB37, "sasSetEffectType"},
+        {0x267A6DD2, "sasSetEffectParam"},
+        {0xD5A229C9, "sasSetEffectVolume"},
+        {0xF983B186, "sasSetEffect"},
+        {NULL, NULL},
 };
 
 CBios::MODULEFUNCTION CBios::g_WaveFunctions[] =
-{
-	{	0xE2D56B2D,		"sceAudioOutputPanned"			},
-	{	0x13F592BC,		"sceAudioOutputPannedBlocking"	},
-	{	0xB011922F,		"WaveAudioGetRestSample"		},
-	{	0x5EC81C55,		"sceAudioChReserve"				},
-	{	0xCB2E439E,		"sceAudioSetChannelDataLen"		},
-	{	NULL,			NULL							},
+    {
+        {0xE2D56B2D, "sceAudioOutputPanned"},
+        {0x13F592BC, "sceAudioOutputPannedBlocking"},
+        {0xB011922F, "WaveAudioGetRestSample"},
+        {0x5EC81C55, "sceAudioChReserve"},
+        {0xCB2E439E, "sceAudioSetChannelDataLen"},
+        {NULL, NULL},
 };
 
 CBios::MODULEFUNCTION CBios::g_UmdUserFunctions[] =
-{
-	{	0xC6183D47,		"sceUmdActivate"			},
-	{	0x6B4A146C,		"sceUmdGetDriveStat"		},
-	{	0x8EF08FCE,		"sceUmdWaitDriveStat"		},
-	{	0x6AF9B50A,		"sceUmdCancelWaitDriveStat"	},
-	{	NULL,			NULL						},
+    {
+        {0xC6183D47, "sceUmdActivate"},
+        {0x6B4A146C, "sceUmdGetDriveStat"},
+        {0x8EF08FCE, "sceUmdWaitDriveStat"},
+        {0x6AF9B50A, "sceUmdCancelWaitDriveStat"},
+        {NULL, NULL},
 };
 
 CBios::MODULEFUNCTION CBios::g_UtilityFunctions[] =
-{
-	{	0x2A2B3DE0,		"sceUtilityLoadModule"		},
-	{	0xE49BFE92,		"sceUtilityUnloadModule"	},
-	{	NULL,			NULL						},
+    {
+        {0x2A2B3DE0, "sceUtilityLoadModule"},
+        {0xE49BFE92, "sceUtilityUnloadModule"},
+        {NULL, NULL},
 };
 
 CBios::MODULEFUNCTION CBios::g_KernelLibraryFunctions[] =
-{
-	{	0x092968F4,		"sceKernelCpuSuspendIntr"	},
-	{	0x5F10D406,		"sceKernelCpuResumeIntr"	},
+    {
+        {0x092968F4, "sceKernelCpuSuspendIntr"},
+        {0x5F10D406, "sceKernelCpuResumeIntr"},
 };
 
 CBios::MODULEFUNCTION CBios::g_ModuleMgrForUserFunctions[] =
-{
-	{	0xD8B73127,		"sceKernelGetModuleIdByAddress"	},
+    {
+        {0xD8B73127, "sceKernelGetModuleIdByAddress"},
 };
 
 CBios::MODULE CBios::g_modules[] =
-{
-	{	"IoFileMgrForUser",		g_IoFileMgrForUserFunctions		},
-	{	"SysMemUserForUser",	g_SysMemUserForUserFunctions	},
-	{	"ThreadManForUser",		g_ThreadManForUserFunctions		},
-	{	"LoadExecForUser",		g_LoadExecForUserFunctions		},
-	{	"UtilsForUser",			g_UtilsForUserFunctions			},
-	{	"ModuleMgrForUser",		g_ModuleMgrForUserFunctions		},
-	{	"StdioForUser",			g_StdioForUserFunctions			},
-	{	"sceSasCore",			g_SasCoreFunctions				},
-	{	"sceAudio",				g_WaveFunctions					},
-	{	"sceUmdUser",			g_UmdUserFunctions				},
-	{	"sceUtility",			g_UtilityFunctions				},
-	{	"Kernel_Library",		g_KernelLibraryFunctions		},
-	{	NULL,					NULL							},
+    {
+        {"IoFileMgrForUser", g_IoFileMgrForUserFunctions},
+        {"SysMemUserForUser", g_SysMemUserForUserFunctions},
+        {"ThreadManForUser", g_ThreadManForUserFunctions},
+        {"LoadExecForUser", g_LoadExecForUserFunctions},
+        {"UtilsForUser", g_UtilsForUserFunctions},
+        {"ModuleMgrForUser", g_ModuleMgrForUserFunctions},
+        {"StdioForUser", g_StdioForUserFunctions},
+        {"sceSasCore", g_SasCoreFunctions},
+        {"sceAudio", g_WaveFunctions},
+        {"sceUmdUser", g_UmdUserFunctions},
+        {"sceUtility", g_UtilityFunctions},
+        {"Kernel_Library", g_KernelLibraryFunctions},
+        {NULL, NULL},
 };
 
 CBios::CBios(CMIPS& cpu, uint8* ram, uint32 ramSize)
-: m_module(NULL)
-, m_ram(ram)
-, m_ramSize(ramSize)
-, m_cpu(cpu)
-, m_heapBlocks(reinterpret_cast<HEAPBLOCK*>(&ram[BIOS_HEAPBLOCK_BASE]), 1, MAX_HEAPBLOCKS)
-, m_moduleTrampolines(reinterpret_cast<MODULETRAMPOLINE*>(&ram[BIOS_MODULE_TRAMPOLINE_BASE]), 1, MAX_MODULETRAMPOLINES)
-, m_threads(reinterpret_cast<THREAD*>(&ram[BIOS_THREAD_BASE]), 1, MAX_THREADS)
-, m_messageBoxes(reinterpret_cast<MESSAGEBOX*>(&m_ram[BIOS_MESSAGEBOX_BASE]), 1, MAX_MESSAGEBOXES)
-, m_messages(reinterpret_cast<MESSAGE*>(&m_ram[BIOS_MESSAGE_BASE]), 1, MAX_MESSAGES)
-, m_rescheduleNeeded(false)
-, m_threadFinishAddress(0)
-, m_idleFunctionAddress(0)
+    : m_module(NULL)
+    , m_ram(ram)
+    , m_ramSize(ramSize)
+    , m_cpu(cpu)
+    , m_heapBlocks(reinterpret_cast<HEAPBLOCK*>(&ram[BIOS_HEAPBLOCK_BASE]), 1, MAX_HEAPBLOCKS)
+    , m_moduleTrampolines(reinterpret_cast<MODULETRAMPOLINE*>(&ram[BIOS_MODULE_TRAMPOLINE_BASE]), 1, MAX_MODULETRAMPOLINES)
+    , m_threads(reinterpret_cast<THREAD*>(&ram[BIOS_THREAD_BASE]), 1, MAX_THREADS)
+    , m_messageBoxes(reinterpret_cast<MESSAGEBOX*>(&m_ram[BIOS_MESSAGEBOX_BASE]), 1, MAX_MESSAGEBOXES)
+    , m_messages(reinterpret_cast<MESSAGE*>(&m_ram[BIOS_MESSAGE_BASE]), 1, MAX_MESSAGES)
+    , m_rescheduleNeeded(false)
+    , m_threadFinishAddress(0)
+    , m_idleFunctionAddress(0)
 {
 	BOOST_STATIC_ASSERT(BIOS_CALCULATED_END <= CBios::CONTROL_BLOCK_END);
 	Reset();
@@ -200,7 +200,7 @@ void CBios::Reset()
 	{
 		CMIPSAssembler assembler(reinterpret_cast<uint32*>(&m_ram[BIOS_HANDLERS_BASE]));
 		m_threadFinishAddress = AssembleThreadFinish(assembler);
-//		m_returnFromExceptionAddress = AssembleReturnFromException(assembler);
+		//		m_returnFromExceptionAddress = AssembleReturnFromException(assembler);
 		m_idleFunctionAddress = AssembleIdleFunction(assembler);
 		assert(BIOS_HANDLERS_END > ((assembler.GetProgramSize() * 4) + BIOS_HANDLERS_BASE));
 	}
@@ -222,7 +222,7 @@ void CBios::Reset()
 	//Initialize modules
 	m_modules.clear();
 
-	m_ioFileMgrForUserModule = IoFileMgrForUserModulePtr(new CIoFileMgrForUser(m_ram)); 
+	m_ioFileMgrForUserModule = IoFileMgrForUserModulePtr(new CIoFileMgrForUser(m_ram));
 	m_sasCoreModule = SasCoreModulePtr(new CSasCore(m_ram));
 	m_audioModule = AudioModulePtr(new CAudio(m_ram));
 
@@ -403,9 +403,9 @@ void CBios::LoadModule(const char* path)
 			programHeader->nVAddress = currentAddress;
 
 			memcpy(
-				m_ram + currentAddress, 
-				m_module->GetContent() + programHeader->nOffset, 
-				programHeader->nFileSize);
+			    m_ram + currentAddress,
+			    m_module->GetContent() + programHeader->nOffset,
+			    programHeader->nFileSize);
 
 			endAddress = std::max<uint32>(endAddress, currentAddress + programHeader->nFileSize);
 			currentAddress += programHeader->nFileSize;
@@ -416,10 +416,10 @@ void CBios::LoadModule(const char* path)
 
 	{
 		BIOS_DEBUG_MODULE_INFO module;
-		module.name		= "main";
-		module.begin	= baseAddress;
-		module.end		= endAddress;
-		module.param	= m_module;
+		module.name = "main";
+		module.begin = baseAddress;
+		module.end = endAddress;
+		module.param = m_module;
 		m_moduleTags.push_back(module);
 	}
 
@@ -449,10 +449,10 @@ void CBios::LoadModule(const char* path)
 		//JR RA
 		//NOP
 
-		trampoline->code0		= ((0x09) << 26) | (CMIPS::R0 << 21) | (CMIPS::V0 << 16) | 0x666;
-		trampoline->code1		= 0xC;
-		trampoline->code2		= 0x03E00008;
-		trampoline->code3		= 0;
+		trampoline->code0 = ((0x09) << 26) | (CMIPS::R0 << 21) | (CMIPS::V0 << 16) | 0x666;
+		trampoline->code1 = 0xC;
+		trampoline->code2 = 0x03E00008;
+		trampoline->code3 = 0;
 		trampoline->libStubAddr = reinterpret_cast<uint8*>(libraryStub) - m_ram;
 
 		uint32 trampolineAddr = (reinterpret_cast<uint8*>(trampoline) - m_ram) + 4;
@@ -487,11 +487,11 @@ void CBios::LoadModule(const char* path)
 	uint32 threadId = CreateThread("start_thread", baseAddress + moduleHeader.nEntryPoint, 0x20, DEFAULT_STACKSIZE, 0, 0);
 	assert(threadId != -1);
 
-    StartThread(threadId, 0, NULL);
-    if(CurrentThreadId() == -1)
-    {
-        Reschedule();
-    }
+	StartThread(threadId, 0, NULL);
+	if(CurrentThreadId() == -1)
+	{
+		Reschedule();
+	}
 
 #if 0
 	//Search string
@@ -549,46 +549,46 @@ uint32 CBios::CreateThread(const char* name, uint32 threadProc, uint32 initPrior
 	strncpy(thread->name, name, 0x1F);
 	thread->name[0x1F] = 0;
 
-	thread->stackBase			= stackBase;
-	thread->stackSize			= stackSize;
-	thread->id					= threadId;
-    thread->priority			= initPriority;
-    thread->status				= THREAD_STATUS_CREATED;
-    thread->nextActivateTime	= 0;
-	thread->waitSemaphore		= -1;
+	thread->stackBase = stackBase;
+	thread->stackSize = stackSize;
+	thread->id = threadId;
+	thread->priority = initPriority;
+	thread->status = THREAD_STATUS_CREATED;
+	thread->nextActivateTime = 0;
+	thread->waitSemaphore = -1;
 
 	memset(&thread->context, 0, sizeof(THREADCONTEXT));
 	memset(m_ram + thread->stackBase, 0, thread->stackSize);
 
-    thread->context.epc = threadProc;
+	thread->context.epc = threadProc;
 	thread->context.delayJump = 1;
 	thread->context.gpr[CMIPS::RA] = m_threadFinishAddress;
-    thread->context.gpr[CMIPS::SP] = thread->stackBase + thread->stackSize;
-    thread->context.gpr[CMIPS::GP] = m_cpu.m_State.nGPR[CMIPS::GP].nV0;
+	thread->context.gpr[CMIPS::SP] = thread->stackBase + thread->stackSize;
+	thread->context.gpr[CMIPS::GP] = m_cpu.m_State.nGPR[CMIPS::GP].nV0;
 
 	LinkThread(thread->id);
-    return thread->id;
+	return thread->id;
 }
 
 void CBios::StartThread(uint32 threadId, uint32 argsSize, uint8* argsPtr)
 {
-    THREAD& thread = GetThread(threadId);
-    if(thread.status != THREAD_STATUS_CREATED)
-    {
+	THREAD& thread = GetThread(threadId);
+	if(thread.status != THREAD_STATUS_CREATED)
+	{
 		throw std::runtime_error("Invalid thread state.");
-    }
-    thread.status = THREAD_STATUS_RUNNING;
-    if(argsPtr != NULL)
-    {
+	}
+	thread.status = THREAD_STATUS_RUNNING;
+	if(argsPtr != NULL)
+	{
 		//Copy params in stack
 		assert(argsSize <= thread.stackSize);
 		uint32 sp = thread.context.gpr[CMIPS::SP];
 		sp -= argsSize;
 		memcpy(m_ram + sp, argsPtr, argsSize);
 		thread.context.gpr[CMIPS::SP] = sp;
-        thread.context.gpr[CMIPS::A0] = sp;
-    }
-    m_rescheduleNeeded = true;
+		thread.context.gpr[CMIPS::A0] = sp;
+	}
+	m_rescheduleNeeded = true;
 }
 
 void CBios::ExitCurrentThread(uint32 exitCode)
@@ -648,45 +648,45 @@ void CBios::UnlinkThread(uint32 threadId)
 
 uint32& CBios::ThreadLinkHead() const
 {
-    return *reinterpret_cast<uint32*>(m_ram + BIOS_THREAD_LINK_HEAD_BASE);
+	return *reinterpret_cast<uint32*>(m_ram + BIOS_THREAD_LINK_HEAD_BASE);
 }
 
 uint32& CBios::CurrentThreadId() const
 {
-    return *reinterpret_cast<uint32*>(m_ram + BIOS_CURRENT_THREAD_ID_BASE);
+	return *reinterpret_cast<uint32*>(m_ram + BIOS_CURRENT_THREAD_ID_BASE);
 }
 
 CBios::THREAD& CBios::GetThread(uint32 threadId)
 {
-    return *m_threads[threadId];
+	return *m_threads[threadId];
 }
 
 void CBios::LoadThreadContext(uint32 threadId)
 {
-    THREAD& thread = GetThread(threadId);
-    for(unsigned int i = 0; i < 32; i++)
-    {
+	THREAD& thread = GetThread(threadId);
+	for(unsigned int i = 0; i < 32; i++)
+	{
 		if(i == CMIPS::R0) continue;
 		if(i == CMIPS::K0) continue;
 		if(i == CMIPS::K1) continue;
-        m_cpu.m_State.nGPR[i].nD0 = static_cast<int32>(thread.context.gpr[i]);
-    }
-    m_cpu.m_State.nPC = thread.context.epc;
-    m_cpu.m_State.nDelayedJumpAddr = thread.context.delayJump;
+		m_cpu.m_State.nGPR[i].nD0 = static_cast<int32>(thread.context.gpr[i]);
+	}
+	m_cpu.m_State.nPC = thread.context.epc;
+	m_cpu.m_State.nDelayedJumpAddr = thread.context.delayJump;
 }
 
 void CBios::SaveThreadContext(uint32 threadId)
 {
-    THREAD& thread = GetThread(threadId);
-    for(unsigned int i = 0; i < 32; i++)
-    {
+	THREAD& thread = GetThread(threadId);
+	for(unsigned int i = 0; i < 32; i++)
+	{
 		if(i == CMIPS::R0) continue;
 		if(i == CMIPS::K0) continue;
 		if(i == CMIPS::K1) continue;
-        thread.context.gpr[i] = m_cpu.m_State.nGPR[i].nV0;
-    }
-    thread.context.epc = m_cpu.m_State.nPC;
-    thread.context.delayJump = m_cpu.m_State.nDelayedJumpAddr;
+		thread.context.gpr[i] = m_cpu.m_State.nGPR[i].nV0;
+	}
+	thread.context.epc = m_cpu.m_State.nPC;
+	thread.context.delayJump = m_cpu.m_State.nDelayedJumpAddr;
 }
 
 uint32 CBios::GetNextReadyThread()
@@ -694,34 +694,34 @@ uint32 CBios::GetNextReadyThread()
 	uint32 nextThreadId = ThreadLinkHead();
 	while(nextThreadId != 0)
 	{
-        THREAD* nextThread = m_threads[nextThreadId];
+		THREAD* nextThread = m_threads[nextThreadId];
 		nextThreadId = nextThread->nextThreadId;
-//        if(GetCurrentTime() <= nextThread->nextActivateTime) continue;
-        if(nextThread->status == THREAD_STATUS_RUNNING)
-        {
-            return nextThread->id;
-        }
+		//        if(GetCurrentTime() <= nextThread->nextActivateTime) continue;
+		if(nextThread->status == THREAD_STATUS_RUNNING)
+		{
+			return nextThread->id;
+		}
 	}
 	return -1;
 }
 
 void CBios::Reschedule()
 {
-    if(CurrentThreadId() != -1)
-    {
-        SaveThreadContext(CurrentThreadId());
+	if(CurrentThreadId() != -1)
+	{
+		SaveThreadContext(CurrentThreadId());
 		UnlinkThread(CurrentThreadId());
 		LinkThread(CurrentThreadId());
-    }
+	}
 
-    uint32 nextThreadId = GetNextReadyThread();
-    if(nextThreadId == -1)
-    {
+	uint32 nextThreadId = GetNextReadyThread();
+	if(nextThreadId == -1)
+	{
 #ifdef _DEBUG
 //		printf("Warning, no thread available for running.\r\n");
 #endif
 		m_cpu.m_State.nPC = m_idleFunctionAddress;
-    }
+	}
 	else
 	{
 		LoadThreadContext(nextThreadId);
@@ -747,7 +747,7 @@ uint32 CBios::CreateMbx(const char* name, uint32 attr, uint32 optParam)
 	MESSAGEBOX* mbx(m_messageBoxes[mbxId]);
 	strncpy(mbx->name, name, 0x1F);
 	mbx->name[0x1F] = 0;
-	
+
 	mbx->attr = attr;
 
 	return mbxId;
@@ -766,9 +766,9 @@ uint32 CBios::SendMbx(uint32 mbxId, uint32 messagePtr)
 	}
 
 	MESSAGE* message(m_messages[messageId]);
-	message->mbxId	= mbxId;
-	message->value	= messagePtr;
-	message->id		= messageId;
+	message->mbxId = mbxId;
+	message->value = messagePtr;
+	message->id = messageId;
 
 	return 0;
 }
@@ -802,25 +802,25 @@ uint32 CBios::PollMbx(uint32 mbxId, uint32 messagePtr)
 
 void CBios::Heap_Init()
 {
-	m_heapBegin	= CONTROL_BLOCK_END;
-	m_heapEnd	= m_ramSize;
-	m_heapSize	= m_heapEnd - m_heapBegin;
+	m_heapBegin = CONTROL_BLOCK_END;
+	m_heapEnd = m_ramSize;
+	m_heapSize = m_heapEnd - m_heapBegin;
 
 	m_heapBlocks.FreeAll();
 
-    //Initialize block map
+	//Initialize block map
 	m_heapHeadBlockId = m_heapBlocks.Allocate();
 	HEAPBLOCK* block = m_heapBlocks[m_heapHeadBlockId];
-	block->address		= m_heapSize;
-	block->size			= 0;
-	block->nextBlock	= 0;
+	block->address = m_heapSize;
+	block->size = 0;
+	block->nextBlock = 0;
 }
 
 uint32 CBios::Heap_AllocateMemory(uint32 size)
 {
-    uint32 begin = 0;
-    const uint32 blockSize = MIN_HEAPBLOCK_SIZE;
-    size = ((size + (blockSize - 1)) / blockSize) * blockSize;
+	uint32 begin = 0;
+	const uint32 blockSize = MIN_HEAPBLOCK_SIZE;
+	size = ((size + (blockSize - 1)) / blockSize) * blockSize;
 
 	uint32* nextBlockId = &m_heapHeadBlockId;
 	HEAPBLOCK* nextBlock = m_heapBlocks[*nextBlockId];
@@ -835,7 +835,7 @@ uint32 CBios::Heap_AllocateMemory(uint32 size)
 		nextBlockId = &nextBlock->nextBlock;
 		nextBlock = m_heapBlocks[*nextBlockId];
 	}
-	
+
 	if(nextBlock != NULL)
 	{
 		uint32 newBlockId = m_heapBlocks.Allocate();
@@ -845,20 +845,20 @@ uint32 CBios::Heap_AllocateMemory(uint32 size)
 			return 0;
 		}
 		HEAPBLOCK* newBlock = m_heapBlocks[newBlockId];
-		newBlock->address	= begin;
-		newBlock->size		= size;
-		newBlock->nextBlock	= *nextBlockId;
+		newBlock->address = begin;
+		newBlock->size = size;
+		newBlock->nextBlock = *nextBlockId;
 		*nextBlockId = newBlockId;
-        return begin + m_heapBegin;
+		return begin + m_heapBegin;
 	}
 
-    assert(0);
-    return NULL;
+	assert(0);
+	return NULL;
 }
 
 uint32 CBios::Heap_FreeMemory(uint32 address)
 {
-    address -= m_heapBegin;
+	address -= m_heapBegin;
 	//Search for block pointing at the address
 	uint32* nextBlockId = &m_heapHeadBlockId;
 	HEAPBLOCK* nextBlock = m_heapBlocks[*nextBlockId];
@@ -880,14 +880,14 @@ uint32 CBios::Heap_FreeMemory(uint32 address)
 	else
 	{
 		assert(0);
-//		CLog::GetInstance().Print(LOG_NAME, "%s: Trying to unallocate an unexisting memory block (0x%0.8X).\r\n", __FUNCTION__, address);
+		//		CLog::GetInstance().Print(LOG_NAME, "%s: Trying to unallocate an unexisting memory block (0x%0.8X).\r\n", __FUNCTION__, address);
 	}
-    return 0;
+	return 0;
 }
 
 uint32 CBios::Heap_GetBlockId(uint32 address)
 {
-    address -= m_heapBegin;
+	address -= m_heapBegin;
 
 	//Search for block pointing at the address
 	uint32* nextBlockId = &m_heapHeadBlockId;
@@ -954,21 +954,20 @@ CBios::MODULEFUNCTION* CBios::FindModuleFunction(MODULE* module, uint32 id)
 
 void CBios::RelocateElf(CELF& elf)
 {
-    const ELFHEADER& header = elf.GetHeader();
-    for(unsigned int i = 0; i < header.nSectHeaderCount; i++)
-    {
-        ELFSECTIONHEADER* sectionHeader = elf.GetSection(i);
-        if(sectionHeader != NULL && 
-			(/*sectionHeader->nType == CELF::SHT_REL || */sectionHeader->nType == RELOC_SECTION_ID)
-			)
-        {
-            unsigned int linkedSection = sectionHeader->nInfo;
-            unsigned int recordCount = sectionHeader->nSize / 8;
-            const uint32* relocationRecord = reinterpret_cast<const uint32*>(elf.GetSectionData(i));
-            if(relocationRecord == NULL) continue;
-            for(unsigned int record = 0; record < recordCount; record++)
-            {
-                uint32 relocationType = relocationRecord[1] & 0xFF;
+	const ELFHEADER& header = elf.GetHeader();
+	for(unsigned int i = 0; i < header.nSectHeaderCount; i++)
+	{
+		ELFSECTIONHEADER* sectionHeader = elf.GetSection(i);
+		if(sectionHeader != NULL &&
+		   (/*sectionHeader->nType == CELF::SHT_REL || */ sectionHeader->nType == RELOC_SECTION_ID))
+		{
+			unsigned int linkedSection = sectionHeader->nInfo;
+			unsigned int recordCount = sectionHeader->nSize / 8;
+			const uint32* relocationRecord = reinterpret_cast<const uint32*>(elf.GetSectionData(i));
+			if(relocationRecord == NULL) continue;
+			for(unsigned int record = 0; record < recordCount; record++)
+			{
+				uint32 relocationType = relocationRecord[1] & 0xFF;
 				uint32 ofsBase = (relocationRecord[1] >> 8) & 0xFF;
 				uint32 addrBase = (relocationRecord[1] >> 16) & 0xFF;
 
@@ -980,59 +979,59 @@ void CBios::RelocateElf(CELF& elf)
 				assert(progAddrBase->nType != RELOC_SECTION_ID);
 
 				uint32 baseAddress = progAddrBase->nVAddress;
-                uint32 relocationAddress = relocationRecord[0] + progOfsBase->nVAddress;
+				uint32 relocationAddress = relocationRecord[0] + progOfsBase->nVAddress;
 
 				assert(relocationAddress < m_ramSize);
 				if(relocationAddress < m_ramSize)
-                {
+				{
 					uint32& instruction = *reinterpret_cast<uint32*>(m_ram + relocationAddress);
-                    switch(relocationType)
-                    {
-                    case CELF::R_MIPS_32:
-                        {
-                            instruction += baseAddress;
-                        }
-                        break;
-                    case CELF::R_MIPS_26:
-                        {
-                            uint32 offset = (instruction & 0x03FFFFFF) + (baseAddress >> 2);
-                            instruction &= ~0x03FFFFFF;
-                            instruction |= offset;
-                        }
-                        break;
-                    case CELF::R_MIPS_HI16:
-                        {
-							//Find the next LO16 reloc
-							uint32 nextRelocAddress = FindNextRelocationTarget(elf, relocationRecord + 2, relocationRecord + (recordCount - record) * 2);
-							assert(nextRelocAddress != -1);
-							if(nextRelocAddress != -1)
-							{
-								uint32 nextInstruction = *reinterpret_cast<uint32*>(m_ram + nextRelocAddress);
-								uint32 offset = static_cast<int16>(nextInstruction) + (instruction << 16);
-                                offset += baseAddress;
-								instruction &= ~0xFFFF;
-								if(offset & 0x8000) offset += 0x10000;
-								instruction |= offset >> 16;
-							}
-                        }
-                        break;
-                    case CELF::R_MIPS_LO16:
-                        {
-                            uint32 offset = static_cast<int16>(instruction);
-                            offset += baseAddress;
-                            instruction &= ~0xFFFF;
-                            instruction |= offset & 0xFFFF;
-                        }
-                        break;
-                    default:
+					switch(relocationType)
+					{
+					case CELF::R_MIPS_32:
+					{
+						instruction += baseAddress;
+					}
+					break;
+					case CELF::R_MIPS_26:
+					{
+						uint32 offset = (instruction & 0x03FFFFFF) + (baseAddress >> 2);
+						instruction &= ~0x03FFFFFF;
+						instruction |= offset;
+					}
+					break;
+					case CELF::R_MIPS_HI16:
+					{
+						//Find the next LO16 reloc
+						uint32 nextRelocAddress = FindNextRelocationTarget(elf, relocationRecord + 2, relocationRecord + (recordCount - record) * 2);
+						assert(nextRelocAddress != -1);
+						if(nextRelocAddress != -1)
+						{
+							uint32 nextInstruction = *reinterpret_cast<uint32*>(m_ram + nextRelocAddress);
+							uint32 offset = static_cast<int16>(nextInstruction) + (instruction << 16);
+							offset += baseAddress;
+							instruction &= ~0xFFFF;
+							if(offset & 0x8000) offset += 0x10000;
+							instruction |= offset >> 16;
+						}
+					}
+					break;
+					case CELF::R_MIPS_LO16:
+					{
+						uint32 offset = static_cast<int16>(instruction);
+						offset += baseAddress;
+						instruction &= ~0xFFFF;
+						instruction |= offset & 0xFFFF;
+					}
+					break;
+					default:
 						throw std::runtime_error("Unknown relocation type.");
-                        break;
-                    }
-                }
-                relocationRecord += 2;
-            }
-        }
-    }
+						break;
+					}
+				}
+				relocationRecord += 2;
+			}
+		}
+	}
 }
 
 uint32 CBios::FindNextRelocationTarget(CELF& elf, const uint32* begin, const uint32* end)
@@ -1060,45 +1059,44 @@ uint32 CBios::FindNextRelocationTarget(CELF& elf, const uint32* begin, const uin
 
 uint32 CBios::FindRelocationAt(CELF& elf, uint32 address, uint32 programSection)
 {
-    const ELFHEADER& header = elf.GetHeader();
-    for(unsigned int i = 0; i < header.nSectHeaderCount; i++)
-    {
-        ELFSECTIONHEADER* sectionHeader = elf.GetSection(i);
-        if(sectionHeader != NULL && 
-			(/*sectionHeader->nType == CELF::SHT_REL || */sectionHeader->nType == RELOC_SECTION_ID)
-			)
-        {
-            unsigned int linkedSection = sectionHeader->nInfo;
-            unsigned int recordCount = sectionHeader->nSize / 8;
-            const uint32* relocationRecord = reinterpret_cast<const uint32*>(elf.GetSectionData(i));
-            if(relocationRecord == NULL) continue;
-            for(unsigned int record = 0; record < recordCount; record++)
-            {
-                uint32 relocationType = relocationRecord[1] & 0xFF;
+	const ELFHEADER& header = elf.GetHeader();
+	for(unsigned int i = 0; i < header.nSectHeaderCount; i++)
+	{
+		ELFSECTIONHEADER* sectionHeader = elf.GetSection(i);
+		if(sectionHeader != NULL &&
+		   (/*sectionHeader->nType == CELF::SHT_REL || */ sectionHeader->nType == RELOC_SECTION_ID))
+		{
+			unsigned int linkedSection = sectionHeader->nInfo;
+			unsigned int recordCount = sectionHeader->nSize / 8;
+			const uint32* relocationRecord = reinterpret_cast<const uint32*>(elf.GetSectionData(i));
+			if(relocationRecord == NULL) continue;
+			for(unsigned int record = 0; record < recordCount; record++)
+			{
+				uint32 relocationType = relocationRecord[1] & 0xFF;
 				uint32 ofsBase = (relocationRecord[1] >> 8) & 0xFF;
 				uint32 addrBase = (relocationRecord[1] >> 16) & 0xFF;
 
 				if(ofsBase != programSection) continue;
 
-//				ELFPROGRAMHEADER* progOfsBase = elf.GetProgram(ofsBase);
-//				ELFPROGRAMHEADER* progAddrBase = elf.GetProgram(addrBase);
-//				assert(progOfsBase != NULL);
-//				assert(progAddrBase != NULL);
-//				assert(progOfsBase->nType != RELOC_SECTION_ID);
-//				assert(progAddrBase->nType != RELOC_SECTION_ID);
-//
-//				uint32 baseAddress = progAddrBase->nVAddress;
-                uint32 relocationAddress = relocationRecord[0];
+				//				ELFPROGRAMHEADER* progOfsBase = elf.GetProgram(ofsBase);
+				//				ELFPROGRAMHEADER* progAddrBase = elf.GetProgram(addrBase);
+				//				assert(progOfsBase != NULL);
+				//				assert(progAddrBase != NULL);
+				//				assert(progOfsBase->nType != RELOC_SECTION_ID);
+				//				assert(progAddrBase->nType != RELOC_SECTION_ID);
+				//
+				//				uint32 baseAddress = progAddrBase->nVAddress;
+				uint32 relocationAddress = relocationRecord[0];
 
 				if(relocationAddress == address)
 				{
 					return reinterpret_cast<const uint8*>(relocationRecord) - elf.GetContent();
 				}
 
-                relocationRecord += 2;
+				relocationRecord += 2;
 			}
-        }
-    }
+		}
+	}
 
 	return -1;
 }

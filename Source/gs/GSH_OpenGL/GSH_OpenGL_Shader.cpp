@@ -9,50 +9,50 @@
 #endif
 
 static const char* s_andFunction =
-"float and(int a, int b)\r\n"
-"{\r\n"
-"	int r = 0;\r\n"
-"	int ha, hb;\r\n"
-"	\r\n"
-"	int m = int(min(float(a), float(b)));\r\n"
-"	\r\n"
-"	for(int k = 1; k <= m; k *= 2)\r\n"
-"	{\r\n"
-"		ha = a / 2;\r\n"
-"		hb = b / 2;\r\n"
-"		if(((a - ha * 2) != 0) && ((b - hb * 2) != 0))\r\n"
-"		{\r\n"
-"			r += k;\r\n"
-"		}\r\n"
-"		a = ha;\r\n"
-"		b = hb;\r\n"
-"	}\r\n"
-"	\r\n"
-"	return float(r);\r\n"
-"}\r\n";
+    "float and(int a, int b)\r\n"
+    "{\r\n"
+    "	int r = 0;\r\n"
+    "	int ha, hb;\r\n"
+    "	\r\n"
+    "	int m = int(min(float(a), float(b)));\r\n"
+    "	\r\n"
+    "	for(int k = 1; k <= m; k *= 2)\r\n"
+    "	{\r\n"
+    "		ha = a / 2;\r\n"
+    "		hb = b / 2;\r\n"
+    "		if(((a - ha * 2) != 0) && ((b - hb * 2) != 0))\r\n"
+    "		{\r\n"
+    "			r += k;\r\n"
+    "		}\r\n"
+    "		a = ha;\r\n"
+    "		b = hb;\r\n"
+    "	}\r\n"
+    "	\r\n"
+    "	return float(r);\r\n"
+    "}\r\n";
 
-static const char* s_orFunction = 
-"float or(int a, int b)\r\n"
-"{\r\n"
-"	int r = 0;\r\n"
-"	int ha, hb;\r\n"
-"	\r\n"
-"	int m = int(max(float(a), float(b)));\r\n"
-"	\r\n"
-"	for(int k = 1; k <= m; k *= 2)\r\n"
-"	{\r\n"
-"		ha = a / 2;\r\n"
-"		hb = b / 2;\r\n"
-"		if(((a - ha * 2) != 0) || ((b - hb * 2) != 0))\r\n"
-"		{\r\n"
-"			r += k;\r\n"
-"		}\r\n"
-"		a = ha;\r\n"
-"		b = hb;\r\n"
-"	}\r\n"
-"	\r\n"
-"	return float(r);\r\n"
-"}\r\n";
+static const char* s_orFunction =
+    "float or(int a, int b)\r\n"
+    "{\r\n"
+    "	int r = 0;\r\n"
+    "	int ha, hb;\r\n"
+    "	\r\n"
+    "	int m = int(max(float(a), float(b)));\r\n"
+    "	\r\n"
+    "	for(int k = 1; k <= m; k *= 2)\r\n"
+    "	{\r\n"
+    "		ha = a / 2;\r\n"
+    "		hb = b / 2;\r\n"
+    "		if(((a - ha * 2) != 0) || ((b - hb * 2) != 0))\r\n"
+    "		{\r\n"
+    "			r += k;\r\n"
+    "		}\r\n"
+    "		a = ha;\r\n"
+    "		b = hb;\r\n"
+    "	}\r\n"
+    "	\r\n"
+    "	return float(r);\r\n"
+    "}\r\n";
 
 Framework::OpenGl::ProgramPtr CGSH_OpenGL::GenerateShader(const SHADERCAPS& caps)
 {
@@ -245,7 +245,7 @@ Framework::OpenGl::CShader CGSH_OpenGL::GenerateFragmentShader(const SHADERCAPS&
 	{
 		shaderBuilder << "	textureColor = expandAlpha(texture(g_texture, texCoord.st));" << std::endl;
 	}
-	
+
 	if(caps.texSourceMode != TEXTURE_SOURCE_MODE_NONE)
 	{
 		if(!caps.texHasAlpha)
@@ -327,16 +327,16 @@ std::string CGSH_OpenGL::GenerateTexCoordClampingSection(TEXTURE_CLAMP_MODE clam
 	switch(clampMode)
 	{
 	case TEXTURE_CLAMP_MODE_REGION_CLAMP:
-		shaderBuilder << "	texCoord." << coordinate << " = min(g_clampMax." << coordinate << ", " <<
-			"max(g_clampMin." << coordinate << ", texCoord." << coordinate << "));" << std::endl;
+		shaderBuilder << "	texCoord." << coordinate << " = min(g_clampMax." << coordinate << ", "
+		              << "max(g_clampMin." << coordinate << ", texCoord." << coordinate << "));" << std::endl;
 		break;
 	case TEXTURE_CLAMP_MODE_REGION_REPEAT:
-		shaderBuilder << "	texCoord." << coordinate << " = or(int(and(int(texCoord." << coordinate << "), " << 
-			"int(g_clampMin." << coordinate << "))), int(g_clampMax." << coordinate << "));";
+		shaderBuilder << "	texCoord." << coordinate << " = or(int(and(int(texCoord." << coordinate << "), "
+		              << "int(g_clampMin." << coordinate << "))), int(g_clampMax." << coordinate << "));";
 		break;
 	case TEXTURE_CLAMP_MODE_REGION_REPEAT_SIMPLE:
-		shaderBuilder << "	texCoord." << coordinate << " = mod(texCoord." << coordinate << ", " << 
-			"g_clampMin." << coordinate << ") + g_clampMax." << coordinate << ";" << std::endl;
+		shaderBuilder << "	texCoord." << coordinate << " = mod(texCoord." << coordinate << ", "
+		              << "g_clampMin." << coordinate << ") + g_clampMax." << coordinate << ";" << std::endl;
 		break;
 	}
 
@@ -382,10 +382,10 @@ std::string CGSH_OpenGL::GenerateAlphaTestSection(ALPHA_TEST_METHOD testMethod)
 		break;
 	}
 
-	shaderBuilder << test			<< std::endl;
-	shaderBuilder << "{"			<< std::endl;
-	shaderBuilder << "	discard;"	<< std::endl;
-	shaderBuilder << "}"			<< std::endl;
+	shaderBuilder << test << std::endl;
+	shaderBuilder << "{" << std::endl;
+	shaderBuilder << "	discard;" << std::endl;
+	shaderBuilder << "}" << std::endl;
 
 	std::string shaderSource = shaderBuilder.str();
 	return shaderSource;

@@ -11,70 +11,70 @@
 #include "GsPixelFormats.h"
 #include "string_format.h"
 
-#define R_REG(a, v, r)					\
-	if((a) & 0x4)						\
-	{									\
-		v = (uint32)(r >> 32);			\
-	}									\
-	else								\
-	{									\
-		v = (uint32)(r & 0xFFFFFFFF);	\
+#define R_REG(a, v, r)                \
+	if((a)&0x4)                       \
+	{                                 \
+		v = (uint32)(r >> 32);        \
+	}                                 \
+	else                              \
+	{                                 \
+		v = (uint32)(r & 0xFFFFFFFF); \
 	}
 
-#define W_REG(a, v, r)				\
-	if((a) & 0x4)					\
-	{								\
-		(r) &= 0x00000000FFFFFFFFULL;	\
-		(r) |= (uint64)(v) << 32;	\
-	}								\
-	else							\
-	{								\
-		(r) &= 0xFFFFFFFF00000000ULL;	\
-		(r) |= (v);					\
+#define W_REG(a, v, r)                \
+	if((a)&0x4)                       \
+	{                                 \
+		(r) &= 0x00000000FFFFFFFFULL; \
+		(r) |= (uint64)(v) << 32;     \
+	}                                 \
+	else                              \
+	{                                 \
+		(r) &= 0xFFFFFFFF00000000ULL; \
+		(r) |= (v);                   \
 	}
 
-#define STATE_RAM						("gs/ram")
-#define STATE_REGS						("gs/regs")
-#define STATE_TRXCTX					("gs/trxcontext")
-#define STATE_PRIVREGS					("gs/privregs.xml")
+#define STATE_RAM ("gs/ram")
+#define STATE_REGS ("gs/regs")
+#define STATE_TRXCTX ("gs/trxcontext")
+#define STATE_PRIVREGS ("gs/privregs.xml")
 
-#define STATE_PRIVREGS_PMODE			("PMODE")
-#define STATE_PRIVREGS_SMODE2			("SMODE2")
-#define STATE_PRIVREGS_DISPFB1			("DISPFB1")
-#define STATE_PRIVREGS_DISPLAY1			("DISPLAY1")
-#define STATE_PRIVREGS_DISPFB2			("DISPFB2")
-#define STATE_PRIVREGS_DISPLAY2			("DISPLAY2")
-#define STATE_PRIVREGS_CSR				("CSR")
-#define STATE_PRIVREGS_IMR				("IMR")
-#define STATE_PRIVREGS_SIGLBLID			("SIGLBLID")
-#define STATE_PRIVREGS_CRTMODE			("CrtMode")
+#define STATE_PRIVREGS_PMODE ("PMODE")
+#define STATE_PRIVREGS_SMODE2 ("SMODE2")
+#define STATE_PRIVREGS_DISPFB1 ("DISPFB1")
+#define STATE_PRIVREGS_DISPLAY1 ("DISPLAY1")
+#define STATE_PRIVREGS_DISPFB2 ("DISPFB2")
+#define STATE_PRIVREGS_DISPLAY2 ("DISPLAY2")
+#define STATE_PRIVREGS_CSR ("CSR")
+#define STATE_PRIVREGS_IMR ("IMR")
+#define STATE_PRIVREGS_SIGLBLID ("SIGLBLID")
+#define STATE_PRIVREGS_CRTMODE ("CrtMode")
 
-#define LOG_NAME						("gs")
+#define LOG_NAME ("gs")
 
 struct MASSIVEWRITE_INFO
 {
 #ifdef DEBUGGER_INCLUDED
-	CGsPacketMetadata				metadata;
+	CGsPacketMetadata metadata;
 #endif
-	CGSHandler::RegisterWriteList	writes;
+	CGSHandler::RegisterWriteList writes;
 };
 
 CGSHandler::CGSHandler()
-: m_threadDone(false)
-, m_drawCallCount(0)
-, m_pCLUT(nullptr)
-, m_pRAM(nullptr)
-, m_frameDump(nullptr)
-, m_loggingEnabled(true)
+    : m_threadDone(false)
+    , m_drawCallCount(0)
+    , m_pCLUT(nullptr)
+    , m_pRAM(nullptr)
+    , m_frameDump(nullptr)
+    , m_loggingEnabled(true)
 {
 	RegisterPreferences();
-	
+
 	m_presentationParams.mode = static_cast<PRESENTATION_MODE>(CAppConfig::GetInstance().GetPreferenceInteger(PREF_CGSHANDLER_PRESENTATION_MODE));
 	m_presentationParams.windowWidth = 512;
 	m_presentationParams.windowHeight = 384;
-	
+
 	m_pRAM = new uint8[RAMSIZE];
-	m_pCLUT	= new uint16[CLUTENTRYCOUNT];
+	m_pCLUT = new uint16[CLUTENTRYCOUNT];
 
 	for(int i = 0; i < PSM_MAX; i++)
 	{
@@ -82,30 +82,30 @@ CGSHandler::CGSHandler()
 		m_transferReadHandlers[i] = &CGSHandler::TransferReadHandlerInvalid;
 	}
 
-	m_transferWriteHandlers[PSMCT32]  = &CGSHandler::TransferWriteHandlerGeneric<CGsPixelFormats::STORAGEPSMCT32>;
-	m_transferWriteHandlers[PSMCT24]  = &CGSHandler::TransferWriteHandlerPSMCT24;
-	m_transferWriteHandlers[PSMCT16]  = &CGSHandler::TransferWriteHandlerGeneric<CGsPixelFormats::STORAGEPSMCT16>;
+	m_transferWriteHandlers[PSMCT32] = &CGSHandler::TransferWriteHandlerGeneric<CGsPixelFormats::STORAGEPSMCT32>;
+	m_transferWriteHandlers[PSMCT24] = &CGSHandler::TransferWriteHandlerPSMCT24;
+	m_transferWriteHandlers[PSMCT16] = &CGSHandler::TransferWriteHandlerGeneric<CGsPixelFormats::STORAGEPSMCT16>;
 	m_transferWriteHandlers[PSMCT16S] = &CGSHandler::TransferWriteHandlerGeneric<CGsPixelFormats::STORAGEPSMCT16S>;
-	m_transferWriteHandlers[PSMT8]    = &CGSHandler::TransferWriteHandlerGeneric<CGsPixelFormats::STORAGEPSMT8>;
-	m_transferWriteHandlers[PSMT4]    = &CGSHandler::TransferWriteHandlerPSMT4;
-	m_transferWriteHandlers[PSMT8H]   = &CGSHandler::TransferWriteHandlerPSMT8H;
-	m_transferWriteHandlers[PSMT4HL]  = &CGSHandler::TransferWriteHandlerPSMT4H<24, 0x0F000000>;
-	m_transferWriteHandlers[PSMT4HH]  = &CGSHandler::TransferWriteHandlerPSMT4H<28, 0xF0000000>;
+	m_transferWriteHandlers[PSMT8] = &CGSHandler::TransferWriteHandlerGeneric<CGsPixelFormats::STORAGEPSMT8>;
+	m_transferWriteHandlers[PSMT4] = &CGSHandler::TransferWriteHandlerPSMT4;
+	m_transferWriteHandlers[PSMT8H] = &CGSHandler::TransferWriteHandlerPSMT8H;
+	m_transferWriteHandlers[PSMT4HL] = &CGSHandler::TransferWriteHandlerPSMT4H<24, 0x0F000000>;
+	m_transferWriteHandlers[PSMT4HH] = &CGSHandler::TransferWriteHandlerPSMT4H<28, 0xF0000000>;
 
 	m_transferReadHandlers[PSMCT32] = &CGSHandler::TransferReadHandlerGeneric<CGsPixelFormats::STORAGEPSMCT32>;
-	m_transferReadHandlers[PSMT8]   = &CGSHandler::TransferReadHandlerGeneric<CGsPixelFormats::STORAGEPSMT8>;
+	m_transferReadHandlers[PSMT8] = &CGSHandler::TransferReadHandlerGeneric<CGsPixelFormats::STORAGEPSMT8>;
 
 	ResetBase();
 
-	m_thread = std::thread([&] () { ThreadProc(); });
+	m_thread = std::thread([&]() { ThreadProc(); });
 }
 
 CGSHandler::~CGSHandler()
 {
 	m_threadDone = true;
 	m_thread.join();
-	delete [] m_pRAM;
-	delete [] m_pCLUT;
+	delete[] m_pRAM;
+	delete[] m_pCLUT;
 }
 
 void CGSHandler::RegisterPreferences()
@@ -115,7 +115,7 @@ void CGSHandler::RegisterPreferences()
 
 void CGSHandler::NotifyPreferencesChanged()
 {
-	m_mailBox.SendCall([this] () { NotifyPreferencesChangedImpl(); });
+	m_mailBox.SendCall([this]() { NotifyPreferencesChangedImpl(); });
 }
 
 void CGSHandler::Reset()
@@ -151,12 +151,10 @@ void CGSHandler::ResetBase()
 
 void CGSHandler::ResetImpl()
 {
-
 }
 
 void CGSHandler::NotifyPreferencesChangedImpl()
 {
-
 }
 
 void CGSHandler::SetPresentationParams(const PRESENTATION_PARAMS& presentationParams)
@@ -166,23 +164,23 @@ void CGSHandler::SetPresentationParams(const PRESENTATION_PARAMS& presentationPa
 
 void CGSHandler::SaveState(Framework::CZipArchiveWriter& archive)
 {
-	archive.InsertFile(new CMemoryStateFile(STATE_RAM,		m_pRAM,		RAMSIZE));
-	archive.InsertFile(new CMemoryStateFile(STATE_REGS,		m_nReg,		sizeof(uint64) * CGSHandler::REGISTER_MAX));
-	archive.InsertFile(new CMemoryStateFile(STATE_TRXCTX,	&m_trxCtx,	sizeof(TRXCONTEXT)));
+	archive.InsertFile(new CMemoryStateFile(STATE_RAM, m_pRAM, RAMSIZE));
+	archive.InsertFile(new CMemoryStateFile(STATE_REGS, m_nReg, sizeof(uint64) * CGSHandler::REGISTER_MAX));
+	archive.InsertFile(new CMemoryStateFile(STATE_TRXCTX, &m_trxCtx, sizeof(TRXCONTEXT)));
 
 	{
 		CRegisterStateFile* registerFile = new CRegisterStateFile(STATE_PRIVREGS);
 
-		registerFile->SetRegister64(STATE_PRIVREGS_PMODE,			m_nPMODE);
-		registerFile->SetRegister64(STATE_PRIVREGS_SMODE2,			m_nSMODE2);
-		registerFile->SetRegister64(STATE_PRIVREGS_DISPFB1,			m_nDISPFB1.value.q);
-		registerFile->SetRegister64(STATE_PRIVREGS_DISPLAY1,		m_nDISPLAY1.value.q);
-		registerFile->SetRegister64(STATE_PRIVREGS_DISPFB2,			m_nDISPFB2.value.q);
-		registerFile->SetRegister64(STATE_PRIVREGS_DISPLAY2,		m_nDISPLAY2.value.q);
-		registerFile->SetRegister64(STATE_PRIVREGS_CSR,				m_nCSR);
-		registerFile->SetRegister64(STATE_PRIVREGS_IMR,				m_nIMR);
-		registerFile->SetRegister64(STATE_PRIVREGS_SIGLBLID,		m_nSIGLBLID);
-		registerFile->SetRegister32(STATE_PRIVREGS_CRTMODE,			m_nCrtMode);
+		registerFile->SetRegister64(STATE_PRIVREGS_PMODE, m_nPMODE);
+		registerFile->SetRegister64(STATE_PRIVREGS_SMODE2, m_nSMODE2);
+		registerFile->SetRegister64(STATE_PRIVREGS_DISPFB1, m_nDISPFB1.value.q);
+		registerFile->SetRegister64(STATE_PRIVREGS_DISPLAY1, m_nDISPLAY1.value.q);
+		registerFile->SetRegister64(STATE_PRIVREGS_DISPFB2, m_nDISPFB2.value.q);
+		registerFile->SetRegister64(STATE_PRIVREGS_DISPLAY2, m_nDISPLAY2.value.q);
+		registerFile->SetRegister64(STATE_PRIVREGS_CSR, m_nCSR);
+		registerFile->SetRegister64(STATE_PRIVREGS_IMR, m_nIMR);
+		registerFile->SetRegister64(STATE_PRIVREGS_SIGLBLID, m_nSIGLBLID);
+		registerFile->SetRegister32(STATE_PRIVREGS_CRTMODE, m_nCrtMode);
 
 		archive.InsertFile(registerFile);
 	}
@@ -190,22 +188,22 @@ void CGSHandler::SaveState(Framework::CZipArchiveWriter& archive)
 
 void CGSHandler::LoadState(Framework::CZipArchiveReader& archive)
 {
-	archive.BeginReadFile(STATE_RAM		)->Read(m_pRAM,		RAMSIZE);
-	archive.BeginReadFile(STATE_REGS	)->Read(m_nReg,		sizeof(uint64) * CGSHandler::REGISTER_MAX);
-	archive.BeginReadFile(STATE_TRXCTX	)->Read(&m_trxCtx,	sizeof(TRXCONTEXT));
+	archive.BeginReadFile(STATE_RAM)->Read(m_pRAM, RAMSIZE);
+	archive.BeginReadFile(STATE_REGS)->Read(m_nReg, sizeof(uint64) * CGSHandler::REGISTER_MAX);
+	archive.BeginReadFile(STATE_TRXCTX)->Read(&m_trxCtx, sizeof(TRXCONTEXT));
 
 	{
 		CRegisterStateFile registerFile(*archive.BeginReadFile(STATE_PRIVREGS));
-		m_nPMODE			= registerFile.GetRegister64(STATE_PRIVREGS_PMODE);
-		m_nSMODE2			= registerFile.GetRegister64(STATE_PRIVREGS_SMODE2);
-		m_nDISPFB1.value.q	= registerFile.GetRegister64(STATE_PRIVREGS_DISPFB1);
-		m_nDISPLAY1.value.q	= registerFile.GetRegister64(STATE_PRIVREGS_DISPLAY1);
-		m_nDISPFB2.value.q	= registerFile.GetRegister64(STATE_PRIVREGS_DISPFB2);
-		m_nDISPLAY2.value.q	= registerFile.GetRegister64(STATE_PRIVREGS_DISPLAY2);
-		m_nCSR				= registerFile.GetRegister64(STATE_PRIVREGS_CSR);
-		m_nIMR				= registerFile.GetRegister64(STATE_PRIVREGS_IMR);
-		m_nSIGLBLID			= registerFile.GetRegister64(STATE_PRIVREGS_SIGLBLID);
-		m_nCrtMode			= registerFile.GetRegister32(STATE_PRIVREGS_CRTMODE);
+		m_nPMODE = registerFile.GetRegister64(STATE_PRIVREGS_PMODE);
+		m_nSMODE2 = registerFile.GetRegister64(STATE_PRIVREGS_SMODE2);
+		m_nDISPFB1.value.q = registerFile.GetRegister64(STATE_PRIVREGS_DISPFB1);
+		m_nDISPLAY1.value.q = registerFile.GetRegister64(STATE_PRIVREGS_DISPLAY1);
+		m_nDISPFB2.value.q = registerFile.GetRegister64(STATE_PRIVREGS_DISPFB2);
+		m_nDISPLAY2.value.q = registerFile.GetRegister64(STATE_PRIVREGS_DISPLAY2);
+		m_nCSR = registerFile.GetRegister64(STATE_PRIVREGS_CSR);
+		m_nIMR = registerFile.GetRegister64(STATE_PRIVREGS_IMR);
+		m_nSIGLBLID = registerFile.GetRegister64(STATE_PRIVREGS_SIGLBLID);
+		m_nCrtMode = registerFile.GetRegister32(STATE_PRIVREGS_CRTMODE);
 	}
 }
 
@@ -291,7 +289,7 @@ void CGSHandler::WritePrivRegister(uint32 nAddress, uint32 nData)
 			if((m_nPMODE & 0x01) && (m_nPMODE & 0x02))
 			{
 				CLog::GetInstance().Print(LOG_NAME, "Warning. Both read circuits were enabled. Using RC1 for display.\r\n");
-//				m_nPMODE &= ~0x02;
+				//				m_nPMODE &= ~0x02;
 			}
 		}
 		break;
@@ -311,29 +309,29 @@ void CGSHandler::WritePrivRegister(uint32 nAddress, uint32 nData)
 		WriteToDelayedRegister(nAddress, nData, m_nDISPLAY2);
 		break;
 	case GS_CSR:
+	{
+		if(!(nAddress & 0x04))
 		{
-			if(!(nAddress & 0x04))
+			std::lock_guard<std::recursive_mutex> registerMutexLock(m_registerMutex);
+			if(nData & CSR_SIGNAL_EVENT)
 			{
-				std::lock_guard<std::recursive_mutex> registerMutexLock(m_registerMutex);
-				if(nData & CSR_SIGNAL_EVENT)
-				{
-					m_nCSR &= ~CSR_SIGNAL_EVENT;
-				}
-				if(nData & CSR_FINISH_EVENT)
-				{
-					m_nCSR &= ~CSR_FINISH_EVENT;
-				}
-				if(nData & CSR_VSYNC_INT)
-				{
-					m_nCSR &= ~CSR_VSYNC_INT;
-				}
-				if(nData & CSR_RESET)
-				{
-					m_nCSR |= CSR_RESET;
-				}
+				m_nCSR &= ~CSR_SIGNAL_EVENT;
+			}
+			if(nData & CSR_FINISH_EVENT)
+			{
+				m_nCSR &= ~CSR_FINISH_EVENT;
+			}
+			if(nData & CSR_VSYNC_INT)
+			{
+				m_nCSR &= ~CSR_VSYNC_INT;
+			}
+			if(nData & CSR_RESET)
+			{
+				m_nCSR |= CSR_RESET;
 			}
 		}
-		break;
+	}
+	break;
 	case GS_IMR:
 		W_REG(nAddress, nData, m_nIMR);
 		break;
@@ -418,7 +416,7 @@ void CGSHandler::FeedImageData(const void* data, uint32 length)
 
 	//Allocate 0x10 more bytes to allow transfer handlers
 	//to read beyond the actual length of the buffer (ie.: PSMCT24)
-	
+
 	uint8* buffer = new uint8[length + 0x10];
 	memcpy(buffer, data, length);
 	m_mailBox.SendCall(std::bind(&CGSHandler::FeedImageDataImpl, this, buffer, length));
@@ -426,7 +424,7 @@ void CGSHandler::FeedImageData(const void* data, uint32 length)
 
 void CGSHandler::ReadImageData(void* data, uint32 length)
 {
-	m_mailBox.SendCall([this, data, length] () { ReadImageDataImpl(data, length); }, true);
+	m_mailBox.SendCall([this, data, length]() { ReadImageDataImpl(data, length); }, true);
 }
 
 void CGSHandler::WriteRegisterMassively(RegisterWriteList registerWrites, const CGsPacketMetadata* metadata)
@@ -436,28 +434,28 @@ void CGSHandler::WriteRegisterMassively(RegisterWriteList registerWrites, const 
 		switch(write.first)
 		{
 		case GS_REG_SIGNAL:
-			{
-				auto signal = make_convertible<SIGNAL>(write.second);
-				auto siglblid = make_convertible<SIGLBLID>(m_nSIGLBLID);
-				siglblid.sigid &= ~signal.idmsk;
-				siglblid.sigid |= signal.id;
-				m_nSIGLBLID = siglblid;
-				assert((m_nCSR & CSR_SIGNAL_EVENT) == 0);
-				m_nCSR |= CSR_SIGNAL_EVENT;
-			}
-			break;
+		{
+			auto signal = make_convertible<SIGNAL>(write.second);
+			auto siglblid = make_convertible<SIGLBLID>(m_nSIGLBLID);
+			siglblid.sigid &= ~signal.idmsk;
+			siglblid.sigid |= signal.id;
+			m_nSIGLBLID = siglblid;
+			assert((m_nCSR & CSR_SIGNAL_EVENT) == 0);
+			m_nCSR |= CSR_SIGNAL_EVENT;
+		}
+		break;
 		case GS_REG_FINISH:
 			m_nCSR |= CSR_FINISH_EVENT;
 			break;
 		case GS_REG_LABEL:
-			{
-				auto label = make_convertible<LABEL>(write.second);
-				auto siglblid = make_convertible<SIGLBLID>(m_nSIGLBLID);
-				siglblid.lblid &= ~label.idmsk;
-				siglblid.lblid |= label.id;
-				m_nSIGLBLID = siglblid;
-			}
-			break;
+		{
+			auto label = make_convertible<LABEL>(write.second);
+			auto siglblid = make_convertible<SIGLBLID>(m_nSIGLBLID);
+			siglblid.lblid &= ~label.idmsk;
+			siglblid.lblid |= label.id;
+			m_nSIGLBLID = siglblid;
+		}
+		break;
 		}
 	}
 
@@ -477,11 +475,9 @@ void CGSHandler::WriteRegisterMassively(RegisterWriteList registerWrites, const 
 #endif
 
 	m_mailBox.SendCall(
-		[this, massiveWrite = std::move(massiveWrite)] ()
-		{
-			WriteRegisterMassivelyImpl(massiveWrite);
-		}
-	);
+	    [this, massiveWrite = std::move(massiveWrite)]() {
+		    WriteRegisterMassivelyImpl(massiveWrite);
+	    });
 }
 
 void CGSHandler::WriteRegisterImpl(uint8 nRegister, uint64 nData)
@@ -496,29 +492,29 @@ void CGSHandler::WriteRegisterImpl(uint8 nRegister, uint64 nData)
 	{
 	case GS_REG_TEX0_1:
 	case GS_REG_TEX0_2:
-		{
-			unsigned int nContext = nRegister - GS_REG_TEX0_1;
-			assert(nContext == 0 || nContext == 1);
-			auto tex0 = make_convertible<TEX0>(m_nReg[GS_REG_TEX0_1 + nContext]);
-			SyncCLUT(tex0);
-		}
-		break;
+	{
+		unsigned int nContext = nRegister - GS_REG_TEX0_1;
+		assert(nContext == 0 || nContext == 1);
+		auto tex0 = make_convertible<TEX0>(m_nReg[GS_REG_TEX0_1 + nContext]);
+		SyncCLUT(tex0);
+	}
+	break;
 
 	case GS_REG_TEX2_1:
 	case GS_REG_TEX2_2:
-		{
-			//Update TEX0
-			unsigned int nContext = nRegister - GS_REG_TEX2_1;
-			assert(nContext == 0 || nContext == 1);
+	{
+		//Update TEX0
+		unsigned int nContext = nRegister - GS_REG_TEX2_1;
+		assert(nContext == 0 || nContext == 1);
 
-			const uint64 nMask = 0xFFFFFFE003F00000ULL;
-			m_nReg[GS_REG_TEX0_1 + nContext] &= ~nMask;
-			m_nReg[GS_REG_TEX0_1 + nContext] |= nData & nMask;
+		const uint64 nMask = 0xFFFFFFE003F00000ULL;
+		m_nReg[GS_REG_TEX0_1 + nContext] &= ~nMask;
+		m_nReg[GS_REG_TEX0_1 + nContext] |= nData & nMask;
 
-			auto tex0 = make_convertible<TEX0>(m_nReg[GS_REG_TEX0_1 + nContext]);
-			SyncCLUT(tex0);
-		}
-		break;
+		auto tex0 = make_convertible<TEX0>(m_nReg[GS_REG_TEX0_1 + nContext]);
+		SyncCLUT(tex0);
+	}
+	break;
 
 	case GS_REG_TRXDIR:
 		BeginTransfer();
@@ -649,22 +645,22 @@ void CGSHandler::BeginTransfer()
 		//Make sure transfer size is a multiple of 16. Some games (ex.: Gregory Horror Show)
 		//specify transfer width/height that will give a transfer size that is not a multiple of 16
 		//and will prevent proper handling of image transfer (texture cache will not be invalidated).
-		m_trxCtx.nSize	= ((trxReg.nRRW * trxReg.nRRH * nPixelSize) / 8) & ~0xF;
+		m_trxCtx.nSize = ((trxReg.nRRW * trxReg.nRRH * nPixelSize) / 8) & ~0xF;
 		m_trxCtx.nRealSize = m_trxCtx.nSize;
-		m_trxCtx.nRRX	= 0;
-		m_trxCtx.nRRY	= 0;
-		m_trxCtx.nDirty	= false;
+		m_trxCtx.nRRX = 0;
+		m_trxCtx.nRRY = 0;
+		m_trxCtx.nDirty = false;
 
 		if(trxDir == 0)
 		{
 			CLog::GetInstance().Print(LOG_NAME, "Starting transfer to 0x%08X, buffer size %d, psm: %d, size (%dx%d)\r\n",
-				bltBuf.GetDstPtr(), bltBuf.GetDstWidth(), bltBuf.nDstPsm, trxReg.nRRW, trxReg.nRRH);
+			                          bltBuf.GetDstPtr(), bltBuf.GetDstWidth(), bltBuf.nDstPsm, trxReg.nRRW, trxReg.nRRH);
 		}
 		else if(trxDir == 1)
 		{
 			ProcessLocalToHostTransfer();
 			CLog::GetInstance().Print(LOG_NAME, "Starting transfer from 0x%08X, buffer size %d, psm: %d, size (%dx%d)\r\n",
-				bltBuf.GetSrcPtr(), bltBuf.GetSrcWidth(), bltBuf.nSrcPsm, trxReg.nRRW, trxReg.nRRH);
+			                          bltBuf.GetSrcPtr(), bltBuf.GetSrcWidth(), bltBuf.nSrcPsm, trxReg.nRRW, trxReg.nRRH);
 		}
 	}
 	else if(trxDir == 2)
@@ -911,8 +907,8 @@ void CGSHandler::SetCrt(bool nIsInterlaced, unsigned int nMode, bool nIsFrameMod
 
 	SMODE2 smode2;
 	smode2 <<= 0;
-	smode2.interlaced	= nIsInterlaced ? 1 : 0;
-	smode2.ffmd			= nIsFrameMode ? 1 : 0;
+	smode2.interlaced = nIsInterlaced ? 1 : 0;
+	smode2.ffmd = nIsFrameMode ? 1 : 0;
 	m_nSMODE2 = smode2;
 }
 
@@ -1096,8 +1092,8 @@ void CGSHandler::ReadCLUT4(const TEX0& tex0)
 						uint16 colorHi = static_cast<uint16>(color >> 16);
 
 						if(
-							(pDst[0x000] != colorLo) ||
-							(pDst[0x100] != colorHi))
+						    (pDst[0x000] != colorLo) ||
+						    (pDst[0x100] != colorHi))
 						{
 							changed = true;
 						}
@@ -1210,8 +1206,8 @@ void CGSHandler::ReadCLUT8(const TEX0& tex0)
 					index = (index & ~0x18) | ((index & 0x08) << 1) | ((index & 0x10) >> 1);
 
 					if(
-						(m_pCLUT[index + 0x000] != colorLo) ||
-						(m_pCLUT[index + 0x100] != colorHi))
+					    (m_pCLUT[index + 0x000] != colorLo) ||
+					    (m_pCLUT[index + 0x100] != colorHi))
 					{
 						changed = true;
 					}
@@ -1256,10 +1252,9 @@ bool CGSHandler::IsCompatibleFramebufferPSM(unsigned int psmFb, unsigned int psm
 void CGSHandler::MakeLinearCLUT(const TEX0& tex0, std::array<uint32, 256>& clut) const
 {
 	static const auto RGBA16ToRGBA32 =
-		[] (uint16 color)
-		{
-			return ((color & 0x8000) ? 0xFF000000 : 0) | ((color & 0x7C00) << 9) | ((color & 0x03E0) << 6) | ((color & 0x001F) << 3);
-		};
+	    [](uint16 color) {
+		    return ((color & 0x8000) ? 0xFF000000 : 0) | ((color & 0x7C00) << 9) | ((color & 0x03E0) << 6) | ((color & 0x001F) << 3);
+	    };
 
 	unsigned int entryCount = CGsPixelFormats::IsPsmIDTEX4(tex0.nPsm) ? 16 : 256;
 
@@ -1272,9 +1267,9 @@ void CGSHandler::MakeLinearCLUT(const TEX0& tex0, std::array<uint32, 256>& clut)
 
 			for(unsigned int i = 0; i < 16; i++)
 			{
-				uint32 color = 
-					(static_cast<uint16>(m_pCLUT[i + clutOffset + 0x000])) | 
-					(static_cast<uint16>(m_pCLUT[i + clutOffset + 0x100]) << 16);
+				uint32 color =
+				    (static_cast<uint16>(m_pCLUT[i + clutOffset + 0x000])) |
+				    (static_cast<uint16>(m_pCLUT[i + clutOffset + 0x100]) << 16);
 				clut[i] = color;
 			}
 		}
@@ -1301,9 +1296,9 @@ void CGSHandler::MakeLinearCLUT(const TEX0& tex0, std::array<uint32, 256>& clut)
 			for(unsigned int i = 0; i < 256; i++)
 			{
 				uint32 offset = ((tex0.nCSA * 16) + i) & 0xFF;
-				uint32 color = 
-					(static_cast<uint16>(m_pCLUT[offset + 0x000])) | 
-					(static_cast<uint16>(m_pCLUT[offset + 0x100]) << 16);
+				uint32 color =
+				    (static_cast<uint16>(m_pCLUT[offset + 0x000])) |
+				    (static_cast<uint16>(m_pCLUT[offset + 0x100]) << 16);
 				clut[i] = color;
 			}
 		}
@@ -1334,227 +1329,227 @@ std::string CGSHandler::DisassembleWrite(uint8 registerId, uint64 data)
 	switch(registerId)
 	{
 	case GS_REG_PRIM:
-		{
-			auto pr = make_convertible<PRIM>(data);
-			result = string_format("PRIM(PRI: %i, IIP: %i, TME: %i, FGE: %i, ABE: %i, AA1: %i, FST: %i, CTXT: %i, FIX: %i)",
-				pr.nType, pr.nShading, pr.nTexture, pr.nFog, pr.nAlpha, pr.nAntiAliasing, pr.nUseUV, pr.nContext, pr.nUseFloat);
-		}
-		break;
+	{
+		auto pr = make_convertible<PRIM>(data);
+		result = string_format("PRIM(PRI: %i, IIP: %i, TME: %i, FGE: %i, ABE: %i, AA1: %i, FST: %i, CTXT: %i, FIX: %i)",
+		                       pr.nType, pr.nShading, pr.nTexture, pr.nFog, pr.nAlpha, pr.nAntiAliasing, pr.nUseUV, pr.nContext, pr.nUseFloat);
+	}
+	break;
 	case GS_REG_RGBAQ:
-		{
-			auto rgbaq = make_convertible<RGBAQ>(data);
-			result = string_format("RGBAQ(R: 0x%02X, G: 0x%02X, B: 0x%02X, A: 0x%02X, Q: %f)",
-				rgbaq.nR, rgbaq.nG, rgbaq.nB, rgbaq.nA, rgbaq.nQ);
-		}
-		break;
+	{
+		auto rgbaq = make_convertible<RGBAQ>(data);
+		result = string_format("RGBAQ(R: 0x%02X, G: 0x%02X, B: 0x%02X, A: 0x%02X, Q: %f)",
+		                       rgbaq.nR, rgbaq.nG, rgbaq.nB, rgbaq.nA, rgbaq.nQ);
+	}
+	break;
 	case GS_REG_ST:
-		{
-			auto st = make_convertible<ST>(data);
-			result = string_format("ST(S: %f, T: %f)",
-				st.nS, st.nT);
-		}
-		break;
+	{
+		auto st = make_convertible<ST>(data);
+		result = string_format("ST(S: %f, T: %f)",
+		                       st.nS, st.nT);
+	}
+	break;
 	case GS_REG_UV:
-		{
-			auto uv = make_convertible<UV>(data);
-			result = string_format("UV(U: %f, V: %f)",
-				uv.GetU(), uv.GetV());
-		}
-		break;
+	{
+		auto uv = make_convertible<UV>(data);
+		result = string_format("UV(U: %f, V: %f)",
+		                       uv.GetU(), uv.GetV());
+	}
+	break;
 	case GS_REG_XYZ2:
 	case GS_REG_XYZ3:
-		{
-			auto xyz = make_convertible<XYZ>(data);
-			result = string_format("%s(%f, %f, %f)",
-				(registerId == GS_REG_XYZ2) ? "XYZ2" : "XYZ3", xyz.GetX(), xyz.GetY(), xyz.GetZ());
-		}
-		break;
+	{
+		auto xyz = make_convertible<XYZ>(data);
+		result = string_format("%s(%f, %f, %f)",
+		                       (registerId == GS_REG_XYZ2) ? "XYZ2" : "XYZ3", xyz.GetX(), xyz.GetY(), xyz.GetZ());
+	}
+	break;
 	case GS_REG_XYZF2:
 	case GS_REG_XYZF3:
-		{
-			auto xyzf = make_convertible<XYZF>(data);
-			result = string_format("%s(%f, %f, %i, %i)",
-				(registerId == GS_REG_XYZF2) ? "XYZF2" : "XYZF3", xyzf.GetX(), xyzf.GetY(), xyzf.nZ, xyzf.nF);
-		}
-		break;
+	{
+		auto xyzf = make_convertible<XYZF>(data);
+		result = string_format("%s(%f, %f, %i, %i)",
+		                       (registerId == GS_REG_XYZF2) ? "XYZF2" : "XYZF3", xyzf.GetX(), xyzf.GetY(), xyzf.nZ, xyzf.nF);
+	}
+	break;
 	case GS_REG_FOG:
-		{
-			auto fog = static_cast<uint8>(data >> 56);
-			result = string_format("FOG(F: %d)", fog);
-		}
-		break;
+	{
+		auto fog = static_cast<uint8>(data >> 56);
+		result = string_format("FOG(F: %d)", fog);
+	}
+	break;
 	case GS_REG_TEX0_1:
 	case GS_REG_TEX0_2:
-		{
-			auto tex0 = make_convertible<TEX0>(data);
-			result = string_format("TEX0_%i(TBP: 0x%08X, TBW: %i, PSM: %i, TW: %i, TH: %i, TCC: %i, TFX: %i, CBP: 0x%08X, CPSM: %i, CSM: %i, CSA: %i, CLD: %i)",
-				(registerId == GS_REG_TEX0_1) ? 1 : 2, tex0.GetBufPtr(), tex0.GetBufWidth(), tex0.nPsm, tex0.GetWidth(), tex0.GetHeight(), tex0.nColorComp,
-				tex0.nFunction, tex0.GetCLUTPtr(), tex0.nCPSM, tex0.nCSM, tex0.nCSA, tex0.nCLD);
-		}
-		break;
+	{
+		auto tex0 = make_convertible<TEX0>(data);
+		result = string_format("TEX0_%i(TBP: 0x%08X, TBW: %i, PSM: %i, TW: %i, TH: %i, TCC: %i, TFX: %i, CBP: 0x%08X, CPSM: %i, CSM: %i, CSA: %i, CLD: %i)",
+		                       (registerId == GS_REG_TEX0_1) ? 1 : 2, tex0.GetBufPtr(), tex0.GetBufWidth(), tex0.nPsm, tex0.GetWidth(), tex0.GetHeight(), tex0.nColorComp,
+		                       tex0.nFunction, tex0.GetCLUTPtr(), tex0.nCPSM, tex0.nCSM, tex0.nCSA, tex0.nCLD);
+	}
+	break;
 	case GS_REG_CLAMP_1:
 	case GS_REG_CLAMP_2:
-		{
-			auto clamp = make_convertible<CLAMP>(data);
-			result = string_format("CLAMP_%i(WMS: %i, WMT: %i, MINU: %i, MAXU: %i, MINV: %i, MAXV: %i)",
-				(registerId == GS_REG_CLAMP_1 ? 1 : 2), clamp.nWMS, clamp.nWMT, clamp.GetMinU(), clamp.GetMaxU(), clamp.GetMinV(), clamp.GetMaxV());
-		}
-		break;
+	{
+		auto clamp = make_convertible<CLAMP>(data);
+		result = string_format("CLAMP_%i(WMS: %i, WMT: %i, MINU: %i, MAXU: %i, MINV: %i, MAXV: %i)",
+		                       (registerId == GS_REG_CLAMP_1 ? 1 : 2), clamp.nWMS, clamp.nWMT, clamp.GetMinU(), clamp.GetMaxU(), clamp.GetMinV(), clamp.GetMaxV());
+	}
+	break;
 	case GS_REG_TEX1_1:
 	case GS_REG_TEX1_2:
-		{
-			auto tex1 = make_convertible<TEX1>(data);
-			result = string_format("TEX1_%i(LCM: %i, MXL: %i, MMAG: %i, MMIN: %i, MTBA: %i, L: %i, K: %i)",
-				(registerId == GS_REG_TEX1_1) ? 1 : 2, tex1.nLODMethod, tex1.nMaxMip, tex1.nMagFilter, tex1.nMinFilter, tex1.nMipBaseAddr, tex1.nLODL, tex1.nLODK);
-		}
-		break;
+	{
+		auto tex1 = make_convertible<TEX1>(data);
+		result = string_format("TEX1_%i(LCM: %i, MXL: %i, MMAG: %i, MMIN: %i, MTBA: %i, L: %i, K: %i)",
+		                       (registerId == GS_REG_TEX1_1) ? 1 : 2, tex1.nLODMethod, tex1.nMaxMip, tex1.nMagFilter, tex1.nMinFilter, tex1.nMipBaseAddr, tex1.nLODL, tex1.nLODK);
+	}
+	break;
 	case GS_REG_TEX2_1:
 	case GS_REG_TEX2_2:
-		{
-			auto tex2 = make_convertible<TEX2>(data);
-			result = string_format("TEX2_%i(PSM: %i, CBP: 0x%08X, CPSM: %i, CSM: %i, CSA: %i, CLD: %i)",
-				(registerId == GS_REG_TEX2_1) ? 1 : 2, tex2.nPsm, tex2.GetCLUTPtr(), tex2.nCPSM, tex2.nCSM, tex2.nCSA, tex2.nCLD);
-		}
-		break;
+	{
+		auto tex2 = make_convertible<TEX2>(data);
+		result = string_format("TEX2_%i(PSM: %i, CBP: 0x%08X, CPSM: %i, CSM: %i, CSA: %i, CLD: %i)",
+		                       (registerId == GS_REG_TEX2_1) ? 1 : 2, tex2.nPsm, tex2.GetCLUTPtr(), tex2.nCPSM, tex2.nCSM, tex2.nCSA, tex2.nCLD);
+	}
+	break;
 	case GS_REG_XYOFFSET_1:
 	case GS_REG_XYOFFSET_2:
 		result = string_format("XYOFFSET_%i(%i, %i)",
-			(registerId == GS_REG_XYOFFSET_1) ? 1 : 2, static_cast<uint32>(data >> 0), static_cast<uint32>(data >> 32));
+		                       (registerId == GS_REG_XYOFFSET_1) ? 1 : 2, static_cast<uint32>(data >> 0), static_cast<uint32>(data >> 32));
 		break;
 	case GS_REG_PRMODECONT:
 		result = string_format("PRMODECONT(AC: %i)", data & 1);
 		break;
 	case GS_REG_PRMODE:
-		{
-			auto prm = make_convertible<PRMODE>(data);
-			result = string_format("PRMODE(IIP: %i, TME: %i, FGE: %i, ABE: %i, AA1: %i, FST: %i, CTXT: %i, FIX: %i)",
-				prm.nShading, prm.nTexture, prm.nFog, prm.nAlpha, prm.nAntiAliasing, prm.nUseUV, prm.nContext, prm.nUseFloat);
-		}
-		break;
+	{
+		auto prm = make_convertible<PRMODE>(data);
+		result = string_format("PRMODE(IIP: %i, TME: %i, FGE: %i, ABE: %i, AA1: %i, FST: %i, CTXT: %i, FIX: %i)",
+		                       prm.nShading, prm.nTexture, prm.nFog, prm.nAlpha, prm.nAntiAliasing, prm.nUseUV, prm.nContext, prm.nUseFloat);
+	}
+	break;
 	case GS_REG_TEXCLUT:
-		{
-			auto clut = make_convertible<TEXCLUT>(data);
-			result = string_format("TEXCLUT(CBW: %i, COU: %i, COV: %i)",
-				clut.nCBW, clut.nCOU, clut.nCOV);
-		}
-		break;
+	{
+		auto clut = make_convertible<TEXCLUT>(data);
+		result = string_format("TEXCLUT(CBW: %i, COU: %i, COV: %i)",
+		                       clut.nCBW, clut.nCOU, clut.nCOV);
+	}
+	break;
 	case GS_REG_MIPTBP1_1:
 	case GS_REG_MIPTBP1_2:
-		{
-			auto miptbp1 = make_convertible<MIPTBP1>(data);
-			result = string_format("MIPTBP1_%d(TBP1: 0x%08X, TBW1: %d, TBP2: 0x%08X, TBW2: %d, TBP3: 0x%08X, TBW3: %d)",
-				(registerId == GS_REG_MIPTBP1_1) ? 1 : 2, 
-				miptbp1.GetTbp1(), miptbp1.GetTbw1(),
-				miptbp1.GetTbp2(), miptbp1.GetTbw2(),
-				miptbp1.GetTbp3(), miptbp1.GetTbw3());
-		}
-		break;
+	{
+		auto miptbp1 = make_convertible<MIPTBP1>(data);
+		result = string_format("MIPTBP1_%d(TBP1: 0x%08X, TBW1: %d, TBP2: 0x%08X, TBW2: %d, TBP3: 0x%08X, TBW3: %d)",
+		                       (registerId == GS_REG_MIPTBP1_1) ? 1 : 2,
+		                       miptbp1.GetTbp1(), miptbp1.GetTbw1(),
+		                       miptbp1.GetTbp2(), miptbp1.GetTbw2(),
+		                       miptbp1.GetTbp3(), miptbp1.GetTbw3());
+	}
+	break;
 	case GS_REG_MIPTBP2_1:
 	case GS_REG_MIPTBP2_2:
-		{
-			auto miptbp2 = make_convertible<MIPTBP2>(data);
-			result = string_format("MIPTBP2_%d(TBP4: 0x%08X, TBW4: %d, TBP5: 0x%08X, TBW5: %d, TBP6: 0x%08X, TBW6: %d)",
-				(registerId == GS_REG_MIPTBP2_1) ? 1 : 2, 
-				miptbp2.GetTbp4(), miptbp2.GetTbw4(),
-				miptbp2.GetTbp5(), miptbp2.GetTbw5(),
-				miptbp2.GetTbp6(), miptbp2.GetTbw6());
-		}
-		break;
+	{
+		auto miptbp2 = make_convertible<MIPTBP2>(data);
+		result = string_format("MIPTBP2_%d(TBP4: 0x%08X, TBW4: %d, TBP5: 0x%08X, TBW5: %d, TBP6: 0x%08X, TBW6: %d)",
+		                       (registerId == GS_REG_MIPTBP2_1) ? 1 : 2,
+		                       miptbp2.GetTbp4(), miptbp2.GetTbw4(),
+		                       miptbp2.GetTbp5(), miptbp2.GetTbw5(),
+		                       miptbp2.GetTbp6(), miptbp2.GetTbw6());
+	}
+	break;
 	case GS_REG_TEXA:
-		{
-			auto texa = make_convertible<TEXA>(data);
-			result = string_format("TEXA(TA0: 0x%02X, AEM: %i, TA1: 0x%02X)",
-				texa.nTA0, texa.nAEM, texa.nTA1);
-		}
-		break;
+	{
+		auto texa = make_convertible<TEXA>(data);
+		result = string_format("TEXA(TA0: 0x%02X, AEM: %i, TA1: 0x%02X)",
+		                       texa.nTA0, texa.nAEM, texa.nTA1);
+	}
+	break;
 	case GS_REG_FOGCOL:
-		{
-			auto fogcol = make_convertible<FOGCOL>(data);
-			result = string_format("FOGCOL(R: 0x%02X, G: 0x%02X, B: 0x%02X)",
-				fogcol.nFCR, fogcol.nFCG, fogcol.nFCB);
-		}
-		break;
+	{
+		auto fogcol = make_convertible<FOGCOL>(data);
+		result = string_format("FOGCOL(R: 0x%02X, G: 0x%02X, B: 0x%02X)",
+		                       fogcol.nFCR, fogcol.nFCG, fogcol.nFCB);
+	}
+	break;
 	case GS_REG_TEXFLUSH:
 		result = "TEXFLUSH()";
 		break;
 	case GS_REG_ALPHA_1:
 	case GS_REG_ALPHA_2:
-		{
-			auto alpha = make_convertible<ALPHA>(data);
-			result = string_format("ALPHA_%i(A: %i, B: %i, C: %i, D: %i, FIX: 0x%02X)",
-				(registerId == GS_REG_ALPHA_1) ? 1 : 2, alpha.nA, alpha.nB, alpha.nC, alpha.nD, alpha.nFix);
-		}
-		break;
+	{
+		auto alpha = make_convertible<ALPHA>(data);
+		result = string_format("ALPHA_%i(A: %i, B: %i, C: %i, D: %i, FIX: 0x%02X)",
+		                       (registerId == GS_REG_ALPHA_1) ? 1 : 2, alpha.nA, alpha.nB, alpha.nC, alpha.nD, alpha.nFix);
+	}
+	break;
 	case GS_REG_SCISSOR_1:
 	case GS_REG_SCISSOR_2:
-		{
-			auto scissor = make_convertible<SCISSOR>(data);
-			result = string_format("SCISSOR_%i(SCAX0: %i, SCAX1: %i, SCAY0: %i, SCAY1: %i)",
-				(registerId == GS_REG_SCISSOR_1) ? 1 : 2, scissor.scax0, scissor.scax1, scissor.scay0, scissor.scay1);
-		}
-		break;
+	{
+		auto scissor = make_convertible<SCISSOR>(data);
+		result = string_format("SCISSOR_%i(SCAX0: %i, SCAX1: %i, SCAY0: %i, SCAY1: %i)",
+		                       (registerId == GS_REG_SCISSOR_1) ? 1 : 2, scissor.scax0, scissor.scax1, scissor.scay0, scissor.scay1);
+	}
+	break;
 	case GS_REG_COLCLAMP:
 		result = string_format("COLCLAMP(CLAMP: %d)", data & 1);
 		break;
 	case GS_REG_TEST_1:
 	case GS_REG_TEST_2:
-		{
-			auto tst = make_convertible<TEST>(data);
-			result = string_format("TEST_%i(ATE: %i, ATST: %i, AREF: 0x%02X, AFAIL: %i, DATE: %i, DATM: %i, ZTE: %i, ZTST: %i)",
-				(registerId == GS_REG_TEST_1) ? 1 : 2, tst.nAlphaEnabled, tst.nAlphaMethod, tst.nAlphaRef, tst.nAlphaFail,
-				tst.nDestAlphaEnabled, tst.nDestAlphaMode, tst.nDepthEnabled, tst.nDepthMethod);
-		}
-		break;
+	{
+		auto tst = make_convertible<TEST>(data);
+		result = string_format("TEST_%i(ATE: %i, ATST: %i, AREF: 0x%02X, AFAIL: %i, DATE: %i, DATM: %i, ZTE: %i, ZTST: %i)",
+		                       (registerId == GS_REG_TEST_1) ? 1 : 2, tst.nAlphaEnabled, tst.nAlphaMethod, tst.nAlphaRef, tst.nAlphaFail,
+		                       tst.nDestAlphaEnabled, tst.nDestAlphaMode, tst.nDepthEnabled, tst.nDepthMethod);
+	}
+	break;
 	case GS_REG_PABE:
-		{
-			auto value = static_cast<uint8>(data & 1);
-			result = string_format("PABE(PABE: %d)", value);
-		}
-		break;
+	{
+		auto value = static_cast<uint8>(data & 1);
+		result = string_format("PABE(PABE: %d)", value);
+	}
+	break;
 	case GS_REG_FBA_1:
 	case GS_REG_FBA_2:
-		{
-			auto value = static_cast<uint8>(data & 1);
-			result = string_format("FBA_%d(FBA: %d)", (registerId == GS_REG_FBA_1) ? 1 : 2, value);
-		}
-		break;
+	{
+		auto value = static_cast<uint8>(data & 1);
+		result = string_format("FBA_%d(FBA: %d)", (registerId == GS_REG_FBA_1) ? 1 : 2, value);
+	}
+	break;
 	case GS_REG_FRAME_1:
 	case GS_REG_FRAME_2:
-		{
-			auto fr = make_convertible<FRAME>(data);
-			result = string_format("FRAME_%i(FBP: 0x%08X, FBW: %d, PSM: %d, FBMSK: 0x%08X)",
-				(registerId == GS_REG_FRAME_1) ? 1 : 2, fr.GetBasePtr(), fr.GetWidth(), fr.nPsm, fr.nMask);
-		}
-		break;
+	{
+		auto fr = make_convertible<FRAME>(data);
+		result = string_format("FRAME_%i(FBP: 0x%08X, FBW: %d, PSM: %d, FBMSK: 0x%08X)",
+		                       (registerId == GS_REG_FRAME_1) ? 1 : 2, fr.GetBasePtr(), fr.GetWidth(), fr.nPsm, fr.nMask);
+	}
+	break;
 	case GS_REG_ZBUF_1:
 	case GS_REG_ZBUF_2:
-		{
-			auto zbuf = make_convertible<ZBUF>(data);
-			result = string_format("ZBUF_%i(ZBP: 0x%08X, PSM: %i, ZMSK: %i)",
-				(registerId == GS_REG_ZBUF_1) ? 1 : 2, zbuf.GetBasePtr(), zbuf.nPsm, zbuf.nMask);
-		}
-		break;
+	{
+		auto zbuf = make_convertible<ZBUF>(data);
+		result = string_format("ZBUF_%i(ZBP: 0x%08X, PSM: %i, ZMSK: %i)",
+		                       (registerId == GS_REG_ZBUF_1) ? 1 : 2, zbuf.GetBasePtr(), zbuf.nPsm, zbuf.nMask);
+	}
+	break;
 	case GS_REG_BITBLTBUF:
-		{
-			auto buf = make_convertible<BITBLTBUF>(data);
-			result = string_format("BITBLTBUF(SBP: 0x%08X, SBW: %i, SPSM: %i, DBP: 0x%08X, DBW: %i, DPSM: %i)",
-				buf.GetSrcPtr(), buf.GetSrcWidth(), buf.nSrcPsm, buf.GetDstPtr(), buf.GetDstWidth(), buf.nDstPsm);
-		}
-		break;
+	{
+		auto buf = make_convertible<BITBLTBUF>(data);
+		result = string_format("BITBLTBUF(SBP: 0x%08X, SBW: %i, SPSM: %i, DBP: 0x%08X, DBW: %i, DPSM: %i)",
+		                       buf.GetSrcPtr(), buf.GetSrcWidth(), buf.nSrcPsm, buf.GetDstPtr(), buf.GetDstWidth(), buf.nDstPsm);
+	}
+	break;
 	case GS_REG_TRXPOS:
-		{
-			auto trxPos = make_convertible<TRXPOS>(data);
-			result = string_format("TRXPOS(SSAX: %i, SSAY: %i, DSAX: %i, DSAY: %i, DIR: %i)",
-				trxPos.nSSAX, trxPos.nSSAY, trxPos.nDSAX, trxPos.nDSAY, trxPos.nDIR);
-		}
-		break;
+	{
+		auto trxPos = make_convertible<TRXPOS>(data);
+		result = string_format("TRXPOS(SSAX: %i, SSAY: %i, DSAX: %i, DSAY: %i, DIR: %i)",
+		                       trxPos.nSSAX, trxPos.nSSAY, trxPos.nDSAX, trxPos.nDSAY, trxPos.nDIR);
+	}
+	break;
 	case GS_REG_TRXREG:
-		{
-			auto trxReg = make_convertible<TRXREG>(data);
-			result = string_format("TRXREG(RRW: %i, RRH: %i)",
-				trxReg.nRRW, trxReg.nRRH);
-		}
-		break;
+	{
+		auto trxReg = make_convertible<TRXREG>(data);
+		result = string_format("TRXREG(RRW: %i, RRH: %i)",
+		                       trxReg.nRRW, trxReg.nRRH);
+	}
+	break;
 	case GS_REG_TRXDIR:
 		result = string_format("TRXDIR(XDIR: %i)", data & 0x03);
 		break;
@@ -1562,22 +1557,22 @@ std::string CGSHandler::DisassembleWrite(uint8 registerId, uint64 data)
 		result = string_format("HWREG(DATA: 0x%016llX)", data);
 		break;
 	case GS_REG_SIGNAL:
-		{
-			auto signal = make_convertible<SIGNAL>(data);
-			result = string_format("SIGNAL(IDMSK: 0x%08X, ID: 0x%08X)",
-				signal.idmsk, signal.id);
-		}
-		break;
+	{
+		auto signal = make_convertible<SIGNAL>(data);
+		result = string_format("SIGNAL(IDMSK: 0x%08X, ID: 0x%08X)",
+		                       signal.idmsk, signal.id);
+	}
+	break;
 	case GS_REG_FINISH:
 		result = "FINISH()";
 		break;
 	case GS_REG_LABEL:
-		{
-			auto label = make_convertible<LABEL>(data);
-			result = string_format("LABEL(IDMSK: 0x%08X, ID: 0x%08X)",
-				label.idmsk, label.id);
-		}
-		break;
+	{
+		auto label = make_convertible<LABEL>(data);
+		result = string_format("LABEL(IDMSK: 0x%08X, ID: 0x%08X)",
+		                       label.idmsk, label.id);
+	}
+	break;
 	default:
 		result = string_format("(Unknown register: 0x%02X)", registerId);
 		break;
@@ -1604,44 +1599,44 @@ void CGSHandler::LogPrivateWrite(uint32 address)
 		CLog::GetInstance().Print(LOG_NAME, "PMODE(0x%08X);\r\n", m_nPMODE);
 		break;
 	case GS_SMODE2:
-		{
-			SMODE2 smode2;
-			smode2 <<= m_nSMODE2;
-			CLog::GetInstance().Print(LOG_NAME, "SMODE2(inter = %d, ffmd = %d, dpms = %d);\r\n",
-				smode2.interlaced,
-				smode2.ffmd,
-				smode2.dpms);
-		}
-		break;
+	{
+		SMODE2 smode2;
+		smode2 <<= m_nSMODE2;
+		CLog::GetInstance().Print(LOG_NAME, "SMODE2(inter = %d, ffmd = %d, dpms = %d);\r\n",
+		                          smode2.interlaced,
+		                          smode2.ffmd,
+		                          smode2.dpms);
+	}
+	break;
 	case GS_DISPFB1:
 	case GS_DISPFB2:
-		{
-			DISPFB dispfb;
-			dispfb <<= (regAddress == GS_DISPFB1) ? m_nDISPFB1.value.q : m_nDISPFB2.value.q;
-			CLog::GetInstance().Print(LOG_NAME, "DISPFB%d(FBP: 0x%08X, FBW: %d, PSM: %d, DBX: %d, DBY: %d);\r\n",
-				(regAddress == GS_DISPFB1) ? 1 : 2,
-				dispfb.GetBufPtr(),
-				dispfb.GetBufWidth(),
-				dispfb.nPSM,
-				dispfb.nX,
-				dispfb.nY);
-		}
-		break;
+	{
+		DISPFB dispfb;
+		dispfb <<= (regAddress == GS_DISPFB1) ? m_nDISPFB1.value.q : m_nDISPFB2.value.q;
+		CLog::GetInstance().Print(LOG_NAME, "DISPFB%d(FBP: 0x%08X, FBW: %d, PSM: %d, DBX: %d, DBY: %d);\r\n",
+		                          (regAddress == GS_DISPFB1) ? 1 : 2,
+		                          dispfb.GetBufPtr(),
+		                          dispfb.GetBufWidth(),
+		                          dispfb.nPSM,
+		                          dispfb.nX,
+		                          dispfb.nY);
+	}
+	break;
 	case GS_DISPLAY1:
 	case GS_DISPLAY2:
-		{
-			DISPLAY display;
-			display <<= (regAddress == GS_DISPLAY1) ? m_nDISPLAY1.value.q : m_nDISPLAY2.value.q;
-			CLog::GetInstance().Print(LOG_NAME, "DISPLAY%d(DX: %d, DY: %d, MAGH: %d, MAGV: %d, DW: %d, DH: %d);\r\n",
-				(regAddress == GS_DISPLAY1) ? 1 : 2,
-				display.nX,
-				display.nY,
-				display.nMagX,
-				display.nMagY,
-				display.nW,
-				display.nH);
-		}
-		break;
+	{
+		DISPLAY display;
+		display <<= (regAddress == GS_DISPLAY1) ? m_nDISPLAY1.value.q : m_nDISPLAY2.value.q;
+		CLog::GetInstance().Print(LOG_NAME, "DISPLAY%d(DX: %d, DY: %d, MAGH: %d, MAGV: %d, DW: %d, DH: %d);\r\n",
+		                          (regAddress == GS_DISPLAY1) ? 1 : 2,
+		                          display.nX,
+		                          display.nY,
+		                          display.nMagX,
+		                          display.nMagY,
+		                          display.nW,
+		                          display.nH);
+	}
+	break;
 	case GS_CSR:
 		//CSR
 		break;

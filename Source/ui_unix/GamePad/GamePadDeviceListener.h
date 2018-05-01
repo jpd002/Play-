@@ -26,23 +26,24 @@ public:
 		std::array<uint32, 6> uniq_id;
 		std::string path;
 	};
-	typedef std::pair <std::string, CGamePadDeviceListener::inputdevice>	inputdev_pair;
-	OnInputEvent			OnInputEventCallBack;
+	typedef std::pair<std::string, CGamePadDeviceListener::inputdevice> inputdev_pair;
+	OnInputEvent OnInputEventCallBack;
 
-	void					UpdateOnInputEventCallback(OnInputEvent);
-	void					DisconnectInputEventCallback();
-	void					RePopulateAbs();
-	static bool				IsValidDevice(const fs::path&, inputdev_pair&);
+	void UpdateOnInputEventCallback(OnInputEvent);
+	void DisconnectInputEventCallback();
+	void RePopulateAbs();
+	static bool IsValidDevice(const fs::path&, inputdev_pair&);
+
 private:
-	std::map<std::string, CGamePadDeviceListener::inputdevice>		m_devicelist;
-	std::map<std::string, std::unique_ptr<CGamePadInputEventListener>>	m_GPIEList;
-	std::atomic<bool>		m_running;
-	std::thread				m_inputdevicelistenerthread;
-	bool					m_filter;
-	std::thread				m_thread;
+	std::map<std::string, CGamePadDeviceListener::inputdevice> m_devicelist;
+	std::map<std::string, std::unique_ptr<CGamePadInputEventListener>> m_GPIEList;
+	std::atomic<bool> m_running;
+	std::thread m_inputdevicelistenerthread;
+	bool m_filter;
+	std::thread m_thread;
 
-	void					UpdateDeviceList();
-	void					AddDevice(const fs::path&);
-	void					RemoveDevice(std::string);
-	void					InputDeviceListenerThread();
+	void UpdateDeviceList();
+	void AddDevice(const fs::path&);
+	void RemoveDevice(std::string);
+	void InputDeviceListenerThread();
 };

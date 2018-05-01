@@ -4,8 +4,8 @@
 #include "MA_EE.h"
 #include "offsetof_def.h"
 
-CMA_EE::CMA_EE() :
-CMA_MIPSIV(MIPS_REGSIZE_64)
+CMA_EE::CMA_EE()
+    : CMA_MIPSIV(MIPS_REGSIZE_64)
 {
 	m_pOpGeneral[0x1E] = std::bind(&CMA_EE::LQ, this);
 	m_pOpGeneral[0x1F] = std::bind(&CMA_EE::SQ, this);
@@ -920,13 +920,13 @@ void CMA_EE::QFSRV()
 //02
 void CMA_EE::PSLLVW()
 {
-	Generic_PSxxV([this] () { m_codeGen->Shl(); });
+	Generic_PSxxV([this]() { m_codeGen->Shl(); });
 }
 
 //03
 void CMA_EE::PSRLVW()
 {
-	Generic_PSxxV([this] () { m_codeGen->Srl(); });
+	Generic_PSxxV([this]() { m_codeGen->Srl(); });
 }
 
 //08
@@ -976,14 +976,14 @@ void CMA_EE::PCPYLD()
 	//A0
 	m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRS].nV[0]));
 	m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRS].nV[1]));
-	
+
 	m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[3]));
 	m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[2]));
 
 	//B0
 	m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[0]));
 	m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[1]));
-	
+
 	m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[1]));
 	m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[0]));
 }
@@ -992,16 +992,15 @@ void CMA_EE::PCPYLD()
 void CMA_EE::PMADDH()
 {
 	static const size_t offsets[8] =
-	{
-		offsetof(CMIPS, m_State.nLO[0]),
-		offsetof(CMIPS, m_State.nLO[1]),
-		offsetof(CMIPS, m_State.nHI[0]),
-		offsetof(CMIPS, m_State.nHI[1]),
-		offsetof(CMIPS, m_State.nLO1[0]),
-		offsetof(CMIPS, m_State.nLO1[1]),
-		offsetof(CMIPS, m_State.nHI1[0]),
-		offsetof(CMIPS, m_State.nHI1[1])
-	};
+	    {
+	        offsetof(CMIPS, m_State.nLO[0]),
+	        offsetof(CMIPS, m_State.nLO[1]),
+	        offsetof(CMIPS, m_State.nHI[0]),
+	        offsetof(CMIPS, m_State.nHI[1]),
+	        offsetof(CMIPS, m_State.nLO1[0]),
+	        offsetof(CMIPS, m_State.nLO1[1]),
+	        offsetof(CMIPS, m_State.nHI1[0]),
+	        offsetof(CMIPS, m_State.nHI1[1])};
 
 	for(unsigned int i = 0; i < 4; i++)
 	{
@@ -1059,20 +1058,20 @@ void CMA_EE::PMADDH()
 void CMA_EE::PHMADH()
 {
 	static const size_t offsets[4] =
-	{
-		offsetof(CMIPS, m_State.nLO[0]),
-		offsetof(CMIPS, m_State.nHI[0]),
-		offsetof(CMIPS, m_State.nLO1[0]),
-		offsetof(CMIPS, m_State.nHI1[0]),
-	};
+	    {
+	        offsetof(CMIPS, m_State.nLO[0]),
+	        offsetof(CMIPS, m_State.nHI[0]),
+	        offsetof(CMIPS, m_State.nLO1[0]),
+	        offsetof(CMIPS, m_State.nHI1[0]),
+	    };
 
 	static const size_t clearOffsets[4] =
-	{
-		offsetof(CMIPS, m_State.nLO[1]),
-		offsetof(CMIPS, m_State.nHI[1]),
-		offsetof(CMIPS, m_State.nLO1[1]),
-		offsetof(CMIPS, m_State.nHI1[1]),
-	};
+	    {
+	        offsetof(CMIPS, m_State.nLO[1]),
+	        offsetof(CMIPS, m_State.nHI[1]),
+	        offsetof(CMIPS, m_State.nLO1[1]),
+	        offsetof(CMIPS, m_State.nHI1[1]),
+	    };
 
 	for(unsigned int i = 0; i < 4; i++)
 	{
@@ -1169,16 +1168,15 @@ void CMA_EE::PREVH()
 void CMA_EE::PMULTH()
 {
 	static const size_t offsets[8] =
-	{
-		offsetof(CMIPS, m_State.nLO[0]),
-		offsetof(CMIPS, m_State.nLO[1]),
-		offsetof(CMIPS, m_State.nHI[0]),
-		offsetof(CMIPS, m_State.nHI[1]),
-		offsetof(CMIPS, m_State.nLO1[0]),
-		offsetof(CMIPS, m_State.nLO1[1]),
-		offsetof(CMIPS, m_State.nHI1[0]),
-		offsetof(CMIPS, m_State.nHI1[1])
-	};
+	    {
+	        offsetof(CMIPS, m_State.nLO[0]),
+	        offsetof(CMIPS, m_State.nLO[1]),
+	        offsetof(CMIPS, m_State.nHI[0]),
+	        offsetof(CMIPS, m_State.nHI[1]),
+	        offsetof(CMIPS, m_State.nLO1[0]),
+	        offsetof(CMIPS, m_State.nLO1[1]),
+	        offsetof(CMIPS, m_State.nHI1[0]),
+	        offsetof(CMIPS, m_State.nHI1[1])};
 
 	for(unsigned int i = 0; i < 4; i++)
 	{
@@ -1299,7 +1297,7 @@ void CMA_EE::PROT3W()
 //03
 void CMA_EE::PSRAVW()
 {
-	Generic_PSxxV([this] () { m_codeGen->Sra(); });
+	Generic_PSxxV([this]() { m_codeGen->Sra(); });
 }
 
 //08
@@ -1357,14 +1355,14 @@ void CMA_EE::PCPYUD()
 	//A
 	m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRS].nV[2]));
 	m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRS].nV[3]));
-	
+
 	m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[1]));
 	m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[0]));
 
 	//B
 	m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[2]));
 	m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[3]));
-	
+
 	m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[3]));
 	m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[2]));
 }
@@ -1524,23 +1522,22 @@ void CMA_EE::PMFHL_LH()
 	if(m_nRD == 0) return;
 
 	static const size_t offsets[8] =
-	{
-		offsetof(CMIPS, m_State.nLO[0]),
-		offsetof(CMIPS, m_State.nLO[1]),
-		offsetof(CMIPS, m_State.nHI[0]),
-		offsetof(CMIPS, m_State.nHI[1]),
-		offsetof(CMIPS, m_State.nLO1[0]),
-		offsetof(CMIPS, m_State.nLO1[1]),
-		offsetof(CMIPS, m_State.nHI1[0]),
-		offsetof(CMIPS, m_State.nHI1[1])
-	};
+	    {
+	        offsetof(CMIPS, m_State.nLO[0]),
+	        offsetof(CMIPS, m_State.nLO[1]),
+	        offsetof(CMIPS, m_State.nHI[0]),
+	        offsetof(CMIPS, m_State.nHI[1]),
+	        offsetof(CMIPS, m_State.nLO1[0]),
+	        offsetof(CMIPS, m_State.nLO1[1]),
+	        offsetof(CMIPS, m_State.nHI1[0]),
+	        offsetof(CMIPS, m_State.nHI1[1])};
 
 	for(unsigned int i = 0; i < 4; i++)
 	{
 		m_codeGen->PushRel(offsets[(i * 2) + 0]);
 		m_codeGen->PushCst(0xFFFF);
 		m_codeGen->And();
-	
+
 		m_codeGen->PushRel(offsets[(i * 2) + 1]);
 		m_codeGen->Shl(16);
 
@@ -1555,38 +1552,36 @@ void CMA_EE::PMFHL_SH()
 	if(m_nRD == 0) return;
 
 	static const auto emitClamp =
-		[] (CMipsJitter* codeGen, size_t offsetToClamp)
-		{
-			codeGen->PushRel(offsetToClamp);
-			codeGen->PushCst(0x7FFF);
-			codeGen->BeginIf(Jitter::CONDITION_GT);
-			{
-				codeGen->PushCst(0x7FFF);
-				codeGen->PullRel(offsetToClamp);
-			}
-			codeGen->EndIf();
+	    [](CMipsJitter* codeGen, size_t offsetToClamp) {
+		    codeGen->PushRel(offsetToClamp);
+		    codeGen->PushCst(0x7FFF);
+		    codeGen->BeginIf(Jitter::CONDITION_GT);
+		    {
+			    codeGen->PushCst(0x7FFF);
+			    codeGen->PullRel(offsetToClamp);
+		    }
+		    codeGen->EndIf();
 
-			codeGen->PushRel(offsetToClamp);
-			codeGen->PushCst(0xFFFF8000);
-			codeGen->BeginIf(Jitter::CONDITION_LT);
-			{
-				codeGen->PushCst(0x8000);
-				codeGen->PullRel(offsetToClamp);
-			}
-			codeGen->EndIf();
-		};
+		    codeGen->PushRel(offsetToClamp);
+		    codeGen->PushCst(0xFFFF8000);
+		    codeGen->BeginIf(Jitter::CONDITION_LT);
+		    {
+			    codeGen->PushCst(0x8000);
+			    codeGen->PullRel(offsetToClamp);
+		    }
+		    codeGen->EndIf();
+	    };
 
 	static const size_t offsets[8] =
-	{
-		offsetof(CMIPS, m_State.nLO[0]),
-		offsetof(CMIPS, m_State.nLO[1]),
-		offsetof(CMIPS, m_State.nHI[0]),
-		offsetof(CMIPS, m_State.nHI[1]),
-		offsetof(CMIPS, m_State.nLO1[0]),
-		offsetof(CMIPS, m_State.nLO1[1]),
-		offsetof(CMIPS, m_State.nHI1[0]),
-		offsetof(CMIPS, m_State.nHI1[1])
-	};
+	    {
+	        offsetof(CMIPS, m_State.nLO[0]),
+	        offsetof(CMIPS, m_State.nLO[1]),
+	        offsetof(CMIPS, m_State.nHI[0]),
+	        offsetof(CMIPS, m_State.nHI[1]),
+	        offsetof(CMIPS, m_State.nLO1[0]),
+	        offsetof(CMIPS, m_State.nLO1[1]),
+	        offsetof(CMIPS, m_State.nHI1[0]),
+	        offsetof(CMIPS, m_State.nHI1[1])};
 
 	static const size_t tempOffset = offsetof(CMIPS, m_State.nCOP2T);
 

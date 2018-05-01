@@ -14,18 +14,18 @@ namespace Iop
 	class CCdvdfsv : public CModule
 	{
 	public:
-							CCdvdfsv(CSifMan&, CCdvdman&, uint8*);
-		virtual				~CCdvdfsv() = default;
+		CCdvdfsv(CSifMan&, CCdvdman&, uint8*);
+		virtual ~CCdvdfsv() = default;
 
-		std::string			GetId() const override;
-		std::string			GetFunctionName(unsigned int) const override;
-		void				Invoke(CMIPS&, unsigned int) override;
+		std::string GetId() const override;
+		std::string GetFunctionName(unsigned int) const override;
+		void Invoke(CMIPS&, unsigned int) override;
 
-		void				ProcessCommands(CSifMan*);
-		void				SetOpticalMedia(COpticalMedia*);
+		void ProcessCommands(CSifMan*);
+		void SetOpticalMedia(COpticalMedia*);
 
-		void				LoadState(Framework::CZipArchiveReader&);
-		void				SaveState(Framework::CZipArchiveWriter&);
+		void LoadState(Framework::CZipArchiveReader&);
+		void SaveState(Framework::CZipArchiveWriter&);
 
 		enum MODULE_ID
 		{
@@ -48,40 +48,40 @@ namespace Iop
 			COMMAND_STREAM_READ,
 		};
 
-		bool				Invoke592(uint32, uint32*, uint32, uint32*, uint32, uint8*);
-		bool				Invoke593(uint32, uint32*, uint32, uint32*, uint32, uint8*);
-		bool				Invoke595(uint32, uint32*, uint32, uint32*, uint32, uint8*);
-		bool				Invoke596(uint32, uint32*, uint32, uint32*, uint32, uint8*);
-		bool				Invoke597(uint32, uint32*, uint32, uint32*, uint32, uint8*);
-		bool				Invoke59A(uint32, uint32*, uint32, uint32*, uint32, uint8*);
-		bool				Invoke59C(uint32, uint32*, uint32, uint32*, uint32, uint8*);
+		bool Invoke592(uint32, uint32*, uint32, uint32*, uint32, uint8*);
+		bool Invoke593(uint32, uint32*, uint32, uint32*, uint32, uint8*);
+		bool Invoke595(uint32, uint32*, uint32, uint32*, uint32, uint8*);
+		bool Invoke596(uint32, uint32*, uint32, uint32*, uint32, uint8*);
+		bool Invoke597(uint32, uint32*, uint32, uint32*, uint32, uint8*);
+		bool Invoke59A(uint32, uint32*, uint32, uint32*, uint32, uint8*);
+		bool Invoke59C(uint32, uint32*, uint32, uint32*, uint32, uint8*);
 
 		//Methods
-		void				Read(uint32*, uint32, uint32*, uint32, uint8*);
-		void				ReadIopMem(uint32*, uint32, uint32*, uint32, uint8*);
-		bool				StreamCmd(uint32*, uint32, uint32*, uint32, uint8*);
-		void				SearchFile(uint32*, uint32, uint32*, uint32, uint8*);
+		void Read(uint32*, uint32, uint32*, uint32, uint8*);
+		void ReadIopMem(uint32*, uint32, uint32*, uint32, uint8*);
+		bool StreamCmd(uint32*, uint32, uint32*, uint32, uint8*);
+		void SearchFile(uint32*, uint32, uint32*, uint32, uint8*);
 
-		CCdvdman&			m_cdvdman;
-		uint8*				m_iopRam = nullptr;
-		COpticalMedia*		m_opticalMedia = nullptr;
+		CCdvdman& m_cdvdman;
+		uint8* m_iopRam = nullptr;
+		COpticalMedia* m_opticalMedia = nullptr;
 
-		COMMAND				m_pendingCommand = COMMAND_NONE;
-		uint32				m_pendingReadSector = 0;
-		uint32				m_pendingReadCount = 0;
-		uint32				m_pendingReadAddr = 0;
+		COMMAND m_pendingCommand = COMMAND_NONE;
+		uint32 m_pendingReadSector = 0;
+		uint32 m_pendingReadCount = 0;
+		uint32 m_pendingReadAddr = 0;
 
-		bool				m_streaming = false;
-		uint32				m_streamPos = 0;
-		uint32				m_streamBufferSize = 0;
+		bool m_streaming = false;
+		uint32 m_streamPos = 0;
+		uint32 m_streamBufferSize = 0;
 
-		CSifModuleAdapter	m_module592;
-		CSifModuleAdapter	m_module593;
-		CSifModuleAdapter	m_module595;
-		CSifModuleAdapter	m_module596;
-		CSifModuleAdapter	m_module597;
-		CSifModuleAdapter	m_module59A;
-		CSifModuleAdapter	m_module59C;
+		CSifModuleAdapter m_module592;
+		CSifModuleAdapter m_module593;
+		CSifModuleAdapter m_module595;
+		CSifModuleAdapter m_module596;
+		CSifModuleAdapter m_module597;
+		CSifModuleAdapter m_module59A;
+		CSifModuleAdapter m_module59C;
 	};
 
 	typedef std::shared_ptr<CCdvdfsv> CdvdfsvPtr;

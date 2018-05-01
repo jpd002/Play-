@@ -9,9 +9,11 @@ namespace Psp
 	class CModule
 	{
 	public:
-		virtual					~CModule()		{}
-		virtual void			Invoke(uint32, CMIPS&)	= 0;
-		virtual std::string		GetName() const			= 0;
+		virtual ~CModule()
+		{
+		}
+		virtual void Invoke(uint32, CMIPS&) = 0;
+		virtual std::string GetName() const = 0;
 	};
 };
 

@@ -3,19 +3,16 @@
 
 CPsfPathToken::CPsfPathToken()
 {
-
 }
 
 CPsfPathToken::CPsfPathToken(const std::string& path)
-: m_path(WidenString(path))
+    : m_path(WidenString(path))
 {
-
 }
 
 CPsfPathToken::CPsfPathToken(const std::wstring& path)
-: m_path(path)
+    : m_path(path)
 {
-
 }
 
 std::string CPsfPathToken::NarrowString(const std::wstring& input)

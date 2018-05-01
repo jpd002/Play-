@@ -11,7 +11,7 @@
 using namespace Iop;
 
 CNaplink::CNaplink(CSifMan& sifMan, CIoman& ioMan)
-: m_ioMan(ioMan)
+    : m_ioMan(ioMan)
 {
 	sifMan.RegisterModule(SIF_MODULE_ID, this);
 }
@@ -36,11 +36,11 @@ bool CNaplink::Invoke(uint32 method, uint32* args, uint32 argsSize, uint32* ret,
 	switch(method)
 	{
 	case 1:
-		{
-			uint32 writeSize = strlen(reinterpret_cast<const char*>(args));
-			m_ioMan.Write(CIoman::FID_STDOUT, writeSize, args);
-		}
-		break;
+	{
+		uint32 writeSize = strlen(reinterpret_cast<const char*>(args));
+		m_ioMan.Write(CIoman::FID_STDOUT, writeSize, args);
+	}
+	break;
 	default:
 		CLog::GetInstance().Print(LOG_NAME, "Unknown method invoked (0x%08X).\r\n", method);
 		break;

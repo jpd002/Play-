@@ -14,128 +14,125 @@ using namespace Iop;
 
 #define INVALID_ADDRESS (~0UL)
 
-#define STATE_PATH_FORMAT					("iop_spu/spu_%d.xml")
-#define STATE_REGS_CTRL						("CTRL")
-#define STATE_REGS_IRQADDR					("IRQADDR")
-#define STATE_REGS_TRANSFERADDR				("TRANSFERADDR")
-#define STATE_REGS_TRANSFERMODE				("TRANSFERMODE")
-#define STATE_REGS_CHANNELON				("CHANNELON")
-#define STATE_REGS_CHANNELREVERB			("CHANNELREVERB")
-#define STATE_REGS_REVERBWORKADDRSTART		("REVERBWORKADDRSTART")
-#define STATE_REGS_REVERBWORKADDREND		("REVERBWORKADDREND")
-#define STATE_REGS_REVERBCURRADDR			("REVERBCURRADDR")
-#define STATE_REGS_REVERB_FORMAT			("REVERB%d")
+#define STATE_PATH_FORMAT ("iop_spu/spu_%d.xml")
+#define STATE_REGS_CTRL ("CTRL")
+#define STATE_REGS_IRQADDR ("IRQADDR")
+#define STATE_REGS_TRANSFERADDR ("TRANSFERADDR")
+#define STATE_REGS_TRANSFERMODE ("TRANSFERMODE")
+#define STATE_REGS_CHANNELON ("CHANNELON")
+#define STATE_REGS_CHANNELREVERB ("CHANNELREVERB")
+#define STATE_REGS_REVERBWORKADDRSTART ("REVERBWORKADDRSTART")
+#define STATE_REGS_REVERBWORKADDREND ("REVERBWORKADDREND")
+#define STATE_REGS_REVERBCURRADDR ("REVERBCURRADDR")
+#define STATE_REGS_REVERB_FORMAT ("REVERB%d")
 
-#define STATE_CHANNEL_REGS_PREFIX			("CHANNEL%02d_")
-#define STATE_CHANNEL_REGS_VOLUMELEFT		("VOLUMELEFT")
-#define STATE_CHANNEL_REGS_VOLUMERIGHT		("VOLUMERIGHT")
-#define STATE_CHANNEL_REGS_VOLUMELEFTABS	("VOLUMELEFTABS")
-#define STATE_CHANNEL_REGS_VOLUMERIGHTABS	("VOLUMERIGHTABS")
-#define STATE_CHANNEL_REGS_STATUS			("STATUS")
-#define STATE_CHANNEL_REGS_PITCH			("PITCH")
-#define STATE_CHANNEL_REGS_ADSRLEVEL		("ADSRLEVEL")
-#define STATE_CHANNEL_REGS_ADSRRATE			("ADSRRATE")
-#define STATE_CHANNEL_REGS_ADSRVOLUME		("ADSRVOLUME")
-#define STATE_CHANNEL_REGS_ADDRESS			("ADDRESS")
-#define STATE_CHANNEL_REGS_REPEAT			("REPEAT")
-#define STATE_CHANNEL_REGS_CURRENT			("CURRENT")
+#define STATE_CHANNEL_REGS_PREFIX ("CHANNEL%02d_")
+#define STATE_CHANNEL_REGS_VOLUMELEFT ("VOLUMELEFT")
+#define STATE_CHANNEL_REGS_VOLUMERIGHT ("VOLUMERIGHT")
+#define STATE_CHANNEL_REGS_VOLUMELEFTABS ("VOLUMELEFTABS")
+#define STATE_CHANNEL_REGS_VOLUMERIGHTABS ("VOLUMERIGHTABS")
+#define STATE_CHANNEL_REGS_STATUS ("STATUS")
+#define STATE_CHANNEL_REGS_PITCH ("PITCH")
+#define STATE_CHANNEL_REGS_ADSRLEVEL ("ADSRLEVEL")
+#define STATE_CHANNEL_REGS_ADSRRATE ("ADSRRATE")
+#define STATE_CHANNEL_REGS_ADSRVOLUME ("ADSRVOLUME")
+#define STATE_CHANNEL_REGS_ADDRESS ("ADDRESS")
+#define STATE_CHANNEL_REGS_REPEAT ("REPEAT")
+#define STATE_CHANNEL_REGS_CURRENT ("CURRENT")
 
-#define STATE_SAMPLEREADER_REGS_SRCSAMPLEIDX    ("SrcSampleIdx")
+#define STATE_SAMPLEREADER_REGS_SRCSAMPLEIDX ("SrcSampleIdx")
 #define STATE_SAMPLEREADER_REGS_SRCSAMPLINGRATE ("SrcSamplingRate")
-#define STATE_SAMPLEREADER_REGS_NEXTSAMPLEADDR  ("NextSampleAddr")
-#define STATE_SAMPLEREADER_REGS_REPEATADDR      ("RepeatAddr")
-#define STATE_SAMPLEREADER_REGS_IRQADDR         ("IrqAddr")
-#define STATE_SAMPLEREADER_REGS_PITCH           ("Pitch")
-#define STATE_SAMPLEREADER_REGS_S1              ("S1")
-#define STATE_SAMPLEREADER_REGS_S2              ("S2")
-#define STATE_SAMPLEREADER_REGS_DONE            ("Done")
-#define STATE_SAMPLEREADER_REGS_NEXTVALID       ("NextValid")
-#define STATE_SAMPLEREADER_REGS_ENDFLAG         ("EndFlag")
-#define STATE_SAMPLEREADER_REGS_IRQPENDING      ("IrqPending")
+#define STATE_SAMPLEREADER_REGS_NEXTSAMPLEADDR ("NextSampleAddr")
+#define STATE_SAMPLEREADER_REGS_REPEATADDR ("RepeatAddr")
+#define STATE_SAMPLEREADER_REGS_IRQADDR ("IrqAddr")
+#define STATE_SAMPLEREADER_REGS_PITCH ("Pitch")
+#define STATE_SAMPLEREADER_REGS_S1 ("S1")
+#define STATE_SAMPLEREADER_REGS_S2 ("S2")
+#define STATE_SAMPLEREADER_REGS_DONE ("Done")
+#define STATE_SAMPLEREADER_REGS_NEXTVALID ("NextValid")
+#define STATE_SAMPLEREADER_REGS_ENDFLAG ("EndFlag")
+#define STATE_SAMPLEREADER_REGS_IRQPENDING ("IrqPending")
 #define STATE_SAMPLEREADER_REGS_DIDCHANGEREPEAT ("DidChangeRepeat")
-#define STATE_SAMPLEREADER_REGS_BUFFER_FORMAT   ("%sBuffer%d")
+#define STATE_SAMPLEREADER_REGS_BUFFER_FORMAT ("%sBuffer%d")
 
 bool CSpuBase::g_reverbParamIsAddress[REVERB_PARAM_COUNT] =
-{
-	true,
-	true,
-	false,
-	false,
-	false,
-	false,
-	false,
-	false,
-	false,
-	false,
-	true,
-	true,
-	true,
-	true,
-	true,
-	true,
-	true,
-	true,
-	true,
-	true,
-	true,
-	true,
-	true,
-	true,
-	true,
-	true,
-	true,
-	true,
-	true,
-	true,
-	false,
-	false
-};
+    {
+        true,
+        true,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        false,
+        false};
 
-const uint32 CSpuBase::g_linearIncreaseSweepDeltas[0x80] = 
-{
-	0x3A0CC55E, 0x305FF9CE, 0x2976D61E, 0x203FFBDE, 0x1D0662AF, 0x182FFCE7, 0x1359971F, 0x101FFDEF,
-	0x0DD2475F, 0x0C17FE73, 0x0A0233AF, 0x080FFEF7, 0x07144A05, 0x060BFF39, 0x050119D7, 0x03F9DC6C,
-	0x037F3A27, 0x02FE04E5, 0x026B32E3, 0x01EF5BE9, 0x01B514DD, 0x018712AA, 0x01430F6B, 0x0100385E,
-	0x00E129C7, 0x00BE85CF, 0x00A187B5, 0x00801C2F, 0x007094E3, 0x00607F9E, 0x004FE588, 0x003DEB7D,
-	0x00392824, 0x00318930, 0x00271B77, 0x00204E57, 0x001B851B, 0x0017F80F, 0x00141506, 0x0010272B,
-	0x000E0504, 0x000BFC07, 0x000A0A83, 0x0007FD5A, 0x0006C140, 0x00063126, 0x0004F41E, 0x0003E925,
-	0x000389CC, 0x0002F8DF, 0x00027A0F, 0x0002021A, 0x0001C4E6, 0x00017C6F, 0x00014267, 0x0001010D,
-	0x0000DFC9, 0x0000C023, 0x00009E83, 0x00007ECF, 0x00006FE4, 0x00005F1B, 0x00004F41, 0x00003F67,
-	0x000037F2, 0x00002F8D, 0x000027A0, 0x0000203D, 0x00001BF9, 0x00001814, 0x00001405, 0x00000FD9,
-	0x00000D96, 0x00000BE3, 0x00000A02, 0x000007EC, 0x0000070B, 0x000005F1, 0x00000501, 0x000003F6,
-	0x00000385, 0x00000304, 0x00000280, 0x00000200, 0x000001BE, 0x0000017F, 0x00000140, 0x00000100,
-	0x000000DF, 0x000000BF, 0x000000A0, 0x00000080, 0x0000006F, 0x0000005F, 0x00000050, 0x00000040,
-	0x00000037, 0x0000002F, 0x00000028, 0x00000020, 0x0000001B, 0x00000017, 0x00000014, 0x00000010,
-	0x0000000D, 0x0000000B, 0x0000000A, 0x00000008, 0x00000000, 0x00000000, 0x00000000, 0x00000000,
-	0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,
-	0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000
-};
+const uint32 CSpuBase::g_linearIncreaseSweepDeltas[0x80] =
+    {
+        0x3A0CC55E, 0x305FF9CE, 0x2976D61E, 0x203FFBDE, 0x1D0662AF, 0x182FFCE7, 0x1359971F, 0x101FFDEF,
+        0x0DD2475F, 0x0C17FE73, 0x0A0233AF, 0x080FFEF7, 0x07144A05, 0x060BFF39, 0x050119D7, 0x03F9DC6C,
+        0x037F3A27, 0x02FE04E5, 0x026B32E3, 0x01EF5BE9, 0x01B514DD, 0x018712AA, 0x01430F6B, 0x0100385E,
+        0x00E129C7, 0x00BE85CF, 0x00A187B5, 0x00801C2F, 0x007094E3, 0x00607F9E, 0x004FE588, 0x003DEB7D,
+        0x00392824, 0x00318930, 0x00271B77, 0x00204E57, 0x001B851B, 0x0017F80F, 0x00141506, 0x0010272B,
+        0x000E0504, 0x000BFC07, 0x000A0A83, 0x0007FD5A, 0x0006C140, 0x00063126, 0x0004F41E, 0x0003E925,
+        0x000389CC, 0x0002F8DF, 0x00027A0F, 0x0002021A, 0x0001C4E6, 0x00017C6F, 0x00014267, 0x0001010D,
+        0x0000DFC9, 0x0000C023, 0x00009E83, 0x00007ECF, 0x00006FE4, 0x00005F1B, 0x00004F41, 0x00003F67,
+        0x000037F2, 0x00002F8D, 0x000027A0, 0x0000203D, 0x00001BF9, 0x00001814, 0x00001405, 0x00000FD9,
+        0x00000D96, 0x00000BE3, 0x00000A02, 0x000007EC, 0x0000070B, 0x000005F1, 0x00000501, 0x000003F6,
+        0x00000385, 0x00000304, 0x00000280, 0x00000200, 0x000001BE, 0x0000017F, 0x00000140, 0x00000100,
+        0x000000DF, 0x000000BF, 0x000000A0, 0x00000080, 0x0000006F, 0x0000005F, 0x00000050, 0x00000040,
+        0x00000037, 0x0000002F, 0x00000028, 0x00000020, 0x0000001B, 0x00000017, 0x00000014, 0x00000010,
+        0x0000000D, 0x0000000B, 0x0000000A, 0x00000008, 0x00000000, 0x00000000, 0x00000000, 0x00000000,
+        0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,
+        0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000};
 
-const uint32 CSpuBase::g_linearDecreaseSweepDeltas[0x80] = 
-{
-	0x488FF6B5, 0x3A0CC55E, 0x305FF9CE, 0x2976D61E, 0x203FFBDE, 0x1D0662AF, 0x182FFCE7, 0x1359971F,
-	0x101FFDEF, 0x0DD2475F, 0x0C17FE73, 0x0A0233AF, 0x080FFEF7, 0x07144A05, 0x060BFF39, 0x050119D7,
-	0x03F9DC6C, 0x037F3A27, 0x02FE04E5, 0x026B32E3, 0x01EF5BE9, 0x01B514DD, 0x018712AA, 0x01430F6B,
-	0x0100385E, 0x00E129C7, 0x00BE85CF, 0x00A187B5, 0x00801C2F, 0x007094E3, 0x00607F9E, 0x004FE588,
-	0x003DEB7D, 0x00392824, 0x00318930, 0x00271B77, 0x00204E57, 0x001B851B, 0x0017F80F, 0x00141506,
-	0x0010272B, 0x000E0504, 0x000BFC07, 0x000A0A83, 0x0007FD5A, 0x0006C140, 0x00063126, 0x0004F41E,
-	0x0003E925, 0x000389CC, 0x0002F8DF, 0x00027A0F, 0x0002021A, 0x0001C4E6, 0x00017C6F, 0x00014267,
-	0x0001010D, 0x0000DFC9, 0x0000C023, 0x00009E83, 0x00007ECF, 0x00006FE4, 0x00005F1B, 0x00004F41,
-	0x00003F67, 0x000037F2, 0x00002F8D, 0x000027A0, 0x0000203D, 0x00001BF9, 0x00001814, 0x00001405,
-	0x00000FD9, 0x00000D96, 0x00000BE3, 0x00000A02, 0x000007EC, 0x0000070B, 0x000005F1, 0x00000501,
-	0x000003F6, 0x00000385, 0x00000304, 0x00000280, 0x00000200, 0x000001BE, 0x0000017F, 0x00000140,
-	0x00000100, 0x000000DF, 0x000000BF, 0x000000A0, 0x00000080, 0x0000006F, 0x0000005F, 0x00000050,
-	0x00000040, 0x00000037, 0x0000002F, 0x00000028, 0x00000020, 0x0000001B, 0x00000017, 0x00000014,
-	0x00000010, 0x0000000D, 0x0000000B, 0x0000000A, 0x00000000, 0x00000000, 0x00000000, 0x00000000,
-	0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,
-	0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000
-};
+const uint32 CSpuBase::g_linearDecreaseSweepDeltas[0x80] =
+    {
+        0x488FF6B5, 0x3A0CC55E, 0x305FF9CE, 0x2976D61E, 0x203FFBDE, 0x1D0662AF, 0x182FFCE7, 0x1359971F,
+        0x101FFDEF, 0x0DD2475F, 0x0C17FE73, 0x0A0233AF, 0x080FFEF7, 0x07144A05, 0x060BFF39, 0x050119D7,
+        0x03F9DC6C, 0x037F3A27, 0x02FE04E5, 0x026B32E3, 0x01EF5BE9, 0x01B514DD, 0x018712AA, 0x01430F6B,
+        0x0100385E, 0x00E129C7, 0x00BE85CF, 0x00A187B5, 0x00801C2F, 0x007094E3, 0x00607F9E, 0x004FE588,
+        0x003DEB7D, 0x00392824, 0x00318930, 0x00271B77, 0x00204E57, 0x001B851B, 0x0017F80F, 0x00141506,
+        0x0010272B, 0x000E0504, 0x000BFC07, 0x000A0A83, 0x0007FD5A, 0x0006C140, 0x00063126, 0x0004F41E,
+        0x0003E925, 0x000389CC, 0x0002F8DF, 0x00027A0F, 0x0002021A, 0x0001C4E6, 0x00017C6F, 0x00014267,
+        0x0001010D, 0x0000DFC9, 0x0000C023, 0x00009E83, 0x00007ECF, 0x00006FE4, 0x00005F1B, 0x00004F41,
+        0x00003F67, 0x000037F2, 0x00002F8D, 0x000027A0, 0x0000203D, 0x00001BF9, 0x00001814, 0x00001405,
+        0x00000FD9, 0x00000D96, 0x00000BE3, 0x00000A02, 0x000007EC, 0x0000070B, 0x000005F1, 0x00000501,
+        0x000003F6, 0x00000385, 0x00000304, 0x00000280, 0x00000200, 0x000001BE, 0x0000017F, 0x00000140,
+        0x00000100, 0x000000DF, 0x000000BF, 0x000000A0, 0x00000080, 0x0000006F, 0x0000005F, 0x00000050,
+        0x00000040, 0x00000037, 0x0000002F, 0x00000028, 0x00000020, 0x0000001B, 0x00000017, 0x00000014,
+        0x00000010, 0x0000000D, 0x0000000B, 0x0000000A, 0x00000000, 0x00000000, 0x00000000, 0x00000000,
+        0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,
+        0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000};
 
 CSpuBase::CSpuBase(uint8* ram, uint32 ramSize, unsigned int spuNumber)
-: m_ram(ram)
-, m_ramSize(ramSize)
-, m_spuNumber(spuNumber)
-, m_reverbEnabled(true)
+    : m_ram(ram)
+    , m_ramSize(ramSize)
+    , m_spuNumber(spuNumber)
+    , m_reverbEnabled(true)
 {
 	Reset();
 
@@ -494,8 +491,8 @@ void CSpuBase::SetReverbCurrentAddress(uint32 address)
 uint32 CSpuBase::ReceiveDma(uint8* buffer, uint32 blockSize, uint32 blockAmount)
 {
 #ifdef _DEBUG
-	CLog::GetInstance().Print(LOG_NAME, "Receiving DMA transfer to 0x%08X. Size = 0x%08X bytes.\r\n", 
-		m_transferAddr, blockSize * blockAmount);
+	CLog::GetInstance().Print(LOG_NAME, "Receiving DMA transfer to 0x%08X. Size = 0x%08X bytes.\r\n",
+	                          m_transferAddr, blockSize * blockAmount);
 #endif
 	if(m_transferMode == TRANSFER_MODE_VOICE)
 	{
@@ -519,9 +516,8 @@ uint32 CSpuBase::ReceiveDma(uint8* buffer, uint32 blockSize, uint32 blockAmount)
 		return blocksTransfered;
 	}
 	else if(
-		(m_transferMode == TRANSFER_MODE_BLOCK_CORE0IN) ||
-		(m_transferMode == TRANSFER_MODE_BLOCK_CORE1IN)
-		)
+	    (m_transferMode == TRANSFER_MODE_BLOCK_CORE0IN) ||
+	    (m_transferMode == TRANSFER_MODE_BLOCK_CORE1IN))
 	{
 		assert(m_transferAddr == 0);
 		assert((m_spuNumber == 0) || !(m_transferMode == TRANSFER_MODE_BLOCK_CORE0IN));
@@ -607,7 +603,7 @@ void CSpuBase::Render(int16* samples, unsigned int sampleCount, unsigned int sam
 
 	for(unsigned int j = 0; j < ticks; j++)
 	{
-		int16 reverbSample[2] = { 0, 0 };
+		int16 reverbSample[2] = {0, 0};
 		//Update channels
 		for(unsigned int i = 0; i < 24; i++)
 		{
@@ -662,7 +658,7 @@ void CSpuBase::Render(int16* samples, unsigned int sampleCount, unsigned int sam
 				inputSample = (inputSample * static_cast<int32>(channel.adsrVolume >> 16)) / static_cast<int32>(MAX_ADSR_VOLUME >> 16);
 			}
 
-			channel.volumeLeftAbs  = ComputeChannelVolume(channel.volumeLeft, channel.volumeLeftAbs);
+			channel.volumeLeftAbs = ComputeChannelVolume(channel.volumeLeft, channel.volumeLeftAbs);
 			channel.volumeRightAbs = ComputeChannelVolume(channel.volumeRight, channel.volumeRightAbs);
 
 			int32 adjustedLeftVolume = std::min<int32>(0x7FFF, static_cast<int32>(static_cast<float>(channel.volumeLeftAbs >> 16) * m_volumeAdjust));
@@ -753,17 +749,17 @@ void CSpuBase::Render(int16* samples, unsigned int sampleCount, unsigned int sam
 				float acc_coef_c = GetReverbCoef(ACC_COEF_C);
 				float acc_coef_d = GetReverbCoef(ACC_COEF_D);
 
-				float acc0 = 
-					GetReverbSample(GetReverbOffset(ACC_SRC_A0)) * acc_coef_a +
-					GetReverbSample(GetReverbOffset(ACC_SRC_B0)) * acc_coef_b +
-					GetReverbSample(GetReverbOffset(ACC_SRC_C0)) * acc_coef_c +
-					GetReverbSample(GetReverbOffset(ACC_SRC_D0)) * acc_coef_d;
+				float acc0 =
+				    GetReverbSample(GetReverbOffset(ACC_SRC_A0)) * acc_coef_a +
+				    GetReverbSample(GetReverbOffset(ACC_SRC_B0)) * acc_coef_b +
+				    GetReverbSample(GetReverbOffset(ACC_SRC_C0)) * acc_coef_c +
+				    GetReverbSample(GetReverbOffset(ACC_SRC_D0)) * acc_coef_d;
 
-				float acc1 = 
-					GetReverbSample(GetReverbOffset(ACC_SRC_A1)) * acc_coef_a +
-					GetReverbSample(GetReverbOffset(ACC_SRC_B1)) * acc_coef_b +
-					GetReverbSample(GetReverbOffset(ACC_SRC_C1)) * acc_coef_c +
-					GetReverbSample(GetReverbOffset(ACC_SRC_D1)) * acc_coef_d;
+				float acc1 =
+				    GetReverbSample(GetReverbOffset(ACC_SRC_A1)) * acc_coef_a +
+				    GetReverbSample(GetReverbOffset(ACC_SRC_B1)) * acc_coef_b +
+				    GetReverbSample(GetReverbOffset(ACC_SRC_C1)) * acc_coef_c +
+				    GetReverbSample(GetReverbOffset(ACC_SRC_D1)) * acc_coef_d;
 
 				//FB_A0 = buffer[MIX_DEST_A0 - FB_SRC_A];
 				//FB_A1 = buffer[MIX_DEST_A1 - FB_SRC_A];
@@ -866,7 +862,7 @@ float CSpuBase::GetReverbCoef(unsigned int registerId) const
 
 void CSpuBase::UpdateAdsr(CHANNEL& channel)
 {
-	static const unsigned int logIndex[8] = { 0, 4, 6, 8, 9, 10, 11, 12 };
+	static const unsigned int logIndex[8] = {0, 4, 6, 8, 9, 10, 11, 12};
 	int32 currentAdsrLevel = channel.adsrVolume;
 	if(channel.status == ATTACK)
 	{
@@ -1007,18 +1003,18 @@ void CSpuBase::CSampleReader::SetMemory(uint8* ram, uint32 ramSize)
 
 void CSpuBase::CSampleReader::LoadState(const CRegisterStateFile& registerFile, const std::string& channelPrefix)
 {
-	m_srcSampleIdx    = registerFile.GetRegister32((channelPrefix + STATE_SAMPLEREADER_REGS_SRCSAMPLEIDX).c_str());
+	m_srcSampleIdx = registerFile.GetRegister32((channelPrefix + STATE_SAMPLEREADER_REGS_SRCSAMPLEIDX).c_str());
 	m_srcSamplingRate = registerFile.GetRegister32((channelPrefix + STATE_SAMPLEREADER_REGS_SRCSAMPLINGRATE).c_str());
-	m_nextSampleAddr  = registerFile.GetRegister32((channelPrefix + STATE_SAMPLEREADER_REGS_NEXTSAMPLEADDR).c_str());
-	m_repeatAddr      = registerFile.GetRegister32((channelPrefix + STATE_SAMPLEREADER_REGS_REPEATADDR).c_str());
-	m_irqAddr         = registerFile.GetRegister32((channelPrefix + STATE_SAMPLEREADER_REGS_IRQADDR).c_str());
-	m_pitch           = registerFile.GetRegister32((channelPrefix + STATE_SAMPLEREADER_REGS_PITCH).c_str());
-	m_s1              = registerFile.GetRegister32((channelPrefix + STATE_SAMPLEREADER_REGS_S1).c_str());
-	m_s2              = registerFile.GetRegister32((channelPrefix + STATE_SAMPLEREADER_REGS_S2).c_str());
-	m_done            = registerFile.GetRegister32((channelPrefix + STATE_SAMPLEREADER_REGS_DONE).c_str()) != 0;
-	m_nextValid       = registerFile.GetRegister32((channelPrefix + STATE_SAMPLEREADER_REGS_NEXTVALID).c_str()) != 0;
-	m_endFlag         = registerFile.GetRegister32((channelPrefix + STATE_SAMPLEREADER_REGS_ENDFLAG).c_str()) != 0;
-	m_irqPending      = registerFile.GetRegister32((channelPrefix + STATE_SAMPLEREADER_REGS_IRQPENDING).c_str()) != 0;
+	m_nextSampleAddr = registerFile.GetRegister32((channelPrefix + STATE_SAMPLEREADER_REGS_NEXTSAMPLEADDR).c_str());
+	m_repeatAddr = registerFile.GetRegister32((channelPrefix + STATE_SAMPLEREADER_REGS_REPEATADDR).c_str());
+	m_irqAddr = registerFile.GetRegister32((channelPrefix + STATE_SAMPLEREADER_REGS_IRQADDR).c_str());
+	m_pitch = registerFile.GetRegister32((channelPrefix + STATE_SAMPLEREADER_REGS_PITCH).c_str());
+	m_s1 = registerFile.GetRegister32((channelPrefix + STATE_SAMPLEREADER_REGS_S1).c_str());
+	m_s2 = registerFile.GetRegister32((channelPrefix + STATE_SAMPLEREADER_REGS_S2).c_str());
+	m_done = registerFile.GetRegister32((channelPrefix + STATE_SAMPLEREADER_REGS_DONE).c_str()) != 0;
+	m_nextValid = registerFile.GetRegister32((channelPrefix + STATE_SAMPLEREADER_REGS_NEXTVALID).c_str()) != 0;
+	m_endFlag = registerFile.GetRegister32((channelPrefix + STATE_SAMPLEREADER_REGS_ENDFLAG).c_str()) != 0;
+	m_irqPending = registerFile.GetRegister32((channelPrefix + STATE_SAMPLEREADER_REGS_IRQPENDING).c_str()) != 0;
 	m_didChangeRepeat = registerFile.GetRegister32((channelPrefix + STATE_SAMPLEREADER_REGS_DIDCHANGEREPEAT).c_str()) != 0;
 
 	static const uint32 bufferRegisterCount = sizeof(m_buffer) / sizeof(uint128);
@@ -1086,7 +1082,7 @@ int16 CSpuBase::CSampleReader::GetSample(unsigned int dstSamplingRate)
 	int32 currentSample = m_buffer[srcSampleIdx];
 	int32 nextSample = m_buffer[srcSampleIdx + 1];
 	int32 resultSample = (currentSample * (TIME_SCALE - srcSampleAlpha) / TIME_SCALE) +
-		(nextSample * srcSampleAlpha / TIME_SCALE);
+	                     (nextSample * srcSampleAlpha / TIME_SCALE);
 	m_srcSampleIdx += (m_srcSamplingRate * TIME_SCALE) / dstSamplingRate;
 	if(srcSampleIdx >= BUFFER_SAMPLES)
 	{
@@ -1146,13 +1142,13 @@ void CSpuBase::CSampleReader::UnpackSamples(int16* dst)
 	//Generate PCM samples
 	{
 		static const int32 predictorTable[5][2] =
-		{
-			{    0,       0  },
-			{   60,       0  },
-			{  115,     -52  },
-			{   98,     -55  },
-			{  122,     -60  },
-		};
+		    {
+		        {0, 0},
+		        {60, 0},
+		        {115, -52},
+		        {98, -55},
+		        {122, -60},
+		    };
 
 		for(unsigned int i = 0; i < BUFFER_SAMPLES; i++)
 		{

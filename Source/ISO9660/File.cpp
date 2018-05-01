@@ -7,24 +7,23 @@
 using namespace ISO9660;
 
 CFile::CFile(CBlockProvider* blockProvider, uint64 start)
-: m_blockProvider(blockProvider)
-, m_start(start)
-, m_end(ULLONG_MAX)
+    : m_blockProvider(blockProvider)
+    , m_start(start)
+    , m_end(ULLONG_MAX)
 {
 	InitBlock();
 }
 
 CFile::CFile(CBlockProvider* blockProvider, uint64 start, uint64 size)
-: m_blockProvider(blockProvider)
-, m_start(start)
-, m_end(start + size)
+    : m_blockProvider(blockProvider)
+    , m_start(start)
+    , m_end(start + size)
 {
 	InitBlock();
 }
 
 CFile::~CFile()
 {
-
 }
 
 void CFile::Seek(int64 amount, Framework::STREAM_SEEK_DIRECTION whence)
@@ -65,9 +64,9 @@ uint64 CFile::Read(void* data, uint64 length)
 	while(1)
 	{
 		SyncBlock();
-		uint64 blockPosition	= (m_start + m_position) % CBlockProvider::BLOCKSIZE;
-		uint64 blockRemain		= CBlockProvider::BLOCKSIZE - blockPosition;
-		uint64 toRead			= (length > blockRemain) ? (blockRemain) : (length);
+		uint64 blockPosition = (m_start + m_position) % CBlockProvider::BLOCKSIZE;
+		uint64 blockRemain = CBlockProvider::BLOCKSIZE - blockPosition;
+		uint64 toRead = (length > blockRemain) ? (blockRemain) : (length);
 
 		memcpy(data, m_block + blockPosition, static_cast<uint32>(toRead));
 

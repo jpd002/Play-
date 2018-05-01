@@ -8,15 +8,15 @@ namespace VideoStream
 	class ReadMotionVector : public Program
 	{
 	public:
-							ReadMotionVector();
-		virtual				~ReadMotionVector();
+		ReadMotionVector();
+		virtual ~ReadMotionVector();
 
-		void				SetRSizes(uint8, uint8);
+		void SetRSizes(uint8, uint8);
 
-		void				Reset();
-		void				Execute(void*, Framework::CBitStream&);
+		void Reset();
+		void Execute(void*, Framework::CBitStream&);
 
-		static int16		ComputeMotionVector(int16, int16, uint16, uint8);
+		static int16 ComputeMotionVector(int16, int16, uint16, uint8);
 
 	private:
 		enum PROGRAM_STATE
@@ -29,9 +29,9 @@ namespace VideoStream
 			STATE_DONE,
 		};
 
-		PROGRAM_STATE		m_programState;
-		uint8				m_hrSize;
-		uint8				m_vrSize;
+		PROGRAM_STATE m_programState;
+		uint8 m_hrSize;
+		uint8 m_vrSize;
 	};
 }
 

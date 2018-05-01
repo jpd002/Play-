@@ -18,26 +18,26 @@ public:
 		Framework::Win32::CWindow* selectedWindow;
 	};
 
-												CTabHost(HWND, const RECT&);
-	virtual										~CTabHost();
+	CTabHost(HWND, const RECT&);
+	virtual ~CTabHost();
 
-	Framework::Win32::CWindow*					GetTab(unsigned int);
-	void										InsertTab(const TCHAR*, Framework::Win32::CWindow*);
+	Framework::Win32::CWindow* GetTab(unsigned int);
+	void InsertTab(const TCHAR*, Framework::Win32::CWindow*);
 
-	int											GetSelection();
-	void										SetSelection(unsigned int);
+	int GetSelection();
+	void SetSelection(unsigned int);
 
 protected:
-	long										OnSize(unsigned int, unsigned int, unsigned int) override;
-	LRESULT										OnNotify(WPARAM, NMHDR*) override;
+	long OnSize(unsigned int, unsigned int, unsigned int) override;
+	LRESULT OnNotify(WPARAM, NMHDR*) override;
 
 private:
 	typedef std::vector<Framework::Win32::CWindow*> TabItemArray;
 
-	void										OnTabSelChanged();
+	void OnTabSelChanged();
 
-	std::unique_ptr<Framework::Win32::CTab>		m_tab;
+	std::unique_ptr<Framework::Win32::CTab> m_tab;
 
-	int											m_currentSelection;
-	TabItemArray								m_tabItems;
+	int m_currentSelection;
+	TabItemArray m_tabItems;
 };

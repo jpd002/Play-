@@ -23,17 +23,17 @@
 class CMainWindow : public Framework::Win32::CDialog, public boost::signals2::trackable
 {
 public:
-										CMainWindow(CPsfVm&);
-	virtual								~CMainWindow();
+	CMainWindow(CPsfVm&);
+	virtual ~CMainWindow();
 
-	void								Run();
+	void Run();
 
 protected:
-	LRESULT								OnWndProc(unsigned int, WPARAM, LPARAM) override;
-	long								OnCommand(unsigned short, unsigned short, HWND) override;
-	long								OnSize(unsigned int, unsigned int, unsigned int) override;
-	long								OnTimer(WPARAM) override;
-	long								OnClose() override;
+	LRESULT OnWndProc(unsigned int, WPARAM, LPARAM) override;
+	long OnCommand(unsigned short, unsigned short, HWND) override;
+	long OnSize(unsigned int, unsigned int, unsigned int) override;
+	long OnTimer(WPARAM) override;
+	long OnClose() override;
 
 private:
 	enum
@@ -58,136 +58,136 @@ private:
 
 	struct SOUNDHANDLER_INFO
 	{
-		int				id;
-		const TCHAR*	name;
-		const TCHAR*	dllName;
+		int id;
+		const TCHAR* name;
+		const TCHAR* dllName;
 	};
 
 	struct CHARENCODING_INFO
 	{
-		CPsfTags::CHAR_ENCODING		id;
-		const TCHAR*				name;
+		CPsfTags::CHAR_ENCODING id;
+		const TCHAR* name;
 	};
 
-	CSoundHandler*						CreateHandler(const TCHAR*);
+	CSoundHandler* CreateHandler(const TCHAR*);
 
-	void								OnNewFrame();
+	void OnNewFrame();
 
-	void								OnFileOpen();
-	void								OnPause();
-	void								OnPrev();
-	void								OnNext();
-	void								OnPrevPanel();
-	void								OnNextPanel();
-	void								OnAbout();
-	void								OnRepeat();
-	void								OnConfig();
+	void OnFileOpen();
+	void OnPause();
+	void OnPrev();
+	void OnNext();
+	void OnPrevPanel();
+	void OnNextPanel();
+	void OnAbout();
+	void OnRepeat();
+	void OnConfig();
 
-	static LRESULT CALLBACK				MessageHookProc(int, WPARAM, LPARAM);
+	static LRESULT CALLBACK MessageHookProc(int, WPARAM, LPARAM);
 
-	bool								PlayFile(const CPsfPathToken&, const boost::filesystem::path&);
-	void								LoadSingleFile(const boost::filesystem::path&);
-	void								LoadPlaylist(const boost::filesystem::path&);
-	void								LoadArchive(const boost::filesystem::path&);
+	bool PlayFile(const CPsfPathToken&, const boost::filesystem::path&);
+	void LoadSingleFile(const boost::filesystem::path&);
+	void LoadPlaylist(const boost::filesystem::path&);
+	void LoadArchive(const boost::filesystem::path&);
 
-	void								OnPlaylistItemDblClick(unsigned int);
-	void								OnPlaylistAddClick();
-	void								OnPlaylistRemoveClick(unsigned int);
-	void								OnPlaylistSaveClick();
+	void OnPlaylistItemDblClick(unsigned int);
+	void OnPlaylistAddClick();
+	void OnPlaylistRemoveClick(unsigned int);
+	void OnPlaylistSaveClick();
 
-	void								OnClickReverbEnabled();
+	void OnClickReverbEnabled();
 
-	void								OnTrayIconEvent(Framework::Win32::CTrayIcon*, LPARAM);
-	void								DisplayTrayMenu();
-	void								UpdateConfigMenu();
-	void								UpdateClock();
-	void								UpdateFade();
-	void								UpdateTitle();
-	void								UpdatePlaybackButtons();
-	void								UpdateRepeatButton();
+	void OnTrayIconEvent(Framework::Win32::CTrayIcon*, LPARAM);
+	void DisplayTrayMenu();
+	void UpdateConfigMenu();
+	void UpdateClock();
+	void UpdateFade();
+	void UpdateTitle();
+	void UpdatePlaybackButtons();
+	void UpdateRepeatButton();
 
-	void								Reset();
-	void								ActivatePanel(unsigned int);
+	void Reset();
+	void ActivatePanel(unsigned int);
 
-	void								CreateAudioPluginMenu();
-	void								UpdateAudioPluginMenu();
-	void								ChangeAudioPlugin(unsigned int);
-	void								LoadAudioPluginPreferences();
-	int									FindAudioPlugin(unsigned int);
+	void CreateAudioPluginMenu();
+	void UpdateAudioPluginMenu();
+	void ChangeAudioPlugin(unsigned int);
+	void LoadAudioPluginPreferences();
+	int FindAudioPlugin(unsigned int);
 
-	void								CreateCharEncodingMenu();
-	void								UpdateCharEncodingMenu();
-	void								ChangeCharEncoding(unsigned int);
-	void								LoadCharEncodingPreferences();
-	static CPsfTags::CHAR_ENCODING		FindCharEncoding(unsigned int);
+	void CreateCharEncodingMenu();
+	void UpdateCharEncodingMenu();
+	void ChangeCharEncoding(unsigned int);
+	void LoadCharEncodingPreferences();
+	static CPsfTags::CHAR_ENCODING FindCharEncoding(unsigned int);
 
-	HACCEL								CreateAccelerators();
-	void								CreateSymbolFonts();
+	HACCEL CreateAccelerators();
+	void CreateSymbolFonts();
 
-	static uint32						GetNextRandomNumber(uint32);
-	static uint32						GetPrevRandomNumber(uint32);
+	static uint32 GetNextRandomNumber(uint32);
+	static uint32 GetPrevRandomNumber(uint32);
 
-	Framework::Win32::CStatic			m_timerLabel;
-	Framework::Win32::CStatic			m_titleLabel;
+	Framework::Win32::CStatic m_timerLabel;
+	Framework::Win32::CStatic m_titleLabel;
 
-	Framework::Win32::CButton			m_repeatButton;
-	Framework::Win32::CButton			m_configButton;
+	Framework::Win32::CButton m_repeatButton;
+	Framework::Win32::CButton m_configButton;
 
-	Framework::Win32::CStatic			m_placeHolder;
+	Framework::Win32::CStatic m_placeHolder;
 
-	Framework::Win32::CButton			m_pauseButton;
+	Framework::Win32::CButton m_pauseButton;
 
-	Framework::Win32::CToolTip*			m_toolTip;
+	Framework::Win32::CToolTip* m_toolTip;
 
-	bool								m_useTrayIcon;
+	bool m_useTrayIcon;
 
-	Framework::Win32::CTrayIconServer*	m_trayIconServer;
-	Framework::Win32::CTaskBarList*		m_taskBarList;
+	Framework::Win32::CTrayIconServer* m_trayIconServer;
+	Framework::Win32::CTaskBarList* m_taskBarList;
 
-	Framework::Win32::CWindow*			m_panels[MAX_PANELS];
-	CPlaylistPanel*						m_playlistPanel;
-	CFileInformationPanel*				m_fileInformationPanel;
-	CSpuRegViewPanel*					m_spu0RegViewPanel;
-	CSpuRegViewPanel*					m_spu1RegViewPanel;
+	Framework::Win32::CWindow* m_panels[MAX_PANELS];
+	CPlaylistPanel* m_playlistPanel;
+	CFileInformationPanel* m_fileInformationPanel;
+	CSpuRegViewPanel* m_spu0RegViewPanel;
+	CSpuRegViewPanel* m_spu1RegViewPanel;
 
-	HMENU								m_trayPopupMenu;
-	HMENU								m_configPopupMenu;
+	HMENU m_trayPopupMenu;
+	HMENU m_configPopupMenu;
 
-	static HHOOK						g_messageFilterHook;
-	static HWND							g_messageFilterHookWindow;
+	static HHOOK g_messageFilterHook;
+	static HWND g_messageFilterHookWindow;
 
-	Framework::Win32::CAcceleratorTable	m_accel;
+	Framework::Win32::CAcceleratorTable m_accel;
 
-	HICON								m_playListOnceIcon;
-	HICON								m_repeatListIcon;
-	HICON								m_shuffleListIcon;
-	HICON								m_repeatTrackIcon;
-	HICON								m_configIcon;
-	HICON								m_playIcon;
-	HICON								m_pauseIcon;
-	HICON								m_prevTrackIcon;
-	HICON								m_nextTrackIcon;
+	HICON m_playListOnceIcon;
+	HICON m_repeatListIcon;
+	HICON m_shuffleListIcon;
+	HICON m_repeatTrackIcon;
+	HICON m_configIcon;
+	HICON m_playIcon;
+	HICON m_pauseIcon;
+	HICON m_prevTrackIcon;
+	HICON m_nextTrackIcon;
 
-	CPsfVm&								m_virtualMachine;
-	CPsfTags							m_tags;
-	CPlaylist							m_playlist;
-	CPlaylistDiscoveryService			m_playlistDiscoveryService;
-	unsigned int						m_currentPlaylistItem;
-	unsigned int						m_currentPanel;
-	bool								m_ready;
-	uint64								m_frames;
-	uint64								m_lastUpdateTime;
-	uint64								m_trackLength;
-	uint64								m_fadePosition;
-	float								m_volumeAdjust;
-	int									m_selectedAudioPlugin;
-	CPsfTags::CHAR_ENCODING				m_selectedCharEncoding;
-	REPEAT_MODE							m_repeatMode;
-	bool								m_reverbEnabled;
-	uint32								m_randomSeed;
-	Framework::Win32::CFont				m_webdingsFont;
-	Framework::Win32::CFont				m_segoeUiSymbolFont;
+	CPsfVm& m_virtualMachine;
+	CPsfTags m_tags;
+	CPlaylist m_playlist;
+	CPlaylistDiscoveryService m_playlistDiscoveryService;
+	unsigned int m_currentPlaylistItem;
+	unsigned int m_currentPanel;
+	bool m_ready;
+	uint64 m_frames;
+	uint64 m_lastUpdateTime;
+	uint64 m_trackLength;
+	uint64 m_fadePosition;
+	float m_volumeAdjust;
+	int m_selectedAudioPlugin;
+	CPsfTags::CHAR_ENCODING m_selectedCharEncoding;
+	REPEAT_MODE m_repeatMode;
+	bool m_reverbEnabled;
+	uint32 m_randomSeed;
+	Framework::Win32::CFont m_webdingsFont;
+	Framework::Win32::CFont m_segoeUiSymbolFont;
 
-	static SOUNDHANDLER_INFO			m_handlerInfo[];
-	static CHARENCODING_INFO			m_charEncodingInfo[];
+	static SOUNDHANDLER_INFO m_handlerInfo[];
+	static CHARENCODING_INFO m_charEncodingInfo[];
 };

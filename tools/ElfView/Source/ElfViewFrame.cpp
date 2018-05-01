@@ -10,24 +10,24 @@ using namespace Framework;
 
 #define CLSNAME _T("ElfViewFrame")
 
-CElfViewFrame::CElfViewFrame(const char* path) :
-m_elfView(NULL)
+CElfViewFrame::CElfViewFrame(const char* path)
+    : m_elfView(NULL)
 {
 	if(!DoesWindowClassExist(CLSNAME))
 	{
 		WNDCLASSEX wc;
 		memset(&wc, 0, sizeof(WNDCLASSEX));
-		wc.cbSize			= sizeof(WNDCLASSEX);
-		wc.hCursor			= LoadCursor(NULL, IDC_ARROW);
-		wc.hbrBackground	= (HBRUSH)GetStockObject(GRAY_BRUSH); 
-		wc.hInstance		= GetModuleHandle(NULL);
-		wc.lpszClassName	= CLSNAME;
-		wc.lpfnWndProc		= CWindow::WndProc;
+		wc.cbSize = sizeof(WNDCLASSEX);
+		wc.hCursor = LoadCursor(NULL, IDC_ARROW);
+		wc.hbrBackground = (HBRUSH)GetStockObject(GRAY_BRUSH);
+		wc.hInstance = GetModuleHandle(NULL);
+		wc.lpszClassName = CLSNAME;
+		wc.lpfnWndProc = CWindow::WndProc;
 		RegisterClassEx(&wc);
 	}
-	
-	Create(NULL, CLSNAME, APP_NAME, WS_OVERLAPPEDWINDOW | WS_CLIPCHILDREN, 
-		Win32::CRect(0, 0, 770, 580), NULL, NULL);
+
+	Create(NULL, CLSNAME, APP_NAME, WS_OVERLAPPEDWINDOW | WS_CLIPCHILDREN,
+	       Win32::CRect(0, 0, 770, 580), NULL, NULL);
 	SetClassPtr();
 
 	CreateClient(NULL);
@@ -96,7 +96,7 @@ void CElfViewFrame::Load(const char* path)
 
 	try
 	{
-		CStdStream stream(path, "rb");    
+		CStdStream stream(path, "rb");
 		m_elfView = new CElfViewEx(m_pMDIClient->m_hWnd);
 		m_elfView->LoadElf(stream);
 		m_elfView->SetTextA(path);
@@ -132,25 +132,25 @@ HRESULT CALLBACK CElfViewFrame::TaskDialogCallback(HWND, UINT notification, WPAR
 	switch(notification)
 	{
 	case TDN_HYPERLINK_CLICKED:
+	{
+		WCHAR* hyperlinkName = reinterpret_cast<WCHAR*>(lParam);
+		if(!wcscmp(hyperlinkName, MAIL_HYPERLINK_NAME))
 		{
-			WCHAR* hyperlinkName = reinterpret_cast<WCHAR*>(lParam);
-			if(!wcscmp(hyperlinkName, MAIL_HYPERLINK_NAME))
-			{
-				ShellExecute(NULL, _T("open"), _T("mailto:") MAIL_HYPERLINK_VALUE, NULL, NULL, SW_SHOW);
-			}
-			else if(!wcscmp(hyperlinkName, WEBSITE_HYPERLINK_NAME))
-			{
-				ShellExecute(NULL, _T("open"), WEBSITE_HYPERLINK_VALUE, NULL, NULL, SW_SHOW);
-			}
+			ShellExecute(NULL, _T("open"), _T("mailto:") MAIL_HYPERLINK_VALUE, NULL, NULL, SW_SHOW);
 		}
-		break;
+		else if(!wcscmp(hyperlinkName, WEBSITE_HYPERLINK_NAME))
+		{
+			ShellExecute(NULL, _T("open"), WEBSITE_HYPERLINK_VALUE, NULL, NULL, SW_SHOW);
+		}
+	}
+	break;
 	}
 	return S_OK;
 }
 
 void CElfViewFrame::ShowAboutBox()
 {
-	typedef HRESULT (STDAPICALLTYPE *TaskDialogIndirectFunction)(const TASKDIALOGCONFIG*, int*, int*, BOOL*);
+	typedef HRESULT(STDAPICALLTYPE * TaskDialogIndirectFunction)(const TASKDIALOGCONFIG*, int*, int*, BOOL*);
 
 	std::tstring windowTitle = _T("About ") + std::tstring(APP_NAME);
 	std::tstring versionMessage = std::tstring(APP_NAME) + _T(" v") + std::tstring(APP_VERSIONSTR);
@@ -167,13 +167,13 @@ void CElfViewFrame::ShowAboutBox()
 			{
 				TASKDIALOGCONFIG dialogConfig;
 				memset(&dialogConfig, 0, sizeof(dialogConfig));
-				dialogConfig.cbSize				= sizeof(dialogConfig);
-				dialogConfig.hwndParent			= m_hWnd;
-				dialogConfig.dwFlags			= TDF_ENABLE_HYPERLINKS | TDF_ALLOW_DIALOG_CANCELLATION;
-				dialogConfig.pszWindowTitle		= windowTitle.c_str();
-				dialogConfig.pszContent			= _T("Written by Jean-Philip Desjardins\r\n\r\nE-mail: <a href=\"") MAIL_HYPERLINK_NAME _T("\">") MAIL_HYPERLINK_VALUE _T("</a>\r\nOfficial Website: <a href=\"") WEBSITE_HYPERLINK_NAME _T("\">") WEBSITE_HYPERLINK_VALUE _T("</a>");
-				dialogConfig.pszMainInstruction	= versionMessage.c_str();
-				dialogConfig.pfCallback			= &CElfViewFrame::TaskDialogCallback;
+				dialogConfig.cbSize = sizeof(dialogConfig);
+				dialogConfig.hwndParent = m_hWnd;
+				dialogConfig.dwFlags = TDF_ENABLE_HYPERLINKS | TDF_ALLOW_DIALOG_CANCELLATION;
+				dialogConfig.pszWindowTitle = windowTitle.c_str();
+				dialogConfig.pszContent = _T("Written by Jean-Philip Desjardins\r\n\r\nE-mail: <a href=\"") MAIL_HYPERLINK_NAME _T("\">") MAIL_HYPERLINK_VALUE _T("</a>\r\nOfficial Website: <a href=\"") WEBSITE_HYPERLINK_NAME _T("\">") WEBSITE_HYPERLINK_VALUE _T("</a>");
+				dialogConfig.pszMainInstruction = versionMessage.c_str();
+				dialogConfig.pfCallback = &CElfViewFrame::TaskDialogCallback;
 				taskDialogIndirect(&dialogConfig, NULL, NULL, NULL);
 				succeeded = true;
 			}

@@ -12,9 +12,9 @@ namespace filesystem = boost::filesystem;
 #define LOG_NAME ("iop_mcserv")
 
 const char* CMcServ::m_mcPathPreference[2] =
-{
-	PREF_PS2_MC0_DIRECTORY,
-	PREF_PS2_MC1_DIRECTORY,
+    {
+        PREF_PS2_MC0_DIRECTORY,
+        PREF_PS2_MC1_DIRECTORY,
 };
 
 CMcServ::CMcServ(CSifMan& sif)
@@ -96,23 +96,23 @@ void CMcServ::GetInfo(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize
 
 	//The layout of this can actually vary according to the version of the
 	//MCSERV module currently loaded
-	uint32 port			= args[1];
-	uint32 slot			= args[2];
-	bool wantFormatted	= args[3] != 0;
-	bool wantFreeSpace	= args[4] != 0;
-	bool wantType		= args[5] != 0;
-	uint32* retBuffer	= reinterpret_cast<uint32*>(&ram[args[7]]);
+	uint32 port = args[1];
+	uint32 slot = args[2];
+	bool wantFormatted = args[3] != 0;
+	bool wantFreeSpace = args[4] != 0;
+	bool wantType = args[5] != 0;
+	uint32* retBuffer = reinterpret_cast<uint32*>(&ram[args[7]]);
 
 	CLog::GetInstance().Print(LOG_NAME, "GetInfo(port = %i, slot = %i, wantType = %i, wantFreeSpace = %i, wantFormatted = %i, retBuffer = 0x%08X);\r\n",
-		port, slot, wantType, wantFreeSpace, wantFormatted, args[7]);
+	                          port, slot, wantType, wantFreeSpace, wantFormatted, args[7]);
 
 	if(wantType)
 	{
-		retBuffer[0x00] = 2;		//2 -> PS2 memory card
+		retBuffer[0x00] = 2; //2 -> PS2 memory card
 	}
 	if(wantFreeSpace)
 	{
-		retBuffer[0x01] = 0x2000;		//Number of clusters, cluster size = 1024 bytes
+		retBuffer[0x01] = 0x2000; //Number of clusters, cluster size = 1024 bytes
 	}
 	if(wantFormatted)
 	{
@@ -134,7 +134,7 @@ void CMcServ::Open(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, u
 	CMD* cmd = reinterpret_cast<CMD*>(args);
 
 	CLog::GetInstance().Print(LOG_NAME, "Open(port = %i, slot = %i, flags = %i, name = %s);\r\n",
-		cmd->port, cmd->slot, cmd->flags, cmd->name);
+	                          cmd->port, cmd->slot, cmd->flags, cmd->name);
 
 	if(cmd->port > 1)
 	{
@@ -167,7 +167,6 @@ void CMcServ::Open(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, u
 		}
 		catch(...)
 		{
-			
 		}
 		ret[0] = result;
 		return;
@@ -184,10 +183,10 @@ void CMcServ::Open(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, u
 		case OPEN_FLAG_RDWR:
 			access = "r+b";
 			break;
-		case OPEN_FLAG_CREAT:    //Used by Crash Bandicoot: Wrath of Cortex
-		case (OPEN_FLAG_CREAT | OPEN_FLAG_WRONLY):
-		case (OPEN_FLAG_CREAT | OPEN_FLAG_RDWR):
-		case (OPEN_FLAG_TRUNC | OPEN_FLAG_CREAT | OPEN_FLAG_RDWR):
+		case OPEN_FLAG_CREAT: //Used by Crash Bandicoot: Wrath of Cortex
+		case(OPEN_FLAG_CREAT | OPEN_FLAG_WRONLY):
+		case(OPEN_FLAG_CREAT | OPEN_FLAG_RDWR):
+		case(OPEN_FLAG_TRUNC | OPEN_FLAG_CREAT | OPEN_FLAG_RDWR):
 			access = "wb";
 			break;
 		}
@@ -244,7 +243,7 @@ void CMcServ::Seek(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, u
 	FILECMD* cmd = reinterpret_cast<FILECMD*>(args);
 
 	CLog::GetInstance().Print(LOG_NAME, "Seek(handle = %i, offset = 0x%08X, origin = 0x%08X);\r\n",
-		cmd->handle, cmd->offset, cmd->origin);
+	                          cmd->handle, cmd->offset, cmd->origin);
 
 	auto file = GetFileFromHandle(cmd->handle);
 	if(file == nullptr)
@@ -280,7 +279,7 @@ void CMcServ::Read(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, u
 	FILECMD* cmd = reinterpret_cast<FILECMD*>(args);
 
 	CLog::GetInstance().Print(LOG_NAME, "Read(handle = %i, size = 0x%08X, bufferAddress = 0x%08X, paramAddress = 0x%08X);\r\n",
-		cmd->handle, cmd->size, cmd->bufferAddress, cmd->paramAddress);
+	                          cmd->handle, cmd->size, cmd->bufferAddress, cmd->paramAddress);
 
 	auto file = GetFileFromHandle(cmd->handle);
 	if(file == nullptr)
@@ -308,7 +307,7 @@ void CMcServ::Write(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, 
 	FILECMD* cmd = reinterpret_cast<FILECMD*>(args);
 
 	CLog::GetInstance().Print(LOG_NAME, "Write(handle = %i, nSize = 0x%08X, bufferAddress = 0x%08X, origin = 0x%08X);\r\n",
-		cmd->handle, cmd->size, cmd->bufferAddress, cmd->origin);
+	                          cmd->handle, cmd->size, cmd->bufferAddress, cmd->origin);
 
 	auto file = GetFileFromHandle(cmd->handle);
 	if(file == nullptr)
@@ -357,7 +356,7 @@ void CMcServ::ChDir(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, 
 	CMD* cmd = reinterpret_cast<CMD*>(args);
 
 	CLog::GetInstance().Print(LOG_NAME, "ChDir(port = %i, slot = %i, tableAddress = 0x%08X, name = %s);\r\n",
-							  cmd->port, cmd->slot, cmd->tableAddress, cmd->name);
+	                          cmd->port, cmd->slot, cmd->tableAddress, cmd->name);
 
 	uint32 result = -1;
 
@@ -413,7 +412,7 @@ void CMcServ::GetDir(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize,
 	auto cmd = reinterpret_cast<const CMD*>(args);
 
 	CLog::GetInstance().Print(LOG_NAME, "GetDir(port = %i, slot = %i, flags = %i, maxEntries = %i, tableAddress = 0x%08X, name = %s);\r\n",
-		cmd->port, cmd->slot, cmd->flags, cmd->maxEntries, cmd->tableAddress, cmd->name);
+	                          cmd->port, cmd->slot, cmd->flags, cmd->maxEntries, cmd->tableAddress, cmd->name);
 
 	if(cmd->port > 1)
 	{
@@ -508,8 +507,8 @@ void CMcServ::GetVersionInformation(uint32* args, uint32 argsSize, uint32* ret, 
 	assert(retSize == 0x0C);
 
 	ret[0] = 0x00000000;
-	ret[1] = 0x0000020A;		//mcserv version
-	ret[2] = 0x0000020E;		//mcman version
+	ret[1] = 0x0000020A; //mcserv version
+	ret[2] = 0x0000020E; //mcman version
 
 	CLog::GetInstance().Print(LOG_NAME, "Init();\r\n");
 }
@@ -558,14 +557,12 @@ boost::filesystem::path CMcServ::GetAbsoluteFilePath(unsigned int port, unsigned
 /////////////////////////////////////////////
 
 CMcServ::CPathFinder::CPathFinder()
-: m_index(0)
+    : m_index(0)
 {
-
 }
 
 CMcServ::CPathFinder::~CPathFinder()
 {
-	
 }
 
 void CMcServ::CPathFinder::Reset()
@@ -646,7 +643,7 @@ void CMcServ::CPathFinder::SearchRecurse(const filesystem::path& path)
 	filesystem::directory_iterator endIterator;
 
 	for(filesystem::directory_iterator elementIterator(path);
-		elementIterator != endIterator; elementIterator++)
+	    elementIterator != endIterator; elementIterator++)
 	{
 		boost::filesystem::path relativePath(*elementIterator);
 		std::string relativePathString(relativePath.generic_string());
@@ -666,13 +663,13 @@ void CMcServ::CPathFinder::SearchRecurse(const filesystem::path& path)
 
 			if(filesystem::is_directory(*elementIterator))
 			{
-				entry.size			= 0;
-				entry.attributes	= 0x8427;
+				entry.size = 0;
+				entry.attributes = 0x8427;
 			}
 			else
 			{
-				entry.size			= static_cast<uint32>(filesystem::file_size(*elementIterator));
-				entry.attributes	= 0x8497;
+				entry.size = static_cast<uint32>(filesystem::file_size(*elementIterator));
+				entry.attributes = 0x8497;
 			}
 
 			//Fill in modification date info

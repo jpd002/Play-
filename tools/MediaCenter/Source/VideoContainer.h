@@ -10,6 +10,8 @@ public:
 		STATUS_EOF
 	};
 
-	virtual						~CVideoContainer() {}
-	virtual STATUS				Read() = 0;
+	virtual ~CVideoContainer()
+	{
+	}
+	virtual STATUS Read() = 0;
 };

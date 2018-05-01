@@ -9,11 +9,11 @@
 
 struct AOT_BLOCK_KEY
 {
-	uint32		crc;
-	uint32		begin;
-	uint32		end;
+	uint32 crc;
+	uint32 begin;
+	uint32 end;
 
-	bool operator <(const AOT_BLOCK_KEY& k2) const
+	bool operator<(const AOT_BLOCK_KEY& k2) const
 	{
 		const auto& k1 = (*this);
 		if(k1.crc == k2.crc)
@@ -43,36 +43,35 @@ namespace Jitter
 class CBasicBlock
 {
 public:
-									CBasicBlock(CMIPS&, uint32, uint32);
-	virtual							~CBasicBlock() = default;
-	unsigned int					Execute();
-	void							Compile();
+	CBasicBlock(CMIPS&, uint32, uint32);
+	virtual ~CBasicBlock() = default;
+	unsigned int Execute();
+	void Compile();
 
-	uint32							GetBeginAddress() const;
-	uint32							GetEndAddress() const;
-	bool							IsCompiled() const;
+	uint32 GetBeginAddress() const;
+	uint32 GetEndAddress() const;
+	bool IsCompiled() const;
 
 #ifdef AOT_BUILD_CACHE
-	static void						SetAotBlockOutputStream(Framework::CStdStream*);
+	static void SetAotBlockOutputStream(Framework::CStdStream*);
 #endif
 
 protected:
-	uint32							m_begin;
-	uint32							m_end;
-	CMIPS&							m_context;
+	uint32 m_begin;
+	uint32 m_end;
+	CMIPS& m_context;
 
-	virtual void					CompileRange(CMipsJitter*);
+	virtual void CompileRange(CMipsJitter*);
 
 private:
-
 #ifdef AOT_BUILD_CACHE
-	static Framework::CStdStream*	m_aotBlockOutputStream;
-	static std::mutex				m_aotBlockOutputStreamMutex;
+	static Framework::CStdStream* m_aotBlockOutputStream;
+	static std::mutex m_aotBlockOutputStreamMutex;
 #endif
 
 #ifndef AOT_USE_CACHE
-	CMemoryFunction					m_function;
+	CMemoryFunction m_function;
 #else
-	void							(*m_function)(void*);
+	void (*m_function)(void*);
 #endif
 };

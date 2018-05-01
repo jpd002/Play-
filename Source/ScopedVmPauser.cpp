@@ -2,7 +2,7 @@
 #include "VirtualMachine.h"
 
 CScopedVmPauser::CScopedVmPauser(CVirtualMachine& virtualMachine)
-: m_virtualMachine(virtualMachine)
+    : m_virtualMachine(virtualMachine)
 {
 	if(m_virtualMachine.GetStatus() == CVirtualMachine::RUNNING)
 	{

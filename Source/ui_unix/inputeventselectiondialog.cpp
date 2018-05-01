@@ -1,10 +1,9 @@
 #include "inputeventselectiondialog.h"
 #include "ui_inputeventselectiondialog.h"
 
-
-InputEventSelectionDialog::InputEventSelectionDialog(QWidget *parent) :
-	QDialog(parent),
-	ui(new Ui::InputEventSelectionDialog)
+InputEventSelectionDialog::InputEventSelectionDialog(QWidget* parent)
+    : QDialog(parent)
+    , ui(new Ui::InputEventSelectionDialog)
 {
 	ui->setupUi(this);
 	setWindowFlags(Qt::Window | Qt::WindowCloseButtonHint);
@@ -16,7 +15,7 @@ InputEventSelectionDialog::InputEventSelectionDialog(QWidget *parent) :
 
 	m_isCounting = false;
 	m_running = true;
-	m_thread = std::thread([this]{ CountDownThreadLoop(); });
+	m_thread = std::thread([this] { CountDownThreadLoop(); });
 }
 
 InputEventSelectionDialog::~InputEventSelectionDialog()
@@ -26,15 +25,14 @@ InputEventSelectionDialog::~InputEventSelectionDialog()
 	delete ui;
 }
 
-void InputEventSelectionDialog::Setup(const char* text, CInputBindingManager *inputManager,
-									  PS2::CControllerInfo::BUTTON button, std::unique_ptr<CGamePadDeviceListener>const &GPDL)
+void InputEventSelectionDialog::Setup(const char* text, CInputBindingManager* inputManager,
+                                      PS2::CControllerInfo::BUTTON button, std::unique_ptr<CGamePadDeviceListener> const& GPDL)
 {
 	m_inputManager = inputManager;
 	ui->bindinglabel->setText(m_bindingtext.arg(text));
 	m_button = button;
 
-	auto onInput = [=](std::array<unsigned int, 6> device, int code, int value, int type, const input_absinfo *abs)->void
-	{
+	auto onInput = [=](std::array<unsigned int, 6> device, int code, int value, int type, const input_absinfo* abs) -> void {
 		if(type == 4) return;
 		if(!(type == 3 && abs->flat))
 		{
@@ -45,7 +43,7 @@ void InputEventSelectionDialog::Setup(const char* text, CInputBindingManager *in
 		{
 			if(abs->flat)
 			{
-				int triggerRange = abs->maximum/100*20;
+				int triggerRange = abs->maximum / 100 * 20;
 				int triggerVal1 = abs->maximum - triggerRange;
 				int triggerVal2 = abs->minimum + triggerRange;
 				if(value < triggerVal1 && triggerVal2 < value)
@@ -102,7 +100,6 @@ void InputEventSelectionDialog::Setup(const char* text, CInputBindingManager *in
 	};
 
 	GPDL.get()->UpdateOnInputEventCallback(onInput);
-
 }
 void InputEventSelectionDialog::keyPressEvent(QKeyEvent* ev)
 {
@@ -164,25 +161,25 @@ void InputEventSelectionDialog::CountDownThreadLoop()
 			{
 				switch(m_key1.bindtype)
 				{
-					case CInputBindingManager::BINDINGTYPE::BINDING_SIMPLE:
-						m_inputManager->SetSimpleBinding(m_button, m_key1);
-						break;
-					case CInputBindingManager::BINDINGTYPE::BINDING_POVHAT:
-						m_inputManager->SetPovHatBinding(m_button,m_key1, m_key1.value);
-						break;
-					case CInputBindingManager::BINDINGTYPE::BINDING_SIMULATEDAXIS:
-						if(click_count == 0)
-						{
-							click_count++;
-							m_isCounting = 0;
-							setCountDownLabelText(m_countingtext.arg(3));
-							continue;
-						}
-						else if(m_key2.id > 0)
-						{
-							m_inputManager->SetSimulatedAxisBinding(m_button, m_key1, m_key2);
-						}
-						break;
+				case CInputBindingManager::BINDINGTYPE::BINDING_SIMPLE:
+					m_inputManager->SetSimpleBinding(m_button, m_key1);
+					break;
+				case CInputBindingManager::BINDINGTYPE::BINDING_POVHAT:
+					m_inputManager->SetPovHatBinding(m_button, m_key1, m_key1.value);
+					break;
+				case CInputBindingManager::BINDINGTYPE::BINDING_SIMULATEDAXIS:
+					if(click_count == 0)
+					{
+						click_count++;
+						m_isCounting = 0;
+						setCountDownLabelText(m_countingtext.arg(3));
+						continue;
+					}
+					else if(m_key2.id > 0)
+					{
+						m_inputManager->SetSimulatedAxisBinding(m_button, m_key1, m_key2);
+					}
+					break;
 				}
 
 				m_running = false;

@@ -15,45 +15,45 @@ public:
 
 	struct ZONE
 	{
-		std::string		name;
-		uint64			totalTime = 0;
+		std::string name;
+		uint64 totalTime = 0;
 	};
 
 	typedef std::vector<ZONE> ZoneArray;
 	typedef std::chrono::high_resolution_clock::time_point TimePoint;
 
-						CProfiler();
-	virtual				~CProfiler();
+	CProfiler();
+	virtual ~CProfiler();
 
-	ZoneHandle			RegisterZone(const char*);
+	ZoneHandle RegisterZone(const char*);
 
-	void				CountCurrentZone();
+	void CountCurrentZone();
 
-	void				EnterZone(ZoneHandle);
-	void				ExitZone();
+	void EnterZone(ZoneHandle);
+	void ExitZone();
 
-	ZoneArray			GetStats() const;
-	void				Reset();
+	ZoneArray GetStats() const;
+	void Reset();
 
-	void				SetWorkThread();
-	
+	void SetWorkThread();
+
 private:
 	typedef std::stack<ZoneHandle> ZoneStack;
-	
-	void				AddTimeToZone(ZoneHandle, uint64);
 
-	ZoneArray			m_zones;
-	ZoneStack			m_zoneStack;
-	TimePoint			m_currentTime;
-	
+	void AddTimeToZone(ZoneHandle, uint64);
+
+	ZoneArray m_zones;
+	ZoneStack m_zoneStack;
+	TimePoint m_currentTime;
+
 #ifdef _DEBUG
-	std::thread::id		m_workThreadId;
+	std::thread::id m_workThreadId;
 #endif
 };
 
 class CProfilerZone
 {
 public:
-							CProfilerZone(CProfiler::ZoneHandle);
-							~CProfilerZone();
+	CProfilerZone(CProfiler::ZoneHandle);
+	~CProfilerZone();
 };

@@ -9,16 +9,16 @@
 class CStatsOverlayWindow : public Framework::Win32::CWindow
 {
 public:
-							CStatsOverlayWindow();
-							CStatsOverlayWindow(HWND);
-	virtual					~CStatsOverlayWindow();
+	CStatsOverlayWindow();
+	CStatsOverlayWindow(HWND);
+	virtual ~CStatsOverlayWindow();
 
-	CStatsOverlayWindow&	operator =(CStatsOverlayWindow&&);
+	CStatsOverlayWindow& operator=(CStatsOverlayWindow&&);
 
-	void					Update(unsigned int);
-	void					ResetStats();
+	void Update(unsigned int);
+	void ResetStats();
 
-	void					OnProfileFrameDone(CPS2VM&, const CProfiler::ZoneArray&);
+	void OnProfileFrameDone(CPS2VM&, const CProfiler::ZoneArray&);
 
 private:
 	struct RENDERMETRICS
@@ -39,10 +39,10 @@ private:
 
 	typedef std::map<std::string, ZONEINFO> ZoneMap;
 
-	std::mutex				m_profilerZonesMutex;
-	ZoneMap					m_profilerZones;
+	std::mutex m_profilerZonesMutex;
+	ZoneMap m_profilerZones;
 
 	CPS2VM::CPU_UTILISATION_INFO m_cpuUtilisation;
-	RENDERMETRICS			m_renderMetrics;
-	Framework::Win32::CFont	m_font;
+	RENDERMETRICS m_renderMetrics;
+	Framework::Win32::CFont m_font;
 };

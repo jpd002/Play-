@@ -6,10 +6,10 @@
 class CMaxSaveImporter : public CSaveImporterBase
 {
 public:
-							CMaxSaveImporter();
-	virtual					~CMaxSaveImporter();
+	CMaxSaveImporter();
+	virtual ~CMaxSaveImporter();
 
-	virtual void			Import(Framework::CStream&, const boost::filesystem::path&);
+	virtual void Import(Framework::CStream&, const boost::filesystem::path&);
 };
 
 #endif

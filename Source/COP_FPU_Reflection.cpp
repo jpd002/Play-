@@ -24,7 +24,7 @@ void CCOP_FPU::ReflOpRtFcs(INSTRUCTION* pInstr, CMIPS* pCtx, uint32 nAddress, ui
 void CCOP_FPU::ReflOpFdFs(INSTRUCTION* pInstr, CMIPS* pCtx, uint32 nAddress, uint32 nOpcode, char* sText, unsigned int nCount)
 {
 	uint8 nFS = static_cast<uint8>((nOpcode >> 11) & 0x001F);
-	uint8 nFD = static_cast<uint8>((nOpcode >>  6) & 0x001F);
+	uint8 nFD = static_cast<uint8>((nOpcode >> 6) & 0x001F);
 
 	sprintf(sText, "F%i, F%i", nFD, nFS);
 }
@@ -32,7 +32,7 @@ void CCOP_FPU::ReflOpFdFs(INSTRUCTION* pInstr, CMIPS* pCtx, uint32 nAddress, uin
 void CCOP_FPU::ReflOpFdFt(INSTRUCTION* pInstr, CMIPS* pCtx, uint32 nAddress, uint32 nOpcode, char* sText, unsigned int nCount)
 {
 	uint8 nFT = static_cast<uint8>((nOpcode >> 16) & 0x001F);
-	uint8 nFD = static_cast<uint8>((nOpcode >>  6) & 0x001F);
+	uint8 nFD = static_cast<uint8>((nOpcode >> 6) & 0x001F);
 
 	sprintf(sText, "F%i, F%i", nFD, nFT);
 }
@@ -49,7 +49,7 @@ void CCOP_FPU::ReflOpCcFsFt(INSTRUCTION* pInstr, CMIPS* pCtx, uint32 nAddress, u
 {
 	uint8 nFT = static_cast<uint8>((nOpcode >> 16) & 0x001F);
 	uint8 nFS = static_cast<uint8>((nOpcode >> 11) & 0x001F);
-	uint8 nCC = static_cast<uint8>((nOpcode >>  8) & 0x0007);
+	uint8 nCC = static_cast<uint8>((nOpcode >> 8) & 0x0007);
 
 	sprintf(sText, "CC%i, F%i, F%i", nCC, nFS, nFT);
 }
@@ -58,30 +58,30 @@ void CCOP_FPU::ReflOpFdFsFt(INSTRUCTION* pInstr, CMIPS* pCtx, uint32 nAddress, u
 {
 	uint8 nFT = static_cast<uint8>((nOpcode >> 16) & 0x001F);
 	uint8 nFS = static_cast<uint8>((nOpcode >> 11) & 0x001F);
-	uint8 nFD = static_cast<uint8>((nOpcode >>  6) & 0x001F);
+	uint8 nFD = static_cast<uint8>((nOpcode >> 6) & 0x001F);
 
 	sprintf(sText, "F%i, F%i, F%i", nFD, nFS, nFT);
 }
 
 void CCOP_FPU::ReflOpFtOffRs(INSTRUCTION* pInstr, CMIPS* pCtx, uint32 nAddress, uint32 nOpcode, char* sText, unsigned int nCount)
 {
-	uint8  nRS  = static_cast<uint8> ((nOpcode >> 21) & 0x001F);
-	uint8  nFT  = static_cast<uint8> ((nOpcode >> 16) & 0x001F);
-	uint16 nImm = static_cast<uint16>((nOpcode >>  0) & 0xFFFF);
+	uint8 nRS = static_cast<uint8>((nOpcode >> 21) & 0x001F);
+	uint8 nFT = static_cast<uint8>((nOpcode >> 16) & 0x001F);
+	uint16 nImm = static_cast<uint16>((nOpcode >> 0) & 0xFFFF);
 
 	sprintf(sText, "F%i, $%04X(%s)", nFT, nImm, CMIPS::m_sGPRName[nRS]);
 }
 
 void CCOP_FPU::ReflOpCcOff(INSTRUCTION* pInstr, CMIPS* pCtx, uint32 nAddress, uint32 nOpcode, char* sText, unsigned int nCount)
 {
-	uint16 nImm = static_cast<uint16>((nOpcode >>  0) & 0xFFFF);
+	uint16 nImm = static_cast<uint16>((nOpcode >> 0) & 0xFFFF);
 	nAddress += 4;
 	sprintf(sText, "CC%i, $%08X", (nOpcode >> 18) & 0x07, nAddress + CMIPS::GetBranch(nImm));
 }
 
 uint32 CCOP_FPU::ReflEaOffset(INSTRUCTION* pInstr, CMIPS* pCtx, uint32 nAddress, uint32 nOpcode)
 {
-	uint16 nImm = static_cast<uint16>((nOpcode >>  0) & 0xFFFF);
+	uint16 nImm = static_cast<uint16>((nOpcode >> 0) & 0xFFFF);
 	nAddress += 4;
 	return (nAddress + CMIPS::GetBranch(nImm));
 }
@@ -367,43 +367,43 @@ INSTRUCTION CCOP_FPU::m_cReflW[64] =
 
 void CCOP_FPU::SetupReflectionTables()
 {
-	static_assert(sizeof(m_reflGeneral)	== sizeof(m_cReflGeneral),	"Array sizes don't match");
-	static_assert(sizeof(m_reflCop1)	== sizeof(m_cReflCop1),		"Array sizes don't match");
-	static_assert(sizeof(m_reflBc1)		== sizeof(m_cReflBc1),		"Array sizes don't match");
-	static_assert(sizeof(m_reflS)		== sizeof(m_cReflS),		"Array sizes don't match");
-	static_assert(sizeof(m_reflW)		== sizeof(m_cReflW),		"Array sizes don't match");
+	static_assert(sizeof(m_reflGeneral) == sizeof(m_cReflGeneral), "Array sizes don't match");
+	static_assert(sizeof(m_reflCop1) == sizeof(m_cReflCop1), "Array sizes don't match");
+	static_assert(sizeof(m_reflBc1) == sizeof(m_cReflBc1), "Array sizes don't match");
+	static_assert(sizeof(m_reflS) == sizeof(m_cReflS), "Array sizes don't match");
+	static_assert(sizeof(m_reflW) == sizeof(m_cReflW), "Array sizes don't match");
 
-	memcpy(m_reflGeneral,	m_cReflGeneral,	sizeof(m_cReflGeneral));
-	memcpy(m_reflCop1,		m_cReflCop1,	sizeof(m_cReflCop1));
-	memcpy(m_reflBc1,		m_cReflBc1,		sizeof(m_cReflBc1));
-	memcpy(m_reflS,			m_cReflS,		sizeof(m_cReflS));
-	memcpy(m_reflW,			m_cReflW,		sizeof(m_cReflW));
+	memcpy(m_reflGeneral, m_cReflGeneral, sizeof(m_cReflGeneral));
+	memcpy(m_reflCop1, m_cReflCop1, sizeof(m_cReflCop1));
+	memcpy(m_reflBc1, m_cReflBc1, sizeof(m_cReflBc1));
+	memcpy(m_reflS, m_cReflS, sizeof(m_cReflS));
+	memcpy(m_reflW, m_cReflW, sizeof(m_cReflW));
 
-	m_reflGeneralTable.nShift	= 26;
-	m_reflGeneralTable.nMask	= 0x3F;
-	m_reflGeneralTable.pTable	= m_reflGeneral;
+	m_reflGeneralTable.nShift = 26;
+	m_reflGeneralTable.nMask = 0x3F;
+	m_reflGeneralTable.pTable = m_reflGeneral;
 
-	m_reflCop1Table.nShift		= 21;
-	m_reflCop1Table.nMask		= 0x1F;
-	m_reflCop1Table.pTable		= m_reflCop1;
+	m_reflCop1Table.nShift = 21;
+	m_reflCop1Table.nMask = 0x1F;
+	m_reflCop1Table.pTable = m_reflCop1;
 
-	m_reflBc1Table.nShift		= 16;
-	m_reflBc1Table.nMask		= 0x03;
-	m_reflBc1Table.pTable		= m_reflBc1;
+	m_reflBc1Table.nShift = 16;
+	m_reflBc1Table.nMask = 0x03;
+	m_reflBc1Table.pTable = m_reflBc1;
 
-	m_reflSTable.nShift			= 0;
-	m_reflSTable.nMask			= 0x3F;
-	m_reflSTable.pTable			= m_reflS;
+	m_reflSTable.nShift = 0;
+	m_reflSTable.nMask = 0x3F;
+	m_reflSTable.pTable = m_reflS;
 
-	m_reflWTable.nShift			= 0;
-	m_reflWTable.nMask			= 0x3F;
-	m_reflWTable.pTable			= m_reflW;
+	m_reflWTable.nShift = 0;
+	m_reflWTable.nMask = 0x3F;
+	m_reflWTable.pTable = m_reflW;
 
-	m_reflGeneral[0x11].pSubTable	= &m_reflCop1Table;
+	m_reflGeneral[0x11].pSubTable = &m_reflCop1Table;
 
-	m_reflCop1[0x08].pSubTable		= &m_reflBc1Table;
-	m_reflCop1[0x10].pSubTable		= &m_reflSTable;
-	m_reflCop1[0x14].pSubTable		= &m_reflWTable;
+	m_reflCop1[0x08].pSubTable = &m_reflBc1Table;
+	m_reflCop1[0x10].pSubTable = &m_reflSTable;
+	m_reflCop1[0x14].pSubTable = &m_reflWTable;
 }
 
 void CCOP_FPU::GetInstruction(uint32 nOpcode, char* sText)
@@ -416,8 +416,8 @@ void CCOP_FPU::GetInstruction(uint32 nOpcode, char* sText)
 	}
 
 	INSTRUCTION Instr;
-	Instr.pGetMnemonic	= SubTableMnemonic;
-	Instr.pSubTable		= &m_reflGeneralTable;
+	Instr.pGetMnemonic = SubTableMnemonic;
+	Instr.pSubTable = &m_reflGeneralTable;
 	Instr.pGetMnemonic(&Instr, NULL, nOpcode, sText, nCount);
 }
 
@@ -431,8 +431,8 @@ void CCOP_FPU::GetArguments(uint32 nAddress, uint32 nOpcode, char* sText)
 	}
 
 	INSTRUCTION Instr;
-	Instr.pGetOperands	= SubTableOperands;
-	Instr.pSubTable		= &m_reflGeneralTable;
+	Instr.pGetOperands = SubTableOperands;
+	Instr.pSubTable = &m_reflGeneralTable;
 	Instr.pGetOperands(&Instr, NULL, nAddress, nOpcode, sText, nCount);
 }
 
@@ -441,8 +441,8 @@ MIPS_BRANCH_TYPE CCOP_FPU::IsBranch(uint32 nOpcode)
 	if(nOpcode == 0) return MIPS_BRANCH_NONE;
 
 	INSTRUCTION Instr;
-	Instr.pIsBranch		= SubTableIsBranch;
-	Instr.pSubTable		= &m_reflGeneralTable;
+	Instr.pIsBranch = SubTableIsBranch;
+	Instr.pSubTable = &m_reflGeneralTable;
 	return Instr.pIsBranch(&Instr, NULL, nOpcode);
 }
 
@@ -451,7 +451,7 @@ uint32 CCOP_FPU::GetEffectiveAddress(uint32 nAddress, uint32 nOpcode)
 	if(nOpcode == 0) return 0;
 
 	INSTRUCTION Instr;
-	Instr.pGetEffectiveAddress	= SubTableEffAddr;
-	Instr.pSubTable				= &m_reflGeneralTable;
+	Instr.pGetEffectiveAddress = SubTableEffAddr;
+	Instr.pSubTable = &m_reflGeneralTable;
 	return Instr.pGetEffectiveAddress(&Instr, NULL, nAddress, nOpcode);
 }

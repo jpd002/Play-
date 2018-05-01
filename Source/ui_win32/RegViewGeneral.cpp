@@ -2,10 +2,10 @@
 #include <string.h>
 #include "RegViewGeneral.h"
 
-CRegViewGeneral::CRegViewGeneral(HWND hParent, const RECT& rect, CVirtualMachine& virtualMachine, CMIPS* pC) 
-: CRegViewPage(hParent, rect)
-, m_virtualMachine(virtualMachine)
-, m_pCtx(pC)
+CRegViewGeneral::CRegViewGeneral(HWND hParent, const RECT& rect, CVirtualMachine& virtualMachine, CMIPS* pC)
+    : CRegViewPage(hParent, rect)
+    , m_virtualMachine(virtualMachine)
+    , m_pCtx(pC)
 {
 	m_virtualMachine.OnMachineStateChange.connect(boost::bind(&CRegViewGeneral::Update, this));
 	m_virtualMachine.OnRunningStateChange.connect(boost::bind(&CRegViewGeneral::Update, this));
@@ -13,7 +13,6 @@ CRegViewGeneral::CRegViewGeneral(HWND hParent, const RECT& rect, CVirtualMachine
 
 CRegViewGeneral::~CRegViewGeneral()
 {
-
 }
 
 void CRegViewGeneral::Update()

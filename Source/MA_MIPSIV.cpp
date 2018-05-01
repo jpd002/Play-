@@ -8,43 +8,43 @@
 #include "placeholder_def.h"
 
 uint32 g_LWMaskRight[4] =
-{
-	0x00FFFFFF,
-	0x0000FFFF,
-	0x000000FF,
-	0x00000000,
+    {
+        0x00FFFFFF,
+        0x0000FFFF,
+        0x000000FF,
+        0x00000000,
 };
 
 uint32 g_LWMaskLeft[4] =
-{
-	0xFFFFFF00,
-	0xFFFF0000,
-	0xFF000000,
-	0x00000000,
+    {
+        0xFFFFFF00,
+        0xFFFF0000,
+        0xFF000000,
+        0x00000000,
 };
 
 uint64 g_LDMaskRight[8] =
-{
-	0x00FFFFFFFFFFFFFFULL,
-	0x0000FFFFFFFFFFFFULL,
-	0x000000FFFFFFFFFFULL,
-	0x00000000FFFFFFFFULL,
-	0x0000000000FFFFFFULL,
-	0x000000000000FFFFULL,
-	0x00000000000000FFULL,
-	0x0000000000000000ULL,
+    {
+        0x00FFFFFFFFFFFFFFULL,
+        0x0000FFFFFFFFFFFFULL,
+        0x000000FFFFFFFFFFULL,
+        0x00000000FFFFFFFFULL,
+        0x0000000000FFFFFFULL,
+        0x000000000000FFFFULL,
+        0x00000000000000FFULL,
+        0x0000000000000000ULL,
 };
 
 uint64 g_LDMaskLeft[8] =
-{
-	0xFFFFFFFFFFFFFF00ULL,
-	0xFFFFFFFFFFFF0000ULL,
-	0xFFFFFFFFFF000000ULL,
-	0xFFFFFFFF00000000ULL,
-	0xFFFFFF0000000000ULL,
-	0xFFFF000000000000ULL,
-	0xFF00000000000000ULL,
-	0x0000000000000000ULL,
+    {
+        0xFFFFFFFFFFFFFF00ULL,
+        0xFFFFFFFFFFFF0000ULL,
+        0xFFFFFFFFFF000000ULL,
+        0xFFFFFFFF00000000ULL,
+        0xFFFFFF0000000000ULL,
+        0xFFFF000000000000ULL,
+        0xFF00000000000000ULL,
+        0x0000000000000000ULL,
 };
 
 extern "C" uint32 LWL_Proxy(uint32 address, uint32 rt, CMIPS* context)
@@ -143,8 +143,8 @@ extern "C" void SDR_Proxy(uint32 address, uint64 rt, CMIPS* context)
 	MemoryUtils_SetDoubleProxy(context, memory, alignedAddress);
 }
 
-CMA_MIPSIV::CMA_MIPSIV(MIPS_REGSIZE nRegSize) :
-CMIPSArchitecture(nRegSize)
+CMA_MIPSIV::CMA_MIPSIV(MIPS_REGSIZE nRegSize)
+    : CMIPSArchitecture(nRegSize)
 {
 	SetupInstructionTables();
 	SetupReflectionTables();
@@ -152,7 +152,6 @@ CMIPSArchitecture(nRegSize)
 
 CMA_MIPSIV::~CMA_MIPSIV()
 {
-
 }
 
 void CMA_MIPSIV::SetupInstructionTables()
@@ -182,11 +181,11 @@ void CMA_MIPSIV::CompileInstruction(uint32 nAddress, CMipsJitter* codeGen, CMIPS
 {
 	SetupQuickVariables(nAddress, codeGen, pCtx);
 
-	m_nRS			= (uint8)((m_nOpcode >> 21) & 0x1F);
-	m_nRT			= (uint8)((m_nOpcode >> 16) & 0x1F);
-	m_nRD			= (uint8)((m_nOpcode >> 11) & 0x1F);
-	m_nSA			= (uint8)((m_nOpcode >> 6) & 0x1F);
-	m_nImmediate	= (uint16)(m_nOpcode & 0xFFFF);
+	m_nRS = (uint8)((m_nOpcode >> 21) & 0x1F);
+	m_nRT = (uint8)((m_nOpcode >> 16) & 0x1F);
+	m_nRD = (uint8)((m_nOpcode >> 11) & 0x1F);
+	m_nSA = (uint8)((m_nOpcode >> 6) & 0x1F);
+	m_nImmediate = (uint16)(m_nOpcode & 0xFFFF);
 
 	if(m_nOpcode)
 	{
@@ -278,7 +277,7 @@ void CMA_MIPSIV::ADDI()
 //09
 void CMA_MIPSIV::ADDIU()
 {
-	if(m_nRT == 0 && m_nRS == 0) 
+	if(m_nRT == 0 && m_nRS == 0)
 	{
 		//Hack: PS2 IOP uses ADDIU R0, R0, $x for dynamic linking
 		m_codeGen->PushCst(m_nAddress);
@@ -323,7 +322,7 @@ void CMA_MIPSIV::ANDI()
 
 	m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRS].nV[0]));
 	m_codeGen->PushCst(m_nImmediate);
-	
+
 	m_codeGen->And();
 	m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[0]));
 
@@ -805,14 +804,14 @@ void CMA_MIPSIV::SLL()
 //02
 void CMA_MIPSIV::SRL()
 {
-	void (Jitter::CJitter::*shiftFunction)(uint8) = &Jitter::CJitter::Srl;	
+	void (Jitter::CJitter::*shiftFunction)(uint8) = &Jitter::CJitter::Srl;
 	Template_ShiftCst32(std::bind(shiftFunction, m_codeGen, std::placeholders::_1));
 }
 
 //03
 void CMA_MIPSIV::SRA()
 {
-	void (Jitter::CJitter::*shiftFunction)(uint8) = &Jitter::CJitter::Sra;	
+	void (Jitter::CJitter::*shiftFunction)(uint8) = &Jitter::CJitter::Sra;
 	Template_ShiftCst32(std::bind(shiftFunction, m_codeGen, std::placeholders::_1));
 }
 
@@ -826,7 +825,7 @@ void CMA_MIPSIV::SLLV()
 //06
 void CMA_MIPSIV::SRLV()
 {
-	void (Jitter::CJitter::*shiftFunction)() = &Jitter::CJitter::Srl;	
+	void (Jitter::CJitter::*shiftFunction)() = &Jitter::CJitter::Srl;
 	Template_ShiftVar32(std::bind(shiftFunction, m_codeGen));
 }
 

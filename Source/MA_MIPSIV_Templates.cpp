@@ -400,7 +400,7 @@ void CMA_MIPSIV::Template_BranchEq(bool condition, bool likely)
 		m_codeGen->PushRel64(offsetof(CMIPS, m_State.nGPR[m_nRS].nV[0]));
 		m_codeGen->PushRel64(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[0]));
 		m_codeGen->Cmp64(Jitter::CONDITION_NE);
-		
+
 		m_codeGen->PushCst(0);
 	}
 

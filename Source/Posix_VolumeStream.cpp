@@ -13,7 +13,6 @@
 #include <sys/statvfs.h>
 #endif
 
-
 #include "Posix_VolumeStream.h"
 
 using namespace Framework::Posix;
@@ -21,7 +20,7 @@ using namespace Framework::Posix;
 CVolumeStream::CVolumeStream(const char* volumePath)
 {
 	m_fd = open(volumePath, O_RDONLY);
-	if(m_fd < 0) 
+	if(m_fd < 0)
 	{
 		throw std::runtime_error("Couldn't open volume for reading.");
 	}
@@ -76,21 +75,21 @@ uint64 CVolumeStream::Read(void* buffer, uint64 size)
 	uint64 retSize = size;
 	uint8* dst = reinterpret_cast<uint8*>(buffer);
 	uint8* src = reinterpret_cast<uint8*>(m_cache);
-	
+
 	while(size != 0)
 	{
 		SyncCache();
-		
+
 		size_t sectorOffset = static_cast<size_t>(m_position & (m_sectorSize - 1));
 		size_t sectorRemain = static_cast<size_t>(m_sectorSize - sectorOffset);
 		size_t copy = std::min<size_t>(size, sectorRemain);
-		
+
 		memcpy(dst, src + sectorOffset, copy);
 		m_position += copy;
 		size -= copy;
 		dst += copy;
 	}
-	
+
 	return retSize;
 }
 

@@ -3,7 +3,6 @@
 
 CVirtualPadStick::~CVirtualPadStick()
 {
-
 }
 
 void CVirtualPadStick::Draw(Gdiplus::Graphics& graphics)
@@ -24,9 +23,9 @@ void CVirtualPadStick::OnMouseMove(int x, int y)
 	auto radius = m_bounds.Width;
 	auto offsetX = x - m_pressPosition.X;
 	auto offsetY = y - m_pressPosition.Y;
-	offsetX = std::min<float>(offsetX,  radius);
+	offsetX = std::min<float>(offsetX, radius);
 	offsetX = std::max<float>(offsetX, -radius);
-	offsetY = std::min<float>(offsetY,  radius);
+	offsetY = std::min<float>(offsetY, radius);
 	offsetY = std::max<float>(offsetY, -radius);
 	m_offset = Gdiplus::PointF(offsetX, offsetY);
 	if(m_padHandler)

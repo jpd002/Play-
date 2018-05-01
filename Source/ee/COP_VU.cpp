@@ -9,25 +9,25 @@
 
 #undef MAX
 
-#define LOG_NAME				("vpu")
+#define LOG_NAME ("vpu")
 
 enum CTRL_REG
 {
-	CTRL_REG_STATUS   = 16,
-	CTRL_REG_MAC      = 17,
-	CTRL_REG_CLIP     = 18,
-	CTRL_REG_R        = 20,
-	CTRL_REG_I        = 21,
-	CTRL_REG_Q        = 22,
-	CTRL_REG_TPC      = 26,
-	CTRL_REG_CMSAR0   = 27,
-	CTRL_REG_FBRST    = 28,
+	CTRL_REG_STATUS = 16,
+	CTRL_REG_MAC = 17,
+	CTRL_REG_CLIP = 18,
+	CTRL_REG_R = 20,
+	CTRL_REG_I = 21,
+	CTRL_REG_Q = 22,
+	CTRL_REG_TPC = 26,
+	CTRL_REG_CMSAR0 = 27,
+	CTRL_REG_FBRST = 28,
 	CTRL_REG_VPU_STAT = 29,
-	CTRL_REG_CMSAR1   = 31,
+	CTRL_REG_CMSAR1 = 31,
 };
 
 CCOP_VU::CCOP_VU(MIPS_REGSIZE nRegSize)
-: CMIPSCoprocessor(nRegSize)
+    : CMIPSCoprocessor(nRegSize)
 {
 	SetupReflectionTables();
 }
@@ -36,22 +36,22 @@ void CCOP_VU::CompileInstruction(uint32 nAddress, CMipsJitter* codeGen, CMIPS* p
 {
 	SetupQuickVariables(nAddress, codeGen, pCtx);
 
-	m_nDest			= (uint8)((m_nOpcode >> 21) & 0x0F);
-	
-	m_nFSF			= ((m_nDest >> 0) & 0x03);
-	m_nFTF			= ((m_nDest >> 2) & 0x03);
+	m_nDest = (uint8)((m_nOpcode >> 21) & 0x0F);
 
-	m_nFT			= (uint8)((m_nOpcode >> 16) & 0x1F);
-	m_nFS			= (uint8)((m_nOpcode >> 11) & 0x1F);
-	m_nFD			= (uint8)((m_nOpcode >>  6) & 0x1F);
+	m_nFSF = ((m_nDest >> 0) & 0x03);
+	m_nFTF = ((m_nDest >> 2) & 0x03);
 
-	m_nBc			= (uint8)((m_nOpcode >>  0) & 0x03);
+	m_nFT = (uint8)((m_nOpcode >> 16) & 0x1F);
+	m_nFS = (uint8)((m_nOpcode >> 11) & 0x1F);
+	m_nFD = (uint8)((m_nOpcode >> 6) & 0x1F);
 
-	m_nIT			= m_nFT;
-	m_nIS			= m_nFS;
-	m_nID			= m_nFD;
-	m_nImm5			= m_nID;
-	m_nImm15		= (uint16)((m_nOpcode >> 6) & 0x7FFF);
+	m_nBc = (uint8)((m_nOpcode >> 0) & 0x03);
+
+	m_nIT = m_nFT;
+	m_nIS = m_nFS;
+	m_nID = m_nFD;
+	m_nImm5 = m_nID;
+	m_nImm15 = (uint16)((m_nOpcode >> 6) & 0x7FFF);
 
 	switch((m_nOpcode >> 26) & 0x3F)
 	{
@@ -243,22 +243,23 @@ void CCOP_VU::CTC2()
 			m_codeGen->PullTop();
 			break;
 		case CTRL_REG_CMSAR1:
-			{
-				m_codeGen->PushCst(0xFFFF);
-				m_codeGen->And();
-				uint32 valueCursor = m_codeGen->GetTopCursor();
+		{
+			m_codeGen->PushCst(0xFFFF);
+			m_codeGen->And();
+			uint32 valueCursor = m_codeGen->GetTopCursor();
 
-				//Push context
-				m_codeGen->PushCtx();
-				//Push value
-				m_codeGen->PushCursor(valueCursor);
-				//Compute Address
-				m_codeGen->PushCst(CVpu::VU_CMSAR1);
-				m_codeGen->Call(reinterpret_cast<void*>(&MemoryUtils_SetWordProxy), 3, false);
-				//Clear stack
-				assert(m_codeGen->GetTopCursor() == valueCursor); m_codeGen->PullTop();
-			}
-			break;
+			//Push context
+			m_codeGen->PushCtx();
+			//Push value
+			m_codeGen->PushCursor(valueCursor);
+			//Compute Address
+			m_codeGen->PushCst(CVpu::VU_CMSAR1);
+			m_codeGen->Call(reinterpret_cast<void*>(&MemoryUtils_SetWordProxy), 3, false);
+			//Clear stack
+			assert(m_codeGen->GetTopCursor() == valueCursor);
+			m_codeGen->PullTop();
+		}
+		break;
 		default:
 			assert(false);
 			m_codeGen->PullTop();

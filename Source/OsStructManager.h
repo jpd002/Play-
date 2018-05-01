@@ -1,34 +1,40 @@
 #pragma once
+#include "Types.h"
 #include <cassert>
+#include <exception>
 
-template<typename StructType>
+template <typename StructType>
 class COsStructManager
 {
 public:
 	class iterator
 	{
 	public:
-		iterator(const COsStructManager& container, uint32 id) : m_container(container), m_id(id) {}
+		iterator(const COsStructManager& container, uint32 id)
+		    : m_container(container)
+		    , m_id(id)
+		{
+		}
 
-		iterator& operator ++()
+		iterator& operator++()
 		{
 			m_id++;
 			return (*this);
 		}
 
-		iterator operator ++(int)
+		iterator operator++(int)
 		{
 			iterator copy(*this);
 			m_id++;
 			return copy;
 		}
 
-		bool operator !=(const iterator& rhs) const
+		bool operator!=(const iterator& rhs) const
 		{
 			return m_id != rhs.m_id;
 		}
 
-		StructType* operator *() const
+		StructType* operator*() const
 		{
 			return m_container[m_id];
 		}
@@ -49,22 +55,22 @@ public:
 	};
 
 	COsStructManager(StructType* structBase, uint32 idBase, uint32 structMax)
-	: m_structBase(structBase)
-	, m_structMax(structMax)
-	, m_idBase(idBase)
+	    : m_structBase(structBase)
+	    , m_structMax(structMax)
+	    , m_idBase(idBase)
 	{
 		assert(m_idBase != 0);
 	}
 
 	COsStructManager(const COsStructManager&) = delete;
-	COsStructManager& operator =(const COsStructManager) = delete;
+	COsStructManager& operator=(const COsStructManager) = delete;
 
 	StructType* GetBase() const
 	{
 		return m_structBase;
 	}
 
-	StructType* operator [](uint32 index) const
+	StructType* operator[](uint32 index) const
 	{
 		index -= m_idBase;
 		if(index >= m_structMax)
@@ -121,7 +127,7 @@ public:
 	}
 
 private:
-	StructType*		m_structBase = nullptr;
-	uint32			m_structMax = 0;
-	uint32			m_idBase = 0;
+	StructType* m_structBase = nullptr;
+	uint32 m_structMax = 0;
+	uint32 m_idBase = 0;
 };

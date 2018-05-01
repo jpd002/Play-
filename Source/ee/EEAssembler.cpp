@@ -1,9 +1,8 @@
 #include "EEAssembler.h"
 
 CEEAssembler::CEEAssembler(uint32* ptr)
-: CMIPSAssembler(ptr)
+    : CMIPSAssembler(ptr)
 {
-
 }
 
 void CEEAssembler::LQ(unsigned int rt, uint16 offset, unsigned int base)

@@ -12,24 +12,23 @@
 
 #define PREFERENCE_UI_LASTFOLDER "ui.lastfolder"
 
-
-MainWindow::MainWindow(QWidget *parent) :
-	QMainWindow(parent),
-	ui(new Ui::MainWindow),
-	model(this)
+MainWindow::MainWindow(QWidget* parent)
+    : QMainWindow(parent)
+    , ui(new Ui::MainWindow)
+    , model(this)
 {
 	ui->setupUi(this);
 
 	m_virtualMachine = new CPsfVm();
 	m_virtualMachine->SetSpuHandler(&CSH_OpenAL::HandlerFactory);
-	m_virtualMachine->OnNewFrame.connect([&](){ OnNewFrame(); });
+	m_virtualMachine->OnNewFrame.connect([&]() { OnNewFrame(); });
 
 	model.setHeaderData(0, Qt::Orientation::Horizontal, QVariant("Game"), Qt::DisplayRole);
 	model.setHeaderData(1, Qt::Orientation::Horizontal, QVariant("Title"), Qt::DisplayRole);
 	model.setHeaderData(2, Qt::Orientation::Horizontal, QVariant("Length"), Qt::DisplayRole);
 	ui->tableView->setModel(&model);
 	ui->tableView->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
-	ui->tableView->verticalHeader()->setSectionResizeMode (QHeaderView::Fixed);
+	ui->tableView->verticalHeader()->setSectionResizeMode(QHeaderView::Fixed);
 
 	CAppConfig::GetInstance().RegisterPreferenceString(PREFERENCE_UI_LASTFOLDER, QDir::homePath().toStdString().c_str());
 	m_path = CAppConfig::GetInstance().GetPreferenceString(PREFERENCE_UI_LASTFOLDER);
@@ -54,12 +53,12 @@ void MainWindow::UiUpdateLoop()
 		else if(m_frames >= m_fadePosition)
 		{
 			float currentRatio = static_cast<float>(m_trackLength - m_fadePosition) / static_cast<float>(m_trackLength - m_frames);
-			float currentVolume = (1/currentRatio) * m_volumeAdjust;
+			float currentVolume = (1 / currentRatio) * m_volumeAdjust;
 			m_virtualMachine->SetVolumeAdjust(currentVolume);
 		}
 		else if(m_trackLength > 0 && m_frames > 0 && m_fadePosition > 0)
 		{
-			float currentRatio = 1/(static_cast<float>(m_trackLength - m_fadePosition) / static_cast<float>(m_frames));
+			float currentRatio = 1 / (static_cast<float>(m_trackLength - m_fadePosition) / static_cast<float>(m_frames));
 			if(currentRatio < 1.0f)
 			{
 				float currentVolume = currentRatio * m_volumeAdjust;
@@ -96,7 +95,7 @@ void MainWindow::on_actionOpen_triggered()
 			m_virtualMachine->Pause();
 			m_virtualMachine->Reset();
 			int index = model.rowCount();
-			foreach(QString file , dialog.selectedFiles())
+			foreach(QString file, dialog.selectedFiles())
 			{
 				try
 				{
@@ -105,7 +104,7 @@ void MainWindow::on_actionOpen_triggered()
 					CPsfLoader::LoadPsf(*m_virtualMachine, fileName, "", &tags);
 					model.addPlaylistItem(fileName, tags);
 				}
-				catch( const std::exception& e)
+				catch(const std::exception& e)
 				{
 					QMessageBox messageBox;
 					messageBox.critical(0, "Error", e.what());
@@ -153,10 +152,10 @@ void MainWindow::UpdateTrackDetails(CPsfBase::TagMap& tags)
 void MainWindow::OnNewFrame()
 {
 	m_frames++;
-	ui->current_time->setText(QDateTime::fromTime_t(m_frames/60).toUTC().toString("mm:ss"));
+	ui->current_time->setText(QDateTime::fromTime_t(m_frames / 60).toUTC().toString("mm:ss"));
 }
 
-void MainWindow::on_tableView_customContextMenuRequested(const QPoint &pos)
+void MainWindow::on_tableView_customContextMenuRequested(const QPoint& pos)
 {
 	auto item = ui->tableView->indexAt(pos);
 	if(item.isValid())
@@ -173,7 +172,6 @@ void MainWindow::on_tableView_customContextMenuRequested(const QPoint &pos)
 		connect(playAct, &QAction::triggered, std::bind(&MainWindow::PlayTrackIndex, this, index));
 		connect(delAct, &QAction::triggered, std::bind(&MainWindow::DeleteTrackIndex, this, index));
 	}
-
 }
 
 void MainWindow::PlayTrackIndex(int index)
@@ -187,7 +185,7 @@ void MainWindow::PlayTrackIndex(int index)
 	m_virtualMachine->Resume();
 }
 
-void MainWindow::on_tableView_doubleClicked(const QModelIndex &index)
+void MainWindow::on_tableView_doubleClicked(const QModelIndex& index)
 {
 	PlayTrackIndex(index.row());
 }
@@ -214,7 +212,6 @@ void MainWindow::DeleteTrackIndex(int index)
 			}
 			m_currentindex--;
 		}
-
 	}
 	else if(index < m_currentindex)
 	{
@@ -251,7 +248,7 @@ void MainWindow::on_nextButton_clicked()
 	int currentindex = m_currentindex;
 	if(m_currentindex < model.rowCount() - 1)
 	{
-		m_currentindex +=1;
+		m_currentindex += 1;
 	}
 	else
 	{
@@ -278,7 +275,6 @@ void MainWindow::on_prevButton_clicked()
 
 	PlayTrackIndex(m_currentindex);
 }
-
 
 void MainWindow::on_actionPlayPause_triggered()
 {

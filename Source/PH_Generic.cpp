@@ -10,12 +10,11 @@ CPH_Generic::CPH_Generic()
 
 CPH_Generic::~CPH_Generic()
 {
-	
 }
 
 CPadHandler::FactoryFunction CPH_Generic::GetFactoryFunction()
 {
-	return [] () { return new CPH_Generic(); };
+	return []() { return new CPH_Generic(); };
 }
 
 void CPH_Generic::Update(uint8* ram)

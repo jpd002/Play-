@@ -9,12 +9,11 @@ namespace VideoStream
 	class ReadGroupOfPicturesHeader : public ReadStructure<GOP_HEADER>
 	{
 	public:
-										ReadGroupOfPicturesHeader();
-		virtual							~ReadGroupOfPicturesHeader();
-		virtual void					Execute(void*, Framework::CBitStream&);
+		ReadGroupOfPicturesHeader();
+		virtual ~ReadGroupOfPicturesHeader();
+		virtual void Execute(void*, Framework::CBitStream&);
 
 	private:
-
 	};
 };
 

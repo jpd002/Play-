@@ -6,6 +6,6 @@
 class CInputManager : public CSingleton<CInputManager>
 {
 public:
-	void		SetButtonState(int, bool);
-	void		SetAxisState(int, float);
+	void SetButtonState(int, bool);
+	void SetAxisState(int, float);
 };

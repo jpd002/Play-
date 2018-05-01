@@ -3,10 +3,10 @@
 #include <math.h>
 
 CIconMesh::CIconMesh(const IconPtr& icon)
-: m_icon(icon)
-, m_time(0)
-, m_texture(0)
-, m_animLength(0)
+    : m_icon(icon)
+    , m_time(0)
+    , m_texture(0)
+    , m_animLength(0)
 {
 	m_frameInfluences.reserve(m_icon->GetFrameCount());
 
@@ -32,8 +32,8 @@ CIconMesh::~CIconMesh()
 
 void CIconMesh::Render() const
 {
-	const CIcon::TEXCOORD* pTexCoords	= m_icon->GetTexCoords();
-	unsigned int nVertexCount			= m_icon->GetVertexCount();
+	const CIcon::TEXCOORD* pTexCoords = m_icon->GetTexCoords();
+	unsigned int nVertexCount = m_icon->GetVertexCount();
 
 	glBindTexture(GL_TEXTURE_2D, m_texture);
 
@@ -92,9 +92,8 @@ void CIconMesh::ComputeFrameInfluences()
 			const CIcon::KEY& key = frame->pKeys[j];
 			//Check end and start cases
 			if(
-				((j == 0) && m_time <= key.nTime) ||
-				((j == frame->nKeyCount - 1))
-				)
+			    ((j == 0) && m_time <= key.nTime) ||
+			    ((j == frame->nKeyCount - 1)))
 			{
 				frameAmp = key.nAmplitude;
 				break;
@@ -128,8 +127,8 @@ void CIconMesh::ComputeFrameInfluences()
 	}
 
 	if(
-		(m_frameInfluences.size() == 0) && 
-		(m_icon->GetFrameCount() == 1))
+	    (m_frameInfluences.size() == 0) &&
+	    (m_icon->GetFrameCount() == 1))
 	{
 		const CIcon::FRAME* frame = m_icon->GetFrame(0);
 
@@ -149,8 +148,8 @@ void CIconMesh::LoadTexture()
 	{
 		uint16 nPixel = pTexture[i];
 
-		uint8 nR = ((nPixel & 0x001F) >>  0) << 3;
-		uint8 nG = ((nPixel & 0x03E0) >>  5) << 3;
+		uint8 nR = ((nPixel & 0x001F) >> 0) << 3;
+		uint8 nG = ((nPixel & 0x03E0) >> 5) << 3;
 		uint8 nB = ((nPixel & 0x7C00) >> 10) << 3;
 		uint8 nA = (nPixel & 0x8000) != 0 ? 0xFF : 0x00;
 
@@ -171,8 +170,8 @@ void CIconMesh::LoadTexture()
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
 
 	glTexImage2D(GL_TEXTURE_2D, 0, 4, 128, 128, 0, GL_RGBA, GL_UNSIGNED_BYTE, pCvtBuffer);
-	
+
 	glBindTexture(GL_TEXTURE_2D, NULL);
 
-	delete [] pCvtBuffer;
+	delete[] pCvtBuffer;
 }

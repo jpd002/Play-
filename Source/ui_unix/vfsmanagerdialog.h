@@ -5,7 +5,7 @@
 
 namespace Ui
 {
-class VFSManagerDialog;
+	class VFSManagerDialog;
 }
 
 class VFSManagerDialog : public QDialog
@@ -17,7 +17,7 @@ public:
 	~VFSManagerDialog();
 
 	Ui::VFSManagerDialog* ui;
-	void                  UpdateList();
+	void UpdateList();
 
 protected:
 	void accept() Q_DECL_OVERRIDE;

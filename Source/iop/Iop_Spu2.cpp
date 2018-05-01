@@ -28,7 +28,6 @@ CSpu2::CSpu2(CSpuBase& spuBase0, CSpuBase& spuBase1)
 
 CSpu2::~CSpu2()
 {
-
 }
 
 void CSpu2::Reset()

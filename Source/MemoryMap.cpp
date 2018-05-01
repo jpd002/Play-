@@ -47,21 +47,21 @@ const CMemoryMap::MEMORYMAPELEMENT* CMemoryMap::GetWriteMap(uint32 address) cons
 void CMemoryMap::InsertMap(MemoryMapListType& memoryMap, uint32 start, uint32 end, void* pointer, unsigned char key)
 {
 	MEMORYMAPELEMENT element;
-	element.nStart		= start;
-	element.nEnd		= end;
-	element.pPointer	= pointer;
-	element.nType		= MEMORYMAP_TYPE_MEMORY;
+	element.nStart = start;
+	element.nEnd = end;
+	element.pPointer = pointer;
+	element.nType = MEMORYMAP_TYPE_MEMORY;
 	memoryMap.push_back(element);
 }
 
 void CMemoryMap::InsertMap(MemoryMapListType& memoryMap, uint32 start, uint32 end, const MemoryMapHandlerType& handler, unsigned char key)
 {
 	MEMORYMAPELEMENT element;
-	element.nStart		= start;
-	element.nEnd		= end;
-	element.handler		= handler;
-	element.pPointer	= nullptr;
-	element.nType		= MEMORYMAP_TYPE_FUNCTION;
+	element.nStart = start;
+	element.nEnd = end;
+	element.handler = handler;
+	element.pPointer = nullptr;
+	element.nType = MEMORYMAP_TYPE_FUNCTION;
 	memoryMap.push_back(element);
 }
 

@@ -49,9 +49,8 @@ void CVuAnalysis::Analyse(CMIPS* ctx, uint32 begin, uint32 end)
 
 		//Check for JR or END bit
 		if(
-			(lowerInstruction & 0xFE000000) == (0x24 << 25) ||
-			(upperInstruction & 0x40000000)
-			)
+		    (lowerInstruction & 0xFE000000) == (0x24 << 25) ||
+		    (upperInstruction & 0x40000000))
 		{
 			subroutineAddresses.insert(potentialRoutineStart);
 			potentialRoutineStart = address + 8;
@@ -75,9 +74,8 @@ void CVuAnalysis::Analyse(CMIPS* ctx, uint32 begin, uint32 end)
 
 			//Check for JR or END bit
 			if(
-				(lowerInstruction & 0xFE000000) == (0x24 << 25) ||
-				(upperInstruction & 0x40000000)
-				)
+			    (lowerInstruction & 0xFE000000) == (0x24 << 25) ||
+			    (upperInstruction & 0x40000000))
 			{
 				ctx->m_analysis->InsertSubroutine(subroutineAddress, address + 8, 0, 0, 0, 0);
 				routineCount++;

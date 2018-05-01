@@ -11,28 +11,28 @@ using namespace Iop;
 
 #define PREF_IOP_FILEIO_STDLOGGING ("iop.fileio.stdlogging")
 
-#define FUNCTION_ADDDRV    "AddDrv"
-#define FUNCTION_DELDRV    "DelDrv"
+#define FUNCTION_ADDDRV "AddDrv"
+#define FUNCTION_DELDRV "DelDrv"
 
 static std::string RightTrim(std::string inputString)
 {
-	auto nonSpaceEnd = std::find_if(inputString.rbegin(), inputString.rend(), [] (int ch) { return !std::isspace(ch); });
+	auto nonSpaceEnd = std::find_if(inputString.rbegin(), inputString.rend(), [](int ch) { return !std::isspace(ch); });
 	inputString.erase(nonSpaceEnd.base(), inputString.end());
 	return inputString;
 }
 
 CIoman::CIoman(uint8* ram)
-: m_ram(ram)
-, m_nextFileHandle(3)
+    : m_ram(ram)
+    , m_nextFileHandle(3)
 {
 	CAppConfig::GetInstance().RegisterPreferenceBoolean(PREF_IOP_FILEIO_STDLOGGING, false);
 
 	//Insert standard files if requested.
 	if(CAppConfig::GetInstance().GetPreferenceBoolean(PREF_IOP_FILEIO_STDLOGGING)
 #ifdef DEBUGGER_INCLUDED
-		|| true
+	   || true
 #endif
-		)
+	)
 	{
 		try
 		{
@@ -52,7 +52,7 @@ CIoman::CIoman(uint8* ram)
 CIoman::~CIoman()
 {
 	for(auto fileIterator(std::begin(m_files));
-		std::end(m_files) != fileIterator; fileIterator++)
+	    std::end(m_files) != fileIterator; fileIterator++)
 	{
 		delete fileIterator->second;
 	}
@@ -116,7 +116,7 @@ uint32 CIoman::Open(uint32 flags, const char* path)
 	{
 		std::string fullPath(path);
 		auto position = fullPath.find(":");
-		if(position == std::string::npos) 
+		if(position == std::string::npos)
 		{
 			throw std::runtime_error("Invalid path.");
 		}
@@ -219,8 +219,8 @@ uint32 CIoman::Write(uint32 handle, uint32 size, const void* buffer)
 
 uint32 CIoman::Seek(uint32 handle, uint32 position, uint32 whence)
 {
-	CLog::GetInstance().Print(LOG_NAME, "Seek(handle = %d, position = 0x%X, whence = %d);\r\n", 
-		handle, position, whence);
+	CLog::GetInstance().Print(LOG_NAME, "Seek(handle = %d, position = 0x%X, whence = %d);\r\n",
+	                          handle, position, whence);
 
 	uint32 result = 0xFFFFFFFF;
 	try
@@ -269,14 +269,14 @@ uint32 CIoman::GetStat(const char* path, STAT* stat)
 uint32 CIoman::AddDrv(uint32 drvPtr)
 {
 	CLog::GetInstance().Print(LOG_NAME, FUNCTION_ADDDRV "(drvPtr = 0x%08X);\r\n",
-		drvPtr);
+	                          drvPtr);
 	return -1;
 }
 
 uint32 CIoman::DelDrv(uint32 drvNamePtr)
 {
 	CLog::GetInstance().Print(LOG_NAME, FUNCTION_DELDRV "(drvNamePtr = %s);\r\n",
-		PrintStringParameter(m_ram, drvNamePtr).c_str());
+	                          PrintStringParameter(m_ram, drvNamePtr).c_str());
 	return -1;
 }
 
@@ -310,43 +310,37 @@ void CIoman::Invoke(CMIPS& context, unsigned int functionId)
 	{
 	case 4:
 		context.m_State.nGPR[CMIPS::V0].nD0 = static_cast<int32>(Open(
-			context.m_State.nGPR[CMIPS::A1].nV[0],
-			reinterpret_cast<char*>(&m_ram[context.m_State.nGPR[CMIPS::A0].nV[0]])
-			));
+		    context.m_State.nGPR[CMIPS::A1].nV[0],
+		    reinterpret_cast<char*>(&m_ram[context.m_State.nGPR[CMIPS::A0].nV[0]])));
 		break;
 	case 5:
 		context.m_State.nGPR[CMIPS::V0].nD0 = static_cast<int32>(Close(
-			context.m_State.nGPR[CMIPS::A0].nV[0]
-			));
+		    context.m_State.nGPR[CMIPS::A0].nV[0]));
 		break;
 	case 6:
 		context.m_State.nGPR[CMIPS::V0].nD0 = static_cast<int32>(Read(
-			context.m_State.nGPR[CMIPS::A0].nV[0],
-			context.m_State.nGPR[CMIPS::A2].nV[0],
-			&m_ram[context.m_State.nGPR[CMIPS::A1].nV[0]]
-			));
+		    context.m_State.nGPR[CMIPS::A0].nV[0],
+		    context.m_State.nGPR[CMIPS::A2].nV[0],
+		    &m_ram[context.m_State.nGPR[CMIPS::A1].nV[0]]));
 		break;
 	case 8:
 		context.m_State.nGPR[CMIPS::V0].nD0 = static_cast<int32>(Seek(
-			context.m_State.nGPR[CMIPS::A0].nV[0],
-			context.m_State.nGPR[CMIPS::A1].nV[0],
-			context.m_State.nGPR[CMIPS::A2].nV[0]));
+		    context.m_State.nGPR[CMIPS::A0].nV[0],
+		    context.m_State.nGPR[CMIPS::A1].nV[0],
+		    context.m_State.nGPR[CMIPS::A2].nV[0]));
 		break;
 	case 16:
 		context.m_State.nGPR[CMIPS::V0].nD0 = static_cast<int32>(GetStat(
-			reinterpret_cast<char*>(&m_ram[context.m_State.nGPR[CMIPS::A0].nV[0]]),
-			reinterpret_cast<STAT*>(&m_ram[context.m_State.nGPR[CMIPS::A1].nV[0]])
-		));
+		    reinterpret_cast<char*>(&m_ram[context.m_State.nGPR[CMIPS::A0].nV[0]]),
+		    reinterpret_cast<STAT*>(&m_ram[context.m_State.nGPR[CMIPS::A1].nV[0]])));
 		break;
 	case 20:
 		context.m_State.nGPR[CMIPS::V0].nD0 = static_cast<int32>(AddDrv(
-			context.m_State.nGPR[CMIPS::A0].nV0
-		));
+		    context.m_State.nGPR[CMIPS::A0].nV0));
 		break;
 	case 21:
 		context.m_State.nGPR[CMIPS::V0].nD0 = static_cast<int32>(DelDrv(
-			context.m_State.nGPR[CMIPS::A0].nV0
-		));
+		    context.m_State.nGPR[CMIPS::A0].nV0));
 		break;
 	default:
 		CLog::GetInstance().Print(LOG_NAME, "%s(%08X): Unknown function (%d) called.\r\n", __FUNCTION__, context.m_State.nPC, functionId);
@@ -359,10 +353,9 @@ void CIoman::Invoke(CMIPS& context, unsigned int functionId)
 //--------------------------------------------------
 
 CIoman::CFile::CFile(uint32 handle, CIoman& ioman)
-: m_handle(handle)
-, m_ioman(ioman)
+    : m_handle(handle)
+    , m_ioman(ioman)
 {
-
 }
 
 CIoman::CFile::~CFile()

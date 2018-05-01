@@ -4,15 +4,14 @@ using namespace VideoStream;
 
 ReadGroupOfPicturesHeader::ReadGroupOfPicturesHeader()
 {
-	m_commands.push_back(COMMAND(COMMAND_TYPE_READ32,		25,		&GOP_HEADER::timeCode));
-	m_commands.push_back(COMMAND(COMMAND_TYPE_READ8,		1,		&GOP_HEADER::closedGop));
-	m_commands.push_back(COMMAND(COMMAND_TYPE_READ8,		1,		&GOP_HEADER::brokenLink));
-	m_commands.push_back(COMMAND(COMMAND_ALIGN8,			0,		0));
+	m_commands.push_back(COMMAND(COMMAND_TYPE_READ32, 25, &GOP_HEADER::timeCode));
+	m_commands.push_back(COMMAND(COMMAND_TYPE_READ8, 1, &GOP_HEADER::closedGop));
+	m_commands.push_back(COMMAND(COMMAND_TYPE_READ8, 1, &GOP_HEADER::brokenLink));
+	m_commands.push_back(COMMAND(COMMAND_ALIGN8, 0, 0));
 }
 
 ReadGroupOfPicturesHeader::~ReadGroupOfPicturesHeader()
 {
-
 }
 
 void ReadGroupOfPicturesHeader::Execute(void* context, Framework::CBitStream& stream)

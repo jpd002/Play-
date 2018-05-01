@@ -3,14 +3,13 @@
 using namespace Psp;
 
 CPsfBios::CPsfBios(CMIPS& cpu, uint8* ram, uint32 ramSize)
-: m_bios(cpu, ram, ramSize)
+    : m_bios(cpu, ram, ramSize)
 {
 	Reset();
 }
 
 CPsfBios::~CPsfBios()
 {
-
 }
 
 void CPsfBios::AppendArchive(const CPsfBase& psfFile)
@@ -49,12 +48,10 @@ void CPsfBios::HandleException()
 
 void CPsfBios::HandleInterrupt()
 {
-
 }
 
 void CPsfBios::CountTicks(uint32 ticks)
 {
-
 }
 
 bool CPsfBios::IsIdle()
@@ -66,12 +63,10 @@ bool CPsfBios::IsIdle()
 
 void CPsfBios::LoadDebugTags(Framework::Xml::CNode* root)
 {
-
 }
 
 void CPsfBios::SaveDebugTags(Framework::Xml::CNode* root)
 {
-
 }
 
 BiosDebugModuleInfoArray CPsfBios::GetModulesDebugInfo() const

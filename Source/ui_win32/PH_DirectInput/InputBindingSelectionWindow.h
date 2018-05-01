@@ -12,31 +12,31 @@ namespace PH_DirectInput
 	class CInputBindingSelectionWindow : public Framework::Win32::CModalWindow
 	{
 	public:
-											CInputBindingSelectionWindow(HWND, CInputManager&, PS2::CControllerInfo::BUTTON);
-		virtual								~CInputBindingSelectionWindow();
+		CInputBindingSelectionWindow(HWND, CInputManager&, PS2::CControllerInfo::BUTTON);
+		virtual ~CInputBindingSelectionWindow();
 
 	protected:
-		long								OnActivate(unsigned int, bool, HWND);
-		long								OnTimer(WPARAM);
+		long OnActivate(unsigned int, bool, HWND);
+		long OnTimer(WPARAM);
 
 	private:
-		void								RefreshLayout();
-		void								ProcessEvent(const GUID&, uint32, uint32);
+		void RefreshLayout();
+		void ProcessEvent(const GUID&, uint32, uint32);
 
-		CInputManager&						m_inputManager;
-		uint32								m_directInputManagerHandlerId;
+		CInputManager& m_inputManager;
+		uint32 m_directInputManagerHandlerId;
 
-		Framework::Win32::CStatic*			m_currentBindingLabel;
-		PS2::CControllerInfo::BUTTON		m_button;
+		Framework::Win32::CStatic* m_currentBindingLabel;
+		PS2::CControllerInfo::BUTTON m_button;
 
-		GUID								m_selectedDevice;
-		uint32								m_selectedId;
-		uint32								m_selectedValue;
-		bool								m_selected;
+		GUID m_selectedDevice;
+		uint32 m_selectedId;
+		uint32 m_selectedValue;
+		bool m_selected;
 
-		Framework::LayoutObjectPtr			m_layout;
+		Framework::LayoutObjectPtr m_layout;
 
-		bool								m_isActive;
+		bool m_isActive;
 	};
 }
 

@@ -9,12 +9,10 @@
 
 CPsfFs::CPsfFs()
 {
-
 }
 
 CPsfFs::~CPsfFs()
 {
-
 }
 
 void CPsfFs::AppendArchive(const CPsfBase& archive)
@@ -113,7 +111,7 @@ Framework::CStream* CPsfFs::GetFile(const char* path)
 CPsfFs::NODE* CPsfFs::GetFileFindNode(const DIRECTORY& directory, const char* path)
 {
 	for(auto nodeIterator = std::begin(directory.fileList);
-		nodeIterator != std::end(directory.fileList); nodeIterator++)
+	    nodeIterator != std::end(directory.fileList); nodeIterator++)
 	{
 		NODE* node(*nodeIterator);
 		if(!stricmp(node->name, path))

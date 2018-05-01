@@ -12,6 +12,6 @@
 
 @interface BackgroundLayer : NSObject
 
-+(CAGradientLayer*) blueGradient;
++ (CAGradientLayer*)blueGradient;
 
 @end

@@ -6,31 +6,31 @@
 class CIconMesh
 {
 public:
-					CIconMesh(const IconPtr&);
-	virtual			~CIconMesh();
+	CIconMesh(const IconPtr&);
+	virtual ~CIconMesh();
 
-	void			Render() const;
-	void			Update(float);
+	void Render() const;
+	void Update(float);
 
 private:
 	struct FRAMEINFLUENCE
 	{
-		unsigned int	shapeId;
-		float			amplitude;
+		unsigned int shapeId;
+		float amplitude;
 	};
 
 	typedef std::vector<FRAMEINFLUENCE> FrameInfluenceArray;
 
-	void					ComputeFrameInfluences();
-	void					LoadTexture();
+	void ComputeFrameInfluences();
+	void LoadTexture();
 
-	unsigned int			m_texture;
-	IconPtr					m_icon;
+	unsigned int m_texture;
+	IconPtr m_icon;
 
-	float					m_animLength;
-	float					m_time;
+	float m_animLength;
+	float m_time;
 
-	FrameInfluenceArray		m_frameInfluences;
+	FrameInfluenceArray m_frameInfluences;
 };
 
 typedef std::shared_ptr<CIconMesh> IconMeshPtr;

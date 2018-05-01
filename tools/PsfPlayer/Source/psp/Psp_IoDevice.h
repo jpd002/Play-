@@ -9,8 +9,10 @@ namespace Psp
 	class CIoDevice
 	{
 	public:
-		virtual							~CIoDevice() {}
-		virtual Framework::CStream*		GetFile(const char*, uint32) = 0;
+		virtual ~CIoDevice()
+		{
+		}
+		virtual Framework::CStream* GetFile(const char*, uint32) = 0;
 	};
 
 	typedef std::shared_ptr<CIoDevice> IoDevicePtr;

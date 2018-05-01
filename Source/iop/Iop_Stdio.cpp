@@ -5,22 +5,20 @@
 #include "string_format.h"
 #include "../Log.h"
 
-#define LOG_NAME			"iop_stdio"
+#define LOG_NAME "iop_stdio"
 
-#define FUNCTION_PRINTF		"printf"
+#define FUNCTION_PRINTF "printf"
 
 using namespace Iop;
 
 CStdio::CStdio(uint8* ram, CIoman& ioman)
-: m_ram(ram)
-, m_ioman(ioman)
+    : m_ram(ram)
+    , m_ioman(ioman)
 {
-
 }
 
 CStdio::~CStdio()
 {
-
 }
 
 std::string CStdio::GetId() const
@@ -49,8 +47,8 @@ void CStdio::Invoke(CMIPS& context, unsigned int functionId)
 		__printf(context);
 		break;
 	default:
-		CLog::GetInstance().Print(LOG_NAME, "Unknown function (%d) called. PC = (%08X).", 
-			functionId, context.m_State.nPC);
+		CLog::GetInstance().Print(LOG_NAME, "Unknown function (%d) called. PC = (%08X).",
+		                          functionId, context.m_State.nPC);
 		break;
 	}
 }
@@ -68,7 +66,7 @@ std::string CStdio::PrintFormatted(const char* format, CArgumentIterator& args)
 			bool showSign = false;
 			char fillChar = ' ';
 			std::string precision;
-			while(!paramDone && *format != 0) 
+			while(!paramDone && *format != 0)
 			{
 				char type = *(format++);
 				if(type == '%')

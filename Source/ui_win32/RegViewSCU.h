@@ -7,12 +7,12 @@
 class CRegViewSCU : public CRegViewPage, public boost::signals2::trackable
 {
 public:
-									CRegViewSCU(HWND, const RECT&, CVirtualMachine&, CMIPS*);
-	virtual							~CRegViewSCU() = default;
+	CRegViewSCU(HWND, const RECT&, CVirtualMachine&, CMIPS*);
+	virtual ~CRegViewSCU() = default;
 
 private:
-	void							Update() override;
-	std::string						GetDisplayText();
+	void Update() override;
+	std::string GetDisplayText();
 
-	CMIPS*							m_ctx = nullptr;
+	CMIPS* m_ctx = nullptr;
 };

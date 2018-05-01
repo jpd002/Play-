@@ -5,9 +5,8 @@
 #include "Vpu.h"
 
 CVuBasicBlock::CVuBasicBlock(CMIPS& context, uint32 begin, uint32 end)
-: CBasicBlock(context, begin, end)
+    : CBasicBlock(context, begin, end)
 {
-
 }
 
 void CVuBasicBlock::CompileRange(CMipsJitter* jitter)
@@ -44,12 +43,11 @@ void CVuBasicBlock::CompileRange(CMipsJitter* jitter)
 
 	bool hasPendingXgKick = false;
 	const auto clearPendingXgKick =
-		[&]()
-		{
-			assert(hasPendingXgKick);
-			EmitXgKick(jitter);
-			hasPendingXgKick = false;
-		};
+	    [&]() {
+		    assert(hasPendingXgKick);
+		    EmitXgKick(jitter);
+		    hasPendingXgKick = false;
+	    };
 
 	for(uint32 address = m_begin; address <= fixedEnd; address += 8)
 	{
@@ -66,7 +64,7 @@ void CVuBasicBlock::CompileRange(CMipsJitter* jitter)
 
 		//No upper instruction writes to Q
 		assert(hiOps.syncQ == false);
-		
+
 		//No lower instruction reads Q
 		assert(loOps.readQ == false);
 
@@ -88,9 +86,8 @@ void CVuBasicBlock::CompileRange(CMipsJitter* jitter)
 		{
 			assert(hiOps.writeF != loOps.writeF);
 			if(
-				(hiOps.writeF == loOps.readF0) ||
-				(hiOps.writeF == loOps.readF1)
-				)
+			    (hiOps.writeF == loOps.readF0) ||
+			    (hiOps.writeF == loOps.readF1))
 			{
 				savedReg = hiOps.writeF;
 				jitter->MD_PushRel(offsetof(CMIPS, m_State.nCOP2[savedReg]));
@@ -228,9 +225,8 @@ CVuBasicBlock::INTEGER_BRANCH_DELAY_INFO CVuBasicBlock::GetIntegerBranchDelayInf
 		{
 			auto branchLoOps = arch->GetAffectedOperands(&m_context, branchOpcodeAddr, branchOpcodeLo);
 			if(
-				(branchLoOps.readI0 == priorLoOps.writeI) || 
-				(branchLoOps.readI1 == priorLoOps.writeI)
-				)
+			    (branchLoOps.readI0 == priorLoOps.writeI) ||
+			    (branchLoOps.readI1 == priorLoOps.writeI))
 			{
 				//Check if our block is a "special" loop. Disable delayed integer processing if it's the case
 				//TODO: Handle that case better
@@ -238,9 +234,9 @@ CVuBasicBlock::INTEGER_BRANCH_DELAY_INFO CVuBasicBlock::GetIntegerBranchDelayInf
 				if(!isSpecialLoop)
 				{
 					// we need to use the value of intReg 4 steps prior or use initial value.
-					result.regIndex       = priorLoOps.writeI;
+					result.regIndex = priorLoOps.writeI;
 					result.saveRegAddress = std::max(adjustedEnd - 5 * 8, m_begin);
-					result.useRegAddress  = adjustedEnd - 8;
+					result.useRegAddress = adjustedEnd - 8;
 				}
 			}
 		}

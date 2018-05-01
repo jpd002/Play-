@@ -3,14 +3,13 @@
 #include "../AppConfig.h"
 
 CPH_DirectInput::CPH_DirectInput(HWND hWnd)
-: m_inputManager(CAppConfig::GetInstance())
+    : m_inputManager(CAppConfig::GetInstance())
 {
 	m_inputManager.PushFocusWindow(hWnd);
 }
 
 CPH_DirectInput::~CPH_DirectInput()
 {
-
 }
 
 CPadHandler::FactoryFunction CPH_DirectInput::GetFactoryFunction(HWND hWnd)
@@ -50,5 +49,4 @@ Framework::Win32::CWindow* CPH_DirectInput::CreateSettingsDialog(HWND parent)
 
 void CPH_DirectInput::OnSettingsDialogDestroyed()
 {
-
 }

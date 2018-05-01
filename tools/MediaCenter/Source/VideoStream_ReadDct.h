@@ -9,12 +9,12 @@ namespace VideoStream
 	class ReadDct
 	{
 	public:
-						ReadDct();
-		virtual			~ReadDct();
+		ReadDct();
+		virtual ~ReadDct();
 
-		void			Reset();
-		void			Execute(void*, Framework::CBitStream&);
-		void			SetBlockInfo(int16*, unsigned int);
+		void Reset();
+		void Execute(void*, Framework::CBitStream&);
+		void SetBlockInfo(int16*, unsigned int);
 
 	private:
 		enum PROGRAM_STATE
@@ -27,12 +27,12 @@ namespace VideoStream
 			STATE_DONE,
 		};
 
-		PROGRAM_STATE					m_programState;
-		MPEG2::CDctCoefficientTable*	m_coeffTable;
-		ReadDcDifferential				m_dcDiffReader;
-		unsigned int					m_blockIndex;
-		int16*							m_block;
-		unsigned int					m_channel;
+		PROGRAM_STATE m_programState;
+		MPEG2::CDctCoefficientTable* m_coeffTable;
+		ReadDcDifferential m_dcDiffReader;
+		unsigned int m_blockIndex;
+		int16* m_block;
+		unsigned int m_channel;
 	};
 }
 

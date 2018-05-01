@@ -22,14 +22,13 @@ struct PRESENTVERTEX
 
 #define PRESENTFVF (D3DFVF_XYZ | D3DFVF_TEX1)
 
-static const PRESENTVERTEX g_presentVertices[] = 
-{
-	// X   Y  Z  U  V
-	{ -1, -1, 0, 0, 1 },
-	{  1, -1, 0, 1, 1 },
-	{ -1,  1, 0, 0, 0 },
-	{  1,  1, 0, 1, 0 }
-};
+static const PRESENTVERTEX g_presentVertices[] =
+    {
+        // X   Y  Z  U  V
+        {-1, -1, 0, 0, 1},
+        {1, -1, 0, 1, 1},
+        {-1, 1, 0, 0, 0},
+        {1, 1, 0, 1, 0}};
 
 static uint8 MulBy2Clamp(uint8 value)
 {
@@ -37,8 +36,8 @@ static uint8 MulBy2Clamp(uint8 value)
 	return value << 1;
 }
 
-CGSH_Direct3D9::CGSH_Direct3D9(Framework::Win32::CWindow* outputWindow) 
-: m_outputWnd(outputWindow)
+CGSH_Direct3D9::CGSH_Direct3D9(Framework::Win32::CWindow* outputWindow)
+    : m_outputWnd(outputWindow)
 {
 	memset(&m_renderState, 0, sizeof(m_renderState));
 	m_primitiveMode <<= 0;
@@ -47,14 +46,14 @@ CGSH_Direct3D9::CGSH_Direct3D9(Framework::Win32::CWindow* outputWindow)
 Framework::CBitmap CGSH_Direct3D9::GetFramebuffer(uint64 frameReg)
 {
 	Framework::CBitmap result;
-	m_mailBox.SendCall([&] () { result = GetFramebufferImpl(frameReg); }, true );
+	m_mailBox.SendCall([&]() { result = GetFramebufferImpl(frameReg); }, true);
 	return result;
 }
 
 Framework::CBitmap CGSH_Direct3D9::GetTexture(uint64 tex0Reg, uint32 maxMip, uint64 miptbp1Reg, uint64 miptbp2Reg, uint32 mipLevel)
 {
 	Framework::CBitmap result;
-	m_mailBox.SendCall([&] () { result = GetTextureImpl(tex0Reg, maxMip, miptbp1Reg, miptbp2Reg, mipLevel); }, true);
+	m_mailBox.SendCall([&]() { result = GetTextureImpl(tex0Reg, maxMip, miptbp1Reg, miptbp2Reg, mipLevel); }, true);
 	return result;
 }
 
@@ -65,7 +64,7 @@ const CGSH_Direct3D9::VERTEX* CGSH_Direct3D9::GetInputVertices() const
 
 CGSHandler::FactoryFunction CGSH_Direct3D9::GetFactoryFunction(Framework::Win32::CWindow* outputWnd)
 {
-	return [=] () { return new CGSH_Direct3D9(outputWnd); };
+	return [=]() { return new CGSH_Direct3D9(outputWnd); };
 }
 
 void CGSH_Direct3D9::ProcessHostToLocalTransfer()
@@ -120,12 +119,10 @@ void CGSH_Direct3D9::ProcessLocalToHostTransfer()
 	if((trxReg.nRRW != 32) || (trxReg.nRRH != 32)) return;
 	if((trxPos.nSSAX != 0) || (trxPos.nSSAY != 0)) return;
 
-	auto framebufferIterator = std::find_if(m_framebuffers.begin(), m_framebuffers.end(), 
-		[] (const FramebufferPtr& framebuffer)
-		{
-			return (framebuffer->m_psm == PSMCT32) && (framebuffer->m_basePtr == 0);
-		}
-	);
+	auto framebufferIterator = std::find_if(m_framebuffers.begin(), m_framebuffers.end(),
+	                                        [](const FramebufferPtr& framebuffer) {
+		                                        return (framebuffer->m_psm == PSMCT32) && (framebuffer->m_basePtr == 0);
+	                                        });
 	if(framebufferIterator == std::end(m_framebuffers)) return;
 	const auto& framebuffer = (*framebufferIterator);
 
@@ -170,7 +167,6 @@ void CGSH_Direct3D9::ProcessLocalToHostTransfer()
 
 void CGSH_Direct3D9::ProcessLocalToLocalTransfer()
 {
-
 }
 
 void CGSH_Direct3D9::ProcessClutTransfer(uint32, uint32)
@@ -180,7 +176,6 @@ void CGSH_Direct3D9::ProcessClutTransfer(uint32, uint32)
 
 void CGSH_Direct3D9::ReadFramebuffer(uint32, uint32, void*)
 {
-
 }
 
 bool CGSH_Direct3D9::GetDepthTestingEnabled() const
@@ -241,19 +236,17 @@ void CGSH_Direct3D9::ResetImpl()
 
 void CGSH_Direct3D9::ReleaseImpl()
 {
-	delete [] m_cvtBuffer;
+	delete[] m_cvtBuffer;
 }
 
 CGSH_Direct3D9::FramebufferPtr CGSH_Direct3D9::FindFramebuffer(uint64 frameReg) const
 {
 	auto frame = make_convertible<FRAME>(frameReg);
 
-	auto framebufferIterator = std::find_if(std::begin(m_framebuffers), std::end(m_framebuffers), 
-		[&] (const FramebufferPtr& framebuffer)
-		{
-			return (framebuffer->m_basePtr == frame.GetBasePtr()) && (framebuffer->m_width == frame.GetWidth());
-		}
-	);
+	auto framebufferIterator = std::find_if(std::begin(m_framebuffers), std::end(m_framebuffers),
+	                                        [&](const FramebufferPtr& framebuffer) {
+		                                        return (framebuffer->m_basePtr == frame.GetBasePtr()) && (framebuffer->m_width == frame.GetWidth());
+	                                        });
 
 	return (framebufferIterator != std::end(m_framebuffers)) ? *(framebufferIterator) : FramebufferPtr();
 }
@@ -268,7 +261,7 @@ Framework::CBitmap CGSH_Direct3D9::GetFramebufferImpl(uint64 frameReg)
 	else
 	{
 		return CreateBitmapFromRenderTarget(framebuffer->m_renderTarget,
-			framebuffer->m_width, framebuffer->m_height, framebuffer->m_width, framebuffer->m_height);
+		                                    framebuffer->m_width, framebuffer->m_height, framebuffer->m_width, framebuffer->m_height);
 	}
 }
 
@@ -277,12 +270,10 @@ CGSH_Direct3D9::DepthbufferPtr CGSH_Direct3D9::FindDepthbuffer(uint64 zbufReg, u
 	auto zbuf = make_convertible<ZBUF>(zbufReg);
 	auto frame = make_convertible<FRAME>(frameReg);
 
-	auto depthbufferIterator = std::find_if(std::begin(m_depthbuffers), std::end(m_depthbuffers), 
-		[&] (const DepthbufferPtr& depthBuffer)
-		{
-			return (depthBuffer->m_basePtr == zbuf.GetBasePtr()) && (depthBuffer->m_width == frame.GetWidth());
-		}
-	);
+	auto depthbufferIterator = std::find_if(std::begin(m_depthbuffers), std::end(m_depthbuffers),
+	                                        [&](const DepthbufferPtr& depthBuffer) {
+		                                        return (depthBuffer->m_basePtr == zbuf.GetBasePtr()) && (depthBuffer->m_width == frame.GetWidth());
+	                                        });
 
 	return (depthbufferIterator != std::end(m_depthbuffers)) ? *(depthbufferIterator) : DepthbufferPtr();
 }
@@ -296,8 +287,8 @@ Framework::CBitmap CGSH_Direct3D9::GetTextureImpl(uint64 tex0Reg, uint32 maxMip,
 
 	if(texInfo.isRenderTarget)
 	{
-		return CreateBitmapFromRenderTarget(texInfo.texture, 
-			texInfo.renderTargetWidth, texInfo.renderTargetHeight, tex0.GetWidth(), tex0.GetHeight());
+		return CreateBitmapFromRenderTarget(texInfo.texture,
+		                                    texInfo.renderTargetWidth, texInfo.renderTargetHeight, tex0.GetWidth(), tex0.GetHeight());
 	}
 	else
 	{
@@ -310,26 +301,25 @@ Framework::CBitmap CGSH_Direct3D9::CreateBitmapFromTexture(const TexturePtr& tex
 	width = std::max<uint32>(width >> mipLevel, 1);
 	height = std::max<uint32>(height >> mipLevel, 1);
 
-	uint32 bitsPerPixel = 
-		[format]()
-		{
-			switch(format)
-			{
-			case PSMCT16:
-				return 16;
-			case PSMT4:
-			case PSMT8:
-			case PSMT8H:
-			case PSMT4HL:
-			case PSMT4HH:
-				return 8;
-			default:
-				assert(false);
-			case PSMCT32:
-			case PSMCT24:
-				return 32;
-			}
-		}();
+	uint32 bitsPerPixel =
+	    [format]() {
+		    switch(format)
+		    {
+		    case PSMCT16:
+			    return 16;
+		    case PSMT4:
+		    case PSMT8:
+		    case PSMT8H:
+		    case PSMT4HL:
+		    case PSMT4HH:
+			    return 8;
+		    default:
+			    assert(false);
+		    case PSMCT32:
+		    case PSMCT24:
+			    return 32;
+		    }
+	    }();
 
 	auto bitmap = Framework::CBitmap(width, height, bitsPerPixel);
 
@@ -478,10 +468,9 @@ void CGSH_Direct3D9::DrawActiveFramebuffer()
 	for(const auto& candidateFramebuffer : m_framebuffers)
 	{
 		if(
-			(candidateFramebuffer->m_basePtr == fb.GetBufPtr()) &&
-			//(GetFramebufferBitDepth(candidateFramebuffer->m_psm) == GetFramebufferBitDepth(fb.nPSM)) &&
-			(candidateFramebuffer->m_width == fb.GetBufWidth())
-			)
+		    (candidateFramebuffer->m_basePtr == fb.GetBufPtr()) &&
+		    //(GetFramebufferBitDepth(candidateFramebuffer->m_psm) == GetFramebufferBitDepth(fb.nPSM)) &&
+		    (candidateFramebuffer->m_width == fb.GetBufWidth()))
 		{
 			//We have a winner
 			framebuffer = candidateFramebuffer;
@@ -509,7 +498,7 @@ void CGSH_Direct3D9::DrawActiveFramebuffer()
 	D3DVIEWPORT9 viewport = {};
 	viewport.X = 0;
 	viewport.Y = 0;
-	viewport.Width  = m_presentationParams.windowWidth;
+	viewport.Width = m_presentationParams.windowWidth;
 	viewport.Height = m_presentationParams.windowHeight;
 	result = m_device->SetViewport(&viewport);
 	assert(SUCCEEDED(result));
@@ -549,23 +538,23 @@ void CGSH_Direct3D9::DrawActiveFramebuffer()
 
 void CGSH_Direct3D9::MakeLinearZOrtho(float* matrix, float left, float right, float bottom, float top)
 {
-	matrix[ 0] = 2.0f / (right - left);
-	matrix[ 1] = 0;
-	matrix[ 2] = 0;
-	matrix[ 3] = 0;
+	matrix[0] = 2.0f / (right - left);
+	matrix[1] = 0;
+	matrix[2] = 0;
+	matrix[3] = 0;
 
-	matrix[ 4] = 0;
-	matrix[ 5] = - 2.0f / (top - bottom);
-	matrix[ 6] = 0;
-	matrix[ 7] = 0;
+	matrix[4] = 0;
+	matrix[5] = -2.0f / (top - bottom);
+	matrix[6] = 0;
+	matrix[7] = 0;
 
-	matrix[ 8] = 0;
-	matrix[ 9] = 0;
+	matrix[8] = 0;
+	matrix[9] = 0;
 	matrix[10] = 1;
 	matrix[11] = 0;
 
-	matrix[12] = - (right + left) / (right - left);
-	matrix[13] =   (top + bottom) / (top - bottom);
+	matrix[12] = -(right + left) / (right - left);
+	matrix[13] = (top + bottom) / (top - bottom);
 	matrix[14] = 0;
 	matrix[15] = 1;
 }
@@ -598,9 +587,9 @@ bool CGSH_Direct3D9::TestDevice()
 	}
 
 	auto clientRect = m_outputWnd->GetClientRect();
-	bool sizeChanged = 
-		(clientRect.Width() != m_deviceWindowWidth) ||
-		(clientRect.Height() != m_deviceWindowHeight);
+	bool sizeChanged =
+	    (clientRect.Width() != m_deviceWindowWidth) ||
+	    (clientRect.Height() != m_deviceWindowHeight);
 	if(sizeChanged)
 	{
 		OnDeviceResetting();
@@ -624,12 +613,12 @@ D3DPRESENT_PARAMETERS CGSH_Direct3D9::CreatePresentParams()
 
 	D3DPRESENT_PARAMETERS d3dpp;
 	memset(&d3dpp, 0, sizeof(D3DPRESENT_PARAMETERS));
-	d3dpp.Windowed					= TRUE;
-	d3dpp.SwapEffect				= D3DSWAPEFFECT_DISCARD;
-	d3dpp.hDeviceWindow				= m_outputWnd->m_hWnd;
-	d3dpp.BackBufferFormat			= D3DFMT_X8R8G8B8;
-	d3dpp.BackBufferWidth			= outputWidth;
-	d3dpp.BackBufferHeight			= outputHeight;
+	d3dpp.Windowed = TRUE;
+	d3dpp.SwapEffect = D3DSWAPEFFECT_DISCARD;
+	d3dpp.hDeviceWindow = m_outputWnd->m_hWnd;
+	d3dpp.BackBufferFormat = D3DFMT_X8R8G8B8;
+	d3dpp.BackBufferWidth = outputWidth;
+	d3dpp.BackBufferHeight = outputHeight;
 	return d3dpp;
 }
 
@@ -638,11 +627,11 @@ void CGSH_Direct3D9::CreateDevice()
 	auto presentParams = CreatePresentParams();
 	HRESULT result = S_OK;
 	result = m_d3d->CreateDevice(D3DADAPTER_DEFAULT,
-						D3DDEVTYPE_HAL,
-						m_outputWnd->m_hWnd,
-						D3DCREATE_SOFTWARE_VERTEXPROCESSING,
-						&presentParams,
-						&m_device);
+	                             D3DDEVTYPE_HAL,
+	                             m_outputWnd->m_hWnd,
+	                             D3DCREATE_SOFTWARE_VERTEXPROCESSING,
+	                             &presentParams,
+	                             &m_device);
 	assert(SUCCEEDED(result));
 
 	OnDeviceReset();
@@ -671,12 +660,11 @@ void CGSH_Direct3D9::OnDeviceReset()
 	assert(SUCCEEDED(result));
 
 	static const D3DVERTEXELEMENT9 vertexElements[] =
-	{
-		{ 0, offsetof(CUSTOMVERTEX, x),     D3DDECLTYPE_FLOAT3,   0, D3DDECLUSAGE_POSITION, 0 },
-		{ 0, offsetof(CUSTOMVERTEX, s),     D3DDECLTYPE_FLOAT3,   0, D3DDECLUSAGE_TEXCOORD, 0 },
-		{ 0, offsetof(CUSTOMVERTEX, color), D3DDECLTYPE_D3DCOLOR, 0, D3DDECLUSAGE_TEXCOORD, 1 },
-		D3DDECL_END()
-	};
+	    {
+	        {0, offsetof(CUSTOMVERTEX, x), D3DDECLTYPE_FLOAT3, 0, D3DDECLUSAGE_POSITION, 0},
+	        {0, offsetof(CUSTOMVERTEX, s), D3DDECLTYPE_FLOAT3, 0, D3DDECLUSAGE_TEXCOORD, 0},
+	        {0, offsetof(CUSTOMVERTEX, color), D3DDECLTYPE_D3DCOLOR, 0, D3DDECLUSAGE_TEXCOORD, 1},
+	        D3DDECL_END()};
 
 	result = m_device->CreateVertexDeclaration(vertexElements, &m_vertexDeclaration);
 	assert(SUCCEEDED(result));
@@ -726,9 +714,9 @@ float CGSH_Direct3D9::GetZ(float nZ)
 	}
 	else
 	{
-//		nZ -= m_nMaxZ;
+		//		nZ -= m_nMaxZ;
 		if(nZ > m_nMaxZ) return 1.0;
-//		if(nZ < -m_nMaxZ) return -1.0;
+		//		if(nZ < -m_nMaxZ) return -1.0;
 		return nZ / m_nMaxZ;
 	}
 }
@@ -797,7 +785,8 @@ void CGSH_Direct3D9::Prim_Line()
 			nU1 = st[0].nS, nU2 = st[1].nS;
 			nV1 = st[0].nT, nV2 = st[1].nT;
 
-			nQ1 = rgbaq[0].nQ; nQ2 = rgbaq[1].nQ;
+			nQ1 = rgbaq[0].nQ;
+			nQ2 = rgbaq[1].nQ;
 		}
 	}
 
@@ -809,10 +798,10 @@ void CGSH_Direct3D9::Prim_Line()
 		DWORD color1 = D3DCOLOR_ARGB(rgbaq[1].nA, rgbaq[1].nR, rgbaq[1].nG, rgbaq[1].nB);
 
 		CUSTOMVERTEX vertices[] =
-		{
-			{ nX1, nY1, nZ1, color0, nU1, nV1, nQ1 },
-			{ nX2, nY2, nZ2, color1, nU2, nV2, nQ2 },
-		};
+		    {
+		        {nX1, nY1, nZ1, color0, nU1, nV1, nQ1},
+		        {nX2, nY2, nZ2, color1, nU2, nV2, nQ2},
+		    };
 
 		uint8* buffer = nullptr;
 		result = m_drawVb->Lock(0, sizeof(CUSTOMVERTEX) * 3, reinterpret_cast<void**>(&buffer), D3DLOCK_DISCARD);
@@ -914,7 +903,9 @@ void CGSH_Direct3D9::Prim_Triangle()
 
 			nU1 = st[0].nS, nU2 = st[1].nS, nU3 = st[2].nS;
 			nV1 = st[0].nT, nV2 = st[1].nT, nV3 = st[2].nT;
-			nQ1 = rgbaq[0].nQ; nQ2 = rgbaq[1].nQ; nQ3 = rgbaq[2].nQ;
+			nQ1 = rgbaq[0].nQ;
+			nQ2 = rgbaq[1].nQ;
+			nQ3 = rgbaq[2].nQ;
 		}
 	}
 
@@ -933,11 +924,11 @@ void CGSH_Direct3D9::Prim_Triangle()
 		}
 
 		CUSTOMVERTEX vertices[] =
-		{
-			{ nX1, nY1, nZ1, color0, nU1, nV1, nQ1 },
-			{ nX2, nY2, nZ2, color1, nU2, nV2, nQ2 },
-			{ nX3, nY3, nZ3, color2, nU3, nV3, nQ3 },
-		};
+		    {
+		        {nX1, nY1, nZ1, color0, nU1, nV1, nQ1},
+		        {nX2, nY2, nZ2, color1, nU2, nV2, nQ2},
+		        {nX3, nY3, nZ3, color2, nU3, nV3, nQ3},
+		    };
 
 		uint8* buffer = nullptr;
 		result = m_drawVb->Lock(0, sizeof(CUSTOMVERTEX) * 3, reinterpret_cast<void**>(&buffer), D3DLOCK_DISCARD);
@@ -1031,12 +1022,12 @@ void CGSH_Direct3D9::Prim_Sprite()
 		DWORD color1 = D3DCOLOR_ARGB(rgbaq[1].nA, rgbaq[1].nR, rgbaq[1].nG, rgbaq[1].nB);
 
 		CUSTOMVERTEX vertices[] =
-		{
-			{ nX1, nY2, nZ, color1, nU1, nV2, 1 },
-			{ nX1, nY1, nZ, color1, nU1, nV1, 1 },
-			{ nX2, nY2, nZ, color1, nU2, nV2, 1 },
-			{ nX2, nY1, nZ, color1, nU2, nV1, 1 },
-		};
+		    {
+		        {nX1, nY2, nZ, color1, nU1, nV2, 1},
+		        {nX1, nY1, nZ, color1, nU1, nV1, 1},
+		        {nX2, nY2, nZ, color1, nU2, nV2, 1},
+		        {nX2, nY1, nZ, color1, nU2, nV1, 1},
+		    };
 
 		uint8* buffer = nullptr;
 		result = m_drawVb->Lock(0, sizeof(CUSTOMVERTEX) * 4, reinterpret_cast<void**>(&buffer), D3DLOCK_DISCARD);
@@ -1125,41 +1116,41 @@ void CGSH_Direct3D9::SetRenderingContext(uint64 primReg)
 	}
 
 	if(!m_renderState.isValid ||
-		(m_renderState.primReg != primReg))
+	   (m_renderState.primReg != primReg))
 	{
 		m_device->SetRenderState(D3DRS_ALPHABLENDENABLE, ((prim.nAlpha != 0) && m_alphaBlendingEnabled) ? TRUE : FALSE);
 	}
 
 	if(!m_renderState.isValid ||
-		(m_renderState.alphaReg != alphaReg))
+	   (m_renderState.alphaReg != alphaReg))
 	{
 		SetupBlendingFunction(alphaReg);
 	}
 
 	if(!m_renderState.isValid ||
-		(m_renderState.testReg != testReg))
+	   (m_renderState.testReg != testReg))
 	{
 		SetupTestFunctions(testReg);
 	}
 
 	if(!m_renderState.isValid ||
-		(m_renderState.zbufReg != zbufReg) ||
-		(m_renderState.frameReg != frameReg))
+	   (m_renderState.zbufReg != zbufReg) ||
+	   (m_renderState.frameReg != frameReg))
 	{
 		SetupDepthBuffer(zbufReg, frameReg);
 	}
 
 	if(!m_renderState.isValid ||
-		(m_renderState.frameReg != frameReg) ||
-		(m_renderState.scissorReg != scissorReg))
+	   (m_renderState.frameReg != frameReg) ||
+	   (m_renderState.scissorReg != scissorReg))
 	{
 		SetupFramebuffer(frameReg, scissorReg);
 	}
 
 	if(!m_renderState.isValid ||
-		(m_renderState.tex0Reg != tex0Reg) ||
-		(m_renderState.tex1Reg != tex1Reg) ||
-		(m_renderState.clampReg != clampReg))
+	   (m_renderState.tex0Reg != tex0Reg) ||
+	   (m_renderState.tex1Reg != tex1Reg) ||
+	   (m_renderState.clampReg != clampReg))
 	{
 		SetupTexture(tex0Reg, tex1Reg, miptbp1Reg, miptbp2Reg, clampReg);
 	}
@@ -1178,7 +1169,7 @@ void CGSH_Direct3D9::SetRenderingContext(uint64 primReg)
 	auto offset = make_convertible<XYOFFSET>(m_nReg[GS_REG_XYOFFSET_1 + context]);
 	m_nPrimOfsX = offset.GetX();
 	m_nPrimOfsY = offset.GetY();
-	
+
 	if(GetCrtIsInterlaced() && GetCrtIsFrameMode())
 	{
 		if(m_nCSR & CSR_FIELD)
@@ -1326,7 +1317,7 @@ void CGSH_Direct3D9::SetupBlendingFunction(uint64 alphaReg)
 	}
 	else if((alpha.nA == 2) && (alpha.nB == 1) && (alpha.nC == 2) && (alpha.nD == 1))
 	{
-		//(0 - Cd) * FIX + Cd 
+		//(0 - Cd) * FIX + Cd
 		//		-> 0 * Cs + (1 - FIX) * Cd
 
 		uint8 fix = alpha.nFix;
@@ -1352,16 +1343,15 @@ void CGSH_Direct3D9::SetupTestFunctions(uint64 testReg)
 	if(tst.nAlphaEnabled)
 	{
 		static const D3DCMPFUNC g_alphaTestFunc[ALPHA_TEST_MAX] =
-		{
-			D3DCMP_NEVER,
-			D3DCMP_ALWAYS,
-			D3DCMP_LESS,
-			D3DCMP_LESSEQUAL,
-			D3DCMP_EQUAL,
-			D3DCMP_GREATEREQUAL,
-			D3DCMP_GREATER,
-			D3DCMP_NOTEQUAL
-		};
+		    {
+		        D3DCMP_NEVER,
+		        D3DCMP_ALWAYS,
+		        D3DCMP_LESS,
+		        D3DCMP_LESSEQUAL,
+		        D3DCMP_EQUAL,
+		        D3DCMP_GREATEREQUAL,
+		        D3DCMP_GREATER,
+		        D3DCMP_NOTEQUAL};
 
 		//If alpha test is set to always fail but don't keep fragment info, we need to set
 		//proper masks at in other places
@@ -1425,8 +1415,8 @@ void CGSH_Direct3D9::SetupTexture(uint64 tex0Reg, uint64 tex1Reg, uint64 miptbp1
 
 	auto texInfo = LoadTexture(tex0, tex1.nMaxMip, miptbp1, miptbp2);
 
-	m_currentTextureWidth	= tex0.GetWidth();
-	m_currentTextureHeight	= tex0.GetHeight();
+	m_currentTextureWidth = tex0.GetWidth();
+	m_currentTextureHeight = tex0.GetHeight();
 
 	int nMagFilter = D3DTEXF_NONE, nMinFilter = D3DTEXF_NONE, nMipFilter = D3DTEXF_NONE;
 	int nWrapS = 0, nWrapT = 0;
@@ -1492,11 +1482,11 @@ void CGSH_Direct3D9::SetupFramebuffer(uint64 frameReg, uint64 scissorReg)
 		bool g = (frame.nMask & 0x0000FF00) == 0;
 		bool b = (frame.nMask & 0x00FF0000) == 0;
 		bool a = (frame.nMask & 0xFF000000) == 0;
-		UINT colorMask = 
-			(r ? D3DCOLORWRITEENABLE_RED : 0) |
-			(g ? D3DCOLORWRITEENABLE_GREEN : 0) |
-			(b ? D3DCOLORWRITEENABLE_BLUE : 0) |
-			(a ? D3DCOLORWRITEENABLE_ALPHA : 0);
+		UINT colorMask =
+		    (r ? D3DCOLORWRITEENABLE_RED : 0) |
+		    (g ? D3DCOLORWRITEENABLE_GREEN : 0) |
+		    (b ? D3DCOLORWRITEENABLE_BLUE : 0) |
+		    (a ? D3DCOLORWRITEENABLE_ALPHA : 0);
 		m_device->SetRenderState(D3DRS_COLORWRITEENABLE, colorMask);
 	}
 
@@ -1611,9 +1601,9 @@ void CGSH_Direct3D9::WriteRegisterImpl(uint8 nRegister, uint64 nData)
 		VertexKick(nRegister, nData);
 		break;
 
-	//case GS_REG_FOGCOL:
-	//	SetupFogColor();
-	//	break;
+		//case GS_REG_FOGCOL:
+		//	SetupFogColor();
+		//	break;
 	}
 }
 
@@ -1626,19 +1616,19 @@ void CGSH_Direct3D9::VertexKick(uint8 nRegister, uint64 nValue)
 
 	if(fog)
 	{
-		m_vtxBuffer[m_vtxCount - 1].nPosition	= nValue & 0x00FFFFFFFFFFFFFFULL;
-		m_vtxBuffer[m_vtxCount - 1].nRGBAQ		= m_nReg[GS_REG_RGBAQ];
-		m_vtxBuffer[m_vtxCount - 1].nUV			= m_nReg[GS_REG_UV];
-		m_vtxBuffer[m_vtxCount - 1].nST			= m_nReg[GS_REG_ST];
-		m_vtxBuffer[m_vtxCount - 1].nFog		= (uint8)(nValue >> 56);
+		m_vtxBuffer[m_vtxCount - 1].nPosition = nValue & 0x00FFFFFFFFFFFFFFULL;
+		m_vtxBuffer[m_vtxCount - 1].nRGBAQ = m_nReg[GS_REG_RGBAQ];
+		m_vtxBuffer[m_vtxCount - 1].nUV = m_nReg[GS_REG_UV];
+		m_vtxBuffer[m_vtxCount - 1].nST = m_nReg[GS_REG_ST];
+		m_vtxBuffer[m_vtxCount - 1].nFog = (uint8)(nValue >> 56);
 	}
 	else
 	{
-		m_vtxBuffer[m_vtxCount - 1].nPosition	= nValue;
-		m_vtxBuffer[m_vtxCount - 1].nRGBAQ		= m_nReg[GS_REG_RGBAQ];
-		m_vtxBuffer[m_vtxCount - 1].nUV			= m_nReg[GS_REG_UV];
-		m_vtxBuffer[m_vtxCount - 1].nST			= m_nReg[GS_REG_ST];
-		m_vtxBuffer[m_vtxCount - 1].nFog		= (uint8)(m_nReg[GS_REG_FOG] >> 56);
+		m_vtxBuffer[m_vtxCount - 1].nPosition = nValue;
+		m_vtxBuffer[m_vtxCount - 1].nRGBAQ = m_nReg[GS_REG_RGBAQ];
+		m_vtxBuffer[m_vtxCount - 1].nUV = m_nReg[GS_REG_UV];
+		m_vtxBuffer[m_vtxCount - 1].nST = m_nReg[GS_REG_ST];
+		m_vtxBuffer[m_vtxCount - 1].nFog = (uint8)(m_nReg[GS_REG_FOG] >> 56);
 	}
 
 	m_vtxCount--;
@@ -1701,21 +1691,20 @@ void CGSH_Direct3D9::VertexKick(uint8 nRegister, uint64 nValue)
 /////////////////////////////////////////////////////////////
 
 CGSH_Direct3D9::CFramebuffer::CFramebuffer(DevicePtr& device, uint32 basePtr, uint32 width, uint32 height, uint32 psm)
-: m_basePtr(basePtr)
-, m_width(width)
-, m_height(height)
-, m_psm(psm)
-, m_canBeUsedAsTexture(false)
+    : m_basePtr(basePtr)
+    , m_width(width)
+    , m_height(height)
+    , m_psm(psm)
+    , m_canBeUsedAsTexture(false)
 {
 	HRESULT result = S_OK;
-	
+
 	result = device->CreateTexture(width, height, 1, D3DUSAGE_RENDERTARGET, D3DFMT_A8R8G8B8, D3DPOOL_DEFAULT, &m_renderTarget, NULL);
 	assert(SUCCEEDED(result));
 }
 
 CGSH_Direct3D9::CFramebuffer::~CFramebuffer()
 {
-
 }
 
 /////////////////////////////////////////////////////////////
@@ -1723,18 +1712,17 @@ CGSH_Direct3D9::CFramebuffer::~CFramebuffer()
 /////////////////////////////////////////////////////////////
 
 CGSH_Direct3D9::CDepthbuffer::CDepthbuffer(DevicePtr& device, uint32 basePtr, uint32 width, uint32 height, uint32 psm)
-: m_basePtr(basePtr)
-, m_width(width)
-, m_height(height)
-, m_psm(psm)
+    : m_basePtr(basePtr)
+    , m_width(width)
+    , m_height(height)
+    , m_psm(psm)
 {
 	HRESULT result = S_OK;
-	
+
 	result = device->CreateDepthStencilSurface(width, height, D3DFMT_D24S8, D3DMULTISAMPLE_NONE, 0, FALSE, &m_depthSurface, nullptr);
 	assert(SUCCEEDED(result));
 }
 
 CGSH_Direct3D9::CDepthbuffer::~CDepthbuffer()
 {
-
 }

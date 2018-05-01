@@ -14,6 +14,6 @@
 @interface CoverViewController : UICollectionViewController
 
 @property SqliteDatabase* database;
-@property CollectionView *coverView;
+@property CollectionView* coverView;
 
 @end

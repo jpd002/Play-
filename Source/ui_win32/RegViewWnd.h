@@ -9,25 +9,25 @@ class CMIPS;
 class CRegViewWnd : public Framework::Win32::CMDIChild, public boost::signals2::trackable
 {
 public:
-							CRegViewWnd(HWND, CVirtualMachine&, CMIPS*);
-	virtual					~CRegViewWnd();
+	CRegViewWnd(HWND, CVirtualMachine&, CMIPS*);
+	virtual ~CRegViewWnd();
 
 protected:
-	long					OnSize(unsigned int, unsigned int, unsigned int) override;
-	long					OnSysCommand(unsigned int, LPARAM) override;
-	LRESULT					OnNotify(WPARAM, NMHDR*) override;
+	long OnSize(unsigned int, unsigned int, unsigned int) override;
+	long OnSysCommand(unsigned int, LPARAM) override;
+	LRESULT OnNotify(WPARAM, NMHDR*) override;
 
 private:
 	enum
 	{
-		MAXTABS			= 4,
+		MAXTABS = 4,
 	};
 
-	void					SelectTab(unsigned int);
-	void					UnselectTab(unsigned int);
-	void					RefreshLayout();
+	void SelectTab(unsigned int);
+	void UnselectTab(unsigned int);
+	void RefreshLayout();
 
-	CWindow*				m_regView[MAXTABS];
-	CWindow*				m_current = nullptr;
-	Framework::Win32::CTab	m_tabs;
+	CWindow* m_regView[MAXTABS];
+	CWindow* m_current = nullptr;
+	Framework::Win32::CTab m_tabs;
 };

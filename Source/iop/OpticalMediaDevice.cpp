@@ -5,9 +5,8 @@
 using namespace Iop::Ioman;
 
 COpticalMediaDevice::COpticalMediaDevice(OpticalMediaPtr& opticalMedia)
-: m_opticalMedia(opticalMedia)
+    : m_opticalMedia(opticalMedia)
 {
-
 }
 
 char COpticalMediaDevice::FixSlashes(char input)

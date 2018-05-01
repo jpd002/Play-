@@ -8,12 +8,10 @@ namespace filesystem = boost::filesystem;
 
 CMaxSaveImporter::CMaxSaveImporter()
 {
-
 }
 
 CMaxSaveImporter::~CMaxSaveImporter()
 {
-
 }
 
 void CMaxSaveImporter::Import(Framework::CStream& inputStream, const filesystem::path& basePath)

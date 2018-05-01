@@ -1,61 +1,62 @@
 #include "openglwindow.h"
 #include <QResizeEvent>
 
-OpenGLWindow::OpenGLWindow(QWindow *parent)
+OpenGLWindow::OpenGLWindow(QWindow* parent)
     : QWindow(parent)
 {
-    QSurfaceFormat format;
-    format.setVersion(3, 2);
-    format.setProfile(QSurfaceFormat::CoreProfile);
-    format.setSwapBehavior(QSurfaceFormat::DoubleBuffer);
+	QSurfaceFormat format;
+	format.setVersion(3, 2);
+	format.setProfile(QSurfaceFormat::CoreProfile);
+	format.setSwapBehavior(QSurfaceFormat::DoubleBuffer);
 
-    setSurfaceType(QWindow::OpenGLSurface);
-    setFormat(format);
+	setSurfaceType(QWindow::OpenGLSurface);
+	setFormat(format);
 
-    connect(this, SIGNAL(activeChanged()), this, SLOT(activeStateChanged()));
-
+	connect(this, SIGNAL(activeChanged()), this, SLOT(activeStateChanged()));
 }
 
 OpenGLWindow::~OpenGLWindow()
 {
 }
 
-void OpenGLWindow::keyPressEvent(QKeyEvent *ev)
+void OpenGLWindow::keyPressEvent(QKeyEvent* ev)
 {
-    emit keyDown(ev);
+	emit keyDown(ev);
 }
 
-void OpenGLWindow::keyReleaseEvent(QKeyEvent *ev)
+void OpenGLWindow::keyReleaseEvent(QKeyEvent* ev)
 {
-    emit keyUp(ev);
+	emit keyUp(ev);
 }
 
 void OpenGLWindow::exposeEvent(QExposeEvent* ev)
 {
-    emit widthChanged(size().width());
-    QWindow::exposeEvent(ev);
+	emit widthChanged(size().width());
+	QWindow::exposeEvent(ev);
 }
 
-void OpenGLWindow::focusOutEvent(QFocusEvent * event)
+void OpenGLWindow::focusOutEvent(QFocusEvent* event)
 {
-    emit focusOut(event);
+	emit focusOut(event);
 }
-void OpenGLWindow::focusInEvent(QFocusEvent * event)
+void OpenGLWindow::focusInEvent(QFocusEvent* event)
 {
-    emit focusIn(event);
+	emit focusIn(event);
 }
 
 void OpenGLWindow::activeStateChanged()
 {
-    if (isActive())
-    {
-        emit focusIn(new QFocusEvent(QEvent::FocusIn));
-    } else {
-        emit focusOut(new QFocusEvent(QEvent::FocusOut));
-    }
+	if(isActive())
+	{
+		emit focusIn(new QFocusEvent(QEvent::FocusIn));
+	}
+	else
+	{
+		emit focusOut(new QFocusEvent(QEvent::FocusOut));
+	}
 }
 
-void OpenGLWindow::mouseDoubleClickEvent(QMouseEvent * ev)
+void OpenGLWindow::mouseDoubleClickEvent(QMouseEvent* ev)
 {
-    emit doubleClick(ev);
+	emit doubleClick(ev);
 }

@@ -1,20 +1,20 @@
 #include "SpuRegView.h"
 #include "win32/Rect.h"
 
-#define LINE_COUNT			(29)
-#define LINE_SPACING		(2)
-#define FONT_SIZE			(8)
+#define LINE_COUNT (29)
+#define LINE_SPACING (2)
+#define FONT_SIZE (8)
 
-CSpuRegView::CSpuRegView(HWND parentWnd, const TCHAR* title) 
-: CDirectXControl(parentWnd, WS_VSCROLL | WS_HSCROLL)
-, m_spu(nullptr)
-, m_title(title)
-, m_offsetX(0)
-, m_offsetY(0)
-, m_pageSizeX(0)
-, m_pageSizeY(0)
-, m_maxScrollX(0)
-, m_maxScrollY(0)
+CSpuRegView::CSpuRegView(HWND parentWnd, const TCHAR* title)
+    : CDirectXControl(parentWnd, WS_VSCROLL | WS_HSCROLL)
+    , m_spu(nullptr)
+    , m_title(title)
+    , m_offsetX(0)
+    , m_offsetY(0)
+    , m_pageSizeX(0)
+    , m_pageSizeY(0)
+    , m_maxScrollX(0)
+    , m_maxScrollY(0)
 {
 	CreateResources();
 	m_canvasWidth = GetFontWidth() * 67;
@@ -62,8 +62,8 @@ long CSpuRegView::OnHScroll(unsigned int type, unsigned int position)
 		break;
 	}
 
-	if(m_offsetX < 0)				m_offsetX = 0;
-	if(m_offsetX > m_maxScrollX)	m_offsetX = m_maxScrollX;
+	if(m_offsetX < 0) m_offsetX = 0;
+	if(m_offsetX > m_maxScrollX) m_offsetX = m_maxScrollX;
 
 	UpdateHorizontalScroll();
 
@@ -94,8 +94,8 @@ long CSpuRegView::OnVScroll(unsigned int type, unsigned int position)
 		break;
 	}
 
-	if(m_offsetY < 0)				m_offsetY = 0;
-	if(m_offsetY > m_maxScrollY)	m_offsetY = m_maxScrollY;
+	if(m_offsetY < 0) m_offsetY = 0;
+	if(m_offsetY > m_maxScrollY) m_offsetY = m_maxScrollY;
 
 	UpdateVerticalScroll();
 
@@ -174,24 +174,24 @@ void CSpuRegView::InitializeScrollBars()
 	{
 		SCROLLINFO scrollInfo;
 		memset(&scrollInfo, 0, sizeof(SCROLLINFO));
-		scrollInfo.cbSize		= sizeof(SCROLLINFO);
-		scrollInfo.fMask		= SIF_POS | SIF_RANGE | SIF_PAGE;
-		scrollInfo.nMin			= 0;
-		scrollInfo.nMax			= m_canvasWidth;
-		scrollInfo.nPos			= m_offsetX;
-		scrollInfo.nPage		= m_pageSizeX;
+		scrollInfo.cbSize = sizeof(SCROLLINFO);
+		scrollInfo.fMask = SIF_POS | SIF_RANGE | SIF_PAGE;
+		scrollInfo.nMin = 0;
+		scrollInfo.nMax = m_canvasWidth;
+		scrollInfo.nPos = m_offsetX;
+		scrollInfo.nPage = m_pageSizeX;
 		SetScrollInfo(m_hWnd, SB_HORZ, &scrollInfo, TRUE);
 	}
 
 	{
 		SCROLLINFO scrollInfo;
 		memset(&scrollInfo, 0, sizeof(SCROLLINFO));
-		scrollInfo.cbSize		= sizeof(SCROLLINFO);
-		scrollInfo.fMask		= SIF_POS | SIF_RANGE | SIF_PAGE;
-		scrollInfo.nMin			= 0;
-		scrollInfo.nMax			= m_canvasHeight;
-		scrollInfo.nPos			= m_offsetY;
-		scrollInfo.nPage		= m_pageSizeY;
+		scrollInfo.cbSize = sizeof(SCROLLINFO);
+		scrollInfo.fMask = SIF_POS | SIF_RANGE | SIF_PAGE;
+		scrollInfo.nMin = 0;
+		scrollInfo.nMax = m_canvasHeight;
+		scrollInfo.nPos = m_offsetY;
+		scrollInfo.nPage = m_pageSizeY;
 		SetScrollInfo(m_hWnd, SB_VERT, &scrollInfo, TRUE);
 	}
 }
@@ -200,9 +200,9 @@ void CSpuRegView::UpdateHorizontalScroll()
 {
 	SCROLLINFO scrollInfo;
 	memset(&scrollInfo, 0, sizeof(SCROLLINFO));
-	scrollInfo.cbSize		= sizeof(SCROLLINFO);
-	scrollInfo.fMask		= SIF_POS;
-	scrollInfo.nPos			= m_offsetX;
+	scrollInfo.cbSize = sizeof(SCROLLINFO);
+	scrollInfo.fMask = SIF_POS;
+	scrollInfo.nPos = m_offsetX;
 	SetScrollInfo(m_hWnd, SB_HORZ, &scrollInfo, TRUE);
 }
 
@@ -210,9 +210,9 @@ void CSpuRegView::UpdateVerticalScroll()
 {
 	SCROLLINFO scrollInfo;
 	memset(&scrollInfo, 0, sizeof(SCROLLINFO));
-	scrollInfo.cbSize		= sizeof(SCROLLINFO);
-	scrollInfo.fMask		= SIF_POS;
-	scrollInfo.nPos			= m_offsetY;
+	scrollInfo.cbSize = sizeof(SCROLLINFO);
+	scrollInfo.fMask = SIF_POS;
+	scrollInfo.nPos = m_offsetY;
 	SetScrollInfo(m_hWnd, SB_VERT, &scrollInfo, TRUE);
 }
 
@@ -258,16 +258,16 @@ void CSpuRegView::Refresh()
 		{
 			Iop::CSpuBase::CHANNEL& channel(m_spu->GetChannel(i));
 			TCHAR temp[256];
-			_stprintf(temp, _T("CH%0.2i  %0.4X   %0.4X   %0.4X   %0.6X   %0.4X   %0.4X   %0.8X   %0.6X\r\n"), 
-				i, 
-				channel.volumeLeft,
-				channel.volumeRight,
-				channel.pitch,
-				channel.address,
-				channel.adsrLevel,
-				channel.adsrRate,
-				channel.adsrVolume,
-				channel.repeat);
+			_stprintf(temp, _T("CH%0.2i  %0.4X   %0.4X   %0.4X   %0.6X   %0.4X   %0.4X   %0.8X   %0.6X\r\n"),
+			          i,
+			          channel.volumeLeft,
+			          channel.volumeRight,
+			          channel.pitch,
+			          channel.address,
+			          channel.adsrLevel,
+			          channel.adsrRate,
+			          channel.adsrVolume,
+			          channel.repeat);
 			drawer.Draw(temp);
 
 			TCHAR status = _T('0');
@@ -310,24 +310,22 @@ void CSpuRegView::Refresh()
 				revbStat[i] = (stat & (1 << i)) ? _T('1') : _T('0');
 			}
 			revbStat[Iop::CSpuBase::MAX_CHANNEL] = 0;
-	
+
 			TCHAR temp[256];
 			_stprintf(temp, _T("CH_REVB: %s"), revbStat);
 			drawer.Draw(temp);
 		}
-
 	}
 	m_device->EndScene();
 	m_device->Present(NULL, NULL, NULL, NULL);
 }
 
 CSpuRegView::CLineDrawer::CLineDrawer(const FontPtr& font, D3DCOLOR color, int posX, int posY)
-: m_posX(posX)
-, m_posY(posY)
-, m_font(font)
-, m_color(color)
+    : m_posX(posX)
+    , m_posY(posY)
+    , m_font(font)
+    , m_color(color)
 {
-
 }
 
 void CSpuRegView::CLineDrawer::Draw(const TCHAR* text, int length)

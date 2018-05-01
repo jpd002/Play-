@@ -5,13 +5,12 @@
 using namespace Framework;
 
 CWavOutputStream::CWavOutputStream(CStream& stream)
-: m_stream(stream)
-, m_chunkSizePos(0)
-, m_dataSizePos(0)
-, m_writeSize(0)
-, m_begun(false)
+    : m_stream(stream)
+    , m_chunkSizePos(0)
+    , m_dataSizePos(0)
+    , m_writeSize(0)
+    , m_begun(false)
 {
-
 }
 
 CWavOutputStream::~CWavOutputStream()
@@ -32,10 +31,10 @@ void CWavOutputStream::Begin(const WAVINFO& wavInfo)
 	m_writeSize = 0;
 
 	//Write the header
-	const char riffSignature[4] = { 'R', 'I', 'F', 'F' };
-	const char headerFormatSignature[4] = { 'W', 'A', 'V', 'E' };
-	const char fmtSignature[4] = { 'f', 'm', 't', ' ' };
-	const char dataSignature[4] = { 'd', 'a', 't', 'a' };
+	const char riffSignature[4] = {'R', 'I', 'F', 'F'};
+	const char headerFormatSignature[4] = {'W', 'A', 'V', 'E'};
+	const char fmtSignature[4] = {'f', 'm', 't', ' '};
+	const char dataSignature[4] = {'d', 'a', 't', 'a'};
 
 	//RIFF header
 	m_stream.Write(riffSignature, 4);
@@ -70,7 +69,7 @@ void CWavOutputStream::Flush()
 {
 	assert(m_begun);
 	assert((m_writeSize & 1) == 0);
-	
+
 	m_stream.Seek(m_chunkSizePos, STREAM_SEEK_SET);
 	uint32 totalChunkSize = 4 + 24 + (8 + static_cast<uint32>(m_writeSize));
 	m_stream.Write32(totalChunkSize);

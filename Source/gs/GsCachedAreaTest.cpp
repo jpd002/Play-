@@ -95,13 +95,13 @@ void CGsCachedAreaTest::CheckClearDirtyPages()
 	area.SetPageDirty(dirtyX + (dirtyY * areaRect.width));
 	assert(area.HasDirtyPages());
 
-	area.ClearDirtyPages(CGsCachedArea::PageRect { 0, 0, 1, 1 });
+	area.ClearDirtyPages(CGsCachedArea::PageRect{0, 0, 1, 1});
 	assert(area.HasDirtyPages());
 
-	area.ClearDirtyPages(CGsCachedArea::PageRect { 0, 0, 3, 2 });
+	area.ClearDirtyPages(CGsCachedArea::PageRect{0, 0, 3, 2});
 	assert(area.HasDirtyPages());
 
-	area.ClearDirtyPages(CGsCachedArea::PageRect { 3, 2, 1, 1 });
+	area.ClearDirtyPages(CGsCachedArea::PageRect{3, 2, 1, 1});
 	assert(!area.HasDirtyPages());
 }
 

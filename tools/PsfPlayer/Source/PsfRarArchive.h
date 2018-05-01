@@ -5,12 +5,12 @@
 class CPsfRarArchive : public CPsfArchive
 {
 public:
-					CPsfRarArchive();
-	virtual			~CPsfRarArchive();
-	
-	virtual void	Open(const boost::filesystem::path&) override;
-	virtual void	ReadFileContents(const char*, void*, unsigned int) override;
+	CPsfRarArchive();
+	virtual ~CPsfRarArchive();
+
+	virtual void Open(const boost::filesystem::path&) override;
+	virtual void ReadFileContents(const char*, void*, unsigned int) override;
 
 private:
-	void*			m_archive;
+	void* m_archive;
 };

@@ -2,14 +2,12 @@
 #include "GsStateUtils.h"
 
 CGsInputStateView::CGsInputStateView(HWND parent, const RECT& rect)
-: CRegViewPage(parent, rect)
+    : CRegViewPage(parent, rect)
 {
-
 }
 
 CGsInputStateView::~CGsInputStateView()
 {
-
 }
 
 void CGsInputStateView::UpdateState(CGSHandler* gs, CGsPacketMetadata*, DRAWINGKICK_INFO*)

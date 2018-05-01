@@ -39,7 +39,7 @@ std::tstring DebugUtils::PrintAddressLocation(uint32 address, CMIPS* context, co
 const BIOS_DEBUG_MODULE_INFO* DebugUtils::FindModuleAtAddress(const BiosDebugModuleInfoArray& modules, uint32 address)
 {
 	for(auto moduleIterator(std::begin(modules));
-		moduleIterator != std::end(modules); moduleIterator++)
+	    moduleIterator != std::end(modules); moduleIterator++)
 	{
 		const auto& module = (*moduleIterator);
 		if(address >= module.begin && address < module.end)

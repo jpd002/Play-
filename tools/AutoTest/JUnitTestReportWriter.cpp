@@ -16,7 +16,6 @@ CJUnitTestReportWriter::CJUnitTestReportWriter()
 
 CJUnitTestReportWriter::~CJUnitTestReportWriter()
 {
-
 }
 
 void CJUnitTestReportWriter::ReportTestEntry(const std::string& testName, const TESTRESULT& result)
@@ -30,10 +29,10 @@ void CJUnitTestReportWriter::ReportTestEntry(const std::string& testName, const 
 		for(const auto& lineDiff : result.lineDiffs)
 		{
 			auto failureLine = string_format(
-				"result   : %s\r\n"
-				"expected : %s\r\n"
-				"\r\n",
-				lineDiff.result.c_str(), lineDiff.expected.c_str());
+			    "result   : %s\r\n"
+			    "expected : %s\r\n"
+			    "\r\n",
+			    lineDiff.result.c_str(), lineDiff.expected.c_str());
 			failureDetails += failureLine;
 		}
 		auto resultNode = new Framework::Xml::CNode("failure", true);

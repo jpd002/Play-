@@ -8,42 +8,41 @@
 #include <gl/glu.h>
 #include <math.h>
 
-#define CLSNAME		_T("CMemoryCardView")
+#define CLSNAME _T("CMemoryCardView")
 
 const PIXELFORMATDESCRIPTOR CMemoryCardView::CRender::m_PFD =
-{
-	sizeof(PIXELFORMATDESCRIPTOR),
-	1,
-	PFD_DRAW_TO_WINDOW | PFD_SUPPORT_OPENGL | PFD_DOUBLEBUFFER,
-	PFD_TYPE_RGBA,
-	32,
-	0, 0, 0, 0, 0, 0,
-	0, 0, 0, 0, 0, 0,
-	0,
-	32,
-	0,
-	0,
-	PFD_MAIN_PLANE,
-	0,
-	0, 0, 0
-};
+    {
+        sizeof(PIXELFORMATDESCRIPTOR),
+        1,
+        PFD_DRAW_TO_WINDOW | PFD_SUPPORT_OPENGL | PFD_DOUBLEBUFFER,
+        PFD_TYPE_RGBA,
+        32,
+        0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0,
+        0,
+        32,
+        0,
+        0,
+        PFD_MAIN_PLANE,
+        0,
+        0, 0, 0};
 
 CMemoryCardView::CMemoryCardView(HWND hParent, const RECT& rect)
-: m_itemCount(0)
-, m_memoryCard(NULL)
-, m_render(NULL)
+    : m_itemCount(0)
+    , m_memoryCard(NULL)
+    , m_render(NULL)
 {
 	if(!DoesWindowClassExist(CLSNAME))
 	{
 		WNDCLASSEX wc;
 		memset(&wc, 0, sizeof(WNDCLASSEX));
-		wc.cbSize			= sizeof(WNDCLASSEX);
-		wc.hCursor			= LoadCursor(NULL, IDC_ARROW);
-		wc.hbrBackground	= NULL; 
-		wc.hInstance		= GetModuleHandle(NULL);
-		wc.lpszClassName	= CLSNAME;
-		wc.lpfnWndProc		= CWindow::WndProc;
-		wc.style			= CS_OWNDC | CS_HREDRAW | CS_VREDRAW;
+		wc.cbSize = sizeof(WNDCLASSEX);
+		wc.hCursor = LoadCursor(NULL, IDC_ARROW);
+		wc.hbrBackground = NULL;
+		wc.hInstance = GetModuleHandle(NULL);
+		wc.lpszClassName = CLSNAME;
+		wc.lpfnWndProc = CWindow::WndProc;
+		wc.style = CS_OWNDC | CS_HREDRAW | CS_VREDRAW;
 		RegisterClassEx(&wc);
 	}
 
@@ -63,7 +62,7 @@ CMemoryCardView::~CMemoryCardView()
 void CMemoryCardView::SetMemoryCard(CMemoryCard* memoryCard)
 {
 	m_memoryCard = memoryCard;
-	
+
 	if(m_memoryCard != NULL)
 	{
 		m_itemCount = static_cast<unsigned int>(m_memoryCard->GetSaveCount());
@@ -111,14 +110,14 @@ long CMemoryCardView::OnVScroll(unsigned int nType, unsigned int nThumb)
 
 	UpdateScrollPosition();
 
-	return TRUE;	
+	return TRUE;
 }
 
 long CMemoryCardView::OnLeftButtonDown(int nX, int nY)
 {
 	SetFocus();
 	SetSelection((nY + m_viewState.m_nScrollPosition) / m_viewState.m_nItemHeight);
-	return TRUE;	
+	return TRUE;
 }
 
 long CMemoryCardView::OnMouseWheel(int x, int y, short z)
@@ -164,23 +163,23 @@ void CMemoryCardView::UpdateScroll()
 	SCROLLINFO si;
 
 	memset(&si, 0, sizeof(SCROLLINFO));
-	si.cbSize	= sizeof(SCROLLINFO);
-	si.fMask	= SIF_RANGE | SIF_DISABLENOSCROLL;
-	si.nMin		= 0;
-	si.nMax		= m_viewState.GetCanvasSize(m_itemCount);
-	SetScrollInfo(m_hWnd, SB_VERT, &si, TRUE);	
+	si.cbSize = sizeof(SCROLLINFO);
+	si.fMask = SIF_RANGE | SIF_DISABLENOSCROLL;
+	si.nMin = 0;
+	si.nMax = m_viewState.GetCanvasSize(m_itemCount);
+	SetScrollInfo(m_hWnd, SB_VERT, &si, TRUE);
 }
 
 void CMemoryCardView::UpdateScrollPosition()
 {
-	m_viewState.m_nScrollPosition = std::max<int>(0,										m_viewState.m_nScrollPosition);
-	m_viewState.m_nScrollPosition = std::min<int>(m_viewState.GetCanvasSize(m_itemCount),	m_viewState.m_nScrollPosition);
+	m_viewState.m_nScrollPosition = std::max<int>(0, m_viewState.m_nScrollPosition);
+	m_viewState.m_nScrollPosition = std::min<int>(m_viewState.GetCanvasSize(m_itemCount), m_viewState.m_nScrollPosition);
 
 	SCROLLINFO si;
 	memset(&si, 0, sizeof(SCROLLINFO));
-	si.cbSize		= sizeof(SCROLLINFO);
-	si.nPos			= m_viewState.m_nScrollPosition;
-	si.fMask		= SIF_POS;
+	si.cbSize = sizeof(SCROLLINFO);
+	si.nPos = m_viewState.m_nScrollPosition;
+	si.fMask = SIF_POS;
 	SetScrollInfo(m_hWnd, SB_VERT, &si, TRUE);
 }
 
@@ -226,10 +225,10 @@ void CMemoryCardView::CViewState::Reset(RECT* pClientRect)
 {
 	CopyRect(&m_ClientRect, pClientRect);
 
-	m_nItemHeight		= m_ClientRect.right;
-	m_nItemWidth		= m_ClientRect.right;
-	m_nSelection		= 0;
-	m_nScrollPosition	= 0;
+	m_nItemHeight = m_ClientRect.right;
+	m_nItemWidth = m_ClientRect.right;
+	m_nSelection = 0;
+	m_nScrollPosition = 0;
 }
 
 void CMemoryCardView::CViewState::EnsureItemFullyVisible(unsigned int nItem)
@@ -237,17 +236,17 @@ void CMemoryCardView::CViewState::EnsureItemFullyVisible(unsigned int nItem)
 	int nWindowTop, nWindowBottom;
 	int nItemTop, nItemBottom;
 
-	nWindowTop		= m_nScrollPosition;
-	nWindowBottom	= m_nScrollPosition + m_ClientRect.bottom;
+	nWindowTop = m_nScrollPosition;
+	nWindowBottom = m_nScrollPosition + m_ClientRect.bottom;
 
-	nItemTop		= nItem * m_nItemHeight;
-	nItemBottom		= nItemTop + m_nItemHeight;
-	
+	nItemTop = nItem * m_nItemHeight;
+	nItemBottom = nItemTop + m_nItemHeight;
+
 	if(nItemTop < nWindowTop)
 	{
 		m_nScrollPosition -= (nWindowTop - nItemTop);
 	}
-	else if(nItemBottom > nWindowBottom) 
+	else if(nItemBottom > nWindowBottom)
 	{
 		m_nScrollPosition += (nItemBottom - nWindowBottom);
 	}
@@ -256,12 +255,12 @@ void CMemoryCardView::CViewState::EnsureItemFullyVisible(unsigned int nItem)
 //////////////////////////////////////
 // CRender implementation
 
-CMemoryCardView::CRender::CRender(HWND hWnd, const CViewState* pViewState) 
-: m_deviceContext(hWnd)
-, m_viewState(pViewState)
-, m_memoryCard(NULL)
-, m_threadOver(false)
-, m_thread(NULL)
+CMemoryCardView::CRender::CRender(HWND hWnd, const CViewState* pViewState)
+    : m_deviceContext(hWnd)
+    , m_viewState(pViewState)
+    , m_memoryCard(NULL)
+    , m_threadOver(false)
+    , m_thread(NULL)
 {
 	m_thread = new std::thread(std::bind(&CRender::ThreadProc, this));
 }
@@ -314,7 +313,7 @@ void CMemoryCardView::CRender::ThreadSetMemoryCard(const CMemoryCard* memoryCard
 void CMemoryCardView::CRender::Animate()
 {
 	for(IconList::iterator iconIterator(m_icons.begin());
-		m_icons.end() != iconIterator; ++iconIterator)
+	    m_icons.end() != iconIterator; ++iconIterator)
 	{
 		const IconMeshPtr& iconMesh(iconIterator->second);
 		if(iconMesh)
@@ -347,10 +346,10 @@ void CMemoryCardView::CRender::DrawScene()
 		{
 			glClear(GL_DEPTH_BUFFER_BIT);
 
-			glViewport(0, 
-				(ClientRect.bottom - nY - m_viewState->m_nItemHeight + m_viewState->m_nScrollPosition), 
-				m_viewState->m_nItemWidth, 
-				m_viewState->m_nItemHeight);
+			glViewport(0,
+			           (ClientRect.bottom - nY - m_viewState->m_nItemHeight + m_viewState->m_nScrollPosition),
+			           m_viewState->m_nItemWidth,
+			           m_viewState->m_nItemHeight);
 
 			if(nY == (m_viewState->m_nSelection * m_viewState->m_nItemHeight))
 			{
@@ -372,7 +371,7 @@ void CMemoryCardView::CRender::DrawScene()
 					glVertex2f(1.0, 1.0);
 					glVertex2f(0.0, 1.0);
 				}
-				glEnd();			
+				glEnd();
 			}
 
 			glEnable(GL_DEPTH_TEST);
@@ -402,7 +401,6 @@ void CMemoryCardView::CRender::DrawScene()
 				}
 				catch(...)
 				{
-
 				}
 				m_icons[i] = iconMesh;
 			}

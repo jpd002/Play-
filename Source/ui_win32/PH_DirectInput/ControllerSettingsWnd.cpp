@@ -10,30 +10,30 @@
 #include "Types.h"
 #include "placeholder_def.h"
 
-#define CLSNAME		_T("ContollerSettingsWnd")
-#define WNDSTYLE	(WS_CAPTION | WS_POPUP | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_SYSMENU)
-#define WNDSTYLEEX	(WS_EX_DLGMODALFRAME)
+#define CLSNAME _T("ContollerSettingsWnd")
+#define WNDSTYLE (WS_CAPTION | WS_POPUP | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_SYSMENU)
+#define WNDSTYLEEX (WS_EX_DLGMODALFRAME)
 
 using namespace PH_DirectInput;
 
 CControllerSettingsWnd::CControllerSettingsWnd(HWND parent, CInputManager& inputManager)
-: CModalWindow(parent)
-, m_inputManager(inputManager)
-, m_autoConfigButton(NULL)
-, m_bindingList(NULL)
-, m_valuesCached(false)
+    : CModalWindow(parent)
+    , m_inputManager(inputManager)
+    , m_autoConfigButton(NULL)
+    , m_bindingList(NULL)
+    , m_valuesCached(false)
 {
 	if(!DoesWindowClassExist(CLSNAME))
 	{
 		WNDCLASSEX wc;
 		memset(&wc, 0, sizeof(WNDCLASSEX));
-		wc.cbSize			= sizeof(WNDCLASSEX);
-		wc.hCursor			= LoadCursor(NULL, IDC_ARROW);
-		wc.hbrBackground	= (HBRUSH)(COLOR_WINDOW); 
-		wc.hInstance		= GetModuleHandle(NULL);
-		wc.lpszClassName	= CLSNAME;
-		wc.lpfnWndProc		= CWindow::WndProc;
-		wc.style			= CS_OWNDC | CS_HREDRAW | CS_VREDRAW;
+		wc.cbSize = sizeof(WNDCLASSEX);
+		wc.hCursor = LoadCursor(NULL, IDC_ARROW);
+		wc.hbrBackground = (HBRUSH)(COLOR_WINDOW);
+		wc.hInstance = GetModuleHandle(NULL);
+		wc.lpszClassName = CLSNAME;
+		wc.lpfnWndProc = CWindow::WndProc;
+		wc.style = CS_OWNDC | CS_HREDRAW | CS_VREDRAW;
 		RegisterClassEx(&wc);
 	}
 
@@ -41,23 +41,21 @@ CControllerSettingsWnd::CControllerSettingsWnd(HWND parent, CInputManager& input
 	Create(WNDSTYLEEX, CLSNAME, _T("Controller Settings"), WNDSTYLE, windowRect, parent, NULL);
 	SetClassPtr();
 
-	m_bindingList		= new Framework::Win32::CListView(m_hWnd, Framework::Win32::CRect(0, 0, 1, 1), LVS_REPORT | LVS_NOSORTHEADER);
-	m_ok				= new Framework::Win32::CButton(_T("OK"), m_hWnd, Framework::Win32::CRect(0, 0, 1, 1));
-	m_cancel			= new Framework::Win32::CButton(_T("Cancel"), m_hWnd, Framework::Win32::CRect(0, 0, 1, 1));
-	m_autoConfigButton	= new Framework::Win32::CButton(_T("Auto Config"), m_hWnd, Framework::Win32::CRect(0, 0, 1, 1));
+	m_bindingList = new Framework::Win32::CListView(m_hWnd, Framework::Win32::CRect(0, 0, 1, 1), LVS_REPORT | LVS_NOSORTHEADER);
+	m_ok = new Framework::Win32::CButton(_T("OK"), m_hWnd, Framework::Win32::CRect(0, 0, 1, 1));
+	m_cancel = new Framework::Win32::CButton(_T("Cancel"), m_hWnd, Framework::Win32::CRect(0, 0, 1, 1));
+	m_autoConfigButton = new Framework::Win32::CButton(_T("Auto Config"), m_hWnd, Framework::Win32::CRect(0, 0, 1, 1));
 
 	m_bindingList->SetExtendedListViewStyle(m_bindingList->GetExtendedListViewStyle() | LVS_EX_FULLROWSELECT);
 
-	m_layout = 
-		Framework::VerticalLayoutContainer(
-		Framework::Win32::CLayoutWindow::CreateCustomBehavior(100, 100, 1, 1, m_bindingList) +
-			Framework::HorizontalLayoutContainer(
-				Framework::Win32::CLayoutWindow::CreateButtonBehavior(Framework::Win32::PointsToPixels(100), Framework::Win32::PointsToPixels(23), m_autoConfigButton) +
-				Framework::CLayoutStretch::Create() +
-				Framework::Win32::CLayoutWindow::CreateButtonBehavior(Framework::Win32::PointsToPixels(100), Framework::Win32::PointsToPixels(23), m_ok) +
-				Framework::Win32::CLayoutWindow::CreateButtonBehavior(Framework::Win32::PointsToPixels(100), Framework::Win32::PointsToPixels(23), m_cancel)
-			)
-		);
+	m_layout =
+	    Framework::VerticalLayoutContainer(
+	        Framework::Win32::CLayoutWindow::CreateCustomBehavior(100, 100, 1, 1, m_bindingList) +
+	        Framework::HorizontalLayoutContainer(
+	            Framework::Win32::CLayoutWindow::CreateButtonBehavior(Framework::Win32::PointsToPixels(100), Framework::Win32::PointsToPixels(23), m_autoConfigButton) +
+	            Framework::CLayoutStretch::Create() +
+	            Framework::Win32::CLayoutWindow::CreateButtonBehavior(Framework::Win32::PointsToPixels(100), Framework::Win32::PointsToPixels(23), m_ok) +
+	            Framework::Win32::CLayoutWindow::CreateButtonBehavior(Framework::Win32::PointsToPixels(100), Framework::Win32::PointsToPixels(23), m_cancel)));
 
 	m_inputManager.PushFocusWindow(m_hWnd);
 
@@ -185,21 +183,21 @@ void CControllerSettingsWnd::PopulateList()
 	RECT rc = m_bindingList->GetClientRect();
 
 	memset(&column, 0, sizeof(LVCOLUMN));
-	column.pszText	= _T("Button");
-	column.mask		= LVCF_TEXT | LVCF_WIDTH;
-	column.cx		= 1 * rc.right / 5;
+	column.pszText = _T("Button");
+	column.mask = LVCF_TEXT | LVCF_WIDTH;
+	column.cx = 1 * rc.right / 5;
 	m_bindingList->InsertColumn(0, column);
 
 	memset(&column, 0, sizeof(LVCOLUMN));
-	column.pszText	= _T("Binding");
-	column.mask		= LVCF_TEXT | LVCF_WIDTH;
-	column.cx		= 3 * rc.right / 5;
+	column.pszText = _T("Binding");
+	column.mask = LVCF_TEXT | LVCF_WIDTH;
+	column.cx = 3 * rc.right / 5;
 	m_bindingList->InsertColumn(1, column);
 
 	memset(&column, 0, sizeof(LVCOLUMN));
-	column.pszText	= _T("Current Value");
-	column.mask		= LVCF_TEXT | LVCF_WIDTH;
-	column.cx		= 1 * rc.right / 5;
+	column.pszText = _T("Current Value");
+	column.mask = LVCF_TEXT | LVCF_WIDTH;
+	column.cx = 1 * rc.right / 5;
 	m_bindingList->InsertColumn(2, column);
 
 	for(int i = PS2::CControllerInfo::MAX_BUTTONS - 1; i >= 0; i--)
@@ -207,9 +205,9 @@ void CControllerSettingsWnd::PopulateList()
 		std::tstring text = string_cast<std::tstring>(PS2::CControllerInfo::m_buttonName[i]);
 		LVITEM itm;
 		memset(&itm, 0, sizeof(LVITEM));
-		itm.mask		= LVIF_TEXT | LVIF_PARAM;
-		itm.pszText		= const_cast<TCHAR*>(text.c_str());
-		itm.lParam		= i;
+		itm.mask = LVIF_TEXT | LVIF_PARAM;
+		itm.pszText = const_cast<TCHAR*>(text.c_str());
+		itm.lParam = i;
 		m_bindingList->InsertItem(itm);
 	}
 }

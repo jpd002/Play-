@@ -24,26 +24,22 @@ using namespace Windows::UI::Xaml::Navigation;
 
 MainPage::MainPage()
 {
-	PlaylistItems = ref new Platform::Collections::Vector<PlaylistItemAdapter^>();
+	PlaylistItems = ref new Platform::Collections::Vector<PlaylistItemAdapter ^>();
 
 	m_playlist.OnItemInsert.connect(
-		[&] (const CPlaylist::ITEM& item)
-		{
-			auto newAdapter = ref new PlaylistItemAdapter();
-			newAdapter->Title		= ref new String(string_cast<std::wstring>(item.title).c_str());
-			newAdapter->Length		= ref new String(TimeToString<std::wstring>(item.length).c_str());
-			newAdapter->ItemId		= item.id;
-			newAdapter->ArchiveId	= item.archiveId;
-			PlaylistItems->Append(newAdapter);
-		}
-	);
+	    [&](const CPlaylist::ITEM& item) {
+		    auto newAdapter = ref new PlaylistItemAdapter();
+		    newAdapter->Title = ref new String(string_cast<std::wstring>(item.title).c_str());
+		    newAdapter->Length = ref new String(TimeToString<std::wstring>(item.length).c_str());
+		    newAdapter->ItemId = item.id;
+		    newAdapter->ArchiveId = item.archiveId;
+		    PlaylistItems->Append(newAdapter);
+	    });
 
 	m_playlist.OnItemsClear.connect(
-		[&] ()
-		{
-			PlaylistItems->Clear();
-		}
-	);
+	    [&]() {
+		    PlaylistItems->Clear();
+	    });
 
 	m_virtualMachine.SetSpuHandler(&CSH_XAudio2::HandlerFactory);
 
@@ -51,12 +47,11 @@ MainPage::MainPage()
 	playlistListBox->ItemsSource = PlaylistItems;
 }
 
-void MainPage::OnNavigatedTo(NavigationEventArgs^)
+void MainPage::OnNavigatedTo(NavigationEventArgs ^)
 {
-
 }
 
-void MainPage::ejectButton_Click(Platform::Object^ sender, Windows::UI::Xaml::RoutedEventArgs^ e)
+void MainPage::ejectButton_Click(Platform::Object ^ sender, Windows::UI::Xaml::RoutedEventArgs ^ e)
 {
 	auto filePicker = ref new FileOpenPicker();
 	filePicker->FileTypeFilter->Append(".zip");
@@ -64,40 +59,38 @@ void MainPage::ejectButton_Click(Platform::Object^ sender, Windows::UI::Xaml::Ro
 
 	auto pickTask = concurrency::create_task(filePicker->PickSingleFileAsync());
 	pickTask.then(
-		[&] (StorageFile^ result)
-		{
-			if(result != nullptr)
-			{
-				m_playlist.Clear();
+	    [&](StorageFile ^ result) {
+		    if(result != nullptr)
+		    {
+			    m_playlist.Clear();
 
-				unsigned int archiveId = m_playlist.InsertArchive(result->Path->Data());
-				auto archive = CPsfArchive::CreateFromPath(result->Path->Data());
+			    unsigned int archiveId = m_playlist.InsertArchive(result->Path->Data());
+			    auto archive = CPsfArchive::CreateFromPath(result->Path->Data());
 
-				for(const auto& fileInfo : archive->GetFiles())
-				{
-					auto filePath = boost::filesystem::path(fileInfo.name);
-					auto fileExtension = filePath.extension().string();
-					if(!fileExtension.empty() && CPlaylist::IsLoadableExtension(fileExtension.c_str() + 1))
-					{
-						CPlaylist::ITEM newItem;
-						newItem.path		= filePath.wstring();
-						newItem.title		= newItem.path;
-						newItem.length		= 0;
-						newItem.archiveId	= archiveId;
-						unsigned int itemId = m_playlist.InsertItem(newItem);
-					}
-				}
-			}
-		}
-	);
+			    for(const auto& fileInfo : archive->GetFiles())
+			    {
+				    auto filePath = boost::filesystem::path(fileInfo.name);
+				    auto fileExtension = filePath.extension().string();
+				    if(!fileExtension.empty() && CPlaylist::IsLoadableExtension(fileExtension.c_str() + 1))
+				    {
+					    CPlaylist::ITEM newItem;
+					    newItem.path = filePath.wstring();
+					    newItem.title = newItem.path;
+					    newItem.length = 0;
+					    newItem.archiveId = archiveId;
+					    unsigned int itemId = m_playlist.InsertItem(newItem);
+				    }
+			    }
+		    }
+	    });
 }
 
-void MainPage::playButton_Click(Platform::Object^ sender, Windows::UI::Xaml::RoutedEventArgs^ e)
+void MainPage::playButton_Click(Platform::Object ^ sender, Windows::UI::Xaml::RoutedEventArgs ^ e)
 {
 	auto selectedItem = playlistListBox->SelectedItem;
 	if(!selectedItem) return;
 
-	auto selectedItemAdapter = static_cast<PlaylistItemAdapter^>(selectedItem);
+	auto selectedItemAdapter = static_cast<PlaylistItemAdapter ^>(selectedItem);
 
 	auto playlistItemIndex = m_playlist.FindItem(selectedItemAdapter->ItemId);
 	if(playlistItemIndex == -1)

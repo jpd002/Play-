@@ -13,25 +13,23 @@
 void CScreenShotUtils::TriggerGetScreenshot(CPS2VM* virtualMachine, Callback completionCallback)
 {
 	virtualMachine->m_ee->m_gs->OnFlipComplete.connect_extended(
-		[=](const boost::signals2::connection &c)->void
-		{
-			c.disconnect();
-			try
-			{
-				auto buffer = virtualMachine->m_ee->m_gs->GetScreenshot();
-				auto name = GenerateScreenShotPath(virtualMachine->m_ee->m_os->GetExecutableName());
-				Framework::CStdStream outputStream(name.string().c_str(), "wb");
-				Framework::CBMP::WriteBitmap(buffer, outputStream);
+	    [=](const boost::signals2::connection& c) -> void {
+		    c.disconnect();
+		    try
+		    {
+			    auto buffer = virtualMachine->m_ee->m_gs->GetScreenshot();
+			    auto name = GenerateScreenShotPath(virtualMachine->m_ee->m_os->GetExecutableName());
+			    Framework::CStdStream outputStream(name.string().c_str(), "wb");
+			    Framework::CBMP::WriteBitmap(buffer, outputStream);
 
-				auto msgstr = string_format("Screenshot saved as '%s'.", name.filename().string().c_str());
-				completionCallback(0, msgstr.c_str());
-			}
-			catch(const std::exception&)
-			{
-				completionCallback(-1, "Error occured while trying to save screenshot.");
-			}
-		}
-	);
+			    auto msgstr = string_format("Screenshot saved as '%s'.", name.filename().string().c_str());
+			    completionCallback(0, msgstr.c_str());
+		    }
+		    catch(const std::exception&)
+		    {
+			    completionCallback(-1, "Error occured while trying to save screenshot.");
+		    }
+	    });
 }
 
 Framework::CConfig::PathType CScreenShotUtils::GetScreenShotDirectoryPath()

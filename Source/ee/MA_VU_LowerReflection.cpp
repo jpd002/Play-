@@ -16,8 +16,8 @@ void CMA_VU::CLower::ReflOpIs(INSTRUCTION* instr, CMIPS* context, uint32 address
 
 void CMA_VU::CLower::ReflOpIsOfs(INSTRUCTION* instr, CMIPS* context, uint32 address, uint32 opcode, char* text, unsigned int count)
 {
-	uint8  is	= static_cast<uint8> ((opcode >> 11) & 0x001F);
-	uint16 imm	= static_cast<uint16>((opcode >>  0) & 0x07FF);
+	uint8 is = static_cast<uint8>((opcode >> 11) & 0x001F);
+	uint16 imm = static_cast<uint16>((opcode >> 0) & 0x07FF);
 
 	address += 8;
 
@@ -33,30 +33,30 @@ void CMA_VU::CLower::ReflOpIt(INSTRUCTION* instr, CMIPS* context, uint32 address
 
 void CMA_VU::CLower::ReflOpImm12(INSTRUCTION* instr, CMIPS* context, uint32 address, uint32 opcode, char* text, unsigned int count)
 {
-	uint16	imm	= static_cast<uint16>((opcode & 0x7FF) | (opcode & 0x00200000) >> 10);
+	uint16 imm = static_cast<uint16>((opcode & 0x7FF) | (opcode & 0x00200000) >> 10);
 
 	sprintf(text, "0x%03X", imm);
 }
 
 void CMA_VU::CLower::ReflOpItImm12(INSTRUCTION* instr, CMIPS* context, uint32 address, uint32 opcode, char* text, unsigned int count)
 {
-	uint8	it	= static_cast<uint8>((opcode >> 16) & 0x001F);
-	uint16	imm	= static_cast<uint16>((opcode & 0x7FF) | (opcode & 0x00200000) >> 10);
+	uint8 it = static_cast<uint8>((opcode >> 16) & 0x001F);
+	uint16 imm = static_cast<uint16>((opcode & 0x7FF) | (opcode & 0x00200000) >> 10);
 
 	sprintf(text, "VI%i, 0x%03X", it, imm);
 }
 
 void CMA_VU::CLower::ReflOpItIs(INSTRUCTION* instr, CMIPS* context, uint32 address, uint32 opcode, char* text, unsigned int count)
 {
-	uint8 it	= static_cast<uint8>((opcode >> 16) & 0x001F);
-	uint8 is	= static_cast<uint8>((opcode >> 11) & 0x001F);
+	uint8 it = static_cast<uint8>((opcode >> 16) & 0x001F);
+	uint8 is = static_cast<uint8>((opcode >> 11) & 0x001F);
 
 	sprintf(text, "VI%i, VI%i", it, is);
 }
 
 void CMA_VU::CLower::ReflOpOfs(INSTRUCTION* instr, CMIPS* context, uint32 address, uint32 opcode, char* text, unsigned int count)
 {
-	uint16 imm	= static_cast<uint16>((opcode >>  0) & 0x07FF);
+	uint16 imm = static_cast<uint16>((opcode >> 0) & 0x07FF);
 
 	address += 8;
 
@@ -65,8 +65,8 @@ void CMA_VU::CLower::ReflOpOfs(INSTRUCTION* instr, CMIPS* context, uint32 addres
 
 void CMA_VU::CLower::ReflOpItOfs(INSTRUCTION* instr, CMIPS* context, uint32 address, uint32 opcode, char* text, unsigned int count)
 {
-	uint16 imm = static_cast<uint16>((opcode >>  0) & 0x07FF);
-	uint8  it  = static_cast<uint8> ((opcode >> 16) & 0x001F);
+	uint16 imm = static_cast<uint16>((opcode >> 0) & 0x07FF);
+	uint8 it = static_cast<uint8>((opcode >> 16) & 0x001F);
 
 	address += 8;
 
@@ -75,9 +75,9 @@ void CMA_VU::CLower::ReflOpItOfs(INSTRUCTION* instr, CMIPS* context, uint32 addr
 
 void CMA_VU::CLower::ReflOpItIsOfs(INSTRUCTION* instr, CMIPS* context, uint32 address, uint32 opcode, char* text, unsigned int count)
 {
-	uint8 it	= static_cast<uint8> ((opcode >> 16) & 0x001F);
-	uint8 is	= static_cast<uint8> ((opcode >> 11) & 0x001F);
-	uint16 imm	= static_cast<uint16>((opcode >>  0) & 0x07FF);
+	uint8 it = static_cast<uint8>((opcode >> 16) & 0x001F);
+	uint8 is = static_cast<uint8>((opcode >> 11) & 0x001F);
+	uint16 imm = static_cast<uint16>((opcode >> 0) & 0x07FF);
 
 	address += 8;
 
@@ -86,19 +86,19 @@ void CMA_VU::CLower::ReflOpItIsOfs(INSTRUCTION* instr, CMIPS* context, uint32 ad
 
 void CMA_VU::CLower::ReflOpItIsImm15(INSTRUCTION* instr, CMIPS* context, uint32 address, uint32 opcode, char* text, unsigned int count)
 {
-	uint8	it	= static_cast<uint8> ((opcode >> 16) & 0x001F);
-	uint8	is	= static_cast<uint8> ((opcode >> 11) & 0x001F);
-	uint16	imm	= static_cast<uint16>((opcode & 0x7FF) | (opcode & 0x01E00000) >> 10);
+	uint8 it = static_cast<uint8>((opcode >> 16) & 0x001F);
+	uint8 is = static_cast<uint8>((opcode >> 11) & 0x001F);
+	uint16 imm = static_cast<uint16>((opcode & 0x7FF) | (opcode & 0x01E00000) >> 10);
 
 	sprintf(text, "VI%i, VI%i, $%04X", it, is, imm);
 }
 
 void CMA_VU::CLower::ReflOpItOfsIsDst(INSTRUCTION* instr, CMIPS* context, uint32 address, uint32 opcode, char* text, unsigned int count)
 {
-	uint8 dest	= static_cast<uint8> ((opcode >> 21) & 0x000F);
-	uint8 it	= static_cast<uint8> ((opcode >> 16) & 0x001F);
-	uint8 is	= static_cast<uint8> ((opcode >> 11) & 0x001F);
-	uint16 imm	= static_cast<uint16>((opcode >>  0) & 0x07FF);
+	uint8 dest = static_cast<uint8>((opcode >> 21) & 0x000F);
+	uint8 it = static_cast<uint8>((opcode >> 16) & 0x001F);
+	uint8 is = static_cast<uint8>((opcode >> 11) & 0x001F);
+	uint16 imm = static_cast<uint16>((opcode >> 0) & 0x07FF);
 	if(imm & 0x400) imm |= 0xF800;
 
 	sprintf(text, "VI%i, $%04X(VI%i)%s", it, imm, is, m_sDestination[dest]);
@@ -120,10 +120,10 @@ void CMA_VU::CLower::ReflOpVi1Imm24(INSTRUCTION* instr, CMIPS* context, uint32 a
 
 void CMA_VU::CLower::ReflOpFsDstOfsIt(INSTRUCTION* instr, CMIPS* context, uint32 address, uint32 opcode, char* text, unsigned int count)
 {
-	uint8  dest	= static_cast<uint8> ((opcode >> 21) & 0x000F);
-	uint8  it	= static_cast<uint8> ((opcode >> 16) & 0x001F);
-	uint8  fs	= static_cast<uint8> ((opcode >> 11) & 0x001F);
-	uint16 imm	= static_cast<uint16>((opcode >>  0) & 0x07FF);
+	uint8 dest = static_cast<uint8>((opcode >> 21) & 0x000F);
+	uint8 it = static_cast<uint8>((opcode >> 16) & 0x001F);
+	uint8 fs = static_cast<uint8>((opcode >> 11) & 0x001F);
+	uint16 imm = static_cast<uint16>((opcode >> 0) & 0x07FF);
 	if(imm & 0x400) imm |= 0xF800;
 
 	sprintf(text, "VF%i%s, $%04X(VI%i)", fs, m_sDestination[dest], imm, it);
@@ -131,10 +131,10 @@ void CMA_VU::CLower::ReflOpFsDstOfsIt(INSTRUCTION* instr, CMIPS* context, uint32
 
 void CMA_VU::CLower::ReflOpFtDstOfsIs(INSTRUCTION* instr, CMIPS* context, uint32 address, uint32 opcode, char* text, unsigned int count)
 {
-	uint8  dest	= static_cast<uint8> ((opcode >> 21) & 0x000F);
-	uint8  ft	= static_cast<uint8> ((opcode >> 16) & 0x001F);
-	uint8  is	= static_cast<uint8> ((opcode >> 11) & 0x001F);
-	uint16 imm	= static_cast<uint16>((opcode >>  0) & 0x07FF);
+	uint8 dest = static_cast<uint8>((opcode >> 21) & 0x000F);
+	uint8 ft = static_cast<uint8>((opcode >> 16) & 0x001F);
+	uint8 is = static_cast<uint8>((opcode >> 11) & 0x001F);
+	uint16 imm = static_cast<uint16>((opcode >> 0) & 0x07FF);
 	if(imm & 0x400) imm |= 0xF800;
 
 	sprintf(text, "VF%i%s, $%04X(VI%i)", ft, m_sDestination[dest], imm, is);
@@ -142,39 +142,39 @@ void CMA_VU::CLower::ReflOpFtDstOfsIs(INSTRUCTION* instr, CMIPS* context, uint32
 
 void CMA_VU::CLower::ReflOpFtDstFsDst(INSTRUCTION* instr, CMIPS* context, uint32 address, uint32 opcode, char* text, unsigned int count)
 {
-	uint8 dest	= static_cast<uint8>((opcode >> 21) & 0x000F);
-	uint8 ft	= static_cast<uint8>((opcode >> 16) & 0x001F);
-	uint8 fs	= static_cast<uint8>((opcode >> 11) & 0x001F);
+	uint8 dest = static_cast<uint8>((opcode >> 21) & 0x000F);
+	uint8 ft = static_cast<uint8>((opcode >> 16) & 0x001F);
+	uint8 fs = static_cast<uint8>((opcode >> 11) & 0x001F);
 
 	sprintf(text, "VF%i%s, VF%i%s", ft, m_sDestination[dest], fs, m_sDestination[dest]);
 }
 
 void CMA_VU::CLower::ReflOpPFs(INSTRUCTION* instr, CMIPS* context, uint32 address, uint32 opcode, char* text, unsigned int count)
 {
-	uint8 fs	= static_cast<uint8>((opcode >> 11) & 0x001F);
+	uint8 fs = static_cast<uint8>((opcode >> 11) & 0x001F);
 
 	sprintf(text, "P, VF%i", fs);
 }
 
 void CMA_VU::CLower::ReflOpPFsf(INSTRUCTION* instr, CMIPS* context, uint32 address, uint32 opcode, char* text, unsigned int count)
 {
-	uint8 fs	= static_cast<uint8>((opcode >> 11) & 0x001F);
-	uint8 fsf	= static_cast<uint8>((opcode >> 21) & 0x0003);
+	uint8 fs = static_cast<uint8>((opcode >> 11) & 0x001F);
+	uint8 fsf = static_cast<uint8>((opcode >> 21) & 0x0003);
 
 	sprintf(text, "P, VF%i%s", fs, m_sBroadcast[fsf]);
 }
 
 void CMA_VU::CLower::ReflOpFtP(INSTRUCTION* instr, CMIPS* context, uint32 address, uint32 opcode, char* text, unsigned int count)
 {
-	uint8 dest	= static_cast<uint8>((opcode >> 21) & 0x000F);
-	uint8 ft	= static_cast<uint8>((opcode >> 16) & 0x001F);
+	uint8 dest = static_cast<uint8>((opcode >> 21) & 0x000F);
+	uint8 ft = static_cast<uint8>((opcode >> 16) & 0x001F);
 
 	sprintf(text, "VF%i%s, P", ft, m_sDestination[dest]);
 }
 
 uint32 CMA_VU::CLower::ReflEaOffset(INSTRUCTION* instr, CMIPS* context, uint32 address, uint32 opcode)
 {
-	uint16 imm	= static_cast<uint16>((opcode >>  0) & 0x07FF);
+	uint16 imm = static_cast<uint16>((opcode >> 0) & 0x07FF);
 
 	address += 8;
 	return (address + GetBranch(imm));
@@ -261,7 +261,7 @@ void CMA_VU::CLower::ReflOpAffWrIdRdItIs(VUINSTRUCTION*, CMIPS*, uint32, uint32 
 {
 	auto it = static_cast<uint8>((opcode >> 16) & 0x001F);
 	auto is = static_cast<uint8>((opcode >> 11) & 0x001F);
-	auto id = static_cast<uint8>((opcode >>  6) & 0x001F);
+	auto id = static_cast<uint8>((opcode >> 6) & 0x001F);
 
 	operandSet.readI0 = it;
 	operandSet.readI1 = is;
@@ -1107,105 +1107,105 @@ VUINSTRUCTION CMA_VU::CLower::m_cVuReflVX3[32] =
 
 void CMA_VU::CLower::SetupReflectionTables()
 {
-	static_assert(sizeof(m_ReflGeneral)		== sizeof(m_cReflGeneral),		"Array sizes don't match");
-	static_assert(sizeof(m_ReflV)			== sizeof(m_cReflV),			"Array sizes don't match");
-	static_assert(sizeof(m_ReflVX0)			== sizeof(m_cReflVX0),			"Array sizes don't match");
-	static_assert(sizeof(m_ReflVX1)			== sizeof(m_cReflVX1),			"Array sizes don't match");
-	static_assert(sizeof(m_ReflVX2)			== sizeof(m_cReflVX2),			"Array sizes don't match");
-	static_assert(sizeof(m_ReflVX3)			== sizeof(m_cReflVX3),			"Array sizes don't match");
+	static_assert(sizeof(m_ReflGeneral) == sizeof(m_cReflGeneral), "Array sizes don't match");
+	static_assert(sizeof(m_ReflV) == sizeof(m_cReflV), "Array sizes don't match");
+	static_assert(sizeof(m_ReflVX0) == sizeof(m_cReflVX0), "Array sizes don't match");
+	static_assert(sizeof(m_ReflVX1) == sizeof(m_cReflVX1), "Array sizes don't match");
+	static_assert(sizeof(m_ReflVX2) == sizeof(m_cReflVX2), "Array sizes don't match");
+	static_assert(sizeof(m_ReflVX3) == sizeof(m_cReflVX3), "Array sizes don't match");
 
-	static_assert(sizeof(m_VuReflGeneral)	== sizeof(m_cVuReflGeneral),	"Array sizes don't match");
-	static_assert(sizeof(m_VuReflV)			== sizeof(m_cVuReflV),			"Array sizes don't match");
-	static_assert(sizeof(m_VuReflVX0)		== sizeof(m_cVuReflVX0),		"Array sizes don't match");
-	static_assert(sizeof(m_VuReflVX1)		== sizeof(m_cVuReflVX1),		"Array sizes don't match");
-	static_assert(sizeof(m_VuReflVX2)		== sizeof(m_cVuReflVX2),		"Array sizes don't match");
-	static_assert(sizeof(m_VuReflVX3)		== sizeof(m_cVuReflVX3),		"Array sizes don't match");
+	static_assert(sizeof(m_VuReflGeneral) == sizeof(m_cVuReflGeneral), "Array sizes don't match");
+	static_assert(sizeof(m_VuReflV) == sizeof(m_cVuReflV), "Array sizes don't match");
+	static_assert(sizeof(m_VuReflVX0) == sizeof(m_cVuReflVX0), "Array sizes don't match");
+	static_assert(sizeof(m_VuReflVX1) == sizeof(m_cVuReflVX1), "Array sizes don't match");
+	static_assert(sizeof(m_VuReflVX2) == sizeof(m_cVuReflVX2), "Array sizes don't match");
+	static_assert(sizeof(m_VuReflVX3) == sizeof(m_cVuReflVX3), "Array sizes don't match");
 
-	VerifyVuReflectionTable(m_cReflGeneral,	m_cVuReflGeneral,	sizeof(m_cReflGeneral)	/ sizeof(m_cReflGeneral[0]));
-	VerifyVuReflectionTable(m_cReflV,		m_cVuReflV,			sizeof(m_cReflV)		/ sizeof(m_cReflV[0]));
-	VerifyVuReflectionTable(m_cReflVX0,		m_cVuReflVX0,		sizeof(m_cReflVX0)		/ sizeof(m_cReflVX0[0]));
-	VerifyVuReflectionTable(m_cReflVX1,		m_cVuReflVX1,		sizeof(m_cReflVX1)		/ sizeof(m_cReflVX1[0]));
-	VerifyVuReflectionTable(m_cReflVX2,		m_cVuReflVX2,		sizeof(m_cReflVX2)		/ sizeof(m_cReflVX2[0]));
-	VerifyVuReflectionTable(m_cReflVX3,		m_cVuReflVX3,		sizeof(m_cReflVX3)		/ sizeof(m_cReflVX3[0]));
+	VerifyVuReflectionTable(m_cReflGeneral, m_cVuReflGeneral, sizeof(m_cReflGeneral) / sizeof(m_cReflGeneral[0]));
+	VerifyVuReflectionTable(m_cReflV, m_cVuReflV, sizeof(m_cReflV) / sizeof(m_cReflV[0]));
+	VerifyVuReflectionTable(m_cReflVX0, m_cVuReflVX0, sizeof(m_cReflVX0) / sizeof(m_cReflVX0[0]));
+	VerifyVuReflectionTable(m_cReflVX1, m_cVuReflVX1, sizeof(m_cReflVX1) / sizeof(m_cReflVX1[0]));
+	VerifyVuReflectionTable(m_cReflVX2, m_cVuReflVX2, sizeof(m_cReflVX2) / sizeof(m_cReflVX2[0]));
+	VerifyVuReflectionTable(m_cReflVX3, m_cVuReflVX3, sizeof(m_cReflVX3) / sizeof(m_cReflVX3[0]));
 
-	memcpy(m_ReflGeneral,	m_cReflGeneral, sizeof(m_cReflGeneral));
-	memcpy(m_ReflV,			m_cReflV,		sizeof(m_cReflV));
-	memcpy(m_ReflVX0,		m_cReflVX0,		sizeof(m_cReflVX0));
-	memcpy(m_ReflVX1,		m_cReflVX1,		sizeof(m_cReflVX1));
-	memcpy(m_ReflVX2,		m_cReflVX2,		sizeof(m_cReflVX2));
-	memcpy(m_ReflVX3,		m_cReflVX3,		sizeof(m_cReflVX3));
+	memcpy(m_ReflGeneral, m_cReflGeneral, sizeof(m_cReflGeneral));
+	memcpy(m_ReflV, m_cReflV, sizeof(m_cReflV));
+	memcpy(m_ReflVX0, m_cReflVX0, sizeof(m_cReflVX0));
+	memcpy(m_ReflVX1, m_cReflVX1, sizeof(m_cReflVX1));
+	memcpy(m_ReflVX2, m_cReflVX2, sizeof(m_cReflVX2));
+	memcpy(m_ReflVX3, m_cReflVX3, sizeof(m_cReflVX3));
 
-	memcpy(m_VuReflGeneral,	m_cVuReflGeneral,	sizeof(m_cVuReflGeneral));
-	memcpy(m_VuReflV,		m_cVuReflV,			sizeof(m_cVuReflV));
-	memcpy(m_VuReflVX0,		m_cVuReflVX0,		sizeof(m_cVuReflVX0));
-	memcpy(m_VuReflVX1,		m_cVuReflVX1,		sizeof(m_cVuReflVX1));
-	memcpy(m_VuReflVX2,		m_cVuReflVX2,		sizeof(m_cVuReflVX2));
-	memcpy(m_VuReflVX3,		m_cVuReflVX3,		sizeof(m_cVuReflVX3));
+	memcpy(m_VuReflGeneral, m_cVuReflGeneral, sizeof(m_cVuReflGeneral));
+	memcpy(m_VuReflV, m_cVuReflV, sizeof(m_cVuReflV));
+	memcpy(m_VuReflVX0, m_cVuReflVX0, sizeof(m_cVuReflVX0));
+	memcpy(m_VuReflVX1, m_cVuReflVX1, sizeof(m_cVuReflVX1));
+	memcpy(m_VuReflVX2, m_cVuReflVX2, sizeof(m_cVuReflVX2));
+	memcpy(m_VuReflVX3, m_cVuReflVX3, sizeof(m_cVuReflVX3));
 
 	{
-		m_ReflGeneralTable.nShift		= 25;
-		m_ReflGeneralTable.nMask		= 0x7F;
-		m_ReflGeneralTable.pTable		= m_ReflGeneral;
+		m_ReflGeneralTable.nShift = 25;
+		m_ReflGeneralTable.nMask = 0x7F;
+		m_ReflGeneralTable.pTable = m_ReflGeneral;
 
-		m_ReflVTable.nShift				= 0;
-		m_ReflVTable.nMask				= 0x3F;
-		m_ReflVTable.pTable				= m_ReflV;
+		m_ReflVTable.nShift = 0;
+		m_ReflVTable.nMask = 0x3F;
+		m_ReflVTable.pTable = m_ReflV;
 
-		m_ReflVX0Table.nShift			= 6;
-		m_ReflVX0Table.nMask			= 0x1F;
-		m_ReflVX0Table.pTable			= m_ReflVX0;
+		m_ReflVX0Table.nShift = 6;
+		m_ReflVX0Table.nMask = 0x1F;
+		m_ReflVX0Table.pTable = m_ReflVX0;
 
-		m_ReflVX1Table.nShift			= 6;
-		m_ReflVX1Table.nMask			= 0x1F;
-		m_ReflVX1Table.pTable			= m_ReflVX1;
+		m_ReflVX1Table.nShift = 6;
+		m_ReflVX1Table.nMask = 0x1F;
+		m_ReflVX1Table.pTable = m_ReflVX1;
 
-		m_ReflVX2Table.nShift			= 6;
-		m_ReflVX2Table.nMask			= 0x1F;
-		m_ReflVX2Table.pTable			= m_ReflVX2;
+		m_ReflVX2Table.nShift = 6;
+		m_ReflVX2Table.nMask = 0x1F;
+		m_ReflVX2Table.pTable = m_ReflVX2;
 
-		m_ReflVX3Table.nShift			= 6;
-		m_ReflVX3Table.nMask			= 0x1F;
-		m_ReflVX3Table.pTable			= m_ReflVX3;
+		m_ReflVX3Table.nShift = 6;
+		m_ReflVX3Table.nMask = 0x1F;
+		m_ReflVX3Table.pTable = m_ReflVX3;
 
-		m_ReflGeneral[0x40].pSubTable	= &m_ReflVTable;
+		m_ReflGeneral[0x40].pSubTable = &m_ReflVTable;
 
-		m_ReflV[0x3C].pSubTable			= &m_ReflVX0Table;
-		m_ReflV[0x3D].pSubTable			= &m_ReflVX1Table;
-		m_ReflV[0x3E].pSubTable			= &m_ReflVX2Table;
-		m_ReflV[0x3F].pSubTable			= &m_ReflVX3Table;
+		m_ReflV[0x3C].pSubTable = &m_ReflVX0Table;
+		m_ReflV[0x3D].pSubTable = &m_ReflVX1Table;
+		m_ReflV[0x3E].pSubTable = &m_ReflVX2Table;
+		m_ReflV[0x3F].pSubTable = &m_ReflVX3Table;
 	}
 
 	{
-		m_VuReflGeneralTable.nShift			= 25;
-		m_VuReflGeneralTable.nMask			= 0x7F;
-		m_VuReflGeneralTable.pTable			= m_VuReflGeneral;
+		m_VuReflGeneralTable.nShift = 25;
+		m_VuReflGeneralTable.nMask = 0x7F;
+		m_VuReflGeneralTable.pTable = m_VuReflGeneral;
 
-		m_VuReflVTable.nShift				= 0;
-		m_VuReflVTable.nMask				= 0x3F;
-		m_VuReflVTable.pTable				= m_VuReflV;
+		m_VuReflVTable.nShift = 0;
+		m_VuReflVTable.nMask = 0x3F;
+		m_VuReflVTable.pTable = m_VuReflV;
 
-		m_VuReflVX0Table.nShift				= 6;
-		m_VuReflVX0Table.nMask				= 0x1F;
-		m_VuReflVX0Table.pTable				= m_VuReflVX0;
+		m_VuReflVX0Table.nShift = 6;
+		m_VuReflVX0Table.nMask = 0x1F;
+		m_VuReflVX0Table.pTable = m_VuReflVX0;
 
-		m_VuReflVX1Table.nShift				= 6;
-		m_VuReflVX1Table.nMask				= 0x1F;
-		m_VuReflVX1Table.pTable				= m_VuReflVX1;
+		m_VuReflVX1Table.nShift = 6;
+		m_VuReflVX1Table.nMask = 0x1F;
+		m_VuReflVX1Table.pTable = m_VuReflVX1;
 
-		m_VuReflVX2Table.nShift				= 6;
-		m_VuReflVX2Table.nMask				= 0x1F;
-		m_VuReflVX2Table.pTable				= m_VuReflVX2;
+		m_VuReflVX2Table.nShift = 6;
+		m_VuReflVX2Table.nMask = 0x1F;
+		m_VuReflVX2Table.pTable = m_VuReflVX2;
 
-		m_VuReflVX3Table.nShift				= 6;
-		m_VuReflVX3Table.nMask				= 0x1F;
-		m_VuReflVX3Table.pTable				= m_VuReflVX3;
+		m_VuReflVX3Table.nShift = 6;
+		m_VuReflVX3Table.nMask = 0x1F;
+		m_VuReflVX3Table.pTable = m_VuReflVX3;
 
-		m_VuReflGeneral[0x40].subTable		= &m_VuReflVTable;
+		m_VuReflGeneral[0x40].subTable = &m_VuReflVTable;
 
-		m_VuReflV[0x3C].subTable			= &m_VuReflVX0Table;
-		m_VuReflV[0x3D].subTable			= &m_VuReflVX1Table;
-		m_VuReflV[0x3E].subTable			= &m_VuReflVX2Table;
-		m_VuReflV[0x3F].subTable			= &m_VuReflVX3Table;
+		m_VuReflV[0x3C].subTable = &m_VuReflVX0Table;
+		m_VuReflV[0x3D].subTable = &m_VuReflVX1Table;
+		m_VuReflV[0x3E].subTable = &m_VuReflVX2Table;
+		m_VuReflV[0x3F].subTable = &m_VuReflVX3Table;
 	}
 }
 
@@ -1224,8 +1224,8 @@ void CMA_VU::CLower::GetInstructionMnemonic(CMIPS* context, uint32 address, uint
 	}
 
 	INSTRUCTION instr;
-	instr.pGetMnemonic	= SubTableMnemonic;
-	instr.pSubTable		= &m_ReflGeneralTable;
+	instr.pGetMnemonic = SubTableMnemonic;
+	instr.pSubTable = &m_ReflGeneralTable;
 	instr.pGetMnemonic(&instr, context, opcode, text, count);
 }
 
@@ -1244,8 +1244,8 @@ void CMA_VU::CLower::GetInstructionOperands(CMIPS* context, uint32 address, uint
 	}
 
 	INSTRUCTION instr;
-	instr.pGetOperands	= SubTableOperands;
-	instr.pSubTable		= &m_ReflGeneralTable;
+	instr.pGetOperands = SubTableOperands;
+	instr.pSubTable = &m_ReflGeneralTable;
 	instr.pGetOperands(&instr, context, address, opcode, text, count);
 }
 
@@ -1262,8 +1262,8 @@ MIPS_BRANCH_TYPE CMA_VU::CLower::IsInstructionBranch(CMIPS* context, uint32 addr
 	}
 
 	INSTRUCTION instr;
-	instr.pIsBranch		= SubTableIsBranch;
-	instr.pSubTable		= &m_ReflGeneralTable;
+	instr.pIsBranch = SubTableIsBranch;
+	instr.pSubTable = &m_ReflGeneralTable;
 	return instr.pIsBranch(&instr, context, opcode);
 }
 
@@ -1280,8 +1280,8 @@ uint32 CMA_VU::CLower::GetInstructionEffectiveAddress(CMIPS* context, uint32 add
 	}
 
 	INSTRUCTION instr;
-	instr.pGetEffectiveAddress	= SubTableEffAddr;
-	instr.pSubTable				= &m_ReflGeneralTable;
+	instr.pGetEffectiveAddress = SubTableEffAddr;
+	instr.pSubTable = &m_ReflGeneralTable;
 	return instr.pGetEffectiveAddress(&instr, context, address, opcode);
 }
 
@@ -1301,8 +1301,8 @@ VUShared::OPERANDSET CMA_VU::CLower::GetAffectedOperands(CMIPS* context, uint32 
 	}
 
 	VUINSTRUCTION instr;
-	instr.pGetAffectedOperands	= SubTableAffectedOperands;
-	instr.subTable				= &m_VuReflGeneralTable;
+	instr.pGetAffectedOperands = SubTableAffectedOperands;
+	instr.subTable = &m_VuReflGeneralTable;
 	instr.pGetAffectedOperands(&instr, context, address, opcode, result);
 	return result;
 }

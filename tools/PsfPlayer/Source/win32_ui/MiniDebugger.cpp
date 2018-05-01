@@ -8,19 +8,19 @@
 #include <io.h>
 #include <fcntl.h>
 
-#define CLSNAME		_T("MiniDebugger")
-#define WNDSTYLE	(WS_CAPTION | WS_POPUP | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_SYSMENU)
-#define WNDSTYLEEX	(0)
+#define CLSNAME _T("MiniDebugger")
+#define WNDSTYLE (WS_CAPTION | WS_POPUP | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_SYSMENU)
+#define WNDSTYLEEX (0)
 
-CMiniDebugger::CMiniDebugger(CVirtualMachine& virtualMachine, const CDebuggable& debuggable) 
-: m_virtualMachine(virtualMachine)
-, m_debuggable(debuggable)
-, m_functionsView(nullptr)
-, m_mainSplitter(nullptr)
-, m_subSplitter(nullptr)
-, m_disAsmView(nullptr)
-, m_registerView(nullptr)
-, m_memoryView(nullptr)
+CMiniDebugger::CMiniDebugger(CVirtualMachine& virtualMachine, const CDebuggable& debuggable)
+    : m_virtualMachine(virtualMachine)
+    , m_debuggable(debuggable)
+    , m_functionsView(nullptr)
+    , m_mainSplitter(nullptr)
+    , m_subSplitter(nullptr)
+    , m_disAsmView(nullptr)
+    , m_registerView(nullptr)
+    , m_memoryView(nullptr)
 {
 	InitializeConsole();
 
@@ -28,12 +28,12 @@ CMiniDebugger::CMiniDebugger(CVirtualMachine& virtualMachine, const CDebuggable&
 	{
 		WNDCLASSEX w;
 		memset(&w, 0, sizeof(WNDCLASSEX));
-		w.cbSize		= sizeof(WNDCLASSEX);
-		w.lpfnWndProc	= CWindow::WndProc;
-		w.lpszClassName	= CLSNAME;
-		w.hbrBackground	= (HBRUSH)GetSysColorBrush(COLOR_BTNFACE);
-		w.hInstance		= GetModuleHandle(NULL);
-		w.hCursor		= LoadCursor(NULL, IDC_ARROW);
+		w.cbSize = sizeof(WNDCLASSEX);
+		w.lpfnWndProc = CWindow::WndProc;
+		w.lpszClassName = CLSNAME;
+		w.hbrBackground = (HBRUSH)GetSysColorBrush(COLOR_BTNFACE);
+		w.hInstance = GetModuleHandle(NULL);
+		w.hCursor = LoadCursor(NULL, IDC_ARROW);
 		RegisterClassEx(&w);
 	}
 
@@ -139,9 +139,9 @@ void CMiniDebugger::OnFunctionDblClick(uint32 address)
 void CMiniDebugger::CreateAccelerators()
 {
 	Framework::Win32::CAcceleratorTableGenerator generator;
-	generator.Insert(ID_VIEW_FUNCTIONS,			'F',	FCONTROL | FVIRTKEY);
-	generator.Insert(ID_VM_STEP,				VK_F10,	FVIRTKEY);
-	generator.Insert(ID_VM_RESUME,				VK_F5,	FVIRTKEY);
+	generator.Insert(ID_VIEW_FUNCTIONS, 'F', FCONTROL | FVIRTKEY);
+	generator.Insert(ID_VM_STEP, VK_F10, FVIRTKEY);
+	generator.Insert(ID_VM_RESUME, VK_F5, FVIRTKEY);
 	m_acceleratorTable = generator.Create();
 }
 
@@ -156,9 +156,10 @@ void CMiniDebugger::InitializeConsole()
 	SetConsoleScreenBufferSize(GetStdHandle(STD_OUTPUT_HANDLE), ScreenBufferInfo.dwSize);
 
 	(*stdout) = *_fdopen(_open_osfhandle(
-		reinterpret_cast<intptr_t>(GetStdHandle(STD_OUTPUT_HANDLE)),
-		_O_TEXT), "w");
+	                         reinterpret_cast<intptr_t>(GetStdHandle(STD_OUTPUT_HANDLE)),
+	                         _O_TEXT),
+	                     "w");
 
 	setvbuf(stdout, NULL, _IONBF, 0);
-	std::ios::sync_with_stdio();	
+	std::ios::sync_with_stdio();
 }

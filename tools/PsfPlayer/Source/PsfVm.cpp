@@ -13,13 +13,13 @@
 using namespace Iop;
 namespace filesystem = boost::filesystem;
 
-CPsfVm::CPsfVm() :
-m_status(PAUSED),
-m_singleStep(false),
-m_soundHandler(NULL)
+CPsfVm::CPsfVm()
+    : m_status(PAUSED)
+    , m_singleStep(false)
+    , m_soundHandler(NULL)
 {
 	m_isThreadOver = false;
-	m_thread = std::thread([&] () { ThreadProc(); });
+	m_thread = std::thread([&]() { ThreadProc(); });
 }
 
 CPsfVm::~CPsfVm()
@@ -51,10 +51,10 @@ void CPsfVm::SetSubSystem(const PsfVmSubSystemPtr& subSystem)
 
 #ifdef DEBUGGER_INCLUDED
 
-#define TAGS_PATH				("./tags/")
-#define TAGS_SECTION_TAGS		("tags")
-#define TAGS_SECTION_FUNCTIONS	("functions")
-#define TAGS_SECTION_COMMENTS	("comments")
+#define TAGS_PATH ("./tags/")
+#define TAGS_SECTION_TAGS ("tags")
+#define TAGS_SECTION_FUNCTIONS ("functions")
+#define TAGS_SECTION_COMMENTS ("comments")
 
 std::string CPsfVm::MakeTagPackagePath(const char* packageName)
 {
@@ -80,7 +80,6 @@ void CPsfVm::LoadDebugTags(const char* packageName)
 	}
 	catch(...)
 	{
-
 	}
 }
 
@@ -226,7 +225,7 @@ void CPsfVm::ThreadProc()
 		}
 		if(m_status == PAUSED)
 		{
-			 //Sleep during 100ms
+			//Sleep during 100ms
 			std::this_thread::sleep_for(std::chrono::milliseconds(100));
 		}
 		else

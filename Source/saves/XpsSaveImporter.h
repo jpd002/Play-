@@ -6,13 +6,13 @@
 class CXpsSaveImporter : public CSaveImporterBase
 {
 public:
-							CXpsSaveImporter();
-	virtual					~CXpsSaveImporter();
+	CXpsSaveImporter();
+	virtual ~CXpsSaveImporter();
 
-	virtual void			Import(Framework::CStream&, const boost::filesystem::path&);
+	virtual void Import(Framework::CStream&, const boost::filesystem::path&);
 
 private:
-	void					ExtractFiles(Framework::CStream&, const boost::filesystem::path&, uint32);
+	void ExtractFiles(Framework::CStream&, const boost::filesystem::path&, uint32);
 };
 
 #endif

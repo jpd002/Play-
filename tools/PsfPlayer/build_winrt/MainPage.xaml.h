@@ -7,23 +7,24 @@
 
 namespace PsfPlayer
 {
-	public ref class MainPage sealed
+public
+	ref class MainPage sealed
 	{
 	public:
-		typedef Windows::Foundation::Collections::IVector<PlaylistItemAdapter^>^ PlaylistItemArray; 
+		typedef Windows::Foundation::Collections::IVector<PlaylistItemAdapter ^> ^ PlaylistItemArray;
 
-										MainPage();
+		MainPage();
 
-		property PlaylistItemArray		PlaylistItems;
+		property PlaylistItemArray PlaylistItems;
 
 	protected:
-		virtual void					OnNavigatedTo(Windows::UI::Xaml::Navigation::NavigationEventArgs^ e) override;
+		virtual void OnNavigatedTo(Windows::UI::Xaml::Navigation::NavigationEventArgs ^ e) override;
 
 	private:
-		void							ejectButton_Click(Platform::Object^ sender, Windows::UI::Xaml::RoutedEventArgs^ e);
-		void							playButton_Click(Platform::Object^ sender, Windows::UI::Xaml::RoutedEventArgs^ e);
+		void ejectButton_Click(Platform::Object ^ sender, Windows::UI::Xaml::RoutedEventArgs ^ e);
+		void playButton_Click(Platform::Object ^ sender, Windows::UI::Xaml::RoutedEventArgs ^ e);
 
-		CPsfVm							m_virtualMachine;
-		CPlaylist						m_playlist;
+		CPsfVm m_virtualMachine;
+		CPlaylist m_playlist;
 	};
 }

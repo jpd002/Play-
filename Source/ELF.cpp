@@ -4,13 +4,13 @@
 #include "ELF.h"
 #include "PtrStream.h"
 
-CELF::CELF(uint8* content) 
-: m_content(content)
+CELF::CELF(uint8* content)
+    : m_content(content)
 {
 	Framework::CPtrStream stream(m_content, -1);
 
 	stream.Read(&m_Header, sizeof(ELFHEADER));
-	
+
 	if(m_Header.nId[0] != 0x7F || m_Header.nId[1] != 'E' || m_Header.nId[2] != 'L' || m_Header.nId[3] != 'F')
 	{
 		throw std::runtime_error("This file isn't a valid ELF file.");
@@ -46,8 +46,8 @@ CELF::CELF(uint8* content)
 
 CELF::~CELF()
 {
-	delete [] m_pProgram;
-	delete [] m_pSection;
+	delete[] m_pProgram;
+	delete[] m_pSection;
 }
 
 uint8* CELF::GetContent() const

@@ -6,29 +6,29 @@
 
 #define LOG_NAME ("iop_fileio")
 
-#define STATE_XML            ("iop_fileio/state2240.xml")
-#define STATE_RESULTPTR0     ("resultPtr0")
-#define STATE_RESULTPTR1     ("resultPtr1")
+#define STATE_XML ("iop_fileio/state2240.xml")
+#define STATE_RESULTPTR0 ("resultPtr0")
+#define STATE_RESULTPTR1 ("resultPtr1")
 #define STATE_PENDINGREADCMD ("pendingReadCmd")
 
 using namespace Iop;
 
-#define COMMANDID_OPEN        0
-#define COMMANDID_CLOSE       1
-#define COMMANDID_READ        2
-#define COMMANDID_SEEK        4
-#define COMMANDID_DOPEN       9
-#define COMMANDID_GETSTAT     12
-#define COMMANDID_MOUNT       20
-#define COMMANDID_UMOUNT      21
-#define COMMANDID_DEVCTL      23
+#define COMMANDID_OPEN 0
+#define COMMANDID_CLOSE 1
+#define COMMANDID_READ 2
+#define COMMANDID_SEEK 4
+#define COMMANDID_DOPEN 9
+#define COMMANDID_GETSTAT 12
+#define COMMANDID_MOUNT 20
+#define COMMANDID_UMOUNT 21
+#define COMMANDID_DEVCTL 23
 
-#define DEVCTL_CDVD_GETERROR   0x4320
-#define DEVCTL_CDVD_DISKREADY  0x4325
+#define DEVCTL_CDVD_GETERROR 0x4320
+#define DEVCTL_CDVD_DISKREADY 0x4325
 
 CFileIoHandler2240::CFileIoHandler2240(CIoman* ioman, CSifMan& sifMan)
-: CHandler(ioman)
-, m_sifMan(sifMan)
+    : CHandler(ioman)
+    , m_sifMan(sifMan)
 {
 	memset(m_resultPtr, 0, sizeof(m_resultPtr));
 }
@@ -90,16 +90,16 @@ void CFileIoHandler2240::Invoke(uint32 method, uint32* args, uint32 argsSize, ui
 void CFileIoHandler2240::LoadState(Framework::CZipArchiveReader& archive)
 {
 	auto registerFile = CRegisterStateFile(*archive.BeginReadFile(STATE_XML));
-	m_resultPtr[0]       = registerFile.GetRegister32(STATE_RESULTPTR0);
-	m_resultPtr[1]       = registerFile.GetRegister32(STATE_RESULTPTR1);
+	m_resultPtr[0] = registerFile.GetRegister32(STATE_RESULTPTR0);
+	m_resultPtr[1] = registerFile.GetRegister32(STATE_RESULTPTR1);
 	m_pendingReadCommand = registerFile.GetRegister32(STATE_PENDINGREADCMD) != 0;
 }
 
 void CFileIoHandler2240::SaveState(Framework::CZipArchiveWriter& archive) const
 {
 	auto registerFile = new CRegisterStateFile(STATE_XML);
-	registerFile->SetRegister32(STATE_RESULTPTR0,     m_resultPtr[0]);
-	registerFile->SetRegister32(STATE_RESULTPTR1,     m_resultPtr[1]);
+	registerFile->SetRegister32(STATE_RESULTPTR0, m_resultPtr[0]);
+	registerFile->SetRegister32(STATE_RESULTPTR1, m_resultPtr[1]);
 	registerFile->SetRegister32(STATE_PENDINGREADCMD, m_pendingReadCommand ? 1 : 0);
 	archive.InsertFile(registerFile);
 }
@@ -125,7 +125,7 @@ uint32 CFileIoHandler2240::InvokeOpen(uint32* args, uint32 argsSize, uint32* ret
 		OPENREPLY reply;
 		reply.header.commandId = COMMANDID_OPEN;
 		CopyHeader(reply.header, command->header);
-		reply.result   = result;
+		reply.result = result;
 		reply.unknown2 = 0;
 		reply.unknown3 = 0;
 		reply.unknown4 = 0;
@@ -148,7 +148,7 @@ uint32 CFileIoHandler2240::InvokeClose(uint32* args, uint32 argsSize, uint32* re
 		CLOSEREPLY reply;
 		reply.header.commandId = COMMANDID_CLOSE;
 		CopyHeader(reply.header, command->header);
-		reply.result   = result;
+		reply.result = result;
 		reply.unknown2 = 0;
 		reply.unknown3 = 0;
 		reply.unknown4 = 0;
@@ -172,7 +172,7 @@ uint32 CFileIoHandler2240::InvokeRead(uint32* args, uint32 argsSize, uint32* ret
 		READREPLY reply;
 		reply.header.commandId = COMMANDID_READ;
 		CopyHeader(reply.header, command->header);
-		reply.result   = result;
+		reply.result = result;
 		reply.unknown2 = 0;
 		reply.unknown3 = 0;
 		reply.unknown4 = 0;
@@ -197,7 +197,7 @@ uint32 CFileIoHandler2240::InvokeSeek(uint32* args, uint32 argsSize, uint32* ret
 		SEEKREPLY reply;
 		reply.header.commandId = COMMANDID_SEEK;
 		CopyHeader(reply.header, command->header);
-		reply.result   = result;
+		reply.result = result;
 		reply.unknown2 = 0;
 		reply.unknown3 = 0;
 		reply.unknown4 = 0;
@@ -222,7 +222,7 @@ uint32 CFileIoHandler2240::InvokeDopen(uint32* args, uint32 argsSize, uint32* re
 		DOPENREPLY reply;
 		reply.header.commandId = COMMANDID_DOPEN;
 		CopyHeader(reply.header, command->header);
-		reply.result   = -1;
+		reply.result = -1;
 		reply.unknown2 = 0;
 		reply.unknown3 = 0;
 		reply.unknown4 = 0;
@@ -248,7 +248,7 @@ uint32 CFileIoHandler2240::InvokeGetStat(uint32* args, uint32 argsSize, uint32* 
 		CopyHeader(reply.header, command->header);
 		reply.result = result;
 		reply.dstPtr = command->statBuffer;
-		reply.stat   = stat;
+		reply.stat = stat;
 		memcpy(ram + m_resultPtr[0], &reply, sizeof(GETSTATREPLY));
 	}
 
@@ -263,8 +263,8 @@ uint32 CFileIoHandler2240::InvokeMount(uint32* args, uint32 argsSize, uint32* re
 	assert(retSize == 4);
 	auto command = reinterpret_cast<MOUNTCOMMAND*>(args);
 
-	CLog::GetInstance().Print(LOG_NAME, "Mount('%s', '%s');\r\n", 
-		command->fileSystemName, command->deviceName);
+	CLog::GetInstance().Print(LOG_NAME, "Mount('%s', '%s');\r\n",
+	                          command->fileSystemName, command->deviceName);
 
 	if(m_resultPtr[0] != 0)
 	{
@@ -272,7 +272,7 @@ uint32 CFileIoHandler2240::InvokeMount(uint32* args, uint32 argsSize, uint32* re
 		MOUNTREPLY reply;
 		reply.header.commandId = COMMANDID_MOUNT;
 		CopyHeader(reply.header, command->header);
-		reply.result   = 0;
+		reply.result = 0;
 		reply.unknown2 = 0;
 		reply.unknown3 = 0;
 		reply.unknown4 = 0;
@@ -299,7 +299,7 @@ uint32 CFileIoHandler2240::InvokeUmount(uint32* args, uint32 argsSize, uint32* r
 		UMOUNTREPLY reply;
 		reply.header.commandId = COMMANDID_UMOUNT;
 		CopyHeader(reply.header, command->header);
-		reply.result   = 0;
+		reply.result = 0;
 		reply.unknown2 = 0;
 		reply.unknown3 = 0;
 		reply.unknown4 = 0;
@@ -328,13 +328,13 @@ uint32 CFileIoHandler2240::InvokeDevctl(uint32* args, uint32 argsSize, uint32* r
 	case DEVCTL_CDVD_GETERROR:
 		assert(command->outputSize == 4);
 		CLog::GetInstance().Print(LOG_NAME, "DevCtl -> CdGetError();\r\n");
-		output[0] = 0;	//No error
+		output[0] = 0; //No error
 		break;
 	case DEVCTL_CDVD_DISKREADY:
 		assert(command->inputSize == 4);
 		assert(command->outputSize == 4);
 		CLog::GetInstance().Print(LOG_NAME, "DevCtl -> CdDiskReady(%d);\r\n", input[0]);
-		output[0] = 2;	//Disk ready
+		output[0] = 2; //Disk ready
 		break;
 	default:
 		CLog::GetInstance().Print(LOG_NAME, "DevCtl -> Unknown(cmd = %08X);\r\n", command->cmdId);
@@ -347,7 +347,7 @@ uint32 CFileIoHandler2240::InvokeDevctl(uint32* args, uint32 argsSize, uint32* r
 		DEVCTLREPLY reply;
 		reply.header.commandId = COMMANDID_DEVCTL;
 		CopyHeader(reply.header, command->header);
-		reply.result   = 0;
+		reply.result = 0;
 		reply.unknown2 = 0;
 		reply.unknown3 = 0;
 		reply.unknown4 = 0;
@@ -371,7 +371,7 @@ void CFileIoHandler2240::SendSifReply()
 	uint8* callbackPacket = reinterpret_cast<uint8*>(alloca(packetSize));
 	auto header = reinterpret_cast<SIFCMDHEADER*>(callbackPacket);
 	memset(header, 0, sizeof(SIFCMDHEADER));
-	header->commandId  = 0x80000011;
+	header->commandId = 0x80000011;
 	header->packetSize = packetSize;
 	m_sifMan.SendPacket(callbackPacket, packetSize);
 }
