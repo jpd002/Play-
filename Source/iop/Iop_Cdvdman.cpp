@@ -279,6 +279,12 @@ void CCdvdman::ProcessCommands()
 	{
 		switch(m_pendingCommand)
 		{
+		case COMMAND_READ:
+			if(m_callbackPtr != 0)
+			{
+				m_bios.TriggerCallback(m_callbackPtr, CDVD_FUNCTION_READ, 0);
+			}
+			break;
 		case COMMAND_SEEK:
 			if(m_callbackPtr != 0)
 			{
@@ -329,10 +335,8 @@ uint32 CCdvdman::CdRead(uint32 startSector, uint32 sectorCount, uint32 bufferPtr
 			buffer += sectorSize;
 		}
 	}
-	if(m_callbackPtr != 0)
-	{
-		m_bios.TriggerCallback(m_callbackPtr, CDVD_FUNCTION_READ, 0);
-	}
+	assert(m_pendingCommand == COMMAND_NONE);
+	m_pendingCommand = COMMAND_READ;
 	m_status = CDVD_STATUS_READING;
 	return 1;
 }

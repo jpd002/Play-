@@ -47,6 +47,7 @@ namespace Iop
 		enum COMMAND : uint32
 		{
 			COMMAND_NONE,
+			COMMAND_READ,
 			COMMAND_SEEK
 		};
 
