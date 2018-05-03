@@ -331,7 +331,7 @@ uint32 CCdvdman::CdRead(uint32 startSector, uint32 sectorCount, uint32 bufferPtr
 	}
 	if(m_callbackPtr != 0)
 	{
-		m_bios.TriggerCallback(m_callbackPtr, CDVD_FUNCTION_OPEN, 0);
+		m_bios.TriggerCallback(m_callbackPtr, CDVD_FUNCTION_READ, 0);
 	}
 	m_status = CDVD_STATUS_READING;
 	return 1;

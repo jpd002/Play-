@@ -52,7 +52,7 @@ namespace Iop
 
 		enum CDVD_FUNCTION
 		{
-			CDVD_FUNCTION_OPEN = 1,
+			CDVD_FUNCTION_READ = 1,
 			CDVD_FUNCTION_SEEK = 4,
 		};
 
