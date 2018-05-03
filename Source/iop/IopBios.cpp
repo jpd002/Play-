@@ -1712,7 +1712,7 @@ uint32 CIopBios::WaitSemaphore(uint32 semaphoreId)
 	{
 		semaphore->count--;
 	}
-	return semaphore->count;
+	return KERNEL_RESULT_OK;
 }
 
 uint32 CIopBios::PollSemaphore(uint32 semaphoreId)
