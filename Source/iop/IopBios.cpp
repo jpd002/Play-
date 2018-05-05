@@ -1690,12 +1690,12 @@ uint32 CIopBios::WaitSemaphore(uint32 semaphoreId)
 	                          m_currentThreadId.Get(), semaphoreId);
 #endif
 
-	SEMAPHORE* semaphore = m_semaphores[semaphoreId];
-	if(semaphore == NULL)
+	auto semaphore = m_semaphores[semaphoreId];
+	if(!semaphore)
 	{
 		CLog::GetInstance().Print(LOGNAME, "%d: Warning, trying to access invalid semaphore with id %d.\r\n",
 		                          m_currentThreadId.Get(), semaphoreId);
-		return -1;
+		return KERNEL_RESULT_ERROR_UNKNOWN_SEMAID;
 	}
 
 	if(semaphore->count == 0)
@@ -1721,9 +1721,9 @@ uint32 CIopBios::PollSemaphore(uint32 semaphoreId)
 	                          m_currentThreadId.Get(), semaphoreId);
 
 	auto semaphore = m_semaphores[semaphoreId];
-	if(semaphore == nullptr)
+	if(!semaphore)
 	{
-		return -1;
+		return KERNEL_RESULT_ERROR_UNKNOWN_SEMAID;
 	}
 
 	if(semaphore->count == 0)
