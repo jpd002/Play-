@@ -152,6 +152,9 @@ void CCOP_VU::CFC2()
 			m_codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2MF));
 			break;
 		case CTRL_REG_TPC:
+			m_codeGen->PushRel(offsetof(CMIPS, m_State.callMsAddr));
+			m_codeGen->Srl(3);
+			break;
 		case CTRL_REG_FBRST:
 		case CTRL_REG_VPU_STAT:
 			m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[0].nV[0]));

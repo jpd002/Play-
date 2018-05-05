@@ -222,6 +222,7 @@ int CSubSystem::ExecuteCpu(int quota)
 		{
 			//callMs mode over
 			CopyVuState(m_EE, m_VU0);
+			m_EE.m_State.callMsAddr = m_VU0.m_State.nPC;
 			m_EE.m_State.callMsEnabled = 0;
 		}
 	}
