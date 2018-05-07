@@ -1032,6 +1032,7 @@ void CIopBios::ExitThread()
 #endif
 	THREAD* thread = GetThread(m_currentThreadId);
 	thread->status = THREAD_STATUS_DORMANT;
+	assert(thread->waitSemaphore == 0);
 	UnlinkThread(thread->id);
 	m_rescheduleNeeded = true;
 }
