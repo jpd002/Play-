@@ -13,6 +13,7 @@ using namespace Iop;
 #define FUNCTION_EXITTHREAD "ExitThread"
 #define FUNCTION_TERMINATETHREAD "TerminateThread"
 #define FUNCTION_CHANGETHREADPRIORITY "ChangeThreadPriority"
+#define FUNCTION_ROTATETHREADREADYQUEUE "RotateThreadReadyQueue"
 #define FUNCTION_RELEASEWAITTHREAD "ReleaseWaitThread"
 #define FUNCTION_IRELEASEWAITTHREAD "iReleaseWaitThread"
 #define FUNCTION_GETTHREADID "GetThreadId"
@@ -67,6 +68,9 @@ std::string CThbase::GetFunctionName(unsigned int functionId) const
 		break;
 	case 14:
 		return FUNCTION_CHANGETHREADPRIORITY;
+		break;
+	case 16:
+		return FUNCTION_ROTATETHREADREADYQUEUE;
 		break;
 	case 18:
 		return FUNCTION_RELEASEWAITTHREAD;
@@ -162,6 +166,10 @@ void CThbase::Invoke(CMIPS& context, unsigned int functionId)
 		context.m_State.nGPR[CMIPS::V0].nD0 = static_cast<int32>(ChangeThreadPriority(
 		    context.m_State.nGPR[CMIPS::A0].nV0,
 		    context.m_State.nGPR[CMIPS::A1].nV0));
+		break;
+	case 16:
+		context.m_State.nGPR[CMIPS::V0].nD0 = RotateThreadReadyQueue(
+		    context.m_State.nGPR[CMIPS::A0].nV0);
 		break;
 	case 18:
 		context.m_State.nGPR[CMIPS::V0].nD0 = ReleaseWaitThread(
@@ -279,6 +287,11 @@ uint32 CThbase::TerminateThread(uint32 threadId)
 uint32 CThbase::ChangeThreadPriority(uint32 threadId, uint32 newPrio)
 {
 	return m_bios.ChangeThreadPriority(threadId, newPrio);
+}
+
+int32 CThbase::RotateThreadReadyQueue(uint32 priority)
+{
+	return m_bios.RotateThreadReadyQueue(priority);
 }
 
 int32 CThbase::ReleaseWaitThread(uint32 threadId)

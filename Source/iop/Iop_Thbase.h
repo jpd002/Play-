@@ -33,6 +33,7 @@ namespace Iop
 		uint32 ExitThread();
 		uint32 TerminateThread(uint32);
 		uint32 ChangeThreadPriority(uint32, uint32);
+		int32 RotateThreadReadyQueue(uint32);
 		int32 ReleaseWaitThread(uint32);
 		int32 iReleaseWaitThread(uint32);
 		uint32 GetThreadId();

@@ -1353,6 +1353,35 @@ int32 CIopBios::CancelWakeupThread(uint32 threadId, bool inInterrupt)
 	return result;
 }
 
+int32 CIopBios::RotateThreadReadyQueue(uint32 priority)
+{
+#ifdef _DEBUG
+	CLog::GetInstance().Print(LOGNAME, "%d: RotateThreadReadyQueue(priority = %d);\r\n",
+	                          m_currentThreadId.Get(), priority);
+#endif
+
+	if(priority == 0)
+	{
+		auto thread = GetThread(m_currentThreadId);
+		priority = thread->priority;
+	}
+
+	uint32 nextThreadId = ThreadLinkHead();
+	while(nextThreadId != 0)
+	{
+		auto nextThread = m_threads[nextThreadId];
+		if(nextThread->priority == priority)
+		{
+			UnlinkThread(nextThreadId);
+			LinkThread(nextThreadId);
+			m_rescheduleNeeded = true;
+			break;
+		}
+	}
+
+	return KERNEL_RESULT_OK;
+}
+
 int32 CIopBios::ReleaseWaitThread(uint32 threadId, bool inInterrupt)
 {
 #ifdef _DEBUG

@@ -191,6 +191,7 @@ public:
 	int32 SleepThread();
 	uint32 WakeupThread(uint32, bool);
 	int32 CancelWakeupThread(uint32, bool);
+	int32 RotateThreadReadyQueue(uint32);
 	int32 ReleaseWaitThread(uint32, bool);
 
 	void SleepThreadTillVBlankStart();
