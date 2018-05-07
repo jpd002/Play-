@@ -1691,28 +1691,10 @@ uint32 CIopBios::SignalSemaphore(uint32 semaphoreId, bool inInterrupt)
 
 	if(semaphore->waitCount != 0)
 	{
-		for(auto thread : m_threads)
+		SemaReleaseSingleThread(semaphoreId, false);
+		if(!inInterrupt)
 		{
-			if(!thread) continue;
-			if(thread->waitSemaphore == semaphoreId)
-			{
-				if(thread->status != THREAD_STATUS_WAITING_SEMAPHORE)
-				{
-					throw std::runtime_error("Thread not waiting for semaphone (inconsistent state).");
-				}
-				thread->status = THREAD_STATUS_RUNNING;
-				LinkThread(thread->id);
-				thread->waitSemaphore = 0;
-				if(!inInterrupt)
-				{
-					m_rescheduleNeeded = true;
-				}
-				semaphore->waitCount--;
-				if(semaphore->waitCount == 0)
-				{
-					break;
-				}
-			}
+			m_rescheduleNeeded = true;
 		}
 	}
 	else
