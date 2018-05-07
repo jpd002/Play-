@@ -1413,7 +1413,27 @@ int32 CIopBios::ReleaseWaitThread(uint32 threadId, bool inInterrupt)
 		return KERNEL_RESULT_ERROR_NOT_WAIT;
 	}
 
-	assert(thread->status == THREAD_STATUS_SLEEPING);
+	switch(thread->status)
+	{
+	case THREAD_STATUS_SLEEPING:
+		//Nothing special to do
+		break;
+	case THREAD_STATUS_WAITING_SEMAPHORE:
+		{
+			auto semaphore = m_semaphores[thread->waitSemaphore];
+			assert(semaphore);
+			assert(semaphore->waitCount != 0);
+			semaphore->waitCount--;
+			thread->waitSemaphore = 0;
+		}
+		break;
+	default:
+		assert(false);
+		break;
+	}
+
+	//Update return value for waiting thread
+	thread->context.gpr[CMIPS::V0] = KERNEL_RESULT_ERROR_RELEASE_WAIT;
 
 	thread->status = THREAD_STATUS_RUNNING;
 	LinkThread(threadId);
