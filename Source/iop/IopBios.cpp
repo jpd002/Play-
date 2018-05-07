@@ -1659,7 +1659,16 @@ uint32 CIopBios::DeleteSemaphore(uint32 semaphoreId)
 		return KERNEL_RESULT_ERROR_UNKNOWN_SEMAID;
 	}
 
-	assert(semaphore->waitCount == 0);
+	if(semaphore->waitCount != 0)
+	{
+		while(semaphore->waitCount != 0)
+		{
+			bool changed = SemaReleaseSingleThread(semaphoreId, true);
+			if(!changed) break;
+		}
+		m_rescheduleNeeded = true;
+	}
+
 	m_semaphores.Free(semaphoreId);
 
 	return KERNEL_RESULT_OK;
@@ -1786,6 +1795,34 @@ uint32 CIopBios::ReferSemaphoreStatus(uint32 semaphoreId, uint32 statusPtr)
 	status->numWaitThreads = semaphore->waitCount;
 
 	return 0;
+}
+
+bool CIopBios::SemaReleaseSingleThread(uint32 semaphoreId, bool deleted)
+{
+	auto semaphore = m_semaphores[semaphoreId];
+	assert(semaphore);
+	assert(semaphore->waitCount != 0);
+
+	bool changed = false;
+	for(auto thread : m_threads)
+	{
+		if(!thread) continue;
+		if(thread->waitSemaphore == semaphoreId)
+		{
+			assert(thread->status == THREAD_STATUS_WAITING_SEMAPHORE);
+			thread->context.gpr[CMIPS::V0] = deleted ? KERNEL_RESULT_ERROR_WAIT_DELETE : KERNEL_RESULT_OK;
+			thread->status = THREAD_STATUS_RUNNING;
+			LinkThread(thread->id);
+			thread->waitSemaphore = 0;
+			semaphore->waitCount--;
+			changed = true;
+			break;
+		}
+	}
+
+	//Something went wrong if nothing changed
+	assert(changed);
+	return changed;
 }
 
 uint32 CIopBios::CreateEventFlag(uint32 attributes, uint32 options, uint32 initValue)

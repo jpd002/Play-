@@ -203,6 +203,7 @@ public:
 	uint32 WaitSemaphore(uint32);
 	uint32 PollSemaphore(uint32);
 	uint32 ReferSemaphoreStatus(uint32, uint32);
+	bool SemaReleaseSingleThread(uint32, bool);
 
 	uint32 CreateEventFlag(uint32, uint32, uint32);
 	uint32 DeleteEventFlag(uint32);
