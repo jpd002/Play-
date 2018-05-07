@@ -1651,18 +1651,18 @@ uint32 CIopBios::DeleteSemaphore(uint32 semaphoreId)
 	                          m_currentThreadId.Get(), semaphoreId);
 #endif
 
-	SEMAPHORE* semaphore = m_semaphores[semaphoreId];
-	if(semaphore == NULL)
+	auto semaphore = m_semaphores[semaphoreId];
+	if(!semaphore)
 	{
 		CLog::GetInstance().Print(LOGNAME, "%i: Warning, trying to access invalid semaphore with id %i.\r\n",
 		                          m_currentThreadId.Get(), semaphoreId);
-		return -1;
+		return KERNEL_RESULT_ERROR_UNKNOWN_SEMAID;
 	}
 
 	assert(semaphore->waitCount == 0);
 	m_semaphores.Free(semaphoreId);
 
-	return 0;
+	return KERNEL_RESULT_OK;
 }
 
 uint32 CIopBios::SignalSemaphore(uint32 semaphoreId, bool inInterrupt)
