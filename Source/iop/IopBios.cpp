@@ -1419,14 +1419,14 @@ int32 CIopBios::ReleaseWaitThread(uint32 threadId, bool inInterrupt)
 		//Nothing special to do
 		break;
 	case THREAD_STATUS_WAITING_SEMAPHORE:
-		{
-			auto semaphore = m_semaphores[thread->waitSemaphore];
-			assert(semaphore);
-			assert(semaphore->waitCount != 0);
-			semaphore->waitCount--;
-			thread->waitSemaphore = 0;
-		}
-		break;
+	{
+		auto semaphore = m_semaphores[thread->waitSemaphore];
+		assert(semaphore);
+		assert(semaphore->waitCount != 0);
+		semaphore->waitCount--;
+		thread->waitSemaphore = 0;
+	}
+	break;
 	default:
 		assert(false);
 		break;
