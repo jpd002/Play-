@@ -43,7 +43,7 @@ public class GameIndexer
 		StringBuilder s = new StringBuilder();
 		try
 		{
-			final Process process = new ProcessBuilder().command("mount")
+			final java.lang.Process process = new ProcessBuilder().command("mount")
 					.redirectErrorStream(true).start();
 			process.waitFor();
 			InputStream is = process.getInputStream();
