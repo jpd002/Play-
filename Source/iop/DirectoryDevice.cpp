@@ -38,6 +38,9 @@ Framework::CStream* CDirectoryDevice::GetFile(uint32 accessType, const char* dev
 	case OPEN_FLAG_RDONLY:
 		mode = "rb";
 		break;
+	case(OPEN_FLAG_WRONLY | OPEN_FLAG_CREAT):
+		mode = "wb";
+		break;
 	case(OPEN_FLAG_RDWR | OPEN_FLAG_CREAT):
 		mode = "w+";
 		break;
