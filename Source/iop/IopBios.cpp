@@ -558,6 +558,8 @@ int32 CIopBios::LoadModule(const char* path)
 		return LoadHleModule(m_mtapman);
 	}
 	if(
+	    !strcmp(path, "rom0:MCMAN") ||
+	    !strcmp(path, "rom0:MCSERV") ||
 	    !strcmp(path, "rom0:XMCMAN") ||
 	    !strcmp(path, "rom0:XMCSERV"))
 	{
