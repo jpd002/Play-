@@ -418,11 +418,19 @@ uint32 CCdvdman::CdSync(uint32 mode)
 {
 	CLog::GetInstance().Print(LOG_NAME, FUNCTION_CDSYNC "(mode = %i);\r\n",
 	                          mode);
+	assert(
+	    (mode == 0x00) || (mode == 0x01) ||
+	    (mode == 0x10) || (mode == 0x11));
+	if((mode == 0x00) || (mode == 0x10))
+	{
+		ProcessCommands();
+		assert(m_pendingCommand == COMMAND_NONE);
+	}
 	if(m_status == CDVD_STATUS_READING)
 	{
 		m_status = CDVD_STATUS_PAUSED;
 	}
-	return 0;
+	return (m_pendingCommand == COMMAND_NONE) ? 0 : 1;
 }
 
 uint32 CCdvdman::CdGetDiskType()
