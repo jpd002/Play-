@@ -22,7 +22,7 @@ matrix:
         - BUILD_TYPE=Xcode
         - TARGET_OS=IOS
     - os: linux
-      dist: precise
+      dist: trusty
       language: android
       sudo: required
       jdk: oraclejdk8
