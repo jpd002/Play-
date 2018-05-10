@@ -1378,6 +1378,7 @@ int32 CIopBios::RotateThreadReadyQueue(uint32 priority)
 			m_rescheduleNeeded = true;
 			break;
 		}
+		nextThreadId = nextThread->nextThreadId;
 	}
 
 	return KERNEL_RESULT_OK;
