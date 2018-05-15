@@ -124,6 +124,11 @@ void CPadMan::Open(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, u
 		ExecutePadDataFunction(&CPadMan::PDF_InitializeStruct0, ram + m_nPadDataAddress, 0);
 		ExecutePadDataFunction(&CPadMan::PDF_InitializeStruct1, ram + m_nPadDataAddress, 1);
 	}
+	else if(nPort == 1)
+	{
+		ExecutePadDataFunction(&CPadMan::PDF_InitializeStruct0, ram + nAddress, 0);
+		ExecutePadDataFunction(&CPadMan::PDF_InitializeStruct1, ram + nAddress, 1);
+	}
 
 	//Returns 0 on error
 	ret[3] = 0x00000001;
