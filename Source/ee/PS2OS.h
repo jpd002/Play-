@@ -313,6 +313,7 @@ private:
 	void sc_WaitSema();
 	void sc_PollSema();
 	void sc_ReferSemaStatus();
+	void sc_GetOsdConfigParam();
 	void sc_FlushCache();
 	void sc_GsGetIMR();
 	void sc_GsPutIMR();

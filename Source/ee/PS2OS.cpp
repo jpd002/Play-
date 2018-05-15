@@ -105,6 +105,7 @@
 #define SYSCALL_NAME_GETTHREADID "osGetThreadId"
 #define SYSCALL_NAME_REFERTHREADSTATUS "osReferThreadStatus"
 #define SYSCALL_NAME_IREFERTHREADSTATUS "osiReferThreadStatus"
+#define SYSCALL_NAME_GETOSDCONFIGPARAM "osGetOsdConfigParam"
 #define SYSCALL_NAME_SLEEPTHREAD "osSleepThread"
 #define SYSCALL_NAME_WAKEUPTHREAD "osWakeupThread"
 #define SYSCALL_NAME_IWAKEUPTHREAD "osiWakeupThread"
@@ -186,6 +187,7 @@ const CPS2OS::SYSCALL_NAME CPS2OS::g_syscallNames[] =
         {0x0046, SYSCALL_NAME_IPOLLSEMA},
         {0x0047, SYSCALL_NAME_REFERSEMASTATUS},
         {0x0048, SYSCALL_NAME_IREFERSEMASTATUS},
+        {0x004B, SYSCALL_NAME_GETOSDCONFIGPARAM},
         {0x0064, SYSCALL_NAME_FLUSHCACHE},
         {0x006B, SYSCALL_NAME_SIFSTOPDMA},
         {0x0070, SYSCALL_NAME_GSGETIMR},
@@ -2463,6 +2465,13 @@ void CPS2OS::sc_ReferSemaStatus()
 	m_ee.m_State.nGPR[SC_RETURN].nD0 = id;
 }
 
+//4B
+void CPS2OS::sc_GetOsdConfigParam()
+{
+	auto configParam = reinterpret_cast<uint32*>(GetStructPtr(m_ee.m_State.nGPR[SC_PARAM0].nV0));
+	(*configParam) = 0;
+}
+
 //64
 void CPS2OS::sc_FlushCache()
 {
@@ -3015,6 +3024,10 @@ std::string CPS2OS::GetSysCallDescription(uint8 function)
 		        m_ee.m_State.nGPR[SC_PARAM0].nV[0],
 		        m_ee.m_State.nGPR[SC_PARAM1].nV[0]);
 		break;
+	case 0x4B:
+		sprintf(description, SYSCALL_NAME_GETOSDCONFIGPARAM "(configPtr = 0x%08X);",
+		        m_ee.m_State.nGPR[SC_PARAM0].nV[0]);
+		break;
 	case 0x64:
 	case 0x68:
 #ifdef _DEBUG
@@ -3100,7 +3113,7 @@ CPS2OS::SystemCallHandler CPS2OS::m_sysCall[0x80] =
 	//0x40
 	&CPS2OS::sc_CreateSema,			&CPS2OS::sc_DeleteSema,				&CPS2OS::sc_SignalSema,				&CPS2OS::sc_SignalSema,				&CPS2OS::sc_WaitSema,			&CPS2OS::sc_PollSema,			&CPS2OS::sc_PollSema,			&CPS2OS::sc_ReferSemaStatus,
 	//0x48
-	&CPS2OS::sc_ReferSemaStatus,	&CPS2OS::sc_Unhandled,				&CPS2OS::sc_Unhandled,				&CPS2OS::sc_Unhandled,				&CPS2OS::sc_Unhandled,			&CPS2OS::sc_Unhandled,			&CPS2OS::sc_Unhandled,			&CPS2OS::sc_Unhandled,
+	&CPS2OS::sc_ReferSemaStatus,	&CPS2OS::sc_Unhandled,				&CPS2OS::sc_Unhandled,				&CPS2OS::sc_GetOsdConfigParam,		&CPS2OS::sc_Unhandled,			&CPS2OS::sc_Unhandled,			&CPS2OS::sc_Unhandled,			&CPS2OS::sc_Unhandled,
 	//0x50
 	&CPS2OS::sc_Unhandled,			&CPS2OS::sc_Unhandled,				&CPS2OS::sc_Unhandled,				&CPS2OS::sc_Unhandled,				&CPS2OS::sc_Unhandled,			&CPS2OS::sc_Unhandled,			&CPS2OS::sc_Unhandled,			&CPS2OS::sc_Unhandled,
 	//0x58
