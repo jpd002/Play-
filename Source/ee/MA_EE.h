@@ -114,6 +114,7 @@ private:
 	void PMINH();
 	void PCEQB();
 	void PADDUW();
+	void PSUBUW();
 	void PEXTUW();
 	void PADDUH();
 	void PSUBUH();

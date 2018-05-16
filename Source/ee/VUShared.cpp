@@ -1264,6 +1264,8 @@ void VUShared::RINIT(CMipsJitter* codeGen, uint8 nFs, uint8 nFsf)
 
 void VUShared::RGET(CMipsJitter* codeGen, uint8 dest, uint8 ft)
 {
+	if(ft == 0) return;
+
 	for(unsigned int i = 0; i < 4; i++)
 	{
 		if(!VUShared::DestinationHasElement(dest, i)) continue;
