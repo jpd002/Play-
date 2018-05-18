@@ -8,6 +8,19 @@
 	</Executable>
 
 	<Executable Name="SLES_501.76;1" Title="Oni" Region="EU">
-		<Patch Address="0x001cef7c" Value="0x00000000 // bc0f $001cef7c" Description="Fix hang by skip branch if copro 0 condition false." />
+		<Patch Address="0x001cef7c" Value="0x00000000 // bc0f $001cef7c" Description="[PCSX2 patch] Fix hanging by skipping branch if copro 0 condition false." />
+	</Executable>
+
+	<Executable Name="SLES_501.34;1" Title="Oni" Region="EU">
+		<Patch Address="0x001cef7c" Value="0x00000000 // bc0f $001cef7c" Description="[PCSX2 patch] Fix hanging by skipping branch if copro 0 condition false." />
+	</Executable>
+
+	<Executable Name="SLES_501.77;1" Title="Oni" Region="EU">
+		<Patch Address="0x001cef7c" Value="0x00000000 // bc0f $001cef7c" Description="[PCSX2 patch] Fix hanging by skipping branch if copro 0 condition false." />
+	</Executable>
+
+	<Executable Name="SCES_503.26;1" Title="Max Payne" Region="EU">
+		<Patch Address="0x0014BF5C" Value="0x00000000" Description="[PCSX2 patch] Skip FMV's" />
+		<Patch Address="0x0014E718" Value="0x00000000" Description="[PCSX2 patch] Skip FMV's, you need to manualy select the MAIN_P.RUN to make this patch work." />
 	</Executable>
 </Patches>
