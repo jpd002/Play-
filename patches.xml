@@ -1,13 +1,2 @@
 <Patches>
-	<Executable Name="SLES_506.72;1" Title="Baldur's Gate: Dark Alliance" Region="EU">
-		<Patch Address="0x00300478" Value="0x00000001" Description="Enable libcdvd tracing."/>
-	</Executable>
-	
-	<Executable Name="SLUS_212.74;1" Title="Outrun" Region="US">
-		<Patch Address="0x00141C88" Value="0x1000000A" Description="Disable NET SIF bind." />
-	</Executable>
-
-	<Executable Name="SLES_501.76;1" Title="Oni" Region="EU">
-		<Patch Address="0x001cef7c" Value="0x00000000 // bc0f $001cef7c" Description="Fix hang by skip branch if copro 0 condition false." />
-	</Executable>
 </Patches>
