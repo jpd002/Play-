@@ -2,12 +2,7 @@
 
 #include "Types.h"
 #include "Stream.h"
-
-#ifdef _WIN32
 #include <memory>
-#else
-#include <boost/config/no_tr1/memory.hpp>
-#endif
 
 class CIcon
 {
