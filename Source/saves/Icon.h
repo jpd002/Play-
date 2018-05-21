@@ -6,7 +6,7 @@
 #ifdef _WIN32
 #include <memory>
 #else
-#include <boost/tr1/memory.hpp>
+#include <boost/config/no_tr1/memory.hpp>
 #endif
 
 class CIcon
