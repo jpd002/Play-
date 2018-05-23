@@ -95,7 +95,7 @@ void MainWindow::InitEmu()
 
 	m_InputBindingManager = new CInputBindingManager(CAppConfig::GetInstance());
 	g_virtualMachine->CreatePadHandler(CPH_HidUnix::GetFactoryFunction(m_InputBindingManager));
-	
+
 #ifdef HAS_LIBEVDEV
 	auto onInput = [=](std::array<uint32, 6> device, int code, int value, int type, const input_absinfo* abs) -> void {
 		if(m_InputBindingManager != nullptr)
