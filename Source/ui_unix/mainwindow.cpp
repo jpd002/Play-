@@ -140,10 +140,11 @@ void MainWindow::openGLWindow_resized()
 	{
 		GLint w = m_openglpanel->size().width(), h = m_openglpanel->size().height();
 
+		auto scale = devicePixelRatioF();
 		CGSHandler::PRESENTATION_PARAMS presentationParams;
 		presentationParams.mode = (CGSHandler::PRESENTATION_MODE)CAppConfig::GetInstance().GetPreferenceInteger(PREF_CGSHANDLER_PRESENTATION_MODE);
-		presentationParams.windowWidth = w;
-		presentationParams.windowHeight = h;
+		presentationParams.windowWidth = w * scale;
+		presentationParams.windowHeight = h * scale;
 		g_virtualMachine->m_ee->m_gs->SetPresentationParams(presentationParams);
 		g_virtualMachine->m_ee->m_gs->Flip();
 	}
