@@ -11,7 +11,7 @@ class CLog : public CSingleton<CLog>
 {
 public:
 	CLog();
-	virtual ~CLog();
+	virtual ~CLog() = default;
 
 	void Print(const char*, const char*, ...);
 

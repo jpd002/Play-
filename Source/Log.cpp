@@ -15,10 +15,6 @@ CLog::CLog()
 #endif
 }
 
-CLog::~CLog()
-{
-}
-
 void CLog::Print(const char* logName, const char* format, ...)
 {
 #if defined(_DEBUG) && !defined(DISABLE_LOGGING)
