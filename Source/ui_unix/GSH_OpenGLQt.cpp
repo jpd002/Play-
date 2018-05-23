@@ -27,9 +27,11 @@ void CGSH_OpenGLQt::InitializeImpl()
 	succeeded = m_context->makeCurrent(m_renderWindow);
 	Q_ASSERT(succeeded);
 
+#ifndef __APPLE__
 	glewExperimental = GL_TRUE;
 	auto result = glewInit();
 	Q_ASSERT(result == GLEW_OK);
+#endif
 
 	CGSH_OpenGL::InitializeImpl();
 }

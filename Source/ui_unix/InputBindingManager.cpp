@@ -1,6 +1,8 @@
 #include <QKeySequence>
 #include <cstring>
+#ifdef HAS_LIBEVDEV
 #include <libevdev.h>
+#endif
 #include "InputBindingManager.h"
 #include "GamePad/GamePadUtils.h"
 #include "string_format.h"
@@ -271,6 +273,7 @@ std::string CInputBindingManager::CSimpleBinding::GetDescription() const
 	{
 		return QString("Key: %1").arg(QKeySequence(m_keyCode).toString()).toStdString();
 	}
+#ifdef HAS_LIBEVDEV
 	else
 	{
 		const char* buttonname = libevdev_event_code_get_name(m_type, m_keyCode);
@@ -283,6 +286,7 @@ std::string CInputBindingManager::CSimpleBinding::GetDescription() const
 			return QString("Key: %1").arg(QString::number(m_keyCode)).toStdString();
 		}
 	}
+#endif
 }
 
 void CInputBindingManager::CSimpleBinding::SetValue(uint32 state)
@@ -385,6 +389,7 @@ std::string CInputBindingManager::CSimulatedAxisBinding::GetDescription() const
 	{
 		desc += QKeySequence(m_key1Binding.id).toString().toStdString();
 	}
+#ifdef HAS_LIBEVDEV
 	else
 	{
 		const char* buttonname = libevdev_event_code_get_name(m_key1Binding.type, m_key1Binding.id);
@@ -397,11 +402,13 @@ std::string CInputBindingManager::CSimulatedAxisBinding::GetDescription() const
 			desc += string_format("%d", m_key1Binding.id);
 		}
 	}
+#endif
 	desc += "/ Key: ";
 	if(m_key2Binding.type == 0)
 	{
 		desc += QKeySequence(m_key2Binding.id).toString().toStdString();
 	}
+#ifdef HAS_LIBEVDEV
 	else
 	{
 		const char* buttonname = libevdev_event_code_get_name(m_key2Binding.type, m_key2Binding.id);
@@ -414,6 +421,7 @@ std::string CInputBindingManager::CSimulatedAxisBinding::GetDescription() const
 			desc += string_format("%d", m_key2Binding.id);
 		}
 	}
+#endif
 
 	return desc;
 }
@@ -541,6 +549,7 @@ std::string CInputBindingManager::CPovHatBinding::GetDescription() const
 	{
 		return key + QKeySequence(m_binding.id).toString().toStdString();
 	}
+#ifdef HAS_LIBEVDEV
 	else
 	{
 		const char* buttonname = libevdev_event_code_get_name(m_binding.type, m_binding.id);
@@ -553,6 +562,7 @@ std::string CInputBindingManager::CPovHatBinding::GetDescription() const
 			return key + string_format("%d", m_binding.id);
 		}
 	}
+#endif
 }
 
 uint32 CInputBindingManager::CPovHatBinding::GetValue() const

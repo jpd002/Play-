@@ -26,8 +26,19 @@ if(NOT TARGET gsh_opengl)
 endif()
 list(INSERT PROJECT_LIBS 0 gsh_opengl)
 
-find_package(LIBEVDEV REQUIRED)
-list(APPEND PROJECT_LIBS ${LIBEVDEV_LIBRARY})
+if (NOT TARGET glew_s)
+add_subdirectory(
+	${CMAKE_CURRENT_SOURCE_DIR}/../../../Dependencies/glew-2.0.0
+	${CMAKE_CURRENT_BINARY_DIR}/glew-2.0.0
+)
+endif()
+list(APPEND PROJECT_LIBS glew_s)
+
+if(TARGET_PLATFORM_UNIX)
+	find_package(LIBEVDEV REQUIRED)
+	list(APPEND PROJECT_LIBS ${LIBEVDEV_LIBRARY})
+	list(APPEND DEFINITIONS_LIST HAS_LIBEVDEV=1)
+endif()
 
 set(QT_SOURCES
 	main.cpp
@@ -48,10 +59,14 @@ set(QT_SOURCES
 	bindingmodel.cpp
 	inputeventselectiondialog.cpp
 	GamePad/GamePadUtils.cpp
-	GamePad/GamePadInputEventListener.cpp
-	GamePad/GamePadDeviceListener.cpp
 )
-
+if(LIBEVDEV_FOUND)
+	set(QT_SOURCES
+		${QT_SOURCES}
+		GamePad/GamePadInputEventListener.cpp
+		GamePad/GamePadDeviceListener.cpp
+	)
+endif()
 set(QT_MOC_HEADERS
 	mainwindow.h
 	ElidedLabel.h
@@ -71,9 +86,14 @@ set(QT_MOC_HEADERS
 	bindingmodel.h
 	inputeventselectiondialog.h
 	GamePad/GamePadUtils.h
-	GamePad/GamePadInputEventListener.h
-	GamePad/GamePadDeviceListener.h
 )
+if(LIBEVDEV_FOUND)
+	set(QT_SOURCES
+		${QT_SOURCES}
+		GamePad/GamePadInputEventListener.h
+		GamePad/GamePadDeviceListener.h
+	)
+endif()
 
 set(QT_UIS
 	Qt_ui/mainwindow.ui
@@ -99,6 +119,8 @@ QT5_WRAP_CPP(QT_MOC_SRCS ${QT_MOC_HEADERS})
 
 add_executable(Play ${QT_SOURCES} ${QT_MOC_SRCS} ${QT_RES_SOURCES} ${QT_UI_HEADERS})
 target_link_libraries(Play ${PROJECT_LIBS})
+target_compile_definitions(Play PRIVATE ${DEFINITIONS_LIST})
+
 target_include_directories(Play PRIVATE
 	./
 	../../

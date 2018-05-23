@@ -14,8 +14,10 @@
 #include "PH_HidUnix.h"
 #include "ElidedLabel.h"
 
+#ifdef HAS_LIBEVDEV
 #include "GamePad/GamePadInputEventListener.h"
 #include "GamePad/GamePadDeviceListener.h"
+#endif
 
 namespace Ui
 {
@@ -62,7 +64,9 @@ private:
 	CPS2VM* g_virtualMachine = nullptr;
 	bool m_deactivatePause = false;
 	bool m_pauseFocusLost = true;
+#ifdef HAS_LIBEVDEV
 	std::unique_ptr<CGamePadDeviceListener> m_GPDL;
+#endif
 	enum BootType
 	{
 		CD,
