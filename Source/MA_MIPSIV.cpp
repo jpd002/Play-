@@ -898,6 +898,8 @@ void CMA_MIPSIV::SYNC()
 //10
 void CMA_MIPSIV::MFHI()
 {
+	if(m_nRD == 0) return;
+
 	m_codeGen->PushRel(offsetof(CMIPS, m_State.nHI[0]));
 	m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[0]));
 
@@ -918,6 +920,8 @@ void CMA_MIPSIV::MTHI()
 //12
 void CMA_MIPSIV::MFLO()
 {
+	if(m_nRD == 0) return;
+
 	m_codeGen->PushRel(offsetof(CMIPS, m_State.nLO[0]));
 	m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[0]));
 
