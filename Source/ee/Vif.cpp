@@ -624,6 +624,8 @@ void CVif::Cmd_UNPACK(StreamType& stream, CODE nCommand, uint32 nDstAddr)
 	}
 
 	nDstAddr *= 0x10;
+	assert(nDstAddr < vuMemSize);
+	nDstAddr &= (vuMemSize - 1);
 
 	while(currentNum != 0)
 	{
