@@ -27,6 +27,18 @@ void CLog::Print(const char* logName, const char* format, ...)
 #endif
 }
 
+void CLog::Warn(const char* logName, const char* format, ...)
+{
+#if defined(_DEBUG) && !defined(DISABLE_LOGGING)
+	auto& logStream(GetLog(logName));
+	va_list args;
+	va_start(args, format);
+	vfprintf(logStream, format, args);
+	va_end(args);
+	logStream.Flush();
+#endif
+}
+
 Framework::CStdStream& CLog::GetLog(const char* logName)
 {
 	auto logIterator(m_logs.find(logName));

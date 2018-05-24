@@ -14,6 +14,7 @@ public:
 	virtual ~CLog() = default;
 
 	void Print(const char*, const char*, ...);
+	void Warn(const char*, const char*, ...);
 
 private:
 	typedef std::map<std::string, Framework::CStdStream> LogMapType;
