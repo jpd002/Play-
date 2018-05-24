@@ -92,7 +92,7 @@ void CSysmem::Invoke(CMIPS& context, unsigned int functionId)
 		m_stdio.__printf(context);
 		break;
 	default:
-		CLog::GetInstance().Print(LOG_NAME, "%s(%08X): Unknown function (%d) called.\r\n", __FUNCTION__, context.m_State.nPC, functionId);
+		CLog::GetInstance().Warn(LOG_NAME, "(%08X): Unknown function (%d) called.\r\n", context.m_State.nPC, functionId);
 		break;
 	}
 }

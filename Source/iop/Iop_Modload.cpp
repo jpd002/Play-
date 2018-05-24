@@ -94,7 +94,7 @@ void CModload::Invoke(CMIPS& context, unsigned int functionId)
 		    context.m_State.nGPR[CMIPS::A0].nV0);
 		break;
 	default:
-		CLog::GetInstance().Print(LOG_NAME, "(%08X): Unknown function (%d) called.\r\n",
+		CLog::GetInstance().Warn(LOG_NAME, "(%08X): Unknown function (%d) called.\r\n",
 		                          context.m_State.nPC, functionId);
 		break;
 	}
@@ -115,7 +115,7 @@ uint32 CModload::LoadStartModule(uint32 pathPtr, uint32 argsLength, uint32 argsP
 	}
 	catch(const std::exception& except)
 	{
-		CLog::GetInstance().Print(LOG_NAME, "Error occured while trying to load module '%s' : %s\r\n",
+		CLog::GetInstance().Warn(LOG_NAME, "Error occured while trying to load module '%s' : %s\r\n",
 		                          path, except.what());
 	}
 	return -1;

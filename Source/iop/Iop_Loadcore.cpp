@@ -79,7 +79,7 @@ void CLoadcore::Invoke(CMIPS& context, unsigned int functionId)
 		    context.m_State.nGPR[CMIPS::A1].nV0));
 		break;
 	default:
-		CLog::GetInstance().Print(LOG_NAME, "Unknown function (%d) called (PC: 0x%08X).\r\n",
+		CLog::GetInstance().Warn(LOG_NAME, "Unknown function (%d) called (PC: 0x%08X).\r\n",
 		                          functionId, context.m_State.nPC);
 		break;
 	}
@@ -113,7 +113,7 @@ bool CLoadcore::Invoke(uint32 method, uint32* args, uint32 argsSize, uint32* ret
 		Initialize(args, argsSize, ret, retSize);
 		break;
 	default:
-		CLog::GetInstance().Print(LOG_NAME, "Invoking unknown function %d.\r\n", method);
+		CLog::GetInstance().Warn(LOG_NAME, "Invoking unknown function %d.\r\n", method);
 		break;
 	}
 	return true;

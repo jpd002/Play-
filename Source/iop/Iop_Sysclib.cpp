@@ -1,5 +1,8 @@
 #include "Iop_Sysclib.h"
 #include "../Ps2Const.h"
+#include "../Log.h"
+
+#define LOG_NAME "iop_sysclib"
 
 using namespace Iop;
 
@@ -268,7 +271,8 @@ void CSysclib::Invoke(CMIPS& context, unsigned int functionId)
 		    context.m_State.nGPR[CMIPS::A2].nV0));
 		break;
 	default:
-		printf("%s(%08X): Unknown function (%d) called.\r\n", __FUNCTION__, context.m_State.nPC, functionId);
+		CLog::GetInstance().Warn(LOG_NAME, "(%08X): Unknown function (%d) called.\r\n",
+			context.m_State.nPC, functionId);
 		assert(0);
 		break;
 	}

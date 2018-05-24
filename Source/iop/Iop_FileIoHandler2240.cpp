@@ -82,7 +82,7 @@ void CFileIoHandler2240::Invoke(uint32 method, uint32* args, uint32 argsSize, ui
 		m_resultPtr[1] = args[1];
 		break;
 	default:
-		CLog::GetInstance().Print(LOG_NAME, "Unknown function (%d) called.\r\n", method);
+		CLog::GetInstance().Warn(LOG_NAME, "Unknown function (%d) called.\r\n", method);
 		break;
 	}
 }

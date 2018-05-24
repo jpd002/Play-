@@ -36,7 +36,7 @@ void CFileIoHandler1000::Invoke(uint32 method, uint32* args, uint32 argsSize, ui
 		*ret = m_ioman->Seek(args[0], args[1], args[2]);
 		break;
 	default:
-		CLog::GetInstance().Print(LOG_NAME, "Unknown function (%d) called.\r\n", method);
+		CLog::GetInstance().Warn(LOG_NAME, "Unknown function (%d) called.\r\n", method);
 		break;
 	}
 }

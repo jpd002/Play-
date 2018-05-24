@@ -271,7 +271,7 @@ uint32 CGSHandler::ReadPrivRegister(uint32 nAddress)
 		R_REG(nAddress, nData, m_nSIGLBLID);
 		break;
 	default:
-		CLog::GetInstance().Print(LOG_NAME, "Read an unhandled priviledged register (0x%08X).\r\n", nAddress);
+		CLog::GetInstance().Warn(LOG_NAME, "Read an unhandled priviledged register (0x%08X).\r\n", nAddress);
 		nData = 0xCCCCCCCC;
 		break;
 	}
@@ -339,7 +339,7 @@ void CGSHandler::WritePrivRegister(uint32 nAddress, uint32 nData)
 		W_REG(nAddress, nData, m_nSIGLBLID);
 		break;
 	default:
-		CLog::GetInstance().Print(LOG_NAME, "Wrote to an unhandled priviledged register (0x%08X, 0x%08X).\r\n", nAddress, nData);
+		CLog::GetInstance().Warn(LOG_NAME, "Wrote to an unhandled priviledged register (0x%08X, 0x%08X).\r\n", nAddress, nData);
 		break;
 	}
 
@@ -540,7 +540,7 @@ void CGSHandler::FeedImageDataImpl(const void* pData, uint32 nLength)
 	if(m_trxCtx.nSize == 0)
 	{
 #ifdef _DEBUG
-		CLog::GetInstance().Print(LOG_NAME, "Warning. Received image data when no transfer was expected.\r\n");
+		CLog::GetInstance().Warn(LOG_NAME, "Warning. Received image data when no transfer was expected.\r\n");
 #endif
 	}
 	else

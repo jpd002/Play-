@@ -139,7 +139,7 @@ uint32 CIoman::Open(uint32 flags, const char* path)
 	}
 	catch(const std::exception& except)
 	{
-		CLog::GetInstance().Print(LOG_NAME, "%s: Error occured while trying to open file : %s\r\n", __FUNCTION__, except.what());
+		CLog::GetInstance().Warn(LOG_NAME, "%s: Error occured while trying to open file : %s\r\n", __FUNCTION__, except.what());
 	}
 	return handle;
 }
@@ -163,7 +163,7 @@ uint32 CIoman::Close(uint32 handle)
 	}
 	catch(const std::exception& except)
 	{
-		CLog::GetInstance().Print(LOG_NAME, "%s: Error occured while trying to close file : %s\r\n", __FUNCTION__, except.what());
+		CLog::GetInstance().Warn(LOG_NAME, "%s: Error occured while trying to close file : %s\r\n", __FUNCTION__, except.what());
 	}
 	return result;
 }
@@ -187,7 +187,7 @@ uint32 CIoman::Read(uint32 handle, uint32 size, void* buffer)
 	}
 	catch(const std::exception& except)
 	{
-		CLog::GetInstance().Print(LOG_NAME, "%s: Error occured while trying to read file : %s\r\n", __FUNCTION__, except.what());
+		CLog::GetInstance().Warn(LOG_NAME, "%s: Error occured while trying to read file : %s\r\n", __FUNCTION__, except.what());
 	}
 	return result;
 }
@@ -211,7 +211,7 @@ uint32 CIoman::Write(uint32 handle, uint32 size, const void* buffer)
 	{
 		if((handle != FID_STDOUT) && (handle != FID_STDERR))
 		{
-			CLog::GetInstance().Print(LOG_NAME, "%s: Error occured while trying to write file : %s\r\n", __FUNCTION__, except.what());
+			CLog::GetInstance().Warn(LOG_NAME, "%s: Error occured while trying to write file : %s\r\n", __FUNCTION__, except.what());
 		}
 	}
 	return result;
@@ -244,7 +244,7 @@ uint32 CIoman::Seek(uint32 handle, uint32 position, uint32 whence)
 	}
 	catch(const std::exception& except)
 	{
-		CLog::GetInstance().Print(LOG_NAME, "%s: Error occured while trying to seek file : %s\r\n", __FUNCTION__, except.what());
+		CLog::GetInstance().Warn(LOG_NAME, "%s: Error occured while trying to seek file : %s\r\n", __FUNCTION__, except.what());
 	}
 	return result;
 }
@@ -343,7 +343,7 @@ void CIoman::Invoke(CMIPS& context, unsigned int functionId)
 		    context.m_State.nGPR[CMIPS::A0].nV0));
 		break;
 	default:
-		CLog::GetInstance().Print(LOG_NAME, "%s(%08X): Unknown function (%d) called.\r\n", __FUNCTION__, context.m_State.nPC, functionId);
+		CLog::GetInstance().Warn(LOG_NAME, "%s(%08X): Unknown function (%d) called.\r\n", __FUNCTION__, context.m_State.nPC, functionId);
 		break;
 	}
 }

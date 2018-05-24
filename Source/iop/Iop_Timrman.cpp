@@ -146,7 +146,7 @@ void CTimrman::Invoke(CMIPS& context, unsigned int functionId)
 		    context.m_State.nGPR[CMIPS::A0].nV0);
 		break;
 	default:
-		CLog::GetInstance().Print(LOG_NAME, "(%08X): Unknown function (%d) called.\r\n",
+		CLog::GetInstance().Warn(LOG_NAME, "(%08X): Unknown function (%d) called.\r\n",
 		                          context.m_State.nPC, functionId);
 		break;
 	}

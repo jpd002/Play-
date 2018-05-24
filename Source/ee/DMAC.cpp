@@ -444,7 +444,7 @@ uint32 CDMAC::GetRegister(uint32 nAddress)
 		break;
 
 	default:
-		CLog::GetInstance().Print(LOG_NAME, "Read an unhandled IO port (0x%08X).\r\n", nAddress);
+		CLog::GetInstance().Warn(LOG_NAME, "Read an unhandled IO port (0x%08X).\r\n", nAddress);
 		break;
 	}
 
@@ -859,7 +859,7 @@ void CDMAC::SetRegister(uint32 nAddress, uint32 nData)
 		break;
 
 	default:
-		CLog::GetInstance().Print(LOG_NAME, "Wrote to an unhandled IO port (0x%08X, 0x%08X).\r\n", nAddress, nData);
+		CLog::GetInstance().Warn(LOG_NAME, "Wrote to an unhandled IO port (0x%08X, 0x%08X).\r\n", nAddress, nData);
 		break;
 	}
 
@@ -983,7 +983,7 @@ void CDMAC::DisassembleGet(uint32 nAddress)
 		LOG_GET(D_ENABLER)
 
 	default:
-		CLog::GetInstance().Print(LOG_NAME, "Reading unknown register 0x%08X.\r\n", nAddress);
+		CLog::GetInstance().Warn(LOG_NAME, "Reading unknown register 0x%08X.\r\n", nAddress);
 		break;
 	}
 
@@ -1063,7 +1063,7 @@ void CDMAC::DisassembleSet(uint32 nAddress, uint32 nData)
 		LOG_SET(D_ENABLEW)
 
 	default:
-		CLog::GetInstance().Print(LOG_NAME, "Writing unknown register 0x%08X, 0x%08X.\r\n", nAddress, nData);
+		CLog::GetInstance().Warn(LOG_NAME, "Writing unknown register 0x%08X, 0x%08X.\r\n", nAddress, nData);
 		break;
 	}
 

@@ -427,7 +427,7 @@ uint32 CSubSystem::IOPortReadHandler(uint32 nAddress)
 	}
 	else
 	{
-		CLog::GetInstance().Print(LOG_NAME, "Read an unhandled IO port (0x%08X, PC: 0x%08X).\r\n",
+		CLog::GetInstance().Warn(LOG_NAME, "Read an unhandled IO port (0x%08X, PC: 0x%08X).\r\n",
 		                          nAddress, m_EE.m_State.nPC);
 	}
 
@@ -516,7 +516,7 @@ uint32 CSubSystem::IOPortWriteHandler(uint32 nAddress, uint32 nData)
 	}
 	else
 	{
-		CLog::GetInstance().Print(LOG_NAME, "Wrote to an unhandled IO port (0x%08X, 0x%08X, PC: 0x%08X).\r\n",
+		CLog::GetInstance().Warn(LOG_NAME, "Wrote to an unhandled IO port (0x%08X, 0x%08X, PC: 0x%08X).\r\n",
 		                          nAddress, nData, m_EE.m_State.nPC);
 	}
 
@@ -547,7 +547,7 @@ uint32 CSubSystem::Vu0IoPortReadHandler(uint32 address)
 		result = m_vpu0->GetVif().GetITOP();
 		break;
 	default:
-		CLog::GetInstance().Print(LOG_NAME, "Read an unhandled VU0 IO port (0x%08X).\r\n", address);
+		CLog::GetInstance().Warn(LOG_NAME, "Read an unhandled VU0 IO port (0x%08X).\r\n", address);
 		break;
 	}
 	return result;
@@ -558,7 +558,7 @@ uint32 CSubSystem::Vu0IoPortWriteHandler(uint32 address, uint32 value)
 	switch(address)
 	{
 	default:
-		CLog::GetInstance().Print(LOG_NAME, "Wrote an unhandled VU0 IO port (0x%08X, 0x%08X).\r\n",
+		CLog::GetInstance().Warn(LOG_NAME, "Wrote an unhandled VU0 IO port (0x%08X, 0x%08X).\r\n",
 		                          address, value);
 		break;
 	}
@@ -584,7 +584,7 @@ uint32 CSubSystem::Vu1IoPortReadHandler(uint32 address)
 		result = m_vpu1->GetVif().GetTOP();
 		break;
 	default:
-		CLog::GetInstance().Print(LOG_NAME, "Read an unhandled VU1 IO port (0x%08X).\r\n", address);
+		CLog::GetInstance().Warn(LOG_NAME, "Read an unhandled VU1 IO port (0x%08X).\r\n", address);
 		break;
 	}
 	return result;
@@ -598,7 +598,7 @@ uint32 CSubSystem::Vu1IoPortWriteHandler(uint32 address, uint32 value)
 		m_vpu1->ProcessXgKick(value);
 		break;
 	default:
-		CLog::GetInstance().Print(LOG_NAME, "Wrote an unhandled VU1 IO port (0x%08X, 0x%08X).\r\n",
+		CLog::GetInstance().Warn(LOG_NAME, "Wrote an unhandled VU1 IO port (0x%08X, 0x%08X).\r\n",
 		                          address, value);
 		break;
 	}

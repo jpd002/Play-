@@ -168,7 +168,7 @@ bool CCdvdfsv::Invoke592(uint32 method, uint32* args, uint32 argsSize, uint32* r
 	}
 	break;
 	default:
-		CLog::GetInstance().Print(LOG_NAME, "Unknown method invoked (0x%08X, 0x%08X).\r\n", 0x592, method);
+		CLog::GetInstance().Warn(LOG_NAME, "Unknown method invoked (0x%08X, 0x%08X).\r\n", 0x592, method);
 		break;
 	}
 	return true;
@@ -296,7 +296,7 @@ bool CCdvdfsv::Invoke595(uint32 method, uint32* args, uint32 argsSize, uint32* r
 		break;
 
 	default:
-		CLog::GetInstance().Print(LOG_NAME, "Unknown method invoked (0x%08X, 0x%08X).\r\n", 0x595, method);
+		CLog::GetInstance().Warn(LOG_NAME, "Unknown method invoked (0x%08X, 0x%08X).\r\n", 0x595, method);
 		break;
 	}
 	return true;
@@ -307,7 +307,7 @@ bool CCdvdfsv::Invoke596(uint32 method, uint32* args, uint32 argsSize, uint32* r
 	switch(method)
 	{
 	default:
-		CLog::GetInstance().Print(LOG_NAME, "Unknown method invoked (0x%08X, 0x%08X).\r\n", 0x596, method);
+		CLog::GetInstance().Warn(LOG_NAME, "Unknown method invoked (0x%08X, 0x%08X).\r\n", 0x596, method);
 		break;
 	}
 	return true;
@@ -321,7 +321,7 @@ bool CCdvdfsv::Invoke597(uint32 method, uint32* args, uint32 argsSize, uint32* r
 		SearchFile(args, argsSize, ret, retSize, ram);
 		break;
 	default:
-		CLog::GetInstance().Print(LOG_NAME, "Unknown method invoked (0x%08X, 0x%08X).\r\n", 0x597, method);
+		CLog::GetInstance().Warn(LOG_NAME, "Unknown method invoked (0x%08X, 0x%08X).\r\n", 0x597, method);
 		break;
 	}
 	return true;
@@ -460,7 +460,7 @@ bool CCdvdfsv::StreamCmd(uint32* args, uint32 argsSize, uint32* ret, uint32 retS
 		CLog::GetInstance().Print(LOG_NAME, "StreamSeek(pos = 0x%08X);\r\n", sector);
 		break;
 	default:
-		CLog::GetInstance().Print(LOG_NAME, "Unknown stream command used.\r\n");
+		CLog::GetInstance().Warn(LOG_NAME, "Unknown stream command used.\r\n");
 		break;
 	}
 
@@ -480,7 +480,7 @@ void CCdvdfsv::SearchFile(uint32* args, uint32 argsSize, uint32* ret, uint32 ret
 	}
 	else
 	{
-		CLog::GetInstance().Print(LOG_NAME, "Warning: Using unknown structure size (%d bytes);\r\n", argsSize);
+		CLog::GetInstance().Warn(LOG_NAME, "Warning: Using unknown structure size (%d bytes);\r\n", argsSize);
 	}
 
 	assert(retSize == 4);

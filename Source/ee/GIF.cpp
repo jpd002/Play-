@@ -463,7 +463,7 @@ void CGIF::DisassembleGet(uint32 address)
 		CLog::GetInstance().Print(LOG_NAME, "= GIF_STAT.\r\n", address);
 		break;
 	default:
-		CLog::GetInstance().Print(LOG_NAME, "Reading unknown register 0x%08X.\r\n", address);
+		CLog::GetInstance().Warn(LOG_NAME, "Reading unknown register 0x%08X.\r\n", address);
 		break;
 	}
 }
@@ -473,7 +473,7 @@ void CGIF::DisassembleSet(uint32 address, uint32 value)
 	switch(address)
 	{
 	default:
-		CLog::GetInstance().Print(LOG_NAME, "Writing unknown register 0x%08X, 0x%08X.\r\n", address, value);
+		CLog::GetInstance().Warn(LOG_NAME, "Writing unknown register 0x%08X, 0x%08X.\r\n", address, value);
 		break;
 	}
 }

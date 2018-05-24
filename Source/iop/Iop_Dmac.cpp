@@ -205,7 +205,7 @@ void CDmac::LogRead(uint32 address)
 			CLog::GetInstance().Print(LOG_NAME, "ch%02d: = CHCR.\r\n", channelId);
 			break;
 		default:
-			CLog::GetInstance().Print(LOG_NAME, "Read an unknown register 0x%08X.\r\n",
+			CLog::GetInstance().Warn(LOG_NAME, "Read an unknown register 0x%08X.\r\n",
 			                          address);
 			break;
 		}
@@ -243,7 +243,7 @@ void CDmac::LogWrite(uint32 address, uint32 value)
 			CLog::GetInstance().Print(LOG_NAME, "ch%02d: CHCR = 0x%08X.\r\n", channelId, value);
 			break;
 		default:
-			CLog::GetInstance().Print(LOG_NAME, "Wrote 0x%08X to unknown register 0x%08X.\r\n",
+			CLog::GetInstance().Warn(LOG_NAME, "Wrote 0x%08X to unknown register 0x%08X.\r\n",
 			                          value, address);
 			break;
 		}
