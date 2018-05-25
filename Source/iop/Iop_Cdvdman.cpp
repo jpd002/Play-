@@ -268,7 +268,7 @@ void CCdvdman::Invoke(CMIPS& ctx, unsigned int functionId)
 		break;
 	default:
 		CLog::GetInstance().Warn(LOG_NAME, "Unknown function called (%d).\r\n",
-		                          functionId);
+		                         functionId);
 		break;
 	}
 }

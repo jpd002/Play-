@@ -428,7 +428,7 @@ uint32 CSubSystem::IOPortReadHandler(uint32 nAddress)
 	else
 	{
 		CLog::GetInstance().Warn(LOG_NAME, "Read an unhandled IO port (0x%08X, PC: 0x%08X).\r\n",
-		                          nAddress, m_EE.m_State.nPC);
+		                         nAddress, m_EE.m_State.nPC);
 	}
 
 	if((nAddress == CINTC::INTC_STAT) || (nAddress == CGSHandler::GS_CSR))
@@ -517,7 +517,7 @@ uint32 CSubSystem::IOPortWriteHandler(uint32 nAddress, uint32 nData)
 	else
 	{
 		CLog::GetInstance().Warn(LOG_NAME, "Wrote to an unhandled IO port (0x%08X, 0x%08X, PC: 0x%08X).\r\n",
-		                          nAddress, nData, m_EE.m_State.nPC);
+		                         nAddress, nData, m_EE.m_State.nPC);
 	}
 
 	if(
@@ -559,7 +559,7 @@ uint32 CSubSystem::Vu0IoPortWriteHandler(uint32 address, uint32 value)
 	{
 	default:
 		CLog::GetInstance().Warn(LOG_NAME, "Wrote an unhandled VU0 IO port (0x%08X, 0x%08X).\r\n",
-		                          address, value);
+		                         address, value);
 		break;
 	}
 	return 0;
@@ -599,7 +599,7 @@ uint32 CSubSystem::Vu1IoPortWriteHandler(uint32 address, uint32 value)
 		break;
 	default:
 		CLog::GetInstance().Warn(LOG_NAME, "Wrote an unhandled VU1 IO port (0x%08X, 0x%08X).\r\n",
-		                          address, value);
+		                         address, value);
 		break;
 	}
 	return 0;

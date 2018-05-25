@@ -206,7 +206,7 @@ void CDmac::LogRead(uint32 address)
 			break;
 		default:
 			CLog::GetInstance().Warn(LOG_NAME, "Read an unknown register 0x%08X.\r\n",
-			                          address);
+			                         address);
 			break;
 		}
 	}
@@ -244,7 +244,7 @@ void CDmac::LogWrite(uint32 address, uint32 value)
 			break;
 		default:
 			CLog::GetInstance().Warn(LOG_NAME, "Wrote 0x%08X to unknown register 0x%08X.\r\n",
-			                          value, address);
+			                         value, address);
 			break;
 		}
 	}

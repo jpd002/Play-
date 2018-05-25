@@ -80,7 +80,7 @@ void CLoadcore::Invoke(CMIPS& context, unsigned int functionId)
 		break;
 	default:
 		CLog::GetInstance().Warn(LOG_NAME, "Unknown function (%d) called (PC: 0x%08X).\r\n",
-		                          functionId, context.m_State.nPC);
+		                         functionId, context.m_State.nPC);
 		break;
 	}
 }
