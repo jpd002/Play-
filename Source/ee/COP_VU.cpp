@@ -9,8 +9,6 @@
 
 #undef MAX
 
-#define LOG_NAME ("vpu")
-
 enum CTRL_REG
 {
 	CTRL_REG_STATUS = 16,
