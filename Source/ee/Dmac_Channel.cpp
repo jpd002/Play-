@@ -6,7 +6,7 @@
 #include "Dmac_Channel.h"
 #include "DMAC.h"
 
-#define LOG_NAME ("dmac")
+#define LOG_NAME ("ee_dmac")
 #define STATE_REGS_XML_FORMAT ("dmac/channel_%d.xml")
 #define STATE_REGS_CHCR ("CHCR")
 #define STATE_REGS_MADR ("MADR")

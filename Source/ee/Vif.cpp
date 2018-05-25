@@ -9,7 +9,7 @@
 #include "Vif.h"
 #include "INTC.h"
 
-#define LOG_NAME ("vif")
+#define LOG_NAME ("ee_vif")
 
 #define STATE_PATH_REGS_FORMAT ("vpu/vif_%d.xml")
 #define STATE_PATH_FIFO_FORMAT ("vpu/vif_%d_fifo")

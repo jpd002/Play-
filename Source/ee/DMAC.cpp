@@ -7,7 +7,7 @@
 #include "../COP_SCU.h"
 #include "placeholder_def.h"
 
-#define LOG_NAME ("dmac")
+#define LOG_NAME ("ee_dmac")
 #define STATE_REGS_XML ("dmac/regs.xml")
 #define STATE_REGS_CTRL ("D_CTRL")
 #define STATE_REGS_STAT ("D_STAT")

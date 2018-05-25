@@ -7,7 +7,7 @@
 #include "../RegisterStateFile.h"
 #include "GIF.h"
 
-#define LOG_NAME ("gif")
+#define LOG_NAME ("ee_gif")
 
 #define STATE_REGS_XML ("gif/regs.xml")
 #define STATE_REGS_M3P ("M3P")

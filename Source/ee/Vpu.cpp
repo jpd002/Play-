@@ -8,7 +8,7 @@
 #include "GIF.h"
 #include "Vpu.h"
 
-#define LOG_NAME ("vpu")
+#define LOG_NAME ("ee_vpu")
 
 CVpu::CVpu(unsigned int number, const VPUINIT& vpuInit, CGIF& gif, CINTC& intc, uint8* ram, uint8* spr)
     : m_number(number)

@@ -3,7 +3,7 @@
 #include "../RegisterStateFile.h"
 #include "Timer.h"
 
-#define LOG_NAME ("timer")
+#define LOG_NAME ("ee_timer")
 
 #define STATE_REGS_XML ("timer/regs.xml")
 

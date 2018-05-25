@@ -21,7 +21,7 @@
 #include "DMAC.h"
 #include "INTC.h"
 
-#define LOG_NAME ("ipu")
+#define LOG_NAME ("ee_ipu")
 
 //#define _DECODE_LOGGING
 #define DECODE_LOG_NAME ("ipu_decode")

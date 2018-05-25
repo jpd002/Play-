@@ -2,7 +2,7 @@
 #include "../Log.h"
 #include "../RegisterStateFile.h"
 
-#define LOG_NAME ("intc")
+#define LOG_NAME ("ee_intc")
 
 #define STATE_REGS_XML ("intc/regs.xml")
 
