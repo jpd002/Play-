@@ -1,5 +1,4 @@
-#ifndef _LOG_H_
-#define _LOG_H_
+#pragma once
 
 #include <string>
 #include <map>
@@ -25,5 +24,3 @@ private:
 	LogMapType m_logs;
 	bool m_showPrints = false;
 };
-
-#endif
