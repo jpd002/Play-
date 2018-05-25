@@ -23,6 +23,7 @@ private:
 
 	boost::filesystem::path m_logBasePath;
 	LogMapType m_logs;
+	bool m_showPrints = false;
 };
 
 #endif
