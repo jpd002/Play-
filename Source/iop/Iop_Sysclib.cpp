@@ -43,6 +43,9 @@ std::string CSysclib::GetFunctionName(unsigned int functionId) const
 	case 12:
 		return "memcpy";
 		break;
+	case 13:
+		return "memmove";
+		break;
 	case 14:
 		return "memset";
 		break;
