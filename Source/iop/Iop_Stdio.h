@@ -11,7 +11,7 @@ namespace Iop
 	{
 	public:
 		CStdio(uint8*, CIoman&);
-		virtual ~CStdio();
+		virtual ~CStdio() = default;
 
 		std::string GetId() const override;
 		std::string GetFunctionName(unsigned int) const override;

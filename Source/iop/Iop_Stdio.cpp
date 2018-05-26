@@ -17,10 +17,6 @@ CStdio::CStdio(uint8* ram, CIoman& ioman)
 {
 }
 
-CStdio::~CStdio()
-{
-}
-
 std::string CStdio::GetId() const
 {
 	return "stdio";
