@@ -18,6 +18,7 @@ namespace Iop
 		void Invoke(CMIPS&, unsigned int) override;
 
 		void __printf(CMIPS&);
+		int32 __puts(uint32);
 		std::string PrintFormatted(const char*, CArgumentIterator&);
 
 	private:

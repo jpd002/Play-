@@ -8,6 +8,7 @@
 #define LOG_NAME "iop_stdio"
 
 #define FUNCTION_PRINTF "printf"
+#define FUNCTION_PUTS "puts"
 
 using namespace Iop;
 
@@ -29,6 +30,9 @@ std::string CStdio::GetFunctionName(unsigned int functionId) const
 	case 4:
 		return FUNCTION_PRINTF;
 		break;
+	case 7:
+		return FUNCTION_PUTS;
+		break;
 	default:
 		return "unknown";
 		break;
@@ -42,6 +46,10 @@ void CStdio::Invoke(CMIPS& context, unsigned int functionId)
 	case 4:
 		__printf(context);
 		break;
+	case 7:
+		context.m_State.nGPR[CMIPS::V0].nD0 = __puts(
+			context.m_State.nGPR[CMIPS::A0].nV0
+		);
 	default:
 		CLog::GetInstance().Warn(LOG_NAME, "Unknown function (%d) called. PC = (%08X).\r\n",
 		                         functionId, context.m_State.nPC);
@@ -157,4 +165,11 @@ void CStdio::__printf(CMIPS& context)
 	auto format = reinterpret_cast<const char*>(m_ram + args.GetNext());
 	auto output = PrintFormatted(format, args);
 	m_ioman.Write(CIoman::FID_STDOUT, output.length(), output.c_str());
+}
+
+int32 CStdio::__puts(uint32 stringPtr)
+{
+	auto string = reinterpret_cast<const char*>(m_ram + stringPtr);
+	m_ioman.Write(CIoman::FID_STDOUT, strlen(string), string);
+	return 0;
 }
