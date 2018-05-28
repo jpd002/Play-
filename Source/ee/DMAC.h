@@ -118,7 +118,7 @@ public:
 	void ResumeDMA4();
 	void ResumeDMA8();
 	bool IsDMA4Started() const;
-	static bool IsEndTagId(uint32);
+	static bool IsEndSrcTagId(uint32);
 
 private:
 	struct D_CTRL_REG : public convertible<uint32>

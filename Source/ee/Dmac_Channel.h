@@ -15,16 +15,16 @@ namespace Dmac
 	class CChannel
 	{
 	public:
-		enum DMATAG_TYPE
+		enum DMATAG_SRC_TYPE
 		{
-			DMATAG_REFE,
-			DMATAG_CNT,
-			DMATAG_NEXT,
-			DMATAG_REF,
-			DMATAG_REFS,
-			DMATAG_CALL,
-			DMATAG_RET,
-			DMATAG_END
+			DMATAG_SRC_REFE,
+			DMATAG_SRC_CNT,
+			DMATAG_SRC_NEXT,
+			DMATAG_SRC_REF,
+			DMATAG_SRC_REFS,
+			DMATAG_SRC_CALL,
+			DMATAG_SRC_RET,
+			DMATAG_SRC_END
 		};
 
 		enum CHCR_DIR

@@ -254,7 +254,7 @@ void CChannel::ExecuteSourceChain()
 	}
 
 	//Pause transfer if channel is stalled
-	if(isStallDrainChannel && ((m_CHCR.nTAG & DMATAG_ID) == (DMATAG_REFS << 12)) && (m_nMADR >= m_dmac.m_D_STADR))
+	if(isStallDrainChannel && ((m_CHCR.nTAG & DMATAG_ID) == (DMATAG_SRC_REFS << 12)) && (m_nMADR >= m_dmac.m_D_STADR))
 	{
 		return;
 	}
@@ -310,7 +310,7 @@ void CChannel::ExecuteSourceChain()
 				}
 				else
 				{
-					if(CDMAC::IsEndTagId((uint32)m_CHCR.nTAG << 16))
+					if(CDMAC::IsEndSrcTagId((uint32)m_CHCR.nTAG << 16))
 					{
 						ClearSTR();
 						continue;
@@ -365,32 +365,32 @@ void CChannel::ExecuteSourceChain()
 
 		switch(nID)
 		{
-		case DMATAG_REFE:
+		case DMATAG_SRC_REFE:
 			//REFE - Data to transfer is pointer in memory address, transfer is done
 			m_nMADR = (uint32)((nTag >> 32) & 0xFFFFFFFF);
 			m_nQWC = (uint32)((nTag >> 0) & 0x0000FFFF);
 			m_nTADR = m_nTADR + 0x10;
 			break;
-		case DMATAG_CNT:
+		case DMATAG_SRC_CNT:
 			//CNT - Data to transfer is after the tag, next tag is after the data
 			m_nMADR = m_nTADR + 0x10;
 			m_nQWC = (uint32)(nTag & 0xFFFF);
 			m_nTADR = (m_nQWC * 0x10) + m_nMADR;
 			break;
-		case DMATAG_NEXT:
+		case DMATAG_SRC_NEXT:
 			//NEXT - Transfers data after tag, next tag is at position in ADDR field
 			m_nMADR = m_nTADR + 0x10;
 			m_nQWC = (uint32)((nTag >> 0) & 0x0000FFFF);
 			m_nTADR = (uint32)((nTag >> 32) & 0xFFFFFFFF);
 			break;
-		case DMATAG_REF:
-		case DMATAG_REFS:
+		case DMATAG_SRC_REF:
+		case DMATAG_SRC_REFS:
 			//REF/REFS - Data to transfer is pointed in memory address, next tag is after this tag
 			m_nMADR = (uint32)((nTag >> 32) & 0xFFFFFFFF);
 			m_nQWC = (uint32)((nTag >> 0) & 0x0000FFFF);
 			m_nTADR = m_nTADR + 0x10;
 			break;
-		case DMATAG_CALL:
+		case DMATAG_SRC_CALL:
 			//CALL - Transfers QWC after the tag, saves next address in ASR, TADR = ADDR
 			assert(m_CHCR.nASP < 2);
 			m_nMADR = m_nTADR + 0x10;
@@ -399,7 +399,7 @@ void CChannel::ExecuteSourceChain()
 			m_nTADR = (uint32)((nTag >> 32) & 0xFFFFFFFF);
 			m_CHCR.nASP++;
 			break;
-		case DMATAG_RET:
+		case DMATAG_SRC_RET:
 			//RET - Transfers QWC after the tag, pops TADR from ASR
 			m_nMADR = m_nTADR + 0x10;
 			m_nQWC = (uint32)(nTag & 0xFFFF);
@@ -413,7 +413,7 @@ void CChannel::ExecuteSourceChain()
 				m_nSCCTRL |= SCCTRL_RETTOP;
 			}
 			break;
-		case DMATAG_END:
+		case DMATAG_SRC_END:
 			//END - Data to transfer is after the tag, transfer is finished
 			m_nMADR = m_nTADR + 0x10;
 			m_nQWC = (uint32)(nTag & 0xFFFF);
@@ -425,13 +425,13 @@ void CChannel::ExecuteSourceChain()
 		}
 
 		//Pause transfer if channel is stalled
-		if(isStallDrainChannel && (nID == DMATAG_REFS) && (m_nMADR >= m_dmac.m_D_STADR))
+		if(isStallDrainChannel && (nID == DMATAG_SRC_REFS) && (m_nMADR >= m_dmac.m_D_STADR))
 		{
 			continue;
 		}
 
 		uint32 qwc = m_nQWC;
-		if((nID == DMATAG_CNT) && isMfifo)
+		if((nID == DMATAG_SRC_CNT) && isMfifo)
 		{
 			//Adjust QWC in MFIFO mode
 			uint32 ringBufferAddr = m_nMADR - m_dmac.m_D_RBOR;
@@ -451,7 +451,7 @@ void CChannel::ExecuteSourceChain()
 
 		if(isMfifo)
 		{
-			if(nID == DMATAG_CNT)
+			if(nID == DMATAG_SRC_CNT)
 			{
 				//Loop MADR if needed
 				uint32 ringBufferSize = m_dmac.m_D_RBSR + 0x10;
