@@ -48,8 +48,7 @@ void CStdio::Invoke(CMIPS& context, unsigned int functionId)
 		break;
 	case 7:
 		context.m_State.nGPR[CMIPS::V0].nD0 = __puts(
-			context.m_State.nGPR[CMIPS::A0].nV0
-		);
+		    context.m_State.nGPR[CMIPS::A0].nV0);
 	default:
 		CLog::GetInstance().Warn(LOG_NAME, "Unknown function (%d) called. PC = (%08X).\r\n",
 		                         functionId, context.m_State.nPC);
