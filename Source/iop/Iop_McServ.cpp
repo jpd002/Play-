@@ -47,6 +47,7 @@ bool CMcServ::Invoke(uint32 method, uint32* args, uint32 argsSize, uint32* ret, 
 	switch(method)
 	{
 	case 0x01:
+	case 0x78:
 		GetInfo(args, argsSize, ret, retSize, ram);
 		break;
 	case 0x02:
@@ -81,6 +82,7 @@ bool CMcServ::Invoke(uint32 method, uint32* args, uint32 argsSize, uint32* ret, 
 		GetSlotMax(args, argsSize, ret, retSize, ram);
 		break;
 	case 0xFE:
+	case 0x70:
 		//Get version?
 		GetVersionInformation(args, argsSize, ret, retSize, ram);
 		break;
