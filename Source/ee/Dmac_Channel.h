@@ -34,6 +34,17 @@ namespace Dmac
 			DMATAG_DST_END = 7,
 		};
 
+		struct DMAtag : public convertible<uint64>
+		{
+			unsigned int qwc : 16;
+			unsigned int reserved : 10;
+			unsigned int pce : 2;
+			unsigned int id : 3;
+			unsigned int irq : 1;
+			unsigned int addr : 32;
+		};
+		static_assert(sizeof(DMAtag) == sizeof(uint64), "Size of DMAtag struct must be 8 bytes.");
+
 		enum CHCR_DIR
 		{
 			CHCR_DIR_TO = 0,
@@ -66,6 +77,7 @@ namespace Dmac
 		void ExecuteNormal();
 		void ExecuteInterleave();
 		void ExecuteSourceChain();
+		void ExecuteDestinationChain();
 		void SetReceiveHandler(const DmaReceiveHandler&);
 
 		CHCR m_CHCR;

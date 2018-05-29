@@ -130,7 +130,14 @@ void CChannel::Execute()
 			break;
 		case 0x01:
 		case 0x03: //FFXII uses 3 here, assuming source chain mode
-			ExecuteSourceChain();
+			if(m_number == CDMAC::CHANNEL_ID_FROM_SPR)
+			{
+				ExecuteDestinationChain();
+			}
+			else
+			{
+				ExecuteSourceChain();
+			}
 			break;
 		default:
 			assert(0);
@@ -465,6 +472,43 @@ void CChannel::ExecuteSourceChain()
 			m_nTADR -= m_dmac.m_D_RBOR;
 			m_nTADR &= m_dmac.m_D_RBSR;
 			m_nTADR += m_dmac.m_D_RBOR;
+		}
+	}
+}
+
+void CChannel::ExecuteDestinationChain()
+{
+	assert(m_number == CDMAC::CHANNEL_ID_FROM_SPR);
+
+	while(m_CHCR.nSTR == 1)
+	{
+		assert(m_nQWC == 0);
+
+		auto tag = make_convertible<DMAtag>(m_dmac.FetchDMATag(m_dmac.m_D8_SADR | 0x80000000));
+		m_dmac.m_D8_SADR += 0x10;
+
+		assert(tag.irq == 0);
+		switch(tag.id)
+		{
+		case DMATAG_DST_CNT:
+		case DMATAG_DST_END:
+			m_nMADR = tag.addr;
+			m_nQWC = tag.qwc;
+			break;
+		default:
+			assert(false);
+			break;
+		}
+
+		uint32 recv = m_receive(m_nMADR, m_nQWC, m_CHCR.nDIR, false);
+		assert(recv == m_nQWC);
+
+		m_nMADR += recv * 0x10;
+		m_nQWC -= recv;
+
+		if(tag.id == DMATAG_DST_END)
+		{
+			ClearSTR();
 		}
 	}
 }
