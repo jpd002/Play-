@@ -27,6 +27,13 @@ namespace Dmac
 			DMATAG_SRC_END
 		};
 
+		enum DMATAG_DST_TYPE
+		{
+			DMATAG_DST_CNTS,
+			DMATAG_DST_CNT,
+			DMATAG_DST_END = 7,
+		};
+
 		enum CHCR_DIR
 		{
 			CHCR_DIR_TO = 0,
