@@ -54,6 +54,8 @@ void CVif::Reset()
 	memset(&m_R, 0, sizeof(m_R));
 	memset(&m_C, 0, sizeof(m_C));
 	memset(&m_fifoBuffer, 0, sizeof(m_fifoBuffer));
+	m_CYCLE.nCL = 1;
+	m_CYCLE.nWL = 1;
 	m_fifoIndex = 0;
 	m_MODE = 0;
 	m_NUM = 0;
