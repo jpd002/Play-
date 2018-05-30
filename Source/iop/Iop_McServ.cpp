@@ -51,21 +51,26 @@ bool CMcServ::Invoke(uint32 method, uint32* args, uint32 argsSize, uint32* ret, 
 		GetInfo(args, argsSize, ret, retSize, ram);
 		break;
 	case 0x02:
+	case 0x71:
 		Open(args, argsSize, ret, retSize, ram);
 		break;
 	case 0x03:
+	case 0x72:
 		Close(args, argsSize, ret, retSize, ram);
 		break;
 	case 0x04:
 		Seek(args, argsSize, ret, retSize, ram);
 		break;
 	case 0x05:
+	case 0x73:
 		Read(args, argsSize, ret, retSize, ram);
 		break;
 	case 0x06:
+	case 0x74:
 		Write(args, argsSize, ret, retSize, ram);
 		break;
 	case 0x0A:
+	case 0x7A:
 		Flush(args, argsSize, ret, retSize, ram);
 		break;
 	case 0x0C:
@@ -76,6 +81,7 @@ bool CMcServ::Invoke(uint32 method, uint32* args, uint32 argsSize, uint32* ret, 
 		GetDir(args, argsSize, ret, retSize, ram);
 		break;
 	case 0x0F:
+	case 0x79:
 		Delete(args, argsSize, ret, retSize, ram);
 		break;
 	case 0x15:
