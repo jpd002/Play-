@@ -479,27 +479,24 @@ void CMcServ::Delete(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize,
 
 	CLog::GetInstance().Print(LOG_NAME, "Delete(port = %d, slot = %d, name = '%s');\r\n", cmd->port, cmd->slot, cmd->name);
 
-	boost::filesystem::path filePath;
-
 	try
 	{
-		filePath = GetAbsoluteFilePath(cmd->port, cmd->slot, cmd->name);
+		auto filePath = GetAbsoluteFilePath(cmd->port, cmd->slot, cmd->name);
+		if(boost::filesystem::exists(filePath))
+		{
+			boost::filesystem::remove(filePath);
+			ret[0] = 0;
+		}
+		else
+		{
+			ret[0] = RET_NO_ENTRY;
+		}
 	}
 	catch(const std::exception& exception)
 	{
 		CLog::GetInstance().Warn(LOG_NAME, "Error while executing Delete: %s.\r\n", exception.what());
 		ret[0] = -1;
 		return;
-	}
-
-	if(boost::filesystem::exists(filePath))
-	{
-		boost::filesystem::remove(filePath);
-		ret[0] = 0;
-	}
-	else
-	{
-		ret[0] = RET_NO_ENTRY;
 	}
 }
 
