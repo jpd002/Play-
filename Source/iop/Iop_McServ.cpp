@@ -160,7 +160,7 @@ void CMcServ::Open(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, u
 	}
 	catch(const std::exception& exception)
 	{
-		CLog::GetInstance().Print(LOG_NAME, "Error while executing Open: %s\r\n.", exception.what());
+		CLog::GetInstance().Warn(LOG_NAME, "Error while executing Open: %s.\r\n", exception.what());
 		ret[0] = -1;
 		return;
 	}
@@ -406,7 +406,7 @@ void CMcServ::ChDir(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, 
 	}
 	catch(const std::exception& exception)
 	{
-		CLog::GetInstance().Warn(LOG_NAME, "Error while executing GetDir: %s\r\n.", exception.what());
+		CLog::GetInstance().Warn(LOG_NAME, "Error while executing ChDir: %s.\r\n", exception.what());
 	}
 
 	ret[0] = result;
@@ -467,7 +467,7 @@ void CMcServ::GetDir(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize,
 	}
 	catch(const std::exception& exception)
 	{
-		CLog::GetInstance().Warn(LOG_NAME, "Error while executing GetDir: %s\r\n.", exception.what());
+		CLog::GetInstance().Warn(LOG_NAME, "Error while executing GetDir: %s.\r\n", exception.what());
 	}
 
 	ret[0] = result;
@@ -487,7 +487,7 @@ void CMcServ::Delete(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize,
 	}
 	catch(const std::exception& exception)
 	{
-		CLog::GetInstance().Print(LOG_NAME, "Error while executing Delete: %s\r\n.", exception.what());
+		CLog::GetInstance().Warn(LOG_NAME, "Error while executing Delete: %s.\r\n", exception.what());
 		ret[0] = -1;
 		return;
 	}
