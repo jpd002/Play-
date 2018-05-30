@@ -68,7 +68,7 @@ void CChannel::LoadState(Framework::CZipArchiveReader& archive)
 
 uint32 CChannel::ReadCHCR()
 {
-	return *(uint32*)&m_CHCR;
+	return m_CHCR;
 }
 
 void CChannel::WriteCHCR(uint32 nValue)
