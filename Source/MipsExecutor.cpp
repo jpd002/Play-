@@ -135,7 +135,7 @@ CBasicBlock* CMipsExecutor::FindBlockStartingAt(uint32 address) const
 	auto& subTable = m_blockTable[hiAddress];
 	if(!subTable) return nullptr;
 	auto result = subTable[loAddress / 4];
-	if((address != 0) && (FindBlockAt(address - 4) == result))
+	if(!result || (result->GetBeginAddress() != address))
 	{
 		return nullptr;
 	}
