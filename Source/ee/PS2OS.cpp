@@ -2536,7 +2536,7 @@ void CPS2OS::sc_SetSyscall()
 		uint32 handlerId = m_intcHandlers.Allocate();
 		if(static_cast<int32>(handlerId) == -1)
 		{
-			CLog::GetInstance().Print(LOG_NAME, "Couldn't set INTC handler through SetSyscall");
+			CLog::GetInstance().Warn(LOG_NAME, "Couldn't set INTC handler through SetSyscall");
 			return;
 		}
 
@@ -2555,7 +2555,7 @@ void CPS2OS::sc_SetSyscall()
 	}
 	else
 	{
-		CLog::GetInstance().Print(LOG_NAME, "Unknown syscall set.", number);
+		CLog::GetInstance().Warn(LOG_NAME, "Unknown syscall set (%d).\r\n", number);
 	}
 
 	m_ee.m_State.nGPR[SC_RETURN].nV[0] = 0;
@@ -2710,7 +2710,7 @@ void CPS2OS::sc_Deci2Call()
 		}
 		break;
 	default:
-		CLog::GetInstance().Print(LOG_NAME, "Unknown Deci2Call function (0x%08X) called. PC: 0x%08X.\r\n", function, m_ee.m_State.nPC);
+		CLog::GetInstance().Warn(LOG_NAME, "Unknown Deci2Call function (0x%08X) called. PC: 0x%08X.\r\n", function, m_ee.m_State.nPC);
 		break;
 	}
 }
@@ -2741,8 +2741,8 @@ void CPS2OS::HandleSyscall()
 	if(callInstruction != 0x0000000C)
 	{
 		//This will happen if an ADDIU R0, R0, $x instruction is encountered. Not sure if there's a use for that on the EE
-		CLog::GetInstance().Print(LOG_NAME, "System call exception occured but no SYSCALL instruction found (addr = 0x%08X, opcode = 0x%08X).\r\n",
-		                          searchAddress, callInstruction);
+		CLog::GetInstance().Warn(LOG_NAME, "System call exception occured but no SYSCALL instruction found (addr = 0x%08X, opcode = 0x%08X).\r\n",
+		                         searchAddress, callInstruction);
 		m_ee.m_State.nHasException = 0;
 		return;
 	}
