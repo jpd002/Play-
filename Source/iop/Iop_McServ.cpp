@@ -47,24 +47,30 @@ bool CMcServ::Invoke(uint32 method, uint32* args, uint32 argsSize, uint32* ret, 
 	switch(method)
 	{
 	case 0x01:
+	case 0x78:
 		GetInfo(args, argsSize, ret, retSize, ram);
 		break;
 	case 0x02:
+	case 0x71:
 		Open(args, argsSize, ret, retSize, ram);
 		break;
 	case 0x03:
+	case 0x72:
 		Close(args, argsSize, ret, retSize, ram);
 		break;
 	case 0x04:
 		Seek(args, argsSize, ret, retSize, ram);
 		break;
 	case 0x05:
+	case 0x73:
 		Read(args, argsSize, ret, retSize, ram);
 		break;
 	case 0x06:
+	case 0x74:
 		Write(args, argsSize, ret, retSize, ram);
 		break;
 	case 0x0A:
+	case 0x7A:
 		Flush(args, argsSize, ret, retSize, ram);
 		break;
 	case 0x0C:
@@ -75,12 +81,14 @@ bool CMcServ::Invoke(uint32 method, uint32* args, uint32 argsSize, uint32* ret, 
 		GetDir(args, argsSize, ret, retSize, ram);
 		break;
 	case 0x0F:
+	case 0x79:
 		Delete(args, argsSize, ret, retSize, ram);
 		break;
 	case 0x15:
 		GetSlotMax(args, argsSize, ret, retSize, ram);
 		break;
 	case 0xFE:
+	case 0x70:
 		//Get version?
 		GetVersionInformation(args, argsSize, ret, retSize, ram);
 		break;
@@ -152,7 +160,7 @@ void CMcServ::Open(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, u
 	}
 	catch(const std::exception& exception)
 	{
-		CLog::GetInstance().Print(LOG_NAME, "Error while executing Open: %s\r\n.", exception.what());
+		CLog::GetInstance().Warn(LOG_NAME, "Error while executing Open: %s.\r\n", exception.what());
 		ret[0] = -1;
 		return;
 	}
@@ -398,7 +406,7 @@ void CMcServ::ChDir(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, 
 	}
 	catch(const std::exception& exception)
 	{
-		CLog::GetInstance().Warn(LOG_NAME, "Error while executing GetDir: %s\r\n.", exception.what());
+		CLog::GetInstance().Warn(LOG_NAME, "Error while executing ChDir: %s.\r\n", exception.what());
 	}
 
 	ret[0] = result;
@@ -459,7 +467,7 @@ void CMcServ::GetDir(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize,
 	}
 	catch(const std::exception& exception)
 	{
-		CLog::GetInstance().Warn(LOG_NAME, "Error while executing GetDir: %s\r\n.", exception.what());
+		CLog::GetInstance().Warn(LOG_NAME, "Error while executing GetDir: %s.\r\n", exception.what());
 	}
 
 	ret[0] = result;
@@ -471,27 +479,24 @@ void CMcServ::Delete(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize,
 
 	CLog::GetInstance().Print(LOG_NAME, "Delete(port = %d, slot = %d, name = '%s');\r\n", cmd->port, cmd->slot, cmd->name);
 
-	boost::filesystem::path filePath;
-
 	try
 	{
-		filePath = GetAbsoluteFilePath(cmd->port, cmd->slot, cmd->name);
+		auto filePath = GetAbsoluteFilePath(cmd->port, cmd->slot, cmd->name);
+		if(boost::filesystem::exists(filePath))
+		{
+			boost::filesystem::remove(filePath);
+			ret[0] = 0;
+		}
+		else
+		{
+			ret[0] = RET_NO_ENTRY;
+		}
 	}
 	catch(const std::exception& exception)
 	{
-		CLog::GetInstance().Print(LOG_NAME, "Error while executing Delete: %s\r\n.", exception.what());
+		CLog::GetInstance().Warn(LOG_NAME, "Error while executing Delete: %s.\r\n", exception.what());
 		ret[0] = -1;
 		return;
-	}
-
-	if(boost::filesystem::exists(filePath))
-	{
-		boost::filesystem::remove(filePath);
-		ret[0] = 0;
-	}
-	else
-	{
-		ret[0] = RET_NO_ENTRY;
 	}
 }
 

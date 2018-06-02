@@ -15,17 +15,35 @@ namespace Dmac
 	class CChannel
 	{
 	public:
-		enum DMATAG_TYPE
+		enum DMATAG_SRC_TYPE
 		{
-			DMATAG_REFE,
-			DMATAG_CNT,
-			DMATAG_NEXT,
-			DMATAG_REF,
-			DMATAG_REFS,
-			DMATAG_CALL,
-			DMATAG_RET,
-			DMATAG_END
+			DMATAG_SRC_REFE,
+			DMATAG_SRC_CNT,
+			DMATAG_SRC_NEXT,
+			DMATAG_SRC_REF,
+			DMATAG_SRC_REFS,
+			DMATAG_SRC_CALL,
+			DMATAG_SRC_RET,
+			DMATAG_SRC_END
 		};
+
+		enum DMATAG_DST_TYPE
+		{
+			DMATAG_DST_CNTS,
+			DMATAG_DST_CNT,
+			DMATAG_DST_END = 7,
+		};
+
+		struct DMAtag : public convertible<uint64>
+		{
+			unsigned int qwc : 16;
+			unsigned int reserved : 10;
+			unsigned int pce : 2;
+			unsigned int id : 3;
+			unsigned int irq : 1;
+			unsigned int addr : 32;
+		};
+		static_assert(sizeof(DMAtag) == sizeof(uint64), "Size of DMAtag struct must be 8 bytes.");
 
 		enum CHCR_DIR
 		{
@@ -59,6 +77,7 @@ namespace Dmac
 		void ExecuteNormal();
 		void ExecuteInterleave();
 		void ExecuteSourceChain();
+		void ExecuteDestinationChain();
 		void SetReceiveHandler(const DmaReceiveHandler&);
 
 		CHCR m_CHCR;
