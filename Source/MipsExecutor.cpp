@@ -1,35 +1,14 @@
 #include "MipsExecutor.h"
 
-static bool IsInsideRange(uint32 address, uint32 start, uint32 end)
-{
-	return (address >= start) && (address <= end);
-}
-
-#define SUBTABLE_BITS 16
-#define SUBTABLE_SIZE (1 << SUBTABLE_BITS)
-#define SUBTABLE_MASK (SUBTABLE_SIZE - 1)
-
 CMipsExecutor::CMipsExecutor(CMIPS& context, uint32 maxAddress)
     : m_context(context)
     , m_maxAddress(maxAddress)
+    , m_blockLookup(maxAddress)
 {
-	m_subTableCount = (m_maxAddress + SUBTABLE_MASK) / SUBTABLE_SIZE;
-	assert(m_subTableCount != 0);
-	m_blockTable = new CBasicBlock**[m_subTableCount];
-	memset(m_blockTable, 0, sizeof(CBasicBlock**) * m_subTableCount);
 }
 
 CMipsExecutor::~CMipsExecutor()
 {
-	for(unsigned int i = 0; i < m_subTableCount; i++)
-	{
-		CBasicBlock** subTable = m_blockTable[i];
-		if(subTable != NULL)
-		{
-			delete[] subTable;
-		}
-	}
-	delete[] m_blockTable;
 }
 
 void CMipsExecutor::Reset()
@@ -39,16 +18,7 @@ void CMipsExecutor::Reset()
 
 void CMipsExecutor::ClearActiveBlocks()
 {
-	for(unsigned int i = 0; i < m_subTableCount; i++)
-	{
-		CBasicBlock** subTable = m_blockTable[i];
-		if(subTable != NULL)
-		{
-			delete[] subTable;
-			m_blockTable[i] = NULL;
-		}
-	}
-
+	m_blockLookup.Clear();
 	m_blocks.clear();
 }
 
@@ -59,36 +29,10 @@ void CMipsExecutor::ClearActiveBlocksInRange(uint32 start, uint32 end)
 
 void CMipsExecutor::ClearActiveBlocksInRangeInternal(uint32 start, uint32 end, CBasicBlock* protectedBlock)
 {
-	uint32 hiStart = start >> SUBTABLE_BITS;
-	uint32 hiEnd = end >> SUBTABLE_BITS;
-
-	//We need to increase the range to make sure we catch any
-	//block that are straddling table boundaries
-	if(hiStart != 0) hiStart--;
-	if(hiEnd != (m_subTableCount - 1)) hiEnd++;
-
-	std::set<CBasicBlock*> blocksToDelete;
-
-	for(uint32 hi = hiStart; hi <= hiEnd; hi++)
+	auto clearedBlocks = m_blockLookup.ClearInRange(start, end, protectedBlock);
+	if(!clearedBlocks.empty())
 	{
-		auto table = m_blockTable[hi];
-		if(!table) continue;
-
-		for(uint32 lo = 0; lo < SUBTABLE_SIZE; lo += 4)
-		{
-			uint32 tableAddress = (hi << SUBTABLE_BITS) | lo;
-			auto block = table[lo / 4];
-			if(block == nullptr) continue;
-			if(block == protectedBlock) continue;
-			if(!IsInsideRange(block->GetBeginAddress(), start, end) && !IsInsideRange(block->GetEndAddress(), start, end)) continue;
-			table[lo / 4] = nullptr;
-			blocksToDelete.insert(block);
-		}
-	}
-
-	if(!blocksToDelete.empty())
-	{
-		m_blocks.remove_if([&](const BasicBlockPtr& block) { return blocksToDelete.find(block.get()) != std::end(blocksToDelete); });
+		m_blocks.remove_if([&](const BasicBlockPtr& block) { return clearedBlocks.find(block.get()) != std::end(clearedBlocks); });
 	}
 }
 
@@ -97,7 +41,7 @@ void CMipsExecutor::ClearActiveBlocksInRangeInternal(uint32 start, uint32 end, C
 bool CMipsExecutor::MustBreak() const
 {
 	uint32 currentPc = m_context.m_pAddrTranslator(&m_context, m_context.m_State.nPC);
-	CBasicBlock* block = FindBlockAt(currentPc);
+	auto block = m_blockLookup.FindBlockAt(currentPc);
 	for(auto breakPointAddress : m_context.m_breakpoints)
 	{
 		if(currentPc == breakPointAddress) return true;
@@ -116,36 +60,17 @@ void CMipsExecutor::DisableBreakpointsOnce()
 
 #endif
 
-CBasicBlock* CMipsExecutor::FindBlockAt(uint32 address) const
-{
-	uint32 hiAddress = address >> SUBTABLE_BITS;
-	uint32 loAddress = address & SUBTABLE_MASK;
-	assert(hiAddress < m_subTableCount);
-	auto& subTable = m_blockTable[hiAddress];
-	if(!subTable) return nullptr;
-	auto result = subTable[loAddress / 4];
-	return result;
-}
-
 CBasicBlock* CMipsExecutor::FindBlockStartingAt(uint32 address) const
 {
-	uint32 hiAddress = address >> SUBTABLE_BITS;
-	uint32 loAddress = address & SUBTABLE_MASK;
-	assert(hiAddress < m_subTableCount);
-	auto& subTable = m_blockTable[hiAddress];
-	if(!subTable) return nullptr;
-	auto result = subTable[loAddress / 4];
-	if(!result || (result->GetBeginAddress() != address))
-	{
-		return nullptr;
-	}
+	auto result = m_blockLookup.FindBlockAt(address);
+	if(result && (result->GetBeginAddress() != address)) return nullptr;
 	return result;
 }
 
 void CMipsExecutor::CreateBlock(uint32 start, uint32 end)
 {
 	{
-		auto block = FindBlockAt(start);
+		auto block = m_blockLookup.FindBlockAt(start);
 		if(block)
 		{
 			//If the block starts and ends at the same place, block already exists and doesn't need
@@ -161,13 +86,13 @@ void CMipsExecutor::CreateBlock(uint32 start, uint32 end)
 				//Repartition the existing block if end of both blocks are the same
 				DeleteBlock(block);
 				CreateBlock(otherBegin, start - 4);
-				assert(!FindBlockAt(start));
+				assert(!m_blockLookup.FindBlockAt(start));
 			}
 			else if(otherBegin == start)
 			{
 				DeleteBlock(block);
 				CreateBlock(end + 4, otherEnd);
-				assert(!FindBlockAt(end));
+				assert(!m_blockLookup.FindBlockAt(end));
 			}
 			else
 			{
@@ -177,40 +102,17 @@ void CMipsExecutor::CreateBlock(uint32 start, uint32 end)
 			}
 		}
 	}
-	assert(!FindBlockAt(end));
+	assert(!m_blockLookup.FindBlockAt(end));
 	{
 		auto block = BlockFactory(m_context, start, end);
-		for(uint32 address = block->GetBeginAddress(); address <= block->GetEndAddress(); address += 4)
-		{
-			uint32 hiAddress = address >> SUBTABLE_BITS;
-			uint32 loAddress = address & SUBTABLE_MASK;
-			assert(hiAddress < m_subTableCount);
-			auto& subTable = m_blockTable[hiAddress];
-			if(!subTable)
-			{
-				const uint32 subTableSize = SUBTABLE_SIZE / 4;
-				subTable = new CBasicBlock*[subTableSize];
-				memset(subTable, 0, sizeof(CBasicBlock*) * subTableSize);
-			}
-			assert(!subTable[loAddress / 4]);
-			subTable[loAddress / 4] = block.get();
-		}
+		m_blockLookup.AddBlock(block.get());
 		m_blocks.push_back(std::move(block));
 	}
 }
 
 void CMipsExecutor::DeleteBlock(CBasicBlock* block)
 {
-	for(uint32 address = block->GetBeginAddress(); address <= block->GetEndAddress(); address += 4)
-	{
-		uint32 hiAddress = address >> SUBTABLE_BITS;
-		uint32 loAddress = address & SUBTABLE_MASK;
-		assert(hiAddress < m_subTableCount);
-		auto& subTable = m_blockTable[hiAddress];
-		assert(subTable);
-		assert(subTable[loAddress / 4]);
-		subTable[loAddress / 4] = nullptr;
-	}
+	m_blockLookup.DeleteBlock(block);
 
 	//Remove block from our lists
 	auto blockIterator = std::find_if(std::begin(m_blocks), std::end(m_blocks), [&](const BasicBlockPtr& blockPtr) { return blockPtr.get() == block; });
