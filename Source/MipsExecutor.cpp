@@ -7,10 +7,6 @@ CMipsExecutor::CMipsExecutor(CMIPS& context, uint32 maxAddress)
 {
 }
 
-CMipsExecutor::~CMipsExecutor()
-{
-}
-
 void CMipsExecutor::Reset()
 {
 	ClearActiveBlocks();

@@ -218,7 +218,7 @@ class CMipsExecutor
 {
 public:
 	CMipsExecutor(CMIPS&, uint32);
-	virtual ~CMipsExecutor();
+	virtual ~CMipsExecutor() = default;
 
 	template <uint32 (*TranslateFunction)(CMIPS*, uint32) = CMIPS::TranslateAddress64>
 	int Execute(int cycles)
