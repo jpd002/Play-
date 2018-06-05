@@ -90,8 +90,6 @@ void CBasicBlock::Compile()
 		jitter->SetStream(&stream);
 		jitter->Begin();
 		CompileRange(jitter);
-		//		codeGen.DumpVariables(0);
-		//		codeGen.EndQuota();
 		jitter->End();
 	}
 
