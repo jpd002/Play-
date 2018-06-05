@@ -232,9 +232,15 @@ void CBasicBlock::CompileProlog(CMipsJitter* jitter)
 		jitter->PullRel(offsetof(CMIPS, m_State.nPC));
 	}
 	jitter->EndIf();
+
+	//Update cycle quota
+	jitter->PushRel(offsetof(CMIPS, m_State.cycleQuota));
+	jitter->PushCst(((m_end - m_begin) / 4) + 1);
+	jitter->Sub();
+	jitter->PullRel(offsetof(CMIPS, m_State.cycleQuota));
 }
 
-unsigned int CBasicBlock::Execute()
+void CBasicBlock::Execute()
 {
 	m_function(&m_context);
 
@@ -249,8 +255,6 @@ unsigned int CBasicBlock::Execute()
 	assert(m_context.m_State.nCOP2[0].nV2 == 0x00000000);
 	assert(m_context.m_State.nCOP2[0].nV3 == 0x3F800000);
 	assert(m_context.m_State.nCOP2VI[0] == 0);
-
-	return ((m_end - m_begin) / 4) + 1;
 }
 
 uint32 CBasicBlock::GetBeginAddress() const

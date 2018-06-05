@@ -47,6 +47,7 @@ struct MIPSSTATE
 	uint32 nPC;
 	uint32 nDelayedJumpAddr;
 	uint32 nHasException;
+	int32 cycleQuota;
 
 #ifdef _WIN32
 	__declspec(align(16))

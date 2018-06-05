@@ -235,7 +235,8 @@ public:
 	{
 		assert(TranslateFunction == m_context.m_pAddrTranslator);
 		CBasicBlock* block(nullptr);
-		while(cycles > 0)
+		m_context.m_State.cycleQuota += cycles;
+		while(m_context.m_State.cycleQuota > 0)
 		{
 			uint32 address = TranslateFunction(&m_context, m_context.m_State.nPC);
 			if(!block || address != block->GetBeginAddress())
@@ -254,7 +255,7 @@ public:
 			if(!m_breakpointsDisabledOnce && MustBreak()) break;
 			m_breakpointsDisabledOnce = false;
 #endif
-			cycles -= block->Execute();
+			block->Execute();
 			if(m_context.m_State.nHasException) break;
 		}
 		return cycles;
