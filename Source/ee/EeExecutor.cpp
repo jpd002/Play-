@@ -104,7 +104,7 @@ void CEeExecutor::ClearActiveBlocksInRange(uint32 start, uint32 end)
 	uint32 rangeSize = end - start;
 	SetMemoryProtected(m_ram + start, rangeSize, false);
 	auto currentBlock = FindBlockStartingAt(m_context.m_State.nPC);
-	assert(currentBlock != nullptr);
+	assert(!currentBlock->IsEmpty());
 	ClearActiveBlocksInRangeInternal(start, end, currentBlock);
 }
 

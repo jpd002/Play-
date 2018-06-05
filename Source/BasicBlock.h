@@ -43,7 +43,7 @@ namespace Jitter
 class CBasicBlock
 {
 public:
-	CBasicBlock(CMIPS&, uint32, uint32);
+	CBasicBlock(CMIPS&, uint32 = MIPS_INVALID_PC, uint32 = MIPS_INVALID_PC);
 	virtual ~CBasicBlock() = default;
 	void Execute();
 	void Compile();
@@ -51,6 +51,7 @@ public:
 	uint32 GetBeginAddress() const;
 	uint32 GetEndAddress() const;
 	bool IsCompiled() const;
+	bool IsEmpty() const;
 
 #ifdef AOT_BUILD_CACHE
 	static void SetAotBlockOutputStream(Framework::CStdStream*);
@@ -65,6 +66,8 @@ protected:
 	void CompileProlog(CMipsJitter*);
 
 private:
+	static void EmptyBlockHandler(CMIPS*);
+
 #ifdef AOT_BUILD_CACHE
 	static Framework::CStdStream* m_aotBlockOutputStream;
 	static std::mutex m_aotBlockOutputStreamMutex;

@@ -171,6 +171,12 @@ void CBasicBlock::Compile()
 
 void CBasicBlock::CompileRange(CMipsJitter* jitter)
 {
+	if(IsEmpty())
+	{
+		jitter->JumpTo(reinterpret_cast<void*>(&EmptyBlockHandler));
+		return;
+	}
+
 	uint32 fixedEnd = m_end;
 	bool needsPcAdjust = false;
 
@@ -274,4 +280,16 @@ bool CBasicBlock::IsCompiled() const
 #else
 	return (m_function != nullptr);
 #endif
+}
+
+bool CBasicBlock::IsEmpty() const
+{
+	return 
+		(m_begin == MIPS_INVALID_PC) &&
+		(m_end == MIPS_INVALID_PC);
+}
+
+void CBasicBlock::EmptyBlockHandler(CMIPS* context)
+{
+	context->m_emptyBlockHandler(context);
 }

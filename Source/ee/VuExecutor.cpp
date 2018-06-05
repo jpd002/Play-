@@ -105,8 +105,8 @@ void CVuExecutor::PartitionFunction(uint32 functionAddress)
 		//Check if there's a block already exising that this address
 		if(address != endAddress)
 		{
-			CBasicBlock* possibleBlock = FindBlockStartingAt(address);
-			if(possibleBlock != NULL)
+			auto possibleBlock = FindBlockStartingAt(address);
+			if(!possibleBlock->IsEmpty())
 			{
 				assert(possibleBlock->GetEndAddress() <= endAddress);
 				//Add its beginning and end in the partition points

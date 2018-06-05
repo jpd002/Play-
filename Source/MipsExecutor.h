@@ -226,7 +226,18 @@ public:
 	, m_maxAddress(maxAddress)
 	, m_blockLookup(maxAddress)
 	{
-
+		assert(!context.m_emptyBlockHandler);
+		m_emptyBlock = std::make_shared<CBasicBlock>(context, MIPS_INVALID_PC, MIPS_INVALID_PC);
+		m_emptyBlock->Compile();
+		context.m_emptyBlockHandler = 
+			[&] (CMIPS* context) 
+			{
+				uint32 address = context->m_pAddrTranslator(&m_context, m_context.m_State.nPC);
+				PartitionFunction(address);
+				auto block = FindBlockStartingAt(address);
+				assert(!block->IsEmpty());
+				block->Execute();
+			};
 	}
 
 	virtual ~CMipsExecutor() = default;
@@ -234,21 +245,14 @@ public:
 	int Execute(int cycles)
 	{
 		assert(TranslateFunction == m_context.m_pAddrTranslator);
-		CBasicBlock* block(nullptr);
+		auto block = m_emptyBlock.get();
 		m_context.m_State.cycleQuota += cycles;
 		while(m_context.m_State.cycleQuota > 0)
 		{
 			uint32 address = TranslateFunction(&m_context, m_context.m_State.nPC);
-			if(!block || address != block->GetBeginAddress())
+			if(address != block->GetBeginAddress())
 			{
 				block = FindBlockStartingAt(address);
-				if(!block)
-				{
-					//We need to partition the space and compile the blocks
-					PartitionFunction(address);
-					block = FindBlockStartingAt(address);
-					assert(block);
-				}
 			}
 
 #ifdef DEBUGGER_INCLUDED
@@ -264,7 +268,7 @@ public:
 	CBasicBlock* FindBlockStartingAt(uint32 address) const
 	{
 		auto result = m_blockLookup.FindBlockAt(address);
-		if(result && (result->GetBeginAddress() != address)) return nullptr;
+		if(!result || (result->GetBeginAddress() != address)) return m_emptyBlock.get();
 		return result;
 	}
 
@@ -419,7 +423,7 @@ protected:
 			if(address != endAddress)
 			{
 				auto possibleBlock = FindBlockStartingAt(address);
-				if(possibleBlock)
+				if(!possibleBlock->IsEmpty())
 				{
 					//assert(possibleBlock->GetEndAddress() <= endAddress);
 					//Add its beginning and end in the partition points
@@ -476,6 +480,7 @@ protected:
 	}
 
 	BlockList m_blocks;
+	BasicBlockPtr m_emptyBlock;
 	CMIPS& m_context;
 	uint32 m_maxAddress = 0;
 
