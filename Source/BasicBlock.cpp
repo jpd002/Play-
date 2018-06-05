@@ -209,21 +209,34 @@ void CBasicBlock::CompileRange(CMipsJitter* jitter)
 		}
 		jitter->EndIf();
 	}
+
+	CompileProlog(jitter);
+}
+
+void CBasicBlock::CompileProlog(CMipsJitter* jitter)
+{
+	//We probably don't need to pay for this since we know in advance if there's a branch
+	jitter->PushCst(MIPS_INVALID_PC);
+	jitter->PushRel(offsetof(CMIPS, m_State.nDelayedJumpAddr));
+	jitter->BeginIf(Jitter::CONDITION_NE);
+	{
+		jitter->PushRel(offsetof(CMIPS, m_State.nDelayedJumpAddr));
+		jitter->PullRel(offsetof(CMIPS, m_State.nPC));
+
+		jitter->PushCst(MIPS_INVALID_PC);
+		jitter->PullRel(offsetof(CMIPS, m_State.nDelayedJumpAddr));
+	}
+	jitter->Else();
+	{
+		jitter->PushCst(m_end + 4);
+		jitter->PullRel(offsetof(CMIPS, m_State.nPC));
+	}
+	jitter->EndIf();
 }
 
 unsigned int CBasicBlock::Execute()
 {
 	m_function(&m_context);
-
-	if(m_context.m_State.nDelayedJumpAddr != MIPS_INVALID_PC)
-	{
-		m_context.m_State.nPC = m_context.m_State.nDelayedJumpAddr;
-		m_context.m_State.nDelayedJumpAddr = MIPS_INVALID_PC;
-	}
-	else
-	{
-		m_context.m_State.nPC = m_end + 4;
-	}
 
 	assert(m_context.m_State.nGPR[0].nV0 == 0);
 	assert(m_context.m_State.nGPR[0].nV1 == 0);

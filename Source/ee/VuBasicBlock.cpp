@@ -190,6 +190,8 @@ void CVuBasicBlock::CompileRange(CMipsJitter* jitter)
 		}
 		jitter->EndIf();
 	}
+
+	CompileProlog(jitter);
 }
 
 bool CVuBasicBlock::IsConditionalBranch(uint32 opcodeLo)

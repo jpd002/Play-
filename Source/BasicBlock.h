@@ -62,6 +62,7 @@ protected:
 	CMIPS& m_context;
 
 	virtual void CompileRange(CMipsJitter*);
+	void CompileProlog(CMipsJitter*);
 
 private:
 #ifdef AOT_BUILD_CACHE
