@@ -246,7 +246,7 @@ public:
 	{
 		assert(TranslateFunction == m_context.m_pAddrTranslator);
 		auto block = m_emptyBlock.get();
-		m_context.m_State.cycleQuota += cycles;
+		m_context.m_State.cycleQuota = cycles;
 		while(m_context.m_State.cycleQuota > 0)
 		{
 			uint32 address = TranslateFunction(&m_context, m_context.m_State.nPC);
@@ -262,7 +262,7 @@ public:
 			block->Execute();
 			if(m_context.m_State.nHasException) break;
 		}
-		return cycles;
+		return m_context.m_State.cycleQuota;
 	}
 
 	CBasicBlock* FindBlockStartingAt(uint32 address) const
