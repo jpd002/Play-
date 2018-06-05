@@ -299,6 +299,7 @@ set(COMMON_SRC_FILES
 	iop/Iop_Vblank.h
 	iop/IopBios.cpp
 	iop/IopBios.h
+	iop/IopExecutor.h
 	iop/OpticalMediaDevice.cpp
 	iop/OpticalMediaDevice.h
 	ISO9660/DirectoryRecord.cpp
@@ -339,7 +340,6 @@ set(COMMON_SRC_FILES
 	MIPSAssembler.h
 	MIPSCoprocessor.cpp
 	MIPSCoprocessor.h
-	MipsExecutor.cpp
 	MipsExecutor.h
 	MipsFunctionPatternDb.cpp
 	MipsFunctionPatternDb.h

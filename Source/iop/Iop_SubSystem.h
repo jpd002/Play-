@@ -3,7 +3,7 @@
 #include "../MIPS.h"
 #include "../MA_MIPSIV.h"
 #include "../COP_SCU.h"
-#include "../MipsExecutor.h"
+#include "IopExecutor.h"
 #include "Iop_SpuBase.h"
 #include "Iop_Spu.h"
 #include "Iop_Spu2.h"
@@ -50,7 +50,7 @@ namespace Iop
 		CMIPS m_cpu;
 		CMA_MIPSIV m_cpuArch;
 		CCOP_SCU m_copScu;
-		CMipsExecutor m_executor;
+		CIopExecutor m_executor;
 		BiosBasePtr m_bios;
 
 	private:

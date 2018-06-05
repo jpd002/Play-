@@ -77,7 +77,7 @@
 //This is the space needed to preserve at most four arguments in the stack frame (as per MIPS calling convention)
 #define STACK_FRAME_RESERVE_SIZE 0x10
 
-CIopBios::CIopBios(CMIPS& cpu, CMipsExecutor& cpuExecutor, uint8* ram, uint32 ramSize, uint8* spr)
+CIopBios::CIopBios(CMIPS& cpu, CIopExecutor& cpuExecutor, uint8* ram, uint32 ramSize, uint8* spr)
     : m_cpu(cpu)
     , m_cpuExecutor(cpuExecutor)
     , m_ram(ram)

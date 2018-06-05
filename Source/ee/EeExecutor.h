@@ -10,8 +10,9 @@
 #endif
 
 #include "../MipsExecutor.h"
+#include "PS2OS.h"
 
-class CEeExecutor : public CMipsExecutor
+class CEeExecutor : public CMipsExecutor<BlockLookupTwoWay, &CPS2OS::TranslateAddress>
 {
 public:
 	CEeExecutor(CMIPS&, uint8*);

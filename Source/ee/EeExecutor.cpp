@@ -108,7 +108,7 @@ void CEeExecutor::ClearActiveBlocksInRange(uint32 start, uint32 end)
 	ClearActiveBlocksInRangeInternal(start, end, currentBlock);
 }
 
-CMipsExecutor::BasicBlockPtr CEeExecutor::BlockFactory(CMIPS& context, uint32 start, uint32 end)
+BasicBlockPtr CEeExecutor::BlockFactory(CMIPS& context, uint32 start, uint32 end)
 {
 	//Kernel area is below 0x100000 and isn't protected. Some games will write code in there
 	//but it is safe to assume that it won't change (code writes some data just besides itself

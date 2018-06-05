@@ -13,7 +13,7 @@ void CVuExecutor::Reset()
 	CMipsExecutor::Reset();
 }
 
-CMipsExecutor::BasicBlockPtr CVuExecutor::BlockFactory(CMIPS& context, uint32 begin, uint32 end)
+BasicBlockPtr CVuExecutor::BlockFactory(CMIPS& context, uint32 begin, uint32 end)
 {
 	uint32 blockSize = ((end - begin) + 4) / 4;
 	uint32 blockSizeByte = blockSize * 4;

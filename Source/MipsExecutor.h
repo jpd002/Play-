@@ -13,19 +13,19 @@ class BlockLookupOneWay
 {
 public:
 	typedef CBasicBlock* BlockType;
-	
+
 	BlockLookupOneWay(uint32 maxAddress)
 	{
 		m_tableSize = maxAddress / INSTRUCTION_SIZE;
 		m_blockTable = new BlockType[m_tableSize];
 		memset(m_blockTable, 0, sizeof(BlockType) * m_tableSize);
 	}
-	
+
 	~BlockLookupOneWay()
 	{
 		delete[] m_blockTable;
 	}
-	
+
 	void Clear()
 	{
 		for(unsigned int i = 0; i < m_tableSize; i++)
@@ -33,7 +33,7 @@ public:
 			m_blockTable[i] = nullptr;
 		}
 	}
-	
+
 	std::set<BlockType> ClearInRange(uint32 start, uint32 end, BlockType protectedBlock)
 	{
 		std::set<BlockType> clearedBlocks;
@@ -47,10 +47,10 @@ public:
 			DeleteBlock(block);
 			clearedBlocks.insert(block);
 		}
-		
+
 		return clearedBlocks;
 	}
-	
+
 	void AddBlock(BlockType block)
 	{
 		for(uint32 address = block->GetBeginAddress(); address <= block->GetEndAddress(); address += INSTRUCTION_SIZE)
@@ -59,7 +59,7 @@ public:
 			m_blockTable[address / INSTRUCTION_SIZE] = block;
 		}
 	}
-	
+
 	void DeleteBlock(BlockType block)
 	{
 		for(uint32 address = block->GetBeginAddress(); address <= block->GetEndAddress(); address += INSTRUCTION_SIZE)
@@ -68,13 +68,13 @@ public:
 			m_blockTable[address / INSTRUCTION_SIZE] = nullptr;
 		}
 	}
-	
+
 	BlockType FindBlockAt(uint32 address) const
 	{
 		assert((address / INSTRUCTION_SIZE) < m_tableSize);
 		return m_blockTable[address / INSTRUCTION_SIZE];
 	}
-	
+
 private:
 	enum
 	{
@@ -97,7 +97,7 @@ public:
 		m_blockTable = new BlockType*[m_subTableCount];
 		memset(m_blockTable, 0, sizeof(BlockType*) * m_subTableCount);
 	}
-	
+
 	~BlockLookupTwoWay()
 	{
 		for(unsigned int i = 0; i < m_subTableCount; i++)
@@ -110,7 +110,7 @@ public:
 		}
 		delete[] m_blockTable;
 	}
-	
+
 	void Clear()
 	{
 		for(unsigned int i = 0; i < m_subTableCount; i++)
@@ -123,7 +123,7 @@ public:
 			}
 		}
 	}
-	
+
 	std::set<BlockType> ClearInRange(uint32 start, uint32 end, BlockType protectedBlock)
 	{
 		uint32 hiStart = start >> SUBTABLE_BITS;
@@ -153,10 +153,10 @@ public:
 				clearedBlocks.insert(block);
 			}
 		}
-		
+
 		return clearedBlocks;
 	}
-	
+
 	void AddBlock(BlockType block)
 	{
 		for(uint32 address = block->GetBeginAddress(); address <= block->GetEndAddress(); address += INSTRUCTION_SIZE)
@@ -175,7 +175,7 @@ public:
 			subTable[loAddress / INSTRUCTION_SIZE] = block;
 		}
 	}
-	
+
 	void DeleteBlock(BlockType block)
 	{
 		for(uint32 address = block->GetBeginAddress(); address <= block->GetEndAddress(); address += INSTRUCTION_SIZE)
@@ -189,7 +189,7 @@ public:
 			subTable[loAddress / INSTRUCTION_SIZE] = nullptr;
 		}
 	}
-	
+
 	BlockType FindBlockAt(uint32 address) const
 	{
 		uint32 hiAddress = address >> SUBTABLE_BITS;
@@ -200,7 +200,7 @@ public:
 		auto result = subTable[loAddress / INSTRUCTION_SIZE];
 		return result;
 	}
-	
+
 private:
 	enum
 	{
@@ -209,18 +209,28 @@ private:
 		SUBTABLE_MASK = (SUBTABLE_SIZE - 1),
 		INSTRUCTION_SIZE = 4,
 	};
-	
+
 	BlockType** m_blockTable = nullptr;
 	uint32 m_subTableCount = 0;
 };
 
+typedef uint32 (*TranslateFunctionType)(CMIPS*, uint32);
+typedef std::shared_ptr<CBasicBlock> BasicBlockPtr;
+
+template <typename BlockLookupType, TranslateFunctionType TranslateFunction = &CMIPS::TranslateAddress64>
 class CMipsExecutor
 {
 public:
-	CMipsExecutor(CMIPS&, uint32);
+	CMipsExecutor(CMIPS& context, uint32 maxAddress)
+	: m_context(context)
+	, m_maxAddress(maxAddress)
+	, m_blockLookup(maxAddress)
+	{
+
+	}
+
 	virtual ~CMipsExecutor() = default;
 
-	template <uint32 (*TranslateFunction)(CMIPS*, uint32) = CMIPS::TranslateAddress64>
 	int Execute(int cycles)
 	{
 		assert(TranslateFunction == m_context.m_pAddrTranslator);
@@ -250,33 +260,226 @@ public:
 		return cycles;
 	}
 
-	CBasicBlock* FindBlockStartingAt(uint32) const;
-	void DeleteBlock(CBasicBlock*);
-	virtual void Reset();
-	void ClearActiveBlocks();
-	virtual void ClearActiveBlocksInRange(uint32, uint32);
+	CBasicBlock* FindBlockStartingAt(uint32 address) const
+	{
+		auto result = m_blockLookup.FindBlockAt(address);
+		if(result && (result->GetBeginAddress() != address)) return nullptr;
+		return result;
+	}
+
+	void DeleteBlock(CBasicBlock* block)
+	{
+		m_blockLookup.DeleteBlock(block);
+
+		//Remove block from our lists
+		auto blockIterator = std::find_if(std::begin(m_blocks), std::end(m_blocks), [&](const BasicBlockPtr& blockPtr) { return blockPtr.get() == block; });
+		assert(blockIterator != std::end(m_blocks));
+		m_blocks.erase(blockIterator);
+	}
+
+	virtual void Reset()
+	{
+		ClearActiveBlocks();
+	}
+
+	void ClearActiveBlocks()
+	{
+		m_blockLookup.Clear();
+		m_blocks.clear();
+	}
+
+	virtual void ClearActiveBlocksInRange(uint32 start, uint32 end)
+	{
+		ClearActiveBlocksInRangeInternal(start, end, nullptr);
+	}
 
 #ifdef DEBUGGER_INCLUDED
-	bool MustBreak() const;
-	void DisableBreakpointsOnce();
+	bool MustBreak() const
+	{
+		uint32 currentPc = m_context.m_pAddrTranslator(&m_context, m_context.m_State.nPC);
+		auto block = m_blockLookup.FindBlockAt(currentPc);
+		for(auto breakPointAddress : m_context.m_breakpoints)
+		{
+			if(currentPc == breakPointAddress) return true;
+			if(block != NULL)
+			{
+				if(breakPointAddress >= block->GetBeginAddress() && breakPointAddress <= block->GetEndAddress()) return true;
+			}
+		}
+		return false;
+	}
+
+	void DisableBreakpointsOnce()
+	{
+		m_breakpointsDisabledOnce = true;
+	}
 #endif
 
 protected:
-	typedef std::shared_ptr<CBasicBlock> BasicBlockPtr;
 	typedef std::list<BasicBlockPtr> BlockList;
 
-	void CreateBlock(uint32, uint32);
-	virtual BasicBlockPtr BlockFactory(CMIPS&, uint32, uint32);
-	virtual void PartitionFunction(uint32);
+	void CreateBlock(uint32 start, uint32 end)
+	{
+		{
+			auto block = m_blockLookup.FindBlockAt(start);
+			if(block)
+			{
+				//If the block starts and ends at the same place, block already exists and doesn't need
+				//to be re-created
+				uint32 otherBegin = block->GetBeginAddress();
+				uint32 otherEnd = block->GetEndAddress();
+				if((otherBegin == start) && (otherEnd == end))
+				{
+					return;
+				}
+				if(otherEnd == end)
+				{
+					//Repartition the existing block if end of both blocks are the same
+					DeleteBlock(block);
+					CreateBlock(otherBegin, start - 4);
+					assert(!m_blockLookup.FindBlockAt(start));
+				}
+				else if(otherBegin == start)
+				{
+					DeleteBlock(block);
+					CreateBlock(end + 4, otherEnd);
+					assert(!m_blockLookup.FindBlockAt(end));
+				}
+				else
+				{
+					//Delete the currently existing block otherwise
+					DeleteBlock(block);
+				}
+			}
+		}
+		assert(!m_blockLookup.FindBlockAt(end));
+		{
+			auto block = BlockFactory(m_context, start, end);
+			m_blockLookup.AddBlock(block.get());
+			m_blocks.push_back(std::move(block));
+		}
+	}
 
-	void ClearActiveBlocksInRangeInternal(uint32, uint32, CBasicBlock*);
+	virtual BasicBlockPtr BlockFactory(CMIPS& context, uint32 start, uint32 end)
+	{
+		auto result = std::make_shared<CBasicBlock>(context, start, end);
+		result->Compile();
+		return result;
+	}
+
+	virtual void PartitionFunction(uint32 functionAddress)
+	{
+		typedef std::set<uint32> PartitionPointSet;
+		uint32 endAddress = 0;
+		PartitionPointSet partitionPoints;
+
+		//Insert begin point
+		partitionPoints.insert(functionAddress);
+
+		//Find the end
+		for(uint32 address = functionAddress;; address += 4)
+		{
+			//Probably going too far...
+			if((address - functionAddress) > 0x10000)
+			{
+				endAddress = address;
+				partitionPoints.insert(endAddress);
+				break;
+			}
+			uint32 opcode = m_context.m_pMemoryMap->GetInstruction(address);
+			if(opcode == 0x03E00008)
+			{
+				//+4 for delay slot
+				endAddress = address + 4;
+				partitionPoints.insert(endAddress + 4);
+				break;
+			}
+		}
+
+		//Find partition points within the function
+		for(uint32 address = functionAddress; address <= endAddress; address += 4)
+		{
+			uint32 opcode = m_context.m_pMemoryMap->GetInstruction(address);
+			MIPS_BRANCH_TYPE branchType = m_context.m_pArch->IsInstructionBranch(&m_context, address, opcode);
+			if(branchType == MIPS_BRANCH_NORMAL)
+			{
+				partitionPoints.insert(address + 8);
+				uint32 target = m_context.m_pArch->GetInstructionEffectiveAddress(&m_context, address, opcode);
+				if(target > functionAddress && target < endAddress)
+				{
+					partitionPoints.insert(target);
+				}
+			}
+			else if(branchType == MIPS_BRANCH_NODELAY)
+			{
+				partitionPoints.insert(address + 4);
+			}
+			//Check if there's a block already exising that this address
+			if(address != endAddress)
+			{
+				auto possibleBlock = FindBlockStartingAt(address);
+				if(possibleBlock)
+				{
+					//assert(possibleBlock->GetEndAddress() <= endAddress);
+					//Add its beginning and end in the partition points
+					partitionPoints.insert(possibleBlock->GetBeginAddress());
+					partitionPoints.insert(possibleBlock->GetEndAddress() + 4);
+				}
+			}
+		}
+
+		//Check if blocks are too big
+		{
+			uint32 currentPoint = -1;
+			for(PartitionPointSet::const_iterator pointIterator(partitionPoints.begin());
+				pointIterator != partitionPoints.end(); ++pointIterator)
+			{
+				if(currentPoint != -1)
+				{
+					uint32 startPos = currentPoint;
+					uint32 endPos = *pointIterator;
+					uint32 distance = (endPos - startPos);
+					if(distance > 0x400)
+					{
+						uint32 middlePos = ((endPos + startPos) / 2) & ~0x03;
+						pointIterator = partitionPoints.insert(middlePos).first;
+						--pointIterator;
+						continue;
+					}
+				}
+				currentPoint = *pointIterator;
+			}
+		}
+
+		//Create blocks
+		{
+			uint32 currentPoint = -1;
+			for(auto partitionPoint : partitionPoints)
+			{
+				if(currentPoint != -1)
+				{
+					CreateBlock(currentPoint, partitionPoint - 4);
+				}
+				currentPoint = partitionPoint;
+			}
+		}
+	}
+
+	void ClearActiveBlocksInRangeInternal(uint32 start, uint32 end, CBasicBlock* protectedBlock)
+	{
+		auto clearedBlocks = m_blockLookup.ClearInRange(start, end, protectedBlock);
+		if(!clearedBlocks.empty())
+		{
+			m_blocks.remove_if([&](const BasicBlockPtr& block) { return clearedBlocks.find(block.get()) != std::end(clearedBlocks); });
+		}
+	}
 
 	BlockList m_blocks;
 	CMIPS& m_context;
 	uint32 m_maxAddress = 0;
 
-	BlockLookupTwoWay m_blockLookup;
-	
+	BlockLookupType m_blockLookup;
+
 #ifdef DEBUGGER_INCLUDED
 	bool m_breakpointsDisabledOnce = false;
 #endif

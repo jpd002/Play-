@@ -3,7 +3,7 @@
 #include <unordered_map>
 #include "../MipsExecutor.h"
 
-class CVuExecutor : public CMipsExecutor
+class CVuExecutor : public CMipsExecutor<BlockLookupOneWay>
 {
 public:
 	CVuExecutor(CMIPS&, uint32);
