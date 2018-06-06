@@ -14,11 +14,11 @@ class BlockLookupOneWay
 public:
 	typedef CBasicBlock* BlockType;
 
-	BlockLookupOneWay(uint32 maxAddress)
+	BlockLookupOneWay(BlockType emptyBlock, uint32 maxAddress)
+		: m_emptyBlock(emptyBlock)
 	{
 		m_tableSize = maxAddress / INSTRUCTION_SIZE;
 		m_blockTable = new BlockType[m_tableSize];
-		memset(m_blockTable, 0, sizeof(BlockType) * m_tableSize);
 	}
 
 	~BlockLookupOneWay()
@@ -30,7 +30,7 @@ public:
 	{
 		for(unsigned int i = 0; i < m_tableSize; i++)
 		{
-			m_blockTable[i] = nullptr;
+			m_blockTable[i] = m_emptyBlock;
 		}
 	}
 
@@ -55,7 +55,7 @@ public:
 	{
 		for(uint32 address = block->GetBeginAddress(); address <= block->GetEndAddress(); address += INSTRUCTION_SIZE)
 		{
-			assert(!m_blockTable[address / INSTRUCTION_SIZE]);
+			assert(m_blockTable[address / INSTRUCTION_SIZE] == m_emptyBlock);
 			m_blockTable[address / INSTRUCTION_SIZE] = block;
 		}
 	}
@@ -64,8 +64,8 @@ public:
 	{
 		for(uint32 address = block->GetBeginAddress(); address <= block->GetEndAddress(); address += INSTRUCTION_SIZE)
 		{
-			assert(m_blockTable[address / INSTRUCTION_SIZE]);
-			m_blockTable[address / INSTRUCTION_SIZE] = nullptr;
+			assert(m_blockTable[address / INSTRUCTION_SIZE] != m_emptyBlock);
+			m_blockTable[address / INSTRUCTION_SIZE] = m_emptyBlock;
 		}
 	}
 
@@ -81,6 +81,7 @@ private:
 		INSTRUCTION_SIZE = 4,
 	};
 
+	BlockType m_emptyBlock = nullptr;
 	BlockType* m_blockTable = nullptr;
 	uint32 m_tableSize = 0;
 };
@@ -90,7 +91,8 @@ class BlockLookupTwoWay
 public:
 	typedef CBasicBlock* BlockType;
 
-	BlockLookupTwoWay(uint32 maxAddress)
+	BlockLookupTwoWay(BlockType emptyBlock, uint32 maxAddress)
+		: m_emptyBlock(emptyBlock)
 	{
 		m_subTableCount = (maxAddress + SUBTABLE_MASK) / SUBTABLE_SIZE;
 		assert(m_subTableCount != 0);
@@ -146,10 +148,10 @@ public:
 			{
 				uint32 tableAddress = (hi << SUBTABLE_BITS) | lo;
 				auto block = table[lo / INSTRUCTION_SIZE];
-				if(block == nullptr) continue;
+				if(block == m_emptyBlock) continue;
 				if(block == protectedBlock) continue;
 				if(!IsInsideRange(block->GetBeginAddress(), start, end) && !IsInsideRange(block->GetEndAddress(), start, end)) continue;
-				table[lo / INSTRUCTION_SIZE] = nullptr;
+				table[lo / INSTRUCTION_SIZE] = m_emptyBlock;
 				clearedBlocks.insert(block);
 			}
 		}
@@ -169,9 +171,12 @@ public:
 			{
 				const uint32 subTableSize = SUBTABLE_SIZE / INSTRUCTION_SIZE;
 				subTable = new BlockType[subTableSize];
-				memset(subTable, 0, sizeof(BlockType) * subTableSize);
+				for(uint32 i = 0; i < subTableSize; i++)
+				{
+					subTable[i] = m_emptyBlock;
+				}
 			}
-			assert(!subTable[loAddress / INSTRUCTION_SIZE]);
+			assert(subTable[loAddress / INSTRUCTION_SIZE] == m_emptyBlock);
 			subTable[loAddress / INSTRUCTION_SIZE] = block;
 		}
 	}
@@ -185,8 +190,8 @@ public:
 			assert(hiAddress < m_subTableCount);
 			auto& subTable = m_blockTable[hiAddress];
 			assert(subTable);
-			assert(subTable[loAddress / INSTRUCTION_SIZE]);
-			subTable[loAddress / INSTRUCTION_SIZE] = nullptr;
+			assert(subTable[loAddress / INSTRUCTION_SIZE] != m_emptyBlock);
+			subTable[loAddress / INSTRUCTION_SIZE] = m_emptyBlock;
 		}
 	}
 
@@ -196,7 +201,7 @@ public:
 		uint32 loAddress = address & SUBTABLE_MASK;
 		assert(hiAddress < m_subTableCount);
 		auto& subTable = m_blockTable[hiAddress];
-		if(!subTable) return nullptr;
+		if(!subTable) return m_emptyBlock;
 		auto result = subTable[loAddress / INSTRUCTION_SIZE];
 		return result;
 	}
@@ -210,6 +215,7 @@ private:
 		INSTRUCTION_SIZE = 4,
 	};
 
+	BlockType m_emptyBlock = nullptr;
 	BlockType** m_blockTable = nullptr;
 	uint32 m_subTableCount = 0;
 };
@@ -222,13 +228,13 @@ class CMipsExecutor
 {
 public:
 	CMipsExecutor(CMIPS& context, uint32 maxAddress)
-	: m_context(context)
+	: m_emptyBlock(std::make_shared<CBasicBlock>(context, MIPS_INVALID_PC, MIPS_INVALID_PC))
+	, m_context(context)
 	, m_maxAddress(maxAddress)
-	, m_blockLookup(maxAddress)
+	, m_blockLookup(m_emptyBlock.get(), maxAddress)
 	{
-		assert(!context.m_emptyBlockHandler);
-		m_emptyBlock = std::make_shared<CBasicBlock>(context, MIPS_INVALID_PC, MIPS_INVALID_PC);
 		m_emptyBlock->Compile();
+		assert(!context.m_emptyBlockHandler);
 		context.m_emptyBlockHandler = 
 			[&] (CMIPS* context) 
 			{
@@ -268,12 +274,14 @@ public:
 	CBasicBlock* FindBlockStartingAt(uint32 address) const
 	{
 		auto result = m_blockLookup.FindBlockAt(address);
-		if(!result || (result->GetBeginAddress() != address)) return m_emptyBlock.get();
+		if(result->GetBeginAddress() != address) return m_emptyBlock.get();
 		return result;
 	}
 
 	void DeleteBlock(CBasicBlock* block)
 	{
+		assert(block != m_emptyBlock.get());
+
 		m_blockLookup.DeleteBlock(block);
 
 		//Remove block from our lists
@@ -323,11 +331,17 @@ public:
 protected:
 	typedef std::list<BasicBlockPtr> BlockList;
 
+	bool HasBlockAt(uint32 address) const
+	{
+		auto block = m_blockLookup.FindBlockAt(address);
+		return !block->IsEmpty();
+	}
+
 	void CreateBlock(uint32 start, uint32 end)
 	{
 		{
 			auto block = m_blockLookup.FindBlockAt(start);
-			if(block)
+			if(!block->IsEmpty())
 			{
 				//If the block starts and ends at the same place, block already exists and doesn't need
 				//to be re-created
@@ -342,13 +356,13 @@ protected:
 					//Repartition the existing block if end of both blocks are the same
 					DeleteBlock(block);
 					CreateBlock(otherBegin, start - 4);
-					assert(!m_blockLookup.FindBlockAt(start));
+					assert(!HasBlockAt(start));
 				}
 				else if(otherBegin == start)
 				{
 					DeleteBlock(block);
 					CreateBlock(end + 4, otherEnd);
-					assert(!m_blockLookup.FindBlockAt(end));
+					assert(!HasBlockAt(end));
 				}
 				else
 				{
@@ -357,7 +371,7 @@ protected:
 				}
 			}
 		}
-		assert(!m_blockLookup.FindBlockAt(end));
+		assert(!HasBlockAt(end));
 		{
 			auto block = BlockFactory(m_context, start, end);
 			m_blockLookup.AddBlock(block.get());
