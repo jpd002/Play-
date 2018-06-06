@@ -60,7 +60,7 @@ android {
 	}
 
 	dependencies {
-		compile 'com.android.support:appcompat-v7:23.3.0'
+		compile 'com.android.support:appcompat-v7:24.2.1'
 		compile 'org.apache.commons:commons-lang3:3.4'
 		compile 'commons-io:commons-io:2.5'
 	}

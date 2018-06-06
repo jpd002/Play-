@@ -15,7 +15,7 @@
         app:showAsAction="ifRoom"/>
     <item
         android:id="@+id/action_clear_cancel"
-        android:icon="@drawable/abc_ic_clear_mtrl_alpha"
+        android:icon="@drawable/abc_ic_clear_material"
         android:orderInCategory="3"
         android:title="@string/editor_menu_cancel"
         app:showAsAction="ifRoom"/>
