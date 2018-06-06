@@ -12,7 +12,7 @@ using namespace Iop;
 #define TIME_SCALE (0x1000)
 #define LOG_NAME ("iop_spubase")
 
-#define INVALID_ADDRESS (~0UL)
+#define INVALID_ADDRESS (~0U)
 
 #define STATE_PATH_FORMAT ("iop_spu/spu_%d.xml")
 #define STATE_REGS_CTRL ("CTRL")
