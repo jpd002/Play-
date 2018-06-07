@@ -40,50 +40,42 @@ public class GameIndexer
 	{
 		final HashSet<String> out = new HashSet<String>();
 		String reg = "(?i).*vold.*(vfat|ntfs|exfat|fat32|ext3|ext4|fuse|sdfat).*rw.*";
-		String s = "";
+		StringBuilder s = new StringBuilder();
 		try
 		{
 			final java.lang.Process process = new ProcessBuilder().command("mount")
 					.redirectErrorStream(true).start();
 			process.waitFor();
-			final InputStream is = process.getInputStream();
-			final byte[] buffer = new byte[1024];
-			while(is.read(buffer) != -1)
+			InputStream is = process.getInputStream();
+			byte[] buffer = new byte[1024];
+			while (is.read(buffer) != -1)
 			{
-				s = s + new String(buffer);
+				s.append(new String(buffer));
 			}
 			is.close();
-		}
-		catch(final Exception e)
-		{
 
-		}
-
-		final String[] lines = s.split("\n");
-		for(String line : lines)
-		{
-			if(StringUtils.containsIgnoreCase(line, "secure"))
+			String[] lines = s.toString().split("\n");
+			for (String line : lines)
 			{
-				continue;
-			}
-			if(StringUtils.containsIgnoreCase(line, "asec"))
-			{
-				continue;
-			}
-			if(line.matches(reg))
-			{
-				String[] parts = line.split(" ");
-				for(String part : parts)
+				if (StringUtils.containsIgnoreCase(line, "secure"))
+					continue;
+				if (StringUtils.containsIgnoreCase(line, "asec"))
+					continue;
+				if (line.matches(reg))
 				{
-					if(part.startsWith("/"))
+					String[] parts = line.split(" ");
+					for (String part : parts)
 					{
-						if(!StringUtils.containsIgnoreCase(part, "vold"))
-						{
-							out.add(part);
-						}
+						if (part.startsWith("/"))
+							if (!StringUtils.containsIgnoreCase(part, "vold"))
+								out.add(part);
 					}
 				}
 			}
+		}
+		catch (final Exception e)
+		{
+			// SDCard Exception
 		}
 		return out;
 	}
