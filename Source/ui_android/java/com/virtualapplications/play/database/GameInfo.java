@@ -229,7 +229,7 @@ public class GameInfo
 					}
 					else
 					{
-						api = "http://thegamesdb.net/banners/" + boxart;
+						api = "http://legacy.thegamesdb.net/banners/" + boxart;
 					}
 					InputStream im = null;
 					try

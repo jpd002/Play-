@@ -102,7 +102,7 @@ static NSString * const reuseIdentifier = @"coverCell";
 	UIImage *placeholder = [UIImage imageNamed:@"boxart.png"];
 	cell.backgroundView = [[UIImageView alloc] initWithImage:placeholder];
     if ([game objectForKey:@"boxart"] != nil && ![[game objectForKey:@"boxart"] isEqual:@"404"]) {
-        NSString *imageIcon = [[NSString alloc] initWithFormat:@"http://thegamesdb.net/banners/_gameviewcache/%@", [game objectForKey:@"boxart"]];
+        NSString *imageIcon = [[NSString alloc] initWithFormat:@"http://legacy.thegamesdb.net/banners/_gameviewcache/%@", [game objectForKey:@"boxart"]];
         [(UIImageView *)cell.backgroundView sd_setImageWithURL:[NSURL URLWithString:imageIcon] placeholderImage:placeholder];
 	} else {
 		cell.nameLabel.text = [[[disk objectForKey:@"file"] lastPathComponent] stringByDeletingPathExtension];

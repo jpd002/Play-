@@ -42,9 +42,9 @@ public class GamesDbAPI extends AsyncTask<File, Integer, Boolean>
 	private String gameID;
 	private GameInfo gameInfo;
 	private boolean elastic;
-	private static final String games_url = "http://thegamesdb.net/api/GetGamesList.php?platform=sony+playstation+2&name=";
-	private static final String games_url_id = "http://thegamesdb.net/api/GetGame.php?platform=sony+playstation+2&id=";
-	private static final String games_list = "http://thegamesdb.net/api/GetPlatformGames.php?platform=11";
+	private static final String games_url = "http://legacy.thegamesdb.net/api/GetGamesList.php?platform=sony+playstation+2&name=";
+	private static final String games_url_id = "http://legacy.thegamesdb.net/api/GetGame.php?platform=sony+playstation+2&id=";
+	private static final String games_list = "http://legacy.thegamesdb.net/api/GetPlatformGames.php?platform=11";
 
 	public GamesDbAPI(Context mContext, GameInfoStruct gameInfoStruct, int pos)
 	{
