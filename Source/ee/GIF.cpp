@@ -158,6 +158,10 @@ uint32 CGIF::ProcessPacked(CGSHandler::RegisterWriteList& writeList, const uint8
 				//CLAMP_1
 				writeList.push_back(CGSHandler::RegisterWrite(GS_REG_CLAMP_1, packet.nD0));
 				break;
+			case 0x09:
+				//CLAMP_2
+				writeList.push_back(CGSHandler::RegisterWrite(GS_REG_CLAMP_2, packet.nD0));
+				break;
 			case 0x0A:
 				//FOG
 				writeList.push_back(CGSHandler::RegisterWrite(GS_REG_FOG, (packet.nD1 >> 36) << 56));
