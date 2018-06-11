@@ -255,9 +255,8 @@ bool CBasicBlock::IsCompiled() const
 
 bool CBasicBlock::IsEmpty() const
 {
-	return 
-		(m_begin == MIPS_INVALID_PC) &&
-		(m_end == MIPS_INVALID_PC);
+	return (m_begin == MIPS_INVALID_PC) &&
+	       (m_end == MIPS_INVALID_PC);
 }
 
 void CBasicBlock::EmptyBlockHandler(CMIPS* context)

@@ -138,7 +138,7 @@ public:
 
 	void* m_vuMem = nullptr;
 
-	std::function<void (CMIPS*)> m_emptyBlockHandler;
+	std::function<void(CMIPS*)> m_emptyBlockHandler;
 
 	CMIPSArchitecture* m_pArch = nullptr;
 	CMIPSCoprocessor* m_pCOP[4];

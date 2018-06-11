@@ -15,7 +15,7 @@ public:
 	typedef CBasicBlock* BlockType;
 
 	BlockLookupOneWay(BlockType emptyBlock, uint32 maxAddress)
-		: m_emptyBlock(emptyBlock)
+	    : m_emptyBlock(emptyBlock)
 	{
 		m_tableSize = maxAddress / INSTRUCTION_SIZE;
 		m_blockTable = new BlockType[m_tableSize];
@@ -71,7 +71,7 @@ public:
 	typedef CBasicBlock* BlockType;
 
 	BlockLookupTwoWay(BlockType emptyBlock, uint32 maxAddress)
-		: m_emptyBlock(emptyBlock)
+	    : m_emptyBlock(emptyBlock)
 	{
 		m_subTableCount = (maxAddress + SUBTABLE_MASK) / SUBTABLE_SIZE;
 		assert(m_subTableCount != 0);
@@ -175,22 +175,21 @@ public:
 	};
 
 	CMipsExecutor(CMIPS& context, uint32 maxAddress)
-	: m_emptyBlock(std::make_shared<CBasicBlock>(context, MIPS_INVALID_PC, MIPS_INVALID_PC))
-	, m_context(context)
-	, m_maxAddress(maxAddress)
-	, m_blockLookup(m_emptyBlock.get(), maxAddress)
+	    : m_emptyBlock(std::make_shared<CBasicBlock>(context, MIPS_INVALID_PC, MIPS_INVALID_PC))
+	    , m_context(context)
+	    , m_maxAddress(maxAddress)
+	    , m_blockLookup(m_emptyBlock.get(), maxAddress)
 	{
 		m_emptyBlock->Compile();
 		assert(!context.m_emptyBlockHandler);
-		context.m_emptyBlockHandler = 
-			[&] (CMIPS* context) 
-			{
-				uint32 address = context->m_pAddrTranslator(&m_context, m_context.m_State.nPC);
-				PartitionFunction(address);
-				auto block = FindBlockStartingAt(address);
-				assert(!block->IsEmpty());
-				block->Execute();
-			};
+		context.m_emptyBlockHandler =
+		    [&](CMIPS* context) {
+			    uint32 address = context->m_pAddrTranslator(&m_context, m_context.m_State.nPC);
+			    PartitionFunction(address);
+			    auto block = FindBlockStartingAt(address);
+			    assert(!block->IsEmpty());
+			    block->Execute();
+		    };
 	}
 
 	virtual ~CMipsExecutor() = default;
