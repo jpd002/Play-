@@ -177,22 +177,7 @@ void CBasicBlock::CompileRange(CMipsJitter* jitter)
 		return;
 	}
 
-	uint32 fixedEnd = m_end;
-	bool needsPcAdjust = false;
-
-	//Update block end because MipsAnalysis might not include an instruction
-	//in a delay slot when cutting a function into basic blocks
-	{
-		uint32 endOpcode = m_context.m_pMemoryMap->GetWord(m_end);
-		auto branchType = m_context.m_pArch->IsInstructionBranch(&m_context, m_end, endOpcode);
-		if(branchType == MIPS_BRANCH_NORMAL)
-		{
-			fixedEnd += 4;
-			needsPcAdjust = true;
-		}
-	}
-
-	for(uint32 address = m_begin; address <= fixedEnd; address += 4)
+	for(uint32 address = m_begin; address <= m_end; address += 4)
 	{
 		m_context.m_pArch->CompileInstruction(
 		    address,
@@ -200,20 +185,6 @@ void CBasicBlock::CompileRange(CMipsJitter* jitter)
 		    &m_context);
 		//Sanity check
 		assert(jitter->IsStackEmpty());
-	}
-
-	//Adjust PC to make sure we don't execute the delay slot at the next block
-	if(needsPcAdjust)
-	{
-		jitter->PushCst(MIPS_INVALID_PC);
-		jitter->PushRel(offsetof(CMIPS, m_State.nDelayedJumpAddr));
-
-		jitter->BeginIf(Jitter::CONDITION_EQ);
-		{
-			jitter->PushCst(fixedEnd + 4);
-			jitter->PullRel(offsetof(CMIPS, m_State.nDelayedJumpAddr));
-		}
-		jitter->EndIf();
 	}
 
 	CompileProlog(jitter);

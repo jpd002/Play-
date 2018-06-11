@@ -34,39 +34,18 @@ public:
 		}
 	}
 
-	std::set<BlockType> ClearInRange(uint32 start, uint32 end, BlockType protectedBlock)
-	{
-		std::set<BlockType> clearedBlocks;
-
-		for(uint32 address = start; address <= end; address += INSTRUCTION_SIZE)
-		{
-			auto block = m_blockTable[address / INSTRUCTION_SIZE];
-			if(block == nullptr) continue;
-			if(block == protectedBlock) continue;
-			if(!IsInsideRange(block->GetBeginAddress(), start, end) && !IsInsideRange(block->GetEndAddress(), start, end)) continue;
-			DeleteBlock(block);
-			clearedBlocks.insert(block);
-		}
-
-		return clearedBlocks;
-	}
-
 	void AddBlock(BlockType block)
 	{
-		for(uint32 address = block->GetBeginAddress(); address <= block->GetEndAddress(); address += INSTRUCTION_SIZE)
-		{
-			assert(m_blockTable[address / INSTRUCTION_SIZE] == m_emptyBlock);
-			m_blockTable[address / INSTRUCTION_SIZE] = block;
-		}
+		uint32 address = block->GetBeginAddress();
+		assert(m_blockTable[address / INSTRUCTION_SIZE] == m_emptyBlock);
+		m_blockTable[address / INSTRUCTION_SIZE] = block;
 	}
 
 	void DeleteBlock(BlockType block)
 	{
-		for(uint32 address = block->GetBeginAddress(); address <= block->GetEndAddress(); address += INSTRUCTION_SIZE)
-		{
-			assert(m_blockTable[address / INSTRUCTION_SIZE] != m_emptyBlock);
-			m_blockTable[address / INSTRUCTION_SIZE] = m_emptyBlock;
-		}
+		uint32 address = block->GetBeginAddress();
+		assert(m_blockTable[address / INSTRUCTION_SIZE] != m_emptyBlock);
+		m_blockTable[address / INSTRUCTION_SIZE] = m_emptyBlock;
 	}
 
 	BlockType FindBlockAt(uint32 address) const
@@ -126,73 +105,36 @@ public:
 		}
 	}
 
-	std::set<BlockType> ClearInRange(uint32 start, uint32 end, BlockType protectedBlock)
-	{
-		uint32 hiStart = start >> SUBTABLE_BITS;
-		uint32 hiEnd = end >> SUBTABLE_BITS;
-
-		//TODO: improve this
-		//We need to increase the range to make sure we catch any
-		//block that are straddling table boundaries
-		if(hiStart != 0) hiStart--;
-		if(hiEnd != (m_subTableCount - 1)) hiEnd++;
-
-		std::set<BlockType> clearedBlocks;
-
-		for(uint32 hi = hiStart; hi <= hiEnd; hi++)
-		{
-			auto table = m_blockTable[hi];
-			if(!table) continue;
-
-			for(uint32 lo = 0; lo < SUBTABLE_SIZE; lo += INSTRUCTION_SIZE)
-			{
-				uint32 tableAddress = (hi << SUBTABLE_BITS) | lo;
-				auto block = table[lo / INSTRUCTION_SIZE];
-				if(block == m_emptyBlock) continue;
-				if(block == protectedBlock) continue;
-				if(!IsInsideRange(block->GetBeginAddress(), start, end) && !IsInsideRange(block->GetEndAddress(), start, end)) continue;
-				table[lo / INSTRUCTION_SIZE] = m_emptyBlock;
-				clearedBlocks.insert(block);
-			}
-		}
-
-		return clearedBlocks;
-	}
-
 	void AddBlock(BlockType block)
 	{
-		for(uint32 address = block->GetBeginAddress(); address <= block->GetEndAddress(); address += INSTRUCTION_SIZE)
+		uint32 address = block->GetBeginAddress();
+		uint32 hiAddress = address >> SUBTABLE_BITS;
+		uint32 loAddress = address & SUBTABLE_MASK;
+		assert(hiAddress < m_subTableCount);
+		auto& subTable = m_blockTable[hiAddress];
+		if(!subTable)
 		{
-			uint32 hiAddress = address >> SUBTABLE_BITS;
-			uint32 loAddress = address & SUBTABLE_MASK;
-			assert(hiAddress < m_subTableCount);
-			auto& subTable = m_blockTable[hiAddress];
-			if(!subTable)
+			const uint32 subTableSize = SUBTABLE_SIZE / INSTRUCTION_SIZE;
+			subTable = new BlockType[subTableSize];
+			for(uint32 i = 0; i < subTableSize; i++)
 			{
-				const uint32 subTableSize = SUBTABLE_SIZE / INSTRUCTION_SIZE;
-				subTable = new BlockType[subTableSize];
-				for(uint32 i = 0; i < subTableSize; i++)
-				{
-					subTable[i] = m_emptyBlock;
-				}
+				subTable[i] = m_emptyBlock;
 			}
-			assert(subTable[loAddress / INSTRUCTION_SIZE] == m_emptyBlock);
-			subTable[loAddress / INSTRUCTION_SIZE] = block;
 		}
+		assert(subTable[loAddress / INSTRUCTION_SIZE] == m_emptyBlock);
+		subTable[loAddress / INSTRUCTION_SIZE] = block;
 	}
 
 	void DeleteBlock(BlockType block)
 	{
-		for(uint32 address = block->GetBeginAddress(); address <= block->GetEndAddress(); address += INSTRUCTION_SIZE)
-		{
-			uint32 hiAddress = address >> SUBTABLE_BITS;
-			uint32 loAddress = address & SUBTABLE_MASK;
-			assert(hiAddress < m_subTableCount);
-			auto& subTable = m_blockTable[hiAddress];
-			assert(subTable);
-			assert(subTable[loAddress / INSTRUCTION_SIZE] != m_emptyBlock);
-			subTable[loAddress / INSTRUCTION_SIZE] = m_emptyBlock;
-		}
+		uint32 address = block->GetBeginAddress();
+		uint32 hiAddress = address >> SUBTABLE_BITS;
+		uint32 loAddress = address & SUBTABLE_MASK;
+		assert(hiAddress < m_subTableCount);
+		auto& subTable = m_blockTable[hiAddress];
+		assert(subTable);
+		assert(subTable[loAddress / INSTRUCTION_SIZE] != m_emptyBlock);
+		subTable[loAddress / INSTRUCTION_SIZE] = m_emptyBlock;
 	}
 
 	BlockType FindBlockAt(uint32 address) const
@@ -227,6 +169,11 @@ template <typename BlockLookupType, TranslateFunctionType TranslateFunction = &C
 class CMipsExecutor
 {
 public:
+	enum
+	{
+		MAX_BLOCK_SIZE = 0x1000,
+	};
+
 	CMipsExecutor(CMIPS& context, uint32 maxAddress)
 	: m_emptyBlock(std::make_shared<CBasicBlock>(context, MIPS_INVALID_PC, MIPS_INVALID_PC))
 	, m_context(context)
@@ -273,9 +220,7 @@ public:
 
 	CBasicBlock* FindBlockStartingAt(uint32 address) const
 	{
-		auto result = m_blockLookup.FindBlockAt(address);
-		if(result->GetBeginAddress() != address) return m_emptyBlock.get();
-		return result;
+		return m_blockLookup.FindBlockAt(address);
 	}
 
 	void DeleteBlock(CBasicBlock* block)
@@ -339,44 +284,10 @@ protected:
 
 	void CreateBlock(uint32 start, uint32 end)
 	{
-		{
-			auto block = m_blockLookup.FindBlockAt(start);
-			if(!block->IsEmpty())
-			{
-				//If the block starts and ends at the same place, block already exists and doesn't need
-				//to be re-created
-				uint32 otherBegin = block->GetBeginAddress();
-				uint32 otherEnd = block->GetEndAddress();
-				if((otherBegin == start) && (otherEnd == end))
-				{
-					return;
-				}
-				if(otherEnd == end)
-				{
-					//Repartition the existing block if end of both blocks are the same
-					DeleteBlock(block);
-					CreateBlock(otherBegin, start - 4);
-					assert(!HasBlockAt(start));
-				}
-				else if(otherBegin == start)
-				{
-					DeleteBlock(block);
-					CreateBlock(end + 4, otherEnd);
-					assert(!HasBlockAt(end));
-				}
-				else
-				{
-					//Delete the currently existing block otherwise
-					DeleteBlock(block);
-				}
-			}
-		}
-		assert(!HasBlockAt(end));
-		{
-			auto block = BlockFactory(m_context, start, end);
-			m_blockLookup.AddBlock(block.get());
-			m_blocks.push_back(std::move(block));
-		}
+		assert(!HasBlockAt(start));
+		auto block = BlockFactory(m_context, start, end);
+		m_blockLookup.AddBlock(block.get());
+		m_blocks.push_back(std::move(block));
 	}
 
 	virtual BasicBlockPtr BlockFactory(CMIPS& context, uint32 start, uint32 end)
@@ -386,107 +297,46 @@ protected:
 		return result;
 	}
 
-	virtual void PartitionFunction(uint32 functionAddress)
+	virtual void PartitionFunction(uint32 startAddress)
 	{
-		typedef std::set<uint32> PartitionPointSet;
-		uint32 endAddress = 0;
-		PartitionPointSet partitionPoints;
-
-		//Insert begin point
-		partitionPoints.insert(functionAddress);
-
-		//Find the end
-		for(uint32 address = functionAddress;; address += 4)
-		{
-			//Probably going too far...
-			if((address - functionAddress) > 0x10000)
-			{
-				endAddress = address;
-				partitionPoints.insert(endAddress);
-				break;
-			}
-			uint32 opcode = m_context.m_pMemoryMap->GetInstruction(address);
-			if(opcode == 0x03E00008)
-			{
-				//+4 for delay slot
-				endAddress = address + 4;
-				partitionPoints.insert(endAddress + 4);
-				break;
-			}
-		}
-
-		//Find partition points within the function
-		for(uint32 address = functionAddress; address <= endAddress; address += 4)
+		uint32 endAddress = startAddress + MAX_BLOCK_SIZE;
+		for(uint32 address = startAddress; address < endAddress; address += 4)
 		{
 			uint32 opcode = m_context.m_pMemoryMap->GetInstruction(address);
-			MIPS_BRANCH_TYPE branchType = m_context.m_pArch->IsInstructionBranch(&m_context, address, opcode);
+			auto branchType = m_context.m_pArch->IsInstructionBranch(&m_context, address, opcode);
 			if(branchType == MIPS_BRANCH_NORMAL)
 			{
-				partitionPoints.insert(address + 8);
-				uint32 target = m_context.m_pArch->GetInstructionEffectiveAddress(&m_context, address, opcode);
-				if(target > functionAddress && target < endAddress)
-				{
-					partitionPoints.insert(target);
-				}
+				endAddress = address + 4;
+				break;
 			}
 			else if(branchType == MIPS_BRANCH_NODELAY)
 			{
-				partitionPoints.insert(address + 4);
-			}
-			//Check if there's a block already exising that this address
-			if(address != endAddress)
-			{
-				auto possibleBlock = FindBlockStartingAt(address);
-				if(!possibleBlock->IsEmpty())
-				{
-					//assert(possibleBlock->GetEndAddress() <= endAddress);
-					//Add its beginning and end in the partition points
-					partitionPoints.insert(possibleBlock->GetBeginAddress());
-					partitionPoints.insert(possibleBlock->GetEndAddress() + 4);
-				}
+				endAddress = address;
+				break;
 			}
 		}
-
-		//Check if blocks are too big
-		{
-			uint32 currentPoint = -1;
-			for(PartitionPointSet::const_iterator pointIterator(partitionPoints.begin());
-				pointIterator != partitionPoints.end(); ++pointIterator)
-			{
-				if(currentPoint != -1)
-				{
-					uint32 startPos = currentPoint;
-					uint32 endPos = *pointIterator;
-					uint32 distance = (endPos - startPos);
-					if(distance > 0x400)
-					{
-						uint32 middlePos = ((endPos + startPos) / 2) & ~0x03;
-						pointIterator = partitionPoints.insert(middlePos).first;
-						--pointIterator;
-						continue;
-					}
-				}
-				currentPoint = *pointIterator;
-			}
-		}
-
-		//Create blocks
-		{
-			uint32 currentPoint = -1;
-			for(auto partitionPoint : partitionPoints)
-			{
-				if(currentPoint != -1)
-				{
-					CreateBlock(currentPoint, partitionPoint - 4);
-				}
-				currentPoint = partitionPoint;
-			}
-		}
+		assert((endAddress - startAddress) <= MAX_BLOCK_SIZE);
+		CreateBlock(startAddress, endAddress);
 	}
 
 	void ClearActiveBlocksInRangeInternal(uint32 start, uint32 end, CBasicBlock* protectedBlock)
 	{
-		auto clearedBlocks = m_blockLookup.ClearInRange(start, end, protectedBlock);
+		//Widen scan range since blocks starting before the range can end in the range
+		uint32 scanStart = static_cast<uint32>(std::max<int64>(0, static_cast<uint64>(start) - MAX_BLOCK_SIZE));
+		uint32 scanEnd = end;
+		assert(scanEnd > scanStart);
+
+		std::set<CBasicBlock*> clearedBlocks;
+		for(uint32 address = scanStart; address <= scanEnd; address += 4)
+		{
+			auto block = m_blockLookup.FindBlockAt(address);
+			if(block->IsEmpty()) continue;
+			if(block == protectedBlock) continue;
+			if(!IsInsideRange(block->GetBeginAddress(), start, end) && !IsInsideRange(block->GetEndAddress(), start, end)) continue;
+			clearedBlocks.insert(block);
+			m_blockLookup.DeleteBlock(block);
+		}
+
 		if(!clearedBlocks.empty())
 		{
 			m_blocks.remove_if([&](const BasicBlockPtr& block) { return clearedBlocks.find(block.get()) != std::end(clearedBlocks); });

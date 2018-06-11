@@ -55,91 +55,36 @@ BasicBlockPtr CVuExecutor::BlockFactory(CMIPS& context, uint32 begin, uint32 end
 	return result;
 }
 
-void CVuExecutor::PartitionFunction(uint32 functionAddress)
+#define VU_UPPEROP_BIT_I (0x80000000)
+#define VU_UPPEROP_BIT_E (0x40000000)
+
+void CVuExecutor::PartitionFunction(uint32 startAddress)
 {
-	typedef std::set<uint32> PartitionPointSet;
-	uint32 endAddress = 0;
-	PartitionPointSet partitionPoints;
-
-	//Insert begin point
-	partitionPoints.insert(functionAddress);
-
-	//Find the end
-	for(uint32 address = functionAddress;; address += 4)
+	uint32 endAddress = startAddress + MAX_BLOCK_SIZE;
+	for(uint32 address = startAddress; address < endAddress; address += 8)
 	{
-		//Probably going too far...
-		if(address >= m_maxAddress)
+		uint32 addrLo = address + 0;
+		uint32 addrHi = address + 4;
+		uint32 lowerOp = m_context.m_pMemoryMap->GetInstruction(address + 0);
+		uint32 upperOp = m_context.m_pMemoryMap->GetInstruction(address + 4);
+		auto branchType = m_context.m_pArch->IsInstructionBranch(&m_context, addrLo, lowerOp);
+		if(upperOp & VU_UPPEROP_BIT_E)
 		{
-			endAddress = address;
-			partitionPoints.insert(endAddress);
+			endAddress = address + 0xC;
+			assert(branchType == MIPS_BRANCH_NONE);
 			break;
 		}
-
-		uint32 opcode = m_context.m_pMemoryMap->GetInstruction(address);
-		//If we find the E bit in an upper instruction
-		if((address & 0x04) && (opcode & 0x40000000))
+		else if(branchType == MIPS_BRANCH_NORMAL)
 		{
-			endAddress = address + 8;
-			partitionPoints.insert(endAddress + 4);
+			endAddress = address + 0xC;
 			break;
 		}
-	}
-
-	//Find partition points within the function
-	for(uint32 address = functionAddress; address <= endAddress; address += 4)
-	{
-		uint32 opcode = m_context.m_pMemoryMap->GetInstruction(address);
-		MIPS_BRANCH_TYPE branchType = m_context.m_pArch->IsInstructionBranch(&m_context, address, opcode);
-		if(branchType == MIPS_BRANCH_NORMAL)
+		else if(branchType == MIPS_BRANCH_NODELAY)
 		{
-			assert((address & 0x07) == 0x00);
-			partitionPoints.insert(address + 0x10);
-			uint32 target = m_context.m_pArch->GetInstructionEffectiveAddress(&m_context, address, opcode);
-			if(target > functionAddress && target < endAddress)
-			{
-				assert((target & 0x07) == 0x00);
-				partitionPoints.insert(target);
-			}
-		}
-
-		//Check if there's a block already exising that this address
-		if(address != endAddress)
-		{
-			auto possibleBlock = FindBlockStartingAt(address);
-			if(!possibleBlock->IsEmpty())
-			{
-				assert(possibleBlock->GetEndAddress() <= endAddress);
-				//Add its beginning and end in the partition points
-				partitionPoints.insert(possibleBlock->GetBeginAddress());
-				partitionPoints.insert(possibleBlock->GetEndAddress() + 4);
-			}
+			//Should never happen
+			assert(false);
 		}
 	}
-
-	uint32 currentPoint = MIPS_INVALID_PC;
-	for(const auto& point : partitionPoints)
-	{
-		if(currentPoint != MIPS_INVALID_PC)
-		{
-			uint32 beginAddress = currentPoint;
-			uint32 endAddress = point - 4;
-			//Sanity checks
-			assert((beginAddress & 0x07) == 0x00);
-			assert((endAddress & 0x07) == 0x04);
-			CreateBlock(beginAddress, endAddress);
-		}
-		currentPoint = point;
-	}
-	/*
-	//Convenient cutting for debugging purposes
-	for(uint32 address = functionAddress; address <= endAddress; address += 8)
-	{
-		uint32 beginAddress = address;
-		uint32 endAddress = address + 4;
-		//Sanity checks
-		assert((beginAddress & 0x07) == 0x00);
-		assert((endAddress & 0x07) == 0x04);
-		CreateBlock(beginAddress, endAddress);
-	}
-*/
+	assert((endAddress - startAddress) <= MAX_BLOCK_SIZE);
+	CreateBlock(startAddress, endAddress);
 }

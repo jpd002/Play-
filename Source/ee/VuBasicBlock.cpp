@@ -15,31 +15,7 @@ void CVuBasicBlock::CompileRange(CMipsJitter* jitter)
 	assert(((m_end + 4) & 0x07) == 0);
 	auto arch = static_cast<CMA_VU*>(m_context.m_pArch);
 
-	uint32 fixedEnd = m_end;
-	bool needsPcAdjust = false;
-
-	//Make sure the delay slot instruction is present in the block.
-	//CVuExecutor can sometimes cut the blocks in a way that removes the delay slot instruction for branches.
-	{
-		uint32 addressLo = fixedEnd - 4;
-		uint32 addressHi = fixedEnd - 0;
-
-		uint32 opcodeLo = m_context.m_pMemoryMap->GetInstruction(addressLo);
-		uint32 opcodeHi = m_context.m_pMemoryMap->GetInstruction(addressHi);
-
-		//Check for LOI
-		if((opcodeHi & 0x80000000) == 0)
-		{
-			auto branchType = arch->IsInstructionBranch(&m_context, addressLo, opcodeLo);
-			if(branchType == MIPS_BRANCH_NORMAL)
-			{
-				fixedEnd += 8;
-				needsPcAdjust = true;
-			}
-		}
-	}
-
-	auto integerBranchDelayInfo = GetIntegerBranchDelayInfo(fixedEnd);
+	auto integerBranchDelayInfo = GetIntegerBranchDelayInfo();
 
 	bool hasPendingXgKick = false;
 	const auto clearPendingXgKick =
@@ -49,7 +25,7 @@ void CVuBasicBlock::CompileRange(CMipsJitter* jitter)
 		    hasPendingXgKick = false;
 	    };
 
-	for(uint32 address = m_begin; address <= fixedEnd; address += 8)
+	for(uint32 address = m_begin; address <= m_end; address += 8)
 	{
 		uint32 relativePipeTime = (address - m_begin) / 8;
 
@@ -170,25 +146,11 @@ void CVuBasicBlock::CompileRange(CMipsJitter* jitter)
 
 	//Increment pipeTime
 	{
-		uint32 timeInc = ((fixedEnd - m_begin) / 8) + 1;
+		uint32 timeInc = ((m_end - m_begin) / 8) + 1;
 		jitter->PushRel(offsetof(CMIPS, m_State.pipeTime));
 		jitter->PushCst(timeInc);
 		jitter->Add();
 		jitter->PullRel(offsetof(CMIPS, m_State.pipeTime));
-	}
-
-	//Adjust PC to make sure we don't execute the delay slot at the next block
-	if(needsPcAdjust)
-	{
-		jitter->PushCst(MIPS_INVALID_PC);
-		jitter->PushRel(offsetof(CMIPS, m_State.nDelayedJumpAddr));
-
-		jitter->BeginIf(Jitter::CONDITION_EQ);
-		{
-			jitter->PushCst(fixedEnd + 0x4);
-			jitter->PullRel(offsetof(CMIPS, m_State.nDelayedJumpAddr));
-		}
-		jitter->EndIf();
 	}
 
 	CompileProlog(jitter);
@@ -201,7 +163,7 @@ bool CVuBasicBlock::IsConditionalBranch(uint32 opcodeLo)
 	return (id >= 0x28) && (id < 0x30);
 }
 
-CVuBasicBlock::INTEGER_BRANCH_DELAY_INFO CVuBasicBlock::GetIntegerBranchDelayInfo(uint32 fixedEnd) const
+CVuBasicBlock::INTEGER_BRANCH_DELAY_INFO CVuBasicBlock::GetIntegerBranchDelayInfo() const
 {
 	// Test if the block ends with a conditional branch instruction where the condition variable has been
 	// set in the prior instruction.
@@ -210,7 +172,7 @@ CVuBasicBlock::INTEGER_BRANCH_DELAY_INFO CVuBasicBlock::GetIntegerBranchDelayInf
 
 	INTEGER_BRANCH_DELAY_INFO result;
 	auto arch = static_cast<CMA_VU*>(m_context.m_pArch);
-	uint32 adjustedEnd = fixedEnd - 4;
+	uint32 adjustedEnd = m_end - 4;
 
 	// Check if we have a conditional branch instruction.
 	uint32 branchOpcodeAddr = adjustedEnd - 8;
@@ -232,7 +194,7 @@ CVuBasicBlock::INTEGER_BRANCH_DELAY_INFO CVuBasicBlock::GetIntegerBranchDelayInf
 			{
 				//Check if our block is a "special" loop. Disable delayed integer processing if it's the case
 				//TODO: Handle that case better
-				bool isSpecialLoop = CheckIsSpecialIntegerLoop(fixedEnd, priorLoOps.writeI);
+				bool isSpecialLoop = CheckIsSpecialIntegerLoop(priorLoOps.writeI);
 				if(!isSpecialLoop)
 				{
 					// we need to use the value of intReg 4 steps prior or use initial value.
@@ -247,7 +209,7 @@ CVuBasicBlock::INTEGER_BRANCH_DELAY_INFO CVuBasicBlock::GetIntegerBranchDelayInf
 	return result;
 }
 
-bool CVuBasicBlock::CheckIsSpecialIntegerLoop(uint32 fixedEnd, unsigned int regI) const
+bool CVuBasicBlock::CheckIsSpecialIntegerLoop(unsigned int regI) const
 {
 	//This checks for a pattern where all instructions within a block
 	//modifies an integer register except for one branch instruction that
@@ -255,7 +217,7 @@ bool CVuBasicBlock::CheckIsSpecialIntegerLoop(uint32 fixedEnd, unsigned int regI
 	//Required by BGDA that has that kind of loop inside its VU microcode
 
 	auto arch = static_cast<CMA_VU*>(m_context.m_pArch);
-	uint32 length = (fixedEnd - m_begin) / 8;
+	uint32 length = (m_end - m_begin) / 8;
 	if(length != 4) return false;
 	for(uint32 index = 0; index <= length; index++)
 	{
