@@ -168,6 +168,9 @@ void CChannel::ExecuteNormal()
 
 	if(isMfifo)
 	{
+		m_nMADR &= m_dmac.m_D_RBSR;
+		m_nMADR |= m_dmac.m_D_RBOR;
+
 		//Adjust QWC if we're in MFIFO mode
 		uint32 ringBufferAddr = m_nMADR - m_dmac.m_D_RBOR;
 		uint32 ringBufferSize = m_dmac.m_D_RBSR + 0x10;
