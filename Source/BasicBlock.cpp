@@ -87,6 +87,7 @@ void CBasicBlock::Compile()
 			}
 		}
 
+		jitter->GetCodeGen()->SetExternalSymbolReferencedHandler([&](auto symbol, auto offset) { HandleExternalFunctionReference(symbol, offset); });
 		jitter->SetStream(&stream);
 		jitter->Begin();
 		CompileRange(jitter);
@@ -192,6 +193,23 @@ void CBasicBlock::CompileRange(CMipsJitter* jitter)
 
 void CBasicBlock::CompileProlog(CMipsJitter* jitter)
 {
+	//Update cycle quota
+	jitter->PushRel(offsetof(CMIPS, m_State.cycleQuota));
+	jitter->PushCst(((m_end - m_begin) / 4) + 1);
+	jitter->Sub();
+	jitter->PullRel(offsetof(CMIPS, m_State.cycleQuota));
+
+	jitter->PushRel(offsetof(CMIPS, m_State.cycleQuota));
+	jitter->PushCst(0);
+	jitter->BeginIf(Jitter::CONDITION_LE);
+	{
+		jitter->PushRel(offsetof(CMIPS, m_State.nHasException));
+		jitter->PushCst(MIPS_EXECUTION_STATUS_QUOTADONE);
+		jitter->Or();
+		jitter->PullRel(offsetof(CMIPS, m_State.nHasException));
+	}
+	jitter->EndIf();
+
 	//We probably don't need to pay for this since we know in advance if there's a branch
 	jitter->PushCst(MIPS_INVALID_PC);
 	jitter->PushRel(offsetof(CMIPS, m_State.nDelayedJumpAddr));
@@ -202,19 +220,29 @@ void CBasicBlock::CompileProlog(CMipsJitter* jitter)
 
 		jitter->PushCst(MIPS_INVALID_PC);
 		jitter->PullRel(offsetof(CMIPS, m_State.nDelayedJumpAddr));
+
+		jitter->PushRel(offsetof(CMIPS, m_State.nHasException));
+		jitter->PushCst(0);
+		jitter->BeginIf(Jitter::CONDITION_EQ);
+		{
+			jitter->JumpTo(&NextBlockTrampoline);
+		}
+		jitter->EndIf();
 	}
 	jitter->Else();
 	{
 		jitter->PushCst(m_end + 4);
 		jitter->PullRel(offsetof(CMIPS, m_State.nPC));
+
+		jitter->PushRel(offsetof(CMIPS, m_State.nHasException));
+		jitter->PushCst(0);
+		jitter->BeginIf(Jitter::CONDITION_EQ);
+		{
+			jitter->JumpTo(&NextBlockTrampoline);
+		}
+		jitter->EndIf();
 	}
 	jitter->EndIf();
-
-	//Update cycle quota
-	jitter->PushRel(offsetof(CMIPS, m_State.cycleQuota));
-	jitter->PushCst(((m_end - m_begin) / 4) + 1);
-	jitter->Sub();
-	jitter->PullRel(offsetof(CMIPS, m_State.cycleQuota));
 }
 
 void CBasicBlock::Execute()
@@ -259,7 +287,47 @@ bool CBasicBlock::IsEmpty() const
 	       (m_end == MIPS_INVALID_PC);
 }
 
+void CBasicBlock::LinkNextBlock(CBasicBlock* otherBlock)
+{
+	assert(!IsEmpty());
+	assert(!otherBlock->IsEmpty());
+	assert(m_nextBlockTrampolineOffset != -1);
+	auto patchValue = reinterpret_cast<uintptr_t>(otherBlock->m_function.GetCode());
+	auto code = reinterpret_cast<uint8*>(m_function.GetCode());
+	*reinterpret_cast<uintptr_t*>(code + m_nextBlockTrampolineOffset) = patchValue;
+}
+
+void CBasicBlock::LinkBranchBlock(CBasicBlock* otherBlock)
+{
+	assert(!IsEmpty());
+	assert(!otherBlock->IsEmpty());
+	assert(m_branchBlockTrampolineOffset != -1);
+	auto patchValue = reinterpret_cast<uintptr_t>(otherBlock->m_function.GetCode());
+	auto code = reinterpret_cast<uint8*>(m_function.GetCode());
+	*reinterpret_cast<uintptr_t*>(code + m_branchBlockTrampolineOffset) = patchValue;
+}
+
+void CBasicBlock::HandleExternalFunctionReference(uintptr_t symbol, uint32 offset)
+{
+	if(symbol == reinterpret_cast<uintptr_t>(&NextBlockTrampoline))
+	{
+		if(m_branchBlockTrampolineOffset == -1)
+		{
+			m_branchBlockTrampolineOffset = offset;
+		}
+		else
+		{
+			m_nextBlockTrampolineOffset = offset;
+		}
+	}
+}
+
 void CBasicBlock::EmptyBlockHandler(CMIPS* context)
 {
 	context->m_emptyBlockHandler(context);
+}
+
+void CBasicBlock::NextBlockTrampoline(CMIPS* context)
+{
+
 }

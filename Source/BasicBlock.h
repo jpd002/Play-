@@ -53,6 +53,9 @@ public:
 	bool IsCompiled() const;
 	bool IsEmpty() const;
 
+	void LinkNextBlock(CBasicBlock*);
+	void LinkBranchBlock(CBasicBlock*);
+
 #ifdef AOT_BUILD_CACHE
 	static void SetAotBlockOutputStream(Framework::CStdStream*);
 #endif
@@ -66,7 +69,10 @@ protected:
 	void CompileProlog(CMipsJitter*);
 
 private:
+	void HandleExternalFunctionReference(uintptr_t, uint32);
+
 	static void EmptyBlockHandler(CMIPS*);
+	static void NextBlockTrampoline(CMIPS*);
 
 #ifdef AOT_BUILD_CACHE
 	static Framework::CStdStream* m_aotBlockOutputStream;
@@ -78,4 +84,6 @@ private:
 #else
 	void (*m_function)(void*);
 #endif
+	uint32 m_nextBlockTrampolineOffset = -1;
+	uint32 m_branchBlockTrampolineOffset = -1;
 };

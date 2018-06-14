@@ -61,6 +61,7 @@ BasicBlockPtr CVuExecutor::BlockFactory(CMIPS& context, uint32 begin, uint32 end
 void CVuExecutor::PartitionFunction(uint32 startAddress)
 {
 	uint32 endAddress = startAddress + MAX_BLOCK_SIZE;
+	uint32 branchAddress = 0;
 	for(uint32 address = startAddress; address < endAddress; address += 8)
 	{
 		uint32 addrLo = address + 0;
@@ -76,6 +77,7 @@ void CVuExecutor::PartitionFunction(uint32 startAddress)
 		}
 		else if(branchType == MIPS_BRANCH_NORMAL)
 		{
+			branchAddress = m_context.m_pArch->GetInstructionEffectiveAddress(&m_context, addrLo, lowerOp);
 			endAddress = address + 0xC;
 			break;
 		}
@@ -87,4 +89,5 @@ void CVuExecutor::PartitionFunction(uint32 startAddress)
 	}
 	assert((endAddress - startAddress) <= MAX_BLOCK_SIZE);
 	CreateBlock(startAddress, endAddress);
+	SetupBlockLinks(startAddress, endAddress, branchAddress);
 }

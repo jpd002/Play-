@@ -199,7 +199,7 @@ public:
 		assert(TranslateFunction == m_context.m_pAddrTranslator);
 		auto block = m_emptyBlock.get();
 		m_context.m_State.cycleQuota = cycles;
-		while(m_context.m_State.cycleQuota > 0)
+		while(m_context.m_State.nHasException == 0)
 		{
 			uint32 address = TranslateFunction(&m_context, m_context.m_State.nPC);
 			if(address != block->GetBeginAddress())
@@ -212,8 +212,8 @@ public:
 			m_breakpointsDisabledOnce = false;
 #endif
 			block->Execute();
-			if(m_context.m_State.nHasException) break;
 		}
+		m_context.m_State.nHasException &= ~MIPS_EXECUTION_STATUS_QUOTADONE;
 		return m_context.m_State.cycleQuota;
 	}
 
@@ -274,6 +274,7 @@ public:
 
 protected:
 	typedef std::list<BasicBlockPtr> BlockList;
+	typedef std::multimap<uint32, uint32> BlockLinkMap;
 
 	bool HasBlockAt(uint32 address) const
 	{
@@ -296,15 +297,72 @@ protected:
 		return result;
 	}
 
+	void SetupBlockLinks(uint32 startAddress, uint32 endAddress, uint32 branchAddress)
+	{
+		auto block = m_blockLookup.FindBlockAt(startAddress);
+
+		{
+			uint32 nextBlockAddress = endAddress + 4;
+			auto nextBlock = m_blockLookup.FindBlockAt(nextBlockAddress);
+			if(!nextBlock->IsEmpty())
+			{
+				block->LinkNextBlock(nextBlock);
+			}
+			else
+			{
+				m_pendingNextBlockLinks.insert(std::make_pair(nextBlockAddress, startAddress));
+			}
+		}
+
+		if(branchAddress != 0)
+		{
+			auto branchBlock = m_blockLookup.FindBlockAt(branchAddress);
+			if(!branchBlock->IsEmpty())
+			{
+				block->LinkBranchBlock(branchBlock);
+			}
+			else
+			{
+				m_pendingBranchBlockLinks.insert(std::make_pair(branchAddress, startAddress));
+			}
+		}
+
+		//Resolve any block links that could be valid now that block has been created
+		{
+			auto lowerBound = m_pendingNextBlockLinks.lower_bound(startAddress);
+			auto upperBound = m_pendingNextBlockLinks.upper_bound(startAddress);
+			for(auto blockLinkIterator = lowerBound; blockLinkIterator != upperBound; blockLinkIterator++)
+			{
+				auto referringBlock = m_blockLookup.FindBlockAt(blockLinkIterator->second);
+				if(referringBlock->IsEmpty()) continue;
+				referringBlock->LinkNextBlock(block);
+			}
+			m_pendingNextBlockLinks.erase(lowerBound, upperBound);
+		}
+		{
+			auto lowerBound = m_pendingBranchBlockLinks.lower_bound(startAddress);
+			auto upperBound = m_pendingBranchBlockLinks.upper_bound(startAddress);
+			for(auto blockLinkIterator = lowerBound; blockLinkIterator != upperBound; blockLinkIterator++)
+			{
+				auto referringBlock = m_blockLookup.FindBlockAt(blockLinkIterator->second);
+				if(referringBlock->IsEmpty()) continue;
+				referringBlock->LinkBranchBlock(block);
+			}
+			m_pendingBranchBlockLinks.erase(lowerBound, upperBound);
+		}
+	}
+
 	virtual void PartitionFunction(uint32 startAddress)
 	{
 		uint32 endAddress = startAddress + MAX_BLOCK_SIZE;
+		uint32 branchAddress = 0;
 		for(uint32 address = startAddress; address < endAddress; address += 4)
 		{
 			uint32 opcode = m_context.m_pMemoryMap->GetInstruction(address);
 			auto branchType = m_context.m_pArch->IsInstructionBranch(&m_context, address, opcode);
 			if(branchType == MIPS_BRANCH_NORMAL)
 			{
+				branchAddress = m_context.m_pArch->GetInstructionEffectiveAddress(&m_context, address, opcode);
 				endAddress = address + 4;
 				break;
 			}
@@ -316,6 +374,7 @@ protected:
 		}
 		assert((endAddress - startAddress) <= MAX_BLOCK_SIZE);
 		CreateBlock(startAddress, endAddress);
+		SetupBlockLinks(startAddress, endAddress, branchAddress);
 	}
 
 	void ClearActiveBlocksInRangeInternal(uint32 start, uint32 end, CBasicBlock* protectedBlock)
@@ -344,6 +403,8 @@ protected:
 
 	BlockList m_blocks;
 	BasicBlockPtr m_emptyBlock;
+	BlockLinkMap m_pendingNextBlockLinks;
+	BlockLinkMap m_pendingBranchBlockLinks;
 	CMIPS& m_context;
 	uint32 m_maxAddress = 0;
 
