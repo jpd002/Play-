@@ -102,6 +102,8 @@
 #define SYSCALL_NAME_CHANGETHREADPRIORITY "osChangeThreadPriority"
 #define SYSCALL_NAME_ICHANGETHREADPRIORITY "osiChangeThreadPriority"
 #define SYSCALL_NAME_ROTATETHREADREADYQUEUE "osRotateThreadReadyQueue"
+#define SYSCALL_NAME_RELEASEWAITTHREAD "osReleaseWaitThread"
+#define SYSCALL_NAME_IRELEASEWAITTHREAD "osiReleaseWaitThread"
 #define SYSCALL_NAME_GETTHREADID "osGetThreadId"
 #define SYSCALL_NAME_REFERTHREADSTATUS "osReferThreadStatus"
 #define SYSCALL_NAME_IREFERTHREADSTATUS "osiReferThreadStatus"
@@ -166,6 +168,8 @@ const CPS2OS::SYSCALL_NAME CPS2OS::g_syscallNames[] =
         {0x0029, SYSCALL_NAME_CHANGETHREADPRIORITY},
         {0x002A, SYSCALL_NAME_ICHANGETHREADPRIORITY},
         {0x002B, SYSCALL_NAME_ROTATETHREADREADYQUEUE},
+        {0x002D, SYSCALL_NAME_RELEASEWAITTHREAD},
+        {0x002E, SYSCALL_NAME_IRELEASEWAITTHREAD},
         {0x002F, SYSCALL_NAME_GETTHREADID},
         {0x0030, SYSCALL_NAME_REFERTHREADSTATUS},
         {0x0031, SYSCALL_NAME_IREFERTHREADSTATUS},
@@ -1913,6 +1917,44 @@ void CPS2OS::sc_RotateThreadReadyQueue()
 	ThreadShakeAndBake();
 }
 
+//2D/2E
+void CPS2OS::sc_ReleaseWaitThread()
+{
+	uint32 id  = m_ee.m_State.nGPR[SC_PARAM0].nV[0];
+	bool isInt = m_ee.m_State.nGPR[3].nV[0] == 0x2E;
+
+	auto thread = m_threads[id];
+	if(!thread)
+	{
+		CLog::GetInstance().Warn(LOG_NAME, "ReleaseWaitThread: Used on thread that doesn't exist (%d).",
+			id);
+		m_ee.m_State.nGPR[SC_RETURN].nD0 = static_cast<int32>(-1);
+		return;
+	}
+
+	//Must also work with THREAD_WAITING
+	assert(thread->status != THREAD_WAITING);
+	if(thread->status != THREAD_SLEEPING)
+	{
+		CLog::GetInstance().Warn(LOG_NAME, "ReleaseWaitThread: Used on non sleeping thread (%d).",
+			id);
+		m_ee.m_State.nGPR[SC_RETURN].nD0 = static_cast<int32>(-1);
+		return;
+	}
+
+	//TODO: Check what happens to wakeUpCount
+	thread->wakeUpCount = 0;
+	thread->status = THREAD_RUNNING;
+	LinkThread(id);
+
+	m_ee.m_State.nGPR[SC_RETURN].nD0 = static_cast<int32>(id);
+
+	if(!isInt)
+	{
+		ThreadShakeAndBake();
+	}
+}
+
 //2F
 void CPS2OS::sc_GetThreadId()
 {
@@ -2926,6 +2968,14 @@ std::string CPS2OS::GetSysCallDescription(uint8 function)
 		sprintf(description, SYSCALL_NAME_ROTATETHREADREADYQUEUE "(prio = %i);",
 		        m_ee.m_State.nGPR[SC_PARAM0].nV[0]);
 		break;
+	case 0x2D:
+		sprintf(description, SYSCALL_NAME_RELEASEWAITTHREAD "(id = %d);",
+			m_ee.m_State.nGPR[SC_PARAM0].nV[0]);
+		break;
+	case 0x2E:
+		sprintf(description, SYSCALL_NAME_IRELEASEWAITTHREAD "(id = %d);",
+			m_ee.m_State.nGPR[SC_PARAM0].nV[0]);
+		break;
 	case 0x2F:
 		sprintf(description, SYSCALL_NAME_GETTHREADID "();");
 		break;
@@ -3105,7 +3155,7 @@ CPS2OS::SystemCallHandler CPS2OS::m_sysCall[0x80] =
 	//0x20
 	&CPS2OS::sc_CreateThread,		&CPS2OS::sc_DeleteThread,			&CPS2OS::sc_StartThread,			&CPS2OS::sc_ExitThread,				&CPS2OS::sc_ExitDeleteThread,	&CPS2OS::sc_TerminateThread,	&CPS2OS::sc_Unhandled,			&CPS2OS::sc_Unhandled,
 	//0x28
-	&CPS2OS::sc_Unhandled,			&CPS2OS::sc_ChangeThreadPriority,	&CPS2OS::sc_ChangeThreadPriority,	&CPS2OS::sc_RotateThreadReadyQueue,	&CPS2OS::sc_Unhandled,			&CPS2OS::sc_Unhandled,			&CPS2OS::sc_Unhandled,			&CPS2OS::sc_GetThreadId,
+	&CPS2OS::sc_Unhandled,			&CPS2OS::sc_ChangeThreadPriority,	&CPS2OS::sc_ChangeThreadPriority,	&CPS2OS::sc_RotateThreadReadyQueue,	&CPS2OS::sc_Unhandled,			&CPS2OS::sc_ReleaseWaitThread,	&CPS2OS::sc_ReleaseWaitThread,	&CPS2OS::sc_GetThreadId,
 	//0x30
 	&CPS2OS::sc_ReferThreadStatus,	&CPS2OS::sc_ReferThreadStatus,		&CPS2OS::sc_SleepThread,			&CPS2OS::sc_WakeupThread,			&CPS2OS::sc_WakeupThread,		&CPS2OS::sc_CancelWakeupThread,	&CPS2OS::sc_CancelWakeupThread,	&CPS2OS::sc_SuspendThread,
 	//0x38

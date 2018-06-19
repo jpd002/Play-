@@ -297,6 +297,7 @@ private:
 	void sc_TerminateThread();
 	void sc_ChangeThreadPriority();
 	void sc_RotateThreadReadyQueue();
+	void sc_ReleaseWaitThread();
 	void sc_GetThreadId();
 	void sc_ReferThreadStatus();
 	void sc_SleepThread();
