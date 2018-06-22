@@ -11,7 +11,7 @@ public:
 		PAUSED = 2,
 	};
 
-	virtual ~CVirtualMachine(){};
+	virtual ~CVirtualMachine() = default;
 	virtual STATUS GetStatus() const = 0;
 	virtual void Pause() = 0;
 	virtual void Resume() = 0;

@@ -34,7 +34,7 @@ public:
 	typedef boost::signals2::signal<void(const CProfiler::ZoneArray&)> ProfileFrameDoneSignal;
 
 	CPS2VM();
-	virtual ~CPS2VM();
+	virtual ~CPS2VM() = default;
 
 	void Initialize();
 	void Destroy();

@@ -85,11 +85,6 @@ CPS2VM::CPS2VM()
 	m_ee->m_os->OnRequestLoadExecutable.connect(boost::bind(&CPS2VM::ReloadExecutable, this, _1, _2));
 }
 
-CPS2VM::~CPS2VM()
-{
-
-}
-
 //////////////////////////////////////////////////
 //Various Message Functions
 //////////////////////////////////////////////////
