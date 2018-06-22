@@ -2,6 +2,7 @@
 #include <boost/filesystem.hpp>
 #include "StdStream.h"
 #include "StdStreamUtils.h"
+#include "iop/IopBios.h"
 #include "JUnitTestReportWriter.h"
 #include "gs/GSH_Null.h"
 #ifdef _WIN32
@@ -127,7 +128,10 @@ void ExecuteEeTest(const boost::filesystem::path& testFilePath, const std::strin
 		    executionOver = true;
 	    });
 	virtualMachine.m_ee->m_os->BootFromFile(testFilePath);
-	virtualMachine.m_iopOs->GetIoman()->SetFileStream(Iop::CIoman::FID_STDOUT, resultStream);
+	{
+		auto iopOs = dynamic_cast<CIopBios*>(virtualMachine.m_iop->m_bios.get());
+		iopOs->GetIoman()->SetFileStream(Iop::CIoman::FID_STDOUT, resultStream);
+	}
 	virtualMachine.Resume();
 
 	while(!executionOver)
@@ -161,16 +165,19 @@ void ExecuteIopTest(const boost::filesystem::path& testFilePath)
 	CPS2VM virtualMachine;
 	virtualMachine.Initialize();
 	virtualMachine.Reset();
-	int32 rootModuleId = virtualMachine.m_iopOs->LoadModuleFromHost(moduleData.data());
-	virtualMachine.m_iopOs->OnModuleStarted.connect(
-	    [&executionOver, &rootModuleId](uint32 moduleId) {
-		    if(rootModuleId == moduleId)
-		    {
-			    executionOver = true;
-		    }
-	    });
-	virtualMachine.m_iopOs->StartModule(rootModuleId, "", nullptr, 0);
-	virtualMachine.m_iopOs->GetIoman()->SetFileStream(Iop::CIoman::FID_STDOUT, resultStream);
+	{
+		auto iopOs = dynamic_cast<CIopBios*>(virtualMachine.m_iop->m_bios.get());
+		int32 rootModuleId = iopOs->LoadModuleFromHost(moduleData.data());
+		iopOs->OnModuleStarted.connect(
+		    [&executionOver, &rootModuleId](uint32 moduleId) {
+			    if(rootModuleId == moduleId)
+			    {
+				    executionOver = true;
+			    }
+		    });
+		iopOs->StartModule(rootModuleId, "", nullptr, 0);
+		iopOs->GetIoman()->SetFileStream(Iop::CIoman::FID_STDOUT, resultStream);
+	}
 	virtualMachine.Resume();
 
 	while(!executionOver)
