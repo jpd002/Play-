@@ -129,36 +129,16 @@ CDebuggable CPsfVm::GetDebugInfo()
 {
 	CDebuggable debug;
 	debug.Step = std::bind(&CPsfVm::Step, this);
-	debug.GetCpu = std::bind(&CPsfVm::GetCpu, this);
+	debug.GetCpu = [&]() -> CMIPS& { return m_subSystem->GetCpu(); };
 #ifdef DEBUGGER_INCLUDED
 	debug.biosDebugInfoProvider = m_subSystem->GetBiosDebugInfoProvider();
 #endif
 	return debug;
 }
 
-CMIPS& CPsfVm::GetCpu()
-{
-	return m_subSystem->GetCpu();
-}
-
-CMipsExecutor& CPsfVm::GetCpuExecutor()
-{
-	return m_subSystem->GetCpuExecutor();
-}
-
 CSpuBase& CPsfVm::GetSpuCore(unsigned int coreId)
 {
 	return m_subSystem->GetSpuCore(coreId);
-}
-
-uint8* CPsfVm::GetRam()
-{
-	return m_subSystem->GetRam();
-}
-
-uint8* CPsfVm::GetSpr()
-{
-	return m_subSystem->GetSpr();
 }
 
 void CPsfVm::Step()

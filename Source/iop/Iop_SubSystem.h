@@ -28,8 +28,6 @@ namespace Iop
 		bool IsCpuIdle();
 		void CountTicks(int);
 
-		void SetBios(const BiosBasePtr&);
-
 		void NotifyVBlankStart();
 		void NotifyVBlankEnd();
 

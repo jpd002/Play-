@@ -366,6 +366,8 @@ set(COMMON_SRC_FILES
 	PS2VM.cpp
 	PS2VM.h
 	PS2VM_Preferences.h
+	psx/PsxBios.cpp
+	psx/PsxBios.h
 	RegisterStateFile.cpp
 	RegisterStateFile.h
 	s3stream/AmazonS3Client.cpp

@@ -59,21 +59,6 @@ CMIPS& CPsfSubSystem::GetCpu()
 	return m_cpu;
 }
 
-CMipsExecutor& CPsfSubSystem::GetCpuExecutor()
-{
-	return m_executor;
-}
-
-uint8* CPsfSubSystem::GetRam()
-{
-	return m_ram;
-}
-
-uint8* CPsfSubSystem::GetSpr()
-{
-	return nullptr;
-}
-
 CPsfBios& CPsfSubSystem::GetBios()
 {
 	return m_bios;

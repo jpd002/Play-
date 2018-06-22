@@ -41,7 +41,6 @@ set(PSFCORE_SRC_FILES
 	Playlist.cpp
 	PlaylistDiscoveryService.cpp
 	ps2/Ps2_PsfDevice.cpp
-	ps2/PsfBios.cpp
 	PsfArchive.cpp
 	PsfBase.cpp
 	PsfFs.cpp
@@ -65,7 +64,6 @@ set(PSFCORE_SRC_FILES
 	psp/Psp_SysMemUserForUser.cpp
 	psp/Psp_ThreadManForUser.cpp
 	psp/PspBios.cpp
-	psx/PsxBios.cpp
 )
 
 if(TARGET_PLATFORM_MACOS)

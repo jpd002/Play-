@@ -34,11 +34,6 @@ CMIPS& CPsfSubSystem::GetCpu()
 	return m_iop.m_cpu;
 }
 
-CMipsExecutor& CPsfSubSystem::GetCpuExecutor()
-{
-	return m_iop.m_executor;
-}
-
 CSpuBase& CPsfSubSystem::GetSpuCore(unsigned int coreId)
 {
 	if(coreId == 0)
@@ -51,19 +46,9 @@ CSpuBase& CPsfSubSystem::GetSpuCore(unsigned int coreId)
 	}
 }
 
-uint8* CPsfSubSystem::GetRam()
+Iop::CBiosBase* CPsfSubSystem::GetBios() const
 {
-	return m_iop.m_ram;
-}
-
-uint8* CPsfSubSystem::GetSpr()
-{
-	return m_iop.m_scratchPad;
-}
-
-void CPsfSubSystem::SetBios(const BiosBasePtr& bios)
-{
-	m_iop.SetBios(bios);
+	return m_iop.m_bios.get();
 }
 
 void CPsfSubSystem::Update(bool singleStep, CSoundHandler* soundHandler)

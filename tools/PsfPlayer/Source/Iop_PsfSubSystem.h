@@ -13,9 +13,6 @@ namespace Iop
 
 		void Reset() override;
 		CMIPS& GetCpu() override;
-		CMipsExecutor& GetCpuExecutor() override;
-		uint8* GetRam() override;
-		uint8* GetSpr() override;
 		Iop::CSpuBase& GetSpuCore(unsigned int) override;
 
 #ifdef DEBUGGER_INCLUDED
@@ -26,9 +23,9 @@ namespace Iop
 		void SaveDebugTags(Framework::Xml::CNode*) override;
 #endif
 
-		void SetBios(const Iop::BiosBasePtr&);
-
 		void Update(bool, CSoundHandler*) override;
+
+		Iop::CBiosBase* GetBios() const;
 
 	private:
 		CSubSystem m_iop;

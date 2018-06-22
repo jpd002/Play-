@@ -12,7 +12,6 @@
 #include "VirtualMachine.h"
 #include "ee/Ee_SubSystem.h"
 #include "iop/Iop_SubSystem.h"
-#include "iop/IopBios.h"
 #include "../tools/PsfPlayer/Source/SoundHandler.h"
 #include "FrameDump.h"
 #include "Profiler.h"
@@ -85,8 +84,6 @@ public:
 
 	EeSubSystemPtr m_ee;
 	IopSubSystemPtr m_iop;
-
-	IopBiosPtr m_iopOs;
 
 	ProfileFrameDoneSignal ProfileFrameDone;
 

@@ -1,4 +1,6 @@
 #include "Iop_SubSystem.h"
+#include "IopBios.h"
+#include "../psx/PsxBios.h"
 #include "../MemoryStateFile.h"
 #include "../Ps2Const.h"
 #include "../Log.h"
@@ -33,6 +35,15 @@ CSubSystem::CSubSystem(bool ps2Mode)
     , m_copScu(MIPS_REGSIZE_32)
     , m_dmaUpdateTicks(0)
 {
+	if(ps2Mode)
+	{
+		m_bios = std::make_shared<CIopBios>(m_cpu, m_executor, m_ram, PS2::IOP_RAM_SIZE, m_scratchPad);
+	}
+	else
+	{
+		m_bios = std::make_shared<CPsxBios>(m_cpu, m_ram, PS2::IOP_RAM_SIZE);
+	}
+
 	//Read memory map
 	m_cpu.m_pMemoryMap->InsertReadMap((0 * IOP_RAM_SIZE), (0 * IOP_RAM_SIZE) + IOP_RAM_SIZE - 1, m_ram, 0x01);
 	m_cpu.m_pMemoryMap->InsertReadMap((1 * IOP_RAM_SIZE), (1 * IOP_RAM_SIZE) + IOP_RAM_SIZE - 1, m_ram, 0x02);
@@ -69,11 +80,6 @@ CSubSystem::~CSubSystem()
 	delete[] m_ram;
 	delete[] m_scratchPad;
 	delete[] m_spuRam;
-}
-
-void CSubSystem::SetBios(const BiosBasePtr& bios)
-{
-	m_bios = bios;
 }
 
 void CSubSystem::NotifyVBlankStart()
@@ -140,7 +146,6 @@ void CSubSystem::Reset()
 	m_counters.Reset();
 	m_dmac.Reset();
 	m_intc.Reset();
-	m_bios.reset();
 
 	m_cpu.m_Comments.RemoveTags();
 	m_cpu.m_Functions.RemoveTags();

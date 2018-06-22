@@ -79,19 +79,15 @@ CPS2VM::CPS2VM()
 	CAppConfig::GetInstance().RegisterPreferencePath(PREF_PS2_CDROM0_PATH, "");
 
 	m_iop = std::make_unique<Iop::CSubSystem>(true);
-	m_iopOs = std::make_shared<CIopBios>(m_iop->m_cpu, m_iop->m_executor, m_iop->m_ram, PS2::IOP_RAM_SIZE, m_iop->m_scratchPad);
+	auto iopOs = dynamic_cast<CIopBios*>(m_iop->m_bios.get());
 
-	m_ee = std::make_unique<Ee::CSubSystem>(m_iop->m_ram, *m_iopOs);
+	m_ee = std::make_unique<Ee::CSubSystem>(m_iop->m_ram, *iopOs);
 	m_ee->m_os->OnRequestLoadExecutable.connect(boost::bind(&CPS2VM::ReloadExecutable, this, _1, _2));
 }
 
 CPS2VM::~CPS2VM()
 {
-	{
-		//Big hack to force deletion of the IopBios
-		m_iop->SetBios(Iop::BiosBasePtr());
-		m_iopOs.reset();
-	}
+
 }
 
 //////////////////////////////////////////////////
@@ -317,7 +313,7 @@ void CPS2VM::LoadDebugTags(const char* packageName)
 			{
 				m_iop->m_cpu.m_Functions.Unserialize(sectionNode, TAGS_SECTION_IOP_FUNCTIONS);
 				m_iop->m_cpu.m_Comments.Unserialize(sectionNode, TAGS_SECTION_IOP_COMMENTS);
-				m_iopOs->LoadDebugTags(sectionNode);
+				m_iop->m_bios->LoadDebugTags(sectionNode);
 			}
 		}
 	}
@@ -341,7 +337,7 @@ void CPS2VM::SaveDebugTags(const char* packageName)
 			Framework::Xml::CNode* iopNode = new Framework::Xml::CNode(TAGS_SECTION_IOP, true);
 			m_iop->m_cpu.m_Functions.Serialize(iopNode, TAGS_SECTION_IOP_FUNCTIONS);
 			m_iop->m_cpu.m_Comments.Serialize(iopNode, TAGS_SECTION_IOP_COMMENTS);
-			m_iopOs->SaveDebugTags(iopNode);
+			m_iop->m_bios->SaveDebugTags(iopNode);
 			document->InsertNode(iopNode);
 		}
 		Framework::Xml::CWriter::WriteDocument(stream, document.get());
@@ -365,9 +361,7 @@ void CPS2VM::CreateVM()
 void CPS2VM::ResetVM()
 {
 	m_ee->Reset();
-
 	m_iop->Reset();
-	m_iop->SetBios(m_iopOs);
 
 	//LoadBIOS();
 
@@ -376,17 +370,22 @@ void CPS2VM::ResetVM()
 		m_ee->m_gs->Reset();
 	}
 
-	m_iopOs->Reset(std::make_shared<Iop::CSifManPs2>(m_ee->m_sif, m_ee->m_ram, m_iop->m_ram));
+	{
+		auto iopOs = dynamic_cast<CIopBios*>(m_iop->m_bios.get());
+		assert(iopOs);
+
+		iopOs->Reset(std::make_shared<Iop::CSifManPs2>(m_ee->m_sif, m_ee->m_ram, m_iop->m_ram));
+
+		iopOs->GetIoman()->RegisterDevice("host", Iop::CIoman::DevicePtr(new Iop::Ioman::CDirectoryDevice(PREF_PS2_HOST_DIRECTORY)));
+		iopOs->GetIoman()->RegisterDevice("mc0", Iop::CIoman::DevicePtr(new Iop::Ioman::CDirectoryDevice(PREF_PS2_MC0_DIRECTORY)));
+		iopOs->GetIoman()->RegisterDevice("mc1", Iop::CIoman::DevicePtr(new Iop::Ioman::CDirectoryDevice(PREF_PS2_MC1_DIRECTORY)));
+		iopOs->GetIoman()->RegisterDevice("cdrom", Iop::CIoman::DevicePtr(new Iop::Ioman::COpticalMediaDevice(m_cdrom0)));
+		iopOs->GetIoman()->RegisterDevice("cdrom0", Iop::CIoman::DevicePtr(new Iop::Ioman::COpticalMediaDevice(m_cdrom0)));
+
+		iopOs->GetLoadcore()->SetLoadExecutableHandler(std::bind(&CPS2OS::LoadExecutable, m_ee->m_os, std::placeholders::_1, std::placeholders::_2));
+	}
 
 	CDROM0_SyncPath();
-
-	m_iopOs->GetIoman()->RegisterDevice("host", Iop::CIoman::DevicePtr(new Iop::Ioman::CDirectoryDevice(PREF_PS2_HOST_DIRECTORY)));
-	m_iopOs->GetIoman()->RegisterDevice("mc0", Iop::CIoman::DevicePtr(new Iop::Ioman::CDirectoryDevice(PREF_PS2_MC0_DIRECTORY)));
-	m_iopOs->GetIoman()->RegisterDevice("mc1", Iop::CIoman::DevicePtr(new Iop::Ioman::CDirectoryDevice(PREF_PS2_MC1_DIRECTORY)));
-	m_iopOs->GetIoman()->RegisterDevice("cdrom", Iop::CIoman::DevicePtr(new Iop::Ioman::COpticalMediaDevice(m_cdrom0)));
-	m_iopOs->GetIoman()->RegisterDevice("cdrom0", Iop::CIoman::DevicePtr(new Iop::Ioman::COpticalMediaDevice(m_cdrom0)));
-
-	m_iopOs->GetLoadcore()->SetLoadExecutableHandler(std::bind(&CPS2OS::LoadExecutable, m_ee->m_os, std::placeholders::_1, std::placeholders::_2));
 
 	m_vblankTicks = ONSCREEN_TICKS;
 	m_inVblank = false;
@@ -689,16 +688,22 @@ void CPS2VM::CDROM0_Reset()
 
 void CPS2VM::SetIopOpticalMedia(COpticalMedia* opticalMedia)
 {
-	m_iopOs->GetCdvdfsv()->SetOpticalMedia(opticalMedia);
-	m_iopOs->GetCdvdman()->SetOpticalMedia(opticalMedia);
+	auto iopOs = dynamic_cast<CIopBios*>(m_iop->m_bios.get());
+	assert(iopOs);
+
+	iopOs->GetCdvdfsv()->SetOpticalMedia(opticalMedia);
+	iopOs->GetCdvdman()->SetOpticalMedia(opticalMedia);
 }
 
 void CPS2VM::RegisterModulesInPadHandler()
 {
 	if(m_pad == nullptr) return;
 
+	auto iopOs = dynamic_cast<CIopBios*>(m_iop->m_bios.get());
+	assert(iopOs);
+
 	m_pad->RemoveAllListeners();
-	m_pad->InsertListener(m_iopOs->GetPadman());
+	m_pad->InsertListener(iopOs->GetPadman());
 	m_pad->InsertListener(&m_iop->m_sio2);
 }
 

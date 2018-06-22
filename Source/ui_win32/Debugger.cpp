@@ -85,7 +85,7 @@ CDebugger::CDebugger(CPS2VM& virtualMachine)
 	m_pView[DEBUGVIEW_VU1] = new CDebugView(m_pMDIClient->m_hWnd, m_virtualMachine, &m_virtualMachine.m_ee->m_VU1,
 	                                        std::bind(&CPS2VM::StepVu1, &m_virtualMachine), nullptr, "Vector Unit 1", CDisAsmWnd::DISASM_VU);
 	m_pView[DEBUGVIEW_IOP] = new CDebugView(m_pMDIClient->m_hWnd, m_virtualMachine, &m_virtualMachine.m_iop->m_cpu,
-	                                        std::bind(&CPS2VM::StepIop, &m_virtualMachine), m_virtualMachine.m_iopOs.get(), "IO Processor");
+	                                        std::bind(&CPS2VM::StepIop, &m_virtualMachine), m_virtualMachine.m_iop->m_bios.get(), "IO Processor");
 
 	m_virtualMachine.m_ee->m_os->OnExecutableChange.connect(boost::bind(&CDebugger::OnExecutableChange, this));
 	m_virtualMachine.m_ee->m_os->OnExecutableUnloading.connect(boost::bind(&CDebugger::OnExecutableUnloading, this));
