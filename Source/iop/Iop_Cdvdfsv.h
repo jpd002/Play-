@@ -46,6 +46,7 @@ namespace Iop
 			COMMAND_READ,
 			COMMAND_READIOP,
 			COMMAND_STREAM_READ,
+			COMMAND_NDISKREADY,
 		};
 
 		bool Invoke592(uint32, uint32*, uint32, uint32*, uint32, uint8*);
@@ -60,6 +61,7 @@ namespace Iop
 		void Read(uint32*, uint32, uint32*, uint32, uint8*);
 		void ReadIopMem(uint32*, uint32, uint32*, uint32, uint8*);
 		bool StreamCmd(uint32*, uint32, uint32*, uint32, uint8*);
+		bool NDiskReady(uint32*, uint32, uint32*, uint32, uint8*);
 		void SearchFile(uint32*, uint32, uint32*, uint32, uint8*);
 
 		CCdvdman& m_cdvdman;

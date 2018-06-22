@@ -104,6 +104,10 @@ void CCdvdfsv::ProcessCommands(CSifMan* sifMan)
 				}
 			}
 		}
+		else if(m_pendingCommand == COMMAND_NDISKREADY)
+		{
+			//Result already set, just return normally
+		}
 
 		m_pendingCommand = COMMAND_NONE;
 		sifMan->SendCallReply(MODULE_ID_4, nullptr);
@@ -291,17 +295,7 @@ bool CCdvdfsv::Invoke595(uint32 method, uint32* args, uint32 argsSize, uint32* r
 		break;
 
 	case 0x0E:
-		//DiskReady (returns 2 if ready, 6 if not ready)
-		assert(retSize >= 4);
-		CLog::GetInstance().Print(LOG_NAME, "NDiskReady();\r\n");
-		if(m_pendingCommand != COMMAND_NONE)
-		{
-			ret[0x00] = 6;
-		}
-		else
-		{
-			ret[0x00] = 2;
-		}
+		return NDiskReady(args, argsSize, ret, retSize, ram);
 		break;
 
 	default:
@@ -474,6 +468,24 @@ bool CCdvdfsv::StreamCmd(uint32* args, uint32 argsSize, uint32* ret, uint32 retS
 	}
 
 	return immediateReply;
+}
+
+bool CCdvdfsv::NDiskReady(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, uint8* ram)
+{
+	//DiskReady (returns 2 if ready, 6 if not ready)
+	assert(retSize >= 4);
+	CLog::GetInstance().Print(LOG_NAME, "NDiskReady();\r\n");
+	if(m_pendingCommand != COMMAND_NONE)
+	{
+		ret[0x00] = 6;
+		return true;
+	}
+	else
+	{
+		m_pendingCommand = COMMAND_NDISKREADY;
+		ret[0x00] = 2;
+		return false;
+	}
 }
 
 void CCdvdfsv::SearchFile(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, uint8* ram)
