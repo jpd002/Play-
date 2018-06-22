@@ -1926,7 +1926,7 @@ void CPS2OS::sc_ReleaseWaitThread()
 	auto thread = m_threads[id];
 	if(!thread)
 	{
-		CLog::GetInstance().Warn(LOG_NAME, "ReleaseWaitThread: Used on thread that doesn't exist (%d).",
+		CLog::GetInstance().Warn(LOG_NAME, SYSCALL_NAME_RELEASEWAITTHREAD ": Used on thread that doesn't exist (%d).",
 			id);
 		m_ee.m_State.nGPR[SC_RETURN].nD0 = static_cast<int32>(-1);
 		return;
@@ -1936,7 +1936,7 @@ void CPS2OS::sc_ReleaseWaitThread()
 	assert(thread->status != THREAD_WAITING);
 	if(thread->status != THREAD_SLEEPING)
 	{
-		CLog::GetInstance().Warn(LOG_NAME, "ReleaseWaitThread: Used on non sleeping thread (%d).",
+		CLog::GetInstance().Warn(LOG_NAME, SYSCALL_NAME_RELEASEWAITTHREAD ": Used on non sleeping thread (%d).",
 			id);
 		m_ee.m_State.nGPR[SC_RETURN].nD0 = static_cast<int32>(-1);
 		return;
