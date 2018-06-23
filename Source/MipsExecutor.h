@@ -197,16 +197,11 @@ public:
 	int Execute(int cycles)
 	{
 		assert(TranslateFunction == m_context.m_pAddrTranslator);
-		auto block = m_emptyBlock.get();
 		m_context.m_State.cycleQuota = cycles;
 		while(m_context.m_State.nHasException == 0)
 		{
 			uint32 address = TranslateFunction(&m_context, m_context.m_State.nPC);
-			if(address != block->GetBeginAddress())
-			{
-				block = FindBlockStartingAt(address);
-			}
-
+			auto block = m_blockLookup.FindBlockAt(address);
 #ifdef DEBUGGER_INCLUDED
 			if(!m_breakpointsDisabledOnce && MustBreak()) break;
 			m_breakpointsDisabledOnce = false;
