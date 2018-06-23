@@ -225,7 +225,7 @@ void CBasicBlock::CompileProlog(CMipsJitter* jitter)
 		jitter->PushCst(0);
 		jitter->BeginIf(Jitter::CONDITION_EQ);
 		{
-			jitter->JumpTo(&NextBlockTrampoline);
+			jitter->JumpTo(reinterpret_cast<void*>(&NextBlockTrampoline));
 		}
 		jitter->EndIf();
 	}
@@ -238,7 +238,7 @@ void CBasicBlock::CompileProlog(CMipsJitter* jitter)
 		jitter->PushCst(0);
 		jitter->BeginIf(Jitter::CONDITION_EQ);
 		{
-			jitter->JumpTo(&NextBlockTrampoline);
+			jitter->JumpTo(reinterpret_cast<void*>(&NextBlockTrampoline));
 		}
 		jitter->EndIf();
 	}
