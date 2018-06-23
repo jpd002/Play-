@@ -13,6 +13,8 @@
 
 namespace Psp
 {
+	typedef CMipsExecutor<BlockLookupTwoWay> CPspExecutor;
+
 	class CPsfSubSystem : public CPsfVmSubSystem
 	{
 	public:
@@ -49,7 +51,7 @@ namespace Psp
 		int ExecuteCpu(bool);
 
 		CMIPS m_cpu;
-		CMipsExecutor m_executor;
+		CPspExecutor m_executor;
 		CMA_ALLEGREX m_cpuArch;
 		CCOP_SCU m_copScu;
 		CCOP_FPU m_copFpu;

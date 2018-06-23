@@ -7,8 +7,6 @@
 #include "SoundHandler.h"
 #include <boost/signals2.hpp>
 
-class CMipsExecutor;
-
 class CPsfVmSubSystem
 {
 public:
