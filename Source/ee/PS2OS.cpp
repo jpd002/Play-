@@ -1920,14 +1920,14 @@ void CPS2OS::sc_RotateThreadReadyQueue()
 //2D/2E
 void CPS2OS::sc_ReleaseWaitThread()
 {
-	uint32 id  = m_ee.m_State.nGPR[SC_PARAM0].nV[0];
+	uint32 id = m_ee.m_State.nGPR[SC_PARAM0].nV[0];
 	bool isInt = m_ee.m_State.nGPR[3].nV[0] == 0x2E;
 
 	auto thread = m_threads[id];
 	if(!thread)
 	{
 		CLog::GetInstance().Warn(LOG_NAME, SYSCALL_NAME_RELEASEWAITTHREAD ": Used on thread that doesn't exist (%d).",
-			id);
+		                         id);
 		m_ee.m_State.nGPR[SC_RETURN].nD0 = static_cast<int32>(-1);
 		return;
 	}
@@ -1937,7 +1937,7 @@ void CPS2OS::sc_ReleaseWaitThread()
 	if(thread->status != THREAD_SLEEPING)
 	{
 		CLog::GetInstance().Warn(LOG_NAME, SYSCALL_NAME_RELEASEWAITTHREAD ": Used on non sleeping thread (%d).",
-			id);
+		                         id);
 		m_ee.m_State.nGPR[SC_RETURN].nD0 = static_cast<int32>(-1);
 		return;
 	}
@@ -2970,11 +2970,11 @@ std::string CPS2OS::GetSysCallDescription(uint8 function)
 		break;
 	case 0x2D:
 		sprintf(description, SYSCALL_NAME_RELEASEWAITTHREAD "(id = %d);",
-			m_ee.m_State.nGPR[SC_PARAM0].nV[0]);
+		        m_ee.m_State.nGPR[SC_PARAM0].nV[0]);
 		break;
 	case 0x2E:
 		sprintf(description, SYSCALL_NAME_IRELEASEWAITTHREAD "(id = %d);",
-			m_ee.m_State.nGPR[SC_PARAM0].nV[0]);
+		        m_ee.m_State.nGPR[SC_PARAM0].nV[0]);
 		break;
 	case 0x2F:
 		sprintf(description, SYSCALL_NAME_GETTHREADID "();");
