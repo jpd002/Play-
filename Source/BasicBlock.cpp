@@ -39,6 +39,8 @@ extern "C"
 
 #endif
 
+#define INVALID_LINK_SLOT (~0U)
+
 CBasicBlock::CBasicBlock(CMIPS& context, uint32 begin, uint32 end)
     : m_begin(begin)
     , m_end(end)
@@ -48,6 +50,10 @@ CBasicBlock::CBasicBlock(CMIPS& context, uint32 begin, uint32 end)
 #endif
 {
 	assert(m_end >= m_begin);
+	for(uint32 i = 0; i < LINK_SLOT_MAX; i++)
+	{
+		m_linkBlockTrampolineOffset[i] = INVALID_LINK_SLOT;
+	}
 }
 
 #ifdef AOT_BUILD_CACHE
@@ -287,37 +293,28 @@ bool CBasicBlock::IsEmpty() const
 	       (m_end == MIPS_INVALID_PC);
 }
 
-void CBasicBlock::LinkNextBlock(CBasicBlock* otherBlock)
+void CBasicBlock::LinkBlock(LINK_SLOT linkSlot, CBasicBlock* otherBlock)
 {
 	assert(!IsEmpty());
 	assert(!otherBlock->IsEmpty());
-	assert(m_nextBlockTrampolineOffset != -1);
+	assert(linkSlot < LINK_SLOT_MAX);
+	assert(m_linkBlockTrampolineOffset[linkSlot] != INVALID_LINK_SLOT);
 	auto patchValue = reinterpret_cast<uintptr_t>(otherBlock->m_function.GetCode());
 	auto code = reinterpret_cast<uint8*>(m_function.GetCode());
-	*reinterpret_cast<uintptr_t*>(code + m_nextBlockTrampolineOffset) = patchValue;
-}
-
-void CBasicBlock::LinkBranchBlock(CBasicBlock* otherBlock)
-{
-	assert(!IsEmpty());
-	assert(!otherBlock->IsEmpty());
-	assert(m_branchBlockTrampolineOffset != -1);
-	auto patchValue = reinterpret_cast<uintptr_t>(otherBlock->m_function.GetCode());
-	auto code = reinterpret_cast<uint8*>(m_function.GetCode());
-	*reinterpret_cast<uintptr_t*>(code + m_branchBlockTrampolineOffset) = patchValue;
+	*reinterpret_cast<uintptr_t*>(code + m_linkBlockTrampolineOffset[linkSlot]) = patchValue;
 }
 
 void CBasicBlock::HandleExternalFunctionReference(uintptr_t symbol, uint32 offset)
 {
 	if(symbol == reinterpret_cast<uintptr_t>(&NextBlockTrampoline))
 	{
-		if(m_branchBlockTrampolineOffset == -1)
+		if(m_linkBlockTrampolineOffset[LINK_SLOT_BRANCH] == INVALID_LINK_SLOT)
 		{
-			m_branchBlockTrampolineOffset = offset;
+			m_linkBlockTrampolineOffset[LINK_SLOT_BRANCH] = offset;
 		}
 		else
 		{
-			m_nextBlockTrampolineOffset = offset;
+			m_linkBlockTrampolineOffset[LINK_SLOT_NEXT] = offset;
 		}
 	}
 }

@@ -268,8 +268,15 @@ public:
 #endif
 
 protected:
+	//Outgoing block link
+	struct BLOCK_LINK
+	{
+		CBasicBlock::LINK_SLOT slot;
+		uint32 address;
+	};
+
 	typedef std::list<BasicBlockPtr> BlockList;
-	typedef std::multimap<uint32, uint32> BlockLinkMap;
+	typedef std::multimap<uint32, BLOCK_LINK> BlockLinkMap;
 
 	bool HasBlockAt(uint32 address) const
 	{
@@ -301,11 +308,11 @@ protected:
 			auto nextBlock = m_blockLookup.FindBlockAt(nextBlockAddress);
 			if(!nextBlock->IsEmpty())
 			{
-				block->LinkNextBlock(nextBlock);
+				block->LinkBlock(CBasicBlock::LINK_SLOT_NEXT, nextBlock);
 			}
 			else
 			{
-				m_pendingNextBlockLinks.insert(std::make_pair(nextBlockAddress, startAddress));
+				m_pendingBlockLinks.insert(std::make_pair(nextBlockAddress, BLOCK_LINK { CBasicBlock::LINK_SLOT_NEXT, startAddress }));
 			}
 		}
 
@@ -314,36 +321,26 @@ protected:
 			auto branchBlock = m_blockLookup.FindBlockAt(branchAddress);
 			if(!branchBlock->IsEmpty())
 			{
-				block->LinkBranchBlock(branchBlock);
+				block->LinkBlock(CBasicBlock::LINK_SLOT_BRANCH, branchBlock);
 			}
 			else
 			{
-				m_pendingBranchBlockLinks.insert(std::make_pair(branchAddress, startAddress));
+				m_pendingBlockLinks.insert(std::make_pair(branchAddress, BLOCK_LINK { CBasicBlock::LINK_SLOT_BRANCH, startAddress }));
 			}
 		}
 
 		//Resolve any block links that could be valid now that block has been created
 		{
-			auto lowerBound = m_pendingNextBlockLinks.lower_bound(startAddress);
-			auto upperBound = m_pendingNextBlockLinks.upper_bound(startAddress);
+			auto lowerBound = m_pendingBlockLinks.lower_bound(startAddress);
+			auto upperBound = m_pendingBlockLinks.upper_bound(startAddress);
 			for(auto blockLinkIterator = lowerBound; blockLinkIterator != upperBound; blockLinkIterator++)
 			{
-				auto referringBlock = m_blockLookup.FindBlockAt(blockLinkIterator->second);
+				const auto& blockLink = blockLinkIterator->second;
+				auto referringBlock = m_blockLookup.FindBlockAt(blockLink.address);
 				if(referringBlock->IsEmpty()) continue;
-				referringBlock->LinkNextBlock(block);
+				referringBlock->LinkBlock(blockLink.slot, block);
 			}
-			m_pendingNextBlockLinks.erase(lowerBound, upperBound);
-		}
-		{
-			auto lowerBound = m_pendingBranchBlockLinks.lower_bound(startAddress);
-			auto upperBound = m_pendingBranchBlockLinks.upper_bound(startAddress);
-			for(auto blockLinkIterator = lowerBound; blockLinkIterator != upperBound; blockLinkIterator++)
-			{
-				auto referringBlock = m_blockLookup.FindBlockAt(blockLinkIterator->second);
-				if(referringBlock->IsEmpty()) continue;
-				referringBlock->LinkBranchBlock(block);
-			}
-			m_pendingBranchBlockLinks.erase(lowerBound, upperBound);
+			m_pendingBlockLinks.erase(lowerBound, upperBound);
 		}
 	}
 
@@ -398,8 +395,7 @@ protected:
 
 	BlockList m_blocks;
 	BasicBlockPtr m_emptyBlock;
-	BlockLinkMap m_pendingNextBlockLinks;
-	BlockLinkMap m_pendingBranchBlockLinks;
+	BlockLinkMap m_pendingBlockLinks;
 	CMIPS& m_context;
 	uint32 m_maxAddress = 0;
 

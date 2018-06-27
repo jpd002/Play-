@@ -43,6 +43,13 @@ namespace Jitter
 class CBasicBlock
 {
 public:
+	enum LINK_SLOT
+	{
+		LINK_SLOT_NEXT,
+		LINK_SLOT_BRANCH,
+		LINK_SLOT_MAX,
+	};
+
 	CBasicBlock(CMIPS&, uint32 = MIPS_INVALID_PC, uint32 = MIPS_INVALID_PC);
 	virtual ~CBasicBlock() = default;
 	void Execute();
@@ -53,8 +60,7 @@ public:
 	bool IsCompiled() const;
 	bool IsEmpty() const;
 
-	void LinkNextBlock(CBasicBlock*);
-	void LinkBranchBlock(CBasicBlock*);
+	void LinkBlock(LINK_SLOT, CBasicBlock*);
 
 #ifdef AOT_BUILD_CACHE
 	static void SetAotBlockOutputStream(Framework::CStdStream*);
@@ -84,6 +90,5 @@ private:
 #else
 	void (*m_function)(void*);
 #endif
-	uint32 m_nextBlockTrampolineOffset = -1;
-	uint32 m_branchBlockTrampolineOffset = -1;
+	uint32 m_linkBlockTrampolineOffset[LINK_SLOT_MAX];
 };
