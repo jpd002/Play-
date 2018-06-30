@@ -217,18 +217,6 @@ public:
 		return m_blockLookup.FindBlockAt(address);
 	}
 
-	void DeleteBlock(CBasicBlock* block)
-	{
-		assert(block != m_emptyBlock.get());
-
-		m_blockLookup.DeleteBlock(block);
-
-		//Remove block from our lists
-		auto blockIterator = std::find_if(std::begin(m_blocks), std::end(m_blocks), [&](const BasicBlockPtr& blockPtr) { return blockPtr.get() == block; });
-		assert(blockIterator != std::end(m_blocks));
-		m_blocks.erase(blockIterator);
-	}
-
 	virtual void Reset()
 	{
 		ClearActiveBlocks();
@@ -305,27 +293,33 @@ protected:
 
 		{
 			uint32 nextBlockAddress = endAddress + 4;
+			block->SetLinkTargetAddress(CBasicBlock::LINK_SLOT_NEXT, nextBlockAddress);
+			auto link = std::make_pair(nextBlockAddress, BLOCK_LINK{CBasicBlock::LINK_SLOT_NEXT, startAddress});
 			auto nextBlock = m_blockLookup.FindBlockAt(nextBlockAddress);
 			if(!nextBlock->IsEmpty())
 			{
 				block->LinkBlock(CBasicBlock::LINK_SLOT_NEXT, nextBlock);
+				m_blockLinks.insert(link);
 			}
 			else
 			{
-				m_pendingBlockLinks.insert(std::make_pair(nextBlockAddress, BLOCK_LINK { CBasicBlock::LINK_SLOT_NEXT, startAddress }));
+				m_pendingBlockLinks.insert(link);
 			}
 		}
 
 		if(branchAddress != 0)
 		{
+			block->SetLinkTargetAddress(CBasicBlock::LINK_SLOT_BRANCH, branchAddress);
+			auto link = std::make_pair(branchAddress, BLOCK_LINK{CBasicBlock::LINK_SLOT_BRANCH, startAddress});
 			auto branchBlock = m_blockLookup.FindBlockAt(branchAddress);
 			if(!branchBlock->IsEmpty())
 			{
 				block->LinkBlock(CBasicBlock::LINK_SLOT_BRANCH, branchBlock);
+				m_blockLinks.insert(link);
 			}
 			else
 			{
-				m_pendingBlockLinks.insert(std::make_pair(branchAddress, BLOCK_LINK { CBasicBlock::LINK_SLOT_BRANCH, startAddress }));
+				m_pendingBlockLinks.insert(link);
 			}
 		}
 
@@ -339,6 +333,7 @@ protected:
 				auto referringBlock = m_blockLookup.FindBlockAt(blockLink.address);
 				if(referringBlock->IsEmpty()) continue;
 				referringBlock->LinkBlock(blockLink.slot, block);
+				m_blockLinks.insert(*blockLinkIterator);
 			}
 			m_pendingBlockLinks.erase(lowerBound, upperBound);
 		}
@@ -369,6 +364,40 @@ protected:
 		SetupBlockLinks(startAddress, endAddress, branchAddress);
 	}
 
+	//Unlink and removes block from all of our bookkeeping structures
+	void OrphanBlock(CBasicBlock* block)
+	{
+		auto orphanBlockLinkSlot =
+			[&](CBasicBlock::LINK_SLOT linkSlot)
+			{
+				auto slotSearch =
+					[&](const std::pair<uint32, BLOCK_LINK>& link) {
+						return (link.second.address == block->GetBeginAddress()) &&
+								(link.second.slot == linkSlot);
+					};
+				uint32 linkTargetAddress = block->GetLinkTargetAddress(linkSlot);
+				//Check if block has this specific link slot
+				if(linkTargetAddress != MIPS_INVALID_PC)
+				{
+					//If it has that link slot, it's either linked or pending to be linked
+					auto slotIterator = std::find_if(m_blockLinks.begin(), m_blockLinks.end(), slotSearch);
+					if(slotIterator != std::end(m_blockLinks))
+					{
+						block->UnlinkBlock(linkSlot);
+						m_blockLinks.erase(slotIterator);
+					}
+					else
+					{
+						slotIterator = std::find_if(m_pendingBlockLinks.begin(), m_pendingBlockLinks.end(), slotSearch);
+						assert(slotIterator != std::end(m_pendingBlockLinks));
+						m_pendingBlockLinks.erase(slotIterator);
+					}
+				}
+			};
+		orphanBlockLinkSlot(CBasicBlock::LINK_SLOT_NEXT);
+		orphanBlockLinkSlot(CBasicBlock::LINK_SLOT_BRANCH);
+	}
+
 	void ClearActiveBlocksInRangeInternal(uint32 start, uint32 end, CBasicBlock* protectedBlock)
 	{
 		//Widen scan range since blocks starting before the range can end in the range
@@ -387,6 +416,28 @@ protected:
 			m_blockLookup.DeleteBlock(block);
 		}
 
+		//Remove pending block link entries for the blocks that are about to be cleared
+		for(auto& block : clearedBlocks)
+		{
+			OrphanBlock(block);
+		}
+
+		//Undo all stale links
+		for(auto& block : clearedBlocks)
+		{
+			auto lowerBound = m_blockLinks.lower_bound(block->GetBeginAddress());
+			auto upperBound = m_blockLinks.upper_bound(block->GetBeginAddress());
+			for(auto blockLinkIterator = lowerBound; blockLinkIterator != upperBound; blockLinkIterator++)
+			{
+				const auto& blockLink = blockLinkIterator->second;
+				auto referringBlock = m_blockLookup.FindBlockAt(blockLink.address);
+				if(referringBlock->IsEmpty()) continue;
+				referringBlock->UnlinkBlock(blockLink.slot);
+				m_pendingBlockLinks.insert(*blockLinkIterator);
+			}
+			m_blockLinks.erase(lowerBound, upperBound);
+		}
+
 		if(!clearedBlocks.empty())
 		{
 			m_blocks.remove_if([&](const BasicBlockPtr& block) { return clearedBlocks.find(block.get()) != std::end(clearedBlocks); });
@@ -395,6 +446,7 @@ protected:
 
 	BlockList m_blocks;
 	BasicBlockPtr m_emptyBlock;
+	BlockLinkMap m_blockLinks;
 	BlockLinkMap m_pendingBlockLinks;
 	CMIPS& m_context;
 	uint32 m_maxAddress = 0;

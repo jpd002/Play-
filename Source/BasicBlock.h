@@ -60,7 +60,10 @@ public:
 	bool IsCompiled() const;
 	bool IsEmpty() const;
 
+	uint32 GetLinkTargetAddress(LINK_SLOT);
+	void SetLinkTargetAddress(LINK_SLOT, uint32);
 	void LinkBlock(LINK_SLOT, CBasicBlock*);
+	void UnlinkBlock(LINK_SLOT);
 
 #ifdef AOT_BUILD_CACHE
 	static void SetAotBlockOutputStream(Framework::CStdStream*);
@@ -90,5 +93,9 @@ private:
 #else
 	void (*m_function)(void*);
 #endif
+	uint32 m_linkTargetAddress[LINK_SLOT_MAX];
 	uint32 m_linkBlockTrampolineOffset[LINK_SLOT_MAX];
+#ifdef _DEBUG
+	CBasicBlock* m_linkBlock[LINK_SLOT_MAX];
+#endif
 };

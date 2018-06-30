@@ -52,6 +52,10 @@ CBasicBlock::CBasicBlock(CMIPS& context, uint32 begin, uint32 end)
 	assert(m_end >= m_begin);
 	for(uint32 i = 0; i < LINK_SLOT_MAX; i++)
 	{
+#ifdef _DEBUG
+		m_linkBlock[i] = nullptr;
+#endif
+		m_linkTargetAddress[i] = MIPS_INVALID_PC;
 		m_linkBlockTrampolineOffset[i] = INVALID_LINK_SLOT;
 	}
 }
@@ -293,13 +297,43 @@ bool CBasicBlock::IsEmpty() const
 	       (m_end == MIPS_INVALID_PC);
 }
 
+uint32 CBasicBlock::GetLinkTargetAddress(LINK_SLOT linkSlot)
+{
+	assert(linkSlot < LINK_SLOT_MAX);
+	return m_linkTargetAddress[linkSlot];
+}
+
+void CBasicBlock::SetLinkTargetAddress(LINK_SLOT linkSlot, uint32 address)
+{
+	assert(linkSlot < LINK_SLOT_MAX);
+	m_linkTargetAddress[linkSlot] = address;
+}
+
 void CBasicBlock::LinkBlock(LINK_SLOT linkSlot, CBasicBlock* otherBlock)
 {
 	assert(!IsEmpty());
 	assert(!otherBlock->IsEmpty());
 	assert(linkSlot < LINK_SLOT_MAX);
 	assert(m_linkBlockTrampolineOffset[linkSlot] != INVALID_LINK_SLOT);
+#ifdef _DEBUG
+	assert(m_linkBlock[linkSlot] == nullptr);
+	m_linkBlock[linkSlot] = otherBlock;
+#endif
 	auto patchValue = reinterpret_cast<uintptr_t>(otherBlock->m_function.GetCode());
+	auto code = reinterpret_cast<uint8*>(m_function.GetCode());
+	*reinterpret_cast<uintptr_t*>(code + m_linkBlockTrampolineOffset[linkSlot]) = patchValue;
+}
+
+void CBasicBlock::UnlinkBlock(LINK_SLOT linkSlot)
+{
+	assert(!IsEmpty());
+	assert(linkSlot < LINK_SLOT_MAX);
+	assert(m_linkBlockTrampolineOffset[linkSlot] != INVALID_LINK_SLOT);
+#ifdef _DEBUG
+	assert(m_linkBlock[linkSlot] != nullptr);
+	m_linkBlock[linkSlot] = nullptr;
+#endif
+	auto patchValue = reinterpret_cast<uintptr_t>(&NextBlockTrampoline);
 	auto code = reinterpret_cast<uint8*>(m_function.GetCode());
 	*reinterpret_cast<uintptr_t*>(code + m_linkBlockTrampolineOffset[linkSlot]) = patchValue;
 }
