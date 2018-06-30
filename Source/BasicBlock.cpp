@@ -97,7 +97,7 @@ void CBasicBlock::Compile()
 			}
 		}
 
-		jitter->GetCodeGen()->SetExternalSymbolReferencedHandler([&](auto symbol, auto offset) { HandleExternalFunctionReference(symbol, offset); });
+		jitter->GetCodeGen()->SetExternalSymbolReferencedHandler([&](auto symbol, auto offset) { this->HandleExternalFunctionReference(symbol, offset); });
 		jitter->SetStream(&stream);
 		jitter->Begin();
 		CompileRange(jitter);
