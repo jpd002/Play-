@@ -226,6 +226,8 @@ public:
 	{
 		m_blockLookup.Clear();
 		m_blocks.clear();
+		m_blockLinks.clear();
+		m_pendingBlockLinks.clear();
 	}
 
 	virtual void ClearActiveBlocksInRange(uint32 start, uint32 end)
