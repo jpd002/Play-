@@ -7,7 +7,7 @@ class CMipsJitter : public Jitter::CJitter
 {
 public:
 	CMipsJitter(Jitter::CCodeGen*);
-	virtual ~CMipsJitter();
+	virtual ~CMipsJitter() = default;
 
 	virtual void Begin();
 	virtual void End();
@@ -28,7 +28,6 @@ private:
 
 	VARIABLESTATUS* GetVariableStatus(size_t);
 	void SetVariableStatus(size_t, const VARIABLESTATUS&);
-	void SaveVariableStatus(size_t, const VARIABLESTATUS&);
 
 	VariableStatusMap m_variableStatus;
 	LABEL m_lastBlockLabel;

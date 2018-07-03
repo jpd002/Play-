@@ -7,10 +7,6 @@ CMipsJitter::CMipsJitter(Jitter::CCodeGen* codeGen)
 {
 }
 
-CMipsJitter::~CMipsJitter()
-{
-}
-
 void CMipsJitter::Begin()
 {
 	CJitter::Begin();
