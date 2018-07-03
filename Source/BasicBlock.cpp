@@ -360,5 +360,4 @@ void CBasicBlock::EmptyBlockHandler(CMIPS* context)
 
 void CBasicBlock::NextBlockTrampoline(CMIPS* context)
 {
-
 }

@@ -370,32 +370,31 @@ protected:
 	void OrphanBlock(CBasicBlock* block)
 	{
 		auto orphanBlockLinkSlot =
-			[&](CBasicBlock::LINK_SLOT linkSlot)
-			{
-				auto slotSearch =
-					[&](const std::pair<uint32, BLOCK_LINK>& link) {
-						return (link.second.address == block->GetBeginAddress()) &&
-								(link.second.slot == linkSlot);
-					};
-				uint32 linkTargetAddress = block->GetLinkTargetAddress(linkSlot);
-				//Check if block has this specific link slot
-				if(linkTargetAddress != MIPS_INVALID_PC)
-				{
-					//If it has that link slot, it's either linked or pending to be linked
-					auto slotIterator = std::find_if(m_blockLinks.begin(), m_blockLinks.end(), slotSearch);
-					if(slotIterator != std::end(m_blockLinks))
-					{
-						block->UnlinkBlock(linkSlot);
-						m_blockLinks.erase(slotIterator);
-					}
-					else
-					{
-						slotIterator = std::find_if(m_pendingBlockLinks.begin(), m_pendingBlockLinks.end(), slotSearch);
-						assert(slotIterator != std::end(m_pendingBlockLinks));
-						m_pendingBlockLinks.erase(slotIterator);
-					}
-				}
-			};
+		    [&](CBasicBlock::LINK_SLOT linkSlot) {
+			    auto slotSearch =
+			        [&](const std::pair<uint32, BLOCK_LINK>& link) {
+				        return (link.second.address == block->GetBeginAddress()) &&
+				               (link.second.slot == linkSlot);
+			        };
+			    uint32 linkTargetAddress = block->GetLinkTargetAddress(linkSlot);
+			    //Check if block has this specific link slot
+			    if(linkTargetAddress != MIPS_INVALID_PC)
+			    {
+				    //If it has that link slot, it's either linked or pending to be linked
+				    auto slotIterator = std::find_if(m_blockLinks.begin(), m_blockLinks.end(), slotSearch);
+				    if(slotIterator != std::end(m_blockLinks))
+				    {
+					    block->UnlinkBlock(linkSlot);
+					    m_blockLinks.erase(slotIterator);
+				    }
+				    else
+				    {
+					    slotIterator = std::find_if(m_pendingBlockLinks.begin(), m_pendingBlockLinks.end(), slotSearch);
+					    assert(slotIterator != std::end(m_pendingBlockLinks));
+					    m_pendingBlockLinks.erase(slotIterator);
+				    }
+			    }
+		    };
 		orphanBlockLinkSlot(CBasicBlock::LINK_SLOT_NEXT);
 		orphanBlockLinkSlot(CBasicBlock::LINK_SLOT_BRANCH);
 	}
