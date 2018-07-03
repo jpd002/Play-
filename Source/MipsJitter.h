@@ -9,10 +9,10 @@ public:
 	CMipsJitter(Jitter::CCodeGen*);
 	virtual ~CMipsJitter() = default;
 
-	virtual void Begin();
-	virtual void End();
-	virtual void PushRel(size_t);
-	virtual void PushRel64(size_t);
+	void Begin() override;
+	void End() override;
+	void PushRel(size_t) override;
+	void PushRel64(size_t) override;
 
 	void SetVariableAsConstant(size_t, uint32);
 	LABEL GetFinalBlockLabel();
