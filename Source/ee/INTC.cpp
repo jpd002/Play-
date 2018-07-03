@@ -14,10 +14,6 @@ CINTC::CINTC(CDMAC& dmac, CGSHandler*& gs)
 {
 }
 
-CINTC::~CINTC()
-{
-}
-
 void CINTC::Reset()
 {
 	m_INTC_STAT = 0;

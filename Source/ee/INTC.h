@@ -31,7 +31,7 @@ public:
 	};
 
 	CINTC(CDMAC&, CGSHandler*&);
-	virtual ~CINTC();
+	virtual ~CINTC() = default;
 
 	void Reset();
 	bool IsInterruptPending() const;
