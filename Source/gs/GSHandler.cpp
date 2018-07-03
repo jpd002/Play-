@@ -7,6 +7,7 @@
 #include "../MemoryStateFile.h"
 #include "../RegisterStateFile.h"
 #include "../FrameDump.h"
+#include "../ee/INTC.h"
 #include "GSHandler.h"
 #include "GsPixelFormats.h"
 #include "string_format.h"
@@ -116,6 +117,11 @@ void CGSHandler::RegisterPreferences()
 void CGSHandler::NotifyPreferencesChanged()
 {
 	m_mailBox.SendCall([this]() { NotifyPreferencesChangedImpl(); });
+}
+
+void CGSHandler::SetIntc(CINTC* intc)
+{
+	m_intc = intc;
 }
 
 void CGSHandler::Reset()
@@ -230,6 +236,7 @@ void CGSHandler::SetVBlank()
 
 	std::lock_guard<std::recursive_mutex> registerMutexLock(m_registerMutex);
 	m_nCSR |= CSR_VSYNC_INT;
+	CheckPendingInterrupt();
 }
 
 void CGSHandler::ResetVBlank()
@@ -245,10 +252,14 @@ int CGSHandler::GetPendingTransferCount() const
 	return m_transferCount;
 }
 
-bool CGSHandler::IsInterruptPending()
+void CGSHandler::CheckPendingInterrupt()
 {
 	uint32 mask = (~m_nIMR >> 8) & 0x1F;
-	return (m_nCSR & mask) != 0;
+	bool hasPendingInterrupt = (m_nCSR & mask) != 0;
+	if(hasPendingInterrupt)
+	{
+		m_intc->AssertLine(CINTC::INTC_LINE_GS);
+	}
 }
 
 uint32 CGSHandler::ReadPrivRegister(uint32 nAddress)
@@ -261,6 +272,7 @@ uint32 CGSHandler::ReadPrivRegister(uint32 nAddress)
 		{
 			std::lock_guard<std::recursive_mutex> registerMutexLock(m_registerMutex);
 			m_nCSR |= CSR_HSYNC_INT;
+			CheckPendingInterrupt();
 			R_REG(nAddress, nData, m_nCSR);
 		}
 		break;
@@ -442,10 +454,12 @@ void CGSHandler::WriteRegisterMassively(RegisterWriteList registerWrites, const 
 			m_nSIGLBLID = siglblid;
 			assert((m_nCSR & CSR_SIGNAL_EVENT) == 0);
 			m_nCSR |= CSR_SIGNAL_EVENT;
+			CheckPendingInterrupt();
 		}
 		break;
 		case GS_REG_FINISH:
 			m_nCSR |= CSR_FINISH_EVENT;
+			CheckPendingInterrupt();
 			break;
 		case GS_REG_LABEL:
 		{
