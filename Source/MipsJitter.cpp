@@ -10,18 +10,7 @@ CMipsJitter::CMipsJitter(Jitter::CCodeGen* codeGen)
 void CMipsJitter::Begin()
 {
 	CJitter::Begin();
-
 	m_lastBlockLabel = -1;
-}
-
-void CMipsJitter::End()
-{
-	if(m_lastBlockLabel != -1)
-	{
-		MarkLabel(m_lastBlockLabel);
-	}
-
-	CJitter::End();
 }
 
 void CMipsJitter::PushRel(size_t offset)
@@ -74,6 +63,14 @@ Jitter::CJitter::LABEL CMipsJitter::GetFinalBlockLabel()
 		m_lastBlockLabel = CreateLabel();
 	}
 	return m_lastBlockLabel;
+}
+
+void CMipsJitter::MarkFinalBlockLabel()
+{
+	if(m_lastBlockLabel != -1)
+	{
+		MarkLabel(m_lastBlockLabel);
+	}
 }
 
 void CMipsJitter::SetVariableAsConstant(size_t variableId, uint32 value)

@@ -198,6 +198,7 @@ void CBasicBlock::CompileRange(CMipsJitter* jitter)
 		assert(jitter->IsStackEmpty());
 	}
 
+	jitter->MarkFinalBlockLabel();
 	CompileProlog(jitter);
 }
 

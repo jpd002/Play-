@@ -10,12 +10,13 @@ public:
 	virtual ~CMipsJitter() = default;
 
 	void Begin() override;
-	void End() override;
 	void PushRel(size_t) override;
 	void PushRel64(size_t) override;
 
 	void SetVariableAsConstant(size_t, uint32);
+
 	LABEL GetFinalBlockLabel();
+	void MarkFinalBlockLabel();
 
 private:
 	struct VARIABLESTATUS
