@@ -39,6 +39,8 @@ void CPsfLoader::LoadPsx(CPsfVm& virtualMachine, const CPsfPathToken& filePath, 
 	virtualMachine.SetSubSystem(subSystem);
 
 	auto bios = dynamic_cast<CPsxBios*>(subSystem->GetBios());
+	bios->Reset();
+
 	LoadPsxRecurse(bios, subSystem->GetCpu(), filePath, streamProvider, tags);
 }
 
@@ -110,6 +112,8 @@ void CPsfLoader::LoadPs2(CPsfVm& virtualMachine, const CPsfPathToken& filePath, 
 	virtualMachine.SetSubSystem(subSystem);
 
 	auto bios = dynamic_cast<CIopBios*>(subSystem->GetBios());
+	bios->Reset(std::shared_ptr<Iop::CSifMan>());
+
 	auto psfDevice = std::make_shared<PS2::CPsfDevice>();
 
 	//Setup IOMAN hooks
