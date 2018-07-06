@@ -165,7 +165,7 @@ private:
 typedef uint32 (*TranslateFunctionType)(CMIPS*, uint32);
 typedef std::shared_ptr<CBasicBlock> BasicBlockPtr;
 
-template <typename BlockLookupType, TranslateFunctionType TranslateFunction = &CMIPS::TranslateAddress64>
+template <typename BlockLookupType>
 class CMipsExecutor
 {
 public:
@@ -178,13 +178,14 @@ public:
 	    : m_emptyBlock(std::make_shared<CBasicBlock>(context, MIPS_INVALID_PC, MIPS_INVALID_PC))
 	    , m_context(context)
 	    , m_maxAddress(maxAddress)
+		, m_addressMask(maxAddress - 1)
 	    , m_blockLookup(m_emptyBlock.get(), maxAddress)
 	{
 		m_emptyBlock->Compile();
 		assert(!context.m_emptyBlockHandler);
 		context.m_emptyBlockHandler =
 		    [&](CMIPS* context) {
-			    uint32 address = context->m_pAddrTranslator(&m_context, m_context.m_State.nPC);
+			    uint32 address = m_context.m_State.nPC & m_addressMask;
 			    PartitionFunction(address);
 			    auto block = FindBlockStartingAt(address);
 			    assert(!block->IsEmpty());
@@ -196,11 +197,10 @@ public:
 
 	int Execute(int cycles)
 	{
-		assert(TranslateFunction == m_context.m_pAddrTranslator);
 		m_context.m_State.cycleQuota = cycles;
 		while(m_context.m_State.nHasException == 0)
 		{
-			uint32 address = TranslateFunction(&m_context, m_context.m_State.nPC);
+			uint32 address = m_context.m_State.nPC & m_addressMask;
 			auto block = m_blockLookup.FindBlockAt(address);
 #ifdef DEBUGGER_INCLUDED
 			if(!m_breakpointsDisabledOnce && MustBreak()) break;
@@ -238,7 +238,7 @@ public:
 #ifdef DEBUGGER_INCLUDED
 	bool MustBreak() const
 	{
-		uint32 currentPc = m_context.m_pAddrTranslator(&m_context, m_context.m_State.nPC);
+		uint32 currentPc = m_context.m_State.nPC & m_addressMask;
 		auto block = m_blockLookup.FindBlockAt(currentPc);
 		for(auto breakPointAddress : m_context.m_breakpoints)
 		{
@@ -294,7 +294,7 @@ protected:
 		auto block = m_blockLookup.FindBlockAt(startAddress);
 
 		{
-			uint32 nextBlockAddress = endAddress + 4;
+			uint32 nextBlockAddress = (endAddress + 4) & m_addressMask;
 			block->SetLinkTargetAddress(CBasicBlock::LINK_SLOT_NEXT, nextBlockAddress);
 			auto link = std::make_pair(nextBlockAddress, BLOCK_LINK{CBasicBlock::LINK_SLOT_NEXT, startAddress});
 			auto nextBlock = m_blockLookup.FindBlockAt(nextBlockAddress);
@@ -311,6 +311,7 @@ protected:
 
 		if(branchAddress != 0)
 		{
+			branchAddress &= m_addressMask;
 			block->SetLinkTargetAddress(CBasicBlock::LINK_SLOT_BRANCH, branchAddress);
 			auto link = std::make_pair(branchAddress, BLOCK_LINK{CBasicBlock::LINK_SLOT_BRANCH, startAddress});
 			auto branchBlock = m_blockLookup.FindBlockAt(branchAddress);
@@ -362,6 +363,7 @@ protected:
 			}
 		}
 		assert((endAddress - startAddress) <= MAX_BLOCK_SIZE);
+		assert(endAddress <= m_maxAddress);
 		CreateBlock(startAddress, endAddress);
 		SetupBlockLinks(startAddress, endAddress, branchAddress);
 	}
@@ -451,6 +453,7 @@ protected:
 	BlockLinkMap m_pendingBlockLinks;
 	CMIPS& m_context;
 	uint32 m_maxAddress = 0;
+	uint32 m_addressMask = 0;
 
 	BlockLookupType m_blockLookup;
 
