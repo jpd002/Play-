@@ -219,11 +219,6 @@ public:
 
 	virtual void Reset()
 	{
-		ClearActiveBlocks();
-	}
-
-	void ClearActiveBlocks()
-	{
 		m_blockLookup.Clear();
 		m_blocks.clear();
 		m_blockLinks.clear();
@@ -409,7 +404,7 @@ protected:
 		assert(scanEnd > scanStart);
 
 		std::set<CBasicBlock*> clearedBlocks;
-		for(uint32 address = scanStart; address <= scanEnd; address += 4)
+		for(uint32 address = scanStart; address < scanEnd; address += 4)
 		{
 			auto block = m_blockLookup.FindBlockAt(address);
 			if(block->IsEmpty()) continue;

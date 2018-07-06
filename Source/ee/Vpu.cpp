@@ -171,7 +171,7 @@ void CVpu::ExecuteMicroProgram(uint32 nAddress)
 
 void CVpu::InvalidateMicroProgram()
 {
-	m_executor.ClearActiveBlocks();
+	m_executor.ClearActiveBlocksInRange(0, (m_number == 0) ? PS2::MICROMEM0SIZE : PS2::MICROMEM1SIZE);
 }
 
 void CVpu::ProcessXgKick(uint32 address)
