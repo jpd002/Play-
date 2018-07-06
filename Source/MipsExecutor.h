@@ -178,7 +178,7 @@ public:
 	    : m_emptyBlock(std::make_shared<CBasicBlock>(context, MIPS_INVALID_PC, MIPS_INVALID_PC))
 	    , m_context(context)
 	    , m_maxAddress(maxAddress)
-		, m_addressMask(maxAddress - 1)
+	    , m_addressMask(maxAddress - 1)
 	    , m_blockLookup(m_emptyBlock.get(), maxAddress)
 	{
 		m_emptyBlock->Compile();
