@@ -9,7 +9,7 @@ namespace Iop
 	{
 	public:
 		CSifManPs2(CSIF&, uint8*, uint8*);
-		virtual ~CSifManPs2();
+		virtual ~CSifManPs2() = default;
 
 		void RegisterModule(uint32, CSifModule*) override;
 		bool IsModuleRegistered(uint32) override;
