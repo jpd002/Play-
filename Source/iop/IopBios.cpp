@@ -2151,10 +2151,8 @@ uint32 CIopBios::ReceiveMessageBox(uint32 messagePtr, uint32 boxId)
 		return KERNEL_RESULT_ERROR_UNKNOWN_MBXID;
 	}
 
-	if(box->nextMsgPtr != 0)
+	if(box->numMessage != 0)
 	{
-		assert(box->numMessage > 0);
-
 		uint32* message = reinterpret_cast<uint32*>(m_ram + messagePtr);
 		(*message) = box->nextMsgPtr;
 
@@ -2189,7 +2187,7 @@ uint32 CIopBios::PollMessageBox(uint32 messagePtr, uint32 boxId)
 		return KERNEL_RESULT_ERROR_UNKNOWN_MBXID;
 	}
 
-	if(box->nextMsgPtr == 0)
+	if(box->numMessage == 0)
 	{
 		return KERNEL_RESULT_ERROR_MBX_NOMSG;
 	}
