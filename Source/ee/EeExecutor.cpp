@@ -1,6 +1,7 @@
 #include "EeExecutor.h"
 #include "../Ps2Const.h"
 #include "AlignedAlloc.h"
+#include <zlib.h>
 
 #if defined(__unix__) || defined(__ANDROID__) || defined(__APPLE__)
 #include <sys/mman.h>
@@ -96,6 +97,7 @@ void CEeExecutor::RemoveExceptionHandler()
 void CEeExecutor::Reset()
 {
 	SetMemoryProtected(m_ram, PS2::EE_RAM_SIZE, false);
+	m_cachedBlocks.clear();
 	CGenericMipsExecutor::Reset();
 }
 
@@ -108,14 +110,43 @@ void CEeExecutor::ClearActiveBlocksInRange(uint32 start, uint32 end, bool execut
 
 BasicBlockPtr CEeExecutor::BlockFactory(CMIPS& context, uint32 start, uint32 end)
 {
+	uint32 blockSize = (end - start) + 4;
+
 	//Kernel area is below 0x100000 and isn't protected. Some games will write code in there
 	//but it is safe to assume that it won't change (code writes some data just besides itself
 	//so it keeps generating exceptions, making the game slower)
 	if(start >= 0x100000 && start < PS2::EE_RAM_SIZE)
 	{
-		SetMemoryProtected(m_ram + start, end - start + 4, true);
+		SetMemoryProtected(m_ram + start, blockSize, true);
 	}
-	return CGenericMipsExecutor::BlockFactory(context, start, end);
+
+	auto blockMemory = reinterpret_cast<uint32*>(alloca(blockSize));
+	for(uint32 address = start; address <= end; address += 4)
+	{
+		uint32 index = (address - start) / 4;
+		uint32 opcode = m_context.m_pMemoryMap->GetInstruction(address);
+		blockMemory[index] = opcode;
+	}
+
+	uint32 checksum = crc32(0, reinterpret_cast<Bytef*>(blockMemory), blockSize);
+
+	auto equalRange = m_cachedBlocks.equal_range(checksum);
+	for(; equalRange.first != equalRange.second; ++equalRange.first)
+	{
+		const auto& basicBlock(equalRange.first->second);
+		if(basicBlock->GetBeginAddress() == start)
+		{
+			if(basicBlock->GetEndAddress() == end)
+			{
+				return basicBlock;
+			}
+		}
+	}
+
+	auto result = std::make_shared<CBasicBlock>(context, start, end);
+	result->Compile();
+	m_cachedBlocks.insert(std::make_pair(checksum, result));
+	return result;
 }
 
 bool CEeExecutor::HandleAccessFault(intptr_t ptr)
