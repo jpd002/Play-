@@ -147,7 +147,7 @@ public:
 	void Reschedule();
 
 	void CountTicks(uint32) override;
-	uint64 GetCurrentTime();
+	uint64 GetCurrentTime() const;
 	uint64 MilliSecToClock(uint32);
 	uint64 MicroSecToClock(uint32);
 	uint64 ClockToMicroSec(uint64);

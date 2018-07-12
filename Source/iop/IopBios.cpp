@@ -11,6 +11,7 @@
 #include <vector>
 #include "xml/FilteringNodeIterator.h"
 #include "../StructCollectionStateFile.h"
+#include "string_format.h"
 
 #ifdef _IOP_EMULATE_MODULES
 #include "Iop_Cdvdfsv.h"
@@ -1575,7 +1576,7 @@ uint32 CIopBios::GetNextReadyThread()
 	return -1;
 }
 
-uint64 CIopBios::GetCurrentTime()
+uint64 CIopBios::GetCurrentTime() const
 {
 	return CurrentTime();
 }
@@ -3133,13 +3134,22 @@ BiosDebugThreadInfoArray CIopBios::GetThreadsDebugInfo() const
 			threadInfo.sp = thread->context.gpr[CMIPS::SP];
 		}
 
+		int64 deltaTime = thread->nextActivateTime - GetCurrentTime();
+
 		switch(thread->status)
 		{
 		case THREAD_STATUS_DORMANT:
 			threadInfo.stateDescription = "Dormant";
 			break;
 		case THREAD_STATUS_RUNNING:
-			threadInfo.stateDescription = "Running";
+			if(deltaTime <= 0)
+			{
+				threadInfo.stateDescription = "Running";
+			}
+			else
+			{
+				threadInfo.stateDescription = string_format("Delayed (%ld ticks)", deltaTime);
+			}
 			break;
 		case THREAD_STATUS_SLEEPING:
 			threadInfo.stateDescription = "Sleeping";
