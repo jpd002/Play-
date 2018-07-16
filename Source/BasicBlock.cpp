@@ -322,7 +322,9 @@ void CBasicBlock::LinkBlock(LINK_SLOT linkSlot, CBasicBlock* otherBlock)
 #endif
 	auto patchValue = reinterpret_cast<uintptr_t>(otherBlock->m_function.GetCode());
 	auto code = reinterpret_cast<uint8*>(m_function.GetCode());
+	m_function.BeginModify();
 	*reinterpret_cast<uintptr_t*>(code + m_linkBlockTrampolineOffset[linkSlot]) = patchValue;
+	m_function.EndModify();
 }
 
 void CBasicBlock::UnlinkBlock(LINK_SLOT linkSlot)
@@ -336,7 +338,9 @@ void CBasicBlock::UnlinkBlock(LINK_SLOT linkSlot)
 #endif
 	auto patchValue = reinterpret_cast<uintptr_t>(&NextBlockTrampoline);
 	auto code = reinterpret_cast<uint8*>(m_function.GetCode());
+	m_function.BeginModify();
 	*reinterpret_cast<uintptr_t*>(code + m_linkBlockTrampolineOffset[linkSlot]) = patchValue;
+	m_function.EndModify();
 }
 
 void CBasicBlock::HandleExternalFunctionReference(uintptr_t symbol, uint32 offset)
