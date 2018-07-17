@@ -153,7 +153,7 @@ void CVuBasicBlock::CompileRange(CMipsJitter* jitter)
 		jitter->PullRel(offsetof(CMIPS, m_State.pipeTime));
 	}
 
-	CompileProlog(jitter);
+	CompileEpilog(jitter);
 }
 
 bool CVuBasicBlock::IsConditionalBranch(uint32 opcodeLo)

@@ -199,10 +199,10 @@ void CBasicBlock::CompileRange(CMipsJitter* jitter)
 	}
 
 	jitter->MarkFinalBlockLabel();
-	CompileProlog(jitter);
+	CompileEpilog(jitter);
 }
 
-void CBasicBlock::CompileProlog(CMipsJitter* jitter)
+void CBasicBlock::CompileEpilog(CMipsJitter* jitter)
 {
 	//Update cycle quota
 	jitter->PushRel(offsetof(CMIPS, m_State.cycleQuota));

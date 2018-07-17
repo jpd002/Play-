@@ -75,7 +75,7 @@ protected:
 	CMIPS& m_context;
 
 	virtual void CompileRange(CMipsJitter*);
-	void CompileProlog(CMipsJitter*);
+	void CompileEpilog(CMipsJitter*);
 
 private:
 	void HandleExternalFunctionReference(uintptr_t, uint32);
