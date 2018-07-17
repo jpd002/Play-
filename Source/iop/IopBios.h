@@ -192,6 +192,7 @@ public:
 	int32 RotateThreadReadyQueue(uint32);
 	int32 ReleaseWaitThread(uint32, bool);
 
+	int32 RegisterVblankHandler(uint32, uint32, uint32, uint32);
 	void SleepThreadTillVBlankStart();
 	void SleepThreadTillVBlankEnd();
 
@@ -280,6 +281,7 @@ private:
 		MAX_SEMAPHORE = 128,
 		MAX_EVENTFLAG = 64,
 		MAX_INTRHANDLER = 32,
+		MAX_VBLANKHANDLER = 8,
 		MAX_MESSAGEBOX = 32,
 		MAX_VPL = 16,
 		MAX_MODULESTARTREQUEST = 32,
@@ -338,6 +340,15 @@ private:
 		uint32 handler;
 		uint32 arg;
 	};
+
+	struct VBLANKHANDLER
+	{
+		uint32 isValid;
+		uint32 type;
+		uint32 handler;
+		uint32 arg;
+	};
+	static_assert(sizeof(VBLANKHANDLER) == 0x10, "Size of VBLANKHANDLER must be 16 bytes. AssembleVblankHandler relies on this.");
 
 	struct MESSAGEBOX
 	{
@@ -467,6 +478,7 @@ private:
 	typedef COsStructManager<SEMAPHORE> SemaphoreList;
 	typedef COsStructManager<EVENTFLAG> EventFlagList;
 	typedef COsStructManager<INTRHANDLER> IntrHandlerList;
+	typedef COsStructManager<VBLANKHANDLER> VblankHandlerList;
 	typedef COsStructManager<MESSAGEBOX> MessageBoxList;
 	typedef COsStructManager<VPL> VplList;
 	typedef COsStructManager<LOADEDMODULE> LoadedModuleList;
@@ -502,6 +514,7 @@ private:
 	uint32 AssembleIdleFunction(CMIPSAssembler&);
 	uint32 AssembleModuleStarterThreadProc(CMIPSAssembler&);
 	uint32 AssembleAlarmThreadProc(CMIPSAssembler&);
+	uint32 AssembleVblankHandler(CMIPSAssembler&);
 
 	void InitializeModuleStarter();
 	void ProcessModuleStart();
@@ -523,6 +536,7 @@ private:
 	uint32 m_idleFunctionAddress;
 	uint32 m_moduleStarterThreadProcAddress;
 	uint32 m_alarmThreadProcAddress;
+	uint32 m_vblankHandlerAddress;
 
 	uint32 m_moduleStarterThreadId;
 
@@ -533,6 +547,7 @@ private:
 	SemaphoreList m_semaphores;
 	EventFlagList m_eventFlags;
 	IntrHandlerList m_intrHandlers;
+	VblankHandlerList m_vblankHandlers;
 	MessageBoxList m_messageBoxes;
 	VplList m_vpls;
 

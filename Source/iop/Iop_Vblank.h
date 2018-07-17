@@ -20,7 +20,7 @@ namespace Iop
 		int32 WaitVblankStart();
 		int32 WaitVblankEnd();
 		int32 WaitVblank();
-		int32 RegisterVblankHandler(CMIPS&, uint32, uint32, uint32, uint32);
+		int32 RegisterVblankHandler(uint32, uint32, uint32, uint32);
 
 		CIopBios& m_bios;
 	};
