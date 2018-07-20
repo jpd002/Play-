@@ -1,5 +1,6 @@
 #include "Iop_SubSystem.h"
 #include "IopBios.h"
+#include "GenericMipsExecutor.h"
 #include "../psx/PsxBios.h"
 #include "../MemoryStateFile.h"
 #include "../Ps2Const.h"
@@ -18,7 +19,6 @@ using namespace PS2;
 
 CSubSystem::CSubSystem(bool ps2Mode)
     : m_cpu(MEMORYMAP_ENDIAN_LSBF)
-    , m_executor(m_cpu, (IOP_RAM_SIZE * 4))
     , m_ram(new uint8[IOP_RAM_SIZE])
     , m_scratchPad(new uint8[IOP_SCRATCH_SIZE])
     , m_spuRam(new uint8[SPU_RAM_SIZE])
@@ -37,12 +37,14 @@ CSubSystem::CSubSystem(bool ps2Mode)
 {
 	if(ps2Mode)
 	{
-		m_bios = std::make_shared<CIopBios>(m_cpu, m_executor, m_ram, PS2::IOP_RAM_SIZE, m_scratchPad);
+		m_bios = std::make_shared<CIopBios>(m_cpu, m_ram, PS2::IOP_RAM_SIZE, m_scratchPad);
 	}
 	else
 	{
 		m_bios = std::make_shared<CPsxBios>(m_cpu, m_ram, PS2::IOP_RAM_SIZE);
 	}
+
+	m_cpu.m_executor = std::make_unique<CGenericMipsExecutor<BlockLookupOneWay>>(m_cpu, (IOP_RAM_SIZE * 4));
 
 	//Read memory map
 	m_cpu.m_pMemoryMap->InsertReadMap((0 * IOP_RAM_SIZE), (0 * IOP_RAM_SIZE) + IOP_RAM_SIZE - 1, m_ram, 0x01);
@@ -133,8 +135,8 @@ void CSubSystem::Reset()
 	memset(m_ram, 0, IOP_RAM_SIZE);
 	memset(m_scratchPad, 0, IOP_SCRATCH_SIZE);
 	memset(m_spuRam, 0, SPU_RAM_SIZE);
-	m_executor.Reset();
 	m_cpu.Reset();
+	m_cpu.m_executor->Reset();
 	m_cpu.m_analysis->Clear();
 	m_spuCore0.Reset();
 	m_spuCore1.Reset();
@@ -302,7 +304,7 @@ int CSubSystem::ExecuteCpu(int quota)
 	CheckPendingInterrupts();
 	if(!m_cpu.m_State.nHasException)
 	{
-		executed = (quota - m_executor.Execute(quota));
+		executed = (quota - m_cpu.m_executor->Execute(quota));
 	}
 	if(m_cpu.m_State.nHasException)
 	{

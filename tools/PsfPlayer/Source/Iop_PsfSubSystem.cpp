@@ -125,12 +125,12 @@ void CPsfSubSystem::Update(bool singleStep, CSoundHandler* soundHandler)
 
 bool CPsfSubSystem::MustBreak()
 {
-	return m_iop.m_executor.MustBreak();
+	return m_iop.m_cpu.m_executor->MustBreak();
 }
 
 void CPsfSubSystem::DisableBreakpointsOnce()
 {
-	m_iop.m_executor.DisableBreakpointsOnce();
+	m_iop.m_cpu.m_executor->DisableBreakpointsOnce();
 }
 
 CBiosDebugInfoProvider* CPsfSubSystem::GetBiosDebugInfoProvider()

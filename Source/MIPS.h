@@ -3,6 +3,7 @@
 
 #include "Types.h"
 #include "MemoryMap.h"
+#include "MipsExecutor.h"
 #include "MIPSArchitecture.h"
 #include "MIPSCoprocessor.h"
 #include "MIPSAnalysis.h"
@@ -145,6 +146,7 @@ public:
 	CMIPSArchitecture* m_pArch = nullptr;
 	CMIPSCoprocessor* m_pCOP[4];
 	CMemoryMap* m_pMemoryMap = nullptr;
+	std::unique_ptr<CMipsExecutor> m_executor;
 	BreakpointSet m_breakpoints;
 
 	CMIPSAnalysis* m_analysis = nullptr;

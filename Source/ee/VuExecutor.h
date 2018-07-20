@@ -1,9 +1,9 @@
 #pragma once
 
 #include <unordered_map>
-#include "../MipsExecutor.h"
+#include "../GenericMipsExecutor.h"
 
-class CVuExecutor : public CMipsExecutor<BlockLookupOneWay>
+class CVuExecutor : public CGenericMipsExecutor<BlockLookupOneWay>
 {
 public:
 	CVuExecutor(CMIPS&, uint32);

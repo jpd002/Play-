@@ -7,7 +7,6 @@
 #include "../ELF.h"
 #include "../OsStructManager.h"
 #include "../OsVariableWrapper.h"
-#include "IopExecutor.h"
 #include "Iop_BiosBase.h"
 #include "Iop_BiosStructs.h"
 #include "Iop_SifMan.h"
@@ -126,7 +125,7 @@ public:
 		uint32 reserved[4];
 	};
 
-	CIopBios(CMIPS&, CIopExecutor&, uint8*, uint32, uint8*);
+	CIopBios(CMIPS&, uint8*, uint32, uint8*);
 	virtual ~CIopBios();
 
 	int32 LoadModule(const char*);
@@ -516,7 +515,6 @@ private:
 #endif
 
 	CMIPS& m_cpu;
-	CIopExecutor& m_cpuExecutor;
 	uint8* m_ram = nullptr;
 	uint32 m_ramSize;
 	uint8* m_spr = nullptr;

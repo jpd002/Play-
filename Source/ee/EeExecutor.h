@@ -9,9 +9,9 @@
 #include <signal.h>
 #endif
 
-#include "../MipsExecutor.h"
+#include "../GenericMipsExecutor.h"
 
-class CEeExecutor : public CMipsExecutor<BlockLookupTwoWay>
+class CEeExecutor : public CGenericMipsExecutor<BlockLookupTwoWay>
 {
 public:
 	CEeExecutor(CMIPS&, uint8*);

@@ -18,7 +18,6 @@ CVpu::CVpu(unsigned int number, const VPUINIT& vpuInit, CGIF& gif, CINTC& intc, 
     , m_vuMemSize((number == 0) ? PS2::VUMEM0SIZE : PS2::VUMEM1SIZE)
     , m_ctx(vpuInit.context)
     , m_gif(gif)
-    , m_executor(*vpuInit.context, (number == 0) ? PS2::MICROMEM0SIZE : PS2::MICROMEM1SIZE)
     , m_vuProfilerZone(CProfiler::GetInstance().RegisterZone("VU"))
 #ifdef DEBUGGER_INCLUDED
     , m_microMemMiniState(new uint8[(number == 0) ? PS2::MICROMEM0SIZE : PS2::MICROMEM1SIZE])
@@ -45,7 +44,7 @@ void CVpu::Execute(int32 quota)
 	CProfilerZone profilerZone(m_vuProfilerZone);
 #endif
 
-	m_executor.Execute(quota);
+	m_ctx->m_executor->Execute(quota);
 	if(m_ctx->m_State.nHasException)
 	{
 		//E bit encountered
@@ -54,16 +53,6 @@ void CVpu::Execute(int32 quota)
 }
 
 #ifdef DEBUGGER_INCLUDED
-
-bool CVpu::MustBreak() const
-{
-	return m_executor.MustBreak();
-}
-
-void CVpu::DisableBreakpointsOnce()
-{
-	m_executor.DisableBreakpointsOnce();
-}
 
 void CVpu::SaveMiniState()
 {
@@ -104,7 +93,7 @@ uint32 CVpu::GetVuItopMiniState() const
 void CVpu::Reset()
 {
 	m_running = false;
-	m_executor.Reset();
+	m_ctx->m_executor->Reset();
 	m_vif->Reset();
 }
 
@@ -171,7 +160,7 @@ void CVpu::ExecuteMicroProgram(uint32 nAddress)
 
 void CVpu::InvalidateMicroProgram()
 {
-	m_executor.ClearActiveBlocksInRange(0, (m_number == 0) ? PS2::MICROMEM0SIZE : PS2::MICROMEM1SIZE);
+	m_ctx->m_executor->ClearActiveBlocksInRange(0, (m_number == 0) ? PS2::MICROMEM0SIZE : PS2::MICROMEM1SIZE);
 }
 
 void CVpu::ProcessXgKick(uint32 address)

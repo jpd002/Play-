@@ -3,7 +3,6 @@
 #include "AlignedAlloc.h"
 #include "../COP_SCU.h"
 #include "../COP_FPU.h"
-#include "EeExecutor.h"
 #include "DMAC.h"
 #include "GIF.h"
 #include "SIF.h"
@@ -66,7 +65,6 @@ namespace Ee
 		CMIPS m_EE;
 		CMIPS m_VU0;
 		CMIPS m_VU1;
-		CEeExecutor m_executor;
 
 		void* operator new(size_t allocSize)
 		{

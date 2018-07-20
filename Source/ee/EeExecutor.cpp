@@ -33,7 +33,7 @@
 static CEeExecutor* g_eeExecutor = nullptr;
 
 CEeExecutor::CEeExecutor(CMIPS& context, uint8* ram)
-    : CMipsExecutor(context, 0x20000000)
+    : CGenericMipsExecutor(context, 0x20000000)
     , m_ram(ram)
 {
 	m_pageSize = framework_getpagesize();
@@ -96,7 +96,7 @@ void CEeExecutor::RemoveExceptionHandler()
 void CEeExecutor::Reset()
 {
 	SetMemoryProtected(m_ram, PS2::EE_RAM_SIZE, false);
-	CMipsExecutor::Reset();
+	CGenericMipsExecutor::Reset();
 }
 
 void CEeExecutor::ClearActiveBlocksInRange(uint32 start, uint32 end)
@@ -117,7 +117,7 @@ BasicBlockPtr CEeExecutor::BlockFactory(CMIPS& context, uint32 start, uint32 end
 	{
 		SetMemoryProtected(m_ram + start, end - start + 4, true);
 	}
-	return CMipsExecutor::BlockFactory(context, start, end);
+	return CGenericMipsExecutor::BlockFactory(context, start, end);
 }
 
 bool CEeExecutor::HandleAccessFault(intptr_t ptr)

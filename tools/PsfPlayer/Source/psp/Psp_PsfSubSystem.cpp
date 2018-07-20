@@ -1,4 +1,5 @@
 #include "Psp_PsfSubSystem.h"
+#include "GenericMipsExecutor.h"
 #include <thread>
 
 using namespace Psp;
@@ -12,11 +13,12 @@ CPsfSubSystem::CPsfSubSystem(uint32 ramSize)
     , m_cpu(MEMORYMAP_ENDIAN_LSBF)
     , m_copScu(MIPS_REGSIZE_32)
     , m_copFpu(MIPS_REGSIZE_32)
-    , m_executor(m_cpu, ramSize)
     , m_spuCore0(m_spuRam, SPURAMSIZE, 0)
     , m_spuCore1(m_spuRam, SPURAMSIZE, 1)
     , m_bios(m_cpu, m_ram, ramSize)
 {
+	m_cpu.m_executor = std::make_unique<CGenericMipsExecutor<BlockLookupTwoWay>>(m_cpu, ramSize);
+
 	//Read memory map
 	m_cpu.m_pMemoryMap->InsertReadMap(0x00000000, m_ramSize, m_ram, 0x01);
 
@@ -44,7 +46,7 @@ void CPsfSubSystem::Reset()
 {
 	memset(m_ram, 0, m_ramSize);
 	memset(m_spuRam, 0, SPURAMSIZE);
-	m_executor.Reset();
+	m_cpu.m_executor->Reset();
 	m_bios.Reset();
 	m_audioStream.Truncate();
 
@@ -78,7 +80,7 @@ Iop::CSpuBase& CPsfSubSystem::GetSpuCore(unsigned int coreId)
 
 int CPsfSubSystem::ExecuteCpu(bool singleStep)
 {
-	int ticks = m_executor.Execute(singleStep ? 1 : 100);
+	int ticks = m_cpu.m_executor->Execute(singleStep ? 1 : 100);
 	if(m_cpu.m_State.nHasException)
 	{
 		m_bios.HandleException();
@@ -132,12 +134,12 @@ void CPsfSubSystem::Update(bool singleStep, CSoundHandler* soundHandler)
 
 bool CPsfSubSystem::MustBreak()
 {
-	return m_executor.MustBreak();
+	return m_cpu.m_executor->MustBreak();
 }
 
 void CPsfSubSystem::DisableBreakpointsOnce()
 {
-	m_executor.DisableBreakpointsOnce();
+	m_cpu.m_executor->DisableBreakpointsOnce();
 }
 
 CBiosDebugInfoProvider* CPsfSubSystem::GetBiosDebugInfoProvider()

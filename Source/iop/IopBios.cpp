@@ -77,9 +77,8 @@
 //This is the space needed to preserve at most four arguments in the stack frame (as per MIPS calling convention)
 #define STACK_FRAME_RESERVE_SIZE 0x10
 
-CIopBios::CIopBios(CMIPS& cpu, CIopExecutor& cpuExecutor, uint8* ram, uint32 ramSize, uint8* spr)
+CIopBios::CIopBios(CMIPS& cpu, uint8* ram, uint32 ramSize, uint8* spr)
     : m_cpu(cpu)
-    , m_cpuExecutor(cpuExecutor)
     , m_ram(ram)
     , m_ramSize(ramSize)
     , m_spr(spr)
@@ -661,7 +660,7 @@ int32 CIopBios::UnloadModule(uint32 loadedModuleId)
 
 	//TODO: Remove module from IOP module list?
 	//TODO: Invalidate MIPS analysis range?
-	m_cpuExecutor.ClearActiveBlocksInRange(loadedModule->start, loadedModule->end);
+	m_cpu.m_executor->ClearActiveBlocksInRange(loadedModule->start, loadedModule->end);
 
 	//TODO: Check return value here.
 	m_sysmem->FreeMemory(loadedModule->start);

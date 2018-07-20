@@ -3,7 +3,6 @@
 #include "Types.h"
 #include "../MIPS.h"
 #include "../Profiler.h"
-#include "VuExecutor.h"
 #include "Convertible.h"
 #include "zip/ZipArchiveWriter.h"
 #include "zip/ZipArchiveReader.h"
@@ -59,9 +58,6 @@ public:
 	void ProcessXgKick(uint32);
 
 #ifdef DEBUGGER_INCLUDED
-	bool MustBreak() const;
-	void DisableBreakpointsOnce();
-
 	void SaveMiniState();
 	const MIPSSTATE& GetVuMiniState() const;
 	uint8* GetVuMemoryMiniState() const;
@@ -89,7 +85,6 @@ protected:
 #endif
 
 	unsigned int m_number = 0;
-	CVuExecutor m_executor;
 	bool m_running = false;
 
 	CProfiler::ZoneHandle m_vuProfilerZone = 0;

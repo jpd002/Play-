@@ -1,4 +1,6 @@
 #include "Ee_SubSystem.h"
+#include "EeExecutor.h"
+#include "VuExecutor.h"
 #include "../Ps2Const.h"
 #include "../Log.h"
 #include "../MemoryStateFile.h"
@@ -34,7 +36,6 @@ CSubSystem::CSubSystem(uint8* iopRam, CIopBios& iopBios)
     , m_EE(MEMORYMAP_ENDIAN_LSBF)
     , m_VU0(MEMORYMAP_ENDIAN_LSBF)
     , m_VU1(MEMORYMAP_ENDIAN_LSBF)
-    , m_executor(m_EE, m_ram)
     , m_dmac(m_ram, m_spr, m_vuMem0, m_EE)
     , m_gif(m_gs, m_ram, m_spr)
     , m_sif(m_dmac, m_ram, iopRam)
@@ -60,6 +61,8 @@ CSubSystem::CSubSystem(uint8* iopRam, CIopBios& iopBios)
 
 	//EmotionEngine context setup
 	{
+		m_EE.m_executor = std::make_unique<CEeExecutor>(m_EE, m_ram);
+
 		//Read map
 		m_EE.m_pMemoryMap->InsertReadMap(0x00000000, 0x01FFFFFF, m_ram, 0x00);
 		m_EE.m_pMemoryMap->InsertReadMap(PS2::EE_SPR_ADDR, PS2::EE_SPR_ADDR + PS2::EE_SPR_SIZE - 1, m_spr, 0x01);
@@ -96,6 +99,8 @@ CSubSystem::CSubSystem(uint8* iopRam, CIopBios& iopBios)
 
 	//Vector Unit 0 context setup
 	{
+		m_VU0.m_executor = std::make_unique<CVuExecutor>(m_VU0, PS2::MICROMEM0SIZE);
+
 		m_VU0.m_pMemoryMap->InsertReadMap(0x00000000, 0x00000FFF, m_vuMem0, 0x01);
 		m_VU0.m_pMemoryMap->InsertReadMap(0x00001000, 0x00001FFF, m_vuMem0, 0x02);
 		m_VU0.m_pMemoryMap->InsertReadMap(0x00002000, 0x00002FFF, m_vuMem0, 0x03);
@@ -116,6 +121,8 @@ CSubSystem::CSubSystem(uint8* iopRam, CIopBios& iopBios)
 
 	//Vector Unit 1 context setup
 	{
+		m_VU1.m_executor = std::make_unique<CVuExecutor>(m_VU1, PS2::MICROMEM1SIZE);
+
 		m_VU1.m_pMemoryMap->InsertReadMap(0x00000000, 0x00003FFF, m_vuMem1, 0x00);
 		m_VU1.m_pMemoryMap->InsertReadMap(0x00008000, 0x00008FFF, std::bind(&CSubSystem::Vu1IoPortReadHandler, this, PLACEHOLDER_1), 0x01);
 
@@ -147,7 +154,7 @@ CSubSystem::CSubSystem(uint8* iopRam, CIopBios& iopBios)
 
 CSubSystem::~CSubSystem()
 {
-	m_executor.Reset();
+	m_EE.m_executor->Reset();
 	delete m_os;
 	framework_aligned_free(m_ram);
 	delete[] m_bios;
@@ -172,7 +179,7 @@ void CSubSystem::SetVpu1(std::shared_ptr<CVpu> newVpu1)
 void CSubSystem::Reset()
 {
 	m_os->Release();
-	m_executor.Reset();
+	m_EE.m_executor->Reset();
 
 	memset(m_ram, 0, PS2::EE_RAM_SIZE);
 	memset(m_spr, 0, PS2::EE_SPR_SIZE);
@@ -228,7 +235,7 @@ int CSubSystem::ExecuteCpu(int quota)
 	}
 	else if(!m_EE.m_State.nHasException)
 	{
-		executed = (quota - m_executor.Execute(quota));
+		executed = (quota - m_EE.m_executor->Execute(quota));
 	}
 	if(m_EE.m_State.nHasException)
 	{
@@ -380,7 +387,7 @@ void CSubSystem::LoadState(Framework::CZipArchiveReader& archive)
 	m_timer.LoadState(archive);
 	m_gif.LoadState(archive);
 
-	m_executor.Reset();
+	m_EE.m_executor->Reset();
 }
 
 uint32 CSubSystem::IOPortReadHandler(uint32 nAddress)
@@ -652,7 +659,7 @@ void CSubSystem::CheckPendingInterrupts()
 		    m_intc.IsInterruptPending()
 #ifdef DEBUGGER_INCLUDED
 		    //			&& !m_singleStepEe
-		    && !m_executor.MustBreak()
+		    && !m_EE.m_executor->MustBreak()
 #endif
 		)
 		{
@@ -663,7 +670,7 @@ void CSubSystem::CheckPendingInterrupts()
 
 void CSubSystem::FlushInstructionCache()
 {
-	m_executor.Reset();
+	m_EE.m_executor->Reset();
 }
 
 void CSubSystem::LoadBIOS()

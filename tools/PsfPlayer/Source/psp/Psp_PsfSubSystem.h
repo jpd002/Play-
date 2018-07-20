@@ -6,15 +6,12 @@
 #include "COP_SCU.h"
 #include "COP_FPU.h"
 #include "MIPS.h"
-#include "MipsExecutor.h"
 #include "../PsfVmSubSystem.h"
 #include "Psp_PsfBios.h"
 #include "MemStream.h"
 
 namespace Psp
 {
-	typedef CMipsExecutor<BlockLookupTwoWay> CPspExecutor;
-
 	class CPsfSubSystem : public CPsfVmSubSystem
 	{
 	public:
@@ -51,7 +48,6 @@ namespace Psp
 		int ExecuteCpu(bool);
 
 		CMIPS m_cpu;
-		CPspExecutor m_executor;
 		CMA_ALLEGREX m_cpuArch;
 		CCOP_SCU m_copScu;
 		CCOP_FPU m_copFpu;

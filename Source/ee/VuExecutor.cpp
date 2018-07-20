@@ -3,14 +3,14 @@
 #include <zlib.h>
 
 CVuExecutor::CVuExecutor(CMIPS& context, uint32 maxAddress)
-    : CMipsExecutor(context, maxAddress)
+    : CGenericMipsExecutor(context, maxAddress)
 {
 }
 
 void CVuExecutor::Reset()
 {
 	m_cachedBlocks.clear();
-	CMipsExecutor::Reset();
+	CGenericMipsExecutor::Reset();
 }
 
 BasicBlockPtr CVuExecutor::BlockFactory(CMIPS& context, uint32 begin, uint32 end)

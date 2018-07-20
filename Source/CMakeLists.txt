@@ -118,6 +118,8 @@ set(COMMON_SRC_FILES
 	AppConfig.h
 	BasicBlock.cpp
 	BasicBlock.h
+	BlockLookupOneWay.h
+	BlockLookupTwoWay.h
 	ControllerInfo.cpp
 	ControllerInfo.h
 	COP_FPU.cpp
@@ -201,6 +203,7 @@ set(COMMON_SRC_FILES
 	ElfFile.h
 	FrameDump.cpp
 	FrameDump.h
+	GenericMipsExecutor.h
 	gs/GsCachedArea.cpp
 	gs/GsCachedArea.h
 	gs/GSH_Null.cpp
@@ -299,7 +302,6 @@ set(COMMON_SRC_FILES
 	iop/Iop_Vblank.h
 	iop/IopBios.cpp
 	iop/IopBios.h
-	iop/IopExecutor.h
 	iop/OpticalMediaDevice.cpp
 	iop/OpticalMediaDevice.h
 	ISO9660/DirectoryRecord.cpp
