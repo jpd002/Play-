@@ -75,12 +75,17 @@ protected:
 	CMIPS& m_context;
 
 	virtual void CompileRange(CMipsJitter*);
+	void CompileProlog(CMipsJitter*);
 	void CompileEpilog(CMipsJitter*);
 
 private:
 	void HandleExternalFunctionReference(uintptr_t, uint32);
 
+	bool HasBreakpoint() const;
+
 	static void EmptyBlockHandler(CMIPS*);
+	static uint32 BreakpointFilter(CMIPS*);
+	static void BreakpointHandler(CMIPS*);
 	static void NextBlockTrampoline(CMIPS*);
 
 #ifdef AOT_BUILD_CACHE

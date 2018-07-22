@@ -99,13 +99,11 @@ void CEeExecutor::Reset()
 	CGenericMipsExecutor::Reset();
 }
 
-void CEeExecutor::ClearActiveBlocksInRange(uint32 start, uint32 end)
+void CEeExecutor::ClearActiveBlocksInRange(uint32 start, uint32 end, bool executing)
 {
 	uint32 rangeSize = end - start;
 	SetMemoryProtected(m_ram + start, rangeSize, false);
-	auto currentBlock = FindBlockStartingAt(m_context.m_State.nPC);
-	assert(!currentBlock->IsEmpty());
-	ClearActiveBlocksInRangeInternal(start, end, currentBlock);
+	CGenericMipsExecutor::ClearActiveBlocksInRange(start, end, executing);
 }
 
 BasicBlockPtr CEeExecutor::BlockFactory(CMIPS& context, uint32 start, uint32 end)
@@ -126,7 +124,7 @@ bool CEeExecutor::HandleAccessFault(intptr_t ptr)
 	if(addr >= 0 && addr < PS2::EE_RAM_SIZE)
 	{
 		addr &= ~(m_pageSize - 1);
-		ClearActiveBlocksInRange(addr, addr + m_pageSize);
+		ClearActiveBlocksInRange(addr, addr + m_pageSize, true);
 		return true;
 	}
 	return false;

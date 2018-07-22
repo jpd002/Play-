@@ -21,7 +21,7 @@ public:
 	void RemoveExceptionHandler();
 
 	void Reset() override;
-	void ClearActiveBlocksInRange(uint32, uint32) override;
+	void ClearActiveBlocksInRange(uint32, uint32, bool) override;
 
 	BasicBlockPtr BlockFactory(CMIPS&, uint32, uint32) override;
 

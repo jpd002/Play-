@@ -11,6 +11,8 @@ CVuBasicBlock::CVuBasicBlock(CMIPS& context, uint32 begin, uint32 end)
 
 void CVuBasicBlock::CompileRange(CMipsJitter* jitter)
 {
+	CompileProlog(jitter);
+
 	assert((m_begin & 0x07) == 0);
 	assert(((m_end + 4) & 0x07) == 0);
 	auto arch = static_cast<CMA_VU*>(m_context.m_pArch);

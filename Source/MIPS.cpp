@@ -54,9 +54,12 @@ void CMIPS::ToggleBreakpoint(uint32 address)
 	if(m_breakpoints.find(address) != m_breakpoints.end())
 	{
 		m_breakpoints.erase(address);
-		return;
 	}
-	m_breakpoints.insert(address);
+	else
+	{
+		m_breakpoints.insert(address);
+	}
+	m_executor->ClearActiveBlocksInRange(address, address + 4, false);
 }
 
 int32 CMIPS::GetBranch(uint16 nData)

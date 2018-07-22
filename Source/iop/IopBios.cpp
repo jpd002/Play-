@@ -660,7 +660,7 @@ int32 CIopBios::UnloadModule(uint32 loadedModuleId)
 
 	//TODO: Remove module from IOP module list?
 	//TODO: Invalidate MIPS analysis range?
-	m_cpu.m_executor->ClearActiveBlocksInRange(loadedModule->start, loadedModule->end);
+	m_cpu.m_executor->ClearActiveBlocksInRange(loadedModule->start, loadedModule->end, false);
 
 	//TODO: Check return value here.
 	m_sysmem->FreeMemory(loadedModule->start);

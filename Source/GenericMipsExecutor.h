@@ -48,17 +48,25 @@ public:
 	int Execute(int cycles) override
 	{
 		m_context.m_State.cycleQuota = cycles;
+#ifdef DEBUGGER_INCLUDED
+		m_mustBreak = false;
+		m_initQuota = cycles;
+#endif
 		while(m_context.m_State.nHasException == 0)
 		{
 			uint32 address = m_context.m_State.nPC & m_addressMask;
 			auto block = m_blockLookup.FindBlockAt(address);
-#ifdef DEBUGGER_INCLUDED
-			if(!m_breakpointsDisabledOnce && MustBreak()) break;
-			m_breakpointsDisabledOnce = false;
-#endif
 			block->Execute();
 		}
 		m_context.m_State.nHasException &= ~MIPS_EXECUTION_STATUS_QUOTADONE;
+#ifdef DEBUGGER_INCLUDED
+		if(m_context.m_State.nHasException == MIPS_EXCEPTION_BREAKPOINT)
+		{
+			m_mustBreak = true;
+			m_context.m_State.nHasException = MIPS_EXCEPTION_NONE;
+		}
+		m_breakpointsDisabledOnce = false;
+#endif
 		return m_context.m_State.cycleQuota;
 	}
 
@@ -75,30 +83,31 @@ public:
 		m_pendingBlockLinks.clear();
 	}
 
-	void ClearActiveBlocksInRange(uint32 start, uint32 end) override
+	void ClearActiveBlocksInRange(uint32 start, uint32 end, bool executing) override
 	{
-		ClearActiveBlocksInRangeInternal(start, end, nullptr);
+		CBasicBlock* currentBlock = nullptr;
+		if(executing)
+		{
+			currentBlock = FindBlockStartingAt(m_context.m_State.nPC);
+			assert(!currentBlock->IsEmpty());
+		}
+		ClearActiveBlocksInRangeInternal(start, end, currentBlock);
 	}
 
 #ifdef DEBUGGER_INCLUDED
 	bool MustBreak() const override
 	{
-		uint32 currentPc = m_context.m_State.nPC & m_addressMask;
-		auto block = m_blockLookup.FindBlockAt(currentPc);
-		for(auto breakPointAddress : m_context.m_breakpoints)
-		{
-			if(currentPc == breakPointAddress) return true;
-			if(block != NULL)
-			{
-				if(breakPointAddress >= block->GetBeginAddress() && breakPointAddress <= block->GetEndAddress()) return true;
-			}
-		}
-		return false;
+		return m_mustBreak;
 	}
 
 	void DisableBreakpointsOnce() override
 	{
 		m_breakpointsDisabledOnce = true;
+	}
+
+	bool FilterBreakpoint() override
+	{
+		return ((m_initQuota == m_context.m_State.cycleQuota) && m_breakpointsDisabledOnce);
 	}
 #endif
 
@@ -303,6 +312,8 @@ protected:
 	BlockLookupType m_blockLookup;
 
 #ifdef DEBUGGER_INCLUDED
+	bool m_mustBreak = false;
 	bool m_breakpointsDisabledOnce = false;
+	int m_initQuota = 0;
 #endif
 };
