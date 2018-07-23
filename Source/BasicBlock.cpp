@@ -378,6 +378,8 @@ void CBasicBlock::HandleExternalFunctionReference(uintptr_t symbol, uint32 offse
 	}
 }
 
+#ifdef DEBUGGER_INCLUDED
+
 bool CBasicBlock::HasBreakpoint() const
 {
 	for(auto breakpointAddress : m_context.m_breakpoints)
@@ -385,11 +387,6 @@ bool CBasicBlock::HasBreakpoint() const
 		if(breakpointAddress >= GetBeginAddress() && breakpointAddress <= GetEndAddress()) return true;
 	}
 	return false;
-}
-
-void CBasicBlock::EmptyBlockHandler(CMIPS* context)
-{
-	context->m_emptyBlockHandler(context);
 }
 
 uint32 CBasicBlock::BreakpointFilter(CMIPS* context)
@@ -401,6 +398,13 @@ void CBasicBlock::BreakpointHandler(CMIPS* context)
 {
 	assert(context->m_State.nHasException == MIPS_EXCEPTION_NONE);
 	context->m_State.nHasException = MIPS_EXCEPTION_BREAKPOINT;
+}
+
+#endif
+
+void CBasicBlock::EmptyBlockHandler(CMIPS* context)
+{
+	context->m_emptyBlockHandler(context);
 }
 
 void CBasicBlock::NextBlockTrampoline(CMIPS* context)

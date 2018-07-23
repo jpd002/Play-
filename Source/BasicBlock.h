@@ -81,11 +81,13 @@ protected:
 private:
 	void HandleExternalFunctionReference(uintptr_t, uint32);
 
+#ifdef DEBUGGER_INCLUDED
 	bool HasBreakpoint() const;
-
-	static void EmptyBlockHandler(CMIPS*);
 	static uint32 BreakpointFilter(CMIPS*);
 	static void BreakpointHandler(CMIPS*);
+#endif
+
+	static void EmptyBlockHandler(CMIPS*);
 	static void NextBlockTrampoline(CMIPS*);
 
 #ifdef AOT_BUILD_CACHE
