@@ -37,7 +37,7 @@ void CPsfRarArchive::Open(const boost::filesystem::path& filePath)
 			if(!arc->IsArcDir())
 			{
 				FILEINFO fileInfo;
-				fileInfo.name = string_cast<std::string>(arc->FileHead.FileName);
+				fileInfo.name = string_cast<std::string, wchar_t>(arc->FileHead.FileName);
 				boost::replace_all(fileInfo.name, "\\", "/");
 				fileInfo.length = static_cast<unsigned int>(arc->FileHead.UnpSize);
 				m_files.push_back(fileInfo);
@@ -71,7 +71,7 @@ void CPsfRarArchive::ReadFileContents(const char* fileName, void* buffer, unsign
 		{
 			if(!arc->IsArcDir())
 			{
-				bool isGoodFile = !stricmp(fixedFileName.c_str(), string_cast<std::string>(arc->FileHead.FileName).c_str());
+				bool isGoodFile = !stricmp(fixedFileName.c_str(), string_cast<std::string, wchar_t>(arc->FileHead.FileName).c_str());
 
 				dataIo.SetFiles(arc, NULL);
 				dataIo.SetPackedSizeToRead(arc->FileHead.PackSize);
