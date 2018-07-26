@@ -1,5 +1,7 @@
 #include "PsfArchive.h"
+#ifdef RAR_SUPPORT
 #include "PsfRarArchive.h"
+#endif
 #include "PsfZipArchive.h"
 #include "stricmp.h"
 #include "make_unique.h"
