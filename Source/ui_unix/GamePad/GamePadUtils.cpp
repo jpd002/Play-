@@ -1,6 +1,9 @@
 #include "GamePadUtils.h"
 #include <cstring>
+#include <string>
+#include <cstdio>
 
+#ifdef HAS_LIBEVDEV
 std::array<uint32, 6> CGamePadUtils::GetDeviceID(libevdev* dev)
 {
 	std::array<uint32, 6> device{0};
@@ -30,6 +33,7 @@ std::array<uint32, 6> CGamePadUtils::GetDeviceID(libevdev* dev)
 	}
 	return device;
 }
+#endif
 
 bool CGamePadUtils::ParseMAC(std::array<uint32, 6>& out, std::string const& in)
 {

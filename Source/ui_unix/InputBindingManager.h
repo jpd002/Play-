@@ -2,6 +2,7 @@
 
 #include "Config.h"
 #include "ControllerInfo.h"
+#include <array>
 #include <memory>
 #include <functional>
 #include <qnamespace.h>

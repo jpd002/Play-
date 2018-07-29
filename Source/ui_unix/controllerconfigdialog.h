@@ -4,7 +4,9 @@
 #include <QAbstractButton>
 #include <QXmlStreamReader>
 
+#ifdef HAS_LIBEVDEV
 #include "GamePad/GamePadDeviceListener.h"
+#endif
 #include "InputBindingManager.h"
 
 namespace Ui
@@ -30,6 +32,8 @@ private slots:
 private:
 	int OpenBindConfigDialog(int index);
 	CInputBindingManager* m_inputManager;
+#ifdef HAS_LIBEVDEV
 	std::unique_ptr<CGamePadDeviceListener> m_inputDeviceManager;
+#endif
 	Ui::ControllerConfigDialog* ui;
 };

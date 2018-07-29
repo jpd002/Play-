@@ -25,6 +25,7 @@ InputEventSelectionDialog::~InputEventSelectionDialog()
 	delete ui;
 }
 
+#ifdef HAS_LIBEVDEV
 void InputEventSelectionDialog::Setup(const char* text, CInputBindingManager* inputManager,
                                       PS2::CControllerInfo::BUTTON button, std::unique_ptr<CGamePadDeviceListener> const& GPDL)
 {
@@ -101,6 +102,8 @@ void InputEventSelectionDialog::Setup(const char* text, CInputBindingManager* in
 
 	GPDL.get()->UpdateOnInputEventCallback(onInput);
 }
+#endif
+
 void InputEventSelectionDialog::keyPressEvent(QKeyEvent* ev)
 {
 	if(ev->key() == Qt::Key_Escape)

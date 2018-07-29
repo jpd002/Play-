@@ -6,8 +6,10 @@
 #include <thread>
 #include "ui_unix/PH_HidUnix.h"
 
+#ifdef HAS_LIBEVDEV
 #include "GamePad/GamePadInputEventListener.h"
 #include "GamePad/GamePadDeviceListener.h"
+#endif
 
 namespace Ui
 {
@@ -22,7 +24,9 @@ public:
 	explicit InputEventSelectionDialog(QWidget* parent = 0);
 	~InputEventSelectionDialog();
 
+#ifdef HAS_LIBEVDEV
 	void Setup(const char* text, CInputBindingManager* inputManager, PS2::CControllerInfo::BUTTON button, const std::unique_ptr<CGamePadDeviceListener>& GPDL);
+#endif
 
 protected:
 	void keyPressEvent(QKeyEvent*) Q_DECL_OVERRIDE;

@@ -62,7 +62,9 @@ MainWindow::MainWindow(QWidget* parent)
 MainWindow::~MainWindow()
 {
 	CAppConfig::GetInstance().Save();
+#ifdef HAS_LIBEVDEV
 	m_GPDL.reset();
+#endif
 	if(g_virtualMachine != nullptr)
 	{
 		g_virtualMachine->Pause();
@@ -94,6 +96,7 @@ void MainWindow::InitEmu()
 	m_InputBindingManager = new CInputBindingManager(CAppConfig::GetInstance());
 	g_virtualMachine->CreatePadHandler(CPH_HidUnix::GetFactoryFunction(m_InputBindingManager));
 
+#ifdef HAS_LIBEVDEV
 	auto onInput = [=](std::array<uint32, 6> device, int code, int value, int type, const input_absinfo* abs) -> void {
 		if(m_InputBindingManager != nullptr)
 		{
@@ -101,6 +104,7 @@ void MainWindow::InitEmu()
 		}
 	};
 	m_GPDL = std::make_unique<CGamePadDeviceListener>(onInput);
+#endif
 
 	StatsManager = new CStatsManager();
 	g_virtualMachine->m_ee->m_gs->OnNewFrame.connect(std::bind(&CStatsManager::OnNewFrame, StatsManager, std::placeholders::_1));
@@ -136,10 +140,11 @@ void MainWindow::openGLWindow_resized()
 	{
 		GLint w = m_openglpanel->size().width(), h = m_openglpanel->size().height();
 
+		auto scale = devicePixelRatioF();
 		CGSHandler::PRESENTATION_PARAMS presentationParams;
 		presentationParams.mode = (CGSHandler::PRESENTATION_MODE)CAppConfig::GetInstance().GetPreferenceInteger(PREF_CGSHANDLER_PRESENTATION_MODE);
-		presentationParams.windowWidth = w;
-		presentationParams.windowHeight = h;
+		presentationParams.windowWidth = w * scale;
+		presentationParams.windowHeight = h * scale;
 		g_virtualMachine->m_ee->m_gs->SetPresentationParams(presentationParams);
 		g_virtualMachine->m_ee->m_gs->Flip();
 	}
