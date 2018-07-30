@@ -157,7 +157,7 @@
     <bool>true</bool>
    </property>
    <property name="text">
-    <string>Pause when focus is lost</string>
+    <string>Pause When Focus Is Lost</string>
    </property>
   </action>
   <action name="actionReset">
