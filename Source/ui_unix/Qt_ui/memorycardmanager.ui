@@ -23,7 +23,7 @@
    </size>
   </property>
   <property name="windowTitle">
-   <string>Dialog</string>
+   <string>Memory Card Manager</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
    <item row="0" column="0">
