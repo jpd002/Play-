@@ -15,7 +15,7 @@ class VFSDiscSelectorDialog : public QDialog
 	Q_OBJECT
 
 public:
-	explicit VFSDiscSelectorDialog(std::string, CCdrom0Device::BINDINGTYPE, QWidget* parent = 0);
+	explicit VFSDiscSelectorDialog(std::string, CCdrom0Device::BINDINGTYPE, QWidget* parent = nullptr);
 	~VFSDiscSelectorDialog();
 
 protected:

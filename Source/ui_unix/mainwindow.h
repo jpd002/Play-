@@ -100,8 +100,8 @@ private slots:
 	void on_actionOpen_Game_triggered();
 	void on_actionBoot_ELF_triggered();
 	void on_actionExit_triggered();
-	void keyPressEvent(QKeyEvent*);
-	void keyReleaseEvent(QKeyEvent*);
+	void keyPressEvent(QKeyEvent*) Q_DECL_OVERRIDE;
+	void keyReleaseEvent(QKeyEvent*) Q_DECL_OVERRIDE;
 	void on_actionSettings_triggered();
 	void on_actionPause_Resume_triggered();
 	void on_actionAbout_triggered();

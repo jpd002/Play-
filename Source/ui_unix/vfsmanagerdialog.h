@@ -13,7 +13,7 @@ class VFSManagerDialog : public QDialog
 	Q_OBJECT
 
 public:
-	explicit VFSManagerDialog(QWidget* parent = 0);
+	explicit VFSManagerDialog(QWidget* parent = nullptr);
 	~VFSManagerDialog();
 
 	Ui::VFSManagerDialog* ui;

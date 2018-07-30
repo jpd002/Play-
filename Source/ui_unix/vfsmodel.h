@@ -15,7 +15,7 @@ public:
 	QVariant data(const QModelIndex& index, int role = Qt::DisplayRole) const Q_DECL_OVERRIDE;
 	void addData(const QStringList data) const;
 	bool setHeaderData(int section, Qt::Orientation orientation, const QVariant& value, int role = Qt::EditRole) Q_DECL_OVERRIDE;
-	void DoubleClicked(const QModelIndex& index, QWidget* parent = 0);
+	void DoubleClicked(const QModelIndex& index, QWidget* parent = nullptr);
 	void Save();
 
 protected:
