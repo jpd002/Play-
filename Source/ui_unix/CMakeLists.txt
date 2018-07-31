@@ -41,6 +41,12 @@ if(TARGET_PLATFORM_UNIX)
 endif()
 
 set(QT_SOURCES
+	ControllerConfig/bindingmodel.cpp
+	ControllerConfig/bindingmodel.h
+	ControllerConfig/controllerconfigdialog.cpp
+	ControllerConfig/controllerconfigdialog.h
+	ControllerConfig/inputeventselectiondialog.cpp
+	ControllerConfig/inputeventselectiondialog.h
 	main.cpp
 	mainwindow.cpp
 	ElidedLabel.cpp
@@ -54,10 +60,7 @@ set(QT_SOURCES
 	vfsmodel.cpp
 	vfsdiscselectordialog.cpp
 	VfsDevice.cpp
-	controllerconfigdialog.cpp
 	InputBindingManager.cpp
-	bindingmodel.cpp
-	inputeventselectiondialog.cpp
 	GamePad/GamePadUtils.cpp
 )
 if(LIBEVDEV_FOUND)
@@ -68,6 +71,9 @@ if(LIBEVDEV_FOUND)
 	)
 endif()
 set(QT_MOC_HEADERS
+	ControllerConfig/bindingmodel.h
+	ControllerConfig/controllerconfigdialog.h
+	ControllerConfig/inputeventselectiondialog.h
 	mainwindow.h
 	ElidedLabel.h
 	GSH_OpenGLQt.h
@@ -81,10 +87,7 @@ set(QT_MOC_HEADERS
 	vfsmodel.h
 	vfsdiscselectordialog.h
 	VfsDevice.h
-	controllerconfigdialog.h
 	InputBindingManager.h
-	bindingmodel.h
-	inputeventselectiondialog.h
 	GamePad/GamePadUtils.h
 )
 if(LIBEVDEV_FOUND)

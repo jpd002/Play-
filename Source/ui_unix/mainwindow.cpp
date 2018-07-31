@@ -23,7 +23,7 @@
 
 #include "ui_mainwindow.h"
 #include "vfsmanagerdialog.h"
-#include "controllerconfigdialog.h"
+#include "ControllerConfig/controllerconfigdialog.h"
 
 MainWindow::MainWindow(QWidget* parent)
     : QMainWindow(parent)
