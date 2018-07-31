@@ -67,7 +67,9 @@ if(LIBEVDEV_FOUND)
 	set(QT_SOURCES
 		${QT_SOURCES}
 		GamePad/GamePadInputEventListener.cpp
+		GamePad/GamePadInputEventListener.h
 		GamePad/GamePadDeviceListener.cpp
+		GamePad/GamePadDeviceListener.h
 	)
 endif()
 set(QT_MOC_HEADERS
@@ -90,13 +92,6 @@ set(QT_MOC_HEADERS
 	InputBindingManager.h
 	GamePad/GamePadUtils.h
 )
-if(LIBEVDEV_FOUND)
-	set(QT_SOURCES
-		${QT_SOURCES}
-		GamePad/GamePadInputEventListener.h
-		GamePad/GamePadDeviceListener.h
-	)
-endif()
 
 set(QT_UIS
 	Qt_ui/mainwindow.ui
