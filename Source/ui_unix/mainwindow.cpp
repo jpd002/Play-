@@ -172,7 +172,7 @@ void MainWindow::on_actionOpen_Game_triggered()
 			catch(const std::exception& e)
 			{
 				QMessageBox messageBox;
-				messageBox.critical(0, "Error", e.what());
+				messageBox.critical(nullptr, "Error", e.what());
 				messageBox.show();
 			}
 		}
@@ -199,7 +199,7 @@ void MainWindow::on_actionBoot_ELF_triggered()
 			catch(const std::exception& e)
 			{
 				QMessageBox messageBox;
-				messageBox.critical(0, "Error", e.what());
+				messageBox.critical(nullptr, "Error", e.what());
 				messageBox.show();
 			}
 		}
