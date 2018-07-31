@@ -120,7 +120,7 @@ public:
 		BINDINGTYPE GetBindingType() const override;
 		const char* GetBindingTypeName() const override;
 		uint32 GetValue() const override;
-		void SetValue(uint32);
+		void SetValue(uint32) override;
 		std::string GetDescription() const override;
 
 		void Save(Framework::CConfig&, const char*) const override;

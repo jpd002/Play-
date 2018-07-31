@@ -118,7 +118,7 @@ void CInputBindingManager::Save()
 	for(unsigned int i = 0; i < PS2::CControllerInfo::MAX_BUTTONS; i++)
 	{
 		BindingPtr& binding = m_bindings[i];
-		if(binding == NULL) continue;
+		if(!binding) continue;
 		std::string prefBase = Framework::CConfig::MakePreferenceName(CONFIG_PREFIX, PS2::CControllerInfo::m_buttonName[i]);
 		m_config.SetPreferenceInteger(Framework::CConfig::MakePreferenceName(prefBase, CONFIG_BINDING_TYPE).c_str(), binding->GetBindingType());
 		binding->Save(m_config, prefBase.c_str());
