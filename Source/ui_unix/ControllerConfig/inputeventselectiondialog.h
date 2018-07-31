@@ -21,7 +21,7 @@ class InputEventSelectionDialog : public QDialog
 	Q_OBJECT
 
 public:
-	explicit InputEventSelectionDialog(QWidget* parent = 0);
+	explicit InputEventSelectionDialog(QWidget* parent = nullptr);
 	~InputEventSelectionDialog();
 
 	void Setup(const char* text, CInputBindingManager* inputManager, PS2::CControllerInfo::BUTTON button);
