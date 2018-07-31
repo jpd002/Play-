@@ -25,14 +25,17 @@ InputEventSelectionDialog::~InputEventSelectionDialog()
 	delete ui;
 }
 
-#ifdef HAS_LIBEVDEV
-void InputEventSelectionDialog::Setup(const char* text, CInputBindingManager* inputManager,
-                                      PS2::CControllerInfo::BUTTON button, std::unique_ptr<CGamePadDeviceListener> const& GPDL)
+void InputEventSelectionDialog::Setup(const char* text, CInputBindingManager* inputManager, PS2::CControllerInfo::BUTTON button)
 {
 	m_inputManager = inputManager;
 	ui->bindinglabel->setText(m_bindingtext.arg(text));
 	m_button = button;
+}
 
+#ifdef HAS_LIBEVDEV
+
+void InputEventSelectionDialog::SetupInputManager(std::unique_ptr<CGamePadDeviceListener> const& GPDL)
+{
 	auto onInput = [=](std::array<unsigned int, 6> device, int code, int value, int type, const input_absinfo* abs) -> void {
 		if(type == 4) return;
 		if(!(type == 3 && abs->flat))
@@ -102,6 +105,7 @@ void InputEventSelectionDialog::Setup(const char* text, CInputBindingManager* in
 
 	GPDL.get()->UpdateOnInputEventCallback(onInput);
 }
+
 #endif
 
 void InputEventSelectionDialog::keyPressEvent(QKeyEvent* ev)

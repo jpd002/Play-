@@ -24,8 +24,9 @@ public:
 	explicit InputEventSelectionDialog(QWidget* parent = 0);
 	~InputEventSelectionDialog();
 
+	void Setup(const char* text, CInputBindingManager* inputManager, PS2::CControllerInfo::BUTTON button);
 #ifdef HAS_LIBEVDEV
-	void Setup(const char* text, CInputBindingManager* inputManager, PS2::CControllerInfo::BUTTON button, const std::unique_ptr<CGamePadDeviceListener>& GPDL);
+	void SetupInputDeviceManager(const std::unique_ptr<CGamePadDeviceListener>& GPDL);
 #endif
 
 protected:

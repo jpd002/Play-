@@ -87,9 +87,9 @@ int ControllerConfigDialog::OpenBindConfigDialog(int index)
 	std::transform(button.begin(), button.end(), button.begin(), ::toupper);
 
 	InputEventSelectionDialog IESD;
+	IESD.Setup(button.c_str(), m_inputManager, static_cast<PS2::CControllerInfo::BUTTON>(index));
 #ifdef HAS_LIBEVDEV
-	IESD.Setup(button.c_str(), m_inputManager,
-	           static_cast<PS2::CControllerInfo::BUTTON>(index), m_inputDeviceManager);
+	IESD.SetupInputDeviceManager(m_inputDeviceManager);
 #endif
 	auto res = IESD.exec();
 #ifdef HAS_LIBEVDEV
