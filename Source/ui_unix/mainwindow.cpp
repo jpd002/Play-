@@ -120,17 +120,15 @@ void MainWindow::SetOpenGlPanelSize()
 
 void MainWindow::SetupSoundHandler()
 {
-	if(m_virtualMachine != nullptr)
+	assert(m_virtualMachine);
+	bool audioEnabled = CAppConfig::GetInstance().GetPreferenceBoolean(PREFERENCE_AUDIO_ENABLEOUTPUT);
+	if(audioEnabled)
 	{
-		bool audioEnabled = CAppConfig::GetInstance().GetPreferenceBoolean(PREFERENCE_AUDIO_ENABLEOUTPUT);
-		if(audioEnabled)
-		{
-			m_virtualMachine->CreateSoundHandler(&CSH_OpenAL::HandlerFactory);
-		}
-		else
-		{
-			m_virtualMachine->DestroySoundHandler();
-		}
+		m_virtualMachine->CreateSoundHandler(&CSH_OpenAL::HandlerFactory);
+	}
+	else
+	{
+		m_virtualMachine->DestroySoundHandler();
 	}
 }
 
