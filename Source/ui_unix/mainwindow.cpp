@@ -57,6 +57,8 @@ MainWindow::MainWindow(QWidget* parent)
 
 	CreateStatusBar();
 	UpdateUI();
+
+	InitVirtualMachine();
 }
 
 MainWindow::~MainWindow()
@@ -82,15 +84,16 @@ MainWindow::~MainWindow()
 void MainWindow::showEvent(QShowEvent* event)
 {
 	QMainWindow::showEvent(event);
-	InitEmu();
+	SetupGsHandler();
 }
 
-void MainWindow::InitEmu()
+void MainWindow::InitVirtualMachine()
 {
+	assert(!m_virtualMachine);
+
 	m_virtualMachine = new CPS2VM();
 	m_virtualMachine->Initialize();
 
-	m_virtualMachine->CreateGSHandler(CGSH_OpenGLQt::GetFactoryFunction(m_openglpanel));
 	SetupSoundHandler();
 
 	m_InputBindingManager = new CInputBindingManager(CAppConfig::GetInstance());
@@ -107,7 +110,6 @@ void MainWindow::InitEmu()
 #endif
 
 	m_statsManager = new CStatsManager();
-	m_virtualMachine->m_ee->m_gs->OnNewFrame.connect(std::bind(&CStatsManager::OnNewFrame, m_statsManager, std::placeholders::_1));
 
 	m_virtualMachine->OnRunningStateChange.connect(std::bind(&MainWindow::OnRunningStateChange, this));
 	m_virtualMachine->m_ee->m_os->OnExecutableChange.connect(std::bind(&MainWindow::OnExecutableChange, this));
@@ -116,6 +118,17 @@ void MainWindow::InitEmu()
 void MainWindow::SetOpenGlPanelSize()
 {
 	openGLWindow_resized();
+}
+
+void MainWindow::SetupGsHandler()
+{
+	assert(m_virtualMachine);
+	auto gsHandler = m_virtualMachine->GetGSHandler();
+	if(!gsHandler)
+	{
+		m_virtualMachine->CreateGSHandler(CGSH_OpenGLQt::GetFactoryFunction(m_openglpanel));
+		m_virtualMachine->m_ee->m_gs->OnNewFrame.connect(std::bind(&CStatsManager::OnNewFrame, m_statsManager, std::placeholders::_1));
+	}
 }
 
 void MainWindow::SetupSoundHandler()

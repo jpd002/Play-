@@ -35,7 +35,8 @@ public:
 private:
 	void SetOpenGlPanelSize();
 	void CreateStatusBar();
-	void InitEmu();
+	void InitVirtualMachine();
+	void SetupGsHandler();
 	void SetupSoundHandler();
 	void Setupfpscounter();
 	void SetupSaveLoadStateSlots();
