@@ -34,7 +34,7 @@ void InputEventSelectionDialog::Setup(const char* text, CInputBindingManager* in
 
 #ifdef HAS_LIBEVDEV
 
-void InputEventSelectionDialog::SetupInputManager(std::unique_ptr<CGamePadDeviceListener> const& GPDL)
+void InputEventSelectionDialog::SetupInputDeviceManager(std::unique_ptr<CGamePadDeviceListener> const& GPDL)
 {
 	auto onInput = [=](std::array<unsigned int, 6> device, int code, int value, int type, const input_absinfo* abs) -> void {
 		if(type == 4) return;
