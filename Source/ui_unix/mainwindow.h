@@ -29,7 +29,7 @@ class MainWindow : public QMainWindow
 	Q_OBJECT
 
 public:
-	explicit MainWindow(QWidget* parent = 0);
+	explicit MainWindow(QWidget* parent = nullptr);
 	~MainWindow();
 
 private:
@@ -59,7 +59,7 @@ private:
 	QLabel* m_dcLabel;
 	QLabel* m_stateLabel;
 	ElidedLabel* m_msgLabel;
-	CStatsManager* m_statsManager;
+	CStatsManager* m_statsManager = nullptr;
 	CInputBindingManager* m_InputBindingManager;
 	QTimer* m_fpstimer = nullptr;
 	CPS2VM* m_virtualMachine = nullptr;
