@@ -58,10 +58,10 @@ private:
 	QLabel* m_dcLabel;
 	QLabel* m_stateLabel;
 	ElidedLabel* m_msgLabel;
-	CStatsManager* StatsManager;
+	CStatsManager* m_statsManager;
 	CInputBindingManager* m_InputBindingManager;
 	QTimer* m_fpstimer = nullptr;
-	CPS2VM* g_virtualMachine = nullptr;
+	CPS2VM* m_virtualMachine = nullptr;
 	bool m_deactivatePause = false;
 	bool m_pauseFocusLost = true;
 #ifdef HAS_LIBEVDEV

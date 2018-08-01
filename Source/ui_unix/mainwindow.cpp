@@ -65,15 +65,15 @@ MainWindow::~MainWindow()
 #ifdef HAS_LIBEVDEV
 	m_GPDL.reset();
 #endif
-	if(g_virtualMachine != nullptr)
+	if(m_virtualMachine != nullptr)
 	{
-		g_virtualMachine->Pause();
-		g_virtualMachine->DestroyPadHandler();
-		g_virtualMachine->DestroyGSHandler();
-		g_virtualMachine->DestroySoundHandler();
-		g_virtualMachine->Destroy();
-		delete g_virtualMachine;
-		g_virtualMachine = nullptr;
+		m_virtualMachine->Pause();
+		m_virtualMachine->DestroyPadHandler();
+		m_virtualMachine->DestroyGSHandler();
+		m_virtualMachine->DestroySoundHandler();
+		m_virtualMachine->Destroy();
+		delete m_virtualMachine;
+		m_virtualMachine = nullptr;
 	}
 	delete m_InputBindingManager;
 	delete ui;
@@ -87,14 +87,14 @@ void MainWindow::showEvent(QShowEvent* event)
 
 void MainWindow::InitEmu()
 {
-	g_virtualMachine = new CPS2VM();
-	g_virtualMachine->Initialize();
+	m_virtualMachine = new CPS2VM();
+	m_virtualMachine->Initialize();
 
-	g_virtualMachine->CreateGSHandler(CGSH_OpenGLQt::GetFactoryFunction(m_openglpanel));
+	m_virtualMachine->CreateGSHandler(CGSH_OpenGLQt::GetFactoryFunction(m_openglpanel));
 	SetupSoundHandler();
 
 	m_InputBindingManager = new CInputBindingManager(CAppConfig::GetInstance());
-	g_virtualMachine->CreatePadHandler(CPH_HidUnix::GetFactoryFunction(m_InputBindingManager));
+	m_virtualMachine->CreatePadHandler(CPH_HidUnix::GetFactoryFunction(m_InputBindingManager));
 
 #ifdef HAS_LIBEVDEV
 	auto onInput = [=](std::array<uint32, 6> device, int code, int value, int type, const input_absinfo* abs) -> void {
@@ -106,11 +106,11 @@ void MainWindow::InitEmu()
 	m_GPDL = std::make_unique<CGamePadDeviceListener>(onInput);
 #endif
 
-	StatsManager = new CStatsManager();
-	g_virtualMachine->m_ee->m_gs->OnNewFrame.connect(std::bind(&CStatsManager::OnNewFrame, StatsManager, std::placeholders::_1));
+	m_statsManager = new CStatsManager();
+	m_virtualMachine->m_ee->m_gs->OnNewFrame.connect(std::bind(&CStatsManager::OnNewFrame, m_statsManager, std::placeholders::_1));
 
-	g_virtualMachine->OnRunningStateChange.connect(std::bind(&MainWindow::OnRunningStateChange, this));
-	g_virtualMachine->m_ee->m_os->OnExecutableChange.connect(std::bind(&MainWindow::OnExecutableChange, this));
+	m_virtualMachine->OnRunningStateChange.connect(std::bind(&MainWindow::OnRunningStateChange, this));
+	m_virtualMachine->m_ee->m_os->OnExecutableChange.connect(std::bind(&MainWindow::OnExecutableChange, this));
 }
 
 void MainWindow::SetOpenGlPanelSize()
@@ -120,23 +120,23 @@ void MainWindow::SetOpenGlPanelSize()
 
 void MainWindow::SetupSoundHandler()
 {
-	if(g_virtualMachine != nullptr)
+	if(m_virtualMachine != nullptr)
 	{
 		bool audioEnabled = CAppConfig::GetInstance().GetPreferenceBoolean(PREFERENCE_AUDIO_ENABLEOUTPUT);
 		if(audioEnabled)
 		{
-			g_virtualMachine->CreateSoundHandler(&CSH_OpenAL::HandlerFactory);
+			m_virtualMachine->CreateSoundHandler(&CSH_OpenAL::HandlerFactory);
 		}
 		else
 		{
-			g_virtualMachine->DestroySoundHandler();
+			m_virtualMachine->DestroySoundHandler();
 		}
 	}
 }
 
 void MainWindow::openGLWindow_resized()
 {
-	if(g_virtualMachine != nullptr && g_virtualMachine->m_ee != nullptr && g_virtualMachine->m_ee->m_gs != nullptr)
+	if(m_virtualMachine != nullptr && m_virtualMachine->m_ee != nullptr && m_virtualMachine->m_ee->m_gs != nullptr)
 	{
 		GLint w = m_openglpanel->size().width(), h = m_openglpanel->size().height();
 
@@ -145,8 +145,8 @@ void MainWindow::openGLWindow_resized()
 		presentationParams.mode = (CGSHandler::PRESENTATION_MODE)CAppConfig::GetInstance().GetPreferenceInteger(PREF_CGSHANDLER_PRESENTATION_MODE);
 		presentationParams.windowWidth = w * scale;
 		presentationParams.windowHeight = h * scale;
-		g_virtualMachine->m_ee->m_gs->SetPresentationParams(presentationParams);
-		g_virtualMachine->m_ee->m_gs->Flip();
+		m_virtualMachine->m_ee->m_gs->SetPresentationParams(presentationParams);
+		m_virtualMachine->m_ee->m_gs->Flip();
 	}
 }
 
@@ -162,7 +162,7 @@ void MainWindow::on_actionOpen_Game_triggered()
 		m_lastpath = QFileInfo(fileName).path();
 		CAppConfig::GetInstance().SetPreferencePath(PREF_PS2_CDROM0_PATH, fileName.toStdString());
 
-		if(g_virtualMachine != nullptr)
+		if(m_virtualMachine != nullptr)
 		{
 			try
 			{
@@ -189,7 +189,7 @@ void MainWindow::on_actionBoot_ELF_triggered()
 	{
 		auto fileName = dialog.selectedFiles().first();
 		m_lastpath = QFileInfo(fileName).path();
-		if(g_virtualMachine != nullptr)
+		if(m_virtualMachine != nullptr)
 		{
 			try
 			{
@@ -208,18 +208,18 @@ void MainWindow::on_actionBoot_ELF_triggered()
 
 void MainWindow::BootElf(const char* fileName)
 {
-	g_virtualMachine->Pause();
-	g_virtualMachine->Reset();
-	g_virtualMachine->m_ee->m_os->BootFromFile(fileName);
-	g_virtualMachine->Resume();
+	m_virtualMachine->Pause();
+	m_virtualMachine->Reset();
+	m_virtualMachine->m_ee->m_os->BootFromFile(fileName);
+	m_virtualMachine->Resume();
 }
 
 void MainWindow::BootCDROM()
 {
-	g_virtualMachine->Pause();
-	g_virtualMachine->Reset();
-	g_virtualMachine->m_ee->m_os->BootFromCDROM();
-	g_virtualMachine->Resume();
+	m_virtualMachine->Pause();
+	m_virtualMachine->Reset();
+	m_virtualMachine->m_ee->m_os->BootFromCDROM();
+	m_virtualMachine->Resume();
 }
 
 void MainWindow::on_actionExit_triggered()
@@ -288,18 +288,18 @@ void MainWindow::CreateStatusBar()
 
 void MainWindow::setFPS()
 {
-	int frames = StatsManager->GetFrames();
-	int drawCalls = StatsManager->GetDrawCalls();
+	int frames = m_statsManager->GetFrames();
+	int drawCalls = m_statsManager->GetDrawCalls();
 	int dcpf = (frames != 0) ? (drawCalls / frames) : 0;
 	//fprintf(stderr, "%d f/s, %d dc/f\n", frames, dcpf);
-	StatsManager->ClearStats();
+	m_statsManager->ClearStats();
 	fpsLabel->setText(QString(" fps: %1 ").arg(frames));
 	m_dcLabel->setText(QString(" dc: %1 ").arg(dcpf));
 }
 
 void MainWindow::OnRunningStateChange()
 {
-	m_stateLabel->setText(g_virtualMachine->GetStatus() == CVirtualMachine::PAUSED ? "Paused" : "Running");
+	m_stateLabel->setText(m_virtualMachine->GetStatus() == CVirtualMachine::PAUSED ? "Paused" : "Running");
 }
 
 void MainWindow::on_actionSettings_triggered()
@@ -311,7 +311,7 @@ void MainWindow::on_actionSettings_triggered()
 
 void MainWindow::SetupSaveLoadStateSlots()
 {
-	bool enable = (g_virtualMachine != nullptr ? (g_virtualMachine->m_ee->m_os->GetELF() != nullptr) : false);
+	bool enable = (m_virtualMachine != nullptr ? (m_virtualMachine->m_ee->m_os->GetELF() != nullptr) : false);
 	ui->menuSave_States->clear();
 	ui->menuLoad_States->clear();
 	for(int i = 1; i <= 10; i++)
@@ -340,8 +340,8 @@ void MainWindow::saveState(int stateSlot)
 {
 	Framework::PathUtils::EnsurePathExists(CPS2VM::GetStateDirectoryPath());
 
-	auto stateFilePath = g_virtualMachine->GenerateStatePath(stateSlot);
-	g_virtualMachine->SaveState(stateFilePath);
+	auto stateFilePath = m_virtualMachine->GenerateStatePath(stateSlot);
+	m_virtualMachine->SaveState(stateFilePath);
 
 	QDateTime* dt = new QDateTime;
 	QString datetime = dt->currentDateTime().toString("hh:mm dd.MM.yyyy");
@@ -351,14 +351,14 @@ void MainWindow::saveState(int stateSlot)
 
 void MainWindow::loadState(int stateSlot)
 {
-	auto stateFilePath = g_virtualMachine->GenerateStatePath(stateSlot);
-	g_virtualMachine->LoadState(stateFilePath);
-	g_virtualMachine->Resume();
+	auto stateFilePath = m_virtualMachine->GenerateStatePath(stateSlot);
+	m_virtualMachine->LoadState(stateFilePath);
+	m_virtualMachine->Resume();
 }
 
 QString MainWindow::SaveStateInfo(int stateSlot)
 {
-	auto stateFilePath = g_virtualMachine->GenerateStatePath(stateSlot);
+	auto stateFilePath = m_virtualMachine->GenerateStatePath(stateSlot);
 	QFileInfo file(stateFilePath.string().c_str());
 	if(file.exists() && file.isFile())
 	{
@@ -372,15 +372,15 @@ QString MainWindow::SaveStateInfo(int stateSlot)
 
 void MainWindow::on_actionPause_Resume_triggered()
 {
-	if(g_virtualMachine != nullptr)
+	if(m_virtualMachine != nullptr)
 	{
-		if(g_virtualMachine->GetStatus() == CVirtualMachine::PAUSED)
+		if(m_virtualMachine->GetStatus() == CVirtualMachine::PAUSED)
 		{
-			g_virtualMachine->Resume();
+			m_virtualMachine->Resume();
 		}
 		else
 		{
-			g_virtualMachine->Pause();
+			m_virtualMachine->Pause();
 		}
 	}
 }
@@ -415,7 +415,7 @@ void MainWindow::on_actionAbout_triggered()
 void MainWindow::OnExecutableChange()
 {
 	UpdateUI();
-	gameIDLabel->setText(QString(" %1 ").arg(g_virtualMachine->m_ee->m_os->GetExecutableName()));
+	gameIDLabel->setText(QString(" %1 ").arg(m_virtualMachine->m_ee->m_os->GetExecutableName()));
 }
 
 void MainWindow::UpdateUI()
@@ -434,13 +434,13 @@ void MainWindow::RegisterPreferences()
 
 void MainWindow::focusOutEvent(QFocusEvent* event)
 {
-	if(m_pauseFocusLost && g_virtualMachine->GetStatus() == CVirtualMachine::RUNNING)
+	if(m_pauseFocusLost && m_virtualMachine->GetStatus() == CVirtualMachine::RUNNING)
 	{
 		if(!isActiveWindow() && !m_openglpanel->isActive())
 		{
-			if(g_virtualMachine != nullptr)
+			if(m_virtualMachine != nullptr)
 			{
-				g_virtualMachine->Pause();
+				m_virtualMachine->Pause();
 				m_deactivatePause = true;
 			}
 		}
@@ -448,13 +448,13 @@ void MainWindow::focusOutEvent(QFocusEvent* event)
 }
 void MainWindow::focusInEvent(QFocusEvent* event)
 {
-	if(m_pauseFocusLost && g_virtualMachine->GetStatus() == CVirtualMachine::PAUSED)
+	if(m_pauseFocusLost && m_virtualMachine->GetStatus() == CVirtualMachine::PAUSED)
 	{
 		if(m_deactivatePause && (isActiveWindow() || m_openglpanel->isActive()))
 		{
-			if(g_virtualMachine != nullptr)
+			if(m_virtualMachine != nullptr)
 			{
-				g_virtualMachine->Resume();
+				m_virtualMachine->Resume();
 				m_deactivatePause = false;
 			}
 		}
@@ -526,7 +526,7 @@ void MainWindow::on_actionController_Manager_triggered()
 
 void MainWindow::on_actionCapture_Screen_triggered()
 {
-	CScreenShotUtils::TriggerGetScreenshot(g_virtualMachine,
+	CScreenShotUtils::TriggerGetScreenshot(m_virtualMachine,
 	                                       [&](int res, const char* msg) -> void {
 		                                       m_msgLabel->setText(msg);
 	                                       });
