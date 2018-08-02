@@ -52,11 +52,11 @@ private:
 
 	Ui::MainWindow* ui;
 
-	QWindow* m_openglpanel;
+	QWindow* m_openglpanel = nullptr;
 	QLabel* m_fpsLabel = nullptr;
 	ElidedLabel* m_msgLabel = nullptr;
 	CStatsManager* m_statsManager = nullptr;
-	CInputBindingManager* m_InputBindingManager;
+	CInputBindingManager* m_InputBindingManager = nullptr;
 	QTimer* m_fpstimer = nullptr;
 	CPS2VM* m_virtualMachine = nullptr;
 	bool m_deactivatePause = false;
