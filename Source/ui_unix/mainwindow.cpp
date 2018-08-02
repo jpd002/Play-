@@ -111,7 +111,6 @@ void MainWindow::InitVirtualMachine()
 
 	m_statsManager = new CStatsManager();
 
-	m_virtualMachine->OnRunningStateChange.connect(std::bind(&MainWindow::OnRunningStateChange, this));
 	m_virtualMachine->m_ee->m_os->OnExecutableChange.connect(std::bind(&MainWindow::OnExecutableChange, this));
 }
 
@@ -264,21 +263,9 @@ void MainWindow::keyReleaseEvent(QKeyEvent* event)
 
 void MainWindow::CreateStatusBar()
 {
-	gameIDLabel = new QLabel(" GameID ");
-	gameIDLabel->setAlignment(Qt::AlignHCenter);
-	gameIDLabel->setMinimumSize(gameIDLabel->sizeHint());
-
-	fpsLabel = new QLabel(" fps:00 ");
-	fpsLabel->setAlignment(Qt::AlignHCenter);
-	fpsLabel->setMinimumSize(fpsLabel->sizeHint());
-
-	m_dcLabel = new QLabel(" dc:0000 ");
-	m_dcLabel->setAlignment(Qt::AlignHCenter);
-	m_dcLabel->setMinimumSize(m_dcLabel->sizeHint());
-
-	m_stateLabel = new QLabel(" Paused ");
-	m_stateLabel->setAlignment(Qt::AlignHCenter);
-	m_stateLabel->setMinimumSize(m_dcLabel->sizeHint());
+	m_fpsLabel = new QLabel("");
+	m_fpsLabel->setAlignment(Qt::AlignHCenter);
+	m_fpsLabel->setMinimumSize(m_fpsLabel->sizeHint());
 
 	m_msgLabel = new ElidedLabel();
 	m_msgLabel->setAlignment(Qt::AlignLeft);
@@ -286,11 +273,8 @@ void MainWindow::CreateStatusBar()
 	m_msgLabel->setMinimumSize(fm.boundingRect("...").size());
 	m_msgLabel->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Preferred);
 
-	statusBar()->addWidget(m_stateLabel);
-	statusBar()->addWidget(fpsLabel);
-	statusBar()->addWidget(m_dcLabel);
 	statusBar()->addWidget(m_msgLabel, 1);
-	statusBar()->addWidget(gameIDLabel);
+	statusBar()->addWidget(m_fpsLabel);
 
 	m_fpstimer = new QTimer(this);
 	connect(m_fpstimer, SIGNAL(timeout()), this, SLOT(setFPS()));
@@ -299,18 +283,11 @@ void MainWindow::CreateStatusBar()
 
 void MainWindow::setFPS()
 {
-	int frames = m_statsManager->GetFrames();
-	int drawCalls = m_statsManager->GetDrawCalls();
-	int dcpf = (frames != 0) ? (drawCalls / frames) : 0;
-	//fprintf(stderr, "%d f/s, %d dc/f\n", frames, dcpf);
+	uint32 frames = m_statsManager->GetFrames();
+	uint32 drawCalls = m_statsManager->GetDrawCalls();
+	uint32 dcpf = (frames != 0) ? (drawCalls / frames) : 0;
 	m_statsManager->ClearStats();
-	fpsLabel->setText(QString(" fps: %1 ").arg(frames));
-	m_dcLabel->setText(QString(" dc: %1 ").arg(dcpf));
-}
-
-void MainWindow::OnRunningStateChange()
-{
-	m_stateLabel->setText(m_virtualMachine->GetStatus() == CVirtualMachine::PAUSED ? "Paused" : "Running");
+	m_fpsLabel->setText(QString("%1 f/s, %2 dc/f").arg(frames).arg(dcpf));
 }
 
 void MainWindow::on_actionSettings_triggered()
@@ -426,7 +403,8 @@ void MainWindow::on_actionAbout_triggered()
 void MainWindow::OnExecutableChange()
 {
 	UpdateUI();
-	gameIDLabel->setText(QString(" %1 ").arg(m_virtualMachine->m_ee->m_os->GetExecutableName()));
+	auto titleString = QString("Play! - [ %1 ]").arg(m_virtualMachine->m_ee->m_os->GetExecutableName());
+	setWindowTitle(titleString);
 }
 
 void MainWindow::UpdateUI()

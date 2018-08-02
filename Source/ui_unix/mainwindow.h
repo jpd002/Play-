@@ -41,7 +41,6 @@ private:
 	void Setupfpscounter();
 	void SetupSaveLoadStateSlots();
 	QString SaveStateInfo(int);
-	void OnRunningStateChange();
 	void OnExecutableChange();
 	void UpdateUI();
 	void RegisterPreferences();
@@ -54,11 +53,8 @@ private:
 	Ui::MainWindow* ui;
 
 	QWindow* m_openglpanel;
-	QLabel* gameIDLabel;
-	QLabel* fpsLabel;
-	QLabel* m_dcLabel;
-	QLabel* m_stateLabel;
-	ElidedLabel* m_msgLabel;
+	QLabel* m_fpsLabel = nullptr;
+	ElidedLabel* m_msgLabel = nullptr;
 	CStatsManager* m_statsManager = nullptr;
 	CInputBindingManager* m_InputBindingManager;
 	QTimer* m_fpstimer = nullptr;
