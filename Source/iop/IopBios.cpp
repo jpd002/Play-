@@ -2669,7 +2669,7 @@ uint32 CIopBios::AssembleVblankHandler(CMIPSAssembler& assembler)
 
 	assembler.MarkLabel(checkHandlerLabel);
 	assembler.LI(CMIPS::T0, BIOS_VBLANKHANDLER_BASE);
-	assembler.SLL(CMIPS::T1, CMIPS::S1, 4);    //Multiples of 0x10 bytes
+	assembler.SLL(CMIPS::T1, CMIPS::S1, 4); //Multiples of 0x10 bytes
 	assembler.ADDU(CMIPS::T0, CMIPS::T0, CMIPS::T1);
 
 	//Check isValid
