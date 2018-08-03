@@ -10,10 +10,6 @@ CSifManPs2::CSifManPs2(CSIF& sif, uint8* eeRam, uint8* iopRam)
 {
 }
 
-CSifManPs2::~CSifManPs2()
-{
-}
-
 void CSifManPs2::RegisterModule(uint32 id, CSifModule* module)
 {
 	m_sif.RegisterModule(id, module);

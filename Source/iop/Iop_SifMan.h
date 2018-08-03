@@ -15,7 +15,7 @@ namespace Iop
 		typedef std::function<void(uint32)> CustomCommandHandler;
 
 		CSifMan();
-		virtual ~CSifMan();
+		virtual ~CSifMan() = default;
 
 		void GenerateHandlers(uint8*, CSysmem&);
 

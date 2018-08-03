@@ -18,10 +18,6 @@ CSifMan::CSifMan()
 {
 }
 
-CSifMan::~CSifMan()
-{
-}
-
 std::string CSifMan::GetId() const
 {
 	return "sifman";

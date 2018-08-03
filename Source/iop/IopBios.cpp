@@ -11,6 +11,7 @@
 #include <vector>
 #include "xml/FilteringNodeIterator.h"
 #include "../StructCollectionStateFile.h"
+#include "string_format.h"
 
 #ifdef _IOP_EMULATE_MODULES
 #include "Iop_Cdvdfsv.h"
@@ -54,7 +55,9 @@
 #define BIOS_EVENTFLAGS_SIZE (sizeof(CIopBios::EVENTFLAG) * CIopBios::MAX_EVENTFLAG)
 #define BIOS_INTRHANDLER_BASE (BIOS_EVENTFLAGS_BASE + BIOS_EVENTFLAGS_SIZE)
 #define BIOS_INTRHANDLER_SIZE (sizeof(CIopBios::INTRHANDLER) * CIopBios::MAX_INTRHANDLER)
-#define BIOS_MESSAGEBOX_BASE (BIOS_INTRHANDLER_BASE + BIOS_INTRHANDLER_SIZE)
+#define BIOS_VBLANKHANDLER_BASE (BIOS_INTRHANDLER_BASE + BIOS_INTRHANDLER_SIZE)
+#define BIOS_VBLANKHANDLER_SIZE (sizeof(CIopBios::VBLANKHANDLER) * CIopBios::MAX_VBLANKHANDLER)
+#define BIOS_MESSAGEBOX_BASE (BIOS_VBLANKHANDLER_BASE + BIOS_VBLANKHANDLER_SIZE)
 #define BIOS_MESSAGEBOX_SIZE (sizeof(CIopBios::MESSAGEBOX) * CIopBios::MAX_MESSAGEBOX)
 #define BIOS_VPL_BASE (BIOS_MESSAGEBOX_BASE + BIOS_MESSAGEBOX_SIZE)
 #define BIOS_VPL_SIZE (sizeof(CIopBios::VPL) * CIopBios::MAX_VPL)
@@ -93,6 +96,7 @@ CIopBios::CIopBios(CMIPS& cpu, uint8* ram, uint32 ramSize, uint8* spr)
     , m_semaphores(reinterpret_cast<SEMAPHORE*>(&m_ram[BIOS_SEMAPHORES_BASE]), 1, MAX_SEMAPHORE)
     , m_eventFlags(reinterpret_cast<EVENTFLAG*>(&m_ram[BIOS_EVENTFLAGS_BASE]), 1, MAX_EVENTFLAG)
     , m_intrHandlers(reinterpret_cast<INTRHANDLER*>(&m_ram[BIOS_INTRHANDLER_BASE]), 1, MAX_INTRHANDLER)
+    , m_vblankHandlers(reinterpret_cast<VBLANKHANDLER*>(&m_ram[BIOS_VBLANKHANDLER_BASE]), 1, MAX_VBLANKHANDLER)
     , m_messageBoxes(reinterpret_cast<MESSAGEBOX*>(&m_ram[BIOS_MESSAGEBOX_BASE]), 1, MAX_MESSAGEBOX)
     , m_vpls(reinterpret_cast<VPL*>(&m_ram[BIOS_VPL_BASE]), 1, MAX_VPL)
     , m_loadedModules(reinterpret_cast<LOADEDMODULE*>(&m_ram[BIOS_LOADEDMODULE_BASE]), 1, MAX_LOADEDMODULE)
@@ -116,6 +120,7 @@ void CIopBios::Reset(const Iop::SifManPtr& sifMan)
 		m_idleFunctionAddress = AssembleIdleFunction(assembler);
 		m_moduleStarterThreadProcAddress = AssembleModuleStarterThreadProc(assembler);
 		m_alarmThreadProcAddress = AssembleAlarmThreadProc(assembler);
+		m_vblankHandlerAddress = AssembleVblankHandler(assembler);
 		assert(BIOS_HANDLERS_END > ((assembler.GetProgramSize() * 4) + BIOS_HANDLERS_BASE));
 	}
 
@@ -1436,6 +1441,40 @@ int32 CIopBios::ReleaseWaitThread(uint32 threadId, bool inInterrupt)
 	return KERNEL_RESULT_OK;
 }
 
+int32 CIopBios::RegisterVblankHandler(uint32 startEnd, uint32 priority, uint32 handlerPtr, uint32 handlerParam)
+{
+	assert((startEnd == 0) || (startEnd == 1));
+
+	//Make sure interrupt handler is registered
+	{
+		uint32 intrLine = startEnd ? Iop::CIntc::LINE_EVBLANK : Iop::CIntc::LINE_VBLANK;
+		uint32 intrHandlerId = FindIntrHandler(intrLine);
+		if(intrHandlerId == -1)
+		{
+			RegisterIntrHandler(intrLine, 0, m_vblankHandlerAddress, startEnd);
+
+			uint32 mask = m_cpu.m_pMemoryMap->GetWord(Iop::CIntc::MASK0);
+			mask |= (1 << intrLine);
+			m_cpu.m_pMemoryMap->SetWord(Iop::CIntc::MASK0, mask);
+		}
+	}
+
+	uint32 handlerId = m_vblankHandlers.Allocate();
+	assert(handlerId != -1);
+	if(handlerId == -1)
+	{
+		return -1;
+	}
+
+	auto handler = m_vblankHandlers[handlerId];
+	assert(handler);
+	handler->handler = handlerPtr;
+	handler->arg = handlerParam;
+	handler->type = startEnd;
+
+	return KERNEL_RESULT_OK;
+}
+
 void CIopBios::SleepThreadTillVBlankStart()
 {
 	THREAD* thread = GetThread(m_currentThreadId);
@@ -1575,7 +1614,7 @@ uint32 CIopBios::GetNextReadyThread()
 	return -1;
 }
 
-uint64 CIopBios::GetCurrentTime()
+uint64 CIopBios::GetCurrentTime() const
 {
 	return CurrentTime();
 }
@@ -2151,10 +2190,8 @@ uint32 CIopBios::ReceiveMessageBox(uint32 messagePtr, uint32 boxId)
 		return KERNEL_RESULT_ERROR_UNKNOWN_MBXID;
 	}
 
-	if(box->nextMsgPtr != 0)
+	if(box->numMessage != 0)
 	{
-		assert(box->numMessage > 0);
-
 		uint32* message = reinterpret_cast<uint32*>(m_ram + messagePtr);
 		(*message) = box->nextMsgPtr;
 
@@ -2189,7 +2226,7 @@ uint32 CIopBios::PollMessageBox(uint32 messagePtr, uint32 boxId)
 		return KERNEL_RESULT_ERROR_UNKNOWN_MBXID;
 	}
 
-	if(box->nextMsgPtr == 0)
+	if(box->numMessage == 0)
 	{
 		return KERNEL_RESULT_ERROR_MBX_NOMSG;
 	}
@@ -2610,6 +2647,60 @@ uint32 CIopBios::AssembleAlarmThreadProc(CMIPSAssembler& assembler)
 
 	assembler.JR(CMIPS::RA);
 	assembler.ADDIU(CMIPS::SP, CMIPS::SP, 0x0080);
+
+	return address;
+}
+
+uint32 CIopBios::AssembleVblankHandler(CMIPSAssembler& assembler)
+{
+	uint32 address = BIOS_HANDLERS_BASE + assembler.GetProgramSize() * 4;
+	auto checkHandlerLabel = assembler.CreateLabel();
+	auto moveToNextHandlerLabel = assembler.CreateLabel();
+
+	int16 stackAlloc = 0x80;
+
+	//Prolog
+	assembler.ADDIU(CMIPS::SP, CMIPS::SP, -stackAlloc);
+	assembler.SW(CMIPS::RA, 0x10, CMIPS::SP);
+	assembler.SW(CMIPS::S0, 0x14, CMIPS::SP);
+
+	assembler.MOV(CMIPS::S0, CMIPS::A0); //S0 = type
+	assembler.MOV(CMIPS::S1, CMIPS::R0); //S1 = counter
+
+	assembler.MarkLabel(checkHandlerLabel);
+	assembler.LI(CMIPS::T0, BIOS_VBLANKHANDLER_BASE);
+	assembler.SLL(CMIPS::T1, CMIPS::S1, 4); //Multiples of 0x10 bytes
+	assembler.ADDU(CMIPS::T0, CMIPS::T0, CMIPS::T1);
+
+	//Check isValid
+	assembler.LW(CMIPS::T1, offsetof(VBLANKHANDLER, isValid), CMIPS::T0);
+	assembler.BEQ(CMIPS::T1, CMIPS::R0, moveToNextHandlerLabel);
+	assembler.NOP();
+
+	//Check type
+	assembler.LW(CMIPS::T1, offsetof(VBLANKHANDLER, type), CMIPS::T0);
+	assembler.BNE(CMIPS::T1, CMIPS::S0, moveToNextHandlerLabel);
+	assembler.NOP();
+
+	assembler.LW(CMIPS::T1, offsetof(VBLANKHANDLER, handler), CMIPS::T0);
+	assembler.JALR(CMIPS::T1);
+	assembler.LW(CMIPS::A0, offsetof(VBLANKHANDLER, arg), CMIPS::T0);
+
+	//TODO: Check return value
+
+	assembler.MarkLabel(moveToNextHandlerLabel);
+	assembler.ADDIU(CMIPS::S1, CMIPS::S1, 1);
+	assembler.SLTIU(CMIPS::T0, CMIPS::S1, MAX_VBLANKHANDLER);
+
+	assembler.BNE(CMIPS::T0, CMIPS::R0, checkHandlerLabel);
+	assembler.NOP();
+
+	//Epilog
+	assembler.LW(CMIPS::S0, 0x14, CMIPS::SP);
+	assembler.LW(CMIPS::RA, 0x10, CMIPS::SP);
+
+	assembler.JR(CMIPS::RA);
+	assembler.ADDIU(CMIPS::SP, CMIPS::SP, stackAlloc);
 
 	return address;
 }
@@ -3135,13 +3226,22 @@ BiosDebugThreadInfoArray CIopBios::GetThreadsDebugInfo() const
 			threadInfo.sp = thread->context.gpr[CMIPS::SP];
 		}
 
+		int64 deltaTime = thread->nextActivateTime - GetCurrentTime();
+
 		switch(thread->status)
 		{
 		case THREAD_STATUS_DORMANT:
 			threadInfo.stateDescription = "Dormant";
 			break;
 		case THREAD_STATUS_RUNNING:
-			threadInfo.stateDescription = "Running";
+			if(deltaTime <= 0)
+			{
+				threadInfo.stateDescription = "Running";
+			}
+			else
+			{
+				threadInfo.stateDescription = string_format("Delayed (%ld ticks)", deltaTime);
+			}
 			break;
 		case THREAD_STATUS_SLEEPING:
 			threadInfo.stateDescription = "Sleeping";

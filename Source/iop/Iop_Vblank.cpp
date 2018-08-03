@@ -1,6 +1,5 @@
 #include "Iop_Vblank.h"
 #include "IopBios.h"
-#include "Iop_Intc.h"
 #include "../Log.h"
 
 using namespace Iop;
@@ -59,7 +58,6 @@ void CVblank::Invoke(CMIPS& context, unsigned int functionId)
 		break;
 	case 8:
 		context.m_State.nGPR[CMIPS::V0].nD0 = RegisterVblankHandler(
-		    context,
 		    context.m_State.nGPR[CMIPS::A0].nV0,
 		    context.m_State.nGPR[CMIPS::A1].nV0,
 		    context.m_State.nGPR[CMIPS::A2].nV0,
@@ -99,19 +97,11 @@ int32 CVblank::WaitVblank()
 	return 0;
 }
 
-int32 CVblank::RegisterVblankHandler(CMIPS& context, uint32 startEnd, uint32 priority, uint32 handlerPtr, uint32 handlerParam)
+int32 CVblank::RegisterVblankHandler(uint32 startEnd, uint32 priority, uint32 handlerPtr, uint32 handlerParam)
 {
 #ifdef _DEBUG
 	CLog::GetInstance().Print(LOG_NAME, FUNCTION_REGISTERVBLANKHANDLER "(startEnd = %d, priority = %d, handler = 0x%08X, arg = 0x%08X).\r\n",
 	                          startEnd, priority, handlerPtr, handlerParam);
 #endif
-	uint32 intrLine = startEnd ? CIntc::LINE_EVBLANK : CIntc::LINE_VBLANK;
-
-	m_bios.RegisterIntrHandler(intrLine, 0, handlerPtr, handlerParam);
-
-	uint32 mask = context.m_pMemoryMap->GetWord(CIntc::MASK0);
-	mask |= (1 << intrLine);
-	context.m_pMemoryMap->SetWord(CIntc::MASK0, mask);
-
-	return 0;
+	return m_bios.RegisterVblankHandler(startEnd, priority, handlerPtr, handlerParam);
 }
