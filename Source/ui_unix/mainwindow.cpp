@@ -276,9 +276,9 @@ void MainWindow::CreateStatusBar()
 	statusBar()->addWidget(m_msgLabel, 1);
 	statusBar()->addWidget(m_fpsLabel);
 
-	m_fpstimer = new QTimer(this);
-	connect(m_fpstimer, SIGNAL(timeout()), this, SLOT(setFPS()));
-	m_fpstimer->start(1000);
+	m_fpsTimer = new QTimer(this);
+	connect(m_fpsTimer, SIGNAL(timeout()), this, SLOT(setFPS()));
+	m_fpsTimer->start(1000);
 }
 
 void MainWindow::setFPS()

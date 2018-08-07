@@ -57,7 +57,7 @@ private:
 	ElidedLabel* m_msgLabel = nullptr;
 	CStatsManager* m_statsManager = nullptr;
 	CInputBindingManager* m_InputBindingManager = nullptr;
-	QTimer* m_fpstimer = nullptr;
+	QTimer* m_fpsTimer = nullptr;
 	CPS2VM* m_virtualMachine = nullptr;
 	bool m_deactivatePause = false;
 	bool m_pauseFocusLost = true;
