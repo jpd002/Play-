@@ -364,10 +364,12 @@ void MainWindow::on_actionPause_Resume_triggered()
 	{
 		if(m_virtualMachine->GetStatus() == CVirtualMachine::PAUSED)
 		{
+			m_msgLabel->setText("Virtual machine resumed.");
 			m_virtualMachine->Resume();
 		}
 		else
 		{
+			m_msgLabel->setText("Virtual machine paused.");
 			m_virtualMachine->Pause();
 		}
 	}
