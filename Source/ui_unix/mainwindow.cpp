@@ -279,6 +279,10 @@ void MainWindow::CreateStatusBar()
 	m_fpsTimer = new QTimer(this);
 	connect(m_fpsTimer, SIGNAL(timeout()), this, SLOT(setFPS()));
 	m_fpsTimer->start(1000);
+
+	m_continuationTimer = new QTimer(this);
+	connect(m_continuationTimer, SIGNAL(timeout()), this, SLOT(updateContinuations()));
+	m_continuationTimer->start(500);
 }
 
 void MainWindow::setFPS()
@@ -288,6 +292,11 @@ void MainWindow::setFPS()
 	uint32 dcpf = (frames != 0) ? (drawCalls / frames) : 0;
 	m_statsManager->ClearStats();
 	m_fpsLabel->setText(QString("%1 f/s, %2 dc/f").arg(frames).arg(dcpf));
+}
+
+void MainWindow::updateContinuations()
+{
+	m_futureContinuationManager.Execute();
 }
 
 void MainWindow::on_actionSettings_triggered()
@@ -329,19 +338,44 @@ void MainWindow::saveState(int stateSlot)
 	Framework::PathUtils::EnsurePathExists(CPS2VM::GetStateDirectoryPath());
 
 	auto stateFilePath = m_virtualMachine->GenerateStatePath(stateSlot);
-	m_virtualMachine->SaveState(stateFilePath);
-
-	QDateTime* dt = new QDateTime;
-	QString datetime = dt->currentDateTime().toString("hh:mm dd.MM.yyyy");
-	ui->menuSave_States->actions().at(stateSlot - 1)->setText(QString("Save Slot %1 - %2").arg(stateSlot).arg(datetime));
-	ui->menuLoad_States->actions().at(stateSlot - 1)->setText(QString("Load Slot %1 - %2").arg(stateSlot).arg(datetime));
+	auto future = m_virtualMachine->SaveState(stateFilePath);
+	m_futureContinuationManager.Register(std::move(future),
+		[this, stateSlot = stateSlot](const bool& succeeded)
+		{
+			if(succeeded)
+			{
+				m_msgLabel->setText(QString("Saved state to slot %1.").arg(stateSlot));
+				QDateTime* dt = new QDateTime;
+				QString datetime = dt->currentDateTime().toString("hh:mm dd.MM.yyyy");
+				ui->menuSave_States->actions().at(stateSlot - 1)->setText(QString("Save Slot %1 - %2").arg(stateSlot).arg(datetime));
+				ui->menuLoad_States->actions().at(stateSlot - 1)->setText(QString("Load Slot %1 - %2").arg(stateSlot).arg(datetime));
+			}
+			else
+			{
+				m_msgLabel->setText(QString("Error saving state to slot %1.").arg(stateSlot));
+			}
+		}
+	);
 }
 
 void MainWindow::loadState(int stateSlot)
 {
 	auto stateFilePath = m_virtualMachine->GenerateStatePath(stateSlot);
-	m_virtualMachine->LoadState(stateFilePath);
-	m_virtualMachine->Resume();
+	auto future = m_virtualMachine->LoadState(stateFilePath);
+	m_futureContinuationManager.Register(std::move(future),
+		[this, stateSlot = stateSlot](const bool& succeeded)
+		{
+			if(succeeded)
+			{
+				m_msgLabel->setText(QString("Loaded state from slot %1.").arg(stateSlot));
+				m_virtualMachine->Resume();
+			}
+			else
+			{
+				m_msgLabel->setText(QString("Error loading state from slot %1.").arg(stateSlot));
+			}
+		}
+	);
 }
 
 QString MainWindow::SaveStateInfo(int stateSlot)
