@@ -16,6 +16,8 @@ travis_before_install()
         sudo apt-get update -y
         sudo apt-get install -y clang-format-6.0
     elif [ "$TARGET_OS" = "OSX" ]; then
+        brew update
+        brew install qt5
         sudo npm install -g appdmg
     elif [ "$TARGET_OS" = "IOS" ]; then
         brew update
