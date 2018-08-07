@@ -2258,7 +2258,9 @@ void CPS2OS::sc_SetupThread()
 	uint32 stackAddr = 0;
 	if(stackBase == 0xFFFFFFFF)
 	{
-		stackAddr = 0x02000000;
+		//We need to substract 4k from RAM size because some games (Espgaluda) rely on the
+		//stack and heap being a very precise size. EE kernel seems to substract that amount too.
+		stackAddr = PS2::EE_RAM_SIZE - (4 * 1024);
 	}
 	else
 	{
