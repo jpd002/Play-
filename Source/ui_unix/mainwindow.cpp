@@ -55,6 +55,10 @@ MainWindow::MainWindow(QWidget* parent)
 		m_lastpath = QString(last_path.native().c_str());
 	}
 
+	m_continuationTimer = new QTimer(this);
+	connect(m_continuationTimer, SIGNAL(timeout()), this, SLOT(updateContinuations()));
+	m_continuationTimer->start(500);
+
 	CreateStatusBar();
 	UpdateUI();
 
@@ -279,10 +283,6 @@ void MainWindow::CreateStatusBar()
 	m_fpsTimer = new QTimer(this);
 	connect(m_fpsTimer, SIGNAL(timeout()), this, SLOT(setFPS()));
 	m_fpsTimer->start(1000);
-
-	m_continuationTimer = new QTimer(this);
-	connect(m_continuationTimer, SIGNAL(timeout()), this, SLOT(updateContinuations()));
-	m_continuationTimer->start(500);
 }
 
 void MainWindow::setFPS()
