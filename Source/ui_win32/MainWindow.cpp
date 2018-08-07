@@ -31,7 +31,7 @@
 #include "../../tools/PsfPlayer/Source/win32_ui/SH_WaveOut.h"
 
 #define CLSNAME _T("MainWindow")
-#define WNDSTYLE (WS_CLIPCHILDREN | WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX | WS_MAXIMIZEBOX | WS_SIZEBOX)
+#define WNDSTYLE (WS_CLIPCHILDREN | WS_OVERLAPPEDWINDOW)
 
 #define STATUSPANEL 0
 #define FPSPANEL 1
@@ -286,6 +286,9 @@ long CMainWindow::OnCommand(unsigned short nID, unsigned short nCmd, HWND hSende
 	case ID_MAIN_VIEW_ACTUALSIZE:
 		ChangeViewMode(CGSHandler::PRESENTATION_MODE_ORIGINAL);
 		break;
+	case ID_MAIN_VIEW_FULLSCREEN:
+		ToggleFullscreen();
+		break;
 	case ID_MAIN_OPTIONS_VIDEO:
 		ShowVideoSettings();
 		break;
@@ -385,6 +388,17 @@ long CMainWindow::OnMove(int x, int y)
 	return FALSE;
 }
 
+long CMainWindow::OnKeyDown(WPARAM key, LPARAM)
+{
+	switch(key)
+	{
+	case VK_ESCAPE:
+		if(m_isFullscreen) ToggleFullscreen();
+		break;
+	}
+	return FALSE;
+}
+
 void CMainWindow::OpenELF()
 {
 	Framework::Win32::CFileDialog d;
@@ -474,6 +488,31 @@ void CMainWindow::ChangeStateSlot(unsigned int nSlot)
 void CMainWindow::ChangeViewMode(CGSHandler::PRESENTATION_MODE presentationMode)
 {
 	CAppConfig::GetInstance().SetPreferenceInteger(PREF_CGSHANDLER_PRESENTATION_MODE, presentationMode);
+	RefreshLayout();
+	UpdateUI();
+}
+
+void CMainWindow::ToggleFullscreen()
+{
+	m_isFullscreen = !m_isFullscreen;
+	if(m_isFullscreen)
+	{
+		GetWindowPlacement(m_hWnd, &m_windowPlacement);
+		int screenWidth = GetSystemMetrics(SM_CXSCREEN);
+		int screenHeight = GetSystemMetrics(SM_CYSCREEN);
+		SetWindowLong(m_hWnd, GWL_STYLE, WS_SYSMENU | WS_POPUP | WS_CLIPCHILDREN | WS_CLIPSIBLINGS | WS_VISIBLE);
+		SetWindowPos(m_hWnd, NULL, 0, 0, screenWidth, screenHeight, SWP_NOZORDER | SWP_FRAMECHANGED);
+		SetMenu(NULL);
+		m_statusBar.Show(SW_HIDE);
+	}
+	else
+	{
+		SetWindowLong(m_hWnd, GWL_STYLE, WNDSTYLE | WS_VISIBLE);
+		SetWindowPlacement(m_hWnd, &m_windowPlacement);
+		SetWindowPos(m_hWnd, NULL, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_FRAMECHANGED);
+		SetMenu(LoadMenu(GetModuleHandle(NULL), MAKEINTRESOURCE(IDR_MAINWINDOW)));
+		m_statusBar.Show(SW_SHOW);
+	}
 	RefreshLayout();
 	UpdateUI();
 }
@@ -768,7 +807,16 @@ void CMainWindow::RefreshLayout()
 	auto clientRect = GetClientRect();
 
 	unsigned int outputWidth = clientRect.Width();
-	unsigned int outputHeight = std::max<int>(clientRect.Height() - m_statusBar.GetHeight(), 0);
+	unsigned int outputHeight = 0;
+
+	if(m_isFullscreen)
+	{
+		outputHeight = clientRect.Height();
+	}
+	else
+	{
+		outputHeight = std::max<int>(clientRect.Height() - m_statusBar.GetHeight(), 0);
+	}
 
 	m_outputWnd->SetSize(outputWidth, outputHeight);
 
@@ -834,6 +882,7 @@ void CMainWindow::CreateAccelerators()
 	generator.Insert(ID_MAIN_VIEW_FITTOSCREEN, 'J', FVIRTKEY | FCONTROL);
 	generator.Insert(ID_MAIN_VIEW_FILLSCREEN, 'K', FVIRTKEY | FCONTROL);
 	generator.Insert(ID_MAIN_VIEW_ACTUALSIZE, 'L', FVIRTKEY | FCONTROL);
+	generator.Insert(ID_MAIN_VIEW_FULLSCREEN, VK_RETURN, FVIRTKEY | FALT);
 	generator.Insert(ID_MAIN_DEBUG_DUMPFRAME, VK_F11, FVIRTKEY);
 #ifdef PROFILE
 	generator.Insert(ID_MAIN_PROFILE_RESETSTATS, VK_F3, FVIRTKEY);

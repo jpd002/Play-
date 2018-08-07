@@ -31,6 +31,7 @@ protected:
 	long OnActivateApp(bool, unsigned long) override;
 	long OnSize(unsigned int, unsigned int, unsigned int) override;
 	long OnMove(int, int) override;
+	long OnKeyDown(WPARAM, LPARAM) override;
 
 private:
 	class COpenCommand
@@ -69,6 +70,7 @@ private:
 	void LoadState();
 	void ChangeStateSlot(unsigned int);
 	void ChangeViewMode(CGSHandler::PRESENTATION_MODE);
+	void ToggleFullscreen();
 	void ShowDebugger();
 	void ShowFrameDebugger();
 	void DumpNextFrame();
@@ -126,6 +128,8 @@ private:
 	unsigned int m_recordBufferWidth;
 	unsigned int m_recordBufferHeight;
 
+	bool m_isFullscreen = false;
+	WINDOWPLACEMENT m_windowPlacement;
 	Framework::Win32::CStatusBar m_statusBar;
 	COutputWnd* m_outputWnd;
 	CVirtualPadWindow m_virtualPadWnd;

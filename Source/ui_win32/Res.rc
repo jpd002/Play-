@@ -208,6 +208,8 @@ BEGIN
         MENUITEM "Fit To Screen\tCtrl+J",       ID_MAIN_VIEW_FITTOSCREEN
         MENUITEM "Fill Screen\tCtrl+K",         ID_MAIN_VIEW_FILLSCREEN
         MENUITEM "Actual Size\tCtrl+L",         ID_MAIN_VIEW_ACTUALSIZE
+        MENUITEM SEPARATOR
+        MENUITEM "Toggle Fullscreen\tAlt+Enter", ID_MAIN_VIEW_FULLSCREEN
     END
     POPUP "&Options"
     BEGIN
