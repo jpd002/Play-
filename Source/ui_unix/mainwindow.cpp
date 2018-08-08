@@ -156,7 +156,7 @@ void MainWindow::openGLWindow_resized()
 
 		auto scale = devicePixelRatioF();
 		CGSHandler::PRESENTATION_PARAMS presentationParams;
-		presentationParams.mode = (CGSHandler::PRESENTATION_MODE)CAppConfig::GetInstance().GetPreferenceInteger(PREF_CGSHANDLER_PRESENTATION_MODE);
+		presentationParams.mode = static_cast<CGSHandler::PRESENTATION_MODE>(CAppConfig::GetInstance().GetPreferenceInteger(PREF_CGSHANDLER_PRESENTATION_MODE));
 		presentationParams.windowWidth = w * scale;
 		presentationParams.windowHeight = h * scale;
 		m_virtualMachine->m_ee->m_gs->SetPresentationParams(presentationParams);
