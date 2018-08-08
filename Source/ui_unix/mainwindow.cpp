@@ -280,6 +280,8 @@ void MainWindow::CreateStatusBar()
 	statusBar()->addWidget(m_msgLabel, 1);
 	statusBar()->addWidget(m_fpsLabel);
 
+	m_msgLabel->setText(QString("Play! v%1 - %2").arg(PLAY_VERSION).arg(__DATE__));
+
 	m_fpsTimer = new QTimer(this);
 	connect(m_fpsTimer, SIGNAL(timeout()), this, SLOT(setFPS()));
 	m_fpsTimer->start(1000);
