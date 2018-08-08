@@ -146,6 +146,9 @@
    <property name="text">
     <string>Pause/Resume</string>
    </property>
+   <property name="shortcut">
+    <string>Ctrl+R</string>
+   </property>
   </action>
   <action name="actionAbout">
    <property name="text">
