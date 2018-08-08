@@ -226,6 +226,8 @@ void MainWindow::BootElf(const char* fileName)
 	m_virtualMachine->Reset();
 	m_virtualMachine->m_ee->m_os->BootFromFile(fileName);
 	m_virtualMachine->Resume();
+	m_msgLabel->setText(QString("Loaded executable '%1'.")
+						.arg(m_virtualMachine->m_ee->m_os->GetExecutableName()));
 }
 
 void MainWindow::BootCDROM()
@@ -234,6 +236,8 @@ void MainWindow::BootCDROM()
 	m_virtualMachine->Reset();
 	m_virtualMachine->m_ee->m_os->BootFromCDROM();
 	m_virtualMachine->Resume();
+	m_msgLabel->setText(QString("Loaded executable '%1' from cdrom0.")
+						.arg(m_virtualMachine->m_ee->m_os->GetExecutableName()));
 }
 
 void MainWindow::on_actionExit_triggered()
