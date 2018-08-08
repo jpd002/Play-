@@ -6,15 +6,10 @@
 
 #define STATE_REGS_XML ("intc/regs.xml")
 
-CINTC::CINTC(CDMAC& dmac, CGSHandler*& gs)
+CINTC::CINTC(CDMAC& dmac)
     : m_INTC_STAT(0)
     , m_INTC_MASK(0)
     , m_dmac(dmac)
-    , m_gs(gs)
-{
-}
-
-CINTC::~CINTC()
 {
 }
 
@@ -27,11 +22,6 @@ void CINTC::Reset()
 uint32 CINTC::GetStat() const
 {
 	uint32 tempStat = m_INTC_STAT;
-
-	if((m_gs != nullptr) && m_gs->IsInterruptPending())
-	{
-		tempStat |= (1 << INTC_LINE_GS);
-	}
 
 	if(m_dmac.IsInterruptPending())
 	{

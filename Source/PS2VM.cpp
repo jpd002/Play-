@@ -489,6 +489,7 @@ void CPS2VM::DestroyImpl()
 void CPS2VM::CreateGsHandlerImpl(const CGSHandler::FactoryFunction& factoryFunction)
 {
 	m_ee->m_gs = factoryFunction();
+	m_ee->m_gs->SetIntc(&m_ee->m_intc);
 	m_ee->m_gs->Initialize();
 	m_ee->m_gs->OnNewFrame.connect(boost::bind(&CPS2VM::OnGsNewFrame, this));
 }

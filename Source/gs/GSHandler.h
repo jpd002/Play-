@@ -17,6 +17,7 @@
 
 class CFrameDump;
 class CGsPacketMetadata;
+class CINTC;
 struct MASSIVEWRITE_INFO;
 
 #define PREF_CGSHANDLER_PRESENTATION_MODE "renderer.presentationmode"
@@ -705,6 +706,7 @@ public:
 	static void RegisterPreferences();
 	void NotifyPreferencesChanged();
 
+	void SetIntc(CINTC*);
 	void Reset();
 	void SetPresentationParams(const PRESENTATION_PARAMS&);
 
@@ -749,7 +751,7 @@ public:
 	void SetSMODE2(uint64);
 
 	int GetPendingTransferCount() const;
-	bool IsInterruptPending();
+	void CheckPendingInterrupt();
 
 	unsigned int GetCrtWidth() const;
 	unsigned int GetCrtHeight() const;
@@ -974,4 +976,5 @@ protected:
 	bool m_threadDone;
 	CFrameDump* m_frameDump;
 	bool m_drawEnabled = true;
+	CINTC* m_intc = nullptr;
 };
