@@ -49,19 +49,34 @@ set(QT_SOURCES
 	ControllerConfig/inputeventselectiondialog.h
 	main.cpp
 	mainwindow.cpp
+	mainwindow.h
 	ElidedLabel.cpp
+	ElidedLabel.h
 	GSH_OpenGLQt.cpp
+	GSH_OpenGLQt.h
 	StatsManager.cpp
+	StatsManager.h
 	PH_HidUnix.cpp
+	PH_HidUnix.h
 	settingsdialog.cpp
+	settingsdialog.h
 	openglwindow.cpp
+	openglwindow.h
 	memorycardmanagerdialog.cpp
+	memorycardmanagerdialog.h
+	PreferenceDefs.h
 	vfsmanagerdialog.cpp
+	vfsmanagerdialog.h
 	vfsmodel.cpp
+	vfsmodel.h
 	vfsdiscselectordialog.cpp
+	vfsdiscselectordialog.h
 	VfsDevice.cpp
+	VfsDevice.h
 	InputBindingManager.cpp
+	InputBindingManager.h
 	GamePad/GamePadUtils.cpp
+	GamePad/GamePadUtils.h
 )
 if(LIBEVDEV_FOUND)
 	set(QT_SOURCES
@@ -78,19 +93,12 @@ set(QT_MOC_HEADERS
 	ControllerConfig/inputeventselectiondialog.h
 	mainwindow.h
 	ElidedLabel.h
-	GSH_OpenGLQt.h
-	StatsManager.h
-	PH_HidUnix.h
 	settingsdialog.h
-	PreferenceDefs.h
 	openglwindow.h
 	memorycardmanagerdialog.h
 	vfsmanagerdialog.h
 	vfsmodel.h
 	vfsdiscselectordialog.h
-	VfsDevice.h
-	InputBindingManager.h
-	GamePad/GamePadUtils.h
 )
 
 set(QT_UIS
