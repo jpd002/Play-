@@ -227,7 +227,7 @@ void MainWindow::BootElf(const char* fileName)
 	m_virtualMachine->m_ee->m_os->BootFromFile(fileName);
 	m_virtualMachine->Resume();
 	m_msgLabel->setText(QString("Loaded executable '%1'.")
-						.arg(m_virtualMachine->m_ee->m_os->GetExecutableName()));
+	                        .arg(m_virtualMachine->m_ee->m_os->GetExecutableName()));
 }
 
 void MainWindow::BootCDROM()
@@ -237,7 +237,7 @@ void MainWindow::BootCDROM()
 	m_virtualMachine->m_ee->m_os->BootFromCDROM();
 	m_virtualMachine->Resume();
 	m_msgLabel->setText(QString("Loaded executable '%1' from cdrom0.")
-						.arg(m_virtualMachine->m_ee->m_os->GetExecutableName()));
+	                        .arg(m_virtualMachine->m_ee->m_os->GetExecutableName()));
 }
 
 void MainWindow::on_actionExit_triggered()
@@ -346,22 +346,20 @@ void MainWindow::saveState(int stateSlot)
 	auto stateFilePath = m_virtualMachine->GenerateStatePath(stateSlot);
 	auto future = m_virtualMachine->SaveState(stateFilePath);
 	m_futureContinuationManager.Register(std::move(future),
-		[this, stateSlot = stateSlot](const bool& succeeded)
-		{
-			if(succeeded)
-			{
-				m_msgLabel->setText(QString("Saved state to slot %1.").arg(stateSlot));
-				QDateTime* dt = new QDateTime;
-				QString datetime = dt->currentDateTime().toString("hh:mm dd.MM.yyyy");
-				ui->menuSave_States->actions().at(stateSlot - 1)->setText(QString("Save Slot %1 - %2").arg(stateSlot).arg(datetime));
-				ui->menuLoad_States->actions().at(stateSlot - 1)->setText(QString("Load Slot %1 - %2").arg(stateSlot).arg(datetime));
-			}
-			else
-			{
-				m_msgLabel->setText(QString("Error saving state to slot %1.").arg(stateSlot));
-			}
-		}
-	);
+	                                     [this, stateSlot = stateSlot](const bool& succeeded) {
+		                                     if(succeeded)
+		                                     {
+			                                     m_msgLabel->setText(QString("Saved state to slot %1.").arg(stateSlot));
+			                                     QDateTime* dt = new QDateTime;
+			                                     QString datetime = dt->currentDateTime().toString("hh:mm dd.MM.yyyy");
+			                                     ui->menuSave_States->actions().at(stateSlot - 1)->setText(QString("Save Slot %1 - %2").arg(stateSlot).arg(datetime));
+			                                     ui->menuLoad_States->actions().at(stateSlot - 1)->setText(QString("Load Slot %1 - %2").arg(stateSlot).arg(datetime));
+		                                     }
+		                                     else
+		                                     {
+			                                     m_msgLabel->setText(QString("Error saving state to slot %1.").arg(stateSlot));
+		                                     }
+	                                     });
 }
 
 void MainWindow::loadState(int stateSlot)
@@ -369,19 +367,17 @@ void MainWindow::loadState(int stateSlot)
 	auto stateFilePath = m_virtualMachine->GenerateStatePath(stateSlot);
 	auto future = m_virtualMachine->LoadState(stateFilePath);
 	m_futureContinuationManager.Register(std::move(future),
-		[this, stateSlot = stateSlot](const bool& succeeded)
-		{
-			if(succeeded)
-			{
-				m_msgLabel->setText(QString("Loaded state from slot %1.").arg(stateSlot));
-				m_virtualMachine->Resume();
-			}
-			else
-			{
-				m_msgLabel->setText(QString("Error loading state from slot %1.").arg(stateSlot));
-			}
-		}
-	);
+	                                     [this, stateSlot = stateSlot](const bool& succeeded) {
+		                                     if(succeeded)
+		                                     {
+			                                     m_msgLabel->setText(QString("Loaded state from slot %1.").arg(stateSlot));
+			                                     m_virtualMachine->Resume();
+		                                     }
+		                                     else
+		                                     {
+			                                     m_msgLabel->setText(QString("Error loading state from slot %1.").arg(stateSlot));
+		                                     }
+	                                     });
 }
 
 QString MainWindow::SaveStateInfo(int stateSlot)
