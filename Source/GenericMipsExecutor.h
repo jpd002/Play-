@@ -7,9 +7,11 @@
 #include "BlockLookupOneWay.h"
 #include "BlockLookupTwoWay.h"
 
-static bool IsInsideRange(uint32 address, uint32 start, uint32 end)
+static bool RangesOverlap(uint32 x1, uint32 x2, uint32 y1, uint32 y2)
 {
-	return (address >= start) && (address <= end);
+	assert(x1 <= x2);
+	assert(y1 <= y2);
+	return (x1 <= y2) && (y1 <= x2);
 }
 
 typedef uint32 (*TranslateFunctionType)(CMIPS*, uint32);
@@ -268,7 +270,7 @@ protected:
 			auto block = m_blockLookup.FindBlockAt(address);
 			if(block->IsEmpty()) continue;
 			if(block == protectedBlock) continue;
-			if(!IsInsideRange(block->GetBeginAddress(), start, end) && !IsInsideRange(block->GetEndAddress(), start, end)) continue;
+			if(!RangesOverlap(block->GetBeginAddress(), block->GetEndAddress(), start, end)) continue;
 			clearedBlocks.insert(block);
 			m_blockLookup.DeleteBlock(block);
 		}
