@@ -77,7 +77,7 @@ protected:
 	VifPtr m_vif;
 
 #ifdef DEBUGGER_INCLUDED
-	MIPSSTATE m_vuMiniState;
+	std::unique_ptr<MIPSSTATE> m_vuMiniState;
 	uint8* m_microMemMiniState;
 	uint8* m_vuMemMiniState;
 	uint32 m_topMiniState;
