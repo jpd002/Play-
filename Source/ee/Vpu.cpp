@@ -20,7 +20,7 @@ CVpu::CVpu(unsigned int number, const VPUINIT& vpuInit, CGIF& gif, CINTC& intc, 
     , m_gif(gif)
     , m_vuProfilerZone(CProfiler::GetInstance().RegisterZone("VU"))
 #ifdef DEBUGGER_INCLUDED
-	, m_vuMiniState(std::make_unique<MIPSSTATE>())
+    , m_vuMiniState(std::make_unique<MIPSSTATE>())
     , m_microMemMiniState(new uint8[(number == 0) ? PS2::MICROMEM0SIZE : PS2::MICROMEM1SIZE])
     , m_vuMemMiniState(new uint8[(number == 0) ? PS2::VUMEM0SIZE : PS2::VUMEM1SIZE])
     , m_topMiniState(0)
