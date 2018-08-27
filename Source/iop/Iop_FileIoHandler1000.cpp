@@ -17,11 +17,11 @@ void CFileIoHandler1000::Invoke(uint32 method, uint32* args, uint32 argsSize, ui
 	{
 	case 0:
 		assert(retSize == 4);
-		*ret = m_ioman->Open(*args, reinterpret_cast<char*>(args) + 4);
+		*ret = m_ioman->Open(args[0], reinterpret_cast<const char*>(&args[1]));
 		break;
 	case 1:
 		assert(retSize == 4);
-		*ret = m_ioman->Close(*args);
+		*ret = m_ioman->Close(args[0]);
 		break;
 	case 2:
 		assert(retSize == 4);
@@ -29,7 +29,7 @@ void CFileIoHandler1000::Invoke(uint32 method, uint32* args, uint32 argsSize, ui
 		break;
 	case 3:
 		assert(retSize == 4);
-		*ret = m_ioman->Write(args[0], args[2], reinterpret_cast<void*>(ram + args[1]));
+		*ret = m_ioman->Write(args[0], args[2], reinterpret_cast<const void*>(ram + args[1]));
 		break;
 	case 4:
 		assert(retSize == 4);
