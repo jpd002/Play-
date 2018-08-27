@@ -25,6 +25,9 @@ endif()
 list(INSERT PROJECT_LIBS 0 gsh_opengl)
 
 set(ANDROID_SRC_FILES
+	BootablesInterop.cpp
+	com_virtualapplications_play_Bootable.cpp
+	com_virtualapplications_play_Bootable.h
 	GSH_OpenGLAndroid.cpp
 	InputManager.cpp
 	NativeInterop.cpp
