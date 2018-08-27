@@ -1,5 +1,4 @@
-#ifndef _IOMAN_DEVICE_H_
-#define _IOMAN_DEVICE_H_
+#pragma once
 
 #include "Stream.h"
 
@@ -21,12 +20,8 @@ namespace Iop
 				OPEN_FLAG_NOWAIT = 0x00008000,
 			};
 
-			virtual ~CDevice()
-			{
-			}
+			virtual ~CDevice() = default;
 			virtual Framework::CStream* GetFile(uint32, const char*) = 0;
 		};
 	}
 }
-
-#endif
