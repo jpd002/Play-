@@ -2863,9 +2863,9 @@ std::string CPS2OS::GetSysCallDescription(uint8 function)
 	case 0x07:
 		sprintf(description, SYSCALL_NAME_EXECPS2 "(pc = 0x%08X, gp = 0x%08X, argc = %d, argv = 0x%08X);",
 		        m_ee.m_State.nGPR[SC_PARAM0].nV[0],
-		        m_ee.m_State.nGPR[SC_PARAM0].nV[1],
-		        m_ee.m_State.nGPR[SC_PARAM0].nV[2],
-		        m_ee.m_State.nGPR[SC_PARAM0].nV[3]);
+		        m_ee.m_State.nGPR[SC_PARAM1].nV[0],
+		        m_ee.m_State.nGPR[SC_PARAM2].nV[0],
+		        m_ee.m_State.nGPR[SC_PARAM3].nV[0]);
 		break;
 	case 0x10:
 		sprintf(description, SYSCALL_NAME_ADDINTCHANDLER "(cause = %i, address = 0x%08X, next = 0x%08X, arg = 0x%08X);",
