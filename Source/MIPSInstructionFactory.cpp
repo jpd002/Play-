@@ -58,8 +58,8 @@ void CMIPSInstructionFactory::ComputeMemAccessAddr()
 
 void CMIPSInstructionFactory::ComputeMemAccessAddrNoXlat()
 {
-	uint8 nRS			= (uint8) ((m_nOpcode >> 21) & 0x001F);
-	uint16 nImmediate	= (uint16)((m_nOpcode >>  0) & 0xFFFF);
+	uint8 nRS = (uint8)((m_nOpcode >> 21) & 0x001F);
+	uint16 nImmediate = (uint16)((m_nOpcode >> 0) & 0xFFFF);
 
 	//Push low part of address
 	m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[nRS].nV[0]));
@@ -74,8 +74,8 @@ void CMIPSInstructionFactory::ComputeMemAccessRef(uint32 accessSize)
 {
 	ComputeMemAccessPageRef();
 
-	auto rs        = static_cast<uint8> ((m_nOpcode >> 21) & 0x001F);
-	auto immediate = static_cast<uint16>((m_nOpcode >>  0) & 0xFFFF);
+	auto rs = static_cast<uint8>((m_nOpcode >> 21) & 0x001F);
+	auto immediate = static_cast<uint16>((m_nOpcode >> 0) & 0xFFFF);
 
 	m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[rs].nV[0]));
 	m_codeGen->PushCst(static_cast<int16>(immediate));
@@ -87,8 +87,8 @@ void CMIPSInstructionFactory::ComputeMemAccessRef(uint32 accessSize)
 
 void CMIPSInstructionFactory::ComputeMemAccessPageRef()
 {
-	auto rs        = static_cast<uint8> ((m_nOpcode >> 21) & 0x001F);
-	auto immediate = static_cast<uint16>((m_nOpcode >>  0) & 0xFFFF);
+	auto rs = static_cast<uint8>((m_nOpcode >> 21) & 0x001F);
+	auto immediate = static_cast<uint16>((m_nOpcode >> 0) & 0xFFFF);
 
 	m_codeGen->PushRelRef(offsetof(CMIPS, m_memoryLookup));
 
@@ -96,7 +96,7 @@ void CMIPSInstructionFactory::ComputeMemAccessPageRef()
 	m_codeGen->PushCst(static_cast<int16>(immediate));
 	m_codeGen->Add();
 	m_codeGen->Srl(12);
-	m_codeGen->Shl(3);	//Multiply by sizeof(void*)
+	m_codeGen->Shl(3); //Multiply by sizeof(void*)
 	m_codeGen->AddRef();
 	m_codeGen->LoadRefFromRef();
 }
