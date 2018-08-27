@@ -279,6 +279,8 @@ private:
 	void sc_Exit();
 	void sc_LoadExecPS2();
 	void sc_ExecPS2();
+	void sc_SetVTLBRefillHandler();
+	void sc_SetVCommonHandler();
 	void sc_AddIntcHandler();
 	void sc_RemoveIntcHandler();
 	void sc_AddDmacHandler();
