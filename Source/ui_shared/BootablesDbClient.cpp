@@ -11,15 +11,15 @@ using namespace BootablesDb;
 
 static const char* g_dbFileName = "bootables.db";
 
-static const char* g_bootablesTableCreateStatement = 
-"CREATE TABLE IF NOT EXISTS bootables"
-"("
-"    path TEXT PRIMARY KEY,"
-"    discId VARCHAR(10) DEFAULT '',"
-"    title TEXT DEFAULT '',"
-"    coverUrl TEXT DEFAULT '',"
-"    lastBootedTime INTEGER DEFAULT 0"
-")";
+static const char* g_bootablesTableCreateStatement =
+    "CREATE TABLE IF NOT EXISTS bootables"
+    "("
+    "    path TEXT PRIMARY KEY,"
+    "    discId VARCHAR(10) DEFAULT '',"
+    "    title TEXT DEFAULT '',"
+    "    coverUrl TEXT DEFAULT '',"
+    "    lastBootedTime INTEGER DEFAULT 0"
+    ")";
 
 CClient::CClient()
 {
@@ -28,7 +28,7 @@ CClient::CClient()
 	CheckDbVersion();
 
 	m_db = Framework::CSqliteDb(Framework::PathUtils::GetNativeStringFromPath(m_dbPath).c_str(),
-		SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE);
+	                            SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE);
 
 	{
 		auto query = string_format("PRAGMA user_version = %d", DATABASE_VERSION);
@@ -113,34 +113,33 @@ void CClient::SetLastBootedTime(const boost::filesystem::path& path, time_t last
 Bootable CClient::ReadBootable(Framework::CSqliteStatement& statement)
 {
 	Bootable bootable;
-	bootable.path           = Framework::PathUtils::GetPathFromNativeString(reinterpret_cast<const char*>(sqlite3_column_text(statement, 0)));
-	bootable.discId         = reinterpret_cast<const char*>(sqlite3_column_text(statement, 1));
-	bootable.title          = reinterpret_cast<const char*>(sqlite3_column_text(statement, 2));
-	bootable.coverUrl       = reinterpret_cast<const char*>(sqlite3_column_text(statement, 3));
+	bootable.path = Framework::PathUtils::GetPathFromNativeString(reinterpret_cast<const char*>(sqlite3_column_text(statement, 0)));
+	bootable.discId = reinterpret_cast<const char*>(sqlite3_column_text(statement, 1));
+	bootable.title = reinterpret_cast<const char*>(sqlite3_column_text(statement, 2));
+	bootable.coverUrl = reinterpret_cast<const char*>(sqlite3_column_text(statement, 3));
 	bootable.lastBootedTime = sqlite3_column_int(statement, 4);
 	return bootable;
 }
 
 void CClient::CheckDbVersion()
 {
-	bool dbExistsAndMatchesVersion = 
-		[&] ()
-		{
-			try
-			{
-				auto db = Framework::CSqliteDb(Framework::PathUtils::GetNativeStringFromPath(m_dbPath).c_str(),
-					SQLITE_OPEN_READONLY);
+	bool dbExistsAndMatchesVersion =
+	    [&]() {
+		    try
+		    {
+			    auto db = Framework::CSqliteDb(Framework::PathUtils::GetNativeStringFromPath(m_dbPath).c_str(),
+			                                   SQLITE_OPEN_READONLY);
 
-				Framework::CSqliteStatement statement(db, "PRAGMA user_version");
-				statement.StepWithResult();
-				int version = sqlite3_column_int(statement, 0);
-				return (version == DATABASE_VERSION);
-			}
-			catch(...)
-			{
-				return false;
-			}
-		} ();
+			    Framework::CSqliteStatement statement(db, "PRAGMA user_version");
+			    statement.StepWithResult();
+			    int version = sqlite3_column_int(statement, 0);
+			    return (version == DATABASE_VERSION);
+		    }
+		    catch(...)
+		    {
+			    return false;
+		    }
+	    }();
 
 	if(!dbExistsAndMatchesVersion)
 	{

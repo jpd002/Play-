@@ -38,26 +38,26 @@ extern "C" JNIEXPORT jobjectArray Java_com_virtualapplications_play_BootablesInt
 {
 	auto bootables = BootablesDb::CClient::GetInstance().GetBootables();
 	const auto& bootableClassInfo = com::virtualapplications::play::Bootable_ClassInfo::GetInstance();
-	
+
 	auto bootablesJ = env->NewObjectArray(bootables.size(), bootableClassInfo.clazz, NULL);
-	
+
 	for(unsigned int i = 0; i < bootables.size(); i++)
 	{
 		const auto& bootable = bootables[i];
 		auto bootableJ = env->NewObject(bootableClassInfo.clazz, bootableClassInfo.init);
-		
+
 		jstring pathString = env->NewStringUTF(bootable.path.string().c_str());
 		env->SetObjectField(bootableJ, bootableClassInfo.path, pathString);
-		
+
 		jstring titleString = env->NewStringUTF(bootable.title.c_str());
 		env->SetObjectField(bootableJ, bootableClassInfo.title, titleString);
-		
+
 		jstring coverUrlString = env->NewStringUTF(bootable.coverUrl.c_str());
 		env->SetObjectField(bootableJ, bootableClassInfo.coverUrl, coverUrlString);
-		
+
 		env->SetObjectArrayElement(bootablesJ, i, bootableJ);
 	}
-	
+
 	return bootablesJ;
 }
 

@@ -23,7 +23,7 @@ CClient::CClient()
 	try
 	{
 		m_db = Framework::CSqliteDb(Framework::PathUtils::GetNativeStringFromPath(dbPath).c_str(),
-			SQLITE_OPEN_READONLY, vfsName);
+		                            SQLITE_OPEN_READONLY, vfsName);
 	}
 	catch(...)
 	{
@@ -44,6 +44,6 @@ Game CClient::GetGame(const char* serial)
 
 	Game game;
 	game.theGamesDbId = sqlite3_column_int(statement, 0);
-	game.title        = reinterpret_cast<const char*>(sqlite3_column_text(statement, 1));
+	game.title = reinterpret_cast<const char*>(sqlite3_column_text(statement, 1));
 	return game;
 }

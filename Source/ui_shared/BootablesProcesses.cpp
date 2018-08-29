@@ -23,17 +23,16 @@ bool IsBootableDiscImagePath(const boost::filesystem::path& filePath)
 {
 	auto extension = filePath.extension().string();
 	std::transform(extension.begin(), extension.end(), extension.begin(), ::tolower);
-	return
-		(extension == ".iso") ||
-		(extension == ".isz") ||
-		(extension == ".cso") ||
-		(extension == ".bin");
+	return (extension == ".iso") ||
+	       (extension == ".isz") ||
+	       (extension == ".cso") ||
+	       (extension == ".bin");
 }
 
 void ScanBootables(const boost::filesystem::path& parentPath, bool recursive)
 {
 	for(auto pathIterator = boost::filesystem::directory_iterator(parentPath);
-		pathIterator != boost::filesystem::directory_iterator(); pathIterator++)
+	    pathIterator != boost::filesystem::directory_iterator(); pathIterator++)
 	{
 		auto& path = pathIterator->path();
 		try
@@ -44,8 +43,8 @@ void ScanBootables(const boost::filesystem::path& parentPath, bool recursive)
 				continue;
 			}
 			if(
-			   !IsBootableExecutablePath(path) &&
-			   !IsBootableDiscImagePath(path))
+			    !IsBootableExecutablePath(path) &&
+			    !IsBootableDiscImagePath(path))
 			{
 				continue;
 			}
@@ -118,7 +117,7 @@ uint32 GetTheGamesDbId(const char* discId)
 	{
 		return localGame.theGamesDbId;
 	}
-	
+
 	//If no ID found in database, then, try a fuzzy lookup using the game name specified in the
 	//local database
 	auto gamesList = TheGamesDb::CClient::GetInstance().GetGamesList("sony playstation 2", localGame.title);
@@ -156,7 +155,7 @@ void FetchCoverUrls()
 	{
 		//Don't fetch if bootable already has a coverUrl
 		if(!bootable.coverUrl.empty()) continue;
-		
+
 		if(bootable.discId.empty()) continue;
 		auto coverUrl = GetCoverUrl(bootable.discId.c_str());
 		BootablesDb::CClient::GetInstance().SetCoverUrl(bootable.path, coverUrl.c_str());

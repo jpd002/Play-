@@ -9,7 +9,7 @@
 
 using namespace TheGamesDb;
 
-static const char* g_getGameUrl      = "http://thegamesdb.net/api/GetGame.php?id=%d";
+static const char* g_getGameUrl = "http://thegamesdb.net/api/GetGame.php?id=%d";
 static const char* g_getGamesListUrl = "http://thegamesdb.net/api/GetGamesList.php?platform=%s&name=%s";
 
 bool TryGetNodeValue(Framework::Xml::CNode* document, const char* nodePath, std::string& value)
@@ -25,13 +25,12 @@ bool TryGetNodeValue(Framework::Xml::CNode* document, const char* nodePath, std:
 Game CClient::GetGame(uint32 id)
 {
 	auto url = string_format(g_getGameUrl, id);
-	auto requestResult = 
-		[&] ()
-		{
-			auto client = Framework::Http::CreateHttpClient();
-			client->SetUrl(url);
-			return client->SendRequest();
-		}();
+	auto requestResult =
+	    [&]() {
+		    auto client = Framework::Http::CreateHttpClient();
+		    client->SetUrl(url);
+		    return client->SendRequest();
+	    }();
 
 	if(requestResult.statusCode != Framework::Http::HTTP_STATUS_CODE::OK)
 	{
@@ -82,13 +81,12 @@ GamesList CClient::GetGamesList(const std::string& platformName, const std::stri
 	auto encodedName = Framework::Http::CHttpClient::UrlEncode(name);
 
 	auto url = string_format(g_getGamesListUrl, encodedPlatformName.c_str(), encodedName.c_str());
-	auto requestResult = 
-		[&] ()
-		{
-			auto client = Framework::Http::CreateHttpClient();
-			client->SetUrl(url);
-			return client->SendRequest();
-		}();
+	auto requestResult =
+	    [&]() {
+		    auto client = Framework::Http::CreateHttpClient();
+		    client->SetUrl(url);
+		    return client->SendRequest();
+	    }();
 
 	if(requestResult.statusCode != Framework::Http::HTTP_STATUS_CODE::OK)
 	{
@@ -118,7 +116,7 @@ GamesList CClient::GetGamesList(const std::string& platformName, const std::stri
 		auto gameTitleString = gameTitleNode->GetInnerText();
 		if(!idString || !gameTitleString) continue;
 		GamesListItem gamesListItem;
-		gamesListItem.id        = atol(idString);
+		gamesListItem.id = atol(idString);
 		gamesListItem.gameTitle = gameTitleString;
 		gamesList.push_back(gamesListItem);
 	}

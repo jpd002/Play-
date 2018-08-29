@@ -27,7 +27,7 @@ namespace TheGamesDb
 	public:
 		virtual ~CClient() = default;
 
-		Game      GetGame(uint32 id);
+		Game GetGame(uint32 id);
 		GamesList GetGamesList(const std::string& platformName, const std::string& name);
 	};
 }

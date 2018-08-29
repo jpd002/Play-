@@ -11,7 +11,7 @@ namespace com
 			{
 			public:
 				void PrepareClassInfo();
-				
+
 				jclass clazz = NULL;
 				jmethodID init = NULL;
 				jfieldID path = NULL;
