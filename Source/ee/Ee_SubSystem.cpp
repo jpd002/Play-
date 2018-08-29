@@ -369,6 +369,8 @@ void CSubSystem::SaveState(Framework::CZipArchiveWriter& archive)
 
 void CSubSystem::LoadState(Framework::CZipArchiveReader& archive)
 {
+	m_EE.m_executor->Reset();
+
 	archive.BeginReadFile(STATE_EE)->Read(&m_EE.m_State, sizeof(MIPSSTATE));
 	archive.BeginReadFile(STATE_VU0)->Read(&m_VU0.m_State, sizeof(MIPSSTATE));
 	archive.BeginReadFile(STATE_VU1)->Read(&m_VU1.m_State, sizeof(MIPSSTATE));
@@ -386,8 +388,6 @@ void CSubSystem::LoadState(Framework::CZipArchiveReader& archive)
 	m_vpu1->LoadState(archive);
 	m_timer.LoadState(archive);
 	m_gif.LoadState(archive);
-
-	m_EE.m_executor->Reset();
 }
 
 uint32 CSubSystem::IOPortReadHandler(uint32 nAddress)
