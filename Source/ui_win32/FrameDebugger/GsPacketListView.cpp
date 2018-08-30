@@ -68,13 +68,13 @@ void CGsPacketListView::SetFrameDump(CFrameDump* frameDump)
 
 		if(isRegisterPacket)
 		{
-			packetDescription = string_cast<std::tstring>(string_format("Register Packet (Write Count: %d, Draw Count: %d, Path: %d)",
-			                                                            packet.registerWrites.size(), kickCount, packet.metadata.pathIndex));
+			packetDescription = string_cast<std::tstring>(string_format("%d: Register Packet (Write Count: %d, Draw Count: %d, Path: %d)",
+			                                                            packetIndex, packet.registerWrites.size(), kickCount, packet.metadata.pathIndex));
 		}
 		else
 		{
-			packetDescription = string_cast<std::tstring>(string_format("Image Packet (Size: 0x%08X)",
-			                                                            packet.imageData.size()));
+			packetDescription = string_cast<std::tstring>(string_format("%d: Image Packet (Size: 0x%08X)",
+			                                                            packetIndex, packet.imageData.size()));
 		}
 
 		TVINSERTSTRUCT insertStruct = {};
