@@ -7,17 +7,17 @@
 
 CVu1Vm::CVu1Vm()
     : m_vu1(MEMORYMAP_ENDIAN_LSBF)
-    , m_vu1Executor(m_vu1, PS2::MICROMEM1SIZE)
     , m_vuMem1(new uint8[PS2::VUMEM1SIZE])
     , m_microMem1(new uint8[PS2::MICROMEM1SIZE])
     , m_status(PAUSED)
-    //, m_threadDone(false)
     , m_maVu1(PS2::VUMEM1SIZE - 1)
     , m_vpu1_TOP(0)
     , m_vpu1_ITOP(0)
 {
 	//Vector Unit 1 context setup
 	{
+		m_vu1.m_executor = std::make_unique<CVuExecutor>(m_vu1, PS2::MICROMEM1SIZE);
+
 		m_vu1.m_pMemoryMap->InsertReadMap(0x00000000, 0x00003FFF, m_vuMem1, 0x00);
 		m_vu1.m_pMemoryMap->InsertReadMap(0x00008000, 0x00008FFF, [&](uint32 address, uint32 value) { return Vu1IoPortReadHandler(address); }, 0x01);
 
@@ -52,6 +52,7 @@ void CVu1Vm::Resume()
 void CVu1Vm::Reset()
 {
 	m_vu1.Reset();
+	m_vu1.m_executor->Reset();
 	memset(m_vuMem1, 0, PS2::VUMEM1SIZE);
 	memset(m_microMem1, 0, PS2::MICROMEM1SIZE);
 }
@@ -63,7 +64,7 @@ CVirtualMachine::STATUS CVu1Vm::GetStatus() const
 
 void CVu1Vm::StepVu1()
 {
-	m_vu1Executor.Execute(1);
+	m_vu1.m_executor->Execute(1);
 	OnMachineStateChange();
 }
 

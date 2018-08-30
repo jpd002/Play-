@@ -31,14 +31,7 @@ private:
 	uint32 Vu1IoPortReadHandler(uint32);
 	uint32 Vu1IoPortWriteHandler(uint32, uint32);
 
-	void ThreadProc();
-
-	//	CMailBox			m_mailBox;
-	//	std::thread			m_thread;
-	//	bool				m_threadDone;
-
 	CMIPS m_vu1;
-	CVuExecutor m_vu1Executor;
 	uint8* m_vuMem1;
 	uint8* m_microMem1;
 	CMA_VU m_maVu1;
