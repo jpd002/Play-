@@ -20,7 +20,6 @@ CVpu::CVpu(unsigned int number, const VPUINIT& vpuInit, CGIF& gif, CINTC& intc, 
     , m_gif(gif)
     , m_vuProfilerZone(CProfiler::GetInstance().RegisterZone("VU"))
 #ifdef DEBUGGER_INCLUDED
-    , m_vuMiniState(std::make_unique<MIPSSTATE>())
     , m_microMemMiniState(new uint8[(number == 0) ? PS2::MICROMEM0SIZE : PS2::MICROMEM1SIZE])
     , m_vuMemMiniState(new uint8[(number == 0) ? PS2::VUMEM0SIZE : PS2::VUMEM1SIZE])
     , m_topMiniState(0)
@@ -59,14 +58,14 @@ void CVpu::SaveMiniState()
 {
 	memcpy(m_microMemMiniState, m_microMem, (m_number == 0) ? PS2::MICROMEM0SIZE : PS2::MICROMEM1SIZE);
 	memcpy(m_vuMemMiniState, m_vuMem, (m_number == 0) ? PS2::VUMEM0SIZE : PS2::VUMEM1SIZE);
-	memcpy(m_vuMiniState.get(), &m_ctx->m_State, sizeof(MIPSSTATE));
+	memcpy(&m_vuMiniState, &m_ctx->m_State, sizeof(MIPSSTATE));
 	m_topMiniState = (m_number == 0) ? 0 : m_vif->GetTOP();
 	m_itopMiniState = m_vif->GetITOP();
 }
 
 const MIPSSTATE& CVpu::GetVuMiniState() const
 {
-	return *m_vuMiniState;
+	return m_vuMiniState;
 }
 
 uint8* CVpu::GetVuMemoryMiniState() const
