@@ -77,11 +77,11 @@ std::string DumpPacked(uint8*& packet, const CGIF::TAG& tag, CGSHandler::Registe
 					registerWrites.push_back(CGSHandler::RegisterWrite(((input.nV[3] & 0x8000) != 0) ? GS_REG_XYZ3 : GS_REG_XYZ2, temp));
 				}
 				break;
-				/*
 			case 0x06:
 				//TEX0_1
-				writeList.push_back(CGSHandler::RegisterWrite(GS_REG_TEX0_1, nPacket.nD0));
+				registerWrites.push_back(CGSHandler::RegisterWrite(GS_REG_TEX0_1, input.nD0));
 				break;
+				/*
 			case 0x07:
 				//TEX0_2
 				writeList.push_back(CGSHandler::RegisterWrite(GS_REG_TEX0_2, nPacket.nD0));
