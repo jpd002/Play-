@@ -256,7 +256,7 @@ void CGSHandler::CheckPendingInterrupt()
 {
 	uint32 mask = (~m_nIMR >> 8) & 0x1F;
 	bool hasPendingInterrupt = (m_nCSR & mask) != 0;
-	if(hasPendingInterrupt)
+	if(m_intc && hasPendingInterrupt)
 	{
 		m_intc->AssertLine(CINTC::INTC_LINE_GS);
 	}
