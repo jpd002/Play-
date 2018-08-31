@@ -93,7 +93,8 @@ travis_script()
             codesign -s "-" Source/ui_ios/Release-iphoneos/Play.app
             pushd ..
             pushd installer_ios
-            ./build.sh
+            ./build_cydia.sh
+            ./build_ipa.sh
             popd
             popd
         fi;
