@@ -1450,6 +1450,11 @@ void VUShared::SUBAi(CMipsJitter* codeGen, uint8 dest, uint8 fs, uint32 relative
 	          true, relativePipeTime);
 }
 
+void VUShared::WAITP(CMipsJitter* codeGen)
+{
+	FlushPipeline(g_pipeInfoP, codeGen);
+}
+
 void VUShared::WAITQ(CMipsJitter* codeGen)
 {
 	FlushPipeline(g_pipeInfoQ, codeGen);

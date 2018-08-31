@@ -1031,7 +1031,7 @@ void CMA_VU::CLower::ERLENG()
 //1E
 void CMA_VU::CLower::WAITP()
 {
-	//TODO: Flush pipe
+	VUShared::WAITP(m_codeGen);
 }
 
 //////////////////////////////////////////////////

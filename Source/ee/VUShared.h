@@ -183,6 +183,7 @@ namespace VUShared
 	void SUBA(CMipsJitter*, uint8, uint8, uint8, uint32);
 	void SUBAbc(CMipsJitter*, uint8, uint8, uint8, uint8, uint32);
 	void SUBAi(CMipsJitter*, uint8, uint8, uint32);
+	void WAITP(CMipsJitter*);
 	void WAITQ(CMipsJitter*);
 
 	void FlushPipeline(const REGISTER_PIPEINFO&, CMipsJitter*);
