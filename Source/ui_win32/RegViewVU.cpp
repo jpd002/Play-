@@ -133,6 +133,9 @@ std::string CRegViewVU::GetDisplayText()
 	sprintf(sLine, "PIPEQ: 0x%04X - %+.7e\r\n", state.pipeQ.counter, *reinterpret_cast<const float*>(&state.pipeQ.heldValue));
 	result += sLine;
 
+	sprintf(sLine, "PIPEP: 0x%04X - %+.7e\r\n", state.pipeP.counter, *reinterpret_cast<const float*>(&state.pipeP.heldValue));
+	result += sLine;
+
 	result += PrintPipeline("PIPEM:", state.pipeMac);
 	result += PrintPipeline("PIPEC:", state.pipeClip);
 
