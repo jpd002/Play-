@@ -240,9 +240,9 @@ namespace VUShared
 	extern const char* m_sDestination[16];
 
 	extern const REGISTER_PIPEINFO g_pipeInfoQ;
+	extern const REGISTER_PIPEINFO g_pipeInfoP;
 	extern const FLAG_PIPEINFO g_pipeInfoMac;
 	extern const FLAG_PIPEINFO g_pipeInfoClip;
-	extern const PIPEINFO		g_pipeInfoP;
 }
 
 #endif

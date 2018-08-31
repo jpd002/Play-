@@ -18,6 +18,12 @@ const VUShared::REGISTER_PIPEINFO VUShared::g_pipeInfoQ =
         offsetof(CMIPS, m_State.pipeQ.heldValue),
         offsetof(CMIPS, m_State.pipeQ.counter)};
 
+const VUShared::REGISTER_PIPEINFO VUShared::g_pipeInfoP =
+    {
+        offsetof(CMIPS, m_State.nCOP2P),
+        offsetof(CMIPS, m_State.pipeP.heldValue),
+        offsetof(CMIPS, m_State.pipeP.counter)};
+
 const VUShared::FLAG_PIPEINFO VUShared::g_pipeInfoMac =
     {
         offsetof(CMIPS, m_State.nCOP2MF),
@@ -31,13 +37,6 @@ const VUShared::FLAG_PIPEINFO VUShared::g_pipeInfoClip =
         offsetof(CMIPS, m_State.pipeClip.index),
         offsetof(CMIPS, m_State.pipeClip.values),
         offsetof(CMIPS, m_State.pipeClip.pipeTimes)};
-
-const VUShared::PIPEINFO VUShared::g_pipeInfoP =
-{
-	offsetof(CMIPS, m_State.nCOP2P),
-	offsetof(CMIPS, m_State.pipeP.heldValue),
-	offsetof(CMIPS, m_State.pipeP.counter)
-};
 
 using namespace VUShared;
 
