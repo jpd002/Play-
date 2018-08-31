@@ -6,7 +6,16 @@
 #include "VUShared.h"
 #include "offsetof_def.h"
 
+#define LATENCY_EATAN 53
+#define LATENCY_EEXP 43
 #define LATENCY_ELENG 17
+#define LATENCY_ERCPR 11
+#define LATENCY_ERLENG 23
+#define LATENCY_ERSQRT 17
+#define LATENCY_ESADD 10
+#define LATENCY_ESIN 28
+#define LATENCY_ESQRT 11
+#define LATENCY_ESUM 11
 
 CMA_VU::CLower::CLower(uint32 vuMemAddressMask)
     : CMIPSInstructionFactory(MIPS_REGSIZE_32)
@@ -100,6 +109,9 @@ void CMA_VU::CLower::ApplySumSeries(size_t target, const uint32* seriesConstants
 
 void CMA_VU::CLower::GenerateEATAN()
 {
+	auto destination = VUShared::g_pipeInfoP.heldValue;
+	VUShared::QueueInPipeline(VUShared::g_pipeInfoP, m_codeGen, LATENCY_EATAN, m_relativePipeTime);
+
 	static const uint32 pi4 = 0x3F490FDB;
 	const unsigned int seriesLength = 8;
 	static const uint32 seriesConstants[seriesLength] =
@@ -133,7 +145,7 @@ void CMA_VU::CLower::GenerateEATAN()
 		m_codeGen->FP_Add();
 	}
 
-	m_codeGen->FP_PullSingle(offsetof(CMIPS, m_State.nCOP2P));
+	m_codeGen->FP_PullSingle(destination);
 }
 
 //////////////////////////////////////////////////
@@ -658,6 +670,9 @@ void CMA_VU::CLower::XGKICK()
 //1C
 void CMA_VU::CLower::ESADD()
 {
+	auto destination = VUShared::g_pipeInfoP.heldValue;
+	VUShared::QueueInPipeline(VUShared::g_pipeInfoP, m_codeGen, LATENCY_ESADD, m_relativePipeTime);
+
 	///////////////////////////////////////////////////
 	//Raise all components to the power of 2
 
@@ -679,7 +694,7 @@ void CMA_VU::CLower::ESADD()
 	m_codeGen->FP_Add();
 	m_codeGen->FP_Add();
 
-	m_codeGen->FP_PullSingle(offsetof(CMIPS, m_State.nCOP2P));
+	m_codeGen->FP_PullSingle(destination);
 }
 
 //1D
@@ -703,14 +718,20 @@ void CMA_VU::CLower::EATANxy()
 //1E
 void CMA_VU::CLower::ESQRT()
 {
+	auto destination = VUShared::g_pipeInfoP.heldValue;
+	VUShared::QueueInPipeline(VUShared::g_pipeInfoP, m_codeGen, LATENCY_ESQRT, m_relativePipeTime);
+
 	m_codeGen->FP_PushSingle(offsetof(CMIPS, m_State.nCOP2[m_nIS].nV[m_nFSF]));
 	m_codeGen->FP_Sqrt();
-	m_codeGen->FP_PullSingle(offsetof(CMIPS, m_State.nCOP2P));
+	m_codeGen->FP_PullSingle(destination);
 }
 
 //1F
 void CMA_VU::CLower::ESIN()
 {
+	auto destination = VUShared::g_pipeInfoP.heldValue;
+	VUShared::QueueInPipeline(VUShared::g_pipeInfoP, m_codeGen, LATENCY_ESIN, m_relativePipeTime);
+
 	static const unsigned int seriesLength = 5;
 	static const uint32 seriesConstants[seriesLength] =
 	    {
@@ -730,7 +751,7 @@ void CMA_VU::CLower::ESIN()
 	ApplySumSeries(offsetof(CMIPS, m_State.nCOP2[m_nIS].nV[m_nFSF]),
 	               seriesConstants, seriesExponents, seriesLength);
 
-	m_codeGen->FP_PullSingle(offsetof(CMIPS, m_State.nCOP2P));
+	m_codeGen->FP_PullSingle(destination);
 }
 
 //////////////////////////////////////////////////
@@ -801,9 +822,12 @@ void CMA_VU::CLower::EATANxz()
 //1E
 void CMA_VU::CLower::ERSQRT()
 {
+	auto destination = VUShared::g_pipeInfoP.heldValue;
+	VUShared::QueueInPipeline(VUShared::g_pipeInfoP, m_codeGen, LATENCY_ERSQRT, m_relativePipeTime);
+
 	m_codeGen->FP_PushSingle(offsetof(CMIPS, m_State.nCOP2[m_nIS].nV[m_nFSF]));
 	m_codeGen->FP_Rsqrt();
-	m_codeGen->FP_PullSingle(offsetof(CMIPS, m_State.nCOP2P));
+	m_codeGen->FP_PullSingle(destination);
 }
 
 //////////////////////////////////////////////////
@@ -872,6 +896,9 @@ void CMA_VU::CLower::ELENG()
 //1D
 void CMA_VU::CLower::ESUM()
 {
+	auto destination = VUShared::g_pipeInfoP.heldValue;
+	VUShared::QueueInPipeline(VUShared::g_pipeInfoP, m_codeGen, LATENCY_ESUM, m_relativePipeTime);
+
 	m_codeGen->FP_PushSingle(offsetof(CMIPS, m_State.nCOP2[m_nIS].nV[0]));
 	m_codeGen->FP_PushSingle(offsetof(CMIPS, m_State.nCOP2[m_nIS].nV[1]));
 	m_codeGen->FP_PushSingle(offsetof(CMIPS, m_State.nCOP2[m_nIS].nV[2]));
@@ -881,20 +908,26 @@ void CMA_VU::CLower::ESUM()
 	m_codeGen->FP_Add();
 	m_codeGen->FP_Add();
 
-	m_codeGen->FP_PullSingle(offsetof(CMIPS, m_State.nCOP2P));
+	m_codeGen->FP_PullSingle(destination);
 }
 
 //1E
 void CMA_VU::CLower::ERCPR()
 {
+	auto destination = VUShared::g_pipeInfoP.heldValue;
+	VUShared::QueueInPipeline(VUShared::g_pipeInfoP, m_codeGen, LATENCY_ERCPR, m_relativePipeTime);
+
 	m_codeGen->FP_PushSingle(offsetof(CMIPS, m_State.nCOP2[m_nIS].nV[m_nFSF]));
 	m_codeGen->FP_Rcpl();
-	m_codeGen->FP_PullSingle(offsetof(CMIPS, m_State.nCOP2P));
+	m_codeGen->FP_PullSingle(destination);
 }
 
 //1F
 void CMA_VU::CLower::EEXP()
 {
+	auto destination = VUShared::g_pipeInfoP.heldValue;
+	VUShared::QueueInPipeline(VUShared::g_pipeInfoP, m_codeGen, LATENCY_EEXP, m_relativePipeTime);
+
 	const unsigned int seriesLength = 6;
 	static const uint32 seriesConstants[seriesLength] =
 	    {
@@ -929,7 +962,7 @@ void CMA_VU::CLower::EEXP()
 
 	m_codeGen->FP_Rcpl();
 
-	m_codeGen->FP_PullSingle(offsetof(CMIPS, m_State.nCOP2P));
+	m_codeGen->FP_PullSingle(destination);
 }
 
 //////////////////////////////////////////////////
@@ -963,6 +996,9 @@ void CMA_VU::CLower::RXOR()
 //1C
 void CMA_VU::CLower::ERLENG()
 {
+	auto destination = VUShared::g_pipeInfoP.heldValue;
+	VUShared::QueueInPipeline(VUShared::g_pipeInfoP, m_codeGen, LATENCY_ERLENG, m_relativePipeTime);
+
 	///////////////////////////////////////////////////
 	//Raise all components to the power of 2
 
@@ -989,7 +1025,7 @@ void CMA_VU::CLower::ERLENG()
 
 	m_codeGen->FP_Rsqrt();
 
-	m_codeGen->FP_PullSingle(offsetof(CMIPS, m_State.nCOP2P));
+	m_codeGen->FP_PullSingle(destination);
 }
 
 //1E
