@@ -123,6 +123,7 @@ travis_before_deploy()
         cp ../../build/Play.dmg .
     fi;
     if [ "$TARGET_OS" = "IOS" ]; then
+        cp ../../installer_ios/Play.ipa .
         cp ../../installer_ios/Play.deb .
         cp ../../installer_ios/Packages.bz2 .
     fi;
