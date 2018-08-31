@@ -6,6 +6,8 @@
 #include "VUShared.h"
 #include "offsetof_def.h"
 
+#define LATENCY_ELENG 17
+
 CMA_VU::CLower::CLower(uint32 vuMemAddressMask)
     : CMIPSInstructionFactory(MIPS_REGSIZE_32)
     , m_vuMemAddressMask(vuMemAddressMask)
@@ -831,8 +833,6 @@ void CMA_VU::CLower::RINIT()
 {
 	VUShared::RINIT(m_codeGen, m_nIS, m_nFSF);
 }
-
-#define LATENCY_ELENG 17
 
 //1C
 void CMA_VU::CLower::ELENG()
