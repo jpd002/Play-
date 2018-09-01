@@ -9,7 +9,12 @@ class CCOP_SCU : public CMIPSCoprocessor
 public:
 	enum REGISTER
 	{
+		INDEX = 0x00,
+		ENTRYLO0 = 0x02,
+		ENTRYLO1 = 0x03,
+		PAGEMASK = 0x05,
 		COUNT = 0x09,
+		ENTRYHI = 0x0A,
 		STATUS = 0x0C,
 		EPC = 0x0E,
 		CPCOND0 = 0x15,
