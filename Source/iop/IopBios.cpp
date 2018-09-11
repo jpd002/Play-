@@ -232,6 +232,17 @@ void CIopBios::Reset(const Iop::SifManPtr& sifMan)
 		m_padman = std::make_shared<Iop::CPadMan>();
 		m_mtapman = std::make_shared<Iop::CMtapMan>();
 	}
+
+	m_hleModules.insert(std::make_pair("rom0:SIO2MAN", m_padman));
+	m_hleModules.insert(std::make_pair("rom0:PADMAN", m_padman));
+	m_hleModules.insert(std::make_pair("rom0:XSIO2MAN", m_padman));
+	m_hleModules.insert(std::make_pair("rom0:XPADMAN", m_padman));
+	m_hleModules.insert(std::make_pair("rom0:XMTAPMAN", m_mtapman));
+	m_hleModules.insert(std::make_pair("rom0:MCMAN", m_mcserv));
+	m_hleModules.insert(std::make_pair("rom0:MCSERV", m_mcserv));
+	m_hleModules.insert(std::make_pair("rom0:XMCMAN", m_mcserv));
+	m_hleModules.insert(std::make_pair("rom0:XMCSERV", m_mcserv));
+
 #endif
 
 	{
@@ -338,6 +349,24 @@ void CIopBios::LoadState(Framework::CZipArchiveReader& archive)
 	m_fileIo->LoadState(archive);
 	m_padman->LoadState(archive);
 	m_cdvdfsv->LoadState(archive);
+
+	//Make sure HLE modules are properly registered
+	for(const auto& loadedModule : m_loadedModules)
+	{
+		if(!loadedModule) continue;
+		if(loadedModule->state == MODULE_STATE::HLE)
+		{
+			auto moduleIterator = std::find_if(m_hleModules.begin(), m_hleModules.end(),
+			                                   [&](const auto& modulePair) {
+				                                   return strcmp(loadedModule->name, modulePair.second->GetId().c_str()) != 0;
+			                                   });
+			assert(moduleIterator != std::end(m_hleModules));
+			if(moduleIterator != std::end(m_hleModules))
+			{
+				RegisterHleModule(moduleIterator->second);
+			}
+		}
+	}
 #endif
 
 #ifdef DEBUGGER_INCLUDED
@@ -548,26 +577,11 @@ void CIopBios::FinishModuleStart()
 int32 CIopBios::LoadModule(const char* path)
 {
 #ifdef _IOP_EMULATE_MODULES
-	//HACK: This is needed to make 'doom.elf' read input properly
-	if(
-	    !strcmp(path, "rom0:SIO2MAN") ||
-	    !strcmp(path, "rom0:PADMAN") ||
-	    !strcmp(path, "rom0:XSIO2MAN") ||
-	    !strcmp(path, "rom0:XPADMAN"))
+	//This is needed by some homebrew (ie.: doom.elf) that load modules from BIOS
+	auto hleModuleIterator = m_hleModules.find(path);
+	if(hleModuleIterator != std::end(m_hleModules))
 	{
-		return LoadHleModule(m_padman);
-	}
-	if(!strcmp(path, "rom0:XMTAPMAN"))
-	{
-		return LoadHleModule(m_mtapman);
-	}
-	if(
-	    !strcmp(path, "rom0:MCMAN") ||
-	    !strcmp(path, "rom0:MCSERV") ||
-	    !strcmp(path, "rom0:XMCMAN") ||
-	    !strcmp(path, "rom0:XMCSERV"))
-	{
-		return LoadHleModule(m_mcserv);
+		return LoadHleModule(hleModuleIterator->second);
 	}
 #endif
 	uint32 handle = m_ioman->Open(Iop::Ioman::CDevice::OPEN_FLAG_RDONLY, path);
@@ -2872,6 +2886,7 @@ void CIopBios::DeleteModules()
 	m_mcserv.reset();
 	m_cdvdfsv.reset();
 	m_fileIo.reset();
+	m_hleModules.clear();
 #endif
 }
 
@@ -2892,13 +2907,18 @@ int32 CIopBios::LoadHleModule(const Iop::ModulePtr& module)
 	loadedModule->state = MODULE_STATE::HLE;
 
 	//Register entries as if the module initialized itself
+	RegisterHleModule(module);
+
+	return loadedModuleId;
+}
+
+void CIopBios::RegisterHleModule(const Iop::ModulePtr& module)
+{
 	RegisterModule(module);
 	if(auto sifModuleProvider = std::dynamic_pointer_cast<Iop::CSifModuleProvider>(module))
 	{
 		sifModuleProvider->RegisterSifModules(*m_sifMan);
 	}
-
-	return loadedModuleId;
 }
 
 std::string CIopBios::ReadModuleName(uint32 address)

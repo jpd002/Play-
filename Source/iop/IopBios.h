@@ -2,6 +2,7 @@
 
 #include <memory>
 #include <list>
+#include <map>
 #include "../MIPSAssembler.h"
 #include "../MIPS.h"
 #include "../ELF.h"
@@ -508,6 +509,7 @@ private:
 	void DeleteModules();
 
 	int32 LoadHleModule(const Iop::ModulePtr&);
+	void RegisterHleModule(const Iop::ModulePtr&);
 
 	uint32 AssembleThreadFinish(CMIPSAssembler&);
 	uint32 AssembleReturnFromException(CMIPSAssembler&);
@@ -573,6 +575,8 @@ private:
 	Iop::MtapManPtr m_mtapman;
 	Iop::ModulePtr m_mcserv;
 	Iop::CdvdfsvPtr m_cdvdfsv;
+
+	std::map<std::string, Iop::ModulePtr> m_hleModules;
 #endif
 };
 
