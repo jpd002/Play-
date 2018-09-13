@@ -13,6 +13,7 @@ public:
 		ENTRYLO0 = 0x02,
 		ENTRYLO1 = 0x03,
 		PAGEMASK = 0x05,
+		BADVADDR = 0x08,
 		COUNT = 0x09,
 		ENTRYHI = 0x0A,
 		STATUS = 0x0C,
