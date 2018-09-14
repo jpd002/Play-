@@ -1458,6 +1458,11 @@ void CPS2OS::sc_ExecPS2()
 		m_intcHandlerQueue.Unlink(intcHandlerId);
 		m_intcHandlers.Free(intcHandlerId);
 	}
+	//Also make sure all interrupts are masked
+	{
+		uint32 intcMask = m_ee.m_pMemoryMap->GetWord(CINTC::INTC_MASK);
+		m_ee.m_pMemoryMap->SetWord(CINTC::INTC_MASK, intcMask);
+	}
 
 	m_ee.m_State.nPC = pc;
 	m_ee.m_State.nGPR[CMIPS::GP].nD0 = static_cast<int32>(gp);
