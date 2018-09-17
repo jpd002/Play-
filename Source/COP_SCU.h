@@ -17,6 +17,7 @@ public:
 		COUNT = 0x09,
 		ENTRYHI = 0x0A,
 		STATUS = 0x0C,
+		CAUSE = 0x0D,
 		EPC = 0x0E,
 		CPCOND0 = 0x15,
 		ERROREPC = 0x1E,
