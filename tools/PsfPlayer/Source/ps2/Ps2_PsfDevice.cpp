@@ -5,14 +5,6 @@
 
 using namespace PS2;
 
-CPsfDevice::CPsfDevice()
-{
-}
-
-CPsfDevice::~CPsfDevice()
-{
-}
-
 void CPsfDevice::AppendArchive(const CPsfBase& archive)
 {
 	m_fileSystem.AppendArchive(archive);

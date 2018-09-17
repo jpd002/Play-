@@ -11,11 +11,11 @@ namespace PS2
 	class CPsfDevice : public Iop::Ioman::CDevice
 	{
 	public:
-		CPsfDevice();
-		virtual ~CPsfDevice();
+		CPsfDevice() = default;
+		virtual ~CPsfDevice() = default;
 
 		void AppendArchive(const CPsfBase&);
-		virtual Framework::CStream* GetFile(uint32, const char*);
+		Framework::CStream* GetFile(uint32, const char*) override;
 
 	private:
 		CPsfFs m_fileSystem;
