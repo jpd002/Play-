@@ -94,9 +94,7 @@ namespace Iop
 		class CPadDataInterface
 		{
 		public:
-			virtual ~CPadDataInterface()
-			{
-			}
+			virtual ~CPadDataInterface() = default;
 			virtual void SetData(unsigned int, uint8) = 0;
 			virtual uint8 GetData(unsigned int) = 0;
 			virtual void SetFrame(unsigned int) = 0;
@@ -119,61 +117,57 @@ namespace Iop
 				m_pPadData = reinterpret_cast<T*>(pPtr);
 			}
 
-			virtual ~CPadDataHandler()
-			{
-			}
-
-			virtual uint8 GetData(unsigned int nIndex)
+			uint8 GetData(unsigned int nIndex) override
 			{
 				return m_pPadData->nData[nIndex];
 			}
 
-			virtual void SetData(unsigned int nIndex, uint8 nValue)
+			void SetData(unsigned int nIndex, uint8 nValue) override
 			{
 				m_pPadData->nData[nIndex] = nValue;
 			}
 
-			virtual void SetFrame(unsigned int nValue)
+			void SetFrame(unsigned int nValue) override
 			{
 				m_pPadData->nFrame = nValue;
 			}
 
-			virtual void SetState(unsigned int nValue)
+			void SetState(unsigned int nValue) override
 			{
 				m_pPadData->nState = nValue;
 			}
 
-			virtual void SetReqState(unsigned int nValue)
+			void SetReqState(unsigned int nValue) override
 			{
 				m_pPadData->nReqState = nValue;
 			}
 
-			virtual void SetLength(unsigned int nValue)
+			void SetLength(unsigned int nValue) override
 			{
 				m_pPadData->nLength = nValue;
 			}
 
-			virtual void SetOk(unsigned int nValue)
+			void SetOk(unsigned int nValue) override
 			{
 				m_pPadData->nOk = nValue;
 			}
 
-			virtual void SetModeCurId(unsigned int nValue)
+			void SetModeCurId(unsigned int nValue) override
 			{
 				m_pPadData->nModeCurId = nValue;
 			}
 
-			virtual void SetModeCurOffset(unsigned int nValue)
+			void SetModeCurOffset(unsigned int nValue) override
 			{
 				m_pPadData->nModeCurOffset = nValue;
 			}
 
-			virtual void SetModeTable(unsigned int nIndex, unsigned int nValue)
+			void SetModeTable(unsigned int nIndex, unsigned int nValue) override
 			{
 				m_pPadData->nModeTable[nIndex] = nValue;
 			}
 
-			virtual void SetNumberOfModes(unsigned int number)
+			void SetNumberOfModes(unsigned int number) override
 			{
 				m_pPadData->nNrOfModes = number;
 			}
