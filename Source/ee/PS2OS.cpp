@@ -2844,7 +2844,7 @@ void CPS2OS::HandleSyscall()
 		}
 	}
 
-	m_ee.m_State.nHasException = 0;
+	m_ee.m_State.nHasException = MIPS_EXCEPTION_NONE;
 }
 
 void CPS2OS::DisassembleSysCall(uint8 func)
