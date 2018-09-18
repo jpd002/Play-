@@ -189,6 +189,7 @@ namespace Iop
 		uint32 m_nPadDataAddress;
 
 		void Open(uint32*, uint32, uint32*, uint32, uint8*);
+		void Close(uint32*, uint32, uint32*, uint32, uint8*);
 		void SetActuatorAlign(uint32*, uint32, uint32*, uint32, uint8*);
 		void Init(uint32*, uint32, uint32*, uint32, uint8*);
 		void GetModuleVersion(uint32*, uint32, uint32*, uint32, uint8*);

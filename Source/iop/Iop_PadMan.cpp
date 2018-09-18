@@ -56,6 +56,9 @@ bool CPadMan::Invoke(uint32 method, uint32* args, uint32 argsSize, uint32* ret, 
 	case 0x80000100:
 		Open(args, argsSize, ret, retSize, ram);
 		break;
+	case 0x8000010D:
+		Close(args, argsSize, ret, retSize, ram);
+		break;
 	case 0x00000008:
 		SetActuatorAlign(args, argsSize, ret, retSize, ram);
 		break;
@@ -132,6 +135,23 @@ void CPadMan::Open(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, u
 
 	//Returns 0 on error
 	ret[3] = 0x00000001;
+}
+
+void CPadMan::Close(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, uint8* ram)
+{
+	uint32 port = args[1];
+	uint32 slot = args[2];
+	uint32 wait = args[4];
+
+	CLog::GetInstance().Print(LOG_NAME, "Close(port = %d, slot = %d, wait = %d);\r\n", 
+		port, slot, wait);
+
+	if(port == 0)
+	{
+		m_nPadDataAddress = 0;
+	}
+
+	ret[3] = 1;
 }
 
 void CPadMan::SetActuatorAlign(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, uint8* ram)
