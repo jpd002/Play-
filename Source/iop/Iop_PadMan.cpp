@@ -114,7 +114,8 @@ void CPadMan::Open(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, u
 	uint32 nSlot = args[2];
 	uint32 nAddress = args[4];
 
-	CLog::GetInstance().Print(LOG_NAME, "Opening device on port %i and slot %i.\r\n", nPort, nSlot);
+	CLog::GetInstance().Print(LOG_NAME, "Open(port = %d, slot = %d, padAreaAddr = 0x%08x);\r\n",
+		nPort, nSlot, nAddress);
 
 	if(nPort == 0)
 	{
