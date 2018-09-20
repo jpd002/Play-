@@ -14,6 +14,10 @@ using namespace Iop;
 #define FUNCTION_ADDDRV "AddDrv"
 #define FUNCTION_DELDRV "DelDrv"
 
+//Directories have "group read" only permissions? This is required by PS2PSXe.
+#define STAT_MODE_DIR (0747 | (1 << 12))  //File mode + Dir type (1)
+#define STAT_MODE_FILE (0777 | (2 << 12)) //File mode + File type (2)
+
 static std::string RightTrim(std::string inputString)
 {
 	auto nonSpaceEnd = std::find_if(inputString.rbegin(), inputString.rend(), [](int ch) { return !std::isspace(ch); });
@@ -323,13 +327,12 @@ int32 CIoman::Dread(uint32 handle, DIRENTRY* dirEntry)
 	memset(&stat, 0, sizeof(STAT));
 	if(boost::filesystem::is_directory(itemPath))
 	{
-		//Directories have "group read" only permissions? This is required by PS2PSXe.
-		stat.mode = 0747 | (1 << 12); //File mode + Dir type (1)
+		stat.mode = STAT_MODE_DIR;
 		stat.attr = 0x8427;
 	}
 	else
 	{
-		stat.mode = 0777 | (2 << 12); //File mode + File type (2)
+		stat.mode = STAT_MODE_FILE;
 		stat.loSize = boost::filesystem::file_size(itemPath);
 		stat.attr = 0x8497;
 	}
@@ -343,17 +346,33 @@ uint32 CIoman::GetStat(const char* path, STAT* stat)
 {
 	CLog::GetInstance().Print(LOG_NAME, "GetStat(path = '%s', stat = ptr);\r\n", path);
 
-	uint32 fd = Open(Ioman::CDevice::OPEN_FLAG_RDONLY, path);
-	if(static_cast<int32>(fd) < 0)
+	//Try with a file
 	{
-		return -1;
+		int32 fd = Open(Ioman::CDevice::OPEN_FLAG_RDONLY, path);
+		if(fd >= 0)
+		{
+			uint32 size = Seek(fd, 0, SEEK_DIR_END);
+			Close(fd);
+			memset(stat, 0, sizeof(STAT));
+			stat->mode = STAT_MODE_FILE;
+			stat->loSize = size;
+			return 0;
+		}
 	}
-	uint32 size = Seek(fd, 0, SEEK_DIR_END);
-	Close(fd);
-	memset(stat, 0, sizeof(STAT));
-	stat->mode = 0777 | (2 << 12); //File mode + File type (2)
-	stat->loSize = size;
-	return 0;
+
+	//Try with a directory
+	{
+		int32 fd = Dopen(path);
+		if(fd >= 0)
+		{
+			Dclose(fd);
+			memset(stat, 0, sizeof(STAT));
+			stat->mode = STAT_MODE_DIR;
+			return 0;
+		}
+	}
+
+	return -1;
 }
 
 uint32 CIoman::AddDrv(uint32 drvPtr)
