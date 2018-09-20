@@ -62,3 +62,14 @@ Framework::CStream* CDirectoryDevice::GetFile(uint32 accessType, const char* dev
 		return nullptr;
 	}
 }
+
+Directory CDirectoryDevice::GetDirectory(const char* devicePath)
+{
+	auto basePath = CAppConfig::GetInstance().GetPreferencePath(m_basePathPreferenceName.c_str());
+	auto path = basePath / devicePath;
+	if(!boost::filesystem::is_directory(path))
+	{
+		throw std::runtime_error("Not a directory.");
+	}
+	return boost::filesystem::directory_iterator(path);
+}

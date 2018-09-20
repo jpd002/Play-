@@ -16,6 +16,7 @@ namespace PS2
 
 		void AppendArchive(const CPsfBase&);
 		Framework::CStream* GetFile(uint32, const char*) override;
+		Iop::Ioman::Directory GetDirectory(const char*) override;
 
 	private:
 		CPsfFs m_fileSystem;

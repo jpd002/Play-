@@ -20,3 +20,8 @@ Framework::CStream* CPsfDevice::GetFile(uint32 mode, const char* path)
 	Framework::CStream* result = m_fileSystem.GetFile(path);
 	return result;
 }
+
+Iop::Ioman::Directory CPsfDevice::GetDirectory(const char* path)
+{
+	throw std::runtime_error("Not supported.");
+}

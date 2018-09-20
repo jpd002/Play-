@@ -24,3 +24,8 @@ Framework::CStream* COpticalMediaDevice::GetFile(uint32 mode, const char* device
 	auto fileSystem = m_opticalMedia->GetFileSystem();
 	return fileSystem->Open(fixedString.c_str());
 }
+
+Directory COpticalMediaDevice::GetDirectory(const char* devicePath)
+{
+	throw std::runtime_error("Not supported.");
+}

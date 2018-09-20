@@ -35,6 +35,18 @@ void CFileIoHandler1000::Invoke(uint32 method, uint32* args, uint32 argsSize, ui
 		assert(retSize == 4);
 		*ret = m_ioman->Seek(args[0], args[1], args[2]);
 		break;
+	case 9:
+		assert(retSize == 4);
+		*ret = m_ioman->Dopen(reinterpret_cast<const char*>(&args[0]));
+		break;
+	case 10:
+		assert(retSize == 4);
+		*ret = m_ioman->Dclose(args[0]);
+		break;
+	case 11:
+		assert(retSize == 4);
+		*ret = m_ioman->Dread(args[0], reinterpret_cast<Iop::CIoman::DIRENTRY*>(ram + args[1]));
+		break;
 	case 12:
 		assert(retSize == 4);
 		*ret = m_ioman->GetStat(reinterpret_cast<const char*>(&args[1]), reinterpret_cast<Iop::CIoman::STAT*>(ram + args[0]));

@@ -33,9 +33,23 @@ namespace Iop
 			uint8 lastAccessTime[8];
 			uint8 lastModificationTime[8];
 			uint32 hiSize;
-			uint32 reserved[6];
+			//Reserved (private) fields to be used in later versions of IOMAN
+			//uint32 reserved[6];
 		};
-		static_assert(sizeof(STAT) == 64, "STAT structure must be 64 bytes long.");
+		static_assert(sizeof(STAT) == 40, "STAT structure must be 40 bytes long.");
+
+		struct DIRENTRY
+		{
+			enum
+			{
+				NAME_SIZE = 256,
+			};
+
+			STAT stat;
+			char name[NAME_SIZE];
+			uint32 privatePtr;
+		};
+		static_assert(sizeof(DIRENTRY) == 0x12C, "DIRENTRY structure must be 300 bytes long");
 
 		class CFile
 		{
@@ -68,6 +82,9 @@ namespace Iop
 		uint32 Read(uint32, uint32, void*);
 		uint32 Write(uint32, uint32, const void*);
 		uint32 Seek(uint32, uint32, uint32);
+		int32 Dopen(const char*);
+		int32 Dread(uint32, DIRENTRY*);
+		int32 Dclose(uint32);
 		uint32 GetStat(const char*, STAT*);
 		uint32 AddDrv(uint32);
 		uint32 DelDrv(uint32);
@@ -77,9 +94,11 @@ namespace Iop
 
 	private:
 		typedef std::map<uint32, Framework::CStream*> FileMapType;
+		typedef std::map<uint32, Ioman::Directory> DirectoryMapType;
 		typedef std::map<std::string, DevicePtr> DeviceMapType;
 
 		FileMapType m_files;
+		DirectoryMapType m_directories;
 		DeviceMapType m_devices;
 		uint8* m_ram;
 		uint32 m_nextFileHandle;

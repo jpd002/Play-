@@ -249,6 +249,96 @@ uint32 CIoman::Seek(uint32 handle, uint32 position, uint32 whence)
 	return result;
 }
 
+int32 CIoman::Dopen(const char* path)
+{
+	CLog::GetInstance().Print(LOG_NAME, "Dopen(path = '%s');\r\n",
+	                          path);
+	int32 handle = -1;
+	try
+	{
+		std::string fullPath(path);
+		auto position = fullPath.find(":");
+		if(position == std::string::npos)
+		{
+			throw std::runtime_error("Invalid path.");
+		}
+		auto deviceName = std::string(fullPath.begin(), fullPath.begin() + position);
+		auto devicePath = std::string(fullPath.begin() + position + 1, fullPath.end());
+		auto deviceIterator = m_devices.find(deviceName);
+		if(deviceIterator == m_devices.end())
+		{
+			throw std::runtime_error("Device not found.");
+		}
+		//Some games (Street Fighter EX3) provide paths with trailing spaces
+		devicePath = RightTrim(devicePath);
+		auto directory = deviceIterator->second->GetDirectory(devicePath.c_str());
+		handle = m_nextFileHandle++;
+		m_directories[handle] = directory;
+	}
+	catch(const std::exception& except)
+	{
+		CLog::GetInstance().Warn(LOG_NAME, "%s: Error occured while trying to open directory : %s\r\n", __FUNCTION__, except.what());
+	}
+	return handle;
+}
+
+int32 CIoman::Dclose(uint32 handle)
+{
+	CLog::GetInstance().Print(LOG_NAME, "Dclose(handle = %d);\r\n",
+	                          handle);
+
+	auto directoryIterator = m_directories.find(handle);
+	if(directoryIterator == std::end(m_directories))
+	{
+		return -1;
+	}
+
+	m_directories.erase(directoryIterator);
+	return 0;
+}
+
+int32 CIoman::Dread(uint32 handle, DIRENTRY* dirEntry)
+{
+	CLog::GetInstance().Print(LOG_NAME, "Dread(handle = %d, entry = ptr);\r\n",
+	                          handle);
+
+	auto directoryIterator = m_directories.find(handle);
+	if(directoryIterator == std::end(m_directories))
+	{
+		return -1;
+	}
+
+	auto& directory = directoryIterator->second;
+	if(directory == Ioman::Directory())
+	{
+		return 0;
+	}
+
+	auto itemPath = directory->path();
+	auto name = itemPath.leaf().string();
+	strncpy(dirEntry->name, name.c_str(), DIRENTRY::NAME_SIZE);
+	dirEntry->name[DIRENTRY::NAME_SIZE - 1] = 0;
+
+	auto& stat = dirEntry->stat;
+	memset(&stat, 0, sizeof(STAT));
+	if(boost::filesystem::is_directory(itemPath))
+	{
+		//Directories have "group read" only permissions? This is required by PS2PSXe.
+		stat.mode = 0747 | (1 << 12); //File mode + Dir type (1)
+		stat.attr = 0x8427;
+	}
+	else
+	{
+		stat.mode = 0777 | (2 << 12); //File mode + File type (2)
+		stat.loSize = boost::filesystem::file_size(itemPath);
+		stat.attr = 0x8497;
+	}
+
+	directory++;
+
+	return strlen(dirEntry->name);
+}
+
 uint32 CIoman::GetStat(const char* path, STAT* stat)
 {
 	CLog::GetInstance().Print(LOG_NAME, "GetStat(path = '%s', stat = ptr);\r\n", path);

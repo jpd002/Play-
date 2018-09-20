@@ -1,11 +1,14 @@
 #pragma once
 
 #include "Stream.h"
+#include <boost/filesystem.hpp>
 
 namespace Iop
 {
 	namespace Ioman
 	{
+		typedef boost::filesystem::directory_iterator Directory;
+
 		class CDevice
 		{
 		public:
@@ -22,6 +25,7 @@ namespace Iop
 
 			virtual ~CDevice() = default;
 			virtual Framework::CStream* GetFile(uint32, const char*) = 0;
+			virtual Directory GetDirectory(const char*) = 0;
 		};
 	}
 }
