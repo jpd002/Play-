@@ -25,6 +25,28 @@ static std::string RightTrim(std::string inputString)
 	return inputString;
 }
 
+struct PATHINFO
+{
+	std::string deviceName;
+	std::string devicePath;
+};
+
+static PATHINFO SplitPath(const char* path)
+{
+	std::string fullPath(path);
+	auto position = fullPath.find(":");
+	if(position == std::string::npos)
+	{
+		throw std::runtime_error("Invalid path.");
+	}
+	PATHINFO result;
+	result.deviceName = std::string(fullPath.begin(), fullPath.begin() + position);
+	result.devicePath = std::string(fullPath.begin() + position + 1, fullPath.end());
+	//Some games (Street Fighter EX3) provide paths with trailing spaces
+	result.devicePath = RightTrim(result.devicePath);
+	return result;
+}
+
 CIoman::CIoman(uint8* ram)
     : m_ram(ram)
     , m_nextFileHandle(3)
@@ -118,22 +140,13 @@ uint32 CIoman::Open(uint32 flags, const char* path)
 	uint32 handle = 0xFFFFFFFF;
 	try
 	{
-		std::string fullPath(path);
-		auto position = fullPath.find(":");
-		if(position == std::string::npos)
-		{
-			throw std::runtime_error("Invalid path.");
-		}
-		auto deviceName = std::string(fullPath.begin(), fullPath.begin() + position);
-		auto devicePath = std::string(fullPath.begin() + position + 1, fullPath.end());
-		auto deviceIterator = m_devices.find(deviceName);
+		auto pathInfo = SplitPath(path);
+		auto deviceIterator = m_devices.find(pathInfo.deviceName);
 		if(deviceIterator == m_devices.end())
 		{
 			throw std::runtime_error("Device not found.");
 		}
-		//Some games (Street Fighter EX3) provide paths with trailing spaces
-		devicePath = RightTrim(devicePath);
-		auto stream = deviceIterator->second->GetFile(flags, devicePath.c_str());
+		auto stream = deviceIterator->second->GetFile(flags, pathInfo.devicePath.c_str());
 		if(!stream)
 		{
 			throw std::runtime_error("File not found.");
@@ -260,22 +273,13 @@ int32 CIoman::Dopen(const char* path)
 	int32 handle = -1;
 	try
 	{
-		std::string fullPath(path);
-		auto position = fullPath.find(":");
-		if(position == std::string::npos)
-		{
-			throw std::runtime_error("Invalid path.");
-		}
-		auto deviceName = std::string(fullPath.begin(), fullPath.begin() + position);
-		auto devicePath = std::string(fullPath.begin() + position + 1, fullPath.end());
-		auto deviceIterator = m_devices.find(deviceName);
+		auto pathInfo = SplitPath(path);
+		auto deviceIterator = m_devices.find(pathInfo.deviceName);
 		if(deviceIterator == m_devices.end())
 		{
 			throw std::runtime_error("Device not found.");
 		}
-		//Some games (Street Fighter EX3) provide paths with trailing spaces
-		devicePath = RightTrim(devicePath);
-		auto directory = deviceIterator->second->GetDirectory(devicePath.c_str());
+		auto directory = deviceIterator->second->GetDirectory(pathInfo.devicePath.c_str());
 		handle = m_nextFileHandle++;
 		m_directories[handle] = directory;
 	}
