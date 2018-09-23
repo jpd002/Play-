@@ -115,7 +115,7 @@ void CPadMan::Open(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, u
 	uint32 nAddress = args[4];
 
 	CLog::GetInstance().Print(LOG_NAME, "Open(port = %d, slot = %d, padAreaAddr = 0x%08x);\r\n",
-		nPort, nSlot, nAddress);
+	                          nPort, nSlot, nAddress);
 
 	if(nPort == 0)
 	{
@@ -144,8 +144,8 @@ void CPadMan::Close(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, 
 	uint32 slot = args[2];
 	uint32 wait = args[4];
 
-	CLog::GetInstance().Print(LOG_NAME, "Close(port = %d, slot = %d, wait = %d);\r\n", 
-		port, slot, wait);
+	CLog::GetInstance().Print(LOG_NAME, "Close(port = %d, slot = %d, wait = %d);\r\n",
+	                          port, slot, wait);
 
 	if(port == 0)
 	{
