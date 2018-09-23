@@ -73,18 +73,18 @@ private:
 		CD,
 		ELF
 	};
-	struct lastOpenCommand
+	struct LastOpenCommand
 	{
-		BootType type;
-		std::string filename;
-		lastOpenCommand() = default;
-		lastOpenCommand(BootType m_type, std::string m_filename)
-		    : type(m_type)
-		    , filename(m_filename)
+		LastOpenCommand() = default;
+		LastOpenCommand(BootType type, boost::filesystem::path path)
+		    : type(type)
+		    , path(path)
 		{
 		}
+		BootType type;
+		boost::filesystem::path path;
 	};
-	lastOpenCommand m_lastOpenCommand;
+	LastOpenCommand m_lastOpenCommand;
 	QString m_lastpath = QDir::homePath();
 
 	QString ReadElementValue(QXmlStreamReader& Rxml);

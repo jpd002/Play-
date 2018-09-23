@@ -180,7 +180,7 @@ void MainWindow::on_actionOpen_Game_triggered()
 		{
 			try
 			{
-				m_lastOpenCommand = lastOpenCommand(BootType::CD, fileName.toStdString());
+				m_lastOpenCommand = LastOpenCommand(BootType::CD, fileName.toStdString());
 				BootCDROM();
 			}
 			catch(const std::exception& e)
@@ -207,7 +207,7 @@ void MainWindow::on_actionBoot_ELF_triggered()
 		{
 			try
 			{
-				m_lastOpenCommand = lastOpenCommand(BootType::ELF, fileName.toStdString());
+				m_lastOpenCommand = LastOpenCommand(BootType::ELF, fileName.toStdString());
 				BootElf(fileName.toStdString().c_str());
 			}
 			catch(const std::exception& e)
@@ -448,7 +448,7 @@ void MainWindow::OnExecutableChange()
 void MainWindow::UpdateUI()
 {
 	ui->actionPause_when_focus_is_lost->setChecked(m_pauseFocusLost);
-	ui->actionReset->setEnabled(!m_lastOpenCommand.filename.empty());
+	ui->actionReset->setEnabled(!m_lastOpenCommand.path.empty());
 	SetOpenGlPanelSize();
 	SetupSaveLoadStateSlots();
 }
@@ -519,7 +519,7 @@ void MainWindow::on_actionPause_when_focus_is_lost_triggered(bool checked)
 
 void MainWindow::on_actionReset_triggered()
 {
-	if(!m_lastOpenCommand.filename.empty())
+	if(!m_lastOpenCommand.path.empty())
 	{
 		if(m_lastOpenCommand.type == BootType::CD)
 		{
@@ -527,7 +527,7 @@ void MainWindow::on_actionReset_triggered()
 		}
 		else if(m_lastOpenCommand.type == BootType::ELF)
 		{
-			BootElf(m_lastOpenCommand.filename.c_str());
+			BootElf(m_lastOpenCommand.path);
 		}
 	}
 }
