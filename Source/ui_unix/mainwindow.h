@@ -46,7 +46,7 @@ private:
 	void OnExecutableChange();
 	void UpdateUI();
 	void RegisterPreferences();
-	void BootElf(const char*);
+	void BootElf(boost::filesystem::path);
 	void BootCDROM();
 	void saveState(int);
 	void loadState(int);

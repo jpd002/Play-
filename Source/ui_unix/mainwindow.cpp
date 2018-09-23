@@ -220,11 +220,11 @@ void MainWindow::on_actionBoot_ELF_triggered()
 	}
 }
 
-void MainWindow::BootElf(const char* fileName)
+void MainWindow::BootElf(boost::filesystem::path filePath)
 {
 	m_virtualMachine->Pause();
 	m_virtualMachine->Reset();
-	m_virtualMachine->m_ee->m_os->BootFromFile(fileName);
+	m_virtualMachine->m_ee->m_os->BootFromFile(filePath);
 	m_virtualMachine->Resume();
 	m_msgLabel->setText(QString("Loaded executable '%1'.")
 	                        .arg(m_virtualMachine->m_ee->m_os->GetExecutableName()));
