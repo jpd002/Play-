@@ -85,7 +85,7 @@ private:
 		boost::filesystem::path path;
 	};
 	LastOpenCommand m_lastOpenCommand;
-	QString m_lastpath = QDir::homePath();
+	boost::filesystem::path m_lastPath;
 
 	QString ReadElementValue(QXmlStreamReader& Rxml);
 

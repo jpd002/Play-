@@ -1,4 +1,5 @@
 #include "mainwindow.h"
+#include "QStringUtils.h"
 #include "settingsdialog.h"
 #include "memorycardmanagerdialog.h"
 
@@ -48,11 +49,14 @@ MainWindow::MainWindow(QWidget* parent)
 	RegisterPreferences();
 
 	m_pauseFocusLost = CAppConfig::GetInstance().GetPreferenceBoolean(PREF_UI_PAUSEWHENFOCUSLOST);
-	auto last_path = CAppConfig::GetInstance().GetPreferencePath(PREF_PS2_CDROM0_PATH);
-	if(boost::filesystem::exists(last_path))
+	auto lastPath = CAppConfig::GetInstance().GetPreferencePath(PREF_PS2_CDROM0_PATH);
+	if(boost::filesystem::exists(lastPath))
 	{
-		last_path = last_path.parent_path();
-		m_lastpath = QString(last_path.native().c_str());
+		m_lastPath = lastPath.parent_path();
+	}
+	else
+	{
+		m_lastPath = QStringToPath(QDir::homePath());
 	}
 
 	m_continuationTimer = new QTimer(this);
@@ -167,20 +171,20 @@ void MainWindow::openGLWindow_resized()
 void MainWindow::on_actionOpen_Game_triggered()
 {
 	QFileDialog dialog(this);
-	dialog.setDirectory(m_lastpath);
+	dialog.setDirectory(PathToQString(m_lastPath));
 	dialog.setFileMode(QFileDialog::ExistingFile);
 	dialog.setNameFilter(tr("All supported types(*.iso *.bin *.isz *.cso);;UltraISO Compressed Disk Images (*.isz);;CISO Compressed Disk Images (*.cso);;All files (*.*)"));
 	if(dialog.exec())
 	{
-		auto fileName = dialog.selectedFiles().first();
-		m_lastpath = QFileInfo(fileName).path();
-		CAppConfig::GetInstance().SetPreferencePath(PREF_PS2_CDROM0_PATH, fileName.toStdString());
+		auto filePath = QStringToPath(dialog.selectedFiles().first());
+		m_lastPath = filePath.parent_path();
+		CAppConfig::GetInstance().SetPreferencePath(PREF_PS2_CDROM0_PATH, filePath);
 
 		if(m_virtualMachine != nullptr)
 		{
 			try
 			{
-				m_lastOpenCommand = LastOpenCommand(BootType::CD, fileName.toStdString());
+				m_lastOpenCommand = LastOpenCommand(BootType::CD, filePath);
 				BootCDROM();
 			}
 			catch(const std::exception& e)
@@ -196,19 +200,19 @@ void MainWindow::on_actionOpen_Game_triggered()
 void MainWindow::on_actionBoot_ELF_triggered()
 {
 	QFileDialog dialog(this);
-	dialog.setDirectory(m_lastpath);
+	dialog.setDirectory(PathToQString(m_lastPath));
 	dialog.setFileMode(QFileDialog::ExistingFile);
 	dialog.setNameFilter(tr("ELF files (*.elf)"));
 	if(dialog.exec())
 	{
-		auto fileName = dialog.selectedFiles().first();
-		m_lastpath = QFileInfo(fileName).path();
+		auto filePath = QStringToPath(dialog.selectedFiles().first());
+		m_lastPath = filePath.parent_path();
 		if(m_virtualMachine != nullptr)
 		{
 			try
 			{
-				m_lastOpenCommand = LastOpenCommand(BootType::ELF, fileName.toStdString());
-				BootElf(fileName.toStdString().c_str());
+				m_lastOpenCommand = LastOpenCommand(BootType::ELF, filePath);
+				BootElf(filePath);
 			}
 			catch(const std::exception& e)
 			{

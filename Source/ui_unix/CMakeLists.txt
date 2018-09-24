@@ -65,6 +65,8 @@ set(QT_SOURCES
 	memorycardmanagerdialog.cpp
 	memorycardmanagerdialog.h
 	PreferenceDefs.h
+	QStringUtils.cpp
+	QStringUtils.h
 	vfsmanagerdialog.cpp
 	vfsmanagerdialog.h
 	vfsmodel.cpp
