@@ -2,6 +2,7 @@
 
 #include <QWidget>
 #include <map>
+#include "boost_filesystem_def.h"
 
 class CDevice
 {
@@ -9,7 +10,7 @@ public:
 	virtual ~CDevice() = default;
 	virtual const char* GetDeviceName() = 0;
 	virtual const char* GetBindingType() = 0;
-	virtual std::string GetBinding() = 0;
+	virtual QString GetBinding() = 0;
 	virtual bool RequestModification(QWidget*) = 0;
 	virtual void Save() = 0;
 };
@@ -23,14 +24,14 @@ public:
 
 	const char* GetDeviceName() override;
 	const char* GetBindingType() override;
-	std::string GetBinding() override;
+	QString GetBinding() override;
 	bool RequestModification(QWidget*) override;
 	void Save() override;
 
 private:
 	const char* m_name;
 	const char* m_preference;
-	std::string m_value;
+	boost::filesystem::path m_value;
 };
 
 class CCdrom0Device : public CDevice
@@ -47,11 +48,11 @@ public:
 
 	const char* GetDeviceName() override;
 	const char* GetBindingType() override;
-	std::string GetBinding() override;
+	QString GetBinding() override;
 	bool RequestModification(QWidget*) override;
 	void Save() override;
 
 private:
-	std::string m_imagePath;
+	boost::filesystem::path m_imagePath;
 	BINDINGTYPE m_bindingType;
 };

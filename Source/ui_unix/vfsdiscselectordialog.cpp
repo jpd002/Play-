@@ -3,18 +3,19 @@
 
 #include <QFileDialog>
 #include <QMessageBox>
+#include "QStringUtils.h"
 
-VFSDiscSelectorDialog::VFSDiscSelectorDialog(std::string m_sImagePath, CCdrom0Device::BINDINGTYPE m_nBindingType, QWidget* parent)
+VFSDiscSelectorDialog::VFSDiscSelectorDialog(boost::filesystem::path path, CCdrom0Device::BINDINGTYPE m_nBindingType, QWidget* parent)
     : QDialog(parent)
     , ui(new Ui::VFSDiscSelectorDialog)
+	, m_path(path)
 {
 	ui->setupUi(this);
-	m_path = QString(m_sImagePath.c_str());
 
 	Refresh_disc_drive();
 	if(m_nBindingType == CCdrom0Device::BINDING_IMAGE)
 	{
-		ui->lineEdit->setText(m_path);
+		ui->lineEdit->setText(PathToQString(m_path));
 		on_disc_image_radioButton_clicked();
 		ui->disc_image_radioButton->setChecked(true);
 	}
@@ -37,8 +38,8 @@ void VFSDiscSelectorDialog::on_iso_browse_button_clicked()
 	dialog.setNameFilter(tr("All supported types(*.iso *.bin *.isz *.cso);;UltraISO Compressed Disk Images (*.isz);;CISO Compressed Disk Images (*.cso);;All files (*.*)"));
 	if(dialog.exec())
 	{
-		m_path = dialog.selectedFiles().first();
-		ui->lineEdit->setText(m_path);
+		m_path = QStringToPath(dialog.selectedFiles().first());
+		ui->lineEdit->setText(PathToQString(m_path));
 	}
 }
 
@@ -75,15 +76,20 @@ void VFSDiscSelectorDialog::Refresh_disc_drive()
 		}
 	}
 	ui->comboBox->setEnabled(!m_discInfo.isEmpty());
-	if(m_path.startsWith("////", Qt::CaseInsensitive) || m_path.startsWith("/dev/", Qt::CaseInsensitive))
 	{
-		for(int i = 0; i < m_discInfo.size(); i++)
+		auto pathString = PathToQString(m_path);
+		if(
+			pathString.startsWith("////", Qt::CaseInsensitive) ||
+			pathString.startsWith("/dev/", Qt::CaseInsensitive))
 		{
-			QString device(m_discInfo.at(i).device());
-			if(QString::compare(device, m_path, Qt::CaseInsensitive) == 0)
+			for(int i = 0; i < m_discInfo.size(); i++)
 			{
-				ui->comboBox->setCurrentIndex(i);
-				break;
+				QString device(m_discInfo.at(i).device());
+				if(QString::compare(device, pathString, Qt::CaseInsensitive) == 0)
+				{
+					ui->comboBox->setCurrentIndex(i);
+					break;
+				}
 			}
 		}
 	}
@@ -116,7 +122,7 @@ void VFSDiscSelectorDialog::on_comboBox_currentIndexChanged(int index)
 {
 	if(m_discInfo.size() > 0)
 	{
-		m_path = QString(m_discInfo.at(index).device());
+		m_path = QStringToPath(m_discInfo.at(index).device());
 	}
 }
 

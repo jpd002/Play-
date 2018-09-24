@@ -5,6 +5,7 @@
 
 #include <QFileDialog>
 #include <QStorageInfo>
+#include "QStringUtils.h"
 
 ///////////////////////////////////////////
 //CDirectoryDevice Implementation
@@ -14,8 +15,7 @@ CDirectoryDevice::CDirectoryDevice(const char* name, const char* preference)
 {
 	m_name = name;
 	m_preference = preference;
-	auto value = CAppConfig::GetInstance().GetPreferencePath(preference);
-	m_value = value.native();
+	m_value = CAppConfig::GetInstance().GetPreferencePath(preference);
 }
 
 const char* CDirectoryDevice::GetDeviceName()
@@ -28,9 +28,9 @@ const char* CDirectoryDevice::GetBindingType()
 	return "Directory";
 }
 
-std::string CDirectoryDevice::GetBinding()
+QString CDirectoryDevice::GetBinding()
 {
-	return m_value;
+	return PathToQString(m_value);
 }
 
 void CDirectoryDevice::Save()
@@ -63,19 +63,21 @@ bool CDirectoryDevice::RequestModification(QWidget* parent)
 CCdrom0Device::CCdrom0Device()
 {
 	auto path = CAppConfig::GetInstance().GetPreferencePath(PREF_PS2_CDROM0_PATH);
-	auto pathString = QString(path.native().c_str());
 	//Detect the binding type from the path format
-	if(
-	    pathString.startsWith("\\\\.\\", Qt::CaseInsensitive) ||
-	    pathString.startsWith("/dev/", Qt::CaseInsensitive))
 	{
-		m_bindingType = CCdrom0Device::BINDING_PHYSICAL;
+		auto pathString = PathToQString(path);
+		if(
+			pathString.startsWith("\\\\.\\", Qt::CaseInsensitive) ||
+			pathString.startsWith("/dev/", Qt::CaseInsensitive))
+		{
+			m_bindingType = CCdrom0Device::BINDING_PHYSICAL;
+		}
+		else
+		{
+			m_bindingType = CCdrom0Device::BINDING_IMAGE;
+		}
 	}
-	else
-	{
-		m_bindingType = CCdrom0Device::BINDING_IMAGE;
-	}
-	m_imagePath = path.native();
+	m_imagePath = path;
 }
 
 const char* CCdrom0Device::GetDeviceName()
@@ -96,7 +98,7 @@ const char* CCdrom0Device::GetBindingType()
 	return "";
 }
 
-std::string CCdrom0Device::GetBinding()
+QString CCdrom0Device::GetBinding()
 {
 	if(m_imagePath.empty())
 	{
@@ -104,7 +106,7 @@ std::string CCdrom0Device::GetBinding()
 	}
 	else
 	{
-		return m_imagePath;
+		return PathToQString(m_imagePath);
 	}
 }
 
