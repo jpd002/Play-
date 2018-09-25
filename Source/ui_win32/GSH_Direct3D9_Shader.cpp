@@ -72,9 +72,10 @@ Nuanceur::CShaderBuilder CGSH_Direct3D9::GenerateVertexShader(SHADERCAPS caps)
 
 		//Constants
 		auto projMatrix = CMatrix44Value(b.CreateUniformMatrix("g_projMatrix"));
+		auto texMatrix = CMatrix44Value(b.CreateUniformMatrix("g_texMatrix"));
 
 		outputPosition = projMatrix * NewFloat4(inputPosition->xyz(), NewFloat(b, 1.0f));
-		outputTexCoord = inputTexCoord->xyzw();
+		outputTexCoord = texMatrix * NewFloat4(inputTexCoord->xyz(), NewFloat(b, 1.0f));
 		outputColor = inputColor->xyzw();
 	}
 

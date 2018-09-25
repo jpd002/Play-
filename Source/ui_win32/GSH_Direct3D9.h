@@ -85,6 +85,12 @@ private:
 		TEXTURE_SOURCE_MODE_IDX8 = 3
 	};
 
+	enum
+	{
+		VS_INDEX_PROJMATRIX = 0,
+		VS_INDEX_TEXMATRIX = 4,
+	};
+
 	struct SHADERCAPS : public convertible<uint32>
 	{
 		uint32 texSourceMode : 2;

@@ -1531,7 +1531,7 @@ void CGSH_Direct3D9::SetupFramebuffer(uint64 frameReg, uint64 scissorReg)
 	float projMatrix[16];
 	MakeLinearZOrtho(projMatrix, 0, projWidth, 0, projHeight);
 
-	m_device->SetVertexShaderConstantF(0, projMatrix, 4);
+	m_device->SetVertexShaderConstantF(VS_INDEX_PROJMATRIX, projMatrix, 4);
 }
 
 void CGSH_Direct3D9::SetupDepthBuffer(uint64 zbufReg, uint64 frameReg)

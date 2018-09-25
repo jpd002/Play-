@@ -28,7 +28,7 @@ CGSH_Direct3D9::TEXTURE_INFO CGSH_Direct3D9::LoadTexture(const TEX0& tex0, uint3
 
 	{
 		auto textureMatrix = CMatrix4::MakeIdentity();
-		m_device->SetTransform(D3DTS_TEXTURE0, reinterpret_cast<D3DMATRIX*>(&textureMatrix));
+		m_device->SetVertexShaderConstantF(VS_INDEX_TEXMATRIX, textureMatrix.coeff, 4);
 	}
 
 	for(const auto& candidateFramebuffer : m_framebuffers)
@@ -43,7 +43,7 @@ CGSH_Direct3D9::TEXTURE_INFO CGSH_Direct3D9::LoadTexture(const TEX0& tex0, uint3
 
 			{
 				auto textureMatrix = CMatrix4::MakeScale(scaleRatioX, scaleRatioY, 1);
-				m_device->SetTransform(D3DTS_TEXTURE0, reinterpret_cast<D3DMATRIX*>(&textureMatrix));
+				m_device->SetVertexShaderConstantF(VS_INDEX_TEXMATRIX, textureMatrix.coeff, 4);
 			}
 
 			result.texture = candidateFramebuffer->m_renderTarget;
