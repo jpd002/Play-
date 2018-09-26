@@ -162,3 +162,15 @@ target_include_directories(Play PRIVATE
 	${LIBEVDEV_INCLUDE_DIR}
 	${CMAKE_CURRENT_BINARY_DIR}
 )
+
+if(TARGET_PLATFORM_WIN32)
+	add_custom_command(TARGET Play POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different 
+		$<TARGET_FILE:Qt5::Core> $<TARGET_FILE_DIR:Play>
+	)
+	add_custom_command(TARGET Play POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different 
+		$<TARGET_FILE:Qt5::Widgets> $<TARGET_FILE_DIR:Play>
+	)
+	add_custom_command(TARGET Play POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different 
+		$<TARGET_FILE:Qt5::Gui> $<TARGET_FILE_DIR:Play>
+	)
+endif()
