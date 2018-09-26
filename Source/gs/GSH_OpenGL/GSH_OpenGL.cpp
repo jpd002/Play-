@@ -1212,6 +1212,7 @@ void CGSH_OpenGL::SetupTexture(uint64 primReg, uint64 tex0Reg, uint64 tex1Reg, u
 
 	auto texInfo = PrepareTexture(tex0);
 	m_renderState.texture0Handle = texInfo.textureHandle;
+	m_renderState.texture0AlphaAsIndex = texInfo.alphaAsIndex;
 
 	//Setup sampling modes
 	switch(tex1.nMagFilter)
@@ -1756,6 +1757,7 @@ void CGSH_OpenGL::DoRenderPass()
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, m_renderState.texture0MagFilter);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, m_renderState.texture0WrapS);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, m_renderState.texture0WrapT);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_R, m_renderState.texture0AlphaAsIndex ? GL_ALPHA : GL_RED);
 
 		glActiveTexture(GL_TEXTURE1);
 		glBindTexture(GL_TEXTURE_2D, m_renderState.texture1Handle);

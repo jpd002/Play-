@@ -80,6 +80,7 @@ CGSH_OpenGL::TEXTURE_INFO CGSH_OpenGL::PrepareTexture(const TEX0& tex0)
 	{
 		bool canBeUsed = false;
 		float offsetX = 0;
+		bool alphaAsIndex = false;
 
 		//Case: TEX0 points at the start of a frame buffer with the same width
 		if(candidateFramebuffer->m_basePtr == tex0.GetBufPtr() &&
@@ -89,6 +90,15 @@ CGSH_OpenGL::TEXTURE_INFO CGSH_OpenGL::PrepareTexture(const TEX0& tex0)
 			canBeUsed = true;
 		}
 
+		//TODO: Describe
+		else if(candidateFramebuffer->m_basePtr == tex0.GetBufPtr() &&
+		        candidateFramebuffer->m_width == tex0.GetBufWidth() &&
+		        tex0.nPsm == CGSHandler::PSMT8H)
+		{
+			canBeUsed = true;
+			alphaAsIndex = true;
+		}
+		
 		//Another case: TEX0 is pointing to the start of a page within our framebuffer (BGDA does this)
 		else if(candidateFramebuffer->m_basePtr <= tex0.GetBufPtr() &&
 		        candidateFramebuffer->m_width == tex0.GetBufWidth() &&
@@ -125,6 +135,7 @@ CGSH_OpenGL::TEXTURE_INFO CGSH_OpenGL::PrepareTexture(const TEX0& tex0)
 			texInfo.offsetX = offsetX;
 			texInfo.scaleRatioX = scaleRatioX;
 			texInfo.scaleRatioY = scaleRatioY;
+			texInfo.alphaAsIndex = alphaAsIndex;
 
 			return texInfo;
 		}
