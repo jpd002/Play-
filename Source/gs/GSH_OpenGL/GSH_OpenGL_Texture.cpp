@@ -90,9 +90,11 @@ CGSH_OpenGL::TEXTURE_INFO CGSH_OpenGL::PrepareTexture(const TEX0& tex0)
 			canBeUsed = true;
 		}
 
-		//TODO: Describe
+		//Case: TEX0 point at the start of a frame buffer with the same width
+		//but uses upper 8-bits (alpha) as an indexed texture (used in Yakuza)
 		else if(candidateFramebuffer->m_basePtr == tex0.GetBufPtr() &&
 		        candidateFramebuffer->m_width == tex0.GetBufWidth() &&
+		        candidateFramebuffer->m_psm == CGSHandler::PSMCT32 &&
 		        tex0.nPsm == CGSHandler::PSMT8H)
 		{
 			canBeUsed = true;
