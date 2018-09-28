@@ -168,7 +168,7 @@ void MainWindow::openGLWindow_resized()
 	}
 }
 
-void MainWindow::on_actionOpen_Game_triggered()
+void MainWindow::on_actionBoot_DiscImage_triggered()
 {
 	QFileDialog dialog(this);
 	dialog.setDirectory(PathToQString(m_lastPath));

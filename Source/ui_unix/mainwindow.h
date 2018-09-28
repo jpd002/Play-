@@ -99,7 +99,7 @@ public slots:
 	void updateContinuations();
 
 private slots:
-	void on_actionOpen_Game_triggered();
+	void on_actionBoot_DiscImage_triggered();
 	void on_actionBoot_ELF_triggered();
 	void on_actionExit_triggered();
 	void keyPressEvent(QKeyEvent*) Q_DECL_OVERRIDE;
