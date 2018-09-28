@@ -197,6 +197,20 @@ void MainWindow::on_actionBoot_DiscImage_triggered()
 	}
 }
 
+void MainWindow::on_actionBoot_cdrom0_triggered()
+{
+	try
+	{
+		BootCDROM();
+	}
+	catch(const std::exception& e)
+	{
+		QMessageBox messageBox;
+		messageBox.critical(nullptr, "Error", e.what());
+		messageBox.show();
+	}
+}
+
 void MainWindow::on_actionBoot_ELF_triggered()
 {
 	QFileDialog dialog(this);
