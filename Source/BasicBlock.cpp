@@ -97,7 +97,7 @@ void CBasicBlock::Compile()
 			}
 		}
 
-		jitter->GetCodeGen()->SetExternalSymbolReferencedHandler([&](auto symbol, auto offset) { this->HandleExternalFunctionReference(symbol, offset); });
+		jitter->GetCodeGen()->SetExternalSymbolReferencedHandler([&](auto symbol, auto offset, auto refType) { this->HandleExternalFunctionReference(symbol, offset, refType); });
 		jitter->SetStream(&stream);
 		jitter->Begin();
 		CompileRange(jitter);
@@ -363,8 +363,9 @@ void CBasicBlock::UnlinkBlock(LINK_SLOT linkSlot)
 	m_function.EndModify();
 }
 
-void CBasicBlock::HandleExternalFunctionReference(uintptr_t symbol, uint32 offset)
+void CBasicBlock::HandleExternalFunctionReference(uintptr_t symbol, uint32 offset, Jitter::CCodeGen::SYMBOL_REF_TYPE refType)
 {
+	assert(refType == Jitter::CCodeGen::SYMBOL_REF_TYPE::NATIVE_POINTER);
 	if(symbol == reinterpret_cast<uintptr_t>(&NextBlockTrampoline))
 	{
 		if(m_linkBlockTrampolineOffset[LINK_SLOT_BRANCH] == INVALID_LINK_SLOT)

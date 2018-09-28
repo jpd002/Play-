@@ -79,7 +79,7 @@ protected:
 	void CompileEpilog(CMipsJitter*);
 
 private:
-	void HandleExternalFunctionReference(uintptr_t, uint32);
+	void HandleExternalFunctionReference(uintptr_t, uint32, Jitter::CCodeGen::SYMBOL_REF_TYPE);
 
 #ifdef DEBUGGER_INCLUDED
 	bool HasBreakpoint() const;
