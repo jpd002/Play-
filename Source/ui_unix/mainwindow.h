@@ -40,7 +40,6 @@ private:
 	void InitVirtualMachine();
 	void SetupGsHandler();
 	void SetupSoundHandler();
-	void Setupfpscounter();
 	void SetupSaveLoadStateSlots();
 	QString SaveStateInfo(int);
 	void OnExecutableChange();
