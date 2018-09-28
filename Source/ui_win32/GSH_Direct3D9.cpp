@@ -245,7 +245,9 @@ CGSH_Direct3D9::FramebufferPtr CGSH_Direct3D9::FindFramebuffer(uint64 frameReg) 
 
 	auto framebufferIterator = std::find_if(std::begin(m_framebuffers), std::end(m_framebuffers),
 	                                        [&](const FramebufferPtr& framebuffer) {
-		                                        return (framebuffer->m_basePtr == frame.GetBasePtr()) && (framebuffer->m_width == frame.GetWidth());
+		                                        return (framebuffer->m_basePtr == frame.GetBasePtr()) &&
+		                                               (framebuffer->m_psm == frame.nPsm) &&
+		                                               (framebuffer->m_width == frame.GetWidth());
 	                                        });
 
 	return (framebufferIterator != std::end(m_framebuffers)) ? *(framebufferIterator) : FramebufferPtr();
