@@ -365,9 +365,9 @@ void CBasicBlock::UnlinkBlock(LINK_SLOT linkSlot)
 
 void CBasicBlock::HandleExternalFunctionReference(uintptr_t symbol, uint32 offset, Jitter::CCodeGen::SYMBOL_REF_TYPE refType)
 {
-	assert(refType == Jitter::CCodeGen::SYMBOL_REF_TYPE::NATIVE_POINTER);
 	if(symbol == reinterpret_cast<uintptr_t>(&NextBlockTrampoline))
 	{
+		assert(refType == Jitter::CCodeGen::SYMBOL_REF_TYPE::NATIVE_POINTER);
 		if(m_linkBlockTrampolineOffset[LINK_SLOT_BRANCH] == INVALID_LINK_SLOT)
 		{
 			m_linkBlockTrampolineOffset[LINK_SLOT_BRANCH] = offset;
