@@ -2313,7 +2313,20 @@ void CPS2OS::sc_SetupThread()
 		*reinterpret_cast<uint32*>(m_ram + argsPtrs + (argsCount * 4)) = 0;
 	}
 
-	uint32 threadId = m_threads.Allocate();
+	uint32 threadId = -1;
+	if(
+		(m_currentThreadId == 0) ||
+		(m_currentThreadId == m_idleThreadId))
+	{
+		//No thread has been started, spawn a new thread
+		threadId = m_threads.Allocate();
+	}
+	else
+	{
+		//Re-use the calling thread (needed by 007: Nightfire)
+		threadId = m_currentThreadId;
+		UnlinkThread(threadId);
+	}
 	assert(static_cast<int32>(threadId) != -1);
 
 	//Set up the main thread
@@ -2327,7 +2340,6 @@ void CPS2OS::sc_SetupThread()
 	thread->contextPtr = 0;
 
 	LinkThread(threadId);
-	assert(m_currentThreadId == 0);
 	m_currentThreadId = threadId;
 
 	m_ee.m_State.nGPR[SC_RETURN].nV[0] = stackAddr;
