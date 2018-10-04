@@ -14,7 +14,7 @@ namespace ISO9660
 			BLOCKSIZE = 0x800ULL
 		};
 
-		virtual ~CBlockProvider(){};
+		virtual ~CBlockProvider() = default;
 		virtual void ReadBlock(uint32, void*) = 0;
 	};
 
@@ -25,10 +25,6 @@ namespace ISO9660
 
 		CBlockProvider2048(const StreamPtr& stream)
 		    : m_stream(stream)
-		{
-		}
-
-		virtual ~CBlockProvider2048()
 		{
 		}
 
@@ -49,10 +45,6 @@ namespace ISO9660
 
 		CBlockProviderCDROMXA(const StreamPtr& stream)
 		    : m_stream(stream)
-		{
-		}
-
-		virtual ~CBlockProviderCDROMXA()
 		{
 		}
 
