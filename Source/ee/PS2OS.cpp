@@ -2315,8 +2315,8 @@ void CPS2OS::sc_SetupThread()
 
 	uint32 threadId = -1;
 	if(
-		(m_currentThreadId == 0) ||
-		(m_currentThreadId == m_idleThreadId))
+	    (m_currentThreadId == 0) ||
+	    (m_currentThreadId == m_idleThreadId))
 	{
 		//No thread has been started, spawn a new thread
 		threadId = m_threads.Allocate();
