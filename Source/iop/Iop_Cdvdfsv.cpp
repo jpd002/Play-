@@ -238,7 +238,7 @@ bool CCdvdfsv::Invoke593(uint32 method, uint32* args, uint32 argsSize, uint32* r
 	break;
 
 	default:
-		CLog::GetInstance().Print(LOG_NAME, "Unknown method invoked (0x%08X, 0x%08X).\r\n", 0x593, method);
+		CLog::GetInstance().Warn(LOG_NAME, "Unknown method invoked (0x%08X, 0x%08X).\r\n", 0x593, method);
 		break;
 	}
 	return true;
@@ -347,7 +347,7 @@ bool CCdvdfsv::Invoke59C(uint32 method, uint32* args, uint32 argsSize, uint32* r
 	}
 	break;
 	default:
-		CLog::GetInstance().Print(LOG_NAME, "Unknown method invoked (0x%08X, 0x%08X).\r\n", 0x59C, method);
+		CLog::GetInstance().Warn(LOG_NAME, "Unknown method invoked (0x%08X, 0x%08X).\r\n", 0x59C, method);
 		break;
 	}
 	return true;
