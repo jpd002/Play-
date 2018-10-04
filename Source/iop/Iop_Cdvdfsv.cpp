@@ -236,6 +236,15 @@ bool CCdvdfsv::Invoke593(uint32 method, uint32* args, uint32 argsSize, uint32* r
 		ret[0x00] = 1;
 	}
 	break;
+	case 0x27:
+	{
+		//ReadDvdDualInfo
+		assert(retSize >= 8);
+		CLog::GetInstance().Print(LOG_NAME, "ReadDvdDualInfo();\r\n");
+		ret[0] = 1;
+		ret[1] = (m_opticalMedia && m_opticalMedia->GetDvdIsDualLayer()) ? 1 : 0;
+	}
+	break;
 
 	default:
 		CLog::GetInstance().Warn(LOG_NAME, "Unknown method invoked (0x%08X, 0x%08X).\r\n", 0x593, method);
