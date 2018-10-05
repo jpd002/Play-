@@ -88,8 +88,6 @@ private:
 	LastOpenCommand m_lastOpenCommand;
 	boost::filesystem::path m_lastPath;
 
-	QString ReadElementValue(QXmlStreamReader& Rxml);
-
 protected:
 	void closeEvent(QCloseEvent*) Q_DECL_OVERRIDE;
 	void showEvent(QShowEvent*) Q_DECL_OVERRIDE;
