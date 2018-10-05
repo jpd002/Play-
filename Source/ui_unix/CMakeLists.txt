@@ -50,6 +50,8 @@ set(QT_SOURCES
 	main.cpp
 	mainwindow.cpp
 	mainwindow.h
+	ContinuationChecker.cpp
+	ContinuationChecker.h
 	ElidedLabel.cpp
 	ElidedLabel.h
 	GSH_OpenGLQt.cpp
@@ -94,6 +96,7 @@ set(QT_MOC_HEADERS
 	ControllerConfig/controllerconfigdialog.h
 	ControllerConfig/inputeventselectiondialog.h
 	mainwindow.h
+	ContinuationChecker.h
 	ElidedLabel.h
 	settingsdialog.h
 	openglwindow.h

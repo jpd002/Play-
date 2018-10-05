@@ -32,6 +32,8 @@ MainWindow::MainWindow(QWidget* parent)
 {
 	ui->setupUi(this);
 
+	m_continuationChecker = new CContinuationChecker(this);
+
 	m_openglpanel = new OpenGLWindow;
 	QWidget* container = QWidget::createWindowContainer(m_openglpanel);
 	ui->gridLayout->addWidget(container);
@@ -58,10 +60,6 @@ MainWindow::MainWindow(QWidget* parent)
 	{
 		m_lastPath = QStringToPath(QDir::homePath());
 	}
-
-	m_continuationTimer = new QTimer(this);
-	connect(m_continuationTimer, SIGNAL(timeout()), this, SLOT(updateContinuations()));
-	m_continuationTimer->start(500);
 
 	CreateStatusBar();
 	UpdateUI();
@@ -325,11 +323,6 @@ void MainWindow::setFPS()
 	m_fpsLabel->setText(QString("%1 f/s, %2 dc/f").arg(frames).arg(dcpf));
 }
 
-void MainWindow::updateContinuations()
-{
-	m_futureContinuationManager.Execute();
-}
-
 void MainWindow::on_actionSettings_triggered()
 {
 	SettingsDialog sd;
@@ -370,7 +363,7 @@ void MainWindow::saveState(int stateSlot)
 
 	auto stateFilePath = m_virtualMachine->GenerateStatePath(stateSlot);
 	auto future = m_virtualMachine->SaveState(stateFilePath);
-	m_futureContinuationManager.Register(std::move(future),
+	m_continuationChecker->GetContinuationManager().Register(std::move(future),
 	                                     [this, stateSlot = stateSlot](const bool& succeeded) {
 		                                     if(succeeded)
 		                                     {
@@ -391,7 +384,7 @@ void MainWindow::loadState(int stateSlot)
 {
 	auto stateFilePath = m_virtualMachine->GenerateStatePath(stateSlot);
 	auto future = m_virtualMachine->LoadState(stateFilePath);
-	m_futureContinuationManager.Register(std::move(future),
+	m_continuationChecker->GetContinuationManager().Register(std::move(future),
 	                                     [this, stateSlot = stateSlot](const bool& succeeded) {
 		                                     if(succeeded)
 		                                     {

@@ -19,7 +19,7 @@
 #include "GamePad/GamePadDeviceListener.h"
 #endif
 
-#include "../FutureContinuationManager.h"
+#include "ContinuationChecker.h"
 
 namespace Ui
 {
@@ -61,11 +61,10 @@ private:
 	CStatsManager* m_statsManager = nullptr;
 	CInputBindingManager* m_InputBindingManager = nullptr;
 	QTimer* m_fpsTimer = nullptr;
-	QTimer* m_continuationTimer = nullptr;
+	CContinuationChecker* m_continuationChecker = nullptr;
 	CPS2VM* m_virtualMachine = nullptr;
 	bool m_deactivatePause = false;
 	bool m_pauseFocusLost = true;
-	CFutureContinuationManager m_futureContinuationManager;
 #ifdef HAS_LIBEVDEV
 	std::unique_ptr<CGamePadDeviceListener> m_GPDL;
 #endif
@@ -95,7 +94,6 @@ protected:
 public slots:
 	void openGLWindow_resized();
 	void setFPS();
-	void updateContinuations();
 
 private slots:
 	void on_actionBoot_DiscImage_triggered();
