@@ -23,19 +23,21 @@ namespace ISO9660
 	public:
 		typedef std::shared_ptr<Framework::CStream> StreamPtr;
 
-		CBlockProvider2048(const StreamPtr& stream)
+		CBlockProvider2048(const StreamPtr& stream, uint32 offset = 0)
 		    : m_stream(stream)
+		    , m_offset(offset)
 		{
 		}
 
 		void ReadBlock(uint32 address, void* block) override
 		{
-			m_stream->Seek(static_cast<uint64>(address) * BLOCKSIZE, Framework::STREAM_SEEK_SET);
+			m_stream->Seek(static_cast<uint64>(address + m_offset) * BLOCKSIZE, Framework::STREAM_SEEK_SET);
 			m_stream->Read(block, BLOCKSIZE);
 		}
 
 	private:
 		StreamPtr m_stream;
+		uint32 m_offset = 0;
 	};
 
 	class CBlockProviderCDROMXA : public CBlockProvider

@@ -21,6 +21,7 @@ public:
 	//TODO: Get Track Count
 	TRACK_DATA_TYPE GetTrackDataType(uint32) const;
 	CISO9660* GetFileSystem();
+	CISO9660* GetFileSystemL1();
 
 	bool GetDvdIsDualLayer() const;
 	uint32 GetDvdSecondLayerStart() const;
@@ -36,4 +37,5 @@ private:
 	bool m_dvdIsDualLayer = false;
 	uint32 m_dvdSecondLayerStart = 0;
 	Iso9660Ptr m_fileSystem;
+	Iso9660Ptr m_fileSystemL1;
 };

@@ -478,6 +478,7 @@ bool CCdvdfsv::StreamCmd(uint32* args, uint32 argsSize, uint32* ret, uint32 retS
 
 void CCdvdfsv::SearchFile(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, uint8* ram)
 {
+	uint32 layer = 0;
 	uint32 pathOffset = 0x24;
 	if(argsSize == 0x128)
 	{
@@ -486,6 +487,13 @@ void CCdvdfsv::SearchFile(uint32* args, uint32 argsSize, uint32* ret, uint32 ret
 	else if(argsSize == 0x124)
 	{
 		pathOffset = 0x20;
+	}
+	else if(argsSize == 0x12C)
+	{
+		//Used by:
+		//- Xenosaga (dual layer)
+		pathOffset = 0x24;
+		layer = args[0x128 / 4];
 	}
 	else
 	{
@@ -513,7 +521,7 @@ void CCdvdfsv::SearchFile(uint32* args, uint32 argsSize, uint32* ret, uint32 ret
 	//24 - Path
 
 	const char* path = reinterpret_cast<const char*>(args) + pathOffset;
-	CLog::GetInstance().Print(LOG_NAME, "SearchFile(path = %s);\r\n", path);
+	CLog::GetInstance().Print(LOG_NAME, "SearchFile(layer = %d, path = '%s');\r\n", layer, path);
 
 	//Fix all slashes
 	std::string fixedPath(path);
@@ -538,7 +546,7 @@ void CCdvdfsv::SearchFile(uint32* args, uint32 argsSize, uint32* ret, uint32 ret
 	}
 
 	ISO9660::CDirectoryRecord record;
-	auto fileSystem = m_opticalMedia->GetFileSystem();
+	auto fileSystem = (layer == 0) ? m_opticalMedia->GetFileSystem() : m_opticalMedia->GetFileSystemL1();
 	if(!fileSystem->GetFileRecord(&record, fixedPath.c_str()))
 	{
 		ret[0] = 0;
@@ -547,6 +555,10 @@ void CCdvdfsv::SearchFile(uint32* args, uint32 argsSize, uint32* ret, uint32 ret
 
 	args[0x00] = record.GetPosition();
 	args[0x01] = record.GetDataLength();
+	if(layer != 0)
+	{
+		args[0x00] += m_opticalMedia->GetDvdSecondLayerStart();
+	}
 
 	ret[0] = 1;
 }
