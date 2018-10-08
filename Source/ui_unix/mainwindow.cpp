@@ -248,6 +248,11 @@ void MainWindow::BootElf(boost::filesystem::path filePath)
 	                        .arg(m_virtualMachine->m_ee->m_os->GetExecutableName()));
 }
 
+void MainWindow::LoadCDROM(boost::filesystem::path filePath)
+{
+	CAppConfig::GetInstance().SetPreferencePath(PREF_PS2_CDROM0_PATH, filePath);
+}
+
 void MainWindow::BootCDROM()
 {
 	m_virtualMachine->Pause();
