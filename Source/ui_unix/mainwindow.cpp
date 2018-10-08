@@ -225,7 +225,6 @@ void MainWindow::on_actionBoot_ELF_triggered()
 		{
 			try
 			{
-				m_lastOpenCommand = LastOpenCommand(BootType::ELF, filePath);
 				BootElf(filePath);
 			}
 			catch(const std::exception& e)
@@ -240,12 +239,20 @@ void MainWindow::on_actionBoot_ELF_triggered()
 
 void MainWindow::BootElf(boost::filesystem::path filePath)
 {
+	m_lastOpenCommand = LastOpenCommand(BootType::ELF, filePath);
 	m_virtualMachine->Pause();
 	m_virtualMachine->Reset();
 	m_virtualMachine->m_ee->m_os->BootFromFile(filePath);
 	m_virtualMachine->Resume();
 	m_msgLabel->setText(QString("Loaded executable '%1'.")
 	                        .arg(m_virtualMachine->m_ee->m_os->GetExecutableName()));
+}
+
+void MainWindow::LoadCDROM(boost::filesystem::path filePath)
+{
+	m_lastPath = filePath.parent_path();
+	m_lastOpenCommand = LastOpenCommand(BootType::CD, filePath);
+	CAppConfig::GetInstance().SetPreferencePath(PREF_PS2_CDROM0_PATH, filePath);
 }
 
 void MainWindow::BootCDROM()
