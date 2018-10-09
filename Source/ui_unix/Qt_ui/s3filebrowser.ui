@@ -18,9 +18,6 @@
     <layout class="QHBoxLayout" name="horizontalLayout">
      <item>
       <widget class="QLineEdit" name="bucketNameEdit">
-       <property name="inputMask">
-        <string/>
-       </property>
        <property name="placeholderText">
         <string>S3 Bucket Name</string>
        </property>
