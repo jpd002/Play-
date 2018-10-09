@@ -15,25 +15,21 @@
 
 #define LOG_NAME "s3objectstream"
 
-class CS3Config : public CSingleton<CS3Config>
+CS3ObjectStream::CConfig::CConfig()
 {
-public:
-	CS3Config()
-	{
-		CAppConfig::GetInstance().RegisterPreferenceString(PREF_S3_OBJECTSTREAM_ACCESSKEYID, "");
-		CAppConfig::GetInstance().RegisterPreferenceString(PREF_S3_OBJECTSTREAM_SECRETACCESSKEY, "");
-	}
+	CAppConfig::GetInstance().RegisterPreferenceString(PREF_S3_OBJECTSTREAM_ACCESSKEYID, "");
+	CAppConfig::GetInstance().RegisterPreferenceString(PREF_S3_OBJECTSTREAM_SECRETACCESSKEY, "");
+}
 
-	std::string GetAccessKeyId()
-	{
-		return CAppConfig::GetInstance().GetPreferenceString(PREF_S3_OBJECTSTREAM_ACCESSKEYID);
-	}
+std::string CS3ObjectStream::CConfig::GetAccessKeyId()
+{
+	return CAppConfig::GetInstance().GetPreferenceString(PREF_S3_OBJECTSTREAM_ACCESSKEYID);
+}
 
-	std::string GetSecretAccessKey()
-	{
-		return CAppConfig::GetInstance().GetPreferenceString(PREF_S3_OBJECTSTREAM_SECRETACCESSKEY);
-	}
-};
+std::string CS3ObjectStream::CConfig::GetSecretAccessKey()
+{
+	return CAppConfig::GetInstance().GetPreferenceString(PREF_S3_OBJECTSTREAM_SECRETACCESSKEY);
+}
 
 CS3ObjectStream::CS3ObjectStream(const char* bucketName, const char* objectName)
     : m_bucketName(bucketName)
@@ -77,7 +73,7 @@ uint64 CS3ObjectStream::Read(void* buffer, uint64 size)
 	if(!cachedReadSucceeded)
 	{
 		assert(size > 0);
-		CAmazonS3Client client(CS3Config::GetInstance().GetAccessKeyId(), CS3Config::GetInstance().GetSecretAccessKey(), m_bucketRegion);
+		CAmazonS3Client client(CConfig::GetInstance().GetAccessKeyId(), CConfig::GetInstance().GetSecretAccessKey(), m_bucketRegion);
 		GetObjectRequest request;
 		request.object = m_objectName;
 		request.bucket = m_bucketName;
@@ -163,7 +159,7 @@ void CS3ObjectStream::GetObjectInfo()
 {
 	//Obtain bucket region
 	{
-		CAmazonS3Client client(CS3Config::GetInstance().GetAccessKeyId(), CS3Config::GetInstance().GetSecretAccessKey());
+		CAmazonS3Client client(CConfig::GetInstance().GetAccessKeyId(), CConfig::GetInstance().GetSecretAccessKey());
 
 		GetBucketLocationRequest request;
 		request.bucket = m_bucketName;
@@ -174,7 +170,7 @@ void CS3ObjectStream::GetObjectInfo()
 
 	//Obtain object info
 	{
-		CAmazonS3Client client(CS3Config::GetInstance().GetAccessKeyId(), CS3Config::GetInstance().GetSecretAccessKey(), m_bucketRegion);
+		CAmazonS3Client client(CConfig::GetInstance().GetAccessKeyId(), CConfig::GetInstance().GetSecretAccessKey(), m_bucketRegion);
 
 		HeadObjectRequest request;
 		request.bucket = m_bucketName;

@@ -1,11 +1,20 @@
 #pragma once
 
+#include "Singleton.h"
 #include "Stream.h"
 #include "boost_filesystem_def.h"
 
 class CS3ObjectStream : public Framework::CStream
 {
 public:
+	class CConfig : public CSingleton<CConfig>
+	{
+	public:
+		CConfig();
+		std::string GetAccessKeyId();
+		std::string GetSecretAccessKey();
+	};
+
 	CS3ObjectStream(const char*, const char*);
 
 	uint64 Read(void*, uint64) override;
