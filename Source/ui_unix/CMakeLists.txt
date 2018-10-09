@@ -60,6 +60,8 @@ set(QT_SOURCES
 	StatsManager.h
 	PH_HidUnix.cpp
 	PH_HidUnix.h
+	S3FileBrowser.cpp
+	S3FileBrowser.h
 	settingsdialog.cpp
 	settingsdialog.h
 	openglwindow.cpp
@@ -101,6 +103,7 @@ set(QT_MOC_HEADERS
 	settingsdialog.h
 	openglwindow.h
 	memorycardmanagerdialog.h
+	S3FileBrowser.h
 	vfsmanagerdialog.h
 	vfsmodel.h
 	vfsdiscselectordialog.h
@@ -111,6 +114,7 @@ set(QT_UIS
 	Qt_ui/inputeventselectiondialog.ui
 	Qt_ui/mainwindow.ui
 	Qt_ui/memorycardmanager.ui
+	Qt_ui/s3filebrowser.ui
 	Qt_ui/settingsdialog.ui
 	Qt_ui/vfsmanagerdialog.ui
 	Qt_ui/vfsdiscselectordialog.ui
