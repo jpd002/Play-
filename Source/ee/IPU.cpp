@@ -1048,19 +1048,32 @@ bool CIPU::CIDECCommand::Execute()
 			break;
 		case STATE_CHECKSTARTCODE:
 		{
-			uint32 startCode = 0;
-			if(!m_IN_FIFO->TryPeekBits_MSBF(23, startCode))
+			uint32 nextBits = 0;
+			if(!m_IN_FIFO->TryPeekBits_MSBF(8, nextBits))
 			{
 				return false;
 			}
-			if(startCode == 0)
-			{
-				m_state = STATE_DONE;
-			}
-			else
+			if(nextBits != 0)
 			{
 				m_state = STATE_READMBINCREMENT;
+				break;
 			}
+			m_IN_FIFO->SeekToByteAlign();
+			m_state = STATE_VALIDATESTARTCODE;
+		}
+		break;
+		case STATE_VALIDATESTARTCODE:
+		{
+			uint32 startCode = 0;
+			if(!m_IN_FIFO->TryPeekBits_MSBF(24, startCode))
+			{
+				return false;
+			}
+			if(startCode != 0x1)
+			{
+				throw CVLCTable::CVLCTableException();
+			}
+			m_state = STATE_DONE;
 		}
 		break;
 		case STATE_READMBINCREMENT:
