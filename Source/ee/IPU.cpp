@@ -915,6 +915,7 @@ void CIPU::CIDECCommand::Initialize(CBDECCommand* BDECCommand, CCSCCommand* CSCC
 	m_CSCCommand = CSCCommand;
 
 	m_state = STATE_DELAY;
+	m_dt = 0;
 	m_mbType = 0;
 	m_qsc = m_command.qsc;
 	m_context = context;
@@ -958,7 +959,14 @@ bool CIPU::CIDECCommand::Execute()
 		}
 		break;
 		case STATE_READDCTTYPE:
-			assert(m_command.dtd == 0);
+			if(m_command.dtd == 1)
+			{
+				if(!m_IN_FIFO->TryGetBits_MSBF(1, m_dt))
+				{
+					return false;
+				}
+			}
+			assert(m_dt == 0);
 			m_state = STATE_READQSC;
 			break;
 		case STATE_READQSC:
@@ -977,7 +985,7 @@ bool CIPU::CIDECCommand::Execute()
 			bdecCommand.cmdId = IPU_CMD_BDEC;
 			bdecCommand.fb = 0;
 			bdecCommand.mbi = 1;
-			bdecCommand.dt = 0;
+			bdecCommand.dt = m_dt;
 			bdecCommand.dcr = (m_mbCount == 0) ? 1 : 0;
 			bdecCommand.qsc = m_qsc;
 			m_BDECCommand->Initialize(m_IN_FIFO, &m_temp_OUT_FIFO, bdecCommand, false, m_context);
