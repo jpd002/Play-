@@ -1,4 +1,3 @@
-#include <future>
 #include "S3FileBrowser.h"
 #include "ui_S3FileBrowser.h"
 #include "../s3stream/AmazonS3Client.h"
