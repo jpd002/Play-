@@ -3,12 +3,18 @@
 #include "../s3stream/AmazonS3Client.h"
 #include "../s3stream/S3ObjectStream.h"
 #include "string_format.h"
+#include "AppConfig.h"
+
+#define PREF_S3FILEBROWSER_BUCKETNAME "s3.filebrowser.bucketname"
 
 S3FileBrowser::S3FileBrowser(QWidget* parent)
     : QDialog(parent)
     , ui(new Ui::S3FileBrowser())
 {
+	CAppConfig::GetInstance().RegisterPreferenceString(PREF_S3FILEBROWSER_BUCKETNAME, "");
+
 	ui->setupUi(this);
+	ui->bucketNameEdit->setText(CAppConfig::GetInstance().GetPreferenceString(PREF_S3FILEBROWSER_BUCKETNAME));
 
 	m_continuationChecker = new CContinuationChecker(this);
 
@@ -57,14 +63,16 @@ void S3FileBrowser::updateFilter()
 
 void S3FileBrowser::accept()
 {
+	auto bucketName = m_lastUpdateBucketName.toStdString();
 	auto selectedItems = ui->objectList->selectedItems();
 	if(selectedItems.size() != 0)
 	{
 		auto selectedItem = selectedItems[0];
-		auto bucketName = m_lastUpdateBucketName.toStdString();
 		auto objectName = selectedItem->text().toStdString();
 		m_selectedPath = string_format("s3://%s/%s", bucketName.c_str(), objectName.c_str());
 	}
+	CAppConfig::GetInstance().SetPreferenceString(PREF_S3FILEBROWSER_BUCKETNAME, bucketName.c_str());
+	CAppConfig::GetInstance().Save();
 	QDialog::accept();
 }
 
