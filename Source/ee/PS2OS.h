@@ -352,7 +352,6 @@ private:
 	IntcHandlerQueue m_intcHandlerQueue;
 	DmacHandlerQueue m_dmacHandlerQueue;
 
-	std::string m_executablePath;
 	ArgumentList m_currentArguments;
 
 	//For display purposes only

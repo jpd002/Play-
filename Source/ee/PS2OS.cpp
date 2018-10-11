@@ -424,8 +424,9 @@ void CPS2OS::LoadELF(Framework::CStream& stream, const char* executablePath, con
 
 	m_elf = elf;
 
-	m_executablePath = executablePath;
-	m_currentArguments = arguments;
+	m_currentArguments.clear();
+	m_currentArguments.push_back(executablePath);
+	m_currentArguments.insert(m_currentArguments.end(), arguments.begin(), arguments.end());
 
 	m_executableName =
 	    [&]() {
@@ -1466,8 +1467,14 @@ void CPS2OS::sc_ExecPS2()
 
 	m_ee.m_State.nPC = pc;
 	m_ee.m_State.nGPR[CMIPS::GP].nD0 = static_cast<int32>(gp);
-	m_ee.m_State.nGPR[CMIPS::A0].nD0 = static_cast<int32>(argCount);
-	m_ee.m_State.nGPR[CMIPS::A1].nD0 = static_cast<int32>(argValuesPtr);
+
+	ArgumentList arguments;
+	for(uint32 i = 0; i < argCount; i++)
+	{
+		uint32 argValuePtr = *reinterpret_cast<uint32*>(GetStructPtr(argValuesPtr + i * 4));
+		arguments.push_back(reinterpret_cast<const char*>(GetStructPtr(argValuePtr)));
+	}
+	m_currentArguments = arguments;
 }
 
 //0D
@@ -2291,11 +2298,7 @@ void CPS2OS::sc_SetupThread()
 	uint32 argsBase = m_ee.m_State.nGPR[SC_PARAM3].nV[0];
 	//Copy arguments
 	{
-		ArgumentList completeArgList;
-		completeArgList.push_back(m_executablePath);
-		completeArgList.insert(completeArgList.end(), m_currentArguments.begin(), m_currentArguments.end());
-
-		uint32 argsCount = static_cast<uint32>(completeArgList.size());
+		uint32 argsCount = static_cast<uint32>(m_currentArguments.size());
 
 		*reinterpret_cast<uint32*>(m_ram + argsBase) = argsCount;
 		uint32 argsPtrs = argsBase + 4;
@@ -2303,7 +2306,7 @@ void CPS2OS::sc_SetupThread()
 		uint32 argsPayload = argsPtrs + ((argsCount + 1) * 4);
 		for(uint32 i = 0; i < argsCount; i++)
 		{
-			const auto& currentArg = completeArgList[i];
+			const auto& currentArg = m_currentArguments[i];
 			*reinterpret_cast<uint32*>(m_ram + argsPtrs + (i * 4)) = argsPayload;
 			uint32 argSize = static_cast<uint32>(currentArg.size()) + 1;
 			memcpy(m_ram + argsPayload, currentArg.c_str(), argSize);
