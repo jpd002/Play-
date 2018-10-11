@@ -98,8 +98,8 @@ void S3FileBrowser::launchUpdate()
 		    {
 			    {
 				    CAmazonS3Client client(
-						CS3ObjectStream::CConfig::GetInstance().GetAccessKeyId(),
-						CS3ObjectStream::CConfig::GetInstance().GetSecretAccessKey());
+				        CS3ObjectStream::CConfig::GetInstance().GetAccessKeyId(),
+				        CS3ObjectStream::CConfig::GetInstance().GetSecretAccessKey());
 
 				    GetBucketLocationRequest request;
 				    request.bucket = bucketName;
@@ -110,9 +110,9 @@ void S3FileBrowser::launchUpdate()
 
 			    //List objects
 			    CAmazonS3Client client(
-					CS3ObjectStream::CConfig::GetInstance().GetAccessKeyId(),
-					CS3ObjectStream::CConfig::GetInstance().GetSecretAccessKey(),
-					bucketRegion);
+			        CS3ObjectStream::CConfig::GetInstance().GetAccessKeyId(),
+			        CS3ObjectStream::CConfig::GetInstance().GetSecretAccessKey(),
+			        bucketRegion);
 			    return client.ListObjects(bucketName);
 		    }
 		    catch(...)

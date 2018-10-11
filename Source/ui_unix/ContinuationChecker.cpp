@@ -1,8 +1,8 @@
 #include "ContinuationChecker.h"
 
 CContinuationChecker::CContinuationChecker(QObject* parent)
-	: QObject(parent)
-	, m_timer(new QTimer(this))
+    : QObject(parent)
+    , m_timer(new QTimer(this))
 {
 	connect(m_timer, SIGNAL(timeout()), this, SLOT(updateContinuations()));
 	m_timer->start(250);
