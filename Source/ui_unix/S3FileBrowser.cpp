@@ -1,5 +1,5 @@
 #include "S3FileBrowser.h"
-#include "ui_S3FileBrowser.h"
+#include "ui_s3filebrowser.h"
 #include "../s3stream/AmazonS3Client.h"
 #include "../s3stream/S3ObjectStream.h"
 #include "string_format.h"
