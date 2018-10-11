@@ -12,6 +12,10 @@ S3FileBrowser::S3FileBrowser(QWidget* parent)
 
 	m_continuationChecker = new CContinuationChecker(this);
 
+	m_filterTimer = new QTimer(this);
+	m_filterTimer->setSingleShot(true);
+	connect(m_filterTimer, SIGNAL(timeout()), this, SLOT(updateFilter()));
+
 	launchUpdate();
 }
 
@@ -33,6 +37,22 @@ void S3FileBrowser::refreshButton_clicked()
 void S3FileBrowser::objectList_itemSelectionChanged()
 {
 	updateOkButtonState();
+}
+
+void S3FileBrowser::searchFilterEdit_textChanged(QString)
+{
+	m_filterTimer->start(100);
+}
+
+void S3FileBrowser::updateFilter()
+{
+	ui->objectList->clear();
+	auto filter = ui->searchFilterEdit->text().toStdString();
+	for(const auto& item : m_bucketItems.objects)
+	{
+		if(!filter.empty() && (item.key.find(filter, 0) == std::string::npos)) continue;
+		ui->objectList->addItem(QString::fromStdString(item.key));
+	}
 }
 
 void S3FileBrowser::accept()
@@ -94,10 +114,8 @@ void S3FileBrowser::launchUpdate()
 	    });
 	m_continuationChecker->GetContinuationManager().Register(std::move(getListFuture),
 	                                                         [this](auto& result) {
-		                                                         for(const auto& resultItem : result.objects)
-		                                                         {
-			                                                         ui->objectList->addItem(QString::fromStdString(resultItem.key));
-		                                                         }
+		                                                         m_bucketItems = result;
+		                                                         updateFilter();
 		                                                         setEnabled(true);
 	                                                         });
 }

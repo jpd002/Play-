@@ -33,6 +33,13 @@
     </layout>
    </item>
    <item>
+    <widget class="QLineEdit" name="searchFilterEdit">
+     <property name="placeholderText">
+      <string>Search Filter</string>
+     </property>
+    </widget>
+   </item>
+   <item>
     <widget class="QListWidget" name="objectList"/>
    </item>
    <item>
@@ -122,6 +129,22 @@
     <hint type="sourcelabel">
      <x>223</x>
      <y>187</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>223</x>
+     <y>186</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>searchFilterEdit</sender>
+   <signal>textChanged(QString)</signal>
+   <receiver>S3FileBrowser</receiver>
+   <slot>searchFilterEdit_textChanged(QString)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>223</x>
+     <y>49</y>
     </hint>
     <hint type="destinationlabel">
      <x>223</x>
