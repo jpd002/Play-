@@ -123,7 +123,7 @@ void S3FileBrowser::launchUpdate()
 	m_continuationChecker->GetContinuationManager().Register(std::move(getListFuture),
 	                                                         [this](auto& result) {
 		                                                         m_bucketItems = result;
-		                                                         updateFilter();
-		                                                         setEnabled(true);
+		                                                         this->updateFilter();
+		                                                         this->setEnabled(true);
 	                                                         });
 }
