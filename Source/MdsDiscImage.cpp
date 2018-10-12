@@ -1,5 +1,4 @@
 #include "MdsDiscImage.h"
-#include "StdStreamUtils.h"
 
 enum MDS_MEDIUM : uint16
 {
@@ -76,10 +75,19 @@ struct DVD_RDS_MANUFACTURINGINFO
 };
 static_assert(sizeof(DVD_RDS_MANUFACTURINGINFO) == 2048, "DVD_RDS_MANUFACTURINGINFO must be 2048 bytes long.");
 
-CMdsDiscImage::CMdsDiscImage(const boost::filesystem::path& inputPath)
+CMdsDiscImage::CMdsDiscImage(Framework::CStream& inputStream)
 {
-	auto inputStream = Framework::CreateInputStdStream(inputPath.native());
 	ParseMds(inputStream);
+}
+
+bool CMdsDiscImage::IsDualLayer() const
+{
+	return m_isDualLayer;
+}
+
+uint32 CMdsDiscImage::GetLayerBreak() const
+{
+	return m_layerBreak;
 }
 
 void CMdsDiscImage::ParseMds(Framework::CStream& inputStream)

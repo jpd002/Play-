@@ -2,12 +2,14 @@
 
 #include "Types.h"
 #include "Stream.h"
-#include <boost/filesystem.hpp>
 
 class CMdsDiscImage
 {
 public:
-	CMdsDiscImage(const boost::filesystem::path&);
+	CMdsDiscImage(Framework::CStream&);
+
+	bool IsDualLayer() const;
+	uint32 GetLayerBreak() const;
 
 private:
 	bool m_isDualLayer = false;
