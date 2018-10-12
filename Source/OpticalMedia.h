@@ -15,7 +15,8 @@ public:
 
 	typedef std::shared_ptr<Framework::CStream> StreamPtr;
 
-	COpticalMedia(const StreamPtr&);
+	static COpticalMedia* CreateAuto(StreamPtr&);
+	static COpticalMedia* CreateDvd(StreamPtr&, bool = false, uint32 = 0);
 
 	//TODO: Get Track Count
 	TRACK_DATA_TYPE GetTrackDataType(uint32) const;
@@ -25,6 +26,8 @@ public:
 	uint32 GetDvdSecondLayerStart() const;
 
 private:
+	COpticalMedia() = default;
+
 	typedef std::unique_ptr<CISO9660> Iso9660Ptr;
 
 	void CheckDualLayerDvd(const StreamPtr&);

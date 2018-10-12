@@ -4,27 +4,37 @@
 
 #define DVD_LAYER_MAX_BLOCKS 2295104
 
-COpticalMedia::COpticalMedia(const StreamPtr& stream)
+COpticalMedia* COpticalMedia::CreateAuto(StreamPtr& stream)
 {
+	auto result = new COpticalMedia();
 	//Simulate a disk with only one data track
 	try
 	{
 		auto blockProvider = std::make_shared<ISO9660::CBlockProvider2048>(stream);
-		m_fileSystem = std::make_unique<CISO9660>(blockProvider);
-		m_track0DataType = TRACK_DATA_TYPE_MODE1_2048;
+		result->m_fileSystem = std::make_unique<CISO9660>(blockProvider);
+		result->m_track0DataType = TRACK_DATA_TYPE_MODE1_2048;
 	}
 	catch(...)
 	{
 		//Failed with block size 2048, try with CD-ROM XA
 		auto blockProvider = std::make_shared<ISO9660::CBlockProviderCDROMXA>(stream);
-		m_fileSystem = std::make_unique<CISO9660>(blockProvider);
-		m_track0DataType = TRACK_DATA_TYPE_MODE2_2352;
+		result->m_fileSystem = std::make_unique<CISO9660>(blockProvider);
+		result->m_track0DataType = TRACK_DATA_TYPE_MODE2_2352;
 	}
 
-	if(m_track0DataType == TRACK_DATA_TYPE_MODE1_2048)
+	if(result->m_track0DataType == TRACK_DATA_TYPE_MODE1_2048)
 	{
-		CheckDualLayerDvd(stream);
+		result->CheckDualLayerDvd(stream);
 	}
+	return result;
+}
+
+COpticalMedia* COpticalMedia::CreateDvd(StreamPtr& stream, bool isDualLayer, uint32 secondLayerStart)
+{
+	auto result = new COpticalMedia();
+	result->m_dvdIsDualLayer = isDualLayer;
+	result->m_dvdSecondLayerStart = secondLayerStart;
+	return result;
 }
 
 COpticalMedia::TRACK_DATA_TYPE COpticalMedia::GetTrackDataType(uint32 trackIndex) const

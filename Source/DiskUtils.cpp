@@ -4,6 +4,7 @@
 #include "DiskUtils.h"
 #include "IszImageStream.h"
 #include "CsoImageStream.h"
+#include "MdsDiscImage.h"
 #include "StdStream.h"
 #include "s3stream/S3ObjectStream.h"
 #ifdef _WIN32
@@ -55,6 +56,18 @@ DiskUtils::OpticalMediaPtr DiskUtils::CreateOpticalMediaFromPath(const boost::fi
 	{
 		stream = std::make_shared<CCsoImageStream>(CreateImageStream(imagePath));
 	}
+	else if(!stricmp(extension.c_str(), ".mds"))
+	{
+		auto imageStream = std::unique_ptr<Framework::CStream>(CreateImageStream(imagePath));
+		auto discImage = CMdsDiscImage(*imageStream);
+
+		//Create image data path
+		auto imageDataPath = imagePath;
+		imageDataPath.replace_extension("mdf");
+		auto imageDataStream = std::shared_ptr<Framework::CStream>(CreateImageStream(imageDataPath));
+
+		return std::unique_ptr<COpticalMedia>(COpticalMedia::CreateDvd(imageDataStream, discImage.IsDualLayer(), discImage.GetLayerBreak()));
+	}
 #ifdef _WIN32
 	else if(imagePath.string()[0] == '\\')
 	{
@@ -81,7 +94,7 @@ DiskUtils::OpticalMediaPtr DiskUtils::CreateOpticalMediaFromPath(const boost::fi
 		stream = std::shared_ptr<Framework::CStream>(CreateImageStream(imagePath));
 	}
 
-	return std::make_unique<COpticalMedia>(stream);
+	return std::unique_ptr<COpticalMedia>(COpticalMedia::CreateAuto(stream));
 }
 
 DiskUtils::SystemConfigMap DiskUtils::ParseSystemConfigFile(Framework::CStream* systemCnfFile)
