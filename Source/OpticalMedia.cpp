@@ -32,6 +32,9 @@ COpticalMedia* COpticalMedia::CreateAuto(StreamPtr& stream)
 COpticalMedia* COpticalMedia::CreateDvd(StreamPtr& stream, bool isDualLayer, uint32 secondLayerStart)
 {
 	auto result = new COpticalMedia();
+	auto blockProvider = std::make_shared<ISO9660::CBlockProvider2048>(stream);
+	result->m_fileSystem = std::make_unique<CISO9660>(blockProvider);
+	result->m_track0DataType = TRACK_DATA_TYPE_MODE1_2048;
 	result->m_dvdIsDualLayer = isDualLayer;
 	result->m_dvdSecondLayerStart = secondLayerStart;
 	return result;
