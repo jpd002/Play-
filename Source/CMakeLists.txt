@@ -326,6 +326,8 @@ set(COMMON_SRC_FILES
 	MA_MIPSIV_Templates.cpp
 	MailBox.cpp
 	MailBox.h
+	MdsDiscImage.cpp
+	MdsDiscImage.h
 	MemoryMap.cpp
 	MemoryMap.h
 	MemoryStateFile.cpp
