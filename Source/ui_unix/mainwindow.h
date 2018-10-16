@@ -97,6 +97,7 @@ public slots:
 
 private slots:
 	void on_actionBoot_DiscImage_triggered();
+	void on_actionBoot_DiscImage_S3_triggered();
 	void on_actionBoot_cdrom0_triggered();
 	void on_actionBoot_ELF_triggered();
 	void on_actionExit_triggered();

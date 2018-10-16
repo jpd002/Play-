@@ -2,6 +2,7 @@
 #include "QStringUtils.h"
 #include "settingsdialog.h"
 #include "memorycardmanagerdialog.h"
+#include "S3FileBrowser.h"
 
 #include "openglwindow.h"
 
@@ -178,6 +179,30 @@ void MainWindow::on_actionBoot_DiscImage_triggered()
 		m_lastPath = filePath.parent_path();
 		CAppConfig::GetInstance().SetPreferencePath(PREF_PS2_CDROM0_PATH, filePath);
 
+		if(m_virtualMachine != nullptr)
+		{
+			try
+			{
+				m_lastOpenCommand = LastOpenCommand(BootType::CD, filePath);
+				BootCDROM();
+			}
+			catch(const std::exception& e)
+			{
+				QMessageBox messageBox;
+				messageBox.critical(nullptr, "Error", e.what());
+				messageBox.show();
+			}
+		}
+	}
+}
+
+void MainWindow::on_actionBoot_DiscImage_S3_triggered()
+{
+	S3FileBrowser browser(this);
+	if(browser.exec())
+	{
+		auto filePath = browser.GetSelectedPath();
+		CAppConfig::GetInstance().SetPreferencePath(PREF_PS2_CDROM0_PATH, filePath);
 		if(m_virtualMachine != nullptr)
 		{
 			try

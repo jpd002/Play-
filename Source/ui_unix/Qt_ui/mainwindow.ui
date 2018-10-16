@@ -50,6 +50,7 @@
      <string>File</string>
     </property>
     <addaction name="actionBoot_DiscImage"/>
+    <addaction name="actionBoot_DiscImage_S3"/>
     <addaction name="actionBoot_cdrom0"/>
     <addaction name="actionBoot_ELF"/>
     <addaction name="separator"/>
@@ -195,6 +196,14 @@
   <action name="actionBoot_cdrom0">
    <property name="text">
     <string>Boot cdrom0</string>
+   </property>
+  </action>
+  <action name="actionBoot_DiscImage_S3">
+   <property name="text">
+    <string>Boot Disc Image from S3...</string>
+   </property>
+   <property name="visible">
+    <bool>false</bool>
    </property>
   </action>
  </widget>
