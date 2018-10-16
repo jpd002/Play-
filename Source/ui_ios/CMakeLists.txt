@@ -24,6 +24,15 @@ if(NOT TARGET gsh_opengl)
 endif()
 list(INSERT PROJECT_LIBS 0 gsh_opengl)
 
+if(NOT TARGET Framework_OpenAl)
+	add_subdirectory(
+		${CMAKE_CURRENT_SOURCE_DIR}/../../../Framework/build_cmake/FrameworkOpenAl
+		${CMAKE_CURRENT_BINARY_DIR}/FrameworkOpenAl
+	)
+endif()
+list(APPEND PROJECT_LIBS Framework_OpenAl)
+find_package(OpenAL REQUIRED)
+
 if(NOT TARGET iCade_Static)
 	add_subdirectory(
 		${CMAKE_CURRENT_SOURCE_DIR}/../../../Dependencies/build_cmake/iCade-iOS

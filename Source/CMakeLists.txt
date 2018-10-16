@@ -45,18 +45,6 @@ if(NOT TARGET Framework_Http)
 endif()
 list(APPEND PROJECT_LIBS Framework_Http)
 
-if(TARGET_PLATFORM_MACOS OR TARGET_PLATFORM_IOS OR TARGET_PLATFORM_UNIX)
-	if(NOT TARGET Framework_OpenAl)
-		add_subdirectory(
-			${CMAKE_CURRENT_SOURCE_DIR}/../../Framework/build_cmake/FrameworkOpenAl
-			${CMAKE_CURRENT_BINARY_DIR}/FrameworkOpenAl
-		)
-	endif()
-	list(APPEND PROJECT_LIBS Framework_OpenAl)
-	find_package(OpenAL REQUIRED)
-	list(APPEND PROJECT_LIBS ${OPENAL_LIBRARY})
-endif()
-
 if(NOT TARGET CodeGen)
 	add_subdirectory(
 		${CMAKE_CURRENT_SOURCE_DIR}/../../CodeGen/build_cmake
@@ -411,12 +399,6 @@ endif()
 
 if(TARGET_PLATFORM_MACOS OR TARGET_PLATFORM_UNIX)
 	set(PLATFORM_SPECIFIC_SRC_FILES Posix_VolumeStream.cpp)
-endif()
-
-if(OPENAL_FOUND)
-	list(APPEND PLATFORM_SPECIFIC_SRC_FILES
-		../tools/PsfPlayer/Source/SH_OpenAL.cpp
-	)
 endif()
 
 add_library(PlayCore STATIC ${COMMON_SRC_FILES} ${PLATFORM_SPECIFIC_SRC_FILES})
