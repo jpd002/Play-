@@ -1,4 +1,5 @@
 #include <stdexcept>
+#include <cstring>
 #include "MdsDiscImage.h"
 
 enum MDS_MEDIUM : uint16
