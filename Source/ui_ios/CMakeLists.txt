@@ -72,6 +72,7 @@ set(OSX_SOURCES
 	VirtualPadItem.mm
 	VirtualPadStick.mm
 	VirtualPadView.mm
+	../../tools/PsfPlayer/Source/SH_OpenAL.cpp
 )
 
 set(OSX_HEADERS
