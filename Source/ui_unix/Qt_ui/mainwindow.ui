@@ -106,9 +106,6 @@
    <property name="text">
     <string>Boot Disc Image...</string>
    </property>
-   <property name="toolTip">
-    <string>Boot Disk Image...</string>
-   </property>
    <property name="shortcut">
     <string>Ctrl+O</string>
    </property>
@@ -128,9 +125,6 @@
   </action>
   <action name="actionBoot_ELF">
    <property name="text">
-    <string>Boot ELF...</string>
-   </property>
-   <property name="toolTip">
     <string>Boot ELF...</string>
    </property>
   </action>
