@@ -14,7 +14,11 @@
 #include <QStorageInfo>
 
 #include "GSH_OpenGLQt.h"
+#ifdef _WIN32
+#include "../../tools/PsfPlayer/Source/win32_ui/SH_WaveOut.h"
+#else
 #include "tools/PsfPlayer/Source/SH_OpenAL.h"
+#endif
 #include "DiskUtils.h"
 #include "PathUtils.h"
 #include <zlib.h>
@@ -143,7 +147,11 @@ void MainWindow::SetupSoundHandler()
 	bool audioEnabled = CAppConfig::GetInstance().GetPreferenceBoolean(PREFERENCE_AUDIO_ENABLEOUTPUT);
 	if(audioEnabled)
 	{
+#ifdef _WIN32
+		m_virtualMachine->CreateSoundHandler(&CSH_WaveOut::HandlerFactory);
+#else
 		m_virtualMachine->CreateSoundHandler(&CSH_OpenAL::HandlerFactory);
+#endif
 	}
 	else
 	{
