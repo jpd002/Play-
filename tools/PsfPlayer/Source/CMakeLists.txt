@@ -22,20 +22,6 @@ if(NOT TARGET PlayCore)
 endif()
 list(APPEND PROJECT_LIBS PlayCore)
 
-find_package(OpenAL)
-if(OPENAL_FOUND)
-	if(TARGET_PLATFORM_MACOS OR TARGET_PLATFORM_IOS OR TARGET_PLATFORM_UNIX OR TARGET_PLATFORM_WIN32)
-		if(NOT TARGET Framework_OpenAl)
-			add_subdirectory(
-				${CMAKE_CURRENT_SOURCE_DIR}/../../../../Framework/build_cmake/FrameworkOpenAl
-				${CMAKE_CURRENT_BINARY_DIR}/FrameworkOpenAl
-			)
-		endif()
-		list(APPEND PROJECT_LIBS Framework_OpenAl)
-		list(APPEND PROJECT_LIBS ${OPENAL_LIBRARY})
-	endif()
-endif()
-
 if(PSF_RAR_SUPPORT)
 	if(NOT TARGET unrar)
 		add_subdirectory(

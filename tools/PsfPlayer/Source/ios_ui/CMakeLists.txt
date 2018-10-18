@@ -18,6 +18,14 @@ if(NOT TARGET PsfCore)
 endif()
 list(APPEND PROJECT_LIBS PsfCore)
 
+if(NOT TARGET sh_openal)
+	add_subdirectory(
+		${CMAKE_CURRENT_SOURCE_DIR}/../SH_OpenAL
+		${CMAKE_CURRENT_BINARY_DIR}/SH_OpenAL
+)
+endif()
+list(APPEND PROJECT_LIBS sh_openal)
+
 find_library(UIKIT_LIBRARY NAMES UIKit)
 find_library(AVFOUNDATION_LIBRARY NAMES AVFoundation)
 find_library(COREGRAPHICS_LIBRARY NAMES CoreGraphics)

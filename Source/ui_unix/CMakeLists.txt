@@ -41,15 +41,13 @@ if(TARGET_PLATFORM_UNIX)
 endif()
 
 if(TARGET_PLATFORM_MACOS OR TARGET_PLATFORM_UNIX)
-	if(NOT TARGET Framework_OpenAl)
+	if(NOT TARGET sh_openal)
 		add_subdirectory(
-			${CMAKE_CURRENT_SOURCE_DIR}/../../../Framework/build_cmake/FrameworkOpenAl
-			${CMAKE_CURRENT_BINARY_DIR}/FrameworkOpenAl
+			${CMAKE_CURRENT_SOURCE_DIR}/../../tools/PsfPlayer/Source/SH_OpenAL
+			${CMAKE_CURRENT_BINARY_DIR}/SH_OpenAL
 		)
 	endif()
-	list(APPEND PROJECT_LIBS Framework_OpenAl)
-	find_package(OpenAL REQUIRED)
-	list(APPEND PROJECT_LIBS ${OPENAL_LIBRARY})
+	list(APPEND PROJECT_LIBS sh_openal)
 endif()
 
 set(QT_SOURCES
@@ -103,12 +101,6 @@ if(LIBEVDEV_FOUND)
 		GamePad/GamePadInputEventListener.h
 		GamePad/GamePadDeviceListener.cpp
 		GamePad/GamePadDeviceListener.h
-	)
-endif()
-if(OPENAL_FOUND)
-	set(QT_SOURCES
-		${QT_SOURCES}
-		../../tools/PsfPlayer/Source/SH_OpenAL.cpp
 	)
 endif()
 if(TARGET_PLATFORM_WIN32)

@@ -24,14 +24,13 @@ if(NOT TARGET gsh_opengl)
 endif()
 list(INSERT PROJECT_LIBS 0 gsh_opengl)
 
-if(NOT TARGET Framework_OpenAl)
+if(NOT TARGET sh_openal)
 	add_subdirectory(
-		${CMAKE_CURRENT_SOURCE_DIR}/../../../Framework/build_cmake/FrameworkOpenAl
-		${CMAKE_CURRENT_BINARY_DIR}/FrameworkOpenAl
+		${CMAKE_CURRENT_SOURCE_DIR}/../../tools/PsfPlayer/Source/SH_OpenAL
+		${CMAKE_CURRENT_BINARY_DIR}/SH_OpenAL
 	)
-endif()
-list(APPEND PROJECT_LIBS Framework_OpenAl)
-find_package(OpenAL REQUIRED)
+	endif()
+list(APPEND PROJECT_LIBS sh_openal)
 
 if(NOT TARGET iCade_Static)
 	add_subdirectory(
@@ -72,7 +71,6 @@ set(OSX_SOURCES
 	VirtualPadItem.mm
 	VirtualPadStick.mm
 	VirtualPadView.mm
-	../../tools/PsfPlayer/Source/SH_OpenAL.cpp
 )
 
 set(OSX_HEADERS
