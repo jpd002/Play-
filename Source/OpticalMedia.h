@@ -32,6 +32,7 @@ private:
 	typedef std::unique_ptr<CISO9660> Iso9660Ptr;
 
 	void CheckDualLayerDvd(const StreamPtr&);
+	void SetupSecondLayer(const StreamPtr&);
 
 	TRACK_DATA_TYPE m_track0DataType = TRACK_DATA_TYPE_MODE1_2048;
 	bool m_dvdIsDualLayer = false;

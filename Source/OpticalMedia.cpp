@@ -25,11 +25,7 @@ COpticalMedia* COpticalMedia::CreateAuto(StreamPtr& stream)
 	if(result->m_track0DataType == TRACK_DATA_TYPE_MODE1_2048)
 	{
 		result->CheckDualLayerDvd(stream);
-		if(m_dvdIsDualLayer)
-		{
-			auto blockProvider = std::make_shared<ISO9660::CBlockProvider2048>(stream, GetDvdSecondLayerStart());
-			m_fileSystemL1 = std::make_unique<CISO9660>(blockProvider);
-		}
+		result->SetupSecondLayer(stream);
 	}
 	return result;
 }
@@ -42,6 +38,7 @@ COpticalMedia* COpticalMedia::CreateDvd(StreamPtr& stream, bool isDualLayer, uin
 	result->m_track0DataType = TRACK_DATA_TYPE_MODE1_2048;
 	result->m_dvdIsDualLayer = isDualLayer;
 	result->m_dvdSecondLayerStart = secondLayerStart;
+	result->SetupSecondLayer(stream);
 	return result;
 }
 
@@ -118,4 +115,11 @@ void COpticalMedia::CheckDualLayerDvd(const StreamPtr& stream)
 
 	//If we haven't found it, something's wrong
 	assert(m_dvdSecondLayerStart != 0);
+}
+
+void COpticalMedia::SetupSecondLayer(const StreamPtr& stream)
+{
+	if(!m_dvdIsDualLayer) return;
+	auto blockProvider = std::make_shared<ISO9660::CBlockProvider2048>(stream, GetDvdSecondLayerStart());
+	m_fileSystemL1 = std::make_unique<CISO9660>(blockProvider);
 }
