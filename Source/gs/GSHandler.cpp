@@ -147,7 +147,7 @@ void CGSHandler::ResetBase()
 	m_nDISPLAY2.heldValue = 0;
 	m_nDISPLAY2.value.q = 0;
 	m_nCSR = CSR_FIFO_EMPTY;
-	m_nIMR = 0;
+	m_nIMR = ~0;
 	m_nSIGLBLID = 0;
 	m_nCrtMode = 2;
 	m_nCBP0 = 0;
