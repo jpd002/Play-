@@ -751,7 +751,7 @@ public:
 	void SetSMODE2(uint64);
 
 	int GetPendingTransferCount() const;
-	void CheckPendingInterrupt();
+	void NotifyEvent(uint32);
 
 	unsigned int GetCrtWidth() const;
 	unsigned int GetCrtHeight() const;

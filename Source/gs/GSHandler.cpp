@@ -236,7 +236,7 @@ void CGSHandler::SetVBlank()
 
 	std::lock_guard<std::recursive_mutex> registerMutexLock(m_registerMutex);
 	m_nCSR |= CSR_VSYNC_INT;
-	CheckPendingInterrupt();
+	NotifyEvent(CSR_VSYNC_INT);
 }
 
 void CGSHandler::ResetVBlank()
@@ -252,10 +252,10 @@ int CGSHandler::GetPendingTransferCount() const
 	return m_transferCount;
 }
 
-void CGSHandler::CheckPendingInterrupt()
+void CGSHandler::NotifyEvent(uint32 eventBit)
 {
 	uint32 mask = (~m_nIMR >> 8) & 0x1F;
-	bool hasPendingInterrupt = (m_nCSR & mask) != 0;
+	bool hasPendingInterrupt = (eventBit & mask) != 0;
 	if(m_intc && hasPendingInterrupt)
 	{
 		m_intc->AssertLine(CINTC::INTC_LINE_GS);
@@ -272,7 +272,7 @@ uint32 CGSHandler::ReadPrivRegister(uint32 nAddress)
 		{
 			std::lock_guard<std::recursive_mutex> registerMutexLock(m_registerMutex);
 			m_nCSR |= CSR_HSYNC_INT;
-			CheckPendingInterrupt();
+			NotifyEvent(CSR_HSYNC_INT);
 			R_REG(nAddress, nData, m_nCSR);
 		}
 		break;
@@ -454,12 +454,12 @@ void CGSHandler::WriteRegisterMassively(RegisterWriteList registerWrites, const 
 			m_nSIGLBLID = siglblid;
 			assert((m_nCSR & CSR_SIGNAL_EVENT) == 0);
 			m_nCSR |= CSR_SIGNAL_EVENT;
-			CheckPendingInterrupt();
+			NotifyEvent(CSR_SIGNAL_EVENT);
 		}
 		break;
 		case GS_REG_FINISH:
 			m_nCSR |= CSR_FINISH_EVENT;
-			CheckPendingInterrupt();
+			NotifyEvent(CSR_FINISH_EVENT);
 			break;
 		case GS_REG_LABEL:
 		{
