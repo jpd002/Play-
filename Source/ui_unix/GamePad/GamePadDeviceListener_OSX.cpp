@@ -68,7 +68,7 @@ CFMutableDictionaryRef CGamePadDeviceListener::CreateDeviceMatchingDictionary(ui
 void CGamePadDeviceListener::InputValueCallbackStub(void* context, IOReturn result, void* sender, IOHIDValueRef valueRef)
 {
 	auto device_info = reinterpret_cast<DeviceInfo*>(context);
-	if(!device_info->OnInputEventCallBack)
+	if(!(*device_info->OnInputEventCallBack))
 	{
 		return;
 	}
