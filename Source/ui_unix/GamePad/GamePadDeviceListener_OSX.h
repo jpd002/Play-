@@ -87,5 +87,6 @@ private:
 	CFMutableDictionaryRef CreateDeviceMatchingDictionary(uint32 usagePage, uint32 usage);
 	void static InputValueCallbackStub(void* context, IOReturn result, void* sender, IOHIDValueRef valueRef);
 	void static onDeviceMatched(void* context, IOReturn result, void* sender, IOHIDDeviceRef device);
-	void static InputReportCallbackStub(void* context, IOReturn result, void* sender, IOHIDReportType type, uint32_t reportID, uint8_t* report, CFIndex reportLength);
+	void static InputReportCallbackStub_DS4(void* context, IOReturn result, void* sender, IOHIDReportType type, uint32_t reportID, uint8_t* report, CFIndex reportLength);
+	IOHIDReportCallback GetCallback(CGamePadDeviceListener* GPDL, IOHIDDeviceRef device);
 };
