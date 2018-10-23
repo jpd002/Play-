@@ -142,29 +142,32 @@ void CGamePadDeviceListener::InputReportCallbackStub_DS3(void *context, IOReturn
 		checkbtnstate(prev_btn_state, new_btn_state, R3, 3, 1);
 		checkbtnstate(prev_btn_state, new_btn_state, Start, 4, 1);
 
-		checkbtnstate(prev_btn_state, new_btn_state, DPad, 5, 2);
+		checkbtnstate(prev_btn_state, new_btn_state, DPadU, 5, 1);
+		checkbtnstate(prev_btn_state, new_btn_state, DPadR, 6, 1);
+		checkbtnstate(prev_btn_state, new_btn_state, DPadD, 7, 1);
+		checkbtnstate(prev_btn_state, new_btn_state, DPadL, 8, 1);
 
-		//checkbtnstate(prev_btn_state, new_btn_state, R2, 6, 1);
-		//checkbtnstate(prev_btn_state, new_btn_state, L2, 7, 1);
-		//checkbtnstate(prev_btn_state, new_btn_state, R1, 8, 1);
-		//checkbtnstate(prev_btn_state, new_btn_state, L1, 9, 1);
+		checkbtnstate(prev_btn_state, new_btn_state, R2, 9, 1);
+		checkbtnstate(prev_btn_state, new_btn_state, L2, 10, 1);
+		checkbtnstate(prev_btn_state, new_btn_state, R1, 11, 1);
+		checkbtnstate(prev_btn_state, new_btn_state, L1, 12, 1);
 
-		checkbtnstate(prev_btn_state, new_btn_state, PSHome, 10, 1);
+		checkbtnstate(prev_btn_state, new_btn_state, PSHome, 13, 1);
 
-		checkbtnstate(prev_btn_state, new_btn_state, LX, 11, 3);
-		checkbtnstate(prev_btn_state, new_btn_state, LY, 12, 3);
-		checkbtnstate(prev_btn_state, new_btn_state, RX, 13, 3);
-		checkbtnstate(prev_btn_state, new_btn_state, RY, 14, 3);
+		checkbtnstate(prev_btn_state, new_btn_state, LX, 14, 3);
+		checkbtnstate(prev_btn_state, new_btn_state, LY, 15, 3);
+		checkbtnstate(prev_btn_state, new_btn_state, RX, 16, 3);
+		checkbtnstate(prev_btn_state, new_btn_state, RY, 17, 3);
 
-		checkbtnstate(prev_btn_state, new_btn_state, L2T, 15, 3);
-		checkbtnstate(prev_btn_state, new_btn_state, R2T, 16, 3);
-		checkbtnstate(prev_btn_state, new_btn_state, L1T, 17, 3);
-		checkbtnstate(prev_btn_state, new_btn_state, R1T, 18, 3);
+		//checkbtnstate(prev_btn_state, new_btn_state, L2T, 18, 3);
+		//checkbtnstate(prev_btn_state, new_btn_state, R2T, 19, 3);
+		//checkbtnstate(prev_btn_state, new_btn_state, L1T, 20, 3);
+		//checkbtnstate(prev_btn_state, new_btn_state, R1T, 21, 3);
 
-		checkbtnstate(prev_btn_state, new_btn_state, Triangle, 19, 1);
-		checkbtnstate(prev_btn_state, new_btn_state, Circle, 20, 1);
-		checkbtnstate(prev_btn_state, new_btn_state, Cross, 21, 1);
-		checkbtnstate(prev_btn_state, new_btn_state, Square, 22, 1);
+		checkbtnstate(prev_btn_state, new_btn_state, Triangle, 22, 1);
+		checkbtnstate(prev_btn_state, new_btn_state, Circle, 23, 1);
+		checkbtnstate(prev_btn_state, new_btn_state, Cross, 24, 1);
+		checkbtnstate(prev_btn_state, new_btn_state, Square, 25, 1);
 	}
 	#undef checkbtnstate
 	#undef deadzone
@@ -197,7 +200,6 @@ void CGamePadDeviceListener::InputReportCallbackStub_DS4(void *context, IOReturn
 
 	if(*device_info->OnInputEventCallBack)
 	{
-		device_info->first_run = false;
 		checkbtnstate(prev_btn_state, new_btn_state, LX, 1, 3);
 		checkbtnstate(prev_btn_state, new_btn_state, LY, 2, 3);
 		checkbtnstate(prev_btn_state, new_btn_state, RX, 3, 3);
@@ -223,8 +225,8 @@ void CGamePadDeviceListener::InputReportCallbackStub_DS4(void *context, IOReturn
 		checkbtnstate(prev_btn_state, new_btn_state, TouchPad, 19, 1);
 		checkbtnstate(prev_btn_state, new_btn_state, LT, 20, 3);
 		checkbtnstate(prev_btn_state, new_btn_state, RT, 21, 3);
+		device_info->first_run = false;
 	}
-	#undef printbtns
 	#undef checkbtnstate
 	#undef deadzone
 

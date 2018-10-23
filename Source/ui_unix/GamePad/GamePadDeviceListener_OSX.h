@@ -43,7 +43,10 @@ private:
 		uint8_t R3:1;
 		uint8_t Start:1;
 
-		uint8_t DPad:4;
+		uint8_t DPadU:1;
+		uint8_t DPadR:1;
+		uint8_t DPadD:1;
+		uint8_t DPadL:1;
 
 		uint8_t R2:1;
 		uint8_t L2:1;
