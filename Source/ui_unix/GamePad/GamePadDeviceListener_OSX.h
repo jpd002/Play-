@@ -25,6 +25,7 @@ public:
 
 	void UpdateOnInputEventCallback(OnInputEvent);
 	void DisconnectInputEventCallback();
+	void SetFilter(bool);
 
 private:
 	std::atomic<bool> m_running;

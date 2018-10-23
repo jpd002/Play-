@@ -31,6 +31,11 @@ void CGamePadDeviceListener::DisconnectInputEventCallback()
 	OnInputEventCallBack = nullptr;
 }
 
+void CGamePadDeviceListener::SetFilter(bool filter)
+{
+	m_filter = filter;
+}
+
 void CGamePadDeviceListener::UpdateDeviceList()
 {
 }

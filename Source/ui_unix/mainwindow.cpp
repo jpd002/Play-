@@ -607,11 +607,13 @@ void MainWindow::on_actionController_Manager_triggered()
 {
 	auto GDPL_ptr = m_GPDL.get();
 	auto OnInputEventCallBack = GDPL_ptr->OnInputEventCallBack;
+	GDPL_ptr->SetFilter(true);
 
 	ControllerConfigDialog ccd;
 	ccd.SetInputBindingManager(m_InputBindingManager, GDPL_ptr);
 	ccd.exec();
 
+	GDPL_ptr->SetFilter(false);
 	GDPL_ptr->UpdateOnInputEventCallback(OnInputEventCallBack);
 
 }
