@@ -286,6 +286,11 @@ std::string CInputBindingManager::CSimpleBinding::GetDescription() const
 			return QString("Key: %1").arg(QString::number(m_keyCode)).toStdString();
 		}
 	}
+#elif __APPLE__
+	else
+	{
+		return string_format("Key: btn-%d", m_keyCode);
+	}
 #endif
 }
 
@@ -402,6 +407,11 @@ std::string CInputBindingManager::CSimulatedAxisBinding::GetDescription() const
 			desc += string_format("%d", m_key1Binding.id);
 		}
 	}
+#elif __APPLE__
+	else
+	{
+		desc += string_format("btn-%d", m_key1Binding.id);
+	}
 #endif
 	desc += "/ Key: ";
 	if(m_key2Binding.type == 0)
@@ -420,6 +430,11 @@ std::string CInputBindingManager::CSimulatedAxisBinding::GetDescription() const
 		{
 			desc += string_format("%d", m_key2Binding.id);
 		}
+	}
+#elif __APPLE__
+	else
+	{
+		desc += string_format("btn-%d", m_key2Binding.id);
 	}
 #endif
 
@@ -562,17 +577,32 @@ std::string CInputBindingManager::CPovHatBinding::GetDescription() const
 			return key + string_format("%d", m_binding.id);
 		}
 	}
+#elif __APPLE__
+	else
+	{
+		return key + "btn-" + string_format("%d", m_binding.id);
+	}
 #endif
 }
 
 uint32 CInputBindingManager::CPovHatBinding::GetValue() const
 {
+#if defined(__APPLE__)
+	if(m_value == 8) return 0;
+	int32 normalizedRefValue = (m_refValue * 360) / 8;
+	int32 normalizedValue = (m_value * 360) / 8;
+#else
 	if(m_value != m_refValue) return 0;
 	int32 normalizedRefValue = m_refValue / 100;
 	int32 normalizedValue = m_value / 100;
+#endif
 	if(GetShortestDistanceBetweenAngles(normalizedValue, normalizedRefValue) <= 45)
 	{
+#if defined(__APPLE__)
+		return 1;
+#else
 		return m_refValue;
+#endif
 	}
 	else
 	{

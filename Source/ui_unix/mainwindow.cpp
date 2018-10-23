@@ -75,7 +75,7 @@ MainWindow::MainWindow(QWidget* parent)
 MainWindow::~MainWindow()
 {
 	CAppConfig::GetInstance().Save();
-#ifdef HAS_LIBEVDEV
+#if defined(HAS_LIBEVDEV) || defined(__APPLE__)
 	m_GPDL.reset();
 #endif
 	if(m_virtualMachine != nullptr)
@@ -112,6 +112,14 @@ void MainWindow::InitVirtualMachine()
 
 #ifdef HAS_LIBEVDEV
 	auto onInput = [=](std::array<uint32, 6> device, int code, int value, int type, const input_absinfo* abs) -> void {
+		if(m_InputBindingManager != nullptr)
+		{
+			m_InputBindingManager->OnInputEventReceived(device, code, value);
+		}
+	};
+	m_GPDL = std::make_unique<CGamePadDeviceListener>(onInput);
+#elif defined(__APPLE__)
+	auto onInput = [=](std::array<uint32, 6> device, int code, int value, IOHIDElementRef elementRef) -> void {
 		if(m_InputBindingManager != nullptr)
 		{
 			m_InputBindingManager->OnInputEventReceived(device, code, value);

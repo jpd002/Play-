@@ -150,6 +150,11 @@ QT5_WRAP_UI(QT_UI_HEADERS ${QT_UIS})
 QT5_WRAP_CPP(QT_MOC_SRCS ${QT_MOC_HEADERS})
 
 if(TARGET_PLATFORM_MACOS)
+	set(QT_SOURCES
+		${QT_SOURCES}
+		GamePad/GamePadDeviceListener_OSX.cpp
+		GamePad/GamePadDeviceListener_OSX.h
+	)
 	set(OSX_RES
 		${CMAKE_CURRENT_SOURCE_DIR}/AppIcon.icns
 		${CMAKE_CURRENT_SOURCE_DIR}/../../patches.xml
@@ -173,6 +178,7 @@ if(TARGET_PLATFORM_MACOS)
 			MACOSX_BUNDLE_INFO_PLIST "${CMAKE_CURRENT_SOURCE_DIR}/Info.plist.in"
 		RESOURCE "${OSX_RES}"
 	)
+	list(APPEND PROJECT_LIBS "-framework IOKit -framework CoreFoundation")
 elseif(TARGET_PLATFORM_WIN32)
 	add_executable(Play WIN32 ${QT_SOURCES} ${QT_MOC_SRCS} ${QT_RES_SOURCES} ${QT_UI_HEADERS})
 else()

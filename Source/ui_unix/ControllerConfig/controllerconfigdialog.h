@@ -6,6 +6,8 @@
 
 #ifdef HAS_LIBEVDEV
 #include "GamePad/GamePadDeviceListener.h"
+#elif defined(__APPLE__)
+#include "GamePad/GamePadDeviceListener_OSX.h"
 #endif
 #include "InputBindingManager.h"
 
@@ -32,7 +34,7 @@ private slots:
 private:
 	int OpenBindConfigDialog(int index);
 	CInputBindingManager* m_inputManager;
-#ifdef HAS_LIBEVDEV
+#if defined(HAS_LIBEVDEV) || defined(__APPLE__)
 	std::unique_ptr<CGamePadDeviceListener> m_inputDeviceManager;
 #endif
 	Ui::ControllerConfigDialog* ui;

@@ -14,7 +14,7 @@
 ControllerConfigDialog::ControllerConfigDialog(QWidget* parent)
     : QDialog(parent)
     , ui(new Ui::ControllerConfigDialog)
-#ifdef HAS_LIBEVDEV
+#if defined(HAS_LIBEVDEV) || defined(__APPLE__)
     , m_inputDeviceManager(std::make_unique<CGamePadDeviceListener>(true))
 #endif
 {
@@ -88,11 +88,11 @@ int ControllerConfigDialog::OpenBindConfigDialog(int index)
 
 	InputEventSelectionDialog IESD;
 	IESD.Setup(button.c_str(), m_inputManager, static_cast<PS2::CControllerInfo::BUTTON>(index));
-#ifdef HAS_LIBEVDEV
+#if defined(HAS_LIBEVDEV) || defined(__APPLE__)
 	IESD.SetupInputDeviceManager(m_inputDeviceManager);
 #endif
 	auto res = IESD.exec();
-#ifdef HAS_LIBEVDEV
+#if defined(HAS_LIBEVDEV) || defined(__APPLE__)
 	m_inputDeviceManager.get()->DisconnectInputEventCallback();
 #endif
 	return res;
