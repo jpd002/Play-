@@ -9,7 +9,7 @@
 class CGamePadInputEventListener
 {
 public:
-	CGamePadInputEventListener(std::string, bool f = false);
+	CGamePadInputEventListener(std::string, bool& f);
 	~CGamePadInputEventListener();
 
 	void ChangeInputDevice(char* device);
@@ -20,7 +20,7 @@ public:
 private:
 	std::string m_device;
 	std::atomic<bool> m_running;
-	bool m_filter;
+	bool& m_filter;
 	std::thread m_thread;
 	std::array<struct input_absinfo, ABS_MAX> m_abslist;
 

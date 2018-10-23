@@ -71,6 +71,10 @@ void CGamePadDeviceListener::DisconnectInputEventCallback()
 void CGamePadDeviceListener::SetFilter(bool filter)
 {
 	m_filter = filter;
+	if(m_filter)
+	{
+		RePopulateAbs();
+	}
 }
 
 void CGamePadDeviceListener::UpdateDeviceList()
