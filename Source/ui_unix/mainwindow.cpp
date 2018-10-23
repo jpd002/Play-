@@ -615,7 +615,6 @@ void MainWindow::on_actionController_Manager_triggered()
 
 	GDPL_ptr->SetFilter(false);
 	GDPL_ptr->UpdateOnInputEventCallback(OnInputEventCallBack);
-
 }
 
 void MainWindow::on_actionCapture_Screen_triggered()

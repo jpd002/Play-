@@ -38,20 +38,20 @@ public:
 private:
 	struct PS3Btn
 	{
-		uint8_t Select:1;
-		uint8_t L3:1;
-		uint8_t R3:1;
-		uint8_t Start:1;
+		uint8_t Select : 1;
+		uint8_t L3 : 1;
+		uint8_t R3 : 1;
+		uint8_t Start : 1;
 
-		uint8_t DPadU:1;
-		uint8_t DPadR:1;
-		uint8_t DPadD:1;
-		uint8_t DPadL:1;
+		uint8_t DPadU : 1;
+		uint8_t DPadR : 1;
+		uint8_t DPadD : 1;
+		uint8_t DPadL : 1;
 
-		uint8_t R2:1;
-		uint8_t L2:1;
-		uint8_t R1:1;
-		uint8_t L1:1;
+		uint8_t R2 : 1;
+		uint8_t L2 : 1;
+		uint8_t R1 : 1;
+		uint8_t L1 : 1;
 
 		uint8_t PSHome;
 		uint8_t unk1;
@@ -78,27 +78,27 @@ private:
 		uint8_t RX;
 		uint8_t RY;
 
-		uint8_t DPad:4;
-		uint8_t Square:1;
-		uint8_t Cross:1;
-		uint8_t Circle:1;
-		uint8_t Triangle:1;
+		uint8_t DPad : 4;
+		uint8_t Square : 1;
+		uint8_t Cross : 1;
+		uint8_t Circle : 1;
+		uint8_t Triangle : 1;
 
-		uint8_t L1:1;
-		uint8_t R1:1;
-		uint8_t L2:1;
-		uint8_t R2:1;
-		uint8_t Share:1;
-		uint8_t Option:1;
-		uint8_t L3:1;
-		uint8_t R3:1;
+		uint8_t L1 : 1;
+		uint8_t R1 : 1;
+		uint8_t L2 : 1;
+		uint8_t R2 : 1;
+		uint8_t Share : 1;
+		uint8_t Option : 1;
+		uint8_t L3 : 1;
+		uint8_t R3 : 1;
 
-		uint8_t PSHome:1;
-		uint8_t TouchPad:1;
-		uint8_t Counter:6;
+		uint8_t PSHome : 1;
+		uint8_t TouchPad : 1;
+		uint8_t Counter : 6;
 
-		uint8_t LT:8;
-		uint8_t RT:8;
+		uint8_t LT : 8;
+		uint8_t RT : 8;
 
 	} __attribute__((packed));
 

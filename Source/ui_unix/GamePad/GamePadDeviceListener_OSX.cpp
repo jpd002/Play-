@@ -114,9 +114,9 @@ void CGamePadDeviceListener::InputValueCallbackStub(void* context, IOReturn resu
 	(*device_info->OnInputEventCallBack)(device_info->device_id, usage, value, btn_type);
 }
 
-void CGamePadDeviceListener::InputReportCallbackStub_DS3(void *context, IOReturn result, void *sender, IOHIDReportType type, uint32_t reportID, uint8_t *report, CFIndex reportLength)
+void CGamePadDeviceListener::InputReportCallbackStub_DS3(void* context, IOReturn result, void* sender, IOHIDReportType type, uint32_t reportID, uint8_t* report, CFIndex reportLength)
 {
-	if (report[0] != 0x1 || report[1] == 0xff)
+	if(report[0] != 0x1 || report[1] == 0xff)
 		return;
 
 	auto device_info = reinterpret_cast<DeviceInfo*>(context);
@@ -128,11 +128,13 @@ void CGamePadDeviceListener::InputReportCallbackStub_DS3(void *context, IOReturn
 	int triggerRange = (255 * 20) / 100;
 	int triggerVal1 = 0x7F - triggerRange;
 	int triggerVal2 = 0x7F + triggerRange;
-	#define deadzone(type, value) (type < 2 || (value < triggerVal1 || triggerVal2 < value))
-	#define checkbtnstate(prev_btn_state, new_btn_state, btn, btn_id, type) \
-	if(device_info->first_run || (prev_btn_state->btn != new_btn_state->btn && (device_info->m_filter || deadzone(type, new_btn_state->btn)))) { \
-		is_change += 1; \
-		(*device_info->OnInputEventCallBack)(device_info->device_id, btn_id, new_btn_state->btn, type); }
+#define deadzone(type, value) (type < 2 || (value < triggerVal1 || triggerVal2 < value))
+#define checkbtnstate(prev_btn_state, new_btn_state, btn, btn_id, type)                                                                        \
+	if(device_info->first_run || (prev_btn_state->btn != new_btn_state->btn && (device_info->m_filter || deadzone(type, new_btn_state->btn)))) \
+	{                                                                                                                                          \
+		is_change += 1;                                                                                                                        \
+		(*device_info->OnInputEventCallBack)(device_info->device_id, btn_id, new_btn_state->btn, type);                                        \
+	}
 
 	if(*device_info->OnInputEventCallBack)
 	{
@@ -169,17 +171,16 @@ void CGamePadDeviceListener::InputReportCallbackStub_DS3(void *context, IOReturn
 		checkbtnstate(prev_btn_state, new_btn_state, Cross, 24, 1);
 		checkbtnstate(prev_btn_state, new_btn_state, Square, 25, 1);
 	}
-	#undef checkbtnstate
-	#undef deadzone
+#undef checkbtnstate
+#undef deadzone
 
 	if(is_change > 0)
 	{
 		memcpy(device_info->prev_btn_state, new_btn_state, sizeof(struct PS3Btn));
 	}
-
 }
 
-void CGamePadDeviceListener::InputReportCallbackStub_DS4(void *context, IOReturn result, void *sender, IOHIDReportType type, uint32_t reportID, uint8_t *report, CFIndex reportLength)
+void CGamePadDeviceListener::InputReportCallbackStub_DS4(void* context, IOReturn result, void* sender, IOHIDReportType type, uint32_t reportID, uint8_t* report, CFIndex reportLength)
 {
 	auto device_info = reinterpret_cast<DeviceInfo*>(context);
 	int offset = report[0] == 1 ? 1 : 3;
@@ -192,11 +193,13 @@ void CGamePadDeviceListener::InputReportCallbackStub_DS4(void *context, IOReturn
 	int triggerVal1 = 0x7F - triggerRange;
 	int triggerVal2 = 0x7F + triggerRange;
 
-	#define deadzone(type, value) (type < 2 || (value < triggerVal1 || triggerVal2 < value))
-	#define checkbtnstate(prev_btn_state, new_btn_state, btn, btn_id, type) \
-	if(device_info->first_run || (prev_btn_state->btn != new_btn_state->btn && (device_info->m_filter || deadzone(type, new_btn_state->btn)))) { \
-		is_change += 1; \
-		(*device_info->OnInputEventCallBack)(device_info->device_id, btn_id, new_btn_state->btn, type); }
+#define deadzone(type, value) (type < 2 || (value < triggerVal1 || triggerVal2 < value))
+#define checkbtnstate(prev_btn_state, new_btn_state, btn, btn_id, type)                                                                        \
+	if(device_info->first_run || (prev_btn_state->btn != new_btn_state->btn && (device_info->m_filter || deadzone(type, new_btn_state->btn)))) \
+	{                                                                                                                                          \
+		is_change += 1;                                                                                                                        \
+		(*device_info->OnInputEventCallBack)(device_info->device_id, btn_id, new_btn_state->btn, type);                                        \
+	}
 
 	if(*device_info->OnInputEventCallBack)
 	{
@@ -211,7 +214,7 @@ void CGamePadDeviceListener::InputReportCallbackStub_DS4(void *context, IOReturn
 		checkbtnstate(prev_btn_state, new_btn_state, Cross, 8, 1);
 		checkbtnstate(prev_btn_state, new_btn_state, Square, 9, 1);
 
-		checkbtnstate(prev_btn_state, new_btn_state, L1, 10,  1);
+		checkbtnstate(prev_btn_state, new_btn_state, L1, 10, 1);
 		checkbtnstate(prev_btn_state, new_btn_state, R1, 11, 1);
 		//checkbtnstate(prev_btn_state, new_btn_state, L2, 12, 1);
 		//checkbtnstate(prev_btn_state, new_btn_state, R2, 13, 1);
@@ -227,8 +230,8 @@ void CGamePadDeviceListener::InputReportCallbackStub_DS4(void *context, IOReturn
 		checkbtnstate(prev_btn_state, new_btn_state, RT, 21, 3);
 		device_info->first_run = false;
 	}
-	#undef checkbtnstate
-	#undef deadzone
+#undef checkbtnstate
+#undef deadzone
 
 	if(is_change > 0)
 	{
@@ -262,45 +265,45 @@ void CGamePadDeviceListener::onDeviceMatched(void* context, IOReturn result, voi
 }
 void CGamePadDeviceListener::SetInitialBindValues(CGamePadDeviceListener* GPDL, IOHIDDeviceRef device)
 {
-		CFArrayRef elements = IOHIDDeviceCopyMatchingElements(device, nullptr, 0);
+	CFArrayRef elements = IOHIDDeviceCopyMatchingElements(device, nullptr, 0);
 
-		for(int i = 0; i < CFArrayGetCount(elements); i++)
+	for(int i = 0; i < CFArrayGetCount(elements); i++)
+	{
+		IOHIDElementRef elementRef = (IOHIDElementRef)CFArrayGetValueAtIndex(elements, i);
+		uint32 usagePage = IOHIDElementGetUsagePage(elementRef);
+		if(usagePage == kHIDPage_VendorDefinedStart)
 		{
-			IOHIDElementRef elementRef = (IOHIDElementRef)CFArrayGetValueAtIndex(elements, i);
-			uint32 usagePage = IOHIDElementGetUsagePage(elementRef);
-			if(usagePage == kHIDPage_VendorDefinedStart)
-			{
-				continue;
-			}
-			IOHIDValueRef valueRef;
-			if(IOHIDDeviceGetValue(device, elementRef, &valueRef) != kIOReturnSuccess)
-			{
-				continue;
-			}
+			continue;
+		}
+		IOHIDValueRef valueRef;
+		if(IOHIDDeviceGetValue(device, elementRef, &valueRef) != kIOReturnSuccess)
+		{
+			continue;
+		}
 
-			CFIndex value = IOHIDValueGetIntegerValue(valueRef);
-			IOHIDElementType type = IOHIDElementGetType(elementRef);
-			uint32 usage = IOHIDElementGetUsage(elementRef);
-			int btn_type = btn_type::digital;
-			bool is_axis = type == kIOHIDElementTypeInput_Axis || type == kIOHIDElementTypeInput_Misc;
-			if(is_axis)
+		CFIndex value = IOHIDValueGetIntegerValue(valueRef);
+		IOHIDElementType type = IOHIDElementGetType(elementRef);
+		uint32 usage = IOHIDElementGetUsage(elementRef);
+		int btn_type = btn_type::digital;
+		bool is_axis = type == kIOHIDElementTypeInput_Axis || type == kIOHIDElementTypeInput_Misc;
+		if(is_axis)
+		{
+			btn_type = btn_type::axis;
+			if(usage == kHIDUsage_GD_Hatswitch)
 			{
-				btn_type = btn_type::axis;
-				if(usage == kHIDUsage_GD_Hatswitch)
-				{
-					btn_type = btn_type::hatswitch;
-				}
+				btn_type = btn_type::hatswitch;
 			}
-			switch(type)
-			{
-			case kIOHIDElementTypeInput_Misc:
-			case kIOHIDElementTypeInput_Button:
-			case kIOHIDElementTypeInput_Axis:
-				GPDL->OnInputEventCallBack(CGamePadUtils::GetDeviceID(device), usage, value, btn_type);
-				break;
-			default:
-				break;
-			}
+		}
+		switch(type)
+		{
+		case kIOHIDElementTypeInput_Misc:
+		case kIOHIDElementTypeInput_Button:
+		case kIOHIDElementTypeInput_Axis:
+			GPDL->OnInputEventCallBack(CGamePadUtils::GetDeviceID(device), usage, value, btn_type);
+			break;
+		default:
+			break;
+		}
 	}
 }
 IOHIDReportCallback CGamePadDeviceListener::GetCallback(CGamePadDeviceListener* GPDL, IOHIDDeviceRef device)
