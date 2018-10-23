@@ -67,8 +67,8 @@ CFMutableDictionaryRef CGamePadDeviceListener::CreateDeviceMatchingDictionary(ui
 
 void CGamePadDeviceListener::InputValueCallbackStub(void* context, IOReturn result, void* sender, IOHIDValueRef valueRef)
 {
-	auto GPDL = reinterpret_cast<CGamePadDeviceListener*>(context);
-	if(!GPDL->OnInputEventCallBack)
+	auto device_info = reinterpret_cast<DeviceInfo*>(context);
+	if(!device_info->OnInputEventCallBack)
 	{
 		return;
 	}
@@ -84,7 +84,7 @@ void CGamePadDeviceListener::InputValueCallbackStub(void* context, IOReturn resu
 	IOHIDDeviceRef device = IOHIDElementGetDevice(elementRef);
 	IOHIDElementType type = IOHIDElementGetType(elementRef);
 	bool is_axis = type == kIOHIDElementTypeInput_Axis || type == kIOHIDElementTypeInput_Misc;
-	if(GPDL->m_filter)
+	if(device_info->m_filter)
 	{
 		if(is_axis)
 		{
@@ -111,7 +111,7 @@ void CGamePadDeviceListener::InputValueCallbackStub(void* context, IOReturn resu
 			btn_type = btn_type::hatswitch;
 		}
 	}
-	GPDL->OnInputEventCallBack(CGamePadUtils::GetDeviceID(device), usage, value, btn_type);
+	(*device_info->OnInputEventCallBack)(device_info->device_id, usage, value, btn_type);
 }
 
 void CGamePadDeviceListener::InputReportCallbackStub(void *context, IOReturn result, void *sender, IOHIDReportType type, uint32_t reportID, uint8_t *report, CFIndex reportLength)
@@ -220,19 +220,19 @@ void CGamePadDeviceListener::onDeviceMatched(void* context, IOReturn result, voi
 	}
 
 	//TODO ID devices that need custom handling
+	DeviceInfo* device_info = static_cast<DeviceInfo*>(malloc(sizeof(struct DeviceInfo)));
+	device_info->device_id = CGamePadUtils::GetDeviceID(device);
+	device_info->OnInputEventCallBack = &GPDL->OnInputEventCallBack;
+	device_info->m_filter = &GPDL->m_filter;
 	if(true)
 	{
-		DeviceInfo* device_info = static_cast<DeviceInfo*>(malloc(sizeof(struct DeviceInfo)));
-		device_info->device_id = CGamePadUtils::GetDeviceID(device);
-		device_info->OnInputEventCallBack = &GPDL->OnInputEventCallBack;
-		device_info->m_filter = &GPDL->m_filter;
 		uint32_t max_input_report_size = CGamePadUtils::GetIntProperty(device, CFSTR(kIOHIDMaxInputReportSizeKey));
-		uint8_t* report_buffer = static_cast<uint8_t *>(calloc(max_input_report_size, sizeof(uint8_t)));
+		uint8_t* report_buffer = static_cast<uint8_t*>(calloc(max_input_report_size, sizeof(uint8_t)));
 		IOHIDDeviceRegisterInputReportCallback(device, report_buffer, max_input_report_size, GPDL->InputReportCallbackStub, device_info);
 	}
 	else
 	{
-		IOHIDDeviceRegisterInputValueCallback(device, GPDL->InputValueCallbackStub, context);
+		IOHIDDeviceRegisterInputValueCallback(device, GPDL->InputValueCallbackStub, device_info);
 	}
 }
 
