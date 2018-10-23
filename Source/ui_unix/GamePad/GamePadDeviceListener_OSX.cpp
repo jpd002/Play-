@@ -101,6 +101,40 @@ void CGamePadDeviceListener::InputValueCallbackStub(void* context, IOReturn resu
 void CGamePadDeviceListener::onDeviceMatched(void* context, IOReturn result, void* sender, IOHIDDeviceRef device)
 {
 	auto GPDL = reinterpret_cast<CGamePadDeviceListener*>(context);
+	if(GPDL->OnInputEventCallBack)
+	{
+		CFArrayRef elements = IOHIDDeviceCopyMatchingElements(device, nullptr, 0);
+
+		for(int i = 0; i < CFArrayGetCount(elements); i++)
+		{
+			IOHIDElementRef elementRef = (IOHIDElementRef)CFArrayGetValueAtIndex(elements, i);
+			uint32 usagePage = IOHIDElementGetUsagePage(elementRef);
+			if(usagePage == kHIDPage_VendorDefinedStart)
+			{
+				continue;
+			}
+			IOHIDValueRef valueRef;
+			if(IOHIDDeviceGetValue(device, elementRef, &valueRef) != kIOReturnSuccess)
+			{
+				continue;
+			}
+
+			CFIndex value = IOHIDValueGetIntegerValue(valueRef);
+			IOHIDElementType type = IOHIDElementGetType(elementRef);
+			uint32 usage = IOHIDElementGetUsage(elementRef);
+
+			switch(type)
+			{
+			case kIOHIDElementTypeInput_Misc:
+			case kIOHIDElementTypeInput_Button:
+			case kIOHIDElementTypeInput_Axis:
+				GPDL->OnInputEventCallBack(CGamePadUtils::GetDeviceID(device), usage, value, elementRef);
+				break;
+			default:
+				break;
+			}
+		}
+	}
 	IOHIDDeviceRegisterInputValueCallback(device, GPDL->InputValueCallbackStub, context);
 }
 
