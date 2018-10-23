@@ -114,9 +114,67 @@ void CGamePadDeviceListener::InputValueCallbackStub(void* context, IOReturn resu
 	GPDL->OnInputEventCallBack(CGamePadUtils::GetDeviceID(device), usage, value, btn_type);
 }
 
+void CGamePadDeviceListener::InputReportCallbackStub(void *context, IOReturn result, void *sender, IOHIDReportType type, uint32_t reportID, uint8_t *report, CFIndex reportLength)
+{
+	auto device_info = reinterpret_cast<DeviceInfo*>(context);
+	int offset = report[0] == 1 ? 1 : 3;
+
+	struct PS4Btn* new_btn_state = reinterpret_cast<struct PS4Btn*>(&report[offset]);
+	struct PS4Btn* prev_btn_state = reinterpret_cast<struct PS4Btn*>(device_info->prev_btn_state);
+	int is_change = 0;
+
+	int triggerRange = (255 * 20) / 100;
+	int triggerVal1 = 0x7F - triggerRange;
+	int triggerVal2 = 0x7F + triggerRange;
+
+	#define deadzone(type, value) (type < 2 || (value < triggerVal1 || triggerVal2 < value))
+	#define checkbtnstate(prev_btn_state, new_btn_state, btn, btn_id, type) \
+	if(prev_btn_state->btn != new_btn_state->btn && (device_info->m_filter || deadzone(type, new_btn_state->btn))) { \
+		is_change += 1; \
+		(*device_info->OnInputEventCallBack)(device_info->device_id, btn_id, new_btn_state->btn, type); }
+
+	if(*device_info->OnInputEventCallBack)
+	{
+		checkbtnstate(prev_btn_state, new_btn_state, LX, 1, 3);
+		checkbtnstate(prev_btn_state, new_btn_state, LY, 2, 3);
+		checkbtnstate(prev_btn_state, new_btn_state, RX, 3, 3);
+		checkbtnstate(prev_btn_state, new_btn_state, RY, 4, 3);
+
+		checkbtnstate(prev_btn_state, new_btn_state, DPad, 5, 2);
+		checkbtnstate(prev_btn_state, new_btn_state, Triangle, 6, 1);
+		checkbtnstate(prev_btn_state, new_btn_state, Circle, 7, 1);
+		checkbtnstate(prev_btn_state, new_btn_state, Cross, 8, 1);
+		checkbtnstate(prev_btn_state, new_btn_state, Square, 9, 1);
+
+		checkbtnstate(prev_btn_state, new_btn_state, L1, 10,  1);
+		checkbtnstate(prev_btn_state, new_btn_state, R1, 11, 1);
+		//checkbtnstate(prev_btn_state, new_btn_state, L2, 12, 1);
+		//checkbtnstate(prev_btn_state, new_btn_state, R2, 13, 1);
+
+		checkbtnstate(prev_btn_state, new_btn_state, Share, 14, 1);
+		checkbtnstate(prev_btn_state, new_btn_state, Option, 15, 1);
+		checkbtnstate(prev_btn_state, new_btn_state, L3, 16, 1);
+		checkbtnstate(prev_btn_state, new_btn_state, R3, 17, 1);
+
+		checkbtnstate(prev_btn_state, new_btn_state, PSHome, 18, 1);
+		checkbtnstate(prev_btn_state, new_btn_state, TouchPad, 19, 1);
+		checkbtnstate(prev_btn_state, new_btn_state, LT, 20, 3);
+		checkbtnstate(prev_btn_state, new_btn_state, RT, 21, 3);
+	}
+	#undef printbtns
+	#undef checkbtnstate
+	#undef deadzone
+
+	if(is_change > 0)
+	{
+		memcpy(device_info->prev_btn_state, new_btn_state, sizeof(struct PS4Btn));
+	}
+}
+
 void CGamePadDeviceListener::onDeviceMatched(void* context, IOReturn result, void* sender, IOHIDDeviceRef device)
 {
 	auto GPDL = reinterpret_cast<CGamePadDeviceListener*>(context);
+	//TODO: populate custom devices from raw data
 	if(GPDL->OnInputEventCallBack)
 	{
 		CFArrayRef elements = IOHIDDeviceCopyMatchingElements(device, nullptr, 0);
@@ -161,7 +219,21 @@ void CGamePadDeviceListener::onDeviceMatched(void* context, IOReturn result, voi
 		}
 	}
 
-	IOHIDDeviceRegisterInputValueCallback(device, GPDL->InputValueCallbackStub, context);
+	//TODO ID devices that need custom handling
+	if(true)
+	{
+		DeviceInfo* device_info = static_cast<DeviceInfo*>(malloc(sizeof(struct DeviceInfo)));
+		device_info->device_id = CGamePadUtils::GetDeviceID(device);
+		device_info->OnInputEventCallBack = &GPDL->OnInputEventCallBack;
+		device_info->m_filter = &GPDL->m_filter;
+		uint32_t max_input_report_size = CGamePadUtils::GetIntProperty(device, CFSTR(kIOHIDMaxInputReportSizeKey));
+		uint8_t* report_buffer = static_cast<uint8_t *>(calloc(max_input_report_size, sizeof(uint8_t)));
+		IOHIDDeviceRegisterInputReportCallback(device, report_buffer, max_input_report_size, GPDL->InputReportCallbackStub, device_info);
+	}
+	else
+	{
+		IOHIDDeviceRegisterInputValueCallback(device, GPDL->InputValueCallbackStub, context);
+	}
 }
 
 void CGamePadDeviceListener::InputDeviceListenerThread()

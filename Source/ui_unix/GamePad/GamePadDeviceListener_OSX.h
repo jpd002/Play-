@@ -36,6 +36,45 @@ public:
 	void SetFilter(bool);
 
 private:
+	struct PS4Btn
+	{
+		uint8_t LX;
+		uint8_t LY;
+
+		uint8_t RX;
+		uint8_t RY;
+
+		uint8_t DPad:4;
+		uint8_t Square:1;
+		uint8_t Cross:1;
+		uint8_t Circle:1;
+		uint8_t Triangle:1;
+
+		uint8_t L1:1;
+		uint8_t R1:1;
+		uint8_t L2:1;
+		uint8_t R2:1;
+		uint8_t Share:1;
+		uint8_t Option:1;
+		uint8_t L3:1;
+		uint8_t R3:1;
+
+		uint8_t PSHome:1;
+		uint8_t TouchPad:1;
+		uint8_t Counter:6;
+
+		uint8_t LT:8;
+		uint8_t RT:8;
+
+	} __attribute__((packed));
+
+	struct DeviceInfo
+	{
+		std::array<uint32, 6> device_id;
+		OnInputEvent* OnInputEventCallBack;
+		bool* m_filter;
+		uint8_t prev_btn_state[9];
+	};
 	std::atomic<bool> m_running;
 	std::thread m_inputdevicelistenerthread;
 	bool m_filter;
@@ -48,4 +87,5 @@ private:
 	CFMutableDictionaryRef CreateDeviceMatchingDictionary(uint32 usagePage, uint32 usage);
 	void static InputValueCallbackStub(void* context, IOReturn result, void* sender, IOHIDValueRef valueRef);
 	void static onDeviceMatched(void* context, IOReturn result, void* sender, IOHIDDeviceRef device);
+	void static InputReportCallbackStub(void* context, IOReturn result, void* sender, IOHIDReportType type, uint32_t reportID, uint8_t* report, CFIndex reportLength);
 };
