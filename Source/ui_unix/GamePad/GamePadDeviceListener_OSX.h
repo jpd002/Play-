@@ -14,7 +14,15 @@ namespace fs = boost::filesystem;
 class CGamePadDeviceListener
 {
 public:
-	typedef std::function<void(std::array<uint32, 6>, int, int, IOHIDElementRef)> OnInputEvent;
+	enum btn_type
+	{
+		//keyboard not reported by iohid, but type is used to distinguish qt keyboard vs iohid
+		keyboard = 0,
+		digital = 1,
+		hatswitch = 2,
+		axis = 3,
+	};
+	typedef std::function<void(std::array<uint32, 6>, int, int, int)> OnInputEvent;
 
 	CGamePadDeviceListener(bool f = false);
 	CGamePadDeviceListener(OnInputEvent, bool f = false);

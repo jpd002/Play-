@@ -109,9 +109,8 @@ void InputEventSelectionDialog::SetupInputDeviceManager(CGamePadDeviceListener* 
 #elif defined(__APPLE__)
 void InputEventSelectionDialog::SetupInputDeviceManager(CGamePadDeviceListener* GPDL)
 {
-	auto onInput = [=](std::array<unsigned int, 6> device, int code, int value, IOHIDElementRef elementRef) -> void {
-		IOHIDElementType type = IOHIDElementGetType(elementRef);
-		bool is_axis = type == kIOHIDElementTypeInput_Axis || type == kIOHIDElementTypeInput_Misc;
+	auto onInput = [=](std::array<unsigned int, 6> device, int code, int value, int type) -> void {
+		bool is_axis = type > 1;
 		if(!is_axis)
 		{
 			if(!setCounter(value)) return;
@@ -119,11 +118,11 @@ void InputEventSelectionDialog::SetupInputDeviceManager(CGamePadDeviceListener* 
 		QString key = QString("btn-").append(QString::number(code));
 		if(is_axis)
 		{
-			if(IOHIDElementGetUsage(elementRef) != kHIDUsage_GD_Hatswitch)
+			if(type != 2)
 			{
-				CFIndex triggerRange = IOHIDElementGetLogicalMax(elementRef) / 100 * 20;
-				CFIndex triggerVal1 = IOHIDElementGetLogicalMax(elementRef) - triggerRange;
-				CFIndex triggerVal2 = IOHIDElementGetLogicalMin(elementRef) + triggerRange;
+				CFIndex triggerRange = (255 * 20) / 100;
+				CFIndex triggerVal1 = 255 - triggerRange;
+				CFIndex triggerVal2 = 0 + triggerRange;
 				if(value < triggerVal1 && triggerVal2 < value)
 				{
 					setCounter(0);

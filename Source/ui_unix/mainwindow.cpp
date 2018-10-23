@@ -119,7 +119,7 @@ void MainWindow::InitVirtualMachine()
 	};
 	m_GPDL = std::make_unique<CGamePadDeviceListener>(onInput);
 #elif defined(__APPLE__)
-	auto onInput = [=](std::array<uint32, 6> device, int code, int value, IOHIDElementRef elementRef) -> void {
+	auto onInput = [=](std::array<uint32, 6> device, int code, int value, int type) -> void {
 		if(m_InputBindingManager != nullptr)
 		{
 			m_InputBindingManager->OnInputEventReceived(device, code, value);

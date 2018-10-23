@@ -82,10 +82,10 @@ void CGamePadDeviceListener::InputValueCallbackStub(void* context, IOReturn resu
 	uint32 usage = IOHIDElementGetUsage(elementRef);
 	CFIndex value = IOHIDValueGetIntegerValue(valueRef);
 	IOHIDDeviceRef device = IOHIDElementGetDevice(elementRef);
+	IOHIDElementType type = IOHIDElementGetType(elementRef);
+	bool is_axis = type == kIOHIDElementTypeInput_Axis || type == kIOHIDElementTypeInput_Misc;
 	if(GPDL->m_filter)
 	{
-		IOHIDElementType type = IOHIDElementGetType(elementRef);
-		bool is_axis = type == kIOHIDElementTypeInput_Axis || type == kIOHIDElementTypeInput_Misc;
 		if(is_axis)
 		{
 			if(usage != kHIDUsage_GD_Hatswitch)
@@ -102,7 +102,16 @@ void CGamePadDeviceListener::InputValueCallbackStub(void* context, IOReturn resu
 			}
 		}
 	}
-	GPDL->OnInputEventCallBack(CGamePadUtils::GetDeviceID(device), usage, value, elementRef);
+	int btn_type = btn_type::digital;
+	if(is_axis)
+	{
+		btn_type = btn_type::axis;
+		if(usage == kHIDUsage_GD_Hatswitch)
+		{
+			btn_type = btn_type::hatswitch;
+		}
+	}
+	GPDL->OnInputEventCallBack(CGamePadUtils::GetDeviceID(device), usage, value, btn_type);
 }
 
 void CGamePadDeviceListener::onDeviceMatched(void* context, IOReturn result, void* sender, IOHIDDeviceRef device)
@@ -129,19 +138,29 @@ void CGamePadDeviceListener::onDeviceMatched(void* context, IOReturn result, voi
 			CFIndex value = IOHIDValueGetIntegerValue(valueRef);
 			IOHIDElementType type = IOHIDElementGetType(elementRef);
 			uint32 usage = IOHIDElementGetUsage(elementRef);
-
+			int btn_type = btn_type::digital;
+			bool is_axis = type == kIOHIDElementTypeInput_Axis || type == kIOHIDElementTypeInput_Misc;
+			if(is_axis)
+			{
+				btn_type = btn_type::axis;
+				if(usage == kHIDUsage_GD_Hatswitch)
+				{
+					btn_type = btn_type::hatswitch;
+				}
+			}
 			switch(type)
 			{
 			case kIOHIDElementTypeInput_Misc:
 			case kIOHIDElementTypeInput_Button:
 			case kIOHIDElementTypeInput_Axis:
-				GPDL->OnInputEventCallBack(CGamePadUtils::GetDeviceID(device), usage, value, elementRef);
+				GPDL->OnInputEventCallBack(CGamePadUtils::GetDeviceID(device), usage, value, btn_type);
 				break;
 			default:
 				break;
 			}
 		}
 	}
+
 	IOHIDDeviceRegisterInputValueCallback(device, GPDL->InputValueCallbackStub, context);
 }
 
