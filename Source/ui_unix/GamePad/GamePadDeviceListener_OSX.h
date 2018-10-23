@@ -89,4 +89,5 @@ private:
 	void static onDeviceMatched(void* context, IOReturn result, void* sender, IOHIDDeviceRef device);
 	void static InputReportCallbackStub_DS4(void* context, IOReturn result, void* sender, IOHIDReportType type, uint32_t reportID, uint8_t* report, CFIndex reportLength);
 	IOHIDReportCallback GetCallback(CGamePadDeviceListener* GPDL, IOHIDDeviceRef device);
+	void static SetInitialBindValues(CGamePadDeviceListener* context, IOHIDDeviceRef device);
 };
