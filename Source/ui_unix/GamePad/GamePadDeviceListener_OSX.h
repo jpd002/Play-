@@ -103,6 +103,7 @@ private:
 	{
 		std::array<uint32, 6> device_id;
 		OnInputEvent* OnInputEventCallBack;
+		bool first_run;
 		bool* m_filter;
 		uint8_t prev_btn_state[24];
 	};

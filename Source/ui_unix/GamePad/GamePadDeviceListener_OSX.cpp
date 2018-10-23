@@ -130,12 +130,13 @@ void CGamePadDeviceListener::InputReportCallbackStub_DS3(void *context, IOReturn
 	int triggerVal2 = 0x7F + triggerRange;
 	#define deadzone(type, value) (type < 2 || (value < triggerVal1 || triggerVal2 < value))
 	#define checkbtnstate(prev_btn_state, new_btn_state, btn, btn_id, type) \
-	if(prev_btn_state->btn != new_btn_state->btn && (device_info->m_filter || deadzone(type, new_btn_state->btn))) { \
+	if(device_info->first_run || (prev_btn_state->btn != new_btn_state->btn && (device_info->m_filter || deadzone(type, new_btn_state->btn)))) { \
 		is_change += 1; \
 		(*device_info->OnInputEventCallBack)(device_info->device_id, btn_id, new_btn_state->btn, type); }
 
 	if(*device_info->OnInputEventCallBack)
 	{
+		device_info->first_run = false;
 		checkbtnstate(prev_btn_state, new_btn_state, Select, 1, 1);
 		checkbtnstate(prev_btn_state, new_btn_state, L3, 2, 1);
 		checkbtnstate(prev_btn_state, new_btn_state, R3, 3, 1);
@@ -170,7 +171,7 @@ void CGamePadDeviceListener::InputReportCallbackStub_DS3(void *context, IOReturn
 
 	if(is_change > 0)
 	{
-		memcpy(device_info->prev_btn_state, new_btn_state, sizeof(struct PS4Btn));
+		memcpy(device_info->prev_btn_state, new_btn_state, sizeof(struct PS3Btn));
 	}
 
 }
@@ -190,12 +191,13 @@ void CGamePadDeviceListener::InputReportCallbackStub_DS4(void *context, IOReturn
 
 	#define deadzone(type, value) (type < 2 || (value < triggerVal1 || triggerVal2 < value))
 	#define checkbtnstate(prev_btn_state, new_btn_state, btn, btn_id, type) \
-	if(prev_btn_state->btn != new_btn_state->btn && (device_info->m_filter || deadzone(type, new_btn_state->btn))) { \
+	if(device_info->first_run || (prev_btn_state->btn != new_btn_state->btn && (device_info->m_filter || deadzone(type, new_btn_state->btn)))) { \
 		is_change += 1; \
 		(*device_info->OnInputEventCallBack)(device_info->device_id, btn_id, new_btn_state->btn, type); }
 
 	if(*device_info->OnInputEventCallBack)
 	{
+		device_info->first_run = false;
 		checkbtnstate(prev_btn_state, new_btn_state, LX, 1, 3);
 		checkbtnstate(prev_btn_state, new_btn_state, LY, 2, 3);
 		checkbtnstate(prev_btn_state, new_btn_state, RX, 3, 3);
@@ -240,6 +242,7 @@ void CGamePadDeviceListener::onDeviceMatched(void* context, IOReturn result, voi
 	device_info->device_id = CGamePadUtils::GetDeviceID(device);
 	device_info->OnInputEventCallBack = &GPDL->OnInputEventCallBack;
 	device_info->m_filter = &GPDL->m_filter;
+	device_info->first_run = true;
 	auto InputReportCallbackStub = GPDL->GetCallback(GPDL, device);
 	if(InputReportCallbackStub)
 	{
