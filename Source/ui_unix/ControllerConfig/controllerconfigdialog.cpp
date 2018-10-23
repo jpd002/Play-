@@ -14,9 +14,6 @@
 ControllerConfigDialog::ControllerConfigDialog(QWidget* parent)
     : QDialog(parent)
     , ui(new Ui::ControllerConfigDialog)
-#if defined(HAS_LIBEVDEV) || defined(__APPLE__)
-    , m_inputDeviceManager(std::make_unique<CGamePadDeviceListener>(true))
-#endif
 {
 	ui->setupUi(this);
 }
@@ -26,8 +23,14 @@ ControllerConfigDialog::~ControllerConfigDialog()
 	delete ui;
 }
 
+#if defined(HAS_LIBEVDEV) || defined(__APPLE__)
+void ControllerConfigDialog::SetInputBindingManager(CInputBindingManager* inputBindingManager, CGamePadDeviceListener* inputDeviceManager)
+{
+	m_inputDeviceManager = inputDeviceManager;
+#else
 void ControllerConfigDialog::SetInputBindingManager(CInputBindingManager* inputBindingManager)
 {
+#endif
 	m_inputManager = inputBindingManager;
 	CBindingModel* model = new CBindingModel(this);
 	model->Setup(m_inputManager);
@@ -93,7 +96,7 @@ int ControllerConfigDialog::OpenBindConfigDialog(int index)
 #endif
 	auto res = IESD.exec();
 #if defined(HAS_LIBEVDEV) || defined(__APPLE__)
-	m_inputDeviceManager.get()->DisconnectInputEventCallback();
+	m_inputDeviceManager->DisconnectInputEventCallback();
 #endif
 	return res;
 }

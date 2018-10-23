@@ -24,7 +24,11 @@ public:
 	explicit ControllerConfigDialog(QWidget* parent = 0);
 	~ControllerConfigDialog();
 
+#if defined(HAS_LIBEVDEV) || defined(__APPLE__)
+	void SetInputBindingManager(CInputBindingManager*, CGamePadDeviceListener*);
+#else
 	void SetInputBindingManager(CInputBindingManager*);
+#endif
 
 private slots:
 	void on_buttonBox_clicked(QAbstractButton* button);
@@ -35,7 +39,7 @@ private:
 	int OpenBindConfigDialog(int index);
 	CInputBindingManager* m_inputManager;
 #if defined(HAS_LIBEVDEV) || defined(__APPLE__)
-	std::unique_ptr<CGamePadDeviceListener> m_inputDeviceManager;
+	CGamePadDeviceListener* m_inputDeviceManager;
 #endif
 	Ui::ControllerConfigDialog* ui;
 };

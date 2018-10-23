@@ -28,7 +28,7 @@ public:
 
 	void Setup(const char* text, CInputBindingManager* inputManager, PS2::CControllerInfo::BUTTON button);
 #if defined(HAS_LIBEVDEV) || defined(__APPLE__)
-	void SetupInputDeviceManager(const std::unique_ptr<CGamePadDeviceListener>& GPDL);
+	void SetupInputDeviceManager(CGamePadDeviceListener* GPDL);
 #endif
 
 protected:

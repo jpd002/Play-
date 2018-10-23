@@ -605,9 +605,15 @@ void MainWindow::on_actionVFS_Manager_triggered()
 
 void MainWindow::on_actionController_Manager_triggered()
 {
+	auto GDPL_ptr = m_GPDL.get();
+	auto OnInputEventCallBack = GDPL_ptr->OnInputEventCallBack;
+
 	ControllerConfigDialog ccd;
-	ccd.SetInputBindingManager(m_InputBindingManager);
+	ccd.SetInputBindingManager(m_InputBindingManager, GDPL_ptr);
 	ccd.exec();
+
+	GDPL_ptr->UpdateOnInputEventCallback(OnInputEventCallBack);
+
 }
 
 void MainWindow::on_actionCapture_Screen_triggered()

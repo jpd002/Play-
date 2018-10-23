@@ -34,7 +34,7 @@ void InputEventSelectionDialog::Setup(const char* text, CInputBindingManager* in
 
 #ifdef HAS_LIBEVDEV
 
-void InputEventSelectionDialog::SetupInputDeviceManager(std::unique_ptr<CGamePadDeviceListener> const& GPDL)
+void InputEventSelectionDialog::SetupInputDeviceManager(CGamePadDeviceListener* GPDL)
 {
 	auto onInput = [=](std::array<unsigned int, 6> device, int code, int value, int type, const input_absinfo* abs) -> void {
 		if(type == 4) return;
@@ -107,7 +107,7 @@ void InputEventSelectionDialog::SetupInputDeviceManager(std::unique_ptr<CGamePad
 }
 
 #elif defined(__APPLE__)
-void InputEventSelectionDialog::SetupInputDeviceManager(std::unique_ptr<CGamePadDeviceListener> const& GPDL)
+void InputEventSelectionDialog::SetupInputDeviceManager(CGamePadDeviceListener* GPDL)
 {
 	auto onInput = [=](std::array<unsigned int, 6> device, int code, int value, IOHIDElementRef elementRef) -> void {
 		IOHIDElementType type = IOHIDElementGetType(elementRef);
@@ -178,7 +178,7 @@ void InputEventSelectionDialog::SetupInputDeviceManager(std::unique_ptr<CGamePad
 		}
 	};
 
-	GPDL.get()->UpdateOnInputEventCallback(onInput);
+	GPDL->UpdateOnInputEventCallback(onInput);
 }
 #endif
 
