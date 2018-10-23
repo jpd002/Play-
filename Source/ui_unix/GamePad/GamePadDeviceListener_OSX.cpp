@@ -129,11 +129,11 @@ void CGamePadDeviceListener::InputReportCallbackStub_DS3(void* context, IOReturn
 	int triggerVal1 = 0x7F - triggerRange;
 	int triggerVal2 = 0x7F + triggerRange;
 #define deadzone(type, value) (type < 2 || (value < triggerVal1 || triggerVal2 < value))
-#define checkbtnstate(prev_btn_state, new_btn_state, btn, btn_id, type)                                                                        \
-	if(device_info->first_run || (prev_btn_state->btn != new_btn_state->btn && (device_info->m_filter || deadzone(type, new_btn_state->btn)))) \
-	{                                                                                                                                          \
-		is_change += 1;                                                                                                                        \
-		(*device_info->OnInputEventCallBack)(device_info->device_id, btn_id, new_btn_state->btn, type);                                        \
+#define checkbtnstate(prev_btn_state, new_btn_state, btn, btn_id, type)                                                                         \
+	if(device_info->first_run || (prev_btn_state->btn != new_btn_state->btn && (!device_info->m_filter || deadzone(type, new_btn_state->btn)))) \
+	{                                                                                                                                           \
+		is_change += 1;                                                                                                                         \
+		(*device_info->OnInputEventCallBack)(device_info->device_id, btn_id, new_btn_state->btn, type);                                         \
 	}
 
 	if(*device_info->OnInputEventCallBack)
@@ -192,13 +192,12 @@ void CGamePadDeviceListener::InputReportCallbackStub_DS4(void* context, IOReturn
 	int triggerRange = (255 * 20) / 100;
 	int triggerVal1 = 0x7F - triggerRange;
 	int triggerVal2 = 0x7F + triggerRange;
-
 #define deadzone(type, value) (type < 2 || (value < triggerVal1 || triggerVal2 < value))
-#define checkbtnstate(prev_btn_state, new_btn_state, btn, btn_id, type)                                                                        \
-	if(device_info->first_run || (prev_btn_state->btn != new_btn_state->btn && (device_info->m_filter || deadzone(type, new_btn_state->btn)))) \
-	{                                                                                                                                          \
-		is_change += 1;                                                                                                                        \
-		(*device_info->OnInputEventCallBack)(device_info->device_id, btn_id, new_btn_state->btn, type);                                        \
+#define checkbtnstate(prev_btn_state, new_btn_state, btn, btn_id, type)                                                                         \
+	if(device_info->first_run || (prev_btn_state->btn != new_btn_state->btn && (!device_info->m_filter || deadzone(type, new_btn_state->btn)))) \
+	{                                                                                                                                           \
+		is_change += 1;                                                                                                                         \
+		(*device_info->OnInputEventCallBack)(device_info->device_id, btn_id, new_btn_state->btn, type);                                         \
 	}
 
 	if(*device_info->OnInputEventCallBack)
