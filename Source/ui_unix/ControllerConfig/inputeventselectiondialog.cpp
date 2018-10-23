@@ -103,7 +103,7 @@ void InputEventSelectionDialog::SetupInputDeviceManager(CGamePadDeviceListener* 
 		}
 	};
 
-	GPDL.get()->UpdateOnInputEventCallback(onInput);
+	GPDL->UpdateOnInputEventCallback(onInput);
 }
 
 #elif defined(__APPLE__)

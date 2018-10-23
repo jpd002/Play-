@@ -68,6 +68,11 @@ void CGamePadDeviceListener::DisconnectInputEventCallback()
 	}
 }
 
+void CGamePadDeviceListener::SetFilter(bool filter)
+{
+	m_filter = filter;
+}
+
 void CGamePadDeviceListener::UpdateDeviceList()
 {
 	std::string path = "/dev/input/";
