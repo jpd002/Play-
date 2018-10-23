@@ -114,6 +114,67 @@ void CGamePadDeviceListener::InputValueCallbackStub(void* context, IOReturn resu
 	(*device_info->OnInputEventCallBack)(device_info->device_id, usage, value, btn_type);
 }
 
+void CGamePadDeviceListener::InputReportCallbackStub_DS3(void *context, IOReturn result, void *sender, IOHIDReportType type, uint32_t reportID, uint8_t *report, CFIndex reportLength)
+{
+	if (report[0] != 0x1 || report[1] == 0xff)
+		return;
+
+	auto device_info = reinterpret_cast<DeviceInfo*>(context);
+
+	struct PS3Btn* new_btn_state = reinterpret_cast<struct PS3Btn*>(&report[2]);
+	struct PS3Btn* prev_btn_state = reinterpret_cast<struct PS3Btn*>(device_info->prev_btn_state);
+	int is_change = 0;
+
+	int triggerRange = (255 * 20) / 100;
+	int triggerVal1 = 0x7F - triggerRange;
+	int triggerVal2 = 0x7F + triggerRange;
+	#define deadzone(type, value) (type < 2 || (value < triggerVal1 || triggerVal2 < value))
+	#define checkbtnstate(prev_btn_state, new_btn_state, btn, btn_id, type) \
+	if(prev_btn_state->btn != new_btn_state->btn && (device_info->m_filter || deadzone(type, new_btn_state->btn))) { \
+		is_change += 1; \
+		(*device_info->OnInputEventCallBack)(device_info->device_id, btn_id, new_btn_state->btn, type); }
+
+	if(*device_info->OnInputEventCallBack)
+	{
+		checkbtnstate(prev_btn_state, new_btn_state, Select, 1, 1);
+		checkbtnstate(prev_btn_state, new_btn_state, L3, 2, 1);
+		checkbtnstate(prev_btn_state, new_btn_state, R3, 3, 1);
+		checkbtnstate(prev_btn_state, new_btn_state, Start, 4, 1);
+
+		checkbtnstate(prev_btn_state, new_btn_state, DPad, 5, 2);
+
+		//checkbtnstate(prev_btn_state, new_btn_state, R2, 6, 1);
+		//checkbtnstate(prev_btn_state, new_btn_state, L2, 7, 1);
+		//checkbtnstate(prev_btn_state, new_btn_state, R1, 8, 1);
+		//checkbtnstate(prev_btn_state, new_btn_state, L1, 9, 1);
+
+		checkbtnstate(prev_btn_state, new_btn_state, PSHome, 10, 1);
+
+		checkbtnstate(prev_btn_state, new_btn_state, LX, 11, 3);
+		checkbtnstate(prev_btn_state, new_btn_state, LY, 12, 3);
+		checkbtnstate(prev_btn_state, new_btn_state, RX, 13, 3);
+		checkbtnstate(prev_btn_state, new_btn_state, RY, 14, 3);
+
+		checkbtnstate(prev_btn_state, new_btn_state, L2T, 15, 3);
+		checkbtnstate(prev_btn_state, new_btn_state, R2T, 16, 3);
+		checkbtnstate(prev_btn_state, new_btn_state, L1T, 17, 3);
+		checkbtnstate(prev_btn_state, new_btn_state, R1T, 18, 3);
+
+		checkbtnstate(prev_btn_state, new_btn_state, Triangle, 19, 1);
+		checkbtnstate(prev_btn_state, new_btn_state, Circle, 20, 1);
+		checkbtnstate(prev_btn_state, new_btn_state, Cross, 21, 1);
+		checkbtnstate(prev_btn_state, new_btn_state, Square, 22, 1);
+	}
+	#undef checkbtnstate
+	#undef deadzone
+
+	if(is_change > 0)
+	{
+		memcpy(device_info->prev_btn_state, new_btn_state, sizeof(struct PS4Btn));
+	}
+
+}
+
 void CGamePadDeviceListener::InputReportCallbackStub_DS4(void *context, IOReturn result, void *sender, IOHIDReportType type, uint32_t reportID, uint8_t *report, CFIndex reportLength)
 {
 	auto device_info = reinterpret_cast<DeviceInfo*>(context);
@@ -246,6 +307,10 @@ IOHIDReportCallback CGamePadDeviceListener::GetCallback(CGamePadDeviceListener* 
 		if(pid == 0x9CC || pid == 0x5C4)
 		{
 			return GPDL->InputReportCallbackStub_DS4;
+		}
+		else if(pid == 0x268)
+		{
+			return GPDL->InputReportCallbackStub_DS3;
 		}
 	}
 	return nullptr;
