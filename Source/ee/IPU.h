@@ -240,6 +240,7 @@ private:
 			STATE_INITREADBLOCK,
 			STATE_READBLOCK,
 			STATE_CHECKSTARTCODE,
+			STATE_VALIDATESTARTCODE,
 			STATE_READMBINCREMENT,
 			STATE_CSCINIT,
 			STATE_CSC,
@@ -264,6 +265,7 @@ private:
 		DECODER_CONTEXT m_context;
 		uint16 m_TH0 = 0;
 		uint16 m_TH1 = 0;
+		uint32 m_dt = 0;
 		uint32 m_mbType = 0;
 		uint32 m_qsc = 0;
 		uint32 m_mbCount = 0;

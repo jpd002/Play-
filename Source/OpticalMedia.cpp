@@ -25,6 +25,7 @@ COpticalMedia* COpticalMedia::CreateAuto(StreamPtr& stream)
 	if(result->m_track0DataType == TRACK_DATA_TYPE_MODE1_2048)
 	{
 		result->CheckDualLayerDvd(stream);
+		result->SetupSecondLayer(stream);
 	}
 	return result;
 }
@@ -37,6 +38,7 @@ COpticalMedia* COpticalMedia::CreateDvd(StreamPtr& stream, bool isDualLayer, uin
 	result->m_track0DataType = TRACK_DATA_TYPE_MODE1_2048;
 	result->m_dvdIsDualLayer = isDualLayer;
 	result->m_dvdSecondLayerStart = secondLayerStart;
+	result->SetupSecondLayer(stream);
 	return result;
 }
 
@@ -51,6 +53,11 @@ CISO9660* COpticalMedia::GetFileSystem()
 	return m_fileSystem.get();
 }
 
+CISO9660* COpticalMedia::GetFileSystemL1()
+{
+	return m_fileSystemL1.get();
+}
+
 bool COpticalMedia::GetDvdIsDualLayer() const
 {
 	return m_dvdIsDualLayer;
@@ -58,7 +65,9 @@ bool COpticalMedia::GetDvdIsDualLayer() const
 
 uint32 COpticalMedia::GetDvdSecondLayerStart() const
 {
-	return m_dvdSecondLayerStart;
+	//The PS2 seems to report a second layer LBN that is 0x10
+	//sectors less than what the actual layer break position is
+	return m_dvdSecondLayerStart - 0x10;
 }
 
 void COpticalMedia::CheckDualLayerDvd(const StreamPtr& stream)
@@ -106,4 +115,11 @@ void COpticalMedia::CheckDualLayerDvd(const StreamPtr& stream)
 
 	//If we haven't found it, something's wrong
 	assert(m_dvdSecondLayerStart != 0);
+}
+
+void COpticalMedia::SetupSecondLayer(const StreamPtr& stream)
+{
+	if(!m_dvdIsDualLayer) return;
+	auto blockProvider = std::make_shared<ISO9660::CBlockProvider2048>(stream, GetDvdSecondLayerStart());
+	m_fileSystemL1 = std::make_unique<CISO9660>(blockProvider);
 }

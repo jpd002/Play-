@@ -563,7 +563,10 @@ void CSifCmd::ProcessRpcRequestEnd(uint32 commandHeaderAddr)
 	}
 	else if(requestEnd->commandId == SIF_CMD_CALL)
 	{
-		assert(clientData->endFctPtr == 0);
+		if(clientData->endFctPtr != 0)
+		{
+			m_bios.TriggerCallback(clientData->endFctPtr, clientData->endParam, 0);
+		}
 	}
 	else
 	{
