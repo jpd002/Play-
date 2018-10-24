@@ -1686,7 +1686,7 @@ void CGSHandler::LogPrivateWrite(uint32 address)
 		//CSR
 		break;
 	case GS_IMR:
-		//IMR
+		CLog::GetInstance().Print(LOG_NAME, "IMR(0x%08X);\r\n", m_nIMR);
 		break;
 	}
 }
