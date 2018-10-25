@@ -346,6 +346,13 @@ void CGSHandler::WritePrivRegister(uint32 nAddress, uint32 nData)
 	break;
 	case GS_IMR:
 		W_REG(nAddress, nData, m_nIMR);
+		if(!(nAddress & 0x04))
+		{
+			//Some games (Soul Calibur 2, Crash Nitro Kart) will unmask interrupts
+			//right after starting a transfer that sets a SIGNAL... Let the
+			//interrupt go through even though it's not supposed to work that way
+			NotifyEvent(m_nCSR & 0x1F);
+		}
 		break;
 	case GS_SIGLBLID:
 		W_REG(nAddress, nData, m_nSIGLBLID);
