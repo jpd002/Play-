@@ -2578,7 +2578,8 @@ void CPS2OS::sc_GsPutIMR()
 
 	if(m_gs != NULL)
 	{
-		m_gs->WritePrivRegister(CGSHandler::GS_IMR, imr);
+		m_gs->WritePrivRegister(CGSHandler::GS_IMR + 0, imr);
+		m_gs->WritePrivRegister(CGSHandler::GS_IMR + 4, 0);
 	}
 }
 
