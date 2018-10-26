@@ -16,4 +16,6 @@
 @property SqliteDatabase* database;
 @property CollectionView* coverView;
 
+-(IBAction)onExit: (id)handler;
+
 @end

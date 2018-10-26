@@ -165,4 +165,9 @@ static NSString * const reuseIdentifier = @"coverCell";
 }
 */
 
+-(IBAction)onExit: (id)sender
+{
+	exit(0);
+}
+
 @end
