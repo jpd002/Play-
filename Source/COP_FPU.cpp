@@ -292,6 +292,7 @@ void CCOP_FPU::DIV_S()
 void CCOP_FPU::SQRT_S()
 {
 	m_codeGen->FP_PushSingle(offsetof(CMIPS, m_State.nCOP1[m_ft]));
+	m_codeGen->FP_Abs();
 	m_codeGen->FP_Sqrt();
 	m_codeGen->FP_PullSingle(offsetof(CMIPS, m_State.nCOP1[m_fd]));
 }
