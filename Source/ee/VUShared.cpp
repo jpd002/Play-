@@ -1303,11 +1303,23 @@ void VUShared::RSQRT(CMipsJitter* codeGen, uint8 nFs, uint8 nFsf, uint8 nFt, uin
 	size_t destination = g_pipeInfoQ.heldValue;
 	QueueInPipeline(g_pipeInfoQ, codeGen, LATENCY_RSQRT, relativePipeTime);
 
-	codeGen->FP_PushSingle(GetVectorElement(nFs, nFsf));
-	codeGen->FP_PushSingle(GetVectorElement(nFt, nFtf));
-	codeGen->FP_Rsqrt();
-	codeGen->FP_Mul();
-	codeGen->FP_PullSingle(destination);
+	codeGen->PushRel(GetVectorElement(nFt, nFtf));
+	codeGen->PushCst(0);
+
+	codeGen->BeginIf(Jitter::CONDITION_EQ);
+	{
+		codeGen->PushCst(0x7F7FFFFF);
+		codeGen->PullRel(destination);
+	}
+	codeGen->Else();
+	{
+		codeGen->FP_PushSingle(GetVectorElement(nFs, nFsf));
+		codeGen->FP_PushSingle(GetVectorElement(nFt, nFtf));
+		codeGen->FP_Rsqrt();
+		codeGen->FP_Mul();
+		codeGen->FP_PullSingle(destination);
+	}
+	codeGen->EndIf();
 }
 
 void VUShared::RXOR(CMipsJitter* codeGen, uint8 nFs, uint8 nFsf)
