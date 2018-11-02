@@ -40,14 +40,14 @@ android {
 		mavenCentral()
 	}
 
-	compileSdkVersion 'android-24'
+	compileSdkVersion 'android-28'
 	buildToolsVersion '28.0.2'
 
 	defaultConfig {
 		versionCode 40
 		versionName '0.30'
 		minSdkVersion 19
-		targetSdkVersion 24
+		targetSdkVersion 28
 		externalNativeBuild {
 			cmake {
 				arguments "-DANDROID_ARM_NEON=TRUE", "-DANDROID_TOOLCHAIN=clang",
