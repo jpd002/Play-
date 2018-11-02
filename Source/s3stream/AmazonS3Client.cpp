@@ -219,6 +219,7 @@ HeadObjectResult CAmazonS3Client::HeadObject(const HeadObjectRequest& request)
 	}
 
 	auto etagIterator = response.headers.find("ETag");
+	if(etagIterator == std::end(response.headers)) etagIterator = response.headers.find("Etag");
 	if(etagIterator != std::end(response.headers))
 	{
 		result.etag = etagIterator->second;
