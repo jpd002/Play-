@@ -9,6 +9,8 @@
 #define LATENCY_SQRT (7)
 #define LATENCY_RSQRT (13)
 
+#define STATUS_Z 0x01
+#define STATUS_S 0x02
 #define STATUS_ZS 0x40
 #define STATUS_SS 0x80
 
@@ -207,7 +209,7 @@ void VUShared::GetStatus(CMipsJitter* codeGen, size_t dstOffset, uint32 relative
 	codeGen->BeginIf(Jitter::CONDITION_NE);
 	{
 		codeGen->PushRel(dstOffset);
-		codeGen->PushCst(0x01);
+		codeGen->PushCst(STATUS_Z);
 		codeGen->Or();
 		codeGen->PullRel(dstOffset);
 	}
@@ -221,7 +223,7 @@ void VUShared::GetStatus(CMipsJitter* codeGen, size_t dstOffset, uint32 relative
 	codeGen->BeginIf(Jitter::CONDITION_NE);
 	{
 		codeGen->PushRel(dstOffset);
-		codeGen->PushCst(0x02);
+		codeGen->PushCst(STATUS_S);
 		codeGen->Or();
 		codeGen->PullRel(dstOffset);
 	}
