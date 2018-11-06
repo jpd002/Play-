@@ -97,6 +97,7 @@ struct MIPSSTATE
 	uint32 nCOP2CF; //Mirror of CLIP flag (computed with values from pipeClip)
 	uint32 nCOP2MF; //Mirror of MACflag (computed with values from pipeMac)
 	uint32 nCOP2SF; //Sticky values of sign and zero MACflag (ie.: SxSySzSw ZxZyZzZw)
+	uint32 nCOP2DF; //Division by 0 flag from DIV operations
 	uint32 nCOP2T;
 
 	uint32 nCOP2VI[16];

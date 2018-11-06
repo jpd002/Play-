@@ -11,6 +11,8 @@
 
 #define STATUS_Z 0x01
 #define STATUS_S 0x02
+#define STATUS_I 0x10
+#define STATUS_D 0x20
 #define STATUS_ZS 0x40
 #define STATUS_SS 0x80
 
@@ -252,6 +254,18 @@ void VUShared::GetStatus(CMipsJitter* codeGen, size_t dstOffset, uint32 relative
 	{
 		codeGen->PushRel(dstOffset);
 		codeGen->PushCst(STATUS_SS);
+		codeGen->Or();
+		codeGen->PullRel(dstOffset);
+	}
+	codeGen->EndIf();
+
+	//Check D flag
+	codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2DF));
+	codeGen->PushCst(0);
+	codeGen->BeginIf(Jitter::CONDITION_NE);
+	{
+		codeGen->PushRel(dstOffset);
+		codeGen->PushCst(STATUS_D);
 		codeGen->Or();
 		codeGen->PullRel(dstOffset);
 	}
@@ -647,6 +661,9 @@ void VUShared::DIV(CMipsJitter* codeGen, uint8 nFs, uint8 nFsf, uint8 nFt, uint8
 		codeGen->And();
 		codeGen->Or();
 		codeGen->PullRel(destination);
+
+		codeGen->PushCst(1);
+		codeGen->PullRel(offsetof(CMIPS, m_State.nCOP2DF));
 	}
 	codeGen->Else();
 	{
@@ -654,6 +671,9 @@ void VUShared::DIV(CMipsJitter* codeGen, uint8 nFs, uint8 nFsf, uint8 nFt, uint8
 		codeGen->FP_PushSingle(GetVectorElement(nFt, nFtf));
 		codeGen->FP_Div();
 		codeGen->FP_PullSingle(destination);
+
+		codeGen->PushCst(0);
+		codeGen->PullRel(offsetof(CMIPS, m_State.nCOP2DF));
 	}
 	codeGen->EndIf();
 }
@@ -1322,6 +1342,9 @@ void VUShared::RSQRT(CMipsJitter* codeGen, uint8 nFs, uint8 nFsf, uint8 nFt, uin
 		codeGen->FP_PullSingle(destination);
 	}
 	codeGen->EndIf();
+
+	codeGen->PushCst(0);
+	codeGen->PullRel(offsetof(CMIPS, m_State.nCOP2DF));
 }
 
 void VUShared::RXOR(CMipsJitter* codeGen, uint8 nFs, uint8 nFsf)
@@ -1402,6 +1425,9 @@ void VUShared::SQRT(CMipsJitter* codeGen, uint8 nFt, uint8 nFtf, uint32 relative
 	codeGen->FP_PushSingle(GetVectorElement(nFt, nFtf));
 	codeGen->FP_Sqrt();
 	codeGen->FP_PullSingle(destination);
+
+	codeGen->PushCst(0);
+	codeGen->PullRel(offsetof(CMIPS, m_State.nCOP2DF));
 }
 
 void VUShared::SUB(CMipsJitter* codeGen, uint8 dest, uint8 fd, uint8 fs, uint8 ft, uint32 relativePipeTime)
