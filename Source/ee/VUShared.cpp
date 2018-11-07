@@ -1327,13 +1327,24 @@ void VUShared::RSQRT(CMipsJitter* codeGen, uint8 nFs, uint8 nFsf, uint8 nFt, uin
 	size_t destination = g_pipeInfoQ.heldValue;
 	QueueInPipeline(g_pipeInfoQ, codeGen, LATENCY_RSQRT, relativePipeTime);
 
+	//Check for zero
 	codeGen->PushRel(GetVectorElement(nFt, nFtf));
+	codeGen->PushCst(0x7FFFFFFF);
+	codeGen->And();
 	codeGen->PushCst(0);
-
 	codeGen->BeginIf(Jitter::CONDITION_EQ);
 	{
 		codeGen->PushCst(EXC_FP_MAX);
+		codeGen->PushRel(GetVectorElement(nFs, nFsf));
+		codeGen->PushRel(GetVectorElement(nFt, nFtf));
+		codeGen->Xor();
+		codeGen->PushCst(0x80000000);
+		codeGen->And();
+		codeGen->Or();
 		codeGen->PullRel(destination);
+
+		codeGen->PushCst(1);
+		codeGen->PullRel(offsetof(CMIPS, m_State.nCOP2DF));
 	}
 	codeGen->Else();
 	{
@@ -1342,11 +1353,11 @@ void VUShared::RSQRT(CMipsJitter* codeGen, uint8 nFs, uint8 nFsf, uint8 nFt, uin
 		codeGen->FP_Rsqrt();
 		codeGen->FP_Mul();
 		codeGen->FP_PullSingle(destination);
+
+		codeGen->PushCst(0);
+		codeGen->PullRel(offsetof(CMIPS, m_State.nCOP2DF));
 	}
 	codeGen->EndIf();
-
-	codeGen->PushCst(0);
-	codeGen->PullRel(offsetof(CMIPS, m_State.nCOP2DF));
 }
 
 void VUShared::RXOR(CMipsJitter* codeGen, uint8 nFs, uint8 nFsf)
