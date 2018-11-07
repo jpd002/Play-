@@ -16,6 +16,8 @@
 #define STATUS_ZS 0x40
 #define STATUS_SS 0x80
 
+#define EXC_FP_MAX 0x7F7FFFFF
+
 const VUShared::REGISTER_PIPEINFO VUShared::g_pipeInfoQ =
     {
         offsetof(CMIPS, m_State.nCOP2Q),
@@ -653,7 +655,7 @@ void VUShared::DIV(CMipsJitter* codeGen, uint8 nFs, uint8 nFsf, uint8 nFt, uint8
 	codeGen->PushCst(0);
 	codeGen->BeginIf(Jitter::CONDITION_EQ);
 	{
-		codeGen->PushCst(0x7F7FFFFF);
+		codeGen->PushCst(EXC_FP_MAX);
 		codeGen->PushRel(GetVectorElement(nFs, nFsf));
 		codeGen->PushRel(GetVectorElement(nFt, nFtf));
 		codeGen->Xor();
@@ -1330,7 +1332,7 @@ void VUShared::RSQRT(CMipsJitter* codeGen, uint8 nFs, uint8 nFsf, uint8 nFt, uin
 
 	codeGen->BeginIf(Jitter::CONDITION_EQ);
 	{
-		codeGen->PushCst(0x7F7FFFFF);
+		codeGen->PushCst(EXC_FP_MAX);
 		codeGen->PullRel(destination);
 	}
 	codeGen->Else();
