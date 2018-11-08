@@ -518,6 +518,9 @@ void CIopBios::ProcessModuleStart()
 			}
 		}
 		m_cpu.m_State.nGPR[CMIPS::A0].nV0 = static_cast<uint32>(paramList.size());
+		//Push an additional null parameter. This is needed by Chessmaster who reads
+		//out of the argv bounds (reads from argv[argc])
+		paramList.push_back(0);
 		for(auto param = paramList.rbegin(); paramList.rend() != param; param++)
 		{
 			m_cpu.m_State.nGPR[CMIPS::A1].nV0 = pushToStack(
