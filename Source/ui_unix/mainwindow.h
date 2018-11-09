@@ -17,6 +17,8 @@
 #ifdef HAS_LIBEVDEV
 #include "GamePad/GamePadInputEventListener.h"
 #include "GamePad/GamePadDeviceListener.h"
+#else
+#include "GamePad/GamePadDeviceListener_OSX.h"
 #endif
 
 #include "ContinuationChecker.h"
@@ -65,7 +67,7 @@ private:
 	CPS2VM* m_virtualMachine = nullptr;
 	bool m_deactivatePause = false;
 	bool m_pauseFocusLost = true;
-#ifdef HAS_LIBEVDEV
+#if defined(HAS_LIBEVDEV) || defined(__APPLE__)
 	std::unique_ptr<CGamePadDeviceListener> m_GPDL;
 #endif
 	enum BootType

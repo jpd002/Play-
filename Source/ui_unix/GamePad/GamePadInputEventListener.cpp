@@ -5,7 +5,7 @@
 #include <poll.h>
 #include <csignal>
 
-CGamePadInputEventListener::CGamePadInputEventListener(std::string device, bool filter)
+CGamePadInputEventListener::CGamePadInputEventListener(std::string device, bool& filter)
     : m_device(device)
     , m_filter(filter)
     , m_running(true)

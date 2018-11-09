@@ -34,7 +34,7 @@ void InputEventSelectionDialog::Setup(const char* text, CInputBindingManager* in
 
 #ifdef HAS_LIBEVDEV
 
-void InputEventSelectionDialog::SetupInputDeviceManager(std::unique_ptr<CGamePadDeviceListener> const& GPDL)
+void InputEventSelectionDialog::SetupInputDeviceManager(CGamePadDeviceListener* GPDL)
 {
 	auto onInput = [=](std::array<unsigned int, 6> device, int code, int value, int type, const input_absinfo* abs) -> void {
 		if(type == 4) return;
@@ -103,9 +103,82 @@ void InputEventSelectionDialog::SetupInputDeviceManager(std::unique_ptr<CGamePad
 		}
 	};
 
-	GPDL.get()->UpdateOnInputEventCallback(onInput);
+	GPDL->UpdateOnInputEventCallback(onInput);
 }
 
+#elif defined(__APPLE__)
+void InputEventSelectionDialog::SetupInputDeviceManager(CGamePadDeviceListener* GPDL)
+{
+	auto onInput = [=](std::array<unsigned int, 6> device, int code, int value, int type) -> void {
+		bool is_axis = type > 1;
+		if(!is_axis)
+		{
+			if(!setCounter(value)) return;
+		}
+		QString key = QString("btn-").append(QString::number(code));
+		if(is_axis)
+		{
+			if(type != 2)
+			{
+				CFIndex triggerRange = (255 * 20) / 100;
+				CFIndex triggerVal1 = 255 - triggerRange;
+				CFIndex triggerVal2 = 0 + triggerRange;
+				if(value < triggerVal1 && triggerVal2 < value)
+				{
+					setCounter(0);
+					return;
+				}
+				setCounter(1);
+				setSelectedButtonLabelText("Selected Key: " + key);
+				m_key1.id = code;
+				m_key1.device = device;
+				m_key1.type = type;
+				m_key1.bindtype = CInputBindingManager::BINDINGTYPE::BINDING_SIMPLE;
+			}
+			else
+			{
+				m_key1.id = code;
+				m_key1.device = device;
+				m_key1.type = type;
+				m_key1.value = value;
+				m_key1.bindtype = CInputBindingManager::BINDINGTYPE::BINDING_POVHAT;
+				setSelectedButtonLabelText("Selected Key: " + key);
+				setCounter(1);
+			}
+		}
+		else
+		{
+			if(PS2::CControllerInfo::IsAxis(m_button))
+			{
+				if(click_count == 0)
+				{
+					setSelectedButtonLabelText("(-) Key Selected: " + key);
+					m_key1.id = code;
+					m_key1.device = device;
+					m_key1.type = type;
+					m_key1.bindtype = CInputBindingManager::BINDINGTYPE::BINDING_SIMULATEDAXIS;
+				}
+				else
+				{
+					m_key2.id = code;
+					m_key2.device = device;
+					m_key2.type = type;
+					setSelectedButtonLabelText("(+) Key Selected: " + key);
+				}
+			}
+			else
+			{
+				setSelectedButtonLabelText("Selected Key: " + key);
+				m_key1.id = code;
+				m_key1.device = device;
+				m_key1.type = type;
+				m_key1.bindtype = CInputBindingManager::BINDINGTYPE::BINDING_SIMPLE;
+			}
+		}
+	};
+
+	GPDL->UpdateOnInputEventCallback(onInput);
+}
 #endif
 
 void InputEventSelectionDialog::keyPressEvent(QKeyEvent* ev)

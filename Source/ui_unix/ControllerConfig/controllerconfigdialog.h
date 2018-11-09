@@ -6,6 +6,8 @@
 
 #ifdef HAS_LIBEVDEV
 #include "GamePad/GamePadDeviceListener.h"
+#elif defined(__APPLE__)
+#include "GamePad/GamePadDeviceListener_OSX.h"
 #endif
 #include "InputBindingManager.h"
 
@@ -22,7 +24,11 @@ public:
 	explicit ControllerConfigDialog(QWidget* parent = 0);
 	~ControllerConfigDialog();
 
+#if defined(HAS_LIBEVDEV) || defined(__APPLE__)
+	void SetInputBindingManager(CInputBindingManager*, CGamePadDeviceListener*);
+#else
 	void SetInputBindingManager(CInputBindingManager*);
+#endif
 
 private slots:
 	void on_buttonBox_clicked(QAbstractButton* button);
@@ -32,8 +38,8 @@ private slots:
 private:
 	int OpenBindConfigDialog(int index);
 	CInputBindingManager* m_inputManager;
-#ifdef HAS_LIBEVDEV
-	std::unique_ptr<CGamePadDeviceListener> m_inputDeviceManager;
+#if defined(HAS_LIBEVDEV) || defined(__APPLE__)
+	CGamePadDeviceListener* m_inputDeviceManager;
 #endif
 	Ui::ControllerConfigDialog* ui;
 };

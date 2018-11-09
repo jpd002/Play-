@@ -9,6 +9,8 @@
 #ifdef HAS_LIBEVDEV
 #include "GamePad/GamePadInputEventListener.h"
 #include "GamePad/GamePadDeviceListener.h"
+#elif defined(__APPLE__)
+#include "GamePad/GamePadDeviceListener_OSX.h"
 #endif
 
 namespace Ui
@@ -25,8 +27,8 @@ public:
 	~InputEventSelectionDialog();
 
 	void Setup(const char* text, CInputBindingManager* inputManager, PS2::CControllerInfo::BUTTON button);
-#ifdef HAS_LIBEVDEV
-	void SetupInputDeviceManager(const std::unique_ptr<CGamePadDeviceListener>& GPDL);
+#if defined(HAS_LIBEVDEV) || defined(__APPLE__)
+	void SetupInputDeviceManager(CGamePadDeviceListener* GPDL);
 #endif
 
 protected:

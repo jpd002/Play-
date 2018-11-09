@@ -75,7 +75,7 @@ MainWindow::MainWindow(QWidget* parent)
 MainWindow::~MainWindow()
 {
 	CAppConfig::GetInstance().Save();
-#ifdef HAS_LIBEVDEV
+#if defined(HAS_LIBEVDEV) || defined(__APPLE__)
 	m_GPDL.reset();
 #endif
 	if(m_virtualMachine != nullptr)
@@ -112,6 +112,14 @@ void MainWindow::InitVirtualMachine()
 
 #ifdef HAS_LIBEVDEV
 	auto onInput = [=](std::array<uint32, 6> device, int code, int value, int type, const input_absinfo* abs) -> void {
+		if(m_InputBindingManager != nullptr)
+		{
+			m_InputBindingManager->OnInputEventReceived(device, code, value);
+		}
+	};
+	m_GPDL = std::make_unique<CGamePadDeviceListener>(onInput);
+#elif defined(__APPLE__)
+	auto onInput = [=](std::array<uint32, 6> device, int code, int value, int type) -> void {
 		if(m_InputBindingManager != nullptr)
 		{
 			m_InputBindingManager->OnInputEventReceived(device, code, value);
@@ -597,9 +605,17 @@ void MainWindow::on_actionVFS_Manager_triggered()
 
 void MainWindow::on_actionController_Manager_triggered()
 {
+	auto GDPL_ptr = m_GPDL.get();
+	auto OnInputEventCallBack = GDPL_ptr->OnInputEventCallBack;
+	GDPL_ptr->DisconnectInputEventCallback();
+	GDPL_ptr->SetFilter(true);
+
 	ControllerConfigDialog ccd;
-	ccd.SetInputBindingManager(m_InputBindingManager);
+	ccd.SetInputBindingManager(m_InputBindingManager, GDPL_ptr);
 	ccd.exec();
+
+	GDPL_ptr->SetFilter(false);
+	GDPL_ptr->UpdateOnInputEventCallback(OnInputEventCallBack);
 }
 
 void MainWindow::on_actionCapture_Screen_triggered()
