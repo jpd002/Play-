@@ -17,8 +17,6 @@ CGamePadDeviceListener::CGamePadDeviceListener(bool filter)
 CGamePadDeviceListener::~CGamePadDeviceListener()
 {
 	m_running = false;
-	CFRunLoopStop(CFRunLoopGetCurrent());
-	IOHIDManagerClose(m_hidManager, 0);
 	if(m_thread.joinable())
 		m_thread.join();
 }
@@ -344,7 +342,9 @@ void CGamePadDeviceListener::InputDeviceListenerThread()
 
 	IOHIDManagerOpen(m_hidManager, kIOHIDOptionsTypeNone);
 	IOHIDManagerScheduleWithRunLoop(m_hidManager, CFRunLoopGetCurrent(), CFSTR("CustomLoop"));
-	while(CFRunLoopRunInMode(CFSTR("CustomLoop"), 0, true) != kCFRunLoopRunStopped && m_running)
+	while(CFRunLoopRunInMode(CFSTR("CustomLoop"), 1, true) != kCFRunLoopRunStopped && m_running)
 	{
 	}
+	
+	IOHIDManagerClose(m_hidManager, 0);
 }
