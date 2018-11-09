@@ -345,6 +345,6 @@ void CGamePadDeviceListener::InputDeviceListenerThread()
 	while(CFRunLoopRunInMode(CFSTR("CustomLoop"), 1, true) != kCFRunLoopRunStopped && m_running)
 	{
 	}
-	
+
 	IOHIDManagerClose(m_hidManager, 0);
 }
