@@ -580,7 +580,7 @@ std::string CInputBindingManager::CPovHatBinding::GetDescription() const
 #elif __APPLE__
 	else
 	{
-		return key + "btn-" + string_format("%d", m_binding.id);
+		return key + "btn-" + string_format("%d-%d", m_binding.id, m_refValue);
 	}
 #endif
 }
