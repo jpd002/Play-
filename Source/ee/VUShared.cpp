@@ -1436,6 +1436,7 @@ void VUShared::SQRT(CMipsJitter* codeGen, uint8 nFt, uint8 nFtf, uint32 relative
 	QueueInPipeline(g_pipeInfoQ, codeGen, LATENCY_SQRT, relativePipeTime);
 
 	codeGen->FP_PushSingle(GetVectorElement(nFt, nFtf));
+	codeGen->FP_Abs();
 	codeGen->FP_Sqrt();
 	codeGen->FP_PullSingle(destination);
 
