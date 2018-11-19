@@ -70,7 +70,7 @@ bool CInputBindingManager::HasBindings() const
 
 void CInputBindingManager::RegisterInputProvider(const ProviderPtr& provider)
 {
-	provider->OnInput = [this] (auto target, auto value) { OnInputEventReceived(target, value); };
+	provider->OnInput = [this] (auto target, auto value) { this->OnInputEventReceived(target, value); };
 	m_providers.insert(std::make_pair(provider->GetId(), provider));
 }
 
@@ -79,7 +79,7 @@ void CInputBindingManager::OverrideInputEventHandler(const InputEventFunction& i
 	InputEventFunction actualHandler = inputEventHandler;
 	if(!actualHandler)
 	{
-		actualHandler = [this] (auto target, auto value) { OnInputEventReceived(target, value); };
+		actualHandler = [this] (auto target, auto value) { this->OnInputEventReceived(target, value); };
 	}
 	for(auto& providerPair : m_providers)
 	{

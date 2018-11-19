@@ -45,7 +45,7 @@ struct BINDINGTARGET
 	}
 	
 	uint32 providerId = 0;
-	DeviceIdType deviceId = { 0, 0, 0, 0, 0, 0 };
+	DeviceIdType deviceId = {{ 0, 0, 0, 0, 0, 0 }};
 	uint32 keyId = 0;
 	KEYTYPE keyType = KEYTYPE::BUTTON;
 };
