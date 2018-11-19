@@ -11,11 +11,14 @@
 #include "ControllerInfo.h"
 #include "inputeventselectiondialog.h"
 
-ControllerConfigDialog::ControllerConfigDialog(QWidget* parent)
+ControllerConfigDialog::ControllerConfigDialog(CInputBindingManager* inputBindingManager, CInputProviderQtKey* qtKeyInputProvider, QWidget* parent)
     : QDialog(parent)
     , ui(new Ui::ControllerConfigDialog)
+    , m_inputManager(inputBindingManager)
+    , m_qtKeyInputProvider(qtKeyInputProvider)
 {
 	ui->setupUi(this);
+	PrepareBindingsView();
 }
 
 ControllerConfigDialog::~ControllerConfigDialog()
@@ -23,15 +26,8 @@ ControllerConfigDialog::~ControllerConfigDialog()
 	delete ui;
 }
 
-#if defined(HAS_LIBEVDEV) || defined(__APPLE__)
-void ControllerConfigDialog::SetInputBindingManager(CInputBindingManager* inputBindingManager, CGamePadDeviceListener* inputDeviceManager)
+void ControllerConfigDialog::PrepareBindingsView()
 {
-	m_inputDeviceManager = inputDeviceManager;
-#else
-void ControllerConfigDialog::SetInputBindingManager(CInputBindingManager* inputBindingManager)
-{
-#endif
-	m_inputManager = inputBindingManager;
 	CBindingModel* model = new CBindingModel(this);
 	model->Setup(m_inputManager);
 	model->setHeaderData(0, Qt::Orientation::Horizontal, QVariant("Button"), Qt::DisplayRole);
@@ -57,7 +53,7 @@ void ControllerConfigDialog::on_buttonBox_clicked(QAbstractButton* button)
 		switch(ui->tabWidget->currentIndex())
 		{
 		case 0:
-			m_inputManager->AutoConfigureKeyboard();
+			//m_inputManager->AutoConfigureKeyboard();
 			static_cast<CBindingModel*>(ui->tableView->model())->Refresh();
 			break;
 		}
@@ -89,14 +85,8 @@ int ControllerConfigDialog::OpenBindConfigDialog(int index)
 	std::string button(PS2::CControllerInfo::m_buttonName[index]);
 	std::transform(button.begin(), button.end(), button.begin(), ::toupper);
 
-	InputEventSelectionDialog IESD;
-	IESD.Setup(button.c_str(), m_inputManager, static_cast<PS2::CControllerInfo::BUTTON>(index));
-#if defined(HAS_LIBEVDEV) || defined(__APPLE__)
-	IESD.SetupInputDeviceManager(m_inputDeviceManager);
-#endif
+	InputEventSelectionDialog IESD(this);
+	IESD.Setup(button.c_str(), m_inputManager, m_qtKeyInputProvider, static_cast<PS2::CControllerInfo::BUTTON>(index));
 	auto res = IESD.exec();
-#if defined(HAS_LIBEVDEV) || defined(__APPLE__)
-	m_inputDeviceManager->DisconnectInputEventCallback();
-#endif
 	return res;
 }

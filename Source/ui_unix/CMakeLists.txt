@@ -66,10 +66,10 @@ set(QT_SOURCES
 	ElidedLabel.h
 	GSH_OpenGLQt.cpp
 	GSH_OpenGLQt.h
+	InputProviderQtKey.cpp
+	InputProviderQtKey.h
 	StatsManager.cpp
 	StatsManager.h
-	PH_HidUnix.cpp
-	PH_HidUnix.h
 	S3FileBrowser.cpp
 	S3FileBrowser.h
 	settingsdialog.cpp
@@ -89,8 +89,6 @@ set(QT_SOURCES
 	vfsdiscselectordialog.h
 	VfsDevice.cpp
 	VfsDevice.h
-	InputBindingManager.cpp
-	InputBindingManager.h
 	GamePad/GamePadUtils.cpp
 	GamePad/GamePadUtils.h
 )
@@ -152,8 +150,8 @@ QT5_WRAP_CPP(QT_MOC_SRCS ${QT_MOC_HEADERS})
 if(TARGET_PLATFORM_MACOS)
 	set(QT_SOURCES
 		${QT_SOURCES}
-		GamePad/GamePadDeviceListener_OSX.cpp
-		GamePad/GamePadDeviceListener_OSX.h
+		InputProviderMacOsHid.cpp
+		InputProviderMacOsHid.h
 	)
 	set(OSX_RES
 		${CMAKE_CURRENT_SOURCE_DIR}/macos/AppIcon.icns

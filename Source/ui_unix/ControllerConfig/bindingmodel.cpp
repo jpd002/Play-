@@ -43,7 +43,7 @@ QVariant CBindingModel::data(const QModelIndex& index, int role) const
 				return QVariant(binding->GetBindingTypeName());
 				break;
 			case 2:
-				return QVariant(binding->GetDescription().c_str());
+				return QVariant(binding->GetDescription(m_inputManager).c_str());
 				break;
 			}
 		}

@@ -1,7 +1,7 @@
 #pragma once
 
 #include <QAbstractTableModel>
-#include "InputBindingManager.h"
+#include "../input/InputBindingManager.h"
 
 class CBindingModel : public QAbstractTableModel
 {

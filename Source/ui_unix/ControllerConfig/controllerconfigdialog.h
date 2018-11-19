@@ -4,12 +4,8 @@
 #include <QAbstractButton>
 #include <QXmlStreamReader>
 
-#ifdef HAS_LIBEVDEV
-#include "GamePad/GamePadDeviceListener.h"
-#elif defined(__APPLE__)
-#include "GamePad/GamePadDeviceListener_OSX.h"
-#endif
-#include "InputBindingManager.h"
+#include "../input/InputBindingManager.h"
+#include "InputProviderQtKey.h"
 
 namespace Ui
 {
@@ -21,14 +17,8 @@ class ControllerConfigDialog : public QDialog
 	Q_OBJECT
 
 public:
-	explicit ControllerConfigDialog(QWidget* parent = 0);
+	explicit ControllerConfigDialog(CInputBindingManager*, CInputProviderQtKey*, QWidget* parent = 0);
 	~ControllerConfigDialog();
-
-#if defined(HAS_LIBEVDEV) || defined(__APPLE__)
-	void SetInputBindingManager(CInputBindingManager*, CGamePadDeviceListener*);
-#else
-	void SetInputBindingManager(CInputBindingManager*);
-#endif
 
 private slots:
 	void on_buttonBox_clicked(QAbstractButton* button);
@@ -36,10 +26,10 @@ private slots:
 	void on_ConfigAllButton_clicked();
 
 private:
+	void PrepareBindingsView();
 	int OpenBindConfigDialog(int index);
-	CInputBindingManager* m_inputManager;
-#if defined(HAS_LIBEVDEV) || defined(__APPLE__)
-	CGamePadDeviceListener* m_inputDeviceManager;
-#endif
+
 	Ui::ControllerConfigDialog* ui;
+	CInputBindingManager* m_inputManager = nullptr;
+	CInputProviderQtKey* m_qtKeyInputProvider = nullptr;
 };

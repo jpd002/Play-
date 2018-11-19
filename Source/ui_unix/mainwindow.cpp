@@ -19,6 +19,7 @@
 #else
 #include "tools/PsfPlayer/Source/SH_OpenAL.h"
 #endif
+#include "input/PH_GenericInput.h"
 #include "DiskUtils.h"
 #include "PathUtils.h"
 #include <zlib.h>
@@ -30,6 +31,10 @@
 #include "ui_mainwindow.h"
 #include "vfsmanagerdialog.h"
 #include "ControllerConfig/controllerconfigdialog.h"
+
+#ifdef __APPLE__
+#include "InputProviderMacOsHid.h"
+#endif
 
 MainWindow::MainWindow(QWidget* parent)
     : QMainWindow(parent)
@@ -75,12 +80,10 @@ MainWindow::MainWindow(QWidget* parent)
 MainWindow::~MainWindow()
 {
 	CAppConfig::GetInstance().Save();
-#if defined(HAS_LIBEVDEV) || defined(__APPLE__)
-	m_GPDL.reset();
-#endif
 	if(m_virtualMachine != nullptr)
 	{
 		m_virtualMachine->Pause();
+		m_qtKeyInputProvider.reset();
 		m_virtualMachine->DestroyPadHandler();
 		m_virtualMachine->DestroyGSHandler();
 		m_virtualMachine->DestroySoundHandler();
@@ -88,7 +91,6 @@ MainWindow::~MainWindow()
 		delete m_virtualMachine;
 		m_virtualMachine = nullptr;
 	}
-	delete m_InputBindingManager;
 	delete ui;
 }
 
@@ -107,27 +109,25 @@ void MainWindow::InitVirtualMachine()
 
 	SetupSoundHandler();
 
-	m_InputBindingManager = new CInputBindingManager(CAppConfig::GetInstance());
-	m_virtualMachine->CreatePadHandler(CPH_HidUnix::GetFactoryFunction(m_InputBindingManager));
+	{
+		m_virtualMachine->CreatePadHandler(CPH_GenericInput::GetFactoryFunction());
+		auto padHandler = static_cast<CPH_GenericInput*>(m_virtualMachine->GetPadHandler());
+		auto& bindingManager = padHandler->GetBindingManager();
 
-#ifdef HAS_LIBEVDEV
-	auto onInput = [=](std::array<uint32, 6> device, int code, int value, int type, const input_absinfo* abs) -> void {
-		if(m_InputBindingManager != nullptr)
-		{
-			m_InputBindingManager->OnInputEventReceived(device, code, value);
-		}
-	};
-	m_GPDL = std::make_unique<CGamePadDeviceListener>(onInput);
-#elif defined(__APPLE__)
-	auto onInput = [=](std::array<uint32, 6> device, int code, int value, int type) -> void {
-		if(m_InputBindingManager != nullptr)
-		{
-			m_InputBindingManager->OnInputEventReceived(device, code, value);
-		}
-	};
-	m_GPDL = std::make_unique<CGamePadDeviceListener>(onInput);
+		//Create QtKeyInputProvider
+		m_qtKeyInputProvider = std::make_shared<CInputProviderQtKey>();
+		bindingManager.RegisterInputProvider(m_qtKeyInputProvider);
+		
+#ifdef __APPLE__
+		bindingManager.RegisterInputProvider(std::make_shared<CInputProviderMacOsHid>());
 #endif
-
+		
+		if(!bindingManager.HasBindings())
+		{
+			AutoConfigureKeyboard();
+		}
+	}
+	
 	m_statsManager = new CStatsManager();
 
 	m_virtualMachine->m_ee->m_os->OnExecutableChange.connect(std::bind(&MainWindow::OnExecutableChange, this));
@@ -311,9 +311,9 @@ void MainWindow::on_actionExit_triggered()
 
 void MainWindow::keyPressEvent(QKeyEvent* event)
 {
-	if(event->key() != Qt::Key_Escape && m_InputBindingManager != nullptr)
+	if((event->key() != Qt::Key_Escape) && m_qtKeyInputProvider)
 	{
-		m_InputBindingManager->OnInputEventReceived({0}, event->key(), 1);
+		m_qtKeyInputProvider->OnKeyPress(event->key());
 	}
 }
 
@@ -327,9 +327,9 @@ void MainWindow::keyReleaseEvent(QKeyEvent* event)
 		}
 		return;
 	}
-	if(m_InputBindingManager != nullptr)
+	if(m_qtKeyInputProvider)
 	{
-		m_InputBindingManager->OnInputEventReceived({0}, event->key(), 0);
+		m_qtKeyInputProvider->OnKeyRelease(event->key());
 	}
 }
 
@@ -570,6 +570,44 @@ void MainWindow::toggleFullscreen()
 		menuBar()->hide();
 	}
 }
+
+void MainWindow::AutoConfigureKeyboard()
+{
+	auto padHandler = static_cast<CPH_GenericInput*>(m_virtualMachine->GetPadHandler());
+	auto& bindingManager = padHandler->GetBindingManager();
+
+	bindingManager.SetSimpleBinding(PS2::CControllerInfo::START, CInputProviderQtKey::MakeBindingTarget(Qt::Key_Return));
+	bindingManager.SetSimpleBinding(PS2::CControllerInfo::SELECT, CInputProviderQtKey::MakeBindingTarget(Qt::Key_Backspace));
+	bindingManager.SetSimpleBinding(PS2::CControllerInfo::DPAD_LEFT, CInputProviderQtKey::MakeBindingTarget(Qt::Key_Left));
+	bindingManager.SetSimpleBinding(PS2::CControllerInfo::DPAD_RIGHT, CInputProviderQtKey::MakeBindingTarget(Qt::Key_Right));
+	bindingManager.SetSimpleBinding(PS2::CControllerInfo::DPAD_UP, CInputProviderQtKey::MakeBindingTarget(Qt::Key_Up));
+	bindingManager.SetSimpleBinding(PS2::CControllerInfo::DPAD_DOWN, CInputProviderQtKey::MakeBindingTarget(Qt::Key_Down));
+	bindingManager.SetSimpleBinding(PS2::CControllerInfo::SQUARE, CInputProviderQtKey::MakeBindingTarget(Qt::Key_A));
+	bindingManager.SetSimpleBinding(PS2::CControllerInfo::CROSS, CInputProviderQtKey::MakeBindingTarget(Qt::Key_Z));
+	bindingManager.SetSimpleBinding(PS2::CControllerInfo::TRIANGLE, CInputProviderQtKey::MakeBindingTarget(Qt::Key_S));
+	bindingManager.SetSimpleBinding(PS2::CControllerInfo::CIRCLE, CInputProviderQtKey::MakeBindingTarget(Qt::Key_X));
+	bindingManager.SetSimpleBinding(PS2::CControllerInfo::L1, CInputProviderQtKey::MakeBindingTarget(Qt::Key_1));
+	bindingManager.SetSimpleBinding(PS2::CControllerInfo::L2, CInputProviderQtKey::MakeBindingTarget(Qt::Key_2));
+	bindingManager.SetSimpleBinding(PS2::CControllerInfo::L3, CInputProviderQtKey::MakeBindingTarget(Qt::Key_3));
+	bindingManager.SetSimpleBinding(PS2::CControllerInfo::R1, CInputProviderQtKey::MakeBindingTarget(Qt::Key_8));
+	bindingManager.SetSimpleBinding(PS2::CControllerInfo::R2, CInputProviderQtKey::MakeBindingTarget(Qt::Key_9));
+	bindingManager.SetSimpleBinding(PS2::CControllerInfo::R3, CInputProviderQtKey::MakeBindingTarget(Qt::Key_0));
+	
+	bindingManager.SetSimulatedAxisBinding(PS2::CControllerInfo::ANALOG_LEFT_X,
+							CInputProviderQtKey::MakeBindingTarget(Qt::Key_F),
+							CInputProviderQtKey::MakeBindingTarget(Qt::Key_H));
+	bindingManager.SetSimulatedAxisBinding(PS2::CControllerInfo::ANALOG_LEFT_Y,
+							CInputProviderQtKey::MakeBindingTarget(Qt::Key_T),
+							CInputProviderQtKey::MakeBindingTarget(Qt::Key_G));
+	
+	bindingManager.SetSimulatedAxisBinding(PS2::CControllerInfo::ANALOG_RIGHT_X,
+							CInputProviderQtKey::MakeBindingTarget(Qt::Key_J),
+							CInputProviderQtKey::MakeBindingTarget(Qt::Key_L));
+	bindingManager.SetSimulatedAxisBinding(PS2::CControllerInfo::ANALOG_RIGHT_Y,
+							CInputProviderQtKey::MakeBindingTarget(Qt::Key_I),
+							CInputProviderQtKey::MakeBindingTarget(Qt::Key_K));
+}
+
 void MainWindow::on_actionPause_when_focus_is_lost_triggered(bool checked)
 {
 	m_pauseFocusLost = checked;
@@ -605,17 +643,11 @@ void MainWindow::on_actionVFS_Manager_triggered()
 
 void MainWindow::on_actionController_Manager_triggered()
 {
-	auto GDPL_ptr = m_GPDL.get();
-	auto OnInputEventCallBack = GDPL_ptr->OnInputEventCallBack;
-	GDPL_ptr->DisconnectInputEventCallback();
-	GDPL_ptr->SetFilter(true);
-
-	ControllerConfigDialog ccd;
-	ccd.SetInputBindingManager(m_InputBindingManager, GDPL_ptr);
+	auto padHandler = static_cast<CPH_GenericInput*>(m_virtualMachine->GetPadHandler());
+	if(!padHandler) return;
+	
+	ControllerConfigDialog ccd(&padHandler->GetBindingManager(), m_qtKeyInputProvider.get(), this);
 	ccd.exec();
-
-	GDPL_ptr->SetFilter(false);
-	GDPL_ptr->UpdateOnInputEventCallback(OnInputEventCallBack);
 }
 
 void MainWindow::on_actionCapture_Screen_triggered()

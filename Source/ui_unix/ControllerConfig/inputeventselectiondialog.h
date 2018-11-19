@@ -4,14 +4,8 @@
 #include <QKeyEvent>
 #include <chrono>
 #include <thread>
-#include "ui_unix/PH_HidUnix.h"
-
-#ifdef HAS_LIBEVDEV
-#include "GamePad/GamePadInputEventListener.h"
-#include "GamePad/GamePadDeviceListener.h"
-#elif defined(__APPLE__)
-#include "GamePad/GamePadDeviceListener_OSX.h"
-#endif
+#include "input/InputBindingManager.h"
+#include "InputProviderQtKey.h"
 
 namespace Ui
 {
@@ -26,31 +20,36 @@ public:
 	explicit InputEventSelectionDialog(QWidget* parent = nullptr);
 	~InputEventSelectionDialog();
 
-	void Setup(const char* text, CInputBindingManager* inputManager, PS2::CControllerInfo::BUTTON button);
-#if defined(HAS_LIBEVDEV) || defined(__APPLE__)
-	void SetupInputDeviceManager(CGamePadDeviceListener* GPDL);
-#endif
+	void Setup(const char*, CInputBindingManager*, CInputProviderQtKey*, PS2::CControllerInfo::BUTTON);
 
 protected:
 	void keyPressEvent(QKeyEvent*) Q_DECL_OVERRIDE;
 	void keyReleaseEvent(QKeyEvent*) Q_DECL_OVERRIDE;
 
 private:
-	struct BINDINGINFOEXTENDED : CInputBindingManager::BINDINGINFO
+	enum class STATE
 	{
-		int value;
-		CInputBindingManager::BINDINGTYPE bindtype;
+		NONE,
+		SELECTED
 	};
+	
 	void CountDownThreadLoop();
+	void onInputEvent(const BINDINGTARGET&, uint32);
 	bool setCounter(int);
-	int click_count = 0;
+
+	Ui::InputEventSelectionDialog* ui = nullptr;
+
+	STATE m_state = STATE::NONE;
+	BINDINGTARGET m_selectedTarget;
+	CInputBindingManager::BINDINGTYPE m_bindingType = CInputBindingManager::BINDING_UNBOUND;
+	uint32 m_bindingValue = 0;
+	
 	QString m_bindingtext = QString("Select new binding for\n%1");
 	QString m_countingtext = QString("Press & Hold Button for %1 Seconds to assign key");
 	PS2::CControllerInfo::BUTTON m_button;
-	BINDINGINFOEXTENDED m_key1;
-	CInputBindingManager::BINDINGINFO m_key2;
-	CInputBindingManager* m_inputManager;
-	Ui::InputEventSelectionDialog* ui;
+	CInputBindingManager* m_inputManager = nullptr;
+	CInputProviderQtKey* m_qtKeyInputProvider = nullptr;
+
 	std::chrono::time_point<std::chrono::system_clock> m_countStart = std::chrono::system_clock::now();
 	std::thread m_thread;
 	std::atomic<bool> m_running;

@@ -11,17 +11,10 @@
 #include "PS2VM.h"
 #include "PS2VM_Preferences.h"
 #include "StatsManager.h"
-#include "PH_HidUnix.h"
 #include "ElidedLabel.h"
-
-#ifdef HAS_LIBEVDEV
-#include "GamePad/GamePadInputEventListener.h"
-#include "GamePad/GamePadDeviceListener.h"
-#else
-#include "GamePad/GamePadDeviceListener_OSX.h"
-#endif
-
 #include "ContinuationChecker.h"
+
+#include "InputProviderQtKey.h"
 
 namespace Ui
 {
@@ -54,6 +47,7 @@ private:
 	void saveState(int);
 	void loadState(int);
 	void toggleFullscreen();
+	void AutoConfigureKeyboard();
 
 	Ui::MainWindow* ui;
 
@@ -61,15 +55,12 @@ private:
 	QLabel* m_fpsLabel = nullptr;
 	ElidedLabel* m_msgLabel = nullptr;
 	CStatsManager* m_statsManager = nullptr;
-	CInputBindingManager* m_InputBindingManager = nullptr;
 	QTimer* m_fpsTimer = nullptr;
 	CContinuationChecker* m_continuationChecker = nullptr;
 	CPS2VM* m_virtualMachine = nullptr;
 	bool m_deactivatePause = false;
 	bool m_pauseFocusLost = true;
-#if defined(HAS_LIBEVDEV) || defined(__APPLE__)
-	std::unique_ptr<CGamePadDeviceListener> m_GPDL;
-#endif
+	std::shared_ptr<CInputProviderQtKey> m_qtKeyInputProvider;
 	enum BootType
 	{
 		CD,

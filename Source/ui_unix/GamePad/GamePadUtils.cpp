@@ -33,29 +33,6 @@ std::array<uint32, 6> CGamePadUtils::GetDeviceID(libevdev* dev)
 	}
 	return device;
 }
-#elif defined(__APPLE__)
-int CGamePadUtils::GetIntProperty(IOHIDDeviceRef device, CFStringRef key)
-{
-	int value = 0;
-	CFNumberRef ref = static_cast<CFNumberRef>(IOHIDDeviceGetProperty(device, key));
-	CFNumberGetValue(ref, kCFNumberSInt32Type, &value);
-	return value;
-}
-
-std::array<uint32, 6> CGamePadUtils::GetDeviceID(IOHIDDeviceRef dev)
-{
-	std::array<uint32, 6> device{0};
-	int vendor = GetIntProperty(dev, CFSTR(kIOHIDVendorIDKey));
-	int product = GetIntProperty(dev, CFSTR(kIOHIDProductIDKey));
-	int location = GetIntProperty(dev, CFSTR(kIOHIDLocationIDKey));
-	device.at(0) = vendor & 0xFF;
-	device.at(1) = (vendor >> 8) & 0xFF;
-	device.at(2) = product & 0xFF;
-	device.at(3) = (product >> 8) & 0xFF;
-	device.at(4) = (location >> 16) & 0xFF;
-	device.at(5) = (location >> 24) & 0xFF;
-	return device;
-}
 #endif
 
 bool CGamePadUtils::ParseMAC(std::array<uint32, 6>& out, std::string const& in)

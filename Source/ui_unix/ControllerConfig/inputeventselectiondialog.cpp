@@ -20,166 +20,110 @@ InputEventSelectionDialog::InputEventSelectionDialog(QWidget* parent)
 
 InputEventSelectionDialog::~InputEventSelectionDialog()
 {
+	m_inputManager->OverrideInputEventHandler(InputEventFunction());
 	m_running = false;
 	if(m_thread.joinable()) m_thread.join();
 	delete ui;
 }
 
-void InputEventSelectionDialog::Setup(const char* text, CInputBindingManager* inputManager, PS2::CControllerInfo::BUTTON button)
+void InputEventSelectionDialog::Setup(const char* text, CInputBindingManager* inputManager, CInputProviderQtKey* qtKeyInputProvider, PS2::CControllerInfo::BUTTON button)
 {
 	m_inputManager = inputManager;
+	m_inputManager->OverrideInputEventHandler([this] (auto target, auto value) { onInputEvent(target, value); } );
+	m_qtKeyInputProvider = qtKeyInputProvider;
 	ui->bindinglabel->setText(m_bindingtext.arg(text));
 	m_button = button;
 }
 
-#ifdef HAS_LIBEVDEV
-
-void InputEventSelectionDialog::SetupInputDeviceManager(CGamePadDeviceListener* GPDL)
+static bool IsAxisIdle(uint32 value)
 {
-	auto onInput = [=](std::array<unsigned int, 6> device, int code, int value, int type, const input_absinfo* abs) -> void {
-		if(type == 4) return;
-		if(!(type == 3 && abs->flat))
-		{
-			if(!setCounter(value)) return;
-		}
-		QString key = QString(libevdev_event_code_get_name(type, code));
-		if(type == 3)
-		{
-			if(abs->flat)
-			{
-				int triggerRange = abs->maximum / 100 * 20;
-				int triggerVal1 = abs->maximum - triggerRange;
-				int triggerVal2 = abs->minimum + triggerRange;
-				if(value < triggerVal1 && triggerVal2 < value)
-				{
-					setCounter(0);
-					return;
-				}
-				setCounter(1);
-				setSelectedButtonLabelText("Selected Key: " + key);
-				m_key1.id = code;
-				m_key1.device = device;
-				m_key1.type = type;
-				m_key1.bindtype = CInputBindingManager::BINDINGTYPE::BINDING_SIMPLE;
-			}
-			else
-			{
-				m_key1.id = code;
-				m_key1.device = device;
-				m_key1.type = type;
-				m_key1.value = value;
-				m_key1.bindtype = CInputBindingManager::BINDINGTYPE::BINDING_POVHAT;
-				setSelectedButtonLabelText("Selected Key: " + key);
-			}
-		}
-		else
-		{
-			if(PS2::CControllerInfo::IsAxis(m_button))
-			{
-				if(click_count == 0)
-				{
-					setSelectedButtonLabelText("(-) Key Selected: " + key);
-					m_key1.id = code;
-					m_key1.device = device;
-					m_key1.type = type;
-					m_key1.bindtype = CInputBindingManager::BINDINGTYPE::BINDING_SIMULATEDAXIS;
-				}
-				else
-				{
-					m_key2.id = code;
-					m_key2.device = device;
-					m_key2.type = type;
-					setSelectedButtonLabelText("(+) Key Selected: " + key);
-				}
-			}
-			else
-			{
-				setSelectedButtonLabelText("Selected Key: " + key);
-				m_key1.id = code;
-				m_key1.device = device;
-				m_key1.type = type;
-				m_key1.bindtype = CInputBindingManager::BINDINGTYPE::BINDING_SIMPLE;
-			}
-		}
-	};
-
-	GPDL->UpdateOnInputEventCallback(onInput);
+	uint32 triggerRange = (255 * 20) / 100;
+	uint32 triggerVal1 = 255 - triggerRange;
+	uint32 triggerVal2 = 0 + triggerRange;
+	return (value < triggerVal1) && (value > triggerVal2);
 }
 
-#elif defined(__APPLE__)
-void InputEventSelectionDialog::SetupInputDeviceManager(CGamePadDeviceListener* GPDL)
+void InputEventSelectionDialog::onInputEvent(const BINDINGTARGET& target, uint32 value)
 {
-	auto onInput = [=](std::array<unsigned int, 6> device, int code, int value, int type) -> void {
-		bool is_axis = type > 1;
-		if(!is_axis)
+	switch(m_state)
+	{
+	case STATE::NONE:
+		//Check if we've pressed something
+		switch(target.keyType)
 		{
-			if(!setCounter(value)) return;
-		}
-		QString key = QString("btn-").append(QString::number(code));
-		if(is_axis)
-		{
-			if(type != 2)
+		case BINDINGTARGET::KEYTYPE::BUTTON:
+			if(value != 0)
 			{
-				CFIndex triggerRange = (255 * 20) / 100;
-				CFIndex triggerVal1 = 255 - triggerRange;
-				CFIndex triggerVal2 = 0 + triggerRange;
-				if(value < triggerVal1 && triggerVal2 < value)
-				{
-					setCounter(0);
-					return;
-				}
+				m_selectedTarget = target;
+				m_bindingType = CInputBindingManager::BINDING_SIMPLE;
+				m_state = STATE::SELECTED;
 				setCounter(1);
-				setSelectedButtonLabelText("Selected Key: " + key);
-				m_key1.id = code;
-				m_key1.device = device;
-				m_key1.type = type;
-				m_key1.bindtype = CInputBindingManager::BINDINGTYPE::BINDING_SIMPLE;
+				auto targetDescription = m_inputManager->GetTargetDescription(target);
+				setSelectedButtonLabelText("Selected Key: " + QString::fromStdString(targetDescription));
 			}
-			else
+			break;
+		case BINDINGTARGET::KEYTYPE::AXIS:
+			if(!IsAxisIdle(value))
 			{
-				m_key1.id = code;
-				m_key1.device = device;
-				m_key1.type = type;
-				m_key1.value = value;
-				m_key1.bindtype = CInputBindingManager::BINDINGTYPE::BINDING_POVHAT;
-				setSelectedButtonLabelText("Selected Key: " + key);
+				m_selectedTarget = target;
+				m_bindingType = CInputBindingManager::BINDING_SIMPLE;
+				m_state = STATE::SELECTED;
 				setCounter(1);
+				auto targetDescription = m_inputManager->GetTargetDescription(target);
+				setSelectedButtonLabelText("Selected Key: " + QString::fromStdString(targetDescription));
+			}
+			break;
+		case BINDINGTARGET::KEYTYPE::POVHAT:
+			if(value < 8)
+			{
+				m_selectedTarget = target;
+				m_bindingType = CInputBindingManager::BINDING_POVHAT;
+				m_bindingValue = value;
+				m_state = STATE::SELECTED;
+				setCounter(1);
+				auto targetDescription = m_inputManager->GetTargetDescription(target);
+				setSelectedButtonLabelText("Selected Key: " + QString::fromStdString(targetDescription));
 			}
 		}
-		else
+		break;
+	case STATE::SELECTED:
+		if(target != m_selectedTarget) break;
+		switch(target.keyType)
 		{
-			if(PS2::CControllerInfo::IsAxis(m_button))
+		case BINDINGTARGET::KEYTYPE::BUTTON:
+			if(value == 0)
 			{
-				if(click_count == 0)
-				{
-					setSelectedButtonLabelText("(-) Key Selected: " + key);
-					m_key1.id = code;
-					m_key1.device = device;
-					m_key1.type = type;
-					m_key1.bindtype = CInputBindingManager::BINDINGTYPE::BINDING_SIMULATEDAXIS;
-				}
-				else
-				{
-					m_key2.id = code;
-					m_key2.device = device;
-					m_key2.type = type;
-					setSelectedButtonLabelText("(+) Key Selected: " + key);
-				}
-			}
-			else
-			{
-				setSelectedButtonLabelText("Selected Key: " + key);
-				m_key1.id = code;
-				m_key1.device = device;
-				m_key1.type = type;
-				m_key1.bindtype = CInputBindingManager::BINDINGTYPE::BINDING_SIMPLE;
-			}
-		}
-	};
+				m_selectedTarget = BINDINGTARGET();
+				m_state = STATE::NONE;
+				m_bindingType = CInputBindingManager::BINDING_UNBOUND;
 
-	GPDL->UpdateOnInputEventCallback(onInput);
+				setCounter(0);
+				setSelectedButtonLabelText("Selected Key: None");
+			}
+			break;
+		case BINDINGTARGET::KEYTYPE::AXIS:
+			if(IsAxisIdle(value))
+			{
+				m_selectedTarget = BINDINGTARGET();
+				m_state = STATE::NONE;
+				m_bindingType = CInputBindingManager::BINDING_UNBOUND;
+				setCounter(0);
+				setSelectedButtonLabelText("Selected Key: None");
+			}
+			break;
+		case BINDINGTARGET::KEYTYPE::POVHAT:
+			if(m_bindingValue != value)
+			{
+				m_selectedTarget = BINDINGTARGET();
+				m_state = STATE::NONE;
+				m_bindingType = CInputBindingManager::BINDING_UNBOUND;
+				setCounter(0);
+				setSelectedButtonLabelText("Selected Key: None");
+			}
+		}
+		break;
+	}
 }
-#endif
 
 void InputEventSelectionDialog::keyPressEvent(QKeyEvent* ev)
 {
@@ -189,40 +133,12 @@ void InputEventSelectionDialog::keyPressEvent(QKeyEvent* ev)
 		reject();
 		return;
 	}
-	setCounter(1);
-
-	QString key = QKeySequence(ev->key()).toString();
-	if(PS2::CControllerInfo::IsAxis(m_button))
-	{
-		if(click_count == 0)
-		{
-			m_key1.id = ev->key();
-			m_key1.device = {0};
-			m_key1.bindtype = CInputBindingManager::BINDINGTYPE::BINDING_SIMULATEDAXIS;
-			setSelectedButtonLabelText("(-) Key Selected: " + key);
-		}
-		else
-		{
-			m_key2.id = ev->key();
-			m_key2.device = {0};
-			setSelectedButtonLabelText("(+) Key Selected: " + key);
-		}
-	}
-	else
-	{
-		m_key1.id = ev->key();
-		m_key1.device = {0};
-		m_key1.bindtype = CInputBindingManager::BINDINGTYPE::BINDING_SIMPLE;
-		setSelectedButtonLabelText("Key Selected: " + key);
-	}
+	m_qtKeyInputProvider->OnKeyPress(ev->key());
 }
 
 void InputEventSelectionDialog::keyReleaseEvent(QKeyEvent* ev)
 {
-	if(!ev->isAutoRepeat())
-	{
-		setCounter(0);
-	}
+	m_qtKeyInputProvider->OnKeyRelease(ev->key());
 }
 
 void InputEventSelectionDialog::CountDownThreadLoop()
@@ -239,29 +155,15 @@ void InputEventSelectionDialog::CountDownThreadLoop()
 			}
 			else
 			{
-				switch(m_key1.bindtype)
+				switch(m_bindingType)
 				{
-				case CInputBindingManager::BINDINGTYPE::BINDING_SIMPLE:
-					m_inputManager->SetSimpleBinding(m_button, m_key1);
+				case CInputBindingManager::BINDING_SIMPLE:
+					m_inputManager->SetSimpleBinding(m_button, m_selectedTarget);
 					break;
-				case CInputBindingManager::BINDINGTYPE::BINDING_POVHAT:
-					m_inputManager->SetPovHatBinding(m_button, m_key1, m_key1.value);
-					break;
-				case CInputBindingManager::BINDINGTYPE::BINDING_SIMULATEDAXIS:
-					if(click_count == 0)
-					{
-						click_count++;
-						m_isCounting = 0;
-						setCountDownLabelText(m_countingtext.arg(3));
-						continue;
-					}
-					else if(m_key2.id > 0)
-					{
-						m_inputManager->SetSimulatedAxisBinding(m_button, m_key1, m_key2);
-					}
+				case CInputBindingManager::BINDING_POVHAT:
+					m_inputManager->SetPovHatBinding(m_button, m_selectedTarget, m_bindingValue);
 					break;
 				}
-
 				m_running = false;
 				accept();
 			}
@@ -278,16 +180,6 @@ bool InputEventSelectionDialog::setCounter(int value)
 {
 	if(value == 0)
 	{
-		if(click_count == 0)
-		{
-			m_key1.id = -1;
-			setSelectedButtonLabelText("Selected Key: None");
-		}
-		else
-		{
-			m_key2.id = -1;
-			setSelectedButtonLabelText("(+) Selected Key: None");
-		}
 		m_isCounting = false;
 		return false;
 	}

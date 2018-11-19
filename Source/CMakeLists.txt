@@ -200,6 +200,11 @@ set(COMMON_SRC_FILES
 	gs/GSHandler.h
 	gs/GsPixelFormats.cpp
 	gs/GsPixelFormats.h
+	input/InputBindingManager.cpp
+	input/InputBindingManager.h
+	input/InputProvider.h
+	input/PH_GenericInput.cpp
+	input/PH_GenericInput.h
 	iop/ArgumentIterator.cpp
 	iop/ArgumentIterator.h
 	iop/DirectoryDevice.cpp
