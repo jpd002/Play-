@@ -156,7 +156,7 @@ if(TARGET_PLATFORM_MACOS)
 		GamePad/GamePadDeviceListener_OSX.h
 	)
 	set(OSX_RES
-		${CMAKE_CURRENT_SOURCE_DIR}/AppIcon.icns
+		${CMAKE_CURRENT_SOURCE_DIR}/macos/AppIcon.icns
 		${CMAKE_CURRENT_SOURCE_DIR}/../../patches.xml
 	)
 	add_executable(Play MACOSX_BUNDLE ${QT_SOURCES} ${QT_MOC_SRCS} ${QT_RES_SOURCES} ${QT_UI_HEADERS} ${OSX_RES})
@@ -175,7 +175,7 @@ if(TARGET_PLATFORM_MACOS)
 			MACOSX_BUNDLE_BUNDLE_VERSION ${DATE}
 			MACOSX_BUNDLE_COPYRIGHT "© Virtual Applications, 2017"
 			MACOSX_BUNDLE_ICON_FILE "AppIcon.icns"
-			MACOSX_BUNDLE_INFO_PLIST "${CMAKE_CURRENT_SOURCE_DIR}/Info.plist.in"
+			MACOSX_BUNDLE_INFO_PLIST "${CMAKE_CURRENT_SOURCE_DIR}/macos/Info.plist.in"
 		RESOURCE "${OSX_RES}"
 	)
 	list(APPEND PROJECT_LIBS "-framework IOKit -framework CoreFoundation")
