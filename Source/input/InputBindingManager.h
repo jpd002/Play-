@@ -52,7 +52,6 @@ public:
 		uint32 GetValue() const override;
 		void SetValue(uint32) override;
 
-		static void RegisterPreferences(Framework::CConfig&, const char*);
 		void Save(Framework::CConfig&, const char*) const override;
 		void Load(Framework::CConfig&, const char*) override;
 
@@ -103,7 +102,6 @@ public:
 		uint32 GetValue() const override;
 		void SetValue(uint32) override;
 
-		static void RegisterPreferences(Framework::CConfig&, const char*);
 		void Save(Framework::CConfig&, const char*) const override;
 		void Load(Framework::CConfig&, const char*) override;
 

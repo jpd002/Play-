@@ -10,14 +10,10 @@
 #define CONFIG_BINDINGTARGET_KEYID ("keyId")
 #define CONFIG_BINDINGTARGET_KEYTYPE ("keyType")
 
-#define CONFIG_SIMPLEBINDING_PREFIX ("simplebinding")
+#define CONFIG_BINDINGTARGET1 ("bindingtarget1")
+#define CONFIG_BINDINGTARGET2 ("bindingtarget2")
 
-#define CONFIG_POVHATBINDING_PREFIX ("povhatbinding")
-#define CONFIG_POVHATBINDING_REFVALUE ("refvalue")
-
-#define CONFIG_SIMULATEDAXISBINDING_PREFIX ("simulatedaxisbinding")
-#define CONFIG_SIMULATEDAXISBINDING_KEY1 ("key1")
-#define CONFIG_SIMULATEDAXISBINDING_KEY2 ("key2")
+#define CONFIG_POVHATBINDING_REFVALUE ("povhatbinding.refvalue")
 
 uint32 CInputBindingManager::m_buttonDefaultValue[PS2::CControllerInfo::MAX_BUTTONS] =
     {
@@ -42,19 +38,67 @@ uint32 CInputBindingManager::m_buttonDefaultValue[PS2::CControllerInfo::MAX_BUTT
         0,
         0};
 
+static bool TryParseDeviceId(const char* input, DeviceIdType& out)
+{
+	uint32 bytes[6] = {0};
+	if(std::sscanf(input,
+				   "%x:%x:%x:%x:%x:%x",
+				   &bytes[0], &bytes[1], &bytes[2],
+				   &bytes[3], &bytes[4], &bytes[5]) != 6)
+	{
+		return false;
+	}
+	for(int i = 0; i < 6; ++i)
+	{
+		out.at(i) = bytes[i];
+	}
+	return true;
+}
+
+static void RegisterBindingTargetPreference(Framework::CConfig& config, const char* base)
+{
+	config.RegisterPreferenceInteger(Framework::CConfig::MakePreferenceName(base, CONFIG_BINDINGTARGET_PROVIDERID).c_str(), 0);
+	config.RegisterPreferenceString(Framework::CConfig::MakePreferenceName(base, CONFIG_BINDINGTARGET_DEVICEID).c_str(), "0:0:0:0:0:0");
+	config.RegisterPreferenceInteger(Framework::CConfig::MakePreferenceName(base, CONFIG_BINDINGTARGET_KEYID).c_str(), 0);
+	config.RegisterPreferenceInteger(Framework::CConfig::MakePreferenceName(base, CONFIG_BINDINGTARGET_KEYTYPE).c_str(), 0);
+}
+
+static BINDINGTARGET LoadBindingTargetPreference(Framework::CConfig& config, const char* base)
+{
+	BINDINGTARGET result;
+	result.providerId = config.GetPreferenceInteger(Framework::CConfig::MakePreferenceName(base, CONFIG_BINDINGTARGET_PROVIDERID).c_str());
+	auto deviceIdString = config.GetPreferenceString(Framework::CConfig::MakePreferenceName(base, CONFIG_BINDINGTARGET_DEVICEID).c_str());
+	bool parseResult = TryParseDeviceId(deviceIdString, result.deviceId);
+	assert(parseResult);
+	result.keyId = config.GetPreferenceInteger(Framework::CConfig::MakePreferenceName(base, CONFIG_BINDINGTARGET_KEYID).c_str());
+	result.keyType = static_cast<BINDINGTARGET::KEYTYPE>(config.GetPreferenceInteger(Framework::CConfig::MakePreferenceName(base, CONFIG_BINDINGTARGET_KEYTYPE).c_str()));
+	return result;
+}
+
+static void SaveBindingTargetPreference(Framework::CConfig& config, const char* base, const BINDINGTARGET& target)
+{
+	auto deviceIdString = string_format("%x:%x:%x:%x:%x:%x",
+										target.deviceId[0], target.deviceId[1], target.deviceId[2],
+										target.deviceId[3], target.deviceId[4], target.deviceId[5]);
+	config.SetPreferenceInteger(Framework::CConfig::MakePreferenceName(base, CONFIG_BINDINGTARGET_PROVIDERID).c_str(), target.providerId);
+	config.SetPreferenceString(Framework::CConfig::MakePreferenceName(base, CONFIG_BINDINGTARGET_DEVICEID).c_str(), deviceIdString.c_str());
+	config.SetPreferenceInteger(Framework::CConfig::MakePreferenceName(base, CONFIG_BINDINGTARGET_KEYID).c_str(), target.keyId);
+	config.SetPreferenceInteger(Framework::CConfig::MakePreferenceName(base, CONFIG_BINDINGTARGET_KEYTYPE).c_str(), static_cast<int32>(target.keyType));
+}
+
 CInputBindingManager::CInputBindingManager()
 	: m_config(CAppConfig::GetInstance())
 {
 	for(unsigned int i = 0; i < PS2::CControllerInfo::MAX_BUTTONS; i++)
 	{
-		std::string prefBase = Framework::CConfig::MakePreferenceName(CONFIG_PREFIX, PS2::CControllerInfo::m_buttonName[i]);
+		auto prefBase = Framework::CConfig::MakePreferenceName(CONFIG_PREFIX, PS2::CControllerInfo::m_buttonName[i]);
 		m_config.RegisterPreferenceInteger(Framework::CConfig::MakePreferenceName(prefBase, CONFIG_BINDING_TYPE).c_str(), 0);
-		CSimpleBinding::RegisterPreferences(m_config, prefBase.c_str());
-		CPovHatBinding::RegisterPreferences(m_config, prefBase.c_str());
+		RegisterBindingTargetPreference(m_config, Framework::CConfig::MakePreferenceName(prefBase, CONFIG_BINDINGTARGET1).c_str());
 		if(PS2::CControllerInfo::IsAxis(static_cast<PS2::CControllerInfo::BUTTON>(i)))
 		{
-			CSimulatedAxisBinding::RegisterPreferences(m_config, prefBase.c_str());
+			RegisterBindingTargetPreference(m_config, Framework::CConfig::MakePreferenceName(prefBase, CONFIG_BINDINGTARGET2).c_str());
 		}
+		CPovHatBinding::RegisterPreferences(m_config, prefBase.c_str());
 	}
 	Load();
 }
@@ -209,54 +253,6 @@ void CInputBindingManager::SetSimulatedAxisBinding(PS2::CControllerInfo::BUTTON 
 	m_bindings[button] = std::make_shared<CSimulatedAxisBinding>(binding1, binding2);
 }
 
-static bool TryParseDeviceId(const char* input, DeviceIdType& out)
-{
-	uint32 bytes[6] = {0};
-	if(std::sscanf(input,
-				   "%x:%x:%x:%x:%x:%x",
-				   &bytes[0], &bytes[1], &bytes[2],
-				   &bytes[3], &bytes[4], &bytes[5]) != 6)
-	{
-		return false;
-	}
-	for(int i = 0; i < 6; ++i)
-	{
-		out.at(i) = bytes[i];
-	}
-	return true;
-}
-
-static void RegisterBindingTargetPreference(Framework::CConfig& config, const char* base)
-{
-	config.RegisterPreferenceInteger(Framework::CConfig::MakePreferenceName(base, CONFIG_BINDINGTARGET_PROVIDERID).c_str(), 0);
-	config.RegisterPreferenceString(Framework::CConfig::MakePreferenceName(base, CONFIG_BINDINGTARGET_DEVICEID).c_str(), "0:0:0:0:0:0");
-	config.RegisterPreferenceInteger(Framework::CConfig::MakePreferenceName(base, CONFIG_BINDINGTARGET_KEYID).c_str(), 0);
-	config.RegisterPreferenceInteger(Framework::CConfig::MakePreferenceName(base, CONFIG_BINDINGTARGET_KEYTYPE).c_str(), 0);
-}
-
-static BINDINGTARGET LoadBindingTargetPreference(Framework::CConfig& config, const char* base)
-{
-	BINDINGTARGET result;
-	result.providerId = config.GetPreferenceInteger(Framework::CConfig::MakePreferenceName(base, CONFIG_BINDINGTARGET_PROVIDERID).c_str());
-	auto deviceIdString = config.GetPreferenceString(Framework::CConfig::MakePreferenceName(base, CONFIG_BINDINGTARGET_DEVICEID).c_str());
-	bool parseResult = TryParseDeviceId(deviceIdString, result.deviceId);
-	assert(parseResult);
-	result.keyId = config.GetPreferenceInteger(Framework::CConfig::MakePreferenceName(base, CONFIG_BINDINGTARGET_KEYID).c_str());
-	result.keyType = static_cast<BINDINGTARGET::KEYTYPE>(config.GetPreferenceInteger(Framework::CConfig::MakePreferenceName(base, CONFIG_BINDINGTARGET_KEYTYPE).c_str()));
-	return result;
-}
-
-static void SaveBindingTargetPreference(Framework::CConfig& config, const char* base, const BINDINGTARGET& target)
-{
-	auto deviceIdString = string_format("%x:%x:%x:%x:%x:%x",
-										target.deviceId[0], target.deviceId[1], target.deviceId[2],
-										target.deviceId[3], target.deviceId[4], target.deviceId[5]);
-	config.SetPreferenceInteger(Framework::CConfig::MakePreferenceName(base, CONFIG_BINDINGTARGET_PROVIDERID).c_str(), target.providerId);
-	config.SetPreferenceString(Framework::CConfig::MakePreferenceName(base, CONFIG_BINDINGTARGET_DEVICEID).c_str(), deviceIdString.c_str());
-	config.SetPreferenceInteger(Framework::CConfig::MakePreferenceName(base, CONFIG_BINDINGTARGET_KEYID).c_str(), target.keyId);
-	config.SetPreferenceInteger(Framework::CConfig::MakePreferenceName(base, CONFIG_BINDINGTARGET_KEYTYPE).c_str(), static_cast<int32>(target.keyType));
-}
-
 ////////////////////////////////////////////////
 // SimpleBinding
 ////////////////////////////////////////////////
@@ -279,7 +275,7 @@ CInputBindingManager::BINDINGTYPE CInputBindingManager::CSimpleBinding::GetBindi
 
 const char* CInputBindingManager::CSimpleBinding::GetBindingTypeName() const
 {
-	return CONFIG_SIMPLEBINDING_PREFIX;
+	return "simplebinding";
 }
 
 uint32 CInputBindingManager::CSimpleBinding::GetValue() const
@@ -299,20 +295,14 @@ std::string CInputBindingManager::CSimpleBinding::GetDescription(CInputBindingMa
 
 void CInputBindingManager::CSimpleBinding::Save(Framework::CConfig& config, const char* buttonBase) const
 {
-	auto prefBase = Framework::CConfig::MakePreferenceName(buttonBase, CONFIG_SIMPLEBINDING_PREFIX);
+	auto prefBase = Framework::CConfig::MakePreferenceName(buttonBase, CONFIG_BINDINGTARGET1);
 	SaveBindingTargetPreference(config, prefBase.c_str(), m_binding);
 }
 
 void CInputBindingManager::CSimpleBinding::Load(Framework::CConfig& config, const char* buttonBase)
 {
-	auto prefBase = Framework::CConfig::MakePreferenceName(buttonBase, CONFIG_SIMPLEBINDING_PREFIX);
+	auto prefBase = Framework::CConfig::MakePreferenceName(buttonBase, CONFIG_BINDINGTARGET1);
 	m_binding = LoadBindingTargetPreference(config, prefBase.c_str());
-}
-
-void CInputBindingManager::CSimpleBinding::RegisterPreferences(Framework::CConfig& config, const char* buttonBase)
-{
-	auto prefBase = Framework::CConfig::MakePreferenceName(buttonBase, CONFIG_SIMPLEBINDING_PREFIX);
-	RegisterBindingTargetPreference(config, prefBase.c_str());
 }
 
 ////////////////////////////////////////////////
@@ -332,28 +322,26 @@ CInputBindingManager::BINDINGTYPE CInputBindingManager::CPovHatBinding::GetBindi
 
 const char* CInputBindingManager::CPovHatBinding::GetBindingTypeName() const
 {
-	return CONFIG_POVHATBINDING_PREFIX;
+	return "povhatbinding";
+}
+
+void CInputBindingManager::CPovHatBinding::RegisterPreferences(Framework::CConfig& config, const char* buttonBase)
+{
+	config.RegisterPreferenceInteger(Framework::CConfig::MakePreferenceName(buttonBase, CONFIG_POVHATBINDING_REFVALUE).c_str(), -1);
 }
 
 void CInputBindingManager::CPovHatBinding::Save(Framework::CConfig& config, const char* buttonBase) const
 {
-	auto prefBase = Framework::CConfig::MakePreferenceName(buttonBase, CONFIG_POVHATBINDING_PREFIX);
+	auto prefBase = Framework::CConfig::MakePreferenceName(buttonBase, CONFIG_BINDINGTARGET1);
 	SaveBindingTargetPreference(config, prefBase.c_str(), m_binding);
 	config.SetPreferenceInteger(Framework::CConfig::MakePreferenceName(prefBase, CONFIG_POVHATBINDING_REFVALUE).c_str(), m_refValue);
 }
 
 void CInputBindingManager::CPovHatBinding::Load(Framework::CConfig& config, const char* buttonBase)
 {
-	auto prefBase = Framework::CConfig::MakePreferenceName(buttonBase, CONFIG_POVHATBINDING_PREFIX);
+	auto prefBase = Framework::CConfig::MakePreferenceName(buttonBase, CONFIG_BINDINGTARGET1);
 	m_binding = LoadBindingTargetPreference(config, prefBase.c_str());
 	m_refValue = config.GetPreferenceInteger(Framework::CConfig::MakePreferenceName(prefBase, CONFIG_POVHATBINDING_REFVALUE).c_str());
-}
-
-void CInputBindingManager::CPovHatBinding::RegisterPreferences(Framework::CConfig& config, const char* buttonBase)
-{
-	auto prefBase = Framework::CConfig::MakePreferenceName(buttonBase, CONFIG_POVHATBINDING_PREFIX);
-	RegisterBindingTargetPreference(config, prefBase.c_str());
-	config.RegisterPreferenceInteger(Framework::CConfig::MakePreferenceName(prefBase, CONFIG_POVHATBINDING_REFVALUE).c_str(), -1);
 }
 
 void CInputBindingManager::CPovHatBinding::ProcessEvent(const BINDINGTARGET& target, uint32 value)
@@ -447,7 +435,7 @@ CInputBindingManager::BINDINGTYPE CInputBindingManager::CSimulatedAxisBinding::G
 
 const char* CInputBindingManager::CSimulatedAxisBinding::GetBindingTypeName() const
 {
-	return CONFIG_SIMULATEDAXISBINDING_PREFIX;
+	return "simulatedaxisbinding";
 }
 
 std::string CInputBindingManager::CSimulatedAxisBinding::GetDescription(CInputBindingManager* inputBindingManager) const
@@ -465,28 +453,16 @@ void CInputBindingManager::CSimulatedAxisBinding::SetValue(uint32 state)
 
 void CInputBindingManager::CSimulatedAxisBinding::CSimulatedAxisBinding::Save(Framework::CConfig& config, const char* buttonBase) const
 {
-	auto prefBase = Framework::CConfig::MakePreferenceName(buttonBase, CONFIG_SIMULATEDAXISBINDING_PREFIX);
-	auto key1PrefBase = Framework::CConfig::MakePreferenceName(prefBase, CONFIG_SIMULATEDAXISBINDING_KEY1);
-	auto key2PrefBase = Framework::CConfig::MakePreferenceName(prefBase, CONFIG_SIMULATEDAXISBINDING_KEY2);
+	auto key1PrefBase = Framework::CConfig::MakePreferenceName(buttonBase, CONFIG_BINDINGTARGET1);
+	auto key2PrefBase = Framework::CConfig::MakePreferenceName(buttonBase, CONFIG_BINDINGTARGET2);
 	SaveBindingTargetPreference(config, key1PrefBase.c_str(), m_key1Binding);
 	SaveBindingTargetPreference(config, key2PrefBase.c_str(), m_key2Binding);
 }
 
 void CInputBindingManager::CSimulatedAxisBinding::Load(Framework::CConfig& config, const char* buttonBase)
 {
-	auto prefBase = Framework::CConfig::MakePreferenceName(buttonBase, CONFIG_SIMULATEDAXISBINDING_PREFIX);
-	auto key1PrefBase = Framework::CConfig::MakePreferenceName(prefBase, CONFIG_SIMULATEDAXISBINDING_KEY1);
-	auto key2PrefBase = Framework::CConfig::MakePreferenceName(prefBase, CONFIG_SIMULATEDAXISBINDING_KEY2);
+	auto key1PrefBase = Framework::CConfig::MakePreferenceName(buttonBase, CONFIG_BINDINGTARGET1);
+	auto key2PrefBase = Framework::CConfig::MakePreferenceName(buttonBase, CONFIG_BINDINGTARGET2);
 	m_key1Binding = LoadBindingTargetPreference(config, key1PrefBase.c_str());
 	m_key2Binding = LoadBindingTargetPreference(config, key2PrefBase.c_str());
 }
-
-void CInputBindingManager::CSimulatedAxisBinding::RegisterPreferences(Framework::CConfig& config, const char* buttonBase)
-{
-	auto prefBase = Framework::CConfig::MakePreferenceName(buttonBase, CONFIG_SIMULATEDAXISBINDING_PREFIX);
-	auto key1PrefBase = Framework::CConfig::MakePreferenceName(prefBase, CONFIG_SIMULATEDAXISBINDING_KEY1);
-	auto key2PrefBase = Framework::CConfig::MakePreferenceName(prefBase, CONFIG_SIMULATEDAXISBINDING_KEY2);
-	RegisterBindingTargetPreference(config, key1PrefBase.c_str());
-	RegisterBindingTargetPreference(config, key2PrefBase.c_str());
-}
-
