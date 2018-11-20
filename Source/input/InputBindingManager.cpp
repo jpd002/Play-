@@ -177,7 +177,7 @@ void CInputBindingManager::Load()
 		for(unsigned int button = 0; button < PS2::CControllerInfo::MAX_BUTTONS; button++)
 		{
 			BINDINGTYPE bindingType = BINDING_UNBOUND;
-			auto prefBase = Framework::CConfig::MakePreferenceName(CONFIG_PREFIX, PS2::CControllerInfo::m_buttonName[button]);
+			auto prefBase = Framework::CConfig::MakePreferenceName(CONFIG_PREFIX, m_padPreferenceName[pad], PS2::CControllerInfo::m_buttonName[button]);
 			bindingType = static_cast<BINDINGTYPE>(m_config.GetPreferenceInteger((prefBase + "." + std::string(CONFIG_BINDING_TYPE)).c_str()));
 			if(bindingType == BINDING_UNBOUND) continue;
 			BindingPtr binding;
@@ -211,7 +211,7 @@ void CInputBindingManager::Save()
 		{
 			const auto& binding = m_bindings[pad][button];
 			if(!binding) continue;
-			auto prefBase = Framework::CConfig::MakePreferenceName(CONFIG_PREFIX, PS2::CControllerInfo::m_buttonName[button]);
+			auto prefBase = Framework::CConfig::MakePreferenceName(CONFIG_PREFIX, m_padPreferenceName[pad], PS2::CControllerInfo::m_buttonName[button]);
 			m_config.SetPreferenceInteger(Framework::CConfig::MakePreferenceName(prefBase, CONFIG_BINDING_TYPE).c_str(), binding->GetBindingType());
 			binding->Save(m_config, prefBase.c_str());
 		}
@@ -362,16 +362,20 @@ void CInputBindingManager::CPovHatBinding::RegisterPreferences(Framework::CConfi
 
 void CInputBindingManager::CPovHatBinding::Save(Framework::CConfig& config, const char* buttonBase) const
 {
-	auto prefBase = Framework::CConfig::MakePreferenceName(buttonBase, CONFIG_BINDINGTARGET1);
-	SaveBindingTargetPreference(config, prefBase.c_str(), m_binding);
-	config.SetPreferenceInteger(Framework::CConfig::MakePreferenceName(prefBase, CONFIG_POVHATBINDING_REFVALUE).c_str(), m_refValue);
+	{
+		auto prefBase = Framework::CConfig::MakePreferenceName(buttonBase, CONFIG_BINDINGTARGET1);
+		SaveBindingTargetPreference(config, prefBase.c_str(), m_binding);
+	}
+	config.SetPreferenceInteger(Framework::CConfig::MakePreferenceName(buttonBase, CONFIG_POVHATBINDING_REFVALUE).c_str(), m_refValue);
 }
 
 void CInputBindingManager::CPovHatBinding::Load(Framework::CConfig& config, const char* buttonBase)
 {
-	auto prefBase = Framework::CConfig::MakePreferenceName(buttonBase, CONFIG_BINDINGTARGET1);
-	m_binding = LoadBindingTargetPreference(config, prefBase.c_str());
-	m_refValue = config.GetPreferenceInteger(Framework::CConfig::MakePreferenceName(prefBase, CONFIG_POVHATBINDING_REFVALUE).c_str());
+	{
+		auto prefBase = Framework::CConfig::MakePreferenceName(buttonBase, CONFIG_BINDINGTARGET1);
+		m_binding = LoadBindingTargetPreference(config, prefBase.c_str());
+	}
+	m_refValue = config.GetPreferenceInteger(Framework::CConfig::MakePreferenceName(buttonBase, CONFIG_POVHATBINDING_REFVALUE).c_str());
 }
 
 void CInputBindingManager::CPovHatBinding::ProcessEvent(const BINDINGTARGET& target, uint32 value)
