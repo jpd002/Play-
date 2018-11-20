@@ -89,12 +89,12 @@ set(QT_SOURCES
 	vfsdiscselectordialog.h
 	VfsDevice.cpp
 	VfsDevice.h
-	GamePad/GamePadUtils.cpp
-	GamePad/GamePadUtils.h
 )
 if(LIBEVDEV_FOUND)
 	set(QT_SOURCES
 		${QT_SOURCES}
+		GamePad/GamePadUtils.cpp
+		GamePad/GamePadUtils.h
 		GamePad/GamePadInputEventListener.cpp
 		GamePad/GamePadInputEventListener.h
 		GamePad/GamePadDeviceListener.cpp
