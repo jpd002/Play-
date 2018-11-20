@@ -36,82 +36,6 @@ public:
 		virtual void Save(Framework::CConfig&, const char*) const = 0;
 		virtual void Load(Framework::CConfig&, const char*) = 0;
 	};
-
-	class CSimpleBinding : public CBinding
-	{
-	public:
-		CSimpleBinding() = default;
-		CSimpleBinding(const BINDINGTARGET&);
-
-		void ProcessEvent(const BINDINGTARGET&, uint32) override;
-
-		BINDINGTYPE GetBindingType() const override;
-		const char* GetBindingTypeName() const override;
-		std::string GetDescription(CInputBindingManager*) const override;
-
-		uint32 GetValue() const override;
-		void SetValue(uint32) override;
-
-		void Save(Framework::CConfig&, const char*) const override;
-		void Load(Framework::CConfig&, const char*) override;
-
-	private:
-		BINDINGTARGET m_binding;
-		uint32 m_value = 0;
-	};
-
-	class CPovHatBinding : public CBinding
-	{
-	public:
-		CPovHatBinding() = default;
-		CPovHatBinding(const BINDINGTARGET&, uint32 = -1);
-
-		void ProcessEvent(const BINDINGTARGET&, uint32) override;
-
-		BINDINGTYPE GetBindingType() const override;
-		const char* GetBindingTypeName() const override;
-		std::string GetDescription(CInputBindingManager*) const override;
-
-		uint32 GetValue() const override;
-		void SetValue(uint32) override;
-
-		static void RegisterPreferences(Framework::CConfig&, const char*);
-		void Save(Framework::CConfig&, const char*) const override;
-		void Load(Framework::CConfig&, const char*) override;
-
-	private:
-		static int32 GetShortestDistanceBetweenAngles(int32, int32);
-
-		BINDINGTARGET m_binding;
-		uint32 m_refValue = 0;
-		uint32 m_value = 0;
-	};
-
-	class CSimulatedAxisBinding : public CBinding
-	{
-	public:
-		CSimulatedAxisBinding() = default;
-		CSimulatedAxisBinding(const BINDINGTARGET&, const BINDINGTARGET&);
-
-		void ProcessEvent(const BINDINGTARGET&, uint32) override;
-
-		BINDINGTYPE GetBindingType() const override;
-		const char* GetBindingTypeName() const override;
-		std::string GetDescription(CInputBindingManager*) const override;
-
-		uint32 GetValue() const override;
-		void SetValue(uint32) override;
-
-		void Save(Framework::CConfig&, const char*) const override;
-		void Load(Framework::CConfig&, const char*) override;
-
-	private:
-		BINDINGTARGET m_key1Binding;
-		BINDINGTARGET m_key2Binding;
-
-		uint32 m_key1State = 0;
-		uint32 m_key2State = 0;
-	};
 	
 	CInputBindingManager();
 	virtual ~CInputBindingManager() = default;
@@ -135,6 +59,82 @@ public:
 	void Save();
 
 private:
+	class CSimpleBinding : public CBinding
+	{
+	public:
+		CSimpleBinding() = default;
+		CSimpleBinding(const BINDINGTARGET&);
+		
+		void ProcessEvent(const BINDINGTARGET&, uint32) override;
+		
+		BINDINGTYPE GetBindingType() const override;
+		const char* GetBindingTypeName() const override;
+		std::string GetDescription(CInputBindingManager*) const override;
+		
+		uint32 GetValue() const override;
+		void SetValue(uint32) override;
+		
+		void Save(Framework::CConfig&, const char*) const override;
+		void Load(Framework::CConfig&, const char*) override;
+		
+	private:
+		BINDINGTARGET m_binding;
+		uint32 m_value = 0;
+	};
+	
+	class CPovHatBinding : public CBinding
+	{
+	public:
+		CPovHatBinding() = default;
+		CPovHatBinding(const BINDINGTARGET&, uint32 = -1);
+		
+		void ProcessEvent(const BINDINGTARGET&, uint32) override;
+		
+		BINDINGTYPE GetBindingType() const override;
+		const char* GetBindingTypeName() const override;
+		std::string GetDescription(CInputBindingManager*) const override;
+		
+		uint32 GetValue() const override;
+		void SetValue(uint32) override;
+		
+		static void RegisterPreferences(Framework::CConfig&, const char*);
+		void Save(Framework::CConfig&, const char*) const override;
+		void Load(Framework::CConfig&, const char*) override;
+		
+	private:
+		static int32 GetShortestDistanceBetweenAngles(int32, int32);
+		
+		BINDINGTARGET m_binding;
+		uint32 m_refValue = 0;
+		uint32 m_value = 0;
+	};
+	
+	class CSimulatedAxisBinding : public CBinding
+	{
+	public:
+		CSimulatedAxisBinding() = default;
+		CSimulatedAxisBinding(const BINDINGTARGET&, const BINDINGTARGET&);
+		
+		void ProcessEvent(const BINDINGTARGET&, uint32) override;
+		
+		BINDINGTYPE GetBindingType() const override;
+		const char* GetBindingTypeName() const override;
+		std::string GetDescription(CInputBindingManager*) const override;
+		
+		uint32 GetValue() const override;
+		void SetValue(uint32) override;
+		
+		void Save(Framework::CConfig&, const char*) const override;
+		void Load(Framework::CConfig&, const char*) override;
+		
+	private:
+		BINDINGTARGET m_key1Binding;
+		BINDINGTARGET m_key2Binding;
+		
+		uint32 m_key1State = 0;
+		uint32 m_key2State = 0;
+	};
+
 	typedef std::shared_ptr<CBinding> BindingPtr;
 	typedef std::map<uint32, ProviderPtr> ProviderMap;
 
