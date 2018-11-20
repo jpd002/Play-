@@ -27,7 +27,7 @@ QVariant CBindingModel::data(const QModelIndex& index, int role) const
 {
 	if(role == Qt::DisplayRole)
 	{
-		auto binding = m_inputManager->GetBinding(static_cast<PS2::CControllerInfo::BUTTON>(index.row()));
+		auto binding = m_inputManager->GetBinding(0, static_cast<PS2::CControllerInfo::BUTTON>(index.row()));
 		if(binding != nullptr)
 		{
 			switch(index.column())

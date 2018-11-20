@@ -12,6 +12,11 @@ class CInputBindingManager
 public:
 	typedef std::shared_ptr<CInputProvider> ProviderPtr;
 	
+	enum
+	{
+		MAX_PADS = 2,
+	};
+	
 	enum BINDINGTYPE
 	{
 		BINDING_UNBOUND = 0,
@@ -47,13 +52,13 @@ public:
 	
 	std::string GetTargetDescription(const BINDINGTARGET&) const;
 	
-	uint32 GetBindingValue(PS2::CControllerInfo::BUTTON) const;
+	uint32 GetBindingValue(uint32, PS2::CControllerInfo::BUTTON) const;
 	void ResetBindingValues();
 
-	const CBinding* GetBinding(PS2::CControllerInfo::BUTTON) const;
-	void SetSimpleBinding(PS2::CControllerInfo::BUTTON, const BINDINGTARGET&);
-	void SetPovHatBinding(PS2::CControllerInfo::BUTTON, const BINDINGTARGET&, uint32);
-	void SetSimulatedAxisBinding(PS2::CControllerInfo::BUTTON, const BINDINGTARGET&, const BINDINGTARGET&);
+	const CBinding* GetBinding(uint32, PS2::CControllerInfo::BUTTON) const;
+	void SetSimpleBinding(uint32, PS2::CControllerInfo::BUTTON, const BINDINGTARGET&);
+	void SetPovHatBinding(uint32, PS2::CControllerInfo::BUTTON, const BINDINGTARGET&, uint32);
+	void SetSimulatedAxisBinding(uint32, PS2::CControllerInfo::BUTTON, const BINDINGTARGET&, const BINDINGTARGET&);
 
 	void Load();
 	void Save();
@@ -140,9 +145,10 @@ private:
 
 	void OnInputEventReceived(const BINDINGTARGET&, uint32);
 
-	BindingPtr m_bindings[PS2::CControllerInfo::MAX_BUTTONS];
+	BindingPtr m_bindings[MAX_PADS][PS2::CControllerInfo::MAX_BUTTONS];
 	static uint32 m_buttonDefaultValue[PS2::CControllerInfo::MAX_BUTTONS];
-
+	static const char* m_padPreferenceName[MAX_PADS];
+	
 	Framework::CConfig& m_config;
 	ProviderMap m_providers;
 };

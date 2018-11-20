@@ -158,10 +158,10 @@ void InputEventSelectionDialog::CountDownThreadLoop()
 				switch(m_bindingType)
 				{
 				case CInputBindingManager::BINDING_SIMPLE:
-					m_inputManager->SetSimpleBinding(m_button, m_selectedTarget);
+					m_inputManager->SetSimpleBinding(0, m_button, m_selectedTarget);
 					break;
 				case CInputBindingManager::BINDING_POVHAT:
-					m_inputManager->SetPovHatBinding(m_button, m_selectedTarget, m_bindingValue);
+					m_inputManager->SetPovHatBinding(0, m_button, m_selectedTarget, m_bindingValue);
 					break;
 				}
 				m_running = false;

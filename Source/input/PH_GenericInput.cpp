@@ -7,7 +7,7 @@ void CPH_GenericInput::Update(uint8* ram)
 		for(unsigned int i = 0; i < PS2::CControllerInfo::MAX_BUTTONS; i++)
 		{
 			auto button = static_cast<PS2::CControllerInfo::BUTTON>(i);
-			const auto& binding = m_bindingManager.GetBinding(button);
+			const auto& binding = m_bindingManager.GetBinding(0, button);
 			if(!binding) continue;
 			uint32 value = binding->GetValue();
 			auto currentButtonId = static_cast<PS2::CControllerInfo::BUTTON>(i);
