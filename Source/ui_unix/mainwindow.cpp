@@ -124,7 +124,7 @@ void MainWindow::InitVirtualMachine()
 		
 		if(!bindingManager.HasBindings())
 		{
-			AutoConfigureKeyboard();
+			ControllerConfigDialog::AutoConfigureKeyboard(&bindingManager);
 		}
 	}
 	
@@ -569,43 +569,6 @@ void MainWindow::toggleFullscreen()
 		statusBar()->hide();
 		menuBar()->hide();
 	}
-}
-
-void MainWindow::AutoConfigureKeyboard()
-{
-	auto padHandler = static_cast<CPH_GenericInput*>(m_virtualMachine->GetPadHandler());
-	auto& bindingManager = padHandler->GetBindingManager();
-
-	bindingManager.SetSimpleBinding(PS2::CControllerInfo::START, CInputProviderQtKey::MakeBindingTarget(Qt::Key_Return));
-	bindingManager.SetSimpleBinding(PS2::CControllerInfo::SELECT, CInputProviderQtKey::MakeBindingTarget(Qt::Key_Backspace));
-	bindingManager.SetSimpleBinding(PS2::CControllerInfo::DPAD_LEFT, CInputProviderQtKey::MakeBindingTarget(Qt::Key_Left));
-	bindingManager.SetSimpleBinding(PS2::CControllerInfo::DPAD_RIGHT, CInputProviderQtKey::MakeBindingTarget(Qt::Key_Right));
-	bindingManager.SetSimpleBinding(PS2::CControllerInfo::DPAD_UP, CInputProviderQtKey::MakeBindingTarget(Qt::Key_Up));
-	bindingManager.SetSimpleBinding(PS2::CControllerInfo::DPAD_DOWN, CInputProviderQtKey::MakeBindingTarget(Qt::Key_Down));
-	bindingManager.SetSimpleBinding(PS2::CControllerInfo::SQUARE, CInputProviderQtKey::MakeBindingTarget(Qt::Key_A));
-	bindingManager.SetSimpleBinding(PS2::CControllerInfo::CROSS, CInputProviderQtKey::MakeBindingTarget(Qt::Key_Z));
-	bindingManager.SetSimpleBinding(PS2::CControllerInfo::TRIANGLE, CInputProviderQtKey::MakeBindingTarget(Qt::Key_S));
-	bindingManager.SetSimpleBinding(PS2::CControllerInfo::CIRCLE, CInputProviderQtKey::MakeBindingTarget(Qt::Key_X));
-	bindingManager.SetSimpleBinding(PS2::CControllerInfo::L1, CInputProviderQtKey::MakeBindingTarget(Qt::Key_1));
-	bindingManager.SetSimpleBinding(PS2::CControllerInfo::L2, CInputProviderQtKey::MakeBindingTarget(Qt::Key_2));
-	bindingManager.SetSimpleBinding(PS2::CControllerInfo::L3, CInputProviderQtKey::MakeBindingTarget(Qt::Key_3));
-	bindingManager.SetSimpleBinding(PS2::CControllerInfo::R1, CInputProviderQtKey::MakeBindingTarget(Qt::Key_8));
-	bindingManager.SetSimpleBinding(PS2::CControllerInfo::R2, CInputProviderQtKey::MakeBindingTarget(Qt::Key_9));
-	bindingManager.SetSimpleBinding(PS2::CControllerInfo::R3, CInputProviderQtKey::MakeBindingTarget(Qt::Key_0));
-	
-	bindingManager.SetSimulatedAxisBinding(PS2::CControllerInfo::ANALOG_LEFT_X,
-							CInputProviderQtKey::MakeBindingTarget(Qt::Key_F),
-							CInputProviderQtKey::MakeBindingTarget(Qt::Key_H));
-	bindingManager.SetSimulatedAxisBinding(PS2::CControllerInfo::ANALOG_LEFT_Y,
-							CInputProviderQtKey::MakeBindingTarget(Qt::Key_T),
-							CInputProviderQtKey::MakeBindingTarget(Qt::Key_G));
-	
-	bindingManager.SetSimulatedAxisBinding(PS2::CControllerInfo::ANALOG_RIGHT_X,
-							CInputProviderQtKey::MakeBindingTarget(Qt::Key_J),
-							CInputProviderQtKey::MakeBindingTarget(Qt::Key_L));
-	bindingManager.SetSimulatedAxisBinding(PS2::CControllerInfo::ANALOG_RIGHT_Y,
-							CInputProviderQtKey::MakeBindingTarget(Qt::Key_I),
-							CInputProviderQtKey::MakeBindingTarget(Qt::Key_K));
 }
 
 void MainWindow::on_actionPause_when_focus_is_lost_triggered(bool checked)

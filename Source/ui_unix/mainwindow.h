@@ -47,7 +47,6 @@ private:
 	void saveState(int);
 	void loadState(int);
 	void toggleFullscreen();
-	void AutoConfigureKeyboard();
 
 	Ui::MainWindow* ui;
 
