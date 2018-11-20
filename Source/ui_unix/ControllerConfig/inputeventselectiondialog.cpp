@@ -29,7 +29,7 @@ InputEventSelectionDialog::~InputEventSelectionDialog()
 void InputEventSelectionDialog::Setup(const char* text, CInputBindingManager* inputManager, CInputProviderQtKey* qtKeyInputProvider, PS2::CControllerInfo::BUTTON button)
 {
 	m_inputManager = inputManager;
-	m_inputManager->OverrideInputEventHandler([this] (auto target, auto value) { onInputEvent(target, value); } );
+	m_inputManager->OverrideInputEventHandler([this] (auto target, auto value) { this->onInputEvent(target, value); } );
 	m_qtKeyInputProvider = qtKeyInputProvider;
 	ui->bindinglabel->setText(m_bindingtext.arg(text));
 	m_button = button;
