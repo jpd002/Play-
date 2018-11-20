@@ -209,7 +209,7 @@ void CInputBindingManager::SetSimulatedAxisBinding(PS2::CControllerInfo::BUTTON 
 	m_bindings[button] = std::make_shared<CSimulatedAxisBinding>(binding1, binding2);
 }
 
-static bool ParseMAC(std::array<uint32, 6>& out, const char* input)
+static bool TryParseDeviceId(const char* input, DeviceIdType& out)
 {
 	uint32 bytes[6] = {0};
 	if(std::sscanf(input,
@@ -239,7 +239,7 @@ static BINDINGTARGET LoadBindingTargetPreference(Framework::CConfig& config, con
 	BINDINGTARGET result;
 	result.providerId = config.GetPreferenceInteger(Framework::CConfig::MakePreferenceName(base, CONFIG_BINDINGTARGET_PROVIDERID).c_str());
 	auto deviceIdString = config.GetPreferenceString(Framework::CConfig::MakePreferenceName(base, CONFIG_BINDINGTARGET_DEVICEID).c_str());
-	bool parseResult = ParseMAC(result.deviceId, deviceIdString);
+	bool parseResult = TryParseDeviceId(deviceIdString, result.deviceId);
 	assert(parseResult);
 	result.keyId = config.GetPreferenceInteger(Framework::CConfig::MakePreferenceName(base, CONFIG_BINDINGTARGET_KEYID).c_str());
 	result.keyType = static_cast<BINDINGTARGET::KEYTYPE>(config.GetPreferenceInteger(Framework::CConfig::MakePreferenceName(base, CONFIG_BINDINGTARGET_KEYTYPE).c_str()));
