@@ -33,7 +33,7 @@
 #include "ControllerConfig/controllerconfigdialog.h"
 
 #ifdef __APPLE__
-#include "InputProviderMacOsHid.h"
+#include "macos/InputProviderMacOsHid.h"
 #endif
 
 MainWindow::MainWindow(QWidget* parent)

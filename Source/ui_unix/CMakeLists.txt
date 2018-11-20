@@ -150,8 +150,8 @@ QT5_WRAP_CPP(QT_MOC_SRCS ${QT_MOC_HEADERS})
 if(TARGET_PLATFORM_MACOS)
 	set(QT_SOURCES
 		${QT_SOURCES}
-		InputProviderMacOsHid.cpp
-		InputProviderMacOsHid.h
+		macos/InputProviderMacOsHid.cpp
+		macos/InputProviderMacOsHid.h
 	)
 	set(OSX_RES
 		${CMAKE_CURRENT_SOURCE_DIR}/macos/AppIcon.icns
