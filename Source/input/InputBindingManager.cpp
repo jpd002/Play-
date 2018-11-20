@@ -384,9 +384,11 @@ void CInputBindingManager::CPovHatBinding::ProcessEvent(const BINDINGTARGET& tar
 	m_value = value;
 }
 
-std::string CInputBindingManager::CPovHatBinding::GetDescription(CInputBindingManager*) const
+std::string CInputBindingManager::CPovHatBinding::GetDescription(CInputBindingManager* inputBindingManager) const
 {
-	return "CPovHatBinding";
+	return string_format("%s - %d",
+						 inputBindingManager->GetTargetDescription(m_binding).c_str(),
+						 m_refValue);
 }
 
 uint32 CInputBindingManager::CPovHatBinding::GetValue() const
