@@ -15,6 +15,11 @@ struct BINDINGTARGET
 		AXIS,
 		POVHAT
 	};
+	
+	enum
+	{
+		POVHAT_MAX = 8,
+	};
 
 	BINDINGTARGET() = default;
 	BINDINGTARGET(uint32 providerId, DeviceIdType deviceId, uint32 keyId, KEYTYPE keyType)

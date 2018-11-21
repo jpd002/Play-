@@ -393,9 +393,9 @@ std::string CInputBindingManager::CPovHatBinding::GetDescription(CInputBindingMa
 
 uint32 CInputBindingManager::CPovHatBinding::GetValue() const
 {
-	if(m_value >= 8) return 0;
-	int32 normalizedRefValue = (m_refValue * 360) / 8;
-	int32 normalizedValue = (m_value * 360) / 8;
+	if(m_value >= BINDINGTARGET::POVHAT_MAX) return 0;
+	int32 normalizedRefValue = (m_refValue * 360) / BINDINGTARGET::POVHAT_MAX;
+	int32 normalizedValue = (m_value * 360) / BINDINGTARGET::POVHAT_MAX;
 	if(GetShortestDistanceBetweenAngles(normalizedValue, normalizedRefValue) <= 45)
 	{
 		return 1;

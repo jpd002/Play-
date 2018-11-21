@@ -74,7 +74,7 @@ void InputEventSelectionDialog::onInputEvent(const BINDINGTARGET& target, uint32
 			}
 			break;
 		case BINDINGTARGET::KEYTYPE::POVHAT:
-			if(value < 8)
+			if(value < BINDINGTARGET::POVHAT_MAX)
 			{
 				m_selectedTarget = target;
 				m_bindingType = CInputBindingManager::BINDING_POVHAT;
