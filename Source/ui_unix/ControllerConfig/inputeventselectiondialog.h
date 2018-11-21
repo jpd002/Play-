@@ -33,11 +33,17 @@ private:
 		SELECTED
 	};
 	
-	void CountDownThreadLoop();
 	void onInputEvent(const BINDINGTARGET&, uint32);
-	bool setCounter(int);
-
+	void startCountdown();
+	void cancelCountdown();
+	
 	Ui::InputEventSelectionDialog* ui = nullptr;
+	QTimer* m_countdownTimer = nullptr;
+	uint32 m_countdownRemain = 0;
+	
+	PS2::CControllerInfo::BUTTON m_button;
+	CInputBindingManager* m_inputManager = nullptr;
+	CInputProviderQtKey* m_qtKeyInputProvider = nullptr;
 
 	STATE m_state = STATE::NONE;
 	BINDINGTARGET m_selectedTarget;
@@ -46,16 +52,12 @@ private:
 	
 	QString m_bindingtext = QString("Select new binding for\n%1");
 	QString m_countingtext = QString("Press & Hold Button for %1 Seconds to assign key");
-	PS2::CControllerInfo::BUTTON m_button;
-	CInputBindingManager* m_inputManager = nullptr;
-	CInputProviderQtKey* m_qtKeyInputProvider = nullptr;
-
-	std::chrono::time_point<std::chrono::system_clock> m_countStart = std::chrono::system_clock::now();
-	std::thread m_thread;
-	std::atomic<bool> m_running;
-	std::atomic<bool> m_isCounting;
+	
+private slots:
+	void updateCountdown();
+	void completeSimpleBinding();
 
 Q_SIGNALS:
 	void setSelectedButtonLabelText(QString);
-	void setCountDownLabelText(QString);
+	void countdownComplete();
 };

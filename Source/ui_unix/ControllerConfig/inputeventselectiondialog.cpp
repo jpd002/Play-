@@ -1,28 +1,29 @@
+#include <QTimer>
 #include "inputeventselectiondialog.h"
 #include "ui_inputeventselectiondialog.h"
+
+#define COUNTDOWN_SECS 3
 
 InputEventSelectionDialog::InputEventSelectionDialog(QWidget* parent)
     : QDialog(parent)
     , ui(new Ui::InputEventSelectionDialog)
 {
 	ui->setupUi(this);
+	ui->countdownlabel->setText(m_countingtext.arg(COUNTDOWN_SECS));
+
+	m_countdownTimer = new QTimer(this);
+	connect(m_countdownTimer, SIGNAL(timeout()), this, SLOT(updateCountdown()));
+	
 	setWindowFlags(Qt::Window | Qt::WindowCloseButtonHint);
 	setFixedSize(size());
 
 	// workaround to avoid direct thread ui access
 	connect(this, SIGNAL(setSelectedButtonLabelText(QString)), ui->selectedbuttonlabel, SLOT(setText(QString)));
-	connect(this, SIGNAL(setCountDownLabelText(QString)), ui->countdownlabel, SLOT(setText(QString)));
-
-	m_isCounting = false;
-	m_running = true;
-	m_thread = std::thread([this] { CountDownThreadLoop(); });
 }
 
 InputEventSelectionDialog::~InputEventSelectionDialog()
 {
 	m_inputManager->OverrideInputEventHandler(InputEventFunction());
-	m_running = false;
-	if(m_thread.joinable()) m_thread.join();
 	delete ui;
 }
 
@@ -30,6 +31,7 @@ void InputEventSelectionDialog::Setup(const char* text, CInputBindingManager* in
 {
 	m_inputManager = inputManager;
 	m_inputManager->OverrideInputEventHandler([this] (auto target, auto value) { this->onInputEvent(target, value); } );
+	connect(this, SIGNAL(countdownComplete()), this, SLOT(completeSimpleBinding()));
 	m_qtKeyInputProvider = qtKeyInputProvider;
 	ui->bindinglabel->setText(m_bindingtext.arg(text));
 	m_button = button;
@@ -45,6 +47,27 @@ static bool IsAxisIdle(uint32 value)
 
 void InputEventSelectionDialog::onInputEvent(const BINDINGTARGET& target, uint32 value)
 {
+	auto setSelection =
+		[this] (CInputBindingManager::BINDINGTYPE bindingType, const auto& target)
+		{
+			m_selectedTarget = target;
+			m_bindingType = bindingType;
+			m_state = STATE::SELECTED;
+			startCountdown();
+			auto targetDescription = m_inputManager->GetTargetDescription(target);
+			setSelectedButtonLabelText("Selected Key: " + QString::fromStdString(targetDescription));
+		};
+	
+	auto resetSelection =
+		[this] ()
+		{
+			m_selectedTarget = BINDINGTARGET();
+			m_state = STATE::NONE;
+			m_bindingType = CInputBindingManager::BINDING_UNBOUND;
+			cancelCountdown();
+			setSelectedButtonLabelText("Selected Key: None");
+		};
+	
 	switch(m_state)
 	{
 	case STATE::NONE:
@@ -54,35 +77,19 @@ void InputEventSelectionDialog::onInputEvent(const BINDINGTARGET& target, uint32
 		case BINDINGTARGET::KEYTYPE::BUTTON:
 			if(value != 0)
 			{
-				m_selectedTarget = target;
-				m_bindingType = CInputBindingManager::BINDING_SIMPLE;
-				m_state = STATE::SELECTED;
-				setCounter(1);
-				auto targetDescription = m_inputManager->GetTargetDescription(target);
-				setSelectedButtonLabelText("Selected Key: " + QString::fromStdString(targetDescription));
+				setSelection(CInputBindingManager::BINDING_SIMPLE, target);
 			}
 			break;
 		case BINDINGTARGET::KEYTYPE::AXIS:
 			if(!IsAxisIdle(value))
 			{
-				m_selectedTarget = target;
-				m_bindingType = CInputBindingManager::BINDING_SIMPLE;
-				m_state = STATE::SELECTED;
-				setCounter(1);
-				auto targetDescription = m_inputManager->GetTargetDescription(target);
-				setSelectedButtonLabelText("Selected Key: " + QString::fromStdString(targetDescription));
+				setSelection(CInputBindingManager::BINDING_SIMPLE, target);
 			}
 			break;
 		case BINDINGTARGET::KEYTYPE::POVHAT:
 			if(value < BINDINGTARGET::POVHAT_MAX)
 			{
-				m_selectedTarget = target;
-				m_bindingType = CInputBindingManager::BINDING_POVHAT;
-				m_bindingValue = value;
-				m_state = STATE::SELECTED;
-				setCounter(1);
-				auto targetDescription = m_inputManager->GetTargetDescription(target);
-				setSelectedButtonLabelText("Selected Key: " + QString::fromStdString(targetDescription));
+				setSelection(CInputBindingManager::BINDING_POVHAT, target);
 			}
 		}
 		break;
@@ -93,32 +100,19 @@ void InputEventSelectionDialog::onInputEvent(const BINDINGTARGET& target, uint32
 		case BINDINGTARGET::KEYTYPE::BUTTON:
 			if(value == 0)
 			{
-				m_selectedTarget = BINDINGTARGET();
-				m_state = STATE::NONE;
-				m_bindingType = CInputBindingManager::BINDING_UNBOUND;
-
-				setCounter(0);
-				setSelectedButtonLabelText("Selected Key: None");
+				resetSelection();
 			}
 			break;
 		case BINDINGTARGET::KEYTYPE::AXIS:
 			if(IsAxisIdle(value))
 			{
-				m_selectedTarget = BINDINGTARGET();
-				m_state = STATE::NONE;
-				m_bindingType = CInputBindingManager::BINDING_UNBOUND;
-				setCounter(0);
-				setSelectedButtonLabelText("Selected Key: None");
+				resetSelection();
 			}
 			break;
 		case BINDINGTARGET::KEYTYPE::POVHAT:
 			if(m_bindingValue != value)
 			{
-				m_selectedTarget = BINDINGTARGET();
-				m_state = STATE::NONE;
-				m_bindingType = CInputBindingManager::BINDING_UNBOUND;
-				setCounter(0);
-				setSelectedButtonLabelText("Selected Key: None");
+				resetSelection();
 			}
 		}
 		break;
@@ -129,7 +123,6 @@ void InputEventSelectionDialog::keyPressEvent(QKeyEvent* ev)
 {
 	if(ev->key() == Qt::Key_Escape)
 	{
-		m_running = false;
 		reject();
 		return;
 	}
@@ -141,52 +134,44 @@ void InputEventSelectionDialog::keyReleaseEvent(QKeyEvent* ev)
 	m_qtKeyInputProvider->OnKeyRelease(ev->key());
 }
 
-void InputEventSelectionDialog::CountDownThreadLoop()
+void InputEventSelectionDialog::startCountdown()
 {
-	while(m_running)
+	m_countdownRemain = COUNTDOWN_SECS - 1;
+	static_assert(COUNTDOWN_SECS >= 1, "COUNTDOWN_SECS must be at least 1");
+	ui->countdownlabel->setText(m_countingtext.arg(m_countdownRemain));
+	m_countdownTimer->start(1000);
+}
+
+void InputEventSelectionDialog::cancelCountdown()
+{
+	m_countdownTimer->stop();
+	ui->countdownlabel->setText(m_countingtext.arg(COUNTDOWN_SECS));
+}
+
+void InputEventSelectionDialog::updateCountdown()
+{
+	if(m_countdownRemain == 0)
 	{
-		auto time_now = std::chrono::system_clock::now();
-		std::chrono::duration<double> diff = time_now - m_countStart;
-		if(m_isCounting)
-		{
-			if(diff.count() < 3)
-			{
-				setCountDownLabelText(m_countingtext.arg(static_cast<int>(3 - diff.count())));
-			}
-			else
-			{
-				switch(m_bindingType)
-				{
-				case CInputBindingManager::BINDING_SIMPLE:
-					m_inputManager->SetSimpleBinding(0, m_button, m_selectedTarget);
-					break;
-				case CInputBindingManager::BINDING_POVHAT:
-					m_inputManager->SetPovHatBinding(0, m_button, m_selectedTarget, m_bindingValue);
-					break;
-				}
-				m_running = false;
-				accept();
-			}
-		}
-		else if(diff.count() < 3)
-		{
-			setCountDownLabelText(m_countingtext.arg(3));
-		}
-		std::this_thread::sleep_for(std::chrono::milliseconds(100));
+		m_countdownTimer->stop();
+		countdownComplete();
+	}
+	else
+	{
+		m_countdownRemain--;
+		ui->countdownlabel->setText(m_countingtext.arg(m_countdownRemain));
 	}
 }
 
-bool InputEventSelectionDialog::setCounter(int value)
+void InputEventSelectionDialog::completeSimpleBinding()
 {
-	if(value == 0)
+	switch(m_bindingType)
 	{
-		m_isCounting = false;
-		return false;
+		case CInputBindingManager::BINDING_SIMPLE:
+			m_inputManager->SetSimpleBinding(0, m_button, m_selectedTarget);
+			break;
+		case CInputBindingManager::BINDING_POVHAT:
+			m_inputManager->SetPovHatBinding(0, m_button, m_selectedTarget, m_bindingValue);
+			break;
 	}
-	else if(m_isCounting == false)
-	{
-		m_countStart = std::chrono::system_clock::now();
-		m_isCounting = true;
-	}
-	return true;
+	accept();
 }
