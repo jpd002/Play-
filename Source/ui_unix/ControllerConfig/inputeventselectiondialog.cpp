@@ -18,7 +18,8 @@ InputEventSelectionDialog::InputEventSelectionDialog(QWidget* parent)
 	setFixedSize(size());
 
 	// workaround to avoid direct thread ui access
-	connect(this, SIGNAL(setSelectedButtonLabelText(QString)), ui->selectedbuttonlabel, SLOT(setText(QString)));
+	connect(this, SIGNAL(startCountdown(QString)), this, SLOT(handleStartCountdown(QString)));
+	connect(this, SIGNAL(cancelCountdown()), this, SLOT(handleCancelCountdown()));
 }
 
 InputEventSelectionDialog::~InputEventSelectionDialog()
@@ -53,9 +54,8 @@ void InputEventSelectionDialog::onInputEvent(const BINDINGTARGET& target, uint32
 			m_selectedTarget = target;
 			m_bindingType = bindingType;
 			m_state = STATE::SELECTED;
-			startCountdown();
 			auto targetDescription = m_inputManager->GetTargetDescription(target);
-			setSelectedButtonLabelText("Selected Key: " + QString::fromStdString(targetDescription));
+			startCountdown(QString::fromStdString(targetDescription));
 		};
 	
 	auto resetSelection =
@@ -65,7 +65,6 @@ void InputEventSelectionDialog::onInputEvent(const BINDINGTARGET& target, uint32
 			m_state = STATE::NONE;
 			m_bindingType = CInputBindingManager::BINDING_UNBOUND;
 			cancelCountdown();
-			setSelectedButtonLabelText("Selected Key: None");
 		};
 	
 	switch(m_state)
@@ -134,18 +133,20 @@ void InputEventSelectionDialog::keyReleaseEvent(QKeyEvent* ev)
 	m_qtKeyInputProvider->OnKeyRelease(ev->key());
 }
 
-void InputEventSelectionDialog::startCountdown()
+void InputEventSelectionDialog::handleStartCountdown(QString bindingDesc)
 {
 	m_countdownRemain = COUNTDOWN_SECS - 1;
 	static_assert(COUNTDOWN_SECS >= 1, "COUNTDOWN_SECS must be at least 1");
 	ui->countdownlabel->setText(m_countingtext.arg(m_countdownRemain));
+	ui->selectedbuttonlabel->setText("Selected Key: " + bindingDesc);
 	m_countdownTimer->start(1000);
 }
 
-void InputEventSelectionDialog::cancelCountdown()
+void InputEventSelectionDialog::handleCancelCountdown()
 {
 	m_countdownTimer->stop();
 	ui->countdownlabel->setText(m_countingtext.arg(COUNTDOWN_SECS));
+	ui->selectedbuttonlabel->setText("Selected Key: None");
 }
 
 void InputEventSelectionDialog::updateCountdown()

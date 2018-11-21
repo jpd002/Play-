@@ -34,8 +34,6 @@ private:
 	};
 	
 	void onInputEvent(const BINDINGTARGET&, uint32);
-	void startCountdown();
-	void cancelCountdown();
 	
 	Ui::InputEventSelectionDialog* ui = nullptr;
 	QTimer* m_countdownTimer = nullptr;
@@ -54,10 +52,13 @@ private:
 	QString m_countingtext = QString("Press & Hold Button for %1 Seconds to assign key");
 	
 private slots:
+	void handleStartCountdown(QString);
+	void handleCancelCountdown();
 	void updateCountdown();
 	void completeSimpleBinding();
 
 Q_SIGNALS:
-	void setSelectedButtonLabelText(QString);
+	void startCountdown(QString);
+	void cancelCountdown();
 	void countdownComplete();
 };
