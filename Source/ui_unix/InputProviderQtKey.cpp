@@ -1,4 +1,5 @@
 #include <QKeySequence>
+#include <cassert>
 #include "InputProviderQtKey.h"
 #include "string_format.h"
 
@@ -18,7 +19,7 @@ std::string CInputProviderQtKey::GetTargetDescription(const BINDINGTARGET& targe
 
 BINDINGTARGET CInputProviderQtKey::MakeBindingTarget(int keyCode)
 {
-	return BINDINGTARGET(PROVIDER_ID, {0}, keyCode, BINDINGTARGET::KEYTYPE::BUTTON);
+	return BINDINGTARGET(PROVIDER_ID, DeviceIdType{{0}}, keyCode, BINDINGTARGET::KEYTYPE::BUTTON);
 }
 
 void CInputProviderQtKey::OnKeyPress(int keyCode)
