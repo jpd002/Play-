@@ -7,6 +7,8 @@
 #include "../RegisterStateFile.h"
 #include "GIF.h"
 
+#define QTEMP_INIT (0x3F800000)
+
 #define LOG_NAME ("ee_gif")
 
 #define STATE_REGS_XML ("gif/regs.xml")
@@ -30,7 +32,7 @@ CGIF::CGIF(CGSHandler*& gs, uint8* ram, uint8* spr)
     , m_regsTemp(0)
     , m_regList(0)
     , m_eop(false)
-    , m_qtemp(0)
+    , m_qtemp(QTEMP_INIT)
     , m_gifProfilerZone(CProfiler::GetInstance().RegisterZone("GIF"))
 {
 }
@@ -45,7 +47,7 @@ void CGIF::Reset()
 	m_regsTemp = 0;
 	m_regList = 0;
 	m_eop = false;
-	m_qtemp = 0;
+	m_qtemp = QTEMP_INIT;
 	m_signalState = SIGNAL_STATE_NONE;
 }
 
@@ -311,6 +313,7 @@ uint32 CGIF::ProcessSinglePacket(const uint8* memory, uint32 address, uint32 end
 			m_regs = tag.nreg;
 			m_regList = tag.regs;
 			m_eop = (tag.eop != 0);
+			m_qtemp = QTEMP_INIT;
 
 			if(m_cmd != 1)
 			{
