@@ -9,7 +9,7 @@ InputEventSelectionDialog::InputEventSelectionDialog(QWidget* parent)
     , ui(new Ui::InputEventSelectionDialog)
 {
 	ui->setupUi(this);
-	ui->countdownlabel->setText(m_countingtext.arg(COUNTDOWN_SECS));
+	ui->countdownlabel->setText(m_countingText.arg(COUNTDOWN_SECS));
 
 	m_countdownTimer = new QTimer(this);
 	connect(m_countdownTimer, SIGNAL(timeout()), this, SLOT(updateCountdown()));
@@ -34,7 +34,7 @@ void InputEventSelectionDialog::Setup(const char* text, CInputBindingManager* in
 	m_inputManager->OverrideInputEventHandler([this] (auto target, auto value) { this->onInputEvent(target, value); } );
 	connect(this, SIGNAL(countdownComplete()), this, SLOT(completeSimpleBinding()));
 	m_qtKeyInputProvider = qtKeyInputProvider;
-	ui->bindinglabel->setText(m_bindingtext.arg(text));
+	ui->bindinglabel->setText(m_bindingText.arg(text));
 	m_button = button;
 }
 
@@ -138,16 +138,16 @@ void InputEventSelectionDialog::handleStartCountdown(QString bindingDesc)
 {
 	m_countdownRemain = COUNTDOWN_SECS - 1;
 	static_assert(COUNTDOWN_SECS >= 1, "COUNTDOWN_SECS must be at least 1");
-	ui->countdownlabel->setText(m_countingtext.arg(m_countdownRemain));
-	ui->selectedbuttonlabel->setText("Selected Key: " + bindingDesc);
+	ui->countdownlabel->setText(m_countingText.arg(m_countdownRemain));
+	ui->selectedbuttonlabel->setText(m_selectedkeyText.arg(bindingDesc));
 	m_countdownTimer->start(1000);
 }
 
 void InputEventSelectionDialog::handleCancelCountdown()
 {
 	m_countdownTimer->stop();
-	ui->countdownlabel->setText(m_countingtext.arg(COUNTDOWN_SECS));
-	ui->selectedbuttonlabel->setText("Selected Key: None");
+	ui->countdownlabel->setText(m_countingText.arg(COUNTDOWN_SECS));
+	ui->selectedbuttonlabel->setText(m_selectedkeyText.arg(QString("None")));
 }
 
 void InputEventSelectionDialog::updateCountdown()
@@ -160,7 +160,7 @@ void InputEventSelectionDialog::updateCountdown()
 	else
 	{
 		m_countdownRemain--;
-		ui->countdownlabel->setText(m_countingtext.arg(m_countdownRemain));
+		ui->countdownlabel->setText(m_countingText.arg(m_countdownRemain));
 	}
 }
 

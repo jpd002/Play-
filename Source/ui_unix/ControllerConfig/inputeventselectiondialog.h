@@ -48,8 +48,9 @@ private:
 	CInputBindingManager::BINDINGTYPE m_bindingType = CInputBindingManager::BINDING_UNBOUND;
 	uint32 m_bindingValue = 0;
 	
-	QString m_bindingtext = QString("Select new binding for\n%1");
-	QString m_countingtext = QString("Press & Hold Button for %1 Seconds to assign key");
+	QString m_bindingText = QString("Select new binding for\n%1");
+	QString m_countingText = QString("Press & Hold Button for %1 Seconds to assign key");
+	QString m_selectedkeyText = QString("Selected Key: %1");
 	
 private slots:
 	void handleStartCountdown(QString);
