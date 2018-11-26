@@ -93,12 +93,14 @@ set(QT_SOURCES
 if(LIBEVDEV_FOUND)
 	set(QT_SOURCES
 		${QT_SOURCES}
-		GamePad/GamePadUtils.cpp
-		GamePad/GamePadUtils.h
-		GamePad/GamePadInputEventListener.cpp
-		GamePad/GamePadInputEventListener.h
-		GamePad/GamePadDeviceListener.cpp
-		GamePad/GamePadDeviceListener.h
+		unix/GamePadDeviceListener.cpp
+		unix/GamePadDeviceListener.h
+		unix/GamePadInputEventListener.cpp
+		unix/GamePadInputEventListener.h
+		unix/GamePadUtils.cpp
+		unix/GamePadUtils.h
+		unix/InputProviderEvDev.cpp
+		unix/InputProviderEvDev.h
 	)
 endif()
 if(TARGET_PLATFORM_WIN32)
