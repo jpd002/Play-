@@ -4,6 +4,7 @@
 #include <array>
 #include <functional>
 #include <string>
+#include <cstring>
 
 typedef std::array<uint32, 6> DeviceIdType;
 
