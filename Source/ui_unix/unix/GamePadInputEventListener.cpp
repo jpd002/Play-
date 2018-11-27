@@ -139,7 +139,7 @@ void CGamePadInputEventListener::InputDeviceListenerThread()
 					}
 				}
 				const struct input_absinfo* abs;
-				if(ev.type == 3) abs = libevdev_get_abs_info(dev, ev.code);
+				if(ev.type == EV_ABS) abs = libevdev_get_abs_info(dev, ev.code);
 				if(m_running)
 				{
 					OnInputEvent(device, ev.code, ev.value, ev.type, abs);
