@@ -185,6 +185,7 @@ void InputEventSelectionDialog::keyPressEvent(QKeyEvent* ev)
 
 void InputEventSelectionDialog::keyReleaseEvent(QKeyEvent* ev)
 {
+	if(ev->isAutoRepeat()) return;
 	m_qtKeyInputProvider->OnKeyRelease(ev->key());
 }
 
