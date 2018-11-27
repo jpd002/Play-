@@ -35,6 +35,9 @@
 #ifdef __APPLE__
 #include "macos/InputProviderMacOsHid.h"
 #endif
+#ifdef HAS_LIBEVDEV
+#include "unix/InputProviderEvDev.h"
+#endif
 
 MainWindow::MainWindow(QWidget* parent)
     : QMainWindow(parent)
@@ -117,11 +120,12 @@ void MainWindow::InitVirtualMachine()
 		//Create QtKeyInputProvider
 		m_qtKeyInputProvider = std::make_shared<CInputProviderQtKey>();
 		bindingManager.RegisterInputProvider(m_qtKeyInputProvider);
-		
 #ifdef __APPLE__
 		bindingManager.RegisterInputProvider(std::make_shared<CInputProviderMacOsHid>());
 #endif
-		
+#ifdef HAS_LIBEVDEV
+		bindingManager.RegisterInputProvider(std::make_shared<CInputProviderEvDev>());
+#endif
 		if(!bindingManager.HasBindings())
 		{
 			ControllerConfigDialog::AutoConfigureKeyboard(&bindingManager);
