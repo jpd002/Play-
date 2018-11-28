@@ -25,14 +25,6 @@ CGamePadDeviceListener::~CGamePadDeviceListener()
 	m_thread.join();
 }
 
-void CGamePadDeviceListener::RePopulateAbs()
-{
-	for(auto& GPI : m_GPIEList)
-	{
-		GPI.second.get()->RePopulateAbs();
-	}
-}
-
 void CGamePadDeviceListener::UpdateOnInputEventCallback(CGamePadDeviceListener::OnInputEvent OnInputEventFunction)
 {
 	OnInputEventCallBack = OnInputEventFunction;

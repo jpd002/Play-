@@ -30,7 +30,6 @@ public:
 
 	void UpdateOnInputEventCallback(OnInputEvent);
 	void DisconnectInputEventCallback();
-	void RePopulateAbs();
 	static bool IsValidDevice(const fs::path&, inputdev_pair&);
 
 private:
