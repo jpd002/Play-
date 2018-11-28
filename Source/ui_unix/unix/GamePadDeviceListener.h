@@ -15,8 +15,7 @@ class CGamePadDeviceListener
 public:
 	typedef std::function<void(std::array<uint32, 6>, int, int, int, const input_absinfo*)> OnInputEvent;
 
-	CGamePadDeviceListener(bool f = false);
-	CGamePadDeviceListener(OnInputEvent, bool f = false);
+	CGamePadDeviceListener(OnInputEvent);
 
 	~CGamePadDeviceListener();
 
@@ -33,14 +32,12 @@ public:
 	void DisconnectInputEventCallback();
 	void RePopulateAbs();
 	static bool IsValidDevice(const fs::path&, inputdev_pair&);
-	void SetFilter(bool);
 
 private:
 	std::map<std::string, CGamePadDeviceListener::inputdevice> m_devicelist;
 	std::map<std::string, std::unique_ptr<CGamePadInputEventListener>> m_GPIEList;
 	std::atomic<bool> m_running;
 	std::thread m_inputdevicelistenerthread;
-	bool m_filter;
 	std::thread m_thread;
 
 	void UpdateDeviceList();

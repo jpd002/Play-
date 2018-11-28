@@ -10,18 +10,12 @@
 #define EVENT_BUF_LEN (1024 * (EVENT_SIZE + NAME_MAX + 1))
 #define WATCH_FLAGS (IN_CREATE | IN_DELETE)
 
-CGamePadDeviceListener::CGamePadDeviceListener(OnInputEvent OnInputEventCallBack, bool filter)
+CGamePadDeviceListener::CGamePadDeviceListener(OnInputEvent OnInputEventCallBack)
     : OnInputEventCallBack(OnInputEventCallBack)
     , m_running(true)
-    , m_filter(filter)
 {
 	m_thread = std::thread([this]() { InputDeviceListenerThread(); });
 	UpdateDeviceList();
-}
-
-CGamePadDeviceListener::CGamePadDeviceListener(bool filter)
-    : CGamePadDeviceListener(nullptr, filter)
-{
 }
 
 CGamePadDeviceListener::~CGamePadDeviceListener()
@@ -52,7 +46,7 @@ void CGamePadDeviceListener::UpdateOnInputEventCallback(CGamePadDeviceListener::
 		}
 		else
 		{
-			auto GamePadInput = std::make_unique<CGamePadInputEventListener>(device.second.path, m_filter);
+			auto GamePadInput = std::make_unique<CGamePadInputEventListener>(device.second.path);
 			GamePadInput->OnInputEvent.connect(OnInputEventCallBack);
 			m_GPIEList.emplace(device.first, std::move(GamePadInput));
 		}
@@ -65,15 +59,6 @@ void CGamePadDeviceListener::DisconnectInputEventCallback()
 	for(auto& GPI : m_GPIEList)
 	{
 		GPI.second.get()->OnInputEvent.disconnect_all_slots();
-	}
-}
-
-void CGamePadDeviceListener::SetFilter(bool filter)
-{
-	m_filter = filter;
-	if(m_filter)
-	{
-		RePopulateAbs();
 	}
 }
 
@@ -97,7 +82,7 @@ void CGamePadDeviceListener::AddDevice(const fs::path& path)
 		m_devicelist.insert(idp);
 		if(OnInputEventCallBack)
 		{
-			auto GamePadInput = std::make_unique<CGamePadInputEventListener>(idp.second.path, m_filter);
+			auto GamePadInput = std::make_unique<CGamePadInputEventListener>(idp.second.path);
 			GamePadInput->OnInputEvent.connect(OnInputEventCallBack);
 			m_GPIEList.emplace(idp.first, std::move(GamePadInput));
 		}
@@ -211,7 +196,7 @@ bool CGamePadDeviceListener::IsValidDevice(const fs::path& inputdev_path, inputd
 	id.name = name;
 	id.uniq_id = device;
 	id.path = inputdev_path.string();
-	;
+	
 	devinfo = std::make_pair(inputdev_path.filename().string(), id);
 	res = true;
 

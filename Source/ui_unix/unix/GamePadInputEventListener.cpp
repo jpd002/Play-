@@ -5,9 +5,8 @@
 #include <poll.h>
 #include <csignal>
 
-CGamePadInputEventListener::CGamePadInputEventListener(std::string device, bool& filter)
+CGamePadInputEventListener::CGamePadInputEventListener(std::string device)
     : m_device(device)
-    , m_filter(filter)
     , m_running(true)
 {
 	m_thread = std::thread([this]() { InputDeviceListenerThread(); });
@@ -18,52 +17,6 @@ CGamePadInputEventListener::~CGamePadInputEventListener()
 	m_running = false;
 	OnInputEvent.disconnect_all_slots();
 	m_thread.join();
-}
-
-void CGamePadInputEventListener::PopulateAbsInfoList(libevdev* dev)
-{
-	if(libevdev_has_event_type(dev, EV_ABS))
-	{
-		for(int i = 0; i <= ABS_MAX; i++)
-		{
-			if(libevdev_has_event_code(dev, EV_ABS, i))
-			{
-				m_abslist.at(i) = *libevdev_get_abs_info(dev, i);
-			}
-		}
-	}
-}
-
-void CGamePadInputEventListener::RePopulateAbs()
-{
-	if(m_filter)
-	{
-		if(access(m_device.c_str(), R_OK) == -1)
-		{
-			fprintf(stderr, "CGamePadInputEventListener::RePopulateAbs: no read access to (%s)\n", m_device.c_str());
-			return;
-		}
-		struct libevdev* dev = NULL;
-		int fd = open(m_device.c_str(), O_RDONLY);
-		if(fd < 0)
-		{
-			perror("CGamePadInputEventListener::RePopulateAbs Failed to open device");
-		}
-		else
-		{
-			int rc = libevdev_new_from_fd(fd, &dev);
-			if(rc < 0)
-			{
-				fprintf(stderr, "CGamePadInputEventListener::RePopulateAbs Failed to init libevdev (%s)\n", strerror(-rc));
-			}
-			else
-			{
-				PopulateAbsInfoList(dev);
-			}
-			libevdev_free(dev);
-			close(fd);
-		}
-	}
 }
 
 void CGamePadInputEventListener::InputDeviceListenerThread()
@@ -91,11 +44,6 @@ void CGamePadInputEventListener::InputDeviceListenerThread()
 		return;
 	}
 	initdev_result = 0;
-
-	if(m_filter)
-	{
-		PopulateAbsInfoList(dev);
-	}
 
 	auto device = CGamePadUtils::GetDeviceID(dev);
 
@@ -129,16 +77,7 @@ void CGamePadInputEventListener::InputDeviceListenerThread()
 			}
 			else if(rc == LIBEVDEV_READ_STATUS_SUCCESS && ev.type != EV_SYN)
 			{
-
-				if(m_filter && ev.type == EV_ABS)
-				{
-					int range = m_abslist.at(ev.code).maximum / 100 * 20;
-					if(ev.value < m_abslist.at(ev.code).value + range && ev.value > m_abslist.at(ev.code).value - range)
-					{
-						continue;
-					}
-				}
-				const struct input_absinfo* abs;
+				const struct input_absinfo* abs = nullptr;
 				if(ev.type == EV_ABS) abs = libevdev_get_abs_info(dev, ev.code);
 				if(m_running)
 				{
