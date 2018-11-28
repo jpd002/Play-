@@ -1,5 +1,4 @@
 #include "GamePadDeviceListener.h"
-#include "GamePadUtils.h"
 #include <fcntl.h>
 #include <sys/signalfd.h>
 #include <poll.h>

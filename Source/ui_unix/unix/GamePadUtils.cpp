@@ -3,9 +3,9 @@
 #include <string>
 #include <cstdio>
 
-std::array<uint32, 6> CGamePadUtils::GetDeviceID(libevdev* dev)
+GamePadDeviceId CGamePadUtils::GetDeviceID(libevdev* dev)
 {
-	std::array<uint32, 6> device{0};
+	GamePadDeviceId device{0};
 	if(libevdev_get_uniq(dev) != NULL)
 	{
 		if(!CGamePadUtils::ParseMAC(device, libevdev_get_uniq(dev)))
@@ -18,7 +18,7 @@ std::array<uint32, 6> CGamePadUtils::GetDeviceID(libevdev* dev)
 			}
 		}
 	}
-	if(device == std::array<uint32, 6>{0})
+	if(device == GamePadDeviceId{0})
 	{
 		int vendor = libevdev_get_id_vendor(dev);
 		int product = libevdev_get_id_product(dev);
@@ -33,7 +33,7 @@ std::array<uint32, 6> CGamePadUtils::GetDeviceID(libevdev* dev)
 	return device;
 }
 
-bool CGamePadUtils::ParseMAC(std::array<uint32, 6>& out, std::string const& in)
+bool CGamePadUtils::ParseMAC(GamePadDeviceId& out, std::string const& in)
 {
 	uint32 bytes[6] = {0};
 	if(std::sscanf(in.c_str(),

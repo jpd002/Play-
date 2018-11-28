@@ -1,10 +1,12 @@
 #pragma once
+
 #include <atomic>
 #include <boost/signals2.hpp>
 #include <thread>
 #include <libevdev.h>
 #include <boost/filesystem.hpp>
 
+#include "GamePadUtils.h"
 #include "GamePadInputEventListener.h"
 #include "Types.h"
 
@@ -13,7 +15,7 @@ namespace fs = boost::filesystem;
 class CGamePadDeviceListener
 {
 public:
-	typedef std::function<void(std::array<uint32, 6>, int, int, int, const input_absinfo*)> OnInputEvent;
+	typedef std::function<void(GamePadDeviceId, int, int, int, const input_absinfo*)> OnInputEvent;
 
 	CGamePadDeviceListener(OnInputEvent);
 

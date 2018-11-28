@@ -4,9 +4,11 @@
 #include <array>
 #include "Types.h"
 
+typedef std::array<uint32, 6> GamePadDeviceId;
+
 class CGamePadUtils
 {
 public:
-	static std::array<uint32, 6> GetDeviceID(libevdev* dev);
-	static bool ParseMAC(std::array<uint32, 6>&, std::string const&);
+	static GamePadDeviceId GetDeviceID(libevdev* dev);
+	static bool ParseMAC(GamePadDeviceId&, std::string const&);
 };
