@@ -37,8 +37,9 @@ void CInputProviderEvDev::OnEvDevInputEvent(GamePadDeviceId deviceId, int code, 
 	else if(type == EV_ABS)
 	{
 		int fixedValue = value;
-		if(code == ABS_HAT0X || code == ABS_HAT0Y)
+		if(abs->flat == 0)
 		{
+			//Assuming this is a POVhat
 			tgt.keyType = BINDINGTARGET::KEYTYPE::POVHAT;
 			switch(value)
 			{
