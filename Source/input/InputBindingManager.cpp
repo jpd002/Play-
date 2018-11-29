@@ -52,9 +52,9 @@ static bool TryParseDeviceId(const char* input, DeviceIdType& out)
 {
 	uint32 bytes[6] = {0};
 	if(std::sscanf(input,
-				   "%x:%x:%x:%x:%x:%x",
-				   &bytes[0], &bytes[1], &bytes[2],
-				   &bytes[3], &bytes[4], &bytes[5]) != 6)
+	               "%x:%x:%x:%x:%x:%x",
+	               &bytes[0], &bytes[1], &bytes[2],
+	               &bytes[3], &bytes[4], &bytes[5]) != 6)
 	{
 		return false;
 	}
@@ -88,8 +88,8 @@ static BINDINGTARGET LoadBindingTargetPreference(Framework::CConfig& config, con
 static void SaveBindingTargetPreference(Framework::CConfig& config, const char* base, const BINDINGTARGET& target)
 {
 	auto deviceIdString = string_format("%x:%x:%x:%x:%x:%x",
-										target.deviceId[0], target.deviceId[1], target.deviceId[2],
-										target.deviceId[3], target.deviceId[4], target.deviceId[5]);
+	                                    target.deviceId[0], target.deviceId[1], target.deviceId[2],
+	                                    target.deviceId[3], target.deviceId[4], target.deviceId[5]);
 	config.SetPreferenceInteger(Framework::CConfig::MakePreferenceName(base, CONFIG_BINDINGTARGET_PROVIDERID).c_str(), target.providerId);
 	config.SetPreferenceString(Framework::CConfig::MakePreferenceName(base, CONFIG_BINDINGTARGET_DEVICEID).c_str(), deviceIdString.c_str());
 	config.SetPreferenceInteger(Framework::CConfig::MakePreferenceName(base, CONFIG_BINDINGTARGET_KEYID).c_str(), target.keyId);
@@ -97,7 +97,7 @@ static void SaveBindingTargetPreference(Framework::CConfig& config, const char* 
 }
 
 CInputBindingManager::CInputBindingManager()
-	: m_config(CAppConfig::GetInstance())
+    : m_config(CAppConfig::GetInstance())
 {
 	for(unsigned int pad = 0; pad < MAX_PADS; pad++)
 	{
@@ -131,7 +131,7 @@ bool CInputBindingManager::HasBindings() const
 
 void CInputBindingManager::RegisterInputProvider(const ProviderPtr& provider)
 {
-	provider->OnInput = [this] (auto target, auto value) { this->OnInputEventReceived(target, value); };
+	provider->OnInput = [this](auto target, auto value) { this->OnInputEventReceived(target, value); };
 	m_providers.insert(std::make_pair(provider->GetId(), provider));
 }
 
@@ -140,7 +140,7 @@ void CInputBindingManager::OverrideInputEventHandler(const InputEventFunction& i
 	InputEventFunction actualHandler = inputEventHandler;
 	if(!actualHandler)
 	{
-		actualHandler = [this] (auto target, auto value) { this->OnInputEventReceived(target, value); };
+		actualHandler = [this](auto target, auto value) { this->OnInputEventReceived(target, value); };
 	}
 	for(auto& providerPair : m_providers)
 	{
@@ -183,15 +183,15 @@ void CInputBindingManager::Load()
 			BindingPtr binding;
 			switch(bindingType)
 			{
-				case BINDING_SIMPLE:
-					binding = std::make_shared<CSimpleBinding>();
-					break;
-				case BINDING_POVHAT:
-					binding = std::make_shared<CPovHatBinding>();
-					break;
-				case BINDING_SIMULATEDAXIS:
-					binding = std::make_shared<CSimulatedAxisBinding>();
-					break;
+			case BINDING_SIMPLE:
+				binding = std::make_shared<CSimpleBinding>();
+				break;
+			case BINDING_POVHAT:
+				binding = std::make_shared<CPovHatBinding>();
+				break;
+			case BINDING_SIMULATEDAXIS:
+				binding = std::make_shared<CSimulatedAxisBinding>();
+				break;
 			}
 			if(binding)
 			{
@@ -287,8 +287,8 @@ void CInputBindingManager::SetSimulatedAxisBinding(uint32 pad, PS2::CControllerI
 // SimpleBinding
 ////////////////////////////////////////////////
 CInputBindingManager::CSimpleBinding::CSimpleBinding(const BINDINGTARGET& binding)
-: m_binding(binding)
-, m_value(0)
+    : m_binding(binding)
+    , m_value(0)
 {
 }
 
@@ -340,8 +340,8 @@ void CInputBindingManager::CSimpleBinding::Load(Framework::CConfig& config, cons
 ////////////////////////////////////////////////
 
 CInputBindingManager::CPovHatBinding::CPovHatBinding(const BINDINGTARGET& binding, uint32 refValue)
-: m_binding(binding)
-, m_refValue(refValue)
+    : m_binding(binding)
+    , m_refValue(refValue)
 {
 }
 
@@ -387,8 +387,8 @@ void CInputBindingManager::CPovHatBinding::ProcessEvent(const BINDINGTARGET& tar
 std::string CInputBindingManager::CPovHatBinding::GetDescription(CInputBindingManager* inputBindingManager) const
 {
 	return string_format("%s - %d",
-						 inputBindingManager->GetTargetDescription(m_binding).c_str(),
-						 m_refValue);
+	                     inputBindingManager->GetTargetDescription(m_binding).c_str(),
+	                     m_refValue);
 }
 
 uint32 CInputBindingManager::CPovHatBinding::GetValue() const
@@ -429,8 +429,8 @@ int32 CInputBindingManager::CPovHatBinding::GetShortestDistanceBetweenAngles(int
 // CSimulatedAxisBinding
 ////////////////////////////////////////////////
 CInputBindingManager::CSimulatedAxisBinding::CSimulatedAxisBinding(const BINDINGTARGET& binding1, const BINDINGTARGET& binding2)
-: m_key1Binding(binding1)
-, m_key2Binding(binding2)
+    : m_key1Binding(binding1)
+    , m_key2Binding(binding2)
 {
 }
 
@@ -477,8 +477,8 @@ const char* CInputBindingManager::CSimulatedAxisBinding::GetBindingTypeName() co
 std::string CInputBindingManager::CSimulatedAxisBinding::GetDescription(CInputBindingManager* inputBindingManager) const
 {
 	return string_format("(%s, %s)",
-						 inputBindingManager->GetTargetDescription(m_key1Binding).c_str(),
-						 inputBindingManager->GetTargetDescription(m_key2Binding).c_str());
+	                     inputBindingManager->GetTargetDescription(m_key1Binding).c_str(),
+	                     inputBindingManager->GetTargetDescription(m_key2Binding).c_str());
 }
 
 void CInputBindingManager::CSimulatedAxisBinding::SetValue(uint32 state)

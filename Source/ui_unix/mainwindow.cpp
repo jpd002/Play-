@@ -131,7 +131,7 @@ void MainWindow::InitVirtualMachine()
 			ControllerConfigDialog::AutoConfigureKeyboard(&bindingManager);
 		}
 	}
-	
+
 	m_statsManager = new CStatsManager();
 
 	m_virtualMachine->m_ee->m_os->OnExecutableChange.connect(std::bind(&MainWindow::OnExecutableChange, this));
@@ -612,7 +612,7 @@ void MainWindow::on_actionController_Manager_triggered()
 {
 	auto padHandler = static_cast<CPH_GenericInput*>(m_virtualMachine->GetPadHandler());
 	if(!padHandler) return;
-	
+
 	ControllerConfigDialog ccd(&padHandler->GetBindingManager(), m_qtKeyInputProvider.get(), this);
 	ccd.exec();
 }

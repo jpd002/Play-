@@ -12,7 +12,7 @@ public:
 	void Update(uint8*) override;
 
 	CInputBindingManager& GetBindingManager();
-	
+
 	static FactoryFunction GetFactoryFunction();
 
 private:

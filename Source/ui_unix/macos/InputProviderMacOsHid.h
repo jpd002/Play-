@@ -21,7 +21,7 @@ private:
 	{
 		BTN_STATE_SIZE = 24,
 	};
-	
+
 	struct DEVICE_INFO
 	{
 		CInputProviderMacOsHid* provider = nullptr;
@@ -115,7 +115,7 @@ private:
 
 	IOHIDReportCallback GetCallback(IOHIDDeviceRef device);
 	void SetInitialBindValues(IOHIDDeviceRef device);
-	
+
 	std::atomic<bool> m_running;
 	std::thread m_inputdevicelistenerthread;
 	bool m_filter;

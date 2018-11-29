@@ -98,20 +98,20 @@ void ControllerConfigDialog::AutoConfigureKeyboard(CInputBindingManager* binding
 	bindingManager->SetSimpleBinding(0, PS2::CControllerInfo::R1, CInputProviderQtKey::MakeBindingTarget(Qt::Key_8));
 	bindingManager->SetSimpleBinding(0, PS2::CControllerInfo::R2, CInputProviderQtKey::MakeBindingTarget(Qt::Key_9));
 	bindingManager->SetSimpleBinding(0, PS2::CControllerInfo::R3, CInputProviderQtKey::MakeBindingTarget(Qt::Key_0));
-	
+
 	bindingManager->SetSimulatedAxisBinding(0, PS2::CControllerInfo::ANALOG_LEFT_X,
-										   CInputProviderQtKey::MakeBindingTarget(Qt::Key_F),
-										   CInputProviderQtKey::MakeBindingTarget(Qt::Key_H));
+	                                        CInputProviderQtKey::MakeBindingTarget(Qt::Key_F),
+	                                        CInputProviderQtKey::MakeBindingTarget(Qt::Key_H));
 	bindingManager->SetSimulatedAxisBinding(0, PS2::CControllerInfo::ANALOG_LEFT_Y,
-										   CInputProviderQtKey::MakeBindingTarget(Qt::Key_T),
-										   CInputProviderQtKey::MakeBindingTarget(Qt::Key_G));
-	
+	                                        CInputProviderQtKey::MakeBindingTarget(Qt::Key_T),
+	                                        CInputProviderQtKey::MakeBindingTarget(Qt::Key_G));
+
 	bindingManager->SetSimulatedAxisBinding(0, PS2::CControllerInfo::ANALOG_RIGHT_X,
-										   CInputProviderQtKey::MakeBindingTarget(Qt::Key_J),
-										   CInputProviderQtKey::MakeBindingTarget(Qt::Key_L));
+	                                        CInputProviderQtKey::MakeBindingTarget(Qt::Key_J),
+	                                        CInputProviderQtKey::MakeBindingTarget(Qt::Key_L));
 	bindingManager->SetSimulatedAxisBinding(0, PS2::CControllerInfo::ANALOG_RIGHT_Y,
-										   CInputProviderQtKey::MakeBindingTarget(Qt::Key_I),
-										   CInputProviderQtKey::MakeBindingTarget(Qt::Key_K));
+	                                        CInputProviderQtKey::MakeBindingTarget(Qt::Key_I),
+	                                        CInputProviderQtKey::MakeBindingTarget(Qt::Key_K));
 }
 
 int ControllerConfigDialog::OpenBindConfigDialog(int index)

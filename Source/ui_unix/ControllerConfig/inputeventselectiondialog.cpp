@@ -13,7 +13,7 @@ InputEventSelectionDialog::InputEventSelectionDialog(QWidget* parent)
 
 	m_countdownTimer = new QTimer(this);
 	connect(m_countdownTimer, SIGNAL(timeout()), this, SLOT(updateCountdown()));
-	
+
 	setWindowFlags(Qt::Window | Qt::WindowCloseButtonHint);
 	setFixedSize(size());
 
@@ -36,7 +36,7 @@ void InputEventSelectionDialog::Setup(const char* text, CInputBindingManager* in
 	m_qtKeyInputProvider = qtKeyInputProvider;
 	ui->bindinglabel->setText(m_bindingText.arg(m_buttonName));
 
-	m_inputManager->OverrideInputEventHandler([this] (auto target, auto value) { this->onInputEvent(target, value); } );
+	m_inputManager->OverrideInputEventHandler([this](auto target, auto value) { this->onInputEvent(target, value); });
 	connect(this, SIGNAL(countdownComplete()), this, SLOT(confirmBinding()));
 }
 
@@ -51,40 +51,36 @@ static bool IsAxisIdle(uint32 value)
 void InputEventSelectionDialog::onInputEvent(const BINDINGTARGET& target, uint32 value)
 {
 	auto setSelection =
-		[this] (CInputBindingManager::BINDINGTYPE bindingType, const auto& target)
-		{
-			m_selectedTarget = target;
-			m_bindingType = bindingType;
-			m_state = STATE::SELECTED;
-			auto targetDescription = m_inputManager->GetTargetDescription(target);
-			startCountdown(QString::fromStdString(targetDescription));
-		};
-	
+	    [this](CInputBindingManager::BINDINGTYPE bindingType, const auto& target) {
+		    m_selectedTarget = target;
+		    m_bindingType = bindingType;
+		    m_state = STATE::SELECTED;
+		    auto targetDescription = m_inputManager->GetTargetDescription(target);
+		    startCountdown(QString::fromStdString(targetDescription));
+	    };
+
 	auto resetSelection =
-		[this] ()
-		{
-			m_selectedTarget = BINDINGTARGET();
-			m_state = STATE::WAITING;
-			m_bindingType = CInputBindingManager::BINDING_UNBOUND;
-			cancelCountdown();
-		};
-	
+	    [this]() {
+		    m_selectedTarget = BINDINGTARGET();
+		    m_state = STATE::WAITING;
+		    m_bindingType = CInputBindingManager::BINDING_UNBOUND;
+		    cancelCountdown();
+	    };
+
 	auto setSelectionSimulatedAxis =
-		[this] (const auto& target)
-		{
-			m_selectedTargetSimulatedAxis = target;
-			m_state = STATE::SIMULATEDAXIS_SELECTED;
-			auto targetDescription = m_inputManager->GetTargetDescription(target);
-			startCountdown(QString::fromStdString(targetDescription));
-		};
-	
+	    [this](const auto& target) {
+		    m_selectedTargetSimulatedAxis = target;
+		    m_state = STATE::SIMULATEDAXIS_SELECTED;
+		    auto targetDescription = m_inputManager->GetTargetDescription(target);
+		    startCountdown(QString::fromStdString(targetDescription));
+	    };
+
 	auto resetSelectionSimulatedAxis =
-		[this] ()
-		{
-			m_selectedTargetSimulatedAxis = BINDINGTARGET();
-			m_state = STATE::SIMULATEDAXIS_WAITING;
-			cancelCountdown();
-		};
+	    [this]() {
+		    m_selectedTargetSimulatedAxis = BINDINGTARGET();
+		    m_state = STATE::SIMULATEDAXIS_WAITING;
+		    cancelCountdown();
+	    };
 
 	switch(m_state)
 	{

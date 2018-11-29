@@ -119,7 +119,7 @@ void CInputProviderMacOsHid::OnDeviceMatched(IOReturn result, void* sender, IOHI
 	deviceInfo.provider = this;
 	deviceInfo.device = device;
 	deviceInfo.deviceId = GetDeviceID(device);
-	
+
 	auto InputReportCallbackStub = GetCallback(device);
 	if(InputReportCallbackStub)
 	{
@@ -144,9 +144,8 @@ void CInputProviderMacOsHid::InputValueCallback(DEVICE_INFO* deviceInfo, IORetur
 	IOHIDElementRef elementRef = IOHIDValueGetElement(valueRef);
 	uint32 usagePage = IOHIDElementGetUsagePage(elementRef);
 	if(
-	   (usagePage != kHIDPage_GenericDesktop) &&
-	   (usagePage != kHIDPage_Button)
-	)
+	    (usagePage != kHIDPage_GenericDesktop) &&
+	    (usagePage != kHIDPage_Button))
 	{
 		return;
 	}
@@ -170,22 +169,22 @@ void CInputProviderMacOsHid::InputReportCallback_DS3(DEVICE_INFO* deviceInfo, IO
 	struct PS3Btn* prev_btn_state = reinterpret_cast<struct PS3Btn*>(deviceInfo->prev_btn_state);
 	int is_change = 0;
 
-#define checkbtnstate(prev_btn_state, new_btn_state, btn, btn_id, type)                                                                         \
+#define checkbtnstate(prev_btn_state, new_btn_state, btn, btn_id, type)      \
 	if(deviceInfo->first_run || (prev_btn_state->btn != new_btn_state->btn)) \
-	{                                                                                                                                           \
-		is_change += 1;                                                                                                                         \
-		BINDINGTARGET tgt; \
-		tgt.providerId = PROVIDER_ID; \
-		tgt.deviceId = deviceInfo->deviceId; \
-		tgt.keyId = btn_id; \
-		tgt.keyType = type; \
-		OnInput(tgt, new_btn_state->btn);                                         \
+	{                                                                        \
+		is_change += 1;                                                      \
+		BINDINGTARGET tgt;                                                   \
+		tgt.providerId = PROVIDER_ID;                                        \
+		tgt.deviceId = deviceInfo->deviceId;                                 \
+		tgt.keyId = btn_id;                                                  \
+		tgt.keyType = type;                                                  \
+		OnInput(tgt, new_btn_state->btn);                                    \
 	}
 
 	if(OnInput)
 	{
 		deviceInfo->first_run = false;
-		
+
 		checkbtnstate(prev_btn_state, new_btn_state, Select, 1, BINDINGTARGET::KEYTYPE::BUTTON);
 		checkbtnstate(prev_btn_state, new_btn_state, L3, 2, BINDINGTARGET::KEYTYPE::BUTTON);
 		checkbtnstate(prev_btn_state, new_btn_state, R3, 3, BINDINGTARGET::KEYTYPE::BUTTON);
@@ -234,16 +233,16 @@ void CInputProviderMacOsHid::InputReportCallback_DS4(DEVICE_INFO* deviceInfo, IO
 	struct PS4Btn* prev_btn_state = reinterpret_cast<struct PS4Btn*>(deviceInfo->prev_btn_state);
 	int is_change = 0;
 
-#define checkbtnstate(prev_btn_state, new_btn_state, btn, btn_id, type)                                                                         \
+#define checkbtnstate(prev_btn_state, new_btn_state, btn, btn_id, type)      \
 	if(deviceInfo->first_run || (prev_btn_state->btn != new_btn_state->btn)) \
-	{                                                                                                                                           \
-		is_change += 1;                                                                                                                         \
-		BINDINGTARGET tgt; \
-		tgt.providerId = PROVIDER_ID; \
-		tgt.deviceId = deviceInfo->deviceId; \
-		tgt.keyId = btn_id; \
-		tgt.keyType = type; \
-		OnInput(tgt, new_btn_state->btn);                                         \
+	{                                                                        \
+		is_change += 1;                                                      \
+		BINDINGTARGET tgt;                                                   \
+		tgt.providerId = PROVIDER_ID;                                        \
+		tgt.deviceId = deviceInfo->deviceId;                                 \
+		tgt.keyId = btn_id;                                                  \
+		tgt.keyType = type;                                                  \
+		OnInput(tgt, new_btn_state->btn);                                    \
 	}
 
 	if(OnInput)
@@ -305,15 +304,14 @@ IOHIDReportCallback CInputProviderMacOsHid::GetCallback(IOHIDDeviceRef device)
 void CInputProviderMacOsHid::SetInitialBindValues(IOHIDDeviceRef device)
 {
 	CFArrayRef elements = IOHIDDeviceCopyMatchingElements(device, nullptr, 0);
-	
+
 	for(int i = 0; i < CFArrayGetCount(elements); i++)
 	{
 		IOHIDElementRef elementRef = (IOHIDElementRef)CFArrayGetValueAtIndex(elements, i);
 		uint32 usagePage = IOHIDElementGetUsagePage(elementRef);
 		if(
-		   (usagePage != kHIDPage_GenericDesktop) &&
-		   (usagePage != kHIDPage_Button)
-		   )
+		    (usagePage != kHIDPage_GenericDesktop) &&
+		    (usagePage != kHIDPage_Button))
 		{
 			continue;
 		}
@@ -322,7 +320,7 @@ void CInputProviderMacOsHid::SetInitialBindValues(IOHIDDeviceRef device)
 		{
 			continue;
 		}
-		
+
 		CFIndex value = IOHIDValueGetIntegerValue(valueRef);
 		IOHIDElementType type = IOHIDElementGetType(elementRef);
 		uint32 usage = IOHIDElementGetUsage(elementRef);
@@ -333,13 +331,13 @@ void CInputProviderMacOsHid::SetInitialBindValues(IOHIDDeviceRef device)
 		tgt.keyType = GetKeyType(usage, type);
 		switch(type)
 		{
-			case kIOHIDElementTypeInput_Misc:
-			case kIOHIDElementTypeInput_Button:
-			case kIOHIDElementTypeInput_Axis:
-				OnInput(tgt, value);
-				break;
-			default:
-				break;
+		case kIOHIDElementTypeInput_Misc:
+		case kIOHIDElementTypeInput_Button:
+		case kIOHIDElementTypeInput_Axis:
+			OnInput(tgt, value);
+			break;
+		default:
+			break;
 		}
 	}
 }

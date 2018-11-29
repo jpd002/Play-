@@ -11,12 +11,12 @@ class CInputBindingManager
 {
 public:
 	typedef std::shared_ptr<CInputProvider> ProviderPtr;
-	
+
 	enum
 	{
 		MAX_PADS = 2,
 	};
-	
+
 	enum BINDINGTYPE
 	{
 		BINDING_UNBOUND = 0,
@@ -41,17 +41,17 @@ public:
 		virtual void Save(Framework::CConfig&, const char*) const = 0;
 		virtual void Load(Framework::CConfig&, const char*) = 0;
 	};
-	
+
 	CInputBindingManager();
 	virtual ~CInputBindingManager() = default;
 
 	bool HasBindings() const;
-	
+
 	void RegisterInputProvider(const ProviderPtr&);
 	void OverrideInputEventHandler(const InputEventFunction&);
-	
+
 	std::string GetTargetDescription(const BINDINGTARGET&) const;
-	
+
 	uint32 GetBindingValue(uint32, PS2::CControllerInfo::BUTTON) const;
 	void ResetBindingValues();
 
@@ -69,73 +69,73 @@ private:
 	public:
 		CSimpleBinding() = default;
 		CSimpleBinding(const BINDINGTARGET&);
-		
+
 		void ProcessEvent(const BINDINGTARGET&, uint32) override;
-		
+
 		BINDINGTYPE GetBindingType() const override;
 		const char* GetBindingTypeName() const override;
 		std::string GetDescription(CInputBindingManager*) const override;
-		
+
 		uint32 GetValue() const override;
 		void SetValue(uint32) override;
-		
+
 		void Save(Framework::CConfig&, const char*) const override;
 		void Load(Framework::CConfig&, const char*) override;
-		
+
 	private:
 		BINDINGTARGET m_binding;
 		uint32 m_value = 0;
 	};
-	
+
 	class CPovHatBinding : public CBinding
 	{
 	public:
 		CPovHatBinding() = default;
 		CPovHatBinding(const BINDINGTARGET&, uint32 = -1);
-		
+
 		void ProcessEvent(const BINDINGTARGET&, uint32) override;
-		
+
 		BINDINGTYPE GetBindingType() const override;
 		const char* GetBindingTypeName() const override;
 		std::string GetDescription(CInputBindingManager*) const override;
-		
+
 		uint32 GetValue() const override;
 		void SetValue(uint32) override;
-		
+
 		static void RegisterPreferences(Framework::CConfig&, const char*);
 		void Save(Framework::CConfig&, const char*) const override;
 		void Load(Framework::CConfig&, const char*) override;
-		
+
 	private:
 		static int32 GetShortestDistanceBetweenAngles(int32, int32);
-		
+
 		BINDINGTARGET m_binding;
 		uint32 m_refValue = 0;
 		uint32 m_value = 0;
 	};
-	
+
 	class CSimulatedAxisBinding : public CBinding
 	{
 	public:
 		CSimulatedAxisBinding() = default;
 		CSimulatedAxisBinding(const BINDINGTARGET&, const BINDINGTARGET&);
-		
+
 		void ProcessEvent(const BINDINGTARGET&, uint32) override;
-		
+
 		BINDINGTYPE GetBindingType() const override;
 		const char* GetBindingTypeName() const override;
 		std::string GetDescription(CInputBindingManager*) const override;
-		
+
 		uint32 GetValue() const override;
 		void SetValue(uint32) override;
-		
+
 		void Save(Framework::CConfig&, const char*) const override;
 		void Load(Framework::CConfig&, const char*) override;
-		
+
 	private:
 		BINDINGTARGET m_key1Binding;
 		BINDINGTARGET m_key2Binding;
-		
+
 		uint32 m_key1State = 0;
 		uint32 m_key2State = 0;
 	};
@@ -148,7 +148,7 @@ private:
 	BindingPtr m_bindings[MAX_PADS][PS2::CControllerInfo::MAX_BUTTONS];
 	static uint32 m_buttonDefaultValue[PS2::CControllerInfo::MAX_BUTTONS];
 	static const char* m_padPreferenceName[MAX_PADS];
-	
+
 	Framework::CConfig& m_config;
 	ProviderMap m_providers;
 };

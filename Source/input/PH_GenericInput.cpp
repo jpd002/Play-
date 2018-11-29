@@ -30,5 +30,5 @@ CInputBindingManager& CPH_GenericInput::GetBindingManager()
 
 CPadHandler::FactoryFunction CPH_GenericInput::GetFactoryFunction()
 {
-	return [] () { return new CPH_GenericInput(); };
+	return []() { return new CPH_GenericInput(); };
 }

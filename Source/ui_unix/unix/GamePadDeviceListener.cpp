@@ -187,7 +187,7 @@ bool CGamePadDeviceListener::IsValidDevice(const fs::path& inputdev_path, inputd
 	id.name = name;
 	id.uniq_id = device;
 	id.path = inputdev_path.string();
-	
+
 	devinfo = std::make_pair(inputdev_path.filename().string(), id);
 	res = true;
 

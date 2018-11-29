@@ -4,9 +4,8 @@
 #define PROVIDER_ID 'evdv'
 
 CInputProviderEvDev::CInputProviderEvDev()
-	: m_GPDL([this] (auto a, auto b, auto c, auto d, auto e){ this->OnEvDevInputEvent(a, b, c, d, e); })
+    : m_GPDL([this](auto a, auto b, auto c, auto d, auto e) { this->OnEvDevInputEvent(a, b, c, d, e); })
 {
-
 }
 
 uint32 CInputProviderEvDev::GetId() const
@@ -25,7 +24,7 @@ void CInputProviderEvDev::OnEvDevInputEvent(GamePadDeviceId deviceId, int code, 
 	tgt.providerId = PROVIDER_ID;
 	tgt.deviceId = deviceId;
 	tgt.keyId = code;
-	if(type == EV_MSC) 
+	if(type == EV_MSC)
 	{
 		return;
 	}
