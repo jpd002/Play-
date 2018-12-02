@@ -3,6 +3,7 @@
 #include "../MemoryUtils.h"
 #include "offsetof_def.h"
 #include "FpAddTruncate.h"
+#include "../FpUtils.h"
 
 #define LATENCY_MAC (4)
 #define LATENCY_DIV (7)
@@ -15,8 +16,6 @@
 #define STATUS_D 0x20
 #define STATUS_ZS 0x40
 #define STATUS_SS 0x80
-
-#define EXC_FP_MAX 0x7F7FFFFF
 
 const VUShared::REGISTER_PIPEINFO VUShared::g_pipeInfoQ =
     {
@@ -649,19 +648,12 @@ void VUShared::DIV(CMipsJitter* codeGen, uint8 nFs, uint8 nFsf, uint8 nFt, uint8
 	QueueInPipeline(g_pipeInfoQ, codeGen, LATENCY_DIV, relativePipeTime);
 
 	//Check for zero
-	codeGen->PushRel(GetVectorElement(nFt, nFtf));
-	codeGen->PushCst(0x7FFFFFFF);
-	codeGen->And();
-	codeGen->PushCst(0);
+	FpUtils::IsZero(codeGen, GetVectorElement(nFt, nFtf));
 	codeGen->BeginIf(Jitter::CONDITION_EQ);
 	{
-		codeGen->PushCst(EXC_FP_MAX);
-		codeGen->PushRel(GetVectorElement(nFs, nFsf));
-		codeGen->PushRel(GetVectorElement(nFt, nFtf));
-		codeGen->Xor();
-		codeGen->PushCst(0x80000000);
-		codeGen->And();
-		codeGen->Or();
+		FpUtils::ComputeDivisionByZero(codeGen,
+			GetVectorElement(nFs, nFsf),
+			GetVectorElement(nFt, nFtf));
 		codeGen->PullRel(destination);
 
 		codeGen->PushCst(1);
@@ -1328,19 +1320,12 @@ void VUShared::RSQRT(CMipsJitter* codeGen, uint8 nFs, uint8 nFsf, uint8 nFt, uin
 	QueueInPipeline(g_pipeInfoQ, codeGen, LATENCY_RSQRT, relativePipeTime);
 
 	//Check for zero
-	codeGen->PushRel(GetVectorElement(nFt, nFtf));
-	codeGen->PushCst(0x7FFFFFFF);
-	codeGen->And();
-	codeGen->PushCst(0);
+	FpUtils::IsZero(codeGen, GetVectorElement(nFt, nFtf));
 	codeGen->BeginIf(Jitter::CONDITION_EQ);
 	{
-		codeGen->PushCst(EXC_FP_MAX);
-		codeGen->PushRel(GetVectorElement(nFs, nFsf));
-		codeGen->PushRel(GetVectorElement(nFt, nFtf));
-		codeGen->Xor();
-		codeGen->PushCst(0x80000000);
-		codeGen->And();
-		codeGen->Or();
+		FpUtils::ComputeDivisionByZero(codeGen,
+			GetVectorElement(nFs, nFsf),
+			GetVectorElement(nFt, nFtf));
 		codeGen->PullRel(destination);
 
 		codeGen->PushCst(1);

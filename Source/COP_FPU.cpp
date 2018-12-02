@@ -270,13 +270,12 @@ void CCOP_FPU::MUL_S()
 //03
 void CCOP_FPU::DIV_S()
 {
-	//Check if FT equals to 0
-	m_codeGen->PushRel(offsetof(CMIPS, m_State.nCOP1[m_ft]));
-	m_codeGen->PushCst(0);
-
+	FpUtils::IsZero(m_codeGen, offsetof(CMIPS, m_State.nCOP1[m_ft]));
 	m_codeGen->BeginIf(Jitter::CONDITION_EQ);
 	{
-		m_codeGen->PushCst(0x7F7FFFFF);
+		FpUtils::ComputeDivisionByZero(m_codeGen,
+			offsetof(CMIPS, m_State.nCOP1[m_fs]),
+			offsetof(CMIPS, m_State.nCOP1[m_ft]));
 		m_codeGen->PullRel(offsetof(CMIPS, m_State.nCOP1[m_fd]));
 	}
 	m_codeGen->Else();
