@@ -5,6 +5,7 @@
 #include "Jitter.h"
 #include "offsetof_def.h"
 #include "MemoryUtils.h"
+#include "FpUtils.h"
 
 const uint32 CCOP_FPU::m_ccMask[8] =
     {
@@ -330,11 +331,23 @@ void CCOP_FPU::TRUNC_W_S()
 //16
 void CCOP_FPU::RSQRT_S()
 {
-	m_codeGen->FP_PushSingle(offsetof(CMIPS, m_State.nCOP1[m_fs]));
-	m_codeGen->FP_PushSingle(offsetof(CMIPS, m_State.nCOP1[m_ft]));
-	m_codeGen->FP_Rsqrt();
-	m_codeGen->FP_Mul();
-	m_codeGen->FP_PullSingle(offsetof(CMIPS, m_State.nCOP1[m_fd]));
+	FpUtils::IsZero(m_codeGen, offsetof(CMIPS, m_State.nCOP1[m_ft]));
+	m_codeGen->BeginIf(Jitter::CONDITION_EQ);
+	{
+		FpUtils::ComputeDivisionByZero(m_codeGen,
+			offsetof(CMIPS, m_State.nCOP1[m_fs]),
+			offsetof(CMIPS, m_State.nCOP1[m_ft]));
+		m_codeGen->PullRel(offsetof(CMIPS, m_State.nCOP1[m_fd]));
+	}
+	m_codeGen->Else();
+	{
+		m_codeGen->FP_PushSingle(offsetof(CMIPS, m_State.nCOP1[m_fs]));
+		m_codeGen->FP_PushSingle(offsetof(CMIPS, m_State.nCOP1[m_ft]));
+		m_codeGen->FP_Rsqrt();
+		m_codeGen->FP_Mul();
+		m_codeGen->FP_PullSingle(offsetof(CMIPS, m_State.nCOP1[m_fd]));
+	}
+	m_codeGen->EndIf();
 }
 
 //18

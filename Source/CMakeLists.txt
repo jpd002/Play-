@@ -189,6 +189,8 @@ set(COMMON_SRC_FILES
 	ELF.h
 	ElfFile.cpp
 	ElfFile.h
+	FpUtils.cpp
+	FpUtils.h
 	FrameDump.cpp
 	FrameDump.h
 	GenericMipsExecutor.h
