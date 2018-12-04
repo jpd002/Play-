@@ -27,7 +27,7 @@ include(PrecompiledHeader)
 
 if(BUILD_PLAY)
 	if(TARGET_PLATFORM_UNIX OR USE_QT)
-		add_subdirectory(Source/ui_unix/)
+		add_subdirectory(Source/ui_qt/)
 	endif(TARGET_PLATFORM_UNIX OR USE_QT)
 
 	if(NOT USE_QT)
