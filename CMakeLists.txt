@@ -26,15 +26,11 @@ set(PROJECT_LIBS)
 include(PrecompiledHeader)
 
 if(BUILD_PLAY)
-	if(TARGET_PLATFORM_UNIX OR USE_QT)
+	if(TARGET_PLATFORM_UNIX OR TARGET_PLATFORM_MACOS OR USE_QT)
 		add_subdirectory(Source/ui_qt/)
-	endif(TARGET_PLATFORM_UNIX OR USE_QT)
+	endif(TARGET_PLATFORM_UNIX OR TARGET_PLATFORM_MACOS OR USE_QT)
 
 	if(NOT USE_QT)
-		if(TARGET_PLATFORM_MACOS)
-			add_subdirectory(Source/ui_macosx/)
-		endif(TARGET_PLATFORM_MACOS)
-
 		if(TARGET_PLATFORM_IOS)
 			add_subdirectory(Source/ui_ios/)
 		endif(TARGET_PLATFORM_IOS)

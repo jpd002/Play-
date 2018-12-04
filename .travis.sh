@@ -83,7 +83,7 @@ travis_script()
             cmake --build .
         elif [ "$TARGET_OS" = "OSX" ]; then
             export CMAKE_PREFIX_PATH="$(brew --prefix qt5)"
-            cmake .. -G"$BUILD_TYPE" -DUSE_QT=ON
+            cmake .. -G"$BUILD_TYPE"
             cmake --build . --config Release
             $(brew --prefix qt5)/bin/macdeployqt Source/ui_unix/Release/Play.app
             appdmg ../installer_macosx/spec.json Play.dmg
