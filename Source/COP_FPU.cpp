@@ -274,8 +274,8 @@ void CCOP_FPU::DIV_S()
 	m_codeGen->BeginIf(Jitter::CONDITION_EQ);
 	{
 		FpUtils::ComputeDivisionByZero(m_codeGen,
-			offsetof(CMIPS, m_State.nCOP1[m_fs]),
-			offsetof(CMIPS, m_State.nCOP1[m_ft]));
+		                               offsetof(CMIPS, m_State.nCOP1[m_fs]),
+		                               offsetof(CMIPS, m_State.nCOP1[m_ft]));
 		m_codeGen->PullRel(offsetof(CMIPS, m_State.nCOP1[m_fd]));
 	}
 	m_codeGen->Else();
@@ -334,8 +334,8 @@ void CCOP_FPU::RSQRT_S()
 	m_codeGen->BeginIf(Jitter::CONDITION_EQ);
 	{
 		FpUtils::ComputeDivisionByZero(m_codeGen,
-			offsetof(CMIPS, m_State.nCOP1[m_fs]),
-			offsetof(CMIPS, m_State.nCOP1[m_ft]));
+		                               offsetof(CMIPS, m_State.nCOP1[m_fs]),
+		                               offsetof(CMIPS, m_State.nCOP1[m_ft]));
 		m_codeGen->PullRel(offsetof(CMIPS, m_State.nCOP1[m_fd]));
 	}
 	m_codeGen->Else();

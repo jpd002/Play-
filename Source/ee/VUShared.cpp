@@ -652,8 +652,8 @@ void VUShared::DIV(CMipsJitter* codeGen, uint8 nFs, uint8 nFsf, uint8 nFt, uint8
 	codeGen->BeginIf(Jitter::CONDITION_EQ);
 	{
 		FpUtils::ComputeDivisionByZero(codeGen,
-			GetVectorElement(nFs, nFsf),
-			GetVectorElement(nFt, nFtf));
+		                               GetVectorElement(nFs, nFsf),
+		                               GetVectorElement(nFt, nFtf));
 		codeGen->PullRel(destination);
 
 		codeGen->PushCst(1);
@@ -1324,8 +1324,8 @@ void VUShared::RSQRT(CMipsJitter* codeGen, uint8 nFs, uint8 nFsf, uint8 nFt, uin
 	codeGen->BeginIf(Jitter::CONDITION_EQ);
 	{
 		FpUtils::ComputeDivisionByZero(codeGen,
-			GetVectorElement(nFs, nFsf),
-			GetVectorElement(nFt, nFtf));
+		                               GetVectorElement(nFs, nFsf),
+		                               GetVectorElement(nFt, nFtf));
 		codeGen->PullRel(destination);
 
 		codeGen->PushCst(1);
