@@ -85,7 +85,7 @@ travis_script()
             export CMAKE_PREFIX_PATH="$(brew --prefix qt5)"
             cmake .. -G"$BUILD_TYPE"
             cmake --build . --config Release
-            $(brew --prefix qt5)/bin/macdeployqt Source/ui_unix/Release/Play.app
+            $(brew --prefix qt5)/bin/macdeployqt Source/ui_qt/Release/Play.app
             appdmg ../installer_macosx/spec.json Play.dmg
         elif [ "$TARGET_OS" = "IOS" ]; then
             cmake .. -G"$BUILD_TYPE" -DCMAKE_TOOLCHAIN_FILE=../../Dependencies/cmake-ios/ios.cmake -DTARGET_IOS=ON -DBUILD_PSFPLAYER=ON
