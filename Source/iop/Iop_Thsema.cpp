@@ -20,10 +20,6 @@ CThsema::CThsema(CIopBios& bios, uint8* ram)
 {
 }
 
-CThsema::~CThsema()
-{
-}
-
 std::string CThsema::GetId() const
 {
 	return "thsemap";
