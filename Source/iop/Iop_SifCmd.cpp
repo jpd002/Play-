@@ -44,8 +44,8 @@ using namespace Iop;
 #define SYSTEM_COMMAND_ID 0x80000000
 
 CSifCmd::CSifCmd(CIopBios& bios, CSifMan& sifMan, CSysmem& sysMem, uint8* ram)
-    : m_sifMan(sifMan)
-    , m_bios(bios)
+    : m_bios(bios)
+    , m_sifMan(sifMan)
     , m_sysMem(sysMem)
     , m_ram(ram)
 {
