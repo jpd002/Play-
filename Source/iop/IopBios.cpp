@@ -2523,6 +2523,11 @@ Iop::CCdvdfsv* CIopBios::GetCdvdfsv()
 	return m_cdvdfsv.get();
 }
 
+Iop::CMcServ* CIopBios::GetMcServ()
+{
+	return static_cast<Iop::CMcServ*>(m_mcserv.get());
+}
+
 #endif
 
 int32 CIopBios::RegisterIntrHandler(uint32 line, uint32 mode, uint32 handler, uint32 arg)
