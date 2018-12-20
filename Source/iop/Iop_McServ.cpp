@@ -5,6 +5,7 @@
 #include "../PS2VM_Preferences.h"
 #include "../Log.h"
 #include "Iop_McServ.h"
+#include "StdStreamUtils.h"
 
 using namespace Iop;
 namespace filesystem = boost::filesystem;
@@ -184,34 +185,28 @@ void CMcServ::Open(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, u
 	}
 	else
 	{
-		const char* access = nullptr;
-		switch(cmd->flags)
+		if(cmd->flags & OPEN_FLAG_CREAT)
 		{
-		case OPEN_FLAG_RDONLY:
-			access = "rb";
-			break;
-		case OPEN_FLAG_WRONLY:
-		case OPEN_FLAG_RDWR:
-			access = "r+b";
-			break;
-		case OPEN_FLAG_CREAT: //Used by Crash Bandicoot: Wrath of Cortex
-		case(OPEN_FLAG_CREAT | OPEN_FLAG_WRONLY):
-		case(OPEN_FLAG_CREAT | OPEN_FLAG_RDWR):
-		case(OPEN_FLAG_TRUNC | OPEN_FLAG_CREAT | OPEN_FLAG_RDWR):
-			access = "wb";
-			break;
+			if(!boost::filesystem::exists(filePath))
+			{
+				//Create file if it doesn't exist
+				Framework::CreateOutputStdStream(filePath.native());
+			}
 		}
 
-		if(access == nullptr)
+		if(cmd->flags & OPEN_FLAG_TRUNC)
 		{
-			ret[0] = -1;
-			assert(0);
-			return;
+			if(boost::filesystem::exists(filePath))
+			{
+				//Create file (discard contents) if it exists
+				Framework::CreateOutputStdStream(filePath.native());
+			}
 		}
 
+		//At this point, we assume that the file has been created or truncated
 		try
 		{
-			auto file = Framework::CStdStream(filePath.string().c_str(), access);
+			auto file = Framework::CreateUpdateExistingStdStream(filePath.native());
 			uint32 handle = GenerateHandle();
 			if(handle == -1)
 			{
