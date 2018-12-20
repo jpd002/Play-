@@ -511,23 +511,23 @@ unsigned int CGSH_OpenGL::GetCurrentReadCircuit()
 	case 2:
 		return 1;
 	case 3:
+	{
+		//Both are enabled... See if we can find out which one is good
+		//This happens in Capcom Classics Collection Vol. 2
+		std::lock_guard<std::recursive_mutex> registerMutexLock(m_registerMutex);
+		bool fb1Null = (m_nDISPFB1.value.q == 0);
+		bool fb2Null = (m_nDISPFB2.value.q == 0);
+		if(!fb1Null && fb2Null)
 		{
-			//Both are enabled... See if we can find out which one is good
-			//This happens in Capcom Classics Collection Vol. 2
-			std::lock_guard<std::recursive_mutex> registerMutexLock(m_registerMutex);
-			bool fb1Null = (m_nDISPFB1.value.q == 0);
-			bool fb2Null = (m_nDISPFB2.value.q == 0);
-			if(!fb1Null && fb2Null)
-			{
-				return 0;
-			}
-			if(fb1Null && !fb2Null)
-			{
-				return 1;
-			}
 			return 0;
 		}
-		break;
+		if(fb1Null && !fb2Null)
+		{
+			return 1;
+		}
+		return 0;
+	}
+	break;
 	}
 }
 
