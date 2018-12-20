@@ -231,7 +231,7 @@ public:
 	int32 RegisterIntrHandler(uint32, uint32, uint32, uint32);
 	int32 ReleaseIntrHandler(uint32);
 
-	void TriggerCallback(uint32 address, uint32 arg0, uint32 arg1);
+	void TriggerCallback(uint32 address, uint32 arg0 = 0, uint32 arg1 = 0, uint32 arg2 = 0, uint32 arg3 = 0);
 
 #ifdef DEBUGGER_INCLUDED
 	void LoadDebugTags(Framework::Xml::CNode*) override;

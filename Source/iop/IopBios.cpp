@@ -3138,7 +3138,7 @@ void CIopBios::RelocateElf(CELF& elf, uint32 baseAddress)
 	}
 }
 
-void CIopBios::TriggerCallback(uint32 address, uint32 arg0, uint32 arg1)
+void CIopBios::TriggerCallback(uint32 address, uint32 arg0, uint32 arg1, uint32 arg2, uint32 arg3)
 {
 	// Call the addres on a callback thread with A0 set to arg0
 	uint32 callbackThreadId = -1;
@@ -3167,6 +3167,8 @@ void CIopBios::TriggerCallback(uint32 address, uint32 arg0, uint32 arg1)
 	auto thread = GetThread(callbackThreadId);
 	thread->context.gpr[CMIPS::A0] = arg0;
 	thread->context.gpr[CMIPS::A1] = arg1;
+	thread->context.gpr[CMIPS::A2] = arg2;
+	thread->context.gpr[CMIPS::A3] = arg3;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
