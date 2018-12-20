@@ -11,11 +11,13 @@ namespace filesystem = boost::filesystem;
 
 #define LOG_NAME ("iop_mcserv")
 
+// clang-format off
 const char* CMcServ::m_mcPathPreference[2] =
-    {
-        PREF_PS2_MC0_DIRECTORY,
-        PREF_PS2_MC1_DIRECTORY,
+{
+	PREF_PS2_MC0_DIRECTORY,
+	PREF_PS2_MC1_DIRECTORY,
 };
+// clang-format on
 
 CMcServ::CMcServ(CSifMan& sif)
 {
