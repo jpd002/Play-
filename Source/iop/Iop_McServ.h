@@ -8,8 +8,13 @@
 #include "Iop_Module.h"
 #include "Iop_SifMan.h"
 
+class CMIPSAssembler;
+class CIopBios;
+
 namespace Iop
 {
+	class CSysmem;
+	class CSifCmd;
 
 	class CMcServ : public CModule, public CSifModule
 	{
@@ -47,7 +52,7 @@ namespace Iop
 			uint8 name[0x20];
 		};
 
-		CMcServ(CSifMan&);
+		CMcServ(CIopBios&, CSifMan&, CSifCmd&, CSysmem&, uint8*);
 		virtual ~CMcServ() = default;
 
 		static const char* GetMcPathPreference(unsigned int);
@@ -58,6 +63,23 @@ namespace Iop
 		bool Invoke(uint32, uint32*, uint32, uint32*, uint32, uint8*) override;
 
 	private:
+		struct MODULEDATA
+		{
+			enum
+			{
+				TRAMPOLINE_SIZE = 0x80,
+				RPC_BUFFER_SIZE = 0x80,
+			};
+
+			SIFRPCCLIENTDATA rpcClientData;
+			uint8 rpcBuffer[RPC_BUFFER_SIZE];
+			uint32 initialized = 0;
+			uint32 readFastHandle = 0;
+			uint32 readFastSize = 0;
+			uint32 readFastBufferAddress = 0;
+			uint8 trampoline[TRAMPOLINE_SIZE];
+		};
+
 		enum MODULE_ID
 		{
 			MODULE_ID = 0x80000400,
@@ -117,6 +139,9 @@ namespace Iop
 			unsigned int m_index;
 		};
 
+		void BuildCustomCode();
+		uint32 AssembleReadFast(CMIPSAssembler&);
+
 		void GetInfo(uint32*, uint32, uint32*, uint32, uint8*);
 		void Open(uint32*, uint32, uint32*, uint32, uint8*);
 		void Close(uint32*, uint32, uint32*, uint32, uint8*);
@@ -128,12 +153,27 @@ namespace Iop
 		void GetDir(uint32*, uint32, uint32*, uint32, uint8*);
 		void Delete(uint32*, uint32, uint32*, uint32, uint8*);
 		void GetSlotMax(uint32*, uint32, uint32*, uint32, uint8*);
+		bool ReadFast(uint32*, uint32, uint32*, uint32, uint8*);
 		void GetVersionInformation(uint32*, uint32, uint32*, uint32, uint8*);
+
+		void StartReadFast(CMIPS&);
+		void ProceedReadFast(CMIPS&);
+		void FinishReadFast(CMIPS&);
 
 		uint32 GenerateHandle();
 		Framework::CStdStream* GetFileFromHandle(uint32);
 		boost::filesystem::path GetAbsoluteFilePath(unsigned int, unsigned int, const char*) const;
 
+		CIopBios& m_bios;
+		CSifMan& m_sifMan;
+		CSifCmd& m_sifCmd;
+		CSysmem& m_sysMem;
+		uint8* m_ram = nullptr;
+		uint32 m_moduleDataAddr = 0;
+		uint32 m_startReadFastAddr = 0;
+		uint32 m_proceedReadFastAddr = 0;
+		uint32 m_finishReadFastAddr = 0;
+		uint32 m_readFastAddr = 0;
 		Framework::CStdStream m_files[MAX_FILES];
 		static const char* m_mcPathPreference[2];
 		boost::filesystem::path m_currentDirectory;
