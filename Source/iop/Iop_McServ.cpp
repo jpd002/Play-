@@ -95,7 +95,7 @@ bool CMcServ::Invoke(uint32 method, uint32* args, uint32 argsSize, uint32* ret, 
 		GetVersionInformation(args, argsSize, ret, retSize, ram);
 		break;
 	default:
-		CLog::GetInstance().Warn(LOG_NAME, "Unknown method invoked (0x%08X).\r\n", method);
+		CLog::GetInstance().Warn(LOG_NAME, "Unknown RPC method invoked (0x%08X).\r\n", method);
 		break;
 	}
 	return true;
@@ -232,7 +232,7 @@ void CMcServ::Open(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, u
 
 void CMcServ::Close(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, uint8* ram)
 {
-	FILECMD* cmd = reinterpret_cast<FILECMD*>(args);
+	auto cmd = reinterpret_cast<FILECMD*>(args);
 
 	CLog::GetInstance().Print(LOG_NAME, "Close(handle = %i);\r\n", cmd->handle);
 
