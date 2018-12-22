@@ -27,11 +27,6 @@ CPS2VM* g_virtualMachine = nullptr;
 
 -(void)viewDidLoad
 {
-	CGRect screenBounds = [[UIScreen mainScreen] bounds];
-	
-	auto view = [[GlEsView alloc] initWithFrame: screenBounds];
-	self.view = view;
-    
     self.connectObserver = [[NSNotificationCenter defaultCenter] addObserverForName:GCControllerDidConnectNotification object:nil queue:[NSOperationQueue mainQueue] usingBlock:^(NSNotification *note) {
         if ([[GCController controllers] count] == 1) {
             [self toggleHardwareController:YES];
