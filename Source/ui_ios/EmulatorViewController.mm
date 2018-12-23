@@ -69,19 +69,13 @@ CPS2VM* g_virtualMachine = nullptr;
 		auto padHandler = static_cast<CPH_Generic*>(g_virtualMachine->GetPadHandler());
 		self.virtualPadView = [[VirtualPadView alloc] initWithFrame: screenBounds padHandler: padHandler];
 		[self.view addSubview: self.virtualPadView];
+		[self.view sendSubviewToBack: self.virtualPadView];
 	}
 
 	if(CAppConfig::GetInstance().GetPreferenceBoolean(PREFERENCE_UI_SHOWFPS))
 	{
 		[self setupFpsCounter];
 	}
-
-	UIButton* but = [UIButton buttonWithType: UIButtonTypeRoundedRect];
-	[but setTitle: @"Exit" forState: UIControlStateNormal];
-	[but setBackgroundColor: [UIColor whiteColor]];
-	[but addTarget: self action: @selector(onExitButtonClick) forControlEvents: UIControlEventTouchUpInside];
-	but.frame = CGRectMake(screenBounds.size.width - 50, (screenBounds.size.height - 25) / 2, 50, 25);
-	[self.view addSubview: but];
 	
 	g_virtualMachine->Pause();
 	g_virtualMachine->Reset();
@@ -225,7 +219,7 @@ CPS2VM* g_virtualMachine = nullptr;
 	NSLog(@"Saved state to '%s'.", statePath.string().c_str());
 }
 
--(void)onExitButtonClick
+-(IBAction)onExitButtonClick: (id)sender
 {
 	g_virtualMachine->Pause();
 	[self dismissViewControllerAnimated: YES completion: nil];
