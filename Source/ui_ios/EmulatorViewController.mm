@@ -213,14 +213,16 @@ CPS2VM* g_virtualMachine = nullptr;
 
 -(void)onLoadStateButtonClick
 {
+	auto statePath = g_virtualMachine->GenerateStatePath(0);
+	g_virtualMachine->LoadState(statePath);
+	NSLog(@"Loaded state from '%s'.", statePath.string().c_str());
 	g_virtualMachine->Resume();
 }
 
 -(void)onSaveStateButtonClick
 {
-	auto dataPath = Framework::PathUtils::GetPersonalDataPath();
-	auto statePath = dataPath / "state.sta";
-	g_virtualMachine->SaveState(statePath.c_str());
+	auto statePath = g_virtualMachine->GenerateStatePath(0);
+	g_virtualMachine->SaveState(statePath);
 	NSLog(@"Saved state to '%s'.", statePath.string().c_str());
 	g_virtualMachine->Resume();
 }
