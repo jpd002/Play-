@@ -255,12 +255,12 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="HC8-HH-sed">
-                                <rect key="frame" x="336" y="322" width="39" height="23"/>
+                                <rect key="frame" x="320" y="322" width="55" height="23"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMinY="YES" flexibleMaxY="YES"/>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                                <state key="normal" title="Exit"/>
+                                <state key="normal" title="Pause"/>
                                 <connections>
-                                    <action selector="onExitButtonClick:" destination="BYZ-38-t0r" eventType="touchUpInside" id="2ru-C0-Y39"/>
+                                    <action selector="onPauseButtonClick:" destination="BYZ-38-t0r" eventType="touchUpInside" id="cvO-k0-dIM"/>
                                 </connections>
                             </button>
                         </subviews>
@@ -269,7 +269,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="1845.4272863568217" y="413.60000000000002"/>
+            <point key="canvasLocation" x="1844" y="413.3433283358321"/>
         </scene>
         <!--Navigation Controller-->
         <scene sceneID="gLP-K1-Ezx">

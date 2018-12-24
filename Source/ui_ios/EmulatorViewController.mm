@@ -211,18 +211,77 @@ CPS2VM* g_virtualMachine = nullptr;
 	[self.fpsCounterLabel sizeToFit];
 }
 
+-(void)onLoadStateButtonClick
+{
+	g_virtualMachine->Resume();
+}
+
 -(void)onSaveStateButtonClick
 {
 	auto dataPath = Framework::PathUtils::GetPersonalDataPath();
 	auto statePath = dataPath / "state.sta";
 	g_virtualMachine->SaveState(statePath.c_str());
 	NSLog(@"Saved state to '%s'.", statePath.string().c_str());
+	g_virtualMachine->Resume();
 }
 
--(IBAction)onExitButtonClick: (id)sender
+-(void)onExitButtonClick
+{
+	[self dismissViewControllerAnimated: YES completion: nil];
+}
+
+-(void)onResumeButtonClick
+{
+	g_virtualMachine->Resume();
+}
+
+-(IBAction)onPauseButtonClick: (id)sender
 {
 	g_virtualMachine->Pause();
-	[self dismissViewControllerAnimated: YES completion: nil];
+	
+	UIAlertController* alert = [UIAlertController alertControllerWithTitle: nil message: nil preferredStyle: UIAlertControllerStyleActionSheet];
+	
+	//Load State
+	{
+		UIAlertAction* action = [UIAlertAction
+								 actionWithTitle: @"Load State"
+								 style: UIAlertActionStyleDefault
+								 handler: ^(UIAlertAction*) { [self onLoadStateButtonClick]; }
+								 ];
+		[alert addAction: action];
+	}
+
+	//Save State
+	{
+		UIAlertAction* action = [UIAlertAction
+								 actionWithTitle: @"Save State"
+								 style: UIAlertActionStyleDefault
+								 handler: ^(UIAlertAction*) { [self onSaveStateButtonClick]; }
+								 ];
+		[alert addAction: action];
+	}
+
+	//Resume
+	{
+		UIAlertAction* action = [UIAlertAction
+								 actionWithTitle: @"Resume"
+								 style: UIAlertActionStyleCancel
+								 handler: ^(UIAlertAction*) { [self onResumeButtonClick]; }
+								 ];
+		[alert addAction: action];
+	}
+	
+	//Exit
+	{
+		UIAlertAction* action = [UIAlertAction
+								 actionWithTitle: @"Exit"
+								 style: UIAlertActionStyleDestructive
+								 handler: ^(UIAlertAction*) { [self onExitButtonClick]; }
+								 ];
+		[alert addAction: action];
+	}
+
+	[self presentViewController: alert animated: YES completion: nil];
 }
 
 -(BOOL)prefersStatusBarHidden
