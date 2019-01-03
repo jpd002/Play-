@@ -17,6 +17,7 @@
 #include "../iop/IopBios.h"
 #include "DMAC.h"
 #include "INTC.h"
+#include "Timer.h"
 #include "SIF.h"
 #include "EEAssembler.h"
 #include "PathUtils.h"
@@ -258,6 +259,9 @@ void CPS2OS::Initialize()
 
 	m_ee.m_State.nPC = BIOS_ADDRESS_IDLETHREADPROC;
 	m_ee.m_State.nCOP0[CCOP_SCU::STATUS] |= (CMIPS::STATUS_IE | CMIPS::STATUS_EIE);
+
+	//The BIOS enables TIMER3 for alarm purposes, some games (ex.: SoulCalibur 3) assume timer is counting.
+	m_ee.m_pMemoryMap->SetWord(CTimer::T3_MODE, CTimer::MODE_CLOCK_SELECT_EXTERNAL | CTimer::MODE_COUNT_ENABLE | CTimer::MODE_EQUAL_FLAG | CTimer::MODE_OVERFLOW_FLAG);
 }
 
 void CPS2OS::Release()
