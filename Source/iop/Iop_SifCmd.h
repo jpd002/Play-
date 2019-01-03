@@ -108,6 +108,7 @@ namespace Iop
 		void SifExecRequest(CMIPS&);
 		void SifRpcLoop(CMIPS&);
 		uint32 SifGetOtherData(uint32, uint32, uint32, uint32, uint32);
+		uint32 SifSendCmdIntr(uint32, uint32, uint32, uint32, uint32, uint32, uint32, uint32);
 		void FinishExecRequest(uint32, uint32);
 		void FinishExecCmd();
 		void FinishBindRpc(uint32, uint32);

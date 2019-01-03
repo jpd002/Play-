@@ -35,6 +35,7 @@ using namespace Iop;
 #define FUNCTION_SIFEXECREQUEST "SifExecRequest"
 #define FUNCTION_SIFRPCLOOP "SifRpcLoop"
 #define FUNCTION_SIFGETOTHERDATA "SifGetOtherData"
+#define FUNCTION_SIFSENDCMDINTR "SifSendCmdIntr"
 #define FUNCTION_FINISHEXECREQUEST "FinishExecRequest"
 #define FUNCTION_FINISHEXECCMD "FinishExecCmd"
 #define FUNCTION_FINISHBINDRPC "FinishBindRpc"
@@ -156,6 +157,9 @@ std::string CSifCmd::GetFunctionName(unsigned int functionId) const
 	case 23:
 		return FUNCTION_SIFGETOTHERDATA;
 		break;
+	case 28:
+		return FUNCTION_SIFSENDCMDINTR;
+		break;
 	case CUSTOM_FINISHEXECREQUEST:
 		return FUNCTION_FINISHEXECREQUEST;
 		break;
@@ -243,6 +247,17 @@ void CSifCmd::Invoke(CMIPS& context, unsigned int functionId)
 		    context.m_State.nGPR[CMIPS::A2].nV0,
 		    context.m_State.nGPR[CMIPS::A3].nV0,
 		    context.m_pMemoryMap->GetWord(context.m_State.nGPR[CMIPS::SP].nV0 + 0x10));
+		break;
+	case 28:
+		context.m_State.nGPR[CMIPS::V0].nV0 = SifSendCmdIntr(
+		    context.m_State.nGPR[CMIPS::A0].nV0,
+		    context.m_State.nGPR[CMIPS::A1].nV0,
+		    context.m_State.nGPR[CMIPS::A2].nV0,
+		    context.m_State.nGPR[CMIPS::A3].nV0,
+		    context.m_pMemoryMap->GetWord(context.m_State.nGPR[CMIPS::SP].nV0 + 0x10),
+		    context.m_pMemoryMap->GetWord(context.m_State.nGPR[CMIPS::SP].nV0 + 0x14),
+		    context.m_pMemoryMap->GetWord(context.m_State.nGPR[CMIPS::SP].nV0 + 0x18),
+		    context.m_pMemoryMap->GetWord(context.m_State.nGPR[CMIPS::SP].nV0 + 0x1C));
 		break;
 	case CUSTOM_FINISHEXECREQUEST:
 		FinishExecRequest(
@@ -898,6 +913,16 @@ uint32 CSifCmd::SifGetOtherData(uint32 packetPtr, uint32 src, uint32 dst, uint32
 	                          packetPtr, src, dst, size, mode);
 	m_sifMan.GetOtherData(dst, src, size);
 	return 0;
+}
+
+uint32 CSifCmd::SifSendCmdIntr(uint32 commandId, uint32 packetPtr, uint32 packetSize, uint32 srcExtraPtr, uint32 dstExtraPtr, uint32 sizeExtra, uint32 callbackPtr, uint32 callbackDataPtr)
+{
+	CLog::GetInstance().Print(LOG_NAME, FUNCTION_SIFSENDCMDINTR "(commandId = 0x%08X, packetPtr = 0x%08X, packetSize = 0x%08X, srcExtraPtr = 0x%08X, dstExtraPtr = 0x%08X, sizeExtra = 0x%08X, callbackPtr = 0x%08X, callbackDataPtr = 0x%08X);\r\n",
+	                          commandId, packetPtr, packetSize, srcExtraPtr, dstExtraPtr, sizeExtra, callbackPtr, callbackDataPtr);
+
+	uint32 result = SifSendCmd(commandId, packetPtr, packetSize, srcExtraPtr, dstExtraPtr, sizeExtra);
+	m_bios.TriggerCallback(callbackPtr, callbackDataPtr);
+	return result;
 }
 
 void CSifCmd::SleepThread()
