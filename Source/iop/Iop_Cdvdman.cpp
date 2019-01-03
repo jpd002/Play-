@@ -282,13 +282,13 @@ void CCdvdman::ProcessCommands()
 		case COMMAND_READ:
 			if(m_callbackPtr != 0)
 			{
-				m_bios.TriggerCallback(m_callbackPtr, CDVD_FUNCTION_READ, 0);
+				m_bios.TriggerCallback(m_callbackPtr, CDVD_FUNCTION_READ);
 			}
 			break;
 		case COMMAND_SEEK:
 			if(m_callbackPtr != 0)
 			{
-				m_bios.TriggerCallback(m_callbackPtr, CDVD_FUNCTION_SEEK, 0);
+				m_bios.TriggerCallback(m_callbackPtr, CDVD_FUNCTION_SEEK);
 			}
 			break;
 		default:

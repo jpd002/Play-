@@ -565,7 +565,7 @@ void CSifCmd::ProcessRpcRequestEnd(uint32 commandHeaderAddr)
 	{
 		if(clientData->endFctPtr != 0)
 		{
-			m_bios.TriggerCallback(clientData->endFctPtr, clientData->endParam, 0);
+			m_bios.TriggerCallback(clientData->endFctPtr, clientData->endParam);
 		}
 	}
 	else
