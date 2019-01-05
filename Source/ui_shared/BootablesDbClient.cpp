@@ -18,7 +18,8 @@ static const char* g_bootablesTableCreateStatement =
     "    discId VARCHAR(10) DEFAULT '',"
     "    title TEXT DEFAULT '',"
     "    coverUrl TEXT DEFAULT '',"
-    "    lastBootedTime INTEGER DEFAULT 0"
+    "    lastBootedTime INTEGER DEFAULT 0,"
+    "    overview TEXT DEFAULT ''"
     ")";
 
 CClient::CClient()
@@ -110,13 +111,22 @@ void CClient::SetLastBootedTime(const boost::filesystem::path& path, time_t last
 	statement.StepNoResult();
 }
 
+void CClient::SetOverview(const boost::filesystem::path &path, const char *overview)
+{
+	Framework::CSqliteStatement statement(m_db, "UPDATE bootables SET overview = ? WHERE path = ?");
+	statement.BindText(1, overview, true);
+	statement.BindText(2, Framework::PathUtils::GetNativeStringFromPath(path).c_str());
+	statement.StepNoResult();
+}
+
 Bootable CClient::ReadBootable(Framework::CSqliteStatement& statement)
 {
 	Bootable bootable;
 	bootable.path = Framework::PathUtils::GetPathFromNativeString(reinterpret_cast<const char*>(sqlite3_column_text(statement, 0)));
 	bootable.discId = reinterpret_cast<const char*>(sqlite3_column_text(statement, 1));
 	bootable.title = reinterpret_cast<const char*>(sqlite3_column_text(statement, 2));
-	bootable.coverUrl = reinterpret_cast<const char*>(sqlite3_column_text(statement, 3));
+	bootable.coverUrl = reinterpret_cast<const char *>(sqlite3_column_text(statement, 3));
+	bootable.overview = reinterpret_cast<const char *>(sqlite3_column_text(statement, 5));
 	bootable.lastBootedTime = sqlite3_column_int(statement, 4);
 	return bootable;
 }
