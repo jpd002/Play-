@@ -18,6 +18,7 @@ namespace com
 				jfieldID discId = NULL;
 				jfieldID title = NULL;
 				jfieldID coverUrl = NULL;
+				jfieldID overview = NULL;
 			};
 		}
 	}
