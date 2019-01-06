@@ -3,6 +3,18 @@
 #include "com_virtualapplications_play_Bootable.h"
 #include "NativeShared.h"
 
+
+void fullScan(JNIEnv *env, jobjectArray rootDirectories)
+{
+	auto rootDirectoryCount = env->GetArrayLength(rootDirectories);
+	for(int i = 0; i < rootDirectoryCount; i++)
+	{
+		auto rootDirectoryString = static_cast<jstring>(env->GetObjectArrayElement(rootDirectories, i));
+		auto rootDirectory = GetStringFromJstring(env, rootDirectoryString);
+		ScanBootables(rootDirectory, true);
+	}
+}
+
 extern "C" JNIEXPORT void JNICALL Java_com_virtualapplications_play_BootablesInterop_scanBootables(JNIEnv* env, jobject obj, jobjectArray rootDirectories)
 {
 	try
@@ -10,13 +22,7 @@ extern "C" JNIEXPORT void JNICALL Java_com_virtualapplications_play_BootablesInt
 		auto activeDirectories = GetActiveBootableDirectories();
 		if(activeDirectories.empty())
 		{
-			auto rootDirectoryCount = env->GetArrayLength(rootDirectories);
-			for(int i = 0; i < rootDirectoryCount; i++)
-			{
-				auto rootDirectoryString = static_cast<jstring>(env->GetObjectArrayElement(rootDirectories, i));
-				auto rootDirectory = GetStringFromJstring(env, rootDirectoryString);
-				ScanBootables(rootDirectory, true);
-			}
+			fullScan(env, rootDirectories);
 		}
 		else
 		{
@@ -27,6 +33,20 @@ extern "C" JNIEXPORT void JNICALL Java_com_virtualapplications_play_BootablesInt
 		}
 	}
 	catch(const std::exception& exception)
+	{
+		Log_Print("Caught an exception: '%s'\r\n", exception.what());
+	}
+	ExtractDiscIds();
+	FetchGameTitles();
+}
+
+extern "C" JNIEXPORT void JNICALL Java_com_virtualapplications_play_BootablesInterop_fullScanBootables(JNIEnv *env, jobject obj, jobjectArray rootDirectories)
+{
+	try
+	{
+		fullScan(env, rootDirectories);
+	}
+	catch(const std::exception &exception)
 	{
 		Log_Print("Caught an exception: '%s'\r\n", exception.what());
 	}
