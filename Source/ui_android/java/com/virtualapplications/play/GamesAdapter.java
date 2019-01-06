@@ -8,6 +8,7 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.virtualapplications.play.database.GameInfo;
 
@@ -21,6 +22,16 @@ public class GamesAdapter extends ArrayAdapter<Bootable>
 	private GameInfo gameInfo;
 	private final WeakReference<AppCompatActivity> _activity;
 
+	private final View.OnLongClickListener no_long_click = new View.OnLongClickListener()
+
+	{
+		@Override
+		public boolean onLongClick (View view)
+		{
+			Toast.makeText(GamesAdapter.this._activity.get(), "No data to display.", Toast.LENGTH_SHORT).show();
+			return true;
+		}
+	};
 	public static class CoverViewHolder
 	{
 		CoverViewHolder(View v)
@@ -75,7 +86,6 @@ public class GamesAdapter extends ArrayAdapter<Bootable>
 		else
 		{
 			viewHolder = (CoverViewHolder)v.getTag();
-			viewHolder.gameTextView.setText("");
 			viewHolder.gameTextView.setVisibility(View.VISIBLE);
 			viewHolder.gameImageView.setImageResource(R.drawable.boxart);
 		}
@@ -93,29 +103,21 @@ public class GamesAdapter extends ArrayAdapter<Bootable>
 	private void createListItem(final Bootable game, final CoverViewHolder viewHolder, int pos)
 	{
 		viewHolder.gameTextView.setText(game.title);
-		//If user has set values, then read them, if not read from database
-		if(game.coverUrl != null && !game.coverUrl.equals(""))
-		{
 
-			viewHolder.childview.setOnLongClickListener(gameInfo.configureLongClick(game));
-			if(!game.coverUrl.equals("404"))
-			{
-				gameInfo.setCoverImage(game.discId, viewHolder, game.coverUrl, pos);
-			}
-			else
-			{
-				viewHolder.gameImageView.setImageResource(R.drawable.boxart);
-			}
-		}
-		else if(VirtualMachineManager.IsLoadableExecutableFileName(game.path))
+		View.OnLongClickListener long_click;
+		if(!game.title.isEmpty() || !game.overview.isEmpty())
 		{
-			viewHolder.gameImageView.setImageResource(R.drawable.boxart);
-			viewHolder.childview.setOnLongClickListener(null);
+			long_click = gameInfo.configureLongClick(game);
 		}
 		else
 		{
-			viewHolder.childview.setOnLongClickListener(null);
-			viewHolder.gameImageView.setImageResource(R.drawable.boxart);
+			long_click = no_long_click;
+		}
+		viewHolder.childview.setOnLongClickListener(long_click);
+
+		if(!game.coverUrl.isEmpty())
+		{
+			gameInfo.setCoverImage(game.discId, viewHolder, game.coverUrl, pos);
 		}
 
 		viewHolder.childview.setOnClickListener(new View.OnClickListener()
