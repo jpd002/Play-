@@ -11,6 +11,7 @@ import android.graphics.Color;
 import android.graphics.drawable.GradientDrawable;
 import android.os.*;
 import android.preference.PreferenceManager;
+import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.*;
@@ -30,9 +31,9 @@ import java.util.*;
 
 import com.virtualapplications.play.database.GameIndexer;
 import com.virtualapplications.play.database.GameInfo;
-import com.virtualapplications.play.database.IndexingDB;
-import com.virtualapplications.play.database.SqliteHelper.Games;
 
+import static com.virtualapplications.play.BootablesInterop.getBootables;
+import static com.virtualapplications.play.BootablesInterop.setLastBootedTime;
 import static com.virtualapplications.play.ThemeManager.getThemeColor;
 
 public class MainActivity extends AppCompatActivity implements NavigationDrawerFragment.NavigationDrawerCallbacks, SharedPreferences.OnSharedPreferenceChangeListener
@@ -40,7 +41,7 @@ public class MainActivity extends AppCompatActivity implements NavigationDrawerF
 	private int currentOrientation;
 	private GameInfo gameInfo;
 	protected NavigationDrawerFragment mNavigationDrawerFragment;
-	private List<GameInfoStruct> currentGames = new ArrayList<>();
+	private List<Bootable> currentGames = new ArrayList<>();
 	public static final int SORT_RECENT = 0;
 	public static final int SORT_HOMEBREW = 1;
 	public static final int SORT_NONE = 2;
@@ -118,7 +119,6 @@ public class MainActivity extends AppCompatActivity implements NavigationDrawerF
 		}
 
 		gameInfo = new GameInfo(MainActivity.this);
-		getContentResolver().call(Games.GAMES_URI, "importDb", null, null);
 
 		SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
 		sortMethod = sp.getInt("sortMethod", SORT_NONE);
@@ -212,7 +212,7 @@ public class MainActivity extends AppCompatActivity implements NavigationDrawerF
 		dialog.show();
 	}
 
-	private void displayGameNotFound(final GameInfoStruct game)
+	private void displayGameNotFound(final Bootable game)
 	{
 		AlertDialog.Builder builder = new AlertDialog.Builder(this);
 
@@ -225,7 +225,8 @@ public class MainActivity extends AppCompatActivity implements NavigationDrawerF
 					@Override
 					public void onClick(DialogInterface dialog, int id)
 					{
-						game.removeIndex(MainActivity.this);
+						// TODO
+						//game.removeIndex(MainActivity.this);
 						prepareFileListView(false);
 					}
 				}
@@ -395,15 +396,16 @@ public class MainActivity extends AppCompatActivity implements NavigationDrawerF
 			if(sharedPreferences.getBoolean(SettingsActivity.CLEAR_UNAVAILABLE, false))
 			{
 				sharedPreferences.edit().putBoolean(SettingsActivity.CLEAR_UNAVAILABLE, false).apply();
-				IndexingDB iDB = new IndexingDB(this);
-				iDB.RemoveUnavailable();
-				iDB.close();
+
+				// TODO
+				// iDB.RemoveUnavailable();
+
 				prepareFileListView(false);
 			}
 		}
 	}
 
-	private final class ImageFinder extends AsyncTask<String, Integer, List<GameInfoStruct>>
+	private final class ImageFinder extends AsyncTask<String, Integer, List<Bootable>>
 	{
 		private final boolean fullscan;
 		private ProgressDialog progDialog;
@@ -421,7 +423,7 @@ public class MainActivity extends AppCompatActivity implements NavigationDrawerF
 		}
 
 		@Override
-		protected List<GameInfoStruct> doInBackground(String... paths)
+		protected List<Bootable> doInBackground(String... paths)
 		{
 
 			GameIndexer GI = new GameIndexer(MainActivity.this);
@@ -433,11 +435,12 @@ public class MainActivity extends AppCompatActivity implements NavigationDrawerF
 			{
 				GI.startupScan();
 			}
-			return GI.getIndexGISList(sortMethod);
+
+			return new ArrayList<>(Arrays.asList(getBootables()));
 		}
 
 		@Override
-		protected void onPostExecute(List<GameInfoStruct> images)
+		protected void onPostExecute(List<Bootable> images)
 		{
 			if(progDialog != null && progDialog.isShowing())
 			{
@@ -449,7 +452,7 @@ public class MainActivity extends AppCompatActivity implements NavigationDrawerF
 		}
 	}
 
-	private void populateImages(List<GameInfoStruct> images)
+	private void populateImages(List<Bootable> images)
 	{
 		GridView gameGrid = (GridView)findViewById(R.id.game_grid);
 		if(gameGrid != null)
@@ -487,14 +490,15 @@ public class MainActivity extends AppCompatActivity implements NavigationDrawerF
 		}
 	}
 
-	public void launchGame(GameInfoStruct game)
+	public void launchGame(Bootable game)
 	{
-		if(game.getFile().exists())
+		File disc = new File(game.path);
+		if(disc.exists())
 		{
-			game.setlastplayed(this);
+			setLastBootedTime(game.path, System.currentTimeMillis());
 			try
 			{
-				VirtualMachineManager.launchDisk(this, game.getFile());
+				VirtualMachineManager.launchDisk(this, disc);
 			}
 			catch(Exception e)
 			{

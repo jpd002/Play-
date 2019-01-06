@@ -14,10 +14,10 @@ import com.virtualapplications.play.database.GameInfo;
 import java.lang.ref.WeakReference;
 import java.util.List;
 
-public class GamesAdapter extends ArrayAdapter<GameInfoStruct>
+public class GamesAdapter extends ArrayAdapter<Bootable>
 {
 	private final int layoutid;
-	private List<GameInfoStruct> games;
+	private List<Bootable> games;
 	private GameInfo gameInfo;
 	private final WeakReference<AppCompatActivity> _activity;
 
@@ -37,7 +37,7 @@ public class GamesAdapter extends ArrayAdapter<GameInfoStruct>
 		public TextView currentPositionView;
 	}
 
-	public GamesAdapter(AppCompatActivity activity, int ResourceId, List<GameInfoStruct> images, GameInfo gameInfo)
+	public GamesAdapter(AppCompatActivity activity, int ResourceId, List<Bootable> images, GameInfo gameInfo)
 	{
 		super(activity, ResourceId, images);
 		this.games = images;
@@ -51,7 +51,7 @@ public class GamesAdapter extends ArrayAdapter<GameInfoStruct>
 		return games.size();
 	}
 
-	public GameInfoStruct getItem(int position)
+	public Bootable getItem(int position)
 	{
 		return games.get(position);
 	}
@@ -82,7 +82,7 @@ public class GamesAdapter extends ArrayAdapter<GameInfoStruct>
 
 		viewHolder.currentPositionView.setText(String.valueOf(position));
 
-		final GameInfoStruct game = games.get(position);
+		final Bootable game = games.get(position);
 		if(game != null)
 		{
 			createListItem(game, viewHolder, position);
@@ -90,25 +90,24 @@ public class GamesAdapter extends ArrayAdapter<GameInfoStruct>
 		return v;
 	}
 
-	private void createListItem(final GameInfoStruct game, final CoverViewHolder viewHolder, int pos)
+	private void createListItem(final Bootable game, final CoverViewHolder viewHolder, int pos)
 	{
-		viewHolder.gameTextView.setText(game.getTitleName());
+		viewHolder.gameTextView.setText(game.title);
 		//If user has set values, then read them, if not read from database
-		if(!game.isDescriptionEmptyNull() && game.getFrontLink() != null && !game.getFrontLink().equals(""))
+		if(game.coverUrl != null && !game.coverUrl.equals(""))
 		{
-			viewHolder.childview.setOnLongClickListener(
-					gameInfo.configureLongClick(game));
 
-			if(!game.getFrontLink().equals("404"))
+			viewHolder.childview.setOnLongClickListener(gameInfo.configureLongClick(game));
+			if(!game.coverUrl.equals("404"))
 			{
-				gameInfo.setCoverImage(game.getIndexID(), viewHolder, game.getFrontLink(), pos);
+				gameInfo.setCoverImage(game.discId, viewHolder, game.coverUrl, pos);
 			}
 			else
 			{
 				viewHolder.gameImageView.setImageResource(R.drawable.boxart);
 			}
 		}
-		else if(VirtualMachineManager.IsLoadableExecutableFileName(game.getFile().getName()))
+		else if(VirtualMachineManager.IsLoadableExecutableFileName(game.path))
 		{
 			viewHolder.gameImageView.setImageResource(R.drawable.boxart);
 			viewHolder.childview.setOnLongClickListener(null);
@@ -117,8 +116,6 @@ public class GamesAdapter extends ArrayAdapter<GameInfoStruct>
 		{
 			viewHolder.childview.setOnLongClickListener(null);
 			viewHolder.gameImageView.setImageResource(R.drawable.boxart);
-			// passing game, as to pass and use (if) any user defined values
-			gameInfo.loadGameInfo(viewHolder, game, pos);
 		}
 
 		viewHolder.childview.setOnClickListener(new View.OnClickListener()
