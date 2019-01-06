@@ -1,11 +1,9 @@
 #include <algorithm>
 #include "BootablesProcesses.h"
 #include "BootablesDbClient.h"
-#include "LocalGamesDbClient.h"
 #include "TheGamesDbClient.h"
 #include "DiskUtils.h"
 #include "string_format.h"
-#include "../DiskUtils.h"
 
 //Jobs
 // Scan for new games (from input directory)
@@ -136,55 +134,3 @@ void FetchGameTitles()
 	}
 }
 
-uint32 GetTheGamesDbId(const char* discId)
-{
-	//Get the TheGamesDb ID from the local games db
-	auto localGame = LocalGamesDb::CClient::GetInstance().GetGame(discId);
-	if(localGame.theGamesDbId != 0)
-	{
-		return localGame.theGamesDbId;
-	}
-
-	//If no ID found in database, then, try a fuzzy lookup using the game name specified in the
-	//local database
-	auto gamesList = TheGamesDb::CClient::GetInstance().GetGamesList("11", localGame.title);
-	if(gamesList.empty())
-	{
-		throw std::runtime_error("Game not found.");
-	}
-	else
-	{
-		//This is the one (might be wrong due to fuzzy search)
-		auto gamesListItem = gamesList[0];
-		return gamesListItem.id;
-	}
-}
-
-std::string GetCoverUrl(const char* discId)
-{
-	try
-	{
-		auto theGamesDbId = GetTheGamesDbId(discId);
-		auto theGamesDbGame = TheGamesDb::CClient::GetInstance().GetGame(theGamesDbId);
-		auto coverUrl = string_format("%s/%s", theGamesDbGame.baseImgUrl.c_str(), theGamesDbGame.boxArtUrl.c_str());
-		return coverUrl;
-	}
-	catch(const std::exception& exception)
-	{
-		return "";
-	}
-}
-
-void FetchCoverUrls()
-{
-	auto bootables = BootablesDb::CClient::GetInstance().GetBootables();
-	for(const auto& bootable : bootables)
-	{
-		//Don't fetch if bootable already has a coverUrl
-		if(!bootable.coverUrl.empty()) continue;
-
-		if(bootable.discId.empty()) continue;
-		auto coverUrl = GetCoverUrl(bootable.discId.c_str());
-		BootablesDb::CClient::GetInstance().SetCoverUrl(bootable.path, coverUrl.c_str());
-	}
-}

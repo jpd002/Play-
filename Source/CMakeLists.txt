@@ -418,8 +418,6 @@ set(COMMON_SRC_FILES
 	ui_shared/BootablesDbClient.h
 	ui_shared/BootablesProcesses.cpp
 	ui_shared/BootablesProcesses.h
-	ui_shared/LocalGamesDbClient.cpp
-	ui_shared/LocalGamesDbClient.h
 	ui_shared/TheGamesDbClient.cpp
 	ui_shared/TheGamesDbClient.h
 	VirtualPad.cpp
