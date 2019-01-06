@@ -57,13 +57,12 @@ std::vector<Bootable> CClient::GetBootables(int32_t sortedMethod)
 
 	switch(sortedMethod)
 	{
-		case 0:
-			query += "WHERE lastBootedTime != 0 Order By lastBootedTime DESC ";
-			break;
-		case 1:
-			query += "WHERE path LIKE '%.elf' COLLATE NOCASE ";
-			break;
-
+	case 0:
+		query += "WHERE lastBootedTime != 0 Order By lastBootedTime DESC ";
+		break;
+	case 1:
+		query += "WHERE path LIKE '%.elf' COLLATE NOCASE ";
+		break;
 	}
 	std::vector<Bootable> bootables;
 
@@ -77,7 +76,7 @@ std::vector<Bootable> CClient::GetBootables(int32_t sortedMethod)
 	return bootables;
 }
 
-void CClient::RegisterBootable(const boost::filesystem::path& path, const char *title)
+void CClient::RegisterBootable(const boost::filesystem::path& path, const char* title)
 {
 	Framework::CSqliteStatement statement(m_db, "INSERT OR IGNORE INTO bootables (path, title) VALUES (?,?)");
 	statement.BindText(1, Framework::PathUtils::GetNativeStringFromPath(path).c_str());
@@ -124,7 +123,7 @@ void CClient::SetLastBootedTime(const boost::filesystem::path& path, time_t last
 	statement.StepNoResult();
 }
 
-void CClient::SetOverview(const boost::filesystem::path &path, const char *overview)
+void CClient::SetOverview(const boost::filesystem::path& path, const char* overview)
 {
 	Framework::CSqliteStatement statement(m_db, "UPDATE bootables SET overview = ? WHERE path = ?");
 	statement.BindText(1, overview, true);
@@ -138,8 +137,8 @@ Bootable CClient::ReadBootable(Framework::CSqliteStatement& statement)
 	bootable.path = Framework::PathUtils::GetPathFromNativeString(reinterpret_cast<const char*>(sqlite3_column_text(statement, 0)));
 	bootable.discId = reinterpret_cast<const char*>(sqlite3_column_text(statement, 1));
 	bootable.title = reinterpret_cast<const char*>(sqlite3_column_text(statement, 2));
-	bootable.coverUrl = reinterpret_cast<const char *>(sqlite3_column_text(statement, 3));
-	bootable.overview = reinterpret_cast<const char *>(sqlite3_column_text(statement, 5));
+	bootable.coverUrl = reinterpret_cast<const char*>(sqlite3_column_text(statement, 3));
+	bootable.overview = reinterpret_cast<const char*>(sqlite3_column_text(statement, 5));
 	bootable.lastBootedTime = sqlite3_column_int(statement, 4);
 	return bootable;
 }

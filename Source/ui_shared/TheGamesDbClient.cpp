@@ -9,8 +9,8 @@
 
 using namespace TheGamesDb;
 
-static const char *g_getGameUrl = "https://api.thegamesdb.net/Games/GamesByGameID?apikey=API_KEY&fields=overview,serials&include=boxart&id=%d";
-static const char *g_getGamesBySerialUrl = "https://api.thegamesdb.net/Games/ByGameSerialID?apikey=API_KEY&filter%5Bplatform%5D=11&fields=overview,serials&include=boxart";
+static const char* g_getGameUrl = "https://api.thegamesdb.net/Games/GamesByGameID?apikey=API_KEY&fields=overview,serials&include=boxart&id=%d";
+static const char* g_getGamesBySerialUrl = "https://api.thegamesdb.net/Games/ByGameSerialID?apikey=API_KEY&filter%5Bplatform%5D=11&fields=overview,serials&include=boxart";
 static const char* g_getGamesListUrl = "https://api.thegamesdb.net/v1.1/Games/ByGameName?apikey=API_KEY&fields=overview,serials&filter%5Bplatform%5D=%s&include=boxart&name=%s";
 
 GamesList CClient::GetGames(std::vector<std::string> serials)
@@ -69,7 +69,7 @@ Game CClient::GetGame(uint32 id)
 	}
 	Game game;
 
-	return gamesList.at(0);;
+	return gamesList.at(0);
 }
 
 GamesList CClient::GetGamesList(const std::string& platformID, const std::string& name)
@@ -93,7 +93,7 @@ GamesList CClient::GetGamesList(const std::string& platformID, const std::string
 	std::vector<Game> gamesList;
 	int count = PopulateGameList(json_ret, gamesList);
 
-	if (count < 1)
+	if(count < 1)
 	{
 		throw std::runtime_error("Failed to get game.");
 	}
@@ -101,13 +101,13 @@ GamesList CClient::GetGamesList(const std::string& platformID, const std::string
 	return gamesList;
 }
 
-int CClient::PopulateGameList(std::string &json_ret, std::vector<TheGamesDb::Game> &list)
+int CClient::PopulateGameList(std::string& json_ret, std::vector<TheGamesDb::Game>& list)
 {
 	std::string tmp;
 	return PopulateGameList(json_ret, list, tmp);
 }
 
-int CClient::PopulateGameList(std::string &json_ret, std::vector<TheGamesDb::Game> &list, std::string &next_page_url)
+int CClient::PopulateGameList(std::string& json_ret, std::vector<TheGamesDb::Game>& list, std::string& next_page_url)
 {
 	nlohmann::json parsed_json = nlohmann::json::parse(json_ret);
 
@@ -145,7 +145,7 @@ int CClient::PopulateGameList(std::string &json_ret, std::vector<TheGamesDb::Gam
 				auto games_cover_meta = boxarts[str_id.c_str()];
 				if(!games_cover_meta.empty())
 				{
-					for(auto &game_cover : games_cover_meta)
+					for(auto& game_cover : games_cover_meta)
 					{
 
 						meta.boxArtUrl = game_cover["filename"].get<std::string>().c_str();

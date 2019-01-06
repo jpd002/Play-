@@ -3,8 +3,7 @@
 #include "com_virtualapplications_play_Bootable.h"
 #include "NativeShared.h"
 
-
-void fullScan(JNIEnv *env, jobjectArray rootDirectories)
+void fullScan(JNIEnv* env, jobjectArray rootDirectories)
 {
 	auto rootDirectoryCount = env->GetArrayLength(rootDirectories);
 	for(int i = 0; i < rootDirectoryCount; i++)
@@ -40,13 +39,13 @@ extern "C" JNIEXPORT void JNICALL Java_com_virtualapplications_play_BootablesInt
 	FetchGameTitles();
 }
 
-extern "C" JNIEXPORT void JNICALL Java_com_virtualapplications_play_BootablesInterop_fullScanBootables(JNIEnv *env, jobject obj, jobjectArray rootDirectories)
+extern "C" JNIEXPORT void JNICALL Java_com_virtualapplications_play_BootablesInterop_fullScanBootables(JNIEnv* env, jobject obj, jobjectArray rootDirectories)
 {
 	try
 	{
 		fullScan(env, rootDirectories);
 	}
-	catch(const std::exception &exception)
+	catch(const std::exception& exception)
 	{
 		Log_Print("Caught an exception: '%s'\r\n", exception.what());
 	}
@@ -93,13 +92,13 @@ extern "C" JNIEXPORT void Java_com_virtualapplications_play_BootablesInterop_set
 	BootablesDb::CClient::GetInstance().SetLastBootedTime(bootablePath, lastBootedTime);
 }
 
-extern "C" JNIEXPORT void Java_com_virtualapplications_play_BootablesInterop_UnregisterBootable(JNIEnv *env, jobject obj, jstring bootablePathString)
+extern "C" JNIEXPORT void Java_com_virtualapplications_play_BootablesInterop_UnregisterBootable(JNIEnv* env, jobject obj, jstring bootablePathString)
 {
 	auto bootablePath = boost::filesystem::path(GetStringFromJstring(env, bootablePathString));
 	BootablesDb::CClient::GetInstance().UnregisterBootable(bootablePath);
 }
 
-extern "C" JNIEXPORT void Java_com_virtualapplications_play_BootablesInterop_PurgeInexistingFiles(JNIEnv *env, jobject obj)
+extern "C" JNIEXPORT void Java_com_virtualapplications_play_BootablesInterop_PurgeInexistingFiles(JNIEnv* env, jobject obj)
 {
 	PurgeInexistingFiles();
 }

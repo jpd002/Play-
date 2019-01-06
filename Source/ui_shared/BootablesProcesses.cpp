@@ -43,8 +43,8 @@ void ScanBootables(const boost::filesystem::path& parentPath, bool recursive)
 			}
 			std::string serial;
 			if(
-					!IsBootableExecutablePath(path) &&
-					!(IsBootableDiscImagePath(path) && DiskUtils::TryGetDiskId(path, &serial)))
+			    !IsBootableExecutablePath(path) &&
+			    !(IsBootableDiscImagePath(path) && DiskUtils::TryGetDiskId(path, &serial)))
 			{
 				continue;
 			}
@@ -107,11 +107,11 @@ void FetchGameTitles()
 		return;
 
 	auto gamesList = TheGamesDb::CClient::GetInstance().GetGames(serials);
-	for(auto &game : gamesList)
+	for(auto& game : gamesList)
 	{
-		for(const auto &bootable : bootables)
+		for(const auto& bootable : bootables)
 		{
-			for(const auto &discId : game.discIds)
+			for(const auto& discId : game.discIds)
 			{
 				if(discId == bootable.discId)
 				{
@@ -133,4 +133,3 @@ void FetchGameTitles()
 		}
 	}
 }
-
