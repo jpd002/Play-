@@ -32,6 +32,8 @@ import java.util.*;
 import com.virtualapplications.play.database.GameIndexer;
 import com.virtualapplications.play.database.GameInfo;
 
+import static com.virtualapplications.play.BootablesInterop.PurgeInexistingFiles;
+import static com.virtualapplications.play.BootablesInterop.UnregisterBootable;
 import static com.virtualapplications.play.BootablesInterop.getBootables;
 import static com.virtualapplications.play.BootablesInterop.setLastBootedTime;
 import static com.virtualapplications.play.ThemeManager.getThemeColor;
@@ -225,8 +227,7 @@ public class MainActivity extends AppCompatActivity implements NavigationDrawerF
 					@Override
 					public void onClick(DialogInterface dialog, int id)
 					{
-						// TODO
-						//game.removeIndex(MainActivity.this);
+						UnregisterBootable(game.path);
 						prepareFileListView(false);
 					}
 				}
@@ -397,8 +398,7 @@ public class MainActivity extends AppCompatActivity implements NavigationDrawerF
 			{
 				sharedPreferences.edit().putBoolean(SettingsActivity.CLEAR_UNAVAILABLE, false).apply();
 
-				// TODO
-				// iDB.RemoveUnavailable();
+				PurgeInexistingFiles();
 
 				prepareFileListView(false);
 			}
@@ -426,14 +426,13 @@ public class MainActivity extends AppCompatActivity implements NavigationDrawerF
 		protected List<Bootable> doInBackground(String... paths)
 		{
 
-			GameIndexer GI = new GameIndexer(MainActivity.this);
 			if(fullscan)
 			{
-				GI.fullScan();
+				GameIndexer.fullScan();
 			}
 			else
 			{
-				GI.startupScan();
+				GameIndexer.startupScan();
 			}
 
 			return new ArrayList<>(Arrays.asList(getBootables(sortMethod)));

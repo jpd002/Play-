@@ -1,6 +1,5 @@
 package com.virtualapplications.play.database;
 
-import android.content.Context;
 import android.os.Environment;
 
 import org.apache.commons.lang3.StringUtils;
@@ -12,20 +11,10 @@ import java.util.HashSet;
 import static com.virtualapplications.play.BootablesInterop.fullScanBootables;
 import static com.virtualapplications.play.BootablesInterop.scanBootables;
 
-/**
- * Based On https://github.com/LithidSoftware/android_Findex/blob/master/src/com/lithidsw/findex/utils/FileWalker.java
- */
 public class GameIndexer
 {
-	private Context mContext;
-	String[] mediaTypes;
 
-	public GameIndexer(Context context)
-	{
-		this.mContext = context;
-	}
-
-	public static HashSet<String> getExternalMounts()
+	private static HashSet<String> getExternalMounts()
 	{
 		final HashSet<String> out = new HashSet<String>();
 		String reg = "(?i).*vold.*(vfat|ntfs|exfat|fat32|ext3|ext4|fuse|sdfat).*rw.*";
@@ -69,18 +58,18 @@ public class GameIndexer
 		return out;
 	}
 
-	public void startupScan()
+	public static void startupScan()
 	{
 		HashSet<String> extStorage = getExternalMounts();
 		extStorage.add(Environment.getExternalStorageDirectory().getAbsolutePath());
 		scanBootables(extStorage.toArray(new String[extStorage.size()]));
 	}
 
-	public void fullScan()
+	public static void fullScan()
 	{
 		HashSet<String> extStorage = getExternalMounts();
 		extStorage.add(Environment.getExternalStorageDirectory().getAbsolutePath());
-		if(extStorage != null && !extStorage.isEmpty())
+		if(!extStorage.isEmpty())
 		{
 			fullScanBootables(extStorage.toArray(new String[extStorage.size()]));
 		}
