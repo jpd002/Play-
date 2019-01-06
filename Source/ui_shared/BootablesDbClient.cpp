@@ -76,11 +76,12 @@ std::vector<Bootable> CClient::GetBootables(int32_t sortedMethod)
 	return bootables;
 }
 
-void CClient::RegisterBootable(const boost::filesystem::path& path, const char* title)
+void CClient::RegisterBootable(const boost::filesystem::path& path, const char* title, const char* discId)
 {
-	Framework::CSqliteStatement statement(m_db, "INSERT OR IGNORE INTO bootables (path, title) VALUES (?,?)");
+	Framework::CSqliteStatement statement(m_db, "INSERT OR IGNORE INTO bootables (path, title, discId) VALUES (?,?,?)");
 	statement.BindText(1, Framework::PathUtils::GetNativeStringFromPath(path).c_str());
 	statement.BindText(2, title, true);
+	statement.BindText(3, discId, true);
 	statement.StepNoResult();
 }
 

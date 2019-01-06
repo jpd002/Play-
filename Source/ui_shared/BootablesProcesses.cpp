@@ -48,7 +48,7 @@ void ScanBootables(const boost::filesystem::path& parentPath, bool recursive)
 			{
 				continue;
 			}
-			BootablesDb::CClient::GetInstance().RegisterBootable(path, path.filename().string().c_str());
+			BootablesDb::CClient::GetInstance().RegisterBootable(path, path.filename().string().c_str(), serial.c_str());
 		}
 		catch(const std::exception& exception)
 		{
@@ -76,17 +76,6 @@ void PurgeInexistingFiles()
 	{
 		if(boost::filesystem::exists(bootable.path)) continue;
 		BootablesDb::CClient::GetInstance().UnregisterBootable(bootable.path);
-	}
-}
-
-void ExtractDiscIds()
-{
-	auto bootables = BootablesDb::CClient::GetInstance().GetBootables();
-	for(const auto& bootable : bootables)
-	{
-		std::string discId;
-		if(!DiskUtils::TryGetDiskId(bootable.path, &discId)) continue;
-		BootablesDb::CClient::GetInstance().SetDiscId(bootable.path, discId.c_str());
 	}
 }
 

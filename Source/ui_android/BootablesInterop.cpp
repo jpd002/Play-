@@ -35,7 +35,6 @@ extern "C" JNIEXPORT void JNICALL Java_com_virtualapplications_play_BootablesInt
 	{
 		Log_Print("Caught an exception: '%s'\r\n", exception.what());
 	}
-	ExtractDiscIds();
 	FetchGameTitles();
 }
 
@@ -49,7 +48,6 @@ extern "C" JNIEXPORT void JNICALL Java_com_virtualapplications_play_BootablesInt
 	{
 		Log_Print("Caught an exception: '%s'\r\n", exception.what());
 	}
-	ExtractDiscIds();
 	FetchGameTitles();
 }
 
