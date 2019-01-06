@@ -120,7 +120,7 @@ uint32 GetTheGamesDbId(const char* discId)
 
 	//If no ID found in database, then, try a fuzzy lookup using the game name specified in the
 	//local database
-	auto gamesList = TheGamesDb::CClient::GetInstance().GetGamesList("sony playstation 2", localGame.title);
+	auto gamesList = TheGamesDb::CClient::GetInstance().GetGamesList("11", localGame.title);
 	if(gamesList.empty())
 	{
 		throw std::runtime_error("Game not found.");

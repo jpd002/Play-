@@ -109,6 +109,16 @@ if(NOT (TARGET_PLATFORM_ANDROID OR TARGET_PLATFORM_IOS))
 	endif()
 endif()
 
+set(JSON_BuildTests off)
+if(NOT TARGET nlohmann_json)
+	add_subdirectory(
+		${CMAKE_CURRENT_SOURCE_DIR}/../../Dependencies/nlohmann_json
+		${CMAKE_CURRENT_BINARY_DIR}/nlohmann_json
+		EXCLUDE_FROM_ALL
+	)
+endif()
+list(APPEND PROJECT_LIBS nlohmann_json)
+
 set(COMMON_SRC_FILES
 	AppConfig.cpp
 	AppConfig.h
