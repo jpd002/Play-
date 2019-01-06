@@ -50,8 +50,7 @@ void ScanBootables(const boost::filesystem::path& parentPath, bool recursive)
 			{
 				continue;
 			}
-			BootablesDb::CClient::GetInstance().RegisterBootable(path);
-			BootablesDb::CClient::GetInstance().SetTitle(path, path.filename().string().c_str());
+			BootablesDb::CClient::GetInstance().RegisterBootable(path, path.filename().string().c_str());
 		}
 		catch(const std::exception& exception)
 		{

@@ -28,7 +28,7 @@ namespace BootablesDb
 		Bootable GetBootable(const boost::filesystem::path&);
 		std::vector<Bootable> GetBootables();
 
-		void RegisterBootable(const boost::filesystem::path&);
+		void RegisterBootable(const boost::filesystem::path&, const char *);
 		void UnregisterBootable(const boost::filesystem::path&);
 
 		void SetDiscId(const boost::filesystem::path&, const char*);
