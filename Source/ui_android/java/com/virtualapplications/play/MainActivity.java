@@ -436,7 +436,7 @@ public class MainActivity extends AppCompatActivity implements NavigationDrawerF
 				GI.startupScan();
 			}
 
-			return new ArrayList<>(Arrays.asList(getBootables()));
+			return new ArrayList<>(Arrays.asList(getBootables(sortMethod)));
 		}
 
 		@Override

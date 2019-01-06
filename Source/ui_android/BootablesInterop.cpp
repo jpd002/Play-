@@ -54,9 +54,9 @@ extern "C" JNIEXPORT void JNICALL Java_com_virtualapplications_play_BootablesInt
 	FetchGameTitles();
 }
 
-extern "C" JNIEXPORT jobjectArray Java_com_virtualapplications_play_BootablesInterop_getBootables(JNIEnv* env, jobject obj)
+extern "C" JNIEXPORT jobjectArray Java_com_virtualapplications_play_BootablesInterop_getBootables(JNIEnv* env, jobject obj, jint sortedMethod)
 {
-	auto bootables = BootablesDb::CClient::GetInstance().GetBootables();
+	auto bootables = BootablesDb::CClient::GetInstance().GetBootables(sortedMethod);
 	const auto& bootableClassInfo = com::virtualapplications::play::Bootable_ClassInfo::GetInstance();
 
 	auto bootablesJ = env->NewObjectArray(bootables.size(), bootableClassInfo.clazz, NULL);

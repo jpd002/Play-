@@ -51,11 +51,23 @@ Bootable CClient::GetBootable(const boost::filesystem::path& path)
 	return ReadBootable(statement);
 }
 
-std::vector<Bootable> CClient::GetBootables()
+std::vector<Bootable> CClient::GetBootables(int32_t sortedMethod)
 {
+	std::string query = "SELECT * FROM bootables ";
+
+	switch(sortedMethod)
+	{
+		case 0:
+			query += "WHERE lastBootedTime != 0 Order By lastBootedTime DESC ";
+			break;
+		case 1:
+			query += "WHERE path LIKE '%.elf' COLLATE NOCASE ";
+			break;
+
+	}
 	std::vector<Bootable> bootables;
 
-	Framework::CSqliteStatement statement(m_db, "SELECT * FROM bootables");
+	Framework::CSqliteStatement statement(m_db, query.c_str());
 	while(statement.Step())
 	{
 		auto bootable = ReadBootable(statement);

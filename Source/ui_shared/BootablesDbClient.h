@@ -26,7 +26,7 @@ namespace BootablesDb
 		virtual ~CClient() = default;
 
 		Bootable GetBootable(const boost::filesystem::path&);
-		std::vector<Bootable> GetBootables();
+		std::vector<Bootable> GetBootables(int32_t = 2);
 
 		void RegisterBootable(const boost::filesystem::path&, const char *);
 		void UnregisterBootable(const boost::filesystem::path&);
