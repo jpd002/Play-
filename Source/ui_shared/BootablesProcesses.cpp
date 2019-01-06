@@ -5,6 +5,7 @@
 #include "TheGamesDbClient.h"
 #include "DiskUtils.h"
 #include "string_format.h"
+#include "../DiskUtils.h"
 
 //Jobs
 // Scan for new games (from input directory)
@@ -42,9 +43,10 @@ void ScanBootables(const boost::filesystem::path& parentPath, bool recursive)
 				ScanBootables(path, recursive);
 				continue;
 			}
+			std::string serial;
 			if(
-			    !IsBootableExecutablePath(path) &&
-			    !IsBootableDiscImagePath(path))
+					!IsBootableExecutablePath(path) &&
+					!(IsBootableDiscImagePath(path) && DiskUtils::TryGetDiskId(path, &serial)))
 			{
 				continue;
 			}
@@ -94,17 +96,43 @@ void ExtractDiscIds()
 void FetchGameTitles()
 {
 	auto bootables = BootablesDb::CClient::GetInstance().GetBootables();
+	std::vector<std::string> serials;
 	for(const auto& bootable : bootables)
 	{
-		if(bootable.discId.empty()) continue;
-		try
+		if(bootable.discId.empty())
+			continue;
+
+		if(bootable.coverUrl.empty() || bootable.title.empty() || bootable.overview.empty())
+			serials.push_back(bootable.discId);
+	}
+
+	if(serials.empty())
+		return;
+
+	auto gamesList = TheGamesDb::CClient::GetInstance().GetGames(serials);
+	for(auto &game : gamesList)
+	{
+		for(const auto &bootable : bootables)
 		{
-			auto game = LocalGamesDb::CClient::GetInstance().GetGame(bootable.discId.c_str());
-			BootablesDb::CClient::GetInstance().SetTitle(bootable.path, game.title.c_str());
-		}
-		catch(...)
-		{
-			//Log or something?
+			for(const auto &discId : game.discIds)
+			{
+				if(discId == bootable.discId)
+				{
+					BootablesDb::CClient::GetInstance().SetTitle(bootable.path, game.title.c_str());
+
+					if(!game.overview.empty())
+					{
+						BootablesDb::CClient::GetInstance().SetOverview(bootable.path, game.overview.c_str());
+					}
+					if(!game.boxArtUrl.empty())
+					{
+						auto coverUrl = string_format("%s/%s", game.baseImgUrl.c_str(), game.boxArtUrl.c_str());
+						BootablesDb::CClient::GetInstance().SetCoverUrl(bootable.path, coverUrl.c_str());
+					}
+
+					break;
+				}
+			}
 		}
 	}
 }
