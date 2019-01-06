@@ -55,6 +55,12 @@ extern "C" JNIEXPORT jobjectArray Java_com_virtualapplications_play_BootablesInt
 		jstring coverUrlString = env->NewStringUTF(bootable.coverUrl.c_str());
 		env->SetObjectField(bootableJ, bootableClassInfo.coverUrl, coverUrlString);
 
+		jstring discIdString = env->NewStringUTF(bootable.discId.c_str());
+		env->SetObjectField(bootableJ, bootableClassInfo.discId, discIdString);
+
+		jstring overviewString = env->NewStringUTF(bootable.overview.c_str());
+		env->SetObjectField(bootableJ, bootableClassInfo.overview, overviewString);
+
 		env->SetObjectArrayElement(bootablesJ, i, bootableJ);
 	}
 
