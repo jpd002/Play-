@@ -128,7 +128,7 @@ static std::string GetDiskIdFromPath(const std::string& filePath)
 	auto regionCode = subFilePath.substr(0, 4);
 	auto serial1 = subFilePath.substr(5, 3);
 	auto serial2 = subFilePath.substr(9, 2);
-	return regionCode + "_" + serial1 + "." + serial2;
+	return regionCode + "-" + serial1 + serial2;
 }
 
 bool DiskUtils::TryGetDiskId(const boost::filesystem::path& imagePath, std::string* diskIdPtr)
