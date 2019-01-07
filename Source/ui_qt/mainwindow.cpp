@@ -203,7 +203,6 @@ void MainWindow::on_actionBoot_DiscImage_triggered()
 		{
 			try
 			{
-				m_lastOpenCommand = LastOpenCommand(BootType::CD, filePath);
 				BootCDROM();
 			}
 			catch(const std::exception& e)
@@ -227,7 +226,6 @@ void MainWindow::on_actionBoot_DiscImage_S3_triggered()
 		{
 			try
 			{
-				m_lastOpenCommand = LastOpenCommand(BootType::CD, filePath);
 				BootCDROM();
 			}
 			catch(const std::exception& e)
@@ -294,12 +292,13 @@ void MainWindow::BootElf(boost::filesystem::path filePath)
 void MainWindow::LoadCDROM(boost::filesystem::path filePath)
 {
 	m_lastPath = filePath.parent_path();
-	m_lastOpenCommand = LastOpenCommand(BootType::CD, filePath);
 	CAppConfig::GetInstance().SetPreferencePath(PREF_PS2_CDROM0_PATH, filePath);
 }
 
 void MainWindow::BootCDROM()
 {
+	auto filePath = CAppConfig::GetInstance().GetPreferencePath(PREF_PS2_CDROM0_PATH);
+	m_lastOpenCommand = LastOpenCommand(BootType::CD, filePath);
 	m_virtualMachine->Pause();
 	m_virtualMachine->Reset();
 	m_virtualMachine->m_ee->m_os->BootFromCDROM();
