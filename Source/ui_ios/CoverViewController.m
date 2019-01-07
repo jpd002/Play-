@@ -21,9 +21,7 @@ static NSString* const reuseIdentifier = @"coverCell";
 	
 	ScanBootables(Framework::PathUtils::GetPersonalDataPath());
 	PurgeInexistingFiles();
-	ExtractDiscIds();
 	FetchGameTitles();
-	FetchCoverUrls();
 }
 
 -(void)viewDidLoad
