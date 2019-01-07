@@ -73,7 +73,7 @@ private:
 		    , path(path)
 		{
 		}
-		BootType type;
+		BootType type = BootType::CD;
 		boost::filesystem::path path;
 	};
 	LastOpenCommand m_lastOpenCommand;
