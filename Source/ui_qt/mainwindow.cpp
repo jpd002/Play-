@@ -597,7 +597,7 @@ void MainWindow::on_actionReset_triggered()
 
 void MainWindow::on_actionMemory_Card_Manager_triggered()
 {
-	MemoryCardManagerDialog mcm;
+	MemoryCardManagerDialog mcm(this);
 	mcm.exec();
 }
 
