@@ -75,6 +75,12 @@ CPS2VM::CPS2VM()
 		auto absolutePath = CAppConfig::GetBasePath() / path;
 		Framework::PathUtils::EnsurePathExists(absolutePath);
 		CAppConfig::GetInstance().RegisterPreferencePath(setting, absolutePath);
+		
+		auto currentPath = CAppConfig::GetInstance().GetPreferencePath(setting);
+		if(!boost::filesystem::exists(currentPath))
+		{
+			CAppConfig::GetInstance().SetPreferencePath(setting, absolutePath);
+		}
 	}
 
 	CAppConfig::GetInstance().RegisterPreferencePath(PREF_PS2_CDROM0_PATH, "");
