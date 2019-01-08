@@ -403,8 +403,6 @@ void MainWindow::SetupSaveLoadStateSlots()
 
 void MainWindow::saveState(int stateSlot)
 {
-	Framework::PathUtils::EnsurePathExists(CPS2VM::GetStateDirectoryPath());
-
 	auto stateFilePath = m_virtualMachine->GenerateStatePath(stateSlot);
 	auto future = m_virtualMachine->SaveState(stateFilePath);
 	m_continuationChecker->GetContinuationManager().Register(std::move(future),

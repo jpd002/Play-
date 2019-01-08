@@ -452,7 +452,6 @@ void CMainWindow::SaveState()
 {
 	if(m_virtualMachine.m_ee->m_os->GetELF() == nullptr) return;
 
-	Framework::PathUtils::EnsurePathExists(CPS2VM::GetStateDirectoryPath());
 	auto statePath = m_virtualMachine.GenerateStatePath(m_stateSlot);
 	auto future = m_virtualMachine.SaveState(statePath);
 	m_futureContinuationManager.Register(std::move(future),

@@ -111,7 +111,6 @@ extern "C" JNIEXPORT void JNICALL Java_com_virtualapplications_play_NativeIntero
 {
 	assert(g_virtualMachine != nullptr);
 	if(g_virtualMachine == nullptr) return;
-	Framework::PathUtils::EnsurePathExists(CPS2VM::GetStateDirectoryPath());
 	auto stateFilePath = g_virtualMachine->GenerateStatePath(slot);
 	auto resultFuture = g_virtualMachine->SaveState(stateFilePath);
 	if(!resultFuture.get())
