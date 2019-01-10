@@ -1,7 +1,8 @@
 #include <stdio.h>
 #include <assert.h>
+#include "iop/IopBios.h"
 #include "iop/Iop_McServ.h"
-#include "iop/Iop_SifManNull.h"
+#include "iop/Iop_SubSystem.h"
 #include "AppConfig.h"
 #include "PathUtils.h"
 #include "StdStreamUtils.h"
@@ -36,8 +37,11 @@ void PrepareTestEnvironment(const CGameTestSheet::EnvironmentActionArray& enviro
 
 void ExecuteTest(const CGameTestSheet::TEST& test)
 {
-	Iop::CSifManNull sifMan;
-	Iop::CMcServ mcServ(sifMan);
+	Iop::CSubSystem subSystem(true);
+	subSystem.Reset();
+	auto bios = static_cast<CIopBios*>(subSystem.m_bios.get());
+	bios->Reset(std::shared_ptr<Iop::CSifMan>());
+	auto mcServ = bios->GetMcServ();
 
 	if(!test.currentDirectory.empty())
 	{
@@ -48,7 +52,7 @@ void ExecuteTest(const CGameTestSheet::TEST& test)
 		assert(test.currentDirectory.size() <= sizeof(cmd.name));
 		strncpy(cmd.name, test.currentDirectory.c_str(), sizeof(cmd.name));
 
-		mcServ.Invoke(0xC, reinterpret_cast<uint32*>(&cmd), sizeof(cmd), &result, sizeof(uint32), nullptr);
+		mcServ->Invoke(0xC, reinterpret_cast<uint32*>(&cmd), sizeof(cmd), &result, sizeof(uint32), nullptr);
 	}
 
 	{
@@ -65,7 +69,7 @@ void ExecuteTest(const CGameTestSheet::TEST& test)
 		{
 			entries.resize(cmd.maxEntries);
 		}
-		mcServ.Invoke(0xD, reinterpret_cast<uint32*>(&cmd), sizeof(cmd), &result, sizeof(uint32), reinterpret_cast<uint8*>(entries.data()));
+		mcServ->Invoke(0xD, reinterpret_cast<uint32*>(&cmd), sizeof(cmd), &result, sizeof(uint32), reinterpret_cast<uint8*>(entries.data()));
 
 		assert(result == test.result);
 		for(unsigned int i = 0; i < test.entries.size(); i++)

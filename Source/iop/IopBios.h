@@ -26,6 +26,13 @@
 #include "Iop_Cdvdfsv.h"
 #endif
 
+#ifdef _IOP_EMULATE_MODULES
+namespace Iop
+{
+	class CMcServ;
+}
+#endif
+
 class CIopBios : public Iop::CBiosBase
 {
 public:
@@ -169,6 +176,7 @@ public:
 #ifdef _IOP_EMULATE_MODULES
 	Iop::CPadMan* GetPadman();
 	Iop::CCdvdfsv* GetCdvdfsv();
+	Iop::CMcServ* GetMcServ();
 #endif
 	bool RegisterModule(const Iop::ModulePtr&);
 

@@ -26,6 +26,9 @@ namespace Iop
 		void LoadState(Framework::CZipArchiveReader&);
 		void SaveState(Framework::CZipArchiveWriter&);
 
+		void SifBindRpc(CMIPS&);
+		void SifCallRpc(CMIPS&);
+
 	private:
 		typedef std::list<CSifDynamic*> DynamicModuleList;
 
@@ -99,8 +102,6 @@ namespace Iop
 		uint32 SifSetCmdBuffer(uint32, uint32);
 		void SifAddCmdHandler(uint32, uint32, uint32);
 		uint32 SifSendCmd(uint32, uint32, uint32, uint32, uint32, uint32);
-		void SifBindRpc(CMIPS&);
-		void SifCallRpc(CMIPS&);
 		void SifRegisterRpc(CMIPS&);
 		uint32 SifCheckStatRpc(uint32);
 		void SifSetRpcQueue(uint32, uint32);

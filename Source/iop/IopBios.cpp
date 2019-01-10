@@ -225,7 +225,7 @@ void CIopBios::Reset(const Iop::SifManPtr& sifMan)
 		RegisterModule(m_cdvdfsv);
 	}
 	{
-		m_mcserv = std::make_shared<Iop::CMcServ>(*m_sifMan);
+		m_mcserv = std::make_shared<Iop::CMcServ>(*this, *m_sifMan, *m_sifCmd, *m_sysmem, m_ram);
 		RegisterModule(m_mcserv);
 	}
 	//RegisterModule(std::make_shared<Iop::CNaplink>(*m_sifMan, *m_ioman));
@@ -2521,6 +2521,11 @@ Iop::CPadMan* CIopBios::GetPadman()
 Iop::CCdvdfsv* CIopBios::GetCdvdfsv()
 {
 	return m_cdvdfsv.get();
+}
+
+Iop::CMcServ* CIopBios::GetMcServ()
+{
+	return static_cast<Iop::CMcServ*>(m_mcserv.get());
 }
 
 #endif

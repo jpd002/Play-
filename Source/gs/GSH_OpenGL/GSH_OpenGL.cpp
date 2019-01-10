@@ -499,11 +499,36 @@ void CGSH_OpenGL::MakeLinearZOrtho(float* matrix, float left, float right, float
 
 unsigned int CGSH_OpenGL::GetCurrentReadCircuit()
 {
-	//	assert((m_nPMODE & 0x3) != 0x03);
-	if(m_nPMODE & 0x1) return 0;
-	if(m_nPMODE & 0x2) return 1;
-	//Getting here is bad
-	return 0;
+	uint32 rcMode = m_nPMODE & 0x03;
+	switch(rcMode)
+	{
+	default:
+	case 0:
+		//No read circuit enabled?
+		return 0;
+	case 1:
+		return 0;
+	case 2:
+		return 1;
+	case 3:
+	{
+		//Both are enabled... See if we can find out which one is good
+		//This happens in Capcom Classics Collection Vol. 2
+		std::lock_guard<std::recursive_mutex> registerMutexLock(m_registerMutex);
+		bool fb1Null = (m_nDISPFB1.value.q == 0);
+		bool fb2Null = (m_nDISPFB2.value.q == 0);
+		if(!fb1Null && fb2Null)
+		{
+			return 0;
+		}
+		if(fb1Null && !fb2Null)
+		{
+			return 1;
+		}
+		return 0;
+	}
+	break;
+	}
 }
 
 float CGSH_OpenGL::GetZ(float nZ)
