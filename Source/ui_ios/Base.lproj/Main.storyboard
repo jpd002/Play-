@@ -258,7 +258,7 @@
                                 <rect key="frame" x="320" y="322" width="55" height="23"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMinY="YES" flexibleMaxY="YES"/>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                                <state key="normal" title="Pause"/>
+                                <state key="normal" title="Menu"/>
                                 <connections>
                                     <action selector="onPauseButtonClick:" destination="BYZ-38-t0r" eventType="touchUpInside" id="cvO-k0-dIM"/>
                                 </connections>

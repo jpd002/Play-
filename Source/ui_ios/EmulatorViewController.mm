@@ -216,7 +216,6 @@ CPS2VM* g_virtualMachine = nullptr;
 	auto statePath = g_virtualMachine->GenerateStatePath(0);
 	g_virtualMachine->LoadState(statePath);
 	NSLog(@"Loaded state from '%s'.", statePath.string().c_str());
-	g_virtualMachine->Resume();
 }
 
 -(void)onSaveStateButtonClick
@@ -224,7 +223,6 @@ CPS2VM* g_virtualMachine = nullptr;
 	auto statePath = g_virtualMachine->GenerateStatePath(0);
 	g_virtualMachine->SaveState(statePath);
 	NSLog(@"Saved state to '%s'.", statePath.string().c_str());
-	g_virtualMachine->Resume();
 }
 
 -(void)onExitButtonClick
@@ -232,15 +230,8 @@ CPS2VM* g_virtualMachine = nullptr;
 	[self dismissViewControllerAnimated: YES completion: nil];
 }
 
--(void)onResumeButtonClick
-{
-	g_virtualMachine->Resume();
-}
-
 -(IBAction)onPauseButtonClick: (id)sender
 {
-	g_virtualMachine->Pause();
-	
 	UIAlertController* alert = [UIAlertController alertControllerWithTitle: nil message: nil preferredStyle: UIAlertControllerStyleActionSheet];
 	
 	//Load State
@@ -268,7 +259,7 @@ CPS2VM* g_virtualMachine = nullptr;
 		UIAlertAction* action = [UIAlertAction
 								 actionWithTitle: @"Resume"
 								 style: UIAlertActionStyleCancel
-								 handler: ^(UIAlertAction*) { [self onResumeButtonClick]; }
+								 handler: nil
 								 ];
 		[alert addAction: action];
 	}
