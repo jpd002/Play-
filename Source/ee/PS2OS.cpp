@@ -2346,6 +2346,7 @@ void CPS2OS::sc_SetupThread()
 	auto thread = m_threads[threadId];
 	thread->status = THREAD_RUNNING;
 	thread->stackBase = stackAddr - stackSize;
+	thread->stackSize = stackSize;
 	thread->initPriority = 0;
 	thread->currPriority = 0;
 	thread->contextPtr = 0;
