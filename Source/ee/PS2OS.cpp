@@ -49,6 +49,8 @@
 // 0x1FC03100	0x1FC03200		Wait Thread Proc
 // 0x1FC03200	0x1FC03300		Alarm Handler
 
+#define BIOS_SIFDMA_COUNT 0x20
+
 #define BIOS_ADDRESS_KERNELSTACK_TOP 0x00030000
 #define BIOS_ADDRESS_IDLE_THREAD_ID 0x00000010
 #define BIOS_ADDRESS_CURRENT_THREAD_ID 0x00000014
@@ -57,7 +59,8 @@
 #define BIOS_ADDRESS_THREADSCHEDULE_BASE 0x00000020
 #define BIOS_ADDRESS_INTCHANDLERQUEUE_BASE 0x00000024
 #define BIOS_ADDRESS_DMACHANDLERQUEUE_BASE 0x00000028
-#define BIOS_ADDRESS_LASTSIFDMA_TIME 0x0000002C
+#define BIOS_ADDRESS_SIFDMA_NEXT_INDEX 0x0000002C
+#define BIOS_ADDRESS_SIFDMA_TIMES_BASE 0x00000030
 #define BIOS_ADDRESS_INTCHANDLER_BASE 0x0000A000
 #define BIOS_ADDRESS_DMACHANDLER_BASE 0x0000C000
 #define BIOS_ADDRESS_SEMAPHORE_BASE 0x0000E000
@@ -230,7 +233,8 @@ CPS2OS::CPS2OS(CMIPS& ee, uint8* ram, uint8* bios, uint8* spr, CGSHandler*& gs, 
     , m_alarms(reinterpret_cast<ALARM*>(m_ram + BIOS_ADDRESS_ALARM_BASE), BIOS_ID_BASE, MAX_ALARM)
     , m_currentThreadId(reinterpret_cast<uint32*>(m_ram + BIOS_ADDRESS_CURRENT_THREAD_ID))
     , m_idleThreadId(reinterpret_cast<uint32*>(m_ram + BIOS_ADDRESS_IDLE_THREAD_ID))
-    , m_lastSifDmaTime(reinterpret_cast<uint32*>(m_ram + BIOS_ADDRESS_LASTSIFDMA_TIME))
+    , m_sifDmaNextIdx(reinterpret_cast<uint32*>(m_ram + BIOS_ADDRESS_SIFDMA_NEXT_INDEX))
+    , m_sifDmaTimes(reinterpret_cast<uint32*>(m_ram + BIOS_ADDRESS_SIFDMA_TIMES_BASE))
     , m_threadSchedule(m_threads, reinterpret_cast<uint32*>(m_ram + BIOS_ADDRESS_THREADSCHEDULE_BASE))
     , m_intcHandlerQueue(m_intcHandlers, reinterpret_cast<uint32*>(m_ram + BIOS_ADDRESS_INTCHANDLERQUEUE_BASE))
     , m_dmacHandlerQueue(m_dmacHandlers, reinterpret_cast<uint32*>(m_ram + BIOS_ADDRESS_DMACHANDLERQUEUE_BASE))
@@ -2650,9 +2654,18 @@ void CPS2OS::sc_SetSyscall()
 //76
 void CPS2OS::sc_SifDmaStat()
 {
+	uint32 queueId = m_ee.m_State.nGPR[SC_PARAM0].nV0;
+	uint32 queueIdx = queueId - BIOS_ID_BASE;
+	if(queueIdx >= BIOS_SIFDMA_COUNT)
+	{
+		//Act as if it was completed
+		m_ee.m_State.nGPR[SC_RETURN].nD0 = static_cast<int32>(-1);
+		return;
+	}
+
 	//If SIF dma has just been set (100 cycle delay), return 'queued' status.
 	//This is required for Okami
-	int64 timerDiff = static_cast<uint64>(m_ee.m_State.nCOP0[CCOP_SCU::COUNT]) - static_cast<uint64>(m_lastSifDmaTime);
+	int64 timerDiff = static_cast<uint64>(m_ee.m_State.nCOP0[CCOP_SCU::COUNT]) - static_cast<uint64>(m_sifDmaTimes[queueIdx]);
 	if((timerDiff < 0) || (timerDiff > 100))
 	{
 		//Completed
@@ -2668,14 +2681,16 @@ void CPS2OS::sc_SifDmaStat()
 //77
 void CPS2OS::sc_SifSetDma()
 {
-	m_lastSifDmaTime = m_ee.m_State.nCOP0[CCOP_SCU::COUNT];
+	uint32 queueIdx = m_sifDmaNextIdx;
+	m_sifDmaTimes[queueIdx] = m_ee.m_State.nCOP0[CCOP_SCU::COUNT];
+	m_sifDmaNextIdx = (m_sifDmaNextIdx + 1) % BIOS_SIFDMA_COUNT;
 
 	auto xfers = reinterpret_cast<const SIFDMAREG*>(GetStructPtr(m_ee.m_State.nGPR[SC_PARAM0].nV0));
 	uint32 count = m_ee.m_State.nGPR[SC_PARAM1].nV[0];
 
-	//Returns count
-	//DMA might call an interrupt handler
-	m_ee.m_State.nGPR[SC_RETURN].nD0 = static_cast<int32>(count);
+	//DMA might call an interrupt handler, set return value now
+	uint32 queueId = queueIdx + BIOS_ID_BASE;
+	m_ee.m_State.nGPR[SC_RETURN].nD0 = static_cast<int32>(queueId);
 
 	for(unsigned int i = 0; i < count; i++)
 	{

@@ -346,7 +346,9 @@ private:
 
 	OsVariableWrapper<uint32> m_currentThreadId;
 	OsVariableWrapper<uint32> m_idleThreadId;
-	OsVariableWrapper<uint32> m_lastSifDmaTime;
+	OsVariableWrapper<uint32> m_sifDmaNextIdx;
+
+	uint32* m_sifDmaTimes = nullptr;
 
 	ThreadQueue m_threadSchedule;
 	IntcHandlerQueue m_intcHandlerQueue;
