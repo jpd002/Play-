@@ -39,6 +39,7 @@ namespace Iop
 		uint32 SifFreeMemory(uint32);
 
 		uint32 QueryMaxFreeMemSize();
+		uint32 QueryTotalFreeMemSize();
 
 		uint8* m_iopRam = nullptr;
 		BlockListType& m_blocks;
