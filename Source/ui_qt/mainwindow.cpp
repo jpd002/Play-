@@ -245,6 +245,8 @@ void MainWindow::on_actionBoot_DiscImage_triggered()
 		{
 			try
 			{
+				TryRegisteringBootable(filePath);
+				m_lastOpenCommand = LastOpenCommand(BootType::CD, filePath);
 				BootCDROM();
 			}
 			catch(const std::exception& e)
