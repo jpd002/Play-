@@ -53,12 +53,16 @@ if(TARGET_PLATFORM_MACOS OR TARGET_PLATFORM_UNIX)
 endif()
 
 set(QT_SOURCES
+	bootablelistdialog.cpp
+	BootableModel.cpp
 	ControllerConfig/bindingmodel.cpp
 	ControllerConfig/bindingmodel.h
 	ControllerConfig/controllerconfigdialog.cpp
 	ControllerConfig/controllerconfigdialog.h
 	ControllerConfig/inputeventselectiondialog.cpp
 	ControllerConfig/inputeventselectiondialog.h
+	CoverUtils.cpp
+	CoverUtils.h
 	main.cpp
 	mainwindow.cpp
 	mainwindow.h
@@ -147,6 +151,8 @@ if(TARGET_PLATFORM_WIN32)
 	
 endif()
 set(QT_MOC_HEADERS
+	bootablelistdialog.h
+	BootableModel.h
 	ControllerConfig/bindingmodel.h
 	ControllerConfig/controllerconfigdialog.h
 	ControllerConfig/inputeventselectiondialog.h
@@ -163,6 +169,7 @@ set(QT_MOC_HEADERS
 )
 
 set(QT_UIS
+	Qt_ui/bootablelistdialog.ui
 	Qt_ui/controllerconfigdialog.ui
 	Qt_ui/debugmenu.ui
 	Qt_ui/inputeventselectiondialog.ui

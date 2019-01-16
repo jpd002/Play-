@@ -1,9 +1,13 @@
 #include <algorithm>
+#include "AppConfig.h"
 #include "BootablesProcesses.h"
 #include "BootablesDbClient.h"
 #include "TheGamesDbClient.h"
 #include "DiskUtils.h"
+#include "PathUtils.h"
 #include "string_format.h"
+#include "http/HttpClientFactory.h"
+#include <iostream>
 
 //Jobs
 // Scan for new games (from input directory)
@@ -126,5 +130,36 @@ void FetchGameTitles()
 	}
 	catch(...)
 	{
+	}
+}
+
+void FetchGameCovers()
+{
+	auto coverpath(CAppConfig::GetBasePath() / boost::filesystem::path("covers"));
+	Framework::PathUtils::EnsurePathExists(coverpath);
+
+	auto bootables = BootablesDb::CClient::GetInstance().GetBootables();
+	std::vector<std::string> serials;
+	for(const auto& bootable : bootables)
+	{
+		if(bootable.discId.empty() || bootable.coverUrl.empty())
+			continue;
+
+		auto path = coverpath / (bootable.discId + ".jpg");
+		if(boost::filesystem::exists(path))
+			continue;
+
+		auto requestResult =
+		        [&]() {
+			auto client = Framework::Http::CreateHttpClient();
+			client->SetUrl(bootable.coverUrl);
+			return client->SendRequest();
+		}();
+		if(requestResult.statusCode == Framework::Http::HTTP_STATUS_CODE::OK)
+		{
+			auto myfile = std::fstream(path.c_str(), std::ios::out | std::ios::binary);
+			myfile.write(reinterpret_cast<char*>(requestResult.data.GetBuffer()), requestResult.data.GetSize());
+			myfile.close();
+		}
 	}
 }

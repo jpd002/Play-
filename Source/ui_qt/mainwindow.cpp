@@ -3,6 +3,7 @@
 #include "settingsdialog.h"
 #include "memorycardmanagerdialog.h"
 #include "S3FileBrowser.h"
+#include "ui_shared/BootablesProcesses.h"
 
 #include "openglwindow.h"
 
@@ -12,6 +13,7 @@
 #include <QWindow>
 #include <QMessageBox>
 #include <QStorageInfo>
+#include <ctime>
 
 #include "StdStreamUtils.h"
 #include "string_format.h"
@@ -33,12 +35,14 @@
 #include <zlib.h>
 #include <boost/version.hpp>
 
+#include "CoverUtils.h"
 #include "PreferenceDefs.h"
 #include "PS2VM_Preferences.h"
 #include "ScreenShotUtils.h"
 
 #include "ui_mainwindow.h"
 #include "vfsmanagerdialog.h"
+#include "bootablelistdialog.h"
 #include "ControllerConfig/controllerconfigdialog.h"
 
 #ifdef __APPLE__
@@ -318,6 +322,8 @@ void MainWindow::on_actionBoot_ELF_triggered()
 
 void MainWindow::BootElf(boost::filesystem::path filePath)
 {
+	BootablesDb::CClient::GetInstance().SetLastBootedTime(filePath, std::time(nullptr));
+
 	m_lastOpenCommand = LastOpenCommand(BootType::ELF, filePath);
 	m_virtualMachine->Pause();
 	m_virtualMachine->Reset();
@@ -339,6 +345,7 @@ void MainWindow::BootCDROM()
 {
 	auto filePath = CAppConfig::GetInstance().GetPreferencePath(PREF_PS2_CDROM0_PATH);
 	m_lastOpenCommand = LastOpenCommand(BootType::CD, filePath);
+	BootablesDb::CClient::GetInstance().SetLastBootedTime(filePath, std::time(nullptr));
 	m_virtualMachine->Pause();
 	m_virtualMachine->Reset();
 	m_virtualMachine->m_ee->m_os->BootFromCDROM();
@@ -751,4 +758,40 @@ void MainWindow::on_actionCapture_Screen_triggered()
 	                                       [&](int res, const char* msg) -> void {
 		                                       m_msgLabel->setText(msg);
 	                                       });
+}
+
+void MainWindow::on_actionList_Bootables_triggered()
+{
+	CoverUtils::PopulateCache();
+
+	BootableListDialog dialog(this);
+	if(dialog.exec())
+	{
+		try
+		{
+			BootablesDb::Bootable bootable = dialog.getResult();
+			if(IsBootableDiscImagePath(bootable.path))
+			{
+				LoadCDROM(bootable.path);
+				BootCDROM();
+			}
+			else if(IsBootableExecutablePath(bootable.path))
+			{
+				BootElf(bootable.path);
+			}
+			else
+			{
+				QMessageBox messageBox;
+				QString invalid("Invalid File Format.");
+				messageBox.critical(this, this->windowTitle(), invalid);
+				messageBox.show();
+			}
+		}
+		catch(const std::exception& e)
+		{
+			QMessageBox messageBox;
+			messageBox.critical(nullptr, "Error", e.what());
+			messageBox.show();
+		}
+	}
 }

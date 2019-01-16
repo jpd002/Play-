@@ -9,3 +9,4 @@ void ScanBootables(const boost::filesystem::path&, bool = true);
 std::set<boost::filesystem::path> GetActiveBootableDirectories();
 void PurgeInexistingFiles();
 void FetchGameTitles();
+void FetchGameCovers();
