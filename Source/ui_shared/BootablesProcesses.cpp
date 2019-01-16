@@ -32,6 +32,18 @@ bool IsBootableDiscImagePath(const boost::filesystem::path& filePath)
 	       (extension == ".bin");
 }
 
+void TryRegisteringBootable(const boost::filesystem::path& path)
+{
+	std::string serial;
+	if(
+	    !IsBootableExecutablePath(path) &&
+	    !(IsBootableDiscImagePath(path) && DiskUtils::TryGetDiskId(path, &serial)))
+	{
+		return;
+	}
+	BootablesDb::CClient::GetInstance().RegisterBootable(path, path.filename().string().c_str(), serial.c_str());
+}
+
 void ScanBootables(const boost::filesystem::path& parentPath, bool recursive)
 {
 	for(auto pathIterator = boost::filesystem::directory_iterator(parentPath);
@@ -45,14 +57,7 @@ void ScanBootables(const boost::filesystem::path& parentPath, bool recursive)
 				ScanBootables(path, recursive);
 				continue;
 			}
-			std::string serial;
-			if(
-			    !IsBootableExecutablePath(path) &&
-			    !(IsBootableDiscImagePath(path) && DiskUtils::TryGetDiskId(path, &serial)))
-			{
-				continue;
-			}
-			BootablesDb::CClient::GetInstance().RegisterBootable(path, path.filename().string().c_str(), serial.c_str());
+			TryRegisteringBootable(path);
 		}
 		catch(const std::exception& exception)
 		{
