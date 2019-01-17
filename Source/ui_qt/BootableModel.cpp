@@ -7,24 +7,23 @@
 #include "BootableModel.h"
 #include "CoverUtils.h"
 
-
-BootableModel::BootableModel(QObject *parent, int sortingMethod)
+BootableModel::BootableModel(QObject* parent, int sortingMethod)
     : QAbstractTableModel(parent)
 {
 	bootables = BootablesDb::CClient::GetInstance().GetBootables(sortingMethod);
 }
 
-int BootableModel::rowCount(const QModelIndex &parent) const
+int BootableModel::rowCount(const QModelIndex& parent) const
 {
-	return  bootables.size();
+	return bootables.size();
 }
 
-int BootableModel::columnCount(const QModelIndex &parent) const
+int BootableModel::columnCount(const QModelIndex& parent) const
 {
 	return 1;
 }
 
-QVariant BootableModel::data(const QModelIndex &index, int role) const
+QVariant BootableModel::data(const QModelIndex& index, int role) const
 {
 	if(role == Qt::DisplayRole)
 	{
@@ -62,12 +61,12 @@ void BootableModel::removeItem(const QModelIndex& index)
 	emit QAbstractTableModel::endRemoveRows();
 }
 
-BootableCoverQVarient::BootableCoverQVarient(std::string key) : m_key(key)
+BootableCoverQVarient::BootableCoverQVarient(std::string key)
+    : m_key(key)
 {
-
 }
 
-void BootableCoverQVarient::paint(QPainter *painter, const QRect &rect, const QPalette &palette, int mode) const
+void BootableCoverQVarient::paint(QPainter* painter, const QRect& rect, const QPalette& palette, int mode) const
 {
 	painter->save();
 
@@ -93,14 +92,13 @@ QSize BootableCoverQVarient::sizeHint() const
 	return size;
 }
 
-
-void BootImageItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const
+void BootImageItemDelegate::paint(QPainter* painter, const QStyleOptionViewItem& option, const QModelIndex& index) const
 {
-	if (index.data().canConvert<BootableCoverQVarient>())
+	if(index.data().canConvert<BootableCoverQVarient>())
 	{
 		BootableCoverQVarient bootablecover = qvariant_cast<BootableCoverQVarient>(index.data());
 
-		if (option.state & QStyle::State_Selected)
+		if(option.state & QStyle::State_Selected)
 			painter->fillRect(option.rect, option.palette.highlight());
 
 		bootablecover.paint(painter, option.rect, option.palette, 0);
@@ -111,9 +109,9 @@ void BootImageItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem 
 	}
 }
 
-QSize BootImageItemDelegate::sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const
+QSize BootImageItemDelegate::sizeHint(const QStyleOptionViewItem& option, const QModelIndex& index) const
 {
-	if (index.data().canConvert<BootableCoverQVarient>())
+	if(index.data().canConvert<BootableCoverQVarient>())
 	{
 		BootableCoverQVarient bootablecover = qvariant_cast<BootableCoverQVarient>(index.data());
 		return bootablecover.sizeHint();

@@ -155,11 +155,11 @@ void FetchGameCovers()
 			continue;
 
 		auto requestResult =
-		        [&]() {
-			auto client = Framework::Http::CreateHttpClient();
-			client->SetUrl(bootable.coverUrl);
-			return client->SendRequest();
-		}();
+		    [&]() {
+			    auto client = Framework::Http::CreateHttpClient();
+			    client->SetUrl(bootable.coverUrl);
+			    return client->SendRequest();
+		    }();
 		if(requestResult.statusCode == Framework::Http::HTTP_STATUS_CODE::OK)
 		{
 			auto myfile = std::fstream(path.c_str(), std::ios::out | std::ios::binary);

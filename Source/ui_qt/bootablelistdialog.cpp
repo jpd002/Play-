@@ -15,7 +15,6 @@
 #include "ui_shared/BootablesProcesses.h"
 #include "ui_shared/BootablesDbClient.h"
 
-
 BootableListDialog::BootableListDialog(QWidget* parent)
     : QDialog(parent)
     , ui(new Ui::BootableListDialog)
@@ -28,28 +27,26 @@ BootableListDialog::BootableListDialog(QWidget* parent)
 	ui->listView->setItemDelegate(new BootImageItemDelegate);
 	resetModel();
 
-	QAction *bootgame = new QAction("Boot", ui->listView);
-	QAction *removegame = new QAction("Remove", ui->listView);
+	QAction* bootgame = new QAction("Boot", ui->listView);
+	QAction* removegame = new QAction("Remove", ui->listView);
 
 	ui->listView->addAction(bootgame);
 	ui->listView->addAction(removegame);
 	ui->listView->setContextMenuPolicy(Qt::ActionsContextMenu);
 
 	connect(bootgame, &QAction::triggered,
-	        [&](bool)
-	{
-		QModelIndex index= ui->listView->selectionModel()->selectedIndexes().at(0);
-		bootable = model->GetBootable(index);
-		accept();
-	});
+	        [&](bool) {
+		        QModelIndex index = ui->listView->selectionModel()->selectedIndexes().at(0);
+		        bootable = model->GetBootable(index);
+		        accept();
+	        });
 	connect(removegame, &QAction::triggered,
-	        [&](bool)
-	{
-		QModelIndex index = ui->listView->selectionModel()->selectedIndexes().at(0);
-		auto bootable = model->GetBootable(index);
-		BootablesDb::CClient::GetInstance().UnregisterBootable(bootable.path);
-		model->removeItem(index);
-	});
+	        [&](bool) {
+		        QModelIndex index = ui->listView->selectionModel()->selectedIndexes().at(0);
+		        auto bootable = model->GetBootable(index);
+		        BootablesDb::CClient::GetInstance().UnregisterBootable(bootable.path);
+		        model->removeItem(index);
+	        });
 }
 
 BootableListDialog::~BootableListDialog()
@@ -76,7 +73,6 @@ void BootableListDialog::showEvent(QShowEvent* ev)
 	QDialog::showEvent(ev);
 }
 
-
 void BootableListDialog::on_add_games_button_clicked()
 {
 	QFileDialog dialog(this);
@@ -91,7 +87,6 @@ void BootableListDialog::on_add_games_button_clicked()
 		}
 		catch(...)
 		{
-
 		}
 		FetchGameTitles();
 		FetchGameCovers();
@@ -99,8 +94,7 @@ void BootableListDialog::on_add_games_button_clicked()
 	}
 }
 
-
-void BootableListDialog::on_listView_doubleClicked(const QModelIndex &index)
+void BootableListDialog::on_listView_doubleClicked(const QModelIndex& index)
 {
 	bootable = model->GetBootable(index);
 	accept();
@@ -117,7 +111,6 @@ void BootableListDialog::on_refresh_button_clicked()
 		}
 		catch(...)
 		{
-
 		}
 	}
 	FetchGameTitles();

@@ -11,7 +11,7 @@ namespace Ui
 }
 
 class
-        BootableListDialog : public QDialog
+    BootableListDialog : public QDialog
 {
 	Q_OBJECT
 
@@ -23,7 +23,7 @@ public:
 
 private slots:
 	void on_add_games_button_clicked();
-	void on_listView_doubleClicked(const QModelIndex &index);
+	void on_listView_doubleClicked(const QModelIndex& index);
 	void on_refresh_button_clicked();
 
 	void on_comboBox_currentIndexChanged(int index);
@@ -36,8 +36,7 @@ private:
 	int m_sortingMethod = 2;
 
 	void resetModel();
+
 protected:
 	void showEvent(QShowEvent*) Q_DECL_OVERRIDE;
-
-
 };

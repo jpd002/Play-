@@ -30,7 +30,7 @@ void CoverUtils::PopulateCache()
 			continue;
 
 		auto path = coverpath / (bootable.discId + ".jpg");
-		if (boost::filesystem::exists(path))
+		if(boost::filesystem::exists(path))
 		{
 			auto itr = CoverUtils::cache.find(bootable.discId.c_str());
 			if(itr == CoverUtils::cache.end())
@@ -39,7 +39,6 @@ void CoverUtils::PopulateCache()
 				pixmap = pixmap.scaledToWidth(250 / 2, Qt::SmoothTransformation);
 				CoverUtils::cache.insert(std::make_pair(bootable.discId.c_str(), pixmap));
 			}
-
 		}
 	}
 
