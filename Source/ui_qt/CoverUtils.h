@@ -13,4 +13,5 @@ private:
 public:
 	static void PopulateCache();
 	static QPixmap find(std::string key);
+	static void PopulatePlaceholderCover();
 };

@@ -18,8 +18,19 @@ QPixmap CoverUtils::find(std::string key)
 	return itr->second;
 }
 
+void CoverUtils::PopulatePlaceholderCover()
+{
+	auto itr = CoverUtils::cache.find("PH");
+	if(itr == CoverUtils::cache.end())
+	{
+		auto pixmap = QPixmap(QString(":/assets/boxart.png")).scaledToWidth(250 / 2, Qt::SmoothTransformation);
+		CoverUtils::cache.insert(std::make_pair("PH", pixmap));
+	}
+}
 void CoverUtils::PopulateCache()
 {
+	PopulatePlaceholderCover();
+
 	auto coverpath(CAppConfig::GetBasePath() / boost::filesystem::path("covers"));
 	Framework::PathUtils::EnsurePathExists(coverpath);
 
@@ -40,12 +51,5 @@ void CoverUtils::PopulateCache()
 				CoverUtils::cache.insert(std::make_pair(bootable.discId.c_str(), pixmap));
 			}
 		}
-	}
-
-	auto itr = CoverUtils::cache.find("PH");
-	if(itr == CoverUtils::cache.end())
-	{
-		auto pixmap = QPixmap(QString(":/assets/boxart.png")).scaledToWidth(250 / 2, Qt::SmoothTransformation);
-		CoverUtils::cache.insert(std::make_pair("PH", pixmap));
 	}
 }
