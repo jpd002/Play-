@@ -21,7 +21,7 @@ public:
 	void removeItem(const QModelIndex&);
 
 private:
-	std::vector<BootablesDb::Bootable> bootables;
+	std::vector<BootablesDb::Bootable> m_bootables;
 };
 
 class BootableCoverQVarient
