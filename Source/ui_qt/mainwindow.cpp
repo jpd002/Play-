@@ -764,8 +764,6 @@ void MainWindow::on_actionCapture_Screen_triggered()
 
 void MainWindow::on_actionList_Bootables_triggered()
 {
-	CoverUtils::PopulateCache();
-
 	BootableListDialog dialog(this);
 	if(dialog.exec())
 	{

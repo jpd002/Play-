@@ -27,6 +27,7 @@ BootableListDialog::BootableListDialog(QWidget* parent)
 
 	ui->listView->setItemDelegate(new BootImageItemDelegate);
 	resetModel();
+	CoverUtils::PopulateCache(m_bootables);
 
 	QAction* bootgame = new QAction("Boot", ui->listView);
 	QAction* removegame = new QAction("Remove", ui->listView);

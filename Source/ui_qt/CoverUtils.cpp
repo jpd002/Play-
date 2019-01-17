@@ -3,7 +3,6 @@
 #include "AppConfig.h"
 #include "CoverUtils.h"
 #include "PathUtils.h"
-#include "ui_shared/BootablesDbClient.h"
 #include "QStringUtils.h"
 
 std::map<std::string, QPixmap> CoverUtils::cache;
@@ -27,14 +26,13 @@ void CoverUtils::PopulatePlaceholderCover()
 		CoverUtils::cache.insert(std::make_pair("PH", pixmap));
 	}
 }
-void CoverUtils::PopulateCache()
+void CoverUtils::PopulateCache(std::vector<BootablesDb::Bootable>& bootables)
 {
 	PopulatePlaceholderCover();
 
 	auto coverpath(CAppConfig::GetBasePath() / boost::filesystem::path("covers"));
 	Framework::PathUtils::EnsurePathExists(coverpath);
 
-	auto bootables = BootablesDb::CClient::GetInstance().GetBootables();
 	for(auto bootable : bootables)
 	{
 		if(bootable.discId.empty())
