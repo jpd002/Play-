@@ -10,7 +10,7 @@ class BootableModel : public QAbstractTableModel
 	Q_OBJECT
 
 public:
-	BootableModel(QObject* parent, int = 2);
+	BootableModel(QObject* parent, std::vector<BootablesDb::Bootable>&);
 
 	int rowCount(const QModelIndex& parent = QModelIndex()) const Q_DECL_OVERRIDE;
 	int columnCount(const QModelIndex& parent = QModelIndex()) const Q_DECL_OVERRIDE;
@@ -21,7 +21,7 @@ public:
 	void removeItem(const QModelIndex&);
 
 private:
-	std::vector<BootablesDb::Bootable> m_bootables;
+	std::vector<BootablesDb::Bootable>& m_bootables;
 };
 
 class BootableCoverQVarient

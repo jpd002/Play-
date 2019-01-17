@@ -7,10 +7,10 @@
 #include "BootableModel.h"
 #include "CoverUtils.h"
 
-BootableModel::BootableModel(QObject* parent, int sortingMethod)
+BootableModel::BootableModel(QObject* parent, std::vector<BootablesDb::Bootable>& bootables)
     : QAbstractTableModel(parent)
+    , m_bootables(bootables)
 {
-	m_bootables = BootablesDb::CClient::GetInstance().GetBootables(sortingMethod);
 }
 
 int BootableModel::rowCount(const QModelIndex& parent) const

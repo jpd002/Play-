@@ -32,6 +32,7 @@ private:
 	Ui::BootableListDialog* ui;
 
 	BootablesDb::Bootable bootable;
+	std::vector<BootablesDb::Bootable> m_bootables;
 	BootableModel* model = nullptr;
 	int m_sortingMethod = 2;
 

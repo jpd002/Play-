@@ -10,6 +10,7 @@
 #include <iostream>
 
 #include "AppConfig.h"
+#include "CoverUtils.h"
 #include "http/HttpClientFactory.h"
 #include "QStringUtils.h"
 #include "ui_shared/BootablesProcesses.h"
@@ -59,7 +60,8 @@ void BootableListDialog::resetModel()
 	ui->listView->setModel(nullptr);
 	if(model)
 		delete model;
-	model = new BootableModel(this, m_sortingMethod);
+	m_bootables = BootablesDb::CClient::GetInstance().GetBootables(m_sortingMethod);
+	model = new BootableModel(this, m_bootables);
 	ui->listView->setModel(model);
 }
 BootablesDb::Bootable BootableListDialog::getResult()
