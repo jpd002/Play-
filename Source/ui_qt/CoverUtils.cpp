@@ -6,6 +6,7 @@
 #include "QStringUtils.h"
 
 std::map<std::string, QPixmap> CoverUtils::cache;
+std::mutex CoverUtils::m_lock;
 
 QPixmap CoverUtils::find(std::string key)
 {
@@ -28,6 +29,7 @@ void CoverUtils::PopulatePlaceholderCover()
 }
 void CoverUtils::PopulateCache(std::vector<BootablesDb::Bootable> bootables)
 {
+	m_lock.lock();
 	PopulatePlaceholderCover();
 
 	auto coverpath(CAppConfig::GetBasePath() / boost::filesystem::path("covers"));
@@ -50,4 +52,5 @@ void CoverUtils::PopulateCache(std::vector<BootablesDb::Bootable> bootables)
 			}
 		}
 	}
+	m_lock.unlock();
 }
