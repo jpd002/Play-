@@ -71,6 +71,8 @@ void BootableListDialog::resetModel()
 
 	if(!m_thread_running)
 	{
+		if(cover_loader.joinable())
+			cover_loader.join();
 		m_thread_running = true;
 		cover_loader = std::thread([&]
 		{
