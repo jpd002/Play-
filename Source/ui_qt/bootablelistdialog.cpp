@@ -27,6 +27,12 @@ BootableListDialog::BootableListDialog(QWidget* parent)
 	m_sortingMethod = CAppConfig::GetInstance().GetPreferenceInteger("ui.sortmethod");
 	ui->comboBox->setCurrentIndex(m_sortingMethod);
 
+	//if m_sortingMethod == currentIndex == 0, setting index wont trigger on_comboBox_currentIndexChanged() thus resetModel()
+	if(m_sortingMethod == 0)
+	{
+		resetModel();
+	}
+
 	CoverUtils::PopulatePlaceholderCover();
 	ui->listView->setItemDelegate(new BootImageItemDelegate);
 
