@@ -12,7 +12,7 @@ private:
 	static std::map<std::string, QPixmap> cache;
 
 public:
-	static void PopulateCache(std::vector<BootablesDb::Bootable>&);
+	static void PopulateCache(std::vector<BootablesDb::Bootable>);
 	static QPixmap find(std::string key);
 	static void PopulatePlaceholderCover();
 };

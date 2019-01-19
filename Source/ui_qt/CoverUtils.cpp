@@ -26,7 +26,7 @@ void CoverUtils::PopulatePlaceholderCover()
 		CoverUtils::cache.insert(std::make_pair("PH", pixmap));
 	}
 }
-void CoverUtils::PopulateCache(std::vector<BootablesDb::Bootable>& bootables)
+void CoverUtils::PopulateCache(std::vector<BootablesDb::Bootable> bootables)
 {
 	PopulatePlaceholderCover();
 
