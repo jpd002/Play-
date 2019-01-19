@@ -35,6 +35,8 @@ void CoverUtils::PopulateCache(std::vector<BootablesDb::Bootable> bootables)
 	auto coverpath(CAppConfig::GetBasePath() / boost::filesystem::path("covers"));
 	Framework::PathUtils::EnsurePathExists(coverpath);
 
+	auto itr = CoverUtils::cache.find("PH");
+	auto placeholder_size = itr->second.size();
 	for(auto bootable : bootables)
 	{
 		if(bootable.discId.empty())
@@ -47,7 +49,7 @@ void CoverUtils::PopulateCache(std::vector<BootablesDb::Bootable> bootables)
 			if(itr == CoverUtils::cache.end())
 			{
 				auto pixmap = QPixmap(PathToQString(path));
-				pixmap = pixmap.scaledToWidth(250 / 2, Qt::SmoothTransformation);
+				pixmap = pixmap.scaled(placeholder_size, Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
 				CoverUtils::cache.insert(std::make_pair(bootable.discId.c_str(), pixmap));
 			}
 		}
