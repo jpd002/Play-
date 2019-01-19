@@ -8,6 +8,7 @@
 #include <QPixmap>
 #include <QPixmapCache>
 #include <iostream>
+#include <thread>
 
 #include "AppConfig.h"
 #include "CoverUtils.h"
@@ -19,15 +20,15 @@
 BootableListDialog::BootableListDialog(QWidget* parent)
     : QDialog(parent)
     , ui(new Ui::BootableListDialog)
+    , m_thread_running(false)
 {
 	ui->setupUi(this);
 	CAppConfig::GetInstance().RegisterPreferenceInteger("ui.sortmethod", 2);
 	m_sortingMethod = CAppConfig::GetInstance().GetPreferenceInteger("ui.sortmethod");
 	ui->comboBox->setCurrentIndex(m_sortingMethod);
 
+	CoverUtils::PopulatePlaceholderCover();
 	ui->listView->setItemDelegate(new BootImageItemDelegate);
-	resetModel();
-	CoverUtils::PopulateCache(m_bootables);
 
 	QAction* bootgame = new QAction("Boot", ui->listView);
 	QAction* removegame = new QAction("Remove", ui->listView);
@@ -53,6 +54,8 @@ BootableListDialog::BootableListDialog(QWidget* parent)
 
 BootableListDialog::~BootableListDialog()
 {
+	if(cover_loader.joinable())
+		cover_loader.join();
 	delete ui;
 }
 
@@ -61,9 +64,24 @@ void BootableListDialog::resetModel()
 	ui->listView->setModel(nullptr);
 	if(model)
 		delete model;
+
 	m_bootables = BootablesDb::CClient::GetInstance().GetBootables(m_sortingMethod);
 	model = new BootableModel(this, m_bootables);
 	ui->listView->setModel(model);
+
+	if(!m_thread_running)
+	{
+		m_thread_running = true;
+		cover_loader = std::thread([&]
+		{
+			CoverUtils::PopulateCache(m_bootables);
+
+			//Force redraw
+			ui->listView->scroll(1, 0);
+			ui->listView->scroll(-1, 0);
+			m_thread_running = false;
+		});
+	}
 }
 BootablesDb::Bootable BootableListDialog::getResult()
 {

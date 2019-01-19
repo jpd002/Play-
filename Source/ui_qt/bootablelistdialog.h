@@ -3,6 +3,8 @@
 #include <QDialog>
 #include <QDir>
 #include <boost/filesystem.hpp>
+#include <thread>
+#include <atomic>
 #include "BootableModel.h"
 
 namespace Ui
@@ -35,6 +37,8 @@ private:
 	std::vector<BootablesDb::Bootable> m_bootables;
 	BootableModel* model = nullptr;
 	int m_sortingMethod = 2;
+	std::thread cover_loader;
+	std::atomic<bool> m_thread_running;
 
 	void resetModel();
 
