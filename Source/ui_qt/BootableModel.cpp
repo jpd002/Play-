@@ -15,7 +15,7 @@ BootableModel::BootableModel(QObject* parent, std::vector<BootablesDb::Bootable>
 
 int BootableModel::rowCount(const QModelIndex& parent) const
 {
-	return m_bootables.size();
+	return static_cast<int>(m_bootables.size());
 }
 
 int BootableModel::columnCount(const QModelIndex& parent) const
@@ -28,7 +28,7 @@ QVariant BootableModel::data(const QModelIndex& index, int role) const
 	if(role == Qt::DisplayRole)
 	{
 		int pos = index.row() + index.column();
-		auto bootable = m_bootables.at(pos);
+		auto bootable =  m_bootables.at(static_cast<unsigned int>(pos));
 		return QVariant::fromValue(BootableCoverQVarient(bootable.discId, bootable.title));
 	}
 	return QVariant();
@@ -49,13 +49,13 @@ QSize BootableModel::SizeHint()
 
 BootablesDb::Bootable BootableModel::GetBootable(const QModelIndex& index)
 {
-	unsigned int pos = index.row() + index.column();
-	return m_bootables.at(pos);
+	int pos = index.row() + index.column();
+	return m_bootables.at(static_cast<unsigned int>(pos));
 }
 
 void BootableModel::removeItem(const QModelIndex& index)
 {
-	unsigned int pos = index.row() + index.column();
+	int pos = index.row() + index.column();
 	emit QAbstractTableModel::beginRemoveRows(QModelIndex(), pos, pos);
 	m_bootables.erase(m_bootables.begin() + pos);
 	emit QAbstractTableModel::endRemoveRows();
