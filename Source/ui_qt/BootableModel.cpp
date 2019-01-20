@@ -29,7 +29,7 @@ QVariant BootableModel::data(const QModelIndex& index, int role) const
 	{
 		int pos = index.row() + index.column();
 		auto bootable = m_bootables.at(pos);
-		return QVariant::fromValue(BootableCoverQVarient(bootable.discId));
+		return QVariant::fromValue(BootableCoverQVarient(bootable.discId, bootable.title));
 	}
 	return QVariant();
 }
@@ -61,8 +61,9 @@ void BootableModel::removeItem(const QModelIndex& index)
 	emit QAbstractTableModel::endRemoveRows();
 }
 
-BootableCoverQVarient::BootableCoverQVarient(std::string key)
+BootableCoverQVarient::BootableCoverQVarient(std::string key, std::string title)
     : m_key(key)
+    , m_title(title)
 {
 }
 
@@ -74,6 +75,23 @@ void BootableCoverQVarient::paint(QPainter* painter, const QRect& rect, const QP
 	painter->setPen(Qt::NoPen);
 
 	QPixmap pixmap = CoverUtils::find(m_key.c_str());
+	if(pixmap.isNull())
+	{
+		pixmap = CoverUtils::find("PH");
+		QPainter painter(&pixmap);
+		painter.setFont(QFont("Arial"));
+		QTextOption opts(Qt::AlignCenter);
+		opts.setWrapMode(QTextOption::WordWrap);
+		QRect pix_rect = pixmap.rect();
+		pix_rect.setTop(pixmap.height() * 70 / 100);
+		std::string text;
+		if(!m_key.empty())
+		{
+			text = m_key + "\n";
+		}
+		text += m_title;
+		painter.drawText(pix_rect, text.c_str(), opts);
+	}
 	painter->drawPixmap(rect.x() + 5, rect.y() + 5, pixmap);
 
 	painter->restore();

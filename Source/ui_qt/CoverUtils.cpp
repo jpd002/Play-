@@ -13,7 +13,7 @@ QPixmap CoverUtils::find(std::string key)
 	auto itr = CoverUtils::cache.find(key);
 	if(itr == CoverUtils::cache.end())
 	{
-		itr = CoverUtils::cache.find("PH");
+		return QPixmap();
 	}
 	return itr->second;
 }
