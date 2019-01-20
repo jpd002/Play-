@@ -61,6 +61,7 @@ void BootableModel::removeItem(const QModelIndex& index)
 	emit QAbstractTableModel::endRemoveRows();
 }
 
+/* start of BootImageItemDelegate */
 BootableCoverQVarient::BootableCoverQVarient(std::string key, std::string title)
     : m_key(key)
     , m_title(title)
@@ -108,6 +109,12 @@ QSize BootableCoverQVarient::sizeHint() const
 		size.setWidth(size.width() + 10);
 	}
 	return size;
+}
+
+/* start of BootImageItemDelegate */
+BootImageItemDelegate::BootImageItemDelegate(QWidget* parent)
+    : QStyledItemDelegate(parent)
+{
 }
 
 void BootImageItemDelegate::paint(QPainter* painter, const QStyleOptionViewItem& option, const QModelIndex& index) const

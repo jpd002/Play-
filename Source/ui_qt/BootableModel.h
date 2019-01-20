@@ -46,10 +46,7 @@ class BootImageItemDelegate : public QStyledItemDelegate
 	Q_OBJECT
 
 public:
-	BootImageItemDelegate(QWidget* parent = 0)
-	    : QStyledItemDelegate(parent)
-	{
-	}
+	BootImageItemDelegate(QWidget* parent = 0);
 
 	void paint(QPainter* painter, const QStyleOptionViewItem& option, const QModelIndex& index) const override;
 	QSize sizeHint(const QStyleOptionViewItem& option, const QModelIndex& index) const override;
