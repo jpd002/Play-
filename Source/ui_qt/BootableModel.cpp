@@ -13,12 +13,12 @@ BootableModel::BootableModel(QObject* parent, std::vector<BootablesDb::Bootable>
 {
 }
 
-int BootableModel::rowCount(const QModelIndex& parent) const
+int BootableModel::rowCount(const QModelIndex&) const
 {
 	return static_cast<int>(m_bootables.size());
 }
 
-int BootableModel::columnCount(const QModelIndex& parent) const
+int BootableModel::columnCount(const QModelIndex&) const
 {
 	return 1;
 }
@@ -68,7 +68,7 @@ BootableCoverQVarient::BootableCoverQVarient(std::string key, std::string title)
 {
 }
 
-void BootableCoverQVarient::paint(QPainter* painter, const QRect& rect, const QPalette& palette, int mode) const
+void BootableCoverQVarient::paint(QPainter* painter, const QRect& rect, const QPalette&, int) const
 {
 	painter->save();
 
