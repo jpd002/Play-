@@ -30,16 +30,17 @@ void CTimer::Count(unsigned int ticks)
 		uint32 nextCount = timer.nCOUNT;
 
 		uint32 divider = 1;
+		//BUSCLOCK runs at half EE frequency
 		switch(timer.nMODE & MODE_CLOCK_SELECT)
 		{
 		case MODE_CLOCK_SELECT_BUSCLOCK:
-			divider = 1;
+			divider = 1 * 2;
 			break;
 		case MODE_CLOCK_SELECT_BUSCLOCK16:
-			divider = 16;
+			divider = 16 * 2;
 			break;
 		case MODE_CLOCK_SELECT_BUSCLOCK256:
-			divider = 256;
+			divider = 256 * 2;
 			break;
 		case MODE_CLOCK_SELECT_EXTERNAL:
 			divider = 9437; // PAL
