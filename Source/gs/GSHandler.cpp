@@ -12,6 +12,9 @@
 #include "GsPixelFormats.h"
 #include "string_format.h"
 
+//Shadow Hearts 2 looks for this specific value
+#define GS_REVISION (7)
+
 #define R_REG(a, v, r)                \
 	if((a)&0x4)                       \
 	{                                 \
@@ -146,7 +149,7 @@ void CGSHandler::ResetBase()
 	m_nDISPFB2.value.q = 0;
 	m_nDISPLAY2.heldValue = 0;
 	m_nDISPLAY2.value.q = 0;
-	m_nCSR = CSR_FIFO_EMPTY;
+	m_nCSR = CSR_FIFO_EMPTY | (GS_REVISION << 16);
 	m_nIMR = ~0;
 	m_nSIGLBLID = 0;
 	m_nCrtMode = 2;
