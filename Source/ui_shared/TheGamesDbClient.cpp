@@ -9,9 +9,9 @@
 
 using namespace TheGamesDb;
 
-static const char* g_getGameUrl = "https://api.thegamesdb.net/Games/GamesByGameID?apikey=API_KEY&fields=overview,serials&include=boxart&id=%d";
-static const char* g_getGamesBySerialUrl = "https://api.thegamesdb.net/Games/ByGameSerialID?apikey=API_KEY&filter%5Bplatform%5D=11&fields=overview,serials&include=boxart";
-static const char* g_getGamesListUrl = "https://api.thegamesdb.net/v1.1/Games/ByGameName?apikey=API_KEY&fields=overview,serials&filter%5Bplatform%5D=%s&include=boxart&name=%s";
+static const char* g_getGameUrl = "https://api.thegamesdb.net/Games/GamesByGameID?apikey=API_KEY&fields=overview,uids&include=boxart&id=%d";
+static const char* g_getGamesByUIDUrl = "https://api.thegamesdb.net/Games/ByGameUniqueID?apikey=API_KEY&filter%5Bplatform%5D=11&fields=overview,uids&include=boxart";
+static const char* g_getGamesListUrl = "https://api.thegamesdb.net/v1.1/Games/ByGameName?apikey=API_KEY&fields=overview,uids&filter%5Bplatform%5D=%s&include=boxart&name=%s";
 
 GamesList CClient::GetGames(std::vector<std::string> serials)
 {
@@ -21,8 +21,8 @@ GamesList CClient::GetGames(std::vector<std::string> serials)
 
 	std::vector<Game> gamesList;
 
-	auto url = std::string(g_getGamesBySerialUrl);
-	url += "&id=";
+	auto url = std::string(g_getGamesByUIDUrl);
+	url += "&uid=";
 	url += str_games_id;
 	while(!url.empty())
 	{
@@ -133,7 +133,14 @@ int CClient::PopulateGameList(std::string& json_ret, std::vector<TheGamesDb::Gam
 		TheGamesDb::Game meta;
 		meta.id = game_id;
 		meta.overview = game["overview"].get<std::string>();
-		meta.discIds = game["serials"].get<std::vector<std::string>>();
+		if(!game["uids"].empty())
+		{
+			auto uids = game["uids"].get<std::vector<nlohmann::json>>();
+			for(auto item : uids)
+			{
+				meta.discIds.push_back(item["uid"].get<std::string>());
+			}
+		}
 		meta.title = game["game_title"].get<std::string>();
 		meta.baseImgUrl = image_base;
 		if(!includes.empty())
