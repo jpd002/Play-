@@ -109,6 +109,16 @@
      </item>
     </widget>
    </item>
+   <item row="1" column="1">
+    <widget class="QDialogButtonBox" name="buttonBox">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="standardButtons">
+      <set>QDialogButtonBox::Close</set>
+     </property>
+    </widget>
+   </item>
    <item row="0" column="1">
     <widget class="QStackedWidget" name="stackedWidget">
      <property name="frameShape">
@@ -133,24 +143,11 @@
       </widget>
      </widget>
      <widget class="QWidget" name="Video">
-      <widget class="QCheckBox" name="checkBox_enable_highres">
-       <property name="geometry">
-        <rect>
-         <x>20</x>
-         <y>20</y>
-         <width>341</width>
-         <height>22</height>
-        </rect>
-       </property>
-       <property name="text">
-        <string>Enable High Resolution</string>
-       </property>
-      </widget>
       <widget class="QCheckBox" name="checkBox_force_bilinear_filtering">
        <property name="geometry">
         <rect>
          <x>20</x>
-         <y>50</y>
+         <y>80</y>
          <width>341</width>
          <height>22</height>
         </rect>
@@ -163,7 +160,7 @@
        <property name="geometry">
         <rect>
          <x>20</x>
-         <y>100</y>
+         <y>130</y>
          <width>161</width>
          <height>27</height>
         </rect>
@@ -191,13 +188,42 @@
        <property name="geometry">
         <rect>
          <x>20</x>
-         <y>80</y>
+         <y>110</y>
          <width>151</width>
          <height>17</height>
         </rect>
        </property>
        <property name="text">
         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Presentation Mode:&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+       </property>
+      </widget>
+      <widget class="QLabel" name="label_3">
+       <property name="geometry">
+        <rect>
+         <x>20</x>
+         <y>30</y>
+         <width>151</width>
+         <height>17</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Resolution:&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+       </property>
+      </widget>
+      <widget class="QSpinBox" name="spinBox_resolution">
+       <property name="geometry">
+        <rect>
+         <x>20</x>
+         <y>50</y>
+         <width>150</width>
+         <height>22</height>
+        </rect>
+       </property>
+       <property name="minimum">
+        <number>1</number>
+       </property>
+       <property name="maximum">
+        <number>10</number>
        </property>
       </widget>
      </widget>
@@ -216,16 +242,6 @@
        </property>
       </widget>
      </widget>
-    </widget>
-   </item>
-   <item row="1" column="1">
-    <widget class="QDialogButtonBox" name="buttonBox">
-     <property name="orientation">
-      <enum>Qt::Horizontal</enum>
-     </property>
-     <property name="standardButtons">
-      <set>QDialogButtonBox::Close</set>
-     </property>
     </widget>
    </item>
   </layout>
