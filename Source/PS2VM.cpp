@@ -75,7 +75,7 @@ CPS2VM::CPS2VM()
 		auto absolutePath = CAppConfig::GetBasePath() / path;
 		Framework::PathUtils::EnsurePathExists(absolutePath);
 		CAppConfig::GetInstance().RegisterPreferencePath(setting, absolutePath);
-		
+
 		auto currentPath = CAppConfig::GetInstance().GetPreferencePath(setting);
 		if(!boost::filesystem::exists(currentPath))
 		{
@@ -86,7 +86,7 @@ CPS2VM::CPS2VM()
 	CAppConfig::GetInstance().RegisterPreferencePath(PREF_PS2_CDROM0_PATH, "");
 
 	Framework::PathUtils::EnsurePathExists(GetStateDirectoryPath());
-	
+
 	m_iop = std::make_unique<Iop::CSubSystem>(true);
 	auto iopOs = dynamic_cast<CIopBios*>(m_iop->m_bios.get());
 
