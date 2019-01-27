@@ -12,17 +12,17 @@ import java.net.URLConnection;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.util.LruCache;
 import android.view.View;
 import android.view.View.OnLongClickListener;
 
-import com.virtualapplications.play.GameInfoEditActivity;
-import com.virtualapplications.play.GameInfoStruct;
+import com.virtualapplications.play.Bootable;
 import com.virtualapplications.play.GamesAdapter;
 import com.virtualapplications.play.ImageUtils;
 import com.virtualapplications.play.MainActivity;
@@ -30,6 +30,23 @@ import com.virtualapplications.play.R;
 
 public class GameInfo
 {
+	public static boolean isNetworkAvailable(Context mContext)
+	{
+		ConnectivityManager connectivityManager = (ConnectivityManager)mContext
+				.getSystemService(Context.CONNECTIVITY_SERVICE);
+		NetworkInfo mWifi = connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
+		NetworkInfo mMobile = connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_MOBILE);
+		NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
+		if(mMobile != null && mWifi != null)
+		{
+			return mMobile.isAvailable() || mWifi.isAvailable();
+		}
+		else
+		{
+			return activeNetworkInfo != null && activeNetworkInfo.isConnected();
+		}
+	}
+
 	private Context mContext;
 	private LruCache<String, Bitmap> mMemoryCache;
 	final int maxMemory = (int)(Runtime.getRuntime().maxMemory() / 1024);
@@ -215,7 +232,7 @@ public class GameInfo
 			File file = new File(path, key + ".jpg");
 			if(!file.exists())
 			{
-				if(GamesDbAPI.isNetworkAvailable(mContext) && boxart != null)
+				if(isNetworkAvailable(mContext) && boxart != null)
 				{
 					String api = null;
 					if(boxart.equals("200") || boxart.equals("404"))
@@ -223,13 +240,13 @@ public class GameInfo
 						//200 boxart has no link associated with it and was set by the user
 						return null;
 					}
-					else if(!boxart.startsWith("boxart/original/front/"))
+					else if(!boxart.startsWith("https://cdn.thegamesdb.net/images/original/"))
 					{
 						api = boxart;
 					}
 					else
 					{
-						api = "http://legacy.thegamesdb.net/banners/" + boxart;
+						api = "https://cdn.thegamesdb.net/images/original/" + boxart;
 					}
 					InputStream im = null;
 					try
@@ -280,7 +297,7 @@ public class GameInfo
 		}
 	}
 
-	public OnLongClickListener configureLongClick(final GameInfoStruct gameFile)
+	public OnLongClickListener configureLongClick(final Bootable gameFile)
 	{
 		return new OnLongClickListener()
 		{
@@ -288,8 +305,8 @@ public class GameInfo
 			{
 				final AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
 				builder.setCancelable(true);
-				builder.setTitle(gameFile.getTitleName());
-				builder.setMessage(gameFile.getDescription());
+				builder.setTitle(gameFile.title);
+				builder.setMessage(gameFile.overview);
 				builder.setNegativeButton("Close",
 						new DialogInterface.OnClickListener()
 						{
@@ -312,35 +329,9 @@ public class GameInfo
 								return;
 							}
 						});
-				builder.setNeutralButton("Edit",
-						new DialogInterface.OnClickListener()
-						{
-							public void onClick(DialogInterface dialog, int which)
-							{
-								dialog.dismiss();
-								Intent intent = new Intent(mContext, GameInfoEditActivity.class);
-								intent.putExtra("title", gameFile.getTitleName());
-								intent.putExtra("overview", gameFile.getDescription());
-								intent.putExtra("cover", gameFile.getFrontLink());
-								intent.putExtra("gameid", gameFile.getGameID());
-								intent.putExtra("indexid", gameFile.getIndexID());
-								if(mContext instanceof MainActivity)
-								{
-									((MainActivity)mContext).startActivityForResult(intent, 1);
-								}
-								return;
-							}
-						});
 				builder.create().show();
 				return true;
 			}
 		};
-	}
-
-	public void loadGameInfo(GamesAdapter.CoverViewHolder viewHolder, GameInfoStruct gameInfoStruct, int pos)
-	{
-		GamesDbAPI gameDatabase = new GamesDbAPI(mContext, gameInfoStruct, pos);
-		gameDatabase.setView(viewHolder);
-		gameDatabase.execute();
 	}
 }

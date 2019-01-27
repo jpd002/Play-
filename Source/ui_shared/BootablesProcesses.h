@@ -8,6 +8,4 @@ bool IsBootableDiscImagePath(const boost::filesystem::path&);
 void ScanBootables(const boost::filesystem::path&, bool = true);
 std::set<boost::filesystem::path> GetActiveBootableDirectories();
 void PurgeInexistingFiles();
-void ExtractDiscIds();
 void FetchGameTitles();
-void FetchCoverUrls();

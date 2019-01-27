@@ -29,4 +29,12 @@ void Bootable_ClassInfo::PrepareClassInfo()
 	coverUrl = env->GetFieldID(clazz, "coverUrl", "Ljava/lang/String;");
 	Framework::CJavaVM::CheckException(env);
 	assert(coverUrl != NULL);
+
+	discId = env->GetFieldID(clazz, "discId", "Ljava/lang/String;");
+	Framework::CJavaVM::CheckException(env);
+	assert(discId != NULL);
+
+	overview = env->GetFieldID(clazz, "overview", "Ljava/lang/String;");
+	Framework::CJavaVM::CheckException(env);
+	assert(overview != NULL);
 }

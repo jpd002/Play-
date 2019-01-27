@@ -18,7 +18,8 @@ static const char* g_bootablesTableCreateStatement =
     "    discId VARCHAR(10) DEFAULT '',"
     "    title TEXT DEFAULT '',"
     "    coverUrl TEXT DEFAULT '',"
-    "    lastBootedTime INTEGER DEFAULT 0"
+    "    lastBootedTime INTEGER DEFAULT 0,"
+    "    overview TEXT DEFAULT ''"
     ")";
 
 CClient::CClient()
@@ -50,11 +51,22 @@ Bootable CClient::GetBootable(const boost::filesystem::path& path)
 	return ReadBootable(statement);
 }
 
-std::vector<Bootable> CClient::GetBootables()
+std::vector<Bootable> CClient::GetBootables(int32_t sortedMethod)
 {
+	std::string query = "SELECT * FROM bootables ";
+
+	switch(sortedMethod)
+	{
+	case 0:
+		query += "WHERE lastBootedTime != 0 Order By lastBootedTime DESC ";
+		break;
+	case 1:
+		query += "WHERE path LIKE '%.elf' COLLATE NOCASE ";
+		break;
+	}
 	std::vector<Bootable> bootables;
 
-	Framework::CSqliteStatement statement(m_db, "SELECT * FROM bootables");
+	Framework::CSqliteStatement statement(m_db, query.c_str());
 	while(statement.Step())
 	{
 		auto bootable = ReadBootable(statement);
@@ -64,10 +76,12 @@ std::vector<Bootable> CClient::GetBootables()
 	return bootables;
 }
 
-void CClient::RegisterBootable(const boost::filesystem::path& path)
+void CClient::RegisterBootable(const boost::filesystem::path& path, const char* title, const char* discId)
 {
-	Framework::CSqliteStatement statement(m_db, "INSERT OR IGNORE INTO bootables (path) VALUES (?)");
+	Framework::CSqliteStatement statement(m_db, "INSERT OR IGNORE INTO bootables (path, title, discId) VALUES (?,?,?)");
 	statement.BindText(1, Framework::PathUtils::GetNativeStringFromPath(path).c_str());
+	statement.BindText(2, title, true);
+	statement.BindText(3, discId, true);
 	statement.StepNoResult();
 }
 
@@ -110,6 +124,14 @@ void CClient::SetLastBootedTime(const boost::filesystem::path& path, time_t last
 	statement.StepNoResult();
 }
 
+void CClient::SetOverview(const boost::filesystem::path& path, const char* overview)
+{
+	Framework::CSqliteStatement statement(m_db, "UPDATE bootables SET overview = ? WHERE path = ?");
+	statement.BindText(1, overview, true);
+	statement.BindText(2, Framework::PathUtils::GetNativeStringFromPath(path).c_str());
+	statement.StepNoResult();
+}
+
 Bootable CClient::ReadBootable(Framework::CSqliteStatement& statement)
 {
 	Bootable bootable;
@@ -117,6 +139,7 @@ Bootable CClient::ReadBootable(Framework::CSqliteStatement& statement)
 	bootable.discId = reinterpret_cast<const char*>(sqlite3_column_text(statement, 1));
 	bootable.title = reinterpret_cast<const char*>(sqlite3_column_text(statement, 2));
 	bootable.coverUrl = reinterpret_cast<const char*>(sqlite3_column_text(statement, 3));
+	bootable.overview = reinterpret_cast<const char*>(sqlite3_column_text(statement, 5));
 	bootable.lastBootedTime = sqlite3_column_int(statement, 4);
 	return bootable;
 }

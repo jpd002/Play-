@@ -5,7 +5,8 @@ public class Bootable
 {
 	String path;
 	String discId;
-	String title;
+	public String title;
 	String coverUrl;
 	int lastBootedTime;
+	public String overview;
 };

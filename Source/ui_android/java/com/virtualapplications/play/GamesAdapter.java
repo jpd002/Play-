@@ -8,19 +8,30 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.virtualapplications.play.database.GameInfo;
 
 import java.lang.ref.WeakReference;
 import java.util.List;
 
-public class GamesAdapter extends ArrayAdapter<GameInfoStruct>
+public class GamesAdapter extends ArrayAdapter<Bootable>
 {
 	private final int layoutid;
-	private List<GameInfoStruct> games;
+	private List<Bootable> games;
 	private GameInfo gameInfo;
 	private final WeakReference<AppCompatActivity> _activity;
 
+	private final View.OnLongClickListener no_long_click = new View.OnLongClickListener()
+
+	{
+		@Override
+		public boolean onLongClick (View view)
+		{
+			Toast.makeText(GamesAdapter.this._activity.get(), "No data to display.", Toast.LENGTH_SHORT).show();
+			return true;
+		}
+	};
 	public static class CoverViewHolder
 	{
 		CoverViewHolder(View v)
@@ -37,7 +48,7 @@ public class GamesAdapter extends ArrayAdapter<GameInfoStruct>
 		public TextView currentPositionView;
 	}
 
-	public GamesAdapter(AppCompatActivity activity, int ResourceId, List<GameInfoStruct> images, GameInfo gameInfo)
+	public GamesAdapter(AppCompatActivity activity, int ResourceId, List<Bootable> images, GameInfo gameInfo)
 	{
 		super(activity, ResourceId, images);
 		this.games = images;
@@ -51,7 +62,7 @@ public class GamesAdapter extends ArrayAdapter<GameInfoStruct>
 		return games.size();
 	}
 
-	public GameInfoStruct getItem(int position)
+	public Bootable getItem(int position)
 	{
 		return games.get(position);
 	}
@@ -75,14 +86,13 @@ public class GamesAdapter extends ArrayAdapter<GameInfoStruct>
 		else
 		{
 			viewHolder = (CoverViewHolder)v.getTag();
-			viewHolder.gameTextView.setText("");
 			viewHolder.gameTextView.setVisibility(View.VISIBLE);
 			viewHolder.gameImageView.setImageResource(R.drawable.boxart);
 		}
 
 		viewHolder.currentPositionView.setText(String.valueOf(position));
 
-		final GameInfoStruct game = games.get(position);
+		final Bootable game = games.get(position);
 		if(game != null)
 		{
 			createListItem(game, viewHolder, position);
@@ -90,35 +100,24 @@ public class GamesAdapter extends ArrayAdapter<GameInfoStruct>
 		return v;
 	}
 
-	private void createListItem(final GameInfoStruct game, final CoverViewHolder viewHolder, int pos)
+	private void createListItem(final Bootable game, final CoverViewHolder viewHolder, int pos)
 	{
-		viewHolder.gameTextView.setText(game.getTitleName());
-		//If user has set values, then read them, if not read from database
-		if(!game.isDescriptionEmptyNull() && game.getFrontLink() != null && !game.getFrontLink().equals(""))
-		{
-			viewHolder.childview.setOnLongClickListener(
-					gameInfo.configureLongClick(game));
+		viewHolder.gameTextView.setText(game.title);
 
-			if(!game.getFrontLink().equals("404"))
-			{
-				gameInfo.setCoverImage(game.getIndexID(), viewHolder, game.getFrontLink(), pos);
-			}
-			else
-			{
-				viewHolder.gameImageView.setImageResource(R.drawable.boxart);
-			}
-		}
-		else if(VirtualMachineManager.IsLoadableExecutableFileName(game.getFile().getName()))
+		View.OnLongClickListener long_click;
+		if(!game.title.isEmpty() || !game.overview.isEmpty())
 		{
-			viewHolder.gameImageView.setImageResource(R.drawable.boxart);
-			viewHolder.childview.setOnLongClickListener(null);
+			long_click = gameInfo.configureLongClick(game);
 		}
 		else
 		{
-			viewHolder.childview.setOnLongClickListener(null);
-			viewHolder.gameImageView.setImageResource(R.drawable.boxart);
-			// passing game, as to pass and use (if) any user defined values
-			gameInfo.loadGameInfo(viewHolder, game, pos);
+			long_click = no_long_click;
+		}
+		viewHolder.childview.setOnLongClickListener(long_click);
+
+		if(!game.coverUrl.isEmpty())
+		{
+			gameInfo.setCoverImage(game.discId, viewHolder, game.coverUrl, pos);
 		}
 
 		viewHolder.childview.setOnClickListener(new View.OnClickListener()

@@ -15,6 +15,7 @@ namespace BootablesDb
 		std::string discId;
 		std::string title;
 		std::string coverUrl;
+		std::string overview;
 		time_t lastBootedTime = 0;
 	};
 
@@ -25,15 +26,16 @@ namespace BootablesDb
 		virtual ~CClient() = default;
 
 		Bootable GetBootable(const boost::filesystem::path&);
-		std::vector<Bootable> GetBootables();
+		std::vector<Bootable> GetBootables(int32_t = 2);
 
-		void RegisterBootable(const boost::filesystem::path&);
+		void RegisterBootable(const boost::filesystem::path&, const char*, const char*);
 		void UnregisterBootable(const boost::filesystem::path&);
 
 		void SetDiscId(const boost::filesystem::path&, const char*);
 		void SetTitle(const boost::filesystem::path&, const char*);
 		void SetCoverUrl(const boost::filesystem::path&, const char*);
 		void SetLastBootedTime(const boost::filesystem::path&, time_t);
+		void SetOverview(const boost::filesystem::path& path, const char* overview);
 
 	private:
 		static Bootable ReadBootable(Framework::CSqliteStatement&);
