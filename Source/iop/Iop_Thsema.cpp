@@ -13,14 +13,11 @@ using namespace Iop;
 #define FUNCTION_WAITSEMAPHORE "WaitSemaphore"
 #define FUNCTION_POLLSEMAPHORE "PollSemaphore"
 #define FUNCTION_REFERSEMASTATUS "ReferSemaStatus"
+#define FUNCTION_IREFERSEMASTATUS "iReferSemaStatus"
 
 CThsema::CThsema(CIopBios& bios, uint8* ram)
     : m_bios(bios)
     , m_ram(ram)
-{
-}
-
-CThsema::~CThsema()
 {
 }
 
@@ -53,6 +50,9 @@ std::string CThsema::GetFunctionName(unsigned int functionId) const
 		break;
 	case 11:
 		return FUNCTION_REFERSEMASTATUS;
+		break;
+	case 12:
+		return FUNCTION_IREFERSEMASTATUS;
 		break;
 	default:
 		return "unknown";
@@ -89,6 +89,7 @@ void CThsema::Invoke(CMIPS& context, unsigned int functionId)
 		    context.m_State.nGPR[CMIPS::A0].nV0));
 		break;
 	case 11:
+	case 12:
 		context.m_State.nGPR[CMIPS::V0].nD0 = static_cast<int32>(ReferSemaphoreStatus(
 		    context.m_State.nGPR[CMIPS::A0].nV0,
 		    context.m_State.nGPR[CMIPS::A1].nV0));

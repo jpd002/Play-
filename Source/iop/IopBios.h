@@ -26,6 +26,13 @@
 #include "Iop_Cdvdfsv.h"
 #endif
 
+#ifdef _IOP_EMULATE_MODULES
+namespace Iop
+{
+	class CMcServ;
+}
+#endif
+
 class CIopBios : public Iop::CBiosBase
 {
 public:
@@ -169,6 +176,7 @@ public:
 #ifdef _IOP_EMULATE_MODULES
 	Iop::CPadMan* GetPadman();
 	Iop::CCdvdfsv* GetCdvdfsv();
+	Iop::CMcServ* GetMcServ();
 #endif
 	bool RegisterModule(const Iop::ModulePtr&);
 
@@ -231,7 +239,7 @@ public:
 	int32 RegisterIntrHandler(uint32, uint32, uint32, uint32);
 	int32 ReleaseIntrHandler(uint32);
 
-	void TriggerCallback(uint32 address, uint32 arg0, uint32 arg1);
+	void TriggerCallback(uint32 address, uint32 arg0 = 0, uint32 arg1 = 0, uint32 arg2 = 0, uint32 arg3 = 0);
 
 #ifdef DEBUGGER_INCLUDED
 	void LoadDebugTags(Framework::Xml::CNode*) override;

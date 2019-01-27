@@ -9,7 +9,7 @@ namespace Iop
 	{
 	public:
 		CThsema(CIopBios&, uint8*);
-		virtual ~CThsema();
+		virtual ~CThsema() = default;
 
 		std::string GetId() const override;
 		std::string GetFunctionName(unsigned int) const override;

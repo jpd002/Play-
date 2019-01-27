@@ -27,11 +27,6 @@ CPS2VM* g_virtualMachine = nullptr;
 
 -(void)viewDidLoad
 {
-	CGRect screenBounds = [[UIScreen mainScreen] bounds];
-	
-	auto view = [[GlEsView alloc] initWithFrame: screenBounds];
-	self.view = view;
-    
     self.connectObserver = [[NSNotificationCenter defaultCenter] addObserverForName:GCControllerDidConnectNotification object:nil queue:[NSOperationQueue mainQueue] usingBlock:^(NSNotification *note) {
         if ([[GCController controllers] count] == 1) {
             [self toggleHardwareController:YES];
@@ -74,19 +69,13 @@ CPS2VM* g_virtualMachine = nullptr;
 		auto padHandler = static_cast<CPH_Generic*>(g_virtualMachine->GetPadHandler());
 		self.virtualPadView = [[VirtualPadView alloc] initWithFrame: screenBounds padHandler: padHandler];
 		[self.view addSubview: self.virtualPadView];
+		[self.view sendSubviewToBack: self.virtualPadView];
 	}
 
 	if(CAppConfig::GetInstance().GetPreferenceBoolean(PREFERENCE_UI_SHOWFPS))
 	{
 		[self setupFpsCounter];
 	}
-
-	UIButton* but = [UIButton buttonWithType: UIButtonTypeRoundedRect];
-	[but setTitle: @"Exit" forState: UIControlStateNormal];
-	[but setBackgroundColor: [UIColor whiteColor]];
-	[but addTarget: self action: @selector(onExitButtonClick) forControlEvents: UIControlEventTouchUpInside];
-	but.frame = CGRectMake(screenBounds.size.width - 50, (screenBounds.size.height - 25) / 2, 50, 25);
-	[self.view addSubview: but];
 	
 	g_virtualMachine->Pause();
 	g_virtualMachine->Reset();
@@ -222,18 +211,70 @@ CPS2VM* g_virtualMachine = nullptr;
 	[self.fpsCounterLabel sizeToFit];
 }
 
+-(void)onLoadStateButtonClick
+{
+	auto statePath = g_virtualMachine->GenerateStatePath(0);
+	g_virtualMachine->LoadState(statePath);
+	NSLog(@"Loaded state from '%s'.", statePath.string().c_str());
+}
+
 -(void)onSaveStateButtonClick
 {
-	auto dataPath = Framework::PathUtils::GetPersonalDataPath();
-	auto statePath = dataPath / "state.sta";
-	g_virtualMachine->SaveState(statePath.c_str());
+	auto statePath = g_virtualMachine->GenerateStatePath(0);
+	g_virtualMachine->SaveState(statePath);
 	NSLog(@"Saved state to '%s'.", statePath.string().c_str());
 }
 
 -(void)onExitButtonClick
 {
-	g_virtualMachine->Pause();
 	[self dismissViewControllerAnimated: YES completion: nil];
+}
+
+-(IBAction)onPauseButtonClick: (id)sender
+{
+	UIAlertController* alert = [UIAlertController alertControllerWithTitle: nil message: nil preferredStyle: UIAlertControllerStyleActionSheet];
+	
+	//Load State
+	{
+		UIAlertAction* action = [UIAlertAction
+								 actionWithTitle: @"Load State"
+								 style: UIAlertActionStyleDefault
+								 handler: ^(UIAlertAction*) { [self onLoadStateButtonClick]; }
+								 ];
+		[alert addAction: action];
+	}
+
+	//Save State
+	{
+		UIAlertAction* action = [UIAlertAction
+								 actionWithTitle: @"Save State"
+								 style: UIAlertActionStyleDefault
+								 handler: ^(UIAlertAction*) { [self onSaveStateButtonClick]; }
+								 ];
+		[alert addAction: action];
+	}
+
+	//Resume
+	{
+		UIAlertAction* action = [UIAlertAction
+								 actionWithTitle: @"Resume"
+								 style: UIAlertActionStyleCancel
+								 handler: nil
+								 ];
+		[alert addAction: action];
+	}
+	
+	//Exit
+	{
+		UIAlertAction* action = [UIAlertAction
+								 actionWithTitle: @"Exit"
+								 style: UIAlertActionStyleDestructive
+								 handler: ^(UIAlertAction*) { [self onExitButtonClick]; }
+								 ];
+		[alert addAction: action];
+	}
+
+	[self presentViewController: alert animated: YES completion: nil];
 }
 
 -(BOOL)prefersStatusBarHidden

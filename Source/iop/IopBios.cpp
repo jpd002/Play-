@@ -91,6 +91,7 @@ CIopBios::CIopBios(CMIPS& cpu, uint8* ram, uint32 ramSize, uint8* spr)
     , m_moduleStarterThreadProcAddress(0)
     , m_moduleStarterThreadId(0)
     , m_alarmThreadProcAddress(0)
+    , m_vblankHandlerAddress(0)
     , m_threads(reinterpret_cast<THREAD*>(&m_ram[BIOS_THREADS_BASE]), 1, MAX_THREAD)
     , m_memoryBlocks(reinterpret_cast<Iop::MEMORYBLOCK*>(&ram[BIOS_MEMORYBLOCK_BASE]), 1, MAX_MEMORYBLOCK)
     , m_semaphores(reinterpret_cast<SEMAPHORE*>(&m_ram[BIOS_SEMAPHORES_BASE]), 1, MAX_SEMAPHORE)
@@ -224,7 +225,7 @@ void CIopBios::Reset(const Iop::SifManPtr& sifMan)
 		RegisterModule(m_cdvdfsv);
 	}
 	{
-		m_mcserv = std::make_shared<Iop::CMcServ>(*m_sifMan);
+		m_mcserv = std::make_shared<Iop::CMcServ>(*this, *m_sifMan, *m_sifCmd, *m_sysmem, m_ram);
 		RegisterModule(m_mcserv);
 	}
 	//RegisterModule(std::make_shared<Iop::CNaplink>(*m_sifMan, *m_ioman));
@@ -2522,6 +2523,11 @@ Iop::CCdvdfsv* CIopBios::GetCdvdfsv()
 	return m_cdvdfsv.get();
 }
 
+Iop::CMcServ* CIopBios::GetMcServ()
+{
+	return static_cast<Iop::CMcServ*>(m_mcserv.get());
+}
+
 #endif
 
 int32 CIopBios::RegisterIntrHandler(uint32 line, uint32 mode, uint32 handler, uint32 arg)
@@ -3138,7 +3144,7 @@ void CIopBios::RelocateElf(CELF& elf, uint32 baseAddress)
 	}
 }
 
-void CIopBios::TriggerCallback(uint32 address, uint32 arg0, uint32 arg1)
+void CIopBios::TriggerCallback(uint32 address, uint32 arg0, uint32 arg1, uint32 arg2, uint32 arg3)
 {
 	// Call the addres on a callback thread with A0 set to arg0
 	uint32 callbackThreadId = -1;
@@ -3167,6 +3173,8 @@ void CIopBios::TriggerCallback(uint32 address, uint32 arg0, uint32 arg1)
 	auto thread = GetThread(callbackThreadId);
 	thread->context.gpr[CMIPS::A0] = arg0;
 	thread->context.gpr[CMIPS::A1] = arg1;
+	thread->context.gpr[CMIPS::A2] = arg2;
+	thread->context.gpr[CMIPS::A3] = arg3;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////

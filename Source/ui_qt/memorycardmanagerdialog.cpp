@@ -1,6 +1,7 @@
 #include <QFileDialog>
 #include <QDateTime>
 #include <QMessageBox>
+#include "QStringUtils.h"
 #include "memorycardmanagerdialog.h"
 #include "ui_memorycardmanager.h"
 #include "StdStream.h"
@@ -44,7 +45,8 @@ void MemoryCardManagerDialog::on_import_saves_button_clicked()
 
 		try
 		{
-			auto input(Framework::CStdStream(fileName.toStdString().c_str(), "r"));
+			auto filePath = QStringToPath(fileName);
+			auto input = Framework::CreateInputStdStream(filePath.native());
 			CSaveImporter::ImportSave(input, m_pCurrentMemoryCard->GetBasePath(),
 			                          std::bind(&MemoryCardManagerDialog::OnImportOverwrite, this, std::placeholders::_1));
 		}
@@ -160,7 +162,8 @@ void MemoryCardManagerDialog::on_export_save_button_clicked()
 
 				try
 				{
-					auto output(Framework::CreateOutputStdStream(fileName.toStdString()));
+					auto filePath = QStringToPath(fileName);
+					auto output = Framework::CreateOutputStdStream(filePath.native());
 					CSaveExporter::ExportPSU(output, save->GetPath());
 				}
 				catch(const std::exception& Exception)

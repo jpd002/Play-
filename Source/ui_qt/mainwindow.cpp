@@ -203,7 +203,6 @@ void MainWindow::on_actionBoot_DiscImage_triggered()
 		{
 			try
 			{
-				m_lastOpenCommand = LastOpenCommand(BootType::CD, filePath);
 				BootCDROM();
 			}
 			catch(const std::exception& e)
@@ -227,7 +226,6 @@ void MainWindow::on_actionBoot_DiscImage_S3_triggered()
 		{
 			try
 			{
-				m_lastOpenCommand = LastOpenCommand(BootType::CD, filePath);
 				BootCDROM();
 			}
 			catch(const std::exception& e)
@@ -294,12 +292,13 @@ void MainWindow::BootElf(boost::filesystem::path filePath)
 void MainWindow::LoadCDROM(boost::filesystem::path filePath)
 {
 	m_lastPath = filePath.parent_path();
-	m_lastOpenCommand = LastOpenCommand(BootType::CD, filePath);
 	CAppConfig::GetInstance().SetPreferencePath(PREF_PS2_CDROM0_PATH, filePath);
 }
 
 void MainWindow::BootCDROM()
 {
+	auto filePath = CAppConfig::GetInstance().GetPreferencePath(PREF_PS2_CDROM0_PATH);
+	m_lastOpenCommand = LastOpenCommand(BootType::CD, filePath);
 	m_virtualMachine->Pause();
 	m_virtualMachine->Reset();
 	m_virtualMachine->m_ee->m_os->BootFromCDROM();
@@ -404,8 +403,6 @@ void MainWindow::SetupSaveLoadStateSlots()
 
 void MainWindow::saveState(int stateSlot)
 {
-	Framework::PathUtils::EnsurePathExists(CPS2VM::GetStateDirectoryPath());
-
 	auto stateFilePath = m_virtualMachine->GenerateStatePath(stateSlot);
 	auto future = m_virtualMachine->SaveState(stateFilePath);
 	m_continuationChecker->GetContinuationManager().Register(std::move(future),
@@ -598,7 +595,7 @@ void MainWindow::on_actionReset_triggered()
 
 void MainWindow::on_actionMemory_Card_Manager_triggered()
 {
-	MemoryCardManagerDialog mcm;
+	MemoryCardManagerDialog mcm(this);
 	mcm.exec();
 }
 
