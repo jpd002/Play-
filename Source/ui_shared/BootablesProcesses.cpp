@@ -95,30 +95,37 @@ void FetchGameTitles()
 	if(serials.empty())
 		return;
 
-	auto gamesList = TheGamesDb::CClient::GetInstance().GetGames(serials);
-	for(auto& game : gamesList)
+	try
 	{
-		for(const auto& bootable : bootables)
+		auto gamesList = TheGamesDb::CClient::GetInstance().GetGames(serials);
+		for(auto& game : gamesList)
 		{
-			for(const auto& discId : game.discIds)
+			for(const auto& bootable : bootables)
 			{
-				if(discId == bootable.discId)
+				for(const auto& discId : game.discIds)
 				{
-					BootablesDb::CClient::GetInstance().SetTitle(bootable.path, game.title.c_str());
-
-					if(!game.overview.empty())
+					if(discId == bootable.discId)
 					{
-						BootablesDb::CClient::GetInstance().SetOverview(bootable.path, game.overview.c_str());
-					}
-					if(!game.boxArtUrl.empty())
-					{
-						auto coverUrl = string_format("%s/%s", game.baseImgUrl.c_str(), game.boxArtUrl.c_str());
-						BootablesDb::CClient::GetInstance().SetCoverUrl(bootable.path, coverUrl.c_str());
-					}
+						BootablesDb::CClient::GetInstance().SetTitle(bootable.path, game.title.c_str());
 
-					break;
+						if(!game.overview.empty())
+						{
+							BootablesDb::CClient::GetInstance().SetOverview(bootable.path, game.overview.c_str());
+						}
+						if(!game.boxArtUrl.empty())
+						{
+							auto coverUrl = string_format("%s/%s", game.baseImgUrl.c_str(), game.boxArtUrl.c_str());
+							BootablesDb::CClient::GetInstance().SetCoverUrl(bootable.path, coverUrl.c_str());
+						}
+
+						break;
+					}
 				}
 			}
 		}
+	}
+	catch(...)
+	{
+		
 	}
 }
