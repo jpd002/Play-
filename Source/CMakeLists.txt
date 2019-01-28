@@ -378,6 +378,7 @@ set(COMMON_SRC_FILES
 	PH_Generic.h
 	Profiler.cpp
 	Profiler.h
+	Ps2Const.h
 	PS2VM.cpp
 	PS2VM.h
 	PS2VM_Preferences.h
