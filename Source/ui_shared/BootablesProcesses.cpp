@@ -85,15 +85,15 @@ void FetchGameTitles()
 	std::vector<std::string> serials;
 	for(const auto& bootable : bootables)
 	{
-		if(bootable.discId.empty())
-			continue;
+		if(bootable.discId.empty()) continue;
 
 		if(bootable.coverUrl.empty() || bootable.title.empty() || bootable.overview.empty())
+		{
 			serials.push_back(bootable.discId);
+		}
 	}
 
-	if(serials.empty())
-		return;
+	if(serials.empty()) return;
 
 	try
 	{
