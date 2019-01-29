@@ -869,8 +869,8 @@ int32 CIopBios::GetCurrentThreadIdRaw() const
 uint32 CIopBios::CreateThread(uint32 threadProc, uint32 priority, uint32 stackSize, uint32 optionData, uint32 attributes)
 {
 #ifdef _DEBUG
-	CLog::GetInstance().Print(LOGNAME, "%d: CreateThread(threadProc = 0x%08X, priority = %d, stackSize = 0x%08X);\r\n",
-	                          m_currentThreadId.Get(), threadProc, priority, stackSize);
+	CLog::GetInstance().Print(LOGNAME, "%d: CreateThread(threadProc = 0x%08X, priority = %d, stackSize = 0x%08X, attributes = 0x%08X);\r\n",
+	                          m_currentThreadId.Get(), threadProc, priority, stackSize, attributes);
 #endif
 
 	//Thread proc address needs to be 4-bytes aligned
@@ -912,7 +912,7 @@ uint32 CIopBios::CreateThread(uint32 threadProc, uint32 priority, uint32 stackSi
 	thread->context.delayJump = MIPS_INVALID_PC;
 	thread->stackSize = stackSize;
 	thread->stackBase = stackBase;
-	memset(m_ram + thread->stackBase, 0, thread->stackSize);
+	memset(m_ram + thread->stackBase, 0xFF, thread->stackSize);
 	thread->id = threadId;
 	thread->priority = 0;
 	thread->initPriority = priority;

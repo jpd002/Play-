@@ -866,6 +866,11 @@ void CSifCmd::SifSetRpcQueue(uint32 queueDataAddr, uint32 threadId)
 	{
 		auto queueData = reinterpret_cast<SIFRPCQUEUEDATA*>(m_ram + queueDataAddr);
 		queueData->threadId = threadId;
+		queueData->active = 0;
+		queueData->serverDataLink = 0;
+		queueData->serverDataStart = 0;
+		queueData->serverDataEnd = 0;
+		queueData->queueNext = 0;
 	}
 }
 
@@ -887,8 +892,9 @@ uint32 CSifCmd::SifGetNextRequest(uint32 queueDataAddr)
 void CSifCmd::SifExecRequest(CMIPS& context)
 {
 	uint32 serverDataAddr = context.m_State.nGPR[CMIPS::A0].nV0;
-	CLog::GetInstance().Print(LOG_NAME, FUNCTION_SIFEXECREQUEST "(serverData = 0x%08X);\r\n",
-	                          serverDataAddr);
+	auto serverData = reinterpret_cast<SIFRPCSERVERDATA*>(&m_ram[serverDataAddr]);
+	CLog::GetInstance().Print(LOG_NAME, FUNCTION_SIFEXECREQUEST "(serverData = 0x%08X, serverId=0x%x, function=0x%x, rid=0x%x, buffer=0x%x, rsize=0x%x);\r\n",
+	                          serverDataAddr, serverData->serverId, serverData->function, serverData->rid, serverData->buffer, serverData->rsize);
 	context.m_State.nPC = m_sifExecRequestAddr;
 }
 
