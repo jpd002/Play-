@@ -27,11 +27,11 @@ GamesList CClient::GetGames(std::vector<std::string> serials)
 	url += "&uid=";
 	url += str_games_id;
 	auto requestResult =
-		[&]() {
-			auto client = Framework::Http::CreateHttpClient();
-			client->SetUrl(url);
-			return client->SendRequest();
-		}();
+	    [&]() {
+		    auto client = Framework::Http::CreateHttpClient();
+		    client->SetUrl(url);
+		    return client->SendRequest();
+	    }();
 	if(requestResult.statusCode == Framework::Http::HTTP_STATUS_CODE::OK)
 	{
 		auto json_ret = requestResult.data.ReadString();
