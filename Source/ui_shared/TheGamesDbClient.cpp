@@ -26,22 +26,18 @@ GamesList CClient::GetGames(std::vector<std::string> serials)
 	auto url = std::string(g_getGamesByUIDUrl);
 	url += "&uid=";
 	url += str_games_id;
-	while(!url.empty())
+	auto requestResult =
+		[&]() {
+			auto client = Framework::Http::CreateHttpClient();
+			client->SetUrl(url);
+			return client->SendRequest();
+		}();
+	if(requestResult.statusCode == Framework::Http::HTTP_STATUS_CODE::OK)
 	{
-		auto requestResult =
-		    [&]() {
-			    auto client = Framework::Http::CreateHttpClient();
-			    client->SetUrl(url);
-			    return client->SendRequest();
-		    }();
-		url.clear();
-		if(requestResult.statusCode == Framework::Http::HTTP_STATUS_CODE::OK)
-		{
-			auto json_ret = requestResult.data.ReadString();
-			auto parsed_json = nlohmann::json::parse(json_ret);
+		auto json_ret = requestResult.data.ReadString();
+		auto parsed_json = nlohmann::json::parse(json_ret);
 
-			PopulateGameList(json_ret, gamesList, url);
-		}
+		PopulateGameList(json_ret, gamesList, url);
 	}
 	return gamesList;
 }
