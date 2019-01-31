@@ -33,7 +33,7 @@ namespace PS2
 	enum
 	{
 		IOP_SCRATCH_ADDR = 0x1F800000,
-		IOP_SCRATCH_SIZE = 0x00000400
+		IOP_SCRATCH_SIZE = 0x00001000
 	};
 
 	enum
