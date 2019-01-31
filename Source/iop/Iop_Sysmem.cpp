@@ -11,6 +11,7 @@ using namespace Iop;
 #define FUNCTION_PRINTF "printf"
 #define FUNCTION_QUERYMEMSIZE "QueryMemSize"
 #define FUNCTION_QUERYMAXFREEMEMSIZE "QueryMaxFreeMemSize"
+#define FUNCTION_QUERYTOTALFREEMEMSIZE "QueryTotalFreeMemSize"
 
 #define MIN_BLOCK_SIZE 0x100
 
@@ -59,6 +60,9 @@ std::string CSysmem::GetFunctionName(unsigned int functionId) const
 	case 7:
 		return FUNCTION_QUERYMAXFREEMEMSIZE;
 		break;
+	case 8:
+		return FUNCTION_QUERYTOTALFREEMEMSIZE;
+		break;
 	case 14:
 		return FUNCTION_PRINTF;
 		break;
@@ -87,6 +91,9 @@ void CSysmem::Invoke(CMIPS& context, unsigned int functionId)
 		break;
 	case 7:
 		context.m_State.nGPR[CMIPS::V0].nD0 = QueryMaxFreeMemSize();
+		break;
+	case 8:
+		context.m_State.nGPR[CMIPS::V0].nD0 = QueryTotalFreeMemSize();
 		break;
 	case 14:
 		m_stdio.__printf(context);
@@ -124,11 +131,31 @@ bool CSysmem::Invoke(uint32 method, uint32* args, uint32 argsSize, uint32* ret, 
 	case 0x07:
 		ret[0] = QueryMaxFreeMemSize();
 		break;
+	case 0x08:
+		ret[0] = QueryTotalFreeMemSize();
+		break;
 	default:
 		CLog::GetInstance().Print(LOG_NAME, "Unknown method invoked (0x%08X).\r\n", method);
 		break;
 	}
 	return true;
+}
+
+uint32 CSysmem::QueryTotalFreeMemSize()
+{
+	uint32 totalSize = 0;
+	uint32 begin = 0;
+	auto nextBlockId = &m_headBlockId;
+	auto nextBlock = m_blocks[*nextBlockId];
+	while(nextBlock != nullptr)
+	{
+		uint32 end = nextBlock->address;
+		totalSize += (end - begin);
+		begin = nextBlock->address + nextBlock->size;
+		nextBlockId = &nextBlock->nextBlockId;
+		nextBlock = m_blocks[*nextBlockId];
+	}
+	return totalSize;
 }
 
 uint32 CSysmem::QueryMaxFreeMemSize()

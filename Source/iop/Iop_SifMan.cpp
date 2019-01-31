@@ -66,6 +66,10 @@ void CSifMan::Invoke(CMIPS& context, unsigned int functionId)
 		    context.m_State.nGPR[CMIPS::A2].nV0,
 		    context.m_State.nGPR[CMIPS::A3].nV0));
 		break;
+	case 29:
+		// Since we don't handle the init call, always return true for check init.
+		context.m_State.nGPR[CMIPS::V0].nV0 = 1;
+		break;
 	default:
 		CLog::GetInstance().Warn(LOG_NAME, "%08X: Unknown function (%d) called.\r\n", context.m_State.nPC, functionId);
 		break;
