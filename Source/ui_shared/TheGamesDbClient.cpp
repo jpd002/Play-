@@ -18,9 +18,9 @@ GamesList CClient::GetGames(std::vector<std::string> serials)
 {
 	std::ostringstream stream;
 	std::copy(serials.begin(), serials.end(), std::ostream_iterator<std::string>(stream, ","));
-	std::string str_games_id = stream.str();
+	auto str_games_id = stream.str();
 
-	std::vector<Game> gamesList;
+	GamesList gamesList;
 
 	auto url = std::string(g_getGamesByUIDUrl);
 	url += "&uid=";
@@ -116,14 +116,14 @@ GamesList CClient::PopulateGameList(const nlohmann::json& parsed_json)
 		return list;
 	}
 
-	auto games = parsed_json["data"]["games"].get<std::vector<nlohmann::json>>();
-
 	std::string image_base = "";
 	auto includes = parsed_json["include"];
 	if(!includes.empty())
 	{
 		image_base = includes["boxart"]["base_url"]["medium"].get<std::string>();
 	}
+
+	auto games = parsed_json["data"]["games"].get<std::vector<nlohmann::json>>();
 	for(auto game : games)
 	{
 		int game_id = game["id"].get<int>();
@@ -151,7 +151,6 @@ GamesList CClient::PopulateGameList(const nlohmann::json& parsed_json)
 				{
 					for(auto& game_cover : games_cover_meta)
 					{
-
 						meta.boxArtUrl = game_cover["filename"].get<std::string>().c_str();
 						if(game_cover["side"].get<std::string>() == "front")
 						{
@@ -163,6 +162,5 @@ GamesList CClient::PopulateGameList(const nlohmann::json& parsed_json)
 		}
 		list.push_back(meta);
 	}
-
 	return list;
 }
