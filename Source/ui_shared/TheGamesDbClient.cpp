@@ -2,7 +2,6 @@
 #include <cstdlib>
 #include <cstring>
 #include <sstream>
-#include <nlohmann/json.hpp>
 #include "TheGamesDbClient.h"
 #include "string_format.h"
 #include "http/HttpClientFactory.h"
@@ -26,18 +25,29 @@ GamesList CClient::GetGames(std::vector<std::string> serials)
 	auto url = std::string(g_getGamesByUIDUrl);
 	url += "&uid=";
 	url += str_games_id;
-	auto requestResult =
-	    [&]() {
-		    auto client = Framework::Http::CreateHttpClient();
-		    client->SetUrl(url);
-		    return client->SendRequest();
-	    }();
-	if(requestResult.statusCode == Framework::Http::HTTP_STATUS_CODE::OK)
+	while(!url.empty())
 	{
-		auto json_ret = requestResult.data.ReadString();
-		auto parsed_json = nlohmann::json::parse(json_ret);
+		auto requestResult =
+		    [&]() {
+			    auto client = Framework::Http::CreateHttpClient();
+			    client->SetUrl(url);
+			    return client->SendRequest();
+		    }();
 
-		PopulateGameList(json_ret, gamesList, url);
+		url.clear();
+		if(requestResult.statusCode == Framework::Http::HTTP_STATUS_CODE::OK)
+		{
+			auto json_ret = requestResult.data.ReadString();
+			auto parsed_json = nlohmann::json::parse(json_ret);
+
+			auto games = PopulateGameList(parsed_json);
+			gamesList.insert(gamesList.end(), games.begin(), games.end());
+
+			if(!parsed_json["pages"]["next"].empty())
+			{
+				url = parsed_json["pages"]["next"].get<std::string>();
+			}
+		}
 	}
 	return gamesList;
 }
@@ -58,15 +68,13 @@ Game CClient::GetGame(uint32 id)
 	}
 
 	auto json_ret = requestResult.data.ReadString();
-	std::vector<Game> gamesList;
-	int count = PopulateGameList(json_ret, gamesList);
+	auto parsed_json = nlohmann::json::parse(json_ret);
 
-	if(count < 1)
+	auto gamesList = PopulateGameList(parsed_json);
+	if(gamesList.empty())
 	{
 		throw std::runtime_error("Failed to get game.");
 	}
-	Game game;
-
 	return gamesList.at(0);
 }
 
@@ -88,10 +96,10 @@ GamesList CClient::GetGamesList(const std::string& platformID, const std::string
 	}
 
 	auto json_ret = requestResult.data.ReadString();
-	std::vector<Game> gamesList;
-	int count = PopulateGameList(json_ret, gamesList);
+	auto parsed_json = nlohmann::json::parse(json_ret);
 
-	if(count < 1)
+	auto gamesList = PopulateGameList(parsed_json);
+	if(gamesList.empty())
 	{
 		throw std::runtime_error("Failed to get game.");
 	}
@@ -99,21 +107,14 @@ GamesList CClient::GetGamesList(const std::string& platformID, const std::string
 	return gamesList;
 }
 
-int CClient::PopulateGameList(std::string& json_ret, std::vector<TheGamesDb::Game>& list)
+GamesList CClient::PopulateGameList(const nlohmann::json& parsed_json)
 {
-	std::string tmp;
-	return PopulateGameList(json_ret, list, tmp);
-}
-
-int CClient::PopulateGameList(std::string& json_ret, std::vector<TheGamesDb::Game>& list, std::string& next_page_url)
-{
-	nlohmann::json parsed_json = nlohmann::json::parse(json_ret);
+	GamesList list;
 
 	if(parsed_json["data"]["count"].get<int>() == 0)
-		return 0;
-
-	if(!parsed_json["pages"]["next"].empty())
-		next_page_url = parsed_json["pages"]["next"].get<std::string>();
+	{
+		return list;
+	}
 
 	auto games = parsed_json["data"]["games"].get<std::vector<nlohmann::json>>();
 
@@ -123,10 +124,8 @@ int CClient::PopulateGameList(std::string& json_ret, std::vector<TheGamesDb::Gam
 	{
 		image_base = includes["boxart"]["base_url"]["medium"].get<std::string>();
 	}
-	int count = 0;
 	for(auto game : games)
 	{
-		++count;
 		int game_id = game["id"].get<int>();
 		TheGamesDb::Game meta;
 		meta.id = game_id;
@@ -164,5 +163,6 @@ int CClient::PopulateGameList(std::string& json_ret, std::vector<TheGamesDb::Gam
 		}
 		list.push_back(meta);
 	}
-	return count;
+
+	return list;
 }

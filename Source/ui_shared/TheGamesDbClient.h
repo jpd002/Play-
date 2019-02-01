@@ -2,6 +2,7 @@
 
 #include <string>
 #include <vector>
+#include <nlohmann/json.hpp>
 #include "Types.h"
 #include "Singleton.h"
 
@@ -30,7 +31,6 @@ namespace TheGamesDb
 		GamesList GetGames(std::vector<std::string> serials);
 
 	private:
-		int PopulateGameList(std::string& json, std::vector<Game>& list);
-		int PopulateGameList(std::string& json, std::vector<Game>& list, std::string& next_page_url);
+		GamesList PopulateGameList(const nlohmann::json&);
 	};
 }
