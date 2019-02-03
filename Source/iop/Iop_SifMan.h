@@ -38,6 +38,7 @@ namespace Iop
 
 	protected:
 		virtual uint32 SifDmaStat(uint32);
+		uint32 SifCheckInit();
 		virtual uint32 SifSetDmaCallback(CMIPS&, uint32, uint32, uint32, uint32);
 
 		uint32 m_sifSetDmaCallbackHandlerPtr;

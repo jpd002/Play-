@@ -58,6 +58,9 @@ void CSifMan::Invoke(CMIPS& context, unsigned int functionId)
 	case 8:
 		context.m_State.nGPR[CMIPS::V0].nV0 = SifDmaStat(context.m_State.nGPR[CMIPS::A0].nV0);
 		break;
+	case 29:
+		context.m_State.nGPR[CMIPS::V0].nV0 = SifCheckInit();
+		break;
 	case 32:
 		context.m_State.nGPR[CMIPS::V0].nD0 = static_cast<int32>(SifSetDmaCallback(
 		    context,
@@ -65,10 +68,6 @@ void CSifMan::Invoke(CMIPS& context, unsigned int functionId)
 		    context.m_State.nGPR[CMIPS::A1].nV0,
 		    context.m_State.nGPR[CMIPS::A2].nV0,
 		    context.m_State.nGPR[CMIPS::A3].nV0));
-		break;
-	case 29:
-		// Since we don't handle the init call, always return true for check init.
-		context.m_State.nGPR[CMIPS::V0].nV0 = 1;
 		break;
 	default:
 		CLog::GetInstance().Warn(LOG_NAME, "%08X: Unknown function (%d) called.\r\n", context.m_State.nPC, functionId);
@@ -115,6 +114,13 @@ uint32 CSifMan::SifDmaStat(uint32 transferId)
 	CLog::GetInstance().Print(LOG_NAME, FUNCTION_SIFDMASTAT "(transferId = %X);\r\n",
 	                          transferId);
 	return -1;
+}
+
+uint32 CSifMan::SifCheckInit()
+{
+	CLog::GetInstance().Print(LOG_NAME, FUNCTION_SIFCHECKINIT "();\r\n");
+	// Since we don't handle the init call, always return true for check init.
+	return 1;
 }
 
 uint32 CSifMan::SifSetDmaCallback(CMIPS& context, uint32 structAddr, uint32 count, uint32 callbackPtr, uint32 callbackParam)
