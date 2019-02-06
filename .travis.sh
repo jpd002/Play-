@@ -32,9 +32,7 @@ travis_before_install()
         export ANDROID_NDK=$(pwd)/android-ndk-r18
         echo "ndk.dir=$ANDROID_NDK">./Play-/build_android/local.properties
 
-        wget https://github.com/Commit451/android-cmake-installer/releases/download/1.1.0/install-cmake.sh
-        chmod +x install-cmake.sh>/dev/null
-        ./install-cmake.sh
+        echo y | sdkmanager 'cmake;3.6.4111459'		
     fi;
 
     git clone -q https://github.com/jpd002/Play-Build.git Play-Build
