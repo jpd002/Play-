@@ -1,8 +1,8 @@
 #include <stdio.h>
 #include "../Log.h"
 #include "../Ps2Const.h"
-#include "../StructCollectionStateFile.h"
-#include "../MemoryStateFile.h"
+#include "../states/StructCollectionStateFile.h"
+#include "../states/MemoryStateFile.h"
 #include "../iop/IopBios.h"
 #include "SIF.h"
 #include "lexical_cast_ex.h"

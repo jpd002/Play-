@@ -1,7 +1,7 @@
 #include <string.h>
 #include <assert.h>
 #include "string_format.h"
-#include "../RegisterStateFile.h"
+#include "../states/RegisterStateFile.h"
 #include "../Log.h"
 #include "Dmac_Channel.h"
 #include "DMAC.h"

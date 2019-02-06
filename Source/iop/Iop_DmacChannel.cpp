@@ -2,7 +2,7 @@
 #include "string_format.h"
 #include "Iop_DmacChannel.h"
 #include "Iop_Dmac.h"
-#include "../RegisterStateFile.h"
+#include "../states/RegisterStateFile.h"
 
 using namespace Iop;
 using namespace Iop::Dmac;

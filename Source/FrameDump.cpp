@@ -1,6 +1,6 @@
 #include "FrameDump.h"
-#include "MemoryStateFile.h"
-#include "RegisterStateFile.h"
+#include "states/MemoryStateFile.h"
+#include "states/RegisterStateFile.h"
 
 #define STATE_INITIAL_GSRAM "init/gsram"
 #define STATE_INITIAL_GSREGS "init/gsregs"

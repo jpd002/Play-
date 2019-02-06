@@ -1,7 +1,7 @@
 #include "Iop_Sio2.h"
 #include "../Log.h"
-#include "../RegisterStateFile.h"
-#include "../MemoryStateFile.h"
+#include "../states/RegisterStateFile.h"
+#include "../states/MemoryStateFile.h"
 #include <assert.h>
 
 #define LOG_NAME ("iop_sio2")

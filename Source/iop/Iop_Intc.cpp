@@ -1,5 +1,5 @@
 #include "Iop_Intc.h"
-#include "../RegisterStateFile.h"
+#include "../states/RegisterStateFile.h"
 
 #define STATE_REGS_XML ("iop_intc/regs.xml")
 #define STATE_REGS_STATUS ("STATUS")

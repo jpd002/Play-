@@ -3,7 +3,7 @@
 #include "Iop_Intc.h"
 #include "string_format.h"
 #include "../Log.h"
-#include "../RegisterStateFile.h"
+#include "../states/RegisterStateFile.h"
 
 #define LOG_NAME ("iop_counters")
 

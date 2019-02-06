@@ -14,7 +14,7 @@
 #include "StdStream.h"
 #include "StdStreamUtils.h"
 #include "GZipStream.h"
-#include "MemoryStateFile.h"
+#include "states/MemoryStateFile.h"
 #include "zip/ZipArchiveWriter.h"
 #include "zip/ZipArchiveReader.h"
 #include "xml/Node.h"

@@ -1,6 +1,6 @@
 #include "Iop_FileIoHandler2240.h"
 #include "Iop_Ioman.h"
-#include "../RegisterStateFile.h"
+#include "../states/RegisterStateFile.h"
 #include "../Log.h"
 #include "../Ps2Const.h"
 

@@ -1,6 +1,6 @@
 #include "INTC.h"
 #include "../Log.h"
-#include "../RegisterStateFile.h"
+#include "../states/RegisterStateFile.h"
 
 #define LOG_NAME ("ee_intc")
 

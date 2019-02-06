@@ -3,7 +3,7 @@
 #include "Iop_FileIoHandler1000.h"
 #include "Iop_FileIoHandler2100.h"
 #include "Iop_FileIoHandler2240.h"
-#include "../RegisterStateFile.h"
+#include "../states/RegisterStateFile.h"
 
 #define LOG_NAME ("iop_fileio")
 

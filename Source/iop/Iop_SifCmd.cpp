@@ -2,7 +2,7 @@
 #include "IopBios.h"
 #include "../ee/SIF.h"
 #include "../Log.h"
-#include "../StructCollectionStateFile.h"
+#include "../states/StructCollectionStateFile.h"
 
 using namespace Iop;
 

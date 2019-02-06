@@ -2,7 +2,7 @@
 #include "DMAC.h"
 #include "../Ps2Const.h"
 #include "../Log.h"
-#include "../RegisterStateFile.h"
+#include "../states/RegisterStateFile.h"
 #include "../MIPS.h"
 #include "../COP_SCU.h"
 #include "placeholder_def.h"

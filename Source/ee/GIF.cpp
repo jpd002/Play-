@@ -4,7 +4,7 @@
 #include "../Ps2Const.h"
 #include "../Log.h"
 #include "../FrameDump.h"
-#include "../RegisterStateFile.h"
+#include "../states/RegisterStateFile.h"
 #include "GIF.h"
 
 #define QTEMP_INIT (0x3F800000)

@@ -4,8 +4,8 @@
 #include <boost/scoped_array.hpp>
 #include "../AppConfig.h"
 #include "../Log.h"
-#include "../MemoryStateFile.h"
-#include "../RegisterStateFile.h"
+#include "../states/MemoryStateFile.h"
+#include "../states/RegisterStateFile.h"
 #include "../FrameDump.h"
 #include "../ee/INTC.h"
 #include "GSHandler.h"

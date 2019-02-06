@@ -1,7 +1,7 @@
 #include <cassert>
 #include <algorithm>
 #include "string_format.h"
-#include "../RegisterStateFile.h"
+#include "../states/RegisterStateFile.h"
 #include "../FrameDump.h"
 #include "GIF.h"
 #include "Dmac_Channel.h"

@@ -1,7 +1,7 @@
 #include <assert.h>
 #include "Iop_Dmac.h"
 #include "Iop_Intc.h"
-#include "../RegisterStateFile.h"
+#include "../states/RegisterStateFile.h"
 #include "../Log.h"
 
 #define LOG_NAME ("iop_dmac")

@@ -343,8 +343,6 @@ set(COMMON_SRC_FILES
 	MdsDiscImage.h
 	MemoryMap.cpp
 	MemoryMap.h
-	MemoryStateFile.cpp
-	MemoryStateFile.h
 	MemoryUtils.cpp
 	MemoryUtils.h
 	MIPS.cpp
@@ -385,8 +383,6 @@ set(COMMON_SRC_FILES
 	PS2VM_Preferences.h
 	psx/PsxBios.cpp
 	psx/PsxBios.h
-	RegisterStateFile.cpp
-	RegisterStateFile.h
 	s3stream/AmazonS3Client.cpp
 	s3stream/S3ObjectStream.cpp
 	saves/Icon.cpp
@@ -406,14 +402,18 @@ set(COMMON_SRC_FILES
 	saves/SaveImporter.h
 	saves/XpsSaveImporter.cpp
 	saves/XpsSaveImporter.h
+	states/MemoryStateFile.cpp
+	states/MemoryStateFile.h
+	states/RegisterStateFile.cpp
+	states/RegisterStateFile.h
+	states/StructCollectionStateFile.cpp
+	states/StructCollectionStateFile.h
+	states/StructFile.cpp
+	states/StructFile.h
 	ScopedVmPauser.cpp
 	ScopedVmPauser.h
 	ScreenShotUtils.cpp
 	ScreenShotUtils.h
-	StructCollectionStateFile.cpp
-	StructCollectionStateFile.h
-	StructFile.cpp
-	StructFile.h
 	ui_shared/BootablesDbClient.cpp
 	ui_shared/BootablesDbClient.h
 	ui_shared/BootablesProcesses.cpp

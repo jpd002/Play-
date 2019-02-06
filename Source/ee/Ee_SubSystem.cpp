@@ -3,7 +3,7 @@
 #include "VuExecutor.h"
 #include "../Ps2Const.h"
 #include "../Log.h"
-#include "../MemoryStateFile.h"
+#include "../states/MemoryStateFile.h"
 #include "../iop/IopBios.h"
 #include "Vif.h"
 #include "placeholder_def.h"

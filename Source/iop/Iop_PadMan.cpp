@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include "Iop_PadMan.h"
 #include "../Log.h"
-#include "../RegisterStateFile.h"
+#include "../states/RegisterStateFile.h"
 #include "placeholder_def.h"
 
 using namespace Iop;

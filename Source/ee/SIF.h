@@ -7,8 +7,8 @@
 #include "DMAC.h"
 #include "zip/ZipArchiveWriter.h"
 #include "zip/ZipArchiveReader.h"
-#include "../RegisterStateFile.h"
-#include "../StructFile.h"
+#include "../states/RegisterStateFile.h"
+#include "../states/StructFile.h"
 
 class CSIF
 {

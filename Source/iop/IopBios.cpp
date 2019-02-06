@@ -10,7 +10,7 @@
 #include <boost/lexical_cast.hpp>
 #include <vector>
 #include "xml/FilteringNodeIterator.h"
-#include "../StructCollectionStateFile.h"
+#include "../states/StructCollectionStateFile.h"
 #include "string_format.h"
 
 #ifdef _IOP_EMULATE_MODULES

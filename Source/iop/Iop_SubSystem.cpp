@@ -2,7 +2,7 @@
 #include "IopBios.h"
 #include "GenericMipsExecutor.h"
 #include "../psx/PsxBios.h"
-#include "../MemoryStateFile.h"
+#include "../states/MemoryStateFile.h"
 #include "../Ps2Const.h"
 #include "../Log.h"
 #include "placeholder_def.h"
