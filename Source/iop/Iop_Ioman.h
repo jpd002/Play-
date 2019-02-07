@@ -5,6 +5,8 @@
 #include "Iop_Module.h"
 #include "Ioman_Device.h"
 #include "Stream.h"
+#include "zip/ZipArchiveWriter.h"
+#include "zip/ZipArchiveReader.h"
 
 namespace Iop
 {
@@ -74,6 +76,9 @@ namespace Iop
 		std::string GetId() const override;
 		std::string GetFunctionName(unsigned int) const override;
 		void Invoke(CMIPS&, unsigned int) override;
+
+		void SaveState(Framework::CZipArchiveWriter&);
+		void LoadState(Framework::CZipArchiveReader&);
 
 		void RegisterDevice(const char*, const DevicePtr&);
 

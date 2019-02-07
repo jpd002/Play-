@@ -307,6 +307,7 @@ void CIopBios::SaveState(Framework::CZipArchiveWriter& archive)
 	m_sifCmd->SaveState(archive);
 	m_cdvdman->SaveState(archive);
 	m_loadcore->SaveState(archive);
+	m_ioman->SaveState(archive);
 #ifdef _IOP_EMULATE_MODULES
 	m_fileIo->SaveState(archive);
 	m_padman->SaveState(archive);
@@ -346,6 +347,7 @@ void CIopBios::LoadState(Framework::CZipArchiveReader& archive)
 	m_sifCmd->LoadState(archive);
 	m_cdvdman->LoadState(archive);
 	m_loadcore->LoadState(archive);
+	m_ioman->LoadState(archive);
 #ifdef _IOP_EMULATE_MODULES
 	m_fileIo->LoadState(archive);
 	m_padman->LoadState(archive);

@@ -1,13 +1,23 @@
 #include "../AppConfig.h"
 #include "Iop_Ioman.h"
 #include "StdStream.h"
+#include "../states/XmlStateFile.h"
+#include "xml/Utils.h"
 #include "../Log.h"
 #include <stdexcept>
 #include <cctype>
+#include <experimental/map>
 
 using namespace Iop;
 
 #define LOG_NAME "iop_ioman"
+
+#define STATE_FILES_FILENAME ("iop_ioman/files.xml")
+#define STATE_FILES_FILESNODE "Files"
+#define STATE_FILES_FILENODE "File"
+#define STATE_FILES_FILENODE_IDATTRIBUTE ("Id")
+#define STATE_FILES_FILENODE_PATHATTRIBUTE ("Path")
+#define STATE_FILES_FILENODE_FLAGSATTRIBUTE ("Flags")
 
 #define PREF_IOP_FILEIO_STDLOGGING ("iop.fileio.stdlogging")
 
@@ -457,6 +467,61 @@ void CIoman::Invoke(CMIPS& context, unsigned int functionId)
 		CLog::GetInstance().Warn(LOG_NAME, "%s(%08X): Unknown function (%d) called.\r\n", __FUNCTION__, context.m_State.nPC, functionId);
 		break;
 	}
+}
+
+void CIoman::SaveState(Framework::CZipArchiveWriter& archive)
+{
+	auto fileStateFile = new CXmlStateFile(STATE_FILES_FILENAME, STATE_FILES_FILESNODE);
+	auto filesStateNode = fileStateFile->GetRoot();
+
+	for(const auto& filePair : m_files)
+	{
+		if(filePair.first == FID_STDOUT) continue;
+		if(filePair.first == FID_STDERR) continue;
+
+		const auto& file = filePair.second;
+
+		auto fileStateNode = new Framework::Xml::CNode(STATE_FILES_FILENODE, true);
+		fileStateNode->InsertAttribute(Framework::Xml::CreateAttributeIntValue(STATE_FILES_FILENODE_IDATTRIBUTE, filePair.first));
+		fileStateNode->InsertAttribute(Framework::Xml::CreateAttributeIntValue(STATE_FILES_FILENODE_FLAGSATTRIBUTE, file.flags));
+		fileStateNode->InsertAttribute(Framework::Xml::CreateAttributeStringValue(STATE_FILES_FILENODE_PATHATTRIBUTE, file.path.c_str()));
+		filesStateNode->InsertNode(fileStateNode);
+	}
+
+	archive.InsertFile(fileStateFile);
+}
+
+void CIoman::LoadState(Framework::CZipArchiveReader& archive)
+{
+	std::experimental::erase_if(m_files,
+		[] (const FileMapType::value_type& filePair)
+		{
+			return (filePair.first != FID_STDOUT) && (filePair.first != FID_STDERR);
+		}
+	);
+
+	auto fileStateFile = CXmlStateFile(*archive.BeginReadFile(STATE_FILES_FILENAME));
+	auto fileStateNode = fileStateFile.GetRoot();
+
+	int32 maxFileId = 0;
+	auto fileNodes = fileStateNode->SelectNodes(STATE_FILES_FILESNODE "/" STATE_FILES_FILENODE);
+	for(auto fileNode : fileNodes)
+	{
+		int32 id = 0, flags = 0;
+		std::string path;
+		if(!Framework::Xml::GetAttributeIntValue(fileNode, STATE_FILES_FILENODE_IDATTRIBUTE, &id)) break;
+		if(!Framework::Xml::GetAttributeStringValue(fileNode, STATE_FILES_FILENODE_PATHATTRIBUTE, &path)) break;
+		if(!Framework::Xml::GetAttributeIntValue(fileNode, STATE_FILES_FILENODE_FLAGSATTRIBUTE, &flags)) break;
+
+		auto stream = OpenInternal(flags, path.c_str());
+		FileInfo fileInfo(stream);
+		fileInfo.flags = flags;
+		fileInfo.path = path;
+		m_files[id] = std::move(fileInfo);
+
+		maxFileId = std::max(maxFileId, id);
+	}
+	m_nextFileHandle = maxFileId + 1;
 }
 
 //--------------------------------------------------

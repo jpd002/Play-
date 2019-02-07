@@ -411,6 +411,8 @@ set(COMMON_SRC_FILES
 	states/StructCollectionStateFile.h
 	states/StructFile.cpp
 	states/StructFile.h
+	states/XmlStateFile.cpp
+	states/XmlStateFile.h
 	ScopedVmPauser.cpp
 	ScopedVmPauser.h
 	ScreenShotUtils.cpp
