@@ -642,6 +642,7 @@ void CGSHandler::BeginTransfer()
 		switch(psm)
 		{
 		case PSMCT32:
+		case PSMZ32:
 			nPixelSize = 32;
 			break;
 		case PSMCT24:
