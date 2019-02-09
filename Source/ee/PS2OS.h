@@ -261,6 +261,8 @@ private:
 	void UnlinkThread(uint32);
 	void ThreadShakeAndBake();
 	void ThreadSwitchContext(uint32);
+	void ThreadSaveContext(THREAD*, bool);
+	void ThreadLoadContext(THREAD*, bool);
 	void ThreadReset(uint32);
 	void CheckLivingThreads();
 
