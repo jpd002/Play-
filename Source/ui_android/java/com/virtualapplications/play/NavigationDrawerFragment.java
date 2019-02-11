@@ -79,7 +79,7 @@ public class NavigationDrawerFragment extends Fragment
 		else
 		{
 			// Select either the default item (0) or the last selected item.
-			mCurrentSelectedPosition = sp.getInt("sortMethod", 2);
+			mCurrentSelectedPosition = sp.getInt("sortMethod", BootablesInterop.SORT_NONE);
 		}
 	}
 

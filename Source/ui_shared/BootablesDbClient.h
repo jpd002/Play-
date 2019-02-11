@@ -22,11 +22,19 @@ namespace BootablesDb
 	class CClient : public CSingleton<CClient>
 	{
 	public:
+		//NOTE: This is duplicated in the Android Java code (in BootablesInterop.java) - values matter
+		enum SORT_METHOD
+		{
+			SORT_METHOD_RECENT,
+			SORT_METHOD_HOMEBREW,
+			SORT_METHOD_NONE,
+		};
+
 		CClient();
 		virtual ~CClient() = default;
 
 		Bootable GetBootable(const boost::filesystem::path&);
-		std::vector<Bootable> GetBootables(int32_t = 2);
+		std::vector<Bootable> GetBootables(int32_t = SORT_METHOD_NONE);
 
 		void RegisterBootable(const boost::filesystem::path&, const char*, const char*);
 		void UnregisterBootable(const boost::filesystem::path&);

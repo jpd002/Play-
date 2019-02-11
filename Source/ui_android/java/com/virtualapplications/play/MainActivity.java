@@ -44,10 +44,7 @@ public class MainActivity extends AppCompatActivity implements NavigationDrawerF
 	private GameInfo gameInfo;
 	protected NavigationDrawerFragment mNavigationDrawerFragment;
 	private List<Bootable> currentGames = new ArrayList<>();
-	public static final int SORT_RECENT = 0;
-	public static final int SORT_HOMEBREW = 1;
-	public static final int SORT_NONE = 2;
-	private int sortMethod = SORT_NONE;
+	private int sortMethod = BootablesInterop.SORT_NONE;
 	private String navSubtitle;
 
 	@Override
