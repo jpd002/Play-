@@ -1,5 +1,6 @@
 #pragma once
 
+#include <memory>
 #include "zip/ZipFile.h"
 #include "xml/Node.h"
 
