@@ -36,6 +36,9 @@ import static com.virtualapplications.play.BootablesInterop.PurgeInexistingFiles
 import static com.virtualapplications.play.BootablesInterop.UnregisterBootable;
 import static com.virtualapplications.play.BootablesInterop.getBootables;
 import static com.virtualapplications.play.BootablesInterop.setLastBootedTime;
+import static com.virtualapplications.play.BootablesInterop.SORT_RECENT;
+import static com.virtualapplications.play.BootablesInterop.SORT_HOMEBREW;
+import static com.virtualapplications.play.BootablesInterop.SORT_NONE;
 import static com.virtualapplications.play.ThemeManager.getThemeColor;
 
 public class MainActivity extends AppCompatActivity implements NavigationDrawerFragment.NavigationDrawerCallbacks, SharedPreferences.OnSharedPreferenceChangeListener
@@ -44,7 +47,7 @@ public class MainActivity extends AppCompatActivity implements NavigationDrawerF
 	private GameInfo gameInfo;
 	protected NavigationDrawerFragment mNavigationDrawerFragment;
 	private List<Bootable> currentGames = new ArrayList<>();
-	private int sortMethod = BootablesInterop.SORT_NONE;
+	private int sortMethod = SORT_NONE;
 	private String navSubtitle;
 
 	@Override
