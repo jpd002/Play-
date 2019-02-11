@@ -494,11 +494,9 @@ void CIoman::SaveState(Framework::CZipArchiveWriter& archive)
 void CIoman::LoadState(Framework::CZipArchiveReader& archive)
 {
 	std::experimental::erase_if(m_files,
-		[] (const FileMapType::value_type& filePair)
-		{
-			return (filePair.first != FID_STDOUT) && (filePair.first != FID_STDERR);
-		}
-	);
+	                            [](const FileMapType::value_type& filePair) {
+		                            return (filePair.first != FID_STDOUT) && (filePair.first != FID_STDERR);
+	                            });
 
 	auto fileStateFile = CXmlStateFile(*archive.BeginReadFile(STATE_FILES_FILENAME));
 	auto fileStateNode = fileStateFile.GetRoot();

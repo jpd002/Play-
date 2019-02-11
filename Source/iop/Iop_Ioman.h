@@ -103,9 +103,8 @@ namespace Iop
 			FileInfo() = default;
 
 			FileInfo(Framework::CStream* stream)
-				: stream(stream)
+			    : stream(stream)
 			{
-			
 			}
 
 			FileInfo(FileInfo&& rhs)
@@ -118,7 +117,7 @@ namespace Iop
 				Reset();
 			}
 
-			FileInfo& operator =(FileInfo&& rhs)
+			FileInfo& operator=(FileInfo&& rhs)
 			{
 				MoveFrom(std::move(rhs));
 				return (*this);
@@ -140,14 +139,13 @@ namespace Iop
 				path.clear();
 			}
 
-			FileInfo& operator =(const FileInfo&) = delete;
+			FileInfo& operator=(const FileInfo&) = delete;
 			FileInfo(const FileInfo&) = delete;
 
 			Framework::CStream* stream = nullptr;
 			std::string path;
 			uint32 flags = 0;
 		};
-
 
 		typedef std::map<uint32, FileInfo> FileMapType;
 		typedef std::map<uint32, Ioman::Directory> DirectoryMapType;
