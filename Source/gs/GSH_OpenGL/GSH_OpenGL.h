@@ -137,7 +137,7 @@ private:
 		float clampMax[2];
 		float texA0;
 		float texA1;
-		float alphaRef;
+		uint32 alphaRef;
 		float padding1;
 		float fogColor[3];
 		float padding2;

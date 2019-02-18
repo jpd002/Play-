@@ -152,7 +152,7 @@ Framework::OpenGl::CShader CGSH_OpenGL::GenerateFragmentShader(const SHADERCAPS&
 	shaderBuilder << "	vec2 g_clampMax;" << std::endl;
 	shaderBuilder << "	float g_texA0;" << std::endl;
 	shaderBuilder << "	float g_texA1;" << std::endl;
-	shaderBuilder << "	float g_alphaRef;" << std::endl;
+	shaderBuilder << "	uint g_alphaRef;" << std::endl;
 	shaderBuilder << "	vec3 g_fogColor;" << std::endl;
 	shaderBuilder << "};" << std::endl;
 
@@ -263,7 +263,10 @@ Framework::OpenGl::CShader CGSH_OpenGL::GenerateFragmentShader(const SHADERCAPS&
 			}
 			else
 			{
-				shaderBuilder << "	textureColor.a = (textureColor.a * v_color.a) / (128.0 / 255.0);" << std::endl;
+				shaderBuilder << "	uint texColorInt = uint(textureColor.a * 255.0);" << std::endl;
+				shaderBuilder << "	uint vColorInt = uint(v_color.a * 255.0);" << std::endl;
+				shaderBuilder << "	texColorInt = min((texColorInt * vColorInt) >> 7, 255u);" << std::endl;
+				shaderBuilder << "	textureColor.a = float(texColorInt) / 255.0;" << std::endl;
 			}
 			break;
 		case TEX0_FUNCTION_DECAL:
@@ -368,28 +371,29 @@ std::string CGSH_OpenGL::GenerateAlphaTestSection(ALPHA_TEST_METHOD testMethod)
 		test = "if(false)";
 		break;
 	case ALPHA_TEST_LESS:
-		test = "if(textureColor.a >= g_alphaRef)";
+		test = "if(alphaInt >= g_alphaRef)";
 		break;
 	case ALPHA_TEST_LEQUAL:
-		test = "if(textureColor.a > g_alphaRef)";
+		test = "if(alphaInt > g_alphaRef)";
 		break;
 	case ALPHA_TEST_EQUAL:
-		test = "if(textureColor.a != g_alphaRef)";
+		test = "if(alphaInt != g_alphaRef)";
 		break;
 	case ALPHA_TEST_GEQUAL:
-		test = "if(textureColor.a < g_alphaRef)";
+		test = "if(alphaInt < g_alphaRef)";
 		break;
 	case ALPHA_TEST_GREATER:
-		test = "if(textureColor.a <= g_alphaRef)";
+		test = "if(alphaInt <= g_alphaRef)";
 		break;
 	case ALPHA_TEST_NOTEQUAL:
-		test = "if(textureColor.a == g_alphaRef)";
+		test = "if(alphaInt == g_alphaRef)";
 		break;
 	default:
 		assert(false);
 		break;
 	}
 
+	shaderBuilder << "uint alphaInt = uint(textureColor.a * 255.0);" << std::endl;
 	shaderBuilder << test << std::endl;
 	shaderBuilder << "{" << std::endl;
 	shaderBuilder << "	discard;" << std::endl;

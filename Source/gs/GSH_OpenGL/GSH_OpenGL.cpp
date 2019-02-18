@@ -918,7 +918,7 @@ void CGSH_OpenGL::SetupTestFunctions(uint64 testReg)
 {
 	auto test = make_convertible<TEST>(testReg);
 
-	m_fragmentParams.alphaRef = static_cast<float>(test.nAlphaRef) / 255.0f;
+	m_fragmentParams.alphaRef = test.nAlphaRef;
 	m_validGlState &= ~GLSTATE_FRAGMENT_PARAMS;
 
 	m_renderState.depthTest = (test.nDepthEnabled != 0);
