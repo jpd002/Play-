@@ -235,7 +235,7 @@ Framework::OpenGl::CShader CGSH_OpenGL::GenerateFragmentShader(const SHADERCAPS&
 				shaderBuilder << "	vec4 br = expandAlpha(texture(g_palette, vec2(brIdx / 256.0 + paletteTexelBias, 0)));" << std::endl;
 			}
 
-			shaderBuilder << "	vec2 f = fract(texCoord.st * g_textureSize);" << std::endl;
+			shaderBuilder << "	highp vec2 f = fract(texCoord.st * g_textureSize);" << std::endl;
 			shaderBuilder << "	vec4 tA = mix(tl, tr, f.x);" << std::endl;
 			shaderBuilder << "	vec4 tB = mix(bl, br, f.x);" << std::endl;
 			shaderBuilder << "	textureColor = mix(tA, tB, f.y);" << std::endl;
