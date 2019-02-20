@@ -13,7 +13,6 @@ import static com.virtualapplications.play.BootablesInterop.scanBootables;
 
 public class GameIndexer
 {
-
 	private static HashSet<String> getExternalMounts()
 	{
 		final HashSet<String> out = new HashSet<String>();
@@ -85,7 +84,6 @@ public class GameIndexer
 			fullScanBootables(scanDirs.toArray(new String[scanDirs.size()]));
 		}
 	}
-
 
 	private boolean isNoMedia(File[] files)
 	{
