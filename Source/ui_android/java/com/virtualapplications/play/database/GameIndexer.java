@@ -58,20 +58,31 @@ public class GameIndexer
 		return out;
 	}
 
-	public static void startupScan()
+	private static HashSet<String> getScanDirectories()
 	{
 		HashSet<String> extStorage = getExternalMounts();
 		extStorage.add(Environment.getExternalStorageDirectory().getAbsolutePath());
-		scanBootables(extStorage.toArray(new String[extStorage.size()]));
+		HashSet<String> result = new HashSet<>();
+		for(String anExtStorage : extStorage)
+		{
+			String sdCardPath = anExtStorage.replace("mnt/media_rw", "storage");
+			result.add(sdCardPath);
+		}
+		return result;
+	}
+
+	public static void startupScan()
+	{
+		HashSet<String> scanDirs = getScanDirectories();
+		scanBootables(scanDirs.toArray(new String[scanDirs.size()]));
 	}
 
 	public static void fullScan()
 	{
-		HashSet<String> extStorage = getExternalMounts();
-		extStorage.add(Environment.getExternalStorageDirectory().getAbsolutePath());
-		if(!extStorage.isEmpty())
+		HashSet<String> scanDirs = getScanDirectories();
+		if(!scanDirs.isEmpty())
 		{
-			fullScanBootables(extStorage.toArray(new String[extStorage.size()]));
+			fullScanBootables(scanDirs.toArray(new String[scanDirs.size()]));
 		}
 	}
 
