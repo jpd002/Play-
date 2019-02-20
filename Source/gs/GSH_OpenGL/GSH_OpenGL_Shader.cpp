@@ -162,6 +162,14 @@ Framework::OpenGl::CShader CGSH_OpenGL::GenerateFragmentShader(const SHADERCAPS&
 		shaderBuilder << s_orFunction << std::endl;
 	}
 
+	shaderBuilder << "float combineColors(float a, float b)" << std::endl;
+	shaderBuilder << "{" << std::endl;
+	shaderBuilder << "	uint aInt = uint(a * 255.0);" << std::endl;
+	shaderBuilder << "	uint bInt = uint(b * 255.0);" << std::endl;
+	shaderBuilder << "	uint result = min((aInt * bInt) >> 7, 255u);" << std::endl;
+	shaderBuilder << "	return float(result) / 255.0;" << std::endl;
+	shaderBuilder << "}" << std::endl;
+
 	shaderBuilder << "vec4 expandAlpha(vec4 inputColor)" << std::endl;
 	shaderBuilder << "{" << std::endl;
 	if(caps.texUseAlphaExpansion)
@@ -263,10 +271,7 @@ Framework::OpenGl::CShader CGSH_OpenGL::GenerateFragmentShader(const SHADERCAPS&
 			}
 			else
 			{
-				shaderBuilder << "	uint texColorInt = uint(textureColor.a * 255.0);" << std::endl;
-				shaderBuilder << "	uint vColorInt = uint(v_color.a * 255.0);" << std::endl;
-				shaderBuilder << "	texColorInt = min((texColorInt * vColorInt) >> 7, 255u);" << std::endl;
-				shaderBuilder << "	textureColor.a = float(texColorInt) / 255.0;" << std::endl;
+				shaderBuilder << "	textureColor.a = combineColors(textureColor.a, v_color.a);" << std::endl;
 			}
 			break;
 		case TEX0_FUNCTION_DECAL:
@@ -371,29 +376,29 @@ std::string CGSH_OpenGL::GenerateAlphaTestSection(ALPHA_TEST_METHOD testMethod)
 		test = "if(false)";
 		break;
 	case ALPHA_TEST_LESS:
-		test = "if(alphaInt >= g_alphaRef)";
+		test = "if(textureColorAlphaInt >= g_alphaRef)";
 		break;
 	case ALPHA_TEST_LEQUAL:
-		test = "if(alphaInt > g_alphaRef)";
+		test = "if(textureColorAlphaInt > g_alphaRef)";
 		break;
 	case ALPHA_TEST_EQUAL:
-		test = "if(alphaInt != g_alphaRef)";
+		test = "if(textureColorAlphaInt != g_alphaRef)";
 		break;
 	case ALPHA_TEST_GEQUAL:
-		test = "if(alphaInt < g_alphaRef)";
+		test = "if(textureColorAlphaInt < g_alphaRef)";
 		break;
 	case ALPHA_TEST_GREATER:
-		test = "if(alphaInt <= g_alphaRef)";
+		test = "if(textureColorAlphaInt <= g_alphaRef)";
 		break;
 	case ALPHA_TEST_NOTEQUAL:
-		test = "if(alphaInt == g_alphaRef)";
+		test = "if(textureColorAlphaInt == g_alphaRef)";
 		break;
 	default:
 		assert(false);
 		break;
 	}
 
-	shaderBuilder << "uint alphaInt = uint(textureColor.a * 255.0);" << std::endl;
+	shaderBuilder << "uint textureColorAlphaInt = uint(textureColor.a * 255.0);" << std::endl;
 	shaderBuilder << test << std::endl;
 	shaderBuilder << "{" << std::endl;
 	shaderBuilder << "	discard;" << std::endl;
