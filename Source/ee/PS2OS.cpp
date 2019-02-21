@@ -59,8 +59,10 @@
 #define BIOS_ADDRESS_THREADSCHEDULE_BASE 0x00000020
 #define BIOS_ADDRESS_INTCHANDLERQUEUE_BASE 0x00000024
 #define BIOS_ADDRESS_DMACHANDLERQUEUE_BASE 0x00000028
-#define BIOS_ADDRESS_SIFDMA_NEXT_INDEX 0x0000002C
-#define BIOS_ADDRESS_SIFDMA_TIMES_BASE 0x00000030
+#define BIOS_ADDRESS_TLB_READEXCEPTION_HANDLER 0x0000002C
+#define BIOS_ADDRESS_TLB_WRITEEXCEPTION_HANDLER 0x00000030
+#define BIOS_ADDRESS_SIFDMA_NEXT_INDEX 0x00000034
+#define BIOS_ADDRESS_SIFDMA_TIMES_BASE 0x00000038
 #define BIOS_ADDRESS_SIFDMA_TIMES_END (BIOS_ADDRESS_SIFDMA_TIMES_BASE + (4 * BIOS_SIFDMA_COUNT))
 #define BIOS_ADDRESS_INTERRUPT_THREAD_CONTEXT BIOS_ADDRESS_SIFDMA_TIMES_END
 #define BIOS_ADDRESS_INTCHANDLER_BASE 0x0000A000
@@ -238,6 +240,8 @@ CPS2OS::CPS2OS(CMIPS& ee, uint8* ram, uint8* bios, uint8* spr, CGSHandler*& gs, 
     , m_alarms(reinterpret_cast<ALARM*>(m_ram + BIOS_ADDRESS_ALARM_BASE), BIOS_ID_BASE, MAX_ALARM)
     , m_currentThreadId(reinterpret_cast<uint32*>(m_ram + BIOS_ADDRESS_CURRENT_THREAD_ID))
     , m_idleThreadId(reinterpret_cast<uint32*>(m_ram + BIOS_ADDRESS_IDLE_THREAD_ID))
+	, m_tlblExceptionHandler(reinterpret_cast<uint32*>(m_ram + BIOS_ADDRESS_TLB_READEXCEPTION_HANDLER))
+	, m_tlbsExceptionHandler(reinterpret_cast<uint32*>(m_ram + BIOS_ADDRESS_TLB_WRITEEXCEPTION_HANDLER))
     , m_sifDmaNextIdx(reinterpret_cast<uint32*>(m_ram + BIOS_ADDRESS_SIFDMA_NEXT_INDEX))
     , m_sifDmaTimes(reinterpret_cast<uint32*>(m_ram + BIOS_ADDRESS_SIFDMA_TIMES_BASE))
     , m_threadSchedule(m_threads, reinterpret_cast<uint32*>(m_ram + BIOS_ADDRESS_THREADSCHEDULE_BASE))
@@ -1517,6 +1521,19 @@ void CPS2OS::sc_ExecPS2()
 void CPS2OS::sc_SetVTLBRefillHandler()
 {
 	//TODO: Enable TLB processing
+
+	uint32 cause = m_ee.m_State.nGPR[SC_PARAM0].nV0;
+	uint32 handler = m_ee.m_State.nGPR[SC_PARAM1].nV0;
+
+	switch(cause)
+	{
+	case CCOP_SCU::CAUSE_TLBL:
+		m_tlblExceptionHandler = handler;
+		break;
+	case CCOP_SCU::CAUSE_TLBS:
+		m_tlbsExceptionHandler = handler;
+		break;
+	}
 }
 
 //0E

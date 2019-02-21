@@ -348,6 +348,8 @@ private:
 
 	OsVariableWrapper<uint32> m_currentThreadId;
 	OsVariableWrapper<uint32> m_idleThreadId;
+	OsVariableWrapper<uint32> m_tlblExceptionHandler;
+	OsVariableWrapper<uint32> m_tlbsExceptionHandler;
 	OsVariableWrapper<uint32> m_sifDmaNextIdx;
 
 	uint32* m_sifDmaTimes = nullptr;
