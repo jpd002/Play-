@@ -1181,7 +1181,7 @@ void CPS2OS::ThreadSaveContext(THREAD* thread, bool interrupt)
 void CPS2OS::ThreadLoadContext(THREAD* thread, bool interrupt)
 {
 	assert(thread->contextPtr != 0);
-	assert(!(interrupt && thread->contextPtr == thread->contextPtr == BIOS_ADDRESS_INTERRUPT_THREAD_CONTEXT));
+	assert(!interrupt || (thread->contextPtr == BIOS_ADDRESS_INTERRUPT_THREAD_CONTEXT));
 
 	auto context = reinterpret_cast<const THREADCONTEXT*>(GetStructPtr(thread->contextPtr));
 	for(uint32 i = 0; i < 0x20; i++)
