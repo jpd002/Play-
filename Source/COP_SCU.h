@@ -23,6 +23,13 @@ public:
 		ERROREPC = 0x1E,
 	};
 
+	enum CAUSE
+	{
+		CAUSE_INT = 0,  //Interrupt
+		CAUSE_TLBL = 2, //TLB exception (load or instruction fetch)
+		CAUSE_TLBS = 3, //TLB exception (store)
+	};
+
 	struct PCCR : public convertible<uint32>
 	{
 		unsigned int reserved0 : 1;
