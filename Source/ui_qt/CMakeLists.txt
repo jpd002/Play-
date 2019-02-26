@@ -109,6 +109,18 @@ if(TARGET_PLATFORM_WIN32)
 		../../tools/PsfPlayer/Source/win32_ui/SH_WaveOut.cpp
 	)
 	list(APPEND PROJECT_LIBS winmm)
+	
+	if(TARGET_PLATFORM_WIN32_X86)
+		set(MANIFEST ../ui_win32/Play-x86.manifest)
+	else()
+		set(MANIFEST ../ui_win32/Play-x64.manifest)
+	endif()
+
+	set(QT_SOURCES
+		${QT_SOURCES}
+		../ui_win32/Res.rc
+		${MANIFEST}
+	)
 endif()
 set(QT_MOC_HEADERS
 	ControllerConfig/bindingmodel.h
