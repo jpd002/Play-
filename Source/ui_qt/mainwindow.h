@@ -4,7 +4,6 @@
 #include <QMainWindow>
 #include <QLabel>
 #include <QKeyEvent>
-#include <QXmlStreamReader>
 #include <QDir>
 
 #include "AppConfig.h"

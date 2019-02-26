@@ -1,5 +1,4 @@
 #include "CallStackWnd.h"
-#include "PtrMacro.h"
 #include "string_cast.h"
 #include "lexical_cast_ex.h"
 #include "DebugUtils.h"

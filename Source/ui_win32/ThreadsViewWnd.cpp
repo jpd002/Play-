@@ -34,10 +34,6 @@ CThreadsViewWnd::CThreadsViewWnd(HWND parentWnd, CVirtualMachine& virtualMachine
 	virtualMachine.OnRunningStateChange.connect(boost::bind(&CThreadsViewWnd::Update, this));
 }
 
-CThreadsViewWnd::~CThreadsViewWnd()
-{
-}
-
 void CThreadsViewWnd::SetContext(CMIPS* context, CBiosDebugInfoProvider* biosDebugInfoProvider)
 {
 	m_context = context;

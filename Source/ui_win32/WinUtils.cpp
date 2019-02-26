@@ -1,3 +1,4 @@
+#include <cassert>
 #include "WinUtils.h"
 
 using namespace Framework;

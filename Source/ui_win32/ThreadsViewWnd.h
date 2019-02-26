@@ -13,7 +13,7 @@ class CThreadsViewWnd : public Framework::Win32::CMDIChild, public boost::signal
 {
 public:
 	CThreadsViewWnd(HWND, CVirtualMachine&);
-	virtual ~CThreadsViewWnd();
+	virtual ~CThreadsViewWnd() = default;
 
 	void SetContext(CMIPS*, CBiosDebugInfoProvider*);
 
