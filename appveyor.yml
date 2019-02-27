@@ -51,7 +51,7 @@ build_script:
     
     cd Play
     
-    call ..\appveyor_build.cmd
+    call appveyor_build.cmd
     
 artifacts:
 - path: $(REPO_COMMIT_SHORT)\*.exe
