@@ -55,7 +55,7 @@ build_script:
     
     cd build
     
-    if %BUILD_PLAY% == "ON" (
+    if "%BUILD_PLAY%" == "ON" (
         
         cmake .. -G"%BUILD_TYPE%" -T v141_xp -DUSE_QT=on -DCMAKE_PREFIX_PATH="C:\Qt\5.12\%QT_FLAVOR%"
         
@@ -73,7 +73,7 @@ build_script:
         
     )
     
-    if %BUILD_PSFPLAYER% == "ON" (
+    if "%BUILD_PSFPLAYER%" == "ON" (
         
         cmake .. -G"%BUILD_TYPE%" -T v141_xp -BUILD_PLAY=off -DBUILD_PSFPLAYER=on
         
