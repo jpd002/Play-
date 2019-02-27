@@ -2,7 +2,7 @@
 #include <sys/stat.h>
 #include "math/Matrix4.h"
 #include "GSH_Direct3D9.h"
-#include "../gs/GsPixelFormats.h"
+#include "../../gs/GsPixelFormats.h"
 
 void CGSH_Direct3D9::SetupTextureUpdaters()
 {

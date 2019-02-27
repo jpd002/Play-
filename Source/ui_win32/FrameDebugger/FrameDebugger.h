@@ -6,7 +6,7 @@
 #include "win32/Static.h"
 #include "win32/Splitter.h"
 #include "../OutputWnd.h"
-#include "../GSH_Direct3D9.h"
+#include "../GSH_Direct3D9/GSH_Direct3D9.h"
 #include "../../FrameDump.h"
 #include "Vu1Vm.h"
 #include "GsInputStateView.h"

@@ -17,29 +17,11 @@ endif()
 if(TARGET_PLATFORM_WIN32)
 	if(NOT TARGET gsh_opengl)
 		add_subdirectory(
-			../../Source/gs/GSH_OpenGL
-			../../Source/gs/GSH_OpenGL
+			${CMAKE_CURRENT_SOURCE_DIR}/../../Source/gs/GSH_OpenGL
+			${CMAKE_CURRENT_BINARY_DIR}/gs/GSH_OpenGL
 		)
 	endif()
 	list(APPEND PROJECT_LIBS gsh_opengl)
-
-	if (NOT TARGET Framework_Win32)
-		add_subdirectory(
-			${CMAKE_CURRENT_SOURCE_DIR}/../../../Framework/build_cmake/FrameworkWin32
-			${CMAKE_CURRENT_BINARY_DIR}/Framework_Win32
-		)
-	endif()
-	list(APPEND PROJECT_LIBS Framework_Win32)
-
-	#If building for Windows XP, we need to use the provided d3dcompiler since it's not available in the SDK
-	if(CMAKE_GENERATOR_TOOLSET MATCHES "_xp$" AND NOT TARGET d3dcompiler)
-		add_subdirectory(
-			${CMAKE_CURRENT_SOURCE_DIR}/../../../Dependencies/d3dcompiler_winxp
-			${CMAKE_CURRENT_BINARY_DIR}/d3dcompiler_winxp
-		)
-	endif()
-
-	list(APPEND PROJECT_LIBS uxtheme opengl32 glu32 dinput8 d3d9 vfw32 winmm gdiplus Boost::date_time d3dcompiler)
 
 	if(NOT TARGET gsh_opengl_win32)
 		add_library(gsh_opengl_win32 STATIC 
@@ -50,21 +32,11 @@ if(TARGET_PLATFORM_WIN32)
 	endif()
 	list(APPEND PROJECT_LIBS gsh_opengl_win32)
 
-	if (NOT TARGET Nuanceur)
-	add_subdirectory(
-		${CMAKE_CURRENT_SOURCE_DIR}/../../../Nuanceur/build_cmake
-		${CMAKE_CURRENT_BINARY_DIR}/Nuanceur
-	)
-	endif()
-	list(APPEND PROJECT_LIBS Nuanceur)
-
 	if(NOT TARGET gsh_d3d9)
-		add_library(gsh_d3d9 STATIC
-			../../Source/ui_win32/GSH_Direct3D9.cpp
-			../../Source/ui_win32/GSH_Direct3D9_Shader.cpp
-			../../Source/ui_win32/GSH_Direct3D9_Texture.cpp
+		add_subdirectory(
+			${CMAKE_CURRENT_SOURCE_DIR}/../../Source/ui_win32/GSH_Direct3D9
+			${CMAKE_CURRENT_BINARY_DIR}/gs/GSH_Direct3D9
 		)
-		target_link_libraries(gsh_d3d9 Boost::boost Nuanceur)
 	endif()
 	list(APPEND PROJECT_LIBS gsh_d3d9)
 endif()

@@ -1,7 +1,7 @@
 #include "GsContextView.h"
 #include "GsStateUtils.h"
 #include "../../gs/GsPixelFormats.h"
-#include "../GSH_Direct3D9.h"
+#include "../GSH_Direct3D9/GSH_Direct3D9.h"
 #include "win32/VerticalSplitter.h"
 
 #define WNDSTYLE (WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN)

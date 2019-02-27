@@ -1,7 +1,7 @@
 #include "GSH_Direct3D9.h"
-#include "../Log.h"
-#include "../gs/GsPixelFormats.h"
-#include "D3D9TextureUtils.h"
+#include "../../Log.h"
+#include "../../gs/GsPixelFormats.h"
+#include "../D3D9TextureUtils.h"
 #include "math/Matrix4.h"
 
 #define D3D_DEBUG_INFO

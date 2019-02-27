@@ -1,7 +1,7 @@
 #pragma once
 
-#include "../gs/GSHandler.h"
-#include "../gs/GsTextureCache.h"
+#include "../../gs/GSHandler.h"
+#include "../../gs/GsTextureCache.h"
 #include "win32/Window.h"
 #include "win32/ComPtr.h"
 #include "bitmap/Bitmap.h"
