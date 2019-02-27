@@ -4,16 +4,25 @@ environment:
   CONFIG_TYPE: Release
   matrix:
   - BUILD_TYPE: Visual Studio 15 2017
+    BUILD_PLAY: ON
+    QT_FLAVOR: msvc2017 
     INSTALLER_SCRIPT: installer32.nsi
   - BUILD_TYPE: Visual Studio 15 2017 Win64
+    BUILD_PLAY: ON
     INSTALLER_SCRIPT: installer64.nsi
+    QT_FLAVOR: msvc2017_64
+  - BUILD_TYPE: Visual Studio 15 2017 Win64
+    INSTALLER_SCRIPT: installer64.nsi
+    BUILD_PSFPLAYER: ON
 
 build_script:
 - cmd: >-
     set REPO_COMMIT_SHORT=%APPVEYOR_REPO_COMMIT:~0,8%
-
+    
     appveyor SetVariable -Name REPO_COMMIT_SHORT -Value %REPO_COMMIT_SHORT%
-
+    
+    mkdir %REPO_COMMIT_SHORT%
+    
     cd ..
     
     rename Play PlaySource
@@ -46,26 +55,42 @@ build_script:
     
     cd build
     
-    cmake .. -G"%BUILD_TYPE%" -T v141_xp -DBUILD_PSFPLAYER=on
+    if %BUILD_PLAY% == "ON" (
+        
+        cmake .. -G"%BUILD_TYPE%" -T v141_xp -DUSE_QT=on -DCMAKE_PREFIX_PATH="C:\Qt\5.12\%QT_FLAVOR%"
+        
+        cmake --build . --config %CONFIG_TYPE%
+        
+        cd ..
+        
+        "C:\Program Files (x86)\NSIS\makensis.exe" ./installer_win32/%INSTALLER_SCRIPT%
+        
+        cd ..
+        
+        cd ..
+        
+        move Play-Build\Play\installer_win32\*.exe %REPO_COMMIT_SHORT%
+        
+    )
     
-    cmake --build . --config %CONFIG_TYPE%
+    if %BUILD_PSFPLAYER% == "ON" (
+        
+        cmake .. -G"%BUILD_TYPE%" -T v141_xp -BUILD_PLAY=off -DBUILD_PSFPLAYER=on
+        
+        cmake --build . --config %CONFIG_TYPE%
+        
+        cd ..
+        
+        "C:\Program Files (x86)\NSIS\makensis.exe" ./tools/PsfPlayer/installer_win32/%INSTALLER_SCRIPT%
+        
+        cd ..
+        
+        cd ..
+        
+        move Play-Build\Play\tools\PsfPlayer\installer_win32\*.exe %REPO_COMMIT_SHORT%
+        
+    )
     
-    cd ..
-    
-    "C:\Program Files (x86)\NSIS\makensis.exe" ./installer_win32/%INSTALLER_SCRIPT%
-    
-    "C:\Program Files (x86)\NSIS\makensis.exe" ./tools/PsfPlayer/installer_win32/%INSTALLER_SCRIPT%
-    
-    cd ..
-    
-    cd ..
-    
-    mkdir %REPO_COMMIT_SHORT%
-    
-    move Play-Build\Play\installer_win32\*.exe %REPO_COMMIT_SHORT%
-    
-    move Play-Build\Play\tools\PsfPlayer\installer_win32\*.exe %REPO_COMMIT_SHORT%
-
 artifacts:
 - path: $(REPO_COMMIT_SHORT)\*.exe
   name: Binaries
