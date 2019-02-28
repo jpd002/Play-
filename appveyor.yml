@@ -21,8 +21,6 @@ build_script:
     
     appveyor SetVariable -Name REPO_COMMIT_SHORT -Value %REPO_COMMIT_SHORT%
     
-    mkdir %REPO_COMMIT_SHORT%
-    
     cd ..
     
     rename Play PlaySource

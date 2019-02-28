@@ -12,6 +12,7 @@ if "%BUILD_PLAY%" == "ON" (
 	
 	cd ..
 	cd ..
+	mkdir %REPO_COMMIT_SHORT%
 	move Play-Build\Play\installer_win32\*.exe %REPO_COMMIT_SHORT%
 )
 
@@ -24,5 +25,6 @@ if "%BUILD_PSFPLAYER%" == "ON" (
 
 	cd ..
 	cd ..
+	mkdir %REPO_COMMIT_SHORT%
 	move Play-Build\Play\tools\PsfPlayer\installer_win32\*.exe %REPO_COMMIT_SHORT%
 )
