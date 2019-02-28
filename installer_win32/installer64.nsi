@@ -67,6 +67,8 @@ Section "Play! (required)"
   File "..\build\Source\ui_qt\Release\Qt5Core.dll"
   File "..\build\Source\ui_qt\Release\Qt5Gui.dll"
   File "..\build\Source\ui_qt\Release\Qt5Widgets.dll"
+  File "..\build\Source\ui_qt\Release\platforms\qwindows.dll"
+  File "..\build\Source\ui_qt\Release\styles\qwindowsvistastyle.dll"
   File "..\Readme.html"
   File "..\Changelog.html"
   File "..\Patches.xml"
@@ -109,20 +111,10 @@ Section "Uninstall"
   ; Remove registry keys
   DeleteRegKey HKLM "${REG_UNINSTALL}"
   DeleteRegKey HKLM SOFTWARE\NSIS_Play
-
-  ; Remove files and uninstaller
-  Delete $INSTDIR\Play.exe
-  Delete $INSTDIR\Qt5Core.dll
-  Delete $INSTDIR\Qt5Gui.dll
-  Delete $INSTDIR\Qt5Widgets.dll
-  Delete $INSTDIR\Readme.html
-  Delete $INSTDIR\Changelog.html
-  Delete $INSTDIR\Patches.xml
-  Delete $INSTDIR\uninstall.exe
-
+  
   ; Remove shortcuts, if any
   Delete "$SMPROGRAMS\Play!\*.*"
-
+  
   ; Remove directories used
   RMDir "$SMPROGRAMS\Play!"
   RMDir "$INSTDIR"
