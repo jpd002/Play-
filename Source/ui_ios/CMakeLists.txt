@@ -86,7 +86,6 @@ set(OSX_HEADERS
 )
 
 set(OSX_RES
-	${CMAKE_CURRENT_SOURCE_DIR}/../../games.db
 	${CMAKE_CURRENT_SOURCE_DIR}/../../patches.xml
 	${CMAKE_CURRENT_SOURCE_DIR}/Base.lproj/Main.storyboard
 	${CMAKE_CURRENT_SOURCE_DIR}/Resources/icon@2x.png
