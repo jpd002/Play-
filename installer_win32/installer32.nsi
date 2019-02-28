@@ -63,6 +63,9 @@ Section "Play! (required)"
   
   ; Put file there
   File "..\build\Source\ui_qt\Release\Play.exe"
+  File "..\build\Source\ui_qt\Release\Qt5Core.dll"
+  File "..\build\Source\ui_qt\Release\Qt5Gui.dll"
+  File "..\build\Source\ui_qt\Release\Qt5Widgets.dll"
   File "..\Readme.html"
   File "..\Changelog.html"
   File "..\Patches.xml"
@@ -106,6 +109,9 @@ Section "Uninstall"
 
   ; Remove files and uninstaller
   Delete $INSTDIR\Play.exe
+  Delete $INSTDIR\Qt5Core.dll
+  Delete $INSTDIR\Qt5Gui.dll
+  Delete $INSTDIR\Qt5Widgets.dll
   Delete $INSTDIR\Readme.html
   Delete $INSTDIR\Changelog.html
   Delete $INSTDIR\Patches.xml
