@@ -16,7 +16,7 @@ if "%BUILD_PLAY%" == "ON" (
 )
 
 if "%BUILD_PSFPLAYER%" == "ON" (
-	cmake .. -G"%BUILD_TYPE%" -T v141_xp -BUILD_PLAY=off -DBUILD_PSFPLAYER=on	
+	cmake .. -G"%BUILD_TYPE%" -T v141_xp -DBUILD_PLAY=off -DBUILD_PSFPLAYER=on
 	cmake --build . --config %CONFIG_TYPE%
 	
 	cd ..
