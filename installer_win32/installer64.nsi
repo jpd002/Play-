@@ -63,7 +63,7 @@ Section "Play! (required)"
   SetOutPath $INSTDIR
   
   ; Put file there
-  File "..\build\Source\ui_win32\Release\Play.exe"
+  File "..\build\Source\ui_qt\Release\Play.exe"
   File "..\Readme.html"
   File "..\Changelog.html"
   File "..\Patches.xml"
