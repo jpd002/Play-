@@ -62,13 +62,16 @@ Section "Play! (required)"
   ; Set output path to the installation directory.
   SetOutPath $INSTDIR
   
+  CreateDirectory $INSTDIR\platforms
+  CreateDirectory $INSTDIR\styles
+  
   ; Put file there
   File "..\build\Source\ui_qt\Release\Play.exe"
   File "..\build\Source\ui_qt\Release\Qt5Core.dll"
   File "..\build\Source\ui_qt\Release\Qt5Gui.dll"
   File "..\build\Source\ui_qt\Release\Qt5Widgets.dll"
-  File "..\build\Source\ui_qt\Release\platforms\qwindows.dll"
-  File "..\build\Source\ui_qt\Release\styles\qwindowsvistastyle.dll"
+  File /oname=platforms\qwindows.dll "..\build\Source\ui_qt\Release\platforms\qwindows.dll"
+  File /oname=styles\qwindowsvistastyle.dll "..\build\Source\ui_qt\Release\styles\qwindowsvistastyle.dll"
   File "..\Readme.html"
   File "..\Changelog.html"
   File "..\Patches.xml"
@@ -77,7 +80,7 @@ Section "Play! (required)"
   WriteRegStr HKLM SOFTWARE\NSIS_Play "Install_Dir" "$INSTDIR"
   
   ; Write the uninstall keys for Windows
-  WriteRegStr HKLM "${REG_UNINSTALL}" "DisplayName" "Play"
+  WriteRegStr HKLM "${REG_UNINSTALL}" "DisplayName" "Play!"
   WriteRegStr HKLM "${REG_UNINSTALL}" "UninstallString" '"$INSTDIR\uninstall.exe"'
   WriteRegDWORD HKLM "${REG_UNINSTALL}" "NoModify" 1
   WriteRegDWORD HKLM "${REG_UNINSTALL}" "NoRepair" 1
@@ -115,7 +118,21 @@ Section "Uninstall"
   ; Remove shortcuts, if any
   Delete "$SMPROGRAMS\Play!\*.*"
   
+  ; Remove files and uninstaller
+  Delete $INSTDIR\Play.exe
+  Delete $INSTDIR\Qt5Core.dll
+  Delete $INSTDIR\Qt5Gui.dll
+  Delete $INSTDIR\Qt5Widgets.dll
+  Delete $INSTDIR\platforms\qwindows.dll
+  Delete $INSTDIR\styles\qwindowsvistastyle.dll
+  Delete $INSTDIR\Readme.html
+  Delete $INSTDIR\Changelog.html
+  Delete $INSTDIR\Patches.xml
+  Delete $INSTDIR\uninstall.exe
+  
   ; Remove directories used
+  RMDir $INSTDIR\platforms
+  RMDir $INSTDIR\styles
   RMDir "$SMPROGRAMS\Play!"
   RMDir "$INSTDIR"
 
