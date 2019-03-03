@@ -104,6 +104,14 @@ if(LIBEVDEV_FOUND)
 	)
 endif()
 if(TARGET_PLATFORM_WIN32)
+	if(NOT TARGET Framework_Win32)
+		add_subdirectory(
+			${CMAKE_CURRENT_SOURCE_DIR}/../../../Framework/build_cmake/FrameworkWin32
+			${CMAKE_CURRENT_BINARY_DIR}/Framework_Win32
+		)
+	endif()
+	list(APPEND PROJECT_LIBS Framework_Win32)
+	
 	set(QT_SOURCES
 		${QT_SOURCES}
 		../../tools/PsfPlayer/Source/win32_ui/SH_WaveOut.cpp
@@ -121,6 +129,8 @@ if(TARGET_PLATFORM_WIN32)
 		../ui_win32/Res.rc
 		${MANIFEST}
 	)
+	
+	list(APPEND PROJECT_LIBS dinput8)
 endif()
 set(QT_MOC_HEADERS
 	ControllerConfig/bindingmodel.h
@@ -192,6 +202,11 @@ if(TARGET_PLATFORM_MACOS)
 	)
 	list(APPEND PROJECT_LIBS "-framework IOKit -framework CoreFoundation")
 elseif(TARGET_PLATFORM_WIN32)
+	set(QT_SOURCES
+		${QT_SOURCES}
+		win32/InputProviderDirectInput.cpp
+		win32/InputProviderDirectInput.h
+	)
 	add_executable(Play WIN32 ${QT_SOURCES} ${QT_MOC_SRCS} ${QT_RES_SOURCES} ${QT_UI_HEADERS})
 else()
 	add_executable(Play ${QT_SOURCES} ${QT_MOC_SRCS} ${QT_RES_SOURCES} ${QT_UI_HEADERS})

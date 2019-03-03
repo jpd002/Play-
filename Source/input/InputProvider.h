@@ -6,10 +6,13 @@
 #include <string>
 #include <cstring>
 
-typedef std::array<uint32, 6> DeviceIdType;
+static const uint32 DeviceIdTypeCount = 6;
+typedef std::array<uint32, DeviceIdTypeCount> DeviceIdType;
 
 struct BINDINGTARGET
 {
+	//AXIS has a value from 0x00 to 0xFF (0x7F is neutral)
+	//POVHAT has a value from 0 to 7 (POVHAT_MAX is neutral)
 	enum class KEYTYPE
 	{
 		BUTTON,

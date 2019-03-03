@@ -39,6 +39,9 @@
 #ifdef HAS_LIBEVDEV
 #include "unix/InputProviderEvDev.h"
 #endif
+#ifdef WIN32
+#include "win32/InputProviderDirectInput.h"
+#endif
 
 MainWindow::MainWindow(QWidget* parent)
     : QMainWindow(parent)
@@ -126,6 +129,9 @@ void MainWindow::InitVirtualMachine()
 #endif
 #ifdef HAS_LIBEVDEV
 		bindingManager.RegisterInputProvider(std::make_shared<CInputProviderEvDev>());
+#endif
+#ifdef WIN32
+		bindingManager.RegisterInputProvider(std::make_shared<CInputProviderDirectInput>());
 #endif
 		if(!bindingManager.HasBindings())
 		{
