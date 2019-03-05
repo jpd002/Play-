@@ -26,6 +26,7 @@
 #include <boost/version.hpp>
 
 #include "PreferenceDefs.h"
+#include "PS2VM_Preferences.h"
 #include "ScreenShotUtils.h"
 
 #include "ui_mainwindow.h"

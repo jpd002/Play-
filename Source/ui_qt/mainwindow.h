@@ -8,7 +8,6 @@
 
 #include "AppConfig.h"
 #include "PS2VM.h"
-#include "PS2VM_Preferences.h"
 #include "StatsManager.h"
 #include "ElidedLabel.h"
 #include "ContinuationChecker.h"
