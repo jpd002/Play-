@@ -32,6 +32,24 @@ public:
 	void LoadCDROM(boost::filesystem::path filePath);
 
 private:
+	enum BootType
+	{
+		CD,
+		ELF
+	};
+
+	struct LastOpenCommand
+	{
+		LastOpenCommand() = default;
+		LastOpenCommand(BootType type, boost::filesystem::path path)
+		    : type(type)
+		    , path(path)
+		{
+		}
+		BootType type = BootType::CD;
+		boost::filesystem::path path;
+	};
+
 	void SetOpenGlPanelSize();
 	void CreateStatusBar();
 	void InitVirtualMachine();
@@ -58,22 +76,6 @@ private:
 	bool m_deactivatePause = false;
 	bool m_pauseFocusLost = true;
 	std::shared_ptr<CInputProviderQtKey> m_qtKeyInputProvider;
-	enum BootType
-	{
-		CD,
-		ELF
-	};
-	struct LastOpenCommand
-	{
-		LastOpenCommand() = default;
-		LastOpenCommand(BootType type, boost::filesystem::path path)
-		    : type(type)
-		    , path(path)
-		{
-		}
-		BootType type = BootType::CD;
-		boost::filesystem::path path;
-	};
 	LastOpenCommand m_lastOpenCommand;
 	boost::filesystem::path m_lastPath;
 
