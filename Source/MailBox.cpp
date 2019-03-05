@@ -47,17 +47,7 @@ void CMailBox::SendCall(const FunctionType& function, bool waitForCompletion)
 		m_callDone = false;
 		while(!m_callDone)
 		{
-#ifdef FRAMEWORK_WIN_DESKTOP
-			MSG wmmsg;
-			while(PeekMessage(&wmmsg, NULL, 0, 0, PM_REMOVE))
-			{
-				TranslateMessage(&wmmsg);
-				DispatchMessage(&wmmsg);
-			}
-			m_callFinished.wait_for(callLock, std::chrono::milliseconds(100));
-#else
 			m_callFinished.wait(callLock);
-#endif
 		}
 	}
 }
