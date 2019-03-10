@@ -434,16 +434,16 @@ void CMA_VU::CLower::JR()
 //25
 void CMA_VU::CLower::JALR()
 {
-	//Save PC
-	m_codeGen->PushCst((m_nAddress + 0x10) / 0x8);
-	m_codeGen->PullRel(offsetof(CMIPS, m_State.nCOP2VI[m_nIT]));
-
 	//Compute new PC
 	m_codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2VI[m_nIS]));
 	m_codeGen->PushCst(0xFFFF);
 	m_codeGen->And();
 	m_codeGen->Shl(3);
 	m_codeGen->PullRel(offsetof(CMIPS, m_State.nDelayedJumpAddr));
+
+	//Save PC
+	m_codeGen->PushCst((m_nAddress + 0x10) / 0x8);
+	m_codeGen->PullRel(offsetof(CMIPS, m_State.nCOP2VI[m_nIT]));
 }
 
 //28
