@@ -491,11 +491,11 @@ void MainWindow::closeEvent(QCloseEvent* event)
 void MainWindow::on_actionAbout_triggered()
 {
 	auto boostver = QString("%1.%2.%3")
-		.arg(BOOST_VERSION / 100000)
-		.arg(BOOST_VERSION / 100 % 1000)
-		.arg(BOOST_VERSION % 100);
+	                    .arg(BOOST_VERSION / 100000)
+	                    .arg(BOOST_VERSION / 100 % 1000)
+	                    .arg(BOOST_VERSION % 100);
 	auto about = QString("Version %1 (%2)\nQt v%3 - zlib v%4 - boost v%5")
-		.arg(QString(PLAY_VERSION), __DATE__, QT_VERSION_STR, ZLIB_VERSION, boostver);
+	                 .arg(QString(PLAY_VERSION), __DATE__, QT_VERSION_STR, ZLIB_VERSION, boostver);
 	QMessageBox::about(this, this->windowTitle(), about);
 }
 
