@@ -1,6 +1,7 @@
 #include "PixelBufferView.h"
 #include <assert.h>
 #include <vector>
+#include <algorithm>
 #include <D3Dcompiler.h>
 #include "../resource.h"
 #include "../D3D9TextureUtils.h"

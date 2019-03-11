@@ -1,5 +1,6 @@
 #include "DirectXControl.h"
 #include "win32/Rect.h"
+#include <algorithm>
 #include <shlwapi.h>
 #include <vsstyle.h>
 #include <vssym32.h>
