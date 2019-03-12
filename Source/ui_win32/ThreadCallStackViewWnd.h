@@ -12,7 +12,7 @@ class CThreadCallStackViewWnd : public Framework::Win32::CDialog
 {
 public:
 	CThreadCallStackViewWnd(HWND);
-	virtual ~CThreadCallStackViewWnd();
+	virtual ~CThreadCallStackViewWnd() = default;
 
 	void SetItems(CMIPS*, const CMIPSAnalysis::CallStackItemArray&, const BiosDebugModuleInfoArray&);
 

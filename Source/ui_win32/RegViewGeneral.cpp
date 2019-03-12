@@ -11,10 +11,6 @@ CRegViewGeneral::CRegViewGeneral(HWND hParent, const RECT& rect, CVirtualMachine
 	m_virtualMachine.OnRunningStateChange.connect(boost::bind(&CRegViewGeneral::Update, this));
 }
 
-CRegViewGeneral::~CRegViewGeneral()
-{
-}
-
 void CRegViewGeneral::Update()
 {
 	SetDisplayText(GetDisplayText().c_str());

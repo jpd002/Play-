@@ -37,10 +37,6 @@ CThreadCallStackViewWnd::CThreadCallStackViewWnd(HWND parentWindow)
 	}
 }
 
-CThreadCallStackViewWnd::~CThreadCallStackViewWnd()
-{
-}
-
 bool CThreadCallStackViewWnd::HasSelection() const
 {
 	return m_hasSelection;

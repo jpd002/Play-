@@ -35,10 +35,6 @@ CRegViewPage::CRegViewPage(HWND hParent, const RECT& rect)
 	SetClassPtr();
 }
 
-CRegViewPage::~CRegViewPage()
-{
-}
-
 void CRegViewPage::SetDisplayText(const char* text)
 {
 	m_text = text;

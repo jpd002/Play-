@@ -13,10 +13,6 @@ CRegViewFPU::CRegViewFPU(HWND hParent, const RECT& rect, CVirtualMachine& virtua
 	virtualMachine.OnRunningStateChange.connect(boost::bind(&CRegViewFPU::OnRunningStateChange, this));
 }
 
-CRegViewFPU::~CRegViewFPU()
-{
-}
-
 void CRegViewFPU::Update()
 {
 	SetDisplayText(GetDisplayText().c_str());

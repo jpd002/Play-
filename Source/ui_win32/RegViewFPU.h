@@ -9,7 +9,7 @@ class CRegViewFPU : public CRegViewPage, public boost::signals2::trackable
 {
 public:
 	CRegViewFPU(HWND, const RECT&, CVirtualMachine&, CMIPS*);
-	virtual ~CRegViewFPU();
+	virtual ~CRegViewFPU() = default;
 
 	void Update() override;
 

@@ -8,7 +8,7 @@ class CRegViewPage : public Framework::Win32::CCustomDrawn
 {
 public:
 	CRegViewPage(HWND, const RECT&);
-	virtual ~CRegViewPage();
+	virtual ~CRegViewPage() = default;
 
 	virtual void Update();
 
