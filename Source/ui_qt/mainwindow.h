@@ -56,7 +56,7 @@ private:
 	void SetupGsHandler();
 	void SetupSoundHandler();
 	void SetupSaveLoadStateSlots();
-	QString SaveStateInfo(int);
+	QString GetSaveStateInfo(int);
 	void OnExecutableChange();
 	void UpdateUI();
 	void RegisterPreferences();

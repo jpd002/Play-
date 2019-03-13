@@ -380,9 +380,9 @@ void MainWindow::SetupSaveLoadStateSlots()
 	bool enable = (m_virtualMachine != nullptr ? (m_virtualMachine->m_ee->m_os->GetELF() != nullptr) : false);
 	ui->menuSave_States->clear();
 	ui->menuLoad_States->clear();
-	for(int i = 1; i <= 10; i++)
+	for(int i = 0; i < 10; i++)
 	{
-		QString info = enable ? SaveStateInfo(i) : "Empty";
+		QString info = enable ? GetSaveStateInfo(i) : "Empty";
 
 		QAction* saveaction = new QAction(this);
 		saveaction->setText(QString("Save Slot %1 - %2").arg(i).arg(info));
@@ -413,8 +413,8 @@ void MainWindow::saveState(int stateSlot)
 			                                                         m_msgLabel->setText(QString("Saved state to slot %1.").arg(stateSlot));
 			                                                         QDateTime* dt = new QDateTime;
 			                                                         QString datetime = dt->currentDateTime().toString("hh:mm dd.MM.yyyy");
-			                                                         ui->menuSave_States->actions().at(stateSlot - 1)->setText(QString("Save Slot %1 - %2").arg(stateSlot).arg(datetime));
-			                                                         ui->menuLoad_States->actions().at(stateSlot - 1)->setText(QString("Load Slot %1 - %2").arg(stateSlot).arg(datetime));
+			                                                         ui->menuSave_States->actions().at(stateSlot)->setText(QString("Save Slot %1 - %2").arg(stateSlot).arg(datetime));
+			                                                         ui->menuLoad_States->actions().at(stateSlot)->setText(QString("Load Slot %1 - %2").arg(stateSlot).arg(datetime));
 		                                                         }
 		                                                         else
 		                                                         {
@@ -441,7 +441,7 @@ void MainWindow::loadState(int stateSlot)
 	                                                         });
 }
 
-QString MainWindow::SaveStateInfo(int stateSlot)
+QString MainWindow::GetSaveStateInfo(int stateSlot)
 {
 	auto stateFilePath = m_virtualMachine->GenerateStatePath(stateSlot);
 	QFileInfo file(PathToQString(stateFilePath));
