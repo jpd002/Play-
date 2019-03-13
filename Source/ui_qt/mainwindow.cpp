@@ -444,7 +444,7 @@ void MainWindow::loadState(int stateSlot)
 QString MainWindow::SaveStateInfo(int stateSlot)
 {
 	auto stateFilePath = m_virtualMachine->GenerateStatePath(stateSlot);
-	QFileInfo file(stateFilePath.string().c_str());
+	QFileInfo file(PathToQString(stateFilePath));
 	if(file.exists() && file.isFile())
 	{
 		return file.created().toString("hh:mm dd.MM.yyyy");
