@@ -9,7 +9,7 @@ class CMemoryViewMIPS : public CMemoryView, public boost::signals2::trackable
 {
 public:
 	CMemoryViewMIPS(HWND, const RECT&, CVirtualMachine&, CMIPS*);
-	virtual ~CMemoryViewMIPS();
+	virtual ~CMemoryViewMIPS() = default;
 
 protected:
 	enum

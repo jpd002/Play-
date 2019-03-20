@@ -18,10 +18,6 @@ CMemoryViewMIPS::CMemoryViewMIPS(HWND hParent, const RECT& rect, CVirtualMachine
 	m_virtualMachine.OnMachineStateChange.connect(boost::bind(&CMemoryViewMIPS::OnMachineStateChange, this));
 }
 
-CMemoryViewMIPS::~CMemoryViewMIPS()
-{
-}
-
 long CMemoryViewMIPS::OnCommand(unsigned short nID, unsigned short nCmd, HWND hSender)
 {
 	switch(nID)
