@@ -115,6 +115,7 @@ set(SRC_FILES
 	${SRC_ROOT}/ThreadCallStackViewWnd.h
 	${SRC_ROOT}/ThreadsViewWnd.cpp
 	${SRC_ROOT}/ThreadsViewWnd.h
+	${SRC_ROOT}/VirtualMachineStateView.h
 	${SRC_ROOT}/WinUtils.cpp
 	${SRC_ROOT}/WinUtils.h
 )
