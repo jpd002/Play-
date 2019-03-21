@@ -150,6 +150,7 @@ set(QT_MOC_HEADERS
 
 set(QT_UIS
 	Qt_ui/controllerconfigdialog.ui
+	Qt_ui/debugmenu.ui
 	Qt_ui/inputeventselectiondialog.ui
 	Qt_ui/mainwindow.ui
 	Qt_ui/memorycardmanager.ui

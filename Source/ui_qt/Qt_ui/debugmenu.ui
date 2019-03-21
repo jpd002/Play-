@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>DebugMenu</class>
+ <widget class="QMenu" name="DebugMenu">
+  <property name="title">
+   <string>Debug</string>
+  </property>
+  <action name="actionShowDebugger">
+   <property name="text">
+    <string>Show Debugger</string>
+   </property>
+  </action>
+  <action name="actionShowFrameDebugger">
+   <property name="text">
+    <string>Show Frame Debugger</string>
+   </property>
+  </action>
+  <action name="actionDumpNextFrame">
+   <property name="text">
+    <string>Dump Next Frame</string>
+   </property>
+   <property name="shortcut">
+    <string>F11</string>
+   </property>
+  </action>
+  <action name="actionGsDrawEnabled">
+   <property name="text">
+    <string>GS Draw Enabled</string>
+   </property>
+  </action>
+  <addaction name="actionShowDebugger"/>
+  <addaction name="separator"/>
+  <addaction name="actionShowFrameDebugger"/>
+  <addaction name="actionDumpNextFrame"/>
+  <addaction name="actionGsDrawEnabled"/>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
