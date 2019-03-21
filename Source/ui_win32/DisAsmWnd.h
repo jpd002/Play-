@@ -3,8 +3,9 @@
 #include "win32/MDIChild.h"
 #include "DisAsm.h"
 #include "../VirtualMachine.h"
+#include "VirtualMachineStateView.h"
 
-class CDisAsmWnd : public Framework::Win32::CMDIChild
+class CDisAsmWnd : public Framework::Win32::CMDIChild, public CVirtualMachineStateView
 {
 public:
 	enum DISASM_TYPE
@@ -16,7 +17,9 @@ public:
 	CDisAsmWnd(HWND, CVirtualMachine&, CMIPS*, DISASM_TYPE);
 	virtual ~CDisAsmWnd();
 
-	void Refresh();
+	void HandleMachineStateChange() override;
+	void HandleRunningStateChange(CVirtualMachine::STATUS) override;
+
 	CDisAsm* GetDisAsm() const;
 
 protected:

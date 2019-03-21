@@ -1,5 +1,4 @@
 #include <stdio.h>
-#include <boost/bind.hpp>
 #include "DisAsm.h"
 #include "resource.h"
 #include "win32/InputBox.h"
@@ -54,9 +53,6 @@ CDisAsm::CDisAsm(HWND parentWnd, const RECT& rect, CVirtualMachine& virtualMachi
 	Create(WS_EX_CLIENTEDGE, Framework::Win32::CDefaultWndClass::GetName(), _T(""), WS_VISIBLE | WS_VSCROLL | WS_CHILD, rect, parentWnd, NULL);
 	SetClassPtr();
 
-	m_virtualMachine.OnMachineStateChange.connect(boost::bind(&CDisAsm::OnMachineStateChange, this));
-	m_virtualMachine.OnRunningStateChange.connect(boost::bind(&CDisAsm::OnRunningStateChange, this));
-
 	SCROLLINFO si;
 	memset(&si, 0, sizeof(SCROLLINFO));
 	si.cbSize = sizeof(SCROLLINFO);
@@ -96,17 +92,21 @@ void CDisAsm::SetSelectedAddress(uint32 address)
 	Redraw();
 }
 
-void CDisAsm::OnMachineStateChange()
+void CDisAsm::HandleMachineStateChange()
 {
-	if(!IsAddressVisible(m_ctx->m_State.nPC))
-	{
-		m_address = m_ctx->m_State.nPC & ~(m_instructionSize - 1);
-	}
 	Redraw();
 }
 
-void CDisAsm::OnRunningStateChange()
+void CDisAsm::HandleRunningStateChange(CVirtualMachine::STATUS newState)
 {
+	if(newState == CVirtualMachine::STATUS::PAUSED)
+	{
+		//Recenter view if we just got into paused state
+		if(!IsAddressVisible(m_ctx->m_State.nPC))
+		{
+			m_address = m_ctx->m_State.nPC & ~(m_instructionSize - 1);
+		}
+	}
 	Redraw();
 }
 

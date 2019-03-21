@@ -7,14 +7,18 @@
 #include "RegViewWnd.h"
 #include "CallStackWnd.h"
 #include "../VirtualMachine.h"
+#include "VirtualMachineStateView.h"
 
-class CDebugView : public boost::signals2::trackable
+class CDebugView : public boost::signals2::trackable, public CVirtualMachineStateView
 {
 public:
 	typedef std::function<void(void)> StepFunction;
 
 	CDebugView(HWND, CVirtualMachine&, CMIPS*, const StepFunction&, CBiosDebugInfoProvider*, const char*, CDisAsmWnd::DISASM_TYPE = CDisAsmWnd::DISASM_STANDARD);
 	virtual ~CDebugView();
+
+	void HandleMachineStateChange() override;
+	void HandleRunningStateChange(CVirtualMachine::STATUS) override;
 
 	CMIPS* GetContext();
 	CDisAsmWnd* GetDisassemblyWindow();

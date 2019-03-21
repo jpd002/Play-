@@ -76,12 +76,16 @@ private:
 	void OnThreadsViewAddressDblClick(uint32);
 	void OnExecutableChange();
 	void OnExecutableUnloading();
+	void OnMachineStateChange();
+	void OnRunningStateChange();
 	void OnFindCallersRequested(uint32);
 	void OnFindCallersAddressDblClick(uint32);
 
 	//Tunnelled handlers
 	void OnExecutableChangeMsg();
 	void OnExecutableUnloadingMsg();
+	void OnMachineStateChangeMsg();
+	void OnRunningStateChangeMsg();
 
 	HACCEL m_nAccTable;
 

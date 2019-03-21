@@ -4,10 +4,10 @@
 #include "../MIPS.h"
 #include "../VirtualMachine.h"
 
-class CRegViewSCU : public CRegViewPage, public boost::signals2::trackable
+class CRegViewSCU : public CRegViewPage
 {
 public:
-	CRegViewSCU(HWND, const RECT&, CVirtualMachine&, CMIPS*);
+	CRegViewSCU(HWND, const RECT&, CMIPS*);
 	virtual ~CRegViewSCU() = default;
 
 private:

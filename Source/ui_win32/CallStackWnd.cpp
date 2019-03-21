@@ -6,9 +6,8 @@
 
 #define CLSNAME _T("CallStackWnd")
 
-CCallStackWnd::CCallStackWnd(HWND hParent, CVirtualMachine& virtualMachine, CMIPS* context, CBiosDebugInfoProvider* biosDebugInfoProvider)
-    : m_virtualMachine(virtualMachine)
-    , m_context(context)
+CCallStackWnd::CCallStackWnd(HWND hParent, CMIPS* context, CBiosDebugInfoProvider* biosDebugInfoProvider)
+    : m_context(context)
     , m_list(nullptr)
     , m_biosDebugInfoProvider(biosDebugInfoProvider)
 {
@@ -31,9 +30,6 @@ CCallStackWnd::CCallStackWnd(HWND hParent, CVirtualMachine& virtualMachine, CMIP
 	m_list = new Framework::Win32::CListView(m_hWnd, Framework::Win32::CRect(0, 0, 1, 1), LVS_REPORT);
 	m_list->SetExtendedListViewStyle(m_list->GetExtendedListViewStyle() | LVS_EX_FULLROWSELECT);
 
-	m_virtualMachine.OnMachineStateChange.connect(boost::bind(&CCallStackWnd::Update, this));
-	m_virtualMachine.OnRunningStateChange.connect(boost::bind(&CCallStackWnd::Update, this));
-
 	CreateColumns();
 
 	RefreshLayout();
@@ -43,6 +39,11 @@ CCallStackWnd::CCallStackWnd(HWND hParent, CVirtualMachine& virtualMachine, CMIP
 CCallStackWnd::~CCallStackWnd()
 {
 	delete m_list;
+}
+
+void CCallStackWnd::HandleMachineStateChange()
+{
+	Update();
 }
 
 long CCallStackWnd::OnSize(unsigned int nType, unsigned int nX, unsigned int nY)

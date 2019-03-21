@@ -5,16 +5,15 @@
 #include "../VirtualMachine.h"
 #include <string>
 
-class CRegViewGeneral : public CRegViewPage, public boost::signals2::trackable
+class CRegViewGeneral : public CRegViewPage
 {
 public:
-	CRegViewGeneral(HWND, const RECT&, CVirtualMachine&, CMIPS*);
+	CRegViewGeneral(HWND, const RECT&, CMIPS*);
 	virtual ~CRegViewGeneral() = default;
 
 private:
 	void Update() override;
 	std::string GetDisplayText();
 
-	CVirtualMachine& m_virtualMachine;
 	CMIPS* m_pCtx;
 };

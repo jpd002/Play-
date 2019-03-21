@@ -8,12 +8,15 @@
 #include "../BiosDebugInfoProvider.h"
 #include "win32/MDIChild.h"
 #include "Types.h"
+#include "VirtualMachineStateView.h"
 
-class CThreadsViewWnd : public Framework::Win32::CMDIChild, public boost::signals2::trackable
+class CThreadsViewWnd : public Framework::Win32::CMDIChild, public CVirtualMachineStateView
 {
 public:
-	CThreadsViewWnd(HWND, CVirtualMachine&);
+	CThreadsViewWnd(HWND);
 	virtual ~CThreadsViewWnd() = default;
+
+	void HandleMachineStateChange() override;
 
 	void SetContext(CMIPS*, CBiosDebugInfoProvider*);
 

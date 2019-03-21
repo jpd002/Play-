@@ -2,15 +2,18 @@
 
 #include "win32/MDIChild.h"
 #include "win32/Tab.h"
-#include "../VirtualMachine.h"
+#include "VirtualMachineStateView.h"
 
 class CMIPS;
+class CRegViewPage;
 
-class CRegViewWnd : public Framework::Win32::CMDIChild, public boost::signals2::trackable
+class CRegViewWnd : public Framework::Win32::CMDIChild, public CVirtualMachineStateView
 {
 public:
-	CRegViewWnd(HWND, CVirtualMachine&, CMIPS*);
+	CRegViewWnd(HWND, CMIPS*);
 	virtual ~CRegViewWnd();
+
+	void HandleMachineStateChange() override;
 
 protected:
 	long OnSize(unsigned int, unsigned int, unsigned int) override;
@@ -27,7 +30,7 @@ private:
 	void UnselectTab(unsigned int);
 	void RefreshLayout();
 
-	CWindow* m_regView[MAXTABS];
-	CWindow* m_current = nullptr;
+	CRegViewPage* m_regView[MAXTABS];
+	CRegViewPage* m_current = nullptr;
 	Framework::Win32::CTab m_tabs;
 };

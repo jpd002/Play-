@@ -6,14 +6,18 @@
 #include "win32/GdiObj.h"
 #include "../MIPS.h"
 #include "../VirtualMachine.h"
+#include "VirtualMachineStateView.h"
 
-class CDisAsm : public Framework::Win32::CCustomDrawn, public boost::signals2::trackable
+class CDisAsm : public Framework::Win32::CCustomDrawn, public CVirtualMachineStateView
 {
 public:
 	typedef boost::signals2::signal<void(uint32)> FindCallersRequestedEvent;
 
 	CDisAsm(HWND, const RECT&, CVirtualMachine&, CMIPS*);
 	virtual ~CDisAsm();
+
+	void HandleMachineStateChange() override;
+	void HandleRunningStateChange(CVirtualMachine::STATUS) override;
 
 	void SetAddress(uint32);
 	void SetCenterAtAddress(uint32);
@@ -84,8 +88,6 @@ private:
 	uint32 HistoryGetNext();
 	bool HistoryHasPrevious();
 	bool HistoryHasNext();
-	void OnMachineStateChange();
-	void OnRunningStateChange();
 
 	virtual std::tstring GetInstructionDetailsText(uint32);
 	virtual unsigned int GetMetadataPosition() const;

@@ -36,9 +36,14 @@ CDisAsm* CDisAsmWnd::GetDisAsm() const
 	return m_disAsm;
 }
 
-void CDisAsmWnd::Refresh()
+void CDisAsmWnd::HandleMachineStateChange()
 {
-	m_disAsm->Redraw();
+	m_disAsm->HandleMachineStateChange();
+}
+
+void CDisAsmWnd::HandleRunningStateChange(CVirtualMachine::STATUS newState)
+{
+	m_disAsm->HandleRunningStateChange(newState);
 }
 
 void CDisAsmWnd::RefreshLayout()

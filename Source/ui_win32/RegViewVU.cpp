@@ -6,13 +6,10 @@
 #define MENUCMD_BASE 40000
 #define CLIP_FLAG_MASK 0xFFFFFF
 
-CRegViewVU::CRegViewVU(HWND hParent, const RECT& rect, CVirtualMachine& virtualMachine, CMIPS* ctx)
+CRegViewVU::CRegViewVU(HWND hParent, const RECT& rect, CMIPS* ctx)
     : CRegViewPage(hParent, rect)
     , m_ctx(ctx)
 {
-	virtualMachine.OnMachineStateChange.connect(boost::bind(&CRegViewVU::Update, this));
-	virtualMachine.OnRunningStateChange.connect(boost::bind(&CRegViewVU::Update, this));
-
 	Update();
 }
 

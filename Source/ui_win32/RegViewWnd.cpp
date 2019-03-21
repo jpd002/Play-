@@ -7,7 +7,7 @@
 
 #define WND_STYLE (WS_CLIPCHILDREN | WS_CLIPSIBLINGS | WS_THICKFRAME | WS_CAPTION | WS_SYSMENU | WS_CHILD | WS_MAXIMIZEBOX)
 
-CRegViewWnd::CRegViewWnd(HWND parentWnd, CVirtualMachine& virtualMachine, CMIPS* ctx)
+CRegViewWnd::CRegViewWnd(HWND parentWnd, CMIPS* ctx)
 {
 	auto windowRect = Framework::Win32::CRect(0, 0, 320, 240);
 
@@ -20,10 +20,10 @@ CRegViewWnd::CRegViewWnd(HWND parentWnd, CVirtualMachine& virtualMachine, CMIPS*
 	m_tabs.InsertTab(_T("FPU"));
 	m_tabs.InsertTab(_T("VU"));
 
-	m_regView[0] = new CRegViewGeneral(m_hWnd, windowRect, virtualMachine, ctx);
-	m_regView[1] = new CRegViewSCU(m_hWnd, windowRect, virtualMachine, ctx);
-	m_regView[2] = new CRegViewFPU(m_hWnd, windowRect, virtualMachine, ctx);
-	m_regView[3] = new CRegViewVU(m_hWnd, windowRect, virtualMachine, ctx);
+	m_regView[0] = new CRegViewGeneral(m_hWnd, windowRect, ctx);
+	m_regView[1] = new CRegViewSCU(m_hWnd, windowRect, ctx);
+	m_regView[2] = new CRegViewFPU(m_hWnd, windowRect, ctx);
+	m_regView[3] = new CRegViewVU(m_hWnd, windowRect, ctx);
 
 	for(unsigned int i = 0; i < MAXTABS; i++)
 	{
@@ -42,6 +42,11 @@ CRegViewWnd::~CRegViewWnd()
 	{
 		delete m_regView[i];
 	}
+}
+
+void CRegViewWnd::HandleMachineStateChange()
+{
+	m_current->Update();
 }
 
 void CRegViewWnd::RefreshLayout()
@@ -102,6 +107,7 @@ void CRegViewWnd::SelectTab(unsigned int viewIndex)
 
 	if(m_current != nullptr)
 	{
+		m_current->Update();
 		m_current->Enable(true);
 		m_current->Show(SW_SHOW);
 		m_current->SetFocus();

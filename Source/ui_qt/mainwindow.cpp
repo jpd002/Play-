@@ -16,6 +16,11 @@
 #include "GSH_OpenGLQt.h"
 #ifdef _WIN32
 #include "../../tools/PsfPlayer/Source/win32_ui/SH_WaveOut.h"
+#ifdef DEBUGGER_INCLUDED
+#include "../ui_win32/Debugger.h"
+#include "../ui_win32/FrameDebugger/FrameDebugger.h"
+#include "ui_debugmenu.h"
+#endif
 #else
 #include "tools/PsfPlayer/Source/SH_OpenAL.h"
 #endif
@@ -82,10 +87,28 @@ MainWindow::MainWindow(QWidget* parent)
 	UpdateUI();
 
 	InitVirtualMachine();
+
+#ifdef DEBUGGER_INCLUDED
+	m_debugger = std::make_unique<CDebugger>(*m_virtualMachine);
+	m_frameDebugger = std::make_unique<CFrameDebugger>();
+
+	auto debugMenu = new QMenu(this);
+	debugMenuUi = new Ui::DebugMenu();
+	debugMenuUi->setupUi(debugMenu);
+	ui->menuBar->insertMenu(ui->menuHelp->menuAction(), debugMenu);
+
+	connect(debugMenuUi->actionShowDebugger, &QAction::triggered, this, std::bind(&MainWindow::ShowDebugger, this));
+	connect(debugMenuUi->actionShowFrameDebugger, &QAction::triggered, this, std::bind(&MainWindow::ShowFrameDebugger, this));
+#endif
 }
 
 MainWindow::~MainWindow()
 {
+#ifdef DEBUGGER_INCLUDED
+	m_debugger.reset();
+	m_frameDebugger.reset();
+	delete debugMenuUi;
+#endif
 	CAppConfig::GetInstance().Save();
 	if(m_virtualMachine != nullptr)
 	{
@@ -291,7 +314,9 @@ void MainWindow::BootElf(boost::filesystem::path filePath)
 	m_virtualMachine->Pause();
 	m_virtualMachine->Reset();
 	m_virtualMachine->m_ee->m_os->BootFromFile(filePath);
+#ifndef DEBUGGER_INCLUDED
 	m_virtualMachine->Resume();
+#endif
 	m_msgLabel->setText(QString("Loaded executable '%1'.")
 	                        .arg(m_virtualMachine->m_ee->m_os->GetExecutableName()));
 }
@@ -309,7 +334,9 @@ void MainWindow::BootCDROM()
 	m_virtualMachine->Pause();
 	m_virtualMachine->Reset();
 	m_virtualMachine->m_ee->m_os->BootFromCDROM();
+#ifndef DEBUGGER_INCLUDED
 	m_virtualMachine->Resume();
+#endif
 	m_msgLabel->setText(QString("Loaded executable '%1' from cdrom0.")
 	                        .arg(m_virtualMachine->m_ee->m_os->GetExecutableName()));
 }
@@ -578,6 +605,37 @@ void MainWindow::toggleFullscreen()
 		menuBar()->hide();
 	}
 }
+
+#ifdef DEBUGGER_INCLUDED
+bool MainWindow::nativeEventFilter(const QByteArray&, void* message, long* result)
+{
+	auto msg = reinterpret_cast<MSG*>(message);
+	HWND activeWnd = GetActiveWindow();
+	if(m_debugger && (activeWnd == m_debugger->m_hWnd) &&
+	   TranslateAccelerator(m_debugger->m_hWnd, m_debugger->GetAccelerators(), msg))
+	{
+		return true;
+	}
+	if(m_frameDebugger && (activeWnd == m_frameDebugger->m_hWnd) &&
+	   TranslateAccelerator(m_frameDebugger->m_hWnd, m_frameDebugger->GetAccelerators(), msg))
+	{
+		return true;
+	}
+	return false;
+}
+
+void MainWindow::ShowDebugger()
+{
+	m_debugger->Show(SW_SHOWMAXIMIZED);
+	SetForegroundWindow(*m_debugger);
+}
+
+void MainWindow::ShowFrameDebugger()
+{
+	m_frameDebugger->Show(SW_SHOWMAXIMIZED);
+	SetForegroundWindow(*m_frameDebugger);
+}
+#endif
 
 void MainWindow::on_actionPause_when_focus_is_lost_triggered(bool checked)
 {

@@ -20,8 +20,13 @@
 
 #define CLSNAME _T("CDebugger")
 
-#define WM_EXECUNLOAD (WM_USER + 0)
-#define WM_EXECCHANGE (WM_USER + 1)
+enum
+{
+	WM_EXECUNLOAD = WM_USER + 1,
+	WM_EXECCHANGE,
+	WM_MACHINESTATECHANGE,
+	WM_RUNNINGSTATECHANGE
+};
 
 #define PREF_DEBUGGER_MEMORYVIEW_BYTEWIDTH "debugger.memoryview.bytewidth"
 
@@ -65,7 +70,7 @@ CDebugger::CDebugger(CPS2VM& virtualMachine)
 	m_pFunctionsView->OnFunctionsStateChange.connect(boost::bind(&CDebugger::OnFunctionsViewFunctionsStateChange, this));
 
 	//Threads View Initialization
-	m_threadsView = new CThreadsViewWnd(m_pMDIClient->m_hWnd, m_virtualMachine);
+	m_threadsView = new CThreadsViewWnd(m_pMDIClient->m_hWnd);
 	m_threadsView->Show(SW_HIDE);
 	m_threadsView->OnGotoAddress.connect(boost::bind(&CDebugger::OnThreadsViewAddressDblClick, this, _1));
 
@@ -89,6 +94,9 @@ CDebugger::CDebugger(CPS2VM& virtualMachine)
 
 	m_virtualMachine.m_ee->m_os->OnExecutableChange.connect(boost::bind(&CDebugger::OnExecutableChange, this));
 	m_virtualMachine.m_ee->m_os->OnExecutableUnloading.connect(boost::bind(&CDebugger::OnExecutableUnloading, this));
+
+	m_virtualMachine.OnMachineStateChange.connect(boost::bind(&CDebugger::OnMachineStateChange, this));
+	m_virtualMachine.OnRunningStateChange.connect(boost::bind(&CDebugger::OnRunningStateChange, this));
 
 	ActivateView(DEBUGVIEW_EE);
 	LoadSettings();
@@ -798,6 +806,13 @@ LRESULT CDebugger::OnWndProc(unsigned int nMsg, WPARAM wParam, LPARAM lParam)
 		OnExecutableChangeMsg();
 		return FALSE;
 		break;
+	case WM_MACHINESTATECHANGE:
+		OnMachineStateChangeMsg();
+		return FALSE;
+		break;
+	case WM_RUNNINGSTATECHANGE:
+		OnRunningStateChangeMsg();
+		break;
 	}
 	return CMDIFrame::OnWndProc(nMsg, wParam, lParam);
 }
@@ -809,7 +824,8 @@ void CDebugger::OnFunctionsViewFunctionDblClick(uint32 address)
 
 void CDebugger::OnFunctionsViewFunctionsStateChange()
 {
-	GetDisassemblyWindow()->Refresh();
+	GetDisassemblyWindow()->HandleMachineStateChange();
+	GetCallStackWindow()->HandleMachineStateChange();
 }
 
 void CDebugger::OnThreadsViewAddressDblClick(uint32 address)
@@ -827,6 +843,16 @@ void CDebugger::OnExecutableChange()
 void CDebugger::OnExecutableUnloading()
 {
 	SendMessage(m_hWnd, WM_EXECUNLOAD, 0, 0);
+}
+
+void CDebugger::OnMachineStateChange()
+{
+	PostMessage(m_hWnd, WM_MACHINESTATECHANGE, 0, 0);
+}
+
+void CDebugger::OnRunningStateChange()
+{
+	PostMessage(m_hWnd, WM_RUNNINGSTATECHANGE, 0, 0);
 }
 
 void CDebugger::OnFindCallersRequested(uint32 address)
@@ -867,7 +893,8 @@ void CDebugger::OnExecutableChangeMsg()
 
 	LoadDebugTags();
 
-	GetDisassemblyWindow()->Refresh();
+	GetDisassemblyWindow()->HandleMachineStateChange();
+	GetCallStackWindow()->HandleMachineStateChange();
 	m_pFunctionsView->Refresh();
 }
 
@@ -876,6 +903,25 @@ void CDebugger::OnExecutableUnloadingMsg()
 	SaveDebugTags();
 	m_pELFView->SetELF(NULL);
 	//	m_pFunctionsView->SetELF(NULL);
+}
+
+void CDebugger::OnMachineStateChangeMsg()
+{
+	for(auto& view : m_pView)
+	{
+		view->HandleMachineStateChange();
+	}
+	m_threadsView->HandleMachineStateChange();
+}
+
+void CDebugger::OnRunningStateChangeMsg()
+{
+	auto newState = m_virtualMachine.GetStatus();
+	for(auto& view : m_pView)
+	{
+		view->HandleRunningStateChange(newState);
+	}
+	m_threadsView->HandleRunningStateChange(newState);
 }
 
 void CDebugger::LoadDebugTags()

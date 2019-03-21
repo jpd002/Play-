@@ -131,6 +131,17 @@ if(TARGET_PLATFORM_WIN32)
 	)
 	
 	list(APPEND PROJECT_LIBS dinput8)
+	
+	if(DEBUGGER_INCLUDED)
+		if(NOT TARGET PlayDebugSupport)
+			add_subdirectory(
+				${CMAKE_CURRENT_SOURCE_DIR}/win32/DebugSupport
+				${CMAKE_CURRENT_BINARY_DIR}/PlayDebugSupport
+			)
+		endif()
+		list(APPEND PROJECT_LIBS PlayDebugSupport)
+	endif()
+	
 endif()
 set(QT_MOC_HEADERS
 	ControllerConfig/bindingmodel.h

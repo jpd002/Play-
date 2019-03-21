@@ -12,7 +12,7 @@
 
 #define WND_STYLE (WS_CLIPCHILDREN | WS_THICKFRAME | WS_CAPTION | WS_SYSMENU | WS_CHILD | WS_MAXIMIZEBOX)
 
-CThreadsViewWnd::CThreadsViewWnd(HWND parentWnd, CVirtualMachine& virtualMachine)
+CThreadsViewWnd::CThreadsViewWnd(HWND parentWnd)
     : m_listView(nullptr)
     , m_context(nullptr)
     , m_biosDebugInfoProvider(nullptr)
@@ -29,9 +29,11 @@ CThreadsViewWnd::CThreadsViewWnd(HWND parentWnd, CVirtualMachine& virtualMachine
 
 	SetSize(windowRect.Width(), windowRect.Height());
 	RefreshLayout();
+}
 
-	virtualMachine.OnMachineStateChange.connect(boost::bind(&CThreadsViewWnd::Update, this));
-	virtualMachine.OnRunningStateChange.connect(boost::bind(&CThreadsViewWnd::Update, this));
+void CThreadsViewWnd::HandleMachineStateChange()
+{
+	Update();
 }
 
 void CThreadsViewWnd::SetContext(CMIPS* context, CBiosDebugInfoProvider* biosDebugInfoProvider)

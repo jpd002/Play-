@@ -5,6 +5,7 @@
 #include <QLabel>
 #include <QKeyEvent>
 #include <QDir>
+#include <QAbstractNativeEventFilter>
 
 #include "AppConfig.h"
 #include "PS2VM.h"
@@ -19,7 +20,21 @@ namespace Ui
 	class MainWindow;
 }
 
+#ifdef DEBUGGER_INCLUDED
+class CDebugger;
+class CFrameDebugger;
+
+namespace Ui
+{
+	class DebugMenu;
+}
+#endif
+
 class MainWindow : public QMainWindow
+#ifdef DEBUGGER_INCLUDED
+    ,
+                   public QAbstractNativeEventFilter
+#endif
 {
 	Q_OBJECT
 
@@ -30,6 +45,10 @@ public:
 	void BootElf(boost::filesystem::path);
 	void BootCDROM();
 	void LoadCDROM(boost::filesystem::path filePath);
+#ifdef DEBUGGER_INCLUDED
+	void ShowDebugger();
+	void ShowFrameDebugger();
+#endif
 
 private:
 	enum BootType
@@ -63,6 +82,9 @@ private:
 	void saveState(int);
 	void loadState(int);
 	void toggleFullscreen();
+#ifdef DEBUGGER_INCLUDED
+	bool nativeEventFilter(const QByteArray&, void*, long*) Q_DECL_OVERRIDE;
+#endif
 
 	Ui::MainWindow* ui;
 
@@ -78,6 +100,12 @@ private:
 	std::shared_ptr<CInputProviderQtKey> m_qtKeyInputProvider;
 	LastOpenCommand m_lastOpenCommand;
 	boost::filesystem::path m_lastPath;
+
+#ifdef DEBUGGER_INCLUDED
+	std::unique_ptr<CDebugger> m_debugger;
+	std::unique_ptr<CFrameDebugger> m_frameDebugger;
+	Ui::DebugMenu* debugMenuUi = nullptr;
+#endif
 
 protected:
 	void closeEvent(QCloseEvent*) Q_DECL_OVERRIDE;

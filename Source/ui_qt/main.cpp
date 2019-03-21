@@ -16,6 +16,10 @@ int main(int argc, char* argv[])
 	parser.addHelpOption();
 	parser.addVersionOption();
 
+#ifdef DEBUGGER_INCLUDED
+	QCommandLineOption debugger_option("debugger", "Show debugger");
+	parser.addOption(debugger_option);
+#endif
 	QCommandLineOption cdrom_image_option("cdrom0", "Boot last booted cdvd image");
 	parser.addOption(cdrom_image_option);
 	QCommandLineOption disc_image_option("disc", "Boot any supported disc image", "disc_image");
@@ -25,6 +29,9 @@ int main(int argc, char* argv[])
 	parser.process(a);
 
 	MainWindow w;
+#ifdef DEBUGGER_INCLUDED
+	a.installNativeEventFilter(&w);
+#endif
 	w.show();
 
 	if(parser.isSet(cdrom_image_option))
@@ -43,5 +50,11 @@ int main(int argc, char* argv[])
 		w.BootElf(QStringToPath(elf_image));
 	}
 
+#ifdef DEBUGGER_INCLUDED
+	if(parser.isSet(debugger_option))
+	{
+		w.ShowDebugger();
+	}
+#endif
 	return a.exec();
 }

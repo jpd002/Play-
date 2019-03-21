@@ -26,6 +26,16 @@ CMemoryViewMIPSWnd::~CMemoryViewMIPSWnd()
 	delete m_memoryView;
 }
 
+void CMemoryViewMIPSWnd::HandleMachineStateChange()
+{
+	m_memoryView->HandleMachineStateChange();
+}
+
+void CMemoryViewMIPSWnd::HandleRunningStateChange(CVirtualMachine::STATUS newState)
+{
+	m_memoryView->HandleRunningStateChange(newState);
+}
+
 CMemoryViewMIPS* CMemoryViewMIPSWnd::GetMemoryView() const
 {
 	return m_memoryView;

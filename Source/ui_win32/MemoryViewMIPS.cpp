@@ -1,4 +1,3 @@
-#include <boost/bind.hpp>
 #include "win32/InputBox.h"
 #include "win32/Font.h"
 #include "string_cast.h"
@@ -14,8 +13,6 @@ CMemoryViewMIPS::CMemoryViewMIPS(HWND hParent, const RECT& rect, CVirtualMachine
 	m_font = Framework::Win32::CreateFont(_T("Courier New"), 8);
 
 	SetMemorySize(0x02004000);
-
-	m_virtualMachine.OnMachineStateChange.connect(boost::bind(&CMemoryViewMIPS::OnMachineStateChange, this));
 }
 
 long CMemoryViewMIPS::OnCommand(unsigned short nID, unsigned short nCmd, HWND hSender)
@@ -58,7 +55,7 @@ HMENU CMemoryViewMIPS::CreateContextualMenu()
 	return menu;
 }
 
-void CMemoryViewMIPS::OnMachineStateChange()
+void CMemoryViewMIPS::HandleMachineStateChange()
 {
 	Redraw();
 }

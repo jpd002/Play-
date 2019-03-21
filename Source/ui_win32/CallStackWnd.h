@@ -7,14 +7,17 @@
 #include "../VirtualMachine.h"
 #include "../MIPS.h"
 #include "../BiosDebugInfoProvider.h"
+#include "VirtualMachineStateView.h"
 
-class CCallStackWnd : public Framework::Win32::CMDIChild, public boost::signals2::trackable
+class CCallStackWnd : public Framework::Win32::CMDIChild, public CVirtualMachineStateView
 {
 public:
 	typedef boost::signals2::signal<void(uint32)> OnFunctionDblClickSignal;
 
-	CCallStackWnd(HWND, CVirtualMachine&, CMIPS*, CBiosDebugInfoProvider*);
+	CCallStackWnd(HWND, CMIPS*, CBiosDebugInfoProvider*);
 	virtual ~CCallStackWnd();
+
+	void HandleMachineStateChange() override;
 
 	OnFunctionDblClickSignal OnFunctionDblClick;
 
@@ -29,7 +32,6 @@ private:
 	void Update();
 	void OnListDblClick();
 
-	CVirtualMachine& m_virtualMachine;
 	CMIPS* m_context;
 	Framework::Win32::CListView* m_list;
 	CBiosDebugInfoProvider* m_biosDebugInfoProvider;

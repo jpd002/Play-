@@ -26,7 +26,7 @@ CVu1ProgramView::CVu1ProgramView(HWND parent, const RECT& rect, CVu1Vm& virtualM
 
 	m_disAsm = std::make_unique<CDisAsmVu>(*m_subSplitter, GetClientRect(), m_virtualMachine, m_virtualMachine.GetVu1Context());
 
-	m_regView = std::make_unique<CRegViewVU>(*m_subSplitter, GetClientRect(), m_virtualMachine, m_virtualMachine.GetVu1Context());
+	m_regView = std::make_unique<CRegViewVU>(*m_subSplitter, GetClientRect(), m_virtualMachine.GetVu1Context());
 	m_regView->Show(SW_SHOW);
 
 	m_mainSplitter->SetChild(0, *m_subSplitter);

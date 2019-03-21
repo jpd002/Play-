@@ -13,10 +13,10 @@ CDebugView::CDebugView(HWND parentWnd, CVirtualMachine& virtualMachine, CMIPS* c
     , m_biosDebugInfoProvider(biosDebugInfoProvider)
 {
 	m_disAsmWnd = new CDisAsmWnd(parentWnd, virtualMachine, m_ctx, disAsmType);
-	m_regViewWnd = new CRegViewWnd(parentWnd, virtualMachine, m_ctx);
+	m_regViewWnd = new CRegViewWnd(parentWnd, m_ctx);
 	m_memoryViewWnd = new CMemoryViewMIPSWnd(parentWnd, virtualMachine, m_ctx);
 
-	m_callStackWnd = new CCallStackWnd(parentWnd, virtualMachine, m_ctx, m_biosDebugInfoProvider);
+	m_callStackWnd = new CCallStackWnd(parentWnd, m_ctx, m_biosDebugInfoProvider);
 	m_callStackWnd->OnFunctionDblClick.connect(boost::bind(&CDebugView::OnCallStackWndFunctionDblClick, this, _1));
 
 	Hide();
@@ -28,6 +28,22 @@ CDebugView::~CDebugView()
 	delete m_regViewWnd;
 	delete m_memoryViewWnd;
 	delete m_callStackWnd;
+}
+
+void CDebugView::HandleMachineStateChange()
+{
+	m_disAsmWnd->HandleMachineStateChange();
+	m_regViewWnd->HandleMachineStateChange();
+	m_memoryViewWnd->HandleMachineStateChange();
+	m_callStackWnd->HandleMachineStateChange();
+}
+
+void CDebugView::HandleRunningStateChange(CVirtualMachine::STATUS newState)
+{
+	m_disAsmWnd->HandleRunningStateChange(newState);
+	m_regViewWnd->HandleRunningStateChange(newState);
+	m_memoryViewWnd->HandleRunningStateChange(newState);
+	m_callStackWnd->HandleRunningStateChange(newState);
 }
 
 const char* CDebugView::GetName() const

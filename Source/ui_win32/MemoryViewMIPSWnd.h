@@ -4,12 +4,16 @@
 #include "win32/Edit.h"
 #include "MemoryViewMIPS.h"
 #include "../VirtualMachine.h"
+#include "VirtualMachineStateView.h"
 
-class CMemoryViewMIPSWnd : public Framework::Win32::CMDIChild
+class CMemoryViewMIPSWnd : public Framework::Win32::CMDIChild, public CVirtualMachineStateView
 {
 public:
 	CMemoryViewMIPSWnd(HWND, CVirtualMachine&, CMIPS*);
 	~CMemoryViewMIPSWnd();
+
+	void HandleMachineStateChange() override;
+	void HandleRunningStateChange(CVirtualMachine::STATUS) override;
 
 	CMemoryViewMIPS* GetMemoryView() const;
 
