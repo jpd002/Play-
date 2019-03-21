@@ -127,6 +127,7 @@ if(TARGET_PLATFORM_WIN32)
 	set(QT_SOURCES
 		${QT_SOURCES}
 		../ui_win32/Res.rc
+		../ui_win32/ElfViewRes.rc
 		${MANIFEST}
 	)
 	

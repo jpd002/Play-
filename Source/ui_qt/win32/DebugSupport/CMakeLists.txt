@@ -60,7 +60,6 @@ set(SRC_FILES
 	${SRC_ROOT}/ELFView.cpp
 	${SRC_ROOT}/ELFView.h
 	${SRC_ROOT}/ElfViewRes.h
-	${SRC_ROOT}/ElfViewRes.rc
 	${SRC_ROOT}/FunctionsView.cpp
 	${SRC_ROOT}/FunctionsView.h
 	${SRC_ROOT}/FrameDebugger/FrameDebugger.cpp
