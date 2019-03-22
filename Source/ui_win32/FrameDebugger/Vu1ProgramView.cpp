@@ -40,10 +40,6 @@ CVu1ProgramView::CVu1ProgramView(HWND parent, const RECT& rect, CVu1Vm& virtualM
 	m_subSplitter->SetEdgePosition(0.65);
 }
 
-CVu1ProgramView::~CVu1ProgramView()
-{
-}
-
 void CVu1ProgramView::UpdateState(CGSHandler* gs, CGsPacketMetadata* metadata, DRAWINGKICK_INFO*)
 {
 #ifdef DEBUGGER_INCLUDED

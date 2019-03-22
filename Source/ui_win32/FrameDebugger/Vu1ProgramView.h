@@ -14,7 +14,7 @@ class CVu1ProgramView : public Framework::Win32::CWindow, public IFrameDebuggerT
 {
 public:
 	CVu1ProgramView(HWND, const RECT&, CVu1Vm&);
-	virtual ~CVu1ProgramView();
+	virtual ~CVu1ProgramView() = default;
 
 	void UpdateState(CGSHandler*, CGsPacketMetadata*, DRAWINGKICK_INFO*) override;
 
