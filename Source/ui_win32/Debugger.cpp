@@ -812,6 +812,7 @@ LRESULT CDebugger::OnWndProc(unsigned int nMsg, WPARAM wParam, LPARAM lParam)
 		break;
 	case WM_RUNNINGSTATECHANGE:
 		OnRunningStateChangeMsg();
+		return FALSE;
 		break;
 	}
 	return CMDIFrame::OnWndProc(nMsg, wParam, lParam);
