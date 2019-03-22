@@ -6,12 +6,21 @@
 
 #define WNDSTYLE (WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN)
 
+enum
+{
+	WM_MACHINESTATECHANGE = WM_USER + 1,
+	WM_RUNNINGSTATECHANGE
+};
+
 CVu1ProgramView::CVu1ProgramView(HWND parent, const RECT& rect, CVu1Vm& virtualMachine)
     : m_virtualMachine(virtualMachine)
     , m_vuMemPacketAddress(0)
 {
 	Create(0, Framework::Win32::CDefaultWndClass::GetName(), NULL, WNDSTYLE, rect, parent, NULL);
 	SetClassPtr();
+
+	virtualMachine.OnMachineStateChange.connect(boost::bind(&CVu1ProgramView::OnMachineStateChange, this));
+	virtualMachine.OnRunningStateChange.connect(boost::bind(&CVu1ProgramView::OnRunningStateChange, this));
 
 	m_mainSplitter = std::make_unique<Framework::Win32::CVerticalSplitter>(m_hWnd, GetClientRect());
 
@@ -50,23 +59,58 @@ void CVu1ProgramView::UpdateState(CGSHandler* gs, CGsPacketMetadata* metadata, D
 	m_virtualMachine.SetVpu1Itop(metadata->vpu1Itop);
 	m_vuMemPacketAddress = metadata->vuMemPacketAddress;
 #endif
-
-	m_disAsm->Redraw();
-	m_memoryView->Redraw();
-	m_packetView->SetPacket(m_virtualMachine.GetVuMem1() + m_vuMemPacketAddress, PS2::VUMEM1SIZE - m_vuMemPacketAddress);
-	m_packetView->Update();
-	m_regView->Update();
+	OnMachineStateChangeMsg();
 }
 
 void CVu1ProgramView::StepVu1()
 {
 	m_virtualMachine.StepVu1();
-	m_packetView->SetPacket(m_virtualMachine.GetVuMem1() + m_vuMemPacketAddress, PS2::VUMEM1SIZE - m_vuMemPacketAddress);
-	m_packetView->Update();
 }
 
 long CVu1ProgramView::OnSize(unsigned int, unsigned int, unsigned int)
 {
 	m_mainSplitter->SetSizePosition(GetClientRect());
 	return TRUE;
+}
+
+LRESULT CVu1ProgramView::OnWndProc(unsigned int nMsg, WPARAM wParam, LPARAM lParam)
+{
+	switch(nMsg)
+	{
+	case WM_MACHINESTATECHANGE:
+		OnMachineStateChangeMsg();
+		return FALSE;
+		break;
+	case WM_RUNNINGSTATECHANGE:
+		OnRunningStateChangeMsg();
+		return FALSE;
+		break;
+	}
+	return CWindow::OnWndProc(nMsg, wParam, lParam);
+}
+
+void CVu1ProgramView::OnMachineStateChange()
+{
+	PostMessage(m_hWnd, WM_MACHINESTATECHANGE, 0, 0);
+}
+
+void CVu1ProgramView::OnRunningStateChange()
+{
+	PostMessage(m_hWnd, WM_RUNNINGSTATECHANGE, 0, 0);
+}
+
+void CVu1ProgramView::OnMachineStateChangeMsg()
+{
+	m_disAsm->HandleMachineStateChange();
+	m_memoryView->HandleMachineStateChange();
+	m_packetView->SetPacket(m_virtualMachine.GetVuMem1() + m_vuMemPacketAddress, PS2::VUMEM1SIZE - m_vuMemPacketAddress);
+	m_packetView->Update();
+	m_regView->Update();
+}
+
+void CVu1ProgramView::OnRunningStateChangeMsg()
+{
+	auto newState = m_virtualMachine.GetStatus();
+	m_disAsm->HandleRunningStateChange(newState);
+	m_memoryView->HandleRunningStateChange(newState);
 }
