@@ -7,7 +7,6 @@ CRegViewSCU::CRegViewSCU(HWND parentWnd, const RECT& rect, CMIPS* ctx)
     : CRegViewPage(parentWnd, rect)
     , m_ctx(ctx)
 {
-
 }
 
 void CRegViewSCU::Update()

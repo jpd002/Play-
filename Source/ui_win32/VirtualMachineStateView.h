@@ -6,6 +6,10 @@ class CVirtualMachineStateView
 {
 public:
 	virtual ~CVirtualMachineStateView() = default;
-	virtual void HandleMachineStateChange() {}
-	virtual void HandleRunningStateChange(CVirtualMachine::STATUS) {}
+	virtual void HandleMachineStateChange()
+	{
+	}
+	virtual void HandleRunningStateChange(CVirtualMachine::STATUS)
+	{
+	}
 };
