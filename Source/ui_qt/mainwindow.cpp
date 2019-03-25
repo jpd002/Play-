@@ -444,8 +444,7 @@ void MainWindow::saveState(int stateSlot)
 		                                                         if(succeeded)
 		                                                         {
 			                                                         m_msgLabel->setText(QString("Saved state to slot %1.").arg(stateSlot));
-			                                                         QDateTime* dt = new QDateTime;
-			                                                         QString datetime = dt->currentDateTime().toString("hh:mm dd.MM.yyyy");
+			                                                         QString datetime = GetSaveStateInfo(stateSlot);
 			                                                         ui->menuSave_States->actions().at(stateSlot)->setText(QString("Save Slot %1 - %2").arg(stateSlot).arg(datetime));
 			                                                         ui->menuLoad_States->actions().at(stateSlot)->setText(QString("Load Slot %1 - %2").arg(stateSlot).arg(datetime));
 		                                                         }
@@ -480,7 +479,7 @@ QString MainWindow::GetSaveStateInfo(int stateSlot)
 	QFileInfo file(PathToQString(stateFilePath));
 	if(file.exists() && file.isFile())
 	{
-		return file.created().toString("hh:mm dd.MM.yyyy");
+		return file.lastModified().toString("hh:mm dd.MM.yyyy");
 	}
 	else
 	{
