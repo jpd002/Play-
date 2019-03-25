@@ -50,6 +50,7 @@ public:
 	void ShowFrameDebugger();
 	boost::filesystem::path GetFrameDumpDirectoryPath();
 	void DumpNextFrame();
+	void ToggleGsDraw();
 #endif
 
 private:

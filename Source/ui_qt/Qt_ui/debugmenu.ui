@@ -24,6 +24,12 @@
    </property>
   </action>
   <action name="actionGsDrawEnabled">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
    <property name="text">
     <string>GS Draw Enabled</string>
    </property>
