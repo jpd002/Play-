@@ -48,6 +48,8 @@ public:
 #ifdef DEBUGGER_INCLUDED
 	void ShowDebugger();
 	void ShowFrameDebugger();
+	boost::filesystem::path GetFrameDumpDirectoryPath();
+	void DumpNextFrame();
 #endif
 
 private:

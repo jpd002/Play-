@@ -13,6 +13,9 @@
 #include <QMessageBox>
 #include <QStorageInfo>
 
+#include "StdStreamUtils.h"
+#include "string_format.h"
+
 #include "GSH_OpenGLQt.h"
 #ifdef _WIN32
 #include "../../tools/PsfPlayer/Source/win32_ui/SH_WaveOut.h"
@@ -99,6 +102,7 @@ MainWindow::MainWindow(QWidget* parent)
 
 	connect(debugMenuUi->actionShowDebugger, &QAction::triggered, this, std::bind(&MainWindow::ShowDebugger, this));
 	connect(debugMenuUi->actionShowFrameDebugger, &QAction::triggered, this, std::bind(&MainWindow::ShowFrameDebugger, this));
+	connect(debugMenuUi->actionDumpNextFrame, &QAction::triggered, this, std::bind(&MainWindow::DumpNextFrame, this));
 #endif
 }
 
@@ -634,6 +638,40 @@ void MainWindow::ShowFrameDebugger()
 	m_frameDebugger->Show(SW_SHOWMAXIMIZED);
 	SetForegroundWindow(*m_frameDebugger);
 }
+
+boost::filesystem::path MainWindow::GetFrameDumpDirectoryPath()
+{
+	return CAppConfig::GetBasePath() / boost::filesystem::path("framedumps/");
+}
+
+void MainWindow::DumpNextFrame()
+{
+	m_virtualMachine->TriggerFrameDump(
+	    [&](const CFrameDump& frameDump) {
+		    try
+		    {
+			    auto frameDumpDirectoryPath = GetFrameDumpDirectoryPath();
+			    Framework::PathUtils::EnsurePathExists(frameDumpDirectoryPath);
+			    for(unsigned int i = 0; i < UINT_MAX; i++)
+			    {
+				    auto frameDumpFileName = string_format("framedump_%08d.dmp.zip", i);
+				    auto frameDumpPath = frameDumpDirectoryPath / boost::filesystem::path(frameDumpFileName);
+				    if(!boost::filesystem::exists(frameDumpPath))
+				    {
+					    auto dumpStream = Framework::CreateOutputStdStream(frameDumpPath.native());
+					    frameDump.Write(dumpStream);
+					    m_msgLabel->setText(QString("Dumped frame to '%1'.").arg(frameDumpFileName.c_str()));
+					    return;
+				    }
+			    }
+		    }
+		    catch(...)
+		    {
+		    }
+		    m_msgLabel->setText(QString("Failed to dump frame."));
+	    });
+}
+
 #endif
 
 void MainWindow::on_actionPause_when_focus_is_lost_triggered(bool checked)
