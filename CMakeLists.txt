@@ -20,6 +20,15 @@ set(USE_AOT_CACHE OFF CACHE BOOL "Use AOT block cache")
 
 set(PROJECT_NAME "Play!")
 set(PROJECT_Version 0.30)
+
+execute_process(COMMAND git rev-parse --short HEAD RESULT_VARIABLE SHORT_HASH_RESULT OUTPUT_VARIABLE SHORT_HASH OUTPUT_STRIP_TRAILING_WHITESPACE)
+if(SHORT_HASH_RESULT EQUAL 0)
+	message("Building for hash ${SHORT_HASH}.")
+	set(PROJECT_Version "${PROJECT_Version}-${SHORT_HASH}")
+else()
+	message("Warning: Failed to obtain Git short hash.")
+endif()
+
 add_definitions(-DPLAY_VERSION="${PROJECT_Version}")
 set(PROJECT_LIBS)
 
