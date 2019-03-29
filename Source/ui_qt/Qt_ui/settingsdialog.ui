@@ -210,21 +210,40 @@
         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Resolution:&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
        </property>
       </widget>
-      <widget class="QSpinBox" name="spinBox_resolution">
+      <widget class="QComboBox" name="comboBox_res_multiplyer">
        <property name="geometry">
         <rect>
          <x>20</x>
          <y>50</y>
          <width>150</width>
-         <height>22</height>
+         <height>27</height>
         </rect>
        </property>
-       <property name="minimum">
-        <number>1</number>
-       </property>
-       <property name="maximum">
-        <number>10</number>
-       </property>
+       <item>
+        <property name="text">
+         <string>1x (~480)</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>2x (~960p)</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>4x (~1920p)</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>8x (~4320p / 8k)</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>16x (~7680p / 16k)</string>
+        </property>
+       </item>
       </widget>
      </widget>
      <widget class="QWidget" name="Audio">

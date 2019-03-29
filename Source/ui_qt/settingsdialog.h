@@ -25,8 +25,7 @@ private slots:
 	void on_checkBox_enable_audio_clicked(bool checked);
 	void on_comboBox_presentation_mode_currentIndexChanged(int index);
 	void changePage(QListWidgetItem* current, QListWidgetItem* previous);
-
-	void on_spinBox_resolution_valueChanged(int val);
+	void on_comboBox_res_multiplyer_currentIndexChanged(int index);
 
 private:
 	Ui::SettingsDialog* ui;
