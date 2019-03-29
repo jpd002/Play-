@@ -108,6 +108,12 @@ public class SettingsActivity extends PreferenceActivity implements SharedPrefer
 					CheckBoxPreference checkBoxPref = (CheckBoxPreference)pref;
 					SettingsManager.setPreferenceBoolean(checkBoxPref.getKey(), checkBoxPref.isChecked());
 				}
+				else if(pref instanceof ListPreference)
+				{
+					ListPreference listBoxPref = (ListPreference)pref;
+					int val = Integer.parseInt(listBoxPref.getValue());
+					SettingsManager.setPreferenceInteger(listBoxPref.getKey(), val);
+				}
 				else if(pref instanceof PreferenceGroup)
 				{
 					readFromPreferences((PreferenceGroup)pref);
@@ -124,6 +130,12 @@ public class SettingsActivity extends PreferenceActivity implements SharedPrefer
 				{
 					CheckBoxPreference checkBoxPref = (CheckBoxPreference)pref;
 					checkBoxPref.setChecked(SettingsManager.getPreferenceBoolean(checkBoxPref.getKey()));
+				}
+				else if(pref instanceof ListPreference)
+				{
+					ListPreference listBoxPref = (ListPreference)pref;
+					int val = SettingsManager.getPreferenceInteger(listBoxPref.getKey());
+					listBoxPref.setValueIndex(val - 1);
 				}
 				else if(pref instanceof PreferenceGroup)
 				{

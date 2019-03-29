@@ -44,8 +44,7 @@
 
 	<string name="pref_emu_video">Video Settings</string>
 
-	<string name="pref_emu_video_enable_highres_title">Enable High Resolution Mode</string>
-	<string name="pref_emu_video_enable_highres_summary">Enables usage of 2x sized framebuffers for rendering.</string>
+	<string name="pref_emu_video_res_factor_title">Set Resolution Factor</string>
 
 	<string name="pref_emu_video_force_bilinear_title">Force Bilinear Filtering</string>
 	<string name="pref_emu_video_force_bilinear_summary">Forces usage of bilinear filtering on all textures.</string>
@@ -80,6 +79,15 @@
 		<item>Teal</item>
 		<item>Dark Purple</item>
 		<item>Green</item>
+	</string-array>
+
+	<string-array name="pref_emu_video_res_factor_entries">
+		<item>1x</item>
+		<item>2x</item>
+		<item>4x</item>
+		<item>8x</item>
+		<item>16x</item>
+		<item>32x</item>
 	</string-array>
 
 	<!-- Emulator Drawer -->

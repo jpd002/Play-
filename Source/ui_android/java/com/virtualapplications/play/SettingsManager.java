@@ -14,4 +14,8 @@ public class SettingsManager
 	public static native boolean getPreferenceBoolean(String name);
 
 	public static native void setPreferenceBoolean(String name, boolean value);
+
+	public static native int getPreferenceInteger(String name);
+
+	public static native void setPreferenceInteger(String name, int value);
 }
