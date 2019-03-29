@@ -98,7 +98,7 @@ public class SettingsActivity extends PreferenceActivity implements SharedPrefer
 					String stringValue = value.toString();
 					ListPreference listBoxPref = (ListPreference)preference;
 					listBoxPref.setSummary(stringValue + "x");
-					return false;
+					return true;
 				}
 			});
 			pref.setSummary(pref.getEntry());
@@ -147,8 +147,8 @@ public class SettingsActivity extends PreferenceActivity implements SharedPrefer
 				else if(pref instanceof ListPreference)
 				{
 					ListPreference listBoxPref = (ListPreference)pref;
-					int val = SettingsManager.getPreferenceInteger(listBoxPref.getKey());
-					listBoxPref.setValueIndex(val - 1);
+					String val = String.valueOf(SettingsManager.getPreferenceInteger(listBoxPref.getKey()));
+					listBoxPref.setValue(val);
 				}
 				else if(pref instanceof PreferenceGroup)
 				{
@@ -176,10 +176,11 @@ public class SettingsActivity extends PreferenceActivity implements SharedPrefer
 				@Override
 				public boolean onPreferenceChange(Preference preference, Object value)
 				{
-					String stringValue = value.toString();
+					int index = Integer.parseInt(value.toString());
 					ListPreference listBoxPref = (ListPreference)preference;
-					listBoxPref.setSummary(stringValue);
-					return false;
+
+					listBoxPref.setSummary(listBoxPref.getEntries()[index]);
+					return true;
 				}
 			});
 			pref.setSummary(pref.getEntry());
