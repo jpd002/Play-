@@ -80,8 +80,7 @@ void BootableListDialog::resetModel()
 		if(cover_loader.joinable())
 			cover_loader.join();
 		m_thread_running = true;
-		cover_loader = std::thread([&]
-		{
+		cover_loader = std::thread([&] {
 			CoverUtils::PopulateCache(m_bootables);
 
 			//Force redraw

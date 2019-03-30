@@ -28,7 +28,7 @@ QVariant BootableModel::data(const QModelIndex& index, int role) const
 	if(role == Qt::DisplayRole)
 	{
 		int pos = index.row() + index.column();
-		auto bootable =  m_bootables.at(static_cast<unsigned int>(pos));
+		auto bootable = m_bootables.at(static_cast<unsigned int>(pos));
 		return QVariant::fromValue(BootableCoverQVarient(bootable.discId, bootable.title));
 	}
 	return QVariant();
