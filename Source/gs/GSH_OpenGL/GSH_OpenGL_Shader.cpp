@@ -69,7 +69,7 @@ Framework::OpenGl::ProgramPtr CGSH_OpenGL::GenerateShader(const SHADERCAPS& caps
 	glBindAttribLocation(*result, static_cast<GLuint>(PRIM_VERTEX_ATTRIB::TEXCOORD), "a_texCoord");
 	glBindAttribLocation(*result, static_cast<GLuint>(PRIM_VERTEX_ATTRIB::FOG), "a_fog");
 
-	bool linkResult = result->Link();
+	FRAMEWORK_MAYBE_UNUSED bool linkResult = result->Link();
 	assert(linkResult);
 
 	CHECKGLERROR();
@@ -116,7 +116,7 @@ Framework::OpenGl::CShader CGSH_OpenGL::GenerateVertexShader(const SHADERCAPS& c
 
 	Framework::OpenGl::CShader result(GL_VERTEX_SHADER);
 	result.SetSource(shaderSource.c_str(), shaderSource.size());
-	bool compilationResult = result.Compile();
+	FRAMEWORK_MAYBE_UNUSED bool compilationResult = result.Compile();
 	assert(compilationResult);
 
 	CHECKGLERROR();
@@ -328,7 +328,7 @@ Framework::OpenGl::CShader CGSH_OpenGL::GenerateFragmentShader(const SHADERCAPS&
 
 	Framework::OpenGl::CShader result(GL_FRAGMENT_SHADER);
 	result.SetSource(shaderSource.c_str(), shaderSource.size());
-	bool compilationResult = result.Compile();
+	FRAMEWORK_MAYBE_UNUSED bool compilationResult = result.Compile();
 	assert(compilationResult);
 
 	CHECKGLERROR();
@@ -427,7 +427,7 @@ Framework::OpenGl::ProgramPtr CGSH_OpenGL::GeneratePresentProgram()
 		shaderBuilder << "}" << std::endl;
 
 		vertexShader.SetSource(shaderBuilder.str().c_str());
-		bool result = vertexShader.Compile();
+		FRAMEWORK_MAYBE_UNUSED bool result = vertexShader.Compile();
 		assert(result);
 	}
 
@@ -444,7 +444,7 @@ Framework::OpenGl::ProgramPtr CGSH_OpenGL::GeneratePresentProgram()
 		shaderBuilder << "}" << std::endl;
 
 		pixelShader.SetSource(shaderBuilder.str().c_str());
-		bool result = pixelShader.Compile();
+		FRAMEWORK_MAYBE_UNUSED bool result = pixelShader.Compile();
 		assert(result);
 	}
 
@@ -457,7 +457,7 @@ Framework::OpenGl::ProgramPtr CGSH_OpenGL::GeneratePresentProgram()
 		glBindAttribLocation(*program, static_cast<GLuint>(PRIM_VERTEX_ATTRIB::POSITION), "a_position");
 		glBindAttribLocation(*program, static_cast<GLuint>(PRIM_VERTEX_ATTRIB::TEXCOORD), "a_texCoord");
 
-		bool result = program->Link();
+		FRAMEWORK_MAYBE_UNUSED bool result = program->Link();
 		assert(result);
 	}
 
@@ -484,7 +484,7 @@ Framework::OpenGl::ProgramPtr CGSH_OpenGL::GenerateCopyToFbProgram()
 		shaderBuilder << "}" << std::endl;
 
 		vertexShader.SetSource(shaderBuilder.str().c_str());
-		bool result = vertexShader.Compile();
+		FRAMEWORK_MAYBE_UNUSED bool result = vertexShader.Compile();
 		assert(result);
 	}
 
@@ -501,7 +501,7 @@ Framework::OpenGl::ProgramPtr CGSH_OpenGL::GenerateCopyToFbProgram()
 		shaderBuilder << "}" << std::endl;
 
 		pixelShader.SetSource(shaderBuilder.str().c_str());
-		bool result = pixelShader.Compile();
+		FRAMEWORK_MAYBE_UNUSED bool result = pixelShader.Compile();
 		assert(result);
 	}
 
@@ -514,7 +514,7 @@ Framework::OpenGl::ProgramPtr CGSH_OpenGL::GenerateCopyToFbProgram()
 		glBindAttribLocation(*program, static_cast<GLuint>(PRIM_VERTEX_ATTRIB::POSITION), "a_position");
 		glBindAttribLocation(*program, static_cast<GLuint>(PRIM_VERTEX_ATTRIB::TEXCOORD), "a_texCoord");
 
-		bool result = program->Link();
+		FRAMEWORK_MAYBE_UNUSED bool result = program->Link();
 		assert(result);
 	}
 
