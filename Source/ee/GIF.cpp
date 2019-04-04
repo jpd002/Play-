@@ -23,17 +23,11 @@
 #define STATE_REGS_QTEMP ("QTEMP")
 
 CGIF::CGIF(CGSHandler*& gs, uint8* ram, uint8* spr)
-    : m_gs(gs)
-    , m_ram(ram)
-    , m_spr(spr)
-    , m_loops(0)
-    , m_cmd(0)
-    , m_regs(0)
-    , m_regsTemp(0)
-    , m_regList(0)
-    , m_eop(false)
-    , m_qtemp(QTEMP_INIT)
-    , m_gifProfilerZone(CProfiler::GetInstance().RegisterZone("GIF"))
+	: m_qtemp(QTEMP_INIT)
+	, m_ram(ram)
+	, m_spr(spr)
+	, m_gs(gs)
+	, m_gifProfilerZone(CProfiler::GetInstance().RegisterZone("GIF"))
 {
 }
 

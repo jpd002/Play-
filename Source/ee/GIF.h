@@ -77,12 +77,12 @@ private:
 	bool m_path3Masked = false;
 	uint32 m_activePath = 0;
 
-	uint16 m_loops;
-	uint8 m_cmd;
-	uint8 m_regs;
-	uint8 m_regsTemp;
-	uint64 m_regList;
-	bool m_eop;
+	uint16 m_loops = 0;
+	uint8 m_cmd = 0;
+	uint8 m_regs = 0;
+	uint8 m_regsTemp = 0;
+	uint64 m_regList = 0;
+	bool m_eop = false;
 	uint32 m_qtemp;
 	SIGNAL_STATE m_signalState = SIGNAL_STATE_NONE;
 	uint8* m_ram;
