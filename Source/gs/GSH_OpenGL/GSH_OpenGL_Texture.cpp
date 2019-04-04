@@ -349,11 +349,11 @@ void CGSH_OpenGL::TexUpdater_Psm48H(uint32 bufPtr, uint32 bufWidth, unsigned int
 /////////////////////////////////////////////////////////////
 
 CGSH_OpenGL::CPalette::CPalette()
-    : m_isIDTEX4(false)
+    : m_live(false)
+    , m_isIDTEX4(false)
     , m_cpsm(0)
     , m_csa(0)
     , m_texture(0)
-    , m_live(false)
 {
 }
 
