@@ -116,7 +116,7 @@ protected:
 
 signals:
 	void onExecutableChange();
-	
+
 public slots:
 	void openGLWindow_resized();
 	void setFPS();
