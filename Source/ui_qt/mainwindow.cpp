@@ -169,7 +169,9 @@ void MainWindow::InitVirtualMachine()
 
 	m_statsManager = new CStatsManager();
 
-	m_virtualMachine->m_ee->m_os->OnExecutableChange.connect(std::bind(&MainWindow::OnExecutableChange, this));
+	//OnExecutableChange might be called from another thread, we need to wrap it around a Qt signal
+	m_virtualMachine->m_ee->m_os->OnExecutableChange.connect(std::bind(&MainWindow::EmitOnExecutableChange, this));
+	connect(this, SIGNAL(onExecutableChange()), this, SLOT(HandleOnExecutableChange()));
 }
 
 void MainWindow::SetOpenGlPanelSize()
@@ -536,7 +538,12 @@ void MainWindow::on_actionAbout_triggered()
 	QMessageBox::about(this, this->windowTitle(), about);
 }
 
-void MainWindow::OnExecutableChange()
+void MainWindow::EmitOnExecutableChange()
+{
+	emit onExecutableChange();
+}
+
+void MainWindow::HandleOnExecutableChange()
 {
 	UpdateUI();
 	auto titleString = QString("Play! - [ %1 ]").arg(m_virtualMachine->m_ee->m_os->GetExecutableName());

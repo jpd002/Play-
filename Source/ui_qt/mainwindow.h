@@ -79,7 +79,7 @@ private:
 	void SetupSoundHandler();
 	void SetupSaveLoadStateSlots();
 	QString GetSaveStateInfo(int);
-	void OnExecutableChange();
+	void EmitOnExecutableChange();
 	void UpdateUI();
 	void RegisterPreferences();
 	void saveState(int);
@@ -114,6 +114,9 @@ protected:
 	void closeEvent(QCloseEvent*) Q_DECL_OVERRIDE;
 	void showEvent(QShowEvent*) Q_DECL_OVERRIDE;
 
+signals:
+	void onExecutableChange();
+	
 public slots:
 	void openGLWindow_resized();
 	void setFPS();
@@ -138,6 +141,7 @@ private slots:
 	void on_actionController_Manager_triggered();
 	void on_actionCapture_Screen_triggered();
 	void doubleClickEvent(QMouseEvent*);
+	void HandleOnExecutableChange();
 };
 
 #endif // MAINWINDOW_H
