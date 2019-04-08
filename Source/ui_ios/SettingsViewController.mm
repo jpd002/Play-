@@ -16,7 +16,7 @@
 	
 	[enableAudioOutput setOn: CAppConfig::GetInstance().GetPreferenceBoolean(PREFERENCE_AUDIO_ENABLEOUTPUT)];
 
-	NSString* versionString = [NSString stringWithFormat: @"0.%02d - %s", APP_VERSION, __DATE__];
+	NSString* versionString = [NSString stringWithFormat: @"%s - %s", PLAY_VERSION, __DATE__];
 	versionInfoLabel.text = versionString;
 }
 
