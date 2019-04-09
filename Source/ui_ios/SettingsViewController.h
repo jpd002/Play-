@@ -13,6 +13,6 @@
 	IBOutlet UILabel* versionInfoLabel;
 }
 
--(IBAction)returnToSettings: (UIStoryboardSegue*)segue;
+- (IBAction)returnToSettings:(UIStoryboardSegue*)segue;
 
 @end

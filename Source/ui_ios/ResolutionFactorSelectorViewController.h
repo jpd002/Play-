@@ -3,7 +3,6 @@
 
 @interface ResolutionFactorSelectorViewController : UITableViewController
 {
-	
 }
 
 @property int factor;
