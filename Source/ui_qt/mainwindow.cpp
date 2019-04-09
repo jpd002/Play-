@@ -413,6 +413,14 @@ void MainWindow::on_actionSettings_triggered()
 	SettingsDialog sd;
 	sd.exec();
 	SetupSoundHandler();
+	if(m_virtualMachine != nullptr)
+	{
+		auto gsHandler = m_virtualMachine->GetGSHandler();
+		if(gsHandler)
+		{
+			gsHandler->NotifyPreferencesChanged();
+		}
+	}
 }
 
 void MainWindow::SetupSaveLoadStateSlots()

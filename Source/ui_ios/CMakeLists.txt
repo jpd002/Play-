@@ -63,6 +63,7 @@ set(OSX_SOURCES
 	GlEsView.mm
 	GSH_OpenGLiOS.cpp
 	main.mm
+	ResolutionFactorSelectorViewController.mm
 	SettingsViewController.mm
 	VirtualPadButton.mm
 	VirtualPadItem.mm
@@ -78,6 +79,7 @@ set(OSX_HEADERS
 	EmulatorViewController.h
 	GlEsView.h
 	GSH_OpenGLiOS.h
+	ResolutionFactorSelectorViewController.h
 	SettingsViewController.h
 	VirtualPadButton.h
 	VirtualPadItem.h

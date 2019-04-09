@@ -29,4 +29,11 @@
 		<item>elf</item>
 	</string-array>
 
+	<string-array name="pref_emu_video_res_factor_values">
+		<item>1</item>
+		<item>2</item>
+		<item>4</item>
+		<item>8</item>
+    </string-array>
+
 </resources>

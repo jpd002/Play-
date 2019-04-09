@@ -89,6 +89,19 @@ public class SettingsActivity extends PreferenceActivity implements SharedPrefer
 			super.onCreate(savedInstanceState);
 			addPreferencesFromResource(R.xml.settings_emu_fragment);
 			writeToPreferences(getPreferenceScreen());
+			ListPreference pref = (ListPreference)findPreference("renderer.opengl.resfactor");
+			pref.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener()
+			{
+				@Override
+				public boolean onPreferenceChange(Preference preference, Object value)
+				{
+					String stringValue = value.toString();
+					ListPreference listBoxPref = (ListPreference)preference;
+					listBoxPref.setSummary(stringValue + "x");
+					return true;
+				}
+			});
+			pref.setSummary(pref.getEntry());
 		}
 
 		@Override
@@ -108,6 +121,12 @@ public class SettingsActivity extends PreferenceActivity implements SharedPrefer
 					CheckBoxPreference checkBoxPref = (CheckBoxPreference)pref;
 					SettingsManager.setPreferenceBoolean(checkBoxPref.getKey(), checkBoxPref.isChecked());
 				}
+				else if(pref instanceof ListPreference)
+				{
+					ListPreference listBoxPref = (ListPreference)pref;
+					int val = Integer.parseInt(listBoxPref.getValue());
+					SettingsManager.setPreferenceInteger(listBoxPref.getKey(), val);
+				}
 				else if(pref instanceof PreferenceGroup)
 				{
 					readFromPreferences((PreferenceGroup)pref);
@@ -124,6 +143,12 @@ public class SettingsActivity extends PreferenceActivity implements SharedPrefer
 				{
 					CheckBoxPreference checkBoxPref = (CheckBoxPreference)pref;
 					checkBoxPref.setChecked(SettingsManager.getPreferenceBoolean(checkBoxPref.getKey()));
+				}
+				else if(pref instanceof ListPreference)
+				{
+					ListPreference listBoxPref = (ListPreference)pref;
+					String val = String.valueOf(SettingsManager.getPreferenceInteger(listBoxPref.getKey()));
+					listBoxPref.setValue(val);
 				}
 				else if(pref instanceof PreferenceGroup)
 				{
@@ -145,6 +170,20 @@ public class SettingsActivity extends PreferenceActivity implements SharedPrefer
 			getPreferenceManager().findPreference(RESCAN).setOnPreferenceClickListener(this);
 			getPreferenceManager().findPreference(CLEAR_UNAVAILABLE).setOnPreferenceClickListener(this);
 			getPreferenceManager().findPreference(CLEAR_CACHE).setOnPreferenceClickListener(this);
+			ListPreference pref = (ListPreference)findPreference("ui.theme_selection");
+			pref.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener()
+			{
+				@Override
+				public boolean onPreferenceChange(Preference preference, Object value)
+				{
+					int index = Integer.parseInt(value.toString());
+					ListPreference listBoxPref = (ListPreference)preference;
+
+					listBoxPref.setSummary(listBoxPref.getEntries()[index]);
+					return true;
+				}
+			});
+			pref.setSummary(pref.getEntry());
 		}
 
 		@Override

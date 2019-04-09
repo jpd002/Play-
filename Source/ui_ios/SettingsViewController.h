@@ -5,12 +5,14 @@
 	IBOutlet UISwitch* showFpsSwitch;
 	IBOutlet UISwitch* showVirtualPadSwitch;
 
-	IBOutlet UISwitch* enableHighResMode;
+	IBOutlet UILabel* resolutionFactor;
 	IBOutlet UISwitch* forceBilinearFiltering;
 
 	IBOutlet UISwitch* enableAudioOutput;
 
 	IBOutlet UILabel* versionInfoLabel;
 }
+
+- (IBAction)returnToSettings:(UIStoryboardSegue*)segue;
 
 @end
