@@ -10,7 +10,6 @@
 #include "opengl/Shader.h"
 #include "opengl/Resource.h"
 
-#define PREF_CGSH_OPENGL_ENABLEHIGHRESMODE "renderer.opengl.enablehighresmode"
 #define PREF_CGSH_OPENGL_RESOLUTION_FACTOR "renderer.opengl.resfactor"
 #define PREF_CGSH_OPENGL_FORCEBILINEARTEXTURES "renderer.opengl.forcebilineartextures"
 
