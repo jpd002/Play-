@@ -7,45 +7,47 @@
 #include "offsetof_def.h"
 #include "placeholder_def.h"
 
-uint32 g_LWMaskRight[4] =
-    {
-        0x00FFFFFF,
-        0x0000FFFF,
-        0x000000FF,
-        0x00000000,
+// clang-format off
+static const uint32 g_LWMaskRight[4] =
+{
+    0x00FFFFFF,
+    0x0000FFFF,
+    0x000000FF,
+    0x00000000,
 };
 
-uint32 g_LWMaskLeft[4] =
-    {
-        0xFFFFFF00,
-        0xFFFF0000,
-        0xFF000000,
-        0x00000000,
+static const uint32 g_LWMaskLeft[4] =
+{
+    0xFFFFFF00,
+    0xFFFF0000,
+    0xFF000000,
+    0x00000000,
 };
 
-uint64 g_LDMaskRight[8] =
-    {
-        0x00FFFFFFFFFFFFFFULL,
-        0x0000FFFFFFFFFFFFULL,
-        0x000000FFFFFFFFFFULL,
-        0x00000000FFFFFFFFULL,
-        0x0000000000FFFFFFULL,
-        0x000000000000FFFFULL,
-        0x00000000000000FFULL,
-        0x0000000000000000ULL,
+static const uint64 g_LDMaskRight[8] =
+{
+    0x00FFFFFFFFFFFFFFULL,
+    0x0000FFFFFFFFFFFFULL,
+    0x000000FFFFFFFFFFULL,
+    0x00000000FFFFFFFFULL,
+    0x0000000000FFFFFFULL,
+    0x000000000000FFFFULL,
+    0x00000000000000FFULL,
+    0x0000000000000000ULL,
 };
 
-uint64 g_LDMaskLeft[8] =
-    {
-        0xFFFFFFFFFFFFFF00ULL,
-        0xFFFFFFFFFFFF0000ULL,
-        0xFFFFFFFFFF000000ULL,
-        0xFFFFFFFF00000000ULL,
-        0xFFFFFF0000000000ULL,
-        0xFFFF000000000000ULL,
-        0xFF00000000000000ULL,
-        0x0000000000000000ULL,
+static const uint64 g_LDMaskLeft[8] =
+{
+    0xFFFFFFFFFFFFFF00ULL,
+    0xFFFFFFFFFFFF0000ULL,
+    0xFFFFFFFFFF000000ULL,
+    0xFFFFFFFF00000000ULL,
+    0xFFFFFF0000000000ULL,
+    0xFFFF000000000000ULL,
+    0xFF00000000000000ULL,
+    0x0000000000000000ULL,
 };
+// clang-format on
 
 extern "C" uint32 LWL_Proxy(uint32 address, uint32 rt, CMIPS* context)
 {
@@ -173,9 +175,9 @@ void CMA_MIPSIV::SetupInstructionTables()
 	}
 }
 
-void CMA_MIPSIV::CompileInstruction(uint32 nAddress, CMipsJitter* codeGen, CMIPS* pCtx)
+void CMA_MIPSIV::CompileInstruction(uint32 address, CMipsJitter* codeGen, CMIPS* ctx)
 {
-	SetupQuickVariables(nAddress, codeGen, pCtx);
+	SetupQuickVariables(address, codeGen, ctx);
 
 	m_nRS = (uint8)((m_nOpcode >> 21) & 0x1F);
 	m_nRT = (uint8)((m_nOpcode >> 16) & 0x1F);
