@@ -150,10 +150,6 @@ CMA_MIPSIV::CMA_MIPSIV(MIPS_REGSIZE nRegSize)
 	SetupReflectionTables();
 }
 
-CMA_MIPSIV::~CMA_MIPSIV()
-{
-}
-
 void CMA_MIPSIV::SetupInstructionTables()
 {
 	for(unsigned int i = 0; i < MAX_GENERAL_OPS; i++)

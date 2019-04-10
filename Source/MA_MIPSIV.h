@@ -8,12 +8,12 @@ class CMA_MIPSIV : public CMIPSArchitecture
 {
 public:
 	CMA_MIPSIV(MIPS_REGSIZE);
-	virtual ~CMA_MIPSIV();
-	virtual void CompileInstruction(uint32, CMipsJitter*, CMIPS*);
-	virtual void GetInstructionMnemonic(CMIPS*, uint32, uint32, char*, unsigned int);
-	virtual void GetInstructionOperands(CMIPS*, uint32, uint32, char*, unsigned int);
-	virtual MIPS_BRANCH_TYPE IsInstructionBranch(CMIPS*, uint32, uint32);
-	virtual uint32 GetInstructionEffectiveAddress(CMIPS*, uint32, uint32);
+	virtual ~CMA_MIPSIV() = default;
+	void CompileInstruction(uint32, CMipsJitter*, CMIPS*) override;
+	void GetInstructionMnemonic(CMIPS*, uint32, uint32, char*, unsigned int) override;
+	void GetInstructionOperands(CMIPS*, uint32, uint32, char*, unsigned int) override;
+	MIPS_BRANCH_TYPE IsInstructionBranch(CMIPS*, uint32, uint32) override;
+	uint32 GetInstructionEffectiveAddress(CMIPS*, uint32, uint32) override;
 
 protected:
 	enum
