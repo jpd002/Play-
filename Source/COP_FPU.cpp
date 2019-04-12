@@ -505,7 +505,7 @@ void CCOP_FPU::CVT_S_W()
 //31
 void CCOP_FPU::LWC1()
 {
-	ComputeMemAccessAddr();
+	ComputeMemAccessAddrNoXlat();
 
 	m_codeGen->PushCtx();
 	m_codeGen->PushIdx(1);
@@ -519,7 +519,7 @@ void CCOP_FPU::LWC1()
 //39
 void CCOP_FPU::SWC1()
 {
-	ComputeMemAccessAddr();
+	ComputeMemAccessAddrNoXlat();
 
 	m_codeGen->PushCtx();
 	m_codeGen->PushRel(offsetof(CMIPS, m_State.nCOP1[m_ft]));

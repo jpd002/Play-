@@ -142,7 +142,7 @@ public:
 	MIPSSTATE m_State;
 
 	void* m_vuMem = nullptr;
-	void* m_memoryLookup = nullptr;
+	void* m_pageLookup = nullptr;
 
 	std::function<void(CMIPS*)> m_emptyBlockHandler;
 

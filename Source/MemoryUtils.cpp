@@ -4,19 +4,22 @@
 
 #define LOG_NAME "MemoryMap"
 
-uint32 MemoryUtils_GetByteProxy(CMIPS* pCtx, uint32 nAddress)
+uint32 MemoryUtils_GetByteProxy(CMIPS* context, uint32 vAddress)
 {
-	return (uint32)pCtx->m_pMemoryMap->GetByte(nAddress);
+	uint32 address = context->m_pAddrTranslator(context, vAddress);
+	return static_cast<uint32>(context->m_pMemoryMap->GetByte(address));
 }
 
-uint32 MemoryUtils_GetHalfProxy(CMIPS* pCtx, uint32 nAddress)
+uint32 MemoryUtils_GetHalfProxy(CMIPS* context, uint32 vAddress)
 {
-	return (uint32)pCtx->m_pMemoryMap->GetHalf(nAddress);
+	uint32 address = context->m_pAddrTranslator(context, vAddress);
+	return static_cast<uint32>(context->m_pMemoryMap->GetHalf(address));
 }
 
-uint32 MemoryUtils_GetWordProxy(CMIPS* pCtx, uint32 nAddress)
+uint32 MemoryUtils_GetWordProxy(CMIPS* context, uint32 vAddress)
 {
-	return pCtx->m_pMemoryMap->GetWord(nAddress);
+	uint32 address = context->m_pAddrTranslator(context, vAddress);
+	return context->m_pMemoryMap->GetWord(address);
 }
 
 uint64 MemoryUtils_GetDoubleProxy(CMIPS* context, uint32 vAddress)
@@ -79,19 +82,22 @@ uint128 MemoryUtils_GetQuadProxy(CMIPS* context, uint32 vAddress)
 	return result;
 }
 
-void MemoryUtils_SetByteProxy(CMIPS* pCtx, uint32 nValue, uint32 nAddress)
+void MemoryUtils_SetByteProxy(CMIPS* context, uint32 value, uint32 vAddress)
 {
-	pCtx->m_pMemoryMap->SetByte(nAddress, (uint8)(nValue & 0xFF));
+	uint32 address = context->m_pAddrTranslator(context, vAddress);
+	context->m_pMemoryMap->SetByte(address, static_cast<uint8>(value));
 }
 
-void MemoryUtils_SetHalfProxy(CMIPS* pCtx, uint32 nValue, uint32 nAddress)
+void MemoryUtils_SetHalfProxy(CMIPS* context, uint32 value, uint32 vAddress)
 {
-	pCtx->m_pMemoryMap->SetHalf(nAddress, (uint16)(nValue & 0xFFFF));
+	uint32 address = context->m_pAddrTranslator(context, vAddress);
+	context->m_pMemoryMap->SetHalf(address, static_cast<uint16>(value));
 }
 
-void MemoryUtils_SetWordProxy(CMIPS* pCtx, uint32 nValue, uint32 nAddress)
+void MemoryUtils_SetWordProxy(CMIPS* context, uint32 value, uint32 vAddress)
 {
-	pCtx->m_pMemoryMap->SetWord(nAddress, nValue);
+	uint32 address = context->m_pAddrTranslator(context, vAddress);
+	context->m_pMemoryMap->SetWord(address, value);
 }
 
 void MemoryUtils_SetDoubleProxy(CMIPS* context, uint64 value64, uint32 vAddress)

@@ -90,7 +90,7 @@ void CMIPSInstructionFactory::ComputeMemAccessPageRef()
 	auto rs = static_cast<uint8>((m_nOpcode >> 21) & 0x001F);
 	auto immediate = static_cast<uint16>((m_nOpcode >> 0) & 0xFFFF);
 
-	m_codeGen->PushRelRef(offsetof(CMIPS, m_memoryLookup));
+	m_codeGen->PushRelRef(offsetof(CMIPS, m_pageLookup));
 
 	m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[rs].nV[0]));
 	m_codeGen->PushCst(static_cast<int16>(immediate));

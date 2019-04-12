@@ -151,34 +151,35 @@ CSubSystem::CSubSystem(uint8* iopRam, CIopBios& iopBios)
 	m_os = new CPS2OS(m_EE, m_ram, m_bios, m_spr, m_gs, m_sif, iopBios);
 	m_os->OnRequestInstructionCacheFlush.connect(boost::bind(&CSubSystem::FlushInstructionCache, this));
 
-	uint32 addressCount = 0x100000;
 	uint32 pageSize = 0x1000;
-	auto memoryLookup = new void*[addressCount];
+	const uint32 addressCount = 0x100000000ULL / pageSize;
+	auto pageLookup = new void*[addressCount];
 	for(uint32 i = 0; i < addressCount; i++)
 	{
-		memoryLookup[i] = nullptr;
+		pageLookup[i] = nullptr;
 	}
+
+	//Setup pageLookup
 	for(uint32 i = 0; i < (PS2::EE_RAM_SIZE / pageSize); i++)
 	{
-		memoryLookup[i] = m_ram + (pageSize * i);
+		pageLookup[i] = m_ram + (pageSize * i);
 	}
 	for(uint32 i = 0; i < (PS2::EE_RAM_SIZE / pageSize); i++)
 	{
 		uint32 pageBase = (0x20000000 / pageSize);
-		memoryLookup[pageBase + i] = m_ram + (pageSize * i);
+		pageLookup[pageBase + i] = m_ram + (pageSize * i);
 	}
 	for(uint32 i = 0; i < (PS2::EE_SPR_SIZE / pageSize); i++)
 	{
 		uint32 pageBase = (0x70000000 / pageSize);
-		memoryLookup[pageBase + i] = m_spr + (pageSize * i);
+		pageLookup[pageBase + i] = m_spr + (pageSize * i);
 	}
 	for(uint32 i = 0; i < (PS2::EE_RAM_SIZE / pageSize); i++)
 	{
 		uint32 pageBase = (0x80000000 / pageSize);
-		memoryLookup[pageBase + i] = m_ram + (pageSize * i);
+		pageLookup[pageBase + i] = m_ram + (pageSize * i);
 	}
-	m_EE.m_memoryLookup = memoryLookup;
-	//delete [] memoryLookup;
+	m_EE.m_pageLookup = pageLookup;
 }
 
 CSubSystem::~CSubSystem()

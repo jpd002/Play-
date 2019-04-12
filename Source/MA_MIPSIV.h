@@ -70,6 +70,19 @@ protected:
 	uint16 m_nImmediate;
 
 protected:
+	struct MemoryAccessTraits
+	{
+		typedef void (CMipsJitter::*JitterFunction)();
+
+		void* getProxyFunction = nullptr;
+		void* setProxyFunction = nullptr;
+
+		JitterFunction loadFunction = nullptr;
+		JitterFunction storeFunction = nullptr;
+		JitterFunction signExtFunction = nullptr;
+		uint32 elementSize = 0;
+	};
+
 	//Instruction compiler templates
 	typedef std::function<void(uint8)> TemplateParamedOperationFunctionType;
 	typedef std::function<void()> TemplateOperationFunctionType;
@@ -78,7 +91,8 @@ protected:
 	void Template_Add64(bool);
 	void Template_Sub32(bool);
 	void Template_Sub64(bool);
-	void Template_LoadUnsigned32(void*);
+	void Template_Load32(const MemoryAccessTraits&);
+	void Template_Store32(const MemoryAccessTraits&);
 	void Template_ShiftCst32(const TemplateParamedOperationFunctionType&);
 	void Template_ShiftVar32(const TemplateOperationFunctionType&);
 	void Template_Mult32(bool, unsigned int);
@@ -206,6 +220,12 @@ private:
 	void BGEZAL();
 	void BLTZALL();
 	void BGEZALL();
+
+	static const MemoryAccessTraits g_byteAccessTraits;
+	static const MemoryAccessTraits g_ubyteAccessTraits;
+	static const MemoryAccessTraits g_halfAccessTraits;
+	static const MemoryAccessTraits g_uhalfAccessTraits;
+	static const MemoryAccessTraits g_wordAccessTraits;
 
 	//Opcode tables
 	typedef void (CMA_MIPSIV::*InstructionFuncConstant)();
