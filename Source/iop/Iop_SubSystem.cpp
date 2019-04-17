@@ -18,7 +18,7 @@ using namespace PS2;
 #define STATE_SPURAM ("iop_spuram")
 
 CSubSystem::CSubSystem(bool ps2Mode)
-    : m_cpu(MEMORYMAP_ENDIAN_LSBF)
+    : m_cpu(MEMORYMAP_ENDIAN_LSBF, true)
     , m_ram(new uint8[IOP_RAM_SIZE])
     , m_scratchPad(new uint8[IOP_SCRATCH_SIZE])
     , m_spuRam(new uint8[SPU_RAM_SIZE])
@@ -74,6 +74,8 @@ CSubSystem::CSubSystem(bool ps2Mode)
 
 	m_dmac.SetReceiveFunction(4, std::bind(&CSpuBase::ReceiveDma, &m_spuCore0, PLACEHOLDER_1, PLACEHOLDER_2, PLACEHOLDER_3));
 	m_dmac.SetReceiveFunction(8, std::bind(&CSpuBase::ReceiveDma, &m_spuCore1, PLACEHOLDER_1, PLACEHOLDER_2, PLACEHOLDER_3));
+
+	SetupPageTable();
 }
 
 CSubSystem::~CSubSystem()
@@ -153,6 +155,21 @@ void CSubSystem::Reset()
 	m_cpu.m_Functions.RemoveTags();
 
 	m_dmaUpdateTicks = 0;
+}
+
+void CSubSystem::SetupPageTable()
+{
+	for(uint32 i = 0; i < 2; i++)
+	{
+		uint32 addressBit = (i == 0) ? 0 : 0x80000000;
+
+		m_cpu.MapPages(addressBit | (PS2::IOP_RAM_SIZE * 0), PS2::IOP_RAM_SIZE, m_ram);
+		m_cpu.MapPages(addressBit | (PS2::IOP_RAM_SIZE * 1), PS2::IOP_RAM_SIZE, m_ram);
+		m_cpu.MapPages(addressBit | (PS2::IOP_RAM_SIZE * 2), PS2::IOP_RAM_SIZE, m_ram);
+		m_cpu.MapPages(addressBit | (PS2::IOP_RAM_SIZE * 3), PS2::IOP_RAM_SIZE, m_ram);
+
+		m_cpu.MapPages(addressBit | PS2::IOP_SCRATCH_ADDR, PS2::IOP_SCRATCH_SIZE, m_ram);
+	}
 }
 
 uint32 CSubSystem::ReadIoRegister(uint32 address)

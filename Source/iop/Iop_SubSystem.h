@@ -58,6 +58,8 @@ namespace Iop
 			HW_REG_END = 0x1F9FFFFF
 		};
 
+		void SetupPageTable();
+
 		uint32 ReadIoRegister(uint32);
 		uint32 WriteIoRegister(uint32, uint32);
 
