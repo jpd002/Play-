@@ -31,9 +31,9 @@ public:
 
 	CDebuggable GetDebugInfo();
 
-	virtual STATUS GetStatus() const;
-	virtual void Pause();
-	virtual void Resume();
+	STATUS GetStatus() const override;
+	void Pause() override;
+	void Resume() override;
 
 #ifdef DEBUGGER_INCLUDED
 	std::string MakeTagPackagePath(const char*);
