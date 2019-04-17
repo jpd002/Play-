@@ -1,5 +1,4 @@
-#ifndef _MIPS_H_
-#define _MIPS_H_
+#pragma once
 
 #include "Types.h"
 #include "MemoryMap.h"
@@ -204,5 +203,3 @@ public:
 
 	static const char* m_sGPRName[];
 };
-
-#endif
