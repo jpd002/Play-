@@ -82,9 +82,8 @@ void CCOP_VU::LQC2()
 
 	ComputeMemAccessPageRef();
 
-	m_codeGen->IsRefNull();
 	m_codeGen->PushCst(0);
-	m_codeGen->BeginIf(Jitter::CONDITION_EQ);
+	m_codeGen->BeginIf(Jitter::CONDITION_NE);
 	{
 		ComputeMemAccessRef(0x10);
 
@@ -110,9 +109,8 @@ void CCOP_VU::SQC2()
 {
 	ComputeMemAccessPageRef();
 
-	m_codeGen->IsRefNull();
 	m_codeGen->PushCst(0);
-	m_codeGen->BeginIf(Jitter::CONDITION_EQ);
+	m_codeGen->BeginIf(Jitter::CONDITION_NE);
 	{
 		ComputeMemAccessRef(0x10);
 

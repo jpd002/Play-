@@ -734,9 +734,8 @@ void CMA_MIPSIV::LD()
 
 	ComputeMemAccessPageRef();
 
-	m_codeGen->IsRefNull();
 	m_codeGen->PushCst(0);
-	m_codeGen->BeginIf(Jitter::CONDITION_EQ);
+	m_codeGen->BeginIf(Jitter::CONDITION_NE);
 	{
 		ComputeMemAccessRef(8);
 
@@ -790,9 +789,8 @@ void CMA_MIPSIV::SD()
 
 	ComputeMemAccessPageRef();
 
-	m_codeGen->IsRefNull();
 	m_codeGen->PushCst(0);
-	m_codeGen->BeginIf(Jitter::CONDITION_EQ);
+	m_codeGen->BeginIf(Jitter::CONDITION_NE);
 	{
 		ComputeMemAccessRef(8);
 

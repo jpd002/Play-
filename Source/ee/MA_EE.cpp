@@ -109,9 +109,8 @@ void CMA_EE::LQ()
 
 	ComputeMemAccessPageRef();
 
-	m_codeGen->IsRefNull();
 	m_codeGen->PushCst(0);
-	m_codeGen->BeginIf(Jitter::CONDITION_EQ);
+	m_codeGen->BeginIf(Jitter::CONDITION_NE);
 	{
 		ComputeMemAccessRef(0x10);
 
@@ -137,9 +136,8 @@ void CMA_EE::SQ()
 {
 	ComputeMemAccessPageRef();
 
-	m_codeGen->IsRefNull();
 	m_codeGen->PushCst(0);
-	m_codeGen->BeginIf(Jitter::CONDITION_EQ);
+	m_codeGen->BeginIf(Jitter::CONDITION_NE);
 	{
 		ComputeMemAccessRef(0x10);
 

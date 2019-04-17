@@ -94,9 +94,8 @@ void CMA_MIPSIV::Template_Load32(const MemoryAccessTraits& traits)
 	{
 		ComputeMemAccessPageRef();
 
-		m_codeGen->IsRefNull();
 		m_codeGen->PushCst(0);
-		m_codeGen->BeginIf(Jitter::CONDITION_EQ);
+		m_codeGen->BeginIf(Jitter::CONDITION_NE);
 		{
 			ComputeMemAccessRef(traits.elementSize);
 			((m_codeGen)->*(traits.loadFunction))();
@@ -132,9 +131,8 @@ void CMA_MIPSIV::Template_Store32(const MemoryAccessTraits& traits)
 	{
 		ComputeMemAccessPageRef();
 
-		m_codeGen->IsRefNull();
 		m_codeGen->PushCst(0);
-		m_codeGen->BeginIf(Jitter::CONDITION_EQ);
+		m_codeGen->BeginIf(Jitter::CONDITION_NE);
 		{
 			ComputeMemAccessRef(traits.elementSize);
 
