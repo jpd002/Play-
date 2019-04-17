@@ -118,6 +118,7 @@ struct MIPSSTATE
 };
 
 #define MIPS_INVALID_PC (0x00000001)
+#define MIPS_PAGE_SIZE (0x1000)
 
 class CMIPS
 {
@@ -125,7 +126,7 @@ public:
 	typedef uint32 (*AddressTranslator)(CMIPS*, uint32);
 	typedef std::set<uint32> BreakpointSet;
 
-	CMIPS(MEMORYMAP_ENDIANESS);
+	CMIPS(MEMORYMAP_ENDIANESS, bool usePageTable = false);
 	~CMIPS();
 	void ToggleBreakpoint(uint32);
 	bool IsBranch(uint32);
@@ -138,10 +139,12 @@ public:
 	bool GenerateInterrupt(uint32);
 	bool GenerateException(uint32);
 
+	void MapPages(uint32, uint32, uint8*);
+
 	MIPSSTATE m_State;
 
 	void* m_vuMem = nullptr;
-	void* m_pageLookup = nullptr;
+	void** m_pageLookup = nullptr;
 
 	std::function<void(CMIPS*)> m_emptyBlockHandler;
 

@@ -33,7 +33,7 @@ CSubSystem::CSubSystem(uint8* iopRam, CIopBios& iopBios)
     , m_microMem0(new uint8[PS2::MICROMEM0SIZE])
     , m_vuMem1(reinterpret_cast<uint8*>(framework_aligned_alloc(PS2::VUMEM1SIZE, 0x10)))
     , m_microMem1(new uint8[PS2::MICROMEM1SIZE])
-    , m_EE(MEMORYMAP_ENDIAN_LSBF)
+    , m_EE(MEMORYMAP_ENDIAN_LSBF, true)
     , m_VU0(MEMORYMAP_ENDIAN_LSBF)
     , m_VU1(MEMORYMAP_ENDIAN_LSBF)
     , m_dmac(m_ram, m_spr, m_vuMem0, m_EE)
@@ -151,35 +151,7 @@ CSubSystem::CSubSystem(uint8* iopRam, CIopBios& iopBios)
 	m_os = new CPS2OS(m_EE, m_ram, m_bios, m_spr, m_gs, m_sif, iopBios);
 	m_os->OnRequestInstructionCacheFlush.connect(boost::bind(&CSubSystem::FlushInstructionCache, this));
 
-	uint32 pageSize = 0x1000;
-	const uint32 addressCount = 0x100000000ULL / pageSize;
-	auto pageLookup = new void*[addressCount];
-	for(uint32 i = 0; i < addressCount; i++)
-	{
-		pageLookup[i] = nullptr;
-	}
-
-	//Setup pageLookup
-	for(uint32 i = 0; i < (PS2::EE_RAM_SIZE / pageSize); i++)
-	{
-		pageLookup[i] = m_ram + (pageSize * i);
-	}
-	for(uint32 i = 0; i < (PS2::EE_RAM_SIZE / pageSize); i++)
-	{
-		uint32 pageBase = (0x20000000 / pageSize);
-		pageLookup[pageBase + i] = m_ram + (pageSize * i);
-	}
-	for(uint32 i = 0; i < (PS2::EE_SPR_SIZE / pageSize); i++)
-	{
-		uint32 pageBase = (0x70000000 / pageSize);
-		pageLookup[pageBase + i] = m_spr + (pageSize * i);
-	}
-	for(uint32 i = 0; i < (PS2::EE_RAM_SIZE / pageSize); i++)
-	{
-		uint32 pageBase = (0x80000000 / pageSize);
-		pageLookup[pageBase + i] = m_ram + (pageSize * i);
-	}
-	m_EE.m_pageLookup = pageLookup;
+	SetupEePageTable();
 }
 
 CSubSystem::~CSubSystem()
@@ -418,6 +390,14 @@ void CSubSystem::LoadState(Framework::CZipArchiveReader& archive)
 	m_vpu1->LoadState(archive);
 	m_timer.LoadState(archive);
 	m_gif.LoadState(archive);
+}
+
+void CSubSystem::SetupEePageTable()
+{
+	m_EE.MapPages(0x00000000, PS2::EE_RAM_SIZE, m_ram);
+	m_EE.MapPages(0x20000000, PS2::EE_RAM_SIZE, m_ram);
+	m_EE.MapPages(0x70000000, PS2::EE_SPR_SIZE, m_spr);
+	m_EE.MapPages(0x80000000, PS2::EE_RAM_SIZE, m_ram);
 }
 
 uint32 CSubSystem::IOPortReadHandler(uint32 nAddress)

@@ -79,6 +79,8 @@ namespace Ee
 	private:
 		typedef std::map<uint32, uint32> StatusRegisterCheckerMap;
 
+		void SetupEePageTable();
+
 		uint32 IOPortReadHandler(uint32);
 		uint32 IOPortWriteHandler(uint32, uint32);
 
