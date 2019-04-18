@@ -505,28 +505,78 @@ void CCOP_FPU::CVT_S_W()
 //31
 void CCOP_FPU::LWC1()
 {
-	ComputeMemAccessAddrNoXlat();
+	bool usePageLookup = (m_pCtx->m_pageLookup != nullptr);
 
-	m_codeGen->PushCtx();
-	m_codeGen->PushIdx(1);
-	m_codeGen->Call(reinterpret_cast<void*>(&MemoryUtils_GetWordProxy), 2, true);
+	if(usePageLookup)
+	{
+		ComputeMemAccessPageRef();
 
-	m_codeGen->PullRel(offsetof(CMIPS, m_State.nCOP1[m_ft]));
+		m_codeGen->PushCst(0);
+		m_codeGen->BeginIf(Jitter::CONDITION_NE);
+		{
+			ComputeMemAccessRef(4);
 
-	m_codeGen->PullTop();
+			m_codeGen->LoadFromRef();
+			m_codeGen->PullRel(offsetof(CMIPS, m_State.nCOP1[m_ft]));
+		}
+		m_codeGen->Else();
+	}
+
+	//Standard memory access
+	{
+		ComputeMemAccessAddrNoXlat();
+
+		m_codeGen->PushCtx();
+		m_codeGen->PushIdx(1);
+		m_codeGen->Call(reinterpret_cast<void*>(&MemoryUtils_GetWordProxy), 2, true);
+
+		m_codeGen->PullRel(offsetof(CMIPS, m_State.nCOP1[m_ft]));
+
+		m_codeGen->PullTop();
+	}
+
+	if(usePageLookup)
+	{
+		m_codeGen->EndIf();
+	}
 }
 
 //39
 void CCOP_FPU::SWC1()
 {
-	ComputeMemAccessAddrNoXlat();
+	bool usePageLookup = (m_pCtx->m_pageLookup != nullptr);
 
-	m_codeGen->PushCtx();
-	m_codeGen->PushRel(offsetof(CMIPS, m_State.nCOP1[m_ft]));
-	m_codeGen->PushIdx(2);
-	m_codeGen->Call(reinterpret_cast<void*>(&MemoryUtils_SetWordProxy), 3, false);
+	if(usePageLookup)
+	{
+		ComputeMemAccessPageRef();
 
-	m_codeGen->PullTop();
+		m_codeGen->PushCst(0);
+		m_codeGen->BeginIf(Jitter::CONDITION_NE);
+		{
+			ComputeMemAccessRef(4);
+
+			m_codeGen->PushRel(offsetof(CMIPS, m_State.nCOP1[m_ft]));
+			m_codeGen->StoreAtRef();
+		}
+		m_codeGen->Else();
+	}
+
+	//Standard memory access
+	{
+		ComputeMemAccessAddrNoXlat();
+
+		m_codeGen->PushCtx();
+		m_codeGen->PushRel(offsetof(CMIPS, m_State.nCOP1[m_ft]));
+		m_codeGen->PushIdx(2);
+		m_codeGen->Call(reinterpret_cast<void*>(&MemoryUtils_SetWordProxy), 3, false);
+
+		m_codeGen->PullTop();
+	}
+
+	if(usePageLookup)
+	{
+		m_codeGen->EndIf();
+	}
 }
 
 //////////////////////////////////////////////////
