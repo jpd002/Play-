@@ -70,23 +70,22 @@ void CMA_MIPSIV::Template_Load32(const MemoryAccessTraits& traits)
 	if(m_nRT == 0) return;
 
 	const auto finishLoad =
-		[&] ()
-		{
-			if(traits.signExtFunction)
-			{
-				//SignExt to 32-bits (if needed)
-				((m_codeGen)->*(traits.signExtFunction))();
-			}
+	    [&]() {
+		    if(traits.signExtFunction)
+		    {
+			    //SignExt to 32-bits (if needed)
+			    ((m_codeGen)->*(traits.signExtFunction))();
+		    }
 
-			//Sign extend to whole 64-bits
-			if(m_regSize == MIPS_REGSIZE_64)
-			{
-				m_codeGen->PushTop();
-				m_codeGen->SignExt();
-				m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[1]));
-			}
-			m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[0]));
-		};
+		    //Sign extend to whole 64-bits
+		    if(m_regSize == MIPS_REGSIZE_64)
+		    {
+			    m_codeGen->PushTop();
+			    m_codeGen->SignExt();
+			    m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[1]));
+		    }
+		    m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[0]));
+	    };
 
 	bool usePageLookup = (m_pCtx->m_pageLookup != nullptr);
 

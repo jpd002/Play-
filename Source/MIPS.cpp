@@ -48,7 +48,7 @@ CMIPS::~CMIPS()
 {
 	delete m_pMemoryMap;
 	delete m_analysis;
-	delete [] m_pageLookup;
+	delete[] m_pageLookup;
 }
 
 void CMIPS::Reset()

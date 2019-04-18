@@ -7,6 +7,7 @@
 #include "offsetof_def.h"
 #include "placeholder_def.h"
 
+// clang-format off
 const CMA_MIPSIV::MemoryAccessTraits CMA_MIPSIV::g_byteAccessTraits =
 {
 	reinterpret_cast<void*>(&MemoryUtils_GetByteProxy),
@@ -57,7 +58,6 @@ const CMA_MIPSIV::MemoryAccessTraits CMA_MIPSIV::g_wordAccessTraits =
 	4
 };
 
-// clang-format off
 static const uint32 g_LWMaskRight[4] =
 {
     0x00FFFFFF,
