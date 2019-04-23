@@ -303,6 +303,8 @@ set(COMMON_SRC_FILES
 	iop/Iop_Thbase.h
 	iop/Iop_Thevent.cpp
 	iop/Iop_Thevent.h
+	iop/Iop_Thfpool.cpp
+	iop/Iop_Thfpool.h
 	iop/Iop_Thmsgbx.cpp
 	iop/Iop_Thmsgbx.h
 	iop/Iop_Thsema.cpp

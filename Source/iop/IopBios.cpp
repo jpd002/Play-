@@ -26,6 +26,7 @@
 #include "Iop_Loadcore.h"
 #include "Iop_Thbase.h"
 #include "Iop_Thsema.h"
+#include "Iop_Thfpool.h"
 #include "Iop_Thvpool.h"
 #include "Iop_Thmsgbx.h"
 #include "Iop_Thevent.h"
@@ -185,6 +186,9 @@ void CIopBios::Reset(const Iop::SifManPtr& sifMan)
 	}
 	{
 		RegisterModule(std::make_shared<Iop::CThsema>(*this, m_ram));
+	}
+	{
+		RegisterModule(std::make_shared<Iop::CThfpool>(*this));
 	}
 	{
 		RegisterModule(std::make_shared<Iop::CThvpool>(*this));
