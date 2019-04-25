@@ -27,7 +27,7 @@ using namespace Ee;
 CSubSystem::CSubSystem(uint8* iopRam, CIopBios& iopBios)
     : m_ram(reinterpret_cast<uint8*>(framework_aligned_alloc(PS2::EE_RAM_SIZE, framework_getpagesize())))
     , m_bios(new uint8[PS2::EE_BIOS_SIZE])
-    , m_spr(new uint8[PS2::EE_SPR_SIZE])
+    , m_spr(reinterpret_cast<uint8*>(framework_aligned_alloc(PS2::EE_SPR_SIZE, 0x10)))
     , m_fakeIopRam(new uint8[FAKE_IOP_RAM_SIZE])
     , m_vuMem0(reinterpret_cast<uint8*>(framework_aligned_alloc(PS2::VUMEM0SIZE, 0x10)))
     , m_microMem0(new uint8[PS2::MICROMEM0SIZE])
@@ -53,6 +53,7 @@ CSubSystem::CSubSystem(uint8* iopRam, CIopBios& iopBios)
 	assert((reinterpret_cast<size_t>(&m_EE.m_State) & 0x0F) == 0);
 	assert((reinterpret_cast<size_t>(&m_VU0.m_State) & 0x0F) == 0);
 	assert((reinterpret_cast<size_t>(&m_VU1.m_State) & 0x0F) == 0);
+	assert((reinterpret_cast<size_t>(m_spr) & 0x0F) == 0);
 	assert((reinterpret_cast<size_t>(m_vuMem0) & 0x0F) == 0);
 	assert((reinterpret_cast<size_t>(m_vuMem1) & 0x0F) == 0);
 
@@ -160,7 +161,7 @@ CSubSystem::~CSubSystem()
 	delete m_os;
 	framework_aligned_free(m_ram);
 	delete[] m_bios;
-	delete[] m_spr;
+	framework_aligned_free(m_spr);
 	delete[] m_fakeIopRam;
 	framework_aligned_free(m_vuMem0);
 	delete[] m_microMem0;
