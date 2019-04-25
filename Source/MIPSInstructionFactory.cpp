@@ -80,7 +80,7 @@ void CMIPSInstructionFactory::ComputeMemAccessRef(uint32 accessSize)
 	m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[rs].nV[0]));
 	m_codeGen->PushCst(static_cast<int16>(immediate));
 	m_codeGen->Add();
-	m_codeGen->PushCst(0x1000 - accessSize);
+	m_codeGen->PushCst(MIPS_PAGE_SIZE - accessSize);
 	m_codeGen->And();
 	m_codeGen->AddRef();
 }
