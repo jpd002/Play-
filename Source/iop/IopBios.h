@@ -54,6 +54,7 @@ public:
 		KERNEL_RESULT_ERROR_UNKNOWN_EVFID = -409,
 		KERNEL_RESULT_ERROR_UNKNOWN_MBXID = -410,
 		KERNEL_RESULT_ERROR_UNKNOWN_VPLID = -411,
+		KERNEL_RESULT_ERROR_UNKNOWN_FPLID = -412,
 		KERNEL_RESULT_ERROR_NOT_DORMANT = -414,
 		KERNEL_RESULT_ERROR_NOT_WAIT = -416,
 		KERNEL_RESULT_ERROR_RELEASE_WAIT = -418,
@@ -62,6 +63,7 @@ public:
 		KERNEL_RESULT_ERROR_EVF_ILLEGAL_PAT = -423,
 		KERNEL_RESULT_ERROR_MBX_NOMSG = -424,
 		KERNEL_RESULT_ERROR_WAIT_DELETE = -425,
+		KERNEL_RESULT_ERROR_ILLEGAL_MEMBLOCK = -426,
 		KERNEL_RESULT_ERROR_ILLEGAL_MEMSIZE = -427,
 	};
 
@@ -229,6 +231,11 @@ public:
 	uint32 PollMessageBox(uint32, uint32);
 	uint32 ReferMessageBoxStatus(uint32, uint32);
 
+	uint32 CreateFpl(uint32);
+	uint32 AllocateFpl(uint32);
+	uint32 pAllocateFpl(uint32);
+	uint32 FreeFpl(uint32, uint32);
+
 	uint32 CreateVpl(uint32);
 	uint32 DeleteVpl(uint32);
 	uint32 pAllocateVpl(uint32, uint32);
@@ -292,6 +299,7 @@ private:
 		MAX_INTRHANDLER = 32,
 		MAX_VBLANKHANDLER = 8,
 		MAX_MESSAGEBOX = 32,
+		MAX_FPL = 16,
 		MAX_VPL = 16,
 		MAX_MODULESTARTREQUEST = 32,
 		MAX_LOADEDMODULE = 32,
@@ -381,6 +389,34 @@ private:
 		uint32 nextMsgPtr;
 		uint8 priority;
 		uint8 unused[3];
+	};
+
+	enum FPL_ATTR
+	{
+		FPL_ATTR_THFIFO = 0x000,
+		FPL_ATTR_THPRI = 0x001,
+		FPL_ATTR_THMODE_MASK = 0x001,
+		FPL_ATTR_MEMBTM = 0x200,
+		FPL_ATTR_MEMMODE_MASK = 0x200,
+		FPL_ATTR_VALID_MASK = (FPL_ATTR_THMODE_MASK | FPL_ATTR_MEMMODE_MASK)
+	};
+
+	struct FPL_PARAM
+	{
+		uint32 attr;
+		uint32 option;
+		uint32 blockSize;
+		uint32 blockCount;
+	};
+
+	struct FPL
+	{
+		uint32 isValid;
+		uint32 attr;
+		uint32 option;
+		uint32 poolPtr;
+		uint32 blockSize;
+		uint32 blockCount;
 	};
 
 	struct VPL
@@ -489,6 +525,7 @@ private:
 	typedef COsStructManager<INTRHANDLER> IntrHandlerList;
 	typedef COsStructManager<VBLANKHANDLER> VblankHandlerList;
 	typedef COsStructManager<MESSAGEBOX> MessageBoxList;
+	typedef COsStructManager<FPL> FplList;
 	typedef COsStructManager<VPL> VplList;
 	typedef COsStructManager<LOADEDMODULE> LoadedModuleList;
 	typedef std::map<std::string, Iop::ModulePtr> IopModuleMapType;
@@ -559,6 +596,7 @@ private:
 	IntrHandlerList m_intrHandlers;
 	VblankHandlerList m_vblankHandlers;
 	MessageBoxList m_messageBoxes;
+	FplList m_fpls;
 	VplList m_vpls;
 
 	IopModuleMapType m_modules;

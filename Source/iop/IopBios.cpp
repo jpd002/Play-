@@ -60,7 +60,9 @@
 #define BIOS_VBLANKHANDLER_SIZE (sizeof(CIopBios::VBLANKHANDLER) * CIopBios::MAX_VBLANKHANDLER)
 #define BIOS_MESSAGEBOX_BASE (BIOS_VBLANKHANDLER_BASE + BIOS_VBLANKHANDLER_SIZE)
 #define BIOS_MESSAGEBOX_SIZE (sizeof(CIopBios::MESSAGEBOX) * CIopBios::MAX_MESSAGEBOX)
-#define BIOS_VPL_BASE (BIOS_MESSAGEBOX_BASE + BIOS_MESSAGEBOX_SIZE)
+#define BIOS_FPL_BASE (BIOS_MESSAGEBOX_BASE + BIOS_MESSAGEBOX_SIZE)
+#define BIOS_FPL_SIZE (sizeof(CIopBios::FPL) * CIopBios::MAX_FPL)
+#define BIOS_VPL_BASE (BIOS_FPL_BASE + BIOS_FPL_SIZE)
 #define BIOS_VPL_SIZE (sizeof(CIopBios::VPL) * CIopBios::MAX_VPL)
 #define BIOS_MEMORYBLOCK_BASE (BIOS_VPL_BASE + BIOS_VPL_SIZE)
 #define BIOS_MEMORYBLOCK_SIZE (sizeof(Iop::MEMORYBLOCK) * CIopBios::MAX_MEMORYBLOCK)
@@ -100,6 +102,7 @@ CIopBios::CIopBios(CMIPS& cpu, uint8* ram, uint32 ramSize, uint8* spr)
     , m_intrHandlers(reinterpret_cast<INTRHANDLER*>(&m_ram[BIOS_INTRHANDLER_BASE]), 1, MAX_INTRHANDLER)
     , m_vblankHandlers(reinterpret_cast<VBLANKHANDLER*>(&m_ram[BIOS_VBLANKHANDLER_BASE]), 1, MAX_VBLANKHANDLER)
     , m_messageBoxes(reinterpret_cast<MESSAGEBOX*>(&m_ram[BIOS_MESSAGEBOX_BASE]), 1, MAX_MESSAGEBOX)
+    , m_fpls(reinterpret_cast<FPL*>(&m_ram[BIOS_FPL_BASE]), 1, MAX_FPL)
     , m_vpls(reinterpret_cast<VPL*>(&m_ram[BIOS_VPL_BASE]), 1, MAX_VPL)
     , m_loadedModules(reinterpret_cast<LOADEDMODULE*>(&m_ram[BIOS_LOADEDMODULE_BASE]), 1, MAX_LOADEDMODULE)
     , m_currentThreadId(reinterpret_cast<uint32*>(m_ram + BIOS_CURRENT_THREAD_ID_BASE))
@@ -2285,6 +2288,105 @@ uint32 CIopBios::ReferMessageBoxStatus(uint32 boxId, uint32 statusPtr)
 	status->numMessage = box->numMessage;
 	status->numWaitThread = 0;
 	status->messagePtr = box->nextMsgPtr;
+
+	return KERNEL_RESULT_OK;
+}
+
+uint32 CIopBios::CreateFpl(uint32 paramPtr)
+{
+	auto param = reinterpret_cast<FPL_PARAM*>(m_ram + paramPtr);
+	if((param->attr & ~FPL_ATTR_VALID_MASK) != 0)
+	{
+		return KERNEL_RESULT_ERROR_ILLEGAL_ATTR;
+	}
+
+	auto fplId = m_fpls.Allocate();
+	assert(fplId != FplList::INVALID_ID);
+	if(fplId == FplList::INVALID_ID)
+	{
+		return -1;
+	}
+
+	uint32 bitmapSize = (param->blockCount + 7) / 8;
+	uint32 totalSize = (param->blockCount * param->blockSize) + bitmapSize;
+
+	uint32 poolPtr = m_sysmem->AllocateMemory(totalSize, 0, 0);
+	if(poolPtr == 0)
+	{
+		m_fpls.Free(fplId);
+		return KERNEL_RESULT_ERROR_NO_MEMORY;
+	}
+
+	auto fpl = m_fpls[fplId];
+	fpl->attr = param->attr;
+	fpl->option = param->option;
+	fpl->blockCount = param->blockCount;
+	fpl->blockSize = param->blockSize;
+	fpl->poolPtr = poolPtr;
+
+	return fplId;
+}
+
+uint32 CIopBios::AllocateFpl(uint32 fplId)
+{
+	uint32 result = pAllocateFpl(fplId);
+	if(result == KERNEL_RESULT_ERROR_NO_MEMORY)
+	{
+		CLog::GetInstance().Warn(LOGNAME, "No memory left while calling AllocateFpl, should be waiting. (not implemented)");
+		assert(false);
+	}
+	return result;
+}
+
+uint32 CIopBios::pAllocateFpl(uint32 fplId)
+{
+	auto fpl = m_fpls[fplId];
+	if(!fpl)
+	{
+		return KERNEL_RESULT_ERROR_UNKNOWN_FPLID;
+	}
+
+	uint32 bitmapPtr = (fpl->blockCount * fpl->blockSize);
+	auto bitmap = m_ram + fpl->poolPtr + bitmapPtr;
+
+	for(uint32 blockIdx = 0; blockIdx < fpl->blockCount; blockIdx++)
+	{
+		uint32 bitmapByteIdx = blockIdx / 8;
+		uint32 bitmapBitMask = 1 << (blockIdx % 8);
+		uint8& bitmapByte = bitmap[bitmapByteIdx];
+		if(bitmapByte & bitmapBitMask) continue;
+		bitmapByte |= bitmapBitMask;
+		return fpl->poolPtr + (blockIdx * fpl->blockSize);
+	}
+
+	return KERNEL_RESULT_ERROR_NO_MEMORY;
+}
+
+uint32 CIopBios::FreeFpl(uint32 fplId, uint32 blockPtr)
+{
+	auto fpl = m_fpls[fplId];
+	if(!fpl)
+	{
+		return KERNEL_RESULT_ERROR_UNKNOWN_FPLID;
+	}
+
+	if(blockPtr < fpl->poolPtr)
+	{
+		return KERNEL_RESULT_ERROR_ILLEGAL_MEMBLOCK;
+	}
+
+	uint32 blockIdx = (blockPtr - fpl->poolPtr) / fpl->blockSize;
+	if(blockIdx >= fpl->blockCount)
+	{
+		return KERNEL_RESULT_ERROR_ILLEGAL_MEMBLOCK;
+	}
+
+	uint32 bitmapPtr = (fpl->blockCount * fpl->blockSize);
+	auto bitmap = m_ram + fpl->poolPtr + bitmapPtr;
+	uint32 bitmapByteIdx = blockIdx / 8;
+	uint32 bitmapBitMask = 1 << (blockIdx % 8);
+
+	bitmap[bitmapByteIdx] &= ~bitmapBitMask;
 
 	return KERNEL_RESULT_OK;
 }

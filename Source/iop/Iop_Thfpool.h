@@ -18,6 +18,8 @@ namespace Iop
 	private:
 		uint32 CreateFpl(uint32);
 		uint32 AllocateFpl(uint32);
+		uint32 pAllocateFpl(uint32);
+		uint32 FreeFpl(uint32, uint32);
 
 		CIopBios& m_bios;
 	};
