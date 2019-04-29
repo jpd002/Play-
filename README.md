@@ -47,6 +47,8 @@ cd ..
 ```
 
 ### Building for Windows ###
+The Easiest way to build the project on windows is to open Qt Creator and directed it to the cmake file in /project/dir/Play-/CMakeLists.txt.
+You can also build the project using Visual Studio or cmdline, for that you must follow these isnstruction:
 To build for Windows you will need to have CMake installed on your system.
 ```
 cd Play
@@ -55,9 +57,13 @@ cd build
 ```
 ```
 # Not specifying -G would automatically generate 32-bit projects.
-cmake .. -G"Visual Studio 15 2017 Win64"
+cmake .. -G"Visual Studio 15 2017 Win64" -DCMAKE_PREFIX_PATH="C:\Qt\5.10.1\msvc2017_64" -DUSE_QT=YES
+```
+You can now build the project by opening the generated Visual Studio Solution or continue through cmdline:
+```
 cmake --build . --config Release
 ```
+Note: --config can take any of Release/Debug/RelWithDebInfo
 
 ### Building for macOS & iOS ###
 If you don't have CMake installed on your system, you can install it using brew with the following command: `brew install cmake`.
@@ -70,15 +76,18 @@ cd build
 ```
 ```
 # Not specifying -G would automatically pick Makefiles
-cmake .. -G"Unix Makefiles" -DCMAKE_BUILD_TYPE=Release
-cmake --build .
-# OR
-cmake .. -G"Xcode" -DCMAKE_BUILD_TYPE=Release
+cmake .. -G"Xcode" -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH=~/Qt/5.1.0/clang_64/
 cmake --build . --config Release
+# OR
+cmake .. -G"Unix Makefiles" -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH=~/Qt/5.1.0/clang_64/
+cmake --build .
 ```
-
 To generate a build for iOS, you will need to add the following parameters to the CMake invocation:
 `-DCMAKE_TOOLCHAIN_FILE=../../../Dependencies/cmake-ios/ios.cmake -DTARGET_IOS=ON`
+
+iOS build doesnt use Qt so please omit `-DCMAKE_PREFIX_PATH=...`
+
+Note: while iOS build can be generated with Makefiles, they will not be FAT binaries.
 
 Example:
 `cmake .. -G"Xcode" -DCMAKE_TOOLCHAIN_FILE=../../../Dependencies/cmake-ios/ios.cmake -DTARGET_IOS=ON`
