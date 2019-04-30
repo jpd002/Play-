@@ -97,7 +97,7 @@ void CMIPSInstructionFactory::ComputeMemAccessPageRef()
 	m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[rs].nV[0]));
 	m_codeGen->PushCst(static_cast<int16>(immediate));
 	m_codeGen->Add();
-	m_codeGen->Srl(12); //Divide by MIPS_PAGE_SIZE
+	m_codeGen->Srl(12);                   //Divide by MIPS_PAGE_SIZE
 	m_codeGen->Shl(pointerMultiplyShift); //Multiply by sizeof(void*)
 	m_codeGen->AddRef();
 	m_codeGen->LoadRefFromRef();
