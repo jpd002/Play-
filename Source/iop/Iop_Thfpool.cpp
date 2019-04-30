@@ -56,12 +56,12 @@ void CThfpool::Invoke(CMIPS& context, unsigned int functionId)
 		break;
 	case 7:
 		context.m_State.nGPR[CMIPS::V0].nD0 = static_cast<int32>(pAllocateFpl(
-			context.m_State.nGPR[CMIPS::A0].nV0));
+		    context.m_State.nGPR[CMIPS::A0].nV0));
 		break;
 	case 9:
 		context.m_State.nGPR[CMIPS::V0].nD0 = static_cast<int32>(FreeFpl(
-			context.m_State.nGPR[CMIPS::A0].nV0,
-			context.m_State.nGPR[CMIPS::A1].nV0));
+		    context.m_State.nGPR[CMIPS::A0].nV0,
+		    context.m_State.nGPR[CMIPS::A1].nV0));
 		break;
 	default:
 		CLog::GetInstance().Warn(LOG_NAME, "Unknown function (%d) called at (%08X).\r\n", functionId, context.m_State.nPC);
