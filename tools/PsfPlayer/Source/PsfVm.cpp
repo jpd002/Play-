@@ -136,6 +136,16 @@ CDebuggable CPsfVm::GetDebugInfo()
 	return debug;
 }
 
+CMIPS& CPsfVm::GetCpu()
+{
+	return m_subSystem->GetCpu();
+}
+
+uint8* CPsfVm::GetRam()
+{
+	return m_subSystem->GetRam();
+}
+
 CSpuBase& CPsfVm::GetSpuCore(unsigned int coreId)
 {
 	return m_subSystem->GetSpuCore(coreId);

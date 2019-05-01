@@ -13,6 +13,7 @@ namespace Iop
 
 		void Reset() override;
 		CMIPS& GetCpu() override;
+		uint8* GetRam() override;
 		Iop::CSpuBase& GetSpuCore(unsigned int) override;
 
 #ifdef DEBUGGER_INCLUDED

@@ -61,6 +61,11 @@ CMIPS& CPsfSubSystem::GetCpu()
 	return m_cpu;
 }
 
+uint8* CPsfSubSystem::GetRam()
+{
+	return m_ram;
+}
+
 CPsfBios& CPsfSubSystem::GetBios()
 {
 	return m_bios;

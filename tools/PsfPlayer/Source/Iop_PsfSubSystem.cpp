@@ -34,6 +34,11 @@ CMIPS& CPsfSubSystem::GetCpu()
 	return m_iop.m_cpu;
 }
 
+uint8* CPsfSubSystem::GetRam()
+{
+	return m_iop.m_ram;
+}
+
 CSpuBase& CPsfSubSystem::GetSpuCore(unsigned int coreId)
 {
 	if(coreId == 0)

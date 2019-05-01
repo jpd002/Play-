@@ -26,7 +26,10 @@ public:
 	void SetReverbEnabled(bool);
 	void SetVolumeAdjust(float);
 
+	CMIPS& GetCpu();
+	uint8* GetRam();
 	Iop::CSpuBase& GetSpuCore(unsigned int);
+
 	void SetSubSystem(const PsfVmSubSystemPtr&);
 
 	CDebuggable GetDebugInfo();
