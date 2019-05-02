@@ -132,9 +132,18 @@ void CBasicBlock::Compile()
 	size_t blockSize = ((m_end - m_begin) / 4) + 1;
 	auto blockData = new uint32[blockSize];
 
-	for(uint32 i = 0; i < blockSize; i++)
+	if(!IsEmpty())
 	{
-		blockData[i] = m_context.m_pMemoryMap->GetWord(m_begin + (i * 4));
+		for(uint32 i = 0; i < blockSize; i++)
+		{
+			blockData[i] = m_context.m_pMemoryMap->GetWord(m_begin + (i * 4));
+		}
+	}
+	else
+	{
+		//The empty block has no data per se
+		assert(blockSize == 1);
+		blockData[0] = ~0;
 	}
 
 	uint32 blockChecksum = crc32(0, reinterpret_cast<Bytef*>(blockData), blockSize * 4);
@@ -169,6 +178,7 @@ void CBasicBlock::Compile()
 #endif
 
 #ifdef AOT_BUILD_CACHE
+	if(m_aotBlockOutputStream)
 	{
 		std::lock_guard<std::mutex> lock(m_aotBlockOutputStreamMutex);
 
