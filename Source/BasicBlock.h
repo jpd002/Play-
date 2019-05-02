@@ -60,6 +60,7 @@ public:
 	virtual ~CBasicBlock() = default;
 	void Execute();
 	void Compile();
+	virtual void CompileRange(CMipsJitter*);
 
 	uint32 GetBeginAddress() const;
 	uint32 GetEndAddress() const;
@@ -80,7 +81,6 @@ protected:
 	uint32 m_end;
 	CMIPS& m_context;
 
-	virtual void CompileRange(CMipsJitter*);
 	void CompileProlog(CMipsJitter*);
 	void CompileEpilog(CMipsJitter*);
 
