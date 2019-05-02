@@ -33,3 +33,9 @@ if "%BUILD_PSFPLAYER%" == "ON" (
 	mkdir %REPO_COMMIT_SHORT%
 	move Play-Build\Play\tools\PsfPlayer\installer_win32\*.exe %REPO_COMMIT_SHORT%
 )
+
+if "%BUILD_PSFAOT%" == "ON" (
+	cmake .. -G"%BUILD_TYPE%" -T v141_xp -DBUILD_PLAY=off -DBUILD_TESTS=off -DBUILD_PSFPLAYER=on -DBUILD_AOT_CACHE=on
+	cmake --build . --config %CONFIG_TYPE%
+	if !errorlevel! neq 0 exit /b !errorlevel!
+)
