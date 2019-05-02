@@ -262,6 +262,7 @@ void CBasicBlock::CompileEpilog(CMipsJitter* jitter)
 		jitter->PushCst(MIPS_INVALID_PC);
 		jitter->PullRel(offsetof(CMIPS, m_State.nDelayedJumpAddr));
 
+#ifndef AOT_BUILD_CACHE
 		jitter->PushRel(offsetof(CMIPS, m_State.nHasException));
 		jitter->PushCst(0);
 		jitter->BeginIf(Jitter::CONDITION_EQ);
@@ -269,12 +270,14 @@ void CBasicBlock::CompileEpilog(CMipsJitter* jitter)
 			jitter->JumpToDynamic(reinterpret_cast<void*>(&NextBlockTrampoline));
 		}
 		jitter->EndIf();
+#endif
 	}
 	jitter->Else();
 	{
 		jitter->PushCst(m_end + 4);
 		jitter->PullRel(offsetof(CMIPS, m_State.nPC));
 
+#ifndef AOT_BUILD_CACHE
 		jitter->PushRel(offsetof(CMIPS, m_State.nHasException));
 		jitter->PushCst(0);
 		jitter->BeginIf(Jitter::CONDITION_EQ);
@@ -282,6 +285,7 @@ void CBasicBlock::CompileEpilog(CMipsJitter* jitter)
 			jitter->JumpToDynamic(reinterpret_cast<void*>(&NextBlockTrampoline));
 		}
 		jitter->EndIf();
+#endif
 	}
 	jitter->EndIf();
 }
