@@ -40,6 +40,12 @@ namespace Jitter
 	class CJitter;
 };
 
+extern "C"
+{
+	void EmptyBlockHandler(CMIPS*);
+	void NextBlockTrampoline(CMIPS*);
+}
+
 class CBasicBlock
 {
 public:
@@ -86,9 +92,6 @@ private:
 	static uint32 BreakpointFilter(CMIPS*);
 	static void BreakpointHandler(CMIPS*);
 #endif
-
-	static void EmptyBlockHandler(CMIPS*);
-	static void NextBlockTrampoline(CMIPS*);
 
 #ifdef AOT_BUILD_CACHE
 	static Framework::CStdStream* m_aotBlockOutputStream;

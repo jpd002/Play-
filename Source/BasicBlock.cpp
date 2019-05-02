@@ -403,11 +403,11 @@ void CBasicBlock::BreakpointHandler(CMIPS* context)
 
 #endif
 
-void CBasicBlock::EmptyBlockHandler(CMIPS* context)
+void EmptyBlockHandler(CMIPS* context)
 {
 	context->m_emptyBlockHandler(context);
 }
 
-void CBasicBlock::NextBlockTrampoline(CMIPS* context)
+void NextBlockTrampoline(CMIPS* context)
 {
 }
