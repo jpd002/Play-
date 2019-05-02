@@ -17,6 +17,7 @@ set(BUILD_PLAY ON CACHE BOOL "Build Play! Emulator")
 set(BUILD_PSFPLAYER OFF CACHE BOOL "Build PsfPlayer")
 set(BUILD_TESTS ON CACHE BOOL "Build Tests")
 set(USE_AOT_CACHE OFF CACHE BOOL "Use AOT block cache")
+set(BUILD_AOT_CACHE OFF CACHE BOOL "Build AOT block cache (for PsfPlayer only)")
 
 set(PROJECT_NAME "Play!")
 set(PROJECT_Version 0.30)

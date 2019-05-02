@@ -85,7 +85,6 @@ set(WIN32_SRC
 	AcceleratorTable.cpp
 	FileInformationPanel.cpp
 	Main.cpp
-	#Main_Aot.cpp
 	MainWindow.cpp
 	PlaylistPanel.cpp
 	SpuRegView.cpp
