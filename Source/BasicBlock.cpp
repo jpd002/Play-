@@ -256,7 +256,7 @@ void CBasicBlock::CompileEpilog(CMipsJitter* jitter)
 		jitter->PushCst(0);
 		jitter->BeginIf(Jitter::CONDITION_EQ);
 		{
-			jitter->JumpTo(reinterpret_cast<void*>(&NextBlockTrampoline));
+			jitter->JumpToDynamic(reinterpret_cast<void*>(&NextBlockTrampoline));
 		}
 		jitter->EndIf();
 	}
@@ -269,7 +269,7 @@ void CBasicBlock::CompileEpilog(CMipsJitter* jitter)
 		jitter->PushCst(0);
 		jitter->BeginIf(Jitter::CONDITION_EQ);
 		{
-			jitter->JumpTo(reinterpret_cast<void*>(&NextBlockTrampoline));
+			jitter->JumpToDynamic(reinterpret_cast<void*>(&NextBlockTrampoline));
 		}
 		jitter->EndIf();
 	}
