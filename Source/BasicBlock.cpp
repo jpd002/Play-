@@ -346,6 +346,7 @@ void CBasicBlock::SetLinkTargetAddress(LINK_SLOT linkSlot, uint32 address)
 
 void CBasicBlock::LinkBlock(LINK_SLOT linkSlot, CBasicBlock* otherBlock)
 {
+#ifndef AOT_ENABLED
 	assert(!IsEmpty());
 	assert(!otherBlock->IsEmpty());
 	assert(linkSlot < LINK_SLOT_MAX);
@@ -359,10 +360,12 @@ void CBasicBlock::LinkBlock(LINK_SLOT linkSlot, CBasicBlock* otherBlock)
 	m_function.BeginModify();
 	*reinterpret_cast<uintptr_t*>(code + m_linkBlockTrampolineOffset[linkSlot]) = patchValue;
 	m_function.EndModify();
+#endif //!AOT_ENABLED
 }
 
 void CBasicBlock::UnlinkBlock(LINK_SLOT linkSlot)
 {
+#ifndef AOT_ENABLED
 	assert(!IsEmpty());
 	assert(linkSlot < LINK_SLOT_MAX);
 	assert(m_linkBlockTrampolineOffset[linkSlot] != INVALID_LINK_SLOT);
@@ -375,6 +378,7 @@ void CBasicBlock::UnlinkBlock(LINK_SLOT linkSlot)
 	m_function.BeginModify();
 	*reinterpret_cast<uintptr_t*>(code + m_linkBlockTrampolineOffset[linkSlot]) = patchValue;
 	m_function.EndModify();
+#endif //!AOT_ENABLED
 }
 
 void CBasicBlock::HandleExternalFunctionReference(uintptr_t symbol, uint32 offset, Jitter::CCodeGen::SYMBOL_REF_TYPE refType)
