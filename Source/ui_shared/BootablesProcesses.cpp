@@ -114,7 +114,7 @@ void FetchGameTitles()
 						}
 						if(!game.boxArtUrl.empty())
 						{
-							auto coverUrl = string_format("%s/%s", game.baseImgUrl.c_str(), game.boxArtUrl.c_str());
+							auto coverUrl = string_format("%s%s", game.baseImgUrl.c_str(), game.boxArtUrl.c_str());
 							BootablesDb::CClient::GetInstance().SetCoverUrl(bootable.path, coverUrl.c_str());
 						}
 
