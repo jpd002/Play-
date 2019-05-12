@@ -479,7 +479,9 @@ void MainWindow::loadState(int stateSlot)
 		                                                         if(succeeded)
 		                                                         {
 			                                                         m_msgLabel->setText(QString("Loaded state from slot %1.").arg(stateSlot));
+#ifndef DEBUGGER_INCLUDED
 			                                                         m_virtualMachine->Resume();
+#endif
 		                                                         }
 		                                                         else
 		                                                         {
