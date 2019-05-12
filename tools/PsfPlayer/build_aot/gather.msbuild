@@ -1,6 +1,6 @@
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
 	<PropertyGroup>
-		<PsfAotPath>$(MSBuildThisFileDirectory)\..\build_win32\x64\ReleaseAot\PsfAot.exe</PsfAotPath>
+		<PsfAotPath>$(MSBuildThisFileDirectory)\..\..\..\build_cmake\build_psfaot\tools\PsfPlayer\Source\ui_aot\RelWithDebInfo\PsfAot.exe</PsfAotPath>
 		<InputDir>D:\Media\Aot</InputDir>
 		<OutputDir>.\blocks</OutputDir>
 	</PropertyGroup>
