@@ -300,6 +300,12 @@ void CLoadcore::Initialize(uint32* args, uint32 argsSize, uint32* ret, uint32 re
 		//This is needed by Super Bust-A-Move
 		ret[0] = 0x30323032;
 	}
+	else if(m_moduleVersion == 2000)
+	{
+		//Return '2000'
+		//This is needed by 4x4 Evo
+		ret[0] = 0x30303032;
+	}
 	else
 	{
 		//Return '....'
