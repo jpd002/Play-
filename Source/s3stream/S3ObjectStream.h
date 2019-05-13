@@ -27,6 +27,7 @@ private:
 	static boost::filesystem::path GetCachePath();
 	std::string GenerateReadCacheKey(const std::pair<uint64, uint64>&) const;
 	void GetObjectInfo();
+	void SyncBuffer();
 
 	std::string m_bucketName;
 	std::string m_bucketRegion;
@@ -37,4 +38,7 @@ private:
 	std::string m_objectEtag;
 
 	uint64 m_objectPosition = 0;
+
+	std::vector<uint8> m_buffer;
+	uint64 m_bufferPosition = ~0ULL;
 };

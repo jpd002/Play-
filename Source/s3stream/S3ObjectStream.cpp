@@ -15,6 +15,8 @@
 
 #define LOG_NAME "s3objectstream"
 
+#define BUFFERSIZE 0x40000
+
 CS3ObjectStream::CConfig::CConfig()
 {
 	CAppConfig::GetInstance().RegisterPreferenceString(PREF_S3_OBJECTSTREAM_ACCESSKEYID, "");
@@ -35,66 +37,40 @@ CS3ObjectStream::CS3ObjectStream(const char* bucketName, const char* objectName)
     : m_bucketName(bucketName)
     , m_objectName(objectName)
 {
+	m_buffer.resize(BUFFERSIZE);
 	Framework::PathUtils::EnsurePathExists(GetCachePath());
 	GetObjectInfo();
 }
 
 uint64 CS3ObjectStream::Read(void* buffer, uint64 size)
 {
-	auto range = std::make_pair(m_objectPosition, m_objectPosition + size - 1);
-	auto readCacheFilePath = GetCachePath() / GenerateReadCacheKey(range);
+	assert(m_objectPosition <= m_objectSize);
 
-#ifdef _TRACEGET
-	static FILE* output = fopen("getobject.log", "wb");
-	fprintf(output, "%ld,%ld,%ld\r\n", range.first, range.second, size);
-	fflush(output);
-#endif
+	uint64 adjSize = std::min(size, m_objectSize - m_objectPosition);
+	auto outBuffer = reinterpret_cast<uint8*>(buffer);
 
-	bool cachedReadSucceeded =
-	    [&]() {
-		    try
-		    {
-			    if(boost::filesystem::exists(readCacheFilePath))
-			    {
-				    auto readCacheFileStream = Framework::CreateInputStdStream(readCacheFilePath.native());
-				    auto cacheRead = readCacheFileStream.Read(buffer, size);
-				    assert(cacheRead == size);
-				    return true;
-			    }
-		    }
-		    catch(const std::exception& exception)
-		    {
-			    //Not a problem if we failed to read cache
-			    CLog::GetInstance().Print(LOG_NAME, "Failed to read cache: '%s'.\r\n", exception.what());
-		    }
-		    return false;
-	    }();
-
-	if(!cachedReadSucceeded)
+	while(adjSize != 0)
 	{
-		assert(size > 0);
-		CAmazonS3Client client(CConfig::GetInstance().GetAccessKeyId(), CConfig::GetInstance().GetSecretAccessKey(), m_bucketRegion);
-		GetObjectRequest request;
-		request.object = m_objectName;
-		request.bucket = m_bucketName;
-		request.range = range;
-		auto objectContent = client.GetObject(request);
-		assert(objectContent.data.size() == size);
-		memcpy(buffer, objectContent.data.data(), size);
-
-		try
+		//Read if we're inside buffer size
+		if((m_bufferPosition / BUFFERSIZE) == (m_objectPosition / BUFFERSIZE))
 		{
-			auto readCacheFileStream = Framework::CreateOutputStdStream(readCacheFilePath.native());
-			readCacheFileStream.Write(objectContent.data.data(), size);
+			uint64 bufferOffset = m_objectPosition % BUFFERSIZE;
+			uint64 remainSize = BUFFERSIZE - bufferOffset;
+			assert(remainSize <= BUFFERSIZE);
+			auto copySize = std::min(remainSize, adjSize);
+			assert(copySize <= adjSize);
+			memcpy(outBuffer, m_buffer.data() + bufferOffset, copySize);
+			m_objectPosition += copySize;
+			outBuffer += copySize;
+			adjSize -= copySize;
 		}
-		catch(const std::exception& exception)
+		else
 		{
-			//Not a problem if we failed to write cache
-			CLog::GetInstance().Print(LOG_NAME, "Failed to write cache: '%s'.\r\n", exception.what());
+			SyncBuffer();
 		}
 	}
 
-	m_objectPosition += size;
+	assert(m_objectPosition <= m_objectSize);
 	return size;
 }
 
@@ -179,5 +155,64 @@ void CS3ObjectStream::GetObjectInfo()
 		auto objectHeader = client.HeadObject(request);
 		m_objectSize = objectHeader.contentLength;
 		m_objectEtag = TrimQuotes(objectHeader.etag);
+	}
+}
+
+void CS3ObjectStream::SyncBuffer()
+{
+	m_bufferPosition = (m_objectPosition / BUFFERSIZE) * BUFFERSIZE;
+
+	uint64 size = std::min<uint64>(BUFFERSIZE, m_objectSize - m_bufferPosition);
+	auto range = std::make_pair(m_bufferPosition, m_bufferPosition + size - 1);
+	auto readCacheFilePath = GetCachePath() / GenerateReadCacheKey(range);
+
+#ifdef _TRACEGET
+	static FILE* output = fopen("getobject.log", "wb");
+	fprintf(output, "%ld,%ld,%ld\r\n", range.first, range.second, size);
+	fflush(output);
+#endif
+
+	bool cachedReadSucceeded =
+	    [&]() {
+		    try
+		    {
+			    if(boost::filesystem::exists(readCacheFilePath))
+			    {
+				    auto readCacheFileStream = Framework::CreateInputStdStream(readCacheFilePath.native());
+				    auto cacheRead = readCacheFileStream.Read(m_buffer.data(), size);
+				    assert(cacheRead == size);
+				    return true;
+			    }
+		    }
+		    catch(const std::exception& exception)
+		    {
+			    //Not a problem if we failed to read cache
+			    CLog::GetInstance().Print(LOG_NAME, "Failed to read cache: '%s'.\r\n", exception.what());
+		    }
+		    return false;
+	    }();
+
+	if(!cachedReadSucceeded)
+	{
+		assert(size > 0);
+		CAmazonS3Client client(CConfig::GetInstance().GetAccessKeyId(), CConfig::GetInstance().GetSecretAccessKey(), m_bucketRegion);
+		GetObjectRequest request;
+		request.object = m_objectName;
+		request.bucket = m_bucketName;
+		request.range = range;
+		auto objectContent = client.GetObject(request);
+		assert(objectContent.data.size() == size);
+		memcpy(m_buffer.data(), objectContent.data.data(), size);
+
+		try
+		{
+			auto readCacheFileStream = Framework::CreateOutputStdStream(readCacheFilePath.native());
+			readCacheFileStream.Write(objectContent.data.data(), size);
+		}
+		catch(const std::exception& exception)
+		{
+			//Not a problem if we failed to write cache
+			CLog::GetInstance().Print(LOG_NAME, "Failed to write cache: '%s'.\r\n", exception.what());
+		}
 	}
 }
