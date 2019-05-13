@@ -1776,8 +1776,14 @@ uint32 CIopBios::SignalSemaphore(uint32 semaphoreId, bool inInterrupt)
 	}
 	else
 	{
-		assert(semaphore->count != semaphore->maxCount);
-		semaphore->count++;
+		if(semaphore->count == semaphore->maxCount)
+		{
+			return KERNEL_RESULT_ERROR_SEMA_OVF;
+		}
+		else
+		{
+			semaphore->count++;
+		}
 	}
 	return KERNEL_RESULT_OK;
 }
