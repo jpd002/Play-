@@ -88,6 +88,7 @@ MainWindow::MainWindow(QWidget* parent)
 
 	CreateStatusBar();
 	UpdateUI();
+	ui->actionBoot_DiscImage_S3->setVisible(S3FileBrowser::IsAvailable());
 
 	InitVirtualMachine();
 

@@ -30,6 +30,13 @@ S3FileBrowser::~S3FileBrowser()
 	delete ui;
 }
 
+bool S3FileBrowser::IsAvailable()
+{
+	auto accessKeyId = CS3ObjectStream::CConfig::GetInstance().GetAccessKeyId();
+	auto accessKeySecret = CS3ObjectStream::CConfig::GetInstance().GetSecretAccessKey();
+	return !accessKeyId.empty() && !accessKeySecret.empty();
+}
+
 boost::filesystem::path S3FileBrowser::GetSelectedPath() const
 {
 	return m_selectedPath;

@@ -20,6 +20,8 @@ public:
 	explicit S3FileBrowser(QWidget* parent = 0);
 	~S3FileBrowser();
 
+	static bool IsAvailable();
+
 	boost::filesystem::path GetSelectedPath() const;
 
 private slots:
