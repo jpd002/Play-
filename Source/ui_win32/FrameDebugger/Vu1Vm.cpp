@@ -66,6 +66,7 @@ void CVu1Vm::StepVu1()
 {
 	m_vu1.m_executor->Execute(1);
 	OnMachineStateChange();
+	OnRunningStateChange();
 }
 
 CMIPS* CVu1Vm::GetVu1Context()
