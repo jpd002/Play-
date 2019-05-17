@@ -27,6 +27,9 @@ BootableListDialog::BootableListDialog(QWidget* parent)
 	m_sortingMethod = CAppConfig::GetInstance().GetPreferenceInteger("ui.sortmethod");
 	ui->comboBox->setCurrentIndex(m_sortingMethod);
 
+	// used as workaround to avoid direct ui access from a thread
+	connect(this, SIGNAL(AsyncUpdateCoverDisplay()), this, SLOT(UpdateCoverDisplay()));
+
 	//if m_sortingMethod == currentIndex == 0, setting index wont trigger on_comboBox_currentIndexChanged() thus resetModel()
 	if(m_sortingMethod == 0)
 	{
@@ -83,9 +86,7 @@ void BootableListDialog::resetModel()
 		cover_loader = std::thread([&] {
 			CoverUtils::PopulateCache(m_bootables);
 
-			//Force redraw
-			ui->listView->scroll(1, 0);
-			ui->listView->scroll(-1, 0);
+			AsyncUpdateCoverDisplay();
 			m_thread_running = false;
 		});
 	}
@@ -152,4 +153,11 @@ void BootableListDialog::on_comboBox_currentIndexChanged(int index)
 	CAppConfig::GetInstance().SetPreferenceInteger("ui.sortmethod", index);
 	m_sortingMethod = index;
 	resetModel();
+}
+
+void BootableListDialog::UpdateCoverDisplay()
+{
+	//Force redraw
+	ui->listView->scroll(1, 0);
+	ui->listView->scroll(-1, 0);
 }

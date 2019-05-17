@@ -29,6 +29,7 @@ private slots:
 	void on_refresh_button_clicked();
 
 	void on_comboBox_currentIndexChanged(int index);
+	void UpdateCoverDisplay();
 
 private:
 	Ui::BootableListDialog* ui;
@@ -41,6 +42,9 @@ private:
 	std::atomic<bool> m_thread_running;
 
 	void resetModel();
+
+Q_SIGNALS:
+	void AsyncUpdateCoverDisplay();
 
 protected:
 	void showEvent(QShowEvent*) Q_DECL_OVERRIDE;
