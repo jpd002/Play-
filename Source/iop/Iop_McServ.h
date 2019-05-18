@@ -152,6 +152,7 @@ namespace Iop
 		void ChDir(uint32*, uint32, uint32*, uint32, uint8*);
 		void GetDir(uint32*, uint32, uint32*, uint32, uint8*);
 		void Delete(uint32*, uint32, uint32*, uint32, uint8*);
+		void GetEntSpace(uint32*, uint32, uint32*, uint32, uint8*);
 		void GetSlotMax(uint32*, uint32, uint32*, uint32, uint8*);
 		bool ReadFast(uint32*, uint32, uint32*, uint32, uint8*);
 		void GetVersionInformation(uint32*, uint32, uint32*, uint32, uint8*);

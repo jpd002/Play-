@@ -122,6 +122,9 @@ bool CMcServ::Invoke(uint32 method, uint32* args, uint32 argsSize, uint32* ret, 
 	case 0x79:
 		Delete(args, argsSize, ret, retSize, ram);
 		break;
+	case 0x12:
+		GetEntSpace(args, argsSize, ret, retSize, ram);
+		break;
 	case 0x15:
 		GetSlotMax(args, argsSize, ret, retSize, ram);
 		break;
@@ -604,6 +607,28 @@ void CMcServ::Delete(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize,
 		CLog::GetInstance().Warn(LOG_NAME, "Error while executing Delete: %s.\r\n", exception.what());
 		ret[0] = -1;
 		return;
+	}
+}
+
+void CMcServ::GetEntSpace(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, uint8* ram)
+{
+
+	auto cmd = reinterpret_cast<CMD*>(args);
+
+	CLog::GetInstance().Print(LOG_NAME, "GetEntSpace(port = %i, slot = %i, flags = %i, name = %s);\r\n",
+	                          cmd->port, cmd->slot, cmd->flags, cmd->name);
+
+	auto mcPath = CAppConfig::GetInstance().GetPreferencePath(m_mcPathPreference[cmd->port]);
+	auto savePath = mcPath / cmd->name;
+
+	if(filesystem::exists(savePath) && filesystem::is_directory(savePath))
+	{
+		// Arbitrarity number, allows Drakengard to detect MC
+		ret[0] = 0xFE;
+	}
+	else
+	{
+		ret[0] = RET_NO_ENTRY;
 	}
 }
 
