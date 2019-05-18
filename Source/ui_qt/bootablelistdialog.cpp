@@ -136,7 +136,7 @@ void BootableListDialog::on_refresh_button_clicked()
 	{
 		try
 		{
-			ScanBootables(path);
+			ScanBootables(path, false);
 		}
 		catch(...)
 		{
