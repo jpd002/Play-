@@ -77,8 +77,16 @@ travis_script()
             if [ "$CXX" = "g++" ]; then export CXX="g++-5" CC="gcc-5"; fi
             export PATH=/opt/cmake-3.8.1-Linux-x86_64/bin/:$PATH
             source /opt/qt56/bin/qt56-env.sh || true
-            cmake .. -G"$BUILD_TYPE" -DCMAKE_PREFIX_PATH=/opt/qt56/;
+            cmake .. -G"$BUILD_TYPE" -DCMAKE_PREFIX_PATH=/opt/qt56/ -DCMAKE_INSTALL_PREFIX=./appdir/usr;
             cmake --build .
+            cmake --build . --target install
+
+            # AppImage Creation
+            wget -c "https://github.com/probonopd/linuxdeployqt/releases/download/continuous/linuxdeployqt-continuous-x86_64.AppImage"
+            chmod a+x linuxdeployqt*.AppImage
+            unset QTDIR; unset QT_PLUGIN_PATH ; unset LD_LIBRARY_PATH
+            ./linuxdeployqt*.AppImage ./appdir/usr/share/applications/*.desktop -bundle-non-qt-libs -qmake=/opt/qt56/bin/qmake
+            ./linuxdeployqt*.AppImage ./appdir/usr/share/applications/*.desktop -appimage -qmake=/opt/qt56/bin/qmake
         elif [ "$TARGET_OS" = "OSX" ]; then
             export CMAKE_PREFIX_PATH="$(brew --prefix qt5)"
             cmake .. -G"$BUILD_TYPE"
@@ -110,6 +118,9 @@ travis_before_deploy()
     pushd $SHORT_HASH
     if [ -z "$ANDROID_KEYSTORE_PASS" ]; then
         return
+    fi;
+    if [ "$TARGET_OS" = "Linux" ]; then
+        cp ../../build_cmake/build/Play*.AppImage .
     fi;
     if [ "$TARGET_OS" = "Android" ]; then
         cp ../../build_android/build/outputs/apk/release/Play-release-unsigned.apk .
