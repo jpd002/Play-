@@ -19,6 +19,7 @@ public:
 	QSize SizeHint();
 	BootablesDb::Bootable GetBootable(const QModelIndex&);
 	void removeItem(const QModelIndex&);
+	void SetWidth(int);
 
 private:
 	std::vector<BootablesDb::Bootable>& m_bootables;
@@ -35,6 +36,7 @@ public:
 	QSize sizeHint() const;
 
 private:
+	int GetPadding() const;
 	std::string m_key;
 	std::string m_title;
 };

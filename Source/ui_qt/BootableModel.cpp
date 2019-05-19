@@ -7,6 +7,8 @@
 #include "BootableModel.h"
 #include "CoverUtils.h"
 
+int g_viewwidth;
+
 BootableModel::BootableModel(QObject* parent, std::vector<BootablesDb::Bootable>& bootables)
     : QAbstractTableModel(parent)
     , m_bootables(bootables)
@@ -61,6 +63,11 @@ void BootableModel::removeItem(const QModelIndex& index)
 	emit QAbstractTableModel::endRemoveRows();
 }
 
+void BootableModel::SetWidth(int width)
+{
+	g_viewwidth = width;
+}
+
 /* start of BootImageItemDelegate */
 BootableCoverQVarient::BootableCoverQVarient(std::string key, std::string title)
     : m_key(key)
@@ -93,20 +100,35 @@ void BootableCoverQVarient::paint(QPainter* painter, const QRect& rect, const QP
 		text += m_title;
 		painter.drawText(pix_rect, text.c_str(), opts);
 	}
-	painter->drawPixmap(rect.x() + 5, rect.y() + 5, pixmap);
+	painter->drawPixmap(rect.x() + 5 + (GetPadding() / 2), rect.y() + 5, pixmap);
 
 	painter->restore();
 }
 
+int BootableCoverQVarient::GetPadding() const
+{
+	QPixmap pixmap = CoverUtils::find("PH");
+	int cover_width = pixmap.size().width() + 10;
+
+	int cover_count = (g_viewwidth / cover_width);
+	int reminder = (g_viewwidth % cover_width);
+	if(reminder > 0 && cover_count > 0)
+		return reminder / cover_count;
+
+	return 0;
+}
+
 QSize BootableCoverQVarient::sizeHint() const
 {
-	static QSize size;
+	QSize size;
 	if(size.isEmpty())
 	{
 		QPixmap pixmap = CoverUtils::find("PH");
 		size = pixmap.size();
 		size.setHeight(size.height() + 10);
 		size.setWidth(size.width() + 10);
+
+		size.rwidth() += GetPadding();
 	}
 	return size;
 }

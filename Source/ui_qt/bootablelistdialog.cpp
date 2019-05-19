@@ -161,3 +161,9 @@ void BootableListDialog::UpdateCoverDisplay()
 	ui->listView->scroll(1, 0);
 	ui->listView->scroll(-1, 0);
 }
+
+void BootableListDialog::resizeEvent(QResizeEvent* ev)
+{
+	model->SetWidth(ui->listView->size().width() - ui->listView->style()->pixelMetric(QStyle::PM_ScrollBarExtent) - 5);
+	QDialog::resizeEvent(ev);
+}

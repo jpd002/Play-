@@ -1,5 +1,6 @@
 #pragma once
 
+#include <QResizeEvent>
 #include <QDialog>
 #include <QDir>
 #include <boost/filesystem.hpp>
@@ -48,4 +49,5 @@ Q_SIGNALS:
 
 protected:
 	void showEvent(QShowEvent*) Q_DECL_OVERRIDE;
+	void resizeEvent(QResizeEvent*) Q_DECL_OVERRIDE;
 };

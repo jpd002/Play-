@@ -84,9 +84,6 @@
        <verstretch>0</verstretch>
       </sizepolicy>
      </property>
-     <property name="verticalScrollBarPolicy">
-      <enum>Qt::ScrollBarAlwaysOff</enum>
-     </property>
      <property name="movement">
       <enum>QListView::Free</enum>
      </property>
