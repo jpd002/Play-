@@ -120,7 +120,7 @@ travis_before_deploy()
         return
     fi;
     if [ "$TARGET_OS" = "Linux" ]; then
-        cp ../../build_cmake/build/Play*.AppImage .
+        cp ../../build/Play*.AppImage .
     fi;
     if [ "$TARGET_OS" = "Android" ]; then
         cp ../../build_android/build/outputs/apk/release/Play-release-unsigned.apk .
