@@ -7,6 +7,16 @@
 #include "../GsPixelFormats.h"
 #include "GSH_OpenGL.h"
 
+#ifdef GLES_COMPATIBILITY
+//Standard blending constants
+#define BLEND_SRC_ALPHA GL_SRC_ALPHA
+#define BLEND_ONE_MINUS_SRC_ALPHA GL_ONE_MINUS_SRC_ALPHA
+#else
+//Dual source blending constants
+#define BLEND_SRC_ALPHA GL_SRC1_ALPHA
+#define BLEND_ONE_MINUS_SRC_ALPHA GL_ONE_MINUS_SRC1_ALPHA
+#endif
+
 #define NUM_SAMPLES 8
 #define FRAMEBUFFER_HEIGHT 1024
 
@@ -770,7 +780,7 @@ void CGSH_OpenGL::SetupBlendingFunction(uint64 alphaReg)
 	else if((alpha.nA == ALPHABLEND_ABD_CS) && (alpha.nB == ALPHABLEND_ABD_CD) && (alpha.nC == ALPHABLEND_C_AS) && (alpha.nD == ALPHABLEND_ABD_CD))
 	{
 		//0101 - Cs * As + Cd * (1 - As)
-		glBlendFuncSeparate(GL_SRC1_ALPHA, GL_ONE_MINUS_SRC1_ALPHA, GL_ONE, GL_ZERO);
+		glBlendFuncSeparate(BLEND_SRC_ALPHA, BLEND_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ZERO);
 	}
 	else if((alpha.nA == 0) && (alpha.nB == 1) && (alpha.nC == 1) && (alpha.nD == 1))
 	{
@@ -793,12 +803,12 @@ void CGSH_OpenGL::SetupBlendingFunction(uint64 alphaReg)
 	}
 	else if((alpha.nA == 0) && (alpha.nB == 2) && (alpha.nC == 0) && (alpha.nD == 1))
 	{
-		glBlendFuncSeparate(GL_SRC1_ALPHA, GL_ONE, GL_ONE, GL_ZERO);
+		glBlendFuncSeparate(BLEND_SRC_ALPHA, GL_ONE, GL_ONE, GL_ZERO);
 	}
 	else if((alpha.nA == 0) && (alpha.nB == 2) && (alpha.nC == 0) && (alpha.nD == 2))
 	{
 		//Cs * As
-		glBlendFuncSeparate(GL_SRC1_ALPHA, GL_ZERO, GL_ONE, GL_ZERO);
+		glBlendFuncSeparate(BLEND_SRC_ALPHA, GL_ZERO, GL_ONE, GL_ZERO);
 	}
 	else if((alpha.nA == 0) && (alpha.nB == 2) && (alpha.nC == 1) && (alpha.nD == 1))
 	{
@@ -827,13 +837,13 @@ void CGSH_OpenGL::SetupBlendingFunction(uint64 alphaReg)
 	else if((alpha.nA == 1) && (alpha.nB == 0) && (alpha.nC == 0) && (alpha.nD == 0))
 	{
 		//(Cd - Cs) * As + Cs
-		glBlendFuncSeparate(GL_ONE_MINUS_SRC1_ALPHA, GL_SRC1_ALPHA, GL_ONE, GL_ZERO);
+		glBlendFuncSeparate(BLEND_ONE_MINUS_SRC_ALPHA, BLEND_SRC_ALPHA, GL_ONE, GL_ZERO);
 	}
 	else if((alpha.nA == ALPHABLEND_ABD_CD) && (alpha.nB == ALPHABLEND_ABD_CS) && (alpha.nC == ALPHABLEND_C_AS) && (alpha.nD == ALPHABLEND_ABD_CD))
 	{
 		//1001 -> (Cd - Cs) * As + Cd (Inaccurate, needs +1 to As)
 		nFunction = GL_FUNC_REVERSE_SUBTRACT;
-		glBlendFuncSeparate(GL_SRC_ALPHA, GL_SRC_ALPHA, GL_ONE, GL_ZERO);
+		glBlendFuncSeparate(BLEND_SRC_ALPHA, BLEND_SRC_ALPHA, GL_ONE, GL_ZERO);
 	}
 	else if((alpha.nA == ALPHABLEND_ABD_CD) && (alpha.nB == ALPHABLEND_ABD_CS) && (alpha.nC == ALPHABLEND_C_AD) && (alpha.nD == ALPHABLEND_ABD_CS))
 	{
@@ -855,7 +865,7 @@ void CGSH_OpenGL::SetupBlendingFunction(uint64 alphaReg)
 	else if((alpha.nA == 1) && (alpha.nB == 2) && (alpha.nC == 0) && (alpha.nD == 0))
 	{
 		//Cd * As + Cs
-		glBlendFuncSeparate(GL_ONE, GL_SRC1_ALPHA, GL_ONE, GL_ZERO);
+		glBlendFuncSeparate(GL_ONE, BLEND_SRC_ALPHA, GL_ONE, GL_ZERO);
 	}
 	else if((alpha.nA == ALPHABLEND_ABD_CD) && (alpha.nB == ALPHABLEND_ABD_ZERO) && (alpha.nC == ALPHABLEND_C_AS) && (alpha.nD == ALPHABLEND_ABD_CD))
 	{
@@ -866,7 +876,7 @@ void CGSH_OpenGL::SetupBlendingFunction(uint64 alphaReg)
 	else if((alpha.nA == ALPHABLEND_ABD_CD) && (alpha.nB == ALPHABLEND_ABD_ZERO) && (alpha.nC == ALPHABLEND_C_AS) && (alpha.nD == ALPHABLEND_ABD_ZERO))
 	{
 		//1202 - Cd * As
-		glBlendFuncSeparate(GL_ZERO, GL_SRC1_ALPHA, GL_ONE, GL_ZERO);
+		glBlendFuncSeparate(GL_ZERO, BLEND_SRC_ALPHA, GL_ONE, GL_ZERO);
 	}
 	else if((alpha.nA == ALPHABLEND_ABD_CD) && (alpha.nB == ALPHABLEND_ABD_ZERO) && (alpha.nC == ALPHABLEND_C_FIX) && (alpha.nD == ALPHABLEND_ABD_CS))
 	{
@@ -884,7 +894,7 @@ void CGSH_OpenGL::SetupBlendingFunction(uint64 alphaReg)
 	{
 		//2001 -> Cd - Cs * As
 		nFunction = GL_FUNC_REVERSE_SUBTRACT;
-		glBlendFuncSeparate(GL_SRC1_ALPHA, GL_ONE, GL_ONE, GL_ZERO);
+		glBlendFuncSeparate(BLEND_SRC_ALPHA, GL_ONE, GL_ONE, GL_ZERO);
 	}
 	else if((alpha.nA == ALPHABLEND_ABD_ZERO) && (alpha.nB == ALPHABLEND_ABD_CS) && (alpha.nC == ALPHABLEND_C_AD) && (alpha.nD == ALPHABLEND_ABD_CD))
 	{
@@ -902,7 +912,7 @@ void CGSH_OpenGL::SetupBlendingFunction(uint64 alphaReg)
 	else if((alpha.nA == ALPHABLEND_ABD_ZERO) && (alpha.nB == ALPHABLEND_ABD_CD) && (alpha.nC == ALPHABLEND_C_AS) && (alpha.nD == ALPHABLEND_ABD_CD))
 	{
 		//2101 -> Cd * (1 - As)
-		glBlendFuncSeparate(GL_ZERO, GL_ONE_MINUS_SRC1_ALPHA, GL_ONE, GL_ZERO);
+		glBlendFuncSeparate(GL_ZERO, BLEND_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ZERO);
 	}
 	else
 	{
