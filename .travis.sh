@@ -85,6 +85,7 @@ travis_script()
             wget -c "https://github.com/probonopd/linuxdeployqt/releases/download/continuous/linuxdeployqt-continuous-x86_64.AppImage"
             chmod a+x linuxdeployqt*.AppImage
             unset QTDIR; unset QT_PLUGIN_PATH ; unset LD_LIBRARY_PATH
+            export VERSION="${TRAVIS_COMMIT:0:8}"
             ./linuxdeployqt*.AppImage ./appdir/usr/share/applications/*.desktop -bundle-non-qt-libs -qmake=/opt/qt56/bin/qmake
             ./linuxdeployqt*.AppImage ./appdir/usr/share/applications/*.desktop -appimage -qmake=/opt/qt56/bin/qmake
         elif [ "$TARGET_OS" = "OSX" ]; then
