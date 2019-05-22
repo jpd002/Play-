@@ -6,7 +6,7 @@ matrix:
         - TARGET_OS=Linux_Clang_Format
       sudo: require
     - os: linux
-      dist: trusty
+      dist: xenial
       env:
         - BUILD_TYPE="Unix Makefiles"
         - TARGET_OS=Linux
