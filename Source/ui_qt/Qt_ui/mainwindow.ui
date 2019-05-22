@@ -42,7 +42,7 @@
      <x>0</x>
      <y>0</y>
      <width>640</width>
-     <height>19</height>
+     <height>22</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFor_The">
@@ -53,6 +53,7 @@
     <addaction name="actionBoot_DiscImage_S3"/>
     <addaction name="actionBoot_cdrom0"/>
     <addaction name="actionBoot_ELF"/>
+    <addaction name="actionList_Bootables"/>
     <addaction name="separator"/>
     <addaction name="actionExit"/>
    </widget>
@@ -198,6 +199,14 @@
    </property>
    <property name="visible">
     <bool>false</bool>
+   </property>
+  </action>
+  <action name="actionList_Bootables">
+   <property name="text">
+    <string>Bootables list...</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+L</string>
    </property>
   </action>
  </widget>

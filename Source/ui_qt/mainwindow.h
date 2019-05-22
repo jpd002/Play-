@@ -142,6 +142,7 @@ private slots:
 	void on_actionCapture_Screen_triggered();
 	void doubleClickEvent(QMouseEvent*);
 	void HandleOnExecutableChange();
+	void on_actionList_Bootables_triggered();
 };
 
 #endif // MAINWINDOW_H

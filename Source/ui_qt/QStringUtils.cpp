@@ -1,4 +1,5 @@
 #include "QStringUtils.h"
+#include <QDir>
 
 template <typename Type>
 static Type CvtToNativePath(const QString& str);
@@ -32,7 +33,8 @@ QString CvtToString(const std::wstring& str)
 
 boost::filesystem::path QStringToPath(const QString& str)
 {
-	auto result = CvtToNativePath<boost::filesystem::path::string_type>(str);
+	auto nativeStr = QDir::toNativeSeparators(str);
+	auto result = CvtToNativePath<boost::filesystem::path::string_type>(nativeStr);
 	return boost::filesystem::path(result);
 }
 
