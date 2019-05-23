@@ -58,7 +58,7 @@ set(OSX_SOURCES
 	AppDelegate.mm
 	BackgroundLayer.m
 	CoverViewCell.m
-	CoverViewController.m
+	CoverViewController.mm
 	EmulatorViewController.mm
 	GlEsView.mm
 	GSH_OpenGLiOS.cpp
