@@ -7,7 +7,7 @@ travis_before_install()
         sudo add-apt-repository --yes ppa:beineri/opt-qt-5.12.3-xenial
         sudo add-apt-repository --yes ppa:ubuntu-toolchain-r/test
         sudo apt-get update -qq
-        sudo apt-get install -qq qt512base gcc-5 g++-5 libalut-dev libevdev-dev
+        sudo apt-get install -qq qt512base gcc-5 g++-5 libgl1-mesa-dev libglu1-mesa-dev libalut-dev libevdev-dev
         curl -sSL https://cmake.org/files/v3.8/cmake-3.8.1-Linux-x86_64.tar.gz | sudo tar -xzC /opt
     elif [ "$TARGET_OS" = "Linux_Clang_Format" ]; then
         wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | sudo apt-key add -
