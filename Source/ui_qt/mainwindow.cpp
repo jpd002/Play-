@@ -425,6 +425,7 @@ void MainWindow::on_actionSettings_triggered()
 	SetupSoundHandler();
 	if(m_virtualMachine != nullptr)
 	{
+		openGLWindow_resized();
 		auto gsHandler = m_virtualMachine->GetGSHandler();
 		if(gsHandler)
 		{
