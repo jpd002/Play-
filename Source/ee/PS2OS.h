@@ -68,7 +68,7 @@ private:
 		uint32 initCount;
 		uint32 waitThreads;
 		uint32 attributes;
-		uint32 options;
+		uint32 option;
 	};
 
 	struct THREADPARAM
@@ -98,6 +98,7 @@ private:
 		uint32 count;
 		uint32 maxCount;
 		uint32 waitCount;
+		uint32 option;
 	};
 
 	struct THREAD

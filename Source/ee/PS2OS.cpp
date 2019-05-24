@@ -2450,6 +2450,7 @@ void CPS2OS::sc_CreateSema()
 	auto sema = m_semaphores[id];
 	sema->count = semaParam->initCount;
 	sema->maxCount = semaParam->maxCount;
+	sema->option = semaParam->option;
 	sema->waitCount = 0;
 
 	assert(sema->count <= sema->maxCount);
@@ -2597,6 +2598,7 @@ void CPS2OS::sc_ReferSemaStatus()
 	semaParam->count = sema->count;
 	semaParam->maxCount = sema->maxCount;
 	semaParam->waitThreads = sema->waitCount;
+	semaParam->option = sema->option;
 
 	m_ee.m_State.nGPR[SC_RETURN].nD0 = id;
 }
