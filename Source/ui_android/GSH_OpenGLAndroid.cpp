@@ -2,6 +2,7 @@
 #include "opengl/OpenGlDef.h"
 #include "GSH_OpenGLAndroid.h"
 #include "../Log.h"
+#include "AppConfig.h"
 
 CGSH_OpenGLAndroid::CGSH_OpenGLAndroid(NativeWindowType window)
     : m_window(window)
@@ -84,7 +85,7 @@ void CGSH_OpenGLAndroid::SetupContext()
 		eglQuerySurface(m_display, m_surface, EGL_HEIGHT, &h);
 
 		PRESENTATION_PARAMS presentationParams;
-		presentationParams.mode = PRESENTATION_MODE_FIT;
+		presentationParams.mode = static_cast<CGSHandler::PRESENTATION_MODE>(CAppConfig::GetInstance().GetPreferenceInteger(PREF_CGSHANDLER_PRESENTATION_MODE));
 		presentationParams.windowWidth = w;
 		presentationParams.windowHeight = h;
 
