@@ -102,6 +102,19 @@ public class SettingsActivity extends PreferenceActivity implements SharedPrefer
 				}
 			});
 			pref.setSummary(pref.getEntry());
+			ListPreference presentationmode_pref = (ListPreference)findPreference("renderer.presentationmode");
+			presentationmode_pref.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener()
+			{
+				@Override
+				public boolean onPreferenceChange(Preference preference, Object value)
+				{
+					int index = Integer.parseInt(value.toString());
+					ListPreference listBoxPref = (ListPreference)preference;
+					listBoxPref.setSummary(listBoxPref.getEntries()[index]);
+					return true;
+				}
+			});
+			presentationmode_pref.setSummary(presentationmode_pref.getEntry());
 		}
 
 		@Override
