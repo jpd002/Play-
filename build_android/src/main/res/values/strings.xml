@@ -49,6 +49,8 @@
 	<string name="pref_emu_video_force_bilinear_title">Force Bilinear Filtering</string>
 	<string name="pref_emu_video_force_bilinear_summary">Forces usage of bilinear filtering on all textures.</string>
 
+	<string name="pref_emu_video_presentation_mode_title">Presentation Mode</string>
+
 	<string name="pref_emu_audio">Audio Settings</string>
 
 	<string name="pref_emu_audio_enable_output_title">Enable Audio Output</string>
@@ -86,6 +88,12 @@
 		<item>2x</item>
 		<item>4x</item>
 		<item>8x</item>
+	</string-array>
+
+	<string-array name="pref_emu_video_presentation_mode_entries">
+		<item>Fill Screen</item>
+		<item>Fit Screen(Default)</item>
+		<item>Original Size</item>
 	</string-array>
 
 	<!-- Emulator Drawer -->
