@@ -249,6 +249,7 @@ CPS2OS::CPS2OS(CMIPS& ee, uint8* ram, uint8* bios, uint8* spr, CGSHandler*& gs, 
     , m_intcHandlerQueue(m_intcHandlers, reinterpret_cast<uint32*>(m_ram + BIOS_ADDRESS_INTCHANDLERQUEUE_BASE))
     , m_dmacHandlerQueue(m_dmacHandlers, reinterpret_cast<uint32*>(m_ram + BIOS_ADDRESS_DMACHANDLERQUEUE_BASE))
 {
+	static_assert((BIOS_ADDRESS_SEMAPHORE_BASE + (sizeof(SEMAPHORE) * MAX_SEMAPHORE)) <= BIOS_ADDRESS_CUSTOMSYSCALL_BASE, "Semaphore overflow");
 }
 
 CPS2OS::~CPS2OS()
