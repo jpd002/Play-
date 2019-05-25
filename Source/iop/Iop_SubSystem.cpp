@@ -168,7 +168,7 @@ void CSubSystem::SetupPageTable()
 		m_cpu.MapPages(addressBit | (PS2::IOP_RAM_SIZE * 2), PS2::IOP_RAM_SIZE, m_ram);
 		m_cpu.MapPages(addressBit | (PS2::IOP_RAM_SIZE * 3), PS2::IOP_RAM_SIZE, m_ram);
 
-		m_cpu.MapPages(addressBit | PS2::IOP_SCRATCH_ADDR, PS2::IOP_SCRATCH_SIZE, m_ram);
+		m_cpu.MapPages(addressBit | PS2::IOP_SCRATCH_ADDR, PS2::IOP_SCRATCH_SIZE, m_scratchPad);
 	}
 }
 
