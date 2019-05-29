@@ -110,6 +110,7 @@ private:
 		void ITOF4();
 		void FTOI4();
 		void ABS();
+		void MADDAq();
 		void MSUBAq();
 		void MADDA();
 		void MSUBA();
