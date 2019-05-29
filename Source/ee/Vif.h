@@ -70,6 +70,11 @@ public:
 protected:
 	enum
 	{
+		CODE_CMD_MARK = 0x07,
+	};
+
+	enum
+	{
 		FBRST_RST = 0x01,
 		FBRST_STC = 0x08
 	};

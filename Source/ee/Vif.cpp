@@ -334,7 +334,6 @@ void CVif::ProcessPacket(StreamType& stream)
 #endif
 		if(m_STAT.nVIS)
 		{
-			//Should check for MARK command
 			break;
 		}
 
@@ -342,8 +341,11 @@ void CVif::ProcessPacket(StreamType& stream)
 
 		if(m_CODE.nI != 0)
 		{
-			//Next command will be stalled
-			m_STAT.nVIS = 1;
+			//Next command will be stalled (if not MARK)
+			if(m_CODE.nCMD != CODE_CMD_MARK)
+			{
+				m_STAT.nVIS = 1;
+			}
 			m_STAT.nINT = 1;
 			m_intc.AssertLine(CINTC::INTC_LINE_VIF0 + m_number);
 		}
@@ -412,8 +414,7 @@ void CVif::ExecuteCommand(StreamType& stream, CODE nCommand)
 		//STMOD
 		m_MODE = nCommand.nIMM & 0x03;
 		break;
-	case 0x07:
-		//MARK
+	case CODE_CMD_MARK:
 		m_MARK = nCommand.nIMM;
 		m_STAT.nMRK = 1;
 		break;
