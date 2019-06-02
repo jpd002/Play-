@@ -104,6 +104,10 @@ uint32 CVif::GetRegister(uint32 address)
 	case VIF1_NUM:
 		result = m_NUM;
 		break;
+	case VIF0_MASK:
+	case VIF1_MASK:
+		result = m_MASK;
+		break;
 	case VIF0_CODE:
 	case VIF1_CODE:
 		result = m_CODE;
@@ -992,6 +996,7 @@ void CVif::DisassembleGet(uint32 address)
 		LOG_GET(VIF0_CYCLE)
 		LOG_GET(VIF0_MODE)
 		LOG_GET(VIF0_NUM)
+		LOG_GET(VIF0_MASK)
 		LOG_GET(VIF0_CODE)
 		LOG_GET(VIF0_R0)
 		LOG_GET(VIF0_R1)
@@ -1003,6 +1008,7 @@ void CVif::DisassembleGet(uint32 address)
 		LOG_GET(VIF1_CYCLE)
 		LOG_GET(VIF1_MODE)
 		LOG_GET(VIF1_NUM)
+		LOG_GET(VIF1_MASK)
 		LOG_GET(VIF1_CODE)
 		LOG_GET(VIF1_R0)
 		LOG_GET(VIF1_R1)
