@@ -67,13 +67,13 @@ CDebugger::CDebugger(CPS2VM& virtualMachine)
 	//Functions View Initialization
 	m_pFunctionsView = new CFunctionsView(m_pMDIClient->m_hWnd);
 	m_pFunctionsView->Show(SW_HIDE);
-	m_pFunctionsView->OnFunctionDblClick.connect(boost::bind(&CDebugger::OnFunctionsViewFunctionDblClick, this, _1));
-	m_pFunctionsView->OnFunctionsStateChange.connect(boost::bind(&CDebugger::OnFunctionsViewFunctionsStateChange, this));
+	m_pFunctionsView->OnFunctionDblClick.connect(std::bind(&CDebugger::OnFunctionsViewFunctionDblClick, this, std::placeholders::_1));
+	m_pFunctionsView->OnFunctionsStateChange.connect(std::bind(&CDebugger::OnFunctionsViewFunctionsStateChange, this));
 
 	//Threads View Initialization
 	m_threadsView = new CThreadsViewWnd(m_pMDIClient->m_hWnd);
 	m_threadsView->Show(SW_HIDE);
-	m_threadsView->OnGotoAddress.connect(boost::bind(&CDebugger::OnThreadsViewAddressDblClick, this, _1));
+	m_threadsView->OnGotoAddress.connect(std::bind(&CDebugger::OnThreadsViewAddressDblClick, this, std::placeholders::_1));
 
 	//Address List View Initialization
 	m_addressListView = new CAddressListViewWnd(m_pMDIClient->m_hWnd);
@@ -93,11 +93,11 @@ CDebugger::CDebugger(CPS2VM& virtualMachine)
 	m_pView[DEBUGVIEW_IOP] = new CDebugView(m_pMDIClient->m_hWnd, m_virtualMachine, &m_virtualMachine.m_iop->m_cpu,
 	                                        std::bind(&CPS2VM::StepIop, &m_virtualMachine), m_virtualMachine.m_iop->m_bios.get(), "IO Processor");
 
-	m_virtualMachine.m_ee->m_os->OnExecutableChange.connect(boost::bind(&CDebugger::OnExecutableChange, this));
-	m_virtualMachine.m_ee->m_os->OnExecutableUnloading.connect(boost::bind(&CDebugger::OnExecutableUnloading, this));
+	m_virtualMachine.m_ee->m_os->OnExecutableChange.connect(std::bind(&CDebugger::OnExecutableChange, this));
+	m_virtualMachine.m_ee->m_os->OnExecutableUnloading.connect(std::bind(&CDebugger::OnExecutableUnloading, this));
 
-	m_virtualMachine.OnMachineStateChange.connect(boost::bind(&CDebugger::OnMachineStateChange, this));
-	m_virtualMachine.OnRunningStateChange.connect(boost::bind(&CDebugger::OnRunningStateChange, this));
+	m_virtualMachine.OnMachineStateChange.connect(std::bind(&CDebugger::OnMachineStateChange, this));
+	m_virtualMachine.OnRunningStateChange.connect(std::bind(&CDebugger::OnRunningStateChange, this));
 
 	ActivateView(DEBUGVIEW_EE);
 	LoadSettings();

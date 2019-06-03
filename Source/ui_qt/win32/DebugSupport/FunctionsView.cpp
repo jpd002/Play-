@@ -234,7 +234,7 @@ void CFunctionsView::SetContext(CMIPS* context, CBiosDebugInfoProvider* biosDebu
 	m_biosDebugInfoProvider = biosDebugInfoProvider;
 
 	m_functionTagsChangeConnection = m_context->m_Functions.OnTagListChange.connect(
-	    boost::bind(&CFunctionsView::RefreshList, this));
+	    std::bind(&CFunctionsView::RefreshList, this));
 	RefreshList();
 }
 

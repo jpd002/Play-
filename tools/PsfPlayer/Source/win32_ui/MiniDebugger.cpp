@@ -54,7 +54,7 @@ CMiniDebugger::CMiniDebugger(CVirtualMachine& virtualMachine, const CDebuggable&
 	m_registerView->Show(SW_SHOW);
 
 	m_functionsView = new CFunctionsView(NULL);
-	m_functionsView->OnFunctionDblClick.connect(boost::bind(&CMiniDebugger::OnFunctionDblClick, this, _1));
+	m_functionsView->OnFunctionDblClick.connect(std::bind(&CMiniDebugger::OnFunctionDblClick, this, std::placeholders::_1));
 	m_functionsView->SetContext(&m_debuggable.GetCpu(), m_debuggable.biosDebugInfoProvider);
 	m_functionsView->Refresh();
 
