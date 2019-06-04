@@ -18,7 +18,7 @@ travis_before_install()
     elif [ "$TARGET_OS" = "OSX" ]; then
         brew update
         brew install qt5
-        sudo npm install -g appdmg
+        sudo npm install -g appdmg@0.5.2
     elif [ "$TARGET_OS" = "IOS" ]; then
         brew update
         brew install dpkg
