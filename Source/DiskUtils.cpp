@@ -1,4 +1,3 @@
-#include <boost/algorithm/string.hpp>
 #include "make_unique.h"
 #include "stricmp.h"
 #include "DiskUtils.h"
@@ -6,6 +5,7 @@
 #include "CsoImageStream.h"
 #include "MdsDiscImage.h"
 #include "StdStream.h"
+#include "StringUtils.h"
 #ifdef HAS_AMAZON_S3
 #include "s3stream/S3ObjectStream.h"
 #endif
@@ -112,7 +112,7 @@ DiskUtils::SystemConfigMap DiskUtils::ParseSystemConfigFile(Framework::CStream* 
 		auto trimmedEnd = std::remove_if(line.begin(), line.end(), isspace);
 		auto trimmedLine = std::string(line.begin(), trimmedEnd);
 		std::vector<std::string> components;
-		boost::split(components, trimmedLine, boost::is_any_of("="), boost::algorithm::token_compress_on);
+		StringUtils::split(components, trimmedLine, '=', true);
 		if(components.size() >= 2)
 		{
 			result.insert(std::make_pair(components[0], components[1]));
