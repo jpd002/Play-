@@ -12,7 +12,6 @@
 #include <condition_variable>
 
 #include <boost/signals2.hpp>
-#include <boost/lexical_cast.hpp>
 #include <boost/filesystem.hpp>
 
 #include "Types.h"

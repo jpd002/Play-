@@ -1,7 +1,6 @@
 #include <stdio.h>
 #include "ELFSymbolView.h"
 #include "PtrMacro.h"
-#include <boost/lexical_cast.hpp>
 #include "win32/Header.h"
 #include "win32/Rect.h"
 #include "string_cast.h"

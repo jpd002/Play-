@@ -7,7 +7,6 @@
 #include "PtrStream.h"
 #include "Iop_Intc.h"
 #include "lexical_cast_ex.h"
-#include <boost/lexical_cast.hpp>
 #include <vector>
 #include "xml/FilteringNodeIterator.h"
 #include "../states/StructCollectionStateFile.h"
@@ -3392,13 +3391,13 @@ BiosDebugThreadInfoArray CIopBios::GetThreadsDebugInfo() const
 			threadInfo.stateDescription = "Sleeping";
 			break;
 		case THREAD_STATUS_WAITING_SEMAPHORE:
-			threadInfo.stateDescription = "Waiting (Semaphore: " + boost::lexical_cast<std::string>(thread->waitSemaphore) + ")";
+			threadInfo.stateDescription = string_format("Waiting (Semaphore: %d)", thread->waitSemaphore);
 			break;
 		case THREAD_STATUS_WAITING_EVENTFLAG:
-			threadInfo.stateDescription = "Waiting (Event Flag: " + boost::lexical_cast<std::string>(thread->waitEventFlag) + ")";
+			threadInfo.stateDescription = string_format("Waiting (Event Flag: %d)", thread->waitEventFlag);
 			break;
 		case THREAD_STATUS_WAITING_MESSAGEBOX:
-			threadInfo.stateDescription = "Waiting (Message Box: " + boost::lexical_cast<std::string>(thread->waitMessageBox) + ")";
+			threadInfo.stateDescription = string_format("Waiting (Message Box: %d)", thread->waitMessageBox);
 			break;
 		case THREAD_STATUS_WAIT_VBLANK_START:
 			threadInfo.stateDescription = "Waiting (Vblank Start)";

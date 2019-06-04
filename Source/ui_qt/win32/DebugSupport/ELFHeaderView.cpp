@@ -1,5 +1,4 @@
 #include <stdio.h>
-#include <boost/lexical_cast.hpp>
 #include "ELFHeaderView.h"
 #include "layout/LayoutStretch.h"
 #include "win32/Static.h"
@@ -159,13 +158,13 @@ void CELFHeaderView::FillInformation()
 	m_pEntry->SetText((_T("0x") + lexical_cast_hex<std::tstring>(pH->nEntryPoint, 8)).c_str());
 	m_pPHOffset->SetText((_T("0x") + lexical_cast_hex<std::tstring>(pH->nProgHeaderStart, 8)).c_str());
 	m_pPHSize->SetText((_T("0x") + lexical_cast_hex<std::tstring>(pH->nProgHeaderEntrySize, 8)).c_str());
-	m_pPHCount->SetText(boost::lexical_cast<std::tstring>(pH->nProgHeaderCount).c_str());
+	m_pPHCount->SetText(lexical_cast_uint<std::tstring>(pH->nProgHeaderCount).c_str());
 	m_pSHOffset->SetText((_T("0x") + lexical_cast_hex<std::tstring>(pH->nSectHeaderStart, 8)).c_str());
 	m_pSHSize->SetText((_T("0x") + lexical_cast_hex<std::tstring>(pH->nSectHeaderEntrySize, 8)).c_str());
-	m_pSHCount->SetText(boost::lexical_cast<std::tstring>(pH->nSectHeaderCount).c_str());
+	m_pSHCount->SetText(lexical_cast_uint<std::tstring>(pH->nSectHeaderCount).c_str());
 	m_pFlags->SetText((_T("0x") + lexical_cast_hex<std::tstring>(pH->nFlags, 8)).c_str());
 	m_pSize->SetText((_T("0x") + lexical_cast_hex<std::tstring>(pH->nSize, 8)).c_str());
-	m_pSHStrTab->SetText(boost::lexical_cast<std::tstring>(pH->nSectHeaderStringTableIndex).c_str());
+	m_pSHStrTab->SetText(lexical_cast_uint<std::tstring>(pH->nSectHeaderStringTableIndex).c_str());
 }
 
 void CELFHeaderView::RefreshLayout()

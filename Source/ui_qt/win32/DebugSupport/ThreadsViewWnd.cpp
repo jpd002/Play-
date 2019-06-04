@@ -1,4 +1,3 @@
-#include <boost/lexical_cast.hpp>
 #include "lexical_cast_ex.h"
 #include "string_cast.h"
 #include "ThreadsViewWnd.h"
@@ -156,8 +155,8 @@ void CThreadsViewWnd::Update()
 		item.mask = LVIF_PARAM;
 		int itemIndex = m_listView.InsertItem(item);
 
-		m_listView.SetItemText(itemIndex, 0, boost::lexical_cast<std::tstring>(threadInfo.id).c_str());
-		m_listView.SetItemText(itemIndex, 1, boost::lexical_cast<std::tstring>(threadInfo.priority).c_str());
+		m_listView.SetItemText(itemIndex, 0, lexical_cast_uint<std::tstring>(threadInfo.id).c_str());
+		m_listView.SetItemText(itemIndex, 1, lexical_cast_uint<std::tstring>(threadInfo.priority).c_str());
 
 		std::tstring locationString = DebugUtils::PrintAddressLocation(threadInfo.pc, m_context, moduleInfos);
 		m_listView.SetItemText(itemIndex, 2, locationString.c_str());

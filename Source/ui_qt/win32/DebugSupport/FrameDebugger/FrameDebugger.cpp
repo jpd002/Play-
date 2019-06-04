@@ -1,5 +1,4 @@
 #include <boost/filesystem.hpp>
-#include <boost/lexical_cast.hpp>
 #include "AppConfig.h"
 #include "FrameDebugger.h"
 #include "win32/AcceleratorTableGenerator.h"
@@ -9,7 +8,6 @@
 #include "win32/MenuItem.h"
 #include "../../resource.h"
 #include "StdStreamUtils.h"
-#include "lexical_cast_ex.h"
 #include "string_cast.h"
 #include "string_format.h"
 

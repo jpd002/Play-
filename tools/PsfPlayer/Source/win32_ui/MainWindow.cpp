@@ -1187,7 +1187,7 @@ bool CMainWindow::PlayFile(const CPsfPathToken& pathToken, const boost::filesyst
 		m_tags.SetDefaultCharEncoding(static_cast<CPsfTags::CHAR_ENCODING>(m_selectedCharEncoding));
 		try
 		{
-			m_volumeAdjust = boost::lexical_cast<float>(m_tags.GetTagValue("volume"));
+			m_volumeAdjust = std::stof(m_tags.GetTagValue("volume"));
 			m_virtualMachine.SetVolumeAdjust(m_volumeAdjust);
 		}
 		catch(...)

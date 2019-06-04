@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include "ELFView.h"
 #include "PtrMacro.h"
-#include <boost/lexical_cast.hpp>
+#include "lexical_cast_ex.h"
 #include "string_cast.h"
 
 using namespace Framework;
@@ -97,7 +97,7 @@ void CELFView::PopulateList()
 		}
 		else
 		{
-			sDisplay = _T("Section ") + boost::lexical_cast<std::tstring>(i);
+			sDisplay = _T("Section ") + lexical_cast_uint<std::tstring>(i);
 		}
 
 		HTREEITEM sectionItem = InsertOption(hItem, sDisplay.c_str(), m_pSectionView->m_hWnd);
@@ -111,7 +111,7 @@ void CELFView::PopulateList()
 
 		for(unsigned int i = 0; i < header.nProgHeaderCount; i++)
 		{
-			std::tstring sDisplay(_T("Segment ") + boost::lexical_cast<std::tstring>(i));
+			std::tstring sDisplay(_T("Segment ") + lexical_cast_uint<std::tstring>(i));
 			HTREEITEM programItem = InsertOption(hItem, sDisplay.c_str(), m_pProgramView->m_hWnd);
 			m_programItems[programItem] = i;
 		}

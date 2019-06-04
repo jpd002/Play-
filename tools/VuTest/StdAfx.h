@@ -10,7 +10,6 @@
 #include <memory>
 
 #include <boost/signals2.hpp>
-#include <boost/lexical_cast.hpp>
 
 #include "Types.h"
 #include "Stream.h"

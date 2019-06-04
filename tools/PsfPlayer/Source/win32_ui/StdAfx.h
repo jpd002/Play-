@@ -16,7 +16,6 @@
 #include <mutex>
 
 #include <boost/signals2.hpp>
-#include <boost/lexical_cast.hpp>
 #include <boost/filesystem/path.hpp>
 
 #include "Types.h"

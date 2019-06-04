@@ -3,7 +3,6 @@
 #import "SH_OpenAL.h"
 #import "ObjCMemberFunctionPointer.h"
 #import <boost/filesystem.hpp>
-#import <boost/lexical_cast.hpp>
 #import "string_cast.h"
 #import <AVFoundation/AVAudioSession.h>
 #import <MediaPlayer/MediaPlayer.h>
@@ -240,7 +239,7 @@
 		
 		try
 		{
-			m_volumeAdjust = boost::lexical_cast<float>(psfTags.GetTagValue("volume"));
+			m_volumeAdjust = std::stof(psfTags.GetTagValue("volume"));
 			m_virtualMachine->SetVolumeAdjust(m_volumeAdjust);
 		}
 		catch(...)

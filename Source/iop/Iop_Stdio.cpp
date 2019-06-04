@@ -1,6 +1,5 @@
 #include "Iop_Stdio.h"
 #include "Iop_Ioman.h"
-#include <boost/lexical_cast.hpp>
 #include "lexical_cast_ex.h"
 #include "string_format.h"
 #include "../Log.h"
@@ -96,7 +95,7 @@ std::string CStdio::PrintFormatted(const char* format, CArgumentIterator& args)
 				else if(type == 'd' || type == 'i')
 				{
 					int number = args.GetNext();
-					unsigned int precisionValue = precision.length() ? boost::lexical_cast<unsigned int>(precision) : 1;
+					unsigned int precisionValue = precision.length() ? std::stoul(precision) : 1;
 					if(showSign && (number >= 0))
 					{
 						output += "+";
@@ -107,7 +106,7 @@ std::string CStdio::PrintFormatted(const char* format, CArgumentIterator& args)
 				else if(type == 'u')
 				{
 					unsigned int number = args.GetNext();
-					unsigned int precisionValue = precision.length() ? boost::lexical_cast<unsigned int>(precision) : 1;
+					unsigned int precisionValue = precision.length() ? std::stoul(precision) : 1;
 					output += lexical_cast_uint<std::string>(number, precisionValue);
 					paramDone = true;
 				}
