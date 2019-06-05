@@ -1,6 +1,6 @@
 #include "GsStateUtils.h"
 #include "string_format.h"
-#include "../GSH_Direct3D9/GSH_Direct3D9.h"
+#include "gs/GSH_Direct3D9/GSH_Direct3D9.h"
 
 static const char* g_yesNoString[2] =
     {

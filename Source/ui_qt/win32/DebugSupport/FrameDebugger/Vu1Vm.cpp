@@ -1,7 +1,7 @@
 #include "Vu1Vm.h"
-#include "../../Ps2Const.h"
-#include "../../Log.h"
-#include "../../ee/Vpu.h"
+#include "Ps2Const.h"
+#include "Log.h"
+#include "ee/Vpu.h"
 
 #define LOG_NAME "Vu1Vm"
 

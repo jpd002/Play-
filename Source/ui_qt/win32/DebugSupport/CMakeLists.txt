@@ -122,3 +122,4 @@ set(SRC_FILES
 add_library(PlayDebugSupport STATIC ${SRC_FILES})
 target_link_libraries(PlayDebugSupport uxtheme Framework_Win32 PlayCore gsh_d3d9)
 target_compile_definitions(PlayDebugSupport PRIVATE NOMINMAX)
+target_include_directories(PlayDebugSupport PRIVATE ../../${CMAKE_CURRENT_SOURCE_DIR})

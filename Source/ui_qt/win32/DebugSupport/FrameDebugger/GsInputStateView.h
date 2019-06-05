@@ -1,7 +1,7 @@
 #pragma once
 
 #include "../RegViewPage.h"
-#include "../../gs/GSHandler.h"
+#include "gs/GSHandler.h"
 #include "FrameDebuggerTab.h"
 
 class CGsInputStateView : public CRegViewPage, public IFrameDebuggerTab

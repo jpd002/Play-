@@ -1,7 +1,7 @@
 #pragma once
 
 #include <string>
-#include "../../gs/GSHandler.h"
+#include "gs/GSHandler.h"
 
 class CGsStateUtils
 {

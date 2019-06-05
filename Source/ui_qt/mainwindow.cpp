@@ -22,8 +22,8 @@
 #ifdef _WIN32
 #include "../../tools/PsfPlayer/Source/win32_ui/SH_WaveOut.h"
 #ifdef DEBUGGER_INCLUDED
-#include "../ui_win32/Debugger.h"
-#include "../ui_win32/FrameDebugger/FrameDebugger.h"
+#include "win32/DebugSupport/Debugger.h"
+#include "win32/DebugSupport/FrameDebugger/FrameDebugger.h"
 #include "ui_debugmenu.h"
 #endif
 #else

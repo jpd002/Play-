@@ -1,10 +1,10 @@
 #pragma once
 
-#include "../../VirtualMachine.h"
-#include "../../MIPS.h"
-#include "../../MailBox.h"
-#include "../../ee/MA_VU.h"
-#include "../../ee/VUExecutor.h"
+#include "VirtualMachine.h"
+#include "MIPS.h"
+#include "MailBox.h"
+#include "ee/MA_VU.h"
+#include "ee/VUExecutor.h"
 
 class CVu1Vm : public CVirtualMachine
 {

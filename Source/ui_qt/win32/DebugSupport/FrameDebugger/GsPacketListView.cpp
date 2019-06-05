@@ -1,5 +1,5 @@
 #include "GsPacketListView.h"
-#include "../../FrameDump.h"
+#include "FrameDump.h"
 #include "string_cast.h"
 #include "string_format.h"
 #include "win32/DpiUtils.h"
