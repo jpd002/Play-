@@ -27,7 +27,7 @@ if(NOT TARGET gsh_d3d9)
 	)
 endif()
 
-set(SRC_ROOT ${CMAKE_CURRENT_SOURCE_DIR}/../../../ui_win32)
+set(SRC_ROOT ${CMAKE_CURRENT_SOURCE_DIR})
 set(SRC_FILES
 	${SRC_ROOT}/CallStackWnd.cpp
 	${SRC_ROOT}/CallStackWnd.h
@@ -39,6 +39,8 @@ set(SRC_FILES
 	${SRC_ROOT}/Debugger/AddressListViewWnd.h
 	${SRC_ROOT}/DebugUtils.cpp
 	${SRC_ROOT}/DebugUtils.h
+	${SRC_ROOT}/DebugView.cpp
+	${SRC_ROOT}/DebugView.h
 	${SRC_ROOT}/DirectXControl.cpp
 	${SRC_ROOT}/DirectXControl.h
 	${SRC_ROOT}/DisAsm.cpp
@@ -47,8 +49,6 @@ set(SRC_FILES
 	${SRC_ROOT}/DisAsmVu.h
 	${SRC_ROOT}/DisAsmWnd.cpp
 	${SRC_ROOT}/DisAsmWnd.h
-	${SRC_ROOT}/DebugView.cpp
-	${SRC_ROOT}/DebugView.h
 	${SRC_ROOT}/ELFHeaderView.cpp
 	${SRC_ROOT}/ELFHeaderView.h
 	${SRC_ROOT}/ELFProgramView.cpp

@@ -277,10 +277,10 @@ IDC_GRABBING            CURSOR                  "images\\grabbing.cur"
 // TEXTFILE
 //
 
-IDR_CHECKERBOARD_VERTEXSHADER TEXTFILE                "framedebugger\\CheckerboardShader.vs"
-IDR_CHECKERBOARD_PIXELSHADER TEXTFILE                "framedebugger\\CheckerboardShader.ps"
-IDR_PIXELBUFFERVIEW_VERTEXSHADER TEXTFILE                "framedebugger\\PixelBufferViewShader.vs"
-IDR_PIXELBUFFERVIEW_PIXELSHADER TEXTFILE                "framedebugger\\PixelBufferViewShader.ps"
+IDR_CHECKERBOARD_VERTEXSHADER TEXTFILE                "debugsupport\\framedebugger\\CheckerboardShader.vs"
+IDR_CHECKERBOARD_PIXELSHADER TEXTFILE                "debugsupport\\framedebugger\\CheckerboardShader.ps"
+IDR_PIXELBUFFERVIEW_VERTEXSHADER TEXTFILE                "debugsupport\\framedebugger\\PixelBufferViewShader.vs"
+IDR_PIXELBUFFERVIEW_PIXELSHADER TEXTFILE                "debugsupport\\framedebugger\\PixelBufferViewShader.ps"
 
 /////////////////////////////////////////////////////////////////////////////
 //
