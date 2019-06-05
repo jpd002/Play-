@@ -4,7 +4,7 @@
 #include <algorithm>
 #include <D3Dcompiler.h>
 #include "../resource.h"
-#include "../D3D9TextureUtils.h"
+#include "direct3d9/D3D9TextureUtils.h"
 #include "win32/FileDialog.h"
 #include "bitmap/BMP.h"
 #include "StdStreamUtils.h"

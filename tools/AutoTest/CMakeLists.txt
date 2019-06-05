@@ -34,7 +34,7 @@ if(TARGET_PLATFORM_WIN32)
 
 	if(NOT TARGET gsh_d3d9)
 		add_subdirectory(
-			${CMAKE_CURRENT_SOURCE_DIR}/../../Source/ui_win32/GSH_Direct3D9
+			${CMAKE_CURRENT_SOURCE_DIR}/../../Source/gs/GSH_Direct3D9
 			${CMAKE_CURRENT_BINARY_DIR}/gs/GSH_Direct3D9
 		)
 	endif()

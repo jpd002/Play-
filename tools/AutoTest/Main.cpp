@@ -7,7 +7,7 @@
 #include "gs/GSH_Null.h"
 #ifdef _WIN32
 #include "ui_win32/GSH_OpenGLWin32.h"
-#include "ui_win32/GSH_Direct3D9/GSH_Direct3D9.h"
+#include "gs/GSH_Direct3D9/GSH_Direct3D9.h"
 #endif
 
 #define GS_HANDLER_NAME_NULL "null"

@@ -22,7 +22,7 @@ if(NOT TARGET PlayCore)
 endif()
 if(NOT TARGET gsh_d3d9)
 	add_subdirectory(
-		${CMAKE_CURRENT_SOURCE_DIR}/../../../ui_win32/GSH_Direct3D9
+		${CMAKE_CURRENT_SOURCE_DIR}/../../../gs/GSH_Direct3D9
 		${CMAKE_CURRENT_BINARY_DIR}/gsh_d3d9
 	)
 endif()
