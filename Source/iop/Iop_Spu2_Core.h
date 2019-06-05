@@ -2,7 +2,6 @@
 
 #include <string>
 #include <functional>
-#include <boost/utility.hpp>
 #include "Types.h"
 #include "Iop_SpuBase.h"
 
@@ -10,11 +9,14 @@ namespace Iop
 {
 	namespace Spu2
 	{
-		class CCore : public boost::noncopyable
+		class CCore
 		{
 		public:
 			CCore(unsigned int, CSpuBase&);
 			virtual ~CCore();
+
+			CCore(const CCore&) = delete;
+			CCore& operator=(const CCore&) = delete;
 
 			void Reset();
 

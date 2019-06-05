@@ -2,17 +2,19 @@
 
 #include "MpegVideoState.h"
 #include "bitmap/Bitmap.h"
-#include <boost/utility.hpp>
 #include <boost/signals2.hpp>
 #include <thread>
 
-class CVideoDecoder : public boost::noncopyable
+class CVideoDecoder
 {
 public:
 	typedef boost::signals2::signal<void(const Framework::CBitmap&)> NewFrameEvent;
 
 	CVideoDecoder(std::string);
 	virtual ~CVideoDecoder();
+
+	CVideoDecoder(const CVideoDecoder&) = delete;
+	CVideoDecoder& operator=(const CVideoDecoder&) = delete;
 
 	NewFrameEvent NewFrame;
 

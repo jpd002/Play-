@@ -1,17 +1,19 @@
 #ifndef _SPU2_H_
 #define _SPU2_H_
 
-#include <boost/utility.hpp>
 #include <functional>
 #include "Iop_Spu2_Core.h"
 
 namespace Iop
 {
-	class CSpu2 : boost::noncopyable
+	class CSpu2
 	{
 	public:
 		CSpu2(CSpuBase&, CSpuBase&);
 		virtual ~CSpu2();
+
+		CSpu2(const CSpu2&) = delete;
+		CSpu2& operator=(const CSpu2&) = delete;
 
 		uint32 ReadRegister(uint32);
 		uint32 WriteRegister(uint32, uint32);
