@@ -2,8 +2,8 @@
 #define _DEBUGUTILS_H_
 
 #include "tcharx.h"
-#include "../MIPS.h"
-#include "../BiosDebugInfoProvider.h"
+#include "MIPS.h"
+#include "BiosDebugInfoProvider.h"
 
 namespace DebugUtils
 {

@@ -5,8 +5,8 @@
 #include "win32/Button.h"
 #include "win32/ListBox.h"
 #include "win32/Layouts.h"
-#include "../MIPS.h"
-#include "../BiosDebugInfoProvider.h"
+#include "MIPS.h"
+#include "BiosDebugInfoProvider.h"
 
 class CThreadCallStackViewWnd : public Framework::Win32::CDialog
 {

@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include "DisAsm.h"
-#include "resource.h"
+#include "../resource.h"
 #include "win32/InputBox.h"
 #include "win32/Font.h"
 #include "win32/DefaultWndClass.h"
@@ -10,7 +10,7 @@
 #include "string_format.h"
 #include "lexical_cast_ex.h"
 #include "WinUtils.h"
-#include "../Ps2Const.h"
+#include "Ps2Const.h"
 #include "DebugExpressionEvaluator.h"
 
 #define ID_DISASM_GOTOPC 40001

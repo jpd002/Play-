@@ -3,9 +3,9 @@
 
 #include "win32/ListView.h"
 #include "win32/ToolBar.h"
-#include "../VirtualMachine.h"
-#include "../MIPS.h"
-#include "../BiosDebugInfoProvider.h"
+#include "VirtualMachine.h"
+#include "MIPS.h"
+#include "BiosDebugInfoProvider.h"
 #include "win32/MDIChild.h"
 #include "Types.h"
 #include "VirtualMachineStateView.h"

@@ -2,7 +2,7 @@
 
 #include <unordered_map>
 #include "OptionWnd.h"
-#include "../ELF.h"
+#include "ELF.h"
 #include "ELFHeaderView.h"
 #include "ELFSectionView.h"
 #include "ELFProgramView.h"

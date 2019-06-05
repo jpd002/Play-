@@ -7,7 +7,7 @@
 #include "layout/VerticalLayout.h"
 #include "Types.h"
 #include "MemoryViewPtr.h"
-#include "../ELF.h"
+#include "ELF.h"
 
 class CELFSectionView : public Framework::Win32::CDialog
 {

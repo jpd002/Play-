@@ -2,7 +2,6 @@
 
 #include "RegViewPage.h"
 #include "MIPS.h"
-#include "VirtualMachine.h"
 #include <string>
 
 class CRegViewGeneral : public CRegViewPage

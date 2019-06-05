@@ -1,5 +1,4 @@
 #include "OutputWnd.h"
-#include "../PS2VM.h"
 
 #define CLSNAME _T("COutputWnd")
 #define WNDSTYLE (WS_VISIBLE | WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN)

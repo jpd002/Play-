@@ -63,24 +63,26 @@ else()
 	set(MANIFEST PsfPlayer-x86.manifest)
 endif()
 
+set(DEBUGSUPPORT_ROOT ../../../../Source/ui_qt/win32/DebugSupport/)
+
 if(DEBUGGER_INCLUDED)
 	add_definitions("-DFUNCTIONSVIEW_STANDALONE")
 	set(DEBUG_SRC
-		../../../../Source/ui_win32/DebugExpressionEvaluator.cpp
-		../../../../Source/ui_win32/DisAsm.cpp
-		../../../../Source/ui_win32/FunctionsView.cpp
-		../../../../Source/ui_win32/MemoryView.cpp
-		../../../../Source/ui_win32/MemoryViewMIPS.cpp
-		../../../../Source/ui_win32/RegViewGeneral.cpp
-		../../../../Source/ui_win32/RegViewPage.cpp
-		../../../../Source/ui_win32/WinUtils.cpp
+		${DEBUGSUPPORT_ROOT}/DebugExpressionEvaluator.cpp
+		${DEBUGSUPPORT_ROOT}/DisAsm.cpp
+		${DEBUGSUPPORT_ROOT}/FunctionsView.cpp
+		${DEBUGSUPPORT_ROOT}/MemoryView.cpp
+		${DEBUGSUPPORT_ROOT}/MemoryViewMIPS.cpp
+		${DEBUGSUPPORT_ROOT}/RegViewGeneral.cpp
+		${DEBUGSUPPORT_ROOT}/RegViewPage.cpp
+		${DEBUGSUPPORT_ROOT}/WinUtils.cpp
 		MiniDebugger.cpp
 	)
 endif()
 
 set(WIN32_SRC
 
-	../../../../Source/ui_win32/DirectXControl.cpp
+	${DEBUGSUPPORT_ROOT}/DirectXControl.cpp
 	AboutWindow.cpp
 	AcceleratorTable.cpp
 	FileInformationPanel.cpp
@@ -96,12 +98,8 @@ set(WIN32_SRC
 
 add_executable(PsfPlayer WIN32 ${WIN32_SRC} ${DEBUG_SRC} Res.rc)
 target_link_libraries(PsfPlayer PUBLIC d3d9 uxtheme ${PROJECT_LIBS} ${AUDIO_LIBS})
-target_include_directories(PsfPlayer
-	PUBLIC
-		./
-		../../../../Source/ui_win32
-		../../../../Source/gs/GSH_OpenGL
-)
+target_include_directories(PsfPlayer PRIVATE ${DEBUGSUPPORT_ROOT})
+
 include(PrecompiledHeader)
 add_precompiled_header(PsfPlayer StdAfx.h FORCEINCLUDE SOURCE_CXX StdAfx.cpp)
 

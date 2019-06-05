@@ -1,20 +1,20 @@
-#include "../iop/IopBios.h"
+#include "iop/IopBios.h"
 #include <stdio.h>
 #include <io.h>
 #include <fcntl.h>
 #include <iostream>
-#include "../AppConfig.h"
-#include "../MIPSAssembler.h"
-#include "../Ps2Const.h"
-#include "../ee/PS2OS.h"
-#include "../MipsFunctionPatternDb.h"
+#include "AppConfig.h"
+#include "MIPSAssembler.h"
+#include "Ps2Const.h"
+#include "ee/PS2OS.h"
+#include "MipsFunctionPatternDb.h"
 #include "StdStream.h"
 #include "win32/AcceleratorTableGenerator.h"
 #include "win32/InputBox.h"
 #include "win32/DpiUtils.h"
 #include "xml/Parser.h"
 #include "Debugger.h"
-#include "resource.h"
+#include "../resource.h"
 #include "string_cast.h"
 #include "string_format.h"
 

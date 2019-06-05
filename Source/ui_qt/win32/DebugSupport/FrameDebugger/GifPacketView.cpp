@@ -1,8 +1,8 @@
 #include "GifPacketView.h"
 #include "win32/DeviceContext.h"
-#include "../../gs/GSHandler.h"
-#include "../../ee/GIF.h"
-#include "../../uint128.h"
+#include "gs/GSHandler.h"
+#include "ee/GIF.h"
+#include "uint128.h"
 #include "string_format.h"
 
 CGifPacketView::CGifPacketView(HWND parentWnd, const RECT& rect)

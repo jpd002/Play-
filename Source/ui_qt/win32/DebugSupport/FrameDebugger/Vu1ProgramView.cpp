@@ -1,6 +1,6 @@
 #include "Vu1ProgramView.h"
-#include "../../FrameDump.h"
-#include "../../Ps2Const.h"
+#include "FrameDump.h"
+#include "Ps2Const.h"
 #include "win32/VerticalSplitter.h"
 #include "win32/HorizontalSplitter.h"
 

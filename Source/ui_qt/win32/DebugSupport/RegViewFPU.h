@@ -2,8 +2,7 @@
 
 #include <string>
 #include "RegViewPage.h"
-#include "../MIPS.h"
-#include "../VirtualMachine.h"
+#include "MIPS.h"
 
 class CRegViewFPU : public CRegViewPage
 {

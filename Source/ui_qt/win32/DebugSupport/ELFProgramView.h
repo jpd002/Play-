@@ -4,7 +4,7 @@
 #include "win32/Edit.h"
 #include "layout/GridLayout.h"
 #include "Types.h"
-#include "../ELF.h"
+#include "ELF.h"
 
 class CELFProgramView : public Framework::Win32::CDialog
 {

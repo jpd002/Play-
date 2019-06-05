@@ -2,7 +2,8 @@
 #include "string_cast.h"
 #include "lexical_cast_ex.h"
 #include "DebugUtils.h"
-#include "../MIPS.h"
+#include "MIPS.h"
+#include "BiosDebugInfoProvider.h"
 
 #define CLSNAME _T("CallStackWnd")
 

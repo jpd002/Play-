@@ -6,7 +6,6 @@
 #include "MemoryViewMIPSWnd.h"
 #include "RegViewWnd.h"
 #include "CallStackWnd.h"
-#include "../VirtualMachine.h"
 #include "VirtualMachineStateView.h"
 
 class CDebugView : public boost::signals2::trackable, public CVirtualMachineStateView

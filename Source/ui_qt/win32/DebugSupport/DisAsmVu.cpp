@@ -1,7 +1,7 @@
 #include "DisAsmVu.h"
 #include "lexical_cast_ex.h"
 #include "string_cast.h"
-#include "../ee/VuAnalysis.h"
+#include "ee/VuAnalysis.h"
 
 #define ID_DISASM_ANALYSE 40100
 

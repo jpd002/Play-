@@ -1,7 +1,6 @@
 #pragma once
 
-#include "../MIPS.h"
-#include "../VirtualMachine.h"
+#include "MIPS.h"
 #include "VirtualMachineStateView.h"
 #include "MemoryView.h"
 

@@ -4,10 +4,10 @@
 #include "win32/MDIChild.h"
 #include "win32/ListView.h"
 #include "Types.h"
-#include "../VirtualMachine.h"
-#include "../MIPS.h"
-#include "../BiosDebugInfoProvider.h"
+#include "MIPS.h"
 #include "VirtualMachineStateView.h"
+
+class CBiosDebugInfoProvider;
 
 class CCallStackWnd : public Framework::Win32::CMDIChild, public CVirtualMachineStateView
 {

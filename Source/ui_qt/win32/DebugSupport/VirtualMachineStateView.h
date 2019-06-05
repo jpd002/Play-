@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../VirtualMachine.h"
+#include "VirtualMachine.h"
 
 class CVirtualMachineStateView
 {

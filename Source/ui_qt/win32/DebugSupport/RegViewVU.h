@@ -1,8 +1,7 @@
 #pragma once
 
 #include "RegViewPage.h"
-#include "../MIPS.h"
-#include "../VirtualMachine.h"
+#include "MIPS.h"
 
 class CRegViewVU : public CRegViewPage
 {

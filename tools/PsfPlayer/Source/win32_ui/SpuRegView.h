@@ -1,7 +1,7 @@
 #pragma once
 
 #include <d3dx9.h>
-#include "ui_win32/DirectXControl.h"
+#include "DirectXControl.h"
 #include "iop/Iop_SpuBase.h"
 #include "win32/ComPtr.h"
 

@@ -1,6 +1,6 @@
 #include "ThreadCallStackViewWnd.h"
 #include "layout/LayoutEngine.h"
-#include "resource.h"
+#include "../resource.h"
 #include "string_cast.h"
 #include "lexical_cast_ex.h"
 #include "DebugUtils.h"

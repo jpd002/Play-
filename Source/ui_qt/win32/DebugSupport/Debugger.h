@@ -6,7 +6,7 @@
 #include "ThreadsViewWnd.h"
 #include "DebugView.h"
 #include "./Debugger/AddressListViewWnd.h"
-#include "../PS2VM.h"
+#include "PS2VM.h"
 
 class CDebugger : public Framework::Win32::CMDIFrame, public boost::signals2::trackable
 {

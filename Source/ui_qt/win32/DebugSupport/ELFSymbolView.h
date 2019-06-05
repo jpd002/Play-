@@ -2,7 +2,7 @@
 
 #include "win32/Window.h"
 #include "win32/ListView.h"
-#include "../ELF.h"
+#include "ELF.h"
 #include <boost/flyweight.hpp>
 
 class CELFSymbolView : public Framework::Win32::CWindow

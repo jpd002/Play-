@@ -2,7 +2,6 @@
 
 #include "win32/MDIChild.h"
 #include "DisAsm.h"
-#include "../VirtualMachine.h"
 #include "VirtualMachineStateView.h"
 
 class CDisAsmWnd : public Framework::Win32::CMDIChild, public CVirtualMachineStateView

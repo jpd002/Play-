@@ -3,7 +3,7 @@
 
 #include <vector>
 #include "Types.h"
-#include "../MIPS.h"
+#include "MIPS.h"
 
 class CDebugExpressionEvaluator
 {

@@ -1,7 +1,6 @@
 #include <stdio.h>
 #include "RegViewVU.h"
 #include "string_format.h"
-#include "../PS2VM.h"
 
 #define MENUCMD_BASE 40000
 #define CLIP_FLAG_MASK 0xFFFFFF

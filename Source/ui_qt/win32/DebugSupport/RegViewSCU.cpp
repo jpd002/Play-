@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 #include "RegViewSCU.h"
-#include "../COP_SCU.h"
+#include "COP_SCU.h"
 
 CRegViewSCU::CRegViewSCU(HWND parentWnd, const RECT& rect, CMIPS* ctx)
     : CRegViewPage(parentWnd, rect)

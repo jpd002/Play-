@@ -3,7 +3,6 @@
 #include "win32/MDIChild.h"
 #include "win32/Edit.h"
 #include "MemoryViewMIPS.h"
-#include "../VirtualMachine.h"
 #include "VirtualMachineStateView.h"
 
 class CMemoryViewMIPSWnd : public Framework::Win32::CMDIChild, public CVirtualMachineStateView

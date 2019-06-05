@@ -4,8 +4,7 @@
 #include "win32/CustomDrawn.h"
 #include "win32/DeviceContext.h"
 #include "win32/GdiObj.h"
-#include "../MIPS.h"
-#include "../VirtualMachine.h"
+#include "MIPS.h"
 #include "VirtualMachineStateView.h"
 
 class CDisAsm : public Framework::Win32::CCustomDrawn, public CVirtualMachineStateView

@@ -6,8 +6,7 @@
 #include "win32/Rect.h"
 #include "win32/DefaultWndClass.h"
 #include "win32/DpiUtils.h"
-#include "../PS2VM.h"
-#include "resource.h"
+#include "../resource.h"
 #include "DebugUtils.h"
 
 #define WND_STYLE (WS_CLIPCHILDREN | WS_THICKFRAME | WS_CAPTION | WS_SYSMENU | WS_CHILD | WS_MAXIMIZEBOX)

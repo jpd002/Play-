@@ -1,6 +1,6 @@
 #include "AddressListViewWnd.h"
 #include "win32/DpiUtils.h"
-#include "../resource.h"
+#include "../../resource.h"
 #include "string_format.h"
 #include "string_cast.h"
 
