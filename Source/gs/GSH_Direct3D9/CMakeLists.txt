@@ -10,11 +10,13 @@ include(Header)
 project(gsh_d3d9)
 
 #If building for Windows XP, we need to use the provided d3dcompiler since it's not available in the SDK
-if(CMAKE_GENERATOR_TOOLSET MATCHES "_xp$" AND NOT TARGET d3dcompiler)
-	add_subdirectory(
-		${CMAKE_CURRENT_SOURCE_DIR}/../../../../Dependencies/d3dcompiler_winxp
-		${CMAKE_CURRENT_BINARY_DIR}/d3dcompiler_winxp
-	)
+if(CMAKE_GENERATOR_TOOLSET MATCHES "_xp$")
+	if(NOT TARGET d3dcompiler)
+		add_subdirectory(
+			${CMAKE_CURRENT_SOURCE_DIR}/../../../../Dependencies/d3dcompiler_winxp
+			${CMAKE_CURRENT_BINARY_DIR}/d3dcompiler_winxp
+		)
+	endif()
 	list(APPEND gsh_d3d9_PROJECT_LIBS d3dcompiler)
 endif()
 
