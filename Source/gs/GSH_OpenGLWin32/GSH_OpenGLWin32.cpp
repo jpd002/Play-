@@ -1,5 +1,4 @@
 #include "GSH_OpenGLWin32.h"
-#include "GSH_OpenGL_SettingsWnd.h"
 
 PIXELFORMATDESCRIPTOR CGSH_OpenGLWin32::m_pfd =
     {
@@ -89,16 +88,6 @@ void CGSH_OpenGLWin32::ReleaseImpl()
 void CGSH_OpenGLWin32::PresentBackbuffer()
 {
 	SwapBuffers(m_dc);
-}
-
-Framework::Win32::CWindow* CGSH_OpenGLWin32::CreateSettingsDialog(HWND parentWnd)
-{
-	return new CGSH_OpenGL_SettingsWnd(parentWnd);
-}
-
-void CGSH_OpenGLWin32::OnSettingsDialogDestroyed()
-{
-	NotifyPreferencesChanged();
 }
 
 CGSHandler* CGSH_OpenGLWin32::GSHandlerFactory(Framework::Win32::CWindow* outputWindow)

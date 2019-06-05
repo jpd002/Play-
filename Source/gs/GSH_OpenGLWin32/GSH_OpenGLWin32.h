@@ -1,10 +1,9 @@
 #pragma once
 
-#include "../gs/GSH_OpenGL/GSH_OpenGL.h"
+#include "../GSH_OpenGL/GSH_OpenGL.h"
 #include "win32/Window.h"
-#include "SettingsDialogProvider.h"
 
-class CGSH_OpenGLWin32 : public CGSH_OpenGL, public CSettingsDialogProvider
+class CGSH_OpenGLWin32 : public CGSH_OpenGL
 {
 public:
 	CGSH_OpenGLWin32(Framework::Win32::CWindow*);
@@ -14,9 +13,6 @@ public:
 
 	void InitializeImpl() override;
 	void ReleaseImpl() override;
-
-	Framework::Win32::CWindow* CreateSettingsDialog(HWND) override;
-	void OnSettingsDialogDestroyed() override;
 
 protected:
 	void PresentBackbuffer() override;

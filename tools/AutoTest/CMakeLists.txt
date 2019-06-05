@@ -15,20 +15,11 @@ if (NOT TARGET PlayCore)
 endif()
 
 if(TARGET_PLATFORM_WIN32)
-	if(NOT TARGET gsh_opengl)
-		add_subdirectory(
-			${CMAKE_CURRENT_SOURCE_DIR}/../../Source/gs/GSH_OpenGL
-			${CMAKE_CURRENT_BINARY_DIR}/gs/GSH_OpenGL
-		)
-	endif()
-	list(APPEND PROJECT_LIBS gsh_opengl)
-
 	if(NOT TARGET gsh_opengl_win32)
-		add_library(gsh_opengl_win32 STATIC 
-			../../Source/ui_win32/GSH_OpenGL_SettingsWnd.cpp
-			../../Source/ui_win32/GSH_OpenGLWin32.cpp
+		add_subdirectory(
+			${CMAKE_CURRENT_SOURCE_DIR}/../../Source/gs/GSH_OpenGLWin32
+			${CMAKE_CURRENT_BINARY_DIR}/gs/GSH_OpenGLWin32
 		)
-		target_link_libraries(gsh_opengl_win32 Boost::boost glew_s gsh_opengl)
 	endif()
 	list(APPEND PROJECT_LIBS gsh_opengl_win32)
 
