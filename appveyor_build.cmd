@@ -6,6 +6,8 @@ cd build
 
 if "%BUILD_PLAY%" == "ON" (
 	cmake .. -G"%BUILD_TYPE%" -T v141_xp -DUSE_QT=on -DCMAKE_PREFIX_PATH="C:\Qt\5.12\%QT_FLAVOR%"
+	if !errorlevel! neq 0 exit /b !errorlevel!
+	
 	cmake --build . --config %CONFIG_TYPE%
 	if !errorlevel! neq 0 exit /b !errorlevel!
 
@@ -22,6 +24,8 @@ if "%BUILD_PLAY%" == "ON" (
 
 if "%BUILD_PSFPLAYER%" == "ON" (
 	cmake .. -G"%BUILD_TYPE%" -T v141_xp -DBUILD_PLAY=off -DBUILD_TESTS=off -DBUILD_PSFPLAYER=on
+	if !errorlevel! neq 0 exit /b !errorlevel!
+	
 	cmake --build . --config %CONFIG_TYPE%
 	if !errorlevel! neq 0 exit /b !errorlevel!
 	
@@ -36,6 +40,8 @@ if "%BUILD_PSFPLAYER%" == "ON" (
 
 if "%BUILD_PSFAOT%" == "ON" (
 	cmake .. -G"%BUILD_TYPE%" -T v141_xp -DBUILD_PLAY=off -DBUILD_TESTS=off -DBUILD_PSFPLAYER=on -DBUILD_AOT_CACHE=on
+	if !errorlevel! neq 0 exit /b !errorlevel!
+	
 	cmake --build . --config %CONFIG_TYPE%
 	if !errorlevel! neq 0 exit /b !errorlevel!
 )
