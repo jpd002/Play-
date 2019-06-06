@@ -441,11 +441,9 @@ void CGSHandler::FeedImageData(const void* data, uint32 length)
 	std::vector<uint8> imageData(length + 0x10);
 	memcpy(imageData.data(), data, length);
 	m_mailBox.SendCall(
-		[this, imageData = std::move(imageData), length]()
-		{
-			FeedImageDataImpl(imageData.data(), length);
-		}
-	);
+	    [this, imageData = std::move(imageData), length]() {
+		    FeedImageDataImpl(imageData.data(), length);
+	    });
 }
 
 void CGSHandler::ReadImageData(void* data, uint32 length)
