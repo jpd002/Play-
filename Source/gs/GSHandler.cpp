@@ -1,7 +1,6 @@
 #include <stdio.h>
 #include <string.h>
 #include <functional>
-#include <boost/scoped_array.hpp>
 #include "../AppConfig.h"
 #include "../Log.h"
 #include "../states/MemoryStateFile.h"
@@ -439,9 +438,14 @@ void CGSHandler::FeedImageData(const void* data, uint32 length)
 	//Allocate 0x10 more bytes to allow transfer handlers
 	//to read beyond the actual length of the buffer (ie.: PSMCT24)
 
-	uint8* buffer = new uint8[length + 0x10];
-	memcpy(buffer, data, length);
-	m_mailBox.SendCall(std::bind(&CGSHandler::FeedImageDataImpl, this, buffer, length));
+	std::vector<uint8> imageData(length + 0x10);
+	memcpy(imageData.data(), data, length);
+	m_mailBox.SendCall(
+		[this, imageData = std::move(imageData), length]()
+		{
+			FeedImageDataImpl(imageData.data(), length);
+		}
+	);
 }
 
 void CGSHandler::ReadImageData(void* data, uint32 length)
@@ -550,14 +554,12 @@ void CGSHandler::WriteRegisterImpl(uint8 nRegister, uint64 nData)
 #endif
 }
 
-void CGSHandler::FeedImageDataImpl(const void* pData, uint32 nLength)
+void CGSHandler::FeedImageDataImpl(const uint8* imageData, uint32 length)
 {
-	boost::scoped_array<const uint8> dataPtr(reinterpret_cast<const uint8*>(pData));
-
 #ifdef DEBUGGER_INCLUDED
 	if(m_frameDump)
 	{
-		m_frameDump->AddImagePacket(reinterpret_cast<const uint8*>(pData), nLength);
+		m_frameDump->AddImagePacket(imageData, length);
 	}
 #endif
 
@@ -569,18 +571,18 @@ void CGSHandler::FeedImageDataImpl(const void* pData, uint32 nLength)
 	}
 	else
 	{
-		if(m_trxCtx.nSize < nLength)
+		if(m_trxCtx.nSize < length)
 		{
-			nLength = m_trxCtx.nSize;
+			length = m_trxCtx.nSize;
 			//assert(0);
 			//return;
 		}
 
 		auto bltBuf = make_convertible<BITBLTBUF>(m_nReg[GS_REG_BITBLTBUF]);
 
-		m_trxCtx.nDirty |= ((this)->*(m_transferWriteHandlers[bltBuf.nDstPsm]))(pData, nLength);
+		m_trxCtx.nDirty |= ((this)->*(m_transferWriteHandlers[bltBuf.nDstPsm]))(imageData, length);
 
-		m_trxCtx.nSize -= nLength;
+		m_trxCtx.nSize -= length;
 
 		if(m_trxCtx.nSize == 0)
 		{

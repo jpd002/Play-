@@ -910,7 +910,7 @@ protected:
 	virtual void FlipImpl();
 	void MarkNewFrame();
 	virtual void WriteRegisterImpl(uint8, uint64);
-	void FeedImageDataImpl(const void*, uint32);
+	void FeedImageDataImpl(const uint8*, uint32);
 	void ReadImageDataImpl(void*, uint32);
 	void WriteRegisterMassivelyImpl(const MASSIVEWRITE_INFO&);
 
