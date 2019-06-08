@@ -49,6 +49,8 @@
 	<string name="pref_emu_video_force_bilinear_title">强制双线性过滤</string>
 	<string name="pref_emu_video_force_bilinear_summary">强制在所有纹理上使用双线性过滤。</string>
 
+	<string name="pref_emu_video_presentation_mode_title">Presentation Mode</string>
+
 	<string name="pref_emu_audio">音频设置</string>
 
 	<string name="pref_emu_audio_enable_output_title">启用音频输出</string>

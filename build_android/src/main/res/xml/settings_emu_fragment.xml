@@ -32,6 +32,14 @@
 			android:summary="@string/pref_emu_video_force_bilinear_summary"
 			android:persistent="false"
 		/>
+		<ListPreference
+			android:key="renderer.presentationmode"
+			android:title="@string/pref_emu_video_presentation_mode_title"
+			android:entries="@array/pref_emu_video_presentation_mode_entries"
+			android:entryValues="@array/pref_emu_video_presentation_mode_values"
+			android:defaultValue="1"
+			android:negativeButtonText="@null"
+			android:positiveButtonText="@null"/>
 	</PreferenceCategory>
 	<PreferenceCategory
 		android:title="@string/pref_emu_audio"
