@@ -24,10 +24,6 @@ CIntrman::CIntrman(CIopBios& bios, uint8* ram)
 {
 }
 
-CIntrman::~CIntrman()
-{
-}
-
 std::string CIntrman::GetId() const
 {
 	return "intrman";

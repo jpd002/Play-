@@ -10,7 +10,7 @@ namespace Iop
 	{
 	public:
 		CIntrman(CIopBios&, uint8*);
-		virtual ~CIntrman();
+		virtual ~CIntrman() = default;
 
 		std::string GetId() const override;
 		std::string GetFunctionName(unsigned int) const override;
