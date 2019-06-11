@@ -22,7 +22,6 @@ public class GameIndexer
 		{
 			final java.lang.Process process = new ProcessBuilder().command("mount")
 					.redirectErrorStream(true).start();
-			process.waitFor();
 			InputStream is = process.getInputStream();
 			byte[] buffer = new byte[1024];
 			while (is.read(buffer) != -1)
@@ -30,6 +29,7 @@ public class GameIndexer
 				s.append(new String(buffer));
 			}
 			is.close();
+			process.waitFor();
 
 			String[] lines = s.toString().split("\n");
 			for (String line : lines)
