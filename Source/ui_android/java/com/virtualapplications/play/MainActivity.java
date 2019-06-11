@@ -425,7 +425,6 @@ public class MainActivity extends AppCompatActivity implements NavigationDrawerF
 		@Override
 		protected List<Bootable> doInBackground(String... paths)
 		{
-
 			if(fullscan)
 			{
 				GameIndexer.fullScan();
