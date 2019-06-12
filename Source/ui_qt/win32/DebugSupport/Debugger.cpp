@@ -13,6 +13,7 @@
 #include "win32/InputBox.h"
 #include "win32/DpiUtils.h"
 #include "xml/Parser.h"
+#include "xml/Utils.h"
 #include "Debugger.h"
 #include "../resource.h"
 #include "string_cast.h"
@@ -340,6 +341,7 @@ void CDebugger::FindEeFunctions()
 	auto functionsDocument = std::unique_ptr<Framework::Xml::CNode>(Framework::Xml::CParser::ParseDocument(functionsStream));
 	auto functionsNode = functionsDocument->Select("Functions");
 
+	//Check function patterns
 	{
 		CMipsFunctionPatternDb patternDb(functionsNode);
 
@@ -360,38 +362,18 @@ void CDebugger::FindEeFunctions()
 		}
 	}
 
+	//Check function comments
 	{
-		//Identify functions that reference special string literals (TODO: Move that inside a file)
-		static const std::map<std::string, std::string> stringFuncs =
-		    {
-		        {"SceSifrpcBind", "SifBindRpc"},
-		        {"SceSifrpcCall", "SifCallRpc"},
-		        {"SceStdioOpenSema", "Open"},
-		        {"SceStdioCloseSema", "Close"},
-		        {"SceStdioLseekSema", "Lseek"},
-		        {"SceStdioReadSema", "Read"},
-		        {"SceStdioWriteSema", "Write"},
-		        {"SceStdioIoctlSema", "Ioctl"},
-		        {"SceStdioIoctl2Sema", "Ioctl2"},
-		        {"SceStdioMkdirSema", "Mkdir"},
-		        {"call cdread cmd\n", "CdRead"},
-		        {"N cmd wait\n", "CdSync"},
-		        {"S cmd wait\n", "CdSyncS"},
-		        {"Scmd fail sema cur_cmd:%d keep_cmd:%d\n", "CdCheckSCmd"},
-		        {"sceGsExecLoadImage: DMA Ch.2 does not terminate\r\n", "GsExecLoadImage"},
-		        {"sceGsExecStoreImage: DMA Ch.1 does not terminate\r\n", "GsExecStoreImage"},
-		        {"sceGsPutDrawEnv: DMA Ch.2 does not terminate\r\n", "GsPutDrawEnv"},
-		        {"sceGsSetDefLoadImage: too big size\r\n", "GsSetDefLoadImage"},
-		        {"sceGsSyncPath: DMA Ch.1 does not terminate\r\n", "GsSyncPath"},
-		        {"libpad: buffer addr is not 64 byte align. %08x\n", "PadPortOpen"},
-		        {"sceDbcReceiveData: rpc error\n", "DbcReceiveData"},
-		        {"sceDbcSendData: rpc error\n", "DbcSendData"},
-		        {"sceDbcSendData2: rpc error\n", "DbcSendData2"},
-		        {"The size of work area is too small", "MpegCreate"},
-		        {"Need to re-setup libipu since sceMpegGetPicture was aborted\n", "_MpegInternalFct"},
-		        {"image buffer needs to be aligned to 64byte boundary(0x%08x)", "_MpegInternalFct"},
-		    };
+		std::map<std::string, std::string> stringFuncs;
+		auto commentNodes = functionsNode->SelectNodes("FunctionComments/FunctionComment");
+		for(const auto& commentNode : commentNodes)
+		{
+			auto comment = Framework::Xml::GetAttributeStringValue(commentNode, "Comment");
+			auto functionName = Framework::Xml::GetAttributeStringValue(commentNode, "Function");
+			stringFuncs.insert(std::make_pair(comment, functionName));
+		}
 
+		//Identify functions that reference special string literals
 		{
 			auto& eeFunctions = m_virtualMachine.m_ee->m_EE.m_Functions;
 			const auto& eeComments = m_virtualMachine.m_ee->m_EE.m_Comments;

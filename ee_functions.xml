@@ -343,4 +343,42 @@
 			27BD0010    ;ADDIU          SP, SP, $0010	
 		</FunctionPattern>
 	</FunctionPatterns>
+	<FunctionComments>
+		<FunctionComment Comment="SceSifrpcBind" Function="SifBindRpc" />
+		<FunctionComment Comment="SceSifrpcCall" Function="SifCallRpc" />
+		
+		<FunctionComment Comment="SceStdioOpenSema" Function="Open" />
+		<FunctionComment Comment="SceStdioCloseSema" Function="Close" />
+		<FunctionComment Comment="SceStdioLseekSema" Function="Lseek" />
+		<FunctionComment Comment="SceStdioReadSema" Function="Read" />
+		<FunctionComment Comment="SceStdioWriteSema" Function="Write" />
+		<FunctionComment Comment="SceStdioIoctlSema" Function="Ioctl" />
+		<FunctionComment Comment="SceStdioIoctl2Sema" Function="Ioctl2" />
+		<FunctionComment Comment="SceStdioMkdirSema" Function="Mkdir" />
+		<FunctionComment Comment="SceStdioWriteSema" Function="Write" />
+		<FunctionComment Comment="SceStdioIoctlSema" Function="Ioctl" />
+		<FunctionComment Comment="SceStdioIoctl2Sema" Function="Ioctl2" />
+		<FunctionComment Comment="SceStdioMkdirSema" Function="Mkdir" />
+
+		<FunctionComment Comment="call cdread cmd&#x0A;" Function="CdRead" />
+		<FunctionComment Comment="N cmd wait&#x0A;" Function="CdSync" />
+		<FunctionComment Comment="S cmd wait&#x0A;" Function="CdSyncS" />
+		<FunctionComment Comment="Scmd fail sema cur_cmd:%d keep_cmd:%d&#x0A;" Function="CdCheckSCmd" />
+
+		<FunctionComment Comment="sceGsExecLoadImage: DMA Ch.2 does not terminate&#x0D;&#x0A;" Function="GsExecLoadImage" />
+		<FunctionComment Comment="sceGsExecStoreImage: DMA Ch.1 does not terminate&#x0D;&#x0A;" Function="GsExecStoreImage" />
+		<FunctionComment Comment="sceGsPutDrawEnv: DMA Ch.2 does not terminate&#x0D;&#x0A;" Function="GsPutDrawEnv" />
+		<FunctionComment Comment="sceGsSetDefLoadImage: too big size&#x0D;&#x0A;" Function="GsSetDefLoadImage" />
+		<FunctionComment Comment="sceGsSyncPath: DMA Ch.1 does not terminate&#x0D;&#x0A;" Function="GsSyncPath" />
+
+		<FunctionComment Comment="libpad: buffer addr is not 64 byte align. %08x&#x0A;" Function="PadPortOpen" />
+
+		<FunctionComment Comment="sceDbcReceiveData: rpc error&#x0A;" Function="DbcReceiveData" />
+		<FunctionComment Comment="sceDbcSendData: rpc error&#x0A;" Function="DbcSendData" />
+		<FunctionComment Comment="sceDbcSendData2: rpc error&#x0A;" Function="DbcSendData2" />
+
+		<FunctionComment Comment="The size of work area is too small" Function="MpegCreate" />
+		<FunctionComment Comment="Need to re-setup libipu since sceMpegGetPicture was aborted&#x0A;" Function="_MpegInternalFct" />
+		<FunctionComment Comment="image buffer needs to be aligned to 64byte boundary(0x%08x)" Function="_MpegInternalFct" />
+	</FunctionComments>
 </Functions>
