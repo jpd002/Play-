@@ -1,344 +1,346 @@
-<FunctionPatterns>
-	<FunctionPattern Name="memset">
-		2CC20008    ;SLTIU          V0, A2, $0008
-		1440XXXX    ;BNE            V0, R0, $XXXXXXXX
-		0080182D    ;DADDU          V1, A0, R0
-		3082000F    ;ANDI           V0, A0, $000F
-		1440XXXX    ;BNE            V0, R0, $XXXXXXXX
-		0080382D    ;DADDU          A3, A0, R0
-		30A900FF    ;ANDI           T1, A1, $00FF
-		2CCA0020    ;SLTIU          T2, A2, $0020
-		0120402D    ;DADDU          T0, T1, R0
-		00081A38    ;DSLL           V1, T0, 8
-		00694025    ;OR             T0, V1, T1
-		70081EE9    ;PCPYH          V1, T0
-		1540XXXX    ;BNE            T2, R0, $XXXXXXXX
-		2CC20008    ;SLTIU          V0, A2, $0008
-		70634389    ;PCPYLD         T0, V1, V1
-		7CE80000    ;SQ             T0, $0000(A3)
-		24C6FFE0    ;ADDIU          A2, A2, $FFE0
-		24E70010    ;ADDIU          A3, A3, $0010
-		2CC20020    ;SLTIU          V0, A2, $0020
-		7CE80000    ;SQ             T0, $0000(A3)
-		1040XXXX    ;BEQ            V0, R0, $XXXXXXXX
-		24E70010    ;ADDIU          A3, A3, $0010
-		1000XXXX    ;BEQ            R0, R0, $XXXXXXXX
-		2CC20008    ;SLTIU          V0, A2, $0008
-		24C6FFF8    ;ADDIU          A2, A2, $FFF8
-		24E70008    ;ADDIU          A3, A3, $0008
-		2CC20008    ;SLTIU          V0, A2, $0008
-		00000000    ;NOP            
-		00000000    ;NOP            
-		5040XXXX    ;BEQL           V0, R0, $XXXXXXXX
-		FCE30000    ;SD             V1, $0000(A3)
-		00E0182D    ;DADDU          V1, A3, R0
-		3C02FFFF    ;LUI            V0, $FFFF
-		24C6FFFF    ;ADDIU          A2, A2, $FFFF
-		3442FFFF    ;ORI            V0, V0, $FFFF
-		10C2XXXX    ;BEQ            A2, V0, $XXXXXXXX
-		00000000    ;NOP            
-		3C02FFFF    ;LUI            V0, $FFFF
-		3442FFFF    ;ORI            V0, V0, $FFFF
-		A0650000    ;SB             A1, $0000(V1)
-		24C6FFFF    ;ADDIU          A2, A2, $FFFF
-		00000000    ;NOP            
-		00000000    ;NOP            
-		00000000    ;NOP            
-		14C2XXXX    ;BNE            A2, V0, $XXXXXXXX
-		24630001    ;ADDIU          V1, V1, $0001
-		03E00008    ;JR             RA
-		0080102D    ;DADDU          V0, A0, R0
-	</FunctionPattern>
-	<FunctionPattern Name="memset">
-		2CC20008    ;SLTIU          V0, A2, $0008
-		1440XXXX    ;BNE            V0, R0, $XXXXXXXX
-		0080182D    ;DADDU          V1, A0, R0
-		3082000F    ;ANDI           V0, A0, $000F
-		1440XXXX    ;BNE            V0, R0, $XXXXXXXX
-		0080382D    ;DADDU          A3, A0, R0
-		30A900FF    ;ANDI           T1, A1, $00FF
-		2CCA0020    ;SLTIU          T2, A2, $0020
-		0120402D    ;DADDU          T0, T1, R0
-		00081A38    ;DSLL           V1, T0, 8
-		00694025    ;OR             T0, V1, T1
-		70081EE9    ;PCPYH          V1, T0
-		1540XXXX    ;BNE            T2, R0, $XXXXXXXX
-		2CC20008    ;SLTIU          V0, A2, $0008
-		70634389    ;PCPYLD         T0, V1, V1
-		7CE80000    ;SQ             T0, $0000(A3)
-		24C6FFE0    ;ADDIU          A2, A2, $FFE0
-		24E70010    ;ADDIU          A3, A3, $0010
-		2CC20020    ;SLTIU          V0, A2, $0020
-		7CE80000    ;SQ             T0, $0000(A3)
-		1040XXXX    ;BEQ            V0, R0, $XXXXXXXX
-		24E70010    ;ADDIU          A3, A3, $0010
-		1000XXXX    ;BEQ            R0, R0, $XXXXXXXX
-		2CC20008    ;SLTIU          V0, A2, $0008
-		24C6FFF8    ;ADDIU          A2, A2, $FFF8
-		24E70008    ;ADDIU          A3, A3, $0008
-		2CC20008    ;SLTIU          V0, A2, $0008
-		00000000    ;NOP            
-		00000000    ;NOP            
-		5040XXXX    ;BEQL           V0, R0, $XXXXXXXX
-		FCE30000    ;SD             V1, $0000(A3)
-		00E0182D    ;DADDU          V1, A3, R0
-		3C02FFFF    ;LUI            V0, $FFFF
-		24C6FFFF    ;ADDIU          A2, A2, $FFFF
-		3442FFFF    ;ORI            V0, V0, $FFFF
-		10C2XXXX    ;BEQ            A2, V0, $XXXXXXXX
-		00000000    ;NOP            
-		3C02FFFF    ;LUI            V0, $FFFF
-		3442FFFF    ;ORI            V0, V0, $FFFF
-		A0650000    ;SB             A1, $0000(V1)
-		24C6FFFF    ;ADDIU          A2, A2, $FFFF
-		24630001    ;ADDIU          V1, V1, $0001
-		00000000    ;NOP            
-		00000000    ;NOP            
-		14C2XXXX    ;BNE            A2, V0, $XXXXXXXX
-		00000000    ;NOP            
-		03E00008    ;JR             RA
-		0080102D    ;DADDU          V0, A0, R0	
-	</FunctionPattern>
-	<FunctionPattern Name="memcpy">
-		0080402D    ;DADDU          T0, A0, R0
-		2CC20020    ;SLTIU          V0, A2, $0020
-		1440XXXX    ;BNE            V0, R0, $XXXXXXXX
-		0100182D    ;DADDU          V1, T0, R0
-		00A81025    ;OR             V0, A1, T0
-		3042000F    ;ANDI           V0, V0, $000F
-		5440XXXX    ;BNEL           V0, R0, $XXXXXXXX
-		24C6FFFF    ;ADDIU          A2, A2, $FFFF
-		0100382D    ;DADDU          A3, T0, R0
-		78A30000    ;LQ             V1, $0000(A1)
-		24C6FFE0    ;ADDIU          A2, A2, $FFE0
-		24A50010    ;ADDIU          A1, A1, $0010
-		2CC40020    ;SLTIU          A0, A2, $0020
-		7CE30000    ;SQ             V1, $0000(A3)
-		24E70010    ;ADDIU          A3, A3, $0010
-		78A20000    ;LQ             V0, $0000(A1)
-		24A50010    ;ADDIU          A1, A1, $0010
-		7CE20000    ;SQ             V0, $0000(A3)
-		1080FFF6    ;BEQ            A0, R0, $XXXXXXXX
-		24E7XXXX    ;ADDIU          A3, A3, $0010
-		2CC20008    ;SLTIU          V0, A2, $0008
-		1440XXXX    ;BNE            V0, R0, $XXXXXXXX
-		00E0182D    ;DADDU          V1, A3, R0
-		DCA30000    ;LD             V1, $0000(A1)
-		24C6FFF8    ;ADDIU          A2, A2, $FFF8
-		24A50008    ;ADDIU          A1, A1, $0008
-		2CC20008    ;SLTIU          V0, A2, $0008
-		FCE30000    ;SD             V1, $0000(A3)
-		1040FFFA    ;BEQ            V0, R0, $XXXXXXXX
-		24E70008    ;ADDIU          A3, A3, $0008
-		00E0182D    ;DADDU          V1, A3, R0
-		24C6FFFF    ;ADDIU          A2, A2, $FFFF
-		2402FFFF    ;ADDIU          V0, R0, $FFFF
-		10C2XXXX    ;BEQ            A2, V0, $XXXXXXXX
-		0040202D    ;DADDU          A0, V0, R0
-		90A20000    ;LBU            V0, $0000(A1)
-		24C6FFFF    ;ADDIU          A2, A2, $FFFF
-		24A50001    ;ADDIU          A1, A1, $0001
-		A0620000    ;SB             V0, $0000(V1)
-		00000000    ;NOP            
-		14C4XXXX    ;BNE            A2, A0, $XXXXXXXX
-		24630001    ;ADDIU          V1, V1, $0001
-		03E00008    ;JR             RA
-		0100102D    ;DADDU          V0, T0, R0	
-	</FunctionPattern>
-	<FunctionPattern Name="memcpy">
-		0080402D    ;DADDU          T0, A0, R0
-		2CC20020    ;SLTIU          V0, A2, $0020
-		1440XXXX    ;BNE            V0, R0, $XXXXXXXX
-		0100182D    ;DADDU          V1, T0, R0
-		00A81025    ;OR             V0, A1, T0
-		3042000F    ;ANDI           V0, V0, $000F
-		5440XXXX    ;BNEL           V0, R0, $XXXXXXXX
-		24C6FFFF    ;ADDIU          A2, A2, $FFFF
-		0100382D    ;DADDU          A3, T0, R0
-		78A30000    ;LQ             V1, $0000(A1)
-		24C6FFE0    ;ADDIU          A2, A2, $FFE0
-		24A50010    ;ADDIU          A1, A1, $0010
-		2CC40020    ;SLTIU          A0, A2, $0020
-		7CE30000    ;SQ             V1, $0000(A3)
-		24E70010    ;ADDIU          A3, A3, $0010
-		78A20000    ;LQ             V0, $0000(A1)
-		24A50010    ;ADDIU          A1, A1, $0010
-		7CE20000    ;SQ             V0, $0000(A3)
-		1080XXXX    ;BEQ            A0, R0, $XXXXXXXX
-		24E70010    ;ADDIU          A3, A3, $0010
-		2CC20008    ;SLTIU          V0, A2, $0008
-		1440XXXX    ;BNE            V0, R0, $XXXXXXXX
-		00E0182D    ;DADDU          V1, A3, R0
-		DCA30000    ;LD             V1, $0000(A1)
-		24C6FFF8    ;ADDIU          A2, A2, $FFF8
-		24A50008    ;ADDIU          A1, A1, $0008
-		2CC20008    ;SLTIU          V0, A2, $0008
-		FCE30000    ;SD             V1, $0000(A3)
-		1040XXXX    ;BEQ            V0, R0, $XXXXXXXX
-		24E70008    ;ADDIU          A3, A3, $0008
-		00E0182D    ;DADDU          V1, A3, R0
-		24C6FFFF    ;ADDIU          A2, A2, $FFFF
-		2402FFFF    ;ADDIU          V0, R0, $FFFF
-		10C2XXXX    ;BEQ            A2, V0, $XXXXXXXX
-		0040202D    ;DADDU          A0, V0, R0
-		90A20000    ;LBU            V0, $0000(A1)
-		24C6FFFF    ;ADDIU          A2, A2, $FFFF
-		24A50001    ;ADDIU          A1, A1, $0001
-		A0620000    ;SB             V0, $0000(V1)
-		24630001    ;ADDIU          V1, V1, $0001
-		14C4XXXX    ;BNE            A2, A0, $XXXXXXXX
-		00000000    ;NOP            
-		03E00008    ;JR             RA
-		0100102D    ;DADDU          V0, T0, R0	
-	</FunctionPattern>
-	<FunctionPattern Name="strcpy">
-		0080382D    ;DADDU          A3, A0, R0
-		00A74025    ;OR             T0, A1, A3
-		31020007    ;ANDI           V0, T0, $0007
-		1440XXXX    ;BNE            V0, R0, $XXXXXXXX
-		00E0182D    ;DADDU          V1, A3, R0
-		3102000F    ;ANDI           V0, T0, $000F
-		3C090101    ;LUI            T1, $0101
-		35290101    ;ORI            T1, T1, $0101
-		00094C38    ;DSLL           T1, T1, 16
-		35290101    ;ORI            T1, T1, $0101
-		00094C38    ;DSLL           T1, T1, 16
-		35290101    ;ORI            T1, T1, $0101
-		3C048080    ;LUI            A0, $8080
-		34848080    ;ORI            A0, A0, $8080
-		00042438    ;DSLL           A0, A0, 16
-		34848080    ;ORI            A0, A0, $8080
-		00042438    ;DSLL           A0, A0, 16
-		34848080    ;ORI            A0, A0, $8080
-		5440XXXX    ;BNEL           V0, R0, $XXXXXXXX
-		DCAA0000    ;LD             T2, $0000(A1)
-		71295389    ;PCPYLD         T2, T1, T1
-		78A90000    ;LQ             T1, $0000(A1)
-		70844389    ;PCPYLD         T0, A0, A0
-		712A1248    ;PSUBB          V0, T1, T2
-		70091CE9    ;PNOR           V1, R0, T1
-		70431489    ;PAND           V0, V0, V1
-		70481489    ;PAND           V0, V0, T0
-		704923A9    ;PCPYUD         A0, V0, T1
-		00441825    ;OR             V1, V0, A0
-		1460XXXX    ;BNE            V1, R0, $XXXXXXXX
-		00E0302D    ;DADDU          A2, A3, R0
-		7CC90000    ;SQ             T1, $0000(A2)
-		24A50010    ;ADDIU          A1, A1, $0010
-		78A90000    ;LQ             T1, $0000(A1)
-		712A1248    ;PSUBB          V0, T1, T2
-		70091CE9    ;PNOR           V1, R0, T1
-		70431489    ;PAND           V0, V0, V1
-		70481489    ;PAND           V0, V0, T0
-		704923A9    ;PCPYUD         A0, V0, T1
-		00441825    ;OR             V1, V0, A0
-		1060XXXX    ;BEQ            V1, R0, $XXXXXXXX
-		24C60010    ;ADDIU          A2, A2, $0010
-		1000XXXX    ;BEQ            R0, R0, $XXXXXXXX
-		00C0182D    ;DADDU          V1, A2, R0
-		0149102F    ;DSUBU          V0, T2, T1
-		000A1827    ;NOR            V1, R0, T2
-		00431024    ;AND            V0, V0, V1
-		00441024    ;AND            V0, V0, A0
-		1440XXXX    ;BNE            V0, R0, $XXXXXXXX
-		00E0302D    ;DADDU          A2, A3, R0
-		FCCA0000    ;SD             T2, $0000(A2)
-		24A50008    ;ADDIU          A1, A1, $0008
-		DCAA0000    ;LD             T2, $0000(A1)
-		000A1027    ;NOR            V0, R0, T2
-		0149182F    ;DSUBU          V1, T2, T1
-		00621824    ;AND            V1, V1, V0
-		00641824    ;AND            V1, V1, A0
-		1060XXXX    ;BEQ            V1, R0, $XXXXXXXX
-		24C60008    ;ADDIU          A2, A2, $0008
-		00C0182D    ;DADDU          V1, A2, R0
-		90A20000    ;LBU            V0, $0000(A1)
-		24A50001    ;ADDIU          A1, A1, $0001
-		A0620000    ;SB             V0, $0000(V1)
-		00021600    ;SLL            V0, V0, 24
-		24630001    ;ADDIU          V1, V1, $0001
-		1440XXXX    ;BNE            V0, R0, $XXXXXXXX
-		00000000    ;NOP            
-		03E00008    ;JR             RA
-		00E0102D    ;DADDU          V0, A3, R0	
-	</FunctionPattern>
-	<FunctionPattern Name="WritebackDCache">
-		3C19FFFF    ;LUI            T9, $FFFF
-		3739FFC0    ;ORI            T9, T9, $FFC0
-		18A0XXXX    ;BLEZ           A1, $XXXXXXXX
-		00855021    ;ADDU           T2, A0, A1
-		00994024    ;AND            T0, A0, T9
-		254AFFFF    ;ADDIU          T2, T2, $FFFF
-		01594824    ;AND            T1, T2, T9
-		01285023    ;SUBU           T2, T1, T0
-		000A5982    ;SRL            T3, T2, 6
-		256B0001    ;ADDIU          T3, T3, $0001
-		31690007    ;ANDI           T1, T3, $0007
-		1120XXXX    ;BEQ            T1, R0, $XXXXXXXX
-		000B50C2    ;SRL            T2, T3, 3
-		0000000F    ;SYNC           
-		BD180000    ;CACHE          $18, $0000(T0)
-		0000000F    ;SYNC           
-		2529FFFF    ;ADDIU          T1, T1, $FFFF
-		00000000    ;NOP            
-		1D20FFFA    ;BGTZ           T1, $00328A74
-		25080040    ;ADDIU          T0, T0, $0040
-		1140XXXX    ;BEQ            T2, R0, $XXXXXXXX
-		254AFFFF    ;ADDIU          T2, T2, $FFFF
-		0000000F    ;SYNC           
-		BD180000    ;CACHE          $18, $0000(T0)
-		0000000F    ;SYNC           
-		BD180040    ;CACHE          $18, $0040(T0)
-		0000000F    ;SYNC           
-		BD180080    ;CACHE          $18, $0080(T0)
-		0000000F    ;SYNC           
-		BD1800C0    ;CACHE          $18, $00C0(T0)
-		0000000F    ;SYNC           
-		BD180100    ;CACHE          $18, $0100(T0)
-		0000000F    ;SYNC           
-		BD180140    ;CACHE          $18, $0140(T0)
-		0000000F    ;SYNC           
-		BD180180    ;CACHE          $18, $0180(T0)
-		0000000F    ;SYNC           
-		BD1801C0    ;CACHE          $18, $01C0(T0)
-		0000000F    ;SYNC           
-		1D40XXXX    ;BGTZ           T2, $XXXXXXXX
-		25080200    ;ADDIU          T0, T0, $0200
-		03E00008    ;JR             RA
-		00000000    ;NOP            
-	</FunctionPattern>
-	<FunctionPattern Name="SifSendCmd">
-		00C0102D    ;DADDU          V0, A2, R0
-		00E0182D    ;DADDU          V1, A3, R0
-		0100582D    ;DADDU          T3, T0, R0
-		27BDFFF0    ;ADDIU          SP, SP, $FFF0
-		0120502D    ;DADDU          T2, T1, R0
-		00A0302D    ;DADDU          A2, A1, R0
-		FFBF0000    ;SD             RA, $0000(SP)
-		0040382D    ;DADDU          A3, V0, R0
-		0060402D    ;DADDU          T0, V1, R0
-		0160482D    ;DADDU          T1, T3, R0
-		XXXXXXXX    ;JAL            $XXXXXXXX
-		0000282D    ;DADDU          A1, R0, R0
-		DFBF0000    ;LD             RA, $0000(SP)
-		03E00008    ;JR             RA
-		27BD0010    ;ADDIU          SP, SP, $0010	
-	</FunctionPattern>
-	<FunctionPattern Name="iSifSendCmd">
-		00C0102D    ;DADDU          V0, A2, R0
-		00E0182D    ;DADDU          V1, A3, R0
-		0100582D    ;DADDU          T3, T0, R0
-		27BDFFF0    ;ADDIU          SP, SP, $FFF0
-		0120502D    ;DADDU          T2, T1, R0
-		00A0302D    ;DADDU          A2, A1, R0
-		FFBF0000    ;SD             RA, $0000(SP)
-		0040382D    ;DADDU          A3, V0, R0
-		0060402D    ;DADDU          T0, V1, R0
-		0160482D    ;DADDU          T1, T3, R0
-		XXXXXXXX    ;JAL            $XXXXXXXX
-		24050001    ;ADDIU          A1, R0, $0001
-		DFBF0000    ;LD             RA, $0000(SP)
-		03E00008    ;JR             RA
-		27BD0010    ;ADDIU          SP, SP, $0010	
-	</FunctionPattern>
-</FunctionPatterns>
+<Functions>
+	<FunctionPatterns>
+		<FunctionPattern Name="memset">
+			2CC20008    ;SLTIU          V0, A2, $0008
+			1440XXXX    ;BNE            V0, R0, $XXXXXXXX
+			0080182D    ;DADDU          V1, A0, R0
+			3082000F    ;ANDI           V0, A0, $000F
+			1440XXXX    ;BNE            V0, R0, $XXXXXXXX
+			0080382D    ;DADDU          A3, A0, R0
+			30A900FF    ;ANDI           T1, A1, $00FF
+			2CCA0020    ;SLTIU          T2, A2, $0020
+			0120402D    ;DADDU          T0, T1, R0
+			00081A38    ;DSLL           V1, T0, 8
+			00694025    ;OR             T0, V1, T1
+			70081EE9    ;PCPYH          V1, T0
+			1540XXXX    ;BNE            T2, R0, $XXXXXXXX
+			2CC20008    ;SLTIU          V0, A2, $0008
+			70634389    ;PCPYLD         T0, V1, V1
+			7CE80000    ;SQ             T0, $0000(A3)
+			24C6FFE0    ;ADDIU          A2, A2, $FFE0
+			24E70010    ;ADDIU          A3, A3, $0010
+			2CC20020    ;SLTIU          V0, A2, $0020
+			7CE80000    ;SQ             T0, $0000(A3)
+			1040XXXX    ;BEQ            V0, R0, $XXXXXXXX
+			24E70010    ;ADDIU          A3, A3, $0010
+			1000XXXX    ;BEQ            R0, R0, $XXXXXXXX
+			2CC20008    ;SLTIU          V0, A2, $0008
+			24C6FFF8    ;ADDIU          A2, A2, $FFF8
+			24E70008    ;ADDIU          A3, A3, $0008
+			2CC20008    ;SLTIU          V0, A2, $0008
+			00000000    ;NOP            
+			00000000    ;NOP            
+			5040XXXX    ;BEQL           V0, R0, $XXXXXXXX
+			FCE30000    ;SD             V1, $0000(A3)
+			00E0182D    ;DADDU          V1, A3, R0
+			3C02FFFF    ;LUI            V0, $FFFF
+			24C6FFFF    ;ADDIU          A2, A2, $FFFF
+			3442FFFF    ;ORI            V0, V0, $FFFF
+			10C2XXXX    ;BEQ            A2, V0, $XXXXXXXX
+			00000000    ;NOP            
+			3C02FFFF    ;LUI            V0, $FFFF
+			3442FFFF    ;ORI            V0, V0, $FFFF
+			A0650000    ;SB             A1, $0000(V1)
+			24C6FFFF    ;ADDIU          A2, A2, $FFFF
+			00000000    ;NOP            
+			00000000    ;NOP            
+			00000000    ;NOP            
+			14C2XXXX    ;BNE            A2, V0, $XXXXXXXX
+			24630001    ;ADDIU          V1, V1, $0001
+			03E00008    ;JR             RA
+			0080102D    ;DADDU          V0, A0, R0
+		</FunctionPattern>
+		<FunctionPattern Name="memset">
+			2CC20008    ;SLTIU          V0, A2, $0008
+			1440XXXX    ;BNE            V0, R0, $XXXXXXXX
+			0080182D    ;DADDU          V1, A0, R0
+			3082000F    ;ANDI           V0, A0, $000F
+			1440XXXX    ;BNE            V0, R0, $XXXXXXXX
+			0080382D    ;DADDU          A3, A0, R0
+			30A900FF    ;ANDI           T1, A1, $00FF
+			2CCA0020    ;SLTIU          T2, A2, $0020
+			0120402D    ;DADDU          T0, T1, R0
+			00081A38    ;DSLL           V1, T0, 8
+			00694025    ;OR             T0, V1, T1
+			70081EE9    ;PCPYH          V1, T0
+			1540XXXX    ;BNE            T2, R0, $XXXXXXXX
+			2CC20008    ;SLTIU          V0, A2, $0008
+			70634389    ;PCPYLD         T0, V1, V1
+			7CE80000    ;SQ             T0, $0000(A3)
+			24C6FFE0    ;ADDIU          A2, A2, $FFE0
+			24E70010    ;ADDIU          A3, A3, $0010
+			2CC20020    ;SLTIU          V0, A2, $0020
+			7CE80000    ;SQ             T0, $0000(A3)
+			1040XXXX    ;BEQ            V0, R0, $XXXXXXXX
+			24E70010    ;ADDIU          A3, A3, $0010
+			1000XXXX    ;BEQ            R0, R0, $XXXXXXXX
+			2CC20008    ;SLTIU          V0, A2, $0008
+			24C6FFF8    ;ADDIU          A2, A2, $FFF8
+			24E70008    ;ADDIU          A3, A3, $0008
+			2CC20008    ;SLTIU          V0, A2, $0008
+			00000000    ;NOP            
+			00000000    ;NOP            
+			5040XXXX    ;BEQL           V0, R0, $XXXXXXXX
+			FCE30000    ;SD             V1, $0000(A3)
+			00E0182D    ;DADDU          V1, A3, R0
+			3C02FFFF    ;LUI            V0, $FFFF
+			24C6FFFF    ;ADDIU          A2, A2, $FFFF
+			3442FFFF    ;ORI            V0, V0, $FFFF
+			10C2XXXX    ;BEQ            A2, V0, $XXXXXXXX
+			00000000    ;NOP            
+			3C02FFFF    ;LUI            V0, $FFFF
+			3442FFFF    ;ORI            V0, V0, $FFFF
+			A0650000    ;SB             A1, $0000(V1)
+			24C6FFFF    ;ADDIU          A2, A2, $FFFF
+			24630001    ;ADDIU          V1, V1, $0001
+			00000000    ;NOP            
+			00000000    ;NOP            
+			14C2XXXX    ;BNE            A2, V0, $XXXXXXXX
+			00000000    ;NOP            
+			03E00008    ;JR             RA
+			0080102D    ;DADDU          V0, A0, R0	
+		</FunctionPattern>
+		<FunctionPattern Name="memcpy">
+			0080402D    ;DADDU          T0, A0, R0
+			2CC20020    ;SLTIU          V0, A2, $0020
+			1440XXXX    ;BNE            V0, R0, $XXXXXXXX
+			0100182D    ;DADDU          V1, T0, R0
+			00A81025    ;OR             V0, A1, T0
+			3042000F    ;ANDI           V0, V0, $000F
+			5440XXXX    ;BNEL           V0, R0, $XXXXXXXX
+			24C6FFFF    ;ADDIU          A2, A2, $FFFF
+			0100382D    ;DADDU          A3, T0, R0
+			78A30000    ;LQ             V1, $0000(A1)
+			24C6FFE0    ;ADDIU          A2, A2, $FFE0
+			24A50010    ;ADDIU          A1, A1, $0010
+			2CC40020    ;SLTIU          A0, A2, $0020
+			7CE30000    ;SQ             V1, $0000(A3)
+			24E70010    ;ADDIU          A3, A3, $0010
+			78A20000    ;LQ             V0, $0000(A1)
+			24A50010    ;ADDIU          A1, A1, $0010
+			7CE20000    ;SQ             V0, $0000(A3)
+			1080FFF6    ;BEQ            A0, R0, $XXXXXXXX
+			24E7XXXX    ;ADDIU          A3, A3, $0010
+			2CC20008    ;SLTIU          V0, A2, $0008
+			1440XXXX    ;BNE            V0, R0, $XXXXXXXX
+			00E0182D    ;DADDU          V1, A3, R0
+			DCA30000    ;LD             V1, $0000(A1)
+			24C6FFF8    ;ADDIU          A2, A2, $FFF8
+			24A50008    ;ADDIU          A1, A1, $0008
+			2CC20008    ;SLTIU          V0, A2, $0008
+			FCE30000    ;SD             V1, $0000(A3)
+			1040FFFA    ;BEQ            V0, R0, $XXXXXXXX
+			24E70008    ;ADDIU          A3, A3, $0008
+			00E0182D    ;DADDU          V1, A3, R0
+			24C6FFFF    ;ADDIU          A2, A2, $FFFF
+			2402FFFF    ;ADDIU          V0, R0, $FFFF
+			10C2XXXX    ;BEQ            A2, V0, $XXXXXXXX
+			0040202D    ;DADDU          A0, V0, R0
+			90A20000    ;LBU            V0, $0000(A1)
+			24C6FFFF    ;ADDIU          A2, A2, $FFFF
+			24A50001    ;ADDIU          A1, A1, $0001
+			A0620000    ;SB             V0, $0000(V1)
+			00000000    ;NOP            
+			14C4XXXX    ;BNE            A2, A0, $XXXXXXXX
+			24630001    ;ADDIU          V1, V1, $0001
+			03E00008    ;JR             RA
+			0100102D    ;DADDU          V0, T0, R0	
+		</FunctionPattern>
+		<FunctionPattern Name="memcpy">
+			0080402D    ;DADDU          T0, A0, R0
+			2CC20020    ;SLTIU          V0, A2, $0020
+			1440XXXX    ;BNE            V0, R0, $XXXXXXXX
+			0100182D    ;DADDU          V1, T0, R0
+			00A81025    ;OR             V0, A1, T0
+			3042000F    ;ANDI           V0, V0, $000F
+			5440XXXX    ;BNEL           V0, R0, $XXXXXXXX
+			24C6FFFF    ;ADDIU          A2, A2, $FFFF
+			0100382D    ;DADDU          A3, T0, R0
+			78A30000    ;LQ             V1, $0000(A1)
+			24C6FFE0    ;ADDIU          A2, A2, $FFE0
+			24A50010    ;ADDIU          A1, A1, $0010
+			2CC40020    ;SLTIU          A0, A2, $0020
+			7CE30000    ;SQ             V1, $0000(A3)
+			24E70010    ;ADDIU          A3, A3, $0010
+			78A20000    ;LQ             V0, $0000(A1)
+			24A50010    ;ADDIU          A1, A1, $0010
+			7CE20000    ;SQ             V0, $0000(A3)
+			1080XXXX    ;BEQ            A0, R0, $XXXXXXXX
+			24E70010    ;ADDIU          A3, A3, $0010
+			2CC20008    ;SLTIU          V0, A2, $0008
+			1440XXXX    ;BNE            V0, R0, $XXXXXXXX
+			00E0182D    ;DADDU          V1, A3, R0
+			DCA30000    ;LD             V1, $0000(A1)
+			24C6FFF8    ;ADDIU          A2, A2, $FFF8
+			24A50008    ;ADDIU          A1, A1, $0008
+			2CC20008    ;SLTIU          V0, A2, $0008
+			FCE30000    ;SD             V1, $0000(A3)
+			1040XXXX    ;BEQ            V0, R0, $XXXXXXXX
+			24E70008    ;ADDIU          A3, A3, $0008
+			00E0182D    ;DADDU          V1, A3, R0
+			24C6FFFF    ;ADDIU          A2, A2, $FFFF
+			2402FFFF    ;ADDIU          V0, R0, $FFFF
+			10C2XXXX    ;BEQ            A2, V0, $XXXXXXXX
+			0040202D    ;DADDU          A0, V0, R0
+			90A20000    ;LBU            V0, $0000(A1)
+			24C6FFFF    ;ADDIU          A2, A2, $FFFF
+			24A50001    ;ADDIU          A1, A1, $0001
+			A0620000    ;SB             V0, $0000(V1)
+			24630001    ;ADDIU          V1, V1, $0001
+			14C4XXXX    ;BNE            A2, A0, $XXXXXXXX
+			00000000    ;NOP            
+			03E00008    ;JR             RA
+			0100102D    ;DADDU          V0, T0, R0	
+		</FunctionPattern>
+		<FunctionPattern Name="strcpy">
+			0080382D    ;DADDU          A3, A0, R0
+			00A74025    ;OR             T0, A1, A3
+			31020007    ;ANDI           V0, T0, $0007
+			1440XXXX    ;BNE            V0, R0, $XXXXXXXX
+			00E0182D    ;DADDU          V1, A3, R0
+			3102000F    ;ANDI           V0, T0, $000F
+			3C090101    ;LUI            T1, $0101
+			35290101    ;ORI            T1, T1, $0101
+			00094C38    ;DSLL           T1, T1, 16
+			35290101    ;ORI            T1, T1, $0101
+			00094C38    ;DSLL           T1, T1, 16
+			35290101    ;ORI            T1, T1, $0101
+			3C048080    ;LUI            A0, $8080
+			34848080    ;ORI            A0, A0, $8080
+			00042438    ;DSLL           A0, A0, 16
+			34848080    ;ORI            A0, A0, $8080
+			00042438    ;DSLL           A0, A0, 16
+			34848080    ;ORI            A0, A0, $8080
+			5440XXXX    ;BNEL           V0, R0, $XXXXXXXX
+			DCAA0000    ;LD             T2, $0000(A1)
+			71295389    ;PCPYLD         T2, T1, T1
+			78A90000    ;LQ             T1, $0000(A1)
+			70844389    ;PCPYLD         T0, A0, A0
+			712A1248    ;PSUBB          V0, T1, T2
+			70091CE9    ;PNOR           V1, R0, T1
+			70431489    ;PAND           V0, V0, V1
+			70481489    ;PAND           V0, V0, T0
+			704923A9    ;PCPYUD         A0, V0, T1
+			00441825    ;OR             V1, V0, A0
+			1460XXXX    ;BNE            V1, R0, $XXXXXXXX
+			00E0302D    ;DADDU          A2, A3, R0
+			7CC90000    ;SQ             T1, $0000(A2)
+			24A50010    ;ADDIU          A1, A1, $0010
+			78A90000    ;LQ             T1, $0000(A1)
+			712A1248    ;PSUBB          V0, T1, T2
+			70091CE9    ;PNOR           V1, R0, T1
+			70431489    ;PAND           V0, V0, V1
+			70481489    ;PAND           V0, V0, T0
+			704923A9    ;PCPYUD         A0, V0, T1
+			00441825    ;OR             V1, V0, A0
+			1060XXXX    ;BEQ            V1, R0, $XXXXXXXX
+			24C60010    ;ADDIU          A2, A2, $0010
+			1000XXXX    ;BEQ            R0, R0, $XXXXXXXX
+			00C0182D    ;DADDU          V1, A2, R0
+			0149102F    ;DSUBU          V0, T2, T1
+			000A1827    ;NOR            V1, R0, T2
+			00431024    ;AND            V0, V0, V1
+			00441024    ;AND            V0, V0, A0
+			1440XXXX    ;BNE            V0, R0, $XXXXXXXX
+			00E0302D    ;DADDU          A2, A3, R0
+			FCCA0000    ;SD             T2, $0000(A2)
+			24A50008    ;ADDIU          A1, A1, $0008
+			DCAA0000    ;LD             T2, $0000(A1)
+			000A1027    ;NOR            V0, R0, T2
+			0149182F    ;DSUBU          V1, T2, T1
+			00621824    ;AND            V1, V1, V0
+			00641824    ;AND            V1, V1, A0
+			1060XXXX    ;BEQ            V1, R0, $XXXXXXXX
+			24C60008    ;ADDIU          A2, A2, $0008
+			00C0182D    ;DADDU          V1, A2, R0
+			90A20000    ;LBU            V0, $0000(A1)
+			24A50001    ;ADDIU          A1, A1, $0001
+			A0620000    ;SB             V0, $0000(V1)
+			00021600    ;SLL            V0, V0, 24
+			24630001    ;ADDIU          V1, V1, $0001
+			1440XXXX    ;BNE            V0, R0, $XXXXXXXX
+			00000000    ;NOP            
+			03E00008    ;JR             RA
+			00E0102D    ;DADDU          V0, A3, R0	
+		</FunctionPattern>
+		<FunctionPattern Name="WritebackDCache">
+			3C19FFFF    ;LUI            T9, $FFFF
+			3739FFC0    ;ORI            T9, T9, $FFC0
+			18A0XXXX    ;BLEZ           A1, $XXXXXXXX
+			00855021    ;ADDU           T2, A0, A1
+			00994024    ;AND            T0, A0, T9
+			254AFFFF    ;ADDIU          T2, T2, $FFFF
+			01594824    ;AND            T1, T2, T9
+			01285023    ;SUBU           T2, T1, T0
+			000A5982    ;SRL            T3, T2, 6
+			256B0001    ;ADDIU          T3, T3, $0001
+			31690007    ;ANDI           T1, T3, $0007
+			1120XXXX    ;BEQ            T1, R0, $XXXXXXXX
+			000B50C2    ;SRL            T2, T3, 3
+			0000000F    ;SYNC           
+			BD180000    ;CACHE          $18, $0000(T0)
+			0000000F    ;SYNC           
+			2529FFFF    ;ADDIU          T1, T1, $FFFF
+			00000000    ;NOP            
+			1D20FFFA    ;BGTZ           T1, $00328A74
+			25080040    ;ADDIU          T0, T0, $0040
+			1140XXXX    ;BEQ            T2, R0, $XXXXXXXX
+			254AFFFF    ;ADDIU          T2, T2, $FFFF
+			0000000F    ;SYNC           
+			BD180000    ;CACHE          $18, $0000(T0)
+			0000000F    ;SYNC           
+			BD180040    ;CACHE          $18, $0040(T0)
+			0000000F    ;SYNC           
+			BD180080    ;CACHE          $18, $0080(T0)
+			0000000F    ;SYNC           
+			BD1800C0    ;CACHE          $18, $00C0(T0)
+			0000000F    ;SYNC           
+			BD180100    ;CACHE          $18, $0100(T0)
+			0000000F    ;SYNC           
+			BD180140    ;CACHE          $18, $0140(T0)
+			0000000F    ;SYNC           
+			BD180180    ;CACHE          $18, $0180(T0)
+			0000000F    ;SYNC           
+			BD1801C0    ;CACHE          $18, $01C0(T0)
+			0000000F    ;SYNC           
+			1D40XXXX    ;BGTZ           T2, $XXXXXXXX
+			25080200    ;ADDIU          T0, T0, $0200
+			03E00008    ;JR             RA
+			00000000    ;NOP            
+		</FunctionPattern>
+		<FunctionPattern Name="SifSendCmd">
+			00C0102D    ;DADDU          V0, A2, R0
+			00E0182D    ;DADDU          V1, A3, R0
+			0100582D    ;DADDU          T3, T0, R0
+			27BDFFF0    ;ADDIU          SP, SP, $FFF0
+			0120502D    ;DADDU          T2, T1, R0
+			00A0302D    ;DADDU          A2, A1, R0
+			FFBF0000    ;SD             RA, $0000(SP)
+			0040382D    ;DADDU          A3, V0, R0
+			0060402D    ;DADDU          T0, V1, R0
+			0160482D    ;DADDU          T1, T3, R0
+			XXXXXXXX    ;JAL            $XXXXXXXX
+			0000282D    ;DADDU          A1, R0, R0
+			DFBF0000    ;LD             RA, $0000(SP)
+			03E00008    ;JR             RA
+			27BD0010    ;ADDIU          SP, SP, $0010	
+		</FunctionPattern>
+		<FunctionPattern Name="iSifSendCmd">
+			00C0102D    ;DADDU          V0, A2, R0
+			00E0182D    ;DADDU          V1, A3, R0
+			0100582D    ;DADDU          T3, T0, R0
+			27BDFFF0    ;ADDIU          SP, SP, $FFF0
+			0120502D    ;DADDU          T2, T1, R0
+			00A0302D    ;DADDU          A2, A1, R0
+			FFBF0000    ;SD             RA, $0000(SP)
+			0040382D    ;DADDU          A3, V0, R0
+			0060402D    ;DADDU          T0, V1, R0
+			0160482D    ;DADDU          T1, T3, R0
+			XXXXXXXX    ;JAL            $XXXXXXXX
+			24050001    ;ADDIU          A1, R0, $0001
+			DFBF0000    ;LD             RA, $0000(SP)
+			03E00008    ;JR             RA
+			27BD0010    ;ADDIU          SP, SP, $0010	
+		</FunctionPattern>
+	</FunctionPatterns>
+</Functions>

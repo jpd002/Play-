@@ -336,10 +336,12 @@ void CDebugger::FindEeFunctions()
 	uint32 minAddr = executableRange.first;
 	uint32 maxAddr = executableRange.second & ~0x03;
 
+	Framework::CStdStream functionsStream("ee_functions.xml", "rb");
+	auto functionsDocument = std::unique_ptr<Framework::Xml::CNode>(Framework::Xml::CParser::ParseDocument(functionsStream));
+	auto functionsNode = functionsDocument->Select("Functions");
+
 	{
-		Framework::CStdStream patternStream("ee_functions.xml", "rb");
-		auto document = std::unique_ptr<Framework::Xml::CNode>(Framework::Xml::CParser::ParseDocument(patternStream));
-		CMipsFunctionPatternDb patternDb(document.get());
+		CMipsFunctionPatternDb patternDb(functionsNode);
 
 		for(auto patternIterator(std::begin(patternDb.GetPatterns()));
 		    patternIterator != std::end(patternDb.GetPatterns()); ++patternIterator)
