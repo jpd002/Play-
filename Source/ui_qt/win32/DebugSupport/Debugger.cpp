@@ -338,7 +338,7 @@ void CDebugger::FindEeFunctions()
 
 	{
 		Framework::CStdStream patternStream("ee_functions.xml", "rb");
-		boost::scoped_ptr<Framework::Xml::CNode> document(Framework::Xml::CParser::ParseDocument(patternStream));
+		auto document = std::unique_ptr<Framework::Xml::CNode>(Framework::Xml::CParser::ParseDocument(patternStream));
 		CMipsFunctionPatternDb patternDb(document.get());
 
 		for(auto patternIterator(std::begin(patternDb.GetPatterns()));
