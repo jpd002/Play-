@@ -372,11 +372,23 @@
 		<FunctionComment Comment="sceGsSyncPath: DMA Ch.1 does not terminate&#x0D;&#x0A;" Function="GsSyncPath" />
 
 		<FunctionComment Comment="libpad: buffer addr is not 64 byte align. %08x&#x0A;" Function="PadPortOpen" />
+		<FunctionComment Comment="libpad2: buffer addr is not 64 byte align. %08x&#x0A;" Function="Pad2PortOpen" />
 
+		<FunctionComment Comment="sceDbcSetWorkAddr: rpc error&#x0A;" Function="DbcSetWorkAddr" />
+		<FunctionComment Comment="sceDbcCreateSocket: rpc error&#x0A;" Function="DbcCreateSocket" />
+		<FunctionComment Comment="sceDbcDeleteSocket: rpc error&#x0A;" Function="DbcDeleteSocket" />
+		<FunctionComment Comment="sceDbcGetDepNumber: rpc error&#x0A;" Function="DbcGetDepNumber" />
+		<FunctionComment Comment="sceDbcInitSocket: rpc error&#x0A;" Function="DbcInitSocket" />
+		<FunctionComment Comment="sceDbcResetSocket: rpc error&#x0A;" Function="DbcResetSocket" />
+		<FunctionComment Comment="sceDbcGetDeviceStatus: rpc error&#x0A;" Function="DbcGetDeviceStatus" />
+		<FunctionComment Comment="sceDbcSRData: rpc error&#x0A;" Function="DbcSRData" />
 		<FunctionComment Comment="sceDbcReceiveData: rpc error&#x0A;" Function="DbcReceiveData" />
 		<FunctionComment Comment="sceDbcSendData: rpc error&#x0A;" Function="DbcSendData" />
 		<FunctionComment Comment="sceDbcSendData2: rpc error&#x0A;" Function="DbcSendData2" />
+		<FunctionComment Comment="libdbc: SendData3 data length too long [%d]&#x0A;" Function="DbcSendData3" />
 
+		<FunctionComment Comment="sceMc2_sema_main" Function="Mc2Init" />
+		
 		<FunctionComment Comment="The size of work area is too small" Function="MpegCreate" />
 		<FunctionComment Comment="Need to re-setup libipu since sceMpegGetPicture was aborted&#x0A;" Function="_MpegInternalFct" />
 		<FunctionComment Comment="image buffer needs to be aligned to 64byte boundary(0x%08x)" Function="_MpegInternalFct" />
