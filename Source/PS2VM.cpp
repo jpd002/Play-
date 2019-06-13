@@ -304,7 +304,7 @@ void CPS2VM::LoadDebugTags(const char* packageName)
 	{
 		std::string packagePath = MakeDebugTagsPackagePath(packageName);
 		Framework::CStdStream stream(packagePath.c_str(), "rb");
-		boost::scoped_ptr<Framework::Xml::CNode> document(Framework::Xml::CParser::ParseDocument(stream));
+		std::unique_ptr<Framework::Xml::CNode> document(Framework::Xml::CParser::ParseDocument(stream));
 		Framework::Xml::CNode* tagsNode = document->Select(TAGS_SECTION_TAGS);
 		if(!tagsNode) return;
 		m_ee->m_EE.m_Functions.Unserialize(tagsNode, TAGS_SECTION_EE_FUNCTIONS);
@@ -332,7 +332,7 @@ void CPS2VM::SaveDebugTags(const char* packageName)
 	{
 		std::string packagePath = MakeDebugTagsPackagePath(packageName);
 		Framework::CStdStream stream(packagePath.c_str(), "wb");
-		boost::scoped_ptr<Framework::Xml::CNode> document(new Framework::Xml::CNode(TAGS_SECTION_TAGS, true));
+		std::unique_ptr<Framework::Xml::CNode> document(new Framework::Xml::CNode(TAGS_SECTION_TAGS, true));
 		m_ee->m_EE.m_Functions.Serialize(document.get(), TAGS_SECTION_EE_FUNCTIONS);
 		m_ee->m_EE.m_Comments.Serialize(document.get(), TAGS_SECTION_EE_COMMENTS);
 		m_ee->m_VU1.m_Functions.Serialize(document.get(), TAGS_SECTION_VU1_FUNCTIONS);

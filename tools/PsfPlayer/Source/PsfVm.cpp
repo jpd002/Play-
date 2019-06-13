@@ -71,7 +71,7 @@ void CPsfVm::LoadDebugTags(const char* packageName)
 	try
 	{
 		std::string packagePath = MakeTagPackagePath(packageName);
-		boost::scoped_ptr<Framework::Xml::CNode> document(Framework::Xml::CParser::ParseDocument(Framework::CStdStream(packagePath.c_str(), "rb")));
+		std::unique_ptr<Framework::Xml::CNode> document(Framework::Xml::CParser::ParseDocument(Framework::CStdStream(packagePath.c_str(), "rb")));
 		Framework::Xml::CNode* tagsSection = document->Select(TAGS_SECTION_TAGS);
 		if(tagsSection == NULL) return;
 		m_subSystem->GetCpu().m_Functions.Unserialize(tagsSection, TAGS_SECTION_FUNCTIONS);
@@ -86,7 +86,7 @@ void CPsfVm::LoadDebugTags(const char* packageName)
 void CPsfVm::SaveDebugTags(const char* packageName)
 {
 	std::string packagePath = MakeTagPackagePath(packageName);
-	boost::scoped_ptr<Framework::Xml::CNode> document(new Framework::Xml::CNode(TAGS_SECTION_TAGS, true));
+	std::unique_ptr<Framework::Xml::CNode> document(new Framework::Xml::CNode(TAGS_SECTION_TAGS, true));
 	m_subSystem->GetCpu().m_Functions.Serialize(document.get(), TAGS_SECTION_FUNCTIONS);
 	m_subSystem->GetCpu().m_Comments.Serialize(document.get(), TAGS_SECTION_COMMENTS);
 	m_subSystem->SaveDebugTags(document.get());
