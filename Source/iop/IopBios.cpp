@@ -2905,7 +2905,7 @@ void CIopBios::HandleException()
 		else
 		{
 #ifdef _DEBUG
-			CLog::GetInstance().Print(LOGNAME, "%08X: Trying to call a function from non-existing module (%s, %d).\r\n",
+			CLog::GetInstance().Warn(LOGNAME, "%08X: Trying to call a function from non-existing module (%s, %d).\r\n",
 			                          m_cpu.m_State.nPC, moduleName.c_str(), functionId);
 #endif
 		}
