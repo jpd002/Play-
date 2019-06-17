@@ -940,16 +940,16 @@ void CGSH_OpenGL::SetupTestFunctions(uint64 testReg)
 
 		switch(test.nDepthMethod)
 		{
-		case 0:
+		case DEPTH_TEST_NEVER:
 			nFunc = GL_NEVER;
 			break;
-		case 1:
+		case DEPTH_TEST_ALWAYS:
 			nFunc = GL_ALWAYS;
 			break;
-		case 2:
+		case DEPTH_TEST_GEQUAL:
 			nFunc = GL_GEQUAL;
 			break;
-		case 3:
+		case DEPTH_TEST_GREATER:
 			nFunc = GL_GREATER;
 			break;
 		}
