@@ -1655,16 +1655,18 @@ void CGSH_OpenGL::Prim_Sprite()
 	    rgbaq[1].nR, rgbaq[1].nG,
 	    rgbaq[1].nB, rgbaq[1].nA);
 
+	// clang-format off
 	PRIM_VERTEX vertices[] =
-	    {
-	        {nX1, nY1, nZ, color, nS[0], nT[0], 1, 0},
-	        {nX2, nY1, nZ, color, nS[1], nT[0], 1, 0},
-	        {nX1, nY2, nZ, color, nS[0], nT[1], 1, 0},
+	{
+		{nX1, nY1, nZ, color, nS[0], nT[0], 1, 0},
+		{nX2, nY1, nZ, color, nS[1], nT[0], 1, 0},
+		{nX1, nY2, nZ, color, nS[0], nT[1], 1, 0},
 
-	        {nX1, nY2, nZ, color, nS[0], nT[1], 1, 0},
-	        {nX2, nY1, nZ, color, nS[1], nT[0], 1, 0},
-	        {nX2, nY2, nZ, color, nS[1], nT[1], 1, 0},
-	    };
+		{nX1, nY2, nZ, color, nS[0], nT[1], 1, 0},
+		{nX2, nY1, nZ, color, nS[1], nT[0], 1, 0},
+		{nX2, nY2, nZ, color, nS[1], nT[1], 1, 0},
+	};
+	// clang-format on
 
 	assert((m_vertexBuffer.size() + 6) <= VERTEX_BUFFER_SIZE);
 	m_vertexBuffer.insert(m_vertexBuffer.end(), std::begin(vertices), std::end(vertices));
