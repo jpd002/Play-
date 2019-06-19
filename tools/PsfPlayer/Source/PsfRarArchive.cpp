@@ -1,6 +1,6 @@
 #include "PsfRarArchive.h"
 #include <vector>
-#include <boost/algorithm/string.hpp>
+#include <algorithm>
 #include <unrar/rar.hpp>
 #include "string_cast.h"
 #include "stricmp.h"
@@ -38,7 +38,7 @@ void CPsfRarArchive::Open(const boost::filesystem::path& filePath)
 			{
 				FILEINFO fileInfo;
 				fileInfo.name = string_cast<std::string, wchar_t>(arc->FileHead.FileName);
-				boost::replace_all(fileInfo.name, "\\", "/");
+				std::replace(fileInfo.name.begin(), fileInfo.name.end(), '\\', '/');
 				fileInfo.length = static_cast<unsigned int>(arc->FileHead.UnpSize);
 				m_files.push_back(fileInfo);
 			}
@@ -56,7 +56,7 @@ void CPsfRarArchive::ReadFileContents(const char* fileName, void* buffer, unsign
 	}
 
 	std::string fixedFileName(fileName);
-	boost::replace_all(fixedFileName, "/", "\\");
+	std::replace(fixedFileName.begin(), fixedFileName.end(), '/', '\\');
 
 	arc->Seek(0, SEEK_SET);
 

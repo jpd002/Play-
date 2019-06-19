@@ -1,6 +1,6 @@
 #include <assert.h>
 #include <stdio.h>
-#include <boost/algorithm/string.hpp>
+#include <algorithm>
 #include "../AppConfig.h"
 #include "../PS2VM_Preferences.h"
 #include "../Log.h"
@@ -10,6 +10,7 @@
 #include "Iop_SifManPs2.h"
 #include "IopBios.h"
 #include "StdStreamUtils.h"
+#include "StringUtils.h"
 #include "MIPSAssembler.h"
 
 using namespace Iop;
@@ -801,10 +802,10 @@ void CMcServ::CPathFinder::Search(const boost::filesystem::path& basePath, const
 
 	{
 		std::string filterExpString = filterPathString;
-		boost::replace_all(filterExpString, "\\", "\\\\");
-		boost::replace_all(filterExpString, ".", "\\.");
-		boost::replace_all(filterExpString, "?", ".?");
-		boost::replace_all(filterExpString, "*", ".*");
+		StringUtils::replace_all(filterExpString, "\\", "\\\\");
+		StringUtils::replace_all(filterExpString, ".", "\\.");
+		StringUtils::replace_all(filterExpString, "?", ".?");
+		StringUtils::replace_all(filterExpString, "*", ".*");
 		m_filterExp = std::regex(filterExpString);
 	}
 

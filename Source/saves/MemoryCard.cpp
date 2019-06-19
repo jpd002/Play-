@@ -1,4 +1,3 @@
-#include <boost/filesystem/operations.hpp>
 #include "MemoryCard.h"
 
 namespace filesystem = boost::filesystem;
