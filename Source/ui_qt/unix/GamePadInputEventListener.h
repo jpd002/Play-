@@ -1,7 +1,7 @@
 #pragma once
 
 #include <atomic>
-#include <boost/signals2.hpp>
+#include "Signal.hpp"
 #include <thread>
 #include <libevdev.h>
 #include "Types.h"
@@ -13,7 +13,7 @@ public:
 	CGamePadInputEventListener(std::string);
 	virtual ~CGamePadInputEventListener();
 
-	boost::signals2::signal<void(GamePadDeviceId, int, int, int, const input_absinfo*)> OnInputEvent;
+	Framework::CSignal<void(GamePadDeviceId, int, int, int, const input_absinfo*)> OnInputEvent;
 
 private:
 	std::string m_device;

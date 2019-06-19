@@ -14,7 +14,7 @@ CMemoryViewMIPSWnd::CMemoryViewMIPSWnd(HWND parentWnd, CVirtualMachine& virtualM
 	m_addressEdit = new Framework::Win32::CEdit(m_hWnd, wndRect, _T(""), ES_READONLY);
 
 	m_memoryView = new CMemoryViewMIPS(m_hWnd, wndRect, virtualMachine, ctx);
-	m_memoryView->OnSelectionChange.connect(std::bind(&CMemoryViewMIPSWnd::OnMemoryViewSelectionChange, this, std::placeholders::_1));
+	m_OnSelectionChangeConnection = m_memoryView->OnSelectionChange.connect(std::bind(&CMemoryViewMIPSWnd::OnMemoryViewSelectionChange, this, std::placeholders::_1));
 
 	UpdateStatusBar();
 	RefreshLayout();

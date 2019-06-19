@@ -20,7 +20,7 @@
 #include "AcceleratorTable.h"
 #include "PlaylistDiscoveryService.h"
 
-class CMainWindow : public Framework::Win32::CDialog, public boost::signals2::trackable
+class CMainWindow : public Framework::Win32::CDialog
 {
 public:
 	CMainWindow(CPsfVm&);
@@ -190,4 +190,10 @@ private:
 
 	static SOUNDHANDLER_INFO m_handlerInfo[];
 	static CHARENCODING_INFO m_charEncodingInfo[];
+
+	Framework::CSignal<void ()>::CConnectionPtr m_OnNewFrameConnection;
+	CPlaylistPanel::OnItemDblClickEvent::CConnectionPtr m_OnItemDblClickConnection;
+	CPlaylistPanel::OnAddClickEvent::CConnectionPtr m_OnAddClickConnection;
+	CPlaylistPanel::OnRemoveClickEvent::CConnectionPtr m_OnRemoveClickConnection;
+	CPlaylistPanel::OnSaveClickEvent::CConnectionPtr m_OnSaveClickConnection;
 };

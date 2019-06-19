@@ -19,8 +19,8 @@ CVu1ProgramView::CVu1ProgramView(HWND parent, const RECT& rect, CVu1Vm& virtualM
 	Create(0, Framework::Win32::CDefaultWndClass::GetName(), NULL, WNDSTYLE, rect, parent, NULL);
 	SetClassPtr();
 
-	virtualMachine.OnMachineStateChange.connect(std::bind(&CVu1ProgramView::OnMachineStateChange, this));
-	virtualMachine.OnRunningStateChange.connect(std::bind(&CVu1ProgramView::OnRunningStateChange, this));
+	m_OnMachineStateChangeConnectionPtr = virtualMachine.OnMachineStateChange.connect(std::bind(&CVu1ProgramView::OnMachineStateChange, this));
+	m_OnRunningStateChangeConnectionPtr = virtualMachine.OnRunningStateChange.connect(std::bind(&CVu1ProgramView::OnRunningStateChange, this));
 
 	m_mainSplitter = std::make_unique<Framework::Win32::CVerticalSplitter>(m_hWnd, GetClientRect());
 

@@ -1,6 +1,6 @@
 #pragma once
 
-#include <boost/signals2.hpp>
+#include "Signal.hpp"
 #include "win32/MDIChild.h"
 #include "win32/ListBox.h"
 
@@ -9,7 +9,7 @@ class CAddressListViewWnd : public Framework::Win32::CMDIChild
 public:
 	typedef std::vector<uint32> AddressList;
 
-	typedef boost::signals2::signal<void(uint32)> AddressSelectedEvent;
+	typedef Framework::CSignal<void(uint32)> AddressSelectedEvent;
 
 	CAddressListViewWnd(HWND);
 	virtual ~CAddressListViewWnd() = default;

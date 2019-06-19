@@ -10,11 +10,11 @@
 #include "MailBox.h"
 #include <thread>
 
-class CPsfVm : public CVirtualMachine, public boost::signals2::trackable
+class CPsfVm : public CVirtualMachine
 {
 public:
 	typedef std::function<CSoundHandler*()> SpuHandlerFactory;
-	typedef boost::signals2::signal<void()> OnNewFrameEvent;
+	typedef Framework::CSignal<void()> OnNewFrameEvent;
 
 	CPsfVm();
 	virtual ~CPsfVm();
@@ -61,6 +61,7 @@ private:
 	bool m_singleStep;
 	bool m_isThreadOver;
 	CMailBox m_mailBox;
+	Framework::CSignal<void()>::CConnectionPtr m_OnNewFrameConnection;
 };
 
 #endif

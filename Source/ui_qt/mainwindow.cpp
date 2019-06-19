@@ -191,7 +191,7 @@ void MainWindow::InitVirtualMachine()
 #endif
 
 	//OnExecutableChange might be called from another thread, we need to wrap it around a Qt signal
-	m_virtualMachine->m_ee->m_os->OnExecutableChange.connect(std::bind(&MainWindow::EmitOnExecutableChange, this));
+	m_OnExecutableChangeConnection = m_virtualMachine->m_ee->m_os->OnExecutableChange.connect(std::bind(&MainWindow::EmitOnExecutableChange, this));
 	connect(this, SIGNAL(onExecutableChange()), this, SLOT(HandleOnExecutableChange()));
 }
 
@@ -207,7 +207,7 @@ void MainWindow::SetupGsHandler()
 	if(!gsHandler)
 	{
 		m_virtualMachine->CreateGSHandler(CGSH_OpenGLQt::GetFactoryFunction(m_openglpanel));
-		m_virtualMachine->m_ee->m_gs->OnNewFrame.connect(std::bind(&CStatsManager::OnNewFrame, &CStatsManager::GetInstance(), std::placeholders::_1));
+		m_OnNewFrameConnection = m_virtualMachine->m_ee->m_gs->OnNewFrame.connect(std::bind(&CStatsManager::OnNewFrame, &CStatsManager::GetInstance(), std::placeholders::_1));
 	}
 }
 

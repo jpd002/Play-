@@ -12,6 +12,7 @@
 #include "../ui_shared/StatsManager.h"
 
 CPS2VM* g_virtualMachine = nullptr;
+Framework::CSignal<void (uint32)> g_OnNewFrameConnection;
 
 @interface EmulatorViewController ()
 
@@ -104,6 +105,7 @@ CPS2VM* g_virtualMachine = nullptr;
 	g_virtualMachine->Destroy();
 	delete g_virtualMachine;
 	g_virtualMachine = nullptr;
+	g_OnNewFrameConnection.reset();
 }
 
 -(void)toggleHardwareController: (BOOL)useHardware
@@ -195,7 +197,7 @@ CPS2VM* g_virtualMachine = nullptr;
 	[self.view addSubview: self.profilerStatsLabel];
 #endif
 	
-	g_virtualMachine->GetGSHandler()->OnNewFrame.connect(std::bind(&CStatsManager::OnNewFrame, &CStatsManager::GetInstance(), std::placeholders::_1));
+	g_OnNewFrameConnection = g_virtualMachine->GetGSHandler()->OnNewFrame.connect(std::bind(&CStatsManager::OnNewFrame, &CStatsManager::GetInstance(), std::placeholders::_1));
 #ifdef PROFILE
 	g_virtualMachine->ProfileFrameDone.connect(std::bind(&CStatsManager::OnProfileFrameDone, &CStatsManager::GetInstance(), g_virtualMachine, std::placeholders::_1));
 #endif

@@ -20,7 +20,7 @@ public:
 
 	void SetContext(CMIPS*, CBiosDebugInfoProvider*);
 
-	boost::signals2::signal<void(uint32)> OnGotoAddress;
+	Framework::CSignal<void(uint32)> OnGotoAddress;
 
 protected:
 	long OnSize(unsigned int, unsigned int, unsigned int) override;

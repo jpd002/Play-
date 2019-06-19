@@ -8,7 +8,7 @@
 #include "./Debugger/AddressListViewWnd.h"
 #include "PS2VM.h"
 
-class CDebugger : public Framework::Win32::CMDIFrame, public boost::signals2::trackable
+class CDebugger : public Framework::Win32::CMDIFrame
 {
 public:
 	CDebugger(CPS2VM&);
@@ -89,7 +89,18 @@ private:
 
 	HACCEL m_nAccTable;
 
-	boost::signals2::connection m_findCallersRequestConnection;
+	Framework::CSignal<void(uint32)>::CConnectionPtr m_OnFunctionDblClickConnection;
+	Framework::CSignal<void()>::CConnectionPtr m_OnFunctionsStateChangeConnection;
+	Framework::CSignal<void (uint32)>::CConnectionPtr m_OnGotoAddressConnection;
+
+	CAddressListViewWnd::AddressSelectedEvent::CConnectionPtr m_AddressSelectedConnection;
+	Framework::CSignal<void ()>::CConnectionPtr m_OnExecutableChangeConnection;
+	Framework::CSignal<void ()>::CConnectionPtr m_OnExecutableUnloadingConnection;
+	Framework::CSignal<void ()>::CConnectionPtr m_OnMachineStateChangeConnection;
+	Framework::CSignal<void ()>::CConnectionPtr m_OnRunningStateChangeConnection;
+
+	CDisAsm::FindCallersRequestedEvent::CConnectionPtr m_findCallersRequestConnection;
+
 
 	CELFView* m_pELFView = nullptr;
 	CFunctionsView* m_pFunctionsView = nullptr;

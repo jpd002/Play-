@@ -88,7 +88,7 @@
 	m_repeatMode = PLAYLIST_REPEAT;
 	
 	m_virtualMachine = new CPsfVm();
-	m_virtualMachine->OnNewFrame.connect(ObjCMemberFunctionPointer(self, sel_getUid("onNewFrame")));
+	m_OnNewFrameConnection = m_virtualMachine->OnNewFrame.connect(ObjCMemberFunctionPointer(self, sel_getUid("onNewFrame")));
 	
 	[NSTimer scheduledTimerWithTimeInterval: 0.20 target: self selector: @selector(onUpdateTrackTimeTimer) userInfo: nil repeats: YES];
 	[NSTimer scheduledTimerWithTimeInterval: 0.05 target: self selector: @selector(onUpdateFadeTimer) userInfo: nil repeats: YES];

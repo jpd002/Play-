@@ -10,11 +10,12 @@
 #include <iomanip>
 #include <sstream>
 
+Framework::CSignal<void ()>::CConnectionPtr m_OnFlipCompleteConnect;
+
 void CScreenShotUtils::TriggerGetScreenshot(CPS2VM* virtualMachine, Callback completionCallback)
 {
-	virtualMachine->m_ee->m_gs->OnFlipComplete.connect_extended(
-	    [=](const boost::signals2::connection& c) -> void {
-		    c.disconnect();
+	m_OnFlipCompleteConnect = virtualMachine->m_ee->m_gs->OnFlipComplete.connectOnce(
+	    [=]() -> void {
 		    try
 		    {
 			    auto buffer = virtualMachine->m_ee->m_gs->GetScreenshot();

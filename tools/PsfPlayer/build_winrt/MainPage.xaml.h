@@ -26,5 +26,8 @@ public
 
 		CPsfVm m_virtualMachine;
 		CPlaylist m_playlist;
+
+		CPlaylist::OnItemInsertEvent m_OnItemInsertConnection;
+		CPlaylist::OnItemsClearEvent m_OnItemsClearConnection;
 	};
 }

@@ -257,7 +257,7 @@ public:
 	BiosDebugThreadInfoArray GetThreadsDebugInfo() const override;
 #endif
 
-	typedef boost::signals2::signal<void(uint32)> ModuleStartedEvent;
+	typedef Framework::CSignal<void(uint32)> ModuleStartedEvent;
 
 	ModuleStartedEvent OnModuleStarted;
 

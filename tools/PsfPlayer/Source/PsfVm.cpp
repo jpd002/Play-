@@ -46,7 +46,7 @@ void CPsfVm::Reset()
 void CPsfVm::SetSubSystem(const PsfVmSubSystemPtr& subSystem)
 {
 	m_subSystem = subSystem;
-	m_subSystem->OnNewFrame.connect(std::cref(OnNewFrame));
+	m_OnNewFrameConnection = m_subSystem->OnNewFrame.connect(std::bind(&CPsfVm::OnNewFrame, this));
 }
 
 #ifdef DEBUGGER_INCLUDED
@@ -119,10 +119,7 @@ void CPsfVm::Resume()
 	m_subSystem->DisableBreakpointsOnce();
 #endif
 	m_status = RUNNING;
-	if(!OnRunningStateChange.empty())
-	{
-		OnRunningStateChange();
-	}
+	OnRunningStateChange();
 }
 
 CDebuggable CPsfVm::GetDebugInfo()

@@ -1,6 +1,6 @@
 #pragma once
 
-#include <boost/signals2.hpp>
+#include "Signal.hpp"
 #include <functional>
 #include "win32/MDIChild.h"
 #include "win32/ListView.h"
@@ -12,11 +12,10 @@
 
 class CFunctionsView :
 #ifdef FUNCTIONSVIEW_STANDALONE
-    public Framework::Win32::CWindow,
+    public Framework::Win32::CWindow
 #else
-    public Framework::Win32::CMDIChild,
+    public Framework::Win32::CMDIChild
 #endif
-    public boost::signals2::trackable
 {
 public:
 	CFunctionsView(HWND);
@@ -25,8 +24,8 @@ public:
 	void SetContext(CMIPS*, CBiosDebugInfoProvider*);
 	void Refresh();
 
-	boost::signals2::signal<void(uint32)> OnFunctionDblClick;
-	boost::signals2::signal<void(void)> OnFunctionsStateChange;
+	Framework::CSignal<void(uint32)> OnFunctionDblClick;
+	Framework::CSignal<void(void)> OnFunctionsStateChange;
 
 protected:
 	long OnSize(unsigned int, unsigned int, unsigned int) override;
@@ -56,7 +55,7 @@ private:
 
 	Framework::FlatLayoutPtr m_pLayout;
 
-	boost::signals2::connection m_functionTagsChangeConnection;
+	Framework::CSignal<void ()>::CConnectionPtr m_functionTagsChangeConnection;
 
 	CMIPS* m_context = nullptr;
 	BiosDebugModuleInfoArray m_modules;

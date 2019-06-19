@@ -106,6 +106,9 @@ private:
 	LastOpenCommand m_lastOpenCommand;
 	boost::filesystem::path m_lastPath;
 
+	Framework::CSignal<void ()>::CConnectionPtr m_OnExecutableChangeConnection;
+	Framework::CSignal<void (uint32)>::CConnectionPtr m_OnNewFrameConnection;
+
 #ifdef DEBUGGER_INCLUDED
 	std::unique_ptr<CDebugger> m_debugger;
 	std::unique_ptr<CFrameDebugger> m_frameDebugger;

@@ -10,7 +10,7 @@
 #include "TabHost.h"
 #include "GifPacketView.h"
 
-class CVu1ProgramView : public Framework::Win32::CWindow, public IFrameDebuggerTab, public boost::signals2::trackable
+class CVu1ProgramView : public Framework::Win32::CWindow, public IFrameDebuggerTab
 {
 public:
 	CVu1ProgramView(HWND, const RECT&, CVu1Vm&);
@@ -43,4 +43,7 @@ private:
 	std::unique_ptr<CRegViewVU> m_regView;
 
 	uint32 m_vuMemPacketAddress;
+
+	Framework::CSignal<void ()>::CConnectionPtr m_OnMachineStateChangeConnectionPtr;
+	Framework::CSignal<void ()>::CConnectionPtr m_OnRunningStateChangeConnectionPtr;
 };

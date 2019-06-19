@@ -17,6 +17,8 @@
 #include "PS2OS.h"
 #include "../gs/GSHandler.h"
 
+#include "Signal.hpp"
+
 namespace Ee
 {
 	class CSubSystem
@@ -114,5 +116,7 @@ namespace Ee
 		CCOP_SCU m_COP_SCU;
 		CCOP_FPU m_COP_FPU;
 		CCOP_VU m_COP_VU;
+
+		Framework::CSignal<void ()>::CConnectionPtr m_OnRequestInstructionCacheFlushConnection;
 	};
 };

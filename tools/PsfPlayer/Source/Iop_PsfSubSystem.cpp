@@ -118,10 +118,7 @@ void CPsfSubSystem::Update(bool singleStep, CSoundHandler* soundHandler)
 			m_iop.m_intc.AssertLine(CIntc::LINE_VBLANK);
 			m_iop.NotifyVBlankStart();
 			m_iop.NotifyVBlankEnd();
-			if(!OnNewFrame.empty())
-			{
-				OnNewFrame();
-			}
+			OnNewFrame();
 		}
 	}
 }

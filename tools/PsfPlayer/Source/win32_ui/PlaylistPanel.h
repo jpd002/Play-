@@ -7,15 +7,15 @@
 #include "win32/ListView.h"
 #include "win32/Button.h"
 #include "win32/GdiObj.h"
-#include <boost/signals2.hpp>
+#include "Signal.hpp"
 
-class CPlaylistPanel : public Framework::Win32::CDialog, public boost::signals2::trackable
+class CPlaylistPanel : public Framework::Win32::CDialog
 {
 public:
-	typedef boost::signals2::signal<void(unsigned int)> OnItemDblClickEvent;
-	typedef boost::signals2::signal<void()> OnAddClickEvent;
-	typedef boost::signals2::signal<void(unsigned int)> OnRemoveClickEvent;
-	typedef boost::signals2::signal<void()> OnSaveClickEvent;
+	typedef Framework::CSignal<void(unsigned int)> OnItemDblClickEvent;
+	typedef Framework::CSignal<void()> OnAddClickEvent;
+	typedef Framework::CSignal<void(unsigned int)> OnRemoveClickEvent;
+	typedef Framework::CSignal<void()> OnSaveClickEvent;
 
 	CPlaylistPanel(HWND, CPlaylist&);
 	virtual ~CPlaylistPanel();
@@ -62,6 +62,11 @@ private:
 	Framework::Win32::CButton* m_addButton;
 	Framework::Win32::CButton* m_removeButton;
 	Framework::Win32::CButton* m_saveButton;
+
+	CPlaylist::OnItemInsertEvent::CConnectionPtr m_OnItemInsertConnection;
+	CPlaylist::OnItemUpdateEvent::CConnectionPtr m_OnItemUpdateConnection;
+	CPlaylist::OnItemDeleteEvent::CConnectionPtr m_OnItemDeleteConnection;
+	CPlaylist::OnItemsClearEvent::CConnectionPtr m_OnItemsClearConnection;
 };
 
 #endif

@@ -2,7 +2,7 @@
 
 #include "PsfTags.h"
 #include <vector>
-#include <boost/signals2.hpp>
+#include "Signal.hpp"
 #include <boost/filesystem.hpp>
 
 class CPlaylist
@@ -24,10 +24,10 @@ public:
 		unsigned int archiveId;
 	};
 
-	typedef boost::signals2::signal<void(const ITEM&)> OnItemInsertEvent;
-	typedef boost::signals2::signal<void(unsigned int, const ITEM&)> OnItemUpdateEvent;
-	typedef boost::signals2::signal<void(unsigned int)> OnItemDeleteEvent;
-	typedef boost::signals2::signal<void()> OnItemsClearEvent;
+	typedef Framework::CSignal<void(const ITEM&)> OnItemInsertEvent;
+	typedef Framework::CSignal<void(unsigned int, const ITEM&)> OnItemUpdateEvent;
+	typedef Framework::CSignal<void(unsigned int)> OnItemDeleteEvent;
+	typedef Framework::CSignal<void()> OnItemsClearEvent;
 
 	CPlaylist();
 	virtual ~CPlaylist();

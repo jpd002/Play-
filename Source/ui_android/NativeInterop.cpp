@@ -22,6 +22,8 @@
 #include "http/java_net_URL.h"
 
 CPS2VM* g_virtualMachine = nullptr;
+ProfileFrameDoneSignal::CConnectionPtr g_ProfileFrameDoneConnection;
+Framework::CSignal<void (uint32)>::CConnectionPtr g_OnNewFrameConnection;
 
 #define PREF_AUDIO_ENABLEOUTPUT ("audio.enableoutput")
 
@@ -79,7 +81,7 @@ extern "C" JNIEXPORT void JNICALL Java_com_virtualapplications_play_NativeIntero
 	g_virtualMachine->Initialize();
 	g_virtualMachine->CreatePadHandler(CPH_Generic::GetFactoryFunction());
 #ifdef PROFILE
-	g_virtualMachine->ProfileFrameDone.connect(std::bind(&CStatsManager::OnProfileFrameDone, &CStatsManager::GetInstance(), g_virtualMachine, std::placeholders::_1));
+	g_ProfileFrameDoneConnection = g_virtualMachine->ProfileFrameDone.connect(std::bind(&CStatsManager::OnProfileFrameDone, &CStatsManager::GetInstance(), g_virtualMachine, std::placeholders::_1));
 #endif
 	CAppConfig::GetInstance().RegisterPreferenceBoolean(PREF_AUDIO_ENABLEOUTPUT, true);
 	CGSH_OpenGL::RegisterPreferences();
@@ -176,7 +178,7 @@ extern "C" JNIEXPORT void JNICALL Java_com_virtualapplications_play_NativeIntero
 	if(gsHandler == nullptr)
 	{
 		g_virtualMachine->CreateGSHandler(CGSH_OpenGLAndroid::GetFactoryFunction(nativeWindow));
-		g_virtualMachine->m_ee->m_gs->OnNewFrame.connect(
+		g_OnNewFrameConnection = g_virtualMachine->m_ee->m_gs->OnNewFrame.connect(
 		    std::bind(&CStatsManager::OnNewFrame, &CStatsManager::GetInstance(), std::placeholders::_1));
 	}
 	else

@@ -12,7 +12,7 @@
 #include <map>
 #include <string>
 
-#include <boost/signals2.hpp>
+#include "Signal.hpp"
 #include <boost/filesystem.hpp>
 
 #include <collection.h>

@@ -1,7 +1,7 @@
 #pragma once
 
 #include <string>
-#include <boost/signals2.hpp>
+#include "Signal.hpp"
 #include <boost/filesystem.hpp>
 #include "../ELF.h"
 #include "../MIPS.h"
@@ -11,6 +11,7 @@
 #include "../OsStructQueue.h"
 #include "../gs/GSHandler.h"
 #include "SIF.h"
+#include "Signal.hpp"
 
 #define INTERRUPTS_ENABLED_MASK (CMIPS::STATUS_IE | CMIPS::STATUS_EIE)
 
@@ -21,7 +22,7 @@ class CPS2OS : public CBiosDebugInfoProvider
 public:
 	typedef std::vector<std::string> ArgumentList;
 
-	typedef boost::signals2::signal<void(const char*, const ArgumentList&)> RequestLoadExecutableEvent;
+	typedef Framework::CSignal<void(const char*, const ArgumentList&)> RequestLoadExecutableEvent;
 
 	CPS2OS(CMIPS&, uint8*, uint8*, uint8*, CGSHandler*&, CSIF&, CIopBios&);
 	virtual ~CPS2OS();
@@ -54,11 +55,11 @@ public:
 	BiosDebugThreadInfoArray GetThreadsDebugInfo() const override;
 #endif
 
-	boost::signals2::signal<void()> OnExecutableChange;
-	boost::signals2::signal<void()> OnExecutableUnloading;
-	boost::signals2::signal<void()> OnRequestInstructionCacheFlush;
+	Framework::CSignal<void()> OnExecutableChange;
+	Framework::CSignal<void()> OnExecutableUnloading;
+	Framework::CSignal<void()> OnRequestInstructionCacheFlush;
 	RequestLoadExecutableEvent OnRequestLoadExecutable;
-	boost::signals2::signal<void()> OnRequestExit;
+	Framework::CSignal<void()> OnRequestExit;
 
 private:
 	struct SEMAPHOREPARAM

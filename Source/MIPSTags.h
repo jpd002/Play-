@@ -4,7 +4,7 @@
 #include "xml/Node.h"
 #include <map>
 #include <string>
-#include <boost/signals2.hpp>
+#include "Signal.hpp"
 
 class CMIPSTags
 {
@@ -12,7 +12,7 @@ public:
 	typedef std::map<uint32, std::string> TagMap;
 	typedef TagMap::const_iterator TagIterator;
 
-	boost::signals2::signal<void()> OnTagListChange;
+	Framework::CSignal<void()> OnTagListChange;
 
 	void InsertTag(uint32, const char*);
 	void RemoveTags();

@@ -31,7 +31,7 @@ public:
 	typedef std::unique_ptr<Ee::CSubSystem> EeSubSystemPtr;
 	typedef std::unique_ptr<Iop::CSubSystem> IopSubSystemPtr;
 	typedef std::function<void(const CFrameDump&)> FrameDumpCallback;
-	typedef boost::signals2::signal<void(const CProfiler::ZoneArray&)> ProfileFrameDoneSignal;
+	typedef Framework::CSignal<void(const CProfiler::ZoneArray&)> ProfileFrameDoneSignal;
 
 	CPS2VM();
 	virtual ~CPS2VM() = default;
@@ -170,4 +170,8 @@ private:
 	CProfiler::ZoneHandle m_spuProfilerZone = 0;
 	CProfiler::ZoneHandle m_gsSyncProfilerZone = 0;
 	CProfiler::ZoneHandle m_otherProfilerZone = 0;
+
+	CPS2OS::RequestLoadExecutableEvent::CConnectionPtr m_OnRequestLoadExecutableConnection;
+	Framework::CSignal<void (uint32)>::CConnectionPtr m_OnNewFrameConnection;
+
 };

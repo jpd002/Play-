@@ -80,7 +80,7 @@
 				hasUpdate = true;
 			});
 		m_playlistDiscoveryService->ProcessPendingItems(*m_playlist);
-		onItemUpdateConnection.disconnect();
+		onItemUpdateConnection.reset();
 		//NSLog(@"Updating %d", hasUpdate);
 		if(hasUpdate)
 		{

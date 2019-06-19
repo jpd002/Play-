@@ -21,7 +21,7 @@ private:
 
 	CFrameBufferWindow* m_frameBufferWindow;
 	std::shared_ptr<CVideoDecoder> m_videoDecoder;
-	boost::signals2::connection m_onNewFrameConnection;
+	NewFrameEvent::CConnectionPtr m_onNewFrameConnection;
 };
 
 #endif

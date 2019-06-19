@@ -1,6 +1,6 @@
 #pragma once
 
-#include <boost/signals2.hpp>
+#include "Signal.hpp"
 #include "win32/CustomDrawn.h"
 #include "win32/DeviceContext.h"
 #include "win32/GdiObj.h"
@@ -10,7 +10,7 @@
 class CDisAsm : public Framework::Win32::CCustomDrawn, public CVirtualMachineStateView
 {
 public:
-	typedef boost::signals2::signal<void(uint32)> FindCallersRequestedEvent;
+	typedef Framework::CSignal<void(uint32)> FindCallersRequestedEvent;
 
 	CDisAsm(HWND, const RECT&, CVirtualMachine&, CMIPS*);
 	virtual ~CDisAsm();

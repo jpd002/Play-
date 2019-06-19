@@ -21,7 +21,7 @@ MainWindow::MainWindow(QWidget* parent)
 
 	m_virtualMachine = new CPsfVm();
 	m_virtualMachine->SetSpuHandler(&CSH_OpenAL::HandlerFactory);
-	m_virtualMachine->OnNewFrame.connect([&]() { OnNewFrame(); });
+	m_OnNewFrameConnection = m_virtualMachine->OnNewFrame.connect([&]() { OnNewFrame(); });
 
 	model.setHeaderData(0, Qt::Orientation::Horizontal, QVariant("Game"), Qt::DisplayRole);
 	model.setHeaderData(1, Qt::Orientation::Horizontal, QVariant("Title"), Qt::DisplayRole);

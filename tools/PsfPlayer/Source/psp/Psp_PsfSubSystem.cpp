@@ -125,10 +125,7 @@ void CPsfSubSystem::Update(bool singleStep, CSoundHandler* soundHandler)
 			if(m_samplesToFrame <= 0)
 			{
 				m_samplesToFrame += SAMPLES_PER_FRAME;
-				if(!OnNewFrame.empty())
-				{
-					OnNewFrame();
-				}
+				OnNewFrame();
 			}
 		}
 	}

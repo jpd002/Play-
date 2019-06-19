@@ -15,7 +15,7 @@
 #include <thread>
 #include <mutex>
 
-#include <boost/signals2.hpp>
+#include "Signal.hpp"
 #include <boost/filesystem/path.hpp>
 
 #include "Types.h"

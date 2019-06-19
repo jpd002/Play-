@@ -225,11 +225,6 @@ uint32 CFunctionsView::GetFunctionGroupId(uint32 address)
 
 void CFunctionsView::SetContext(CMIPS* context, CBiosDebugInfoProvider* biosDebugInfoProvider)
 {
-	if(m_functionTagsChangeConnection.connected())
-	{
-		m_functionTagsChangeConnection.disconnect();
-	}
-
 	m_context = context;
 	m_biosDebugInfoProvider = biosDebugInfoProvider;
 

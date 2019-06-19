@@ -1,7 +1,7 @@
 #pragma once
 
 #include <atomic>
-#include <boost/signals2.hpp>
+#include "Signal.hpp"
 #include <thread>
 #include <libevdev.h>
 #include <boost/filesystem.hpp>
@@ -40,6 +40,8 @@ private:
 	std::atomic<bool> m_running;
 	std::thread m_inputdevicelistenerthread;
 	std::thread m_thread;
+	std::map<std::string, OnInputEvent::CConnectionPtr> m_connectionlist;
+
 
 	void UpdateDeviceList();
 	void AddDevice(const fs::path&);

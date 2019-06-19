@@ -162,7 +162,7 @@ CMainWindow::CMainWindow(CPsfVm& virtualMachine)
 	m_trayPopupMenu = LoadMenu(GetModuleHandle(NULL), MAKEINTRESOURCE(IDR_TRAY_POPUP));
 	m_configPopupMenu = LoadMenu(GetModuleHandle(NULL), MAKEINTRESOURCE(IDR_CONFIG_POPUP));
 
-	m_virtualMachine.OnNewFrame.connect(std::bind(&CMainWindow::OnNewFrame, this));
+	m_OnNewFrameConnection = m_virtualMachine.OnNewFrame.connect(std::bind(&CMainWindow::OnNewFrame, this));
 
 	m_toolTip = new Framework::Win32::CToolTip(m_hWnd);
 	m_toolTip->Activate(true);
@@ -226,10 +226,10 @@ CMainWindow::CMainWindow(CPsfVm& virtualMachine)
 
 	//Create play list panel
 	m_playlistPanel = new CPlaylistPanel(m_hWnd, m_playlist);
-	m_playlistPanel->OnItemDblClick.connect(std::bind(&CMainWindow::OnPlaylistItemDblClick, this, std::placeholders::_1));
-	m_playlistPanel->OnAddClick.connect(std::bind(&CMainWindow::OnPlaylistAddClick, this));
-	m_playlistPanel->OnRemoveClick.connect(std::bind(&CMainWindow::OnPlaylistRemoveClick, this, std::placeholders::_1));
-	m_playlistPanel->OnSaveClick.connect(std::bind(&CMainWindow::OnPlaylistSaveClick, this));
+	m_OnItemDblClickConnection = m_playlistPanel->OnItemDblClick.connect(std::bind(&CMainWindow::OnPlaylistItemDblClick, this, std::placeholders::_1));
+	m_OnAddClickConnection = m_playlistPanel->OnAddClick.connect(std::bind(&CMainWindow::OnPlaylistAddClick, this));
+	m_OnRemoveClickConnection = m_playlistPanel->OnRemoveClick.connect(std::bind(&CMainWindow::OnPlaylistRemoveClick, this, std::placeholders::_1));
+	m_OnSaveClickConnection = m_playlistPanel->OnSaveClick.connect(std::bind(&CMainWindow::OnPlaylistSaveClick, this));
 
 	//Create file information panel
 	m_fileInformationPanel = new CFileInformationPanel(m_hWnd);

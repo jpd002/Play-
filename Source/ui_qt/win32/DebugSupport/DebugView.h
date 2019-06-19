@@ -8,7 +8,7 @@
 #include "CallStackWnd.h"
 #include "VirtualMachineStateView.h"
 
-class CDebugView : public boost::signals2::trackable, public CVirtualMachineStateView
+class CDebugView : public CVirtualMachineStateView
 {
 public:
 	typedef std::function<void(void)> StepFunction;
@@ -44,4 +44,6 @@ private:
 	CCallStackWnd* m_callStackWnd;
 	StepFunction m_stepFunction;
 	CBiosDebugInfoProvider* m_biosDebugInfoProvider;
+
+	CCallStackWnd::OnFunctionDblClickSignal::CConnectionPtr m_OnFunctionDblClickConnection;
 };

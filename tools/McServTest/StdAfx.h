@@ -10,7 +10,7 @@
 #include <memory>
 #include <thread>
 
-#include <boost/signals2.hpp>
+#include "Signal.hpp"
 
 #include "Types.h"
 #include "Stream.h"

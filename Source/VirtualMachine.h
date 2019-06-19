@@ -1,6 +1,6 @@
 #pragma once
 
-#include <boost/signals2.hpp>
+#include "Signal.hpp"
 
 class CVirtualMachine
 {
@@ -16,6 +16,6 @@ public:
 	virtual void Pause() = 0;
 	virtual void Resume() = 0;
 
-	boost::signals2::signal<void()> OnMachineStateChange;
-	boost::signals2::signal<void()> OnRunningStateChange;
+	Framework::CSignal<void()> OnMachineStateChange;
+	Framework::CSignal<void()> OnRunningStateChange;
 };

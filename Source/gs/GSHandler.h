@@ -5,7 +5,7 @@
 #include <functional>
 #include <atomic>
 #include <array>
-#include <boost/signals2.hpp>
+#include "Signal.hpp"
 
 #include "bitmap/Bitmap.h"
 #include "Types.h"
@@ -760,9 +760,9 @@ public:
 
 	virtual Framework::CBitmap GetScreenshot();
 
-	boost::signals2::signal<void()> OnFlipComplete;
+	Framework::CSignal<void()> OnFlipComplete;
 
-	boost::signals2::signal<void(uint32)> OnNewFrame;
+	Framework::CSignal<void(uint32)> OnNewFrame;
 
 protected:
 	struct DELAYED_REGISTER

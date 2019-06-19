@@ -30,6 +30,8 @@ enum REPEAT_MODE
 	uint64 m_trackLength;
 	uint64 m_fadePosition;
 	float m_volumeAdjust;
+
+	CPsfVm::NewFrameEvent::CConnectionPtr m_OnNewFrameConnection;
 }
 
 @end

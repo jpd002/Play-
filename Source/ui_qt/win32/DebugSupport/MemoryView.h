@@ -4,7 +4,7 @@
 #include "win32/CustomDrawn.h"
 #include "win32/DeviceContext.h"
 #include "win32/GdiObj.h"
-#include <boost/signals2.hpp>
+#include "Signal.hpp"
 
 class CMemoryView : public Framework::Win32::CCustomDrawn
 {
@@ -22,7 +22,7 @@ public:
 	uint32 GetSelection();
 	void SetSelectionStart(unsigned int);
 
-	boost::signals2::signal<void(uint32)> OnSelectionChange;
+	Framework::CSignal<void(uint32)> OnSelectionChange;
 
 protected:
 	enum

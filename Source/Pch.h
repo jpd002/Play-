@@ -11,7 +11,7 @@
 #include <mutex>
 #include <condition_variable>
 
-#include <boost/signals2.hpp>
+#include "Signal.hpp"
 #include <boost/filesystem.hpp>
 
 #include "Types.h"
