@@ -423,6 +423,7 @@ set(COMMON_SRC_FILES
 	ScopedVmPauser.h
 	ScreenShotUtils.cpp
 	ScreenShotUtils.h
+	SifDefs.h
 	ui_shared/BootablesDbClient.cpp
 	ui_shared/BootablesDbClient.h
 	ui_shared/BootablesProcesses.cpp
