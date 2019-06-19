@@ -53,6 +53,7 @@
 #endif
 #ifdef WIN32
 #include "win32/InputProviderDirectInput.h"
+#include "win32/InputProviderXInput.h"
 #endif
 
 MainWindow::MainWindow(QWidget* parent)
