@@ -152,7 +152,10 @@ void CInputBindingManager::OverrideInputEventHandler(const InputEventFunction& i
 std::string CInputBindingManager::GetTargetDescription(const BINDINGTARGET& target) const
 {
 	auto providerIterator = m_providers.find(target.providerId);
-	if(providerIterator == std::end(m_providers)) throw std::exception();
+	if(providerIterator == std::end(m_providers))
+	{
+		return "Unknown Provider";
+	}
 	auto provider = providerIterator->second;
 	return provider->GetTargetDescription(target);
 }
