@@ -138,6 +138,7 @@ if(TARGET_PLATFORM_WIN32)
 	)
 	
 	list(APPEND PROJECT_LIBS dinput8)
+	list(APPEND PROJECT_LIBS xinput)
 	
 	if(DEBUGGER_INCLUDED)
 		if(NOT TARGET PlayDebugSupport)
@@ -228,6 +229,8 @@ elseif(TARGET_PLATFORM_WIN32)
 		${QT_SOURCES}
 		win32/InputProviderDirectInput.cpp
 		win32/InputProviderDirectInput.h
+		win32/InputProviderXInput.cpp
+		win32/InputProviderXInput.h
 	)
 	add_executable(Play WIN32 ${QT_SOURCES} ${QT_MOC_SRCS} ${QT_RES_SOURCES} ${QT_UI_HEADERS})
 elseif(TARGET_PLATFORM_UNIX)
