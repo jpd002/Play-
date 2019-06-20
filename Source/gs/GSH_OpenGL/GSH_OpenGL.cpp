@@ -20,30 +20,35 @@
 #define NUM_SAMPLES 8
 #define FRAMEBUFFER_HEIGHT 1024
 
+// clang-format off
 const GLenum CGSH_OpenGL::g_nativeClampModes[CGSHandler::CLAMP_MODE_MAX] =
-    {
-        GL_REPEAT,
-        GL_CLAMP_TO_EDGE,
-        GL_REPEAT,
-        GL_REPEAT};
+{
+	GL_REPEAT,
+	GL_CLAMP_TO_EDGE,
+	GL_REPEAT,
+	GL_REPEAT
+};
 
 const unsigned int CGSH_OpenGL::g_shaderClampModes[CGSHandler::CLAMP_MODE_MAX] =
-    {
-        TEXTURE_CLAMP_MODE_STD,
-        TEXTURE_CLAMP_MODE_STD,
-        TEXTURE_CLAMP_MODE_REGION_CLAMP,
-        TEXTURE_CLAMP_MODE_REGION_REPEAT};
+{
+	TEXTURE_CLAMP_MODE_STD,
+	TEXTURE_CLAMP_MODE_STD,
+	TEXTURE_CLAMP_MODE_REGION_CLAMP,
+	TEXTURE_CLAMP_MODE_REGION_REPEAT
+};
 
 const unsigned int CGSH_OpenGL::g_alphaTestInverse[CGSHandler::ALPHA_TEST_MAX] =
-    {
-        ALPHA_TEST_ALWAYS,
-        ALPHA_TEST_NEVER,
-        ALPHA_TEST_GEQUAL,
-        ALPHA_TEST_GREATER,
-        ALPHA_TEST_NOTEQUAL,
-        ALPHA_TEST_LESS,
-        ALPHA_TEST_LEQUAL,
-        ALPHA_TEST_EQUAL};
+{
+	ALPHA_TEST_ALWAYS,
+	ALPHA_TEST_NEVER,
+	ALPHA_TEST_GEQUAL,
+	ALPHA_TEST_GREATER,
+	ALPHA_TEST_NOTEQUAL,
+	ALPHA_TEST_LESS,
+	ALPHA_TEST_LEQUAL,
+	ALPHA_TEST_EQUAL
+};
+// clang-format on
 
 static uint32 MakeColor(uint8 r, uint8 g, uint8 b, uint8 a)
 {
