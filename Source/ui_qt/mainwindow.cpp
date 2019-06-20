@@ -166,6 +166,7 @@ void MainWindow::InitVirtualMachine()
 #endif
 #ifdef WIN32
 		bindingManager.RegisterInputProvider(std::make_shared<CInputProviderDirectInput>());
+		bindingManager.RegisterInputProvider(std::make_shared<CInputProviderXInput>());
 #endif
 		if(!bindingManager.HasBindings())
 		{

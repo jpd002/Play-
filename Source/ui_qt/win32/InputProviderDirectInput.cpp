@@ -26,7 +26,7 @@ GUID DeviceIdToGuid(const DeviceIdType& deviceId)
 
 CInputProviderDirectInput::CInputProviderDirectInput()
 {
-	m_diManager = std::make_unique<Framework::DirectInput::CManager>();
+	m_diManager = std::make_unique<Framework::DirectInput::CManager>(true);
 	m_diManager->RegisterInputEventHandler(std::bind(&CInputProviderDirectInput::HandleInputEvent, this,
 	                                                 std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
 	m_diManager->CreateJoysticks();
