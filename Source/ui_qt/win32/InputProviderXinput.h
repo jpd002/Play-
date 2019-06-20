@@ -2,6 +2,8 @@
 
 #include "input/InputProvider.h"
 #include <thread>
+#include <Windows.h>
+#include <Xinput.h>
 
 class CInputProviderXInput : public CInputProvider
 {
@@ -55,6 +57,8 @@ private:
 	};
 
 	void PollDevices();
+	void UpdateConnectedDevice(uint32, const XINPUT_STATE&);
+	void UpdateDisconnectedDevice(uint32);
 	void ReportButton(uint32, KEYID, bool);
 	void ReportAxis(uint32, KEYID, int16);
 

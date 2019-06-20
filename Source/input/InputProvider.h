@@ -22,6 +22,9 @@ struct BINDINGTARGET
 
 	enum
 	{
+		AXIS_MIN = 0,
+		AXIS_NEUTRAL = 0x7F,
+		AXIS_MAX = 0xFF,
 		POVHAT_MAX = 8,
 	};
 
