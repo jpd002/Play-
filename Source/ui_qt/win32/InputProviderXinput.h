@@ -60,7 +60,7 @@ private:
 	void UpdateConnectedDevice(uint32, const XINPUT_STATE&);
 	void UpdateDisconnectedDevice(uint32);
 	void ReportButton(uint32, KEYID, bool);
-	void ReportAxis(uint32, KEYID, int16);
+	void ReportAxis(uint32, KEYID, int32);
 
 	bool m_pollingEnabled = true;
 	std::thread m_pollingThread;

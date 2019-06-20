@@ -101,9 +101,9 @@ void CInputProviderXInput::UpdateConnectedDevice(uint32 deviceIndex, const XINPU
 	if((currState.connected == false) || (currState.packetNumber != state.dwPacketNumber))
 	{
 		ReportAxis(deviceIndex, KEYID_LTHUMB_X, state.Gamepad.sThumbLX);
-		ReportAxis(deviceIndex, KEYID_LTHUMB_Y, state.Gamepad.sThumbLY);
+		ReportAxis(deviceIndex, KEYID_LTHUMB_Y, -static_cast<int32>(state.Gamepad.sThumbLY));
 		ReportAxis(deviceIndex, KEYID_RTHUMB_X, state.Gamepad.sThumbRX);
-		ReportAxis(deviceIndex, KEYID_RTHUMB_Y, state.Gamepad.sThumbRY);
+		ReportAxis(deviceIndex, KEYID_RTHUMB_Y, -static_cast<int32>(state.Gamepad.sThumbRY));
 		bool lTriggerState = state.Gamepad.bLeftTrigger >= XINPUT_GAMEPAD_TRIGGER_THRESHOLD;
 		bool rTriggerState = state.Gamepad.bRightTrigger >= XINPUT_GAMEPAD_TRIGGER_THRESHOLD;
 		if(lTriggerState != currState.lTriggerPressed)
@@ -170,13 +170,13 @@ void CInputProviderXInput::ReportButton(uint32 deviceIndex, KEYID keyId, bool pr
 	OnInput(tgt, pressed ? 1 : 0);
 }
 
-void CInputProviderXInput::ReportAxis(uint32 deviceIndex, KEYID keyId, int16 rawValue)
+void CInputProviderXInput::ReportAxis(uint32 deviceIndex, KEYID keyId, int32 rawValue)
 {
 	BINDINGTARGET tgt;
 	tgt.providerId = PROVIDER_ID;
 	tgt.deviceId[0] = deviceIndex;
 	tgt.keyType = BINDINGTARGET::KEYTYPE::AXIS;
 	tgt.keyId = keyId;
-	uint32 cvtValue = ((static_cast<int32>(rawValue) + 0x8000) >> 8) & 0xFF;
+	uint32 cvtValue = std::min<uint32>((rawValue + 0x8000) >> 8, BINDINGTARGET::AXIS_MAX);
 	OnInput(tgt, cvtValue);
 }
