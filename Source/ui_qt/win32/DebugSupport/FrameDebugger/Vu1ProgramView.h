@@ -44,6 +44,6 @@ private:
 
 	uint32 m_vuMemPacketAddress;
 
-	Framework::CSignal<void ()>::CConnectionPtr m_OnMachineStateChangeConnectionPtr;
-	Framework::CSignal<void ()>::CConnectionPtr m_OnRunningStateChangeConnectionPtr;
+	Framework::CSignal<void ()>::CConnectionPtr m_OnMachineStateChangeConnection;
+	Framework::CSignal<void ()>::CConnectionPtr m_OnRunningStateChangeConnection;
 };
