@@ -3,7 +3,9 @@
 #include "win32/Window.h"
 #include "win32/ListView.h"
 #include "ELF.h"
-#include <boost/flyweight.hpp>
+
+#include <vector>
+#include <string>
 
 class CELFSymbolView : public Framework::Win32::CWindow
 {
@@ -12,16 +14,14 @@ public:
 	virtual ~CELFSymbolView();
 
 private:
-	typedef boost::flyweight<std::tstring> PooledString;
-
 	struct ITEM
 	{
-		PooledString name;
-		PooledString address;
-		PooledString size;
-		PooledString type;
-		PooledString binding;
-		PooledString section;
+		std::tstring name;
+		std::tstring address;
+		std::tstring size;
+		std::tstring type;
+		std::tstring binding;
+		std::tstring section;
 	};
 
 	typedef std::vector<ITEM> ItemArray;
