@@ -3,6 +3,7 @@
 
 #define PROVIDER_ID 'xinp'
 
+// clang-format off
 const char* CInputProviderXInput::g_keyNames[CInputProviderXInput::KEYID_MAX] =
 {
 	"Left Thumb (X Axis)",
@@ -46,10 +47,11 @@ const CInputProviderXInput::KEYID CInputProviderXInput::g_buttonToKey[MAX_BUTTON
 	KEYID_X,
 	KEYID_Y
 };
+// clang-format on
 
 CInputProviderXInput::CInputProviderXInput()
 {
-	m_pollingThread = std::thread([this] () { PollDevices(); });
+	m_pollingThread = std::thread([this]() { PollDevices(); });
 }
 
 CInputProviderXInput::~CInputProviderXInput()
