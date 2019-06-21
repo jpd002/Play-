@@ -46,7 +46,9 @@ void CPsfVm::Reset()
 void CPsfVm::SetSubSystem(const PsfVmSubSystemPtr& subSystem)
 {
 	m_subSystem = subSystem;
-	m_OnNewFrameConnection = m_subSystem->OnNewFrame.connect(std::bind(&CPsfVm::OnNewFrame, this));
+	m_OnNewFrameConnection = m_subSystem->OnNewFrame.connect([&]() {
+		OnNewFrame();
+	});
 }
 
 #ifdef DEBUGGER_INCLUDED
