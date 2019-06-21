@@ -172,6 +172,5 @@ private:
 	CProfiler::ZoneHandle m_otherProfilerZone = 0;
 
 	CPS2OS::RequestLoadExecutableEvent::CConnectionPtr m_OnRequestLoadExecutableConnection;
-	Framework::CSignal<void (uint32)>::CConnectionPtr m_OnNewFrameConnection;
-
+	Framework::CSignal<void(uint32)>::CConnectionPtr m_OnNewFrameConnection;
 };

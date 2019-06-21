@@ -55,7 +55,7 @@ private:
 
 	Framework::FlatLayoutPtr m_pLayout;
 
-	Framework::CSignal<void ()>::CConnectionPtr m_functionTagsChangeConnection;
+	Framework::CSignal<void()>::CConnectionPtr m_functionTagsChangeConnection;
 
 	CMIPS* m_context = nullptr;
 	BiosDebugModuleInfoArray m_modules;

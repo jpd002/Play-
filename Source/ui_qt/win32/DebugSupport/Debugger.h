@@ -91,16 +91,15 @@ private:
 
 	Framework::CSignal<void(uint32)>::CConnectionPtr m_OnFunctionDblClickConnection;
 	Framework::CSignal<void()>::CConnectionPtr m_OnFunctionsStateChangeConnection;
-	Framework::CSignal<void (uint32)>::CConnectionPtr m_OnGotoAddressConnection;
+	Framework::CSignal<void(uint32)>::CConnectionPtr m_OnGotoAddressConnection;
 
 	CAddressListViewWnd::AddressSelectedEvent::CConnectionPtr m_AddressSelectedConnection;
-	Framework::CSignal<void ()>::CConnectionPtr m_OnExecutableChangeConnection;
-	Framework::CSignal<void ()>::CConnectionPtr m_OnExecutableUnloadingConnection;
-	Framework::CSignal<void ()>::CConnectionPtr m_OnMachineStateChangeConnection;
-	Framework::CSignal<void ()>::CConnectionPtr m_OnRunningStateChangeConnection;
+	Framework::CSignal<void()>::CConnectionPtr m_OnExecutableChangeConnection;
+	Framework::CSignal<void()>::CConnectionPtr m_OnExecutableUnloadingConnection;
+	Framework::CSignal<void()>::CConnectionPtr m_OnMachineStateChangeConnection;
+	Framework::CSignal<void()>::CConnectionPtr m_OnRunningStateChangeConnection;
 
 	CDisAsm::FindCallersRequestedEvent::CConnectionPtr m_findCallersRequestConnection;
-
 
 	CELFView* m_pELFView = nullptr;
 	CFunctionsView* m_pFunctionsView = nullptr;

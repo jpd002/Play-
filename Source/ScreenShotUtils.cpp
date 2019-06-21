@@ -10,7 +10,7 @@
 #include <iomanip>
 #include <sstream>
 
-Framework::CSignal<void ()>::CConnectionPtr m_OnFlipCompleteConnect;
+Framework::CSignal<void()>::CConnectionPtr m_OnFlipCompleteConnect;
 
 void CScreenShotUtils::TriggerGetScreenshot(CPS2VM* virtualMachine, Callback completionCallback)
 {

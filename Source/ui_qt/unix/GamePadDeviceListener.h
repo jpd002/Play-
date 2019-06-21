@@ -42,7 +42,6 @@ private:
 	std::thread m_thread;
 	std::map<std::string, OnInputEvent::CConnectionPtr> m_connectionlist;
 
-
 	void UpdateDeviceList();
 	void AddDevice(const fs::path&);
 	void RemoveDevice(std::string);
