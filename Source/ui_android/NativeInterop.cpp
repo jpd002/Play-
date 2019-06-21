@@ -22,7 +22,7 @@
 #include "http/java_net_URL.h"
 
 CPS2VM* g_virtualMachine = nullptr;
-ProfileFrameDoneSignal::CConnectionPtr g_ProfileFrameDoneConnection;
+CPS2VM::ProfileFrameDoneSignal::CConnectionPtr g_ProfileFrameDoneConnection;
 Framework::CSignal<void(uint32)>::CConnectionPtr g_OnNewFrameConnection;
 
 #define PREF_AUDIO_ENABLEOUTPUT ("audio.enableoutput")
