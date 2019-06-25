@@ -75,7 +75,7 @@ target_include_directories(play_libretro PRIVATE
 )
 
 if(TARGET_PLATFORM_IOS)
-	target_link_libraries(Play ${PROJECT_LIBS} "-ObjC -lsqlite3 -framework OpenGLES -framework OpenAL")
+	target_link_libraries(play_libretro ${PROJECT_LIBS} "-ObjC -lsqlite3 -framework OpenGLES -framework OpenAL")
 endif()
 
 target_link_libraries(play_libretro ${PROJECT_LIBS})
