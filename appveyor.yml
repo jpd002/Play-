@@ -30,6 +30,8 @@ build_script:
 artifacts:
 - path: $(REPO_COMMIT_SHORT)\*.exe
   name: Binaries
+- path: $(REPO_COMMIT_SHORT)\play_libretro.dll
+  name: Libretro_Core
 deploy:
 - provider: S3
   access_key_id: AKIAJGVKEDYESR2BIP7Q
