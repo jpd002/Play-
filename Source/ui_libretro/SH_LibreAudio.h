@@ -8,12 +8,13 @@
 
 extern bool g_audioEnabled;
 
-
 #ifdef _WIN32
-class CSH_LibreAudio : public CSH_WaveOut
+#define _CSH_PARENT_ CSH_WaveOut
 #else
-class CSH_LibreAudio : public CSH_OpenAL
+#define _CSH_PARENT_ CSH_OpenAL
 #endif
+
+class CSH_LibreAudio : public _CSH_PARENT_
 {
 public:
 	CSH_LibreAudio() = default;
@@ -27,11 +28,7 @@ public:
 	{
 		if(g_audioEnabled)
 		{	
-#ifdef _WIN32
-			CSH_WaveOut::Write(buffer, sampleCount, sampleRate);
-#else
-			CSH_OpenAL::Write(buffer, sampleCount, sampleRate);
-#endif
+			_CSH_PARENT_::Write(buffer, sampleCount, sampleRate);
 		}
 	};
 };
