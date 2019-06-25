@@ -36,6 +36,13 @@ set(PROJECT_LIBS)
 
 include(PrecompiledHeader)
 
+if(BUILD_LIBRETRO_CORE)
+	if(NOT MSVC)
+		add_compile_options("-fPIC")
+	endif()
+	add_subdirectory(Source/ui_libretro)
+endif()
+
 if(BUILD_PLAY)
 	if(TARGET_PLATFORM_UNIX OR TARGET_PLATFORM_MACOS OR TARGET_PLATFORM_WIN32 OR USE_QT)
 		add_subdirectory(Source/ui_qt/)
@@ -51,10 +58,6 @@ if(BUILD_PLAY)
 		endif(TARGET_PLATFORM_ANDROID)
 	endif()
 endif(BUILD_PLAY)
-
-if(BUILD_LIBRETRO_CORE)
-	add_subdirectory(Source/ui_libretro)
-endif()
 
 if(BUILD_TESTS)
 	enable_testing()

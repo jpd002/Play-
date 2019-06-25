@@ -79,8 +79,4 @@ if(TARGET_PLATFORM_IOS)
 endif()
 
 target_link_libraries(play_libretro ${PROJECT_LIBS})
-
-if(NOT MSVC)
-	add_compile_options("-fPIC")
-endif()
 set_target_properties(play_libretro PROPERTIES PREFIX "")
