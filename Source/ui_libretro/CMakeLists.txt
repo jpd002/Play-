@@ -26,7 +26,7 @@ if(NOT TARGET gsh_opengl)
 endif()
 list(INSERT PROJECT_LIBS 0 gsh_opengl)
 
-if(NOT TARGET_PLATFORM_UNIX_AARCH64)
+if(NOT TARGET_PLATFORM_UNIX_AARCH64 AND (TARGET_PLATFORM_UNIX OR TARGET_PLATFORM_WIN32))
 	if (NOT TARGET glew_s)
 		add_subdirectory(
 			${CMAKE_CURRENT_SOURCE_DIR}/../../../Dependencies/glew-2.0.0
@@ -67,4 +67,10 @@ target_include_directories(play_libretro PRIVATE
 	../../
 	${CMAKE_CURRENT_BINARY_DIR}
 )
+
 target_link_libraries(play_libretro ${PROJECT_LIBS})
+
+if(NOT MSVC)
+	add_compile_options("-fPIC")
+endif()
+set_target_properties(play_libretro PROPERTIES PREFIX "")
