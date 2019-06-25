@@ -68,6 +68,14 @@ target_include_directories(play_libretro PRIVATE
 	${CMAKE_CURRENT_BINARY_DIR}
 )
 
+if(TARGET_PLATFORM_ANDROID)
+	list(APPEND PROJECT_LIBS android log OpenSLES GLESv3 EGL)
+endif()
+
+if(TARGET_PLATFORM_IOS)
+	target_link_libraries(Play ${PROJECT_LIBS} "-ObjC -lsqlite3 -framework OpenGLES -framework OpenAL")
+endif()
+
 target_link_libraries(play_libretro ${PROJECT_LIBS})
 
 if(NOT MSVC)
