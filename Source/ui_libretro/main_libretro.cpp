@@ -462,7 +462,12 @@ bool retro_load_game(const retro_game_info* info)
 	auto rgb = RETRO_PIXEL_FORMAT_XRGB8888;
 	g_environ_cb(RETRO_ENVIRONMENT_SET_PIXEL_FORMAT, &rgb);
 
+#ifdef GLES_COMPATIBILITY
+	g_hw_render.context_type = RETRO_HW_CONTEXT_OPENGLES3;
+#else
 	g_hw_render.context_type = RETRO_HW_CONTEXT_OPENGL_CORE;
+#endif
+
 	g_hw_render.version_major = 3;
 	g_hw_render.version_minor = 2;
 	g_hw_render.context_reset = retro_context_reset;
