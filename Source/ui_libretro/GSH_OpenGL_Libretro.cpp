@@ -57,8 +57,8 @@ void CGSH_OpenGL_Libretro::UpdatePresentationImpl()
 {
 	PRESENTATION_PARAMS presentationParams;
 	presentationParams.mode = g_presentation_mode;
-	presentationParams.windowWidth = m_framebufferWidth * g_res_factor;
-	presentationParams.windowHeight =  (3.0 / 4.0) * m_framebufferHeight * g_res_factor;
+	presentationParams.windowWidth = GetCrtWidth() * g_res_factor;
+	presentationParams.windowHeight =  GetCrtHeight() * g_res_factor;
 
 	SetPresentationParams(presentationParams);
 	NotifyPreferencesChanged();
@@ -109,6 +109,6 @@ void CGSH_OpenGL_Libretro::PresentBackbuffer()
 	CLog::GetInstance().Print(LOG_NAME, "%s\n", __FUNCTION__);
 
 	if(g_video_cb)
-		g_video_cb(RETRO_HW_FRAME_BUFFER_VALID, m_framebufferWidth * g_res_factor, (3.0 / 4.0) * m_framebufferHeight * g_res_factor, 0);
+		g_video_cb(RETRO_HW_FRAME_BUFFER_VALID,GetCrtWidth() * g_res_factor, GetCrtHeight() * g_res_factor, 0);
 
 }

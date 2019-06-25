@@ -21,7 +21,4 @@ public:
 
 private:
 	void UpdatePresentationImpl();
-
-	GLint m_framebufferWidth = 512;
-	GLint m_framebufferHeight = 512;
 };

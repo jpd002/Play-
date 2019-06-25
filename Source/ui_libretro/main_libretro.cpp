@@ -33,7 +33,7 @@ bool g_audioEnabled = true;
 
 static std::vector<struct retro_variable> m_vars =
 {
-	{"play_res_multi",				"Resolution Multiplier; 1x|2x|4x|8x|16x" },
+	{"play_res_multi",				"Resolution Multiplier; 1x|2x|4x|8x" },
 	{"play_presentation_mode",		"Presentation Mode; Fit Screen|Fill Screen|Original Size"},
 	{"play_bilinear_filtering",		"Force Bilinear Filtering; false|true"},
 	{"audio_enable",				"Enable Audio; true|false" },
@@ -163,10 +163,10 @@ void retro_get_system_av_info(struct retro_system_av_info* info)
 	*info = {};
 	info->timing.fps = 60.0;
 	info->timing.sample_rate = 0;
-	info->geometry.base_width = 512 * 1;
-	info->geometry.base_height = (3.0 / 4.0) * 512;
-	info->geometry.max_width = 512 * 8;
-	info->geometry.max_height = (3.0 / 4.0) * (512 * 8);
+	info->geometry.base_width = 640;
+	info->geometry.base_height = 448;
+	info->geometry.max_width = 640 * 8;
+	info->geometry.max_height = 448 * 8;
 	info->geometry.aspect_ratio = 4.0 / 3.0;
 }
 
@@ -293,7 +293,7 @@ void updateVars()
 				case 0:
 					{
 						std::string val = var.value;
-						auto res_factor = std::atoi(val.substr(0, 1).c_str());
+						auto res_factor = std::atoi(val.substr(0, -1).c_str());
 						if(res_factor != g_res_factor)
 						{
 							g_res_factor = res_factor;
