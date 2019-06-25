@@ -2,6 +2,8 @@
 
 #ifdef _WIN32
 #include "../../tools/PsfPlayer/Source/win32_ui/SH_WaveOut.h"
+#elif defined(__ANDROID__)
+#include "../ui_android/SH_OpenSL.h"
 #else
 #include "tools/PsfPlayer/Source/SH_OpenAL.h"
 #endif
@@ -10,6 +12,8 @@ extern bool g_audioEnabled;
 
 #ifdef _WIN32
 #define _CSH_PARENT_ CSH_WaveOut
+#elif defined(__ANDROID__)
+#define _CSH_PARENT_ CSH_OpenSL
 #else
 #define _CSH_PARENT_ CSH_OpenAL
 #endif
