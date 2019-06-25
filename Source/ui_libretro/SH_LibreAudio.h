@@ -31,7 +31,7 @@ public:
 	void Write(int16* buffer, unsigned int sampleCount, unsigned int sampleRate) override
 	{
 		if(g_audioEnabled)
-		{	
+		{
 			_CSH_PARENT_::Write(buffer, sampleCount, sampleRate);
 		}
 	};

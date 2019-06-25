@@ -5,7 +5,7 @@
 
 extern int g_res_factor;
 extern CGSHandler::PRESENTATION_MODE g_presentation_mode;
-extern retro_video_refresh_t  g_video_cb;
+extern retro_video_refresh_t g_video_cb;
 extern struct retro_hw_render_callback g_hw_render;
 
 CGSH_OpenGL_Libretro::CGSH_OpenGL_Libretro()
@@ -39,9 +39,9 @@ void CGSH_OpenGL_Libretro::InitializeImpl()
 	}
 
 #endif
-	
+
 	if(g_hw_render.get_current_framebuffer)
-		m_presentFramebuffer =  g_hw_render.get_current_framebuffer();
+		m_presentFramebuffer = g_hw_render.get_current_framebuffer();
 
 	UpdatePresentationImpl();
 
@@ -58,7 +58,7 @@ void CGSH_OpenGL_Libretro::UpdatePresentationImpl()
 	PRESENTATION_PARAMS presentationParams;
 	presentationParams.mode = g_presentation_mode;
 	presentationParams.windowWidth = GetCrtWidth() * g_res_factor;
-	presentationParams.windowHeight =  GetCrtHeight() * g_res_factor;
+	presentationParams.windowHeight = GetCrtHeight() * g_res_factor;
 
 	SetPresentationParams(presentationParams);
 	NotifyPreferencesChanged();
@@ -97,7 +97,7 @@ void CGSH_OpenGL_Libretro::FlipImpl()
 	CLog::GetInstance().Print(LOG_NAME, "%s\n", __FUNCTION__);
 
 	if(g_hw_render.get_current_framebuffer)
-		m_presentFramebuffer =  g_hw_render.get_current_framebuffer();
+		m_presentFramebuffer = g_hw_render.get_current_framebuffer();
 	else
 		return;
 
@@ -109,6 +109,5 @@ void CGSH_OpenGL_Libretro::PresentBackbuffer()
 	CLog::GetInstance().Print(LOG_NAME, "%s\n", __FUNCTION__);
 
 	if(g_video_cb)
-		g_video_cb(RETRO_HW_FRAME_BUFFER_VALID,GetCrtWidth() * g_res_factor, GetCrtHeight() * g_res_factor, 0);
-
+		g_video_cb(RETRO_HW_FRAME_BUFFER_VALID, GetCrtWidth() * g_res_factor, GetCrtHeight() * g_res_factor, 0);
 }

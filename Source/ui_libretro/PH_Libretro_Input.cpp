@@ -6,7 +6,7 @@ extern std::map<int, int> g_ds2_to_retro_btn_map;
 
 void CPH_Libretro_Input::Update(uint8* ram)
 {
-	if(!g_input_poll_cb  || !g_input_state_cb || g_ds2_to_retro_btn_map.size() == 0)
+	if(!g_input_poll_cb || !g_input_state_cb || g_ds2_to_retro_btn_map.size() == 0)
 		return;
 
 	g_input_poll_cb();
