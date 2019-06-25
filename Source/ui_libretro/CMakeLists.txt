@@ -53,6 +53,12 @@ if(TARGET_PLATFORM_MACOS OR TARGET_PLATFORM_UNIX OR TARGET_PLATFORM_IOS)
 		)
 	endif()
 	list(APPEND PROJECT_LIBS sh_openal)
+elseif(TARGET_PLATFORM_ANDROID)
+	set(SRC
+		${SRC}
+		${CMAKE_CURRENT_SOURCE_DIR}/../ui_android/SH_OpenSL.cpp
+	)
+	list(APPEND PROJECT_LIBS android log OpenSLES GLESv3 EGL)
 elseif(TARGET_PLATFORM_WIN32)
 	set(SRC
 		${SRC}
@@ -67,10 +73,6 @@ target_include_directories(play_libretro PRIVATE
 	../../
 	${CMAKE_CURRENT_BINARY_DIR}
 )
-
-if(TARGET_PLATFORM_ANDROID)
-	list(APPEND PROJECT_LIBS android log OpenSLES GLESv3 EGL)
-endif()
 
 if(TARGET_PLATFORM_IOS)
 	target_link_libraries(Play ${PROJECT_LIBS} "-ObjC -lsqlite3 -framework OpenGLES -framework OpenAL")

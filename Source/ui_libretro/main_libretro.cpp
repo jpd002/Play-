@@ -441,6 +441,8 @@ void retro_reset(void)
 
 	if(m_virtualMachine)
 	{
+		if(!m_virtualMachine->GetGSHandler())
+			SetupVideoHandler();
 		// m_virtualMachine->Pause();
 		m_virtualMachine->Reset();
 		m_virtualMachine->m_ee->m_os->BootFromCDROM();
