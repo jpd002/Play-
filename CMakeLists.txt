@@ -50,14 +50,11 @@ if(BUILD_PLAY)
 			add_subdirectory(Source/ui_android/)
 		endif(TARGET_PLATFORM_ANDROID)
 	endif()
-
-	if(BUILD_LIBRETRO_CORE)
-		if(NOT MSVC)
-			add_compile_options(-fPIC)
-		endif()
-		add_subdirectory(Source/ui_libretro)
-	endif()
 endif(BUILD_PLAY)
+
+if(BUILD_LIBRETRO_CORE)
+	add_subdirectory(Source/ui_libretro)
+endif()
 
 if(BUILD_TESTS)
 	enable_testing()
