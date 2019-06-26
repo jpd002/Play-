@@ -48,8 +48,6 @@ static std::vector<struct retro_variable> m_vars =
 
 unsigned retro_api_version()
 {
-	CLog::GetInstance().Print(LOG_NAME, "%s\n", __FUNCTION__);
-
 	return RETRO_API_VERSION;
 }
 
@@ -151,8 +149,6 @@ void SetupInputHandler()
 
 void retro_get_system_info(struct retro_system_info* info)
 {
-	CLog::GetInstance().Print(LOG_NAME, "%s\n", __FUNCTION__);
-
 	*info = {};
 	info->library_name = "Play!";
 	info->library_version = PLAY_VERSION;
@@ -182,7 +178,6 @@ void retro_set_video_refresh(retro_video_refresh_t cb)
 
 void retro_set_environment(retro_environment_t cb)
 {
-	CLog::GetInstance().Print(LOG_NAME, "%s\n", __FUNCTION__);
 	g_environ_cb = cb;
 }
 
@@ -497,6 +492,9 @@ bool retro_load_game_special(unsigned game_type, const struct retro_game_info* i
 
 void retro_init()
 {
+#ifdef __ANDROID__
+	Framework::PathUtils::SetFilesDirPath(getenv("EXTERNAL_STORAGE"));
+#endif
 	CLog::GetInstance().Print(LOG_NAME, "%s\n", __FUNCTION__);
 
 	m_virtualMachine = new CPS2VM();
