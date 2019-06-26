@@ -153,7 +153,7 @@ void retro_get_system_info(struct retro_system_info* info)
 	info->library_name = "Play!";
 	info->library_version = PLAY_VERSION;
 	info->need_fullpath = true;
-	info->valid_extensions = "elf|iso|bin";
+	info->valid_extensions = "elf|iso|cso|isz|bin";
 }
 
 void retro_get_system_av_info(struct retro_system_av_info* info)
