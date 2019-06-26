@@ -641,6 +641,15 @@ int32 CIopBios::LoadModule(CELF& elf, const char* path)
 		iopMod = reinterpret_cast<const IOPMOD*>(elf.GetSectionData(i));
 	}
 
+	assert(iopMod);
+	if(iopMod != nullptr)
+	{
+		//Clear BSS section
+		uint32 dataSectPos = iopMod->textSectionSize;
+		uint32 bssSectPos = iopMod->textSectionSize + iopMod->dataSectionSize;
+		memset(m_ram + moduleRange.first + bssSectPos, 0, iopMod->bssSectionSize);
+	}
+
 	std::string moduleName = iopMod ? iopMod->moduleName : "";
 	if(moduleName.empty())
 	{
@@ -3086,19 +3095,6 @@ uint32 CIopBios::LoadExecutable(CELF& elf, ExecutableRange& executableRange)
 
 	executableRange.first = baseAddress;
 	executableRange.second = baseAddress + programHeader->nMemorySize;
-
-	//Clean BSS sections
-	{
-		const ELFHEADER& header(elf.GetHeader());
-		for(unsigned int i = 0; i < header.nSectHeaderCount; i++)
-		{
-			ELFSECTIONHEADER* sectionHeader = elf.GetSection(i);
-			if(sectionHeader->nType == CELF::SHT_NOBITS && sectionHeader->nStart != 0)
-			{
-				memset(m_ram + baseAddress + sectionHeader->nStart, 0, sectionHeader->nSize);
-			}
-		}
-	}
 
 	return baseAddress + elf.GetHeader().nEntryPoint;
 }
