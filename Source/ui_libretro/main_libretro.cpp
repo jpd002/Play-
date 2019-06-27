@@ -407,6 +407,7 @@ void retro_run()
 
 	checkVarsUpdates();
 
+
 	if(!first_run)
 	{
 		if(m_virtualMachine)
@@ -421,8 +422,14 @@ void retro_run()
 	}
 
 	if(m_virtualMachine)
+	{
+		auto pad = m_virtualMachine->GetPadHandler();
+		if(pad)
+			static_cast<CPH_Libretro_Input*>(pad)->UpdateInputState();
+
 		if(m_virtualMachine->GetGSHandler())
 			m_virtualMachine->GetGSHandler()->ProcessSingleFrame();
+	}
 }
 
 void retro_reset(void)
