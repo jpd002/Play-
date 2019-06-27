@@ -429,6 +429,9 @@ void retro_run()
 		if(pad)
 			static_cast<CPH_Libretro_Input*>(pad)->UpdateInputState();
 
+		if(m_virtualMachine->GetSoundHandler())
+			static_cast<CSH_LibreAudio*>(m_virtualMachine->GetSoundHandler())->ProcessBuffer();
+
 		if(m_virtualMachine->GetGSHandler())
 			m_virtualMachine->GetGSHandler()->ProcessSingleFrame();
 	}

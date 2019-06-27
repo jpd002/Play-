@@ -2,6 +2,9 @@
 
 #include "tools/PsfPlayer/Source/SoundHandler.h"
 
+#include <deque>
+#include <vector>
+
 class CSH_LibreAudio : public CSoundHandler
 {
 public:
@@ -13,4 +16,9 @@ public:
 	void Write(int16*, unsigned int, unsigned int) override;
 	bool HasFreeBuffers() override;
 	void RecycleBuffers() override;
+
+	void ProcessBuffer();
+
+private:
+	std::deque<std::vector<int16>> m_queue;
 };

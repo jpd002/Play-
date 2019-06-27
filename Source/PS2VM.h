@@ -62,6 +62,7 @@ public:
 	void DestroyPadHandler();
 
 	void CreateSoundHandler(const CSoundHandler::FactoryFunction&);
+	CSoundHandler* GetSoundHandler();
 	void DestroySoundHandler();
 	void ReloadSpuBlockCount();
 

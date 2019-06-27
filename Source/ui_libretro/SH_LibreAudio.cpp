@@ -11,9 +11,22 @@ CSoundHandler* CSH_LibreAudio::HandlerFactory()
 
 void CSH_LibreAudio::Write(int16* buffer, unsigned int sampleCount, unsigned int sampleRate)
 {
-	if(g_audioEnabled && g_set_audio_sample_batch_cb)
+	if(g_audioEnabled)
 	{
-		g_set_audio_sample_batch_cb(buffer, sampleCount / 2);
+		std::vector<int16> buf(sampleCount * sizeof(int16));
+		memcpy(buf.data(), buffer, sampleCount * sizeof(int16));
+		m_queue.push_back(std::move(buf));
+	}
+}
+
+void CSH_LibreAudio::ProcessBuffer()
+{
+	if(!m_queue.empty())
+	{
+		auto buf = std::move(m_queue.front());
+		m_queue.pop_front();
+		if(g_set_audio_sample_batch_cb)
+			g_set_audio_sample_batch_cb(buf.data(), buf.size() / (2 * sizeof(int16)));
 	}
 }
 
