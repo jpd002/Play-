@@ -26,6 +26,7 @@ retro_video_refresh_t g_video_cb;
 retro_environment_t g_environ_cb;
 retro_input_poll_t g_input_poll_cb;
 retro_input_state_t g_input_state_cb;
+retro_audio_sample_batch_t g_set_audio_sample_batch_cb;
 
 std::map<int, int> g_ds2_to_retro_btn_map;
 struct retro_hw_render_callback g_hw_render
@@ -162,7 +163,7 @@ void retro_get_system_av_info(struct retro_system_av_info* info)
 
 	*info = {};
 	info->timing.fps = 60.0;
-	info->timing.sample_rate = 0;
+	info->timing.sample_rate = 44100;
 	info->geometry.base_width = 640;
 	info->geometry.base_height = 448;
 	info->geometry.max_width = 640 * 8;
@@ -198,9 +199,10 @@ void retro_set_controller_port_device(unsigned port, unsigned device)
 	CLog::GetInstance().Print(LOG_NAME, "%s\n", __FUNCTION__);
 }
 
-void retro_set_audio_sample_batch(retro_audio_sample_batch_t)
+void retro_set_audio_sample_batch(retro_audio_sample_batch_t cb)
 {
 	CLog::GetInstance().Print(LOG_NAME, "%s\n", __FUNCTION__);
+	g_set_audio_sample_batch_cb = cb;
 }
 
 void retro_set_audio_sample(retro_audio_sample_t)

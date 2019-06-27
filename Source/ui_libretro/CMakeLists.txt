@@ -42,29 +42,14 @@ set(SRC
 	GSH_OpenGL_Libretro.h
 	PH_Libretro_Input.cpp
 	PH_Libretro_Input.h
+	SH_LibreAudio.cpp
 	SH_LibreAudio.h
 )
 
-if(TARGET_PLATFORM_MACOS OR TARGET_PLATFORM_UNIX OR TARGET_PLATFORM_IOS)
-	if(NOT TARGET sh_openal)
-		add_subdirectory(
-			${CMAKE_CURRENT_SOURCE_DIR}/../../tools/PsfPlayer/Source/SH_OpenAL
-			${CMAKE_CURRENT_BINARY_DIR}/SH_OpenAL
-		)
-	endif()
-	list(APPEND PROJECT_LIBS sh_openal)
-elseif(TARGET_PLATFORM_ANDROID)
-	set(SRC
-		${SRC}
-		${CMAKE_CURRENT_SOURCE_DIR}/../ui_android/SH_OpenSL.cpp
-	)
-	list(APPEND PROJECT_LIBS android log OpenSLES GLESv3 EGL)
-elseif(TARGET_PLATFORM_WIN32)
-	set(SRC
-		${SRC}
-		../../tools/PsfPlayer/Source/win32_ui/SH_WaveOut.cpp
-	)
-	list(APPEND PROJECT_LIBS "winmm.lib")
+if(TARGET_PLATFORM_ANDROID)
+	list(APPEND PROJECT_LIBS android log GLESv3 EGL)
+elseif(TARGET_PLATFORM_IOS)
+	target_link_libraries(play_libretro ${PROJECT_LIBS} "-ObjC -lsqlite3 -framework OpenGLES")
 endif()
 
 add_library(play_libretro SHARED ${SRC})
@@ -73,10 +58,6 @@ target_include_directories(play_libretro PRIVATE
 	../../
 	${CMAKE_CURRENT_BINARY_DIR}
 )
-
-if(TARGET_PLATFORM_IOS)
-	target_link_libraries(play_libretro ${PROJECT_LIBS} "-ObjC -lsqlite3 -framework OpenGLES -framework OpenAL")
-endif()
 
 target_link_libraries(play_libretro ${PROJECT_LIBS})
 set_target_properties(play_libretro PROPERTIES PREFIX "")
