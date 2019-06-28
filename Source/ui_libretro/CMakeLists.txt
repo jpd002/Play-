@@ -36,16 +36,6 @@ if(NOT TARGET_PLATFORM_UNIX_AARCH64)
 	list(APPEND PROJECT_LIBS glew_s)
 endif()
 
-if(TARGET_PLATFORM_MACOS OR TARGET_PLATFORM_UNIX)
-	if(NOT TARGET sh_openal)
-		add_subdirectory(
-			${CMAKE_CURRENT_SOURCE_DIR}/../../tools/PsfPlayer/Source/SH_OpenAL
-			${CMAKE_CURRENT_BINARY_DIR}/SH_OpenAL
-		)
-	endif()
-	list(APPEND PROJECT_LIBS sh_openal)
-endif()
-
 set(SRC
 	main_libretro.cpp
 	GSH_OpenGL_Libretro.cpp
@@ -55,11 +45,20 @@ set(SRC
 	SH_LibreAudio.h
 )
 
-if(TARGET_PLATFORM_WIN32)
+if(TARGET_PLATFORM_MACOS OR TARGET_PLATFORM_UNIX OR TARGET_PLATFORM_IOS)
+	if(NOT TARGET sh_openal)
+		add_subdirectory(
+			${CMAKE_CURRENT_SOURCE_DIR}/../../tools/PsfPlayer/Source/SH_OpenAL
+			${CMAKE_CURRENT_BINARY_DIR}/SH_OpenAL
+		)
+	endif()
+	list(APPEND PROJECT_LIBS sh_openal)
+elseif(TARGET_PLATFORM_WIN32)
 	set(SRC
 		${SRC}
 		../../tools/PsfPlayer/Source/win32_ui/SH_WaveOut.cpp
 	)
+	list(APPEND PROJECT_LIBS "winmm.lib")
 endif()
 
 add_library(play_libretro SHARED ${SRC})
@@ -68,4 +67,4 @@ target_include_directories(play_libretro PRIVATE
 	../../
 	${CMAKE_CURRENT_BINARY_DIR}
 )
-target_link_libraries(play_libretro ${PROJECT_LIBS} "winmm.lib")
+target_link_libraries(play_libretro ${PROJECT_LIBS})
