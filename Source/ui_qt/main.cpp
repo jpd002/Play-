@@ -22,10 +22,16 @@ int main(int argc, char* argv[])
 #endif
 	QCommandLineOption cdrom_image_option("cdrom0", "Boot last booted cdvd image");
 	parser.addOption(cdrom_image_option);
+
 	QCommandLineOption disc_image_option("disc", "Boot any supported disc image", "disc_image");
 	parser.addOption(disc_image_option);
+
 	QCommandLineOption elf_image_option("elf", "Boot supported elf image", "elf_image");
 	parser.addOption(elf_image_option);
+
+	QCommandLineOption load_state_option("state", "Load state at index", "state_index");
+	parser.addOption(load_state_option);
+
 	parser.process(a);
 
 	MainWindow w;
@@ -48,6 +54,12 @@ int main(int argc, char* argv[])
 	{
 		QString elf_image = parser.value(elf_image_option);
 		w.BootElf(QStringToPath(elf_image));
+	}
+
+	if(parser.isSet(load_state_option))
+	{
+		QString stateIndex = parser.value(load_state_option);
+		w.loadState(stateIndex.toInt());
 	}
 
 #ifdef DEBUGGER_INCLUDED
