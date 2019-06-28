@@ -49,7 +49,7 @@ set(SRC
 if(TARGET_PLATFORM_ANDROID)
 	list(APPEND PROJECT_LIBS android log GLESv3 EGL)
 elseif(TARGET_PLATFORM_IOS)
-	target_link_libraries(play_libretro ${PROJECT_LIBS} "-ObjC -lsqlite3 -framework OpenGLES")
+	list(APPEND PROJECT_LIBS "-ObjC -lsqlite3 -framework OpenGLES")
 endif()
 
 add_library(play_libretro SHARED ${SRC})
