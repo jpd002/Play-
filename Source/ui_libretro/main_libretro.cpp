@@ -36,14 +36,12 @@ struct retro_hw_render_callback g_hw_render
 int g_res_factor = 1;
 CGSHandler::PRESENTATION_MODE g_presentation_mode = CGSHandler::PRESENTATION_MODE::PRESENTATION_MODE_FIT;
 bool g_forceBilinearTextures = false;
-bool g_audioEnabled = true;
 
 static std::vector<struct retro_variable> m_vars =
     {
         {"play_res_multi", "Resolution Multiplier; 1x|2x|4x|8x"},
         {"play_presentation_mode", "Presentation Mode; Fit Screen|Fill Screen|Original Size"},
         {"play_bilinear_filtering", "Force Bilinear Filtering; false|true"},
-        {"audio_enable", "Enable Audio; true|false"},
         {NULL, NULL},
 };
 
@@ -371,13 +369,6 @@ void updateVars()
 				}
 			}
 			break;
-			case 3:
-				bool audioEnabled = (std::string(var.value) == "true");
-				if(audioEnabled != g_audioEnabled)
-				{
-					g_audioEnabled = audioEnabled;
-				}
-				break;
 			}
 
 			if(videoUpdate)

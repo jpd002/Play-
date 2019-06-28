@@ -1,8 +1,10 @@
 #include "SH_LibreAudio.h"
 #include "libretro.h"
+#include <cstring>
+#include <mutex>
 
-extern bool g_audioEnabled;
 extern retro_audio_sample_batch_t g_set_audio_sample_batch_cb;
+std::mutex m_buffer_lock;
 
 CSoundHandler* CSH_LibreAudio::HandlerFactory()
 {
@@ -11,22 +13,19 @@ CSoundHandler* CSH_LibreAudio::HandlerFactory()
 
 void CSH_LibreAudio::Write(int16* buffer, unsigned int sampleCount, unsigned int sampleRate)
 {
-	if(g_audioEnabled)
-	{
-		std::vector<int16> buf(sampleCount * sizeof(int16));
-		memcpy(buf.data(), buffer, sampleCount * sizeof(int16));
-		m_queue.push_back(std::move(buf));
-	}
+	std::lock_guard<std::mutex> lock(m_buffer_lock);
+	m_buffer.resize(sampleCount * sizeof(int16));
+	memcpy(m_buffer.data(), buffer, sampleCount * sizeof(int16));
 }
 
 void CSH_LibreAudio::ProcessBuffer()
 {
-	if(!m_queue.empty())
+	if(!m_buffer.empty())
 	{
-		auto buf = std::move(m_queue.front());
-		m_queue.pop_front();
+		std::lock_guard<std::mutex> lock(m_buffer_lock);
 		if(g_set_audio_sample_batch_cb)
-			g_set_audio_sample_batch_cb(buf.data(), buf.size() / (2 * sizeof(int16)));
+			g_set_audio_sample_batch_cb(m_buffer.data(), m_buffer.size() / (2 * sizeof(int16)));
+		m_buffer.clear();
 	}
 }
 

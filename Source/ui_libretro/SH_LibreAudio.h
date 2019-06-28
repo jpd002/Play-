@@ -20,5 +20,5 @@ public:
 	void ProcessBuffer();
 
 private:
-	std::deque<std::vector<int16>> m_queue;
+	std::vector<int16> m_buffer;
 };
