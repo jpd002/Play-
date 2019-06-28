@@ -246,7 +246,10 @@ void *retro_get_memory_data(unsigned id)
 {
 	CLog::GetInstance().Print(LOG_NAME, "%s\n", __FUNCTION__);
 
-	(void)id;
+	if(id == RETRO_MEMORY_SYSTEM_RAM)
+	{
+		return m_virtualMachine->m_ee->m_ram;
+	}
 	return NULL;
 }
 
@@ -254,7 +257,10 @@ size_t retro_get_memory_size(unsigned id)
 {
 	CLog::GetInstance().Print(LOG_NAME, "%s\n", __FUNCTION__);
 
-	(void)id;
+	if(id == RETRO_MEMORY_SYSTEM_RAM)
+	{
+		return PS2::EE_RAM_SIZE;
+	}
 	return 0;
 }
 
