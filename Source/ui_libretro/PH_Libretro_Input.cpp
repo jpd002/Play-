@@ -18,9 +18,9 @@ void CPH_Libretro_Input::UpdateInputState()
 	else
 	{
 		m_btns_state = 0;
-		for (unsigned int i = 0; i <= RETRO_DEVICE_ID_JOYPAD_R3; i++)
+		for(unsigned int i = 0; i <= RETRO_DEVICE_ID_JOYPAD_R3; i++)
 		{
-			if (g_input_state_cb(0, RETRO_DEVICE_JOYPAD, 0, i))
+			if(g_input_state_cb(0, RETRO_DEVICE_JOYPAD, 0, i))
 				m_btns_state |= (1 << i);
 		}
 	}
