@@ -22,6 +22,7 @@
 static CPS2VM* m_virtualMachine = nullptr;
 static bool first_run = false;
 
+bool libretro_supports_bitmasks = false;
 retro_video_refresh_t g_video_cb;
 retro_environment_t g_environ_cb;
 retro_input_poll_t g_input_poll_cb;
@@ -500,6 +501,9 @@ void retro_init()
 #endif
 	CLog::GetInstance().Print(LOG_NAME, "%s\n", __FUNCTION__);
 
+	if (g_environ_cb(RETRO_ENVIRONMENT_GET_INPUT_BITMASKS, NULL))
+		libretro_supports_bitmasks = true;
+
 	m_virtualMachine = new CPS2VM();
 	m_virtualMachine->Initialize();
 
@@ -528,4 +532,5 @@ void retro_deinit()
 		delete m_virtualMachine;
 		m_virtualMachine = nullptr;
 	}
+	libretro_supports_bitmasks = false;
 }

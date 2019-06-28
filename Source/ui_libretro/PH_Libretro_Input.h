@@ -19,5 +19,6 @@ public:
 	void UpdateInputState();
 
 private:
-	std::map<int, uint8> m_btn_state = {};
+	int16 m_btns_state = 0;
+	uint8 m_axis_btn_state[4] = { 0x7F };
 };
