@@ -9,6 +9,10 @@
 #include "SH_LibreAudio.h"
 #include "PH_Libretro_Input.h"
 
+#include "PathUtils.h"
+#include "PtrStream.h"
+#include "MemStream.h"
+
 #include "filesystem_def.h"
 #include <vector>
 #include <cstdlib>
@@ -221,25 +225,62 @@ size_t retro_serialize_size(void)
 {
 	CLog::GetInstance().Print(LOG_NAME, "%s\n", __FUNCTION__);
 
-	return 0;
+	return 40 * 1024 * 1024;
 }
 
 bool retro_serialize(void *data, size_t size)
 {
 	CLog::GetInstance().Print(LOG_NAME, "%s\n", __FUNCTION__);
 
-	(void)data;
-	(void)size;
-	return false;
+	try
+	{
+		Framework::CMemStream stateStream;
+		Framework::CZipArchiveWriter archive;
+
+		m_virtualMachine->m_ee->SaveState(archive);
+		m_virtualMachine->m_iop->SaveState(archive);
+		m_virtualMachine->m_ee->m_gs->SaveState(archive);
+
+		archive.Write(stateStream);
+		stateStream.Seek(0, Framework::STREAM_SEEK_DIRECTION::STREAM_SEEK_SET);
+		stateStream.Read(data, size);
+	}
+	catch(...)
+	{
+		return false;
+	}
+
+	return true;
 }
 
 bool retro_unserialize(const void *data, size_t size)
 {
 	CLog::GetInstance().Print(LOG_NAME, "%s\n", __FUNCTION__);
 
-	(void)data;
-	(void)size;
-	return false;
+	try
+	{
+		Framework::CPtrStream stateStream(data, size);
+		Framework::CZipArchiveReader archive(stateStream);
+
+		try
+		{
+			m_virtualMachine->m_ee->LoadState(archive);
+			m_virtualMachine->m_iop->LoadState(archive);
+			m_virtualMachine->m_ee->m_gs->LoadState(archive);
+		}
+		catch(...)
+		{
+			//Any error that occurs in the previous block is critical
+			throw;
+		}
+	}
+	catch(...)
+	{
+		return false;
+	}
+
+	m_virtualMachine->OnMachineStateChange();
+	return true;
 }
 
 void *retro_get_memory_data(unsigned id)
