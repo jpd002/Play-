@@ -2,7 +2,6 @@
 
 travis_before_install() 
 {
-    cd ..
     if [ "$TARGET_OS" = "Linux" ]; then
         sudo add-apt-repository --yes ppa:beineri/opt-qt-5.12.3-xenial
         sudo add-apt-repository --yes ppa:ubuntu-toolchain-r/test
@@ -26,16 +25,7 @@ travis_before_install()
         echo y | sdkmanager 'cmake;3.10.2.4988404'
     fi;
 
-    git clone -q https://github.com/jpd002/Play-Build.git Play-Build
-    pushd Play-Build
     git submodule update -q --init --recursive
-    git submodule foreach "git checkout -q master"
-    cd Dependencies
-    git submodule update --init
-    cd ..
-    rm -rf Play
-    mv ../Play- Play
-    popd
 }
 
 travis_script()
@@ -85,7 +75,7 @@ travis_script()
             $(brew --prefix qt5)/bin/macdeployqt Source/ui_qt/Release/Play.app
             appdmg ../installer_macosx/spec.json Play.dmg
         elif [ "$TARGET_OS" = "IOS" ]; then
-            cmake .. -G"$BUILD_TYPE" -DCMAKE_TOOLCHAIN_FILE=../../Dependencies/cmake-ios/ios.cmake -DTARGET_IOS=ON -DBUILD_PSFPLAYER=ON
+            cmake .. -G"$BUILD_TYPE" -DCMAKE_TOOLCHAIN_FILE=../deps/Dependencies/cmake-ios/ios.cmake -DTARGET_IOS=ON -DBUILD_PSFPLAYER=ON
             cmake --build . --config Release
             codesign -s "-" Source/ui_ios/Release-iphoneos/Play.app
             pushd ..
@@ -111,21 +101,21 @@ travis_before_deploy()
         return
     fi;
     if [ "$TARGET_OS" = "Linux" ]; then
-        cp ../../build/Play*.AppImage .
+        cp ../build/Play*.AppImage .
     fi;
     if [ "$TARGET_OS" = "Android" ]; then
-        cp ../../build_android/build/outputs/apk/release/Play-release-unsigned.apk .
+        cp ../build_android/build/outputs/apk/release/Play-release-unsigned.apk .
         export ANDROID_BUILD_TOOLS=$ANDROID_HOME/build-tools/28.0.3
         $ANDROID_BUILD_TOOLS/zipalign -v -p 4 Play-release-unsigned.apk Play-release.apk
-        $ANDROID_BUILD_TOOLS/apksigner sign --ks ../../installer_android/deploy.keystore --ks-key-alias deploy --ks-pass env:ANDROID_KEYSTORE_PASS --key-pass env:ANDROID_KEYSTORE_PASS Play-release.apk
+        $ANDROID_BUILD_TOOLS/apksigner sign --ks ../installer_android/deploy.keystore --ks-key-alias deploy --ks-pass env:ANDROID_KEYSTORE_PASS --key-pass env:ANDROID_KEYSTORE_PASS Play-release.apk
     fi;
     if [ "$TARGET_OS" = "OSX" ]; then
-        cp ../../build/Play.dmg .
+        cp ../build/Play.dmg .
     fi;
     if [ "$TARGET_OS" = "IOS" ]; then
-        cp ../../installer_ios/Play.ipa .
-        cp ../../installer_ios/Play.deb .
-        cp ../../installer_ios/Packages.bz2 .
+        cp ../installer_ios/Play.ipa .
+        cp ../installer_ios/Play.deb .
+        cp ../installer_ios/Packages.bz2 .
     fi;
     popd
     popd

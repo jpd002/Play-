@@ -23,33 +23,7 @@ build_script:
     
     appveyor SetVariable -Name REPO_COMMIT_SHORT -Value %REPO_COMMIT_SHORT%
     
-    cd ..
-    
-    rename Play PlaySource
-    
-    mkdir Play
-    
-    cd Play
-    
-    git clone -q https://github.com/jpd002/Play-Build.git Play-Build
-    
-    cd Play-Build
-    
     git submodule update -q --init --recursive
-    
-    git submodule foreach -q "git checkout -q master"
-    
-    cd Dependencies
-    
-    git submodule update --init
-    
-    cd ..
-    
-    rd /S /Q Play
-    
-    move ..\..\PlaySource Play
-    
-    cd Play
     
     call appveyor_build.cmd
     
