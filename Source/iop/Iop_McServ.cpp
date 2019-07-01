@@ -802,10 +802,10 @@ void CMcServ::CPathFinder::Search(const boost::filesystem::path& basePath, const
 
 	{
 		std::string filterExpString = filterPathString;
-		StringUtils::replace_all(filterExpString, "\\", "\\\\");
-		StringUtils::replace_all(filterExpString, ".", "\\.");
-		StringUtils::replace_all(filterExpString, "?", ".?");
-		StringUtils::replace_all(filterExpString, "*", ".*");
+		filterExpString = StringUtils::ReplaceAll(filterExpString, "\\", "\\\\");
+		filterExpString = StringUtils::ReplaceAll(filterExpString, ".", "\\.");
+		filterExpString = StringUtils::ReplaceAll(filterExpString, "?", ".?");
+		filterExpString = StringUtils::ReplaceAll(filterExpString, "*", ".*");
 		m_filterExp = std::regex(filterExpString);
 	}
 

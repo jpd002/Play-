@@ -111,8 +111,7 @@ DiskUtils::SystemConfigMap DiskUtils::ParseSystemConfigFile(Framework::CStream* 
 	{
 		auto trimmedEnd = std::remove_if(line.begin(), line.end(), isspace);
 		auto trimmedLine = std::string(line.begin(), trimmedEnd);
-		std::vector<std::string> components;
-		StringUtils::split(components, trimmedLine, '=', true);
+		std::vector<std::string> components = StringUtils::Split(trimmedLine, '=', true);
 		if(components.size() >= 2)
 		{
 			result.insert(std::make_pair(components[0], components[1]));

@@ -5,7 +5,7 @@
 int WINAPI WinMain(HINSTANCE instance, HINSTANCE prevInstance, LPSTR params, int showCmd)
 {
 	std::string path(params);
-	StringUtils::erase_all(path, "\"");
+	path = StringUtils::EraseAll(path, "\"");
 	CElfViewFrame elfViewFrame(path.c_str());
 	elfViewFrame.Center();
 	elfViewFrame.Show(SW_SHOW);
