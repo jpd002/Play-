@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.5)
 
 set(CMAKE_MODULE_PATH
-	${CMAKE_CURRENT_SOURCE_DIR}/../../Dependencies/cmake-modules
+	${CMAKE_CURRENT_SOURCE_DIR}/../deps/Dependencies/cmake-modules
 	${CMAKE_MODULE_PATH}
 )
 include(Header)
@@ -37,7 +37,7 @@ endif()
 # targets, packages and dependencies
 if(NOT TARGET Framework)
 	add_subdirectory(
-		${CMAKE_CURRENT_SOURCE_DIR}/../../Framework/build_cmake/Framework
+		${CMAKE_CURRENT_SOURCE_DIR}/../deps/Framework/build_cmake/Framework
 		${CMAKE_CURRENT_BINARY_DIR}/Framework
 	)
 endif()
@@ -46,7 +46,7 @@ list(APPEND PROJECT_LIBS Framework)
 if(ENABLE_AMAZON_S3)
 	if(NOT TARGET Framework_Http)
 		add_subdirectory(
-			${CMAKE_CURRENT_SOURCE_DIR}/../../Framework/build_cmake/FrameworkHttp
+			${CMAKE_CURRENT_SOURCE_DIR}/../deps/Framework/build_cmake/FrameworkHttp
 			${CMAKE_CURRENT_BINARY_DIR}/FrameworkHttp
 		)
 	endif()
@@ -60,7 +60,7 @@ endif()
 
 if(NOT TARGET CodeGen)
 	add_subdirectory(
-		${CMAKE_CURRENT_SOURCE_DIR}/../../CodeGen/build_cmake
+		${CMAKE_CURRENT_SOURCE_DIR}/../deps/CodeGen/build_cmake
 		${CMAKE_CURRENT_BINARY_DIR}/CodeGen
 	)
 endif()
@@ -68,7 +68,7 @@ list(APPEND PROJECT_LIBS CodeGen)
 
 if(NOT TARGET Boost::boost)
 	add_subdirectory(
-		${CMAKE_CURRENT_SOURCE_DIR}/../../Dependencies/boost-cmake
+		${CMAKE_CURRENT_SOURCE_DIR}/../deps/Dependencies/boost-cmake
 		${CMAKE_CURRENT_BINARY_DIR}/boost-cmake
 	)
 endif()
@@ -79,7 +79,7 @@ if(NOT BZIP2_FOUND)
 	MESSAGE("-- Using Provided BZip2 source")
 	if(NOT TARGET BZip2::BZip2)
 		add_subdirectory(
-			${CMAKE_CURRENT_SOURCE_DIR}/../../Dependencies/build_cmake/bzip2-1.0.6
+			${CMAKE_CURRENT_SOURCE_DIR}/../deps/Dependencies/build_cmake/bzip2-1.0.6
 			${CMAKE_CURRENT_BINARY_DIR}/bzip2-1.0.6
 		)
 	endif()
@@ -94,7 +94,7 @@ if(NOT ZLIB_FOUND)
 	MESSAGE("-- Using Provided zlib source")
 	if(NOT TARGET zlibstatic)
 		add_subdirectory(
-			${CMAKE_CURRENT_SOURCE_DIR}/../../Dependencies/build_cmake/zlib-1.2.8
+			${CMAKE_CURRENT_SOURCE_DIR}/../deps/Dependencies/build_cmake/zlib-1.2.8
 			${CMAKE_CURRENT_BINARY_DIR}/zlib-1.2.8
 		)
 	endif()
@@ -433,8 +433,8 @@ target_include_directories(PlayCore
 	PUBLIC
 		${CMAKE_CURRENT_SOURCE_DIR}
 	PRIVATE
-		${CMAKE_CURRENT_SOURCE_DIR}/../../Framework/include
-		${CMAKE_CURRENT_SOURCE_DIR}/../../CodeGen/include
+		${CMAKE_CURRENT_SOURCE_DIR}/../deps/Framework/include
+		${CMAKE_CURRENT_SOURCE_DIR}/../deps/CodeGen/include
 )
 target_compile_definitions(PlayCore PUBLIC ${DEFINITIONS_LIST})
 if(NOT ANDROID)

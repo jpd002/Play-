@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.5)
 
 set(CMAKE_MODULE_PATH
-	${CMAKE_CURRENT_SOURCE_DIR}/../../../../Dependencies/cmake-modules
+	${CMAKE_CURRENT_SOURCE_DIR}/../../../deps/Dependencies/cmake-modules
 	${CMAKE_MODULE_PATH}
 )
 
@@ -11,7 +11,7 @@ project(SH_OpenAL)
 
 if(NOT TARGET Framework)
 	add_subdirectory(
-		${CMAKE_CURRENT_SOURCE_DIR}/../../../../../Framework/build_cmake/Framework
+		${CMAKE_CURRENT_SOURCE_DIR}/../../../../deps/Framework/build_cmake/Framework
 		${CMAKE_CURRENT_BINARY_DIR}/Framework
 	)
 endif()
@@ -19,7 +19,7 @@ list(APPEND PROJECT_LIBS Framework)
 
 if(NOT TARGET Framework_OpenAl)
 add_subdirectory(
-	${CMAKE_CURRENT_SOURCE_DIR}/../../../../../Framework/build_cmake/FrameworkOpenAl
+	${CMAKE_CURRENT_SOURCE_DIR}/../../../../deps/Framework/build_cmake/FrameworkOpenAl
 	${CMAKE_CURRENT_BINARY_DIR}/FrameworkOpenAl
 )
 endif()
