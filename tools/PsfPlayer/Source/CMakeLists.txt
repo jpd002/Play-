@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.5)
 
 set(CMAKE_MODULE_PATH
-	${CMAKE_CURRENT_SOURCE_DIR}/../../../../Dependencies/cmake-modules
+	${CMAKE_CURRENT_SOURCE_DIR}/../../../deps/Dependencies/cmake-modules
 	${CMAKE_MODULE_PATH}
 )
 include(Header)
@@ -25,7 +25,7 @@ list(APPEND PROJECT_LIBS PlayCore)
 if(PSF_RAR_SUPPORT)
 	if(NOT TARGET unrar)
 		add_subdirectory(
-			${CMAKE_CURRENT_SOURCE_DIR}/../../../../Dependencies/build_cmake/unrarsrc-5.2.5
+			${CMAKE_CURRENT_SOURCE_DIR}/../../../deps/Dependencies/build_cmake/unrarsrc-5.2.5
 			${CMAKE_CURRENT_BINARY_DIR}/unrarsrc-5.2.5
 		)
 	endif()

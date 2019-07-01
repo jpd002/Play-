@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.5)
 
 set(CMAKE_MODULE_PATH
-	${CMAKE_CURRENT_SOURCE_DIR}/../../../Dependencies/cmake-modules
+	${CMAKE_CURRENT_SOURCE_DIR}/../../deps/Dependencies/cmake-modules
 	${CMAKE_MODULE_PATH}
 )
 
@@ -9,7 +9,7 @@ project(ui_shared)
 
 if(NOT TARGET Framework_Sqlite)
 	add_subdirectory(
-		${CMAKE_CURRENT_SOURCE_DIR}/../../../Framework/build_cmake/FrameworkSqlite
+		${CMAKE_CURRENT_SOURCE_DIR}/../../deps/Framework/build_cmake/FrameworkSqlite
 		${CMAKE_CURRENT_BINARY_DIR}/FrameworkSqlite
 	)
 endif()
@@ -17,7 +17,7 @@ list(APPEND SHARED_UI_PROJECT_LIBS Framework_Sqlite)
 
 if(NOT TARGET Framework_Http)
 	add_subdirectory(
-		${CMAKE_CURRENT_SOURCE_DIR}/../../../Framework/build_cmake/FrameworkHttp
+		${CMAKE_CURRENT_SOURCE_DIR}/../../deps/Framework/build_cmake/FrameworkHttp
 		${CMAKE_CURRENT_BINARY_DIR}/FrameworkHttp
 	)
 endif()
@@ -26,7 +26,7 @@ list(APPEND SHARED_UI_PROJECT_LIBS Framework_Http)
 if(NOT TARGET nlohmann_json)
 	set(JSON_BuildTests OFF CACHE BOOL "Disable test build")
 	add_subdirectory(
-		${CMAKE_CURRENT_SOURCE_DIR}/../../../Dependencies/build_cmake/nlohmann_json
+		${CMAKE_CURRENT_SOURCE_DIR}/../../deps/Dependencies/build_cmake/nlohmann_json
 		${CMAKE_CURRENT_BINARY_DIR}/nlohmann_json
 		EXCLUDE_FROM_ALL
 	)

@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.5)
 
 set(CMAKE_MODULE_PATH
-	${CMAKE_CURRENT_SOURCE_DIR}/../../../Dependencies/cmake-modules
+	${CMAKE_CURRENT_SOURCE_DIR}/../../deps/Dependencies/cmake-modules
 	${CMAKE_MODULE_PATH}
 )
 include(Header)
@@ -108,7 +108,7 @@ endif()
 if(TARGET_PLATFORM_WIN32)
 	if(NOT TARGET Framework_Win32)
 		add_subdirectory(
-			${CMAKE_CURRENT_SOURCE_DIR}/../../../Framework/build_cmake/FrameworkWin32
+			${CMAKE_CURRENT_SOURCE_DIR}/../../deps/Framework/build_cmake/FrameworkWin32
 			${CMAKE_CURRENT_BINARY_DIR}/Framework_Win32
 		)
 	endif()

@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.5)
 
 set(CMAKE_MODULE_PATH
-	${CMAKE_CURRENT_SOURCE_DIR}/../../../../Dependencies/cmake-modules
+	${CMAKE_CURRENT_SOURCE_DIR}/../../../deps/Dependencies/cmake-modules
 	${CMAKE_MODULE_PATH}
 )
 
@@ -11,7 +11,7 @@ project(GSH_OpenGL)
 
 if(NOT TARGET Framework_OpenGl)
 add_subdirectory(
-	${CMAKE_CURRENT_SOURCE_DIR}/../../../../Framework/build_cmake/FrameworkOpenGl
+	${CMAKE_CURRENT_SOURCE_DIR}/../../../deps/Framework/build_cmake/FrameworkOpenGl
 	${CMAKE_CURRENT_BINARY_DIR}/FrameworkOpenGl
 )
 endif()

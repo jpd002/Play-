@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.5)
 
 set(CMAKE_MODULE_PATH
-	${CMAKE_CURRENT_SOURCE_DIR}/../../../Dependencies/cmake-modules
+	${CMAKE_CURRENT_SOURCE_DIR}/../../deps/Dependencies/cmake-modules
 	${CMAKE_MODULE_PATH}
 )
 include(Header)
@@ -34,7 +34,7 @@ list(APPEND PROJECT_LIBS sh_openal)
 
 if(NOT TARGET iCade_Static)
 	add_subdirectory(
-		${CMAKE_CURRENT_SOURCE_DIR}/../../../Dependencies/build_cmake/iCade-iOS
+		${CMAKE_CURRENT_SOURCE_DIR}/../../deps/Dependencies/build_cmake/iCade-iOS
 		${CMAKE_CURRENT_BINARY_DIR}/iCade-iOS
 	)
 endif()
@@ -42,7 +42,7 @@ list(APPEND PROJECT_LIBS iCade_Static)
 
 if(NOT TARGET SDWebImage_Static)
 	add_subdirectory(
-		${CMAKE_CURRENT_SOURCE_DIR}/../../../Dependencies/build_cmake/SDWebImage
+		${CMAKE_CURRENT_SOURCE_DIR}/../../deps/Dependencies/build_cmake/SDWebImage
 		${CMAKE_CURRENT_BINARY_DIR}/SDWebImage
 	)
 endif()
