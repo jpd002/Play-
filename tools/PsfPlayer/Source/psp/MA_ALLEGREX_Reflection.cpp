@@ -155,8 +155,8 @@ INSTRUCTION CMA_ALLEGREX::m_cReflBshfl[32] =
 
 void CMA_ALLEGREX::SetupReflectionTables()
 {
-	BOOST_STATIC_ASSERT(sizeof(m_ReflSpecial3) == sizeof(m_cReflSpecial3));
-	BOOST_STATIC_ASSERT(sizeof(m_ReflBshfl) == sizeof(m_cReflBshfl));
+	static_assert(sizeof(m_ReflSpecial3) == sizeof(m_cReflSpecial3), "Error Size Mismatch");
+	static_assert(sizeof(m_ReflBshfl) == sizeof(m_cReflBshfl), "Error Size Mismatch");
 
 	memcpy(m_ReflSpecial3, m_cReflSpecial3, sizeof(m_cReflSpecial3));
 	memcpy(m_ReflBshfl, m_cReflBshfl, sizeof(m_cReflBshfl));

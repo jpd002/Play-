@@ -181,7 +181,7 @@ CBios::CBios(CMIPS& cpu, uint8* ram, uint32 ramSize)
     , m_threadFinishAddress(0)
     , m_idleFunctionAddress(0)
 {
-	BOOST_STATIC_ASSERT(BIOS_CALCULATED_END <= CBios::CONTROL_BLOCK_END);
+	static_assert(BIOS_CALCULATED_END <= CBios::CONTROL_BLOCK_END, "Error");
 	Reset();
 }
 
