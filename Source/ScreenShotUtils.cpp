@@ -14,7 +14,7 @@ Framework::CSignal<void()>::CConnectionPtr m_OnFlipCompleteConnect;
 
 void CScreenShotUtils::TriggerGetScreenshot(CPS2VM* virtualMachine, Callback completionCallback)
 {
-	m_OnFlipCompleteConnect = virtualMachine->m_ee->m_gs->OnFlipComplete.connectOnce(
+	m_OnFlipCompleteConnect = virtualMachine->m_ee->m_gs->OnFlipComplete.ConnectOnce(
 	    [=]() -> void {
 		    try
 		    {

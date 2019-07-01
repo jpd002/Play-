@@ -46,7 +46,7 @@ void CPsfVm::Reset()
 void CPsfVm::SetSubSystem(const PsfVmSubSystemPtr& subSystem)
 {
 	m_subSystem = subSystem;
-	m_OnNewFrameConnection = m_subSystem->OnNewFrame.connect([&]() {
+	m_OnNewFrameConnection = m_subSystem->OnNewFrame.Connect([&]() {
 		OnNewFrame();
 	});
 }

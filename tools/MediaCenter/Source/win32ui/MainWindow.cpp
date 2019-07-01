@@ -58,7 +58,7 @@ void CMainWindow::OnFileOpen()
 		boost::filesystem::path filePath(dialog.GetPath());
 		auto myString = filePath.string();
 		m_videoDecoder = std::make_shared<CVideoDecoder>(filePath.string());
-		m_onNewFrameConnection = m_videoDecoder->NewFrame.connect([&](const Framework::CBitmap& frame) { OnNewFrame(frame); });
+		m_onNewFrameConnection = m_videoDecoder->NewFrame.Connect([&](const Framework::CBitmap& frame) { OnNewFrame(frame); });
 		/*
 		boost::filesystem::path filePath(dialog.GetPath());
 		std::wstring fileExtension = filePath.extension().wstring();

@@ -197,7 +197,7 @@ Framework::CSignal<void (uint32)> g_OnNewFrameConnection;
 	[self.view addSubview: self.profilerStatsLabel];
 #endif
 	
-	g_OnNewFrameConnection = g_virtualMachine->GetGSHandler()->OnNewFrame.connect(std::bind(&CStatsManager::OnNewFrame, &CStatsManager::GetInstance(), std::placeholders::_1));
+	g_OnNewFrameConnection = g_virtualMachine->GetGSHandler()->OnNewFrame.Connect(std::bind(&CStatsManager::OnNewFrame, &CStatsManager::GetInstance(), std::placeholders::_1));
 #ifdef PROFILE
 	g_virtualMachine->ProfileFrameDone.connect(std::bind(&CStatsManager::OnProfileFrameDone, &CStatsManager::GetInstance(), g_virtualMachine, std::placeholders::_1));
 #endif

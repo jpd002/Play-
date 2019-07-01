@@ -150,7 +150,7 @@ CSubSystem::CSubSystem(uint8* iopRam, CIopBios& iopBios)
 	m_ipu.SetDMA3ReceiveHandler(std::bind(&CDMAC::ResumeDMA3, &m_dmac, PLACEHOLDER_1, PLACEHOLDER_2));
 
 	m_os = new CPS2OS(m_EE, m_ram, m_bios, m_spr, m_gs, m_sif, iopBios);
-	m_OnRequestInstructionCacheFlushConnection = m_os->OnRequestInstructionCacheFlush.connect(std::bind(&CSubSystem::FlushInstructionCache, this));
+	m_OnRequestInstructionCacheFlushConnection = m_os->OnRequestInstructionCacheFlush.Connect(std::bind(&CSubSystem::FlushInstructionCache, this));
 
 	SetupEePageTable();
 }

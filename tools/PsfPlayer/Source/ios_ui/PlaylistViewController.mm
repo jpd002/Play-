@@ -74,7 +74,7 @@
 	if(m_playlist)
 	{
 		bool hasUpdate = false;
-		auto onItemUpdateConnection = m_playlist->OnItemUpdate.connect(
+		auto onItemUpdateConnection = m_playlist->OnItemUpdate.Connect(
 			[&hasUpdate](unsigned int itemId, const CPlaylist::ITEM& item)
 			{
 				hasUpdate = true;

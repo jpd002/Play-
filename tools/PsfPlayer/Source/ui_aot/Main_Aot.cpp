@@ -65,7 +65,7 @@ void Gather(const char* archivePathName, const char* outputPathName)
 
 						    CPsfLoader::LoadPsf(virtualMachine, fileInfo.name, archivePath);
 						    int currentTime = 0;
-						    auto OnNewFrameConnection = virtualMachine.OnNewFrame.connect(
+						    auto OnNewFrameConnection = virtualMachine.OnNewFrame.Connect(
 						        [&currentTime]() {
 							        currentTime += 16;
 						        });

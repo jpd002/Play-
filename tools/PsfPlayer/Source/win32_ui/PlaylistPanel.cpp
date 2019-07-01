@@ -56,10 +56,10 @@ CPlaylistPanel::CPlaylistPanel(HWND parentWnd, CPlaylist& playlist)
 
 	CreateColumns();
 
-	m_OnItemInsertConnection = m_playlist.OnItemInsert.connect(std::bind(&CPlaylistPanel::OnPlaylistItemInsert, this, std::placeholders::_1));
-	m_OnItemUpdateConnection = m_playlist.OnItemUpdate.connect(std::bind(&CPlaylistPanel::OnPlaylistItemUpdate, this, std::placeholders::_1, std::placeholders::_2));
-	m_OnItemDeleteConnection = m_playlist.OnItemDelete.connect(std::bind(&CPlaylistPanel::OnPlaylistItemDelete, this, std::placeholders::_1));
-	m_OnItemsClearConnection = m_playlist.OnItemsClear.connect(std::bind(&CPlaylistPanel::OnPlaylistItemsClear, this));
+	m_OnItemInsertConnection = m_playlist.OnItemInsert.Connect(std::bind(&CPlaylistPanel::OnPlaylistItemInsert, this, std::placeholders::_1));
+	m_OnItemUpdateConnection = m_playlist.OnItemUpdate.Connect(std::bind(&CPlaylistPanel::OnPlaylistItemUpdate, this, std::placeholders::_1, std::placeholders::_2));
+	m_OnItemDeleteConnection = m_playlist.OnItemDelete.Connect(std::bind(&CPlaylistPanel::OnPlaylistItemDelete, this, std::placeholders::_1));
+	m_OnItemsClearConnection = m_playlist.OnItemsClear.Connect(std::bind(&CPlaylistPanel::OnPlaylistItemsClear, this));
 
 	RefreshLayout();
 }

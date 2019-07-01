@@ -26,7 +26,7 @@ MainPage::MainPage()
 {
 	PlaylistItems = ref new Platform::Collections::Vector<PlaylistItemAdapter ^>();
 
-	m_OnItemInsertConnection = m_playlist.OnItemInsert.connect(
+	m_OnItemInsertConnection = m_playlist.OnItemInsert.Connect(
 	    [&](const CPlaylist::ITEM& item) {
 		    auto newAdapter = ref new PlaylistItemAdapter();
 		    newAdapter->Title = ref new String(string_cast<std::wstring>(item.title).c_str());
@@ -36,7 +36,7 @@ MainPage::MainPage()
 		    PlaylistItems->Append(newAdapter);
 	    });
 
-	m_OnItemsClearConnection = m_playlist.OnItemsClear.connect(
+	m_OnItemsClearConnection = m_playlist.OnItemsClear.Connect(
 	    [&]() {
 		    PlaylistItems->Clear();
 	    });

@@ -123,7 +123,7 @@ void ExecuteEeTest(const boost::filesystem::path& testFilePath, const std::strin
 	virtualMachine.Initialize();
 	virtualMachine.Reset();
 	virtualMachine.CreateGSHandler(GetGsHandlerFactoryFunction(gsHandlerName));
-	auto connection = virtualMachine.m_ee->m_os->OnRequestExit.connect(
+	auto connection = virtualMachine.m_ee->m_os->OnRequestExit.Connect(
 	    [&executionOver]() {
 		    executionOver = true;
 	    });
@@ -168,7 +168,7 @@ void ExecuteIopTest(const boost::filesystem::path& testFilePath)
 	{
 		auto iopOs = dynamic_cast<CIopBios*>(virtualMachine.m_iop->m_bios.get());
 		int32 rootModuleId = iopOs->LoadModuleFromHost(moduleData.data());
-		connection = iopOs->OnModuleStarted.connect(
+		connection = iopOs->OnModuleStarted.Connect(
 		    [&executionOver, &rootModuleId](uint32 moduleId) {
 			    if(rootModuleId == moduleId)
 			    {
