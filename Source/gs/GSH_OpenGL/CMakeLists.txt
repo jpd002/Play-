@@ -30,7 +30,3 @@ add_library(gsh_opengl STATIC
 )
 target_link_libraries(gsh_opengl Boost::boost Framework_OpenGl ${PROJECT_LIBS})
 target_include_directories(gsh_opengl PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/Source/gs/GSH_OpenGL/)
-
-if(TARGET_PLATFORM_ANDROID OR TARGET_PLATFORM_IOS OR TARGET_PLATFORM_UNIX_AARCH64)
-		target_compile_definitions(gsh_opengl PUBLIC GLES_COMPATIBILITY)
-endif()
