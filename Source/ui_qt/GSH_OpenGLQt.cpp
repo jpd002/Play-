@@ -27,7 +27,7 @@ void CGSH_OpenGLQt::InitializeImpl()
 	succeeded = m_context->makeCurrent(m_renderWindow);
 	Q_ASSERT(succeeded);
 
-#if !defined(__APPLE__) && !(defined(__aarch64__) && defined(__linux__))
+#if !defined(__APPLE__) && !(defined(GLES_COMPATIBILITY))
 	glewExperimental = GL_TRUE;
 	auto result = glewInit();
 	Q_ASSERT(result == GLEW_OK);
