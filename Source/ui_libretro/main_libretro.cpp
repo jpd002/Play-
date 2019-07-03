@@ -401,7 +401,6 @@ void retro_run()
 
 	checkVarsUpdates();
 
-
 	if(!first_run)
 	{
 		if(m_virtualMachine)
@@ -501,7 +500,7 @@ void retro_init()
 #endif
 	CLog::GetInstance().Print(LOG_NAME, "%s\n", __FUNCTION__);
 
-	if (g_environ_cb(RETRO_ENVIRONMENT_GET_INPUT_BITMASKS, NULL))
+	if(g_environ_cb(RETRO_ENVIRONMENT_GET_INPUT_BITMASKS, NULL))
 		libretro_supports_bitmasks = true;
 
 	m_virtualMachine = new CPS2VM();
