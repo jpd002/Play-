@@ -235,6 +235,7 @@ void CLoadcore::LoadModuleFromMemory(uint32* args, uint32 argsSize, uint32* ret,
 		moduleId = m_bios.StartModule(moduleId, "", moduleArgs, moduleArgsSize);
 	}
 	ret[0] = moduleId;
+	ret[1] = 0; //Result of module's start() function
 }
 
 bool CLoadcore::StopModule(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize)
