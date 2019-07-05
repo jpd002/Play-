@@ -12,6 +12,8 @@ set(PROJECT_LIBS)
 
 include(PrecompiledHeader)
 
+set(ENABLE_AMAZON_S3 ON CACHE BOOL "Enable loading disc from Amazon S3 servers")
+
 if(DEBUGGER_INCLUDED)
 	list(APPEND DEFINITIONS_LIST DEBUGGER_INCLUDED=1)
 endif()
@@ -41,13 +43,20 @@ if(NOT TARGET Framework)
 endif()
 list(APPEND PROJECT_LIBS Framework)
 
-if(NOT TARGET Framework_Http)
-	add_subdirectory(
-		${CMAKE_CURRENT_SOURCE_DIR}/../../Framework/build_cmake/FrameworkHttp
-		${CMAKE_CURRENT_BINARY_DIR}/FrameworkHttp
+if(ENABLE_AMAZON_S3)
+	if(NOT TARGET Framework_Http)
+		add_subdirectory(
+			${CMAKE_CURRENT_SOURCE_DIR}/../../Framework/build_cmake/FrameworkHttp
+			${CMAKE_CURRENT_BINARY_DIR}/FrameworkHttp
+		)
+	endif()
+	list(APPEND PROJECT_LIBS Framework_Http)
+	set(AMAZON_S3_SRC
+		s3stream/AmazonS3Client.cpp
+		s3stream/S3ObjectStream.cpp
 	)
+	list(APPEND DEFINITIONS_LIST HAS_AMAZON_S3=1)
 endif()
-list(APPEND PROJECT_LIBS Framework_Http)
 
 if(NOT TARGET CodeGen)
 	add_subdirectory(
@@ -372,8 +381,6 @@ set(COMMON_SRC_FILES
 	PS2VM_Preferences.h
 	psx/PsxBios.cpp
 	psx/PsxBios.h
-	s3stream/AmazonS3Client.cpp
-	s3stream/S3ObjectStream.cpp
 	saves/Icon.cpp
 	saves/Icon.h
 	saves/MaxSaveImporter.cpp
@@ -408,6 +415,7 @@ set(COMMON_SRC_FILES
 	SifDefs.h
 	VirtualPad.cpp
 	VirtualPad.h
+	${AMAZON_S3_SRC}
 )
 
 if(TARGET_PLATFORM_WIN32)

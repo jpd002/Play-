@@ -6,7 +6,9 @@
 #include "CsoImageStream.h"
 #include "MdsDiscImage.h"
 #include "StdStream.h"
+#ifdef HAS_AMAZON_S3
 #include "s3stream/S3ObjectStream.h"
+#endif
 #ifdef _WIN32
 #include "VolumeStream.h"
 #else
@@ -24,6 +26,7 @@ static Framework::CStream* CreateImageStream(const boost::filesystem::path& imag
 	auto imagePathString = imagePath.string();
 	if(imagePathString.find("s3://") == 0)
 	{
+#ifdef HAS_AMAZON_S3
 		auto fullObjectPath = std::string(imagePathString.c_str() + 5);
 		auto objectPathPos = fullObjectPath.find('/');
 		if(objectPathPos == std::string::npos)
@@ -32,6 +35,9 @@ static Framework::CStream* CreateImageStream(const boost::filesystem::path& imag
 		}
 		auto bucketName = std::string(fullObjectPath.begin(), fullObjectPath.begin() + objectPathPos);
 		return new CS3ObjectStream(bucketName.c_str(), fullObjectPath.c_str() + objectPathPos + 1);
+#else
+		throw std::runtime_error("S3 support was disabled during build configuration.");
+#endif
 	}
 #ifdef __ANDROID__
 	return new Framework::CPosixFileStream(imagePathString.c_str(), O_RDONLY);
