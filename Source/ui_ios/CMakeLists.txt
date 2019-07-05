@@ -48,6 +48,14 @@ if(NOT TARGET SDWebImage_Static)
 endif()
 list(APPEND PROJECT_LIBS SDWebImage_Static)
 
+if(NOT TARGET ui_shared)
+	add_subdirectory(
+		${CMAKE_CURRENT_SOURCE_DIR}/../ui_shared
+		${CMAKE_CURRENT_BINARY_DIR}/ui_shared
+	)
+	endif()
+list(APPEND PROJECT_LIBS ui_shared)
+
 find_library(UIKIT_LIBRARY NAMES UIKit)
 find_library(COREGRAPHICS_LIBRARY NAMES CoreGraphics)
 find_library(GAMECONTROLLER_LIBRARY NAMES GameController)

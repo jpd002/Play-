@@ -42,6 +42,14 @@ if(TARGET_PLATFORM_MACOS OR TARGET_PLATFORM_UNIX)
 	list(APPEND PROJECT_LIBS sh_openal)
 endif()
 
+if(NOT TARGET ui_shared)
+	add_subdirectory(
+		${CMAKE_CURRENT_SOURCE_DIR}/../ui_shared
+		${CMAKE_CURRENT_BINARY_DIR}/ui_shared
+	)
+	endif()
+list(APPEND PROJECT_LIBS ui_shared)
+
 set(QT_SOURCES
 	bootablelistdialog.cpp
 	BootableModel.cpp
