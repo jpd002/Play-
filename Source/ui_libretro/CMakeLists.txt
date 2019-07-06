@@ -62,6 +62,9 @@ target_include_directories(play_libretro PRIVATE
 if(TARGET_PLATFORM_ANDROID)
 	set_target_properties(play_libretro PROPERTIES SUFFIX "_android.so")
 endif()
+if(TARGET_PLATFORM_IOS)
+	set_target_properties(play_libretro PROPERTIES SUFFIX "_ios.dylib")
+endif()
 
 target_link_libraries(play_libretro ${PROJECT_LIBS})
 set_target_properties(play_libretro PROPERTIES PREFIX "")
