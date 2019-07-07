@@ -26,16 +26,6 @@ if(NOT TARGET gsh_opengl)
 endif()
 list(INSERT PROJECT_LIBS 0 gsh_opengl)
 
-if(NOT TARGET_PLATFORM_UNIX_AARCH64 AND (TARGET_PLATFORM_UNIX OR TARGET_PLATFORM_WIN32))
-	if (NOT TARGET glew_s)
-		add_subdirectory(
-			${CMAKE_CURRENT_SOURCE_DIR}/../../../Dependencies/glew-2.0.0
-			${CMAKE_CURRENT_BINARY_DIR}/glew-2.0.0
-		)
-	endif()
-	list(APPEND PROJECT_LIBS glew_s)
-endif()
-
 set(SRC
 	main_libretro.cpp
 	GSH_OpenGL_Libretro.cpp
