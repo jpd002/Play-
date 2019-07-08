@@ -4,7 +4,6 @@ extern bool libretro_supports_bitmasks;
 extern retro_input_poll_t g_input_poll_cb;
 extern retro_input_state_t g_input_state_cb;
 extern std::map<int, int> g_ds2_to_retro_btn_map;
-std::mutex m_input_mutex;
 
 void CPH_Libretro_Input::UpdateInputState()
 {

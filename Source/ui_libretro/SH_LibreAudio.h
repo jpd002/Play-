@@ -4,6 +4,7 @@
 
 #include <deque>
 #include <vector>
+#include <mutex>
 
 class CSH_LibreAudio : public CSoundHandler
 {
@@ -21,4 +22,5 @@ public:
 
 private:
 	std::vector<int16> m_buffer;
+	std::mutex m_buffer_lock;
 };

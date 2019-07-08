@@ -21,4 +21,5 @@ public:
 private:
 	int16 m_btns_state = 0;
 	uint8 m_axis_btn_state[4] = {0x7F};
+	std::mutex m_input_mutex;
 };
