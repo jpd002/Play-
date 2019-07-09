@@ -37,7 +37,7 @@ set(ANDROID_SRC_FILES
 	StatsManager.cpp
 )
 
-list(APPEND PROJECT_LIBS android log OpenSLES GLESv3 EGL)
+list(APPEND PROJECT_LIBS android log OpenSLES)
 
 add_library(Play SHARED ${ANDROID_SRC_FILES})
 target_link_libraries(Play ${PROJECT_LIBS})

@@ -116,7 +116,7 @@ target_link_libraries(Play ${COREGRAPHICS_LIBRARY})
 target_link_libraries(Play ${GAMECONTROLLER_LIBRARY})
 target_link_libraries(Play ${QUARTZCORE_LIBRARY})
 target_link_libraries(Play ${IMAGEIO_LIBRARY})
-target_link_libraries(Play ${PROJECT_LIBS} "-ObjC -lsqlite3 -framework OpenGLES -framework OpenAL")
+target_link_libraries(Play ${PROJECT_LIBS} "-ObjC -lsqlite3 -framework OpenAL")
 
 # Set a custom plist file for the app bundle
 # NOTE: for these values to be used Info.plist has to be edited
