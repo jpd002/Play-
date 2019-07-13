@@ -24,6 +24,7 @@ public:
 	CMIPSInstructionFactory(MIPS_REGSIZE);
 	virtual ~CMIPSInstructionFactory() = default;
 	virtual void CompileInstruction(uint32, CMipsJitter*, CMIPS*) = 0;
+	void Illegal();
 
 protected:
 	void ComputeMemAccessAddr();
@@ -34,7 +35,6 @@ protected:
 	void Branch(Jitter::CONDITION);
 	void BranchLikely(Jitter::CONDITION);
 
-	void Illegal();
 	void SetupQuickVariables(uint32, CMipsJitter*, CMIPS*);
 
 	CMipsJitter* m_codeGen = nullptr;
