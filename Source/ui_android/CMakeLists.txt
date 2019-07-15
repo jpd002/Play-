@@ -24,6 +24,14 @@ if(NOT TARGET gsh_opengl)
 endif()
 list(INSERT PROJECT_LIBS 0 gsh_opengl)
 
+if(NOT TARGET ui_shared)
+	add_subdirectory(
+		${CMAKE_CURRENT_SOURCE_DIR}/../ui_shared
+		${CMAKE_CURRENT_BINARY_DIR}/ui_shared
+	)
+	endif()
+list(APPEND PROJECT_LIBS ui_shared)
+
 set(ANDROID_SRC_FILES
 	BootablesInterop.cpp
 	com_virtualapplications_play_Bootable.cpp
