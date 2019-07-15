@@ -594,7 +594,7 @@ void CSpuBase::MixSamples(int32 inputSample, int32 volumeLevel, int16* output)
 
 void CSpuBase::Render(int16* samples, unsigned int sampleCount, unsigned int sampleRate)
 {
-	bool updateReverb = m_reverbEnabled && (m_ctrl & CONTROL_REVERB);
+	bool updateReverb = m_reverbEnabled && (m_ctrl & CONTROL_REVERB) && (m_reverbWorkAddrStart < m_reverbWorkAddrEnd);
 	bool checkIrqs = (m_ctrl & CONTROL_IRQ) && (m_irqAddr != INVALID_ADDRESS);
 
 	assert((sampleCount & 0x01) == 0);
