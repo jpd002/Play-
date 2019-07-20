@@ -59,6 +59,39 @@ public:
 		typedef uint32 Unit;
 	};
 
+	struct STORAGEPSMZ32
+	{
+		enum PAGEWIDTH
+		{
+			PAGEWIDTH = 64
+		};
+		enum PAGEHEIGHT
+		{
+			PAGEHEIGHT = 32
+		};
+		enum BLOCKWIDTH
+		{
+			BLOCKWIDTH = 8
+		};
+		enum BLOCKHEIGHT
+		{
+			BLOCKHEIGHT = 8
+		};
+		enum COLUMNWIDTH
+		{
+			COLUMNWIDTH = 8
+		};
+		enum COLUMNHEIGHT
+		{
+			COLUMNHEIGHT = 2
+		};
+
+		static const int m_nBlockSwizzleTable[4][8];
+		static const int m_nColumnSwizzleTable[2][8];
+
+		typedef uint32 Unit;
+	};
+
 	struct STORAGEPSMCT16
 	{
 		enum PAGEWIDTH
