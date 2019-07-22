@@ -1,7 +1,7 @@
 #pragma once
 
 #include <memory>
-#include <boost/filesystem/path.hpp>
+#include <boost/filesystem.hpp>
 #include "Save.h"
 
 class CMemoryCard
