@@ -13,6 +13,12 @@
 #define PREF_CGSH_OPENGL_RESOLUTION_FACTOR "renderer.opengl.resfactor"
 #define PREF_CGSH_OPENGL_FORCEBILINEARTEXTURES "renderer.opengl.forcebilineartextures"
 
+#if !defined(GLES_COMPATIBILITY) && !defined(__APPLE__)
+//- Dual source blending is disabled on macOS because it seems to be problematic on
+//  certain Intel GPUs drivers.
+#define USE_DUALSOURCE_BLENDING
+#endif
+
 class CGSH_OpenGL : public CGSHandler
 {
 public:

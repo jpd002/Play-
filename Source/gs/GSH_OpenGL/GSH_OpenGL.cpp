@@ -7,14 +7,14 @@
 #include "../GsPixelFormats.h"
 #include "GSH_OpenGL.h"
 
-#ifdef GLES_COMPATIBILITY
-//Standard blending constants
-#define BLEND_SRC_ALPHA GL_SRC_ALPHA
-#define BLEND_ONE_MINUS_SRC_ALPHA GL_ONE_MINUS_SRC_ALPHA
-#else
+#ifdef USE_DUALSOURCE_BLENDING
 //Dual source blending constants
 #define BLEND_SRC_ALPHA GL_SRC1_ALPHA
 #define BLEND_ONE_MINUS_SRC_ALPHA GL_ONE_MINUS_SRC1_ALPHA
+#else
+//Standard blending constants
+#define BLEND_SRC_ALPHA GL_SRC_ALPHA
+#define BLEND_ONE_MINUS_SRC_ALPHA GL_ONE_MINUS_SRC_ALPHA
 #endif
 
 #define NUM_SAMPLES 8

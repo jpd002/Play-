@@ -69,7 +69,7 @@ Framework::OpenGl::ProgramPtr CGSH_OpenGL::GenerateShader(const SHADERCAPS& caps
 	glBindAttribLocation(*result, static_cast<GLuint>(PRIM_VERTEX_ATTRIB::TEXCOORD), "a_texCoord");
 	glBindAttribLocation(*result, static_cast<GLuint>(PRIM_VERTEX_ATTRIB::FOG), "a_fog");
 
-#ifndef GLES_COMPATIBILITY
+#ifdef USE_DUALSOURCE_BLENDING
 	glBindFragDataLocationIndexed(*result, 0, 0, "fragColor");
 	glBindFragDataLocationIndexed(*result, 0, 1, "blendColor");
 #endif
@@ -145,7 +145,7 @@ Framework::OpenGl::CShader CGSH_OpenGL::GenerateFragmentShader(const SHADERCAPS&
 	}
 
 	shaderBuilder << "out vec4 fragColor;" << std::endl;
-#ifndef GLES_COMPATIBILITY
+#ifdef USE_DUALSOURCE_BLENDING
 	shaderBuilder << "out vec4 blendColor;" << std::endl;
 #endif
 
@@ -327,12 +327,12 @@ Framework::OpenGl::CShader CGSH_OpenGL::GenerateFragmentShader(const SHADERCAPS&
 	}
 
 	//For proper alpha blending, alpha has to be multiplied by 2 (0x80 -> 1.0)
-#ifdef GLES_COMPATIBILITY
-	//This has the side effect of not writing a proper value in the framebuffer (should write alpha "as is")
-	shaderBuilder << "	fragColor.a = clamp(textureColor.a * 2.0, 0.0, 1.0);" << std::endl;
-#else
+#ifdef USE_DUALSOURCE_BLENDING
 	shaderBuilder << "	fragColor.a = textureColor.a;" << std::endl;
 	shaderBuilder << "	blendColor.a = clamp(textureColor.a * 2.0, 0.0, 1.0);" << std::endl;
+#else
+	//This has the side effect of not writing a proper value in the framebuffer (should write alpha "as is")
+	shaderBuilder << "	fragColor.a = clamp(textureColor.a * 2.0, 0.0, 1.0);" << std::endl;
 #endif
 
 	shaderBuilder << "}" << std::endl;
