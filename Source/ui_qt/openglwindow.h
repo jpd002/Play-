@@ -8,7 +8,7 @@ class OpenGLWindow : public QWindow
 	Q_OBJECT
 public:
 	explicit OpenGLWindow(QWindow* parent = 0);
-	~OpenGLWindow();
+	~OpenGLWindow() = default;
 
 protected:
 	void exposeEvent(QExposeEvent* ev) Q_DECL_OVERRIDE;

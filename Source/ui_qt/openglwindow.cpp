@@ -15,10 +15,6 @@ OpenGLWindow::OpenGLWindow(QWindow* parent)
 	connect(this, SIGNAL(activeChanged()), this, SLOT(activeStateChanged()));
 }
 
-OpenGLWindow::~OpenGLWindow()
-{
-}
-
 void OpenGLWindow::keyPressEvent(QKeyEvent* ev)
 {
 	emit keyDown(ev);
