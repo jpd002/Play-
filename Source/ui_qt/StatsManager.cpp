@@ -1,6 +1,7 @@
 
 #include "StatsManager.h"
 #include "string_format.h"
+#include "PS2VM.h"
 
 void CStatsManager::OnNewFrame(uint32 drawCalls)
 {
@@ -48,6 +49,25 @@ std::string CStatsManager::GetProfilingInfo()
 		                        zonePair.first.c_str(), avgRatioSpent * 100.f, avgMsSpent, minMsSpent, maxMsSpent);
 	}
 
+	if(!m_profilerZones.empty())
+	{
+		result += "\r\n";
+	}
+	
+	{
+		m_cpuUtilisation.eeIdleTicks = std::max<int32>(m_cpuUtilisation.eeIdleTicks, 0);
+		m_cpuUtilisation.iopIdleTicks = std::max<int32>(m_cpuUtilisation.iopIdleTicks, 0);
+		
+		float eeIdleRatio = static_cast<float>(m_cpuUtilisation.eeIdleTicks) / static_cast<float>(m_cpuUtilisation.eeTotalTicks);
+		float iopIdleRatio = static_cast<float>(m_cpuUtilisation.iopIdleTicks) / static_cast<float>(m_cpuUtilisation.iopTotalTicks);
+		
+		if(m_cpuUtilisation.eeTotalTicks == 0) eeIdleRatio = 1.f;
+		if(m_cpuUtilisation.iopTotalTicks == 0) iopIdleRatio = 1.f;
+		
+		result += string_format("EE Usage:  %6.2f%%\r\n", (1.f - eeIdleRatio) * 100.f);
+		result += string_format("IOP Usage: %6.2f%%\r\n", (1.f - iopIdleRatio) * 100.f);
+	}
+	
 	return result;
 }
 
@@ -63,12 +83,13 @@ void CStatsManager::ClearStats()
 	{
 		zonePair.second.currentValue = 0;
 	}
+	m_cpuUtilisation = CPS2VM::CPU_UTILISATION_INFO();
 #endif
 }
 
 #ifdef PROFILE
 
-void CStatsManager::OnProfileFrameDone(const CProfiler::ZoneArray& zones)
+void CStatsManager::OnProfileFrameDone(CPS2VM* virtualMachine, const CProfiler::ZoneArray& zones)
 {
 	std::lock_guard<std::mutex> profileZonesLock(m_profilerZonesMutex);
 
@@ -82,6 +103,12 @@ void CStatsManager::OnProfileFrameDone(const CProfiler::ZoneArray& zones)
 		}
 		zoneInfo.maxValue = std::max<uint64>(zoneInfo.maxValue, zone.totalTime);
 	}
+	
+	auto cpuUtilisation = virtualMachine->GetCpuUtilisationInfo();
+	m_cpuUtilisation.eeTotalTicks += cpuUtilisation.eeTotalTicks;
+	m_cpuUtilisation.eeIdleTicks += cpuUtilisation.eeIdleTicks;
+	m_cpuUtilisation.iopTotalTicks += cpuUtilisation.iopTotalTicks;
+	m_cpuUtilisation.iopIdleTicks += cpuUtilisation.iopIdleTicks;
 }
 
 #endif
