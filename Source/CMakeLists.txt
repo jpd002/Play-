@@ -224,6 +224,7 @@ set(COMMON_SRC_FILES
 	iop/ArgumentIterator.h
 	iop/DirectoryDevice.cpp
 	iop/DirectoryDevice.h
+	iop/Ioman_Device.h
 	iop/Iop_Cdvdfsv.cpp
 	iop/Iop_Cdvdfsv.h
 	iop/Iop_Cdvdman.cpp
