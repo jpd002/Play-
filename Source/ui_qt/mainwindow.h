@@ -94,7 +94,6 @@ private:
 	QWindow* m_openglpanel = nullptr;
 	QLabel* m_fpsLabel = nullptr;
 	ElidedLabel* m_msgLabel = nullptr;
-	CStatsManager* m_statsManager = nullptr;
 	QTimer* m_fpsTimer = nullptr;
 	CContinuationChecker* m_continuationChecker = nullptr;
 	CPS2VM* m_virtualMachine = nullptr;
@@ -119,7 +118,7 @@ signals:
 
 public slots:
 	void openGLWindow_resized();
-	void setFPS();
+	void updateStats();
 
 private slots:
 	void on_actionBoot_DiscImage_triggered();
