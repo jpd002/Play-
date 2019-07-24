@@ -174,8 +174,6 @@ void MainWindow::InitVirtualMachine()
 		}
 	}
 
-	m_statsManager = new CStatsManager();
-
 	//OnExecutableChange might be called from another thread, we need to wrap it around a Qt signal
 	m_virtualMachine->m_ee->m_os->OnExecutableChange.connect(std::bind(&MainWindow::EmitOnExecutableChange, this));
 	connect(this, SIGNAL(onExecutableChange()), this, SLOT(HandleOnExecutableChange()));
@@ -193,7 +191,7 @@ void MainWindow::SetupGsHandler()
 	if(!gsHandler)
 	{
 		m_virtualMachine->CreateGSHandler(CGSH_OpenGLQt::GetFactoryFunction(m_openglpanel));
-		m_virtualMachine->m_ee->m_gs->OnNewFrame.connect(std::bind(&CStatsManager::OnNewFrame, m_statsManager, std::placeholders::_1));
+		m_virtualMachine->m_ee->m_gs->OnNewFrame.connect(std::bind(&CStatsManager::OnNewFrame, &CStatsManager::GetInstance(), std::placeholders::_1));
 	}
 }
 
@@ -407,17 +405,17 @@ void MainWindow::CreateStatusBar()
 	m_msgLabel->setText(QString("Play! v%1 - %2").arg(PLAY_VERSION).arg(__DATE__));
 
 	m_fpsTimer = new QTimer(this);
-	connect(m_fpsTimer, SIGNAL(timeout()), this, SLOT(setFPS()));
+	connect(m_fpsTimer, SIGNAL(timeout()), this, SLOT(updateStats()));
 	m_fpsTimer->start(1000);
 }
 
-void MainWindow::setFPS()
+void MainWindow::updateStats()
 {
-	uint32 frames = m_statsManager->GetFrames();
-	uint32 drawCalls = m_statsManager->GetDrawCalls();
+	uint32 frames = CStatsManager::GetInstance().GetFrames();
+	uint32 drawCalls = CStatsManager::GetInstance().GetDrawCalls();
 	uint32 dcpf = (frames != 0) ? (drawCalls / frames) : 0;
-	m_statsManager->ClearStats();
 	m_fpsLabel->setText(QString("%1 f/s, %2 dc/f").arg(frames).arg(dcpf));
+	CStatsManager::GetInstance().ClearStats();
 }
 
 void MainWindow::on_actionSettings_triggered()
