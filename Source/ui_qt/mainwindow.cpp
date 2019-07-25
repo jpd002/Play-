@@ -4,6 +4,7 @@
 #include "memorycardmanagerdialog.h"
 #include "S3FileBrowser.h"
 #include "ui_shared/BootablesProcesses.h"
+#include "ui_shared/StatsManager.h"
 
 #include "openglwindow.h"
 

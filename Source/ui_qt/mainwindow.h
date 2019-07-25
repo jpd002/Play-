@@ -9,7 +9,6 @@
 
 #include "AppConfig.h"
 #include "PS2VM.h"
-#include "StatsManager.h"
 #include "ElidedLabel.h"
 #include "ContinuationChecker.h"
 
