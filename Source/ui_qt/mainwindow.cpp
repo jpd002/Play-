@@ -67,7 +67,8 @@ MainWindow::MainWindow(QWidget* parent)
 
 	m_openglpanel = new OpenGLWindow;
 	QWidget* container = QWidget::createWindowContainer(m_openglpanel);
-	ui->gridLayout->addWidget(container);
+	ui->gridLayout->addWidget(container, 0, 0);
+
 	connect(m_openglpanel, SIGNAL(heightChanged(int)), this, SLOT(openGLWindow_resized()));
 	connect(m_openglpanel, SIGNAL(widthChanged(int)), this, SLOT(openGLWindow_resized()));
 
@@ -79,6 +80,16 @@ MainWindow::MainWindow(QWidget* parent)
 
 	connect(m_openglpanel, SIGNAL(doubleClick(QMouseEvent*)), this, SLOT(doubleClickEvent(QMouseEvent*)));
 
+#ifdef PROFILE
+	{
+		m_profileStatsLabel = new QLabel(this);
+		QFont courierFont("Courier");
+		m_profileStatsLabel->setFont(courierFont);
+		m_profileStatsLabel->setAlignment(Qt::AlignTop);
+		ui->gridLayout->addWidget(m_profileStatsLabel, 0, 1);
+	}
+#endif
+	
 	RegisterPreferences();
 
 	m_pauseFocusLost = CAppConfig::GetInstance().GetPreferenceBoolean(PREF_UI_PAUSEWHENFOCUSLOST);
@@ -175,6 +186,10 @@ void MainWindow::InitVirtualMachine()
 		}
 	}
 
+#ifdef PROFILE
+	m_virtualMachine->ProfileFrameDone.connect(std::bind(&CStatsManager::OnProfileFrameDone, &CStatsManager::GetInstance(), m_virtualMachine, std::placeholders::_1));
+#endif
+	
 	//OnExecutableChange might be called from another thread, we need to wrap it around a Qt signal
 	m_virtualMachine->m_ee->m_os->OnExecutableChange.connect(std::bind(&MainWindow::EmitOnExecutableChange, this));
 	connect(this, SIGNAL(onExecutableChange()), this, SLOT(HandleOnExecutableChange()));
@@ -415,6 +430,9 @@ void MainWindow::updateStats()
 	uint32 frames = CStatsManager::GetInstance().GetFrames();
 	uint32 drawCalls = CStatsManager::GetInstance().GetDrawCalls();
 	uint32 dcpf = (frames != 0) ? (drawCalls / frames) : 0;
+#ifdef PROFILE
+	m_profileStatsLabel->setText(QString::fromStdString(CStatsManager::GetInstance().GetProfilingInfo()));
+#endif
 	m_fpsLabel->setText(QString("%1 f/s, %2 dc/f").arg(frames).arg(dcpf));
 	CStatsManager::GetInstance().ClearStats();
 }
