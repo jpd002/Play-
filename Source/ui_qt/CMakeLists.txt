@@ -72,8 +72,6 @@ set(QT_SOURCES
 	GSH_OpenGLQt.h
 	InputProviderQtKey.cpp
 	InputProviderQtKey.h
-	StatsManager.cpp
-	StatsManager.h
 	S3FileBrowser.cpp
 	S3FileBrowser.h
 	settingsdialog.cpp
