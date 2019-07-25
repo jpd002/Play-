@@ -37,14 +37,16 @@ std::string CStatsManager::GetProfilingInfo()
 		totalTime += zoneInfo.currentValue;
 	}
 
+	//Times are in nanoseconds (1m ns in a s)
+	static const uint64 timeScale = 1000000;
+	
 	for(const auto& zonePair : m_profilerZones)
 	{
 		const auto& zoneInfo = zonePair.second;
 		float avgRatioSpent = (totalTime != 0) ? static_cast<double>(zoneInfo.currentValue) / static_cast<double>(totalTime) : 0;
-		float avgMsSpent = (m_frames != 0) ? static_cast<double>(zoneInfo.currentValue) / static_cast<double>(m_frames * 1000) : 0;
-		float minMsSpent = (zoneInfo.minValue != ~0ULL) ? static_cast<double>(zoneInfo.minValue) / static_cast<double>(1000) : 0;
-		float maxMsSpent = static_cast<double>(zoneInfo.maxValue) / static_cast<double>(1000);
-
+		float avgMsSpent = (m_frames != 0) ? static_cast<double>(zoneInfo.currentValue) / static_cast<double>(m_frames * timeScale) : 0;
+		float minMsSpent = (zoneInfo.minValue != ~0ULL) ? static_cast<double>(zoneInfo.minValue) / static_cast<double>(timeScale) : 0;
+		float maxMsSpent = static_cast<double>(zoneInfo.maxValue) / static_cast<double>(timeScale);
 		result += string_format("%10s %6.2f%% %6.2fms %6.2fms %6.2fms\r\n",
 		                        zonePair.first.c_str(), avgRatioSpent * 100.f, avgMsSpent, minMsSpent, maxMsSpent);
 	}
