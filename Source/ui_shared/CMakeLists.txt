@@ -33,6 +33,14 @@ if(NOT TARGET nlohmann_json)
 endif()
 list(APPEND SHARED_UI_PROJECT_LIBS nlohmann_json)
 
+if(NOT TARGET PlayCore)
+	add_subdirectory(
+		${CMAKE_CURRENT_SOURCE_DIR}/../
+		${CMAKE_CURRENT_BINARY_DIR}/Source
+	)
+endif()
+list(APPEND SHARED_UI_PROJECT_LIBS PlayCore)
+
 set(SHARED_UI_SRC_FILES
 	BootablesDbClient.cpp
 	BootablesDbClient.h
@@ -40,6 +48,8 @@ set(SHARED_UI_SRC_FILES
 	BootablesProcesses.h
 	TheGamesDbClient.cpp
 	TheGamesDbClient.h
+	StatsManager.cpp
+	StatsManager.h
 )
 
 add_library(ui_shared STATIC ${SHARED_UI_SRC_FILES})
