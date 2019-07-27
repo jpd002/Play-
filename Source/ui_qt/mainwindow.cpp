@@ -80,16 +80,6 @@ MainWindow::MainWindow(QWidget* parent)
 
 	connect(m_openglpanel, SIGNAL(doubleClick(QMouseEvent*)), this, SLOT(doubleClickEvent(QMouseEvent*)));
 
-#ifdef PROFILE
-	{
-		m_profileStatsLabel = new QLabel(this);
-		QFont courierFont("Courier");
-		m_profileStatsLabel->setFont(courierFont);
-		m_profileStatsLabel->setAlignment(Qt::AlignTop);
-		ui->gridLayout->addWidget(m_profileStatsLabel, 0, 1);
-	}
-#endif
-	
 	RegisterPreferences();
 
 	m_pauseFocusLost = CAppConfig::GetInstance().GetPreferenceBoolean(PREF_UI_PAUSEWHENFOCUSLOST);
@@ -430,9 +420,6 @@ void MainWindow::updateStats()
 	uint32 frames = CStatsManager::GetInstance().GetFrames();
 	uint32 drawCalls = CStatsManager::GetInstance().GetDrawCalls();
 	uint32 dcpf = (frames != 0) ? (drawCalls / frames) : 0;
-#ifdef PROFILE
-	m_profileStatsLabel->setText(QString::fromStdString(CStatsManager::GetInstance().GetProfilingInfo()));
-#endif
 	m_fpsLabel->setText(QString("%1 f/s, %2 dc/f").arg(frames).arg(dcpf));
 	CStatsManager::GetInstance().ClearStats();
 }
