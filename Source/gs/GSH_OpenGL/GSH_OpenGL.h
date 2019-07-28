@@ -36,6 +36,7 @@ public:
 	void ReadFramebuffer(uint32, uint32, void*) override;
 
 	Framework::CBitmap GetScreenshot() override;
+	void PrintOverlayText(std::string text);
 
 protected:
 	void PalCache_Flush();
@@ -326,7 +327,6 @@ private:
 	Framework::OpenGl::CBuffer GenerateOverlayVertexElementsBuffer();
 
 	void InitOverlay();
-	void PrintOverlayText(std::string text);
 
 	void Prim_Point();
 	void Prim_Line();

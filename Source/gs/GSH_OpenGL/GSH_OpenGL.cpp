@@ -346,6 +346,8 @@ void CGSH_OpenGL::InitializeRC()
 	m_vertexParamsBuffer = GenerateUniformBlockBuffer(sizeof(VERTEXPARAMS));
 	m_fragmentParamsBuffer = GenerateUniformBlockBuffer(sizeof(FRAGMENTPARAMS));
 
+	SetupOverlay();
+
 	PresentBackbuffer();
 
 	CHECKGLERROR();

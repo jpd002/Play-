@@ -199,6 +199,7 @@ if(TARGET_PLATFORM_MACOS)
 	set(OSX_RES
 		${CMAKE_CURRENT_SOURCE_DIR}/macos/AppIcon.icns
 		${CMAKE_CURRENT_SOURCE_DIR}/../../patches.xml
+		${CMAKE_CURRENT_SOURCE_DIR}/../../UbuntuMono-B.ttf
 	)
 	add_executable(Play MACOSX_BUNDLE ${QT_SOURCES} ${QT_MOC_SRCS} ${QT_RES_SOURCES} ${QT_UI_HEADERS} ${OSX_RES})
 	# Set a custom plist file for the app bundle
@@ -236,6 +237,7 @@ elseif(TARGET_PLATFORM_UNIX)
 
 	install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/../../installer_unix/Play.desktop DESTINATION share/applications)
 	install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/../../icons/icon_base.png DESTINATION share/icons RENAME Play.png)
+	install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/../../UbuntuMono-B.ttf DESTINATION share RENAME UbuntuMono-B.ttf)
 else()
 	add_executable(Play ${QT_SOURCES} ${QT_MOC_SRCS} ${QT_RES_SOURCES} ${QT_UI_HEADERS})
 endif()
@@ -259,5 +261,10 @@ if(TARGET_PLATFORM_WIN32)
 	)
 	add_custom_command(TARGET Play POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different 
 		$<TARGET_FILE:Qt5::Gui> $<TARGET_FILE_DIR:Play>
+	)
+endif()
+if(TARGET_PLATFORM_WIN32 OR TARGET_PLATFORM_UNIX)
+	add_custom_command(TARGET Play POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different
+		${CMAKE_CURRENT_SOURCE_DIR}/../../UbuntuMono-B.ttf $<TARGET_FILE_DIR:Play>
 	)
 endif()

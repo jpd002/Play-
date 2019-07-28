@@ -1,6 +1,7 @@
 #include "GSH_OpenGL.h"
 #include <assert.h>
 #include <sstream>
+#include "PathUtils.h"
 
 #include <ft2build.h>
 #include FT_FREETYPE_H
@@ -12,14 +13,19 @@
 #define GLSL_VERSION "#version 150"
 #endif
 
+#define FONTFILENAME "UbuntuMono-B.ttf"
 void CGSH_OpenGL::InitOverlay()
 {
 	FT_Face face;
 	FT_Library library;
 	if(FT_Init_FreeType(&library) == 0)
 	{
-		// int res = FT_New_Face(library, "C:\\Users\\Muna\\Desktop\\Play-Build\\Anonymous.ttf", 0, &face);
-		int res = FT_New_Face(library, "/Users/alawi/Desktop/Play-Build/Play/build/UbuntuMono-B.ttf", 0, &face);
+#ifdef __ANDROID__
+		int res = FT_New_Face(library, FONTFILENAME, 0, &face);
+#else
+		auto fontPath = Framework::PathUtils::GetAppResourcesPath() / FONTFILENAME;
+		int res = FT_New_Face(library, fontPath.native().c_str(), 0, &face);
+#endif
 		assert(res == 0);
 	}
 
