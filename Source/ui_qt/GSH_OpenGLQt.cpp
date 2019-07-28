@@ -1,6 +1,7 @@
 #include "GSH_OpenGLQt.h"
 #include <QWindow>
 #include <QOpenGLContext>
+#include "ui_shared/StatsManager.h"
 
 CGSH_OpenGLQt::CGSH_OpenGLQt(QWindow* renderWindow)
     : m_renderWindow(renderWindow)
@@ -45,6 +46,9 @@ void CGSH_OpenGLQt::ReleaseImpl()
 
 void CGSH_OpenGLQt::PresentBackbuffer()
 {
+#ifdef PROFILE
+	PrintOverlayText(CStatsManager::GetInstance().GetProfilingInfo());
+#endif
 	if(m_renderWindow->isExposed())
 	{
 		m_context->swapBuffers(m_renderWindow);
