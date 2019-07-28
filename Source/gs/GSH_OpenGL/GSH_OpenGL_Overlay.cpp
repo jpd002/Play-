@@ -31,7 +31,7 @@ void CGSH_OpenGL::InitOverlay()
 
 	m_characterTextureMap.clear();
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-	FT_Set_Pixel_Sizes(face, 0, 184);
+	FT_Set_Pixel_Sizes(face, 0, 168);
 	FT_GlyphSlot slot = face->glyph;
 
 	for (int c = 0; c < 128; c++)

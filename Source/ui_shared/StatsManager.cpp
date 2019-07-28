@@ -47,13 +47,13 @@ std::string CStatsManager::GetProfilingInfo()
 		float avgMsSpent = (m_frames != 0) ? static_cast<double>(zoneInfo.currentValue) / static_cast<double>(m_frames * timeScale) : 0;
 		float minMsSpent = (zoneInfo.minValue != ~0ULL) ? static_cast<double>(zoneInfo.minValue) / static_cast<double>(timeScale) : 0;
 		float maxMsSpent = static_cast<double>(zoneInfo.maxValue) / static_cast<double>(timeScale);
-		result += string_format("%10s %6.2f%% %6.2fms %6.2fms %6.2fms\r\n",
+		result += string_format("%10s %6.2f%% %6.2fms %6.2fms %8.2fms\n",
 		                        zonePair.first.c_str(), avgRatioSpent * 100.f, avgMsSpent, minMsSpent, maxMsSpent);
 	}
 
 	if(!m_profilerZones.empty())
 	{
-		result += "\r\n";
+		result += "\n";
 	}
 	
 	{
@@ -66,8 +66,8 @@ std::string CStatsManager::GetProfilingInfo()
 		if(m_cpuUtilisation.eeTotalTicks == 0) eeIdleRatio = 1.f;
 		if(m_cpuUtilisation.iopTotalTicks == 0) iopIdleRatio = 1.f;
 		
-		result += string_format("EE Usage:  %6.2f%%\r\n", (1.f - eeIdleRatio) * 100.f);
-		result += string_format("IOP Usage: %6.2f%%\r\n", (1.f - iopIdleRatio) * 100.f);
+		result += string_format("EE  USAGE: %6.2f%%\n", (1.f - eeIdleRatio) * 100.f);
+		result += string_format("IOP USAGE: %6.2f%%\n", (1.f - iopIdleRatio) * 100.f);
 	}
 	
 	return result;
