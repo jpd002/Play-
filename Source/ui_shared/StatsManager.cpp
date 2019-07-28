@@ -53,6 +53,8 @@ std::string CStatsManager::GetProfilingInfo()
 
 	if(!m_profilerZones.empty())
 	{
+		auto frametime = (m_frames != 0) ? totalTime / static_cast<double>(m_frames * timeScale) : 0;
+		result += string_format("%-18s %6.2fms(%3.2fFPS)\n", "FrameTime", frametime, 1000.0f / frametime);
 		result += "\n";
 	}
 	
