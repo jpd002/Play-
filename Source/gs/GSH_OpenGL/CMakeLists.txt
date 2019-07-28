@@ -17,11 +17,25 @@ add_subdirectory(
 endif()
 list(APPEND PROJECT_LIBS Framework_OpenGl)
 
+if(NOT TARGET freetype)
+add_subdirectory(
+	${CMAKE_CURRENT_SOURCE_DIR}/../../../../Dependencies/freetype-2.10.0
+	${CMAKE_CURRENT_BINARY_DIR}/freetype
+)
+endif()
+list(APPEND PROJECT_LIBS freetype)
+
 add_library(gsh_opengl STATIC 
 	GSH_OpenGL.cpp
 	GSH_OpenGL.h
 	GSH_OpenGL_Shader.cpp
 	GSH_OpenGL_Texture.cpp
+	GSH_OpenGL_Overlay.cpp
 )
 target_link_libraries(gsh_opengl Boost::boost Framework_OpenGl ${PROJECT_LIBS})
-target_include_directories(gsh_opengl PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/Source/gs/GSH_OpenGL/)
+target_include_directories(gsh_opengl
+	PUBLIC
+		${CMAKE_CURRENT_SOURCE_DIR}/Source/gs/GSH_OpenGL/
+		${FREETYPE_INCLUDE_DIRS}
+	# PRIVATE
+)

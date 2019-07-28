@@ -319,6 +319,15 @@ private:
 	Framework::OpenGl::CVertexArray GeneratePrimVertexArray();
 	Framework::OpenGl::CBuffer GenerateUniformBlockBuffer(size_t);
 
+	void SetupOverlay();
+	Framework::OpenGl::ProgramPtr GenerateOverlayProgram();
+	Framework::OpenGl::CBuffer GenerateOverlayVertexBuffer();
+	Framework::OpenGl::CVertexArray GenerateOverlayVertexArray();
+	Framework::OpenGl::CBuffer GenerateOverlayVertexElementsBuffer();
+
+	void InitOverlay();
+	void PrintOverlayText(std::string text);
+
 	void Prim_Point();
 	void Prim_Line();
 	void Prim_Triangle();
@@ -398,6 +407,28 @@ private:
 	Framework::OpenGl::CVertexArray m_copyToFbVertexArray;
 	GLint m_copyToFbSrcPositionUniform = -1;
 	GLint m_copyToFbSrcSizeUniform = -1;
+
+	Framework::OpenGl::ProgramPtr m_overlayProgram;
+	Framework::OpenGl::CBuffer m_overlayVertexBuffer;
+	Framework::OpenGl::CBuffer m_overlayVertexElementsBuffer;
+	Framework::OpenGl::CVertexArray m_overlayVertexArray;
+	GLint m_overlayPositionUniform = -1;
+	GLint m_overlayTextureCoordUniform = -1;
+	GLint m_overlayTextureUniform = -1;
+	GLint m_overlayTexCoordScaleUniform = -1;
+	GLint m_overlayTextColorUniform = -1;
+	struct CharTex
+	{
+		GLuint texture;
+		struct _size
+		{
+			float width;
+			float height;
+		} size;
+		float offsetX;
+		float advancePosition;
+	};
+	std::map<char, CharTex> m_characterTextureMap;
 
 	TextureCache m_textureCache;
 	PaletteList m_paletteCache;

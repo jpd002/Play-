@@ -100,6 +100,10 @@ void CGSH_OpenGL::ReleaseImpl()
 	m_primVertexArray.Reset();
 	m_vertexParamsBuffer.Reset();
 	m_fragmentParamsBuffer.Reset();
+	m_overlayProgram.reset();
+	m_overlayVertexBuffer.Reset();
+	m_overlayVertexArray.Reset();
+	m_overlayVertexElementsBuffer.Reset();
 }
 
 void CGSH_OpenGL::ResetImpl()
