@@ -416,7 +416,6 @@ private:
 	GLint m_overlayTextureCoordUniform = -1;
 	GLint m_overlayTextureUniform = -1;
 	GLint m_overlayTexCoordScaleUniform = -1;
-	GLint m_overlayTextColorUniform = -1;
 	struct CharTex
 	{
 		GLuint texture;

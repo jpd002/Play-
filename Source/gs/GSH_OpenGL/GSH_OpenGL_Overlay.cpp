@@ -127,9 +127,6 @@ void CGSH_OpenGL::PrintOverlayText(std::string text)
 	glUniform1i(m_overlayTextureUniform, 3);
 	assert(m_overlayTextureUniform != -1);
 
-	glUniform3f(m_overlayTextColorUniform, 0.0, 0.25, 0.75);
-	assert(m_overlayTextColorUniform != -1);
-
 	glBindVertexArray(m_overlayVertexArray);
 	glBindBuffer(GL_ARRAY_BUFFER, m_overlayVertexBuffer);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_overlayVertexElementsBuffer);
@@ -237,7 +234,6 @@ void CGSH_OpenGL::SetupOverlay()
 	m_overlayVertexArray = GenerateOverlayVertexArray();
 
 	m_overlayTextureUniform = glGetUniformLocation(*m_overlayProgram, "g_texture");
-	m_overlayTextColorUniform = glGetUniformLocation(*m_overlayProgram, "g_textcolor");
 }
 
 Framework::OpenGl::ProgramPtr CGSH_OpenGL::GenerateOverlayProgram()
@@ -269,7 +265,6 @@ Framework::OpenGl::ProgramPtr CGSH_OpenGL::GenerateOverlayProgram()
 		shaderBuilder << "in vec2 v_texCoord;" << std::endl;
 		shaderBuilder << "out vec4 fragColor;" << std::endl;
 		shaderBuilder << "uniform sampler2D g_texture;" << std::endl;
-		shaderBuilder << "uniform vec3 g_textcolor;" << std::endl;
 		shaderBuilder << "void main()" << std::endl;
 		shaderBuilder << "{" << std::endl;
 		shaderBuilder << "	vec2 tex = texture(g_texture, v_texCoord).rg;" << std::endl;
