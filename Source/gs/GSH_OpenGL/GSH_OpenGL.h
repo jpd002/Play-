@@ -429,6 +429,7 @@ private:
 		float advancePosition;
 	};
 	std::map<char, CharTex> m_characterTextureMap;
+	bool isOverlayInit = false;
 
 	TextureCache m_textureCache;
 	PaletteList m_paletteCache;

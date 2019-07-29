@@ -18,16 +18,17 @@ void CGSH_OpenGL::InitOverlay()
 {
 	FT_Face face;
 	FT_Library library;
-	if(FT_Init_FreeType(&library) == 0)
-	{
+	if(FT_Init_FreeType(&library) != 0)
+		return;
 #ifdef __ANDROID__
-		int res = FT_New_Face(library, FONTFILENAME, 0, &face);
+	int res = FT_New_Face(library, FONTFILENAME, 0, &face);
 #else
-		auto fontPath = Framework::PathUtils::GetAppResourcesPath() / FONTFILENAME;
-		int res = FT_New_Face(library, fontPath.native().c_str(), 0, &face);
+	auto fontPath = Framework::PathUtils::GetAppResourcesPath() / FONTFILENAME;
+	int res = FT_New_Face(library, fontPath.native().c_str(), 0, &face);
 #endif
-		assert(res == 0);
-	}
+	if(res != 0)
+		return;
+
 
 	m_characterTextureMap.clear();
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
@@ -36,7 +37,6 @@ void CGSH_OpenGL::InitOverlay()
 	FT_Stroker stroker;
 	if(FT_Stroker_New(library, &stroker) != 0)
 	{
-		assert(false);
 		return;
 	}
 
@@ -107,9 +107,10 @@ void CGSH_OpenGL::InitOverlay()
 		};
 		m_characterTextureMap.insert(std::pair<char, CharTex>(static_cast<char>(c), character));
 	}
-
+	glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
 	FT_Done_Face(face);
 	FT_Done_FreeType(library);
+	isOverlayInit = true;
 
 }
 
