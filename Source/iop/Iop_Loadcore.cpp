@@ -11,6 +11,7 @@ using namespace Iop;
 #define STATE_VERSION_XML ("iop_loadcore/version.xml")
 #define STATE_VERSION_MODULEVERSION ("moduleVersion")
 
+#define FUNCTION_GETLIBRARYENTRYTABLE "GetLibraryEntryTable"
 #define FUNCTION_FLUSHDCACHE "FlushDcache"
 #define FUNCTION_REGISTERLIBRARYENTRIES "RegisterLibraryEntries"
 #define FUNCTION_QUERYBOOTMODE "QueryBootMode"
@@ -40,6 +41,9 @@ std::string CLoadcore::GetFunctionName(unsigned int functionId) const
 {
 	switch(functionId)
 	{
+	case 3:
+		return FUNCTION_GETLIBRARYENTRYTABLE;
+		break;
 	case 5:
 		return FUNCTION_FLUSHDCACHE;
 		break;
@@ -62,6 +66,9 @@ void CLoadcore::Invoke(CMIPS& context, unsigned int functionId)
 {
 	switch(functionId)
 	{
+	case 3:
+		context.m_State.nGPR[CMIPS::V0].nD0 = static_cast<int32>(GetLibraryEntryTable());
+		break;
 	case 5:
 		//FlushDCache
 		break;
@@ -135,6 +142,13 @@ void CLoadcore::SaveState(Framework::CZipArchiveWriter& archive)
 void CLoadcore::SetLoadExecutableHandler(const LoadExecutableHandler& loadExecutableHandler)
 {
 	m_loadExecutableHandler = loadExecutableHandler;
+}
+
+uint32 CLoadcore::GetLibraryEntryTable()
+{
+	CLog::GetInstance().Print(LOG_NAME, FUNCTION_GETLIBRARYENTRYTABLE "();\r\n");
+	CLog::GetInstance().Warn(LOG_NAME, FUNCTION_GETLIBRARYENTRYTABLE " is not implemented.\r\n");
+	return 0;
 }
 
 uint32 CLoadcore::RegisterLibraryEntries(uint32 exportTablePtr)
