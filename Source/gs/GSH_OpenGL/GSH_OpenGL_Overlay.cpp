@@ -33,17 +33,65 @@ void CGSH_OpenGL::InitOverlay()
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 	FT_Set_Pixel_Sizes(face, 0, 168);
 	FT_GlyphSlot slot = face->glyph;
+	FT_Stroker stroker;
+	if(FT_Stroker_New(library, &stroker) != 0)
+	{
+		assert(false);
+		return;
+	}
 
 	for (int c = 0; c < 128; c++)
 	{
-		FT_Load_Char(face, c, FT_LOAD_RENDER);
+		FT_Load_Char(face, c, FT_LOAD_NO_BITMAP | FT_LOAD_TARGET_NORMAL);
+
+		FT_Glyph glyphDescStroke;
+		FT_Get_Glyph(slot, &glyphDescStroke);
+
+		static double outlineThickness = 8.0;
+		FT_Stroker_Set(stroker, static_cast<FT_Fixed>(outlineThickness * static_cast<float>(1 << 6)), FT_STROKER_LINECAP_ROUND, FT_STROKER_LINEJOIN_ROUND, 0);
+		FT_Glyph_Stroke(&glyphDescStroke, stroker, true);
+		FT_Glyph_To_Bitmap(&glyphDescStroke, FT_RENDER_MODE_NORMAL, 0, 1);
+
+		auto outline_glyph_bitmap  = reinterpret_cast<FT_BitmapGlyph>(glyphDescStroke);
+		auto bitmap_stroke = &outline_glyph_bitmap->bitmap;
+
+		int width = bitmap_stroke->width;
+		int height = bitmap_stroke->rows;
+		std::vector<unsigned char> bitmap_mixed_buffer(width * height * 2, 0);
+		for(int i = 0; i < width * height; ++i)
+		{
+			bitmap_mixed_buffer[(i * 2)] = bitmap_stroke->buffer[i];
+		}
+
+		FT_Glyph glyphDescFill;
+		FT_Get_Glyph(slot, &glyphDescFill);
+		FT_Glyph_To_Bitmap(&glyphDescFill, FT_RENDER_MODE_NORMAL, 0, 1);
+
+		FT_BitmapGlyph glyph_bitmap = reinterpret_cast<FT_BitmapGlyph>(glyphDescFill);
+		auto bitmap_fill = &glyph_bitmap->bitmap;
+
+		int fillWidth  = bitmap_fill->width;
+		int fillHeight  = bitmap_fill->rows;
+		int offsetX = (width - fillWidth) / 2;
+		int offsetY = (height - fillHeight) / 2;
+
+		for(int i = 0, y = offsetY; y < fillHeight + offsetY; ++y)
+		{
+			for(int x = offsetX; x < fillWidth + offsetX; ++x)
+			{
+				int deoffsetY = y - offsetY;
+				int deoffsetX = x - offsetX;
+				bitmap_mixed_buffer[(((y * width) + x) * 2) + 1] = bitmap_fill->buffer[i];
+				++i;
+			}
+		}
 
 		GLuint texture;
 		glGenTextures(1, &texture);
 		glBindTexture(GL_TEXTURE_2D, texture);
 
 		//Note the bitmap only holds alpha value, so we'll store it in in red bits
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, slot->bitmap.width, slot->bitmap.rows, 0, GL_RED, GL_UNSIGNED_BYTE, slot->bitmap.buffer);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RG8, bitmap_stroke->width, bitmap_stroke->rows, 0, GL_RG, GL_UNSIGNED_BYTE, bitmap_mixed_buffer.data());
 
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
@@ -53,7 +101,7 @@ void CGSH_OpenGL::InitOverlay()
 		CharTex character =
 		{
 			texture,
-			{slot->bitmap.width / 2048.0f, slot->bitmap.rows / 2048.0f},
+			{bitmap_stroke->width / 2048.0f, bitmap_stroke->rows / 2048.0f},
 			slot->bitmap_left / 2048.0f,
 			slot->advance.x / (2048.0f * 64.0f)
 		};
@@ -221,8 +269,14 @@ Framework::OpenGl::ProgramPtr CGSH_OpenGL::GenerateOverlayProgram()
 		shaderBuilder << "uniform vec3 g_textcolor;" << std::endl;
 		shaderBuilder << "void main()" << std::endl;
 		shaderBuilder << "{" << std::endl;
-		shaderBuilder << "	float alpha = texture(g_texture, v_texCoord).r;" << std::endl;
-		shaderBuilder << "	fragColor = vec4(g_textcolor, alpha);" << std::endl;
+		shaderBuilder << "	vec2 tex = texture(g_texture, v_texCoord).rg;" << std::endl;
+		shaderBuilder << "	float fill = tex.g;" << std::endl;
+		shaderBuilder << "	float outline = tex.r;" << std::endl;
+		shaderBuilder << "	if(fill == 1.0)" << std::endl;
+		shaderBuilder << "		fragColor = vec4(vec3(1), fill);" << std::endl;
+		shaderBuilder << "	else" << std::endl;
+		shaderBuilder << "		fragColor = vec4(vec3(0), outline);" << std::endl;
+		shaderBuilder << "	" << std::endl;
 		shaderBuilder << "}" << std::endl;
 
 		pixelShader.SetSource(shaderBuilder.str().c_str());
