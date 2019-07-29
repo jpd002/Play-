@@ -79,8 +79,6 @@ void CGSH_OpenGL::InitOverlay()
 		{
 			for(int x = offsetX; x < fillWidth + offsetX; ++x)
 			{
-				int deoffsetY = y - offsetY;
-				int deoffsetX = x - offsetX;
 				bitmap_mixed_buffer[(((y * width) + x) * 2) + 1] = bitmap_fill->buffer[i];
 				++i;
 			}
@@ -116,6 +114,9 @@ void CGSH_OpenGL::InitOverlay()
 
 void CGSH_OpenGL::PrintOverlayText(std::string text)
 {
+	if(!isOverlayInit)
+		return;
+
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
