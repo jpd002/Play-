@@ -18,6 +18,19 @@ namespace Iop
 		void ProcessCommands() override;
 
 	private:
+		enum COMMANDID
+		{
+			COMMANDID_OPEN = 0,
+			COMMANDID_CLOSE = 1,
+			COMMANDID_READ = 2,
+			COMMANDID_SEEK = 4,
+			COMMANDID_DOPEN = 9,
+			COMMANDID_GETSTAT = 12,
+			COMMANDID_MOUNT = 20,
+			COMMANDID_UMOUNT = 21,
+			COMMANDID_DEVCTL = 23,
+		};
+
 		struct COMMANDHEADER
 		{
 			uint32 semaphoreId;
