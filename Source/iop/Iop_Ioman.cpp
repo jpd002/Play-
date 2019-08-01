@@ -407,6 +407,16 @@ uint32 CIoman::DelDrv(uint32 drvNamePtr)
 	return -1;
 }
 
+uint32 CIoman::GetFileMode(uint32 handle) const
+{
+	auto file(m_files.find(handle));
+	if(file == std::end(m_files))
+	{
+		throw std::runtime_error("Invalid file handle.");
+	}
+	return file->second.flags;
+}
+
 Framework::CStream* CIoman::GetFileStream(uint32 handle)
 {
 	auto file(m_files.find(handle));

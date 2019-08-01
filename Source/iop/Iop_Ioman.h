@@ -94,6 +94,8 @@ namespace Iop
 		uint32 AddDrv(uint32);
 		uint32 DelDrv(uint32);
 
+		uint32 GetFileMode(uint32) const;
+
 		Framework::CStream* GetFileStream(uint32);
 		void SetFileStream(uint32, Framework::CStream*);
 
