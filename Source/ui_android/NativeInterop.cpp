@@ -14,7 +14,7 @@
 #include "NativeShared.h"
 #include "GSH_OpenGLAndroid.h"
 #include "SH_OpenSL.h"
-#include "StatsManager.h"
+#include "ui_shared/StatsManager.h"
 #include "com_virtualapplications_play_Bootable.h"
 #include "http/java_io_InputStream.h"
 #include "http/java_io_OutputStream.h"
@@ -79,7 +79,7 @@ extern "C" JNIEXPORT void JNICALL Java_com_virtualapplications_play_NativeIntero
 	g_virtualMachine->Initialize();
 	g_virtualMachine->CreatePadHandler(CPH_Generic::GetFactoryFunction());
 #ifdef PROFILE
-	g_virtualMachine->ProfileFrameDone.connect(boost::bind(&CStatsManager::OnProfileFrameDone, &CStatsManager::GetInstance(), _1));
+	g_virtualMachine->ProfileFrameDone.connect(boost::bind(&CStatsManager::OnProfileFrameDone, &CStatsManager::GetInstance(), g_virtualMachine, _1));
 #endif
 	CAppConfig::GetInstance().RegisterPreferenceBoolean(PREF_AUDIO_ENABLEOUTPUT, true);
 	CGSH_OpenGL::RegisterPreferences();

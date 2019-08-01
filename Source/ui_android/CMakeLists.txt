@@ -42,7 +42,7 @@ set(ANDROID_SRC_FILES
 	NativeShared.cpp
 	SettingsManager.cpp
 	SH_OpenSL.cpp
-	StatsManager.cpp
+	StatsInterop.cpp
 )
 
 list(APPEND PROJECT_LIBS android log OpenSLES)
