@@ -89,7 +89,7 @@ MainWindow::MainWindow(QWidget* parent)
 		ui->gridLayout->addWidget(m_profileStatsLabel, 0, 1);
 	}
 #endif
-	
+
 	RegisterPreferences();
 
 	m_pauseFocusLost = CAppConfig::GetInstance().GetPreferenceBoolean(PREF_UI_PAUSEWHENFOCUSLOST);
@@ -189,7 +189,7 @@ void MainWindow::InitVirtualMachine()
 #ifdef PROFILE
 	m_virtualMachine->ProfileFrameDone.connect(std::bind(&CStatsManager::OnProfileFrameDone, &CStatsManager::GetInstance(), m_virtualMachine, std::placeholders::_1));
 #endif
-	
+
 	//OnExecutableChange might be called from another thread, we need to wrap it around a Qt signal
 	m_virtualMachine->m_ee->m_os->OnExecutableChange.connect(std::bind(&MainWindow::EmitOnExecutableChange, this));
 	connect(this, SIGNAL(onExecutableChange()), this, SLOT(HandleOnExecutableChange()));

@@ -39,7 +39,7 @@ std::string CStatsManager::GetProfilingInfo()
 
 	//Times are in nanoseconds (1m ns in a s)
 	static const uint64 timeScale = 1000000;
-	
+
 	for(const auto& zonePair : m_profilerZones)
 	{
 		const auto& zoneInfo = zonePair.second;
@@ -56,21 +56,21 @@ std::string CStatsManager::GetProfilingInfo()
 		float totalAvgMsSpent = (m_frames != 0) ? static_cast<double>(totalTime) / static_cast<double>(m_frames * timeScale) : 0;
 		result += string_format("                   %6.2fms\r\n\r\n", totalAvgMsSpent);
 	}
-	
+
 	{
 		m_cpuUtilisation.eeIdleTicks = std::max<int32>(m_cpuUtilisation.eeIdleTicks, 0);
 		m_cpuUtilisation.iopIdleTicks = std::max<int32>(m_cpuUtilisation.iopIdleTicks, 0);
-		
+
 		float eeIdleRatio = static_cast<float>(m_cpuUtilisation.eeIdleTicks) / static_cast<float>(m_cpuUtilisation.eeTotalTicks);
 		float iopIdleRatio = static_cast<float>(m_cpuUtilisation.iopIdleTicks) / static_cast<float>(m_cpuUtilisation.iopTotalTicks);
-		
+
 		if(m_cpuUtilisation.eeTotalTicks == 0) eeIdleRatio = 1.f;
 		if(m_cpuUtilisation.iopTotalTicks == 0) iopIdleRatio = 1.f;
-		
+
 		result += string_format("EE Usage:  %6.2f%%\r\n", (1.f - eeIdleRatio) * 100.f);
 		result += string_format("IOP Usage: %6.2f%%\r\n", (1.f - iopIdleRatio) * 100.f);
 	}
-	
+
 	return result;
 }
 
@@ -106,7 +106,7 @@ void CStatsManager::OnProfileFrameDone(CPS2VM* virtualMachine, const CProfiler::
 		}
 		zoneInfo.maxValue = std::max<uint64>(zoneInfo.maxValue, zone.totalTime);
 	}
-	
+
 	auto cpuUtilisation = virtualMachine->GetCpuUtilisationInfo();
 	m_cpuUtilisation.eeTotalTicks += cpuUtilisation.eeTotalTicks;
 	m_cpuUtilisation.eeIdleTicks += cpuUtilisation.eeIdleTicks;
