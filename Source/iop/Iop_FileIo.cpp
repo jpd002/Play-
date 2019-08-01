@@ -77,9 +77,9 @@ void CFileIo::SaveState(Framework::CZipArchiveWriter& archive) const
 	m_handler->SaveState(archive);
 }
 
-void CFileIo::ProcessCommands()
+void CFileIo::ProcessCommands(Iop::CSifMan* sifMan)
 {
-	m_handler->ProcessCommands();
+	m_handler->ProcessCommands(sifMan);
 }
 
 //--------------------------------------------------

@@ -94,7 +94,7 @@ void CFileIoHandler2240::SaveState(Framework::CZipArchiveWriter& archive) const
 	archive.InsertFile(registerFile);
 }
 
-void CFileIoHandler2240::ProcessCommands()
+void CFileIoHandler2240::ProcessCommands(CSifMan* sifMan)
 {
 	if(m_pendingReadCommand)
 	{

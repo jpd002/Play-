@@ -1701,7 +1701,7 @@ void CIopBios::NotifyVBlankEnd()
 #ifdef _IOP_EMULATE_MODULES
 	m_cdvdfsv->ProcessCommands(m_sifMan.get());
 	m_cdvdman->ProcessCommands();
-	m_fileIo->ProcessCommands();
+	m_fileIo->ProcessCommands(m_sifMan.get());
 #endif
 }
 

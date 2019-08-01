@@ -15,7 +15,7 @@ namespace Iop
 		void LoadState(Framework::CZipArchiveReader&) override;
 		void SaveState(Framework::CZipArchiveWriter&) const override;
 
-		void ProcessCommands() override;
+		void ProcessCommands(CSifMan*) override;
 
 	private:
 		enum COMMANDID
