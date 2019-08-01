@@ -53,7 +53,8 @@ std::string CStatsManager::GetProfilingInfo()
 
 	if(!m_profilerZones.empty())
 	{
-		result += "\r\n";
+		float totalAvgMsSpent = (m_frames != 0) ? static_cast<double>(totalTime) / static_cast<double>(m_frames * timeScale) : 0;
+		result += string_format("                   %6.2fms\r\n\r\n", totalAvgMsSpent);
 	}
 	
 	{
