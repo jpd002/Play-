@@ -1,6 +1,8 @@
 #include "Iop_FileIoHandler2240.h"
 #include "Iop_Ioman.h"
+#include "Iop_SifManPs2.h"
 #include "../states/RegisterStateFile.h"
+#include "../states/MemoryStateFile.h"
 #include "../Log.h"
 #include "../Ps2Const.h"
 
@@ -9,7 +11,7 @@
 #define STATE_XML ("iop_fileio/state2240.xml")
 #define STATE_RESULTPTR0 ("resultPtr0")
 #define STATE_RESULTPTR1 ("resultPtr1")
-#define STATE_PENDINGREADCMD ("pendingReadCmd")
+#define STATE_PENDINGREPLY ("iop_fileio/state2240_pending")
 
 using namespace Iop;
 
@@ -21,6 +23,7 @@ CFileIoHandler2240::CFileIoHandler2240(CIoman* ioman, CSifMan& sifMan)
     , m_sifMan(sifMan)
 {
 	memset(m_resultPtr, 0, sizeof(m_resultPtr));
+	memset(m_pendingReply.buffer.data(), 0, PENDINGREPLY::REPLY_BUFFER_SIZE);
 }
 
 void CFileIoHandler2240::Invoke(uint32 method, uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, uint8* ram)
@@ -79,27 +82,40 @@ void CFileIoHandler2240::Invoke(uint32 method, uint32* args, uint32 argsSize, ui
 
 void CFileIoHandler2240::LoadState(Framework::CZipArchiveReader& archive)
 {
-	auto registerFile = CRegisterStateFile(*archive.BeginReadFile(STATE_XML));
-	m_resultPtr[0] = registerFile.GetRegister32(STATE_RESULTPTR0);
-	m_resultPtr[1] = registerFile.GetRegister32(STATE_RESULTPTR1);
-	m_pendingReadCommand = registerFile.GetRegister32(STATE_PENDINGREADCMD) != 0;
+	{
+		auto registerFile = CRegisterStateFile(*archive.BeginReadFile(STATE_XML));
+		m_resultPtr[0] = registerFile.GetRegister32(STATE_RESULTPTR0);
+		m_resultPtr[1] = registerFile.GetRegister32(STATE_RESULTPTR1);
+	}
+
+	archive.BeginReadFile(STATE_PENDINGREPLY)->Read(&m_pendingReply, sizeof(m_pendingReply));
 }
 
 void CFileIoHandler2240::SaveState(Framework::CZipArchiveWriter& archive) const
 {
-	auto registerFile = new CRegisterStateFile(STATE_XML);
-	registerFile->SetRegister32(STATE_RESULTPTR0, m_resultPtr[0]);
-	registerFile->SetRegister32(STATE_RESULTPTR1, m_resultPtr[1]);
-	registerFile->SetRegister32(STATE_PENDINGREADCMD, m_pendingReadCommand ? 1 : 0);
-	archive.InsertFile(registerFile);
+	{
+		auto registerFile = new CRegisterStateFile(STATE_XML);
+		registerFile->SetRegister32(STATE_RESULTPTR0, m_resultPtr[0]);
+		registerFile->SetRegister32(STATE_RESULTPTR1, m_resultPtr[1]);
+		archive.InsertFile(registerFile);
+	}
+
+	{
+		auto memoryFile = new CMemoryStateFile(STATE_PENDINGREPLY, &m_pendingReply, sizeof(m_pendingReply));
+		archive.InsertFile(memoryFile);
+	}
 }
 
 void CFileIoHandler2240::ProcessCommands(CSifMan* sifMan)
 {
-	if(m_pendingReadCommand)
+	if(m_pendingReply.valid)
 	{
-		SendSifReply();
-		m_pendingReadCommand = false;
+		uint8* eeRam = nullptr;
+		if(auto sifManPs2 = dynamic_cast<CSifManPs2*>(sifMan))
+		{
+			eeRam = sifManPs2->GetEeRam();
+		}
+		SendPendingReply(eeRam);
 	}
 }
 
@@ -132,20 +148,34 @@ uint32 CFileIoHandler2240::InvokeClose(uint32* args, uint32 argsSize, uint32* re
 	auto command = reinterpret_cast<CLOSECOMMAND*>(args);
 	auto result = m_ioman->Close(command->fd);
 
-	//Send response
-	if(m_resultPtr[0] != 0)
+	CLOSEREPLY reply;
+	reply.header.commandId = COMMANDID_CLOSE;
+	CopyHeader(reply.header, command->header);
+	reply.result = result;
+	reply.unknown2 = 0;
+	reply.unknown3 = 0;
+	reply.unknown4 = 0;
+
+	//1945 1+2 will close the file before checking the read command has completed
+	//Just push the read command reply and queue a close command reply
+	if(m_pendingReply.valid && (m_pendingReply.fileId == command->fd))
 	{
-		CLOSEREPLY reply;
-		reply.header.commandId = COMMANDID_CLOSE;
-		CopyHeader(reply.header, command->header);
-		reply.result = result;
-		reply.unknown2 = 0;
-		reply.unknown3 = 0;
-		reply.unknown4 = 0;
-		memcpy(ram + m_resultPtr[0], &reply, sizeof(CLOSEREPLY));
+		SendPendingReply(ram);
+		assert(!m_pendingReply.valid);
+		m_pendingReply.SetReply(reply);
+		m_pendingReply.fileId = command->fd;
+	}
+	else
+	{
+		//Send response
+		if(m_resultPtr[0] != 0)
+		{
+			memcpy(ram + m_resultPtr[0], &reply, sizeof(CLOSEREPLY));
+		}
+
+		SendSifReply();
 	}
 
-	SendSifReply();
 	return 1;
 }
 
@@ -156,22 +186,30 @@ uint32 CFileIoHandler2240::InvokeRead(uint32* args, uint32 argsSize, uint32* ret
 	uint32 readAddress = command->buffer & (PS2::EE_RAM_SIZE - 1);
 	auto result = m_ioman->Read(command->fd, command->size, reinterpret_cast<void*>(ram + readAddress));
 
-	//Send response
-	if(m_resultPtr[0] != 0)
-	{
-		READREPLY reply;
-		reply.header.commandId = COMMANDID_READ;
-		CopyHeader(reply.header, command->header);
-		reply.result = result;
-		reply.unknown2 = 0;
-		reply.unknown3 = 0;
-		reply.unknown4 = 0;
-		memcpy(ram + m_resultPtr[0], &reply, sizeof(READREPLY));
-	}
+	READREPLY reply;
+	reply.header.commandId = COMMANDID_READ;
+	CopyHeader(reply.header, command->header);
+	reply.result = result;
+	reply.unknown2 = 0;
+	reply.unknown3 = 0;
+	reply.unknown4 = 0;
 
-	//Delay read reply to next frame (needed by Phantasy Star Collection)
-	assert(!m_pendingReadCommand);
-	m_pendingReadCommand = true;
+	//Delay read reply to next frame (needed by Phantasy Star Collection & 1945 1+2)
+	auto fileMode = m_ioman->GetFileMode(command->fd);
+	if(fileMode & Ioman::CDevice::OPEN_FLAG_NOWAIT)
+	{
+		m_pendingReply.SetReply(reply);
+		m_pendingReply.fileId = command->fd;
+	}
+	else
+	{
+		//Send response
+		if(m_resultPtr[0] != 0)
+		{
+			memcpy(ram + m_resultPtr[0], &reply, sizeof(READREPLY));
+		}
+		SendSifReply();
+	}
 	return 1;
 }
 
@@ -353,6 +391,17 @@ void CFileIoHandler2240::CopyHeader(REPLYHEADER& reply, const COMMANDHEADER& com
 	reply.semaphoreId = command.semaphoreId;
 	reply.resultPtr = command.resultPtr;
 	reply.resultSize = command.resultSize;
+}
+
+void CFileIoHandler2240::SendPendingReply(uint8* ram)
+{
+	//Send response
+	if(m_resultPtr[0] != 0)
+	{
+		memcpy(ram + m_resultPtr[0], m_pendingReply.buffer.data(), m_pendingReply.replySize);
+	}
+	SendSifReply();
+	m_pendingReply.valid = false;
 }
 
 void CFileIoHandler2240::SendSifReply()

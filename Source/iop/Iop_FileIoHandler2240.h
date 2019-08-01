@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cassert>
 #include "Iop_FileIo.h"
 #include "Iop_Ioman.h"
 
@@ -18,6 +19,29 @@ namespace Iop
 		void ProcessCommands(CSifMan*) override;
 
 	private:
+		struct PENDINGREPLY
+		{
+			enum
+			{
+				REPLY_BUFFER_SIZE = 0x20,
+			};
+
+			template <typename T>
+			void SetReply(const T& reply)
+			{
+				assert(!valid);
+				static_assert(sizeof(T) <= REPLY_BUFFER_SIZE, "Reply buffer too small.");
+				valid = true;
+				replySize = sizeof(T);
+				memcpy(buffer.data(), &reply, sizeof(T));
+			}
+
+			bool valid = false;
+			uint32 fileId = 0;
+			uint32 replySize = 0;
+			std::array<uint8, REPLY_BUFFER_SIZE> buffer;
+		};
+
 		enum COMMANDID
 		{
 			COMMANDID_OPEN = 0,
@@ -206,10 +230,11 @@ namespace Iop
 		uint32 InvokeDevctl(uint32*, uint32, uint32*, uint32, uint8*);
 
 		void CopyHeader(REPLYHEADER&, const COMMANDHEADER&);
+		void SendPendingReply(uint8*);
 		void SendSifReply();
 
-		uint32 m_resultPtr[2];
 		CSifMan& m_sifMan;
-		bool m_pendingReadCommand = false;
+		uint32 m_resultPtr[2];
+		PENDINGREPLY m_pendingReply;
 	};
 };
