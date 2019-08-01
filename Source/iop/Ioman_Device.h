@@ -20,7 +20,7 @@ namespace Iop
 				OPEN_FLAG_ACCMODE = 0x00000003,
 				OPEN_FLAG_CREAT = 0x00000200,
 				OPEN_FLAG_TRUNC = 0x00000400,
-				OPEN_FLAG_NOWAIT = 0x00008000,
+				OPEN_FLAG_NOWAIT = 0x00008000,		//This is probably only used by EE's FIO library
 			};
 
 			virtual ~CDevice() = default;
