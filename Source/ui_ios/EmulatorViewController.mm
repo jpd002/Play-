@@ -187,7 +187,18 @@ CPS2VM* g_virtualMachine = nullptr;
 	self.fpsCounterLabel.textColor = [UIColor whiteColor];
 	[self.view addSubview: self.fpsCounterLabel];
 
+#ifdef PROFILE
+	self.profilerStatsLabel = [[UILabel alloc] initWithFrame: screenBounds];
+	self.profilerStatsLabel.textColor = [UIColor whiteColor];
+	self.profilerStatsLabel.font = [UIFont fontWithName: @"Courier" size: 10.f];
+	self.profilerStatsLabel.numberOfLines = 0;
+	[self.view addSubview: self.profilerStatsLabel];
+#endif
+	
 	g_virtualMachine->GetGSHandler()->OnNewFrame.connect(std::bind(&CStatsManager::OnNewFrame, &CStatsManager::GetInstance(), std::placeholders::_1));
+#ifdef PROFILE
+	g_virtualMachine->ProfileFrameDone.connect(std::bind(&CStatsManager::OnProfileFrameDone, &CStatsManager::GetInstance(), g_virtualMachine, std::placeholders::_1));
+#endif
 	self.fpsCounterTimer = [NSTimer scheduledTimerWithTimeInterval: 1 target: self selector: @selector(updateFpsCounter) userInfo: nil repeats: YES];
 }
 
@@ -198,6 +209,9 @@ CPS2VM* g_virtualMachine = nullptr;
 	uint32 dcpf = (frames != 0) ? (drawCallCount / frames) : 0;
 	self.fpsCounterLabel.text = [NSString stringWithFormat: @"%d f/s, %d dc/f", frames, dcpf];
 	[self.fpsCounterLabel sizeToFit];
+#ifdef PROFILE
+	self.profilerStatsLabel.text = [NSString stringWithUTF8String: CStatsManager::GetInstance().GetProfilingInfo().c_str()];
+#endif
 	CStatsManager::GetInstance().ClearStats();
 }
 

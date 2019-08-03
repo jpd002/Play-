@@ -17,5 +17,8 @@
 
 @property NSTimer* fpsCounterTimer;
 @property UILabel* fpsCounterLabel;
+#ifdef PROFILE
+@property UILabel* profilerStatsLabel;
+#endif
 
 @end
