@@ -9,6 +9,7 @@
 #include "../ui_shared/BootablesProcesses.h"
 #include "PH_Generic.h"
 #include "../../tools/PsfPlayer/Source/SH_OpenAL.h"
+#include "../ui_shared/StatsManager.h"
 
 CPS2VM* g_virtualMachine = nullptr;
 
@@ -186,31 +187,18 @@ CPS2VM* g_virtualMachine = nullptr;
 	self.fpsCounterLabel.textColor = [UIColor whiteColor];
 	[self.view addSubview: self.fpsCounterLabel];
 
-	g_virtualMachine->GetGSHandler()->OnNewFrame.connect(
-		[self] (uint32 drawCallCount)
-		{
-			@synchronized(self)
-			{
-				self.frames++;
-				self.drawCallCount += drawCallCount;
-			}
-		}
-	);
-	
+	g_virtualMachine->GetGSHandler()->OnNewFrame.connect(std::bind(&CStatsManager::OnNewFrame, &CStatsManager::GetInstance(), std::placeholders::_1));
 	self.fpsCounterTimer = [NSTimer scheduledTimerWithTimeInterval: 1 target: self selector: @selector(updateFpsCounter) userInfo: nil repeats: YES];
 }
 
 -(void)updateFpsCounter
 {
-	@synchronized(self)
-	{
-		uint32 dcpf = (self.frames != 0) ? (self.drawCallCount / self.frames) : 0;
-		self.fpsCounterLabel.text = [NSString stringWithFormat: @"%d f/s, %d dc/f",
-			self.frames, dcpf];
-		self.frames = 0;
-		self.drawCallCount = 0;
-	}
+	uint32 drawCallCount = CStatsManager::GetInstance().GetDrawCalls();
+	uint32 frames = CStatsManager::GetInstance().GetFrames();
+	uint32 dcpf = (frames != 0) ? (drawCallCount / frames) : 0;
+	self.fpsCounterLabel.text = [NSString stringWithFormat: @"%d f/s, %d dc/f", frames, dcpf];
 	[self.fpsCounterLabel sizeToFit];
+	CStatsManager::GetInstance().ClearStats();
 }
 
 -(void)onLoadStateButtonClick

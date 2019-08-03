@@ -17,7 +17,5 @@
 
 @property NSTimer* fpsCounterTimer;
 @property UILabel* fpsCounterLabel;
-@property uint32 frames;
-@property uint32 drawCallCount;
 
 @end
