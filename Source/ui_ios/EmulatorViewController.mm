@@ -97,6 +97,8 @@ CPS2VM* g_virtualMachine = nullptr;
 
 -(void)viewDidDisappear: (BOOL)animated
 {
+	[self.fpsCounterTimer invalidate];
+	self.fpsCounterTimer = nil;
 	g_virtualMachine->Pause();
 	g_virtualMachine->Destroy();
 	delete g_virtualMachine;
@@ -195,7 +197,7 @@ CPS2VM* g_virtualMachine = nullptr;
 		}
 	);
 	
-	[NSTimer scheduledTimerWithTimeInterval: 1 target: self selector: @selector(updateFpsCounter) userInfo: nil repeats: YES];
+	self.fpsCounterTimer = [NSTimer scheduledTimerWithTimeInterval: 1 target: self selector: @selector(updateFpsCounter) userInfo: nil repeats: YES];
 }
 
 -(void)updateFpsCounter
