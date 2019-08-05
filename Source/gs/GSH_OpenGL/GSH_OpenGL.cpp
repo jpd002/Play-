@@ -78,7 +78,6 @@ void CGSH_OpenGL::InitializeImpl()
 		m_paletteCache.push_back(PalettePtr(new CPalette()));
 	}
 
-	m_nMaxZ = 32768.0;
 	m_renderState.isValid = false;
 	m_validGlState = 0;
 }
@@ -451,9 +450,13 @@ Framework::OpenGl::CVertexArray CGSH_OpenGL::GeneratePrimVertexArray()
 	glBindBuffer(GL_ARRAY_BUFFER, m_primBuffer);
 
 	glEnableVertexAttribArray(static_cast<GLuint>(PRIM_VERTEX_ATTRIB::POSITION));
-	glVertexAttribPointer(static_cast<GLuint>(PRIM_VERTEX_ATTRIB::POSITION), 3, GL_FLOAT,
+	glVertexAttribPointer(static_cast<GLuint>(PRIM_VERTEX_ATTRIB::POSITION), 2, GL_FLOAT,
 	                      GL_FALSE, sizeof(PRIM_VERTEX), reinterpret_cast<const GLvoid*>(offsetof(PRIM_VERTEX, x)));
 
+	glEnableVertexAttribArray(static_cast<GLuint>(PRIM_VERTEX_ATTRIB::DEPTH));
+	glVertexAttribIPointer(static_cast<GLuint>(PRIM_VERTEX_ATTRIB::DEPTH), 1, GL_UNSIGNED_INT,
+	                       sizeof(PRIM_VERTEX), reinterpret_cast<const GLvoid*>(offsetof(PRIM_VERTEX, z)));
+	
 	glEnableVertexAttribArray(static_cast<GLuint>(PRIM_VERTEX_ATTRIB::COLOR));
 	glVertexAttribPointer(static_cast<GLuint>(PRIM_VERTEX_ATTRIB::COLOR), 4, GL_UNSIGNED_BYTE,
 	                      GL_TRUE, sizeof(PRIM_VERTEX), reinterpret_cast<const GLvoid*>(offsetof(PRIM_VERTEX, color)));
@@ -539,19 +542,6 @@ unsigned int CGSH_OpenGL::GetCurrentReadCircuit()
 	}
 	break;
 	}
-}
-
-float CGSH_OpenGL::GetZ(float nZ)
-{
-	if(nZ == 0)
-	{
-		return -1;
-	}
-
-	nZ -= m_nMaxZ;
-	if(nZ > m_nMaxZ) return 1.0;
-	if(nZ < -m_nMaxZ) return -1.0;
-	return nZ / m_nMaxZ;
 }
 
 /////////////////////////////////////////////////////////////
@@ -962,20 +952,6 @@ void CGSH_OpenGL::SetupDepthBuffer(uint64 zbufReg, uint64 testReg)
 {
 	auto zbuf = make_convertible<ZBUF>(zbufReg);
 	auto test = make_convertible<TEST>(testReg);
-
-	switch(CGsPixelFormats::GetPsmPixelSize(zbuf.nPsm))
-	{
-	case 16:
-		m_nMaxZ = 32768.0f;
-		break;
-	case 24:
-		m_nMaxZ = 8388608.0f;
-		break;
-	default:
-	case 32:
-		m_nMaxZ = 2147483647.0f;
-		break;
-	}
 
 	bool depthWriteEnabled = (zbuf.nMask ? false : true);
 	//If alpha test is enabled for always failing and update only colors, depth writes are disabled
@@ -1392,11 +1368,10 @@ void CGSH_OpenGL::Prim_Point()
 
 	float x = xyz.GetX();
 	float y = xyz.GetY();
-	float z = xyz.GetZ();
+	uint32 z = xyz.nZ;
 
 	x -= m_nPrimOfsX;
 	y -= m_nPrimOfsY;
-	z = GetZ(z);
 
 	auto color = MakeColor(
 	    rgbaq.nR, rgbaq.nG,
@@ -1422,19 +1397,16 @@ void CGSH_OpenGL::Prim_Line()
 
 	float nX1 = xyz[0].GetX();
 	float nY1 = xyz[0].GetY();
-	float nZ1 = xyz[0].GetZ();
+	uint32 nZ1 = xyz[0].nZ;
 	float nX2 = xyz[1].GetX();
 	float nY2 = xyz[1].GetY();
-	float nZ2 = xyz[1].GetZ();
+	uint32 nZ2 = xyz[1].nZ;
 
 	nX1 -= m_nPrimOfsX;
 	nX2 -= m_nPrimOfsX;
 
 	nY1 -= m_nPrimOfsY;
 	nY2 -= m_nPrimOfsY;
-
-	nZ1 = GetZ(nZ1);
-	nZ2 = GetZ(nZ2);
 
 	RGBAQ rgbaq[2];
 	rgbaq[0] <<= m_VtxBuffer[1].nRGBAQ;
@@ -1475,7 +1447,7 @@ void CGSH_OpenGL::Prim_Triangle()
 
 	float nX1 = vertex[0].GetX(), nX2 = vertex[1].GetX(), nX3 = vertex[2].GetX();
 	float nY1 = vertex[0].GetY(), nY2 = vertex[1].GetY(), nY3 = vertex[2].GetY();
-	float nZ1 = vertex[0].GetZ(), nZ2 = vertex[1].GetZ(), nZ3 = vertex[2].GetZ();
+	uint32 nZ1 = vertex[0].nZ, nZ2 = vertex[1].nZ, nZ3 = vertex[2].nZ;
 
 	RGBAQ rgbaq[3];
 	rgbaq[0] <<= m_VtxBuffer[2].nRGBAQ;
@@ -1489,10 +1461,6 @@ void CGSH_OpenGL::Prim_Triangle()
 	nY1 -= m_nPrimOfsY;
 	nY2 -= m_nPrimOfsY;
 	nY3 -= m_nPrimOfsY;
-
-	nZ1 = GetZ(nZ1);
-	nZ2 = GetZ(nZ2);
-	nZ3 = GetZ(nZ3);
 
 	if(m_PrimitiveMode.nFog)
 	{
@@ -1600,7 +1568,7 @@ void CGSH_OpenGL::Prim_Sprite()
 	float nY1 = xyz[0].GetY();
 	float nX2 = xyz[1].GetX();
 	float nY2 = xyz[1].GetY();
-	float nZ = xyz[1].GetZ();
+	uint32 nZ = xyz[1].nZ;
 
 	RGBAQ rgbaq[2];
 	rgbaq[0] <<= m_VtxBuffer[1].nRGBAQ;
@@ -1611,8 +1579,6 @@ void CGSH_OpenGL::Prim_Sprite()
 
 	nY1 -= m_nPrimOfsY;
 	nY2 -= m_nPrimOfsY;
-
-	nZ = GetZ(nZ);
 
 	float nS[2] = {0, 0};
 	float nT[2] = {0, 0};
@@ -2436,11 +2402,11 @@ CGSH_OpenGL::CDepthbuffer::CDepthbuffer(uint32 basePtr, uint32 width, uint32 hei
 	glBindRenderbuffer(GL_RENDERBUFFER, m_depthBuffer);
 	if(multisampled)
 	{
-		glRenderbufferStorageMultisample(GL_RENDERBUFFER, NUM_SAMPLES, GL_DEPTH_COMPONENT24, m_width * scale, m_height * scale);
+		glRenderbufferStorageMultisample(GL_RENDERBUFFER, NUM_SAMPLES, GL_DEPTH_COMPONENT32F, m_width * scale, m_height * scale);
 	}
 	else
 	{
-		glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, m_width * scale, m_height * scale);
+		glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT32F, m_width * scale, m_height * scale);
 	}
 	CHECKGLERROR();
 }

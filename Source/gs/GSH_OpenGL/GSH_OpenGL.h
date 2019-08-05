@@ -267,14 +267,16 @@ private:
 	enum class PRIM_VERTEX_ATTRIB
 	{
 		POSITION = 1,
-		COLOR = 2,
-		TEXCOORD = 3,
-		FOG = 4,
+		DEPTH,
+		COLOR,
+		TEXCOORD,
+		FOG,
 	};
 
 	struct PRIM_VERTEX
 	{
-		float x, y, z;
+		float x, y;
+		uint32 z;
 		uint32 color;
 		float s, t, q;
 		float f;
@@ -296,8 +298,6 @@ private:
 	unsigned int GetCurrentReadCircuit();
 	TEXTURE_INFO PrepareTexture(const TEX0&);
 	GLuint PreparePalette(const TEX0&);
-
-	float GetZ(float);
 
 	void VertexKick(uint8, uint64);
 
@@ -368,7 +368,6 @@ private:
 	float m_nPrimOfsY;
 	uint32 m_nTexWidth;
 	uint32 m_nTexHeight;
-	float m_nMaxZ;
 
 	bool m_forceBilinearTextures = false;
 	unsigned int m_fbScale = 1;
