@@ -985,6 +985,12 @@ void CGSH_OpenGL::SetupFramebuffer(uint64 frameReg, uint64 zbufReg, uint64 sciss
 	bool b = (frame.nMask & 0x00FF0000) == 0;
 	bool a = (frame.nMask & 0xFF000000) == 0;
 
+	//Don't write to alpha in PSMCT24
+	if(frame.nPsm == PSMCT24)
+	{
+		a = false;
+	}
+	
 	if((test.nAlphaEnabled == 1) && (test.nAlphaMethod == ALPHA_TEST_NEVER))
 	{
 		if(test.nAlphaFail == ALPHA_TEST_FAIL_RGBONLY)
@@ -1345,7 +1351,7 @@ CGSH_OpenGL::FramebufferPtr CGSH_OpenGL::FindFramebuffer(const FRAME& frame) con
 	auto framebufferIterator = std::find_if(std::begin(m_framebuffers), std::end(m_framebuffers),
 	                                        [&](const FramebufferPtr& framebuffer) {
 		                                        return (framebuffer->m_basePtr == frame.GetBasePtr()) &&
-		                                               (framebuffer->m_psm == frame.nPsm) &&
+		                                               IsCompatibleFramebufferPSM(framebuffer->m_psm, frame.nPsm) &&
 		                                               (framebuffer->m_width == frame.GetWidth());
 	                                        });
 
