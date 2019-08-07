@@ -461,7 +461,7 @@ Framework::OpenGl::CVertexArray CGSH_OpenGL::GeneratePrimVertexArray()
 	glEnableVertexAttribArray(static_cast<GLuint>(PRIM_VERTEX_ATTRIB::DEPTH));
 	glVertexAttribIPointer(static_cast<GLuint>(PRIM_VERTEX_ATTRIB::DEPTH), 1, GL_UNSIGNED_INT,
 	                       sizeof(PRIM_VERTEX), reinterpret_cast<const GLvoid*>(offsetof(PRIM_VERTEX, z)));
-	
+
 	glEnableVertexAttribArray(static_cast<GLuint>(PRIM_VERTEX_ATTRIB::COLOR));
 	glVertexAttribPointer(static_cast<GLuint>(PRIM_VERTEX_ATTRIB::COLOR), 4, GL_UNSIGNED_BYTE,
 	                      GL_TRUE, sizeof(PRIM_VERTEX), reinterpret_cast<const GLvoid*>(offsetof(PRIM_VERTEX, color)));
@@ -990,7 +990,7 @@ void CGSH_OpenGL::SetupFramebuffer(uint64 frameReg, uint64 zbufReg, uint64 sciss
 	{
 		a = false;
 	}
-	
+
 	if((test.nAlphaEnabled == 1) && (test.nAlphaMethod == ALPHA_TEST_NEVER))
 	{
 		if(test.nAlphaFail == ALPHA_TEST_FAIL_RGBONLY)
