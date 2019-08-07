@@ -400,6 +400,15 @@ uint32 CDMAC::GetRegister(uint32 nAddress)
 		return 0;
 		break;
 
+	case D5_CHCR + 0x0:
+		return m_D5_CHCR;
+		break;
+	case D5_CHCR + 0x4:
+	case D5_CHCR + 0x8:
+	case D5_CHCR + 0xC:
+		return 0;
+		break;
+
 		//Channel 8
 		REGISTER_READ(D8_CHCR, m_D8.ReadCHCR())
 		REGISTER_READ(D8_MADR, m_D8.m_nMADR)
@@ -433,6 +442,14 @@ uint32 CDMAC::GetRegister(uint32 nAddress)
 
 	case D_SQWC:
 		return m_D_SQWC;
+		break;
+
+	case D_RBSR:
+		return m_D_RBSR;
+		break;
+
+	case D_RBOR:
+		return m_D_RBOR;
 		break;
 
 	case D_ENABLER + 0x0:
@@ -963,6 +980,9 @@ void CDMAC::DisassembleGet(uint32 nAddress)
 		LOG_GET(D4_QWC)
 		LOG_GET(D4_TADR)
 
+		//Channel 5
+		LOG_GET(D5_CHCR)
+
 		//Channel 8
 		LOG_GET(D8_CHCR)
 		LOG_GET(D8_MADR)
@@ -980,6 +1000,8 @@ void CDMAC::DisassembleGet(uint32 nAddress)
 		LOG_GET(D_STAT)
 		LOG_GET(D_PCR)
 		LOG_GET(D_SQWC)
+		LOG_GET(D_RBSR)
+		LOG_GET(D_RBOR)
 		LOG_GET(D_ENABLER)
 
 	default:
