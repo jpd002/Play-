@@ -22,6 +22,7 @@
 #include "../Log.h"
 #include "DMAC.h"
 #include "INTC.h"
+#include "Ps2Const.h"
 
 #define LOG_NAME ("ee_ipu")
 
@@ -345,21 +346,33 @@ void CIPU::SetDMA3ReceiveHandler(const Dma3ReceiveHandler& receiveHandler)
 	m_OUT_FIFO.SetReceiveHandler(receiveHandler);
 }
 
-uint32 CIPU::ReceiveDMA4(uint32 nAddress, uint32 nQWC, bool nTagIncluded, uint8* ram)
+uint32 CIPU::ReceiveDMA4(uint32 address, uint32 nQWC, bool nTagIncluded, uint8* ram, uint8* spr)
 {
 	assert(nTagIncluded == false);
 
 	uint32 availableFifoSize = CINFIFO::BUFFERSIZE - m_IN_FIFO.GetSize();
 
-	uint32 nSize = std::min<uint32>(nQWC * 0x10, availableFifoSize);
-	assert((nSize & 0xF) == 0);
+	uint32 size = std::min<uint32>(nQWC * 0x10, availableFifoSize);
+	assert((size & 0xF) == 0);
 
-	if(nSize != 0)
+	uint8* memory = nullptr;
+	if(address & 0x80000000)
 	{
-		m_IN_FIFO.Write(ram + nAddress, nSize);
+		memory = spr;
+		address &= PS2::EE_SPR_SIZE - 1;
+		assert((address + size) <= PS2::EE_SPR_SIZE);
+	}
+	else
+	{
+		memory = ram;
 	}
 
-	return nSize / 0x10;
+	if(size != 0)
+	{
+		m_IN_FIFO.Write(memory + address, size);
+	}
+
+	return size / 0x10;
 }
 
 CIPU::DECODER_CONTEXT CIPU::GetDecoderContext()

@@ -146,7 +146,7 @@ CSubSystem::CSubSystem(uint8* iopRam, CIopBios& iopBios)
 	m_dmac.SetChannelTransferFunction(CDMAC::CHANNEL_ID_VIF0, std::bind(&CVif::ReceiveDMA, &m_vpu0->GetVif(), PLACEHOLDER_1, PLACEHOLDER_2, PLACEHOLDER_3, PLACEHOLDER_4));
 	m_dmac.SetChannelTransferFunction(CDMAC::CHANNEL_ID_VIF1, std::bind(&CVif::ReceiveDMA, &m_vpu1->GetVif(), PLACEHOLDER_1, PLACEHOLDER_2, PLACEHOLDER_3, PLACEHOLDER_4));
 	m_dmac.SetChannelTransferFunction(CDMAC::CHANNEL_ID_GIF, std::bind(&CGIF::ReceiveDMA, &m_gif, PLACEHOLDER_1, PLACEHOLDER_2, PLACEHOLDER_3, PLACEHOLDER_4));
-	m_dmac.SetChannelTransferFunction(CDMAC::CHANNEL_ID_TO_IPU, std::bind(&CIPU::ReceiveDMA4, &m_ipu, PLACEHOLDER_1, PLACEHOLDER_2, PLACEHOLDER_4, m_ram));
+	m_dmac.SetChannelTransferFunction(CDMAC::CHANNEL_ID_TO_IPU, std::bind(&CIPU::ReceiveDMA4, &m_ipu, PLACEHOLDER_1, PLACEHOLDER_2, PLACEHOLDER_4, m_ram, m_spr));
 	m_dmac.SetChannelTransferFunction(CDMAC::CHANNEL_ID_SIF0, std::bind(&CSIF::ReceiveDMA5, &m_sif, PLACEHOLDER_1, PLACEHOLDER_2, PLACEHOLDER_3, PLACEHOLDER_4));
 	m_dmac.SetChannelTransferFunction(CDMAC::CHANNEL_ID_SIF1, std::bind(&CSIF::ReceiveDMA6, &m_sif, PLACEHOLDER_1, PLACEHOLDER_2, PLACEHOLDER_3, PLACEHOLDER_4));
 

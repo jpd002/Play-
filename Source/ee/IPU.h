@@ -33,7 +33,7 @@ public:
 	uint32 GetRegister(uint32);
 	void SetRegister(uint32, uint32);
 	void SetDMA3ReceiveHandler(const Dma3ReceiveHandler&);
-	uint32 ReceiveDMA4(uint32, uint32, bool, uint8*);
+	uint32 ReceiveDMA4(uint32, uint32, bool, uint8*, uint8*);
 
 	void CountTicks(uint32);
 	void ExecuteCommand();
