@@ -25,7 +25,6 @@ matrix:
       dist: trusty
       language: android
       sudo: required
-      jdk: oraclejdk8
       env:
         - TARGET_OS=Android
       android:

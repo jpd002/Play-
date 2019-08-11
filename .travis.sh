@@ -23,16 +23,8 @@ travis_before_install()
         brew update
         brew install dpkg
     elif [ "$TARGET_OS" = "Android" ]; then
-        sudo add-apt-repository ppa:ubuntu-toolchain-r/test -y #is this needed?
-        sudo apt-get update -y
-        sudo apt-get install libstdc++6 -y
-
-        wget http://dl.google.com/android/repository/android-ndk-r18-linux-x86_64.zip
-        unzip android-ndk-r18-linux-x86_64.zip>/dev/null
-        export ANDROID_NDK=$(pwd)/android-ndk-r18
-        echo "ndk.dir=$ANDROID_NDK">./Play-/build_android/local.properties
-
-        echo y | sdkmanager 'cmake;3.6.4111459'		
+        echo y | sdkmanager 'ndk;20.0.5594570'
+        echo y | sdkmanager 'cmake;3.6.4111459'
     fi;
 
     git clone -q https://github.com/jpd002/Play-Build.git Play-Build
