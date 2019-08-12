@@ -297,6 +297,7 @@ private:
 	void MakeLinearZOrtho(float*, float, float, float, float);
 	unsigned int GetCurrentReadCircuit();
 	TEXTURE_INFO PrepareTexture(const TEX0&);
+	TEXTURE_INFO SearchTextureFramebuffer(const TEX0&);
 	GLuint PreparePalette(const TEX0&);
 
 	void VertexKick(uint8, uint64);

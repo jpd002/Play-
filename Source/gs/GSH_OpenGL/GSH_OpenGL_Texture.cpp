@@ -72,22 +72,21 @@ CGSH_OpenGL::TEXTUREFORMAT_INFO CGSH_OpenGL::GetTextureFormatInfo(uint32 psm)
 	}
 }
 
-CGSH_OpenGL::TEXTURE_INFO CGSH_OpenGL::PrepareTexture(const TEX0& tex0)
+CGSH_OpenGL::TEXTURE_INFO CGSH_OpenGL::SearchTextureFramebuffer(const TEX0& tex0)
 {
 	TEXTURE_INFO texInfo;
+	FramebufferPtr framebuffer;
 
+	//First pass, look for an exact match
 	for(const auto& candidateFramebuffer : m_framebuffers)
 	{
-		bool canBeUsed = false;
-		float offsetX = 0;
-		bool alphaAsIndex = false;
-
 		//Case: TEX0 points at the start of a frame buffer with the same width
 		if(candidateFramebuffer->m_basePtr == tex0.GetBufPtr() &&
 		   candidateFramebuffer->m_width == tex0.GetBufWidth() &&
 		   IsCompatibleFramebufferPSM(candidateFramebuffer->m_psm, tex0.nPsm))
 		{
-			canBeUsed = true;
+			framebuffer = candidateFramebuffer;
+			break;
 		}
 
 		//Case: TEX0 point at the start of a frame buffer with the same width
@@ -97,50 +96,69 @@ CGSH_OpenGL::TEXTURE_INFO CGSH_OpenGL::PrepareTexture(const TEX0& tex0)
 		        candidateFramebuffer->m_psm == CGSHandler::PSMCT32 &&
 		        tex0.nPsm == CGSHandler::PSMT8H)
 		{
-			canBeUsed = true;
-			alphaAsIndex = true;
+			framebuffer = candidateFramebuffer;
+			texInfo.alphaAsIndex = true;
+			break;
 		}
+	}
 
-		//Another case: TEX0 is pointing to the start of a page within our framebuffer (BGDA does this)
-		else if(candidateFramebuffer->m_basePtr <= tex0.GetBufPtr() &&
-		        candidateFramebuffer->m_width == tex0.GetBufWidth() &&
-		        candidateFramebuffer->m_psm == tex0.nPsm)
+	if(!framebuffer)
+	{
+		//Second pass, be a bit more flexible
+		for(const auto& candidateFramebuffer : m_framebuffers)
 		{
-			uint32 framebufferOffset = tex0.GetBufPtr() - candidateFramebuffer->m_basePtr;
-
-			//Bail if offset is not aligned on a page boundary
-			if((framebufferOffset & (CGsPixelFormats::PAGESIZE - 1)) != 0) continue;
-
-			auto framebufferPageSize = CGsPixelFormats::GetPsmPageSize(candidateFramebuffer->m_psm);
-			uint32 framebufferPageCountX = candidateFramebuffer->m_width / framebufferPageSize.first;
-			uint32 framebufferPageIndex = framebufferOffset / CGsPixelFormats::PAGESIZE;
-
-			//Bail if pointed page isn't on the first line
-			if(framebufferPageIndex >= framebufferPageCountX) continue;
-
-			canBeUsed = true;
-			offsetX = static_cast<float>(framebufferPageIndex * framebufferPageSize.first) / static_cast<float>(candidateFramebuffer->m_width);
-		}
-
-		if(canBeUsed)
-		{
-			CommitFramebufferDirtyPages(candidateFramebuffer, 0, tex0.GetHeight());
-			if(m_multisampleEnabled)
+			//Another case: TEX0 is pointing to the start of a page within our framebuffer (BGDA does this)
+			if(candidateFramebuffer->m_basePtr <= tex0.GetBufPtr() &&
+				candidateFramebuffer->m_width == tex0.GetBufWidth() &&
+				candidateFramebuffer->m_psm == tex0.nPsm)
 			{
-				ResolveFramebufferMultisample(candidateFramebuffer, m_fbScale);
+				uint32 framebufferOffset = tex0.GetBufPtr() - candidateFramebuffer->m_basePtr;
+
+				//Bail if offset is not aligned on a page boundary
+				if((framebufferOffset & (CGsPixelFormats::PAGESIZE - 1)) != 0) continue;
+
+				auto framebufferPageSize = CGsPixelFormats::GetPsmPageSize(candidateFramebuffer->m_psm);
+				uint32 framebufferPageCountX = candidateFramebuffer->m_width / framebufferPageSize.first;
+				uint32 framebufferPageIndex = framebufferOffset / CGsPixelFormats::PAGESIZE;
+
+				//Bail if pointed page isn't on the first line
+				if(framebufferPageIndex >= framebufferPageCountX) continue;
+
+				framebuffer = candidateFramebuffer;
+				texInfo.offsetX = static_cast<float>(framebufferPageIndex * framebufferPageSize.first) / static_cast<float>(candidateFramebuffer->m_width);
+				break;
 			}
-
-			float scaleRatioX = static_cast<float>(tex0.GetWidth()) / static_cast<float>(candidateFramebuffer->m_width);
-			float scaleRatioY = static_cast<float>(tex0.GetHeight()) / static_cast<float>(candidateFramebuffer->m_height);
-
-			texInfo.textureHandle = candidateFramebuffer->m_texture;
-			texInfo.offsetX = offsetX;
-			texInfo.scaleRatioX = scaleRatioX;
-			texInfo.scaleRatioY = scaleRatioY;
-			texInfo.alphaAsIndex = alphaAsIndex;
-
-			return texInfo;
 		}
+	}
+
+	if(framebuffer)
+	{
+		CommitFramebufferDirtyPages(framebuffer, 0, tex0.GetHeight());
+		if(m_multisampleEnabled)
+		{
+			ResolveFramebufferMultisample(framebuffer, m_fbScale);
+		}
+
+		float scaleRatioX = static_cast<float>(tex0.GetWidth()) / static_cast<float>(framebuffer->m_width);
+		float scaleRatioY = static_cast<float>(tex0.GetHeight()) / static_cast<float>(framebuffer->m_height);
+
+		texInfo.textureHandle = framebuffer->m_texture;
+		texInfo.scaleRatioX = scaleRatioX;
+		texInfo.scaleRatioY = scaleRatioY;
+		return texInfo;
+	}
+	else
+	{
+		return TEXTURE_INFO();
+	}
+}
+
+CGSH_OpenGL::TEXTURE_INFO CGSH_OpenGL::PrepareTexture(const TEX0& tex0)
+{
+	auto texInfo = SearchTextureFramebuffer(tex0);
+	if(texInfo.textureHandle != 0)
+	{
+		return texInfo;
 	}
 
 	auto texture = m_textureCache.Search(tex0);
