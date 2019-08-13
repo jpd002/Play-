@@ -243,6 +243,8 @@ uint32 CGIF::ProcessRegList(CGSHandler::RegisterWriteList& writeList, const uint
 
 uint32 CGIF::ProcessImage(const uint8* memory, uint32 memorySize, uint32 address, uint32 end)
 {
+	m_gs->FlushWriteBuffer();
+
 	uint16 totalLoops = static_cast<uint16>((end - address) / 0x10);
 	totalLoops = std::min<uint16>(totalLoops, m_loops);
 
@@ -267,6 +269,7 @@ uint32 CGIF::ProcessImage(const uint8* memory, uint32 memorySize, uint32 address
 
 uint32 CGIF::ProcessSinglePacket(const uint8* memory, uint32 memorySize, uint32 address, uint32 end, const CGsPacketMetadata& packetMetadata)
 {
+#if 0
 	static CGSHandler::RegisterWriteList writeList;
 	static const auto flushWriteList =
 	    [](CGSHandler* gs, const CGsPacketMetadata& packetMetadata) {
@@ -277,10 +280,13 @@ uint32 CGIF::ProcessSinglePacket(const uint8* memory, uint32 memorySize, uint32 
 			    writeList.reserve(currentCapacity);
 		    }
 	    };
-
+#endif
+	
 #ifdef PROFILE
 	CProfilerZone profilerZone(m_gifProfilerZone);
 #endif
+
+	auto& writeList = m_gs->GetWriteBuffer();
 
 #if defined(_DEBUG) && defined(DEBUGGER_INCLUDED)
 	CLog::GetInstance().Print(LOG_NAME, "Received GIF packet on path %d at 0x%08X of 0x%08X bytes.\r\n",
@@ -289,7 +295,7 @@ uint32 CGIF::ProcessSinglePacket(const uint8* memory, uint32 memorySize, uint32 
 
 	assert((m_activePath == 0) || (m_activePath == packetMetadata.pathIndex));
 	m_signalState = SIGNAL_STATE_NONE;
-	writeList.clear();
+	//writeList.clear();
 
 	uint32 start = address;
 	while(address < end)
@@ -344,7 +350,8 @@ uint32 CGIF::ProcessSinglePacket(const uint8* memory, uint32 memorySize, uint32 
 			//We need to flush our list here because image data can be embedded in a GIF packet
 			//that specifies pixel transfer information in GS registers (and that has to be send first)
 			//This is done by FFX
-			flushWriteList(m_gs, packetMetadata);
+			m_gs->ProcessWriteBuffer();
+			//flushWriteList(m_gs, packetMetadata);
 			address += ProcessImage(memory, memorySize, address, end);
 			break;
 		}
@@ -364,7 +371,8 @@ uint32 CGIF::ProcessSinglePacket(const uint8* memory, uint32 memorySize, uint32 
 		}
 	}
 
-	flushWriteList(m_gs, packetMetadata);
+	m_gs->ProcessWriteBuffer();
+	//flushWriteList(m_gs, packetMetadata);
 
 #ifdef _DEBUG
 	CLog::GetInstance().Print(LOG_NAME, "Processed 0x%08X bytes.\r\n", address - start);

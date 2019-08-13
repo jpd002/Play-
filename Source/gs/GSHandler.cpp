@@ -483,6 +483,7 @@ void CGSHandler::Flip(bool showOnly)
 {
 	if(!showOnly)
 	{
+		FlushWriteBuffer();
 		SendGSCall([]() {}, true);
 		SendGSCall(std::bind(&CGSHandler::MarkNewFrame, this));
 	}
@@ -551,8 +552,37 @@ void CGSHandler::ReadImageData(void* data, uint32 length)
 
 void CGSHandler::WriteRegisterMassively(RegisterWriteList registerWrites, const CGsPacketMetadata* metadata)
 {
-	for(const auto& write : registerWrites)
+	m_transferCount++;
+
+	MASSIVEWRITE_INFO massiveWrite;
+	massiveWrite.writes = std::move(registerWrites);
+#ifdef DEBUGGER_INCLUDED
+	if(metadata != nullptr)
 	{
+		memcpy(&massiveWrite.metadata, metadata, sizeof(CGsPacketMetadata));
+	}
+	else
+	{
+		massiveWrite.metadata = CGsPacketMetadata();
+	}
+#endif
+
+	SendGSCall(
+	    [this, massiveWrite = std::move(massiveWrite)]() {
+		    WriteRegisterMassivelyImpl(massiveWrite);
+	    });
+}
+
+CGSHandler::RegisterWriteList& CGSHandler::GetWriteBuffer()
+{
+	return m_writeBuffer;
+}
+
+void CGSHandler::ProcessWriteBuffer()
+{
+	for(uint32 writeIndex = m_writeBufferMark; writeIndex < m_writeBuffer.size(); writeIndex++)
+	{
+		const auto& write = m_writeBuffer[writeIndex];
 		switch(write.first)
 		{
 		case GS_REG_SIGNAL:
@@ -582,26 +612,18 @@ void CGSHandler::WriteRegisterMassively(RegisterWriteList registerWrites, const 
 		break;
 		}
 	}
-
-	m_transferCount++;
-
-	MASSIVEWRITE_INFO massiveWrite;
-	massiveWrite.writes = std::move(registerWrites);
-#ifdef DEBUGGER_INCLUDED
-	if(metadata != nullptr)
+	m_writeBufferMark = m_writeBuffer.size();
+	if(m_writeBuffer.size() > 0x400)
 	{
-		memcpy(&massiveWrite.metadata, metadata, sizeof(CGsPacketMetadata));
+		FlushWriteBuffer();
 	}
-	else
-	{
-		massiveWrite.metadata = CGsPacketMetadata();
-	}
-#endif
+}
 
-	SendGSCall(
-	    [this, massiveWrite = std::move(massiveWrite)]() {
-		    WriteRegisterMassivelyImpl(massiveWrite);
-	    });
+void CGSHandler::FlushWriteBuffer()
+{
+	if(m_writeBuffer.empty()) return;
+	WriteRegisterMassively(std::move(m_writeBuffer), nullptr);
+	m_writeBufferMark = 0;
 }
 
 void CGSHandler::WriteRegisterImpl(uint8 nRegister, uint64 nData)

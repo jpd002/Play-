@@ -793,6 +793,10 @@ public:
 	void ReadImageData(void*, uint32);
 	void WriteRegisterMassively(RegisterWriteList, const CGsPacketMetadata*);
 
+	RegisterWriteList& GetWriteBuffer();
+	void ProcessWriteBuffer();
+	void FlushWriteBuffer();
+	
 	virtual void SetCrt(bool, unsigned int, bool);
 	void Initialize();
 	void Release();
@@ -1003,6 +1007,8 @@ protected:
 	uint32 m_nCBP1;
 
 	uint32 m_drawCallCount;
+	RegisterWriteList m_writeBuffer;
+	uint32 m_writeBufferMark = 0;
 
 	unsigned int m_nCrtMode;
 	std::thread m_thread;
