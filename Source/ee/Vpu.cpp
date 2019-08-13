@@ -171,8 +171,8 @@ void CVpu::ProcessXgKick(uint32 address)
 	//	assert(nAddress < PS2::VUMEM1SIZE);
 
 	CGsPacketMetadata metadata;
-#ifdef DEBUGGER_INCLUDED
 	metadata.pathIndex = 1;
+#ifdef DEBUGGER_INCLUDED
 	metadata.vuMemPacketAddress = address;
 	metadata.vpu1Top = GetVuTopMiniState();
 	metadata.vpu1Itop = GetVuItopMiniState();
