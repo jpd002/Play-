@@ -13,9 +13,9 @@ namespace VUShared
 {
 	enum OP_LATENCY
 	{
-		LATENCY_MAC   = 4,
-		LATENCY_DIV   = 7,
-		LATENCY_SQRT  = 7,
+		LATENCY_MAC = 4,
+		LATENCY_DIV = 7,
+		LATENCY_SQRT = 7,
 		LATENCY_RSQRT = 13
 	};
 
