@@ -34,16 +34,10 @@ C:\Projects
 - Play
 
 ### Common Building Instructions ###
-First you'd need to clone Play-Build which provides you with the needed subprojects required to build Play!.
-Then setup the submodules and the dependency submodule(s) too.
+First you'd need to clone Play- which contains the emulator source code, along side the submodules required to build Play!.
 ```
-git clone https://github.com/jpd002/Play-Build.git
-cd Play-Build
-git submodule update -q --init --recursive
-git submodule foreach "git checkout -q master"
-cd Dependencies
-git submodule update --init
-cd ..
+git clone --recurse-submodules https://github.com/jpd002/Play-.git
+cd Play-
 ```
 
 ### Building for Windows ###
@@ -51,7 +45,6 @@ The Easiest way to build the project on windows is to open Qt Creator and direct
 You can also build the project using Visual Studio or cmdline, for that you must follow these isnstruction:
 To build for Windows you will need to have CMake installed on your system.
 ```
-cd Play
 mkdir build
 cd build
 ```
@@ -70,7 +63,6 @@ If you don't have CMake installed on your system, you can install it using brew 
 
 There are two ways to generate a build for macOS, either by using makefiles or by using Xcode.
 ```
-cd Play
 mkdir build
 cd build
 ```
@@ -90,7 +82,7 @@ iOS build doesnt use Qt so please omit `-DCMAKE_PREFIX_PATH=...`
 Note: while iOS build can be generated with Makefiles, they will not be FAT binaries.
 
 Example:
-`cmake .. -G"Xcode" -DCMAKE_TOOLCHAIN_FILE=../../../Dependencies/cmake-ios/ios.cmake -DTARGET_IOS=ON`
+`cmake .. -G"Xcode" -DCMAKE_TOOLCHAIN_FILE=../deps/Dependencies/cmake-ios/ios.cmake -DTARGET_IOS=ON`
 
 ### Building for UNIX ###
 if you dont have cmake or openal lib installed, you'll also require Qt (preferably version 5.6) you can install it using your OS packaging tool, e.g ubuntu `apt install cmake libalut-dev`
@@ -100,7 +92,6 @@ on UNIX systems there is 3 ways to setup a build, using qt creator, makefile or 
 
  - Makefile/Ninja
 ```
-cd Play
 mkdir build
 cd build
 ```
