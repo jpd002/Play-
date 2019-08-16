@@ -1,8 +1,8 @@
 #pragma once
 
 #include <string>
-#include "Signal.hpp"
 #include <boost/filesystem.hpp>
+#include "Signal.h"
 #include "../ELF.h"
 #include "../MIPS.h"
 #include "../BiosDebugInfoProvider.h"
@@ -11,7 +11,6 @@
 #include "../OsStructQueue.h"
 #include "../gs/GSHandler.h"
 #include "SIF.h"
-#include "Signal.hpp"
 
 #define INTERRUPTS_ENABLED_MASK (CMIPS::STATUS_IE | CMIPS::STATUS_EIE)
 

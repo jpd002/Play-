@@ -61,7 +61,7 @@ private:
 	bool m_singleStep;
 	bool m_isThreadOver;
 	CMailBox m_mailBox;
-	Framework::CSignal<void()>::CConnectionPtr m_OnNewFrameConnection;
+	Framework::CSignal<void()>::Connection m_OnNewFrameConnection;
 };
 
 #endif

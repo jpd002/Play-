@@ -96,7 +96,7 @@ private:
 	QLabel* m_fpsLabel = nullptr;
 #ifdef PROFILE
 	QLabel* m_profileStatsLabel = nullptr;
-	CPS2VM::ProfileFrameDoneSignal::CConnectionPtr m_profileFrameDoneConnection;
+	CPS2VM::ProfileFrameDoneSignal::Connection m_profileFrameDoneConnection;
 #endif
 	ElidedLabel* m_msgLabel = nullptr;
 	QTimer* m_fpsTimer = nullptr;
@@ -108,8 +108,8 @@ private:
 	LastOpenCommand m_lastOpenCommand;
 	boost::filesystem::path m_lastPath;
 
-	Framework::CSignal<void()>::CConnectionPtr m_OnExecutableChangeConnection;
-	CGSHandler::NewFrameEvent::CConnectionPtr m_OnNewFrameConnection;
+	Framework::CSignal<void()>::Connection m_OnExecutableChangeConnection;
+	CGSHandler::NewFrameEvent::Connection m_OnNewFrameConnection;
 	CScreenShotUtils::Connection m_screenShotCompleteConnection;
 
 #ifdef DEBUGGER_INCLUDED

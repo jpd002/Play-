@@ -29,5 +29,5 @@ private:
 	CMemoryViewMIPS* m_memoryView = nullptr;
 	Framework::Win32::CEdit* m_addressEdit = nullptr;
 
-	Framework::CSignal<void(uint32)>::CConnectionPtr m_OnSelectionChangeConnection;
+	Framework::CSignal<void(uint32)>::Connection m_OnSelectionChangeConnection;
 };

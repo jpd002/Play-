@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Signal.hpp"
+#include "Signal.h"
 #include <functional>
 #include "win32/MDIChild.h"
 #include "win32/ListView.h"
@@ -55,7 +55,7 @@ private:
 
 	Framework::FlatLayoutPtr m_pLayout;
 
-	Framework::CSignal<void()>::CConnectionPtr m_functionTagsChangeConnection;
+	Framework::CSignal<void()>::Connection m_functionTagsChangeConnection;
 
 	CMIPS* m_context = nullptr;
 	BiosDebugModuleInfoArray m_modules;

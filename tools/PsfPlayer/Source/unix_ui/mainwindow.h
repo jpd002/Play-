@@ -41,7 +41,7 @@ private:
 	std::atomic<bool> m_running;
 	std::string m_path;
 
-	Framework::CSignal<void()>::CConnectionPtr m_OnNewFrameConnection;
+	Framework::CSignal<void()>::Connection m_OnNewFrameConnection;
 
 Q_SIGNALS:
 	void ChangeRow(int);

@@ -2,7 +2,7 @@
 
 #include "PsfTags.h"
 #include <vector>
-#include "Signal.hpp"
+#include "Signal.h"
 #include <boost/filesystem.hpp>
 
 class CPlaylist

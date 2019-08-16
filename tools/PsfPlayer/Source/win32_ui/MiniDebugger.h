@@ -36,5 +36,5 @@ private:
 	CFunctionsView* m_functionsView;
 	HACCEL m_acceleratorTable;
 
-	Framework::CSignal<void(uint32)>::CConnectionPtr m_OnFunctionDblClickConnection;
+	Framework::CSignal<void(uint32)>::Connection m_OnFunctionDblClickConnection;
 };

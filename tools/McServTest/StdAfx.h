@@ -10,7 +10,7 @@
 #include <memory>
 #include <thread>
 
-#include "Signal.hpp"
+#include "Signal.h"
 
 #include "Types.h"
 #include "Stream.h"

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Signal.hpp"
+#include "Signal.h"
 #include "win32/CustomDrawn.h"
 #include "win32/DeviceContext.h"
 #include "win32/GdiObj.h"

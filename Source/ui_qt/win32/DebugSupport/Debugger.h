@@ -89,17 +89,17 @@ private:
 
 	HACCEL m_nAccTable;
 
-	Framework::CSignal<void(uint32)>::CConnectionPtr m_OnFunctionDblClickConnection;
-	Framework::CSignal<void()>::CConnectionPtr m_OnFunctionsStateChangeConnection;
-	Framework::CSignal<void(uint32)>::CConnectionPtr m_OnGotoAddressConnection;
+	Framework::CSignal<void(uint32)>::Connection m_OnFunctionDblClickConnection;
+	Framework::CSignal<void()>::Connection m_OnFunctionsStateChangeConnection;
+	Framework::CSignal<void(uint32)>::Connection m_OnGotoAddressConnection;
 
-	CAddressListViewWnd::AddressSelectedEvent::CConnectionPtr m_AddressSelectedConnection;
-	Framework::CSignal<void()>::CConnectionPtr m_OnExecutableChangeConnection;
-	Framework::CSignal<void()>::CConnectionPtr m_OnExecutableUnloadingConnection;
-	Framework::CSignal<void()>::CConnectionPtr m_OnMachineStateChangeConnection;
-	Framework::CSignal<void()>::CConnectionPtr m_OnRunningStateChangeConnection;
+	CAddressListViewWnd::AddressSelectedEvent::Connection m_AddressSelectedConnection;
+	Framework::CSignal<void()>::Connection m_OnExecutableChangeConnection;
+	Framework::CSignal<void()>::Connection m_OnExecutableUnloadingConnection;
+	Framework::CSignal<void()>::Connection m_OnMachineStateChangeConnection;
+	Framework::CSignal<void()>::Connection m_OnRunningStateChangeConnection;
 
-	CDisAsm::FindCallersRequestedEvent::CConnectionPtr m_findCallersRequestConnection;
+	CDisAsm::FindCallersRequestedEvent::Connection m_findCallersRequestConnection;
 
 	CELFView* m_pELFView = nullptr;
 	CFunctionsView* m_pFunctionsView = nullptr;

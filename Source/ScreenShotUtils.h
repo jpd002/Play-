@@ -7,7 +7,7 @@ class CScreenShotUtils
 {
 public:
 	typedef std::function<void(int, const char*)> Callback;
-	typedef CGSHandler::FlipCompleteEvent::CConnectionPtr Connection;
+	typedef CGSHandler::FlipCompleteEvent::Connection Connection;
 	
 	static Connection TriggerGetScreenshot(CPS2VM*, Callback);
 

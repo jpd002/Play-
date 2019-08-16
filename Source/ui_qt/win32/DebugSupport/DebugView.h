@@ -45,5 +45,5 @@ private:
 	StepFunction m_stepFunction;
 	CBiosDebugInfoProvider* m_biosDebugInfoProvider;
 
-	CCallStackWnd::OnFunctionDblClickSignal::CConnectionPtr m_OnFunctionDblClickConnection;
+	CCallStackWnd::OnFunctionDblClickSignal::Connection m_OnFunctionDblClickConnection;
 };

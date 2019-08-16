@@ -191,9 +191,9 @@ private:
 	static SOUNDHANDLER_INFO m_handlerInfo[];
 	static CHARENCODING_INFO m_charEncodingInfo[];
 
-	Framework::CSignal<void()>::CConnectionPtr m_OnNewFrameConnection;
-	CPlaylistPanel::OnItemDblClickEvent::CConnectionPtr m_OnItemDblClickConnection;
-	CPlaylistPanel::OnAddClickEvent::CConnectionPtr m_OnAddClickConnection;
-	CPlaylistPanel::OnRemoveClickEvent::CConnectionPtr m_OnRemoveClickConnection;
-	CPlaylistPanel::OnSaveClickEvent::CConnectionPtr m_OnSaveClickConnection;
+	Framework::CSignal<void()>::Connection m_OnNewFrameConnection;
+	CPlaylistPanel::OnItemDblClickEvent::Connection m_OnItemDblClickConnection;
+	CPlaylistPanel::OnAddClickEvent::Connection m_OnAddClickConnection;
+	CPlaylistPanel::OnRemoveClickEvent::Connection m_OnRemoveClickConnection;
+	CPlaylistPanel::OnSaveClickEvent::Connection m_OnSaveClickConnection;
 };

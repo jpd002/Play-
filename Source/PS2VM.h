@@ -171,6 +171,6 @@ private:
 	CProfiler::ZoneHandle m_gsSyncProfilerZone = 0;
 	CProfiler::ZoneHandle m_otherProfilerZone = 0;
 
-	CPS2OS::RequestLoadExecutableEvent::CConnectionPtr m_OnRequestLoadExecutableConnection;
-	Framework::CSignal<void(uint32)>::CConnectionPtr m_OnNewFrameConnection;
+	CPS2OS::RequestLoadExecutableEvent::Connection m_OnRequestLoadExecutableConnection;
+	Framework::CSignal<void(uint32)>::Connection m_OnNewFrameConnection;
 };

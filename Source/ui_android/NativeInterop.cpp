@@ -22,8 +22,8 @@
 #include "http/java_net_URL.h"
 
 CPS2VM* g_virtualMachine = nullptr;
-CPS2VM::ProfileFrameDoneSignal::CConnectionPtr g_ProfileFrameDoneConnection;
-Framework::CSignal<void(uint32)>::CConnectionPtr g_OnNewFrameConnection;
+CPS2VM::ProfileFrameDoneSignal::Connection g_ProfileFrameDoneConnection;
+Framework::CSignal<void(uint32)>::Connection g_OnNewFrameConnection;
 
 #define PREF_AUDIO_ENABLEOUTPUT ("audio.enableoutput")
 

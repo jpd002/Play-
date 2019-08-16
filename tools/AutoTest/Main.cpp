@@ -160,7 +160,7 @@ void ExecuteIopTest(const boost::filesystem::path& testFilePath)
 	auto resultStream = new Framework::CStdStream(resultFilePath.string().c_str(), "wb");
 
 	bool executionOver = false;
-	CIopBios::ModuleStartedEvent::CConnectionPtr connection;
+	CIopBios::ModuleStartedEvent::Connection connection;
 	//Setup virtual machine
 	CPS2VM virtualMachine;
 	virtualMachine.Initialize();

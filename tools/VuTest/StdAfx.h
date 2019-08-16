@@ -9,7 +9,7 @@
 #include <functional>
 #include <memory>
 
-#include "Signal.hpp"
+#include "Signal.h"
 
 #include "Types.h"
 #include "Stream.h"

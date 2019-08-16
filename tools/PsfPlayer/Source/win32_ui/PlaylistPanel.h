@@ -7,7 +7,7 @@
 #include "win32/ListView.h"
 #include "win32/Button.h"
 #include "win32/GdiObj.h"
-#include "Signal.hpp"
+#include "Signal.h"
 
 class CPlaylistPanel : public Framework::Win32::CDialog
 {
@@ -63,10 +63,10 @@ private:
 	Framework::Win32::CButton* m_removeButton;
 	Framework::Win32::CButton* m_saveButton;
 
-	CPlaylist::OnItemInsertEvent::CConnectionPtr m_OnItemInsertConnection;
-	CPlaylist::OnItemUpdateEvent::CConnectionPtr m_OnItemUpdateConnection;
-	CPlaylist::OnItemDeleteEvent::CConnectionPtr m_OnItemDeleteConnection;
-	CPlaylist::OnItemsClearEvent::CConnectionPtr m_OnItemsClearConnection;
+	CPlaylist::OnItemInsertEvent::Connection m_OnItemInsertConnection;
+	CPlaylist::OnItemUpdateEvent::Connection m_OnItemUpdateConnection;
+	CPlaylist::OnItemDeleteEvent::Connection m_OnItemDeleteConnection;
+	CPlaylist::OnItemsClearEvent::Connection m_OnItemsClearConnection;
 };
 
 #endif
