@@ -13,6 +13,7 @@
 #include "ContinuationChecker.h"
 
 #include "InputProviderQtKey.h"
+#include "ScreenShotUtils.h"
 
 namespace Ui
 {
@@ -108,7 +109,8 @@ private:
 	boost::filesystem::path m_lastPath;
 
 	Framework::CSignal<void()>::CConnectionPtr m_OnExecutableChangeConnection;
-	Framework::CSignal<void(uint32)>::CConnectionPtr m_OnNewFrameConnection;
+	CGSHandler::NewFrameEvent::CConnectionPtr m_OnNewFrameConnection;
+	CScreenShotUtils::Connection m_screenShotCompleteConnection;
 
 #ifdef DEBUGGER_INCLUDED
 	std::unique_ptr<CDebugger> m_debugger;

@@ -700,6 +700,9 @@ public:
 	typedef std::vector<RegisterWrite> RegisterWriteList;
 	typedef std::function<CGSHandler*(void)> FactoryFunction;
 
+	typedef Framework::CSignal<void()> FlipCompleteEvent;
+	typedef Framework::CSignal<void(uint32)> NewFrameEvent;
+
 	CGSHandler();
 	virtual ~CGSHandler();
 
@@ -760,9 +763,8 @@ public:
 
 	virtual Framework::CBitmap GetScreenshot();
 
-	Framework::CSignal<void()> OnFlipComplete;
-
-	Framework::CSignal<void(uint32)> OnNewFrame;
+	FlipCompleteEvent OnFlipComplete;
+	NewFrameEvent OnNewFrame;
 
 protected:
 	struct DELAYED_REGISTER

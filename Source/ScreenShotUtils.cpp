@@ -10,11 +10,9 @@
 #include <iomanip>
 #include <sstream>
 
-Framework::CSignal<void()>::CConnectionPtr m_OnFlipCompleteConnect;
-
-void CScreenShotUtils::TriggerGetScreenshot(CPS2VM* virtualMachine, Callback completionCallback)
+CScreenShotUtils::Connection CScreenShotUtils::TriggerGetScreenshot(CPS2VM* virtualMachine, Callback completionCallback)
 {
-	m_OnFlipCompleteConnect = virtualMachine->m_ee->m_gs->OnFlipComplete.ConnectOnce(
+	return virtualMachine->m_ee->m_gs->OnFlipComplete.ConnectOnce(
 	    [=]() -> void {
 		    try
 		    {
@@ -33,14 +31,14 @@ void CScreenShotUtils::TriggerGetScreenshot(CPS2VM* virtualMachine, Callback com
 	    });
 }
 
-Framework::CConfig::PathType CScreenShotUtils::GetScreenShotDirectoryPath()
+boost::filesystem::path CScreenShotUtils::GetScreenShotDirectoryPath()
 {
 	auto screenshotpath(CAppConfig::GetBasePath() / boost::filesystem::path("screenshots"));
 	Framework::PathUtils::EnsurePathExists(screenshotpath);
 	return screenshotpath;
 }
 
-Framework::CConfig::PathType CScreenShotUtils::GenerateScreenShotPath(const char* gameID)
+boost::filesystem::path CScreenShotUtils::GenerateScreenShotPath(const char* gameID)
 {
 	auto t = std::time(nullptr);
 	auto tm = *std::localtime(&t);

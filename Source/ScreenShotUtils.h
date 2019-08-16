@@ -1,15 +1,17 @@
 #pragma once
-#include "Config.h"
-#include "PS2VM.h"
 
-class CScreenShotUtils : public Framework::CConfig
+#include "PS2VM.h"
+#include "gs/GSHandler.h"
+
+class CScreenShotUtils
 {
 public:
 	typedef std::function<void(int, const char*)> Callback;
-
-	static void TriggerGetScreenshot(CPS2VM*, Callback);
+	typedef CGSHandler::FlipCompleteEvent::CConnectionPtr Connection;
+	
+	static Connection TriggerGetScreenshot(CPS2VM*, Callback);
 
 private:
-	static CConfig::PathType GetScreenShotDirectoryPath();
-	static CConfig::PathType GenerateScreenShotPath(const char* gameID);
+	static boost::filesystem::path GetScreenShotDirectoryPath();
+	static boost::filesystem::path GenerateScreenShotPath(const char* gameID);
 };
