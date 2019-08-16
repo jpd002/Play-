@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cassert>
+#include <array>
 #include "Iop_FileIo.h"
 #include "Iop_Ioman.h"
 
