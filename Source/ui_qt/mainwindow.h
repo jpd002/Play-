@@ -95,6 +95,7 @@ private:
 	QLabel* m_fpsLabel = nullptr;
 #ifdef PROFILE
 	QLabel* m_profileStatsLabel = nullptr;
+	CPS2VM::ProfileFrameDoneSignal::CConnectionPtr m_profileFrameDoneConnection;
 #endif
 	ElidedLabel* m_msgLabel = nullptr;
 	QTimer* m_fpsTimer = nullptr;

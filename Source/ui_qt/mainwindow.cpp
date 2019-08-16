@@ -187,7 +187,7 @@ void MainWindow::InitVirtualMachine()
 	}
 
 #ifdef PROFILE
-	m_virtualMachine->ProfileFrameDone.connect(std::bind(&CStatsManager::OnProfileFrameDone, &CStatsManager::GetInstance(), m_virtualMachine, std::placeholders::_1));
+	m_profileFrameDoneConnection = m_virtualMachine->ProfileFrameDone.Connect(std::bind(&CStatsManager::OnProfileFrameDone, &CStatsManager::GetInstance(), m_virtualMachine, std::placeholders::_1));
 #endif
 
 	//OnExecutableChange might be called from another thread, we need to wrap it around a Qt signal
