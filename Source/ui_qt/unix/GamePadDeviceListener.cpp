@@ -1,9 +1,12 @@
+#include <cstring>
+#include <climits>
 #include "GamePadDeviceListener.h"
 #include <fcntl.h>
 #include <sys/signalfd.h>
 #include <poll.h>
 #include <sys/inotify.h>
 #include <csignal>
+#include <unistd.h>
 
 #define EVENT_SIZE (sizeof(struct inotify_event))
 #define EVENT_BUF_LEN (1024 * (EVENT_SIZE + NAME_MAX + 1))

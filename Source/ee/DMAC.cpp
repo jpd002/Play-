@@ -1,3 +1,4 @@
+#include <cstring>
 #include <stdio.h>
 #include "DMAC.h"
 #include "../Ps2Const.h"

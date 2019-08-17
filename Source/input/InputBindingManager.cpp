@@ -1,3 +1,4 @@
+#include <cassert>
 #include "InputBindingManager.h"
 #include "AppConfig.h"
 #include "string_format.h"

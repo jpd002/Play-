@@ -1,3 +1,4 @@
+#include <cstring>
 #include "FrameDump.h"
 #include "states/MemoryStateFile.h"
 #include "states/RegisterStateFile.h"

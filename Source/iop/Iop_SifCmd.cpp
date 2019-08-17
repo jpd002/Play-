@@ -1,3 +1,4 @@
+#include <cstring>
 #include "Iop_SifCmd.h"
 #include "IopBios.h"
 #include "../ee/SIF.h"

@@ -1,3 +1,4 @@
+#include <cstring>
 #include "Iop_Dynamic.h"
 
 using namespace Iop;

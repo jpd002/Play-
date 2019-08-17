@@ -1,4 +1,5 @@
 #include <assert.h>
+#include <cstring>
 #include <sys/stat.h>
 #include <limits.h>
 #include <algorithm>

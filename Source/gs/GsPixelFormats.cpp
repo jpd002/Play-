@@ -1,3 +1,4 @@
+#include <cassert>
 #include "GsPixelFormats.h"
 
 // clang-format off

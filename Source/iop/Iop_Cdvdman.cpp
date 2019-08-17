@@ -1,3 +1,4 @@
+#include <cstring>
 #include "../Log.h"
 #include "../states/RegisterStateFile.h"
 #include "IopBios.h"

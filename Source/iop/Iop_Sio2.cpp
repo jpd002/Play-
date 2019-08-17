@@ -1,3 +1,4 @@
+#include <cstring>
 #include "Iop_Sio2.h"
 #include "../Log.h"
 #include "../states/RegisterStateFile.h"

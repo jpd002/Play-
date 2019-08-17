@@ -1,3 +1,4 @@
+#include <cstring>
 #include <stdexcept>
 #include "MaxSaveImporter.h"
 #include "LzAri.h"

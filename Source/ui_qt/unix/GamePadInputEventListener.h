@@ -13,7 +13,8 @@ public:
 	CGamePadInputEventListener(std::string);
 	virtual ~CGamePadInputEventListener();
 
-	Framework::CSignal<void(GamePadDeviceId, int, int, int, const input_absinfo*)> OnInputEvent;
+	typedef Framework::CSignal<void(GamePadDeviceId, int, int, int, const input_absinfo*)> OnInputEventType;
+	OnInputEventType OnInputEvent;
 
 private:
 	std::string m_device;

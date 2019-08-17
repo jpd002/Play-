@@ -1,3 +1,4 @@
+#include <cstring>
 #include "Iop_Loadcore.h"
 #include "Iop_Dynamic.h"
 #include "IopBios.h"

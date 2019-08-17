@@ -1,3 +1,4 @@
+#include <cstring>
 #include "Iop_Stdio.h"
 #include "Iop_Ioman.h"
 #include "lexical_cast_ex.h"

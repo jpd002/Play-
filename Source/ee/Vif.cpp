@@ -1,4 +1,6 @@
 #include <cassert>
+#include <cstring>
+#include <climits>
 #include <stdexcept>
 #include "string_format.h"
 #include "../Log.h"

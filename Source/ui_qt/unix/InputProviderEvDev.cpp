@@ -1,3 +1,4 @@
+#include <cassert>
 #include "InputProviderEvDev.h"
 #include "string_format.h"
 

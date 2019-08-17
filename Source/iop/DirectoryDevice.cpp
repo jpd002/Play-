@@ -1,3 +1,4 @@
+#include <cassert>
 #include "DirectoryDevice.h"
 #include "StdStream.h"
 #include "string_cast.h"

@@ -1,3 +1,4 @@
+#include <cstring>
 #include <stdio.h>
 #include "../MIPS.h"
 #include "MA_EE.h"

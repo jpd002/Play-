@@ -1,3 +1,5 @@
+#include <algorithm>
+#include <cassert>
 #include "make_unique.h"
 #include "stricmp.h"
 #include "DiskUtils.h"

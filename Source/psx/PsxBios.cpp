@@ -1,3 +1,4 @@
+#include <cstring>
 #include "PsxBios.h"
 #include "COP_SCU.h"
 #include "Log.h"

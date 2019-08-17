@@ -1,3 +1,4 @@
+#include <cstring>
 #include "Iop_Sysclib.h"
 #include "../Ps2Const.h"
 #include "../Log.h"

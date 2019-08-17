@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <assert.h>
+#include <cstring>
 #include <math.h>
 
 #include "../../Log.h"

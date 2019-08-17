@@ -1,4 +1,5 @@
 #include <cassert>
+#include <cstring>
 #include <cmath>
 #include <climits>
 #include "string_format.h"

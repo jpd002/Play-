@@ -1,4 +1,5 @@
 #include <cassert>
+#include <cstring>
 #include "GsCachedArea.h"
 #include "GsPixelFormats.h"
 

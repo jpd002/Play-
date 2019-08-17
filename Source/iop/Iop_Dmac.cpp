@@ -1,4 +1,5 @@
 #include <assert.h>
+#include <cstring>
 #include "Iop_Dmac.h"
 #include "Iop_Intc.h"
 #include "../states/RegisterStateFile.h"

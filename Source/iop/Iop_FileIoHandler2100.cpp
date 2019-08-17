@@ -1,3 +1,4 @@
+#include <cstring>
 #include "Iop_FileIoHandler2100.h"
 #include "Iop_Ioman.h"
 #include "../Log.h"

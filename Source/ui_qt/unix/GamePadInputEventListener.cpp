@@ -3,6 +3,8 @@
 #include <sys/signalfd.h>
 #include <poll.h>
 #include <csignal>
+#include <cstring>
+#include <unistd.h>
 
 CGamePadInputEventListener::CGamePadInputEventListener(std::string device)
     : m_device(device)
@@ -14,7 +16,7 @@ CGamePadInputEventListener::CGamePadInputEventListener(std::string device)
 CGamePadInputEventListener::~CGamePadInputEventListener()
 {
 	m_running = false;
-	OnInputEvent.disconnect_all_slots();
+	OnInputEvent.Reset();
 	m_thread.join();
 }
 

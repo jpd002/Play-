@@ -1,3 +1,4 @@
+#include <cstring>
 #include "../AppConfig.h"
 #include "Iop_Ioman.h"
 #include "StdStream.h"

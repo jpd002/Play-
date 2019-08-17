@@ -1,3 +1,4 @@
+#include <cstring>
 #include "MIPSTags.h"
 #include "StdStream.h"
 #include "lexical_cast_ex.h"

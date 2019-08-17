@@ -1,3 +1,5 @@
+#include <cassert>
+#include <cstring>
 #include "Iop_FileIoHandler2240.h"
 #include "Iop_Ioman.h"
 #include "Iop_SifManPs2.h"

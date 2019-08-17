@@ -1,3 +1,4 @@
+#include <cstring>
 #include <stdio.h>
 #include "../Log.h"
 #include "../Ps2Const.h"

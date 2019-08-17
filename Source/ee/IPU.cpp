@@ -1,3 +1,5 @@
+#include <cassert>
+#include <cstring>
 #include <stdio.h>
 #include <exception>
 #include <functional>

@@ -1,3 +1,4 @@
+#include <cstring>
 #include "Iop_SifManPs2.h"
 #include "../Ps2Const.h"
 

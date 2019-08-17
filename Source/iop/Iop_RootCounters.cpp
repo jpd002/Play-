@@ -1,4 +1,5 @@
 #include <assert.h>
+#include <cstring>
 #include "Iop_RootCounters.h"
 #include "Iop_Intc.h"
 #include "string_format.h"

@@ -1,4 +1,5 @@
 #include <boost/filesystem/operations.hpp>
+#include <cstring>
 #include "SaveExporter.h"
 #include "StdStream.h"
 #include "StdStreamUtils.h"

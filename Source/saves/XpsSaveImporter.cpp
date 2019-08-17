@@ -1,3 +1,4 @@
+#include <cstring>
 #include "XpsSaveImporter.h"
 #include "StdStreamUtils.h"
 
