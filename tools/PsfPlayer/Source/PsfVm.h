@@ -14,7 +14,7 @@ class CPsfVm : public CVirtualMachine
 {
 public:
 	typedef std::function<CSoundHandler*()> SpuHandlerFactory;
-	typedef Framework::CSignal<void()> OnNewFrameEvent;
+	typedef Framework::CSignal<void()> NewFrameEvent;
 
 	CPsfVm();
 	virtual ~CPsfVm();
@@ -44,7 +44,7 @@ public:
 	void SaveDebugTags(const char*);
 #endif
 
-	OnNewFrameEvent OnNewFrame;
+	NewFrameEvent OnNewFrame;
 
 private:
 	void ThreadProc();
