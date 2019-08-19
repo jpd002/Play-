@@ -777,9 +777,9 @@ void MainWindow::on_actionController_Manager_triggered()
 void MainWindow::on_actionCapture_Screen_triggered()
 {
 	m_screenShotCompleteConnection = CScreenShotUtils::TriggerGetScreenshot(m_virtualMachine,
-	                                       [&](int res, const char* msg) -> void {
-		                                       m_msgLabel->setText(msg);
-	                                       });
+	                                                                        [&](int res, const char* msg) -> void {
+		                                                                        m_msgLabel->setText(msg);
+	                                                                        });
 }
 
 void MainWindow::on_actionList_Bootables_triggered()
