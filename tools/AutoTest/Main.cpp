@@ -169,7 +169,7 @@ void ExecuteIopTest(const boost::filesystem::path& testFilePath)
 		auto iopOs = dynamic_cast<CIopBios*>(virtualMachine.m_iop->m_bios.get());
 		int32 rootModuleId = iopOs->LoadModuleFromHost(moduleData.data());
 		connection = iopOs->OnModuleStarted.Connect(
-		    [&executionOver, &rootModuleId](uint32 moduleId) {
+		    [&executionOver, rootModuleId](uint32 moduleId) {
 			    if(rootModuleId == moduleId)
 			    {
 				    executionOver = true;
