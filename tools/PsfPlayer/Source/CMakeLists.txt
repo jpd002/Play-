@@ -47,6 +47,7 @@ set(PSFCORE_SRC_FILES
 	PsfStreamProvider.cpp
 	PsfTags.cpp
 	PsfVm.cpp
+	PsfVm.h
 	PsfZipArchive.cpp
 	psp/MA_ALLEGREX.cpp
 	psp/MA_ALLEGREX_Reflection.cpp
