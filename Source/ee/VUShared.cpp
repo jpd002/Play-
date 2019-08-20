@@ -166,19 +166,15 @@ void VUShared::ClampVector(CMipsJitter* codeGen)
 
 void VUShared::TestSZFlags(CMipsJitter* codeGen, uint8 dest, size_t regOffset, uint32 relativePipeTime)
 {
-	//--- S flag
 	codeGen->MD_PushRel(regOffset);
-	codeGen->MD_IsNegative();
-	codeGen->Shl(4);
-
-	//--- Z flag
-	codeGen->MD_PushRel(regOffset);
-	codeGen->MD_IsZero();
-	codeGen->Or();
+	codeGen->MD_MakeSignZero();
 
 	//Clear flags of inactive FMAC units
-	codeGen->PushCst((dest << 4) | dest);
-	codeGen->And();
+	if(dest != 0xF)
+	{
+		codeGen->PushCst((dest << 4) | dest);
+		codeGen->And();
+	}
 
 	//Update sticky flags
 	codeGen->PushTop();
