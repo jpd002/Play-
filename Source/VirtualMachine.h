@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Signal.h"
+#include "signal/Signal.h"
 
 class CVirtualMachine
 {

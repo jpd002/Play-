@@ -5,7 +5,7 @@
 #include "BiosDebugInfoProvider.h"
 #include "iop/Iop_SpuBase.h"
 #include "SoundHandler.h"
-#include "Signal.h"
+#include "signal/Signal.h"
 
 class CPsfVmSubSystem
 {

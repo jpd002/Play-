@@ -1,7 +1,7 @@
 #pragma once
 
 #include <atomic>
-#include "Signal.h"
+#include "signal/Signal.h"
 #include <thread>
 #include <libevdev.h>
 #include "Types.h"

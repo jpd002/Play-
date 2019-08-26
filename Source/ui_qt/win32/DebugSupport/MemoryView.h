@@ -4,7 +4,7 @@
 #include "win32/CustomDrawn.h"
 #include "win32/DeviceContext.h"
 #include "win32/GdiObj.h"
-#include "Signal.h"
+#include "signal/Signal.h"
 
 class CMemoryView : public Framework::Win32::CCustomDrawn
 {

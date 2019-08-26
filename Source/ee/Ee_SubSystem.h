@@ -17,7 +17,7 @@
 #include "PS2OS.h"
 #include "../gs/GSHandler.h"
 
-#include "Signal.h"
+#include "signal/Signal.h"
 
 namespace Ee
 {

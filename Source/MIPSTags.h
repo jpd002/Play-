@@ -4,7 +4,7 @@
 #include "xml/Node.h"
 #include <map>
 #include <string>
-#include "Signal.h"
+#include "signal/Signal.h"
 
 class CMIPSTags
 {

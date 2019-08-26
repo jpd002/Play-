@@ -7,7 +7,7 @@
 #include "win32/ListView.h"
 #include "win32/Button.h"
 #include "win32/GdiObj.h"
-#include "Signal.h"
+#include "signal/Signal.h"
 
 class CPlaylistPanel : public Framework::Win32::CDialog
 {

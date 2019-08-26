@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Signal.h"
+#include "signal/Signal.h"
 #include "win32/MDIChild.h"
 #include "win32/ListView.h"
 #include "Types.h"

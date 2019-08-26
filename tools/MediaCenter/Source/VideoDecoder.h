@@ -2,7 +2,7 @@
 
 #include "MpegVideoState.h"
 #include "bitmap/Bitmap.h"
-#include "Signal.h"
+#include "signal/Signal.h"
 #include <thread>
 
 class CVideoDecoder

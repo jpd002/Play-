@@ -5,7 +5,7 @@
 #include <functional>
 #include <atomic>
 #include <array>
-#include "Signal.h"
+#include "signal/Signal.h"
 
 #include "bitmap/Bitmap.h"
 #include "Types.h"

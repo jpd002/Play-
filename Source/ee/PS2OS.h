@@ -2,7 +2,7 @@
 
 #include <string>
 #include <boost/filesystem.hpp>
-#include "Signal.h"
+#include "signal/Signal.h"
 #include "../ELF.h"
 #include "../MIPS.h"
 #include "../BiosDebugInfoProvider.h"
