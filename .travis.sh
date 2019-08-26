@@ -23,7 +23,7 @@ travis_before_install()
         brew install dpkg
     elif [ "$TARGET_OS" = "Android" ]; then
         echo y | sdkmanager 'ndk;20.0.5594570'
-        echo y | sdkmanager 'cmake;3.6.4111459'
+        echo y | sdkmanager 'cmake;3.10.2.4988404'
     fi;
 
     git clone -q https://github.com/jpd002/Play-Build.git Play-Build
