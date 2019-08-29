@@ -1,6 +1,6 @@
-#include "GSH_OpenGLQt.h"
 #include <QWindow>
 #include <QOpenGLContext>
+#include "GSH_OpenGLQt.h"
 
 CGSH_OpenGLQt::CGSH_OpenGLQt(QWindow* renderWindow)
     : m_renderWindow(renderWindow)
