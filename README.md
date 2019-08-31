@@ -1,40 +1,16 @@
 # Play!
 
-Play! is an attempt to create a PlayStation 2 emulator for Windows, macOS, UNIX, Android & iOS platforms.
+Play! is a PlayStation 2 emulator for Windows, macOS, UNIX, Android & iOS platforms.
 
 Compatibility information is available on the official [Compatibility Tracker](https://github.com/jpd002/Play-Compatibility). If a specific game
 doesn't work with the emulator, please create a new issue there.
 
 For more information, please visit [purei.org](http://purei.org).
 
-## Project Dependencies ##
-
-### External Libraries ###
-- [boost](http://boost.org)
-
-### Repositories ###
-- [Play! Dependencies](https://github.com/jpd002/Play-Dependencies)
-- [Play! Framework](https://github.com/jpd002/Play--Framework)
-- [Play! CodeGen](https://github.com/jpd002/Play--CodeGen)
-- [Nuanceur](https://github.com/jpd002/Nuanceur)
-
 ## Building ##
 
-### General Setup ###
-
-You can get almost everything needed to build the emulator by using the [Play! Build](https://github.com/jpd002/Play-Build) project. You can also checkout every repository individually if you wish to do so, but make sure your working copies share the same parent folder.
-
-In the end, your setup should look like this:
-
-C:\Projects
-- CodeGen
-- Dependencies
-- Framework
-- Nuanceur
-- Play
-
-### Common Building Instructions ###
-First you'd need to clone Play- which contains the emulator source code, along side the submodules required to build Play!.
+### Getting Started ###
+First you'll need to clone this repo which contains the emulator source code, along side the submodules required to build Play!.
 ```
 git clone --recurse-submodules https://github.com/jpd002/Play-.git
 cd Play-
