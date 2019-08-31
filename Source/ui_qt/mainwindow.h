@@ -24,7 +24,7 @@ class OutputWindow;
 
 #ifdef DEBUGGER_INCLUDED
 class CDebugger;
-class CFrameDebugger;
+//class CFrameDebugger;
 
 namespace Ui
 {
@@ -33,10 +33,10 @@ namespace Ui
 #endif
 
 class MainWindow : public QMainWindow
-#ifdef DEBUGGER_INCLUDED
-    ,
-                   public QAbstractNativeEventFilter
-#endif
+//#ifdef DEBUGGER_INCLUDED
+//    ,
+//                   public QAbstractNativeEventFilter
+//#endif
 {
 	Q_OBJECT
 
@@ -93,7 +93,7 @@ private:
 	void resizeWindow(unsigned int, unsigned int);
 	void UpdateGSHandlerLabel(int);
 #ifdef DEBUGGER_INCLUDED
-	bool nativeEventFilter(const QByteArray&, void*, long*) Q_DECL_OVERRIDE;
+	//bool nativeEventFilter(const QByteArray&, void*, long*) Q_DECL_OVERRIDE;
 #endif
 
 	Ui::MainWindow* ui;

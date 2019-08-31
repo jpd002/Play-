@@ -37,6 +37,10 @@
 #endif
 #else
 #include "tools/PsfPlayer/Source/SH_OpenAL.h"
+#ifdef DEBUGGER_INCLUDED
+#include "DebugSupport/Debugger.h"
+#include "ui_debugmenu.h"
+#endif
 #endif
 #include "input/PH_GenericInput.h"
 #include "DiskUtils.h"
@@ -116,18 +120,17 @@ MainWindow::MainWindow(QWidget* parent)
 	ui->menuBar->insertMenu(ui->menuHelp->menuAction(), debugMenu);
 
 	connect(debugMenuUi->actionShowDebugger, &QAction::triggered, this, std::bind(&MainWindow::ShowDebugger, this));
-	connect(debugMenuUi->actionShowFrameDebugger, &QAction::triggered, this, std::bind(&MainWindow::ShowFrameDebugger, this));
-	connect(debugMenuUi->actionDumpNextFrame, &QAction::triggered, this, std::bind(&MainWindow::DumpNextFrame, this));
-	connect(debugMenuUi->actionGsDrawEnabled, &QAction::triggered, this, std::bind(&MainWindow::ToggleGsDraw, this));
+	//connect(debugMenuUi->actionShowFrameDebugger, &QAction::triggered, this, std::bind(&MainWindow::ShowFrameDebugger, this));
+	//connect(debugMenuUi->actionDumpNextFrame, &QAction::triggered, this, std::bind(&MainWindow::DumpNextFrame, this));
+	//connect(debugMenuUi->actionGsDrawEnabled, &QAction::triggered, this, std::bind(&MainWindow::ToggleGsDraw, this));
 #endif
 }
 
 MainWindow::~MainWindow()
 {
 #ifdef DEBUGGER_INCLUDED
-	m_debugger.reset();
-	m_frameDebugger.reset();
-	delete debugMenuUi;
+	//m_debugger.reset();
+	//m_frameDebugger.reset();
 #endif
 	CAppConfig::GetInstance().Save();
 	if(m_virtualMachine != nullptr)
@@ -141,7 +144,10 @@ MainWindow::~MainWindow()
 		delete m_virtualMachine;
 		m_virtualMachine = nullptr;
 	}
+#ifdef DEBUGGER_INCLUDED
 	delete ui;
+	delete debugMenuUi;
+#endif
 }
 
 void MainWindow::InitVirtualMachine()
@@ -781,33 +787,33 @@ void MainWindow::resizeWindow(unsigned int width, unsigned int height)
 }
 
 #ifdef DEBUGGER_INCLUDED
-bool MainWindow::nativeEventFilter(const QByteArray&, void* message, long* result)
-{
-	auto msg = reinterpret_cast<MSG*>(message);
-	HWND activeWnd = GetActiveWindow();
-	if(m_debugger && (activeWnd == m_debugger->m_hWnd) &&
-	   TranslateAccelerator(m_debugger->m_hWnd, m_debugger->GetAccelerators(), msg))
-	{
-		return true;
-	}
-	if(m_frameDebugger && (activeWnd == m_frameDebugger->m_hWnd) &&
-	   TranslateAccelerator(m_frameDebugger->m_hWnd, m_frameDebugger->GetAccelerators(), msg))
-	{
-		return true;
-	}
-	return false;
-}
+//bool MainWindow::nativeEventFilter(const QByteArray&, void* message, long* result)
+//{
+//	auto msg = reinterpret_cast<MSG*>(message);
+//	HWND activeWnd = GetActiveWindow();
+//	if(m_debugger && (activeWnd == m_debugger->m_hWnd) &&
+//	   TranslateAccelerator(m_debugger->m_hWnd, m_debugger->GetAccelerators(), msg))
+//	{
+//		return true;
+//	}
+//	if(m_frameDebugger && (activeWnd == m_frameDebugger->m_hWnd) &&
+//	   TranslateAccelerator(m_frameDebugger->m_hWnd, m_frameDebugger->GetAccelerators(), msg))
+//	{
+//		return true;
+//	}
+//	return false;
+//}
 
 void MainWindow::ShowDebugger()
 {
-	m_debugger->Show(SW_SHOWMAXIMIZED);
-	SetForegroundWindow(*m_debugger);
+	m_debugger->showMaximized();
+	//SetForegroundWindow(*m_debugger);
 }
 
 void MainWindow::ShowFrameDebugger()
 {
-	m_frameDebugger->Show(SW_SHOWMAXIMIZED);
-	SetForegroundWindow(*m_frameDebugger);
+	//m_frameDebugger->Show(SW_SHOWMAXIMIZED);
+	//SetForegroundWindow(*m_frameDebugger);
 }
 
 fs::path MainWindow::GetFrameDumpDirectoryPath()
@@ -849,7 +855,7 @@ void MainWindow::ToggleGsDraw()
 	if(gs == nullptr) return;
 	bool newState = !gs->GetDrawEnabled();
 	gs->SetDrawEnabled(newState);
-	debugMenuUi->actionGsDrawEnabled->setChecked(newState);
+	//debugMenuUi->actionGsDrawEnabled->setChecked(newState);
 	m_msgLabel->setText(newState ? QString("GS Draw Enabled") : QString("GS Draw Disabled"));
 }
 

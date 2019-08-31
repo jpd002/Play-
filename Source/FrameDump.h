@@ -6,6 +6,10 @@
 #include "Ps2Const.h"
 #include "MIPS.h"
 
+#ifdef DEBUGGER_INCLUDED
+	#include <cstring>
+#endif
+
 class CGsPacketMetadata
 {
 public:

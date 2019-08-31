@@ -181,18 +181,25 @@ if(TARGET_PLATFORM_WIN32)
 	
 	list(APPEND PROJECT_LIBS dinput8)
 	list(APPEND PROJECT_LIBS xinput)
+endif()
 	
-	if(DEBUGGER_INCLUDED)
-		if(NOT TARGET PlayDebugSupport)
+if(DEBUGGER_INCLUDED)
+	if(NOT TARGET PlayDebugSupport)
+		if(TARGET_PLATFORM_WIN32)
 			add_subdirectory(
 				${CMAKE_CURRENT_SOURCE_DIR}/win32/DebugSupport
 				${CMAKE_CURRENT_BINARY_DIR}/PlayDebugSupport
 			)
+		else()
+			add_subdirectory(
+				${CMAKE_CURRENT_SOURCE_DIR}/DebugSupport
+				${CMAKE_CURRENT_BINARY_DIR}/PlayDebugSupport
+			)
 		endif()
-		list(APPEND PROJECT_LIBS PlayDebugSupport)
 	endif()
-	
+	list(APPEND PROJECT_LIBS PlayDebugSupport)
 endif()
+	
 set(QT_MOC_HEADERS
 	bootablelistdialog.h
 	BootableModel.h
