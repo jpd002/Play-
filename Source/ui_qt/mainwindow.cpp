@@ -6,8 +6,15 @@
 #include "ui_shared/BootablesProcesses.h"
 #include "ui_shared/StatsManager.h"
 
+#define VULKAN
+
+#ifdef VULKAN
+#include "vulkanwindow.h"
+#include "GSH_VulkanQt.h"
+#else
 #include "openglwindow.h"
 #include "GSH_OpenGLQt.h"
+#endif
 
 #include <QDateTime>
 #include <QFileDialog>
@@ -64,7 +71,11 @@ MainWindow::MainWindow(QWidget* parent)
 
 	m_continuationChecker = new CContinuationChecker(this);
 
+#ifdef VULKAN
+	m_outputwindow = new VulkanWindow;
+#else
 	m_outputwindow = new OpenGLWindow;
+#endif
 	QWidget* container = QWidget::createWindowContainer(m_outputwindow);
 	ui->gridLayout->addWidget(container, 0, 0);
 
@@ -206,7 +217,11 @@ void MainWindow::SetupGsHandler()
 	auto gsHandler = m_virtualMachine->GetGSHandler();
 	if(!gsHandler)
 	{
+#ifdef VULKAN
+		m_virtualMachine->CreateGSHandler(CGSH_VulkanQt::GetFactoryFunction(m_outputwindow));
+#else
 		m_virtualMachine->CreateGSHandler(CGSH_OpenGLQt::GetFactoryFunction(m_outputwindow));
+#endif
 		m_OnNewFrameConnection = m_virtualMachine->m_ee->m_gs->OnNewFrame.Connect(std::bind(&CStatsManager::OnNewFrame, &CStatsManager::GetInstance(), std::placeholders::_1));
 	}
 }

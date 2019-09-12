@@ -26,6 +26,14 @@ if(NOT TARGET gsh_opengl)
 endif()
 list(INSERT PROJECT_LIBS 0 gsh_opengl)
 
+if(NOT TARGET gsh_vulkan)
+	add_subdirectory(
+		${CMAKE_CURRENT_SOURCE_DIR}/../gs/GSH_Vulkan
+		${CMAKE_CURRENT_BINARY_DIR}/gs/GSH_Vulkan
+	)
+endif()
+list(INSERT PROJECT_LIBS 0 gsh_vulkan)
+
 if(TARGET_PLATFORM_UNIX)
 	find_package(LIBEVDEV REQUIRED)
 	list(APPEND PROJECT_LIBS ${LIBEVDEV_LIBRARY})
@@ -72,6 +80,8 @@ set(QT_SOURCES
 	ElidedLabel.h
 	GSH_OpenGLQt.cpp
 	GSH_OpenGLQt.h
+	GSH_VulkanQt.cpp
+	GSH_VulkanQt.h
 	InputProviderQtKey.cpp
 	InputProviderQtKey.h
 	S3FileBrowser.cpp
@@ -95,6 +105,8 @@ set(QT_SOURCES
 	vfsdiscselectordialog.h
 	VfsDevice.cpp
 	VfsDevice.h
+	vulkanwindow.cpp
+	vulkanwindow.h
 )
 if(LIBEVDEV_FOUND)
 	set(QT_SOURCES
@@ -168,6 +180,7 @@ set(QT_MOC_HEADERS
 	vfsmanagerdialog.h
 	vfsmodel.h
 	vfsdiscselectordialog.h
+	vulkanwindow.h
 )
 
 set(QT_UIS
