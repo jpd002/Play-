@@ -80,6 +80,8 @@ set(QT_SOURCES
 	settingsdialog.h
 	openglwindow.cpp
 	openglwindow.h
+	outputwindow.cpp
+	outputwindow.h
 	memorycardmanagerdialog.cpp
 	memorycardmanagerdialog.h
 	PreferenceDefs.h
@@ -160,6 +162,7 @@ set(QT_MOC_HEADERS
 	ElidedLabel.h
 	settingsdialog.h
 	openglwindow.h
+	outputwindow.h
 	memorycardmanagerdialog.h
 	S3FileBrowser.h
 	vfsmanagerdialog.h

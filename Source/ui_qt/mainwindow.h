@@ -74,7 +74,7 @@ private:
 		fs::path path;
 	};
 
-	void SetOpenGlPanelSize();
+	void SetOutputWindowSize();
 	void CreateStatusBar();
 	void InitVirtualMachine();
 	void SetupGsHandler();
@@ -92,7 +92,7 @@ private:
 
 	Ui::MainWindow* ui;
 
-	QWindow* m_openglpanel = nullptr;
+	QWindow* m_outputwindow = nullptr;
 	QLabel* m_fpsLabel = nullptr;
 #ifdef PROFILE
 	QLabel* m_profileStatsLabel = nullptr;
@@ -126,7 +126,7 @@ signals:
 	void onExecutableChange();
 
 public slots:
-	void openGLWindow_resized();
+	void outputWindow_resized();
 	void updateStats();
 
 private slots:

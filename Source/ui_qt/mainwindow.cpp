@@ -7,6 +7,7 @@
 #include "ui_shared/StatsManager.h"
 
 #include "openglwindow.h"
+#include "GSH_OpenGLQt.h"
 
 #include <QDateTime>
 #include <QFileDialog>
@@ -19,7 +20,6 @@
 #include "StdStreamUtils.h"
 #include "string_format.h"
 
-#include "GSH_OpenGLQt.h"
 #ifdef _WIN32
 #include "../../tools/PsfPlayer/Source/win32_ui/SH_WaveOut.h"
 #ifdef DEBUGGER_INCLUDED
@@ -64,20 +64,20 @@ MainWindow::MainWindow(QWidget* parent)
 
 	m_continuationChecker = new CContinuationChecker(this);
 
-	m_openglpanel = new OpenGLWindow;
-	QWidget* container = QWidget::createWindowContainer(m_openglpanel);
+	m_outputwindow = new OpenGLWindow;
+	QWidget* container = QWidget::createWindowContainer(m_outputwindow);
 	ui->gridLayout->addWidget(container, 0, 0);
 
-	connect(m_openglpanel, SIGNAL(heightChanged(int)), this, SLOT(openGLWindow_resized()));
-	connect(m_openglpanel, SIGNAL(widthChanged(int)), this, SLOT(openGLWindow_resized()));
+	connect(m_outputwindow, SIGNAL(heightChanged(int)), this, SLOT(outputWindow_resized()));
+	connect(m_outputwindow, SIGNAL(widthChanged(int)), this, SLOT(outputWindow_resized()));
 
-	connect(m_openglpanel, SIGNAL(keyUp(QKeyEvent*)), this, SLOT(keyReleaseEvent(QKeyEvent*)));
-	connect(m_openglpanel, SIGNAL(keyDown(QKeyEvent*)), this, SLOT(keyPressEvent(QKeyEvent*)));
+	connect(m_outputwindow, SIGNAL(keyUp(QKeyEvent*)), this, SLOT(keyReleaseEvent(QKeyEvent*)));
+	connect(m_outputwindow, SIGNAL(keyDown(QKeyEvent*)), this, SLOT(keyPressEvent(QKeyEvent*)));
 
-	connect(m_openglpanel, SIGNAL(focusOut(QFocusEvent*)), this, SLOT(focusOutEvent(QFocusEvent*)));
-	connect(m_openglpanel, SIGNAL(focusIn(QFocusEvent*)), this, SLOT(focusInEvent(QFocusEvent*)));
+	connect(m_outputwindow, SIGNAL(focusOut(QFocusEvent*)), this, SLOT(focusOutEvent(QFocusEvent*)));
+	connect(m_outputwindow, SIGNAL(focusIn(QFocusEvent*)), this, SLOT(focusInEvent(QFocusEvent*)));
 
-	connect(m_openglpanel, SIGNAL(doubleClick(QMouseEvent*)), this, SLOT(doubleClickEvent(QMouseEvent*)));
+	connect(m_outputwindow, SIGNAL(doubleClick(QMouseEvent*)), this, SLOT(doubleClickEvent(QMouseEvent*)));
 
 #ifdef PROFILE
 	{
@@ -195,9 +195,9 @@ void MainWindow::InitVirtualMachine()
 	connect(this, SIGNAL(onExecutableChange()), this, SLOT(HandleOnExecutableChange()));
 }
 
-void MainWindow::SetOpenGlPanelSize()
+void MainWindow::SetOutputWindowSize()
 {
-	openGLWindow_resized();
+	outputWindow_resized();
 }
 
 void MainWindow::SetupGsHandler()
@@ -206,7 +206,7 @@ void MainWindow::SetupGsHandler()
 	auto gsHandler = m_virtualMachine->GetGSHandler();
 	if(!gsHandler)
 	{
-		m_virtualMachine->CreateGSHandler(CGSH_OpenGLQt::GetFactoryFunction(m_openglpanel));
+		m_virtualMachine->CreateGSHandler(CGSH_OpenGLQt::GetFactoryFunction(m_outputwindow));
 		m_OnNewFrameConnection = m_virtualMachine->m_ee->m_gs->OnNewFrame.Connect(std::bind(&CStatsManager::OnNewFrame, &CStatsManager::GetInstance(), std::placeholders::_1));
 	}
 }
@@ -229,11 +229,11 @@ void MainWindow::SetupSoundHandler()
 	}
 }
 
-void MainWindow::openGLWindow_resized()
+void MainWindow::outputWindow_resized()
 {
 	if(m_virtualMachine != nullptr && m_virtualMachine->m_ee != nullptr && m_virtualMachine->m_ee->m_gs != nullptr)
 	{
-		GLint w = m_openglpanel->size().width(), h = m_openglpanel->size().height();
+		uint32 w = m_outputwindow->size().width(), h = m_outputwindow->size().height();
 
 		auto scale = devicePixelRatioF();
 		CGSHandler::PRESENTATION_PARAMS presentationParams;
@@ -445,7 +445,7 @@ void MainWindow::on_actionSettings_triggered()
 	if(m_virtualMachine != nullptr)
 	{
 		m_virtualMachine->ReloadSpuBlockCount();
-		openGLWindow_resized();
+		outputWindow_resized();
 		auto gsHandler = m_virtualMachine->GetGSHandler();
 		if(gsHandler)
 		{
@@ -591,7 +591,7 @@ void MainWindow::UpdateUI()
 {
 	ui->actionPause_when_focus_is_lost->setChecked(m_pauseFocusLost);
 	ui->actionReset->setEnabled(!m_lastOpenCommand.path.empty());
-	SetOpenGlPanelSize();
+	SetOutputWindowSize();
 	SetupSaveLoadStateSlots();
 }
 
@@ -605,7 +605,7 @@ void MainWindow::focusOutEvent(QFocusEvent* event)
 {
 	if(m_pauseFocusLost && m_virtualMachine->GetStatus() == CVirtualMachine::RUNNING)
 	{
-		if(!isActiveWindow() && !m_openglpanel->isActive())
+		if(!isActiveWindow() && !m_outputwindow->isActive())
 		{
 			if(m_virtualMachine != nullptr)
 			{
@@ -619,7 +619,7 @@ void MainWindow::focusInEvent(QFocusEvent* event)
 {
 	if(m_pauseFocusLost && m_virtualMachine->GetStatus() == CVirtualMachine::PAUSED)
 	{
-		if(m_deactivatePause && (isActiveWindow() || m_openglpanel->isActive()))
+		if(m_deactivatePause && (isActiveWindow() || m_outputwindow->isActive()))
 		{
 			if(m_virtualMachine != nullptr)
 			{
