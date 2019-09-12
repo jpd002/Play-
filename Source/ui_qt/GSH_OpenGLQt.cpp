@@ -14,10 +14,6 @@ CGSH_OpenGLQt::CGSH_OpenGLQt(QWindow* renderWindow)
 {
 }
 
-CGSH_OpenGLQt::~CGSH_OpenGLQt()
-{
-}
-
 CGSH_OpenGL::FactoryFunction CGSH_OpenGLQt::GetFactoryFunction(QWindow* renderWindow)
 {
 	return [renderWindow]() { return new CGSH_OpenGLQt(renderWindow); };

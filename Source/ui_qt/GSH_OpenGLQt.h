@@ -9,7 +9,7 @@ class CGSH_OpenGLQt : public CGSH_OpenGL
 {
 public:
 	CGSH_OpenGLQt(QWindow*);
-	virtual ~CGSH_OpenGLQt();
+	virtual ~CGSH_OpenGLQt() = default;
 
 	static FactoryFunction GetFactoryFunction(QWindow*);
 
