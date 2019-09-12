@@ -72,7 +72,6 @@ void CVuExecutor::PartitionFunction(uint32 startAddress)
 		if(upperOp & VU_UPPEROP_BIT_E)
 		{
 			endAddress = address + 0xC;
-			assert(branchType == MIPS_BRANCH_NONE);
 			break;
 		}
 		else if(branchType == MIPS_BRANCH_NORMAL)
