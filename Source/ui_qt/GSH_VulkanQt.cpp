@@ -21,7 +21,7 @@ void CGSH_VulkanQt::InitializeImpl()
 
 	m_renderWindow->setVulkanInstance(m_qtVulkanInstance);
 
-	m_instance = m_qtVulkanInstance->vkInstance();
+	m_instance = Framework::Vulkan::CInstance(m_qtVulkanInstance->vkInstance());
 	m_surface = m_qtVulkanInstance->surfaceForWindow(m_renderWindow);
 
 	CGSH_Vulkan::InitializeImpl();

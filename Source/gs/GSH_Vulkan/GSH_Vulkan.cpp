@@ -21,8 +21,16 @@ void CGSH_Vulkan::InitializeImpl()
 
 	auto physicalDevices = GetPhysicalDevices();
 	assert(!physicalDevices.empty());
+	auto physicalDevice = physicalDevices[0];
 
-	CreateDevice(physicalDevices[0]);
+	auto renderQueueFamilies = GetRenderQueueFamilies(physicalDevice);
+	assert(!renderQueueFamilies.empty());
+	auto renderQueueFamily = renderQueueFamilies[0];
+
+	CreateDevice(physicalDevice);
+	m_device.vkGetDeviceQueue(m_device, renderQueueFamily, 0, &m_queue);
+
+	m_commandBufferPool = Framework::Vulkan::CCommandBufferPool(m_device, renderQueueFamily);
 
 	VkSurfaceFormatKHR format{};
 	format.format = VkFormat::VK_FORMAT_R8G8B8A8_UNORM;
@@ -40,11 +48,41 @@ void CGSH_Vulkan::ReleaseImpl()
 
 void CGSH_Vulkan::ResetImpl()
 {
-
+	m_commandBufferPool.Reset();
+	m_device.Reset();
 }
 
 void CGSH_Vulkan::FlipImpl()
 {
+	auto result = VK_SUCCESS;
+
+	uint32_t imageIndex = 0;
+	result = m_device.vkAcquireNextImageKHR(m_device, m_swapChain, UINT64_MAX, VK_NULL_HANDLE, VK_NULL_HANDLE, &imageIndex);
+	CHECKVULKANERROR(result);
+
+	auto commandBuffer = m_commandBufferPool.AllocateBuffer();
+
+	auto commandBufferBeginInfo = VkCommandBufferBeginInfo{};
+	commandBufferBeginInfo.flags = VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT;
+	result = m_device.vkBeginCommandBuffer(commandBuffer, &commandBufferBeginInfo);
+	CHECKVULKANERROR(result);
+
+	m_device.vkEndCommandBuffer(commandBuffer);
+
+	{
+		auto presentInfo = VkPresentInfoKHR{};
+		presentInfo.swapchainCount     = 1;
+		presentInfo.pSwapchains        = &m_swapChain;
+		presentInfo.pImageIndices      = &imageIndex;
+//		presentInfo.waitSemaphoreCount = 1;
+//		presentInfo.pWaitSemaphores    = &m_renderCompleteSemaphore;
+		result = m_device.vkQueuePresentKHR(m_queue, &presentInfo);
+		CHECKVULKANERROR(result);
+	}
+	
+	//result = m_device.vkQueueWaitIdle(m_queue);
+	//CHECKVULKANERROR(result);
+
 	PresentBackbuffer();
 	CGSHandler::FlipImpl();
 }
@@ -64,21 +102,21 @@ std::vector<VkPhysicalDevice> CGSH_Vulkan::GetPhysicalDevices()
 	auto result = VK_SUCCESS;
 
 	uint32_t physicalDeviceCount = 0;
-	result = vkEnumeratePhysicalDevices(m_instance, &physicalDeviceCount, nullptr);
-	assert(result == VK_SUCCESS);
+	result = m_instance.vkEnumeratePhysicalDevices(m_instance, &physicalDeviceCount, nullptr);
+	CHECKVULKANERROR(result);
 	
 	CLog::GetInstance().Print(LOG_NAME, "Found %d physical devices.\r\n", physicalDeviceCount);
 
 	std::vector<VkPhysicalDevice> physicalDevices(physicalDeviceCount);
-	result = vkEnumeratePhysicalDevices(m_instance, &physicalDeviceCount, physicalDevices.data());
-	assert(result == VK_SUCCESS);
+	result = m_instance.vkEnumeratePhysicalDevices(m_instance, &physicalDeviceCount, physicalDevices.data());
+	CHECKVULKANERROR(result);
 	
 	for(const auto& physicalDevice : physicalDevices)
 	{
 		CLog::GetInstance().Print(LOG_NAME, "Physical Device Info:\r\n");
 		
 		VkPhysicalDeviceProperties physicalDeviceProperties = {};
-		vkGetPhysicalDeviceProperties(physicalDevice, &physicalDeviceProperties);
+		m_instance.vkGetPhysicalDeviceProperties(physicalDevice, &physicalDeviceProperties);
 		CLog::GetInstance().Print(LOG_NAME, "Driver Version: %d\r\n", physicalDeviceProperties.driverVersion);
 		CLog::GetInstance().Print(LOG_NAME, "Device Name:    %s\r\n", physicalDeviceProperties.deviceName);
 		CLog::GetInstance().Print(LOG_NAME, "Device Type:    %d\r\n", physicalDeviceProperties.deviceType);
@@ -91,11 +129,66 @@ std::vector<VkPhysicalDevice> CGSH_Vulkan::GetPhysicalDevices()
 	return physicalDevices;
 }
 
+std::vector<uint32_t> CGSH_Vulkan::GetRenderQueueFamilies(VkPhysicalDevice physicalDevice)
+{
+	assert(m_surface != VK_NULL_HANDLE);
+	
+	auto result = VK_SUCCESS;
+	std::vector<uint32_t> renderQueueFamilies;
+	
+	uint32_t queueFamilyCount = 0;
+	m_instance.vkGetPhysicalDeviceQueueFamilyProperties(physicalDevice, &queueFamilyCount, nullptr);
+	
+	CLog::GetInstance().Print(LOG_NAME, "Found %d queue families.\r\n", queueFamilyCount);
+	
+	std::vector<VkQueueFamilyProperties> queueFamilyPropertiesArray(queueFamilyCount);
+	m_instance.vkGetPhysicalDeviceQueueFamilyProperties(physicalDevice, &queueFamilyCount, queueFamilyPropertiesArray.data());
+	
+	for(uint32_t queueFamilyIndex = 0; queueFamilyIndex < queueFamilyCount; queueFamilyIndex++)
+	{
+		bool graphicsSupported = false;
+		
+		CLog::GetInstance().Print(LOG_NAME, "Queue Family Info:\r\n");
+
+		const auto& queueFamilyProperties = queueFamilyPropertiesArray[queueFamilyIndex];
+		CLog::GetInstance().Print(LOG_NAME, "Queue Count:    %d\r\n", queueFamilyProperties.queueCount);
+		CLog::GetInstance().Print(LOG_NAME, "Operating modes:\r\n");
+		if(queueFamilyProperties.queueFlags & VK_QUEUE_GRAPHICS_BIT)
+		{
+			graphicsSupported = true;
+			CLog::GetInstance().Print(LOG_NAME, "  Graphics\r\n");
+		}
+		if(queueFamilyProperties.queueFlags & VK_QUEUE_COMPUTE_BIT)
+		{
+			CLog::GetInstance().Print(LOG_NAME, "  Compute\r\n");
+		}
+		if(queueFamilyProperties.queueFlags & VK_QUEUE_TRANSFER_BIT)
+		{
+			CLog::GetInstance().Print(LOG_NAME, "  Transfer\r\n");
+		}
+		if(queueFamilyProperties.queueFlags & VK_QUEUE_SPARSE_BINDING_BIT)
+		{
+			CLog::GetInstance().Print(LOG_NAME, "  Sparse Binding\r\n");
+		}
+		
+		VkBool32 surfaceSupported = VK_FALSE;
+		result = m_instance.vkGetPhysicalDeviceSurfaceSupportKHR(physicalDevice, queueFamilyIndex, m_surface, &surfaceSupported);
+		CHECKVULKANERROR(result);
+		
+		CLog::GetInstance().Print(LOG_NAME, "Supports surface: %d\r\n", surfaceSupported);
+		
+		if(graphicsSupported && surfaceSupported)
+		{
+			renderQueueFamilies.push_back(queueFamilyIndex);
+		}
+	}
+	
+	return renderQueueFamilies;
+}
+
 void CGSH_Vulkan::CreateDevice(VkPhysicalDevice physicalDevice)
 {
-	assert(m_device == VK_NULL_HANDLE);
-
-	auto result = VK_SUCCESS;
+	assert(m_device.IsEmpty());
 
 	float queuePriorities[] = { 1.0f };
 	
@@ -120,13 +213,12 @@ void CGSH_Vulkan::CreateDevice(VkPhysicalDevice physicalDevice)
 	deviceCreateInfo.queueCreateInfoCount    = 1;
 	deviceCreateInfo.pQueueCreateInfos       = &deviceQueueCreateInfo;
 	
-	result = vkCreateDevice(physicalDevice, &deviceCreateInfo, nullptr, &m_device);
-	assert(result == VK_SUCCESS);
+	m_device = Framework::Vulkan::CDevice(m_instance, physicalDevice, deviceCreateInfo);
 }
 
 void CGSH_Vulkan::CreateSwapChain(VkSurfaceFormatKHR surfaceFormat, VkExtent2D imageExtent)
 {
-	assert(m_device != VK_NULL_HANDLE);
+	assert(!m_device.IsEmpty());
 	assert(m_swapChain == VK_NULL_HANDLE);
 	assert(m_swapChainImages.empty());
 
@@ -148,16 +240,16 @@ void CGSH_Vulkan::CreateSwapChain(VkSurfaceFormatKHR surfaceFormat, VkExtent2D i
 	swapChainCreateInfo.clipped               = VK_TRUE;
 	swapChainCreateInfo.compositeAlpha        = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
 
-	result = vkCreateSwapchainKHR(m_device, &swapChainCreateInfo, nullptr, &m_swapChain);
-	assert(result == VK_SUCCESS);
+	result = m_device.vkCreateSwapchainKHR(m_device, &swapChainCreateInfo, nullptr, &m_swapChain);
+	CHECKVULKANERROR(result);
 	
 	uint32_t imageCount = 0;
-	result = vkGetSwapchainImagesKHR(m_device, m_swapChain, &imageCount, nullptr);
-	assert(result == VK_SUCCESS);
+	result = m_device.vkGetSwapchainImagesKHR(m_device, m_swapChain, &imageCount, nullptr);
+	CHECKVULKANERROR(result);
 	
 	m_swapChainImages.resize(imageCount);
-	result = vkGetSwapchainImagesKHR(m_device, m_swapChain, &imageCount, m_swapChainImages.data());
-	assert(result == VK_SUCCESS);
+	result = m_device.vkGetSwapchainImagesKHR(m_device, m_swapChain, &imageCount, m_swapChainImages.data());
+	CHECKVULKANERROR(result);
 }
 
 /////////////////////////////////////////////////////////////

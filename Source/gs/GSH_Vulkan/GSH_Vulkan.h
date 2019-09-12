@@ -1,6 +1,9 @@
 #pragma once
 
-#include <vulkan/vulkan.h>
+#include "vulkan/VulkanDef.h"
+#include "vulkan/Instance.h"
+#include "vulkan/Device.h"
+#include "vulkan/CommandBufferPool.h"
 #include <vector>
 #include "../GSHandler.h"
 #include "../GsCachedArea.h"
@@ -29,17 +32,20 @@ protected:
 	void NotifyPreferencesChangedImpl() override;
 	void FlipImpl() override;
 
-	VkInstance m_instance = VK_NULL_HANDLE;
+	Framework::Vulkan::CInstance m_instance;
 	VkSurfaceKHR m_surface = VK_NULL_HANDLE;
 
 private:
 	virtual void PresentBackbuffer() = 0;
 
 	std::vector<VkPhysicalDevice> GetPhysicalDevices();
+	std::vector<uint32_t> GetRenderQueueFamilies(VkPhysicalDevice);
 	void CreateDevice(VkPhysicalDevice);
 	void CreateSwapChain(VkSurfaceFormatKHR, VkExtent2D);
 
-	VkDevice m_device = VK_NULL_HANDLE;
+	Framework::Vulkan::CDevice m_device;
+	Framework::Vulkan::CCommandBufferPool m_commandBufferPool;
+	VkQueue m_queue = VK_NULL_HANDLE;
 	VkSwapchainKHR m_swapChain = VK_NULL_HANDLE;
 	std::vector<VkImage> m_swapChainImages;
 };
