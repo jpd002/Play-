@@ -12,7 +12,7 @@ namespace Iop
 	public:
 		CFileIoHandler2240(CIoman*, CSifMan&);
 
-		void Invoke(uint32, uint32*, uint32, uint32*, uint32, uint8*) override;
+		bool Invoke(uint32, uint32*, uint32, uint32*, uint32, uint8*) override;
 
 		void LoadState(Framework::CZipArchiveReader&) override;
 		void SaveState(Framework::CZipArchiveWriter&) const override;

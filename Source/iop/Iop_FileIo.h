@@ -18,7 +18,7 @@ namespace Iop
 			CHandler(CIoman*);
 			virtual ~CHandler() = default;
 
-			virtual void Invoke(uint32, uint32*, uint32, uint32*, uint32, uint8*) = 0;
+			virtual bool Invoke(uint32, uint32*, uint32, uint32*, uint32, uint8*) = 0;
 
 			virtual void LoadState(Framework::CZipArchiveReader&){};
 			virtual void SaveState(Framework::CZipArchiveWriter&) const {};

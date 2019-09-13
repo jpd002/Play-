@@ -28,7 +28,7 @@ CFileIoHandler2240::CFileIoHandler2240(CIoman* ioman, CSifMan& sifMan)
 	memset(m_pendingReply.buffer.data(), 0, PENDINGREPLY::REPLY_BUFFER_SIZE);
 }
 
-void CFileIoHandler2240::Invoke(uint32 method, uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, uint8* ram)
+bool CFileIoHandler2240::Invoke(uint32 method, uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, uint8* ram)
 {
 	switch(method)
 	{
@@ -80,6 +80,7 @@ void CFileIoHandler2240::Invoke(uint32 method, uint32* args, uint32 argsSize, ui
 		CLog::GetInstance().Warn(LOG_NAME, "Unknown function (%d) called.\r\n", method);
 		break;
 	}
+	return true;
 }
 
 void CFileIoHandler2240::LoadState(Framework::CZipArchiveReader& archive)

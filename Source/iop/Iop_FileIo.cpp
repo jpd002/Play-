@@ -57,8 +57,7 @@ void CFileIo::Invoke(CMIPS& context, unsigned int functionId)
 //SIF Invoke
 bool CFileIo::Invoke(uint32 method, uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, uint8* ram)
 {
-	m_handler->Invoke(method, args, argsSize, ret, retSize, ram);
-	return true;
+	return m_handler->Invoke(method, args, argsSize, ret, retSize, ram);
 }
 
 void CFileIo::LoadState(Framework::CZipArchiveReader& archive)

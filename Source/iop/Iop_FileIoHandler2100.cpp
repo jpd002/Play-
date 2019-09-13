@@ -12,7 +12,7 @@ CFileIoHandler2100::CFileIoHandler2100(CIoman* ioman)
 {
 }
 
-void CFileIoHandler2100::Invoke(uint32 method, uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, uint8* ram)
+bool CFileIoHandler2100::Invoke(uint32 method, uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, uint8* ram)
 {
 	switch(method)
 	{
@@ -63,4 +63,5 @@ void CFileIoHandler2100::Invoke(uint32 method, uint32* args, uint32 argsSize, ui
 		CLog::GetInstance().Warn(LOG_NAME, "Unknown function (%d) called.\r\n", method);
 		break;
 	}
+	return true;
 }

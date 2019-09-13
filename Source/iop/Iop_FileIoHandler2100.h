@@ -9,7 +9,7 @@ namespace Iop
 	public:
 		CFileIoHandler2100(CIoman*);
 
-		virtual void Invoke(uint32, uint32*, uint32, uint32*, uint32, uint8*) override;
+		bool Invoke(uint32, uint32*, uint32, uint32*, uint32, uint8*) override;
 
 	private:
 		struct OPENCOMMAND
