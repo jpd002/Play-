@@ -1,9 +1,11 @@
 #include "MA_VU.h"
+#include "Log.h"
 #include "../MIPS.h"
 #include "VUShared.h"
 #include "Vif.h"
 
 #undef MAX
+#define LOG_NAME ("ma_vu")
 
 CMA_VU::CUpper::CUpper()
     : CMIPSInstructionFactory(MIPS_REGSIZE_32)
@@ -29,8 +31,10 @@ void CMA_VU::CUpper::CompileInstruction(uint32 nAddress, CMipsJitter* codeGen, C
 
 	((this)->*(m_pOpVector[m_nOpcode & 0x3F]))();
 
-	//Make sure D and T bit aren't set
-	assert((m_nOpcode & 0x18000000) == 0);
+	if((m_nOpcode & 0x18000000) != 0)
+	{
+		CLog::GetInstance().Warn(LOG_NAME, "0x%08X: m_nOpcode : 0x%08X - Either the D and/or T bits are set!\r\n", nAddress, m_nOpcode);
+	}
 
 	//Check I bit
 	if(m_nOpcode & 0x80000000)

@@ -299,7 +299,6 @@ void CBasicBlock::Execute()
 	assert(m_context.m_State.nGPR[0].nV2 == 0);
 	assert(m_context.m_State.nGPR[0].nV3 == 0);
 	assert((m_context.m_State.nPC & 3) == 0);
-	assert((m_context.m_State.nGPR[CMIPS::RA].nV0 & 3) == 0);
 	assert(m_context.m_State.nCOP2[0].nV0 == 0x00000000);
 	assert(m_context.m_State.nCOP2[0].nV1 == 0x00000000);
 	assert(m_context.m_State.nCOP2[0].nV2 == 0x00000000);
