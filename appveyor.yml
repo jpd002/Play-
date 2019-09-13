@@ -30,7 +30,7 @@ build_script:
     
     set VULKAN_VERSION=1.1.121.0
     
-    curl -L --show-error --output VulkanSDK.exe https://vulkan.lunarg.com/sdk/download/%VULKAN_VERSION%/windows/VulkanSDK-%VULKAN_VERSION%-Installer.exe?Human=true
+    if not exist VulkanSDK.exe curl -L --silent --show-error --output VulkanSDK.exe https://vulkan.lunarg.com/sdk/download/%VULKAN_VERSION%/windows/VulkanSDK-%VULKAN_VERSION%-Installer.exe?Human=true    
     
     .\VulkanSDK.exe /S
     
