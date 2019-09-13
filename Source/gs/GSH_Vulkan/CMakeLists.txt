@@ -9,8 +9,6 @@ include(Header)
 
 project(GSH_Vulkan)
 
-find_package(Vulkan REQUIRED)
-
 if(NOT TARGET Framework_Vulkan)
 	add_subdirectory(
 		${CMAKE_CURRENT_SOURCE_DIR}/../../../deps/Framework/build_cmake/FrameworkVulkan
@@ -25,4 +23,4 @@ add_library(gsh_vulkan STATIC
 )
 
 target_link_libraries(gsh_vulkan ${PROJECT_LIBS})
-target_include_directories(gsh_vulkan PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/Source/gs/GSH_Vulkan/ ${VULKAN_INCLUDE_DIR})
+target_include_directories(gsh_vulkan PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/Source/gs/GSH_Vulkan/)
