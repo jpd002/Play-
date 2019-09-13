@@ -267,7 +267,7 @@ uint32 CFileIoHandler2240::InvokeDopen(uint32* args, uint32 argsSize, uint32* re
 uint32 CFileIoHandler2240::InvokeGetStat(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, uint8* ram)
 {
 	assert(retSize == 4);
-	CIoman::STAT stat;
+	Ioman::STAT stat;
 	auto command = reinterpret_cast<GETSTATCOMMAND*>(args);
 	auto result = m_ioman->GetStat(command->fileName, &stat);
 

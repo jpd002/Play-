@@ -320,7 +320,7 @@ int32 CIoman::Dclose(uint32 handle)
 	return 0;
 }
 
-int32 CIoman::Dread(uint32 handle, DIRENTRY* dirEntry)
+int32 CIoman::Dread(uint32 handle, Ioman::DIRENTRY* dirEntry)
 {
 	CLog::GetInstance().Print(LOG_NAME, "Dread(handle = %d, entry = ptr);\r\n",
 	                          handle);
@@ -339,11 +339,11 @@ int32 CIoman::Dread(uint32 handle, DIRENTRY* dirEntry)
 
 	auto itemPath = directory->path();
 	auto name = itemPath.leaf().string();
-	strncpy(dirEntry->name, name.c_str(), DIRENTRY::NAME_SIZE);
-	dirEntry->name[DIRENTRY::NAME_SIZE - 1] = 0;
+	strncpy(dirEntry->name, name.c_str(), Ioman::DIRENTRY::NAME_SIZE);
+	dirEntry->name[Ioman::DIRENTRY::NAME_SIZE - 1] = 0;
 
 	auto& stat = dirEntry->stat;
-	memset(&stat, 0, sizeof(STAT));
+	memset(&stat, 0, sizeof(Ioman::STAT));
 	if(boost::filesystem::is_directory(itemPath))
 	{
 		stat.mode = STAT_MODE_DIR;
@@ -361,7 +361,7 @@ int32 CIoman::Dread(uint32 handle, DIRENTRY* dirEntry)
 	return strlen(dirEntry->name);
 }
 
-uint32 CIoman::GetStat(const char* path, STAT* stat)
+uint32 CIoman::GetStat(const char* path, Ioman::STAT* stat)
 {
 	CLog::GetInstance().Print(LOG_NAME, "GetStat(path = '%s', stat = ptr);\r\n", path);
 
@@ -372,7 +372,7 @@ uint32 CIoman::GetStat(const char* path, STAT* stat)
 		{
 			uint32 size = Seek(fd, 0, SEEK_DIR_END);
 			Close(fd);
-			memset(stat, 0, sizeof(STAT));
+			memset(stat, 0, sizeof(Ioman::STAT));
 			stat->mode = STAT_MODE_FILE;
 			stat->loSize = size;
 			return 0;
@@ -385,7 +385,7 @@ uint32 CIoman::GetStat(const char* path, STAT* stat)
 		if(fd >= 0)
 		{
 			Dclose(fd);
-			memset(stat, 0, sizeof(STAT));
+			memset(stat, 0, sizeof(Ioman::STAT));
 			stat->mode = STAT_MODE_DIR;
 			return 0;
 		}
@@ -464,7 +464,7 @@ void CIoman::Invoke(CMIPS& context, unsigned int functionId)
 	case 16:
 		context.m_State.nGPR[CMIPS::V0].nD0 = static_cast<int32>(GetStat(
 		    reinterpret_cast<char*>(&m_ram[context.m_State.nGPR[CMIPS::A0].nV[0]]),
-		    reinterpret_cast<STAT*>(&m_ram[context.m_State.nGPR[CMIPS::A1].nV[0]])));
+		    reinterpret_cast<Ioman::STAT*>(&m_ram[context.m_State.nGPR[CMIPS::A1].nV[0]])));
 		break;
 	case 20:
 		context.m_State.nGPR[CMIPS::V0].nD0 = static_cast<int32>(AddDrv(

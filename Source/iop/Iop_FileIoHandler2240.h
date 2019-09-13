@@ -3,7 +3,7 @@
 #include <cassert>
 #include <array>
 #include "Iop_FileIo.h"
-#include "Iop_Ioman.h"
+#include "Ioman_Defs.h"
 
 namespace Iop
 {
@@ -190,7 +190,7 @@ namespace Iop
 			REPLYHEADER header;
 			uint32 result;
 			uint32 dstPtr;
-			CIoman::STAT stat;
+			Ioman::STAT stat;
 		};
 
 		struct MOUNTREPLY

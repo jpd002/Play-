@@ -45,11 +45,11 @@ bool CFileIoHandler1000::Invoke(uint32 method, uint32* args, uint32 argsSize, ui
 		break;
 	case 11:
 		assert(retSize == 4);
-		*ret = m_ioman->Dread(args[0], reinterpret_cast<Iop::CIoman::DIRENTRY*>(ram + args[1]));
+		*ret = m_ioman->Dread(args[0], reinterpret_cast<Ioman::DIRENTRY*>(ram + args[1]));
 		break;
 	case 12:
 		assert(retSize == 4);
-		*ret = m_ioman->GetStat(reinterpret_cast<const char*>(&args[1]), reinterpret_cast<Iop::CIoman::STAT*>(ram + args[0]));
+		*ret = m_ioman->GetStat(reinterpret_cast<const char*>(&args[1]), reinterpret_cast<Ioman::STAT*>(ram + args[0]));
 		break;
 	default:
 		CLog::GetInstance().Warn(LOG_NAME, "Unknown function (%d) called.\r\n", method);
