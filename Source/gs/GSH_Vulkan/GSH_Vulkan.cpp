@@ -44,12 +44,14 @@ void CGSH_Vulkan::InitializeImpl()
 void CGSH_Vulkan::ReleaseImpl()
 {
 	ResetImpl();
+	
+	m_commandBufferPool.Reset();
+	m_device.Reset();
 }
 
 void CGSH_Vulkan::ResetImpl()
 {
-	m_commandBufferPool.Reset();
-	m_device.Reset();
+	
 }
 
 void CGSH_Vulkan::FlipImpl()
