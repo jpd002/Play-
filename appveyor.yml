@@ -18,7 +18,8 @@ environment:
     INSTALLER_SCRIPT: installer64.nsi
   - BUILD_TYPE: Visual Studio 15 2017 Win64
     BUILD_PSFAOT: ON
-
+cache:
+  - VulkanSDK.exe -> appveyor.yml
 build_script:
 - cmd: >-
     set REPO_COMMIT_SHORT=%APPVEYOR_REPO_COMMIT:~0,8%
