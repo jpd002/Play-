@@ -16,6 +16,14 @@ void CGSH_VulkanQt::InitializeImpl()
 {
 	m_qtVulkanInstance = new QVulkanInstance();
 	
+#ifdef _DEBUG
+	m_qtVulkanInstance->setLayers(QByteArrayList()
+		<< "VK_LAYER_LUNARG_standard_validation"
+		<< "VK_LAYER_GOOGLE_threading"
+		<< "VK_LAYER_LUNARG_param_checker"
+		<< "VK_LAYER_LUNARG_object_tracker");
+#endif
+
 	bool succeeded = m_qtVulkanInstance->create();
 	Q_ASSERT(succeeded);
 
