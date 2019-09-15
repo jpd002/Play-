@@ -3004,13 +3004,6 @@ void CIopBios::DeleteModules()
 {
 	m_modules.clear();
 
-	m_sifCmd.reset();
-	m_sifMan.reset();
-	m_libsd.reset();
-	m_stdio.reset();
-	m_ioman.reset();
-	m_sysmem.reset();
-	m_modload.reset();
 #ifdef _IOP_EMULATE_MODULES
 	m_padman.reset();
 	m_mtapman.reset();
@@ -3019,6 +3012,13 @@ void CIopBios::DeleteModules()
 	m_fileIo.reset();
 	m_hleModules.clear();
 #endif
+	m_sifCmd.reset();
+	m_sifMan.reset();
+	m_libsd.reset();
+	m_stdio.reset();
+	m_ioman.reset();
+	m_sysmem.reset();
+	m_modload.reset();
 }
 
 int32 CIopBios::LoadHleModule(const Iop::ModulePtr& module)
