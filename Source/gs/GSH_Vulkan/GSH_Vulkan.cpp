@@ -2,6 +2,7 @@
 #include "../GsPixelFormats.h"
 #include "../../Log.h"
 #include "GSH_Vulkan.h"
+#include "vulkan/StructDefs.h"
 
 #define LOG_NAME ("gsh_vulkan")
 
@@ -66,7 +67,7 @@ void CGSH_Vulkan::FlipImpl()
 
 	auto commandBuffer = m_commandBufferPool.AllocateBuffer();
 
-	auto commandBufferBeginInfo = VkCommandBufferBeginInfo{};
+	auto commandBufferBeginInfo = Framework::Vulkan::CommandBufferBeginInfo();
 	commandBufferBeginInfo.flags = VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT;
 	result = m_device.vkBeginCommandBuffer(commandBuffer, &commandBufferBeginInfo);
 	CHECKVULKANERROR(result);
@@ -74,7 +75,7 @@ void CGSH_Vulkan::FlipImpl()
 	m_device.vkEndCommandBuffer(commandBuffer);
 
 	{
-		auto presentInfo = VkPresentInfoKHR{};
+		auto presentInfo = Framework::Vulkan::PresentInfoKHR();
 		presentInfo.swapchainCount     = 1;
 		presentInfo.pSwapchains        = &m_swapChain;
 		presentInfo.pImageIndices      = &imageIndex;
@@ -223,7 +224,7 @@ void CGSH_Vulkan::CreateDevice(VkPhysicalDevice physicalDevice)
 
 	float queuePriorities[] = { 1.0f };
 	
-	auto deviceQueueCreateInfo = VkDeviceQueueCreateInfo{};
+	auto deviceQueueCreateInfo = Framework::Vulkan::DeviceQueueCreateInfo();
 	deviceQueueCreateInfo.flags            = 0;
 	deviceQueueCreateInfo.queueFamilyIndex = 0;
 	deviceQueueCreateInfo.queueCount       = 1;
@@ -234,7 +235,7 @@ void CGSH_Vulkan::CreateDevice(VkPhysicalDevice physicalDevice)
 	
 	std::vector<const char*> enabledLayers;
 	
-	auto deviceCreateInfo = VkDeviceCreateInfo{};
+	auto deviceCreateInfo = Framework::Vulkan::DeviceCreateInfo();
 	deviceCreateInfo.flags                   = 0;
 	deviceCreateInfo.enabledLayerCount       = enabledLayers.size();
 	deviceCreateInfo.ppEnabledLayerNames     = enabledLayers.data();
@@ -255,7 +256,7 @@ void CGSH_Vulkan::CreateSwapChain(VkSurfaceFormatKHR surfaceFormat, VkExtent2D i
 
 	auto result = VK_SUCCESS;
 	
-	auto swapChainCreateInfo = VkSwapchainCreateInfoKHR{};
+	auto swapChainCreateInfo = Framework::Vulkan::SwapchainCreateInfoKHR();
 	swapChainCreateInfo.surface               = m_surface;
 	swapChainCreateInfo.minImageCount         = 3; //Recommended by nVidia in UsingtheVulkanAPI_20160216.pdf
 	swapChainCreateInfo.imageFormat           = surfaceFormat.format;
