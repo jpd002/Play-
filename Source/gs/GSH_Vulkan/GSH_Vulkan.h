@@ -40,6 +40,8 @@ private:
 
 	std::vector<VkPhysicalDevice> GetPhysicalDevices();
 	std::vector<uint32_t> GetRenderQueueFamilies(VkPhysicalDevice);
+	std::vector<VkSurfaceFormatKHR> GetDeviceSurfaceFormats(VkPhysicalDevice);
+
 	void CreateDevice(VkPhysicalDevice);
 	void CreateSwapChain(VkSurfaceFormatKHR, VkExtent2D);
 

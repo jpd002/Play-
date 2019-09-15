@@ -27,18 +27,19 @@ void CGSH_Vulkan::InitializeImpl()
 	assert(!renderQueueFamilies.empty());
 	auto renderQueueFamily = renderQueueFamilies[0];
 
+	auto surfaceFormats = GetDeviceSurfaceFormats(physicalDevice);
+	assert(surfaceFormats.size() > 0);
+	auto surfaceFormat = surfaceFormats[0];
+
 	CreateDevice(physicalDevice);
 	m_device.vkGetDeviceQueue(m_device, renderQueueFamily, 0, &m_queue);
 
 	m_commandBufferPool = Framework::Vulkan::CCommandBufferPool(m_device, renderQueueFamily);
 
-	VkSurfaceFormatKHR format{};
-	format.format = VkFormat::VK_FORMAT_R8G8B8A8_UNORM;
-
 	VkExtent2D extent{};
 	extent.width = 640;
 	extent.height = 480;
-	CreateSwapChain(format, extent);
+	CreateSwapChain(surfaceFormat, extent);
 }
 
 void CGSH_Vulkan::ReleaseImpl()
@@ -186,6 +187,33 @@ std::vector<uint32_t> CGSH_Vulkan::GetRenderQueueFamilies(VkPhysicalDevice physi
 	}
 	
 	return renderQueueFamilies;
+}
+
+std::vector<VkSurfaceFormatKHR> CGSH_Vulkan::GetDeviceSurfaceFormats(VkPhysicalDevice physicalDevice)
+{
+	assert(m_surface != VK_NULL_HANDLE);
+
+	auto result = VK_SUCCESS;
+	
+	uint32_t surfaceFormatCount = 0;
+	result = m_instance.vkGetPhysicalDeviceSurfaceFormatsKHR(physicalDevice, m_surface, &surfaceFormatCount, nullptr);
+	CHECKVULKANERROR(result);
+	
+	CLog::GetInstance().Print(LOG_NAME, "Found %d surface formats.\r\n", surfaceFormatCount);
+
+	std::vector<VkSurfaceFormatKHR> surfaceFormats(surfaceFormatCount);
+	result = m_instance.vkGetPhysicalDeviceSurfaceFormatsKHR(physicalDevice, m_surface, &surfaceFormatCount, surfaceFormats.data());
+	CHECKVULKANERROR(result);
+	
+	for(const auto& surfaceFormat : surfaceFormats)
+	{
+		CLog::GetInstance().Print(LOG_NAME, "Surface Format Info:\r\n");
+		
+		CLog::GetInstance().Print(LOG_NAME, "Format:      %d\r\n", surfaceFormat.format);
+		CLog::GetInstance().Print(LOG_NAME, "Color Space: %d\r\n", surfaceFormat.colorSpace);
+	}
+	
+	return surfaceFormats;
 }
 
 void CGSH_Vulkan::CreateDevice(VkPhysicalDevice physicalDevice)
