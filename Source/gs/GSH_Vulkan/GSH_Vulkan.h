@@ -48,6 +48,7 @@ private:
 	Framework::Vulkan::CDevice m_device;
 	Framework::Vulkan::CCommandBufferPool m_commandBufferPool;
 	VkQueue m_queue = VK_NULL_HANDLE;
+	VkExtent2D m_surfaceExtents;
 	VkSwapchainKHR m_swapChain = VK_NULL_HANDLE;
 	std::vector<VkImage> m_swapChainImages;
 };

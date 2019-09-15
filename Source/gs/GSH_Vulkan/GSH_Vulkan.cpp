@@ -32,15 +32,21 @@ void CGSH_Vulkan::InitializeImpl()
 	assert(surfaceFormats.size() > 0);
 	auto surfaceFormat = surfaceFormats[0];
 
+	{
+		VkSurfaceCapabilitiesKHR surfaceCaps = {};
+		auto result = m_instance.vkGetPhysicalDeviceSurfaceCapabilitiesKHR(physicalDevice, m_surface, &surfaceCaps);
+		CHECKVULKANERROR(result);
+		CLog::GetInstance().Print(LOG_NAME, "Surface Current Extents: %d, %d\r\n", 
+			surfaceCaps.currentExtent.width, surfaceCaps.currentExtent.height);
+		m_surfaceExtents = surfaceCaps.currentExtent;
+	}
+
 	CreateDevice(physicalDevice);
 	m_device.vkGetDeviceQueue(m_device, renderQueueFamily, 0, &m_queue);
 
 	m_commandBufferPool = Framework::Vulkan::CCommandBufferPool(m_device, renderQueueFamily);
 
-	VkExtent2D extent{};
-	extent.width = 640;
-	extent.height = 480;
-	CreateSwapChain(surfaceFormat, extent);
+	CreateSwapChain(surfaceFormat, m_surfaceExtents);
 }
 
 void CGSH_Vulkan::ReleaseImpl()
