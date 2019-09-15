@@ -44,6 +44,19 @@ void CGSH_Vulkan::InitializeImpl()
 	CreateDevice(physicalDevice);
 	m_device.vkGetDeviceQueue(m_device, renderQueueFamily, 0, &m_queue);
 
+	//Create the semaphore that will be used to prevent submit from rendering before getting the image
+	{
+		auto semaphoreCreateInfo = Framework::Vulkan::SemaphoreCreateInfo();
+		auto result = m_device.vkCreateSemaphore(m_device, &semaphoreCreateInfo, nullptr, &m_imageAcquireSemaphore);
+		CHECKVULKANERROR(result);
+	}
+	
+	{
+		auto semaphoreCreateInfo = Framework::Vulkan::SemaphoreCreateInfo();
+		auto result = m_device.vkCreateSemaphore(m_device, &semaphoreCreateInfo, nullptr, &m_renderCompleteSemaphore);
+		CHECKVULKANERROR(result);
+	}
+
 	m_commandBufferPool = Framework::Vulkan::CCommandBufferPool(m_device, renderQueueFamily);
 
 	CreateSwapChain(surfaceFormat, m_surfaceExtents);
@@ -68,25 +81,19 @@ void CGSH_Vulkan::FlipImpl()
 	auto result = VK_SUCCESS;
 
 	uint32_t imageIndex = 0;
-	result = m_device.vkAcquireNextImageKHR(m_device, m_swapChain, UINT64_MAX, VK_NULL_HANDLE, VK_NULL_HANDLE, &imageIndex);
+	result = m_device.vkAcquireNextImageKHR(m_device, m_swapChain, UINT64_MAX, m_imageAcquireSemaphore, VK_NULL_HANDLE, &imageIndex);
 	CHECKVULKANERROR(result);
 
-	auto commandBuffer = m_commandBufferPool.AllocateBuffer();
+	UpdateBackbuffer(imageIndex);
 
-	auto commandBufferBeginInfo = Framework::Vulkan::CommandBufferBeginInfo();
-	commandBufferBeginInfo.flags = VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT;
-	result = m_device.vkBeginCommandBuffer(commandBuffer, &commandBufferBeginInfo);
-	CHECKVULKANERROR(result);
-
-	m_device.vkEndCommandBuffer(commandBuffer);
-
+	//Queue present
 	{
 		auto presentInfo = Framework::Vulkan::PresentInfoKHR();
 		presentInfo.swapchainCount     = 1;
 		presentInfo.pSwapchains        = &m_swapChain;
 		presentInfo.pImageIndices      = &imageIndex;
-//		presentInfo.waitSemaphoreCount = 1;
-//		presentInfo.pWaitSemaphores    = &m_renderCompleteSemaphore;
+		presentInfo.waitSemaphoreCount = 1;
+		presentInfo.pWaitSemaphores    = &m_renderCompleteSemaphore;
 		result = m_device.vkQueuePresentKHR(m_queue, &presentInfo);
 		CHECKVULKANERROR(result);
 	}
@@ -96,6 +103,70 @@ void CGSH_Vulkan::FlipImpl()
 
 	PresentBackbuffer();
 	CGSHandler::FlipImpl();
+}
+
+void CGSH_Vulkan::UpdateBackbuffer(uint32 imageIndex)
+{
+	auto result = VK_SUCCESS;
+
+	auto swapChainImage = m_swapChainImages[imageIndex];
+	//auto framebuffer = m_swapChainFramebuffers[imageIndex];
+
+	auto commandBuffer = m_commandBufferPool.AllocateBuffer();
+
+	auto commandBufferBeginInfo = Framework::Vulkan::CommandBufferBeginInfo();
+	commandBufferBeginInfo.flags = VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT;
+	result = m_device.vkBeginCommandBuffer(commandBuffer, &commandBufferBeginInfo);
+	CHECKVULKANERROR(result);
+
+	//Transition image from present to color attachment
+	{
+		auto imageMemoryBarrier = Framework::Vulkan::ImageMemoryBarrier();
+		imageMemoryBarrier.image               = swapChainImage;
+		imageMemoryBarrier.oldLayout           = VK_IMAGE_LAYOUT_UNDEFINED;
+		//imageMemoryBarrier.srcAccessMask       = VK_ACCESS_MEMORY_READ_BIT;
+		imageMemoryBarrier.newLayout           = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+		imageMemoryBarrier.dstAccessMask       = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+		imageMemoryBarrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+		imageMemoryBarrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+		imageMemoryBarrier.subresourceRange    = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1 };
+		
+		m_device.vkCmdPipelineBarrier(commandBuffer, VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT, VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
+			0, 0, nullptr, 0, nullptr, 1, &imageMemoryBarrier);
+	}
+
+	//Transition image from attachment to present
+	{
+		auto imageMemoryBarrier = Framework::Vulkan::ImageMemoryBarrier();
+		imageMemoryBarrier.image               = swapChainImage;
+		imageMemoryBarrier.oldLayout           = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+		imageMemoryBarrier.srcAccessMask       = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+		imageMemoryBarrier.newLayout           = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+		imageMemoryBarrier.dstAccessMask       = VK_ACCESS_MEMORY_READ_BIT;
+		imageMemoryBarrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+		imageMemoryBarrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+		imageMemoryBarrier.subresourceRange    = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1 };
+		
+		m_device.vkCmdPipelineBarrier(commandBuffer, VK_PIPELINE_STAGE_ALL_GRAPHICS_BIT, VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT,
+			0, 0, nullptr, 0, nullptr, 1, &imageMemoryBarrier);
+	}
+
+	m_device.vkEndCommandBuffer(commandBuffer);
+
+	//Submit command buffer
+	{
+		VkPipelineStageFlags pipelineStageFlags = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+		auto submitInfo = Framework::Vulkan::SubmitInfo();
+		submitInfo.waitSemaphoreCount   = 1;
+		submitInfo.pWaitSemaphores      = &m_imageAcquireSemaphore;
+		submitInfo.pWaitDstStageMask    = &pipelineStageFlags;
+		submitInfo.commandBufferCount   = 1;
+		submitInfo.pCommandBuffers      = &commandBuffer;
+		submitInfo.signalSemaphoreCount = 1;
+		submitInfo.pSignalSemaphores    = &m_renderCompleteSemaphore;
+		result = m_device.vkQueueSubmit(m_queue, 1, &submitInfo, VK_NULL_HANDLE);
+		CHECKVULKANERROR(result);
+	}
 }
 
 void CGSH_Vulkan::LoadState(Framework::CZipArchiveReader& archive)

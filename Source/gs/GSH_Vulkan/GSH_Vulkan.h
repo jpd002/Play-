@@ -37,6 +37,7 @@ protected:
 
 private:
 	virtual void PresentBackbuffer() = 0;
+	void UpdateBackbuffer(uint32);
 
 	std::vector<VkPhysicalDevice> GetPhysicalDevices();
 	std::vector<uint32_t> GetRenderQueueFamilies(VkPhysicalDevice);
@@ -51,4 +52,6 @@ private:
 	VkExtent2D m_surfaceExtents;
 	VkSwapchainKHR m_swapChain = VK_NULL_HANDLE;
 	std::vector<VkImage> m_swapChainImages;
+	VkSemaphore m_imageAcquireSemaphore = VK_NULL_HANDLE;
+	VkSemaphore m_renderCompleteSemaphore = VK_NULL_HANDLE;
 };
