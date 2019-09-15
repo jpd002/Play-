@@ -2618,6 +2618,11 @@ uint32 CIopBios::GetVplFreeSize(uint32 vplId)
 	return freeSize;
 }
 
+Iop::CSysmem* CIopBios::GetSysmem()
+{
+	return m_sysmem.get();
+}
+
 Iop::CIoman* CIopBios::GetIoman()
 {
 	return m_ioman.get();

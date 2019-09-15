@@ -173,6 +173,7 @@ public:
 
 	bool IsIdle() override;
 
+	Iop::CSysmem* GetSysmem();
 	Iop::CIoman* GetIoman();
 	Iop::CCdvdman* GetCdvdman();
 	Iop::CLoadcore* GetLoadcore();
