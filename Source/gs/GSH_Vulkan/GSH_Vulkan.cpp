@@ -46,6 +46,7 @@ void CGSH_Vulkan::ReleaseImpl()
 {
 	ResetImpl();
 	
+	m_device.vkDestroySwapchainKHR(m_device, m_swapChain, nullptr);
 	m_commandBufferPool.Reset();
 	m_device.Reset();
 }
