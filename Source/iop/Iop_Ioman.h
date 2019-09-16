@@ -29,21 +29,6 @@ namespace Iop
 			SEEK_DIR_END = 2
 		};
 
-		class CFile
-		{
-		public:
-			CFile(uint32, CIoman&);
-			CFile(const CFile&) = delete;
-			virtual ~CFile();
-
-			operator uint32();
-			CFile& operator=(const CFile&) = delete;
-
-		private:
-			uint32 m_handle;
-			CIoman& m_ioman;
-		};
-
 		typedef std::shared_ptr<Ioman::CDevice> DevicePtr;
 
 		CIoman(CIopBios&, uint8*);

@@ -780,23 +780,3 @@ void CIoman::LoadState(Framework::CZipArchiveReader& archive)
 	}
 	m_nextFileHandle = maxFileId + 1;
 }
-
-//--------------------------------------------------
-// CFile
-//--------------------------------------------------
-
-CIoman::CFile::CFile(uint32 handle, CIoman& ioman)
-    : m_handle(handle)
-    , m_ioman(ioman)
-{
-}
-
-CIoman::CFile::~CFile()
-{
-	m_ioman.Close(m_handle);
-}
-
-CIoman::CFile::operator uint32()
-{
-	return m_handle;
-}

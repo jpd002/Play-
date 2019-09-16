@@ -226,6 +226,8 @@ set(COMMON_SRC_FILES
 	iop/DirectoryDevice.h
 	iop/Ioman_Defs.h
 	iop/Ioman_Device.h
+	iop/Ioman_ScopedFile.cpp
+	iop/Ioman_ScopedFile.h
 	iop/Iop_Cdvdfsv.cpp
 	iop/Iop_Cdvdfsv.h
 	iop/Iop_Cdvdman.cpp

@@ -35,6 +35,8 @@
 #include "Iop_Vblank.h"
 #include "Iop_Dynamic.h"
 
+#include "Ioman_ScopedFile.h"
+
 #define LOGNAME "iop_bios"
 
 #define STATE_MODULES ("iopbios/dyn_modules.xml")
@@ -602,7 +604,7 @@ int32 CIopBios::LoadModule(const char* path)
 		CLog::GetInstance().Print(LOGNAME, "Tried to load '%s' which couldn't be found.\r\n", path);
 		return -1;
 	}
-	Iop::CIoman::CFile file(handle, *m_ioman);
+	Iop::Ioman::CScopedFile file(handle, *m_ioman);
 	auto stream = m_ioman->GetFileStream(file);
 	CElfFile module(*stream);
 	return LoadModule(module, path);
@@ -835,7 +837,7 @@ bool CIopBios::TryGetImageVersionFromContents(const std::string& imagePath, unsi
 	int32 fd = m_ioman->Open(Iop::Ioman::CDevice::OPEN_FLAG_RDONLY, imagePathStart);
 	if(fd < 0) return false;
 
-	Iop::CIoman::CFile file(fd, *m_ioman);
+	Iop::Ioman::CScopedFile file(fd, *m_ioman);
 	auto stream = m_ioman->GetFileStream(file);
 	while(1)
 	{
