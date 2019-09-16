@@ -51,7 +51,7 @@ std::string CFileIo::GetFunctionName(unsigned int) const
 //IOP Invoke
 void CFileIo::Invoke(CMIPS& context, unsigned int functionId)
 {
-	throw std::exception();
+	m_handler->Invoke(context, functionId);
 }
 
 //SIF Invoke
@@ -88,4 +88,9 @@ void CFileIo::ProcessCommands(Iop::CSifMan* sifMan)
 CFileIo::CHandler::CHandler(CIoman* ioman)
     : m_ioman(ioman)
 {
+}
+
+void CFileIo::CHandler::Invoke(CMIPS&, uint32)
+{
+	throw std::exception();
 }
