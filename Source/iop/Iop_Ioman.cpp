@@ -7,6 +7,7 @@
 #include "std_experimental_map.h"
 
 #include "Iop_Ioman.h"
+#include "IopBios.h"
 #include "../AppConfig.h"
 #include "../Log.h"
 #include "../states/XmlStateFile.h"
@@ -60,8 +61,9 @@ static PATHINFO SplitPath(const char* path)
 	return result;
 }
 
-CIoman::CIoman(uint8* ram)
-    : m_ram(ram)
+CIoman::CIoman(CIopBios& bios, uint8* ram)
+    : m_bios(bios)
+    , m_ram(ram)
     , m_nextFileHandle(3)
 {
 	CAppConfig::GetInstance().RegisterPreferenceBoolean(PREF_IOP_FILEIO_STDLOGGING, false);

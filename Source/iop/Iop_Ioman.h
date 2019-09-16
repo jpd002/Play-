@@ -9,6 +9,8 @@
 #include "zip/ZipArchiveWriter.h"
 #include "zip/ZipArchiveReader.h"
 
+class CIopBios;
+
 namespace Iop
 {
 	class CIoman : public CModule
@@ -44,7 +46,7 @@ namespace Iop
 
 		typedef std::shared_ptr<Ioman::CDevice> DevicePtr;
 
-		CIoman(uint8*);
+		CIoman(CIopBios&, uint8*);
 		virtual ~CIoman();
 
 		std::string GetId() const override;
@@ -132,6 +134,7 @@ namespace Iop
 		FileMapType m_files;
 		DirectoryMapType m_directories;
 		DeviceMapType m_devices;
+		CIopBios& m_bios;
 		uint8* m_ram;
 		uint32 m_nextFileHandle;
 	};

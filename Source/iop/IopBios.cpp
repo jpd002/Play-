@@ -155,7 +155,7 @@ void CIopBios::Reset(const Iop::SifManPtr& sifMan)
 
 	//Register built-in modules
 	{
-		m_ioman = std::make_shared<Iop::CIoman>(m_ram);
+		m_ioman = std::make_shared<Iop::CIoman>(*this, m_ram);
 		RegisterModule(m_ioman);
 	}
 	{
