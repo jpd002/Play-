@@ -1,16 +1,18 @@
+#include <vector>
+
+#include "string_format.h"
+#include "PtrStream.h"
+#include "xml/FilteringNodeIterator.h"
+#include "lexical_cast_ex.h"
+
 #include "IopBios.h"
 #include "../COP_SCU.h"
 #include "../Log.h"
 #include "../ElfFile.h"
 #include "../Ps2Const.h"
 #include "../MipsExecutor.h"
-#include "PtrStream.h"
 #include "Iop_Intc.h"
-#include "lexical_cast_ex.h"
-#include <vector>
-#include "xml/FilteringNodeIterator.h"
 #include "../states/StructCollectionStateFile.h"
-#include "string_format.h"
 
 #ifdef _IOP_EMULATE_MODULES
 #include "Iop_Cdvdfsv.h"
