@@ -1,13 +1,15 @@
 #include <cstring>
-#include "../AppConfig.h"
-#include "Iop_Ioman.h"
-#include "StdStream.h"
-#include "../states/XmlStateFile.h"
-#include "xml/Utils.h"
-#include "../Log.h"
 #include <stdexcept>
 #include <cctype>
+
+#include "StdStream.h"
+#include "xml/Utils.h"
 #include "std_experimental_map.h"
+
+#include "Iop_Ioman.h"
+#include "../AppConfig.h"
+#include "../Log.h"
+#include "../states/XmlStateFile.h"
 
 using namespace Iop;
 
