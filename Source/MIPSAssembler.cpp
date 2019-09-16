@@ -140,6 +140,12 @@ void CMIPSAssembler::BLTZ(unsigned int rs, uint16 immediate)
 	m_ptr++;
 }
 
+void CMIPSAssembler::BLTZ(unsigned int rs, LABEL label)
+{
+	CreateLabelReference(label);
+	BLTZ(rs, 0);
+}
+
 void CMIPSAssembler::DADDU(unsigned int rd, unsigned int rs, unsigned int rt)
 {
 	(*m_ptr) = (rs << 21) | (rt << 16) | (rd << 11) | (0x2D);

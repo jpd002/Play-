@@ -36,6 +36,7 @@ public:
 	void BNE(unsigned int, unsigned int, LABEL);
 	void BLEZ(unsigned int, uint16);
 	void BLTZ(unsigned int, uint16);
+	void BLTZ(unsigned int, LABEL);
 	void DADDU(unsigned int, unsigned int, unsigned int);
 	void DADDIU(unsigned int, unsigned int, uint16);
 	void DSLL(unsigned int, unsigned int, unsigned int);
