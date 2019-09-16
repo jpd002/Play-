@@ -67,8 +67,15 @@ namespace Iop
 		int32 Dread(uint32, Ioman::DIRENTRY*);
 		int32 Dclose(uint32);
 		uint32 GetStat(const char*, Ioman::STAT*);
-		uint32 AddDrv(uint32);
 		uint32 DelDrv(uint32);
+
+		//These are to be called from VM code, because they might
+		//execute user device code
+		int32 OpenVirtual(CMIPS&);
+		int32 CloseVirtual(CMIPS&);
+		int32 ReadVirtual(CMIPS&);
+		int32 SeekVirtual(CMIPS&);
+		int32 AddDrv(CMIPS&);
 
 		uint32 GetFileMode(uint32) const;
 
@@ -121,22 +128,35 @@ namespace Iop
 			FileInfo(const FileInfo&) = delete;
 
 			Framework::CStream* stream = nullptr;
+			uint32 descPtr = 0;
 			std::string path;
 			uint32 flags = 0;
 		};
 
-		typedef std::map<uint32, FileInfo> FileMapType;
+		typedef std::map<int32, FileInfo> FileMapType;
 		typedef std::map<uint32, Ioman::Directory> DirectoryMapType;
 		typedef std::map<std::string, DevicePtr> DeviceMapType;
+		typedef std::map<std::string, uint32> UserDeviceMapType;
 
+		void PrepareOpenThunk();
 		Framework::CStream* OpenInternal(uint32, const char*);
+		int32 AllocateFileHandle();
+		void FreeFileHandle(uint32);
+		int32 PreOpen(uint32, const char*);
+
+		void InvokeUserDeviceMethod(CMIPS&, uint32, size_t offset, uint32 arg0 = 0, uint32 arg1 = 0, uint32 arg2 = 0);
+
+		bool IsUserDeviceFileHandle(int32) const;
+		uint32 GetUserDeviceFileDescPtr(int32) const;
 
 		FileMapType m_files;
 		DirectoryMapType m_directories;
 		DeviceMapType m_devices;
+		UserDeviceMapType m_userDevices;
 		CIopBios& m_bios;
 		uint8* m_ram;
 		uint32 m_nextFileHandle;
+		uint32 m_openThunkPtr = 0;
 	};
 
 	typedef std::shared_ptr<CIoman> IomanPtr;

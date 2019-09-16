@@ -96,6 +96,42 @@ CIoman::~CIoman()
 	m_devices.clear();
 }
 
+void CIoman::PrepareOpenThunk()
+{
+	if(m_openThunkPtr != 0) return;
+
+	static const uint32 thunkSize = 0x30;
+	auto sysmem = m_bios.GetSysmem();
+	m_openThunkPtr = sysmem->AllocateMemory(thunkSize, 0, 0);
+
+	static const int16 stackAlloc = 0x10;
+
+	CMIPSAssembler assembler(reinterpret_cast<uint32*>(m_ram + m_openThunkPtr));
+
+	auto finishLabel = assembler.CreateLabel();
+
+	//Save return value (stored in T0)
+	assembler.ADDIU(CMIPS::SP, CMIPS::SP, -stackAlloc);
+	assembler.SW(CMIPS::RA, 0x00, CMIPS::SP);
+
+	//Call open handler
+	assembler.JALR(CMIPS::A3);
+	assembler.SW(CMIPS::T0, 0x04, CMIPS::SP);
+
+	//Check if open handler reported error, if so, leave return value untouched
+	//TODO: Release handle if we failed to open properly
+	assembler.BLTZ(CMIPS::V0, finishLabel);
+	assembler.LW(CMIPS::RA, 0x00, CMIPS::SP);
+
+	assembler.LW(CMIPS::V0, 0x04, CMIPS::SP);
+
+	assembler.MarkLabel(finishLabel);
+	assembler.JR(CMIPS::RA);
+	assembler.ADDIU(CMIPS::SP, CMIPS::SP, stackAlloc);
+
+	assert((assembler.GetProgramSize() * 4) <= thunkSize);
+}
+
 std::string CIoman::GetId() const
 {
 	return "ioman";
@@ -141,27 +177,13 @@ uint32 CIoman::Open(uint32 flags, const char* path)
 {
 	CLog::GetInstance().Print(LOG_NAME, "Open(flags = 0x%08X, path = '%s');\r\n", flags, path);
 
-	if(flags == 0)
+	int32 handle = PreOpen(flags, path);
+	if(handle < 0)
 	{
-		//If no flags provided, assume we want to open the file
-		//Required by Capcom Arcade Collection
-		flags = Ioman::CDevice::OPEN_FLAG_RDONLY;
+		return handle;
 	}
 
-	uint32 handle = 0xFFFFFFFF;
-	try
-	{
-		auto stream = OpenInternal(flags, path);
-		handle = m_nextFileHandle++;
-		FileInfo fileInfo(stream);
-		fileInfo.flags = flags;
-		fileInfo.path = path;
-		m_files[handle] = std::move(fileInfo);
-	}
-	catch(const std::exception& except)
-	{
-		CLog::GetInstance().Warn(LOG_NAME, "%s: Error occured while trying to open file : %s\r\n", __FUNCTION__, except.what());
-	}
+	assert(!IsUserDeviceFileHandle(handle));
 	return handle;
 }
 
@@ -186,6 +208,7 @@ uint32 CIoman::Close(uint32 handle)
 	CLog::GetInstance().Print(LOG_NAME, "Close(handle = %d);\r\n", handle);
 
 	uint32 result = 0xFFFFFFFF;
+	assert(!IsUserDeviceFileHandle(handle));
 	try
 	{
 		auto file(m_files.find(handle));
@@ -193,7 +216,7 @@ uint32 CIoman::Close(uint32 handle)
 		{
 			throw std::runtime_error("Invalid file handle.");
 		}
-		m_files.erase(file);
+		FreeFileHandle(handle);
 		//Returns handle instead of 0 (needed by Naruto: Ultimate Ninja 2)
 		result = handle;
 	}
@@ -209,6 +232,7 @@ uint32 CIoman::Read(uint32 handle, uint32 size, void* buffer)
 	CLog::GetInstance().Print(LOG_NAME, "Read(handle = %d, size = 0x%X, buffer = ptr);\r\n", handle, size);
 
 	uint32 result = 0xFFFFFFFF;
+	assert(!IsUserDeviceFileHandle(handle));
 	try
 	{
 		auto stream = GetFileStream(handle);
@@ -233,6 +257,7 @@ uint32 CIoman::Write(uint32 handle, uint32 size, const void* buffer)
 	CLog::GetInstance().Print(LOG_NAME, "Write(handle = %d, size = 0x%X, buffer = ptr);\r\n", handle, size);
 
 	uint32 result = 0xFFFFFFFF;
+	assert(!IsUserDeviceFileHandle(handle));
 	try
 	{
 		auto stream = GetFileStream(handle);
@@ -259,6 +284,7 @@ uint32 CIoman::Seek(uint32 handle, uint32 position, uint32 whence)
 	                          handle, position, whence);
 
 	uint32 result = 0xFFFFFFFF;
+	assert(!IsUserDeviceFileHandle(handle));
 	try
 	{
 		auto stream = GetFileStream(handle);
@@ -398,11 +424,25 @@ uint32 CIoman::GetStat(const char* path, Ioman::STAT* stat)
 	return -1;
 }
 
-uint32 CIoman::AddDrv(uint32 drvPtr)
+int32 CIoman::AddDrv(CMIPS& context)
 {
-	CLog::GetInstance().Print(LOG_NAME, FUNCTION_ADDDRV "(drvPtr = 0x%08X);\r\n",
-	                          drvPtr);
-	return -1;
+	auto devicePtr = context.m_State.nGPR[CMIPS::A0].nV0;
+
+	CLog::GetInstance().Print(LOG_NAME, FUNCTION_ADDDRV "(devicePtr = 0x%08X);\r\n",
+	                          devicePtr);
+
+	auto device = reinterpret_cast<const Ioman::DEVICE*>(m_ram + devicePtr);
+	auto deviceName = device->namePtr ? reinterpret_cast<const char*>(m_ram + device->namePtr) : nullptr;
+	auto deviceDesc = device->descPtr ? reinterpret_cast<const char*>(m_ram + device->descPtr) : nullptr;
+	CLog::GetInstance().Print(LOG_NAME, "Requested registration of device '%s'.\r\n", deviceName);
+	//We only support "cdfs" for now
+	if(!deviceName || strcmp(deviceName, "cdfs"))
+	{
+		return -1;
+	}
+	m_userDevices.insert(std::make_pair(deviceName, devicePtr));
+	InvokeUserDeviceMethod(context, devicePtr, offsetof(Ioman::DEVICEOPS, initPtr), devicePtr);
+	return 0;
 }
 
 uint32 CIoman::DelDrv(uint32 drvNamePtr)
@@ -410,6 +450,220 @@ uint32 CIoman::DelDrv(uint32 drvNamePtr)
 	CLog::GetInstance().Print(LOG_NAME, FUNCTION_DELDRV "(drvNamePtr = %s);\r\n",
 	                          PrintStringParameter(m_ram, drvNamePtr).c_str());
 	return -1;
+}
+
+int32 CIoman::PreOpen(uint32 flags, const char* path)
+{
+	if(flags == 0)
+	{
+		//If no flags provided, assume we want to open the file
+		//Required by Capcom Arcade Collection
+		flags = Ioman::CDevice::OPEN_FLAG_RDONLY;
+	}
+
+	int32 handle = AllocateFileHandle();
+	try
+	{
+		auto& file = m_files[handle];
+		file.path = path;
+		file.flags = flags;
+
+		auto pathInfo = SplitPath(path);
+		auto deviceIterator = m_devices.find(pathInfo.deviceName);
+		auto userDeviceIterator = m_userDevices.find(pathInfo.deviceName);
+		if(deviceIterator != m_devices.end())
+		{
+			file.stream = deviceIterator->second->GetFile(flags, pathInfo.devicePath.c_str());
+			if(!file.stream)
+			{
+				throw std::runtime_error("File not found.");
+			}
+		}
+		else if(userDeviceIterator != m_userDevices.end())
+		{
+			auto sysmem = m_bios.GetSysmem();
+			file.descPtr = sysmem->AllocateMemory(sizeof(Ioman::DEVICEFILE), 0, 0);
+			assert(file.descPtr != 0);
+			auto desc = reinterpret_cast<Ioman::DEVICEFILE*>(m_ram + file.descPtr);
+			desc->devicePtr = userDeviceIterator->second;
+			desc->privateData = 0;
+			desc->unit = 0;
+			desc->mode = flags;
+		}
+		else
+		{
+			throw std::runtime_error("Unknown device.");
+		}
+	}
+	catch(const std::exception& except)
+	{
+		CLog::GetInstance().Warn(LOG_NAME, "%s: Error occured while trying to open file : %s\r\n", __FUNCTION__, except.what());
+		FreeFileHandle(handle);
+		return -1;
+	}
+	return handle;
+}
+
+bool CIoman::IsUserDeviceFileHandle(int32 fileHandle) const
+{
+	return GetUserDeviceFileDescPtr(fileHandle) != 0;
+}
+
+uint32 CIoman::GetUserDeviceFileDescPtr(int32 fileHandle) const
+{
+	auto fileIterator = m_files.find(fileHandle);
+	assert(m_files.find(fileHandle) != m_files.end());
+	const auto& file = fileIterator->second;
+	assert(!((file.descPtr != 0) && file.stream));
+	return file.descPtr;
+}
+
+int32 CIoman::OpenVirtual(CMIPS& context)
+{
+	uint32 pathPtr = context.m_State.nGPR[CMIPS::A0].nV0;
+	uint32 flags = context.m_State.nGPR[CMIPS::A1].nV0;
+
+	auto path = reinterpret_cast<const char*>(m_ram + pathPtr);
+
+	int32 handle = PreOpen(flags, path);
+	if(handle < 0)
+	{
+		//PreOpen failed, bail
+		return handle;
+	}
+
+	if(IsUserDeviceFileHandle(handle))
+	{
+		PrepareOpenThunk();
+
+		auto devicePath = strchr(path, ':');
+		assert(devicePath);
+		auto devicePathPos = static_cast<uint32>(devicePath - path);
+		uint32 descPtr = GetUserDeviceFileDescPtr(handle);
+		auto desc = reinterpret_cast<Ioman::DEVICEFILE*>(m_ram + descPtr);
+		auto device = reinterpret_cast<Ioman::DEVICE*>(m_ram + desc->devicePtr);
+		auto ops = reinterpret_cast<Ioman::DEVICEOPS*>(m_ram + device->opsPtr);
+
+		context.m_State.nPC = m_openThunkPtr;
+		context.m_State.nGPR[CMIPS::A0].nV0 = descPtr;
+		context.m_State.nGPR[CMIPS::A1].nV0 = pathPtr + devicePathPos + 1;
+		context.m_State.nGPR[CMIPS::A2].nV0 = flags;
+		context.m_State.nGPR[CMIPS::A3].nV0 = ops->openPtr;
+		context.m_State.nGPR[CMIPS::T0].nV0 = handle;
+		return 0;
+	}
+
+	return handle;
+}
+
+int32 CIoman::CloseVirtual(CMIPS& context)
+{
+	int32 handle = context.m_State.nGPR[CMIPS::A0].nV0;
+
+	auto fileIterator = m_files.find(handle);
+	if(fileIterator == std::end(m_files))
+	{
+		CLog::GetInstance().Warn(LOG_NAME, "%s : Provided invalid fd %d.\r\n", 
+			__FUNCTION__, handle);
+		return -1;
+	}
+
+	if(IsUserDeviceFileHandle(handle))
+	{
+		//TODO: Free file handle
+		uint32 descPtr = GetUserDeviceFileDescPtr(handle);
+		auto desc = reinterpret_cast<Ioman::DEVICEFILE*>(m_ram + descPtr);
+		InvokeUserDeviceMethod(context, desc->devicePtr,
+			offsetof(Ioman::DEVICEOPS, closePtr),
+			descPtr);
+		return 0;
+	}
+	else
+	{
+		return Close(handle);
+	}
+}
+
+int32 CIoman::ReadVirtual(CMIPS& context)
+{
+	int32 handle = context.m_State.nGPR[CMIPS::A0].nV0;
+	uint32 bufferPtr = context.m_State.nGPR[CMIPS::A1].nV0;
+	uint32 count = context.m_State.nGPR[CMIPS::A2].nV0;
+
+	auto fileIterator = m_files.find(handle);
+	if(fileIterator == std::end(m_files))
+	{
+		CLog::GetInstance().Warn(LOG_NAME, "%s : Provided invalid fd %d.\r\n", 
+			__FUNCTION__, handle);
+		return -1;
+	}
+
+	if(IsUserDeviceFileHandle(handle))
+	{
+		uint32 descPtr = GetUserDeviceFileDescPtr(handle);
+		auto desc = reinterpret_cast<Ioman::DEVICEFILE*>(m_ram + descPtr);
+		InvokeUserDeviceMethod(context, desc->devicePtr,
+			offsetof(Ioman::DEVICEOPS, readPtr),
+			descPtr, bufferPtr, count);
+		return 0;
+	}
+	else
+	{
+		return Read(handle, count, m_ram + bufferPtr);
+	}
+}
+
+int32 CIoman::SeekVirtual(CMIPS& context)
+{
+	int32 handle = context.m_State.nGPR[CMIPS::A0].nV0;
+	uint32 position = context.m_State.nGPR[CMIPS::A1].nV0;
+	uint32 whence = context.m_State.nGPR[CMIPS::A2].nV0;
+
+	auto fileIterator = m_files.find(handle);
+	if(fileIterator == std::end(m_files))
+	{
+		CLog::GetInstance().Warn(LOG_NAME, "%s : Provided invalid fd %d.\r\n", 
+			__FUNCTION__, handle);
+		return -1;
+	}
+
+	if(IsUserDeviceFileHandle(handle))
+	{
+		uint32 descPtr = GetUserDeviceFileDescPtr(handle);
+		auto desc = reinterpret_cast<Ioman::DEVICEFILE*>(m_ram + descPtr);
+		InvokeUserDeviceMethod(context, desc->devicePtr,
+			offsetof(Ioman::DEVICEOPS, lseekPtr),
+			descPtr, position, whence);
+		return 0;
+	}
+	else
+	{
+		return Seek(handle, position, whence);
+	}
+}
+
+void CIoman::InvokeUserDeviceMethod(CMIPS& context, uint32 devicePtr, size_t opOffset, uint32 arg0, uint32 arg1, uint32 arg2)
+{
+	auto device = reinterpret_cast<Ioman::DEVICE*>(m_ram + devicePtr);
+	auto opAddr = *reinterpret_cast<uint32*>(m_ram + device->opsPtr + opOffset);
+	context.m_State.nGPR[CMIPS::A0].nV0 = arg0;
+	context.m_State.nGPR[CMIPS::A1].nV0 = arg1;
+	context.m_State.nGPR[CMIPS::A2].nV0 = arg2;
+	context.m_State.nPC = opAddr;
+}
+
+int32 CIoman::AllocateFileHandle()
+{
+	uint32 handle = m_nextFileHandle++;
+	assert(m_files.find(handle) == std::end(m_files));
+	m_files[handle] = FileInfo();
+	return handle;
+}
+
+void CIoman::FreeFileHandle(uint32 handle)
+{
+	assert(m_files.find(handle) != std::end(m_files));
+	m_files.erase(handle);
 }
 
 uint32 CIoman::GetFileMode(uint32 handle) const
@@ -445,25 +699,16 @@ void CIoman::Invoke(CMIPS& context, unsigned int functionId)
 	switch(functionId)
 	{
 	case 4:
-		context.m_State.nGPR[CMIPS::V0].nD0 = static_cast<int32>(Open(
-		    context.m_State.nGPR[CMIPS::A1].nV[0],
-		    reinterpret_cast<char*>(&m_ram[context.m_State.nGPR[CMIPS::A0].nV[0]])));
+		context.m_State.nGPR[CMIPS::V0].nD0 = static_cast<int32>(OpenVirtual(context));
 		break;
 	case 5:
-		context.m_State.nGPR[CMIPS::V0].nD0 = static_cast<int32>(Close(
-		    context.m_State.nGPR[CMIPS::A0].nV[0]));
+		context.m_State.nGPR[CMIPS::V0].nD0 = static_cast<int32>(CloseVirtual(context));
 		break;
 	case 6:
-		context.m_State.nGPR[CMIPS::V0].nD0 = static_cast<int32>(Read(
-		    context.m_State.nGPR[CMIPS::A0].nV[0],
-		    context.m_State.nGPR[CMIPS::A2].nV[0],
-		    &m_ram[context.m_State.nGPR[CMIPS::A1].nV[0]]));
+		context.m_State.nGPR[CMIPS::V0].nD0 = static_cast<int32>(ReadVirtual(context));
 		break;
 	case 8:
-		context.m_State.nGPR[CMIPS::V0].nD0 = static_cast<int32>(Seek(
-		    context.m_State.nGPR[CMIPS::A0].nV[0],
-		    context.m_State.nGPR[CMIPS::A1].nV[0],
-		    context.m_State.nGPR[CMIPS::A2].nV[0]));
+		context.m_State.nGPR[CMIPS::V0].nD0 = static_cast<int32>(SeekVirtual(context));
 		break;
 	case 16:
 		context.m_State.nGPR[CMIPS::V0].nD0 = static_cast<int32>(GetStat(
@@ -471,8 +716,7 @@ void CIoman::Invoke(CMIPS& context, unsigned int functionId)
 		    reinterpret_cast<Ioman::STAT*>(&m_ram[context.m_State.nGPR[CMIPS::A1].nV[0]])));
 		break;
 	case 20:
-		context.m_State.nGPR[CMIPS::V0].nD0 = static_cast<int32>(AddDrv(
-		    context.m_State.nGPR[CMIPS::A0].nV0));
+		context.m_State.nGPR[CMIPS::V0].nD0 = static_cast<int32>(AddDrv(context));
 		break;
 	case 21:
 		context.m_State.nGPR[CMIPS::V0].nD0 = static_cast<int32>(DelDrv(
