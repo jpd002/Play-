@@ -10,14 +10,18 @@
 #define STATE_VERSION_XML ("iop_fileio/version.xml")
 #define STATE_VERSION_MODULEVERSION ("moduleVersion")
 
+const char* Iop::CFileIo::g_moduleId = "fileio";
+
 using namespace Iop;
 
-CFileIo::CFileIo(CSifMan& sifMan, CIoman& ioman)
-    : m_sifMan(sifMan)
+CFileIo::CFileIo(CIopBios& bios, uint8* ram, CSifMan& sifMan, CIoman& ioman)
+    : m_bios(bios)
+    , m_ram(ram)
+    , m_sifMan(sifMan)
     , m_ioman(ioman)
 {
 	m_sifMan.RegisterModule(SIF_MODULE_ID, this);
-	m_handler = std::make_unique<CFileIoHandler1000>(&m_ioman);
+	m_handler = std::make_unique<CFileIoHandler1000>(m_bios, m_ram, &m_ioman, m_sifMan);
 }
 
 void CFileIo::SetModuleVersion(unsigned int moduleVersion)
@@ -34,13 +38,13 @@ void CFileIo::SetModuleVersion(unsigned int moduleVersion)
 	}
 	else
 	{
-		m_handler = std::make_unique<CFileIoHandler1000>(&m_ioman);
+		m_handler = std::make_unique<CFileIoHandler1000>(m_bios, m_ram, &m_ioman, m_sifMan);
 	}
 }
 
 std::string CFileIo::GetId() const
 {
-	return "fileio";
+	return g_moduleId;
 }
 
 std::string CFileIo::GetFunctionName(unsigned int) const

@@ -5,6 +5,8 @@
 #include "zip/ZipArchiveWriter.h"
 #include "zip/ZipArchiveReader.h"
 
+class CIopBios;
+
 namespace Iop
 {
 	class CIoman;
@@ -35,7 +37,7 @@ namespace Iop
 			SIF_MODULE_ID = 0x80000001
 		};
 
-		CFileIo(CSifMan&, CIoman&);
+		CFileIo(CIopBios&, uint8*, CSifMan&, CIoman&);
 
 		void SetModuleVersion(unsigned int);
 
@@ -49,9 +51,13 @@ namespace Iop
 
 		void ProcessCommands(Iop::CSifMan*);
 
+		static const char* g_moduleId;
+
 	private:
 		typedef std::unique_ptr<CHandler> HandlerPtr;
 
+		CIopBios& m_bios;
+		uint8* m_ram = nullptr;
 		CSifMan& m_sifMan;
 		CIoman& m_ioman;
 		unsigned int m_moduleVersion = 0;

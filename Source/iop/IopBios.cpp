@@ -227,7 +227,7 @@ void CIopBios::Reset(const Iop::SifManPtr& sifMan)
 	}
 #ifdef _IOP_EMULATE_MODULES
 	{
-		m_fileIo = std::make_shared<Iop::CFileIo>(*m_sifMan, *m_ioman);
+		m_fileIo = std::make_shared<Iop::CFileIo>(*this, m_ram, *m_sifMan, *m_ioman);
 		RegisterModule(m_fileIo);
 	}
 	{
