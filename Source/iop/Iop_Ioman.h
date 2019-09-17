@@ -136,6 +136,12 @@ namespace Iop
 		bool IsUserDeviceFileHandle(int32) const;
 		uint32 GetUserDeviceFileDescPtr(int32) const;
 
+		void SaveFilesState(Framework::CZipArchiveWriter&);
+		void SaveUserDevicesState(Framework::CZipArchiveWriter&);
+
+		void LoadFilesState(Framework::CZipArchiveReader&);
+		void LoadUserDevicesState(Framework::CZipArchiveReader&);
+
 		FileMapType m_files;
 		DirectoryMapType m_directories;
 		DeviceMapType m_devices;

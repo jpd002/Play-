@@ -22,6 +22,13 @@ using namespace Iop;
 #define STATE_FILES_FILENODE_IDATTRIBUTE ("Id")
 #define STATE_FILES_FILENODE_PATHATTRIBUTE ("Path")
 #define STATE_FILES_FILENODE_FLAGSATTRIBUTE ("Flags")
+#define STATE_FILES_FILENODE_DESCPTRATTRIBUTE ("DescPtr")
+
+#define STATE_USERDEVICES_FILENAME ("iop_ioman/userdevices.xml")
+#define STATE_USERDEVICES_DEVICESNODE "Devices"
+#define STATE_USERDEVICES_DEVICENODE "Device"
+#define STATE_USERDEVICES_DEVICENODE_NAMEATTRIBUTE ("Name")
+#define STATE_USERDEVICES_DEVICENODE_DESCPTRATTRIBUTE ("DescPtr")
 
 #define PREF_IOP_FILEIO_STDLOGGING ("iop.fileio.stdlogging")
 
@@ -730,6 +737,18 @@ void CIoman::Invoke(CMIPS& context, unsigned int functionId)
 
 void CIoman::SaveState(Framework::CZipArchiveWriter& archive)
 {
+	SaveFilesState(archive);
+	SaveUserDevicesState(archive);
+}
+
+void CIoman::LoadState(Framework::CZipArchiveReader& archive)
+{
+	LoadFilesState(archive);
+	LoadUserDevicesState(archive);
+}
+
+void CIoman::SaveFilesState(Framework::CZipArchiveWriter& archive)
+{
 	auto fileStateFile = new CXmlStateFile(STATE_FILES_FILENAME, STATE_FILES_FILESNODE);
 	auto filesStateNode = fileStateFile->GetRoot();
 
@@ -743,6 +762,7 @@ void CIoman::SaveState(Framework::CZipArchiveWriter& archive)
 		auto fileStateNode = new Framework::Xml::CNode(STATE_FILES_FILENODE, true);
 		fileStateNode->InsertAttribute(Framework::Xml::CreateAttributeIntValue(STATE_FILES_FILENODE_IDATTRIBUTE, filePair.first));
 		fileStateNode->InsertAttribute(Framework::Xml::CreateAttributeIntValue(STATE_FILES_FILENODE_FLAGSATTRIBUTE, file.flags));
+		fileStateNode->InsertAttribute(Framework::Xml::CreateAttributeIntValue(STATE_FILES_FILENODE_DESCPTRATTRIBUTE, file.descPtr));
 		fileStateNode->InsertAttribute(Framework::Xml::CreateAttributeStringValue(STATE_FILES_FILENODE_PATHATTRIBUTE, file.path.c_str()));
 		filesStateNode->InsertNode(fileStateNode);
 	}
@@ -750,7 +770,23 @@ void CIoman::SaveState(Framework::CZipArchiveWriter& archive)
 	archive.InsertFile(fileStateFile);
 }
 
-void CIoman::LoadState(Framework::CZipArchiveReader& archive)
+void CIoman::SaveUserDevicesState(Framework::CZipArchiveWriter& archive)
+{
+	auto deviceStateFile = new CXmlStateFile(STATE_USERDEVICES_FILENAME, STATE_USERDEVICES_DEVICESNODE);
+	auto devicesStateNode = deviceStateFile->GetRoot();
+
+	for(const auto& devicePair : m_userDevices)
+	{
+		auto deviceStateNode = new Framework::Xml::CNode(STATE_USERDEVICES_DEVICENODE, true);
+		deviceStateNode->InsertAttribute(Framework::Xml::CreateAttributeStringValue(STATE_USERDEVICES_DEVICENODE_NAMEATTRIBUTE, devicePair.first.c_str()));
+		deviceStateNode->InsertAttribute(Framework::Xml::CreateAttributeIntValue(STATE_USERDEVICES_DEVICENODE_DESCPTRATTRIBUTE, devicePair.second));
+		devicesStateNode->InsertNode(deviceStateNode);
+	}
+
+	archive.InsertFile(deviceStateFile);
+}
+
+void CIoman::LoadFilesState(Framework::CZipArchiveReader& archive)
 {
 	std::experimental::erase_if(m_files,
 	                            [](const FileMapType::value_type& filePair) {
@@ -760,23 +796,44 @@ void CIoman::LoadState(Framework::CZipArchiveReader& archive)
 	auto fileStateFile = CXmlStateFile(*archive.BeginReadFile(STATE_FILES_FILENAME));
 	auto fileStateNode = fileStateFile.GetRoot();
 
-	int32 maxFileId = 0;
+	int32 maxFileId = FID_STDERR;
 	auto fileNodes = fileStateNode->SelectNodes(STATE_FILES_FILESNODE "/" STATE_FILES_FILENODE);
 	for(auto fileNode : fileNodes)
 	{
-		int32 id = 0, flags = 0;
+		int32 id = 0, flags = 0, descPtr = 0;
 		std::string path;
 		if(!Framework::Xml::GetAttributeIntValue(fileNode, STATE_FILES_FILENODE_IDATTRIBUTE, &id)) break;
 		if(!Framework::Xml::GetAttributeStringValue(fileNode, STATE_FILES_FILENODE_PATHATTRIBUTE, &path)) break;
 		if(!Framework::Xml::GetAttributeIntValue(fileNode, STATE_FILES_FILENODE_FLAGSATTRIBUTE, &flags)) break;
+		if(!Framework::Xml::GetAttributeIntValue(fileNode, STATE_FILES_FILENODE_DESCPTRATTRIBUTE, &descPtr)) break;
 
-		auto stream = OpenInternal(flags, path.c_str());
-		FileInfo fileInfo(stream);
+		FileInfo fileInfo;
 		fileInfo.flags = flags;
 		fileInfo.path = path;
+		fileInfo.descPtr = descPtr;
+		fileInfo.stream = (descPtr == 0) ? OpenInternal(flags, path.c_str()) : nullptr;
 		m_files[id] = std::move(fileInfo);
 
 		maxFileId = std::max(maxFileId, id);
 	}
 	m_nextFileHandle = maxFileId + 1;
+}
+
+void CIoman::LoadUserDevicesState(Framework::CZipArchiveReader& archive)
+{
+	m_userDevices.clear();
+
+	auto deviceStateFile = CXmlStateFile(*archive.BeginReadFile(STATE_USERDEVICES_FILENAME));
+	auto deviceStateNode = deviceStateFile.GetRoot();
+
+	auto deviceNodes = deviceStateNode->SelectNodes(STATE_USERDEVICES_DEVICESNODE "/" STATE_USERDEVICES_DEVICENODE);
+	for(auto deviceNode : deviceNodes)
+	{
+		std::string name;
+		int32 descPtr = 0;
+		if(!Framework::Xml::GetAttributeStringValue(deviceNode, STATE_USERDEVICES_DEVICENODE_NAMEATTRIBUTE, &name)) break;
+		if(!Framework::Xml::GetAttributeIntValue(deviceNode, STATE_USERDEVICES_DEVICENODE_DESCPTRATTRIBUTE, &descPtr)) break;
+
+		m_userDevices[name] = descPtr;
+	}
 }
