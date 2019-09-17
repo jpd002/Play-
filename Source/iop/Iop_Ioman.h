@@ -99,6 +99,7 @@ namespace Iop
 				std::swap(stream, rhs.stream);
 				std::swap(path, rhs.path);
 				std::swap(flags, rhs.flags);
+				std::swap(descPtr, rhs.descPtr);
 			}
 
 			void Reset()
@@ -106,6 +107,7 @@ namespace Iop
 				delete stream;
 				stream = nullptr;
 				flags = 0;
+				descPtr = 0;
 				path.clear();
 			}
 
