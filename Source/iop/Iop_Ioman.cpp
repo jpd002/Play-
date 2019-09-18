@@ -570,8 +570,8 @@ int32 CIoman::CloseVirtual(CMIPS& context)
 	auto fileIterator = m_files.find(handle);
 	if(fileIterator == std::end(m_files))
 	{
-		CLog::GetInstance().Warn(LOG_NAME, "%s : Provided invalid fd %d.\r\n", 
-			__FUNCTION__, handle);
+		CLog::GetInstance().Warn(LOG_NAME, "%s : Provided invalid fd %d.\r\n",
+		                         __FUNCTION__, handle);
 		return -1;
 	}
 
@@ -581,8 +581,8 @@ int32 CIoman::CloseVirtual(CMIPS& context)
 		uint32 descPtr = GetUserDeviceFileDescPtr(handle);
 		auto desc = reinterpret_cast<Ioman::DEVICEFILE*>(m_ram + descPtr);
 		InvokeUserDeviceMethod(context, desc->devicePtr,
-			offsetof(Ioman::DEVICEOPS, closePtr),
-			descPtr);
+		                       offsetof(Ioman::DEVICEOPS, closePtr),
+		                       descPtr);
 		return 0;
 	}
 	else
@@ -600,8 +600,8 @@ int32 CIoman::ReadVirtual(CMIPS& context)
 	auto fileIterator = m_files.find(handle);
 	if(fileIterator == std::end(m_files))
 	{
-		CLog::GetInstance().Warn(LOG_NAME, "%s : Provided invalid fd %d.\r\n", 
-			__FUNCTION__, handle);
+		CLog::GetInstance().Warn(LOG_NAME, "%s : Provided invalid fd %d.\r\n",
+		                         __FUNCTION__, handle);
 		return -1;
 	}
 
@@ -610,8 +610,8 @@ int32 CIoman::ReadVirtual(CMIPS& context)
 		uint32 descPtr = GetUserDeviceFileDescPtr(handle);
 		auto desc = reinterpret_cast<Ioman::DEVICEFILE*>(m_ram + descPtr);
 		InvokeUserDeviceMethod(context, desc->devicePtr,
-			offsetof(Ioman::DEVICEOPS, readPtr),
-			descPtr, bufferPtr, count);
+		                       offsetof(Ioman::DEVICEOPS, readPtr),
+		                       descPtr, bufferPtr, count);
 		return 0;
 	}
 	else
@@ -629,8 +629,8 @@ int32 CIoman::SeekVirtual(CMIPS& context)
 	auto fileIterator = m_files.find(handle);
 	if(fileIterator == std::end(m_files))
 	{
-		CLog::GetInstance().Warn(LOG_NAME, "%s : Provided invalid fd %d.\r\n", 
-			__FUNCTION__, handle);
+		CLog::GetInstance().Warn(LOG_NAME, "%s : Provided invalid fd %d.\r\n",
+		                         __FUNCTION__, handle);
 		return -1;
 	}
 
@@ -639,8 +639,8 @@ int32 CIoman::SeekVirtual(CMIPS& context)
 		uint32 descPtr = GetUserDeviceFileDescPtr(handle);
 		auto desc = reinterpret_cast<Ioman::DEVICEFILE*>(m_ram + descPtr);
 		InvokeUserDeviceMethod(context, desc->devicePtr,
-			offsetof(Ioman::DEVICEOPS, lseekPtr),
-			descPtr, position, whence);
+		                       offsetof(Ioman::DEVICEOPS, lseekPtr),
+		                       descPtr, position, whence);
 		return 0;
 	}
 	else

@@ -24,7 +24,7 @@ CFileIoHandler1000::CFileIoHandler1000(CIopBios& bios, uint8* iopRam, CIoman* io
     : CHandler(ioman)
     , m_bios(bios)
     , m_iopRam(iopRam)
-	, m_sifMan(sifMan)
+    , m_sifMan(sifMan)
 {
 	auto sysmem = m_bios.GetSysmem();
 	m_moduleDataAddr = sysmem->AllocateMemory(sizeof(MODULEDATA), 0, 0);
@@ -108,8 +108,8 @@ void CFileIoHandler1000::LaunchOpenRequest(uint32* args, uint32 argsSize, uint32
 	moduleData->method = METHOD_ID_OPEN;
 	moduleData->resultAddr = static_cast<uint32>(reinterpret_cast<uint8*>(ret) - ram);
 	strncpy(
-		reinterpret_cast<char*>(moduleData->buffer),
-		reinterpret_cast<const char*>(&args[1]), BUFFER_SIZE);
+	    reinterpret_cast<char*>(moduleData->buffer),
+	    reinterpret_cast<const char*>(&args[1]), BUFFER_SIZE);
 	m_bios.TriggerCallback(m_trampolineAddr, m_bufferAddr, args[0]);
 }
 
@@ -206,7 +206,7 @@ void CFileIoHandler1000::FinishRequest(CMIPS& context)
 {
 	int32 result = context.m_State.nGPR[CMIPS::A0].nV0;
 	auto moduleData = reinterpret_cast<MODULEDATA*>(m_iopRam + m_moduleDataAddr);
-	
+
 	uint8* eeRam = nullptr;
 	if(auto sifManPs2 = dynamic_cast<CSifManPs2*>(&m_sifMan))
 	{
