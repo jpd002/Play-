@@ -1169,6 +1169,7 @@ uint32 CIopBios::SetAlarm(uint32 timePtr, uint32 alarmFunction, uint32 param)
 	*reinterpret_cast<uint32*>(m_ram + thread->context.gpr[CMIPS::SP] + 0x08) = delay[0];
 
 	thread->context.gpr[CMIPS::A0] = thread->context.gpr[CMIPS::SP];
+	thread->optionData = alarmFunction;
 
 	//Returns negative value on failure
 	return 0;
@@ -1183,6 +1184,8 @@ uint32 CIopBios::CancelAlarm(uint32 alarmFunction, uint32 param)
 	for(auto thread : m_threads)
 	{
 		if(!thread) continue;
+		if(thread->status == THREAD_STATUS_DORMANT) continue;
+		if(thread->optionData != alarmFunction) continue;
 		if(thread->threadProc == m_alarmThreadProcAddress)
 		{
 			alarmThreadId = thread->id;
