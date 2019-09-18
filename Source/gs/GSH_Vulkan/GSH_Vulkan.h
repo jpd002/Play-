@@ -45,6 +45,9 @@ private:
 
 	void CreateDevice(VkPhysicalDevice);
 	void CreateSwapChain(VkSurfaceFormatKHR, VkExtent2D);
+	void CreateSwapChainImageViews(VkFormat);
+	void CreateSwapChainFramebuffers(VkRenderPass, VkExtent2D);
+	void CreatePresentRenderPass(VkFormat);
 
 	Framework::Vulkan::CDevice m_device;
 	Framework::Vulkan::CCommandBufferPool m_commandBufferPool;
@@ -52,6 +55,11 @@ private:
 	VkExtent2D m_surfaceExtents;
 	VkSwapchainKHR m_swapChain = VK_NULL_HANDLE;
 	std::vector<VkImage> m_swapChainImages;
+	std::vector<VkImageView> m_swapChainImageViews;
+	std::vector<VkFramebuffer> m_swapChainFramebuffers;
 	VkSemaphore m_imageAcquireSemaphore = VK_NULL_HANDLE;
 	VkSemaphore m_renderCompleteSemaphore = VK_NULL_HANDLE;
+
+	//Rendering stuff
+	VkRenderPass m_presentRenderPass;
 };

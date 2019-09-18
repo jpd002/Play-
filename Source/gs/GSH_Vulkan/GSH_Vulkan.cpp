@@ -59,14 +59,32 @@ void CGSH_Vulkan::InitializeImpl()
 
 	m_commandBufferPool = Framework::Vulkan::CCommandBufferPool(m_device, renderQueueFamily);
 
+	CreatePresentRenderPass(surfaceFormat.format);
+
 	CreateSwapChain(surfaceFormat, m_surfaceExtents);
+	CreateSwapChainImageViews(surfaceFormat.format);
+	CreateSwapChainFramebuffers(m_presentRenderPass, m_surfaceExtents);
 }
 
 void CGSH_Vulkan::ReleaseImpl()
 {
 	ResetImpl();
 	
+	//Flush any pending rendering commands
+	m_device.vkQueueWaitIdle(m_queue);
+
+	for(auto swapChainFramebuffer : m_swapChainFramebuffers)
+	{
+		m_device.vkDestroyFramebuffer(m_device, swapChainFramebuffer, nullptr);
+	}
+	for(auto swapChainImageView : m_swapChainImageViews)
+	{
+		m_device.vkDestroyImageView(m_device, swapChainImageView, nullptr);
+	}
 	m_device.vkDestroySwapchainKHR(m_device, m_swapChain, nullptr);
+	m_device.vkDestroyRenderPass(m_device, m_presentRenderPass, nullptr);
+	m_device.vkDestroySemaphore(m_device, m_imageAcquireSemaphore, nullptr);
+	m_device.vkDestroySemaphore(m_device, m_renderCompleteSemaphore, nullptr);
 	m_commandBufferPool.Reset();
 	m_device.Reset();
 }
@@ -110,7 +128,7 @@ void CGSH_Vulkan::UpdateBackbuffer(uint32 imageIndex)
 	auto result = VK_SUCCESS;
 
 	auto swapChainImage = m_swapChainImages[imageIndex];
-	//auto framebuffer = m_swapChainFramebuffers[imageIndex];
+	auto framebuffer = m_swapChainFramebuffers[imageIndex];
 
 	auto commandBuffer = m_commandBufferPool.AllocateBuffer();
 
@@ -134,6 +152,21 @@ void CGSH_Vulkan::UpdateBackbuffer(uint32 imageIndex)
 		m_device.vkCmdPipelineBarrier(commandBuffer, VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT, VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
 			0, 0, nullptr, 0, nullptr, 1, &imageMemoryBarrier);
 	}
+
+	VkClearValue clearValue;
+	clearValue.color = { { 0.5f, 0.5f, 0.5f, 1.0f } };
+
+	//Begin render pass
+	auto renderPassBeginInfo = Framework::Vulkan::RenderPassBeginInfo();
+	renderPassBeginInfo.renderPass               = m_presentRenderPass;
+	renderPassBeginInfo.renderArea.extent        = m_surfaceExtents;
+	renderPassBeginInfo.clearValueCount          = 1;
+	renderPassBeginInfo.pClearValues             = &clearValue;
+	renderPassBeginInfo.framebuffer              = framebuffer;
+
+	m_device.vkCmdBeginRenderPass(commandBuffer, &renderPassBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
+
+	m_device.vkCmdEndRenderPass(commandBuffer);
 
 	//Transition image from attachment to present
 	{
@@ -358,6 +391,86 @@ void CGSH_Vulkan::CreateSwapChain(VkSurfaceFormatKHR surfaceFormat, VkExtent2D i
 	
 	m_swapChainImages.resize(imageCount);
 	result = m_device.vkGetSwapchainImagesKHR(m_device, m_swapChain, &imageCount, m_swapChainImages.data());
+	CHECKVULKANERROR(result);
+}
+
+void CGSH_Vulkan::CreateSwapChainImageViews(VkFormat colorFormat)
+{
+	assert(!m_device.IsEmpty());
+	assert(m_swapChainImageViews.empty());
+	
+	for(const auto& image : m_swapChainImages)
+	{
+		auto imageViewCreateInfo = Framework::Vulkan::ImageViewCreateInfo();
+		imageViewCreateInfo.format     = colorFormat;
+		imageViewCreateInfo.viewType   = VK_IMAGE_VIEW_TYPE_2D;
+		imageViewCreateInfo.image      = image;
+		imageViewCreateInfo.components = 
+		{ 
+			VK_COMPONENT_SWIZZLE_R, VK_COMPONENT_SWIZZLE_G,
+			VK_COMPONENT_SWIZZLE_B, VK_COMPONENT_SWIZZLE_A
+		};
+		imageViewCreateInfo.subresourceRange = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1 };
+		
+		VkImageView imageView = VK_NULL_HANDLE;
+		auto result = m_device.vkCreateImageView(m_device, &imageViewCreateInfo, nullptr, &imageView);
+		CHECKVULKANERROR(result);
+		m_swapChainImageViews.push_back(imageView);
+	}
+}
+
+void CGSH_Vulkan::CreateSwapChainFramebuffers(VkRenderPass renderPass, VkExtent2D size)
+{
+	assert(!m_device.IsEmpty());
+	assert(!m_swapChainImageViews.empty());
+	
+	for(const auto& imageView : m_swapChainImageViews)
+	{
+		auto frameBufferCreateInfo = Framework::Vulkan::FramebufferCreateInfo();
+		frameBufferCreateInfo.renderPass      = renderPass;
+		frameBufferCreateInfo.attachmentCount = 1;
+		frameBufferCreateInfo.pAttachments    = &imageView;
+		frameBufferCreateInfo.width           = size.width;
+		frameBufferCreateInfo.height          = size.height;
+		frameBufferCreateInfo.layers          = 1;
+		
+		VkFramebuffer framebuffer = VK_NULL_HANDLE;
+		auto result = m_device.vkCreateFramebuffer(m_device, &frameBufferCreateInfo, nullptr, &framebuffer);
+		CHECKVULKANERROR(result);
+		m_swapChainFramebuffers.push_back(framebuffer);
+	}
+}
+
+void CGSH_Vulkan::CreatePresentRenderPass(VkFormat colorFormat)
+{
+	assert(!m_device.IsEmpty());
+	
+	auto result = VK_SUCCESS;
+	
+	VkAttachmentDescription colorAttachment = {};
+	colorAttachment.format         = colorFormat;
+	colorAttachment.samples        = VK_SAMPLE_COUNT_1_BIT;
+	colorAttachment.loadOp         = VK_ATTACHMENT_LOAD_OP_CLEAR;
+	colorAttachment.storeOp        = VK_ATTACHMENT_STORE_OP_STORE;
+	colorAttachment.initialLayout  = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+	colorAttachment.finalLayout    = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+	
+	VkAttachmentReference colorRef = {};
+	colorRef.attachment = 0;
+	colorRef.layout     = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+	
+	VkSubpassDescription subpass = {};
+	subpass.pipelineBindPoint       = VK_PIPELINE_BIND_POINT_GRAPHICS;
+	subpass.colorAttachmentCount    = 1;
+	subpass.pColorAttachments       = &colorRef;
+	
+	auto renderPassCreateInfo = Framework::Vulkan::RenderPassCreateInfo();
+	renderPassCreateInfo.attachmentCount = 1;
+	renderPassCreateInfo.pAttachments    = &colorAttachment;
+	renderPassCreateInfo.subpassCount    = 1;
+	renderPassCreateInfo.pSubpasses      = &subpass;
+
+	result = m_device.vkCreateRenderPass(m_device, &renderPassCreateInfo, nullptr, &m_presentRenderPass);
 	CHECKVULKANERROR(result);
 }
 
