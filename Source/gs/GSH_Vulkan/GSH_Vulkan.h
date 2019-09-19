@@ -3,6 +3,7 @@
 #include "vulkan/VulkanDef.h"
 #include "vulkan/Instance.h"
 #include "vulkan/Device.h"
+#include "vulkan/ShaderModule.h"
 #include "vulkan/CommandBufferPool.h"
 #include <vector>
 #include "../GSHandler.h"
@@ -47,7 +48,6 @@ private:
 	void CreateSwapChain(VkSurfaceFormatKHR, VkExtent2D);
 	void CreateSwapChainImageViews(VkFormat);
 	void CreateSwapChainFramebuffers(VkRenderPass, VkExtent2D);
-	void CreatePresentRenderPass(VkFormat);
 
 	Framework::Vulkan::CDevice m_device;
 	Framework::Vulkan::CCommandBufferPool m_commandBufferPool;
@@ -60,6 +60,23 @@ private:
 	VkSemaphore m_imageAcquireSemaphore = VK_NULL_HANDLE;
 	VkSemaphore m_renderCompleteSemaphore = VK_NULL_HANDLE;
 
-	//Rendering stuff
-	VkRenderPass m_presentRenderPass;
+	//Present Stuff
+	struct PRESENT_VERTEX
+	{
+		float x, y;
+	};
+
+	void InitializePresent(VkFormat);
+	void DestroyPresent();
+
+	void CreatePresentRenderPass(VkFormat);
+	void CreatePresentDrawPipeline();
+	void CreatePresentVertexShader();
+	void CreatePresentFragmentShader();
+
+	VkRenderPass m_presentRenderPass = VK_NULL_HANDLE;
+	VkPipelineLayout m_presentDrawPipelineLayout = VK_NULL_HANDLE;
+	VkPipeline m_presentDrawPipeline = VK_NULL_HANDLE;
+	Framework::Vulkan::CShaderModule m_presentVertexShader;
+	Framework::Vulkan::CShaderModule m_presentFragmentShader;
 };

@@ -15,12 +15,21 @@ if(NOT TARGET Framework_Vulkan)
 		${CMAKE_CURRENT_BINARY_DIR}/FrameworkVulkan
 	)
 endif()
-list(APPEND PROJECT_LIBS Framework_Vulkan)
+list(APPEND GSH_VULKAN_PROJECT_LIBS Framework_Vulkan)
+
+if(NOT TARGET Nuanceur)
+	add_subdirectory(
+		${CMAKE_CURRENT_SOURCE_DIR}/../../../deps/Nuanceur/build_cmake
+		${CMAKE_CURRENT_BINARY_DIR}/Nuanceur
+	)
+endif()
+list(APPEND GSH_VULKAN_PROJECT_LIBS Nuanceur)
 
 add_library(gsh_vulkan STATIC
 	GSH_Vulkan.cpp
 	GSH_Vulkan.h
+	GSH_VulkanPresent.cpp
 )
 
-target_link_libraries(gsh_vulkan ${PROJECT_LIBS})
+target_link_libraries(gsh_vulkan Boost::boost ${GSH_VULKAN_PROJECT_LIBS})
 target_include_directories(gsh_vulkan PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/Source/gs/GSH_Vulkan/)
