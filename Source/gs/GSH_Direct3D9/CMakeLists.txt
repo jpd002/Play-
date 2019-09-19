@@ -29,10 +29,10 @@ endif()
 list(APPEND gsh_d3d9_PROJECT_LIBS Framework_Win32)
 
 if(NOT TARGET Nuanceur)
-add_subdirectory(
-	${CMAKE_CURRENT_SOURCE_DIR}/../../../deps/Nuanceur/build_cmake
-	${CMAKE_CURRENT_BINARY_DIR}/Nuanceur
-)
+	add_subdirectory(
+		${CMAKE_CURRENT_SOURCE_DIR}/../../../deps/Nuanceur/build_cmake
+		${CMAKE_CURRENT_BINARY_DIR}/Nuanceur
+	)
 endif()
 list(APPEND gsh_d3d9_PROJECT_LIBS Nuanceur)
 
