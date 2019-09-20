@@ -116,6 +116,7 @@ unsigned int CGsPixelFormats::GetPsmPixelSize(unsigned int psm)
 	switch(psm)
 	{
 	case CGSHandler::PSMCT32:
+	case CGSHandler::PSMCT32_UNK:
 	case CGSHandler::PSMT4HH:
 	case CGSHandler::PSMT4HL:
 	case CGSHandler::PSMT8H:
@@ -148,6 +149,7 @@ std::pair<uint32, uint32> CGsPixelFormats::GetPsmPageSize(unsigned int psm)
 	{
 	case CGSHandler::PSMCT32:
 	case CGSHandler::PSMCT24:
+	case CGSHandler::PSMCT32_UNK:
 	case CGSHandler::PSMCT24_UNK:
 	case CGSHandler::PSMT8H:
 	case CGSHandler::PSMT4HH:

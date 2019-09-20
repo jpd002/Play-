@@ -24,6 +24,7 @@ void CGSH_OpenGL::SetupTextureUpdaters()
 	m_textureUpdater[PSMCT32] = &CGSH_OpenGL::TexUpdater_Psm32;
 	m_textureUpdater[PSMCT24] = &CGSH_OpenGL::TexUpdater_Psm32;
 	m_textureUpdater[PSMCT16] = &CGSH_OpenGL::TexUpdater_Psm16<CGsPixelFormats::CPixelIndexorPSMCT16>;
+	m_textureUpdater[PSMCT32_UNK] = &CGSH_OpenGL::TexUpdater_Psm32;
 	m_textureUpdater[PSMCT24_UNK] = &CGSH_OpenGL::TexUpdater_Psm32;
 	m_textureUpdater[PSMCT16S] = &CGSH_OpenGL::TexUpdater_Psm16<CGsPixelFormats::CPixelIndexorPSMCT16S>;
 	m_textureUpdater[PSMT8] = &CGSH_OpenGL::TexUpdater_Psm48<CGsPixelFormats::CPixelIndexorPSMT8>;
@@ -56,6 +57,7 @@ CGSH_OpenGL::TEXTUREFORMAT_INFO CGSH_OpenGL::GetTextureFormatInfo(uint32 psm)
 	{
 	case PSMCT32:
 	case PSMCT24:
+	case PSMCT32_UNK:
 	case PSMCT24_UNK:
 		return TEXTUREFORMAT_INFO{GL_RGBA8, GL_RGBA, GL_UNSIGNED_BYTE};
 	case PSMCT16:

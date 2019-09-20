@@ -136,6 +136,7 @@ public:
 		PSMT8 = 0x13,
 		PSMT4 = 0x14,
 		PSMT8H = 0x1B,
+		PSMCT32_UNK = 0x20, //Used by movies in LotR: RotK
 		PSMT4HL = 0x24,
 		PSMT4HH = 0x2C,
 		PSMZ32 = 0x30,
