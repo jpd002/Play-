@@ -10,12 +10,12 @@ include(Header)
 project(GSH_OpenGL)
 
 if(NOT TARGET Framework_OpenGl)
-add_subdirectory(
-	${CMAKE_CURRENT_SOURCE_DIR}/../../../deps/Framework/build_cmake/FrameworkOpenGl
-	${CMAKE_CURRENT_BINARY_DIR}/FrameworkOpenGl
-)
+	add_subdirectory(
+		${CMAKE_CURRENT_SOURCE_DIR}/../../../deps/Framework/build_cmake/FrameworkOpenGl
+		${CMAKE_CURRENT_BINARY_DIR}/FrameworkOpenGl
+	)
 endif()
-list(APPEND PROJECT_LIBS Framework_OpenGl)
+list(APPEND GSH_OPENGL_PROJECT_LIBS Framework_OpenGl)
 
 add_library(gsh_opengl STATIC 
 	GSH_OpenGL.cpp
@@ -23,5 +23,5 @@ add_library(gsh_opengl STATIC
 	GSH_OpenGL_Shader.cpp
 	GSH_OpenGL_Texture.cpp
 )
-target_link_libraries(gsh_opengl Boost::boost Framework_OpenGl ${PROJECT_LIBS})
+target_link_libraries(gsh_opengl Boost::boost Framework_OpenGl ${GSH_OPENGL_PROJECT_LIBS})
 target_include_directories(gsh_opengl PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/Source/gs/GSH_OpenGL/)
