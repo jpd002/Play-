@@ -1,14 +1,26 @@
 #include "GSH_Vulkan.h"
 #include "MemStream.h"
 #include "vulkan/StructDefs.h"
+#include "vulkan/Utils.h"
 #include "nuanceur/Builder.h"
 #include "nuanceur/generators/SpirvShaderGenerator.h"
+
+// clang-format off
+const CGSH_Vulkan::PRESENT_VERTEX CGSH_Vulkan::g_presentVertexBufferContents[3] =
+{
+	//Pos         UV
+	{ -1.0f, -1.0f, 0.0f,  1.0f, },
+	{ -1.0f,  3.0f, 0.0f, -1.0f, },
+	{  3.0f, -1.0f, 2.0f,  1.0f, },
+};
+// clang-format on
 
 void CGSH_Vulkan::InitializePresent(VkFormat surfaceFormat)
 {
 	CreatePresentRenderPass(surfaceFormat);
 	CreatePresentVertexShader();
 	CreatePresentFragmentShader();
+	CreatePresentVertexBuffer();
 	CreatePresentDrawPipeline();
 }
 
@@ -16,6 +28,9 @@ void CGSH_Vulkan::DestroyPresent()
 {
 	m_presentVertexShader.Reset();
 	m_presentFragmentShader.Reset();
+	m_device.vkDestroyBuffer(m_device, m_presentVertexBuffer, nullptr);
+	m_device.vkFreeMemory(m_device, m_presentVertexBufferMemory, nullptr);
+	m_device.vkDestroyPipeline(m_device, m_presentDrawPipeline, nullptr);
 	m_device.vkDestroyPipelineLayout(m_device, m_presentDrawPipelineLayout, nullptr);
 	m_device.vkDestroyRenderPass(m_device, m_presentRenderPass, nullptr);
 }
@@ -70,9 +85,24 @@ void CGSH_Vulkan::CreatePresentDrawPipeline()
 	auto inputAssemblyInfo = Framework::Vulkan::PipelineInputAssemblyStateCreateInfo();
 	inputAssemblyInfo.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP;
 	
-	VkVertexInputAttributeDescription positionVertexAttributeDesc = {};
-	positionVertexAttributeDesc.format = VK_FORMAT_R32G32_SFLOAT;
-	
+	std::vector<VkVertexInputAttributeDescription> vertexAttributes;
+
+	{
+		VkVertexInputAttributeDescription positionVertexAttributeDesc = {};
+		positionVertexAttributeDesc.format = VK_FORMAT_R32G32_SFLOAT;
+		positionVertexAttributeDesc.offset = offsetof(PRESENT_VERTEX, x);
+		positionVertexAttributeDesc.location = 0;
+		vertexAttributes.push_back(positionVertexAttributeDesc);
+	}
+
+	{
+		VkVertexInputAttributeDescription texCoordVertexAttributeDesc = {};
+		texCoordVertexAttributeDesc.format = VK_FORMAT_R32G32_SFLOAT;
+		texCoordVertexAttributeDesc.offset = offsetof(PRESENT_VERTEX, u);
+		texCoordVertexAttributeDesc.location = 1;
+		vertexAttributes.push_back(texCoordVertexAttributeDesc);
+	}
+
 	VkVertexInputBindingDescription binding = {};
 	binding.stride    = sizeof(PRESENT_VERTEX);
 	binding.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
@@ -80,8 +110,8 @@ void CGSH_Vulkan::CreatePresentDrawPipeline()
 	auto vertexInputInfo = Framework::Vulkan::PipelineVertexInputStateCreateInfo();
 	vertexInputInfo.vertexBindingDescriptionCount   = 1;
 	vertexInputInfo.pVertexBindingDescriptions      = &binding;
-	vertexInputInfo.vertexAttributeDescriptionCount = 1;
-	vertexInputInfo.pVertexAttributeDescriptions    = &positionVertexAttributeDesc;
+	vertexInputInfo.vertexAttributeDescriptionCount = vertexAttributes.size();
+	vertexInputInfo.pVertexAttributeDescriptions    = vertexAttributes.data();
 
 	auto rasterStateInfo = Framework::Vulkan::PipelineRasterizationStateCreateInfo();
 	rasterStateInfo.polygonMode = VK_POLYGON_MODE_FILL;
@@ -154,7 +184,7 @@ void CGSH_Vulkan::CreatePresentVertexShader()
 	{
 		auto inputPosition = CFloat4Lvalue(b.CreateInput(Nuanceur::SEMANTIC_POSITION));
 		auto outputPosition = CFloat4Lvalue(b.CreateOutput(Nuanceur::SEMANTIC_SYSTEM_POSITION));
-		outputPosition = NewFloat4(b, 0, 0, 0, 1);
+		outputPosition = NewFloat4(inputPosition->xyz(), NewFloat(b, 1.0f));
 	}
 	
 	Framework::CMemStream shaderStream;
@@ -171,11 +201,44 @@ void CGSH_Vulkan::CreatePresentFragmentShader()
 	
 	{
 		auto outputColor = CFloat4Lvalue(b.CreateOutput(Nuanceur::SEMANTIC_SYSTEM_COLOR));
-		outputColor = NewFloat4(b, 0, 1, 0, 1);
+		outputColor = NewFloat4(b, 1, 0, 0, 1);
 	}
 	
 	Framework::CMemStream shaderStream;
 	Nuanceur::CSpirvShaderGenerator::Generate(shaderStream, b, Nuanceur::CSpirvShaderGenerator::SHADER_TYPE_FRAGMENT);
 	shaderStream.Seek(0, Framework::STREAM_SEEK_SET);
 	m_presentFragmentShader = Framework::Vulkan::CShaderModule(m_device, shaderStream);
+}
+
+void CGSH_Vulkan::CreatePresentVertexBuffer()
+{
+	auto result = VK_SUCCESS;
+
+	auto bufferCreateInfo = Framework::Vulkan::BufferCreateInfo();
+	bufferCreateInfo.usage = VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
+	bufferCreateInfo.size  = sizeof(g_presentVertexBufferContents);
+	result = m_device.vkCreateBuffer(m_device, &bufferCreateInfo, nullptr, &m_presentVertexBuffer);
+	CHECKVULKANERROR(result);
+	
+	VkMemoryRequirements memoryRequirements = {};
+	m_device.vkGetBufferMemoryRequirements(m_device, m_presentVertexBuffer, &memoryRequirements);
+
+	auto memoryAllocateInfo = Framework::Vulkan::MemoryAllocateInfo();
+	memoryAllocateInfo.allocationSize = memoryRequirements.size;
+	memoryAllocateInfo.memoryTypeIndex = Framework::Vulkan::GetMemoryTypeIndex(m_physicalDeviceMemoryProperties, memoryRequirements.memoryTypeBits, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
+	assert(memoryAllocateInfo.memoryTypeIndex != Framework::Vulkan::VULKAN_MEMORY_TYPE_INVALID);
+
+	result = m_device.vkAllocateMemory(m_device, &memoryAllocateInfo, nullptr, &m_presentVertexBufferMemory);
+	CHECKVULKANERROR(result);
+	
+	result = m_device.vkBindBufferMemory(m_device, m_presentVertexBuffer, m_presentVertexBufferMemory, 0);
+	CHECKVULKANERROR(result);
+
+	{
+		void* bufferMemoryData = nullptr;
+		result = m_device.vkMapMemory(m_device, m_presentVertexBufferMemory, 0, VK_WHOLE_SIZE, 0, &bufferMemoryData);
+		CHECKVULKANERROR(result);
+		memcpy(bufferMemoryData, g_presentVertexBufferContents, sizeof(g_presentVertexBufferContents));
+		m_device.vkUnmapMemory(m_device, m_presentVertexBufferMemory);
+	}
 }

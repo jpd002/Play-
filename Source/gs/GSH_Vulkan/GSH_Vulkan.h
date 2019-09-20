@@ -51,6 +51,7 @@ private:
 
 	Framework::Vulkan::CDevice m_device;
 	Framework::Vulkan::CCommandBufferPool m_commandBufferPool;
+	VkPhysicalDeviceMemoryProperties m_physicalDeviceMemoryProperties;
 	VkQueue m_queue = VK_NULL_HANDLE;
 	VkExtent2D m_surfaceExtents;
 	VkSwapchainKHR m_swapChain = VK_NULL_HANDLE;
@@ -64,6 +65,7 @@ private:
 	struct PRESENT_VERTEX
 	{
 		float x, y;
+		float u, v;
 	};
 
 	void InitializePresent(VkFormat);
@@ -73,10 +75,15 @@ private:
 	void CreatePresentDrawPipeline();
 	void CreatePresentVertexShader();
 	void CreatePresentFragmentShader();
+	void CreatePresentVertexBuffer();
+
+	static const CGSH_Vulkan::PRESENT_VERTEX CGSH_Vulkan::g_presentVertexBufferContents[3];
 
 	VkRenderPass m_presentRenderPass = VK_NULL_HANDLE;
 	VkPipelineLayout m_presentDrawPipelineLayout = VK_NULL_HANDLE;
 	VkPipeline m_presentDrawPipeline = VK_NULL_HANDLE;
+	VkBuffer m_presentVertexBuffer = VK_NULL_HANDLE;
+	VkDeviceMemory m_presentVertexBufferMemory = VK_NULL_HANDLE;
 	Framework::Vulkan::CShaderModule m_presentVertexShader;
 	Framework::Vulkan::CShaderModule m_presentFragmentShader;
 };

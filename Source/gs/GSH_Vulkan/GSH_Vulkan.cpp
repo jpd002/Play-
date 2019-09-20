@@ -28,6 +28,8 @@ void CGSH_Vulkan::InitializeImpl()
 	assert(!renderQueueFamilies.empty());
 	auto renderQueueFamily = renderQueueFamilies[0];
 
+	m_instance.vkGetPhysicalDeviceMemoryProperties(physicalDevice, &m_physicalDeviceMemoryProperties);
+
 	auto surfaceFormats = GetDeviceSurfaceFormats(physicalDevice);
 	assert(surfaceFormats.size() > 0);
 	auto surfaceFormat = surfaceFormats[0];
@@ -180,7 +182,11 @@ void CGSH_Vulkan::UpdateBackbuffer(uint32 imageIndex)
 	}
 
 	m_device.vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_presentDrawPipeline);
-	m_device.vkCmdDrawIndexed(commandBuffer, 10, 1, 0, 0, 0);
+
+	VkDeviceSize vertexBufferOffset = 0;
+	m_device.vkCmdBindVertexBuffers(commandBuffer, 0, 1, &m_presentVertexBuffer, &vertexBufferOffset);
+
+	m_device.vkCmdDraw(commandBuffer, 3, 1, 0, 0);
 
 	m_device.vkCmdEndRenderPass(commandBuffer);
 
