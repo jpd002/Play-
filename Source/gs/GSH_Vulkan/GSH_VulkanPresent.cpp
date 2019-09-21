@@ -1,12 +1,16 @@
-#include "GSH_Vulkan.h"
+#include "GSH_VulkanPresent.h"
 #include "MemStream.h"
 #include "vulkan/StructDefs.h"
 #include "vulkan/Utils.h"
 #include "nuanceur/Builder.h"
 #include "nuanceur/generators/SpirvShaderGenerator.h"
 
+using namespace GSH_Vulkan;
+
+//Module responsible for presenting frame buffer to surface
+
 // clang-format off
-const CGSH_Vulkan::PRESENT_VERTEX CGSH_Vulkan::g_presentVertexBufferContents[3] =
+const CPresent::PRESENT_VERTEX CPresent::g_vertexBufferContents[3] =
 {
 	//Pos         UV
 	{ -1.0f, -1.0f, 0.0f,  1.0f, },
@@ -15,35 +19,269 @@ const CGSH_Vulkan::PRESENT_VERTEX CGSH_Vulkan::g_presentVertexBufferContents[3] 
 };
 // clang-format on
 
-void CGSH_Vulkan::InitializePresent(VkFormat surfaceFormat)
+CPresent::CPresent(const ContextPtr& context)
+	: m_context(context)
 {
-	CreatePresentRenderPass(surfaceFormat);
-	CreatePresentVertexShader();
-	CreatePresentFragmentShader();
-	CreatePresentVertexBuffer();
-	CreatePresentDrawPipeline();
+	//Create the semaphore that will be used to prevent submit from rendering before getting the image
+	{
+		auto semaphoreCreateInfo = Framework::Vulkan::SemaphoreCreateInfo();
+		auto result = m_context->device.vkCreateSemaphore(m_context->device, &semaphoreCreateInfo, nullptr, &m_imageAcquireSemaphore);
+		CHECKVULKANERROR(result);
+	}
+	
+	{
+		auto semaphoreCreateInfo = Framework::Vulkan::SemaphoreCreateInfo();
+		auto result = m_context->device.vkCreateSemaphore(m_context->device, &semaphoreCreateInfo, nullptr, &m_renderCompleteSemaphore);
+		CHECKVULKANERROR(result);
+	}
+
+	CreateSwapChain();
+	CreateSwapChainImageViews();
+	CreateRenderPass();
+	CreateSwapChainFramebuffers();
+	CreateVertexShader();
+	CreateFragmentShader();
+	CreateVertexBuffer();
+	CreateDrawPipeline();
 }
 
-void CGSH_Vulkan::DestroyPresent()
+CPresent::~CPresent()
 {
-	m_presentVertexShader.Reset();
-	m_presentFragmentShader.Reset();
-	m_device.vkDestroyBuffer(m_device, m_presentVertexBuffer, nullptr);
-	m_device.vkFreeMemory(m_device, m_presentVertexBufferMemory, nullptr);
-	m_device.vkDestroyPipeline(m_device, m_presentDrawPipeline, nullptr);
-	m_device.vkDestroyPipelineLayout(m_device, m_presentDrawPipelineLayout, nullptr);
-	m_device.vkDestroyRenderPass(m_device, m_presentRenderPass, nullptr);
+	m_vertexShader.Reset();
+	m_fragmentShader.Reset();
+	m_context->device.vkDestroyBuffer(m_context->device, m_vertexBuffer, nullptr);
+	m_context->device.vkFreeMemory(m_context->device, m_vertexBufferMemory, nullptr);
+	m_context->device.vkDestroyPipeline(m_context->device, m_drawPipeline, nullptr);
+	m_context->device.vkDestroyPipelineLayout(m_context->device, m_drawPipelineLayout, nullptr);
+	m_context->device.vkDestroyRenderPass(m_context->device, m_renderPass, nullptr);
+	for(auto swapChainFramebuffer : m_swapChainFramebuffers)
+	{
+		m_context->device.vkDestroyFramebuffer(m_context->device, swapChainFramebuffer, nullptr);
+	}
+	for(auto swapChainImageView : m_swapChainImageViews)
+	{
+		m_context->device.vkDestroyImageView(m_context->device, swapChainImageView, nullptr);
+	}
+	m_context->device.vkDestroySwapchainKHR(m_context->device, m_swapChain, nullptr);
+	m_context->device.vkDestroySemaphore(m_context->device, m_imageAcquireSemaphore, nullptr);
+	m_context->device.vkDestroySemaphore(m_context->device, m_renderCompleteSemaphore, nullptr);
 }
 
-void CGSH_Vulkan::CreatePresentRenderPass(VkFormat colorFormat)
+void CPresent::DoPresent()
 {
-	assert(!m_device.IsEmpty());
-	assert(m_presentRenderPass == VK_NULL_HANDLE);
+	auto result = VK_SUCCESS;
+
+	uint32_t imageIndex = 0;
+	result = m_context->device.vkAcquireNextImageKHR(m_context->device, m_swapChain, UINT64_MAX, m_imageAcquireSemaphore, VK_NULL_HANDLE, &imageIndex);
+	CHECKVULKANERROR(result);
+
+	UpdateBackbuffer(imageIndex);
+
+	//Queue present
+	{
+		auto presentInfo = Framework::Vulkan::PresentInfoKHR();
+		presentInfo.swapchainCount     = 1;
+		presentInfo.pSwapchains        = &m_swapChain;
+		presentInfo.pImageIndices      = &imageIndex;
+		presentInfo.waitSemaphoreCount = 1;
+		presentInfo.pWaitSemaphores    = &m_renderCompleteSemaphore;
+		result = m_context->device.vkQueuePresentKHR(m_context->queue, &presentInfo);
+		CHECKVULKANERROR(result);
+	}
+	
+	//result = m_context->device.vkQueueWaitIdle(m_queue);
+	//CHECKVULKANERROR(result);
+}
+
+void CPresent::UpdateBackbuffer(uint32 imageIndex)
+{
+	auto result = VK_SUCCESS;
+
+	auto swapChainImage = m_swapChainImages[imageIndex];
+	auto framebuffer = m_swapChainFramebuffers[imageIndex];
+
+	auto commandBuffer = m_context->commandBufferPool.AllocateBuffer();
+
+	auto commandBufferBeginInfo = Framework::Vulkan::CommandBufferBeginInfo();
+	commandBufferBeginInfo.flags = VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT;
+	result = m_context->device.vkBeginCommandBuffer(commandBuffer, &commandBufferBeginInfo);
+	CHECKVULKANERROR(result);
+
+	//Transition image from present to color attachment
+	{
+		auto imageMemoryBarrier = Framework::Vulkan::ImageMemoryBarrier();
+		imageMemoryBarrier.image               = swapChainImage;
+		imageMemoryBarrier.oldLayout           = VK_IMAGE_LAYOUT_UNDEFINED;
+		//imageMemoryBarrier.srcAccessMask       = VK_ACCESS_MEMORY_READ_BIT;
+		imageMemoryBarrier.newLayout           = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+		imageMemoryBarrier.dstAccessMask       = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+		imageMemoryBarrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+		imageMemoryBarrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+		imageMemoryBarrier.subresourceRange    = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1 };
+		
+		m_context->device.vkCmdPipelineBarrier(commandBuffer, VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT, VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
+			0, 0, nullptr, 0, nullptr, 1, &imageMemoryBarrier);
+	}
+
+	VkClearValue clearValue;
+	clearValue.color = { { 0.5f, 0.5f, 0.5f, 1.0f } };
+
+	//Begin render pass
+	auto renderPassBeginInfo = Framework::Vulkan::RenderPassBeginInfo();
+	renderPassBeginInfo.renderPass               = m_renderPass;
+	renderPassBeginInfo.renderArea.extent        = m_context->surfaceExtents;
+	renderPassBeginInfo.clearValueCount          = 1;
+	renderPassBeginInfo.pClearValues             = &clearValue;
+	renderPassBeginInfo.framebuffer              = framebuffer;
+
+	m_context->device.vkCmdBeginRenderPass(commandBuffer, &renderPassBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
+
+	{
+		VkViewport viewport = {};
+		viewport.width    = m_context->surfaceExtents.width;
+		viewport.height   = m_context->surfaceExtents.height;
+		viewport.maxDepth = 1.0f;
+		m_context->device.vkCmdSetViewport(commandBuffer, 0, 1, &viewport);
+		
+		VkRect2D scissor = {};
+		scissor.extent  = m_context->surfaceExtents;
+		m_context->device.vkCmdSetScissor(commandBuffer, 0, 1, &scissor);
+	}
+
+	m_context->device.vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_drawPipeline);
+
+	VkDeviceSize vertexBufferOffset = 0;
+	m_context->device.vkCmdBindVertexBuffers(commandBuffer, 0, 1, &m_vertexBuffer, &vertexBufferOffset);
+
+	m_context->device.vkCmdDraw(commandBuffer, 3, 1, 0, 0);
+
+	m_context->device.vkCmdEndRenderPass(commandBuffer);
+
+	//Transition image from attachment to present
+	{
+		auto imageMemoryBarrier = Framework::Vulkan::ImageMemoryBarrier();
+		imageMemoryBarrier.image               = swapChainImage;
+		imageMemoryBarrier.oldLayout           = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+		imageMemoryBarrier.srcAccessMask       = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+		imageMemoryBarrier.newLayout           = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+		imageMemoryBarrier.dstAccessMask       = VK_ACCESS_MEMORY_READ_BIT;
+		imageMemoryBarrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+		imageMemoryBarrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+		imageMemoryBarrier.subresourceRange    = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1 };
+		
+		m_context->device.vkCmdPipelineBarrier(commandBuffer, VK_PIPELINE_STAGE_ALL_GRAPHICS_BIT, VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT,
+			0, 0, nullptr, 0, nullptr, 1, &imageMemoryBarrier);
+	}
+
+	m_context->device.vkEndCommandBuffer(commandBuffer);
+
+	//Submit command buffer
+	{
+		VkPipelineStageFlags pipelineStageFlags = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+		auto submitInfo = Framework::Vulkan::SubmitInfo();
+		submitInfo.waitSemaphoreCount   = 1;
+		submitInfo.pWaitSemaphores      = &m_imageAcquireSemaphore;
+		submitInfo.pWaitDstStageMask    = &pipelineStageFlags;
+		submitInfo.commandBufferCount   = 1;
+		submitInfo.pCommandBuffers      = &commandBuffer;
+		submitInfo.signalSemaphoreCount = 1;
+		submitInfo.pSignalSemaphores    = &m_renderCompleteSemaphore;
+		result = m_context->device.vkQueueSubmit(m_context->queue, 1, &submitInfo, VK_NULL_HANDLE);
+		CHECKVULKANERROR(result);
+	}
+}
+
+void CPresent::CreateSwapChain()
+{
+	assert(!m_context->device.IsEmpty());
+	assert(m_swapChain == VK_NULL_HANDLE);
+	assert(m_swapChainImages.empty());
+
+	auto result = VK_SUCCESS;
+	
+	auto swapChainCreateInfo = Framework::Vulkan::SwapchainCreateInfoKHR();
+	swapChainCreateInfo.surface               = m_context->surface;
+	swapChainCreateInfo.minImageCount         = 3; //Recommended by nVidia in UsingtheVulkanAPI_20160216.pdf
+	swapChainCreateInfo.imageFormat           = m_context->surfaceFormat.format;
+	swapChainCreateInfo.imageColorSpace       = m_context->surfaceFormat.colorSpace;
+	swapChainCreateInfo.imageExtent           = m_context->surfaceExtents;
+	swapChainCreateInfo.imageUsage            = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
+	swapChainCreateInfo.preTransform          = VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR;
+	swapChainCreateInfo.imageArrayLayers      = 1;
+	swapChainCreateInfo.imageSharingMode      = VK_SHARING_MODE_EXCLUSIVE;
+	swapChainCreateInfo.queueFamilyIndexCount = 0;
+	swapChainCreateInfo.pQueueFamilyIndices   = nullptr;
+	swapChainCreateInfo.presentMode           = VK_PRESENT_MODE_FIFO_KHR;
+	swapChainCreateInfo.clipped               = VK_TRUE;
+	swapChainCreateInfo.compositeAlpha        = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
+
+	result = m_context->device.vkCreateSwapchainKHR(m_context->device, &swapChainCreateInfo, nullptr, &m_swapChain);
+	CHECKVULKANERROR(result);
+	
+	uint32_t imageCount = 0;
+	result = m_context->device.vkGetSwapchainImagesKHR(m_context->device, m_swapChain, &imageCount, nullptr);
+	CHECKVULKANERROR(result);
+	
+	m_swapChainImages.resize(imageCount);
+	result = m_context->device.vkGetSwapchainImagesKHR(m_context->device, m_swapChain, &imageCount, m_swapChainImages.data());
+	CHECKVULKANERROR(result);
+}
+
+void CPresent::CreateSwapChainImageViews()
+{
+	assert(!m_context->device.IsEmpty());
+	assert(m_swapChainImageViews.empty());
+	
+	for(const auto& image : m_swapChainImages)
+	{
+		auto imageViewCreateInfo = Framework::Vulkan::ImageViewCreateInfo();
+		imageViewCreateInfo.format     = m_context->surfaceFormat.format;
+		imageViewCreateInfo.viewType   = VK_IMAGE_VIEW_TYPE_2D;
+		imageViewCreateInfo.image      = image;
+		imageViewCreateInfo.components = 
+		{ 
+			VK_COMPONENT_SWIZZLE_R, VK_COMPONENT_SWIZZLE_G,
+			VK_COMPONENT_SWIZZLE_B, VK_COMPONENT_SWIZZLE_A
+		};
+		imageViewCreateInfo.subresourceRange = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1 };
+		
+		VkImageView imageView = VK_NULL_HANDLE;
+		auto result = m_context->device.vkCreateImageView(m_context->device, &imageViewCreateInfo, nullptr, &imageView);
+		CHECKVULKANERROR(result);
+		m_swapChainImageViews.push_back(imageView);
+	}
+}
+
+void CPresent::CreateSwapChainFramebuffers()
+{
+	assert(!m_context->device.IsEmpty());
+	assert(!m_swapChainImageViews.empty());
+	
+	for(const auto& imageView : m_swapChainImageViews)
+	{
+		auto frameBufferCreateInfo = Framework::Vulkan::FramebufferCreateInfo();
+		frameBufferCreateInfo.renderPass      = m_renderPass;
+		frameBufferCreateInfo.attachmentCount = 1;
+		frameBufferCreateInfo.pAttachments    = &imageView;
+		frameBufferCreateInfo.width           = m_context->surfaceExtents.width;
+		frameBufferCreateInfo.height          = m_context->surfaceExtents.height;
+		frameBufferCreateInfo.layers          = 1;
+		
+		VkFramebuffer framebuffer = VK_NULL_HANDLE;
+		auto result = m_context->device.vkCreateFramebuffer(m_context->device, &frameBufferCreateInfo, nullptr, &framebuffer);
+		CHECKVULKANERROR(result);
+		m_swapChainFramebuffers.push_back(framebuffer);
+	}
+}
+
+void CPresent::CreateRenderPass()
+{
+	assert(m_renderPass == VK_NULL_HANDLE);
 	
 	auto result = VK_SUCCESS;
 	
 	VkAttachmentDescription colorAttachment = {};
-	colorAttachment.format         = colorFormat;
+	colorAttachment.format         = m_context->surfaceFormat.format;
 	colorAttachment.samples        = VK_SAMPLE_COUNT_1_BIT;
 	colorAttachment.loadOp         = VK_ATTACHMENT_LOAD_OP_CLEAR;
 	colorAttachment.storeOp        = VK_ATTACHMENT_STORE_OP_STORE;
@@ -65,21 +303,21 @@ void CGSH_Vulkan::CreatePresentRenderPass(VkFormat colorFormat)
 	renderPassCreateInfo.subpassCount    = 1;
 	renderPassCreateInfo.pSubpasses      = &subpass;
 
-	result = m_device.vkCreateRenderPass(m_device, &renderPassCreateInfo, nullptr, &m_presentRenderPass);
+	result = m_context->device.vkCreateRenderPass(m_context->device, &renderPassCreateInfo, nullptr, &m_renderPass);
 	CHECKVULKANERROR(result);
 }
 
-void CGSH_Vulkan::CreatePresentDrawPipeline()
+void CPresent::CreateDrawPipeline()
 {
-	//assert(!m_vertexShaderModule.IsEmpty());
-	//assert(!m_fragmentShaderModule.IsEmpty());
-	assert(m_presentDrawPipeline == VK_NULL_HANDLE);
-	assert(m_presentDrawPipelineLayout == VK_NULL_HANDLE);
+	assert(!m_vertexShader.IsEmpty());
+	assert(!m_fragmentShader.IsEmpty());
+	assert(m_drawPipeline == VK_NULL_HANDLE);
+	assert(m_drawPipelineLayout == VK_NULL_HANDLE);
 
 	auto result = VK_SUCCESS;
 
 	auto pipelineLayoutCreateInfo = Framework::Vulkan::PipelineLayoutCreateInfo();
-	result = m_device.vkCreatePipelineLayout(m_device, &pipelineLayoutCreateInfo, nullptr, &m_presentDrawPipelineLayout);
+	result = m_context->device.vkCreatePipelineLayout(m_context->device, &pipelineLayoutCreateInfo, nullptr, &m_drawPipelineLayout);
 	CHECKVULKANERROR(result);
 	
 	auto inputAssemblyInfo = Framework::Vulkan::PipelineInputAssemblyStateCreateInfo();
@@ -151,10 +389,10 @@ void CGSH_Vulkan::CreatePresentDrawPipeline()
 	};
 	
 	shaderStages[0].stage  = VK_SHADER_STAGE_VERTEX_BIT;
-	shaderStages[0].module = m_presentVertexShader;
+	shaderStages[0].module = m_vertexShader;
 	shaderStages[0].pName  = "main";
 	shaderStages[1].stage  = VK_SHADER_STAGE_FRAGMENT_BIT;
-	shaderStages[1].module = m_presentFragmentShader;
+	shaderStages[1].module = m_fragmentShader;
 	shaderStages[1].pName  = "main";
 
 	auto pipelineCreateInfo = Framework::Vulkan::GraphicsPipelineCreateInfo();
@@ -168,14 +406,14 @@ void CGSH_Vulkan::CreatePresentDrawPipeline()
 	pipelineCreateInfo.pDepthStencilState  = &depthStencilStateInfo;
 	pipelineCreateInfo.pMultisampleState   = &multisampleStateInfo;
 	pipelineCreateInfo.pDynamicState       = &dynamicStateInfo;
-	pipelineCreateInfo.renderPass          = m_presentRenderPass;
-	pipelineCreateInfo.layout              = m_presentDrawPipelineLayout;
+	pipelineCreateInfo.renderPass          = m_renderPass;
+	pipelineCreateInfo.layout              = m_drawPipelineLayout;
 	
-	result = m_device.vkCreateGraphicsPipelines(m_device, VK_NULL_HANDLE, 1, &pipelineCreateInfo, nullptr, &m_presentDrawPipeline);
+	result = m_context->device.vkCreateGraphicsPipelines(m_context->device, VK_NULL_HANDLE, 1, &pipelineCreateInfo, nullptr, &m_drawPipeline);
 	CHECKVULKANERROR(result);
 }
 
-void CGSH_Vulkan::CreatePresentVertexShader()
+void CPresent::CreateVertexShader()
 {
 	using namespace Nuanceur;
 	
@@ -190,10 +428,10 @@ void CGSH_Vulkan::CreatePresentVertexShader()
 	Framework::CMemStream shaderStream;
 	Nuanceur::CSpirvShaderGenerator::Generate(shaderStream, b, Nuanceur::CSpirvShaderGenerator::SHADER_TYPE_VERTEX);
 	shaderStream.Seek(0, Framework::STREAM_SEEK_SET);
-	m_presentVertexShader = Framework::Vulkan::CShaderModule(m_device, shaderStream);
+	m_vertexShader = Framework::Vulkan::CShaderModule(m_context->device, shaderStream);
 }
 
-void CGSH_Vulkan::CreatePresentFragmentShader()
+void CPresent::CreateFragmentShader()
 {
 	using namespace Nuanceur;
 	
@@ -207,38 +445,38 @@ void CGSH_Vulkan::CreatePresentFragmentShader()
 	Framework::CMemStream shaderStream;
 	Nuanceur::CSpirvShaderGenerator::Generate(shaderStream, b, Nuanceur::CSpirvShaderGenerator::SHADER_TYPE_FRAGMENT);
 	shaderStream.Seek(0, Framework::STREAM_SEEK_SET);
-	m_presentFragmentShader = Framework::Vulkan::CShaderModule(m_device, shaderStream);
+	m_fragmentShader = Framework::Vulkan::CShaderModule(m_context->device, shaderStream);
 }
 
-void CGSH_Vulkan::CreatePresentVertexBuffer()
+void CPresent::CreateVertexBuffer()
 {
 	auto result = VK_SUCCESS;
 
 	auto bufferCreateInfo = Framework::Vulkan::BufferCreateInfo();
 	bufferCreateInfo.usage = VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
-	bufferCreateInfo.size  = sizeof(g_presentVertexBufferContents);
-	result = m_device.vkCreateBuffer(m_device, &bufferCreateInfo, nullptr, &m_presentVertexBuffer);
+	bufferCreateInfo.size  = sizeof(g_vertexBufferContents);
+	result = m_context->device.vkCreateBuffer(m_context->device, &bufferCreateInfo, nullptr, &m_vertexBuffer);
 	CHECKVULKANERROR(result);
 	
 	VkMemoryRequirements memoryRequirements = {};
-	m_device.vkGetBufferMemoryRequirements(m_device, m_presentVertexBuffer, &memoryRequirements);
+	m_context->device.vkGetBufferMemoryRequirements(m_context->device, m_vertexBuffer, &memoryRequirements);
 
 	auto memoryAllocateInfo = Framework::Vulkan::MemoryAllocateInfo();
 	memoryAllocateInfo.allocationSize = memoryRequirements.size;
-	memoryAllocateInfo.memoryTypeIndex = Framework::Vulkan::GetMemoryTypeIndex(m_physicalDeviceMemoryProperties, memoryRequirements.memoryTypeBits, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
+	memoryAllocateInfo.memoryTypeIndex = Framework::Vulkan::GetMemoryTypeIndex(m_context->physicalDeviceMemoryProperties, memoryRequirements.memoryTypeBits, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
 	assert(memoryAllocateInfo.memoryTypeIndex != Framework::Vulkan::VULKAN_MEMORY_TYPE_INVALID);
 
-	result = m_device.vkAllocateMemory(m_device, &memoryAllocateInfo, nullptr, &m_presentVertexBufferMemory);
+	result = m_context->device.vkAllocateMemory(m_context->device, &memoryAllocateInfo, nullptr, &m_vertexBufferMemory);
 	CHECKVULKANERROR(result);
 	
-	result = m_device.vkBindBufferMemory(m_device, m_presentVertexBuffer, m_presentVertexBufferMemory, 0);
+	result = m_context->device.vkBindBufferMemory(m_context->device, m_vertexBuffer, m_vertexBufferMemory, 0);
 	CHECKVULKANERROR(result);
 
 	{
 		void* bufferMemoryData = nullptr;
-		result = m_device.vkMapMemory(m_device, m_presentVertexBufferMemory, 0, VK_WHOLE_SIZE, 0, &bufferMemoryData);
+		result = m_context->device.vkMapMemory(m_context->device, m_vertexBufferMemory, 0, VK_WHOLE_SIZE, 0, &bufferMemoryData);
 		CHECKVULKANERROR(result);
-		memcpy(bufferMemoryData, g_presentVertexBufferContents, sizeof(g_presentVertexBufferContents));
-		m_device.vkUnmapMemory(m_device, m_presentVertexBufferMemory);
+		memcpy(bufferMemoryData, g_vertexBufferContents, sizeof(g_vertexBufferContents));
+		m_context->device.vkUnmapMemory(m_context->device, m_vertexBufferMemory);
 	}
 }

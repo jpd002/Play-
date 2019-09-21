@@ -28,7 +28,9 @@ list(APPEND GSH_VULKAN_PROJECT_LIBS Nuanceur)
 add_library(gsh_vulkan STATIC
 	GSH_Vulkan.cpp
 	GSH_Vulkan.h
+	GSH_VulkanContext.h
 	GSH_VulkanPresent.cpp
+	GSH_VulkanPresent.h
 )
 
 target_link_libraries(gsh_vulkan Boost::boost ${GSH_VULKAN_PROJECT_LIBS})

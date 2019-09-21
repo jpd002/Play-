@@ -6,9 +6,11 @@
 
 #define LOG_NAME ("gsh_vulkan")
 
+using namespace GSH_Vulkan;
+
 CGSH_Vulkan::CGSH_Vulkan()
 {
-
+	m_context = std::make_shared<CContext>();
 }
 
 CGSH_Vulkan::~CGSH_Vulkan()
@@ -28,44 +30,26 @@ void CGSH_Vulkan::InitializeImpl()
 	assert(!renderQueueFamilies.empty());
 	auto renderQueueFamily = renderQueueFamilies[0];
 
-	m_instance.vkGetPhysicalDeviceMemoryProperties(physicalDevice, &m_physicalDeviceMemoryProperties);
+	m_instance.vkGetPhysicalDeviceMemoryProperties(physicalDevice, &m_context->physicalDeviceMemoryProperties);
 
 	auto surfaceFormats = GetDeviceSurfaceFormats(physicalDevice);
 	assert(surfaceFormats.size() > 0);
-	auto surfaceFormat = surfaceFormats[0];
+	m_context->surfaceFormat = surfaceFormats[0];
 
 	{
 		VkSurfaceCapabilitiesKHR surfaceCaps = {};
-		auto result = m_instance.vkGetPhysicalDeviceSurfaceCapabilitiesKHR(physicalDevice, m_surface, &surfaceCaps);
+		auto result = m_instance.vkGetPhysicalDeviceSurfaceCapabilitiesKHR(physicalDevice, m_context->surface, &surfaceCaps);
 		CHECKVULKANERROR(result);
 		CLog::GetInstance().Print(LOG_NAME, "Surface Current Extents: %d, %d\r\n", 
 			surfaceCaps.currentExtent.width, surfaceCaps.currentExtent.height);
-		m_surfaceExtents = surfaceCaps.currentExtent;
+		m_context->surfaceExtents = surfaceCaps.currentExtent;
 	}
 
 	CreateDevice(physicalDevice);
-	m_device.vkGetDeviceQueue(m_device, renderQueueFamily, 0, &m_queue);
+	m_context->device.vkGetDeviceQueue(m_context->device, renderQueueFamily, 0, &m_context->queue);
+	m_context->commandBufferPool = Framework::Vulkan::CCommandBufferPool(m_context->device, renderQueueFamily);
 
-	//Create the semaphore that will be used to prevent submit from rendering before getting the image
-	{
-		auto semaphoreCreateInfo = Framework::Vulkan::SemaphoreCreateInfo();
-		auto result = m_device.vkCreateSemaphore(m_device, &semaphoreCreateInfo, nullptr, &m_imageAcquireSemaphore);
-		CHECKVULKANERROR(result);
-	}
-	
-	{
-		auto semaphoreCreateInfo = Framework::Vulkan::SemaphoreCreateInfo();
-		auto result = m_device.vkCreateSemaphore(m_device, &semaphoreCreateInfo, nullptr, &m_renderCompleteSemaphore);
-		CHECKVULKANERROR(result);
-	}
-
-	m_commandBufferPool = Framework::Vulkan::CCommandBufferPool(m_device, renderQueueFamily);
-
-	CreateSwapChain(surfaceFormat, m_surfaceExtents);
-	CreateSwapChainImageViews(surfaceFormat.format);
-
-	InitializePresent(surfaceFormat.format);
-	CreateSwapChainFramebuffers(m_presentRenderPass, m_surfaceExtents);
+	m_present = std::make_shared<CPresent>(m_context);
 }
 
 void CGSH_Vulkan::ReleaseImpl()
@@ -73,23 +57,12 @@ void CGSH_Vulkan::ReleaseImpl()
 	ResetImpl();
 	
 	//Flush any pending rendering commands
-	m_device.vkQueueWaitIdle(m_queue);
+	m_context->device.vkQueueWaitIdle(m_context->queue);
 
-	for(auto swapChainFramebuffer : m_swapChainFramebuffers)
-	{
-		m_device.vkDestroyFramebuffer(m_device, swapChainFramebuffer, nullptr);
-	}
-	DestroyPresent();
+	m_present.reset();
 
-	for(auto swapChainImageView : m_swapChainImageViews)
-	{
-		m_device.vkDestroyImageView(m_device, swapChainImageView, nullptr);
-	}
-	m_device.vkDestroySwapchainKHR(m_device, m_swapChain, nullptr);
-	m_device.vkDestroySemaphore(m_device, m_imageAcquireSemaphore, nullptr);
-	m_device.vkDestroySemaphore(m_device, m_renderCompleteSemaphore, nullptr);
-	m_commandBufferPool.Reset();
-	m_device.Reset();
+	m_context->commandBufferPool.Reset();
+	m_context->device.Reset();
 }
 
 void CGSH_Vulkan::ResetImpl()
@@ -99,129 +72,9 @@ void CGSH_Vulkan::ResetImpl()
 
 void CGSH_Vulkan::FlipImpl()
 {
-	auto result = VK_SUCCESS;
-
-	uint32_t imageIndex = 0;
-	result = m_device.vkAcquireNextImageKHR(m_device, m_swapChain, UINT64_MAX, m_imageAcquireSemaphore, VK_NULL_HANDLE, &imageIndex);
-	CHECKVULKANERROR(result);
-
-	UpdateBackbuffer(imageIndex);
-
-	//Queue present
-	{
-		auto presentInfo = Framework::Vulkan::PresentInfoKHR();
-		presentInfo.swapchainCount     = 1;
-		presentInfo.pSwapchains        = &m_swapChain;
-		presentInfo.pImageIndices      = &imageIndex;
-		presentInfo.waitSemaphoreCount = 1;
-		presentInfo.pWaitSemaphores    = &m_renderCompleteSemaphore;
-		result = m_device.vkQueuePresentKHR(m_queue, &presentInfo);
-		CHECKVULKANERROR(result);
-	}
-	
-	//result = m_device.vkQueueWaitIdle(m_queue);
-	//CHECKVULKANERROR(result);
-
+	m_present->DoPresent();
 	PresentBackbuffer();
 	CGSHandler::FlipImpl();
-}
-
-void CGSH_Vulkan::UpdateBackbuffer(uint32 imageIndex)
-{
-	auto result = VK_SUCCESS;
-
-	auto swapChainImage = m_swapChainImages[imageIndex];
-	auto framebuffer = m_swapChainFramebuffers[imageIndex];
-
-	auto commandBuffer = m_commandBufferPool.AllocateBuffer();
-
-	auto commandBufferBeginInfo = Framework::Vulkan::CommandBufferBeginInfo();
-	commandBufferBeginInfo.flags = VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT;
-	result = m_device.vkBeginCommandBuffer(commandBuffer, &commandBufferBeginInfo);
-	CHECKVULKANERROR(result);
-
-	//Transition image from present to color attachment
-	{
-		auto imageMemoryBarrier = Framework::Vulkan::ImageMemoryBarrier();
-		imageMemoryBarrier.image               = swapChainImage;
-		imageMemoryBarrier.oldLayout           = VK_IMAGE_LAYOUT_UNDEFINED;
-		//imageMemoryBarrier.srcAccessMask       = VK_ACCESS_MEMORY_READ_BIT;
-		imageMemoryBarrier.newLayout           = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
-		imageMemoryBarrier.dstAccessMask       = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
-		imageMemoryBarrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
-		imageMemoryBarrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
-		imageMemoryBarrier.subresourceRange    = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1 };
-		
-		m_device.vkCmdPipelineBarrier(commandBuffer, VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT, VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
-			0, 0, nullptr, 0, nullptr, 1, &imageMemoryBarrier);
-	}
-
-	VkClearValue clearValue;
-	clearValue.color = { { 0.5f, 0.5f, 0.5f, 1.0f } };
-
-	//Begin render pass
-	auto renderPassBeginInfo = Framework::Vulkan::RenderPassBeginInfo();
-	renderPassBeginInfo.renderPass               = m_presentRenderPass;
-	renderPassBeginInfo.renderArea.extent        = m_surfaceExtents;
-	renderPassBeginInfo.clearValueCount          = 1;
-	renderPassBeginInfo.pClearValues             = &clearValue;
-	renderPassBeginInfo.framebuffer              = framebuffer;
-
-	m_device.vkCmdBeginRenderPass(commandBuffer, &renderPassBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
-
-	{
-		VkViewport viewport = {};
-		viewport.width    = m_surfaceExtents.width;
-		viewport.height   = m_surfaceExtents.height;
-		viewport.maxDepth = 1.0f;
-		m_device.vkCmdSetViewport(commandBuffer, 0, 1, &viewport);
-		
-		VkRect2D scissor = {};
-		scissor.extent  = m_surfaceExtents;
-		m_device.vkCmdSetScissor(commandBuffer, 0, 1, &scissor);
-	}
-
-	m_device.vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_presentDrawPipeline);
-
-	VkDeviceSize vertexBufferOffset = 0;
-	m_device.vkCmdBindVertexBuffers(commandBuffer, 0, 1, &m_presentVertexBuffer, &vertexBufferOffset);
-
-	m_device.vkCmdDraw(commandBuffer, 3, 1, 0, 0);
-
-	m_device.vkCmdEndRenderPass(commandBuffer);
-
-	//Transition image from attachment to present
-	{
-		auto imageMemoryBarrier = Framework::Vulkan::ImageMemoryBarrier();
-		imageMemoryBarrier.image               = swapChainImage;
-		imageMemoryBarrier.oldLayout           = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
-		imageMemoryBarrier.srcAccessMask       = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
-		imageMemoryBarrier.newLayout           = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
-		imageMemoryBarrier.dstAccessMask       = VK_ACCESS_MEMORY_READ_BIT;
-		imageMemoryBarrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
-		imageMemoryBarrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
-		imageMemoryBarrier.subresourceRange    = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1 };
-		
-		m_device.vkCmdPipelineBarrier(commandBuffer, VK_PIPELINE_STAGE_ALL_GRAPHICS_BIT, VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT,
-			0, 0, nullptr, 0, nullptr, 1, &imageMemoryBarrier);
-	}
-
-	m_device.vkEndCommandBuffer(commandBuffer);
-
-	//Submit command buffer
-	{
-		VkPipelineStageFlags pipelineStageFlags = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
-		auto submitInfo = Framework::Vulkan::SubmitInfo();
-		submitInfo.waitSemaphoreCount   = 1;
-		submitInfo.pWaitSemaphores      = &m_imageAcquireSemaphore;
-		submitInfo.pWaitDstStageMask    = &pipelineStageFlags;
-		submitInfo.commandBufferCount   = 1;
-		submitInfo.pCommandBuffers      = &commandBuffer;
-		submitInfo.signalSemaphoreCount = 1;
-		submitInfo.pSignalSemaphores    = &m_renderCompleteSemaphore;
-		result = m_device.vkQueueSubmit(m_queue, 1, &submitInfo, VK_NULL_HANDLE);
-		CHECKVULKANERROR(result);
-	}
 }
 
 void CGSH_Vulkan::LoadState(Framework::CZipArchiveReader& archive)
@@ -268,7 +121,7 @@ std::vector<VkPhysicalDevice> CGSH_Vulkan::GetPhysicalDevices()
 
 std::vector<uint32_t> CGSH_Vulkan::GetRenderQueueFamilies(VkPhysicalDevice physicalDevice)
 {
-	assert(m_surface != VK_NULL_HANDLE);
+	assert(m_context->surface != VK_NULL_HANDLE);
 	
 	auto result = VK_SUCCESS;
 	std::vector<uint32_t> renderQueueFamilies;
@@ -309,7 +162,7 @@ std::vector<uint32_t> CGSH_Vulkan::GetRenderQueueFamilies(VkPhysicalDevice physi
 		}
 		
 		VkBool32 surfaceSupported = VK_FALSE;
-		result = m_instance.vkGetPhysicalDeviceSurfaceSupportKHR(physicalDevice, queueFamilyIndex, m_surface, &surfaceSupported);
+		result = m_instance.vkGetPhysicalDeviceSurfaceSupportKHR(physicalDevice, queueFamilyIndex, m_context->surface, &surfaceSupported);
 		CHECKVULKANERROR(result);
 		
 		CLog::GetInstance().Print(LOG_NAME, "Supports surface: %d\r\n", surfaceSupported);
@@ -325,18 +178,18 @@ std::vector<uint32_t> CGSH_Vulkan::GetRenderQueueFamilies(VkPhysicalDevice physi
 
 std::vector<VkSurfaceFormatKHR> CGSH_Vulkan::GetDeviceSurfaceFormats(VkPhysicalDevice physicalDevice)
 {
-	assert(m_surface != VK_NULL_HANDLE);
+	assert(m_context->surface != VK_NULL_HANDLE);
 
 	auto result = VK_SUCCESS;
 	
 	uint32_t surfaceFormatCount = 0;
-	result = m_instance.vkGetPhysicalDeviceSurfaceFormatsKHR(physicalDevice, m_surface, &surfaceFormatCount, nullptr);
+	result = m_instance.vkGetPhysicalDeviceSurfaceFormatsKHR(physicalDevice, m_context->surface, &surfaceFormatCount, nullptr);
 	CHECKVULKANERROR(result);
 	
 	CLog::GetInstance().Print(LOG_NAME, "Found %d surface formats.\r\n", surfaceFormatCount);
 
 	std::vector<VkSurfaceFormatKHR> surfaceFormats(surfaceFormatCount);
-	result = m_instance.vkGetPhysicalDeviceSurfaceFormatsKHR(physicalDevice, m_surface, &surfaceFormatCount, surfaceFormats.data());
+	result = m_instance.vkGetPhysicalDeviceSurfaceFormatsKHR(physicalDevice, m_context->surface, &surfaceFormatCount, surfaceFormats.data());
 	CHECKVULKANERROR(result);
 	
 	for(const auto& surfaceFormat : surfaceFormats)
@@ -352,7 +205,7 @@ std::vector<VkSurfaceFormatKHR> CGSH_Vulkan::GetDeviceSurfaceFormats(VkPhysicalD
 
 void CGSH_Vulkan::CreateDevice(VkPhysicalDevice physicalDevice)
 {
-	assert(m_device.IsEmpty());
+	assert(m_context->device.IsEmpty());
 
 	float queuePriorities[] = { 1.0f };
 	
@@ -377,90 +230,7 @@ void CGSH_Vulkan::CreateDevice(VkPhysicalDevice physicalDevice)
 	deviceCreateInfo.queueCreateInfoCount    = 1;
 	deviceCreateInfo.pQueueCreateInfos       = &deviceQueueCreateInfo;
 	
-	m_device = Framework::Vulkan::CDevice(m_instance, physicalDevice, deviceCreateInfo);
-}
-
-void CGSH_Vulkan::CreateSwapChain(VkSurfaceFormatKHR surfaceFormat, VkExtent2D imageExtent)
-{
-	assert(!m_device.IsEmpty());
-	assert(m_swapChain == VK_NULL_HANDLE);
-	assert(m_swapChainImages.empty());
-
-	auto result = VK_SUCCESS;
-	
-	auto swapChainCreateInfo = Framework::Vulkan::SwapchainCreateInfoKHR();
-	swapChainCreateInfo.surface               = m_surface;
-	swapChainCreateInfo.minImageCount         = 3; //Recommended by nVidia in UsingtheVulkanAPI_20160216.pdf
-	swapChainCreateInfo.imageFormat           = surfaceFormat.format;
-	swapChainCreateInfo.imageColorSpace       = surfaceFormat.colorSpace;
-	swapChainCreateInfo.imageExtent           = imageExtent;
-	swapChainCreateInfo.imageUsage            = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
-	swapChainCreateInfo.preTransform          = VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR;
-	swapChainCreateInfo.imageArrayLayers      = 1;
-	swapChainCreateInfo.imageSharingMode      = VK_SHARING_MODE_EXCLUSIVE;
-	swapChainCreateInfo.queueFamilyIndexCount = 0;
-	swapChainCreateInfo.pQueueFamilyIndices   = nullptr;
-	swapChainCreateInfo.presentMode           = VK_PRESENT_MODE_FIFO_KHR;
-	swapChainCreateInfo.clipped               = VK_TRUE;
-	swapChainCreateInfo.compositeAlpha        = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
-
-	result = m_device.vkCreateSwapchainKHR(m_device, &swapChainCreateInfo, nullptr, &m_swapChain);
-	CHECKVULKANERROR(result);
-	
-	uint32_t imageCount = 0;
-	result = m_device.vkGetSwapchainImagesKHR(m_device, m_swapChain, &imageCount, nullptr);
-	CHECKVULKANERROR(result);
-	
-	m_swapChainImages.resize(imageCount);
-	result = m_device.vkGetSwapchainImagesKHR(m_device, m_swapChain, &imageCount, m_swapChainImages.data());
-	CHECKVULKANERROR(result);
-}
-
-void CGSH_Vulkan::CreateSwapChainImageViews(VkFormat colorFormat)
-{
-	assert(!m_device.IsEmpty());
-	assert(m_swapChainImageViews.empty());
-	
-	for(const auto& image : m_swapChainImages)
-	{
-		auto imageViewCreateInfo = Framework::Vulkan::ImageViewCreateInfo();
-		imageViewCreateInfo.format     = colorFormat;
-		imageViewCreateInfo.viewType   = VK_IMAGE_VIEW_TYPE_2D;
-		imageViewCreateInfo.image      = image;
-		imageViewCreateInfo.components = 
-		{ 
-			VK_COMPONENT_SWIZZLE_R, VK_COMPONENT_SWIZZLE_G,
-			VK_COMPONENT_SWIZZLE_B, VK_COMPONENT_SWIZZLE_A
-		};
-		imageViewCreateInfo.subresourceRange = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1 };
-		
-		VkImageView imageView = VK_NULL_HANDLE;
-		auto result = m_device.vkCreateImageView(m_device, &imageViewCreateInfo, nullptr, &imageView);
-		CHECKVULKANERROR(result);
-		m_swapChainImageViews.push_back(imageView);
-	}
-}
-
-void CGSH_Vulkan::CreateSwapChainFramebuffers(VkRenderPass renderPass, VkExtent2D size)
-{
-	assert(!m_device.IsEmpty());
-	assert(!m_swapChainImageViews.empty());
-	
-	for(const auto& imageView : m_swapChainImageViews)
-	{
-		auto frameBufferCreateInfo = Framework::Vulkan::FramebufferCreateInfo();
-		frameBufferCreateInfo.renderPass      = renderPass;
-		frameBufferCreateInfo.attachmentCount = 1;
-		frameBufferCreateInfo.pAttachments    = &imageView;
-		frameBufferCreateInfo.width           = size.width;
-		frameBufferCreateInfo.height          = size.height;
-		frameBufferCreateInfo.layers          = 1;
-		
-		VkFramebuffer framebuffer = VK_NULL_HANDLE;
-		auto result = m_device.vkCreateFramebuffer(m_device, &frameBufferCreateInfo, nullptr, &framebuffer);
-		CHECKVULKANERROR(result);
-		m_swapChainFramebuffers.push_back(framebuffer);
-	}
+	m_context->device = Framework::Vulkan::CDevice(m_instance, physicalDevice, deviceCreateInfo);
 }
 
 /////////////////////////////////////////////////////////////
