@@ -513,13 +513,15 @@ int32 CIoman::PreOpen(uint32 flags, const char* path)
 
 bool CIoman::IsUserDeviceFileHandle(int32 fileHandle) const
 {
+	auto fileIterator = m_files.find(fileHandle);
+	if(fileIterator == std::end(m_files)) return false;
 	return GetUserDeviceFileDescPtr(fileHandle) != 0;
 }
 
 uint32 CIoman::GetUserDeviceFileDescPtr(int32 fileHandle) const
 {
 	auto fileIterator = m_files.find(fileHandle);
-	assert(m_files.find(fileHandle) != m_files.end());
+	assert(fileIterator != std::end(m_files));
 	const auto& file = fileIterator->second;
 	assert(!((file.descPtr != 0) && file.stream));
 	return file.descPtr;
