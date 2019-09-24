@@ -49,6 +49,7 @@ void CGSH_Vulkan::InitializeImpl()
 	m_context->device.vkGetDeviceQueue(m_context->device, renderQueueFamily, 0, &m_context->queue);
 	m_context->commandBufferPool = Framework::Vulkan::CCommandBufferPool(m_context->device, renderQueueFamily);
 
+	CreateDescriptorPool();
 	m_present = std::make_shared<CPresent>(m_context);
 }
 
@@ -61,6 +62,7 @@ void CGSH_Vulkan::ReleaseImpl()
 
 	m_present.reset();
 
+	m_context->device.vkDestroyDescriptorPool(m_context->device, m_context->descriptorPool, nullptr);
 	m_context->commandBufferPool.Reset();
 	m_context->device.Reset();
 }
@@ -231,6 +233,21 @@ void CGSH_Vulkan::CreateDevice(VkPhysicalDevice physicalDevice)
 	deviceCreateInfo.pQueueCreateInfos       = &deviceQueueCreateInfo;
 	
 	m_context->device = Framework::Vulkan::CDevice(m_instance, physicalDevice, deviceCreateInfo);
+}
+
+void CGSH_Vulkan::CreateDescriptorPool()
+{
+	VkDescriptorPoolSize descriptorPoolSize = {};
+	descriptorPoolSize.type            = VK_DESCRIPTOR_TYPE_STORAGE_IMAGE;
+	descriptorPoolSize.descriptorCount = 0x1000;
+		
+	auto descriptorPoolCreateInfo = Framework::Vulkan::DescriptorPoolCreateInfo();
+	descriptorPoolCreateInfo.poolSizeCount = 1;
+	descriptorPoolCreateInfo.pPoolSizes    = &descriptorPoolSize;
+	descriptorPoolCreateInfo.maxSets       = 0x1000;
+		
+	auto result = m_context->device.vkCreateDescriptorPool(m_context->device, &descriptorPoolCreateInfo, nullptr, &m_context->descriptorPool);
+	CHECKVULKANERROR(result);
 }
 
 /////////////////////////////////////////////////////////////

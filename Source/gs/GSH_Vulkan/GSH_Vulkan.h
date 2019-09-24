@@ -43,6 +43,7 @@ private:
 	std::vector<VkSurfaceFormatKHR> GetDeviceSurfaceFormats(VkPhysicalDevice);
 
 	void CreateDevice(VkPhysicalDevice);
+	void CreateDescriptorPool();
 
 	GSH_Vulkan::PresentPtr m_present;
 };

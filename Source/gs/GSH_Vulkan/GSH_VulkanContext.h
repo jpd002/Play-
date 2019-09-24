@@ -15,6 +15,7 @@ namespace GSH_Vulkan
 		VkExtent2D surfaceExtents;
 		Framework::Vulkan::CCommandBufferPool commandBufferPool;
 		VkQueue queue = VK_NULL_HANDLE;
+		VkDescriptorPool descriptorPool = VK_NULL_HANDLE;
 		VkPhysicalDeviceMemoryProperties physicalDeviceMemoryProperties;
 	};
 
