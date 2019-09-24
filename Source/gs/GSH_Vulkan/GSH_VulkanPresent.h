@@ -42,6 +42,7 @@ namespace GSH_Vulkan
 		VkSemaphore m_imageAcquireSemaphore = VK_NULL_HANDLE;
 		VkSemaphore m_renderCompleteSemaphore = VK_NULL_HANDLE;
 		VkRenderPass m_renderPass = VK_NULL_HANDLE;
+		VkDescriptorSetLayout m_drawDescriptorSetLayout = VK_NULL_HANDLE;
 		VkPipelineLayout m_drawPipelineLayout = VK_NULL_HANDLE;
 		VkPipeline m_drawPipeline = VK_NULL_HANDLE;
 		VkBuffer m_vertexBuffer = VK_NULL_HANDLE;

@@ -53,6 +53,7 @@ CPresent::~CPresent()
 	m_context->device.vkFreeMemory(m_context->device, m_vertexBufferMemory, nullptr);
 	m_context->device.vkDestroyPipeline(m_context->device, m_drawPipeline, nullptr);
 	m_context->device.vkDestroyPipelineLayout(m_context->device, m_drawPipelineLayout, nullptr);
+	m_context->device.vkDestroyDescriptorSetLayout(m_context->device, m_drawDescriptorSetLayout, nullptr);
 	m_context->device.vkDestroyRenderPass(m_context->device, m_renderPass, nullptr);
 	for(auto swapChainFramebuffer : m_swapChainFramebuffers)
 	{
@@ -313,13 +314,34 @@ void CPresent::CreateDrawPipeline()
 	assert(!m_fragmentShader.IsEmpty());
 	assert(m_drawPipeline == VK_NULL_HANDLE);
 	assert(m_drawPipelineLayout == VK_NULL_HANDLE);
+	assert(m_drawDescriptorSetLayout == VK_NULL_HANDLE);
 
 	auto result = VK_SUCCESS;
 
-	auto pipelineLayoutCreateInfo = Framework::Vulkan::PipelineLayoutCreateInfo();
-	result = m_context->device.vkCreatePipelineLayout(m_context->device, &pipelineLayoutCreateInfo, nullptr, &m_drawPipelineLayout);
-	CHECKVULKANERROR(result);
+	{
+		VkDescriptorSetLayoutBinding setLayoutBinding = {};
+		setLayoutBinding.binding         = 0;
+		setLayoutBinding.descriptorType  = VK_DESCRIPTOR_TYPE_STORAGE_IMAGE;
+		setLayoutBinding.descriptorCount = 1;
+		setLayoutBinding.stageFlags      = VK_SHADER_STAGE_FRAGMENT_BIT;
+
+		auto setLayoutCreateInfo = Framework::Vulkan::DescriptorSetLayoutCreateInfo();
+		setLayoutCreateInfo.bindingCount = 1;
+		setLayoutCreateInfo.pBindings    = &setLayoutBinding;
+		
+		result = m_context->device.vkCreateDescriptorSetLayout(m_context->device, &setLayoutCreateInfo, nullptr, &m_drawDescriptorSetLayout);
+		CHECKVULKANERROR(result);
+	}
 	
+	{
+		auto pipelineLayoutCreateInfo = Framework::Vulkan::PipelineLayoutCreateInfo();
+		pipelineLayoutCreateInfo.setLayoutCount = 1;
+		pipelineLayoutCreateInfo.pSetLayouts    = &m_drawDescriptorSetLayout;
+
+		result = m_context->device.vkCreatePipelineLayout(m_context->device, &pipelineLayoutCreateInfo, nullptr, &m_drawPipelineLayout);
+		CHECKVULKANERROR(result);
+	}
+
 	auto inputAssemblyInfo = Framework::Vulkan::PipelineInputAssemblyStateCreateInfo();
 	inputAssemblyInfo.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP;
 	
