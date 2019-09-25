@@ -355,7 +355,10 @@ void CGSH_Vulkan::InitMemoryImage()
 		result = m_context->device.vkMapMemory(m_context->device, stagingBufferMemoryHandle, 0, dataSize, 0, &memoryPtr);
 		CHECKVULKANERROR(result);
 		
-		memset(memoryPtr, 0xFF, dataSize);
+		for(uint32 i = 0; i < dataSize / 4; i++)
+		{
+			reinterpret_cast<uint32*>(memoryPtr)[i] = 0xC0;
+		}
 		
 		m_context->device.vkUnmapMemory(m_context->device, stagingBufferMemoryHandle);
 	}

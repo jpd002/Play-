@@ -498,10 +498,11 @@ void CPresent::CreateFragmentShader()
 		auto memoryImage = CImageUint2DValue(b.CreateImageUint2D(DESCRIPTOR_LOCATION_MEMORY));
 
 		auto imageColor = Load(memoryImage, NewInt2(b, 0, 0));
-		outputColor = ToFloat(imageColor);
+		outputColor = ToFloat(imageColor) / NewFloat4(b, 255.f, 255.f, 255.f, 255.f);
 	}
 	
 	Framework::CMemStream shaderStream;
+	//Framework::CStdStream shaderStream("frag.spv", "wb");
 	Nuanceur::CSpirvShaderGenerator::Generate(shaderStream, b, Nuanceur::CSpirvShaderGenerator::SHADER_TYPE_FRAGMENT);
 	shaderStream.Seek(0, Framework::STREAM_SEEK_SET);
 	m_fragmentShader = Framework::Vulkan::CShaderModule(m_context->device, shaderStream);
