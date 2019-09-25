@@ -44,6 +44,12 @@ private:
 
 	void CreateDevice(VkPhysicalDevice);
 	void CreateDescriptorPool();
+	void CreateMemoryImage();
+	void InitMemoryImage();
 
 	GSH_Vulkan::PresentPtr m_present;
+
+	//GS memory
+	VkImage m_memoryImage;
+	VkDeviceMemory m_memoryImageMemoryHandle;
 };

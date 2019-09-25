@@ -7,6 +7,8 @@
 
 using namespace GSH_Vulkan;
 
+#define DESCRIPTOR_LOCATION_MEMORY 0
+
 //Module responsible for presenting frame buffer to surface
 
 // clang-format off
@@ -148,6 +150,38 @@ void CPresent::UpdateBackbuffer(uint32 imageIndex)
 		scissor.extent  = m_context->surfaceExtents;
 		m_context->device.vkCmdSetScissor(commandBuffer, 0, 1, &scissor);
 	}
+
+	VkDescriptorSet descriptorSet = VK_NULL_HANDLE;
+	
+	//Allocate descriptor set
+	{
+		auto setAllocateInfo = Framework::Vulkan::DescriptorSetAllocateInfo();
+		setAllocateInfo.descriptorPool     = m_context->descriptorPool;
+		setAllocateInfo.descriptorSetCount = 1;
+		setAllocateInfo.pSetLayouts        = &m_drawDescriptorSetLayout;
+
+		result = m_context->device.vkAllocateDescriptorSets(m_context->device, &setAllocateInfo, &descriptorSet);
+		CHECKVULKANERROR(result);
+	}
+
+	//Update descriptor set
+	{
+		VkDescriptorImageInfo descriptorImageInfo = {};
+		descriptorImageInfo.imageView = m_context->memoryImageView;
+		descriptorImageInfo.imageLayout = VK_IMAGE_LAYOUT_GENERAL;
+
+		auto writeSet = Framework::Vulkan::WriteDescriptorSet();
+		writeSet.dstSet          = descriptorSet;
+		writeSet.dstBinding      = DESCRIPTOR_LOCATION_MEMORY;
+		writeSet.descriptorCount = 1;
+		writeSet.descriptorType  = VK_DESCRIPTOR_TYPE_STORAGE_IMAGE;
+		writeSet.pImageInfo      = &descriptorImageInfo;
+
+		m_context->device.vkUpdateDescriptorSets(m_context->device, 1, &writeSet, 0, nullptr);
+	}
+
+	m_context->device.vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_drawPipelineLayout,
+		0, 1, &descriptorSet, 0, nullptr);
 
 	m_context->device.vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_drawPipeline);
 
@@ -461,7 +495,10 @@ void CPresent::CreateFragmentShader()
 	
 	{
 		auto outputColor = CFloat4Lvalue(b.CreateOutput(Nuanceur::SEMANTIC_SYSTEM_COLOR));
-		outputColor = NewFloat4(b, 1, 0, 0, 1);
+		auto memoryImage = CImageUint2DValue(b.CreateImageUint2D(DESCRIPTOR_LOCATION_MEMORY));
+
+		auto imageColor = Load(memoryImage, NewInt2(b, 0, 0));
+		outputColor = ToFloat(imageColor);
 	}
 	
 	Framework::CMemStream shaderStream;
