@@ -5,6 +5,12 @@
 class QWindow;
 class QVulkanInstance;
 
+#ifdef __APPLE__
+#define USE_MACOS_MOLTENVK
+#else
+#define USE_GENERIC_QTVULKAN
+#endif
+
 class CGSH_VulkanQt : public CGSH_Vulkan
 {
 public:
@@ -19,5 +25,7 @@ public:
 
 private:
 	QWindow* m_renderWindow = nullptr;
+#ifdef USE_GENERIC_QTVULKAN
 	QVulkanInstance* m_qtVulkanInstance = nullptr;
+#endif
 };
