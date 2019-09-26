@@ -17,8 +17,8 @@ if(CMAKE_GENERATOR_TOOLSET MATCHES "_xp$")
 			${CMAKE_CURRENT_BINARY_DIR}/d3dcompiler_winxp
 		)
 	endif()
-	list(APPEND gsh_d3d9_PROJECT_LIBS d3dcompiler)
 endif()
+list(APPEND gsh_d3d9_PROJECT_LIBS d3dcompiler)
 
 if(NOT TARGET Framework_Win32)
 	add_subdirectory(
