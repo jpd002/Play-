@@ -57,7 +57,7 @@ void CGSH_VulkanQt::InitializeImpl()
 void CGSH_VulkanQt::ReleaseImpl()
 {
 	CGSH_Vulkan::ReleaseImpl();
-#if USE_GENERIC_QTVULKAN
+#ifdef USE_GENERIC_QTVULKAN
 	delete m_qtVulkanInstance;
 #endif
 }
@@ -66,7 +66,7 @@ void CGSH_VulkanQt::PresentBackbuffer()
 {
 	if(m_renderWindow->isExposed())
 	{
-#if USE_GENERIC_QTVULKAN
+#ifdef USE_GENERIC_QTVULKAN
 		m_qtVulkanInstance->presentQueued(m_renderWindow);
 #endif
 	}
