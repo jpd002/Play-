@@ -25,6 +25,7 @@ matrix:
       env:
         - BUILD_TYPE=Xcode
         - TARGET_OS=OSX
+        - VULKAN_SDK_VERSION=1.1.121.1
     - os: osx
       osx_image: xcode10.3
       env:
