@@ -351,13 +351,19 @@ void CGSH_Vulkan::InitMemoryImage()
 	
 	//Copy image data in buffer
 	{
-		void* memoryPtr = nullptr;
-		result = m_context->device.vkMapMemory(m_context->device, stagingBufferMemoryHandle, 0, dataSize, 0, &memoryPtr);
+		uint32* memoryPtr = nullptr;
+		result = m_context->device.vkMapMemory(m_context->device, stagingBufferMemoryHandle, 0, dataSize, 0, reinterpret_cast<void**>(&memoryPtr));
 		CHECKVULKANERROR(result);
 		
-		for(uint32 i = 0; i < dataSize / 4; i++)
+		for(unsigned int y = 0; y < MEMORY_HEIGHT; y++)
 		{
-			reinterpret_cast<uint32*>(memoryPtr)[i] = 0xC0;
+			for(unsigned int x = 0; x < MEMORY_WIDTH; x++)
+			{
+				uint8 colX = (x * 0x10) / MEMORY_WIDTH;
+				uint8 colY = (y * 0x10) / MEMORY_HEIGHT;
+				(*memoryPtr) = (colX) | (colY << 4);
+				memoryPtr++;
+			}
 		}
 		
 		m_context->device.vkUnmapMemory(m_context->device, stagingBufferMemoryHandle);

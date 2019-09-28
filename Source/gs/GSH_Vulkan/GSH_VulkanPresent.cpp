@@ -14,7 +14,7 @@ using namespace GSH_Vulkan;
 // clang-format off
 const CPresent::PRESENT_VERTEX CPresent::g_vertexBufferContents[3] =
 {
-	//Pos         UV
+	//Pos           UV
 	{ -1.0f, -1.0f, 0.0f,  1.0f, },
 	{ -1.0f,  3.0f, 0.0f, -1.0f, },
 	{  3.0f, -1.0f, 2.0f,  1.0f, },
@@ -494,10 +494,11 @@ void CPresent::CreateFragmentShader()
 	auto b = CShaderBuilder();
 	
 	{
+		auto inputPosition = CFloat4Lvalue(b.CreateInput(Nuanceur::SEMANTIC_SYSTEM_POSITION));
 		auto outputColor = CFloat4Lvalue(b.CreateOutput(Nuanceur::SEMANTIC_SYSTEM_COLOR));
-		auto memoryImage = CImageUint2DValue(b.CreateImageUint2D(DESCRIPTOR_LOCATION_MEMORY));
+		auto memoryImage = CImageUint2DValue(b.CreateImage2DUint(DESCRIPTOR_LOCATION_MEMORY));
 
-		auto imageColor = Load(memoryImage, NewInt2(b, 0, 0));
+		auto imageColor = Load(memoryImage, ToInt(inputPosition->xy()));
 		outputColor = ToFloat(imageColor) / NewFloat4(b, 255.f, 255.f, 255.f, 255.f);
 	}
 	
