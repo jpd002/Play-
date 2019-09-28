@@ -63,6 +63,7 @@ Section "Play! (required)"
   
   CreateDirectory $INSTDIR\platforms
   CreateDirectory $INSTDIR\styles
+  CreateDirectory $INSTDIR\imageformats
   
   ; Put file there
   File "..\build\Source\ui_qt\Release\Play.exe"
@@ -71,6 +72,7 @@ Section "Play! (required)"
   File "..\build\Source\ui_qt\Release\Qt5Widgets.dll"
   File /oname=platforms\qwindows.dll "..\build\Source\ui_qt\Release\platforms\qwindows.dll"
   File /oname=styles\qwindowsvistastyle.dll "..\build\Source\ui_qt\Release\styles\qwindowsvistastyle.dll"
+  File /oname=imageformats\qjpeg.dll "..\build\Source\ui_qt\Release\imageformats\qjpeg.dll"
   File "..\Readme.html"
   File "..\Changelog.html"
   File "..\Patches.xml"
@@ -122,6 +124,7 @@ Section "Uninstall"
   Delete $INSTDIR\Qt5Widgets.dll
   Delete $INSTDIR\platforms\qwindows.dll
   Delete $INSTDIR\styles\qwindowsvistastyle.dll
+  Delete $INSTDIR\imageformats\qjpeg.dll
   Delete $INSTDIR\Readme.html
   Delete $INSTDIR\Changelog.html
   Delete $INSTDIR\Patches.xml
@@ -130,6 +133,7 @@ Section "Uninstall"
   ; Remove directories used
   RMDir $INSTDIR\platforms
   RMDir $INSTDIR\styles
+  RMDir $INSTDIR\imageformats
   RMDir "$SMPROGRAMS\Play!"
   RMDir "$INSTDIR"
 
