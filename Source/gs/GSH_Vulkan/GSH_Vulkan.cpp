@@ -12,6 +12,11 @@ using namespace GSH_Vulkan;
 #define MEMORY_WIDTH 1024
 #define MEMORY_HEIGHT 1024
 
+static uint32 MakeColor(uint8 r, uint8 g, uint8 b, uint8 a)
+{
+	return (a << 24) | (b << 16) | (g << 8) | (r);
+}
+
 CGSH_Vulkan::CGSH_Vulkan()
 {
 	m_context = std::make_shared<CContext>();
@@ -57,6 +62,7 @@ void CGSH_Vulkan::InitializeImpl()
 	CreateMemoryImage();
 	InitMemoryImage();
 
+	m_draw = std::make_shared<CDraw>(m_context);
 	m_present = std::make_shared<CPresent>(m_context);
 }
 
@@ -67,6 +73,7 @@ void CGSH_Vulkan::ReleaseImpl()
 	//Flush any pending rendering commands
 	m_context->device.vkQueueWaitIdle(m_context->queue);
 
+	m_draw.reset();
 	m_present.reset();
 
 	m_context->device.vkDestroyImageView(m_context->device, m_context->memoryImageView, nullptr);
@@ -79,11 +86,13 @@ void CGSH_Vulkan::ReleaseImpl()
 
 void CGSH_Vulkan::ResetImpl()
 {
-	
+	m_vtxCount = 0;
+	m_primitiveType = PRIM_INVALID;
 }
 
 void CGSH_Vulkan::FlipImpl()
 {
+	m_draw->FlushVertices();
 	m_present->DoPresent();
 	PresentBackbuffer();
 	CGSHandler::FlipImpl();
@@ -448,9 +457,206 @@ void CGSH_Vulkan::InitMemoryImage()
 	m_context->device.vkDestroyBuffer(m_context->device, stagingBufferHandle, nullptr);
 }
 
+void CGSH_Vulkan::VertexKick(uint8 registerId, uint64 data)
+{
+	if(m_vtxCount == 0) return;
+
+	bool drawingKick = (registerId == GS_REG_XYZ2) || (registerId == GS_REG_XYZF2);
+	bool fog = (registerId == GS_REG_XYZF2) || (registerId == GS_REG_XYZF3);
+
+	if(!m_drawEnabled) drawingKick = false;
+
+	if(fog)
+	{
+		m_vtxBuffer[m_vtxCount - 1].position = data & 0x00FFFFFFFFFFFFFFULL;
+		m_vtxBuffer[m_vtxCount - 1].rgbaq = m_nReg[GS_REG_RGBAQ];
+		m_vtxBuffer[m_vtxCount - 1].uv = m_nReg[GS_REG_UV];
+		m_vtxBuffer[m_vtxCount - 1].st = m_nReg[GS_REG_ST];
+		m_vtxBuffer[m_vtxCount - 1].fog = static_cast<uint8>(data >> 56);
+	}
+	else
+	{
+		m_vtxBuffer[m_vtxCount - 1].position = data;
+		m_vtxBuffer[m_vtxCount - 1].rgbaq = m_nReg[GS_REG_RGBAQ];
+		m_vtxBuffer[m_vtxCount - 1].uv = m_nReg[GS_REG_UV];
+		m_vtxBuffer[m_vtxCount - 1].st = m_nReg[GS_REG_ST];
+		m_vtxBuffer[m_vtxCount - 1].fog = static_cast<uint8>(m_nReg[GS_REG_FOG] >> 56);
+	}
+
+	m_vtxCount--;
+
+	if(m_vtxCount == 0)
+	{
+		if((m_nReg[GS_REG_PRMODECONT] & 1) != 0)
+		{
+			m_primitiveMode <<= m_nReg[GS_REG_PRIM];
+		}
+		else
+		{
+			m_primitiveMode <<= m_nReg[GS_REG_PRMODE];
+		}
+
+		if(drawingKick)
+		{
+			SetRenderingContext(m_primitiveMode);
+		}
+
+		switch(m_primitiveType)
+		{
+#if 0
+		case PRIM_POINT:
+			if(nDrawingKick) Prim_Point();
+			m_nVtxCount = 1;
+			break;
+		case PRIM_LINE:
+			if(nDrawingKick) Prim_Line();
+			m_nVtxCount = 2;
+			break;
+		case PRIM_LINESTRIP:
+			if(nDrawingKick) Prim_Line();
+			memcpy(&m_VtxBuffer[1], &m_VtxBuffer[0], sizeof(VERTEX));
+			m_nVtxCount = 1;
+			break;
+#endif
+		case PRIM_TRIANGLE:
+			if(drawingKick) Prim_Triangle();
+			m_vtxCount = 3;
+			break;
+		case PRIM_TRIANGLESTRIP:
+			if(drawingKick) Prim_Triangle();
+			memcpy(&m_vtxBuffer[2], &m_vtxBuffer[1], sizeof(VERTEX));
+			memcpy(&m_vtxBuffer[1], &m_vtxBuffer[0], sizeof(VERTEX));
+			m_vtxCount = 1;
+			break;
+		case PRIM_TRIANGLEFAN:
+			if(drawingKick) Prim_Triangle();
+			memcpy(&m_vtxBuffer[1], &m_vtxBuffer[0], sizeof(VERTEX));
+			m_vtxCount = 1;
+			break;
+#if 0
+		case PRIM_SPRITE:
+			if(nDrawingKick) Prim_Sprite();
+			m_nVtxCount = 2;
+			break;
+#endif
+		}
+	}
+}
+
+void CGSH_Vulkan::SetRenderingContext(uint64 primReg)
+{
+	auto prim = make_convertible<PRMODE>(primReg);
+
+	unsigned int context = prim.nContext;
+
+	auto offset = make_convertible<XYOFFSET>(m_nReg[GS_REG_XYOFFSET_1 + context]);
+	m_primOfsX = offset.GetX();
+	m_primOfsY = offset.GetY();
+}
+
+void CGSH_Vulkan::Prim_Triangle()
+{
+	float f1 = 0, f2 = 0, f3 = 0;
+
+	XYZ vertex[3];
+	vertex[0] <<= m_vtxBuffer[2].position;
+	vertex[1] <<= m_vtxBuffer[1].position;
+	vertex[2] <<= m_vtxBuffer[0].position;
+
+	float x1 = vertex[0].GetX(), x2 = vertex[1].GetX(), x3 = vertex[2].GetX();
+	float y1 = vertex[0].GetY(), y2 = vertex[1].GetY(), y3 = vertex[2].GetY();
+	uint32 z1 = vertex[0].nZ,    z2 = vertex[1].nZ,     z3 = vertex[2].nZ;
+
+	RGBAQ rgbaq[3];
+	rgbaq[0] <<= m_vtxBuffer[2].rgbaq;
+	rgbaq[1] <<= m_vtxBuffer[1].rgbaq;
+	rgbaq[2] <<= m_vtxBuffer[0].rgbaq;
+
+	x1 -= m_primOfsX;
+	x2 -= m_primOfsX;
+	x3 -= m_primOfsX;
+
+	y1 -= m_primOfsY;
+	y2 -= m_primOfsY;
+	y3 -= m_primOfsY;
+
+	auto color1 = MakeColor(
+	    rgbaq[0].nR, rgbaq[0].nG,
+	    rgbaq[0].nB, rgbaq[0].nA);
+
+	auto color2 = MakeColor(
+	    rgbaq[1].nR, rgbaq[1].nG,
+	    rgbaq[1].nB, rgbaq[1].nA);
+
+	auto color3 = MakeColor(
+	    rgbaq[2].nR, rgbaq[2].nG,
+	    rgbaq[2].nB, rgbaq[2].nA);
+
+	if(m_primitiveMode.nShading == 0)
+	{
+		//Flat shaded triangles use the last color set
+		color1 = color2 = color3;
+	}
+
+	// clang-format off
+	CDraw::PRIM_VERTEX vertices[] =
+	{
+		{	x1, y1, z1, color1, },
+		{	x2, y2, z2, color2, },
+		{	x3, y3, z3, color3, },
+	};
+	// clang-format on
+
+	m_draw->AddVertices(std::begin(vertices), std::end(vertices));
+}
+
 /////////////////////////////////////////////////////////////
 // Other Functions
 /////////////////////////////////////////////////////////////
+
+void CGSH_Vulkan::WriteRegisterImpl(uint8 registerId, uint64 data)
+{
+	CGSHandler::WriteRegisterImpl(registerId, data);
+
+	switch(registerId)
+	{
+	case GS_REG_PRIM:
+	{
+		unsigned int newPrimitiveType = static_cast<unsigned int>(data & 0x07);
+		if(newPrimitiveType != m_primitiveType)
+		{
+			m_draw->FlushVertices();
+		}
+		m_primitiveType = newPrimitiveType;
+		switch(m_primitiveType)
+		{
+		case PRIM_POINT:
+			m_vtxCount = 1;
+			break;
+		case PRIM_LINE:
+		case PRIM_LINESTRIP:
+			m_vtxCount = 2;
+			break;
+		case PRIM_TRIANGLE:
+		case PRIM_TRIANGLESTRIP:
+		case PRIM_TRIANGLEFAN:
+			m_vtxCount = 3;
+			break;
+		case PRIM_SPRITE:
+			m_vtxCount = 2;
+			break;
+		}
+	}
+	break;
+
+	case GS_REG_XYZ2:
+	case GS_REG_XYZ3:
+	case GS_REG_XYZF2:
+	case GS_REG_XYZF3:
+		VertexKick(registerId, data);
+		break;
+	}
+}
 
 void CGSH_Vulkan::ProcessHostToLocalTransfer()
 {

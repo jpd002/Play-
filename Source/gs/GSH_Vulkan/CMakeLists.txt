@@ -29,6 +29,8 @@ add_library(gsh_vulkan STATIC
 	GSH_Vulkan.cpp
 	GSH_Vulkan.h
 	GSH_VulkanContext.h
+	GSH_VulkanDraw.cpp
+	GSH_VulkanDraw.h
 	GSH_VulkanPresent.cpp
 	GSH_VulkanPresent.h
 )
