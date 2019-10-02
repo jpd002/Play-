@@ -3,6 +3,7 @@ package com.virtualapplications.play.database;
 import android.os.Environment;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.io.IOUtils;
 
 import java.io.File;
 import java.io.InputStream;
@@ -17,21 +18,17 @@ public class GameIndexer
 	{
 		final HashSet<String> out = new HashSet<String>();
 		String reg = "(?i).*vold.*(vfat|ntfs|exfat|fat32|ext3|ext4|fuse|sdfat).*rw.*";
-		StringBuilder s = new StringBuilder();
 		try
 		{
 			final java.lang.Process process = new ProcessBuilder().command("mount")
 					.redirectErrorStream(true).start();
 			InputStream is = process.getInputStream();
-			byte[] buffer = new byte[1024];
-			while (is.read(buffer) != -1)
-			{
-				s.append(new String(buffer));
-			}
+			byte[] contents = IOUtils.toByteArray(is);
 			is.close();
 			process.waitFor();
 
-			String[] lines = s.toString().split("\n");
+			String s = new String(contents);
+			String[] lines = s.split("\n");
 			for (String line : lines)
 			{
 				if (StringUtils.containsIgnoreCase(line, "secure"))
