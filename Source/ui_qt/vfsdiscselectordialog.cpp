@@ -57,7 +57,7 @@ void VFSDiscSelectorDialog::Refresh_disc_drive()
 		if(storage.isValid() && storage.isReady())
 		{
 			QString FS(storage.fileSystemType());
-			if(QString::compare(FS, "UDF", Qt::CaseInsensitive) == 0 || QString::compare(FS, "ISO9660", Qt::CaseInsensitive) == 0)
+			if(QString::compare(FS, "UDF", Qt::CaseInsensitive) == 0 || QString::compare(FS, "ISO9660", Qt::CaseInsensitive) == 0 || QString::compare(FS, "CDFS", Qt::CaseInsensitive) == 0)
 			{
 				QString device(storage.device());
 				QString name;
