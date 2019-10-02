@@ -1,23 +1,26 @@
 #include <exception>
+#include "tcharx.h"
 #include "VolumeStream.h"
 
 using namespace Framework;
 using namespace Framework::Win32;
-using namespace std;
 
-CVolumeStream::CVolumeStream(char nDriveLetter)
+CVolumeStream::CVolumeStream(const TCHAR* volumePath)
 {
-	char sPath[7] =
-	    {
-	        '\\',
-	        '\\',
-	        '.',
-	        '\\',
-	        nDriveLetter,
-	        ':',
-	        '\0'};
+	//We need to remove any trailing slashes to open volumes
+	auto fixedVolumePath = std::tstring(volumePath);
+	if(!fixedVolumePath.empty() && (*fixedVolumePath.rbegin() == '\\'))
+	{
+		fixedVolumePath = std::tstring(fixedVolumePath.begin(), fixedVolumePath.end() - 1);
+	}
 
-	m_nVolume = CreateFileA(sPath, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_READONLY, NULL);
+	m_nVolume = CreateFile(fixedVolumePath.c_str(), GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_READONLY, NULL);
+	assert(m_nVolume != INVALID_HANDLE_VALUE);
+	if(m_nVolume == INVALID_HANDLE_VALUE)
+	{
+		throw std::runtime_error("Failed to open volume.");
+	}
+
 	m_nPosition = 0;
 
 	m_nSectorSize = 0x800;
@@ -42,7 +45,7 @@ void CVolumeStream::Seek(int64 nDistance, STREAM_SEEK_DIRECTION nFrom)
 		m_nPosition += nDistance;
 		break;
 	case STREAM_SEEK_END:
-		throw exception("Operation not supported.");
+		throw std::exception("Operation not supported.");
 		break;
 	}
 }
@@ -54,13 +57,9 @@ uint64 CVolumeStream::Tell()
 
 uint64 CVolumeStream::Read(void* pBuffer, uint64 nSize)
 {
-	uint8* pDst;
-	uint8* pSrc;
-	uint64 nRetSize;
-
-	pSrc = (uint8*)m_pCache;
-	pDst = (uint8*)pBuffer;
-	nRetSize = nSize;
+	auto pSrc = reinterpret_cast<uint8*>(m_pCache);
+	auto pDst = reinterpret_cast<uint8*>(pBuffer);
+	uint64 nRetSize = nSize;
 
 	while(nSize != 0)
 	{
@@ -84,7 +83,7 @@ uint64 CVolumeStream::Read(void* pBuffer, uint64 nSize)
 
 uint64 CVolumeStream::Write(const void* pBuffer, uint64 nSize)
 {
-	throw exception("Operation not-supported.");
+	throw std::exception("Operation not-supported.");
 }
 
 bool CVolumeStream::IsEOF()
@@ -94,14 +93,13 @@ bool CVolumeStream::IsEOF()
 
 void CVolumeStream::SyncCache()
 {
-	uint64 nSectorPosition;
-	DWORD nRead;
-
-	nSectorPosition = m_nPosition & ~(m_nSectorSize - 1);
+	uint64 nSectorPosition = m_nPosition & ~(m_nSectorSize - 1);
 	if(nSectorPosition == m_nCacheSector) return;
 	m_nCacheSector = nSectorPosition;
 
 	SetFilePointer(m_nVolume, (uint32)nSectorPosition, (PLONG)((uint32*)&nSectorPosition) + 1, FILE_BEGIN);
 
-	ReadFile(m_nVolume, m_pCache, (DWORD)m_nSectorSize, &nRead, NULL);
+	DWORD nRead = 0;
+	BOOL success = ReadFile(m_nVolume, m_pCache, (DWORD)m_nSectorSize, &nRead, NULL);
+	assert(success);
 }

@@ -11,13 +11,14 @@ namespace Framework
 		class CVolumeStream : public CStream
 		{
 		public:
-			CVolumeStream(char);
+			CVolumeStream(const TCHAR*);
 			virtual ~CVolumeStream();
-			virtual void Seek(int64, STREAM_SEEK_DIRECTION);
-			virtual uint64 Tell();
-			virtual uint64 Read(void*, uint64);
-			virtual uint64 Write(const void*, uint64);
-			virtual bool IsEOF();
+
+			void Seek(int64, STREAM_SEEK_DIRECTION);
+			uint64 Tell() override;
+			uint64 Read(void*, uint64) override;
+			uint64 Write(const void*, uint64) override;
+			bool IsEOF() override;
 
 		private:
 			void SyncCache();
