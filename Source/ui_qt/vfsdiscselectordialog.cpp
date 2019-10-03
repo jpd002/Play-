@@ -79,7 +79,8 @@ void VFSDiscSelectorDialog::Refresh_disc_drive()
 	{
 		auto pathString = PathToQString(m_path);
 		if(
-		    pathString.startsWith("////", Qt::CaseInsensitive) ||
+		    pathString.startsWith("\\\\.\\", Qt::CaseInsensitive) ||
+		    pathString.startsWith("\\\\?\\", Qt::CaseInsensitive) ||
 		    pathString.startsWith("/dev/", Qt::CaseInsensitive))
 		{
 			for(int i = 0; i < m_discInfo.size(); i++)
