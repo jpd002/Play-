@@ -24,8 +24,15 @@ COpticalMedia* COpticalMedia::CreateAuto(StreamPtr& stream)
 
 	if(result->m_track0DataType == TRACK_DATA_TYPE_MODE1_2048)
 	{
-		result->CheckDualLayerDvd(stream);
-		result->SetupSecondLayer(stream);
+		try
+		{
+			result->CheckDualLayerDvd(stream);
+			result->SetupSecondLayer(stream);
+		}
+		catch(...)
+		{
+			//Failed to check if we got a dual layer DVD (ex.: Couldn't get stream size of physical disc)
+		}
 	}
 	return result;
 }
