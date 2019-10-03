@@ -63,13 +63,11 @@ uint64 CVolumeStream::Read(void* pBuffer, uint64 nSize)
 
 	while(nSize != 0)
 	{
-		size_t nSectorRemain, nSectorOffset, nCopy;
-
 		SyncCache();
 
-		nSectorOffset = (size_t)(m_nPosition & (m_nSectorSize - 1));
-		nSectorRemain = (size_t)(m_nSectorSize - nSectorOffset);
-		nCopy = min((size_t)nSize, nSectorRemain);
+		uint64 nSectorOffset = (m_nPosition & (m_nSectorSize - 1));
+		uint64 nSectorRemain = (m_nSectorSize - nSectorOffset);
+		uint64 nCopy = min(nSize, nSectorRemain);
 
 		memcpy(pDst, pSrc + nSectorOffset, nCopy);
 
