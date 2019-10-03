@@ -503,7 +503,6 @@ void CPresent::CreateFragmentShader()
 	}
 	
 	Framework::CMemStream shaderStream;
-	//Framework::CStdStream shaderStream("frag.spv", "wb");
 	Nuanceur::CSpirvShaderGenerator::Generate(shaderStream, b, Nuanceur::CSpirvShaderGenerator::SHADER_TYPE_FRAGMENT);
 	shaderStream.Seek(0, Framework::STREAM_SEEK_SET);
 	m_fragmentShader = Framework::Vulkan::CShaderModule(m_context->device, shaderStream);
