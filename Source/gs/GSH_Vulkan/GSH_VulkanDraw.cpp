@@ -62,7 +62,10 @@ CDraw::~CDraw()
 void CDraw::AddVertices(const PRIM_VERTEX* vertexBeginPtr, const PRIM_VERTEX* vertexEndPtr)
 {
 	auto amount = vertexEndPtr - vertexBeginPtr;
-	assert((m_primVertices.size() + amount) <= MAX_VERTEX_COUNT);
+	if((m_primVertices.size() + amount) > MAX_VERTEX_COUNT)
+	{
+		FlushVertices();
+	}
 	m_primVertices.insert(m_primVertices.end(), vertexBeginPtr, vertexEndPtr);
 }
 
@@ -204,7 +207,7 @@ void CDraw::CreateDrawPipeline()
 	assert(!m_fragmentShader.IsEmpty());
 	assert(m_drawPipeline == VK_NULL_HANDLE);
 	assert(m_drawPipelineLayout == VK_NULL_HANDLE);
-//	assert(m_drawDescriptorSetLayout == VK_NULL_HANDLE);
+	assert(m_drawDescriptorSetLayout == VK_NULL_HANDLE);
 
 	auto result = VK_SUCCESS;
 
@@ -245,19 +248,27 @@ void CDraw::CreateDrawPipeline()
 	std::vector<VkVertexInputAttributeDescription> vertexAttributes;
 
 	{
-		VkVertexInputAttributeDescription positionVertexAttributeDesc = {};
-		positionVertexAttributeDesc.format = VK_FORMAT_R32G32_SFLOAT;
-		positionVertexAttributeDesc.offset = offsetof(PRIM_VERTEX, x);
-		positionVertexAttributeDesc.location = 0;
-		vertexAttributes.push_back(positionVertexAttributeDesc);
+		VkVertexInputAttributeDescription vertexAttributeDesc = {};
+		vertexAttributeDesc.format = VK_FORMAT_R32G32_SFLOAT;
+		vertexAttributeDesc.offset = offsetof(PRIM_VERTEX, x);
+		vertexAttributeDesc.location = 0;
+		vertexAttributes.push_back(vertexAttributeDesc);
 	}
 
 	{
-		VkVertexInputAttributeDescription texCoordVertexAttributeDesc = {};
-		texCoordVertexAttributeDesc.format = VK_FORMAT_R32_UINT;
-		texCoordVertexAttributeDesc.offset = offsetof(PRIM_VERTEX, z);
-		texCoordVertexAttributeDesc.location = 1;
-		vertexAttributes.push_back(texCoordVertexAttributeDesc);
+		VkVertexInputAttributeDescription vertexAttributeDesc = {};
+		vertexAttributeDesc.format = VK_FORMAT_R32_UINT;
+		vertexAttributeDesc.offset = offsetof(PRIM_VERTEX, z);
+		vertexAttributeDesc.location = 1;
+		vertexAttributes.push_back(vertexAttributeDesc);
+	}
+
+	{
+		VkVertexInputAttributeDescription vertexAttributeDesc = {};
+		vertexAttributeDesc.format = VK_FORMAT_R8G8B8A8_UNORM;
+		vertexAttributeDesc.offset = offsetof(PRIM_VERTEX, color);
+		vertexAttributeDesc.location = 2;
+		vertexAttributes.push_back(vertexAttributeDesc);
 	}
 
 	VkVertexInputBindingDescription binding = {};
@@ -341,14 +352,17 @@ void CDraw::CreateVertexShader()
 	{
 		//Vertex Inputs
 		auto inputPosition = CFloat4Lvalue(b.CreateInput(Nuanceur::SEMANTIC_POSITION));
-	
+		auto inputColor = CFloat4Lvalue(b.CreateInput(Nuanceur::SEMANTIC_TEXCOORD, 1));
+
 		//Outputs
 		auto outputPosition = CFloat4Lvalue(b.CreateOutput(Nuanceur::SEMANTIC_SYSTEM_POSITION));
+		auto outputColor = CFloat4Lvalue(b.CreateOutput(Nuanceur::SEMANTIC_TEXCOORD, 1));
 
 		//Constants
 		auto projMatrix = CMatrix44Value(b.CreateUniformMatrix("g_projMatrix"));
 
 		outputPosition = projMatrix * NewFloat4(inputPosition->xyz(), NewFloat(b, 1.0f));
+		outputColor = inputColor->xyzw();
 	}
 	
 	Framework::CMemStream shaderStream;
@@ -364,10 +378,13 @@ void CDraw::CreateFragmentShader()
 	auto b = CShaderBuilder();
 	
 	{
+		//Inputs
 		auto inputPosition = CFloat4Lvalue(b.CreateInput(Nuanceur::SEMANTIC_SYSTEM_POSITION));
+		auto inputColor = CFloat4Lvalue(b.CreateInput(Nuanceur::SEMANTIC_TEXCOORD, 1));
+
 		auto memoryImage = CImageUint2DValue(b.CreateImage2DUint(DESCRIPTOR_LOCATION_MEMORY));
 
-		auto imageColor = NewUint4(b, 0xFF, 0xFF, 0xFF, 0xFF);
+		auto imageColor = ToUint(inputColor * NewFloat4(b, 255.f, 255.f, 255.f, 255.f));
 		Store(memoryImage, ToInt(inputPosition->xy()), imageColor);
 	}
 	

@@ -92,8 +92,11 @@ void CPresent::DoPresent()
 		CHECKVULKANERROR(result);
 	}
 	
-	//result = m_context->device.vkQueueWaitIdle(m_queue);
-	//CHECKVULKANERROR(result);
+	result = m_context->device.vkQueueWaitIdle(m_context->queue);
+	CHECKVULKANERROR(result);
+
+	result = m_context->device.vkResetDescriptorPool(m_context->device, m_context->descriptorPool, 0);
+	CHECKVULKANERROR(result);
 }
 
 void CPresent::UpdateBackbuffer(uint32 imageIndex)
