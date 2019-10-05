@@ -385,7 +385,10 @@ void CDraw::CreateFragmentShader()
 		auto memoryImage = CImageUint2DValue(b.CreateImage2DUint(DESCRIPTOR_LOCATION_MEMORY));
 
 		auto imageColor = ToUint(inputColor * NewFloat4(b, 255.f, 255.f, 255.f, 255.f));
+		
+		BeginInvocationInterlock(b);
 		Store(memoryImage, ToInt(inputPosition->xy()), imageColor);
+		EndInvocationInterlock(b);
 	}
 	
 	Framework::CMemStream shaderStream;
