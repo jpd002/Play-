@@ -94,6 +94,12 @@ void CGSH_Vulkan::FlipImpl()
 {
 	m_draw->FlushVertices();
 	m_present->DoPresent();
+
+	auto result = m_context->device.vkResetDescriptorPool(m_context->device, m_context->descriptorPool, 0);
+	CHECKVULKANERROR(result);
+
+	m_context->commandBufferPool.ResetBuffers();
+
 	PresentBackbuffer();
 	CGSHandler::FlipImpl();
 }
