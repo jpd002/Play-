@@ -39,6 +39,7 @@ CDraw::CDraw(const ContextPtr& context)
 	: m_context(context)
 {
 	CreateRenderPass();
+	CreateDrawImage();
 	CreateFramebuffer();
 	CreateVertexShader();
 	CreateFragmentShader();
@@ -57,6 +58,9 @@ CDraw::~CDraw()
 	m_context->device.vkDestroyRenderPass(m_context->device, m_renderPass, nullptr);
 	m_context->device.vkDestroyBuffer(m_context->device, m_vertexBuffer, nullptr);
 	m_context->device.vkFreeMemory(m_context->device, m_vertexBufferMemory, nullptr);
+	m_context->device.vkDestroyImageView(m_context->device, m_drawImageView, nullptr);
+	m_context->device.vkDestroyImage(m_context->device, m_drawImage, nullptr);
+	m_context->device.vkFreeMemory(m_context->device, m_drawImageMemoryHandle, nullptr);
 }
 
 void CDraw::AddVertices(const PRIM_VERTEX* vertexBeginPtr, const PRIM_VERTEX* vertexEndPtr)
@@ -175,10 +179,12 @@ void CDraw::CreateFramebuffer()
 	assert(m_framebuffer == VK_NULL_HANDLE);
 
 	auto frameBufferCreateInfo = Framework::Vulkan::FramebufferCreateInfo();
-	frameBufferCreateInfo.renderPass = m_renderPass;
-	frameBufferCreateInfo.width      = DRAW_AREA_SIZE;
-	frameBufferCreateInfo.height     = DRAW_AREA_SIZE;
-	frameBufferCreateInfo.layers     = 1;
+	frameBufferCreateInfo.renderPass      = m_renderPass;
+	frameBufferCreateInfo.width           = DRAW_AREA_SIZE;
+	frameBufferCreateInfo.height          = DRAW_AREA_SIZE;
+	frameBufferCreateInfo.layers          = 1;
+	frameBufferCreateInfo.attachmentCount = 1;
+	frameBufferCreateInfo.pAttachments    = &m_drawImageView;
 		
 	auto result = m_context->device.vkCreateFramebuffer(m_context->device, &frameBufferCreateInfo, nullptr, &m_framebuffer);
 	CHECKVULKANERROR(result);
@@ -189,13 +195,29 @@ void CDraw::CreateRenderPass()
 	assert(m_renderPass == VK_NULL_HANDLE);
 	
 	auto result = VK_SUCCESS;
-		
+
+	VkAttachmentDescription colorAttachment = {};
+	colorAttachment.format         = VK_FORMAT_R8G8B8A8_UNORM;
+	colorAttachment.samples        = VK_SAMPLE_COUNT_1_BIT;
+	colorAttachment.loadOp         = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+	colorAttachment.storeOp        = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+	colorAttachment.initialLayout  = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+	colorAttachment.finalLayout    = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+
+	VkAttachmentReference colorRef = {};
+	colorRef.attachment = 0;
+	colorRef.layout     = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+
 	VkSubpassDescription subpass = {};
-	subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
-	
+	subpass.pipelineBindPoint    = VK_PIPELINE_BIND_POINT_GRAPHICS;
+	subpass.pColorAttachments    = &colorRef;
+	subpass.colorAttachmentCount = 1;
+
 	auto renderPassCreateInfo = Framework::Vulkan::RenderPassCreateInfo();
-	renderPassCreateInfo.subpassCount = 1;
-	renderPassCreateInfo.pSubpasses   = &subpass;
+	renderPassCreateInfo.subpassCount    = 1;
+	renderPassCreateInfo.pSubpasses      = &subpass;
+	renderPassCreateInfo.attachmentCount = 1;
+	renderPassCreateInfo.pAttachments    = &colorAttachment;
 
 	result = m_context->device.vkCreateRenderPass(m_context->device, &renderPassCreateInfo, nullptr, &m_renderPass);
 	CHECKVULKANERROR(result);
@@ -382,6 +404,9 @@ void CDraw::CreateFragmentShader()
 		auto inputPosition = CFloat4Lvalue(b.CreateInput(Nuanceur::SEMANTIC_SYSTEM_POSITION));
 		auto inputColor = CFloat4Lvalue(b.CreateInput(Nuanceur::SEMANTIC_TEXCOORD, 1));
 
+		//Outputs
+		auto outputColor = CFloat4Lvalue(b.CreateOutput(Nuanceur::SEMANTIC_SYSTEM_COLOR));
+
 		auto memoryImage = CImageUint2DValue(b.CreateImage2DUint(DESCRIPTOR_LOCATION_MEMORY));
 
 		auto imageColor = ToUint(inputColor * NewFloat4(b, 255.f, 255.f, 255.f, 255.f));
@@ -389,6 +414,8 @@ void CDraw::CreateFragmentShader()
 		BeginInvocationInterlock(b);
 		Store(memoryImage, ToInt(inputPosition->xy()), imageColor);
 		EndInvocationInterlock(b);
+
+		outputColor = NewFloat4(b, 0, 0, 1, 0);
 	}
 	
 	Framework::CMemStream shaderStream;
@@ -396,6 +423,62 @@ void CDraw::CreateFragmentShader()
 	Nuanceur::CSpirvShaderGenerator::Generate(shaderStream, b, Nuanceur::CSpirvShaderGenerator::SHADER_TYPE_FRAGMENT);
 	shaderStream.Seek(0, Framework::STREAM_SEEK_SET);
 	m_fragmentShader = Framework::Vulkan::CShaderModule(m_context->device, shaderStream);
+}
+
+void CDraw::CreateDrawImage()
+{
+	//This image is needed for MoltenVK/Metal which seem to discard pixels
+	//that don't write to any color attachment
+
+	{
+		auto imageCreateInfo = Framework::Vulkan::ImageCreateInfo();
+		imageCreateInfo.imageType     = VK_IMAGE_TYPE_2D;
+		imageCreateInfo.format        = VK_FORMAT_R8G8B8A8_UNORM;
+		imageCreateInfo.extent.width  = DRAW_AREA_SIZE;
+		imageCreateInfo.extent.height = DRAW_AREA_SIZE;
+		imageCreateInfo.extent.depth  = 1;
+		imageCreateInfo.mipLevels     = 1;
+		imageCreateInfo.arrayLayers   = 1;
+		imageCreateInfo.samples       = VK_SAMPLE_COUNT_1_BIT;
+		imageCreateInfo.sharingMode   = VK_SHARING_MODE_EXCLUSIVE;
+		imageCreateInfo.tiling        = VK_IMAGE_TILING_OPTIMAL;
+		imageCreateInfo.usage         = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
+		imageCreateInfo.initialLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+
+		auto result = m_context->device.vkCreateImage(m_context->device, &imageCreateInfo, nullptr, &m_drawImage);
+		CHECKVULKANERROR(result);
+	}
+
+	{
+		VkMemoryRequirements memoryRequirements = {};
+		m_context->device.vkGetImageMemoryRequirements(m_context->device, m_drawImage, &memoryRequirements);
+
+		auto memoryAllocateInfo = Framework::Vulkan::MemoryAllocateInfo();
+		memoryAllocateInfo.allocationSize  = memoryRequirements.size;
+		memoryAllocateInfo.memoryTypeIndex = Framework::Vulkan::GetMemoryTypeIndex(
+			m_context->physicalDeviceMemoryProperties, memoryRequirements.memoryTypeBits, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
+
+		auto result = m_context->device.vkAllocateMemory(m_context->device, &memoryAllocateInfo, nullptr, &m_drawImageMemoryHandle);
+		CHECKVULKANERROR(result);
+	}
+	
+	m_context->device.vkBindImageMemory(m_context->device, m_drawImage, m_drawImageMemoryHandle, 0);
+
+	{
+		auto imageViewCreateInfo = Framework::Vulkan::ImageViewCreateInfo();
+		imageViewCreateInfo.image    = m_drawImage;
+		imageViewCreateInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
+		imageViewCreateInfo.format   = VK_FORMAT_R8G8B8A8_UNORM;
+		imageViewCreateInfo.components = 
+		{
+			VK_COMPONENT_SWIZZLE_R, VK_COMPONENT_SWIZZLE_G, 
+			VK_COMPONENT_SWIZZLE_B, VK_COMPONENT_SWIZZLE_A 
+		};
+		imageViewCreateInfo.subresourceRange = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1 };
+		
+		auto result = m_context->device.vkCreateImageView(m_context->device, &imageViewCreateInfo, nullptr, &m_drawImageView);
+		CHECKVULKANERROR(result);
+	}
 }
 
 void CDraw::CreateVertexBuffer()

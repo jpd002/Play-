@@ -39,6 +39,7 @@ namespace GSH_Vulkan
 		void CreateVertexBuffer();
 		void CreateVertexShader();
 		void CreateFragmentShader();
+		void CreateDrawImage();
 
 		ContextPtr m_context;
 
@@ -51,6 +52,11 @@ namespace GSH_Vulkan
 		Framework::Vulkan::CShaderModule m_fragmentShader;
 		VkBuffer m_vertexBuffer = VK_NULL_HANDLE;
 		VkDeviceMemory m_vertexBufferMemory = VK_NULL_HANDLE;
+
+		VkImage m_drawImage = VK_NULL_HANDLE;
+		VkDeviceMemory m_drawImageMemoryHandle = VK_NULL_HANDLE;
+		VkImageView m_drawImageView = VK_NULL_HANDLE;
+
 		PrimVertexArray m_primVertices;
 
 		VERTEX_SHADER_CONSTANTS m_vertexShaderConstants;
