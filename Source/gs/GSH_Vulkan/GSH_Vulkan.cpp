@@ -244,16 +244,20 @@ void CGSH_Vulkan::CreateDevice(VkPhysicalDevice physicalDevice)
 
 	std::vector<const char*> enabledExtensions;
 	enabledExtensions.push_back(VK_KHR_SWAPCHAIN_EXTENSION_NAME);
+	enabledExtensions.push_back(VK_EXT_FRAGMENT_SHADER_INTERLOCK_EXTENSION_NAME);
 	
 	std::vector<const char*> enabledLayers;
 	
+	VkPhysicalDeviceFeatures enabledFeatures = {};
+	enabledFeatures.fragmentStoresAndAtomics = VK_TRUE;
+
 	auto deviceCreateInfo = Framework::Vulkan::DeviceCreateInfo();
 	deviceCreateInfo.flags                   = 0;
 	deviceCreateInfo.enabledLayerCount       = enabledLayers.size();
 	deviceCreateInfo.ppEnabledLayerNames     = enabledLayers.data();
 	deviceCreateInfo.enabledExtensionCount   = enabledExtensions.size();
 	deviceCreateInfo.ppEnabledExtensionNames = enabledExtensions.data();
-	deviceCreateInfo.pEnabledFeatures        = nullptr;
+	deviceCreateInfo.pEnabledFeatures        = &enabledFeatures;
 	deviceCreateInfo.queueCreateInfoCount    = 1;
 	deviceCreateInfo.pQueueCreateInfos       = &deviceQueueCreateInfo;
 	
