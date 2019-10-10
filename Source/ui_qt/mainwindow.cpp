@@ -222,6 +222,8 @@ void MainWindow::SetupSoundHandler()
 #else
 		m_virtualMachine->CreateSoundHandler(&CSH_OpenAL::HandlerFactory);
 #endif
+		auto spuBlockCount = CAppConfig::GetInstance().GetPreferenceInteger(PREFERENCE_AUDIO_SPUBLOCKCOUNT);
+		m_virtualMachine->SetSpuBlockCount(spuBlockCount);
 	}
 	else
 	{
@@ -601,6 +603,7 @@ void MainWindow::UpdateUI()
 void MainWindow::RegisterPreferences()
 {
 	CAppConfig::GetInstance().RegisterPreferenceBoolean(PREFERENCE_AUDIO_ENABLEOUTPUT, true);
+	CAppConfig::GetInstance().RegisterPreferenceInteger(PREFERENCE_AUDIO_SPUBLOCKCOUNT, 400);
 	CAppConfig::GetInstance().RegisterPreferenceBoolean(PREF_UI_PAUSEWHENFOCUSLOST, true);
 }
 
