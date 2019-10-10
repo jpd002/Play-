@@ -26,6 +26,7 @@ CPS2VM::ProfileFrameDoneSignal::Connection g_ProfileFrameDoneConnection;
 Framework::CSignal<void(uint32)>::Connection g_OnNewFrameConnection;
 
 #define PREF_AUDIO_ENABLEOUTPUT ("audio.enableoutput")
+#define PREF_AUDIO_SPUBLOCKCOUNT ("audio.spublockcount")
 
 static void SetupSoundHandler()
 {
@@ -34,6 +35,8 @@ static void SetupSoundHandler()
 	if(audioEnabled)
 	{
 		g_virtualMachine->CreateSoundHandler(&CSH_OpenSL::HandlerFactory);
+		auto spuBlockCount = CAppConfig::GetInstance().GetPreferenceInteger(PREF_AUDIO_SPUBLOCKCOUNT);
+		g_virtualMachine->SetSpuBlockCount(spuBlockCount);
 	}
 	else
 	{
@@ -84,6 +87,7 @@ extern "C" JNIEXPORT void JNICALL Java_com_virtualapplications_play_NativeIntero
 	g_ProfileFrameDoneConnection = g_virtualMachine->ProfileFrameDone.Connect(std::bind(&CStatsManager::OnProfileFrameDone, &CStatsManager::GetInstance(), g_virtualMachine, std::placeholders::_1));
 #endif
 	CAppConfig::GetInstance().RegisterPreferenceBoolean(PREF_AUDIO_ENABLEOUTPUT, true);
+	CAppConfig::GetInstance().RegisterPreferenceInteger(PREF_AUDIO_SPUBLOCKCOUNT, 400);
 	CGSH_OpenGL::RegisterPreferences();
 }
 
