@@ -138,6 +138,16 @@ void CPS2VM::CreateSoundHandler(const CSoundHandler::FactoryFunction& factoryFun
 	m_mailBox.SendCall([this, factoryFunction]() { CreateSoundHandlerImpl(factoryFunction); }, true);
 }
 
+void CPS2VM::SetSpuBlockCount(int spuBlockCount)
+{
+	assert(spuBlockCount <= BLOCK_COUNT);
+	m_mailBox.SendCall(
+	    [this, spuBlockCount]() {
+		    m_currentSpuBlock = 0;
+		    m_SpuBlockCount = spuBlockCount;
+	    });
+}
+
 void CPS2VM::DestroySoundHandler()
 {
 	if(m_soundHandler == nullptr) return;
@@ -649,7 +659,7 @@ void CPS2VM::UpdateSpu()
 	}
 
 	m_currentSpuBlock++;
-	if(m_currentSpuBlock == BLOCK_COUNT)
+	if(m_currentSpuBlock == m_SpuBlockCount)
 	{
 		if(m_soundHandler)
 		{
@@ -657,7 +667,7 @@ void CPS2VM::UpdateSpu()
 			{
 				m_soundHandler->RecycleBuffers();
 			}
-			m_soundHandler->Write(m_samples, BLOCK_SIZE * BLOCK_COUNT, DST_SAMPLE_RATE);
+			m_soundHandler->Write(m_samples, BLOCK_SIZE * m_SpuBlockCount, DST_SAMPLE_RATE);
 		}
 		m_currentSpuBlock = 0;
 	}
