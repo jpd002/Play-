@@ -1,5 +1,6 @@
 #include "settingsdialog.h"
 #include "ui_settingsdialog.h"
+#include "PS2VM_Preferences.h"
 #include "PreferenceDefs.h"
 #include "../gs/GSH_OpenGL/GSH_OpenGL.h"
 #include <cmath>
@@ -39,7 +40,7 @@ void SettingsDialog::LoadPreferences()
 	ui->checkBox_force_bilinear_filtering->setChecked(CAppConfig::GetInstance().GetPreferenceBoolean(PREF_CGSH_OPENGL_FORCEBILINEARTEXTURES));
 
 	ui->checkBox_enable_audio->setChecked(CAppConfig::GetInstance().GetPreferenceBoolean(PREFERENCE_AUDIO_ENABLEOUTPUT));
-	ui->spinBox_spuBlockCount->setValue(CAppConfig::GetInstance().GetPreferenceInteger(PREFERENCE_AUDIO_SPUBLOCKCOUNT));
+	ui->spinBox_spuBlockCount->setValue(CAppConfig::GetInstance().GetPreferenceInteger(PREF_AUDIO_SPUBLOCKCOUNT));
 	ui->comboBox_presentation_mode->setCurrentIndex(CAppConfig::GetInstance().GetPreferenceInteger(PREF_CGSHANDLER_PRESENTATION_MODE));
 }
 
@@ -67,5 +68,5 @@ void SettingsDialog::on_comboBox_res_multiplyer_currentIndexChanged(int index)
 
 void SettingsDialog::on_spinBox_spuBlockCount_valueChanged(int value)
 {
-	CAppConfig::GetInstance().SetPreferenceInteger(PREFERENCE_AUDIO_SPUBLOCKCOUNT, value);
+	CAppConfig::GetInstance().SetPreferenceInteger(PREF_AUDIO_SPUBLOCKCOUNT, value);
 }
