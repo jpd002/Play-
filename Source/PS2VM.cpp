@@ -144,7 +144,7 @@ void CPS2VM::SetSpuBlockCount(int spuBlockCount)
 	m_mailBox.SendCall(
 	    [this, spuBlockCount]() {
 		    m_currentSpuBlock = 0;
-		    m_SpuBlockCount = spuBlockCount;
+		    m_spuBlockCount = spuBlockCount;
 	    });
 }
 
@@ -659,7 +659,7 @@ void CPS2VM::UpdateSpu()
 	}
 
 	m_currentSpuBlock++;
-	if(m_currentSpuBlock == m_SpuBlockCount)
+	if(m_currentSpuBlock == m_spuBlockCount)
 	{
 		if(m_soundHandler)
 		{
@@ -667,7 +667,7 @@ void CPS2VM::UpdateSpu()
 			{
 				m_soundHandler->RecycleBuffers();
 			}
-			m_soundHandler->Write(m_samples, BLOCK_SIZE * m_SpuBlockCount, DST_SAMPLE_RATE);
+			m_soundHandler->Write(m_samples, BLOCK_SIZE * m_spuBlockCount, DST_SAMPLE_RATE);
 		}
 		m_currentSpuBlock = 0;
 	}
