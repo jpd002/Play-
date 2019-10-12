@@ -292,7 +292,7 @@
         </rect>
        </property>
        <property name="text">
-        <string>SPU Block Count*:</string>
+        <string>Buffer Size:</string>
        </property>
       </widget>
      </widget>
