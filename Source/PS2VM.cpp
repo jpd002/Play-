@@ -95,7 +95,6 @@ CPS2VM::CPS2VM()
 
 	CAppConfig::GetInstance().RegisterPreferenceInteger(PREF_AUDIO_SPUBLOCKCOUNT, BLOCK_COUNT);
 	m_spuBlockCount = CAppConfig::GetInstance().GetPreferenceInteger(PREF_AUDIO_SPUBLOCKCOUNT);
-
 }
 
 //////////////////////////////////////////////////
@@ -142,12 +141,13 @@ void CPS2VM::CreateSoundHandler(const CSoundHandler::FactoryFunction& factoryFun
 	m_mailBox.SendCall([this, factoryFunction]() { CreateSoundHandlerImpl(factoryFunction); }, true);
 }
 
-void CPS2VM::SetSpuBlockCount(int spuBlockCount)
+void CPS2VM::ReloadSpuBlockCount()
 {
-	assert(spuBlockCount <= BLOCK_COUNT);
 	m_mailBox.SendCall(
-	    [this, spuBlockCount]() {
+	    [this]() {
 		    m_currentSpuBlock = 0;
+		    auto spuBlockCount = CAppConfig::GetInstance().GetPreferenceInteger(PREF_AUDIO_SPUBLOCKCOUNT);
+		    assert(spuBlockCount <= BLOCK_COUNT);
 		    m_spuBlockCount = spuBlockCount;
 	    });
 }

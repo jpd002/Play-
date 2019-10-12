@@ -34,8 +34,6 @@ static void SetupSoundHandler()
 	if(audioEnabled)
 	{
 		g_virtualMachine->CreateSoundHandler(&CSH_OpenSL::HandlerFactory);
-		auto spuBlockCount = CAppConfig::GetInstance().GetPreferenceInteger(PREF_AUDIO_SPUBLOCKCOUNT);
-		g_virtualMachine->SetSpuBlockCount(spuBlockCount);
 	}
 	else
 	{
@@ -48,6 +46,7 @@ static void ResetVirtualMachine()
 	assert(g_virtualMachine != nullptr);
 	g_virtualMachine->Pause();
 	g_virtualMachine->Reset();
+	g_virtualMachine->ReloadSpuBlockCount();
 	SetupSoundHandler();
 }
 

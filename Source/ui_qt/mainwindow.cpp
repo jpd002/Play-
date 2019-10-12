@@ -222,8 +222,6 @@ void MainWindow::SetupSoundHandler()
 #else
 		m_virtualMachine->CreateSoundHandler(&CSH_OpenAL::HandlerFactory);
 #endif
-		auto spuBlockCount = CAppConfig::GetInstance().GetPreferenceInteger(PREFERENCE_AUDIO_SPUBLOCKCOUNT);
-		m_virtualMachine->SetSpuBlockCount(spuBlockCount);
 	}
 	else
 	{
@@ -446,6 +444,7 @@ void MainWindow::on_actionSettings_triggered()
 	SetupSoundHandler();
 	if(m_virtualMachine != nullptr)
 	{
+		m_virtualMachine->ReloadSpuBlockCount();
 		openGLWindow_resized();
 		auto gsHandler = m_virtualMachine->GetGSHandler();
 		if(gsHandler)

@@ -63,7 +63,7 @@ public:
 
 	void CreateSoundHandler(const CSoundHandler::FactoryFunction&);
 	void DestroySoundHandler();
-	void SetSpuBlockCount(int);
+	void ReloadSpuBlockCount();
 
 	static boost::filesystem::path GetStateDirectoryPath();
 	boost::filesystem::path GenerateStatePath(unsigned int) const;
