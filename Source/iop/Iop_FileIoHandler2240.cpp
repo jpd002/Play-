@@ -149,6 +149,7 @@ uint32 CFileIoHandler2240::InvokeClose(uint32* args, uint32 argsSize, uint32* re
 {
 	assert(retSize == 4);
 	auto command = reinterpret_cast<CLOSECOMMAND*>(args);
+	auto fileMode = m_ioman->GetFileMode(command->fd);
 	auto result = m_ioman->Close(command->fd);
 
 	CLOSEREPLY reply;
@@ -159,10 +160,12 @@ uint32 CFileIoHandler2240::InvokeClose(uint32* args, uint32 argsSize, uint32* re
 	reply.unknown3 = 0;
 	reply.unknown4 = 0;
 
-	//1945 1+2 will close the file before checking the read command has completed
-	//Just push the read command reply and queue a close command reply
+	//1945 1+2 will close the file before checking the read command has completed.
+	//Just push the read command reply and queue a close command reply.
+	//Assuming this is only possible if a file is opened with NOWAIT.
 	if(m_pendingReply.valid && (m_pendingReply.fileId == command->fd))
 	{
+		assert((fileMode & Ioman::CDevice::OPEN_FLAG_NOWAIT) != 0);
 		SendPendingReply(ram);
 		assert(!m_pendingReply.valid);
 		m_pendingReply.SetReply(reply);
@@ -197,22 +200,11 @@ uint32 CFileIoHandler2240::InvokeRead(uint32* args, uint32 argsSize, uint32* ret
 	reply.unknown3 = 0;
 	reply.unknown4 = 0;
 
-	//Delay read reply to next frame (needed by Phantasy Star Collection & 1945 1+2)
-	auto fileMode = m_ioman->GetFileMode(command->fd);
-	if(fileMode & Ioman::CDevice::OPEN_FLAG_NOWAIT)
-	{
-		m_pendingReply.SetReply(reply);
-		m_pendingReply.fileId = command->fd;
-	}
-	else
-	{
-		//Send response
-		if(m_resultPtr[0] != 0)
-		{
-			memcpy(ram + m_resultPtr[0], &reply, sizeof(READREPLY));
-		}
-		SendSifReply();
-	}
+	//Delay read reply to next frame.
+	//Some games, like Shadow of the Colossus, seem to rely on the delay to
+	//work properly (probably because it causes EE threads to be rescheduled).
+	m_pendingReply.SetReply(reply);
+	m_pendingReply.fileId = command->fd;
 	return 1;
 }
 
