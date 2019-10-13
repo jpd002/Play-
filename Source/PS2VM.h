@@ -63,6 +63,7 @@ public:
 
 	void CreateSoundHandler(const CSoundHandler::FactoryFunction&);
 	void DestroySoundHandler();
+	void ReloadSpuBlockCount();
 
 	static boost::filesystem::path GetStateDirectoryPath();
 	boost::filesystem::path GenerateStatePath(unsigned int) const;
@@ -163,6 +164,7 @@ private:
 
 	int16 m_samples[BLOCK_SIZE * BLOCK_COUNT];
 	int m_currentSpuBlock = 0;
+	int m_spuBlockCount;
 	CSoundHandler* m_soundHandler = nullptr;
 
 	CProfiler::ZoneHandle m_eeProfilerZone = 0;

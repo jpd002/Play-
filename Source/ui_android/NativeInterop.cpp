@@ -46,6 +46,7 @@ static void ResetVirtualMachine()
 	assert(g_virtualMachine != nullptr);
 	g_virtualMachine->Pause();
 	g_virtualMachine->Reset();
+	g_virtualMachine->ReloadSpuBlockCount();
 	SetupSoundHandler();
 }
 

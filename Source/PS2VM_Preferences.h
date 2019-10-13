@@ -5,3 +5,5 @@
 #define PREF_PS2_HOST_DIRECTORY ("ps2.host.directory.v2")
 #define PREF_PS2_MC0_DIRECTORY ("ps2.mc0.directory.v2")
 #define PREF_PS2_MC1_DIRECTORY ("ps2.mc1.directory.v2")
+
+#define PREF_AUDIO_SPUBLOCKCOUNT ("audio.spublockcount")

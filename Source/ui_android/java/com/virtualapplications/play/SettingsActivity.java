@@ -115,6 +115,18 @@ public class SettingsActivity extends PreferenceActivity implements SharedPrefer
 				}
 			});
 			presentationmode_pref.setSummary(presentationmode_pref.getEntry());
+
+			ListPreference spublockcount_pref = (ListPreference)findPreference("audio.spublockcount");
+			spublockcount_pref.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener()
+			{
+				@Override
+				public boolean onPreferenceChange(Preference preference, Object value)
+				{
+					preference.setSummary(value.toString());
+					return true;
+				}
+			});
+			spublockcount_pref.setSummary(spublockcount_pref.getEntry());
 		}
 
 		@Override

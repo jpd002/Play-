@@ -26,6 +26,7 @@ private slots:
 	void on_comboBox_presentation_mode_currentIndexChanged(int index);
 	void changePage(QListWidgetItem* current, QListWidgetItem* previous);
 	void on_comboBox_res_multiplyer_currentIndexChanged(int index);
+	void on_spinBox_spuBlockCount_valueChanged(int value);
 
 private:
 	Ui::SettingsDialog* ui;
