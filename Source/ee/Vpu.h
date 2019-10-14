@@ -36,6 +36,8 @@ public:
 		CMIPS* context;
 	};
 
+	typedef Framework::CSignal<void (bool)> VuStateChangedEvent;
+
 	CVpu(unsigned int, const VPUINIT&, CGIF&, CINTC&, uint8*, uint8*);
 	virtual ~CVpu();
 
@@ -65,6 +67,8 @@ public:
 	uint32 GetVuTopMiniState() const;
 	uint32 GetVuItopMiniState() const;
 #endif
+
+	VuStateChangedEvent VuStateChanged;
 
 protected:
 	typedef std::unique_ptr<CVif> VifPtr;

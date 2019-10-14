@@ -90,6 +90,7 @@ namespace Ee
 
 		uint32 Vu0IoPortReadHandler(uint32);
 		uint32 Vu0IoPortWriteHandler(uint32, uint32);
+		void Vu0StateChanged(bool);
 
 		uint32 Vu1MicroMemWriteHandler(uint32, uint32);
 
@@ -118,5 +119,6 @@ namespace Ee
 		CCOP_VU m_COP_VU;
 
 		Framework::CSignal<void()>::Connection m_OnRequestInstructionCacheFlushConnection;
+		CVpu::VuStateChangedEvent::Connection m_vu0StateChangedConnection;
 	};
 };

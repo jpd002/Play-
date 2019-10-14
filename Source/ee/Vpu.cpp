@@ -49,6 +49,7 @@ void CVpu::Execute(int32 quota)
 	{
 		//E bit encountered
 		m_running = false;
+		VuStateChanged(m_running);
 	}
 }
 
@@ -151,6 +152,7 @@ void CVpu::ExecuteMicroProgram(uint32 nAddress)
 
 	assert(!m_running);
 	m_running = true;
+	VuStateChanged(m_running);
 	for(unsigned int i = 0; i < 100; i++)
 	{
 		Execute(5000);
