@@ -234,7 +234,6 @@ int CSubSystem::ExecuteCpu(int quota)
 		if(!m_vpu0->IsVuRunning())
 		{
 			//callMs mode over
-			CopyVuState(m_EE, m_VU0);
 			m_EE.m_State.callMsAddr = m_VU0.m_State.nPC;
 			m_EE.m_State.callMsEnabled = 0;
 		}
@@ -256,7 +255,6 @@ int CSubSystem::ExecuteCpu(int quota)
 			{
 				//We are in callMs mode
 				assert(!m_vpu0->IsVuRunning());
-				CopyVuState(m_VU0, m_EE);
 				m_vpu0->ExecuteMicroProgram(m_EE.m_State.callMsAddr);
 				m_EE.m_State.nHasException = MIPS_EXCEPTION_NONE;
 			}
