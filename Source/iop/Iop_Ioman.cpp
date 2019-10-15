@@ -697,8 +697,7 @@ Framework::CStream* CIoman::GetFileStream(uint32 handle)
 
 void CIoman::SetFileStream(uint32 handle, Framework::CStream* stream)
 {
-	auto prevStreamIterator = m_files.find(handle);
-	m_files.erase(prevStreamIterator);
+	m_files.erase(handle);
 	m_files[handle] = {stream};
 }
 
