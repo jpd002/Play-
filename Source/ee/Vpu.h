@@ -36,7 +36,7 @@ public:
 		CMIPS* context;
 	};
 
-	typedef Framework::CSignal<void (bool)> VuStateChangedEvent;
+	typedef Framework::CSignal<void(bool)> VuStateChangedEvent;
 
 	CVpu(unsigned int, const VPUINIT&, CGIF&, CINTC&, uint8*, uint8*);
 	virtual ~CVpu();

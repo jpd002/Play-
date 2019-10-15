@@ -61,7 +61,7 @@ CSubSystem::CSubSystem(uint8* iopRam, CIopBios& iopBios)
 	m_vpu1 = std::make_shared<CVpu>(1, CVpu::VPUINIT(m_microMem1, m_vuMem1, &m_VU1), m_gif, m_intc, m_ram, m_spr);
 
 	//Setup link between EE's VU context and VU0's VU context
-	m_vu0StateChangedConnection = m_vpu0->VuStateChanged.Connect([this] (bool running) { Vu0StateChanged(running); });
+	m_vu0StateChangedConnection = m_vpu0->VuStateChanged.Connect([this](bool running) { Vu0StateChanged(running); });
 
 	//EmotionEngine context setup
 	{
