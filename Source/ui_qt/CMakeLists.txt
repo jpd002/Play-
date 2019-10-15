@@ -234,9 +234,10 @@ elseif(TARGET_PLATFORM_UNIX)
 
 	install(TARGETS Play DESTINATION bin RENAME Play PERMISSIONS OWNER_EXECUTE OWNER_WRITE OWNER_READ GROUP_EXECUTE GROUP_READ WORLD_EXECUTE WORLD_READ)
 
-	install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/../../installer_unix/Play.desktop DESTINATION share/applications)
 	install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/../../icons/icon_base.png DESTINATION share/icons RENAME Play.png)
 else()
+	install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/../../installer_unix/Play.desktop DESTINATION share/applications)
+
 	add_executable(Play ${QT_SOURCES} ${QT_MOC_SRCS} ${QT_RES_SOURCES} ${QT_UI_HEADERS})
 endif()
 
