@@ -6,8 +6,8 @@
 #include "DiskUtils.h"
 #include "PathUtils.h"
 #include "string_format.h"
+#include "StdStreamUtils.h"
 #include "http/HttpClientFactory.h"
-#include <iostream>
 
 //Jobs
 // Scan for new games (from input directory)
@@ -15,14 +15,14 @@
 // Extract game ids from disk images
 // Pull disc cover URLs and titles from GamesDb/TheGamesDb
 
-bool IsBootableExecutablePath(const boost::filesystem::path& filePath)
+bool IsBootableExecutablePath(const fs::path& filePath)
 {
 	auto extension = filePath.extension().string();
 	std::transform(extension.begin(), extension.end(), extension.begin(), ::tolower);
 	return (extension == ".elf");
 }
 
-bool IsBootableDiscImagePath(const boost::filesystem::path& filePath)
+bool IsBootableDiscImagePath(const fs::path& filePath)
 {
 	auto extension = filePath.extension().string();
 	std::transform(extension.begin(), extension.end(), extension.begin(), ::tolower);
@@ -32,7 +32,7 @@ bool IsBootableDiscImagePath(const boost::filesystem::path& filePath)
 	       (extension == ".bin");
 }
 
-void TryRegisteringBootable(const boost::filesystem::path& path)
+void TryRegisteringBootable(const fs::path& path)
 {
 	std::string serial;
 	if(
@@ -44,15 +44,15 @@ void TryRegisteringBootable(const boost::filesystem::path& path)
 	BootablesDb::CClient::GetInstance().RegisterBootable(path, path.filename().string().c_str(), serial.c_str());
 }
 
-void ScanBootables(const boost::filesystem::path& parentPath, bool recursive)
+void ScanBootables(const fs::path& parentPath, bool recursive)
 {
-	for(auto pathIterator = boost::filesystem::directory_iterator(parentPath);
-	    pathIterator != boost::filesystem::directory_iterator(); pathIterator++)
+	for(auto pathIterator = fs::directory_iterator(parentPath);
+	    pathIterator != fs::directory_iterator(); pathIterator++)
 	{
 		auto& path = pathIterator->path();
 		try
 		{
-			if(recursive && boost::filesystem::is_directory(path))
+			if(recursive && fs::is_directory(path))
 			{
 				ScanBootables(path, recursive);
 				continue;
@@ -66,9 +66,9 @@ void ScanBootables(const boost::filesystem::path& parentPath, bool recursive)
 	}
 }
 
-std::set<boost::filesystem::path> GetActiveBootableDirectories()
+std::set<fs::path> GetActiveBootableDirectories()
 {
-	std::set<boost::filesystem::path> result;
+	std::set<fs::path> result;
 	auto bootables = BootablesDb::CClient::GetInstance().GetBootables();
 	for(const auto& bootable : bootables)
 	{
@@ -83,7 +83,7 @@ void PurgeInexistingFiles()
 	auto bootables = BootablesDb::CClient::GetInstance().GetBootables();
 	for(const auto& bootable : bootables)
 	{
-		if(boost::filesystem::exists(bootable.path)) continue;
+		if(fs::exists(bootable.path)) continue;
 		BootablesDb::CClient::GetInstance().UnregisterBootable(bootable.path);
 	}
 }
@@ -140,7 +140,7 @@ void FetchGameTitles()
 
 void FetchGameCovers()
 {
-	auto coverpath(CAppConfig::GetBasePath() / boost::filesystem::path("covers"));
+	auto coverpath(CAppConfig::GetBasePath() / fs::path("covers"));
 	Framework::PathUtils::EnsurePathExists(coverpath);
 
 	auto bootables = BootablesDb::CClient::GetInstance().GetBootables();
@@ -151,7 +151,7 @@ void FetchGameCovers()
 			continue;
 
 		auto path = coverpath / (bootable.discId + ".jpg");
-		if(boost::filesystem::exists(path))
+		if(fs::exists(path))
 			continue;
 
 		auto requestResult =
@@ -162,9 +162,8 @@ void FetchGameCovers()
 		    }();
 		if(requestResult.statusCode == Framework::Http::HTTP_STATUS_CODE::OK)
 		{
-			auto myfile = std::fstream(path.c_str(), std::ios::out | std::ios::binary);
-			myfile.write(reinterpret_cast<char*>(requestResult.data.GetBuffer()), requestResult.data.GetSize());
-			myfile.close();
+			auto outputStream = Framework::CreateOutputStdStream(path.native());
+			outputStream.Write(requestResult.data.GetBuffer(), requestResult.data.GetSize());
 		}
 	}
 }

@@ -1,7 +1,7 @@
 #ifndef _SAVE_H_
 #define _SAVE_H_
 
-#include <boost/filesystem/path.hpp>
+#include "filesystem_def.h"
 #include <string>
 #include <ctime>
 #include "Types.h"
@@ -17,18 +17,18 @@ public:
 		ICON_COPYING,
 	};
 
-	CSave(const boost::filesystem::path&);
+	CSave(const fs::path&);
 	virtual ~CSave();
 
 	const wchar_t* GetName() const;
 	const char* GetId() const;
 	unsigned int GetSize() const;
 
-	boost::filesystem::path GetPath() const;
-	boost::filesystem::path GetIconPath(const ICONTYPE&) const;
-	boost::filesystem::path GetNormalIconPath() const;
-	boost::filesystem::path GetDeletingIconPath() const;
-	boost::filesystem::path GetCopyingIconPath() const;
+	fs::path GetPath() const;
+	fs::path GetIconPath(const ICONTYPE&) const;
+	fs::path GetNormalIconPath() const;
+	fs::path GetDeletingIconPath() const;
+	fs::path GetCopyingIconPath() const;
 
 	size_t GetSecondLineStartPosition() const;
 	time_t GetLastModificationTime() const;
@@ -36,7 +36,7 @@ public:
 private:
 	void ReadName(Framework::CStream&);
 
-	boost::filesystem::path m_basePath;
+	fs::path m_basePath;
 	std::wstring m_sName;
 	std::string m_sId;
 	std::string m_sNormalIconFileName;

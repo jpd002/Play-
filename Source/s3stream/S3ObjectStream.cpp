@@ -106,7 +106,7 @@ bool CS3ObjectStream::IsEOF()
 	return (m_objectPosition == m_objectSize);
 }
 
-boost::filesystem::path CS3ObjectStream::GetCachePath()
+fs::path CS3ObjectStream::GetCachePath()
 {
 	return Framework::PathUtils::GetCachePath() / CACHE_PATH;
 }
@@ -176,7 +176,7 @@ void CS3ObjectStream::SyncBuffer()
 	    [&]() {
 		    try
 		    {
-			    if(boost::filesystem::exists(readCacheFilePath))
+			    if(fs::exists(readCacheFilePath))
 			    {
 				    auto readCacheFileStream = Framework::CreateInputStdStream(readCacheFilePath.native());
 				    auto cacheRead = readCacheFileStream.Read(m_buffer.data(), size);

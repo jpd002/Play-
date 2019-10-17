@@ -1,8 +1,6 @@
 #include "PsuSaveImporter.h"
 #include "StdStreamUtils.h"
 
-namespace filesystem = boost::filesystem;
-
 CPsuSaveImporter::CPsuSaveImporter()
 {
 }
@@ -11,11 +9,11 @@ CPsuSaveImporter::~CPsuSaveImporter()
 {
 }
 
-void CPsuSaveImporter::Import(Framework::CStream& input, const filesystem::path& basePath)
+void CPsuSaveImporter::Import(Framework::CStream& input, const fs::path& basePath)
 {
-	if(!filesystem::exists(basePath))
+	if(!fs::exists(basePath))
 	{
-		filesystem::create_directory(basePath);
+		fs::create_directory(basePath);
 	}
 
 	uint16 nEntryType = input.Read16();
@@ -43,7 +41,7 @@ void CPsuSaveImporter::Import(Framework::CStream& input, const filesystem::path&
 		}
 		else if(nEntryType == 0x8497)
 		{
-			filesystem::path outputPath = basePath / sEntryName;
+			fs::path outputPath = basePath / sEntryName;
 			if(!CanExtractFile(outputPath))
 			{
 				input.Seek(nEntrySize, Framework::STREAM_SEEK_CUR);

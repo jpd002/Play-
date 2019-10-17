@@ -2,7 +2,7 @@
 
 #include "Singleton.h"
 #include "Stream.h"
-#include "boost_filesystem_def.h"
+#include "filesystem_def.h"
 
 class CS3ObjectStream : public Framework::CStream
 {
@@ -24,7 +24,7 @@ public:
 	bool IsEOF() override;
 
 private:
-	static boost::filesystem::path GetCachePath();
+	static fs::path GetCachePath();
 	std::string GenerateReadCacheKey(const std::pair<uint64, uint64>&) const;
 	void GetObjectInfo();
 	void SyncBuffer();

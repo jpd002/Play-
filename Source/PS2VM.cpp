@@ -39,8 +39,6 @@
 #define ONSCREEN_TICKS (FRAME_TICKS * 9 / 10)
 #define VBLANK_TICKS (FRAME_TICKS / 10)
 
-namespace filesystem = boost::filesystem;
-
 CPS2VM::CPS2VM()
     : m_nStatus(PAUSED)
     , m_nEnd(false)
@@ -77,7 +75,7 @@ CPS2VM::CPS2VM()
 		CAppConfig::GetInstance().RegisterPreferencePath(setting, absolutePath);
 
 		auto currentPath = CAppConfig::GetInstance().GetPreferencePath(setting);
-		if(!boost::filesystem::exists(currentPath))
+		if(!fs::exists(currentPath))
 		{
 			CAppConfig::GetInstance().SetPreferencePath(setting, absolutePath);
 		}
@@ -240,18 +238,18 @@ void CPS2VM::Destroy()
 	DestroyVM();
 }
 
-boost::filesystem::path CPS2VM::GetStateDirectoryPath()
+fs::path CPS2VM::GetStateDirectoryPath()
 {
-	return CAppConfig::GetBasePath() / boost::filesystem::path("states/");
+	return CAppConfig::GetBasePath() / fs::path("states/");
 }
 
-boost::filesystem::path CPS2VM::GenerateStatePath(unsigned int slot) const
+fs::path CPS2VM::GenerateStatePath(unsigned int slot) const
 {
 	auto stateFileName = string_format("%s.st%d.zip", m_ee->m_os->GetExecutableName(), slot);
-	return GetStateDirectoryPath() / boost::filesystem::path(stateFileName);
+	return GetStateDirectoryPath() / fs::path(stateFileName);
 }
 
-std::future<bool> CPS2VM::SaveState(const filesystem::path& statePath)
+std::future<bool> CPS2VM::SaveState(const fs::path& statePath)
 {
 	auto promise = std::make_shared<std::promise<bool>>();
 	auto future = promise->get_future();
@@ -263,7 +261,7 @@ std::future<bool> CPS2VM::SaveState(const filesystem::path& statePath)
 	return future;
 }
 
-std::future<bool> CPS2VM::LoadState(const filesystem::path& statePath)
+std::future<bool> CPS2VM::LoadState(const fs::path& statePath)
 {
 	auto promise = std::make_shared<std::promise<bool>>();
 	auto future = promise->get_future();
@@ -306,7 +304,7 @@ CPS2VM::CPU_UTILISATION_INFO CPS2VM::GetCpuUtilisationInfo() const
 
 std::string CPS2VM::MakeDebugTagsPackagePath(const char* packageName)
 {
-	auto tagsPath = CAppConfig::GetBasePath() / boost::filesystem::path(TAGS_PATH);
+	auto tagsPath = CAppConfig::GetBasePath() / fs::path(TAGS_PATH);
 	Framework::PathUtils::EnsurePathExists(tagsPath);
 	auto tagsPackagePath = tagsPath / (std::string(packageName) + std::string(".tags.xml"));
 	return tagsPackagePath.string();
@@ -422,7 +420,7 @@ void CPS2VM::DestroyVM()
 	CDROM0_Reset();
 }
 
-bool CPS2VM::SaveVMState(const filesystem::path& statePath)
+bool CPS2VM::SaveVMState(const fs::path& statePath)
 {
 	if(m_ee->m_gs == NULL)
 	{
@@ -449,7 +447,7 @@ bool CPS2VM::SaveVMState(const filesystem::path& statePath)
 	return true;
 }
 
-bool CPS2VM::LoadVMState(const filesystem::path& statePath)
+bool CPS2VM::LoadVMState(const fs::path& statePath)
 {
 	if(m_ee->m_gs == NULL)
 	{

@@ -6,7 +6,6 @@
 #include "saves/SaveImporter.h"
 #include <QDialog>
 #include <QDir>
-#include <boost/filesystem.hpp>
 
 namespace Ui
 {
@@ -22,7 +21,7 @@ public:
 	~MemoryCardManagerDialog();
 
 private:
-	CSaveImporterBase::OVERWRITE_PROMPT_RETURN OnImportOverwrite(const boost::filesystem::path&);
+	CSaveImporterBase::OVERWRITE_PROMPT_RETURN OnImportOverwrite(const fs::path&);
 	void populateSaveList();
 
 	Ui::MemoryCardManagerDialog* ui;

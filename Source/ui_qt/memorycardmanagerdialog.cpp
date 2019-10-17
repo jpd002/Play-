@@ -64,9 +64,9 @@ void MemoryCardManagerDialog::on_import_saves_button_clicked()
 	}
 }
 
-CSaveImporterBase::OVERWRITE_PROMPT_RETURN MemoryCardManagerDialog::OnImportOverwrite(const boost::filesystem::path& filePath)
+CSaveImporterBase::OVERWRITE_PROMPT_RETURN MemoryCardManagerDialog::OnImportOverwrite(const fs::path& filePath)
 {
-	std::string fileName = filePath.leaf().string();
+	std::string fileName = filePath.filename().string();
 	QString msg("File %1 already exists.\n\nOverwrite?");
 	QMessageBox::StandardButton resBtn = QMessageBox::question(this, "Overwrite?",
 	                                                           msg.arg(fileName.c_str()),
@@ -136,7 +136,7 @@ void MemoryCardManagerDialog::on_delete_save_button_clicked()
 		if(currentRow >= 0 && currentRow <= nItemCount)
 		{
 			const CSave* save = m_pCurrentMemoryCard->GetSaveByIndex(currentRow);
-			boost::filesystem::remove_all(save->GetPath());
+			fs::remove_all(save->GetPath());
 			m_pCurrentMemoryCard->RefreshContents();
 			populateSaveList();
 		}

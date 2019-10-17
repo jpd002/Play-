@@ -3,7 +3,7 @@
 #include <string>
 #include <map>
 #include <regex>
-#include <boost/filesystem.hpp>
+#include "filesystem_def.h"
 #include "StdStream.h"
 #include "Iop_Module.h"
 #include "Iop_SifMan.h"
@@ -125,16 +125,16 @@ namespace Iop
 			virtual ~CPathFinder();
 
 			void Reset();
-			void Search(const boost::filesystem::path&, const char*);
+			void Search(const fs::path&, const char*);
 			unsigned int Read(ENTRY*, unsigned int);
 
 		private:
 			typedef std::vector<ENTRY> EntryList;
 
-			void SearchRecurse(const boost::filesystem::path&);
+			void SearchRecurse(const fs::path&);
 
 			EntryList m_entries;
-			boost::filesystem::path m_basePath;
+			fs::path m_basePath;
 			std::regex m_filterExp;
 			unsigned int m_index;
 		};
@@ -163,7 +163,7 @@ namespace Iop
 
 		uint32 GenerateHandle();
 		Framework::CStdStream* GetFileFromHandle(uint32);
-		boost::filesystem::path GetAbsoluteFilePath(unsigned int, unsigned int, const char*) const;
+		fs::path GetAbsoluteFilePath(unsigned int, unsigned int, const char*) const;
 
 		CIopBios& m_bios;
 		CSifMan& m_sifMan;
@@ -177,7 +177,7 @@ namespace Iop
 		uint32 m_readFastAddr = 0;
 		Framework::CStdStream m_files[MAX_FILES];
 		static const char* m_mcPathPreference[2];
-		boost::filesystem::path m_currentDirectory;
+		fs::path m_currentDirectory;
 		CPathFinder m_pathFinder;
 	};
 }

@@ -1,7 +1,7 @@
 #pragma once
 
 #include <string>
-#include <boost/filesystem.hpp>
+#include "filesystem_def.h"
 #include "Types.h"
 #include "Singleton.h"
 #include "sqlite/SqliteDb.h"
@@ -11,7 +11,7 @@ namespace BootablesDb
 {
 	struct Bootable
 	{
-		boost::filesystem::path path;
+		fs::path path;
 		std::string discId;
 		std::string title;
 		std::string coverUrl;
@@ -33,24 +33,24 @@ namespace BootablesDb
 		CClient();
 		virtual ~CClient() = default;
 
-		Bootable GetBootable(const boost::filesystem::path&);
+		Bootable GetBootable(const fs::path&);
 		std::vector<Bootable> GetBootables(int32_t = SORT_METHOD_NONE);
 
-		void RegisterBootable(const boost::filesystem::path&, const char*, const char*);
-		void UnregisterBootable(const boost::filesystem::path&);
+		void RegisterBootable(const fs::path&, const char*, const char*);
+		void UnregisterBootable(const fs::path&);
 
-		void SetDiscId(const boost::filesystem::path&, const char*);
-		void SetTitle(const boost::filesystem::path&, const char*);
-		void SetCoverUrl(const boost::filesystem::path&, const char*);
-		void SetLastBootedTime(const boost::filesystem::path&, time_t);
-		void SetOverview(const boost::filesystem::path& path, const char* overview);
+		void SetDiscId(const fs::path&, const char*);
+		void SetTitle(const fs::path&, const char*);
+		void SetCoverUrl(const fs::path&, const char*);
+		void SetLastBootedTime(const fs::path&, time_t);
+		void SetOverview(const fs::path& path, const char* overview);
 
 	private:
 		static Bootable ReadBootable(Framework::CSqliteStatement&);
 
 		void CheckDbVersion();
 
-		boost::filesystem::path m_dbPath;
+		fs::path m_dbPath;
 		Framework::CSqliteDb m_db;
 	};
 };

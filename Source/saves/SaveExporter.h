@@ -1,15 +1,14 @@
 #ifndef _SAVEEXPORTER_H_
 #define _SAVEEXPORTER_H_
 
-#include <boost/date_time/posix_time/posix_time.hpp>
-#include <boost/filesystem/path.hpp>
+#include "filesystem_def.h"
 #include "Types.h"
 #include "Stream.h"
 
 class CSaveExporter
 {
 public:
-	static void ExportPSU(Framework::CStream&, const boost::filesystem::path&);
+	static void ExportPSU(Framework::CStream&, const fs::path&);
 
 private:
 #pragma pack(push, 1)
@@ -40,7 +39,7 @@ private:
 
 #pragma pack(pop)
 
-	static void PSU_CopyTime(PSUENTRY::TIME*, const boost::posix_time::ptime&);
+	static void PSU_CopyTime(PSUENTRY::TIME*, const fs::file_time_type&);
 };
 
 #endif

@@ -4,7 +4,7 @@
 #include <QListWidgetItem>
 #undef DELETE
 #include "../s3stream/AmazonS3Client.h"
-#include "boost_filesystem_def.h"
+#include "filesystem_def.h"
 #include "ContinuationChecker.h"
 
 namespace Ui
@@ -22,7 +22,7 @@ public:
 
 	static bool IsAvailable();
 
-	boost::filesystem::path GetSelectedPath() const;
+	fs::path GetSelectedPath() const;
 
 private slots:
 	void refreshButton_clicked();
@@ -41,5 +41,5 @@ private:
 	QTimer* m_filterTimer = nullptr;
 
 	ListObjectsResult m_bucketItems;
-	boost::filesystem::path m_selectedPath;
+	fs::path m_selectedPath;
 };

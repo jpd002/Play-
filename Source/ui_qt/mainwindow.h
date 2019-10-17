@@ -42,15 +42,15 @@ public:
 	explicit MainWindow(QWidget* parent = nullptr);
 	~MainWindow();
 
-	void BootElf(boost::filesystem::path);
+	void BootElf(fs::path);
 	void BootCDROM();
-	void LoadCDROM(boost::filesystem::path filePath);
+	void LoadCDROM(fs::path filePath);
 	void loadState(int);
 
 #ifdef DEBUGGER_INCLUDED
 	void ShowDebugger();
 	void ShowFrameDebugger();
-	boost::filesystem::path GetFrameDumpDirectoryPath();
+	fs::path GetFrameDumpDirectoryPath();
 	void DumpNextFrame();
 	void ToggleGsDraw();
 #endif
@@ -65,13 +65,13 @@ private:
 	struct LastOpenCommand
 	{
 		LastOpenCommand() = default;
-		LastOpenCommand(BootType type, boost::filesystem::path path)
+		LastOpenCommand(BootType type, fs::path path)
 		    : type(type)
 		    , path(path)
 		{
 		}
 		BootType type = BootType::CD;
-		boost::filesystem::path path;
+		fs::path path;
 	};
 
 	void SetOpenGlPanelSize();
@@ -106,7 +106,7 @@ private:
 	bool m_pauseFocusLost = true;
 	std::shared_ptr<CInputProviderQtKey> m_qtKeyInputProvider;
 	LastOpenCommand m_lastOpenCommand;
-	boost::filesystem::path m_lastPath;
+	fs::path m_lastPath;
 
 	Framework::CSignal<void()>::Connection m_OnExecutableChangeConnection;
 	CGSHandler::NewFrameEvent::Connection m_OnNewFrameConnection;

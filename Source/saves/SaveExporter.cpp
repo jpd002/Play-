@@ -1,15 +1,13 @@
-#include <boost/filesystem/operations.hpp>
 #include <cstring>
 #include "SaveExporter.h"
 #include "StdStream.h"
 #include "StdStreamUtils.h"
 
-void CSaveExporter::ExportPSU(Framework::CStream& outputStream, const boost::filesystem::path& savePath)
+void CSaveExporter::ExportPSU(Framework::CStream& outputStream, const fs::path& savePath)
 {
 	uint32 nSector = 0x18D;
 
-	boost::posix_time::ptime baseTime =
-	    boost::posix_time::from_time_t(boost::filesystem::last_write_time(savePath));
+	auto baseTime = fs::last_write_time(savePath);
 
 	//Save base directory entry
 	{
@@ -18,12 +16,12 @@ void CSaveExporter::ExportPSU(Framework::CStream& outputStream, const boost::fil
 
 		Entry.nSize = 2;
 
-		const boost::filesystem::directory_iterator itEnd;
-		for(boost::filesystem::directory_iterator itElement(savePath);
+		const fs::directory_iterator itEnd;
+		for(fs::directory_iterator itElement(savePath);
 		    itElement != itEnd;
 		    itElement++)
 		{
-			if(boost::filesystem::is_directory(*itElement)) continue;
+			if(fs::is_directory(*itElement)) continue;
 			Entry.nSize++;
 		}
 
@@ -64,23 +62,22 @@ void CSaveExporter::ExportPSU(Framework::CStream& outputStream, const boost::fil
 	nSector += 2;
 
 	//Save individual file entries
-	const boost::filesystem::directory_iterator itEnd;
-	for(boost::filesystem::directory_iterator itElement(savePath);
+	const fs::directory_iterator itEnd;
+	for(fs::directory_iterator itElement(savePath);
 	    itElement != itEnd;
 	    itElement++)
 	{
-		if(boost::filesystem::is_directory(*itElement)) continue;
+		if(fs::is_directory(*itElement)) continue;
 
-		boost::filesystem::path saveItemPath(*itElement);
+		fs::path saveItemPath(*itElement);
 
-		boost::posix_time::ptime itemTime =
-		    boost::posix_time::from_time_t(boost::filesystem::last_write_time(saveItemPath));
+		auto itemTime = fs::last_write_time(saveItemPath);
 
 		PSUENTRY Entry;
 		memset(&Entry, 0, sizeof(PSUENTRY));
 
 		Entry.nFlags = 0x8497;
-		Entry.nSize = static_cast<uint32>(boost::filesystem::file_size(saveItemPath));
+		Entry.nSize = static_cast<uint32>(fs::file_size(saveItemPath));
 		Entry.nSector = nSector;
 
 		PSU_CopyTime(&Entry.CreationTime, itemTime);
@@ -121,12 +118,15 @@ void CSaveExporter::ExportPSU(Framework::CStream& outputStream, const boost::fil
 	}
 }
 
-void CSaveExporter::PSU_CopyTime(PSUENTRY::TIME* pDst, const boost::posix_time::ptime& pSrc)
+void CSaveExporter::PSU_CopyTime(PSUENTRY::TIME* pDst, const fs::file_time_type& fileTime)
 {
-	pDst->nSecond = static_cast<uint8>(pSrc.time_of_day().seconds());
-	pDst->nMinute = static_cast<uint8>(pSrc.time_of_day().minutes());
-	pDst->nHour = static_cast<uint8>(pSrc.time_of_day().hours());
-	pDst->nDay = static_cast<uint8>(pSrc.date().day());
-	pDst->nMonth = static_cast<uint8>(pSrc.date().month());
-	pDst->nYear = pSrc.date().year();
+	auto systemTime = std::chrono::system_clock::now() + (fileTime - fs::file_time_type::clock::now());
+	auto tm = std::chrono::system_clock::to_time_t(systemTime);
+	const auto pSrc = std::localtime(&tm);
+	pDst->nSecond = static_cast<uint8>(pSrc->tm_sec);
+	pDst->nMinute = static_cast<uint8>(pSrc->tm_min);
+	pDst->nHour = static_cast<uint8>(pSrc->tm_hour);
+	pDst->nDay = static_cast<uint8>(pSrc->tm_mday);
+	pDst->nMonth = static_cast<uint8>(pSrc->tm_mon);
+	pDst->nYear = pSrc->tm_year;
 }

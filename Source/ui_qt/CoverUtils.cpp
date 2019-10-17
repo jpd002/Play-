@@ -27,12 +27,13 @@ void CoverUtils::PopulatePlaceholderCover()
 		CoverUtils::cache.insert(std::make_pair("PH", pixmap));
 	}
 }
+
 void CoverUtils::PopulateCache(std::vector<BootablesDb::Bootable> bootables)
 {
 	m_lock.lock();
 	PopulatePlaceholderCover();
 
-	auto coverpath(CAppConfig::GetBasePath() / boost::filesystem::path("covers"));
+	auto coverpath(CAppConfig::GetBasePath() / fs::path("covers"));
 	Framework::PathUtils::EnsurePathExists(coverpath);
 
 	auto itr = CoverUtils::cache.find("PH");
@@ -43,7 +44,7 @@ void CoverUtils::PopulateCache(std::vector<BootablesDb::Bootable> bootables)
 			continue;
 
 		auto path = coverpath / (bootable.discId + ".jpg");
-		if(boost::filesystem::exists(path))
+		if(fs::exists(path))
 		{
 			auto itr = CoverUtils::cache.find(bootable.discId.c_str());
 			if(itr == CoverUtils::cache.end())

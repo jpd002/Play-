@@ -94,7 +94,7 @@ MainWindow::MainWindow(QWidget* parent)
 
 	m_pauseFocusLost = CAppConfig::GetInstance().GetPreferenceBoolean(PREF_UI_PAUSEWHENFOCUSLOST);
 	auto lastPath = CAppConfig::GetInstance().GetPreferencePath(PREF_PS2_CDROM0_PATH);
-	if(boost::filesystem::exists(lastPath))
+	if(fs::exists(lastPath))
 	{
 		m_lastPath = lastPath.parent_path();
 	}
@@ -338,7 +338,7 @@ void MainWindow::on_actionBoot_ELF_triggered()
 	}
 }
 
-void MainWindow::BootElf(boost::filesystem::path filePath)
+void MainWindow::BootElf(fs::path filePath)
 {
 	BootablesDb::CClient::GetInstance().SetLastBootedTime(filePath, std::time(nullptr));
 
@@ -353,7 +353,7 @@ void MainWindow::BootElf(boost::filesystem::path filePath)
 	                        .arg(m_virtualMachine->m_ee->m_os->GetExecutableName()));
 }
 
-void MainWindow::LoadCDROM(boost::filesystem::path filePath)
+void MainWindow::LoadCDROM(fs::path filePath)
 {
 	m_lastPath = filePath.parent_path();
 	CAppConfig::GetInstance().SetPreferencePath(PREF_PS2_CDROM0_PATH, filePath);
@@ -688,9 +688,9 @@ void MainWindow::ShowFrameDebugger()
 	SetForegroundWindow(*m_frameDebugger);
 }
 
-boost::filesystem::path MainWindow::GetFrameDumpDirectoryPath()
+fs::path MainWindow::GetFrameDumpDirectoryPath()
 {
-	return CAppConfig::GetBasePath() / boost::filesystem::path("framedumps/");
+	return CAppConfig::GetBasePath() / fs::path("framedumps/");
 }
 
 void MainWindow::DumpNextFrame()
@@ -704,8 +704,8 @@ void MainWindow::DumpNextFrame()
 			    for(unsigned int i = 0; i < UINT_MAX; i++)
 			    {
 				    auto frameDumpFileName = string_format("framedump_%08d.dmp.zip", i);
-				    auto frameDumpPath = frameDumpDirectoryPath / boost::filesystem::path(frameDumpFileName);
-				    if(!boost::filesystem::exists(frameDumpPath))
+				    auto frameDumpPath = frameDumpDirectoryPath / fs::path(frameDumpFileName);
+				    if(!fs::exists(frameDumpPath))
 				    {
 					    auto dumpStream = Framework::CreateOutputStdStream(frameDumpPath.native());
 					    frameDump.Write(dumpStream);

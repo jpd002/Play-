@@ -37,7 +37,7 @@ bool S3FileBrowser::IsAvailable()
 	return !accessKeyId.empty() && !accessKeySecret.empty();
 }
 
-boost::filesystem::path S3FileBrowser::GetSelectedPath() const
+fs::path S3FileBrowser::GetSelectedPath() const
 {
 	return m_selectedPath;
 }

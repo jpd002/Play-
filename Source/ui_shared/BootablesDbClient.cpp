@@ -43,7 +43,7 @@ CClient::CClient()
 	}
 }
 
-Bootable CClient::GetBootable(const boost::filesystem::path& path)
+Bootable CClient::GetBootable(const fs::path& path)
 {
 	Framework::CSqliteStatement statement(m_db, "SELECT * FROM bootables WHERE path = ?");
 	statement.BindText(1, Framework::PathUtils::GetNativeStringFromPath(path).c_str());
@@ -78,7 +78,7 @@ std::vector<Bootable> CClient::GetBootables(int32_t sortMethod)
 	return bootables;
 }
 
-void CClient::RegisterBootable(const boost::filesystem::path& path, const char* title, const char* discId)
+void CClient::RegisterBootable(const fs::path& path, const char* title, const char* discId)
 {
 	Framework::CSqliteStatement statement(m_db, "INSERT OR IGNORE INTO bootables (path, title, discId) VALUES (?,?,?)");
 	statement.BindText(1, Framework::PathUtils::GetNativeStringFromPath(path).c_str());
@@ -87,14 +87,14 @@ void CClient::RegisterBootable(const boost::filesystem::path& path, const char* 
 	statement.StepNoResult();
 }
 
-void CClient::UnregisterBootable(const boost::filesystem::path& path)
+void CClient::UnregisterBootable(const fs::path& path)
 {
 	Framework::CSqliteStatement statement(m_db, "DELETE FROM bootables WHERE path = ?");
 	statement.BindText(1, Framework::PathUtils::GetNativeStringFromPath(path).c_str());
 	statement.StepNoResult();
 }
 
-void CClient::SetDiscId(const boost::filesystem::path& path, const char* discId)
+void CClient::SetDiscId(const fs::path& path, const char* discId)
 {
 	Framework::CSqliteStatement statement(m_db, "UPDATE bootables SET discId = ? WHERE path = ?");
 	statement.BindText(1, discId, true);
@@ -102,7 +102,7 @@ void CClient::SetDiscId(const boost::filesystem::path& path, const char* discId)
 	statement.StepNoResult();
 }
 
-void CClient::SetTitle(const boost::filesystem::path& path, const char* title)
+void CClient::SetTitle(const fs::path& path, const char* title)
 {
 	Framework::CSqliteStatement statement(m_db, "UPDATE bootables SET title = ? WHERE path = ?");
 	statement.BindText(1, title, true);
@@ -110,7 +110,7 @@ void CClient::SetTitle(const boost::filesystem::path& path, const char* title)
 	statement.StepNoResult();
 }
 
-void CClient::SetCoverUrl(const boost::filesystem::path& path, const char* coverUrl)
+void CClient::SetCoverUrl(const fs::path& path, const char* coverUrl)
 {
 	Framework::CSqliteStatement statement(m_db, "UPDATE bootables SET coverUrl = ? WHERE path = ?");
 	statement.BindText(1, coverUrl, true);
@@ -118,7 +118,7 @@ void CClient::SetCoverUrl(const boost::filesystem::path& path, const char* cover
 	statement.StepNoResult();
 }
 
-void CClient::SetLastBootedTime(const boost::filesystem::path& path, time_t lastBootedTime)
+void CClient::SetLastBootedTime(const fs::path& path, time_t lastBootedTime)
 {
 	Framework::CSqliteStatement statement(m_db, "UPDATE bootables SET lastBootedTime = ? WHERE path = ?");
 	statement.BindInteger(1, lastBootedTime);
@@ -126,7 +126,7 @@ void CClient::SetLastBootedTime(const boost::filesystem::path& path, time_t last
 	statement.StepNoResult();
 }
 
-void CClient::SetOverview(const boost::filesystem::path& path, const char* overview)
+void CClient::SetOverview(const fs::path& path, const char* overview)
 {
 	Framework::CSqliteStatement statement(m_db, "UPDATE bootables SET overview = ? WHERE path = ?");
 	statement.BindText(1, overview, true);
@@ -168,6 +168,6 @@ void CClient::CheckDbVersion()
 
 	if(!dbExistsAndMatchesVersion)
 	{
-		boost::filesystem::remove(m_dbPath);
+		fs::remove(m_dbPath);
 	}
 }

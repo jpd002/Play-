@@ -9,7 +9,7 @@ public:
 	CMaxSaveImporter();
 	virtual ~CMaxSaveImporter();
 
-	virtual void Import(Framework::CStream&, const boost::filesystem::path&);
+	void Import(Framework::CStream&, const fs::path&) override;
 };
 
 #endif

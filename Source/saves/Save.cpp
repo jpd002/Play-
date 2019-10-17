@@ -1,16 +1,13 @@
-#include <boost/filesystem/operations.hpp>
 #include <exception>
 #include "string_cast_sjis.h"
 #include "Save.h"
 #include "StdStream.h"
 #include "StdStreamUtils.h"
 
-namespace filesystem = boost::filesystem;
-
-CSave::CSave(const filesystem::path& basePath)
+CSave::CSave(const fs::path& basePath)
     : m_basePath(basePath)
 {
-	filesystem::path iconSysPath = m_basePath / "icon.sys";
+	auto iconSysPath = m_basePath / "icon.sys";
 
 	auto iconStream(Framework::CreateInputStdStream(iconSysPath.native()));
 
@@ -39,7 +36,7 @@ CSave::CSave(const filesystem::path& basePath)
 
 	m_sId = m_basePath.filename().string();
 
-	m_nLastModificationTime = filesystem::last_write_time(iconSysPath);
+	m_nLastModificationTime = std::chrono::time_point_cast<std::chrono::seconds>(fs::last_write_time(iconSysPath)).time_since_epoch().count();
 }
 
 CSave::~CSave()
@@ -58,30 +55,30 @@ const char* CSave::GetId() const
 
 unsigned int CSave::GetSize() const
 {
-	filesystem::directory_iterator itEnd;
+	fs::directory_iterator itEnd;
 	unsigned int nSize = 0;
 
-	for(filesystem::directory_iterator itElement(m_basePath);
+	for(fs::directory_iterator itElement(m_basePath);
 	    itElement != itEnd;
 	    itElement++)
 	{
-		if(!filesystem::is_directory(*itElement))
+		if(!fs::is_directory(*itElement))
 		{
-			nSize += filesystem::file_size(*itElement);
+			nSize += fs::file_size(*itElement);
 		}
 	}
 
 	return nSize;
 }
 
-filesystem::path CSave::GetPath() const
+fs::path CSave::GetPath() const
 {
 	return m_basePath;
 }
 
-filesystem::path CSave::GetIconPath(const ICONTYPE& iconType) const
+fs::path CSave::GetIconPath(const ICONTYPE& iconType) const
 {
-	filesystem::path iconPath;
+	fs::path iconPath;
 	switch(iconType)
 	{
 	case ICON_NORMAL:
@@ -97,17 +94,17 @@ filesystem::path CSave::GetIconPath(const ICONTYPE& iconType) const
 	return iconPath;
 }
 
-filesystem::path CSave::GetNormalIconPath() const
+fs::path CSave::GetNormalIconPath() const
 {
 	return m_basePath / m_sNormalIconFileName;
 }
 
-filesystem::path CSave::GetDeletingIconPath() const
+fs::path CSave::GetDeletingIconPath() const
 {
 	return m_basePath / m_sDeletingIconFileName;
 }
 
-filesystem::path CSave::GetCopyingIconPath() const
+fs::path CSave::GetCopyingIconPath() const
 {
 	return m_basePath / m_sCopyingIconFileName;
 }

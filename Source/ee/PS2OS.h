@@ -1,7 +1,7 @@
 #pragma once
 
 #include <string>
-#include <boost/filesystem.hpp>
+#include "filesystem_def.h"
 #include "signal/Signal.h"
 #include "../ELF.h"
 #include "../MIPS.h"
@@ -34,7 +34,7 @@ public:
 	void DumpIntcHandlers();
 	void DumpDmacHandlers();
 
-	void BootFromFile(const boost::filesystem::path&);
+	void BootFromFile(const fs::path&);
 	void BootFromVirtualPath(const char*, const ArgumentList&);
 	void BootFromCDROM();
 	CELF* GetELF();

@@ -2,8 +2,6 @@
 #include "XpsSaveImporter.h"
 #include "StdStreamUtils.h"
 
-namespace filesystem = boost::filesystem;
-
 CXpsSaveImporter::CXpsSaveImporter()
 {
 }
@@ -12,7 +10,7 @@ CXpsSaveImporter::~CXpsSaveImporter()
 {
 }
 
-void CXpsSaveImporter::Import(Framework::CStream& input, const boost::filesystem::path& outputPath)
+void CXpsSaveImporter::Import(Framework::CStream& input, const fs::path& outputPath)
 {
 	input.Seek(4, Framework::STREAM_SEEK_SET);
 
@@ -53,11 +51,11 @@ void CXpsSaveImporter::Import(Framework::CStream& input, const boost::filesystem
 	ExtractFiles(input, outputPath, nArchiveSize);
 }
 
-void CXpsSaveImporter::ExtractFiles(Framework::CStream& input, const boost::filesystem::path& basePath, uint32 nArchiveSize)
+void CXpsSaveImporter::ExtractFiles(Framework::CStream& input, const fs::path& basePath, uint32 nArchiveSize)
 {
-	if(!filesystem::exists(basePath))
+	if(!fs::exists(basePath))
 	{
-		filesystem::create_directory(basePath);
+		fs::create_directory(basePath);
 	}
 
 	while(!input.IsEOF() && (static_cast<uint32>(input.Tell()) < nArchiveSize))
@@ -74,7 +72,7 @@ void CXpsSaveImporter::ExtractFiles(Framework::CStream& input, const boost::file
 
 		input.Seek(nDescriptorLength - (0x40 + 4 + 4 + 8 + 2), Framework::STREAM_SEEK_CUR);
 
-		filesystem::path outputPath(basePath / sName);
+		fs::path outputPath(basePath / sName);
 
 		if(nAttributes & 0x2000)
 		{

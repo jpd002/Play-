@@ -2,7 +2,7 @@
 
 #include <string>
 #include <memory>
-#include <boost/filesystem.hpp>
+#include "filesystem_def.h"
 #include "OpticalMedia.h"
 
 namespace DiskUtils
@@ -10,8 +10,8 @@ namespace DiskUtils
 	typedef std::unique_ptr<COpticalMedia> OpticalMediaPtr;
 	typedef std::map<std::string, std::string> SystemConfigMap;
 
-	OpticalMediaPtr CreateOpticalMediaFromPath(const boost::filesystem::path&);
+	OpticalMediaPtr CreateOpticalMediaFromPath(const fs::path&);
 	SystemConfigMap ParseSystemConfigFile(Framework::CStream*);
 
-	bool TryGetDiskId(const boost::filesystem::path&, std::string*);
+	bool TryGetDiskId(const fs::path&, std::string*);
 }

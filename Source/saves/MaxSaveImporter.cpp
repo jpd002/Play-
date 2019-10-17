@@ -5,8 +5,6 @@
 #include "MemStream.h"
 #include "StdStreamUtils.h"
 
-namespace filesystem = boost::filesystem;
-
 CMaxSaveImporter::CMaxSaveImporter()
 {
 }
@@ -15,7 +13,7 @@ CMaxSaveImporter::~CMaxSaveImporter()
 {
 }
 
-void CMaxSaveImporter::Import(Framework::CStream& inputStream, const filesystem::path& basePath)
+void CMaxSaveImporter::Import(Framework::CStream& inputStream, const fs::path& basePath)
 {
 	char magic[12];
 	inputStream.Read(magic, sizeof(magic));
@@ -42,9 +40,9 @@ void CMaxSaveImporter::Import(Framework::CStream& inputStream, const filesystem:
 	directoryDataStream.Seek(0, Framework::STREAM_SEEK_SET);
 
 	auto directoryPath = basePath / directoryName;
-	if(!filesystem::exists(directoryPath))
+	if(!fs::exists(directoryPath))
 	{
-		filesystem::create_directory(directoryPath);
+		fs::create_directory(directoryPath);
 	}
 
 	for(unsigned int i = 0; i < fileCount; i++)

@@ -31,14 +31,14 @@ QString CvtToString(const std::wstring& str)
 	return QString::fromStdWString(str);
 }
 
-boost::filesystem::path QStringToPath(const QString& str)
+fs::path QStringToPath(const QString& str)
 {
 	auto nativeStr = QDir::toNativeSeparators(str);
-	auto result = CvtToNativePath<boost::filesystem::path::string_type>(nativeStr);
-	return boost::filesystem::path(result);
+	auto result = CvtToNativePath<fs::path::string_type>(nativeStr);
+	return fs::path(result);
 }
 
-QString PathToQString(const boost::filesystem::path& path)
+QString PathToQString(const fs::path& path)
 {
 	return CvtToString(path.native());
 }

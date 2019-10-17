@@ -9,10 +9,10 @@ public:
 	CXpsSaveImporter();
 	virtual ~CXpsSaveImporter();
 
-	virtual void Import(Framework::CStream&, const boost::filesystem::path&);
+	void Import(Framework::CStream&, const fs::path&) override;
 
 private:
-	void ExtractFiles(Framework::CStream&, const boost::filesystem::path&, uint32);
+	void ExtractFiles(Framework::CStream&, const fs::path&, uint32);
 };
 
 #endif

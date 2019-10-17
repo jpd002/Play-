@@ -5,7 +5,7 @@
 #include <QMessageBox>
 #include "QStringUtils.h"
 
-VFSDiscSelectorDialog::VFSDiscSelectorDialog(boost::filesystem::path path, CCdrom0Device::BINDINGTYPE m_nBindingType, QWidget* parent)
+VFSDiscSelectorDialog::VFSDiscSelectorDialog(fs::path path, CCdrom0Device::BINDINGTYPE m_nBindingType, QWidget* parent)
     : QDialog(parent)
     , ui(new Ui::VFSDiscSelectorDialog)
     , m_path(path)

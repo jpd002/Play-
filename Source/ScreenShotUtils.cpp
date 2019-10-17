@@ -31,14 +31,14 @@ CScreenShotUtils::Connection CScreenShotUtils::TriggerGetScreenshot(CPS2VM* virt
 	    });
 }
 
-boost::filesystem::path CScreenShotUtils::GetScreenShotDirectoryPath()
+fs::path CScreenShotUtils::GetScreenShotDirectoryPath()
 {
-	auto screenshotpath(CAppConfig::GetBasePath() / boost::filesystem::path("screenshots"));
+	auto screenshotpath(CAppConfig::GetBasePath() / fs::path("screenshots"));
 	Framework::PathUtils::EnsurePathExists(screenshotpath);
 	return screenshotpath;
 }
 
-boost::filesystem::path CScreenShotUtils::GenerateScreenShotPath(const char* gameID)
+fs::path CScreenShotUtils::GenerateScreenShotPath(const char* gameID)
 {
 	auto t = std::time(nullptr);
 	auto tm = *std::localtime(&t);
@@ -48,5 +48,5 @@ boost::filesystem::path CScreenShotUtils::GenerateScreenShotPath(const char* gam
 	oss << gameID << std::put_time(&tm, "_%d-%m-%Y_%H.%M.%S.") << ms << ".bmp";
 	auto screenshotFileName = oss.str();
 
-	return GetScreenShotDirectoryPath() / boost::filesystem::path(screenshotFileName);
+	return GetScreenShotDirectoryPath() / fs::path(screenshotFileName);
 }

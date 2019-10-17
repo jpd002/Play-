@@ -23,7 +23,7 @@
 #include "TargetConditionals.h"
 #endif
 
-static Framework::CStream* CreateImageStream(const boost::filesystem::path& imagePath)
+static Framework::CStream* CreateImageStream(const fs::path& imagePath)
 {
 	auto imagePathString = imagePath.string();
 	if(imagePathString.find("s3://") == 0)
@@ -48,7 +48,7 @@ static Framework::CStream* CreateImageStream(const boost::filesystem::path& imag
 #endif
 }
 
-DiskUtils::OpticalMediaPtr DiskUtils::CreateOpticalMediaFromPath(const boost::filesystem::path& imagePath)
+DiskUtils::OpticalMediaPtr DiskUtils::CreateOpticalMediaFromPath(const fs::path& imagePath)
 {
 	assert(!imagePath.empty());
 
@@ -138,7 +138,7 @@ static std::string GetDiskIdFromPath(const std::string& filePath)
 	return regionCode + "-" + serial1 + serial2;
 }
 
-bool DiskUtils::TryGetDiskId(const boost::filesystem::path& imagePath, std::string* diskIdPtr)
+bool DiskUtils::TryGetDiskId(const fs::path& imagePath, std::string* diskIdPtr)
 {
 	try
 	{

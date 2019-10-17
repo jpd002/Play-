@@ -1,8 +1,6 @@
 #include "MemoryCard.h"
 
-namespace filesystem = boost::filesystem;
-
-CMemoryCard::CMemoryCard(const filesystem::path& basePath)
+CMemoryCard::CMemoryCard(const fs::path& basePath)
     : m_basePath(basePath)
 {
 	ScanSaves();
@@ -18,7 +16,7 @@ const CSave* CMemoryCard::GetSaveByIndex(size_t index) const
 	return m_saves[index].get();
 }
 
-filesystem::path CMemoryCard::GetBasePath() const
+fs::path CMemoryCard::GetBasePath() const
 {
 	return m_basePath;
 }
@@ -33,18 +31,18 @@ void CMemoryCard::ScanSaves()
 {
 	try
 	{
-		filesystem::directory_iterator endIterator;
-		for(filesystem::directory_iterator elementIterator(m_basePath);
+		fs::directory_iterator endIterator;
+		for(fs::directory_iterator elementIterator(m_basePath);
 		    elementIterator != endIterator; elementIterator++)
 		{
-			filesystem::path element(*elementIterator);
+			fs::path element(*elementIterator);
 
-			if(filesystem::is_directory(element))
+			if(fs::is_directory(element))
 			{
-				filesystem::path iconSysPath = element / "icon.sys";
+				fs::path iconSysPath = element / "icon.sys";
 
 				//Check if 'icon.sys' exists in this directory
-				if(filesystem::exists(iconSysPath))
+				if(fs::exists(iconSysPath))
 				{
 					try
 					{

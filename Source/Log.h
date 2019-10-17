@@ -2,7 +2,7 @@
 
 #include <string>
 #include <map>
-#include <boost/filesystem.hpp>
+#include "filesystem_def.h"
 #include "StdStream.h"
 #include "Singleton.h"
 
@@ -20,7 +20,7 @@ private:
 
 	Framework::CStdStream& GetLog(const char*);
 
-	boost::filesystem::path m_logBasePath;
+	fs::path m_logBasePath;
 	LogMapType m_logs;
 	bool m_showPrints = false;
 };

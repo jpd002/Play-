@@ -12,6 +12,6 @@ public:
 	static Connection TriggerGetScreenshot(CPS2VM*, Callback);
 
 private:
-	static boost::filesystem::path GetScreenShotDirectoryPath();
-	static boost::filesystem::path GenerateScreenShotPath(const char* gameID);
+	static fs::path GetScreenShotDirectoryPath();
+	static fs::path GenerateScreenShotPath(const char* gameID);
 };

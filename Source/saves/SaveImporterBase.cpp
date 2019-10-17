@@ -1,7 +1,5 @@
 #include "SaveImporterBase.h"
 
-namespace filesystem = boost::filesystem;
-
 CSaveImporterBase::CSaveImporterBase()
     : m_overwriteAll(false)
 {
@@ -16,13 +14,13 @@ void CSaveImporterBase::SetOverwritePromptHandler(const OverwritePromptHandlerTy
 	m_overwritePromptHandler = overwritePromptHandler;
 }
 
-bool CSaveImporterBase::CanExtractFile(const filesystem::path& filePath)
+bool CSaveImporterBase::CanExtractFile(const fs::path& filePath)
 {
-	if(!filesystem::exists(filePath)) return true;
+	if(!fs::exists(filePath)) return true;
 	if(m_overwriteAll) return true;
 	if(!m_overwritePromptHandler) return true;
 
-	auto result = m_overwritePromptHandler(filesystem::absolute(filePath).string());
+	auto result = m_overwritePromptHandler(fs::absolute(filePath).string());
 
 	switch(result)
 	{

@@ -1,13 +1,13 @@
 #pragma once
 
 #include "Stream.h"
-#include <boost/filesystem.hpp>
+#include "filesystem_def.h"
 
 namespace Iop
 {
 	namespace Ioman
 	{
-		typedef boost::filesystem::directory_iterator Directory;
+		typedef fs::directory_iterator Directory;
 
 		class CDevice
 		{

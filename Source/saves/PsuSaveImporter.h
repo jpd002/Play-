@@ -9,7 +9,7 @@ public:
 	CPsuSaveImporter();
 	virtual ~CPsuSaveImporter();
 
-	virtual void Import(Framework::CStream&, const boost::filesystem::path&);
+	void Import(Framework::CStream&, const fs::path&) override;
 };
 
 #endif

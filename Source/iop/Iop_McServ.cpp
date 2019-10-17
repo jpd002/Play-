@@ -14,7 +14,6 @@
 #include "MIPSAssembler.h"
 
 using namespace Iop;
-namespace filesystem = boost::filesystem;
 
 #define CLUSTER_SIZE 0x400
 
@@ -269,7 +268,7 @@ void CMcServ::Open(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, u
 		return;
 	}
 
-	filesystem::path filePath;
+	fs::path filePath;
 
 	try
 	{
@@ -288,7 +287,7 @@ void CMcServ::Open(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, u
 		uint32 result = -1;
 		try
 		{
-			filesystem::create_directory(filePath);
+			fs::create_directory(filePath);
 			result = 0;
 		}
 		catch(...)
@@ -301,7 +300,7 @@ void CMcServ::Open(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, u
 	{
 		if(cmd->flags & OPEN_FLAG_CREAT)
 		{
-			if(!boost::filesystem::exists(filePath))
+			if(!fs::exists(filePath))
 			{
 				//Create file if it doesn't exist
 				Framework::CreateOutputStdStream(filePath.native());
@@ -310,7 +309,7 @@ void CMcServ::Open(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, u
 
 		if(cmd->flags & OPEN_FLAG_TRUNC)
 		{
-			if(boost::filesystem::exists(filePath))
+			if(fs::exists(filePath))
 			{
 				//Create file (discard contents) if it exists
 				Framework::CreateOutputStdStream(filePath.native());
@@ -482,8 +481,8 @@ void CMcServ::ChDir(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, 
 
 	try
 	{
-		filesystem::path newCurrentDirectory;
-		filesystem::path requestedDirectory(cmd->name);
+		fs::path newCurrentDirectory;
+		fs::path requestedDirectory(cmd->name);
 
 		if(!requestedDirectory.root_directory().empty())
 		{
@@ -504,7 +503,7 @@ void CMcServ::ChDir(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, 
 		auto mcPath = CAppConfig::GetInstance().GetPreferencePath(m_mcPathPreference[cmd->port]);
 		mcPath /= newCurrentDirectory;
 
-		if(filesystem::exists(mcPath) && filesystem::is_directory(mcPath))
+		if(fs::exists(mcPath) && fs::is_directory(mcPath))
 		{
 			m_currentDirectory = newCurrentDirectory;
 			result = 0;
@@ -552,18 +551,18 @@ void CMcServ::GetDir(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize,
 			{
 				mcPath /= m_currentDirectory;
 			}
-			mcPath = filesystem::absolute(mcPath);
+			mcPath = fs::absolute(mcPath);
 
-			if(!filesystem::exists(mcPath))
+			if(!fs::exists(mcPath))
 			{
 				//Directory doesn't exist
 				ret[0] = RET_NO_ENTRY;
 				return;
 			}
 
-			filesystem::path searchPath = mcPath / cmd->name;
+			fs::path searchPath = mcPath / cmd->name;
 			searchPath.remove_filename();
-			if(!filesystem::exists(searchPath))
+			if(!fs::exists(searchPath))
 			{
 				//Specified directory doesn't exist, this is an error
 				ret[0] = RET_NO_ENTRY;
@@ -593,9 +592,9 @@ void CMcServ::Delete(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize,
 	try
 	{
 		auto filePath = GetAbsoluteFilePath(cmd->port, cmd->slot, cmd->name);
-		if(boost::filesystem::exists(filePath))
+		if(fs::exists(filePath))
 		{
-			boost::filesystem::remove(filePath);
+			fs::remove(filePath);
 			ret[0] = 0;
 		}
 		else
@@ -622,7 +621,7 @@ void CMcServ::GetEntSpace(uint32* args, uint32 argsSize, uint32* ret, uint32 ret
 	auto mcPath = CAppConfig::GetInstance().GetPreferencePath(m_mcPathPreference[cmd->port]);
 	auto savePath = mcPath / cmd->name;
 
-	if(filesystem::exists(savePath) && filesystem::is_directory(savePath))
+	if(fs::exists(savePath) && fs::is_directory(savePath))
 	{
 		// Arbitrarity number, allows Drakengard to detect MC
 		ret[0] = 0xFE;
@@ -756,10 +755,10 @@ Framework::CStdStream* CMcServ::GetFileFromHandle(uint32 handle)
 	return &file;
 }
 
-boost::filesystem::path CMcServ::GetAbsoluteFilePath(unsigned int port, unsigned int slot, const char* name) const
+fs::path CMcServ::GetAbsoluteFilePath(unsigned int port, unsigned int slot, const char* name) const
 {
 	auto mcPath = CAppConfig::GetInstance().GetPreferencePath(m_mcPathPreference[port]);
-	auto requestedFilePath = boost::filesystem::path(name);
+	auto requestedFilePath = fs::path(name);
 
 	if(!requestedFilePath.root_directory().empty())
 	{
@@ -790,7 +789,7 @@ void CMcServ::CPathFinder::Reset()
 	m_index = 0;
 }
 
-void CMcServ::CPathFinder::Search(const boost::filesystem::path& basePath, const char* filter)
+void CMcServ::CPathFinder::Search(const fs::path& basePath, const char* filter)
 {
 	m_basePath = basePath;
 
@@ -809,7 +808,7 @@ void CMcServ::CPathFinder::Search(const boost::filesystem::path& basePath, const
 		m_filterExp = std::regex(filterExpString);
 	}
 
-	auto filterPath = boost::filesystem::path(filterPathString);
+	auto filterPath = fs::path(filterPathString);
 	filterPath.remove_filename();
 
 	auto currentDirPath = filterPath / ".";
@@ -856,15 +855,15 @@ unsigned int CMcServ::CPathFinder::Read(ENTRY* entry, unsigned int size)
 	return readCount;
 }
 
-void CMcServ::CPathFinder::SearchRecurse(const filesystem::path& path)
+void CMcServ::CPathFinder::SearchRecurse(const fs::path& path)
 {
 	bool found = false;
-	filesystem::directory_iterator endIterator;
+	fs::directory_iterator endIterator;
 
-	for(filesystem::directory_iterator elementIterator(path);
+	for(fs::directory_iterator elementIterator(path);
 	    elementIterator != endIterator; elementIterator++)
 	{
-		boost::filesystem::path relativePath(*elementIterator);
+		fs::path relativePath(*elementIterator);
 		std::string relativePathString(relativePath.generic_string());
 
 		//"Extract" a more appropriate relative path from the memory card point of view
@@ -880,22 +879,24 @@ void CMcServ::CPathFinder::SearchRecurse(const filesystem::path& path)
 			strncpy(reinterpret_cast<char*>(entry.name), relativePath.filename().string().c_str(), 0x1F);
 			entry.name[0x1F] = 0;
 
-			if(filesystem::is_directory(*elementIterator))
+			if(fs::is_directory(*elementIterator))
 			{
 				entry.size = 0;
 				entry.attributes = 0x8427;
 			}
 			else
 			{
-				entry.size = static_cast<uint32>(filesystem::file_size(*elementIterator));
+				entry.size = static_cast<uint32>(fs::file_size(*elementIterator));
 				entry.attributes = 0x8497;
 			}
 
 			//Fill in modification date info
 			{
-				auto changeDate = filesystem::last_write_time(*elementIterator);
-				auto localChangeDate = localtime(&changeDate);
-
+				auto changeFileTime = fs::last_write_time(*elementIterator);
+				auto changeSystemTime = std::chrono::system_clock::to_time_t(
+					std::chrono::system_clock::now() + (changeFileTime - fs::file_time_type::clock::now()));
+				auto localChangeDate = std::localtime(&changeSystemTime);
+	
 				entry.modificationTime.second = localChangeDate->tm_sec;
 				entry.modificationTime.minute = localChangeDate->tm_min;
 				entry.modificationTime.hour = localChangeDate->tm_hour;
@@ -904,14 +905,14 @@ void CMcServ::CPathFinder::SearchRecurse(const filesystem::path& path)
 				entry.modificationTime.year = localChangeDate->tm_year + 1900;
 			}
 
-			//boost::filesystem doesn't provide a way to get creation time, so just make it the same as modification date
+			//std::filesystem doesn't provide a way to get creation time, so just make it the same as modification date
 			entry.creationTime = entry.modificationTime;
 
 			m_entries.push_back(entry);
 			found = true;
 		}
 
-		if(filesystem::is_directory(*elementIterator) && !found)
+		if(fs::is_directory(*elementIterator) && !found)
 		{
 			SearchRecurse(*elementIterator);
 		}

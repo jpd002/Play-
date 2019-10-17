@@ -1,7 +1,7 @@
 #pragma once
 
 #include <memory>
-#include <boost/filesystem.hpp>
+#include "filesystem_def.h"
 #include "Save.h"
 
 class CMemoryCard
@@ -10,18 +10,18 @@ public:
 	typedef std::shared_ptr<CSave> SavePtr;
 	typedef std::vector<SavePtr> SaveList;
 
-	CMemoryCard(const boost::filesystem::path&);
+	CMemoryCard(const fs::path&);
 	virtual ~CMemoryCard() = default;
 
 	size_t GetSaveCount() const;
 	const CSave* GetSaveByIndex(size_t) const;
 
-	boost::filesystem::path GetBasePath() const;
+	fs::path GetBasePath() const;
 	void RefreshContents();
 
 private:
 	void ScanSaves();
 
 	SaveList m_saves;
-	boost::filesystem::path m_basePath;
+	fs::path m_basePath;
 };

@@ -375,13 +375,13 @@ int32 CIoman::Dread(uint32 handle, Ioman::DIRENTRY* dirEntry)
 	}
 
 	auto itemPath = directory->path();
-	auto name = itemPath.leaf().string();
+	auto name = itemPath.filename().string();
 	strncpy(dirEntry->name, name.c_str(), Ioman::DIRENTRY::NAME_SIZE);
 	dirEntry->name[Ioman::DIRENTRY::NAME_SIZE - 1] = 0;
 
 	auto& stat = dirEntry->stat;
 	memset(&stat, 0, sizeof(Ioman::STAT));
-	if(boost::filesystem::is_directory(itemPath))
+	if(fs::is_directory(itemPath))
 	{
 		stat.mode = STAT_MODE_DIR;
 		stat.attr = 0x8427;
@@ -389,7 +389,7 @@ int32 CIoman::Dread(uint32 handle, Ioman::DIRENTRY* dirEntry)
 	else
 	{
 		stat.mode = STAT_MODE_FILE;
-		stat.loSize = boost::filesystem::file_size(itemPath);
+		stat.loSize = fs::file_size(itemPath);
 		stat.attr = 0x8497;
 	}
 

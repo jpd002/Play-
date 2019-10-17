@@ -15,7 +15,7 @@ class VFSDiscSelectorDialog : public QDialog
 	Q_OBJECT
 
 public:
-	explicit VFSDiscSelectorDialog(boost::filesystem::path, CCdrom0Device::BINDINGTYPE, QWidget* parent = nullptr);
+	explicit VFSDiscSelectorDialog(fs::path, CCdrom0Device::BINDINGTYPE, QWidget* parent = nullptr);
 	~VFSDiscSelectorDialog();
 
 protected:
@@ -35,6 +35,6 @@ private:
 	void Refresh_disc_drive();
 
 	Ui::VFSDiscSelectorDialog* ui;
-	boost::filesystem::path m_path;
+	fs::path m_path;
 	QList<QStorageInfo> m_discInfo;
 };

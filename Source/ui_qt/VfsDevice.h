@@ -2,7 +2,7 @@
 
 #include <QWidget>
 #include <map>
-#include "boost_filesystem_def.h"
+#include "filesystem_def.h"
 
 class CDevice
 {
@@ -31,7 +31,7 @@ public:
 private:
 	const char* m_name;
 	const char* m_preference;
-	boost::filesystem::path m_value;
+	fs::path m_value;
 };
 
 class CCdrom0Device : public CDevice
@@ -53,6 +53,6 @@ public:
 	void Save() override;
 
 private:
-	boost::filesystem::path m_imagePath;
+	fs::path m_imagePath;
 	BINDINGTYPE m_bindingType;
 };

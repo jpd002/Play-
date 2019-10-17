@@ -1,14 +1,10 @@
-#include <boost/filesystem/path.hpp>
-#include <boost/filesystem/operations.hpp>
 #include "SaveImporter.h"
 #include "StdStreamUtils.h"
 #include "PsuSaveImporter.h"
 #include "XpsSaveImporter.h"
 #include "MaxSaveImporter.h"
 
-namespace filesystem = boost::filesystem;
-
-void CSaveImporter::ImportSave(Framework::CStream& input, const boost::filesystem::path& outputPath, const OverwritePromptHandlerType& overwritePromptHandler)
+void CSaveImporter::ImportSave(Framework::CStream& input, const fs::path& outputPath, const OverwritePromptHandlerType& overwritePromptHandler)
 {
 	std::shared_ptr<CSaveImporterBase> importer;
 

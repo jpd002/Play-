@@ -2,7 +2,7 @@
 
 #include <thread>
 #include <future>
-#include "boost_filesystem_def.h"
+#include "filesystem_def.h"
 #include "AppDef.h"
 #include "Types.h"
 #include "MIPS.h"
@@ -65,11 +65,11 @@ public:
 	void DestroySoundHandler();
 	void ReloadSpuBlockCount();
 
-	static boost::filesystem::path GetStateDirectoryPath();
-	boost::filesystem::path GenerateStatePath(unsigned int) const;
+	static fs::path GetStateDirectoryPath();
+	fs::path GenerateStatePath(unsigned int) const;
 
-	std::future<bool> SaveState(const boost::filesystem::path&);
-	std::future<bool> LoadState(const boost::filesystem::path&);
+	std::future<bool> SaveState(const fs::path&);
+	std::future<bool> LoadState(const fs::path&);
 
 	void TriggerFrameDump(const FrameDumpCallback&);
 
@@ -94,8 +94,8 @@ private:
 	void CreateVM();
 	void ResetVM();
 	void DestroyVM();
-	bool SaveVMState(const boost::filesystem::path&);
-	bool LoadVMState(const boost::filesystem::path&);
+	bool SaveVMState(const fs::path&);
+	bool LoadVMState(const fs::path&);
 
 	void ReloadExecutable(const char*, const CPS2OS::ArgumentList&);
 
