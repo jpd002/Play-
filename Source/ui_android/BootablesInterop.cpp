@@ -86,13 +86,13 @@ extern "C" JNIEXPORT jobjectArray Java_com_virtualapplications_play_BootablesInt
 
 extern "C" JNIEXPORT void Java_com_virtualapplications_play_BootablesInterop_setLastBootedTime(JNIEnv* env, jobject obj, jstring bootablePathString, jlong lastBootedTime)
 {
-	auto bootablePath = boost::filesystem::path(GetStringFromJstring(env, bootablePathString));
+	auto bootablePath = fs::path(GetStringFromJstring(env, bootablePathString));
 	BootablesDb::CClient::GetInstance().SetLastBootedTime(bootablePath, lastBootedTime);
 }
 
 extern "C" JNIEXPORT void Java_com_virtualapplications_play_BootablesInterop_UnregisterBootable(JNIEnv* env, jobject obj, jstring bootablePathString)
 {
-	auto bootablePath = boost::filesystem::path(GetStringFromJstring(env, bootablePathString));
+	auto bootablePath = fs::path(GetStringFromJstring(env, bootablePathString));
 	BootablesDb::CClient::GetInstance().UnregisterBootable(bootablePath);
 }
 

@@ -1,6 +1,5 @@
 #include <stdio.h>
 #include <exception>
-#include <boost/filesystem.hpp>
 #include <memory>
 #include <fenv.h>
 #include "make_unique.h"

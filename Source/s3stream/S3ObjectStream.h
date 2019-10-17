@@ -1,5 +1,6 @@
 #pragma once
 
+#include <vector>
 #include "Singleton.h"
 #include "Stream.h"
 #include "filesystem_def.h"

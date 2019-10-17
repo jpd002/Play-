@@ -1,6 +1,7 @@
 #pragma once
 
 #include <memory>
+#include <vector>
 #include "filesystem_def.h"
 #include "Save.h"
 

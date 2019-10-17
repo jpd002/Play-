@@ -12,7 +12,7 @@
 #include <condition_variable>
 
 #include "signal/Signal.h"
-#include <boost/filesystem.hpp>
+#include "filesystem_def.h"
 
 #include "Types.h"
 #include "Stream.h"

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <string>
+#include <vector>
 #include "filesystem_def.h"
 #include "Types.h"
 #include "Singleton.h"
