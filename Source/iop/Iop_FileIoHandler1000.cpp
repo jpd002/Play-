@@ -1,3 +1,4 @@
+#include <cstring>
 #include "Iop_FileIoHandler1000.h"
 #include "Iop_Ioman.h"
 #include "Iop_SifManPs2.h"
