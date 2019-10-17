@@ -3,7 +3,6 @@
 #include <QResizeEvent>
 #include <QDialog>
 #include <QDir>
-#include <boost/filesystem.hpp>
 #include <thread>
 #include <atomic>
 #include "BootableModel.h"
