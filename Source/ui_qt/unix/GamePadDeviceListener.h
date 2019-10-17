@@ -9,6 +9,8 @@
 #include "GamePadInputEventListener.h"
 #include "Types.h"
 
+#include "filesystem_def.h"
+
 class CGamePadDeviceListener
 {
 public:
