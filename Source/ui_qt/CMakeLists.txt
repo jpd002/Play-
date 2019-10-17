@@ -52,7 +52,9 @@ list(APPEND PROJECT_LIBS ui_shared)
 
 set(QT_SOURCES
 	bootablelistdialog.cpp
+	bootablelistdialog.h
 	BootableModel.cpp
+	BootableModel.h
 	ControllerConfig/bindingmodel.cpp
 	ControllerConfig/bindingmodel.h
 	ControllerConfig/controllerconfigdialog.cpp
