@@ -72,7 +72,7 @@ if(NOT TARGET Boost::boost)
 		${CMAKE_CURRENT_BINARY_DIR}/boost-cmake
 	)
 endif()
-list(APPEND PROJECT_LIBS Boost::boost Boost::system Boost::filesystem)
+list(APPEND PROJECT_LIBS Boost::boost)
 
 find_package(BZip2)
 if(NOT BZIP2_FOUND)
