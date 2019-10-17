@@ -2,6 +2,7 @@
 #include "SaveExporter.h"
 #include "StdStream.h"
 #include "StdStreamUtils.h"
+#include "FilesystemUtils.h"
 
 void CSaveExporter::ExportPSU(Framework::CStream& outputStream, const fs::path& savePath)
 {
@@ -120,9 +121,8 @@ void CSaveExporter::ExportPSU(Framework::CStream& outputStream, const fs::path& 
 
 void CSaveExporter::PSU_CopyTime(PSUENTRY::TIME* pDst, const fs::file_time_type& fileTime)
 {
-	auto systemTime = std::chrono::system_clock::now() + (fileTime - fs::file_time_type::clock::now());
-	auto tm = std::chrono::system_clock::to_time_t(systemTime);
-	const auto pSrc = std::localtime(&tm);
+	auto systemTime = Framework::ConvertFsTimeToSystemTime(fileTime);
+	const auto pSrc = std::localtime(&systemTime);
 	pDst->nSecond = static_cast<uint8>(pSrc->tm_sec);
 	pDst->nMinute = static_cast<uint8>(pSrc->tm_min);
 	pDst->nHour = static_cast<uint8>(pSrc->tm_hour);

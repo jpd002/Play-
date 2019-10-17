@@ -12,6 +12,7 @@
 #include "StdStreamUtils.h"
 #include "StringUtils.h"
 #include "MIPSAssembler.h"
+#include "FilesystemUtils.h"
 
 using namespace Iop;
 
@@ -892,9 +893,7 @@ void CMcServ::CPathFinder::SearchRecurse(const fs::path& path)
 
 			//Fill in modification date info
 			{
-				auto changeFileTime = fs::last_write_time(*elementIterator);
-				auto changeSystemTime = std::chrono::system_clock::to_time_t(
-					std::chrono::system_clock::now() + (changeFileTime - fs::file_time_type::clock::now()));
+				auto changeSystemTime = Framework::ConvertFsTimeToSystemTime(fs::last_write_time(*elementIterator));
 				auto localChangeDate = std::localtime(&changeSystemTime);
 	
 				entry.modificationTime.second = localChangeDate->tm_sec;
