@@ -1,6 +1,6 @@
 #pragma once
 
-#include <boost/filesystem.hpp>
+#include "filesystem_def.h"
 #include <string>
 #include <memory>
 
@@ -26,7 +26,7 @@ public:
 	}
 
 	virtual void ReportTestEntry(const std::string& name, const TESTRESULT&) = 0;
-	virtual void Write(const boost::filesystem::path& reportPath) = 0;
+	virtual void Write(const fs::path& reportPath) = 0;
 };
 
 typedef std::shared_ptr<CTestReportWriter> TestReportWriterPtr;

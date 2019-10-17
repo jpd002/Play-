@@ -1,5 +1,5 @@
 #include "PS2VM.h"
-#include <boost/filesystem.hpp>
+#include "filesystem_def.h"
 #include "StdStream.h"
 #include "StdStreamUtils.h"
 #include "iop/IopBios.h"
@@ -72,7 +72,7 @@ std::vector<std::string> ReadLines(Framework::CStream& inputStream)
 	return lines;
 }
 
-TESTRESULT GetTestResult(const boost::filesystem::path& testFilePath)
+TESTRESULT GetTestResult(const fs::path& testFilePath)
 {
 	TESTRESULT result;
 	result.succeeded = false;
@@ -110,7 +110,7 @@ TESTRESULT GetTestResult(const boost::filesystem::path& testFilePath)
 	return result;
 }
 
-void ExecuteEeTest(const boost::filesystem::path& testFilePath, const std::string& gsHandlerName)
+void ExecuteEeTest(const fs::path& testFilePath, const std::string& gsHandlerName)
 {
 	auto resultFilePath = testFilePath;
 	resultFilePath.replace_extension(".result");
@@ -144,7 +144,7 @@ void ExecuteEeTest(const boost::filesystem::path& testFilePath, const std::strin
 	virtualMachine.Destroy();
 }
 
-void ExecuteIopTest(const boost::filesystem::path& testFilePath)
+void ExecuteIopTest(const fs::path& testFilePath)
 {
 	//Read in the module data
 	std::vector<uint8> moduleData;
@@ -189,14 +189,14 @@ void ExecuteIopTest(const boost::filesystem::path& testFilePath)
 	virtualMachine.Destroy();
 }
 
-void ScanAndExecuteTests(const boost::filesystem::path& testDirPath, const TestReportWriterPtr& testReportWriter, const std::string& gsHandlerName)
+void ScanAndExecuteTests(const fs::path& testDirPath, const TestReportWriterPtr& testReportWriter, const std::string& gsHandlerName)
 {
-	boost::filesystem::directory_iterator endIterator;
-	for(auto testPathIterator = boost::filesystem::directory_iterator(testDirPath);
+	fs::directory_iterator endIterator;
+	for(auto testPathIterator = fs::directory_iterator(testDirPath);
 	    testPathIterator != endIterator; testPathIterator++)
 	{
 		auto testPath = testPathIterator->path();
-		if(boost::filesystem::is_directory(testPath))
+		if(fs::is_directory(testPath))
 		{
 			ScanAndExecuteTests(testPath, testReportWriter, gsHandlerName);
 			continue;
@@ -254,8 +254,8 @@ int main(int argc, const char** argv)
 	}
 
 	TestReportWriterPtr testReportWriter;
-	boost::filesystem::path autoTestRoot;
-	boost::filesystem::path reportPath;
+	fs::path autoTestRoot;
+	fs::path reportPath;
 	std::string gsHandlerName = DEFAULT_GS_HANDLER_NAME;
 	assert(g_validGsHandlersNames.find(gsHandlerName) != std::end(g_validGsHandlersNames));
 
@@ -269,7 +269,7 @@ int main(int argc, const char** argv)
 				return -1;
 			}
 			testReportWriter = std::make_shared<CJUnitTestReportWriter>();
-			reportPath = boost::filesystem::path(argv[i + 1]);
+			reportPath = fs::path(argv[i + 1]);
 			i++;
 		}
 		else if(!strcmp(argv[i], "--gshandler"))

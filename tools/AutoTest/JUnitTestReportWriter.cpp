@@ -45,7 +45,7 @@ void CJUnitTestReportWriter::ReportTestEntry(const std::string& testName, const 
 	m_testCount++;
 }
 
-void CJUnitTestReportWriter::Write(const boost::filesystem::path& reportPath)
+void CJUnitTestReportWriter::Write(const fs::path& reportPath)
 {
 	m_testSuiteNode->InsertAttribute("tests", string_format("%d", m_testCount).c_str());
 	auto testOutputFileStream = Framework::CreateOutputStdStream(reportPath.native());

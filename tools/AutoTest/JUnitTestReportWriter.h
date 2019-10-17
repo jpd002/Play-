@@ -1,6 +1,5 @@
 #pragma once
 
-#include <boost/filesystem.hpp>
 #include "xml/Node.h"
 #include "TestReportWriter.h"
 
@@ -11,7 +10,7 @@ public:
 	virtual ~CJUnitTestReportWriter();
 
 	void ReportTestEntry(const std::string&, const TESTRESULT&) override;
-	void Write(const boost::filesystem::path&) override;
+	void Write(const fs::path&) override;
 
 private:
 	typedef std::unique_ptr<Framework::Xml::CNode> NodePtr;

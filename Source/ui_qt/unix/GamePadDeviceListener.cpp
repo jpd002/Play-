@@ -7,6 +7,7 @@
 #include <sys/inotify.h>
 #include <csignal>
 #include <unistd.h>
+#include "filesystem_def.h"
 
 #define EVENT_SIZE (sizeof(struct inotify_event))
 #define EVENT_BUF_LEN (1024 * (EVENT_SIZE + NAME_MAX + 1))

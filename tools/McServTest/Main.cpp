@@ -18,8 +18,8 @@ void PrepareTestEnvironment(const CGameTestSheet::EnvironmentActionArray& enviro
 {
 	//TODO: There's a bug if there's a slash at the end of the path for the memory card
 	auto mcPathPreference = Iop::CMcServ::GetMcPathPreference(0);
-	auto memoryCardPath = boost::filesystem::path("./memorycard");
-	boost::filesystem::remove_all(memoryCardPath);
+	auto memoryCardPath = fs::path("./memorycard");
+	fs::remove_all(memoryCardPath);
 
 	CAppConfig::GetInstance().RegisterPreferencePath(mcPathPreference, "");
 	CAppConfig::GetInstance().SetPreferencePath(mcPathPreference, memoryCardPath);
@@ -28,12 +28,12 @@ void PrepareTestEnvironment(const CGameTestSheet::EnvironmentActionArray& enviro
 	{
 		if(environmentAction.type == CGameTestSheet::ENVIRONMENT_ACTION_CREATE_DIRECTORY)
 		{
-			auto folderToCreate = memoryCardPath / boost::filesystem::path(environmentAction.name);
+			auto folderToCreate = memoryCardPath / fs::path(environmentAction.name);
 			Framework::PathUtils::EnsurePathExists(folderToCreate);
 		}
 		else if(environmentAction.type == CGameTestSheet::ENVIRONMENT_ACTION_CREATE_FILE)
 		{
-			auto fileToCreate = memoryCardPath / boost::filesystem::path(environmentAction.name);
+			auto fileToCreate = memoryCardPath / fs::path(environmentAction.name);
 			auto inputStream = Framework::CreateOutputStdStream(fileToCreate.native());
 			inputStream.Seek(environmentAction.size - 1, Framework::STREAM_SEEK_SET);
 			inputStream.Write8(0x00);
@@ -94,10 +94,10 @@ void ExecuteTest(const CGameTestSheet::TEST& test)
 
 int main(int argc, const char** argv)
 {
-	auto testsPath = boost::filesystem::path("./tests/");
+	auto testsPath = fs::path("./tests/");
 
-	boost::filesystem::directory_iterator endDirectoryIterator;
-	for(boost::filesystem::directory_iterator directoryIterator(testsPath);
+	fs::directory_iterator endDirectoryIterator;
+	for(fs::directory_iterator directoryIterator(testsPath);
 	    directoryIterator != endDirectoryIterator; directoryIterator++)
 	{
 		auto testPath = directoryIterator->path();

@@ -4,13 +4,10 @@
 #include <thread>
 #include <map>
 #include <libevdev.h>
-#include <boost/filesystem.hpp>
 
 #include "GamePadUtils.h"
 #include "GamePadInputEventListener.h"
 #include "Types.h"
-
-namespace fs = boost::filesystem;
 
 class CGamePadDeviceListener
 {
