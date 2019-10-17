@@ -226,8 +226,6 @@ const CPS2OS::SYSCALL_NAME CPS2OS::g_syscallNames[] =
 
 #endif
 
-namespace filesystem = boost::filesystem;
-
 CPS2OS::CPS2OS(CMIPS& ee, uint8* ram, uint8* bios, uint8* spr, CGSHandler*& gs, CSIF& sif, CIopBios& iopBios)
     : m_ee(ee)
     , m_gs(gs)
