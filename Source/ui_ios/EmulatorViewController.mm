@@ -85,7 +85,7 @@ CPS2VM::ProfileFrameDoneSignal::Connection g_profileFrameDoneConnection;
 	g_virtualMachine->Pause();
 	g_virtualMachine->Reset();
 
-	auto bootablePath = boost::filesystem::path([self.bootablePath fileSystemRepresentation]);
+	auto bootablePath = fs::path([self.bootablePath fileSystemRepresentation]);
 	if(IsBootableExecutablePath(bootablePath))
 	{
 		g_virtualMachine->m_ee->m_os->BootFromFile(bootablePath);
