@@ -503,6 +503,8 @@ void retro_init()
 	if(g_environ_cb(RETRO_ENVIRONMENT_GET_INPUT_BITMASKS, NULL))
 		libretro_supports_bitmasks = true;
 
+	CAppConfig::GetInstance().RegisterPreferenceInteger(PREF_AUDIO_SPUBLOCKCOUNT, 22);
+
 	m_virtualMachine = new CPS2VM();
 	m_virtualMachine->Initialize();
 
