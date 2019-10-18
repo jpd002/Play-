@@ -895,7 +895,7 @@ void CMcServ::CPathFinder::SearchRecurse(const fs::path& path)
 			{
 				auto changeSystemTime = Framework::ConvertFsTimeToSystemTime(fs::last_write_time(*elementIterator));
 				auto localChangeDate = std::localtime(&changeSystemTime);
-	
+
 				entry.modificationTime.second = localChangeDate->tm_sec;
 				entry.modificationTime.minute = localChangeDate->tm_min;
 				entry.modificationTime.hour = localChangeDate->tm_hour;
