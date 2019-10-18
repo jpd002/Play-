@@ -17,7 +17,7 @@ static bool RangesOverlap(uint32 x1, uint32 x2, uint32 y1, uint32 y2)
 typedef uint32 (*TranslateFunctionType)(CMIPS*, uint32);
 typedef std::shared_ptr<CBasicBlock> BasicBlockPtr;
 
-template <typename BlockLookupType>
+template <typename BlockLookupType, uint32 instructionSize = 4>
 class CGenericMipsExecutor : public CMipsExecutor
 {
 public:
@@ -265,7 +265,7 @@ protected:
 		assert(scanEnd > scanStart);
 
 		std::set<CBasicBlock*> clearedBlocks;
-		for(uint32 address = scanStart; address < scanEnd; address += 4)
+		for(uint32 address = scanStart; address < scanEnd; address += instructionSize)
 		{
 			auto block = m_blockLookup.FindBlockAt(address);
 			if(block->IsEmpty()) continue;

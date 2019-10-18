@@ -552,8 +552,9 @@ uint32 CSubSystem::IOPortWriteHandler(uint32 nAddress, uint32 nData)
 
 uint32 CSubSystem::Vu0MicroMemWriteHandler(uint32 address, uint32 value)
 {
-	*reinterpret_cast<uint32*>(m_microMem0 + (address - PS2::MICROMEM0ADDR)) = value;
-	m_vpu0->InvalidateMicroProgram();
+	uint32 baseAddress = address - PS2::MICROMEM0ADDR;
+	*reinterpret_cast<uint32*>(m_microMem0 + baseAddress) = value;
+	m_vpu0->InvalidateMicroProgram(baseAddress, baseAddress + 4);
 	return 0;
 }
 
@@ -598,8 +599,9 @@ void CSubSystem::Vu0StateChanged(bool running)
 
 uint32 CSubSystem::Vu1MicroMemWriteHandler(uint32 address, uint32 value)
 {
-	*reinterpret_cast<uint32*>(m_microMem1 + (address - PS2::MICROMEM1ADDR)) = value;
-	m_vpu1->InvalidateMicroProgram();
+	uint32 baseAddress = address - PS2::MICROMEM1ADDR;
+	*reinterpret_cast<uint32*>(m_microMem1 + baseAddress) = value;
+	m_vpu1->InvalidateMicroProgram(baseAddress, baseAddress + 4);
 	return 0;
 }
 

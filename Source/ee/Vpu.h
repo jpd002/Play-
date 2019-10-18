@@ -56,6 +56,7 @@ public:
 
 	void ExecuteMicroProgram(uint32);
 	void InvalidateMicroProgram();
+	void InvalidateMicroProgram(uint32, uint32);
 
 	void ProcessXgKick(uint32);
 

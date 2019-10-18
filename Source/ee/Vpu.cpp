@@ -165,6 +165,11 @@ void CVpu::InvalidateMicroProgram()
 	m_ctx->m_executor->ClearActiveBlocksInRange(0, (m_number == 0) ? PS2::MICROMEM0SIZE : PS2::MICROMEM1SIZE, false);
 }
 
+void CVpu::InvalidateMicroProgram(uint32 start, uint32 end)
+{
+	m_ctx->m_executor->ClearActiveBlocksInRange(start, end, false);
+}
+
 void CVpu::ProcessXgKick(uint32 address)
 {
 	address &= 0x3FF;

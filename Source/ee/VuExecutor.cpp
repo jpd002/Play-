@@ -66,8 +66,8 @@ void CVuExecutor::PartitionFunction(uint32 startAddress)
 	{
 		uint32 addrLo = address + 0;
 		uint32 addrHi = address + 4;
-		uint32 lowerOp = m_context.m_pMemoryMap->GetInstruction(address + 0);
-		uint32 upperOp = m_context.m_pMemoryMap->GetInstruction(address + 4);
+		uint32 lowerOp = m_context.m_pMemoryMap->GetInstruction(addrLo);
+		uint32 upperOp = m_context.m_pMemoryMap->GetInstruction(addrHi);
 		auto branchType = m_context.m_pArch->IsInstructionBranch(&m_context, addrLo, lowerOp);
 		if(upperOp & VU_UPPEROP_BIT_E)
 		{
