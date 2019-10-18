@@ -1,8 +1,8 @@
 #include "AppConfig.h"
 #include "PathUtils.h"
 
-#define BASE_DATA_PATH (L"PsfPlayer Data Files")
-#define CONFIG_FILENAME (L"config.xml")
+#define BASE_DATA_PATH ("PsfPlayer Data Files")
+#define CONFIG_FILENAME ("config.xml")
 
 CAppConfig::CAppConfig()
     : CConfig(BuildConfigPath())
