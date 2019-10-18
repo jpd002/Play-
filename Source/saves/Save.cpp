@@ -3,6 +3,7 @@
 #include "Save.h"
 #include "StdStream.h"
 #include "StdStreamUtils.h"
+#include "FilesystemUtils.h"
 
 CSave::CSave(const fs::path& basePath)
     : m_basePath(basePath)
@@ -36,11 +37,7 @@ CSave::CSave(const fs::path& basePath)
 
 	m_sId = m_basePath.filename().string();
 
-	m_nLastModificationTime = std::chrono::time_point_cast<std::chrono::seconds>(fs::last_write_time(iconSysPath)).time_since_epoch().count();
-}
-
-CSave::~CSave()
-{
+	m_nLastModificationTime = Framework::ConvertFsTimeToSystemTime(fs::last_write_time(iconSysPath));
 }
 
 const wchar_t* CSave::GetName() const

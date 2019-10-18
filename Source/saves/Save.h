@@ -18,7 +18,7 @@ public:
 	};
 
 	CSave(const fs::path&);
-	virtual ~CSave();
+	virtual ~CSave() = default;
 
 	const wchar_t* GetName() const;
 	const char* GetId() const;
