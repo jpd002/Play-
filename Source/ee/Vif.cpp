@@ -510,7 +510,7 @@ void CVif::Cmd_MPG(StreamType& stream, CODE nCommand)
 		auto microMem = m_vpu.GetMicroMemory();
 		if(memcmp(microMem + nDstAddr, microProgram, nSize) != 0)
 		{
-			m_vpu.InvalidateMicroProgram();
+			m_vpu.InvalidateMicroProgram(nDstAddr, nDstAddr + nSize);
 			memcpy(microMem + nDstAddr, microProgram, nSize);
 		}
 	}
