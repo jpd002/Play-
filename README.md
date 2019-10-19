@@ -62,7 +62,7 @@ Example:
 
 ### Building for UNIX ###
 if you dont have cmake or openal lib installed, you'll also require Qt (preferably version 5.6) you can install it using your OS packaging tool, e.g ubuntu `apt install cmake libalut-dev`
-on UNIX systems there is 3 ways to setup a build, using qt creator, makefile or Ninja
+on UNIX systems there are 3 ways to setup a build: using qt creator, makefile or Ninja
  - QT Creator
     - Open Project -> `Play/CMakeLists.txt`
 
