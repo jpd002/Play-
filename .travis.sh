@@ -59,6 +59,7 @@ travis_script()
             source /opt/qt512/bin/qt512-env.sh || true
             cmake .. -G"$BUILD_TYPE" -DCMAKE_PREFIX_PATH=/opt/qt512/ -DCMAKE_INSTALL_PREFIX=./appdir/usr;
             cmake --build .
+            ctest
             cmake --build . --target install
 
             # AppImage Creation
@@ -72,6 +73,7 @@ travis_script()
             export CMAKE_PREFIX_PATH="$(brew --prefix qt5)"
             cmake .. -G"$BUILD_TYPE"
             cmake --build . --config Release
+            ctest -C Release
             $(brew --prefix qt5)/bin/macdeployqt Source/ui_qt/Release/Play.app
             appdmg ../installer_macosx/spec.json Play.dmg
         elif [ "$TARGET_OS" = "IOS" ]; then
