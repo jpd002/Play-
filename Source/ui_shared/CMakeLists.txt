@@ -24,9 +24,8 @@ endif()
 list(APPEND SHARED_UI_PROJECT_LIBS Framework_Http)
 
 if(NOT TARGET nlohmann_json)
-	set(JSON_BuildTests OFF CACHE BOOL "Disable test build")
 	add_subdirectory(
-		${CMAKE_CURRENT_SOURCE_DIR}/../../deps/Dependencies/build_cmake/nlohmann_json
+		${CMAKE_CURRENT_SOURCE_DIR}/../../deps/Dependencies/nlohmann_json
 		${CMAKE_CURRENT_BINARY_DIR}/nlohmann_json
 		EXCLUDE_FROM_ALL
 	)
