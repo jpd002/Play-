@@ -10,7 +10,10 @@ if "%BUILD_PLAY%" == "ON" (
 	
 	cmake --build . --config %CONFIG_TYPE%
 	if !errorlevel! neq 0 exit /b !errorlevel!
-
+	
+	ctest -C %CONFIG_TYPE%
+	if !errorlevel! neq 0 exit /b !errorlevel!
+	
 	c:\Qt\5.12\%QT_FLAVOR%\bin\windeployqt.exe ./Source/ui_qt/Release --no-system-d3d-compiler --no-quick-import --no-opengl-sw --no-compiler-runtime --no-translations	
 	
 	cd ..
