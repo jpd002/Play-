@@ -8,6 +8,8 @@
 #include "StdStreamUtils.h"
 #include "GameTestSheet.h"
 
+#define CHECK(condition) if(!(condition)) { throw std::exception(); }
+
 void PrepareTestEnvironment(const CGameTestSheet::EnvironmentActionArray& environment)
 {
 	//TODO: There's a bug if there's a slash at the end of the path for the memory card
@@ -71,15 +73,12 @@ void ExecuteTest(const CGameTestSheet::TEST& test)
 		}
 		mcServ->Invoke(0xD, reinterpret_cast<uint32*>(&cmd), sizeof(cmd), &result, sizeof(uint32), reinterpret_cast<uint8*>(entries.data()));
 
-		assert(result == test.result);
+		CHECK(result == test.result);
 		for(unsigned int i = 0; i < test.entries.size(); i++)
 		{
 			const auto& entry = entries[i];
 			const auto& refEntry = test.entries[i];
-			if(strcmp(reinterpret_cast<const char*>(entry.name), refEntry.c_str()))
-			{
-				assert(0);
-			}
+			CHECK(strcmp(reinterpret_cast<const char*>(entry.name), refEntry.c_str()) == 0);
 		}
 	}
 }
