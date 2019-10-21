@@ -74,11 +74,18 @@ void ExecuteTest(const CGameTestSheet::TEST& test)
 		mcServ->Invoke(0xD, reinterpret_cast<uint32*>(&cmd), sizeof(cmd), &result, sizeof(uint32), reinterpret_cast<uint8*>(entries.data()));
 
 		CHECK(result == test.result);
-		for(unsigned int i = 0; i < test.entries.size(); i++)
+
+		//Check that we can find all reference entries in the result
+		//Items don't need to be in the same order, but need to appear only once
+		for(const auto& refEntry : test.entries)
 		{
-			const auto& entry = entries[i];
-			const auto& refEntry = test.entries[i];
-			CHECK(strcmp(reinterpret_cast<const char*>(entry.name), refEntry.c_str()) == 0);
+			auto entryCount = std::count_if(entries.begin(), entries.end(),
+					  [&refEntry] (const auto& entry)
+					  {
+						return strcmp(reinterpret_cast<const char*>(entry.name), refEntry.c_str()) == 0;
+					  }
+			);
+			CHECK(entryCount == 1);
 		}
 	}
 }
