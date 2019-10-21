@@ -8,7 +8,11 @@
 #include "StdStreamUtils.h"
 #include "GameTestSheet.h"
 
-#define CHECK(condition) if(!(condition)) { throw std::exception(); }
+#define CHECK(condition)        \
+	if(!(condition))            \
+	{                           \
+		throw std::exception(); \
+	}
 
 void PrepareTestEnvironment(const CGameTestSheet::EnvironmentActionArray& environment)
 {
@@ -80,11 +84,9 @@ void ExecuteTest(const CGameTestSheet::TEST& test)
 		for(const auto& refEntry : test.entries)
 		{
 			auto entryCount = std::count_if(entries.begin(), entries.end(),
-					  [&refEntry] (const auto& entry)
-					  {
-						return strcmp(reinterpret_cast<const char*>(entry.name), refEntry.c_str()) == 0;
-					  }
-			);
+			                                [&refEntry](const auto& entry) {
+				                                return strcmp(reinterpret_cast<const char*>(entry.name), refEntry.c_str()) == 0;
+			                                });
 			CHECK(entryCount == 1);
 		}
 	}
