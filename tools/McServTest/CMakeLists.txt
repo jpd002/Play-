@@ -18,6 +18,7 @@ endif()
 add_executable(McServTest
 	AppConfig.cpp
 	GameTestSheet.cpp
+	GameTestSheet.h
 	Main.cpp
 )
 target_link_libraries(McServTest PlayCore)
