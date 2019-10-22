@@ -27,6 +27,8 @@ using namespace Iop;
 #define CUSTOM_PROCEEDREADFAST 0x667
 #define CUSTOM_FINISHREADFAST 0x668
 
+#define SEPARATOR_CHAR '/'
+
 // clang-format off
 const char* CMcServ::m_mcPathPreference[2] =
 {
@@ -50,6 +52,21 @@ CMcServ::CMcServ(CIopBios& bios, CSifMan& sifMan, CSifCmd& sifCmd, CSysmem& sysM
 const char* CMcServ::GetMcPathPreference(unsigned int port)
 {
 	return m_mcPathPreference[port];
+}
+
+fs::path CMcServ::MakeHostPath(const fs::path& baseHostPath, const char* mcPath)
+{
+	if(strlen(mcPath) == 0)
+	{
+		//If we're not adding anything, just return whatever we had
+		//We don't want to introduce a trailing slash since it will
+		//break other stuff
+		return baseHostPath;
+	}
+	auto result = baseHostPath;
+	result.concat("/");
+	result.concat(mcPath);
+	return result;
 }
 
 std::string CMcServ::GetId() const
@@ -548,9 +565,9 @@ void CMcServ::GetDir(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize,
 			m_pathFinder.Reset();
 
 			auto mcPath = CAppConfig::GetInstance().GetPreferencePath(m_mcPathPreference[cmd->port]);
-			if(cmd->name[0] != '/')
+			if(cmd->name[0] != SEPARATOR_CHAR)
 			{
-				mcPath /= m_currentDirectory;
+				mcPath = MakeHostPath(mcPath, m_currentDirectory.string().c_str());
 			}
 			mcPath = fs::absolute(mcPath);
 
@@ -561,7 +578,7 @@ void CMcServ::GetDir(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize,
 				return;
 			}
 
-			fs::path searchPath = mcPath / cmd->name;
+			auto searchPath = MakeHostPath(mcPath, cmd->name);
 			searchPath.remove_filename();
 			if(!fs::exists(searchPath))
 			{
@@ -569,7 +586,8 @@ void CMcServ::GetDir(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize,
 				ret[0] = RET_NO_ENTRY;
 				return;
 			}
-
+			
+			assert(*mcPath.string().rbegin() != '/');
 			m_pathFinder.Search(mcPath, cmd->name);
 		}
 
@@ -759,15 +777,17 @@ Framework::CStdStream* CMcServ::GetFileFromHandle(uint32 handle)
 fs::path CMcServ::GetAbsoluteFilePath(unsigned int port, unsigned int slot, const char* name) const
 {
 	auto mcPath = CAppConfig::GetInstance().GetPreferencePath(m_mcPathPreference[port]);
-	auto requestedFilePath = fs::path(name);
 
-	if(!requestedFilePath.root_directory().empty())
+	auto nameLength = strlen(name);
+	if(nameLength == 0) return mcPath;
+
+	if(name[0] == SEPARATOR_CHAR)
 	{
-		return mcPath / requestedFilePath;
+		return MakeHostPath(mcPath, name);
 	}
 	else
 	{
-		return mcPath / m_currentDirectory / requestedFilePath;
+		return MakeHostPath(mcPath / m_currentDirectory, name);
 	}
 }
 
