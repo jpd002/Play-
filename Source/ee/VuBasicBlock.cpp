@@ -27,6 +27,53 @@ void CVuBasicBlock::CompileRange(CMipsJitter* jitter)
 		    hasPendingXgKick = false;
 	    };
 
+	uint32 maxPipeTime = ((m_end - m_begin) / 8) + 1;
+	
+	std::vector<uint32> hints;
+	hints.resize(maxPipeTime + 1);
+
+	bool wroteInSpan = false;
+	uint32 updateTimeOut = 5;
+	
+#if 1
+	for(int32 address = (m_end + 4); address >= static_cast<int32>(m_begin); address -= 8)
+	{
+		uint32 relativePipeTime = (address - m_begin) / 8;
+		assert(relativePipeTime <= maxPipeTime);
+
+		uint32 addressLo = address + 0;
+		uint32 addressHi = address + 4;
+
+		uint32 opcodeLo = m_context.m_pMemoryMap->GetInstruction(addressLo);
+		uint32 opcodeHi = m_context.m_pMemoryMap->GetInstruction(addressHi);
+		
+		auto loOps = arch->GetAffectedOperands(&m_context, addressLo, opcodeLo);
+		auto hiOps = arch->GetAffectedOperands(&m_context, addressHi, opcodeHi);
+
+		if(loOps.readMACflags)
+		{
+			updateTimeOut = 5;
+		}
+		
+		if(updateTimeOut != 0)
+		{
+			hints[relativePipeTime] = 0;
+			updateTimeOut--;
+			continue;
+		}
+
+		if(hiOps.writeMACflags && !wroteInSpan)
+		{
+			wroteInSpan = true;
+			hints[relativePipeTime] = 0;
+		}
+		else
+		{
+			hints[relativePipeTime] = VUShared::COMPILEHINT_SKIPFMACUPDATE;
+		}
+	}
+#endif
+	
 	for(uint32 address = m_begin; address <= m_end; address += 8)
 	{
 		uint32 relativePipeTime = (address - m_begin) / 8;
@@ -94,7 +141,25 @@ void CVuBasicBlock::CompileRange(CMipsJitter* jitter)
 			jitter->PullRel(offsetof(CMIPS, m_State.savedIntReg));
 		}
 
-		arch->SetRelativePipeTime(relativePipeTime);
+#if 0
+		uint32 compileHints = VUShared::COMPILEHINT_SKIPFMACUPDATE;
+		uint32 delay = maxPipeTime - relativePipeTime;
+		if(delay < 4)
+		{
+			compileHints = 0;
+		}
+		if(relativePipeTime == lastWriteRelativeTime)
+		{
+			compileHints = 0;
+		}
+		if(readsFmac)
+		{
+			compileHints = 0;
+		}
+#endif
+
+		uint32 compileHints = hints[relativePipeTime];
+		arch->SetRelativePipeTime(relativePipeTime, compileHints);
 		arch->CompileInstruction(addressHi, jitter, &m_context);
 
 		if(savedReg != 0)

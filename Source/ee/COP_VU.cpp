@@ -323,7 +323,7 @@ void CCOP_VU::V()
 //03
 void CCOP_VU::VADDbc()
 {
-	VUShared::ADDbc(m_codeGen, m_nDest, m_nFD, m_nFS, m_nFT, m_nBc, 0);
+	VUShared::ADDbc(m_codeGen, m_nDest, m_nFD, m_nFS, m_nFT, m_nBc, 0, 0);
 }
 
 //04
@@ -332,7 +332,7 @@ void CCOP_VU::VADDbc()
 //07
 void CCOP_VU::VSUBbc()
 {
-	VUShared::SUBbc(m_codeGen, m_nDest, m_nFD, m_nFS, m_nFT, m_nBc, 0);
+	VUShared::SUBbc(m_codeGen, m_nDest, m_nFD, m_nFS, m_nFT, m_nBc, 0, 0);
 }
 
 //08
@@ -341,7 +341,7 @@ void CCOP_VU::VSUBbc()
 //0B
 void CCOP_VU::VMADDbc()
 {
-	VUShared::MADDbc(m_codeGen, m_nDest, m_nFD, m_nFS, m_nFT, m_nBc, 0);
+	VUShared::MADDbc(m_codeGen, m_nDest, m_nFD, m_nFS, m_nFT, m_nBc, 0, 0);
 }
 
 //0C
@@ -350,7 +350,7 @@ void CCOP_VU::VMADDbc()
 //0F
 void CCOP_VU::VMSUBbc()
 {
-	VUShared::MSUBbc(m_codeGen, m_nDest, m_nFD, m_nFS, m_nFT, m_nBc, 0);
+	VUShared::MSUBbc(m_codeGen, m_nDest, m_nFD, m_nFS, m_nFT, m_nBc, 0, 0);
 }
 
 //10
@@ -377,13 +377,13 @@ void CCOP_VU::VMINIbc()
 //1B
 void CCOP_VU::VMULbc()
 {
-	VUShared::MULbc(m_codeGen, m_nDest, m_nFD, m_nFS, m_nFT, m_nBc, 0);
+	VUShared::MULbc(m_codeGen, m_nDest, m_nFD, m_nFS, m_nFT, m_nBc, 0, 0);
 }
 
 //1C
 void CCOP_VU::VMULq()
 {
-	VUShared::MULq(m_codeGen, m_nDest, m_nFD, m_nFS, 0);
+	VUShared::MULq(m_codeGen, m_nDest, m_nFD, m_nFS, 0, 0);
 }
 
 //1D
@@ -395,7 +395,7 @@ void CCOP_VU::VMAXi()
 //1E
 void CCOP_VU::VMULi()
 {
-	VUShared::MULi(m_codeGen, m_nDest, m_nFD, m_nFS, 0);
+	VUShared::MULi(m_codeGen, m_nDest, m_nFD, m_nFS, 0, 0);
 }
 
 //1F
@@ -407,67 +407,67 @@ void CCOP_VU::VMINIi()
 //20
 void CCOP_VU::VADDq()
 {
-	VUShared::ADDq(m_codeGen, m_nDest, m_nFD, m_nFS, 0);
+	VUShared::ADDq(m_codeGen, m_nDest, m_nFD, m_nFS, 0, 0);
 }
 
 //21
 void CCOP_VU::VMADDq()
 {
-	VUShared::MADDq(m_codeGen, m_nDest, m_nFD, m_nFS, 0);
+	VUShared::MADDq(m_codeGen, m_nDest, m_nFD, m_nFS, 0, 0);
 }
 
 //22
 void CCOP_VU::VADDi()
 {
-	VUShared::ADDi(m_codeGen, m_nDest, m_nFD, m_nFS, 0);
+	VUShared::ADDi(m_codeGen, m_nDest, m_nFD, m_nFS, 0, 0);
 }
 
 //23
 void CCOP_VU::VMADDi()
 {
-	VUShared::MADDi(m_codeGen, m_nDest, m_nFD, m_nFS, 0);
+	VUShared::MADDi(m_codeGen, m_nDest, m_nFD, m_nFS, 0, 0);
 }
 
 //24
 void CCOP_VU::VSUBq()
 {
-	VUShared::SUBq(m_codeGen, m_nDest, m_nFD, m_nFS, 0);
+	VUShared::SUBq(m_codeGen, m_nDest, m_nFD, m_nFS, 0, 0);
 }
 
 //25
 void CCOP_VU::VMSUBq()
 {
-	VUShared::MSUBq(m_codeGen, m_nDest, m_nFD, m_nFS, 0);
+	VUShared::MSUBq(m_codeGen, m_nDest, m_nFD, m_nFS, 0, 0);
 }
 
 //26
 void CCOP_VU::VSUBi()
 {
-	VUShared::SUBi(m_codeGen, m_nDest, m_nFD, m_nFS, 0);
+	VUShared::SUBi(m_codeGen, m_nDest, m_nFD, m_nFS, 0, 0);
 }
 
 //27
 void CCOP_VU::VMSUBi()
 {
-	VUShared::MSUBi(m_codeGen, m_nDest, m_nFD, m_nFS, 0);
+	VUShared::MSUBi(m_codeGen, m_nDest, m_nFD, m_nFS, 0, 0);
 }
 
 //28
 void CCOP_VU::VADD()
 {
-	VUShared::ADD(m_codeGen, m_nDest, m_nFD, m_nFS, m_nFT, 0);
+	VUShared::ADD(m_codeGen, m_nDest, m_nFD, m_nFS, m_nFT, 0, 0);
 }
 
 //29
 void CCOP_VU::VMADD()
 {
-	VUShared::MADD(m_codeGen, m_nDest, m_nFD, m_nFS, m_nFT, 0);
+	VUShared::MADD(m_codeGen, m_nDest, m_nFD, m_nFS, m_nFT, 0, 0);
 }
 
 //2A
 void CCOP_VU::VMUL()
 {
-	VUShared::MUL(m_codeGen, m_nDest, m_nFD, m_nFS, m_nFT, 0);
+	VUShared::MUL(m_codeGen, m_nDest, m_nFD, m_nFS, m_nFT, 0, 0);
 }
 
 //2B
@@ -479,19 +479,19 @@ void CCOP_VU::VMAX()
 //2C
 void CCOP_VU::VSUB()
 {
-	VUShared::SUB(m_codeGen, m_nDest, m_nFD, m_nFS, m_nFT, 0);
+	VUShared::SUB(m_codeGen, m_nDest, m_nFD, m_nFS, m_nFT, 0, 0);
 }
 
 //2D
 void CCOP_VU::VMSUB()
 {
-	VUShared::MSUB(m_codeGen, m_nDest, m_nFD, m_nFS, m_nFT, 0);
+	VUShared::MSUB(m_codeGen, m_nDest, m_nFD, m_nFS, m_nFT, 0, 0);
 }
 
 //2E
 void CCOP_VU::VOPMSUB()
 {
-	VUShared::OPMSUB(m_codeGen, m_nFD, m_nFS, m_nFT, 0);
+	VUShared::OPMSUB(m_codeGen, m_nFD, m_nFS, m_nFT, 0, 0);
 }
 
 //2F
@@ -588,31 +588,31 @@ void CCOP_VU::VX3()
 //
 void CCOP_VU::VADDAbc()
 {
-	VUShared::ADDAbc(m_codeGen, m_nDest, m_nFS, m_nFT, m_nBc, 0);
+	VUShared::ADDAbc(m_codeGen, m_nDest, m_nFS, m_nFT, m_nBc, 0, 0);
 }
 
 //
 void CCOP_VU::VSUBAbc()
 {
-	VUShared::SUBAbc(m_codeGen, m_nDest, m_nFS, m_nFT, m_nBc, 0);
+	VUShared::SUBAbc(m_codeGen, m_nDest, m_nFS, m_nFT, m_nBc, 0, 0);
 }
 
 //
 void CCOP_VU::VMADDAbc()
 {
-	VUShared::MADDAbc(m_codeGen, m_nDest, m_nFS, m_nFT, m_nBc, 0);
+	VUShared::MADDAbc(m_codeGen, m_nDest, m_nFS, m_nFT, m_nBc, 0, 0);
 }
 
 //
 void CCOP_VU::VMSUBAbc()
 {
-	VUShared::MSUBAbc(m_codeGen, m_nDest, m_nFS, m_nFT, m_nBc, 0);
+	VUShared::MSUBAbc(m_codeGen, m_nDest, m_nFS, m_nFT, m_nBc, 0, 0);
 }
 
 //
 void CCOP_VU::VMULAbc()
 {
-	VUShared::MULAbc(m_codeGen, m_nDest, m_nFS, m_nFT, m_nBc, 0);
+	VUShared::MULAbc(m_codeGen, m_nDest, m_nFS, m_nFT, m_nBc, 0, 0);
 }
 
 //////////////////////////////////////////////////
@@ -634,19 +634,19 @@ void CCOP_VU::VFTOI0()
 //07
 void CCOP_VU::VMULAq()
 {
-	VUShared::MULAq(m_codeGen, m_nDest, m_nFS, 0);
+	VUShared::MULAq(m_codeGen, m_nDest, m_nFS, 0, 0);
 }
 
 //0A
 void CCOP_VU::VADDA()
 {
-	VUShared::ADDA(m_codeGen, m_nDest, m_nFS, m_nFT, 0);
+	VUShared::ADDA(m_codeGen, m_nDest, m_nFS, m_nFT, 0, 0);
 }
 
 //0B
 void CCOP_VU::VSUBA()
 {
-	VUShared::SUBA(m_codeGen, m_nDest, m_nFS, m_nFT, 0);
+	VUShared::SUBA(m_codeGen, m_nDest, m_nFS, m_nFT, 0, 0);
 }
 
 //0C
@@ -705,25 +705,25 @@ void CCOP_VU::VABS()
 //08
 void CCOP_VU::VMADDAq()
 {
-	VUShared::MADDAq(m_codeGen, m_nDest, m_nFS, 0);
+	VUShared::MADDAq(m_codeGen, m_nDest, m_nFS, 0, 0);
 }
 
 //09
 void CCOP_VU::VMSUBAq()
 {
-	VUShared::MSUBAq(m_codeGen, m_nDest, m_nFS, 0);
+	VUShared::MSUBAq(m_codeGen, m_nDest, m_nFS, 0, 0);
 }
 
 //0A
 void CCOP_VU::VMADDA()
 {
-	VUShared::MADDA(m_codeGen, m_nDest, m_nFS, m_nFT, 0);
+	VUShared::MADDA(m_codeGen, m_nDest, m_nFS, m_nFT, 0, 0);
 }
 
 //0B
 void CCOP_VU::VMSUBA()
 {
-	VUShared::MSUBA(m_codeGen, m_nDest, m_nFS, m_nFT, 0);
+	VUShared::MSUBA(m_codeGen, m_nDest, m_nFS, m_nFT, 0, 0);
 }
 
 //0C
@@ -776,13 +776,13 @@ void CCOP_VU::VFTOI12()
 //07
 void CCOP_VU::VMULAi()
 {
-	VUShared::MULAi(m_codeGen, m_nDest, m_nFS, 0);
+	VUShared::MULAi(m_codeGen, m_nDest, m_nFS, 0, 0);
 }
 
 //0A
 void CCOP_VU::VMULA()
 {
-	VUShared::MULA(m_codeGen, m_nDest, m_nFS, m_nFT, 0);
+	VUShared::MULA(m_codeGen, m_nDest, m_nFS, m_nFT, 0, 0);
 }
 
 //0B
@@ -841,13 +841,13 @@ void CCOP_VU::VCLIP()
 //08
 void CCOP_VU::VMADDAi()
 {
-	VUShared::MADDAi(m_codeGen, m_nDest, m_nFS, 0);
+	VUShared::MADDAi(m_codeGen, m_nDest, m_nFS, 0, 0);
 }
 
 //09
 void CCOP_VU::VMSUBAi()
 {
-	VUShared::MSUBAi(m_codeGen, m_nDest, m_nFS, 0);
+	VUShared::MSUBAi(m_codeGen, m_nDest, m_nFS, 0, 0);
 }
 
 //0B

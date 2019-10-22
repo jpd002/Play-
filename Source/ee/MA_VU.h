@@ -19,7 +19,7 @@ public:
 	uint32 GetInstructionEffectiveAddress(CMIPS*, uint32, uint32) override;
 	VUShared::OPERANDSET GetAffectedOperands(CMIPS*, uint32, uint32);
 
-	void SetRelativePipeTime(uint32);
+	void SetRelativePipeTime(uint32, uint32);
 
 private:
 	void SetupReflectionTables();
@@ -37,7 +37,7 @@ private:
 		MIPS_BRANCH_TYPE IsInstructionBranch(CMIPS*, uint32, uint32);
 		uint32 GetInstructionEffectiveAddress(CMIPS*, uint32, uint32);
 
-		void SetRelativePipeTime(uint32);
+		void SetRelativePipeTime(uint32, uint32);
 
 	private:
 		typedef void (CUpper::*InstructionFuncConstant)();
@@ -53,7 +53,8 @@ private:
 		uint8 m_nFD;
 		uint8 m_nBc;
 		uint8 m_nDest;
-		uint32 m_relativePipeTime;
+		uint32 m_relativePipeTime = 0;
+		uint32 m_compileHints = 0;
 
 		static void ReflOpFtFs(MIPSReflection::INSTRUCTION*, CMIPS*, uint32, uint32, char*, unsigned int);
 
@@ -182,7 +183,7 @@ private:
 		uint32 GetInstructionEffectiveAddress(CMIPS*, uint32, uint32);
 		VUShared::OPERANDSET GetAffectedOperands(CMIPS*, uint32, uint32);
 
-		void SetRelativePipeTime(uint32);
+		void SetRelativePipeTime(uint32, uint32);
 
 	private:
 		enum
@@ -212,6 +213,7 @@ private:
 		uint16 m_nImm15S = 0;
 		uint32 m_nImm24 = 0;
 		uint32 m_relativePipeTime = 0;
+		uint32 m_compileHints = 0;
 		uint32 m_vuMemAddressMask;
 
 		void SetBranchAddress(bool, int32);
@@ -251,9 +253,11 @@ private:
 		static void ReflOpAffWrIdRdItIs(VUShared::VUINSTRUCTION*, CMIPS*, uint32, uint32, VUShared::OPERANDSET&);
 		static void ReflOpAffWrIt(VUShared::VUINSTRUCTION*, CMIPS*, uint32, uint32, VUShared::OPERANDSET&);
 		static void ReflOpAffWrItBv(VUShared::VUINSTRUCTION*, CMIPS*, uint32, uint32, VUShared::OPERANDSET&);
+		static void ReflOpAffWrItBvRdFmac(VUShared::VUINSTRUCTION*, CMIPS*, uint32, uint32, VUShared::OPERANDSET&);
 		static void ReflOpAffWrItRdFs(VUShared::VUINSTRUCTION*, CMIPS*, uint32, uint32, VUShared::OPERANDSET&);
 		static void ReflOpAffWrItRdIs(VUShared::VUINSTRUCTION*, CMIPS*, uint32, uint32, VUShared::OPERANDSET&);
 		static void ReflOpAffWrItBvRdIs(VUShared::VUINSTRUCTION*, CMIPS*, uint32, uint32, VUShared::OPERANDSET&);
+		static void ReflOpAffWrItBvRdFmacIs(VUShared::VUINSTRUCTION*, CMIPS*, uint32, uint32, VUShared::OPERANDSET&);
 		static void ReflOpAffWrItRdItFs(VUShared::VUINSTRUCTION*, CMIPS*, uint32, uint32, VUShared::OPERANDSET&);
 		static void ReflOpAffWrPRdFs(VUShared::VUINSTRUCTION*, CMIPS*, uint32, uint32, VUShared::OPERANDSET&);
 		static void ReflOpAffWrVi1Bv(VUShared::VUINSTRUCTION*, CMIPS*, uint32, uint32, VUShared::OPERANDSET&);

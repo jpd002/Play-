@@ -315,6 +315,7 @@ void VUShared::ReflOpAffAccFsI(VUINSTRUCTION* pInstr, CMIPS* pCtx, uint32 nAddre
 	uint8 nFS = (uint8)((nOpcode >> 11) & 0x001F);
 
 	operandSet.readF0 = nFS;
+	operandSet.writeMACflags = true;
 }
 
 void VUShared::ReflOpAffFdFsQ(VUINSTRUCTION* pInstr, CMIPS* pCtx, uint32 nAddress, uint32 nOpcode, OPERANDSET& operandSet)
@@ -325,6 +326,7 @@ void VUShared::ReflOpAffFdFsQ(VUINSTRUCTION* pInstr, CMIPS* pCtx, uint32 nAddres
 	operandSet.readF0 = nFS;
 	operandSet.writeF = nFD;
 	operandSet.readQ = true;
+	operandSet.writeMACflags = true;
 }
 
 void VUShared::ReflOpAffFdFsI(VUINSTRUCTION* pInstr, CMIPS* pCtx, uint32 nAddress, uint32 nOpcode, OPERANDSET& operandSet)
@@ -334,6 +336,7 @@ void VUShared::ReflOpAffFdFsI(VUINSTRUCTION* pInstr, CMIPS* pCtx, uint32 nAddres
 
 	operandSet.readF0 = nFS;
 	operandSet.writeF = nFD;
+	operandSet.writeMACflags = true;
 }
 
 void VUShared::ReflOpAffFtFs(VUINSTRUCTION* pInstr, CMIPS* pCtx, uint32 nAddress, uint32 nOpcode, OPERANDSET& operandSet)
@@ -371,6 +374,7 @@ void VUShared::ReflOpAffWrARdFtFs(VUINSTRUCTION*, CMIPS*, uint32, uint32 opcode,
 	//TODO: Write A
 	operandSet.readF0 = ft;
 	operandSet.readF1 = fs;
+	operandSet.writeMACflags = true;
 }
 
 void VUShared::ReflOpAffWrARdFsQ(VUINSTRUCTION*, CMIPS*, uint32, uint32 opcode, OPERANDSET& operandSet)
@@ -380,6 +384,7 @@ void VUShared::ReflOpAffWrARdFsQ(VUINSTRUCTION*, CMIPS*, uint32, uint32 opcode, 
 	//TODO: Write A
 	operandSet.readF0 = fs;
 	operandSet.readQ = true;
+	operandSet.writeMACflags = true;
 }
 
 void VUShared::ReflOpAffWrCfRdFtFs(VUINSTRUCTION*, CMIPS*, uint32, uint32 opcode, OPERANDSET& operandSet)
@@ -401,6 +406,7 @@ void VUShared::ReflOpAffWrFdRdFtFs(VUINSTRUCTION*, CMIPS*, uint32, uint32 opcode
 	operandSet.writeF = fd;
 	operandSet.readF0 = ft;
 	operandSet.readF1 = fs;
+	operandSet.writeMACflags = true;
 }
 
 void VUShared::ReflOpAffWrQRdFt(VUINSTRUCTION*, CMIPS*, uint32, uint32 opcode, OPERANDSET& operandSet)

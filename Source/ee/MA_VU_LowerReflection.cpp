@@ -284,6 +284,15 @@ void CMA_VU::CLower::ReflOpAffWrItBv(VUINSTRUCTION*, CMIPS*, uint32, uint32 opco
 	operandSet.branchValue = true;
 }
 
+void CMA_VU::CLower::ReflOpAffWrItBvRdFmac(VUINSTRUCTION*, CMIPS*, uint32, uint32 opcode, OPERANDSET& operandSet)
+{
+	auto it = static_cast<uint8>((opcode >> 16) & 0x001F);
+
+	operandSet.writeI = it;
+	operandSet.branchValue = true;
+	operandSet.readMACflags = true;
+}
+
 void CMA_VU::CLower::ReflOpAffWrItRdFs(VUINSTRUCTION*, CMIPS*, uint32, uint32 opcode, OPERANDSET& operandSet)
 {
 	auto it = static_cast<uint8>((opcode >> 16) & 0x001F);
@@ -310,6 +319,17 @@ void CMA_VU::CLower::ReflOpAffWrItBvRdIs(VUINSTRUCTION*, CMIPS*, uint32, uint32 
 	operandSet.writeI = it;
 	operandSet.readI0 = is;
 	operandSet.branchValue = true;
+}
+
+void CMA_VU::CLower::ReflOpAffWrItBvRdFmacIs(VUINSTRUCTION*, CMIPS*, uint32, uint32 opcode, OPERANDSET& operandSet)
+{
+	auto it = static_cast<uint8>((opcode >> 16) & 0x001F);
+	auto is = static_cast<uint8>((opcode >> 11) & 0x001F);
+
+	operandSet.writeI = it;
+	operandSet.readI0 = is;
+	operandSet.branchValue = true;
+	operandSet.readMACflags = true;
 }
 
 void CMA_VU::CLower::ReflOpAffWrItRdItFs(VUINSTRUCTION*, CMIPS*, uint32, uint32 opcode, OPERANDSET& operandSet)
@@ -748,13 +768,13 @@ VUINSTRUCTION CMA_VU::CLower::m_cVuReflGeneral[128] =
 	{	"FCOR",		NULL,			ReflOpAffWrVi1Bv	},
 	{	NULL,		NULL,			NULL				},
 	{	"FSSET",	NULL,			ReflOpAffNone		},
-	{	"FSAND",	NULL,			ReflOpAffWrItBv		},
-	{	"FSOR",		NULL,			ReflOpAffWrItBv		},
+	{	"FSAND",	NULL,			ReflOpAffWrItBvRdFmac		},
+	{	"FSOR",		NULL,			ReflOpAffWrItBvRdFmac		},
 	//0x18
-	{	"FMEQ",		NULL,			ReflOpAffWrItBvRdIs	},
+	{	"FMEQ",		NULL,			ReflOpAffWrItBvRdFmacIs	},
 	{	NULL,		NULL,			NULL				},
-	{	"FMAND",	NULL,			ReflOpAffWrItBvRdIs	},
-	{	"FMOR",		NULL,			ReflOpAffWrItBvRdIs	},
+	{	"FMAND",	NULL,			ReflOpAffWrItBvRdFmacIs	},
+	{	"FMOR",		NULL,			ReflOpAffWrItBvRdFmacIs	},
 	{	"FCGET",	NULL,			ReflOpAffWrItBv		},
 	{	NULL,		NULL,			NULL				},
 	{	NULL,		NULL,			NULL				},

@@ -53,9 +53,10 @@ void CMA_VU::CLower::CompileInstruction(uint32 address, CMipsJitter* codeGen, CM
 	}
 }
 
-void CMA_VU::CLower::SetRelativePipeTime(uint32 relativePipeTime)
+void CMA_VU::CLower::SetRelativePipeTime(uint32 relativePipeTime, uint32 compileHints)
 {
 	m_relativePipeTime = relativePipeTime;
+	m_compileHints = compileHints;
 }
 
 void CMA_VU::CLower::SetBranchAddress(bool nCondition, int32 nOffset)
