@@ -499,29 +499,30 @@ void CMcServ::ChDir(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, 
 
 	try
 	{
-		fs::path newCurrentDirectory;
-		fs::path requestedDirectory(cmd->name);
+		std::string newCurrentDirectory;
+		std::string requestedDirectory(cmd->name);
 
-		if(!requestedDirectory.root_directory().empty())
+		if(!requestedDirectory.empty() && (requestedDirectory[0] == SEPARATOR_CHAR))
 		{
-			if(requestedDirectory.string() != "/")
+			if(requestedDirectory.length() != 1)
 			{
 				newCurrentDirectory = requestedDirectory;
 			}
 			else
 			{
+				//Clear if only separator char
 				newCurrentDirectory.clear();
 			}
 		}
 		else
 		{
-			newCurrentDirectory = m_currentDirectory / requestedDirectory;
+			newCurrentDirectory = m_currentDirectory + SEPARATOR_CHAR + requestedDirectory;
 		}
 
 		auto mcPath = CAppConfig::GetInstance().GetPreferencePath(m_mcPathPreference[cmd->port]);
-		mcPath /= newCurrentDirectory;
+		auto hostPath = MakeHostPath(mcPath, newCurrentDirectory.c_str());
 
-		if(fs::exists(mcPath) && fs::is_directory(mcPath))
+		if(fs::exists(hostPath) && fs::is_directory(hostPath))
 		{
 			m_currentDirectory = newCurrentDirectory;
 			result = 0;
@@ -567,7 +568,7 @@ void CMcServ::GetDir(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize,
 			auto mcPath = CAppConfig::GetInstance().GetPreferencePath(m_mcPathPreference[cmd->port]);
 			if(cmd->name[0] != SEPARATOR_CHAR)
 			{
-				mcPath = MakeHostPath(mcPath, m_currentDirectory.string().c_str());
+				mcPath = MakeHostPath(mcPath, m_currentDirectory.c_str());
 			}
 			mcPath = fs::absolute(mcPath);
 
@@ -787,7 +788,7 @@ fs::path CMcServ::GetAbsoluteFilePath(unsigned int port, unsigned int slot, cons
 	}
 	else
 	{
-		return MakeHostPath(mcPath / m_currentDirectory, name);
+		return MakeHostPath(MakeHostPath(mcPath, m_currentDirectory.c_str()), name);
 	}
 }
 

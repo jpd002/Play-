@@ -178,7 +178,7 @@ namespace Iop
 		uint32 m_readFastAddr = 0;
 		Framework::CStdStream m_files[MAX_FILES];
 		static const char* m_mcPathPreference[2];
-		fs::path m_currentDirectory;
+		std::string m_currentDirectory;
 		CPathFinder m_pathFinder;
 	};
 }
