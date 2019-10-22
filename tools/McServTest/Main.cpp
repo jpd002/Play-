@@ -59,6 +59,8 @@ void ExecuteTest(const CGameTestSheet::TEST& test)
 		strncpy(cmd.name, test.currentDirectory.c_str(), sizeof(cmd.name));
 
 		mcServ->Invoke(0xC, reinterpret_cast<uint32*>(&cmd), sizeof(cmd), &result, sizeof(uint32), nullptr);
+
+		CHECK(result == 0);
 	}
 
 	{
