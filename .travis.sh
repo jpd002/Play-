@@ -5,12 +5,12 @@ travis_before_install()
     if [ "$TARGET_OS" = "Linux" ]; then
         if [ "$TARGET_ARCH" = "ARM64" ]; then
             sudo apt-get update -qq
-            sudo apt-get install -y gcc-7 g++-7 qtbase5-dev libcurl4-openssl-dev libgl1-mesa-dev libglu1-mesa-dev libalut-dev libevdev-dev libgles2-mesa-dev
+            sudo apt-get install -y gcc-9 g++-9 qtbase5-dev libcurl4-openssl-dev libgl1-mesa-dev libglu1-mesa-dev libalut-dev libevdev-dev libgles2-mesa-dev
         else
             sudo add-apt-repository --yes ppa:beineri/opt-qt-5.12.3-xenial
             sudo add-apt-repository --yes ppa:ubuntu-toolchain-r/test
             sudo apt-get update -qq
-            sudo apt-get install -qq qt512base gcc-7 g++-7 libgl1-mesa-dev libglu1-mesa-dev libalut-dev libevdev-dev
+            sudo apt-get install -qq qt512base gcc-9 g++-9 libgl1-mesa-dev libglu1-mesa-dev libalut-dev libevdev-dev
         fi
     elif [ "$TARGET_OS" = "Linux_Clang_Format" ]; then
         wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | sudo apt-key add -
@@ -60,7 +60,7 @@ travis_script()
         pushd build
         
         if [ "$TARGET_OS" = "Linux" ]; then
-            if [ "$CXX" = "g++" ]; then export CXX="g++-7" CC="gcc-7"; fi
+            if [ "$CXX" = "g++" ]; then export CXX="g++-9" CC="gcc-9"; fi
             source /opt/qt512/bin/qt512-env.sh || true
             export PATH=$PATH:/opt/qt512/lib/cmake
             cmake .. -G"$BUILD_TYPE" -DCMAKE_INSTALL_PREFIX=./appdir/usr;
