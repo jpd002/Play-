@@ -1,6 +1,13 @@
+#if !defined(GLES_COMPATIBILITY)
 #include "GSH_OpenGLQt.h"
+#endif
+
 #include <QWindow>
 #include <QOpenGLContext>
+
+#if defined(GLES_COMPATIBILITY)
+#include "GSH_OpenGLQt.h"
+#endif
 
 CGSH_OpenGLQt::CGSH_OpenGLQt(QWindow* renderWindow)
     : m_renderWindow(renderWindow)
