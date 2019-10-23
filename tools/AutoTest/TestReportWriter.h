@@ -3,6 +3,7 @@
 #include "filesystem_def.h"
 #include <string>
 #include <memory>
+#include <vector>
 
 struct LINEDIFF
 {
