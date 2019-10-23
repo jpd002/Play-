@@ -4,6 +4,7 @@ travis_before_install()
 {
     if [ "$TARGET_OS" = "Linux" ]; then
         if [ "$TARGET_ARCH" = "ARM64" ]; then
+            sudo add-apt-repository --yes ppa:ubuntu-toolchain-r/test
             sudo apt-get update -qq
             sudo apt-get install -y gcc-9 g++-9 qtbase5-dev libcurl4-openssl-dev libgl1-mesa-dev libglu1-mesa-dev libalut-dev libevdev-dev libgles2-mesa-dev
         else
