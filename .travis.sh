@@ -3,10 +3,15 @@
 travis_before_install() 
 {
     if [ "$TARGET_OS" = "Linux" ]; then
-        sudo add-apt-repository --yes ppa:beineri/opt-qt-5.12.3-xenial
-        sudo add-apt-repository --yes ppa:ubuntu-toolchain-r/test
-        sudo apt-get update -qq
-        sudo apt-get install -qq qt512base gcc-7 g++-7 libgl1-mesa-dev libglu1-mesa-dev libalut-dev libevdev-dev
+        if [ "$TARGET_ARCH" = "ARM64" ]; then
+            sudo apt-get update -qq
+            sudo apt-get install -y gcc-7 g++-7 qtbase5-dev libcurl4-openssl-dev libgl1-mesa-dev libglu1-mesa-dev libalut-dev libevdev-dev libgles2-mesa-dev
+        else
+            sudo add-apt-repository --yes ppa:beineri/opt-qt-5.12.3-xenial
+            sudo add-apt-repository --yes ppa:ubuntu-toolchain-r/test
+            sudo apt-get update -qq
+            sudo apt-get install -qq qt512base gcc-7 g++-7 libgl1-mesa-dev libglu1-mesa-dev libalut-dev libevdev-dev
+        fi
     elif [ "$TARGET_OS" = "Linux_Clang_Format" ]; then
         wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | sudo apt-key add -
         sudo apt-add-repository --yes "deb http://apt.llvm.org/trusty/ llvm-toolchain-trusty-6.0 main"
@@ -57,18 +62,22 @@ travis_script()
         if [ "$TARGET_OS" = "Linux" ]; then
             if [ "$CXX" = "g++" ]; then export CXX="g++-7" CC="gcc-7"; fi
             source /opt/qt512/bin/qt512-env.sh || true
-            cmake .. -G"$BUILD_TYPE" -DCMAKE_PREFIX_PATH=/opt/qt512/ -DCMAKE_INSTALL_PREFIX=./appdir/usr;
+            export PATH=$PATH:/opt/qt512/lib/cmake
+            cmake .. -G"$BUILD_TYPE" -DCMAKE_INSTALL_PREFIX=./appdir/usr;
             cmake --build .
             ctest
             cmake --build . --target install
 
-            # AppImage Creation
-            wget -c "https://github.com/probonopd/linuxdeployqt/releases/download/continuous/linuxdeployqt-continuous-x86_64.AppImage"
-            chmod a+x linuxdeployqt*.AppImage
-            unset QTDIR; unset QT_PLUGIN_PATH ; unset LD_LIBRARY_PATH
-            export VERSION="${TRAVIS_COMMIT:0:8}"
-            ./linuxdeployqt*.AppImage ./appdir/usr/share/applications/*.desktop -bundle-non-qt-libs -qmake=/opt/qt512/bin/qmake
-            ./linuxdeployqt*.AppImage ./appdir/usr/share/applications/*.desktop -appimage -qmake=/opt/qt512/bin/qmake
+            if [ "$TARGET_ARCH" = "x86_64" ]; then
+
+                # AppImage Creation
+                wget -c "https://github.com/probonopd/linuxdeployqt/releases/download/continuous/linuxdeployqt-continuous-x86_64.AppImage"
+                chmod a+x linuxdeployqt*.AppImage
+                unset QTDIR; unset QT_PLUGIN_PATH ; unset LD_LIBRARY_PATH
+                export VERSION="${TRAVIS_COMMIT:0:8}"
+                ./linuxdeployqt*.AppImage ./appdir/usr/share/applications/*.desktop -bundle-non-qt-libs -qmake=/opt/qt512/bin/qmake
+                ./linuxdeployqt*.AppImage ./appdir/usr/share/applications/*.desktop -appimage -qmake=/opt/qt512/bin/qmake
+            fi
         elif [ "$TARGET_OS" = "OSX" ]; then
             export CMAKE_PREFIX_PATH="$(brew --prefix qt5)"
             cmake .. -G"$BUILD_TYPE"

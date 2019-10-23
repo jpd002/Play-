@@ -10,6 +10,15 @@ matrix:
       env:
         - BUILD_TYPE="Unix Makefiles"
         - TARGET_OS=Linux
+        - TARGET_ARCH=x86_64
+      sudo: require
+    - os: linux
+      arch: arm64
+      dist: bionic
+      env:
+        - BUILD_TYPE="Unix Makefiles"
+        - TARGET_OS=Linux
+        - TARGET_ARCH=ARM64
       sudo: require
     - os: osx
       osx_image: xcode10.3
