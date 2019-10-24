@@ -587,7 +587,7 @@ void CMcServ::GetDir(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize,
 				ret[0] = RET_NO_ENTRY;
 				return;
 			}
-			
+
 			assert(*mcPath.string().rbegin() != '/');
 			m_pathFinder.Search(mcPath, cmd->name);
 		}
