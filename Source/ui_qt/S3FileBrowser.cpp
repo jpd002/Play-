@@ -76,7 +76,7 @@ void S3FileBrowser::accept()
 	{
 		auto selectedItem = selectedItems[0];
 		auto objectName = selectedItem->text().toStdString();
-		m_selectedPath = string_format("s3://%s/%s", bucketName.c_str(), objectName.c_str());
+		m_selectedPath = string_format("//s3/%s/%s", bucketName.c_str(), objectName.c_str());
 	}
 	CAppConfig::GetInstance().SetPreferenceString(PREF_S3FILEBROWSER_BUCKETNAME, bucketName.c_str());
 	CAppConfig::GetInstance().Save();
