@@ -3,13 +3,12 @@
 travis_before_install() 
 {
     if [ "$TARGET_OS" = "Linux" ]; then
+        sudo add-apt-repository --yes ppa:ubuntu-toolchain-r/test
         if [ "$TARGET_ARCH" = "ARM64" ]; then
-            sudo add-apt-repository --yes ppa:ubuntu-toolchain-r/test
             sudo apt-get update -qq
             sudo apt-get install -y gcc-9 g++-9 qtbase5-dev libcurl4-openssl-dev libgl1-mesa-dev libglu1-mesa-dev libalut-dev libevdev-dev libgles2-mesa-dev
         else
             sudo add-apt-repository --yes ppa:beineri/opt-qt-5.12.3-xenial
-            sudo add-apt-repository --yes ppa:ubuntu-toolchain-r/test
             sudo apt-get update -qq
             sudo apt-get install -qq qt512base gcc-9 g++-9 libgl1-mesa-dev libglu1-mesa-dev libalut-dev libevdev-dev
         fi
@@ -68,9 +67,7 @@ travis_script()
             cmake --build .
             ctest
             cmake --build . --target install
-
             if [ "$TARGET_ARCH" = "x86_64" ]; then
-
                 # AppImage Creation
                 wget -c "https://github.com/probonopd/linuxdeployqt/releases/download/continuous/linuxdeployqt-continuous-x86_64.AppImage"
                 chmod a+x linuxdeployqt*.AppImage
@@ -113,7 +110,9 @@ travis_before_deploy()
         return
     fi;
     if [ "$TARGET_OS" = "Linux" ]; then
-        cp ../../build/Play*.AppImage .
+        if [ "$TARGET_ARCH" = "x86_64" ]; then
+            cp ../../build/Play*.AppImage .
+        fi;
     fi;
     if [ "$TARGET_OS" = "Android" ]; then
         cp ../../build_android/build/outputs/apk/release/Play-release-unsigned.apk .
