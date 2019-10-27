@@ -5,8 +5,8 @@ travis_before_install()
     if [ "$TARGET_OS" = "Linux" ]; then
         sudo add-apt-repository --yes ppa:ubuntu-toolchain-r/test
         if [ "$TARGET_ARCH" = "ARM64" ]; then
-            sudo apt-get update -qq
-            sudo apt-get install -y gcc-9 g++-9 qtbase5-dev libcurl4-openssl-dev libgl1-mesa-dev libglu1-mesa-dev libalut-dev libevdev-dev libgles2-mesa-dev
+            sudo apt update -qq
+            sudo apt install -y gcc-9 g++-9 qtbase5-dev libcurl4-openssl-dev libgl1-mesa-dev libglu1-mesa-dev libalut-dev libevdev-dev libgles2-mesa-dev
         else
             wget -c "https://github.com/probonopd/linuxdeployqt/releases/download/continuous/linuxdeployqt-continuous-x86_64.AppImage"
             chmod a+x linuxdeployqt*.AppImage
@@ -15,8 +15,8 @@ travis_before_install()
             wget -c "https://github.com/RPCS3/AppImageKit-checkrt/releases/download/continuous2/exec-x86_64.so" -O exec.so
 
             sudo add-apt-repository --yes ppa:beineri/opt-qt-5.12.3-xenial
-            sudo apt-get update -qq
-            sudo apt-get install -qq qt512base gcc-9 g++-9 libgl1-mesa-dev libglu1-mesa-dev libalut-dev libevdev-dev
+            sudo apt update -qq
+            sudo apt install -qq qt512base gcc-9 g++-9 libgl1-mesa-dev libglu1-mesa-dev libalut-dev libevdev-dev
             apt download libc6
         fi
     elif [ "$TARGET_OS" = "Linux_Clang_Format" ]; then
@@ -89,10 +89,10 @@ travis_script()
                 cp ../exec.so ./appdir/usr/optional/exec.so
                 printf "#include <memory>\nint main(){std::make_exception_ptr(0);}" | $CXX -x c++ -o ./appdir/usr/optional/checker -
                 # AppImage Creation
-                unset QTDIR; unset QT_PLUGIN_PATH ; unset LD_LIBRARY_PATH
+                unset QTDIR; unset QT_PLUGIN_PATH; unset LD_LIBRARY_PATH;
                 export VERSION="${TRAVIS_COMMIT:0:8}"
-                ../linuxdeployqt*.AppImage ./appdir/usr/share/applications/*.desktop -bundle-non-qt-libs -unsupported-allow-new-glibc -qmake=/opt/qt512/bin/qmake
-                ../linuxdeployqt*.AppImage ./appdir/usr/share/applications/*.desktop -appimage -unsupported-allow-new-glibc -qmake=/opt/qt512/bin/qmake
+                ../linuxdeployqt*.AppImage ./appdir/usr/share/applications/*.desktop -bundle-non-qt-libs -unsupported-allow-new-glibc -qmake=`which qmake`
+                ../linuxdeployqt*.AppImage ./appdir/usr/share/applications/*.desktop -appimage -unsupported-allow-new-glibc -qmake=`which qmake`
             fi
         elif [ "$TARGET_OS" = "OSX" ]; then
             export CMAKE_PREFIX_PATH="$(brew --prefix qt5)"
