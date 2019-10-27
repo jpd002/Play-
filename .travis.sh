@@ -8,6 +8,8 @@ travis_before_install()
             sudo apt-get update -qq
             sudo apt-get install -y gcc-9 g++-9 qtbase5-dev libcurl4-openssl-dev libgl1-mesa-dev libglu1-mesa-dev libalut-dev libevdev-dev libgles2-mesa-dev
         else
+            wget -c "https://github.com/probonopd/linuxdeployqt/releases/download/continuous/linuxdeployqt-continuous-x86_64.AppImage"
+            chmod a+x linuxdeployqt*.AppImage
             sudo add-apt-repository --yes ppa:beineri/opt-qt-5.12.3-xenial
             sudo apt-get update -qq
             sudo apt-get install -qq qt512base gcc-9 g++-9 libgl1-mesa-dev libglu1-mesa-dev libalut-dev libevdev-dev
@@ -69,12 +71,10 @@ travis_script()
             cmake --build . --target install
             if [ "$TARGET_ARCH" = "x86_64" ]; then
                 # AppImage Creation
-                wget -c "https://github.com/probonopd/linuxdeployqt/releases/download/continuous/linuxdeployqt-continuous-x86_64.AppImage"
-                chmod a+x linuxdeployqt*.AppImage
                 unset QTDIR; unset QT_PLUGIN_PATH ; unset LD_LIBRARY_PATH
                 export VERSION="${TRAVIS_COMMIT:0:8}"
-                ./linuxdeployqt*.AppImage ./appdir/usr/share/applications/*.desktop -bundle-non-qt-libs -qmake=/opt/qt512/bin/qmake
-                ./linuxdeployqt*.AppImage ./appdir/usr/share/applications/*.desktop -appimage -qmake=/opt/qt512/bin/qmake
+                ../linuxdeployqt*.AppImage ./appdir/usr/share/applications/*.desktop -bundle-non-qt-libs -qmake=/opt/qt512/bin/qmake
+                ../linuxdeployqt*.AppImage ./appdir/usr/share/applications/*.desktop -appimage -qmake=/opt/qt512/bin/qmake
             fi
         elif [ "$TARGET_OS" = "OSX" ]; then
             export CMAKE_PREFIX_PATH="$(brew --prefix qt5)"
