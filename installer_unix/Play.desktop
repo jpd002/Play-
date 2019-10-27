@@ -1,7 +1,7 @@
 [Desktop Entry]
 Name=Play!
-TryExec=/usr/bin/Play
-Exec=/usr/bin/Play
+TryExec=Play
+Exec=Play
 Icon=Play
 Version=1.0
 Terminal=false
