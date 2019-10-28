@@ -273,6 +273,11 @@ bool CIPU::HasPendingOUTFIFOData() const
 	return m_OUT_FIFO.GetSize() != 0;
 }
 
+void CIPU::FlushOUTFIFOData()
+{
+	m_OUT_FIFO.Flush();
+}
+
 void CIPU::InitializeCommand(uint32 value)
 {
 	unsigned int nCmd = (value >> 28);
@@ -370,6 +375,18 @@ uint32 CIPU::ReceiveDMA4(uint32 address, uint32 nQWC, bool nTagIncluded, uint8* 
 	if(size != 0)
 	{
 		m_IN_FIFO.Write(memory + address, size);
+	}
+
+	if(!m_isBusy)
+	{
+		unsigned int availableSize = std::min<unsigned int>(32, m_IN_FIFO.GetAvailableBits());
+		//If no bits are available, return zero immediately, shift below won't have any effect
+		if(availableSize != 0)
+		{
+			uint32 result = m_IN_FIFO.PeekBits_MSBF(availableSize);
+			result <<= (32 - availableSize);
+			m_IPU_CMD[0] = result;
+		}
 	}
 
 	return size / 0x10;

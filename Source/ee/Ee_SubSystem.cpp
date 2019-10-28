@@ -675,6 +675,10 @@ void CSubSystem::ExecuteIpu()
 			break;
 		}
 	}
+	if(m_ipu.HasPendingOUTFIFOData())
+	{
+		m_ipu.FlushOUTFIFOData();
+	}
 }
 
 void CSubSystem::CheckPendingInterrupts()

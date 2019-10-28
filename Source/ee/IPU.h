@@ -40,6 +40,7 @@ public:
 	bool WillExecuteCommand() const;
 	bool IsCommandDelayed() const;
 	bool HasPendingOUTFIFOData() const;
+	void FlushOUTFIFOData();
 
 private:
 	enum IPU_CTRL_BITS
