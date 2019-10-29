@@ -2,7 +2,7 @@
 //Modified to truncate result of addition
 
 #include <limits.h>
-#include <boost/cstdint.hpp>
+#include <cstdint>
 #include "FpAddTruncate.h"
 #include "BitManip.h"
 
