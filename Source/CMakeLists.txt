@@ -66,14 +66,6 @@ if(NOT TARGET CodeGen)
 endif()
 list(APPEND PROJECT_LIBS CodeGen)
 
-if(NOT TARGET Boost::boost)
-	add_subdirectory(
-		${CMAKE_CURRENT_SOURCE_DIR}/../deps/Dependencies/boost-cmake
-		${CMAKE_CURRENT_BINARY_DIR}/boost-cmake
-	)
-endif()
-list(APPEND PROJECT_LIBS Boost::boost)
-
 find_package(BZip2)
 if(NOT BZIP2_FOUND)
 	MESSAGE("-- Using Provided BZip2 source")
@@ -431,7 +423,7 @@ if(TARGET_PLATFORM_MACOS OR TARGET_PLATFORM_UNIX)
 endif()
 
 add_library(PlayCore STATIC ${COMMON_SRC_FILES} ${PLATFORM_SPECIFIC_SRC_FILES})
-target_link_libraries(PlayCore Boost::boost ${PROJECT_LIBS})
+target_link_libraries(PlayCore ${PROJECT_LIBS})
 target_include_directories(PlayCore
 	PUBLIC
 		${CMAKE_CURRENT_SOURCE_DIR}

@@ -23,5 +23,5 @@ add_library(gsh_opengl STATIC
 	GSH_OpenGL_Shader.cpp
 	GSH_OpenGL_Texture.cpp
 )
-target_link_libraries(gsh_opengl Boost::boost Framework_OpenGl ${GSH_OPENGL_PROJECT_LIBS})
+target_link_libraries(gsh_opengl Framework_OpenGl ${GSH_OPENGL_PROJECT_LIBS})
 target_include_directories(gsh_opengl PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/Source/gs/GSH_OpenGL/)

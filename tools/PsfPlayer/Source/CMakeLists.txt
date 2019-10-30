@@ -74,6 +74,6 @@ if(TARGET_PLATFORM_MACOS)
 endif()
 
 add_library(PsfCore STATIC ${PSFCORE_SRC_FILES} ${PSFCORE_PLATFORM_SPECIFIC_SRC_FILES})
-target_link_libraries(PsfCore Boost::boost Boost::system Boost::filesystem ${PROJECT_LIBS})
+target_link_libraries(PsfCore ${PROJECT_LIBS})
 target_include_directories(PsfCore PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 target_compile_definitions(PsfCore PRIVATE ${PSF_DEFINITIONS})
