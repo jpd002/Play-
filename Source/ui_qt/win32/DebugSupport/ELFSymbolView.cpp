@@ -282,7 +282,7 @@ void CELFSymbolView::GetItemInfo(LVITEM* outItem) const
 {
 	if(outItem->iItem >= m_items.size()) return;
 	const ITEM& item(m_items[outItem->iItem]);
-	const PooledString* itemText(NULL);
+	const std::tstring* itemText(NULL);
 	switch(outItem->iSubItem)
 	{
 	case 0:
@@ -304,5 +304,5 @@ void CELFSymbolView::GetItemInfo(LVITEM* outItem) const
 		itemText = &item.section;
 		break;
 	}
-	outItem->pszText = const_cast<TCHAR*>(static_cast<const std::tstring&>(*itemText).c_str());
+	outItem->pszText = const_cast<TCHAR*>(itemText->c_str());
 }

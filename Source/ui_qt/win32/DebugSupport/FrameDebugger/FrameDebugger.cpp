@@ -1,4 +1,4 @@
-#include <boost/filesystem.hpp>
+#include "filesystem_def.h"
 #include "AppConfig.h"
 #include "FrameDebugger.h"
 #include "win32/AcceleratorTableGenerator.h"
@@ -315,7 +315,7 @@ void CFrameDebugger::LoadFrameDump(const TCHAR* dumpPathName)
 {
 	try
 	{
-		boost::filesystem::path dumpPath(dumpPathName);
+		fs::path dumpPath(dumpPathName);
 		auto inputStream = Framework::CreateInputStdStream(dumpPath.native());
 		m_frameDump.Read(inputStream);
 		m_frameDump.IdentifyDrawingKicks();
