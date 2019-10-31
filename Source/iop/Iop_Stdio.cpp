@@ -144,7 +144,7 @@ std::string CStdio::PrintFormatted(const char* format, CArgumentIterator& args)
 					}
 					else
 					{
-						fillChar = type;
+						fillChar = '0';
 						inPrecision = true;
 					}
 				}
