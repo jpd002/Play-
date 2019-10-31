@@ -1,8 +1,9 @@
+#include <cassert>
 #include "PsfZipArchive.h"
 #include "StdStreamUtils.h"
 #include "make_unique.h"
 
-void CPsfZipArchive::Open(const boost::filesystem::path& filePath)
+void CPsfZipArchive::Open(const fs::path& filePath)
 {
 	assert(m_inputFile.IsEmpty());
 	assert(!m_archive);

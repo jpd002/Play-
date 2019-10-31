@@ -2,7 +2,7 @@
 
 #include <list>
 #include <functional>
-#include <boost/filesystem.hpp>
+#include "filesystem_def.h"
 
 class CPsfArchive
 {
@@ -19,7 +19,7 @@ public:
 
 	virtual ~CPsfArchive() = default;
 
-	static PsfArchivePtr CreateFromPath(const boost::filesystem::path&);
+	static PsfArchivePtr CreateFromPath(const fs::path&);
 
 	virtual void ReadFileContents(const char*, void*, unsigned int) = 0;
 
@@ -27,7 +27,7 @@ public:
 	const FILEINFO* GetFileInfo(const char*) const;
 
 protected:
-	virtual void Open(const boost::filesystem::path&) = 0;
+	virtual void Open(const fs::path&) = 0;
 
 	FileList m_files;
 };

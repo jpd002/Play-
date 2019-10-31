@@ -2,9 +2,7 @@
 #include "PsfLoader.h"
 #include "MainWindow.h"
 #include "MiniDebugger.h"
-#include <boost/filesystem.hpp>
-
-namespace filesystem = boost::filesystem;
+#include "filesystem_def.h"
 
 int WINAPI WinMain(HINSTANCE, HINSTANCE, char* commandLine, int)
 {
@@ -18,8 +16,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, char* commandLine, int)
 			return 1;
 		}
 		virtualMachine.Reset();
-		filesystem::path loadPath(commandLine);
-		CPsfLoader::LoadPsf(virtualMachine, loadPath.native(), filesystem::path());
+		fs::path loadPath(commandLine);
+		CPsfLoader::LoadPsf(virtualMachine, loadPath.native(), fs::path());
 		std::string tagPackageName = loadPath.leaf().string().c_str();
 		virtualMachine.LoadDebugTags(tagPackageName.c_str());
 		CMiniDebugger debugger(virtualMachine, virtualMachine.GetDebugInfo());

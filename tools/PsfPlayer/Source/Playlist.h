@@ -3,7 +3,7 @@
 #include "PsfTags.h"
 #include <vector>
 #include "signal/Signal.h"
-#include <boost/filesystem.hpp>
+#include "filesystem_def.h"
 
 class CPlaylist
 {
@@ -36,8 +36,8 @@ public:
 	int FindItem(unsigned int) const;
 	unsigned int GetItemCount() const;
 
-	void Read(const boost::filesystem::path&);
-	void Write(const boost::filesystem::path&);
+	void Read(const fs::path&);
+	void Write(const fs::path&);
 
 	static bool IsLoadableExtension(const std::string&);
 	static void PopulateItemFromTags(ITEM&, const CPsfTags&);

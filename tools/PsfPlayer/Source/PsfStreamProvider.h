@@ -3,7 +3,7 @@
 #include "PsfArchive.h"
 #include "PsfPathToken.h"
 #include "Stream.h"
-#include <boost/filesystem.hpp>
+#include "filesystem_def.h"
 
 class CPsfStreamProvider
 {
@@ -22,8 +22,8 @@ public:
 	{
 	}
 
-	static CPsfPathToken GetPathTokenFromFilePath(const boost::filesystem::path&);
-	static boost::filesystem::path GetFilePathFromPathToken(const CPsfPathToken&);
+	static CPsfPathToken GetPathTokenFromFilePath(const fs::path&);
+	static fs::path GetFilePathFromPathToken(const CPsfPathToken&);
 
 	Framework::CStream* GetStreamForPath(const CPsfPathToken&) override;
 	CPsfPathToken GetSiblingPath(const CPsfPathToken&, const std::string&) override;
@@ -32,7 +32,7 @@ public:
 class CArchivePsfStreamProvider : public CPsfStreamProvider
 {
 public:
-	CArchivePsfStreamProvider(const boost::filesystem::path&);
+	CArchivePsfStreamProvider(const fs::path&);
 	virtual ~CArchivePsfStreamProvider();
 
 	static CPsfPathToken GetPathTokenFromFilePath(const std::string&);
@@ -45,4 +45,4 @@ private:
 	std::unique_ptr<CPsfArchive> m_archive;
 };
 
-std::unique_ptr<CPsfStreamProvider> CreatePsfStreamProvider(const boost::filesystem::path&);
+std::unique_ptr<CPsfStreamProvider> CreatePsfStreamProvider(const fs::path&);

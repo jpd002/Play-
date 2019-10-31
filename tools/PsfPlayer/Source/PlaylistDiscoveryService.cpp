@@ -25,7 +25,7 @@ void CPlaylistDiscoveryService::SetCharEncoding(const CPsfTags::CHAR_ENCODING& c
 	m_charEncoding = charEncoding;
 }
 
-void CPlaylistDiscoveryService::AddItemInRun(const CPsfPathToken& filePath, const boost::filesystem::path& archivePath, unsigned int itemId)
+void CPlaylistDiscoveryService::AddItemInRun(const CPsfPathToken& filePath, const fs::path& archivePath, unsigned int itemId)
 {
 	COMMAND command;
 	command.runId = m_runId;

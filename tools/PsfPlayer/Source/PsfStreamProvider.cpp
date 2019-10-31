@@ -1,9 +1,10 @@
+#include <cassert>
 #include "PsfStreamProvider.h"
 #include "StdStream.h"
 #include "MemStream.h"
 #include "StdStreamUtils.h"
 
-std::unique_ptr<CPsfStreamProvider> CreatePsfStreamProvider(const boost::filesystem::path& archivePath)
+std::unique_ptr<CPsfStreamProvider> CreatePsfStreamProvider(const fs::path& archivePath)
 {
 	if(archivePath.empty())
 	{
@@ -23,26 +24,26 @@ Framework::CStream* CPhysicalPsfStreamProvider::GetStreamForPath(const CPsfPathT
 	return new Framework::CStdStream(Framework::CreateInputStdStream(path.native()));
 }
 
-CPsfPathToken CPhysicalPsfStreamProvider::GetPathTokenFromFilePath(const boost::filesystem::path& filePath)
+CPsfPathToken CPhysicalPsfStreamProvider::GetPathTokenFromFilePath(const fs::path& filePath)
 {
 	return filePath.wstring();
 }
 
-boost::filesystem::path CPhysicalPsfStreamProvider::GetFilePathFromPathToken(const CPsfPathToken& pathToken)
+fs::path CPhysicalPsfStreamProvider::GetFilePathFromPathToken(const CPsfPathToken& pathToken)
 {
-	return boost::filesystem::path(pathToken.GetWidePath());
+	return fs::path(pathToken.GetWidePath());
 }
 
 CPsfPathToken CPhysicalPsfStreamProvider::GetSiblingPath(const CPsfPathToken& pathToken, const std::string& siblingName)
 {
 	auto path = GetFilePathFromPathToken(pathToken);
-	auto siblingPath = path.remove_leaf() / siblingName;
+	auto siblingPath = path.remove_filename() / siblingName;
 	return GetPathTokenFromFilePath(siblingPath);
 }
 
 //CArchivePsfStreamProvider
 //----------------------------------------------------------
-CArchivePsfStreamProvider::CArchivePsfStreamProvider(const boost::filesystem::path& path)
+CArchivePsfStreamProvider::CArchivePsfStreamProvider(const fs::path& path)
 {
 	m_archive = CPsfArchive::CreateFromPath(path);
 }

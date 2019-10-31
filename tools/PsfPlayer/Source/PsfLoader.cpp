@@ -9,11 +9,7 @@
 
 #include "psp/Psp_PsfSubSystem.h"
 
-#include <boost/filesystem.hpp>
-
-namespace filesystem = boost::filesystem;
-
-void CPsfLoader::LoadPsf(CPsfVm& virtualMachine, const CPsfPathToken& filePath, const filesystem::path& archivePath, CPsfBase::TagMap* tags)
+void CPsfLoader::LoadPsf(CPsfVm& virtualMachine, const CPsfPathToken& filePath, const fs::path& archivePath, CPsfBase::TagMap* tags)
 {
 	auto streamProvider = CreatePsfStreamProvider(archivePath);
 

@@ -1,7 +1,7 @@
 #pragma once
 
 #include <deque>
-#include <boost/filesystem/path.hpp>
+#include "filesystem_def.h"
 #include "../PsfVm.h"
 #include "../PsfBase.h"
 #include "../PsfTags.h"
@@ -85,10 +85,10 @@ private:
 
 	static LRESULT CALLBACK MessageHookProc(int, WPARAM, LPARAM);
 
-	bool PlayFile(const CPsfPathToken&, const boost::filesystem::path&);
-	void LoadSingleFile(const boost::filesystem::path&);
-	void LoadPlaylist(const boost::filesystem::path&);
-	void LoadArchive(const boost::filesystem::path&);
+	bool PlayFile(const CPsfPathToken&, const fs::path&);
+	void LoadSingleFile(const fs::path&);
+	void LoadPlaylist(const fs::path&);
+	void LoadArchive(const fs::path&);
 
 	void OnPlaylistItemDblClick(unsigned int);
 	void OnPlaylistAddClick();

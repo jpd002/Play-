@@ -1,7 +1,6 @@
 #include <stdexcept>
 #include <assert.h>
-#include <boost/filesystem/path.hpp>
-#include <boost/filesystem/operations.hpp>
+#include "filesystem_def.h"
 #include "PsfVm.h"
 #include "Log.h"
 #include "MA_MIPSIV.h"
@@ -11,7 +10,6 @@
 #define LOG_NAME ("psfvm")
 
 using namespace Iop;
-namespace filesystem = boost::filesystem;
 
 CPsfVm::CPsfVm()
     : m_status(PAUSED)
@@ -60,10 +58,10 @@ void CPsfVm::SetSubSystem(const PsfVmSubSystemPtr& subSystem)
 
 std::string CPsfVm::MakeTagPackagePath(const char* packageName)
 {
-	filesystem::path tagsPath(TAGS_PATH);
-	if(!filesystem::exists(tagsPath))
+	fs::path tagsPath(TAGS_PATH);
+	if(!fs::exists(tagsPath))
 	{
-		filesystem::create_directory(tagsPath);
+		fs::create_directory(tagsPath);
 	}
 	return std::string(TAGS_PATH) + std::string(packageName) + ".tags.xml";
 }

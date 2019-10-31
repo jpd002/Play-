@@ -1,13 +1,13 @@
 #ifndef _PATH_UNCOMPLETE_H_
 #define _PATH_UNCOMPLETE_H_
 
-#include <boost/filesystem/path.hpp>
+#include "filesystem_def.h"
 #include <stdexcept>
 
 //Taken from boost's trac
 //https://svn.boost.org/trac/boost/ticket/1976
 //Anonymous poster
-boost::filesystem::path naive_uncomplete(const boost::filesystem::path& path, const boost::filesystem::path& base)
+fs::path naive_uncomplete(const fs::path& path, const fs::path& base)
 {
 	if(path.has_root_path())
 	{
@@ -28,7 +28,7 @@ boost::filesystem::path naive_uncomplete(const boost::filesystem::path& path, co
 		}
 		else
 		{
-			typedef boost::filesystem::path::const_iterator path_iterator;
+			typedef fs::path::const_iterator path_iterator;
 			path_iterator path_it = path.begin();
 			path_iterator base_it = base.begin();
 			while(path_it != path.end() && base_it != base.end())
@@ -37,7 +37,7 @@ boost::filesystem::path naive_uncomplete(const boost::filesystem::path& path, co
 				++path_it;
 				++base_it;
 			}
-			boost::filesystem::path result;
+			fs::path result;
 			for(; base_it != base.end(); ++base_it)
 			{
 				result /= "..";

@@ -9,7 +9,7 @@ class CPsfZipArchive : public CPsfArchive
 public:
 	virtual ~CPsfZipArchive() = default;
 
-	virtual void Open(const boost::filesystem::path&) override;
+	virtual void Open(const fs::path&) override;
 	virtual void ReadFileContents(const char*, void*, unsigned int) override;
 
 private:

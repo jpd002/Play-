@@ -16,7 +16,7 @@
 #include <mutex>
 
 #include "signal/Signal.h"
-#include <boost/filesystem/path.hpp>
+#include "filesystem_def.h"
 
 #include "Types.h"
 #include "Stream.h"

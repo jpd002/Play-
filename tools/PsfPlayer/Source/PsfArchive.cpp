@@ -6,7 +6,7 @@
 #include "stricmp.h"
 #include "make_unique.h"
 
-CPsfArchive::PsfArchivePtr CPsfArchive::CreateFromPath(const boost::filesystem::path& filePath)
+CPsfArchive::PsfArchivePtr CPsfArchive::CreateFromPath(const fs::path& filePath)
 {
 	auto extension = filePath.extension().string();
 	PsfArchivePtr result;

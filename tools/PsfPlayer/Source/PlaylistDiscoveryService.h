@@ -2,7 +2,7 @@
 
 #include <thread>
 #include <deque>
-#include <boost/filesystem.hpp>
+#include "filesystem_def.h"
 #include "LockFreeQueue.h"
 #include "Playlist.h"
 #include "PsfTags.h"
@@ -16,7 +16,7 @@ public:
 
 	void SetCharEncoding(const CPsfTags::CHAR_ENCODING&);
 
-	void AddItemInRun(const CPsfPathToken& filePath, const boost::filesystem::path& archivePath, unsigned int itemId);
+	void AddItemInRun(const CPsfPathToken& filePath, const fs::path& archivePath, unsigned int itemId);
 	void ResetRun();
 	void ProcessPendingItems(CPlaylist&);
 
@@ -24,7 +24,7 @@ private:
 	struct COMMAND
 	{
 		CPsfPathToken filePath;
-		boost::filesystem::path archivePath;
+		fs::path archivePath;
 		unsigned int runId;
 		unsigned int itemId;
 	};

@@ -465,7 +465,7 @@ void CMainWindow::OnPlaylistItemDblClick(unsigned int index)
 {
 	const auto& item(m_playlist.GetItem(index));
 
-	boost::filesystem::path archivePath;
+	fs::path archivePath;
 	if(item.archiveId != 0)
 	{
 		archivePath = m_playlist.GetArchive(item.archiveId);
@@ -495,14 +495,14 @@ void CMainWindow::OnPlaylistAddClick()
 		auto paths(dialog.GetMultiPaths());
 		for(const auto& path : paths)
 		{
-			boost::filesystem::path filePath(path);
+			fs::path filePath(path);
 			CPlaylist::ITEM item;
 			item.path = filePath.wstring();
 			item.title = filePath.wstring();
 			item.length = 0;
 			unsigned int itemId = m_playlist.InsertItem(item);
 
-			m_playlistDiscoveryService.AddItemInRun(filePath.wstring(), boost::filesystem::path(), itemId);
+			m_playlistDiscoveryService.AddItemInRun(filePath.wstring(), fs::path(), itemId);
 		}
 	}
 }
@@ -894,7 +894,7 @@ void CMainWindow::OnFileOpen()
 	dialog.m_OFN.lpstrFilter = filter;
 	if(dialog.SummonOpen(m_hWnd))
 	{
-		boost::filesystem::path filePath(dialog.GetPath());
+		fs::path filePath(dialog.GetPath());
 		std::wstring fileExtension = filePath.extension().wstring();
 		if(!wcsicmp(fileExtension.c_str(), PLAYLIST_EXTENSION))
 		{
@@ -1055,7 +1055,7 @@ void CMainWindow::OnAbout()
 	aboutWindow.DoModal(m_hWnd);
 }
 
-void CMainWindow::LoadSingleFile(const boost::filesystem::path& filePath)
+void CMainWindow::LoadSingleFile(const fs::path& filePath)
 {
 	m_playlist.Clear();
 	m_playlistDiscoveryService.ResetRun();
@@ -1071,7 +1071,7 @@ void CMainWindow::LoadSingleFile(const boost::filesystem::path& filePath)
 	OnPlaylistItemDblClick(m_currentPlaylistItem);
 }
 
-void CMainWindow::LoadPlaylist(const boost::filesystem::path& playlistPath)
+void CMainWindow::LoadPlaylist(const fs::path& playlistPath)
 {
 	try
 	{
@@ -1097,7 +1097,7 @@ void CMainWindow::LoadPlaylist(const boost::filesystem::path& playlistPath)
 		for(unsigned int i = 0; i < m_playlist.GetItemCount(); i++)
 		{
 			const CPlaylist::ITEM& item(m_playlist.GetItem(i));
-			m_playlistDiscoveryService.AddItemInRun(item.path, boost::filesystem::path(), item.id);
+			m_playlistDiscoveryService.AddItemInRun(item.path, fs::path(), item.id);
 		}
 	}
 	catch(const std::exception& except)
@@ -1108,7 +1108,7 @@ void CMainWindow::LoadPlaylist(const boost::filesystem::path& playlistPath)
 	}
 }
 
-void CMainWindow::LoadArchive(const boost::filesystem::path& archivePath)
+void CMainWindow::LoadArchive(const fs::path& archivePath)
 {
 	try
 	{
@@ -1174,7 +1174,7 @@ void CMainWindow::Reset()
 	m_volumeAdjust = 1.0f;
 }
 
-bool CMainWindow::PlayFile(const CPsfPathToken& pathToken, const boost::filesystem::path& archivePath)
+bool CMainWindow::PlayFile(const CPsfPathToken& pathToken, const fs::path& archivePath)
 {
 	EnableWindow(m_hWnd, FALSE);
 

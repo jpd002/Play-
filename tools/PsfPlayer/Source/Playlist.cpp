@@ -1,5 +1,3 @@
-#include <boost/filesystem/operations.hpp>
-#include <boost/filesystem/path.hpp>
 #include "StdStream.h"
 #include "path_uncomplete.h"
 #include "string_cast.h"
@@ -156,7 +154,7 @@ void CPlaylist::Clear()
 	m_archives.clear();
 }
 
-void CPlaylist::Read(const boost::filesystem::path& playlistPath)
+void CPlaylist::Read(const fs::path& playlistPath)
 {
 	Clear();
 
@@ -176,11 +174,11 @@ void CPlaylist::Read(const boost::filesystem::path& playlistPath)
 	    nodeIterator != std::end(items); nodeIterator++)
 	{
 		auto itemNode = (*nodeIterator);
-		boost::filesystem::path itemPath = Framework::Utf8::ConvertFrom(itemNode->GetAttribute(PLAYLIST_ITEM_PATH_ATTRIBUTE));
+		auto itemPath = fs::path(Framework::Utf8::ConvertFrom(itemNode->GetAttribute(PLAYLIST_ITEM_PATH_ATTRIBUTE)));
 		const char* title = itemNode->GetAttribute(PLAYLIST_ITEM_TITLE_ATTRIBUTE);
 		const char* length = itemNode->GetAttribute(PLAYLIST_ITEM_LENGTH_ATTRIBUTE);
 
-		if(!itemPath.is_complete())
+		if(!itemPath.is_absolute())
 		{
 			itemPath = parentPath / itemPath;
 		}
@@ -205,7 +203,7 @@ void CPlaylist::Read(const boost::filesystem::path& playlistPath)
 	}
 }
 
-void CPlaylist::Write(const boost::filesystem::path& playlistPath)
+void CPlaylist::Write(const fs::path& playlistPath)
 {
 	std::unique_ptr<Framework::Xml::CNode> document(new Framework::Xml::CNode());
 	auto playlistNode = document->InsertNode(new Framework::Xml::CNode(PLAYLIST_NODE_TAG, true));
@@ -217,7 +215,7 @@ void CPlaylist::Write(const boost::filesystem::path& playlistPath)
 	{
 		const auto& item(*itemIterator);
 
-		boost::filesystem::path itemPath(item.path);
+		auto itemPath = fs::path(item.path);
 		auto itemRelativePath(naive_uncomplete(itemPath, parentPath));
 
 		auto itemNode = playlistNode->InsertNode(new Framework::Xml::CNode(PLAYLIST_ITEM_NODE_TAG, true));

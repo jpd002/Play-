@@ -8,7 +8,7 @@ public:
 	CPsfRarArchive();
 	virtual ~CPsfRarArchive();
 
-	virtual void Open(const boost::filesystem::path&) override;
+	virtual void Open(const fs::path&) override;
 	virtual void ReadFileContents(const char*, void*, unsigned int) override;
 
 private:
