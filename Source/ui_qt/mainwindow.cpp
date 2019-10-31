@@ -93,7 +93,8 @@ MainWindow::MainWindow(QWidget* parent)
 
 	m_pauseFocusLost = CAppConfig::GetInstance().GetPreferenceBoolean(PREF_UI_PAUSEWHENFOCUSLOST);
 	auto lastPath = CAppConfig::GetInstance().GetPreferencePath(PREF_PS2_CDROM0_PATH);
-	if(fs::exists(lastPath))
+	std::error_code lastPathExistsErrorCode;
+	if(fs::exists(lastPath, lastPathExistsErrorCode))
 	{
 		m_lastPath = lastPath.parent_path();
 	}
