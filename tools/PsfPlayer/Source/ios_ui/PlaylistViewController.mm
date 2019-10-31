@@ -1,6 +1,6 @@
 #import "Utf8.h"
 #import "PlaylistViewController.h"
-#import <boost/filesystem.hpp>
+#import "filesystem_def.h"
 #import "string_cast.h"
 #import "PsfLoader.h"
 #import "TimeToString.h"
@@ -32,7 +32,7 @@
 	m_playlistDiscoveryService->ResetRun();
 	
 	{
-		auto path = boost::filesystem::path([selectedPlaylistPath fileSystemRepresentation]);
+		auto path = fs::path([selectedPlaylistPath fileSystemRepresentation]);
 		auto archive(CPsfArchive::CreateFromPath(path));
 		
 		unsigned int archiveId = m_playlist->InsertArchive(path.wstring().c_str());

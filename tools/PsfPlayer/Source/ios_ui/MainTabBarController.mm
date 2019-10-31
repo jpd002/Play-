@@ -2,7 +2,6 @@
 #import "PsfLoader.h"
 #import "SH_OpenAL.h"
 #import "ObjCMemberFunctionPointer.h"
-#import <boost/filesystem.hpp>
 #import "string_cast.h"
 #import <AVFoundation/AVAudioSession.h>
 #import <MediaPlayer/MediaPlayer.h>
