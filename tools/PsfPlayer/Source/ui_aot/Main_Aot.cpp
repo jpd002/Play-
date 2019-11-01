@@ -1,4 +1,4 @@
-#include <boost/filesystem.hpp>
+#include "filesystem_def.h"
 #include "PsfVm.h"
 #include "PsfLoader.h"
 #include "MemoryUtils.h"
@@ -16,8 +16,6 @@
 #include "Playlist.h"
 #include "make_unique.h"
 #include "BasicBlock.h"
-
-namespace filesystem = boost::filesystem;
 
 struct FUNCTION_TABLE_ITEM
 {
@@ -45,13 +43,13 @@ void Gather(const char* archivePathName, const char* outputPathName)
 	{
 		Framework::CThreadPool threadPool(std::thread::hardware_concurrency());
 
-		auto archivePath = filesystem::path(archivePathName);
+		auto archivePath = fs::path(archivePathName);
 		auto archive = std::unique_ptr<CPsfArchive>(CPsfArchive::CreateFromPath(archivePath));
 
 		for(const auto& fileInfo : archive->GetFiles())
 		{
-			filesystem::path archiveItemPath = fileInfo.name;
-			filesystem::path archiveItemExtension = archiveItemPath.extension();
+			fs::path archiveItemPath = fileInfo.name;
+			fs::path archiveItemExtension = archiveItemPath.extension();
 			if(CPlaylist::IsLoadableExtension(archiveItemExtension.string().c_str() + 1))
 			{
 				threadPool.Enqueue(
@@ -137,12 +135,12 @@ unsigned int CompileFunction(CPsfVm& virtualMachine, CMipsJitter* jitter, const 
 	}
 }
 
-AotBlockMap GetBlocksFromCache(const filesystem::path& blockCachePath, const char* cacheFilter)
+AotBlockMap GetBlocksFromCache(const fs::path& blockCachePath, const char* cacheFilter)
 {
 	AotBlockMap result;
 
-	auto path_end = filesystem::directory_iterator();
-	for(auto pathIterator = filesystem::directory_iterator(blockCachePath);
+	auto path_end = fs::directory_iterator();
+	for(auto pathIterator = fs::directory_iterator(blockCachePath);
 	    pathIterator != path_end; pathIterator++)
 	{
 		const auto& filePath = (*pathIterator);
@@ -224,7 +222,7 @@ void CompileFunctions(CPsfVm& virtualMachine, const AotBlockMap& blocks, CMipsJi
 
 void CompileIopFunctions(const char* databasePathName, CMipsJitter* jitter, Jitter::CObjectFile& objectFile, FunctionTable& functionTable)
 {
-	filesystem::path databasePath(databasePathName);
+	fs::path databasePath(databasePathName);
 	auto blocks = GetBlocksFromCache(databasePath, ".blockcache_iop");
 
 	printf("Got %d IOP blocks to compile.\r\n", blocks.size());
@@ -238,7 +236,7 @@ void CompileIopFunctions(const char* databasePathName, CMipsJitter* jitter, Jitt
 
 void CompilePspFunctions(const char* databasePathName, CMipsJitter* jitter, Jitter::CObjectFile& objectFile, FunctionTable& functionTable)
 {
-	filesystem::path databasePath(databasePathName);
+	fs::path databasePath(databasePathName);
 	auto blocks = GetBlocksFromCache(databasePath, ".blockcache_psp");
 
 	printf("Got %d PSP blocks to compile.\r\n", blocks.size());
