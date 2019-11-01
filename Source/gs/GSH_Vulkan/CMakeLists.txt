@@ -35,5 +35,5 @@ add_library(gsh_vulkan STATIC
 	GSH_VulkanPresent.h
 )
 
-target_link_libraries(gsh_vulkan Boost::boost ${GSH_VULKAN_PROJECT_LIBS})
+target_link_libraries(gsh_vulkan ${GSH_VULKAN_PROJECT_LIBS})
 target_include_directories(gsh_vulkan PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/Source/gs/GSH_Vulkan/)
