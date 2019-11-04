@@ -32,6 +32,32 @@
 using namespace IPU;
 using namespace MPEG2;
 
+// clang-format off
+static const uint8 g_defaultIntraIQ[64] =
+{
+	8,  16, 19, 22, 26, 27, 29, 34,
+	16, 16, 22, 24, 27, 29, 34, 37,
+	19, 22, 26, 27, 29, 34, 34, 38,
+	22, 22, 26, 27, 29, 34, 37, 40,
+	22, 26, 27, 29, 32, 35, 40, 48,
+	26, 27, 29, 32, 35, 40, 48, 58,
+	26, 27, 29, 34, 38, 46, 56, 69,
+	27, 29, 35, 38, 46, 56, 69, 83,
+};
+
+static const uint8 g_defaultNonIntraIQ[64] =
+{
+	16, 17, 18, 19, 20, 21, 22, 23,
+	17, 18, 19, 20, 21, 22, 23, 24,
+	18, 19, 20, 21, 22, 23, 24, 25,
+	19, 20, 21, 22, 23, 24, 26, 27,
+	20, 21, 22, 23, 25, 26, 27, 28,
+	21, 22, 23, 24, 26, 27, 28, 30,
+	22, 23, 24, 26, 27, 28, 30, 31,
+	23, 24, 25, 27, 28, 30, 31, 33
+};
+// clang-format on
+
 static CVLCTable::DECODE_STATUS FilterSymbolError(CVLCTable::DECODE_STATUS result)
 {
 	switch(result)
@@ -65,6 +91,12 @@ void CIPU::Reset()
 	m_nTH0 = 0;
 	m_nTH1 = 0;
 
+	static_assert(sizeof(m_nIntraIQ) == sizeof(g_defaultIntraIQ));
+	memcpy(m_nIntraIQ, g_defaultIntraIQ, sizeof(g_defaultIntraIQ));
+
+	static_assert(sizeof(m_nNonIntraIQ) == sizeof(g_defaultNonIntraIQ));
+	memcpy(m_nNonIntraIQ, g_defaultNonIntraIQ, sizeof(g_defaultNonIntraIQ));
+	
 	m_isBusy = false;
 	m_currentCmd = nullptr;
 
