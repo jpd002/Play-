@@ -499,7 +499,18 @@ void CPresent::CreateFragmentShader()
 		auto memoryImage = CImageUint2DValue(b.CreateImage2DUint(DESCRIPTOR_LOCATION_MEMORY));
 
 		auto imageColor = Load(memoryImage, ToInt(inputPosition->xy()));
-		outputColor = ToFloat(imageColor) / NewFloat4(b, 255.f, 255.f, 255.f, 255.f);
+
+		auto imageColorR = (imageColor->x() >> NewUint(b,  0)) & NewUint(b, 0xFF);
+		auto imageColorG = (imageColor->x() >> NewUint(b,  8)) & NewUint(b, 0xFF);
+		auto imageColorB = (imageColor->x() >> NewUint(b, 16)) & NewUint(b, 0xFF);
+		auto imageColorA = (imageColor->x() >> NewUint(b, 24)) & NewUint(b, 0xFF);
+
+		auto imageColorFloatR = ToFloat(imageColorR) / NewFloat(b, 255.f);
+		auto imageColorFloatG = ToFloat(imageColorG) / NewFloat(b, 255.f);
+		auto imageColorFloatB = ToFloat(imageColorB) / NewFloat(b, 255.f);
+		auto imageColorFloatA = ToFloat(imageColorA) / NewFloat(b, 255.f);
+
+		outputColor = NewFloat4(imageColorFloatR, imageColorFloatG, imageColorFloatB, imageColorFloatA);
 	}
 	
 	Framework::CMemStream shaderStream;

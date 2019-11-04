@@ -409,10 +409,19 @@ void CDraw::CreateFragmentShader()
 
 		auto memoryImage = CImageUint2DValue(b.CreateImage2DUint(DESCRIPTOR_LOCATION_MEMORY));
 
-		auto imageColor = ToUint(inputColor * NewFloat4(b, 255.f, 255.f, 255.f, 255.f));
+		//TODO: Try vectorized shift
+		//auto imageColor = ToUint(inputColor * NewFloat4(b, 255.f, 255.f, 255.f, 255.f));
 		
+		auto imageColorR = ToUint(inputColor->x() * NewFloat(b, 255.f)) << NewUint(b,  0);
+		auto imageColorG = ToUint(inputColor->y() * NewFloat(b, 255.f)) << NewUint(b,  8);
+		auto imageColorB = ToUint(inputColor->z() * NewFloat(b, 255.f)) << NewUint(b, 16);
+		auto imageColorA = ToUint(inputColor->w() * NewFloat(b, 255.f)) << NewUint(b, 24);
+
+		//auto imageColor = CUint4Lvalue(b.CreateConstantUint(0, 0, 0, 0));
+		auto imageColor = imageColorR | imageColorG | imageColorB | imageColorA;
+
 		BeginInvocationInterlock(b);
-		Store(memoryImage, ToInt(inputPosition->xy()), imageColor);
+		Store(memoryImage, ToInt(inputPosition->xy()), NewUint4(imageColor, NewUint3(b, 0, 0, 0)));
 		EndInvocationInterlock(b);
 
 		outputColor = NewFloat4(b, 0, 0, 1, 0);

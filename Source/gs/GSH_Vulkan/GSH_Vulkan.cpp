@@ -384,7 +384,7 @@ void CGSH_Vulkan::InitMemoryImage()
 			{
 				uint8 colX = (x * 0x10) / MEMORY_WIDTH;
 				uint8 colY = (y * 0x10) / MEMORY_HEIGHT;
-				(*memoryPtr) = (colX) | (colY << 4);
+				(*memoryPtr) = (static_cast<uint32>(colX) << 12) | (static_cast<uint32>(colY) << 20);
 				memoryPtr++;
 			}
 		}
