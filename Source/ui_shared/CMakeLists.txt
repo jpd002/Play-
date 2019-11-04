@@ -23,14 +23,19 @@ if(NOT TARGET Framework_Http)
 endif()
 list(APPEND SHARED_UI_PROJECT_LIBS Framework_Http)
 
-if(NOT TARGET nlohmann_json)
-	add_subdirectory(
-		${CMAKE_CURRENT_SOURCE_DIR}/../../deps/Dependencies/nlohmann_json
-		${CMAKE_CURRENT_BINARY_DIR}/nlohmann_json
-		EXCLUDE_FROM_ALL
-	)
+find_package(nlohmann_json)
+if(NOT nlohmann_json_FOUND)
+	if(NOT TARGET nlohmann_json)
+		add_subdirectory(
+			${CMAKE_CURRENT_SOURCE_DIR}/../../deps/Dependencies/nlohmann_json
+			${CMAKE_CURRENT_BINARY_DIR}/nlohmann_json
+			EXCLUDE_FROM_ALL
+		)
+	endif()
+	list(APPEND SHARED_UI_PROJECT_LIBS nlohmann_json)
+else()
+	list(APPEND SHARED_UI_PROJECT_LIBS nlohmann_json::nlohmann_json)
 endif()
-list(APPEND SHARED_UI_PROJECT_LIBS nlohmann_json)
 
 if(NOT TARGET PlayCore)
 	add_subdirectory(
