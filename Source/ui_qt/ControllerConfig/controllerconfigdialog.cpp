@@ -153,7 +153,7 @@ int ControllerConfigDialog::OpenBindConfigDialog(int index)
 
 void ControllerConfigDialog::on_comboBox_currentIndexChanged(int index)
 {
-	ui->delProfileButton->setEnabled(index > 0);
+	ui->delProfileButton->setEnabled(ui->comboBox->count() > 1);
 
 	auto profile = ui->comboBox->itemText(index).toStdString();
 	m_inputManager->Load(profile.c_str());
