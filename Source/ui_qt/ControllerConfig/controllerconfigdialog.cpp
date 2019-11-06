@@ -199,9 +199,9 @@ void ControllerConfigDialog::on_delProfileButton_clicked()
 		auto profile_path = CInputConfig::GetProfile(profile_name);
 		if(fs::exists(profile_path))
 		{
-			fs::remove(profile_path);
 			int index = ui->comboBox->currentIndex();
 			ui->comboBox->removeItem(index);
+			fs::remove(profile_path);
 		}
 	}
 }
