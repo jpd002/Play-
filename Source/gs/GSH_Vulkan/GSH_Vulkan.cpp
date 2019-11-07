@@ -64,6 +64,7 @@ void CGSH_Vulkan::InitializeImpl()
 
 	m_draw = std::make_shared<CDraw>(m_context);
 	m_present = std::make_shared<CPresent>(m_context);
+	m_transfer = std::make_shared<CTransfer>(m_context);
 }
 
 void CGSH_Vulkan::ReleaseImpl()
@@ -75,6 +76,7 @@ void CGSH_Vulkan::ReleaseImpl()
 
 	m_draw.reset();
 	m_present.reset();
+	m_transfer.reset();
 
 	m_context->device.vkDestroyImageView(m_context->device, m_context->memoryImageView, nullptr);
 	m_context->device.vkDestroyImage(m_context->device, m_memoryImage, nullptr);
@@ -270,15 +272,27 @@ void CGSH_Vulkan::CreateDevice(VkPhysicalDevice physicalDevice)
 
 void CGSH_Vulkan::CreateDescriptorPool()
 {
-	VkDescriptorPoolSize descriptorPoolSize = {};
-	descriptorPoolSize.type            = VK_DESCRIPTOR_TYPE_STORAGE_IMAGE;
-	descriptorPoolSize.descriptorCount = 0x1000;
-		
+	std::vector<VkDescriptorPoolSize> poolSizes;
+
+	{
+		VkDescriptorPoolSize poolSize = {};
+		poolSize.type            = VK_DESCRIPTOR_TYPE_STORAGE_IMAGE;
+		poolSize.descriptorCount = 0x800;
+		poolSizes.push_back(poolSize);
+	}
+	
+	{
+		VkDescriptorPoolSize poolSize = {};
+		poolSize.type            = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+		poolSize.descriptorCount = 0x100;
+		poolSizes.push_back(poolSize);
+	}
+
 	auto descriptorPoolCreateInfo = Framework::Vulkan::DescriptorPoolCreateInfo();
-	descriptorPoolCreateInfo.poolSizeCount = 1;
-	descriptorPoolCreateInfo.pPoolSizes    = &descriptorPoolSize;
+	descriptorPoolCreateInfo.poolSizeCount = poolSizes.size();
+	descriptorPoolCreateInfo.pPoolSizes    = poolSizes.data();
 	descriptorPoolCreateInfo.maxSets       = 0x1000;
-		
+	
 	auto result = m_context->device.vkCreateDescriptorPool(m_context->device, &descriptorPoolCreateInfo, nullptr, &m_context->descriptorPool);
 	CHECKVULKANERROR(result);
 }
@@ -674,7 +688,7 @@ void CGSH_Vulkan::WriteRegisterImpl(uint8 registerId, uint64 data)
 
 void CGSH_Vulkan::ProcessHostToLocalTransfer()
 {
-
+	m_transfer->DoHostToLocalTransfer();
 }
 
 void CGSH_Vulkan::ProcessLocalToHostTransfer()
