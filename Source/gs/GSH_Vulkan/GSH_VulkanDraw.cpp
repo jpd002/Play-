@@ -381,7 +381,7 @@ void CDraw::CreateVertexShader()
 		auto outputColor = CFloat4Lvalue(b.CreateOutput(Nuanceur::SEMANTIC_TEXCOORD, 1));
 
 		//Constants
-		auto projMatrix = CMatrix44Value(b.CreateUniformMatrix("g_projMatrix"));
+		auto projMatrix = CMatrix44Value(b.CreateUniformMatrix("g_projMatrix", Nuanceur::UNIFORM_UNIT_PUSHCONSTANT));
 
 		outputPosition = projMatrix * NewFloat4(inputPosition->xyz(), NewFloat(b, 1.0f));
 		outputColor = inputColor->xyzw();

@@ -586,7 +586,11 @@ void CGSHandler::FeedImageDataImpl(const uint8* imageData, uint32 length)
 
 		auto bltBuf = make_convertible<BITBLTBUF>(m_nReg[GS_REG_BITBLTBUF]);
 
+#if 0
 		m_trxCtx.nDirty |= ((this)->*(m_transferWriteHandlers[bltBuf.nDstPsm]))(imageData, length);
+#else
+		m_xferBuffer.insert(m_xferBuffer.end(), imageData, imageData + length);
+#endif
 
 		m_trxCtx.nSize -= length;
 
@@ -683,6 +687,7 @@ void CGSHandler::BeginTransfer()
 		m_trxCtx.nRRX = 0;
 		m_trxCtx.nRRY = 0;
 		m_trxCtx.nDirty = false;
+		m_xferBuffer.clear();
 
 		if(trxDir == 0)
 		{

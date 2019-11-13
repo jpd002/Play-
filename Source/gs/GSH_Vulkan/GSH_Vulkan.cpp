@@ -688,7 +688,17 @@ void CGSH_Vulkan::WriteRegisterImpl(uint8 registerId, uint64 data)
 
 void CGSH_Vulkan::ProcessHostToLocalTransfer()
 {
-	m_transfer->DoHostToLocalTransfer();
+	auto bltBuf = make_convertible<BITBLTBUF>(m_nReg[GS_REG_BITBLTBUF]);
+	auto trxReg = make_convertible<TRXREG>(m_nReg[GS_REG_TRXREG]);
+	auto trxPos = make_convertible<TRXPOS>(m_nReg[GS_REG_TRXPOS]);
+
+	m_transfer->Params.bufAddress = bltBuf.GetDstPtr();
+	m_transfer->Params.bufWidth = bltBuf.GetDstWidth();
+	m_transfer->Params.rrw = trxReg.nRRW;
+	m_transfer->Params.dsax = trxPos.nDSAX;
+	m_transfer->Params.dsay = trxPos.nDSAY;
+
+	m_transfer->DoHostToLocalTransfer(m_xferBuffer);
 }
 
 void CGSH_Vulkan::ProcessLocalToHostTransfer()

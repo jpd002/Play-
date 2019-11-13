@@ -7,12 +7,15 @@
 
 using namespace GSH_Vulkan;
 
+#define XFER_BUFFER_SIZE 0x400000
+
 #define DESCRIPTOR_LOCATION_MEMORY 0
 #define DESCRIPTOR_LOCATION_XFERBUFFER 1
 
 CTransfer::CTransfer(const ContextPtr& context)
 	: m_context(context)
 {
+	CreateXferBuffer();
 	CreateXferShader();
 	CreatePipeline();
 }
@@ -23,11 +26,26 @@ CTransfer::~CTransfer()
 	m_context->device.vkDestroyPipeline(m_context->device, m_pipeline, nullptr);
 	m_context->device.vkDestroyPipelineLayout(m_context->device, m_pipelineLayout, nullptr);
 	m_context->device.vkDestroyDescriptorSetLayout(m_context->device, m_descriptorSetLayout, nullptr);
+	m_context->device.vkDestroyBuffer(m_context->device, m_xferBuffer, nullptr);
+	m_context->device.vkFreeMemory(m_context->device, m_xferBufferMemory, nullptr);
 }
 
-void CTransfer::DoHostToLocalTransfer()
+void CTransfer::DoHostToLocalTransfer(const XferBuffer& inputData)
 {
 	auto result = VK_SUCCESS;
+
+	//Update xfer buffer
+	{
+		assert(inputData.size() <= XFER_BUFFER_SIZE);
+		void* bufferMemoryData = nullptr;
+		auto result = m_context->device.vkMapMemory(m_context->device, m_xferBufferMemory, 0, VK_WHOLE_SIZE, 0, &bufferMemoryData);
+		CHECKVULKANERROR(result);
+		memcpy(bufferMemoryData, inputData.data(), inputData.size());
+		m_context->device.vkUnmapMemory(m_context->device, m_xferBufferMemory);
+	}
+
+	uint32 blockCount = inputData.size() / 4;
+	uint32 workUnits = blockCount / 128;
 
 	auto descriptorSet = PrepareDescriptorSet();
 	auto commandBuffer = m_context->commandBufferPool.AllocateBuffer();
@@ -39,7 +57,7 @@ void CTransfer::DoHostToLocalTransfer()
 
 	m_context->device.vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_COMPUTE, m_pipelineLayout, 0, 1, &descriptorSet, 0, nullptr);
 	m_context->device.vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_COMPUTE, m_pipeline);
-	m_context->device.vkCmdDispatch(commandBuffer, 1, 1, 1);
+	m_context->device.vkCmdDispatch(commandBuffer, workUnits, 1, 1);
 
 	m_context->device.vkEndCommandBuffer(commandBuffer);
 
@@ -91,7 +109,8 @@ VkDescriptorSet CTransfer::PrepareDescriptorSet()
 		//Xfer Buffer Descriptor
 		{
 			VkDescriptorBufferInfo descriptorBufferInfo = {};
-			descriptorBufferInfo.buffer = VK_NULL_HANDLE;
+			descriptorBufferInfo.buffer = m_xferBuffer;
+			descriptorBufferInfo.range = VK_WHOLE_SIZE;
 
 			auto writeSet = Framework::Vulkan::WriteDescriptorSet();
 			writeSet.dstSet          = descriptorSet;
@@ -99,13 +118,38 @@ VkDescriptorSet CTransfer::PrepareDescriptorSet()
 			writeSet.descriptorCount = 1;
 			writeSet.descriptorType  = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
 			writeSet.pBufferInfo     = &descriptorBufferInfo;
-			//writes.push_back(writeSet);
+			writes.push_back(writeSet);
 		}
 
 		m_context->device.vkUpdateDescriptorSets(m_context->device, writes.size(), writes.data(), 0, nullptr);
 	}
 
 	return descriptorSet;
+}
+
+void CTransfer::CreateXferBuffer()
+{
+	VkResult result = VK_SUCCESS;
+
+	auto bufferCreateInfo = Framework::Vulkan::BufferCreateInfo();
+	bufferCreateInfo.usage = VK_BUFFER_USAGE_STORAGE_BUFFER_BIT;
+	bufferCreateInfo.size  = XFER_BUFFER_SIZE;
+	result = m_context->device.vkCreateBuffer(m_context->device, &bufferCreateInfo, nullptr, &m_xferBuffer);
+	CHECKVULKANERROR(result);
+
+	VkMemoryRequirements memoryRequirements = {};
+	m_context->device.vkGetBufferMemoryRequirements(m_context->device, m_xferBuffer, &memoryRequirements);
+
+	auto memoryAllocateInfo = Framework::Vulkan::MemoryAllocateInfo();
+	memoryAllocateInfo.allocationSize = memoryRequirements.size;
+	memoryAllocateInfo.memoryTypeIndex = Framework::Vulkan::GetMemoryTypeIndex(m_context->physicalDeviceMemoryProperties, memoryRequirements.memoryTypeBits, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
+	assert(memoryAllocateInfo.memoryTypeIndex != Framework::Vulkan::VULKAN_MEMORY_TYPE_INVALID);
+
+	result = m_context->device.vkAllocateMemory(m_context->device, &memoryAllocateInfo, nullptr, &m_xferBufferMemory);
+	CHECKVULKANERROR(result);
+	
+	result = m_context->device.vkBindBufferMemory(m_context->device, m_xferBuffer, m_xferBufferMemory, 0);
+	CHECKVULKANERROR(result);
 }
 
 void CTransfer::CreateXferShader()
@@ -115,7 +159,13 @@ void CTransfer::CreateXferShader()
 	auto b = CShaderBuilder();
 	
 	{
+		auto inputInvocationId = CInt4Lvalue(b.CreateInputInt(Nuanceur::SEMANTIC_SYSTEM_GIID));
+		auto memoryImage = CImageUint2DValue(b.CreateImage2DUint(DESCRIPTOR_LOCATION_MEMORY));
+		auto xferBuffer = CArrayUintValue(b.CreateUniformArrayUint("xferBuffer", DESCRIPTOR_LOCATION_XFERBUFFER));
 
+		auto inputColor = Load(xferBuffer, inputInvocationId->x());
+		auto writePosition = NewInt2(inputInvocationId->x() % NewInt(b, 64), inputInvocationId->x() / NewInt(b, 64));
+		Store(memoryImage, writePosition, NewUint4(inputColor, NewUint3(b, 0, 0, 0)));
 	}
 	
 	Framework::CMemStream shaderStream;
