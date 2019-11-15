@@ -868,11 +868,11 @@ protected:
 		unsigned int nX : 11;
 		unsigned int nY : 11;
 		unsigned int nReserved1 : 10;
-		uint32 GetBufPtr()
+		uint32 GetBufPtr() const
 		{
 			return nBufPtr * 8192;
 		};
-		uint32 GetBufWidth()
+		uint32 GetBufWidth() const
 		{
 			return nBufWidth * 64;
 		};
