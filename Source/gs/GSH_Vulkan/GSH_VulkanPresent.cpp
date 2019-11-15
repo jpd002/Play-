@@ -49,10 +49,9 @@ CPresent::CPresent(const ContextPtr& context)
 
 CPresent::~CPresent()
 {
+	m_vertexBuffer.Reset();
 	m_vertexShader.Reset();
 	m_fragmentShader.Reset();
-	m_context->device.vkDestroyBuffer(m_context->device, m_vertexBuffer, nullptr);
-	m_context->device.vkFreeMemory(m_context->device, m_vertexBufferMemory, nullptr);
 	m_context->device.vkDestroyPipeline(m_context->device, m_drawPipeline, nullptr);
 	m_context->device.vkDestroyPipelineLayout(m_context->device, m_drawPipelineLayout, nullptr);
 	m_context->device.vkDestroyDescriptorSetLayout(m_context->device, m_drawDescriptorSetLayout, nullptr);
