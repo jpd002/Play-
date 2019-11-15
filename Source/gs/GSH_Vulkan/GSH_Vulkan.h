@@ -34,6 +34,7 @@ protected:
 	void ResetImpl() override;
 	void NotifyPreferencesChangedImpl() override;
 	void FlipImpl() override;
+	unsigned int GetCurrentReadCircuit();
 
 	Framework::Vulkan::CInstance m_instance;
 	GSH_Vulkan::ContextPtr m_context;

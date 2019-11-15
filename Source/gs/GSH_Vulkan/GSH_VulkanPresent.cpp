@@ -1,13 +1,19 @@
 #include "GSH_VulkanPresent.h"
 #include "MemStream.h"
 #include "vulkan/StructDefs.h"
-#include "vulkan/Utils.h"
 #include "nuanceur/Builder.h"
 #include "nuanceur/generators/SpirvShaderGenerator.h"
 
 using namespace GSH_Vulkan;
 
-#define DESCRIPTOR_LOCATION_MEMORY 0
+#define DESCRIPTOR_LOCATION_IMAGE_MEMORY 0
+#define DESCRIPTOR_LOCATION_UNIFORM_SRCBUFFER 1
+
+struct SRCBUFFER
+{
+	uint32 bufAddress;
+	uint32 bufWidth;
+};
 
 //Module responsible for presenting frame buffer to surface
 
@@ -44,11 +50,15 @@ CPresent::CPresent(const ContextPtr& context)
 	CreateVertexShader();
 	CreateFragmentShader();
 	CreateVertexBuffer();
+	m_srcBufferUniform = Framework::Vulkan::CBuffer(
+		m_context->device, m_context->physicalDeviceMemoryProperties,
+		VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT, sizeof(SRCBUFFER));
 	CreateDrawPipeline();
 }
 
 CPresent::~CPresent()
 {
+	m_srcBufferUniform.Reset();
 	m_vertexBuffer.Reset();
 	m_vertexShader.Reset();
 	m_fragmentShader.Reset();
@@ -69,7 +79,7 @@ CPresent::~CPresent()
 	m_context->device.vkDestroySemaphore(m_context->device, m_renderCompleteSemaphore, nullptr);
 }
 
-void CPresent::DoPresent()
+void CPresent::DoPresent(uint32 bufAddress, uint32 bufWidth)
 {
 	auto result = VK_SUCCESS;
 
@@ -77,7 +87,7 @@ void CPresent::DoPresent()
 	result = m_context->device.vkAcquireNextImageKHR(m_context->device, m_swapChain, UINT64_MAX, m_imageAcquireSemaphore, VK_NULL_HANDLE, &imageIndex);
 	CHECKVULKANERROR(result);
 
-	UpdateBackbuffer(imageIndex);
+	UpdateBackbuffer(imageIndex, bufAddress, bufWidth);
 
 	//Queue present
 	{
@@ -95,7 +105,7 @@ void CPresent::DoPresent()
 	CHECKVULKANERROR(result);
 }
 
-void CPresent::UpdateBackbuffer(uint32 imageIndex)
+void CPresent::UpdateBackbuffer(uint32 imageIndex, uint32 bufAddress, uint32 bufWidth)
 {
 	auto result = VK_SUCCESS;
 
@@ -124,6 +134,14 @@ void CPresent::UpdateBackbuffer(uint32 imageIndex)
 		m_context->device.vkCmdPipelineBarrier(commandBuffer, VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT, VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
 			0, 0, nullptr, 0, nullptr, 1, &imageMemoryBarrier);
 	}
+
+	//-------------------
+	//Update Source Buffer Info Uniform
+
+	SRCBUFFER srcBuffer = {};
+	srcBuffer.bufAddress = bufAddress;
+	srcBuffer.bufWidth = bufWidth;
+	m_context->device.vkCmdUpdateBuffer(commandBuffer, m_srcBufferUniform, 0, sizeof(SRCBUFFER), &srcBuffer);
 
 	VkClearValue clearValue;
 	clearValue.color = { { 0.5f, 0.5f, 0.5f, 1.0f } };
@@ -169,14 +187,33 @@ void CPresent::UpdateBackbuffer(uint32 imageIndex)
 		descriptorImageInfo.imageView = m_context->memoryImageView;
 		descriptorImageInfo.imageLayout = VK_IMAGE_LAYOUT_GENERAL;
 
-		auto writeSet = Framework::Vulkan::WriteDescriptorSet();
-		writeSet.dstSet          = descriptorSet;
-		writeSet.dstBinding      = DESCRIPTOR_LOCATION_MEMORY;
-		writeSet.descriptorCount = 1;
-		writeSet.descriptorType  = VK_DESCRIPTOR_TYPE_STORAGE_IMAGE;
-		writeSet.pImageInfo      = &descriptorImageInfo;
+		VkDescriptorBufferInfo descriptorUniformInfo = {};
+		descriptorUniformInfo.buffer = m_srcBufferUniform;
+		descriptorUniformInfo.range = VK_WHOLE_SIZE;
 
-		m_context->device.vkUpdateDescriptorSets(m_context->device, 1, &writeSet, 0, nullptr);
+		std::vector<VkWriteDescriptorSet> writes;
+
+		{
+			auto writeSet = Framework::Vulkan::WriteDescriptorSet();
+			writeSet.dstSet          = descriptorSet;
+			writeSet.dstBinding      = DESCRIPTOR_LOCATION_IMAGE_MEMORY;
+			writeSet.descriptorCount = 1;
+			writeSet.descriptorType  = VK_DESCRIPTOR_TYPE_STORAGE_IMAGE;
+			writeSet.pImageInfo      = &descriptorImageInfo;
+			writes.push_back(writeSet);
+		}
+
+		{
+			auto writeSet = Framework::Vulkan::WriteDescriptorSet();
+			writeSet.dstSet          = descriptorSet;
+			writeSet.dstBinding      = DESCRIPTOR_LOCATION_UNIFORM_SRCBUFFER;
+			writeSet.descriptorCount = 1;
+			writeSet.descriptorType  = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+			writeSet.pBufferInfo      = &descriptorUniformInfo;
+			writes.push_back(writeSet);
+		}
+
+		m_context->device.vkUpdateDescriptorSets(m_context->device, writes.size(), writes.data(), 0, nullptr);
 	}
 
 	m_context->device.vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_drawPipelineLayout,
@@ -185,7 +222,8 @@ void CPresent::UpdateBackbuffer(uint32 imageIndex)
 	m_context->device.vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_drawPipeline);
 
 	VkDeviceSize vertexBufferOffset = 0;
-	m_context->device.vkCmdBindVertexBuffers(commandBuffer, 0, 1, &m_vertexBuffer, &vertexBufferOffset);
+	VkBuffer vertexBuffer = m_vertexBuffer;
+	m_context->device.vkCmdBindVertexBuffers(commandBuffer, 0, 1, &vertexBuffer, &vertexBufferOffset);
 
 	m_context->device.vkCmdDraw(commandBuffer, 3, 1, 0, 0);
 
@@ -352,15 +390,29 @@ void CPresent::CreateDrawPipeline()
 	auto result = VK_SUCCESS;
 
 	{
-		VkDescriptorSetLayoutBinding setLayoutBinding = {};
-		setLayoutBinding.binding         = 0;
-		setLayoutBinding.descriptorType  = VK_DESCRIPTOR_TYPE_STORAGE_IMAGE;
-		setLayoutBinding.descriptorCount = 1;
-		setLayoutBinding.stageFlags      = VK_SHADER_STAGE_FRAGMENT_BIT;
+		std::vector<VkDescriptorSetLayoutBinding> setLayoutBindings;
+
+		{
+			VkDescriptorSetLayoutBinding setLayoutBinding = {};
+			setLayoutBinding.binding         = DESCRIPTOR_LOCATION_IMAGE_MEMORY;
+			setLayoutBinding.descriptorType  = VK_DESCRIPTOR_TYPE_STORAGE_IMAGE;
+			setLayoutBinding.descriptorCount = 1;
+			setLayoutBinding.stageFlags      = VK_SHADER_STAGE_FRAGMENT_BIT;
+			setLayoutBindings.push_back(setLayoutBinding);
+		}
+
+		{
+			VkDescriptorSetLayoutBinding setLayoutBinding = {};
+			setLayoutBinding.binding         = DESCRIPTOR_LOCATION_UNIFORM_SRCBUFFER;
+			setLayoutBinding.descriptorType  = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+			setLayoutBinding.descriptorCount = 1;
+			setLayoutBinding.stageFlags      = VK_SHADER_STAGE_FRAGMENT_BIT;
+			setLayoutBindings.push_back(setLayoutBinding);
+		}
 
 		auto setLayoutCreateInfo = Framework::Vulkan::DescriptorSetLayoutCreateInfo();
-		setLayoutCreateInfo.bindingCount = 1;
-		setLayoutCreateInfo.pBindings    = &setLayoutBinding;
+		setLayoutCreateInfo.bindingCount = setLayoutBindings.size();
+		setLayoutCreateInfo.pBindings    = setLayoutBindings.data();
 		
 		result = m_context->device.vkCreateDescriptorSetLayout(m_context->device, &setLayoutCreateInfo, nullptr, &m_drawDescriptorSetLayout);
 		CHECKVULKANERROR(result);
@@ -476,8 +528,13 @@ void CPresent::CreateVertexShader()
 	
 	{
 		auto inputPosition = CFloat4Lvalue(b.CreateInput(Nuanceur::SEMANTIC_POSITION));
+		auto inputTexCoord = CFloat4Lvalue(b.CreateInput(Nuanceur::SEMANTIC_TEXCOORD));
+
 		auto outputPosition = CFloat4Lvalue(b.CreateOutput(Nuanceur::SEMANTIC_SYSTEM_POSITION));
+		auto outputTexCoord = CFloat4Lvalue(b.CreateOutput(Nuanceur::SEMANTIC_TEXCOORD));
+
 		outputPosition = NewFloat4(inputPosition->xyz(), NewFloat(b, 1.0f));
+		outputTexCoord = inputTexCoord->xyzw();
 	}
 	
 	Framework::CMemStream shaderStream;
@@ -494,10 +551,24 @@ void CPresent::CreateFragmentShader()
 	
 	{
 		auto inputPosition = CFloat4Lvalue(b.CreateInput(Nuanceur::SEMANTIC_SYSTEM_POSITION));
-		auto outputColor = CFloat4Lvalue(b.CreateOutput(Nuanceur::SEMANTIC_SYSTEM_COLOR));
-		auto memoryImage = CImageUint2DValue(b.CreateImage2DUint(DESCRIPTOR_LOCATION_MEMORY));
+		auto inputTexCoord = CFloat4Lvalue(b.CreateInput(Nuanceur::SEMANTIC_TEXCOORD));
 
-		auto imageColor = Load(memoryImage, ToInt(inputPosition->xy()));
+		auto outputColor = CFloat4Lvalue(b.CreateOutput(Nuanceur::SEMANTIC_SYSTEM_COLOR));
+		auto memoryImage = CImageUint2DValue(b.CreateImage2DUint(DESCRIPTOR_LOCATION_IMAGE_MEMORY));
+
+		auto bufParams0 = CInt4Lvalue(b.CreateUniformInt4("bufParams0", DESCRIPTOR_LOCATION_UNIFORM_SRCBUFFER));
+		auto bufAddress = bufParams0->x();
+		auto bufWidth   = bufParams0->y();
+
+		static int32 c_texelSize = 4;
+		static int32 c_memorySize = 1024;
+
+		auto screenPos = ToInt(inputTexCoord->xy() * NewFloat2(b, 640, 480));
+		auto address = bufAddress + (screenPos->y() * bufWidth * NewInt(b, c_texelSize)) + (screenPos->x() * NewInt(b, c_texelSize));
+
+		auto wordAddress = address / NewInt(b, 4);
+		auto position = NewInt2(wordAddress % NewInt(b, c_memorySize), wordAddress / NewInt(b, c_memorySize));
+		auto imageColor = Load(memoryImage, position);
 
 		auto imageColorR = (imageColor->x() >> NewUint(b,  0)) & NewUint(b, 0xFF);
 		auto imageColorG = (imageColor->x() >> NewUint(b,  8)) & NewUint(b, 0xFF);

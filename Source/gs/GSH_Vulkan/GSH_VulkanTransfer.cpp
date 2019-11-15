@@ -57,6 +57,7 @@ void CTransfer::DoHostToLocalTransfer(const XferBuffer& inputData)
 
 	m_context->device.vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_COMPUTE, m_pipelineLayout, 0, 1, &descriptorSet, 0, nullptr);
 	m_context->device.vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_COMPUTE, m_pipeline);
+	m_context->device.vkCmdPushConstants(commandBuffer, m_pipelineLayout, VK_SHADER_STAGE_COMPUTE_BIT, 0, sizeof(XFERPARAMS), &Params);
 	m_context->device.vkCmdDispatch(commandBuffer, workUnits, 1, 1);
 
 	m_context->device.vkEndCommandBuffer(commandBuffer);
@@ -91,12 +92,16 @@ VkDescriptorSet CTransfer::PrepareDescriptorSet()
 	{
 		std::vector<VkWriteDescriptorSet> writes;
 
+		VkDescriptorImageInfo descriptorImageInfo = {};
+		descriptorImageInfo.imageView = m_context->memoryImageView;
+		descriptorImageInfo.imageLayout = VK_IMAGE_LAYOUT_GENERAL;
+
+		VkDescriptorBufferInfo descriptorBufferInfo = {};
+		descriptorBufferInfo.buffer = m_xferBuffer;
+		descriptorBufferInfo.range = VK_WHOLE_SIZE;
+
 		//Memory Image Descriptor
 		{
-			VkDescriptorImageInfo descriptorImageInfo = {};
-			descriptorImageInfo.imageView = m_context->memoryImageView;
-			descriptorImageInfo.imageLayout = VK_IMAGE_LAYOUT_GENERAL;
-
 			auto writeSet = Framework::Vulkan::WriteDescriptorSet();
 			writeSet.dstSet          = descriptorSet;
 			writeSet.dstBinding      = DESCRIPTOR_LOCATION_MEMORY;
@@ -108,10 +113,6 @@ VkDescriptorSet CTransfer::PrepareDescriptorSet()
 
 		//Xfer Buffer Descriptor
 		{
-			VkDescriptorBufferInfo descriptorBufferInfo = {};
-			descriptorBufferInfo.buffer = m_xferBuffer;
-			descriptorBufferInfo.range = VK_WHOLE_SIZE;
-
 			auto writeSet = Framework::Vulkan::WriteDescriptorSet();
 			writeSet.dstSet          = descriptorSet;
 			writeSet.dstBinding      = DESCRIPTOR_LOCATION_XFERBUFFER;
@@ -158,13 +159,33 @@ void CTransfer::CreateXferShader()
 	
 	auto b = CShaderBuilder();
 	
+	const uint32 c_memorySize = 1024;
+
 	{
 		auto inputInvocationId = CInt4Lvalue(b.CreateInputInt(Nuanceur::SEMANTIC_SYSTEM_GIID));
 		auto memoryImage = CImageUint2DValue(b.CreateImage2DUint(DESCRIPTOR_LOCATION_MEMORY));
 		auto xferBuffer = CArrayUintValue(b.CreateUniformArrayUint("xferBuffer", DESCRIPTOR_LOCATION_XFERBUFFER));
 
+		auto xferParams0 = CInt4Lvalue(b.CreateUniformInt4("xferParams0", Nuanceur::UNIFORM_UNIT_PUSHCONSTANT));
+		auto xferParams1 = CInt4Lvalue(b.CreateUniformInt4("xferParams1", Nuanceur::UNIFORM_UNIT_PUSHCONSTANT));
+
+		auto bufAddress = xferParams0->x();
+		auto bufWidth   = xferParams0->y();
+		auto rrw        = xferParams0->z();
+		auto dsax       = xferParams0->w();
+		auto dsay       = xferParams1->x();
+
+		auto rrx = inputInvocationId->x() % rrw;
+		auto rry = inputInvocationId->x() / rrw;
+
+		auto trxX = (rrx + dsax) % NewInt(b, 2048);
+		auto trxY = (rry + dsay) % NewInt(b, 2048);
+
 		auto inputColor = Load(xferBuffer, inputInvocationId->x());
-		auto writePosition = NewInt2(inputInvocationId->x() % NewInt(b, 64), inputInvocationId->x() / NewInt(b, 64));
+		auto address = bufAddress + (trxY * bufWidth * NewInt(b, 4)) + (trxX * NewInt(b, 4));
+
+		auto wordAddress = address / NewInt(b, 4);
+		auto writePosition = NewInt2(wordAddress % NewInt(b, c_memorySize), wordAddress / NewInt(b, c_memorySize));
 		Store(memoryImage, writePosition, NewUint4(inputColor, NewUint3(b, 0, 0, 0)));
 	}
 	
@@ -209,14 +230,16 @@ void CTransfer::CreatePipeline()
 	}
 
 	{
-		//VkPushConstantRange pushConstantInfo = {};
-		//pushConstantInfo.stageFlags = VK_SHADER_STAGE_COMPUTE_BIT;
-		//pushConstantInfo.offset     = 0;
-		//pushConstantInfo.size       = sizeof(VERTEX_SHADER_CONSTANTS);
+		VkPushConstantRange pushConstantInfo = {};
+		pushConstantInfo.stageFlags = VK_SHADER_STAGE_COMPUTE_BIT;
+		pushConstantInfo.offset     = 0;
+		pushConstantInfo.size       = sizeof(XFERPARAMS);
 
 		auto pipelineLayoutCreateInfo = Framework::Vulkan::PipelineLayoutCreateInfo();
-		pipelineLayoutCreateInfo.setLayoutCount = 1;
-		pipelineLayoutCreateInfo.pSetLayouts    = &m_descriptorSetLayout;
+		pipelineLayoutCreateInfo.pushConstantRangeCount = 1;
+		pipelineLayoutCreateInfo.pPushConstantRanges    = &pushConstantInfo;
+		pipelineLayoutCreateInfo.setLayoutCount         = 1;
+		pipelineLayoutCreateInfo.pSetLayouts            = &m_descriptorSetLayout;
 
 		result = m_context->device.vkCreatePipelineLayout(m_context->device, &pipelineLayoutCreateInfo, nullptr, &m_pipelineLayout);
 		CHECKVULKANERROR(result);
