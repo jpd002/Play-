@@ -523,31 +523,15 @@ void CPresent::CreateVertexBuffer()
 {
 	auto result = VK_SUCCESS;
 
-	auto bufferCreateInfo = Framework::Vulkan::BufferCreateInfo();
-	bufferCreateInfo.usage = VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
-	bufferCreateInfo.size  = sizeof(g_vertexBufferContents);
-	result = m_context->device.vkCreateBuffer(m_context->device, &bufferCreateInfo, nullptr, &m_vertexBuffer);
-	CHECKVULKANERROR(result);
-	
-	VkMemoryRequirements memoryRequirements = {};
-	m_context->device.vkGetBufferMemoryRequirements(m_context->device, m_vertexBuffer, &memoryRequirements);
-
-	auto memoryAllocateInfo = Framework::Vulkan::MemoryAllocateInfo();
-	memoryAllocateInfo.allocationSize = memoryRequirements.size;
-	memoryAllocateInfo.memoryTypeIndex = Framework::Vulkan::GetMemoryTypeIndex(m_context->physicalDeviceMemoryProperties, memoryRequirements.memoryTypeBits, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
-	assert(memoryAllocateInfo.memoryTypeIndex != Framework::Vulkan::VULKAN_MEMORY_TYPE_INVALID);
-
-	result = m_context->device.vkAllocateMemory(m_context->device, &memoryAllocateInfo, nullptr, &m_vertexBufferMemory);
-	CHECKVULKANERROR(result);
-	
-	result = m_context->device.vkBindBufferMemory(m_context->device, m_vertexBuffer, m_vertexBufferMemory, 0);
-	CHECKVULKANERROR(result);
+	m_vertexBuffer = Framework::Vulkan::CBuffer(
+		m_context->device, m_context->physicalDeviceMemoryProperties,
+		VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, sizeof(g_vertexBufferContents));
 
 	{
 		void* bufferMemoryData = nullptr;
-		result = m_context->device.vkMapMemory(m_context->device, m_vertexBufferMemory, 0, VK_WHOLE_SIZE, 0, &bufferMemoryData);
+		result = m_context->device.vkMapMemory(m_context->device, m_vertexBuffer, 0, VK_WHOLE_SIZE, 0, &bufferMemoryData);
 		CHECKVULKANERROR(result);
 		memcpy(bufferMemoryData, g_vertexBufferContents, sizeof(g_vertexBufferContents));
-		m_context->device.vkUnmapMemory(m_context->device, m_vertexBufferMemory);
+		m_context->device.vkUnmapMemory(m_context->device, m_vertexBuffer);
 	}
 }
