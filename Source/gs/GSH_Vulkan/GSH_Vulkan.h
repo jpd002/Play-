@@ -64,6 +64,7 @@ private:
 	void SetRenderingContext(uint64);
 
 	void Prim_Triangle();
+	void Prim_Sprite();
 
 	GSH_Vulkan::DrawPtr m_draw;
 	GSH_Vulkan::PresentPtr m_present;

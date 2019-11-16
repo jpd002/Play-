@@ -621,12 +621,10 @@ void CGSH_Vulkan::VertexKick(uint8 registerId, uint64 data)
 			memcpy(&m_vtxBuffer[1], &m_vtxBuffer[0], sizeof(VERTEX));
 			m_vtxCount = 1;
 			break;
-#if 0
 		case PRIM_SPRITE:
-			if(nDrawingKick) Prim_Sprite();
-			m_nVtxCount = 2;
+			if(drawingKick) Prim_Sprite();
+			m_vtxCount = 2;
 			break;
-#endif
 		}
 	}
 }
@@ -649,14 +647,14 @@ void CGSH_Vulkan::Prim_Triangle()
 {
 	float f1 = 0, f2 = 0, f3 = 0;
 
-	XYZ vertex[3];
-	vertex[0] <<= m_vtxBuffer[2].position;
-	vertex[1] <<= m_vtxBuffer[1].position;
-	vertex[2] <<= m_vtxBuffer[0].position;
+	XYZ pos[3];
+	pos[0] <<= m_vtxBuffer[2].position;
+	pos[1] <<= m_vtxBuffer[1].position;
+	pos[2] <<= m_vtxBuffer[0].position;
 
-	float x1 = vertex[0].GetX(), x2 = vertex[1].GetX(), x3 = vertex[2].GetX();
-	float y1 = vertex[0].GetY(), y2 = vertex[1].GetY(), y3 = vertex[2].GetY();
-	uint32 z1 = vertex[0].nZ,    z2 = vertex[1].nZ,     z3 = vertex[2].nZ;
+	float x1 = pos[0].GetX(), x2 = pos[1].GetX(), x3 = pos[2].GetX();
+	float y1 = pos[0].GetY(), y2 = pos[1].GetY(), y3 = pos[2].GetY();
+	uint32 z1 = pos[0].nZ,    z2 = pos[1].nZ,     z3 = pos[2].nZ;
 
 	RGBAQ rgbaq[3];
 	rgbaq[0] <<= m_vtxBuffer[2].rgbaq;
@@ -695,6 +693,46 @@ void CGSH_Vulkan::Prim_Triangle()
 		{	x1, y1, z1, color1, },
 		{	x2, y2, z2, color2, },
 		{	x3, y3, z3, color3, },
+	};
+	// clang-format on
+
+	m_draw->AddVertices(std::begin(vertices), std::end(vertices));
+}
+
+void CGSH_Vulkan::Prim_Sprite()
+{
+	XYZ pos[2];
+	pos[0] <<= m_vtxBuffer[1].position;
+	pos[1] <<= m_vtxBuffer[0].position;
+
+	float x1 = pos[0].GetX(), y1 = pos[0].GetY();
+	float x2 = pos[1].GetX(), y2 = pos[1].GetY();
+	uint32 z = pos[1].nZ;
+
+	RGBAQ rgbaq[2];
+	rgbaq[0] <<= m_vtxBuffer[1].rgbaq;
+	rgbaq[1] <<= m_vtxBuffer[0].rgbaq;
+
+	x1 -= m_primOfsX;
+	x2 -= m_primOfsX;
+
+	y1 -= m_primOfsY;
+	y2 -= m_primOfsY;
+
+	auto color = MakeColor(
+	    rgbaq[1].nR, rgbaq[1].nG,
+	    rgbaq[1].nB, rgbaq[1].nA);
+
+	// clang-format off
+	CDraw::PRIM_VERTEX vertices[] =
+	{
+		{x1, y1, z, color},
+		{x2, y1, z, color},
+		{x1, y2, z, color},
+
+		{x1, y2, z, color},
+		{x2, y1, z, color},
+		{x2, y2, z, color},
 	};
 	// clang-format on
 
