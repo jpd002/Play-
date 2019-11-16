@@ -637,6 +637,9 @@ void CGSH_Vulkan::SetRenderingContext(uint64 primReg)
 
 	unsigned int context = prim.nContext;
 
+	auto frame = make_convertible<FRAME>(m_nReg[GS_REG_FRAME_1 + context]);
+	m_draw->SetFramebuffer(frame.GetBasePtr(), frame.GetWidth());
+
 	auto offset = make_convertible<XYOFFSET>(m_nReg[GS_REG_XYOFFSET_1 + context]);
 	m_primOfsX = offset.GetX();
 	m_primOfsY = offset.GetY();

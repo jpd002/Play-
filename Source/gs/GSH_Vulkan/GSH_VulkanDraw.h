@@ -21,10 +21,18 @@ namespace GSH_Vulkan
 		CDraw(const ContextPtr&);
 		virtual ~CDraw();
 
+		void SetFramebuffer(uint32, uint32);
+
 		void AddVertices(const PRIM_VERTEX*, const PRIM_VERTEX*);
 		void FlushVertices();
 
 	private:
+		struct FRAMEBUFFER
+		{
+			uint32 bufAddress = 0;
+			uint32 bufWidth = 0;
+		};
+
 		struct VERTEX_SHADER_CONSTANTS
 		{
 			float projMatrix[16];
@@ -32,6 +40,7 @@ namespace GSH_Vulkan
 
 		typedef std::vector<PRIM_VERTEX> PrimVertexArray;
 
+		VkDescriptorSet PrepareDescriptorSet();
 		void UpdateVertexBuffer();
 
 		void CreateFramebuffer();
@@ -50,6 +59,7 @@ namespace GSH_Vulkan
 		VkPipeline m_drawPipeline = VK_NULL_HANDLE;
 		Framework::Vulkan::CShaderModule m_vertexShader;
 		Framework::Vulkan::CShaderModule m_fragmentShader;
+		Framework::Vulkan::CBuffer m_frameBufferUniform;
 		Framework::Vulkan::CBuffer m_vertexBuffer;
 
 		VkImage m_drawImage = VK_NULL_HANDLE;
@@ -58,6 +68,7 @@ namespace GSH_Vulkan
 
 		PrimVertexArray m_primVertices;
 
+		FRAMEBUFFER m_fbBuffer;
 		VERTEX_SHADER_CONSTANTS m_vertexShaderConstants;
 	};
 
