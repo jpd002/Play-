@@ -1426,11 +1426,23 @@ void VUShared::SQRT(CMipsJitter* codeGen, uint8 nFt, uint8 nFtf, uint32 relative
 
 void VUShared::SUB(CMipsJitter* codeGen, uint8 dest, uint8 fd, uint8 fs, uint8 ft, uint32 relativePipeTime)
 {
-	SUB_base(codeGen, dest,
-	         offsetof(CMIPS, m_State.nCOP2[(fd != 0) ? fd : 32]),
-	         offsetof(CMIPS, m_State.nCOP2[fs]),
-	         offsetof(CMIPS, m_State.nCOP2[ft]),
-	         false, relativePipeTime);
+	auto fdOffset = offsetof(CMIPS, m_State.nCOP2[(fd != 0) ? fd : 32]);
+	if(fs == ft)
+	{
+		//Source and target registers are the same, clear the vector instead of going through a SUB instruction
+		//SUB might generate NaNs instead of clearing the values like the game intended (ex.: Homura with 0xFFFF8000)
+		codeGen->MD_PushRelExpand(offsetof(CMIPS, m_State.nCOP2[0].nV0));
+		PullVector(codeGen, dest, fdOffset);
+		TestSZFlags(codeGen, dest, fdOffset, relativePipeTime);
+	}
+	else
+	{
+		SUB_base(codeGen, dest,
+				 fdOffset,
+				 offsetof(CMIPS, m_State.nCOP2[fs]),
+				 offsetof(CMIPS, m_State.nCOP2[ft]),
+				 false, relativePipeTime);
+	}
 }
 
 void VUShared::SUBbc(CMipsJitter* codeGen, uint8 dest, uint8 fd, uint8 fs, uint8 ft, uint8 bc, uint32 relativePipeTime)
