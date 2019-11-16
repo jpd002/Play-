@@ -22,7 +22,6 @@ CTransfer::CTransfer(const ContextPtr& context)
 
 CTransfer::~CTransfer()
 {
-	m_xferShader.Reset();
 	m_context->device.vkDestroyPipeline(m_context->device, m_pipeline, nullptr);
 	m_context->device.vkDestroyPipelineLayout(m_context->device, m_pipelineLayout, nullptr);
 	m_context->device.vkDestroyDescriptorSetLayout(m_context->device, m_descriptorSetLayout, nullptr);

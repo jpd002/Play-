@@ -4,6 +4,7 @@
 #include <vector>
 #include "GSH_VulkanContext.h"
 #include "vulkan/ShaderModule.h"
+#include "vulkan/Buffer.h"
 
 namespace GSH_Vulkan
 {
@@ -36,7 +37,6 @@ namespace GSH_Vulkan
 		void CreateFramebuffer();
 		void CreateRenderPass();
 		void CreateDrawPipeline();
-		void CreateVertexBuffer();
 		void CreateVertexShader();
 		void CreateFragmentShader();
 		void CreateDrawImage();
@@ -50,8 +50,7 @@ namespace GSH_Vulkan
 		VkPipeline m_drawPipeline = VK_NULL_HANDLE;
 		Framework::Vulkan::CShaderModule m_vertexShader;
 		Framework::Vulkan::CShaderModule m_fragmentShader;
-		VkBuffer m_vertexBuffer = VK_NULL_HANDLE;
-		VkDeviceMemory m_vertexBufferMemory = VK_NULL_HANDLE;
+		Framework::Vulkan::CBuffer m_vertexBuffer;
 
 		VkImage m_drawImage = VK_NULL_HANDLE;
 		VkDeviceMemory m_drawImageMemoryHandle = VK_NULL_HANDLE;

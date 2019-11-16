@@ -44,7 +44,9 @@ CDraw::CDraw(const ContextPtr& context)
 	CreateVertexShader();
 	CreateFragmentShader();
 	CreateDrawPipeline();
-	CreateVertexBuffer();
+	m_vertexBuffer = Framework::Vulkan::CBuffer(
+		m_context->device, m_context->physicalDeviceMemoryProperties,
+		VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, sizeof(PRIM_VERTEX) * MAX_VERTEX_COUNT);
 	m_primVertices.reserve(MAX_VERTEX_COUNT);
 	MakeLinearZOrtho(m_vertexShaderConstants.projMatrix, 0, DRAW_AREA_SIZE, 0, DRAW_AREA_SIZE);
 }
@@ -56,8 +58,6 @@ CDraw::~CDraw()
 	m_context->device.vkDestroyDescriptorSetLayout(m_context->device, m_drawDescriptorSetLayout, nullptr);
 	m_context->device.vkDestroyFramebuffer(m_context->device, m_framebuffer, nullptr);
 	m_context->device.vkDestroyRenderPass(m_context->device, m_renderPass, nullptr);
-	m_context->device.vkDestroyBuffer(m_context->device, m_vertexBuffer, nullptr);
-	m_context->device.vkFreeMemory(m_context->device, m_vertexBufferMemory, nullptr);
 	m_context->device.vkDestroyImageView(m_context->device, m_drawImageView, nullptr);
 	m_context->device.vkDestroyImage(m_context->device, m_drawImage, nullptr);
 	m_context->device.vkFreeMemory(m_context->device, m_drawImageMemoryHandle, nullptr);
@@ -142,7 +142,8 @@ void CDraw::FlushVertices()
 	m_context->device.vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_drawPipeline);
 
 	VkDeviceSize vertexBufferOffset = 0;
-	m_context->device.vkCmdBindVertexBuffers(commandBuffer, 0, 1, &m_vertexBuffer, &vertexBufferOffset);
+	VkBuffer vertexBuffer = m_vertexBuffer;
+	m_context->device.vkCmdBindVertexBuffers(commandBuffer, 0, 1, &vertexBuffer, &vertexBufferOffset);
 
 	m_context->device.vkCmdPushConstants(commandBuffer, m_drawPipelineLayout, VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(VERTEX_SHADER_CONSTANTS), &m_vertexShaderConstants);
 
@@ -167,10 +168,10 @@ void CDraw::FlushVertices()
 void CDraw::UpdateVertexBuffer()
 {
 	void* bufferMemoryData = nullptr;
-	auto result = m_context->device.vkMapMemory(m_context->device, m_vertexBufferMemory, 0, VK_WHOLE_SIZE, 0, &bufferMemoryData);
+	auto result = m_context->device.vkMapMemory(m_context->device, m_vertexBuffer.GetMemory(), 0, VK_WHOLE_SIZE, 0, &bufferMemoryData);
 	CHECKVULKANERROR(result);
 	memcpy(bufferMemoryData, m_primVertices.data(), m_primVertices.size() * sizeof(PRIM_VERTEX));
-	m_context->device.vkUnmapMemory(m_context->device, m_vertexBufferMemory);
+	m_context->device.vkUnmapMemory(m_context->device, m_vertexBuffer.GetMemory());
 }
 
 void CDraw::CreateFramebuffer()
@@ -487,29 +488,4 @@ void CDraw::CreateDrawImage()
 		auto result = m_context->device.vkCreateImageView(m_context->device, &imageViewCreateInfo, nullptr, &m_drawImageView);
 		CHECKVULKANERROR(result);
 	}
-}
-
-void CDraw::CreateVertexBuffer()
-{
-	auto result = VK_SUCCESS;
-
-	auto bufferCreateInfo = Framework::Vulkan::BufferCreateInfo();
-	bufferCreateInfo.usage = VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
-	bufferCreateInfo.size  = sizeof(PRIM_VERTEX) * MAX_VERTEX_COUNT;
-	result = m_context->device.vkCreateBuffer(m_context->device, &bufferCreateInfo, nullptr, &m_vertexBuffer);
-	CHECKVULKANERROR(result);
-	
-	VkMemoryRequirements memoryRequirements = {};
-	m_context->device.vkGetBufferMemoryRequirements(m_context->device, m_vertexBuffer, &memoryRequirements);
-
-	auto memoryAllocateInfo = Framework::Vulkan::MemoryAllocateInfo();
-	memoryAllocateInfo.allocationSize = memoryRequirements.size;
-	memoryAllocateInfo.memoryTypeIndex = Framework::Vulkan::GetMemoryTypeIndex(m_context->physicalDeviceMemoryProperties, memoryRequirements.memoryTypeBits, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
-	assert(memoryAllocateInfo.memoryTypeIndex != Framework::Vulkan::VULKAN_MEMORY_TYPE_INVALID);
-
-	result = m_context->device.vkAllocateMemory(m_context->device, &memoryAllocateInfo, nullptr, &m_vertexBufferMemory);
-	CHECKVULKANERROR(result);
-	
-	result = m_context->device.vkBindBufferMemory(m_context->device, m_vertexBuffer, m_vertexBufferMemory, 0);
-	CHECKVULKANERROR(result);
 }

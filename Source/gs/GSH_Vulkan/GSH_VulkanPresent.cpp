@@ -58,10 +58,6 @@ CPresent::CPresent(const ContextPtr& context)
 
 CPresent::~CPresent()
 {
-	m_srcBufferUniform.Reset();
-	m_vertexBuffer.Reset();
-	m_vertexShader.Reset();
-	m_fragmentShader.Reset();
 	m_context->device.vkDestroyPipeline(m_context->device, m_drawPipeline, nullptr);
 	m_context->device.vkDestroyPipelineLayout(m_context->device, m_drawPipelineLayout, nullptr);
 	m_context->device.vkDestroyDescriptorSetLayout(m_context->device, m_drawDescriptorSetLayout, nullptr);
@@ -599,9 +595,9 @@ void CPresent::CreateVertexBuffer()
 
 	{
 		void* bufferMemoryData = nullptr;
-		result = m_context->device.vkMapMemory(m_context->device, m_vertexBuffer, 0, VK_WHOLE_SIZE, 0, &bufferMemoryData);
+		result = m_context->device.vkMapMemory(m_context->device, m_vertexBuffer.GetMemory(), 0, VK_WHOLE_SIZE, 0, &bufferMemoryData);
 		CHECKVULKANERROR(result);
 		memcpy(bufferMemoryData, g_vertexBufferContents, sizeof(g_vertexBufferContents));
-		m_context->device.vkUnmapMemory(m_context->device, m_vertexBuffer);
+		m_context->device.vkUnmapMemory(m_context->device, m_vertexBuffer.GetMemory());
 	}
 }
