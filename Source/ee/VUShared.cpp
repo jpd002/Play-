@@ -1438,10 +1438,10 @@ void VUShared::SUB(CMipsJitter* codeGen, uint8 dest, uint8 fd, uint8 fs, uint8 f
 	else
 	{
 		SUB_base(codeGen, dest,
-				 fdOffset,
-				 offsetof(CMIPS, m_State.nCOP2[fs]),
-				 offsetof(CMIPS, m_State.nCOP2[ft]),
-				 false, relativePipeTime);
+		         fdOffset,
+		         offsetof(CMIPS, m_State.nCOP2[fs]),
+		         offsetof(CMIPS, m_State.nCOP2[ft]),
+		         false, relativePipeTime);
 	}
 }
 
