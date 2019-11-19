@@ -544,6 +544,7 @@ private:
 	uint32 m_IPU_CTRL;
 	COUTFIFO m_OUT_FIFO;
 	CINFIFO m_IN_FIFO;
+	uint32 m_lastCmd;
 	bool m_isBusy;
 
 	CCommand* m_currentCmd;

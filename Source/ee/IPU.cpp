@@ -90,6 +90,7 @@ void CIPU::Reset()
 	m_IPU_CMD[1] = 0;
 	m_nTH0 = 0;
 	m_nTH1 = 0;
+	m_lastCmd = 0;
 
 	static_assert(sizeof(m_nIntraIQ) == sizeof(g_defaultIntraIQ));
 	memcpy(m_nIntraIQ, g_defaultIntraIQ, sizeof(g_defaultIntraIQ));
@@ -113,7 +114,20 @@ uint32 CIPU::GetRegister(uint32 nAddress)
 	switch(nAddress)
 	{
 	case IPU_CMD + 0x0:
-		return m_IPU_CMD[0];
+		//Seems reading from CMD is always defined (Quake 3 Arena relies on this)
+		if((m_lastCmd != IPU_CMD_VDEC) && (m_lastCmd != IPU_CMD_FDEC))
+		{
+			unsigned int availableSize = std::min<unsigned int>(32, m_IN_FIFO.GetAvailableBits());
+			//If no bits are available, return zero immediately, shift below won't have any effect
+			if(availableSize == 0) return 0;
+			uint32 result = m_IN_FIFO.PeekBits_MSBF(availableSize);
+			result <<= (32 - availableSize);
+			return result;
+		}
+		else
+		{
+			return m_IPU_CMD[0];
+		}
 		break;
 	case IPU_CMD + 0x4:
 		return GetBusyBit(m_isBusy);
@@ -313,6 +327,7 @@ void CIPU::FlushOUTFIFOData()
 void CIPU::InitializeCommand(uint32 value)
 {
 	unsigned int nCmd = (value >> 28);
+	m_lastCmd = nCmd;
 
 	switch(nCmd)
 	{
@@ -407,18 +422,6 @@ uint32 CIPU::ReceiveDMA4(uint32 address, uint32 nQWC, bool nTagIncluded, uint8* 
 	if(size != 0)
 	{
 		m_IN_FIFO.Write(memory + address, size);
-	}
-
-	if(!m_isBusy)
-	{
-		unsigned int availableSize = std::min<unsigned int>(32, m_IN_FIFO.GetAvailableBits());
-		//If no bits are available, return zero immediately, shift below won't have any effect
-		if(availableSize != 0)
-		{
-			uint32 result = m_IN_FIFO.PeekBits_MSBF(availableSize);
-			result <<= (32 - availableSize);
-			m_IPU_CMD[0] = result;
-		}
 	}
 
 	return size / 0x10;
