@@ -43,8 +43,11 @@ travis_script()
 {
     if [ "$TARGET_OS" = "Android" ]; then
         if [ "$BUILD_LIBRETRO" = "yes" ]; then
-            export PATH=/opt/cmake-3.8.1-Linux-x86_64/bin/:$PATH
-            export ANDROID_NDK=/usr/local/android-sdk/ndk-bundle
+            CMAKE_PATH=/usr/local/android-sdk/cmake/3.10.2.4988404
+            export PATH=${CMAKE_PATH}/bin:$PATH
+            export NINJA_EXE=${CMAKE_PATH}/bin/ninja
+            export ANDROID_NDK=/usr/local/android-sdk/ndk/20.0.5594570
+            export ANDROID_TOOLCHAIN_FILE=${ANDROID_NDK}/build/cmake/android.toolchain.cmake
             pushd build_retro
             bash android_build.sh
             popd

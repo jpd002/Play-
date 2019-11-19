@@ -17,12 +17,13 @@ do
 	-DANDROID_ABI="${ABI}" \
 	-DANDROID_NDK=${ANDROID_NDK} \
 	-DCMAKE_BUILD_TYPE=Release \
-	-DCMAKE_TOOLCHAIN_FILE=${ANDROID_NDK}/build/cmake/android.toolchain.cmake \
+	-DCMAKE_TOOLCHAIN_FILE=${ANDROID_TOOLCHAIN_FILE} \
 	-DANDROID_NATIVE_API_LEVEL=19 \
 	-DANDROID_STL=c++_static \
-	-DANDROID_TOOLCHAIN=clang
+	-DANDROID_TOOLCHAIN=clang \
+	-DCMAKE_MAKE_PROGRAM=${NINJA_EXE}
 	
 	cmake --build . --target play_libretro
-	${STRIP} -strip-all Source/ui_libretro/play_libretro_android.so ../play_libretro_${ABI}_android.so
+	${STRIP} -strip-all -o ../play_libretro_${ABI}_android.so Source/ui_libretro/play_libretro_android.so
 	popd
 done
