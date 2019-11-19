@@ -137,11 +137,14 @@ travis_before_deploy()
         if [ "$TARGET_ARCH" = "x86_64" ]; then
             cp ../../build/Play*.AppImage .
             cp ../../build/Source/ui_libretro/play_libretro.so play_libretro_linux-x86_64.so
+        else
+            cp ../../build/Source/ui_libretro/play_libretro.so play_libretro_linux-ARM64.so
         fi;
     fi;
     if [ "$TARGET_OS" = "Android" ]; then
         if [ "$BUILD_LIBRETRO" = "yes" ]; then
             cp ../../build_retro/play_* .
+            ABI_LIST="arm64-v8a armeabi-v7a x86 x86_64"
         else
             cp ../../build_android/build/outputs/apk/release/Play-release-unsigned.apk .
             export ANDROID_BUILD_TOOLS=$ANDROID_HOME/build-tools/28.0.3
@@ -151,13 +154,13 @@ travis_before_deploy()
     fi;
     if [ "$TARGET_OS" = "OSX" ]; then
         cp ../../build/Play.dmg .
-        cp ../../build/Source/ui_libretro/play_libretro.dylib play_libretro_macOS-x86_64.dylib
+        cp ../../build/Source/ui_libretro/Release/play_libretro.dylib play_libretro_macOS-x86_64.dylib
     fi;
     if [ "$TARGET_OS" = "IOS" ]; then
         cp ../../installer_ios/Play.ipa .
         cp ../../installer_ios/Play.deb .
         cp ../../installer_ios/Packages.bz2 .
-        cp ../../build/Source/ui_libretro/play_libretro.dylib play_libretro_iOS-FAT.dylib
+        cp ../../build/Source/ui_libretro/Release/play_libretro.dylib play_libretro_iOS-FAT.dylib
     fi;
     popd
     popd
