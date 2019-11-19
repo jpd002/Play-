@@ -45,18 +45,25 @@ CDraw::CDraw(const ContextPtr& context)
 	CreateVertexShader();
 	CreateFragmentShader();
 	CreateDrawPipeline();
+
 	m_vertexBuffer = Framework::Vulkan::CBuffer(
 		m_context->device, m_context->physicalDeviceMemoryProperties,
 		VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, sizeof(PRIM_VERTEX) * MAX_VERTEX_COUNT);
+	
+	auto result = m_context->device.vkMapMemory(m_context->device, m_vertexBuffer.GetMemory(), 
+		0, VK_WHOLE_SIZE, 0, reinterpret_cast<void**>(&m_vertexBufferPtr));
+	CHECKVULKANERROR(result);
+
 	m_frameBufferUniform = Framework::Vulkan::CBuffer(
 		m_context->device, m_context->physicalDeviceMemoryProperties,
 		VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT, sizeof(FRAMEBUFFER));
-	m_primVertices.reserve(MAX_VERTEX_COUNT);
+
 	MakeLinearZOrtho(m_vertexShaderConstants.projMatrix, 0, DRAW_AREA_SIZE, 0, DRAW_AREA_SIZE);
 }
 
 CDraw::~CDraw()
 {
+	m_context->device.vkUnmapMemory(m_context->device, m_vertexBuffer.GetMemory());
 	m_context->device.vkDestroyPipeline(m_context->device, m_drawPipeline, nullptr);
 	m_context->device.vkDestroyPipelineLayout(m_context->device, m_drawPipelineLayout, nullptr);
 	m_context->device.vkDestroyDescriptorSetLayout(m_context->device, m_drawDescriptorSetLayout, nullptr);
@@ -76,81 +83,81 @@ void CDraw::SetFramebuffer(uint32 ptr, uint32 width)
 void CDraw::AddVertices(const PRIM_VERTEX* vertexBeginPtr, const PRIM_VERTEX* vertexEndPtr)
 {
 	auto amount = vertexEndPtr - vertexBeginPtr;
-	if((m_primVertices.size() + amount) > MAX_VERTEX_COUNT)
+	if((m_passVertexEnd + amount) > MAX_VERTEX_COUNT)
 	{
-		FlushVertices();
+		FlushCommands();
 	}
-	m_primVertices.insert(m_primVertices.end(), vertexBeginPtr, vertexEndPtr);
+	memcpy(m_vertexBufferPtr + m_passVertexEnd, vertexBeginPtr, amount * sizeof(PRIM_VERTEX));
+	m_passVertexEnd += amount;
 }
 
 void CDraw::FlushVertices()
 {
-	if(m_primVertices.empty()) return;
+	uint32 vertexCount = m_passVertexEnd - m_passVertexStart;
+	if(vertexCount == 0) return;
 
-	UpdateVertexBuffer();
-
-	auto result = VK_SUCCESS;
-	auto commandBuffer = m_context->commandBufferPool.AllocateBuffer();
-
-	auto commandBufferBeginInfo = Framework::Vulkan::CommandBufferBeginInfo();
-	commandBufferBeginInfo.flags = VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT;
-	result = m_context->device.vkBeginCommandBuffer(commandBuffer, &commandBufferBeginInfo);
-	CHECKVULKANERROR(result);
-
+	if(m_commandBuffer == VK_NULL_HANDLE)
 	{
-		VkViewport viewport = {};
-		viewport.width    = DRAW_AREA_SIZE;
-		viewport.height   = DRAW_AREA_SIZE;
-		viewport.maxDepth = 1.0f;
-		m_context->device.vkCmdSetViewport(commandBuffer, 0, 1, &viewport);
-		
-		VkRect2D scissor = {};
-		scissor.extent.width  = DRAW_AREA_SIZE;
-		scissor.extent.height = DRAW_AREA_SIZE;
-		m_context->device.vkCmdSetScissor(commandBuffer, 0, 1, &scissor);
+		StartRecording();
 	}
 
 	//-------------------
 	//Update Framebuffer Info Uniform
 
-	m_context->device.vkCmdUpdateBuffer(commandBuffer, m_frameBufferUniform, 0, sizeof(FRAMEBUFFER), &m_fbBuffer);
+	m_context->device.vkCmdUpdateBuffer(m_commandBuffer, m_frameBufferUniform, 0, sizeof(FRAMEBUFFER), &m_fbBuffer);
 
 	auto renderPassBeginInfo = Framework::Vulkan::RenderPassBeginInfo();
 	renderPassBeginInfo.renderPass               = m_renderPass;
 	renderPassBeginInfo.renderArea.extent.width  = DRAW_AREA_SIZE;
 	renderPassBeginInfo.renderArea.extent.height = DRAW_AREA_SIZE;
 	renderPassBeginInfo.framebuffer              = m_framebuffer;
-	m_context->device.vkCmdBeginRenderPass(commandBuffer, &renderPassBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
+	m_context->device.vkCmdBeginRenderPass(m_commandBuffer, &renderPassBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
 
 	auto descriptorSet = PrepareDescriptorSet();
 
-	m_context->device.vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_drawPipelineLayout,
+	m_context->device.vkCmdBindDescriptorSets(m_commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_drawPipelineLayout,
 		0, 1, &descriptorSet, 0, nullptr);
 
-	m_context->device.vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_drawPipeline);
+	m_context->device.vkCmdBindPipeline(m_commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_drawPipeline);
 
-	VkDeviceSize vertexBufferOffset = 0;
+	VkDeviceSize vertexBufferOffset = (m_passVertexStart * sizeof(PRIM_VERTEX));
 	VkBuffer vertexBuffer = m_vertexBuffer;
-	m_context->device.vkCmdBindVertexBuffers(commandBuffer, 0, 1, &vertexBuffer, &vertexBufferOffset);
+	m_context->device.vkCmdBindVertexBuffers(m_commandBuffer, 0, 1, &vertexBuffer, &vertexBufferOffset);
 
-	m_context->device.vkCmdPushConstants(commandBuffer, m_drawPipelineLayout, VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(VERTEX_SHADER_CONSTANTS), &m_vertexShaderConstants);
+	m_context->device.vkCmdPushConstants(m_commandBuffer, m_drawPipelineLayout, VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(VERTEX_SHADER_CONSTANTS), &m_vertexShaderConstants);
 
-	assert((m_primVertices.size() % 3) == 0);
-	m_context->device.vkCmdDraw(commandBuffer, m_primVertices.size(), 1, 0, 0);
+	assert((vertexCount % 3) == 0);
+	m_context->device.vkCmdDraw(m_commandBuffer, vertexCount, 1, 0, 0);
 
-	m_context->device.vkCmdEndRenderPass(commandBuffer);
-	m_context->device.vkEndCommandBuffer(commandBuffer);
+	m_context->device.vkCmdEndRenderPass(m_commandBuffer);
+
+	m_passVertexStart = m_passVertexEnd;
+}
+
+void CDraw::FlushCommands()
+{
+	FlushVertices();
+
+	if(m_commandBuffer == VK_NULL_HANDLE) return;
+
+	m_context->device.vkEndCommandBuffer(m_commandBuffer);
+
+	auto result = VK_SUCCESS;
 
 	//Submit command buffer
 	{
 		auto submitInfo = Framework::Vulkan::SubmitInfo();
 		submitInfo.commandBufferCount   = 1;
-		submitInfo.pCommandBuffers      = &commandBuffer;
+		submitInfo.pCommandBuffers      = &m_commandBuffer;
 		result = m_context->device.vkQueueSubmit(m_context->queue, 1, &submitInfo, VK_NULL_HANDLE);
 		CHECKVULKANERROR(result);
 	}
 
-	m_primVertices.clear();
+	result = m_context->device.vkQueueWaitIdle(m_context->queue);
+	CHECKVULKANERROR(result);
+
+	m_commandBuffer = VK_NULL_HANDLE;
+	m_passVertexStart = m_passVertexEnd = 0;
 }
 
 VkDescriptorSet CDraw::PrepareDescriptorSet()
@@ -207,13 +214,30 @@ VkDescriptorSet CDraw::PrepareDescriptorSet()
 	return descriptorSet;
 }
 
-void CDraw::UpdateVertexBuffer()
+void CDraw::StartRecording()
 {
-	void* bufferMemoryData = nullptr;
-	auto result = m_context->device.vkMapMemory(m_context->device, m_vertexBuffer.GetMemory(), 0, VK_WHOLE_SIZE, 0, &bufferMemoryData);
+	assert(m_commandBuffer == VK_NULL_HANDLE);
+
+	auto result = VK_SUCCESS;
+	m_commandBuffer = m_context->commandBufferPool.AllocateBuffer();
+
+	auto commandBufferBeginInfo = Framework::Vulkan::CommandBufferBeginInfo();
+	commandBufferBeginInfo.flags = VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT;
+	result = m_context->device.vkBeginCommandBuffer(m_commandBuffer, &commandBufferBeginInfo);
 	CHECKVULKANERROR(result);
-	memcpy(bufferMemoryData, m_primVertices.data(), m_primVertices.size() * sizeof(PRIM_VERTEX));
-	m_context->device.vkUnmapMemory(m_context->device, m_vertexBuffer.GetMemory());
+
+	{
+		VkViewport viewport = {};
+		viewport.width    = DRAW_AREA_SIZE;
+		viewport.height   = DRAW_AREA_SIZE;
+		viewport.maxDepth = 1.0f;
+		m_context->device.vkCmdSetViewport(m_commandBuffer, 0, 1, &viewport);
+		
+		VkRect2D scissor = {};
+		scissor.extent.width  = DRAW_AREA_SIZE;
+		scissor.extent.height = DRAW_AREA_SIZE;
+		m_context->device.vkCmdSetScissor(m_commandBuffer, 0, 1, &scissor);
+	}
 }
 
 void CDraw::CreateFramebuffer()

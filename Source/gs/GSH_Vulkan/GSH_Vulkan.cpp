@@ -94,7 +94,7 @@ void CGSH_Vulkan::ResetImpl()
 
 void CGSH_Vulkan::FlipImpl()
 {
-	m_draw->FlushVertices();
+	m_draw->FlushCommands();
 
 	DISPLAY d;
 	DISPFB fb;

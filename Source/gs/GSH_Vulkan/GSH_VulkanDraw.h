@@ -1,7 +1,6 @@
 #pragma once
 
 #include <memory>
-#include <vector>
 #include "GSH_VulkanContext.h"
 #include "vulkan/ShaderModule.h"
 #include "vulkan/Buffer.h"
@@ -26,6 +25,8 @@ namespace GSH_Vulkan
 		void AddVertices(const PRIM_VERTEX*, const PRIM_VERTEX*);
 		void FlushVertices();
 
+		void FlushCommands();
+
 	private:
 		struct FRAMEBUFFER
 		{
@@ -38,10 +39,8 @@ namespace GSH_Vulkan
 			float projMatrix[16];
 		};
 
-		typedef std::vector<PRIM_VERTEX> PrimVertexArray;
-
 		VkDescriptorSet PrepareDescriptorSet();
-		void UpdateVertexBuffer();
+		void StartRecording();
 
 		void CreateFramebuffer();
 		void CreateRenderPass();
@@ -61,12 +60,15 @@ namespace GSH_Vulkan
 		Framework::Vulkan::CShaderModule m_fragmentShader;
 		Framework::Vulkan::CBuffer m_frameBufferUniform;
 		Framework::Vulkan::CBuffer m_vertexBuffer;
+		PRIM_VERTEX* m_vertexBufferPtr = nullptr;
 
 		VkImage m_drawImage = VK_NULL_HANDLE;
 		VkDeviceMemory m_drawImageMemoryHandle = VK_NULL_HANDLE;
 		VkImageView m_drawImageView = VK_NULL_HANDLE;
 
-		PrimVertexArray m_primVertices;
+		VkCommandBuffer m_commandBuffer = VK_NULL_HANDLE;
+		uint32 m_passVertexStart = 0;
+		uint32 m_passVertexEnd = 0;
 
 		FRAMEBUFFER m_fbBuffer;
 		VERTEX_SHADER_CONSTANTS m_vertexShaderConstants;
