@@ -21,9 +21,9 @@ struct SRCBUFFER
 const CPresent::PRESENT_VERTEX CPresent::g_vertexBufferContents[3] =
 {
 	//Pos           UV
-	{ -1.0f, -1.0f, 0.0f,  1.0f, },
-	{ -1.0f,  3.0f, 0.0f, -1.0f, },
-	{  3.0f, -1.0f, 2.0f,  1.0f, },
+	{ -1.0f,  1.0f, 0.0f,  1.0f, },
+	{ -1.0f, -3.0f, 0.0f, -1.0f, },
+	{  3.0f,  1.0f, 2.0f,  1.0f, },
 };
 // clang-format on
 
