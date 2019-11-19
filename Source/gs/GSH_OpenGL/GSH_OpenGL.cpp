@@ -1398,7 +1398,6 @@ void CGSH_OpenGL::Prim_Point()
 	};
 	// clang-format on
 
-	assert((m_vertexBuffer.size() + 1) <= VERTEX_BUFFER_SIZE);
 	m_vertexBuffer.push_back(vertex);
 }
 
@@ -1445,7 +1444,6 @@ void CGSH_OpenGL::Prim_Line()
 	};
 	// clang-format on
 
-	assert((m_vertexBuffer.size() + 2) <= VERTEX_BUFFER_SIZE);
 	m_vertexBuffer.insert(m_vertexBuffer.end(), std::begin(vertices), std::end(vertices));
 }
 
@@ -1561,7 +1559,6 @@ void CGSH_OpenGL::Prim_Triangle()
 	};
 	// clang-format on
 
-	assert((m_vertexBuffer.size() + 3) <= VERTEX_BUFFER_SIZE);
 	m_vertexBuffer.insert(m_vertexBuffer.end(), std::begin(vertices), std::end(vertices));
 
 	if(m_renderState.technique == TECHNIQUE::ALPHATEST_TWOPASS)
@@ -1647,7 +1644,6 @@ void CGSH_OpenGL::Prim_Sprite()
 	};
 	// clang-format on
 
-	assert((m_vertexBuffer.size() + 6) <= VERTEX_BUFFER_SIZE);
 	m_vertexBuffer.insert(m_vertexBuffer.end(), std::begin(vertices), std::end(vertices));
 
 	if(m_renderState.technique == TECHNIQUE::ALPHATEST_TWOPASS)
