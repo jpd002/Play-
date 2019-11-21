@@ -912,7 +912,7 @@ unsigned int CIPU::CINFIFO::GetSize() const
 
 unsigned int CIPU::CINFIFO::GetAvailableBits() const
 {
-	return (m_size * 8) - m_bitPosition;
+	return std::max<int32>((m_size * 8) - m_bitPosition, 0);
 }
 
 void CIPU::CINFIFO::Reset()
