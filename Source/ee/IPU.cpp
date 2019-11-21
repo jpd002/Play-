@@ -97,7 +97,7 @@ void CIPU::Reset()
 
 	static_assert(sizeof(m_nNonIntraIQ) == sizeof(g_defaultNonIntraIQ));
 	memcpy(m_nNonIntraIQ, g_defaultNonIntraIQ, sizeof(g_defaultNonIntraIQ));
-	
+
 	m_isBusy = false;
 	m_currentCmd = nullptr;
 
