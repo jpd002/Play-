@@ -635,12 +635,21 @@ void CGSH_Vulkan::SetRenderingContext(uint64 primReg)
 
 	unsigned int context = prim.nContext;
 
-	auto frame = make_convertible<FRAME>(m_nReg[GS_REG_FRAME_1 + context]);
-	m_draw->SetFramebuffer(frame.GetBasePtr(), frame.GetWidth());
-
 	auto offset = make_convertible<XYOFFSET>(m_nReg[GS_REG_XYOFFSET_1 + context]);
+	auto frame = make_convertible<FRAME>(m_nReg[GS_REG_FRAME_1 + context]);
+	auto tex0 = make_convertible<TEX0>(m_nReg[GS_REG_TEX0_1 + context]);
+
+	auto pipelineCaps = make_convertible<CDraw::PIPELINE_CAPS>(0);
+	pipelineCaps.hasTexture = prim.nTexture;
+
+	m_draw->SetPipelineCaps(pipelineCaps);
+	m_draw->SetFramebufferBufferInfo(frame.GetBasePtr(), frame.GetWidth());
+
 	m_primOfsX = offset.GetX();
 	m_primOfsY = offset.GetY();
+
+	m_texWidth = tex0.GetWidth();
+	m_texHeight = tex0.GetHeight();
 }
 
 void CGSH_Vulkan::Prim_Triangle()
@@ -669,6 +678,47 @@ void CGSH_Vulkan::Prim_Triangle()
 	y2 -= m_primOfsY;
 	y3 -= m_primOfsY;
 
+	float s[3] = {0, 0, 0};
+	float t[3] = {0, 0, 0};
+	float q[3] = {1, 1, 1};
+
+	if(m_primitiveMode.nTexture)
+	{
+		if(m_primitiveMode.nUseUV)
+		{
+			UV uv[3];
+			uv[0] <<= m_vtxBuffer[2].uv;
+			uv[1] <<= m_vtxBuffer[1].uv;
+			uv[2] <<= m_vtxBuffer[0].uv;
+
+			s[0] = uv[0].GetU() / static_cast<float>(m_texWidth);
+			s[1] = uv[1].GetU() / static_cast<float>(m_texWidth);
+			s[2] = uv[2].GetU() / static_cast<float>(m_texWidth);
+
+			t[0] = uv[0].GetV() / static_cast<float>(m_texHeight);
+			t[1] = uv[1].GetV() / static_cast<float>(m_texHeight);
+			t[2] = uv[2].GetV() / static_cast<float>(m_texHeight);
+		}
+		else
+		{
+			ST st[3];
+			st[0] <<= m_vtxBuffer[2].st;
+			st[1] <<= m_vtxBuffer[1].st;
+			st[2] <<= m_vtxBuffer[0].st;
+
+			s[0] = st[0].nS;
+			s[1] = st[1].nS;
+			s[2] = st[2].nS;
+			t[0] = st[0].nT;
+			t[1] = st[1].nT;
+			t[2] = st[2].nT;
+
+			q[0] = rgbaq[0].nQ;
+			q[1] = rgbaq[1].nQ;
+			q[2] = rgbaq[2].nQ;
+		}
+	}
+
 	auto color1 = MakeColor(
 	    rgbaq[0].nR, rgbaq[0].nG,
 	    rgbaq[0].nB, rgbaq[0].nA);
@@ -690,9 +740,9 @@ void CGSH_Vulkan::Prim_Triangle()
 	// clang-format off
 	CDraw::PRIM_VERTEX vertices[] =
 	{
-		{	x1, y1, z1, color1, },
-		{	x2, y2, z2, color2, },
-		{	x3, y3, z3, color3, },
+		{	x1, y1, z1, color1, s[0], t[0], q[0]},
+		{	x2, y2, z2, color2, s[1], t[1], q[1]},
+		{	x3, y3, z3, color3, s[2], t[2], q[2]},
 	};
 	// clang-format on
 
@@ -719,6 +769,38 @@ void CGSH_Vulkan::Prim_Sprite()
 	y1 -= m_primOfsY;
 	y2 -= m_primOfsY;
 
+	float s[2] = {0, 0};
+	float t[2] = {0, 0};
+
+	if(m_primitiveMode.nTexture)
+	{
+		if(m_primitiveMode.nUseUV)
+		{
+			UV uv[2];
+			uv[0] <<= m_vtxBuffer[1].uv;
+			uv[1] <<= m_vtxBuffer[0].uv;
+
+			s[0] = uv[0].GetU() / static_cast<float>(m_texWidth);
+			s[1] = uv[1].GetU() / static_cast<float>(m_texWidth);
+
+			t[0] = uv[0].GetV() / static_cast<float>(m_texHeight);
+			t[1] = uv[1].GetV() / static_cast<float>(m_texHeight);
+		}
+		else
+		{
+			ST st[2];
+
+			st[0] <<= m_vtxBuffer[1].st;
+			st[1] <<= m_vtxBuffer[0].st;
+
+			s[0] = st[0].nS;
+			s[1] = st[1].nS;
+
+			t[0] = st[0].nT;
+			t[1] = st[1].nT;
+		}
+	}
+
 	auto color = MakeColor(
 	    rgbaq[1].nR, rgbaq[1].nG,
 	    rgbaq[1].nB, rgbaq[1].nA);
@@ -726,13 +808,13 @@ void CGSH_Vulkan::Prim_Sprite()
 	// clang-format off
 	CDraw::PRIM_VERTEX vertices[] =
 	{
-		{x1, y1, z, color},
-		{x2, y1, z, color},
-		{x1, y2, z, color},
+		{x1, y1, z, color, s[0], t[0], 1},
+		{x2, y1, z, color, s[1], t[0], 1},
+		{x1, y2, z, color, s[0], t[1], 1},
 
-		{x1, y2, z, color},
-		{x2, y1, z, color},
-		{x2, y2, z, color},
+		{x1, y2, z, color, s[0], t[1], 1},
+		{x2, y1, z, color, s[1], t[0], 1},
+		{x2, y2, z, color, s[1], t[1], 1},
 	};
 	// clang-format on
 

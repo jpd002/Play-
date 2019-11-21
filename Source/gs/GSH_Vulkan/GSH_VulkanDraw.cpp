@@ -7,6 +7,11 @@
 
 using namespace GSH_Vulkan;
 
+#define VERTEX_ATTRIB_LOCATION_POSITION 0
+#define VERTEX_ATTRIB_LOCATION_DEPTH 1
+#define VERTEX_ATTRIB_LOCATION_COLOR 2
+#define VERTEX_ATTRIB_LOCATION_TEXCOORD 3
+
 #define DESCRIPTOR_LOCATION_IMAGE_MEMORY 0
 #define DESCRIPTOR_LOCATION_UNIFORM_FRAMEBUFFER 1
 
@@ -42,9 +47,6 @@ CDraw::CDraw(const ContextPtr& context)
 	CreateRenderPass();
 	CreateDrawImage();
 	CreateFramebuffer();
-	CreateVertexShader();
-	CreateFragmentShader();
-	CreateDrawPipeline();
 
 	m_vertexBuffer = Framework::Vulkan::CBuffer(
 		m_context->device, m_context->physicalDeviceMemoryProperties,
@@ -54,19 +56,25 @@ CDraw::CDraw(const ContextPtr& context)
 		0, VK_WHOLE_SIZE, 0, reinterpret_cast<void**>(&m_vertexBufferPtr));
 	CHECKVULKANERROR(result);
 
-	m_frameBufferUniform = Framework::Vulkan::CBuffer(
+	m_framebufferBufferInfoUniform = Framework::Vulkan::CBuffer(
 		m_context->device, m_context->physicalDeviceMemoryProperties,
-		VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT, sizeof(FRAMEBUFFER));
+		VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT, sizeof(BUFFERINFO_FRAMEBUFFER));
 
 	MakeLinearZOrtho(m_vertexShaderConstants.projMatrix, 0, DRAW_AREA_SIZE, 0, DRAW_AREA_SIZE);
+
+	m_pipelineCaps <<= 0;
 }
 
 CDraw::~CDraw()
 {
 	m_context->device.vkUnmapMemory(m_context->device, m_vertexBuffer.GetMemory());
-	m_context->device.vkDestroyPipeline(m_context->device, m_drawPipeline, nullptr);
-	m_context->device.vkDestroyPipelineLayout(m_context->device, m_drawPipelineLayout, nullptr);
-	m_context->device.vkDestroyDescriptorSetLayout(m_context->device, m_drawDescriptorSetLayout, nullptr);
+	for(const auto& drawPipelinePair : m_drawPipelines)
+	{
+		auto& drawPipeline = drawPipelinePair.second;
+		m_context->device.vkDestroyPipeline(m_context->device, drawPipeline.pipeline, nullptr);
+		m_context->device.vkDestroyPipelineLayout(m_context->device, drawPipeline.pipelineLayout, nullptr);
+		m_context->device.vkDestroyDescriptorSetLayout(m_context->device, drawPipeline.descriptorSetLayout, nullptr);
+	}
 	m_context->device.vkDestroyFramebuffer(m_context->device, m_framebuffer, nullptr);
 	m_context->device.vkDestroyRenderPass(m_context->device, m_renderPass, nullptr);
 	m_context->device.vkDestroyImageView(m_context->device, m_drawImageView, nullptr);
@@ -74,10 +82,25 @@ CDraw::~CDraw()
 	m_context->device.vkFreeMemory(m_context->device, m_drawImageMemoryHandle, nullptr);
 }
 
-void CDraw::SetFramebuffer(uint32 ptr, uint32 width)
+void CDraw::SetPipelineCaps(const PIPELINE_CAPS& caps)
 {
-	m_fbBuffer.bufAddress = ptr;
-	m_fbBuffer.bufWidth = width;
+	bool changed = static_cast<uint64>(caps) != static_cast<uint64>(m_pipelineCaps);
+	if(!changed) return;
+	FlushVertices();
+	m_pipelineCaps = caps;
+}
+
+void CDraw::SetFramebufferBufferInfo(uint32 addr, uint32 width)
+{
+	bool changed = (m_framebufferBufferInfo.addr != addr) || (m_framebufferBufferInfo.width != width);
+	if(!changed) return;
+	if(m_commandBufferStatus & CMDBUF_FRAMEBUFFER_BUFFERINFO_SET)
+	{
+		FlushVertices();
+	}
+	m_framebufferBufferInfo.addr = addr;
+	m_framebufferBufferInfo.width = width;
+	m_commandBufferStatus &= (~CMDBUF_FRAMEBUFFER_BUFFERINFO_SET);
 }
 
 void CDraw::AddVertices(const PRIM_VERTEX* vertexBeginPtr, const PRIM_VERTEX* vertexEndPtr)
@@ -101,10 +124,22 @@ void CDraw::FlushVertices()
 		StartRecording();
 	}
 
-	//-------------------
-	//Update Framebuffer Info Uniform
+	if((m_commandBufferStatus & CMDBUF_FRAMEBUFFER_BUFFERINFO_SET) == 0)
+	{
+		m_context->device.vkCmdUpdateBuffer(m_commandBuffer, m_framebufferBufferInfoUniform, 0, sizeof(BUFFERINFO_FRAMEBUFFER), &m_framebufferBufferInfo);
+		m_commandBufferStatus |= CMDBUF_FRAMEBUFFER_BUFFERINFO_SET;
+	}
 
-	m_context->device.vkCmdUpdateBuffer(m_commandBuffer, m_frameBufferUniform, 0, sizeof(FRAMEBUFFER), &m_fbBuffer);
+	//Find pipeline and create it if we've never encountered it before
+	auto drawPipelinePairIterator = m_drawPipelines.find(m_pipelineCaps);
+	if(drawPipelinePairIterator == std::end(m_drawPipelines))
+	{
+		auto drawPipeline = CreateDrawPipeline(m_pipelineCaps);
+		m_drawPipelines.insert(std::make_pair(m_pipelineCaps, drawPipeline));
+		drawPipelinePairIterator = m_drawPipelines.find(m_pipelineCaps);
+	}
+
+	const auto& drawPipeline = drawPipelinePairIterator->second;
 
 	auto renderPassBeginInfo = Framework::Vulkan::RenderPassBeginInfo();
 	renderPassBeginInfo.renderPass               = m_renderPass;
@@ -113,18 +148,18 @@ void CDraw::FlushVertices()
 	renderPassBeginInfo.framebuffer              = m_framebuffer;
 	m_context->device.vkCmdBeginRenderPass(m_commandBuffer, &renderPassBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
 
-	auto descriptorSet = PrepareDescriptorSet();
+	auto descriptorSet = PrepareDescriptorSet(drawPipeline.descriptorSetLayout);
 
-	m_context->device.vkCmdBindDescriptorSets(m_commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_drawPipelineLayout,
+	m_context->device.vkCmdBindDescriptorSets(m_commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, drawPipeline.pipelineLayout,
 		0, 1, &descriptorSet, 0, nullptr);
 
-	m_context->device.vkCmdBindPipeline(m_commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_drawPipeline);
+	m_context->device.vkCmdBindPipeline(m_commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, drawPipeline.pipeline);
 
 	VkDeviceSize vertexBufferOffset = (m_passVertexStart * sizeof(PRIM_VERTEX));
 	VkBuffer vertexBuffer = m_vertexBuffer;
 	m_context->device.vkCmdBindVertexBuffers(m_commandBuffer, 0, 1, &vertexBuffer, &vertexBufferOffset);
 
-	m_context->device.vkCmdPushConstants(m_commandBuffer, m_drawPipelineLayout, VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(VERTEX_SHADER_CONSTANTS), &m_vertexShaderConstants);
+	m_context->device.vkCmdPushConstants(m_commandBuffer, drawPipeline.pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(VERTEX_SHADER_CONSTANTS), &m_vertexShaderConstants);
 
 	assert((vertexCount % 3) == 0);
 	m_context->device.vkCmdDraw(m_commandBuffer, vertexCount, 1, 0, 0);
@@ -160,7 +195,7 @@ void CDraw::FlushCommands()
 	m_passVertexStart = m_passVertexEnd = 0;
 }
 
-VkDescriptorSet CDraw::PrepareDescriptorSet()
+VkDescriptorSet CDraw::PrepareDescriptorSet(VkDescriptorSetLayout descriptorSetLayout)
 {
 	auto result = VK_SUCCESS;
 	VkDescriptorSet descriptorSet = VK_NULL_HANDLE;
@@ -170,7 +205,7 @@ VkDescriptorSet CDraw::PrepareDescriptorSet()
 		auto setAllocateInfo = Framework::Vulkan::DescriptorSetAllocateInfo();
 		setAllocateInfo.descriptorPool     = m_context->descriptorPool;
 		setAllocateInfo.descriptorSetCount = 1;
-		setAllocateInfo.pSetLayouts        = &m_drawDescriptorSetLayout;
+		setAllocateInfo.pSetLayouts        = &descriptorSetLayout;
 
 		result = m_context->device.vkAllocateDescriptorSets(m_context->device, &setAllocateInfo, &descriptorSet);
 		CHECKVULKANERROR(result);
@@ -183,7 +218,7 @@ VkDescriptorSet CDraw::PrepareDescriptorSet()
 		descriptorImageInfo.imageLayout = VK_IMAGE_LAYOUT_GENERAL;
 
 		VkDescriptorBufferInfo descriptorUniformInfo = {};
-		descriptorUniformInfo.buffer = m_frameBufferUniform;
+		descriptorUniformInfo.buffer = m_framebufferBufferInfoUniform;
 		descriptorUniformInfo.range = VK_WHOLE_SIZE;
 
 		std::vector<VkWriteDescriptorSet> writes;
@@ -217,6 +252,8 @@ VkDescriptorSet CDraw::PrepareDescriptorSet()
 void CDraw::StartRecording()
 {
 	assert(m_commandBuffer == VK_NULL_HANDLE);
+
+	m_commandBufferStatus = 0;
 
 	auto result = VK_SUCCESS;
 	m_commandBuffer = m_context->commandBufferPool.AllocateBuffer();
@@ -290,13 +327,12 @@ void CDraw::CreateRenderPass()
 	CHECKVULKANERROR(result);
 }
 
-void CDraw::CreateDrawPipeline()
+CDraw::DRAW_PIPELINE CDraw::CreateDrawPipeline(const PIPELINE_CAPS& caps)
 {
-	assert(!m_vertexShader.IsEmpty());
-	assert(!m_fragmentShader.IsEmpty());
-	assert(m_drawPipeline == VK_NULL_HANDLE);
-	assert(m_drawPipelineLayout == VK_NULL_HANDLE);
-	assert(m_drawDescriptorSetLayout == VK_NULL_HANDLE);
+	DRAW_PIPELINE drawPipeline;
+
+	auto vertexShader = CreateVertexShader();
+	auto fragmentShader = CreateFragmentShader(caps);
 
 	auto result = VK_SUCCESS;
 
@@ -325,7 +361,7 @@ void CDraw::CreateDrawPipeline()
 		setLayoutCreateInfo.bindingCount = setLayoutBindings.size();
 		setLayoutCreateInfo.pBindings    = setLayoutBindings.data();
 
-		result = m_context->device.vkCreateDescriptorSetLayout(m_context->device, &setLayoutCreateInfo, nullptr, &m_drawDescriptorSetLayout);
+		result = m_context->device.vkCreateDescriptorSetLayout(m_context->device, &setLayoutCreateInfo, nullptr, &drawPipeline.descriptorSetLayout);
 		CHECKVULKANERROR(result);
 	}
 
@@ -339,9 +375,9 @@ void CDraw::CreateDrawPipeline()
 		pipelineLayoutCreateInfo.pushConstantRangeCount = 1;
 		pipelineLayoutCreateInfo.pPushConstantRanges    = &pushConstantInfo;
 		pipelineLayoutCreateInfo.setLayoutCount         = 1;
-		pipelineLayoutCreateInfo.pSetLayouts            = &m_drawDescriptorSetLayout;
+		pipelineLayoutCreateInfo.pSetLayouts            = &drawPipeline.descriptorSetLayout;
 
-		result = m_context->device.vkCreatePipelineLayout(m_context->device, &pipelineLayoutCreateInfo, nullptr, &m_drawPipelineLayout);
+		result = m_context->device.vkCreatePipelineLayout(m_context->device, &pipelineLayoutCreateInfo, nullptr, &drawPipeline.pipelineLayout);
 		CHECKVULKANERROR(result);
 	}
 
@@ -354,7 +390,7 @@ void CDraw::CreateDrawPipeline()
 		VkVertexInputAttributeDescription vertexAttributeDesc = {};
 		vertexAttributeDesc.format = VK_FORMAT_R32G32_SFLOAT;
 		vertexAttributeDesc.offset = offsetof(PRIM_VERTEX, x);
-		vertexAttributeDesc.location = 0;
+		vertexAttributeDesc.location = VERTEX_ATTRIB_LOCATION_POSITION;
 		vertexAttributes.push_back(vertexAttributeDesc);
 	}
 
@@ -362,7 +398,7 @@ void CDraw::CreateDrawPipeline()
 		VkVertexInputAttributeDescription vertexAttributeDesc = {};
 		vertexAttributeDesc.format = VK_FORMAT_R32_UINT;
 		vertexAttributeDesc.offset = offsetof(PRIM_VERTEX, z);
-		vertexAttributeDesc.location = 1;
+		vertexAttributeDesc.location = VERTEX_ATTRIB_LOCATION_DEPTH;
 		vertexAttributes.push_back(vertexAttributeDesc);
 	}
 
@@ -370,7 +406,15 @@ void CDraw::CreateDrawPipeline()
 		VkVertexInputAttributeDescription vertexAttributeDesc = {};
 		vertexAttributeDesc.format = VK_FORMAT_R8G8B8A8_UNORM;
 		vertexAttributeDesc.offset = offsetof(PRIM_VERTEX, color);
-		vertexAttributeDesc.location = 2;
+		vertexAttributeDesc.location = VERTEX_ATTRIB_LOCATION_COLOR;
+		vertexAttributes.push_back(vertexAttributeDesc);
+	}
+
+	{
+		VkVertexInputAttributeDescription vertexAttributeDesc = {};
+		vertexAttributeDesc.format = VK_FORMAT_R32G32B32_SFLOAT;
+		vertexAttributeDesc.offset = offsetof(PRIM_VERTEX, s);
+		vertexAttributeDesc.location = VERTEX_ATTRIB_LOCATION_TEXCOORD;
 		vertexAttributes.push_back(vertexAttributeDesc);
 	}
 
@@ -422,10 +466,10 @@ void CDraw::CreateDrawPipeline()
 	};
 	
 	shaderStages[0].stage  = VK_SHADER_STAGE_VERTEX_BIT;
-	shaderStages[0].module = m_vertexShader;
+	shaderStages[0].module = vertexShader;
 	shaderStages[0].pName  = "main";
 	shaderStages[1].stage  = VK_SHADER_STAGE_FRAGMENT_BIT;
-	shaderStages[1].module = m_fragmentShader;
+	shaderStages[1].module = fragmentShader;
 	shaderStages[1].pName  = "main";
 
 	auto pipelineCreateInfo = Framework::Vulkan::GraphicsPipelineCreateInfo();
@@ -440,13 +484,15 @@ void CDraw::CreateDrawPipeline()
 	pipelineCreateInfo.pMultisampleState   = &multisampleStateInfo;
 	pipelineCreateInfo.pDynamicState       = &dynamicStateInfo;
 	pipelineCreateInfo.renderPass          = m_renderPass;
-	pipelineCreateInfo.layout              = m_drawPipelineLayout;
+	pipelineCreateInfo.layout              = drawPipeline.pipelineLayout;
 	
-	result = m_context->device.vkCreateGraphicsPipelines(m_context->device, VK_NULL_HANDLE, 1, &pipelineCreateInfo, nullptr, &m_drawPipeline);
+	result = m_context->device.vkCreateGraphicsPipelines(m_context->device, VK_NULL_HANDLE, 1, &pipelineCreateInfo, nullptr, &drawPipeline.pipeline);
 	CHECKVULKANERROR(result);
+
+	return drawPipeline;
 }
 
-void CDraw::CreateVertexShader()
+Framework::Vulkan::CShaderModule CDraw::CreateVertexShader()
 {
 	using namespace Nuanceur;
 	
@@ -455,26 +501,29 @@ void CDraw::CreateVertexShader()
 	{
 		//Vertex Inputs
 		auto inputPosition = CFloat4Lvalue(b.CreateInput(Nuanceur::SEMANTIC_POSITION));
-		auto inputColor = CFloat4Lvalue(b.CreateInput(Nuanceur::SEMANTIC_TEXCOORD, 1));
+		auto inputColor = CFloat4Lvalue(b.CreateInput(Nuanceur::SEMANTIC_TEXCOORD, VERTEX_ATTRIB_LOCATION_COLOR - 1));
+		auto inputTexCoord = CFloat4Lvalue(b.CreateInput(Nuanceur::SEMANTIC_TEXCOORD, VERTEX_ATTRIB_LOCATION_TEXCOORD - 1));
 
 		//Outputs
 		auto outputPosition = CFloat4Lvalue(b.CreateOutput(Nuanceur::SEMANTIC_SYSTEM_POSITION));
 		auto outputColor = CFloat4Lvalue(b.CreateOutput(Nuanceur::SEMANTIC_TEXCOORD, 1));
+		auto outputTexCoord = CFloat4Lvalue(b.CreateOutput(Nuanceur::SEMANTIC_TEXCOORD, 2));
 
 		//Constants
 		auto projMatrix = CMatrix44Value(b.CreateUniformMatrix("g_projMatrix", Nuanceur::UNIFORM_UNIT_PUSHCONSTANT));
 
 		outputPosition = projMatrix * NewFloat4(inputPosition->xyz(), NewFloat(b, 1.0f));
 		outputColor = inputColor->xyzw();
+		outputTexCoord = inputTexCoord->xyzw();
 	}
 	
 	Framework::CMemStream shaderStream;
 	Nuanceur::CSpirvShaderGenerator::Generate(shaderStream, b, Nuanceur::CSpirvShaderGenerator::SHADER_TYPE_VERTEX);
 	shaderStream.Seek(0, Framework::STREAM_SEEK_SET);
-	m_vertexShader = Framework::Vulkan::CShaderModule(m_context->device, shaderStream);
+	return Framework::Vulkan::CShaderModule(m_context->device, shaderStream);
 }
 
-void CDraw::CreateFragmentShader()
+Framework::Vulkan::CShaderModule CDraw::CreateFragmentShader(const PIPELINE_CAPS& caps)
 {
 	using namespace Nuanceur;
 	
@@ -484,6 +533,7 @@ void CDraw::CreateFragmentShader()
 		//Inputs
 		auto inputPosition = CFloat4Lvalue(b.CreateInput(Nuanceur::SEMANTIC_SYSTEM_POSITION));
 		auto inputColor = CFloat4Lvalue(b.CreateInput(Nuanceur::SEMANTIC_TEXCOORD, 1));
+		auto inputTexCoord = CFloat4Lvalue(b.CreateInput(Nuanceur::SEMANTIC_TEXCOORD, 2));
 
 		//Outputs
 		auto outputColor = CFloat4Lvalue(b.CreateOutput(Nuanceur::SEMANTIC_SYSTEM_COLOR));
@@ -497,13 +547,24 @@ void CDraw::CreateFragmentShader()
 		//TODO: Try vectorized shift
 		//auto imageColor = ToUint(inputColor * NewFloat4(b, 255.f, 255.f, 255.f, 255.f));
 		
-		auto imageColorR = ToUint(inputColor->x() * NewFloat(b, 255.f)) << NewUint(b,  0);
-		auto imageColorG = ToUint(inputColor->y() * NewFloat(b, 255.f)) << NewUint(b,  8);
-		auto imageColorB = ToUint(inputColor->z() * NewFloat(b, 255.f)) << NewUint(b, 16);
-		auto imageColorA = ToUint(inputColor->w() * NewFloat(b, 255.f)) << NewUint(b, 24);
-
-		//auto imageColor = CUint4Lvalue(b.CreateConstantUint(0, 0, 0, 0));
-		auto imageColor = imageColorR | imageColorG | imageColorB | imageColorA;
+		auto imageColor = 
+			[&]()
+			{
+				if(caps.hasTexture)
+				{
+					auto imageColorR = ToUint(inputTexCoord->x() * NewFloat(b, 255.f)) << NewUint(b,  0);
+					auto imageColorG = ToUint(inputTexCoord->y() * NewFloat(b, 255.f)) << NewUint(b,  8);
+					return imageColorR | imageColorG;
+				}
+				else
+				{
+					auto imageColorR = ToUint(inputColor->x() * NewFloat(b, 255.f)) << NewUint(b,  0);
+					auto imageColorG = ToUint(inputColor->y() * NewFloat(b, 255.f)) << NewUint(b,  8);
+					auto imageColorB = ToUint(inputColor->z() * NewFloat(b, 255.f)) << NewUint(b, 16);
+					auto imageColorA = ToUint(inputColor->w() * NewFloat(b, 255.f)) << NewUint(b, 24);
+					return imageColorR | imageColorG | imageColorB | imageColorA;
+				}
+			}();
 
 		static int32 c_texelSize = 4;
 		static int32 c_memorySize = 1024;
@@ -524,7 +585,7 @@ void CDraw::CreateFragmentShader()
 	Framework::CMemStream shaderStream;
 	Nuanceur::CSpirvShaderGenerator::Generate(shaderStream, b, Nuanceur::CSpirvShaderGenerator::SHADER_TYPE_FRAGMENT);
 	shaderStream.Seek(0, Framework::STREAM_SEEK_SET);
-	m_fragmentShader = Framework::Vulkan::CShaderModule(m_context->device, shaderStream);
+	return Framework::Vulkan::CShaderModule(m_context->device, shaderStream);
 }
 
 void CDraw::CreateDrawImage()

@@ -77,6 +77,8 @@ private:
 	PRMODE m_primitiveMode;
 	float m_primOfsX = 0;
 	float m_primOfsY = 0;
+	uint32 m_texWidth = 0;
+	uint32 m_texHeight = 0;
 
 	//GS memory
 	VkImage m_memoryImage;
