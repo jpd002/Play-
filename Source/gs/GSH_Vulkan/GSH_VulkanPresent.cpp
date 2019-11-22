@@ -1,4 +1,5 @@
 #include "GSH_VulkanPresent.h"
+#include "GSH_VulkanMemoryUtils.h"
 #include "MemStream.h"
 #include "vulkan/StructDefs.h"
 #include "nuanceur/Builder.h"
@@ -566,17 +567,7 @@ void CPresent::CreateFragmentShader()
 		auto position = NewInt2(wordAddress % NewInt(b, c_memorySize), wordAddress / NewInt(b, c_memorySize));
 		auto imageColor = Load(memoryImage, position);
 
-		auto imageColorR = (imageColor->x() >> NewUint(b,  0)) & NewUint(b, 0xFF);
-		auto imageColorG = (imageColor->x() >> NewUint(b,  8)) & NewUint(b, 0xFF);
-		auto imageColorB = (imageColor->x() >> NewUint(b, 16)) & NewUint(b, 0xFF);
-		auto imageColorA = (imageColor->x() >> NewUint(b, 24)) & NewUint(b, 0xFF);
-
-		auto imageColorFloatR = ToFloat(imageColorR) / NewFloat(b, 255.f);
-		auto imageColorFloatG = ToFloat(imageColorG) / NewFloat(b, 255.f);
-		auto imageColorFloatB = ToFloat(imageColorB) / NewFloat(b, 255.f);
-		auto imageColorFloatA = ToFloat(imageColorA) / NewFloat(b, 255.f);
-
-		outputColor = NewFloat4(imageColorFloatR, imageColorFloatG, imageColorFloatB, imageColorFloatA);
+		outputColor = CMemoryUtils::PSM32ToVec4(b, imageColor->x());
 	}
 	
 	Framework::CMemStream shaderStream;

@@ -1,4 +1,5 @@
 #include "GSH_VulkanDraw.h"
+#include "GSH_VulkanMemoryUtils.h"
 #include "MemStream.h"
 #include "vulkan/StructDefs.h"
 #include "vulkan/Utils.h"
@@ -603,33 +604,25 @@ Framework::Vulkan::CShaderModule CDraw::CreateFragmentShader(const PIPELINE_CAPS
 		static int32 c_texelSize = 4;
 		static int32 c_memorySize = 1024;
 
-		auto imageColor = 
-			[&]()
-			{
-				if(caps.hasTexture)
-				{
-					//Read texture from GS memory
-					//
-					auto texelPos = ToInt(inputTexCoord->xy() * NewFloat2(b, 128, 64));
-					auto address = texAddress + (texelPos->y() * texWidth * NewInt(b, c_texelSize)) + (texelPos->x() * NewInt(b, c_texelSize));
+		auto textureColor = CFloat4Lvalue(b.CreateTemporary());
+		textureColor = NewFloat4(b, 1, 1, 1, 1);
 
-					auto wordAddress = address / NewInt(b, 4);
-					auto position = NewInt2(wordAddress % NewInt(b, c_memorySize), wordAddress / NewInt(b, c_memorySize));
-					return Load(memoryImage, position)->x();
+		if(caps.hasTexture)
+		{
+			//Read texture from GS memory
+			//
+			auto texelPos = ToInt(inputTexCoord->xy() * NewFloat2(b, 128, 64));
+			auto address = texAddress + (texelPos->y() * texWidth * NewInt(b, c_texelSize)) + (texelPos->x() * NewInt(b, c_texelSize));
 
-					//auto imageColorR = ToUint(inputTexCoord->x() * NewFloat(b, 255.f)) << NewUint(b,  0);
-					//auto imageColorG = ToUint(inputTexCoord->y() * NewFloat(b, 255.f)) << NewUint(b,  8);
-					//return imageColorR | imageColorG;
-				}
-				else
-				{
-					auto imageColorR = ToUint(inputColor->x() * NewFloat(b, 255.f)) << NewUint(b,  0);
-					auto imageColorG = ToUint(inputColor->y() * NewFloat(b, 255.f)) << NewUint(b,  8);
-					auto imageColorB = ToUint(inputColor->z() * NewFloat(b, 255.f)) << NewUint(b, 16);
-					auto imageColorA = ToUint(inputColor->w() * NewFloat(b, 255.f)) << NewUint(b, 24);
-					return imageColorR | imageColorG | imageColorB | imageColorA;
-				}
-			}();
+			auto wordAddress = address / NewInt(b, 4);
+			auto position = NewInt2(wordAddress % NewInt(b, c_memorySize), wordAddress / NewInt(b, c_memorySize));
+			auto pixel = Load(memoryImage, position);
+			textureColor = CMemoryUtils::PSM32ToVec4(b, pixel->x());
+		}
+
+		textureColor = textureColor * inputColor;
+
+		auto imageColor = CMemoryUtils::Vec4ToPSM32(b, textureColor);
 
 		auto screenPos = ToInt(inputPosition->xy());
 		auto address = fbAddress + (screenPos->y() * fbWidth * NewInt(b, c_texelSize)) + (screenPos->x() * NewInt(b, c_texelSize));
