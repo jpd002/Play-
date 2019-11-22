@@ -19,8 +19,8 @@ namespace GSH_Vulkan
 			uint32 hasTexture : 1;
 
 			uint32 textureFormat : 6;
-			uint32 frameBufferFormat : 6;
-			uint32 depthBufferFormat : 6;
+			uint32 framebufferFormat : 6;
+			uint32 depthbufferFormat : 6;
 
 			uint32 reserved;
 		};
@@ -49,6 +49,7 @@ namespace GSH_Vulkan
 		enum
 		{
 			CMDBUF_FRAMEBUFFER_BUFFERINFO_SET = (1 << 0),
+			CMDBUF_TEXTURE_BUFFERINFO_SET = (1 << 1)
 		};
 
 		struct DRAW_PIPELINE
@@ -94,6 +95,7 @@ namespace GSH_Vulkan
 		std::map<PipelineCapsInt, DRAW_PIPELINE> m_drawPipelines;
 
 		Framework::Vulkan::CBuffer m_framebufferBufferInfoUniform;
+		Framework::Vulkan::CBuffer m_textureBufferInfoUniform;
 		Framework::Vulkan::CBuffer m_vertexBuffer;
 		PRIM_VERTEX* m_vertexBufferPtr = nullptr;
 

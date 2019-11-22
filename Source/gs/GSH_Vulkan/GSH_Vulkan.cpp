@@ -644,6 +644,7 @@ void CGSH_Vulkan::SetRenderingContext(uint64 primReg)
 
 	m_draw->SetPipelineCaps(pipelineCaps);
 	m_draw->SetFramebufferBufferInfo(frame.GetBasePtr(), frame.GetWidth());
+	m_draw->SetTextureBufferInfo(tex0.GetBufPtr(), tex0.GetBufWidth());
 
 	m_primOfsX = offset.GetX();
 	m_primOfsY = offset.GetY();
