@@ -38,7 +38,7 @@ namespace GSH_Vulkan
 
 		void SetPipelineCaps(const PIPELINE_CAPS&);
 		void SetFramebufferBufferInfo(uint32, uint32);
-		void SetTextureBufferInfo(uint32, uint32);
+		void SetTextureParams(uint32, uint32, uint32, uint32);
 
 		void AddVertices(const PRIM_VERTEX*, const PRIM_VERTEX*);
 		void FlushVertices();
@@ -49,7 +49,7 @@ namespace GSH_Vulkan
 		enum
 		{
 			CMDBUF_FRAMEBUFFER_BUFFERINFO_SET = (1 << 0),
-			CMDBUF_TEXTURE_BUFFERINFO_SET = (1 << 1)
+			CMDBUF_TEXTURE_PARAMS_SET = (1 << 1)
 		};
 
 		struct DRAW_PIPELINE
@@ -70,10 +70,12 @@ namespace GSH_Vulkan
 			uint32 width = 0;
 		};
 
-		struct BUFFERINFO_TEXTURE
+		struct TEXTURE_PARAMS
 		{
-			uint32 addr = 0;
+			uint32 bufAddr = 0;
+			uint32 bufWidth = 0;
 			uint32 width = 0;
+			uint32 height = 0;
 		};
 
 		VkDescriptorSet PrepareDescriptorSet(VkDescriptorSetLayout);
@@ -95,7 +97,7 @@ namespace GSH_Vulkan
 		std::map<PipelineCapsInt, DRAW_PIPELINE> m_drawPipelines;
 
 		Framework::Vulkan::CBuffer m_framebufferBufferInfoUniform;
-		Framework::Vulkan::CBuffer m_textureBufferInfoUniform;
+		Framework::Vulkan::CBuffer m_textureParamsUniform;
 		Framework::Vulkan::CBuffer m_vertexBuffer;
 		PRIM_VERTEX* m_vertexBufferPtr = nullptr;
 
@@ -111,7 +113,7 @@ namespace GSH_Vulkan
 		PIPELINE_CAPS m_pipelineCaps;
 		VERTEX_SHADER_CONSTANTS m_vertexShaderConstants;
 		BUFFERINFO_FRAMEBUFFER m_framebufferBufferInfo;
-		BUFFERINFO_TEXTURE m_textureBufferInfo;
+		TEXTURE_PARAMS m_textureParams;
 	};
 
 	typedef std::shared_ptr<CDraw> DrawPtr;
