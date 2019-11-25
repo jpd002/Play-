@@ -17,7 +17,6 @@ travis_before_install()
             sudo add-apt-repository --yes ppa:beineri/opt-qt-5.12.3-xenial
             sudo apt update -qq
             sudo apt install -qq qt512base gcc-9 g++-9 libgl1-mesa-dev libglu1-mesa-dev libalut-dev libevdev-dev
-            apt download libc6
         fi
     elif [ "$TARGET_OS" = "Linux_Clang_Format" ]; then
         wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | sudo apt-key add -
@@ -75,19 +74,15 @@ travis_script()
             ctest
             cmake --build . --target install
             if [ "$TARGET_ARCH" = "x86_64" ]; then
-                mkdir tmp; cd tmp
-                ar x ../../libc6*
-                cd ../appdir/
-                tar xf ../tmp/data.tar.xz
-                cd ..
-                rm -rf tmp;
-
                 mkdir -p appdir/usr/optional/
                 mkdir -p appdir/usr/optional/libstdc++/
                 cp /usr/lib/*-linux-gnu/libstdc++.so.6 ./appdir/usr/optional/libstdc++/
                 cp ../AppRun ./appdir/AppRun
                 cp ../exec.so ./appdir/usr/optional/exec.so
                 printf "#include <memory>\nint main(){std::make_exception_ptr(0);}" | $CXX -x c++ -o ./appdir/usr/optional/checker -
+
+                mkdir -p appdir/usr/share/doc/libc6/
+                echo "" > appdir/usr/share/doc/libc6/copyright
                 # AppImage Creation
                 unset QTDIR; unset QT_PLUGIN_PATH; unset LD_LIBRARY_PATH;
                 export VERSION="${TRAVIS_COMMIT:0:8}"
