@@ -180,8 +180,7 @@ void CTransfer::CreateXferShader()
 		auto trxY = (rry + dsay) % NewInt(b, 2048);
 
 		auto inputColor = Load(xferBuffer, inputInvocationId->x());
-		auto address = bufAddress + (trxY * bufWidth * NewInt(b, 4)) + (trxX * NewInt(b, 4));
-
+		auto address = CMemoryUtils::GetPixelAddress_PSMCT32(b, bufAddress, bufWidth, NewInt2(trxX, trxY));
 		CMemoryUtils::Memory_Write32(b, memoryImage, address, inputColor);
 	}
 	

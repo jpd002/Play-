@@ -608,28 +608,22 @@ Framework::Vulkan::CShaderModule CDraw::CreateFragmentShader(const PIPELINE_CAPS
 		//TODO: Try vectorized shift
 		//auto imageColor = ToUint(inputColor * NewFloat4(b, 255.f, 255.f, 255.f, 255.f));
 		
-		static int32 c_texelSize = 4;
-
 		auto textureColor = CFloat4Lvalue(b.CreateTemporary());
 		textureColor = NewFloat4(b, 1, 1, 1, 1);
 
 		if(caps.hasTexture)
 		{
-			//Read texture from GS memory
-			//
 			auto texelPos = ToInt(inputTexCoord->xy() * ToFloat(texSize));
-			auto address = texBufAddress + (texelPos->y() * texBufWidth * NewInt(b, c_texelSize)) + (texelPos->x() * NewInt(b, c_texelSize));
-
+			auto address = CMemoryUtils::GetPixelAddress_PSMCT32(b, texBufAddress, texBufWidth, texelPos);
 			auto pixel = CMemoryUtils::Memory_Read32(b, memoryImage, address);
 			textureColor = CMemoryUtils::PSM32ToVec4(b, pixel);
 		}
 
 		textureColor = textureColor * inputColor;
 
-		auto imageColor = CMemoryUtils::Vec4ToPSM32(b, textureColor);
-
 		auto screenPos = ToInt(inputPosition->xy());
-		auto address = fbAddress + (screenPos->y() * fbWidth * NewInt(b, c_texelSize)) + (screenPos->x() * NewInt(b, c_texelSize));
+		auto address = CMemoryUtils::GetPixelAddress_PSMCT32(b, fbAddress, fbWidth, screenPos);
+		auto imageColor = CMemoryUtils::Vec4ToPSM32(b, textureColor);
 
 		BeginInvocationInterlock(b);
 		CMemoryUtils::Memory_Write32(b, memoryImage, address, imageColor);

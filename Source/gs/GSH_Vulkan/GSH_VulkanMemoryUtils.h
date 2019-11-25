@@ -7,6 +7,8 @@ namespace GSH_Vulkan
 	class CMemoryUtils
 	{
 	public:
+		static Nuanceur::CIntRvalue GetPixelAddress_PSMCT32(Nuanceur::CShaderBuilder&, Nuanceur::CIntValue, Nuanceur::CIntValue, Nuanceur::CInt2Value);
+
 		static Nuanceur::CUintRvalue Memory_Read32(Nuanceur::CShaderBuilder&, Nuanceur::CImageUint2DValue, Nuanceur::CIntValue);
 
 		static void Memory_Write32(Nuanceur::CShaderBuilder&, Nuanceur::CImageUint2DValue, Nuanceur::CIntValue, Nuanceur::CUintValue);

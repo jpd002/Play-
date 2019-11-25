@@ -557,11 +557,8 @@ void CPresent::CreateFragmentShader()
 		auto bufAddress = bufParams0->x();
 		auto bufWidth   = bufParams0->y();
 
-		static int32 c_texelSize = 4;
-
-		auto screenPos = ToInt(inputTexCoord->xy() * NewFloat2(b, 640, 480));
-		auto address = bufAddress + (screenPos->y() * bufWidth * NewInt(b, c_texelSize)) + (screenPos->x() * NewInt(b, c_texelSize));
-
+		auto screenPos = ToInt(inputTexCoord->xy() * NewFloat2(b, 640, 448));
+		auto address = CMemoryUtils::GetPixelAddress_PSMCT32(b, bufAddress, bufWidth, screenPos);
 		auto imageColor = CMemoryUtils::Memory_Read32(b, memoryImage, address);
 		outputColor = CMemoryUtils::PSM32ToVec4(b, imageColor);
 	}

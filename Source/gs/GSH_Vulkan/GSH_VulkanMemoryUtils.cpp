@@ -4,6 +4,13 @@ using namespace GSH_Vulkan;
 
 #define MEMORY_SIZE 1024
 
+Nuanceur::CIntRvalue CMemoryUtils::GetPixelAddress_PSMCT32(Nuanceur::CShaderBuilder& b, Nuanceur::CIntValue bufAddress, 
+	Nuanceur::CIntValue bufWidth, Nuanceur::CInt2Value position)
+{
+	static const int32 c_pixelSize = 4;
+	return bufAddress + (position->y() * bufWidth * NewInt(b, c_pixelSize)) + (position->x() * NewInt(b, c_pixelSize));
+}
+
 Nuanceur::CUintRvalue CMemoryUtils::Memory_Read32(Nuanceur::CShaderBuilder& b, Nuanceur::CImageUint2DValue memoryImage, Nuanceur::CIntValue address)
 {
 	auto wordAddress = address / NewInt(b, 4);
