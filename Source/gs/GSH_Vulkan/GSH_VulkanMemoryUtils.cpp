@@ -2,6 +2,22 @@
 
 using namespace GSH_Vulkan;
 
+#define MEMORY_SIZE 1024
+
+Nuanceur::CUintRvalue CMemoryUtils::Memory_Read32(Nuanceur::CShaderBuilder& b, Nuanceur::CImageUint2DValue memoryImage, Nuanceur::CIntValue address)
+{
+	auto wordAddress = address / NewInt(b, 4);
+	auto position = NewInt2(wordAddress % NewInt(b, MEMORY_SIZE), wordAddress / NewInt(b, MEMORY_SIZE));
+	return Load(memoryImage, position)->x();
+}
+
+void CMemoryUtils::Memory_Write32(Nuanceur::CShaderBuilder& b, Nuanceur::CImageUint2DValue memoryImage, Nuanceur::CIntValue address, Nuanceur::CUintValue value)
+{
+	auto wordAddress = address / NewInt(b, 4);
+	auto position = NewInt2(wordAddress % NewInt(b, MEMORY_SIZE), wordAddress / NewInt(b, MEMORY_SIZE));
+	Store(memoryImage, position, NewUint4(value, NewUint3(b, 0, 0, 0)));
+}
+
 Nuanceur::CFloat4Rvalue CMemoryUtils::PSM32ToVec4(Nuanceur::CShaderBuilder& b, Nuanceur::CUintValue inputColor)
 {
 	auto colorR = (inputColor >> NewUint(b,  0)) & NewUint(b, 0xFF);

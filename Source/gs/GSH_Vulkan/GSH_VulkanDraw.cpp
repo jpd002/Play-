@@ -602,7 +602,6 @@ Framework::Vulkan::CShaderModule CDraw::CreateFragmentShader(const PIPELINE_CAPS
 		//auto imageColor = ToUint(inputColor * NewFloat4(b, 255.f, 255.f, 255.f, 255.f));
 		
 		static int32 c_texelSize = 4;
-		static int32 c_memorySize = 1024;
 
 		auto textureColor = CFloat4Lvalue(b.CreateTemporary());
 		textureColor = NewFloat4(b, 1, 1, 1, 1);
@@ -614,10 +613,8 @@ Framework::Vulkan::CShaderModule CDraw::CreateFragmentShader(const PIPELINE_CAPS
 			auto texelPos = ToInt(inputTexCoord->xy() * NewFloat2(b, 128, 64));
 			auto address = texAddress + (texelPos->y() * texWidth * NewInt(b, c_texelSize)) + (texelPos->x() * NewInt(b, c_texelSize));
 
-			auto wordAddress = address / NewInt(b, 4);
-			auto position = NewInt2(wordAddress % NewInt(b, c_memorySize), wordAddress / NewInt(b, c_memorySize));
-			auto pixel = Load(memoryImage, position);
-			textureColor = CMemoryUtils::PSM32ToVec4(b, pixel->x());
+			auto pixel = CMemoryUtils::Memory_Read32(b, memoryImage, address);
+			textureColor = CMemoryUtils::PSM32ToVec4(b, pixel);
 		}
 
 		textureColor = textureColor * inputColor;
@@ -627,11 +624,8 @@ Framework::Vulkan::CShaderModule CDraw::CreateFragmentShader(const PIPELINE_CAPS
 		auto screenPos = ToInt(inputPosition->xy());
 		auto address = fbAddress + (screenPos->y() * fbWidth * NewInt(b, c_texelSize)) + (screenPos->x() * NewInt(b, c_texelSize));
 
-		auto wordAddress = address / NewInt(b, 4);
-		auto position = NewInt2(wordAddress % NewInt(b, c_memorySize), wordAddress / NewInt(b, c_memorySize));
-
 		BeginInvocationInterlock(b);
-		Store(memoryImage, position, NewUint4(imageColor, NewUint3(b, 0, 0, 0)));
+		CMemoryUtils::Memory_Write32(b, memoryImage, address, imageColor);
 		EndInvocationInterlock(b);
 
 		outputColor = NewFloat4(b, 0, 0, 1, 0);

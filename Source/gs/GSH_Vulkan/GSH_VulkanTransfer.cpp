@@ -1,4 +1,5 @@
 #include "GSH_VulkanTransfer.h"
+#include "GSH_VulkanMemoryUtils.h"
 #include "MemStream.h"
 #include "vulkan/StructDefs.h"
 #include "vulkan/Utils.h"
@@ -158,8 +159,6 @@ void CTransfer::CreateXferShader()
 	
 	auto b = CShaderBuilder();
 	
-	const uint32 c_memorySize = 1024;
-
 	{
 		auto inputInvocationId = CInt4Lvalue(b.CreateInputInt(Nuanceur::SEMANTIC_SYSTEM_GIID));
 		auto memoryImage = CImageUint2DValue(b.CreateImage2DUint(DESCRIPTOR_LOCATION_MEMORY));
@@ -183,9 +182,7 @@ void CTransfer::CreateXferShader()
 		auto inputColor = Load(xferBuffer, inputInvocationId->x());
 		auto address = bufAddress + (trxY * bufWidth * NewInt(b, 4)) + (trxX * NewInt(b, 4));
 
-		auto wordAddress = address / NewInt(b, 4);
-		auto writePosition = NewInt2(wordAddress % NewInt(b, c_memorySize), wordAddress / NewInt(b, c_memorySize));
-		Store(memoryImage, writePosition, NewUint4(inputColor, NewUint3(b, 0, 0, 0)));
+		CMemoryUtils::Memory_Write32(b, memoryImage, address, inputColor);
 	}
 	
 	Framework::CMemStream shaderStream;

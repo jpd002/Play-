@@ -558,16 +558,12 @@ void CPresent::CreateFragmentShader()
 		auto bufWidth   = bufParams0->y();
 
 		static int32 c_texelSize = 4;
-		static int32 c_memorySize = 1024;
 
 		auto screenPos = ToInt(inputTexCoord->xy() * NewFloat2(b, 640, 480));
 		auto address = bufAddress + (screenPos->y() * bufWidth * NewInt(b, c_texelSize)) + (screenPos->x() * NewInt(b, c_texelSize));
 
-		auto wordAddress = address / NewInt(b, 4);
-		auto position = NewInt2(wordAddress % NewInt(b, c_memorySize), wordAddress / NewInt(b, c_memorySize));
-		auto imageColor = Load(memoryImage, position);
-
-		outputColor = CMemoryUtils::PSM32ToVec4(b, imageColor->x());
+		auto imageColor = CMemoryUtils::Memory_Read32(b, memoryImage, address);
+		outputColor = CMemoryUtils::PSM32ToVec4(b, imageColor);
 	}
 	
 	Framework::CMemStream shaderStream;
