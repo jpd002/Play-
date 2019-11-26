@@ -1,7 +1,9 @@
 #pragma once
 
 #include <memory>
+#include <map>
 #include "GSH_VulkanContext.h"
+#include "Convertible.h"
 #include "vulkan/ShaderModule.h"
 
 namespace GSH_Vulkan
@@ -9,7 +11,13 @@ namespace GSH_Vulkan
 	class CTransfer
 	{
 	public:
+		typedef uint32 PipelineCapsInt;
 		typedef std::vector<uint8> XferBuffer;
+
+		struct PIPELINE_CAPS : public convertible<PipelineCapsInt>
+		{
+			uint32 dstFormat : 6;
+		};
 
 		struct XFERPARAMS
 		{
@@ -23,25 +31,33 @@ namespace GSH_Vulkan
 		CTransfer(const ContextPtr&);
 		virtual ~CTransfer();
 
+		void SetPipelineCaps(const PIPELINE_CAPS&);
+
 		void DoHostToLocalTransfer(const XferBuffer&);
 
 		XFERPARAMS Params;
 
 	private:
-		VkDescriptorSet PrepareDescriptorSet();
+		struct XFER_PIPELINE
+		{
+			VkDescriptorSetLayout descriptorSetLayout = VK_NULL_HANDLE;
+			VkPipelineLayout pipelineLayout = VK_NULL_HANDLE;
+			VkPipeline pipeline = VK_NULL_HANDLE;
+		};
 
-		void CreateXferShader();
+		VkDescriptorSet PrepareDescriptorSet(VkDescriptorSetLayout);
+
 		void CreateXferBuffer();
-		void CreatePipeline();
+		Framework::Vulkan::CShaderModule CreateXferShader(const PIPELINE_CAPS&);
+		XFER_PIPELINE CreateXferPipeline(const PIPELINE_CAPS&);
 
 		ContextPtr m_context;
 
-		Framework::Vulkan::CShaderModule m_xferShader;
-		VkDescriptorSetLayout m_descriptorSetLayout = VK_NULL_HANDLE;
-		VkPipelineLayout m_pipelineLayout = VK_NULL_HANDLE;
-		VkPipeline m_pipeline = VK_NULL_HANDLE;
 		VkBuffer m_xferBuffer = VK_NULL_HANDLE;
 		VkDeviceMemory m_xferBufferMemory = VK_NULL_HANDLE;
+		std::map<PipelineCapsInt, XFER_PIPELINE> m_xferPipelines;
+
+		PIPELINE_CAPS m_pipelineCaps;
 	};
 
 	typedef std::shared_ptr<CTransfer> TransferPtr;

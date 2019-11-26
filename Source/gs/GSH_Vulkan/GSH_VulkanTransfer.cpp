@@ -17,15 +17,18 @@ CTransfer::CTransfer(const ContextPtr& context)
 	: m_context(context)
 {
 	CreateXferBuffer();
-	CreateXferShader();
-	CreatePipeline();
+	m_pipelineCaps <<= 0;
 }
 
 CTransfer::~CTransfer()
 {
-	m_context->device.vkDestroyPipeline(m_context->device, m_pipeline, nullptr);
-	m_context->device.vkDestroyPipelineLayout(m_context->device, m_pipelineLayout, nullptr);
-	m_context->device.vkDestroyDescriptorSetLayout(m_context->device, m_descriptorSetLayout, nullptr);
+	for(const auto& xferPipelinePair : m_xferPipelines)
+	{
+		auto& xferPipeline = xferPipelinePair.second;
+		m_context->device.vkDestroyPipeline(m_context->device, xferPipeline.pipeline, nullptr);
+		m_context->device.vkDestroyPipelineLayout(m_context->device, xferPipeline.pipelineLayout, nullptr);
+		m_context->device.vkDestroyDescriptorSetLayout(m_context->device, xferPipeline.descriptorSetLayout, nullptr);
+	}
 	m_context->device.vkDestroyBuffer(m_context->device, m_xferBuffer, nullptr);
 	m_context->device.vkFreeMemory(m_context->device, m_xferBufferMemory, nullptr);
 }
@@ -44,10 +47,21 @@ void CTransfer::DoHostToLocalTransfer(const XferBuffer& inputData)
 		m_context->device.vkUnmapMemory(m_context->device, m_xferBufferMemory);
 	}
 
+	//Find pipeline and create it if we've never encountered it before
+	auto xferPipelinePairIterator = m_xferPipelines.find(m_pipelineCaps);
+	if(xferPipelinePairIterator == std::end(m_xferPipelines))
+	{
+		auto xferPipeline = CreateXferPipeline(m_pipelineCaps);
+		m_xferPipelines.insert(std::make_pair(m_pipelineCaps, xferPipeline));
+		xferPipelinePairIterator = m_xferPipelines.find(m_pipelineCaps);
+	}
+
+	const auto& xferPipeline = xferPipelinePairIterator->second;
+
 	uint32 blockCount = inputData.size() / 4;
 	uint32 workUnits = blockCount / 128;
 
-	auto descriptorSet = PrepareDescriptorSet();
+	auto descriptorSet = PrepareDescriptorSet(xferPipeline.descriptorSetLayout);
 	auto commandBuffer = m_context->commandBufferPool.AllocateBuffer();
 
 	auto commandBufferBeginInfo = Framework::Vulkan::CommandBufferBeginInfo();
@@ -55,9 +69,9 @@ void CTransfer::DoHostToLocalTransfer(const XferBuffer& inputData)
 	result = m_context->device.vkBeginCommandBuffer(commandBuffer, &commandBufferBeginInfo);
 	CHECKVULKANERROR(result);
 
-	m_context->device.vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_COMPUTE, m_pipelineLayout, 0, 1, &descriptorSet, 0, nullptr);
-	m_context->device.vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_COMPUTE, m_pipeline);
-	m_context->device.vkCmdPushConstants(commandBuffer, m_pipelineLayout, VK_SHADER_STAGE_COMPUTE_BIT, 0, sizeof(XFERPARAMS), &Params);
+	m_context->device.vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_COMPUTE, xferPipeline.pipelineLayout, 0, 1, &descriptorSet, 0, nullptr);
+	m_context->device.vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_COMPUTE, xferPipeline.pipeline);
+	m_context->device.vkCmdPushConstants(commandBuffer, xferPipeline.pipelineLayout, VK_SHADER_STAGE_COMPUTE_BIT, 0, sizeof(XFERPARAMS), &Params);
 	m_context->device.vkCmdDispatch(commandBuffer, workUnits, 1, 1);
 
 	m_context->device.vkEndCommandBuffer(commandBuffer);
@@ -72,7 +86,7 @@ void CTransfer::DoHostToLocalTransfer(const XferBuffer& inputData)
 	}
 }
 
-VkDescriptorSet CTransfer::PrepareDescriptorSet()
+VkDescriptorSet CTransfer::PrepareDescriptorSet(VkDescriptorSetLayout descriptorSetLayout)
 {
 	VkResult result = VK_SUCCESS;
 	VkDescriptorSet descriptorSet = VK_NULL_HANDLE;
@@ -82,7 +96,7 @@ VkDescriptorSet CTransfer::PrepareDescriptorSet()
 		auto setAllocateInfo = Framework::Vulkan::DescriptorSetAllocateInfo();
 		setAllocateInfo.descriptorPool     = m_context->descriptorPool;
 		setAllocateInfo.descriptorSetCount = 1;
-		setAllocateInfo.pSetLayouts        = &m_descriptorSetLayout;
+		setAllocateInfo.pSetLayouts        = &descriptorSetLayout;
 
 		result = m_context->device.vkAllocateDescriptorSets(m_context->device, &setAllocateInfo, &descriptorSet);
 		CHECKVULKANERROR(result);
@@ -153,7 +167,7 @@ void CTransfer::CreateXferBuffer()
 	CHECKVULKANERROR(result);
 }
 
-void CTransfer::CreateXferShader()
+Framework::Vulkan::CShaderModule CTransfer::CreateXferShader(const PIPELINE_CAPS& caps)
 {
 	using namespace Nuanceur;
 	
@@ -187,11 +201,15 @@ void CTransfer::CreateXferShader()
 	Framework::CMemStream shaderStream;
 	Nuanceur::CSpirvShaderGenerator::Generate(shaderStream, b, Nuanceur::CSpirvShaderGenerator::SHADER_TYPE_COMPUTE);
 	shaderStream.Seek(0, Framework::STREAM_SEEK_SET);
-	m_xferShader = Framework::Vulkan::CShaderModule(m_context->device, shaderStream);
+	return Framework::Vulkan::CShaderModule(m_context->device, shaderStream);
 }
 
-void CTransfer::CreatePipeline()
+CTransfer::XFER_PIPELINE CTransfer::CreateXferPipeline(const PIPELINE_CAPS& caps)
 {
+	XFER_PIPELINE xferPipeline;
+
+	auto xferShader = CreateXferShader(caps);
+
 	VkResult result = VK_SUCCESS;
 
 	{
@@ -220,7 +238,7 @@ void CTransfer::CreatePipeline()
 		auto createInfo = Framework::Vulkan::DescriptorSetLayoutCreateInfo();
 		createInfo.bindingCount = bindings.size();
 		createInfo.pBindings    = bindings.data();
-		result = m_context->device.vkCreateDescriptorSetLayout(m_context->device, &createInfo, nullptr, &m_descriptorSetLayout);
+		result = m_context->device.vkCreateDescriptorSetLayout(m_context->device, &createInfo, nullptr, &xferPipeline.descriptorSetLayout);
 		CHECKVULKANERROR(result);
 	}
 
@@ -234,9 +252,9 @@ void CTransfer::CreatePipeline()
 		pipelineLayoutCreateInfo.pushConstantRangeCount = 1;
 		pipelineLayoutCreateInfo.pPushConstantRanges    = &pushConstantInfo;
 		pipelineLayoutCreateInfo.setLayoutCount         = 1;
-		pipelineLayoutCreateInfo.pSetLayouts            = &m_descriptorSetLayout;
+		pipelineLayoutCreateInfo.pSetLayouts            = &xferPipeline.descriptorSetLayout;
 
-		result = m_context->device.vkCreatePipelineLayout(m_context->device, &pipelineLayoutCreateInfo, nullptr, &m_pipelineLayout);
+		result = m_context->device.vkCreatePipelineLayout(m_context->device, &pipelineLayoutCreateInfo, nullptr, &xferPipeline.pipelineLayout);
 		CHECKVULKANERROR(result);
 	}
 
@@ -245,10 +263,12 @@ void CTransfer::CreatePipeline()
 		createInfo.stage.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
 		createInfo.stage.stage = VK_SHADER_STAGE_COMPUTE_BIT;
 		createInfo.stage.pName = "main";
-		createInfo.stage.module = m_xferShader;
-		createInfo.layout = m_pipelineLayout;
+		createInfo.stage.module = xferShader;
+		createInfo.layout = xferPipeline.pipelineLayout;
 
-		result = m_context->device.vkCreateComputePipelines(m_context->device, VK_NULL_HANDLE, 1, &createInfo, nullptr, &m_pipeline);
+		result = m_context->device.vkCreateComputePipelines(m_context->device, VK_NULL_HANDLE, 1, &createInfo, nullptr, &xferPipeline.pipeline);
 		CHECKVULKANERROR(result);
 	}
+
+	return xferPipeline;
 }
