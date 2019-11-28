@@ -520,6 +520,13 @@ private:
 		R_MIPSSCE_ADDEND = 0xFB
 	};
 
+	struct SYSTEM_INTRHANDLER
+	{
+		uint32 handler;
+		uint32 paramPtr;
+	};
+	static_assert(sizeof(SYSTEM_INTRHANDLER) == 0x8, "Size of SYSTEM_INTRHANDLER must be 8 bytes. Fixed PS2 structure, and we use it for array magic iteration.");
+
 	typedef COsStructManager<THREAD> ThreadList;
 	typedef COsStructManager<Iop::MEMORYBLOCK> MemoryBlockList;
 	typedef COsStructManager<SEMAPHORE> SemaphoreList;
@@ -569,6 +576,8 @@ private:
 	void ProcessModuleStart();
 	void FinishModuleStart();
 	void RequestModuleStart(bool, uint32, const char*, const char*, unsigned int);
+
+	void PopulateSystemIntcHandlers();
 
 #ifdef DEBUGGER_INCLUDED
 	void PrepareModuleDebugInfo(CELF&, const ExecutableRange&, const std::string&, const std::string&);

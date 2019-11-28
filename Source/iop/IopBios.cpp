@@ -50,8 +50,12 @@
 #define BIOS_MODULESTARTREQUEST_HEAD_BASE (CIopBios::CONTROL_BLOCK_START + 0x0018)
 #define BIOS_MODULESTARTREQUEST_FREE_BASE (CIopBios::CONTROL_BLOCK_START + 0x0020)
 #define BIOS_HANDLERS_BASE (CIopBios::CONTROL_BLOCK_START + 0x0100)
-#define BIOS_HANDLERS_END (BIOS_THREADS_BASE - 1)
-#define BIOS_THREADS_BASE (CIopBios::CONTROL_BLOCK_START + 0x0200)
+#define BIOS_HANDLERS_END (BIOS_HANDLERS_BASE + 0x100 - 1)
+#define BIOS_MESSAGEBOX_BASE (BIOS_HANDLERS_END + 1)
+#define BIOS_MESSAGEBOX_SIZE (sizeof(CIopBios::MESSAGEBOX) * CIopBios::MAX_MESSAGEBOX)
+#define BIOS_SYSTEM_INTRHANDLER_TABLE_BASE (0x480)
+#define BIOS_SYSTEM_INTRHANDLER_TABLE_SIZE (0x3 * (sizeof(CIopBios::SYSTEM_INTRHANDLER)))
+#define BIOS_THREADS_BASE (BIOS_SYSTEM_INTRHANDLER_TABLE_BASE + BIOS_SYSTEM_INTRHANDLER_TABLE_SIZE)
 #define BIOS_THREADS_SIZE (sizeof(CIopBios::THREAD) * CIopBios::MAX_THREAD)
 #define BIOS_SEMAPHORES_BASE (BIOS_THREADS_BASE + BIOS_THREADS_SIZE)
 #define BIOS_SEMAPHORES_SIZE (sizeof(CIopBios::SEMAPHORE) * CIopBios::MAX_SEMAPHORE)
@@ -61,9 +65,7 @@
 #define BIOS_INTRHANDLER_SIZE (sizeof(CIopBios::INTRHANDLER) * CIopBios::MAX_INTRHANDLER)
 #define BIOS_VBLANKHANDLER_BASE (BIOS_INTRHANDLER_BASE + BIOS_INTRHANDLER_SIZE)
 #define BIOS_VBLANKHANDLER_SIZE (sizeof(CIopBios::VBLANKHANDLER) * CIopBios::MAX_VBLANKHANDLER)
-#define BIOS_MESSAGEBOX_BASE (BIOS_VBLANKHANDLER_BASE + BIOS_VBLANKHANDLER_SIZE)
-#define BIOS_MESSAGEBOX_SIZE (sizeof(CIopBios::MESSAGEBOX) * CIopBios::MAX_MESSAGEBOX)
-#define BIOS_FPL_BASE (BIOS_MESSAGEBOX_BASE + BIOS_MESSAGEBOX_SIZE)
+#define BIOS_FPL_BASE (BIOS_VBLANKHANDLER_BASE + BIOS_VBLANKHANDLER_SIZE)
 #define BIOS_FPL_SIZE (sizeof(CIopBios::FPL) * CIopBios::MAX_FPL)
 #define BIOS_VPL_BASE (BIOS_FPL_BASE + BIOS_FPL_SIZE)
 #define BIOS_VPL_SIZE (sizeof(CIopBios::VPL) * CIopBios::MAX_VPL)
@@ -111,6 +113,7 @@ CIopBios::CIopBios(CMIPS& cpu, uint8* ram, uint32 ramSize, uint8* spr)
     , m_currentThreadId(reinterpret_cast<uint32*>(m_ram + BIOS_CURRENT_THREAD_ID_BASE))
 {
 	static_assert(BIOS_CALCULATED_END <= CIopBios::CONTROL_BLOCK_END, "Control block size is too small");
+	static_assert(BIOS_SYSTEM_INTRHANDLER_TABLE_BASE > CIopBios::CONTROL_BLOCK_START, "Intr handler table is outside reserved block");
 }
 
 CIopBios::~CIopBios()
@@ -120,6 +123,8 @@ CIopBios::~CIopBios()
 
 void CIopBios::Reset(const Iop::SifManPtr& sifMan)
 {
+	PopulateSystemIntcHandlers();
+
 	//Assemble handlers
 	{
 		CMIPSAssembler assembler(reinterpret_cast<uint32*>(&m_ram[BIOS_HANDLERS_BASE]));
@@ -3296,6 +3301,16 @@ void CIopBios::TriggerCallback(uint32 address, uint32 arg0, uint32 arg1, uint32 
 	thread->context.gpr[CMIPS::A1] = arg1;
 	thread->context.gpr[CMIPS::A2] = arg2;
 	thread->context.gpr[CMIPS::A3] = arg3;
+}
+
+void CIopBios::PopulateSystemIntcHandlers()
+{
+	auto intrHandlerTable = reinterpret_cast<CIopBios::SYSTEM_INTRHANDLER*>(&m_ram[BIOS_SYSTEM_INTRHANDLER_TABLE_BASE]);
+
+	// homebrews expect this to be non-zero, to modify and use it as a callback during shadown
+	// https://github.com/ps2dev/ps2sdk/blob/8b7579979db87ace4b0aa5693a8a560d15224a96/iop/dev9/poweroff/src/poweroff.c#L240
+	auto cdvdIntrHandler = &intrHandlerTable[Iop::CIntc::LINES::LINE_CDROM];
+	cdvdIntrHandler->handler = 1;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
