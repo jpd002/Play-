@@ -5,6 +5,7 @@
 #include "vulkan/Utils.h"
 #include "nuanceur/Builder.h"
 #include "nuanceur/generators/SpirvShaderGenerator.h"
+#include "../GSHandler.h"
 
 using namespace GSH_Vulkan;
 
@@ -614,9 +615,25 @@ Framework::Vulkan::CShaderModule CDraw::CreateFragmentShader(const PIPELINE_CAPS
 		if(caps.hasTexture)
 		{
 			auto texelPos = ToInt(inputTexCoord->xy() * ToFloat(texSize));
-			auto address = CMemoryUtils::GetPixelAddress_PSMCT32(b, texBufAddress, texBufWidth, texelPos);
-			auto pixel = CMemoryUtils::Memory_Read32(b, memoryImage, address);
-			textureColor = CMemoryUtils::PSM32ToVec4(b, pixel);
+
+			switch(caps.textureFormat)
+			{
+			default:
+			case CGSHandler::PSMCT32:
+				{
+					auto address = CMemoryUtils::GetPixelAddress_PSMCT32(b, texBufAddress, texBufWidth, texelPos);
+					auto pixel = CMemoryUtils::Memory_Read32(b, memoryImage, address);
+					textureColor = CMemoryUtils::PSM32ToVec4(b, pixel);
+				}
+				break;
+			case CGSHandler::PSMT8:
+				{
+					auto address = CMemoryUtils::GetPixelAddress_PSMT8(b, texBufAddress, texBufWidth, texelPos);
+					auto pixel = CMemoryUtils::Memory_Read8(b, memoryImage, address);
+					textureColor = CMemoryUtils::PSM32ToVec4(b, pixel);
+				}
+				break;
+			}
 		}
 
 		textureColor = textureColor * inputColor;

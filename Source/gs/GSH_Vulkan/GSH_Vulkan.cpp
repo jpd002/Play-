@@ -641,6 +641,7 @@ void CGSH_Vulkan::SetRenderingContext(uint64 primReg)
 
 	auto pipelineCaps = make_convertible<CDraw::PIPELINE_CAPS>(0);
 	pipelineCaps.hasTexture = prim.nTexture;
+	pipelineCaps.textureFormat = tex0.nPsm;
 
 	m_draw->SetPipelineCaps(pipelineCaps);
 	m_draw->SetFramebufferBufferInfo(frame.GetBasePtr(), frame.GetWidth());
@@ -883,6 +884,10 @@ void CGSH_Vulkan::ProcessHostToLocalTransfer()
 	m_transfer->Params.dsax = trxPos.nDSAX;
 	m_transfer->Params.dsay = trxPos.nDSAY;
 
+	auto pipelineCaps = make_convertible<CTransfer::PIPELINE_CAPS>(0);
+	pipelineCaps.dstFormat = bltBuf.nDstPsm;
+
+	m_transfer->SetPipelineCaps(pipelineCaps);
 	m_transfer->DoHostToLocalTransfer(m_xferBuffer);
 }
 

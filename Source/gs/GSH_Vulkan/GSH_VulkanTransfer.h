@@ -5,6 +5,7 @@
 #include "GSH_VulkanContext.h"
 #include "Convertible.h"
 #include "vulkan/ShaderModule.h"
+#include "nuanceur/Builder.h"
 
 namespace GSH_Vulkan
 {
@@ -50,6 +51,9 @@ namespace GSH_Vulkan
 		void CreateXferBuffer();
 		Framework::Vulkan::CShaderModule CreateXferShader(const PIPELINE_CAPS&);
 		XFER_PIPELINE CreateXferPipeline(const PIPELINE_CAPS&);
+
+		Nuanceur::CUintRvalue XferStream_Read32(Nuanceur::CShaderBuilder&, Nuanceur::CArrayUintValue, Nuanceur::CIntValue);
+		Nuanceur::CUintRvalue XferStream_Read8(Nuanceur::CShaderBuilder&, Nuanceur::CArrayUintValue, Nuanceur::CIntValue);
 
 		ContextPtr m_context;
 

@@ -3,8 +3,8 @@
 #include "MemStream.h"
 #include "vulkan/StructDefs.h"
 #include "vulkan/Utils.h"
-#include "nuanceur/Builder.h"
 #include "nuanceur/generators/SpirvShaderGenerator.h"
+#include "../GSHandler.h"
 
 using namespace GSH_Vulkan;
 
@@ -33,6 +33,11 @@ CTransfer::~CTransfer()
 	m_context->device.vkFreeMemory(m_context->device, m_xferBufferMemory, nullptr);
 }
 
+void CTransfer::SetPipelineCaps(const PIPELINE_CAPS& pipelineCaps)
+{
+	m_pipelineCaps = pipelineCaps;
+}
+
 void CTransfer::DoHostToLocalTransfer(const XferBuffer& inputData)
 {
 	auto result = VK_SUCCESS;
@@ -58,8 +63,20 @@ void CTransfer::DoHostToLocalTransfer(const XferBuffer& inputData)
 
 	const auto& xferPipeline = xferPipelinePairIterator->second;
 
-	uint32 blockCount = inputData.size() / 4;
-	uint32 workUnits = blockCount / 128;
+	uint32 pixelCount = 0;
+	switch(m_pipelineCaps.dstFormat)
+	{
+	default:
+		//assert(false);
+	case CGSHandler::PSMCT32:
+		pixelCount = inputData.size() / 4;
+		break;
+	case CGSHandler::PSMT8:
+		pixelCount = inputData.size();
+		break;
+	}
+
+	uint32 workUnits = pixelCount / 128;
 
 	auto descriptorSet = PrepareDescriptorSet(xferPipeline.descriptorSetLayout);
 	auto commandBuffer = m_context->commandBufferPool.AllocateBuffer();
@@ -84,6 +101,9 @@ void CTransfer::DoHostToLocalTransfer(const XferBuffer& inputData)
 		result = m_context->device.vkQueueSubmit(m_context->queue, 1, &submitInfo, VK_NULL_HANDLE);
 		CHECKVULKANERROR(result);
 	}
+
+	result = m_context->device.vkQueueWaitIdle(m_context->queue);
+	CHECKVULKANERROR(result);
 }
 
 VkDescriptorSet CTransfer::PrepareDescriptorSet(VkDescriptorSetLayout descriptorSetLayout)
@@ -193,15 +213,46 @@ Framework::Vulkan::CShaderModule CTransfer::CreateXferShader(const PIPELINE_CAPS
 		auto trxX = (rrx + dsax) % NewInt(b, 2048);
 		auto trxY = (rry + dsay) % NewInt(b, 2048);
 
-		auto inputColor = Load(xferBuffer, inputInvocationId->x());
-		auto address = CMemoryUtils::GetPixelAddress_PSMCT32(b, bufAddress, bufWidth, NewInt2(trxX, trxY));
-		CMemoryUtils::Memory_Write32(b, memoryImage, address, inputColor);
+		auto pixelIndex = inputInvocationId->x();
+
+		switch(caps.dstFormat)
+		{
+		case CGSHandler::PSMCT32:
+			{
+				auto input = XferStream_Read32(b, xferBuffer, pixelIndex);
+				auto address = CMemoryUtils::GetPixelAddress_PSMCT32(b, bufAddress, bufWidth, NewInt2(trxX, trxY));
+				CMemoryUtils::Memory_Write32(b, memoryImage, address, input);
+			}
+			break;
+		case CGSHandler::PSMT8:
+			{
+				auto input = XferStream_Read8(b, xferBuffer, pixelIndex);
+				auto address = CMemoryUtils::GetPixelAddress_PSMT8(b, bufAddress, bufWidth, NewInt2(trxX, trxY));
+				CMemoryUtils::Memory_Write8(b, memoryImage, address, input);
+			}
+			break;
+		default:
+			assert(false);
+			break;
+		}
 	}
 	
 	Framework::CMemStream shaderStream;
 	Nuanceur::CSpirvShaderGenerator::Generate(shaderStream, b, Nuanceur::CSpirvShaderGenerator::SHADER_TYPE_COMPUTE);
 	shaderStream.Seek(0, Framework::STREAM_SEEK_SET);
 	return Framework::Vulkan::CShaderModule(m_context->device, shaderStream);
+}
+
+Nuanceur::CUintRvalue CTransfer::XferStream_Read32(Nuanceur::CShaderBuilder& b, Nuanceur::CArrayUintValue xferBuffer, Nuanceur::CIntValue pixelIndex)
+{
+	return Load(xferBuffer, pixelIndex);
+}
+
+Nuanceur::CUintRvalue CTransfer::XferStream_Read8(Nuanceur::CShaderBuilder& b, Nuanceur::CArrayUintValue xferBuffer, Nuanceur::CIntValue pixelIndex)
+{
+	auto srcOffset = pixelIndex / NewInt(b, 4);
+	auto srcShift = (ToUint(pixelIndex) & NewUint(b, 3)) * NewUint(b, 8);
+	return (Load(xferBuffer, srcOffset) >> srcShift) & NewUint(b, 0xFF);
 }
 
 CTransfer::XFER_PIPELINE CTransfer::CreateXferPipeline(const PIPELINE_CAPS& caps)
