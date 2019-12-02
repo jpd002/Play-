@@ -46,12 +46,6 @@ namespace GSH_Vulkan
 		void FlushCommands();
 
 	private:
-		enum
-		{
-			CMDBUF_FRAMEBUFFER_BUFFERINFO_SET = (1 << 0),
-			CMDBUF_TEXTURE_PARAMS_SET = (1 << 1)
-		};
-
 		struct DRAW_PIPELINE
 		{
 			VkDescriptorSetLayout descriptorSetLayout = VK_NULL_HANDLE;
@@ -59,24 +53,19 @@ namespace GSH_Vulkan
 			VkPipeline pipeline = VK_NULL_HANDLE;
 		};
 
-		struct VERTEX_SHADER_CONSTANTS
+		struct DRAW_PIPELINE_PUSHCONSTANTS
 		{
 			float projMatrix[16];
+			uint32 fbBufAddr = 0;
+			uint32 fbBufWidth = 0;
+			uint32 depthBufAddr = 0;
+			uint32 depthBufWidth = 0;
+			uint32 texBufAddr = 0;
+			uint32 texBufWidth = 0;
+			uint32 texWidth = 0;
+			uint32 texHeight = 0;
 		};
-
-		struct BUFFERINFO_FRAMEBUFFER
-		{
-			uint32 addr = 0;
-			uint32 width = 0;
-		};
-
-		struct TEXTURE_PARAMS
-		{
-			uint32 bufAddr = 0;
-			uint32 bufWidth = 0;
-			uint32 width = 0;
-			uint32 height = 0;
-		};
+		static_assert(sizeof(DRAW_PIPELINE_PUSHCONSTANTS) <= 128, "Push constants size can't exceed 128 bytes.");
 
 		VkDescriptorSet PrepareDescriptorSet(VkDescriptorSetLayout);
 		void StartRecording();
@@ -96,8 +85,6 @@ namespace GSH_Vulkan
 
 		std::map<PipelineCapsInt, DRAW_PIPELINE> m_drawPipelines;
 
-		Framework::Vulkan::CBuffer m_framebufferBufferInfoUniform;
-		Framework::Vulkan::CBuffer m_textureParamsUniform;
 		Framework::Vulkan::CBuffer m_vertexBuffer;
 		PRIM_VERTEX* m_vertexBufferPtr = nullptr;
 
@@ -106,14 +93,11 @@ namespace GSH_Vulkan
 		VkImageView m_drawImageView = VK_NULL_HANDLE;
 
 		VkCommandBuffer m_commandBuffer = VK_NULL_HANDLE;
-		uint32 m_commandBufferStatus = 0;
 		uint32 m_passVertexStart = 0;
 		uint32 m_passVertexEnd = 0;
 
 		PIPELINE_CAPS m_pipelineCaps;
-		VERTEX_SHADER_CONSTANTS m_vertexShaderConstants;
-		BUFFERINFO_FRAMEBUFFER m_framebufferBufferInfo;
-		TEXTURE_PARAMS m_textureParams;
+		DRAW_PIPELINE_PUSHCONSTANTS m_pushConstants;
 	};
 
 	typedef std::shared_ptr<CDraw> DrawPtr;
