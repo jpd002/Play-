@@ -547,29 +547,36 @@ Framework::Vulkan::CShaderModule CDraw::CreateFragmentShader(const PIPELINE_CAPS
 			default:
 			case CGSHandler::PSMCT32:
 				{
-					auto address = CMemoryUtils::GetPixelAddress_PSMCT32(b, texBufAddress, texBufWidth, texelPos);
-					auto pixel = CMemoryUtils::Memory_Read32(b, memoryImage, address);
-					textureColor = CMemoryUtils::PSM32ToVec4(b, pixel);
+					auto texAddress = CMemoryUtils::GetPixelAddress_PSMCT32(b, texBufAddress, texBufWidth, texelPos);
+					auto texPixel = CMemoryUtils::Memory_Read32(b, memoryImage, texAddress);
+					textureColor = CMemoryUtils::PSM32ToVec4(b, texPixel);
 				}
 				break;
 			case CGSHandler::PSMT8:
 				{
-					auto address = CMemoryUtils::GetPixelAddress_PSMT8(b, texBufAddress, texBufWidth, texelPos);
-					auto pixel = CMemoryUtils::Memory_Read8(b, memoryImage, address);
-					textureColor = CMemoryUtils::PSM32ToVec4(b, pixel);
+					auto texAddress = CMemoryUtils::GetPixelAddress_PSMT8(b, texBufAddress, texBufWidth, texelPos);
+					auto texPixel = CMemoryUtils::Memory_Read8(b, memoryImage, texAddress);
+					textureColor = CMemoryUtils::PSM32ToVec4(b, texPixel);
 				}
 				break;
 			}
+
+			//Modulate
+			//TODO: Proper multiply & clamping
+			textureColor = textureColor * inputColor * NewFloat4(b, 2, 2, 2, 2);
+			textureColor = Clamp(textureColor, NewFloat4(b, 0, 0, 0, 0), NewFloat4(b, 1, 1, 1, 1));
+		}
+		else
+		{
+			textureColor = inputColor->xyzw();
 		}
 
-		textureColor = textureColor * inputColor;
-
 		auto screenPos = ToInt(inputPosition->xy());
-		auto address = CMemoryUtils::GetPixelAddress_PSMCT32(b, fbBufAddress, fbBufWidth, screenPos);
-		auto imageColor = CMemoryUtils::Vec4ToPSM32(b, textureColor);
+		auto fbAddress = CMemoryUtils::GetPixelAddress_PSMCT32(b, fbBufAddress, fbBufWidth, screenPos);
+		auto texturePixel = CMemoryUtils::Vec4ToPSM32(b, textureColor);
 
 		BeginInvocationInterlock(b);
-		CMemoryUtils::Memory_Write32(b, memoryImage, address, imageColor);
+		CMemoryUtils::Memory_Write32(b, memoryImage, fbAddress, texturePixel);
 		EndInvocationInterlock(b);
 
 		outputColor = NewFloat4(b, 0, 0, 1, 0);
