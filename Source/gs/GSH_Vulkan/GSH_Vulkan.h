@@ -59,6 +59,7 @@ private:
 	void CreateDescriptorPool();
 	void CreateMemoryImage();
 	void InitMemoryImage();
+	void CreateClutImage();
 
 	void VertexKick(uint8, uint64);
 	void SetRenderingContext(uint64);
@@ -81,6 +82,10 @@ private:
 	uint32 m_texHeight = 0;
 
 	//GS memory
-	VkImage m_memoryImage;
-	VkDeviceMemory m_memoryImageMemoryHandle;
+	VkImage m_memoryImage = VK_NULL_HANDLE;
+	VkDeviceMemory m_memoryImageMemoryHandle = VK_NULL_HANDLE;
+
+	//CLUT
+	VkImage m_clutImage = VK_NULL_HANDLE;
+	VkDeviceMemory m_clutImageMemoryHandle = VK_NULL_HANDLE;
 };

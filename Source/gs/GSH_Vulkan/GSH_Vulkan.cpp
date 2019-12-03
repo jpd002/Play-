@@ -61,6 +61,7 @@ void CGSH_Vulkan::InitializeImpl()
 	CreateDescriptorPool();
 	CreateMemoryImage();
 	InitMemoryImage();
+	CreateClutImage();
 
 	m_draw = std::make_shared<CDraw>(m_context);
 	m_present = std::make_shared<CPresent>(m_context);
@@ -78,9 +79,14 @@ void CGSH_Vulkan::ReleaseImpl()
 	m_present.reset();
 	m_transfer.reset();
 
+	m_context->device.vkDestroyImageView(m_context->device, m_context->clutImageView, nullptr);
+	m_context->device.vkDestroyImage(m_context->device, m_clutImage, nullptr);
+	m_context->device.vkFreeMemory(m_context->device, m_clutImageMemoryHandle, nullptr);
+	
 	m_context->device.vkDestroyImageView(m_context->device, m_context->memoryImageView, nullptr);
 	m_context->device.vkDestroyImage(m_context->device, m_memoryImage, nullptr);
 	m_context->device.vkFreeMemory(m_context->device, m_memoryImageMemoryHandle, nullptr);
+	
 	m_context->device.vkDestroyDescriptorPool(m_context->device, m_context->descriptorPool, nullptr);
 	m_context->commandBufferPool.Reset();
 	m_context->device.Reset();
@@ -359,6 +365,10 @@ void CGSH_Vulkan::CreateDescriptorPool()
 
 void CGSH_Vulkan::CreateMemoryImage()
 {
+	assert(m_memoryImage == VK_NULL_HANDLE);
+	assert(m_memoryImageMemoryHandle == VK_NULL_HANDLE);
+	assert(m_context->memoryImageView == VK_NULL_HANDLE);
+
 	{
 		auto imageCreateInfo = Framework::Vulkan::ImageCreateInfo();
 		imageCreateInfo.imageType     = VK_IMAGE_TYPE_2D;
@@ -543,6 +553,63 @@ void CGSH_Vulkan::InitMemoryImage()
 	//Destroy staging buffer and memory
 	m_context->device.vkFreeMemory(m_context->device, stagingBufferMemoryHandle, nullptr);
 	m_context->device.vkDestroyBuffer(m_context->device, stagingBufferHandle, nullptr);
+}
+
+void CGSH_Vulkan::CreateClutImage()
+{
+	assert(m_clutImage == VK_NULL_HANDLE);
+	assert(m_clutImageMemoryHandle == VK_NULL_HANDLE);
+	assert(m_context->clutImageView == VK_NULL_HANDLE);
+
+	{
+		auto imageCreateInfo = Framework::Vulkan::ImageCreateInfo();
+		imageCreateInfo.imageType     = VK_IMAGE_TYPE_2D;
+		imageCreateInfo.format        = VK_FORMAT_R32_UINT;
+		imageCreateInfo.extent.width  = CLUTENTRYCOUNT;
+		imageCreateInfo.extent.height = 1;
+		imageCreateInfo.extent.depth  = 1;
+		imageCreateInfo.mipLevels     = 1;
+		imageCreateInfo.arrayLayers   = 1;
+		imageCreateInfo.samples       = VK_SAMPLE_COUNT_1_BIT;
+		imageCreateInfo.sharingMode   = VK_SHARING_MODE_EXCLUSIVE;
+		imageCreateInfo.tiling        = VK_IMAGE_TILING_OPTIMAL;
+		imageCreateInfo.usage         = VK_IMAGE_USAGE_STORAGE_BIT;
+		imageCreateInfo.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+
+		auto result = m_context->device.vkCreateImage(m_context->device, &imageCreateInfo, nullptr, &m_clutImage);
+		CHECKVULKANERROR(result);
+	}
+
+	{
+		VkMemoryRequirements memoryRequirements = {};
+		m_context->device.vkGetImageMemoryRequirements(m_context->device, m_clutImage, &memoryRequirements);
+
+		auto memoryAllocateInfo = Framework::Vulkan::MemoryAllocateInfo();
+		memoryAllocateInfo.allocationSize  = memoryRequirements.size;
+		memoryAllocateInfo.memoryTypeIndex = Framework::Vulkan::GetMemoryTypeIndex(
+			m_context->physicalDeviceMemoryProperties, memoryRequirements.memoryTypeBits, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
+
+		auto result = m_context->device.vkAllocateMemory(m_context->device, &memoryAllocateInfo, nullptr, &m_clutImageMemoryHandle);
+		CHECKVULKANERROR(result);
+	}
+	
+	m_context->device.vkBindImageMemory(m_context->device, m_clutImage, m_clutImageMemoryHandle, 0);
+
+	{
+		auto imageViewCreateInfo = Framework::Vulkan::ImageViewCreateInfo();
+		imageViewCreateInfo.image    = m_clutImage;
+		imageViewCreateInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
+		imageViewCreateInfo.format   = VK_FORMAT_R32_UINT;
+		imageViewCreateInfo.components = 
+		{
+			VK_COMPONENT_SWIZZLE_R, VK_COMPONENT_SWIZZLE_G, 
+			VK_COMPONENT_SWIZZLE_B, VK_COMPONENT_SWIZZLE_A 
+		};
+		imageViewCreateInfo.subresourceRange = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1 };
+		
+		auto result = m_context->device.vkCreateImageView(m_context->device, &imageViewCreateInfo, nullptr, &m_context->clutImageView);
+		CHECKVULKANERROR(result);
+	}
 }
 
 void CGSH_Vulkan::VertexKick(uint8 registerId, uint64 data)

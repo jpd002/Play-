@@ -18,6 +18,7 @@ namespace GSH_Vulkan
 		VkDescriptorPool descriptorPool = VK_NULL_HANDLE;
 		VkPhysicalDeviceMemoryProperties physicalDeviceMemoryProperties;
 		VkImageView memoryImageView;
+		VkImageView clutImageView;
 	};
 
 	typedef std::shared_ptr<CContext> ContextPtr;
