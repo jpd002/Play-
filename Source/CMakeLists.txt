@@ -260,6 +260,8 @@ set(COMMON_SRC_FILES
 	iop/Iop_MtapMan.h
 	iop/Iop_PadMan.cpp
 	iop/Iop_PadMan.h
+	iop/Iop_PathUtils.cpp
+	iop/Iop_PathUtils.h
 	iop/Iop_RootCounters.cpp
 	iop/Iop_RootCounters.h
 	iop/Iop_SifCmd.cpp
