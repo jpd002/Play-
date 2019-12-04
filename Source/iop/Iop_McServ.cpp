@@ -639,7 +639,7 @@ void CMcServ::GetEntSpace(uint32* args, uint32 argsSize, uint32* ret, uint32 ret
 	                          cmd->port, cmd->slot, cmd->flags, cmd->name);
 
 	auto mcPath = CAppConfig::GetInstance().GetPreferencePath(m_mcPathPreference[cmd->port]);
-	auto savePath = mcPath / cmd->name;
+	auto savePath = MakeHostPath(mcPath, cmd->name);
 
 	if(fs::exists(savePath) && fs::is_directory(savePath))
 	{
