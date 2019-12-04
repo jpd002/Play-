@@ -1,5 +1,6 @@
 #include <cassert>
 #include "DirectoryDevice.h"
+#include "Iop_PathUtils.h"
 #include "StdStream.h"
 #include "string_cast.h"
 #include "../AppConfig.h"
@@ -30,7 +31,7 @@ Framework::CStdStream* CreateStdStream(const std::wstring& path, const char* mod
 Framework::CStream* CDirectoryDevice::GetFile(uint32 accessType, const char* devicePath)
 {
 	auto basePath = CAppConfig::GetInstance().GetPreferencePath(m_basePathPreferenceName.c_str());
-	auto path = basePath / devicePath;
+	auto path = Iop::PathUtils::MakeHostPath(basePath, devicePath);
 
 	const char* mode = nullptr;
 	switch(accessType)
@@ -67,7 +68,7 @@ Framework::CStream* CDirectoryDevice::GetFile(uint32 accessType, const char* dev
 Directory CDirectoryDevice::GetDirectory(const char* devicePath)
 {
 	auto basePath = CAppConfig::GetInstance().GetPreferencePath(m_basePathPreferenceName.c_str());
-	auto path = basePath / devicePath;
+	auto path = Iop::PathUtils::MakeHostPath(basePath, devicePath);
 	if(!fs::is_directory(path))
 	{
 		throw std::runtime_error("Not a directory.");
