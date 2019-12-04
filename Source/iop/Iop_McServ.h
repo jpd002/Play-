@@ -56,7 +56,6 @@ namespace Iop
 		virtual ~CMcServ() = default;
 
 		static const char* GetMcPathPreference(unsigned int);
-		static fs::path MakeHostPath(const fs::path&, const char*);
 
 		std::string GetId() const override;
 		std::string GetFunctionName(unsigned int) const override;

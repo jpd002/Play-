@@ -5,6 +5,7 @@
 #include "../PS2VM_Preferences.h"
 #include "../Log.h"
 #include "Iop_McServ.h"
+#include "Iop_PathUtils.h"
 #include "Iop_Sysmem.h"
 #include "Iop_SifCmd.h"
 #include "Iop_SifManPs2.h"
@@ -52,21 +53,6 @@ CMcServ::CMcServ(CIopBios& bios, CSifMan& sifMan, CSifCmd& sifCmd, CSysmem& sysM
 const char* CMcServ::GetMcPathPreference(unsigned int port)
 {
 	return m_mcPathPreference[port];
-}
-
-fs::path CMcServ::MakeHostPath(const fs::path& baseHostPath, const char* mcPath)
-{
-	if(strlen(mcPath) == 0)
-	{
-		//If we're not adding anything, just return whatever we had
-		//We don't want to introduce a trailing slash since it will
-		//break other stuff
-		return baseHostPath;
-	}
-	auto result = baseHostPath;
-	result.concat("/");
-	result.concat(mcPath);
-	return result;
 }
 
 std::string CMcServ::GetId() const
@@ -520,7 +506,7 @@ void CMcServ::ChDir(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, 
 		}
 
 		auto mcPath = CAppConfig::GetInstance().GetPreferencePath(m_mcPathPreference[cmd->port]);
-		auto hostPath = MakeHostPath(mcPath, newCurrentDirectory.c_str());
+		auto hostPath = Iop::PathUtils::MakeHostPath(mcPath, newCurrentDirectory.c_str());
 
 		if(fs::exists(hostPath) && fs::is_directory(hostPath))
 		{
@@ -568,7 +554,7 @@ void CMcServ::GetDir(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize,
 			auto mcPath = CAppConfig::GetInstance().GetPreferencePath(m_mcPathPreference[cmd->port]);
 			if(cmd->name[0] != SEPARATOR_CHAR)
 			{
-				mcPath = MakeHostPath(mcPath, m_currentDirectory.c_str());
+				mcPath = Iop::PathUtils::MakeHostPath(mcPath, m_currentDirectory.c_str());
 			}
 			mcPath = fs::absolute(mcPath);
 
@@ -579,7 +565,7 @@ void CMcServ::GetDir(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize,
 				return;
 			}
 
-			auto searchPath = MakeHostPath(mcPath, cmd->name);
+			auto searchPath = Iop::PathUtils::MakeHostPath(mcPath, cmd->name);
 			searchPath.remove_filename();
 			if(!fs::exists(searchPath))
 			{
@@ -639,7 +625,7 @@ void CMcServ::GetEntSpace(uint32* args, uint32 argsSize, uint32* ret, uint32 ret
 	                          cmd->port, cmd->slot, cmd->flags, cmd->name);
 
 	auto mcPath = CAppConfig::GetInstance().GetPreferencePath(m_mcPathPreference[cmd->port]);
-	auto savePath = mcPath / cmd->name;
+	auto savePath = Iop::PathUtils::MakeHostPath(mcPath, cmd->name);
 
 	if(fs::exists(savePath) && fs::is_directory(savePath))
 	{
@@ -784,11 +770,11 @@ fs::path CMcServ::GetAbsoluteFilePath(unsigned int port, unsigned int slot, cons
 
 	if(name[0] == SEPARATOR_CHAR)
 	{
-		return MakeHostPath(mcPath, name);
+		return Iop::PathUtils::MakeHostPath(mcPath, name);
 	}
 	else
 	{
-		return MakeHostPath(MakeHostPath(mcPath, m_currentDirectory.c_str()), name);
+		return Iop::PathUtils::MakeHostPath(Iop::PathUtils::MakeHostPath(mcPath, m_currentDirectory.c_str()), name);
 	}
 }
 

@@ -2,6 +2,7 @@
 #include <assert.h>
 #include "iop/IopBios.h"
 #include "iop/Iop_McServ.h"
+#include "iop/Iop_PathUtils.h"
 #include "iop/Iop_SubSystem.h"
 #include "AppConfig.h"
 #include "PathUtils.h"
@@ -28,12 +29,12 @@ void PrepareTestEnvironment(const CGameTestSheet::EnvironmentActionArray& enviro
 	{
 		if(environmentAction.type == CGameTestSheet::ENVIRONMENT_ACTION_CREATE_DIRECTORY)
 		{
-			auto folderToCreate = Iop::CMcServ::MakeHostPath(memoryCardPath, environmentAction.name.c_str());
+			auto folderToCreate = Iop::PathUtils::MakeHostPath(memoryCardPath, environmentAction.name.c_str());
 			Framework::PathUtils::EnsurePathExists(folderToCreate);
 		}
 		else if(environmentAction.type == CGameTestSheet::ENVIRONMENT_ACTION_CREATE_FILE)
 		{
-			auto fileToCreate = Iop::CMcServ::MakeHostPath(memoryCardPath, environmentAction.name.c_str());
+			auto fileToCreate = Iop::PathUtils::MakeHostPath(memoryCardPath, environmentAction.name.c_str());
 			auto inputStream = Framework::CreateOutputStdStream(fileToCreate.native());
 			inputStream.Seek(environmentAction.size - 1, Framework::STREAM_SEEK_SET);
 			inputStream.Write8(0x00);
