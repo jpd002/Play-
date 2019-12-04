@@ -13,6 +13,8 @@ using namespace GSH_Vulkan;
 #define DESCRIPTOR_LOCATION_MEMORY 0
 #define DESCRIPTOR_LOCATION_XFERBUFFER 1
 
+#define LOCAL_SIZE_X 128
+
 CTransfer::CTransfer(const ContextPtr& context)
 	: m_context(context)
 {
@@ -76,7 +78,7 @@ void CTransfer::DoHostToLocalTransfer(const XferBuffer& inputData)
 		break;
 	}
 
-	uint32 workUnits = pixelCount / 128;
+	uint32 workUnits = pixelCount / LOCAL_SIZE_X;
 
 	auto descriptorSet = PrepareDescriptorSet(xferPipeline.descriptorSetLayout);
 	auto commandBuffer = m_context->commandBufferPool.AllocateBuffer();
@@ -193,6 +195,8 @@ Framework::Vulkan::CShaderModule CTransfer::CreateXferShader(const PIPELINE_CAPS
 	
 	auto b = CShaderBuilder();
 	
+	b.SetMetadata(CShaderBuilder::METADATA_LOCALSIZE_X, LOCAL_SIZE_X);
+
 	{
 		auto inputInvocationId = CInt4Lvalue(b.CreateInputInt(Nuanceur::SEMANTIC_SYSTEM_GIID));
 		auto memoryImage = CImageUint2DValue(b.CreateImage2DUint(DESCRIPTOR_LOCATION_MEMORY));
