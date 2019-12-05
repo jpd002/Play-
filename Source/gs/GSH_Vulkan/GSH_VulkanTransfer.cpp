@@ -17,6 +17,7 @@ using namespace GSH_Vulkan;
 
 CTransfer::CTransfer(const ContextPtr& context)
 	: m_context(context)
+	, m_pipelineCache(context->device)
 {
 	CreateXferBuffer();
 	m_pipelineCaps <<= 0;
@@ -24,13 +25,6 @@ CTransfer::CTransfer(const ContextPtr& context)
 
 CTransfer::~CTransfer()
 {
-	for(const auto& xferPipelinePair : m_xferPipelines)
-	{
-		auto& xferPipeline = xferPipelinePair.second;
-		m_context->device.vkDestroyPipeline(m_context->device, xferPipeline.pipeline, nullptr);
-		m_context->device.vkDestroyPipelineLayout(m_context->device, xferPipeline.pipelineLayout, nullptr);
-		m_context->device.vkDestroyDescriptorSetLayout(m_context->device, xferPipeline.descriptorSetLayout, nullptr);
-	}
 	m_context->device.vkDestroyBuffer(m_context->device, m_xferBuffer, nullptr);
 	m_context->device.vkFreeMemory(m_context->device, m_xferBufferMemory, nullptr);
 }
@@ -55,15 +49,11 @@ void CTransfer::DoHostToLocalTransfer(const XferBuffer& inputData)
 	}
 
 	//Find pipeline and create it if we've never encountered it before
-	auto xferPipelinePairIterator = m_xferPipelines.find(m_pipelineCaps);
-	if(xferPipelinePairIterator == std::end(m_xferPipelines))
+	auto xferPipeline = m_pipelineCache.TryGetPipeline(m_pipelineCaps);
+	if(!xferPipeline)
 	{
-		auto xferPipeline = CreateXferPipeline(m_pipelineCaps);
-		m_xferPipelines.insert(std::make_pair(m_pipelineCaps, xferPipeline));
-		xferPipelinePairIterator = m_xferPipelines.find(m_pipelineCaps);
+		xferPipeline = m_pipelineCache.RegisterPipeline(m_pipelineCaps, CreateXferPipeline(m_pipelineCaps));
 	}
-
-	const auto& xferPipeline = xferPipelinePairIterator->second;
 
 	uint32 pixelCount = 0;
 	switch(m_pipelineCaps.dstFormat)
@@ -80,7 +70,7 @@ void CTransfer::DoHostToLocalTransfer(const XferBuffer& inputData)
 
 	uint32 workUnits = pixelCount / LOCAL_SIZE_X;
 
-	auto descriptorSet = PrepareDescriptorSet(xferPipeline.descriptorSetLayout);
+	auto descriptorSet = PrepareDescriptorSet(xferPipeline->descriptorSetLayout);
 	auto commandBuffer = m_context->commandBufferPool.AllocateBuffer();
 
 	auto commandBufferBeginInfo = Framework::Vulkan::CommandBufferBeginInfo();
@@ -88,9 +78,9 @@ void CTransfer::DoHostToLocalTransfer(const XferBuffer& inputData)
 	result = m_context->device.vkBeginCommandBuffer(commandBuffer, &commandBufferBeginInfo);
 	CHECKVULKANERROR(result);
 
-	m_context->device.vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_COMPUTE, xferPipeline.pipelineLayout, 0, 1, &descriptorSet, 0, nullptr);
-	m_context->device.vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_COMPUTE, xferPipeline.pipeline);
-	m_context->device.vkCmdPushConstants(commandBuffer, xferPipeline.pipelineLayout, VK_SHADER_STAGE_COMPUTE_BIT, 0, sizeof(XFERPARAMS), &Params);
+	m_context->device.vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_COMPUTE, xferPipeline->pipelineLayout, 0, 1, &descriptorSet, 0, nullptr);
+	m_context->device.vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_COMPUTE, xferPipeline->pipeline);
+	m_context->device.vkCmdPushConstants(commandBuffer, xferPipeline->pipelineLayout, VK_SHADER_STAGE_COMPUTE_BIT, 0, sizeof(XFERPARAMS), &Params);
 	m_context->device.vkCmdDispatch(commandBuffer, workUnits, 1, 1);
 
 	m_context->device.vkEndCommandBuffer(commandBuffer);
@@ -259,9 +249,9 @@ Nuanceur::CUintRvalue CTransfer::XferStream_Read8(Nuanceur::CShaderBuilder& b, N
 	return (Load(xferBuffer, srcOffset) >> srcShift) & NewUint(b, 0xFF);
 }
 
-CTransfer::XFER_PIPELINE CTransfer::CreateXferPipeline(const PIPELINE_CAPS& caps)
+PIPELINE CTransfer::CreateXferPipeline(const PIPELINE_CAPS& caps)
 {
-	XFER_PIPELINE xferPipeline;
+	PIPELINE xferPipeline;
 
 	auto xferShader = CreateXferShader(caps);
 
