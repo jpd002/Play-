@@ -3,6 +3,7 @@
 #include "vulkan/VulkanDef.h"
 #include "vulkan/Instance.h"
 #include "GSH_VulkanContext.h"
+#include "GSH_VulkanClutLoad.h"
 #include "GSH_VulkanDraw.h"
 #include "GSH_VulkanPresent.h"
 #include "GSH_VulkanTransfer.h"
@@ -67,6 +68,7 @@ private:
 	void Prim_Triangle();
 	void Prim_Sprite();
 
+	GSH_Vulkan::ClutLoadPtr m_clutLoad;
 	GSH_Vulkan::DrawPtr m_draw;
 	GSH_Vulkan::PresentPtr m_present;
 	GSH_Vulkan::TransferPtr m_transfer;

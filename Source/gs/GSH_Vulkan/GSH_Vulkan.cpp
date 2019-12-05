@@ -63,6 +63,7 @@ void CGSH_Vulkan::InitializeImpl()
 	InitMemoryImage();
 	CreateClutImage();
 
+	m_clutLoad = std::make_shared<CClutLoad>(m_context);
 	m_draw = std::make_shared<CDraw>(m_context);
 	m_present = std::make_shared<CPresent>(m_context);
 	m_transfer = std::make_shared<CTransfer>(m_context);
@@ -75,6 +76,7 @@ void CGSH_Vulkan::ReleaseImpl()
 	//Flush any pending rendering commands
 	m_context->device.vkQueueWaitIdle(m_context->queue);
 
+	m_clutLoad.reset();
 	m_draw.reset();
 	m_present.reset();
 	m_transfer.reset();
