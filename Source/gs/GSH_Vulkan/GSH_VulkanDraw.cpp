@@ -6,6 +6,7 @@
 #include "nuanceur/Builder.h"
 #include "nuanceur/generators/SpirvShaderGenerator.h"
 #include "../GSHandler.h"
+#include "../GsPixelFormats.h"
 
 using namespace GSH_Vulkan;
 
@@ -15,6 +16,7 @@ using namespace GSH_Vulkan;
 #define VERTEX_ATTRIB_LOCATION_TEXCOORD 3
 
 #define DESCRIPTOR_LOCATION_IMAGE_MEMORY 0
+#define DESCRIPTOR_LOCATION_IMAGE_CLUT 1
 
 static void MakeLinearZOrtho(float* matrix, float left, float right, float bottom, float top)
 {
@@ -218,9 +220,13 @@ VkDescriptorSet CDraw::PrepareDescriptorSet(VkDescriptorSetLayout descriptorSetL
 
 	//Update descriptor set
 	{
-		VkDescriptorImageInfo descriptorImageInfo = {};
-		descriptorImageInfo.imageView = m_context->memoryImageView;
-		descriptorImageInfo.imageLayout = VK_IMAGE_LAYOUT_GENERAL;
+		VkDescriptorImageInfo descriptorMemoryImageInfo = {};
+		descriptorMemoryImageInfo.imageView = m_context->memoryImageView;
+		descriptorMemoryImageInfo.imageLayout = VK_IMAGE_LAYOUT_GENERAL;
+
+		VkDescriptorImageInfo descriptorClutImageInfo = {};
+		descriptorClutImageInfo.imageView = m_context->clutImageView;
+		descriptorClutImageInfo.imageLayout = VK_IMAGE_LAYOUT_GENERAL;
 
 		std::vector<VkWriteDescriptorSet> writes;
 
@@ -230,7 +236,18 @@ VkDescriptorSet CDraw::PrepareDescriptorSet(VkDescriptorSetLayout descriptorSetL
 			writeSet.dstBinding      = DESCRIPTOR_LOCATION_IMAGE_MEMORY;
 			writeSet.descriptorCount = 1;
 			writeSet.descriptorType  = VK_DESCRIPTOR_TYPE_STORAGE_IMAGE;
-			writeSet.pImageInfo      = &descriptorImageInfo;
+			writeSet.pImageInfo      = &descriptorMemoryImageInfo;
+			writes.push_back(writeSet);
+		}
+
+		if(CGsPixelFormats::IsPsmIDTEX(m_pipelineCaps.textureFormat))
+		{
+			auto writeSet = Framework::Vulkan::WriteDescriptorSet();
+			writeSet.dstSet          = descriptorSet;
+			writeSet.dstBinding      = DESCRIPTOR_LOCATION_IMAGE_CLUT;
+			writeSet.descriptorCount = 1;
+			writeSet.descriptorType  = VK_DESCRIPTOR_TYPE_STORAGE_IMAGE;
+			writeSet.pImageInfo      = &descriptorClutImageInfo;
 			writes.push_back(writeSet);
 		}
 
@@ -331,6 +348,16 @@ CDraw::DRAW_PIPELINE CDraw::CreateDrawPipeline(const PIPELINE_CAPS& caps)
 		{
 			VkDescriptorSetLayoutBinding setLayoutBinding = {};
 			setLayoutBinding.binding         = DESCRIPTOR_LOCATION_IMAGE_MEMORY;
+			setLayoutBinding.descriptorType  = VK_DESCRIPTOR_TYPE_STORAGE_IMAGE;
+			setLayoutBinding.descriptorCount = 1;
+			setLayoutBinding.stageFlags      = VK_SHADER_STAGE_FRAGMENT_BIT;
+			setLayoutBindings.push_back(setLayoutBinding);
+		}
+
+		if(CGsPixelFormats::IsPsmIDTEX(caps.textureFormat))
+		{
+			VkDescriptorSetLayoutBinding setLayoutBinding = {};
+			setLayoutBinding.binding         = DESCRIPTOR_LOCATION_IMAGE_CLUT;
 			setLayoutBinding.descriptorType  = VK_DESCRIPTOR_TYPE_STORAGE_IMAGE;
 			setLayoutBinding.descriptorCount = 1;
 			setLayoutBinding.stageFlags      = VK_SHADER_STAGE_FRAGMENT_BIT;
@@ -519,6 +546,7 @@ Framework::Vulkan::CShaderModule CDraw::CreateFragmentShader(const PIPELINE_CAPS
 		auto outputColor = CFloat4Lvalue(b.CreateOutput(Nuanceur::SEMANTIC_SYSTEM_COLOR));
 
 		auto memoryImage = CImageUint2DValue(b.CreateImage2DUint(DESCRIPTOR_LOCATION_IMAGE_MEMORY));
+		auto clutImage = CImageUint2DValue(b.CreateImage2DUint(DESCRIPTOR_LOCATION_IMAGE_CLUT));
 
 		//Push constants
 		auto projMatrix = CMatrix44Value(b.CreateUniformMatrix("g_projMatrix", Nuanceur::UNIFORM_UNIT_PUSHCONSTANT));
@@ -556,7 +584,12 @@ Framework::Vulkan::CShaderModule CDraw::CreateFragmentShader(const PIPELINE_CAPS
 				{
 					auto texAddress = CMemoryUtils::GetPixelAddress_PSMT8(b, texBufAddress, texBufWidth, texelPos);
 					auto texPixel = CMemoryUtils::Memory_Read8(b, memoryImage, texAddress);
-					textureColor = CMemoryUtils::PSM32ToVec4(b, texPixel);
+					auto clutIndexLo = NewInt2(ToInt(texPixel), NewInt(b, 0));
+					auto clutIndexHi = NewInt2(ToInt(texPixel) + NewInt(b, 0x100), NewInt(b, 0));
+					auto clutPixelLo = Load(clutImage, clutIndexLo)->x();
+					auto clutPixelHi = Load(clutImage, clutIndexHi)->x();
+					auto clutPixel = clutPixelLo | (clutPixelHi << NewUint(b, 16));
+					textureColor = CMemoryUtils::PSM32ToVec4(b, clutPixel);
 				}
 				break;
 			}
