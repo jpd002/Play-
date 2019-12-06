@@ -160,7 +160,6 @@ Framework::Vulkan::CShaderModule CClutLoad::CreateLoadShader(const PIPELINE_CAPS
 			{
 				auto colorAddress = CMemoryUtils::GetPixelAddress_PSMCT32(b, clutBufPtr, NewInt(b, 64), colorPos);
 				colorPixel = CMemoryUtils::Memory_Read32(b, memoryImage, colorAddress);
-				//colorPixel = NewUint(b, 0xFF00FF00);
 			}
 			break;
 		default:
@@ -168,7 +167,6 @@ Framework::Vulkan::CShaderModule CClutLoad::CreateLoadShader(const PIPELINE_CAPS
 			break;
 		}
 
-		clutIndex = colorPos->x() + (colorPos->y() * NewInt(b, 16));
 		if(caps.idx8)
 		{
 			clutIndex = colorPos->x() + (colorPos->y() * NewInt(b, 16));
