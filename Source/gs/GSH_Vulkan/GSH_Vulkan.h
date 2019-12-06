@@ -61,6 +61,7 @@ private:
 	void CreateMemoryImage();
 	void InitMemoryImage();
 	void CreateClutImage();
+	void InitClutImage();
 
 	void VertexKick(uint8, uint64);
 	void SetRenderingContext(uint64);

@@ -12,6 +12,8 @@ using namespace GSH_Vulkan;
 #define MEMORY_WIDTH 1024
 #define MEMORY_HEIGHT 1024
 
+//#define FILL_IMAGES
+
 static uint32 MakeColor(uint8 r, uint8 g, uint8 b, uint8 a)
 {
 	return (a << 24) | (b << 16) | (g << 8) | (r);
@@ -62,6 +64,7 @@ void CGSH_Vulkan::InitializeImpl()
 	CreateMemoryImage();
 	InitMemoryImage();
 	CreateClutImage();
+	InitClutImage();
 
 	m_clutLoad = std::make_shared<CClutLoad>(m_context);
 	m_draw = std::make_shared<CDraw>(m_context);
@@ -426,6 +429,7 @@ void CGSH_Vulkan::InitMemoryImage()
 {
 	VkResult result = VK_SUCCESS;
 	
+#ifdef FILL_IMAGES
 	VkBuffer stagingBufferHandle = VK_NULL_HANDLE;
 	VkDeviceMemory stagingBufferMemoryHandle = VK_NULL_HANDLE;
 	
@@ -477,6 +481,7 @@ void CGSH_Vulkan::InitMemoryImage()
 		
 		m_context->device.vkUnmapMemory(m_context->device, stagingBufferMemoryHandle);
 	}
+#endif
 	
 	auto commandBuffer = m_context->commandBufferPool.AllocateBuffer();
 	
@@ -489,6 +494,7 @@ void CGSH_Vulkan::InitMemoryImage()
 		CHECKVULKANERROR(result);
 	}
 	
+#ifdef FILL_IMAGES
 	//Transition image from whatever state to TRANSFER_DST_OPTIMAL
 	{
 		auto imageMemoryBarrier = Framework::Vulkan::ImageMemoryBarrier();
@@ -517,15 +523,16 @@ void CGSH_Vulkan::InitMemoryImage()
 		m_context->device.vkCmdCopyBufferToImage(commandBuffer, stagingBufferHandle, m_memoryImage, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
 			1, &bufferImageCopy);
 	}
-	
-	//Transition image from TRANSFER_DST_OPTIMAL to SHADER_READ_ONLY_OPTIMAL
+#endif
+
+	//Transition image to SHADER READ/WRITE
 	{
 		auto imageMemoryBarrier = Framework::Vulkan::ImageMemoryBarrier();
 		imageMemoryBarrier.image               = m_memoryImage;
-		imageMemoryBarrier.oldLayout           = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
+		imageMemoryBarrier.oldLayout           = VK_IMAGE_LAYOUT_UNDEFINED;
 		imageMemoryBarrier.newLayout           = VK_IMAGE_LAYOUT_GENERAL;
-		imageMemoryBarrier.srcAccessMask       = VK_ACCESS_TRANSFER_WRITE_BIT;
-		imageMemoryBarrier.dstAccessMask       = VK_ACCESS_SHADER_READ_BIT;
+		imageMemoryBarrier.srcAccessMask       = 0;
+		imageMemoryBarrier.dstAccessMask       = VK_ACCESS_SHADER_READ_BIT | VK_ACCESS_SHADER_WRITE_BIT;
 		imageMemoryBarrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
 		imageMemoryBarrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
 		imageMemoryBarrier.subresourceRange    = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1 };
@@ -552,9 +559,11 @@ void CGSH_Vulkan::InitMemoryImage()
 	result = m_context->device.vkQueueWaitIdle(m_context->queue);
 	CHECKVULKANERROR(result);
 	
+#ifdef FILL_IMAGES
 	//Destroy staging buffer and memory
 	m_context->device.vkFreeMemory(m_context->device, stagingBufferMemoryHandle, nullptr);
 	m_context->device.vkDestroyBuffer(m_context->device, stagingBufferHandle, nullptr);
+#endif
 }
 
 void CGSH_Vulkan::CreateClutImage()
@@ -575,7 +584,7 @@ void CGSH_Vulkan::CreateClutImage()
 		imageCreateInfo.samples       = VK_SAMPLE_COUNT_1_BIT;
 		imageCreateInfo.sharingMode   = VK_SHARING_MODE_EXCLUSIVE;
 		imageCreateInfo.tiling        = VK_IMAGE_TILING_OPTIMAL;
-		imageCreateInfo.usage         = VK_IMAGE_USAGE_STORAGE_BIT;
+		imageCreateInfo.usage         = VK_IMAGE_USAGE_STORAGE_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT;
 		imageCreateInfo.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
 
 		auto result = m_context->device.vkCreateImage(m_context->device, &imageCreateInfo, nullptr, &m_clutImage);
@@ -612,6 +621,142 @@ void CGSH_Vulkan::CreateClutImage()
 		auto result = m_context->device.vkCreateImageView(m_context->device, &imageViewCreateInfo, nullptr, &m_context->clutImageView);
 		CHECKVULKANERROR(result);
 	}
+}
+
+void CGSH_Vulkan::InitClutImage()
+{
+	auto result = VK_SUCCESS;
+
+#ifdef FILL_IMAGES
+	VkBuffer stagingBufferHandle = VK_NULL_HANDLE;
+	VkDeviceMemory stagingBufferMemoryHandle = VK_NULL_HANDLE;
+	
+	uint32 dataSize = CLUTENTRYCOUNT * sizeof(uint32);
+	
+	//Create staging buffer for our texture data
+	{
+		auto bufferCreateInfo = Framework::Vulkan::BufferCreateInfo();
+		bufferCreateInfo.usage = VK_BUFFER_USAGE_TRANSFER_SRC_BIT;
+		bufferCreateInfo.size  = dataSize;
+		
+		result = m_context->device.vkCreateBuffer(m_context->device, &bufferCreateInfo, nullptr, &stagingBufferHandle);
+		CHECKVULKANERROR(result);
+	}
+	
+	//Create staging buffer memory
+	{
+		VkMemoryRequirements memoryRequirements = {};
+		m_context->device.vkGetBufferMemoryRequirements(m_context->device, stagingBufferHandle, &memoryRequirements);
+		
+		auto memoryAllocateInfo = Framework::Vulkan::MemoryAllocateInfo();
+		memoryAllocateInfo.allocationSize  = memoryRequirements.size;
+		memoryAllocateInfo.memoryTypeIndex = Framework::Vulkan::GetMemoryTypeIndex(m_context->physicalDeviceMemoryProperties, memoryRequirements.memoryTypeBits, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
+		assert(memoryAllocateInfo.memoryTypeIndex != Framework::Vulkan::VULKAN_MEMORY_TYPE_INVALID);
+		
+		result = m_context->device.vkAllocateMemory(m_context->device, &memoryAllocateInfo, nullptr, &stagingBufferMemoryHandle);
+		CHECKVULKANERROR(result);
+	}
+	
+	m_context->device.vkBindBufferMemory(m_context->device, stagingBufferHandle, stagingBufferMemoryHandle, 0);
+	
+	//Copy image data in buffer
+	{
+		uint32* memoryPtr = nullptr;
+		result = m_context->device.vkMapMemory(m_context->device, stagingBufferMemoryHandle, 0, dataSize, 0, reinterpret_cast<void**>(&memoryPtr));
+		CHECKVULKANERROR(result);
+		
+		for(unsigned int x = 0; x < CLUTENTRYCOUNT; x++)
+		{
+			uint32 colX = (x * 0xFFFFFFULL) / CLUTENTRYCOUNT;
+			(*memoryPtr) = colX;
+			memoryPtr++;
+		}
+		
+		m_context->device.vkUnmapMemory(m_context->device, stagingBufferMemoryHandle);
+	}
+#endif
+
+	auto commandBuffer = m_context->commandBufferPool.AllocateBuffer();
+
+	//Start command buffer
+	{
+		auto commandBufferBeginInfo = Framework::Vulkan::CommandBufferBeginInfo();
+		commandBufferBeginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
+		
+		result = m_context->device.vkBeginCommandBuffer(commandBuffer, &commandBufferBeginInfo);
+		CHECKVULKANERROR(result);
+	}
+	
+#ifdef FILL_IMAGES
+	//Transition image from whatever state to TRANSFER_DST_OPTIMAL
+	{
+		auto imageMemoryBarrier = Framework::Vulkan::ImageMemoryBarrier();
+		imageMemoryBarrier.image               = m_clutImage;
+		imageMemoryBarrier.oldLayout           = VK_IMAGE_LAYOUT_UNDEFINED;
+		imageMemoryBarrier.newLayout           = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
+		imageMemoryBarrier.srcAccessMask       = 0;
+		imageMemoryBarrier.dstAccessMask       = VK_ACCESS_TRANSFER_WRITE_BIT;
+		imageMemoryBarrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+		imageMemoryBarrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+		imageMemoryBarrier.subresourceRange    = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1 };
+		
+		m_context->device.vkCmdPipelineBarrier(commandBuffer, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT,
+			0, 0, nullptr, 0, nullptr, 1, &imageMemoryBarrier);
+	}
+	
+	//CopyBufferToImage
+	{
+		VkBufferImageCopy bufferImageCopy = {};
+		bufferImageCopy.bufferRowLength    = CLUTENTRYCOUNT;
+		bufferImageCopy.imageSubresource   = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1 };
+		bufferImageCopy.imageExtent.width  = CLUTENTRYCOUNT;
+		bufferImageCopy.imageExtent.height = 1;
+		bufferImageCopy.imageExtent.depth  = 1;
+		
+		m_context->device.vkCmdCopyBufferToImage(commandBuffer, stagingBufferHandle, m_clutImage, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+			1, &bufferImageCopy);
+	}
+#endif
+
+	//Transition image to SHADER READ/WRITE
+	{
+		auto imageMemoryBarrier = Framework::Vulkan::ImageMemoryBarrier();
+		imageMemoryBarrier.image               = m_clutImage;
+		imageMemoryBarrier.oldLayout           = VK_IMAGE_LAYOUT_UNDEFINED;
+		imageMemoryBarrier.newLayout           = VK_IMAGE_LAYOUT_GENERAL;
+		imageMemoryBarrier.srcAccessMask       = 0;
+		imageMemoryBarrier.dstAccessMask       = VK_ACCESS_SHADER_READ_BIT | VK_ACCESS_SHADER_WRITE_BIT;
+		imageMemoryBarrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+		imageMemoryBarrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+		imageMemoryBarrier.subresourceRange    = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1 };
+		
+		m_context->device.vkCmdPipelineBarrier(commandBuffer, VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT,
+			0, 0, nullptr, 0, nullptr, 1, &imageMemoryBarrier);
+	}
+	
+	//Finish command buffer
+	result = m_context->device.vkEndCommandBuffer(commandBuffer);
+	CHECKVULKANERROR(result);
+	
+	//Submit command buffer
+	{
+		auto submitInfo = Framework::Vulkan::SubmitInfo();
+		submitInfo.commandBufferCount = 1;
+		submitInfo.pCommandBuffers    = &commandBuffer;
+		
+		result = m_context->device.vkQueueSubmit(m_context->queue, 1, &submitInfo, VK_NULL_HANDLE);
+		CHECKVULKANERROR(result);
+	}
+	
+	//Wait for queue ops to complete
+	result = m_context->device.vkQueueWaitIdle(m_context->queue);
+	CHECKVULKANERROR(result);
+	
+#ifdef FILL_IMAGES
+	//Destroy staging buffer and memory
+	m_context->device.vkFreeMemory(m_context->device, stagingBufferMemoryHandle, nullptr);
+	m_context->device.vkDestroyBuffer(m_context->device, stagingBufferHandle, nullptr);
+#endif
 }
 
 void CGSH_Vulkan::VertexKick(uint8 registerId, uint64 data)
