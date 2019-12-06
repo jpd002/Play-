@@ -1120,6 +1120,14 @@ void CGSH_Vulkan::ProcessClutTransfer(uint32 csa, uint32)
 
 }
 
+void CGSH_Vulkan::SyncCLUT(const TEX0& tex0)
+{
+	if(!CGsPixelFormats::IsPsmIDTEX(tex0.nPsm)) return;
+
+	m_draw->FlushVertices();
+	m_clutLoad->DoClutLoad(tex0);
+}
+
 void CGSH_Vulkan::ReadFramebuffer(uint32 width, uint32 height, void* buffer)
 {
 

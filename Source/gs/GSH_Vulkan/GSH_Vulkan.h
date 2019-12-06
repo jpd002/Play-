@@ -35,6 +35,7 @@ protected:
 	void ResetImpl() override;
 	void NotifyPreferencesChangedImpl() override;
 	void FlipImpl() override;
+	void SyncCLUT(const TEX0&) override;
 	unsigned int GetCurrentReadCircuit();
 
 	Framework::Vulkan::CInstance m_instance;
