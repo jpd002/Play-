@@ -19,7 +19,7 @@ CDebugView::CDebugView(QMdiArea* parent, CVirtualMachine& virtualMachine, CMIPS*
 	m_mdiSubWindow = new QMdiSubWindow(parent);
 	this->m_mdiSubWindow->setMinimumHeight(750);
 	this->m_mdiSubWindow->setMinimumWidth(320);
-	parent->addSubWindow(m_mdiSubWindow);
+	parent->addSubWindow(m_mdiSubWindow)->setWindowTitle("RegView");
 	//m_mdiSubWindow->setWidget(m_viewTabs);
 	
 	// Setup tabs
