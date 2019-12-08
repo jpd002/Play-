@@ -53,7 +53,7 @@ CDebugger::CDebugger(QWidget* parent, CPS2VM& virtualMachine)
 	this->m_debuggerMdi = new QMdiArea(this);
 	this->setWidget(m_debuggerMdi);
 	this->setFloating(true);
-	this->showMaximized();
+	// this->showMaximized();
 
 	//ELF View Initialization
 	//m_pELFView = new CELFView(m_pMDIClient->m_hWnd);
