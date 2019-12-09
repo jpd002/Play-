@@ -15,7 +15,6 @@
 #include "xml/Utils.h"
 #include "string_cast.h"
 #include "string_format.h"
-#include "DebugView.h"
 
 
 #define PREF_DEBUGGER_MEMORYVIEW_BYTEWIDTH "debugger.memoryview.bytewidth"
@@ -385,62 +384,47 @@ void QtDebugger::FindEeFunctions()
 
 void QtDebugger::Layout1024()
 {
-	//auto disassemblyWindowRect = Framework::Win32::PointsToPixels(Framework::Win32::MakeRectPositionSize(0, 0, 700, 435));
-	//auto registerViewWindowRect = Framework::Win32::PointsToPixels(Framework::Win32::MakeRectPositionSize(700, 0, 324, 572));
-	//auto memoryViewWindowRect = Framework::Win32::PointsToPixels(Framework::Win32::MakeRectPositionSize(0, 435, 700, 265));
-	//auto callStackWindowRect = Framework::Win32::PointsToPixels(Framework::Win32::MakeRectPositionSize(700, 572, 324, 128));
+	//GetDisassemblyWindow()->setGeometry(0, 0, 700, 435);
+	//GetDisassemblyWindow()->show();
 
-	//GetDisassemblyWindow()->SetSizePosition(disassemblyWindowRect);
-	//GetDisassemblyWindow()->Show(SW_SHOW);
+	GetRegisterViewWindow()->setGeometry(700, 0, 324, 572);
+	GetRegisterViewWindow()->show();
 
-	//GetRegisterViewWindow()->SetSizePosition(registerViewWindowRect);
-	//GetRegisterViewWindow()->Show(SW_SHOW);
+	//GetMemoryViewWindow()->setGeometry(0, 435, 700, 265);
+	//GetMemoryViewWindow()->show();
 
-	//GetMemoryViewWindow()->SetSizePosition(memoryViewWindowRect);
-	//GetMemoryViewWindow()->Show(SW_SHOW);
-
-	//GetCallStackWindow()->SetSizePosition(callStackWindowRect);
-	//GetCallStackWindow()->Show(SW_SHOW);
+	GetCallStackWindow()->setGeometry(700, 572, 324, 128);
+	GetCallStackWindow()->show();
 }
 
 void QtDebugger::Layout1280()
 {
-	//auto disassemblyWindowRect = Framework::Win32::PointsToPixels(Framework::Win32::MakeRectPositionSize(0, 0, 900, 540));
-	//auto registerViewWindowRect = Framework::Win32::PointsToPixels(Framework::Win32::MakeRectPositionSize(900, 0, 380, 784));
-	//auto memoryViewWindowRect = Framework::Win32::PointsToPixels(Framework::Win32::MakeRectPositionSize(0, 540, 900, 416));
-	//auto callStackWindowRect = Framework::Win32::PointsToPixels(Framework::Win32::MakeRectPositionSize(900, 784, 380, 172));
+	//GetDisassemblyWindow()->setGeometry(0, 0, 900, 540);
+	//GetDisassemblyWindow()->show();
 
-	//GetDisassemblyWindow()->SetSizePosition(disassemblyWindowRect);
-	//GetDisassemblyWindow()->Show(SW_SHOW);
+	GetRegisterViewWindow()->setGeometry(900, 0, 380, 784);
+	GetRegisterViewWindow()->show();
 
-	//GetRegisterViewWindow()->SetSizePosition(registerViewWindowRect);
-	//GetRegisterViewWindow()->Show(SW_SHOW);
+	//GetMemoryViewWindow()->setGeometry(0, 540, 900, 416);
+	//GetMemoryViewWindow()->show();
 
-	//GetMemoryViewWindow()->SetSizePosition(memoryViewWindowRect);
-	//GetMemoryViewWindow()->Show(SW_SHOW);
-
-	//GetCallStackWindow()->SetSizePosition(callStackWindowRect);
-	//GetCallStackWindow()->Show(SW_SHOW);
+	GetCallStackWindow()->setGeometry(900, 784, 380, 172);
+	GetCallStackWindow()->show();
 }
 
 void QtDebugger::Layout1600()
 {
-	//auto disassemblyWindowRect = Framework::Win32::PointsToPixels(Framework::Win32::MakeRectPositionSize(0, 0, 1094, 725));
-	//auto registerViewWindowRect = Framework::Win32::PointsToPixels(Framework::Win32::MakeRectPositionSize(1094, 0, 506, 725));
-	//auto memoryViewWindowRect = Framework::Win32::PointsToPixels(Framework::Win32::MakeRectPositionSize(0, 725, 1094, 407));
-	//auto callStackWindowRect = Framework::Win32::PointsToPixels(Framework::Win32::MakeRectPositionSize(1094, 725, 506, 407));
+	//GetDisassemblyWindow()->setGeometry(0, 0, 1094, 725);
+	//GetDisassemblyWindow()->show();
 
-	//GetDisassemblyWindow()->SetSizePosition(disassemblyWindowRect);
-	//GetDisassemblyWindow()->Show(SW_SHOW);
+	GetRegisterViewWindow()->setGeometry(1094, 0, 506, 725);
+	GetRegisterViewWindow()->show();
 
-	//GetRegisterViewWindow()->SetSizePosition(registerViewWindowRect);
-	//GetRegisterViewWindow()->Show(SW_SHOW);
+	//GetMemoryViewWindow()->setGeometry(0, 725, 1094, 407);
+	//GetMemoryViewWindow()->show();
 
-	//GetMemoryViewWindow()->SetSizePosition(memoryViewWindowRect);
-	//GetMemoryViewWindow()->Show(SW_SHOW);
-
-	//GetCallStackWindow()->SetSizePosition(callStackWindowRect);
-	//GetCallStackWindow()->Show(SW_SHOW);
+	GetCallStackWindow()->setGeometry(1094, 725, 506, 407);
+	GetCallStackWindow()->show();
 }
 
 void QtDebugger::InitializeConsole()
@@ -944,4 +928,29 @@ void QtDebugger::on_actionReanalyse_ee_triggered()
 void QtDebugger::on_actionFind_Functions_triggered()
 {
 	FindEeFunctions();
+}
+
+void QtDebugger::on_actionCascade_triggered()
+{
+	ui->mdiArea->cascadeSubWindows();
+}
+
+void QtDebugger::on_actionTile_triggered()
+{
+	ui->mdiArea->tileSubWindows();
+}
+
+void QtDebugger::on_actionLayout_1024x768_triggered()
+{
+	Layout1024();
+}
+
+void QtDebugger::on_actionLayout_1280x1024_triggered()
+{
+	Layout1280();
+}
+
+void QtDebugger::on_actionLayout_1600x1200_triggered()
+{
+	Layout1600();
 }

@@ -86,8 +86,7 @@
      <string>Window</string>
     </property>
     <addaction name="actionCascade"/>
-    <addaction name="actionTile_Horizontal"/>
-    <addaction name="actionTile_Vertical"/>
+    <addaction name="actionTile"/>
     <addaction name="actionLayout_1024x768"/>
     <addaction name="actionLayout_1280x1024"/>
     <addaction name="actionLayout_1600x1200"/>
@@ -197,9 +196,9 @@
     <string>Cascade</string>
    </property>
   </action>
-  <action name="actionTile_Horizontal">
+  <action name="actionTile">
    <property name="text">
-    <string>Tile Horizontal</string>
+    <string>Tile</string>
    </property>
   </action>
   <action name="actionTile_Vertical">

@@ -36,6 +36,12 @@ private slots:
 	void on_actionReanalyse_ee_triggered();
 	void on_actionFind_Functions_triggered();
 
+	void on_actionCascade_triggered();
+	void on_actionTile_triggered();
+	void on_actionLayout_1024x768_triggered();
+	void on_actionLayout_1280x1024_triggered();
+	void on_actionLayout_1600x1200_triggered();
+
 private:
 	Ui::QtDebugger *ui;
 
