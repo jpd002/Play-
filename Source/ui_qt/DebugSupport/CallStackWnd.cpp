@@ -23,6 +23,8 @@ CCallStackWnd::CCallStackWnd(QMdiArea* parent, CMIPS* context, CBiosDebugInfoPro
 	setWidget(m_listWidget);
 	m_listWidget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 
+	connect(m_listWidget, &QListWidget::itemDoubleClicked, this, &CCallStackWnd::listDoubleClick);
+
 	Update();
 }
 
@@ -60,15 +62,12 @@ void CCallStackWnd::Update()
 	}
 }
 
-// void CCallStackWnd::OnListDblClick()
-// {
-// 	int nSelection = m_list->GetSelection();
-// 	if(nSelection != -1)
-// 	{
-// 		uint32 nAddress = m_list->GetItemData(nSelection);
-// 		if(nAddress != MIPS_INVALID_PC)
-// 		{
-// 			OnFunctionDblClick(nAddress);
-// 		}
-// 	}
-// }
+void CCallStackWnd::listDoubleClick(QListWidgetItem *item)
+{
+	std::string addressStr = item->text().toStdString();
+	uint32 nAddress = lexical_cast_hex(addressStr);
+	if(nAddress != MIPS_INVALID_PC)
+	{
+		OnFunctionDblClick(nAddress);
+	}
+}

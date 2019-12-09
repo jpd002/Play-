@@ -24,6 +24,9 @@ public:
 
 	OnFunctionDblClickSignal OnFunctionDblClick;
 
+public slots:
+	void listDoubleClick(QListWidgetItem *item);
+
 private:
 	void Update();
 
