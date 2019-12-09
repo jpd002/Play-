@@ -11,8 +11,7 @@ CThreadsViewWnd::CThreadsViewWnd(QMdiArea* parent)
     , m_biosDebugInfoProvider(nullptr)
 {
 
-	setMinimumHeight(700);
-	setMinimumWidth(300);
+	resize(300, 700);
 
 	parent->addSubWindow(this)->setWindowTitle("Threads");
 

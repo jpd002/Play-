@@ -9,8 +9,7 @@ CAddressListViewWnd::CAddressListViewWnd(QMdiArea* parent)
     : QMdiSubWindow(parent)
 {
 
-	setMinimumHeight(700);
-	setMinimumWidth(400);
+	resize(400, 700);
 
 	parent->addSubWindow(this);
 

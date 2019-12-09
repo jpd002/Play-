@@ -13,8 +13,7 @@ CFunctionsView::CFunctionsView(QMdiArea* parent)
     : QMdiSubWindow(parent)
 {
 
-	setMinimumHeight(700);
-	setMinimumWidth(300);
+	resize(300, 700);
 
 	parent->addSubWindow(this)->setWindowTitle("Functions");
 

@@ -13,8 +13,7 @@ CRegViewWnd::CRegViewWnd(QMdiArea* parent, CMIPS* ctx)
 
 	parent->addSubWindow(this);
 	setWindowTitle("RegView");
-	setMinimumHeight(700);
-	setMinimumWidth(320);
+	resize(320, 700);
 
 	setWidget(m_tableWidget);
 	m_tableWidget->setTabPosition(QTabWidget::South);

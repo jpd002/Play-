@@ -14,8 +14,7 @@ CCallStackWnd::CCallStackWnd(QMdiArea* parent, CMIPS* context, CBiosDebugInfoPro
 	, m_context(context)
     , m_biosDebugInfoProvider(biosDebugInfoProvider)
 {
-	setMinimumHeight(750);
-	setMinimumWidth(320);
+	resize(320, 750);
 
 	parent->addSubWindow(this)->setWindowTitle("Call Stack");
 
