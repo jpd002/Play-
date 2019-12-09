@@ -1,3 +1,6 @@
+#include "QtDebugger.h"
+#include "ui_QtDebugger.h"
+
 #include "iop/IopBios.h"
 #include <stdio.h>
 #include <fcntl.h>
@@ -8,35 +11,25 @@
 #include "ee/PS2OS.h"
 #include "MipsFunctionPatternDb.h"
 #include "StdStream.h"
-//#include "win32/AcceleratorTableGenerator.h"
-//#include "win32/InputBox.h"
-//#include "win32/DpiUtils.h"
 #include "xml/Parser.h"
 #include "xml/Utils.h"
-#include "Debugger.h"
-//#include "../resource.h"
 #include "string_cast.h"
 #include "string_format.h"
 #include "DebugView.h"
 
-enum
-{
-	WM_EXECUNLOAD,
-	WM_EXECCHANGE,
-	WM_MACHINESTATECHANGE,
-	WM_RUNNINGSTATECHANGE
-};
 
 #define PREF_DEBUGGER_MEMORYVIEW_BYTEWIDTH "debugger.memoryview.bytewidth"
 
 #define FIND_MAX_ADDRESS 0x02000000
 
-CDebugger::CDebugger(QWidget* parent, CPS2VM& virtualMachine)
-		: QDockWidget("Debugger", parent),
-    m_virtualMachine(virtualMachine),
-		m_debuggerMdi(nullptr)
+QtDebugger::QtDebugger(QWidget *parent, CPS2VM& virtualMachine)
+    : QMainWindow(parent)
+    , ui(new Ui::QtDebugger)
+    , m_virtualMachine(virtualMachine)
 {
-	// Setup QT Stuff
+	ui->setupUi(this);
+
+		// Setup QT Stuff
 	RegisterPreferences();
 
 	// Load The Cursor to an arrow
@@ -50,9 +43,6 @@ CDebugger::CDebugger(QWidget* parent, CPS2VM& virtualMachine)
 	//SetMenu(LoadMenu(GetModuleHandle(NULL), MAKEINTRESOURCE(IDR_DEBUGGER)));
 
 	//CreateClient(NULL);
-	this->m_debuggerMdi = new QMdiArea(this);
-	this->setWidget(m_debuggerMdi);
-	this->setFloating(true);
 	// this->showMaximized();
 
 	//ELF View Initialization
@@ -60,18 +50,18 @@ CDebugger::CDebugger(QWidget* parent, CPS2VM& virtualMachine)
 	//m_pELFView->Show(SW_HIDE);
 
 	//Functions View Initialization
-	m_pFunctionsView = new CFunctionsView(this->m_debuggerMdi);
+	m_pFunctionsView = new CFunctionsView(ui->mdiArea);
 	m_pFunctionsView->show();
-	//m_OnFunctionDblClickConnection = m_pFunctionsView->OnFunctionDblClick.Connect(std::bind(&CDebugger::OnFunctionsViewFunctionDblClick, this, std::placeholders::_1));
-	//m_OnFunctionsStateChangeConnection = m_pFunctionsView->OnFunctionsStateChange.Connect(std::bind(&CDebugger::OnFunctionsViewFunctionsStateChange, this));
+	//m_OnFunctionDblClickConnection = m_pFunctionsView->OnFunctionDblClick.Connect(std::bind(&QtDebugger::OnFunctionsViewFunctionDblClick, this, std::placeholders::_1));
+	//m_OnFunctionsStateChangeConnection = m_pFunctionsView->OnFunctionsStateChange.Connect(std::bind(&QtDebugger::OnFunctionsViewFunctionsStateChange, this));
 
 	//Threads View Initialization
-	m_threadsView = new CThreadsViewWnd(this->m_debuggerMdi);
+	m_threadsView = new CThreadsViewWnd(ui->mdiArea);
 	m_threadsView->show();
-	//m_OnGotoAddressConnection = m_threadsView->OnGotoAddress.Connect(std::bind(&CDebugger::OnThreadsViewAddressDblClick, this, std::placeholders::_1));
+	//m_OnGotoAddressConnection = m_threadsView->OnGotoAddress.Connect(std::bind(&QtDebugger::OnThreadsViewAddressDblClick, this, std::placeholders::_1));
 
 	//Address List View Initialization
-	m_addressListView = new CAddressListViewWnd(m_debuggerMdi);
+	m_addressListView = new CAddressListViewWnd(ui->mdiArea);
 	m_addressListView->show();
 	//m_AddressSelectedConnection = m_addressListView->AddressSelected.Connect([&](uint32 address) { OnFindCallersAddressDblClick(address); });
 
@@ -79,7 +69,7 @@ CDebugger::CDebugger(QWidget* parent, CPS2VM& virtualMachine)
 	// m_nCurrentView = DEBUGVIEW_EE;
 	m_nCurrentView = -1;
 
-	m_pView[DEBUGVIEW_EE] = new CDebugView(this->m_debuggerMdi, m_virtualMachine, &m_virtualMachine.m_ee->m_EE,
+	m_pView[DEBUGVIEW_EE] = new CDebugView(ui->mdiArea, m_virtualMachine, &m_virtualMachine.m_ee->m_EE,
 	                                       std::bind(&CPS2VM::StepEe, &m_virtualMachine), m_virtualMachine.m_ee->m_os, "EmotionEngine");
 	//this->m_debuggerMdi->addSubWindow(m_pView[DEBUGVIEW_EE]);
 	//m_pView[DEBUGVIEW_VU0] = new CDebugView(this->m_debuggerMdi, m_virtualMachine, &m_virtualMachine.m_ee->m_VU0,
@@ -89,11 +79,11 @@ CDebugger::CDebugger(QWidget* parent, CPS2VM& virtualMachine)
 	//m_pView[DEBUGVIEW_IOP] = new CDebugView(this->m_debuggerMdi, m_virtualMachine, &m_virtualMachine.m_iop->m_cpu,
 	//                                        std::bind(&CPS2VM::StepIop, &m_virtualMachine), m_virtualMachine.m_iop->m_bios.get(), "IO Processor");
 
-	m_OnExecutableChangeConnection = m_virtualMachine.m_ee->m_os->OnExecutableChange.Connect(std::bind(&CDebugger::OnExecutableChange, this));
-	m_OnExecutableUnloadingConnection = m_virtualMachine.m_ee->m_os->OnExecutableUnloading.Connect(std::bind(&CDebugger::OnExecutableUnloading, this));
+	m_OnExecutableChangeConnection = m_virtualMachine.m_ee->m_os->OnExecutableChange.Connect(std::bind(&QtDebugger::OnExecutableChange, this));
+	m_OnExecutableUnloadingConnection = m_virtualMachine.m_ee->m_os->OnExecutableUnloading.Connect(std::bind(&QtDebugger::OnExecutableUnloading, this));
 
-	m_OnMachineStateChangeConnection = m_virtualMachine.OnMachineStateChange.Connect(std::bind(&CDebugger::OnMachineStateChange, this));
-	m_OnRunningStateChangeConnection = m_virtualMachine.OnRunningStateChange.Connect(std::bind(&CDebugger::OnRunningStateChange, this));
+	m_OnMachineStateChangeConnection = m_virtualMachine.OnMachineStateChange.Connect(std::bind(&QtDebugger::OnMachineStateChange, this));
+	m_OnRunningStateChangeConnection = m_virtualMachine.OnRunningStateChange.Connect(std::bind(&QtDebugger::OnRunningStateChange, this));
 
 	ActivateView(DEBUGVIEW_EE);
 //	LoadSettings();
@@ -104,11 +94,12 @@ CDebugger::CDebugger(QWidget* parent, CPS2VM& virtualMachine)
 	//}
 
 	CreateAccelerators();
-	this->m_debuggerMdi->show();
 }
 
-CDebugger::~CDebugger()
+QtDebugger::~QtDebugger()
 {
+	delete ui;
+
 	OnExecutableUnloadingMsg();
 
 	DestroyAccelerators();
@@ -129,12 +120,12 @@ CDebugger::~CDebugger()
 	delete m_pFunctionsView;
 }
 
-//HACCEL CDebugger::GetAccelerators()
+//HACCEL QtDebugger::GetAccelerators()
 //{
 //	return m_nAccTable;
 //}
 
-void CDebugger::RegisterPreferences()
+void QtDebugger::RegisterPreferences()
 {
 	CAppConfig& config(CAppConfig::GetInstance());
 
@@ -164,7 +155,7 @@ void CDebugger::RegisterPreferences()
 	config.RegisterPreferenceBoolean("debugger.callstack.visible", true);
 }
 
-void CDebugger::UpdateTitle()
+void QtDebugger::UpdateTitle()
 {
 	//std::string sTitle(_T("Play! - Debugger"));
 
@@ -179,19 +170,19 @@ void CDebugger::UpdateTitle()
 	//SetText(sTitle.c_str());
 }
 
-void CDebugger::LoadSettings()
+void QtDebugger::LoadSettings()
 {
 	LoadViewLayout();
 	LoadBytesPerLine();
 }
 
-void CDebugger::SaveSettings()
+void QtDebugger::SaveSettings()
 {
 	SaveViewLayout();
 	SaveBytesPerLine();
 }
 
-void CDebugger::SerializeWindowGeometry(const char* sPosX, const char* sPosY, const char* sSizeX, const char* sSizeY, const char* sVisible)
+void QtDebugger::SerializeWindowGeometry(const char* sPosX, const char* sPosY, const char* sSizeX, const char* sSizeY, const char* sVisible)
 {
 	//CAppConfig& config(CAppConfig::GetInstance());
 
@@ -211,7 +202,7 @@ void CDebugger::SerializeWindowGeometry(const char* sPosX, const char* sPosY, co
 	//config.SetPreferenceBoolean(sVisible, this->isVisible());
 }
 
-void CDebugger::UnserializeWindowGeometry(const char* sPosX, const char* sPosY, const char* sSizeX, const char* sSizeY, const char* sVisible)
+void QtDebugger::UnserializeWindowGeometry(const char* sPosX, const char* sPosY, const char* sSizeX, const char* sSizeY, const char* sVisible)
 {
 	//CAppConfig& config(CAppConfig::GetInstance());
 
@@ -227,12 +218,12 @@ void CDebugger::UnserializeWindowGeometry(const char* sPosX, const char* sPosY, 
 	//}
 }
 
-void CDebugger::Resume()
+void QtDebugger::Resume()
 {
 	m_virtualMachine.Resume();
 }
 
-void CDebugger::StepCPU()
+void QtDebugger::StepCPU()
 {
 	if(m_virtualMachine.GetStatus() == CVirtualMachine::RUNNING)
 	{
@@ -249,7 +240,7 @@ void CDebugger::StepCPU()
 	GetCurrentView()->Step();
 }
 
-void CDebugger::FindWordValue(uint32 mask)
+void QtDebugger::FindWordValue(uint32 mask)
 {
 	//Framework::Win32::CInputBox input(_T("Find Value in Memory"), _T("Enter value to find:"), _T("00000000"));
 
@@ -270,7 +261,7 @@ void CDebugger::FindWordValue(uint32 mask)
 	//m_addressListView->SetFocus();
 }
 
-void CDebugger::AssembleJAL()
+void QtDebugger::AssembleJAL()
 {
 	//Framework::Win32::CInputBox InputTarget(_T("Assemble JAL"), _T("Enter jump target:"), _T("00000000"));
 	//Framework::Win32::CInputBox InputAssemble(_T("Assemble JAL"), _T("Enter address to assemble JAL to:"), _T("00000000"));
@@ -288,7 +279,7 @@ void CDebugger::AssembleJAL()
 	//*(uint32*)&m_virtualMachine.m_ee->m_ram[nValueAssemble] = 0x0C000000 | (nValueTarget / 4);
 }
 
-void CDebugger::ReanalyzeEe()
+void QtDebugger::ReanalyzeEe()
 {
 	if(m_virtualMachine.m_ee->m_os->GetELF() == nullptr) return;
 
@@ -327,7 +318,7 @@ void CDebugger::ReanalyzeEe()
 	m_virtualMachine.m_ee->m_EE.m_analysis->Analyse(minAddr, maxAddr);
 }
 
-void CDebugger::FindEeFunctions()
+void QtDebugger::FindEeFunctions()
 {
 	if(m_virtualMachine.m_ee->m_os->GetELF() == nullptr) return;
 
@@ -392,7 +383,7 @@ void CDebugger::FindEeFunctions()
 	m_virtualMachine.m_ee->m_EE.m_Functions.OnTagListChange();
 }
 
-void CDebugger::Layout1024()
+void QtDebugger::Layout1024()
 {
 	//auto disassemblyWindowRect = Framework::Win32::PointsToPixels(Framework::Win32::MakeRectPositionSize(0, 0, 700, 435));
 	//auto registerViewWindowRect = Framework::Win32::PointsToPixels(Framework::Win32::MakeRectPositionSize(700, 0, 324, 572));
@@ -412,7 +403,7 @@ void CDebugger::Layout1024()
 	//GetCallStackWindow()->Show(SW_SHOW);
 }
 
-void CDebugger::Layout1280()
+void QtDebugger::Layout1280()
 {
 	//auto disassemblyWindowRect = Framework::Win32::PointsToPixels(Framework::Win32::MakeRectPositionSize(0, 0, 900, 540));
 	//auto registerViewWindowRect = Framework::Win32::PointsToPixels(Framework::Win32::MakeRectPositionSize(900, 0, 380, 784));
@@ -432,7 +423,7 @@ void CDebugger::Layout1280()
 	//GetCallStackWindow()->Show(SW_SHOW);
 }
 
-void CDebugger::Layout1600()
+void QtDebugger::Layout1600()
 {
 	//auto disassemblyWindowRect = Framework::Win32::PointsToPixels(Framework::Win32::MakeRectPositionSize(0, 0, 1094, 725));
 	//auto registerViewWindowRect = Framework::Win32::PointsToPixels(Framework::Win32::MakeRectPositionSize(1094, 0, 506, 725));
@@ -452,7 +443,7 @@ void CDebugger::Layout1600()
 	//GetCallStackWindow()->Show(SW_SHOW);
 }
 
-void CDebugger::InitializeConsole()
+void QtDebugger::InitializeConsole()
 {
 #ifdef _DEBUG
 	//AllocConsole();
@@ -473,7 +464,7 @@ void CDebugger::InitializeConsole()
 #endif
 }
 
-void CDebugger::ActivateView(unsigned int nView)
+void QtDebugger::ActivateView(unsigned int nView)
 {
 	if(m_nCurrentView == nView) return;
 
@@ -506,7 +497,7 @@ void CDebugger::ActivateView(unsigned int nView)
 	//    [&](uint32 address) { OnFindCallersRequested(address); });
 }
 
-void CDebugger::SaveViewLayout()
+void QtDebugger::SaveViewLayout()
 {
 	/*SerializeWindowGeometry(GetDisassemblyWindow(),
 	                        "debugger.disasm.posx",
@@ -538,7 +529,7 @@ void CDebugger::SaveViewLayout()
 													*/
 }
 
-void CDebugger::LoadViewLayout()
+void QtDebugger::LoadViewLayout()
 {
 	/*
 	UnserializeWindowGeometry(GetDisassemblyWindow(),
@@ -571,53 +562,53 @@ void CDebugger::LoadViewLayout()
 														*/
 }
 
-void CDebugger::SaveBytesPerLine()
+void QtDebugger::SaveBytesPerLine()
 {
 	//auto memoryView = GetMemoryViewWindow()->GetMemoryView();
 	//auto bytesPerLine = memoryView->GetBytesPerLine();
 	//CAppConfig::GetInstance().SetPreferenceInteger(PREF_DEBUGGER_MEMORYVIEW_BYTEWIDTH, bytesPerLine);
 }
 
-void CDebugger::LoadBytesPerLine()
+void QtDebugger::LoadBytesPerLine()
 {
 	//auto bytesPerLine = CAppConfig::GetInstance().GetPreferenceInteger(PREF_DEBUGGER_MEMORYVIEW_BYTEWIDTH);
 	//auto memoryView = GetMemoryViewWindow()->GetMemoryView();
 	//memoryView->SetBytesPerLine(bytesPerLine);
 }
 
-CDebugView* CDebugger::GetCurrentView()
+CDebugView* QtDebugger::GetCurrentView()
 {
 	if(m_nCurrentView == -1) return NULL;
 	return m_pView[m_nCurrentView];
 }
 
-CMIPS* CDebugger::GetContext()
+CMIPS* QtDebugger::GetContext()
 {
 	return nullptr;
 	return GetCurrentView()->GetContext();
 }
 /*
-CDisAsmWnd* CDebugger::GetDisassemblyWindow()
+CDisAsmWnd* QtDebugger::GetDisassemblyWindow()
 {
 	return GetCurrentView()->GetDisassemblyWindow();
 }
 
-CMemoryViewMIPSWnd* CDebugger::GetMemoryViewWindow()
+CMemoryViewMIPSWnd* QtDebugger::GetMemoryViewWindow()
 {
 	return GetCurrentView()->GetMemoryViewWindow();
 }
 
-CRegViewWnd* CDebugger::GetRegisterViewWindow()
+CRegViewWnd* QtDebugger::GetRegisterViewWindow()
 {
 	return GetCurrentView()->GetRegisterViewWindow();
 }
 
-CCallStackWnd* CDebugger::GetCallStackWindow()
+CCallStackWnd* QtDebugger::GetCallStackWindow()
 {
 	return GetCurrentView()->GetCallStackWindow();
 }
 */
-std::vector<uint32> CDebugger::FindCallers(CMIPS* context, uint32 address)
+std::vector<uint32> QtDebugger::FindCallers(CMIPS* context, uint32 address)
 {
 	std::vector<uint32> callers;
 	for(uint32 i = 0; i < FIND_MAX_ADDRESS; i += 4)
@@ -632,7 +623,7 @@ std::vector<uint32> CDebugger::FindCallers(CMIPS* context, uint32 address)
 	return callers;
 }
 
-std::vector<uint32> CDebugger::FindWordValueRefs(CMIPS* context, uint32 targetValue, uint32 valueMask)
+std::vector<uint32> QtDebugger::FindWordValueRefs(CMIPS* context, uint32 targetValue, uint32 valueMask)
 {
 	std::vector<uint32> refs;
 	for(uint32 i = 0; i < FIND_MAX_ADDRESS; i += 4)
@@ -646,7 +637,7 @@ std::vector<uint32> CDebugger::FindWordValueRefs(CMIPS* context, uint32 targetVa
 	return refs;
 }
 
-void CDebugger::CreateAccelerators()
+void QtDebugger::CreateAccelerators()
 {
 	//Framework::Win32::CAcceleratorTableGenerator generator;
 	//generator.Insert(ID_VIEW_FUNCTIONS, 'F', FCONTROL | FVIRTKEY);
@@ -661,12 +652,12 @@ void CDebugger::CreateAccelerators()
 	//m_nAccTable = generator.Create();
 }
 
-void CDebugger::DestroyAccelerators()
+void QtDebugger::DestroyAccelerators()
 {
 	//DestroyAcceleratorTable(m_nAccTable);
 }
 
-/*long CDebugger::OnCommand(unsigned short nID, unsigned short nMsg, HWND hFrom)
+/*long QtDebugger::OnCommand(unsigned short nID, unsigned short nMsg, HWND hFrom)
 {
 	switch(nID)
 	{
@@ -768,7 +759,7 @@ void CDebugger::DestroyAccelerators()
 }*/
 
 /*
-long CDebugger::OnSysCommand(unsigned int nCmd, LPARAM lParam)
+long QtDebugger::OnSysCommand(unsigned int nCmd, LPARAM lParam)
 {
 	switch(nCmd)
 	{
@@ -782,7 +773,7 @@ long CDebugger::OnSysCommand(unsigned int nCmd, LPARAM lParam)
 }*/
 
 /*
-LRESULT CDebugger::OnWndProc(unsigned int nMsg, WPARAM wParam, LPARAM lParam)
+LRESULT QtDebugger::OnWndProc(unsigned int nMsg, WPARAM wParam, LPARAM lParam)
 {
 	switch(nMsg)
 	{
@@ -806,49 +797,49 @@ LRESULT CDebugger::OnWndProc(unsigned int nMsg, WPARAM wParam, LPARAM lParam)
 	return CMDIFrame::OnWndProc(nMsg, wParam, lParam);
 }*/
 
-void CDebugger::OnFunctionsViewFunctionDblClick(uint32 address)
+void QtDebugger::OnFunctionsViewFunctionDblClick(uint32 address)
 {
 	//GetDisassemblyWindow()->GetDisAsm()->SetAddress(address);
 }
 
-void CDebugger::OnFunctionsViewFunctionsStateChange()
+void QtDebugger::OnFunctionsViewFunctionsStateChange()
 {
 	//GetDisassemblyWindow()->HandleMachineStateChange();
 	//GetCallStackWindow()->HandleMachineStateChange();
 }
 
-void CDebugger::OnThreadsViewAddressDblClick(uint32 address)
+void QtDebugger::OnThreadsViewAddressDblClick(uint32 address)
 {
 	//auto disAsm = GetDisassemblyWindow()->GetDisAsm();
 	//disAsm->SetCenterAtAddress(address);
 	//disAsm->SetSelectedAddress(address);
 }
 
-void CDebugger::OnExecutableChange()
+void QtDebugger::OnExecutableChange()
 {
 	//SendMessage(m_hWnd, WM_EXECCHANGE, 0, 0);
 }
 
-void CDebugger::OnExecutableUnloading()
+void QtDebugger::OnExecutableUnloading()
 {
 	//SendMessage(m_hWnd, WM_EXECUNLOAD, 0, 0);
 }
 
-void CDebugger::OnMachineStateChange()
+void QtDebugger::OnMachineStateChange()
 {
 	this->OnMachineStateChangeMsg();
 	//m_pView[DEBUGVIEW_EE]->HandleMachineStateChange();
 	//PostMessage(m_hWnd, WM_MACHINESTATECHANGE, 0, 0);
 }
 
-void CDebugger::OnRunningStateChange()
+void QtDebugger::OnRunningStateChange()
 {
 	this->OnRunningStateChangeMsg();
 	//m_pView[DEBUGVIEW_EE]->HandleRunningStateChange();
 	//PostMessage(m_hWnd, WM_RUNNINGSTATECHANGE, 0, 0);
 }
 
-void CDebugger::OnFindCallersRequested(uint32 address)
+void QtDebugger::OnFindCallersRequested(uint32 address)
 {
 	//auto context = GetCurrentView()->GetContext();
 	//auto callers = FindCallers(context, address);
@@ -872,14 +863,14 @@ void CDebugger::OnFindCallersRequested(uint32 address)
 	//m_addressListView->SetFocus();
 }
 
-void CDebugger::OnFindCallersAddressDblClick(uint32 address)
+void QtDebugger::OnFindCallersAddressDblClick(uint32 address)
 {
 	//auto disAsm = GetDisassemblyWindow()->GetDisAsm();
 	//disAsm->SetCenterAtAddress(address);
 	//disAsm->SetSelectedAddress(address);
 }
 
-void CDebugger::OnExecutableChangeMsg()
+void QtDebugger::OnExecutableChangeMsg()
 {
 	//m_pELFView->SetELF(m_virtualMachine.m_ee->m_os->GetELF());
 		// m_pFunctionsView->SetELF(m_virtualMachine.m_os->GetELF());
@@ -891,14 +882,14 @@ void CDebugger::OnExecutableChangeMsg()
 	m_pFunctionsView->Refresh();
 }
 
-void CDebugger::OnExecutableUnloadingMsg()
+void QtDebugger::OnExecutableUnloadingMsg()
 {
 	SaveDebugTags();
 	//m_pELFView->SetELF(NULL);
 		// m_pFunctionsView->SetELF(NULL);
 }
 
-void CDebugger::OnMachineStateChangeMsg()
+void QtDebugger::OnMachineStateChangeMsg()
 {
 	m_pView[DEBUGVIEW_EE]->HandleMachineStateChange();
 	//for(auto& view : m_pView)
@@ -908,7 +899,7 @@ void CDebugger::OnMachineStateChangeMsg()
 	m_threadsView->HandleMachineStateChange();
 }
 
-void CDebugger::OnRunningStateChangeMsg()
+void QtDebugger::OnRunningStateChangeMsg()
 {
 	auto newState = m_virtualMachine.GetStatus();
 	//m_pView[DEBUGVIEW_EE]->HandleMachineStateChange();
@@ -920,14 +911,14 @@ void CDebugger::OnRunningStateChangeMsg()
 	m_threadsView->HandleRunningStateChange(newState);
 }
 
-void CDebugger::LoadDebugTags()
+void QtDebugger::LoadDebugTags()
 {
 #ifdef DEBUGGER_INCLUDED
 	m_virtualMachine.LoadDebugTags(m_virtualMachine.m_ee->m_os->GetExecutableName());
 #endif
 }
 
-void CDebugger::SaveDebugTags()
+void QtDebugger::SaveDebugTags()
 {
 #ifdef DEBUGGER_INCLUDED
 	//if(m_virtualMachine.m_ee != nullptr)

@@ -38,7 +38,7 @@
 #else
 #include "tools/PsfPlayer/Source/SH_OpenAL.h"
 #ifdef DEBUGGER_INCLUDED
-#include "DebugSupport/Debugger.h"
+#include "DebugSupport/QtDebugger.h"
 #include "ui_debugmenu.h"
 #endif
 #endif
@@ -110,7 +110,7 @@ MainWindow::MainWindow(QWidget* parent)
 	SetupGsHandler();
 
 #ifdef DEBUGGER_INCLUDED
-	m_debugger = std::make_unique<CDebugger>(*m_virtualMachine);
+	m_debugger = std::make_unique<QtDebugger>(this, *m_virtualMachine);
 	m_frameDebugger = std::make_unique<CFrameDebugger>();
 	m_frameDebugger->Show(SW_SHOWMAXIMIZED);
 

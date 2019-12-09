@@ -23,7 +23,7 @@ namespace Ui
 class OutputWindow;
 
 #ifdef DEBUGGER_INCLUDED
-class CDebugger;
+class QtDebugger;
 //class CFrameDebugger;
 
 namespace Ui

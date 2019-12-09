@@ -1,9 +1,7 @@
 #pragma once
 
-#include <QDockWidget>
-#include <QMdiArea>
-#include <QGridLayout>
-//#include "ELFView.h"
+#include <QMainWindow>
+
 #include "FunctionsView.h"
 #include "ThreadsViewWnd.h"
 #include "AddressListViewWnd.h"
@@ -11,23 +9,25 @@
 
 // Predeclares to avoid headers
 class CDebugView;
-//class QDockWidget;
-//class QGridLayout;
 
-class CDebugger : public QDockWidget
+namespace Ui {
+	class QtDebugger;
+}
+
+class QtDebugger : public QMainWindow
 {
+	Q_OBJECT
+
 public:
-	CDebugger(QWidget*, CPS2VM&);
-	virtual ~CDebugger();
+	explicit QtDebugger(QWidget *parent, CPS2VM&);
+	~QtDebugger();
+
 	//HACCEL GetAccelerators();
 	static void InitializeConsole();
 
-protected:
-	//long OnCommand(unsigned short, unsigned short, HWND) override;
-	//long OnSysCommand(unsigned int, LPARAM) override;
-	//LRESULT OnWndProc(unsigned int, WPARAM, LPARAM) override;
-
 private:
+	Ui::QtDebugger *ui;
+
 	enum DEBUGVIEW
 	{
 		DEBUGVIEW_EE = 0,
@@ -114,7 +114,5 @@ private:
 	CAddressListViewWnd* m_addressListView = nullptr;
 	unsigned int m_nCurrentView;
 	CPS2VM& m_virtualMachine;
-
-	// QT Stuff
-	QMdiArea* m_debuggerMdi;
 };
+

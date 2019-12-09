@@ -1,9 +1,9 @@
 cmake_minimum_required(VERSION 3.5)
 project(PlayDebugSupport)
 
-set(CMAKE_AUTOMOC ON)
-set(CMAKE_AUTORCC ON)
-set(CMAKE_AUTOUIC ON)
+# set(CMAKE_AUTOMOC ON)
+# set(CMAKE_AUTORCC ON)
+# set(CMAKE_AUTOUIC ON)
 if(CMAKE_VERSION VERSION_LESS "3.7.0")
 	set(CMAKE_INCLUDE_CURRENT_DIR ON)
 endif()
@@ -30,8 +30,6 @@ set(SRC_FILES
 	${SRC_ROOT}/CallStackWnd.h
 	# ${SRC_ROOT}/DebugExpressionEvaluator.cpp
 	# ${SRC_ROOT}/DebugExpressionEvaluator.h
-	${SRC_ROOT}/Debugger.cpp
-	${SRC_ROOT}/Debugger.h
 	${SRC_ROOT}/AddressListViewWnd.cpp
 	${SRC_ROOT}/AddressListViewWnd.h
 	
@@ -116,10 +114,22 @@ set(SRC_FILES
 	# ${SRC_ROOT}/WinUtils.cpp
 	# ${SRC_ROOT}/WinUtils.h
 	${SRC_ROOT}/QtGenericTableModel.cpp
-	${SRC_ROOT}/QtGenericTableModel.h
+	${SRC_ROOT}/QtDebugger.cpp
 )
 
-add_library(PlayDebugSupport STATIC ${SRC_FILES})
+set(QT_DEBUGGER_MOC_HEADERS
+	${SRC_ROOT}/QtGenericTableModel.h
+	${SRC_ROOT}/QtDebugger.h
+)
+
+set(QT_DEBUGGER_UI
+	${SRC_ROOT}/Qt_ui/QtDebugger.ui
+)
+
+QT5_WRAP_UI(QT_DEBUGGER_UI_HEADERS ${QT_DEBUGGER_UI})
+QT5_WRAP_CPP(QT_DEBUGGER_MOC_SRCS ${QT_DEBUGGER_MOC_HEADERS})
+
+add_library(PlayDebugSupport STATIC ${SRC_FILES} ${QT_DEBUGGER_UI_HEADERS} ${QT_DEBUGGER_MOC_SRCS})
 target_link_libraries(PlayDebugSupport PlayCore Qt5::Core Qt5::Widgets)
 target_compile_definitions(PlayDebugSupport PRIVATE NOMINMAX)
-target_include_directories(PlayDebugSupport PRIVATE ../../${CMAKE_CURRENT_SOURCE_DIR})
+target_include_directories(PlayDebugSupport PRIVATE ../../${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_BINARY_DIR})
