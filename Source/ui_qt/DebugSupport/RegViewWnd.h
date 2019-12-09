@@ -17,11 +17,6 @@ public:
 	void HandleMachineStateChange() override;
 	void HandleRunningStateChange(CVirtualMachine::STATUS) override;
 
-protected:
-	//long OnSize(unsigned int, unsigned int, unsigned int) override;
-	//long OnSysCommand(unsigned int) override;
-	//LRESULT OnNotify(WPARAM, NMHDR*) override;
-
 private:
 	enum
 	{
@@ -33,8 +28,6 @@ private:
 	void RefreshLayout();
 
 	CRegViewPage* m_regView[MAXTABS];
-	//CRegViewPage* m_current = nullptr;
-	//Framework::Win32::CTab m_tabs;
 	QTabWidget* m_tab;
 	QTabWidget* m_tableWidget;
 };
