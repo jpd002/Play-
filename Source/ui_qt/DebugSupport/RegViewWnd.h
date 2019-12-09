@@ -1,15 +1,17 @@
 #pragma once
 
 #include "VirtualMachineStateView.h"
+#include <QMdiArea>
+#include <QMdiSubWindow>
 #include <QTabWidget>
 
 class CRegViewPage;
 class CMIPS;
 
-class CRegViewWnd : public QTabWidget, public CVirtualMachineStateView
+class CRegViewWnd : public QMdiSubWindow, public CVirtualMachineStateView
 {
 public:
-	CRegViewWnd(QWidget*, CMIPS*);
+	CRegViewWnd(QMdiArea*, CMIPS*);
 	virtual ~CRegViewWnd();
 
 	void HandleMachineStateChange() override;
@@ -34,4 +36,5 @@ private:
 	//CRegViewPage* m_current = nullptr;
 	//Framework::Win32::CTab m_tabs;
 	QTabWidget* m_tab;
+	QTabWidget* m_tableWidget;
 };

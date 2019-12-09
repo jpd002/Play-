@@ -52,6 +52,5 @@ private:
 	CBiosDebugInfoProvider* m_biosDebugInfoProvider;
 
 	//CCallStackWnd::OnFunctionDblClickSignal::Connection m_OnFunctionDblClickConnection;
-	QMdiSubWindow* m_mdiSubWindow;
 	QTabWidget* m_viewTabs;
 };

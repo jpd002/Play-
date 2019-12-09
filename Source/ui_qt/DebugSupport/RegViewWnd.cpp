@@ -6,23 +6,30 @@
 
 //#define WND_STYLE (WS_CLIPCHILDREN | WS_CLIPSIBLINGS | WS_THICKFRAME | WS_CAPTION | WS_SYSMENU | WS_CHILD | WS_MAXIMIZEBOX)
 
-CRegViewWnd::CRegViewWnd(QWidget* parent, CMIPS* ctx)
-	: QTabWidget(parent)
+CRegViewWnd::CRegViewWnd(QMdiArea* parent, CMIPS* ctx)
+	: QMdiSubWindow(parent)
+	, m_tableWidget(new QTabWidget(parent))
 {
-	this->setTabPosition(QTabWidget::South);
-	this->setMinimumHeight(700);
-	this->setMinimumWidth(320);
 
-	m_regView[0] = new CRegViewGeneral(this, ctx);
-	m_regView[1] = new CRegViewSCU(this, ctx);
-	m_regView[2] = new CRegViewFPU(this, ctx);
-	m_regView[3] = new CRegViewVU(this, ctx);
+	parent->addSubWindow(this);
+	setWindowTitle("RegView");
+	setMinimumHeight(700);
+	setMinimumWidth(320);
+
+	setWidget(m_tableWidget);
+	m_tableWidget->setTabPosition(QTabWidget::South);
+
+
+	m_regView[0] = new CRegViewGeneral(m_tableWidget, ctx);
+	m_regView[1] = new CRegViewSCU(m_tableWidget, ctx);
+	m_regView[2] = new CRegViewFPU(m_tableWidget, ctx);
+	m_regView[3] = new CRegViewVU(m_tableWidget, ctx);
 
 	//m_tabs = Framework::Win32::CTab(m_hWnd, windowRect, TCS_BOTTOM);
-	this->addTab(m_regView[0], "General");
-	this->addTab(m_regView[1], "SCU");
-	this->addTab(m_regView[2], "FPU");
-	this->addTab(m_regView[3], "VU");
+	m_tableWidget->addTab(m_regView[0], "General");
+	m_tableWidget->addTab(m_regView[1], "SCU");
+	m_tableWidget->addTab(m_regView[2], "FPU");
+	m_tableWidget->addTab(m_regView[3], "VU");
 
 	for(unsigned int i = 0; i < MAXTABS; i++)
 	{
