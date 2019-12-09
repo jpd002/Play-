@@ -25,6 +25,9 @@ CThreadsViewWnd::CThreadsViewWnd(QMdiArea* parent)
 	m_tableView->setModel(m_model);
 	m_tableView->horizontalHeader()->setStretchLastSection(true);
 	m_tableView->resizeColumnsToContents();
+
+	connect(m_tableView, &QTableView::doubleClicked, this, &CThreadsViewWnd::tableDoubleClick);
+
 }
 
 void CThreadsViewWnd::HandleMachineStateChange()
@@ -66,35 +69,33 @@ void CThreadsViewWnd::Update()
 	}
 }
 
-// void CThreadsViewWnd::OnListDblClick()
-// {
-// 	int nSelection = m_listView.GetSelection();
-// 	if(nSelection == -1) return;
+void CThreadsViewWnd::tableDoubleClick(const QModelIndex& indexRow)
+{
+	auto index = m_model->index(indexRow.row(), 0);
+	auto threadId = std::stoi(m_model->getItem(index));
 
-// 	uint32 threadId = m_listView.GetItemData(nSelection);
+	auto threadInfos = m_biosDebugInfoProvider->GetThreadsDebugInfo();
 
-// 	auto threadInfos = m_biosDebugInfoProvider->GetThreadsDebugInfo();
+	auto threadInfoIterator = std::find_if(std::begin(threadInfos), std::end(threadInfos),
+	                                       [&](const BIOS_DEBUG_THREAD_INFO& threadInfo) { return threadInfo.id == threadId; });
+	if(threadInfoIterator == std::end(threadInfos)) return;
 
-// 	auto threadInfoIterator = std::find_if(std::begin(threadInfos), std::end(threadInfos),
-// 	                                       [&](const BIOS_DEBUG_THREAD_INFO& threadInfo) { return threadInfo.id == threadId; });
-// 	if(threadInfoIterator == std::end(threadInfos)) return;
+	const auto& threadInfo(*threadInfoIterator);
 
-// 	const auto& threadInfo(*threadInfoIterator);
+	auto callStackItems = CMIPSAnalysis::GetCallStack(m_context, threadInfo.pc, threadInfo.sp, threadInfo.ra);
+	if(callStackItems.size() <= 1)
+	{
+		OnGotoAddress(threadInfo.pc);
+	}
+	else
+	{
+		// CThreadCallStackViewWnd threadCallStackViewWnd(m_hWnd);
+		// threadCallStackViewWnd.SetItems(m_context, callStackItems, m_biosDebugInfoProvider->GetModulesDebugInfo());
+		// threadCallStackViewWnd.DoModal();
 
-// 	auto callStackItems = CMIPSAnalysis::GetCallStack(m_context, threadInfo.pc, threadInfo.sp, threadInfo.ra);
-// 	if(callStackItems.size() <= 1)
-// 	{
-// 		OnGotoAddress(threadInfo.pc);
-// 	}
-// 	else
-// 	{
-// 		CThreadCallStackViewWnd threadCallStackViewWnd(m_hWnd);
-// 		threadCallStackViewWnd.SetItems(m_context, callStackItems, m_biosDebugInfoProvider->GetModulesDebugInfo());
-// 		threadCallStackViewWnd.DoModal();
-
-// 		if(threadCallStackViewWnd.HasSelection())
-// 		{
-// 			OnGotoAddress(threadCallStackViewWnd.GetSelectedAddress());
-// 		}
-// 	}
-// }
+		// if(threadCallStackViewWnd.HasSelection())
+		// {
+		// 	OnGotoAddress(threadCallStackViewWnd.GetSelectedAddress());
+		// }
+	}
+}

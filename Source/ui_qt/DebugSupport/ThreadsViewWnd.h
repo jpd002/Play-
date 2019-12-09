@@ -23,10 +23,11 @@ public:
 
 	Framework::CSignal<void(uint32)> OnGotoAddress;
 
+public slots:
+	void tableDoubleClick(const QModelIndex&);
+
 private:
 	void Update();
-	// void OnListDblClick();
-
 
 	CMIPS* m_context;
 	CBiosDebugInfoProvider* m_biosDebugInfoProvider;
