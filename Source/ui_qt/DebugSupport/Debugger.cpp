@@ -79,7 +79,8 @@ CDebugger::CDebugger(QWidget* parent, CPS2VM& virtualMachine)
 	// m_nCurrentView = DEBUGVIEW_EE;
 	m_nCurrentView = -1;
 
-	m_pView[DEBUGVIEW_EE] = new CDebugView(this->m_debuggerMdi, m_virtualMachine, &m_virtualMachine.m_ee->m_EE, std::bind(&CPS2VM::StepEe, &m_virtualMachine), m_virtualMachine.m_ee->m_os, "EmotionEngine");
+	m_pView[DEBUGVIEW_EE] = new CDebugView(this->m_debuggerMdi, m_virtualMachine, &m_virtualMachine.m_ee->m_EE,
+	                                       std::bind(&CPS2VM::StepEe, &m_virtualMachine), m_virtualMachine.m_ee->m_os, "EmotionEngine");
 	//this->m_debuggerMdi->addSubWindow(m_pView[DEBUGVIEW_EE]);
 	//m_pView[DEBUGVIEW_VU0] = new CDebugView(this->m_debuggerMdi, m_virtualMachine, &m_virtualMachine.m_ee->m_VU0,
 	//                                        std::bind(&CPS2VM::StepVu0, &m_virtualMachine), nullptr, "Vector Unit 0");//, CDisAsmWnd::DISASM_VU);
