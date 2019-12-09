@@ -597,6 +597,7 @@ CMemoryViewMIPSWnd* QtDebugger::GetMemoryViewWindow()
 {
 	return GetCurrentView()->GetMemoryViewWindow();
 }
+*/
 
 CRegViewWnd* QtDebugger::GetRegisterViewWindow()
 {
@@ -607,7 +608,7 @@ CCallStackWnd* QtDebugger::GetCallStackWindow()
 {
 	return GetCurrentView()->GetCallStackWindow();
 }
-*/
+
 std::vector<uint32> QtDebugger::FindCallers(CMIPS* context, uint32 address)
 {
 	std::vector<uint32> callers;

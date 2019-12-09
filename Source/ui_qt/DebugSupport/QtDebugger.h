@@ -2,6 +2,8 @@
 
 #include <QMainWindow>
 
+#include "DebugView.h"
+#include "CallStackWnd.h"
 #include "FunctionsView.h"
 #include "ThreadsViewWnd.h"
 #include "AddressListViewWnd.h"
@@ -78,8 +80,8 @@ private:
 	CMIPS* GetContext();
 	//CDisAsmWnd* GetDisassemblyWindow();
 	//CMemoryViewMIPSWnd* GetMemoryViewWindow();
-	//CRegViewWnd* GetRegisterViewWindow();
-	//CCallStackWnd* GetCallStackWindow();
+	CRegViewWnd* GetRegisterViewWindow();
+	CCallStackWnd* GetCallStackWindow();
 
 	//Search functions
 	static std::vector<uint32> FindCallers(CMIPS*, uint32);
