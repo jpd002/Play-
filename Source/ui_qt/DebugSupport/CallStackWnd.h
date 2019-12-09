@@ -1,8 +1,6 @@
 #pragma once
 
 #include "signal/Signal.h"
-// #include "win32/MDIChild.h"
-// #include "win32/ListView.h"
 #include <QMdiArea>
 #include <QMdiSubWindow>
 #include <QListWidget>
