@@ -63,6 +63,17 @@ bool CQtGenericTableModel::addItem(std::vector<std::string> data)
 	return true;
 }
 
+std::string CQtGenericTableModel::getItem(const QModelIndex& index)
+{
+	if(m_data.size() > index.row())
+	{
+		auto data = m_data.at(index.row());
+		if(data.size() > index.column())
+			return data.at(index.column());
+	}
+	return nullptr;
+}
+
 void CQtGenericTableModel::clear()
 {
 	emit QAbstractTableModel::beginResetModel();

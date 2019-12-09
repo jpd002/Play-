@@ -15,6 +15,7 @@ public:
 	void DoubleClicked(const QModelIndex& index, QWidget* parent = nullptr);
 
 	bool addItem(std::vector<std::string>);
+	std::string getItem(const QModelIndex& index);
 	void clear();
 
 protected:
