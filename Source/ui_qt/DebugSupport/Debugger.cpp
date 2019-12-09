@@ -71,8 +71,8 @@ CDebugger::CDebugger(QWidget* parent, CPS2VM& virtualMachine)
 	//m_OnGotoAddressConnection = m_threadsView->OnGotoAddress.Connect(std::bind(&CDebugger::OnThreadsViewAddressDblClick, this, std::placeholders::_1));
 
 	//Address List View Initialization
-	//m_addressListView = new CAddressListViewWnd(m_pMDIClient->m_hWnd);
-	//m_addressListView->Show(SW_HIDE);
+	m_addressListView = new CAddressListViewWnd(m_debuggerMdi);
+	m_addressListView->show();
 	//m_AddressSelectedConnection = m_addressListView->AddressSelected.Connect([&](uint32 address) { OnFindCallersAddressDblClick(address); });
 
 	//Debug Views Initialization

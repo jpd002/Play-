@@ -6,7 +6,7 @@
 //#include "ELFView.h"
 #include "FunctionsView.h"
 #include "ThreadsViewWnd.h"
-//#include "./Debugger/AddressListViewWnd.h"
+#include "AddressListViewWnd.h"
 #include "PS2VM.h"
 
 // Predeclares to avoid headers
@@ -111,7 +111,7 @@ private:
 	CFunctionsView* m_pFunctionsView = nullptr;
 	CThreadsViewWnd* m_threadsView = nullptr;
 	CDebugView* m_pView[DEBUGVIEW_MAX];
-	//CAddressListViewWnd* m_addressListView = nullptr;
+	CAddressListViewWnd* m_addressListView = nullptr;
 	unsigned int m_nCurrentView;
 	CPS2VM& m_virtualMachine;
 
