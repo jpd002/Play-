@@ -661,27 +661,6 @@ void QtDebugger::DestroyAccelerators()
 {
 	switch(nID)
 	{
-	case ID_VM_STEP:
-		StepCPU();
-		break;
-	case ID_VM_RESUME:
-		Resume();
-		break;
-	case ID_VM_DUMPINTCHANDLERS:
-		m_virtualMachine.DumpEEIntcHandlers();
-		break;
-	case ID_VM_DUMPDMACHANDLERS:
-		m_virtualMachine.DumpEEDmacHandlers();
-		break;
-	case ID_VM_ASMJAL:
-		AssembleJAL();
-		break;
-	case ID_VM_REANALYZE_EE:
-		ReanalyzeEe();
-		break;
-	case ID_VM_FINDEEFUNCTIONS:
-		FindEeFunctions();
-		break;
 	case ID_VM_FINDWORDVALUE:
 		FindWordValue(~0);
 		break;
@@ -929,4 +908,39 @@ void QtDebugger::SaveDebugTags()
 	//	}
 	//}
 #endif
+}
+
+void QtDebugger::on_actionResume_triggered()
+{
+	Resume();
+}
+
+void QtDebugger::on_actionStep_CPU_triggered()
+{
+	StepCPU();
+}
+
+void QtDebugger::on_actionDump_INTC_Handlers_triggered()
+{
+	m_virtualMachine.DumpEEIntcHandlers();
+}
+
+void QtDebugger::on_actionDump_DMAC_Handlers_triggered()
+{
+	m_virtualMachine.DumpEEDmacHandlers();
+}
+
+void QtDebugger::on_actionAssemble_JAL_triggered()
+{
+	AssembleJAL();
+}
+
+void QtDebugger::on_actionReanalyse_ee_triggered()
+{
+	ReanalyzeEe();
+}
+
+void QtDebugger::on_actionFind_Functions_triggered()
+{
+	FindEeFunctions();
 }
