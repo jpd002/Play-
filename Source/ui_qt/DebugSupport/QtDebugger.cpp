@@ -74,12 +74,12 @@ QtDebugger::QtDebugger(QWidget *parent, CPS2VM& virtualMachine)
 	m_pView[DEBUGVIEW_EE] = new CDebugView(ui->mdiArea, m_virtualMachine, &m_virtualMachine.m_ee->m_EE,
 	                                       std::bind(&CPS2VM::StepEe, &m_virtualMachine), m_virtualMachine.m_ee->m_os, "EmotionEngine");
 	//this->m_debuggerMdi->addSubWindow(m_pView[DEBUGVIEW_EE]);
-	//m_pView[DEBUGVIEW_VU0] = new CDebugView(this->m_debuggerMdi, m_virtualMachine, &m_virtualMachine.m_ee->m_VU0,
-	//                                        std::bind(&CPS2VM::StepVu0, &m_virtualMachine), nullptr, "Vector Unit 0");//, CDisAsmWnd::DISASM_VU);
-	//m_pView[DEBUGVIEW_VU1] = new CDebugView(this->m_debuggerMdi, m_virtualMachine, &m_virtualMachine.m_ee->m_VU1,
-	//                                        std::bind(&CPS2VM::StepVu1, &m_virtualMachine), nullptr, "Vector Unit 1");//, CDisAsmWnd::DISASM_VU);
-	//m_pView[DEBUGVIEW_IOP] = new CDebugView(this->m_debuggerMdi, m_virtualMachine, &m_virtualMachine.m_iop->m_cpu,
-	//                                        std::bind(&CPS2VM::StepIop, &m_virtualMachine), m_virtualMachine.m_iop->m_bios.get(), "IO Processor");
+	m_pView[DEBUGVIEW_VU0] = new CDebugView(this->m_debuggerMdi, m_virtualMachine, &m_virtualMachine.m_ee->m_VU0,
+	                                       std::bind(&CPS2VM::StepVu0, &m_virtualMachine), nullptr, "Vector Unit 0");//, CDisAsmWnd::DISASM_VU);
+	m_pView[DEBUGVIEW_VU1] = new CDebugView(this->m_debuggerMdi, m_virtualMachine, &m_virtualMachine.m_ee->m_VU1,
+	                                       std::bind(&CPS2VM::StepVu1, &m_virtualMachine), nullptr, "Vector Unit 1");//, CDisAsmWnd::DISASM_VU);
+	m_pView[DEBUGVIEW_IOP] = new CDebugView(this->m_debuggerMdi, m_virtualMachine, &m_virtualMachine.m_iop->m_cpu,
+	                                       std::bind(&CPS2VM::StepIop, &m_virtualMachine), m_virtualMachine.m_iop->m_bios.get(), "IO Processor");
 
 	m_OnExecutableChangeConnection = m_virtualMachine.m_ee->m_os->OnExecutableChange.Connect(std::bind(&QtDebugger::OnExecutableChange, this));
 	m_OnExecutableUnloadingConnection = m_virtualMachine.m_ee->m_os->OnExecutableUnloading.Connect(std::bind(&QtDebugger::OnExecutableUnloading, this));
