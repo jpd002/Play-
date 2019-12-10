@@ -49,6 +49,11 @@ private slots:
 	void on_actionFunctions_triggered();
 	void on_actionThreads_triggered();
 
+	void on_actionEmotionEngine_View_triggered();
+	void on_actionVector_Unit_0_triggered();
+	void on_actionVector_Unti_1_triggered();
+	void on_actionIOP_View_triggered();
+
 private:
 	Ui::QtDebugger *ui;
 

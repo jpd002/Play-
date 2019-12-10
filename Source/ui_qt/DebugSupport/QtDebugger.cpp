@@ -73,12 +73,11 @@ QtDebugger::QtDebugger(QWidget *parent, CPS2VM& virtualMachine)
 
 	m_pView[DEBUGVIEW_EE] = new CDebugView(ui->mdiArea, m_virtualMachine, &m_virtualMachine.m_ee->m_EE,
 	                                       std::bind(&CPS2VM::StepEe, &m_virtualMachine), m_virtualMachine.m_ee->m_os, "EmotionEngine");
-	//this->m_debuggerMdi->addSubWindow(m_pView[DEBUGVIEW_EE]);
-	m_pView[DEBUGVIEW_VU0] = new CDebugView(this->m_debuggerMdi, m_virtualMachine, &m_virtualMachine.m_ee->m_VU0,
+	m_pView[DEBUGVIEW_VU0] = new CDebugView(ui->mdiArea, m_virtualMachine, &m_virtualMachine.m_ee->m_VU0,
 	                                       std::bind(&CPS2VM::StepVu0, &m_virtualMachine), nullptr, "Vector Unit 0");//, CDisAsmWnd::DISASM_VU);
-	m_pView[DEBUGVIEW_VU1] = new CDebugView(this->m_debuggerMdi, m_virtualMachine, &m_virtualMachine.m_ee->m_VU1,
+	m_pView[DEBUGVIEW_VU1] = new CDebugView(ui->mdiArea, m_virtualMachine, &m_virtualMachine.m_ee->m_VU1,
 	                                       std::bind(&CPS2VM::StepVu1, &m_virtualMachine), nullptr, "Vector Unit 1");//, CDisAsmWnd::DISASM_VU);
-	m_pView[DEBUGVIEW_IOP] = new CDebugView(this->m_debuggerMdi, m_virtualMachine, &m_virtualMachine.m_iop->m_cpu,
+	m_pView[DEBUGVIEW_IOP] = new CDebugView(ui->mdiArea, m_virtualMachine, &m_virtualMachine.m_iop->m_cpu,
 	                                       std::bind(&CPS2VM::StepIop, &m_virtualMachine), m_virtualMachine.m_iop->m_bios.get(), "IO Processor");
 
 	m_OnExecutableChangeConnection = m_virtualMachine.m_ee->m_os->OnExecutableChange.Connect(std::bind(&QtDebugger::OnExecutableChange, this));
@@ -114,9 +113,8 @@ QtDebugger::~QtDebugger()
 
 	for(unsigned int i = 0; i < DEBUGVIEW_MAX; i++)
 	{
-		//delete m_pView[i];
+		delete m_pView[i];
 	}
-	delete m_pView[DEBUGVIEW_EE];
 
 	//delete m_pELFView;
 	delete m_pFunctionsView;
@@ -488,7 +486,7 @@ void QtDebugger::ActivateView(unsigned int nView)
 	{
 		SaveBytesPerLine();
 		SaveViewLayout();
-		this->hide();
+		GetCurrentView()->Hide();
 	}
 
 	//m_findCallersRequestConnection.reset();
@@ -693,18 +691,6 @@ void QtDebugger::DestroyAccelerators()
 		GetDisassemblyWindow()->setFocus(Qt::ActiveWindowFocusReason);
 		return FALSE;
 		break;
-	case ID_VIEW_EEVIEW:
-		ActivateView(DEBUGVIEW_EE);
-		break;
-	case ID_VIEW_VU0VIEW:
-		ActivateView(DEBUGVIEW_VU0);
-		break;
-	case ID_VIEW_VU1VIEW:
-		ActivateView(DEBUGVIEW_VU1);
-		break;
-	case ID_VIEW_IOPVIEW:
-		ActivateView(DEBUGVIEW_IOP);
-		break;
 	}
 	return TRUE;
 }*/
@@ -779,15 +765,11 @@ void QtDebugger::OnExecutableUnloading()
 void QtDebugger::OnMachineStateChange()
 {
 	this->OnMachineStateChangeMsg();
-	//m_pView[DEBUGVIEW_EE]->HandleMachineStateChange();
-	//PostMessage(m_hWnd, WM_MACHINESTATECHANGE, 0, 0);
 }
 
 void QtDebugger::OnRunningStateChange()
 {
 	this->OnRunningStateChangeMsg();
-	//m_pView[DEBUGVIEW_EE]->HandleRunningStateChange();
-	//PostMessage(m_hWnd, WM_RUNNINGSTATECHANGE, 0, 0);
 }
 
 void QtDebugger::OnFindCallersRequested(uint32 address)
@@ -842,23 +824,20 @@ void QtDebugger::OnExecutableUnloadingMsg()
 
 void QtDebugger::OnMachineStateChangeMsg()
 {
-	m_pView[DEBUGVIEW_EE]->HandleMachineStateChange();
-	//for(auto& view : m_pView)
-	//{
-	//	view->HandleMachineStateChange();
-	//}
+	for(auto& view : m_pView)
+	{
+		view->HandleMachineStateChange();
+	}
 	m_threadsView->HandleMachineStateChange();
 }
 
 void QtDebugger::OnRunningStateChangeMsg()
 {
 	auto newState = m_virtualMachine.GetStatus();
-	//m_pView[DEBUGVIEW_EE]->HandleMachineStateChange();
-	//for(auto& view : m_pView)
-	//{
-		//if(view != nullptr)
-			//view->HandleRunningStateChange(newState);
-	//}
+	for(auto& view : m_pView)
+	{
+		view->HandleRunningStateChange(newState);
+	}
 	m_threadsView->HandleRunningStateChange(newState);
 }
 
@@ -968,4 +947,24 @@ void QtDebugger::on_actionThreads_triggered()
 {
 	m_threadsView->show();
 	m_threadsView->setFocus(Qt::ActiveWindowFocusReason);
+}
+
+void QtDebugger::on_actionEmotionEngine_View_triggered()
+{
+	ActivateView(DEBUGVIEW_EE);
+}
+
+void QtDebugger::on_actionVector_Unit_0_triggered()
+{
+	ActivateView(DEBUGVIEW_VU0);
+}
+
+void QtDebugger::on_actionVector_Unti_1_triggered()
+{
+	ActivateView(DEBUGVIEW_VU1);
+}
+
+void QtDebugger::on_actionIOP_View_triggered()
+{
+	ActivateView(DEBUGVIEW_IOP);
 }
