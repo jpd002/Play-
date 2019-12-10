@@ -110,11 +110,11 @@ set(SRC_FILES
 	${SRC_ROOT}/RegViewVU.h
 	${SRC_ROOT}/RegViewWnd.cpp
 	${SRC_ROOT}/RegViewWnd.h
+	${SRC_ROOT}/ThreadsViewWnd.cpp
+	${SRC_ROOT}/ThreadsViewWnd.h
 	#[[
 	${SRC_ROOT}/ThreadCallStackViewWnd.cpp
 	${SRC_ROOT}/ThreadCallStackViewWnd.h
-	${SRC_ROOT}/ThreadsViewWnd.cpp
-	${SRC_ROOT}/ThreadsViewWnd.h
 	${SRC_ROOT}/VirtualMachineStateView.h
 	${SRC_ROOT}/WinUtils.cpp
 	${SRC_ROOT}/WinUtils.h]]

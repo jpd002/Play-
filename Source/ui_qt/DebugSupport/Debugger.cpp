@@ -66,8 +66,8 @@ CDebugger::CDebugger(QWidget* parent, CPS2VM& virtualMachine)
 	//m_OnFunctionsStateChangeConnection = m_pFunctionsView->OnFunctionsStateChange.Connect(std::bind(&CDebugger::OnFunctionsViewFunctionsStateChange, this));
 
 	//Threads View Initialization
-	//m_threadsView = new CThreadsViewWnd(m_pMDIClient->m_hWnd);
-	//m_threadsView->Show(SW_HIDE);
+	m_threadsView = new CThreadsViewWnd(this->m_debuggerMdi);
+	m_threadsView->show();
 	//m_OnGotoAddressConnection = m_threadsView->OnGotoAddress.Connect(std::bind(&CDebugger::OnThreadsViewAddressDblClick, this, std::placeholders::_1));
 
 	//Address List View Initialization
@@ -76,8 +76,8 @@ CDebugger::CDebugger(QWidget* parent, CPS2VM& virtualMachine)
 	//m_AddressSelectedConnection = m_addressListView->AddressSelected.Connect([&](uint32 address) { OnFindCallersAddressDblClick(address); });
 
 	//Debug Views Initialization
-	m_nCurrentView = DEBUGVIEW_EE;
-	//m_nCurrentView = -1;
+	// m_nCurrentView = DEBUGVIEW_EE;
+	m_nCurrentView = -1;
 
 	m_pView[DEBUGVIEW_EE] = new CDebugView(this->m_debuggerMdi, m_virtualMachine, &m_virtualMachine.m_ee->m_EE, std::bind(&CPS2VM::StepEe, &m_virtualMachine), m_virtualMachine.m_ee->m_os, "EmotionEngine");
 	//this->m_debuggerMdi->addSubWindow(m_pView[DEBUGVIEW_EE]);
@@ -94,7 +94,7 @@ CDebugger::CDebugger(QWidget* parent, CPS2VM& virtualMachine)
 	m_OnMachineStateChangeConnection = m_virtualMachine.OnMachineStateChange.Connect(std::bind(&CDebugger::OnMachineStateChange, this));
 	m_OnRunningStateChangeConnection = m_virtualMachine.OnRunningStateChange.Connect(std::bind(&CDebugger::OnRunningStateChange, this));
 
-//	ActivateView(DEBUGVIEW_EE);
+	ActivateView(DEBUGVIEW_EE);
 //	LoadSettings();
 
 	//if(GetDisassemblyWindow()->IsVisible())
@@ -493,7 +493,7 @@ void CDebugger::ActivateView(unsigned int nView)
 	{
 		auto biosDebugInfoProvider = GetCurrentView()->GetBiosDebugInfoProvider();
 		//m_pFunctionsView->SetContext(GetCurrentView()->GetContext(), biosDebugInfoProvider);
-		//m_threadsView->SetContext(GetCurrentView()->GetContext(), biosDebugInfoProvider);
+		m_threadsView->SetContext(GetCurrentView()->GetContext(), biosDebugInfoProvider);
 	}
 
 	//if(GetDisassemblyWindow()->IsVisible())
@@ -904,19 +904,19 @@ void CDebugger::OnMachineStateChangeMsg()
 	//{
 	//	view->HandleMachineStateChange();
 	//}
-	//m_threadsView->HandleMachineStateChange();
+	m_threadsView->HandleMachineStateChange();
 }
 
 void CDebugger::OnRunningStateChangeMsg()
 {
-	//auto newState = m_virtualMachine.GetStatus();
+	auto newState = m_virtualMachine.GetStatus();
 	//m_pView[DEBUGVIEW_EE]->HandleMachineStateChange();
 	//for(auto& view : m_pView)
 	//{
 		//if(view != nullptr)
 			//view->HandleRunningStateChange(newState);
 	//}
-	//m_threadsView->HandleRunningStateChange(newState);
+	m_threadsView->HandleRunningStateChange(newState);
 }
 
 void CDebugger::LoadDebugTags()
