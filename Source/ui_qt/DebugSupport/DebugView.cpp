@@ -34,7 +34,7 @@ CDebugView::CDebugView(QMdiArea* parent, CVirtualMachine& virtualMachine, CMIPS*
 	//m_OnFunctionDblClickConnection = m_callStackWnd->OnFunctionDblClick.Connect(std::bind(&CDebugView::OnCallStackWndFunctionDblClick, this, std::placeholders::_1));
 
 	//this->m_viewTabs->show();
-	//Hide();
+	Hide();
 }
 
 CDebugView::~CDebugView()
@@ -42,7 +42,7 @@ CDebugView::~CDebugView()
 	//delete m_disAsmWnd;
 	delete m_regViewWnd;
 	//delete m_memoryViewWnd;
-	//delete m_callStackWnd;
+	delete m_callStackWnd;
 }
 
 void CDebugView::HandleMachineStateChange()
@@ -70,10 +70,10 @@ void CDebugView::Hide()
 {
 	//int method = SW_HIDE;
 	//m_disAsmWnd->hide();
-	//m_memoryViewWnd->hide();
+	// m_memoryViewWnd->hide();
 
 	m_regViewWnd->hide();
-	//m_callStackWnd->hide();
+	m_callStackWnd->hide();
 }
 
 void CDebugView::Step()
