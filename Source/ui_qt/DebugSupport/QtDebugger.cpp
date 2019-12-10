@@ -157,17 +157,16 @@ void QtDebugger::RegisterPreferences()
 
 void QtDebugger::UpdateTitle()
 {
-	//std::string sTitle(_T("Play! - Debugger"));
+	std::string sTitle("Play! - Debugger");
 
-	//if(GetCurrentView() != NULL)
-	//{
-	//	sTitle +=
-	//	    _T(" - [ ") +
-	//	    string_cast<std::tstring>(GetCurrentView()->GetName()) +
-	//	    _T(" ]");
-	//}
+	if(GetCurrentView() != NULL)
+	{
+		sTitle += (" - [ ");
+		sTitle += GetCurrentView()->GetName();
+		sTitle += (" ]");
+	}
 
-	//SetText(sTitle.c_str());
+	setWindowTitle(sTitle.c_str());
 }
 
 void QtDebugger::LoadSettings()
