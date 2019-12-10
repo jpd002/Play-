@@ -30,17 +30,12 @@
 
 #ifdef _WIN32
 #include "../../tools/PsfPlayer/Source/win32_ui/SH_WaveOut.h"
-#ifdef DEBUGGER_INCLUDED
-#include "win32/DebugSupport/Debugger.h"
-#include "win32/DebugSupport/FrameDebugger/FrameDebugger.h"
-#include "ui_debugmenu.h"
-#endif
 #else
 #include "tools/PsfPlayer/Source/SH_OpenAL.h"
+#endif
 #ifdef DEBUGGER_INCLUDED
 #include "DebugSupport/QtDebugger.h"
 #include "ui_debugmenu.h"
-#endif
 #endif
 #include "input/PH_GenericInput.h"
 #include "DiskUtils.h"
