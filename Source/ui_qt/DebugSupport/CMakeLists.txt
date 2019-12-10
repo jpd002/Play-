@@ -26,16 +26,18 @@ endif()
 
 set(SRC_ROOT ${CMAKE_CURRENT_SOURCE_DIR})
 set(SRC_FILES
-	#[[	${SRC_ROOT}/CallStackWnd.cpp
+	${SRC_ROOT}/CallStackWnd.cpp
 	${SRC_ROOT}/CallStackWnd.h
+	#[[
 	${SRC_ROOT}/DebugExpressionEvaluator.cpp
 	${SRC_ROOT}/DebugExpressionEvaluator.h]]
 	${SRC_ROOT}/Debugger.cpp
 	${SRC_ROOT}/Debugger.h
 	#[[${SRC_ROOT}/Debugger/AddressListViewWnd.cpp
 	${SRC_ROOT}/Debugger/AddressListViewWnd.h
+	]]
 	${SRC_ROOT}/DebugUtils.cpp
-	${SRC_ROOT}/DebugUtils.h ]]
+	${SRC_ROOT}/DebugUtils.h
 	${SRC_ROOT}/DebugView.cpp
 	${SRC_ROOT}/DebugView.h
 	#[[

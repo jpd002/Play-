@@ -9,7 +9,7 @@
 //#include "DisAsmWnd.h"
 //#include "MemoryViewMIPSWnd.h"
 #include "RegViewWnd.h"
-//#include "CallStackWnd.h"
+#include "CallStackWnd.h"
 #include "VirtualMachineStateView.h"
 
 class CBiosDebugInfoProvider;
@@ -29,7 +29,7 @@ public:
 	//CDisAsmWnd* GetDisassemblyWindow();
 	//CMemoryViewMIPSWnd* GetMemoryViewWindow();
 	CRegViewWnd* GetRegisterViewWindow();
-	//CCallStackWnd* GetCallStackWindow();
+	CCallStackWnd* GetCallStackWindow();
 
 	void Step();
 	const char* GetName() const;
@@ -47,7 +47,7 @@ private:
 	//CDisAsmWnd* m_disAsmWnd;
 	//CMemoryViewMIPSWnd* m_memoryViewWnd;
 	CRegViewWnd* m_regViewWnd;
-	//CCallStackWnd* m_callStackWnd;
+	CCallStackWnd* m_callStackWnd;
 	StepFunction m_stepFunction;
 	CBiosDebugInfoProvider* m_biosDebugInfoProvider;
 
