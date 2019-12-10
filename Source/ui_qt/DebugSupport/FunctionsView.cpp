@@ -44,8 +44,9 @@ CFunctionsView::CFunctionsView(QMdiArea* parent)
 
 	m_model = new CQtGenericTableModel(parent, {"Name", "Address"});
 	m_tableView->setModel(m_model);
-	m_tableView->horizontalHeader()->setStretchLastSection(true);
-	m_tableView->resizeColumnsToContents();
+	auto header = m_tableView->horizontalHeader();
+	header->setSectionResizeMode(0, QHeaderView::Stretch);
+	header->setSectionResizeMode(1, QHeaderView::ResizeToContents);
 }
 
 void CFunctionsView::Refresh()

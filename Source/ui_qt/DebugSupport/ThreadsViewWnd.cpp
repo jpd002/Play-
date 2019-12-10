@@ -23,8 +23,19 @@ CThreadsViewWnd::CThreadsViewWnd(QMdiArea* parent)
 	std::vector<std::string> headers = {"Id", "Priority", "Location", "State"};
 	m_model = new CQtGenericTableModel(parent, {"Id", "Priority", "Location", "State"});
 	m_tableView->setModel(m_model);
-	m_tableView->horizontalHeader()->setStretchLastSection(true);
-	m_tableView->resizeColumnsToContents();
+	auto header = m_tableView->horizontalHeader();
+	header->setSectionResizeMode(0, QHeaderView::ResizeToContents);
+	header->setSectionResizeMode(1, QHeaderView::Interactive);
+	header->setSectionResizeMode(2, QHeaderView::Stretch);
+	header->setSectionResizeMode(3, QHeaderView::Stretch);
+	m_tableView->verticalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
+	m_tableView->verticalHeader()->hide();
+	m_tableView->setSelectionBehavior(QAbstractItemView::SelectRows);
+
+	QString text("Priority");
+	QFontMetrics fm = m_tableView->fontMetrics();
+	int width = fm.width(text);
+	header->resizeSection(1, width);
 
 	connect(m_tableView, &QTableView::doubleClicked, this, &CThreadsViewWnd::tableDoubleClick);
 
