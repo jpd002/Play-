@@ -70,8 +70,8 @@ private:
 	void UpdateTitle();
 	void LoadSettings();
 	void SaveSettings();
-	void SerializeWindowGeometry(const char*, const char*, const char*, const char*, const char*);
-	void UnserializeWindowGeometry(const char*, const char*, const char*, const char*, const char*);
+	void SerializeWindowGeometry(QMdiSubWindow*, const char*, const char*, const char*, const char*, const char*);
+	void UnserializeWindowGeometry(QMdiSubWindow*, const char*, const char*, const char*, const char*, const char*);
 	void CreateAccelerators();
 	void DestroyAccelerators();
 	void Resume();

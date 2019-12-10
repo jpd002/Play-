@@ -182,40 +182,39 @@ void QtDebugger::SaveSettings()
 	SaveBytesPerLine();
 }
 
-void QtDebugger::SerializeWindowGeometry(const char* sPosX, const char* sPosY, const char* sSizeX, const char* sSizeY, const char* sVisible)
+void QtDebugger::SerializeWindowGeometry(QMdiSubWindow* pWindow, const char* sPosX, const char* sPosY, const char* sSizeX, const char* sSizeY, const char* sVisible)
 {
-	//CAppConfig& config(CAppConfig::GetInstance());
+	CAppConfig& config(CAppConfig::GetInstance());
 
-	//RECT rc = pWindow->GetWindowRect();
-	//ScreenToClient(m_pMDIClient->m_hWnd, (POINT*)&rc + 0);
-	//ScreenToClient(m_pMDIClient->m_hWnd, (POINT*)&rc + 1);
+	auto geometry = pWindow->geometry();
 
-	//config.SetPreferenceInteger(sPosX, rc.left);
-	//config.SetPreferenceInteger(sPosY, rc.top);
+	config.SetPreferenceInteger(sPosX, geometry.x());
+	config.SetPreferenceInteger(sPosY, geometry.y());
 
 	//if(sSizeX != NULL && sSizeY != NULL)
 	//{
-	//	config.SetPreferenceInteger(sSizeX, (rc.right - rc.left));
-	//	config.SetPreferenceInteger(sSizeY, (rc.bottom - rc.top));
+		config.SetPreferenceInteger(sSizeX, geometry.width());
+		config.SetPreferenceInteger(sSizeY, geometry.height());
 	//}
 
-	//config.SetPreferenceBoolean(sVisible, this->isVisible());
+	config.SetPreferenceBoolean(sVisible, pWindow->isVisible());
 }
 
-void QtDebugger::UnserializeWindowGeometry(const char* sPosX, const char* sPosY, const char* sSizeX, const char* sSizeY, const char* sVisible)
+void QtDebugger::UnserializeWindowGeometry(QMdiSubWindow* pWindow, const char* sPosX, const char* sPosY, const char* sSizeX, const char* sSizeY, const char* sVisible)
 {
-	//CAppConfig& config(CAppConfig::GetInstance());
+	CAppConfig& config(CAppConfig::GetInstance());
 
-	//pWindow->SetPosition(config.GetPreferenceInteger(sPosX), config.GetPreferenceInteger(sPosY));
-	//pWindow->SetSize(config.GetPreferenceInteger(sSizeX), config.GetPreferenceInteger(sSizeY));
+	pWindow->setGeometry(config.GetPreferenceInteger(sPosX), config.GetPreferenceInteger(sPosY),
+	                     config.GetPreferenceInteger(sSizeX), config.GetPreferenceInteger(sSizeY));
 
-	//if(!config.GetPreferenceBoolean(sVisible))
-	//{
-	//	pWindow->Show(SW_HIDE);
-	//}
-	//else
-	//{
-	//}
+	if(!config.GetPreferenceBoolean(sVisible))
+	{
+		pWindow->hide();
+	}
+	else
+	{
+		pWindow->show();
+	}
 }
 
 void QtDebugger::Resume()
@@ -513,12 +512,12 @@ void QtDebugger::ActivateView(unsigned int nView)
 
 void QtDebugger::SaveViewLayout()
 {
-	/*SerializeWindowGeometry(GetDisassemblyWindow(),
-	                        "debugger.disasm.posx",
-	                        "debugger.disasm.posy",
-	                        "debugger.disasm.sizex",
-	                        "debugger.disasm.sizey",
-	                        "debugger.disasm.visible");
+	// SerializeWindowGeometry(GetDisassemblyWindow(),
+	//                         "debugger.disasm.posx",
+	//                         "debugger.disasm.posy",
+	//                         "debugger.disasm.sizex",
+	//                         "debugger.disasm.sizey",
+	//                         "debugger.disasm.visible");
 
 	SerializeWindowGeometry(GetRegisterViewWindow(),
 	                        "debugger.regview.posx",
@@ -527,12 +526,12 @@ void QtDebugger::SaveViewLayout()
 	                        "debugger.regview.sizey",
 	                        "debugger.regview.visible");
 
-	SerializeWindowGeometry(GetMemoryViewWindow(),
-	                        "debugger.memoryview.posx",
-	                        "debugger.memoryview.posy",
-	                        "debugger.memoryview.sizex",
-	                        "debugger.memoryview.sizey",
-	                        "debugger.memoryview.visible");
+	// SerializeWindowGeometry(GetMemoryViewWindow(),
+	//                         "debugger.memoryview.posx",
+	//                         "debugger.memoryview.posy",
+	//                         "debugger.memoryview.sizex",
+	//                         "debugger.memoryview.sizey",
+	//                         "debugger.memoryview.visible");
 
 	SerializeWindowGeometry(GetCallStackWindow(),
 	                        "debugger.callstack.posx",
@@ -540,18 +539,16 @@ void QtDebugger::SaveViewLayout()
 	                        "debugger.callstack.sizex",
 	                        "debugger.callstack.sizey",
 	                        "debugger.callstack.visible");
-													*/
 }
 
 void QtDebugger::LoadViewLayout()
 {
-	/*
-	UnserializeWindowGeometry(GetDisassemblyWindow(),
-	                          "debugger.disasm.posx",
-	                          "debugger.disasm.posy",
-	                          "debugger.disasm.sizex",
-	                          "debugger.disasm.sizey",
-	                          "debugger.disasm.visible");
+	// UnserializeWindowGeometry(GetDisassemblyWindow(),
+	//                           "debugger.disasm.posx",
+	//                           "debugger.disasm.posy",
+	//                           "debugger.disasm.sizex",
+	//                           "debugger.disasm.sizey",
+	//                           "debugger.disasm.visible");
 
 	UnserializeWindowGeometry(GetRegisterViewWindow(),
 	                          "debugger.regview.posx",
@@ -560,12 +557,12 @@ void QtDebugger::LoadViewLayout()
 	                          "debugger.regview.sizey",
 	                          "debugger.regview.visible");
 
-	UnserializeWindowGeometry(GetMemoryViewWindow(),
-	                          "debugger.memoryview.posx",
-	                          "debugger.memoryview.posy",
-	                          "debugger.memoryview.sizex",
-	                          "debugger.memoryview.sizey",
-	                          "debugger.memoryview.visible");
+	// UnserializeWindowGeometry(GetMemoryViewWindow(),
+	//                           "debugger.memoryview.posx",
+	//                           "debugger.memoryview.posy",
+	//                           "debugger.memoryview.sizex",
+	//                           "debugger.memoryview.sizey",
+	//                           "debugger.memoryview.visible");
 
 	UnserializeWindowGeometry(GetCallStackWindow(),
 	                          "debugger.callstack.posx",
@@ -573,7 +570,6 @@ void QtDebugger::LoadViewLayout()
 	                          "debugger.callstack.sizex",
 	                          "debugger.callstack.sizey",
 	                          "debugger.callstack.visible");
-														*/
 }
 
 void QtDebugger::SaveBytesPerLine()
