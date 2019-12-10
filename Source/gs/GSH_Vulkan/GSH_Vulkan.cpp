@@ -66,10 +66,13 @@ void CGSH_Vulkan::InitializeImpl()
 	CreateClutImage();
 	InitClutImage();
 
-	m_clutLoad = std::make_shared<CClutLoad>(m_context);
-	m_draw = std::make_shared<CDraw>(m_context);
+	m_frameCommandBuffer = std::make_shared<CFrameCommandBuffer>(m_context);
+	m_clutLoad = std::make_shared<CClutLoad>(m_context, m_frameCommandBuffer);
+	m_draw = std::make_shared<CDraw>(m_context, m_frameCommandBuffer);
 	m_present = std::make_shared<CPresent>(m_context);
-	m_transfer = std::make_shared<CTransfer>(m_context);
+	m_transfer = std::make_shared<CTransfer>(m_context, m_frameCommandBuffer);
+
+	m_frameCommandBuffer->RegisterWriter(m_draw.get());
 }
 
 void CGSH_Vulkan::ReleaseImpl()
@@ -83,6 +86,7 @@ void CGSH_Vulkan::ReleaseImpl()
 	m_draw.reset();
 	m_present.reset();
 	m_transfer.reset();
+	m_frameCommandBuffer.reset();
 
 	m_context->device.vkDestroyImageView(m_context->device, m_context->clutImageView, nullptr);
 	m_context->device.vkDestroyImage(m_context->device, m_clutImage, nullptr);
@@ -105,7 +109,7 @@ void CGSH_Vulkan::ResetImpl()
 
 void CGSH_Vulkan::FlipImpl()
 {
-	m_draw->FlushCommands();
+	m_frameCommandBuffer->Flush();
 
 	DISPLAY d;
 	DISPFB fb;

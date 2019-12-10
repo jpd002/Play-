@@ -3,13 +3,14 @@
 #include <memory>
 #include <map>
 #include "GSH_VulkanContext.h"
+#include "GSH_VulkanFrameCommandBuffer.h"
 #include "vulkan/ShaderModule.h"
 #include "vulkan/Buffer.h"
 #include "Convertible.h"
 
 namespace GSH_Vulkan
 {
-	class CDraw
+	class CDraw : public IFrameCommandBufferWriter
 	{
 	public:
 		typedef uint64 PipelineCapsInt;
@@ -33,7 +34,7 @@ namespace GSH_Vulkan
 			float s, t, q;
 		};
 
-		CDraw(const ContextPtr&);
+		CDraw(const ContextPtr&, const FrameCommandBufferPtr&);
 		virtual ~CDraw();
 
 		void SetPipelineCaps(const PIPELINE_CAPS&);
@@ -43,7 +44,8 @@ namespace GSH_Vulkan
 		void AddVertices(const PRIM_VERTEX*, const PRIM_VERTEX*);
 		void FlushVertices();
 
-		void FlushCommands();
+		void PreFlushFrameCommandBuffer() override;
+		void PostFlushFrameCommandBuffer() override;
 
 	private:
 		struct DRAW_PIPELINE
@@ -68,7 +70,6 @@ namespace GSH_Vulkan
 		static_assert(sizeof(DRAW_PIPELINE_PUSHCONSTANTS) <= 128, "Push constants size can't exceed 128 bytes.");
 
 		VkDescriptorSet PrepareDescriptorSet(VkDescriptorSetLayout);
-		void StartRecording();
 
 		void CreateFramebuffer();
 		void CreateRenderPass();
@@ -79,6 +80,7 @@ namespace GSH_Vulkan
 		Framework::Vulkan::CShaderModule CreateFragmentShader(const PIPELINE_CAPS&);
 
 		ContextPtr m_context;
+		FrameCommandBufferPtr m_frameCommandBuffer;
 
 		VkRenderPass m_renderPass = VK_NULL_HANDLE;
 		VkFramebuffer m_framebuffer = VK_NULL_HANDLE;
@@ -92,7 +94,6 @@ namespace GSH_Vulkan
 		VkDeviceMemory m_drawImageMemoryHandle = VK_NULL_HANDLE;
 		VkImageView m_drawImageView = VK_NULL_HANDLE;
 
-		VkCommandBuffer m_commandBuffer = VK_NULL_HANDLE;
 		uint32 m_passVertexStart = 0;
 		uint32 m_passVertexEnd = 0;
 

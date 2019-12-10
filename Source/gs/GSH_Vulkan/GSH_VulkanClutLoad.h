@@ -1,6 +1,7 @@
 #pragma once
 
 #include "GSH_VulkanContext.h"
+#include "GSH_VulkanFrameCommandBuffer.h"
 #include "GSH_VulkanPipelineCache.h"
 #include "vulkan/ShaderModule.h"
 #include "Convertible.h"
@@ -11,7 +12,7 @@ namespace GSH_Vulkan
 	class CClutLoad
 	{
 	public:
-		CClutLoad(const ContextPtr&);
+		CClutLoad(const ContextPtr&, const FrameCommandBufferPtr&);
 
 		void DoClutLoad(const CGSHandler::TEX0&);
 
@@ -38,6 +39,7 @@ namespace GSH_Vulkan
 		PIPELINE CreateLoadPipeline(const PIPELINE_CAPS&);
 
 		ContextPtr m_context;
+		FrameCommandBufferPtr m_frameCommandBuffer;
 		PipelineCache m_pipelines;
 	};
 

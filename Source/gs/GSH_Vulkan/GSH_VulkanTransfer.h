@@ -3,6 +3,7 @@
 #include <memory>
 #include <map>
 #include "GSH_VulkanContext.h"
+#include "GSH_VulkanFrameCommandBuffer.h"
 #include "GSH_VulkanPipelineCache.h"
 #include "Convertible.h"
 #include "vulkan/ShaderModule.h"
@@ -30,7 +31,7 @@ namespace GSH_Vulkan
 			uint32 dsay = 0;
 		};
 
-		CTransfer(const ContextPtr&);
+		CTransfer(const ContextPtr&, const FrameCommandBufferPtr&);
 		virtual ~CTransfer();
 
 		void SetPipelineCaps(const PIPELINE_CAPS&);
@@ -52,6 +53,7 @@ namespace GSH_Vulkan
 		Nuanceur::CUintRvalue XferStream_Read8(Nuanceur::CShaderBuilder&, Nuanceur::CArrayUintValue, Nuanceur::CIntValue);
 
 		ContextPtr m_context;
+		FrameCommandBufferPtr m_frameCommandBuffer;
 		PipelineCache m_pipelineCache;
 
 		VkBuffer m_xferBuffer = VK_NULL_HANDLE;

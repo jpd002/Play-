@@ -11,8 +11,9 @@ using namespace GSH_Vulkan;
 #define DESCRIPTOR_LOCATION_MEMORY 0
 #define DESCRIPTOR_LOCATION_CLUT 1
 
-CClutLoad::CClutLoad(const ContextPtr& context)
+CClutLoad::CClutLoad(const ContextPtr& context, const FrameCommandBufferPtr& frameCommandBuffer)
 	: m_context(context)
+	, m_frameCommandBuffer(frameCommandBuffer)
 	, m_pipelines(context->device)
 {
 
@@ -35,35 +36,14 @@ void CClutLoad::DoClutLoad(const CGSHandler::TEX0& tex0)
 	loadParams.clutBufPtr = tex0.GetCLUTPtr();
 	loadParams.csa = tex0.nCSA;
 
-	auto result = VK_SUCCESS;
-
 	auto descriptorSet = PrepareDescriptorSet(loadPipeline->descriptorSetLayout);
-	auto commandBuffer = m_context->commandBufferPool.AllocateBuffer();
-
-	auto commandBufferBeginInfo = Framework::Vulkan::CommandBufferBeginInfo();
-	commandBufferBeginInfo.flags = VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT;
-	result = m_context->device.vkBeginCommandBuffer(commandBuffer, &commandBufferBeginInfo);
-	CHECKVULKANERROR(result);
+	auto commandBuffer = m_frameCommandBuffer->GetCommandBuffer();
 
 	m_context->device.vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_COMPUTE, loadPipeline->pipelineLayout, 0, 1, &descriptorSet, 0, nullptr);
 	m_context->device.vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_COMPUTE, loadPipeline->pipeline);
 	m_context->device.vkCmdPushConstants(commandBuffer, loadPipeline->pipelineLayout, VK_SHADER_STAGE_COMPUTE_BIT, 0, sizeof(LOAD_PARAMS), &loadParams);
 	m_context->device.vkCmdDispatch(commandBuffer, 1, 1, 1);
 
-	m_context->device.vkEndCommandBuffer(commandBuffer);
-
-	//Submit command buffer
-	{
-		auto submitInfo = Framework::Vulkan::SubmitInfo();
-		submitInfo.commandBufferCount = 1;
-		submitInfo.pCommandBuffers    = &commandBuffer;
-		
-		result = m_context->device.vkQueueSubmit(m_context->queue, 1, &submitInfo, VK_NULL_HANDLE);
-		CHECKVULKANERROR(result);
-	}
-
-	result = m_context->device.vkQueueWaitIdle(m_context->queue);
-	CHECKVULKANERROR(result);
 }
 
 VkDescriptorSet CClutLoad::PrepareDescriptorSet(VkDescriptorSetLayout descriptorSetLayout)

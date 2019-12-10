@@ -15,8 +15,9 @@ using namespace GSH_Vulkan;
 
 #define LOCAL_SIZE_X 128
 
-CTransfer::CTransfer(const ContextPtr& context)
+CTransfer::CTransfer(const ContextPtr& context, const FrameCommandBufferPtr& frameCommandBuffer)
 	: m_context(context)
+	, m_frameCommandBuffer(frameCommandBuffer)
 	, m_pipelineCache(context->device)
 {
 	CreateXferBuffer();
@@ -71,31 +72,14 @@ void CTransfer::DoHostToLocalTransfer(const XferBuffer& inputData)
 	uint32 workUnits = pixelCount / LOCAL_SIZE_X;
 
 	auto descriptorSet = PrepareDescriptorSet(xferPipeline->descriptorSetLayout);
-	auto commandBuffer = m_context->commandBufferPool.AllocateBuffer();
-
-	auto commandBufferBeginInfo = Framework::Vulkan::CommandBufferBeginInfo();
-	commandBufferBeginInfo.flags = VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT;
-	result = m_context->device.vkBeginCommandBuffer(commandBuffer, &commandBufferBeginInfo);
-	CHECKVULKANERROR(result);
+	auto commandBuffer = m_frameCommandBuffer->GetCommandBuffer();
 
 	m_context->device.vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_COMPUTE, xferPipeline->pipelineLayout, 0, 1, &descriptorSet, 0, nullptr);
 	m_context->device.vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_COMPUTE, xferPipeline->pipeline);
 	m_context->device.vkCmdPushConstants(commandBuffer, xferPipeline->pipelineLayout, VK_SHADER_STAGE_COMPUTE_BIT, 0, sizeof(XFERPARAMS), &Params);
 	m_context->device.vkCmdDispatch(commandBuffer, workUnits, 1, 1);
 
-	m_context->device.vkEndCommandBuffer(commandBuffer);
-
-	//Submit command buffer
-	{
-		auto submitInfo = Framework::Vulkan::SubmitInfo();
-		submitInfo.commandBufferCount   = 1;
-		submitInfo.pCommandBuffers      = &commandBuffer;
-		result = m_context->device.vkQueueSubmit(m_context->queue, 1, &submitInfo, VK_NULL_HANDLE);
-		CHECKVULKANERROR(result);
-	}
-
-	result = m_context->device.vkQueueWaitIdle(m_context->queue);
-	CHECKVULKANERROR(result);
+	m_frameCommandBuffer->Flush();
 }
 
 VkDescriptorSet CTransfer::PrepareDescriptorSet(VkDescriptorSetLayout descriptorSetLayout)
