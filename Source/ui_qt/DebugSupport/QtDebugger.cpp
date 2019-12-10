@@ -92,7 +92,7 @@ QtDebugger::QtDebugger(QWidget *parent, CPS2VM& virtualMachine)
 
 	//if(GetDisassemblyWindow()->IsVisible())
 	//{
-	//	GetDisassemblyWindow()->SetFocus();
+	//	GetDisassemblyWindow()->setFocus(Qt::ActiveWindowFocusReason);
 	//}
 
 	CreateAccelerators();
@@ -235,7 +235,7 @@ void QtDebugger::StepCPU()
 
 	//if(::GetParent(GetFocus()) != GetDisassemblyWindow()->m_hWnd)
 	//{
-	//	GetDisassemblyWindow()->SetFocus();
+	//	GetDisassemblyWindow()->setFocus(Qt::ActiveWindowFocusReason);
 	//}
 
 	
@@ -268,7 +268,7 @@ void QtDebugger::FindWordValue(uint32 mask)
 	m_addressListView->SetTitle(std::move(title));
 	m_addressListView->SetAddressList(std::move(refs));
 	m_addressListView->show();
-	// m_addressListView->SetFocus();
+	m_addressListView->setFocus(Qt::ActiveWindowFocusReason);
 }
 
 void QtDebugger::AssembleJAL()
@@ -506,7 +506,7 @@ void QtDebugger::ActivateView(unsigned int nView)
 
 	//if(GetDisassemblyWindow()->IsVisible())
 	//{
-	//	GetDisassemblyWindow()->SetFocus();
+	//	GetDisassemblyWindow()->setFocus(Qt::ActiveWindowFocusReason);
 	//}
 
 	//m_findCallersRequestConnection = GetCurrentView()->GetDisassemblyWindow()->GetDisAsm()->FindCallersRequested.Connect(
@@ -680,17 +680,17 @@ void QtDebugger::DestroyAccelerators()
 	{
 	case ID_VIEW_MEMORY:
 		GetMemoryViewWindow()->Show(SW_SHOW);
-		GetMemoryViewWindow()->SetFocus();
+		GetMemoryViewWindow()->setFocus(Qt::ActiveWindowFocusReason);
 		return FALSE;
 		break;
 	case ID_VIEW_ELF:
 		m_pELFView->Show(SW_SHOW);
-		m_pELFView->SetFocus();
+		m_pELFView->setFocus(Qt::ActiveWindowFocusReason);
 		return FALSE;
 		break;
 	case ID_VIEW_DISASSEMBLY:
 		GetDisassemblyWindow()->Show(SW_SHOW);
-		GetDisassemblyWindow()->SetFocus();
+		GetDisassemblyWindow()->setFocus(Qt::ActiveWindowFocusReason);
 		return FALSE;
 		break;
 	case ID_VIEW_EEVIEW:
@@ -811,7 +811,7 @@ void QtDebugger::OnFindCallersRequested(uint32 address)
 	m_addressListView->SetAddressList(std::move(callers));
 	m_addressListView->SetTitle(std::move(title));
 	m_addressListView->show();
-	// m_addressListView->SetFocus();
+	m_addressListView->setFocus(Qt::ActiveWindowFocusReason);
 }
 
 void QtDebugger::OnFindCallersAddressDblClick(uint32 address)
@@ -955,17 +955,17 @@ void QtDebugger::on_actionFind_Word_Half_Value_triggered()
 void QtDebugger::on_actionCall_Stack_triggered()
 {
 	GetCallStackWindow()->show();
-	// GetCallStackWindow()->SetFocus();
+	GetCallStackWindow()->setFocus(Qt::ActiveWindowFocusReason);
 }
 
 void QtDebugger::on_actionFunctions_triggered()
 {
 	m_pFunctionsView->show();
-	// m_pFunctionsView->SetFocus();
+	m_pFunctionsView->setFocus(Qt::ActiveWindowFocusReason);
 }
 
 void QtDebugger::on_actionThreads_triggered()
 {
 	m_threadsView->show();
-	// m_threadsView->SetFocus();
+	m_threadsView->setFocus(Qt::ActiveWindowFocusReason);
 }
