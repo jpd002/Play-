@@ -6,6 +6,8 @@ QtDialogListWidget::QtDialogListWidget(QWidget *parent) :
     ui(new Ui::QtDialogListWidget)
 {
 	ui->setupUi(this);
+
+	connect(ui->listWidget, &QListWidget::itemDoubleClicked, this, &QtDialogListWidget::on_buttonBox_accepted);
 }
 
 QtDialogListWidget::~QtDialogListWidget()
@@ -30,4 +32,5 @@ void QtDialogListWidget::on_buttonBox_accepted()
 	{
 		results = item->text().toStdString();
 	}
+	QDialog::accept();
 }
