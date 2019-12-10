@@ -1,6 +1,9 @@
 #include "QtDebugger.h"
 #include "ui_QtDebugger.h"
 
+#include <QInputDialog>
+#include <QMessageBox>
+
 #include "iop/IopBios.h"
 #include <stdio.h>
 #include <fcntl.h>
@@ -241,23 +244,31 @@ void QtDebugger::StepCPU()
 
 void QtDebugger::FindWordValue(uint32 mask)
 {
-	//Framework::Win32::CInputBox input(_T("Find Value in Memory"), _T("Enter value to find:"), _T("00000000"));
-
-	//auto valueString = input.GetValue(m_hWnd);
-	//if(!valueString) return;
-
 	uint32 targetValue = 0;
-	//auto scanned = _stscanf(valueString, _T("%x"), &targetValue);
-	//if(scanned == 0) return;
+	{
+		bool ok;
+		QString res = QInputDialog::getText(this, tr("Find Value in Memory"),
+											tr("Enter value to find:"), QLineEdit::Normal,
+											tr("00000000"), &ok);
+		if (!ok  || res.isEmpty())
+			return;
 
-	//auto context = GetCurrentView()->GetContext();
-	//auto title = string_format(_T("Search results for 0x%08X"), targetValue);
-	//auto refs = FindWordValueRefs(context, targetValue & mask, mask);
+		if(sscanf(res.toStdString().c_str(), "%x", &targetValue) <= 0)
+		{
+			QMessageBox msgBox;
+			msgBox.setText("Invalid hex value.");
+			msgBox.exec();
+			return;
+		}
+	}
+	auto context = GetCurrentView()->GetContext();
+	auto title = string_format("Search results for 0x%08X", targetValue);
+	auto refs = FindWordValueRefs(context, targetValue & mask, mask);
 
-	//m_addressListView->SetTitle(std::move(title));
-	//m_addressListView->SetAddressList(std::move(refs));
-	//m_addressListView->Show(SW_SHOW);
-	//m_addressListView->SetFocus();
+	m_addressListView->SetTitle(std::move(title));
+	m_addressListView->SetAddressList(std::move(refs));
+	m_addressListView->show();
+	// m_addressListView->SetFocus();
 }
 
 void QtDebugger::AssembleJAL()
@@ -646,12 +657,6 @@ void QtDebugger::DestroyAccelerators()
 {
 	switch(nID)
 	{
-	case ID_VM_FINDWORDVALUE:
-		FindWordValue(~0);
-		break;
-	case ID_VM_FINDWORDLOWHALFVALUE:
-		FindWordValue(0xFFFF);
-		break;
 	case ID_VIEW_MEMORY:
 		GetMemoryViewWindow()->Show(SW_SHOW);
 		GetMemoryViewWindow()->SetFocus();
@@ -953,4 +958,14 @@ void QtDebugger::on_actionLayout_1280x1024_triggered()
 void QtDebugger::on_actionLayout_1600x1200_triggered()
 {
 	Layout1600();
+}
+
+void QtDebugger::on_actionfind_word_value_triggered()
+{
+	FindWordValue(~0);
+}
+
+void QtDebugger::on_actionFind_Word_Half_Value_triggered()
+{
+	FindWordValue(0xFFFF);
 }

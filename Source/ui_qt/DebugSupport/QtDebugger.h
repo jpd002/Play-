@@ -42,6 +42,9 @@ private slots:
 	void on_actionLayout_1280x1024_triggered();
 	void on_actionLayout_1600x1200_triggered();
 
+	void on_actionfind_word_value_triggered();
+	void on_actionFind_Word_Half_Value_triggered();
+
 private:
 	Ui::QtDebugger *ui;
 
