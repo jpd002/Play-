@@ -720,30 +720,6 @@ void QtDebugger::DestroyAccelerators()
 	case ID_VIEW_IOPVIEW:
 		ActivateView(DEBUGVIEW_IOP);
 		break;
-	case ID_WINDOW_CASCAD:
-		m_pMDIClient->Cascade();
-		return FALSE;
-		break;
-	case ID_WINDOW_TILEHORIZONTAL:
-		m_pMDIClient->TileHorizontal();
-		return FALSE;
-		break;
-	case ID_WINDOW_TILEVERTICAL:
-		m_pMDIClient->TileVertical();
-		return FALSE;
-		break;
-	case ID_WINDOW_LAYOUT1024:
-		Layout1024();
-		return FALSE;
-		break;
-	case ID_WINDOW_LAYOUT1280:
-		Layout1280();
-		return FALSE;
-		break;
-	case ID_WINDOW_LAYOUT1600:
-		Layout1600();
-		return FALSE;
-		break;
 	}
 	return TRUE;
 }*/
