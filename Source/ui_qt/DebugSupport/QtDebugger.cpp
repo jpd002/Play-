@@ -318,29 +318,40 @@ void QtDebugger::ReanalyzeEe()
 	uint32 minAddr = executableRange.first;
 	uint32 maxAddr = executableRange.second & ~0x03;
 
-	//auto getAddress =
-	//    [this](const TCHAR* prompt, uint32& address) {
-	//	    Framework::Win32::CInputBox addressInputBox(_T("Analyze EE"), prompt,
-	//	                                                string_format(_T("0x%08X"), address).c_str());
-	//	    auto addrValue = addressInputBox.GetValue(m_hWnd);
-	//	    if(addrValue == nullptr) return false;
-	//	    uint32 addrValueTemp = 0;
-	//	    int cvtCount = _stscanf(addrValue, _T("%x"), &addrValueTemp);
-	//	    if(cvtCount != 0)
-	//	    {
-	//		    address = addrValueTemp & ~0x3;
-	//	    }
-	//	    return true;
-	 //   };
+	auto getAddress =
+	   [this](const char* prompt, uint32& address)
+	{
+		bool ok;
+		QString res = QInputDialog::getText(this, tr("Analyze EE"),
+											tr(prompt), QLineEdit::Normal,
+											tr(string_format("0x%08X", address).c_str()), &ok);
+		if (!ok  || res.isEmpty())
+			return false;
+		uint32 addrValueTemp = 0;
+		if(sscanf(res.toStdString().c_str(), "%x", &addrValueTemp) <= 0)
+		{
+			QMessageBox msgBox;
+			msgBox.setText("Invalid value.");
+			msgBox.exec();
+			return false;
+		}
+		if(addrValueTemp != 0)
+		{
+			address = addrValueTemp & ~0x3;
+		}
+		return true;
+	};
 
-	//if(!getAddress(_T("Start Address:"), minAddr)) return;
-	//if(!getAddress(_T("End Address:"), maxAddr)) return;
+	if(!getAddress("Start Address:", minAddr)) return;
+	if(!getAddress("End Address:", maxAddr)) return;
 
-	//if(minAddr > maxAddr)
-	//{
-	//	MessageBox(m_hWnd, _T("Start address is larger than end address."), _T("Analyze EE"), MB_ICONERROR);
-	//	return;
-	//}
+	if(minAddr > maxAddr)
+	{
+		QMessageBox msgBox;
+		msgBox.setText("Start address is larger than end address.");
+		msgBox.exec();
+		return;
+	}
 
 	minAddr = std::min<uint32>(minAddr, PS2::EE_RAM_SIZE);
 	maxAddr = std::min<uint32>(maxAddr, PS2::EE_RAM_SIZE);
