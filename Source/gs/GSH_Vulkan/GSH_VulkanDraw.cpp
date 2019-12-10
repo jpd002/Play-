@@ -47,6 +47,7 @@ static void MakeLinearZOrtho(float* matrix, float left, float right, float botto
 CDraw::CDraw(const ContextPtr& context, const FrameCommandBufferPtr& frameCommandBuffer)
 	: m_context(context)
 	, m_frameCommandBuffer(frameCommandBuffer)
+	, m_pipelineCache(context->device)
 {
 	CreateRenderPass();
 	CreateDrawImage();
@@ -68,13 +69,6 @@ CDraw::CDraw(const ContextPtr& context, const FrameCommandBufferPtr& frameComman
 CDraw::~CDraw()
 {
 	m_context->device.vkUnmapMemory(m_context->device, m_vertexBuffer.GetMemory());
-	for(const auto& drawPipelinePair : m_drawPipelines)
-	{
-		auto& drawPipeline = drawPipelinePair.second;
-		m_context->device.vkDestroyPipeline(m_context->device, drawPipeline.pipeline, nullptr);
-		m_context->device.vkDestroyPipelineLayout(m_context->device, drawPipeline.pipelineLayout, nullptr);
-		m_context->device.vkDestroyDescriptorSetLayout(m_context->device, drawPipeline.descriptorSetLayout, nullptr);
-	}
 	m_context->device.vkDestroyFramebuffer(m_context->device, m_framebuffer, nullptr);
 	m_context->device.vkDestroyRenderPass(m_context->device, m_renderPass, nullptr);
 	m_context->device.vkDestroyImageView(m_context->device, m_drawImageView, nullptr);
@@ -136,12 +130,10 @@ void CDraw::FlushVertices()
 	auto commandBuffer = m_frameCommandBuffer->GetCommandBuffer();
 
 	//Find pipeline and create it if we've never encountered it before
-	auto drawPipelinePairIterator = m_drawPipelines.find(m_pipelineCaps);
-	if(drawPipelinePairIterator == std::end(m_drawPipelines))
+	auto drawPipeline = m_pipelineCache.TryGetPipeline(m_pipelineCaps);
+	if(!drawPipeline)
 	{
-		auto drawPipeline = CreateDrawPipeline(m_pipelineCaps);
-		m_drawPipelines.insert(std::make_pair(m_pipelineCaps, drawPipeline));
-		drawPipelinePairIterator = m_drawPipelines.find(m_pipelineCaps);
+		drawPipeline = m_pipelineCache.RegisterPipeline(m_pipelineCaps, CreateDrawPipeline(m_pipelineCaps));
 	}
 
 	{
@@ -157,8 +149,6 @@ void CDraw::FlushVertices()
 		m_context->device.vkCmdSetScissor(commandBuffer, 0, 1, &scissor);
 	}
 
-	const auto& drawPipeline = drawPipelinePairIterator->second;
-
 	auto renderPassBeginInfo = Framework::Vulkan::RenderPassBeginInfo();
 	renderPassBeginInfo.renderPass               = m_renderPass;
 	renderPassBeginInfo.renderArea.extent.width  = DRAW_AREA_SIZE;
@@ -166,18 +156,18 @@ void CDraw::FlushVertices()
 	renderPassBeginInfo.framebuffer              = m_framebuffer;
 	m_context->device.vkCmdBeginRenderPass(commandBuffer, &renderPassBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
 
-	auto descriptorSet = PrepareDescriptorSet(drawPipeline.descriptorSetLayout);
+	auto descriptorSet = PrepareDescriptorSet(drawPipeline->descriptorSetLayout);
 
-	m_context->device.vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, drawPipeline.pipelineLayout,
+	m_context->device.vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, drawPipeline->pipelineLayout,
 		0, 1, &descriptorSet, 0, nullptr);
 
-	m_context->device.vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, drawPipeline.pipeline);
+	m_context->device.vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, drawPipeline->pipeline);
 
 	VkDeviceSize vertexBufferOffset = (m_passVertexStart * sizeof(PRIM_VERTEX));
 	VkBuffer vertexBuffer = m_vertexBuffer;
 	m_context->device.vkCmdBindVertexBuffers(commandBuffer, 0, 1, &vertexBuffer, &vertexBufferOffset);
 
-	m_context->device.vkCmdPushConstants(commandBuffer, drawPipeline.pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT,
+	m_context->device.vkCmdPushConstants(commandBuffer, drawPipeline->pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT,
 		0, sizeof(DRAW_PIPELINE_PUSHCONSTANTS), &m_pushConstants);
 
 	assert((vertexCount % 3) == 0);
@@ -303,9 +293,9 @@ void CDraw::CreateRenderPass()
 	CHECKVULKANERROR(result);
 }
 
-CDraw::DRAW_PIPELINE CDraw::CreateDrawPipeline(const PIPELINE_CAPS& caps)
+PIPELINE CDraw::CreateDrawPipeline(const PIPELINE_CAPS& caps)
 {
-	DRAW_PIPELINE drawPipeline;
+	PIPELINE drawPipeline;
 
 	auto vertexShader = CreateVertexShader();
 	auto fragmentShader = CreateFragmentShader(caps);

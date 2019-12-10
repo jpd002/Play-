@@ -1,9 +1,9 @@
 #pragma once
 
 #include <memory>
-#include <map>
 #include "GSH_VulkanContext.h"
 #include "GSH_VulkanFrameCommandBuffer.h"
+#include "GSH_VulkanPipelineCache.h"
 #include "vulkan/ShaderModule.h"
 #include "vulkan/Buffer.h"
 #include "Convertible.h"
@@ -48,12 +48,7 @@ namespace GSH_Vulkan
 		void PostFlushFrameCommandBuffer() override;
 
 	private:
-		struct DRAW_PIPELINE
-		{
-			VkDescriptorSetLayout descriptorSetLayout = VK_NULL_HANDLE;
-			VkPipelineLayout pipelineLayout = VK_NULL_HANDLE;
-			VkPipeline pipeline = VK_NULL_HANDLE;
-		};
+		typedef CPipelineCache<PipelineCapsInt> PipelineCache;
 
 		struct DRAW_PIPELINE_PUSHCONSTANTS
 		{
@@ -75,17 +70,16 @@ namespace GSH_Vulkan
 		void CreateRenderPass();
 		void CreateDrawImage();
 
-		DRAW_PIPELINE CreateDrawPipeline(const PIPELINE_CAPS&);
+		PIPELINE CreateDrawPipeline(const PIPELINE_CAPS&);
 		Framework::Vulkan::CShaderModule CreateVertexShader();
 		Framework::Vulkan::CShaderModule CreateFragmentShader(const PIPELINE_CAPS&);
 
 		ContextPtr m_context;
 		FrameCommandBufferPtr m_frameCommandBuffer;
+		PipelineCache m_pipelineCache;
 
 		VkRenderPass m_renderPass = VK_NULL_HANDLE;
 		VkFramebuffer m_framebuffer = VK_NULL_HANDLE;
-
-		std::map<PipelineCapsInt, DRAW_PIPELINE> m_drawPipelines;
 
 		Framework::Vulkan::CBuffer m_vertexBuffer;
 		PRIM_VERTEX* m_vertexBufferPtr = nullptr;

@@ -1,7 +1,6 @@
 #pragma once
 
 #include <memory>
-#include <map>
 #include "GSH_VulkanContext.h"
 #include "GSH_VulkanFrameCommandBuffer.h"
 #include "GSH_VulkanPipelineCache.h"
