@@ -273,20 +273,41 @@ void QtDebugger::FindWordValue(uint32 mask)
 
 void QtDebugger::AssembleJAL()
 {
-	//Framework::Win32::CInputBox InputTarget(_T("Assemble JAL"), _T("Enter jump target:"), _T("00000000"));
-	//Framework::Win32::CInputBox InputAssemble(_T("Assemble JAL"), _T("Enter address to assemble JAL to:"), _T("00000000"));
-
-	//const TCHAR* sTarget = InputTarget.GetValue(m_hWnd);
-	//if(sTarget == NULL) return;
-
-	//const TCHAR* sAssemble = InputAssemble.GetValue(m_hWnd);
-	//if(sAssemble == NULL) return;
-
 	uint32 nValueTarget = 0, nValueAssemble = 0;
-	//_stscanf(sTarget, _T("%x"), &nValueTarget);
-	//_stscanf(sAssemble, _T("%x"), &nValueAssemble);
+	{
+		bool ok;
+		QString res = QInputDialog::getText(this, tr("Assemble JAL"),
+											tr("Enter jump target:"), QLineEdit::Normal,
+											tr("00000000"), &ok);
+		if (!ok  || res.isEmpty())
+			return;
 
-	//*(uint32*)&m_virtualMachine.m_ee->m_ram[nValueAssemble] = 0x0C000000 | (nValueTarget / 4);
+		if(sscanf(res.toStdString().c_str(), "%x", &nValueTarget) <= 0)
+		{
+			QMessageBox msgBox;
+			msgBox.setText("Invalid value.");
+			msgBox.exec();
+			return;
+		}
+	}
+	{
+		bool ok;
+		QString res = QInputDialog::getText(this, tr("Assemble JAL"),
+											tr("Enter address to assemble JAL to:"), QLineEdit::Normal,
+											tr("00000000"), &ok);
+		if (!ok  || res.isEmpty())
+			return;
+
+		if(sscanf(res.toStdString().c_str(), "%x", &nValueAssemble) <= 0)
+		{
+			QMessageBox msgBox;
+			msgBox.setText("Invalid value.");
+			msgBox.exec();
+			return;
+		}
+	}
+
+	*(uint32*)&m_virtualMachine.m_ee->m_ram[nValueAssemble] = 0x0C000000 | (nValueTarget / 4);
 }
 
 void QtDebugger::ReanalyzeEe()
