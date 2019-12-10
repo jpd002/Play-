@@ -1,13 +1,16 @@
 #include <QHeaderView>
+#include <QGridLayout>
+#include <QInputDialog>
+#include <QMessageBox>
+#include <QPushButton>
 
 #include "FunctionsView.h"
 #include "string_cast.h"
 #include "string_format.h"
+#include "lexical_cast_ex.h"
 
 #define DEFAULT_GROUPID (1)
 #define DEFAULT_GROUPNAME _T("Global")
-
-// #define SCALE(x) MulDiv(x, ydpi, 96)
 
 CFunctionsView::CFunctionsView(QMdiArea* parent)
     : QMdiSubWindow(parent)
@@ -18,78 +21,37 @@ CFunctionsView::CFunctionsView(QMdiArea* parent)
 	parent->addSubWindow(this)->setWindowTitle("Functions");
 
 	m_tableView = new QTableView(this);
-	setWidget(m_tableView);
-	m_tableView->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+	auto btnNew = new QPushButton("New...", this);
+	auto btnRename = new QPushButton("Rename...", this);
+	auto btnDelete = new QPushButton("Delete", this);
+	auto btnImport = new QPushButton("Load ELF symbols", this);
+
+	connect(m_tableView, &QTableView::doubleClicked, this, &CFunctionsView::OnListDblClick);
+	connect(btnNew, &QPushButton::clicked, this, &CFunctionsView::OnNewClick);
+	connect(btnRename, &QPushButton::clicked, this, &CFunctionsView::OnRenameClick);
+	connect(btnDelete, &QPushButton::clicked, this, &CFunctionsView::OnDeleteClick);
+	connect(btnImport, &QPushButton::clicked, this, &CFunctionsView::OnImportClick);
+
+	auto widget = new QWidget();
+	auto layout = new QGridLayout(widget);
+	layout->addWidget(m_tableView,0,0, 1, 4);
+	layout->addWidget(btnNew,1,0,1,1);
+	layout->addWidget(btnRename, 1, 1, 1, 1);
+	layout->addWidget(btnDelete, 1, 2, 1, 1);
+	layout->addWidget(btnImport, 1, 3, 1, 1);
+	widget->setLayout(layout);
+	setWidget(widget);
 
 	m_model = new CQtGenericTableModel(parent, {"Name", "Address"});
 	m_tableView->setModel(m_model);
 	m_tableView->horizontalHeader()->setStretchLastSection(true);
 	m_tableView->resizeColumnsToContents();
-
-
-	// m_pNew = new Framework::Win32::CButton(_T("New..."), m_hWnd, Framework::Win32::CRect(0, 0, 0, 0));
-	// m_pRename = new Framework::Win32::CButton(_T("Rename..."), m_hWnd, Framework::Win32::CRect(0, 0, 0, 0));
-	// m_pDelete = new Framework::Win32::CButton(_T("Delete"), m_hWnd, Framework::Win32::CRect(0, 0, 0, 0));
-	// m_pImport = new Framework::Win32::CButton(_T("Load ELF symbols"), m_hWnd, Framework::Win32::CRect(0, 0, 0, 0));
-
-	// Framework::FlatLayoutPtr pSubLayout0 = Framework::CHorizontalLayout::Create();
-	// pSubLayout0->InsertObject(Framework::CLayoutStretch::Create());
-	// pSubLayout0->InsertObject(Framework::Win32::CLayoutWindow::CreateButtonBehavior(SCALE(100), SCALE(23), m_pNew));
-	// pSubLayout0->InsertObject(Framework::Win32::CLayoutWindow::CreateButtonBehavior(SCALE(100), SCALE(23), m_pRename));
-	// pSubLayout0->InsertObject(Framework::Win32::CLayoutWindow::CreateButtonBehavior(SCALE(100), SCALE(23), m_pDelete));
-	// pSubLayout0->InsertObject(Framework::Win32::CLayoutWindow::CreateButtonBehavior(SCALE(100), SCALE(23), m_pImport));
-
-	// m_pLayout = Framework::CVerticalLayout::Create();
-	// m_pLayout->InsertObject(Framework::Win32::CLayoutWindow::CreateCustomBehavior(1, 1, 1, 1, m_pList));
-	// m_pLayout->InsertObject(pSubLayout0);
-
-	// SetSize(SCALE(469), SCALE(612));
-
-	// RefreshLayout();
 }
 
 void CFunctionsView::Refresh()
 {
 	RefreshList();
 }
-
-// LRESULT CFunctionsView::OnNotify(WPARAM wParam, NMHDR* pH)
-// {
-// 	if(pH->hwndFrom == m_pList->m_hWnd)
-// 	{
-// 		NMLISTVIEW* pN = reinterpret_cast<NMLISTVIEW*>(pH);
-// 		switch(pN->hdr.code)
-// 		{
-// 		case NM_DBLCLK:
-// 			OnListDblClick();
-// 			break;
-// 		}
-// 	}
-
-// 	return FALSE;
-// }
-
-// long CFunctionsView::OnCommand(unsigned short nID, unsigned short nCmd, HWND hSender)
-// {
-// 	if(hSender == m_pNew->m_hWnd)
-// 	{
-// 		OnNewClick();
-// 	}
-// 	if(hSender == m_pRename->m_hWnd)
-// 	{
-// 		OnRenameClick();
-// 	}
-// 	if(hSender == m_pDelete->m_hWnd)
-// 	{
-// 		OnDeleteClick();
-// 	}
-// 	if(hSender == m_pImport->m_hWnd)
-// 	{
-// 		OnImportClick();
-// 	}
-// 	return TRUE;
-// }
-
 
 void CFunctionsView::RefreshList()
 {
@@ -155,125 +117,144 @@ void CFunctionsView::SetContext(CMIPS* context, CBiosDebugInfoProvider* biosDebu
 	RefreshList();
 }
 
-// void CFunctionsView::OnListDblClick()
-// {
-// 	int nItem = m_pList->GetSelection();
-// 	if(nItem == -1) return;
-// 	uint32 nAddress = (uint32)m_pList->GetItemData(nItem);
-// 	OnFunctionDblClick(nAddress);
-// }
+void CFunctionsView::OnListDblClick(const QModelIndex& indexRow)
+{
+	auto index = m_model->index(indexRow.row(), 1);
+	auto selectedAddressStr = m_model->getItem(index);
+	uint32 nAddress = lexical_cast_hex(selectedAddressStr);
+	OnFunctionDblClick(nAddress);
+}
 
-// void CFunctionsView::OnNewClick()
-// {
-// 	if(!m_context) return;
+void CFunctionsView::OnNewClick()
+{
+	if(!m_context) return;
 
-// 	TCHAR sNameX[256];
-// 	uint32 nAddress = 0;
+	std::string name;
+	uint32 nAddress = 0;
 
-// 	{
-// 		Framework::Win32::CInputBox inputBox(_T("New Function"), _T("New Function Name:"), _T(""));
-// 		const TCHAR* sValue = inputBox.GetValue(m_hWnd);
-// 		if(sValue == NULL) return;
-// 		_tcsncpy(sNameX, sValue, 255);
-// 	}
+	{
+		bool ok;
+		QString res = QInputDialog::getText(this, tr("New Function"),
+											tr("New Function Name:"), QLineEdit::Normal,
+											tr(""), &ok);
+		if (!ok  || res.isEmpty())
+			return;
 
-// 	{
-// 		Framework::Win32::CInputBox inputBox(_T("New Function"), _T("New Function Address:"), _T("00000000"));
-// 		const TCHAR* sValue = inputBox.GetValue(m_hWnd);
-// 		if(sValue == NULL) return;
-// 		if(sValue != NULL)
-// 		{
-// 			_stscanf(sValue, _T("%x"), &nAddress);
-// 			if((nAddress & 0x3) != 0x0)
-// 			{
-// 				MessageBox(m_hWnd, _T("Invalid address."), NULL, 16);
-// 				return;
-// 			}
-// 		}
-// 	}
+		name = res.toStdString();
+	}
 
-// 	m_context->m_Functions.InsertTag(nAddress, string_cast<std::string>(sNameX).c_str());
+	{
+		bool ok;
+		QString res = QInputDialog::getText(this, tr("New Function"),
+											tr("New Function Address:"), QLineEdit::Normal,
+											tr("00000000"), &ok);
+		if (!ok  || res.isEmpty())
+			return;
 
-// 	RefreshList();
-// 	OnFunctionsStateChange();
-// }
+		if(sscanf(res.toStdString().c_str(), "%x", &nAddress) <= 0 || (nAddress & 0x3) != 0x0)
+		{
+			QMessageBox msgBox;
+			msgBox.setText("Invalid address.");
+			msgBox.exec();
+			return;
+		}
+	}
 
-// void CFunctionsView::OnRenameClick()
-// {
-// 	if(!m_context) return;
+	m_context->m_Functions.InsertTag(nAddress, name.c_str());
 
-// 	int nItem = m_pList->GetSelection();
-// 	if(nItem == -1) return;
+	RefreshList();
+	OnFunctionsStateChange();
+}
 
-// 	uint32 nAddress = m_pList->GetItemData(nItem);
-// 	const char* sName = m_context->m_Functions.Find(nAddress);
+void CFunctionsView::OnRenameClick()
+{
+	if(!m_context) return;
 
-// 	if(sName == NULL)
-// 	{
-// 		//WTF?
-// 		return;
-// 	}
+	auto row = m_tableView->currentIndex().row();
+	if(row < 0)
+		return;
 
-// 	Framework::Win32::CInputBox RenameInput(_T("Rename Function"), _T("New Function Name:"), string_cast<std::tstring>(sName).c_str());
-// 	const TCHAR* sNewNameX = RenameInput.GetValue(m_hWnd);
+	auto index = m_model->index(row, 1);
+	auto selectedAddressStr = m_model->getItem(index);
+	uint32 nAddress = lexical_cast_hex(selectedAddressStr);
+	const char* sName = m_context->m_Functions.Find(nAddress);
 
-// 	if(sNewNameX == NULL) return;
+	if(sName == NULL)
+	{
+		//WTF?
+		return;
+	}
 
-// 	m_context->m_Functions.InsertTag(nAddress, string_cast<std::string>(sNewNameX).c_str());
-// 	RefreshList();
+	bool ok;
+	QString res = QInputDialog::getText(this, tr("Rename Function"),
+										tr("New Function Name:"), QLineEdit::Normal,
+										tr(""), &ok);
+	if (!ok  || res.isEmpty())
+		return;
 
-// 	OnFunctionsStateChange();
-// }
+	m_context->m_Functions.InsertTag(nAddress, res.toStdString().c_str());
+	RefreshList();
 
-// void CFunctionsView::OnImportClick()
-// {
-// 	if(!m_context) return;
+	OnFunctionsStateChange();
+}
 
-// 	for(auto moduleIterator(std::begin(m_modules));
-// 	    std::end(m_modules) != moduleIterator; moduleIterator++)
-// 	{
-// 		const auto& module(*moduleIterator);
-// 		CELF* moduleImage = reinterpret_cast<CELF*>(module.param);
+void CFunctionsView::OnDeleteClick()
+{
+	if(!m_context) return;
 
-// 		if(moduleImage == NULL) continue;
+	auto row = m_tableView->currentIndex().row();
+	if(row < 0)
+		return;
 
-// 		ELFSECTIONHEADER* pSymTab = moduleImage->FindSection(".symtab");
-// 		if(pSymTab == NULL) continue;
+	auto index = m_model->index(row, 1);
+	auto selectedAddressStr = m_model->getItem(index);
+	uint32 nAddress = lexical_cast_hex(selectedAddressStr);
 
-// 		const char* pStrTab = (const char*)moduleImage->GetSectionData(pSymTab->nIndex);
-// 		if(pStrTab == NULL) continue;
+	int ret = QMessageBox::warning(this, tr("Delete this function?"),
+                                   tr("Are you sure you want to delete this function?"),
+                                   QMessageBox::Ok | QMessageBox::Cancel, QMessageBox::Ok);
+	if(ret != QMessageBox::Ok)
+	{
+		return;
+	}
 
-// 		ELFSYMBOL* pSym = (ELFSYMBOL*)moduleImage->FindSectionData(".symtab");
-// 		unsigned int nCount = pSymTab->nSize / sizeof(ELFSYMBOL);
+	m_context->m_Functions.InsertTag(nAddress, NULL);
+	RefreshList();
 
-// 		for(unsigned int i = 0; i < nCount; i++)
-// 		{
-// 			if((pSym[i].nInfo & 0x0F) != 0x02) continue;
-// 			ELFSECTIONHEADER* symbolSection = moduleImage->GetSection(pSym[i].nSectionIndex);
-// 			if(symbolSection == NULL) continue;
-// 			m_context->m_Functions.InsertTag(module.begin + (pSym[i].nValue - symbolSection->nStart), pStrTab + pSym[i].nName);
-// 		}
-// 	}
+	OnFunctionsStateChange();
+}
 
-// 	RefreshList();
+void CFunctionsView::OnImportClick()
+{
+	if(!m_context) return;
 
-// 	OnFunctionsStateChange();
-// }
+	for(auto moduleIterator(std::begin(m_modules));
+	    std::end(m_modules) != moduleIterator; moduleIterator++)
+	{
+		const auto& module(*moduleIterator);
+		CELF* moduleImage = reinterpret_cast<CELF*>(module.param);
 
-// void CFunctionsView::OnDeleteClick()
-// {
-// 	if(!m_context) return;
+		if(moduleImage == NULL) continue;
 
-// 	int nItem = m_pList->GetSelection();
-// 	if(nItem == -1) return;
-// 	if(MessageBox(m_hWnd, _T("Delete this function?"), NULL, MB_ICONQUESTION | MB_YESNO) != IDYES)
-// 	{
-// 		return;
-// 	}
+		ELFSECTIONHEADER* pSymTab = moduleImage->FindSection(".symtab");
+		if(pSymTab == NULL) continue;
 
-// 	uint32 nAddress = m_pList->GetItemData(nItem);
-// 	m_context->m_Functions.InsertTag(nAddress, NULL);
-// 	RefreshList();
+		const char* pStrTab = (const char*)moduleImage->GetSectionData(pSymTab->nIndex);
+		if(pStrTab == NULL) continue;
 
-// 	OnFunctionsStateChange();
-// }
+		ELFSYMBOL* pSym = (ELFSYMBOL*)moduleImage->FindSectionData(".symtab");
+		unsigned int nCount = pSymTab->nSize / sizeof(ELFSYMBOL);
+
+		for(unsigned int i = 0; i < nCount; i++)
+		{
+			if((pSym[i].nInfo & 0x0F) != 0x02) continue;
+			ELFSECTIONHEADER* symbolSection = moduleImage->GetSection(pSym[i].nSectionIndex);
+			if(symbolSection == NULL) continue;
+			m_context->m_Functions.InsertTag(module.begin + (pSym[i].nValue - symbolSection->nStart), pStrTab + pSym[i].nName);
+		}
+	}
+
+	RefreshList();
+
+	OnFunctionsStateChange();
+}
