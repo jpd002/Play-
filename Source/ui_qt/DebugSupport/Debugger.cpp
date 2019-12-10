@@ -60,8 +60,8 @@ CDebugger::CDebugger(QWidget* parent, CPS2VM& virtualMachine)
 	//m_pELFView->Show(SW_HIDE);
 
 	//Functions View Initialization
-	//m_pFunctionsView = new CFunctionsView(m_pMDIClient->m_hWnd);
-	//m_pFunctionsView->Show(SW_HIDE);
+	m_pFunctionsView = new CFunctionsView(this->m_debuggerMdi);
+	m_pFunctionsView->show();
 	//m_OnFunctionDblClickConnection = m_pFunctionsView->OnFunctionDblClick.Connect(std::bind(&CDebugger::OnFunctionsViewFunctionDblClick, this, std::placeholders::_1));
 	//m_OnFunctionsStateChangeConnection = m_pFunctionsView->OnFunctionsStateChange.Connect(std::bind(&CDebugger::OnFunctionsViewFunctionsStateChange, this));
 
@@ -125,7 +125,7 @@ CDebugger::~CDebugger()
 	delete m_pView[DEBUGVIEW_EE];
 
 	//delete m_pELFView;
-	//delete m_pFunctionsView;
+	delete m_pFunctionsView;
 }
 
 //HACCEL CDebugger::GetAccelerators()
@@ -492,7 +492,7 @@ void CDebugger::ActivateView(unsigned int nView)
 
 	{
 		auto biosDebugInfoProvider = GetCurrentView()->GetBiosDebugInfoProvider();
-		//m_pFunctionsView->SetContext(GetCurrentView()->GetContext(), biosDebugInfoProvider);
+		m_pFunctionsView->SetContext(GetCurrentView()->GetContext(), biosDebugInfoProvider);
 		m_threadsView->SetContext(GetCurrentView()->GetContext(), biosDebugInfoProvider);
 	}
 
@@ -881,20 +881,20 @@ void CDebugger::OnFindCallersAddressDblClick(uint32 address)
 void CDebugger::OnExecutableChangeMsg()
 {
 	//m_pELFView->SetELF(m_virtualMachine.m_ee->m_os->GetELF());
-	//	m_pFunctionsView->SetELF(m_virtualMachine.m_os->GetELF());
+		// m_pFunctionsView->SetELF(m_virtualMachine.m_os->GetELF());
 
 	LoadDebugTags();
 
 	//GetDisassemblyWindow()->HandleMachineStateChange();
 	//GetCallStackWindow()->HandleMachineStateChange();
-	//m_pFunctionsView->Refresh();
+	m_pFunctionsView->Refresh();
 }
 
 void CDebugger::OnExecutableUnloadingMsg()
 {
 	SaveDebugTags();
 	//m_pELFView->SetELF(NULL);
-	//	m_pFunctionsView->SetELF(NULL);
+		// m_pFunctionsView->SetELF(NULL);
 }
 
 void CDebugger::OnMachineStateChangeMsg()

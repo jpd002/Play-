@@ -4,7 +4,7 @@
 #include <QMdiArea>
 #include <QGridLayout>
 //#include "ELFView.h"
-//#include "FunctionsView.h"
+#include "FunctionsView.h"
 #include "ThreadsViewWnd.h"
 //#include "./Debugger/AddressListViewWnd.h"
 #include "PS2VM.h"
@@ -108,7 +108,7 @@ private:
 	//CDisAsm::FindCallersRequestedEvent::Connection m_findCallersRequestConnection;
 
 	//CELFView* m_pELFView = nullptr;
-	//CFunctionsView* m_pFunctionsView = nullptr;
+	CFunctionsView* m_pFunctionsView = nullptr;
 	CThreadsViewWnd* m_threadsView = nullptr;
 	CDebugView* m_pView[DEBUGVIEW_MAX];
 	//CAddressListViewWnd* m_addressListView = nullptr;

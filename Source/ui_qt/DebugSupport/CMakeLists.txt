@@ -40,6 +40,8 @@ set(SRC_FILES
 	${SRC_ROOT}/DebugUtils.h
 	${SRC_ROOT}/DebugView.cpp
 	${SRC_ROOT}/DebugView.h
+	${SRC_ROOT}/FunctionsView.cpp
+	${SRC_ROOT}/FunctionsView.h
 	#[[
 	${SRC_ROOT}/DirectXControl.cpp
 	${SRC_ROOT}/DirectXControl.h
@@ -60,8 +62,6 @@ set(SRC_FILES
 	${SRC_ROOT}/ELFView.cpp
 	${SRC_ROOT}/ELFView.h
 	${SRC_ROOT}/ElfViewRes.h
-	${SRC_ROOT}/FunctionsView.cpp
-	${SRC_ROOT}/FunctionsView.h
 	${SRC_ROOT}/FrameDebugger/FrameDebugger.cpp
 	${SRC_ROOT}/FrameDebugger/FrameDebugger.h	
 	${SRC_ROOT}/FrameDebugger/GifPacketView.cpp
