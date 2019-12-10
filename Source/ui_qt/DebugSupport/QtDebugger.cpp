@@ -31,21 +31,8 @@ QtDebugger::QtDebugger(QWidget *parent, CPS2VM& virtualMachine)
 {
 	ui->setupUi(this);
 
-		// Setup QT Stuff
+	// Setup QT Stuff
 	RegisterPreferences();
-
-	// Load The Cursor to an arrow
-	// Set Background to "Gray Brush"
-
-	// Setup a grid to contain all of the sub items we will add
-	
-	//Create(NULL, CLSNAME, _T(""), WS_OVERLAPPEDWINDOW | WS_CLIPCHILDREN, Framework::Win32::CRect(0, 0, 640, 480), NULL, NULL);
-	//SetClassPtr();
-
-	//SetMenu(LoadMenu(GetModuleHandle(NULL), MAKEINTRESOURCE(IDR_DEBUGGER)));
-
-	//CreateClient(NULL);
-	// this->showMaximized();
 
 	//ELF View Initialization
 	//m_pELFView = new CELFView(m_pMDIClient->m_hWnd);
@@ -68,7 +55,6 @@ QtDebugger::QtDebugger(QWidget *parent, CPS2VM& virtualMachine)
 	m_AddressSelectedConnection = m_addressListView->AddressSelected.Connect([&](uint32 address) { OnFindCallersAddressDblClick(address); });
 
 	//Debug Views Initialization
-	// m_nCurrentView = DEBUGVIEW_EE;
 	m_nCurrentView = -1;
 
 	m_pView[DEBUGVIEW_EE] = new CDebugView(ui->mdiArea, m_virtualMachine, &m_virtualMachine.m_ee->m_EE,
@@ -87,7 +73,7 @@ QtDebugger::QtDebugger(QWidget *parent, CPS2VM& virtualMachine)
 	m_OnRunningStateChangeConnection = m_virtualMachine.OnRunningStateChange.Connect(std::bind(&QtDebugger::OnRunningStateChange, this));
 
 	ActivateView(DEBUGVIEW_EE);
-//	LoadSettings();
+	LoadSettings();
 
 	//if(GetDisassemblyWindow()->IsVisible())
 	//{
@@ -691,20 +677,6 @@ void QtDebugger::DestroyAccelerators()
 }*/
 
 /*
-long QtDebugger::OnSysCommand(unsigned int nCmd, LPARAM lParam)
-{
-	switch(nCmd)
-	{
-	case SC_CLOSE:
-		Show(SW_HIDE);
-		return FALSE;
-	case SC_KEYMENU:
-		return FALSE;
-	}
-	return TRUE;
-}*/
-
-/*
 LRESULT QtDebugger::OnWndProc(unsigned int nMsg, WPARAM wParam, LPARAM lParam)
 {
 	switch(nMsg)
@@ -737,7 +709,7 @@ void QtDebugger::OnFunctionsViewFunctionDblClick(uint32 address)
 void QtDebugger::OnFunctionsViewFunctionsStateChange()
 {
 	//GetDisassemblyWindow()->HandleMachineStateChange();
-	//GetCallStackWindow()->HandleMachineStateChange();
+	GetCallStackWindow()->HandleMachineStateChange();
 }
 
 void QtDebugger::OnThreadsViewAddressDblClick(uint32 address)
@@ -806,7 +778,7 @@ void QtDebugger::OnExecutableChangeMsg()
 	LoadDebugTags();
 
 	//GetDisassemblyWindow()->HandleMachineStateChange();
-	//GetCallStackWindow()->HandleMachineStateChange();
+	GetCallStackWindow()->HandleMachineStateChange();
 	m_pFunctionsView->Refresh();
 }
 
@@ -846,13 +818,13 @@ void QtDebugger::LoadDebugTags()
 void QtDebugger::SaveDebugTags()
 {
 #ifdef DEBUGGER_INCLUDED
-	//if(m_virtualMachine.m_ee != nullptr)
-	//{
-	//	if(m_virtualMachine.m_ee->m_os->GetELF() != nullptr)
-	//	{
-	//		m_virtualMachine.SaveDebugTags(m_virtualMachine.m_ee->m_os->GetExecutableName());
-	//	}
-	//}
+	if(m_virtualMachine.m_ee != nullptr)
+	{
+		if(m_virtualMachine.m_ee->m_os->GetELF() != nullptr)
+		{
+			m_virtualMachine.SaveDebugTags(m_virtualMachine.m_ee->m_os->GetExecutableName());
+		}
+	}
 #endif
 }
 
