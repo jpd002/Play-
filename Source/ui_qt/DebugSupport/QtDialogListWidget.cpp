@@ -25,5 +25,9 @@ std::string QtDialogListWidget::getResult()
 
 void QtDialogListWidget::on_buttonBox_accepted()
 {
-	results = ui->listWidget->currentItem()->text().toStdString();
+	auto item = ui->listWidget->currentItem();
+	if(item)
+	{
+		results = item->text().toStdString();
+	}
 }
