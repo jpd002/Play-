@@ -119,7 +119,7 @@ private:
 	Framework::CSignal<void()>::Connection m_OnFunctionsStateChangeConnection;
 	Framework::CSignal<void(uint32)>::Connection m_OnGotoAddressConnection;
 
-	//CAddressListViewWnd::AddressSelectedEvent::Connection m_AddressSelectedConnection;
+	CAddressListViewWnd::AddressSelectedEvent::Connection m_AddressSelectedConnection;
 	Framework::CSignal<void()>::Connection m_OnExecutableChangeConnection;
 	Framework::CSignal<void()>::Connection m_OnExecutableUnloadingConnection;
 	Framework::CSignal<void()>::Connection m_OnMachineStateChangeConnection;

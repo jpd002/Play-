@@ -54,18 +54,18 @@ QtDebugger::QtDebugger(QWidget *parent, CPS2VM& virtualMachine)
 	//Functions View Initialization
 	m_pFunctionsView = new CFunctionsView(ui->mdiArea);
 	m_pFunctionsView->show();
-	//m_OnFunctionDblClickConnection = m_pFunctionsView->OnFunctionDblClick.Connect(std::bind(&QtDebugger::OnFunctionsViewFunctionDblClick, this, std::placeholders::_1));
-	//m_OnFunctionsStateChangeConnection = m_pFunctionsView->OnFunctionsStateChange.Connect(std::bind(&QtDebugger::OnFunctionsViewFunctionsStateChange, this));
+	m_OnFunctionDblClickConnection = m_pFunctionsView->OnFunctionDblClick.Connect(std::bind(&QtDebugger::OnFunctionsViewFunctionDblClick, this, std::placeholders::_1));
+	m_OnFunctionsStateChangeConnection = m_pFunctionsView->OnFunctionsStateChange.Connect(std::bind(&QtDebugger::OnFunctionsViewFunctionsStateChange, this));
 
 	//Threads View Initialization
 	m_threadsView = new CThreadsViewWnd(ui->mdiArea);
 	m_threadsView->show();
-	//m_OnGotoAddressConnection = m_threadsView->OnGotoAddress.Connect(std::bind(&QtDebugger::OnThreadsViewAddressDblClick, this, std::placeholders::_1));
+	m_OnGotoAddressConnection = m_threadsView->OnGotoAddress.Connect(std::bind(&QtDebugger::OnThreadsViewAddressDblClick, this, std::placeholders::_1));
 
 	//Address List View Initialization
 	m_addressListView = new CAddressListViewWnd(ui->mdiArea);
 	m_addressListView->show();
-	//m_AddressSelectedConnection = m_addressListView->AddressSelected.Connect([&](uint32 address) { OnFindCallersAddressDblClick(address); });
+	m_AddressSelectedConnection = m_addressListView->AddressSelected.Connect([&](uint32 address) { OnFindCallersAddressDblClick(address); });
 
 	//Debug Views Initialization
 	// m_nCurrentView = DEBUGVIEW_EE;
