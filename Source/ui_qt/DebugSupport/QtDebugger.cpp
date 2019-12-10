@@ -792,26 +792,26 @@ void QtDebugger::OnRunningStateChange()
 
 void QtDebugger::OnFindCallersRequested(uint32 address)
 {
-	//auto context = GetCurrentView()->GetContext();
-	//auto callers = FindCallers(context, address);
-	/*auto title =
+	auto context = GetCurrentView()->GetContext();
+	auto callers = FindCallers(context, address);
+	auto title =
 	    [&]() {
 		    auto functionName = context->m_Functions.Find(address);
 		    if(functionName)
 		    {
-			    return string_format(_T("Find Callers For '%s' (0x%08X)"),
-			                         string_cast<std::tstring>(functionName).c_str(), address);
+			    return string_format("Find Callers For '%s' (0x%08X)",
+			                         functionName, address);
 		    }
 		    else
 		    {
-			    return string_format(_T("Find Callers For 0x%08X"), address);
+			    return string_format("Find Callers For 0x%08X", address);
 		    }
 	    }();
-	*/
-	//m_addressListView->SetAddressList(std::move(callers));
-	//m_addressListView->SetTitle(std::move(title));
-	//m_addressListView->Show(SW_SHOW);
-	//m_addressListView->SetFocus();
+	
+	m_addressListView->SetAddressList(std::move(callers));
+	m_addressListView->SetTitle(std::move(title));
+	m_addressListView->show();
+	// m_addressListView->SetFocus();
 }
 
 void QtDebugger::OnFindCallersAddressDblClick(uint32 address)
