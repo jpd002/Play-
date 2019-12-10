@@ -683,24 +683,9 @@ void QtDebugger::DestroyAccelerators()
 		GetMemoryViewWindow()->SetFocus();
 		return FALSE;
 		break;
-	case ID_VIEW_CALLSTACK:
-		GetCallStackWindow()->Show(SW_SHOW);
-		GetCallStackWindow()->SetFocus();
-		return FALSE;
-		break;
-	case ID_VIEW_FUNCTIONS:
-		m_pFunctionsView->Show(SW_SHOW);
-		m_pFunctionsView->SetFocus();
-		return FALSE;
-		break;
 	case ID_VIEW_ELF:
 		m_pELFView->Show(SW_SHOW);
 		m_pELFView->SetFocus();
-		return FALSE;
-		break;
-	case ID_VIEW_THREADS:
-		m_threadsView->Show(SW_SHOW);
-		m_threadsView->SetFocus();
 		return FALSE;
 		break;
 	case ID_VIEW_DISASSEMBLY:
@@ -965,4 +950,22 @@ void QtDebugger::on_actionfind_word_value_triggered()
 void QtDebugger::on_actionFind_Word_Half_Value_triggered()
 {
 	FindWordValue(0xFFFF);
+}
+
+void QtDebugger::on_actionCall_Stack_triggered()
+{
+	GetCallStackWindow()->show();
+	// GetCallStackWindow()->SetFocus();
+}
+
+void QtDebugger::on_actionFunctions_triggered()
+{
+	m_pFunctionsView->show();
+	// m_pFunctionsView->SetFocus();
+}
+
+void QtDebugger::on_actionThreads_triggered()
+{
+	m_threadsView->show();
+	// m_threadsView->SetFocus();
 }

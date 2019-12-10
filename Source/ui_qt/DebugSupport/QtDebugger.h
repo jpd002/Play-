@@ -45,6 +45,10 @@ private slots:
 	void on_actionfind_word_value_triggered();
 	void on_actionFind_Word_Half_Value_triggered();
 
+	void on_actionCall_Stack_triggered();
+	void on_actionFunctions_triggered();
+	void on_actionThreads_triggered();
+
 private:
 	Ui::QtDebugger *ui;
 
