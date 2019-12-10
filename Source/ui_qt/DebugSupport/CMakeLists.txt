@@ -118,6 +118,8 @@ set(SRC_FILES
 	${SRC_ROOT}/VirtualMachineStateView.h
 	${SRC_ROOT}/WinUtils.cpp
 	${SRC_ROOT}/WinUtils.h]]
+	${SRC_ROOT}/QtGenericTableModel.cpp
+	${SRC_ROOT}/QtGenericTableModel.h
 )
 
 add_library(PlayDebugSupport STATIC ${SRC_FILES})
