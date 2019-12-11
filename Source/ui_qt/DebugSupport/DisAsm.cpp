@@ -48,11 +48,6 @@ CDisAsm::CDisAsm(QMdiSubWindow* parent, CVirtualMachine& virtualMachine, CMIPS* 
 	// m_tableView->verticalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
 	m_tableView->verticalHeader()->hide();
 
-	// m_arrowBitmap = LoadBitmap(GetModuleHandle(NULL), MAKEINTRESOURCE(IDB_ARROW));
-	// m_arrowMaskBitmap = WinUtils::CreateMask(m_arrowBitmap, 0xFF00FF);
-
-	// m_breakpointBitmap = LoadBitmap(GetModuleHandle(NULL), MAKEINTRESOURCE(IDB_BREAKPOINT));
-	// m_breakpointMaskBitmap = WinUtils::CreateMask(m_breakpointBitmap, 0xFF00FF);
 }
 
 CDisAsm::~CDisAsm()

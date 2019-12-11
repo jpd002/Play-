@@ -35,8 +35,9 @@ private:
 
 	std::vector<std::vector<std::string>> m_data;
 	QVariantList m_headers;
-	QPixmap start_line = QPixmap(50, 50);
-	QPixmap end_line = QPixmap(50, 50);
-	QPixmap line = QPixmap(50, 50);
+	QPixmap start_line = QPixmap(25, 25);
+	QPixmap end_line = QPixmap(25, 25);
+	QPixmap line = QPixmap(25, 25);
+	QPixmap arrow = QPixmap(25, 25);
 
 };

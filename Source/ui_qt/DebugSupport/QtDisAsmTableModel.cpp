@@ -23,9 +23,9 @@ CQtDisAsmTableModel::CQtDisAsmTableModel(QObject* parent, CVirtualMachine& virtu
 		start_line.fill(Qt::transparent);
 
 		QPainterPath start_path;
-		start_path.moveTo(75 / 3, 150 / 3);
-		start_path.lineTo(75 / 3, 75 / 3);
-		start_path.lineTo(150 / 3, 75 / 3);
+		start_path.moveTo(12.5, 25);
+		start_path.lineTo(12.5, 12.5);
+		start_path.lineTo(25, 12.5);
 
 		QPainter painter(&start_line);
 		painter.setPen(pen);
@@ -35,9 +35,9 @@ CQtDisAsmTableModel::CQtDisAsmTableModel(QObject* parent, CVirtualMachine& virtu
 		end_line.fill(Qt::transparent);
 
 		QPainterPath end_path;
-		end_path.moveTo(75 / 3, 0 / 3);
-		end_path.lineTo(75 / 3, 75 / 3);
-		end_path.lineTo(150 / 3, 75 / 3);
+		end_path.moveTo(12.5, 0);
+		end_path.lineTo(12.5, 12.5);
+		end_path.lineTo(25, 12.5);
 
 		QPainter painter(&end_line);
 		painter.setPen(pen);
@@ -47,10 +47,26 @@ CQtDisAsmTableModel::CQtDisAsmTableModel(QObject* parent, CVirtualMachine& virtu
 		line.fill(Qt::transparent);
 
 		QPainterPath line_path;
-		line_path.moveTo(75 / 3, 0 / 3);
-		line_path.lineTo(75 / 3, 150 / 3);
+		line_path.moveTo(12.5, 0);
+		line_path.lineTo(12.5, 25);
 
 		QPainter painter(&line);
+		painter.setPen(pen);
+		painter.drawPath(line_path);
+	}
+	{
+		arrow.fill(Qt::transparent);
+
+		QPainterPath line_path;
+		line_path.moveTo(12.5, 0);
+		line_path.lineTo(25, 12.5);
+		line_path.lineTo(12.5, 25);
+
+		line_path.moveTo(25, 12.5);
+		line_path.lineTo(0, 12.5);
+
+
+		QPainter painter(&arrow);
 		painter.setPen(pen);
 		painter.drawPath(line_path);
 	}
@@ -79,24 +95,6 @@ QVariant CQtDisAsmTableModel::data(const QModelIndex& index, int role) const
 		switch(index.column())
 		{
 			case 0://SYMBOL:
-		// 		//Draw breakpoint icon
-		// 		if(m_ctx->m_breakpoints.find(address) != std::end(m_ctx->m_breakpoints))
-		// 		{
-		// 			auto breakpointSrcRect = Framework::Win32::MakeRectPositionSize(0, 0, 15, 15);
-		// 			auto breakpointDstRect = Framework::Win32::PointsToPixels(breakpointSrcRect).CenterInside(iconArea);
-		// 			DrawMaskedBitmap(hDC, breakpointDstRect, m_breakpointBitmap, m_breakpointMaskBitmap, breakpointSrcRect);
-		// 		}
-
-		// 		//Draw current instruction arrow
-		// 		if(m_virtualMachine.GetStatus() != CVirtualMachine::RUNNING)
-		// 		{
-		// 			if(address == m_ctx->m_State.nPC)
-		// 			{
-		// 				auto arrowSrcRect = Framework::Win32::MakeRectPositionSize(0, 0, 13, 13);
-		// 				auto arrowDstRect = Framework::Win32::PointsToPixels(arrowSrcRect).CenterInside(iconArea);
-		// 				DrawMaskedBitmap(hDC, arrowDstRect, m_arrowBitmap, m_arrowMaskBitmap, arrowSrcRect);
-		// 			}
-		// 		}
 				return QVariant();
 			break;
 			case 1://Address:
@@ -137,29 +135,52 @@ QVariant CQtDisAsmTableModel::data(const QModelIndex& index, int role) const
 	}
 	if(role == Qt::SizeHintRole)
 	{
-		if(index.column() == 2)
+		if(index.column() == 0 || index.column() == 2)
 		{
 			return line.size();
 		}
 	}
 	if(role == Qt::DecorationRole)
 	{
-		if(index.column() == 2)
+		switch(index.column())
 		{
-			const auto* sub = m_ctx->m_analysis->FindSubroutine(address);
-			if(sub != nullptr)
+			case 0:
 			{
-				if(address == sub->start)
+					// 		//Draw breakpoint icon
+		// 		if(m_ctx->m_breakpoints.find(address) != std::end(m_ctx->m_breakpoints))
+		// 		{
+		// 			auto breakpointSrcRect = Framework::Win32::MakeRectPositionSize(0, 0, 15, 15);
+		// 			auto breakpointDstRect = Framework::Win32::PointsToPixels(breakpointSrcRect).CenterInside(iconArea);
+		// 			DrawMaskedBitmap(hDC, breakpointDstRect, m_breakpointBitmap, m_breakpointMaskBitmap, breakpointSrcRect);
+		// 		}
+
+		// 		//Draw current instruction arrow
+				if(m_virtualMachine.GetStatus() != CVirtualMachine::RUNNING)
 				{
-					return start_line;
+					if(address == m_ctx->m_State.nPC)
+					{
+						return arrow;
+					}
 				}
-				else if(address == sub->end)
+			}
+			break;
+			case 2:
+			{
+				const auto* sub = m_ctx->m_analysis->FindSubroutine(address);
+				if(sub != nullptr)
 				{
-					return end_line;
-				}
-				else
-				{
-					return line;
+					if(address == sub->start)
+					{
+						return start_line;
+					}
+					else if(address == sub->end)
+					{
+						return end_line;
+					}
+					else
+					{
+						return line;
+					}
 				}
 			}
 		}
