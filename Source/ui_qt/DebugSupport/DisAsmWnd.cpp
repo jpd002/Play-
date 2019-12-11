@@ -108,8 +108,7 @@ void CDisAsmWnd::showMenu(const QPoint &pos)
 	auto index = m_tableView->currentIndex();
 	if(index.isValid())
 	{
-		auto selected = index.row() * m_instructionSize;
-		if(selected != MIPS_INVALID_PC)
+		if(m_selected != MIPS_INVALID_PC)
 		{
 			uint32 nOpcode = GetInstruction(m_selected);
 			if(m_ctx->m_pArch->IsInstructionBranch(m_ctx, m_selected, nOpcode) == MIPS_BRANCH_NORMAL)
@@ -173,6 +172,7 @@ void CDisAsmWnd::SetAddress(uint32 address)
 void CDisAsmWnd::SetCenterAtAddress(uint32 address)
 {
 	m_tableView->scrollTo(m_model->index(m_address / m_instructionSize, 0), QAbstractItemView::PositionAtCenter);
+	m_address = address;
 }
 
 void CDisAsmWnd::SetSelectedAddress(uint32 address)
