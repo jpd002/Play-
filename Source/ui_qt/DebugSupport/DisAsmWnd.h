@@ -59,11 +59,13 @@ private:
 	uint32 HistoryGetNext();
 	bool HistoryHasPrevious();
 	bool HistoryHasNext();
+	void showMenu(const QPoint&);
 
 
 	CVirtualMachine& m_virtualMachine;
 	CMIPS* m_ctx;
 	int32 m_instructionSize;
+	CQtDisAsmTableModel::DISASM_TYPE m_disAsmType;
 
 	uint32 m_address;
 	uint32 m_selected;

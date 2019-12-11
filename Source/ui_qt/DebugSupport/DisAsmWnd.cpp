@@ -1,12 +1,16 @@
+#include <QAction>
+#include <QMenu>
 #include <QString>
 #include <QInputDialog>
 #include <QMessageBox>
 #include <QHeaderView>
 
 #include "DisAsmWnd.h"
+#include "ee/VuAnalysis.h"
 #include "QtDisAsmTableModel.h"
 #include "QtDisAsmVuTableModel.h"
 
+#include "countof.h"
 #include "string_cast.h"
 #include "string_format.h"
 #include "lexical_cast_ex.h"
@@ -19,6 +23,7 @@ CDisAsmWnd::CDisAsmWnd(QMdiArea* parent, CVirtualMachine& virtualMachine, CMIPS*
     : QMdiSubWindow(parent)
     , m_virtualMachine(virtualMachine)
     , m_ctx(ctx)
+    , m_disAsmType(disAsmType)
 {
 
 	resize(320, 240);
@@ -67,12 +72,96 @@ CDisAsmWnd::CDisAsmWnd(QMdiArea* parent, CVirtualMachine& virtualMachine, CMIPS*
 	m_tableView->verticalHeader()->hide();
 	m_tableView->resizeColumnsToContents();
 
-
+	m_tableView->setContextMenuPolicy(Qt::CustomContextMenu);
+	connect(m_tableView, &QTableView::customContextMenuRequested, this, &CDisAsmWnd::showMenu);
 	// RefreshLayout();
 }
 
 CDisAsmWnd::~CDisAsmWnd()
 {
+}
+
+void CDisAsmWnd::showMenu(const QPoint &pos)
+{
+	QMenu *rightClickMenu = new QMenu(this);
+
+	QAction *goToPcAction = new QAction(this);
+	goToPcAction->setText("GoTo PC");
+	connect(goToPcAction, &QAction::triggered, std::bind(&CDisAsmWnd::GotoPC, this));
+	rightClickMenu->addAction(goToPcAction);
+
+	QAction *goToAddrAction = new QAction(this);
+	goToAddrAction->setText("Goto Address...");
+	connect(goToAddrAction, &QAction::triggered, std::bind(&CDisAsmWnd::GotoAddress, this));
+	rightClickMenu->addAction(goToAddrAction);
+
+	QAction *editCommentAction = new QAction(this);
+	editCommentAction->setText("Edit Comment...");
+	connect(editCommentAction, &QAction::triggered, std::bind(&CDisAsmWnd::EditComment, this));
+	rightClickMenu->addAction(editCommentAction);
+
+	QAction *findCallerAction = new QAction(this);
+	findCallerAction->setText("Find Callers");
+	connect(findCallerAction, &QAction::triggered, std::bind(&CDisAsmWnd::FindCallers, this));
+	rightClickMenu->addAction(findCallerAction);
+
+	auto index = m_tableView->currentIndex();
+	if(index.isValid())
+	{
+		auto selected = index.row() * m_instructionSize;
+		if(selected != MIPS_INVALID_PC)
+		{
+			uint32 nOpcode = GetInstruction(m_selected);
+			if(m_ctx->m_pArch->IsInstructionBranch(m_ctx, m_selected, nOpcode) == MIPS_BRANCH_NORMAL)
+			{
+				char sTemp[256];
+				uint32 nAddress = m_ctx->m_pArch->GetInstructionEffectiveAddress(m_ctx, m_selected, nOpcode);
+				snprintf(sTemp, countof(sTemp), ("Go to 0x%08X"), nAddress);
+				QAction *goToEaAction = new QAction(this);
+				goToEaAction->setText(sTemp);
+				connect(goToEaAction, &QAction::triggered, std::bind(&CDisAsmWnd::GotoEA, this));
+				rightClickMenu->addAction(goToEaAction);
+			}
+		}
+	}
+
+	if(HistoryHasPrevious())
+	{
+		char sTemp[256];
+		snprintf(sTemp, countof(sTemp), ("Go back (0x%08X)"), HistoryGetPrevious());
+		QAction *goToEaAction = new QAction(this);
+		goToEaAction->setText(sTemp);
+		connect(goToEaAction, &QAction::triggered, std::bind(&CDisAsmWnd::HistoryGoBack, this));
+		rightClickMenu->addAction(goToEaAction);
+	}
+
+	if(HistoryHasNext())
+	{
+		char sTemp[256];
+		snprintf(sTemp, countof(sTemp), ("Go forward (0x%08X)"), HistoryGetNext());
+		QAction *goToEaAction = new QAction(this);
+		goToEaAction->setText(sTemp);
+		connect(goToEaAction, &QAction::triggered, std::bind(&CDisAsmWnd::HistoryGoForward, this));
+		rightClickMenu->addAction(goToEaAction);
+	}
+
+	if(m_disAsmType == CQtDisAsmTableModel::DISASM_VU)
+	{
+		QAction *analyseVuction = new QAction(this);
+		analyseVuction->setText("Analyse Microprogram");
+		connect(analyseVuction, &QAction::triggered,
+		[&]()
+		{
+			CVuAnalysis::Analyse(m_ctx, 0, 0x4000);
+			m_model->Redraw();
+		}
+		);
+		rightClickMenu->addAction(analyseVuction);
+
+	}
+
+	rightClickMenu->popup(m_tableView->viewport()->mapToGlobal(pos));
+
 }
 
 void CDisAsmWnd::SetAddress(uint32 address)
