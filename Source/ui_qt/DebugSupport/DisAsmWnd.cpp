@@ -74,6 +74,10 @@ CDisAsmWnd::CDisAsmWnd(QMdiArea* parent, CVirtualMachine& virtualMachine, CMIPS*
 
 	m_tableView->setContextMenuPolicy(Qt::CustomContextMenu);
 	connect(m_tableView, &QTableView::customContextMenuRequested, this, &CDisAsmWnd::showMenu);
+
+	m_tableView->setSelectionBehavior(QAbstractItemView::SelectRows);
+	m_tableView->setSelectionMode(QAbstractItemView::ContiguousSelection);
+	connect(m_tableView->selectionModel(), &QItemSelectionModel::selectionChanged, this, &CDisAsmWnd::selectionChanged);
 	// RefreshLayout();
 }
 
@@ -430,4 +434,16 @@ void CDisAsmWnd::UpdatePosition(int delta)
 {
 	m_address += delta;
 	SetAddress(m_address);
+}
+
+void CDisAsmWnd::selectionChanged()
+{
+	auto indexes = m_tableView->selectionModel()->selectedIndexes();
+	if(!indexes.empty())
+	{
+		auto selected = indexes.first().row() * m_instructionSize;
+		auto selectionEnd = indexes.last().row() * m_instructionSize;
+		m_selected = selected;
+		m_selectionEnd = (selectionEnd == selected) ? -1 : selectionEnd;
+	}
 }

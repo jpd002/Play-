@@ -60,6 +60,7 @@ private:
 	bool HistoryHasPrevious();
 	bool HistoryHasNext();
 	void showMenu(const QPoint&);
+	void selectionChanged();
 
 
 	CVirtualMachine& m_virtualMachine;
