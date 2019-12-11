@@ -96,7 +96,7 @@ private:
 
 	CDebugView* GetCurrentView();
 	CMIPS* GetContext();
-	//CDisAsmWnd* GetDisassemblyWindow();
+	CDisAsmWnd* GetDisassemblyWindow();
 	//CMemoryViewMIPSWnd* GetMemoryViewWindow();
 	CRegViewWnd* GetRegisterViewWindow();
 	CCallStackWnd* GetCallStackWindow();
@@ -134,7 +134,7 @@ private:
 	Framework::CSignal<void()>::Connection m_OnMachineStateChangeConnection;
 	Framework::CSignal<void()>::Connection m_OnRunningStateChangeConnection;
 
-	//CDisAsm::FindCallersRequestedEvent::Connection m_findCallersRequestConnection;
+	CDisAsm::FindCallersRequestedEvent::Connection m_findCallersRequestConnection;
 
 	//CELFView* m_pELFView = nullptr;
 	CFunctionsView* m_pFunctionsView = nullptr;

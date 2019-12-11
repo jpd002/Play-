@@ -28,8 +28,8 @@ set(SRC_ROOT ${CMAKE_CURRENT_SOURCE_DIR})
 set(SRC_FILES
 	${SRC_ROOT}/CallStackWnd.cpp
 	${SRC_ROOT}/CallStackWnd.h
-	# ${SRC_ROOT}/DebugExpressionEvaluator.cpp
-	# ${SRC_ROOT}/DebugExpressionEvaluator.h
+	${SRC_ROOT}/DebugExpressionEvaluator.cpp
+	${SRC_ROOT}/DebugExpressionEvaluator.h
 	${SRC_ROOT}/AddressListViewWnd.cpp
 	${SRC_ROOT}/AddressListViewWnd.h
 	
@@ -37,16 +37,16 @@ set(SRC_FILES
 	${SRC_ROOT}/DebugUtils.h
 	${SRC_ROOT}/DebugView.cpp
 	${SRC_ROOT}/DebugView.h
+	${SRC_ROOT}/DisAsm.cpp
+	${SRC_ROOT}/DisAsm.h
+	${SRC_ROOT}/DisAsmVu.cpp
+	${SRC_ROOT}/DisAsmVu.h
+	${SRC_ROOT}/DisAsmWnd.cpp
+	${SRC_ROOT}/DisAsmWnd.h
 	${SRC_ROOT}/FunctionsView.cpp
 	${SRC_ROOT}/FunctionsView.h
 	# ${SRC_ROOT}/DirectXControl.cpp
 	# ${SRC_ROOT}/DirectXControl.h
-	# ${SRC_ROOT}/DisAsm.cpp
-	# ${SRC_ROOT}/DisAsm.h
-	# ${SRC_ROOT}/DisAsmVu.cpp
-	# ${SRC_ROOT}/DisAsmVu.h
-	# ${SRC_ROOT}/DisAsmWnd.cpp
-	# ${SRC_ROOT}/DisAsmWnd.h
 	# ${SRC_ROOT}/ELFHeaderView.cpp
 	# ${SRC_ROOT}/ELFHeaderView.h
 	# ${SRC_ROOT}/ELFProgramView.cpp
@@ -113,12 +113,14 @@ set(SRC_FILES
 	# ${SRC_ROOT}/VirtualMachineStateView.h
 	# ${SRC_ROOT}/WinUtils.cpp
 	# ${SRC_ROOT}/WinUtils.h
+	${SRC_ROOT}/QtDisAsmTableModel.cpp
 	${SRC_ROOT}/QtGenericTableModel.cpp
 	${SRC_ROOT}/QtDebugger.cpp
 	${SRC_ROOT}/QtDialogListWidget.cpp
 )
 
 set(QT_DEBUGGER_MOC_HEADERS
+	${SRC_ROOT}/QtDisAsmTableModel.h
 	${SRC_ROOT}/QtGenericTableModel.h
 	${SRC_ROOT}/QtDebugger.h
 	${SRC_ROOT}/QtDialogListWidget.h

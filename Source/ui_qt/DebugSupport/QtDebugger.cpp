@@ -60,9 +60,9 @@ QtDebugger::QtDebugger(QWidget *parent, CPS2VM& virtualMachine)
 	m_pView[DEBUGVIEW_EE] = new CDebugView(ui->mdiArea, m_virtualMachine, &m_virtualMachine.m_ee->m_EE,
 	                                       std::bind(&CPS2VM::StepEe, &m_virtualMachine), m_virtualMachine.m_ee->m_os, "EmotionEngine");
 	m_pView[DEBUGVIEW_VU0] = new CDebugView(ui->mdiArea, m_virtualMachine, &m_virtualMachine.m_ee->m_VU0,
-	                                       std::bind(&CPS2VM::StepVu0, &m_virtualMachine), nullptr, "Vector Unit 0");//, CDisAsmWnd::DISASM_VU);
+	                                       std::bind(&CPS2VM::StepVu0, &m_virtualMachine), nullptr, "Vector Unit 0", CDisAsmWnd::DISASM_VU);
 	m_pView[DEBUGVIEW_VU1] = new CDebugView(ui->mdiArea, m_virtualMachine, &m_virtualMachine.m_ee->m_VU1,
-	                                       std::bind(&CPS2VM::StepVu1, &m_virtualMachine), nullptr, "Vector Unit 1");//, CDisAsmWnd::DISASM_VU);
+	                                       std::bind(&CPS2VM::StepVu1, &m_virtualMachine), nullptr, "Vector Unit 1", CDisAsmWnd::DISASM_VU);
 	m_pView[DEBUGVIEW_IOP] = new CDebugView(ui->mdiArea, m_virtualMachine, &m_virtualMachine.m_iop->m_cpu,
 	                                       std::bind(&CPS2VM::StepIop, &m_virtualMachine), m_virtualMachine.m_iop->m_bios.get(), "IO Processor");
 
@@ -398,8 +398,8 @@ void QtDebugger::FindEeFunctions()
 
 void QtDebugger::Layout1024()
 {
-	//GetDisassemblyWindow()->setGeometry(0, 0, 700, 435);
-	//GetDisassemblyWindow()->show();
+	GetDisassemblyWindow()->setGeometry(0, 0, 700, 435);
+	GetDisassemblyWindow()->show();
 
 	GetRegisterViewWindow()->setGeometry(700, 0, 324, 572);
 	GetRegisterViewWindow()->show();
@@ -413,8 +413,8 @@ void QtDebugger::Layout1024()
 
 void QtDebugger::Layout1280()
 {
-	//GetDisassemblyWindow()->setGeometry(0, 0, 900, 540);
-	//GetDisassemblyWindow()->show();
+	GetDisassemblyWindow()->setGeometry(0, 0, 900, 540);
+	GetDisassemblyWindow()->show();
 
 	GetRegisterViewWindow()->setGeometry(900, 0, 380, 784);
 	GetRegisterViewWindow()->show();
@@ -428,8 +428,8 @@ void QtDebugger::Layout1280()
 
 void QtDebugger::Layout1600()
 {
-	//GetDisassemblyWindow()->setGeometry(0, 0, 1094, 725);
-	//GetDisassemblyWindow()->show();
+	GetDisassemblyWindow()->setGeometry(0, 0, 1094, 725);
+	GetDisassemblyWindow()->show();
 
 	GetRegisterViewWindow()->setGeometry(1094, 0, 506, 725);
 	GetRegisterViewWindow()->show();
@@ -473,7 +473,7 @@ void QtDebugger::ActivateView(unsigned int nView)
 		GetCurrentView()->Hide();
 	}
 
-	//m_findCallersRequestConnection.reset();
+	m_findCallersRequestConnection.reset();
 
 	m_nCurrentView = nView;
 	LoadViewLayout();
@@ -491,18 +491,18 @@ void QtDebugger::ActivateView(unsigned int nView)
 	//	GetDisassemblyWindow()->setFocus(Qt::ActiveWindowFocusReason);
 	//}
 
-	//m_findCallersRequestConnection = GetCurrentView()->GetDisassemblyWindow()->GetDisAsm()->FindCallersRequested.Connect(
-	//    [&](uint32 address) { OnFindCallersRequested(address); });
+	m_findCallersRequestConnection = GetCurrentView()->GetDisassemblyWindow()->GetDisAsm()->FindCallersRequested.Connect(
+	   [&](uint32 address) { OnFindCallersRequested(address); });
 }
 
 void QtDebugger::SaveViewLayout()
 {
-	// SerializeWindowGeometry(GetDisassemblyWindow(),
-	//                         "debugger.disasm.posx",
-	//                         "debugger.disasm.posy",
-	//                         "debugger.disasm.sizex",
-	//                         "debugger.disasm.sizey",
-	//                         "debugger.disasm.visible");
+	SerializeWindowGeometry(GetDisassemblyWindow(),
+	                        "debugger.disasm.posx",
+	                        "debugger.disasm.posy",
+	                        "debugger.disasm.sizex",
+	                        "debugger.disasm.sizey",
+	                        "debugger.disasm.visible");
 
 	SerializeWindowGeometry(GetRegisterViewWindow(),
 	                        "debugger.regview.posx",
@@ -582,12 +582,13 @@ CMIPS* QtDebugger::GetContext()
 	return nullptr;
 	return GetCurrentView()->GetContext();
 }
-/*
+
 CDisAsmWnd* QtDebugger::GetDisassemblyWindow()
 {
 	return GetCurrentView()->GetDisassemblyWindow();
 }
 
+/*
 CMemoryViewMIPSWnd* QtDebugger::GetMemoryViewWindow()
 {
 	return GetCurrentView()->GetMemoryViewWindow();
@@ -703,20 +704,20 @@ LRESULT QtDebugger::OnWndProc(unsigned int nMsg, WPARAM wParam, LPARAM lParam)
 
 void QtDebugger::OnFunctionsViewFunctionDblClick(uint32 address)
 {
-	//GetDisassemblyWindow()->GetDisAsm()->SetAddress(address);
+	GetDisassemblyWindow()->GetDisAsm()->SetAddress(address);
 }
 
 void QtDebugger::OnFunctionsViewFunctionsStateChange()
 {
-	//GetDisassemblyWindow()->HandleMachineStateChange();
+	GetDisassemblyWindow()->HandleMachineStateChange();
 	GetCallStackWindow()->HandleMachineStateChange();
 }
 
 void QtDebugger::OnThreadsViewAddressDblClick(uint32 address)
 {
-	//auto disAsm = GetDisassemblyWindow()->GetDisAsm();
-	//disAsm->SetCenterAtAddress(address);
-	//disAsm->SetSelectedAddress(address);
+	auto disAsm = GetDisassemblyWindow()->GetDisAsm();
+	disAsm->SetCenterAtAddress(address);
+	disAsm->SetSelectedAddress(address);
 }
 
 void QtDebugger::OnExecutableChange()
@@ -765,9 +766,9 @@ void QtDebugger::OnFindCallersRequested(uint32 address)
 
 void QtDebugger::OnFindCallersAddressDblClick(uint32 address)
 {
-	//auto disAsm = GetDisassemblyWindow()->GetDisAsm();
-	//disAsm->SetCenterAtAddress(address);
-	//disAsm->SetSelectedAddress(address);
+	auto disAsm = GetDisassemblyWindow()->GetDisAsm();
+	disAsm->SetCenterAtAddress(address);
+	disAsm->SetSelectedAddress(address);
 }
 
 void QtDebugger::OnExecutableChangeMsg()
@@ -777,7 +778,7 @@ void QtDebugger::OnExecutableChangeMsg()
 
 	LoadDebugTags();
 
-	//GetDisassemblyWindow()->HandleMachineStateChange();
+	GetDisassemblyWindow()->HandleMachineStateChange();
 	GetCallStackWindow()->HandleMachineStateChange();
 	m_pFunctionsView->Refresh();
 }
