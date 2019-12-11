@@ -6,6 +6,7 @@
 #include "GSH_VulkanPipelineCache.h"
 #include "vulkan/ShaderModule.h"
 #include "vulkan/Buffer.h"
+#include "vulkan/Image.h"
 #include "Convertible.h"
 
 namespace GSH_Vulkan
@@ -84,8 +85,7 @@ namespace GSH_Vulkan
 		Framework::Vulkan::CBuffer m_vertexBuffer;
 		PRIM_VERTEX* m_vertexBufferPtr = nullptr;
 
-		VkImage m_drawImage = VK_NULL_HANDLE;
-		VkDeviceMemory m_drawImageMemoryHandle = VK_NULL_HANDLE;
+		Framework::Vulkan::CImage m_drawImage;
 		VkImageView m_drawImageView = VK_NULL_HANDLE;
 
 		uint32 m_passVertexStart = 0;

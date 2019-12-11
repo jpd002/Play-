@@ -72,8 +72,6 @@ CDraw::~CDraw()
 	m_context->device.vkDestroyFramebuffer(m_context->device, m_framebuffer, nullptr);
 	m_context->device.vkDestroyRenderPass(m_context->device, m_renderPass, nullptr);
 	m_context->device.vkDestroyImageView(m_context->device, m_drawImageView, nullptr);
-	m_context->device.vkDestroyImage(m_context->device, m_drawImage, nullptr);
-	m_context->device.vkFreeMemory(m_context->device, m_drawImageMemoryHandle, nullptr);
 }
 
 void CDraw::SetPipelineCaps(const PIPELINE_CAPS& caps)
@@ -586,39 +584,11 @@ void CDraw::CreateDrawImage()
 	//This image is needed for MoltenVK/Metal which seem to discard pixels
 	//that don't write to any color attachment
 
-	{
-		auto imageCreateInfo = Framework::Vulkan::ImageCreateInfo();
-		imageCreateInfo.imageType     = VK_IMAGE_TYPE_2D;
-		imageCreateInfo.format        = VK_FORMAT_R8G8B8A8_UNORM;
-		imageCreateInfo.extent.width  = DRAW_AREA_SIZE;
-		imageCreateInfo.extent.height = DRAW_AREA_SIZE;
-		imageCreateInfo.extent.depth  = 1;
-		imageCreateInfo.mipLevels     = 1;
-		imageCreateInfo.arrayLayers   = 1;
-		imageCreateInfo.samples       = VK_SAMPLE_COUNT_1_BIT;
-		imageCreateInfo.sharingMode   = VK_SHARING_MODE_EXCLUSIVE;
-		imageCreateInfo.tiling        = VK_IMAGE_TILING_OPTIMAL;
-		imageCreateInfo.usage         = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
-		imageCreateInfo.initialLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+	m_drawImage = Framework::Vulkan::CImage(m_context->device, m_context->physicalDeviceMemoryProperties,
+		VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT, VK_FORMAT_R8G8B8A8_UNORM, DRAW_AREA_SIZE, DRAW_AREA_SIZE);
 
-		auto result = m_context->device.vkCreateImage(m_context->device, &imageCreateInfo, nullptr, &m_drawImage);
-		CHECKVULKANERROR(result);
-	}
-
-	{
-		VkMemoryRequirements memoryRequirements = {};
-		m_context->device.vkGetImageMemoryRequirements(m_context->device, m_drawImage, &memoryRequirements);
-
-		auto memoryAllocateInfo = Framework::Vulkan::MemoryAllocateInfo();
-		memoryAllocateInfo.allocationSize  = memoryRequirements.size;
-		memoryAllocateInfo.memoryTypeIndex = Framework::Vulkan::GetMemoryTypeIndex(
-			m_context->physicalDeviceMemoryProperties, memoryRequirements.memoryTypeBits, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
-
-		auto result = m_context->device.vkAllocateMemory(m_context->device, &memoryAllocateInfo, nullptr, &m_drawImageMemoryHandle);
-		CHECKVULKANERROR(result);
-	}
-	
-	m_context->device.vkBindImageMemory(m_context->device, m_drawImage, m_drawImageMemoryHandle, 0);
+	m_drawImage.SetLayout(m_context->queue, m_context->commandBufferPool,
+		VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL, VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT);
 
 	{
 		auto imageViewCreateInfo = Framework::Vulkan::ImageViewCreateInfo();

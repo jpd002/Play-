@@ -2,6 +2,7 @@
 
 #include "vulkan/VulkanDef.h"
 #include "vulkan/Instance.h"
+#include "vulkan/Image.h"
 #include "GSH_VulkanContext.h"
 #include "GSH_VulkanFrameCommandBuffer.h"
 #include "GSH_VulkanClutLoad.h"
@@ -61,9 +62,7 @@ private:
 	void CreateDevice(VkPhysicalDevice);
 	void CreateDescriptorPool();
 	void CreateMemoryImage();
-	void InitMemoryImage();
 	void CreateClutImage();
-	void InitClutImage();
 
 	void VertexKick(uint8, uint64);
 	void SetRenderingContext(uint64);
@@ -87,11 +86,6 @@ private:
 	uint32 m_texWidth = 0;
 	uint32 m_texHeight = 0;
 
-	//GS memory
-	VkImage m_memoryImage = VK_NULL_HANDLE;
-	VkDeviceMemory m_memoryImageMemoryHandle = VK_NULL_HANDLE;
-
-	//CLUT
-	VkImage m_clutImage = VK_NULL_HANDLE;
-	VkDeviceMemory m_clutImageMemoryHandle = VK_NULL_HANDLE;
+	Framework::Vulkan::CImage m_memoryImage;
+	Framework::Vulkan::CImage m_clutImage;
 };
