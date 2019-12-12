@@ -917,6 +917,12 @@ void QtDebugger::on_actionView_Disassmebly_triggered()
 	GetDisassemblyWindow()->setFocus(Qt::ActiveWindowFocusReason);
 }
 
+void QtDebugger::on_actionView_Registers_triggered()
+{
+	GetRegisterViewWindow()->show();
+	GetRegisterViewWindow()->setFocus(Qt::ActiveWindowFocusReason);
+}
+
 void QtDebugger::on_actionEmotionEngine_View_triggered()
 {
 	ActivateView(DEBUGVIEW_EE);

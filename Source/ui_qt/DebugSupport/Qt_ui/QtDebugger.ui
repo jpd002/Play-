@@ -75,6 +75,7 @@
     <addaction name="actionFunctions"/>
     <addaction name="actionELF_File_Information"/>
     <addaction name="actionThreads"/>
+    <addaction name="actionView_Registers"/>
     <addaction name="separator"/>
     <addaction name="actionEmotionEngine_View"/>
     <addaction name="actionVector_Unit_0"/>
@@ -219,6 +220,14 @@
   <action name="actionLayout_1600x1200">
    <property name="text">
     <string>Layout (1600x1200)</string>
+   </property>
+  </action>
+  <action name="actionView_Registers">
+   <property name="text">
+    <string>Registers</string>
+   </property>
+   <property name="toolTip">
+    <string>Registers</string>
    </property>
   </action>
  </widget>
