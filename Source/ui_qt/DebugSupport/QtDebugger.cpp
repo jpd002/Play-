@@ -75,10 +75,10 @@ QtDebugger::QtDebugger(QWidget *parent, CPS2VM& virtualMachine)
 	ActivateView(DEBUGVIEW_EE);
 	LoadSettings();
 
-	//if(GetDisassemblyWindow()->IsVisible())
-	//{
-	//	GetDisassemblyWindow()->setFocus(Qt::ActiveWindowFocusReason);
-	//}
+	if(GetDisassemblyWindow()->isVisible())
+	{
+		GetDisassemblyWindow()->setFocus(Qt::ActiveWindowFocusReason);
+	}
 
 	CreateAccelerators();
 }
@@ -215,10 +215,10 @@ void QtDebugger::StepCPU()
 		return;
 	}
 
-	//if(::GetParent(GetFocus()) != GetDisassemblyWindow()->m_hWnd)
-	//{
-	//	GetDisassemblyWindow()->setFocus(Qt::ActiveWindowFocusReason);
-	//}
+	if(!GetDisassemblyWindow()->hasFocus())
+	{
+		GetDisassemblyWindow()->setFocus(Qt::ActiveWindowFocusReason);
+	}
 
 	
 	GetCurrentView()->Step();
@@ -486,10 +486,10 @@ void QtDebugger::ActivateView(unsigned int nView)
 		m_threadsView->SetContext(GetCurrentView()->GetContext(), biosDebugInfoProvider);
 	}
 
-	//if(GetDisassemblyWindow()->IsVisible())
-	//{
-	//	GetDisassemblyWindow()->setFocus(Qt::ActiveWindowFocusReason);
-	//}
+	if(GetDisassemblyWindow()->isVisible())
+	{
+		GetDisassemblyWindow()->setFocus(Qt::ActiveWindowFocusReason);
+	}
 
 	m_findCallersRequestConnection = GetCurrentView()->GetDisassemblyWindow()->FindCallersRequested.Connect(
 	   [&](uint32 address) { OnFindCallersRequested(address); });
@@ -668,12 +668,6 @@ void QtDebugger::DestroyAccelerators()
 		m_pELFView->setFocus(Qt::ActiveWindowFocusReason);
 		return FALSE;
 		break;
-	case ID_VIEW_DISASSEMBLY:
-		GetDisassemblyWindow()->Show(SW_SHOW);
-		GetDisassemblyWindow()->setFocus(Qt::ActiveWindowFocusReason);
-		return FALSE;
-		break;
-	}
 	return TRUE;
 }*/
 
@@ -915,6 +909,12 @@ void QtDebugger::on_actionThreads_triggered()
 {
 	m_threadsView->show();
 	m_threadsView->setFocus(Qt::ActiveWindowFocusReason);
+}
+
+void QtDebugger::on_actionView_Disassmebly_triggered()
+{
+	GetDisassemblyWindow()->show();
+	GetDisassemblyWindow()->setFocus(Qt::ActiveWindowFocusReason);
 }
 
 void QtDebugger::on_actionEmotionEngine_View_triggered()

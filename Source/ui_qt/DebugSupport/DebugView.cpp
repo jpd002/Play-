@@ -12,7 +12,7 @@ CDebugView::CDebugView(QMdiArea* parent, CVirtualMachine& virtualMachine, CMIPS*
     , m_disAsmWnd(nullptr)
     , m_regViewWnd(nullptr)
     //, m_memoryViewWnd(nullptr)
-    //, m_callStackWnd(nullptr)
+    , m_callStackWnd(nullptr)
     , m_biosDebugInfoProvider(biosDebugInfoProvider)
 {
 	
@@ -33,7 +33,7 @@ CDebugView::CDebugView(QMdiArea* parent, CVirtualMachine& virtualMachine, CMIPS*
 	// parent->addSubWindow(m_callStackWnd)->setWindowTitle("Call Stack");
 
 	//this->addTab(m_callStackWnd, "Call Stack");
-	//m_OnFunctionDblClickConnection = m_callStackWnd->OnFunctionDblClick.Connect(std::bind(&CDebugView::OnCallStackWndFunctionDblClick, this, std::placeholders::_1));
+	m_OnFunctionDblClickConnection = m_callStackWnd->OnFunctionDblClick.Connect(std::bind(&CDebugView::OnCallStackWndFunctionDblClick, this, std::placeholders::_1));
 
 	//this->m_viewTabs->show();
 	Hide();

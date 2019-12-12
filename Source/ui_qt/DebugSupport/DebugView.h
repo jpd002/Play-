@@ -51,6 +51,6 @@ private:
 	StepFunction m_stepFunction;
 	CBiosDebugInfoProvider* m_biosDebugInfoProvider;
 
-	//CCallStackWnd::OnFunctionDblClickSignal::Connection m_OnFunctionDblClickConnection;
+	CCallStackWnd::OnFunctionDblClickSignal::Connection m_OnFunctionDblClickConnection;
 	QTabWidget* m_viewTabs;
 };
