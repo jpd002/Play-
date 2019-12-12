@@ -621,13 +621,39 @@ Framework::Vulkan::CShaderModule CDraw::CreateFragmentShader(const PIPELINE_CAPS
 		}
 
 		auto screenPos = ToInt(inputPosition->xy());
+
 		assert(caps.framebufferFormat == CGSHandler::PSMCT32);
 		auto fbAddress = CMemoryUtils::GetPixelAddress<CGsPixelFormats::STORAGEPSMCT32>(
 			b, fbSwizzleTable, fbBufAddress, fbBufWidth, screenPos);
-		auto texturePixel = CMemoryUtils::Vec4ToPSM32(b, textureColor);
 
 		BeginInvocationInterlock(b);
-		CMemoryUtils::Memory_Write32(b, memoryImage, fbAddress, texturePixel);
+
+		if(caps.hasAlphaBlending)
+		{
+			//Fetch dst pixel
+			auto dstPixel = CMemoryUtils::Memory_Read32(b, memoryImage, fbAddress);
+			auto dstColor = CMemoryUtils::PSM32ToVec4(b, dstPixel);
+			
+			//Blend
+			assert(caps.alphaA == 0);
+			assert(caps.alphaB == 1);
+			assert(caps.alphaC == 0);
+			assert(caps.alphaD == 1);
+
+			auto blendedColor = ((textureColor->xyz() - dstColor->xyz()) * textureColor->www() * NewFloat3(b, 2, 2, 2)) + dstColor->xyz();
+			auto finalColor = NewFloat4(blendedColor, textureColor->w());
+			auto clampedFinalColor = Clamp(finalColor, NewFloat4(b, 0, 0, 0, 0), NewFloat4(b, 1, 1, 1, 1));
+
+			//Write
+			auto pixel = CMemoryUtils::Vec4ToPSM32(b, clampedFinalColor);
+			CMemoryUtils::Memory_Write32(b, memoryImage, fbAddress, pixel);
+		}
+		else
+		{
+			auto pixel = CMemoryUtils::Vec4ToPSM32(b, textureColor);
+			CMemoryUtils::Memory_Write32(b, memoryImage, fbAddress, pixel);
+		}
+
 		EndInvocationInterlock(b);
 
 		outputColor = NewFloat4(b, 0, 0, 1, 0);

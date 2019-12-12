@@ -561,10 +561,20 @@ void CGSH_Vulkan::SetRenderingContext(uint64 primReg)
 	auto offset = make_convertible<XYOFFSET>(m_nReg[GS_REG_XYOFFSET_1 + context]);
 	auto frame = make_convertible<FRAME>(m_nReg[GS_REG_FRAME_1 + context]);
 	auto tex0 = make_convertible<TEX0>(m_nReg[GS_REG_TEX0_1 + context]);
+	auto alpha = make_convertible<ALPHA>(m_nReg[GS_REG_ALPHA_1 + context]);
 
 	auto pipelineCaps = make_convertible<CDraw::PIPELINE_CAPS>(0);
 	pipelineCaps.hasTexture = prim.nTexture;
+	pipelineCaps.hasAlphaBlending = prim.nAlpha;
 	pipelineCaps.textureFormat = tex0.nPsm;
+
+	if(prim.nAlpha)
+	{
+		pipelineCaps.alphaA = alpha.nA;
+		pipelineCaps.alphaB = alpha.nB;
+		pipelineCaps.alphaC = alpha.nC;
+		pipelineCaps.alphaD = alpha.nD;
+	}
 
 	m_draw->SetPipelineCaps(pipelineCaps);
 	m_draw->SetFramebufferBufferInfo(frame.GetBasePtr(), frame.GetWidth());
