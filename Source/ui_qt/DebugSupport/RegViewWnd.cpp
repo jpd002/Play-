@@ -10,7 +10,7 @@ CRegViewWnd::CRegViewWnd(QMdiArea* parent, CMIPS* ctx)
 {
 
 	parent->addSubWindow(this);
-	setWindowTitle("RegView");
+	setWindowTitle("Registers");
 	resize(320, 700);
 
 	setWidget(m_tableWidget);
