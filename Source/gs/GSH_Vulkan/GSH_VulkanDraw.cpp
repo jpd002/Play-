@@ -17,6 +17,8 @@ using namespace GSH_Vulkan;
 
 #define DESCRIPTOR_LOCATION_IMAGE_MEMORY 0
 #define DESCRIPTOR_LOCATION_IMAGE_CLUT 1
+#define DESCRIPTOR_LOCATION_IMAGE_SWIZZLETABLE_TEX 2
+#define DESCRIPTOR_LOCATION_IMAGE_SWIZZLETABLE_FB 3
 
 static void MakeLinearZOrtho(float* matrix, float left, float right, float bottom, float top)
 {
@@ -212,6 +214,14 @@ VkDescriptorSet CDraw::PrepareDescriptorSet(VkDescriptorSetLayout descriptorSetL
 		descriptorClutImageInfo.imageView = m_context->clutImageView;
 		descriptorClutImageInfo.imageLayout = VK_IMAGE_LAYOUT_GENERAL;
 
+		VkDescriptorImageInfo descriptorTexSwizzleTableImageInfo = {};
+		descriptorTexSwizzleTableImageInfo.imageView = m_context->GetSwizzleTable(m_pipelineCaps.textureFormat);
+		descriptorTexSwizzleTableImageInfo.imageLayout = VK_IMAGE_LAYOUT_GENERAL;
+
+		VkDescriptorImageInfo descriptorFbSwizzleTableImageInfo = {};
+		descriptorFbSwizzleTableImageInfo.imageView = m_context->GetSwizzleTable(m_pipelineCaps.framebufferFormat);
+		descriptorFbSwizzleTableImageInfo.imageLayout = VK_IMAGE_LAYOUT_GENERAL;
+
 		std::vector<VkWriteDescriptorSet> writes;
 
 		{
@@ -224,15 +234,38 @@ VkDescriptorSet CDraw::PrepareDescriptorSet(VkDescriptorSetLayout descriptorSetL
 			writes.push_back(writeSet);
 		}
 
-		if(CGsPixelFormats::IsPsmIDTEX(m_pipelineCaps.textureFormat))
 		{
 			auto writeSet = Framework::Vulkan::WriteDescriptorSet();
 			writeSet.dstSet          = descriptorSet;
-			writeSet.dstBinding      = DESCRIPTOR_LOCATION_IMAGE_CLUT;
+			writeSet.dstBinding      = DESCRIPTOR_LOCATION_IMAGE_SWIZZLETABLE_FB;
 			writeSet.descriptorCount = 1;
 			writeSet.descriptorType  = VK_DESCRIPTOR_TYPE_STORAGE_IMAGE;
-			writeSet.pImageInfo      = &descriptorClutImageInfo;
+			writeSet.pImageInfo      = &descriptorFbSwizzleTableImageInfo;
 			writes.push_back(writeSet);
+		}
+
+		if(m_pipelineCaps.hasTexture)
+		{
+			{
+				auto writeSet = Framework::Vulkan::WriteDescriptorSet();
+				writeSet.dstSet          = descriptorSet;
+				writeSet.dstBinding      = DESCRIPTOR_LOCATION_IMAGE_SWIZZLETABLE_TEX;
+				writeSet.descriptorCount = 1;
+				writeSet.descriptorType  = VK_DESCRIPTOR_TYPE_STORAGE_IMAGE;
+				writeSet.pImageInfo      = &descriptorTexSwizzleTableImageInfo;
+				writes.push_back(writeSet);
+			}
+
+			if(CGsPixelFormats::IsPsmIDTEX(m_pipelineCaps.textureFormat))
+			{
+				auto writeSet = Framework::Vulkan::WriteDescriptorSet();
+				writeSet.dstSet          = descriptorSet;
+				writeSet.dstBinding      = DESCRIPTOR_LOCATION_IMAGE_CLUT;
+				writeSet.descriptorCount = 1;
+				writeSet.descriptorType  = VK_DESCRIPTOR_TYPE_STORAGE_IMAGE;
+				writeSet.pImageInfo      = &descriptorClutImageInfo;
+				writes.push_back(writeSet);
+			}
 		}
 
 		m_context->device.vkUpdateDescriptorSets(m_context->device, writes.size(), writes.data(), 0, nullptr);
@@ -312,14 +345,35 @@ PIPELINE CDraw::CreateDrawPipeline(const PIPELINE_CAPS& caps)
 			setLayoutBindings.push_back(setLayoutBinding);
 		}
 
-		if(CGsPixelFormats::IsPsmIDTEX(caps.textureFormat))
 		{
 			VkDescriptorSetLayoutBinding setLayoutBinding = {};
-			setLayoutBinding.binding         = DESCRIPTOR_LOCATION_IMAGE_CLUT;
+			setLayoutBinding.binding         = DESCRIPTOR_LOCATION_IMAGE_SWIZZLETABLE_FB;
 			setLayoutBinding.descriptorType  = VK_DESCRIPTOR_TYPE_STORAGE_IMAGE;
 			setLayoutBinding.descriptorCount = 1;
 			setLayoutBinding.stageFlags      = VK_SHADER_STAGE_FRAGMENT_BIT;
 			setLayoutBindings.push_back(setLayoutBinding);
+		}
+
+		if(caps.hasTexture)
+		{
+			{
+				VkDescriptorSetLayoutBinding setLayoutBinding = {};
+				setLayoutBinding.binding         = DESCRIPTOR_LOCATION_IMAGE_SWIZZLETABLE_TEX;
+				setLayoutBinding.descriptorType  = VK_DESCRIPTOR_TYPE_STORAGE_IMAGE;
+				setLayoutBinding.descriptorCount = 1;
+				setLayoutBinding.stageFlags      = VK_SHADER_STAGE_FRAGMENT_BIT;
+				setLayoutBindings.push_back(setLayoutBinding);
+			}
+
+			if(CGsPixelFormats::IsPsmIDTEX(caps.textureFormat))
+			{
+				VkDescriptorSetLayoutBinding setLayoutBinding = {};
+				setLayoutBinding.binding         = DESCRIPTOR_LOCATION_IMAGE_CLUT;
+				setLayoutBinding.descriptorType  = VK_DESCRIPTOR_TYPE_STORAGE_IMAGE;
+				setLayoutBinding.descriptorCount = 1;
+				setLayoutBinding.stageFlags      = VK_SHADER_STAGE_FRAGMENT_BIT;
+				setLayoutBindings.push_back(setLayoutBinding);
+			}
 		}
 
 		auto setLayoutCreateInfo = Framework::Vulkan::DescriptorSetLayoutCreateInfo();
@@ -505,6 +559,8 @@ Framework::Vulkan::CShaderModule CDraw::CreateFragmentShader(const PIPELINE_CAPS
 
 		auto memoryImage = CImageUint2DValue(b.CreateImage2DUint(DESCRIPTOR_LOCATION_IMAGE_MEMORY));
 		auto clutImage = CImageUint2DValue(b.CreateImage2DUint(DESCRIPTOR_LOCATION_IMAGE_CLUT));
+		auto texSwizzleTable = CImageUint2DValue(b.CreateImage2DUint(DESCRIPTOR_LOCATION_IMAGE_SWIZZLETABLE_TEX));
+		auto fbSwizzleTable = CImageUint2DValue(b.CreateImage2DUint(DESCRIPTOR_LOCATION_IMAGE_SWIZZLETABLE_FB));
 
 		//Push constants
 		auto projMatrix = CMatrix44Value(b.CreateUniformMatrix("g_projMatrix", Nuanceur::UNIFORM_UNIT_PUSHCONSTANT));
@@ -533,14 +589,16 @@ Framework::Vulkan::CShaderModule CDraw::CreateFragmentShader(const PIPELINE_CAPS
 			default:
 			case CGSHandler::PSMCT32:
 				{
-					auto texAddress = CMemoryUtils::GetPixelAddress_PSMCT32(b, texBufAddress, texBufWidth, texelPos);
+					auto texAddress = CMemoryUtils::GetPixelAddress<CGsPixelFormats::STORAGEPSMCT32>(
+						b, texSwizzleTable, texBufAddress, texBufWidth, texelPos);
 					auto texPixel = CMemoryUtils::Memory_Read32(b, memoryImage, texAddress);
 					textureColor = CMemoryUtils::PSM32ToVec4(b, texPixel);
 				}
 				break;
 			case CGSHandler::PSMT8:
 				{
-					auto texAddress = CMemoryUtils::GetPixelAddress_PSMT8(b, texBufAddress, texBufWidth, texelPos);
+					auto texAddress = CMemoryUtils::GetPixelAddress<CGsPixelFormats::STORAGEPSMT8>(
+						b, texSwizzleTable, texBufAddress, texBufWidth, texelPos);
 					auto texPixel = CMemoryUtils::Memory_Read8(b, memoryImage, texAddress);
 					auto clutIndexLo = NewInt2(ToInt(texPixel), NewInt(b, 0));
 					auto clutIndexHi = NewInt2(ToInt(texPixel) + NewInt(b, 0x100), NewInt(b, 0));
@@ -563,7 +621,9 @@ Framework::Vulkan::CShaderModule CDraw::CreateFragmentShader(const PIPELINE_CAPS
 		}
 
 		auto screenPos = ToInt(inputPosition->xy());
-		auto fbAddress = CMemoryUtils::GetPixelAddress_PSMCT32(b, fbBufAddress, fbBufWidth, screenPos);
+		assert(caps.framebufferFormat == CGSHandler::PSMCT32);
+		auto fbAddress = CMemoryUtils::GetPixelAddress<CGsPixelFormats::STORAGEPSMCT32>(
+			b, fbSwizzleTable, fbBufAddress, fbBufWidth, screenPos);
 		auto texturePixel = CMemoryUtils::Vec4ToPSM32(b, textureColor);
 
 		BeginInvocationInterlock(b);
@@ -590,19 +650,5 @@ void CDraw::CreateDrawImage()
 	m_drawImage.SetLayout(m_context->queue, m_context->commandBufferPool,
 		VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL, VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT);
 
-	{
-		auto imageViewCreateInfo = Framework::Vulkan::ImageViewCreateInfo();
-		imageViewCreateInfo.image    = m_drawImage;
-		imageViewCreateInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
-		imageViewCreateInfo.format   = VK_FORMAT_R8G8B8A8_UNORM;
-		imageViewCreateInfo.components = 
-		{
-			VK_COMPONENT_SWIZZLE_R, VK_COMPONENT_SWIZZLE_G, 
-			VK_COMPONENT_SWIZZLE_B, VK_COMPONENT_SWIZZLE_A 
-		};
-		imageViewCreateInfo.subresourceRange = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1 };
-		
-		auto result = m_context->device.vkCreateImageView(m_context->device, &imageViewCreateInfo, nullptr, &m_drawImageView);
-		CHECKVULKANERROR(result);
-	}
+	m_drawImageView = m_drawImage.CreateImageView();
 }

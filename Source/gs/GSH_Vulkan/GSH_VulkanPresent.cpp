@@ -9,6 +9,7 @@ using namespace GSH_Vulkan;
 
 #define DESCRIPTOR_LOCATION_IMAGE_MEMORY 0
 #define DESCRIPTOR_LOCATION_UNIFORM_SRCBUFFER 1
+#define DESCRIPTOR_LOCATION_IMAGE_SWIZZLETABLE 2
 
 struct SRCBUFFER
 {
@@ -180,13 +181,17 @@ void CPresent::UpdateBackbuffer(uint32 imageIndex, uint32 bufAddress, uint32 buf
 
 	//Update descriptor set
 	{
-		VkDescriptorImageInfo descriptorImageInfo = {};
-		descriptorImageInfo.imageView = m_context->memoryImageView;
-		descriptorImageInfo.imageLayout = VK_IMAGE_LAYOUT_GENERAL;
+		VkDescriptorImageInfo descriptorMemoryImageInfo = {};
+		descriptorMemoryImageInfo.imageView = m_context->memoryImageView;
+		descriptorMemoryImageInfo.imageLayout = VK_IMAGE_LAYOUT_GENERAL;
 
 		VkDescriptorBufferInfo descriptorUniformInfo = {};
 		descriptorUniformInfo.buffer = m_srcBufferUniform;
 		descriptorUniformInfo.range = VK_WHOLE_SIZE;
+
+		VkDescriptorImageInfo descriptorSwizzleTableImageInfo = {};
+		descriptorSwizzleTableImageInfo.imageView = m_context->GetSwizzleTable(CGSHandler::PSMCT32);
+		descriptorSwizzleTableImageInfo.imageLayout = VK_IMAGE_LAYOUT_GENERAL;
 
 		std::vector<VkWriteDescriptorSet> writes;
 
@@ -196,7 +201,7 @@ void CPresent::UpdateBackbuffer(uint32 imageIndex, uint32 bufAddress, uint32 buf
 			writeSet.dstBinding      = DESCRIPTOR_LOCATION_IMAGE_MEMORY;
 			writeSet.descriptorCount = 1;
 			writeSet.descriptorType  = VK_DESCRIPTOR_TYPE_STORAGE_IMAGE;
-			writeSet.pImageInfo      = &descriptorImageInfo;
+			writeSet.pImageInfo      = &descriptorMemoryImageInfo;
 			writes.push_back(writeSet);
 		}
 
@@ -207,6 +212,16 @@ void CPresent::UpdateBackbuffer(uint32 imageIndex, uint32 bufAddress, uint32 buf
 			writeSet.descriptorCount = 1;
 			writeSet.descriptorType  = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
 			writeSet.pBufferInfo      = &descriptorUniformInfo;
+			writes.push_back(writeSet);
+		}
+
+		{
+			auto writeSet = Framework::Vulkan::WriteDescriptorSet();
+			writeSet.dstSet          = descriptorSet;
+			writeSet.dstBinding      = DESCRIPTOR_LOCATION_IMAGE_SWIZZLETABLE;
+			writeSet.descriptorCount = 1;
+			writeSet.descriptorType  = VK_DESCRIPTOR_TYPE_STORAGE_IMAGE;
+			writeSet.pImageInfo      = &descriptorSwizzleTableImageInfo;
 			writes.push_back(writeSet);
 		}
 
@@ -407,6 +422,15 @@ void CPresent::CreateDrawPipeline()
 			setLayoutBindings.push_back(setLayoutBinding);
 		}
 
+		{
+			VkDescriptorSetLayoutBinding setLayoutBinding = {};
+			setLayoutBinding.binding         = DESCRIPTOR_LOCATION_IMAGE_SWIZZLETABLE;
+			setLayoutBinding.descriptorType  = VK_DESCRIPTOR_TYPE_STORAGE_IMAGE;
+			setLayoutBinding.descriptorCount = 1;
+			setLayoutBinding.stageFlags      = VK_SHADER_STAGE_FRAGMENT_BIT;
+			setLayoutBindings.push_back(setLayoutBinding);
+		}
+
 		auto setLayoutCreateInfo = Framework::Vulkan::DescriptorSetLayoutCreateInfo();
 		setLayoutCreateInfo.bindingCount = setLayoutBindings.size();
 		setLayoutCreateInfo.pBindings    = setLayoutBindings.data();
@@ -552,13 +576,15 @@ void CPresent::CreateFragmentShader()
 
 		auto outputColor = CFloat4Lvalue(b.CreateOutput(Nuanceur::SEMANTIC_SYSTEM_COLOR));
 		auto memoryImage = CImageUint2DValue(b.CreateImage2DUint(DESCRIPTOR_LOCATION_IMAGE_MEMORY));
+		auto swizzleTable = CImageUint2DValue(b.CreateImage2DUint(DESCRIPTOR_LOCATION_IMAGE_SWIZZLETABLE));
 
 		auto bufParams0 = CInt4Lvalue(b.CreateUniformInt4("bufParams0", DESCRIPTOR_LOCATION_UNIFORM_SRCBUFFER));
 		auto bufAddress = bufParams0->x();
 		auto bufWidth   = bufParams0->y();
 
 		auto screenPos = ToInt(inputTexCoord->xy() * NewFloat2(b, 640, 448));
-		auto address = CMemoryUtils::GetPixelAddress_PSMCT32(b, bufAddress, bufWidth, screenPos);
+		auto address = CMemoryUtils::GetPixelAddress<CGsPixelFormats::STORAGEPSMCT32>(
+			b, swizzleTable, bufAddress, bufWidth, screenPos);
 		auto imageColor = CMemoryUtils::Memory_Read32(b, memoryImage, address);
 		outputColor = CMemoryUtils::PSM32ToVec4(b, imageColor);
 	}

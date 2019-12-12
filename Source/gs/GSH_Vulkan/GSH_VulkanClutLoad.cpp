@@ -10,6 +10,7 @@ using namespace GSH_Vulkan;
 
 #define DESCRIPTOR_LOCATION_MEMORY 0
 #define DESCRIPTOR_LOCATION_CLUT 1
+#define DESCRIPTOR_LOCATION_SWIZZLETABLE 2
 
 CClutLoad::CClutLoad(const ContextPtr& context, const FrameCommandBufferPtr& frameCommandBuffer)
 	: m_context(context)
@@ -36,17 +37,17 @@ void CClutLoad::DoClutLoad(const CGSHandler::TEX0& tex0)
 	loadParams.clutBufPtr = tex0.GetCLUTPtr();
 	loadParams.csa = tex0.nCSA;
 
-	auto descriptorSet = PrepareDescriptorSet(loadPipeline->descriptorSetLayout);
+	auto swizzleTable = m_context->GetSwizzleTable(tex0.nCPSM);
+	auto descriptorSet = PrepareDescriptorSet(loadPipeline->descriptorSetLayout, swizzleTable);
 	auto commandBuffer = m_frameCommandBuffer->GetCommandBuffer();
 
 	m_context->device.vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_COMPUTE, loadPipeline->pipelineLayout, 0, 1, &descriptorSet, 0, nullptr);
 	m_context->device.vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_COMPUTE, loadPipeline->pipeline);
 	m_context->device.vkCmdPushConstants(commandBuffer, loadPipeline->pipelineLayout, VK_SHADER_STAGE_COMPUTE_BIT, 0, sizeof(LOAD_PARAMS), &loadParams);
 	m_context->device.vkCmdDispatch(commandBuffer, 1, 1, 1);
-
 }
 
-VkDescriptorSet CClutLoad::PrepareDescriptorSet(VkDescriptorSetLayout descriptorSetLayout)
+VkDescriptorSet CClutLoad::PrepareDescriptorSet(VkDescriptorSetLayout descriptorSetLayout, VkImageView swizzleTable)
 {
 	VkResult result = VK_SUCCESS;
 	VkDescriptorSet descriptorSet = VK_NULL_HANDLE;
@@ -74,6 +75,10 @@ VkDescriptorSet CClutLoad::PrepareDescriptorSet(VkDescriptorSetLayout descriptor
 		descriptorClutImageInfo.imageView = m_context->clutImageView;
 		descriptorClutImageInfo.imageLayout = VK_IMAGE_LAYOUT_GENERAL;
 
+		VkDescriptorImageInfo descriptorSwizzleTableImageInfo = {};
+		descriptorSwizzleTableImageInfo.imageView = swizzleTable;
+		descriptorSwizzleTableImageInfo.imageLayout = VK_IMAGE_LAYOUT_GENERAL;
+
 		//Memory Image Descriptor
 		{
 			auto writeSet = Framework::Vulkan::WriteDescriptorSet();
@@ -93,6 +98,17 @@ VkDescriptorSet CClutLoad::PrepareDescriptorSet(VkDescriptorSetLayout descriptor
 			writeSet.descriptorCount = 1;
 			writeSet.descriptorType  = VK_DESCRIPTOR_TYPE_STORAGE_IMAGE;
 			writeSet.pImageInfo      = &descriptorClutImageInfo;
+			writes.push_back(writeSet);
+		}
+
+		//Swizzle Table Descriptor
+		{
+			auto writeSet = Framework::Vulkan::WriteDescriptorSet();
+			writeSet.dstSet          = descriptorSet;
+			writeSet.dstBinding      = DESCRIPTOR_LOCATION_SWIZZLETABLE;
+			writeSet.descriptorCount = 1;
+			writeSet.descriptorType  = VK_DESCRIPTOR_TYPE_STORAGE_IMAGE;
+			writeSet.pImageInfo      = &descriptorSwizzleTableImageInfo;
 			writes.push_back(writeSet);
 		}
 
@@ -125,6 +141,7 @@ Framework::Vulkan::CShaderModule CClutLoad::CreateLoadShader(const PIPELINE_CAPS
 		auto inputInvocationId = CInt4Lvalue(b.CreateInputInt(Nuanceur::SEMANTIC_SYSTEM_GIID));
 		auto memoryImage = CImageUint2DValue(b.CreateImage2DUint(DESCRIPTOR_LOCATION_MEMORY));
 		auto clutImage = CImageUint2DValue(b.CreateImage2DUint(DESCRIPTOR_LOCATION_CLUT));
+		auto swizzleTable = CImageUint2DValue(b.CreateImage2DUint(DESCRIPTOR_LOCATION_SWIZZLETABLE));
 
 		auto loadParams = CInt4Lvalue(b.CreateUniformInt4("loadParams", Nuanceur::UNIFORM_UNIT_PUSHCONSTANT));
 		auto clutBufPtr = loadParams->x();
@@ -138,7 +155,8 @@ Framework::Vulkan::CShaderModule CClutLoad::CreateLoadShader(const PIPELINE_CAPS
 		{
 		case CGSHandler::PSMCT32:
 			{
-				auto colorAddress = CMemoryUtils::GetPixelAddress_PSMCT32(b, clutBufPtr, NewInt(b, 64), colorPos);
+				auto colorAddress = CMemoryUtils::GetPixelAddress<CGsPixelFormats::STORAGEPSMCT32>(
+					b, swizzleTable, clutBufPtr, NewInt(b, 64), colorPos);
 				colorPixel = CMemoryUtils::Memory_Read32(b, memoryImage, colorAddress);
 			}
 			break;
@@ -206,6 +224,16 @@ PIPELINE CClutLoad::CreateLoadPipeline(const PIPELINE_CAPS& caps)
 		{
 			VkDescriptorSetLayoutBinding binding = {};
 			binding.binding         = DESCRIPTOR_LOCATION_CLUT;
+			binding.descriptorType  = VK_DESCRIPTOR_TYPE_STORAGE_IMAGE;
+			binding.descriptorCount = 1;
+			binding.stageFlags      = VK_SHADER_STAGE_COMPUTE_BIT;
+			bindings.push_back(binding);
+		}
+
+		//Swizzle table
+		{
+			VkDescriptorSetLayoutBinding binding = {};
+			binding.binding         = DESCRIPTOR_LOCATION_SWIZZLETABLE;
 			binding.descriptorType  = VK_DESCRIPTOR_TYPE_STORAGE_IMAGE;
 			binding.descriptorCount = 1;
 			binding.stageFlags      = VK_SHADER_STAGE_COMPUTE_BIT;

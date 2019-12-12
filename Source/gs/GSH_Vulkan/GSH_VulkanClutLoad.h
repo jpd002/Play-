@@ -34,7 +34,7 @@ namespace GSH_Vulkan
 			uint32 csa;
 		};
 
-		VkDescriptorSet PrepareDescriptorSet(VkDescriptorSetLayout);
+		VkDescriptorSet PrepareDescriptorSet(VkDescriptorSetLayout, VkImageView);
 		Framework::Vulkan::CShaderModule CreateLoadShader(const PIPELINE_CAPS&);
 		PIPELINE CreateLoadPipeline(const PIPELINE_CAPS&);
 

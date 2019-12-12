@@ -42,7 +42,7 @@ namespace GSH_Vulkan
 	private:
 		typedef CPipelineCache<PipelineCapsInt> PipelineCache;
 
-		VkDescriptorSet PrepareDescriptorSet(VkDescriptorSetLayout);
+		VkDescriptorSet PrepareDescriptorSet(VkDescriptorSetLayout, VkImageView);
 
 		void CreateXferBuffer();
 		Framework::Vulkan::CShaderModule CreateXferShader(const PIPELINE_CAPS&);
