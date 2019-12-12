@@ -239,13 +239,7 @@ public:
 			m_nPointer = nPointer;
 			m_nWidth = nWidth;
 			m_pMemory = pMemory;
-
-			//This might not be thread safe (?)
-			if(!m_pageOffsetsInitialized)
-			{
-				BuildPageOffsetTable();
-				m_pageOffsetsInitialized = true;
-			}
+			BuildPageOffsetTable();
 		}
 
 		typename Storage::Unit GetPixel(unsigned int nX, unsigned int nY)
@@ -270,9 +264,17 @@ public:
 			return reinterpret_cast<typename Storage::Unit*>(pixelAddr);
 		}
 
-	private:
-		void BuildPageOffsetTable()
+		static uint32* GetPageOffsets()
 		{
+			BuildPageOffsetTable();
+			return reinterpret_cast<uint32*>(m_pageOffsets);
+		}
+
+	private:
+		static void BuildPageOffsetTable()
+		{
+			if(m_pageOffsetsInitialized) return;
+
 			for(uint32 y = 0; y < Storage::PAGEHEIGHT; y++)
 			{
 				for(uint32 x = 0; x < Storage::PAGEWIDTH; x++)
@@ -293,6 +295,8 @@ public:
 					m_pageOffsets[y][x] = offset;
 				}
 			}
+
+			m_pageOffsetsInitialized = true;
 		}
 
 		uint32 GetColumnAddress(unsigned int& nX, unsigned int& nY)
