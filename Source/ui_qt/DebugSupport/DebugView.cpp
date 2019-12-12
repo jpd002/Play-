@@ -71,7 +71,7 @@ const char* CDebugView::GetName() const
 void CDebugView::Hide()
 {
 	//int method = SW_HIDE;
-	// m_disAsmWnd->hide();
+	m_disAsmWnd->hide();
 	// m_memoryViewWnd->hide();
 
 	m_regViewWnd->hide();

@@ -31,9 +31,7 @@ CDisAsmWnd::CDisAsmWnd(QMdiArea* parent, CVirtualMachine& virtualMachine, CMIPS*
 	resize(320, 240);
 
 	parent->addSubWindow(this);
-	std::string title("Disassembly ");
-	title += name;
-	setWindowTitle(title.c_str());
+	setWindowTitle("Disassembly");
 
 	switch(disAsmType)
 	{
