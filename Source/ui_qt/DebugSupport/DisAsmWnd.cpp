@@ -1,4 +1,6 @@
 #include <QAction>
+#include <QApplication>
+#include <QClipboard>
 #include <QMenu>
 #include <QString>
 #include <QInputDialog>
@@ -79,6 +81,11 @@ CDisAsmWnd::CDisAsmWnd(QMdiArea* parent, CVirtualMachine& virtualMachine, CMIPS*
 	m_tableView->setSelectionMode(QAbstractItemView::ContiguousSelection);
 	connect(m_tableView->selectionModel(), &QItemSelectionModel::selectionChanged, this, &CDisAsmWnd::selectionChanged);
 	// RefreshLayout();
+
+	QAction* copyAction = new QAction("copy",this);
+	copyAction->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_C));
+	connect(copyAction, &QAction::triggered, this, &CDisAsmWnd::OnCopy);
+	m_tableView->addAction(copyAction);
 }
 
 CDisAsmWnd::~CDisAsmWnd()
@@ -446,4 +453,95 @@ void CDisAsmWnd::selectionChanged()
 		m_selected = selected;
 		m_selectionEnd = (selectionEnd == selected) ? -1 : selectionEnd;
 	}
+}
+
+void CDisAsmWnd::OnCopy()
+{
+	std::string text;
+	auto selectionRange = GetSelectionRange();
+	for(uint32 address = selectionRange.first; address <= selectionRange.second; address += m_instructionSize)
+	{
+		if(address != selectionRange.first)
+		{
+			text += ("\r\n");
+		}
+		if(m_disAsmType == CQtDisAsmTableModel::DISASM_STANDARD)
+		{
+			text += GetInstructionDetailsText(address);
+		}
+		else
+		{
+			text += GetInstructionDetailsTextVu(address);
+		}
+	}
+
+	QApplication::clipboard()->setText(text.c_str());
+}
+
+std::string CDisAsmWnd::GetInstructionDetailsText(uint32 address)
+{
+	uint32 opcode = GetInstruction(address);
+
+	std::string result;
+
+	result += lexical_cast_hex<std::string>(address, 8) + ("    ");
+	result += lexical_cast_hex<std::string>(opcode, 8) + ("    ");
+
+	char disasm[256];
+	m_ctx->m_pArch->GetInstructionMnemonic(m_ctx, address, opcode, disasm, countof(disasm));
+
+	result += disasm;
+	for(auto j = strlen(disasm); j < 15; j++)
+	{
+		result += (" ");
+	}
+
+	m_ctx->m_pArch->GetInstructionOperands(m_ctx, address, opcode, disasm, countof(disasm));
+	result += disasm;
+
+	return result;
+}
+
+std::string CDisAsmWnd::GetInstructionDetailsTextVu(uint32 address)
+{
+	assert((address & 0x07) == 0);
+
+	uint32 lowerInstruction = GetInstruction(address + 0);
+	uint32 upperInstruction = GetInstruction(address + 4);
+
+	std::string result;
+
+	result += lexical_cast_hex<std::string>(address, 8) + ("    ");
+	result += lexical_cast_hex<std::string>(upperInstruction, 8) + (" ") + lexical_cast_hex<std::string>(lowerInstruction, 8) + ("    ");
+
+	char disasm[256];
+
+	m_ctx->m_pArch->GetInstructionMnemonic(m_ctx, address + 4, upperInstruction, disasm, countof(disasm));
+	result += disasm;
+
+	for(auto j = strlen(disasm); j < 15; j++)
+	{
+		result += (" ");
+	}
+
+	m_ctx->m_pArch->GetInstructionOperands(m_ctx, address + 4, upperInstruction, disasm, countof(disasm));
+	result += disasm;
+
+	for(auto j = strlen(disasm); j < 31; j++)
+	{
+		result += (" ");
+	}
+
+	m_ctx->m_pArch->GetInstructionMnemonic(m_ctx, address + 0, lowerInstruction, disasm, countof(disasm));
+	result += disasm;
+
+	for(auto j = strlen(disasm); j < 16; j++)
+	{
+		result += (" ");
+	}
+
+	m_ctx->m_pArch->GetInstructionOperands(m_ctx, address + 0, lowerInstruction, disasm, countof(disasm));
+	result += disasm;
+
+	return result;
 }

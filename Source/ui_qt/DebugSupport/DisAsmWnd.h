@@ -61,7 +61,10 @@ private:
 	bool HistoryHasNext();
 	void showMenu(const QPoint&);
 	void selectionChanged();
+	void OnCopy();
 
+	std::string GetInstructionDetailsText(uint32);
+	std::string GetInstructionDetailsTextVu(uint32);
 
 	CVirtualMachine& m_virtualMachine;
 	CMIPS* m_ctx;
