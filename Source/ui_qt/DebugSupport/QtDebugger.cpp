@@ -528,12 +528,12 @@ void QtDebugger::SaveViewLayout()
 
 void QtDebugger::LoadViewLayout()
 {
-	// UnserializeWindowGeometry(GetDisassemblyWindow(),
-	//                           "debugger.disasm.posx",
-	//                           "debugger.disasm.posy",
-	//                           "debugger.disasm.sizex",
-	//                           "debugger.disasm.sizey",
-	//                           "debugger.disasm.visible");
+	UnserializeWindowGeometry(GetDisassemblyWindow(),
+	                          "debugger.disasm.posx",
+	                          "debugger.disasm.posy",
+	                          "debugger.disasm.sizex",
+	                          "debugger.disasm.sizey",
+	                          "debugger.disasm.visible");
 
 	UnserializeWindowGeometry(GetRegisterViewWindow(),
 	                          "debugger.regview.posx",
