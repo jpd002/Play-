@@ -66,6 +66,8 @@ private:
 	std::string GetInstructionDetailsText(uint32);
 	std::string GetInstructionDetailsTextVu(uint32);
 
+	void OnListDblClick();
+
 	CVirtualMachine& m_virtualMachine;
 	CMIPS* m_ctx;
 	int32 m_instructionSize;

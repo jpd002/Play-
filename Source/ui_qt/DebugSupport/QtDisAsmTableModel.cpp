@@ -73,6 +73,47 @@ CQtDisAsmTableModel::CQtDisAsmTableModel(QObject* parent, CVirtualMachine& virtu
 		painter.setPen(pen);
 		painter.drawPath(line_path);
 	}
+	{
+		breakpoint.fill(Qt::transparent);
+
+		QRadialGradient gradient(12, 12, 12, 12, 12);
+		gradient.setColorAt(0, QColor::fromRgbF(1, 0, 0, 1));
+		gradient.setColorAt(1, QColor::fromRgbF(1, 0.7, 0.7, 1));
+		QBrush brush(gradient);
+
+		pen.setWidth(1);
+		QPainter painter(&breakpoint);
+		painter.setBrush(brush);
+		painter.setPen(pen);
+		painter.drawEllipse(12, 12, 12, 12);
+	}
+		{
+		breakpoint_arrow.fill(Qt::transparent);
+
+		QRadialGradient gradient(12, 12, 12, 12, 12);
+		gradient.setColorAt(0, QColor::fromRgbF(1, 0, 0, 1));
+		gradient.setColorAt(1, QColor::fromRgbF(1, 0.7, 0.7, 1));
+		QBrush brush(gradient);
+
+		QPainterPath path;
+		path.moveTo(12.5, 0);
+		path.lineTo(25, 12.5);
+		path.lineTo(12.5, 25);
+
+		path.moveTo(25, 12.5);
+		path.lineTo(0, 12.5);
+
+		QPainter painter(&breakpoint_arrow);
+		painter.setBrush(brush);
+		painter.setPen(pen);
+		painter.drawEllipse(12, 12, 12, 12);
+
+		painter.setBrush(Qt::NoBrush);
+		pen.setWidth(3);
+		painter.setPen(pen);
+		painter.drawPath(path);
+
+	}
 }
 
 CQtDisAsmTableModel::~CQtDisAsmTableModel()
@@ -127,21 +168,23 @@ QVariant CQtDisAsmTableModel::data(const QModelIndex& index, int role) const
 		{
 			case 0:
 			{
-					// 		//Draw breakpoint icon
-		// 		if(m_ctx->m_breakpoints.find(address) != std::end(m_ctx->m_breakpoints))
-		// 		{
-		// 			auto breakpointSrcRect = Framework::Win32::MakeRectPositionSize(0, 0, 15, 15);
-		// 			auto breakpointDstRect = Framework::Win32::PointsToPixels(breakpointSrcRect).CenterInside(iconArea);
-		// 			DrawMaskedBitmap(hDC, breakpointDstRect, m_breakpointBitmap, m_breakpointMaskBitmap, breakpointSrcRect);
-		// 		}
+				bool isBreakpoint = (m_ctx->m_breakpoints.find(address) != std::end(m_ctx->m_breakpoints));
+				bool isPC = (m_virtualMachine.GetStatus() != CVirtualMachine::RUNNING && address == m_ctx->m_State.nPC);
 
-		// 		//Draw current instruction arrow
-				if(m_virtualMachine.GetStatus() != CVirtualMachine::RUNNING)
+				//Draw current instruction arrow and breakpoint icon
+				if(isBreakpoint && isPC)
 				{
-					if(address == m_ctx->m_State.nPC)
-					{
-						return arrow;
-					}
+					return breakpoint_arrow;
+				}
+				//Draw breakpoint icon
+				if(isBreakpoint)
+				{
+					return breakpoint;
+				}
+				//Draw current instruction arrow
+				if(isPC)
+				{
+					return arrow;
 				}
 			}
 			break;

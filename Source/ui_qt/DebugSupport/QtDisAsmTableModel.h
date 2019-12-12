@@ -43,5 +43,7 @@ protected:
 	QPixmap end_line = QPixmap(25, 25);
 	QPixmap line = QPixmap(25, 25);
 	QPixmap arrow = QPixmap(25, 25);
+	QPixmap breakpoint = QPixmap(25, 25);
+	QPixmap breakpoint_arrow = QPixmap(25, 25);
 
 };

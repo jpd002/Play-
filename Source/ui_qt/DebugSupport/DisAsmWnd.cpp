@@ -86,6 +86,14 @@ CDisAsmWnd::CDisAsmWnd(QMdiArea* parent, CVirtualMachine& virtualMachine, CMIPS*
 	copyAction->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_C));
 	connect(copyAction, &QAction::triggered, this, &CDisAsmWnd::OnCopy);
 	m_tableView->addAction(copyAction);
+
+	QAction* breakpointAction = new QAction("breakpoint toggle",this);
+	breakpointAction->setShortcut(QKeySequence(Qt::Key_F9));
+	connect(breakpointAction, &QAction::triggered, this, &CDisAsmWnd::OnListDblClick);
+	m_tableView->addAction(breakpointAction);
+
+	connect(m_tableView, &QTableView::doubleClicked, this, &CDisAsmWnd::OnListDblClick);
+
 }
 
 CDisAsmWnd::~CDisAsmWnd()
@@ -544,4 +552,9 @@ std::string CDisAsmWnd::GetInstructionDetailsTextVu(uint32 address)
 	result += disasm;
 
 	return result;
+}
+
+void CDisAsmWnd::OnListDblClick()
+{
+	ToggleBreakpoint(m_selected);
 }
