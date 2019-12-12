@@ -13,7 +13,7 @@ namespace GSH_Vulkan
 		CPresent(const ContextPtr&);
 		virtual ~CPresent();
 
-		void DoPresent(uint32, uint32);
+		void DoPresent(uint32, uint32, uint32, uint32);
 
 	private:
 		struct PRESENT_VERTEX
@@ -22,7 +22,15 @@ namespace GSH_Vulkan
 			float u, v;
 		};
 
-		void UpdateBackbuffer(uint32, uint32, uint32);
+		struct PRESENT_PARAMS
+		{
+			uint32 bufAddress;
+			uint32 bufWidth;
+			uint32 dispWidth;
+			uint32 dispHeight;
+		};
+
+		void UpdateBackbuffer(uint32, uint32, uint32, uint32, uint32);
 		void CreateSwapChain();
 		void CreateSwapChainImageViews();
 		void CreateSwapChainFramebuffers();
@@ -47,7 +55,6 @@ namespace GSH_Vulkan
 		VkPipelineLayout m_drawPipelineLayout = VK_NULL_HANDLE;
 		VkPipeline m_drawPipeline = VK_NULL_HANDLE;
 		Framework::Vulkan::CBuffer m_vertexBuffer;
-		Framework::Vulkan::CBuffer m_srcBufferUniform;
 		Framework::Vulkan::CShaderModule m_vertexShader;
 		Framework::Vulkan::CShaderModule m_fragmentShader;
 	};

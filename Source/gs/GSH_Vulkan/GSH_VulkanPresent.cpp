@@ -8,14 +8,7 @@
 using namespace GSH_Vulkan;
 
 #define DESCRIPTOR_LOCATION_IMAGE_MEMORY 0
-#define DESCRIPTOR_LOCATION_UNIFORM_SRCBUFFER 1
 #define DESCRIPTOR_LOCATION_IMAGE_SWIZZLETABLE 2
-
-struct SRCBUFFER
-{
-	uint32 bufAddress;
-	uint32 bufWidth;
-};
 
 //Module responsible for presenting frame buffer to surface
 
@@ -52,9 +45,6 @@ CPresent::CPresent(const ContextPtr& context)
 	CreateVertexShader();
 	CreateFragmentShader();
 	CreateVertexBuffer();
-	m_srcBufferUniform = Framework::Vulkan::CBuffer(
-		m_context->device, m_context->physicalDeviceMemoryProperties,
-		VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT, sizeof(SRCBUFFER));
 	CreateDrawPipeline();
 }
 
@@ -77,7 +67,7 @@ CPresent::~CPresent()
 	m_context->device.vkDestroySemaphore(m_context->device, m_renderCompleteSemaphore, nullptr);
 }
 
-void CPresent::DoPresent(uint32 bufAddress, uint32 bufWidth)
+void CPresent::DoPresent(uint32 bufAddress, uint32 bufWidth, uint32 dispWidth, uint32 dispHeight)
 {
 	auto result = VK_SUCCESS;
 
@@ -85,7 +75,7 @@ void CPresent::DoPresent(uint32 bufAddress, uint32 bufWidth)
 	result = m_context->device.vkAcquireNextImageKHR(m_context->device, m_swapChain, UINT64_MAX, m_imageAcquireSemaphore, VK_NULL_HANDLE, &imageIndex);
 	CHECKVULKANERROR(result);
 
-	UpdateBackbuffer(imageIndex, bufAddress, bufWidth);
+	UpdateBackbuffer(imageIndex, bufAddress, bufWidth, dispWidth, dispHeight);
 
 	//Queue present
 	{
@@ -103,7 +93,7 @@ void CPresent::DoPresent(uint32 bufAddress, uint32 bufWidth)
 	CHECKVULKANERROR(result);
 }
 
-void CPresent::UpdateBackbuffer(uint32 imageIndex, uint32 bufAddress, uint32 bufWidth)
+void CPresent::UpdateBackbuffer(uint32 imageIndex, uint32 bufAddress, uint32 bufWidth, uint32 dispWidth, uint32 dispHeight)
 {
 	auto result = VK_SUCCESS;
 
@@ -133,13 +123,11 @@ void CPresent::UpdateBackbuffer(uint32 imageIndex, uint32 bufAddress, uint32 buf
 			0, 0, nullptr, 0, nullptr, 1, &imageMemoryBarrier);
 	}
 
-	//-------------------
-	//Update Source Buffer Info Uniform
-
-	SRCBUFFER srcBuffer = {};
-	srcBuffer.bufAddress = bufAddress;
-	srcBuffer.bufWidth = bufWidth;
-	m_context->device.vkCmdUpdateBuffer(commandBuffer, m_srcBufferUniform, 0, sizeof(SRCBUFFER), &srcBuffer);
+	PRESENT_PARAMS presentParams = {};
+	presentParams.bufAddress = bufAddress;
+	presentParams.bufWidth   = bufWidth;
+	presentParams.dispWidth  = dispWidth;
+	presentParams.dispHeight = dispHeight;
 
 	VkClearValue clearValue;
 	clearValue.color = { { 0.5f, 0.5f, 0.5f, 1.0f } };
@@ -185,10 +173,6 @@ void CPresent::UpdateBackbuffer(uint32 imageIndex, uint32 bufAddress, uint32 buf
 		descriptorMemoryImageInfo.imageView = m_context->memoryImageView;
 		descriptorMemoryImageInfo.imageLayout = VK_IMAGE_LAYOUT_GENERAL;
 
-		VkDescriptorBufferInfo descriptorUniformInfo = {};
-		descriptorUniformInfo.buffer = m_srcBufferUniform;
-		descriptorUniformInfo.range = VK_WHOLE_SIZE;
-
 		VkDescriptorImageInfo descriptorSwizzleTableImageInfo = {};
 		descriptorSwizzleTableImageInfo.imageView = m_context->GetSwizzleTable(CGSHandler::PSMCT32);
 		descriptorSwizzleTableImageInfo.imageLayout = VK_IMAGE_LAYOUT_GENERAL;
@@ -202,16 +186,6 @@ void CPresent::UpdateBackbuffer(uint32 imageIndex, uint32 bufAddress, uint32 buf
 			writeSet.descriptorCount = 1;
 			writeSet.descriptorType  = VK_DESCRIPTOR_TYPE_STORAGE_IMAGE;
 			writeSet.pImageInfo      = &descriptorMemoryImageInfo;
-			writes.push_back(writeSet);
-		}
-
-		{
-			auto writeSet = Framework::Vulkan::WriteDescriptorSet();
-			writeSet.dstSet          = descriptorSet;
-			writeSet.dstBinding      = DESCRIPTOR_LOCATION_UNIFORM_SRCBUFFER;
-			writeSet.descriptorCount = 1;
-			writeSet.descriptorType  = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-			writeSet.pBufferInfo      = &descriptorUniformInfo;
 			writes.push_back(writeSet);
 		}
 
@@ -232,6 +206,8 @@ void CPresent::UpdateBackbuffer(uint32 imageIndex, uint32 bufAddress, uint32 buf
 		0, 1, &descriptorSet, 0, nullptr);
 
 	m_context->device.vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_drawPipeline);
+
+	m_context->device.vkCmdPushConstants(commandBuffer, m_drawPipelineLayout, VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(PRESENT_PARAMS), &presentParams);
 
 	VkDeviceSize vertexBufferOffset = 0;
 	VkBuffer vertexBuffer = m_vertexBuffer;
@@ -415,15 +391,6 @@ void CPresent::CreateDrawPipeline()
 
 		{
 			VkDescriptorSetLayoutBinding setLayoutBinding = {};
-			setLayoutBinding.binding         = DESCRIPTOR_LOCATION_UNIFORM_SRCBUFFER;
-			setLayoutBinding.descriptorType  = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-			setLayoutBinding.descriptorCount = 1;
-			setLayoutBinding.stageFlags      = VK_SHADER_STAGE_FRAGMENT_BIT;
-			setLayoutBindings.push_back(setLayoutBinding);
-		}
-
-		{
-			VkDescriptorSetLayoutBinding setLayoutBinding = {};
 			setLayoutBinding.binding         = DESCRIPTOR_LOCATION_IMAGE_SWIZZLETABLE;
 			setLayoutBinding.descriptorType  = VK_DESCRIPTOR_TYPE_STORAGE_IMAGE;
 			setLayoutBinding.descriptorCount = 1;
@@ -440,9 +407,16 @@ void CPresent::CreateDrawPipeline()
 	}
 	
 	{
+		VkPushConstantRange pushConstantInfo = {};
+		pushConstantInfo.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
+		pushConstantInfo.offset     = 0;
+		pushConstantInfo.size       = sizeof(PRESENT_PARAMS);
+
 		auto pipelineLayoutCreateInfo = Framework::Vulkan::PipelineLayoutCreateInfo();
-		pipelineLayoutCreateInfo.setLayoutCount = 1;
-		pipelineLayoutCreateInfo.pSetLayouts    = &m_drawDescriptorSetLayout;
+		pipelineLayoutCreateInfo.pushConstantRangeCount = 1;
+		pipelineLayoutCreateInfo.pPushConstantRanges    = &pushConstantInfo;
+		pipelineLayoutCreateInfo.setLayoutCount         = 1;
+		pipelineLayoutCreateInfo.pSetLayouts            = &m_drawDescriptorSetLayout;
 
 		result = m_context->device.vkCreatePipelineLayout(m_context->device, &pipelineLayoutCreateInfo, nullptr, &m_drawPipelineLayout);
 		CHECKVULKANERROR(result);
@@ -578,11 +552,12 @@ void CPresent::CreateFragmentShader()
 		auto memoryImage = CImageUint2DValue(b.CreateImage2DUint(DESCRIPTOR_LOCATION_IMAGE_MEMORY));
 		auto swizzleTable = CImageUint2DValue(b.CreateImage2DUint(DESCRIPTOR_LOCATION_IMAGE_SWIZZLETABLE));
 
-		auto bufParams0 = CInt4Lvalue(b.CreateUniformInt4("bufParams0", DESCRIPTOR_LOCATION_UNIFORM_SRCBUFFER));
-		auto bufAddress = bufParams0->x();
-		auto bufWidth   = bufParams0->y();
+		auto presentParams = CInt4Lvalue(b.CreateUniformInt4("presentParams", Nuanceur::UNIFORM_UNIT_PUSHCONSTANT));
+		auto bufAddress = presentParams->x();
+		auto bufWidth   = presentParams->y();
+		auto dispSize   = presentParams->zw();
 
-		auto screenPos = ToInt(inputTexCoord->xy() * NewFloat2(b, 640, 448));
+		auto screenPos = ToInt(inputTexCoord->xy() * ToFloat(dispSize));
 		auto address = CMemoryUtils::GetPixelAddress<CGsPixelFormats::STORAGEPSMCT32>(
 			b, swizzleTable, bufAddress, bufWidth, screenPos);
 		auto imageColor = CMemoryUtils::Memory_Read32(b, memoryImage, address);

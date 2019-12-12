@@ -149,7 +149,14 @@ void CGSH_Vulkan::FlipImpl()
 		}
 	}
 
-	m_present->DoPresent(fb.GetBufPtr(), fb.GetBufWidth());
+	//TODO: Fetch real values
+	unsigned int dispWidth = 640;
+	unsigned int dispHeight = 448;
+
+	bool halfHeight = GetCrtIsInterlaced() && GetCrtIsFrameMode();
+	if(halfHeight) dispHeight /= 2;
+
+	m_present->DoPresent(fb.GetBufPtr(), fb.GetBufWidth(), dispWidth, dispHeight);
 
 	auto result = m_context->device.vkResetDescriptorPool(m_context->device, m_context->descriptorPool, 0);
 	CHECKVULKANERROR(result);
