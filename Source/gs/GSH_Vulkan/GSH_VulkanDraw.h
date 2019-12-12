@@ -47,6 +47,7 @@ namespace GSH_Vulkan
 		void SetPipelineCaps(const PIPELINE_CAPS&);
 		void SetFramebufferBufferInfo(uint32, uint32);
 		void SetTextureParams(uint32, uint32, uint32, uint32);
+		void SetScissor(uint32, uint32, uint32, uint32);
 
 		void AddVertices(const PRIM_VERTEX*, const PRIM_VERTEX*);
 		void FlushVertices();
@@ -99,6 +100,10 @@ namespace GSH_Vulkan
 
 		PIPELINE_CAPS m_pipelineCaps;
 		DRAW_PIPELINE_PUSHCONSTANTS m_pushConstants;
+		uint32 m_scissorX = 0;
+		uint32 m_scissorY = 0;
+		uint32 m_scissorWidth = 0;
+		uint32 m_scissorHeight = 0;
 	};
 
 	typedef std::shared_ptr<CDraw> DrawPtr;

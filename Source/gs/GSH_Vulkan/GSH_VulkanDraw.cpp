@@ -110,6 +110,21 @@ void CDraw::SetTextureParams(uint32 bufAddr, uint32 bufWidth, uint32 width, uint
 	m_pushConstants.texHeight = height;
 }
 
+void CDraw::SetScissor(uint32 scissorX, uint32 scissorY, uint32 scissorWidth, uint32 scissorHeight)
+{
+	bool changed = 
+		(m_scissorX != scissorX) ||
+		(m_scissorY != scissorY) ||
+		(m_scissorWidth != scissorWidth) ||
+		(m_scissorHeight != scissorHeight);
+	if(!changed) return;
+	FlushVertices();
+	m_scissorX = scissorX;
+	m_scissorY = scissorY;
+	m_scissorWidth = scissorWidth;
+	m_scissorHeight = scissorHeight;
+}
+
 void CDraw::AddVertices(const PRIM_VERTEX* vertexBeginPtr, const PRIM_VERTEX* vertexEndPtr)
 {
 	auto amount = vertexEndPtr - vertexBeginPtr;
@@ -144,8 +159,10 @@ void CDraw::FlushVertices()
 		m_context->device.vkCmdSetViewport(commandBuffer, 0, 1, &viewport);
 		
 		VkRect2D scissor = {};
-		scissor.extent.width  = DRAW_AREA_SIZE;
-		scissor.extent.height = DRAW_AREA_SIZE;
+		scissor.offset.x = m_scissorX;
+		scissor.offset.y = m_scissorY;
+		scissor.extent.width  = m_scissorWidth;
+		scissor.extent.height = m_scissorHeight;
 		m_context->device.vkCmdSetScissor(commandBuffer, 0, 1, &scissor);
 	}
 
