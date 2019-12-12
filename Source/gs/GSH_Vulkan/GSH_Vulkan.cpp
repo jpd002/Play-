@@ -19,6 +19,20 @@ static uint32 MakeColor(uint8 r, uint8 g, uint8 b, uint8 a)
 	return (a << 24) | (b << 16) | (g << 8) | (r);
 }
 
+template <typename StorageFormat>
+static Framework::Vulkan::CImage CreateSwizzleTable(Framework::Vulkan::CDevice& device,
+	const VkPhysicalDeviceMemoryProperties& memoryProperties, VkQueue queue, Framework::Vulkan::CCommandBufferPool& commandBufferPool)
+{
+	auto result = Framework::Vulkan::CImage(device, memoryProperties,
+		VK_IMAGE_USAGE_STORAGE_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT,
+		VK_FORMAT_R32_UINT, StorageFormat::PAGEWIDTH, StorageFormat::PAGEHEIGHT);
+	result.Fill(queue, commandBufferPool, memoryProperties,
+		CGsPixelFormats::CPixelIndexor<StorageFormat>::GetPageOffsets());
+	result.SetLayout(queue, commandBufferPool,
+		VK_IMAGE_LAYOUT_GENERAL, VK_ACCESS_SHADER_READ_BIT);
+	return result;
+}
+
 CGSH_Vulkan::CGSH_Vulkan()
 {
 	m_context = std::make_shared<CContext>();
@@ -64,6 +78,12 @@ void CGSH_Vulkan::InitializeImpl()
 	CreateMemoryImage();
 	CreateClutImage();
 
+	m_swizzleTablePSMCT32 = CreateSwizzleTable<CGsPixelFormats::STORAGEPSMCT32>(m_context->device, m_context->physicalDeviceMemoryProperties, m_context->queue, m_context->commandBufferPool);
+	m_swizzleTablePSMT8   = CreateSwizzleTable<CGsPixelFormats::STORAGEPSMT8>(m_context->device, m_context->physicalDeviceMemoryProperties, m_context->queue, m_context->commandBufferPool);
+
+	m_context->swizzleTablePSMCT32View = m_swizzleTablePSMCT32.CreateImageView();
+	m_context->swizzleTablePSMT8View   = m_swizzleTablePSMT8.CreateImageView();
+
 	m_frameCommandBuffer = std::make_shared<CFrameCommandBuffer>(m_context);
 	m_clutLoad = std::make_shared<CClutLoad>(m_context, m_frameCommandBuffer);
 	m_draw = std::make_shared<CDraw>(m_context, m_frameCommandBuffer);
@@ -86,10 +106,14 @@ void CGSH_Vulkan::ReleaseImpl()
 	m_transfer.reset();
 	m_frameCommandBuffer.reset();
 
+	m_context->device.vkDestroyImageView(m_context->device, m_context->swizzleTablePSMCT32View, nullptr);
+	m_context->device.vkDestroyImageView(m_context->device, m_context->swizzleTablePSMT8View, nullptr);
 	m_context->device.vkDestroyImageView(m_context->device, m_context->clutImageView, nullptr);
-	m_clutImage.Reset();
-	
 	m_context->device.vkDestroyImageView(m_context->device, m_context->memoryImageView, nullptr);
+
+	m_swizzleTablePSMCT32.Reset();
+	m_swizzleTablePSMT8.Reset();
+	m_clutImage.Reset();
 	m_memoryImage.Reset();
 	
 	m_context->device.vkDestroyDescriptorPool(m_context->device, m_context->descriptorPool, nullptr);
@@ -377,21 +401,7 @@ void CGSH_Vulkan::CreateMemoryImage()
 		VK_IMAGE_USAGE_STORAGE_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT,
 		VK_FORMAT_R32_UINT, MEMORY_WIDTH, MEMORY_HEIGHT);
 
-	{
-		auto imageViewCreateInfo = Framework::Vulkan::ImageViewCreateInfo();
-		imageViewCreateInfo.image    = m_memoryImage;
-		imageViewCreateInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
-		imageViewCreateInfo.format   = VK_FORMAT_R32_UINT;
-		imageViewCreateInfo.components = 
-		{
-			VK_COMPONENT_SWIZZLE_R, VK_COMPONENT_SWIZZLE_G, 
-			VK_COMPONENT_SWIZZLE_B, VK_COMPONENT_SWIZZLE_A 
-		};
-		imageViewCreateInfo.subresourceRange = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1 };
-		
-		auto result = m_context->device.vkCreateImageView(m_context->device, &imageViewCreateInfo, nullptr, &m_context->memoryImageView);
-		CHECKVULKANERROR(result);
-	}
+	m_context->memoryImageView = m_memoryImage.CreateImageView();
 
 #ifdef FILL_IMAGES
 	{
@@ -428,21 +438,7 @@ void CGSH_Vulkan::CreateClutImage()
 		VK_IMAGE_USAGE_STORAGE_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT,
 		VK_FORMAT_R32_UINT, CLUTENTRYCOUNT, 1);
 
-	{
-		auto imageViewCreateInfo = Framework::Vulkan::ImageViewCreateInfo();
-		imageViewCreateInfo.image    = m_clutImage;
-		imageViewCreateInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
-		imageViewCreateInfo.format   = VK_FORMAT_R32_UINT;
-		imageViewCreateInfo.components = 
-		{
-			VK_COMPONENT_SWIZZLE_R, VK_COMPONENT_SWIZZLE_G, 
-			VK_COMPONENT_SWIZZLE_B, VK_COMPONENT_SWIZZLE_A 
-		};
-		imageViewCreateInfo.subresourceRange = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1 };
-		
-		auto result = m_context->device.vkCreateImageView(m_context->device, &imageViewCreateInfo, nullptr, &m_context->clutImageView);
-		CHECKVULKANERROR(result);
-	}
+	m_context->clutImageView = m_clutImage.CreateImageView();
 
 #ifdef FILL_IMAGES
 	{
