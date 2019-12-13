@@ -14,6 +14,9 @@ travis_before_install()
             chmod a+x AppRun
             wget -c "https://github.com/RPCS3/AppImageKit-checkrt/releases/download/continuous2/exec-x86_64.so" -O exec.so
 
+            wget -q -O vulkansdk.tar.gz https://vulkan.lunarg.com/sdk/download/${VULKAN_SDK_VERSION}/linux/vulkansdk-linux-x86_64-${VULKAN_SDK_VERSION}.tar.gz?Human=true
+            tar -zxf vulkansdk.tar.gz
+
             sudo add-apt-repository --yes ppa:beineri/opt-qt-5.12.3-xenial
             sudo apt update -qq
             sudo apt install -qq qt512base gcc-9 g++-9 libgl1-mesa-dev libglu1-mesa-dev libalut-dev libevdev-dev
@@ -81,6 +84,7 @@ travis_script()
         if [ "$TARGET_OS" = "Linux" ]; then
             if [ "$CXX" = "g++" ]; then export CXX="g++-9" CC="gcc-9"; fi
             source /opt/qt512/bin/qt512-env.sh || true
+            export VULKAN_SDK=$(pwd)/../${VULKAN_SDK_VERSION}/x86_64
             export PATH=$PATH:/opt/qt512/lib/cmake
             cmake .. -G"$BUILD_TYPE" -DCMAKE_INSTALL_PREFIX=./appdir/usr -DBUILD_LIBRETRO_CORE=yes;
             cmake --build .
