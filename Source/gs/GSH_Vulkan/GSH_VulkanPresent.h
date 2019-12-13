@@ -31,9 +31,14 @@ namespace GSH_Vulkan
 		};
 
 		void UpdateBackbuffer(uint32, uint32, uint32, uint32, uint32);
+		
+		void RecreateSwapChain();
+		
 		void CreateSwapChain();
 		void CreateSwapChainImageViews();
 		void CreateSwapChainFramebuffers();
+		void DestroySwapChain();
+
 		void CreateRenderPass();
 		void CreateDrawPipeline();
 		void CreateVertexShader();
@@ -44,6 +49,7 @@ namespace GSH_Vulkan
 
 		ContextPtr m_context;
 
+		VkExtent2D m_surfaceExtents;
 		VkSwapchainKHR m_swapChain = VK_NULL_HANDLE;
 		std::vector<VkImage> m_swapChainImages;
 		std::vector<VkImageView> m_swapChainImageViews;

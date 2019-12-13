@@ -45,32 +45,24 @@ CGSH_Vulkan::~CGSH_Vulkan()
 
 void CGSH_Vulkan::InitializeImpl()
 {
-	assert(m_instance != nullptr);
+	assert(!m_instance.IsEmpty());
+	m_context->instance = &m_instance;
 
 	auto physicalDevices = GetPhysicalDevices();
 	assert(!physicalDevices.empty());
-	auto physicalDevice = physicalDevices[0];
+	m_context->physicalDevice = physicalDevices[0];
 
-	auto renderQueueFamilies = GetRenderQueueFamilies(physicalDevice);
+	auto renderQueueFamilies = GetRenderQueueFamilies(m_context->physicalDevice);
 	assert(!renderQueueFamilies.empty());
 	auto renderQueueFamily = renderQueueFamilies[0];
 
-	m_instance.vkGetPhysicalDeviceMemoryProperties(physicalDevice, &m_context->physicalDeviceMemoryProperties);
+	m_instance.vkGetPhysicalDeviceMemoryProperties(m_context->physicalDevice, &m_context->physicalDeviceMemoryProperties);
 
-	auto surfaceFormats = GetDeviceSurfaceFormats(physicalDevice);
+	auto surfaceFormats = GetDeviceSurfaceFormats(m_context->physicalDevice);
 	assert(surfaceFormats.size() > 0);
 	m_context->surfaceFormat = surfaceFormats[0];
 
-	{
-		VkSurfaceCapabilitiesKHR surfaceCaps = {};
-		auto result = m_instance.vkGetPhysicalDeviceSurfaceCapabilitiesKHR(physicalDevice, m_context->surface, &surfaceCaps);
-		CHECKVULKANERROR(result);
-		CLog::GetInstance().Print(LOG_NAME, "Surface Current Extents: %d, %d\r\n", 
-			surfaceCaps.currentExtent.width, surfaceCaps.currentExtent.height);
-		m_context->surfaceExtents = surfaceCaps.currentExtent;
-	}
-
-	CreateDevice(physicalDevice);
+	CreateDevice(m_context->physicalDevice);
 	m_context->device.vkGetDeviceQueue(m_context->device, renderQueueFamily, 0, &m_context->queue);
 	m_context->commandBufferPool = Framework::Vulkan::CCommandBufferPool(m_context->device, renderQueueFamily);
 

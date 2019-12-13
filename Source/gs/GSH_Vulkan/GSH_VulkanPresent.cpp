@@ -38,31 +38,22 @@ CPresent::CPresent(const ContextPtr& context)
 		CHECKVULKANERROR(result);
 	}
 
-	CreateSwapChain();
-	CreateSwapChainImageViews();
 	CreateRenderPass();
-	CreateSwapChainFramebuffers();
 	CreateVertexShader();
 	CreateFragmentShader();
 	CreateVertexBuffer();
 	CreateDrawPipeline();
+	
+	CreateSwapChain();
 }
 
 CPresent::~CPresent()
 {
+	DestroySwapChain();
 	m_context->device.vkDestroyPipeline(m_context->device, m_drawPipeline, nullptr);
 	m_context->device.vkDestroyPipelineLayout(m_context->device, m_drawPipelineLayout, nullptr);
 	m_context->device.vkDestroyDescriptorSetLayout(m_context->device, m_drawDescriptorSetLayout, nullptr);
 	m_context->device.vkDestroyRenderPass(m_context->device, m_renderPass, nullptr);
-	for(auto swapChainFramebuffer : m_swapChainFramebuffers)
-	{
-		m_context->device.vkDestroyFramebuffer(m_context->device, swapChainFramebuffer, nullptr);
-	}
-	for(auto swapChainImageView : m_swapChainImageViews)
-	{
-		m_context->device.vkDestroyImageView(m_context->device, swapChainImageView, nullptr);
-	}
-	m_context->device.vkDestroySwapchainKHR(m_context->device, m_swapChain, nullptr);
 	m_context->device.vkDestroySemaphore(m_context->device, m_imageAcquireSemaphore, nullptr);
 	m_context->device.vkDestroySemaphore(m_context->device, m_renderCompleteSemaphore, nullptr);
 }
@@ -73,6 +64,12 @@ void CPresent::DoPresent(uint32 bufAddress, uint32 bufWidth, uint32 dispWidth, u
 
 	uint32_t imageIndex = 0;
 	result = m_context->device.vkAcquireNextImageKHR(m_context->device, m_swapChain, UINT64_MAX, m_imageAcquireSemaphore, VK_NULL_HANDLE, &imageIndex);
+	if(result == VK_ERROR_OUT_OF_DATE_KHR)
+	{
+		DestroySwapChain();
+		CreateSwapChain();
+		return;
+	}
 	CHECKVULKANERROR(result);
 
 	UpdateBackbuffer(imageIndex, bufAddress, bufWidth, dispWidth, dispHeight);
@@ -135,7 +132,7 @@ void CPresent::UpdateBackbuffer(uint32 imageIndex, uint32 bufAddress, uint32 buf
 	//Begin render pass
 	auto renderPassBeginInfo = Framework::Vulkan::RenderPassBeginInfo();
 	renderPassBeginInfo.renderPass               = m_renderPass;
-	renderPassBeginInfo.renderArea.extent        = m_context->surfaceExtents;
+	renderPassBeginInfo.renderArea.extent        = m_surfaceExtents;
 	renderPassBeginInfo.clearValueCount          = 1;
 	renderPassBeginInfo.pClearValues             = &clearValue;
 	renderPassBeginInfo.framebuffer              = framebuffer;
@@ -144,13 +141,13 @@ void CPresent::UpdateBackbuffer(uint32 imageIndex, uint32 bufAddress, uint32 buf
 
 	{
 		VkViewport viewport = {};
-		viewport.width    = m_context->surfaceExtents.width;
-		viewport.height   = m_context->surfaceExtents.height;
+		viewport.width    = m_surfaceExtents.width;
+		viewport.height   = m_surfaceExtents.height;
 		viewport.maxDepth = 1.0f;
 		m_context->device.vkCmdSetViewport(commandBuffer, 0, 1, &viewport);
 		
 		VkRect2D scissor = {};
-		scissor.extent  = m_context->surfaceExtents;
+		scissor.extent  = m_surfaceExtents;
 		m_context->device.vkCmdSetScissor(commandBuffer, 0, 1, &scissor);
 	}
 
@@ -259,12 +256,19 @@ void CPresent::CreateSwapChain()
 
 	auto result = VK_SUCCESS;
 	
+	{
+		VkSurfaceCapabilitiesKHR surfaceCaps = {};
+		result = m_context->instance->vkGetPhysicalDeviceSurfaceCapabilitiesKHR(m_context->physicalDevice, m_context->surface, &surfaceCaps);
+		CHECKVULKANERROR(result);
+		m_surfaceExtents = surfaceCaps.currentExtent;
+	}
+
 	auto swapChainCreateInfo = Framework::Vulkan::SwapchainCreateInfoKHR();
 	swapChainCreateInfo.surface               = m_context->surface;
 	swapChainCreateInfo.minImageCount         = 3; //Recommended by nVidia in UsingtheVulkanAPI_20160216.pdf
 	swapChainCreateInfo.imageFormat           = m_context->surfaceFormat.format;
 	swapChainCreateInfo.imageColorSpace       = m_context->surfaceFormat.colorSpace;
-	swapChainCreateInfo.imageExtent           = m_context->surfaceExtents;
+	swapChainCreateInfo.imageExtent           = m_surfaceExtents;
 	swapChainCreateInfo.imageUsage            = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
 	swapChainCreateInfo.preTransform          = VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR;
 	swapChainCreateInfo.imageArrayLayers      = 1;
@@ -285,6 +289,9 @@ void CPresent::CreateSwapChain()
 	m_swapChainImages.resize(imageCount);
 	result = m_context->device.vkGetSwapchainImagesKHR(m_context->device, m_swapChain, &imageCount, m_swapChainImages.data());
 	CHECKVULKANERROR(result);
+	
+	CreateSwapChainImageViews();
+	CreateSwapChainFramebuffers();
 }
 
 void CPresent::CreateSwapChainImageViews()
@@ -323,8 +330,8 @@ void CPresent::CreateSwapChainFramebuffers()
 		frameBufferCreateInfo.renderPass      = m_renderPass;
 		frameBufferCreateInfo.attachmentCount = 1;
 		frameBufferCreateInfo.pAttachments    = &imageView;
-		frameBufferCreateInfo.width           = m_context->surfaceExtents.width;
-		frameBufferCreateInfo.height          = m_context->surfaceExtents.height;
+		frameBufferCreateInfo.width           = m_surfaceExtents.width;
+		frameBufferCreateInfo.height          = m_surfaceExtents.height;
 		frameBufferCreateInfo.layers          = 1;
 		
 		VkFramebuffer framebuffer = VK_NULL_HANDLE;
@@ -332,6 +339,24 @@ void CPresent::CreateSwapChainFramebuffers()
 		CHECKVULKANERROR(result);
 		m_swapChainFramebuffers.push_back(framebuffer);
 	}
+}
+
+void CPresent::DestroySwapChain()
+{
+	for(auto swapChainFramebuffer : m_swapChainFramebuffers)
+	{
+		m_context->device.vkDestroyFramebuffer(m_context->device, swapChainFramebuffer, nullptr);
+	}
+	for(auto swapChainImageView : m_swapChainImageViews)
+	{
+		m_context->device.vkDestroyImageView(m_context->device, swapChainImageView, nullptr);
+	}
+	m_context->device.vkDestroySwapchainKHR(m_context->device, m_swapChain, nullptr);
+	
+	m_swapChainImages.clear();
+	m_swapChainImageViews.clear();
+	m_swapChainFramebuffers.clear();
+	m_swapChain = VK_NULL_HANDLE;
 }
 
 void CPresent::CreateRenderPass()
