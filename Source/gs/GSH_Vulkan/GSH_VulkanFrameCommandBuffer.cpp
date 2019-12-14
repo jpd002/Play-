@@ -4,9 +4,8 @@
 using namespace GSH_Vulkan;
 
 CFrameCommandBuffer::CFrameCommandBuffer(const ContextPtr& context)
-	: m_context(context)
+    : m_context(context)
 {
-
 }
 
 void CFrameCommandBuffer::RegisterWriter(IFrameCommandBufferWriter* writer)
@@ -45,8 +44,8 @@ void CFrameCommandBuffer::Flush()
 		//Submit command buffer
 		{
 			auto submitInfo = Framework::Vulkan::SubmitInfo();
-			submitInfo.commandBufferCount   = 1;
-			submitInfo.pCommandBuffers      = &m_commandBuffer;
+			submitInfo.commandBufferCount = 1;
+			submitInfo.pCommandBuffers = &m_commandBuffer;
 			result = m_context->device.vkQueueSubmit(m_context->queue, 1, &submitInfo, VK_NULL_HANDLE);
 			CHECKVULKANERROR(result);
 		}

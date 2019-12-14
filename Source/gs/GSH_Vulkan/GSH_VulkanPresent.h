@@ -31,9 +31,9 @@ namespace GSH_Vulkan
 		};
 
 		void UpdateBackbuffer(uint32, uint32, uint32, uint32, uint32);
-		
+
 		void RecreateSwapChain();
-		
+
 		void CreateSwapChain();
 		void CreateSwapChainImageViews();
 		void CreateSwapChainFramebuffers();

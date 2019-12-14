@@ -21,15 +21,15 @@ static uint32 MakeColor(uint8 r, uint8 g, uint8 b, uint8 a)
 
 template <typename StorageFormat>
 static Framework::Vulkan::CImage CreateSwizzleTable(Framework::Vulkan::CDevice& device,
-	const VkPhysicalDeviceMemoryProperties& memoryProperties, VkQueue queue, Framework::Vulkan::CCommandBufferPool& commandBufferPool)
+                                                    const VkPhysicalDeviceMemoryProperties& memoryProperties, VkQueue queue, Framework::Vulkan::CCommandBufferPool& commandBufferPool)
 {
 	auto result = Framework::Vulkan::CImage(device, memoryProperties,
-		VK_IMAGE_USAGE_STORAGE_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT,
-		VK_FORMAT_R32_UINT, StorageFormat::PAGEWIDTH, StorageFormat::PAGEHEIGHT);
+	                                        VK_IMAGE_USAGE_STORAGE_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT,
+	                                        VK_FORMAT_R32_UINT, StorageFormat::PAGEWIDTH, StorageFormat::PAGEHEIGHT);
 	result.Fill(queue, commandBufferPool, memoryProperties,
-		CGsPixelFormats::CPixelIndexor<StorageFormat>::GetPageOffsets());
+	            CGsPixelFormats::CPixelIndexor<StorageFormat>::GetPageOffsets());
 	result.SetLayout(queue, commandBufferPool,
-		VK_IMAGE_LAYOUT_GENERAL, VK_ACCESS_SHADER_READ_BIT);
+	                 VK_IMAGE_LAYOUT_GENERAL, VK_ACCESS_SHADER_READ_BIT);
 	return result;
 }
 
@@ -40,7 +40,6 @@ CGSH_Vulkan::CGSH_Vulkan()
 
 CGSH_Vulkan::~CGSH_Vulkan()
 {
-
 }
 
 void CGSH_Vulkan::InitializeImpl()
@@ -71,10 +70,10 @@ void CGSH_Vulkan::InitializeImpl()
 	CreateClutImage();
 
 	m_swizzleTablePSMCT32 = CreateSwizzleTable<CGsPixelFormats::STORAGEPSMCT32>(m_context->device, m_context->physicalDeviceMemoryProperties, m_context->queue, m_context->commandBufferPool);
-	m_swizzleTablePSMT8   = CreateSwizzleTable<CGsPixelFormats::STORAGEPSMT8>(m_context->device, m_context->physicalDeviceMemoryProperties, m_context->queue, m_context->commandBufferPool);
+	m_swizzleTablePSMT8 = CreateSwizzleTable<CGsPixelFormats::STORAGEPSMT8>(m_context->device, m_context->physicalDeviceMemoryProperties, m_context->queue, m_context->commandBufferPool);
 
 	m_context->swizzleTablePSMCT32View = m_swizzleTablePSMCT32.CreateImageView();
-	m_context->swizzleTablePSMT8View   = m_swizzleTablePSMT8.CreateImageView();
+	m_context->swizzleTablePSMT8View = m_swizzleTablePSMT8.CreateImageView();
 
 	m_frameCommandBuffer = std::make_shared<CFrameCommandBuffer>(m_context);
 	m_clutLoad = std::make_shared<CClutLoad>(m_context, m_frameCommandBuffer);
@@ -88,7 +87,7 @@ void CGSH_Vulkan::InitializeImpl()
 void CGSH_Vulkan::ReleaseImpl()
 {
 	ResetImpl();
-	
+
 	//Flush any pending rendering commands
 	m_context->device.vkQueueWaitIdle(m_context->queue);
 
@@ -107,7 +106,7 @@ void CGSH_Vulkan::ReleaseImpl()
 	m_swizzleTablePSMT8.Reset();
 	m_clutImage.Reset();
 	m_memoryImage.Reset();
-	
+
 	m_context->device.vkDestroyDescriptorPool(m_context->device, m_context->descriptorPool, nullptr);
 	m_context->commandBufferPool.Reset();
 	m_context->device.Reset();
@@ -210,50 +209,50 @@ std::vector<VkPhysicalDevice> CGSH_Vulkan::GetPhysicalDevices()
 	uint32_t physicalDeviceCount = 0;
 	result = m_instance.vkEnumeratePhysicalDevices(m_instance, &physicalDeviceCount, nullptr);
 	CHECKVULKANERROR(result);
-	
+
 	CLog::GetInstance().Print(LOG_NAME, "Found %d physical devices.\r\n", physicalDeviceCount);
 
 	std::vector<VkPhysicalDevice> physicalDevices(physicalDeviceCount);
 	result = m_instance.vkEnumeratePhysicalDevices(m_instance, &physicalDeviceCount, physicalDevices.data());
 	CHECKVULKANERROR(result);
-	
+
 	for(const auto& physicalDevice : physicalDevices)
 	{
 		CLog::GetInstance().Print(LOG_NAME, "Physical Device Info:\r\n");
-		
+
 		VkPhysicalDeviceProperties physicalDeviceProperties = {};
 		m_instance.vkGetPhysicalDeviceProperties(physicalDevice, &physicalDeviceProperties);
 		CLog::GetInstance().Print(LOG_NAME, "Driver Version: %d\r\n", physicalDeviceProperties.driverVersion);
 		CLog::GetInstance().Print(LOG_NAME, "Device Name:    %s\r\n", physicalDeviceProperties.deviceName);
 		CLog::GetInstance().Print(LOG_NAME, "Device Type:    %d\r\n", physicalDeviceProperties.deviceType);
 		CLog::GetInstance().Print(LOG_NAME, "API Version:    %d.%d.%d\r\n",
-			VK_VERSION_MAJOR(physicalDeviceProperties.apiVersion),
-			VK_VERSION_MINOR(physicalDeviceProperties.apiVersion),
-			VK_VERSION_PATCH(physicalDeviceProperties.apiVersion));
+		                          VK_VERSION_MAJOR(physicalDeviceProperties.apiVersion),
+		                          VK_VERSION_MINOR(physicalDeviceProperties.apiVersion),
+		                          VK_VERSION_PATCH(physicalDeviceProperties.apiVersion));
 	}
-	
+
 	return physicalDevices;
 }
 
 std::vector<uint32_t> CGSH_Vulkan::GetRenderQueueFamilies(VkPhysicalDevice physicalDevice)
 {
 	assert(m_context->surface != VK_NULL_HANDLE);
-	
+
 	auto result = VK_SUCCESS;
 	std::vector<uint32_t> renderQueueFamilies;
-	
+
 	uint32_t queueFamilyCount = 0;
 	m_instance.vkGetPhysicalDeviceQueueFamilyProperties(physicalDevice, &queueFamilyCount, nullptr);
-	
+
 	CLog::GetInstance().Print(LOG_NAME, "Found %d queue families.\r\n", queueFamilyCount);
-	
+
 	std::vector<VkQueueFamilyProperties> queueFamilyPropertiesArray(queueFamilyCount);
 	m_instance.vkGetPhysicalDeviceQueueFamilyProperties(physicalDevice, &queueFamilyCount, queueFamilyPropertiesArray.data());
-	
+
 	for(uint32_t queueFamilyIndex = 0; queueFamilyIndex < queueFamilyCount; queueFamilyIndex++)
 	{
 		bool graphicsSupported = false;
-		
+
 		CLog::GetInstance().Print(LOG_NAME, "Queue Family Info:\r\n");
 
 		const auto& queueFamilyProperties = queueFamilyPropertiesArray[queueFamilyIndex];
@@ -276,19 +275,19 @@ std::vector<uint32_t> CGSH_Vulkan::GetRenderQueueFamilies(VkPhysicalDevice physi
 		{
 			CLog::GetInstance().Print(LOG_NAME, "  Sparse Binding\r\n");
 		}
-		
+
 		VkBool32 surfaceSupported = VK_FALSE;
 		result = m_instance.vkGetPhysicalDeviceSurfaceSupportKHR(physicalDevice, queueFamilyIndex, m_context->surface, &surfaceSupported);
 		CHECKVULKANERROR(result);
-		
+
 		CLog::GetInstance().Print(LOG_NAME, "Supports surface: %d\r\n", surfaceSupported);
-		
+
 		if(graphicsSupported && surfaceSupported)
 		{
 			renderQueueFamilies.push_back(queueFamilyIndex);
 		}
 	}
-	
+
 	return renderQueueFamilies;
 }
 
@@ -297,25 +296,25 @@ std::vector<VkSurfaceFormatKHR> CGSH_Vulkan::GetDeviceSurfaceFormats(VkPhysicalD
 	assert(m_context->surface != VK_NULL_HANDLE);
 
 	auto result = VK_SUCCESS;
-	
+
 	uint32_t surfaceFormatCount = 0;
 	result = m_instance.vkGetPhysicalDeviceSurfaceFormatsKHR(physicalDevice, m_context->surface, &surfaceFormatCount, nullptr);
 	CHECKVULKANERROR(result);
-	
+
 	CLog::GetInstance().Print(LOG_NAME, "Found %d surface formats.\r\n", surfaceFormatCount);
 
 	std::vector<VkSurfaceFormatKHR> surfaceFormats(surfaceFormatCount);
 	result = m_instance.vkGetPhysicalDeviceSurfaceFormatsKHR(physicalDevice, m_context->surface, &surfaceFormatCount, surfaceFormats.data());
 	CHECKVULKANERROR(result);
-	
+
 	for(const auto& surfaceFormat : surfaceFormats)
 	{
 		CLog::GetInstance().Print(LOG_NAME, "Surface Format Info:\r\n");
-		
+
 		CLog::GetInstance().Print(LOG_NAME, "Format:      %d\r\n", surfaceFormat.format);
 		CLog::GetInstance().Print(LOG_NAME, "Color Space: %d\r\n", surfaceFormat.colorSpace);
 	}
-	
+
 	return surfaceFormats;
 }
 
@@ -323,18 +322,18 @@ void CGSH_Vulkan::CreateDevice(VkPhysicalDevice physicalDevice)
 {
 	assert(m_context->device.IsEmpty());
 
-	float queuePriorities[] = { 1.0f };
-	
+	float queuePriorities[] = {1.0f};
+
 	auto deviceQueueCreateInfo = Framework::Vulkan::DeviceQueueCreateInfo();
-	deviceQueueCreateInfo.flags            = 0;
+	deviceQueueCreateInfo.flags = 0;
 	deviceQueueCreateInfo.queueFamilyIndex = 0;
-	deviceQueueCreateInfo.queueCount       = 1;
+	deviceQueueCreateInfo.queueCount = 1;
 	deviceQueueCreateInfo.pQueuePriorities = queuePriorities;
 
 	std::vector<const char*> enabledExtensions;
 	enabledExtensions.push_back(VK_KHR_SWAPCHAIN_EXTENSION_NAME);
 	enabledExtensions.push_back(VK_EXT_FRAGMENT_SHADER_INTERLOCK_EXTENSION_NAME);
-	
+
 	std::vector<const char*> enabledLayers;
 
 	auto physicalDeviceFeaturesInvocationInterlock = Framework::Vulkan::PhysicalDeviceFragmentShaderInterlockFeaturesEXT();
@@ -345,15 +344,15 @@ void CGSH_Vulkan::CreateDevice(VkPhysicalDevice physicalDevice)
 	physicalDeviceFeatures2.features.fragmentStoresAndAtomics = VK_TRUE;
 
 	auto deviceCreateInfo = Framework::Vulkan::DeviceCreateInfo();
-	deviceCreateInfo.pNext                   = &physicalDeviceFeatures2;
-	deviceCreateInfo.flags                   = 0;
-	deviceCreateInfo.enabledLayerCount       = enabledLayers.size();
-	deviceCreateInfo.ppEnabledLayerNames     = enabledLayers.data();
-	deviceCreateInfo.enabledExtensionCount   = enabledExtensions.size();
+	deviceCreateInfo.pNext = &physicalDeviceFeatures2;
+	deviceCreateInfo.flags = 0;
+	deviceCreateInfo.enabledLayerCount = enabledLayers.size();
+	deviceCreateInfo.ppEnabledLayerNames = enabledLayers.data();
+	deviceCreateInfo.enabledExtensionCount = enabledExtensions.size();
 	deviceCreateInfo.ppEnabledExtensionNames = enabledExtensions.data();
-	deviceCreateInfo.queueCreateInfoCount    = 1;
-	deviceCreateInfo.pQueueCreateInfos       = &deviceQueueCreateInfo;
-	
+	deviceCreateInfo.queueCreateInfoCount = 1;
+	deviceCreateInfo.pQueueCreateInfos = &deviceQueueCreateInfo;
+
 	m_context->device = Framework::Vulkan::CDevice(m_instance, physicalDevice, deviceCreateInfo);
 }
 
@@ -363,30 +362,30 @@ void CGSH_Vulkan::CreateDescriptorPool()
 
 	{
 		VkDescriptorPoolSize poolSize = {};
-		poolSize.type            = VK_DESCRIPTOR_TYPE_STORAGE_IMAGE;
-		poolSize.descriptorCount = 0x800;
-		poolSizes.push_back(poolSize);
-	}
-	
-	{
-		VkDescriptorPoolSize poolSize = {};
-		poolSize.type            = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+		poolSize.type = VK_DESCRIPTOR_TYPE_STORAGE_IMAGE;
 		poolSize.descriptorCount = 0x800;
 		poolSizes.push_back(poolSize);
 	}
 
 	{
 		VkDescriptorPoolSize poolSize = {};
-		poolSize.type            = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+		poolSize.type = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+		poolSize.descriptorCount = 0x800;
+		poolSizes.push_back(poolSize);
+	}
+
+	{
+		VkDescriptorPoolSize poolSize = {};
+		poolSize.type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
 		poolSize.descriptorCount = 0x800;
 		poolSizes.push_back(poolSize);
 	}
 
 	auto descriptorPoolCreateInfo = Framework::Vulkan::DescriptorPoolCreateInfo();
 	descriptorPoolCreateInfo.poolSizeCount = poolSizes.size();
-	descriptorPoolCreateInfo.pPoolSizes    = poolSizes.data();
-	descriptorPoolCreateInfo.maxSets       = 0x1000;
-	
+	descriptorPoolCreateInfo.pPoolSizes = poolSizes.data();
+	descriptorPoolCreateInfo.maxSets = 0x1000;
+
 	auto result = m_context->device.vkCreateDescriptorPool(m_context->device, &descriptorPoolCreateInfo, nullptr, &m_context->descriptorPool);
 	CHECKVULKANERROR(result);
 }
@@ -397,8 +396,8 @@ void CGSH_Vulkan::CreateMemoryImage()
 	assert(m_context->memoryImageView == VK_NULL_HANDLE);
 
 	m_memoryImage = Framework::Vulkan::CImage(m_context->device, m_context->physicalDeviceMemoryProperties,
-		VK_IMAGE_USAGE_STORAGE_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT,
-		VK_FORMAT_R32_UINT, MEMORY_WIDTH, MEMORY_HEIGHT);
+	                                          VK_IMAGE_USAGE_STORAGE_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT,
+	                                          VK_FORMAT_R32_UINT, MEMORY_WIDTH, MEMORY_HEIGHT);
 
 	m_context->memoryImageView = m_memoryImage.CreateImageView();
 
@@ -420,12 +419,12 @@ void CGSH_Vulkan::CreateMemoryImage()
 		}
 
 		m_memoryImage.Fill(m_context->queue, m_context->commandBufferPool,
-			m_context->physicalDeviceMemoryProperties, imageContents.data());
+		                   m_context->physicalDeviceMemoryProperties, imageContents.data());
 	}
 #endif
 
 	m_memoryImage.SetLayout(m_context->queue, m_context->commandBufferPool,
-		VK_IMAGE_LAYOUT_GENERAL, VK_ACCESS_SHADER_READ_BIT | VK_ACCESS_SHADER_WRITE_BIT);
+	                        VK_IMAGE_LAYOUT_GENERAL, VK_ACCESS_SHADER_READ_BIT | VK_ACCESS_SHADER_WRITE_BIT);
 }
 
 void CGSH_Vulkan::CreateClutImage()
@@ -434,8 +433,8 @@ void CGSH_Vulkan::CreateClutImage()
 	assert(m_context->clutImageView == VK_NULL_HANDLE);
 
 	m_clutImage = Framework::Vulkan::CImage(m_context->device, m_context->physicalDeviceMemoryProperties,
-		VK_IMAGE_USAGE_STORAGE_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT,
-		VK_FORMAT_R32_UINT, CLUTENTRYCOUNT, 1);
+	                                        VK_IMAGE_USAGE_STORAGE_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT,
+	                                        VK_FORMAT_R32_UINT, CLUTENTRYCOUNT, 1);
 
 	m_context->clutImageView = m_clutImage.CreateImageView();
 
@@ -452,12 +451,12 @@ void CGSH_Vulkan::CreateClutImage()
 		}
 
 		m_clutImage.Fill(m_context->queue, m_context->commandBufferPool,
-			m_context->physicalDeviceMemoryProperties, imageContents.data());
+		                 m_context->physicalDeviceMemoryProperties, imageContents.data());
 	}
 #endif
 
 	m_clutImage.SetLayout(m_context->queue, m_context->commandBufferPool,
-		VK_IMAGE_LAYOUT_GENERAL, VK_ACCESS_SHADER_READ_BIT | VK_ACCESS_SHADER_WRITE_BIT);
+	                      VK_IMAGE_LAYOUT_GENERAL, VK_ACCESS_SHADER_READ_BIT | VK_ACCESS_SHADER_WRITE_BIT);
 }
 
 void CGSH_Vulkan::VertexKick(uint8 registerId, uint64 data)
@@ -571,11 +570,11 @@ void CGSH_Vulkan::SetRenderingContext(uint64 primReg)
 
 	m_draw->SetPipelineCaps(pipelineCaps);
 	m_draw->SetFramebufferBufferInfo(frame.GetBasePtr(), frame.GetWidth());
-	m_draw->SetTextureParams(tex0.GetBufPtr(), tex0.GetBufWidth(), 
-		tex0.GetWidth(), tex0.GetHeight());
+	m_draw->SetTextureParams(tex0.GetBufPtr(), tex0.GetBufWidth(),
+	                         tex0.GetWidth(), tex0.GetHeight());
 	m_draw->SetScissor(scissor.scax0, scissor.scay0,
-		scissor.scax1 - scissor.scax0 + 1,
-		scissor.scay1 - scissor.scay0 + 1);
+	                   scissor.scax1 - scissor.scax0 + 1,
+	                   scissor.scay1 - scissor.scay0 + 1);
 
 	m_primOfsX = offset.GetX();
 	m_primOfsY = offset.GetY();
@@ -595,7 +594,7 @@ void CGSH_Vulkan::Prim_Triangle()
 
 	float x1 = pos[0].GetX(), x2 = pos[1].GetX(), x3 = pos[2].GetX();
 	float y1 = pos[0].GetY(), y2 = pos[1].GetY(), y3 = pos[2].GetY();
-	uint32 z1 = pos[0].nZ,    z2 = pos[1].nZ,     z3 = pos[2].nZ;
+	uint32 z1 = pos[0].nZ, z2 = pos[1].nZ, z3 = pos[2].nZ;
 
 	RGBAQ rgbaq[3];
 	rgbaq[0] <<= m_vtxBuffer[2].rgbaq;
@@ -822,17 +821,14 @@ void CGSH_Vulkan::ProcessHostToLocalTransfer()
 
 void CGSH_Vulkan::ProcessLocalToHostTransfer()
 {
-
 }
 
 void CGSH_Vulkan::ProcessLocalToLocalTransfer()
 {
-
 }
 
 void CGSH_Vulkan::ProcessClutTransfer(uint32 csa, uint32)
 {
-
 }
 
 void CGSH_Vulkan::SyncCLUT(const TEX0& tex0)
@@ -845,7 +841,6 @@ void CGSH_Vulkan::SyncCLUT(const TEX0& tex0)
 
 void CGSH_Vulkan::ReadFramebuffer(uint32 width, uint32 height, void* buffer)
 {
-
 }
 
 Framework::CBitmap CGSH_Vulkan::GetScreenshot()

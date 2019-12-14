@@ -13,11 +13,10 @@ using namespace GSH_Vulkan;
 #define DESCRIPTOR_LOCATION_SWIZZLETABLE 2
 
 CClutLoad::CClutLoad(const ContextPtr& context, const FrameCommandBufferPtr& frameCommandBuffer)
-	: m_context(context)
-	, m_frameCommandBuffer(frameCommandBuffer)
-	, m_pipelines(context->device)
+    : m_context(context)
+    , m_frameCommandBuffer(frameCommandBuffer)
+    , m_pipelines(context->device)
 {
-
 }
 
 void CClutLoad::DoClutLoad(const CGSHandler::TEX0& tex0)
@@ -55,9 +54,9 @@ VkDescriptorSet CClutLoad::PrepareDescriptorSet(VkDescriptorSetLayout descriptor
 	//Allocate descriptor set
 	{
 		auto setAllocateInfo = Framework::Vulkan::DescriptorSetAllocateInfo();
-		setAllocateInfo.descriptorPool     = m_context->descriptorPool;
+		setAllocateInfo.descriptorPool = m_context->descriptorPool;
 		setAllocateInfo.descriptorSetCount = 1;
-		setAllocateInfo.pSetLayouts        = &descriptorSetLayout;
+		setAllocateInfo.pSetLayouts = &descriptorSetLayout;
 
 		result = m_context->device.vkAllocateDescriptorSets(m_context->device, &setAllocateInfo, &descriptorSet);
 		CHECKVULKANERROR(result);
@@ -82,33 +81,33 @@ VkDescriptorSet CClutLoad::PrepareDescriptorSet(VkDescriptorSetLayout descriptor
 		//Memory Image Descriptor
 		{
 			auto writeSet = Framework::Vulkan::WriteDescriptorSet();
-			writeSet.dstSet          = descriptorSet;
-			writeSet.dstBinding      = DESCRIPTOR_LOCATION_MEMORY;
+			writeSet.dstSet = descriptorSet;
+			writeSet.dstBinding = DESCRIPTOR_LOCATION_MEMORY;
 			writeSet.descriptorCount = 1;
-			writeSet.descriptorType  = VK_DESCRIPTOR_TYPE_STORAGE_IMAGE;
-			writeSet.pImageInfo      = &descriptorMemoryImageInfo;
+			writeSet.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_IMAGE;
+			writeSet.pImageInfo = &descriptorMemoryImageInfo;
 			writes.push_back(writeSet);
 		}
 
 		//CLUT Image Descriptor
 		{
 			auto writeSet = Framework::Vulkan::WriteDescriptorSet();
-			writeSet.dstSet          = descriptorSet;
-			writeSet.dstBinding      = DESCRIPTOR_LOCATION_CLUT;
+			writeSet.dstSet = descriptorSet;
+			writeSet.dstBinding = DESCRIPTOR_LOCATION_CLUT;
 			writeSet.descriptorCount = 1;
-			writeSet.descriptorType  = VK_DESCRIPTOR_TYPE_STORAGE_IMAGE;
-			writeSet.pImageInfo      = &descriptorClutImageInfo;
+			writeSet.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_IMAGE;
+			writeSet.pImageInfo = &descriptorClutImageInfo;
 			writes.push_back(writeSet);
 		}
 
 		//Swizzle Table Descriptor
 		{
 			auto writeSet = Framework::Vulkan::WriteDescriptorSet();
-			writeSet.dstSet          = descriptorSet;
-			writeSet.dstBinding      = DESCRIPTOR_LOCATION_SWIZZLETABLE;
+			writeSet.dstSet = descriptorSet;
+			writeSet.dstBinding = DESCRIPTOR_LOCATION_SWIZZLETABLE;
 			writeSet.descriptorCount = 1;
-			writeSet.descriptorType  = VK_DESCRIPTOR_TYPE_STORAGE_IMAGE;
-			writeSet.pImageInfo      = &descriptorSwizzleTableImageInfo;
+			writeSet.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_IMAGE;
+			writeSet.pImageInfo = &descriptorSwizzleTableImageInfo;
 			writes.push_back(writeSet);
 		}
 
@@ -121,9 +120,9 @@ VkDescriptorSet CClutLoad::PrepareDescriptorSet(VkDescriptorSetLayout descriptor
 Framework::Vulkan::CShaderModule CClutLoad::CreateLoadShader(const PIPELINE_CAPS& caps)
 {
 	using namespace Nuanceur;
-	
+
 	auto b = CShaderBuilder();
-	
+
 	assert(caps.idx8);
 
 	if(caps.idx8)
@@ -145,7 +144,7 @@ Framework::Vulkan::CShaderModule CClutLoad::CreateLoadShader(const PIPELINE_CAPS
 
 		auto loadParams = CInt4Lvalue(b.CreateUniformInt4("loadParams", Nuanceur::UNIFORM_UNIT_PUSHCONSTANT));
 		auto clutBufPtr = loadParams->x();
-		auto csa        = loadParams->y();
+		auto csa = loadParams->y();
 
 		auto colorPos = inputInvocationId->xy();
 		auto colorPixel = CUintLvalue(b.CreateTemporaryUint());
@@ -154,12 +153,12 @@ Framework::Vulkan::CShaderModule CClutLoad::CreateLoadShader(const PIPELINE_CAPS
 		switch(caps.cpsm)
 		{
 		case CGSHandler::PSMCT32:
-			{
-				auto colorAddress = CMemoryUtils::GetPixelAddress<CGsPixelFormats::STORAGEPSMCT32>(
-					b, swizzleTable, clutBufPtr, NewInt(b, 64), colorPos);
-				colorPixel = CMemoryUtils::Memory_Read32(b, memoryImage, colorAddress);
-			}
-			break;
+		{
+			auto colorAddress = CMemoryUtils::GetPixelAddress<CGsPixelFormats::STORAGEPSMCT32>(
+			    b, swizzleTable, clutBufPtr, NewInt(b, 64), colorPos);
+			colorPixel = CMemoryUtils::Memory_Read32(b, memoryImage, colorAddress);
+		}
+		break;
 		default:
 			assert(false);
 			break;
@@ -178,15 +177,15 @@ Framework::Vulkan::CShaderModule CClutLoad::CreateLoadShader(const PIPELINE_CAPS
 		switch(caps.cpsm)
 		{
 		case CGSHandler::PSMCT32:
-			{
-				auto colorPixelLo = (colorPixel                  ) & NewUint(b, 0xFFFF);
-				auto colorPixelHi = (colorPixel >> NewUint(b, 16)) & NewUint(b, 0xFFFF);
-				auto clutIndexLo = NewInt2(clutIndex, NewInt(b, 0));
-				auto clutIndexHi = NewInt2(clutIndex + NewInt(b, 0x100), NewInt(b, 0));
-				Store(clutImage, clutIndexLo, NewUint4(colorPixelLo, NewUint3(b, 0, 0, 0)));
-				Store(clutImage, clutIndexHi, NewUint4(colorPixelHi, NewUint3(b, 0, 0, 0)));
-			}
-			break;
+		{
+			auto colorPixelLo = (colorPixel)&NewUint(b, 0xFFFF);
+			auto colorPixelHi = (colorPixel >> NewUint(b, 16)) & NewUint(b, 0xFFFF);
+			auto clutIndexLo = NewInt2(clutIndex, NewInt(b, 0));
+			auto clutIndexHi = NewInt2(clutIndex + NewInt(b, 0x100), NewInt(b, 0));
+			Store(clutImage, clutIndexLo, NewUint4(colorPixelLo, NewUint3(b, 0, 0, 0)));
+			Store(clutImage, clutIndexHi, NewUint4(colorPixelHi, NewUint3(b, 0, 0, 0)));
+		}
+		break;
 		default:
 			assert(false);
 			break;
@@ -213,36 +212,36 @@ PIPELINE CClutLoad::CreateLoadPipeline(const PIPELINE_CAPS& caps)
 		//GS memory
 		{
 			VkDescriptorSetLayoutBinding binding = {};
-			binding.binding         = DESCRIPTOR_LOCATION_MEMORY;
-			binding.descriptorType  = VK_DESCRIPTOR_TYPE_STORAGE_IMAGE;
+			binding.binding = DESCRIPTOR_LOCATION_MEMORY;
+			binding.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_IMAGE;
 			binding.descriptorCount = 1;
-			binding.stageFlags      = VK_SHADER_STAGE_COMPUTE_BIT;
+			binding.stageFlags = VK_SHADER_STAGE_COMPUTE_BIT;
 			bindings.push_back(binding);
 		}
 
 		//CLUT buffer
 		{
 			VkDescriptorSetLayoutBinding binding = {};
-			binding.binding         = DESCRIPTOR_LOCATION_CLUT;
-			binding.descriptorType  = VK_DESCRIPTOR_TYPE_STORAGE_IMAGE;
+			binding.binding = DESCRIPTOR_LOCATION_CLUT;
+			binding.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_IMAGE;
 			binding.descriptorCount = 1;
-			binding.stageFlags      = VK_SHADER_STAGE_COMPUTE_BIT;
+			binding.stageFlags = VK_SHADER_STAGE_COMPUTE_BIT;
 			bindings.push_back(binding);
 		}
 
 		//Swizzle table
 		{
 			VkDescriptorSetLayoutBinding binding = {};
-			binding.binding         = DESCRIPTOR_LOCATION_SWIZZLETABLE;
-			binding.descriptorType  = VK_DESCRIPTOR_TYPE_STORAGE_IMAGE;
+			binding.binding = DESCRIPTOR_LOCATION_SWIZZLETABLE;
+			binding.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_IMAGE;
 			binding.descriptorCount = 1;
-			binding.stageFlags      = VK_SHADER_STAGE_COMPUTE_BIT;
+			binding.stageFlags = VK_SHADER_STAGE_COMPUTE_BIT;
 			bindings.push_back(binding);
 		}
 
 		auto createInfo = Framework::Vulkan::DescriptorSetLayoutCreateInfo();
 		createInfo.bindingCount = bindings.size();
-		createInfo.pBindings    = bindings.data();
+		createInfo.pBindings = bindings.data();
 		result = m_context->device.vkCreateDescriptorSetLayout(m_context->device, &createInfo, nullptr, &loadPipeline.descriptorSetLayout);
 		CHECKVULKANERROR(result);
 	}
@@ -250,14 +249,14 @@ PIPELINE CClutLoad::CreateLoadPipeline(const PIPELINE_CAPS& caps)
 	{
 		VkPushConstantRange pushConstantInfo = {};
 		pushConstantInfo.stageFlags = VK_SHADER_STAGE_COMPUTE_BIT;
-		pushConstantInfo.offset     = 0;
-		pushConstantInfo.size       = sizeof(LOAD_PARAMS);
+		pushConstantInfo.offset = 0;
+		pushConstantInfo.size = sizeof(LOAD_PARAMS);
 
 		auto pipelineLayoutCreateInfo = Framework::Vulkan::PipelineLayoutCreateInfo();
 		pipelineLayoutCreateInfo.pushConstantRangeCount = 1;
-		pipelineLayoutCreateInfo.pPushConstantRanges    = &pushConstantInfo;
-		pipelineLayoutCreateInfo.setLayoutCount         = 1;
-		pipelineLayoutCreateInfo.pSetLayouts            = &loadPipeline.descriptorSetLayout;
+		pipelineLayoutCreateInfo.pPushConstantRanges = &pushConstantInfo;
+		pipelineLayoutCreateInfo.setLayoutCount = 1;
+		pipelineLayoutCreateInfo.pSetLayouts = &loadPipeline.descriptorSetLayout;
 
 		result = m_context->device.vkCreatePipelineLayout(m_context->device, &pipelineLayoutCreateInfo, nullptr, &loadPipeline.pipelineLayout);
 		CHECKVULKANERROR(result);

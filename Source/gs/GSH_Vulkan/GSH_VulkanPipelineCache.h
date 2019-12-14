@@ -17,9 +17,8 @@ namespace GSH_Vulkan
 	{
 	public:
 		CPipelineCache(Framework::Vulkan::CDevice& device)
-			: m_device(&device)
+		    : m_device(&device)
 		{
-		
 		}
 
 		~CPipelineCache()

@@ -47,20 +47,20 @@ static void MakeLinearZOrtho(float* matrix, float left, float right, float botto
 #define MAX_VERTEX_COUNT 1024
 
 CDraw::CDraw(const ContextPtr& context, const FrameCommandBufferPtr& frameCommandBuffer)
-	: m_context(context)
-	, m_frameCommandBuffer(frameCommandBuffer)
-	, m_pipelineCache(context->device)
+    : m_context(context)
+    , m_frameCommandBuffer(frameCommandBuffer)
+    , m_pipelineCache(context->device)
 {
 	CreateRenderPass();
 	CreateDrawImage();
 	CreateFramebuffer();
 
 	m_vertexBuffer = Framework::Vulkan::CBuffer(
-		m_context->device, m_context->physicalDeviceMemoryProperties,
-		VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, sizeof(PRIM_VERTEX) * MAX_VERTEX_COUNT);
-	
-	auto result = m_context->device.vkMapMemory(m_context->device, m_vertexBuffer.GetMemory(), 
-		0, VK_WHOLE_SIZE, 0, reinterpret_cast<void**>(&m_vertexBufferPtr));
+	    m_context->device, m_context->physicalDeviceMemoryProperties,
+	    VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, sizeof(PRIM_VERTEX) * MAX_VERTEX_COUNT);
+
+	auto result = m_context->device.vkMapMemory(m_context->device, m_vertexBuffer.GetMemory(),
+	                                            0, VK_WHOLE_SIZE, 0, reinterpret_cast<void**>(&m_vertexBufferPtr));
 	CHECKVULKANERROR(result);
 
 	MakeLinearZOrtho(m_pushConstants.projMatrix, 0, DRAW_AREA_SIZE, 0, DRAW_AREA_SIZE);
@@ -86,9 +86,9 @@ void CDraw::SetPipelineCaps(const PIPELINE_CAPS& caps)
 
 void CDraw::SetFramebufferBufferInfo(uint32 addr, uint32 width)
 {
-	bool changed = 
-		(m_pushConstants.fbBufAddr != addr) ||
-		(m_pushConstants.fbBufWidth != width);
+	bool changed =
+	    (m_pushConstants.fbBufAddr != addr) ||
+	    (m_pushConstants.fbBufWidth != width);
 	if(!changed) return;
 	FlushVertices();
 	m_pushConstants.fbBufAddr = addr;
@@ -97,11 +97,11 @@ void CDraw::SetFramebufferBufferInfo(uint32 addr, uint32 width)
 
 void CDraw::SetTextureParams(uint32 bufAddr, uint32 bufWidth, uint32 width, uint32 height)
 {
-	bool changed = 
-		(m_pushConstants.texBufAddr != bufAddr) ||
-		(m_pushConstants.texBufWidth != bufWidth) ||
-		(m_pushConstants.texWidth != width) ||
-		(m_pushConstants.texHeight != height);
+	bool changed =
+	    (m_pushConstants.texBufAddr != bufAddr) ||
+	    (m_pushConstants.texBufWidth != bufWidth) ||
+	    (m_pushConstants.texWidth != width) ||
+	    (m_pushConstants.texHeight != height);
 	if(!changed) return;
 	FlushVertices();
 	m_pushConstants.texBufAddr = bufAddr;
@@ -112,11 +112,11 @@ void CDraw::SetTextureParams(uint32 bufAddr, uint32 bufWidth, uint32 width, uint
 
 void CDraw::SetScissor(uint32 scissorX, uint32 scissorY, uint32 scissorWidth, uint32 scissorHeight)
 {
-	bool changed = 
-		(m_scissorX != scissorX) ||
-		(m_scissorY != scissorY) ||
-		(m_scissorWidth != scissorWidth) ||
-		(m_scissorHeight != scissorHeight);
+	bool changed =
+	    (m_scissorX != scissorX) ||
+	    (m_scissorY != scissorY) ||
+	    (m_scissorWidth != scissorWidth) ||
+	    (m_scissorHeight != scissorHeight);
 	if(!changed) return;
 	FlushVertices();
 	m_scissorX = scissorX;
@@ -153,30 +153,30 @@ void CDraw::FlushVertices()
 
 	{
 		VkViewport viewport = {};
-		viewport.width    = DRAW_AREA_SIZE;
-		viewport.height   = DRAW_AREA_SIZE;
+		viewport.width = DRAW_AREA_SIZE;
+		viewport.height = DRAW_AREA_SIZE;
 		viewport.maxDepth = 1.0f;
 		m_context->device.vkCmdSetViewport(commandBuffer, 0, 1, &viewport);
-		
+
 		VkRect2D scissor = {};
 		scissor.offset.x = m_scissorX;
 		scissor.offset.y = m_scissorY;
-		scissor.extent.width  = m_scissorWidth;
+		scissor.extent.width = m_scissorWidth;
 		scissor.extent.height = m_scissorHeight;
 		m_context->device.vkCmdSetScissor(commandBuffer, 0, 1, &scissor);
 	}
 
 	auto renderPassBeginInfo = Framework::Vulkan::RenderPassBeginInfo();
-	renderPassBeginInfo.renderPass               = m_renderPass;
-	renderPassBeginInfo.renderArea.extent.width  = DRAW_AREA_SIZE;
+	renderPassBeginInfo.renderPass = m_renderPass;
+	renderPassBeginInfo.renderArea.extent.width = DRAW_AREA_SIZE;
 	renderPassBeginInfo.renderArea.extent.height = DRAW_AREA_SIZE;
-	renderPassBeginInfo.framebuffer              = m_framebuffer;
+	renderPassBeginInfo.framebuffer = m_framebuffer;
 	m_context->device.vkCmdBeginRenderPass(commandBuffer, &renderPassBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
 
 	auto descriptorSet = PrepareDescriptorSet(drawPipeline->descriptorSetLayout);
 
 	m_context->device.vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, drawPipeline->pipelineLayout,
-		0, 1, &descriptorSet, 0, nullptr);
+	                                          0, 1, &descriptorSet, 0, nullptr);
 
 	m_context->device.vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, drawPipeline->pipeline);
 
@@ -185,7 +185,7 @@ void CDraw::FlushVertices()
 	m_context->device.vkCmdBindVertexBuffers(commandBuffer, 0, 1, &vertexBuffer, &vertexBufferOffset);
 
 	m_context->device.vkCmdPushConstants(commandBuffer, drawPipeline->pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT,
-		0, sizeof(DRAW_PIPELINE_PUSHCONSTANTS), &m_pushConstants);
+	                                     0, sizeof(DRAW_PIPELINE_PUSHCONSTANTS), &m_pushConstants);
 
 	assert((vertexCount % 3) == 0);
 	m_context->device.vkCmdDraw(commandBuffer, vertexCount, 1, 0, 0);
@@ -213,9 +213,9 @@ VkDescriptorSet CDraw::PrepareDescriptorSet(VkDescriptorSetLayout descriptorSetL
 	//Allocate descriptor set
 	{
 		auto setAllocateInfo = Framework::Vulkan::DescriptorSetAllocateInfo();
-		setAllocateInfo.descriptorPool     = m_context->descriptorPool;
+		setAllocateInfo.descriptorPool = m_context->descriptorPool;
 		setAllocateInfo.descriptorSetCount = 1;
-		setAllocateInfo.pSetLayouts        = &descriptorSetLayout;
+		setAllocateInfo.pSetLayouts = &descriptorSetLayout;
 
 		result = m_context->device.vkAllocateDescriptorSets(m_context->device, &setAllocateInfo, &descriptorSet);
 		CHECKVULKANERROR(result);
@@ -243,21 +243,21 @@ VkDescriptorSet CDraw::PrepareDescriptorSet(VkDescriptorSetLayout descriptorSetL
 
 		{
 			auto writeSet = Framework::Vulkan::WriteDescriptorSet();
-			writeSet.dstSet          = descriptorSet;
-			writeSet.dstBinding      = DESCRIPTOR_LOCATION_IMAGE_MEMORY;
+			writeSet.dstSet = descriptorSet;
+			writeSet.dstBinding = DESCRIPTOR_LOCATION_IMAGE_MEMORY;
 			writeSet.descriptorCount = 1;
-			writeSet.descriptorType  = VK_DESCRIPTOR_TYPE_STORAGE_IMAGE;
-			writeSet.pImageInfo      = &descriptorMemoryImageInfo;
+			writeSet.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_IMAGE;
+			writeSet.pImageInfo = &descriptorMemoryImageInfo;
 			writes.push_back(writeSet);
 		}
 
 		{
 			auto writeSet = Framework::Vulkan::WriteDescriptorSet();
-			writeSet.dstSet          = descriptorSet;
-			writeSet.dstBinding      = DESCRIPTOR_LOCATION_IMAGE_SWIZZLETABLE_FB;
+			writeSet.dstSet = descriptorSet;
+			writeSet.dstBinding = DESCRIPTOR_LOCATION_IMAGE_SWIZZLETABLE_FB;
 			writeSet.descriptorCount = 1;
-			writeSet.descriptorType  = VK_DESCRIPTOR_TYPE_STORAGE_IMAGE;
-			writeSet.pImageInfo      = &descriptorFbSwizzleTableImageInfo;
+			writeSet.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_IMAGE;
+			writeSet.pImageInfo = &descriptorFbSwizzleTableImageInfo;
 			writes.push_back(writeSet);
 		}
 
@@ -265,22 +265,22 @@ VkDescriptorSet CDraw::PrepareDescriptorSet(VkDescriptorSetLayout descriptorSetL
 		{
 			{
 				auto writeSet = Framework::Vulkan::WriteDescriptorSet();
-				writeSet.dstSet          = descriptorSet;
-				writeSet.dstBinding      = DESCRIPTOR_LOCATION_IMAGE_SWIZZLETABLE_TEX;
+				writeSet.dstSet = descriptorSet;
+				writeSet.dstBinding = DESCRIPTOR_LOCATION_IMAGE_SWIZZLETABLE_TEX;
 				writeSet.descriptorCount = 1;
-				writeSet.descriptorType  = VK_DESCRIPTOR_TYPE_STORAGE_IMAGE;
-				writeSet.pImageInfo      = &descriptorTexSwizzleTableImageInfo;
+				writeSet.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_IMAGE;
+				writeSet.pImageInfo = &descriptorTexSwizzleTableImageInfo;
 				writes.push_back(writeSet);
 			}
 
 			if(CGsPixelFormats::IsPsmIDTEX(m_pipelineCaps.textureFormat))
 			{
 				auto writeSet = Framework::Vulkan::WriteDescriptorSet();
-				writeSet.dstSet          = descriptorSet;
-				writeSet.dstBinding      = DESCRIPTOR_LOCATION_IMAGE_CLUT;
+				writeSet.dstSet = descriptorSet;
+				writeSet.dstBinding = DESCRIPTOR_LOCATION_IMAGE_CLUT;
 				writeSet.descriptorCount = 1;
-				writeSet.descriptorType  = VK_DESCRIPTOR_TYPE_STORAGE_IMAGE;
-				writeSet.pImageInfo      = &descriptorClutImageInfo;
+				writeSet.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_IMAGE;
+				writeSet.pImageInfo = &descriptorClutImageInfo;
 				writes.push_back(writeSet);
 			}
 		}
@@ -297,13 +297,13 @@ void CDraw::CreateFramebuffer()
 	assert(m_framebuffer == VK_NULL_HANDLE);
 
 	auto frameBufferCreateInfo = Framework::Vulkan::FramebufferCreateInfo();
-	frameBufferCreateInfo.renderPass      = m_renderPass;
-	frameBufferCreateInfo.width           = DRAW_AREA_SIZE;
-	frameBufferCreateInfo.height          = DRAW_AREA_SIZE;
-	frameBufferCreateInfo.layers          = 1;
+	frameBufferCreateInfo.renderPass = m_renderPass;
+	frameBufferCreateInfo.width = DRAW_AREA_SIZE;
+	frameBufferCreateInfo.height = DRAW_AREA_SIZE;
+	frameBufferCreateInfo.layers = 1;
 	frameBufferCreateInfo.attachmentCount = 1;
-	frameBufferCreateInfo.pAttachments    = &m_drawImageView;
-		
+	frameBufferCreateInfo.pAttachments = &m_drawImageView;
+
 	auto result = m_context->device.vkCreateFramebuffer(m_context->device, &frameBufferCreateInfo, nullptr, &m_framebuffer);
 	CHECKVULKANERROR(result);
 }
@@ -311,31 +311,31 @@ void CDraw::CreateFramebuffer()
 void CDraw::CreateRenderPass()
 {
 	assert(m_renderPass == VK_NULL_HANDLE);
-	
+
 	auto result = VK_SUCCESS;
 
 	VkAttachmentDescription colorAttachment = {};
-	colorAttachment.format         = VK_FORMAT_R8G8B8A8_UNORM;
-	colorAttachment.samples        = VK_SAMPLE_COUNT_1_BIT;
-	colorAttachment.loadOp         = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
-	colorAttachment.storeOp        = VK_ATTACHMENT_STORE_OP_DONT_CARE;
-	colorAttachment.initialLayout  = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
-	colorAttachment.finalLayout    = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+	colorAttachment.format = VK_FORMAT_R8G8B8A8_UNORM;
+	colorAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
+	colorAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+	colorAttachment.storeOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+	colorAttachment.initialLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+	colorAttachment.finalLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
 
 	VkAttachmentReference colorRef = {};
 	colorRef.attachment = 0;
-	colorRef.layout     = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+	colorRef.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
 
 	VkSubpassDescription subpass = {};
-	subpass.pipelineBindPoint    = VK_PIPELINE_BIND_POINT_GRAPHICS;
-	subpass.pColorAttachments    = &colorRef;
+	subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
+	subpass.pColorAttachments = &colorRef;
 	subpass.colorAttachmentCount = 1;
 
 	auto renderPassCreateInfo = Framework::Vulkan::RenderPassCreateInfo();
-	renderPassCreateInfo.subpassCount    = 1;
-	renderPassCreateInfo.pSubpasses      = &subpass;
+	renderPassCreateInfo.subpassCount = 1;
+	renderPassCreateInfo.pSubpasses = &subpass;
 	renderPassCreateInfo.attachmentCount = 1;
-	renderPassCreateInfo.pAttachments    = &colorAttachment;
+	renderPassCreateInfo.pAttachments = &colorAttachment;
 
 	result = m_context->device.vkCreateRenderPass(m_context->device, &renderPassCreateInfo, nullptr, &m_renderPass);
 	CHECKVULKANERROR(result);
@@ -355,19 +355,19 @@ PIPELINE CDraw::CreateDrawPipeline(const PIPELINE_CAPS& caps)
 
 		{
 			VkDescriptorSetLayoutBinding setLayoutBinding = {};
-			setLayoutBinding.binding         = DESCRIPTOR_LOCATION_IMAGE_MEMORY;
-			setLayoutBinding.descriptorType  = VK_DESCRIPTOR_TYPE_STORAGE_IMAGE;
+			setLayoutBinding.binding = DESCRIPTOR_LOCATION_IMAGE_MEMORY;
+			setLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_IMAGE;
 			setLayoutBinding.descriptorCount = 1;
-			setLayoutBinding.stageFlags      = VK_SHADER_STAGE_FRAGMENT_BIT;
+			setLayoutBinding.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
 			setLayoutBindings.push_back(setLayoutBinding);
 		}
 
 		{
 			VkDescriptorSetLayoutBinding setLayoutBinding = {};
-			setLayoutBinding.binding         = DESCRIPTOR_LOCATION_IMAGE_SWIZZLETABLE_FB;
-			setLayoutBinding.descriptorType  = VK_DESCRIPTOR_TYPE_STORAGE_IMAGE;
+			setLayoutBinding.binding = DESCRIPTOR_LOCATION_IMAGE_SWIZZLETABLE_FB;
+			setLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_IMAGE;
 			setLayoutBinding.descriptorCount = 1;
-			setLayoutBinding.stageFlags      = VK_SHADER_STAGE_FRAGMENT_BIT;
+			setLayoutBinding.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
 			setLayoutBindings.push_back(setLayoutBinding);
 		}
 
@@ -375,27 +375,27 @@ PIPELINE CDraw::CreateDrawPipeline(const PIPELINE_CAPS& caps)
 		{
 			{
 				VkDescriptorSetLayoutBinding setLayoutBinding = {};
-				setLayoutBinding.binding         = DESCRIPTOR_LOCATION_IMAGE_SWIZZLETABLE_TEX;
-				setLayoutBinding.descriptorType  = VK_DESCRIPTOR_TYPE_STORAGE_IMAGE;
+				setLayoutBinding.binding = DESCRIPTOR_LOCATION_IMAGE_SWIZZLETABLE_TEX;
+				setLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_IMAGE;
 				setLayoutBinding.descriptorCount = 1;
-				setLayoutBinding.stageFlags      = VK_SHADER_STAGE_FRAGMENT_BIT;
+				setLayoutBinding.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
 				setLayoutBindings.push_back(setLayoutBinding);
 			}
 
 			if(CGsPixelFormats::IsPsmIDTEX(caps.textureFormat))
 			{
 				VkDescriptorSetLayoutBinding setLayoutBinding = {};
-				setLayoutBinding.binding         = DESCRIPTOR_LOCATION_IMAGE_CLUT;
-				setLayoutBinding.descriptorType  = VK_DESCRIPTOR_TYPE_STORAGE_IMAGE;
+				setLayoutBinding.binding = DESCRIPTOR_LOCATION_IMAGE_CLUT;
+				setLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_IMAGE;
 				setLayoutBinding.descriptorCount = 1;
-				setLayoutBinding.stageFlags      = VK_SHADER_STAGE_FRAGMENT_BIT;
+				setLayoutBinding.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
 				setLayoutBindings.push_back(setLayoutBinding);
 			}
 		}
 
 		auto setLayoutCreateInfo = Framework::Vulkan::DescriptorSetLayoutCreateInfo();
 		setLayoutCreateInfo.bindingCount = setLayoutBindings.size();
-		setLayoutCreateInfo.pBindings    = setLayoutBindings.data();
+		setLayoutCreateInfo.pBindings = setLayoutBindings.data();
 
 		result = m_context->device.vkCreateDescriptorSetLayout(m_context->device, &setLayoutCreateInfo, nullptr, &drawPipeline.descriptorSetLayout);
 		CHECKVULKANERROR(result);
@@ -404,14 +404,14 @@ PIPELINE CDraw::CreateDrawPipeline(const PIPELINE_CAPS& caps)
 	{
 		VkPushConstantRange pushConstantInfo = {};
 		pushConstantInfo.stageFlags = VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT;
-		pushConstantInfo.offset     = 0;
-		pushConstantInfo.size       = sizeof(DRAW_PIPELINE_PUSHCONSTANTS);
+		pushConstantInfo.offset = 0;
+		pushConstantInfo.size = sizeof(DRAW_PIPELINE_PUSHCONSTANTS);
 
 		auto pipelineLayoutCreateInfo = Framework::Vulkan::PipelineLayoutCreateInfo();
 		pipelineLayoutCreateInfo.pushConstantRangeCount = 1;
-		pipelineLayoutCreateInfo.pPushConstantRanges    = &pushConstantInfo;
-		pipelineLayoutCreateInfo.setLayoutCount         = 1;
-		pipelineLayoutCreateInfo.pSetLayouts            = &drawPipeline.descriptorSetLayout;
+		pipelineLayoutCreateInfo.pPushConstantRanges = &pushConstantInfo;
+		pipelineLayoutCreateInfo.setLayoutCount = 1;
+		pipelineLayoutCreateInfo.pSetLayouts = &drawPipeline.descriptorSetLayout;
 
 		result = m_context->device.vkCreatePipelineLayout(m_context->device, &pipelineLayoutCreateInfo, nullptr, &drawPipeline.pipelineLayout);
 		CHECKVULKANERROR(result);
@@ -419,7 +419,7 @@ PIPELINE CDraw::CreateDrawPipeline(const PIPELINE_CAPS& caps)
 
 	auto inputAssemblyInfo = Framework::Vulkan::PipelineInputAssemblyStateCreateInfo();
 	inputAssemblyInfo.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
-	
+
 	std::vector<VkVertexInputAttributeDescription> vertexAttributes;
 
 	{
@@ -455,73 +455,73 @@ PIPELINE CDraw::CreateDrawPipeline(const PIPELINE_CAPS& caps)
 	}
 
 	VkVertexInputBindingDescription binding = {};
-	binding.stride    = sizeof(PRIM_VERTEX);
+	binding.stride = sizeof(PRIM_VERTEX);
 	binding.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
-	
+
 	auto vertexInputInfo = Framework::Vulkan::PipelineVertexInputStateCreateInfo();
-	vertexInputInfo.vertexBindingDescriptionCount   = 1;
-	vertexInputInfo.pVertexBindingDescriptions      = &binding;
+	vertexInputInfo.vertexBindingDescriptionCount = 1;
+	vertexInputInfo.pVertexBindingDescriptions = &binding;
 	vertexInputInfo.vertexAttributeDescriptionCount = vertexAttributes.size();
-	vertexInputInfo.pVertexAttributeDescriptions    = vertexAttributes.data();
+	vertexInputInfo.pVertexAttributeDescriptions = vertexAttributes.data();
 
 	auto rasterStateInfo = Framework::Vulkan::PipelineRasterizationStateCreateInfo();
 	rasterStateInfo.polygonMode = VK_POLYGON_MODE_FILL;
-	rasterStateInfo.cullMode    = VK_CULL_MODE_NONE;
-	rasterStateInfo.lineWidth   = 1.0f;
-	
+	rasterStateInfo.cullMode = VK_CULL_MODE_NONE;
+	rasterStateInfo.lineWidth = 1.0f;
+
 	// Our attachment will write to all color channels, but no blending is enabled.
 	VkPipelineColorBlendAttachmentState blendAttachment = {};
 	blendAttachment.colorWriteMask = 0xf;
-	
+
 	auto colorBlendStateInfo = Framework::Vulkan::PipelineColorBlendStateCreateInfo();
 	colorBlendStateInfo.attachmentCount = 1;
-	colorBlendStateInfo.pAttachments    = &blendAttachment;
-	
+	colorBlendStateInfo.pAttachments = &blendAttachment;
+
 	auto viewportStateInfo = Framework::Vulkan::PipelineViewportStateCreateInfo();
 	viewportStateInfo.viewportCount = 1;
-	viewportStateInfo.scissorCount  = 1;
-	
+	viewportStateInfo.scissorCount = 1;
+
 	auto depthStencilStateInfo = Framework::Vulkan::PipelineDepthStencilStateCreateInfo();
-	
+
 	auto multisampleStateInfo = Framework::Vulkan::PipelineMultisampleStateCreateInfo();
 	multisampleStateInfo.rasterizationSamples = VK_SAMPLE_COUNT_1_BIT;
 
-	static const VkDynamicState dynamicStates[] = 
-	{
-		VK_DYNAMIC_STATE_VIEWPORT,
-		VK_DYNAMIC_STATE_SCISSOR,
-	};
+	static const VkDynamicState dynamicStates[] =
+	    {
+	        VK_DYNAMIC_STATE_VIEWPORT,
+	        VK_DYNAMIC_STATE_SCISSOR,
+	    };
 	auto dynamicStateInfo = Framework::Vulkan::PipelineDynamicStateCreateInfo();
-	dynamicStateInfo.pDynamicStates    = dynamicStates;
+	dynamicStateInfo.pDynamicStates = dynamicStates;
 	dynamicStateInfo.dynamicStateCount = sizeof(dynamicStates) / sizeof(dynamicStates[0]);
-	
+
 	VkPipelineShaderStageCreateInfo shaderStages[2] =
-	{
-		{ VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO },
-		{ VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO },
-	};
-	
-	shaderStages[0].stage  = VK_SHADER_STAGE_VERTEX_BIT;
+	    {
+	        {VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO},
+	        {VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO},
+	    };
+
+	shaderStages[0].stage = VK_SHADER_STAGE_VERTEX_BIT;
 	shaderStages[0].module = vertexShader;
-	shaderStages[0].pName  = "main";
-	shaderStages[1].stage  = VK_SHADER_STAGE_FRAGMENT_BIT;
+	shaderStages[0].pName = "main";
+	shaderStages[1].stage = VK_SHADER_STAGE_FRAGMENT_BIT;
 	shaderStages[1].module = fragmentShader;
-	shaderStages[1].pName  = "main";
+	shaderStages[1].pName = "main";
 
 	auto pipelineCreateInfo = Framework::Vulkan::GraphicsPipelineCreateInfo();
-	pipelineCreateInfo.stageCount          = 2;
-	pipelineCreateInfo.pStages             = shaderStages;
+	pipelineCreateInfo.stageCount = 2;
+	pipelineCreateInfo.pStages = shaderStages;
 	pipelineCreateInfo.pInputAssemblyState = &inputAssemblyInfo;
-	pipelineCreateInfo.pVertexInputState   = &vertexInputInfo;
+	pipelineCreateInfo.pVertexInputState = &vertexInputInfo;
 	pipelineCreateInfo.pRasterizationState = &rasterStateInfo;
-	pipelineCreateInfo.pColorBlendState    = &colorBlendStateInfo;
-	pipelineCreateInfo.pViewportState      = &viewportStateInfo;
-	pipelineCreateInfo.pDepthStencilState  = &depthStencilStateInfo;
-	pipelineCreateInfo.pMultisampleState   = &multisampleStateInfo;
-	pipelineCreateInfo.pDynamicState       = &dynamicStateInfo;
-	pipelineCreateInfo.renderPass          = m_renderPass;
-	pipelineCreateInfo.layout              = drawPipeline.pipelineLayout;
-	
+	pipelineCreateInfo.pColorBlendState = &colorBlendStateInfo;
+	pipelineCreateInfo.pViewportState = &viewportStateInfo;
+	pipelineCreateInfo.pDepthStencilState = &depthStencilStateInfo;
+	pipelineCreateInfo.pMultisampleState = &multisampleStateInfo;
+	pipelineCreateInfo.pDynamicState = &dynamicStateInfo;
+	pipelineCreateInfo.renderPass = m_renderPass;
+	pipelineCreateInfo.layout = drawPipeline.pipelineLayout;
+
 	result = m_context->device.vkCreateGraphicsPipelines(m_context->device, VK_NULL_HANDLE, 1, &pipelineCreateInfo, nullptr, &drawPipeline.pipeline);
 	CHECKVULKANERROR(result);
 
@@ -531,9 +531,9 @@ PIPELINE CDraw::CreateDrawPipeline(const PIPELINE_CAPS& caps)
 Framework::Vulkan::CShaderModule CDraw::CreateVertexShader()
 {
 	using namespace Nuanceur;
-	
+
 	auto b = CShaderBuilder();
-	
+
 	{
 		//Vertex Inputs
 		auto inputPosition = CFloat4Lvalue(b.CreateInput(Nuanceur::SEMANTIC_POSITION));
@@ -552,7 +552,7 @@ Framework::Vulkan::CShaderModule CDraw::CreateVertexShader()
 		outputColor = inputColor->xyzw();
 		outputTexCoord = inputTexCoord->xyzw();
 	}
-	
+
 	Framework::CMemStream shaderStream;
 	Nuanceur::CSpirvShaderGenerator::Generate(shaderStream, b, Nuanceur::CSpirvShaderGenerator::SHADER_TYPE_VERTEX);
 	shaderStream.Seek(0, Framework::STREAM_SEEK_SET);
@@ -562,9 +562,9 @@ Framework::Vulkan::CShaderModule CDraw::CreateVertexShader()
 Framework::Vulkan::CShaderModule CDraw::CreateFragmentShader(const PIPELINE_CAPS& caps)
 {
 	using namespace Nuanceur;
-	
+
 	auto b = CShaderBuilder();
-	
+
 	{
 		//Inputs
 		auto inputPosition = CFloat4Lvalue(b.CreateInput(Nuanceur::SEMANTIC_SYSTEM_POSITION));
@@ -585,15 +585,15 @@ Framework::Vulkan::CShaderModule CDraw::CreateFragmentShader(const PIPELINE_CAPS
 		auto texParams = CInt4Lvalue(b.CreateUniformInt4("texParams", Nuanceur::UNIFORM_UNIT_PUSHCONSTANT));
 
 		auto fbBufAddress = fbDepthParams->x();
-		auto fbBufWidth   = fbDepthParams->y();
+		auto fbBufWidth = fbDepthParams->y();
 
 		auto texBufAddress = texParams->x();
-		auto texBufWidth   = texParams->y();
-		auto texSize       = texParams->zw();
+		auto texBufWidth = texParams->y();
+		auto texSize = texParams->zw();
 
 		//TODO: Try vectorized shift
 		//auto imageColor = ToUint(inputColor * NewFloat4(b, 255.f, 255.f, 255.f, 255.f));
-		
+
 		auto textureColor = CFloat4Lvalue(b.CreateTemporary());
 		textureColor = NewFloat4(b, 1, 1, 1, 1);
 
@@ -605,26 +605,26 @@ Framework::Vulkan::CShaderModule CDraw::CreateFragmentShader(const PIPELINE_CAPS
 			{
 			default:
 			case CGSHandler::PSMCT32:
-				{
-					auto texAddress = CMemoryUtils::GetPixelAddress<CGsPixelFormats::STORAGEPSMCT32>(
-						b, texSwizzleTable, texBufAddress, texBufWidth, texelPos);
-					auto texPixel = CMemoryUtils::Memory_Read32(b, memoryImage, texAddress);
-					textureColor = CMemoryUtils::PSM32ToVec4(b, texPixel);
-				}
-				break;
+			{
+				auto texAddress = CMemoryUtils::GetPixelAddress<CGsPixelFormats::STORAGEPSMCT32>(
+				    b, texSwizzleTable, texBufAddress, texBufWidth, texelPos);
+				auto texPixel = CMemoryUtils::Memory_Read32(b, memoryImage, texAddress);
+				textureColor = CMemoryUtils::PSM32ToVec4(b, texPixel);
+			}
+			break;
 			case CGSHandler::PSMT8:
-				{
-					auto texAddress = CMemoryUtils::GetPixelAddress<CGsPixelFormats::STORAGEPSMT8>(
-						b, texSwizzleTable, texBufAddress, texBufWidth, texelPos);
-					auto texPixel = CMemoryUtils::Memory_Read8(b, memoryImage, texAddress);
-					auto clutIndexLo = NewInt2(ToInt(texPixel), NewInt(b, 0));
-					auto clutIndexHi = NewInt2(ToInt(texPixel) + NewInt(b, 0x100), NewInt(b, 0));
-					auto clutPixelLo = Load(clutImage, clutIndexLo)->x();
-					auto clutPixelHi = Load(clutImage, clutIndexHi)->x();
-					auto clutPixel = clutPixelLo | (clutPixelHi << NewUint(b, 16));
-					textureColor = CMemoryUtils::PSM32ToVec4(b, clutPixel);
-				}
-				break;
+			{
+				auto texAddress = CMemoryUtils::GetPixelAddress<CGsPixelFormats::STORAGEPSMT8>(
+				    b, texSwizzleTable, texBufAddress, texBufWidth, texelPos);
+				auto texPixel = CMemoryUtils::Memory_Read8(b, memoryImage, texAddress);
+				auto clutIndexLo = NewInt2(ToInt(texPixel), NewInt(b, 0));
+				auto clutIndexHi = NewInt2(ToInt(texPixel) + NewInt(b, 0x100), NewInt(b, 0));
+				auto clutPixelLo = Load(clutImage, clutIndexLo)->x();
+				auto clutPixelHi = Load(clutImage, clutIndexHi)->x();
+				auto clutPixel = clutPixelLo | (clutPixelHi << NewUint(b, 16));
+				textureColor = CMemoryUtils::PSM32ToVec4(b, clutPixel);
+			}
+			break;
 			}
 
 			//Modulate
@@ -641,7 +641,7 @@ Framework::Vulkan::CShaderModule CDraw::CreateFragmentShader(const PIPELINE_CAPS
 
 		assert(caps.framebufferFormat == CGSHandler::PSMCT32);
 		auto fbAddress = CMemoryUtils::GetPixelAddress<CGsPixelFormats::STORAGEPSMCT32>(
-			b, fbSwizzleTable, fbBufAddress, fbBufWidth, screenPos);
+		    b, fbSwizzleTable, fbBufAddress, fbBufWidth, screenPos);
 
 		BeginInvocationInterlock(b);
 
@@ -650,7 +650,7 @@ Framework::Vulkan::CShaderModule CDraw::CreateFragmentShader(const PIPELINE_CAPS
 			//Fetch dst pixel
 			auto dstPixel = CMemoryUtils::Memory_Read32(b, memoryImage, fbAddress);
 			auto dstColor = CMemoryUtils::PSM32ToVec4(b, dstPixel);
-			
+
 			//Blend
 			assert(caps.alphaA == 0);
 			assert(caps.alphaB == 1);
@@ -675,7 +675,7 @@ Framework::Vulkan::CShaderModule CDraw::CreateFragmentShader(const PIPELINE_CAPS
 
 		outputColor = NewFloat4(b, 0, 0, 1, 0);
 	}
-	
+
 	Framework::CMemStream shaderStream;
 	Nuanceur::CSpirvShaderGenerator::Generate(shaderStream, b, Nuanceur::CSpirvShaderGenerator::SHADER_TYPE_FRAGMENT);
 	shaderStream.Seek(0, Framework::STREAM_SEEK_SET);
@@ -688,10 +688,10 @@ void CDraw::CreateDrawImage()
 	//that don't write to any color attachment
 
 	m_drawImage = Framework::Vulkan::CImage(m_context->device, m_context->physicalDeviceMemoryProperties,
-		VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT, VK_FORMAT_R8G8B8A8_UNORM, DRAW_AREA_SIZE, DRAW_AREA_SIZE);
+	                                        VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT, VK_FORMAT_R8G8B8A8_UNORM, DRAW_AREA_SIZE, DRAW_AREA_SIZE);
 
 	m_drawImage.SetLayout(m_context->queue, m_context->commandBufferPool,
-		VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL, VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT);
+	                      VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL, VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT);
 
 	m_drawImageView = m_drawImage.CreateImageView();
 }

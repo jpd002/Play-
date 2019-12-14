@@ -10,7 +10,7 @@ namespace GSH_Vulkan
 	public:
 		template <typename StorageFormat>
 		static Nuanceur::CIntRvalue GetPixelAddress(Nuanceur::CShaderBuilder& b, Nuanceur::CImageUint2DValue swizzleTable,
-			Nuanceur::CIntValue bufAddress, Nuanceur::CIntValue bufWidth, Nuanceur::CInt2Value position)
+		                                            Nuanceur::CIntValue bufAddress, Nuanceur::CIntValue bufWidth, Nuanceur::CInt2Value position)
 		{
 			auto pageWidth = NewInt(b, StorageFormat::PAGEWIDTH);
 			auto pageHeight = NewInt(b, StorageFormat::PAGEHEIGHT);

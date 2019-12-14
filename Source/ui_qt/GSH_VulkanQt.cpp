@@ -32,17 +32,17 @@ void CGSH_VulkanQt::InitializeImpl()
 
 	auto appInfo = Framework::Vulkan::ApplicationInfo();
 	appInfo.pApplicationName = "Play!";
-	appInfo.pEngineName      = "Play!";
+	appInfo.pEngineName = "Play!";
 	//Added fragment shader interlock in 1.1.110
-	appInfo.apiVersion       = VK_MAKE_VERSION(1, 1, 110);
+	appInfo.apiVersion = VK_MAKE_VERSION(1, 1, 110);
 
-	instanceCreateInfo.pApplicationInfo        = &appInfo;
-	instanceCreateInfo.enabledExtensionCount   = extensions.size();
+	instanceCreateInfo.pApplicationInfo = &appInfo;
+	instanceCreateInfo.enabledExtensionCount = extensions.size();
 	instanceCreateInfo.ppEnabledExtensionNames = extensions.data();
-	instanceCreateInfo.enabledLayerCount       = layers.size();
-	instanceCreateInfo.ppEnabledLayerNames     = layers.data();
+	instanceCreateInfo.enabledLayerCount = layers.size();
+	instanceCreateInfo.ppEnabledLayerNames = layers.data();
 	m_instance = Framework::Vulkan::CInstance(instanceCreateInfo);
-	
+
 #ifdef _WIN32
 	auto surfaceCreateInfo = Framework::Vulkan::Win32SurfaceCreateInfoKHR();
 	surfaceCreateInfo.hwnd = reinterpret_cast<HWND>(m_renderWindow->winId());
@@ -68,5 +68,4 @@ void CGSH_VulkanQt::ReleaseImpl()
 
 void CGSH_VulkanQt::PresentBackbuffer()
 {
-
 }

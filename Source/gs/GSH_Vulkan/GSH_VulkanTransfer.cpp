@@ -17,9 +17,9 @@ using namespace GSH_Vulkan;
 #define LOCAL_SIZE_X 128
 
 CTransfer::CTransfer(const ContextPtr& context, const FrameCommandBufferPtr& frameCommandBuffer)
-	: m_context(context)
-	, m_frameCommandBuffer(frameCommandBuffer)
-	, m_pipelineCache(context->device)
+    : m_context(context)
+    , m_frameCommandBuffer(frameCommandBuffer)
+    , m_pipelineCache(context->device)
 {
 	CreateXferBuffer();
 	m_pipelineCaps <<= 0;
@@ -92,9 +92,9 @@ VkDescriptorSet CTransfer::PrepareDescriptorSet(VkDescriptorSetLayout descriptor
 	//Allocate descriptor set
 	{
 		auto setAllocateInfo = Framework::Vulkan::DescriptorSetAllocateInfo();
-		setAllocateInfo.descriptorPool     = m_context->descriptorPool;
+		setAllocateInfo.descriptorPool = m_context->descriptorPool;
 		setAllocateInfo.descriptorSetCount = 1;
-		setAllocateInfo.pSetLayouts        = &descriptorSetLayout;
+		setAllocateInfo.pSetLayouts = &descriptorSetLayout;
 
 		result = m_context->device.vkAllocateDescriptorSets(m_context->device, &setAllocateInfo, &descriptorSet);
 		CHECKVULKANERROR(result);
@@ -119,33 +119,33 @@ VkDescriptorSet CTransfer::PrepareDescriptorSet(VkDescriptorSetLayout descriptor
 		//Memory Image Descriptor
 		{
 			auto writeSet = Framework::Vulkan::WriteDescriptorSet();
-			writeSet.dstSet          = descriptorSet;
-			writeSet.dstBinding      = DESCRIPTOR_LOCATION_MEMORY;
+			writeSet.dstSet = descriptorSet;
+			writeSet.dstBinding = DESCRIPTOR_LOCATION_MEMORY;
 			writeSet.descriptorCount = 1;
-			writeSet.descriptorType  = VK_DESCRIPTOR_TYPE_STORAGE_IMAGE;
-			writeSet.pImageInfo      = &descriptorMemoryImageInfo;
+			writeSet.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_IMAGE;
+			writeSet.pImageInfo = &descriptorMemoryImageInfo;
 			writes.push_back(writeSet);
 		}
 
 		//Xfer Buffer Descriptor
 		{
 			auto writeSet = Framework::Vulkan::WriteDescriptorSet();
-			writeSet.dstSet          = descriptorSet;
-			writeSet.dstBinding      = DESCRIPTOR_LOCATION_XFERBUFFER;
+			writeSet.dstSet = descriptorSet;
+			writeSet.dstBinding = DESCRIPTOR_LOCATION_XFERBUFFER;
 			writeSet.descriptorCount = 1;
-			writeSet.descriptorType  = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
-			writeSet.pBufferInfo     = &descriptorBufferInfo;
+			writeSet.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+			writeSet.pBufferInfo = &descriptorBufferInfo;
 			writes.push_back(writeSet);
 		}
 
 		//Dst Swizzle Table
 		{
 			auto writeSet = Framework::Vulkan::WriteDescriptorSet();
-			writeSet.dstSet          = descriptorSet;
-			writeSet.dstBinding      = DESCRIPTOR_LOCATION_SWIZZLETABLE_DST;
+			writeSet.dstSet = descriptorSet;
+			writeSet.dstBinding = DESCRIPTOR_LOCATION_SWIZZLETABLE_DST;
 			writeSet.descriptorCount = 1;
-			writeSet.descriptorType  = VK_DESCRIPTOR_TYPE_STORAGE_IMAGE;
-			writeSet.pImageInfo      = &descriptorDstSwizzleTableInfo;
+			writeSet.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_IMAGE;
+			writeSet.pImageInfo = &descriptorDstSwizzleTableInfo;
 			writes.push_back(writeSet);
 		}
 
@@ -161,7 +161,7 @@ void CTransfer::CreateXferBuffer()
 
 	auto bufferCreateInfo = Framework::Vulkan::BufferCreateInfo();
 	bufferCreateInfo.usage = VK_BUFFER_USAGE_STORAGE_BUFFER_BIT;
-	bufferCreateInfo.size  = XFER_BUFFER_SIZE;
+	bufferCreateInfo.size = XFER_BUFFER_SIZE;
 	result = m_context->device.vkCreateBuffer(m_context->device, &bufferCreateInfo, nullptr, &m_xferBuffer);
 	CHECKVULKANERROR(result);
 
@@ -175,7 +175,7 @@ void CTransfer::CreateXferBuffer()
 
 	result = m_context->device.vkAllocateMemory(m_context->device, &memoryAllocateInfo, nullptr, &m_xferBufferMemory);
 	CHECKVULKANERROR(result);
-	
+
 	result = m_context->device.vkBindBufferMemory(m_context->device, m_xferBuffer, m_xferBufferMemory, 0);
 	CHECKVULKANERROR(result);
 }
@@ -183,9 +183,9 @@ void CTransfer::CreateXferBuffer()
 Framework::Vulkan::CShaderModule CTransfer::CreateXferShader(const PIPELINE_CAPS& caps)
 {
 	using namespace Nuanceur;
-	
+
 	auto b = CShaderBuilder();
-	
+
 	b.SetMetadata(CShaderBuilder::METADATA_LOCALSIZE_X, LOCAL_SIZE_X);
 
 	{
@@ -198,10 +198,10 @@ Framework::Vulkan::CShaderModule CTransfer::CreateXferShader(const PIPELINE_CAPS
 		auto xferParams1 = CInt4Lvalue(b.CreateUniformInt4("xferParams1", Nuanceur::UNIFORM_UNIT_PUSHCONSTANT));
 
 		auto bufAddress = xferParams0->x();
-		auto bufWidth   = xferParams0->y();
-		auto rrw        = xferParams0->z();
-		auto dsax       = xferParams0->w();
-		auto dsay       = xferParams1->x();
+		auto bufWidth = xferParams0->y();
+		auto rrw = xferParams0->z();
+		auto dsax = xferParams0->w();
+		auto dsay = xferParams1->x();
 
 		auto rrx = inputInvocationId->x() % rrw;
 		auto rry = inputInvocationId->x() / rrw;
@@ -214,27 +214,27 @@ Framework::Vulkan::CShaderModule CTransfer::CreateXferShader(const PIPELINE_CAPS
 		switch(caps.dstFormat)
 		{
 		case CGSHandler::PSMCT32:
-			{
-				auto input = XferStream_Read32(b, xferBuffer, pixelIndex);
-				auto address = CMemoryUtils::GetPixelAddress<CGsPixelFormats::STORAGEPSMCT32>(
-					b, dstSwizzleTable, bufAddress, bufWidth, NewInt2(trxX, trxY));
-				CMemoryUtils::Memory_Write32(b, memoryImage, address, input);
-			}
-			break;
+		{
+			auto input = XferStream_Read32(b, xferBuffer, pixelIndex);
+			auto address = CMemoryUtils::GetPixelAddress<CGsPixelFormats::STORAGEPSMCT32>(
+			    b, dstSwizzleTable, bufAddress, bufWidth, NewInt2(trxX, trxY));
+			CMemoryUtils::Memory_Write32(b, memoryImage, address, input);
+		}
+		break;
 		case CGSHandler::PSMT8:
-			{
-				auto input = XferStream_Read8(b, xferBuffer, pixelIndex);
-				auto address = CMemoryUtils::GetPixelAddress<CGsPixelFormats::STORAGEPSMT8>(
-					b, dstSwizzleTable, bufAddress, bufWidth, NewInt2(trxX, trxY));
-				CMemoryUtils::Memory_Write8(b, memoryImage, address, input);
-			}
-			break;
+		{
+			auto input = XferStream_Read8(b, xferBuffer, pixelIndex);
+			auto address = CMemoryUtils::GetPixelAddress<CGsPixelFormats::STORAGEPSMT8>(
+			    b, dstSwizzleTable, bufAddress, bufWidth, NewInt2(trxX, trxY));
+			CMemoryUtils::Memory_Write8(b, memoryImage, address, input);
+		}
+		break;
 		default:
 			assert(false);
 			break;
 		}
 	}
-	
+
 	Framework::CMemStream shaderStream;
 	Nuanceur::CSpirvShaderGenerator::Generate(shaderStream, b, Nuanceur::CSpirvShaderGenerator::SHADER_TYPE_COMPUTE);
 	shaderStream.Seek(0, Framework::STREAM_SEEK_SET);
@@ -267,36 +267,36 @@ PIPELINE CTransfer::CreateXferPipeline(const PIPELINE_CAPS& caps)
 		//GS memory
 		{
 			VkDescriptorSetLayoutBinding binding = {};
-			binding.binding         = DESCRIPTOR_LOCATION_MEMORY;
-			binding.descriptorType  = VK_DESCRIPTOR_TYPE_STORAGE_IMAGE;
+			binding.binding = DESCRIPTOR_LOCATION_MEMORY;
+			binding.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_IMAGE;
 			binding.descriptorCount = 1;
-			binding.stageFlags      = VK_SHADER_STAGE_COMPUTE_BIT;
+			binding.stageFlags = VK_SHADER_STAGE_COMPUTE_BIT;
 			bindings.push_back(binding);
 		}
 
 		//Xfer buffer
 		{
 			VkDescriptorSetLayoutBinding binding = {};
-			binding.binding         = DESCRIPTOR_LOCATION_XFERBUFFER;
-			binding.descriptorType  = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+			binding.binding = DESCRIPTOR_LOCATION_XFERBUFFER;
+			binding.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
 			binding.descriptorCount = 1;
-			binding.stageFlags      = VK_SHADER_STAGE_COMPUTE_BIT;
+			binding.stageFlags = VK_SHADER_STAGE_COMPUTE_BIT;
 			bindings.push_back(binding);
 		}
 
 		//Dst Swizzle Table
 		{
 			VkDescriptorSetLayoutBinding binding = {};
-			binding.binding         = DESCRIPTOR_LOCATION_SWIZZLETABLE_DST;
-			binding.descriptorType  = VK_DESCRIPTOR_TYPE_STORAGE_IMAGE;
+			binding.binding = DESCRIPTOR_LOCATION_SWIZZLETABLE_DST;
+			binding.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_IMAGE;
 			binding.descriptorCount = 1;
-			binding.stageFlags      = VK_SHADER_STAGE_COMPUTE_BIT;
+			binding.stageFlags = VK_SHADER_STAGE_COMPUTE_BIT;
 			bindings.push_back(binding);
 		}
 
 		auto createInfo = Framework::Vulkan::DescriptorSetLayoutCreateInfo();
 		createInfo.bindingCount = bindings.size();
-		createInfo.pBindings    = bindings.data();
+		createInfo.pBindings = bindings.data();
 		result = m_context->device.vkCreateDescriptorSetLayout(m_context->device, &createInfo, nullptr, &xferPipeline.descriptorSetLayout);
 		CHECKVULKANERROR(result);
 	}
@@ -304,14 +304,14 @@ PIPELINE CTransfer::CreateXferPipeline(const PIPELINE_CAPS& caps)
 	{
 		VkPushConstantRange pushConstantInfo = {};
 		pushConstantInfo.stageFlags = VK_SHADER_STAGE_COMPUTE_BIT;
-		pushConstantInfo.offset     = 0;
-		pushConstantInfo.size       = sizeof(XFERPARAMS);
+		pushConstantInfo.offset = 0;
+		pushConstantInfo.size = sizeof(XFERPARAMS);
 
 		auto pipelineLayoutCreateInfo = Framework::Vulkan::PipelineLayoutCreateInfo();
 		pipelineLayoutCreateInfo.pushConstantRangeCount = 1;
-		pipelineLayoutCreateInfo.pPushConstantRanges    = &pushConstantInfo;
-		pipelineLayoutCreateInfo.setLayoutCount         = 1;
-		pipelineLayoutCreateInfo.pSetLayouts            = &xferPipeline.descriptorSetLayout;
+		pipelineLayoutCreateInfo.pPushConstantRanges = &pushConstantInfo;
+		pipelineLayoutCreateInfo.setLayoutCount = 1;
+		pipelineLayoutCreateInfo.pSetLayouts = &xferPipeline.descriptorSetLayout;
 
 		result = m_context->device.vkCreatePipelineLayout(m_context->device, &pipelineLayoutCreateInfo, nullptr, &xferPipeline.pipelineLayout);
 		CHECKVULKANERROR(result);

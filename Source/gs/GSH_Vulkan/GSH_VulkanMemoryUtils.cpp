@@ -40,8 +40,8 @@ void CMemoryUtils::Memory_Write8(Nuanceur::CShaderBuilder& b, Nuanceur::CImageUi
 
 Nuanceur::CFloat4Rvalue CMemoryUtils::PSM32ToVec4(Nuanceur::CShaderBuilder& b, Nuanceur::CUintValue inputColor)
 {
-	auto colorR = (inputColor >> NewUint(b,  0)) & NewUint(b, 0xFF);
-	auto colorG = (inputColor >> NewUint(b,  8)) & NewUint(b, 0xFF);
+	auto colorR = (inputColor >> NewUint(b, 0)) & NewUint(b, 0xFF);
+	auto colorG = (inputColor >> NewUint(b, 8)) & NewUint(b, 0xFF);
 	auto colorB = (inputColor >> NewUint(b, 16)) & NewUint(b, 0xFF);
 	auto colorA = (inputColor >> NewUint(b, 24)) & NewUint(b, 0xFF);
 
@@ -55,8 +55,8 @@ Nuanceur::CFloat4Rvalue CMemoryUtils::PSM32ToVec4(Nuanceur::CShaderBuilder& b, N
 
 Nuanceur::CUintRvalue CMemoryUtils::Vec4ToPSM32(Nuanceur::CShaderBuilder& b, Nuanceur::CFloat4Value inputColor)
 {
-	auto colorR = ToUint(inputColor->x() * NewFloat(b, 255.f)) << NewUint(b,  0);
-	auto colorG = ToUint(inputColor->y() * NewFloat(b, 255.f)) << NewUint(b,  8);
+	auto colorR = ToUint(inputColor->x() * NewFloat(b, 255.f)) << NewUint(b, 0);
+	auto colorG = ToUint(inputColor->y() * NewFloat(b, 255.f)) << NewUint(b, 8);
 	auto colorB = ToUint(inputColor->z() * NewFloat(b, 255.f)) << NewUint(b, 16);
 	auto colorA = ToUint(inputColor->w() * NewFloat(b, 255.f)) << NewUint(b, 24);
 	return colorR | colorG | colorB | colorA;
