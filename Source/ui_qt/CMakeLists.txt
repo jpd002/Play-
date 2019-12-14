@@ -26,13 +26,15 @@ if(NOT TARGET gsh_opengl)
 endif()
 list(INSERT PROJECT_LIBS 0 gsh_opengl)
 
-if(NOT TARGET gsh_vulkan)
-	add_subdirectory(
-		${CMAKE_CURRENT_SOURCE_DIR}/../gs/GSH_Vulkan
-		${CMAKE_CURRENT_BINARY_DIR}/gs/GSH_Vulkan
-	)
+if(NOT TARGET_PLATFORM_UNIX_AARCH64)
+	if(NOT TARGET gsh_vulkan)
+		add_subdirectory(
+			${CMAKE_CURRENT_SOURCE_DIR}/../gs/GSH_Vulkan
+			${CMAKE_CURRENT_BINARY_DIR}/gs/GSH_Vulkan
+		)
+	endif()
+	list(INSERT PROJECT_LIBS 0 gsh_vulkan)
 endif()
-list(INSERT PROJECT_LIBS 0 gsh_vulkan)
 
 if(TARGET_PLATFORM_UNIX)
 	find_package(LIBEVDEV REQUIRED)
