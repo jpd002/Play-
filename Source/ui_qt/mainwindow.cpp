@@ -6,9 +6,7 @@
 #include "ui_shared/BootablesProcesses.h"
 #include "ui_shared/StatsManager.h"
 
-#define VULKAN
-
-#ifdef VULKAN
+#ifdef HAS_GSH_VULKAN
 #include "vulkanwindow.h"
 #include "GSH_VulkanQt.h"
 #else
@@ -71,7 +69,7 @@ MainWindow::MainWindow(QWidget* parent)
 
 	m_continuationChecker = new CContinuationChecker(this);
 
-#ifdef VULKAN
+#ifdef HAS_GSH_VULKAN
 	m_outputwindow = new VulkanWindow;
 #else
 	m_outputwindow = new OpenGLWindow;
@@ -217,7 +215,7 @@ void MainWindow::SetupGsHandler()
 	auto gsHandler = m_virtualMachine->GetGSHandler();
 	if(!gsHandler)
 	{
-#ifdef VULKAN
+#ifdef HAS_GSH_VULKAN
 		m_virtualMachine->CreateGSHandler(CGSH_VulkanQt::GetFactoryFunction(m_outputwindow));
 #else
 		m_virtualMachine->CreateGSHandler(CGSH_OpenGLQt::GetFactoryFunction(m_outputwindow));
