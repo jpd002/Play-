@@ -90,5 +90,8 @@ private:
 	Framework::Vulkan::CImage m_clutImage;
 
 	Framework::Vulkan::CImage m_swizzleTablePSMCT32;
+	Framework::Vulkan::CImage m_swizzleTablePSMCT16;
+	Framework::Vulkan::CImage m_swizzleTablePSMCT16S;
 	Framework::Vulkan::CImage m_swizzleTablePSMT8;
+	Framework::Vulkan::CImage m_swizzleTablePSMT4;
 };

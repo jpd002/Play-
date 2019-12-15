@@ -22,7 +22,10 @@ namespace GSH_Vulkan
 		VkImageView memoryImageView = VK_NULL_HANDLE;
 		VkImageView clutImageView = VK_NULL_HANDLE;
 		VkImageView swizzleTablePSMCT32View = VK_NULL_HANDLE;
+		VkImageView swizzleTablePSMCT16View = VK_NULL_HANDLE;
+		VkImageView swizzleTablePSMCT16SView = VK_NULL_HANDLE;
 		VkImageView swizzleTablePSMT8View = VK_NULL_HANDLE;
+		VkImageView swizzleTablePSMT4View = VK_NULL_HANDLE;
 
 		VkImageView GetSwizzleTable(uint32 psm) const
 		{
@@ -32,8 +35,14 @@ namespace GSH_Vulkan
 				assert(false);
 			case CGSHandler::PSMCT32:
 				return swizzleTablePSMCT32View;
+			case CGSHandler::PSMCT16:
+				return swizzleTablePSMCT16View;
+			case CGSHandler::PSMCT16S:
+				return swizzleTablePSMCT16SView;
 			case CGSHandler::PSMT8:
 				return swizzleTablePSMT8View;
+			case CGSHandler::PSMT4:
+				return swizzleTablePSMT4View;
 			}
 		}
 	};

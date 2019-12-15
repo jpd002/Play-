@@ -70,10 +70,16 @@ void CGSH_Vulkan::InitializeImpl()
 	CreateClutImage();
 
 	m_swizzleTablePSMCT32 = CreateSwizzleTable<CGsPixelFormats::STORAGEPSMCT32>(m_context->device, m_context->physicalDeviceMemoryProperties, m_context->queue, m_context->commandBufferPool);
+	m_swizzleTablePSMCT16 = CreateSwizzleTable<CGsPixelFormats::STORAGEPSMCT16>(m_context->device, m_context->physicalDeviceMemoryProperties, m_context->queue, m_context->commandBufferPool);
+	m_swizzleTablePSMCT16S = CreateSwizzleTable<CGsPixelFormats::STORAGEPSMCT16S>(m_context->device, m_context->physicalDeviceMemoryProperties, m_context->queue, m_context->commandBufferPool);
 	m_swizzleTablePSMT8 = CreateSwizzleTable<CGsPixelFormats::STORAGEPSMT8>(m_context->device, m_context->physicalDeviceMemoryProperties, m_context->queue, m_context->commandBufferPool);
+	m_swizzleTablePSMT4 = CreateSwizzleTable<CGsPixelFormats::STORAGEPSMT4>(m_context->device, m_context->physicalDeviceMemoryProperties, m_context->queue, m_context->commandBufferPool);
 
 	m_context->swizzleTablePSMCT32View = m_swizzleTablePSMCT32.CreateImageView();
+	m_context->swizzleTablePSMCT16View = m_swizzleTablePSMCT16.CreateImageView();
+	m_context->swizzleTablePSMCT16SView = m_swizzleTablePSMCT16S.CreateImageView();
 	m_context->swizzleTablePSMT8View = m_swizzleTablePSMT8.CreateImageView();
+	m_context->swizzleTablePSMT4View = m_swizzleTablePSMT4.CreateImageView();
 
 	m_frameCommandBuffer = std::make_shared<CFrameCommandBuffer>(m_context);
 	m_clutLoad = std::make_shared<CClutLoad>(m_context, m_frameCommandBuffer);
@@ -98,12 +104,18 @@ void CGSH_Vulkan::ReleaseImpl()
 	m_frameCommandBuffer.reset();
 
 	m_context->device.vkDestroyImageView(m_context->device, m_context->swizzleTablePSMCT32View, nullptr);
+	m_context->device.vkDestroyImageView(m_context->device, m_context->swizzleTablePSMCT16View, nullptr);
+	m_context->device.vkDestroyImageView(m_context->device, m_context->swizzleTablePSMCT16SView, nullptr);
 	m_context->device.vkDestroyImageView(m_context->device, m_context->swizzleTablePSMT8View, nullptr);
+	m_context->device.vkDestroyImageView(m_context->device, m_context->swizzleTablePSMT4View, nullptr);
 	m_context->device.vkDestroyImageView(m_context->device, m_context->clutImageView, nullptr);
 	m_context->device.vkDestroyImageView(m_context->device, m_context->memoryImageView, nullptr);
 
 	m_swizzleTablePSMCT32.Reset();
+	m_swizzleTablePSMCT16.Reset();
+	m_swizzleTablePSMCT16S.Reset();
 	m_swizzleTablePSMT8.Reset();
+	m_swizzleTablePSMT4.Reset();
 	m_clutImage.Reset();
 	m_memoryImage.Reset();
 
