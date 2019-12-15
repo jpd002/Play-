@@ -559,6 +559,64 @@ Framework::Vulkan::CShaderModule CDraw::CreateVertexShader()
 	return Framework::Vulkan::CShaderModule(m_context->device, shaderStream);
 }
 
+Nuanceur::CFloat4Rvalue GetTextureColor(Nuanceur::CShaderBuilder& b, uint32 textureFormat, uint32 clutFormat,
+	Nuanceur::CInt2Value texelPos, Nuanceur::CImageUint2DValue memoryImage, Nuanceur::CImageUint2DValue clutImage,
+	Nuanceur::CImageUint2DValue texSwizzleTable, Nuanceur::CIntValue texBufAddress, Nuanceur::CIntValue texBufWidth)
+{
+	using namespace Nuanceur;
+
+	switch(textureFormat)
+	{
+	default:
+		assert(false);
+	case CGSHandler::PSMCT32:
+	{
+		auto texAddress = CMemoryUtils::GetPixelAddress<CGsPixelFormats::STORAGEPSMCT32>(
+			b, texSwizzleTable, texBufAddress, texBufWidth, texelPos);
+		auto texPixel = CMemoryUtils::Memory_Read32(b, memoryImage, texAddress);
+		return CMemoryUtils::PSM32ToVec4(b, texPixel);
+	}
+	break;
+	case CGSHandler::PSMCT16S:
+	{
+		auto texAddress = CMemoryUtils::GetPixelAddress<CGsPixelFormats::STORAGEPSMCT16S>(
+			b, texSwizzleTable, texBufAddress, texBufWidth, texelPos);
+		auto texPixel = CMemoryUtils::Memory_Read16(b, memoryImage, texAddress);
+		return CMemoryUtils::PSM16ToVec4(b, texPixel);
+	}
+	break;
+	case CGSHandler::PSMT8:
+	{
+		assert(clutFormat == CGSHandler::PSMCT32);
+		auto texAddress = CMemoryUtils::GetPixelAddress<CGsPixelFormats::STORAGEPSMT8>(
+			b, texSwizzleTable, texBufAddress, texBufWidth, texelPos);
+		auto texPixel = CMemoryUtils::Memory_Read8(b, memoryImage, texAddress);
+		auto clutIndexLo = NewInt2(ToInt(texPixel), NewInt(b, 0));
+		auto clutIndexHi = NewInt2(ToInt(texPixel) + NewInt(b, 0x100), NewInt(b, 0));
+		auto clutPixelLo = Load(clutImage, clutIndexLo)->x();
+		auto clutPixelHi = Load(clutImage, clutIndexHi)->x();
+		auto clutPixel = clutPixelLo | (clutPixelHi << NewUint(b, 16));
+		return CMemoryUtils::PSM32ToVec4(b, clutPixel);
+	}
+	case CGSHandler::PSMT4:
+	{
+		assert(clutFormat == CGSHandler::PSMCT32);
+		auto texAddress = CMemoryUtils::GetPixelAddress_PSMT4(
+			b, texSwizzleTable, texBufAddress, texBufWidth, texelPos);
+		auto texPixel = CMemoryUtils::Memory_Read4(b, memoryImage, texAddress);
+//		auto clutIndexLo = NewInt2(ToInt(texPixel), NewInt(b, 0));
+//		auto clutIndexHi = NewInt2(ToInt(texPixel) + NewInt(b, 0x100), NewInt(b, 0));
+//		auto clutPixelLo = Load(clutImage, clutIndexLo)->x();
+//		auto clutPixelHi = Load(clutImage, clutIndexHi)->x();
+//		auto clutPixel = clutPixelLo | (clutPixelHi << NewUint(b, 16));
+//		return CMemoryUtils::PSM32ToVec4(b, clutPixel);
+		auto test = texPixel * NewUint(b, 0x10);
+		return CMemoryUtils::PSM32ToVec4(b, test | NewUint(b, 0xFF000000));
+	}
+	break;
+	}
+}
+
 Framework::Vulkan::CShaderModule CDraw::CreateFragmentShader(const PIPELINE_CAPS& caps)
 {
 	using namespace Nuanceur;
@@ -600,32 +658,8 @@ Framework::Vulkan::CShaderModule CDraw::CreateFragmentShader(const PIPELINE_CAPS
 		if(caps.hasTexture)
 		{
 			auto texelPos = ToInt(inputTexCoord->xy() * ToFloat(texSize));
-
-			switch(caps.textureFormat)
-			{
-			default:
-			case CGSHandler::PSMCT32:
-			{
-				auto texAddress = CMemoryUtils::GetPixelAddress<CGsPixelFormats::STORAGEPSMCT32>(
-				    b, texSwizzleTable, texBufAddress, texBufWidth, texelPos);
-				auto texPixel = CMemoryUtils::Memory_Read32(b, memoryImage, texAddress);
-				textureColor = CMemoryUtils::PSM32ToVec4(b, texPixel);
-			}
-			break;
-			case CGSHandler::PSMT8:
-			{
-				auto texAddress = CMemoryUtils::GetPixelAddress<CGsPixelFormats::STORAGEPSMT8>(
-				    b, texSwizzleTable, texBufAddress, texBufWidth, texelPos);
-				auto texPixel = CMemoryUtils::Memory_Read8(b, memoryImage, texAddress);
-				auto clutIndexLo = NewInt2(ToInt(texPixel), NewInt(b, 0));
-				auto clutIndexHi = NewInt2(ToInt(texPixel) + NewInt(b, 0x100), NewInt(b, 0));
-				auto clutPixelLo = Load(clutImage, clutIndexLo)->x();
-				auto clutPixelHi = Load(clutImage, clutIndexHi)->x();
-				auto clutPixel = clutPixelLo | (clutPixelHi << NewUint(b, 16));
-				textureColor = CMemoryUtils::PSM32ToVec4(b, clutPixel);
-			}
-			break;
-			}
+			textureColor = GetTextureColor(b, caps.textureFormat, caps.clutFormat, texelPos,
+				memoryImage, clutImage, texSwizzleTable, texBufAddress, texBufWidth);
 
 			//Modulate
 			//TODO: Proper multiply & clamping

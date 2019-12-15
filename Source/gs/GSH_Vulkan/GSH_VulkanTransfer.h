@@ -49,6 +49,7 @@ namespace GSH_Vulkan
 		PIPELINE CreateXferPipeline(const PIPELINE_CAPS&);
 
 		Nuanceur::CUintRvalue XferStream_Read32(Nuanceur::CShaderBuilder&, Nuanceur::CArrayUintValue, Nuanceur::CIntValue);
+		Nuanceur::CUintRvalue XferStream_Read16(Nuanceur::CShaderBuilder&, Nuanceur::CArrayUintValue, Nuanceur::CIntValue);
 		Nuanceur::CUintRvalue XferStream_Read8(Nuanceur::CShaderBuilder&, Nuanceur::CArrayUintValue, Nuanceur::CIntValue);
 
 		ContextPtr m_context;

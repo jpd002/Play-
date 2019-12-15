@@ -66,6 +66,9 @@ void CTransfer::DoHostToLocalTransfer(const XferBuffer& inputData)
 	case CGSHandler::PSMCT32:
 		pixelCount = inputData.size() / 4;
 		break;
+	case CGSHandler::PSMCT16:
+		pixelCount = inputData.size() / 2;
+		break;
 	case CGSHandler::PSMT8:
 		pixelCount = inputData.size();
 		break;
@@ -221,6 +224,13 @@ Framework::Vulkan::CShaderModule CTransfer::CreateXferShader(const PIPELINE_CAPS
 			CMemoryUtils::Memory_Write32(b, memoryImage, address, input);
 		}
 		break;
+		case CGSHandler::PSMCT16:
+		{
+			auto input = XferStream_Read16(b, xferBuffer, pixelIndex);
+			auto address = CMemoryUtils::GetPixelAddress<CGsPixelFormats::STORAGEPSMCT16>(
+			    b, dstSwizzleTable, bufAddress, bufWidth, NewInt2(trxX, trxY));
+			CMemoryUtils::Memory_Write16(b, memoryImage, address, input);
+		}
 		case CGSHandler::PSMT8:
 		{
 			auto input = XferStream_Read8(b, xferBuffer, pixelIndex);
@@ -244,6 +254,13 @@ Framework::Vulkan::CShaderModule CTransfer::CreateXferShader(const PIPELINE_CAPS
 Nuanceur::CUintRvalue CTransfer::XferStream_Read32(Nuanceur::CShaderBuilder& b, Nuanceur::CArrayUintValue xferBuffer, Nuanceur::CIntValue pixelIndex)
 {
 	return Load(xferBuffer, pixelIndex);
+}
+
+Nuanceur::CUintRvalue CTransfer::XferStream_Read16(Nuanceur::CShaderBuilder& b, Nuanceur::CArrayUintValue xferBuffer, Nuanceur::CIntValue pixelIndex)
+{
+	auto srcOffset = pixelIndex / NewInt(b, 4);
+	auto srcShift = (ToUint(pixelIndex) & NewUint(b, 2)) * NewUint(b, 16);
+	return (Load(xferBuffer, srcOffset) >> srcShift) & NewUint(b, 0xFFFF);
 }
 
 Nuanceur::CUintRvalue CTransfer::XferStream_Read8(Nuanceur::CShaderBuilder& b, Nuanceur::CArrayUintValue xferBuffer, Nuanceur::CIntValue pixelIndex)

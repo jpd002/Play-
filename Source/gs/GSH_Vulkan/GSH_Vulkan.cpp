@@ -573,6 +573,7 @@ void CGSH_Vulkan::SetRenderingContext(uint64 primReg)
 	pipelineCaps.hasTexture = prim.nTexture;
 	pipelineCaps.hasAlphaBlending = prim.nAlpha;
 	pipelineCaps.textureFormat = tex0.nPsm;
+	pipelineCaps.clutFormat = tex0.nCPSM;
 	pipelineCaps.framebufferFormat = frame.nPsm;
 
 	if(prim.nAlpha)

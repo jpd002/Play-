@@ -27,11 +27,11 @@ namespace GSH_Vulkan
 			uint32 alphaD : 2;
 
 			uint32 textureFormat : 6;
+			uint32 clutFormat : 6;
 			uint32 framebufferFormat : 6;
 			uint32 depthbufferFormat : 6;
-
-			uint32 reserved;
 		};
+		static_assert(sizeof(PIPELINE_CAPS) <= sizeof(PipelineCapsInt), "PIPELINE_CAPS too big for PipelineCapsInt");
 
 		struct PRIM_VERTEX
 		{
