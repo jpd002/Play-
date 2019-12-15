@@ -62,7 +62,7 @@ void CTransfer::DoHostToLocalTransfer(const XferBuffer& inputData)
 	switch(m_pipelineCaps.dstFormat)
 	{
 	default:
-		//assert(false);
+		assert(false);
 	case CGSHandler::PSMCT32:
 		pixelCount = inputData.size() / 4;
 		break;
