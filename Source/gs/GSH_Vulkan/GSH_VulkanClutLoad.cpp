@@ -123,8 +123,6 @@ Framework::Vulkan::CShaderModule CClutLoad::CreateLoadShader(const PIPELINE_CAPS
 
 	auto b = CShaderBuilder();
 
-	assert(caps.idx8);
-
 	if(caps.idx8)
 	{
 		b.SetMetadata(CShaderBuilder::METADATA_LOCALSIZE_X, 16);
@@ -171,7 +169,8 @@ Framework::Vulkan::CShaderModule CClutLoad::CreateLoadShader(const PIPELINE_CAPS
 		}
 		else
 		{
-			assert(false);
+			clutIndex = colorPos->x() + (colorPos->y() * NewInt(b, 8));
+			clutIndex = clutIndex + (csa * NewInt(b, 16));
 		}
 
 		switch(caps.cpsm)
