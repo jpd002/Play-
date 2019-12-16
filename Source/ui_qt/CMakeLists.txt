@@ -35,6 +35,10 @@ if(NOT TARGET_PLATFORM_UNIX_AARCH64)
 	endif()
 	list(INSERT PROJECT_LIBS 0 gsh_vulkan)
 	list(APPEND DEFINITIONS_LIST HAS_GSH_VULKAN=1)
+	set(GSH_VULKAN_QT_SRC
+		GSH_VulkanQt.cpp
+		GSH_VulkanQt.h
+	)
 endif()
 
 if(TARGET_PLATFORM_UNIX)
@@ -83,8 +87,7 @@ set(QT_SOURCES
 	ElidedLabel.h
 	GSH_OpenGLQt.cpp
 	GSH_OpenGLQt.h
-	GSH_VulkanQt.cpp
-	GSH_VulkanQt.h
+	${GSH_VULKAN_QT_SRC}
 	InputProviderQtKey.cpp
 	InputProviderQtKey.h
 	S3FileBrowser.cpp
