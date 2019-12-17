@@ -559,7 +559,7 @@ Framework::Vulkan::CShaderModule CDraw::CreateVertexShader()
 	return Framework::Vulkan::CShaderModule(m_context->device, shaderStream);
 }
 
-Nuanceur::CFloat4Rvalue GetTextureColor(Nuanceur::CShaderBuilder& b, uint32 textureFormat, uint32 clutFormat,
+static Nuanceur::CFloat4Rvalue GetTextureColor(Nuanceur::CShaderBuilder& b, uint32 textureFormat, uint32 clutFormat,
 	Nuanceur::CInt2Value texelPos, Nuanceur::CImageUint2DValue memoryImage, Nuanceur::CImageUint2DValue clutImage,
 	Nuanceur::CImageUint2DValue texSwizzleTable, Nuanceur::CIntValue texBufAddress, Nuanceur::CIntValue texBufWidth)
 {
@@ -614,6 +614,37 @@ Nuanceur::CFloat4Rvalue GetTextureColor(Nuanceur::CShaderBuilder& b, uint32 text
 		return CMemoryUtils::PSM32ToVec4(b, test | NewUint(b, 0xFF000000));
 	}
 	break;
+	}
+}
+
+static Nuanceur::CFloat3Rvalue GetAlphaABD(Nuanceur::CShaderBuilder& b, uint32 alphaABD,
+	Nuanceur::CFloat4Value srcColor, Nuanceur::CFloat4Value dstColor)
+{
+	switch(alphaABD)
+	{
+	default:
+		assert(false);
+	case CGSHandler::ALPHABLEND_ABD_CS:
+		return srcColor->xyz();
+	case CGSHandler::ALPHABLEND_ABD_CD:
+		return dstColor->xyz();
+	case CGSHandler::ALPHABLEND_ABD_ZERO:
+		return NewFloat3(b, 0, 0, 0);
+	}
+}
+
+
+static Nuanceur::CFloat3Rvalue GetAlphaC(Nuanceur::CShaderBuilder& b, uint32 alphaC,
+	Nuanceur::CFloat4Value srcColor, Nuanceur::CFloat4Value dstColor)
+{
+	switch(alphaC)
+	{
+	default:
+		assert(false);
+	case CGSHandler::ALPHABLEND_C_AS:
+		return srcColor->www();
+	case CGSHandler::ALPHABLEND_C_AD:
+		return dstColor->www();
 	}
 }
 
@@ -718,14 +749,14 @@ Framework::Vulkan::CShaderModule CDraw::CreateFragmentShader(const PIPELINE_CAPS
 		if(caps.hasAlphaBlending)
 		{
 			//Blend
-			assert(caps.alphaA == 0);
-			assert(caps.alphaB == 1);
-			assert(caps.alphaC == 0);
-			assert(caps.alphaD == 1);
+			auto alphaA = GetAlphaABD(b, caps.alphaA, textureColor, dstColor);
+			auto alphaB = GetAlphaABD(b, caps.alphaB, textureColor, dstColor);
+			auto alphaC = GetAlphaC(b, caps.alphaC, textureColor, dstColor);
+			auto alphaD = GetAlphaABD(b, caps.alphaD, textureColor, dstColor);
 
-			auto blendedColor = ((textureColor->xyz() - dstColor->xyz()) * textureColor->www() * NewFloat3(b, 2, 2, 2)) + dstColor->xyz();
+			auto blendedColor = ((alphaA - alphaB) * alphaC * NewFloat3(b, 2, 2, 2)) + alphaD;
 			auto finalColor = NewFloat4(blendedColor, textureColor->w());
-			auto dstColor = Clamp(finalColor, NewFloat4(b, 0, 0, 0, 0), NewFloat4(b, 1, 1, 1, 1));
+			dstColor = Clamp(finalColor, NewFloat4(b, 0, 0, 0, 0), NewFloat4(b, 1, 1, 1, 1));
 		}
 		else
 		{
