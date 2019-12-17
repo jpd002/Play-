@@ -2,6 +2,7 @@
 
 #include <memory>
 #include "GSH_VulkanContext.h"
+#include "GSH_VulkanPipelineCache.h"
 #include "vulkan/ShaderModule.h"
 #include "vulkan/Buffer.h"
 
@@ -13,9 +14,11 @@ namespace GSH_Vulkan
 		CPresent(const ContextPtr&);
 		virtual ~CPresent();
 
-		void DoPresent(uint32, uint32, uint32, uint32);
+		void DoPresent(uint32, uint32, uint32, uint32, uint32);
 
 	private:
+		typedef CPipelineCache<uint32> PipelineCache;
+
 		struct PRESENT_VERTEX
 		{
 			float x, y;
@@ -30,7 +33,8 @@ namespace GSH_Vulkan
 			uint32 dispHeight;
 		};
 
-		void UpdateBackbuffer(uint32, uint32, uint32, uint32, uint32);
+		void UpdateBackbuffer(uint32, uint32, uint32, uint32, uint32, uint32);
+		VkDescriptorSet PrepareDescriptorSet(VkDescriptorSetLayout, uint32);
 
 		void CreateSwapChain();
 		void CreateSwapChainImageViews();
@@ -38,10 +42,11 @@ namespace GSH_Vulkan
 		void DestroySwapChain();
 
 		void CreateRenderPass();
-		void CreateDrawPipeline();
-		void CreateVertexShader();
-		void CreateFragmentShader();
 		void CreateVertexBuffer();
+
+		PIPELINE CreateDrawPipeline(uint32);
+		Framework::Vulkan::CShaderModule CreateVertexShader();
+		Framework::Vulkan::CShaderModule CreateFragmentShader(uint32);
 
 		static const PRESENT_VERTEX g_vertexBufferContents[3];
 
@@ -55,12 +60,8 @@ namespace GSH_Vulkan
 		VkSemaphore m_imageAcquireSemaphore = VK_NULL_HANDLE;
 		VkSemaphore m_renderCompleteSemaphore = VK_NULL_HANDLE;
 		VkRenderPass m_renderPass = VK_NULL_HANDLE;
-		VkDescriptorSetLayout m_drawDescriptorSetLayout = VK_NULL_HANDLE;
-		VkPipelineLayout m_drawPipelineLayout = VK_NULL_HANDLE;
-		VkPipeline m_drawPipeline = VK_NULL_HANDLE;
 		Framework::Vulkan::CBuffer m_vertexBuffer;
-		Framework::Vulkan::CShaderModule m_vertexShader;
-		Framework::Vulkan::CShaderModule m_fragmentShader;
+		PipelineCache m_pipelineCache;
 	};
 
 	typedef std::shared_ptr<CPresent> PresentPtr;

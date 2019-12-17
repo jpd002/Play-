@@ -24,6 +24,7 @@ const CPresent::PRESENT_VERTEX CPresent::g_vertexBufferContents[3] =
 
 CPresent::CPresent(const ContextPtr& context)
     : m_context(context)
+	, m_pipelineCache(context->device)
 {
 	//Create the semaphore that will be used to prevent submit from rendering before getting the image
 	{
@@ -39,10 +40,7 @@ CPresent::CPresent(const ContextPtr& context)
 	}
 
 	CreateRenderPass();
-	CreateVertexShader();
-	CreateFragmentShader();
 	CreateVertexBuffer();
-	CreateDrawPipeline();
 
 	CreateSwapChain();
 }
@@ -50,15 +48,12 @@ CPresent::CPresent(const ContextPtr& context)
 CPresent::~CPresent()
 {
 	DestroySwapChain();
-	m_context->device.vkDestroyPipeline(m_context->device, m_drawPipeline, nullptr);
-	m_context->device.vkDestroyPipelineLayout(m_context->device, m_drawPipelineLayout, nullptr);
-	m_context->device.vkDestroyDescriptorSetLayout(m_context->device, m_drawDescriptorSetLayout, nullptr);
 	m_context->device.vkDestroyRenderPass(m_context->device, m_renderPass, nullptr);
 	m_context->device.vkDestroySemaphore(m_context->device, m_imageAcquireSemaphore, nullptr);
 	m_context->device.vkDestroySemaphore(m_context->device, m_renderCompleteSemaphore, nullptr);
 }
 
-void CPresent::DoPresent(uint32 bufAddress, uint32 bufWidth, uint32 dispWidth, uint32 dispHeight)
+void CPresent::DoPresent(uint32 bufPsm, uint32 bufAddress, uint32 bufWidth, uint32 dispWidth, uint32 dispHeight)
 {
 	auto result = VK_SUCCESS;
 
@@ -72,7 +67,7 @@ void CPresent::DoPresent(uint32 bufAddress, uint32 bufWidth, uint32 dispWidth, u
 	}
 	CHECKVULKANERROR(result);
 
-	UpdateBackbuffer(imageIndex, bufAddress, bufWidth, dispWidth, dispHeight);
+	UpdateBackbuffer(imageIndex, bufPsm, bufAddress, bufWidth, dispWidth, dispHeight);
 
 	//Queue present
 	{
@@ -90,12 +85,19 @@ void CPresent::DoPresent(uint32 bufAddress, uint32 bufWidth, uint32 dispWidth, u
 	CHECKVULKANERROR(result);
 }
 
-void CPresent::UpdateBackbuffer(uint32 imageIndex, uint32 bufAddress, uint32 bufWidth, uint32 dispWidth, uint32 dispHeight)
+void CPresent::UpdateBackbuffer(uint32 imageIndex, uint32 bufPsm, uint32 bufAddress, uint32 bufWidth, uint32 dispWidth, uint32 dispHeight)
 {
 	auto result = VK_SUCCESS;
 
 	auto swapChainImage = m_swapChainImages[imageIndex];
 	auto framebuffer = m_swapChainFramebuffers[imageIndex];
+
+	//Find pipeline and create it if we've never encountered it before
+	auto drawPipeline = m_pipelineCache.TryGetPipeline(bufPsm);
+	if(!drawPipeline)
+	{
+		drawPipeline = m_pipelineCache.RegisterPipeline(bufPsm, CreateDrawPipeline(bufPsm));
+	}
 
 	auto commandBuffer = m_context->commandBufferPool.AllocateBuffer();
 
@@ -151,60 +153,14 @@ void CPresent::UpdateBackbuffer(uint32 imageIndex, uint32 bufAddress, uint32 buf
 		m_context->device.vkCmdSetScissor(commandBuffer, 0, 1, &scissor);
 	}
 
-	VkDescriptorSet descriptorSet = VK_NULL_HANDLE;
+	auto descriptorSet = PrepareDescriptorSet(drawPipeline->descriptorSetLayout, bufPsm);
 
-	//Allocate descriptor set
-	{
-		auto setAllocateInfo = Framework::Vulkan::DescriptorSetAllocateInfo();
-		setAllocateInfo.descriptorPool = m_context->descriptorPool;
-		setAllocateInfo.descriptorSetCount = 1;
-		setAllocateInfo.pSetLayouts = &m_drawDescriptorSetLayout;
-
-		result = m_context->device.vkAllocateDescriptorSets(m_context->device, &setAllocateInfo, &descriptorSet);
-		CHECKVULKANERROR(result);
-	}
-
-	//Update descriptor set
-	{
-		VkDescriptorImageInfo descriptorMemoryImageInfo = {};
-		descriptorMemoryImageInfo.imageView = m_context->memoryImageView;
-		descriptorMemoryImageInfo.imageLayout = VK_IMAGE_LAYOUT_GENERAL;
-
-		VkDescriptorImageInfo descriptorSwizzleTableImageInfo = {};
-		descriptorSwizzleTableImageInfo.imageView = m_context->GetSwizzleTable(CGSHandler::PSMCT32);
-		descriptorSwizzleTableImageInfo.imageLayout = VK_IMAGE_LAYOUT_GENERAL;
-
-		std::vector<VkWriteDescriptorSet> writes;
-
-		{
-			auto writeSet = Framework::Vulkan::WriteDescriptorSet();
-			writeSet.dstSet = descriptorSet;
-			writeSet.dstBinding = DESCRIPTOR_LOCATION_IMAGE_MEMORY;
-			writeSet.descriptorCount = 1;
-			writeSet.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_IMAGE;
-			writeSet.pImageInfo = &descriptorMemoryImageInfo;
-			writes.push_back(writeSet);
-		}
-
-		{
-			auto writeSet = Framework::Vulkan::WriteDescriptorSet();
-			writeSet.dstSet = descriptorSet;
-			writeSet.dstBinding = DESCRIPTOR_LOCATION_IMAGE_SWIZZLETABLE;
-			writeSet.descriptorCount = 1;
-			writeSet.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_IMAGE;
-			writeSet.pImageInfo = &descriptorSwizzleTableImageInfo;
-			writes.push_back(writeSet);
-		}
-
-		m_context->device.vkUpdateDescriptorSets(m_context->device, writes.size(), writes.data(), 0, nullptr);
-	}
-
-	m_context->device.vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_drawPipelineLayout,
+	m_context->device.vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, drawPipeline->pipelineLayout,
 	                                          0, 1, &descriptorSet, 0, nullptr);
 
-	m_context->device.vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_drawPipeline);
+	m_context->device.vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, drawPipeline->pipeline);
 
-	m_context->device.vkCmdPushConstants(commandBuffer, m_drawPipelineLayout, VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(PRESENT_PARAMS), &presentParams);
+	m_context->device.vkCmdPushConstants(commandBuffer, drawPipeline->pipelineLayout, VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(PRESENT_PARAMS), &presentParams);
 
 	VkDeviceSize vertexBufferOffset = 0;
 	VkBuffer vertexBuffer = m_vertexBuffer;
@@ -246,6 +202,60 @@ void CPresent::UpdateBackbuffer(uint32 imageIndex, uint32 bufAddress, uint32 buf
 		result = m_context->device.vkQueueSubmit(m_context->queue, 1, &submitInfo, VK_NULL_HANDLE);
 		CHECKVULKANERROR(result);
 	}
+}
+
+VkDescriptorSet CPresent::PrepareDescriptorSet(VkDescriptorSetLayout descriptorSetLayout, uint32 bufPsm)
+{
+	auto result = VK_SUCCESS;
+	VkDescriptorSet descriptorSet = VK_NULL_HANDLE;
+
+	//Allocate descriptor set
+	{
+		auto setAllocateInfo = Framework::Vulkan::DescriptorSetAllocateInfo();
+		setAllocateInfo.descriptorPool = m_context->descriptorPool;
+		setAllocateInfo.descriptorSetCount = 1;
+		setAllocateInfo.pSetLayouts = &descriptorSetLayout;
+
+		result = m_context->device.vkAllocateDescriptorSets(m_context->device, &setAllocateInfo, &descriptorSet);
+		CHECKVULKANERROR(result);
+	}
+
+	//Update descriptor set
+	{
+		VkDescriptorImageInfo descriptorMemoryImageInfo = {};
+		descriptorMemoryImageInfo.imageView = m_context->memoryImageView;
+		descriptorMemoryImageInfo.imageLayout = VK_IMAGE_LAYOUT_GENERAL;
+
+		VkDescriptorImageInfo descriptorSwizzleTableImageInfo = {};
+		descriptorSwizzleTableImageInfo.imageView = m_context->GetSwizzleTable(bufPsm);
+		descriptorSwizzleTableImageInfo.imageLayout = VK_IMAGE_LAYOUT_GENERAL;
+
+		std::vector<VkWriteDescriptorSet> writes;
+
+		{
+			auto writeSet = Framework::Vulkan::WriteDescriptorSet();
+			writeSet.dstSet = descriptorSet;
+			writeSet.dstBinding = DESCRIPTOR_LOCATION_IMAGE_MEMORY;
+			writeSet.descriptorCount = 1;
+			writeSet.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_IMAGE;
+			writeSet.pImageInfo = &descriptorMemoryImageInfo;
+			writes.push_back(writeSet);
+		}
+
+		{
+			auto writeSet = Framework::Vulkan::WriteDescriptorSet();
+			writeSet.dstSet = descriptorSet;
+			writeSet.dstBinding = DESCRIPTOR_LOCATION_IMAGE_SWIZZLETABLE;
+			writeSet.descriptorCount = 1;
+			writeSet.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_IMAGE;
+			writeSet.pImageInfo = &descriptorSwizzleTableImageInfo;
+			writes.push_back(writeSet);
+		}
+
+		m_context->device.vkUpdateDescriptorSets(m_context->device, writes.size(), writes.data(), 0, nullptr);
+	}
+
+	return descriptorSet;
 }
 
 void CPresent::CreateSwapChain()
@@ -391,13 +401,12 @@ void CPresent::CreateRenderPass()
 	CHECKVULKANERROR(result);
 }
 
-void CPresent::CreateDrawPipeline()
+PIPELINE CPresent::CreateDrawPipeline(uint32 bufPsm)
 {
-	assert(!m_vertexShader.IsEmpty());
-	assert(!m_fragmentShader.IsEmpty());
-	assert(m_drawPipeline == VK_NULL_HANDLE);
-	assert(m_drawPipelineLayout == VK_NULL_HANDLE);
-	assert(m_drawDescriptorSetLayout == VK_NULL_HANDLE);
+	PIPELINE drawPipeline;
+
+	auto vertexShader = CreateVertexShader();
+	auto fragmentShader = CreateFragmentShader(bufPsm);
 
 	auto result = VK_SUCCESS;
 
@@ -426,7 +435,7 @@ void CPresent::CreateDrawPipeline()
 		setLayoutCreateInfo.bindingCount = setLayoutBindings.size();
 		setLayoutCreateInfo.pBindings = setLayoutBindings.data();
 
-		result = m_context->device.vkCreateDescriptorSetLayout(m_context->device, &setLayoutCreateInfo, nullptr, &m_drawDescriptorSetLayout);
+		result = m_context->device.vkCreateDescriptorSetLayout(m_context->device, &setLayoutCreateInfo, nullptr, &drawPipeline.descriptorSetLayout);
 		CHECKVULKANERROR(result);
 	}
 
@@ -440,9 +449,9 @@ void CPresent::CreateDrawPipeline()
 		pipelineLayoutCreateInfo.pushConstantRangeCount = 1;
 		pipelineLayoutCreateInfo.pPushConstantRanges = &pushConstantInfo;
 		pipelineLayoutCreateInfo.setLayoutCount = 1;
-		pipelineLayoutCreateInfo.pSetLayouts = &m_drawDescriptorSetLayout;
+		pipelineLayoutCreateInfo.pSetLayouts = &drawPipeline.descriptorSetLayout;
 
-		result = m_context->device.vkCreatePipelineLayout(m_context->device, &pipelineLayoutCreateInfo, nullptr, &m_drawPipelineLayout);
+		result = m_context->device.vkCreatePipelineLayout(m_context->device, &pipelineLayoutCreateInfo, nullptr, &drawPipeline.pipelineLayout);
 		CHECKVULKANERROR(result);
 	}
 
@@ -515,10 +524,10 @@ void CPresent::CreateDrawPipeline()
 	    };
 
 	shaderStages[0].stage = VK_SHADER_STAGE_VERTEX_BIT;
-	shaderStages[0].module = m_vertexShader;
+	shaderStages[0].module = vertexShader;
 	shaderStages[0].pName = "main";
 	shaderStages[1].stage = VK_SHADER_STAGE_FRAGMENT_BIT;
-	shaderStages[1].module = m_fragmentShader;
+	shaderStages[1].module = fragmentShader;
 	shaderStages[1].pName = "main";
 
 	auto pipelineCreateInfo = Framework::Vulkan::GraphicsPipelineCreateInfo();
@@ -533,13 +542,15 @@ void CPresent::CreateDrawPipeline()
 	pipelineCreateInfo.pMultisampleState = &multisampleStateInfo;
 	pipelineCreateInfo.pDynamicState = &dynamicStateInfo;
 	pipelineCreateInfo.renderPass = m_renderPass;
-	pipelineCreateInfo.layout = m_drawPipelineLayout;
+	pipelineCreateInfo.layout = drawPipeline.pipelineLayout;
 
-	result = m_context->device.vkCreateGraphicsPipelines(m_context->device, VK_NULL_HANDLE, 1, &pipelineCreateInfo, nullptr, &m_drawPipeline);
+	result = m_context->device.vkCreateGraphicsPipelines(m_context->device, VK_NULL_HANDLE, 1, &pipelineCreateInfo, nullptr, &drawPipeline.pipeline);
 	CHECKVULKANERROR(result);
+
+	return drawPipeline;
 }
 
-void CPresent::CreateVertexShader()
+Framework::Vulkan::CShaderModule CPresent::CreateVertexShader()
 {
 	using namespace Nuanceur;
 
@@ -559,10 +570,10 @@ void CPresent::CreateVertexShader()
 	Framework::CMemStream shaderStream;
 	Nuanceur::CSpirvShaderGenerator::Generate(shaderStream, b, Nuanceur::CSpirvShaderGenerator::SHADER_TYPE_VERTEX);
 	shaderStream.Seek(0, Framework::STREAM_SEEK_SET);
-	m_vertexShader = Framework::Vulkan::CShaderModule(m_context->device, shaderStream);
+	return Framework::Vulkan::CShaderModule(m_context->device, shaderStream);
 }
 
-void CPresent::CreateFragmentShader()
+Framework::Vulkan::CShaderModule CPresent::CreateFragmentShader(uint32 bufPsm)
 {
 	using namespace Nuanceur;
 
@@ -582,16 +593,34 @@ void CPresent::CreateFragmentShader()
 		auto dispSize = presentParams->zw();
 
 		auto screenPos = ToInt(inputTexCoord->xy() * ToFloat(dispSize));
-		auto address = CMemoryUtils::GetPixelAddress<CGsPixelFormats::STORAGEPSMCT32>(
-		    b, swizzleTable, bufAddress, bufWidth, screenPos);
-		auto imageColor = CMemoryUtils::Memory_Read32(b, memoryImage, address);
-		outputColor = CMemoryUtils::PSM32ToVec4(b, imageColor);
+
+		switch(bufPsm)
+		{
+		default:
+			assert(false);
+		case CGSHandler::PSMCT32:
+		{
+			auto address = CMemoryUtils::GetPixelAddress<CGsPixelFormats::STORAGEPSMCT32>(
+				b, swizzleTable, bufAddress, bufWidth, screenPos);
+			auto imageColor = CMemoryUtils::Memory_Read32(b, memoryImage, address);
+			outputColor = CMemoryUtils::PSM32ToVec4(b, imageColor);
+		}
+		break;
+		case CGSHandler::PSMCT16S:
+		{
+			auto address = CMemoryUtils::GetPixelAddress<CGsPixelFormats::STORAGEPSMCT16>(
+				b, swizzleTable, bufAddress, bufWidth, screenPos);
+			auto imageColor = CMemoryUtils::Memory_Read16(b, memoryImage, address);
+			outputColor = CMemoryUtils::PSM16ToVec4(b, imageColor);
+		}
+		break;
+		}
 	}
 
 	Framework::CMemStream shaderStream;
 	Nuanceur::CSpirvShaderGenerator::Generate(shaderStream, b, Nuanceur::CSpirvShaderGenerator::SHADER_TYPE_FRAGMENT);
 	shaderStream.Seek(0, Framework::STREAM_SEEK_SET);
-	m_fragmentShader = Framework::Vulkan::CShaderModule(m_context->device, shaderStream);
+	return Framework::Vulkan::CShaderModule(m_context->device, shaderStream);
 }
 
 void CPresent::CreateVertexBuffer()

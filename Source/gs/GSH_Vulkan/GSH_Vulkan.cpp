@@ -159,9 +159,7 @@ void CGSH_Vulkan::FlipImpl()
 	bool halfHeight = GetCrtIsInterlaced() && GetCrtIsFrameMode();
 	if(halfHeight) dispHeight /= 2;
 
-	assert(fb.nPSM == CGSHandler::PSMCT32);
-
-	m_present->DoPresent(fb.GetBufPtr(), fb.GetBufWidth(), dispWidth, dispHeight);
+	m_present->DoPresent(fb.nPSM, fb.GetBufPtr(), fb.GetBufWidth(), dispWidth, dispHeight);
 
 	auto result = m_context->device.vkResetDescriptorPool(m_context->device, m_context->descriptorPool, 0);
 	CHECKVULKANERROR(result);
