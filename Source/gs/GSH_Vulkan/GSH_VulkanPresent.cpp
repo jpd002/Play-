@@ -599,6 +599,7 @@ Framework::Vulkan::CShaderModule CPresent::CreateFragmentShader(uint32 bufPsm)
 		default:
 			assert(false);
 		case CGSHandler::PSMCT32:
+		case CGSHandler::PSMCT24:
 		{
 			auto address = CMemoryUtils::GetPixelAddress<CGsPixelFormats::STORAGEPSMCT32>(
 				b, swizzleTable, bufAddress, bufWidth, screenPos);
