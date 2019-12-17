@@ -38,6 +38,11 @@ if(NOT TARGET_PLATFORM_UNIX_AARCH64)
 	set(GSH_VULKAN_QT_SRC
 		GSH_VulkanQt.cpp
 		GSH_VulkanQt.h
+		vulkanwindow.cpp
+		vulkanwindow.h
+	)
+	set(GSH_VULKAN_QT_MOC
+		vulkanwindow.h
 	)
 endif()
 
@@ -87,7 +92,6 @@ set(QT_SOURCES
 	ElidedLabel.h
 	GSH_OpenGLQt.cpp
 	GSH_OpenGLQt.h
-	${GSH_VULKAN_QT_SRC}
 	InputProviderQtKey.cpp
 	InputProviderQtKey.h
 	S3FileBrowser.cpp
@@ -111,8 +115,7 @@ set(QT_SOURCES
 	vfsdiscselectordialog.h
 	VfsDevice.cpp
 	VfsDevice.h
-	vulkanwindow.cpp
-	vulkanwindow.h
+	${GSH_VULKAN_QT_SRC}
 )
 if(LIBEVDEV_FOUND)
 	set(QT_SOURCES
@@ -186,7 +189,7 @@ set(QT_MOC_HEADERS
 	vfsmanagerdialog.h
 	vfsmodel.h
 	vfsdiscselectordialog.h
-	vulkanwindow.h
+	${GSH_VULKAN_QT_MOC}
 )
 
 set(QT_UIS
