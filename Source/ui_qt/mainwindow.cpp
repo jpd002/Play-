@@ -6,12 +6,12 @@
 #include "ui_shared/BootablesProcesses.h"
 #include "ui_shared/StatsManager.h"
 
+#include "openglwindow.h"
+#include "GSH_OpenGLQt.h"
+
 #ifdef HAS_GSH_VULKAN
 #include "vulkanwindow.h"
 #include "GSH_VulkanQt.h"
-#else
-#include "openglwindow.h"
-#include "GSH_OpenGLQt.h"
 #endif
 
 #include <QDateTime>
@@ -67,13 +67,21 @@ MainWindow::MainWindow(QWidget* parent)
 {
 	ui->setupUi(this);
 
+	RegisterPreferences();
+
 	m_continuationChecker = new CContinuationChecker(this);
 
 #ifdef HAS_GSH_VULKAN
-	m_outputwindow = new VulkanWindow;
-#else
-	m_outputwindow = new OpenGLWindow;
+	if(CAppConfig::GetInstance().GetPreferenceBoolean(PREF_VIDEO_USEVULKAN))
+	{
+		m_outputwindow = new VulkanWindow;
+	}
+	else
 #endif
+	{
+		m_outputwindow = new OpenGLWindow;
+	}
+
 	QWidget* container = QWidget::createWindowContainer(m_outputwindow);
 	ui->gridLayout->addWidget(container, 0, 0);
 
@@ -97,8 +105,6 @@ MainWindow::MainWindow(QWidget* parent)
 		ui->gridLayout->addWidget(m_profileStatsLabel, 0, 1);
 	}
 #endif
-
-	RegisterPreferences();
 
 	m_pauseFocusLost = CAppConfig::GetInstance().GetPreferenceBoolean(PREF_UI_PAUSEWHENFOCUSLOST);
 	auto lastPath = CAppConfig::GetInstance().GetPreferencePath(PREF_PS2_CDROM0_PATH);
@@ -216,10 +222,15 @@ void MainWindow::SetupGsHandler()
 	if(!gsHandler)
 	{
 #ifdef HAS_GSH_VULKAN
-		m_virtualMachine->CreateGSHandler(CGSH_VulkanQt::GetFactoryFunction(m_outputwindow));
-#else
-		m_virtualMachine->CreateGSHandler(CGSH_OpenGLQt::GetFactoryFunction(m_outputwindow));
+		if(CAppConfig::GetInstance().GetPreferenceBoolean(PREF_VIDEO_USEVULKAN))
+		{
+			m_virtualMachine->CreateGSHandler(CGSH_VulkanQt::GetFactoryFunction(m_outputwindow));
+		}
+		else
 #endif
+		{
+			m_virtualMachine->CreateGSHandler(CGSH_OpenGLQt::GetFactoryFunction(m_outputwindow));
+		}
 		m_OnNewFrameConnection = m_virtualMachine->m_ee->m_gs->OnNewFrame.Connect(std::bind(&CStatsManager::OnNewFrame, &CStatsManager::GetInstance(), std::placeholders::_1));
 	}
 }
@@ -612,6 +623,7 @@ void MainWindow::RegisterPreferences()
 {
 	CAppConfig::GetInstance().RegisterPreferenceBoolean(PREFERENCE_AUDIO_ENABLEOUTPUT, true);
 	CAppConfig::GetInstance().RegisterPreferenceBoolean(PREF_UI_PAUSEWHENFOCUSLOST, true);
+	CAppConfig::GetInstance().RegisterPreferenceBoolean(PREF_VIDEO_USEVULKAN, true);
 }
 
 void MainWindow::focusOutEvent(QFocusEvent* event)
