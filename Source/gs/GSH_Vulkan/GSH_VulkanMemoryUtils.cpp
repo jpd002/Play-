@@ -62,7 +62,7 @@ void CMemoryUtils::Memory_Write32(Nuanceur::CShaderBuilder& b, Nuanceur::CImageU
 void CMemoryUtils::Memory_Write16(Nuanceur::CShaderBuilder& b, Nuanceur::CImageUint2DValue memoryImage, Nuanceur::CIntValue address, Nuanceur::CUintValue value)
 {
 	auto wordAddress = address / NewInt(b, 4);
-	auto shiftAmount = (ToUint(address) & NewUint(b, 2)) * NewUint(b, 16);
+	auto shiftAmount = (ToUint(address) & NewUint(b, 2)) * NewUint(b, 8);
 	auto mask = NewUint(b, 0xFFFFFFFF) ^ (NewUint(b, 0xFFFF) << shiftAmount);
 	auto valueWord = value << shiftAmount;
 	auto position = NewInt2(wordAddress % NewInt(b, MEMORY_SIZE), wordAddress / NewInt(b, MEMORY_SIZE));
