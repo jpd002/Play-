@@ -75,6 +75,7 @@ void CTransfer::DoHostToLocalTransfer(const XferBuffer& inputData)
 	}
 
 	uint32 workUnits = pixelCount / LOCAL_SIZE_X;
+	assert((workUnits * LOCAL_SIZE_X) == pixelCount);
 
 	auto descriptorSet = PrepareDescriptorSet(xferPipeline->descriptorSetLayout, dstSwizzleTableView);
 	auto commandBuffer = m_frameCommandBuffer->GetCommandBuffer();
@@ -258,8 +259,8 @@ Nuanceur::CUintRvalue CTransfer::XferStream_Read32(Nuanceur::CShaderBuilder& b, 
 
 Nuanceur::CUintRvalue CTransfer::XferStream_Read16(Nuanceur::CShaderBuilder& b, Nuanceur::CArrayUintValue xferBuffer, Nuanceur::CIntValue pixelIndex)
 {
-	auto srcOffset = pixelIndex / NewInt(b, 4);
-	auto srcShift = (ToUint(pixelIndex) & NewUint(b, 2)) * NewUint(b, 16);
+	auto srcOffset = pixelIndex / NewInt(b, 2);
+	auto srcShift = (ToUint(pixelIndex) & NewUint(b, 1)) * NewUint(b, 16);
 	return (Load(xferBuffer, srcOffset) >> srcShift) & NewUint(b, 0xFFFF);
 }
 
