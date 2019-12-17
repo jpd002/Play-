@@ -579,7 +579,7 @@ Nuanceur::CFloat4Rvalue GetTextureColor(Nuanceur::CShaderBuilder& b, uint32 text
 	break;
 	case CGSHandler::PSMCT16S:
 	{
-		auto texAddress = CMemoryUtils::GetPixelAddress<CGsPixelFormats::STORAGEPSMCT16S>(
+		auto texAddress = CMemoryUtils::GetPixelAddress<CGsPixelFormats::STORAGEPSMCT16>(
 			b, texSwizzleTable, texBufAddress, texBufWidth, texelPos);
 		auto texPixel = CMemoryUtils::Memory_Read16(b, memoryImage, texAddress);
 		return CMemoryUtils::PSM16ToVec4(b, texPixel);
@@ -673,18 +673,50 @@ Framework::Vulkan::CShaderModule CDraw::CreateFragmentShader(const PIPELINE_CAPS
 
 		auto screenPos = ToInt(inputPosition->xy());
 
-		assert(caps.framebufferFormat == CGSHandler::PSMCT32);
-		auto fbAddress = CMemoryUtils::GetPixelAddress<CGsPixelFormats::STORAGEPSMCT32>(
-		    b, fbSwizzleTable, fbBufAddress, fbBufWidth, screenPos);
+		auto fbAddress = CIntLvalue(b.CreateTemporaryInt());
+
+		switch(caps.framebufferFormat)
+		{
+		default:
+			assert(false);
+		case CGSHandler::PSMCT32:
+			fbAddress = CMemoryUtils::GetPixelAddress<CGsPixelFormats::STORAGEPSMCT32>(
+			    b, fbSwizzleTable, fbBufAddress, fbBufWidth, screenPos);
+			break;
+		case CGSHandler::PSMCT16S:
+			fbAddress = CMemoryUtils::GetPixelAddress<CGsPixelFormats::STORAGEPSMCT16>(
+			    b, fbSwizzleTable, fbBufAddress, fbBufWidth, screenPos);
+			break;
+		}
 
 		BeginInvocationInterlock(b);
 
+		auto dstColor = CFloat4Lvalue(b.CreateTemporary());
+
+		bool needsDstColor = (caps.hasAlphaBlending != 0);
+		if(needsDstColor)
+		{
+			switch(caps.framebufferFormat)
+			{
+			default:
+				assert(false);
+			case CGSHandler::PSMCT32:
+				{
+					auto dstPixel = CMemoryUtils::Memory_Read32(b, memoryImage, fbAddress);
+					dstColor = CMemoryUtils::PSM32ToVec4(b, dstPixel);
+				}
+				break;
+			case CGSHandler::PSMCT16S:
+				{
+					auto dstPixel = CMemoryUtils::Memory_Read16(b, memoryImage, fbAddress);
+					dstColor = CMemoryUtils::PSM16ToVec4(b, dstPixel);
+				}
+				break;
+			}
+		}
+
 		if(caps.hasAlphaBlending)
 		{
-			//Fetch dst pixel
-			auto dstPixel = CMemoryUtils::Memory_Read32(b, memoryImage, fbAddress);
-			auto dstColor = CMemoryUtils::PSM32ToVec4(b, dstPixel);
-
 			//Blend
 			assert(caps.alphaA == 0);
 			assert(caps.alphaB == 1);
@@ -693,16 +725,30 @@ Framework::Vulkan::CShaderModule CDraw::CreateFragmentShader(const PIPELINE_CAPS
 
 			auto blendedColor = ((textureColor->xyz() - dstColor->xyz()) * textureColor->www() * NewFloat3(b, 2, 2, 2)) + dstColor->xyz();
 			auto finalColor = NewFloat4(blendedColor, textureColor->w());
-			auto clampedFinalColor = Clamp(finalColor, NewFloat4(b, 0, 0, 0, 0), NewFloat4(b, 1, 1, 1, 1));
-
-			//Write
-			auto pixel = CMemoryUtils::Vec4ToPSM32(b, clampedFinalColor);
-			CMemoryUtils::Memory_Write32(b, memoryImage, fbAddress, pixel);
+			auto dstColor = Clamp(finalColor, NewFloat4(b, 0, 0, 0, 0), NewFloat4(b, 1, 1, 1, 1));
 		}
 		else
 		{
-			auto pixel = CMemoryUtils::Vec4ToPSM32(b, textureColor);
-			CMemoryUtils::Memory_Write32(b, memoryImage, fbAddress, pixel);
+			dstColor = textureColor->xyzw();
+		}
+
+		//Write
+		switch(caps.framebufferFormat)
+		{
+		default:
+			assert(false);
+		case CGSHandler::PSMCT32:
+			{
+				auto dstPixel = CMemoryUtils::Vec4ToPSM32(b, dstColor);
+				CMemoryUtils::Memory_Write32(b, memoryImage, fbAddress, dstPixel);
+			}
+			break;
+		case CGSHandler::PSMCT16S:
+			{
+				auto dstPixel = CMemoryUtils::Vec4ToPSM16(b, dstColor);
+				CMemoryUtils::Memory_Write16(b, memoryImage, fbAddress, dstPixel);
+			}
+			break;
 		}
 
 		EndInvocationInterlock(b);

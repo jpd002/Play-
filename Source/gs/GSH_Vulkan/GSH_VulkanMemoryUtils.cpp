@@ -119,3 +119,12 @@ Nuanceur::CUintRvalue CMemoryUtils::Vec4ToPSM32(Nuanceur::CShaderBuilder& b, Nua
 	auto colorA = ToUint(inputColor->w() * NewFloat(b, 255.f)) << NewUint(b, 24);
 	return colorR | colorG | colorB | colorA;
 }
+
+Nuanceur::CUintRvalue CMemoryUtils::Vec4ToPSM16(Nuanceur::CShaderBuilder& b, Nuanceur::CFloat4Value inputColor)
+{
+	auto colorR = ToUint(inputColor->x() * NewFloat(b, 31.f)) << NewUint(b, 0);
+	auto colorG = ToUint(inputColor->y() * NewFloat(b, 31.f)) << NewUint(b, 5);
+	auto colorB = ToUint(inputColor->z() * NewFloat(b, 31.f)) << NewUint(b, 10);
+	auto colorA = ToUint(inputColor->w()) << NewUint(b, 15);
+	return colorR | colorG | colorB | colorA;
+}
