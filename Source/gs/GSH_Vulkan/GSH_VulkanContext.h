@@ -2,6 +2,7 @@
 
 #include "vulkan/VulkanDef.h"
 #include "vulkan/Device.h"
+#include "vulkan/Buffer.h"
 #include "vulkan/CommandBufferPool.h"
 #include "../GSHandler.h"
 
@@ -19,7 +20,7 @@ namespace GSH_Vulkan
 		VkQueue queue = VK_NULL_HANDLE;
 		VkDescriptorPool descriptorPool = VK_NULL_HANDLE;
 		VkPhysicalDeviceMemoryProperties physicalDeviceMemoryProperties;
-		VkImageView memoryImageView = VK_NULL_HANDLE;
+		Framework::Vulkan::CBuffer memoryBuffer;
 		VkImageView clutImageView = VK_NULL_HANDLE;
 		VkImageView swizzleTablePSMCT32View = VK_NULL_HANDLE;
 		VkImageView swizzleTablePSMCT16View = VK_NULL_HANDLE;
@@ -34,6 +35,7 @@ namespace GSH_Vulkan
 			default:
 				assert(false);
 			case CGSHandler::PSMCT32:
+			case CGSHandler::PSMCT24:
 				return swizzleTablePSMCT32View;
 			case CGSHandler::PSMCT16:
 				return swizzleTablePSMCT16View;

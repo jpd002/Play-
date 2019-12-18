@@ -9,9 +9,6 @@
 
 using namespace GSH_Vulkan;
 
-#define MEMORY_WIDTH 1024
-#define MEMORY_HEIGHT 1024
-
 //#define FILL_IMAGES
 
 static uint32 MakeColor(uint8 r, uint8 g, uint8 b, uint8 a)
@@ -66,7 +63,7 @@ void CGSH_Vulkan::InitializeImpl()
 	m_context->commandBufferPool = Framework::Vulkan::CCommandBufferPool(m_context->device, renderQueueFamily);
 
 	CreateDescriptorPool();
-	CreateMemoryImage();
+	CreateMemoryBuffer();
 	CreateClutImage();
 
 	m_swizzleTablePSMCT32 = CreateSwizzleTable<CGsPixelFormats::STORAGEPSMCT32>(m_context->device, m_context->physicalDeviceMemoryProperties, m_context->queue, m_context->commandBufferPool);
@@ -109,7 +106,6 @@ void CGSH_Vulkan::ReleaseImpl()
 	m_context->device.vkDestroyImageView(m_context->device, m_context->swizzleTablePSMT8View, nullptr);
 	m_context->device.vkDestroyImageView(m_context->device, m_context->swizzleTablePSMT4View, nullptr);
 	m_context->device.vkDestroyImageView(m_context->device, m_context->clutImageView, nullptr);
-	m_context->device.vkDestroyImageView(m_context->device, m_context->memoryImageView, nullptr);
 
 	m_swizzleTablePSMCT32.Reset();
 	m_swizzleTablePSMCT16.Reset();
@@ -117,9 +113,9 @@ void CGSH_Vulkan::ReleaseImpl()
 	m_swizzleTablePSMT8.Reset();
 	m_swizzleTablePSMT4.Reset();
 	m_clutImage.Reset();
-	m_memoryImage.Reset();
 
 	m_context->device.vkDestroyDescriptorPool(m_context->device, m_context->descriptorPool, nullptr);
+	m_context->memoryBuffer.Reset();
 	m_context->commandBufferPool.Reset();
 	m_context->device.Reset();
 }
@@ -402,41 +398,22 @@ void CGSH_Vulkan::CreateDescriptorPool()
 	CHECKVULKANERROR(result);
 }
 
-void CGSH_Vulkan::CreateMemoryImage()
+void CGSH_Vulkan::CreateMemoryBuffer()
 {
-	assert(m_memoryImage.IsEmpty());
-	assert(m_context->memoryImageView == VK_NULL_HANDLE);
+	assert(m_context->memoryBuffer.IsEmpty());
 
-	m_memoryImage = Framework::Vulkan::CImage(m_context->device, m_context->physicalDeviceMemoryProperties,
-	                                          VK_IMAGE_USAGE_STORAGE_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT,
-	                                          VK_FORMAT_R32_UINT, MEMORY_WIDTH, MEMORY_HEIGHT);
-
-	m_context->memoryImageView = m_memoryImage.CreateImageView();
+	m_context->memoryBuffer = Framework::Vulkan::CBuffer(m_context->device,
+		m_context->physicalDeviceMemoryProperties, VK_BUFFER_USAGE_STORAGE_BUFFER_BIT, RAMSIZE);
 
 #ifdef FILL_IMAGES
 	{
-		std::vector<uint32> imageContents;
-		imageContents.resize(MEMORY_WIDTH * MEMORY_HEIGHT);
-		assert((imageContents.size() * sizeof(uint32)) == m_memoryImage.GetLinearSize());
-
-		for(unsigned int y = 0; y < MEMORY_HEIGHT; y++)
-		{
-			for(unsigned int x = 0; x < MEMORY_WIDTH; x++)
-			{
-				uint8 colX = (x * 0x10) / MEMORY_WIDTH;
-				uint8 colY = (y * 0x10) / MEMORY_HEIGHT;
-				uint32 index = x + (y * MEMORY_WIDTH);
-				imageContents[index] = (static_cast<uint32>(colX) << 12) | (static_cast<uint32>(colY) << 20);
-			}
-		}
-
-		m_memoryImage.Fill(m_context->queue, m_context->commandBufferPool,
-		                   m_context->physicalDeviceMemoryProperties, imageContents.data());
+		uint32* memory = nullptr;
+		m_context->device.vkMapMemory(m_context->device, m_context->memoryBuffer.GetMemory(),
+			0, VK_WHOLE_SIZE, 0, reinterpret_cast<void**>(&memory));
+		memset(memory, 0x80, RAMSIZE);
+		m_context->device.vkUnmapMemory(m_context->device, m_context->memoryBuffer.GetMemory());
 	}
 #endif
-
-	m_memoryImage.SetLayout(m_context->queue, m_context->commandBufferPool,
-	                        VK_IMAGE_LAYOUT_GENERAL, VK_ACCESS_SHADER_READ_BIT | VK_ACCESS_SHADER_WRITE_BIT);
 }
 
 void CGSH_Vulkan::CreateClutImage()

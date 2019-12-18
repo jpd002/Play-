@@ -15,7 +15,7 @@ using namespace GSH_Vulkan;
 #define VERTEX_ATTRIB_LOCATION_COLOR 2
 #define VERTEX_ATTRIB_LOCATION_TEXCOORD 3
 
-#define DESCRIPTOR_LOCATION_IMAGE_MEMORY 0
+#define DESCRIPTOR_LOCATION_BUFFER_MEMORY 0
 #define DESCRIPTOR_LOCATION_IMAGE_CLUT 1
 #define DESCRIPTOR_LOCATION_IMAGE_SWIZZLETABLE_TEX 2
 #define DESCRIPTOR_LOCATION_IMAGE_SWIZZLETABLE_FB 3
@@ -223,9 +223,9 @@ VkDescriptorSet CDraw::PrepareDescriptorSet(VkDescriptorSetLayout descriptorSetL
 
 	//Update descriptor set
 	{
-		VkDescriptorImageInfo descriptorMemoryImageInfo = {};
-		descriptorMemoryImageInfo.imageView = m_context->memoryImageView;
-		descriptorMemoryImageInfo.imageLayout = VK_IMAGE_LAYOUT_GENERAL;
+		VkDescriptorBufferInfo descriptorMemoryBufferInfo = {};
+		descriptorMemoryBufferInfo.buffer = m_context->memoryBuffer;
+		descriptorMemoryBufferInfo.range = VK_WHOLE_SIZE;
 
 		VkDescriptorImageInfo descriptorClutImageInfo = {};
 		descriptorClutImageInfo.imageView = m_context->clutImageView;
@@ -244,10 +244,10 @@ VkDescriptorSet CDraw::PrepareDescriptorSet(VkDescriptorSetLayout descriptorSetL
 		{
 			auto writeSet = Framework::Vulkan::WriteDescriptorSet();
 			writeSet.dstSet = descriptorSet;
-			writeSet.dstBinding = DESCRIPTOR_LOCATION_IMAGE_MEMORY;
+			writeSet.dstBinding = DESCRIPTOR_LOCATION_BUFFER_MEMORY;
 			writeSet.descriptorCount = 1;
-			writeSet.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_IMAGE;
-			writeSet.pImageInfo = &descriptorMemoryImageInfo;
+			writeSet.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+			writeSet.pBufferInfo = &descriptorMemoryBufferInfo;
 			writes.push_back(writeSet);
 		}
 
@@ -355,8 +355,8 @@ PIPELINE CDraw::CreateDrawPipeline(const PIPELINE_CAPS& caps)
 
 		{
 			VkDescriptorSetLayoutBinding setLayoutBinding = {};
-			setLayoutBinding.binding = DESCRIPTOR_LOCATION_IMAGE_MEMORY;
-			setLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_IMAGE;
+			setLayoutBinding.binding = DESCRIPTOR_LOCATION_BUFFER_MEMORY;
+			setLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
 			setLayoutBinding.descriptorCount = 1;
 			setLayoutBinding.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
 			setLayoutBindings.push_back(setLayoutBinding);
@@ -560,7 +560,7 @@ Framework::Vulkan::CShaderModule CDraw::CreateVertexShader()
 }
 
 static Nuanceur::CFloat4Rvalue GetTextureColor(Nuanceur::CShaderBuilder& b, uint32 textureFormat, uint32 clutFormat,
-	Nuanceur::CInt2Value texelPos, Nuanceur::CImageUint2DValue memoryImage, Nuanceur::CImageUint2DValue clutImage,
+	Nuanceur::CInt2Value texelPos, Nuanceur::CArrayUintValue memoryBuffer, Nuanceur::CImageUint2DValue clutImage,
 	Nuanceur::CImageUint2DValue texSwizzleTable, Nuanceur::CIntValue texBufAddress, Nuanceur::CIntValue texBufWidth)
 {
 	using namespace Nuanceur;
@@ -573,24 +573,22 @@ static Nuanceur::CFloat4Rvalue GetTextureColor(Nuanceur::CShaderBuilder& b, uint
 	{
 		auto texAddress = CMemoryUtils::GetPixelAddress<CGsPixelFormats::STORAGEPSMCT32>(
 			b, texSwizzleTable, texBufAddress, texBufWidth, texelPos);
-		auto texPixel = CMemoryUtils::Memory_Read32(b, memoryImage, texAddress);
+		auto texPixel = CMemoryUtils::Memory_Read32(b, memoryBuffer, texAddress);
 		return CMemoryUtils::PSM32ToVec4(b, texPixel);
 	}
-	break;
 	case CGSHandler::PSMCT16S:
 	{
 		auto texAddress = CMemoryUtils::GetPixelAddress<CGsPixelFormats::STORAGEPSMCT16>(
 			b, texSwizzleTable, texBufAddress, texBufWidth, texelPos);
-		auto texPixel = CMemoryUtils::Memory_Read16(b, memoryImage, texAddress);
+		auto texPixel = CMemoryUtils::Memory_Read16(b, memoryBuffer, texAddress);
 		return CMemoryUtils::PSM16ToVec4(b, texPixel);
 	}
-	break;
 	case CGSHandler::PSMT8:
 	{
 		assert(clutFormat == CGSHandler::PSMCT32);
 		auto texAddress = CMemoryUtils::GetPixelAddress<CGsPixelFormats::STORAGEPSMT8>(
 			b, texSwizzleTable, texBufAddress, texBufWidth, texelPos);
-		auto texPixel = CMemoryUtils::Memory_Read8(b, memoryImage, texAddress);
+		auto texPixel = CMemoryUtils::Memory_Read8(b, memoryBuffer, texAddress);
 		auto clutIndexLo = NewInt2(ToInt(texPixel), NewInt(b, 0));
 		auto clutIndexHi = NewInt2(ToInt(texPixel) + NewInt(b, 0x100), NewInt(b, 0));
 		auto clutPixelLo = Load(clutImage, clutIndexLo)->x();
@@ -603,7 +601,7 @@ static Nuanceur::CFloat4Rvalue GetTextureColor(Nuanceur::CShaderBuilder& b, uint
 		assert(clutFormat == CGSHandler::PSMCT32);
 		auto texAddress = CMemoryUtils::GetPixelAddress_PSMT4(
 			b, texSwizzleTable, texBufAddress, texBufWidth, texelPos);
-		auto texPixel = CMemoryUtils::Memory_Read4(b, memoryImage, texAddress);
+		auto texPixel = CMemoryUtils::Memory_Read4(b, memoryBuffer, texAddress);
 //		auto clutIndexLo = NewInt2(ToInt(texPixel), NewInt(b, 0));
 //		auto clutIndexHi = NewInt2(ToInt(texPixel) + NewInt(b, 0x100), NewInt(b, 0));
 //		auto clutPixelLo = Load(clutImage, clutIndexLo)->x();
@@ -613,7 +611,6 @@ static Nuanceur::CFloat4Rvalue GetTextureColor(Nuanceur::CShaderBuilder& b, uint
 		auto test = texPixel * NewUint(b, 0x10);
 		return CMemoryUtils::PSM32ToVec4(b, test | NewUint(b, 0xFF000000));
 	}
-	break;
 	}
 }
 
@@ -663,7 +660,7 @@ Framework::Vulkan::CShaderModule CDraw::CreateFragmentShader(const PIPELINE_CAPS
 		//Outputs
 		auto outputColor = CFloat4Lvalue(b.CreateOutput(Nuanceur::SEMANTIC_SYSTEM_COLOR));
 
-		auto memoryImage = CImageUint2DValue(b.CreateImage2DUint(DESCRIPTOR_LOCATION_IMAGE_MEMORY));
+		auto memoryBuffer = CArrayUintValue(b.CreateUniformArrayUint("memoryBuffer", DESCRIPTOR_LOCATION_BUFFER_MEMORY));
 		auto clutImage = CImageUint2DValue(b.CreateImage2DUint(DESCRIPTOR_LOCATION_IMAGE_CLUT));
 		auto texSwizzleTable = CImageUint2DValue(b.CreateImage2DUint(DESCRIPTOR_LOCATION_IMAGE_SWIZZLETABLE_TEX));
 		auto fbSwizzleTable = CImageUint2DValue(b.CreateImage2DUint(DESCRIPTOR_LOCATION_IMAGE_SWIZZLETABLE_FB));
@@ -690,7 +687,7 @@ Framework::Vulkan::CShaderModule CDraw::CreateFragmentShader(const PIPELINE_CAPS
 		{
 			auto texelPos = ToInt(inputTexCoord->xy() * ToFloat(texSize));
 			textureColor = GetTextureColor(b, caps.textureFormat, caps.clutFormat, texelPos,
-				memoryImage, clutImage, texSwizzleTable, texBufAddress, texBufWidth);
+				memoryBuffer, clutImage, texSwizzleTable, texBufAddress, texBufWidth);
 
 			//Modulate
 			//TODO: Proper multiply & clamping
@@ -733,13 +730,13 @@ Framework::Vulkan::CShaderModule CDraw::CreateFragmentShader(const PIPELINE_CAPS
 				assert(false);
 			case CGSHandler::PSMCT32:
 				{
-					auto dstPixel = CMemoryUtils::Memory_Read32(b, memoryImage, fbAddress);
+					auto dstPixel = CMemoryUtils::Memory_Read32(b, memoryBuffer, fbAddress);
 					dstColor = CMemoryUtils::PSM32ToVec4(b, dstPixel);
 				}
 				break;
 			case CGSHandler::PSMCT16S:
 				{
-					auto dstPixel = CMemoryUtils::Memory_Read16(b, memoryImage, fbAddress);
+					auto dstPixel = CMemoryUtils::Memory_Read16(b, memoryBuffer, fbAddress);
 					dstColor = CMemoryUtils::PSM16ToVec4(b, dstPixel);
 				}
 				break;
@@ -771,13 +768,13 @@ Framework::Vulkan::CShaderModule CDraw::CreateFragmentShader(const PIPELINE_CAPS
 		case CGSHandler::PSMCT32:
 			{
 				auto dstPixel = CMemoryUtils::Vec4ToPSM32(b, dstColor);
-				CMemoryUtils::Memory_Write32(b, memoryImage, fbAddress, dstPixel);
+				CMemoryUtils::Memory_Write32(b, memoryBuffer, fbAddress, dstPixel);
 			}
 			break;
 		case CGSHandler::PSMCT16S:
 			{
 				auto dstPixel = CMemoryUtils::Vec4ToPSM16(b, dstColor);
-				CMemoryUtils::Memory_Write16(b, memoryImage, fbAddress, dstPixel);
+				CMemoryUtils::Memory_Write16(b, memoryBuffer, fbAddress, dstPixel);
 			}
 			break;
 		}

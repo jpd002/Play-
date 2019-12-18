@@ -61,7 +61,7 @@ private:
 
 	void CreateDevice(VkPhysicalDevice);
 	void CreateDescriptorPool();
-	void CreateMemoryImage();
+	void CreateMemoryBuffer();
 	void CreateClutImage();
 
 	void VertexKick(uint8, uint64);
@@ -86,7 +86,6 @@ private:
 	uint32 m_texWidth = 0;
 	uint32 m_texHeight = 0;
 
-	Framework::Vulkan::CImage m_memoryImage;
 	Framework::Vulkan::CImage m_clutImage;
 
 	Framework::Vulkan::CImage m_swizzleTablePSMCT32;

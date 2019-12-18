@@ -2,8 +2,6 @@
 
 using namespace GSH_Vulkan;
 
-#define MEMORY_SIZE 1024
-
 Nuanceur::CIntRvalue CMemoryUtils::GetPixelAddress_PSMT4(Nuanceur::CShaderBuilder& b, Nuanceur::CImageUint2DValue swizzleTable, 
                                                          Nuanceur::CIntValue bufAddress, Nuanceur::CIntValue bufWidth, Nuanceur::CInt2Value position)
 {
@@ -16,69 +14,62 @@ Nuanceur::CIntRvalue CMemoryUtils::GetPixelAddress_PSMT4(Nuanceur::CShaderBuilde
 	return ((bufAddress + (pageNum * pageSize)) * NewInt(b, 2)) + pageOffset;
 }
 
-Nuanceur::CUintRvalue CMemoryUtils::Memory_Read32(Nuanceur::CShaderBuilder& b, Nuanceur::CImageUint2DValue memoryImage, Nuanceur::CIntValue address)
+Nuanceur::CUintRvalue CMemoryUtils::Memory_Read32(Nuanceur::CShaderBuilder& b, Nuanceur::CArrayUintValue memoryBuffer, Nuanceur::CIntValue address)
 {
 	auto wordAddress = address / NewInt(b, 4);
-	auto position = NewInt2(wordAddress % NewInt(b, MEMORY_SIZE), wordAddress / NewInt(b, MEMORY_SIZE));
-	return Load(memoryImage, position)->x();
+	return Load(memoryBuffer, wordAddress);
 }
 
-Nuanceur::CUintRvalue CMemoryUtils::Memory_Read16(Nuanceur::CShaderBuilder& b, Nuanceur::CImageUint2DValue memoryImage, Nuanceur::CIntValue address)
+Nuanceur::CUintRvalue CMemoryUtils::Memory_Read16(Nuanceur::CShaderBuilder& b, Nuanceur::CArrayUintValue memoryBuffer, Nuanceur::CIntValue address)
 {
 	auto wordAddress = address / NewInt(b, 4);
 	auto shiftAmount = (ToUint(address) & NewUint(b, 2)) * NewUint(b, 8);
-	auto position = NewInt2(wordAddress % NewInt(b, MEMORY_SIZE), wordAddress / NewInt(b, MEMORY_SIZE));
-	auto pixel = Load(memoryImage, position)->x();
+	auto pixel = Load(memoryBuffer, wordAddress);
 	return (pixel >> shiftAmount) & NewUint(b, 0xFFFF);
 }
 
-Nuanceur::CUintRvalue CMemoryUtils::Memory_Read8(Nuanceur::CShaderBuilder& b, Nuanceur::CImageUint2DValue memoryImage, Nuanceur::CIntValue address)
+Nuanceur::CUintRvalue CMemoryUtils::Memory_Read8(Nuanceur::CShaderBuilder& b, Nuanceur::CArrayUintValue memoryBuffer, Nuanceur::CIntValue address)
 {
 	auto wordAddress = address / NewInt(b, 4);
 	auto shiftAmount = (ToUint(address) & NewUint(b, 3)) * NewUint(b, 8);
-	auto position = NewInt2(wordAddress % NewInt(b, MEMORY_SIZE), wordAddress / NewInt(b, MEMORY_SIZE));
-	auto pixel = Load(memoryImage, position)->x();
+	auto pixel = Load(memoryBuffer, wordAddress);
 	return (pixel >> shiftAmount) & NewUint(b, 0xFF);
 }
 
-Nuanceur::CUintRvalue CMemoryUtils::Memory_Read4(Nuanceur::CShaderBuilder& b, Nuanceur::CImageUint2DValue memoryImage, Nuanceur::CIntValue nibAddress)
+Nuanceur::CUintRvalue CMemoryUtils::Memory_Read4(Nuanceur::CShaderBuilder& b, Nuanceur::CArrayUintValue memoryBuffer, Nuanceur::CIntValue nibAddress)
 {
 	auto address = nibAddress / NewInt(b, 2);
 	auto wordAddress = address / NewInt(b, 4);
 	auto nibIndex = ToUint(nibAddress & NewInt(b, 1));
 	auto shiftAmount = (((ToUint(address) & NewUint(b, 3)) * NewUint(b, 2)) + nibIndex) * NewUint(b, 4);
-	auto position = NewInt2(wordAddress % NewInt(b, MEMORY_SIZE), wordAddress / NewInt(b, MEMORY_SIZE));
-	auto pixel = Load(memoryImage, position)->x();
+	auto pixel = Load(memoryBuffer, wordAddress);
 	return (pixel >> shiftAmount) & NewUint(b, 0xF);
 }
 
-void CMemoryUtils::Memory_Write32(Nuanceur::CShaderBuilder& b, Nuanceur::CImageUint2DValue memoryImage, Nuanceur::CIntValue address, Nuanceur::CUintValue value)
+void CMemoryUtils::Memory_Write32(Nuanceur::CShaderBuilder& b, Nuanceur::CArrayUintValue memoryBuffer, Nuanceur::CIntValue address, Nuanceur::CUintValue value)
 {
 	auto wordAddress = address / NewInt(b, 4);
-	auto position = NewInt2(wordAddress % NewInt(b, MEMORY_SIZE), wordAddress / NewInt(b, MEMORY_SIZE));
-	Store(memoryImage, position, NewUint4(value, NewUint3(b, 0, 0, 0)));
+	Store(memoryBuffer, wordAddress, value);
 }
 
-void CMemoryUtils::Memory_Write16(Nuanceur::CShaderBuilder& b, Nuanceur::CImageUint2DValue memoryImage, Nuanceur::CIntValue address, Nuanceur::CUintValue value)
+void CMemoryUtils::Memory_Write16(Nuanceur::CShaderBuilder& b, Nuanceur::CArrayUintValue memoryBuffer, Nuanceur::CIntValue address, Nuanceur::CUintValue value)
 {
 	auto wordAddress = address / NewInt(b, 4);
 	auto shiftAmount = (ToUint(address) & NewUint(b, 2)) * NewUint(b, 8);
 	auto mask = NewUint(b, 0xFFFFFFFF) ^ (NewUint(b, 0xFFFF) << shiftAmount);
 	auto valueWord = value << shiftAmount;
-	auto position = NewInt2(wordAddress % NewInt(b, MEMORY_SIZE), wordAddress / NewInt(b, MEMORY_SIZE));
-	AtomicAnd(memoryImage, position, mask);
-	AtomicOr(memoryImage, position, valueWord);
+	AtomicAnd(memoryBuffer, wordAddress, mask);
+	AtomicOr(memoryBuffer, wordAddress, valueWord);
 }
 
-void CMemoryUtils::Memory_Write8(Nuanceur::CShaderBuilder& b, Nuanceur::CImageUint2DValue memoryImage, Nuanceur::CIntValue address, Nuanceur::CUintValue value)
+void CMemoryUtils::Memory_Write8(Nuanceur::CShaderBuilder& b, Nuanceur::CArrayUintValue memoryBuffer, Nuanceur::CIntValue address, Nuanceur::CUintValue value)
 {
 	auto wordAddress = address / NewInt(b, 4);
 	auto shiftAmount = (ToUint(address) & NewUint(b, 3)) * NewUint(b, 8);
 	auto mask = NewUint(b, 0xFFFFFFFF) ^ (NewUint(b, 0xFF) << shiftAmount);
 	auto valueWord = value << shiftAmount;
-	auto position = NewInt2(wordAddress % NewInt(b, MEMORY_SIZE), wordAddress / NewInt(b, MEMORY_SIZE));
-	AtomicAnd(memoryImage, position, mask);
-	AtomicOr(memoryImage, position, valueWord);
+	AtomicAnd(memoryBuffer, wordAddress, mask);
+	AtomicOr(memoryBuffer, wordAddress, valueWord);
 }
 
 Nuanceur::CFloat4Rvalue CMemoryUtils::PSM32ToVec4(Nuanceur::CShaderBuilder& b, Nuanceur::CUintValue inputColor)

@@ -66,9 +66,9 @@ VkDescriptorSet CClutLoad::PrepareDescriptorSet(VkDescriptorSetLayout descriptor
 	{
 		std::vector<VkWriteDescriptorSet> writes;
 
-		VkDescriptorImageInfo descriptorMemoryImageInfo = {};
-		descriptorMemoryImageInfo.imageView = m_context->memoryImageView;
-		descriptorMemoryImageInfo.imageLayout = VK_IMAGE_LAYOUT_GENERAL;
+		VkDescriptorBufferInfo descriptorMemoryBufferInfo = {};
+		descriptorMemoryBufferInfo.buffer = m_context->memoryBuffer;
+		descriptorMemoryBufferInfo.range = VK_WHOLE_SIZE;
 
 		VkDescriptorImageInfo descriptorClutImageInfo = {};
 		descriptorClutImageInfo.imageView = m_context->clutImageView;
@@ -84,8 +84,8 @@ VkDescriptorSet CClutLoad::PrepareDescriptorSet(VkDescriptorSetLayout descriptor
 			writeSet.dstSet = descriptorSet;
 			writeSet.dstBinding = DESCRIPTOR_LOCATION_MEMORY;
 			writeSet.descriptorCount = 1;
-			writeSet.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_IMAGE;
-			writeSet.pImageInfo = &descriptorMemoryImageInfo;
+			writeSet.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+			writeSet.pBufferInfo = &descriptorMemoryBufferInfo;
 			writes.push_back(writeSet);
 		}
 
@@ -136,7 +136,7 @@ Framework::Vulkan::CShaderModule CClutLoad::CreateLoadShader(const PIPELINE_CAPS
 
 	{
 		auto inputInvocationId = CInt4Lvalue(b.CreateInputInt(Nuanceur::SEMANTIC_SYSTEM_GIID));
-		auto memoryImage = CImageUint2DValue(b.CreateImage2DUint(DESCRIPTOR_LOCATION_MEMORY));
+		auto memoryBuffer = CArrayUintValue(b.CreateUniformArrayUint("memoryBuffer", DESCRIPTOR_LOCATION_MEMORY));
 		auto clutImage = CImageUint2DValue(b.CreateImage2DUint(DESCRIPTOR_LOCATION_CLUT));
 		auto swizzleTable = CImageUint2DValue(b.CreateImage2DUint(DESCRIPTOR_LOCATION_SWIZZLETABLE));
 
@@ -154,7 +154,7 @@ Framework::Vulkan::CShaderModule CClutLoad::CreateLoadShader(const PIPELINE_CAPS
 		{
 			auto colorAddress = CMemoryUtils::GetPixelAddress<CGsPixelFormats::STORAGEPSMCT32>(
 			    b, swizzleTable, clutBufPtr, NewInt(b, 64), colorPos);
-			colorPixel = CMemoryUtils::Memory_Read32(b, memoryImage, colorAddress);
+			colorPixel = CMemoryUtils::Memory_Read32(b, memoryBuffer, colorAddress);
 		}
 		break;
 		default:
@@ -212,7 +212,7 @@ PIPELINE CClutLoad::CreateLoadPipeline(const PIPELINE_CAPS& caps)
 		{
 			VkDescriptorSetLayoutBinding binding = {};
 			binding.binding = DESCRIPTOR_LOCATION_MEMORY;
-			binding.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_IMAGE;
+			binding.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
 			binding.descriptorCount = 1;
 			binding.stageFlags = VK_SHADER_STAGE_COMPUTE_BIT;
 			bindings.push_back(binding);

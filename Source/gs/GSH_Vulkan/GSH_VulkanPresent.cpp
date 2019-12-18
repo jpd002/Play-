@@ -7,7 +7,7 @@
 
 using namespace GSH_Vulkan;
 
-#define DESCRIPTOR_LOCATION_IMAGE_MEMORY 0
+#define DESCRIPTOR_LOCATION_BUFFER_MEMORY 0
 #define DESCRIPTOR_LOCATION_IMAGE_SWIZZLETABLE 2
 
 //Module responsible for presenting frame buffer to surface
@@ -222,9 +222,9 @@ VkDescriptorSet CPresent::PrepareDescriptorSet(VkDescriptorSetLayout descriptorS
 
 	//Update descriptor set
 	{
-		VkDescriptorImageInfo descriptorMemoryImageInfo = {};
-		descriptorMemoryImageInfo.imageView = m_context->memoryImageView;
-		descriptorMemoryImageInfo.imageLayout = VK_IMAGE_LAYOUT_GENERAL;
+		VkDescriptorBufferInfo descriptorMemoryBufferInfo = {};
+		descriptorMemoryBufferInfo.buffer = m_context->memoryBuffer;
+		descriptorMemoryBufferInfo.range = VK_WHOLE_SIZE;
 
 		VkDescriptorImageInfo descriptorSwizzleTableImageInfo = {};
 		descriptorSwizzleTableImageInfo.imageView = m_context->GetSwizzleTable(bufPsm);
@@ -235,10 +235,10 @@ VkDescriptorSet CPresent::PrepareDescriptorSet(VkDescriptorSetLayout descriptorS
 		{
 			auto writeSet = Framework::Vulkan::WriteDescriptorSet();
 			writeSet.dstSet = descriptorSet;
-			writeSet.dstBinding = DESCRIPTOR_LOCATION_IMAGE_MEMORY;
+			writeSet.dstBinding = DESCRIPTOR_LOCATION_BUFFER_MEMORY;
 			writeSet.descriptorCount = 1;
-			writeSet.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_IMAGE;
-			writeSet.pImageInfo = &descriptorMemoryImageInfo;
+			writeSet.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+			writeSet.pBufferInfo = &descriptorMemoryBufferInfo;
 			writes.push_back(writeSet);
 		}
 
@@ -415,8 +415,8 @@ PIPELINE CPresent::CreateDrawPipeline(uint32 bufPsm)
 
 		{
 			VkDescriptorSetLayoutBinding setLayoutBinding = {};
-			setLayoutBinding.binding = DESCRIPTOR_LOCATION_IMAGE_MEMORY;
-			setLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_IMAGE;
+			setLayoutBinding.binding = DESCRIPTOR_LOCATION_BUFFER_MEMORY;
+			setLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
 			setLayoutBinding.descriptorCount = 1;
 			setLayoutBinding.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
 			setLayoutBindings.push_back(setLayoutBinding);
@@ -584,7 +584,7 @@ Framework::Vulkan::CShaderModule CPresent::CreateFragmentShader(uint32 bufPsm)
 		auto inputTexCoord = CFloat4Lvalue(b.CreateInput(Nuanceur::SEMANTIC_TEXCOORD));
 
 		auto outputColor = CFloat4Lvalue(b.CreateOutput(Nuanceur::SEMANTIC_SYSTEM_COLOR));
-		auto memoryImage = CImageUint2DValue(b.CreateImage2DUint(DESCRIPTOR_LOCATION_IMAGE_MEMORY));
+		auto memoryBuffer = CArrayUintValue(b.CreateUniformArrayUint("memoryBuffer", DESCRIPTOR_LOCATION_BUFFER_MEMORY));
 		auto swizzleTable = CImageUint2DValue(b.CreateImage2DUint(DESCRIPTOR_LOCATION_IMAGE_SWIZZLETABLE));
 
 		auto presentParams = CInt4Lvalue(b.CreateUniformInt4("presentParams", Nuanceur::UNIFORM_UNIT_PUSHCONSTANT));
@@ -603,7 +603,7 @@ Framework::Vulkan::CShaderModule CPresent::CreateFragmentShader(uint32 bufPsm)
 		{
 			auto address = CMemoryUtils::GetPixelAddress<CGsPixelFormats::STORAGEPSMCT32>(
 				b, swizzleTable, bufAddress, bufWidth, screenPos);
-			auto imageColor = CMemoryUtils::Memory_Read32(b, memoryImage, address);
+			auto imageColor = CMemoryUtils::Memory_Read32(b, memoryBuffer, address);
 			outputColor = CMemoryUtils::PSM32ToVec4(b, imageColor);
 		}
 		break;
@@ -611,7 +611,7 @@ Framework::Vulkan::CShaderModule CPresent::CreateFragmentShader(uint32 bufPsm)
 		{
 			auto address = CMemoryUtils::GetPixelAddress<CGsPixelFormats::STORAGEPSMCT16>(
 				b, swizzleTable, bufAddress, bufWidth, screenPos);
-			auto imageColor = CMemoryUtils::Memory_Read16(b, memoryImage, address);
+			auto imageColor = CMemoryUtils::Memory_Read16(b, memoryBuffer, address);
 			outputColor = CMemoryUtils::PSM16ToVec4(b, imageColor);
 		}
 		break;

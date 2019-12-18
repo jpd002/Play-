@@ -23,14 +23,14 @@ namespace GSH_Vulkan
 
 		static Nuanceur::CIntRvalue GetPixelAddress_PSMT4(Nuanceur::CShaderBuilder&, Nuanceur::CImageUint2DValue, Nuanceur::CIntValue, Nuanceur::CIntValue, Nuanceur::CInt2Value);
 
-		static Nuanceur::CUintRvalue Memory_Read32(Nuanceur::CShaderBuilder&, Nuanceur::CImageUint2DValue, Nuanceur::CIntValue);
-		static Nuanceur::CUintRvalue Memory_Read16(Nuanceur::CShaderBuilder&, Nuanceur::CImageUint2DValue, Nuanceur::CIntValue);
-		static Nuanceur::CUintRvalue Memory_Read8(Nuanceur::CShaderBuilder&, Nuanceur::CImageUint2DValue, Nuanceur::CIntValue);
-		static Nuanceur::CUintRvalue Memory_Read4(Nuanceur::CShaderBuilder&, Nuanceur::CImageUint2DValue, Nuanceur::CIntValue);
+		static Nuanceur::CUintRvalue Memory_Read32(Nuanceur::CShaderBuilder&, Nuanceur::CArrayUintValue, Nuanceur::CIntValue);
+		static Nuanceur::CUintRvalue Memory_Read16(Nuanceur::CShaderBuilder&, Nuanceur::CArrayUintValue, Nuanceur::CIntValue);
+		static Nuanceur::CUintRvalue Memory_Read8(Nuanceur::CShaderBuilder&, Nuanceur::CArrayUintValue, Nuanceur::CIntValue);
+		static Nuanceur::CUintRvalue Memory_Read4(Nuanceur::CShaderBuilder&, Nuanceur::CArrayUintValue, Nuanceur::CIntValue);
 
-		static void Memory_Write32(Nuanceur::CShaderBuilder&, Nuanceur::CImageUint2DValue, Nuanceur::CIntValue, Nuanceur::CUintValue);
-		static void Memory_Write16(Nuanceur::CShaderBuilder&, Nuanceur::CImageUint2DValue, Nuanceur::CIntValue, Nuanceur::CUintValue);
-		static void Memory_Write8(Nuanceur::CShaderBuilder&, Nuanceur::CImageUint2DValue, Nuanceur::CIntValue, Nuanceur::CUintValue);
+		static void Memory_Write32(Nuanceur::CShaderBuilder&, Nuanceur::CArrayUintValue, Nuanceur::CIntValue, Nuanceur::CUintValue);
+		static void Memory_Write16(Nuanceur::CShaderBuilder&, Nuanceur::CArrayUintValue, Nuanceur::CIntValue, Nuanceur::CUintValue);
+		static void Memory_Write8(Nuanceur::CShaderBuilder&, Nuanceur::CArrayUintValue, Nuanceur::CIntValue, Nuanceur::CUintValue);
 
 		static Nuanceur::CFloat4Rvalue PSM32ToVec4(Nuanceur::CShaderBuilder&, Nuanceur::CUintValue);
 		static Nuanceur::CFloat4Rvalue PSM16ToVec4(Nuanceur::CShaderBuilder&, Nuanceur::CUintValue);
