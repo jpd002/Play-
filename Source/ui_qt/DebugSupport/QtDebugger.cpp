@@ -656,11 +656,6 @@ void QtDebugger::DestroyAccelerators()
 {
 	switch(nID)
 	{
-	case ID_VIEW_MEMORY:
-		GetMemoryViewWindow()->Show(SW_SHOW);
-		GetMemoryViewWindow()->setFocus(Qt::ActiveWindowFocusReason);
-		return FALSE;
-		break;
 	case ID_VIEW_ELF:
 		m_pELFView->Show(SW_SHOW);
 		m_pELFView->setFocus(Qt::ActiveWindowFocusReason);
