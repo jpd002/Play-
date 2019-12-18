@@ -238,7 +238,9 @@ void CDisAsmWnd::GotoAddress()
 			uint32 nAddress = CDebugExpressionEvaluator::Evaluate(sValue.toStdString().c_str(), m_ctx);
 			if(nAddress & (m_instructionSize - 1))
 			{
-				// MessageBox(m_hWnd, ("Invalid address"), NULL, 16);
+				QMessageBox::warning(this, tr("Warning"),
+				                     tr("Invalid address"),
+				                     QMessageBox::Ok , QMessageBox::Ok);
 				return;
 			}
 
@@ -253,7 +255,9 @@ void CDisAsmWnd::GotoAddress()
 		catch(const std::exception& exception)
 		{
 			std::string message = std::string("Error evaluating expression: ") + exception.what();
-			// MessageBox(m_hWnd, message.c_str(), NULL, 16);
+			QMessageBox::critical(this, tr("Error"),
+			                     tr(message.c_str()),
+			                     QMessageBox::Ok , QMessageBox::Ok);
 		}
 	}
 }
