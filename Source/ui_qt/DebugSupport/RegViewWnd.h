@@ -29,5 +29,4 @@ private:
 
 	CRegViewPage* m_regView[MAXTABS];
 	QTabWidget* m_tab;
-	QTabWidget* m_tableWidget;
 };
