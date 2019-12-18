@@ -13,7 +13,8 @@ CThreadsViewWnd::CThreadsViewWnd(QMdiArea* parent)
 
 	resize(300, 700);
 
-	parent->addSubWindow(this)->setWindowTitle("Threads");
+	parent->addSubWindow(this);
+	setWindowTitle("Threads");
 
 	m_tableView = new QTableView(this);
 	setWidget(m_tableView);
