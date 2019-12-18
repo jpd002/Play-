@@ -26,12 +26,6 @@ public:
 
 	FindCallersRequestedEvent FindCallersRequested;
 
-
-// protected:
-// 	long OnSize(unsigned int, unsigned int, unsigned int) override;
-// 	long OnSysCommand(unsigned int, LPARAM) override;
-// 	long OnSetFocus() override;
-
 private:
 	enum
 	{
@@ -47,9 +41,7 @@ private:
 	void EditComment();
 	void FindCallers();
 	void UpdatePosition(int);
-	// void UpdateMouseSelection(unsigned int, unsigned int);
 	void ToggleBreakpoint(uint32);
-	// uint32 GetAddressAtPosition(unsigned int, unsigned int);
 	SelectionRangeType GetSelectionRange();
 	void HistoryReset();
 	void HistorySave(uint32);

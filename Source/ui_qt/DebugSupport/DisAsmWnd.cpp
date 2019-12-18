@@ -323,11 +323,8 @@ void CDisAsmWnd::EditComment()
 	if (!ok  || value.isEmpty())
 		return;
 
-	// if(value != nullptr)
-	{
-		m_ctx->m_Comments.InsertTag(m_selected, value.toStdString().c_str());
-		m_model->Redraw(m_selected);
-	}
+	m_ctx->m_Comments.InsertTag(m_selected, value.toStdString().c_str());
+	m_model->Redraw(m_selected);
 }
 
 void CDisAsmWnd::FindCallers()
@@ -422,13 +419,6 @@ bool CDisAsmWnd::HistoryHasNext()
 {
 	return (m_historySize != 0) && (m_historyPosition != (m_historySize - 1));
 }
-
-// uint32 CDisAsmWnd::GetAddressAtPosition(unsigned int nX, unsigned int nY)
-// {
-// 	uint32 address = nY / (m_renderMetrics.fontSizeY + m_renderMetrics.yspace);
-// 	address = (m_address + (address * m_instructionSize));
-// 	return address;
-// }
 
 uint32 CDisAsmWnd::GetInstruction(uint32 address)
 {
