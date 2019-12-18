@@ -116,8 +116,8 @@ MainWindow::MainWindow(QWidget* parent)
 
 	connect(debugMenuUi->actionShowDebugger, &QAction::triggered, this, std::bind(&MainWindow::ShowDebugger, this));
 	//connect(debugMenuUi->actionShowFrameDebugger, &QAction::triggered, this, std::bind(&MainWindow::ShowFrameDebugger, this));
-	//connect(debugMenuUi->actionDumpNextFrame, &QAction::triggered, this, std::bind(&MainWindow::DumpNextFrame, this));
-	//connect(debugMenuUi->actionGsDrawEnabled, &QAction::triggered, this, std::bind(&MainWindow::ToggleGsDraw, this));
+	connect(debugMenuUi->actionDumpNextFrame, &QAction::triggered, this, std::bind(&MainWindow::DumpNextFrame, this));
+	connect(debugMenuUi->actionGsDrawEnabled, &QAction::triggered, this, std::bind(&MainWindow::ToggleGsDraw, this));
 #endif
 }
 
@@ -850,7 +850,7 @@ void MainWindow::ToggleGsDraw()
 	if(gs == nullptr) return;
 	bool newState = !gs->GetDrawEnabled();
 	gs->SetDrawEnabled(newState);
-	//debugMenuUi->actionGsDrawEnabled->setChecked(newState);
+	debugMenuUi->actionGsDrawEnabled->setChecked(newState);
 	m_msgLabel->setText(newState ? QString("GS Draw Enabled") : QString("GS Draw Disabled"));
 }
 
