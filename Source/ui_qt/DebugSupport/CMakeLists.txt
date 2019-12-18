@@ -115,15 +115,18 @@ set(SRC_FILES
 	# ${SRC_ROOT}/WinUtils.h
 	${SRC_ROOT}/QtGenericTableModel.cpp
 	${SRC_ROOT}/QtDebugger.cpp
+	${SRC_ROOT}/QtDialogListWidget.cpp
 )
 
 set(QT_DEBUGGER_MOC_HEADERS
 	${SRC_ROOT}/QtGenericTableModel.h
 	${SRC_ROOT}/QtDebugger.h
+	${SRC_ROOT}/QtDialogListWidget.h
 )
 
 set(QT_DEBUGGER_UI
 	${SRC_ROOT}/Qt_ui/QtDebugger.ui
+	${SRC_ROOT}/Qt_ui/QtDialogListWidget.ui
 )
 
 QT5_WRAP_UI(QT_DEBUGGER_UI_HEADERS ${QT_DEBUGGER_UI})

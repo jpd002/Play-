@@ -2,8 +2,8 @@
 #include "lexical_cast_ex.h"
 #include "string_cast.h"
 #include "ThreadsViewWnd.h"
-// #include "ThreadCallStackViewWnd.h"
 #include "DebugUtils.h"
+#include "QtDialogListWidget.h"
 
 CThreadsViewWnd::CThreadsViewWnd(QMdiArea* parent)
     : QMdiSubWindow(parent)
@@ -88,13 +88,23 @@ void CThreadsViewWnd::tableDoubleClick(const QModelIndex& indexRow)
 	}
 	else
 	{
-		// CThreadCallStackViewWnd threadCallStackViewWnd(m_hWnd);
-		// threadCallStackViewWnd.SetItems(m_context, callStackItems, m_biosDebugInfoProvider->GetModulesDebugInfo());
-		// threadCallStackViewWnd.DoModal();
+		std::map<std::string, uint32> addrMap;
+		QtDialogListWidget dialog(this);
+		for(auto itemIterator(std::begin(callStackItems));
+		    itemIterator != std::end(callStackItems); itemIterator++)
+		{
+			const auto& item(*itemIterator);
+			std::string locationString = DebugUtils::PrintAddressLocation(item, m_context, m_biosDebugInfoProvider->GetModulesDebugInfo());
+			dialog.addItem(locationString);
+			addrMap.insert({locationString, item});
+		}
 
-		// if(threadCallStackViewWnd.HasSelection())
-		// {
-		// 	OnGotoAddress(threadCallStackViewWnd.GetSelectedAddress());
-		// }
+		dialog.exec();
+		auto locationString = dialog.getResult();
+		if(!locationString.empty())
+		{
+			auto address = addrMap.at(locationString);
+			OnGotoAddress(address);
+		}
 	}
 }
