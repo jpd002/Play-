@@ -80,7 +80,6 @@ CDisAsmWnd::CDisAsmWnd(QMdiArea* parent, CVirtualMachine& virtualMachine, CMIPS*
 	m_tableView->setSelectionBehavior(QAbstractItemView::SelectRows);
 	m_tableView->setSelectionMode(QAbstractItemView::ContiguousSelection);
 	connect(m_tableView->selectionModel(), &QItemSelectionModel::selectionChanged, this, &CDisAsmWnd::selectionChanged);
-	// RefreshLayout();
 
 	QAction* copyAction = new QAction("copy", this);
 	copyAction->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_C));

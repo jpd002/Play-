@@ -6,7 +6,6 @@
 
 #define MENUCMD_BASE 40000
 
-//TODO: MENUMODE_MAX
 CRegViewFPU::CRegViewFPU(QWidget* parent, CMIPS* pC)
     : CRegViewPage(parent)
     , m_pCtx(pC)
@@ -95,18 +94,6 @@ void CRegViewFPU::ShowContextMenu(const QPoint& pos)
 	contextMenu.addAction("Single Mode", [&]() {m_nViewMode=VIEWMODE_SINGLE; this->Update(); });
 	contextMenu.exec(mapToGlobal(pos));
 }
-/*
-long CRegViewFPU::OnCommand(unsigned short nID, unsigned short nCmd, HWND hSender)
-{
-	if((nID >= MENUCMD_BASE) && (nID < (MENUCMD_BASE + VIEWMODE_MAX)))
-	{
-		m_nViewMode = static_cast<VIEWMODE>(nID - MENUCMD_BASE);
-		Update();
-	}
-
-	return TRUE;
-}
-*/
 
 void CRegViewFPU::OnRunningStateChange()
 {

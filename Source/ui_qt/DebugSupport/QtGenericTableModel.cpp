@@ -47,11 +47,6 @@ QVariant CQtGenericTableModel::headerData(int section, Qt::Orientation orientati
 	return QAbstractTableModel::headerData(section, orientation, role);
 }
 
-void CQtGenericTableModel::DoubleClicked(const QModelIndex& index, QWidget* parent)
-{
-	// TODO signal
-}
-
 bool CQtGenericTableModel::addItem(std::vector<std::string> data)
 {
 	if(data.size() != m_headers.size())

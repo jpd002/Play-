@@ -1,8 +1,7 @@
 #include "RegViewPage.h"
 
-CRegViewPage::CRegViewPage(QWidget* Parent) //, const RECT& rect)
+CRegViewPage::CRegViewPage(QWidget* Parent)
     : QTableWidget(Parent)
-//: m_font(Framework::Win32::CreateFont(_T("Courier New"), 8))
 {
 	setEditTriggers(QAbstractItemView::NoEditTriggers);
 }

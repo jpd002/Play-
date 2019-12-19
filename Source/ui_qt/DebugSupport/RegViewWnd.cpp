@@ -40,16 +40,13 @@ void CRegViewWnd::HandleMachineStateChange()
 {
 	for(unsigned int i = 0; i < MAXTABS; i++)
 	{
-		//if(m_regView[i] != nullptr)
 		m_regView[i]->Update();
 	}
-	//m_current->Update();
 }
 void CRegViewWnd::HandleRunningStateChange(CVirtualMachine::STATUS)
 {
 	for(unsigned int i = 0; i > MAXTABS; i++)
 	{
-		//if(m_regView[i] != nullptr)
 		m_regView[i]->Update();
 	}
 }

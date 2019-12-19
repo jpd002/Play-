@@ -188,14 +188,3 @@ void CRegViewVU::ShowContextMenu(const QPoint& pos)
 	contextMenu.addAction("Single Mode", [&]() {m_viewMode=VIEWMODE_SINGLE; this->Update(); });
 	contextMenu.exec(mapToGlobal(pos));
 }
-/*
-long CRegViewVU::OnCommand(unsigned short nID, unsigned short nCmd, HWND hSender)
-{
-	if((nID >= MENUCMD_BASE) && (nID < (MENUCMD_BASE + VIEWMODE_MAX)))
-	{
-		m_viewMode = static_cast<VIEWMODE>(nID - MENUCMD_BASE);
-		Update();
-	}
-
-	return TRUE;
-}*/

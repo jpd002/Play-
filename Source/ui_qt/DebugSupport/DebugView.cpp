@@ -11,33 +11,25 @@ CDebugView::CDebugView(QMdiArea* parent, CVirtualMachine& virtualMachine, CMIPS*
     , m_stepFunction(stepFunction)
     , m_disAsmWnd(nullptr)
     , m_regViewWnd(nullptr)
-    //, m_memoryViewWnd(nullptr)
+    , m_memoryViewWnd(nullptr)
     , m_callStackWnd(nullptr)
     , m_biosDebugInfoProvider(biosDebugInfoProvider)
 {
 
-	// Setup tabs
 	m_disAsmWnd = new CDisAsmWnd(parent, virtualMachine, m_ctx, name, disAsmType);
 	this->m_disAsmWnd->show();
 
-	//this->addTab(m_disAsmWnd, "DisAsm");
 	m_regViewWnd = new CRegViewWnd(parent, this->m_ctx);
 	this->m_regViewWnd->show();
 
 	m_memoryViewWnd = new CMemoryViewMIPSWnd(parent, virtualMachine, m_ctx, size);
 	this->m_regViewWnd->show();
 
-	//this->addTab(m_memoryViewWnd, "Memory View");
-
 	m_callStackWnd = new CCallStackWnd(parent, m_ctx, m_biosDebugInfoProvider);
 	this->m_callStackWnd->show();
 
-	// parent->addSubWindow(m_callStackWnd)->setWindowTitle("Call Stack");
-
-	//this->addTab(m_callStackWnd, "Call Stack");
 	m_OnFunctionDblClickConnection = m_callStackWnd->OnFunctionDblClick.Connect(std::bind(&CDebugView::OnCallStackWndFunctionDblClick, this, std::placeholders::_1));
 
-	//this->m_viewTabs->show();
 	Hide();
 }
 
@@ -72,7 +64,6 @@ const char* CDebugView::GetName() const
 
 void CDebugView::Hide()
 {
-	//int method = SW_HIDE;
 	m_disAsmWnd->hide();
 	m_memoryViewWnd->hide();
 
