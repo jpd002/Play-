@@ -79,22 +79,15 @@ QtDebugger::QtDebugger(QWidget* parent, CPS2VM& virtualMachine)
 		GetDisassemblyWindow()->setFocus(Qt::ActiveWindowFocusReason);
 	}
 
-	CreateAccelerators();
 }
 
 QtDebugger::~QtDebugger()
 {
 	delete ui;
 
-	OnExecutableUnloadingMsg();
-
-	DestroyAccelerators();
+	OnExecutableUnloading();
 
 	SaveSettings();
-
-	//Destroy explicitly since we're keeping the window alive
-	//artificially by handling WM_SYSCOMMAND
-	//Destroy();
 
 	for(unsigned int i = 0; i < DEBUGVIEW_MAX; i++)
 	{
@@ -104,11 +97,6 @@ QtDebugger::~QtDebugger()
 	//delete m_pELFView;
 	delete m_pFunctionsView;
 }
-
-//HACCEL QtDebugger::GetAccelerators()
-//{
-//	return m_nAccTable;
-//}
 
 void QtDebugger::RegisterPreferences()
 {
@@ -628,63 +616,6 @@ std::vector<uint32> QtDebugger::FindWordValueRefs(CMIPS* context, uint32 targetV
 	return refs;
 }
 
-void QtDebugger::CreateAccelerators()
-{
-	//Framework::Win32::CAcceleratorTableGenerator generator;
-	//generator.Insert(ID_VIEW_FUNCTIONS, 'F', FCONTROL | FVIRTKEY);
-	//generator.Insert(ID_VIEW_THREADS, 'T', FCONTROL | FVIRTKEY);
-	//generator.Insert(ID_VM_STEP, VK_F10, FVIRTKEY);
-	//generator.Insert(ID_VM_RESUME, VK_F5, FVIRTKEY);
-	//generator.Insert(ID_VIEW_CALLSTACK, 'A', FCONTROL | FVIRTKEY);
-	//generator.Insert(ID_VIEW_EEVIEW, '1', FALT | FVIRTKEY);
-	//generator.Insert(ID_VIEW_VU0VIEW, '2', FALT | FVIRTKEY);
-	//generator.Insert(ID_VIEW_VU1VIEW, '3', FALT | FVIRTKEY);
-	//generator.Insert(ID_VIEW_IOPVIEW, '4', FALT | FVIRTKEY);
-	//m_nAccTable = generator.Create();
-}
-
-void QtDebugger::DestroyAccelerators()
-{
-	//DestroyAcceleratorTable(m_nAccTable);
-}
-
-/*long QtDebugger::OnCommand(unsigned short nID, unsigned short nMsg, HWND hFrom)
-{
-	switch(nID)
-	{
-	case ID_VIEW_ELF:
-		m_pELFView->Show(SW_SHOW);
-		m_pELFView->setFocus(Qt::ActiveWindowFocusReason);
-		return FALSE;
-		break;
-	return TRUE;
-}*/
-
-/*
-LRESULT QtDebugger::OnWndProc(unsigned int nMsg, WPARAM wParam, LPARAM lParam)
-{
-	switch(nMsg)
-	{
-	case WM_EXECUNLOAD:
-		OnExecutableUnloadingMsg();
-		return FALSE;
-		break;
-	case WM_EXECCHANGE:
-		OnExecutableChangeMsg();
-		return FALSE;
-		break;
-	case WM_MACHINESTATECHANGE:
-		OnMachineStateChangeMsg();
-		return FALSE;
-		break;
-	case WM_RUNNINGSTATECHANGE:
-		OnRunningStateChangeMsg();
-		return FALSE;
-		break;
-	}
-	return CMDIFrame::OnWndProc(nMsg, wParam, lParam);
-}*/
-
 void QtDebugger::OnFunctionsViewFunctionDblClick(uint32 address)
 {
 	GetDisassemblyWindow()->SetAddress(address);
@@ -701,26 +632,6 @@ void QtDebugger::OnThreadsViewAddressDblClick(uint32 address)
 	auto disAsm = GetDisassemblyWindow();
 	disAsm->SetCenterAtAddress(address);
 	disAsm->SetSelectedAddress(address);
-}
-
-void QtDebugger::OnExecutableChange()
-{
-	//SendMessage(m_hWnd, WM_EXECCHANGE, 0, 0);
-}
-
-void QtDebugger::OnExecutableUnloading()
-{
-	//SendMessage(m_hWnd, WM_EXECUNLOAD, 0, 0);
-}
-
-void QtDebugger::OnMachineStateChange()
-{
-	this->OnMachineStateChangeMsg();
-}
-
-void QtDebugger::OnRunningStateChange()
-{
-	this->OnRunningStateChangeMsg();
 }
 
 void QtDebugger::OnFindCallersRequested(uint32 address)
@@ -754,7 +665,7 @@ void QtDebugger::OnFindCallersAddressDblClick(uint32 address)
 	disAsm->SetSelectedAddress(address);
 }
 
-void QtDebugger::OnExecutableChangeMsg()
+void QtDebugger::OnExecutableChange()
 {
 	//m_pELFView->SetELF(m_virtualMachine.m_ee->m_os->GetELF());
 	// m_pFunctionsView->SetELF(m_virtualMachine.m_os->GetELF());
@@ -766,14 +677,14 @@ void QtDebugger::OnExecutableChangeMsg()
 	m_pFunctionsView->Refresh();
 }
 
-void QtDebugger::OnExecutableUnloadingMsg()
+void QtDebugger::OnExecutableUnloading()
 {
 	SaveDebugTags();
 	//m_pELFView->SetELF(NULL);
 	// m_pFunctionsView->SetELF(NULL);
 }
 
-void QtDebugger::OnMachineStateChangeMsg()
+void QtDebugger::OnMachineStateChange()
 {
 	for(auto& view : m_pView)
 	{
@@ -782,7 +693,7 @@ void QtDebugger::OnMachineStateChangeMsg()
 	m_threadsView->HandleMachineStateChange();
 }
 
-void QtDebugger::OnRunningStateChangeMsg()
+void QtDebugger::OnRunningStateChange()
 {
 	auto newState = m_virtualMachine.GetStatus();
 	for(auto& view : m_pView)

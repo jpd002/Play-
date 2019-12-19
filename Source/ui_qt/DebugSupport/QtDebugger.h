@@ -25,7 +25,6 @@ public:
 	explicit QtDebugger(QWidget* parent, CPS2VM&);
 	~QtDebugger();
 
-	//HACCEL GetAccelerators();
 	static void InitializeConsole();
 
 private slots:
@@ -76,8 +75,6 @@ private:
 	void SaveSettings();
 	void SerializeWindowGeometry(QMdiSubWindow*, const char*, const char*, const char*, const char*, const char*);
 	void UnserializeWindowGeometry(QMdiSubWindow*, const char*, const char*, const char*, const char*, const char*);
-	void CreateAccelerators();
-	void DestroyAccelerators();
 	void Resume();
 	void StepCPU();
 	void FindWordValue(uint32);
@@ -119,14 +116,6 @@ private:
 	void OnRunningStateChange();
 	void OnFindCallersRequested(uint32);
 	void OnFindCallersAddressDblClick(uint32);
-
-	//Tunnelled handlers
-	void OnExecutableChangeMsg();
-	void OnExecutableUnloadingMsg();
-	void OnMachineStateChangeMsg();
-	void OnRunningStateChangeMsg();
-
-	//HACCEL m_nAccTable;
 
 	Framework::CSignal<void(uint32)>::Connection m_OnFunctionDblClickConnection;
 	Framework::CSignal<void()>::Connection m_OnFunctionsStateChangeConnection;
