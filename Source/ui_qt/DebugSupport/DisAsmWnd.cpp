@@ -27,6 +27,7 @@ CDisAsmWnd::CDisAsmWnd(QMdiArea* parent, CVirtualMachine& virtualMachine, CMIPS*
     , m_ctx(ctx)
     , m_disAsmType(disAsmType)
 {
+	HistoryReset();
 
 	resize(320, 240);
 
