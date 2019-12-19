@@ -19,7 +19,7 @@ class CDebugView : public CVirtualMachineStateView
 public:
 		typedef std::function<void(void)> StepFunction;
 
-	CDebugView(QMdiArea*, CVirtualMachine&, CMIPS*, const StepFunction&, CBiosDebugInfoProvider*, const char*, CDisAsmWnd::DISASM_TYPE = CDisAsmWnd::DISASM_STANDARD);
+	CDebugView(QMdiArea*, CVirtualMachine&, CMIPS*, const StepFunction&, CBiosDebugInfoProvider*, const char*, CQtDisAsmTableModel::DISASM_TYPE = CQtDisAsmTableModel::DISASM_STANDARD);
 	virtual ~CDebugView();
 
 	void HandleMachineStateChange() override;

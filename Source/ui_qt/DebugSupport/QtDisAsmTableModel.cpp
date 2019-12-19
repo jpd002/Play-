@@ -5,12 +5,15 @@
 #include "string_format.h"
 #include "lexical_cast_ex.h"
 
-CQtDisAsmTableModel::CQtDisAsmTableModel(QObject* parent, CVirtualMachine& virtualMachine, CMIPS* context, std::vector<std::string> headers)
+CQtDisAsmTableModel::CQtDisAsmTableModel(QObject* parent, CVirtualMachine& virtualMachine, CMIPS* context)
     : QAbstractTableModel(parent)
 	, m_virtualMachine(virtualMachine)
     , m_ctx(context)
     , m_instructionSize(4)
+    , m_disAsmType(DISASM_TYPE::DISASM_STANDARD)
 {
+	std::vector<std::string> headers = {"S", "Address", "R", "Instr","I-Mn", "I-Op", "Target"};
+	m_headers.clear();
 	for(int i = 0; i < headers.size(); ++i)
 		m_headers.insert(i, QVariant(headers[i].c_str()));
 
@@ -103,35 +106,13 @@ QVariant CQtDisAsmTableModel::data(const QModelIndex& index, int role) const
 			case 2://Relation:
 				return QVariant();
 			break;
-			case 3://Instruction :
-				{
-					uint32 data = GetInstruction(address);
-					return lexical_cast_hex<std::string>(data, 8).c_str();
-				}
-			break;
-			case 4://Instruction Mno:
-				{
-					uint32 data = GetInstruction(address);
-					char disAsm[256];
-					m_ctx->m_pArch->GetInstructionMnemonic(m_ctx, address, data, disAsm, 256);
-					return disAsm;
-				}
-			break;
-			case 5://Instruction Oper:
-				{
-					uint32 data = GetInstruction(address);
-					char disAsm[256];
-					m_ctx->m_pArch->GetInstructionOperands(m_ctx, address, data, disAsm, 256);
-					return disAsm;
-				}
-			break;
-			// case 6://Name:
-
-			// break;
-			// case 7://...
-
-			// break;
 		}
+		auto size = (m_disAsmType == DISASM_TYPE::DISASM_STANDARD) ? 3 : 5;
+		auto subindex = index.column() - 3;
+		if(subindex < size)
+			return GetInstructionDetails(subindex, address).c_str();
+		else if(subindex == size)
+			return GetInstructionMetadata(address).c_str();
 	}
 	if(role == Qt::SizeHintRole)
 	{
@@ -209,35 +190,6 @@ void CQtDisAsmTableModel::DoubleClicked(const QModelIndex& index, QWidget* paren
 	// TODO signal
 }
 
-bool CQtDisAsmTableModel::addItem(std::vector<std::string> data)
-{
-	if(data.size() != m_headers.size())
-		return false;
-
-	emit QAbstractTableModel::beginInsertRows(QModelIndex(), rowCount(), rowCount());
-	m_data.push_back(data);
-	emit QAbstractTableModel::endInsertRows();
-	return true;
-}
-
-std::string CQtDisAsmTableModel::getItem(const QModelIndex& index)
-{
-	if(m_data.size() > index.row())
-	{
-		auto data = m_data.at(index.row());
-		if(data.size() > index.column())
-			return data.at(index.column());
-	}
-	return nullptr;
-}
-
-void CQtDisAsmTableModel::clear()
-{
-	emit QAbstractTableModel::beginResetModel();
-	m_data.clear();
-	emit QAbstractTableModel::endResetModel();
-}
-
 void CQtDisAsmTableModel::Redraw()
 {
 	emit QAbstractTableModel::dataChanged(index(0, 0), index(rowCount(), columnCount()));
@@ -252,4 +204,65 @@ uint32 CQtDisAsmTableModel::GetInstruction(uint32 address) const
 {
 	//Address translation perhaps?
 	return m_ctx->m_pMemoryMap->GetInstruction(address);
+}
+
+std::string CQtDisAsmTableModel::GetInstructionDetails(int index, uint32 address) const
+{
+	assert((address & 0x07) == 0);
+
+	uint32 instruction = GetInstruction(address);
+	switch(index)
+	{
+		case 0:
+		{
+			std::string instructionCode = lexical_cast_hex<std::string>(instruction, 8);
+			return instructionCode;
+		}
+		case 1:
+		{
+			char disAsm[256];
+			m_ctx->m_pArch->GetInstructionMnemonic(m_ctx, address + 4, instruction, disAsm, 256);
+			return disAsm;
+		}
+		case 2:
+		{
+			char disAsm[256];
+			m_ctx->m_pArch->GetInstructionOperands(m_ctx, address + 4, instruction, disAsm, 256);
+			return disAsm;
+		}
+	}
+}
+
+std::string CQtDisAsmTableModel::GetInstructionMetadata(uint32 address) const
+{
+	bool commentDrawn = false;
+	std::string disAsm;
+	//Draw function name
+	{
+		const char* tag = m_ctx->m_Functions.Find(address);
+		if(tag != nullptr)
+		{
+			disAsm += ("@");
+			disAsm += tag;
+			commentDrawn = true;
+		}
+	}
+
+	//Draw target function call if applicable
+	if(!commentDrawn)
+	{
+		uint32 opcode = GetInstruction(address);
+		if(m_ctx->m_pArch->IsInstructionBranch(m_ctx, address, opcode) == MIPS_BRANCH_NORMAL)
+		{
+			uint32 effAddr = m_ctx->m_pArch->GetInstructionEffectiveAddress(m_ctx, address, opcode);
+			const char* tag = m_ctx->m_Functions.Find(effAddr);
+			if(tag != nullptr)
+			{
+				disAsm += ("-> ");
+				disAsm += tag;
+				commentDrawn = true;
+			}
+		}
+	}
+	return disAsm.c_str();
 }

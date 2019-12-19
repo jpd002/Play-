@@ -134,7 +134,7 @@ private:
 	Framework::CSignal<void()>::Connection m_OnMachineStateChangeConnection;
 	Framework::CSignal<void()>::Connection m_OnRunningStateChangeConnection;
 
-	CDisAsm::FindCallersRequestedEvent::Connection m_findCallersRequestConnection;
+	CDisAsmWnd::FindCallersRequestedEvent::Connection m_findCallersRequestConnection;
 
 	//CELFView* m_pELFView = nullptr;
 	CFunctionsView* m_pFunctionsView = nullptr;

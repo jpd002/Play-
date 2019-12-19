@@ -4,7 +4,7 @@
 //#include "DisAsmWnd.h"
 
 CDebugView::CDebugView(QMdiArea* parent, CVirtualMachine& virtualMachine, CMIPS* ctx,
-                       const StepFunction& stepFunction, CBiosDebugInfoProvider* biosDebugInfoProvider, const char* name, CDisAsmWnd::DISASM_TYPE disAsmType)
+                       const StepFunction& stepFunction, CBiosDebugInfoProvider* biosDebugInfoProvider, const char* name, CQtDisAsmTableModel::DISASM_TYPE disAsmType)
 	  : m_virtualMachine(virtualMachine)
     , m_ctx(ctx)
     , m_name(name)
@@ -17,7 +17,7 @@ CDebugView::CDebugView(QMdiArea* parent, CVirtualMachine& virtualMachine, CMIPS*
 {
 	
 	// Setup tabs
-	m_disAsmWnd = new CDisAsmWnd(parent, virtualMachine, m_ctx, disAsmType);
+	m_disAsmWnd = new CDisAsmWnd(parent, virtualMachine, m_ctx, name, disAsmType);
 	this->m_disAsmWnd->show();
 
 	//this->addTab(m_disAsmWnd, "DisAsm");
@@ -115,7 +115,7 @@ CCallStackWnd* CDebugView::GetCallStackWindow()
 
 void CDebugView::OnCallStackWndFunctionDblClick(uint32 nAddress)
 {
-	auto disAsm = m_disAsmWnd->GetDisAsm();
+	auto disAsm = GetDisassemblyWindow();
 	disAsm->SetCenterAtAddress(nAddress);
 	disAsm->SetSelectedAddress(nAddress);
 }

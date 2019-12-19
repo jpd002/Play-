@@ -3,27 +3,29 @@
 #include <QMdiArea>
 #include <QMdiSubWindow>
 #include <QTableView>
-#include "QtGenericTableModel.h"
+#include "QtDisAsmTableModel.h"
 
-#include "DisAsm.h"
+#include "signal/Signal.h"
+#include "MIPS.h"
 #include "VirtualMachineStateView.h"
 
 class CDisAsmWnd : public QMdiSubWindow, public CVirtualMachineStateView
 {
 public:
-	enum DISASM_TYPE
-	{
-		DISASM_STANDARD,
-		DISASM_VU
-	};
+	typedef Framework::CSignal<void(uint32)> FindCallersRequestedEvent;
 
-	CDisAsmWnd(QMdiArea*, CVirtualMachine&, CMIPS*, DISASM_TYPE);
+	CDisAsmWnd(QMdiArea*, CVirtualMachine&, CMIPS*, const char*, CQtDisAsmTableModel::DISASM_TYPE);
 	virtual ~CDisAsmWnd();
 
 	void HandleMachineStateChange() override;
 	void HandleRunningStateChange(CVirtualMachine::STATUS) override;
 
-	CDisAsm* GetDisAsm() const;
+	void SetAddress(uint32);
+	void SetCenterAtAddress(uint32);
+	void SetSelectedAddress(uint32);
+
+	FindCallersRequestedEvent FindCallersRequested;
+
 
 // protected:
 // 	long OnSize(unsigned int, unsigned int, unsigned int) override;
@@ -31,6 +33,47 @@ public:
 // 	long OnSetFocus() override;
 
 private:
-	// void RefreshLayout();
-	CDisAsm* m_disAsm = nullptr;
+	enum
+	{
+		HISTORY_STACK_MAX = 20
+	};
+	typedef std::pair<uint32, uint32> SelectionRangeType;
+
+	uint32 GetInstruction(uint32);
+
+	void GotoAddress();
+	void GotoPC();
+	void GotoEA();
+	void EditComment();
+	void FindCallers();
+	void UpdatePosition(int);
+	// void UpdateMouseSelection(unsigned int, unsigned int);
+	void ToggleBreakpoint(uint32);
+	// uint32 GetAddressAtPosition(unsigned int, unsigned int);
+	SelectionRangeType GetSelectionRange();
+	void HistoryReset();
+	void HistorySave(uint32);
+	void HistoryGoBack();
+	void HistoryGoForward();
+	uint32 HistoryGetPrevious();
+	uint32 HistoryGetNext();
+	bool HistoryHasPrevious();
+	bool HistoryHasNext();
+
+
+	CVirtualMachine& m_virtualMachine;
+	CMIPS* m_ctx;
+	int32 m_instructionSize;
+
+	uint32 m_address;
+	uint32 m_selected;
+	uint32 m_selectionEnd;
+	bool m_focus;
+
+	uint32 m_history[HISTORY_STACK_MAX];
+	unsigned int m_historyPosition;
+	unsigned int m_historySize;
+
+	QTableView* m_tableView;
+	CQtDisAsmTableModel* m_model;
 };

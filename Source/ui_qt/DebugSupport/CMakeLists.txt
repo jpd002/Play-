@@ -37,10 +37,10 @@ set(SRC_FILES
 	${SRC_ROOT}/DebugUtils.h
 	${SRC_ROOT}/DebugView.cpp
 	${SRC_ROOT}/DebugView.h
-	${SRC_ROOT}/DisAsm.cpp
-	${SRC_ROOT}/DisAsm.h
-	${SRC_ROOT}/DisAsmVu.cpp
-	${SRC_ROOT}/DisAsmVu.h
+	# ${SRC_ROOT}/DisAsm.cpp
+	# ${SRC_ROOT}/DisAsm.h
+	# ${SRC_ROOT}/DisAsmVu.cpp
+	# ${SRC_ROOT}/DisAsmVu.h
 	${SRC_ROOT}/DisAsmWnd.cpp
 	${SRC_ROOT}/DisAsmWnd.h
 	${SRC_ROOT}/FunctionsView.cpp
@@ -114,6 +114,7 @@ set(SRC_FILES
 	# ${SRC_ROOT}/WinUtils.cpp
 	# ${SRC_ROOT}/WinUtils.h
 	${SRC_ROOT}/QtDisAsmTableModel.cpp
+	${SRC_ROOT}/QtDisAsmVuTableModel.cpp
 	${SRC_ROOT}/QtGenericTableModel.cpp
 	${SRC_ROOT}/QtDebugger.cpp
 	${SRC_ROOT}/QtDialogListWidget.cpp
@@ -121,6 +122,7 @@ set(SRC_FILES
 
 set(QT_DEBUGGER_MOC_HEADERS
 	${SRC_ROOT}/QtDisAsmTableModel.h
+	${SRC_ROOT}/QtDisAsmVuTableModel.h
 	${SRC_ROOT}/QtGenericTableModel.h
 	${SRC_ROOT}/QtDebugger.h
 	${SRC_ROOT}/QtDialogListWidget.h
