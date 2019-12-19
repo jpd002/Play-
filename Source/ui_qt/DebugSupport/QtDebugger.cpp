@@ -58,13 +58,13 @@ QtDebugger::QtDebugger(QWidget *parent, CPS2VM& virtualMachine)
 	m_nCurrentView = -1;
 
 	m_pView[DEBUGVIEW_EE] = new CDebugView(ui->mdiArea, m_virtualMachine, &m_virtualMachine.m_ee->m_EE,
-	                                       std::bind(&CPS2VM::StepEe, &m_virtualMachine), m_virtualMachine.m_ee->m_os, "EmotionEngine");
+	                                       std::bind(&CPS2VM::StepEe, &m_virtualMachine), m_virtualMachine.m_ee->m_os, "EmotionEngine", PS2::EE_RAM_SIZE);
 	m_pView[DEBUGVIEW_VU0] = new CDebugView(ui->mdiArea, m_virtualMachine, &m_virtualMachine.m_ee->m_VU0,
-	                                       std::bind(&CPS2VM::StepVu0, &m_virtualMachine), nullptr, "Vector Unit 0", CQtDisAsmTableModel::DISASM_VU);
+	                                       std::bind(&CPS2VM::StepVu0, &m_virtualMachine), nullptr, "Vector Unit 0", PS2::VUMEM0SIZE, CQtDisAsmTableModel::DISASM_VU);
 	m_pView[DEBUGVIEW_VU1] = new CDebugView(ui->mdiArea, m_virtualMachine, &m_virtualMachine.m_ee->m_VU1,
-	                                       std::bind(&CPS2VM::StepVu1, &m_virtualMachine), nullptr, "Vector Unit 1", CQtDisAsmTableModel::DISASM_VU);
+	                                       std::bind(&CPS2VM::StepVu1, &m_virtualMachine), nullptr, "Vector Unit 1", PS2::VUMEM1SIZE, CQtDisAsmTableModel::DISASM_VU);
 	m_pView[DEBUGVIEW_IOP] = new CDebugView(ui->mdiArea, m_virtualMachine, &m_virtualMachine.m_iop->m_cpu,
-	                                       std::bind(&CPS2VM::StepIop, &m_virtualMachine), m_virtualMachine.m_iop->m_bios.get(), "IO Processor");
+	                                       std::bind(&CPS2VM::StepIop, &m_virtualMachine), m_virtualMachine.m_iop->m_bios.get(), "IO Processor", PS2::IOP_RAM_SIZE);
 
 	m_OnExecutableChangeConnection = m_virtualMachine.m_ee->m_os->OnExecutableChange.Connect(std::bind(&QtDebugger::OnExecutableChange, this));
 	m_OnExecutableUnloadingConnection = m_virtualMachine.m_ee->m_os->OnExecutableUnloading.Connect(std::bind(&QtDebugger::OnExecutableUnloading, this));
@@ -404,8 +404,8 @@ void QtDebugger::Layout1024()
 	GetRegisterViewWindow()->setGeometry(700, 0, 324, 572);
 	GetRegisterViewWindow()->show();
 
-	//GetMemoryViewWindow()->setGeometry(0, 435, 700, 265);
-	//GetMemoryViewWindow()->show();
+	GetMemoryViewWindow()->setGeometry(0, 435, 700, 265);
+	GetMemoryViewWindow()->show();
 
 	GetCallStackWindow()->setGeometry(700, 572, 324, 128);
 	GetCallStackWindow()->show();
@@ -419,8 +419,8 @@ void QtDebugger::Layout1280()
 	GetRegisterViewWindow()->setGeometry(900, 0, 380, 784);
 	GetRegisterViewWindow()->show();
 
-	//GetMemoryViewWindow()->setGeometry(0, 540, 900, 416);
-	//GetMemoryViewWindow()->show();
+	GetMemoryViewWindow()->setGeometry(0, 540, 900, 416);
+	GetMemoryViewWindow()->show();
 
 	GetCallStackWindow()->setGeometry(900, 784, 380, 172);
 	GetCallStackWindow()->show();
@@ -434,8 +434,8 @@ void QtDebugger::Layout1600()
 	GetRegisterViewWindow()->setGeometry(1094, 0, 506, 725);
 	GetRegisterViewWindow()->show();
 
-	//GetMemoryViewWindow()->setGeometry(0, 725, 1094, 407);
-	//GetMemoryViewWindow()->show();
+	GetMemoryViewWindow()->setGeometry(0, 725, 1094, 407);
+	GetMemoryViewWindow()->show();
 
 	GetCallStackWindow()->setGeometry(1094, 725, 506, 407);
 	GetCallStackWindow()->show();
@@ -511,12 +511,12 @@ void QtDebugger::SaveViewLayout()
 	                        "debugger.regview.sizey",
 	                        "debugger.regview.visible");
 
-	// SerializeWindowGeometry(GetMemoryViewWindow(),
-	//                         "debugger.memoryview.posx",
-	//                         "debugger.memoryview.posy",
-	//                         "debugger.memoryview.sizex",
-	//                         "debugger.memoryview.sizey",
-	//                         "debugger.memoryview.visible");
+	SerializeWindowGeometry(GetMemoryViewWindow(),
+	                        "debugger.memoryview.posx",
+	                        "debugger.memoryview.posy",
+	                        "debugger.memoryview.sizex",
+	                        "debugger.memoryview.sizey",
+	                        "debugger.memoryview.visible");
 
 	SerializeWindowGeometry(GetCallStackWindow(),
 	                        "debugger.callstack.posx",
@@ -542,12 +542,12 @@ void QtDebugger::LoadViewLayout()
 	                          "debugger.regview.sizey",
 	                          "debugger.regview.visible");
 
-	// UnserializeWindowGeometry(GetMemoryViewWindow(),
-	//                           "debugger.memoryview.posx",
-	//                           "debugger.memoryview.posy",
-	//                           "debugger.memoryview.sizex",
-	//                           "debugger.memoryview.sizey",
-	//                           "debugger.memoryview.visible");
+	UnserializeWindowGeometry(GetMemoryViewWindow(),
+	                          "debugger.memoryview.posx",
+	                          "debugger.memoryview.posy",
+	                          "debugger.memoryview.sizex",
+	                          "debugger.memoryview.sizey",
+	                          "debugger.memoryview.visible");
 
 	UnserializeWindowGeometry(GetCallStackWindow(),
 	                          "debugger.callstack.posx",
@@ -559,16 +559,16 @@ void QtDebugger::LoadViewLayout()
 
 void QtDebugger::SaveBytesPerLine()
 {
-	//auto memoryView = GetMemoryViewWindow()->GetMemoryView();
-	//auto bytesPerLine = memoryView->GetBytesPerLine();
-	//CAppConfig::GetInstance().SetPreferenceInteger(PREF_DEBUGGER_MEMORYVIEW_BYTEWIDTH, bytesPerLine);
+	auto memoryView = GetMemoryViewWindow();
+	auto bytesPerLine = GetMemoryViewWindow()->GetBytesPerLine();
+	CAppConfig::GetInstance().SetPreferenceInteger(PREF_DEBUGGER_MEMORYVIEW_BYTEWIDTH, bytesPerLine);
 }
 
 void QtDebugger::LoadBytesPerLine()
 {
-	//auto bytesPerLine = CAppConfig::GetInstance().GetPreferenceInteger(PREF_DEBUGGER_MEMORYVIEW_BYTEWIDTH);
-	//auto memoryView = GetMemoryViewWindow()->GetMemoryView();
-	//memoryView->SetBytesPerLine(bytesPerLine);
+	auto bytesPerLine = CAppConfig::GetInstance().GetPreferenceInteger(PREF_DEBUGGER_MEMORYVIEW_BYTEWIDTH);
+	auto memoryView = GetMemoryViewWindow();
+	memoryView->SetBytesPerLine(bytesPerLine);
 }
 
 CDebugView* QtDebugger::GetCurrentView()
@@ -588,12 +588,10 @@ CDisAsmWnd* QtDebugger::GetDisassemblyWindow()
 	return GetCurrentView()->GetDisassemblyWindow();
 }
 
-/*
 CMemoryViewMIPSWnd* QtDebugger::GetMemoryViewWindow()
 {
 	return GetCurrentView()->GetMemoryViewWindow();
 }
-*/
 
 CRegViewWnd* QtDebugger::GetRegisterViewWindow()
 {
@@ -921,6 +919,12 @@ void QtDebugger::on_actionView_Registers_triggered()
 {
 	GetRegisterViewWindow()->show();
 	GetRegisterViewWindow()->setFocus(Qt::ActiveWindowFocusReason);
+}
+
+void QtDebugger::on_actionMemory_triggered()
+{
+	GetMemoryViewWindow()->show();
+	GetMemoryViewWindow()->setFocus(Qt::ActiveWindowFocusReason);
 }
 
 void QtDebugger::on_actionEmotionEngine_View_triggered()

@@ -4,7 +4,7 @@
 //#include "DisAsmWnd.h"
 
 CDebugView::CDebugView(QMdiArea* parent, CVirtualMachine& virtualMachine, CMIPS* ctx,
-                       const StepFunction& stepFunction, CBiosDebugInfoProvider* biosDebugInfoProvider, const char* name, CQtDisAsmTableModel::DISASM_TYPE disAsmType)
+                       const StepFunction& stepFunction, CBiosDebugInfoProvider* biosDebugInfoProvider, const char* name, int size, CQtDisAsmTableModel::DISASM_TYPE disAsmType)
 	  : m_virtualMachine(virtualMachine)
     , m_ctx(ctx)
     , m_name(name)
@@ -24,7 +24,9 @@ CDebugView::CDebugView(QMdiArea* parent, CVirtualMachine& virtualMachine, CMIPS*
 	m_regViewWnd = new CRegViewWnd(parent, this->m_ctx);
 	this->m_regViewWnd->show();
 
-	//m_memoryViewWnd = new CMemoryViewMIPSWnd(parentWnd, virtualMachine, m_ctx);
+	m_memoryViewWnd = new CMemoryViewMIPSWnd(parent, virtualMachine, m_ctx, size);
+	this->m_regViewWnd->show();
+
 	//this->addTab(m_memoryViewWnd, "Memory View");
 
 	m_callStackWnd = new CCallStackWnd(parent, m_ctx, m_biosDebugInfoProvider);
@@ -43,7 +45,7 @@ CDebugView::~CDebugView()
 {
 	delete m_disAsmWnd;
 	delete m_regViewWnd;
-	//delete m_memoryViewWnd;
+	delete m_memoryViewWnd;
 	delete m_callStackWnd;
 }
 
@@ -51,7 +53,7 @@ void CDebugView::HandleMachineStateChange()
 {
 	m_disAsmWnd->HandleMachineStateChange();
 	m_regViewWnd->HandleMachineStateChange();
-	//m_memoryViewWnd->HandleMachineStateChange();
+	m_memoryViewWnd->HandleMachineStateChange();
 	m_callStackWnd->HandleMachineStateChange();
 }
 
@@ -59,7 +61,7 @@ void CDebugView::HandleRunningStateChange(CVirtualMachine::STATUS newState)
 {
 	m_disAsmWnd->HandleRunningStateChange(newState);
 	m_regViewWnd->HandleRunningStateChange(newState);
-	//m_memoryViewWnd->HandleRunningStateChange(newState);
+	m_memoryViewWnd->HandleRunningStateChange(newState);
 	m_callStackWnd->HandleRunningStateChange(newState);
 }
 
@@ -72,7 +74,7 @@ void CDebugView::Hide()
 {
 	//int method = SW_HIDE;
 	m_disAsmWnd->hide();
-	// m_memoryViewWnd->hide();
+	m_memoryViewWnd->hide();
 
 	m_regViewWnd->hide();
 	m_callStackWnd->hide();
@@ -98,10 +100,10 @@ CDisAsmWnd* CDebugView::GetDisassemblyWindow()
 	return m_disAsmWnd;
 }
 
-//CMemoryViewMIPSWnd* CDebugView::GetMemoryViewWindow()
-//{
-	//return m_memoryViewWnd;
-//}
+CMemoryViewMIPSWnd* CDebugView::GetMemoryViewWindow()
+{
+	return m_memoryViewWnd;
+}
 
 CRegViewWnd* CDebugView::GetRegisterViewWindow()
 {

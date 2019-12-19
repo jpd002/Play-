@@ -50,6 +50,7 @@ private slots:
 	void on_actionThreads_triggered();
 	void on_actionView_Disassmebly_triggered();
 	void on_actionView_Registers_triggered();
+	void on_actionMemory_triggered();
 
 	void on_actionEmotionEngine_View_triggered();
 	void on_actionVector_Unit_0_triggered();
@@ -99,7 +100,7 @@ private:
 	CDebugView* GetCurrentView();
 	CMIPS* GetContext();
 	CDisAsmWnd* GetDisassemblyWindow();
-	//CMemoryViewMIPSWnd* GetMemoryViewWindow();
+	CMemoryViewMIPSWnd* GetMemoryViewWindow();
 	CRegViewWnd* GetRegisterViewWindow();
 	CCallStackWnd* GetCallStackWindow();
 

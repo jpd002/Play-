@@ -86,8 +86,10 @@ set(SRC_FILES
 	# ${SRC_ROOT}/MemoryView.h
 	# ${SRC_ROOT}/MemoryViewMIPS.cpp
 	# ${SRC_ROOT}/MemoryViewMIPS.h
-	# ${SRC_ROOT}/MemoryViewMIPSWnd.cpp
-	# ${SRC_ROOT}/MemoryViewMIPSWnd.h
+	${SRC_ROOT}/MemoryViewMIPSWnd.cpp
+	${SRC_ROOT}/MemoryViewMIPSWnd.h
+	${SRC_ROOT}/QtMemoryViewMIPSModel.cpp
+	${SRC_ROOT}/QtMemoryViewMIPSModel.h
 	# ${SRC_ROOT}/MemoryViewPtr.cpp
 	# ${SRC_ROOT}/MemoryViewPtr.h
 	# ${SRC_ROOT}/OptionWnd.cpp
@@ -126,6 +128,7 @@ set(QT_DEBUGGER_MOC_HEADERS
 	${SRC_ROOT}/QtGenericTableModel.h
 	${SRC_ROOT}/QtDebugger.h
 	${SRC_ROOT}/QtDialogListWidget.h
+	${SRC_ROOT}/QtMemoryViewMIPSModel.h
 )
 
 set(QT_DEBUGGER_UI

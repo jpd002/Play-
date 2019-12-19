@@ -7,7 +7,7 @@
 #include <QMdiArea>
 #include <QMdiSubWindow>
 #include "DisAsmWnd.h"
-//#include "MemoryViewMIPSWnd.h"
+#include "MemoryViewMIPSWnd.h"
 #include "RegViewWnd.h"
 #include "CallStackWnd.h"
 #include "VirtualMachineStateView.h"
@@ -19,7 +19,7 @@ class CDebugView : public CVirtualMachineStateView
 public:
 		typedef std::function<void(void)> StepFunction;
 
-	CDebugView(QMdiArea*, CVirtualMachine&, CMIPS*, const StepFunction&, CBiosDebugInfoProvider*, const char*, CQtDisAsmTableModel::DISASM_TYPE = CQtDisAsmTableModel::DISASM_STANDARD);
+	CDebugView(QMdiArea*, CVirtualMachine&, CMIPS*, const StepFunction&, CBiosDebugInfoProvider*, const char*, int, CQtDisAsmTableModel::DISASM_TYPE = CQtDisAsmTableModel::DISASM_STANDARD);
 	virtual ~CDebugView();
 
 	void HandleMachineStateChange() override;
@@ -27,7 +27,7 @@ public:
 
 	CMIPS* GetContext();
 	CDisAsmWnd* GetDisassemblyWindow();
-	//CMemoryViewMIPSWnd* GetMemoryViewWindow();
+	CMemoryViewMIPSWnd* GetMemoryViewWindow();
 	CRegViewWnd* GetRegisterViewWindow();
 	CCallStackWnd* GetCallStackWindow();
 
@@ -45,7 +45,7 @@ private:
 	CVirtualMachine& m_virtualMachine;
 	CMIPS* m_ctx;
 	CDisAsmWnd* m_disAsmWnd;
-	//CMemoryViewMIPSWnd* m_memoryViewWnd;
+	CMemoryViewMIPSWnd* m_memoryViewWnd;
 	CRegViewWnd* m_regViewWnd;
 	CCallStackWnd* m_callStackWnd;
 	StepFunction m_stepFunction;
