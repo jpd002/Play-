@@ -26,7 +26,7 @@ void CGSH_VulkanQt::InitializeImpl()
 #endif
 
 	std::vector<const char*> layers;
-#ifdef _DEBUG
+#if defined(_DEBUG) && !defined(__APPLE__)
 	layers.push_back("VK_LAYER_LUNARG_standard_validation");
 #endif
 
