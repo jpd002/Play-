@@ -226,6 +226,7 @@ if(TARGET_PLATFORM_MACOS)
 	set(OSX_RES
 		${CMAKE_CURRENT_SOURCE_DIR}/macos/AppIcon.icns
 		${CMAKE_CURRENT_SOURCE_DIR}/../../patches.xml
+		$ENV{VULKAN_SDK}/../MoltenVK/macOS/dynamic/libMoltenVk.dylib
 	)
 	add_executable(Play MACOSX_BUNDLE ${QT_SOURCES} ${QT_MOC_SRCS} ${QT_RES_SOURCES} ${QT_UI_HEADERS} ${OSX_RES})
 	# Set a custom plist file for the app bundle
