@@ -28,7 +28,11 @@ namespace GSH_Vulkan
 			uint32 rrw = 0;
 			uint32 dsax = 0;
 			uint32 dsay = 0;
+			uint32 padding0 = 0;
+			uint32 padding1 = 0;
+			uint32 padding2 = 0;
 		};
+		static_assert(sizeof(XFERPARAMS) == 0x20, "XFERPARAMS must be 32 bytes large.");
 
 		CTransfer(const ContextPtr&, const FrameCommandBufferPtr&);
 		virtual ~CTransfer();
