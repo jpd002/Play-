@@ -11,40 +11,40 @@ CRegViewVU::CRegViewVU(QWidget* parent, CMIPS* ctx)
     : CRegViewPage(parent)
     , m_ctx(ctx)
 {
-	this->AllocateTableEntries(2, 45 + 16);
-	this->setColumnWidth(0, 46);
-	this->horizontalHeader()->setStretchLastSection(true);
+	AllocateTableEntries(2, 45 + 16);
+	setColumnWidth(0, 46);
+	horizontalHeader()->setStretchLastSection(true);
 	for(unsigned int x = 0; x < 32; x++)
 	{
 		if(x < 10)
-			this->WriteTableLabel(x, "VF0%i", x);
+			WriteTableLabel(x, "VF0%i", x);
 		else
-			this->WriteTableLabel(x, "VF%i", x);
+			WriteTableLabel(x, "VF%i", x);
 	}
-	this->WriteTableLabel(32, "ACC");
-	this->WriteTableLabel(33, "Q");
-	this->WriteTableLabel(34, "I");
-	this->WriteTableLabel(35, "P");
-	this->WriteTableLabel(36, "R");
-	this->WriteTableLabel(37, "MACF");
-	this->WriteTableLabel(38, "STKF");
-	this->WriteTableLabel(39, "CLIP");
-	this->WriteTableLabel(40, "PIPE");
-	this->WriteTableLabel(41, "PIPEQ");
-	this->WriteTableLabel(42, "PIPEP");
-	this->WriteTableLabel(43, "PIPEM");
-	this->WriteTableLabel(44, "PIPEC");
+	WriteTableLabel(32, "ACC");
+	WriteTableLabel(33, "Q");
+	WriteTableLabel(34, "I");
+	WriteTableLabel(35, "P");
+	WriteTableLabel(36, "R");
+	WriteTableLabel(37, "MACF");
+	WriteTableLabel(38, "STKF");
+	WriteTableLabel(39, "CLIP");
+	WriteTableLabel(40, "PIPE");
+	WriteTableLabel(41, "PIPEQ");
+	WriteTableLabel(42, "PIPEP");
+	WriteTableLabel(43, "PIPEM");
+	WriteTableLabel(44, "PIPEC");
 	for(unsigned int x = 0; x < 16; x++)
 	{
 		if(x < 10)
-			this->WriteTableLabel(x + 45, "VI0%i", x);
+			WriteTableLabel(x + 45, "VI0%i", x);
 		else
-			this->WriteTableLabel(x + 45, "VI%i", x);
-		this->setRowHeight(45 + x, 16);
+			WriteTableLabel(x + 45, "VI%i", x);
+		setRowHeight(45 + x, 16);
 	}
-	this->Update();
+	Update();
 
-	this->setContextMenuPolicy(Qt::CustomContextMenu);
+	setContextMenuPolicy(Qt::CustomContextMenu);
 	connect(this, &CRegViewVU::customContextMenuRequested, this, &CRegViewVU::ShowContextMenu);
 }
 
@@ -62,7 +62,7 @@ void CRegViewVU::Update()
 		assert(false);
 		break;
 	}
-	this->DisplayGeneral();
+	DisplayGeneral();
 }
 
 void CRegViewVU::DisplaySingleMode()
@@ -184,7 +184,7 @@ std::string CRegViewVU::PrintPipeline(const FLAG_PIPELINE& pipe)
 void CRegViewVU::ShowContextMenu(const QPoint& pos)
 {
 	QMenu contextMenu("Context menu", this);
-	contextMenu.addAction("Word Mode", [&]() {m_viewMode=VIEWMODE_WORD; this->Update(); });
-	contextMenu.addAction("Single Mode", [&]() {m_viewMode=VIEWMODE_SINGLE; this->Update(); });
+	contextMenu.addAction("Word Mode", [&]() {m_viewMode=VIEWMODE_WORD; Update(); });
+	contextMenu.addAction("Single Mode", [&]() {m_viewMode=VIEWMODE_SINGLE; Update(); });
 	contextMenu.exec(mapToGlobal(pos));
 }

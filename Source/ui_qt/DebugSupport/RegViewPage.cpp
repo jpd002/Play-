@@ -8,13 +8,13 @@ CRegViewPage::CRegViewPage(QWidget* Parent)
 
 void CRegViewPage::AllocateTableEntries(unsigned int columnCount, unsigned int rowCount)
 {
-	this->setRowCount(rowCount);
-	this->setColumnCount(columnCount);
+	setRowCount(rowCount);
+	setColumnCount(columnCount);
 	for(unsigned int x = 0; x < columnCount; x++)
 	{
 		for(unsigned int y = 0; y < rowCount; y++)
 		{
-			this->setItem(x, y, new QTableWidgetItem(""));
+			setItem(x, y, new QTableWidgetItem(""));
 		}
 	}
 }
@@ -27,10 +27,10 @@ void CRegViewPage::WriteTableLabel(unsigned int cellToWrite, const char* label, 
 
 	va_start(args, label);
 	vsnprintf(sLine, bufferSize, label, args);
-	if(this->item(cellToWrite, 0))
-		this->item(cellToWrite, 0)->setText(sLine);
+	if(item(cellToWrite, 0))
+		item(cellToWrite, 0)->setText(sLine);
 	else
-		this->setItem(cellToWrite, 0, new QTableWidgetItem(sLine));
+		setItem(cellToWrite, 0, new QTableWidgetItem(sLine));
 	va_end(args);
 }
 
@@ -42,9 +42,9 @@ void CRegViewPage::WriteTableEntry(unsigned int cellToWrite, const char* format,
 
 	va_start(args, format);
 	vsnprintf(sLine, bufferSize, format, args);
-	if(this->item(cellToWrite, 1))
-		this->item(cellToWrite, 1)->setText(sLine);
+	if(item(cellToWrite, 1))
+		item(cellToWrite, 1)->setText(sLine);
 	else
-		this->setItem(cellToWrite, 1, new QTableWidgetItem(sLine));
+		setItem(cellToWrite, 1, new QTableWidgetItem(sLine));
 	va_end(args);
 }
