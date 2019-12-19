@@ -52,6 +52,7 @@ CDisAsmWnd::CDisAsmWnd(QMdiArea* parent, CVirtualMachine& virtualMachine, CMIPS*
 	m_tableView->setModel(m_model);
 
 	auto header = m_tableView->horizontalHeader();
+	header->setMinimumSectionSize(25);
 	header->setSectionResizeMode(0, QHeaderView::ResizeToContents);
 	header->setSectionResizeMode(1, QHeaderView::ResizeToContents);
 	header->setSectionResizeMode(2, QHeaderView::ResizeToContents);

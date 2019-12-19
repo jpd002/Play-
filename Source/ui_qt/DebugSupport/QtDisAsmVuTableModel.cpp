@@ -8,10 +8,7 @@
 CQtDisAsmVuTableModel::CQtDisAsmVuTableModel(QObject* parent, CVirtualMachine& virtualMachine, CMIPS* context)
     : CQtDisAsmTableModel(parent, virtualMachine, context)
 {
-	std::vector<std::string> headers = {"S", "Address", "R", "Instr","LI-Mn", "LI-Op","UI-Mn", "UI-Op", "Target"};
-	m_headers.clear();
-	for(int i = 0; i < headers.size(); ++i)
-		m_headers.insert(i, QVariant(headers[i].c_str()));
+	m_headers = {"S", "Address", "R", "Instr","LI-Mn", "LI-Op","UI-Mn", "UI-Op", "Target"};
 
 	m_instructionSize = 8;
 	m_disAsmType = DISASM_TYPE::DISASM_VU;
@@ -61,4 +58,5 @@ std::string CQtDisAsmVuTableModel::GetInstructionDetails(int index, uint32 addre
 			return disAsm;
 		}
 	}
+	return "";
 }

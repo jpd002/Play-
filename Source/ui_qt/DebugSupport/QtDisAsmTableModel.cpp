@@ -1,3 +1,5 @@
+#include <QGuiApplication>
+#include <QPalette>
 #include <QPainter>
 
 #include "QtDisAsmTableModel.h"
@@ -12,106 +14,97 @@ CQtDisAsmTableModel::CQtDisAsmTableModel(QObject* parent, CVirtualMachine& virtu
     , m_instructionSize(4)
     , m_disAsmType(DISASM_TYPE::DISASM_STANDARD)
 {
-	std::vector<std::string> headers = {"S", "Address", "R", "Instr","I-Mn", "I-Op", "Target"};
-	m_headers.clear();
-	for(int i = 0; i < headers.size(); ++i)
-		m_headers.insert(i, QVariant(headers[i].c_str()));
+	m_headers = {"S", "Address", "R", "Instr","I-Mn", "I-Op", "Target"};
 
+	auto size = m_start_line.size();
+	auto start = 2;
+	auto middle = size.width() / 2;
+	auto end = size.width() - 2;
+
+	QPalette palette = QGuiApplication::palette();
 	QPen pen;
-	pen.setWidth(3.3);
-	pen.setColor(Qt::white);
+	pen.setWidth(2);
+	pen.setColor(palette.color(QPalette::WindowText));
 	pen.setCapStyle(Qt::RoundCap);
 	pen.setJoinStyle(Qt::MiterJoin);
 	{
-		start_line.fill(Qt::transparent);
+		m_start_line.fill(Qt::transparent);
 
 		QPainterPath start_path;
-		start_path.moveTo(12.5, 25);
-		start_path.lineTo(12.5, 12.5);
-		start_path.lineTo(25, 12.5);
+		start_path.moveTo(middle, end);
+		start_path.lineTo(middle, middle);
+		start_path.lineTo(end, middle);
 
-		QPainter painter(&start_line);
+		QPainter painter(&m_start_line);
 		painter.setPen(pen);
 		painter.drawPath(start_path);
 	}
 	{
-		end_line.fill(Qt::transparent);
+		m_end_line.fill(Qt::transparent);
 
 		QPainterPath end_path;
-		end_path.moveTo(12.5, 0);
-		end_path.lineTo(12.5, 12.5);
-		end_path.lineTo(25, 12.5);
+		end_path.moveTo(middle, start);
+		end_path.lineTo(middle, middle);
+		end_path.lineTo(end, middle);
 
-		QPainter painter(&end_line);
+		QPainter painter(&m_end_line);
 		painter.setPen(pen);
 		painter.drawPath(end_path);
 	}
 	{
-		line.fill(Qt::transparent);
+		m_line.fill(Qt::transparent);
 
 		QPainterPath line_path;
-		line_path.moveTo(12.5, 0);
-		line_path.lineTo(12.5, 25);
+		line_path.moveTo(middle, start);
+		line_path.lineTo(middle, end);
 
-		QPainter painter(&line);
+		QPainter painter(&m_line);
 		painter.setPen(pen);
 		painter.drawPath(line_path);
 	}
+	QPainterPath arrow_path;
 	{
-		arrow.fill(Qt::transparent);
+		m_arrow.fill(Qt::transparent);
 
-		QPainterPath line_path;
-		line_path.moveTo(12.5, 0);
-		line_path.lineTo(25, 12.5);
-		line_path.lineTo(12.5, 25);
+		arrow_path.moveTo(middle, start);
+		arrow_path.lineTo(end, middle);
+		arrow_path.lineTo(middle, end);
 
-		line_path.moveTo(25, 12.5);
-		line_path.lineTo(0, 12.5);
+		arrow_path.lineTo(middle, middle + 3);
 
+		arrow_path.lineTo(start, middle + 3);
+		arrow_path.lineTo(start, middle - 3);
 
-		QPainter painter(&arrow);
+		arrow_path.lineTo(middle, middle - 3);
+
+		arrow_path.closeSubpath();
+
+		QPainter painter(&m_arrow);
+		pen.setColor(palette.color(QPalette::WindowText));
 		painter.setPen(pen);
-		painter.drawPath(line_path);
+		painter.setBrush(QBrush(Qt::yellow));
+		painter.drawPath(arrow_path);
 	}
 	{
-		breakpoint.fill(Qt::transparent);
+		m_breakpoint.fill(Qt::transparent);
 
-		QRadialGradient gradient(12, 12, 12, 12, 12);
-		gradient.setColorAt(0, QColor::fromRgbF(1, 0, 0, 1));
-		gradient.setColorAt(1, QColor::fromRgbF(1, 0.7, 0.7, 1));
-		QBrush brush(gradient);
-
-		pen.setWidth(1);
-		QPainter painter(&breakpoint);
-		painter.setBrush(brush);
-		painter.setPen(pen);
-		painter.drawEllipse(12, 12, 12, 12);
+		QPainter painter(&m_breakpoint);
+		painter.setBrush(QBrush(Qt::darkRed));
+		painter.setPen(Qt::NoPen);
+		painter.drawEllipse(QPointF(middle, middle), middle - 1, middle - 1);
 	}
-		{
-		breakpoint_arrow.fill(Qt::transparent);
+	{
+		m_breakpoint_arrow.fill(Qt::transparent);
 
-		QRadialGradient gradient(12, 12, 12, 12, 12);
-		gradient.setColorAt(0, QColor::fromRgbF(1, 0, 0, 1));
-		gradient.setColorAt(1, QColor::fromRgbF(1, 0.7, 0.7, 1));
-		QBrush brush(gradient);
+		QPainter painter(&m_breakpoint_arrow);
+		painter.setBrush(QBrush(Qt::darkRed));
+		painter.setPen(Qt::NoPen);
+		painter.drawEllipse(QPointF(middle, middle), middle - 1, middle - 1);
 
-		QPainterPath path;
-		path.moveTo(12.5, 0);
-		path.lineTo(25, 12.5);
-		path.lineTo(12.5, 25);
-
-		path.moveTo(25, 12.5);
-		path.lineTo(0, 12.5);
-
-		QPainter painter(&breakpoint_arrow);
-		painter.setBrush(brush);
+		painter.setBrush(QBrush(Qt::yellow));
+		pen.setColor(palette.color(QPalette::WindowText));
 		painter.setPen(pen);
-		painter.drawEllipse(12, 12, 12, 12);
-
-		painter.setBrush(Qt::NoBrush);
-		pen.setWidth(3);
-		painter.setPen(pen);
-		painter.drawPath(path);
+		painter.drawPath(arrow_path);
 
 	}
 }
@@ -159,7 +152,10 @@ QVariant CQtDisAsmTableModel::data(const QModelIndex& index, int role) const
 	{
 		if(index.column() == 0 || index.column() == 2)
 		{
-			return line.size();
+			auto size = m_line.size();
+			size.rheight() += 15;
+			size.rwidth() += 15;
+			return size;
 		}
 	}
 	if(role == Qt::DecorationRole)
@@ -171,20 +167,20 @@ QVariant CQtDisAsmTableModel::data(const QModelIndex& index, int role) const
 				bool isBreakpoint = (m_ctx->m_breakpoints.find(address) != std::end(m_ctx->m_breakpoints));
 				bool isPC = (m_virtualMachine.GetStatus() != CVirtualMachine::RUNNING && address == m_ctx->m_State.nPC);
 
-				//Draw current instruction arrow and breakpoint icon
+				//Draw current instruction m_arrow and m_breakpoint icon
 				if(isBreakpoint && isPC)
 				{
-					return breakpoint_arrow;
+					return m_breakpoint_arrow;
 				}
-				//Draw breakpoint icon
+				//Draw m_breakpoint icon
 				if(isBreakpoint)
 				{
-					return breakpoint;
+					return m_breakpoint;
 				}
-				//Draw current instruction arrow
+				//Draw current instruction m_arrow
 				if(isPC)
 				{
-					return arrow;
+					return m_arrow;
 				}
 			}
 			break;
@@ -195,15 +191,15 @@ QVariant CQtDisAsmTableModel::data(const QModelIndex& index, int role) const
 				{
 					if(address == sub->start)
 					{
-						return start_line;
+						return m_start_line;
 					}
 					else if(address == sub->end)
 					{
-						return end_line;
+						return m_end_line;
 					}
 					else
 					{
-						return line;
+						return m_line;
 					}
 				}
 			}
@@ -226,11 +222,6 @@ QVariant CQtDisAsmTableModel::headerData(int section, Qt::Orientation orientatio
 	}
 
 	return QAbstractTableModel::headerData(section, orientation, role);
-}
-
-void CQtDisAsmTableModel::DoubleClicked(const QModelIndex& index, QWidget* parent)
-{
-	// TODO signal
 }
 
 void CQtDisAsmTableModel::Redraw()
@@ -274,6 +265,7 @@ std::string CQtDisAsmTableModel::GetInstructionDetails(int index, uint32 address
 			return disAsm;
 		}
 	}
+	return "";
 }
 
 std::string CQtDisAsmTableModel::GetInstructionMetadata(uint32 address) const

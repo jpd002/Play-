@@ -21,7 +21,6 @@ public:
 	int rowCount(const QModelIndex& parent = QModelIndex()) const Q_DECL_OVERRIDE;
 	int columnCount(const QModelIndex& parent = QModelIndex()) const Q_DECL_OVERRIDE;
 	QVariant data(const QModelIndex& index, int role = Qt::DisplayRole) const Q_DECL_OVERRIDE;
-	void DoubleClicked(const QModelIndex& index, QWidget* parent = nullptr);
 
 	void Redraw();
 	void Redraw(uint32);
@@ -39,11 +38,11 @@ protected:
 	DISASM_TYPE m_disAsmType;
 
 	QVariantList m_headers;
-	QPixmap start_line = QPixmap(25, 25);
-	QPixmap end_line = QPixmap(25, 25);
-	QPixmap line = QPixmap(25, 25);
-	QPixmap arrow = QPixmap(25, 25);
-	QPixmap breakpoint = QPixmap(25, 25);
-	QPixmap breakpoint_arrow = QPixmap(25, 25);
+	QPixmap m_start_line = QPixmap(22, 22);
+	QPixmap m_end_line = QPixmap(22, 22);
+	QPixmap m_line = QPixmap(22, 22);
+	QPixmap m_arrow = QPixmap(22, 22);
+	QPixmap m_breakpoint = QPixmap(22, 22);
+	QPixmap m_breakpoint_arrow = QPixmap(22, 22);
 
 };
