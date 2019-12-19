@@ -32,7 +32,10 @@ namespace GSH_Vulkan
 		{
 			uint32 clutBufPtr;
 			uint32 csa;
+			uint32 padding0 = 0;
+			uint32 padding1 = 0;
 		};
+		static_assert(sizeof(LOAD_PARAMS) == 0x10, "LOAD_PARAMS must be 16 bytes large.");
 
 		VkDescriptorSet PrepareDescriptorSet(VkDescriptorSetLayout, VkImageView);
 		Framework::Vulkan::CShaderModule CreateLoadShader(const PIPELINE_CAPS&);
