@@ -781,7 +781,7 @@ Framework::Vulkan::CShaderModule CDraw::CreateFragmentShader(const PIPELINE_CAPS
 
 		EndInvocationInterlock(b);
 
-		outputColor = NewFloat4(b, 0, 0, 1, 0);
+		outputColor = dstColor->xyzw();
 	}
 
 	Framework::CMemStream shaderStream;
