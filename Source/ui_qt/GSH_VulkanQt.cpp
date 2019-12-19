@@ -33,8 +33,7 @@ void CGSH_VulkanQt::InitializeImpl()
 	auto appInfo = Framework::Vulkan::ApplicationInfo();
 	appInfo.pApplicationName = "Play!";
 	appInfo.pEngineName = "Play!";
-	//Added fragment shader interlock in 1.1.110
-	appInfo.apiVersion = VK_MAKE_VERSION(1, 1, 110);
+	appInfo.apiVersion = VK_MAKE_VERSION(1, 0, 0);
 
 	instanceCreateInfo.pApplicationInfo = &appInfo;
 	instanceCreateInfo.enabledExtensionCount = extensions.size();
