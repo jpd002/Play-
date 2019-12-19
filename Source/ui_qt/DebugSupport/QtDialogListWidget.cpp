@@ -1,9 +1,9 @@
 #include "QtDialogListWidget.h"
 #include "ui_QtDialogListWidget.h"
 
-QtDialogListWidget::QtDialogListWidget(QWidget *parent) :
-    QDialog(parent),
-    ui(new Ui::QtDialogListWidget)
+QtDialogListWidget::QtDialogListWidget(QWidget* parent)
+    : QDialog(parent)
+    , ui(new Ui::QtDialogListWidget)
 {
 	ui->setupUi(this);
 

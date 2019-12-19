@@ -17,7 +17,7 @@ class CBiosDebugInfoProvider;
 class CDebugView : public CVirtualMachineStateView
 {
 public:
-		typedef std::function<void(void)> StepFunction;
+	typedef std::function<void(void)> StepFunction;
 
 	CDebugView(QMdiArea*, CVirtualMachine&, CMIPS*, const StepFunction&, CBiosDebugInfoProvider*, const char*, int, CQtDisAsmTableModel::DISASM_TYPE = CQtDisAsmTableModel::DISASM_STANDARD);
 	virtual ~CDebugView();

@@ -51,5 +51,4 @@ private:
 	int m_activeUnit;
 	unsigned int m_size;
 	std::atomic<unsigned int> m_unitsForCurrentLine = 0x20;
-
 };

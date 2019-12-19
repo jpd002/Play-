@@ -26,7 +26,6 @@ public:
 public slots:
 	void tableDoubleClick(const QModelIndex&);
 
-
 private:
 	QTableView* m_tableView;
 	CQtGenericTableModel* m_model;

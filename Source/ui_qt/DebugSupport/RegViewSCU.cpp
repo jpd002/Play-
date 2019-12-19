@@ -27,5 +27,4 @@ void CRegViewSCU::Update()
 	{
 		this->WriteTableEntry(i, "0x%08X", state.nCOP0[i]);
 	}
-
 }

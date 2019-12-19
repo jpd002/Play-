@@ -5,8 +5,8 @@
 #include "RegViewVU.h"
 
 CRegViewWnd::CRegViewWnd(QMdiArea* parent, CMIPS* ctx)
-	: QMdiSubWindow(parent)
-	, m_tab(new QTabWidget(parent))
+    : QMdiSubWindow(parent)
+    , m_tab(new QTabWidget(parent))
 {
 
 	parent->addSubWindow(this);
@@ -15,7 +15,6 @@ CRegViewWnd::CRegViewWnd(QMdiArea* parent, CMIPS* ctx)
 
 	setWidget(m_tab);
 	m_tab->setTabPosition(QTabWidget::South);
-
 
 	m_regView[0] = new CRegViewGeneral(m_tab, ctx);
 	m_regView[1] = new CRegViewSCU(m_tab, ctx);
@@ -42,7 +41,7 @@ void CRegViewWnd::HandleMachineStateChange()
 	for(unsigned int i = 0; i < MAXTABS; i++)
 	{
 		//if(m_regView[i] != nullptr)
-			m_regView[i]->Update();
+		m_regView[i]->Update();
 	}
 	//m_current->Update();
 }
@@ -51,6 +50,6 @@ void CRegViewWnd::HandleRunningStateChange(CVirtualMachine::STATUS)
 	for(unsigned int i = 0; i > MAXTABS; i++)
 	{
 		//if(m_regView[i] != nullptr)
-			m_regView[i]->Update();
+		m_regView[i]->Update();
 	}
 }

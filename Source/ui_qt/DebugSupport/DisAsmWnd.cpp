@@ -82,21 +82,19 @@ CDisAsmWnd::CDisAsmWnd(QMdiArea* parent, CVirtualMachine& virtualMachine, CMIPS*
 	connect(m_tableView->selectionModel(), &QItemSelectionModel::selectionChanged, this, &CDisAsmWnd::selectionChanged);
 	// RefreshLayout();
 
-	QAction* copyAction = new QAction("copy",this);
+	QAction* copyAction = new QAction("copy", this);
 	copyAction->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_C));
 	connect(copyAction, &QAction::triggered, this, &CDisAsmWnd::OnCopy);
 	m_tableView->addAction(copyAction);
 
-	QAction* breakpointAction = new QAction("breakpoint toggle",this);
+	QAction* breakpointAction = new QAction("breakpoint toggle", this);
 	breakpointAction->setShortcut(QKeySequence(Qt::Key_F9));
 	connect(breakpointAction, &QAction::triggered, this, &CDisAsmWnd::OnListDblClick);
 	m_tableView->addAction(breakpointAction);
 
-
-	QAction* rightArrowAction = new QAction("Right Arrow",this);
+	QAction* rightArrowAction = new QAction("Right Arrow", this);
 	rightArrowAction->setShortcut(QKeySequence(Qt::Key_Right));
-	connect(rightArrowAction, &QAction::triggered, [&]()
-	{
+	connect(rightArrowAction, &QAction::triggered, [&]() {
 		if(m_selected != MIPS_INVALID_PC)
 		{
 			uint32 nOpcode = GetInstruction(m_selected);
@@ -115,10 +113,9 @@ CDisAsmWnd::CDisAsmWnd(QMdiArea* parent, CVirtualMachine& virtualMachine, CMIPS*
 	});
 	m_tableView->addAction(rightArrowAction);
 
-	QAction* leftArrowAction = new QAction("Left Arrow",this);
+	QAction* leftArrowAction = new QAction("Left Arrow", this);
 	leftArrowAction->setShortcut(QKeySequence(Qt::Key_Left));
-	connect(leftArrowAction, &QAction::triggered, [&]()
-	{
+	connect(leftArrowAction, &QAction::triggered, [&]() {
 		if(HistoryHasPrevious())
 		{
 			HistoryGoBack();
@@ -127,33 +124,32 @@ CDisAsmWnd::CDisAsmWnd(QMdiArea* parent, CVirtualMachine& virtualMachine, CMIPS*
 	});
 	m_tableView->addAction(leftArrowAction);
 	connect(m_tableView, &QTableView::doubleClicked, this, &CDisAsmWnd::OnListDblClick);
-
 }
 
 CDisAsmWnd::~CDisAsmWnd()
 {
 }
 
-void CDisAsmWnd::showMenu(const QPoint &pos)
+void CDisAsmWnd::showMenu(const QPoint& pos)
 {
-	QMenu *rightClickMenu = new QMenu(this);
+	QMenu* rightClickMenu = new QMenu(this);
 
-	QAction *goToPcAction = new QAction(this);
+	QAction* goToPcAction = new QAction(this);
 	goToPcAction->setText("GoTo PC");
 	connect(goToPcAction, &QAction::triggered, std::bind(&CDisAsmWnd::GotoPC, this));
 	rightClickMenu->addAction(goToPcAction);
 
-	QAction *goToAddrAction = new QAction(this);
+	QAction* goToAddrAction = new QAction(this);
 	goToAddrAction->setText("Goto Address...");
 	connect(goToAddrAction, &QAction::triggered, std::bind(&CDisAsmWnd::GotoAddress, this));
 	rightClickMenu->addAction(goToAddrAction);
 
-	QAction *editCommentAction = new QAction(this);
+	QAction* editCommentAction = new QAction(this);
 	editCommentAction->setText("Edit Comment...");
 	connect(editCommentAction, &QAction::triggered, std::bind(&CDisAsmWnd::EditComment, this));
 	rightClickMenu->addAction(editCommentAction);
 
-	QAction *findCallerAction = new QAction(this);
+	QAction* findCallerAction = new QAction(this);
 	findCallerAction->setText("Find Callers");
 	connect(findCallerAction, &QAction::triggered, std::bind(&CDisAsmWnd::FindCallers, this));
 	rightClickMenu->addAction(findCallerAction);
@@ -169,7 +165,7 @@ void CDisAsmWnd::showMenu(const QPoint &pos)
 				char sTemp[256];
 				uint32 nAddress = m_ctx->m_pArch->GetInstructionEffectiveAddress(m_ctx, m_selected, nOpcode);
 				snprintf(sTemp, countof(sTemp), ("Go to 0x%08X"), nAddress);
-				QAction *goToEaAction = new QAction(this);
+				QAction* goToEaAction = new QAction(this);
 				goToEaAction->setText(sTemp);
 				connect(goToEaAction, &QAction::triggered, std::bind(&CDisAsmWnd::GotoEA, this));
 				rightClickMenu->addAction(goToEaAction);
@@ -181,7 +177,7 @@ void CDisAsmWnd::showMenu(const QPoint &pos)
 	{
 		char sTemp[256];
 		snprintf(sTemp, countof(sTemp), ("Go back (0x%08X)"), HistoryGetPrevious());
-		QAction *goToEaAction = new QAction(this);
+		QAction* goToEaAction = new QAction(this);
 		goToEaAction->setText(sTemp);
 		connect(goToEaAction, &QAction::triggered, std::bind(&CDisAsmWnd::HistoryGoBack, this));
 		rightClickMenu->addAction(goToEaAction);
@@ -191,7 +187,7 @@ void CDisAsmWnd::showMenu(const QPoint &pos)
 	{
 		char sTemp[256];
 		snprintf(sTemp, countof(sTemp), ("Go forward (0x%08X)"), HistoryGetNext());
-		QAction *goToEaAction = new QAction(this);
+		QAction* goToEaAction = new QAction(this);
 		goToEaAction->setText(sTemp);
 		connect(goToEaAction, &QAction::triggered, std::bind(&CDisAsmWnd::HistoryGoForward, this));
 		rightClickMenu->addAction(goToEaAction);
@@ -199,21 +195,17 @@ void CDisAsmWnd::showMenu(const QPoint &pos)
 
 	if(m_disAsmType == CQtDisAsmTableModel::DISASM_VU)
 	{
-		QAction *analyseVuction = new QAction(this);
+		QAction* analyseVuction = new QAction(this);
 		analyseVuction->setText("Analyse Microprogram");
 		connect(analyseVuction, &QAction::triggered,
-		[&]()
-		{
-			CVuAnalysis::Analyse(m_ctx, 0, 0x4000);
-			m_model->Redraw();
-		}
-		);
+		        [&]() {
+			        CVuAnalysis::Analyse(m_ctx, 0, 0x4000);
+			        m_model->Redraw();
+		        });
 		rightClickMenu->addAction(analyseVuction);
-
 	}
 
 	rightClickMenu->popup(m_tableView->viewport()->mapToGlobal(pos));
-
 }
 
 void CDisAsmWnd::SetAddress(uint32 address)
@@ -263,9 +255,9 @@ void CDisAsmWnd::GotoAddress()
 
 	bool ok;
 	QString sValue = QInputDialog::getText(this, ("Goto Address"),
-										("Enter new address:"), QLineEdit::Normal,
-										((("0x") + lexical_cast_hex<std::string>(m_address, 8)).c_str()), &ok);
-	if (!ok  || sValue.isEmpty())
+	                                       ("Enter new address:"), QLineEdit::Normal,
+	                                       ((("0x") + lexical_cast_hex<std::string>(m_address, 8)).c_str()), &ok);
+	if(!ok || sValue.isEmpty())
 		return;
 
 	{
@@ -276,7 +268,7 @@ void CDisAsmWnd::GotoAddress()
 			{
 				QMessageBox::warning(this, tr("Warning"),
 				                     tr("Invalid address"),
-				                     QMessageBox::Ok , QMessageBox::Ok);
+				                     QMessageBox::Ok, QMessageBox::Ok);
 				return;
 			}
 
@@ -292,8 +284,8 @@ void CDisAsmWnd::GotoAddress()
 		{
 			std::string message = std::string("Error evaluating expression: ") + exception.what();
 			QMessageBox::critical(this, tr("Error"),
-			                     tr(message.c_str()),
-			                     QMessageBox::Ok , QMessageBox::Ok);
+			                      tr(message.c_str()),
+			                      QMessageBox::Ok, QMessageBox::Ok);
 		}
 	}
 }
@@ -354,9 +346,9 @@ void CDisAsmWnd::EditComment()
 
 	bool ok;
 	QString value = QInputDialog::getText(this, ("Edit Comment"),
-										("Enter new comment:"), QLineEdit::Normal,
-										(commentConv.c_str()), &ok);
-	if (!ok  || value.isEmpty())
+	                                      ("Enter new comment:"), QLineEdit::Normal,
+	                                      (commentConv.c_str()), &ok);
+	if(!ok || value.isEmpty())
 		return;
 
 	m_ctx->m_Comments.InsertTag(m_selected, value.toStdString().c_str());
@@ -421,7 +413,6 @@ void CDisAsmWnd::HistoryGoBack()
 
 	m_historyPosition--;
 	SetAddress(address);
-
 }
 
 void CDisAsmWnd::HistoryGoForward()

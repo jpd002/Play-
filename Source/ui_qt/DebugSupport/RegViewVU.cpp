@@ -11,15 +11,15 @@ CRegViewVU::CRegViewVU(QWidget* parent, CMIPS* ctx)
     : CRegViewPage(parent)
     , m_ctx(ctx)
 {
-	this->AllocateTableEntries(2, 45+16);
+	this->AllocateTableEntries(2, 45 + 16);
 	this->setColumnWidth(0, 46);
 	this->horizontalHeader()->setStretchLastSection(true);
 	for(unsigned int x = 0; x < 32; x++)
 	{
 		if(x < 10)
-			this->WriteTableLabel(x,"VF0%i", x);
+			this->WriteTableLabel(x, "VF0%i", x);
 		else
-			this->WriteTableLabel(x,"VF%i", x);
+			this->WriteTableLabel(x, "VF%i", x);
 	}
 	this->WriteTableLabel(32, "ACC");
 	this->WriteTableLabel(33, "Q");
@@ -36,14 +36,14 @@ CRegViewVU::CRegViewVU(QWidget* parent, CMIPS* ctx)
 	this->WriteTableLabel(44, "PIPEC");
 	for(unsigned int x = 0; x < 16; x++)
 	{
-		if( x < 10 )
-			this->WriteTableLabel(x+45, "VI0%i", x);
+		if(x < 10)
+			this->WriteTableLabel(x + 45, "VI0%i", x);
 		else
-			this->WriteTableLabel(x+45, "VI%i", x);
-		this->setRowHeight(45+x,16);
+			this->WriteTableLabel(x + 45, "VI%i", x);
+		this->setRowHeight(45 + x, 16);
 	}
 	this->Update();
-	
+
 	this->setContextMenuPolicy(Qt::CustomContextMenu);
 	connect(this, &CRegViewVU::customContextMenuRequested, this, &CRegViewVU::ShowContextMenu);
 }
@@ -52,15 +52,15 @@ void CRegViewVU::Update()
 {
 	switch(m_viewMode)
 	{
-		case VIEWMODE_WORD:
-			DisplayWordMode();
-			break;
-		case VIEWMODE_SINGLE:
-			DisplaySingleMode();
-			break;
-		default:
-			assert(false);
-			break;
+	case VIEWMODE_WORD:
+		DisplayWordMode();
+		break;
+	case VIEWMODE_SINGLE:
+		DisplaySingleMode();
+		break;
+	default:
+		assert(false);
+		break;
 	}
 	this->DisplayGeneral();
 }
@@ -70,23 +70,23 @@ void CRegViewVU::DisplaySingleMode()
 	const auto& state = m_ctx->m_State;
 	for(unsigned int i = 0; i < 32; i++)
 	{
-		WriteTableEntry(i,"%+.7e %+.7e %+.7e %+.7e",
-							*reinterpret_cast<const float*>(&state.nCOP2[i].nV0),
-			        *reinterpret_cast<const float*>(&state.nCOP2[i].nV1),
-			        *reinterpret_cast<const float*>(&state.nCOP2[i].nV2),
-			        *reinterpret_cast<const float*>(&state.nCOP2[i].nV3));
+		WriteTableEntry(i, "%+.7e %+.7e %+.7e %+.7e",
+		                *reinterpret_cast<const float*>(&state.nCOP2[i].nV0),
+		                *reinterpret_cast<const float*>(&state.nCOP2[i].nV1),
+		                *reinterpret_cast<const float*>(&state.nCOP2[i].nV2),
+		                *reinterpret_cast<const float*>(&state.nCOP2[i].nV3));
 	}
 
 	// ACC
-	WriteTableEntry(32,"%+.7e %+.7e %+.7e %+.7e",
-	        *reinterpret_cast<const float*>(&state.nCOP2A.nV0),
-	        *reinterpret_cast<const float*>(&state.nCOP2A.nV1),
-	        *reinterpret_cast<const float*>(&state.nCOP2A.nV2),
-	        *reinterpret_cast<const float*>(&state.nCOP2A.nV3));
+	WriteTableEntry(32, "%+.7e %+.7e %+.7e %+.7e",
+	                *reinterpret_cast<const float*>(&state.nCOP2A.nV0),
+	                *reinterpret_cast<const float*>(&state.nCOP2A.nV1),
+	                *reinterpret_cast<const float*>(&state.nCOP2A.nV2),
+	                *reinterpret_cast<const float*>(&state.nCOP2A.nV3));
 	// Q
 	WriteTableEntry(33, "%+.7e", *reinterpret_cast<const float*>(&state.nCOP2Q));
 	// I
-	WriteTableEntry(34,"%+.7e", *reinterpret_cast<const float*>(&state.nCOP2I));
+	WriteTableEntry(34, "%+.7e", *reinterpret_cast<const float*>(&state.nCOP2I));
 	// P
 	WriteTableEntry(35, "%+.7e", *reinterpret_cast<const float*>(&state.nCOP2P));
 }
@@ -97,14 +97,14 @@ void CRegViewVU::DisplayWordMode()
 	for(unsigned int i = 0; i < 32; i++)
 	{
 		WriteTableEntry(i, "0x%08X 0x%08X 0x%08X 0x%08X",
-			        state.nCOP2[i].nV0, state.nCOP2[i].nV1,
-			        state.nCOP2[i].nV2, state.nCOP2[i].nV3);
+		                state.nCOP2[i].nV0, state.nCOP2[i].nV1,
+		                state.nCOP2[i].nV2, state.nCOP2[i].nV3);
 	}
 
 	// ACC
 	WriteTableEntry(32, "0x%08X 0x%08X 0x%08X 0x%08X",
-	        state.nCOP2A.nV0, state.nCOP2A.nV1,
-	        state.nCOP2A.nV2, state.nCOP2A.nV3);
+	                state.nCOP2A.nV0, state.nCOP2A.nV1,
+	                state.nCOP2A.nV2, state.nCOP2A.nV3);
 	// Q
 	WriteTableEntry(33, "0x%08X", state.nCOP2Q);
 	// I
@@ -135,7 +135,7 @@ void CRegViewVU::DisplayGeneral()
 
 	for(unsigned int x = 0; x < 16; x++)
 	{
-		WriteTableEntry(45+x, "0x%04X", state.nCOP2VI[x] & 0xFFFF);
+		WriteTableEntry(45 + x, "0x%04X", state.nCOP2VI[x] & 0xFFFF);
 	}
 }
 /*
@@ -184,8 +184,8 @@ std::string CRegViewVU::PrintPipeline(const FLAG_PIPELINE& pipe)
 void CRegViewVU::ShowContextMenu(const QPoint& pos)
 {
 	QMenu contextMenu("Context menu", this);
-	contextMenu.addAction("Word Mode", [&](){m_viewMode=VIEWMODE_WORD; this->Update();});
-	contextMenu.addAction("Single Mode", [&](){m_viewMode=VIEWMODE_SINGLE; this->Update();});
+	contextMenu.addAction("Word Mode", [&]() {m_viewMode=VIEWMODE_WORD; this->Update(); });
+	contextMenu.addAction("Single Mode", [&]() {m_viewMode=VIEWMODE_SINGLE; this->Update(); });
 	contextMenu.exec(mapToGlobal(pos));
 }
 /*

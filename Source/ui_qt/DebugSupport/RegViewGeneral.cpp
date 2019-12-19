@@ -3,7 +3,7 @@
 #include <QHeaderView>
 #include "RegViewGeneral.h"
 
-CRegViewGeneral::CRegViewGeneral(QWidget* hParent,CMIPS* pC)
+CRegViewGeneral::CRegViewGeneral(QWidget* hParent, CMIPS* pC)
     : CRegViewPage(hParent)
     , m_pCtx(pC)
 {
@@ -12,7 +12,7 @@ CRegViewGeneral::CRegViewGeneral(QWidget* hParent,CMIPS* pC)
 	this->horizontalHeader()->setStretchLastSection(true);
 	for(unsigned int x = 0; x < 37; x++)
 	{
-		this->setRowHeight(x,16);
+		this->setRowHeight(x, 16);
 	}
 	for(unsigned int x = 0; x < 32; x++)
 	{

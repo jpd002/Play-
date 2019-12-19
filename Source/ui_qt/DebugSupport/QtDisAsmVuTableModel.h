@@ -15,5 +15,4 @@ public:
 	~CQtDisAsmVuTableModel();
 
 	virtual std::string GetInstructionDetails(int, uint32) const override;
-
 };

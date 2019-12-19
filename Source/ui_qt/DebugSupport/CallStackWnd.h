@@ -23,7 +23,7 @@ public:
 	OnFunctionDblClickSignal OnFunctionDblClick;
 
 public slots:
-	void listDoubleClick(QListWidgetItem *item);
+	void listDoubleClick(QListWidgetItem* item);
 
 private:
 	void Update();
@@ -31,5 +31,5 @@ private:
 	CMIPS* m_context;
 	CBiosDebugInfoProvider* m_biosDebugInfoProvider;
 
-	QListWidget *m_listWidget;
+	QListWidget* m_listWidget;
 };

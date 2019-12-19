@@ -11,7 +11,7 @@
 
 CCallStackWnd::CCallStackWnd(QMdiArea* parent, CMIPS* context, CBiosDebugInfoProvider* biosDebugInfoProvider)
     : QMdiSubWindow(parent)
-	, m_context(context)
+    , m_context(context)
     , m_biosDebugInfoProvider(biosDebugInfoProvider)
 {
 	resize(320, 750);
@@ -61,7 +61,7 @@ void CCallStackWnd::Update()
 	}
 }
 
-void CCallStackWnd::listDoubleClick(QListWidgetItem *item)
+void CCallStackWnd::listDoubleClick(QListWidgetItem* item)
 {
 	std::string addressStr = item->text().toStdString();
 	uint32 nAddress = lexical_cast_hex(addressStr);

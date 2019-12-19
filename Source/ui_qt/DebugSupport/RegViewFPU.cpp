@@ -18,7 +18,7 @@ CRegViewFPU::CRegViewFPU(QWidget* parent, CMIPS* pC)
 	this->horizontalHeader()->setStretchLastSection(true);
 	for(unsigned int x = 0; x < 32; x++)
 	{
-		this->setRowHeight(x,16);
+		this->setRowHeight(x, 16);
 		if(x < 10)
 			this->WriteTableLabel(x, "F0%i", x);
 		else
@@ -54,14 +54,14 @@ void CRegViewFPU::RenderFCSR()
 {
 	this->WriteTableEntry(33, "0x%08X", m_pCtx->m_State.nFCSR);
 	this->WriteTableEntry(34, "%i%i%i%i%i%i%i%ib",
-	       (m_pCtx->m_State.nFCSR & 0x80000000) != 0 ? 1 : 0,
-	       (m_pCtx->m_State.nFCSR & 0x40000000) != 0 ? 1 : 0,
-	       (m_pCtx->m_State.nFCSR & 0x20000000) != 0 ? 1 : 0,
-	       (m_pCtx->m_State.nFCSR & 0x10000000) != 0 ? 1 : 0,
-	       (m_pCtx->m_State.nFCSR & 0x04000000) != 0 ? 1 : 0,
-	       (m_pCtx->m_State.nFCSR & 0x08000000) != 0 ? 1 : 0,
-	       (m_pCtx->m_State.nFCSR & 0x02000000) != 0 ? 1 : 0,
-	       (m_pCtx->m_State.nFCSR & 0x00800000) != 0 ? 1 : 0);
+	                      (m_pCtx->m_State.nFCSR & 0x80000000) != 0 ? 1 : 0,
+	                      (m_pCtx->m_State.nFCSR & 0x40000000) != 0 ? 1 : 0,
+	                      (m_pCtx->m_State.nFCSR & 0x20000000) != 0 ? 1 : 0,
+	                      (m_pCtx->m_State.nFCSR & 0x10000000) != 0 ? 1 : 0,
+	                      (m_pCtx->m_State.nFCSR & 0x04000000) != 0 ? 1 : 0,
+	                      (m_pCtx->m_State.nFCSR & 0x08000000) != 0 ? 1 : 0,
+	                      (m_pCtx->m_State.nFCSR & 0x02000000) != 0 ? 1 : 0,
+	                      (m_pCtx->m_State.nFCSR & 0x00800000) != 0 ? 1 : 0);
 }
 
 void CRegViewFPU::RenderWord()
@@ -91,8 +91,8 @@ void CRegViewFPU::RenderSingle()
 void CRegViewFPU::ShowContextMenu(const QPoint& pos)
 {
 	QMenu contextMenu("Context menu", this);
-	contextMenu.addAction("Word Mode", [&](){m_nViewMode=VIEWMODE_WORD; this->Update();});
-	contextMenu.addAction("Single Mode", [&](){m_nViewMode=VIEWMODE_SINGLE; this->Update();});
+	contextMenu.addAction("Word Mode", [&]() {m_nViewMode=VIEWMODE_WORD; this->Update(); });
+	contextMenu.addAction("Single Mode", [&]() {m_nViewMode=VIEWMODE_SINGLE; this->Update(); });
 	contextMenu.exec(mapToGlobal(pos));
 }
 /*

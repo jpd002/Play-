@@ -9,12 +9,12 @@
 
 CQtDisAsmTableModel::CQtDisAsmTableModel(QObject* parent, CVirtualMachine& virtualMachine, CMIPS* context)
     : QAbstractTableModel(parent)
-	, m_virtualMachine(virtualMachine)
+    , m_virtualMachine(virtualMachine)
     , m_ctx(context)
     , m_instructionSize(4)
     , m_disAsmType(DISASM_TYPE::DISASM_STANDARD)
 {
-	m_headers = {"S", "Address", "R", "Instr","I-Mn", "I-Op", "Target"};
+	m_headers = {"S", "Address", "R", "Instr", "I-Mn", "I-Op", "Target"};
 
 	auto size = m_start_line.size();
 	auto start = 2;
@@ -105,7 +105,6 @@ CQtDisAsmTableModel::CQtDisAsmTableModel(QObject* parent, CVirtualMachine& virtu
 		pen.setColor(palette.color(QPalette::WindowText));
 		painter.setPen(pen);
 		painter.drawPath(arrow_path);
-
 	}
 }
 
@@ -131,14 +130,14 @@ QVariant CQtDisAsmTableModel::data(const QModelIndex& index, int role) const
 	{
 		switch(index.column())
 		{
-			case 0://SYMBOL:
-				return QVariant();
+		case 0: //SYMBOL:
+			return QVariant();
 			break;
-			case 1://Address:
-				return string_format(("%08X"), address).c_str();
+		case 1: //Address:
+			return string_format(("%08X"), address).c_str();
 			break;
-			case 2://Relation:
-				return QVariant();
+		case 2: //Relation:
+			return QVariant();
 			break;
 		}
 		auto size = (m_disAsmType == DISASM_TYPE::DISASM_STANDARD) ? 3 : 5;
@@ -162,47 +161,47 @@ QVariant CQtDisAsmTableModel::data(const QModelIndex& index, int role) const
 	{
 		switch(index.column())
 		{
-			case 0:
-			{
-				bool isBreakpoint = (m_ctx->m_breakpoints.find(address) != std::end(m_ctx->m_breakpoints));
-				bool isPC = (m_virtualMachine.GetStatus() != CVirtualMachine::RUNNING && address == m_ctx->m_State.nPC);
+		case 0:
+		{
+			bool isBreakpoint = (m_ctx->m_breakpoints.find(address) != std::end(m_ctx->m_breakpoints));
+			bool isPC = (m_virtualMachine.GetStatus() != CVirtualMachine::RUNNING && address == m_ctx->m_State.nPC);
 
-				//Draw current instruction m_arrow and m_breakpoint icon
-				if(isBreakpoint && isPC)
-				{
-					return m_breakpoint_arrow;
-				}
-				//Draw m_breakpoint icon
-				if(isBreakpoint)
-				{
-					return m_breakpoint;
-				}
-				//Draw current instruction m_arrow
-				if(isPC)
-				{
-					return m_arrow;
-				}
-			}
-			break;
-			case 2:
+			//Draw current instruction m_arrow and m_breakpoint icon
+			if(isBreakpoint && isPC)
 			{
-				const auto* sub = m_ctx->m_analysis->FindSubroutine(address);
-				if(sub != nullptr)
+				return m_breakpoint_arrow;
+			}
+			//Draw m_breakpoint icon
+			if(isBreakpoint)
+			{
+				return m_breakpoint;
+			}
+			//Draw current instruction m_arrow
+			if(isPC)
+			{
+				return m_arrow;
+			}
+		}
+		break;
+		case 2:
+		{
+			const auto* sub = m_ctx->m_analysis->FindSubroutine(address);
+			if(sub != nullptr)
+			{
+				if(address == sub->start)
 				{
-					if(address == sub->start)
-					{
-						return m_start_line;
-					}
-					else if(address == sub->end)
-					{
-						return m_end_line;
-					}
-					else
-					{
-						return m_line;
-					}
+					return m_start_line;
+				}
+				else if(address == sub->end)
+				{
+					return m_end_line;
+				}
+				else
+				{
+					return m_line;
 				}
 			}
+		}
 		}
 	}
 	return QVariant();
@@ -247,23 +246,23 @@ std::string CQtDisAsmTableModel::GetInstructionDetails(int index, uint32 address
 	uint32 instruction = GetInstruction(address);
 	switch(index)
 	{
-		case 0:
-		{
-			std::string instructionCode = lexical_cast_hex<std::string>(instruction, 8);
-			return instructionCode;
-		}
-		case 1:
-		{
-			char disAsm[256];
-			m_ctx->m_pArch->GetInstructionMnemonic(m_ctx, address + 4, instruction, disAsm, 256);
-			return disAsm;
-		}
-		case 2:
-		{
-			char disAsm[256];
-			m_ctx->m_pArch->GetInstructionOperands(m_ctx, address + 4, instruction, disAsm, 256);
-			return disAsm;
-		}
+	case 0:
+	{
+		std::string instructionCode = lexical_cast_hex<std::string>(instruction, 8);
+		return instructionCode;
+	}
+	case 1:
+	{
+		char disAsm[256];
+		m_ctx->m_pArch->GetInstructionMnemonic(m_ctx, address + 4, instruction, disAsm, 256);
+		return disAsm;
+	}
+	case 2:
+	{
+		char disAsm[256];
+		m_ctx->m_pArch->GetInstructionOperands(m_ctx, address + 4, instruction, disAsm, 256);
+		return disAsm;
+	}
 	}
 	return "";
 }

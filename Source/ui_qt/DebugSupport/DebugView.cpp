@@ -5,7 +5,7 @@
 
 CDebugView::CDebugView(QMdiArea* parent, CVirtualMachine& virtualMachine, CMIPS* ctx,
                        const StepFunction& stepFunction, CBiosDebugInfoProvider* biosDebugInfoProvider, const char* name, int size, CQtDisAsmTableModel::DISASM_TYPE disAsmType)
-	  : m_virtualMachine(virtualMachine)
+    : m_virtualMachine(virtualMachine)
     , m_ctx(ctx)
     , m_name(name)
     , m_stepFunction(stepFunction)
@@ -15,7 +15,7 @@ CDebugView::CDebugView(QMdiArea* parent, CVirtualMachine& virtualMachine, CMIPS*
     , m_callStackWnd(nullptr)
     , m_biosDebugInfoProvider(biosDebugInfoProvider)
 {
-	
+
 	// Setup tabs
 	m_disAsmWnd = new CDisAsmWnd(parent, virtualMachine, m_ctx, name, disAsmType);
 	this->m_disAsmWnd->show();

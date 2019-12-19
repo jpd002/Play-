@@ -44,5 +44,4 @@ protected:
 	QPixmap m_arrow = QPixmap(22, 22);
 	QPixmap m_breakpoint = QPixmap(22, 22);
 	QPixmap m_breakpoint_arrow = QPixmap(22, 22);
-
 };

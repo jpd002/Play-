@@ -11,8 +11,6 @@
 #include "MemoryViewMIPSWnd.h"
 #include "DebugExpressionEvaluator.h"
 
-
-
 CMemoryViewMIPSWnd::CMemoryViewMIPSWnd(QMdiArea* parent, CVirtualMachine& virtualMachine, CMIPS* ctx, int size)
     : QMdiSubWindow(parent)
     , m_virtualMachine(virtualMachine)
@@ -26,7 +24,7 @@ CMemoryViewMIPSWnd::CMemoryViewMIPSWnd(QMdiArea* parent, CVirtualMachine& virtua
 
 	auto centralwidget = new QWidget(this);
 	auto verticalLayout = new QVBoxLayout(centralwidget);
-	
+
 	m_addressEdit = new QLineEdit(centralwidget);
 	m_addressEdit->setReadOnly(true);
 
@@ -107,7 +105,7 @@ void CMemoryViewMIPSWnd::UpdateStatusBar()
 	m_addressEdit->setText(caption.c_str());
 }
 
-void CMemoryViewMIPSWnd::ShowMenu(const QPoint &pos)
+void CMemoryViewMIPSWnd::ShowMenu(const QPoint& pos)
 {
 	auto rightClickMenu = new QMenu(this);
 
@@ -177,7 +175,7 @@ void CMemoryViewMIPSWnd::ResizeColumns()
 	auto header = m_tableView->horizontalHeader();
 	header->setSectionResizeMode(QHeaderView::Fixed);
 
-	auto units =  m_model->UnitsForCurrentLine();
+	auto units = m_model->UnitsForCurrentLine();
 	auto valueCell = m_cwidth * (m_model->CharsPerUnit() + 2);
 	int asciiCell = m_cwidth * (m_model->GetBytesPerUnit());
 	for(auto i = 0; i < units; ++i)
@@ -236,9 +234,9 @@ void CMemoryViewMIPSWnd::GotoAddress()
 	{
 		bool ok;
 		QString res = QInputDialog::getText(this, tr("Goto Address"),
-											tr("Enter new address:"), QLineEdit::Normal,
-											tr("00000000"), &ok);
-		if (!ok  || res.isEmpty())
+		                                    tr("Enter new address:"), QLineEdit::Normal,
+		                                    tr("00000000"), &ok);
+		if(!ok || res.isEmpty())
 			return;
 
 		sValue = res.toStdString();
@@ -274,7 +272,6 @@ void CMemoryViewMIPSWnd::SetActiveUnit(int index)
 	AutoColumn();
 }
 
-
 void CMemoryViewMIPSWnd::SetSelectionStart(uint32 address)
 {
 	auto column = address % m_model->BytesForCurrentLine();
@@ -299,5 +296,5 @@ void CMemoryViewMIPSWnd::SelectionChanged()
 		int address = offset + (index.row() * m_model->BytesForCurrentLine());
 		m_selected = address;
 	}
-    UpdateStatusBar();
+	UpdateStatusBar();
 }

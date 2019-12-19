@@ -49,6 +49,5 @@ private:
 	int m_bytesPerLine = 0;
 	int m_maxUnits = 0;
 
-
 	Framework::CSignal<void(uint32)>::Connection m_OnSelectionChangeConnection;
 };

@@ -1,8 +1,9 @@
-#pragma once 
+#pragma once
 
 #include <QDialog>
 
-namespace Ui {
+namespace Ui
+{
 	class QtDialogListWidget;
 }
 
@@ -11,7 +12,7 @@ class QtDialogListWidget : public QDialog
 	Q_OBJECT
 
 public:
-	explicit QtDialogListWidget(QWidget *parent = nullptr);
+	explicit QtDialogListWidget(QWidget* parent = nullptr);
 	~QtDialogListWidget();
 
 	void addItem(std::string);
@@ -21,7 +22,7 @@ private slots:
 	void on_buttonBox_accepted();
 
 private:
-	Ui::QtDialogListWidget *ui;
+	Ui::QtDialogListWidget* ui;
 
 	std::string results;
 };

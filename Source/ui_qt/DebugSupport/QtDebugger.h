@@ -12,7 +12,8 @@
 // Predeclares to avoid headers
 class CDebugView;
 
-namespace Ui {
+namespace Ui
+{
 	class QtDebugger;
 }
 
@@ -21,7 +22,7 @@ class QtDebugger : public QMainWindow
 	Q_OBJECT
 
 public:
-	explicit QtDebugger(QWidget *parent, CPS2VM&);
+	explicit QtDebugger(QWidget* parent, CPS2VM&);
 	~QtDebugger();
 
 	//HACCEL GetAccelerators();
@@ -58,7 +59,7 @@ private slots:
 	void on_actionIOP_View_triggered();
 
 private:
-	Ui::QtDebugger *ui;
+	Ui::QtDebugger* ui;
 
 	enum DEBUGVIEW
 	{
@@ -147,4 +148,3 @@ private:
 	unsigned int m_nCurrentView;
 	CPS2VM& m_virtualMachine;
 };
-

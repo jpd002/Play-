@@ -19,12 +19,11 @@
 #include "string_cast.h"
 #include "string_format.h"
 
-
 #define PREF_DEBUGGER_MEMORYVIEW_BYTEWIDTH "debugger.memoryview.bytewidth"
 
 #define FIND_MAX_ADDRESS 0x02000000
 
-QtDebugger::QtDebugger(QWidget *parent, CPS2VM& virtualMachine)
+QtDebugger::QtDebugger(QWidget* parent, CPS2VM& virtualMachine)
     : QMainWindow(parent)
     , ui(new Ui::QtDebugger)
     , m_virtualMachine(virtualMachine)
@@ -60,11 +59,11 @@ QtDebugger::QtDebugger(QWidget *parent, CPS2VM& virtualMachine)
 	m_pView[DEBUGVIEW_EE] = new CDebugView(ui->mdiArea, m_virtualMachine, &m_virtualMachine.m_ee->m_EE,
 	                                       std::bind(&CPS2VM::StepEe, &m_virtualMachine), m_virtualMachine.m_ee->m_os, "EmotionEngine", PS2::EE_RAM_SIZE);
 	m_pView[DEBUGVIEW_VU0] = new CDebugView(ui->mdiArea, m_virtualMachine, &m_virtualMachine.m_ee->m_VU0,
-	                                       std::bind(&CPS2VM::StepVu0, &m_virtualMachine), nullptr, "Vector Unit 0", PS2::VUMEM0SIZE, CQtDisAsmTableModel::DISASM_VU);
+	                                        std::bind(&CPS2VM::StepVu0, &m_virtualMachine), nullptr, "Vector Unit 0", PS2::VUMEM0SIZE, CQtDisAsmTableModel::DISASM_VU);
 	m_pView[DEBUGVIEW_VU1] = new CDebugView(ui->mdiArea, m_virtualMachine, &m_virtualMachine.m_ee->m_VU1,
-	                                       std::bind(&CPS2VM::StepVu1, &m_virtualMachine), nullptr, "Vector Unit 1", PS2::VUMEM1SIZE, CQtDisAsmTableModel::DISASM_VU);
+	                                        std::bind(&CPS2VM::StepVu1, &m_virtualMachine), nullptr, "Vector Unit 1", PS2::VUMEM1SIZE, CQtDisAsmTableModel::DISASM_VU);
 	m_pView[DEBUGVIEW_IOP] = new CDebugView(ui->mdiArea, m_virtualMachine, &m_virtualMachine.m_iop->m_cpu,
-	                                       std::bind(&CPS2VM::StepIop, &m_virtualMachine), m_virtualMachine.m_iop->m_bios.get(), "IO Processor", PS2::IOP_RAM_SIZE);
+	                                        std::bind(&CPS2VM::StepIop, &m_virtualMachine), m_virtualMachine.m_iop->m_bios.get(), "IO Processor", PS2::IOP_RAM_SIZE);
 
 	m_OnExecutableChangeConnection = m_virtualMachine.m_ee->m_os->OnExecutableChange.Connect(std::bind(&QtDebugger::OnExecutableChange, this));
 	m_OnExecutableUnloadingConnection = m_virtualMachine.m_ee->m_os->OnExecutableUnloading.Connect(std::bind(&QtDebugger::OnExecutableUnloading, this));
@@ -178,8 +177,8 @@ void QtDebugger::SerializeWindowGeometry(QMdiSubWindow* pWindow, const char* sPo
 
 	//if(sSizeX != NULL && sSizeY != NULL)
 	//{
-		config.SetPreferenceInteger(sSizeX, geometry.width());
-		config.SetPreferenceInteger(sSizeY, geometry.height());
+	config.SetPreferenceInteger(sSizeX, geometry.width());
+	config.SetPreferenceInteger(sSizeY, geometry.height());
 	//}
 
 	config.SetPreferenceBoolean(sVisible, pWindow->isVisible());
@@ -220,7 +219,6 @@ void QtDebugger::StepCPU()
 		GetDisassemblyWindow()->setFocus(Qt::ActiveWindowFocusReason);
 	}
 
-	
 	GetCurrentView()->Step();
 }
 
@@ -230,9 +228,9 @@ void QtDebugger::FindWordValue(uint32 mask)
 	{
 		bool ok;
 		QString res = QInputDialog::getText(this, tr("Find Value in Memory"),
-											tr("Enter value to find:"), QLineEdit::Normal,
-											tr("00000000"), &ok);
-		if (!ok  || res.isEmpty())
+		                                    tr("Enter value to find:"), QLineEdit::Normal,
+		                                    tr("00000000"), &ok);
+		if(!ok || res.isEmpty())
 			return;
 
 		if(sscanf(res.toStdString().c_str(), "%x", &targetValue) <= 0)
@@ -257,24 +255,23 @@ void QtDebugger::AssembleJAL()
 {
 	uint32 nValueTarget = 0, nValueAssemble = 0;
 	auto getAddress =
-	   [this](const char* prompt, uint32& address)
-	{
-		bool ok;
-		QString res = QInputDialog::getText(this, tr("Assemble JAL"),
-											tr(prompt), QLineEdit::Normal,
-											tr("00000000"), &ok);
-		if (!ok  || res.isEmpty())
-			return false;
-		uint32 addrValueTemp = 0;
-		if(sscanf(res.toStdString().c_str(), "%x", &address) <= 0)
-		{
-			QMessageBox msgBox;
-			msgBox.setText("Invalid value.");
-			msgBox.exec();
-			return false;
-		}
-		return true;
-	};
+	    [this](const char* prompt, uint32& address) {
+		    bool ok;
+		    QString res = QInputDialog::getText(this, tr("Assemble JAL"),
+		                                        tr(prompt), QLineEdit::Normal,
+		                                        tr("00000000"), &ok);
+		    if(!ok || res.isEmpty())
+			    return false;
+		    uint32 addrValueTemp = 0;
+		    if(sscanf(res.toStdString().c_str(), "%x", &address) <= 0)
+		    {
+			    QMessageBox msgBox;
+			    msgBox.setText("Invalid value.");
+			    msgBox.exec();
+			    return false;
+		    }
+		    return true;
+	    };
 	if(!getAddress("Enter jump target:", nValueTarget)) return;
 	if(!getAddress("Enter address to assemble JAL to:", nValueAssemble)) return;
 
@@ -290,28 +287,27 @@ void QtDebugger::ReanalyzeEe()
 	uint32 maxAddr = executableRange.second & ~0x03;
 
 	auto getAddress =
-	   [this](const char* prompt, uint32& address)
-	{
-		bool ok;
-		QString res = QInputDialog::getText(this, tr("Analyze EE"),
-											tr(prompt), QLineEdit::Normal,
-											tr(string_format("0x%08X", address).c_str()), &ok);
-		if (!ok  || res.isEmpty())
-			return false;
-		uint32 addrValueTemp = 0;
-		if(sscanf(res.toStdString().c_str(), "%x", &addrValueTemp) <= 0)
-		{
-			QMessageBox msgBox;
-			msgBox.setText("Invalid value.");
-			msgBox.exec();
-			return false;
-		}
-		if(addrValueTemp != 0)
-		{
-			address = addrValueTemp & ~0x3;
-		}
-		return true;
-	};
+	    [this](const char* prompt, uint32& address) {
+		    bool ok;
+		    QString res = QInputDialog::getText(this, tr("Analyze EE"),
+		                                        tr(prompt), QLineEdit::Normal,
+		                                        tr(string_format("0x%08X", address).c_str()), &ok);
+		    if(!ok || res.isEmpty())
+			    return false;
+		    uint32 addrValueTemp = 0;
+		    if(sscanf(res.toStdString().c_str(), "%x", &addrValueTemp) <= 0)
+		    {
+			    QMessageBox msgBox;
+			    msgBox.setText("Invalid value.");
+			    msgBox.exec();
+			    return false;
+		    }
+		    if(addrValueTemp != 0)
+		    {
+			    address = addrValueTemp & ~0x3;
+		    }
+		    return true;
+	    };
 
 	if(!getAddress("Start Address:", minAddr)) return;
 	if(!getAddress("End Address:", maxAddr)) return;
@@ -492,7 +488,7 @@ void QtDebugger::ActivateView(unsigned int nView)
 	}
 
 	m_findCallersRequestConnection = GetCurrentView()->GetDisassemblyWindow()->FindCallersRequested.Connect(
-	   [&](uint32 address) { OnFindCallersRequested(address); });
+	    [&](uint32 address) { OnFindCallersRequested(address); });
 }
 
 void QtDebugger::SaveViewLayout()
@@ -744,7 +740,7 @@ void QtDebugger::OnFindCallersRequested(uint32 address)
 			    return string_format("Find Callers For 0x%08X", address);
 		    }
 	    }();
-	
+
 	m_addressListView->SetAddressList(std::move(callers));
 	m_addressListView->SetTitle(std::move(title));
 	m_addressListView->show();
@@ -761,7 +757,7 @@ void QtDebugger::OnFindCallersAddressDblClick(uint32 address)
 void QtDebugger::OnExecutableChangeMsg()
 {
 	//m_pELFView->SetELF(m_virtualMachine.m_ee->m_os->GetELF());
-		// m_pFunctionsView->SetELF(m_virtualMachine.m_os->GetELF());
+	// m_pFunctionsView->SetELF(m_virtualMachine.m_os->GetELF());
 
 	LoadDebugTags();
 
@@ -774,7 +770,7 @@ void QtDebugger::OnExecutableUnloadingMsg()
 {
 	SaveDebugTags();
 	//m_pELFView->SetELF(NULL);
-		// m_pFunctionsView->SetELF(NULL);
+	// m_pFunctionsView->SetELF(NULL);
 }
 
 void QtDebugger::OnMachineStateChangeMsg()

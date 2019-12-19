@@ -34,8 +34,8 @@ CFunctionsView::CFunctionsView(QMdiArea* parent)
 
 	auto widget = new QWidget();
 	auto layout = new QGridLayout(widget);
-	layout->addWidget(m_tableView,0,0, 1, 4);
-	layout->addWidget(btnNew,1,0,1,1);
+	layout->addWidget(m_tableView, 0, 0, 1, 4);
+	layout->addWidget(btnNew, 1, 0, 1, 1);
 	layout->addWidget(btnRename, 1, 1, 1, 1);
 	layout->addWidget(btnDelete, 1, 2, 1, 1);
 	layout->addWidget(btnImport, 1, 3, 1, 1);
@@ -136,9 +136,9 @@ void CFunctionsView::OnNewClick()
 	{
 		bool ok;
 		QString res = QInputDialog::getText(this, tr("New Function"),
-											tr("New Function Name:"), QLineEdit::Normal,
-											tr(""), &ok);
-		if (!ok  || res.isEmpty())
+		                                    tr("New Function Name:"), QLineEdit::Normal,
+		                                    tr(""), &ok);
+		if(!ok || res.isEmpty())
 			return;
 
 		name = res.toStdString();
@@ -147,9 +147,9 @@ void CFunctionsView::OnNewClick()
 	{
 		bool ok;
 		QString res = QInputDialog::getText(this, tr("New Function"),
-											tr("New Function Address:"), QLineEdit::Normal,
-											tr("00000000"), &ok);
-		if (!ok  || res.isEmpty())
+		                                    tr("New Function Address:"), QLineEdit::Normal,
+		                                    tr("00000000"), &ok);
+		if(!ok || res.isEmpty())
 			return;
 
 		if(sscanf(res.toStdString().c_str(), "%x", &nAddress) <= 0 || (nAddress & 0x3) != 0x0)
@@ -188,9 +188,9 @@ void CFunctionsView::OnRenameClick()
 
 	bool ok;
 	QString res = QInputDialog::getText(this, tr("Rename Function"),
-										tr("New Function Name:"), QLineEdit::Normal,
-										tr(""), &ok);
-	if (!ok  || res.isEmpty())
+	                                    tr("New Function Name:"), QLineEdit::Normal,
+	                                    tr(""), &ok);
+	if(!ok || res.isEmpty())
 		return;
 
 	m_context->m_Functions.InsertTag(nAddress, res.toStdString().c_str());
@@ -212,8 +212,8 @@ void CFunctionsView::OnDeleteClick()
 	uint32 nAddress = lexical_cast_hex(selectedAddressStr);
 
 	int ret = QMessageBox::warning(this, tr("Delete this function?"),
-                                   tr("Are you sure you want to delete this function?"),
-                                   QMessageBox::Ok | QMessageBox::Cancel, QMessageBox::Ok);
+	                               tr("Are you sure you want to delete this function?"),
+	                               QMessageBox::Ok | QMessageBox::Cancel, QMessageBox::Ok);
 	if(ret != QMessageBox::Ok)
 	{
 		return;

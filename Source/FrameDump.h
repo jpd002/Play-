@@ -7,7 +7,7 @@
 #include "MIPS.h"
 
 #ifdef DEBUGGER_INCLUDED
-	#include <cstring>
+#include <cstring>
 #endif
 
 class CGsPacketMetadata

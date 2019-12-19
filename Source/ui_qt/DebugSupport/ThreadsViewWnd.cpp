@@ -38,7 +38,6 @@ CThreadsViewWnd::CThreadsViewWnd(QMdiArea* parent)
 	header->resizeSection(1, width);
 
 	connect(m_tableView, &QTableView::doubleClicked, this, &CThreadsViewWnd::tableDoubleClick);
-
 }
 
 void CThreadsViewWnd::HandleMachineStateChange()

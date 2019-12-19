@@ -1,8 +1,8 @@
 #include "RegViewPage.h"
 
-CRegViewPage::CRegViewPage(QWidget* Parent)//, const RECT& rect)
-		: QTableWidget(Parent)
-    //: m_font(Framework::Win32::CreateFont(_T("Courier New"), 8))
+CRegViewPage::CRegViewPage(QWidget* Parent) //, const RECT& rect)
+    : QTableWidget(Parent)
+//: m_font(Framework::Win32::CreateFont(_T("Courier New"), 8))
 {
 	setEditTriggers(QAbstractItemView::NoEditTriggers);
 }
@@ -45,7 +45,7 @@ void CRegViewPage::WriteTableEntry(unsigned int cellToWrite, const char* format,
 	vsnprintf(sLine, bufferSize, format, args);
 	if(this->item(cellToWrite, 1))
 		this->item(cellToWrite, 1)->setText(sLine);
-	else	
+	else
 		this->setItem(cellToWrite, 1, new QTableWidgetItem(sLine));
 	va_end(args);
 }
