@@ -49,7 +49,7 @@ CMemoryViewMIPSWnd::CMemoryViewMIPSWnd(QMdiArea* parent, CVirtualMachine& virtua
 	ResizeColumns();
 
 	m_tableView->setContextMenuPolicy(Qt::CustomContextMenu);
-	connect(m_tableView, &QTableView::customContextMenuRequested, this, &CMemoryViewMIPSWnd::ShowMenu);
+	connect(m_tableView, &QTableView::customContextMenuRequested, this, &CMemoryViewMIPSWnd::ShowContextMenu);
 	connect(m_tableView->selectionModel(), &QItemSelectionModel::selectionChanged, this, &CMemoryViewMIPSWnd::SelectionChanged);
 
 	UpdateStatusBar();
@@ -105,7 +105,7 @@ void CMemoryViewMIPSWnd::UpdateStatusBar()
 	m_addressEdit->setText(caption.c_str());
 }
 
-void CMemoryViewMIPSWnd::ShowMenu(const QPoint& pos)
+void CMemoryViewMIPSWnd::ShowContextMenu(const QPoint& pos)
 {
 	auto rightClickMenu = new QMenu(this);
 

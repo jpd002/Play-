@@ -29,7 +29,7 @@ protected:
 private:
 	void UpdateStatusBar();
 	void OnMemoryViewSelectionChange(uint32);
-	void ShowMenu(const QPoint&);
+	void ShowContextMenu(const QPoint&);
 	void ResizeColumns();
 	void AutoColumn();
 	void GotoAddress();

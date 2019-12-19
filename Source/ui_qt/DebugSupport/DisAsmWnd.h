@@ -51,7 +51,7 @@ private:
 	uint32 HistoryGetNext();
 	bool HistoryHasPrevious();
 	bool HistoryHasNext();
-	void showMenu(const QPoint&);
+	void ShowContextMenu(const QPoint&);
 	void selectionChanged();
 	void OnCopy();
 

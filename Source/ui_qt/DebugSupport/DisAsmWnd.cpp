@@ -75,7 +75,7 @@ CDisAsmWnd::CDisAsmWnd(QMdiArea* parent, CVirtualMachine& virtualMachine, CMIPS*
 	m_tableView->resizeColumnsToContents();
 
 	m_tableView->setContextMenuPolicy(Qt::CustomContextMenu);
-	connect(m_tableView, &QTableView::customContextMenuRequested, this, &CDisAsmWnd::showMenu);
+	connect(m_tableView, &QTableView::customContextMenuRequested, this, &CDisAsmWnd::ShowContextMenu);
 
 	m_tableView->setSelectionBehavior(QAbstractItemView::SelectRows);
 	m_tableView->setSelectionMode(QAbstractItemView::ContiguousSelection);
@@ -129,7 +129,7 @@ CDisAsmWnd::~CDisAsmWnd()
 {
 }
 
-void CDisAsmWnd::showMenu(const QPoint& pos)
+void CDisAsmWnd::ShowContextMenu(const QPoint& pos)
 {
 	QMenu* rightClickMenu = new QMenu(this);
 
