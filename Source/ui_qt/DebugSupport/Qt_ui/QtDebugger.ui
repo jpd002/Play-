@@ -48,7 +48,7 @@
      <x>0</x>
      <y>0</y>
      <width>674</width>
-     <height>22</height>
+     <height>21</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_Virtual_Machine">
@@ -101,10 +101,16 @@
    <property name="text">
     <string>Resume</string>
    </property>
+   <property name="shortcut">
+    <string>F5</string>
+   </property>
   </action>
   <action name="actionStep_CPU">
    <property name="text">
     <string>Step CPU</string>
+   </property>
+   <property name="shortcut">
+    <string>F10</string>
    </property>
   </action>
   <action name="actionDump_INTC_Handlers">
@@ -156,10 +162,16 @@
    <property name="text">
     <string>Call Stack</string>
    </property>
+   <property name="shortcut">
+    <string>Ctrl+A</string>
+   </property>
   </action>
   <action name="actionFunctions">
    <property name="text">
     <string>Functions</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+F</string>
    </property>
   </action>
   <action name="actionELF_File_Information">
@@ -171,25 +183,40 @@
    <property name="text">
     <string>Threads</string>
    </property>
+   <property name="shortcut">
+    <string>Ctrl+T</string>
+   </property>
   </action>
   <action name="actionEmotionEngine_View">
    <property name="text">
     <string>EmotionEngine View</string>
+   </property>
+   <property name="shortcut">
+    <string>Alt+1</string>
    </property>
   </action>
   <action name="actionVector_Unit_0">
    <property name="text">
     <string>Vector Unit 0 View</string>
    </property>
+   <property name="shortcut">
+    <string>Alt+2</string>
+   </property>
   </action>
   <action name="actionVector_Unti_1">
    <property name="text">
     <string>Vector Unti 1 View</string>
    </property>
+   <property name="shortcut">
+    <string>Alt+3</string>
+   </property>
   </action>
   <action name="actionIOP_View">
    <property name="text">
     <string>IOP View</string>
+   </property>
+   <property name="shortcut">
+    <string>Alt+4</string>
    </property>
   </action>
   <action name="actionCascade">
