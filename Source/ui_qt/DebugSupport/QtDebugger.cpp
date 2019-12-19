@@ -932,7 +932,7 @@ void QtDebugger::on_actionVector_Unit_0_triggered()
 	ActivateView(DEBUGVIEW_VU0);
 }
 
-void QtDebugger::on_actionVector_Unti_1_triggered()
+void QtDebugger::on_actionVector_Unit_1_triggered()
 {
 	ActivateView(DEBUGVIEW_VU1);
 }

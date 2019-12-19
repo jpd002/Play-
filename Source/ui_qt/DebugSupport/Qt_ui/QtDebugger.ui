@@ -79,7 +79,7 @@
     <addaction name="separator"/>
     <addaction name="actionEmotionEngine_View"/>
     <addaction name="actionVector_Unit_0"/>
-    <addaction name="actionVector_Unti_1"/>
+    <addaction name="actionVector_Unit_1"/>
     <addaction name="actionIOP_View"/>
    </widget>
    <widget class="QMenu" name="menuWindow">
@@ -203,9 +203,12 @@
     <string>Alt+2</string>
    </property>
   </action>
-  <action name="actionVector_Unti_1">
+  <action name="actionVector_Unit_1">
    <property name="text">
-    <string>Vector Unti 1 View</string>
+    <string>Vector Unit 1 View</string>
+   </property>
+   <property name="toolTip">
+    <string>Vector Unit 1 View</string>
    </property>
    <property name="shortcut">
     <string>Alt+3</string>

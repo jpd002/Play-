@@ -54,7 +54,7 @@ private slots:
 
 	void on_actionEmotionEngine_View_triggered();
 	void on_actionVector_Unit_0_triggered();
-	void on_actionVector_Unti_1_triggered();
+	void on_actionVector_Unit_1_triggered();
 	void on_actionIOP_View_triggered();
 
 private:
