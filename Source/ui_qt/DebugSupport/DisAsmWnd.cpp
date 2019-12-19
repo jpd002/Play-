@@ -91,6 +91,40 @@ CDisAsmWnd::CDisAsmWnd(QMdiArea* parent, CVirtualMachine& virtualMachine, CMIPS*
 	connect(breakpointAction, &QAction::triggered, this, &CDisAsmWnd::OnListDblClick);
 	m_tableView->addAction(breakpointAction);
 
+
+	QAction* rightArrowAction = new QAction("Right Arrow",this);
+	rightArrowAction->setShortcut(QKeySequence(Qt::Key_Right));
+	connect(rightArrowAction, &QAction::triggered, [&]()
+	{
+		if(m_selected != MIPS_INVALID_PC)
+		{
+			uint32 nOpcode = GetInstruction(m_selected);
+			if(m_ctx->m_pArch->IsInstructionBranch(m_ctx, m_selected, nOpcode) == MIPS_BRANCH_NORMAL)
+			{
+				m_address = m_selected; // Ensure history tracks where we came from
+				GotoEA();
+				SetSelectedAddress(m_address);
+			}
+			else if(HistoryHasNext())
+			{
+				HistoryGoForward();
+				SetSelectedAddress(m_address);
+			}
+		}
+	});
+	m_tableView->addAction(rightArrowAction);
+
+	QAction* leftArrowAction = new QAction("Left Arrow",this);
+	leftArrowAction->setShortcut(QKeySequence(Qt::Key_Left));
+	connect(leftArrowAction, &QAction::triggered, [&]()
+	{
+		if(HistoryHasPrevious())
+		{
+			HistoryGoBack();
+			SetSelectedAddress(m_address);
+		}
+	});
+	m_tableView->addAction(leftArrowAction);
 	connect(m_tableView, &QTableView::doubleClicked, this, &CDisAsmWnd::OnListDblClick);
 
 }
