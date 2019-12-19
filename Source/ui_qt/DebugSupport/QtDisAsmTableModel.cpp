@@ -1,5 +1,4 @@
 #include <QPainter>
-#include <QPixmapCache>
 
 #include "QtDisAsmTableModel.h"
 #include "string_cast.h"
