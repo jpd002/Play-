@@ -17,7 +17,7 @@ CAddressListViewWnd::CAddressListViewWnd(QMdiArea* parent)
 	setWidget(m_tableView);
 	m_tableView->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 
-	m_model = new CQtGenericTableModel(parent, {"Address"});
+	m_model = new CQtGenericTableModel(m_tableView, {"Address"});
 	m_tableView->setModel(m_model);
 	m_tableView->horizontalHeader()->setStretchLastSection(true);
 	m_tableView->resizeColumnsToContents();

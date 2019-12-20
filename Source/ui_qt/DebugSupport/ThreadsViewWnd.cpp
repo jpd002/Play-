@@ -21,7 +21,7 @@ CThreadsViewWnd::CThreadsViewWnd(QMdiArea* parent)
 	m_tableView->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 
 	std::vector<std::string> headers = {"Id", "Priority", "Location", "State"};
-	m_model = new CQtGenericTableModel(parent, {"Id", "Priority", "Location", "State"});
+	m_model = new CQtGenericTableModel(m_tableView, {"Id", "Priority", "Location", "State"});
 	m_tableView->setModel(m_model);
 	auto header = m_tableView->horizontalHeader();
 	header->setSectionResizeMode(0, QHeaderView::ResizeToContents);

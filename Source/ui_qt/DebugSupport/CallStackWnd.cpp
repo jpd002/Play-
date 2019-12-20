@@ -16,7 +16,8 @@ CCallStackWnd::CCallStackWnd(QMdiArea* parent, CMIPS* context, CBiosDebugInfoPro
 {
 	resize(320, 750);
 
-	parent->addSubWindow(this)->setWindowTitle("Call Stack");
+	parent->addSubWindow(this);
+	setWindowTitle("Call Stack");
 
 	m_listWidget = new QListWidget(this);
 	setWidget(m_listWidget);

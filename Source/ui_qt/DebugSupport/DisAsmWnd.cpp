@@ -33,22 +33,22 @@ CDisAsmWnd::CDisAsmWnd(QMdiArea* parent, CVirtualMachine& virtualMachine, CMIPS*
 
 	parent->addSubWindow(this);
 	setWindowTitle("Disassembly");
+	m_tableView = new QTableView(this);
 
 	switch(disAsmType)
 	{
 	case CQtDisAsmTableModel::DISASM_STANDARD:
-		m_model = new CQtDisAsmTableModel(this, virtualMachine, ctx);
+		m_model = new CQtDisAsmTableModel(m_tableView, virtualMachine, ctx);
 		m_instructionSize = 4;
 		break;
 	case CQtDisAsmTableModel::DISASM_VU:
-		m_model = new CQtDisAsmVuTableModel(this, virtualMachine, ctx);
+		m_model = new CQtDisAsmVuTableModel(m_tableView, virtualMachine, ctx);
 		m_instructionSize = 8;
 		break;
 	default:
 		assert(0);
 		break;
 	}
-	m_tableView = new QTableView(this);
 	setWidget(m_tableView);
 	m_tableView->setModel(m_model);
 
