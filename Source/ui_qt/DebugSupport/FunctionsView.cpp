@@ -10,7 +10,7 @@
 #include "lexical_cast_ex.h"
 
 #define DEFAULT_GROUPID (1)
-#define DEFAULT_GROUPNAME _T("Global")
+#define DEFAULT_GROUPNAME ("Global")
 
 CFunctionsView::CFunctionsView(QMdiArea* parent)
     : QMdiSubWindow(parent)
@@ -20,13 +20,13 @@ CFunctionsView::CFunctionsView(QMdiArea* parent)
 
 	parent->addSubWindow(this)->setWindowTitle("Functions");
 
-	m_tableView = new QTableView(this);
+	m_treeWidget = new QTreeWidget(this);
 	auto btnNew = new QPushButton("New...", this);
 	auto btnRename = new QPushButton("Rename...", this);
 	auto btnDelete = new QPushButton("Delete", this);
 	auto btnImport = new QPushButton("Load ELF symbols", this);
 
-	connect(m_tableView, &QTableView::doubleClicked, this, &CFunctionsView::OnListDblClick);
+	connect(m_treeWidget, &QTreeWidget::itemDoubleClicked, this, &CFunctionsView::OnListDblClick);
 	connect(btnNew, &QPushButton::clicked, this, &CFunctionsView::OnNewClick);
 	connect(btnRename, &QPushButton::clicked, this, &CFunctionsView::OnRenameClick);
 	connect(btnDelete, &QPushButton::clicked, this, &CFunctionsView::OnDeleteClick);
@@ -34,7 +34,7 @@ CFunctionsView::CFunctionsView(QMdiArea* parent)
 
 	auto widget = new QWidget();
 	auto layout = new QGridLayout(widget);
-	layout->addWidget(m_tableView, 0, 0, 1, 4);
+	layout->addWidget(m_treeWidget, 0, 0, 1, 4);
 	layout->addWidget(btnNew, 1, 0, 1, 1);
 	layout->addWidget(btnRename, 1, 1, 1, 1);
 	layout->addWidget(btnDelete, 1, 2, 1, 1);
@@ -42,11 +42,12 @@ CFunctionsView::CFunctionsView(QMdiArea* parent)
 	widget->setLayout(layout);
 	setWidget(widget);
 
-	m_model = new CQtGenericTableModel(parent, {"Name", "Address"});
-	m_tableView->setModel(m_model);
-	auto header = m_tableView->horizontalHeader();
-	header->setSectionResizeMode(0, QHeaderView::Stretch);
-	header->setSectionResizeMode(1, QHeaderView::ResizeToContents);
+	m_treeWidget->setEditTriggers(QAbstractItemView::NoEditTriggers);
+	QStringList headers = {"Name", "Address"};
+	m_treeWidget->setColumnCount(headers.count());
+	m_treeWidget->setHeaderLabels(headers);
+	m_treeWidget->setSortingEnabled(false);
+	m_treeWidget->header()->setVisible(true);
 }
 
 void CFunctionsView::Refresh()
@@ -56,7 +57,8 @@ void CFunctionsView::Refresh()
 
 void CFunctionsView::RefreshList()
 {
-	m_model->clear();
+	m_groupMap.clear();
+	m_treeWidget->clear();
 
 	if(!m_context) return;
 	if(m_biosDebugInfoProvider)
@@ -69,43 +71,53 @@ void CFunctionsView::RefreshList()
 	}
 	bool groupingEnabled = m_modules.size() != 0;
 
-	// if(groupingEnabled)
-	// {
-	// 	InitializeModuleGrouper();
-	// }
-	// else
-	// {
-	// 	m_pList->EnableGroupView(false);
-	// }
+	if(groupingEnabled)
+	{
+		InitializeModuleGrouper();
+	}
 
 	for(auto itTag(m_context->m_Functions.GetTagsBegin());
 	    itTag != m_context->m_Functions.GetTagsEnd(); itTag++)
 	{
 		std::string sTag(itTag->second);
-		m_model->addItem({sTag, string_format("0x%08X", itTag->first)});
+		QTreeWidgetItem* childItem = new QTreeWidgetItem();
+		childItem->setText(0, sTag.c_str());
+		childItem->setText(1, string_format("0x%08X", itTag->first).c_str());
+		if(groupingEnabled)
+		{
+			GetFunctionGroup(itTag->first)->addChild(childItem);
+		}
+		else
+		{
+			m_treeWidget->addTopLevelItem(childItem);
+		}
 	}
 }
 
 void CFunctionsView::InitializeModuleGrouper()
 {
-	// m_pList->RemoveAllGroups();
-	// m_pList->EnableGroupView(true);
-	// m_pList->InsertGroup(DEFAULT_GROUPNAME, DEFAULT_GROUPID);
-	// for(const auto& module : m_modules)
-	// {
-	// 	m_pList->InsertGroup(
-	// 	    string_cast<std::tstring>(module.name.c_str()).c_str(),
-	// 	    module.begin);
-	// }
+	QTreeWidgetItem *rootItem = new QTreeWidgetItem(m_treeWidget);
+	rootItem->setText(0, DEFAULT_GROUPNAME);
+	rootItem->setText(1, "");
+	m_treeWidget->addTopLevelItem(rootItem);
+
+	for(const auto& module : m_modules)
+	{
+		QTreeWidgetItem* rootItem = new QTreeWidgetItem(m_treeWidget);
+		rootItem->setText(0, module.name.c_str());
+		rootItem->setText(1, string_format("0x%08X -- 0x%08X", module.begin, module.end).c_str());
+		m_groupMap.emplace(module.begin, rootItem);
+		m_treeWidget->addTopLevelItem(rootItem);
+	}
 }
 
-uint32 CFunctionsView::GetFunctionGroupId(uint32 address)
+QTreeWidgetItem* CFunctionsView::GetFunctionGroup(uint32 address)
 {
 	for(const auto& module : m_modules)
 	{
-		if(address >= module.begin && address < module.end) return module.begin;
+		if(address >= module.begin && address < module.end) return m_groupMap[module.begin];
 	}
-	return DEFAULT_GROUPID;
+	return m_treeWidget->topLevelItem(0);
 }
 
 void CFunctionsView::SetContext(CMIPS* context, CBiosDebugInfoProvider* biosDebugInfoProvider)
@@ -118,12 +130,14 @@ void CFunctionsView::SetContext(CMIPS* context, CBiosDebugInfoProvider* biosDebu
 	RefreshList();
 }
 
-void CFunctionsView::OnListDblClick(const QModelIndex& indexRow)
+void CFunctionsView::OnListDblClick(QTreeWidgetItem *item, int column)
 {
-	auto index = m_model->index(indexRow.row(), 1);
-	auto selectedAddressStr = m_model->getItem(index);
-	uint32 nAddress = lexical_cast_hex(selectedAddressStr);
-	OnFunctionDblClick(nAddress);
+	if(item->childCount() == 0)
+	{
+		auto selectedAddressStr = item->text(1).toStdString();
+		uint32 nAddress = lexical_cast_hex(selectedAddressStr);
+		OnFunctionDblClick(nAddress);
+	}
 }
 
 void CFunctionsView::OnNewClick()
@@ -171,12 +185,11 @@ void CFunctionsView::OnRenameClick()
 {
 	if(!m_context) return;
 
-	auto row = m_tableView->currentIndex().row();
-	if(row < 0)
+	auto items = m_treeWidget->selectedItems();
+	if(items.size() == 0 || items.first()->childCount() > 0)
 		return;
 
-	auto index = m_model->index(row, 1);
-	auto selectedAddressStr = m_model->getItem(index);
+	auto selectedAddressStr = items.first()->text(1).toStdString();
 	uint32 nAddress = lexical_cast_hex(selectedAddressStr);
 	const char* sName = m_context->m_Functions.Find(nAddress);
 
@@ -203,12 +216,11 @@ void CFunctionsView::OnDeleteClick()
 {
 	if(!m_context) return;
 
-	auto row = m_tableView->currentIndex().row();
-	if(row < 0)
+	auto items = m_treeWidget->selectedItems();
+	if(items.size() == 0 || items.first()->childCount() > 0)
 		return;
 
-	auto index = m_model->index(row, 1);
-	auto selectedAddressStr = m_model->getItem(index);
+	auto selectedAddressStr = items.first()->text(1).toStdString();
 	uint32 nAddress = lexical_cast_hex(selectedAddressStr);
 
 	int ret = QMessageBox::warning(this, tr("Delete this function?"),

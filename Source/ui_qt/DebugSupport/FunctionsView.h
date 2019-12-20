@@ -2,8 +2,7 @@
 
 #include <QMdiArea>
 #include <QMdiSubWindow>
-#include <QTableView>
-#include "QtGenericTableModel.h"
+#include <QTreeWidget>
 
 #include "signal/Signal.h"
 #include <functional>
@@ -24,7 +23,7 @@ public:
 	Framework::CSignal<void(void)> OnFunctionsStateChange;
 
 public slots:
-	void OnListDblClick(const QModelIndex&);
+	void OnListDblClick(QTreeWidgetItem*, int);
 	void OnNewClick();
 	void OnRenameClick();
 	void OnDeleteClick();
@@ -33,13 +32,13 @@ public slots:
 private:
 	void RefreshList();
 	void InitializeModuleGrouper();
-	uint32 GetFunctionGroupId(uint32);
+	QTreeWidgetItem* GetFunctionGroup(uint32);
 
 	Framework::CSignal<void()>::Connection m_functionTagsChangeConnection;
 
 	CMIPS* m_context = nullptr;
 	BiosDebugModuleInfoArray m_modules;
 	CBiosDebugInfoProvider* m_biosDebugInfoProvider = nullptr;
-	QTableView* m_tableView;
-	CQtGenericTableModel* m_model;
+	QTreeWidget* m_treeWidget;
+	std::map<uint32, QTreeWidgetItem*> m_groupMap;
 };
