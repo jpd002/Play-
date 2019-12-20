@@ -822,6 +822,16 @@ void CGSH_Vulkan::ProcessClutTransfer(uint32 csa, uint32)
 {
 }
 
+void CGSH_Vulkan::BeginTransferWrite()
+{
+	m_xferBuffer.clear();
+}
+
+void CGSH_Vulkan::TransferWrite(const uint8* imageData, uint32 length)
+{
+	m_xferBuffer.insert(m_xferBuffer.end(), imageData, imageData + length);
+}
+
 void CGSH_Vulkan::SyncCLUT(const TEX0& tex0)
 {
 	if(!CGsPixelFormats::IsPsmIDTEX(tex0.nPsm)) return;

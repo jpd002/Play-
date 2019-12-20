@@ -930,6 +930,9 @@ protected:
 
 	void BeginTransfer();
 
+	virtual void BeginTransferWrite();
+	virtual void TransferWrite(const uint8*, uint32);
+
 	TRANSFERWRITEHANDLER m_transferWriteHandlers[PSM_MAX];
 	TRANSFERREADHANDLER m_transferReadHandlers[PSM_MAX];
 
@@ -978,7 +981,6 @@ protected:
 	uint64 m_nReg[REGISTER_MAX];
 
 	uint8* m_pRAM;
-	std::vector<uint8> m_xferBuffer;
 
 	uint16* m_pCLUT;
 	uint32 m_nCBP0;

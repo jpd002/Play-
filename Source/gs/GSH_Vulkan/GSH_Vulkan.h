@@ -37,6 +37,8 @@ protected:
 	void ResetImpl() override;
 	void NotifyPreferencesChangedImpl() override;
 	void FlipImpl() override;
+	void BeginTransferWrite() override;
+	void TransferWrite(const uint8*, uint32) override;
 	void SyncCLUT(const TEX0&) override;
 	unsigned int GetCurrentReadCircuit();
 
@@ -85,6 +87,7 @@ private:
 	float m_primOfsY = 0;
 	uint32 m_texWidth = 0;
 	uint32 m_texHeight = 0;
+	std::vector<uint8> m_xferBuffer;
 
 	Framework::Vulkan::CImage m_clutImage;
 

@@ -584,14 +584,7 @@ void CGSHandler::FeedImageDataImpl(const uint8* imageData, uint32 length)
 			//return;
 		}
 
-		auto bltBuf = make_convertible<BITBLTBUF>(m_nReg[GS_REG_BITBLTBUF]);
-
-#if 0
-		m_trxCtx.nDirty |= ((this)->*(m_transferWriteHandlers[bltBuf.nDstPsm]))(imageData, length);
-#else
-		m_xferBuffer.insert(m_xferBuffer.end(), imageData, imageData + length);
-#endif
-
+		TransferWrite(imageData, length);
 		m_trxCtx.nSize -= length;
 
 		if(m_trxCtx.nSize == 0)
@@ -601,6 +594,7 @@ void CGSHandler::FeedImageDataImpl(const uint8* imageData, uint32 length)
 			ProcessHostToLocalTransfer();
 
 #ifdef _DEBUG
+			auto bltBuf = make_convertible<BITBLTBUF>(m_nReg[GS_REG_BITBLTBUF]);
 			CLog::GetInstance().Print(LOG_NAME, "Completed image transfer at 0x%08X (dirty = %d).\r\n", bltBuf.GetDstPtr(), m_trxCtx.nDirty);
 #endif
 		}
@@ -686,11 +680,10 @@ void CGSHandler::BeginTransfer()
 		m_trxCtx.nRealSize = m_trxCtx.nSize;
 		m_trxCtx.nRRX = 0;
 		m_trxCtx.nRRY = 0;
-		m_trxCtx.nDirty = false;
-		m_xferBuffer.clear();
 
 		if(trxDir == 0)
 		{
+			BeginTransferWrite();
 			CLog::GetInstance().Print(LOG_NAME, "Starting transfer to 0x%08X, buffer size %d, psm: %d, size (%dx%d)\r\n",
 			                          bltBuf.GetDstPtr(), bltBuf.GetDstWidth(), bltBuf.nDstPsm, trxReg.nRRW, trxReg.nRRH);
 		}
@@ -706,6 +699,17 @@ void CGSHandler::BeginTransfer()
 		//Local to Local
 		ProcessLocalToLocalTransfer();
 	}
+}
+
+void CGSHandler::BeginTransferWrite()
+{
+	m_trxCtx.nDirty = false;
+}
+
+void CGSHandler::TransferWrite(const uint8* imageData, uint32 length)
+{
+	auto bltBuf = make_convertible<BITBLTBUF>(m_nReg[GS_REG_BITBLTBUF]);
+	m_trxCtx.nDirty |= ((this)->*(m_transferWriteHandlers[bltBuf.nDstPsm]))(imageData, length);
 }
 
 bool CGSHandler::TransferWriteHandlerInvalid(const void* pData, uint32 nLength)
