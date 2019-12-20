@@ -87,8 +87,6 @@ QtDebugger::~QtDebugger()
 
 	OnExecutableUnloading();
 
-	SaveSettings();
-
 	for(unsigned int i = 0; i < DEBUGVIEW_MAX; i++)
 	{
 		delete m_pView[i];
@@ -96,6 +94,14 @@ QtDebugger::~QtDebugger()
 
 	//delete m_pELFView;
 	delete m_pFunctionsView;
+}
+
+void QtDebugger::closeEvent(QCloseEvent* event)
+{
+	if(isVisible())
+		SaveSettings();
+
+	event->accept();
 }
 
 void QtDebugger::RegisterPreferences()

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <QMainWindow>
+#include <QCloseEvent>
 
 #include "DebugView.h"
 #include "CallStackWnd.h"
@@ -26,6 +27,9 @@ public:
 	~QtDebugger();
 
 	static void InitializeConsole();
+
+protected:
+	void closeEvent(QCloseEvent*) Q_DECL_OVERRIDE;
 
 private slots:
 	void on_actionResume_triggered();
