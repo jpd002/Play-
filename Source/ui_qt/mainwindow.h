@@ -120,7 +120,7 @@ private:
 	CScreenShotUtils::Connection m_screenShotCompleteConnection;
 
 #ifdef DEBUGGER_INCLUDED
-	std::unique_ptr<CDebugger> m_debugger;
+	std::unique_ptr<QtDebugger> m_debugger;
 	std::unique_ptr<CFrameDebugger> m_frameDebugger;
 	Ui::DebugMenu* debugMenuUi = nullptr;
 #endif

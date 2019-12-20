@@ -124,7 +124,7 @@ MainWindow::MainWindow(QWidget* parent)
 MainWindow::~MainWindow()
 {
 #ifdef DEBUGGER_INCLUDED
-	//m_debugger.reset();
+	m_debugger.reset();
 	//m_frameDebugger.reset();
 #endif
 	CAppConfig::GetInstance().Save();
