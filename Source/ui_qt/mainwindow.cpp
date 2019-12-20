@@ -105,7 +105,7 @@ MainWindow::MainWindow(QWidget* parent)
 	SetupGsHandler();
 
 #ifdef DEBUGGER_INCLUDED
-	m_debugger = std::make_unique<QtDebugger>(this, *m_virtualMachine);
+	m_debugger = std::make_unique<QtDebugger>(*m_virtualMachine);
 	m_frameDebugger = std::make_unique<CFrameDebugger>();
 	m_frameDebugger->Show(SW_SHOWMAXIMIZED);
 
@@ -634,6 +634,9 @@ void MainWindow::closeEvent(QCloseEvent* event)
 	else
 	{
 		event->accept();
+#ifdef DEBUGGER_INCLUDED
+		m_debugger->close();
+#endif
 	}
 }
 

@@ -23,8 +23,8 @@
 
 #define FIND_MAX_ADDRESS 0x02000000
 
-QtDebugger::QtDebugger(QWidget* parent, CPS2VM& virtualMachine)
-    : QMainWindow(parent)
+QtDebugger::QtDebugger(CPS2VM& virtualMachine)
+    : QMainWindow(nullptr)
     , ui(new Ui::QtDebugger)
     , m_virtualMachine(virtualMachine)
 {

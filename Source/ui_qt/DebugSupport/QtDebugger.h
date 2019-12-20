@@ -22,7 +22,7 @@ class QtDebugger : public QMainWindow
 	Q_OBJECT
 
 public:
-	explicit QtDebugger(QWidget* parent, CPS2VM&);
+	explicit QtDebugger(CPS2VM&);
 	~QtDebugger();
 
 	static void InitializeConsole();
