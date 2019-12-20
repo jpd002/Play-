@@ -835,6 +835,7 @@ void CGSH_Vulkan::TransferWrite(const uint8* imageData, uint32 length)
 void CGSH_Vulkan::SyncCLUT(const TEX0& tex0)
 {
 	if(!CGsPixelFormats::IsPsmIDTEX(tex0.nPsm)) return;
+	if(tex0.nCLD == 0) return;
 
 	m_draw->FlushVertices();
 	m_clutLoad->DoClutLoad(tex0);

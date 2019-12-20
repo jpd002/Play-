@@ -708,6 +708,7 @@ Framework::Vulkan::CShaderModule CDraw::CreateFragmentShader(const PIPELINE_CAPS
 		default:
 			assert(false);
 		case CGSHandler::PSMCT32:
+		case CGSHandler::PSMCT24:
 			fbAddress = CMemoryUtils::GetPixelAddress<CGsPixelFormats::STORAGEPSMCT32>(
 			    b, fbSwizzleTable, fbBufAddress, fbBufWidth, screenPos);
 			break;
