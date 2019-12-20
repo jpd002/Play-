@@ -97,7 +97,7 @@ void CFunctionsView::RefreshList()
 
 void CFunctionsView::InitializeModuleGrouper()
 {
-	QTreeWidgetItem *rootItem = new QTreeWidgetItem(m_treeWidget);
+	QTreeWidgetItem* rootItem = new QTreeWidgetItem(m_treeWidget);
 	rootItem->setText(0, DEFAULT_GROUPNAME);
 	rootItem->setText(1, "");
 	m_treeWidget->addTopLevelItem(rootItem);
@@ -131,7 +131,7 @@ void CFunctionsView::SetContext(CMIPS* context, CBiosDebugInfoProvider* biosDebu
 	RefreshList();
 }
 
-void CFunctionsView::OnListDblClick(QTreeWidgetItem *item, int column)
+void CFunctionsView::OnListDblClick(QTreeWidgetItem* item, int column)
 {
 	if(item->childCount() == 0)
 	{

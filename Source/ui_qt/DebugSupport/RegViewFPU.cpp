@@ -53,14 +53,14 @@ void CRegViewFPU::RenderFCSR()
 {
 	WriteTableEntry(33, "0x%08X", m_pCtx->m_State.nFCSR);
 	WriteTableEntry(34, "%i%i%i%i%i%i%i%ib",
-	                      (m_pCtx->m_State.nFCSR & 0x80000000) != 0 ? 1 : 0,
-	                      (m_pCtx->m_State.nFCSR & 0x40000000) != 0 ? 1 : 0,
-	                      (m_pCtx->m_State.nFCSR & 0x20000000) != 0 ? 1 : 0,
-	                      (m_pCtx->m_State.nFCSR & 0x10000000) != 0 ? 1 : 0,
-	                      (m_pCtx->m_State.nFCSR & 0x04000000) != 0 ? 1 : 0,
-	                      (m_pCtx->m_State.nFCSR & 0x08000000) != 0 ? 1 : 0,
-	                      (m_pCtx->m_State.nFCSR & 0x02000000) != 0 ? 1 : 0,
-	                      (m_pCtx->m_State.nFCSR & 0x00800000) != 0 ? 1 : 0);
+	                (m_pCtx->m_State.nFCSR & 0x80000000) != 0 ? 1 : 0,
+	                (m_pCtx->m_State.nFCSR & 0x40000000) != 0 ? 1 : 0,
+	                (m_pCtx->m_State.nFCSR & 0x20000000) != 0 ? 1 : 0,
+	                (m_pCtx->m_State.nFCSR & 0x10000000) != 0 ? 1 : 0,
+	                (m_pCtx->m_State.nFCSR & 0x04000000) != 0 ? 1 : 0,
+	                (m_pCtx->m_State.nFCSR & 0x08000000) != 0 ? 1 : 0,
+	                (m_pCtx->m_State.nFCSR & 0x02000000) != 0 ? 1 : 0,
+	                (m_pCtx->m_State.nFCSR & 0x00800000) != 0 ? 1 : 0);
 }
 
 void CRegViewFPU::RenderWord()

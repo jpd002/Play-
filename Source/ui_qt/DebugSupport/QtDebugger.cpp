@@ -78,7 +78,6 @@ QtDebugger::QtDebugger(CPS2VM& virtualMachine)
 	{
 		GetDisassemblyWindow()->setFocus(Qt::ActiveWindowFocusReason);
 	}
-
 }
 
 QtDebugger::~QtDebugger()
