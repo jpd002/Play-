@@ -15,7 +15,7 @@ public:
 		DISASM_STANDARD,
 		DISASM_VU
 	};
-	CQtDisAsmTableModel(QObject* parent, CVirtualMachine&, CMIPS*);
+	CQtDisAsmTableModel(QObject* parent, CVirtualMachine&, CMIPS*, int);
 	~CQtDisAsmTableModel();
 
 	int rowCount(const QModelIndex& parent = QModelIndex()) const Q_DECL_OVERRIDE;
@@ -36,6 +36,7 @@ protected:
 	CVirtualMachine& m_virtualMachine;
 	uint32 m_instructionSize;
 	DISASM_TYPE m_disAsmType;
+	int m_memSize;
 
 	QVariantList m_headers;
 	QPixmap m_start_line = QPixmap(22, 22);

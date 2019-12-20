@@ -21,7 +21,7 @@
 
 #define WNDSTYLE (WS_CLIPCHILDREN | WS_THICKFRAME | WS_CAPTION | WS_SYSMENU | WS_CHILD | WS_MAXIMIZEBOX)
 
-CDisAsmWnd::CDisAsmWnd(QMdiArea* parent, CVirtualMachine& virtualMachine, CMIPS* ctx, const char* name, CQtDisAsmTableModel::DISASM_TYPE disAsmType)
+CDisAsmWnd::CDisAsmWnd(QMdiArea* parent, CVirtualMachine& virtualMachine, CMIPS* ctx, const char* name, CQtDisAsmTableModel::DISASM_TYPE disAsmType, int memSize)
     : QMdiSubWindow(parent)
     , m_virtualMachine(virtualMachine)
     , m_ctx(ctx)
@@ -38,11 +38,11 @@ CDisAsmWnd::CDisAsmWnd(QMdiArea* parent, CVirtualMachine& virtualMachine, CMIPS*
 	switch(disAsmType)
 	{
 	case CQtDisAsmTableModel::DISASM_STANDARD:
-		m_model = new CQtDisAsmTableModel(m_tableView, virtualMachine, ctx);
+		m_model = new CQtDisAsmTableModel(m_tableView, virtualMachine, ctx, memSize);
 		m_instructionSize = 4;
 		break;
 	case CQtDisAsmTableModel::DISASM_VU:
-		m_model = new CQtDisAsmVuTableModel(m_tableView, virtualMachine, ctx);
+		m_model = new CQtDisAsmVuTableModel(m_tableView, virtualMachine, ctx, memSize);
 		m_instructionSize = 8;
 		break;
 	default:

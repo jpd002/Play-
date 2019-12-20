@@ -16,7 +16,7 @@ CDebugView::CDebugView(QMdiArea* parent, CVirtualMachine& virtualMachine, CMIPS*
     , m_biosDebugInfoProvider(biosDebugInfoProvider)
 {
 
-	m_disAsmWnd = new CDisAsmWnd(parent, virtualMachine, m_ctx, name, disAsmType);
+	m_disAsmWnd = new CDisAsmWnd(parent, virtualMachine, m_ctx, name, disAsmType, size);
 	m_disAsmWnd->show();
 
 	m_regViewWnd = new CRegViewWnd(parent, m_ctx);

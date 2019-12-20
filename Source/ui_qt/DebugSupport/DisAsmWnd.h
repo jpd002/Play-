@@ -14,7 +14,7 @@ class CDisAsmWnd : public QMdiSubWindow, public CVirtualMachineStateView
 public:
 	typedef Framework::CSignal<void(uint32)> FindCallersRequestedEvent;
 
-	CDisAsmWnd(QMdiArea*, CVirtualMachine&, CMIPS*, const char*, CQtDisAsmTableModel::DISASM_TYPE);
+	CDisAsmWnd(QMdiArea*, CVirtualMachine&, CMIPS*, const char*, CQtDisAsmTableModel::DISASM_TYPE, int);
 	virtual ~CDisAsmWnd();
 
 	void HandleMachineStateChange() override;

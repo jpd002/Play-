@@ -11,7 +11,7 @@ class CQtDisAsmVuTableModel : public CQtDisAsmTableModel
 {
 	Q_OBJECT
 public:
-	CQtDisAsmVuTableModel(QObject* parent, CVirtualMachine&, CMIPS*);
+	CQtDisAsmVuTableModel(QObject* parent, CVirtualMachine&, CMIPS*, int);
 	~CQtDisAsmVuTableModel();
 
 	virtual std::string GetInstructionDetails(int, uint32) const override;

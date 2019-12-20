@@ -7,12 +7,13 @@
 #include "string_format.h"
 #include "lexical_cast_ex.h"
 
-CQtDisAsmTableModel::CQtDisAsmTableModel(QObject* parent, CVirtualMachine& virtualMachine, CMIPS* context)
+CQtDisAsmTableModel::CQtDisAsmTableModel(QObject* parent, CVirtualMachine& virtualMachine, CMIPS* context, int memSize)
     : QAbstractTableModel(parent)
     , m_virtualMachine(virtualMachine)
     , m_ctx(context)
     , m_instructionSize(4)
     , m_disAsmType(DISASM_TYPE::DISASM_STANDARD)
+    , m_memSize(memSize)
 {
 	m_headers = {"S", "Address", "R", "Instr", "I-Mn", "I-Op", "Target"};
 
@@ -114,7 +115,7 @@ CQtDisAsmTableModel::~CQtDisAsmTableModel()
 
 int CQtDisAsmTableModel::rowCount(const QModelIndex& /*parent*/) const
 {
-	return 0xFFFFFF;
+	return m_memSize / m_instructionSize;
 }
 
 int CQtDisAsmTableModel::columnCount(const QModelIndex& /*parent*/) const
