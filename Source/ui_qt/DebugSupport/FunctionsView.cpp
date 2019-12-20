@@ -18,7 +18,8 @@ CFunctionsView::CFunctionsView(QMdiArea* parent)
 
 	resize(300, 700);
 
-	parent->addSubWindow(this)->setWindowTitle("Functions");
+	parent->addSubWindow(this);
+	setWindowTitle("Functions");
 
 	m_treeWidget = new QTreeWidget(this);
 	auto btnNew = new QPushButton("New...", this);
@@ -32,7 +33,7 @@ CFunctionsView::CFunctionsView(QMdiArea* parent)
 	connect(btnDelete, &QPushButton::clicked, this, &CFunctionsView::OnDeleteClick);
 	connect(btnImport, &QPushButton::clicked, this, &CFunctionsView::OnImportClick);
 
-	auto widget = new QWidget();
+	auto widget = new QWidget(this);
 	auto layout = new QGridLayout(widget);
 	layout->addWidget(m_treeWidget, 0, 0, 1, 4);
 	layout->addWidget(btnNew, 1, 0, 1, 1);
