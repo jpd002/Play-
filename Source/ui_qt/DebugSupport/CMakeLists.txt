@@ -1,9 +1,6 @@
 cmake_minimum_required(VERSION 3.5)
 project(PlayDebugSupport)
 
-# set(CMAKE_AUTOMOC ON)
-# set(CMAKE_AUTORCC ON)
-# set(CMAKE_AUTOUIC ON)
 if(CMAKE_VERSION VERSION_LESS "3.7.0")
 	set(CMAKE_INCLUDE_CURRENT_DIR ON)
 endif()
@@ -37,10 +34,6 @@ set(SRC_FILES
 	${SRC_ROOT}/DebugUtils.h
 	${SRC_ROOT}/DebugView.cpp
 	${SRC_ROOT}/DebugView.h
-	# ${SRC_ROOT}/DisAsm.cpp
-	# ${SRC_ROOT}/DisAsm.h
-	# ${SRC_ROOT}/DisAsmVu.cpp
-	# ${SRC_ROOT}/DisAsmVu.h
 	${SRC_ROOT}/DisAsmWnd.cpp
 	${SRC_ROOT}/DisAsmWnd.h
 	${SRC_ROOT}/FunctionsView.cpp
@@ -82,16 +75,10 @@ set(SRC_FILES
 	# ${SRC_ROOT}/FrameDebugger/Vu1ProgramView.h
 	# ${SRC_ROOT}/FrameDebugger/Vu1Vm.cpp
 	# ${SRC_ROOT}/FrameDebugger/Vu1Vm.h
-	# ${SRC_ROOT}/MemoryView.cpp
-	# ${SRC_ROOT}/MemoryView.h
-	# ${SRC_ROOT}/MemoryViewMIPS.cpp
-	# ${SRC_ROOT}/MemoryViewMIPS.h
 	${SRC_ROOT}/MemoryViewMIPSWnd.cpp
 	${SRC_ROOT}/MemoryViewMIPSWnd.h
 	${SRC_ROOT}/QtMemoryViewMIPSModel.cpp
 	${SRC_ROOT}/QtMemoryViewMIPSModel.h
-	# ${SRC_ROOT}/MemoryViewPtr.cpp
-	# ${SRC_ROOT}/MemoryViewPtr.h
 	# ${SRC_ROOT}/OptionWnd.cpp
 	# ${SRC_ROOT}/OptionWnd.h
 	# ${SRC_ROOT}/OutputWnd.cpp
@@ -110,11 +97,6 @@ set(SRC_FILES
 	${SRC_ROOT}/RegViewWnd.h
 	${SRC_ROOT}/ThreadsViewWnd.cpp
 	${SRC_ROOT}/ThreadsViewWnd.h
-	# ${SRC_ROOT}/ThreadCallStackViewWnd.cpp
-	# ${SRC_ROOT}/ThreadCallStackViewWnd.h
-	# ${SRC_ROOT}/VirtualMachineStateView.h
-	# ${SRC_ROOT}/WinUtils.cpp
-	# ${SRC_ROOT}/WinUtils.h
 	${SRC_ROOT}/QtDisAsmTableModel.cpp
 	${SRC_ROOT}/QtDisAsmVuTableModel.cpp
 	${SRC_ROOT}/QtGenericTableModel.cpp
