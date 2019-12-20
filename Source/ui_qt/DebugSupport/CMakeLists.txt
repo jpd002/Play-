@@ -118,10 +118,15 @@ set(QT_DEBUGGER_UI
 	${SRC_ROOT}/Qt_ui/QtDialogListWidget.ui
 )
 
+set(QT_RESOURCES
+	../Qt_ui/resources.qrc
+)
+
+QT5_ADD_RESOURCES(QT_RES_SOURCES ${QT_RESOURCES})
 QT5_WRAP_UI(QT_DEBUGGER_UI_HEADERS ${QT_DEBUGGER_UI})
 QT5_WRAP_CPP(QT_DEBUGGER_MOC_SRCS ${QT_DEBUGGER_MOC_HEADERS})
 
-add_library(PlayDebugSupport STATIC ${SRC_FILES} ${QT_DEBUGGER_UI_HEADERS} ${QT_DEBUGGER_MOC_SRCS})
+add_library(PlayDebugSupport STATIC ${SRC_FILES} ${QT_DEBUGGER_UI_HEADERS} ${QT_DEBUGGER_MOC_SRCS} ${QT_RES_SOURCES})
 target_link_libraries(PlayDebugSupport PlayCore Qt5::Core Qt5::Widgets)
 target_compile_definitions(PlayDebugSupport PRIVATE NOMINMAX)
 target_include_directories(PlayDebugSupport PRIVATE ../../${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_BINARY_DIR})

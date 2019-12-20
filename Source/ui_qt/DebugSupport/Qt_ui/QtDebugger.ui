@@ -13,6 +13,10 @@
   <property name="windowTitle">
    <string>QtDebugger</string>
   </property>
+  <property name="windowIcon">
+   <iconset resource="../../Qt_ui/resources.qrc">
+    <normaloff>:/assets/app_icon.png</normaloff>:/assets/app_icon.png</iconset>
+  </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QGridLayout" name="gridLayout">
     <property name="sizeConstraint">
