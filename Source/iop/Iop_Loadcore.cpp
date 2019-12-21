@@ -268,6 +268,13 @@ bool CLoadcore::StopModule(uint32* args, uint32 argsSize, uint32* ret, uint32 re
 	CLog::GetInstance().Print(LOG_NAME, "StopModule(moduleId = %d, args, argsSize = 0x%08X);\r\n",
 	                          moduleId, moduleArgsSize);
 
+	if(!m_bios.CanStopModule(moduleId))
+	{
+		//Module is not stoppable (could be HLE module)
+		ret[0] = 0;
+		return true;
+	}
+
 	auto result = m_bios.StopModule(moduleId);
 	ret[0] = result;
 

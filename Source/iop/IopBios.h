@@ -145,6 +145,7 @@ public:
 	int32 UnloadModule(uint32);
 	int32 StartModule(uint32, const char*, const char*, uint32);
 	int32 StopModule(uint32);
+	bool CanStopModule(uint32) const;
 	bool IsModuleHle(uint32) const;
 	int32 SearchModuleByName(const char*) const;
 	void ProcessModuleReset(const std::string&);

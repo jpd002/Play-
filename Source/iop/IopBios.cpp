@@ -88,6 +88,8 @@
 //This is the space needed to preserve at most four arguments in the stack frame (as per MIPS calling convention)
 #define STACK_FRAME_RESERVE_SIZE 0x10
 
+#define MODULE_ID_CDVD_EE_DRIVER 0x70000000
+
 CIopBios::CIopBios(CMIPS& cpu, uint8* ram, uint32 ramSize, uint8* spr)
     : m_cpu(cpu)
     , m_ram(ram)
@@ -693,6 +695,11 @@ int32 CIopBios::LoadModule(CELF& elf, const char* path)
 
 int32 CIopBios::UnloadModule(uint32 loadedModuleId)
 {
+	if(loadedModuleId == MODULE_ID_CDVD_EE_DRIVER)
+	{
+		return 0;
+	}
+
 	auto loadedModule = m_loadedModules[loadedModuleId];
 	if(loadedModule == nullptr)
 	{
@@ -759,6 +766,11 @@ int32 CIopBios::StopModule(uint32 loadedModuleId)
 	return loadedModuleId;
 }
 
+bool CIopBios::CanStopModule(uint32 loadedModuleId) const
+{
+	return (loadedModuleId != MODULE_ID_CDVD_EE_DRIVER);
+}
+
 bool CIopBios::IsModuleHle(uint32 loadedModuleId) const
 {
 	auto loadedModule = m_loadedModules[loadedModuleId];
@@ -779,6 +791,10 @@ int32 CIopBios::SearchModuleByName(const char* moduleName) const
 		{
 			return i;
 		}
+	}
+	if(!strcmp(moduleName, "cdvd_ee_driver"))
+	{
+		return MODULE_ID_CDVD_EE_DRIVER;
 	}
 	return -1;
 }
