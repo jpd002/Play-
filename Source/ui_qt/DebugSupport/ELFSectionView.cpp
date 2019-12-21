@@ -25,7 +25,7 @@ CELFSectionView::CELFSectionView(QMdiSubWindow* parent, QLayout* groupBoxLayout)
 
 	for(auto labelStr : labelsStr)
 	{
-		auto horizontalLayout = new QHBoxLayout(this);
+		auto horizontalLayout = new QHBoxLayout();
 		auto label = new QLabel(this);
 		label->setText(labelStr.c_str());
 		label->setFixedWidth(labelWidth);
@@ -60,7 +60,7 @@ CELFSectionView::CELFSectionView(QMdiSubWindow* parent, QLayout* groupBoxLayout)
 	m_memView->setContextMenuPolicy(Qt::CustomContextMenu);
 	connect(m_memView, &QTableView::customContextMenuRequested, this, &CELFSectionView::ShowContextMenu);
 
-	auto verticalLayout = new QHBoxLayout(this);
+	auto verticalLayout = new QHBoxLayout();
 	verticalLayout->addWidget(m_memView);
 
 	m_dynSecTableWidget = new QTableWidget(this);

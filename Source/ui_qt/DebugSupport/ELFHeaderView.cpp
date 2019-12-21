@@ -19,7 +19,7 @@ CELFHeaderView::CELFHeaderView(QMdiSubWindow* parent, QLayout* groupBoxLayout)
 
 	for(auto labelStr : labelsStr)
 	{
-		auto horizontalLayout = new QHBoxLayout(this);
+		auto horizontalLayout = new QHBoxLayout();
 		auto label = new QLabel(this);
 		label->setText(labelStr.c_str());
 		label->setFixedWidth(labelWidth);
