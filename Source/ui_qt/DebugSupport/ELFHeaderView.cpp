@@ -6,7 +6,7 @@
 #include <QFontMetrics>
 
 CELFHeaderView::CELFHeaderView(QMdiSubWindow* parent, QLayout* groupBoxLayout)
-	: QWidget(parent)
+    : QWidget(parent)
 {
 
 	std::vector<std::string> labelsStr = {"Type:", "Machine:", "Version:", "Entry Point:", "Flags:", "Header Size:", "Program Header Table Offset:", "Program Header Size:", "Program Header Count:", "Section Header Table Offset:", "Section Header Size:", "Section Header Count:", "Section Header String Table Index:"};
@@ -55,7 +55,6 @@ void CELFHeaderView::SetELF(CELF* pELF)
 	m_pELF = pELF;
 	FillInformation();
 }
-
 
 void CELFHeaderView::FillInformation()
 {

@@ -6,7 +6,7 @@
 #include <QFontMetrics>
 
 CELFView::CELFView(QMdiArea* parent)
-	: QMdiSubWindow(parent)
+    : QMdiSubWindow(parent)
 {
 
 	resize(568, 457);
@@ -35,7 +35,6 @@ CELFView::CELFView(QMdiArea* parent)
 	m_pProgramView = new CELFProgramView(this, groupBoxLayout);
 
 	connect(m_treeWidget, &QTreeWidget::itemSelectionChanged, this, &CELFView::itemSelectionChanged);
-
 }
 
 CELFView::~CELFView()
@@ -69,7 +68,6 @@ void CELFView::resizeEvent(QResizeEvent* evt)
 {
 	QMdiSubWindow::resizeEvent(evt);
 	m_pSectionView->ResizeEvent();
-	
 }
 
 void CELFView::PopulateList()
@@ -78,7 +76,6 @@ void CELFView::PopulateList()
 
 	QTreeWidgetItem* headRootItem = new QTreeWidgetItem(m_treeWidget, {"Header"});
 	m_treeWidget->addTopLevelItem(headRootItem);
-
 
 	QTreeWidgetItem* sectionsRootItem = new QTreeWidgetItem(m_treeWidget, {"Sections"});
 	m_treeWidget->addTopLevelItem(sectionsRootItem);
@@ -133,7 +130,6 @@ void CELFView::PopulateList()
 		QTreeWidgetItem* symbolsRootItem = new QTreeWidgetItem(m_treeWidget, {"Symbols"});
 		m_treeWidget->addTopLevelItem(symbolsRootItem);
 	}
-
 }
 
 void CELFView::itemSelectionChanged()

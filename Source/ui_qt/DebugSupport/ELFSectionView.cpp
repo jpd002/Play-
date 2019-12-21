@@ -11,9 +11,8 @@
 #include <QFontDatabase>
 #include <QFontMetrics>
 
-
 CELFSectionView::CELFSectionView(QMdiSubWindow* parent, QLayout* groupBoxLayout)
-	: QWidget(parent)
+    : QWidget(parent)
 {
 
 	std::vector<std::string> labelsStr = {"Type:", "Flags:", "Address:", "File Offset:", "Size:", "Section Link:", "Info:", "Alignment:", "Entry Size:"};
@@ -41,7 +40,6 @@ CELFSectionView::CELFSectionView(QMdiSubWindow* parent, QLayout* groupBoxLayout)
 		m_layout->addLayout(horizontalLayout);
 	}
 
-
 	m_model = new CQtMemoryViewModel(this);
 	m_memView = new QTableView(this);
 	m_memView->setModel(m_model);
@@ -64,7 +62,6 @@ CELFSectionView::CELFSectionView(QMdiSubWindow* parent, QLayout* groupBoxLayout)
 
 	auto verticalLayout = new QHBoxLayout(this);
 	verticalLayout->addWidget(m_memView);
-
 
 	m_dynSecTableWidget = new QTableWidget(this);
 	m_dynSecTableWidget->setRowCount(0);
@@ -247,7 +244,6 @@ void CELFSectionView::SetELF(CELF* pELF)
 	m_pELF = pELF;
 }
 
-
 void CELFSectionView::FillInformation(int section)
 {
 	int i = 0;
@@ -350,9 +346,8 @@ void CELFSectionView::FillInformation(int section)
 	}
 	else if(pH->nType != CELF::SHT_NOBITS)
 	{
-		uint8* data = (uint8*) m_pELF->GetSectionData(section);
-		auto getByte = [data](uint32 offset)
-		{
+		uint8* data = (uint8*)m_pELF->GetSectionData(section);
+		auto getByte = [data](uint32 offset) {
 			return data[offset];
 		};
 		m_model->SetData(getByte, pH->nSize);
@@ -430,4 +425,3 @@ void CELFSectionView::FillDynamicSectionListView(int section)
 		m_dynSecTableWidget->setItem((i / 8), 1, new QTableWidgetItem(tempVal.c_str()));
 	}
 }
-

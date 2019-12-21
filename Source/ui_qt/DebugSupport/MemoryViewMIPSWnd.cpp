@@ -31,11 +31,10 @@ CMemoryViewMIPSWnd::CMemoryViewMIPSWnd(QMdiArea* parent, CVirtualMachine& virtua
 	verticalLayout->addWidget(m_tableView);
 
 	setWidget(centralwidget);
-	auto getByte = [ctx](uint32 address)
-	{
+	auto getByte = [ctx](uint32 address) {
 		return ctx->m_pMemoryMap->GetByte(address);
 	};
-	m_model= new CQtMemoryViewModel(this, getByte, size);
+	m_model = new CQtMemoryViewModel(this, getByte, size);
 
 	m_tableView->setModel(m_model);
 

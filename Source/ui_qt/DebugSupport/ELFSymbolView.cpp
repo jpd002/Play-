@@ -7,7 +7,7 @@
 #include <QHeaderView>
 
 CELFSymbolView::CELFSymbolView(QMdiSubWindow* parent, QLayout* groupBoxLayout)
-	: QWidget(parent)
+    : QWidget(parent)
 {
 
 	QStringList colLabels = {"Name", "Address", "Size", "Type", "Binding", "Section"};
@@ -127,4 +127,3 @@ void CELFSymbolView::PopulateList()
 		m_tableWidget->setItem(i, j++, new QTableWidgetItem(sTemp.c_str()));
 	}
 }
-

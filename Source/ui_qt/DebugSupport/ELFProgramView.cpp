@@ -5,7 +5,7 @@
 #include <QFontMetrics>
 
 CELFProgramView::CELFProgramView(QMdiSubWindow* parent, QLayout* groupBoxLayout)
-	: QWidget(parent)
+    : QWidget(parent)
 {
 
 	std::vector<std::string> labelsStr = {"Type:", "Offset:", "Virtual Address:", "Physical Address:", "File Size:", "Memory Size:", "Flags:", "Alignment:"};
@@ -68,7 +68,6 @@ void CELFProgramView::SetELF(CELF* pELF)
 {
 	m_pELF = pELF;
 }
-
 
 void CELFProgramView::FillInformation(int program)
 {

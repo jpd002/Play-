@@ -23,7 +23,6 @@ CQtMemoryViewModel::~CQtMemoryViewModel()
 {
 }
 
-
 int CQtMemoryViewModel::rowCount(const QModelIndex& /*parent*/) const
 {
 	return std::ceil((m_size * 1.f) / UnitsForCurrentLine());
@@ -53,7 +52,7 @@ QVariant CQtMemoryViewModel::data(const QModelIndex& index, int role) const
 				uint8 value = 0x0;
 				if(address + j < m_size)
 				{
-					 value = GetByte(address + j);
+					value = GetByte(address + j);
 				}
 				if(value < 0x20 || value > 0x7F)
 				{

@@ -39,7 +39,7 @@ public:
 	int GetActiveUnit();
 	int GetBytesPerUnit();
 
-	void SetData(getByteProto ,int);
+	void SetData(getByteProto, int);
 
 	static std::vector<UNITINFO> g_units;
 
