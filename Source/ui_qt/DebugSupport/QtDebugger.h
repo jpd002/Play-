@@ -9,6 +9,7 @@
 #include "ThreadsViewWnd.h"
 #include "AddressListViewWnd.h"
 #include "PS2VM.h"
+#include "ELFView.h"
 
 // Predeclares to avoid headers
 class CDebugView;
@@ -133,7 +134,7 @@ private:
 
 	CDisAsmWnd::FindCallersRequestedEvent::Connection m_findCallersRequestConnection;
 
-	//CELFView* m_pELFView = nullptr;
+	CELFView* m_pELFView = nullptr;
 	CFunctionsView* m_pFunctionsView = nullptr;
 	CThreadsViewWnd* m_threadsView = nullptr;
 	CDebugView* m_pView[DEBUGVIEW_MAX];

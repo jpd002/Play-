@@ -34,8 +34,7 @@ QtDebugger::QtDebugger(CPS2VM& virtualMachine)
 	RegisterPreferences();
 
 	//ELF View Initialization
-	//m_pELFView = new CELFView(m_pMDIClient->m_hWnd);
-	//m_pELFView->Show(SW_HIDE);
+	m_pELFView = new CELFView(ui->mdiArea);
 
 	//Functions View Initialization
 	m_pFunctionsView = new CFunctionsView(ui->mdiArea);
@@ -91,7 +90,7 @@ QtDebugger::~QtDebugger()
 		delete m_pView[i];
 	}
 
-	//delete m_pELFView;
+	delete m_pELFView;
 	delete m_pFunctionsView;
 }
 
@@ -672,7 +671,7 @@ void QtDebugger::OnFindCallersAddressDblClick(uint32 address)
 
 void QtDebugger::OnExecutableChange()
 {
-	//m_pELFView->SetELF(m_virtualMachine.m_ee->m_os->GetELF());
+	m_pELFView->SetELF(m_virtualMachine.m_ee->m_os->GetELF());
 	// m_pFunctionsView->SetELF(m_virtualMachine.m_os->GetELF());
 
 	LoadDebugTags();
@@ -685,7 +684,7 @@ void QtDebugger::OnExecutableChange()
 void QtDebugger::OnExecutableUnloading()
 {
 	SaveDebugTags();
-	//m_pELFView->SetELF(NULL);
+	m_pELFView->SetELF(NULL);
 	// m_pFunctionsView->SetELF(NULL);
 }
 

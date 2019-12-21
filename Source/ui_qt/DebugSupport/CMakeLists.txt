@@ -40,16 +40,16 @@ set(SRC_FILES
 	${SRC_ROOT}/FunctionsView.h
 	# ${SRC_ROOT}/DirectXControl.cpp
 	# ${SRC_ROOT}/DirectXControl.h
-	# ${SRC_ROOT}/ELFHeaderView.cpp
-	# ${SRC_ROOT}/ELFHeaderView.h
-	# ${SRC_ROOT}/ELFProgramView.cpp
-	# ${SRC_ROOT}/ELFProgramView.h
-	# ${SRC_ROOT}/ELFSectionView.cpp
-	# ${SRC_ROOT}/ELFSectionView.h
-	# ${SRC_ROOT}/ELFSymbolView.cpp
-	# ${SRC_ROOT}/ELFSymbolView.h
-	# ${SRC_ROOT}/ELFView.cpp
-	# ${SRC_ROOT}/ELFView.h
+	${SRC_ROOT}/ELFHeaderView.cpp
+	${SRC_ROOT}/ELFHeaderView.h
+	${SRC_ROOT}/ELFProgramView.cpp
+	${SRC_ROOT}/ELFProgramView.h
+	${SRC_ROOT}/ELFSectionView.cpp
+	${SRC_ROOT}/ELFSectionView.h
+	${SRC_ROOT}/ELFSymbolView.cpp
+	${SRC_ROOT}/ELFSymbolView.h
+	${SRC_ROOT}/ELFView.cpp
+	${SRC_ROOT}/ELFView.h
 	# ${SRC_ROOT}/ElfViewRes.h
 	# ${SRC_ROOT}/FrameDebugger/FrameDebugger.cpp
 	# ${SRC_ROOT}/FrameDebugger/FrameDebugger.h	
@@ -107,6 +107,7 @@ set(SRC_FILES
 set(QT_DEBUGGER_MOC_HEADERS
 	${SRC_ROOT}/QtDisAsmTableModel.h
 	${SRC_ROOT}/QtDisAsmVuTableModel.h
+	${SRC_ROOT}/ELFView.h
 	${SRC_ROOT}/QtGenericTableModel.h
 	${SRC_ROOT}/QtDebugger.h
 	${SRC_ROOT}/QtDialogListWidget.h
