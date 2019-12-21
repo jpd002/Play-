@@ -7,7 +7,7 @@
 
 #include "MIPS.h"
 #include "VirtualMachineStateView.h"
-#include "QtMemoryViewMIPSModel.h"
+#include "QtMemoryViewModel.h"
 
 class QResizeEvent;
 
@@ -42,7 +42,7 @@ private:
 	CVirtualMachine& m_virtualMachine;
 	QLineEdit* m_addressEdit;
 	QTableView* m_tableView;
-	CQtMemoryViewMIPSModel* m_model;
+	CQtMemoryViewModel* m_model;
 
 	uint32 m_selected = 0;
 	int m_cwidth = 0;

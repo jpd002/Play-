@@ -16,7 +16,6 @@ CMemoryViewMIPSWnd::CMemoryViewMIPSWnd(QMdiArea* parent, CVirtualMachine& virtua
     , m_virtualMachine(virtualMachine)
     , m_tableView(new QTableView(this))
     , m_context(ctx)
-    , m_model(new CQtMemoryViewMIPSModel(this, ctx, size))
 {
 	resize(320, 240);
 	parent->addSubWindow(this);
@@ -32,6 +31,12 @@ CMemoryViewMIPSWnd::CMemoryViewMIPSWnd(QMdiArea* parent, CVirtualMachine& virtua
 	verticalLayout->addWidget(m_tableView);
 
 	setWidget(centralwidget);
+	auto getByte = [ctx](uint32 address)
+	{
+		return ctx->m_pMemoryMap->GetByte(address);
+	};
+	m_model= new CQtMemoryViewModel(this, getByte, size);
+
 	m_tableView->setModel(m_model);
 
 	// prepare monospaced font
@@ -139,9 +144,9 @@ void CMemoryViewMIPSWnd::ShowContextMenu(const QPoint& pos)
 		unitActionGroup->setExclusive(true);
 
 		auto activeUnit = m_model->GetActiveUnit();
-		for(uint32 i = 0; i < CQtMemoryViewMIPSModel::g_units.size(); i++)
+		for(uint32 i = 0; i < CQtMemoryViewModel::g_units.size(); i++)
 		{
-			const auto& unit = CQtMemoryViewMIPSModel::g_units[i];
+			const auto& unit = CQtMemoryViewModel::g_units[i];
 			auto itemAction = unitMenu->addAction(unit.description);
 			itemAction->setChecked(i == activeUnit);
 			itemAction->setCheckable(true);

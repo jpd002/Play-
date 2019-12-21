@@ -1,14 +1,17 @@
 #pragma once
 
 #include <QAbstractTableModel>
+#include <functional>
 
-#include "MIPS.h"
+#include "Types.h"
 
-class CQtMemoryViewMIPSModel : public QAbstractTableModel
+class CQtMemoryViewModel : public QAbstractTableModel
 {
 	Q_OBJECT
 public:
-	typedef std::string (CQtMemoryViewMIPSModel::*UnitRenderer)(uint32) const;
+	typedef std::function<uint8(uint32)> getByteProto;
+
+	typedef std::string (CQtMemoryViewModel::*UnitRenderer)(uint32) const;
 	struct UNITINFO
 	{
 		unsigned int bytesPerUnit = 0;
@@ -17,8 +20,8 @@ public:
 		const char* description = nullptr;
 	};
 
-	CQtMemoryViewMIPSModel(QObject*, CMIPS*, int);
-	~CQtMemoryViewMIPSModel();
+	CQtMemoryViewModel(QObject*, getByteProto, int);
+	~CQtMemoryViewModel();
 
 	int rowCount(const QModelIndex& parent = QModelIndex()) const Q_DECL_OVERRIDE;
 	int columnCount(const QModelIndex& parent = QModelIndex()) const Q_DECL_OVERRIDE;
@@ -47,7 +50,7 @@ private:
 	std::string RenderWordUnit(uint32) const;
 	std::string RenderSingleUnit(uint32) const;
 
-	CMIPS* m_context;
+	getByteProto m_getByte;
 	int m_activeUnit;
 	unsigned int m_size;
 	std::atomic<unsigned int> m_unitsForCurrentLine = 0x20;

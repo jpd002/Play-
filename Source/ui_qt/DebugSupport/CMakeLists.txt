@@ -77,8 +77,8 @@ set(SRC_FILES
 	# ${SRC_ROOT}/FrameDebugger/Vu1Vm.h
 	${SRC_ROOT}/MemoryViewMIPSWnd.cpp
 	${SRC_ROOT}/MemoryViewMIPSWnd.h
-	${SRC_ROOT}/QtMemoryViewMIPSModel.cpp
-	${SRC_ROOT}/QtMemoryViewMIPSModel.h
+	${SRC_ROOT}/QtMemoryViewModel.cpp
+	${SRC_ROOT}/QtMemoryViewModel.h
 	# ${SRC_ROOT}/OptionWnd.cpp
 	# ${SRC_ROOT}/OptionWnd.h
 	# ${SRC_ROOT}/OutputWnd.cpp
@@ -110,7 +110,7 @@ set(QT_DEBUGGER_MOC_HEADERS
 	${SRC_ROOT}/QtGenericTableModel.h
 	${SRC_ROOT}/QtDebugger.h
 	${SRC_ROOT}/QtDialogListWidget.h
-	${SRC_ROOT}/QtMemoryViewMIPSModel.h
+	${SRC_ROOT}/QtMemoryViewModel.h
 )
 
 set(QT_DEBUGGER_UI

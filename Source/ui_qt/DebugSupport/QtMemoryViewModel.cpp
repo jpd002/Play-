@@ -1,37 +1,37 @@
-#include "QtMemoryViewMIPSModel.h"
+#include "QtMemoryViewModel.h"
 
 #include "string_format.h"
 #include "lexical_cast_ex.h"
 
-std::vector<CQtMemoryViewMIPSModel::UNITINFO> CQtMemoryViewMIPSModel::g_units =
+std::vector<CQtMemoryViewModel::UNITINFO> CQtMemoryViewModel::g_units =
     {
-        {1, 2, &CQtMemoryViewMIPSModel::RenderByteUnit, "8-bit Integers"},
-        {4, 8, &CQtMemoryViewMIPSModel::RenderWordUnit, "32-bit Integers"},
-        {4, 11, &CQtMemoryViewMIPSModel::RenderSingleUnit, "Single Precision Floating Point Numbers"}};
+        {1, 2, &CQtMemoryViewModel::RenderByteUnit, "8-bit Integers"},
+        {4, 8, &CQtMemoryViewModel::RenderWordUnit, "32-bit Integers"},
+        {4, 11, &CQtMemoryViewModel::RenderSingleUnit, "Single Precision Floating Point Numbers"}};
 
-CQtMemoryViewMIPSModel::CQtMemoryViewMIPSModel(QObject* parent, CMIPS* ctx, int size)
+CQtMemoryViewModel::CQtMemoryViewModel(QObject* parent, getByteProto getByte, int size)
     : QAbstractTableModel(parent)
-    , m_context(ctx)
     , m_activeUnit(0)
+	, m_getByte(getByte)
     , m_size(size)
 {
 }
 
-CQtMemoryViewMIPSModel::~CQtMemoryViewMIPSModel()
+CQtMemoryViewModel::~CQtMemoryViewModel()
 {
 }
 
-int CQtMemoryViewMIPSModel::rowCount(const QModelIndex& /*parent*/) const
+int CQtMemoryViewModel::rowCount(const QModelIndex& /*parent*/) const
 {
 	return m_size / UnitsForCurrentLine();
 }
 
-int CQtMemoryViewMIPSModel::columnCount(const QModelIndex& /*parent*/) const
+int CQtMemoryViewModel::columnCount(const QModelIndex& /*parent*/) const
 {
 	return UnitsForCurrentLine() + 1;
 }
 
-QVariant CQtMemoryViewMIPSModel::data(const QModelIndex& index, int role) const
+QVariant CQtMemoryViewModel::data(const QModelIndex& index, int role) const
 {
 	if(role == Qt::DisplayRole)
 	{
@@ -65,7 +65,7 @@ QVariant CQtMemoryViewMIPSModel::data(const QModelIndex& index, int role) const
 	return QVariant();
 }
 
-QVariant CQtMemoryViewMIPSModel::headerData(int section, Qt::Orientation orientation, int role) const
+QVariant CQtMemoryViewModel::headerData(int section, Qt::Orientation orientation, int role) const
 {
 	if(role == Qt::DisplayRole)
 	{
@@ -83,24 +83,24 @@ QVariant CQtMemoryViewMIPSModel::headerData(int section, Qt::Orientation orienta
 	return QAbstractTableModel::headerData(section, orientation, role);
 }
 
-void CQtMemoryViewMIPSModel::Redraw()
+void CQtMemoryViewModel::Redraw()
 {
 	emit QAbstractTableModel::beginResetModel();
 	emit QAbstractTableModel::endResetModel();
 }
 
-uint8 CQtMemoryViewMIPSModel::GetByte(uint32 nAddress) const
+uint8 CQtMemoryViewModel::GetByte(uint32 nAddress) const
 {
-	return m_context->m_pMemoryMap->GetByte(nAddress);
+	return m_getByte(nAddress);
 }
 
-std::string CQtMemoryViewMIPSModel::RenderByteUnit(uint32 address) const
+std::string CQtMemoryViewModel::RenderByteUnit(uint32 address) const
 {
 	uint8 unitValue = GetByte(address);
 	return string_format("%02X", unitValue);
 }
 
-std::string CQtMemoryViewMIPSModel::RenderWordUnit(uint32 address) const
+std::string CQtMemoryViewModel::RenderWordUnit(uint32 address) const
 {
 	uint32 unitValue =
 	    (GetByte(address + 0) << 0) |
@@ -110,7 +110,7 @@ std::string CQtMemoryViewMIPSModel::RenderWordUnit(uint32 address) const
 	return string_format("%08X", unitValue);
 }
 
-std::string CQtMemoryViewMIPSModel::RenderSingleUnit(uint32 address) const
+std::string CQtMemoryViewModel::RenderSingleUnit(uint32 address) const
 {
 	uint32 unitValue =
 	    (GetByte(address + 0) << 0) |
@@ -120,37 +120,37 @@ std::string CQtMemoryViewMIPSModel::RenderSingleUnit(uint32 address) const
 	return string_format("%+04.4e", *reinterpret_cast<const float*>(&unitValue));
 }
 
-unsigned int CQtMemoryViewMIPSModel::UnitsForCurrentLine() const
+unsigned int CQtMemoryViewModel::UnitsForCurrentLine() const
 {
 	return m_unitsForCurrentLine;
 }
 
-unsigned int CQtMemoryViewMIPSModel::BytesForCurrentLine() const
+unsigned int CQtMemoryViewModel::BytesForCurrentLine() const
 {
 	return g_units[m_activeUnit].bytesPerUnit * m_unitsForCurrentLine;
 }
 
-void CQtMemoryViewMIPSModel::SetUnitsForCurrentLine(unsigned int size)
+void CQtMemoryViewModel::SetUnitsForCurrentLine(unsigned int size)
 {
 	m_unitsForCurrentLine = size;
 }
 
-unsigned int CQtMemoryViewMIPSModel::CharsPerUnit() const
+unsigned int CQtMemoryViewModel::CharsPerUnit() const
 {
 	return g_units[m_activeUnit].charsPerUnit;
 }
 
-void CQtMemoryViewMIPSModel::SetActiveUnit(int index)
+void CQtMemoryViewModel::SetActiveUnit(int index)
 {
 	m_activeUnit = index;
 }
 
-int CQtMemoryViewMIPSModel::GetActiveUnit()
+int CQtMemoryViewModel::GetActiveUnit()
 {
 	return m_activeUnit;
 }
 
-int CQtMemoryViewMIPSModel::GetBytesPerUnit()
+int CQtMemoryViewModel::GetBytesPerUnit()
 {
 	return g_units[m_activeUnit].bytesPerUnit;
 }
