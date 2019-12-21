@@ -331,6 +331,16 @@ bool CBasicBlock::IsEmpty() const
 	       (m_end == MIPS_INVALID_PC);
 }
 
+uint32 CBasicBlock::GetRecycleCount() const
+{
+	return m_recycleCount;
+}
+
+void CBasicBlock::SetRecycleCount(uint32 recycleCount)
+{
+	m_recycleCount = recycleCount;
+}
+
 uint32 CBasicBlock::GetLinkTargetAddress(LINK_SLOT linkSlot)
 {
 	assert(linkSlot < LINK_SLOT_MAX);

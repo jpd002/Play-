@@ -26,6 +26,11 @@ public:
 		MAX_BLOCK_SIZE = 0x1000,
 	};
 
+	enum
+	{
+		RECYCLE_NOLINK_THRESHOLD = 16,
+	};
+
 	CGenericMipsExecutor(CMIPS& context, uint32 maxAddress)
 	    : m_emptyBlock(std::make_shared<CBasicBlock>(context, MIPS_INVALID_PC, MIPS_INVALID_PC))
 	    , m_context(context)
@@ -221,7 +226,11 @@ protected:
 		assert((endAddress - startAddress) <= MAX_BLOCK_SIZE);
 		assert(endAddress <= m_maxAddress);
 		CreateBlock(startAddress, endAddress);
-		SetupBlockLinks(startAddress, endAddress, branchAddress);
+		auto block = FindBlockStartingAt(startAddress);
+		if(block->GetRecycleCount() < RECYCLE_NOLINK_THRESHOLD)
+		{
+			SetupBlockLinks(startAddress, endAddress, branchAddress);
+		}
 	}
 
 	//Unlink and removes block from all of our bookkeeping structures
@@ -252,6 +261,7 @@ protected:
 					    m_pendingBlockLinks.erase(slotIterator);
 				    }
 			    }
+			    block->SetLinkTargetAddress(linkSlot, MIPS_INVALID_PC);
 		    };
 		orphanBlockLinkSlot(CBasicBlock::LINK_SLOT_NEXT);
 		orphanBlockLinkSlot(CBasicBlock::LINK_SLOT_BRANCH);

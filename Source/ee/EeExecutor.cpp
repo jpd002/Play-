@@ -138,6 +138,8 @@ BasicBlockPtr CEeExecutor::BlockFactory(CMIPS& context, uint32 start, uint32 end
 		{
 			if(basicBlock->GetEndAddress() == end)
 			{
+				uint32 recycleCount = basicBlock->GetRecycleCount();
+				basicBlock->SetRecycleCount(std::min<uint32>(RECYCLE_NOLINK_THRESHOLD, recycleCount + 1));
 				return basicBlock;
 			}
 		}

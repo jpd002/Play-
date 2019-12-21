@@ -67,6 +67,9 @@ public:
 	bool IsCompiled() const;
 	bool IsEmpty() const;
 
+	uint32 GetRecycleCount() const;
+	void SetRecycleCount(uint32);
+
 	uint32 GetLinkTargetAddress(LINK_SLOT);
 	void SetLinkTargetAddress(LINK_SLOT, uint32);
 	void LinkBlock(LINK_SLOT, CBasicBlock*);
@@ -103,6 +106,7 @@ private:
 #else
 	void (*m_function)(void*);
 #endif
+	uint32 m_recycleCount = 0;
 	uint32 m_linkTargetAddress[LINK_SLOT_MAX];
 	uint32 m_linkBlockTrampolineOffset[LINK_SLOT_MAX];
 #ifdef _DEBUG
