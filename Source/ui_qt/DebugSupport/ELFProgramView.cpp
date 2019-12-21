@@ -33,6 +33,16 @@ CELFProgramView::CELFProgramView(QMdiSubWindow* parent, QLayout* groupBoxLayout)
 		m_layout->addLayout(horizontalLayout);
 	}
 
+	// blankLayout / blankWidget funtion is to exapnd and take the empty space
+	auto blankLayout = new QVBoxLayout(this);
+	auto blankWidget = new QWidget(this);
+	QSizePolicy sizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+	sizePolicy.setHorizontalStretch(0);
+	sizePolicy.setVerticalStretch(0);
+	blankWidget->setSizePolicy(sizePolicy);
+	blankLayout->addWidget(blankWidget);
+	m_layout->addLayout(blankLayout);
+
 	groupBoxLayout->addWidget(this);
 	hide();
 }
