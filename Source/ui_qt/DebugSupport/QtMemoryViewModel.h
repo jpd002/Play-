@@ -20,7 +20,7 @@ public:
 		const char* description = nullptr;
 	};
 
-	CQtMemoryViewModel(QObject*, getByteProto, int);
+	CQtMemoryViewModel(QObject*, getByteProto = nullptr, int = 0);
 	~CQtMemoryViewModel();
 
 	int rowCount(const QModelIndex& parent = QModelIndex()) const Q_DECL_OVERRIDE;
@@ -39,6 +39,8 @@ public:
 	int GetActiveUnit();
 	int GetBytesPerUnit();
 
+	void SetData(getByteProto ,int);
+
 	static std::vector<UNITINFO> g_units;
 
 protected:
@@ -50,7 +52,7 @@ private:
 	std::string RenderWordUnit(uint32) const;
 	std::string RenderSingleUnit(uint32) const;
 
-	getByteProto m_getByte;
+	getByteProto m_getByte = nullptr;
 	int m_activeUnit;
 	unsigned int m_size;
 	std::atomic<unsigned int> m_unitsForCurrentLine = 0x20;

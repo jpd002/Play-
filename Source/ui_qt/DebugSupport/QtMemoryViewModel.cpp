@@ -12,7 +12,7 @@ std::vector<CQtMemoryViewModel::UNITINFO> CQtMemoryViewModel::g_units =
 CQtMemoryViewModel::CQtMemoryViewModel(QObject* parent, getByteProto getByte, int size)
     : QAbstractTableModel(parent)
     , m_activeUnit(0)
-	, m_getByte(getByte)
+    , m_getByte(getByte)
     , m_size(size)
 {
 }
@@ -20,6 +20,7 @@ CQtMemoryViewModel::CQtMemoryViewModel(QObject* parent, getByteProto getByte, in
 CQtMemoryViewModel::~CQtMemoryViewModel()
 {
 }
+
 
 int CQtMemoryViewModel::rowCount(const QModelIndex& /*parent*/) const
 {
@@ -91,6 +92,9 @@ void CQtMemoryViewModel::Redraw()
 
 uint8 CQtMemoryViewModel::GetByte(uint32 nAddress) const
 {
+	if(!m_getByte)
+		return 0;
+
 	return m_getByte(nAddress);
 }
 
@@ -153,4 +157,11 @@ int CQtMemoryViewModel::GetActiveUnit()
 int CQtMemoryViewModel::GetBytesPerUnit()
 {
 	return g_units[m_activeUnit].bytesPerUnit;
+}
+
+void CQtMemoryViewModel::SetData(getByteProto getByte, int size)
+{
+	m_getByte = getByte;
+	m_size = size;
+	Redraw();
 }
