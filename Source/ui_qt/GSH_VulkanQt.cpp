@@ -33,7 +33,12 @@ void CGSH_VulkanQt::InitializeImpl()
 	auto appInfo = Framework::Vulkan::ApplicationInfo();
 	appInfo.pApplicationName = "Play!";
 	appInfo.pEngineName = "Play!";
+#ifdef __APPLE__
+	//MoltenVK requires version to be 1.0.x
 	appInfo.apiVersion = VK_MAKE_VERSION(1, 0, 0);
+#else
+	appInfo.apiVersion = VK_MAKE_VERSION(1, 1, 0);
+#endif
 
 	instanceCreateInfo.pApplicationInfo = &appInfo;
 	instanceCreateInfo.enabledExtensionCount = extensions.size();
