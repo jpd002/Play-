@@ -623,7 +623,7 @@ void MainWindow::RegisterPreferences()
 {
 	CAppConfig::GetInstance().RegisterPreferenceBoolean(PREFERENCE_AUDIO_ENABLEOUTPUT, true);
 	CAppConfig::GetInstance().RegisterPreferenceBoolean(PREF_UI_PAUSEWHENFOCUSLOST, true);
-	CAppConfig::GetInstance().RegisterPreferenceBoolean(PREF_VIDEO_USEVULKAN, true);
+	CAppConfig::GetInstance().RegisterPreferenceBoolean(PREF_VIDEO_USEVULKAN, false);
 }
 
 void MainWindow::focusOutEvent(QFocusEvent* event)
