@@ -685,7 +685,7 @@ Framework::Vulkan::CShaderModule CDraw::CreateFragmentShader(const PIPELINE_CAPS
 
 		if(caps.hasTexture)
 		{
-			auto texelPos = ToInt(inputTexCoord->xy() * ToFloat(texSize));
+			auto texelPos = ToInt(inputTexCoord->xy() / inputTexCoord->zz() * ToFloat(texSize));
 			textureColor = GetTextureColor(b, caps.textureFormat, caps.clutFormat, texelPos,
 				memoryBuffer, clutImage, texSwizzleTable, texBufAddress, texBufWidth);
 
