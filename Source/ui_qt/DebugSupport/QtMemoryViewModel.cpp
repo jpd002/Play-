@@ -3,6 +3,8 @@
 #include "string_format.h"
 #include "lexical_cast_ex.h"
 
+#include <cmath>
+
 std::vector<CQtMemoryViewModel::UNITINFO> CQtMemoryViewModel::g_units =
     {
         {1, 2, &CQtMemoryViewModel::RenderByteUnit, "8-bit Integers"},
@@ -24,7 +26,7 @@ CQtMemoryViewModel::~CQtMemoryViewModel()
 
 int CQtMemoryViewModel::rowCount(const QModelIndex& /*parent*/) const
 {
-	return m_size / UnitsForCurrentLine();
+	return std::ceil((m_size * 1.f) / UnitsForCurrentLine());
 }
 
 int CQtMemoryViewModel::columnCount(const QModelIndex& /*parent*/) const
@@ -48,7 +50,11 @@ QVariant CQtMemoryViewModel::data(const QModelIndex& index, int role) const
 			std::string res = "";
 			for(auto j = 0; j < BytesForCurrentLine(); j++)
 			{
-				uint8 value = GetByte(address + j);
+				uint8 value = 0x0;
+				if(address + j < m_size)
+				{
+					 value = GetByte(address + j);
+				}
 				if(value < 0x20 || value > 0x7F)
 				{
 					value = '.';
