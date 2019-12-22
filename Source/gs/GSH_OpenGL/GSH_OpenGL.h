@@ -22,6 +22,14 @@
 class CGSH_OpenGL : public CGSHandler
 {
 public:
+	struct VERTEX
+	{
+		uint64 nPosition;
+		uint64 nRGBAQ;
+		uint64 nUV;
+		uint64 nST;
+		uint8 nFog;
+	};
 	CGSH_OpenGL(bool = true);
 	virtual ~CGSH_OpenGL();
 
@@ -34,6 +42,19 @@ public:
 	void ProcessLocalToLocalTransfer() override;
 	void ProcessClutTransfer(uint32, uint32) override;
 	void ReadFramebuffer(uint32, uint32, void*) override;
+
+	bool GetDepthTestingEnabled() const;
+	void SetDepthTestingEnabled(bool);
+
+	bool GetAlphaBlendingEnabled() const;
+	void SetAlphaBlendingEnabled(bool);
+
+	bool GetAlphaTestingEnabled() const;
+	void SetAlphaTestingEnabled(bool);
+
+	Framework::CBitmap GetFramebuffer(uint64);
+	Framework::CBitmap GetTexture(uint64, uint32, uint64, uint64, uint32);
+	const VERTEX* GetInputVertices() const;
 
 	Framework::CBitmap GetScreenshot() override;
 
@@ -163,15 +184,6 @@ private:
 	};
 
 	typedef void (CGSH_OpenGL::*TEXTUREUPDATER)(uint32, uint32, unsigned int, unsigned int, unsigned int, unsigned int);
-
-	struct VERTEX
-	{
-		uint64 nPosition;
-		uint64 nRGBAQ;
-		uint64 nUV;
-		uint64 nST;
-		uint8 nFog;
-	};
 
 	enum
 	{
@@ -354,6 +366,9 @@ private:
 
 	void DumpTexture(unsigned int, unsigned int, uint32);
 
+	Framework::CBitmap GetFramebufferImpl(uint64);
+	Framework::CBitmap GetTextureImpl(uint64, uint32, uint64, uint64, uint32);
+
 	//Texture updaters
 	void TexUpdater_Invalid(uint32, uint32, unsigned int, unsigned int, unsigned int, unsigned int);
 
@@ -376,6 +391,9 @@ private:
 	unsigned int m_fbScale = 1;
 	bool m_multisampleEnabled = false;
 	bool m_accurateAlphaTestEnabled = false;
+	bool m_depthTestingEnabled = true;
+	bool m_alphaBlendingEnabled = true;
+	bool m_alphaTestingEnabled = true;
 
 	uint8* m_pCvtBuffer;
 
