@@ -160,6 +160,7 @@ void CGSH_Vulkan::FlipImpl()
 	auto result = m_context->device.vkResetDescriptorPool(m_context->device, m_context->descriptorPool, 0);
 	CHECKVULKANERROR(result);
 
+	m_draw->ResetDescriptorSets();
 	m_context->commandBufferPool.ResetBuffers();
 
 	PresentBackbuffer();

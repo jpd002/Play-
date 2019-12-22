@@ -173,7 +173,13 @@ void CDraw::FlushVertices()
 	renderPassBeginInfo.framebuffer = m_framebuffer;
 	m_context->device.vkCmdBeginRenderPass(commandBuffer, &renderPassBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
 
-	auto descriptorSet = PrepareDescriptorSet(drawPipeline->descriptorSetLayout);
+	auto descriptorSetCaps = make_convertible<DESCRIPTORSET_CAPS>(0);
+	descriptorSetCaps.hasTexture = m_pipelineCaps.hasTexture;
+	descriptorSetCaps.framebufferFormat = m_pipelineCaps.framebufferFormat;
+	descriptorSetCaps.depthbufferFormat = m_pipelineCaps.depthbufferFormat;
+	descriptorSetCaps.textureFormat = m_pipelineCaps.textureFormat;
+	
+	auto descriptorSet = PrepareDescriptorSet(drawPipeline->descriptorSetLayout, descriptorSetCaps);
 
 	m_context->device.vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, drawPipeline->pipelineLayout,
 	                                          0, 1, &descriptorSet, 0, nullptr);
@@ -195,6 +201,11 @@ void CDraw::FlushVertices()
 	m_passVertexStart = m_passVertexEnd;
 }
 
+void CDraw::ResetDescriptorSets()
+{
+	m_descriptorSetCache.clear();
+}
+
 void CDraw::PreFlushFrameCommandBuffer()
 {
 	FlushVertices();
@@ -205,8 +216,14 @@ void CDraw::PostFlushFrameCommandBuffer()
 	m_passVertexStart = m_passVertexEnd = 0;
 }
 
-VkDescriptorSet CDraw::PrepareDescriptorSet(VkDescriptorSetLayout descriptorSetLayout)
+VkDescriptorSet CDraw::PrepareDescriptorSet(VkDescriptorSetLayout descriptorSetLayout, const DESCRIPTORSET_CAPS& caps)
 {
+	auto descriptorSetIterator = m_descriptorSetCache.find(caps);
+	if(descriptorSetIterator != std::end(m_descriptorSetCache))
+	{
+		return descriptorSetIterator->second;
+	}
+
 	auto result = VK_SUCCESS;
 	VkDescriptorSet descriptorSet = VK_NULL_HANDLE;
 
@@ -232,11 +249,11 @@ VkDescriptorSet CDraw::PrepareDescriptorSet(VkDescriptorSetLayout descriptorSetL
 		descriptorClutImageInfo.imageLayout = VK_IMAGE_LAYOUT_GENERAL;
 
 		VkDescriptorImageInfo descriptorTexSwizzleTableImageInfo = {};
-		descriptorTexSwizzleTableImageInfo.imageView = m_context->GetSwizzleTable(m_pipelineCaps.textureFormat);
+		descriptorTexSwizzleTableImageInfo.imageView = m_context->GetSwizzleTable(caps.textureFormat);
 		descriptorTexSwizzleTableImageInfo.imageLayout = VK_IMAGE_LAYOUT_GENERAL;
 
 		VkDescriptorImageInfo descriptorFbSwizzleTableImageInfo = {};
-		descriptorFbSwizzleTableImageInfo.imageView = m_context->GetSwizzleTable(m_pipelineCaps.framebufferFormat);
+		descriptorFbSwizzleTableImageInfo.imageView = m_context->GetSwizzleTable(caps.framebufferFormat);
 		descriptorFbSwizzleTableImageInfo.imageLayout = VK_IMAGE_LAYOUT_GENERAL;
 
 		std::vector<VkWriteDescriptorSet> writes;
@@ -261,7 +278,7 @@ VkDescriptorSet CDraw::PrepareDescriptorSet(VkDescriptorSetLayout descriptorSetL
 			writes.push_back(writeSet);
 		}
 
-		if(m_pipelineCaps.hasTexture)
+		if(caps.hasTexture)
 		{
 			{
 				auto writeSet = Framework::Vulkan::WriteDescriptorSet();
@@ -273,7 +290,7 @@ VkDescriptorSet CDraw::PrepareDescriptorSet(VkDescriptorSetLayout descriptorSetL
 				writes.push_back(writeSet);
 			}
 
-			if(CGsPixelFormats::IsPsmIDTEX(m_pipelineCaps.textureFormat))
+			if(CGsPixelFormats::IsPsmIDTEX(caps.textureFormat))
 			{
 				auto writeSet = Framework::Vulkan::WriteDescriptorSet();
 				writeSet.dstSet = descriptorSet;
@@ -287,6 +304,8 @@ VkDescriptorSet CDraw::PrepareDescriptorSet(VkDescriptorSetLayout descriptorSetL
 
 		m_context->device.vkUpdateDescriptorSets(m_context->device, writes.size(), writes.data(), 0, nullptr);
 	}
+
+	m_descriptorSetCache.insert(std::make_pair(caps, descriptorSet));
 
 	return descriptorSet;
 }

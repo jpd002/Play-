@@ -52,10 +52,24 @@ namespace GSH_Vulkan
 		void AddVertices(const PRIM_VERTEX*, const PRIM_VERTEX*);
 		void FlushVertices();
 
+		void ResetDescriptorSets();
+
 		void PreFlushFrameCommandBuffer() override;
 		void PostFlushFrameCommandBuffer() override;
 
 	private:
+		typedef uint32 DescriptorSetCapsInt;
+
+		struct DESCRIPTORSET_CAPS : public convertible<DescriptorSetCapsInt>
+		{
+			uint32 hasTexture : 1;
+			uint32 textureFormat : 6;
+			uint32 framebufferFormat : 6;
+			uint32 depthbufferFormat : 6;
+		};
+		static_assert(sizeof(DESCRIPTORSET_CAPS) == sizeof(DescriptorSetCapsInt));
+		typedef std::unordered_map<DescriptorSetCapsInt, VkDescriptorSet> DescriptorSetCache;
+
 		typedef CPipelineCache<PipelineCapsInt> PipelineCache;
 
 		struct DRAW_PIPELINE_PUSHCONSTANTS
@@ -72,7 +86,7 @@ namespace GSH_Vulkan
 		};
 		static_assert(sizeof(DRAW_PIPELINE_PUSHCONSTANTS) <= 128, "Push constants size can't exceed 128 bytes.");
 
-		VkDescriptorSet PrepareDescriptorSet(VkDescriptorSetLayout);
+		VkDescriptorSet PrepareDescriptorSet(VkDescriptorSetLayout, const DESCRIPTORSET_CAPS&);
 
 		void CreateFramebuffer();
 		void CreateRenderPass();
@@ -85,6 +99,7 @@ namespace GSH_Vulkan
 		ContextPtr m_context;
 		FrameCommandBufferPtr m_frameCommandBuffer;
 		PipelineCache m_pipelineCache;
+		DescriptorSetCache m_descriptorSetCache;
 
 		VkRenderPass m_renderPass = VK_NULL_HANDLE;
 		VkFramebuffer m_framebuffer = VK_NULL_HANDLE;
