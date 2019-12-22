@@ -84,7 +84,7 @@ void CDraw::SetPipelineCaps(const PIPELINE_CAPS& caps)
 	m_pipelineCaps = caps;
 }
 
-void CDraw::SetFramebufferBufferInfo(uint32 addr, uint32 width)
+void CDraw::SetFramebufferParams(uint32 addr, uint32 width)
 {
 	bool changed =
 	    (m_pushConstants.fbBufAddr != addr) ||
@@ -93,6 +93,17 @@ void CDraw::SetFramebufferBufferInfo(uint32 addr, uint32 width)
 	FlushVertices();
 	m_pushConstants.fbBufAddr = addr;
 	m_pushConstants.fbBufWidth = width;
+}
+
+void CDraw::SetDepthbufferParams(uint32 addr, uint32 width)
+{
+	bool changed =
+	    (m_pushConstants.depthBufAddr != addr) ||
+	    (m_pushConstants.depthBufWidth != width);
+	if(!changed) return;
+	FlushVertices();
+	m_pushConstants.depthBufAddr = addr;
+	m_pushConstants.depthBufWidth = width;
 }
 
 void CDraw::SetTextureParams(uint32 bufAddr, uint32 bufWidth, uint32 width, uint32 height)

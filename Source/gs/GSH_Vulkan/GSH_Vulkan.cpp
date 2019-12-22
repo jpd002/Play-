@@ -541,6 +541,7 @@ void CGSH_Vulkan::SetRenderingContext(uint64 primReg)
 
 	auto offset = make_convertible<XYOFFSET>(m_nReg[GS_REG_XYOFFSET_1 + context]);
 	auto frame = make_convertible<FRAME>(m_nReg[GS_REG_FRAME_1 + context]);
+	auto zbuf = make_convertible<ZBUF>(m_nReg[GS_REG_ZBUF_1 + context]);
 	auto tex0 = make_convertible<TEX0>(m_nReg[GS_REG_TEX0_1 + context]);
 	auto alpha = make_convertible<ALPHA>(m_nReg[GS_REG_ALPHA_1 + context]);
 	auto scissor = make_convertible<SCISSOR>(m_nReg[GS_REG_SCISSOR_1 + context]);
@@ -548,9 +549,11 @@ void CGSH_Vulkan::SetRenderingContext(uint64 primReg)
 	auto pipelineCaps = make_convertible<CDraw::PIPELINE_CAPS>(0);
 	pipelineCaps.hasTexture = prim.nTexture;
 	pipelineCaps.hasAlphaBlending = prim.nAlpha;
+	pipelineCaps.writeDepth = (zbuf.nMask == 0);
 	pipelineCaps.textureFormat = tex0.nPsm;
 	pipelineCaps.clutFormat = tex0.nCPSM;
 	pipelineCaps.framebufferFormat = frame.nPsm;
+	pipelineCaps.depthbufferFormat = zbuf.nPsm | 0x30;
 
 	if(prim.nAlpha)
 	{
@@ -561,7 +564,8 @@ void CGSH_Vulkan::SetRenderingContext(uint64 primReg)
 	}
 
 	m_draw->SetPipelineCaps(pipelineCaps);
-	m_draw->SetFramebufferBufferInfo(frame.GetBasePtr(), frame.GetWidth());
+	m_draw->SetFramebufferParams(frame.GetBasePtr(), frame.GetWidth());
+	m_draw->SetDepthbufferParams(zbuf.GetBasePtr(), frame.GetWidth());
 	m_draw->SetTextureParams(tex0.GetBufPtr(), tex0.GetBufWidth(),
 	                         tex0.GetWidth(), tex0.GetHeight());
 	m_draw->SetScissor(scissor.scax0, scissor.scay0,

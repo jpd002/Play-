@@ -20,6 +20,7 @@ namespace GSH_Vulkan
 		{
 			uint32 hasTexture : 1;
 			uint32 hasAlphaBlending : 1;
+			uint32 writeDepth : 1;
 
 			uint32 alphaA : 2;
 			uint32 alphaB : 2;
@@ -45,7 +46,8 @@ namespace GSH_Vulkan
 		virtual ~CDraw();
 
 		void SetPipelineCaps(const PIPELINE_CAPS&);
-		void SetFramebufferBufferInfo(uint32, uint32);
+		void SetFramebufferParams(uint32, uint32);
+		void SetDepthbufferParams(uint32, uint32);
 		void SetTextureParams(uint32, uint32, uint32, uint32);
 		void SetScissor(uint32, uint32, uint32, uint32);
 
