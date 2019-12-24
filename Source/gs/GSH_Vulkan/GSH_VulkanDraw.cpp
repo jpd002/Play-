@@ -618,6 +618,23 @@ Framework::Vulkan::CShaderModule CDraw::CreateVertexShader()
 	return Framework::Vulkan::CShaderModule(m_context->device, shaderStream);
 }
 
+static Nuanceur::CUintRvalue GetDepth(Nuanceur::CShaderBuilder& b, uint32 depthFormat,
+	Nuanceur::CIntValue depthAddress, Nuanceur::CArrayUintValue memoryBuffer)
+{
+	switch(depthFormat)
+	{
+	default:
+		assert(false);
+	case CGSHandler::PSMZ32:
+		return CMemoryUtils::Memory_Read32(b, memoryBuffer, depthAddress);
+	case CGSHandler::PSMZ24:
+		return CMemoryUtils::Memory_Read24(b, memoryBuffer, depthAddress);
+	case CGSHandler::PSMZ16:
+	case CGSHandler::PSMZ16S:
+		return CMemoryUtils::Memory_Read16(b, memoryBuffer, depthAddress);
+	}
+}
+
 static Nuanceur::CFloat4Rvalue GetTextureColor(Nuanceur::CShaderBuilder& b, uint32 textureFormat, uint32 clutFormat,
 	Nuanceur::CInt2Value texelPos, Nuanceur::CArrayUintValue memoryBuffer, Nuanceur::CImageUint2DValue clutImage,
 	Nuanceur::CImageUint2DValue texSwizzleTable, Nuanceur::CIntValue texBufAddress, Nuanceur::CIntValue texBufWidth)
@@ -793,11 +810,18 @@ Framework::Vulkan::CShaderModule CDraw::CreateFragmentShader(const PIPELINE_CAPS
 			depthAddress = CMemoryUtils::GetPixelAddress<CGsPixelFormats::STORAGEPSMZ32>(
 			    b, depthSwizzleTable, depthBufAddress, depthBufWidth, screenPos);
 			break;
+		case CGSHandler::PSMZ16:
+		case CGSHandler::PSMZ16S:
+			//TODO: Use real swizzle table
+			depthAddress = CMemoryUtils::GetPixelAddress<CGsPixelFormats::STORAGEPSMCT16>(
+			    b, depthSwizzleTable, depthBufAddress, depthBufWidth, screenPos);
+			break;
 		}
 
 		BeginInvocationInterlock(b);
 
 		auto dstColor = CFloat4Lvalue(b.CreateTemporary());
+		auto dstDepth = CUintLvalue(b.CreateTemporaryUint());
 
 		bool needsDstColor = (caps.hasAlphaBlending != 0);
 		if(needsDstColor)
@@ -821,6 +845,30 @@ Framework::Vulkan::CShaderModule CDraw::CreateFragmentShader(const PIPELINE_CAPS
 			}
 		}
 
+		bool needsDstDepth = (caps.depthTestFunction == CGSHandler::DEPTH_TEST_GEQUAL) ||
+			(caps.depthTestFunction == CGSHandler::DEPTH_TEST_GREATER);
+		if(needsDstDepth)
+		{
+			dstDepth = GetDepth(b, caps.depthbufferFormat, depthAddress, memoryBuffer);
+		}
+
+		auto depthTestResult = CBoolLvalue(b.CreateTemporaryBool());
+		switch(caps.depthTestFunction)
+		{
+		case CGSHandler::DEPTH_TEST_ALWAYS:
+			depthTestResult = NewBool(b, true);
+			break;
+		case CGSHandler::DEPTH_TEST_NEVER:
+			depthTestResult = NewBool(b, false);
+			break;
+		case CGSHandler::DEPTH_TEST_GEQUAL:
+			depthTestResult = srcDepth >= dstDepth;
+			break;
+		case CGSHandler::DEPTH_TEST_GREATER:
+			depthTestResult = srcDepth > dstDepth;
+			break;
+		}
+
 		if(caps.hasAlphaBlending)
 		{
 			//Blend
@@ -838,24 +886,58 @@ Framework::Vulkan::CShaderModule CDraw::CreateFragmentShader(const PIPELINE_CAPS
 			dstColor = textureColor->xyzw();
 		}
 
-		//Write
-		switch(caps.framebufferFormat)
+		BeginIf(b, depthTestResult);
+
 		{
-		default:
-			assert(false);
-		case CGSHandler::PSMCT32:
+			//Write
+			switch(caps.framebufferFormat)
 			{
-				auto dstPixel = CMemoryUtils::Vec4ToPSM32(b, dstColor);
-				CMemoryUtils::Memory_Write32(b, memoryBuffer, fbAddress, dstPixel);
+			default:
+				assert(false);
+			case CGSHandler::PSMCT32:
+				{
+					auto dstPixel = CMemoryUtils::Vec4ToPSM32(b, dstColor);
+					CMemoryUtils::Memory_Write32(b, memoryBuffer, fbAddress, dstPixel);
+				}
+				break;
+			case CGSHandler::PSMCT16S:
+				{
+					auto dstPixel = CMemoryUtils::Vec4ToPSM16(b, dstColor);
+					CMemoryUtils::Memory_Write16(b, memoryBuffer, fbAddress, dstPixel);
+				}
+				break;
 			}
-			break;
-		case CGSHandler::PSMCT16S:
+
+			if(caps.writeDepth)
 			{
-				auto dstPixel = CMemoryUtils::Vec4ToPSM16(b, dstColor);
-				CMemoryUtils::Memory_Write16(b, memoryBuffer, fbAddress, dstPixel);
+				switch(caps.depthbufferFormat)
+				{
+				case CGSHandler::PSMZ32:
+				{
+					CMemoryUtils::Memory_Write32(b, memoryBuffer, depthAddress, srcDepth);
+				}
+				break;
+				case CGSHandler::PSMZ24:
+				{
+					auto dstDepth = srcDepth & NewUint(b, 0xFFFFFF);
+					CMemoryUtils::Memory_Write24(b, memoryBuffer, depthAddress, dstDepth);
+				}
+				break;
+				case CGSHandler::PSMZ16:
+				case CGSHandler::PSMZ16S:
+				{
+					auto dstDepth = srcDepth & NewUint(b, 0xFFFF);
+					CMemoryUtils::Memory_Write16(b, memoryBuffer, depthAddress, dstDepth);
+				}
+				break;
+				default:
+					assert(false);
+					break;
+				}
 			}
-			break;
 		}
+
+		EndIf(b);
 
 		EndInvocationInterlock(b);
 

@@ -50,6 +50,14 @@ namespace GSH_Vulkan
 			case CGSHandler::PSMZ24:
 				return swizzleTablePSMZ32View;
 				break;
+			case CGSHandler::PSMZ16:
+				//TODO: Use real swizzle table
+				return swizzleTablePSMCT16View;
+				break;
+			case CGSHandler::PSMZ16S:
+				//TODO: Use real swizzle table
+				return swizzleTablePSMCT16SView;
+				break;
 			}
 		}
 	};
