@@ -20,6 +20,12 @@ Nuanceur::CUintRvalue CMemoryUtils::Memory_Read32(Nuanceur::CShaderBuilder& b, N
 	return Load(memoryBuffer, wordAddress);
 }
 
+Nuanceur::CUintRvalue CMemoryUtils::Memory_Read24(Nuanceur::CShaderBuilder& b, Nuanceur::CArrayUintValue memoryBuffer, Nuanceur::CIntValue address)
+{
+	auto wordAddress = address / NewInt(b, 4);
+	return Load(memoryBuffer, wordAddress) & NewUint(b, 0xFFFFFF);
+}
+
 Nuanceur::CUintRvalue CMemoryUtils::Memory_Read16(Nuanceur::CShaderBuilder& b, Nuanceur::CArrayUintValue memoryBuffer, Nuanceur::CIntValue address)
 {
 	auto wordAddress = address / NewInt(b, 4);
@@ -50,6 +56,14 @@ void CMemoryUtils::Memory_Write32(Nuanceur::CShaderBuilder& b, Nuanceur::CArrayU
 {
 	auto wordAddress = address / NewInt(b, 4);
 	Store(memoryBuffer, wordAddress, value);
+}
+
+void CMemoryUtils::Memory_Write24(Nuanceur::CShaderBuilder& b, Nuanceur::CArrayUintValue memoryBuffer, Nuanceur::CIntValue address, Nuanceur::CUintValue value)
+{
+	auto wordAddress = address / NewInt(b, 4);
+	auto mask = NewUint(b, 0xFF000000);
+	AtomicAnd(memoryBuffer, wordAddress, mask);
+	AtomicOr(memoryBuffer, wordAddress, value);
 }
 
 void CMemoryUtils::Memory_Write16(Nuanceur::CShaderBuilder& b, Nuanceur::CArrayUintValue memoryBuffer, Nuanceur::CIntValue address, Nuanceur::CUintValue value)
