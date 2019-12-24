@@ -19,6 +19,7 @@ using namespace GSH_Vulkan;
 #define DESCRIPTOR_LOCATION_IMAGE_CLUT 1
 #define DESCRIPTOR_LOCATION_IMAGE_SWIZZLETABLE_TEX 2
 #define DESCRIPTOR_LOCATION_IMAGE_SWIZZLETABLE_FB 3
+#define DESCRIPTOR_LOCATION_IMAGE_SWIZZLETABLE_DEPTH 4
 
 static void MakeLinearZOrtho(float* matrix, float left, float right, float bottom, float top)
 {
@@ -269,6 +270,10 @@ VkDescriptorSet CDraw::PrepareDescriptorSet(VkDescriptorSetLayout descriptorSetL
 		descriptorFbSwizzleTableImageInfo.imageView = m_context->GetSwizzleTable(caps.framebufferFormat);
 		descriptorFbSwizzleTableImageInfo.imageLayout = VK_IMAGE_LAYOUT_GENERAL;
 
+		VkDescriptorImageInfo descriptorDepthSwizzleTableImageInfo = {};
+		descriptorDepthSwizzleTableImageInfo.imageView = m_context->GetSwizzleTable(caps.depthbufferFormat);
+		descriptorDepthSwizzleTableImageInfo.imageLayout = VK_IMAGE_LAYOUT_GENERAL;
+
 		std::vector<VkWriteDescriptorSet> writes;
 
 		{
@@ -288,6 +293,16 @@ VkDescriptorSet CDraw::PrepareDescriptorSet(VkDescriptorSetLayout descriptorSetL
 			writeSet.descriptorCount = 1;
 			writeSet.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_IMAGE;
 			writeSet.pImageInfo = &descriptorFbSwizzleTableImageInfo;
+			writes.push_back(writeSet);
+		}
+
+		{
+			auto writeSet = Framework::Vulkan::WriteDescriptorSet();
+			writeSet.dstSet = descriptorSet;
+			writeSet.dstBinding = DESCRIPTOR_LOCATION_IMAGE_SWIZZLETABLE_DEPTH;
+			writeSet.descriptorCount = 1;
+			writeSet.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_IMAGE;
+			writeSet.pImageInfo = &descriptorDepthSwizzleTableImageInfo;
 			writes.push_back(writeSet);
 		}
 
@@ -397,6 +412,15 @@ PIPELINE CDraw::CreateDrawPipeline(const PIPELINE_CAPS& caps)
 		{
 			VkDescriptorSetLayoutBinding setLayoutBinding = {};
 			setLayoutBinding.binding = DESCRIPTOR_LOCATION_IMAGE_SWIZZLETABLE_FB;
+			setLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_IMAGE;
+			setLayoutBinding.descriptorCount = 1;
+			setLayoutBinding.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
+			setLayoutBindings.push_back(setLayoutBinding);
+		}
+
+		{
+			VkDescriptorSetLayoutBinding setLayoutBinding = {};
+			setLayoutBinding.binding = DESCRIPTOR_LOCATION_IMAGE_SWIZZLETABLE_DEPTH;
 			setLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_IMAGE;
 			setLayoutBinding.descriptorCount = 1;
 			setLayoutBinding.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
@@ -700,6 +724,7 @@ Framework::Vulkan::CShaderModule CDraw::CreateFragmentShader(const PIPELINE_CAPS
 		auto clutImage = CImageUint2DValue(b.CreateImage2DUint(DESCRIPTOR_LOCATION_IMAGE_CLUT));
 		auto texSwizzleTable = CImageUint2DValue(b.CreateImage2DUint(DESCRIPTOR_LOCATION_IMAGE_SWIZZLETABLE_TEX));
 		auto fbSwizzleTable = CImageUint2DValue(b.CreateImage2DUint(DESCRIPTOR_LOCATION_IMAGE_SWIZZLETABLE_FB));
+		auto depthSwizzleTable = CImageUint2DValue(b.CreateImage2DUint(DESCRIPTOR_LOCATION_IMAGE_SWIZZLETABLE_DEPTH));
 
 		//Push constants
 		auto projMatrix = CMatrix44Value(b.CreateUniformMatrix("g_projMatrix", Nuanceur::UNIFORM_UNIT_PUSHCONSTANT));
@@ -708,6 +733,8 @@ Framework::Vulkan::CShaderModule CDraw::CreateFragmentShader(const PIPELINE_CAPS
 
 		auto fbBufAddress = fbDepthParams->x();
 		auto fbBufWidth = fbDepthParams->y();
+		auto depthBufAddress = fbDepthParams->z();
+		auto depthBufWidth = fbDepthParams->w();
 
 		auto texBufAddress = texParams->x();
 		auto texBufWidth = texParams->y();
@@ -740,6 +767,7 @@ Framework::Vulkan::CShaderModule CDraw::CreateFragmentShader(const PIPELINE_CAPS
 		auto screenPos = ToInt(inputPosition->xy());
 
 		auto fbAddress = CIntLvalue(b.CreateTemporaryInt());
+		auto depthAddress = CIntLvalue(b.CreateTemporaryInt());
 
 		switch(caps.framebufferFormat)
 		{
@@ -753,6 +781,17 @@ Framework::Vulkan::CShaderModule CDraw::CreateFragmentShader(const PIPELINE_CAPS
 		case CGSHandler::PSMCT16S:
 			fbAddress = CMemoryUtils::GetPixelAddress<CGsPixelFormats::STORAGEPSMCT16>(
 			    b, fbSwizzleTable, fbBufAddress, fbBufWidth, screenPos);
+			break;
+		}
+
+		switch(caps.depthbufferFormat)
+		{
+		default:
+			assert(false);
+		case CGSHandler::PSMZ32:
+		case CGSHandler::PSMZ24:
+			depthAddress = CMemoryUtils::GetPixelAddress<CGsPixelFormats::STORAGEPSMZ32>(
+			    b, depthSwizzleTable, depthBufAddress, depthBufWidth, screenPos);
 			break;
 		}
 
