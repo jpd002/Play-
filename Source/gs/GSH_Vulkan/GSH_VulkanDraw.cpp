@@ -424,7 +424,7 @@ PIPELINE CDraw::CreateDrawPipeline(const PIPELINE_CAPS& caps)
 		}
 
 		auto setLayoutCreateInfo = Framework::Vulkan::DescriptorSetLayoutCreateInfo();
-		setLayoutCreateInfo.bindingCount = setLayoutBindings.size();
+		setLayoutCreateInfo.bindingCount = static_cast<uint32>(setLayoutBindings.size());
 		setLayoutCreateInfo.pBindings = setLayoutBindings.data();
 
 		result = m_context->device.vkCreateDescriptorSetLayout(m_context->device, &setLayoutCreateInfo, nullptr, &drawPipeline.descriptorSetLayout);
@@ -491,7 +491,7 @@ PIPELINE CDraw::CreateDrawPipeline(const PIPELINE_CAPS& caps)
 	auto vertexInputInfo = Framework::Vulkan::PipelineVertexInputStateCreateInfo();
 	vertexInputInfo.vertexBindingDescriptionCount = 1;
 	vertexInputInfo.pVertexBindingDescriptions = &binding;
-	vertexInputInfo.vertexAttributeDescriptionCount = vertexAttributes.size();
+	vertexInputInfo.vertexAttributeDescriptionCount = static_cast<uint32>(vertexAttributes.size());
 	vertexInputInfo.pVertexAttributeDescriptions = vertexAttributes.data();
 
 	auto rasterStateInfo = Framework::Vulkan::PipelineRasterizationStateCreateInfo();

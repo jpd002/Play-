@@ -432,7 +432,7 @@ PIPELINE CPresent::CreateDrawPipeline(uint32 bufPsm)
 		}
 
 		auto setLayoutCreateInfo = Framework::Vulkan::DescriptorSetLayoutCreateInfo();
-		setLayoutCreateInfo.bindingCount = setLayoutBindings.size();
+		setLayoutCreateInfo.bindingCount = static_cast<uint32>(setLayoutBindings.size());
 		setLayoutCreateInfo.pBindings = setLayoutBindings.data();
 
 		result = m_context->device.vkCreateDescriptorSetLayout(m_context->device, &setLayoutCreateInfo, nullptr, &drawPipeline.descriptorSetLayout);

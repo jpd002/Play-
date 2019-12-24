@@ -359,9 +359,9 @@ void CGSH_Vulkan::CreateDevice(VkPhysicalDevice physicalDevice)
 	auto deviceCreateInfo = Framework::Vulkan::DeviceCreateInfo();
 	deviceCreateInfo.pNext = &physicalDeviceFeatures2;
 	deviceCreateInfo.flags = 0;
-	deviceCreateInfo.enabledLayerCount = enabledLayers.size();
+	deviceCreateInfo.enabledLayerCount = static_cast<uint32>(enabledLayers.size());
 	deviceCreateInfo.ppEnabledLayerNames = enabledLayers.data();
-	deviceCreateInfo.enabledExtensionCount = enabledExtensions.size();
+	deviceCreateInfo.enabledExtensionCount = static_cast<uint32>(enabledExtensions.size());
 	deviceCreateInfo.ppEnabledExtensionNames = enabledExtensions.data();
 	deviceCreateInfo.queueCreateInfoCount = 1;
 	deviceCreateInfo.pQueueCreateInfos = &deviceQueueCreateInfo;
@@ -395,7 +395,7 @@ void CGSH_Vulkan::CreateDescriptorPool()
 	}
 
 	auto descriptorPoolCreateInfo = Framework::Vulkan::DescriptorPoolCreateInfo();
-	descriptorPoolCreateInfo.poolSizeCount = poolSizes.size();
+	descriptorPoolCreateInfo.poolSizeCount = static_cast<uint32>(poolSizes.size());
 	descriptorPoolCreateInfo.pPoolSizes = poolSizes.data();
 	descriptorPoolCreateInfo.maxSets = 0x1000;
 
