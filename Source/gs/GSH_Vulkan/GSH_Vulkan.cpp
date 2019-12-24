@@ -549,6 +549,7 @@ void CGSH_Vulkan::SetRenderingContext(uint64 primReg)
 	auto tex0 = make_convertible<TEX0>(m_nReg[GS_REG_TEX0_1 + context]);
 	auto alpha = make_convertible<ALPHA>(m_nReg[GS_REG_ALPHA_1 + context]);
 	auto scissor = make_convertible<SCISSOR>(m_nReg[GS_REG_SCISSOR_1 + context]);
+	auto test = make_convertible<TEST>(m_nReg[GS_REG_TEST_1 + context]);
 
 	auto pipelineCaps = make_convertible<CDraw::PIPELINE_CAPS>(0);
 	pipelineCaps.hasTexture = prim.nTexture;
@@ -565,6 +566,12 @@ void CGSH_Vulkan::SetRenderingContext(uint64 primReg)
 		pipelineCaps.alphaB = alpha.nB;
 		pipelineCaps.alphaC = alpha.nC;
 		pipelineCaps.alphaD = alpha.nD;
+	}
+
+	pipelineCaps.depthTestFunction = test.nDepthMethod;
+	if(!test.nDepthEnabled)
+	{
+		pipelineCaps.depthTestFunction = CGSHandler::DEPTH_TEST_ALWAYS;
 	}
 
 	m_draw->SetPipelineCaps(pipelineCaps);
