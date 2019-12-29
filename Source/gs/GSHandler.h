@@ -704,7 +704,7 @@ public:
 	typedef Framework::CSignal<void()> FlipCompleteEvent;
 	typedef Framework::CSignal<void(uint32)> NewFrameEvent;
 
-	CGSHandler();
+	CGSHandler(bool = true);
 	virtual ~CGSHandler();
 
 	static void RegisterPreferences();
@@ -952,6 +952,8 @@ protected:
 	void ReadCLUT8(const TEX0&);
 
 	static bool IsCompatibleFramebufferPSM(unsigned int, unsigned int);
+	void SendGSCall(const CMailBox::FunctionType&, bool = false, bool = false);
+	void ProcessSingleFrame();
 
 	bool m_loggingEnabled;
 
@@ -983,9 +985,14 @@ protected:
 	std::thread m_thread;
 	std::recursive_mutex m_registerMutex;
 	std::atomic<int> m_transferCount;
-	CMailBox m_mailBox;
 	bool m_threadDone;
 	CFrameDump* m_frameDump;
 	bool m_drawEnabled = true;
 	CINTC* m_intc = nullptr;
+	bool m_gsThreaded = true;
+	bool m_flipped = false;
+
+private:
+	CMailBox m_mailBox;
+
 };

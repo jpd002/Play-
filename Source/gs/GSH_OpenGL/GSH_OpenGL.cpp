@@ -56,8 +56,9 @@ static uint32 MakeColor(uint8 r, uint8 g, uint8 b, uint8 a)
 	return (a << 24) | (b << 16) | (g << 8) | (r);
 }
 
-CGSH_OpenGL::CGSH_OpenGL()
-    : m_pCvtBuffer(nullptr)
+CGSH_OpenGL::CGSH_OpenGL(bool gsThreaded)
+    : CGSHandler(gsThreaded)
+    , m_pCvtBuffer(nullptr)
 {
 	RegisterPreferences();
 	LoadPreferences();
@@ -292,7 +293,7 @@ void CGSH_OpenGL::FlipImpl()
 void CGSH_OpenGL::LoadState(Framework::CZipArchiveReader& archive)
 {
 	CGSHandler::LoadState(archive);
-	m_mailBox.SendCall(
+	SendGSCall(
 	    [this]() {
 		    m_textureCache.InvalidateRange(0, RAMSIZE);
 	    });

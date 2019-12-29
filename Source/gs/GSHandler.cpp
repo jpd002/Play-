@@ -62,13 +62,14 @@ struct MASSIVEWRITE_INFO
 	CGSHandler::RegisterWriteList writes;
 };
 
-CGSHandler::CGSHandler()
+CGSHandler::CGSHandler(bool gsThreaded)
     : m_threadDone(false)
     , m_drawCallCount(0)
     , m_pCLUT(nullptr)
     , m_pRAM(nullptr)
     , m_frameDump(nullptr)
     , m_loggingEnabled(true)
+    , m_gsThreaded(gsThreaded)
 {
 	RegisterPreferences();
 
@@ -100,13 +101,19 @@ CGSHandler::CGSHandler()
 
 	ResetBase();
 
-	m_thread = std::thread([&]() { ThreadProc(); });
+	if(m_gsThreaded)
+	{
+		m_thread = std::thread([&]() { ThreadProc(); });
+	}
 }
 
 CGSHandler::~CGSHandler()
 {
-	m_mailBox.SendCall([this]() { m_threadDone = true; });
-	m_thread.join();
+	if(m_gsThreaded)
+	{
+		SendGSCall([this]() { m_threadDone = true; });
+		m_thread.join();
+	}
 	delete[] m_pRAM;
 	delete[] m_pCLUT;
 }
@@ -118,7 +125,7 @@ void CGSHandler::RegisterPreferences()
 
 void CGSHandler::NotifyPreferencesChanged()
 {
-	m_mailBox.SendCall([this]() { NotifyPreferencesChangedImpl(); });
+	SendGSCall([this]() { NotifyPreferencesChangedImpl(); });
 }
 
 void CGSHandler::SetIntc(CINTC* intc)
@@ -129,7 +136,7 @@ void CGSHandler::SetIntc(CINTC* intc)
 void CGSHandler::Reset()
 {
 	ResetBase();
-	m_mailBox.SendCall(std::bind(&CGSHandler::ResetImpl, this), true);
+	SendGSCall(std::bind(&CGSHandler::ResetImpl, this), true);
 }
 
 void CGSHandler::ResetBase()
@@ -374,27 +381,28 @@ void CGSHandler::WritePrivRegister(uint32 nAddress, uint32 nData)
 
 void CGSHandler::Initialize()
 {
-	m_mailBox.SendCall(std::bind(&CGSHandler::InitializeImpl, this), true);
+	SendGSCall(std::bind(&CGSHandler::InitializeImpl, this), true);
 }
 
 void CGSHandler::Release()
 {
-	m_mailBox.SendCall(std::bind(&CGSHandler::ReleaseImpl, this), true);
+	SendGSCall(std::bind(&CGSHandler::ReleaseImpl, this), true);
 }
 
 void CGSHandler::Flip(bool showOnly)
 {
 	if(!showOnly)
 	{
-		m_mailBox.FlushCalls();
-		m_mailBox.SendCall(std::bind(&CGSHandler::MarkNewFrame, this));
+		SendGSCall([]() {}, true);
+		SendGSCall(std::bind(&CGSHandler::MarkNewFrame, this));
 	}
-	m_mailBox.SendCall(std::bind(&CGSHandler::FlipImpl, this), true);
+	SendGSCall(std::bind(&CGSHandler::FlipImpl, this), true, true);
 }
 
 void CGSHandler::FlipImpl()
 {
 	OnFlipComplete();
+	m_flipped = true;
 }
 
 void CGSHandler::MarkNewFrame()
@@ -428,7 +436,7 @@ void CGSHandler::SetSMODE2(uint64 value)
 
 void CGSHandler::WriteRegister(uint8 registerId, uint64 value)
 {
-	m_mailBox.SendCall(std::bind(&CGSHandler::WriteRegisterImpl, this, registerId, value));
+	SendGSCall(std::bind(&CGSHandler::WriteRegisterImpl, this, registerId, value));
 }
 
 void CGSHandler::FeedImageData(const void* data, uint32 length)
@@ -440,7 +448,7 @@ void CGSHandler::FeedImageData(const void* data, uint32 length)
 
 	std::vector<uint8> imageData(length + 0x10);
 	memcpy(imageData.data(), data, length);
-	m_mailBox.SendCall(
+	SendGSCall(
 	    [this, imageData = std::move(imageData), length]() {
 		    FeedImageDataImpl(imageData.data(), length);
 	    });
@@ -448,7 +456,7 @@ void CGSHandler::FeedImageData(const void* data, uint32 length)
 
 void CGSHandler::ReadImageData(void* data, uint32 length)
 {
-	m_mailBox.SendCall([this, data, length]() { ReadImageDataImpl(data, length); }, true);
+	SendGSCall([this, data, length]() { ReadImageDataImpl(data, length); }, true);
 }
 
 void CGSHandler::WriteRegisterMassively(RegisterWriteList registerWrites, const CGsPacketMetadata* metadata)
@@ -500,7 +508,7 @@ void CGSHandler::WriteRegisterMassively(RegisterWriteList registerWrites, const 
 	}
 #endif
 
-	m_mailBox.SendCall(
+	SendGSCall(
 	    [this, massiveWrite = std::move(massiveWrite)]() {
 		    WriteRegisterMassivelyImpl(massiveWrite);
 	    });
@@ -1726,6 +1734,29 @@ void CGSHandler::ThreadProc()
 			m_mailBox.ReceiveCall();
 		}
 	}
+}
+
+void CGSHandler::SendGSCall(const CMailBox::FunctionType& function, bool waitForCompletion, bool forceWaitForCompletion)
+{
+	if(!m_gsThreaded)
+	{
+		waitForCompletion = false;
+	}
+	m_mailBox.SendCall(function, waitForCompletion);
+}
+
+void CGSHandler::ProcessSingleFrame()
+{
+	assert(!m_gsThreaded);
+	while(!m_flipped)
+	{
+		m_mailBox.WaitForCall();
+		while(m_mailBox.IsPending())
+		{
+			m_mailBox.ReceiveCall();
+		}
+	}
+	m_flipped = false;
 }
 
 Framework::CBitmap CGSHandler::GetScreenshot()
