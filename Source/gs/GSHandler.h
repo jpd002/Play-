@@ -763,6 +763,7 @@ public:
 	bool GetCrtIsFrameMode() const;
 
 	virtual Framework::CBitmap GetScreenshot();
+	void ProcessSingleFrame();
 
 	FlipCompleteEvent OnFlipComplete;
 	NewFrameEvent OnNewFrame;
@@ -953,7 +954,6 @@ protected:
 
 	static bool IsCompatibleFramebufferPSM(unsigned int, unsigned int);
 	void SendGSCall(const CMailBox::FunctionType&, bool = false, bool = false);
-	void ProcessSingleFrame();
 
 	bool m_loggingEnabled;
 

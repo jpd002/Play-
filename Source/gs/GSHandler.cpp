@@ -1742,6 +1742,7 @@ void CGSHandler::SendGSCall(const CMailBox::FunctionType& function, bool waitFor
 	{
 		waitForCompletion = false;
 	}
+	waitForCompletion |= forceWaitForCompletion;
 	m_mailBox.SendCall(function, waitForCompletion);
 }
 
@@ -1751,7 +1752,7 @@ void CGSHandler::ProcessSingleFrame()
 	while(!m_flipped)
 	{
 		m_mailBox.WaitForCall();
-		while(m_mailBox.IsPending())
+		while(m_mailBox.IsPending() && !m_flipped)
 		{
 			m_mailBox.ReceiveCall();
 		}
