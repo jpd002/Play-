@@ -46,14 +46,14 @@ CGSH_Direct3D9::CGSH_Direct3D9(Framework::Win32::CWindow* outputWindow)
 Framework::CBitmap CGSH_Direct3D9::GetFramebuffer(uint64 frameReg)
 {
 	Framework::CBitmap result;
-	m_mailBox.SendCall([&]() { result = GetFramebufferImpl(frameReg); }, true);
+	SendGSCall([&]() { result = GetFramebufferImpl(frameReg); }, true);
 	return result;
 }
 
 Framework::CBitmap CGSH_Direct3D9::GetTexture(uint64 tex0Reg, uint32 maxMip, uint64 miptbp1Reg, uint64 miptbp2Reg, uint32 mipLevel)
 {
 	Framework::CBitmap result;
-	m_mailBox.SendCall([&]() { result = GetTextureImpl(tex0Reg, maxMip, miptbp1Reg, miptbp2Reg, mipLevel); }, true);
+	SendGSCall([&]() { result = GetTextureImpl(tex0Reg, maxMip, miptbp1Reg, miptbp2Reg, mipLevel); }, true);
 	return result;
 }
 
