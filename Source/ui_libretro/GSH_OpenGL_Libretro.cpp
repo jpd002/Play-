@@ -69,7 +69,8 @@ void CGSH_OpenGL_Libretro::FlushMailBox()
 	bool isFlushed = false;
 	SendGSCall([&]() {
 		isFlushed = true;
-	}, true);
+	},
+	           true);
 	while(!isFlushed)
 	{
 		// Wait for flush to complete

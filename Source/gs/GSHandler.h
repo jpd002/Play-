@@ -994,5 +994,4 @@ protected:
 
 private:
 	CMailBox m_mailBox;
-
 };
