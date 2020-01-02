@@ -27,6 +27,13 @@ if(NOT TARGET gsh_d3d9)
 	)
 endif()
 
+if(NOT TARGET gsh_opengl_win32)
+	add_subdirectory(
+		${CMAKE_CURRENT_SOURCE_DIR}/../../../gs/GSH_OpenGLWin32
+		${CMAKE_CURRENT_BINARY_DIR}/gsh_opengl_win32
+	)
+endif()
+
 set(SRC_ROOT ${CMAKE_CURRENT_SOURCE_DIR})
 set(SRC_FILES
 	${SRC_ROOT}/CallStackWnd.cpp
@@ -72,6 +79,8 @@ set(SRC_FILES
 	${SRC_ROOT}/FrameDebugger/GsContextStateView.h
 	${SRC_ROOT}/FrameDebugger/GsInputStateView.cpp
 	${SRC_ROOT}/FrameDebugger/GsInputStateView.h
+	${SRC_ROOT}/FrameDebugger/GSH_OpenGL_Framedebugger.cpp
+	${SRC_ROOT}/FrameDebugger/GSH_OpenGL_Framedebugger.h
 	${SRC_ROOT}/FrameDebugger/GsPacketListView.cpp
 	${SRC_ROOT}/FrameDebugger/GsPacketListView.h
 	${SRC_ROOT}/FrameDebugger/GsStateUtils.cpp
@@ -120,6 +129,6 @@ set(SRC_FILES
 )
 
 add_library(PlayDebugSupport STATIC ${SRC_FILES})
-target_link_libraries(PlayDebugSupport uxtheme Framework_Win32 PlayCore gsh_d3d9)
+target_link_libraries(PlayDebugSupport uxtheme Framework_Win32 PlayCore gsh_d3d9 gsh_opengl_win32)
 target_compile_definitions(PlayDebugSupport PRIVATE NOMINMAX)
 target_include_directories(PlayDebugSupport PRIVATE ../../${CMAKE_CURRENT_SOURCE_DIR})

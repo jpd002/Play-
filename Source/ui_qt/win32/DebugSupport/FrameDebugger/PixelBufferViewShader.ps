@@ -14,3 +14,9 @@ float4 main(VertexOutput input) : COLOR
 {
 	return tex2D(g_bufferTextureSampler, input.texCoord);
 }
+
+shaderBuilder << "in vec2 a_texCoord;" << std::end;
+shaderBuilder << "void main()" << std::end;
+shaderBuilder << "{" << std::end;
+shaderBuilder << "	gl_FragColor = texture(0, a_texCoord.st);" << std::end;
+shaderBuilder << "}" << std::end;

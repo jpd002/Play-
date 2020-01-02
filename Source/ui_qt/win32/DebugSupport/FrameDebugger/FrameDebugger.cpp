@@ -28,10 +28,11 @@ CFrameDebugger::CFrameDebugger()
 	m_handlerOutputWindow = std::make_unique<COutputWnd>(m_hWnd);
 	m_handlerOutputWindow->Show(SW_SHOW);
 
-	m_gs = std::make_unique<CGSH_Direct3D9>(m_handlerOutputWindow.get());
+	m_gs = std::make_unique<CGSH_OpenGLWin32>(m_handlerOutputWindow.get());
 	m_gs->SetLoggingEnabled(false);
 	m_gs->Initialize();
 	m_gs->Reset();
+	CHECKGLERROR();
 
 	memset(&m_currentMetadata, 0, sizeof(m_currentMetadata));
 

@@ -1,7 +1,7 @@
 #include "GsContextView.h"
 #include "GsStateUtils.h"
 #include "gs/GsPixelFormats.h"
-#include "gs/GSH_Direct3D9/GSH_Direct3D9.h"
+#include "gs/GSH_OpenGLWin32/GSH_OpenGLWin32.h"
 #include "win32/VerticalSplitter.h"
 
 #define WNDSTYLE (WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN)
@@ -46,7 +46,7 @@ CGsContextView::CGsContextView(HWND parent, const RECT& rect, CGSHandler* gs, un
 	    m_bufferSelectionTab->InsertTab(_T("Texture (Mip 6)")), TAB_ID_TEXTURE_MIP6);
 
 	m_bufferView = std::make_unique<CPixelBufferView>(*m_bufferSelectionTab, Framework::Win32::CRect(0, 0, 1, 1));
-
+	m_bufferView->Show(SW_SHOW);
 	m_stateView = std::make_unique<CGsContextStateView>(*m_mainSplitter, GetClientRect(), m_contextId);
 	m_stateView->Show(SW_SHOW);
 
@@ -103,7 +103,7 @@ void CGsContextView::UpdateBufferView()
 
 		if(mipLevel <= tex1.nMaxMip)
 		{
-			texture = static_cast<CGSH_Direct3D9*>(m_gs)->GetTexture(tex0Reg, tex1.nMaxMip, miptbp1Reg, miptbp2Reg, mipLevel);
+			texture = static_cast<CGSH_OpenGLWin32*>(m_gs)->GetTexture(tex0Reg, tex1.nMaxMip, miptbp1Reg, miptbp2Reg, mipLevel).FlipVertical();
 		}
 
 		if(!texture.IsEmpty() && CGsPixelFormats::IsPsmIDTEX(tex0.nPsm))
@@ -136,7 +136,7 @@ void CGsContextView::UpdateFramebufferView()
 	uint64 frameReg = m_gs->GetRegisters()[GS_REG_FRAME_1 + m_contextId];
 	auto frame = make_convertible<CGSHandler::FRAME>(frameReg);
 
-	auto framebuffer = static_cast<CGSH_Direct3D9*>(m_gs)->GetFramebuffer(frameReg);
+	auto framebuffer = static_cast<CGSH_OpenGLWin32*>(m_gs)->GetFramebuffer(frame).FlipVertical();
 	if(framebuffer.IsEmpty())
 	{
 		m_bufferView->SetPixelBuffers(CPixelBufferView::PixelBufferArray());
@@ -252,7 +252,7 @@ Framework::CBitmap CGsContextView::LookupBitmap(const Framework::CBitmap& srcBit
 		{
 			uint8 index = srcPixels[x];
 			uint32 color = clut[index];
-			uint32 newColor = CGSH_Direct3D9::Color_Ps2ToDx9(color);
+			uint32 newColor = color;
 			dstPixels[x] = newColor;
 		}
 		srcPixels += srcBitmap.GetPitch();
