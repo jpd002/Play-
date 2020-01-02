@@ -46,6 +46,26 @@ static std::vector<struct retro_variable> m_vars =
         {NULL, NULL},
 };
 
+enum BootType
+{
+	CD,
+	ELF
+};
+
+struct LastOpenCommand
+{
+	LastOpenCommand() = default;
+	LastOpenCommand(BootType type, fs::path path)
+	    : type(type)
+	    , path(path)
+	{
+	}
+	BootType type = BootType::CD;
+	fs::path path;
+};
+
+LastOpenCommand m_bootCommand;
+
 unsigned retro_api_version()
 {
 	return RETRO_API_VERSION;
@@ -407,7 +427,14 @@ void retro_run()
 		{
 			// m_virtualMachine->Pause();
 			m_virtualMachine->Reset();
-			m_virtualMachine->m_ee->m_os->BootFromCDROM();
+			if(m_bootCommand.type == BootType::CD)
+			{
+				m_virtualMachine->m_ee->m_os->BootFromCDROM();
+			}
+			else
+			{
+				m_virtualMachine->m_ee->m_os->BootFromFile(m_bootCommand.path);
+			}
 			m_virtualMachine->Resume();
 			first_run = true;
 			CLog::GetInstance().Print(LOG_NAME, "%s\n", "Start Game");
@@ -445,13 +472,38 @@ void retro_reset(void)
 	first_run = false;
 }
 
+bool IsBootableExecutablePath(const fs::path& filePath)
+{
+	auto extension = filePath.extension().string();
+	std::transform(extension.begin(), extension.end(), extension.begin(), ::tolower);
+	return (extension == ".elf");
+}
+
+bool IsBootableDiscImagePath(const fs::path& filePath)
+{
+	auto extension = filePath.extension().string();
+	std::transform(extension.begin(), extension.end(), extension.begin(), ::tolower);
+	return (extension == ".iso") ||
+	       (extension == ".isz") ||
+	       (extension == ".cso") ||
+	       (extension == ".bin");
+}
+
 bool retro_load_game(const retro_game_info* info)
 {
 	CLog::GetInstance().Print(LOG_NAME, "%s\n", __FUNCTION__);
 
 	fs::path filePath = info->path;
-	CAppConfig::GetInstance().SetPreferencePath(PREF_PS2_CDROM0_PATH, filePath);
-	CAppConfig::GetInstance().Save();
+	if(IsBootableExecutablePath(filePath))
+	{
+		m_bootCommand = LastOpenCommand(BootType::ELF, filePath);
+	}
+	else if(IsBootableDiscImagePath(filePath))
+	{
+		m_bootCommand = LastOpenCommand(BootType::CD, filePath);
+		CAppConfig::GetInstance().SetPreferencePath(PREF_PS2_CDROM0_PATH, filePath);
+		CAppConfig::GetInstance().Save();
+	}
 	first_run = false;
 
 	auto rgb = RETRO_PIXEL_FORMAT_XRGB8888;
