@@ -6,7 +6,7 @@
 #include "win32/Static.h"
 #include "win32/Splitter.h"
 #include "../OutputWnd.h"
-#include "gs/GSH_Direct3D9/GSH_Direct3D9.h"
+#include "gs/GSH_OpenGLWin32/GSH_OpenGLWin32.h"
 #include "FrameDump.h"
 #include "Vu1Vm.h"
 #include "GsInputStateView.h"
@@ -46,7 +46,7 @@ private:
 	void SetFbDisplayMode(CGsContextView::FB_DISPLAY_MODE);
 	void StepVu1();
 
-	std::unique_ptr<CGSH_Direct3D9> m_gs;
+	std::unique_ptr<CGSH_OpenGLWin32> m_gs;
 	CGsPacketMetadata m_currentMetadata;
 	DRAWINGKICK_INFO m_currentDrawingKick;
 	CGsContextView::FB_DISPLAY_MODE m_fbDisplayMode = CGsContextView::FB_DISPLAY_MODE_RAW;

@@ -108,6 +108,7 @@ MainWindow::MainWindow(QWidget* parent)
 #ifdef DEBUGGER_INCLUDED
 	m_debugger = std::make_unique<CDebugger>(*m_virtualMachine);
 	m_frameDebugger = std::make_unique<CFrameDebugger>();
+	m_frameDebugger->Show(SW_SHOWMAXIMIZED);
 
 	auto debugMenu = new QMenu(this);
 	debugMenuUi = new Ui::DebugMenu();

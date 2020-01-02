@@ -1,12 +1,14 @@
 #pragma once
 
-#include "../DirectXControl.h"
+#include "win32/Window.h"
 #include "bitmap/Bitmap.h"
 #include "PixelBufferViewOverlay.h"
 #include <memory>
 #include <vector>
+#include "GSH_OpenGL_Framedebugger.h"
+#include "../OutputWnd.h"
 
-class CPixelBufferView : public CDirectXControl
+class CPixelBufferView : public Framework::Win32::CWindow
 {
 public:
 	typedef std::pair<std::string, Framework::CBitmap> PixelBuffer;
@@ -18,9 +20,12 @@ public:
 	void SetPixelBuffers(PixelBufferArray);
 
 	void FitBitmap();
-
+	bool m_init = false;
 protected:
-	void Refresh() override;
+	void Refresh();
+	long OnPaint() override;
+	long OnEraseBkgnd() override;
+
 
 	long OnCommand(unsigned short, unsigned short, HWND) override;
 	long OnSize(unsigned int, unsigned int, unsigned int) override;
@@ -32,15 +37,8 @@ protected:
 
 	long OnMouseWheel(int, int, short) override;
 
-	void OnDeviceReset() override;
-	void OnDeviceResetting() override;
 
 private:
-	typedef Framework::Win32::CComPtr<IDirect3DTexture9> TexturePtr;
-	typedef Framework::Win32::CComPtr<IDirect3DVertexBuffer9> VertexBufferPtr;
-	typedef Framework::Win32::CComPtr<IDirect3DVertexDeclaration9> VertexDeclarationPtr;
-	typedef Framework::Win32::CComPtr<IDirect3DVertexShader9> VertexShaderPtr;
-	typedef Framework::Win32::CComPtr<IDirect3DPixelShader9> PixelShaderPtr;
 
 	struct VERTEX
 	{
@@ -54,22 +52,11 @@ private:
 	void OnSaveBitmap();
 	static Framework::CBitmap ConvertBGRToRGB(Framework::CBitmap);
 
-	void CreateResources();
 	void DrawCheckerboard();
 	void DrawPixelBuffer();
 
-	VertexShaderPtr CreateVertexShaderFromResource(const TCHAR*);
-	PixelShaderPtr CreatePixelShaderFromResource(const TCHAR*);
-	TexturePtr CreateTextureFromBitmap(const Framework::CBitmap&);
 
-	TexturePtr m_pixelBufferTexture;
 	PixelBufferArray m_pixelBuffers;
-	VertexDeclarationPtr m_quadVertexDecl;
-	VertexBufferPtr m_quadVertexBuffer;
-	VertexShaderPtr m_checkerboardVertexShader;
-	PixelShaderPtr m_checkerboardPixelShader;
-	VertexShaderPtr m_pixelBufferViewVertexShader;
-	PixelShaderPtr m_pixelBufferViewPixelShader;
 
 	std::unique_ptr<CPixelBufferViewOverlay> m_overlay;
 
@@ -83,4 +70,8 @@ private:
 
 	float m_panXDragBase;
 	float m_panYDragBase;
+
+	std::unique_ptr<CGSH_OpenGLFramedebugger> m_gs;
+	std::unique_ptr<COutputWnd> m_handlerOutputWindow;
+
 };
