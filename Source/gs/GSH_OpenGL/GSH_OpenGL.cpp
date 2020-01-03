@@ -2221,7 +2221,7 @@ Framework::CBitmap CGSH_OpenGL::GetFramebuffer(uint64 frameReg)
 
 Framework::CBitmap CGSH_OpenGL::GetFramebufferImpl(uint64 frameReg)
 {
-
+#ifndef GLES_COMPATIBILITY
 	auto frame = make_convertible<FRAME>(frameReg);
 	auto framebuffer = FindFramebuffer(frame);
 	if(!framebuffer)
@@ -2236,6 +2236,9 @@ Framework::CBitmap CGSH_OpenGL::GetFramebufferImpl(uint64 frameReg)
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		return imgbuffer;
 	}
+#else
+	throw std::runtime_error("Feature is not implemented in current backend.");
+#endif
 }
 
 Framework::CBitmap CGSH_OpenGL::GetTexture(uint64 tex0Reg, uint32 maxMip, uint64 miptbp1Reg, uint64 miptbp2Reg, uint32 mipLevel)
@@ -2247,6 +2250,7 @@ Framework::CBitmap CGSH_OpenGL::GetTexture(uint64 tex0Reg, uint32 maxMip, uint64
 
 Framework::CBitmap CGSH_OpenGL::GetTextureImpl(uint64 tex0Reg, uint32 maxMip, uint64 miptbp1Reg, uint64 miptbp2Reg, uint32 mipLevel)
 {
+#ifndef GLES_COMPATIBILITY
 	// auto miptbp1 = make_convertible<MIPTBP1>(miptbp1Reg);
 	// auto miptbp2 = make_convertible<MIPTBP2>(miptbp2Reg);
 	// auto texInfo = LoadTexture(tex0, maxMip, miptbp1, miptbp2);
@@ -2287,6 +2291,10 @@ Framework::CBitmap CGSH_OpenGL::GetTextureImpl(uint64 tex0Reg, uint32 maxMip, ui
 	glGetTexImage(GL_TEXTURE_2D, 0, format, GL_UNSIGNED_BYTE, imgbuffer.GetPixels());
 	glBindTexture(GL_TEXTURE_2D, 0);
 	return imgbuffer;
+#else
+	throw std::runtime_error("Feature is not implemented in current backend.");
+#endif
+
 }
 
 const CGSH_OpenGL::VERTEX* CGSH_OpenGL::GetInputVertices() const
