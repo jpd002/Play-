@@ -10,8 +10,8 @@ using namespace TheGamesDb;
 
 #define API_KEY "fe49d95136b2d03e2ae86dead3650af597928885fe4aa573d9dba805d66027a7"
 
-static const char* g_getGameUrl = "https://api.thegamesdb.net/Games/GamesByGameID?apikey=" API_KEY "&fields=overview,uids&include=boxart&id=%d";
-static const char* g_getGamesByUIDUrl = "https://api.thegamesdb.net/Games/ByGameUniqueID?apikey=" API_KEY "&filter%5Bplatform%5D=11&fields=overview,uids&include=boxart";
+static const char* g_getGameUrl = "https://api.thegamesdb.net/v1/Games/GamesByGameID?apikey=" API_KEY "&fields=overview,uids&include=boxart&id=%d";
+static const char* g_getGamesByUIDUrl = "https://api.thegamesdb.net/v1/Games/ByGameUniqueID?apikey=" API_KEY "&filter%5Bplatform%5D=11&fields=overview,uids&include=boxart";
 static const char* g_getGamesListUrl = "https://api.thegamesdb.net/v1.1/Games/ByGameName?apikey=" API_KEY "&fields=overview,uids&filter%5Bplatform%5D=%s&include=boxart&name=%s";
 
 GamesList CClient::GetGames(std::vector<std::string> serials)
