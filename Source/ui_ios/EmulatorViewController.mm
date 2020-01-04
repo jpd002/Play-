@@ -67,7 +67,12 @@ CPS2VM::ProfileFrameDoneSignal::Connection g_profileFrameDoneConnection;
 		g_virtualMachine->CreateSoundHandler(&CSH_OpenAL::HandlerFactory);
 	}
 	
-	const CGRect screenBounds = [[UIScreen mainScreen] bounds];
+	auto screenBounds = [[UIScreen mainScreen] bounds];
+	if(@available(iOS 11, *))
+	{
+		UIEdgeInsets insets = self.view.safeAreaInsets;
+		screenBounds = UIEdgeInsetsInsetRect(screenBounds, insets);
+	}
 
 	if(CAppConfig::GetInstance().GetPreferenceBoolean(PREFERENCE_UI_SHOWVIRTUALPAD))
 	{
@@ -79,7 +84,7 @@ CPS2VM::ProfileFrameDoneSignal::Connection g_profileFrameDoneConnection;
 
 	if(CAppConfig::GetInstance().GetPreferenceBoolean(PREFERENCE_UI_SHOWFPS))
 	{
-		[self setupFpsCounter];
+		[self setupFpsCounterWithBounds: screenBounds];
 	}
 	
 	g_virtualMachine->Pause();
@@ -187,14 +192,12 @@ CPS2VM::ProfileFrameDoneSignal::Connection g_profileFrameDoneConnection;
 	}
 }
 
--(void)setupFpsCounter
+-(void)setupFpsCounterWithBounds: (CGRect)screenBounds
 {
-	auto screenBounds = [[UIScreen mainScreen] bounds];
-
 	self.fpsCounterLabel = [[UILabel alloc] initWithFrame: screenBounds];
 	self.fpsCounterLabel.textColor = [UIColor whiteColor];
 	[self.view addSubview: self.fpsCounterLabel];
-
+		
 #ifdef PROFILE
 	self.profilerStatsLabel = [[UILabel alloc] initWithFrame: screenBounds];
 	self.profilerStatsLabel.textColor = [UIColor whiteColor];

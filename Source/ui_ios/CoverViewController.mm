@@ -36,6 +36,10 @@ static NSString* const reuseIdentifier = @"coverCell";
 	[self.view.layer insertSublayer: bgLayer atIndex: 0];
 
 	self.collectionView.allowsMultipleSelection = NO;
+	if(@available(iOS 11.0, *))
+	{
+		self.collectionView.contentInsetAdjustmentBehavior = UIScrollViewContentInsetAdjustmentAlways;
+	}
 }
 
 -(void)viewDidUnload
