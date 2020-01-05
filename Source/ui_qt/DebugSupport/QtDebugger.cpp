@@ -5,9 +5,6 @@
 #include <QInputDialog>
 #include <QMessageBox>
 
-#include "iop/IopBios.h"
-#include <stdio.h>
-#include <fcntl.h>
 #include <iostream>
 #include "AppConfig.h"
 #include "MIPSAssembler.h"
