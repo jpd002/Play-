@@ -246,7 +246,7 @@ void CDisAsmWnd::GotoAddress()
 {
 	if(m_virtualMachine.GetStatus() == CVirtualMachine::RUNNING)
 	{
-		// MessageBeep(-1);
+		QApplication::beep();
 		return;
 	}
 
@@ -291,7 +291,7 @@ void CDisAsmWnd::GotoPC()
 {
 	if(m_virtualMachine.GetStatus() == CVirtualMachine::RUNNING)
 	{
-		// MessageBeep(-1);
+		QApplication::beep();
 		return;
 	}
 
@@ -303,7 +303,7 @@ void CDisAsmWnd::GotoEA()
 {
 	if(m_virtualMachine.GetStatus() == CVirtualMachine::RUNNING)
 	{
-		// MessageBeep(-1);
+		QApplication::beep();
 		return;
 	}
 	uint32 nOpcode = GetInstruction(m_selected);
@@ -325,7 +325,7 @@ void CDisAsmWnd::EditComment()
 {
 	if(m_virtualMachine.GetStatus() == CVirtualMachine::RUNNING)
 	{
-		// MessageBeep(-1);
+		QApplication::beep();
 		return;
 	}
 
@@ -356,7 +356,7 @@ void CDisAsmWnd::FindCallers()
 {
 	if(m_virtualMachine.GetStatus() == CVirtualMachine::RUNNING)
 	{
-		// MessageBeep(-1);
+		QApplication::beep();
 		return;
 	}
 
@@ -454,7 +454,7 @@ void CDisAsmWnd::ToggleBreakpoint(uint32 address)
 {
 	if(m_virtualMachine.GetStatus() == CVirtualMachine::RUNNING)
 	{
-		// MessageBeep(-1);
+		QApplication::beep();
 		return;
 	}
 	m_ctx->ToggleBreakpoint(address);

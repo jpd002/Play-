@@ -1,4 +1,5 @@
 #include <QAction>
+#include <QApplication>
 #include <QInputDialog>
 #include <QMenu>
 #include <QMessageBox>
@@ -230,7 +231,7 @@ void CMemoryViewMIPSWnd::GotoAddress()
 {
 	if(m_virtualMachine.GetStatus() == CVirtualMachine::RUNNING)
 	{
-		// MessageBeep(-1);
+		QApplication::beep();
 		return;
 	}
 
@@ -262,7 +263,7 @@ void CMemoryViewMIPSWnd::FollowPointer()
 {
 	if(m_virtualMachine.GetStatus() == CVirtualMachine::RUNNING)
 	{
-		// MessageBeep(-1);
+		QApplication::beep();
 		return;
 	}
 

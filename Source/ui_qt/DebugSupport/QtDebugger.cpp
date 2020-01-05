@@ -1,6 +1,7 @@
 #include "QtDebugger.h"
 #include "ui_QtDebugger.h"
 
+#include <QApplication>
 #include <QInputDialog>
 #include <QMessageBox>
 
@@ -199,7 +200,7 @@ void QtDebugger::StepCPU()
 {
 	if(m_virtualMachine.GetStatus() == CVirtualMachine::RUNNING)
 	{
-		//MessageBeep(-1);
+		QApplication::beep();
 		return;
 	}
 
