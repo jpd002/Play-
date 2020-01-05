@@ -10,7 +10,7 @@
 #include <QWidget>
 
 #include "ELF.h"
-#include "QtMemoryViewModel.h"
+#include "MemoryViewTable.h"
 
 class CELFSectionView : public QWidget
 {
@@ -31,21 +31,11 @@ protected:
 private:
 	void FillInformation(int);
 	void FillDynamicSectionListView(int);
-	void ShowContextMenu(const QPoint&);
-	void ResizeColumns();
-	void AutoColumn();
-	void SetActiveUnit(int);
-	void SetSelectionStart(uint32);
 
 	CELF* m_pELF;
 	QVBoxLayout* m_layout;
 	std::vector<QLineEdit*> m_editFields;
-	QTableView* m_memView;
+	CMemoryViewTable* m_memView;
 	QTableWidget* m_dynSecTableWidget;
-	CQtMemoryViewModel* m_model;
 	uint8* m_data;
-
-	int m_cwidth = 0;
-	int m_bytesPerLine = 0;
-	int m_maxUnits = 0;
 };

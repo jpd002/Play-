@@ -2,9 +2,9 @@
 
 #include <QMdiArea>
 #include <QMdiSubWindow>
-#include <QTableView>
 #include <QLineEdit>
 
+#include "MemoryViewTable.h"
 #include "MIPS.h"
 #include "VirtualMachineStateView.h"
 #include "QtMemoryViewModel.h"
@@ -27,26 +27,10 @@ protected:
 	void resizeEvent(QResizeEvent*) Q_DECL_OVERRIDE;
 
 private:
-	void UpdateStatusBar();
-	void ShowContextMenu(const QPoint&);
-	void ResizeColumns();
-	void AutoColumn();
-	void GotoAddress();
-	void FollowPointer();
-	void SetActiveUnit(int);
-	void SetSelectionStart(uint32);
-	void SelectionChanged();
+	void UpdateStatusBar(uint32);
 
-	CMIPS* m_context;
-	CVirtualMachine& m_virtualMachine;
 	QLineEdit* m_addressEdit;
-	QTableView* m_tableView;
-	CQtMemoryViewModel* m_model;
-
-	uint32 m_selected = 0;
-	int m_cwidth = 0;
-	int m_bytesPerLine = 0;
-	int m_maxUnits = 0;
+	CMemoryViewTable* m_tableView;
 
 	Framework::CSignal<void(uint32)>::Connection m_OnSelectionChangeConnection;
 };

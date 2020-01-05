@@ -77,6 +77,8 @@ set(SRC_FILES
 	# ${SRC_ROOT}/FrameDebugger/Vu1Vm.h
 	${SRC_ROOT}/MemoryViewMIPSWnd.cpp
 	${SRC_ROOT}/MemoryViewMIPSWnd.h
+	${SRC_ROOT}/MemoryViewTable.cpp
+	${SRC_ROOT}/MemoryViewTable.h
 	${SRC_ROOT}/QtMemoryViewModel.cpp
 	${SRC_ROOT}/QtMemoryViewModel.h
 	# ${SRC_ROOT}/OptionWnd.cpp
