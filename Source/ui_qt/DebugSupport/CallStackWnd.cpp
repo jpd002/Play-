@@ -5,7 +5,6 @@
 #include "MIPS.h"
 #include "BiosDebugInfoProvider.h"
 
-#define CLSNAME _T("CallStackWnd")
 #include <QVBoxLayout>
 #include <QLabel>
 

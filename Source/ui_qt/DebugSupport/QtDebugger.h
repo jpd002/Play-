@@ -27,8 +27,6 @@ public:
 	explicit QtDebugger(CPS2VM&);
 	~QtDebugger();
 
-	static void InitializeConsole();
-
 protected:
 	void closeEvent(QCloseEvent*) Q_DECL_OVERRIDE;
 

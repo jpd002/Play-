@@ -4,7 +4,6 @@
 #include "RegViewVU.h"
 #include "string_format.h"
 
-#define MENUCMD_BASE 40000
 #define CLIP_FLAG_MASK 0xFFFFFF
 
 CRegViewVU::CRegViewVU(QWidget* parent, CMIPS* ctx)

@@ -4,8 +4,6 @@
 #include <QMenu>
 #include "RegViewFPU.h"
 
-#define MENUCMD_BASE 40000
-
 CRegViewFPU::CRegViewFPU(QWidget* parent, CMIPS* pC)
     : CRegViewPage(parent)
     , m_pCtx(pC)

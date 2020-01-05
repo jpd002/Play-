@@ -167,11 +167,8 @@ void QtDebugger::SerializeWindowGeometry(QMdiSubWindow* pWindow, const char* sPo
 	config.SetPreferenceInteger(sPosX, geometry.x());
 	config.SetPreferenceInteger(sPosY, geometry.y());
 
-	//if(sSizeX != NULL && sSizeY != NULL)
-	//{
 	config.SetPreferenceInteger(sSizeX, geometry.width());
 	config.SetPreferenceInteger(sSizeY, geometry.height());
-	//}
 
 	config.SetPreferenceBoolean(sVisible, pWindow->isVisible());
 }
@@ -429,27 +426,6 @@ void QtDebugger::Layout1600()
 	GetCallStackWindow()->show();
 }
 
-void QtDebugger::InitializeConsole()
-{
-#ifdef _DEBUG
-	//AllocConsole();
-
-	//CONSOLE_SCREEN_BUFFER_INFO ScreenBufferInfo;
-
-	//GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &ScreenBufferInfo);
-	//ScreenBufferInfo.dwSize.Y = 1000;
-	//SetConsoleScreenBufferSize(GetStdHandle(STD_OUTPUT_HANDLE), ScreenBufferInfo.dwSize);
-
-	//(*stdout) = *_fdopen(_open_osfhandle(
-	//                         reinterpret_cast<intptr_t>(GetStdHandle(STD_OUTPUT_HANDLE)),
-	//                         _O_TEXT),
-	//                     "w");
-
-	//setvbuf(stdout, NULL, _IONBF, 0);
-	//std::ios::sync_with_stdio();
-#endif
-}
-
 void QtDebugger::ActivateView(unsigned int nView)
 {
 	if(m_nCurrentView == nView) return;
@@ -672,7 +648,6 @@ void QtDebugger::OnFindCallersAddressDblClick(uint32 address)
 void QtDebugger::OnExecutableChange()
 {
 	m_pELFView->SetELF(m_virtualMachine.m_ee->m_os->GetELF());
-	// m_pFunctionsView->SetELF(m_virtualMachine.m_os->GetELF());
 
 	LoadDebugTags();
 
@@ -685,7 +660,6 @@ void QtDebugger::OnExecutableUnloading()
 {
 	SaveDebugTags();
 	m_pELFView->SetELF(NULL);
-	// m_pFunctionsView->SetELF(NULL);
 }
 
 void QtDebugger::OnMachineStateChange()

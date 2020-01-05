@@ -19,8 +19,6 @@
 
 #include "DebugExpressionEvaluator.h"
 
-#define WNDSTYLE (WS_CLIPCHILDREN | WS_THICKFRAME | WS_CAPTION | WS_SYSMENU | WS_CHILD | WS_MAXIMIZEBOX)
-
 CDisAsmWnd::CDisAsmWnd(QMdiArea* parent, CVirtualMachine& virtualMachine, CMIPS* ctx, const char* name, CQtDisAsmTableModel::DISASM_TYPE disAsmType, int memSize)
     : QMdiSubWindow(parent)
     , m_virtualMachine(virtualMachine)

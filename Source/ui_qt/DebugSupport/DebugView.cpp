@@ -1,7 +1,6 @@
 #include "DebugView.h"
 #include "BiosDebugInfoProvider.h"
 #include <QVBoxLayout>
-//#include "DisAsmWnd.h"
 
 CDebugView::CDebugView(QMdiArea* parent, CVirtualMachine& virtualMachine, CMIPS* ctx,
                        const StepFunction& stepFunction, CBiosDebugInfoProvider* biosDebugInfoProvider, const char* name, int size, CQtDisAsmTableModel::DISASM_TYPE disAsmType)
