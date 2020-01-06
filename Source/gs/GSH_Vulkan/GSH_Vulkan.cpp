@@ -574,6 +574,23 @@ void CGSH_Vulkan::SetRenderingContext(uint64 primReg)
 		pipelineCaps.depthTestFunction = CGSHandler::DEPTH_TEST_ALWAYS;
 	}
 
+	pipelineCaps.alphaTestFunction = test.nAlphaMethod;
+	pipelineCaps.alphaTestFailAction = test.nAlphaFail;
+	if(!test.nAlphaEnabled)
+	{
+		pipelineCaps.alphaTestFunction = CGSHandler::ALPHA_TEST_ALWAYS;
+	}
+
+	//Convert alpha testing to depth write masking if possible
+	if(
+		(pipelineCaps.alphaTestFunction == CGSHandler::ALPHA_TEST_NEVER) &&
+		(pipelineCaps.alphaTestFailAction == CGSHandler::ALPHA_TEST_FAIL_FBONLY)
+		)
+	{
+		pipelineCaps.alphaTestFunction = CGSHandler::ALPHA_TEST_ALWAYS;
+		pipelineCaps.writeDepth = 0;
+	}
+
 	m_draw->SetPipelineCaps(pipelineCaps);
 	m_draw->SetFramebufferParams(frame.GetBasePtr(), frame.GetWidth());
 	m_draw->SetDepthbufferParams(zbuf.GetBasePtr(), frame.GetWidth());

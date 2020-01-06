@@ -28,6 +28,8 @@ namespace GSH_Vulkan
 			uint32 alphaD : 2;
 
 			uint32 depthTestFunction : 2;
+			uint32 alphaTestFunction : 3;
+			uint32 alphaTestFailAction : 2;
 
 			uint32 textureFormat : 6;
 			uint32 clutFormat : 6;
