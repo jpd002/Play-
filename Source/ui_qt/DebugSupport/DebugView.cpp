@@ -16,16 +16,12 @@ CDebugView::CDebugView(QMdiArea* parent, CVirtualMachine& virtualMachine, CMIPS*
 {
 
 	m_disAsmWnd = new CDisAsmWnd(parent, virtualMachine, m_ctx, name, disAsmType, size);
-	m_disAsmWnd->show();
 
 	m_regViewWnd = new CRegViewWnd(parent, m_ctx);
-	m_regViewWnd->show();
 
 	m_memoryViewWnd = new CMemoryViewMIPSWnd(parent, virtualMachine, m_ctx, size);
-	m_regViewWnd->show();
 
 	m_callStackWnd = new CCallStackWnd(parent, m_ctx, m_biosDebugInfoProvider);
-	m_callStackWnd->show();
 
 	m_OnFunctionDblClickConnection = m_callStackWnd->OnFunctionDblClick.Connect(std::bind(&CDebugView::OnCallStackWndFunctionDblClick, this, std::placeholders::_1));
 
