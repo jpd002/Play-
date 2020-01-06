@@ -12,17 +12,9 @@
 #include "MemoryViewTable.h"
 #include "DebugExpressionEvaluator.h"
 
-CMemoryViewTable::CMemoryViewTable(QWidget* parent, CVirtualMachine* virtualMachine, CMIPS* ctx, int size, bool memoryJumps)
-    : QTableView(parent)
-    , m_virtualMachine(virtualMachine)
-    , m_context(ctx)
-    , m_enableMemoryJumps(memoryJumps)
+CMemoryViewTable::CMemoryViewTable(QWidget* parent)
+	: QTableView(parent)
 {
-	if(m_enableMemoryJumps)
-	{
-		assert(m_virtualMachine);
-		assert(m_context);
-	}
 	m_model = new CQtMemoryViewModel(this);
 
 	setModel(m_model);
@@ -48,6 +40,18 @@ CMemoryViewTable::CMemoryViewTable(QWidget* parent, CVirtualMachine* virtualMach
 
 CMemoryViewTable::~CMemoryViewTable()
 {
+}
+
+void CMemoryViewTable::Setup(CVirtualMachine* virtualMachine, CMIPS* ctx, bool memoryJumps)
+{
+	m_virtualMachine = virtualMachine;
+	m_context = ctx;
+	m_enableMemoryJumps = memoryJumps;
+	if(m_enableMemoryJumps)
+	{
+		assert(m_virtualMachine);
+		assert(m_context);
+	}
 }
 
 void CMemoryViewTable::SetData(CQtMemoryViewModel::getByteProto getByte, int size)

@@ -10,6 +10,10 @@
 #include "QtMemoryViewModel.h"
 
 class QResizeEvent;
+namespace Ui
+{
+	class CMemoryViewMIPSWnd;
+}
 
 class CMemoryViewMIPSWnd : public QMdiSubWindow, public CVirtualMachineStateView
 {
@@ -28,6 +32,8 @@ protected:
 
 private:
 	void UpdateStatusBar(uint32);
+
+	Ui::CMemoryViewMIPSWnd* ui;
 
 	QLineEdit* m_addressEdit;
 	CMemoryViewTable* m_tableView;

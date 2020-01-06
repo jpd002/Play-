@@ -10,69 +10,63 @@
 
 #include "string_format.h"
 #include "MemoryViewMIPSWnd.h"
+#include "ui_MemoryViewMIPSWnd.h"
 #include "DebugExpressionEvaluator.h"
 
 CMemoryViewMIPSWnd::CMemoryViewMIPSWnd(QMdiArea* parent, CVirtualMachine& virtualMachine, CMIPS* ctx, int size)
     : QMdiSubWindow(parent)
-    , m_tableView(new CMemoryViewTable(this, &virtualMachine, ctx, 0, true))
+    , ui(new Ui::CMemoryViewMIPSWnd)
 {
-	resize(320, 240);
+	ui->setupUi(this);
+
 	parent->addSubWindow(this);
-	setWindowTitle("Memory");
 
-	auto centralwidget = new QWidget(this);
-	auto verticalLayout = new QVBoxLayout(centralwidget);
-
-	m_addressEdit = new QLineEdit(centralwidget);
-	m_addressEdit->setReadOnly(true);
-
-	verticalLayout->addWidget(m_addressEdit);
-	verticalLayout->addWidget(m_tableView);
-
-	setWidget(centralwidget);
+	setWidget(ui->centralWidget);
 	auto getByte = [ctx](uint32 address) {
 		return ctx->m_pMemoryMap->GetByte(address);
 	};
 
-	m_tableView->SetData(getByte, size);
+	ui->tableView->Setup(&virtualMachine, ctx, true);
+	ui->tableView->SetData(getByte, size);
 
 	UpdateStatusBar(0);
-	m_OnSelectionChangeConnection = m_tableView->OnSelectionChange.Connect(std::bind(&CMemoryViewMIPSWnd::UpdateStatusBar, this, std::placeholders::_1));
+	m_OnSelectionChangeConnection = ui->tableView->OnSelectionChange.Connect(std::bind(&CMemoryViewMIPSWnd::UpdateStatusBar, this, std::placeholders::_1));
 }
 
 CMemoryViewMIPSWnd::~CMemoryViewMIPSWnd()
 {
+	delete ui;
 }
 
 void CMemoryViewMIPSWnd::showEvent(QShowEvent* evt)
 {
 	QMdiSubWindow::showEvent(evt);
-	m_tableView->ShowEvent();
+	ui->tableView->ShowEvent();
 }
 
 void CMemoryViewMIPSWnd::resizeEvent(QResizeEvent* evt)
 {
 	QMdiSubWindow::resizeEvent(evt);
-	m_tableView->ResizeEvent();
+	ui->tableView->ResizeEvent();
 }
 
 void CMemoryViewMIPSWnd::HandleMachineStateChange()
 {
-	m_tableView->HandleMachineStateChange();
+	ui->tableView->HandleMachineStateChange();
 }
 
 int CMemoryViewMIPSWnd::GetBytesPerLine()
 {
-	return m_tableView->GetBytesPerLine();
+	return ui->tableView->GetBytesPerLine();
 }
 
 void CMemoryViewMIPSWnd::SetBytesPerLine(int bytesForLine)
 {
-	m_tableView->SetBytesPerLine(bytesForLine);
+	ui->tableView->SetBytesPerLine(bytesForLine);
 }
 
 void CMemoryViewMIPSWnd::UpdateStatusBar(uint32 address)
 {
 	auto caption = string_format("Address : 0x%08X", address);
-	m_addressEdit->setText(caption.c_str());
+	ui->addressEdit->setText(caption.c_str());
 }

@@ -1,5 +1,6 @@
 #include <QHeaderView>
 
+#include "ui_AddressListViewWnd.h"
 #include "AddressListViewWnd.h"
 #include "string_format.h"
 #include "string_cast.h"
@@ -7,22 +8,24 @@
 
 CAddressListViewWnd::CAddressListViewWnd(QMdiArea* parent)
     : QMdiSubWindow(parent)
+    , ui(new Ui::CAddressListViewWnd)
 {
-
-	resize(400, 700);
+	ui->setupUi(this);
+	setWidget(ui->addressListView);
 
 	parent->addSubWindow(this);
 
-	m_tableView = new QTableView(this);
-	setWidget(m_tableView);
-	m_tableView->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+	m_model = new CQtGenericTableModel(ui->addressListView, {"Address"});
+	ui->addressListView->setModel(m_model);
+	ui->addressListView->horizontalHeader()->setStretchLastSection(true);
+	ui->addressListView->resizeColumnsToContents();
 
-	m_model = new CQtGenericTableModel(m_tableView, {"Address"});
-	m_tableView->setModel(m_model);
-	m_tableView->horizontalHeader()->setStretchLastSection(true);
-	m_tableView->resizeColumnsToContents();
+	connect(ui->addressListView, &QTableView::doubleClicked, this, &CAddressListViewWnd::tableDoubleClick);
+}
 
-	connect(m_tableView, &QTableView::doubleClicked, this, &CAddressListViewWnd::tableDoubleClick);
+CAddressListViewWnd::~CAddressListViewWnd()
+{
+	delete ui;
 }
 
 void CAddressListViewWnd::SetTitle(std::string title)

@@ -13,8 +13,10 @@ class QResizeEvent;
 class CMemoryViewTable : public QTableView, public CVirtualMachineStateView
 {
 public:
-	CMemoryViewTable(QWidget*, CVirtualMachine* = nullptr, CMIPS* = nullptr, int = 0, bool = false);
+	CMemoryViewTable(QWidget*);
 	~CMemoryViewTable();
+
+	void Setup(CVirtualMachine* = nullptr, CMIPS* = nullptr, bool = false);
 
 	void HandleMachineStateChange() override;
 
@@ -38,8 +40,8 @@ private:
 	void SetSelectionStart(uint32);
 	void SelectionChanged();
 
-	CMIPS* m_context;
-	CVirtualMachine* m_virtualMachine;
+	CMIPS* m_context = nullptr;
+	CVirtualMachine* m_virtualMachine = nullptr;
 	CQtMemoryViewModel* m_model;
 
 	uint32 m_selected = 0;
