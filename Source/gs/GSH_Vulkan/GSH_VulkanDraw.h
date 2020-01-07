@@ -19,9 +19,12 @@ namespace GSH_Vulkan
 		struct PIPELINE_CAPS : public convertible<PipelineCapsInt>
 		{
 			uint32 hasTexture : 1;
-			uint32 hasAlphaBlending : 1;
+			uint32 textureHasAlpha : 1;
+			uint32 textureFunction : 2;
+
 			uint32 writeDepth : 1;
 
+			uint32 hasAlphaBlending : 1;
 			uint32 alphaA : 2;
 			uint32 alphaB : 2;
 			uint32 alphaC : 2;

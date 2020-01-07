@@ -553,6 +553,8 @@ void CGSH_Vulkan::SetRenderingContext(uint64 primReg)
 
 	auto pipelineCaps = make_convertible<CDraw::PIPELINE_CAPS>(0);
 	pipelineCaps.hasTexture = prim.nTexture;
+	pipelineCaps.textureHasAlpha = tex0.nColorComp;
+	pipelineCaps.textureFunction = tex0.nFunction;
 	pipelineCaps.hasAlphaBlending = prim.nAlpha;
 	pipelineCaps.writeDepth = (zbuf.nMask == 0);
 	pipelineCaps.textureFormat = tex0.nPsm;

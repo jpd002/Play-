@@ -772,9 +772,16 @@ Framework::Vulkan::CShaderModule CDraw::CreateFragmentShader(const PIPELINE_CAPS
 				memoryBuffer, clutImage, texSwizzleTable, texBufAddress, texBufWidth);
 
 			//Modulate
+			assert(caps.textureFunction == CGSHandler::TEX0_FUNCTION_MODULATE);
+
 			//TODO: Proper multiply & clamping
 			textureColor = textureColor * inputColor * NewFloat4(b, 2, 2, 2, 2);
 			textureColor = Clamp(textureColor, NewFloat4(b, 0, 0, 0, 0), NewFloat4(b, 1, 1, 1, 1));
+
+			if(!caps.textureHasAlpha)
+			{
+				textureColor = NewFloat4(textureColor->xyz(), inputColor->w());
+			}
 		}
 		else
 		{
