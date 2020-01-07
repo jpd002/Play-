@@ -18,6 +18,7 @@ set(BUILD_PSFPLAYER OFF CACHE BOOL "Build PsfPlayer")
 set(BUILD_TESTS ON CACHE BOOL "Build Tests")
 set(USE_AOT_CACHE OFF CACHE BOOL "Use AOT block cache")
 set(BUILD_AOT_CACHE OFF CACHE BOOL "Build AOT block cache (for PsfPlayer only)")
+set(BUILD_LIBRETRO_CORE OFF CACHE BOOL "Build Libretro Core")
 
 set(PROJECT_NAME "Play!")
 set(PROJECT_Version 0.30)
@@ -34,6 +35,13 @@ add_definitions(-DPLAY_VERSION="${PROJECT_Version}")
 set(PROJECT_LIBS)
 
 include(PrecompiledHeader)
+
+if(BUILD_LIBRETRO_CORE)
+	if(NOT MSVC)
+		add_compile_options("-fPIC")
+	endif()
+	add_subdirectory(Source/ui_libretro)
+endif()
 
 if(BUILD_PLAY)
 	if(TARGET_PLATFORM_UNIX OR TARGET_PLATFORM_MACOS OR TARGET_PLATFORM_WIN32 OR USE_QT)

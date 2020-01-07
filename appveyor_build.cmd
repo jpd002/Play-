@@ -5,7 +5,8 @@ mkdir build
 cd build
 
 if "%BUILD_PLAY%" == "ON" (
-	cmake .. -G"%BUILD_TYPE%" -T v141_xp -DUSE_QT=on -DCMAKE_PREFIX_PATH="C:\Qt\5.12\%QT_FLAVOR%"
+	set BUILD_DIR=%cd%
+	cmake .. -G"%BUILD_TYPE%" -T v141_xp -DUSE_QT=on -DBUILD_LIBRETRO_CORE=yes -DCMAKE_PREFIX_PATH="C:\Qt\5.12\%QT_FLAVOR%"
 	if !errorlevel! neq 0 exit /b !errorlevel!
 	
 	cmake --build . --config %CONFIG_TYPE%
@@ -21,6 +22,7 @@ if "%BUILD_PLAY%" == "ON" (
 	
 	mkdir %REPO_COMMIT_SHORT%
 	move installer_win32\*.exe %REPO_COMMIT_SHORT%
+	move build\Source\ui_libretro\Release\play_libretro.dll %REPO_COMMIT_SHORT%
 )
 
 if "%BUILD_PSFPLAYER%" == "ON" (

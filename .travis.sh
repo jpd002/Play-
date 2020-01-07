@@ -42,10 +42,21 @@ travis_before_install()
 travis_script()
 {
     if [ "$TARGET_OS" = "Android" ]; then
-        pushd build_android
-        ./gradlew
-        ./gradlew assembleRelease
-        popd 
+        if [ "$BUILD_LIBRETRO" = "yes" ]; then
+            CMAKE_PATH=/usr/local/android-sdk/cmake/3.10.2.4988404
+            export PATH=${CMAKE_PATH}/bin:$PATH
+            export NINJA_EXE=${CMAKE_PATH}/bin/ninja
+            export ANDROID_NDK=/usr/local/android-sdk/ndk/20.0.5594570
+            export ANDROID_TOOLCHAIN_FILE=${ANDROID_NDK}/build/cmake/android.toolchain.cmake
+            pushd build_retro
+            bash android_build.sh
+            popd
+        else
+            pushd build_android
+            ./gradlew
+            ./gradlew assembleRelease
+            popd
+        fi
     elif [ "$TARGET_OS" = "Linux_Clang_Format" ]; then
         set +e
         find ./Source/ ./tools/ -iname *.h -o -iname *.cpp -o -iname *.m  -iname *.mm | xargs clang-format-6.0 -i
@@ -69,7 +80,7 @@ travis_script()
             if [ "$CXX" = "g++" ]; then export CXX="g++-9" CC="gcc-9"; fi
             source /opt/qt512/bin/qt512-env.sh || true
             export PATH=$PATH:/opt/qt512/lib/cmake
-            cmake .. -G"$BUILD_TYPE" -DCMAKE_INSTALL_PREFIX=./appdir/usr;
+            cmake .. -G"$BUILD_TYPE" -DCMAKE_INSTALL_PREFIX=./appdir/usr -DBUILD_LIBRETRO_CORE=yes;
             cmake --build .
             ctest
             cmake --build . --target install
@@ -91,13 +102,13 @@ travis_script()
             fi
         elif [ "$TARGET_OS" = "OSX" ]; then
             export CMAKE_PREFIX_PATH="$(brew --prefix qt5)"
-            cmake .. -G"$BUILD_TYPE"
+            cmake .. -G"$BUILD_TYPE" -DBUILD_LIBRETRO_CORE=yes
             cmake --build . --config Release
             ctest -C Release
             $(brew --prefix qt5)/bin/macdeployqt Source/ui_qt/Release/Play.app
             appdmg ../installer_macosx/spec.json Play.dmg
         elif [ "$TARGET_OS" = "IOS" ]; then
-            cmake .. -G"$BUILD_TYPE" -DCMAKE_TOOLCHAIN_FILE=../deps/Dependencies/cmake-ios/ios.cmake -DTARGET_IOS=ON -DBUILD_PSFPLAYER=ON
+            cmake .. -G"$BUILD_TYPE" -DCMAKE_TOOLCHAIN_FILE=../deps/Dependencies/cmake-ios/ios.cmake -DTARGET_IOS=ON -DBUILD_PSFPLAYER=ON -DBUILD_LIBRETRO_CORE=yes
             cmake --build . --config Release
             codesign -s "-" Source/ui_ios/Release-iphoneos/Play.app
             pushd ..
@@ -125,21 +136,31 @@ travis_before_deploy()
     if [ "$TARGET_OS" = "Linux" ]; then
         if [ "$TARGET_ARCH" = "x86_64" ]; then
             cp ../../build/Play*.AppImage .
+            cp ../../build/Source/ui_libretro/play_libretro.so play_libretro_linux-x86_64.so
+        else
+            cp ../../build/Source/ui_libretro/play_libretro.so play_libretro_linux-ARM64.so
         fi;
     fi;
     if [ "$TARGET_OS" = "Android" ]; then
-        cp ../../build_android/build/outputs/apk/release/Play-release-unsigned.apk .
-        export ANDROID_BUILD_TOOLS=$ANDROID_HOME/build-tools/28.0.3
-        $ANDROID_BUILD_TOOLS/zipalign -v -p 4 Play-release-unsigned.apk Play-release.apk
-        $ANDROID_BUILD_TOOLS/apksigner sign --ks ../../installer_android/deploy.keystore --ks-key-alias deploy --ks-pass env:ANDROID_KEYSTORE_PASS --key-pass env:ANDROID_KEYSTORE_PASS Play-release.apk
+        if [ "$BUILD_LIBRETRO" = "yes" ]; then
+            cp ../../build_retro/play_* .
+            ABI_LIST="arm64-v8a armeabi-v7a x86 x86_64"
+        else
+            cp ../../build_android/build/outputs/apk/release/Play-release-unsigned.apk .
+            export ANDROID_BUILD_TOOLS=$ANDROID_HOME/build-tools/28.0.3
+            $ANDROID_BUILD_TOOLS/zipalign -v -p 4 Play-release-unsigned.apk Play-release.apk
+            $ANDROID_BUILD_TOOLS/apksigner sign --ks ../../installer_android/deploy.keystore --ks-key-alias deploy --ks-pass env:ANDROID_KEYSTORE_PASS --key-pass env:ANDROID_KEYSTORE_PASS Play-release.apk
+        fi
     fi;
     if [ "$TARGET_OS" = "OSX" ]; then
         cp ../../build/Play.dmg .
+        cp ../../build/Source/ui_libretro/Release/play_libretro.dylib play_libretro_macOS-x86_64.dylib
     fi;
     if [ "$TARGET_OS" = "IOS" ]; then
         cp ../../installer_ios/Play.ipa .
         cp ../../installer_ios/Play.deb .
         cp ../../installer_ios/Packages.bz2 .
+        cp ../../build/Source/ui_libretro/Release/play_libretro.dylib play_libretro_iOS-FAT.dylib
     fi;
     popd
     popd

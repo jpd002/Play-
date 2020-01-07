@@ -22,7 +22,7 @@
 class CGSH_OpenGL : public CGSHandler
 {
 public:
-	CGSH_OpenGL();
+	CGSH_OpenGL(bool = true);
 	virtual ~CGSH_OpenGL();
 
 	static void RegisterPreferences();

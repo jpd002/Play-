@@ -58,7 +58,7 @@ void CGSH_OpenGLAndroid::PresentBackbuffer()
 void CGSH_OpenGLAndroid::SetWindow(NativeWindowType window)
 {
 	m_window = window;
-	m_mailBox.SendCall(
+	SendGSCall(
 	    [this]() {
 		    SetupContext();
 	    },
