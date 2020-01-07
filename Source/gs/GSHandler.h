@@ -953,7 +953,9 @@ protected:
 	void ReadCLUT8(const TEX0&);
 
 	static bool IsCompatibleFramebufferPSM(unsigned int, unsigned int);
+
 	void SendGSCall(const CMailBox::FunctionType&, bool = false, bool = false);
+	void SendGSCall(CMailBox::FunctionType&&);
 
 	bool m_loggingEnabled;
 

@@ -1746,6 +1746,11 @@ void CGSHandler::SendGSCall(const CMailBox::FunctionType& function, bool waitFor
 	m_mailBox.SendCall(function, waitForCompletion);
 }
 
+void CGSHandler::SendGSCall(CMailBox::FunctionType&& function)
+{
+	m_mailBox.SendCall(std::move(function));
+}
+
 void CGSHandler::ProcessSingleFrame()
 {
 	assert(!m_gsThreaded);
