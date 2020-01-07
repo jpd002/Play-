@@ -160,7 +160,7 @@ travis_before_deploy()
         cp ../../installer_ios/Play.ipa .
         cp ../../installer_ios/Play.deb .
         cp ../../installer_ios/Packages.bz2 .
-        cp ../../build/Source/ui_libretro/Release/play_libretro.dylib play_libretro_iOS-FAT.dylib
+        cp ../../build/Source/ui_libretro/Release-iphoneos/play_libretro_ios.dylib play_libretro_ios.dylib
     fi;
     popd
     popd
