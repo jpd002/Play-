@@ -6,11 +6,13 @@ environment:
   - BUILD_TYPE: Visual Studio 15 2017
     BUILD_PLAY: ON
     QT_FLAVOR: msvc2017 
+    ARCH_TYPE: x86_32
     INSTALLER_SCRIPT: installer32.nsi
   - BUILD_TYPE: Visual Studio 15 2017 Win64
     BUILD_PLAY: ON
     INSTALLER_SCRIPT: installer64.nsi
     QT_FLAVOR: msvc2017_64
+    ARCH_TYPE: x86_64
   - BUILD_TYPE: Visual Studio 15 2017 Win64
     BUILD_PSFPLAYER: ON
     INSTALLER_SCRIPT: installer64.nsi
@@ -30,7 +32,7 @@ build_script:
 artifacts:
 - path: $(REPO_COMMIT_SHORT)\*.exe
   name: Binaries
-- path: $(REPO_COMMIT_SHORT)\play_libretro.dll
+- path: $(REPO_COMMIT_SHORT)\play_libretro*.dll
   name: Libretro_Core
 deploy:
 - provider: S3

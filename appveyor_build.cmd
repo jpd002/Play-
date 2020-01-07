@@ -22,7 +22,7 @@ if "%BUILD_PLAY%" == "ON" (
 	
 	mkdir %REPO_COMMIT_SHORT%
 	move installer_win32\*.exe %REPO_COMMIT_SHORT%
-	move build\Source\ui_libretro\Release\play_libretro.dll %REPO_COMMIT_SHORT%
+	move build\Source\ui_libretro\Release\play_libretro.dll %REPO_COMMIT_SHORT%/play_libretro_%ARCH_TYPE%.dll
 )
 
 if "%BUILD_PSFPLAYER%" == "ON" (
