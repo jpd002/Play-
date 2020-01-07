@@ -87,15 +87,17 @@ void CDraw::SetPipelineCaps(const PIPELINE_CAPS& caps)
 	m_pipelineCaps = caps;
 }
 
-void CDraw::SetFramebufferParams(uint32 addr, uint32 width)
+void CDraw::SetFramebufferParams(uint32 addr, uint32 width, uint32 writeMask)
 {
 	bool changed =
 	    (m_pushConstants.fbBufAddr != addr) ||
-	    (m_pushConstants.fbBufWidth != width);
+	    (m_pushConstants.fbBufWidth != width) ||
+	    (m_pushConstants.fbWriteMask != writeMask);
 	if(!changed) return;
 	FlushVertices();
 	m_pushConstants.fbBufAddr = addr;
 	m_pushConstants.fbBufWidth = width;
+	m_pushConstants.fbWriteMask = writeMask;
 }
 
 void CDraw::SetDepthbufferParams(uint32 addr, uint32 width)
@@ -179,6 +181,9 @@ void CDraw::FlushVertices()
 		scissor.extent.height = m_scissorHeight;
 		m_context->device.vkCmdSetScissor(commandBuffer, 0, 1, &scissor);
 	}
+
+	//We only support writeMasks on PSMCT32 framebuffers
+	assert((m_pushConstants.fbWriteMask == ~0UL) || (m_pipelineCaps.framebufferFormat == CGSHandler::PSMCT32));
 
 	auto renderPassBeginInfo = Framework::Vulkan::RenderPassBeginInfo();
 	renderPassBeginInfo.renderPass = m_renderPass;
@@ -747,6 +752,7 @@ Framework::Vulkan::CShaderModule CDraw::CreateFragmentShader(const PIPELINE_CAPS
 		auto projMatrix = CMatrix44Value(b.CreateUniformMatrix("g_projMatrix", Nuanceur::UNIFORM_UNIT_PUSHCONSTANT));
 		auto fbDepthParams = CInt4Lvalue(b.CreateUniformInt4("fbDepthParams", Nuanceur::UNIFORM_UNIT_PUSHCONSTANT));
 		auto texParams = CInt4Lvalue(b.CreateUniformInt4("texParams", Nuanceur::UNIFORM_UNIT_PUSHCONSTANT));
+		auto alphaFbParams = CInt4Lvalue(b.CreateUniformInt4("alphaFbParams", Nuanceur::UNIFORM_UNIT_PUSHCONSTANT));
 
 		auto fbBufAddress = fbDepthParams->x();
 		auto fbBufWidth = fbDepthParams->y();
@@ -756,6 +762,8 @@ Framework::Vulkan::CShaderModule CDraw::CreateFragmentShader(const PIPELINE_CAPS
 		auto texBufAddress = texParams->x();
 		auto texBufWidth = texParams->y();
 		auto texSize = texParams->zw();
+
+		auto fbWriteMask = ToUint(alphaFbParams->x());
 
 		auto srcDepth = ToUint(inputDepth->x() * NewFloat(b, DEPTH_MAX));
 
@@ -903,7 +911,7 @@ Framework::Vulkan::CShaderModule CDraw::CreateFragmentShader(const PIPELINE_CAPS
 				assert(false);
 			case CGSHandler::PSMCT32:
 				{
-					auto dstPixel = CMemoryUtils::Vec4ToPSM32(b, dstColor);
+					auto dstPixel = CMemoryUtils::Vec4ToPSM32(b, dstColor) & fbWriteMask;
 					CMemoryUtils::Memory_Write32(b, memoryBuffer, fbAddress, dstPixel);
 				}
 				break;

@@ -53,7 +53,7 @@ namespace GSH_Vulkan
 		virtual ~CDraw();
 
 		void SetPipelineCaps(const PIPELINE_CAPS&);
-		void SetFramebufferParams(uint32, uint32);
+		void SetFramebufferParams(uint32, uint32, uint32);
 		void SetDepthbufferParams(uint32, uint32);
 		void SetTextureParams(uint32, uint32, uint32, uint32);
 		void SetScissor(uint32, uint32, uint32, uint32);
@@ -92,6 +92,8 @@ namespace GSH_Vulkan
 			uint32 texBufWidth = 0;
 			uint32 texWidth = 0;
 			uint32 texHeight = 0;
+			uint32 fbWriteMask = 0;
+			uint32 reserved[3];
 		};
 		static_assert(sizeof(DRAW_PIPELINE_PUSHCONSTANTS) <= 128, "Push constants size can't exceed 128 bytes.");
 
