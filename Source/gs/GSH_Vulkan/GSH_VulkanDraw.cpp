@@ -126,6 +126,15 @@ void CDraw::SetTextureParams(uint32 bufAddr, uint32 bufWidth, uint32 width, uint
 	m_pushConstants.texHeight = height;
 }
 
+void CDraw::SetAlphaBlendingParams(uint32 alphaFix)
+{
+	bool changed =
+		(m_pushConstants.alphaFix != alphaFix);
+	if(!changed) return;
+	FlushVertices();
+	m_pushConstants.alphaFix = alphaFix;
+}
+
 void CDraw::SetScissor(uint32 scissorX, uint32 scissorY, uint32 scissorWidth, uint32 scissorHeight)
 {
 	bool changed =
@@ -713,7 +722,7 @@ static Nuanceur::CFloat3Rvalue GetAlphaABD(Nuanceur::CShaderBuilder& b, uint32 a
 
 
 static Nuanceur::CFloat3Rvalue GetAlphaC(Nuanceur::CShaderBuilder& b, uint32 alphaC,
-	Nuanceur::CFloat4Value srcColor, Nuanceur::CFloat4Value dstColor)
+	Nuanceur::CFloat4Value srcColor, Nuanceur::CFloat4Value dstColor, Nuanceur::CFloatValue alphaFix)
 {
 	switch(alphaC)
 	{
@@ -723,6 +732,8 @@ static Nuanceur::CFloat3Rvalue GetAlphaC(Nuanceur::CShaderBuilder& b, uint32 alp
 		return srcColor->www();
 	case CGSHandler::ALPHABLEND_C_AD:
 		return dstColor->www();
+	case CGSHandler::ALPHABLEND_C_FIX:
+		return alphaFix->xxx();
 	}
 }
 
@@ -764,6 +775,7 @@ Framework::Vulkan::CShaderModule CDraw::CreateFragmentShader(const PIPELINE_CAPS
 		auto texSize = texParams->zw();
 
 		auto fbWriteMask = ToUint(alphaFbParams->x());
+		auto alphaFix = ToFloat(alphaFbParams->y()) / NewFloat(b, 255.f);
 
 		auto srcDepth = ToUint(inputDepth->x() * NewFloat(b, DEPTH_MAX));
 
@@ -889,7 +901,7 @@ Framework::Vulkan::CShaderModule CDraw::CreateFragmentShader(const PIPELINE_CAPS
 			//Blend
 			auto alphaA = GetAlphaABD(b, caps.alphaA, textureColor, dstColor);
 			auto alphaB = GetAlphaABD(b, caps.alphaB, textureColor, dstColor);
-			auto alphaC = GetAlphaC(b, caps.alphaC, textureColor, dstColor);
+			auto alphaC = GetAlphaC(b, caps.alphaC, textureColor, dstColor, alphaFix);
 			auto alphaD = GetAlphaABD(b, caps.alphaD, textureColor, dstColor);
 
 			auto blendedColor = ((alphaA - alphaB) * alphaC * NewFloat3(b, 2, 2, 2)) + alphaD;
