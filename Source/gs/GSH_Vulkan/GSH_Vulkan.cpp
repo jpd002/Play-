@@ -16,6 +16,16 @@ static uint32 MakeColor(uint8 r, uint8 g, uint8 b, uint8 a)
 	return (a << 24) | (b << 16) | (g << 8) | (r);
 }
 
+static uint16 RGBA32ToRGBA16(uint32 inputColor)
+{
+	uint32 result = 0;
+	result |= ((inputColor & 0x000000F8) >> (0  + 3)) << 0;
+	result |= ((inputColor & 0x0000F800) >> (8  + 3)) << 5;
+	result |= ((inputColor & 0x00F80000) >> (16 + 3)) << 10;
+	result |= ((inputColor & 0x80000000) >> 31)       << 15;
+	return result;
+}
+
 template <typename StorageFormat>
 static Framework::Vulkan::CImage CreateSwizzleTable(Framework::Vulkan::CDevice& device,
                                                     const VkPhysicalDeviceMemoryProperties& memoryProperties, VkQueue queue, Framework::Vulkan::CCommandBufferPool& commandBufferPool)
@@ -593,8 +603,23 @@ void CGSH_Vulkan::SetRenderingContext(uint64 primReg)
 		pipelineCaps.writeDepth = 0;
 	}
 
+	uint32 fbWriteMask = ~0UL;
+	switch(frame.nPsm)
+	{
+	case CGSHandler::PSMCT32:
+		fbWriteMask = ~frame.nMask;
+		break;
+	case CGSHandler::PSMCT16:
+	case CGSHandler::PSMCT16S:
+		fbWriteMask = ~RGBA32ToRGBA16(frame.nMask);
+		break;
+	default:
+		assert(false);
+		break;
+	}
+
 	m_draw->SetPipelineCaps(pipelineCaps);
-	m_draw->SetFramebufferParams(frame.GetBasePtr(), frame.GetWidth(), ~frame.nMask);
+	m_draw->SetFramebufferParams(frame.GetBasePtr(), frame.GetWidth(), fbWriteMask);
 	m_draw->SetDepthbufferParams(zbuf.GetBasePtr(), frame.GetWidth());
 	m_draw->SetTextureParams(tex0.GetBufPtr(), tex0.GetBufWidth(),
 	                         tex0.GetWidth(), tex0.GetHeight());

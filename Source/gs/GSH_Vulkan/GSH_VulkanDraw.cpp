@@ -191,9 +191,6 @@ void CDraw::FlushVertices()
 		m_context->device.vkCmdSetScissor(commandBuffer, 0, 1, &scissor);
 	}
 
-	//We only support writeMasks on PSMCT32 framebuffers
-	assert((m_pushConstants.fbWriteMask == ~0UL) || (m_pipelineCaps.framebufferFormat == CGSHandler::PSMCT32));
-
 	auto renderPassBeginInfo = Framework::Vulkan::RenderPassBeginInfo();
 	renderPassBeginInfo.renderPass = m_renderPass;
 	renderPassBeginInfo.renderArea.extent.width = DRAW_AREA_SIZE;
@@ -929,7 +926,7 @@ Framework::Vulkan::CShaderModule CDraw::CreateFragmentShader(const PIPELINE_CAPS
 				break;
 			case CGSHandler::PSMCT16S:
 				{
-					auto dstPixel = CMemoryUtils::Vec4ToPSM16(b, dstColor);
+					auto dstPixel = CMemoryUtils::Vec4ToPSM16(b, dstColor) & fbWriteMask;
 					CMemoryUtils::Memory_Write16(b, memoryBuffer, fbAddress, dstPixel);
 				}
 				break;
