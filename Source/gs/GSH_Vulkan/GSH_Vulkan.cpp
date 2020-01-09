@@ -622,7 +622,7 @@ void CGSH_Vulkan::SetRenderingContext(uint64 primReg)
 	m_draw->SetFramebufferParams(frame.GetBasePtr(), frame.GetWidth(), fbWriteMask);
 	m_draw->SetDepthbufferParams(zbuf.GetBasePtr(), frame.GetWidth());
 	m_draw->SetTextureParams(tex0.GetBufPtr(), tex0.GetBufWidth(),
-	                         tex0.GetWidth(), tex0.GetHeight());
+	                         tex0.GetWidth(), tex0.GetHeight(), tex0.nCSA * 0x10);
 	m_draw->SetAlphaBlendingParams(alpha.nFix);
 	m_draw->SetScissor(scissor.scax0, scissor.scay0,
 	                   scissor.scax1 - scissor.scax0 + 1,

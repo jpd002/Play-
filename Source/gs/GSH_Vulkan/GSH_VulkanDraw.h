@@ -55,7 +55,7 @@ namespace GSH_Vulkan
 		void SetPipelineCaps(const PIPELINE_CAPS&);
 		void SetFramebufferParams(uint32, uint32, uint32);
 		void SetDepthbufferParams(uint32, uint32);
-		void SetTextureParams(uint32, uint32, uint32, uint32);
+		void SetTextureParams(uint32, uint32, uint32, uint32, uint32);
 		void SetAlphaBlendingParams(uint32);
 		void SetScissor(uint32, uint32, uint32, uint32);
 
@@ -85,17 +85,27 @@ namespace GSH_Vulkan
 		struct DRAW_PIPELINE_PUSHCONSTANTS
 		{
 			float projMatrix[16];
+
+			//fbDepthParams
 			uint32 fbBufAddr = 0;
 			uint32 fbBufWidth = 0;
 			uint32 depthBufAddr = 0;
 			uint32 depthBufWidth = 0;
+			
+			//texParams0
 			uint32 texBufAddr = 0;
 			uint32 texBufWidth = 0;
 			uint32 texWidth = 0;
 			uint32 texHeight = 0;
+
+			//texParams1
+			uint32 texCsa = 0;
+			uint32 texParams1Reserved[3];
+
+			//alphaFbParams
 			uint32 fbWriteMask = 0;
 			uint32 alphaFix = 0;
-			uint32 reserved[2];
+			uint32 alphaFbParamsReserved[2];
 		};
 		static_assert(sizeof(DRAW_PIPELINE_PUSHCONSTANTS) <= 128, "Push constants size can't exceed 128 bytes.");
 
