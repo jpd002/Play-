@@ -44,10 +44,8 @@ Nuanceur::CUintRvalue CMemoryUtils::Memory_Read8(Nuanceur::CShaderBuilder& b, Nu
 
 Nuanceur::CUintRvalue CMemoryUtils::Memory_Read4(Nuanceur::CShaderBuilder& b, Nuanceur::CArrayUintValue memoryBuffer, Nuanceur::CIntValue nibAddress)
 {
-	auto address = nibAddress / NewInt(b, 2);
-	auto wordAddress = address / NewInt(b, 4);
-	auto nibIndex = ToUint(nibAddress & NewInt(b, 1));
-	auto shiftAmount = (((ToUint(address) & NewUint(b, 3)) * NewUint(b, 2)) + nibIndex) * NewUint(b, 4);
+	auto wordAddress = nibAddress / NewInt(b, 8);
+	auto shiftAmount = (ToUint(nibAddress) & NewUint(b, 7)) * NewUint(b, 4);
 	auto pixel = Load(memoryBuffer, wordAddress);
 	return (pixel >> shiftAmount) & NewUint(b, 0xF);
 }
