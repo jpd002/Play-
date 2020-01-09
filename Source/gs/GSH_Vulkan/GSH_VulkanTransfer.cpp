@@ -232,6 +232,7 @@ Framework::Vulkan::CShaderModule CTransfer::CreateXferShader(const PIPELINE_CAPS
 			    b, dstSwizzleTable, bufAddress, bufWidth, NewInt2(trxX, trxY));
 			CMemoryUtils::Memory_Write16(b, memoryBuffer, address, input);
 		}
+		break;
 		case CGSHandler::PSMT8:
 		{
 			auto input = XferStream_Read8(b, xferBuffer, pixelIndex);
