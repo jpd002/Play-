@@ -123,6 +123,8 @@ Framework::Vulkan::CShaderModule CClutLoad::CreateLoadShader(const PIPELINE_CAPS
 
 	auto b = CShaderBuilder();
 
+	assert(caps.csm == 0);
+
 	if(caps.idx8)
 	{
 		b.SetMetadata(CShaderBuilder::METADATA_LOCALSIZE_X, 16);
