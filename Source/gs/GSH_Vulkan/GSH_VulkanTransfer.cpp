@@ -14,7 +14,7 @@ using namespace GSH_Vulkan;
 #define DESCRIPTOR_LOCATION_XFERBUFFER 1
 #define DESCRIPTOR_LOCATION_SWIZZLETABLE_DST 2
 
-#define LOCAL_SIZE_X 128
+#define LOCAL_SIZE_X 1024
 
 CTransfer::CTransfer(const ContextPtr& context, const FrameCommandBufferPtr& frameCommandBuffer)
     : m_context(context)
@@ -74,8 +74,8 @@ void CTransfer::DoHostToLocalTransfer(const XferBuffer& inputData)
 		break;
 	}
 
-	uint32 workUnits = pixelCount / LOCAL_SIZE_X;
-	assert((workUnits * LOCAL_SIZE_X) == pixelCount);
+	Params.pixelCount = pixelCount;
+	uint32 workUnits = (pixelCount + LOCAL_SIZE_X - 1) / LOCAL_SIZE_X;
 
 	auto descriptorSet = PrepareDescriptorSet(xferPipeline->descriptorSetLayout, dstSwizzleTableView);
 	auto commandBuffer = m_frameCommandBuffer->GetCommandBuffer();
@@ -206,6 +206,7 @@ Framework::Vulkan::CShaderModule CTransfer::CreateXferShader(const PIPELINE_CAPS
 		auto rrw = xferParams0->z();
 		auto dsax = xferParams0->w();
 		auto dsay = xferParams1->x();
+		auto pixelCount = xferParams1->y();
 
 		auto rrx = inputInvocationId->x() % rrw;
 		auto rry = inputInvocationId->x() / rrw;
@@ -214,6 +215,12 @@ Framework::Vulkan::CShaderModule CTransfer::CreateXferShader(const PIPELINE_CAPS
 		auto trxY = (rry + dsay) % NewInt(b, 2048);
 
 		auto pixelIndex = inputInvocationId->x();
+
+		BeginIf(b, pixelIndex >= pixelCount);
+		{
+			Return(b);
+		}
+		EndIf(b);
 
 		switch(caps.dstFormat)
 		{
