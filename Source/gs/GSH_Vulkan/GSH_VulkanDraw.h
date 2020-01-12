@@ -22,6 +22,7 @@ namespace GSH_Vulkan
 			uint32 textureHasAlpha : 1;
 			uint32 textureFunction : 2;
 
+			uint32 maskColor : 1;
 			uint32 writeDepth : 1;
 
 			uint32 hasAlphaBlending : 1;

@@ -608,10 +608,12 @@ void CGSH_Vulkan::SetRenderingContext(uint64 primReg)
 	{
 	case CGSHandler::PSMCT32:
 		fbWriteMask = ~frame.nMask;
+		pipelineCaps.maskColor = (fbWriteMask != 0xFFFFFFFF);
 		break;
 	case CGSHandler::PSMCT16:
 	case CGSHandler::PSMCT16S:
-		fbWriteMask = ~RGBA32ToRGBA16(frame.nMask);
+		fbWriteMask = ~RGBA32ToRGBA16(frame.nMask) & 0xFFFF;
+		pipelineCaps.maskColor = (fbWriteMask != 0xFFFF);
 		break;
 	default:
 		assert(false);

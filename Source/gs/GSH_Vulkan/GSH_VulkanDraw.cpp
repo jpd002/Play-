@@ -863,10 +863,11 @@ Framework::Vulkan::CShaderModule CDraw::CreateFragmentShader(const PIPELINE_CAPS
 
 		BeginInvocationInterlock(b);
 
+		auto dstPixel = CUintLvalue(b.CreateTemporaryUint());
 		auto dstColor = CFloat4Lvalue(b.CreateTemporary());
 		auto dstDepth = CUintLvalue(b.CreateTemporaryUint());
 
-		bool needsDstColor = (caps.hasAlphaBlending != 0);
+		bool needsDstColor = (caps.hasAlphaBlending != 0) || (caps.maskColor != 0);
 		if(needsDstColor)
 		{
 			switch(caps.framebufferFormat)
@@ -875,13 +876,13 @@ Framework::Vulkan::CShaderModule CDraw::CreateFragmentShader(const PIPELINE_CAPS
 				assert(false);
 			case CGSHandler::PSMCT32:
 				{
-					auto dstPixel = CMemoryUtils::Memory_Read32(b, memoryBuffer, fbAddress);
+					dstPixel = CMemoryUtils::Memory_Read32(b, memoryBuffer, fbAddress);
 					dstColor = CMemoryUtils::PSM32ToVec4(b, dstPixel);
 				}
 				break;
 			case CGSHandler::PSMCT16S:
 				{
-					auto dstPixel = CMemoryUtils::Memory_Read16(b, memoryBuffer, fbAddress);
+					dstPixel = CMemoryUtils::Memory_Read16(b, memoryBuffer, fbAddress);
 					dstColor = CMemoryUtils::PSM16ToVec4(b, dstPixel);
 				}
 				break;
@@ -939,13 +940,13 @@ Framework::Vulkan::CShaderModule CDraw::CreateFragmentShader(const PIPELINE_CAPS
 				assert(false);
 			case CGSHandler::PSMCT32:
 				{
-					auto dstPixel = CMemoryUtils::Vec4ToPSM32(b, dstColor) & fbWriteMask;
+					dstPixel = (CMemoryUtils::Vec4ToPSM32(b, dstColor) & fbWriteMask) | (dstPixel & ~fbWriteMask);
 					CMemoryUtils::Memory_Write32(b, memoryBuffer, fbAddress, dstPixel);
 				}
 				break;
 			case CGSHandler::PSMCT16S:
 				{
-					auto dstPixel = CMemoryUtils::Vec4ToPSM16(b, dstColor) & fbWriteMask;
+					dstPixel = (CMemoryUtils::Vec4ToPSM16(b, dstColor) & fbWriteMask) | (dstPixel & ~fbWriteMask);
 					CMemoryUtils::Memory_Write16(b, memoryBuffer, fbAddress, dstPixel);
 				}
 				break;
