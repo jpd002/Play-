@@ -783,7 +783,7 @@ Framework::Vulkan::CShaderModule CDraw::CreateFragmentShader(const PIPELINE_CAPS
 		//TODO: Try vectorized shift
 		//auto imageColor = ToUint(inputColor * NewFloat4(b, 255.f, 255.f, 255.f, 255.f));
 
-		auto textureColor = CFloat4Lvalue(b.CreateTemporary());
+		auto textureColor = CFloat4Lvalue(b.CreateVariableFloat("textureColor"));
 		textureColor = NewFloat4(b, 1, 1, 1, 1);
 
 		if(caps.hasTexture)
