@@ -45,7 +45,7 @@ static void MakeLinearZOrtho(float* matrix, float left, float right, float botto
 }
 
 #define DRAW_AREA_SIZE 1024
-#define MAX_VERTEX_COUNT 1024
+#define MAX_VERTEX_COUNT 1024 * 128
 
 #define DEPTH_MAX (4294967296.0f)
 
