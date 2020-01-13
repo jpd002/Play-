@@ -922,7 +922,7 @@ protected:
 	virtual void ResetImpl();
 	virtual void NotifyPreferencesChangedImpl();
 	virtual void FlipImpl();
-	void MarkNewFrame();
+	virtual void MarkNewFrame();
 	virtual void WriteRegisterImpl(uint8, uint64);
 	void FeedImageDataImpl(const uint8*, uint32);
 	void ReadImageDataImpl(void*, uint32);

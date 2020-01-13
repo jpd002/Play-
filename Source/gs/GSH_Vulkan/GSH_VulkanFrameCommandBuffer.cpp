@@ -13,6 +13,16 @@ void CFrameCommandBuffer::RegisterWriter(IFrameCommandBufferWriter* writer)
 	m_writers.push_back(writer);
 }
 
+void CFrameCommandBuffer::BeginFrame()
+{
+	m_submitCount = 0;
+}
+
+uint32 CFrameCommandBuffer::GetSubmitCount() const
+{
+	return m_submitCount;
+}
+
 VkCommandBuffer CFrameCommandBuffer::GetCommandBuffer()
 {
 	if(m_commandBuffer != VK_NULL_HANDLE) return m_commandBuffer;
@@ -49,6 +59,8 @@ void CFrameCommandBuffer::Flush()
 			result = m_context->device.vkQueueSubmit(m_context->queue, 1, &submitInfo, VK_NULL_HANDLE);
 			CHECKVULKANERROR(result);
 		}
+
+		m_submitCount++;
 
 		result = m_context->device.vkQueueWaitIdle(m_context->queue);
 		CHECKVULKANERROR(result);

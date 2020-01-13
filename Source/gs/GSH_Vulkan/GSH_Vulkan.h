@@ -36,6 +36,7 @@ protected:
 	void ReleaseImpl() override;
 	void ResetImpl() override;
 	void NotifyPreferencesChangedImpl() override;
+	void MarkNewFrame() override;
 	void FlipImpl() override;
 	void BeginTransferWrite() override;
 	void TransferWrite(const uint8*, uint32) override;

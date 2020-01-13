@@ -19,6 +19,9 @@ namespace GSH_Vulkan
 
 		void RegisterWriter(IFrameCommandBufferWriter*);
 
+		void BeginFrame();
+		uint32 GetSubmitCount() const;
+
 		VkCommandBuffer GetCommandBuffer();
 		void Flush();
 
@@ -27,6 +30,8 @@ namespace GSH_Vulkan
 
 		std::vector<IFrameCommandBufferWriter*> m_writers;
 		VkCommandBuffer m_commandBuffer = VK_NULL_HANDLE;
+
+		uint32 m_submitCount = 0;
 	};
 
 	typedef std::shared_ptr<CFrameCommandBuffer> FrameCommandBufferPtr;

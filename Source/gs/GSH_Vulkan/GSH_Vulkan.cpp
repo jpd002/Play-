@@ -140,6 +140,13 @@ void CGSH_Vulkan::ResetImpl()
 	m_primitiveType = PRIM_INVALID;
 }
 
+void CGSH_Vulkan::MarkNewFrame()
+{
+	m_drawCallCount = m_frameCommandBuffer->GetSubmitCount();
+	CGSHandler::MarkNewFrame();
+	m_frameCommandBuffer->BeginFrame();
+}
+
 void CGSH_Vulkan::FlipImpl()
 {
 	m_frameCommandBuffer->Flush();
