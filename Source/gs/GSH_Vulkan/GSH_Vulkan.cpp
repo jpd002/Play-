@@ -169,9 +169,8 @@ void CGSH_Vulkan::FlipImpl()
 		}
 	}
 
-	//TODO: Fetch real values
-	unsigned int dispWidth = 640;
-	unsigned int dispHeight = 448;
+	unsigned int dispWidth = (d.nW + 1) / (d.nMagX + 1);
+	unsigned int dispHeight = (d.nH + 1);
 
 	bool halfHeight = GetCrtIsInterlaced() && GetCrtIsFrameMode();
 	if(halfHeight) dispHeight /= 2;
