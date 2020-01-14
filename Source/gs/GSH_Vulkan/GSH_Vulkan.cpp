@@ -567,10 +567,12 @@ void CGSH_Vulkan::SetRenderingContext(uint64 primReg)
 	auto alpha = make_convertible<ALPHA>(m_nReg[GS_REG_ALPHA_1 + context]);
 	auto scissor = make_convertible<SCISSOR>(m_nReg[GS_REG_SCISSOR_1 + context]);
 	auto test = make_convertible<TEST>(m_nReg[GS_REG_TEST_1 + context]);
+	auto texA = make_convertible<TEXA>(m_nReg[GS_REG_TEXA]);
 
 	auto pipelineCaps = make_convertible<CDraw::PIPELINE_CAPS>(0);
 	pipelineCaps.hasTexture = prim.nTexture;
 	pipelineCaps.textureHasAlpha = tex0.nColorComp;
+	pipelineCaps.textureBlackIsTransparent = texA.nAEM;
 	pipelineCaps.textureFunction = tex0.nFunction;
 	pipelineCaps.hasAlphaBlending = prim.nAlpha;
 	pipelineCaps.writeDepth = (zbuf.nMask == 0);
@@ -632,6 +634,7 @@ void CGSH_Vulkan::SetRenderingContext(uint64 primReg)
 	m_draw->SetDepthbufferParams(zbuf.GetBasePtr(), frame.GetWidth());
 	m_draw->SetTextureParams(tex0.GetBufPtr(), tex0.GetBufWidth(),
 	                         tex0.GetWidth(), tex0.GetHeight(), tex0.nCSA * 0x10);
+	m_draw->SetTextureAlphaParams(texA.nTA0, texA.nTA1);
 	m_draw->SetAlphaBlendingParams(alpha.nFix);
 	m_draw->SetScissor(scissor.scax0, scissor.scay0,
 	                   scissor.scax1 - scissor.scax0 + 1,

@@ -128,6 +128,17 @@ void CDraw::SetTextureParams(uint32 bufAddr, uint32 bufWidth, uint32 width, uint
 	m_pushConstants.texCsa = csa;
 }
 
+void CDraw::SetTextureAlphaParams(uint32 texA0, uint32 texA1)
+{
+	bool changed =
+	    (m_pushConstants.texA0 != texA0) ||
+	    (m_pushConstants.texA1 != texA1);
+	if(!changed) return;
+	FlushVertices();
+	m_pushConstants.texA0 = texA0;
+	m_pushConstants.texA1 = texA1;
+}
+
 void CDraw::SetAlphaBlendingParams(uint32 alphaFix)
 {
 	bool changed =
@@ -702,6 +713,44 @@ static Nuanceur::CFloat4Rvalue GetTextureColor(Nuanceur::CShaderBuilder& b, uint
 	}
 }
 
+static void ExpandAlpha(Nuanceur::CShaderBuilder& b, uint32 textureFormat, uint32 clutFormat,
+	uint32 texBlackIsTransparent, Nuanceur::CFloat4Lvalue& textureColor,
+	Nuanceur::CFloatValue textureA0, Nuanceur::CFloatValue textureA1)
+{
+	using namespace Nuanceur;
+
+	uint32 pixelFormat = textureFormat;
+	if(CGsPixelFormats::IsPsmIDTEX(textureFormat))
+	{
+		pixelFormat = clutFormat;
+	}
+
+	bool requiresExpansion =
+		(pixelFormat == CGSHandler::PSMCT24) ||
+		(pixelFormat == CGSHandler::PSMCT16) ||
+		(pixelFormat == CGSHandler::PSMCT16S);
+
+	if(!requiresExpansion)
+	{
+		return;
+	}
+
+	auto alpha = Mix(textureA0, textureA1, textureColor->w());
+	textureColor = NewFloat4(textureColor->xyz(), alpha);
+
+	if(texBlackIsTransparent)
+	{
+		//Add rgb and check if it is zero (assume rgb is positive)
+		//Set alpha to 0 if it is
+		auto colorSum = textureColor->x() + textureColor->y() + textureColor->z();
+		BeginIf(b, colorSum == NewFloat(b, 0));
+		{
+			textureColor = NewFloat4(textureColor->xyz(), NewFloat(b, 0));
+		}
+		EndIf(b);
+	}
+}
+
 static Nuanceur::CFloat3Rvalue GetAlphaABD(Nuanceur::CShaderBuilder& b, uint32 alphaABD,
 	Nuanceur::CFloat4Value srcColor, Nuanceur::CFloat4Value dstColor)
 {
@@ -774,6 +823,8 @@ Framework::Vulkan::CShaderModule CDraw::CreateFragmentShader(const PIPELINE_CAPS
 		auto texSize = texParams0->zw();
 
 		auto texCsa = texParams1->x();
+		auto texA0 = ToFloat(texParams1->y()) / NewFloat(b, 255.f);
+		auto texA1 = ToFloat(texParams1->z()) / NewFloat(b, 255.f);
 
 		auto fbWriteMask = ToUint(alphaFbParams->x());
 		auto alphaFix = ToFloat(alphaFbParams->y()) / NewFloat(b, 255.f);
@@ -791,6 +842,11 @@ Framework::Vulkan::CShaderModule CDraw::CreateFragmentShader(const PIPELINE_CAPS
 			auto texelPos = ToInt(inputTexCoord->xy() / inputTexCoord->zz() * ToFloat(texSize));
 			textureColor = GetTextureColor(b, caps.textureFormat, caps.clutFormat, texelPos,
 				memoryBuffer, clutImage, texSwizzleTable, texBufAddress, texBufWidth, texCsa);
+
+			if(caps.textureHasAlpha)
+			{
+				ExpandAlpha(b, caps.textureFormat, caps.clutFormat, caps.textureBlackIsTransparent, textureColor, texA0, texA1);
+			}
 
 			switch(caps.textureFunction)
 			{
