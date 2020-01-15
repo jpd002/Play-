@@ -47,7 +47,7 @@ void CTransfer::DoHostToLocalTransfer(const XferBuffer& inputData)
 	auto result = VK_SUCCESS;
 
 	assert(inputData.size() <= XFER_BUFFER_SIZE);
-	memcpy(m_xferBufferPtr, inputData.data(), inputData.size());
+	memcpy(m_xferBufferPtr + m_xferBufferOffset, inputData.data(), inputData.size());
 
 	//Find pipeline and create it if we've never encountered it before
 	auto xferPipeline = m_pipelineCache.TryGetPipeline(m_pipelineCaps);
