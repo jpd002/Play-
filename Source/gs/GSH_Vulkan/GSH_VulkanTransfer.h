@@ -48,7 +48,6 @@ namespace GSH_Vulkan
 
 		VkDescriptorSet PrepareDescriptorSet(VkDescriptorSetLayout, VkImageView);
 
-		void CreateXferBuffer();
 		Framework::Vulkan::CShaderModule CreateXferShader(const PIPELINE_CAPS&);
 		PIPELINE CreateXferPipeline(const PIPELINE_CAPS&);
 
@@ -60,8 +59,9 @@ namespace GSH_Vulkan
 		FrameCommandBufferPtr m_frameCommandBuffer;
 		PipelineCache m_pipelineCache;
 
-		VkBuffer m_xferBuffer = VK_NULL_HANDLE;
-		VkDeviceMemory m_xferBufferMemory = VK_NULL_HANDLE;
+		Framework::Vulkan::CBuffer m_xferBuffer;
+		uint8* m_xferBufferPtr = nullptr;
+		uint32 m_xferBufferOffset = 0;
 
 		PIPELINE_CAPS m_pipelineCaps;
 	};

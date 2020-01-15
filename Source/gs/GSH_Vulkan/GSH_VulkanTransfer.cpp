@@ -21,14 +21,20 @@ CTransfer::CTransfer(const ContextPtr& context, const FrameCommandBufferPtr& fra
     , m_frameCommandBuffer(frameCommandBuffer)
     , m_pipelineCache(context->device)
 {
-	CreateXferBuffer();
+	m_xferBuffer = Framework::Vulkan::CBuffer(
+	    m_context->device, m_context->physicalDeviceMemoryProperties,
+	    VK_BUFFER_USAGE_STORAGE_BUFFER_BIT, XFER_BUFFER_SIZE);
+
+	auto result = m_context->device.vkMapMemory(m_context->device, m_xferBuffer.GetMemory(),
+	                                            0, VK_WHOLE_SIZE, 0, reinterpret_cast<void**>(&m_xferBufferPtr));
+	CHECKVULKANERROR(result);
+
 	m_pipelineCaps <<= 0;
 }
 
 CTransfer::~CTransfer()
 {
-	m_context->device.vkDestroyBuffer(m_context->device, m_xferBuffer, nullptr);
-	m_context->device.vkFreeMemory(m_context->device, m_xferBufferMemory, nullptr);
+	m_context->device.vkUnmapMemory(m_context->device, m_xferBuffer.GetMemory());
 }
 
 void CTransfer::SetPipelineCaps(const PIPELINE_CAPS& pipelineCaps)
@@ -40,15 +46,8 @@ void CTransfer::DoHostToLocalTransfer(const XferBuffer& inputData)
 {
 	auto result = VK_SUCCESS;
 
-	//Update xfer buffer
-	{
-		assert(inputData.size() <= XFER_BUFFER_SIZE);
-		void* bufferMemoryData = nullptr;
-		auto result = m_context->device.vkMapMemory(m_context->device, m_xferBufferMemory, 0, VK_WHOLE_SIZE, 0, &bufferMemoryData);
-		CHECKVULKANERROR(result);
-		memcpy(bufferMemoryData, inputData.data(), inputData.size());
-		m_context->device.vkUnmapMemory(m_context->device, m_xferBufferMemory);
-	}
+	assert(inputData.size() <= XFER_BUFFER_SIZE);
+	memcpy(m_xferBufferPtr, inputData.data(), inputData.size());
 
 	//Find pipeline and create it if we've never encountered it before
 	auto xferPipeline = m_pipelineCache.TryGetPipeline(m_pipelineCaps);
@@ -157,31 +156,6 @@ VkDescriptorSet CTransfer::PrepareDescriptorSet(VkDescriptorSetLayout descriptor
 	}
 
 	return descriptorSet;
-}
-
-void CTransfer::CreateXferBuffer()
-{
-	VkResult result = VK_SUCCESS;
-
-	auto bufferCreateInfo = Framework::Vulkan::BufferCreateInfo();
-	bufferCreateInfo.usage = VK_BUFFER_USAGE_STORAGE_BUFFER_BIT;
-	bufferCreateInfo.size = XFER_BUFFER_SIZE;
-	result = m_context->device.vkCreateBuffer(m_context->device, &bufferCreateInfo, nullptr, &m_xferBuffer);
-	CHECKVULKANERROR(result);
-
-	VkMemoryRequirements memoryRequirements = {};
-	m_context->device.vkGetBufferMemoryRequirements(m_context->device, m_xferBuffer, &memoryRequirements);
-
-	auto memoryAllocateInfo = Framework::Vulkan::MemoryAllocateInfo();
-	memoryAllocateInfo.allocationSize = memoryRequirements.size;
-	memoryAllocateInfo.memoryTypeIndex = Framework::Vulkan::GetMemoryTypeIndex(m_context->physicalDeviceMemoryProperties, memoryRequirements.memoryTypeBits, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
-	assert(memoryAllocateInfo.memoryTypeIndex != Framework::Vulkan::VULKAN_MEMORY_TYPE_INVALID);
-
-	result = m_context->device.vkAllocateMemory(m_context->device, &memoryAllocateInfo, nullptr, &m_xferBufferMemory);
-	CHECKVULKANERROR(result);
-
-	result = m_context->device.vkBindBufferMemory(m_context->device, m_xferBuffer, m_xferBufferMemory, 0);
-	CHECKVULKANERROR(result);
 }
 
 Framework::Vulkan::CShaderModule CTransfer::CreateXferShader(const PIPELINE_CAPS& caps)
