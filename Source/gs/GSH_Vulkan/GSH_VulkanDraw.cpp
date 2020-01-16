@@ -239,11 +239,6 @@ void CDraw::FlushVertices()
 	m_passVertexStart = m_passVertexEnd;
 }
 
-void CDraw::ResetDescriptorSets()
-{
-	m_descriptorSetCache.clear();
-}
-
 void CDraw::PreFlushFrameCommandBuffer()
 {
 	FlushVertices();

@@ -177,10 +177,6 @@ void CGSH_Vulkan::FlipImpl()
 
 	m_present->DoPresent(fb.nPSM, fb.GetBufPtr(), fb.GetBufWidth(), dispWidth, dispHeight);
 
-	auto result = m_context->device.vkResetDescriptorPool(m_context->device, m_context->descriptorPool, 0);
-	CHECKVULKANERROR(result);
-
-	m_draw->ResetDescriptorSets();
 	m_context->commandBufferPool.ResetBuffers();
 
 	PresentBackbuffer();

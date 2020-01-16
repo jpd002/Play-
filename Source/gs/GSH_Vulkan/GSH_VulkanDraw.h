@@ -65,8 +65,6 @@ namespace GSH_Vulkan
 		void AddVertices(const PRIM_VERTEX*, const PRIM_VERTEX*);
 		void FlushVertices();
 
-		void ResetDescriptorSets();
-
 		void PreFlushFrameCommandBuffer() override;
 		void PostFlushFrameCommandBuffer() override;
 
