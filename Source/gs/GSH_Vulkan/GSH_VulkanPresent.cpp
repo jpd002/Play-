@@ -206,6 +206,12 @@ void CPresent::UpdateBackbuffer(uint32 imageIndex, uint32 bufPsm, uint32 bufAddr
 
 VkDescriptorSet CPresent::PrepareDescriptorSet(VkDescriptorSetLayout descriptorSetLayout, uint32 bufPsm)
 {
+	auto descriptorSetIterator = m_descriptorSetCache.find(bufPsm);
+	if(descriptorSetIterator != std::end(m_descriptorSetCache))
+	{
+		return descriptorSetIterator->second;
+	}
+
 	auto result = VK_SUCCESS;
 	VkDescriptorSet descriptorSet = VK_NULL_HANDLE;
 
@@ -254,6 +260,8 @@ VkDescriptorSet CPresent::PrepareDescriptorSet(VkDescriptorSetLayout descriptorS
 
 		m_context->device.vkUpdateDescriptorSets(m_context->device, writes.size(), writes.data(), 0, nullptr);
 	}
+
+	m_descriptorSetCache.insert(std::make_pair(bufPsm, descriptorSet));
 
 	return descriptorSet;
 }
