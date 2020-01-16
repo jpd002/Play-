@@ -17,9 +17,8 @@ namespace GSH_Vulkan
 		void DoPresent(uint32, uint32, uint32, uint32, uint32);
 
 	private:
-		typedef std::unordered_map<uint32, VkDescriptorSet> DescriptorSetCache;
-
 		typedef CPipelineCache<uint32> PipelineCache;
+		typedef std::unordered_map<uint32, VkDescriptorSet> DescriptorSetCache;
 
 		struct PRESENT_VERTEX
 		{

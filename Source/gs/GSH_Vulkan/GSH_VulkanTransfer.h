@@ -45,8 +45,9 @@ namespace GSH_Vulkan
 
 	private:
 		typedef CPipelineCache<PipelineCapsInt> PipelineCache;
+		typedef std::unordered_map<uint32, VkDescriptorSet> DescriptorSetCache;
 
-		VkDescriptorSet PrepareDescriptorSet(VkDescriptorSetLayout, VkImageView);
+		VkDescriptorSet PrepareDescriptorSet(VkDescriptorSetLayout, uint32);
 
 		Framework::Vulkan::CShaderModule CreateXferShader(const PIPELINE_CAPS&);
 		PIPELINE CreateXferPipeline(const PIPELINE_CAPS&);
@@ -58,6 +59,7 @@ namespace GSH_Vulkan
 		ContextPtr m_context;
 		FrameCommandBufferPtr m_frameCommandBuffer;
 		PipelineCache m_pipelineCache;
+		DescriptorSetCache m_descriptorSetCache;
 
 		Framework::Vulkan::CBuffer m_xferBuffer;
 		uint8* m_xferBufferPtr = nullptr;

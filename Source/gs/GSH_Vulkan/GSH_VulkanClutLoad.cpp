@@ -36,8 +36,7 @@ void CClutLoad::DoClutLoad(const CGSHandler::TEX0& tex0)
 	loadParams.clutBufPtr = tex0.GetCLUTPtr();
 	loadParams.csa = tex0.nCSA;
 
-	auto swizzleTable = m_context->GetSwizzleTable(tex0.nCPSM);
-	auto descriptorSet = PrepareDescriptorSet(loadPipeline->descriptorSetLayout, swizzleTable);
+	auto descriptorSet = PrepareDescriptorSet(loadPipeline->descriptorSetLayout, tex0.nCPSM);
 	auto commandBuffer = m_frameCommandBuffer->GetCommandBuffer();
 
 	m_context->device.vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_COMPUTE, loadPipeline->pipelineLayout, 0, 1, &descriptorSet, 0, nullptr);
@@ -46,8 +45,14 @@ void CClutLoad::DoClutLoad(const CGSHandler::TEX0& tex0)
 	m_context->device.vkCmdDispatch(commandBuffer, 1, 1, 1);
 }
 
-VkDescriptorSet CClutLoad::PrepareDescriptorSet(VkDescriptorSetLayout descriptorSetLayout, VkImageView swizzleTable)
+VkDescriptorSet CClutLoad::PrepareDescriptorSet(VkDescriptorSetLayout descriptorSetLayout, uint32 cpsm)
 {
+	auto descriptorSetIterator = m_descriptorSetCache.find(cpsm);
+	if(descriptorSetIterator != std::end(m_descriptorSetCache))
+	{
+		return descriptorSetIterator->second;
+	}
+
 	VkResult result = VK_SUCCESS;
 	VkDescriptorSet descriptorSet = VK_NULL_HANDLE;
 
@@ -75,7 +80,7 @@ VkDescriptorSet CClutLoad::PrepareDescriptorSet(VkDescriptorSetLayout descriptor
 		descriptorClutImageInfo.imageLayout = VK_IMAGE_LAYOUT_GENERAL;
 
 		VkDescriptorImageInfo descriptorSwizzleTableImageInfo = {};
-		descriptorSwizzleTableImageInfo.imageView = swizzleTable;
+		descriptorSwizzleTableImageInfo.imageView = m_context->GetSwizzleTable(cpsm);
 		descriptorSwizzleTableImageInfo.imageLayout = VK_IMAGE_LAYOUT_GENERAL;
 
 		//Memory Image Descriptor
@@ -113,6 +118,8 @@ VkDescriptorSet CClutLoad::PrepareDescriptorSet(VkDescriptorSetLayout descriptor
 
 		m_context->device.vkUpdateDescriptorSets(m_context->device, writes.size(), writes.data(), 0, nullptr);
 	}
+
+	m_descriptorSetCache.insert(std::make_pair(cpsm, descriptorSet));
 
 	return descriptorSet;
 }

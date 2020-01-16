@@ -56,7 +56,6 @@ void CTransfer::DoHostToLocalTransfer(const XferBuffer& inputData)
 		xferPipeline = m_pipelineCache.RegisterPipeline(m_pipelineCaps, CreateXferPipeline(m_pipelineCaps));
 	}
 
-	auto dstSwizzleTableView = m_context->GetSwizzleTable(m_pipelineCaps.dstFormat);
 	uint32 pixelCount = 0;
 	switch(m_pipelineCaps.dstFormat)
 	{
@@ -76,7 +75,7 @@ void CTransfer::DoHostToLocalTransfer(const XferBuffer& inputData)
 	Params.pixelCount = pixelCount;
 	uint32 workUnits = (pixelCount + LOCAL_SIZE_X - 1) / LOCAL_SIZE_X;
 
-	auto descriptorSet = PrepareDescriptorSet(xferPipeline->descriptorSetLayout, dstSwizzleTableView);
+	auto descriptorSet = PrepareDescriptorSet(xferPipeline->descriptorSetLayout, m_pipelineCaps.dstFormat);
 	auto commandBuffer = m_frameCommandBuffer->GetCommandBuffer();
 
 	m_context->device.vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_COMPUTE, xferPipeline->pipelineLayout, 0, 1, &descriptorSet, 0, nullptr);
@@ -87,8 +86,14 @@ void CTransfer::DoHostToLocalTransfer(const XferBuffer& inputData)
 	m_frameCommandBuffer->Flush();
 }
 
-VkDescriptorSet CTransfer::PrepareDescriptorSet(VkDescriptorSetLayout descriptorSetLayout, VkImageView dstSwizzleTableView)
+VkDescriptorSet CTransfer::PrepareDescriptorSet(VkDescriptorSetLayout descriptorSetLayout, uint32 dstPsm)
 {
+	auto descriptorSetIterator = m_descriptorSetCache.find(dstPsm);
+	if(descriptorSetIterator != std::end(m_descriptorSetCache))
+	{
+		return descriptorSetIterator->second;
+	}
+
 	VkResult result = VK_SUCCESS;
 	VkDescriptorSet descriptorSet = VK_NULL_HANDLE;
 
@@ -116,7 +121,7 @@ VkDescriptorSet CTransfer::PrepareDescriptorSet(VkDescriptorSetLayout descriptor
 		descriptorBufferInfo.range = VK_WHOLE_SIZE;
 
 		VkDescriptorImageInfo descriptorDstSwizzleTableInfo = {};
-		descriptorDstSwizzleTableInfo.imageView = dstSwizzleTableView;
+		descriptorDstSwizzleTableInfo.imageView = m_context->GetSwizzleTable(dstPsm);
 		descriptorDstSwizzleTableInfo.imageLayout = VK_IMAGE_LAYOUT_GENERAL;
 
 		//Memory Image Descriptor
@@ -154,6 +159,8 @@ VkDescriptorSet CTransfer::PrepareDescriptorSet(VkDescriptorSetLayout descriptor
 
 		m_context->device.vkUpdateDescriptorSets(m_context->device, writes.size(), writes.data(), 0, nullptr);
 	}
+
+	m_descriptorSetCache.insert(std::make_pair(dstPsm, descriptorSet));
 
 	return descriptorSet;
 }

@@ -27,6 +27,7 @@ namespace GSH_Vulkan
 		};
 
 		typedef CPipelineCache<PipelineCapsInt> PipelineCache;
+		typedef std::unordered_map<uint32, VkDescriptorSet> DescriptorSetCache;
 
 		struct LOAD_PARAMS
 		{
@@ -37,13 +38,14 @@ namespace GSH_Vulkan
 		};
 		static_assert(sizeof(LOAD_PARAMS) == 0x10, "LOAD_PARAMS must be 16 bytes large.");
 
-		VkDescriptorSet PrepareDescriptorSet(VkDescriptorSetLayout, VkImageView);
+		VkDescriptorSet PrepareDescriptorSet(VkDescriptorSetLayout, uint32);
 		Framework::Vulkan::CShaderModule CreateLoadShader(const PIPELINE_CAPS&);
 		PIPELINE CreateLoadPipeline(const PIPELINE_CAPS&);
 
 		ContextPtr m_context;
 		FrameCommandBufferPtr m_frameCommandBuffer;
 		PipelineCache m_pipelines;
+		DescriptorSetCache m_descriptorSetCache;
 	};
 
 	typedef std::shared_ptr<CClutLoad> ClutLoadPtr;
