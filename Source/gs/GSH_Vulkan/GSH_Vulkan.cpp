@@ -97,6 +97,7 @@ void CGSH_Vulkan::InitializeImpl()
 	m_transfer = std::make_shared<CTransfer>(m_context, m_frameCommandBuffer);
 
 	m_frameCommandBuffer->RegisterWriter(m_draw.get());
+	m_frameCommandBuffer->RegisterWriter(m_transfer.get());
 }
 
 void CGSH_Vulkan::ReleaseImpl()

@@ -10,7 +10,7 @@
 
 namespace GSH_Vulkan
 {
-	class CTransfer
+	class CTransfer : public IFrameCommandBufferWriter
 	{
 	public:
 		typedef uint32 PipelineCapsInt;
@@ -40,6 +40,9 @@ namespace GSH_Vulkan
 		void SetPipelineCaps(const PIPELINE_CAPS&);
 
 		void DoHostToLocalTransfer(const XferBuffer&);
+
+		void PreFlushFrameCommandBuffer() override;
+		void PostFlushFrameCommandBuffer() override;
 
 		XFERPARAMS Params;
 

@@ -46,6 +46,13 @@ void CTransfer::DoHostToLocalTransfer(const XferBuffer& inputData)
 {
 	auto result = VK_SUCCESS;
 
+	uint32 xferBufferRemainSize = XFER_BUFFER_SIZE - m_xferBufferOffset;
+	if(xferBufferRemainSize < inputData.size())
+	{
+		m_frameCommandBuffer->Flush();
+		assert((XFER_BUFFER_SIZE - m_xferBufferOffset) >= inputData.size());
+	}
+
 	assert(inputData.size() <= XFER_BUFFER_SIZE);
 	memcpy(m_xferBufferPtr + m_xferBufferOffset, inputData.data(), inputData.size());
 
@@ -78,12 +85,12 @@ void CTransfer::DoHostToLocalTransfer(const XferBuffer& inputData)
 	auto descriptorSet = PrepareDescriptorSet(xferPipeline->descriptorSetLayout, m_pipelineCaps.dstFormat);
 	auto commandBuffer = m_frameCommandBuffer->GetCommandBuffer();
 
-	m_context->device.vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_COMPUTE, xferPipeline->pipelineLayout, 0, 1, &descriptorSet, 0, nullptr);
+	m_context->device.vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_COMPUTE, xferPipeline->pipelineLayout, 0, 1, &descriptorSet, 1, &m_xferBufferOffset);
 	m_context->device.vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_COMPUTE, xferPipeline->pipeline);
 	m_context->device.vkCmdPushConstants(commandBuffer, xferPipeline->pipelineLayout, VK_SHADER_STAGE_COMPUTE_BIT, 0, sizeof(XFERPARAMS), &Params);
 	m_context->device.vkCmdDispatch(commandBuffer, workUnits, 1, 1);
 
-	m_frameCommandBuffer->Flush();
+	m_xferBufferOffset += inputData.size();
 }
 
 VkDescriptorSet CTransfer::PrepareDescriptorSet(VkDescriptorSetLayout descriptorSetLayout, uint32 dstPsm)
@@ -141,7 +148,7 @@ VkDescriptorSet CTransfer::PrepareDescriptorSet(VkDescriptorSetLayout descriptor
 			writeSet.dstSet = descriptorSet;
 			writeSet.dstBinding = DESCRIPTOR_LOCATION_XFERBUFFER;
 			writeSet.descriptorCount = 1;
-			writeSet.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+			writeSet.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC;
 			writeSet.pBufferInfo = &descriptorBufferInfo;
 			writes.push_back(writeSet);
 		}
@@ -163,6 +170,16 @@ VkDescriptorSet CTransfer::PrepareDescriptorSet(VkDescriptorSetLayout descriptor
 	m_descriptorSetCache.insert(std::make_pair(dstPsm, descriptorSet));
 
 	return descriptorSet;
+}
+
+void CTransfer::PreFlushFrameCommandBuffer()
+{
+
+}
+
+void CTransfer::PostFlushFrameCommandBuffer()
+{
+	m_xferBufferOffset = 0;
 }
 
 Framework::Vulkan::CShaderModule CTransfer::CreateXferShader(const PIPELINE_CAPS& caps)
@@ -285,7 +302,7 @@ PIPELINE CTransfer::CreateXferPipeline(const PIPELINE_CAPS& caps)
 		{
 			VkDescriptorSetLayoutBinding binding = {};
 			binding.binding = DESCRIPTOR_LOCATION_XFERBUFFER;
-			binding.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+			binding.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC;
 			binding.descriptorCount = 1;
 			binding.stageFlags = VK_SHADER_STAGE_COMPUTE_BIT;
 			bindings.push_back(binding);
