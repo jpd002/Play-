@@ -31,7 +31,7 @@ VkCommandBuffer CFrameCommandBuffer::GetCommandBuffer()
 	m_commandBuffer = m_context->commandBufferPool.AllocateBuffer();
 
 	auto commandBufferBeginInfo = Framework::Vulkan::CommandBufferBeginInfo();
-	commandBufferBeginInfo.flags = VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT;
+	commandBufferBeginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
 	result = m_context->device.vkBeginCommandBuffer(m_commandBuffer, &commandBufferBeginInfo);
 	CHECKVULKANERROR(result);
 
