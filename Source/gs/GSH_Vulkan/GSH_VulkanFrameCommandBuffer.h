@@ -15,23 +15,41 @@ namespace GSH_Vulkan
 	class CFrameCommandBuffer
 	{
 	public:
+		enum
+		{
+			MAX_FRAMES = 2,
+		};
+
 		CFrameCommandBuffer(const ContextPtr&);
+		~CFrameCommandBuffer();
 
 		void RegisterWriter(IFrameCommandBufferWriter*);
 
 		void BeginFrame();
-		uint32 GetSubmitCount() const;
-
-		VkCommandBuffer GetCommandBuffer();
+		void EndFrame();
 		void Flush();
 
+		uint32 GetFlushCount() const;
+		void ResetFlushCount();
+
+		VkCommandBuffer GetCommandBuffer();
+		uint32 GetCurrentFrame() const;
+
 	private:
+		struct FRAMECONTEXT
+		{
+			VkCommandBuffer commandBuffer = VK_NULL_HANDLE;
+			VkFence execCompleteFence = VK_NULL_HANDLE;
+		};
+
 		ContextPtr m_context;
 
 		std::vector<IFrameCommandBufferWriter*> m_writers;
-		VkCommandBuffer m_commandBuffer = VK_NULL_HANDLE;
 
-		uint32 m_submitCount = 0;
+		FRAMECONTEXT m_frames[MAX_FRAMES];
+		uint32 m_currentFrame = 0;
+
+		uint32 m_flushCount = 0;
 	};
 
 	typedef std::shared_ptr<CFrameCommandBuffer> FrameCommandBufferPtr;

@@ -6,6 +6,27 @@ using namespace GSH_Vulkan;
 CFrameCommandBuffer::CFrameCommandBuffer(const ContextPtr& context)
     : m_context(context)
 {
+	auto result = VK_SUCCESS;
+
+	for(auto& frame : m_frames)
+	{
+		frame.commandBuffer = m_context->commandBufferPool.AllocateBuffer();
+
+		{
+			auto fenceCreateInfo = Framework::Vulkan::FenceCreateInfo();
+			fenceCreateInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT;
+			result = m_context->device.vkCreateFence(m_context->device, &fenceCreateInfo, nullptr, &frame.execCompleteFence);
+			CHECKVULKANERROR(result);
+		}
+	}
+}
+
+CFrameCommandBuffer::~CFrameCommandBuffer()
+{
+	for(auto& frame : m_frames)
+	{
+		m_context->device.vkDestroyFence(m_context->device, frame.execCompleteFence, nullptr);
+	}
 }
 
 void CFrameCommandBuffer::RegisterWriter(IFrameCommandBufferWriter* writer)
@@ -15,61 +36,80 @@ void CFrameCommandBuffer::RegisterWriter(IFrameCommandBufferWriter* writer)
 
 void CFrameCommandBuffer::BeginFrame()
 {
-	m_submitCount = 0;
-}
-
-uint32 CFrameCommandBuffer::GetSubmitCount() const
-{
-	return m_submitCount;
-}
-
-VkCommandBuffer CFrameCommandBuffer::GetCommandBuffer()
-{
-	if(m_commandBuffer != VK_NULL_HANDLE) return m_commandBuffer;
+	const auto& frame = m_frames[m_currentFrame];
 
 	auto result = VK_SUCCESS;
-	m_commandBuffer = m_context->commandBufferPool.AllocateBuffer();
+
+	result = m_context->device.vkWaitForFences(m_context->device, 1, &frame.execCompleteFence, VK_TRUE, UINT64_MAX);
+	CHECKVULKANERROR(result);
+
+	result = m_context->device.vkResetFences(m_context->device, 1, &frame.execCompleteFence);
+	CHECKVULKANERROR(result);
+
+	result = m_context->device.vkResetCommandBuffer(frame.commandBuffer, VK_COMMAND_BUFFER_RESET_RELEASE_RESOURCES_BIT);
+	CHECKVULKANERROR(result);
 
 	auto commandBufferBeginInfo = Framework::Vulkan::CommandBufferBeginInfo();
 	commandBufferBeginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
-	result = m_context->device.vkBeginCommandBuffer(m_commandBuffer, &commandBufferBeginInfo);
+	result = m_context->device.vkBeginCommandBuffer(frame.commandBuffer, &commandBufferBeginInfo);
 	CHECKVULKANERROR(result);
-
-	return m_commandBuffer;
 }
 
-void CFrameCommandBuffer::Flush()
+void CFrameCommandBuffer::EndFrame()
 {
 	for(const auto& writer : m_writers)
 	{
 		writer->PreFlushFrameCommandBuffer();
 	}
 
-	if(m_commandBuffer != VK_NULL_HANDLE)
+	auto result = VK_SUCCESS;
+	const auto& frame = m_frames[m_currentFrame];
+
+	result = m_context->device.vkEndCommandBuffer(frame.commandBuffer);
+	CHECKVULKANERROR(result);
+
+	//Submit command buffer
 	{
-		m_context->device.vkEndCommandBuffer(m_commandBuffer);
-
-		auto result = VK_SUCCESS;
-
-		//Submit command buffer
-		{
-			auto submitInfo = Framework::Vulkan::SubmitInfo();
-			submitInfo.commandBufferCount = 1;
-			submitInfo.pCommandBuffers = &m_commandBuffer;
-			result = m_context->device.vkQueueSubmit(m_context->queue, 1, &submitInfo, VK_NULL_HANDLE);
-			CHECKVULKANERROR(result);
-		}
-
-		m_submitCount++;
-
-		result = m_context->device.vkQueueWaitIdle(m_context->queue);
+		auto submitInfo = Framework::Vulkan::SubmitInfo();
+		submitInfo.commandBufferCount = 1;
+		submitInfo.pCommandBuffers = &frame.commandBuffer;
+		result = m_context->device.vkQueueSubmit(m_context->queue, 1, &submitInfo, frame.execCompleteFence);
 		CHECKVULKANERROR(result);
-
-		m_commandBuffer = VK_NULL_HANDLE;
 	}
 
 	for(const auto& writer : m_writers)
 	{
 		writer->PostFlushFrameCommandBuffer();
 	}
+
+	m_currentFrame++;
+	m_currentFrame %= MAX_FRAMES;
+}
+
+void CFrameCommandBuffer::Flush()
+{
+	EndFrame();
+	BeginFrame();
+	m_flushCount++;
+}
+
+uint32 CFrameCommandBuffer::GetFlushCount() const
+{
+	return m_flushCount;
+}
+
+void CFrameCommandBuffer::ResetFlushCount()
+{
+	m_flushCount = 0;
+}
+
+VkCommandBuffer CFrameCommandBuffer::GetCommandBuffer()
+{
+	const auto& frame = m_frames[m_currentFrame];
+	return frame.commandBuffer;
+}
+
+uint32 CFrameCommandBuffer::GetCurrentFrame() const
+{
+	return m_currentFrame;
 }

@@ -58,13 +58,16 @@ CDraw::CDraw(const ContextPtr& context, const FrameCommandBufferPtr& frameComman
 	CreateDrawImage();
 	CreateFramebuffer();
 
-	m_vertexBuffer = Framework::Vulkan::CBuffer(
-	    m_context->device, m_context->physicalDeviceMemoryProperties,
-	    VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, sizeof(PRIM_VERTEX) * MAX_VERTEX_COUNT);
+	for(auto& frame : m_frames)
+	{
+		frame.vertexBuffer = Framework::Vulkan::CBuffer(
+			m_context->device, m_context->physicalDeviceMemoryProperties,
+			VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, sizeof(PRIM_VERTEX) * MAX_VERTEX_COUNT);
 
-	auto result = m_context->device.vkMapMemory(m_context->device, m_vertexBuffer.GetMemory(),
-	                                            0, VK_WHOLE_SIZE, 0, reinterpret_cast<void**>(&m_vertexBufferPtr));
-	CHECKVULKANERROR(result);
+		auto result = m_context->device.vkMapMemory(m_context->device, frame.vertexBuffer.GetMemory(),
+													0, VK_WHOLE_SIZE, 0, reinterpret_cast<void**>(&frame.vertexBufferPtr));
+		CHECKVULKANERROR(result);
+	}
 
 	MakeLinearZOrtho(m_pushConstants.projMatrix, 0, DRAW_AREA_SIZE, 0, DRAW_AREA_SIZE);
 
@@ -73,7 +76,10 @@ CDraw::CDraw(const ContextPtr& context, const FrameCommandBufferPtr& frameComman
 
 CDraw::~CDraw()
 {
-	m_context->device.vkUnmapMemory(m_context->device, m_vertexBuffer.GetMemory());
+	for(auto& frame : m_frames)
+	{
+		m_context->device.vkUnmapMemory(m_context->device, frame.vertexBuffer.GetMemory());
+	}
 	m_context->device.vkDestroyFramebuffer(m_context->device, m_framebuffer, nullptr);
 	m_context->device.vkDestroyRenderPass(m_context->device, m_renderPass, nullptr);
 	m_context->device.vkDestroyImageView(m_context->device, m_drawImageView, nullptr);
@@ -171,7 +177,8 @@ void CDraw::AddVertices(const PRIM_VERTEX* vertexBeginPtr, const PRIM_VERTEX* ve
 		m_frameCommandBuffer->Flush();
 		assert((m_passVertexEnd + amount) <= MAX_VERTEX_COUNT);
 	}
-	memcpy(m_vertexBufferPtr + m_passVertexEnd, vertexBeginPtr, amount * sizeof(PRIM_VERTEX));
+	auto& frame = m_frames[m_frameCommandBuffer->GetCurrentFrame()];
+	memcpy(frame.vertexBufferPtr + m_passVertexEnd, vertexBeginPtr, amount * sizeof(PRIM_VERTEX));
 	m_passVertexEnd += amount;
 }
 
@@ -180,6 +187,7 @@ void CDraw::FlushVertices()
 	uint32 vertexCount = m_passVertexEnd - m_passVertexStart;
 	if(vertexCount == 0) return;
 
+	auto& frame = m_frames[m_frameCommandBuffer->GetCurrentFrame()];
 	auto commandBuffer = m_frameCommandBuffer->GetCommandBuffer();
 
 	//Find pipeline and create it if we've never encountered it before
@@ -225,7 +233,7 @@ void CDraw::FlushVertices()
 	m_context->device.vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, drawPipeline->pipeline);
 
 	VkDeviceSize vertexBufferOffset = (m_passVertexStart * sizeof(PRIM_VERTEX));
-	VkBuffer vertexBuffer = m_vertexBuffer;
+	VkBuffer vertexBuffer = frame.vertexBuffer;
 	m_context->device.vkCmdBindVertexBuffers(commandBuffer, 0, 1, &vertexBuffer, &vertexBufferOffset);
 
 	m_context->device.vkCmdPushConstants(commandBuffer, drawPipeline->pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT,

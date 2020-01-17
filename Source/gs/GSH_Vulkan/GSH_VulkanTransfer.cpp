@@ -21,20 +21,26 @@ CTransfer::CTransfer(const ContextPtr& context, const FrameCommandBufferPtr& fra
     , m_frameCommandBuffer(frameCommandBuffer)
     , m_pipelineCache(context->device)
 {
-	m_xferBuffer = Framework::Vulkan::CBuffer(
-	    m_context->device, m_context->physicalDeviceMemoryProperties,
-	    VK_BUFFER_USAGE_STORAGE_BUFFER_BIT, XFER_BUFFER_SIZE);
+	for(auto& frame : m_frames)
+	{
+		frame.xferBuffer = Framework::Vulkan::CBuffer(
+			m_context->device, m_context->physicalDeviceMemoryProperties,
+			VK_BUFFER_USAGE_STORAGE_BUFFER_BIT, XFER_BUFFER_SIZE);
 
-	auto result = m_context->device.vkMapMemory(m_context->device, m_xferBuffer.GetMemory(),
-	                                            0, VK_WHOLE_SIZE, 0, reinterpret_cast<void**>(&m_xferBufferPtr));
-	CHECKVULKANERROR(result);
+		auto result = m_context->device.vkMapMemory(m_context->device, frame.xferBuffer.GetMemory(),
+													0, VK_WHOLE_SIZE, 0, reinterpret_cast<void**>(&frame.xferBufferPtr));
+		CHECKVULKANERROR(result);
+	}
 
 	m_pipelineCaps <<= 0;
 }
 
 CTransfer::~CTransfer()
 {
-	m_context->device.vkUnmapMemory(m_context->device, m_xferBuffer.GetMemory());
+	for(auto& frame : m_frames)
+	{
+		m_context->device.vkUnmapMemory(m_context->device, frame.xferBuffer.GetMemory());
+	}
 }
 
 void CTransfer::SetPipelineCaps(const PIPELINE_CAPS& pipelineCaps)
@@ -53,8 +59,10 @@ void CTransfer::DoHostToLocalTransfer(const XferBuffer& inputData)
 		assert((XFER_BUFFER_SIZE - m_xferBufferOffset) >= inputData.size());
 	}
 
+	auto& frame = m_frames[m_frameCommandBuffer->GetCurrentFrame()];
+
 	assert(inputData.size() <= XFER_BUFFER_SIZE);
-	memcpy(m_xferBufferPtr + m_xferBufferOffset, inputData.data(), inputData.size());
+	memcpy(frame.xferBufferPtr + m_xferBufferOffset, inputData.data(), inputData.size());
 
 	//Find pipeline and create it if we've never encountered it before
 	auto xferPipeline = m_pipelineCache.TryGetPipeline(m_pipelineCaps);
@@ -82,7 +90,11 @@ void CTransfer::DoHostToLocalTransfer(const XferBuffer& inputData)
 	Params.pixelCount = pixelCount;
 	uint32 workUnits = (pixelCount + LOCAL_SIZE_X - 1) / LOCAL_SIZE_X;
 
-	auto descriptorSet = PrepareDescriptorSet(xferPipeline->descriptorSetLayout, m_pipelineCaps.dstFormat);
+	auto descriptorSetCaps = make_convertible<DESCRIPTORSET_CAPS>(0);
+	descriptorSetCaps.dstPsm = m_pipelineCaps.dstFormat;
+	descriptorSetCaps.frameIdx = m_frameCommandBuffer->GetCurrentFrame();
+
+	auto descriptorSet = PrepareDescriptorSet(xferPipeline->descriptorSetLayout, descriptorSetCaps);
 	auto commandBuffer = m_frameCommandBuffer->GetCommandBuffer();
 
 	m_context->device.vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_COMPUTE, xferPipeline->pipelineLayout, 0, 1, &descriptorSet, 1, &m_xferBufferOffset);
@@ -93,9 +105,9 @@ void CTransfer::DoHostToLocalTransfer(const XferBuffer& inputData)
 	m_xferBufferOffset += inputData.size();
 }
 
-VkDescriptorSet CTransfer::PrepareDescriptorSet(VkDescriptorSetLayout descriptorSetLayout, uint32 dstPsm)
+VkDescriptorSet CTransfer::PrepareDescriptorSet(VkDescriptorSetLayout descriptorSetLayout, const DESCRIPTORSET_CAPS& caps)
 {
-	auto descriptorSetIterator = m_descriptorSetCache.find(dstPsm);
+	auto descriptorSetIterator = m_descriptorSetCache.find(caps);
 	if(descriptorSetIterator != std::end(m_descriptorSetCache))
 	{
 		return descriptorSetIterator->second;
@@ -124,11 +136,11 @@ VkDescriptorSet CTransfer::PrepareDescriptorSet(VkDescriptorSetLayout descriptor
 		descriptorMemoryBufferInfo.range = VK_WHOLE_SIZE;
 
 		VkDescriptorBufferInfo descriptorBufferInfo = {};
-		descriptorBufferInfo.buffer = m_xferBuffer;
+		descriptorBufferInfo.buffer = m_frames[caps.frameIdx].xferBuffer;
 		descriptorBufferInfo.range = VK_WHOLE_SIZE;
 
 		VkDescriptorImageInfo descriptorDstSwizzleTableInfo = {};
-		descriptorDstSwizzleTableInfo.imageView = m_context->GetSwizzleTable(dstPsm);
+		descriptorDstSwizzleTableInfo.imageView = m_context->GetSwizzleTable(caps.dstPsm);
 		descriptorDstSwizzleTableInfo.imageLayout = VK_IMAGE_LAYOUT_GENERAL;
 
 		//Memory Image Descriptor
@@ -167,7 +179,7 @@ VkDescriptorSet CTransfer::PrepareDescriptorSet(VkDescriptorSetLayout descriptor
 		m_context->device.vkUpdateDescriptorSets(m_context->device, writes.size(), writes.data(), 0, nullptr);
 	}
 
-	m_descriptorSetCache.insert(std::make_pair(dstPsm, descriptorSet));
+	m_descriptorSetCache.insert(std::make_pair(caps, descriptorSet));
 
 	return descriptorSet;
 }

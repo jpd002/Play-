@@ -13,6 +13,11 @@ namespace GSH_Vulkan
 	class CTransfer : public IFrameCommandBufferWriter
 	{
 	public:
+		enum
+		{
+			MAX_FRAMES = CFrameCommandBuffer::MAX_FRAMES,
+		};
+
 		typedef uint32 PipelineCapsInt;
 		typedef std::vector<uint8> XferBuffer;
 
@@ -47,10 +52,25 @@ namespace GSH_Vulkan
 		XFERPARAMS Params;
 
 	private:
-		typedef CPipelineCache<PipelineCapsInt> PipelineCache;
-		typedef std::unordered_map<uint32, VkDescriptorSet> DescriptorSetCache;
+		struct FRAMECONTEXT
+		{
+			Framework::Vulkan::CBuffer xferBuffer;
+			uint8* xferBufferPtr = nullptr;
+		};
 
-		VkDescriptorSet PrepareDescriptorSet(VkDescriptorSetLayout, uint32);
+		typedef CPipelineCache<PipelineCapsInt> PipelineCache;
+
+		typedef uint32 DescriptorSetCapsInt;
+
+		struct DESCRIPTORSET_CAPS : public convertible<DescriptorSetCapsInt>
+		{
+			uint32 dstPsm : 6;
+			uint32 frameIdx : 26;
+		};
+		static_assert(sizeof(DESCRIPTORSET_CAPS) == sizeof(DescriptorSetCapsInt));
+		typedef std::unordered_map<DescriptorSetCapsInt, VkDescriptorSet> DescriptorSetCache;
+
+		VkDescriptorSet PrepareDescriptorSet(VkDescriptorSetLayout, const DESCRIPTORSET_CAPS&);
 
 		Framework::Vulkan::CShaderModule CreateXferShader(const PIPELINE_CAPS&);
 		PIPELINE CreateXferPipeline(const PIPELINE_CAPS&);
@@ -64,8 +84,8 @@ namespace GSH_Vulkan
 		PipelineCache m_pipelineCache;
 		DescriptorSetCache m_descriptorSetCache;
 
-		Framework::Vulkan::CBuffer m_xferBuffer;
-		uint8* m_xferBufferPtr = nullptr;
+		FRAMECONTEXT m_frames[MAX_FRAMES];
+
 		uint32 m_xferBufferOffset = 0;
 
 		PIPELINE_CAPS m_pipelineCaps;

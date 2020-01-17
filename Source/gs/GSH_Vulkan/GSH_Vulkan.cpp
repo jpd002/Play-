@@ -98,6 +98,7 @@ void CGSH_Vulkan::InitializeImpl()
 
 	m_frameCommandBuffer->RegisterWriter(m_draw.get());
 	m_frameCommandBuffer->RegisterWriter(m_transfer.get());
+	m_frameCommandBuffer->BeginFrame();
 }
 
 void CGSH_Vulkan::ReleaseImpl()
@@ -143,15 +144,15 @@ void CGSH_Vulkan::ResetImpl()
 
 void CGSH_Vulkan::MarkNewFrame()
 {
-	m_drawCallCount = m_frameCommandBuffer->GetSubmitCount();
+	m_drawCallCount = m_frameCommandBuffer->GetFlushCount();
+	m_frameCommandBuffer->ResetFlushCount();
+	m_frameCommandBuffer->EndFrame();
 	CGSHandler::MarkNewFrame();
 	m_frameCommandBuffer->BeginFrame();
 }
 
 void CGSH_Vulkan::FlipImpl()
 {
-	m_frameCommandBuffer->Flush();
-
 	DISPLAY d;
 	DISPFB fb;
 	{
@@ -178,7 +179,7 @@ void CGSH_Vulkan::FlipImpl()
 
 	m_present->DoPresent(fb.nPSM, fb.GetBufPtr(), fb.GetBufWidth(), dispWidth, dispHeight);
 
-	m_context->commandBufferPool.ResetBuffers();
+	//m_context->commandBufferPool.ResetBuffers();
 
 	PresentBackbuffer();
 	CGSHandler::FlipImpl();

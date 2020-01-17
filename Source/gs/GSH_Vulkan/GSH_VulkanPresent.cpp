@@ -80,9 +80,6 @@ void CPresent::DoPresent(uint32 bufPsm, uint32 bufAddress, uint32 bufWidth, uint
 		result = m_context->device.vkQueuePresentKHR(m_context->queue, &presentInfo);
 		CHECKVULKANERROR(result);
 	}
-
-	result = m_context->device.vkQueueWaitIdle(m_context->queue);
-	CHECKVULKANERROR(result);
 }
 
 void CPresent::UpdateBackbuffer(uint32 imageIndex, uint32 bufPsm, uint32 bufAddress, uint32 bufWidth, uint32 dispWidth, uint32 dispHeight)

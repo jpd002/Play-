@@ -14,6 +14,11 @@ namespace GSH_Vulkan
 	class CDraw : public IFrameCommandBufferWriter
 	{
 	public:
+		enum
+		{
+			MAX_FRAMES = CFrameCommandBuffer::MAX_FRAMES,
+		};
+
 		typedef uint64 PipelineCapsInt;
 
 		struct PIPELINE_CAPS : public convertible<PipelineCapsInt>
@@ -69,6 +74,12 @@ namespace GSH_Vulkan
 		void PostFlushFrameCommandBuffer() override;
 
 	private:
+		struct FRAMECONTEXT
+		{
+			Framework::Vulkan::CBuffer vertexBuffer;
+			PRIM_VERTEX* vertexBufferPtr = nullptr;
+		};
+
 		typedef uint32 DescriptorSetCapsInt;
 
 		struct DESCRIPTORSET_CAPS : public convertible<DescriptorSetCapsInt>
@@ -130,8 +141,7 @@ namespace GSH_Vulkan
 		VkRenderPass m_renderPass = VK_NULL_HANDLE;
 		VkFramebuffer m_framebuffer = VK_NULL_HANDLE;
 
-		Framework::Vulkan::CBuffer m_vertexBuffer;
-		PRIM_VERTEX* m_vertexBufferPtr = nullptr;
+		FRAMECONTEXT m_frames[MAX_FRAMES];
 
 		Framework::Vulkan::CImage m_drawImage;
 		VkImageView m_drawImageView = VK_NULL_HANDLE;
