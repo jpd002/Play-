@@ -179,8 +179,6 @@ void CGSH_Vulkan::FlipImpl()
 
 	m_present->DoPresent(fb.nPSM, fb.GetBufPtr(), fb.GetBufWidth(), dispWidth, dispHeight);
 
-	//m_context->commandBufferPool.ResetBuffers();
-
 	PresentBackbuffer();
 	CGSHandler::FlipImpl();
 }

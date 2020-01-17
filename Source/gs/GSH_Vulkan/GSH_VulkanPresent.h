@@ -20,6 +20,13 @@ namespace GSH_Vulkan
 		typedef CPipelineCache<uint32> PipelineCache;
 		typedef std::unordered_map<uint32, VkDescriptorSet> DescriptorSetCache;
 
+		struct PRESENT_COMMANDBUFFER
+		{
+			VkCommandBuffer commandBuffer = VK_NULL_HANDLE;
+			VkFence execCompleteFence = VK_NULL_HANDLE;
+		};
+		typedef std::vector<PRESENT_COMMANDBUFFER> PresentCommandBufferArray;
+
 		struct PRESENT_VERTEX
 		{
 			float x, y;
@@ -35,6 +42,7 @@ namespace GSH_Vulkan
 		};
 
 		void UpdateBackbuffer(uint32, uint32, uint32, uint32, uint32, uint32);
+		PRESENT_COMMANDBUFFER PrepareCommandBuffer();
 		VkDescriptorSet PrepareDescriptorSet(VkDescriptorSetLayout, uint32);
 
 		void CreateSwapChain();
@@ -62,6 +70,7 @@ namespace GSH_Vulkan
 		VkSemaphore m_renderCompleteSemaphore = VK_NULL_HANDLE;
 		VkRenderPass m_renderPass = VK_NULL_HANDLE;
 		Framework::Vulkan::CBuffer m_vertexBuffer;
+		PresentCommandBufferArray m_presentCommandBuffers;
 		PipelineCache m_pipelineCache;
 		DescriptorSetCache m_descriptorSetCache;
 	};

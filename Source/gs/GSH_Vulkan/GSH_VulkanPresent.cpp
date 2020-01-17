@@ -48,6 +48,10 @@ CPresent::CPresent(const ContextPtr& context)
 CPresent::~CPresent()
 {
 	DestroySwapChain();
+	for(const auto& presentCommandBuffer : m_presentCommandBuffers)
+	{
+		m_context->device.vkDestroyFence(m_context->device, presentCommandBuffer.execCompleteFence, nullptr);
+	}
 	m_context->device.vkDestroyRenderPass(m_context->device, m_renderPass, nullptr);
 	m_context->device.vkDestroySemaphore(m_context->device, m_imageAcquireSemaphore, nullptr);
 	m_context->device.vkDestroySemaphore(m_context->device, m_renderCompleteSemaphore, nullptr);
@@ -96,10 +100,11 @@ void CPresent::UpdateBackbuffer(uint32 imageIndex, uint32 bufPsm, uint32 bufAddr
 		drawPipeline = m_pipelineCache.RegisterPipeline(bufPsm, CreateDrawPipeline(bufPsm));
 	}
 
-	auto commandBuffer = m_context->commandBufferPool.AllocateBuffer();
+	auto frameCommandBuffer = PrepareCommandBuffer();
+	auto commandBuffer = frameCommandBuffer.commandBuffer;
 
 	auto commandBufferBeginInfo = Framework::Vulkan::CommandBufferBeginInfo();
-	commandBufferBeginInfo.flags = VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT;
+	commandBufferBeginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
 	result = m_context->device.vkBeginCommandBuffer(commandBuffer, &commandBufferBeginInfo);
 	CHECKVULKANERROR(result);
 
@@ -196,9 +201,42 @@ void CPresent::UpdateBackbuffer(uint32 imageIndex, uint32 bufPsm, uint32 bufAddr
 		submitInfo.pCommandBuffers = &commandBuffer;
 		submitInfo.signalSemaphoreCount = 1;
 		submitInfo.pSignalSemaphores = &m_renderCompleteSemaphore;
-		result = m_context->device.vkQueueSubmit(m_context->queue, 1, &submitInfo, VK_NULL_HANDLE);
+		result = m_context->device.vkQueueSubmit(m_context->queue, 1, &submitInfo, frameCommandBuffer.execCompleteFence);
 		CHECKVULKANERROR(result);
 	}
+}
+
+CPresent::PRESENT_COMMANDBUFFER CPresent::PrepareCommandBuffer()
+{
+	auto result = VK_SUCCESS;
+
+	//Find an available command buffer
+	for(const auto& presentCommandBuffer : m_presentCommandBuffers)
+	{
+		result = m_context->device.vkGetFenceStatus(m_context->device, presentCommandBuffer.execCompleteFence);
+		if(result == VK_SUCCESS)
+		{
+			result = m_context->device.vkResetFences(m_context->device, 1, &presentCommandBuffer.execCompleteFence);
+			CHECKVULKANERROR(result);
+			
+			result = m_context->device.vkResetCommandBuffer(presentCommandBuffer.commandBuffer, VK_COMMAND_BUFFER_RESET_RELEASE_RESOURCES_BIT);
+			CHECKVULKANERROR(result);
+
+			return presentCommandBuffer;
+		}
+	}
+
+	auto presentCommandBuffer = PRESENT_COMMANDBUFFER();
+	presentCommandBuffer.commandBuffer = m_context->commandBufferPool.AllocateBuffer();
+
+	{
+		auto fenceCreateInfo = Framework::Vulkan::FenceCreateInfo();
+		result = m_context->device.vkCreateFence(m_context->device, &fenceCreateInfo, nullptr, &presentCommandBuffer.execCompleteFence);
+		CHECKVULKANERROR(result);
+	}
+
+	m_presentCommandBuffers.push_back(presentCommandBuffer);
+	return presentCommandBuffer;
 }
 
 VkDescriptorSet CPresent::PrepareDescriptorSet(VkDescriptorSetLayout descriptorSetLayout, uint32 bufPsm)
