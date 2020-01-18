@@ -11,6 +11,8 @@ using namespace GSH_Vulkan;
 
 //#define FILL_IMAGES
 
+#define TEX0_CLUTINFO_MASK 0xFFFFFFE000000000ULL
+
 static uint32 MakeColor(uint8 r, uint8 g, uint8 b, uint8 a)
 {
 	return (a << 24) | (b << 16) | (g << 8) | (r);
@@ -140,6 +142,7 @@ void CGSH_Vulkan::ResetImpl()
 {
 	m_vtxCount = 0;
 	m_primitiveType = PRIM_INVALID;
+	m_prevTex0ClutInfo = 0;
 }
 
 void CGSH_Vulkan::MarkNewFrame()
@@ -862,6 +865,7 @@ void CGSH_Vulkan::WriteRegisterImpl(uint8 registerId, uint64 data)
 void CGSH_Vulkan::ProcessHostToLocalTransfer()
 {
 	//Flush previous cached info
+	m_prevTex0ClutInfo = 0;
 	m_draw->FlushVertices();
 
 	auto bltBuf = make_convertible<BITBLTBUF>(m_nReg[GS_REG_BITBLTBUF]);
@@ -907,6 +911,11 @@ void CGSH_Vulkan::SyncCLUT(const TEX0& tex0)
 {
 	if(!CGsPixelFormats::IsPsmIDTEX(tex0.nPsm)) return;
 	if(tex0.nCLD == 0) return;
+	assert(tex0.nCLD == 1);
+
+	auto tex0ClutInfo = static_cast<uint64>(tex0) & TEX0_CLUTINFO_MASK;
+	if(m_prevTex0ClutInfo == tex0ClutInfo) return;
+	m_prevTex0ClutInfo = tex0ClutInfo;
 
 	m_draw->FlushVertices();
 	m_clutLoad->DoClutLoad(tex0);

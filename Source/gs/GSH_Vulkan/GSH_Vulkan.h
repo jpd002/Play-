@@ -88,6 +88,7 @@ private:
 	float m_primOfsY = 0;
 	uint32 m_texWidth = 0;
 	uint32 m_texHeight = 0;
+	uint64 m_prevTex0ClutInfo = 0;
 	std::vector<uint8> m_xferBuffer;
 
 	Framework::Vulkan::CImage m_clutImage;
