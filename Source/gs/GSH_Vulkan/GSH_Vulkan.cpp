@@ -131,6 +131,7 @@ void CGSH_Vulkan::ReleaseImpl()
 	m_clutImage.Reset();
 
 	m_context->device.vkDestroyDescriptorPool(m_context->device, m_context->descriptorPool, nullptr);
+	m_context->device.vkUnmapMemory(m_context->device, m_context->memoryBuffer.GetMemory());
 	m_context->memoryBuffer.Reset();
 	m_context->commandBufferPool.Reset();
 	m_context->device.Reset();
@@ -432,6 +433,10 @@ void CGSH_Vulkan::CreateMemoryBuffer()
 		m_context->device.vkUnmapMemory(m_context->device, m_context->memoryBuffer.GetMemory());
 	}
 #endif
+
+	auto result = m_context->device.vkMapMemory(m_context->device, m_context->memoryBuffer.GetMemory(),
+		0, VK_WHOLE_SIZE, 0, reinterpret_cast<void**>(&m_memoryBufferPtr));
+	CHECKVULKANERROR(result);
 }
 
 void CGSH_Vulkan::CreateClutImage()
@@ -921,6 +926,11 @@ void CGSH_Vulkan::SyncCLUT(const TEX0& tex0)
 
 void CGSH_Vulkan::ReadFramebuffer(uint32 width, uint32 height, void* buffer)
 {
+}
+
+uint8* CGSH_Vulkan::GetRam() const
+{
+	return m_memoryBufferPtr;
 }
 
 Framework::CBitmap CGSH_Vulkan::GetScreenshot()

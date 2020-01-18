@@ -179,7 +179,7 @@ void CGSHandler::SetPresentationParams(const PRESENTATION_PARAMS& presentationPa
 
 void CGSHandler::SaveState(Framework::CZipArchiveWriter& archive)
 {
-	archive.InsertFile(new CMemoryStateFile(STATE_RAM, m_pRAM, RAMSIZE));
+	archive.InsertFile(new CMemoryStateFile(STATE_RAM, GetRam(), RAMSIZE));
 	archive.InsertFile(new CMemoryStateFile(STATE_REGS, m_nReg, sizeof(uint64) * CGSHandler::REGISTER_MAX));
 	archive.InsertFile(new CMemoryStateFile(STATE_TRXCTX, &m_trxCtx, sizeof(TRXCONTEXT)));
 
@@ -203,7 +203,7 @@ void CGSHandler::SaveState(Framework::CZipArchiveWriter& archive)
 
 void CGSHandler::LoadState(Framework::CZipArchiveReader& archive)
 {
-	archive.BeginReadFile(STATE_RAM)->Read(m_pRAM, RAMSIZE);
+	archive.BeginReadFile(STATE_RAM)->Read(GetRam(), RAMSIZE);
 	archive.BeginReadFile(STATE_REGS)->Read(m_nReg, sizeof(uint64) * CGSHandler::REGISTER_MAX);
 	archive.BeginReadFile(STATE_TRXCTX)->Read(&m_trxCtx, sizeof(TRXCONTEXT));
 
@@ -414,7 +414,7 @@ void CGSHandler::MarkNewFrame()
 #endif
 }
 
-uint8* CGSHandler::GetRam()
+uint8* CGSHandler::GetRam() const
 {
 	return m_pRAM;
 }
@@ -927,7 +927,7 @@ void CGSHandler::TransferReadHandlerGeneric(void* buffer, uint32 length)
 	uint32 typedLength = length / sizeof(typename Storage::Unit);
 	auto typedBuffer = reinterpret_cast<typename Storage::Unit*>(buffer);
 
-	CGsPixelFormats::CPixelIndexor<Storage> indexor(m_pRAM, trxBuf.GetSrcPtr(), trxBuf.nSrcWidth);
+	CGsPixelFormats::CPixelIndexor<Storage> indexor(GetRam(), trxBuf.GetSrcPtr(), trxBuf.nSrcWidth);
 	for(uint32 i = 0; i < typedLength; i++)
 	{
 		uint32 x = (m_trxCtx.nRRX + trxPos.nSSAX) % 2048;

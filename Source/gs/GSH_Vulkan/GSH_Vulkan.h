@@ -28,6 +28,8 @@ public:
 	void ProcessClutTransfer(uint32, uint32) override;
 	void ReadFramebuffer(uint32, uint32, void*) override;
 
+	uint8* GetRam() const override;
+
 	Framework::CBitmap GetScreenshot() override;
 
 protected:
@@ -78,6 +80,8 @@ private:
 	GSH_Vulkan::DrawPtr m_draw;
 	GSH_Vulkan::PresentPtr m_present;
 	GSH_Vulkan::TransferPtr m_transfer;
+
+	uint8* m_memoryBufferPtr = nullptr;
 
 	//Draw context
 	VERTEX m_vtxBuffer[3];

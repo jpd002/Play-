@@ -786,7 +786,7 @@ public:
 
 	void MakeLinearCLUT(const TEX0&, std::array<uint32, 256>&) const;
 
-	uint8* GetRam();
+	virtual uint8* GetRam() const;
 	uint64* GetRegisters();
 
 	uint64 GetSMODE2() const;
