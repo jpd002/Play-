@@ -11,8 +11,6 @@ using namespace GSH_Vulkan;
 
 //#define FILL_IMAGES
 
-#define TEX0_CLUTINFO_MASK 0xFFFFFFE000000000ULL
-
 static uint32 MakeColor(uint8 r, uint8 g, uint8 b, uint8 a)
 {
 	return (a << 24) | (b << 16) | (g << 8) | (r);
