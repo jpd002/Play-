@@ -650,6 +650,7 @@ Framework::Vulkan::CShaderModule CPresent::CreateFragmentShader(uint32 bufPsm)
 			outputColor = CMemoryUtils::PSM32ToVec4(b, imageColor);
 		}
 		break;
+		case CGSHandler::PSMCT16:
 		case CGSHandler::PSMCT16S:
 		{
 			auto address = CMemoryUtils::GetPixelAddress<CGsPixelFormats::STORAGEPSMCT16>(

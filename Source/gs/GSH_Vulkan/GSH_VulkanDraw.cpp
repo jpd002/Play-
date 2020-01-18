@@ -900,6 +900,7 @@ Framework::Vulkan::CShaderModule CDraw::CreateFragmentShader(const PIPELINE_CAPS
 			fbAddress = CMemoryUtils::GetPixelAddress<CGsPixelFormats::STORAGEPSMCT32>(
 			    b, fbSwizzleTable, fbBufAddress, fbBufWidth, screenPos);
 			break;
+		case CGSHandler::PSMCT16:
 		case CGSHandler::PSMCT16S:
 			fbAddress = CMemoryUtils::GetPixelAddress<CGsPixelFormats::STORAGEPSMCT16>(
 			    b, fbSwizzleTable, fbBufAddress, fbBufWidth, screenPos);
@@ -942,6 +943,7 @@ Framework::Vulkan::CShaderModule CDraw::CreateFragmentShader(const PIPELINE_CAPS
 					dstColor = CMemoryUtils::PSM32ToVec4(b, dstPixel);
 				}
 				break;
+			case CGSHandler::PSMCT16:
 			case CGSHandler::PSMCT16S:
 				{
 					dstPixel = CMemoryUtils::Memory_Read16(b, memoryBuffer, fbAddress);
@@ -1006,6 +1008,7 @@ Framework::Vulkan::CShaderModule CDraw::CreateFragmentShader(const PIPELINE_CAPS
 					CMemoryUtils::Memory_Write32(b, memoryBuffer, fbAddress, dstPixel);
 				}
 				break;
+			case CGSHandler::PSMCT16:
 			case CGSHandler::PSMCT16S:
 				{
 					dstPixel = (CMemoryUtils::Vec4ToPSM16(b, dstColor) & fbWriteMask) | (dstPixel & ~fbWriteMask);
