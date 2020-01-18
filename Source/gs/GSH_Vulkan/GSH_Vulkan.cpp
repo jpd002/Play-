@@ -861,6 +861,9 @@ void CGSH_Vulkan::WriteRegisterImpl(uint8 registerId, uint64 data)
 
 void CGSH_Vulkan::ProcessHostToLocalTransfer()
 {
+	//Flush previous cached info
+	m_draw->FlushVertices();
+
 	auto bltBuf = make_convertible<BITBLTBUF>(m_nReg[GS_REG_BITBLTBUF]);
 	auto trxReg = make_convertible<TRXREG>(m_nReg[GS_REG_TRXREG]);
 	auto trxPos = make_convertible<TRXPOS>(m_nReg[GS_REG_TRXPOS]);
