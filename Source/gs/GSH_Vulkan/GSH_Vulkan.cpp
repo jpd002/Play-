@@ -916,7 +916,7 @@ void CGSH_Vulkan::SyncCLUT(const TEX0& tex0)
 	if(tex0.nCLD == 0) return;
 	assert(tex0.nCLD == 1);
 
-	auto tex0ClutInfo = static_cast<uint64>(tex0) & TEX0_CLUTINFO_MASK;
+	auto tex0ClutInfo = static_cast<uint64>(tex0) & (~TEX0_CLUTINFO_MASK);
 	if(m_prevTex0ClutInfo == tex0ClutInfo) return;
 	m_prevTex0ClutInfo = tex0ClutInfo;
 
