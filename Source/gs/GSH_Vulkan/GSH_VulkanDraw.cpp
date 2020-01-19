@@ -21,29 +21,6 @@ using namespace GSH_Vulkan;
 #define DESCRIPTOR_LOCATION_IMAGE_SWIZZLETABLE_FB 3
 #define DESCRIPTOR_LOCATION_IMAGE_SWIZZLETABLE_DEPTH 4
 
-static void MakeLinearZOrtho(float* matrix, float left, float right, float bottom, float top)
-{
-	matrix[0] = 2.0f / (right - left);
-	matrix[1] = 0;
-	matrix[2] = 0;
-	matrix[3] = 0;
-
-	matrix[4] = 0;
-	matrix[5] = 2.0f / (top - bottom);
-	matrix[6] = 0;
-	matrix[7] = 0;
-
-	matrix[8] = 0;
-	matrix[9] = 0;
-	matrix[10] = 1;
-	matrix[11] = 0;
-
-	matrix[12] = -(right + left) / (right - left);
-	matrix[13] = -(top + bottom) / (top - bottom);
-	matrix[14] = 0;
-	matrix[15] = 1;
-}
-
 #define DRAW_AREA_SIZE 1024
 #define MAX_VERTEX_COUNT 1024 * 128
 
@@ -68,8 +45,6 @@ CDraw::CDraw(const ContextPtr& context, const FrameCommandBufferPtr& frameComman
 													0, VK_WHOLE_SIZE, 0, reinterpret_cast<void**>(&frame.vertexBufferPtr));
 		CHECKVULKANERROR(result);
 	}
-
-	MakeLinearZOrtho(m_pushConstants.projMatrix, 0, DRAW_AREA_SIZE, 0, DRAW_AREA_SIZE);
 
 	m_pipelineCaps <<= 0;
 }
@@ -236,7 +211,7 @@ void CDraw::FlushVertices()
 	VkBuffer vertexBuffer = frame.vertexBuffer;
 	m_context->device.vkCmdBindVertexBuffers(commandBuffer, 0, 1, &vertexBuffer, &vertexBufferOffset);
 
-	m_context->device.vkCmdPushConstants(commandBuffer, drawPipeline->pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT,
+	m_context->device.vkCmdPushConstants(commandBuffer, drawPipeline->pipelineLayout, VK_SHADER_STAGE_FRAGMENT_BIT,
 	                                     0, sizeof(DRAW_PIPELINE_PUSHCONSTANTS), &m_pushConstants);
 
 	assert((vertexCount % 3) == 0);
@@ -486,7 +461,7 @@ PIPELINE CDraw::CreateDrawPipeline(const PIPELINE_CAPS& caps)
 
 	{
 		VkPushConstantRange pushConstantInfo = {};
-		pushConstantInfo.stageFlags = VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT;
+		pushConstantInfo.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
 		pushConstantInfo.offset = 0;
 		pushConstantInfo.size = sizeof(DRAW_PIPELINE_PUSHCONSTANTS);
 
@@ -630,10 +605,9 @@ Framework::Vulkan::CShaderModule CDraw::CreateVertexShader()
 		auto outputColor = CFloat4Lvalue(b.CreateOutput(Nuanceur::SEMANTIC_TEXCOORD, 2));
 		auto outputTexCoord = CFloat4Lvalue(b.CreateOutput(Nuanceur::SEMANTIC_TEXCOORD, 3));
 
-		//Constants
-		auto projMatrix = CMatrix44Value(b.CreateUniformMatrix("g_projMatrix", Nuanceur::UNIFORM_UNIT_PUSHCONSTANT));
+		auto position = inputPosition->xy() * NewFloat2(b, 2.f / DRAW_AREA_SIZE, 2.f / DRAW_AREA_SIZE) + NewFloat2(b, -1, -1);
 
-		outputPosition = projMatrix * NewFloat4(inputPosition->xyz(), NewFloat(b, 1.0f));
+		outputPosition = NewFloat4(position, NewFloat2(b, 0.f, 1.f));
 		outputDepth = ToFloat(inputDepth) / NewFloat4(b, DEPTH_MAX, DEPTH_MAX, DEPTH_MAX, DEPTH_MAX);
 		outputColor = inputColor->xyzw();
 		outputTexCoord = inputTexCoord->xyzw();
@@ -810,7 +784,6 @@ Framework::Vulkan::CShaderModule CDraw::CreateFragmentShader(const PIPELINE_CAPS
 		auto depthSwizzleTable = CImageUint2DValue(b.CreateImage2DUint(DESCRIPTOR_LOCATION_IMAGE_SWIZZLETABLE_DEPTH));
 
 		//Push constants
-		auto projMatrix = CMatrix44Value(b.CreateUniformMatrix("g_projMatrix", Nuanceur::UNIFORM_UNIT_PUSHCONSTANT));
 		auto fbDepthParams = CInt4Lvalue(b.CreateUniformInt4("fbDepthParams", Nuanceur::UNIFORM_UNIT_PUSHCONSTANT));
 		auto texParams0 = CInt4Lvalue(b.CreateUniformInt4("texParams0", Nuanceur::UNIFORM_UNIT_PUSHCONSTANT));
 		auto texParams1 = CInt4Lvalue(b.CreateUniformInt4("texParams1", Nuanceur::UNIFORM_UNIT_PUSHCONSTANT));

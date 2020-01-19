@@ -96,8 +96,6 @@ namespace GSH_Vulkan
 
 		struct DRAW_PIPELINE_PUSHCONSTANTS
 		{
-			float projMatrix[16];
-
 			//fbDepthParams
 			uint32 fbBufAddr = 0;
 			uint32 fbBufWidth = 0;
