@@ -84,6 +84,16 @@ void CMemoryUtils::Memory_Write8(Nuanceur::CShaderBuilder& b, Nuanceur::CArrayUi
 	AtomicOr(memoryBuffer, wordAddress, valueWord);
 }
 
+void CMemoryUtils::Memory_Write4(Nuanceur::CShaderBuilder& b, Nuanceur::CArrayUintValue memoryBuffer, Nuanceur::CIntValue nibAddress, Nuanceur::CUintValue value)
+{
+	auto wordAddress = nibAddress / NewInt(b, 8);
+	auto shiftAmount = (ToUint(nibAddress) & NewUint(b, 7)) * NewUint(b, 4);
+	auto mask = NewUint(b, 0xFFFFFFFF) ^ (NewUint(b, 0xF) << shiftAmount);
+	auto valueWord = value << shiftAmount;
+	AtomicAnd(memoryBuffer, wordAddress, mask);
+	AtomicOr(memoryBuffer, wordAddress, valueWord);
+}
+
 Nuanceur::CFloat4Rvalue CMemoryUtils::PSM32ToVec4(Nuanceur::CShaderBuilder& b, Nuanceur::CUintValue inputColor)
 {
 	auto colorR = (inputColor >> NewUint(b, 0)) & NewUint(b, 0xFF);

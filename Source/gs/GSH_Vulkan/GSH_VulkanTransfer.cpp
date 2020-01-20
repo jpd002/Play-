@@ -85,6 +85,9 @@ void CTransfer::DoHostToLocalTransfer(const XferBuffer& inputData)
 	case CGSHandler::PSMT8:
 		pixelCount = inputData.size();
 		break;
+	case CGSHandler::PSMT4:
+		pixelCount = inputData.size() * 2;
+		break;
 	}
 
 	Params.pixelCount = pixelCount;
@@ -258,6 +261,14 @@ Framework::Vulkan::CShaderModule CTransfer::CreateXferShader(const PIPELINE_CAPS
 			CMemoryUtils::Memory_Write8(b, memoryBuffer, address, input);
 		}
 		break;
+		case CGSHandler::PSMT4:
+		{
+			auto input = XferStream_Read4(b, xferBuffer, pixelIndex);
+			auto address = CMemoryUtils::GetPixelAddress_PSMT4(
+			    b, dstSwizzleTable, bufAddress, bufWidth, NewInt2(trxX, trxY));
+			CMemoryUtils::Memory_Write4(b, memoryBuffer, address, input);
+		}
+		break;
 		default:
 			assert(false);
 			break;
@@ -287,6 +298,13 @@ Nuanceur::CUintRvalue CTransfer::XferStream_Read8(Nuanceur::CShaderBuilder& b, N
 	auto srcOffset = pixelIndex / NewInt(b, 4);
 	auto srcShift = (ToUint(pixelIndex) & NewUint(b, 3)) * NewUint(b, 8);
 	return (Load(xferBuffer, srcOffset) >> srcShift) & NewUint(b, 0xFF);
+}
+
+Nuanceur::CUintRvalue CTransfer::XferStream_Read4(Nuanceur::CShaderBuilder& b, Nuanceur::CArrayUintValue xferBuffer, Nuanceur::CIntValue pixelIndex)
+{
+	auto srcOffset = pixelIndex / NewInt(b, 8);
+	auto srcShift = (ToUint(pixelIndex) & NewUint(b, 7)) * NewUint(b, 4);
+	return (Load(xferBuffer, srcOffset) >> srcShift) & NewUint(b, 0xF);
 }
 
 PIPELINE CTransfer::CreateXferPipeline(const PIPELINE_CAPS& caps)

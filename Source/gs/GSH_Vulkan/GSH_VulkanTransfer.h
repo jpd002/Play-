@@ -78,6 +78,7 @@ namespace GSH_Vulkan
 		Nuanceur::CUintRvalue XferStream_Read32(Nuanceur::CShaderBuilder&, Nuanceur::CArrayUintValue, Nuanceur::CIntValue);
 		Nuanceur::CUintRvalue XferStream_Read16(Nuanceur::CShaderBuilder&, Nuanceur::CArrayUintValue, Nuanceur::CIntValue);
 		Nuanceur::CUintRvalue XferStream_Read8(Nuanceur::CShaderBuilder&, Nuanceur::CArrayUintValue, Nuanceur::CIntValue);
+		Nuanceur::CUintRvalue XferStream_Read4(Nuanceur::CShaderBuilder&, Nuanceur::CArrayUintValue, Nuanceur::CIntValue);
 
 		ContextPtr m_context;
 		FrameCommandBufferPtr m_frameCommandBuffer;
