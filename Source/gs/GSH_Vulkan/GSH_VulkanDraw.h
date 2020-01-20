@@ -27,6 +27,8 @@ namespace GSH_Vulkan
 			uint32 textureHasAlpha : 1;
 			uint32 textureBlackIsTransparent : 1;
 			uint32 textureFunction : 2;
+			uint32 texClampU : 2;
+			uint32 texClampV : 2;
 
 			uint32 maskColor : 1;
 			uint32 writeDepth : 1;
@@ -64,6 +66,7 @@ namespace GSH_Vulkan
 		void SetDepthbufferParams(uint32, uint32);
 		void SetTextureParams(uint32, uint32, uint32, uint32, uint32);
 		void SetTextureAlphaParams(uint32, uint32);
+		void SetTextureClampParams(uint32, uint32, uint32, uint32);
 		void SetAlphaBlendingParams(uint32);
 		void SetScissor(uint32, uint32, uint32, uint32);
 
@@ -113,6 +116,10 @@ namespace GSH_Vulkan
 			uint32 texA0 = 0;
 			uint32 texA1 = 0;
 			uint32 texParams1Reserved;
+
+			//texParams2
+			uint32 clampMin[2];
+			uint32 clampMax[2];
 
 			//alphaFbParams
 			uint32 fbWriteMask = 0;

@@ -120,6 +120,21 @@ void CDraw::SetTextureAlphaParams(uint32 texA0, uint32 texA1)
 	m_pushConstants.texA1 = texA1;
 }
 
+void CDraw::SetTextureClampParams(uint32 clampMinU, uint32 clampMinV, uint32 clampMaxU, uint32 clampMaxV)
+{
+	bool changed =
+	    (m_pushConstants.clampMin[0] != clampMinU) ||
+	    (m_pushConstants.clampMin[1] != clampMinV) ||
+	    (m_pushConstants.clampMax[0] != clampMaxU) ||
+	    (m_pushConstants.clampMax[1] != clampMaxV);
+	if(!changed) return;
+	FlushVertices();
+	m_pushConstants.clampMin[0] = clampMinU;
+	m_pushConstants.clampMin[1] = clampMinV;
+	m_pushConstants.clampMax[0] = clampMaxU;
+	m_pushConstants.clampMax[1] = clampMaxV;
+}
+
 void CDraw::SetAlphaBlendingParams(uint32 alphaFix)
 {
 	bool changed =
@@ -636,6 +651,27 @@ static Nuanceur::CUintRvalue GetDepth(Nuanceur::CShaderBuilder& b, uint32 depthF
 	}
 }
 
+static Nuanceur::CIntRvalue ClampTexCoord(Nuanceur::CShaderBuilder& b, uint32 clampMode, Nuanceur::CIntValue texCoord, Nuanceur::CIntValue texSize,
+	Nuanceur::CIntValue clampMin, Nuanceur::CIntValue clampMax)
+{
+	using namespace Nuanceur;
+
+	switch(clampMode)
+	{
+	default:
+		assert(false);
+	case CGSHandler::CLAMP_MODE_REPEAT:
+		return texCoord & (texSize - NewInt(b, 1));
+	case CGSHandler::CLAMP_MODE_CLAMP:
+		return Clamp(texCoord, NewInt(b, 0), texSize - NewInt(b, 1));
+	case CGSHandler::CLAMP_MODE_REGION_CLAMP:
+		return Clamp(texCoord, clampMin, clampMax);
+	case CGSHandler::CLAMP_MODE_REGION_REPEAT:
+		return (texCoord & clampMin) | clampMax;
+		
+	}
+};
+
 static Nuanceur::CFloat4Rvalue GetTextureColor(Nuanceur::CShaderBuilder& b, uint32 textureFormat, uint32 clutFormat,
 	Nuanceur::CInt2Value texelPos, Nuanceur::CArrayUintValue memoryBuffer, Nuanceur::CImageUint2DValue clutImage,
 	Nuanceur::CImageUint2DValue texSwizzleTable, Nuanceur::CIntValue texBufAddress, Nuanceur::CIntValue texBufWidth,
@@ -787,6 +823,7 @@ Framework::Vulkan::CShaderModule CDraw::CreateFragmentShader(const PIPELINE_CAPS
 		auto fbDepthParams = CInt4Lvalue(b.CreateUniformInt4("fbDepthParams", Nuanceur::UNIFORM_UNIT_PUSHCONSTANT));
 		auto texParams0 = CInt4Lvalue(b.CreateUniformInt4("texParams0", Nuanceur::UNIFORM_UNIT_PUSHCONSTANT));
 		auto texParams1 = CInt4Lvalue(b.CreateUniformInt4("texParams1", Nuanceur::UNIFORM_UNIT_PUSHCONSTANT));
+		auto texParams2 = CInt4Lvalue(b.CreateUniformInt4("texParams2", Nuanceur::UNIFORM_UNIT_PUSHCONSTANT));
 		auto alphaFbParams = CInt4Lvalue(b.CreateUniformInt4("alphaFbParams", Nuanceur::UNIFORM_UNIT_PUSHCONSTANT));
 
 		auto fbBufAddress = fbDepthParams->x();
@@ -802,6 +839,9 @@ Framework::Vulkan::CShaderModule CDraw::CreateFragmentShader(const PIPELINE_CAPS
 		auto texA0 = ToFloat(texParams1->y()) / NewFloat(b, 255.f);
 		auto texA1 = ToFloat(texParams1->z()) / NewFloat(b, 255.f);
 
+		auto clampMin = texParams2->xy();
+		auto clampMax = texParams2->zw();
+
 		auto fbWriteMask = ToUint(alphaFbParams->x());
 		auto alphaFix = ToFloat(alphaFbParams->y()) / NewFloat(b, 255.f);
 
@@ -816,7 +856,13 @@ Framework::Vulkan::CShaderModule CDraw::CreateFragmentShader(const PIPELINE_CAPS
 		if(caps.hasTexture)
 		{
 			auto texelPos = ToInt(inputTexCoord->xy() / inputTexCoord->zz() * ToFloat(texSize));
-			textureColor = GetTextureColor(b, caps.textureFormat, caps.clutFormat, texelPos,
+
+			auto clampPosU = ClampTexCoord(b, caps.texClampU, texelPos->x(), texSize->x(), clampMin->x(), clampMax->x());
+			auto clampPosV = ClampTexCoord(b, caps.texClampV, texelPos->y(), texSize->y(), clampMin->y(), clampMax->y());
+
+			auto clampTexPos = NewInt2(clampPosU, clampPosV);
+
+			textureColor = GetTextureColor(b, caps.textureFormat, caps.clutFormat, clampTexPos,
 				memoryBuffer, clutImage, texSwizzleTable, texBufAddress, texBufWidth, texCsa);
 
 			if(caps.textureHasAlpha)
