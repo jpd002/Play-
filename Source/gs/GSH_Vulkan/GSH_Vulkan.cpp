@@ -623,6 +623,10 @@ void CGSH_Vulkan::SetRenderingContext(uint64 primReg)
 		fbWriteMask = ~frame.nMask;
 		pipelineCaps.maskColor = (fbWriteMask != 0xFFFFFFFF);
 		break;
+	case CGSHandler::PSMCT24:
+		fbWriteMask = ~frame.nMask & 0x00FFFFFF;
+		pipelineCaps.maskColor = (fbWriteMask != 0x00FFFFFF);
+		break;
 	case CGSHandler::PSMCT16:
 	case CGSHandler::PSMCT16S:
 		fbWriteMask = ~RGBA32ToRGBA16(frame.nMask) & 0xFFFF;

@@ -1002,6 +1002,12 @@ Framework::Vulkan::CShaderModule CDraw::CreateFragmentShader(const PIPELINE_CAPS
 					dstColor = CMemoryUtils::PSM32ToVec4(b, dstPixel);
 				}
 				break;
+			case CGSHandler::PSMCT24:
+				{
+					dstPixel = CMemoryUtils::Memory_Read24(b, memoryBuffer, fbAddress);
+					dstColor = CMemoryUtils::PSM32ToVec4(b, dstPixel);
+				}
+				break;
 			case CGSHandler::PSMCT16:
 			case CGSHandler::PSMCT16S:
 				{
@@ -1065,6 +1071,12 @@ Framework::Vulkan::CShaderModule CDraw::CreateFragmentShader(const PIPELINE_CAPS
 				{
 					dstPixel = (CMemoryUtils::Vec4ToPSM32(b, dstColor) & fbWriteMask) | (dstPixel & ~fbWriteMask);
 					CMemoryUtils::Memory_Write32(b, memoryBuffer, fbAddress, dstPixel);
+				}
+				break;
+			case CGSHandler::PSMCT24:
+				{
+					dstPixel = (CMemoryUtils::Vec4ToPSM32(b, dstColor) & fbWriteMask) | (dstPixel & ~fbWriteMask);
+					CMemoryUtils::Memory_Write24(b, memoryBuffer, fbAddress, dstPixel);
 				}
 				break;
 			case CGSHandler::PSMCT16:
