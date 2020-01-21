@@ -160,6 +160,7 @@ Framework::Vulkan::CShaderModule CClutLoad::CreateLoadShader(const PIPELINE_CAPS
 		switch(caps.cpsm)
 		{
 		case CGSHandler::PSMCT32:
+		case CGSHandler::PSMCT24:
 		{
 			auto colorAddress = CMemoryUtils::GetPixelAddress<CGsPixelFormats::STORAGEPSMCT32>(
 			    b, swizzleTable, clutBufPtr, NewInt(b, 64), colorPos);
@@ -185,8 +186,9 @@ Framework::Vulkan::CShaderModule CClutLoad::CreateLoadShader(const PIPELINE_CAPS
 		switch(caps.cpsm)
 		{
 		case CGSHandler::PSMCT32:
+		case CGSHandler::PSMCT24:
 		{
-			auto colorPixelLo = (colorPixel)&NewUint(b, 0xFFFF);
+			auto colorPixelLo = (colorPixel) & NewUint(b, 0xFFFF);
 			auto colorPixelHi = (colorPixel >> NewUint(b, 16)) & NewUint(b, 0xFFFF);
 			auto clutIndexLo = NewInt2(clutIndex, NewInt(b, 0));
 			auto clutIndexHi = NewInt2(clutIndex + NewInt(b, 0x100), NewInt(b, 0));

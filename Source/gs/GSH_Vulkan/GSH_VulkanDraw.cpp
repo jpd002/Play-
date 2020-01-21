@@ -678,7 +678,6 @@ static Nuanceur::CFloat4Rvalue GetClutColor(Nuanceur::CShaderBuilder& b,
 {
 	using namespace Nuanceur;
 
-	assert(clutFormat == CGSHandler::PSMCT32);
 	assert(CGsPixelFormats::IsPsmIDTEX(textureFormat));
 
 	bool idx8 = CGsPixelFormats::IsPsmIDTEX8(textureFormat) ? 1 : 0;
@@ -693,12 +692,21 @@ static Nuanceur::CFloat4Rvalue GetClutColor(Nuanceur::CShaderBuilder& b,
 		clutIndex = ToInt(texPixel) + texCsa;
 	}
 
+	switch(clutFormat)
+	{
+	default:
+		assert(false);
+	case CGSHandler::PSMCT32:
+	case CGSHandler::PSMCT24:
+	{
 	auto clutIndexLo = NewInt2(clutIndex,                    NewInt(b, 0));
 	auto clutIndexHi = NewInt2(clutIndex + NewInt(b, 0x100), NewInt(b, 0));
 	auto clutPixelLo = Load(clutImage, clutIndexLo)->x();
 	auto clutPixelHi = Load(clutImage, clutIndexHi)->x();
 	auto clutPixel = clutPixelLo | (clutPixelHi << NewUint(b, 16));
 	return CMemoryUtils::PSM32ToVec4(b, clutPixel);
+	}
+	}
 }
 
 static Nuanceur::CFloat4Rvalue GetTextureColor(Nuanceur::CShaderBuilder& b, uint32 textureFormat, uint32 clutFormat,
@@ -717,6 +725,13 @@ static Nuanceur::CFloat4Rvalue GetTextureColor(Nuanceur::CShaderBuilder& b, uint
 		auto texAddress = CMemoryUtils::GetPixelAddress<CGsPixelFormats::STORAGEPSMCT32>(
 			b, texSwizzleTable, texBufAddress, texBufWidth, texelPos);
 		auto texPixel = CMemoryUtils::Memory_Read32(b, memoryBuffer, texAddress);
+		return CMemoryUtils::PSM32ToVec4(b, texPixel);
+	}
+	case CGSHandler::PSMCT24:
+	{
+		auto texAddress = CMemoryUtils::GetPixelAddress<CGsPixelFormats::STORAGEPSMCT32>(
+			b, texSwizzleTable, texBufAddress, texBufWidth, texelPos);
+		auto texPixel = CMemoryUtils::Memory_Read24(b, memoryBuffer, texAddress);
 		return CMemoryUtils::PSM32ToVec4(b, texPixel);
 	}
 	case CGSHandler::PSMCT16S:
@@ -772,16 +787,20 @@ static void ExpandAlpha(Nuanceur::CShaderBuilder& b, uint32 textureFormat, uint3
 {
 	using namespace Nuanceur;
 
-	uint32 pixelFormat = textureFormat;
+	bool requiresExpansion = false;
 	if(CGsPixelFormats::IsPsmIDTEX(textureFormat))
 	{
-		pixelFormat = clutFormat;
+		requiresExpansion =
+			(clutFormat == CGSHandler::PSMCT16) ||
+			(clutFormat == CGSHandler::PSMCT16S);
 	}
-
-	bool requiresExpansion =
-		(pixelFormat == CGSHandler::PSMCT24) ||
-		(pixelFormat == CGSHandler::PSMCT16) ||
-		(pixelFormat == CGSHandler::PSMCT16S);
+	else
+	{
+		requiresExpansion =
+			(textureFormat == CGSHandler::PSMCT24) ||
+			(textureFormat == CGSHandler::PSMCT16) ||
+			(textureFormat == CGSHandler::PSMCT16S);
+	}
 
 	if(!requiresExpansion)
 	{
