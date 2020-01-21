@@ -83,9 +83,12 @@ void CTransfer::DoHostToLocalTransfer(const XferBuffer& inputData)
 		pixelCount = inputData.size() / 2;
 		break;
 	case CGSHandler::PSMT8:
+	case CGSHandler::PSMT8H:
 		pixelCount = inputData.size();
 		break;
 	case CGSHandler::PSMT4:
+	case CGSHandler::PSMT4HL:
+	case CGSHandler::PSMT4HH:
 		pixelCount = inputData.size() * 2;
 		break;
 	}
@@ -267,6 +270,32 @@ Framework::Vulkan::CShaderModule CTransfer::CreateXferShader(const PIPELINE_CAPS
 			auto address = CMemoryUtils::GetPixelAddress_PSMT4(
 			    b, dstSwizzleTable, bufAddress, bufWidth, NewInt2(trxX, trxY));
 			CMemoryUtils::Memory_Write4(b, memoryBuffer, address, input);
+		}
+		break;
+		case CGSHandler::PSMT8H:
+		{
+			auto input = XferStream_Read8(b, xferBuffer, pixelIndex);
+			auto address = CMemoryUtils::GetPixelAddress<CGsPixelFormats::STORAGEPSMCT32>(
+			    b, dstSwizzleTable, bufAddress, bufWidth, NewInt2(trxX, trxY));
+			CMemoryUtils::Memory_Write8(b, memoryBuffer, address + NewInt(b, 3), input);
+		}
+		break;
+		case CGSHandler::PSMT4HL:
+		{
+			auto input = XferStream_Read4(b, xferBuffer, pixelIndex);
+			auto address = CMemoryUtils::GetPixelAddress<CGsPixelFormats::STORAGEPSMCT32>(
+			    b, dstSwizzleTable, bufAddress, bufWidth, NewInt2(trxX, trxY));
+			auto nibAddress = (address + NewInt(b, 3)) * NewInt(b, 2);
+			CMemoryUtils::Memory_Write4(b, memoryBuffer, nibAddress, input);
+		}
+		break;
+		case CGSHandler::PSMT4HH:
+		{
+			auto input = XferStream_Read4(b, xferBuffer, pixelIndex);
+			auto address = CMemoryUtils::GetPixelAddress<CGsPixelFormats::STORAGEPSMCT32>(
+			    b, dstSwizzleTable, bufAddress, bufWidth, NewInt2(trxX, trxY));
+			auto nibAddress = ((address + NewInt(b, 3)) * NewInt(b, 2)) | NewInt(b, 1);
+			CMemoryUtils::Memory_Write4(b, memoryBuffer, nibAddress, input);
 		}
 		break;
 		default:

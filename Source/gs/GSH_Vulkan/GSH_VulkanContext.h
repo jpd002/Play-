@@ -37,6 +37,9 @@ namespace GSH_Vulkan
 				assert(false);
 			case CGSHandler::PSMCT32:
 			case CGSHandler::PSMCT24:
+			case CGSHandler::PSMT8H:
+			case CGSHandler::PSMT4HL:
+			case CGSHandler::PSMT4HH:
 				return swizzleTablePSMCT32View;
 			case CGSHandler::PSMCT16:
 				return swizzleTablePSMCT16View;

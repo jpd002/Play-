@@ -672,6 +672,35 @@ static Nuanceur::CIntRvalue ClampTexCoord(Nuanceur::CShaderBuilder& b, uint32 cl
 	}
 };
 
+static Nuanceur::CFloat4Rvalue GetClutColor(Nuanceur::CShaderBuilder& b,
+	uint32 textureFormat, uint32 clutFormat, Nuanceur::CUintValue texPixel,
+	Nuanceur::CImageUint2DValue clutImage, Nuanceur::CIntValue texCsa)
+{
+	using namespace Nuanceur;
+
+	assert(clutFormat == CGSHandler::PSMCT32);
+	assert(CGsPixelFormats::IsPsmIDTEX(textureFormat));
+
+	bool idx8 = CGsPixelFormats::IsPsmIDTEX8(textureFormat) ? 1 : 0;
+	auto clutIndex = CIntLvalue(b.CreateTemporaryInt());
+
+	if(idx8)
+	{
+		clutIndex = ToInt(texPixel);
+	}
+	else
+	{
+		clutIndex = ToInt(texPixel) + texCsa;
+	}
+
+	auto clutIndexLo = NewInt2(clutIndex,                    NewInt(b, 0));
+	auto clutIndexHi = NewInt2(clutIndex + NewInt(b, 0x100), NewInt(b, 0));
+	auto clutPixelLo = Load(clutImage, clutIndexLo)->x();
+	auto clutPixelHi = Load(clutImage, clutIndexHi)->x();
+	auto clutPixel = clutPixelLo | (clutPixelHi << NewUint(b, 16));
+	return CMemoryUtils::PSM32ToVec4(b, clutPixel);
+}
+
 static Nuanceur::CFloat4Rvalue GetTextureColor(Nuanceur::CShaderBuilder& b, uint32 textureFormat, uint32 clutFormat,
 	Nuanceur::CInt2Value texelPos, Nuanceur::CArrayUintValue memoryBuffer, Nuanceur::CImageUint2DValue clutImage,
 	Nuanceur::CImageUint2DValue texSwizzleTable, Nuanceur::CIntValue texBufAddress, Nuanceur::CIntValue texBufWidth,
@@ -699,29 +728,40 @@ static Nuanceur::CFloat4Rvalue GetTextureColor(Nuanceur::CShaderBuilder& b, uint
 	}
 	case CGSHandler::PSMT8:
 	{
-		assert(clutFormat == CGSHandler::PSMCT32);
 		auto texAddress = CMemoryUtils::GetPixelAddress<CGsPixelFormats::STORAGEPSMT8>(
 			b, texSwizzleTable, texBufAddress, texBufWidth, texelPos);
 		auto texPixel = CMemoryUtils::Memory_Read8(b, memoryBuffer, texAddress);
-		auto clutIndexLo = NewInt2(ToInt(texPixel), NewInt(b, 0));
-		auto clutIndexHi = NewInt2(ToInt(texPixel) + NewInt(b, 0x100), NewInt(b, 0));
-		auto clutPixelLo = Load(clutImage, clutIndexLo)->x();
-		auto clutPixelHi = Load(clutImage, clutIndexHi)->x();
-		auto clutPixel = clutPixelLo | (clutPixelHi << NewUint(b, 16));
-		return CMemoryUtils::PSM32ToVec4(b, clutPixel);
+		return GetClutColor(b, textureFormat, clutFormat, texPixel, clutImage, texCsa);
 	}
 	case CGSHandler::PSMT4:
 	{
-		assert(clutFormat == CGSHandler::PSMCT32);
 		auto texAddress = CMemoryUtils::GetPixelAddress_PSMT4(
 			b, texSwizzleTable, texBufAddress, texBufWidth, texelPos);
 		auto texPixel = CMemoryUtils::Memory_Read4(b, memoryBuffer, texAddress);
-		auto clutIndexLo = NewInt2(ToInt(texPixel) + texCsa,                    NewInt(b, 0));
-		auto clutIndexHi = NewInt2(ToInt(texPixel) + texCsa + NewInt(b, 0x100), NewInt(b, 0));
-		auto clutPixelLo = Load(clutImage, clutIndexLo)->x();
-		auto clutPixelHi = Load(clutImage, clutIndexHi)->x();
-		auto clutPixel = clutPixelLo | (clutPixelHi << NewUint(b, 16));
-		return CMemoryUtils::PSM32ToVec4(b, clutPixel);
+		return GetClutColor(b, textureFormat, clutFormat, texPixel, clutImage, texCsa);
+	}
+	case CGSHandler::PSMT8H:
+	{
+		auto texAddress = CMemoryUtils::GetPixelAddress<CGsPixelFormats::STORAGEPSMCT32>(
+			b, texSwizzleTable, texBufAddress, texBufWidth, texelPos);
+		auto texPixel = CMemoryUtils::Memory_Read8(b, memoryBuffer, texAddress + NewInt(b, 3));
+		return GetClutColor(b, textureFormat, clutFormat, texPixel, clutImage, texCsa);
+	}
+	case CGSHandler::PSMT4HL:
+	{
+		auto texAddress = CMemoryUtils::GetPixelAddress<CGsPixelFormats::STORAGEPSMCT32>(
+			b, texSwizzleTable, texBufAddress, texBufWidth, texelPos);
+		auto texNibAddress = (texAddress + NewInt(b, 3)) * NewInt(b, 2);
+		auto texPixel = CMemoryUtils::Memory_Read4(b, memoryBuffer, texNibAddress);
+		return GetClutColor(b, textureFormat, clutFormat, texPixel, clutImage, texCsa);
+	}
+	case CGSHandler::PSMT4HH:
+	{
+		auto texAddress = CMemoryUtils::GetPixelAddress<CGsPixelFormats::STORAGEPSMCT32>(
+			b, texSwizzleTable, texBufAddress, texBufWidth, texelPos);
+		auto texNibAddress = ((texAddress + NewInt(b, 3)) * NewInt(b, 2)) | NewInt(b, 1);
+		auto texPixel = CMemoryUtils::Memory_Read4(b, memoryBuffer, texNibAddress);
+		return GetClutColor(b, textureFormat, clutFormat, texPixel, clutImage, texCsa);
 	}
 	}
 }
