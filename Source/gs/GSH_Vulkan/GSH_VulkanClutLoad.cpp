@@ -39,6 +39,16 @@ void CClutLoad::DoClutLoad(const CGSHandler::TEX0& tex0)
 	auto descriptorSet = PrepareDescriptorSet(loadPipeline->descriptorSetLayout, tex0.nCPSM);
 	auto commandBuffer = m_frameCommandBuffer->GetCommandBuffer();
 
+	//Add a barrier to ensure writes to GS memory are complete
+	{
+		auto memoryBarrier = Framework::Vulkan::MemoryBarrier();
+		memoryBarrier.srcAccessMask = VK_ACCESS_SHADER_WRITE_BIT;
+		memoryBarrier.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
+
+		m_context->device.vkCmdPipelineBarrier(commandBuffer, VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT, VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT,
+		                                       0, 1, &memoryBarrier, 0, nullptr, 0, nullptr);
+	}
+
 	m_context->device.vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_COMPUTE, loadPipeline->pipelineLayout, 0, 1, &descriptorSet, 0, nullptr);
 	m_context->device.vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_COMPUTE, loadPipeline->pipeline);
 	m_context->device.vkCmdPushConstants(commandBuffer, loadPipeline->pipelineLayout, VK_SHADER_STAGE_COMPUTE_BIT, 0, sizeof(LOAD_PARAMS), &loadParams);

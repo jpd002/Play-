@@ -103,6 +103,16 @@ void CTransfer::DoHostToLocalTransfer(const XferBuffer& inputData)
 	auto descriptorSet = PrepareDescriptorSet(xferPipeline->descriptorSetLayout, descriptorSetCaps);
 	auto commandBuffer = m_frameCommandBuffer->GetCommandBuffer();
 
+	//Add a barrier to ensure reads are complete before writing to GS memory
+	{
+		auto memoryBarrier = Framework::Vulkan::MemoryBarrier();
+		memoryBarrier.srcAccessMask = VK_ACCESS_SHADER_READ_BIT;
+		memoryBarrier.dstAccessMask = VK_ACCESS_SHADER_WRITE_BIT;
+
+		m_context->device.vkCmdPipelineBarrier(commandBuffer, VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT, VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT,
+		                                       0, 1, &memoryBarrier, 0, nullptr, 0, nullptr);
+	}
+
 	m_context->device.vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_COMPUTE, xferPipeline->pipelineLayout, 0, 1, &descriptorSet, 1, &m_xferBufferOffset);
 	m_context->device.vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_COMPUTE, xferPipeline->pipeline);
 	m_context->device.vkCmdPushConstants(commandBuffer, xferPipeline->pipelineLayout, VK_SHADER_STAGE_COMPUTE_BIT, 0, sizeof(XFERPARAMS), &Params);
