@@ -1032,6 +1032,12 @@ Framework::Vulkan::CShaderModule CDraw::CreateFragmentShader(const PIPELINE_CAPS
 			textureColor = inputColor->xyzw();
 		}
 
+		auto writeColor = CBoolLvalue(b.CreateVariableBool("writeColor"));
+		auto writeDepth = CBoolLvalue(b.CreateVariableBool("writeDepth"));
+
+		writeColor = NewBool(b, true);
+		writeDepth = NewBool(b, true);
+
 		//---------------------------------------------------------------------------
 		//Alpha Test
 
@@ -1044,13 +1050,39 @@ Framework::Vulkan::CShaderModule CDraw::CreateFragmentShader(const PIPELINE_CAPS
 		case CGSHandler::ALPHA_TEST_ALWAYS:
 			alphaTestResult = NewBool(b, true);
 			break;
+		case CGSHandler::ALPHA_TEST_NEVER:
+			alphaTestResult = NewBool(b, false);
+			break;
 		case CGSHandler::ALPHA_TEST_EQUAL:
 			alphaTestResult = alphaUint == alphaRef;
 			break;
 		case CGSHandler::ALPHA_TEST_GEQUAL:
 			alphaTestResult = alphaUint >= alphaRef;
 			break;
+		case CGSHandler::ALPHA_TEST_GREATER:
+			alphaTestResult = alphaUint > alphaRef;
+			break;
 		}
+
+		BeginIf(b, !alphaTestResult);
+		{
+			switch(caps.alphaTestFailAction)
+			{
+			default:
+				assert(false);
+			case CGSHandler::ALPHA_TEST_FAIL_KEEP:
+				writeColor = NewBool(b, false);
+				writeDepth = NewBool(b, false);
+				break;
+			case CGSHandler::ALPHA_TEST_FAIL_FBONLY:
+				writeDepth = NewBool(b, false);
+				break;
+			case CGSHandler::ALPHA_TEST_FAIL_ZBONLY:
+				writeColor = NewBool(b, false);
+				break;
+			}
+		}
+		EndIf(b);
 
 		auto screenPos = ToInt(inputPosition->xy());
 
@@ -1149,6 +1181,13 @@ Framework::Vulkan::CShaderModule CDraw::CreateFragmentShader(const PIPELINE_CAPS
 			break;
 		}
 
+		BeginIf(b, !depthTestResult);
+		{
+			writeColor = NewBool(b, false);
+			writeDepth = NewBool(b, false);
+		}
+		EndIf(b);
+
 		if(caps.hasAlphaBlending)
 		{
 			//Blend
@@ -1166,18 +1205,20 @@ Framework::Vulkan::CShaderModule CDraw::CreateFragmentShader(const PIPELINE_CAPS
 			dstColor = textureColor->xyzw();
 		}
 
-		BeginIf(b, depthTestResult);
-
+		BeginIf(b, writeColor);
 		{
 			WriteToFramebuffer(b, caps.framebufferFormat, memoryBuffer, fbAddress, fbWriteMask, dstPixel, dstColor);
+		}
+		EndIf(b);
 
-			if(caps.writeDepth)
+		if(caps.writeDepth)
+		{
+			BeginIf(b, writeDepth);
 			{
 				WriteToDepthbuffer(b, caps.depthbufferFormat, memoryBuffer, depthAddress, srcDepth);
 			}
+			EndIf(b);
 		}
-
-		EndIf(b);
 
 		EndInvocationInterlock(b);
 
