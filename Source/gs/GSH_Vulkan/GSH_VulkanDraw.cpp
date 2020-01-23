@@ -864,6 +864,65 @@ static Nuanceur::CFloat3Rvalue GetAlphaC(Nuanceur::CShaderBuilder& b, uint32 alp
 	}
 }
 
+static void WriteToFramebuffer(Nuanceur::CShaderBuilder& b, uint32 framebufferFormat,
+	Nuanceur::CArrayUintValue memoryBuffer, Nuanceur::CIntValue fbAddress,
+	Nuanceur::CUintValue fbWriteMask, Nuanceur::CUintValue dstPixel, Nuanceur::CFloat4Value dstColor)
+{
+	switch(framebufferFormat)
+	{
+	default:
+		assert(false);
+	case CGSHandler::PSMCT32:
+		{
+			dstPixel = (CMemoryUtils::Vec4ToPSM32(b, dstColor) & fbWriteMask) | (dstPixel & ~fbWriteMask);
+			CMemoryUtils::Memory_Write32(b, memoryBuffer, fbAddress, dstPixel);
+		}
+		break;
+	case CGSHandler::PSMCT24:
+		{
+			dstPixel = (CMemoryUtils::Vec4ToPSM32(b, dstColor) & fbWriteMask) | (dstPixel & ~fbWriteMask);
+			CMemoryUtils::Memory_Write24(b, memoryBuffer, fbAddress, dstPixel);
+		}
+		break;
+	case CGSHandler::PSMCT16:
+	case CGSHandler::PSMCT16S:
+		{
+			dstPixel = (CMemoryUtils::Vec4ToPSM16(b, dstColor) & fbWriteMask) | (dstPixel & ~fbWriteMask);
+			CMemoryUtils::Memory_Write16(b, memoryBuffer, fbAddress, dstPixel);
+		}
+		break;
+	}
+}
+
+static void WriteToDepthbuffer(Nuanceur::CShaderBuilder& b, uint32 depthbufferFormat,
+	Nuanceur::CArrayUintValue memoryBuffer, Nuanceur::CIntValue depthAddress, Nuanceur::CUintValue srcDepth)
+{
+	switch(depthbufferFormat)
+	{
+	case CGSHandler::PSMZ32:
+	{
+		CMemoryUtils::Memory_Write32(b, memoryBuffer, depthAddress, srcDepth);
+	}
+	break;
+	case CGSHandler::PSMZ24:
+	{
+		auto dstDepth = srcDepth & NewUint(b, 0xFFFFFF);
+		CMemoryUtils::Memory_Write24(b, memoryBuffer, depthAddress, dstDepth);
+	}
+	break;
+	case CGSHandler::PSMZ16:
+	case CGSHandler::PSMZ16S:
+	{
+		auto dstDepth = srcDepth & NewUint(b, 0xFFFF);
+		CMemoryUtils::Memory_Write16(b, memoryBuffer, depthAddress, dstDepth);
+	}
+	break;
+	default:
+		assert(false);
+		break;
+	}
+}
+
 Framework::Vulkan::CShaderModule CDraw::CreateFragmentShader(const PIPELINE_CAPS& caps)
 {
 	using namespace Nuanceur;
@@ -1110,58 +1169,11 @@ Framework::Vulkan::CShaderModule CDraw::CreateFragmentShader(const PIPELINE_CAPS
 		BeginIf(b, depthTestResult);
 
 		{
-			//Write
-			switch(caps.framebufferFormat)
-			{
-			default:
-				assert(false);
-			case CGSHandler::PSMCT32:
-				{
-					dstPixel = (CMemoryUtils::Vec4ToPSM32(b, dstColor) & fbWriteMask) | (dstPixel & ~fbWriteMask);
-					CMemoryUtils::Memory_Write32(b, memoryBuffer, fbAddress, dstPixel);
-				}
-				break;
-			case CGSHandler::PSMCT24:
-				{
-					dstPixel = (CMemoryUtils::Vec4ToPSM32(b, dstColor) & fbWriteMask) | (dstPixel & ~fbWriteMask);
-					CMemoryUtils::Memory_Write24(b, memoryBuffer, fbAddress, dstPixel);
-				}
-				break;
-			case CGSHandler::PSMCT16:
-			case CGSHandler::PSMCT16S:
-				{
-					dstPixel = (CMemoryUtils::Vec4ToPSM16(b, dstColor) & fbWriteMask) | (dstPixel & ~fbWriteMask);
-					CMemoryUtils::Memory_Write16(b, memoryBuffer, fbAddress, dstPixel);
-				}
-				break;
-			}
+			WriteToFramebuffer(b, caps.framebufferFormat, memoryBuffer, fbAddress, fbWriteMask, dstPixel, dstColor);
 
 			if(caps.writeDepth)
 			{
-				switch(caps.depthbufferFormat)
-				{
-				case CGSHandler::PSMZ32:
-				{
-					CMemoryUtils::Memory_Write32(b, memoryBuffer, depthAddress, srcDepth);
-				}
-				break;
-				case CGSHandler::PSMZ24:
-				{
-					auto dstDepth = srcDepth & NewUint(b, 0xFFFFFF);
-					CMemoryUtils::Memory_Write24(b, memoryBuffer, depthAddress, dstDepth);
-				}
-				break;
-				case CGSHandler::PSMZ16:
-				case CGSHandler::PSMZ16S:
-				{
-					auto dstDepth = srcDepth & NewUint(b, 0xFFFF);
-					CMemoryUtils::Memory_Write16(b, memoryBuffer, depthAddress, dstDepth);
-				}
-				break;
-				default:
-					assert(false);
-					break;
-				}
+				WriteToDepthbuffer(b, caps.depthbufferFormat, memoryBuffer, depthAddress, srcDepth);
 			}
 		}
 
