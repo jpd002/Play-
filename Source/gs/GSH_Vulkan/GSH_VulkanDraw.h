@@ -68,6 +68,7 @@ namespace GSH_Vulkan
 		void SetTextureAlphaParams(uint32, uint32);
 		void SetTextureClampParams(uint32, uint32, uint32, uint32);
 		void SetAlphaBlendingParams(uint32);
+		void SetAlphaTestParams(uint32);
 		void SetScissor(uint32, uint32, uint32, uint32);
 
 		void AddVertices(const PRIM_VERTEX*, const PRIM_VERTEX*);
@@ -115,7 +116,7 @@ namespace GSH_Vulkan
 			uint32 texCsa = 0;
 			uint32 texA0 = 0;
 			uint32 texA1 = 0;
-			uint32 texParams1Reserved;
+			uint32 texParams1Reserved = 0;
 
 			//texParams2
 			uint32 clampMin[2];
@@ -124,7 +125,8 @@ namespace GSH_Vulkan
 			//alphaFbParams
 			uint32 fbWriteMask = 0;
 			uint32 alphaFix = 0;
-			uint32 alphaFbParamsReserved[2];
+			uint32 alphaRef = 0;
+			uint32 alphaFbParamsReserved = 0;
 		};
 		static_assert(sizeof(DRAW_PIPELINE_PUSHCONSTANTS) <= 128, "Push constants size can't exceed 128 bytes.");
 

@@ -647,6 +647,7 @@ void CGSH_Vulkan::SetRenderingContext(uint64 primReg)
 		clamp.GetMinU(), clamp.GetMinV(),
 		clamp.GetMaxU(), clamp.GetMaxV());
 	m_draw->SetAlphaBlendingParams(alpha.nFix);
+	m_draw->SetAlphaTestParams(test.nAlphaRef);
 	m_draw->SetScissor(scissor.scax0, scissor.scay0,
 	                   scissor.scax1 - scissor.scax0 + 1,
 	                   scissor.scay1 - scissor.scay0 + 1);

@@ -120,6 +120,14 @@ void CDraw::SetTextureAlphaParams(uint32 texA0, uint32 texA1)
 	m_pushConstants.texA1 = texA1;
 }
 
+void CDraw::SetAlphaTestParams(uint32 alphaRef)
+{
+	bool changed = (m_pushConstants.alphaRef != alphaRef);
+	if(!changed) return;
+	FlushVertices();
+	m_pushConstants.alphaRef = alphaRef;
+}
+
 void CDraw::SetTextureClampParams(uint32 clampMinU, uint32 clampMinV, uint32 clampMaxU, uint32 clampMaxV)
 {
 	bool changed =
@@ -903,6 +911,7 @@ Framework::Vulkan::CShaderModule CDraw::CreateFragmentShader(const PIPELINE_CAPS
 
 		auto fbWriteMask = ToUint(alphaFbParams->x());
 		auto alphaFix = ToFloat(alphaFbParams->y()) / NewFloat(b, 255.f);
+		auto alphaRef = ToUint(alphaFbParams->z());
 
 		auto srcDepth = ToUint(inputDepth->x() * NewFloat(b, DEPTH_MAX));
 
@@ -962,6 +971,26 @@ Framework::Vulkan::CShaderModule CDraw::CreateFragmentShader(const PIPELINE_CAPS
 		else
 		{
 			textureColor = inputColor->xyzw();
+		}
+
+		//---------------------------------------------------------------------------
+		//Alpha Test
+
+		auto alphaUint = ToUint(textureColor->w() * NewFloat(b, 255.f));
+		auto alphaTestResult = CBoolLvalue(b.CreateTemporaryBool());
+		switch(caps.alphaTestFunction)
+		{
+		default:
+			assert(false);
+		case CGSHandler::ALPHA_TEST_ALWAYS:
+			alphaTestResult = NewBool(b, true);
+			break;
+		case CGSHandler::ALPHA_TEST_EQUAL:
+			alphaTestResult = alphaUint == alphaRef;
+			break;
+		case CGSHandler::ALPHA_TEST_GEQUAL:
+			alphaTestResult = alphaUint >= alphaRef;
+			break;
 		}
 
 		auto screenPos = ToInt(inputPosition->xy());
