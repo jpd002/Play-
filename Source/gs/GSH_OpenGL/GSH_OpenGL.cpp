@@ -2185,11 +2185,50 @@ void CGSH_OpenGL::ReadFramebuffer(uint32 width, uint32 height, void* buffer)
 
 Framework::CBitmap CGSH_OpenGL::GetScreenshot()
 {
-	GLint viewport[4];
-	glGetIntegerv(GL_VIEWPORT, viewport);
-	auto imgbuffer = Framework::CBitmap(viewport[2], viewport[3], 32);
-	glReadPixels(viewport[0], viewport[1], viewport[2], viewport[3], GL_RGBA, GL_UNSIGNED_BYTE, imgbuffer.GetPixels());
-	return imgbuffer.FlipVertical();
+	DISPFB fb;
+	DISPLAY d;
+	std::lock_guard<std::recursive_mutex> registerMutexLock(m_registerMutex);
+	unsigned int readCircuit = GetCurrentReadCircuit();
+	switch(readCircuit)
+	{
+	case 0:
+		fb <<= m_nDISPFB1.value.q;
+		d <<= m_nDISPLAY1.value.q;
+		break;
+	case 1:
+		fb <<= m_nDISPFB2.value.q;
+		d <<= m_nDISPLAY2.value.q;
+		break;
+	}
+	unsigned int dispWidth = (d.nW + 1) / (d.nMagX + 1);
+	unsigned int dispHeight = (d.nH + 1);
+
+	bool halfHeight = GetCrtIsInterlaced() && GetCrtIsFrameMode();
+	if(halfHeight) dispHeight /= 2;
+
+	FramebufferPtr framebuffer;
+	for(const auto& candidateFramebuffer : m_framebuffers)
+	{
+		if(
+		    (candidateFramebuffer->m_basePtr == fb.GetBufPtr()) &&
+		    (GetFramebufferBitDepth(candidateFramebuffer->m_psm) == GetFramebufferBitDepth(fb.nPSM)) &&
+		    (candidateFramebuffer->m_width == fb.GetBufWidth()))
+		{
+			//We have a winner
+			framebuffer = candidateFramebuffer;
+			break;
+		}
+	}
+
+	auto imgbuffer = Framework::CBitmap(dispWidth * m_fbScale, dispHeight * m_fbScale, 32);
+	glBindFramebuffer(GL_FRAMEBUFFER, framebuffer->m_framebuffer);
+	glReadPixels(0, 0, dispWidth * m_fbScale, dispHeight * m_fbScale, GL_RGBA, GL_UNSIGNED_BYTE, imgbuffer.GetPixels());
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	if(halfHeight)
+	{
+		return imgbuffer.Resize(dispWidth * m_fbScale, dispHeight * 2 * m_fbScale);
+	}
+	return imgbuffer;
 }
 
 /////////////////////////////////////////////////////////////
