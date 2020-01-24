@@ -1062,6 +1062,9 @@ Framework::Vulkan::CShaderModule CDraw::CreateFragmentShader(const PIPELINE_CAPS
 		case CGSHandler::ALPHA_TEST_GREATER:
 			alphaTestResult = alphaUint > alphaRef;
 			break;
+		case CGSHandler::ALPHA_TEST_NOTEQUAL:
+			alphaTestResult = alphaUint != alphaRef;
+			break;
 		}
 
 		BeginIf(b, !alphaTestResult);
