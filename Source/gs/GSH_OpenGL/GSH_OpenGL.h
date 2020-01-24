@@ -27,7 +27,7 @@ public:
 
 	static void RegisterPreferences();
 
-	virtual void LoadState(Framework::CZipArchiveReader&) override;
+	void LoadState(Framework::CZipArchiveReader&) override;
 
 	void ProcessHostToLocalTransfer() override;
 	void ProcessLocalToHostTransfer() override;
