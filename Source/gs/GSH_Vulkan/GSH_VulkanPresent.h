@@ -14,6 +14,7 @@ namespace GSH_Vulkan
 		CPresent(const ContextPtr&);
 		virtual ~CPresent();
 
+		void ValidateSwapChain(const CGSHandler::PRESENTATION_PARAMS&);
 		void DoPresent(uint32, uint32, uint32, uint32, uint32);
 
 	private:
@@ -66,6 +67,7 @@ namespace GSH_Vulkan
 		std::vector<VkImage> m_swapChainImages;
 		std::vector<VkImageView> m_swapChainImageViews;
 		std::vector<VkFramebuffer> m_swapChainFramebuffers;
+		bool m_swapChainValid = false;
 		VkSemaphore m_imageAcquireSemaphore = VK_NULL_HANDLE;
 		VkSemaphore m_renderCompleteSemaphore = VK_NULL_HANDLE;
 		VkRenderPass m_renderPass = VK_NULL_HANDLE;

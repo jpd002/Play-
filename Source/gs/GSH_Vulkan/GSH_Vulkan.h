@@ -20,6 +20,7 @@ public:
 	CGSH_Vulkan();
 	virtual ~CGSH_Vulkan() = default;
 
+	void SetPresentationParams(const CGSHandler::PRESENTATION_PARAMS&) override;
 
 	void ProcessHostToLocalTransfer() override;
 	void ProcessLocalToHostTransfer() override;

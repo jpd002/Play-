@@ -759,7 +759,7 @@ public:
 
 	void SetIntc(CINTC*);
 	void Reset();
-	void SetPresentationParams(const PRESENTATION_PARAMS&);
+	virtual void SetPresentationParams(const PRESENTATION_PARAMS&);
 
 	virtual void SaveState(Framework::CZipArchiveWriter&);
 	virtual void LoadState(Framework::CZipArchiveReader&);

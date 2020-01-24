@@ -42,13 +42,20 @@ CPresent::~CPresent()
 	m_context->device.vkDestroyRenderPass(m_context->device, m_renderPass, nullptr);
 }
 
+void CPresent::ValidateSwapChain(const CGSHandler::PRESENTATION_PARAMS& presentationParams)
+{
+	m_swapChainValid =
+		(presentationParams.windowWidth == m_surfaceExtents.width) &&
+		(presentationParams.windowHeight == m_surfaceExtents.height);
+}
+
 void CPresent::DoPresent(uint32 bufPsm, uint32 bufAddress, uint32 bufWidth, uint32 dispWidth, uint32 dispHeight)
 {
 	auto result = VK_SUCCESS;
 
 	uint32_t imageIndex = 0;
 	result = m_context->device.vkAcquireNextImageKHR(m_context->device, m_swapChain, UINT64_MAX, m_imageAcquireSemaphore, VK_NULL_HANDLE, &imageIndex);
-	if(result == VK_ERROR_OUT_OF_DATE_KHR)
+	if((result == VK_ERROR_OUT_OF_DATE_KHR) || !m_swapChainValid)
 	{
 		m_context->device.vkQueueWaitIdle(m_context->queue);
 		DestroySwapChain();
@@ -346,6 +353,8 @@ void CPresent::CreateSwapChain()
 
 	CreateSwapChainImageViews();
 	CreateSwapChainFramebuffers();
+
+	m_swapChainValid = true;
 }
 
 void CPresent::CreateSwapChainImageViews()

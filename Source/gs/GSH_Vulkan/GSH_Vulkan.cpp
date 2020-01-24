@@ -140,6 +140,12 @@ void CGSH_Vulkan::ResetImpl()
 	m_prevTex0ClutInfo = 0;
 }
 
+void CGSH_Vulkan::SetPresentationParams(const CGSHandler::PRESENTATION_PARAMS& presentationParams)
+{
+	CGSHandler::SetPresentationParams(presentationParams);
+	m_present->ValidateSwapChain(presentationParams);
+}
+
 void CGSH_Vulkan::MarkNewFrame()
 {
 	m_drawCallCount = m_frameCommandBuffer->GetFlushCount();
