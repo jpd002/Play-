@@ -26,19 +26,6 @@ CPresent::CPresent(const ContextPtr& context)
     : m_context(context)
 	, m_pipelineCache(context->device)
 {
-	//Create the semaphore that will be used to prevent submit from rendering before getting the image
-	{
-		auto semaphoreCreateInfo = Framework::Vulkan::SemaphoreCreateInfo();
-		auto result = m_context->device.vkCreateSemaphore(m_context->device, &semaphoreCreateInfo, nullptr, &m_imageAcquireSemaphore);
-		CHECKVULKANERROR(result);
-	}
-
-	{
-		auto semaphoreCreateInfo = Framework::Vulkan::SemaphoreCreateInfo();
-		auto result = m_context->device.vkCreateSemaphore(m_context->device, &semaphoreCreateInfo, nullptr, &m_renderCompleteSemaphore);
-		CHECKVULKANERROR(result);
-	}
-
 	CreateRenderPass();
 	CreateVertexBuffer();
 
@@ -53,8 +40,6 @@ CPresent::~CPresent()
 		m_context->device.vkDestroyFence(m_context->device, presentCommandBuffer.execCompleteFence, nullptr);
 	}
 	m_context->device.vkDestroyRenderPass(m_context->device, m_renderPass, nullptr);
-	m_context->device.vkDestroySemaphore(m_context->device, m_imageAcquireSemaphore, nullptr);
-	m_context->device.vkDestroySemaphore(m_context->device, m_renderCompleteSemaphore, nullptr);
 }
 
 void CPresent::DoPresent(uint32 bufPsm, uint32 bufAddress, uint32 bufWidth, uint32 dispWidth, uint32 dispHeight)
@@ -65,6 +50,7 @@ void CPresent::DoPresent(uint32 bufPsm, uint32 bufAddress, uint32 bufWidth, uint
 	result = m_context->device.vkAcquireNextImageKHR(m_context->device, m_swapChain, UINT64_MAX, m_imageAcquireSemaphore, VK_NULL_HANDLE, &imageIndex);
 	if(result == VK_ERROR_OUT_OF_DATE_KHR)
 	{
+		m_context->device.vkQueueWaitIdle(m_context->queue);
 		DestroySwapChain();
 		CreateSwapChain();
 		return;
@@ -306,8 +292,23 @@ void CPresent::CreateSwapChain()
 	assert(!m_context->device.IsEmpty());
 	assert(m_swapChain == VK_NULL_HANDLE);
 	assert(m_swapChainImages.empty());
+	assert(m_imageAcquireSemaphore == VK_NULL_HANDLE);
+	assert(m_renderCompleteSemaphore == VK_NULL_HANDLE);
 
 	auto result = VK_SUCCESS;
+
+	//Create the semaphore that will be used to prevent submit from rendering before getting the image
+	{
+		auto semaphoreCreateInfo = Framework::Vulkan::SemaphoreCreateInfo();
+		auto result = m_context->device.vkCreateSemaphore(m_context->device, &semaphoreCreateInfo, nullptr, &m_imageAcquireSemaphore);
+		CHECKVULKANERROR(result);
+	}
+
+	{
+		auto semaphoreCreateInfo = Framework::Vulkan::SemaphoreCreateInfo();
+		auto result = m_context->device.vkCreateSemaphore(m_context->device, &semaphoreCreateInfo, nullptr, &m_renderCompleteSemaphore);
+		CHECKVULKANERROR(result);
+	}
 
 	{
 		VkSurfaceCapabilitiesKHR surfaceCaps = {};
@@ -405,10 +406,15 @@ void CPresent::DestroySwapChain()
 	}
 	m_context->device.vkDestroySwapchainKHR(m_context->device, m_swapChain, nullptr);
 
+	m_context->device.vkDestroySemaphore(m_context->device, m_imageAcquireSemaphore, nullptr);
+	m_context->device.vkDestroySemaphore(m_context->device, m_renderCompleteSemaphore, nullptr);
+
 	m_swapChainImages.clear();
 	m_swapChainImageViews.clear();
 	m_swapChainFramebuffers.clear();
 	m_swapChain = VK_NULL_HANDLE;
+	m_imageAcquireSemaphore = VK_NULL_HANDLE;
+	m_renderCompleteSemaphore = VK_NULL_HANDLE;
 }
 
 void CPresent::CreateRenderPass()
