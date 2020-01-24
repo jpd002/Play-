@@ -950,6 +950,7 @@ protected:
 	void TransferReadHandlerGeneric(void*, uint32);
 
 	virtual void SyncCLUT(const TEX0&);
+	bool ProcessCLD(const TEX0&);
 	template <typename Indexor>
 	bool ReadCLUT4_16(const TEX0&);
 	template <typename Indexor>

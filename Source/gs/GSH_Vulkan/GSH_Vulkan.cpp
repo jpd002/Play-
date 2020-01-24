@@ -916,8 +916,7 @@ void CGSH_Vulkan::TransferWrite(const uint8* imageData, uint32 length)
 void CGSH_Vulkan::SyncCLUT(const TEX0& tex0)
 {
 	if(!CGsPixelFormats::IsPsmIDTEX(tex0.nPsm)) return;
-	if(tex0.nCLD == 0) return;
-	assert(tex0.nCLD == 1);
+	if(!ProcessCLD(tex0)) return;
 
 	auto tex0ClutInfo = static_cast<uint64>(tex0) & (~TEX0_CLUTINFO_MASK);
 	if(m_prevTex0ClutInfo == tex0ClutInfo) return;
