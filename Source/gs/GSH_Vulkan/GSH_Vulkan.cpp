@@ -45,10 +45,6 @@ CGSH_Vulkan::CGSH_Vulkan()
 	m_context = std::make_shared<CContext>();
 }
 
-CGSH_Vulkan::~CGSH_Vulkan()
-{
-}
-
 void CGSH_Vulkan::InitializeImpl()
 {
 	assert(!m_instance.IsEmpty());
@@ -217,16 +213,6 @@ unsigned int CGSH_Vulkan::GetCurrentReadCircuit()
 	}
 	break;
 	}
-}
-
-void CGSH_Vulkan::LoadState(Framework::CZipArchiveReader& archive)
-{
-	CGSHandler::LoadState(archive);
-}
-
-void CGSH_Vulkan::NotifyPreferencesChangedImpl()
-{
-	CGSHandler::NotifyPreferencesChangedImpl();
 }
 
 std::vector<VkPhysicalDevice> CGSH_Vulkan::GetPhysicalDevices()

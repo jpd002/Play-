@@ -18,9 +18,8 @@ class CGSH_Vulkan : public CGSHandler
 {
 public:
 	CGSH_Vulkan();
-	virtual ~CGSH_Vulkan();
+	virtual ~CGSH_Vulkan() = default;
 
-	virtual void LoadState(Framework::CZipArchiveReader&) override;
 
 	void ProcessHostToLocalTransfer() override;
 	void ProcessLocalToHostTransfer() override;
@@ -37,7 +36,6 @@ protected:
 	void InitializeImpl() override;
 	void ReleaseImpl() override;
 	void ResetImpl() override;
-	void NotifyPreferencesChangedImpl() override;
 	void MarkNewFrame() override;
 	void FlipImpl() override;
 	void BeginTransferWrite() override;
