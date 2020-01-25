@@ -157,23 +157,9 @@ void CGSH_Vulkan::MarkNewFrame()
 
 void CGSH_Vulkan::FlipImpl()
 {
-	DISPLAY d;
-	DISPFB fb;
-	{
-		std::lock_guard<std::recursive_mutex> registerMutexLock(m_registerMutex);
-		unsigned int readCircuit = GetCurrentReadCircuit();
-		switch(readCircuit)
-		{
-		case 0:
-			d <<= m_nDISPLAY1.value.q;
-			fb <<= m_nDISPFB1.value.q;
-			break;
-		case 1:
-			d <<= m_nDISPLAY2.value.q;
-			fb <<= m_nDISPFB2.value.q;
-			break;
-		}
-	}
+	auto dispInfo = GetCurrentDisplayInfo();
+	auto fb = make_convertible<DISPFB>(dispInfo.first);
+	auto d = make_convertible<DISPLAY>(dispInfo.second);
 
 	unsigned int dispWidth = (d.nW + 1) / (d.nMagX + 1);
 	unsigned int dispHeight = (d.nH + 1);
@@ -185,40 +171,6 @@ void CGSH_Vulkan::FlipImpl()
 
 	PresentBackbuffer();
 	CGSHandler::FlipImpl();
-}
-
-unsigned int CGSH_Vulkan::GetCurrentReadCircuit()
-{
-	uint32 rcMode = m_nPMODE & 0x03;
-	switch(rcMode)
-	{
-	default:
-	case 0:
-		//No read circuit enabled?
-		return 0;
-	case 1:
-		return 0;
-	case 2:
-		return 1;
-	case 3:
-	{
-		//Both are enabled... See if we can find out which one is good
-		//This happens in Capcom Classics Collection Vol. 2
-		std::lock_guard<std::recursive_mutex> registerMutexLock(m_registerMutex);
-		bool fb1Null = (m_nDISPFB1.value.q == 0);
-		bool fb2Null = (m_nDISPFB2.value.q == 0);
-		if(!fb1Null && fb2Null)
-		{
-			return 0;
-		}
-		if(fb1Null && !fb2Null)
-		{
-			return 1;
-		}
-		return 0;
-	}
-	break;
-	}
 }
 
 std::vector<VkPhysicalDevice> CGSH_Vulkan::GetPhysicalDevices()

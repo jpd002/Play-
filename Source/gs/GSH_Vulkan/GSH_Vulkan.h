@@ -42,7 +42,6 @@ protected:
 	void BeginTransferWrite() override;
 	void TransferWrite(const uint8*, uint32) override;
 	void SyncCLUT(const TEX0&) override;
-	unsigned int GetCurrentReadCircuit();
 
 	Framework::Vulkan::CInstance m_instance;
 	GSH_Vulkan::ContextPtr m_context;
