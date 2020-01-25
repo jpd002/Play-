@@ -295,7 +295,6 @@ private:
 	void SetupTextureUpdaters();
 	virtual void PresentBackbuffer() = 0;
 	void MakeLinearZOrtho(float*, float, float, float, float);
-	unsigned int GetCurrentReadCircuit();
 	TEXTURE_INFO PrepareTexture(const TEX0&);
 	TEXTURE_INFO SearchTextureFramebuffer(const TEX0&);
 	GLuint PreparePalette(const TEX0&);

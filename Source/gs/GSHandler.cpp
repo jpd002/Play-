@@ -995,6 +995,54 @@ bool CGSHandler::GetCrtIsFrameMode() const
 	return smode2.ffmd;
 }
 
+std::pair<uint64, uint64> CGSHandler::GetCurrentDisplayInfo()
+{
+	std::lock_guard<std::recursive_mutex> registerMutexLock(m_registerMutex);
+	unsigned int readCircuit = GetCurrentReadCircuit();
+	switch(readCircuit)
+	{
+	default:
+	case 0:
+		return {m_nDISPFB1.value.q, m_nDISPLAY1.value.q};
+	case 1:
+		return {m_nDISPFB2.value.q, m_nDISPLAY2.value.q};
+	}
+}
+
+unsigned int CGSHandler::GetCurrentReadCircuit()
+{
+	uint32 rcMode = m_nPMODE & 0x03;
+	switch(rcMode)
+	{
+	default:
+	case 0:
+		//No read circuit enabled?
+		return 0;
+	case 1:
+		return 0;
+	case 2:
+		return 1;
+	case 3:
+	{
+		//Both are enabled... See if we can find out which one is good
+		//This happens in Capcom Classics Collection Vol. 2
+		std::lock_guard<std::recursive_mutex> registerMutexLock(m_registerMutex);
+		bool fb1Null = (m_nDISPFB1.value.q == 0);
+		bool fb2Null = (m_nDISPFB2.value.q == 0);
+		if(!fb1Null && fb2Null)
+		{
+			return 0;
+		}
+		if(fb1Null && !fb2Null)
+		{
+			return 1;
+		}
+		return 0;
+	}
+	break;
+	}
+}
+
 void CGSHandler::SyncCLUT(const TEX0& tex0)
 {
 	//Sync clut
