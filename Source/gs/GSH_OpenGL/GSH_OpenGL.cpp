@@ -128,23 +128,9 @@ void CGSH_OpenGL::FlipImpl()
 	m_renderState.isValid = false;
 	m_validGlState = 0;
 
-	DISPLAY d;
-	DISPFB fb;
-	{
-		std::lock_guard<std::recursive_mutex> registerMutexLock(m_registerMutex);
-		unsigned int readCircuit = GetCurrentReadCircuit();
-		switch(readCircuit)
-		{
-		case 0:
-			d <<= m_nDISPLAY1.value.q;
-			fb <<= m_nDISPFB1.value.q;
-			break;
-		case 1:
-			d <<= m_nDISPLAY2.value.q;
-			fb <<= m_nDISPFB2.value.q;
-			break;
-		}
-	}
+	auto dispInfo = GetCurrentDisplayInfo();
+	auto fb = make_convertible<DISPFB>(dispInfo.first);
+	auto d = make_convertible<DISPLAY>(dispInfo.second);
 
 	unsigned int dispWidth = (d.nW + 1) / (d.nMagX + 1);
 	unsigned int dispHeight = (d.nH + 1);
@@ -516,40 +502,6 @@ void CGSH_OpenGL::MakeLinearZOrtho(float* matrix, float left, float right, float
 	matrix[13] = -(top + bottom) / (top - bottom);
 	matrix[14] = 0;
 	matrix[15] = 1;
-}
-
-unsigned int CGSH_OpenGL::GetCurrentReadCircuit()
-{
-	uint32 rcMode = m_nPMODE & 0x03;
-	switch(rcMode)
-	{
-	default:
-	case 0:
-		//No read circuit enabled?
-		return 0;
-	case 1:
-		return 0;
-	case 2:
-		return 1;
-	case 3:
-	{
-		//Both are enabled... See if we can find out which one is good
-		//This happens in Capcom Classics Collection Vol. 2
-		std::lock_guard<std::recursive_mutex> registerMutexLock(m_registerMutex);
-		bool fb1Null = (m_nDISPFB1.value.q == 0);
-		bool fb2Null = (m_nDISPFB2.value.q == 0);
-		if(!fb1Null && fb2Null)
-		{
-			return 0;
-		}
-		if(fb1Null && !fb2Null)
-		{
-			return 1;
-		}
-		return 0;
-	}
-	break;
-	}
 }
 
 /////////////////////////////////////////////////////////////
@@ -2185,11 +2137,39 @@ void CGSH_OpenGL::ReadFramebuffer(uint32 width, uint32 height, void* buffer)
 
 Framework::CBitmap CGSH_OpenGL::GetScreenshot()
 {
-	GLint viewport[4];
-	glGetIntegerv(GL_VIEWPORT, viewport);
-	auto imgbuffer = Framework::CBitmap(viewport[2], viewport[3], 32);
-	glReadPixels(viewport[0], viewport[1], viewport[2], viewport[3], GL_RGBA, GL_UNSIGNED_BYTE, imgbuffer.GetPixels());
-	return imgbuffer.FlipVertical();
+	auto dispInfo = GetCurrentDisplayInfo();
+	auto fb = make_convertible<DISPFB>(dispInfo.first);
+	auto d = make_convertible<DISPLAY>(dispInfo.second);
+
+	unsigned int dispWidth = (d.nW + 1) / (d.nMagX + 1);
+	unsigned int dispHeight = (d.nH + 1);
+
+	bool halfHeight = GetCrtIsInterlaced() && GetCrtIsFrameMode();
+	if(halfHeight) dispHeight /= 2;
+
+	FramebufferPtr framebuffer;
+	for(const auto& candidateFramebuffer : m_framebuffers)
+	{
+		if(
+		    (candidateFramebuffer->m_basePtr == fb.GetBufPtr()) &&
+		    (GetFramebufferBitDepth(candidateFramebuffer->m_psm) == GetFramebufferBitDepth(fb.nPSM)) &&
+		    (candidateFramebuffer->m_width == fb.GetBufWidth()))
+		{
+			//We have a winner
+			framebuffer = candidateFramebuffer;
+			break;
+		}
+	}
+
+	auto imgbuffer = Framework::CBitmap(dispWidth * m_fbScale, dispHeight * m_fbScale, 32);
+	glBindFramebuffer(GL_FRAMEBUFFER, framebuffer->m_framebuffer);
+	glReadPixels(0, 0, dispWidth * m_fbScale, dispHeight * m_fbScale, GL_RGBA, GL_UNSIGNED_BYTE, imgbuffer.GetPixels());
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	if(halfHeight)
+	{
+		return imgbuffer.Resize(dispWidth * m_fbScale, dispHeight * 2 * m_fbScale);
+	}
+	return imgbuffer;
 }
 
 /////////////////////////////////////////////////////////////
