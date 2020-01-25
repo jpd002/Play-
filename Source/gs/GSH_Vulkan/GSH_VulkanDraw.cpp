@@ -1012,15 +1012,17 @@ Framework::Vulkan::CShaderModule CDraw::CreateFragmentShader(const PIPELINE_CAPS
 				//Nothing to do
 				break;
 			case CGSHandler::TEX0_FUNCTION_HIGHLIGHT2:
-				textureColor = (textureColor * inputColor * NewFloat4(b, 2, 2, 2, 2)) + inputColor->wwww();
-				textureColor = Clamp(textureColor, NewFloat4(b, 0, 0, 0, 0), NewFloat4(b, 1, 1, 1, 1));
-				if(caps.textureHasAlpha)
 				{
-					textureColor = NewFloat4(textureColor->xyz(), textureColor->w());
-				}
-				else
-				{
-					textureColor = NewFloat4(textureColor->xyz(), inputColor->w());
+					auto tempColor = (textureColor->xyz() * inputColor->xyz() * NewFloat3(b, 2, 2, 2)) + inputColor->www();
+					if(caps.textureHasAlpha)
+					{
+						textureColor = NewFloat4(tempColor, textureColor->w());
+					}
+					else
+					{
+						textureColor = NewFloat4(tempColor, inputColor->w());
+					}
+					textureColor = Clamp(textureColor, NewFloat4(b, 0, 0, 0, 0), NewFloat4(b, 1, 1, 1, 1));
 				}
 				break;
 			default:
