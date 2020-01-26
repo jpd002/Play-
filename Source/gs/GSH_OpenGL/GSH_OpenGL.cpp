@@ -2279,16 +2279,28 @@ Framework::CBitmap CGSH_OpenGL::GetTextureImpl(uint64 tex0Reg, uint32 maxMip, ui
 	}
 
 	auto texFormat = GetTextureFormatInfo(tex0.nPsm);
-	auto bitsPerPixel = 8;
-	auto format = GL_RED;
-	if(texFormat.format != GL_RED)
-	{
-		bitsPerPixel = 32;
-		format = GL_BGRA;
-	}
+	auto bitsPerPixel =
+	    [format = tex0.nPsm]() {
+		    switch(format)
+		    {
+		    case PSMCT16:
+			    return 16;
+		    case PSMT4:
+		    case PSMT8:
+		    case PSMT8H:
+		    case PSMT4HL:
+		    case PSMT4HH:
+			    return 8;
+		    default:
+			    assert(false);
+		    case PSMCT32:
+		    case PSMCT24:
+			    return 32;
+		    }
+	    }();
 
 	auto imgbuffer = Framework::CBitmap(width, height, bitsPerPixel);
-	glGetTexImage(GL_TEXTURE_2D, 0, format, GL_UNSIGNED_BYTE, imgbuffer.GetPixels());
+	glGetTexImage(GL_TEXTURE_2D, 0, texFormat.format, texFormat.type, imgbuffer.GetPixels());
 	glBindTexture(GL_TEXTURE_2D, 0);
 	return imgbuffer;
 #else

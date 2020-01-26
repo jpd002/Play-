@@ -384,12 +384,18 @@ void CGSH_OpenGLFramedebugger::LoadTextureFromBitmap(const Framework::CBitmap& b
 			    case 8:
 				    return {GL_R8, GL_RED};
 			    case 16:
+				    return {GL_RGB5_A1, GL_BGRA};
 			    case 32:
 			    default:
 				    return {GL_RGBA8, GL_BGRA};
 			    }
 		    }();
 
+		auto type = GL_UNSIGNED_BYTE;
+		if(bitmap.GetBitsPerPixel() == 16)
+		{
+			type = GL_UNSIGNED_SHORT_5_5_5_1;
+		}
 		glActiveTexture(GL_TEXTURE0+4);
 		glGenTextures(1, &m_activeTexture);
 		glBindTexture(GL_TEXTURE_2D, m_activeTexture);
@@ -398,6 +404,12 @@ void CGSH_OpenGLFramedebugger::LoadTextureFromBitmap(const Framework::CBitmap& b
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		if(bitmap.GetBitsPerPixel() == 8)
+		{
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_R, GL_RED);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_B, GL_RED);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_G, GL_RED);
+		}
 		glBindTexture(GL_TEXTURE_2D, 0);
 		CHECKGLERROR();
 	}
