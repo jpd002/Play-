@@ -530,6 +530,8 @@ void CGSH_Vulkan::SetRenderingContext(uint64 primReg)
 	pipelineCaps.framebufferFormat = frame.nPsm;
 	pipelineCaps.depthbufferFormat = zbuf.nPsm | 0x30;
 
+	uint32 fbWriteMask = ~frame.nMask;
+
 	if(prim.nAlpha)
 	{
 		pipelineCaps.alphaA = alpha.nA;
@@ -551,7 +553,7 @@ void CGSH_Vulkan::SetRenderingContext(uint64 primReg)
 		pipelineCaps.alphaTestFunction = CGSHandler::ALPHA_TEST_ALWAYS;
 	}
 
-	//Convert alpha testing to depth write masking if possible
+	//Convert alpha testing to write masking if possible
 	if(
 		(pipelineCaps.alphaTestFunction == CGSHandler::ALPHA_TEST_NEVER) &&
 		(pipelineCaps.alphaTestFailAction == CGSHandler::ALPHA_TEST_FAIL_FBONLY)
@@ -561,20 +563,28 @@ void CGSH_Vulkan::SetRenderingContext(uint64 primReg)
 		pipelineCaps.writeDepth = 0;
 	}
 
-	uint32 fbWriteMask = ~0UL;
+	if(
+		(pipelineCaps.alphaTestFunction == CGSHandler::ALPHA_TEST_NEVER) &&
+		(pipelineCaps.alphaTestFailAction == CGSHandler::ALPHA_TEST_FAIL_RGBONLY)
+		)
+	{
+		pipelineCaps.alphaTestFunction = CGSHandler::ALPHA_TEST_ALWAYS;
+		pipelineCaps.writeDepth = 0;
+		fbWriteMask &= 0x00FFFFFF;
+	}
+
 	switch(frame.nPsm)
 	{
 	case CGSHandler::PSMCT32:
-		fbWriteMask = ~frame.nMask;
 		pipelineCaps.maskColor = (fbWriteMask != 0xFFFFFFFF);
 		break;
 	case CGSHandler::PSMCT24:
-		fbWriteMask = ~frame.nMask & 0x00FFFFFF;
+		fbWriteMask = fbWriteMask & 0x00FFFFFF;
 		pipelineCaps.maskColor = (fbWriteMask != 0x00FFFFFF);
 		break;
 	case CGSHandler::PSMCT16:
 	case CGSHandler::PSMCT16S:
-		fbWriteMask = ~RGBA32ToRGBA16(frame.nMask) & 0xFFFF;
+		fbWriteMask = RGBA32ToRGBA16(fbWriteMask) & 0xFFFF;
 		pipelineCaps.maskColor = (fbWriteMask != 0xFFFF);
 		break;
 	default:
