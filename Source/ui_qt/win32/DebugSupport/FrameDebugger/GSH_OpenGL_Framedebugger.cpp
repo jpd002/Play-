@@ -142,13 +142,13 @@ Framework::OpenGl::CBuffer CGSH_OpenGLFramedebugger::GenerateVertexBuffer()
 	// clang-format off
 	static float vertices[] =
 	{
-		 1.0f,  1.0f, 0.0f,		1.0f, 1.0f,
-		 1.0f, -1.0f, 0.0f,		1.0f, 0.0f,
-		-1.0f, -1.0f, 0.0f,		0.0f, 0.0f,
+		 1.0f,  1.0f, 0.0f,		1.0f, 0.0f,
+		 1.0f, -1.0f, 0.0f,		1.0f, 1.0f,
+		-1.0f, -1.0f, 0.0f,		0.0f, 1.0f,
 
-		-1.0f, -1.0f, 0.0f,		0.0f, 0.0f,
-		-1.0f,  1.0f, 0.0f,		0.0f, 1.0f,
-		 1.0f,  1.0f, 0.0f,		1.0f, 1.0f,
+		-1.0f, -1.0f, 0.0f,		0.0f, 1.0f,
+		-1.0f,  1.0f, 0.0f,		0.0f, 0.0f,
+		 1.0f,  1.0f, 0.0f,		1.0f, 0.0f,
 
 	};
 	// clang-format on
