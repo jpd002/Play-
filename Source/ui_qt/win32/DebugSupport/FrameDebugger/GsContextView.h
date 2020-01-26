@@ -38,6 +38,7 @@ private:
 	void UpdateFramebufferView();
 	void RenderDrawKick(Framework::CBitmap&);
 
+	static uint32 Color_Ps2ToRGBA(uint32);
 	static void BrightenBitmap(Framework::CBitmap&);
 	static Framework::CBitmap LookupBitmap(const Framework::CBitmap&, const ColorArray&);
 	static Framework::CBitmap ExtractAlpha32(const Framework::CBitmap&);

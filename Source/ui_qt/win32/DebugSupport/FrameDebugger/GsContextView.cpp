@@ -239,6 +239,15 @@ void CGsContextView::BrightenBitmap(Framework::CBitmap& bitmap)
 	}
 }
 
+uint32 CGsContextView::Color_Ps2ToRGBA(uint32 color)
+{
+	uint8 r = (color & 0xFF);
+	uint8 b = (color & 0xFF00) >> 8;
+	uint8 g = (color & 0xFF0000) >> 16;
+	uint8 a = (color & 0xFF000000) >> 24;
+	return g << 0 | b << 8 | r << 16 | a << 24;
+}
+
 Framework::CBitmap CGsContextView::LookupBitmap(const Framework::CBitmap& srcBitmap, const ColorArray& clut)
 {
 	assert(!srcBitmap.IsEmpty());
@@ -252,7 +261,7 @@ Framework::CBitmap CGsContextView::LookupBitmap(const Framework::CBitmap& srcBit
 		{
 			uint8 index = srcPixels[x];
 			uint32 color = clut[index];
-			uint32 newColor = color;
+			uint32 newColor = Color_Ps2ToRGBA(color);
 			dstPixels[x] = newColor;
 		}
 		srcPixels += srcBitmap.GetPitch();
