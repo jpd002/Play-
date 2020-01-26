@@ -49,6 +49,11 @@ void CPresent::ValidateSwapChain(const CGSHandler::PRESENTATION_PARAMS& presenta
 		(presentationParams.windowHeight == m_surfaceExtents.height);
 }
 
+void CPresent::SetPresentationViewport(const CGSHandler::PRESENTATION_VIEWPORT& presentationViewport)
+{
+	m_presentationViewport = presentationViewport;
+}
+
 void CPresent::DoPresent(uint32 bufPsm, uint32 bufAddress, uint32 bufWidth, uint32 dispWidth, uint32 dispHeight)
 {
 	auto result = VK_SUCCESS;
@@ -124,7 +129,7 @@ void CPresent::UpdateBackbuffer(uint32 imageIndex, uint32 bufPsm, uint32 bufAddr
 	presentParams.dispHeight = dispHeight;
 
 	VkClearValue clearValue;
-	clearValue.color = {{0.5f, 0.5f, 0.5f, 1.0f}};
+	clearValue.color = {{0.0f, 0.0f, 0.0f, 1.0f}};
 
 	//Begin render pass
 	auto renderPassBeginInfo = Framework::Vulkan::RenderPassBeginInfo();
@@ -138,8 +143,10 @@ void CPresent::UpdateBackbuffer(uint32 imageIndex, uint32 bufPsm, uint32 bufAddr
 
 	{
 		VkViewport viewport = {};
-		viewport.width = m_surfaceExtents.width;
-		viewport.height = m_surfaceExtents.height;
+		viewport.x = m_presentationViewport.offsetX;
+		viewport.y = m_presentationViewport.offsetY;
+		viewport.width = m_presentationViewport.width;
+		viewport.height = m_presentationViewport.height;
 		viewport.maxDepth = 1.0f;
 		m_context->device.vkCmdSetViewport(commandBuffer, 0, 1, &viewport);
 

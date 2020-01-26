@@ -179,48 +179,9 @@ void CGSH_OpenGL::FlipImpl()
 		glClear(GL_COLOR_BUFFER_BIT);
 	}
 
-	unsigned int sourceWidth = GetCrtWidth();
-	unsigned int sourceHeight = GetCrtHeight();
-	switch(m_presentationParams.mode)
-	{
-	case PRESENTATION_MODE_FILL:
-		glViewport(0, 0, m_presentationParams.windowWidth, m_presentationParams.windowHeight);
-		break;
-	case PRESENTATION_MODE_FIT:
-	{
-		int viewportWidth[2];
-		int viewportHeight[2];
-		{
-			viewportWidth[0] = m_presentationParams.windowWidth;
-			viewportHeight[0] = (sourceWidth != 0) ? (m_presentationParams.windowWidth * sourceHeight) / sourceWidth : 0;
-		}
-		{
-			viewportWidth[1] = (sourceHeight != 0) ? (m_presentationParams.windowHeight * sourceWidth) / sourceHeight : 0;
-			viewportHeight[1] = m_presentationParams.windowHeight;
-		}
-		int selectedViewport = 0;
-		if(
-		    (viewportWidth[0] > static_cast<int>(m_presentationParams.windowWidth)) ||
-		    (viewportHeight[0] > static_cast<int>(m_presentationParams.windowHeight)))
-		{
-			selectedViewport = 1;
-			assert(
-			    viewportWidth[1] <= static_cast<int>(m_presentationParams.windowWidth) &&
-			    viewportHeight[1] <= static_cast<int>(m_presentationParams.windowHeight));
-		}
-		int offsetX = static_cast<int>(m_presentationParams.windowWidth - viewportWidth[selectedViewport]) / 2;
-		int offsetY = static_cast<int>(m_presentationParams.windowHeight - viewportHeight[selectedViewport]) / 2;
-		glViewport(offsetX, offsetY, viewportWidth[selectedViewport], viewportHeight[selectedViewport]);
-	}
-	break;
-	case PRESENTATION_MODE_ORIGINAL:
-	{
-		int offsetX = static_cast<int>(m_presentationParams.windowWidth - sourceWidth) / 2;
-		int offsetY = static_cast<int>(m_presentationParams.windowHeight - sourceHeight) / 2;
-		glViewport(offsetX, offsetY, sourceWidth, sourceHeight);
-	}
-	break;
-	}
+	auto presentationViewport = GetPresentationViewport();
+	glViewport(presentationViewport.offsetX, presentationViewport.offsetY,
+		presentationViewport.width, presentationViewport.height);
 
 	if(framebuffer)
 	{

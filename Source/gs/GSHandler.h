@@ -126,6 +126,14 @@ public:
 		PRESENTATION_MODE mode;
 	};
 
+	struct PRESENTATION_VIEWPORT
+	{
+		int32 offsetX = 0;
+		int32 offsetY = 0;
+		int32 width = 0;
+		int32 height = 0;
+	};
+
 	enum PSM
 	{
 		PSMCT32 = 0x00,
@@ -962,6 +970,8 @@ protected:
 
 	void SendGSCall(const CMailBox::FunctionType&, bool = false, bool = false);
 	void SendGSCall(CMailBox::FunctionType&&);
+
+	PRESENTATION_VIEWPORT GetPresentationViewport() const;
 
 	bool m_loggingEnabled;
 

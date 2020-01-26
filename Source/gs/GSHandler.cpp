@@ -177,6 +177,63 @@ void CGSHandler::SetPresentationParams(const PRESENTATION_PARAMS& presentationPa
 	m_presentationParams = presentationParams;
 }
 
+CGSHandler::PRESENTATION_VIEWPORT CGSHandler::GetPresentationViewport() const
+{
+	PRESENTATION_VIEWPORT viewport;
+	unsigned int sourceWidth = GetCrtWidth();
+	unsigned int sourceHeight = GetCrtHeight();
+	switch(m_presentationParams.mode)
+	{
+	case PRESENTATION_MODE_FILL:
+		viewport.offsetX = 0;
+		viewport.offsetY = 0;
+		viewport.width = m_presentationParams.windowWidth;
+		viewport.height = m_presentationParams.windowHeight;
+		break;
+	case PRESENTATION_MODE_FIT:
+	{
+		int viewportWidth[2];
+		int viewportHeight[2];
+		{
+			viewportWidth[0] = m_presentationParams.windowWidth;
+			viewportHeight[0] = (sourceWidth != 0) ? (m_presentationParams.windowWidth * sourceHeight) / sourceWidth : 0;
+		}
+		{
+			viewportWidth[1] = (sourceHeight != 0) ? (m_presentationParams.windowHeight * sourceWidth) / sourceHeight : 0;
+			viewportHeight[1] = m_presentationParams.windowHeight;
+		}
+		int selectedViewport = 0;
+		if(
+		    (viewportWidth[0] > static_cast<int>(m_presentationParams.windowWidth)) ||
+		    (viewportHeight[0] > static_cast<int>(m_presentationParams.windowHeight)))
+		{
+			selectedViewport = 1;
+			assert(
+			    viewportWidth[1] <= static_cast<int>(m_presentationParams.windowWidth) &&
+			    viewportHeight[1] <= static_cast<int>(m_presentationParams.windowHeight));
+		}
+		int offsetX = static_cast<int>(m_presentationParams.windowWidth - viewportWidth[selectedViewport]) / 2;
+		int offsetY = static_cast<int>(m_presentationParams.windowHeight - viewportHeight[selectedViewport]) / 2;
+		viewport.offsetX = offsetX;
+		viewport.offsetY = offsetY;
+		viewport.width = viewportWidth[selectedViewport];
+		viewport.height = viewportHeight[selectedViewport];
+	}
+	break;
+	case PRESENTATION_MODE_ORIGINAL:
+	{
+		int offsetX = static_cast<int>(m_presentationParams.windowWidth - sourceWidth) / 2;
+		int offsetY = static_cast<int>(m_presentationParams.windowHeight - sourceHeight) / 2;
+		viewport.offsetX = offsetX;
+		viewport.offsetY = offsetY;
+		viewport.width = sourceWidth;
+		viewport.height = sourceHeight;
+	}
+	break;
+	}
+	return viewport;
+}
+
 void CGSHandler::SaveState(Framework::CZipArchiveWriter& archive)
 {
 	archive.InsertFile(new CMemoryStateFile(STATE_RAM, GetRam(), RAMSIZE));

@@ -167,6 +167,7 @@ void CGSH_Vulkan::FlipImpl()
 	bool halfHeight = GetCrtIsInterlaced() && GetCrtIsFrameMode();
 	if(halfHeight) dispHeight /= 2;
 
+	m_present->SetPresentationViewport(GetPresentationViewport());
 	m_present->DoPresent(fb.nPSM, fb.GetBufPtr(), fb.GetBufWidth(), dispWidth, dispHeight);
 
 	PresentBackbuffer();
