@@ -103,7 +103,7 @@ void CGsContextView::UpdateBufferView()
 
 		if(mipLevel <= tex1.nMaxMip)
 		{
-			texture = static_cast<CGSH_OpenGLWin32*>(m_gs)->GetTexture(tex0Reg, tex1.nMaxMip, miptbp1Reg, miptbp2Reg, mipLevel).FlipVertical();
+			texture = static_cast<CGSH_OpenGLWin32*>(m_gs)->GetTexture(tex0Reg, tex1.nMaxMip, miptbp1Reg, miptbp2Reg, mipLevel);
 		}
 
 		if(!texture.IsEmpty() && CGsPixelFormats::IsPsmIDTEX(tex0.nPsm))
@@ -136,7 +136,7 @@ void CGsContextView::UpdateFramebufferView()
 	uint64 frameReg = m_gs->GetRegisters()[GS_REG_FRAME_1 + m_contextId];
 	auto frame = make_convertible<CGSHandler::FRAME>(frameReg);
 
-	auto framebuffer = static_cast<CGSH_OpenGLWin32*>(m_gs)->GetFramebuffer(frame).FlipVertical();
+	auto framebuffer = static_cast<CGSH_OpenGLWin32*>(m_gs)->GetFramebuffer(frame);
 	if(framebuffer.IsEmpty())
 	{
 		m_bufferView->SetPixelBuffers(CPixelBufferView::PixelBufferArray());
