@@ -2215,7 +2215,7 @@ Framework::CBitmap CGSH_OpenGL::GetScreenshot()
 Framework::CBitmap CGSH_OpenGL::GetFramebuffer(uint64 frameReg)
 {
 	Framework::CBitmap result;
-	m_mailBox.SendCall([&]() { result = GetFramebufferImpl(frameReg); }, true);
+	SendGSCall([&]() { result = GetFramebufferImpl(frameReg); }, true);
 	return result;
 }
 
@@ -2244,7 +2244,7 @@ Framework::CBitmap CGSH_OpenGL::GetFramebufferImpl(uint64 frameReg)
 Framework::CBitmap CGSH_OpenGL::GetTexture(uint64 tex0Reg, uint32 maxMip, uint64 miptbp1Reg, uint64 miptbp2Reg, uint32 mipLevel)
 {
 	Framework::CBitmap result;
-	m_mailBox.SendCall([&]() { result = GetTextureImpl(tex0Reg, maxMip, miptbp1Reg, miptbp2Reg, mipLevel); }, true);
+	SendGSCall([&]() { result = GetTextureImpl(tex0Reg, maxMip, miptbp1Reg, miptbp2Reg, mipLevel); }, true);
 	return result;
 }
 
