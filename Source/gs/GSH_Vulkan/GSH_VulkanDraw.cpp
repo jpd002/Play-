@@ -714,6 +714,11 @@ static Nuanceur::CFloat4Rvalue GetClutColor(Nuanceur::CShaderBuilder& b,
 	auto clutPixel = clutPixelLo | (clutPixelHi << NewUint(b, 16));
 	return CMemoryUtils::PSM32ToVec4(b, clutPixel);
 	}
+	case CGSHandler::PSMCT16:
+	{
+	auto clutPixel = Load(clutImage, NewInt2(clutIndex, NewInt(b, 0)))->x();
+	return CMemoryUtils::PSM16ToVec4(b, clutPixel);
+	}
 	}
 }
 
