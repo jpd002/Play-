@@ -582,15 +582,15 @@ public:
 		unsigned int nCOV : 10;
 		unsigned int nReserved1 : 10;
 		unsigned int nReserved2 : 32;
-		uint32 GetBufWidth()
+		uint32 GetBufWidth() const
 		{
 			return nCBW * 64;
 		}
-		uint32 GetOffsetU()
+		uint32 GetOffsetU() const
 		{
 			return nCOU * 16;
 		}
-		uint32 GetOffsetV()
+		uint32 GetOffsetV() const
 		{
 			return nCOV;
 		}
