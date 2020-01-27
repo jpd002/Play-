@@ -1037,13 +1037,18 @@ Framework::Vulkan::CShaderModule CDraw::CreateFragmentShader(const PIPELINE_CAPS
 
 		auto writeColor = CBoolLvalue(b.CreateVariableBool("writeColor"));
 		auto writeDepth = CBoolLvalue(b.CreateVariableBool("writeDepth"));
+		auto writeAlpha = CBoolLvalue(b.CreateVariableBool("writeAlpha"));
 
 		writeColor = NewBool(b, true);
 		writeDepth = NewBool(b, true);
+		writeAlpha = NewBool(b, true);
 
 		//---------------------------------------------------------------------------
 		//Alpha Test
 
+		bool canDiscardAlpha = 
+			(caps.alphaTestFunction != CGSHandler::ALPHA_TEST_ALWAYS) && 
+			(caps.alphaTestFailAction == CGSHandler::ALPHA_TEST_FAIL_RGBONLY);
 		auto alphaUint = ToUint(textureColor->w() * NewFloat(b, 255.f));
 		auto alphaTestResult = CBoolLvalue(b.CreateTemporaryBool());
 		switch(caps.alphaTestFunction)
@@ -1085,6 +1090,10 @@ Framework::Vulkan::CShaderModule CDraw::CreateFragmentShader(const PIPELINE_CAPS
 				break;
 			case CGSHandler::ALPHA_TEST_FAIL_ZBONLY:
 				writeColor = NewBool(b, false);
+				break;
+			case CGSHandler::ALPHA_TEST_FAIL_RGBONLY:
+				writeDepth = NewBool(b, false);
+				writeAlpha = NewBool(b, false);
 				break;
 			}
 		}
@@ -1131,10 +1140,11 @@ Framework::Vulkan::CShaderModule CDraw::CreateFragmentShader(const PIPELINE_CAPS
 		BeginInvocationInterlock(b);
 
 		auto dstPixel = CUintLvalue(b.CreateTemporaryUint());
-		auto dstColor = CFloat4Lvalue(b.CreateTemporary());
+		auto dstColor = CFloat4Lvalue(b.CreateVariableFloat("dstColor"));
+		auto dstAlpha = CFloat4Lvalue(b.CreateVariableFloat("dstAlpha"));
 		auto dstDepth = CUintLvalue(b.CreateTemporaryUint());
 
-		bool needsDstColor = (caps.hasAlphaBlending != 0) || (caps.maskColor != 0);
+		bool needsDstColor = (caps.hasAlphaBlending != 0) || (caps.maskColor != 0) || canDiscardAlpha;
 		if(needsDstColor)
 		{
 			switch(caps.framebufferFormat)
@@ -1160,6 +1170,11 @@ Framework::Vulkan::CShaderModule CDraw::CreateFragmentShader(const PIPELINE_CAPS
 					dstColor = CMemoryUtils::PSM16ToVec4(b, dstPixel);
 				}
 				break;
+			}
+
+			if(canDiscardAlpha)
+			{
+				dstAlpha = dstColor->wwww();
 			}
 		}
 
@@ -1209,6 +1224,15 @@ Framework::Vulkan::CShaderModule CDraw::CreateFragmentShader(const PIPELINE_CAPS
 		else
 		{
 			dstColor = textureColor->xyzw();
+		}
+
+		if(canDiscardAlpha)
+		{
+			BeginIf(b, !writeAlpha);
+			{
+				dstColor = NewFloat4(dstColor->xyz(), dstAlpha->x());
+			}
+			EndIf(b);
 		}
 
 		BeginIf(b, writeColor);
