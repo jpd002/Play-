@@ -21,6 +21,13 @@ if(NOT TARGET PlayCore)
 	)
 endif()
 
+if(NOT TARGET Framework_OpenGl)
+	add_subdirectory(
+		${CMAKE_CURRENT_SOURCE_DIR}/../../../deps/Framework/build_cmake/FrameworkOpenGl
+		${CMAKE_CURRENT_BINARY_DIR}/FrameworkOpenGl
+	)
+endif()
+
 set(SRC_ROOT ${CMAKE_CURRENT_SOURCE_DIR})
 set(SRC_FILES
 	${SRC_ROOT}/CallStackWnd.cpp
@@ -63,6 +70,8 @@ set(SRC_FILES
 	# ${SRC_ROOT}/FrameDebugger/GsInputStateView.h
 	# ${SRC_ROOT}/FrameDebugger/GsPacketListView.cpp
 	# ${SRC_ROOT}/FrameDebugger/GsPacketListView.h
+	${SRC_ROOT}/FrameDebugger/GSH_OpenGLQt_Framedebugger.cpp
+	${SRC_ROOT}/FrameDebugger/GSH_OpenGLQt_Framedebugger.h
 	${SRC_ROOT}/FrameDebugger/GsStateUtils.cpp
 	${SRC_ROOT}/FrameDebugger/GsStateUtils.h
 	# ${SRC_ROOT}/FrameDebugger/PixelBufferView.cpp
@@ -134,6 +143,6 @@ QT5_WRAP_UI(QT_DEBUGGER_UI_HEADERS ${QT_DEBUGGER_UI})
 QT5_WRAP_CPP(QT_DEBUGGER_MOC_SRCS ${QT_DEBUGGER_MOC_HEADERS})
 
 add_library(PlayDebugSupport STATIC ${SRC_FILES} ${QT_DEBUGGER_UI_HEADERS} ${QT_DEBUGGER_MOC_SRCS} ${QT_RES_SOURCES})
-target_link_libraries(PlayDebugSupport PlayCore Qt5::Core Qt5::Widgets)
+target_link_libraries(PlayDebugSupport PlayCore Framework_OpenGl Qt5::Core Qt5::Widgets)
 target_compile_definitions(PlayDebugSupport PRIVATE NOMINMAX)
 target_include_directories(PlayDebugSupport PRIVATE ../../${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_BINARY_DIR})
