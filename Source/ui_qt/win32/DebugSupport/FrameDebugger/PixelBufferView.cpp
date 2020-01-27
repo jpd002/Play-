@@ -36,7 +36,7 @@ CPixelBufferView::CPixelBufferView(HWND parentWnd, const RECT& rect)
 		wc.style = CS_OWNDC | CS_HREDRAW | CS_VREDRAW;
 		RegisterClassEx(&wc);
 	}
-	Create(WNDSTYLEEX | ( WS_EX_CLIENTEDGE), CLSNAME, _T(""), WNDSTYLE | 0, Framework::Win32::CRect(0, 0, 1, 1), parentWnd, this);
+	Create(WNDSTYLEEX | (WS_EX_CLIENTEDGE), CLSNAME, _T(""), WNDSTYLE | 0, Framework::Win32::CRect(0, 0, 1, 1), parentWnd, this);
 	SetClassPtr();
 
 	m_gs = std::make_unique<CGSH_OpenGLFramedebugger>(this);
@@ -104,8 +104,7 @@ void CPixelBufferView::DrawCheckerboard()
 	float screenSizeVector[2] =
 	    {
 	        static_cast<float>(clientRect.right),
-	        static_cast<float>(clientRect.bottom)
-			};
+	        static_cast<float>(clientRect.bottom)};
 	m_gs->DrawCheckerboard(screenSizeVector);
 }
 
@@ -120,14 +119,12 @@ void CPixelBufferView::DrawPixelBuffer()
 	float screenSizeVector[2] =
 	    {
 	        static_cast<float>(clientRect.right),
-	        static_cast<float>(clientRect.bottom)
-			};
+	        static_cast<float>(clientRect.bottom)};
 
 	float bufferSizeVector[2] =
 	    {
 	        static_cast<float>(pixelBufferBitmap.GetWidth()),
-	        static_cast<float>(pixelBufferBitmap.GetHeight())
-			};
+	        static_cast<float>(pixelBufferBitmap.GetHeight())};
 
 	m_gs->DrawPixelBuffer(screenSizeVector, bufferSizeVector, m_panX, m_panY, m_zoomFactor);
 }
@@ -314,4 +311,3 @@ void CPixelBufferView::FitBitmap()
 
 	Refresh();
 }
-

@@ -2306,7 +2306,6 @@ Framework::CBitmap CGSH_OpenGL::GetTextureImpl(uint64 tex0Reg, uint32 maxMip, ui
 #else
 	throw std::runtime_error("Feature is not implemented in current backend.");
 #endif
-
 }
 
 const CGSH_OpenGL::VERTEX* CGSH_OpenGL::GetInputVertices() const

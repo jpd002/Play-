@@ -21,11 +21,11 @@ public:
 
 	void FitBitmap();
 	bool m_init = false;
+
 protected:
 	void Refresh();
 	long OnPaint() override;
 	long OnEraseBkgnd() override;
-
 
 	long OnCommand(unsigned short, unsigned short, HWND) override;
 	long OnSize(unsigned int, unsigned int, unsigned int) override;
@@ -37,9 +37,7 @@ protected:
 
 	long OnMouseWheel(int, int, short) override;
 
-
 private:
-
 	struct VERTEX
 	{
 		float position[3];
@@ -54,7 +52,6 @@ private:
 
 	void DrawCheckerboard();
 	void DrawPixelBuffer();
-
 
 	PixelBufferArray m_pixelBuffers;
 
@@ -73,5 +70,4 @@ private:
 
 	std::unique_ptr<CGSH_OpenGLFramedebugger> m_gs;
 	std::unique_ptr<COutputWnd> m_handlerOutputWindow;
-
 };

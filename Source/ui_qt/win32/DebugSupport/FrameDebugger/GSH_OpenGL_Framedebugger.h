@@ -18,7 +18,6 @@ public:
 	void DrawPixelBuffer(float*, float*, float, float, float);
 	void LoadTextureFromBitmap(const Framework::CBitmap&);
 
-
 private:
 	Framework::Win32::CWindow* m_outputWnd = nullptr;
 
@@ -31,12 +30,12 @@ private:
 	Framework::OpenGl::ProgramPtr m_pixelBufferViewProgram;
 	Framework::OpenGl::CVertexArray m_vertexArray;
 
-	GLint m_checkerboardScreenSizeUniform = -1 ;
-	GLint m_pixelBufferViewScreenSizeUniform = -1 ;
-	GLint m_pixelBufferViewBufferSizeUniform = -1 ;
-	GLint m_pixelBufferViewPanOffsetUniform = -1 ;
-	GLint m_pixelBufferViewZoomFactorUniform = -1 ;
-	GLint m_pixelBufferViewtextureUniform = -1 ;
+	GLint m_checkerboardScreenSizeUniform = -1;
+	GLint m_pixelBufferViewScreenSizeUniform = -1;
+	GLint m_pixelBufferViewBufferSizeUniform = -1;
+	GLint m_pixelBufferViewPanOffsetUniform = -1;
+	GLint m_pixelBufferViewZoomFactorUniform = -1;
+	GLint m_pixelBufferViewtextureUniform = -1;
 
 	Framework::OpenGl::CVertexArray GenerateVertexArray();
 
@@ -51,7 +50,5 @@ private:
 	Framework::OpenGl::CShader GeneratePixelBufferViewVertexShader();
 	Framework::OpenGl::CShader GeneratePixelBufferViewFragmentShader();
 
-
 	GLuint m_activeTexture;
-
 };

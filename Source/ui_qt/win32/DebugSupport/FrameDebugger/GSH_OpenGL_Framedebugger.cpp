@@ -9,24 +9,24 @@
 #endif
 
 PIXELFORMATDESCRIPTOR CGSH_OpenGLFramedebugger::m_pfd =
-	{
-		sizeof(PIXELFORMATDESCRIPTOR),
-		1,
-		PFD_DRAW_TO_WINDOW | PFD_SUPPORT_OPENGL | PFD_DOUBLEBUFFER,
-		PFD_TYPE_RGBA,
-		32,
-		0, 0, 0, 0, 0, 0,
-		0, 0, 0, 0, 0, 0,
-		0,
-		32,
-		0,
-		0,
-		PFD_MAIN_PLANE,
-		0,
-		0, 0, 0};
+    {
+        sizeof(PIXELFORMATDESCRIPTOR),
+        1,
+        PFD_DRAW_TO_WINDOW | PFD_SUPPORT_OPENGL | PFD_DOUBLEBUFFER,
+        PFD_TYPE_RGBA,
+        32,
+        0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0,
+        0,
+        32,
+        0,
+        0,
+        PFD_MAIN_PLANE,
+        0,
+        0, 0, 0};
 
 CGSH_OpenGLFramedebugger::CGSH_OpenGLFramedebugger(Framework::Win32::CWindow* outputWindow)
-	: m_outputWnd(outputWindow)
+    : m_outputWnd(outputWindow)
 {
 	InitializeImpl();
 	PrepareFramedebugger();
@@ -44,11 +44,11 @@ void CGSH_OpenGLFramedebugger::InitializeImpl()
 	if(createContextAttribsARB != nullptr)
 	{
 		static const int attributes[] =
-			{
-				WGL_CONTEXT_MAJOR_VERSION_ARB, 3,
-				WGL_CONTEXT_MINOR_VERSION_ARB, 2,
-				WGL_CONTEXT_PROFILE_MASK_ARB, WGL_CONTEXT_CORE_PROFILE_BIT_ARB,
-				0};
+		    {
+		        WGL_CONTEXT_MAJOR_VERSION_ARB, 3,
+		        WGL_CONTEXT_MINOR_VERSION_ARB, 2,
+		        WGL_CONTEXT_PROFILE_MASK_ARB, WGL_CONTEXT_CORE_PROFILE_BIT_ARB,
+		        0};
 
 		auto newContext = createContextAttribsARB(m_dc, nullptr, attributes);
 		assert(newContext != nullptr);
@@ -105,7 +105,7 @@ void CGSH_OpenGLFramedebugger::PrepareFramedebugger()
 	m_checkerboardProgram = GenerateCheckerboardProgram();
 	{
 		glEnableVertexAttribArray(0);
-		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 3,  reinterpret_cast<const GLvoid*>(0)); // POSITON
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 3, reinterpret_cast<const GLvoid*>(0)); // POSITON
 
 		m_checkerboardScreenSizeUniform = glGetUniformLocation(*m_checkerboardProgram, "g_screenSize");
 	}
@@ -114,8 +114,8 @@ void CGSH_OpenGLFramedebugger::PrepareFramedebugger()
 	{
 		glEnableVertexAttribArray(0);
 		glEnableVertexAttribArray(1);
-		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 5,  reinterpret_cast<const GLvoid*>(0)); // POSITON
-		glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 5,  reinterpret_cast<const GLvoid*>(sizeof(float) * 3)); // texCoord
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 5, reinterpret_cast<const GLvoid*>(0));                 // POSITON
+		glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 5, reinterpret_cast<const GLvoid*>(sizeof(float) * 3)); // texCoord
 
 		m_pixelBufferViewScreenSizeUniform = glGetUniformLocation(*m_pixelBufferViewProgram, "g_screenSize");
 		m_pixelBufferViewBufferSizeUniform = glGetUniformLocation(*m_pixelBufferViewProgram, "g_bufferSize");
@@ -184,12 +184,12 @@ Framework::OpenGl::CShader CGSH_OpenGLFramedebugger::GenerateCheckerboardVertexS
 
 	std::stringstream shaderBuilder;
 	shaderBuilder << GLSL_VERSION << std::endl;
-	shaderBuilder << "#extension GL_ARB_explicit_attrib_location : enable" << std::endl << std::endl;
+	shaderBuilder << "#extension GL_ARB_explicit_attrib_location : enable" << std::endl
+	              << std::endl;
 
 	shaderBuilder << "layout (location = 0) in vec3 g_position;" << std::endl;
 	shaderBuilder << "out vec2 a_texCoord;" << std::endl;
 	shaderBuilder << "uniform vec2 g_screenSize;" << std::endl;
-
 
 	shaderBuilder << "void main()" << std::endl;
 	shaderBuilder << "{" << std::endl;
@@ -213,7 +213,8 @@ Framework::OpenGl::CShader CGSH_OpenGLFramedebugger::GenerateCheckerboardFragmen
 {
 	std::stringstream shaderBuilder;
 
-	shaderBuilder << GLSL_VERSION << std::endl << std::endl;
+	shaderBuilder << GLSL_VERSION << std::endl
+	              << std::endl;
 
 	shaderBuilder << "precision mediump float;" << std::endl;
 
@@ -261,7 +262,6 @@ void CGSH_OpenGLFramedebugger::DrawCheckerboard(float* dim)
 	glUniform2f(m_checkerboardScreenSizeUniform, dim[0], dim[1]);
 
 	glDrawArrays(GL_TRIANGLES, 0, 6);
-
 }
 
 Framework::OpenGl::ProgramPtr CGSH_OpenGLFramedebugger::GeneratePixelBufferViewProgram()
@@ -286,8 +286,10 @@ Framework::OpenGl::CShader CGSH_OpenGLFramedebugger::GeneratePixelBufferViewVert
 {
 
 	std::stringstream shaderBuilder;
-	shaderBuilder << GLSL_VERSION << std::endl << std::endl;
-	shaderBuilder << "#extension GL_ARB_explicit_attrib_location : enable" << std::endl << std::endl;
+	shaderBuilder << GLSL_VERSION << std::endl
+	              << std::endl;
+	shaderBuilder << "#extension GL_ARB_explicit_attrib_location : enable" << std::endl
+	              << std::endl;
 
 	shaderBuilder << "layout (location = 0) in vec3 g_position;" << std::endl;
 	shaderBuilder << "layout (location = 1) in vec2 g_texCoord;" << std::endl;
@@ -302,7 +304,6 @@ Framework::OpenGl::CShader CGSH_OpenGLFramedebugger::GeneratePixelBufferViewVert
 	shaderBuilder << "	gl_Position = ((vec4(g_position, 1.0) * vec4(g_bufferSize / g_screenSize, 0, 1)) + vec4(g_panOffset, 0, 0)) * vec4(g_zoomFactor, g_zoomFactor, 0, 1);" << std::endl;
 	shaderBuilder << "	a_texCoord = g_texCoord;" << std::endl;
 	shaderBuilder << "}" << std::endl;
-
 
 	auto shaderSource = shaderBuilder.str();
 
@@ -320,7 +321,8 @@ Framework::OpenGl::CShader CGSH_OpenGLFramedebugger::GeneratePixelBufferViewFrag
 {
 	std::stringstream shaderBuilder;
 
-	shaderBuilder << GLSL_VERSION << std::endl << std::endl;
+	shaderBuilder << GLSL_VERSION << std::endl
+	              << std::endl;
 
 	shaderBuilder << "precision mediump float;" << std::endl;
 
@@ -332,7 +334,6 @@ Framework::OpenGl::CShader CGSH_OpenGLFramedebugger::GeneratePixelBufferViewFrag
 	shaderBuilder << "{" << std::endl;
 	shaderBuilder << "	fragColor = texture(g_bufferTextureSampler, a_texCoord);" << std::endl;
 	shaderBuilder << "}" << std::endl;
-
 
 	auto shaderSource = shaderBuilder.str();
 
@@ -365,7 +366,7 @@ void CGSH_OpenGLFramedebugger::DrawPixelBuffer(float* screenSizeVector, float* b
 	glUniform2f(m_pixelBufferViewPanOffsetUniform, panOffsetVector[0], panOffsetVector[1]);
 	glUniform1f(m_pixelBufferViewZoomFactorUniform, zoomFactor);
 
-	glActiveTexture(GL_TEXTURE0+4);
+	glActiveTexture(GL_TEXTURE0 + 4);
 	glBindTexture(GL_TEXTURE_2D, m_activeTexture);
 	glUniform1i(m_pixelBufferViewtextureUniform, 4);
 
@@ -377,26 +378,25 @@ void CGSH_OpenGLFramedebugger::LoadTextureFromBitmap(const Framework::CBitmap& b
 	if(!bitmap.IsEmpty())
 	{
 		std::vector<GLint> textureFormat =
-		    [bitmap]()->std::vector<GLint>
+		    [bitmap]() -> std::vector<GLint> {
+			switch(bitmap.GetBitsPerPixel())
 			{
-			    switch(bitmap.GetBitsPerPixel())
-			    {
-			    case 8:
-				    return {GL_R8, GL_RED};
-			    case 16:
-				    return {GL_RGB5_A1, GL_BGRA};
-			    case 32:
-			    default:
-				    return {GL_RGBA8, GL_BGRA};
-			    }
-		    }();
+			case 8:
+				return {GL_R8, GL_RED};
+			case 16:
+				return {GL_RGB5_A1, GL_BGRA};
+			case 32:
+			default:
+				return {GL_RGBA8, GL_BGRA};
+			}
+		}();
 
 		auto type = GL_UNSIGNED_BYTE;
 		if(bitmap.GetBitsPerPixel() == 16)
 		{
 			type = GL_UNSIGNED_SHORT_5_5_5_1;
 		}
-		glActiveTexture(GL_TEXTURE0+4);
+		glActiveTexture(GL_TEXTURE0 + 4);
 		glGenTextures(1, &m_activeTexture);
 		glBindTexture(GL_TEXTURE_2D, m_activeTexture);
 		glTexImage2D(GL_TEXTURE_2D, 0, textureFormat[0], bitmap.GetWidth(), bitmap.GetHeight(), 0, textureFormat[1], GL_UNSIGNED_BYTE, bitmap.GetPixels());
