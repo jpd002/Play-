@@ -63,8 +63,8 @@ set(SRC_FILES
 	# ${SRC_ROOT}/FrameDebugger/GsInputStateView.h
 	# ${SRC_ROOT}/FrameDebugger/GsPacketListView.cpp
 	# ${SRC_ROOT}/FrameDebugger/GsPacketListView.h
-	# ${SRC_ROOT}/FrameDebugger/GsStateUtils.cpp
-	# ${SRC_ROOT}/FrameDebugger/GsStateUtils.h
+	${SRC_ROOT}/FrameDebugger/GsStateUtils.cpp
+	${SRC_ROOT}/FrameDebugger/GsStateUtils.h
 	# ${SRC_ROOT}/FrameDebugger/PixelBufferView.cpp
 	# ${SRC_ROOT}/FrameDebugger/PixelBufferView.h
 	# ${SRC_ROOT}/FrameDebugger/PixelBufferViewOverlay.cpp
@@ -73,8 +73,8 @@ set(SRC_FILES
 	# ${SRC_ROOT}/FrameDebugger/TabHost.h
 	# ${SRC_ROOT}/FrameDebugger/Vu1ProgramView.cpp
 	# ${SRC_ROOT}/FrameDebugger/Vu1ProgramView.h
-	# ${SRC_ROOT}/FrameDebugger/Vu1Vm.cpp
-	# ${SRC_ROOT}/FrameDebugger/Vu1Vm.h
+	${SRC_ROOT}/FrameDebugger/Vu1Vm.cpp
+	${SRC_ROOT}/FrameDebugger/Vu1Vm.h
 	${SRC_ROOT}/MemoryViewMIPSWnd.cpp
 	${SRC_ROOT}/MemoryViewMIPSWnd.h
 	${SRC_ROOT}/MemoryViewTable.cpp
