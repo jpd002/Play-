@@ -137,7 +137,7 @@ void CGSH_Vulkan::ResetImpl()
 {
 	m_vtxCount = 0;
 	m_primitiveType = PRIM_INVALID;
-	m_prevTex0ClutInfo = 0;
+	m_clutState = CLUTSTATE();
 }
 
 void CGSH_Vulkan::SetPresentationParams(const CGSHandler::PRESENTATION_PARAMS& presentationParams)
@@ -839,7 +839,7 @@ void CGSH_Vulkan::WriteRegisterImpl(uint8 registerId, uint64 data)
 void CGSH_Vulkan::ProcessHostToLocalTransfer()
 {
 	//Flush previous cached info
-	m_prevTex0ClutInfo = 0;
+	m_clutState = CLUTSTATE();
 	m_draw->FlushVertices();
 
 	auto bltBuf = make_convertible<BITBLTBUF>(m_nReg[GS_REG_BITBLTBUF]);
@@ -886,12 +886,22 @@ void CGSH_Vulkan::SyncCLUT(const TEX0& tex0)
 	if(!CGsPixelFormats::IsPsmIDTEX(tex0.nPsm)) return;
 	if(!ProcessCLD(tex0)) return;
 
+	auto texClut = make_convertible<TEXCLUT>(m_nReg[GS_REG_TEXCLUT]);
 	auto tex0ClutInfo = static_cast<uint64>(tex0) & (~TEX0_CLUTINFO_MASK);
-	if(m_prevTex0ClutInfo == tex0ClutInfo) return;
-	m_prevTex0ClutInfo = tex0ClutInfo;
+
+	if(
+		(m_clutState.tex0ClutInfo == tex0ClutInfo) &&
+		(m_clutState.texClut == texClut)
+		)
+	{
+		return;
+	}
+
+	m_clutState.tex0ClutInfo = tex0ClutInfo;
+	m_clutState.texClut = texClut;
 
 	m_draw->FlushVertices();
-	m_clutLoad->DoClutLoad(tex0);
+	m_clutLoad->DoClutLoad(tex0, texClut);
 }
 
 void CGSH_Vulkan::ReadFramebuffer(uint32 width, uint32 height, void* buffer)

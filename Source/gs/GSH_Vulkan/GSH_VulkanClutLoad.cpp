@@ -19,7 +19,7 @@ CClutLoad::CClutLoad(const ContextPtr& context, const FrameCommandBufferPtr& fra
 {
 }
 
-void CClutLoad::DoClutLoad(const CGSHandler::TEX0& tex0)
+void CClutLoad::DoClutLoad(const CGSHandler::TEX0& tex0, const CGSHandler::TEXCLUT& texClut)
 {
 	auto caps = make_convertible<PIPELINE_CAPS>(0);
 	caps.idx8 = CGsPixelFormats::IsPsmIDTEX8(tex0.nPsm) ? 1 : 0;
@@ -32,9 +32,14 @@ void CClutLoad::DoClutLoad(const CGSHandler::TEX0& tex0)
 		loadPipeline = m_pipelines.RegisterPipeline(caps, CreateLoadPipeline(caps));
 	}
 
+	assert((caps.csm == 0) || (tex0.nCSA == 0));
+
 	LOAD_PARAMS loadParams;
 	loadParams.clutBufPtr = tex0.GetCLUTPtr();
+	loadParams.clutBufWidth = (tex0.nCSM == 0) ? 0x40 : texClut.GetBufWidth();
 	loadParams.csa = tex0.nCSA;
+	loadParams.clutOffsetX = texClut.GetOffsetU();
+	loadParams.clutOffsetY = texClut.GetOffsetV();
 
 	auto descriptorSet = PrepareDescriptorSet(loadPipeline->descriptorSetLayout, tex0.nCPSM);
 	auto commandBuffer = m_frameCommandBuffer->GetCommandBuffer();
@@ -140,17 +145,25 @@ Framework::Vulkan::CShaderModule CClutLoad::CreateLoadShader(const PIPELINE_CAPS
 
 	auto b = CShaderBuilder();
 
-	assert(caps.csm == 0);
+	assert((caps.csm == 0) || (caps.cpsm == CGSHandler::PSMCT16));
 
-	if(caps.idx8)
+	if(caps.csm == 0)
 	{
-		b.SetMetadata(CShaderBuilder::METADATA_LOCALSIZE_X, 16);
-		b.SetMetadata(CShaderBuilder::METADATA_LOCALSIZE_Y, 16);
+		if(caps.idx8)
+		{
+			b.SetMetadata(CShaderBuilder::METADATA_LOCALSIZE_X, 16);
+			b.SetMetadata(CShaderBuilder::METADATA_LOCALSIZE_Y, 16);
+		}
+		else
+		{
+			b.SetMetadata(CShaderBuilder::METADATA_LOCALSIZE_X, 8);
+			b.SetMetadata(CShaderBuilder::METADATA_LOCALSIZE_Y, 2);
+		}
 	}
 	else
 	{
-		b.SetMetadata(CShaderBuilder::METADATA_LOCALSIZE_X, 8);
-		b.SetMetadata(CShaderBuilder::METADATA_LOCALSIZE_Y, 2);
+		b.SetMetadata(CShaderBuilder::METADATA_LOCALSIZE_X, (caps.idx8 == 0) ? 16 : 256);
+		b.SetMetadata(CShaderBuilder::METADATA_LOCALSIZE_Y, 1);
 	}
 
 	{
@@ -159,45 +172,67 @@ Framework::Vulkan::CShaderModule CClutLoad::CreateLoadShader(const PIPELINE_CAPS
 		auto clutImage = CImageUint2DValue(b.CreateImage2DUint(DESCRIPTOR_LOCATION_CLUT));
 		auto swizzleTable = CImageUint2DValue(b.CreateImage2DUint(DESCRIPTOR_LOCATION_SWIZZLETABLE));
 
-		auto loadParams = CInt4Lvalue(b.CreateUniformInt4("loadParams", Nuanceur::UNIFORM_UNIT_PUSHCONSTANT));
-		auto clutBufPtr = loadParams->x();
-		auto csa = loadParams->y();
+		auto loadParams1 = CInt4Lvalue(b.CreateUniformInt4("loadParams1", Nuanceur::UNIFORM_UNIT_PUSHCONSTANT));
+		auto loadParams2 = CInt4Lvalue(b.CreateUniformInt4("loadParams2", Nuanceur::UNIFORM_UNIT_PUSHCONSTANT));
 
-		auto colorPos = inputInvocationId->xy();
+		auto clutBufPtr = loadParams1->x();
+		auto clutBufWidth = loadParams1->y();
+		auto csa = loadParams1->z();
+
+		auto clutOffset = loadParams2->xy();
+
 		auto colorPixel = CUintLvalue(b.CreateTemporaryUint());
-		auto clutIndex = CIntLvalue(b.CreateTemporaryInt());
+		{
+			auto colorPos = CInt2Lvalue(b.CreateTemporaryInt());
+			if(caps.csm == 0)
+			{
+				colorPos = inputInvocationId->xy();
+			}
+			else
+			{
+				colorPos = clutOffset + NewInt2(inputInvocationId->x(), NewInt(b, 0));
+			}
 
-		switch(caps.cpsm)
-		{
-		case CGSHandler::PSMCT32:
-		case CGSHandler::PSMCT24:
-		{
-			auto colorAddress = CMemoryUtils::GetPixelAddress<CGsPixelFormats::STORAGEPSMCT32>(
-			    b, swizzleTable, clutBufPtr, NewInt(b, 64), colorPos);
-			colorPixel = CMemoryUtils::Memory_Read32(b, memoryBuffer, colorAddress);
-		}
-		break;
-		case CGSHandler::PSMCT16:
-		{
-			auto colorAddress = CMemoryUtils::GetPixelAddress<CGsPixelFormats::STORAGEPSMCT16>(
-			    b, swizzleTable, clutBufPtr, NewInt(b, 64), colorPos);
-			colorPixel = CMemoryUtils::Memory_Read16(b, memoryBuffer, colorAddress);
-		}
-		break;
-		default:
-			assert(false);
+			switch(caps.cpsm)
+			{
+			case CGSHandler::PSMCT32:
+			case CGSHandler::PSMCT24:
+			{
+				auto colorAddress = CMemoryUtils::GetPixelAddress<CGsPixelFormats::STORAGEPSMCT32>(
+					b, swizzleTable, clutBufPtr, clutBufWidth, colorPos);
+				colorPixel = CMemoryUtils::Memory_Read32(b, memoryBuffer, colorAddress);
+			}
 			break;
+			case CGSHandler::PSMCT16:
+			{
+				auto colorAddress = CMemoryUtils::GetPixelAddress<CGsPixelFormats::STORAGEPSMCT16>(
+					b, swizzleTable, clutBufPtr, clutBufWidth, colorPos);
+				colorPixel = CMemoryUtils::Memory_Read16(b, memoryBuffer, colorAddress);
+			}
+			break;
+			default:
+				assert(false);
+				break;
+			}
 		}
 
-		if(caps.idx8)
+		auto clutIndex = CIntLvalue(b.CreateTemporaryInt());
+		if(caps.csm == 0)
 		{
-			clutIndex = colorPos->x() + (colorPos->y() * NewInt(b, 16));
-			clutIndex = (clutIndex & NewInt(b, ~0x18)) | ((clutIndex & NewInt(b, 0x08)) << NewInt(b, 1)) | ((clutIndex & NewInt(b, 0x10)) >> NewInt(b, 1));
+			if(caps.idx8)
+			{
+				clutIndex = inputInvocationId->x() + (inputInvocationId->y() * NewInt(b, 16));
+				clutIndex = (clutIndex & NewInt(b, ~0x18)) | ((clutIndex & NewInt(b, 0x08)) << NewInt(b, 1)) | ((clutIndex & NewInt(b, 0x10)) >> NewInt(b, 1));
+			}
+			else
+			{
+				clutIndex = inputInvocationId->x() + (inputInvocationId->y() * NewInt(b, 8));
+				clutIndex = clutIndex + (csa * NewInt(b, 16));
+			}
 		}
 		else
 		{
-			clutIndex = colorPos->x() + (colorPos->y() * NewInt(b, 8));
-			clutIndex = clutIndex + (csa * NewInt(b, 16));
+			clutIndex = inputInvocationId->x();
 		}
 
 		switch(caps.cpsm)

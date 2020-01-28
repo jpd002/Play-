@@ -14,7 +14,7 @@ namespace GSH_Vulkan
 	public:
 		CClutLoad(const ContextPtr&, const FrameCommandBufferPtr&);
 
-		void DoClutLoad(const CGSHandler::TEX0&);
+		void DoClutLoad(const CGSHandler::TEX0&, const CGSHandler::TEXCLUT&);
 
 	private:
 		typedef uint32 PipelineCapsInt;
@@ -31,12 +31,17 @@ namespace GSH_Vulkan
 
 		struct LOAD_PARAMS
 		{
-			uint32 clutBufPtr;
-			uint32 csa;
+			uint32 clutBufPtr = 0;
+			uint32 clutBufWidth = 0;
+			uint32 csa = 0;
 			uint32 padding0 = 0;
+
+			uint32 clutOffsetX = 0;
+			uint32 clutOffsetY = 0;
 			uint32 padding1 = 0;
+			uint32 padding2 = 0;
 		};
-		static_assert(sizeof(LOAD_PARAMS) == 0x10, "LOAD_PARAMS must be 16 bytes large.");
+		static_assert(sizeof(LOAD_PARAMS) == 0x20, "LOAD_PARAMS must be 32 bytes large.");
 
 		VkDescriptorSet PrepareDescriptorSet(VkDescriptorSetLayout, uint32);
 		Framework::Vulkan::CShaderModule CreateLoadShader(const PIPELINE_CAPS&);

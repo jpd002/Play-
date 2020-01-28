@@ -56,6 +56,12 @@ private:
 		uint8 fog;
 	};
 
+	struct CLUTSTATE
+	{
+		uint64 tex0ClutInfo = 0;
+		uint64 texClut = 0;
+	};
+
 	virtual void PresentBackbuffer() = 0;
 
 	std::vector<VkPhysicalDevice> GetPhysicalDevices();
@@ -90,7 +96,7 @@ private:
 	float m_primOfsY = 0;
 	uint32 m_texWidth = 0;
 	uint32 m_texHeight = 0;
-	uint64 m_prevTex0ClutInfo = 0;
+	CLUTSTATE m_clutState;
 	std::vector<uint8> m_xferBuffer;
 
 	Framework::Vulkan::CImage m_clutImage;
