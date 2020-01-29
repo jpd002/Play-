@@ -482,6 +482,7 @@ bool CCdvdfsv::NDiskReady(uint32* args, uint32 argsSize, uint32* ret, uint32 ret
 	}
 	else
 	{
+		//Delay command (required by Downhill Domination)
 		m_pendingCommand = COMMAND_NDISKREADY;
 		ret[0x00] = 2;
 		return false;
