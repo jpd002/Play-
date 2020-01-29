@@ -319,6 +319,12 @@ uint32 CCdvdman::CdRead(uint32 startSector, uint32 sectorCount, uint32 bufferPtr
 {
 	CLog::GetInstance().Print(LOG_NAME, FUNCTION_CDREAD "(startSector = 0x%X, sectorCount = 0x%X, bufferPtr = 0x%08X, modePtr = 0x%08X);\r\n",
 	                          startSector, sectorCount, bufferPtr, modePtr);
+	if(m_pendingCommand != COMMAND_NONE)
+	{
+		//Command already pending (Atelier Marie+Elie does that)
+		CLog::GetInstance().Warn(LOG_NAME, "Trying to start a read while another command is pending.\r\n");
+		return 0;
+	}
 	if(modePtr != 0)
 	{
 		uint8* mode = &m_ram[modePtr];
@@ -336,7 +342,6 @@ uint32 CCdvdman::CdRead(uint32 startSector, uint32 sectorCount, uint32 bufferPtr
 			buffer += sectorSize;
 		}
 	}
-	assert(m_pendingCommand == COMMAND_NONE);
 	m_pendingCommand = COMMAND_READ;
 	m_status = CDVD_STATUS_READING;
 	return 1;
