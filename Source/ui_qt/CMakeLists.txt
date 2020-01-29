@@ -248,6 +248,7 @@ if(TARGET_PLATFORM_MACOS)
 		RESOURCE "${OSX_RES}"
 	)
 	list(APPEND PROJECT_LIBS "-framework IOKit -framework CoreFoundation")
+	target_include_directories(Play PRIVATE $ENV{VULKAN_SDK}/../MoltenVK/include)
 elseif(TARGET_PLATFORM_WIN32)
 	set(QT_SOURCES
 		${QT_SOURCES}

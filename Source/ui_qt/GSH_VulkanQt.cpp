@@ -1,6 +1,11 @@
 #include "GSH_VulkanQt.h"
 #include "vulkan/StructDefs.h"
+#include "vulkan/Loader.h"
 #include <QWindow>
+
+#ifdef __APPLE__
+#include <MoltenVK/vk_mvk_moltenvk.h>
+#endif
 
 CGSH_VulkanQt::CGSH_VulkanQt(QWindow* renderWindow)
     : m_renderWindow(renderWindow)
@@ -59,6 +64,8 @@ void CGSH_VulkanQt::InitializeImpl()
 	surfaceCreateInfo.pView = reinterpret_cast<const void*>(m_renderWindow->winId());
 	auto result = m_instance.vkCreateMacOSSurfaceMVK(m_instance, &surfaceCreateInfo, nullptr, &m_context->surface);
 	CHECKVULKANERROR(result);
+	
+	DisableSyncQueueSubmits();
 #endif
 
 	CGSH_Vulkan::InitializeImpl();
@@ -72,4 +79,24 @@ void CGSH_VulkanQt::ReleaseImpl()
 
 void CGSH_VulkanQt::PresentBackbuffer()
 {
+}
+
+void CGSH_VulkanQt::DisableSyncQueueSubmits()
+{
+#ifdef __APPLE__
+	auto result = VK_SUCCESS;
+	
+	auto vkGetMoltenVKConfigurationMVK = reinterpret_cast<PFN_vkGetMoltenVKConfigurationMVK>(Framework::Vulkan::CLoader::GetInstance().GetLibraryProcAddr("vkGetMoltenVKConfigurationMVK"));
+	auto vkSetMoltenVKConfigurationMVK = reinterpret_cast<PFN_vkSetMoltenVKConfigurationMVK>(Framework::Vulkan::CLoader::GetInstance().GetLibraryProcAddr("vkSetMoltenVKConfigurationMVK"));
+
+	MVKConfiguration config;
+	size_t configSize = sizeof(MVKConfiguration);
+	result = vkGetMoltenVKConfigurationMVK(m_instance, &config, &configSize);
+	CHECKVULKANERROR(result);
+	
+	config.synchronousQueueSubmits = VK_FALSE;
+	
+	result = vkSetMoltenVKConfigurationMVK(m_instance, &config, &configSize);
+	CHECKVULKANERROR(result);
+#endif
 }
