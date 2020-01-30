@@ -210,12 +210,17 @@ void CDraw::FlushVertices()
 		m_context->device.vkCmdSetScissor(commandBuffer, 0, 1, &scissor);
 	}
 
-	auto renderPassBeginInfo = Framework::Vulkan::RenderPassBeginInfo();
-	renderPassBeginInfo.renderPass = m_renderPass;
-	renderPassBeginInfo.renderArea.extent.width = DRAW_AREA_SIZE;
-	renderPassBeginInfo.renderArea.extent.height = DRAW_AREA_SIZE;
-	renderPassBeginInfo.framebuffer = m_framebuffer;
-	m_context->device.vkCmdBeginRenderPass(commandBuffer, &renderPassBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
+	if(!m_renderPassBegun)
+	{
+		auto renderPassBeginInfo = Framework::Vulkan::RenderPassBeginInfo();
+		renderPassBeginInfo.renderPass = m_renderPass;
+		renderPassBeginInfo.renderArea.extent.width = DRAW_AREA_SIZE;
+		renderPassBeginInfo.renderArea.extent.height = DRAW_AREA_SIZE;
+		renderPassBeginInfo.framebuffer = m_framebuffer;
+		m_context->device.vkCmdBeginRenderPass(commandBuffer, &renderPassBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
+
+		m_renderPassBegun = true;
+	}
 
 	auto descriptorSetCaps = make_convertible<DESCRIPTORSET_CAPS>(0);
 	descriptorSetCaps.hasTexture = m_pipelineCaps.hasTexture;
@@ -240,14 +245,23 @@ void CDraw::FlushVertices()
 	assert((vertexCount % 3) == 0);
 	m_context->device.vkCmdDraw(commandBuffer, vertexCount, 1, 0, 0);
 
-	m_context->device.vkCmdEndRenderPass(commandBuffer);
-
 	m_passVertexStart = m_passVertexEnd;
+}
+
+void CDraw::FlushRenderPass()
+{
+	FlushVertices();
+	if(m_renderPassBegun)
+	{
+		auto commandBuffer = m_frameCommandBuffer->GetCommandBuffer();
+		m_context->device.vkCmdEndRenderPass(commandBuffer);
+		m_renderPassBegun = false;
+	}
 }
 
 void CDraw::PreFlushFrameCommandBuffer()
 {
-	FlushVertices();
+	FlushRenderPass();
 }
 
 void CDraw::PostFlushFrameCommandBuffer()

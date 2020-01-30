@@ -840,7 +840,7 @@ void CGSH_Vulkan::ProcessHostToLocalTransfer()
 {
 	//Flush previous cached info
 	m_clutState = CLUTSTATE();
-	m_draw->FlushVertices();
+	m_draw->FlushRenderPass();
 
 	auto bltBuf = make_convertible<BITBLTBUF>(m_nReg[GS_REG_BITBLTBUF]);
 	auto trxReg = make_convertible<TRXREG>(m_nReg[GS_REG_TRXREG]);
@@ -900,7 +900,7 @@ void CGSH_Vulkan::SyncCLUT(const TEX0& tex0)
 	m_clutState.tex0ClutInfo = tex0ClutInfo;
 	m_clutState.texClut = texClut;
 
-	m_draw->FlushVertices();
+	m_draw->FlushRenderPass();
 	m_clutLoad->DoClutLoad(tex0, texClut);
 }
 

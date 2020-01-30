@@ -73,6 +73,7 @@ namespace GSH_Vulkan
 
 		void AddVertices(const PRIM_VERTEX*, const PRIM_VERTEX*);
 		void FlushVertices();
+		void FlushRenderPass();
 
 		void PreFlushFrameCommandBuffer() override;
 		void PostFlushFrameCommandBuffer() override;
@@ -155,6 +156,7 @@ namespace GSH_Vulkan
 
 		uint32 m_passVertexStart = 0;
 		uint32 m_passVertexEnd = 0;
+		bool m_renderPassBegun = false;
 
 		PIPELINE_CAPS m_pipelineCaps;
 		DRAW_PIPELINE_PUSHCONSTANTS m_pushConstants;
