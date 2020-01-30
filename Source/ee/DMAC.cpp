@@ -963,6 +963,7 @@ void CDMAC::DisassembleGet(uint32 nAddress)
 
 		//Channel 1
 		LOG_GET(D1_CHCR)
+		LOG_GET(D1_MADR)
 		LOG_GET(D1_TADR)
 
 		//Channel 2
