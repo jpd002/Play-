@@ -79,6 +79,9 @@ void CTransfer::DoHostToLocalTransfer(const XferBuffer& inputData)
 	case CGSHandler::PSMCT32:
 		pixelCount = inputData.size() / 4;
 		break;
+	case CGSHandler::PSMCT24:
+		pixelCount = inputData.size() / 3;
+		break;
 	case CGSHandler::PSMCT16:
 		pixelCount = inputData.size() / 2;
 		break;
@@ -258,6 +261,14 @@ Framework::Vulkan::CShaderModule CTransfer::CreateXferShader(const PIPELINE_CAPS
 			CMemoryUtils::Memory_Write32(b, memoryBuffer, address, input);
 		}
 		break;
+		case CGSHandler::PSMCT24:
+		{
+			auto input = XferStream_Read24(b, xferBuffer, pixelIndex);
+			auto address = CMemoryUtils::GetPixelAddress<CGsPixelFormats::STORAGEPSMCT32>(
+			    b, dstSwizzleTable, bufAddress, bufWidth, NewInt2(trxX, trxY));
+			CMemoryUtils::Memory_Write24(b, memoryBuffer, address, input);
+		}
+		break;
 		case CGSHandler::PSMCT16:
 		{
 			auto input = XferStream_Read16(b, xferBuffer, pixelIndex);
@@ -323,6 +334,15 @@ Framework::Vulkan::CShaderModule CTransfer::CreateXferShader(const PIPELINE_CAPS
 Nuanceur::CUintRvalue CTransfer::XferStream_Read32(Nuanceur::CShaderBuilder& b, Nuanceur::CArrayUintValue xferBuffer, Nuanceur::CIntValue pixelIndex)
 {
 	return Load(xferBuffer, pixelIndex);
+}
+
+Nuanceur::CUintRvalue CTransfer::XferStream_Read24(Nuanceur::CShaderBuilder& b, Nuanceur::CArrayUintValue xferBuffer, Nuanceur::CIntValue pixelIndex)
+{
+	auto byteOffset = pixelIndex * NewInt(b, 3);
+	auto byte0 = XferStream_Read8(b, xferBuffer, byteOffset + NewInt(b, 0));
+	auto byte1 = XferStream_Read8(b, xferBuffer, byteOffset + NewInt(b, 1));
+	auto byte2 = XferStream_Read8(b, xferBuffer, byteOffset + NewInt(b, 2));
+	return (byte0) | (byte1 << NewUint(b, 8)) | (byte2 << NewUint(b, 16));
 }
 
 Nuanceur::CUintRvalue CTransfer::XferStream_Read16(Nuanceur::CShaderBuilder& b, Nuanceur::CArrayUintValue xferBuffer, Nuanceur::CIntValue pixelIndex)
