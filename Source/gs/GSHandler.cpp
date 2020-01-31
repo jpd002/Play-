@@ -1237,8 +1237,8 @@ void CGSHandler::ReadCLUT4(const TEX0& tex0)
 					uint16 colorHi = static_cast<uint16>(color >> 16);
 
 					if(
-						(pDst[0x000] != colorLo) ||
-						(pDst[0x100] != colorHi))
+					    (pDst[0x000] != colorLo) ||
+					    (pDst[0x100] != colorHi))
 					{
 						changed = true;
 					}
@@ -1318,8 +1318,8 @@ void CGSHandler::ReadCLUT8(const TEX0& tex0)
 					index = (index & ~0x18) | ((index & 0x08) << 1) | ((index & 0x10) >> 1);
 
 					if(
-						(m_pCLUT[index + 0x000] != colorLo) ||
-						(m_pCLUT[index + 0x100] != colorHi))
+					    (m_pCLUT[index + 0x000] != colorLo) ||
+					    (m_pCLUT[index + 0x100] != colorHi))
 					{
 						changed = true;
 					}

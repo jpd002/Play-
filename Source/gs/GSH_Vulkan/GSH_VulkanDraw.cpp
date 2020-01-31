@@ -38,11 +38,11 @@ CDraw::CDraw(const ContextPtr& context, const FrameCommandBufferPtr& frameComman
 	for(auto& frame : m_frames)
 	{
 		frame.vertexBuffer = Framework::Vulkan::CBuffer(
-			m_context->device, m_context->physicalDeviceMemoryProperties,
-			VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, sizeof(PRIM_VERTEX) * MAX_VERTEX_COUNT);
+		    m_context->device, m_context->physicalDeviceMemoryProperties,
+		    VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, sizeof(PRIM_VERTEX) * MAX_VERTEX_COUNT);
 
 		auto result = m_context->device.vkMapMemory(m_context->device, frame.vertexBuffer.GetMemory(),
-													0, VK_WHOLE_SIZE, 0, reinterpret_cast<void**>(&frame.vertexBufferPtr));
+		                                            0, VK_WHOLE_SIZE, 0, reinterpret_cast<void**>(&frame.vertexBufferPtr));
 		CHECKVULKANERROR(result);
 	}
 
@@ -146,7 +146,7 @@ void CDraw::SetTextureClampParams(uint32 clampMinU, uint32 clampMinV, uint32 cla
 void CDraw::SetAlphaBlendingParams(uint32 alphaFix)
 {
 	bool changed =
-		(m_pushConstants.alphaFix != alphaFix);
+	    (m_pushConstants.alphaFix != alphaFix);
 	if(!changed) return;
 	FlushVertices();
 	m_pushConstants.alphaFix = alphaFix;
@@ -227,7 +227,7 @@ void CDraw::FlushVertices()
 	descriptorSetCaps.framebufferFormat = m_pipelineCaps.framebufferFormat;
 	descriptorSetCaps.depthbufferFormat = m_pipelineCaps.depthbufferFormat;
 	descriptorSetCaps.textureFormat = m_pipelineCaps.textureFormat;
-	
+
 	auto descriptorSet = PrepareDescriptorSet(drawPipeline->descriptorSetLayout, descriptorSetCaps);
 
 	m_context->device.vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, drawPipeline->pipelineLayout,
@@ -657,7 +657,7 @@ Framework::Vulkan::CShaderModule CDraw::CreateVertexShader()
 }
 
 static Nuanceur::CUintRvalue GetDepth(Nuanceur::CShaderBuilder& b, uint32 depthFormat,
-	Nuanceur::CIntValue depthAddress, Nuanceur::CArrayUintValue memoryBuffer)
+                                      Nuanceur::CIntValue depthAddress, Nuanceur::CArrayUintValue memoryBuffer)
 {
 	switch(depthFormat)
 	{
@@ -674,7 +674,7 @@ static Nuanceur::CUintRvalue GetDepth(Nuanceur::CShaderBuilder& b, uint32 depthF
 }
 
 static Nuanceur::CIntRvalue ClampTexCoord(Nuanceur::CShaderBuilder& b, uint32 clampMode, Nuanceur::CIntValue texCoord, Nuanceur::CIntValue texSize,
-	Nuanceur::CIntValue clampMin, Nuanceur::CIntValue clampMax)
+                                          Nuanceur::CIntValue clampMin, Nuanceur::CIntValue clampMax)
 {
 	using namespace Nuanceur;
 
@@ -690,13 +690,12 @@ static Nuanceur::CIntRvalue ClampTexCoord(Nuanceur::CShaderBuilder& b, uint32 cl
 		return Clamp(texCoord, clampMin, clampMax);
 	case CGSHandler::CLAMP_MODE_REGION_REPEAT:
 		return (texCoord & clampMin) | clampMax;
-		
 	}
 };
 
 static Nuanceur::CFloat4Rvalue GetClutColor(Nuanceur::CShaderBuilder& b,
-	uint32 textureFormat, uint32 clutFormat, Nuanceur::CUintValue texPixel,
-	Nuanceur::CImageUint2DValue clutImage, Nuanceur::CIntValue texCsa)
+                                            uint32 textureFormat, uint32 clutFormat, Nuanceur::CUintValue texPixel,
+                                            Nuanceur::CImageUint2DValue clutImage, Nuanceur::CIntValue texCsa)
 {
 	using namespace Nuanceur;
 
@@ -721,25 +720,25 @@ static Nuanceur::CFloat4Rvalue GetClutColor(Nuanceur::CShaderBuilder& b,
 	case CGSHandler::PSMCT32:
 	case CGSHandler::PSMCT24:
 	{
-	auto clutIndexLo = NewInt2(clutIndex,                    NewInt(b, 0));
-	auto clutIndexHi = NewInt2(clutIndex + NewInt(b, 0x100), NewInt(b, 0));
-	auto clutPixelLo = Load(clutImage, clutIndexLo)->x();
-	auto clutPixelHi = Load(clutImage, clutIndexHi)->x();
-	auto clutPixel = clutPixelLo | (clutPixelHi << NewUint(b, 16));
-	return CMemoryUtils::PSM32ToVec4(b, clutPixel);
+		auto clutIndexLo = NewInt2(clutIndex, NewInt(b, 0));
+		auto clutIndexHi = NewInt2(clutIndex + NewInt(b, 0x100), NewInt(b, 0));
+		auto clutPixelLo = Load(clutImage, clutIndexLo)->x();
+		auto clutPixelHi = Load(clutImage, clutIndexHi)->x();
+		auto clutPixel = clutPixelLo | (clutPixelHi << NewUint(b, 16));
+		return CMemoryUtils::PSM32ToVec4(b, clutPixel);
 	}
 	case CGSHandler::PSMCT16:
 	{
-	auto clutPixel = Load(clutImage, NewInt2(clutIndex, NewInt(b, 0)))->x();
-	return CMemoryUtils::PSM16ToVec4(b, clutPixel);
+		auto clutPixel = Load(clutImage, NewInt2(clutIndex, NewInt(b, 0)))->x();
+		return CMemoryUtils::PSM16ToVec4(b, clutPixel);
 	}
 	}
 }
 
 static Nuanceur::CFloat4Rvalue GetTextureColor(Nuanceur::CShaderBuilder& b, uint32 textureFormat, uint32 clutFormat,
-	Nuanceur::CInt2Value texelPos, Nuanceur::CArrayUintValue memoryBuffer, Nuanceur::CImageUint2DValue clutImage,
-	Nuanceur::CImageUint2DValue texSwizzleTable, Nuanceur::CIntValue texBufAddress, Nuanceur::CIntValue texBufWidth,
-	Nuanceur::CIntValue texCsa)
+                                               Nuanceur::CInt2Value texelPos, Nuanceur::CArrayUintValue memoryBuffer, Nuanceur::CImageUint2DValue clutImage,
+                                               Nuanceur::CImageUint2DValue texSwizzleTable, Nuanceur::CIntValue texBufAddress, Nuanceur::CIntValue texBufWidth,
+                                               Nuanceur::CIntValue texCsa)
 {
 	using namespace Nuanceur;
 
@@ -750,14 +749,14 @@ static Nuanceur::CFloat4Rvalue GetTextureColor(Nuanceur::CShaderBuilder& b, uint
 	case CGSHandler::PSMCT32:
 	{
 		auto texAddress = CMemoryUtils::GetPixelAddress<CGsPixelFormats::STORAGEPSMCT32>(
-			b, texSwizzleTable, texBufAddress, texBufWidth, texelPos);
+		    b, texSwizzleTable, texBufAddress, texBufWidth, texelPos);
 		auto texPixel = CMemoryUtils::Memory_Read32(b, memoryBuffer, texAddress);
 		return CMemoryUtils::PSM32ToVec4(b, texPixel);
 	}
 	case CGSHandler::PSMCT24:
 	{
 		auto texAddress = CMemoryUtils::GetPixelAddress<CGsPixelFormats::STORAGEPSMCT32>(
-			b, texSwizzleTable, texBufAddress, texBufWidth, texelPos);
+		    b, texSwizzleTable, texBufAddress, texBufWidth, texelPos);
 		auto texPixel = CMemoryUtils::Memory_Read24(b, memoryBuffer, texAddress);
 		return CMemoryUtils::PSM32ToVec4(b, texPixel);
 	}
@@ -765,35 +764,35 @@ static Nuanceur::CFloat4Rvalue GetTextureColor(Nuanceur::CShaderBuilder& b, uint
 	case CGSHandler::PSMCT16S:
 	{
 		auto texAddress = CMemoryUtils::GetPixelAddress<CGsPixelFormats::STORAGEPSMCT16>(
-			b, texSwizzleTable, texBufAddress, texBufWidth, texelPos);
+		    b, texSwizzleTable, texBufAddress, texBufWidth, texelPos);
 		auto texPixel = CMemoryUtils::Memory_Read16(b, memoryBuffer, texAddress);
 		return CMemoryUtils::PSM16ToVec4(b, texPixel);
 	}
 	case CGSHandler::PSMT8:
 	{
 		auto texAddress = CMemoryUtils::GetPixelAddress<CGsPixelFormats::STORAGEPSMT8>(
-			b, texSwizzleTable, texBufAddress, texBufWidth, texelPos);
+		    b, texSwizzleTable, texBufAddress, texBufWidth, texelPos);
 		auto texPixel = CMemoryUtils::Memory_Read8(b, memoryBuffer, texAddress);
 		return GetClutColor(b, textureFormat, clutFormat, texPixel, clutImage, texCsa);
 	}
 	case CGSHandler::PSMT4:
 	{
 		auto texAddress = CMemoryUtils::GetPixelAddress_PSMT4(
-			b, texSwizzleTable, texBufAddress, texBufWidth, texelPos);
+		    b, texSwizzleTable, texBufAddress, texBufWidth, texelPos);
 		auto texPixel = CMemoryUtils::Memory_Read4(b, memoryBuffer, texAddress);
 		return GetClutColor(b, textureFormat, clutFormat, texPixel, clutImage, texCsa);
 	}
 	case CGSHandler::PSMT8H:
 	{
 		auto texAddress = CMemoryUtils::GetPixelAddress<CGsPixelFormats::STORAGEPSMCT32>(
-			b, texSwizzleTable, texBufAddress, texBufWidth, texelPos);
+		    b, texSwizzleTable, texBufAddress, texBufWidth, texelPos);
 		auto texPixel = CMemoryUtils::Memory_Read8(b, memoryBuffer, texAddress + NewInt(b, 3));
 		return GetClutColor(b, textureFormat, clutFormat, texPixel, clutImage, texCsa);
 	}
 	case CGSHandler::PSMT4HL:
 	{
 		auto texAddress = CMemoryUtils::GetPixelAddress<CGsPixelFormats::STORAGEPSMCT32>(
-			b, texSwizzleTable, texBufAddress, texBufWidth, texelPos);
+		    b, texSwizzleTable, texBufAddress, texBufWidth, texelPos);
 		auto texNibAddress = (texAddress + NewInt(b, 3)) * NewInt(b, 2);
 		auto texPixel = CMemoryUtils::Memory_Read4(b, memoryBuffer, texNibAddress);
 		return GetClutColor(b, textureFormat, clutFormat, texPixel, clutImage, texCsa);
@@ -801,7 +800,7 @@ static Nuanceur::CFloat4Rvalue GetTextureColor(Nuanceur::CShaderBuilder& b, uint
 	case CGSHandler::PSMT4HH:
 	{
 		auto texAddress = CMemoryUtils::GetPixelAddress<CGsPixelFormats::STORAGEPSMCT32>(
-			b, texSwizzleTable, texBufAddress, texBufWidth, texelPos);
+		    b, texSwizzleTable, texBufAddress, texBufWidth, texelPos);
 		auto texNibAddress = ((texAddress + NewInt(b, 3)) * NewInt(b, 2)) | NewInt(b, 1);
 		auto texPixel = CMemoryUtils::Memory_Read4(b, memoryBuffer, texNibAddress);
 		return GetClutColor(b, textureFormat, clutFormat, texPixel, clutImage, texCsa);
@@ -810,8 +809,8 @@ static Nuanceur::CFloat4Rvalue GetTextureColor(Nuanceur::CShaderBuilder& b, uint
 }
 
 static void ExpandAlpha(Nuanceur::CShaderBuilder& b, uint32 textureFormat, uint32 clutFormat,
-	uint32 texBlackIsTransparent, Nuanceur::CFloat4Lvalue& textureColor,
-	Nuanceur::CFloatValue textureA0, Nuanceur::CFloatValue textureA1)
+                        uint32 texBlackIsTransparent, Nuanceur::CFloat4Lvalue& textureColor,
+                        Nuanceur::CFloatValue textureA0, Nuanceur::CFloatValue textureA1)
 {
 	using namespace Nuanceur;
 
@@ -819,15 +818,15 @@ static void ExpandAlpha(Nuanceur::CShaderBuilder& b, uint32 textureFormat, uint3
 	if(CGsPixelFormats::IsPsmIDTEX(textureFormat))
 	{
 		requiresExpansion =
-			(clutFormat == CGSHandler::PSMCT16) ||
-			(clutFormat == CGSHandler::PSMCT16S);
+		    (clutFormat == CGSHandler::PSMCT16) ||
+		    (clutFormat == CGSHandler::PSMCT16S);
 	}
 	else
 	{
 		requiresExpansion =
-			(textureFormat == CGSHandler::PSMCT24) ||
-			(textureFormat == CGSHandler::PSMCT16) ||
-			(textureFormat == CGSHandler::PSMCT16S);
+		    (textureFormat == CGSHandler::PSMCT24) ||
+		    (textureFormat == CGSHandler::PSMCT16) ||
+		    (textureFormat == CGSHandler::PSMCT16S);
 	}
 
 	if(!requiresExpansion)
@@ -852,7 +851,7 @@ static void ExpandAlpha(Nuanceur::CShaderBuilder& b, uint32 textureFormat, uint3
 }
 
 static Nuanceur::CFloat3Rvalue GetAlphaABD(Nuanceur::CShaderBuilder& b, uint32 alphaABD,
-	Nuanceur::CFloat4Value srcColor, Nuanceur::CFloat4Value dstColor)
+                                           Nuanceur::CFloat4Value srcColor, Nuanceur::CFloat4Value dstColor)
 {
 	switch(alphaABD)
 	{
@@ -867,9 +866,8 @@ static Nuanceur::CFloat3Rvalue GetAlphaABD(Nuanceur::CShaderBuilder& b, uint32 a
 	}
 }
 
-
 static Nuanceur::CFloat3Rvalue GetAlphaC(Nuanceur::CShaderBuilder& b, uint32 alphaC,
-	Nuanceur::CFloat4Value srcColor, Nuanceur::CFloat4Value dstColor, Nuanceur::CFloatValue alphaFix)
+                                         Nuanceur::CFloat4Value srcColor, Nuanceur::CFloat4Value dstColor, Nuanceur::CFloatValue alphaFix)
 {
 	switch(alphaC)
 	{
@@ -885,37 +883,37 @@ static Nuanceur::CFloat3Rvalue GetAlphaC(Nuanceur::CShaderBuilder& b, uint32 alp
 }
 
 static void WriteToFramebuffer(Nuanceur::CShaderBuilder& b, uint32 framebufferFormat,
-	Nuanceur::CArrayUintValue memoryBuffer, Nuanceur::CIntValue fbAddress,
-	Nuanceur::CUintValue fbWriteMask, Nuanceur::CUintValue dstPixel, Nuanceur::CFloat4Value dstColor)
+                               Nuanceur::CArrayUintValue memoryBuffer, Nuanceur::CIntValue fbAddress,
+                               Nuanceur::CUintValue fbWriteMask, Nuanceur::CUintValue dstPixel, Nuanceur::CFloat4Value dstColor)
 {
 	switch(framebufferFormat)
 	{
 	default:
 		assert(false);
 	case CGSHandler::PSMCT32:
-		{
-			dstPixel = (CMemoryUtils::Vec4ToPSM32(b, dstColor) & fbWriteMask) | (dstPixel & ~fbWriteMask);
-			CMemoryUtils::Memory_Write32(b, memoryBuffer, fbAddress, dstPixel);
-		}
-		break;
+	{
+		dstPixel = (CMemoryUtils::Vec4ToPSM32(b, dstColor) & fbWriteMask) | (dstPixel & ~fbWriteMask);
+		CMemoryUtils::Memory_Write32(b, memoryBuffer, fbAddress, dstPixel);
+	}
+	break;
 	case CGSHandler::PSMCT24:
-		{
-			dstPixel = (CMemoryUtils::Vec4ToPSM32(b, dstColor) & fbWriteMask) | (dstPixel & ~fbWriteMask);
-			CMemoryUtils::Memory_Write24(b, memoryBuffer, fbAddress, dstPixel);
-		}
-		break;
+	{
+		dstPixel = (CMemoryUtils::Vec4ToPSM32(b, dstColor) & fbWriteMask) | (dstPixel & ~fbWriteMask);
+		CMemoryUtils::Memory_Write24(b, memoryBuffer, fbAddress, dstPixel);
+	}
+	break;
 	case CGSHandler::PSMCT16:
 	case CGSHandler::PSMCT16S:
-		{
-			dstPixel = (CMemoryUtils::Vec4ToPSM16(b, dstColor) & fbWriteMask) | (dstPixel & ~fbWriteMask);
-			CMemoryUtils::Memory_Write16(b, memoryBuffer, fbAddress, dstPixel);
-		}
-		break;
+	{
+		dstPixel = (CMemoryUtils::Vec4ToPSM16(b, dstColor) & fbWriteMask) | (dstPixel & ~fbWriteMask);
+		CMemoryUtils::Memory_Write16(b, memoryBuffer, fbAddress, dstPixel);
+	}
+	break;
 	}
 }
 
 static void WriteToDepthbuffer(Nuanceur::CShaderBuilder& b, uint32 depthbufferFormat,
-	Nuanceur::CArrayUintValue memoryBuffer, Nuanceur::CIntValue depthAddress, Nuanceur::CUintValue srcDepth)
+                               Nuanceur::CArrayUintValue memoryBuffer, Nuanceur::CIntValue depthAddress, Nuanceur::CUintValue srcDepth)
 {
 	switch(depthbufferFormat)
 	{
@@ -1010,7 +1008,7 @@ Framework::Vulkan::CShaderModule CDraw::CreateFragmentShader(const PIPELINE_CAPS
 			auto clampTexPos = NewInt2(clampPosU, clampPosV);
 
 			textureColor = GetTextureColor(b, caps.textureFormat, caps.clutFormat, clampTexPos,
-				memoryBuffer, clutImage, texSwizzleTable, texBufAddress, texBufWidth, texCsa);
+			                               memoryBuffer, clutImage, texSwizzleTable, texBufAddress, texBufWidth, texCsa);
 
 			if(caps.textureHasAlpha)
 			{
@@ -1031,19 +1029,19 @@ Framework::Vulkan::CShaderModule CDraw::CreateFragmentShader(const PIPELINE_CAPS
 				//Nothing to do
 				break;
 			case CGSHandler::TEX0_FUNCTION_HIGHLIGHT2:
+			{
+				auto tempColor = (textureColor->xyz() * inputColor->xyz() * NewFloat3(b, 2, 2, 2)) + inputColor->www();
+				if(caps.textureHasAlpha)
 				{
-					auto tempColor = (textureColor->xyz() * inputColor->xyz() * NewFloat3(b, 2, 2, 2)) + inputColor->www();
-					if(caps.textureHasAlpha)
-					{
-						textureColor = NewFloat4(tempColor, textureColor->w());
-					}
-					else
-					{
-						textureColor = NewFloat4(tempColor, inputColor->w());
-					}
-					textureColor = Clamp(textureColor, NewFloat4(b, 0, 0, 0, 0), NewFloat4(b, 1, 1, 1, 1));
+					textureColor = NewFloat4(tempColor, textureColor->w());
 				}
-				break;
+				else
+				{
+					textureColor = NewFloat4(tempColor, inputColor->w());
+				}
+				textureColor = Clamp(textureColor, NewFloat4(b, 0, 0, 0, 0), NewFloat4(b, 1, 1, 1, 1));
+			}
+			break;
 			default:
 				assert(false);
 				break;
@@ -1065,9 +1063,9 @@ Framework::Vulkan::CShaderModule CDraw::CreateFragmentShader(const PIPELINE_CAPS
 		//---------------------------------------------------------------------------
 		//Alpha Test
 
-		bool canDiscardAlpha = 
-			(caps.alphaTestFunction != CGSHandler::ALPHA_TEST_ALWAYS) && 
-			(caps.alphaTestFailAction == CGSHandler::ALPHA_TEST_FAIL_RGBONLY);
+		bool canDiscardAlpha =
+		    (caps.alphaTestFunction != CGSHandler::ALPHA_TEST_ALWAYS) &&
+		    (caps.alphaTestFailAction == CGSHandler::ALPHA_TEST_FAIL_RGBONLY);
 		auto alphaUint = ToUint(textureColor->w() * NewFloat(b, 255.f));
 		auto alphaTestResult = CBoolLvalue(b.CreateTemporaryBool());
 		switch(caps.alphaTestFunction)
@@ -1174,24 +1172,24 @@ Framework::Vulkan::CShaderModule CDraw::CreateFragmentShader(const PIPELINE_CAPS
 			default:
 				assert(false);
 			case CGSHandler::PSMCT32:
-				{
-					dstPixel = CMemoryUtils::Memory_Read32(b, memoryBuffer, fbAddress);
-					dstColor = CMemoryUtils::PSM32ToVec4(b, dstPixel);
-				}
-				break;
+			{
+				dstPixel = CMemoryUtils::Memory_Read32(b, memoryBuffer, fbAddress);
+				dstColor = CMemoryUtils::PSM32ToVec4(b, dstPixel);
+			}
+			break;
 			case CGSHandler::PSMCT24:
-				{
-					dstPixel = CMemoryUtils::Memory_Read24(b, memoryBuffer, fbAddress);
-					dstColor = CMemoryUtils::PSM32ToVec4(b, dstPixel);
-				}
-				break;
+			{
+				dstPixel = CMemoryUtils::Memory_Read24(b, memoryBuffer, fbAddress);
+				dstColor = CMemoryUtils::PSM32ToVec4(b, dstPixel);
+			}
+			break;
 			case CGSHandler::PSMCT16:
 			case CGSHandler::PSMCT16S:
-				{
-					dstPixel = CMemoryUtils::Memory_Read16(b, memoryBuffer, fbAddress);
-					dstColor = CMemoryUtils::PSM16ToVec4(b, dstPixel);
-				}
-				break;
+			{
+				dstPixel = CMemoryUtils::Memory_Read16(b, memoryBuffer, fbAddress);
+				dstColor = CMemoryUtils::PSM16ToVec4(b, dstPixel);
+			}
+			break;
 			}
 
 			if(canDiscardAlpha)
@@ -1201,7 +1199,7 @@ Framework::Vulkan::CShaderModule CDraw::CreateFragmentShader(const PIPELINE_CAPS
 		}
 
 		bool needsDstDepth = (caps.depthTestFunction == CGSHandler::DEPTH_TEST_GEQUAL) ||
-			(caps.depthTestFunction == CGSHandler::DEPTH_TEST_GREATER);
+		                     (caps.depthTestFunction == CGSHandler::DEPTH_TEST_GREATER);
 		if(needsDstDepth)
 		{
 			dstDepth = GetDepth(b, caps.depthbufferFormat, depthAddress, memoryBuffer);

@@ -181,7 +181,7 @@ void CGSH_OpenGL::FlipImpl()
 
 	auto presentationViewport = GetPresentationViewport();
 	glViewport(presentationViewport.offsetX, presentationViewport.offsetY,
-		presentationViewport.width, presentationViewport.height);
+	           presentationViewport.width, presentationViewport.height);
 
 	if(framebuffer)
 	{

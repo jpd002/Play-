@@ -64,7 +64,7 @@ void CGSH_VulkanQt::InitializeImpl()
 	surfaceCreateInfo.pView = reinterpret_cast<const void*>(m_renderWindow->winId());
 	auto result = m_instance.vkCreateMacOSSurfaceMVK(m_instance, &surfaceCreateInfo, nullptr, &m_context->surface);
 	CHECKVULKANERROR(result);
-	
+
 	DisableSyncQueueSubmits();
 #endif
 
@@ -85,7 +85,7 @@ void CGSH_VulkanQt::DisableSyncQueueSubmits()
 {
 #ifdef __APPLE__
 	auto result = VK_SUCCESS;
-	
+
 	auto vkGetMoltenVKConfigurationMVK = reinterpret_cast<PFN_vkGetMoltenVKConfigurationMVK>(Framework::Vulkan::CLoader::GetInstance().GetLibraryProcAddr("vkGetMoltenVKConfigurationMVK"));
 	auto vkSetMoltenVKConfigurationMVK = reinterpret_cast<PFN_vkSetMoltenVKConfigurationMVK>(Framework::Vulkan::CLoader::GetInstance().GetLibraryProcAddr("vkSetMoltenVKConfigurationMVK"));
 
@@ -93,9 +93,9 @@ void CGSH_VulkanQt::DisableSyncQueueSubmits()
 	size_t configSize = sizeof(MVKConfiguration);
 	result = vkGetMoltenVKConfigurationMVK(m_instance, &config, &configSize);
 	CHECKVULKANERROR(result);
-	
+
 	config.synchronousQueueSubmits = VK_FALSE;
-	
+
 	result = vkSetMoltenVKConfigurationMVK(m_instance, &config, &configSize);
 	CHECKVULKANERROR(result);
 #endif

@@ -24,11 +24,11 @@ CTransfer::CTransfer(const ContextPtr& context, const FrameCommandBufferPtr& fra
 	for(auto& frame : m_frames)
 	{
 		frame.xferBuffer = Framework::Vulkan::CBuffer(
-			m_context->device, m_context->physicalDeviceMemoryProperties,
-			VK_BUFFER_USAGE_STORAGE_BUFFER_BIT, XFER_BUFFER_SIZE);
+		    m_context->device, m_context->physicalDeviceMemoryProperties,
+		    VK_BUFFER_USAGE_STORAGE_BUFFER_BIT, XFER_BUFFER_SIZE);
 
 		auto result = m_context->device.vkMapMemory(m_context->device, frame.xferBuffer.GetMemory(),
-													0, VK_WHOLE_SIZE, 0, reinterpret_cast<void**>(&frame.xferBufferPtr));
+		                                            0, VK_WHOLE_SIZE, 0, reinterpret_cast<void**>(&frame.xferBufferPtr));
 		CHECKVULKANERROR(result);
 	}
 
@@ -205,7 +205,6 @@ VkDescriptorSet CTransfer::PrepareDescriptorSet(VkDescriptorSetLayout descriptor
 
 void CTransfer::PreFlushFrameCommandBuffer()
 {
-
 }
 
 void CTransfer::PostFlushFrameCommandBuffer()

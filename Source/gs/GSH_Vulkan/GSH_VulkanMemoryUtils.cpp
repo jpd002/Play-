@@ -2,7 +2,7 @@
 
 using namespace GSH_Vulkan;
 
-Nuanceur::CIntRvalue CMemoryUtils::GetPixelAddress_PSMT4(Nuanceur::CShaderBuilder& b, Nuanceur::CImageUint2DValue swizzleTable, 
+Nuanceur::CIntRvalue CMemoryUtils::GetPixelAddress_PSMT4(Nuanceur::CShaderBuilder& b, Nuanceur::CImageUint2DValue swizzleTable,
                                                          Nuanceur::CIntValue bufAddress, Nuanceur::CIntValue bufWidth, Nuanceur::CInt2Value position)
 {
 	auto pageWidth = NewInt(b, CGsPixelFormats::STORAGEPSMT4::PAGEWIDTH);

@@ -106,7 +106,7 @@ namespace GSH_Vulkan
 			uint32 fbBufWidth = 0;
 			uint32 depthBufAddr = 0;
 			uint32 depthBufWidth = 0;
-			
+
 			//texParams0
 			uint32 texBufAddr = 0;
 			uint32 texBufWidth = 0;

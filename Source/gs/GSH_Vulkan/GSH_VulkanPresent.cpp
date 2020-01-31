@@ -24,7 +24,7 @@ const CPresent::PRESENT_VERTEX CPresent::g_vertexBufferContents[3] =
 
 CPresent::CPresent(const ContextPtr& context)
     : m_context(context)
-	, m_pipelineCache(context->device)
+    , m_pipelineCache(context->device)
 {
 	CreateRenderPass();
 	CreateVertexBuffer();
@@ -45,8 +45,8 @@ CPresent::~CPresent()
 void CPresent::ValidateSwapChain(const CGSHandler::PRESENTATION_PARAMS& presentationParams)
 {
 	m_swapChainValid =
-		(presentationParams.windowWidth == m_surfaceExtents.width) &&
-		(presentationParams.windowHeight == m_surfaceExtents.height);
+	    (presentationParams.windowWidth == m_surfaceExtents.width) &&
+	    (presentationParams.windowHeight == m_surfaceExtents.height);
 }
 
 void CPresent::SetPresentationViewport(const CGSHandler::PRESENTATION_VIEWPORT& presentationViewport)
@@ -218,7 +218,7 @@ CPresent::PRESENT_COMMANDBUFFER CPresent::PrepareCommandBuffer()
 		{
 			result = m_context->device.vkResetFences(m_context->device, 1, &presentCommandBuffer.execCompleteFence);
 			CHECKVULKANERROR(result);
-			
+
 			result = m_context->device.vkResetCommandBuffer(presentCommandBuffer.commandBuffer, VK_COMMAND_BUFFER_RESET_RELEASE_RESOURCES_BIT);
 			CHECKVULKANERROR(result);
 
@@ -667,7 +667,7 @@ Framework::Vulkan::CShaderModule CPresent::CreateFragmentShader(uint32 bufPsm)
 		case CGSHandler::PSMCT24:
 		{
 			auto address = CMemoryUtils::GetPixelAddress<CGsPixelFormats::STORAGEPSMCT32>(
-				b, swizzleTable, bufAddress, bufWidth, screenPos);
+			    b, swizzleTable, bufAddress, bufWidth, screenPos);
 			auto imageColor = CMemoryUtils::Memory_Read32(b, memoryBuffer, address);
 			outputColor = CMemoryUtils::PSM32ToVec4(b, imageColor);
 		}
@@ -676,7 +676,7 @@ Framework::Vulkan::CShaderModule CPresent::CreateFragmentShader(uint32 bufPsm)
 		case CGSHandler::PSMCT16S:
 		{
 			auto address = CMemoryUtils::GetPixelAddress<CGsPixelFormats::STORAGEPSMCT16>(
-				b, swizzleTable, bufAddress, bufWidth, screenPos);
+			    b, swizzleTable, bufAddress, bufWidth, screenPos);
 			auto imageColor = CMemoryUtils::Memory_Read16(b, memoryBuffer, address);
 			outputColor = CMemoryUtils::PSM16ToVec4(b, imageColor);
 		}

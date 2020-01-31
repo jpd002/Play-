@@ -18,6 +18,6 @@ public:
 
 private:
 	void DisableSyncQueueSubmits();
-	
+
 	QWindow* m_renderWindow = nullptr;
 };

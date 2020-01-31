@@ -19,10 +19,10 @@ static uint32 MakeColor(uint8 r, uint8 g, uint8 b, uint8 a)
 static uint16 RGBA32ToRGBA16(uint32 inputColor)
 {
 	uint32 result = 0;
-	result |= ((inputColor & 0x000000F8) >> (0  + 3)) << 0;
-	result |= ((inputColor & 0x0000F800) >> (8  + 3)) << 5;
+	result |= ((inputColor & 0x000000F8) >> (0 + 3)) << 0;
+	result |= ((inputColor & 0x0000F800) >> (8 + 3)) << 5;
 	result |= ((inputColor & 0x00F80000) >> (16 + 3)) << 10;
-	result |= ((inputColor & 0x80000000) >> 31)       << 15;
+	result |= ((inputColor & 0x80000000) >> 31) << 15;
 	return result;
 }
 
@@ -367,20 +367,20 @@ void CGSH_Vulkan::CreateMemoryBuffer()
 	assert(m_context->memoryBuffer.IsEmpty());
 
 	m_context->memoryBuffer = Framework::Vulkan::CBuffer(m_context->device,
-		m_context->physicalDeviceMemoryProperties, VK_BUFFER_USAGE_STORAGE_BUFFER_BIT, RAMSIZE);
+	                                                     m_context->physicalDeviceMemoryProperties, VK_BUFFER_USAGE_STORAGE_BUFFER_BIT, RAMSIZE);
 
 #ifdef FILL_IMAGES
 	{
 		uint32* memory = nullptr;
 		m_context->device.vkMapMemory(m_context->device, m_context->memoryBuffer.GetMemory(),
-			0, VK_WHOLE_SIZE, 0, reinterpret_cast<void**>(&memory));
+		                              0, VK_WHOLE_SIZE, 0, reinterpret_cast<void**>(&memory));
 		memset(memory, 0x80, RAMSIZE);
 		m_context->device.vkUnmapMemory(m_context->device, m_context->memoryBuffer.GetMemory());
 	}
 #endif
 
 	auto result = m_context->device.vkMapMemory(m_context->device, m_context->memoryBuffer.GetMemory(),
-		0, VK_WHOLE_SIZE, 0, reinterpret_cast<void**>(&m_memoryBufferPtr));
+	                                            0, VK_WHOLE_SIZE, 0, reinterpret_cast<void**>(&m_memoryBufferPtr));
 	CHECKVULKANERROR(result);
 }
 
@@ -555,18 +555,16 @@ void CGSH_Vulkan::SetRenderingContext(uint64 primReg)
 
 	//Convert alpha testing to write masking if possible
 	if(
-		(pipelineCaps.alphaTestFunction == CGSHandler::ALPHA_TEST_NEVER) &&
-		(pipelineCaps.alphaTestFailAction == CGSHandler::ALPHA_TEST_FAIL_FBONLY)
-		)
+	    (pipelineCaps.alphaTestFunction == CGSHandler::ALPHA_TEST_NEVER) &&
+	    (pipelineCaps.alphaTestFailAction == CGSHandler::ALPHA_TEST_FAIL_FBONLY))
 	{
 		pipelineCaps.alphaTestFunction = CGSHandler::ALPHA_TEST_ALWAYS;
 		pipelineCaps.writeDepth = 0;
 	}
 
 	if(
-		(pipelineCaps.alphaTestFunction == CGSHandler::ALPHA_TEST_NEVER) &&
-		(pipelineCaps.alphaTestFailAction == CGSHandler::ALPHA_TEST_FAIL_RGBONLY)
-		)
+	    (pipelineCaps.alphaTestFunction == CGSHandler::ALPHA_TEST_NEVER) &&
+	    (pipelineCaps.alphaTestFailAction == CGSHandler::ALPHA_TEST_FAIL_RGBONLY))
 	{
 		pipelineCaps.alphaTestFunction = CGSHandler::ALPHA_TEST_ALWAYS;
 		pipelineCaps.writeDepth = 0;
@@ -599,8 +597,8 @@ void CGSH_Vulkan::SetRenderingContext(uint64 primReg)
 	                         tex0.GetWidth(), tex0.GetHeight(), tex0.nCSA * 0x10);
 	m_draw->SetTextureAlphaParams(texA.nTA0, texA.nTA1);
 	m_draw->SetTextureClampParams(
-		clamp.GetMinU(), clamp.GetMinV(),
-		clamp.GetMaxU(), clamp.GetMaxV());
+	    clamp.GetMinU(), clamp.GetMinV(),
+	    clamp.GetMaxU(), clamp.GetMaxV());
 	m_draw->SetAlphaBlendingParams(alpha.nFix);
 	m_draw->SetAlphaTestParams(test.nAlphaRef);
 	m_draw->SetScissor(scissor.scax0, scissor.scay0,
@@ -890,9 +888,8 @@ void CGSH_Vulkan::SyncCLUT(const TEX0& tex0)
 	auto tex0ClutInfo = static_cast<uint64>(tex0) & (~TEX0_CLUTINFO_MASK);
 
 	if(
-		(m_clutState.tex0ClutInfo == tex0ClutInfo) &&
-		(m_clutState.texClut == texClut)
-		)
+	    (m_clutState.tex0ClutInfo == tex0ClutInfo) &&
+	    (m_clutState.texClut == texClut))
 	{
 		return;
 	}
