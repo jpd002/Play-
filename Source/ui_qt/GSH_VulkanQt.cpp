@@ -29,6 +29,9 @@ void CGSH_VulkanQt::InitializeImpl()
 #ifdef __APPLE__
 	extensions.push_back(VK_MVK_MACOS_SURFACE_EXTENSION_NAME);
 #endif
+#ifdef __linux__
+	extensions.push_back(VK_KHR_XCB_SURFACE_EXTENSION_NAME);
+#endif
 
 	std::vector<const char*> layers;
 #if defined(_DEBUG) && !defined(__APPLE__)
@@ -66,6 +69,14 @@ void CGSH_VulkanQt::InitializeImpl()
 	CHECKVULKANERROR(result);
 
 	DisableSyncQueueSubmits();
+#endif
+	
+#ifdef __linux__
+	auto surfaceCreateInfo = Framework::Vulkan::XcbSurfaceCreateInfoKHR();
+	surfaceCreateInfo.window = reinterpret_cast<xcb_window_t>(m_renderWindow->winId());
+	surfaceCreateInfo.connection = QX11Info::connection();
+	auto result = m_instance.vkCreateXcbSurfaceKHR(m_instance, &surfaceCreateInfo, nullptr, &m_context->surface);
+	CHECKVULKANERROR(result);
 #endif
 
 	CGSH_Vulkan::InitializeImpl();
