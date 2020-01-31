@@ -10,18 +10,6 @@
     <height>380</height>
    </rect>
   </property>
-  <property name="minimumSize">
-   <size>
-    <width>612</width>
-    <height>380</height>
-   </size>
-  </property>
-  <property name="maximumSize">
-   <size>
-    <width>612</width>
-    <height>380</height>
-   </size>
-  </property>
   <property name="windowTitle">
    <string>Settings</string>
   </property>
@@ -40,7 +28,7 @@
     <widget class="QListWidget" name="listWidget">
      <property name="minimumSize">
       <size>
-       <width>5</width>
+       <width>175</width>
        <height>0</height>
       </size>
      </property>
@@ -143,145 +131,118 @@
       </widget>
      </widget>
      <widget class="QWidget" name="Video">
-      <widget class="QCheckBox" name="checkBox_force_bilinear_filtering">
-       <property name="geometry">
-        <rect>
-         <x>20</x>
-         <y>80</y>
-         <width>341</width>
-         <height>22</height>
-        </rect>
-       </property>
-       <property name="text">
-        <string>Force Bilinear Filtering</string>
-       </property>
-      </widget>
-      <widget class="QComboBox" name="comboBox_presentation_mode">
-       <property name="geometry">
-        <rect>
-         <x>20</x>
-         <y>130</y>
-         <width>161</width>
-         <height>27</height>
-        </rect>
-       </property>
-       <property name="currentIndex">
-        <number>1</number>
-       </property>
+      <layout class="QVBoxLayout" name="verticalLayout">
        <item>
-        <property name="text">
-         <string>Fill Screen</string>
-        </property>
+        <widget class="QLabel" name="label_3">
+         <property name="text">
+          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Resolution:&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+         </property>
+        </widget>
        </item>
        <item>
-        <property name="text">
-         <string>Fit Screen</string>
-        </property>
+        <widget class="QComboBox" name="comboBox_res_multiplyer">
+         <item>
+          <property name="text">
+           <string>1x (~480)</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>2x (~960p)</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>4x (~1920p)</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>8x (~4320p / 8k)</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>16x (~7680p / 16k)</string>
+          </property>
+         </item>
+        </widget>
        </item>
        <item>
-        <property name="text">
-         <string>Original Size</string>
-        </property>
-       </item>
-      </widget>
-      <widget class="QLabel" name="label">
-       <property name="geometry">
-        <rect>
-         <x>20</x>
-         <y>110</y>
-         <width>151</width>
-         <height>17</height>
-        </rect>
-       </property>
-       <property name="text">
-        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Presentation Mode:&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-       </property>
-      </widget>
-      <widget class="QLabel" name="label_3">
-       <property name="geometry">
-        <rect>
-         <x>20</x>
-         <y>30</y>
-         <width>151</width>
-         <height>17</height>
-        </rect>
-       </property>
-       <property name="text">
-        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Resolution:&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-       </property>
-      </widget>
-      <widget class="QComboBox" name="comboBox_res_multiplyer">
-       <property name="geometry">
-        <rect>
-         <x>20</x>
-         <y>50</y>
-         <width>150</width>
-         <height>27</height>
-        </rect>
-       </property>
-       <item>
-        <property name="text">
-         <string>1x (~480)</string>
-        </property>
+        <widget class="QLabel" name="label">
+         <property name="text">
+          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Presentation Mode:&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+         </property>
+        </widget>
        </item>
        <item>
-        <property name="text">
-         <string>2x (~960p)</string>
-        </property>
+        <widget class="QComboBox" name="comboBox_presentation_mode">
+         <property name="currentIndex">
+          <number>1</number>
+         </property>
+         <item>
+          <property name="text">
+           <string>Fill Screen</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>Fit Screen</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>Original Size</string>
+          </property>
+         </item>
+        </widget>
        </item>
        <item>
-        <property name="text">
-         <string>4x (~1920p)</string>
-        </property>
+        <widget class="QCheckBox" name="checkBox_force_bilinear_filtering">
+         <property name="text">
+          <string>Force Bilinear Filtering</string>
+         </property>
+        </widget>
        </item>
        <item>
-        <property name="text">
-         <string>8x (~4320p / 8k)</string>
-        </property>
+        <widget class="QCheckBox" name="checkBox_enable_vulkan">
+         <property name="text">
+          <string>Enable Vulkan GS Handler</string>
+         </property>
+        </widget>
        </item>
        <item>
-        <property name="text">
-         <string>16x (~7680p / 16k)</string>
-        </property>
-       </item>
-      </widget>
-      <widget class="QCheckBox" name="checkBox_enable_vulkan">
-       <property name="geometry">
-        <rect>
-         <x>20</x>
-         <y>171</y>
-         <width>371</width>
-         <height>20</height>
-        </rect>
-       </property>
-       <property name="text">
-        <string>Enable Vulkan GS Handler</string>
-       </property>
-      </widget>
-      <widget class="QLabel" name="label_5">
-       <property name="geometry">
-        <rect>
-         <x>20</x>
-         <y>200</y>
-         <width>381</width>
-         <height>61</height>
-        </rect>
-       </property>
-       <property name="text">
-        <string>Warning: The Vulkan GS handler requires the VK_EXT_fragment_shader_interlock extension to work properly.
+        <widget class="QLabel" name="label_5">
+         <property name="text">
+          <string>Warning: The Vulkan GS handler requires the VK_EXT_fragment_shader_interlock extension to work properly.
 
 This setting will take effect next time the emulator is restarted.</string>
-       </property>
-       <property name="textFormat">
-        <enum>Qt::AutoText</enum>
-       </property>
-       <property name="alignment">
-        <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
-       </property>
-       <property name="wordWrap">
-        <bool>true</bool>
-       </property>
-      </widget>
+         </property>
+         <property name="textFormat">
+          <enum>Qt::AutoText</enum>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
+         </property>
+         <property name="wordWrap">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <spacer name="verticalSpacer">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>40</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+      </layout>
      </widget>
      <widget class="QWidget" name="Audio">
       <widget class="QCheckBox" name="checkBox_enable_audio">
