@@ -11,7 +11,7 @@ matrix:
         - BUILD_TYPE="Unix Makefiles"
         - TARGET_OS=Linux
         - TARGET_ARCH=x86_64
-        - VULKAN_SDK_VERSION=1.1.121.1
+        - VULKAN_SDK_VERSION=1.2.131.1
       sudo: require
     - os: linux
       arch: arm64
@@ -26,7 +26,7 @@ matrix:
       env:
         - BUILD_TYPE=Xcode
         - TARGET_OS=OSX
-        - VULKAN_SDK_VERSION=1.1.121.1
+        - VULKAN_SDK_VERSION=1.2.131.1
     - os: osx
       osx_image: xcode10.3
       env:
