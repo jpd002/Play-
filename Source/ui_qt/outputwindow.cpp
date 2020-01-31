@@ -19,7 +19,10 @@ void OutputWindow::keyReleaseEvent(QKeyEvent* ev)
 
 void OutputWindow::exposeEvent(QExposeEvent* ev)
 {
-	emit widthChanged(size().width());
+	if(!ev->region().isNull())
+	{
+		emit widthChanged(size().width());
+	}
 	QWindow::exposeEvent(ev);
 }
 
