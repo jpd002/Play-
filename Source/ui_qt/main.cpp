@@ -42,7 +42,14 @@ int main(int argc, char* argv[])
 
 	if(parser.isSet(cdrom_image_option))
 	{
-		w.BootCDROM();
+		try
+		{
+			w.BootCDROM();
+		}
+		catch(const std::exception& e)
+		{
+			printf("Error: %s\r\n", e.what());
+		}
 	}
 	else if(parser.isSet(disc_image_option))
 	{
