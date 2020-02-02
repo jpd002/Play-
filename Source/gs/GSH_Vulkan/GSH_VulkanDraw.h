@@ -30,6 +30,8 @@ namespace GSH_Vulkan
 			uint32 texClampU : 2;
 			uint32 texClampV : 2;
 
+			uint32 hasFog : 1;
+
 			uint32 maskColor : 1;
 			uint32 writeDepth : 1;
 
@@ -56,6 +58,7 @@ namespace GSH_Vulkan
 			uint32 z;
 			uint32 color;
 			float s, t, q;
+			float f;
 		};
 
 		CDraw(const ContextPtr&, const FrameCommandBufferPtr&);
@@ -67,6 +70,7 @@ namespace GSH_Vulkan
 		void SetTextureParams(uint32, uint32, uint32, uint32, uint32);
 		void SetTextureAlphaParams(uint32, uint32);
 		void SetTextureClampParams(uint32, uint32, uint32, uint32);
+		void SetFogParams(float, float, float);
 		void SetAlphaBlendingParams(uint32);
 		void SetAlphaTestParams(uint32);
 		void SetScissor(uint32, uint32, uint32, uint32);
@@ -128,6 +132,9 @@ namespace GSH_Vulkan
 			uint32 alphaFix = 0;
 			uint32 alphaRef = 0;
 			uint32 alphaFbParamsReserved = 0;
+
+			//fogColor
+			float fogColor[4];
 		};
 		static_assert(sizeof(DRAW_PIPELINE_PUSHCONSTANTS) <= 128, "Push constants size can't exceed 128 bytes.");
 

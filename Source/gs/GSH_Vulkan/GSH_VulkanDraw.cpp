@@ -14,6 +14,7 @@ using namespace GSH_Vulkan;
 #define VERTEX_ATTRIB_LOCATION_DEPTH 1
 #define VERTEX_ATTRIB_LOCATION_COLOR 2
 #define VERTEX_ATTRIB_LOCATION_TEXCOORD 3
+#define VERTEX_ATTRIB_LOCATION_FOG 4
 
 #define DESCRIPTOR_LOCATION_BUFFER_MEMORY 0
 #define DESCRIPTOR_LOCATION_IMAGE_CLUT 1
@@ -120,14 +121,6 @@ void CDraw::SetTextureAlphaParams(uint32 texA0, uint32 texA1)
 	m_pushConstants.texA1 = texA1;
 }
 
-void CDraw::SetAlphaTestParams(uint32 alphaRef)
-{
-	bool changed = (m_pushConstants.alphaRef != alphaRef);
-	if(!changed) return;
-	FlushVertices();
-	m_pushConstants.alphaRef = alphaRef;
-}
-
 void CDraw::SetTextureClampParams(uint32 clampMinU, uint32 clampMinV, uint32 clampMaxU, uint32 clampMaxV)
 {
 	bool changed =
@@ -141,6 +134,28 @@ void CDraw::SetTextureClampParams(uint32 clampMinU, uint32 clampMinV, uint32 cla
 	m_pushConstants.clampMin[1] = clampMinV;
 	m_pushConstants.clampMax[0] = clampMaxU;
 	m_pushConstants.clampMax[1] = clampMaxV;
+}
+
+void CDraw::SetFogParams(float fogR, float fogG, float fogB)
+{
+	bool changed =
+	    (m_pushConstants.fogColor[0] != fogR) ||
+	    (m_pushConstants.fogColor[1] != fogG) ||
+	    (m_pushConstants.fogColor[2] != fogB);
+	if(!changed) return;
+	FlushVertices();
+	m_pushConstants.fogColor[0] = fogR;
+	m_pushConstants.fogColor[1] = fogG;
+	m_pushConstants.fogColor[2] = fogB;
+	m_pushConstants.fogColor[3] = 0;
+}
+
+void CDraw::SetAlphaTestParams(uint32 alphaRef)
+{
+	bool changed = (m_pushConstants.alphaRef != alphaRef);
+	if(!changed) return;
+	FlushVertices();
+	m_pushConstants.alphaRef = alphaRef;
 }
 
 void CDraw::SetAlphaBlendingParams(uint32 alphaFix)
@@ -569,6 +584,14 @@ PIPELINE CDraw::CreateDrawPipeline(const PIPELINE_CAPS& caps)
 		vertexAttributes.push_back(vertexAttributeDesc);
 	}
 
+	{
+		VkVertexInputAttributeDescription vertexAttributeDesc = {};
+		vertexAttributeDesc.format = VK_FORMAT_R32_SFLOAT;
+		vertexAttributeDesc.offset = offsetof(PRIM_VERTEX, f);
+		vertexAttributeDesc.location = VERTEX_ATTRIB_LOCATION_FOG;
+		vertexAttributes.push_back(vertexAttributeDesc);
+	}
+
 	VkVertexInputBindingDescription binding = {};
 	binding.stride = sizeof(PRIM_VERTEX);
 	binding.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
@@ -655,12 +678,14 @@ Framework::Vulkan::CShaderModule CDraw::CreateVertexShader()
 		auto inputDepth = CUint4Lvalue(b.CreateInputUint(Nuanceur::SEMANTIC_TEXCOORD, VERTEX_ATTRIB_LOCATION_DEPTH - 1));
 		auto inputColor = CFloat4Lvalue(b.CreateInput(Nuanceur::SEMANTIC_TEXCOORD, VERTEX_ATTRIB_LOCATION_COLOR - 1));
 		auto inputTexCoord = CFloat4Lvalue(b.CreateInput(Nuanceur::SEMANTIC_TEXCOORD, VERTEX_ATTRIB_LOCATION_TEXCOORD - 1));
+		auto inputFog = CFloat4Lvalue(b.CreateInput(Nuanceur::SEMANTIC_TEXCOORD, VERTEX_ATTRIB_LOCATION_FOG - 1));
 
 		//Outputs
 		auto outputPosition = CFloat4Lvalue(b.CreateOutput(Nuanceur::SEMANTIC_SYSTEM_POSITION));
 		auto outputDepth = CFloat4Lvalue(b.CreateOutput(Nuanceur::SEMANTIC_TEXCOORD, 1));
 		auto outputColor = CFloat4Lvalue(b.CreateOutput(Nuanceur::SEMANTIC_TEXCOORD, 2));
 		auto outputTexCoord = CFloat4Lvalue(b.CreateOutput(Nuanceur::SEMANTIC_TEXCOORD, 3));
+		auto outputFog = CFloat4Lvalue(b.CreateOutput(Nuanceur::SEMANTIC_TEXCOORD, 4));
 
 		auto position = inputPosition->xy() * NewFloat2(b, 2.f / DRAW_AREA_SIZE, 2.f / DRAW_AREA_SIZE) + NewFloat2(b, -1, -1);
 
@@ -668,6 +693,7 @@ Framework::Vulkan::CShaderModule CDraw::CreateVertexShader()
 		outputDepth = ToFloat(inputDepth) / NewFloat4(b, DEPTH_MAX, DEPTH_MAX, DEPTH_MAX, DEPTH_MAX);
 		outputColor = inputColor->xyzw();
 		outputTexCoord = inputTexCoord->xyzw();
+		outputFog = inputFog->xyzw();
 	}
 
 	Framework::CMemStream shaderStream;
@@ -973,6 +999,7 @@ Framework::Vulkan::CShaderModule CDraw::CreateFragmentShader(const PIPELINE_CAPS
 		auto inputDepth = CFloat4Lvalue(b.CreateInput(Nuanceur::SEMANTIC_TEXCOORD, 1));
 		auto inputColor = CFloat4Lvalue(b.CreateInput(Nuanceur::SEMANTIC_TEXCOORD, 2));
 		auto inputTexCoord = CFloat4Lvalue(b.CreateInput(Nuanceur::SEMANTIC_TEXCOORD, 3));
+		auto inputFog = CFloat4Lvalue(b.CreateInput(Nuanceur::SEMANTIC_TEXCOORD, 4));
 
 		//Outputs
 		auto outputColor = CFloat4Lvalue(b.CreateOutput(Nuanceur::SEMANTIC_SYSTEM_COLOR));
@@ -989,6 +1016,7 @@ Framework::Vulkan::CShaderModule CDraw::CreateFragmentShader(const PIPELINE_CAPS
 		auto texParams1 = CInt4Lvalue(b.CreateUniformInt4("texParams1", Nuanceur::UNIFORM_UNIT_PUSHCONSTANT));
 		auto texParams2 = CInt4Lvalue(b.CreateUniformInt4("texParams2", Nuanceur::UNIFORM_UNIT_PUSHCONSTANT));
 		auto alphaFbParams = CInt4Lvalue(b.CreateUniformInt4("alphaFbParams", Nuanceur::UNIFORM_UNIT_PUSHCONSTANT));
+		auto fogColor = CFloat4Lvalue(b.CreateUniformFloat4("fogColor", Nuanceur::UNIFORM_UNIT_PUSHCONSTANT));
 
 		auto fbBufAddress = fbDepthParams->x();
 		auto fbBufWidth = fbDepthParams->y();
@@ -1138,6 +1166,12 @@ Framework::Vulkan::CShaderModule CDraw::CreateFragmentShader(const PIPELINE_CAPS
 			}
 		}
 		EndIf(b);
+
+		if(caps.hasFog)
+		{
+			auto fogMixColor = Mix(textureColor->xyz(), fogColor->xyz(), inputFog->xxx());
+			textureColor = NewFloat4(fogMixColor, textureColor->w());
+		}
 
 		auto screenPos = ToInt(inputPosition->xy());
 

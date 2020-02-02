@@ -515,6 +515,7 @@ void CGSH_Vulkan::SetRenderingContext(uint64 primReg)
 	auto scissor = make_convertible<SCISSOR>(m_nReg[GS_REG_SCISSOR_1 + context]);
 	auto test = make_convertible<TEST>(m_nReg[GS_REG_TEST_1 + context]);
 	auto texA = make_convertible<TEXA>(m_nReg[GS_REG_TEXA]);
+	auto fogCol = make_convertible<FOGCOL>(m_nReg[GS_REG_FOGCOL]);
 
 	auto pipelineCaps = make_convertible<CDraw::PIPELINE_CAPS>(0);
 	pipelineCaps.hasTexture = prim.nTexture;
@@ -523,6 +524,7 @@ void CGSH_Vulkan::SetRenderingContext(uint64 primReg)
 	pipelineCaps.textureFunction = tex0.nFunction;
 	pipelineCaps.texClampU = clamp.nWMS;
 	pipelineCaps.texClampV = clamp.nWMT;
+	pipelineCaps.hasFog = prim.nFog;
 	pipelineCaps.hasAlphaBlending = prim.nAlpha;
 	pipelineCaps.writeDepth = (zbuf.nMask == 0);
 	pipelineCaps.textureFormat = tex0.nPsm;
@@ -599,6 +601,10 @@ void CGSH_Vulkan::SetRenderingContext(uint64 primReg)
 	m_draw->SetTextureClampParams(
 	    clamp.GetMinU(), clamp.GetMinV(),
 	    clamp.GetMaxU(), clamp.GetMaxV());
+	m_draw->SetFogParams(
+		static_cast<float>(fogCol.nFCR) / 255.f, 
+		static_cast<float>(fogCol.nFCG) / 255.f,
+		static_cast<float>(fogCol.nFCB) / 255.f);
 	m_draw->SetAlphaBlendingParams(alpha.nFix);
 	m_draw->SetAlphaTestParams(test.nAlphaRef);
 	m_draw->SetScissor(scissor.scax0, scissor.scay0,
@@ -614,8 +620,6 @@ void CGSH_Vulkan::SetRenderingContext(uint64 primReg)
 
 void CGSH_Vulkan::Prim_Triangle()
 {
-	float f1 = 0, f2 = 0, f3 = 0;
-
 	XYZ pos[3];
 	pos[0] <<= m_vtxBuffer[2].position;
 	pos[1] <<= m_vtxBuffer[1].position;
@@ -641,6 +645,15 @@ void CGSH_Vulkan::Prim_Triangle()
 	float s[3] = {0, 0, 0};
 	float t[3] = {0, 0, 0};
 	float q[3] = {1, 1, 1};
+
+	float f[3] = {0, 0, 0};
+
+	if(m_primitiveMode.nFog)
+	{
+		f[0] = static_cast<float>(0xFF - m_vtxBuffer[2].fog) / 255.0f;
+		f[1] = static_cast<float>(0xFF - m_vtxBuffer[1].fog) / 255.0f;
+		f[2] = static_cast<float>(0xFF - m_vtxBuffer[0].fog) / 255.0f;
+	}
 
 	if(m_primitiveMode.nTexture)
 	{
@@ -700,9 +713,9 @@ void CGSH_Vulkan::Prim_Triangle()
 	// clang-format off
 	CDraw::PRIM_VERTEX vertices[] =
 	{
-		{	x1, y1, z1, color1, s[0], t[0], q[0]},
-		{	x2, y2, z2, color2, s[1], t[1], q[1]},
-		{	x3, y3, z3, color3, s[2], t[2], q[2]},
+		{	x1, y1, z1, color1, s[0], t[0], q[0], f[0]},
+		{	x2, y2, z2, color2, s[1], t[1], q[1], f[1]},
+		{	x3, y3, z3, color3, s[2], t[2], q[2], f[2]},
 	};
 	// clang-format on
 
@@ -773,13 +786,13 @@ void CGSH_Vulkan::Prim_Sprite()
 	// clang-format off
 	CDraw::PRIM_VERTEX vertices[] =
 	{
-		{x1, y1, z, color, s[0], t[0], 1},
-		{x2, y1, z, color, s[1], t[0], 1},
-		{x1, y2, z, color, s[0], t[1], 1},
+		{x1, y1, z, color, s[0], t[0], 1, 0},
+		{x2, y1, z, color, s[1], t[0], 1, 0},
+		{x1, y2, z, color, s[0], t[1], 1, 0},
 
-		{x1, y2, z, color, s[0], t[1], 1},
-		{x2, y1, z, color, s[1], t[0], 1},
-		{x2, y2, z, color, s[1], t[1], 1},
+		{x1, y2, z, color, s[0], t[1], 1, 0},
+		{x2, y1, z, color, s[1], t[0], 1, 0},
+		{x2, y2, z, color, s[1], t[1], 1, 0},
 	};
 	// clang-format on
 
