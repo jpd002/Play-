@@ -44,7 +44,7 @@ private:
 
 	CVirtualMachine& m_virtualMachine;
 	CMIPS* m_ctx;
-	CDisAsmWnd* m_disAsmWnd;
+	QMdiSubWindow* m_disAsmWnd;
 	CMemoryViewMIPSWnd* m_memoryViewWnd;
 	CRegViewWnd* m_regViewWnd;
 	CCallStackWnd* m_callStackWnd;

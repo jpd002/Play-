@@ -15,7 +15,10 @@ CDebugView::CDebugView(QMdiArea* parent, CVirtualMachine& virtualMachine, CMIPS*
     , m_biosDebugInfoProvider(biosDebugInfoProvider)
 {
 
-	m_disAsmWnd = new CDisAsmWnd(parent, virtualMachine, m_ctx, name, disAsmType, size);
+	auto disAsm = new CDisAsmWnd(parent, virtualMachine, m_ctx, name, disAsmType, size);
+	m_disAsmWnd = new QMdiSubWindow(parent);
+	m_disAsmWnd->setWidget(disAsm);
+	m_disAsmWnd->setWindowTitle("Disassembly");
 
 	m_regViewWnd = new CRegViewWnd(parent, m_ctx);
 
@@ -38,7 +41,7 @@ CDebugView::~CDebugView()
 
 void CDebugView::HandleMachineStateChange()
 {
-	m_disAsmWnd->HandleMachineStateChange();
+	GetDisassemblyWindow()->HandleMachineStateChange();
 	m_regViewWnd->HandleMachineStateChange();
 	m_memoryViewWnd->HandleMachineStateChange();
 	m_callStackWnd->HandleMachineStateChange();
@@ -46,7 +49,7 @@ void CDebugView::HandleMachineStateChange()
 
 void CDebugView::HandleRunningStateChange(CVirtualMachine::STATUS newState)
 {
-	m_disAsmWnd->HandleRunningStateChange(newState);
+	GetDisassemblyWindow()->HandleRunningStateChange(newState);
 	m_regViewWnd->HandleRunningStateChange(newState);
 	m_memoryViewWnd->HandleRunningStateChange(newState);
 	m_callStackWnd->HandleRunningStateChange(newState);
@@ -83,7 +86,7 @@ CMIPS* CDebugView::GetContext()
 
 CDisAsmWnd* CDebugView::GetDisassemblyWindow()
 {
-	return m_disAsmWnd;
+	return static_cast<CDisAsmWnd*>(m_disAsmWnd->widget());
 }
 
 CMemoryViewMIPSWnd* CDebugView::GetMemoryViewWindow()

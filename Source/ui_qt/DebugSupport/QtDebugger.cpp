@@ -156,7 +156,7 @@ void QtDebugger::SaveSettings()
 	SaveBytesPerLine();
 }
 
-void QtDebugger::SerializeWindowGeometry(QMdiSubWindow* pWindow, const char* sPosX, const char* sPosY, const char* sSizeX, const char* sSizeY, const char* sVisible)
+void QtDebugger::SerializeWindowGeometry(QWidget* pWindow, const char* sPosX, const char* sPosY, const char* sSizeX, const char* sSizeY, const char* sVisible)
 {
 	CAppConfig& config(CAppConfig::GetInstance());
 
@@ -171,7 +171,7 @@ void QtDebugger::SerializeWindowGeometry(QMdiSubWindow* pWindow, const char* sPo
 	config.SetPreferenceBoolean(sVisible, pWindow->isVisible());
 }
 
-void QtDebugger::UnserializeWindowGeometry(QMdiSubWindow* pWindow, const char* sPosX, const char* sPosY, const char* sSizeX, const char* sSizeY, const char* sVisible)
+void QtDebugger::UnserializeWindowGeometry(QWidget* pWindow, const char* sPosX, const char* sPosY, const char* sSizeX, const char* sSizeY, const char* sVisible)
 {
 	CAppConfig& config(CAppConfig::GetInstance());
 
@@ -381,8 +381,8 @@ void QtDebugger::FindEeFunctions()
 
 void QtDebugger::Layout1024()
 {
-	GetDisassemblyWindow()->setGeometry(0, 0, 700, 435);
-	GetDisassemblyWindow()->show();
+	static_cast<QWidget*>(GetDisassemblyWindow()->parent())->setGeometry(0, 0, 700, 435);
+	static_cast<QWidget*>(GetDisassemblyWindow()->parent())->show();
 
 	GetRegisterViewWindow()->setGeometry(700, 0, 324, 572);
 	GetRegisterViewWindow()->show();
@@ -396,8 +396,8 @@ void QtDebugger::Layout1024()
 
 void QtDebugger::Layout1280()
 {
-	GetDisassemblyWindow()->setGeometry(0, 0, 900, 540);
-	GetDisassemblyWindow()->show();
+	static_cast<QWidget*>(GetDisassemblyWindow()->parent())->setGeometry(0, 0, 900, 540);
+	static_cast<QWidget*>(GetDisassemblyWindow()->parent())->show();
 
 	GetRegisterViewWindow()->setGeometry(900, 0, 380, 784);
 	GetRegisterViewWindow()->show();
@@ -411,8 +411,8 @@ void QtDebugger::Layout1280()
 
 void QtDebugger::Layout1600()
 {
-	GetDisassemblyWindow()->setGeometry(0, 0, 1094, 725);
-	GetDisassemblyWindow()->show();
+	static_cast<QWidget*>(GetDisassemblyWindow()->parent())->setGeometry(0, 0, 1094, 725);
+	static_cast<QWidget*>(GetDisassemblyWindow()->parent())->show();
 
 	GetRegisterViewWindow()->setGeometry(1094, 0, 506, 725);
 	GetRegisterViewWindow()->show();
@@ -459,7 +459,7 @@ void QtDebugger::ActivateView(unsigned int nView)
 
 void QtDebugger::SaveViewLayout()
 {
-	SerializeWindowGeometry(GetDisassemblyWindow(),
+	SerializeWindowGeometry(static_cast<QWidget*>(GetDisassemblyWindow()->parent()),
 	                        "debugger.disasm.posx",
 	                        "debugger.disasm.posy",
 	                        "debugger.disasm.sizex",
@@ -490,7 +490,7 @@ void QtDebugger::SaveViewLayout()
 
 void QtDebugger::LoadViewLayout()
 {
-	UnserializeWindowGeometry(GetDisassemblyWindow(),
+	UnserializeWindowGeometry(static_cast<QWidget*>(GetDisassemblyWindow()->parent()),
 	                          "debugger.disasm.posx",
 	                          "debugger.disasm.posy",
 	                          "debugger.disasm.sizex",

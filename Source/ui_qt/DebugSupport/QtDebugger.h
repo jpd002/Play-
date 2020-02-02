@@ -76,8 +76,8 @@ private:
 	void UpdateTitle();
 	void LoadSettings();
 	void SaveSettings();
-	void SerializeWindowGeometry(QMdiSubWindow*, const char*, const char*, const char*, const char*, const char*);
-	void UnserializeWindowGeometry(QMdiSubWindow*, const char*, const char*, const char*, const char*, const char*);
+	void SerializeWindowGeometry(QWidget*, const char*, const char*, const char*, const char*, const char*);
+	void UnserializeWindowGeometry(QWidget*, const char*, const char*, const char*, const char*, const char*);
 	void Resume();
 	void StepCPU();
 	void FindWordValue(uint32);

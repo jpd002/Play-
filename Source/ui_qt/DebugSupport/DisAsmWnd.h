@@ -1,7 +1,7 @@
 #pragma once
 
-#include <QMdiArea>
-#include <QMdiSubWindow>
+// #include <QMdiArea>
+#include <QWidget>
 #include <QTableView>
 #include "QtDisAsmTableModel.h"
 
@@ -9,12 +9,12 @@
 #include "MIPS.h"
 #include "VirtualMachineStateView.h"
 
-class CDisAsmWnd : public QMdiSubWindow, public CVirtualMachineStateView
+class CDisAsmWnd : public QWidget, public CVirtualMachineStateView
 {
 public:
 	typedef Framework::CSignal<void(uint32)> FindCallersRequestedEvent;
 
-	CDisAsmWnd(QMdiArea*, CVirtualMachine&, CMIPS*, const char*, CQtDisAsmTableModel::DISASM_TYPE, int);
+	CDisAsmWnd(QWidget*, CVirtualMachine&, CMIPS*, const char*, CQtDisAsmTableModel::DISASM_TYPE, int);
 	virtual ~CDisAsmWnd();
 
 	void HandleMachineStateChange() override;

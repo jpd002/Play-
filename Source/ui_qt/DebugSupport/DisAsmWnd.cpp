@@ -1,6 +1,7 @@
 #include <QAction>
 #include <QApplication>
 #include <QClipboard>
+#include <QVBoxLayout>
 #include <QMenu>
 #include <QString>
 #include <QInputDialog>
@@ -19,8 +20,8 @@
 
 #include "DebugExpressionEvaluator.h"
 
-CDisAsmWnd::CDisAsmWnd(QMdiArea* parent, CVirtualMachine& virtualMachine, CMIPS* ctx, const char* name, CQtDisAsmTableModel::DISASM_TYPE disAsmType, int memSize)
-    : QMdiSubWindow(parent)
+CDisAsmWnd::CDisAsmWnd(QWidget* parent, CVirtualMachine& virtualMachine, CMIPS* ctx, const char* name, CQtDisAsmTableModel::DISASM_TYPE disAsmType, int memSize)
+    : QWidget(parent)
     , m_virtualMachine(virtualMachine)
     , m_ctx(ctx)
     , m_disAsmType(disAsmType)
@@ -29,9 +30,10 @@ CDisAsmWnd::CDisAsmWnd(QMdiArea* parent, CVirtualMachine& virtualMachine, CMIPS*
 
 	resize(320, 240);
 
-	parent->addSubWindow(this);
-	setWindowTitle("Disassembly");
 	m_tableView = new QTableView(this);
+	QVBoxLayout* mainLayout = new QVBoxLayout;
+	mainLayout->addWidget(m_tableView);
+	setLayout(mainLayout);
 
 	switch(disAsmType)
 	{
@@ -47,7 +49,7 @@ CDisAsmWnd::CDisAsmWnd(QMdiArea* parent, CVirtualMachine& virtualMachine, CMIPS*
 		assert(0);
 		break;
 	}
-	setWidget(m_tableView);
+	// setWidget(m_tableView);
 	m_tableView->setModel(m_model);
 
 	auto header = m_tableView->horizontalHeader();
