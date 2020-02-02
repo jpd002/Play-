@@ -24,7 +24,7 @@ class OutputWindow;
 
 #ifdef DEBUGGER_INCLUDED
 class QtDebugger;
-//class CFrameDebugger;
+class QtFramedebugger;
 
 namespace Ui
 {
@@ -121,7 +121,7 @@ private:
 
 #ifdef DEBUGGER_INCLUDED
 	std::unique_ptr<QtDebugger> m_debugger;
-	// std::unique_ptr<CFrameDebugger> m_frameDebugger;
+	std::unique_ptr<QtFramedebugger> m_frameDebugger;
 	Ui::DebugMenu* debugMenuUi = nullptr;
 #endif
 

@@ -12,6 +12,8 @@ public:
 	virtual ~CGSH_OpenGLFramedebugger() = default;
 
 	void InitializeImpl();
+	void PrepareFramedebugger();
+
 	void ReleaseImpl();
 	void PresentBackbuffer();
 	void Begin();
@@ -39,7 +41,6 @@ private:
 
 	Framework::OpenGl::CVertexArray GenerateVertexArray();
 
-	void PrepareFramedebugger();
 	Framework::OpenGl::CBuffer GenerateVertexBuffer();
 
 	Framework::OpenGl::ProgramPtr GenerateCheckerboardProgram();

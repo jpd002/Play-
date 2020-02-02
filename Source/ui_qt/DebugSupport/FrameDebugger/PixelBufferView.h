@@ -1,20 +1,24 @@
 #pragma once
 
-#include "win32/Window.h"
+#include <QWidget>
+#include <QComboBox>
+#include <QPaintEvent>
+#include <QWheelEvent>
+
 #include "bitmap/Bitmap.h"
-#include "PixelBufferViewOverlay.h"
 #include <memory>
 #include <vector>
-#include "GSH_OpenGL_Framedebugger.h"
-#include "../OutputWnd.h"
+#include "GSH_OpenGLQt_Framedebugger.h"
+#include "../../openglwindow.h"
 
-class CPixelBufferView : public Framework::Win32::CWindow
+
+class CPixelBufferView : public QWidget
 {
 public:
 	typedef std::pair<std::string, Framework::CBitmap> PixelBuffer;
 	typedef std::vector<PixelBuffer> PixelBufferArray;
 
-	CPixelBufferView(HWND, const RECT&);
+	CPixelBufferView(QWidget*, QComboBox*);
 	virtual ~CPixelBufferView() = default;
 
 	void SetPixelBuffers(PixelBufferArray);
@@ -23,19 +27,13 @@ public:
 	bool m_init = false;
 
 protected:
+	void showEvent(QShowEvent*) Q_DECL_OVERRIDE;
 	void Refresh();
-	long OnPaint() override;
-	long OnEraseBkgnd() override;
+	void paintEvent(QPaintEvent*) Q_DECL_OVERRIDE;
 
-	long OnCommand(unsigned short, unsigned short, HWND) override;
-	long OnSize(unsigned int, unsigned int, unsigned int) override;
-
-	long OnLeftButtonDown(int, int) override;
-	long OnLeftButtonUp(int, int) override;
-
-	long OnMouseMove(WPARAM, int, int) override;
-
-	long OnMouseWheel(int, int, short) override;
+	void OnMousePressEvent(QMouseEvent*);
+	void OnMouseMoveEvent(QMouseEvent*);
+	void OnMouseWheel(QWheelEvent*);
 
 private:
 	struct VERTEX
@@ -44,6 +42,7 @@ private:
 		float texCoord[2];
 	};
 
+	QComboBox* m_contextBuffer;
 	const PixelBuffer* GetSelectedPixelBuffer();
 	void CreateSelectedPixelBufferTexture();
 
@@ -54,8 +53,6 @@ private:
 	void DrawPixelBuffer();
 
 	PixelBufferArray m_pixelBuffers;
-
-	std::unique_ptr<CPixelBufferViewOverlay> m_overlay;
 
 	float m_panX;
 	float m_panY;
@@ -69,5 +66,8 @@ private:
 	float m_panYDragBase;
 
 	std::unique_ptr<CGSH_OpenGLFramedebugger> m_gs;
-	std::unique_ptr<COutputWnd> m_handlerOutputWindow;
+	QWindow* m_openglpanel = nullptr;
+	OpenGLWindow::MouseWheelSignal::Connection m_mouseWheelConnection;
+	OpenGLWindow::MouseMoveSignal::Connection m_mouseMoveConnection;
+	OpenGLWindow::MousePressSignal::Connection m_mousePressConnection;
 };

@@ -21,8 +21,6 @@
 CGSH_OpenGLFramedebugger::CGSH_OpenGLFramedebugger(QWindow* renderWindow)
     : m_renderWindow(renderWindow)
 {
-	InitializeImpl();
-	PrepareFramedebugger();
 }
 
 void CGSH_OpenGLFramedebugger::InitializeImpl()
@@ -62,7 +60,7 @@ void CGSH_OpenGLFramedebugger::Begin()
 
 void CGSH_OpenGLFramedebugger::PresentBackbuffer()
 {
-	if(m_renderWindow->isExposed())
+	// if(m_renderWindow->isExposed())
 	{
 		m_context->swapBuffers(m_renderWindow);
 		m_context->makeCurrent(m_renderWindow);
@@ -231,6 +229,7 @@ void CGSH_OpenGLFramedebugger::DrawCheckerboard(float* dim)
 	glBindBuffer(GL_ARRAY_BUFFER, m_vertexBufferFramedebugger);
 
 	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+	glClear(GL_COLOR_BUFFER_BIT);
 
 	glUniform2f(m_checkerboardScreenSizeUniform, dim[0], dim[1]);
 

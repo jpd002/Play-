@@ -3,9 +3,10 @@
 #include "uint128.h"
 #include "string_format.h"
 
-CGifPacketView::CGifPacketView(HWND parentWnd, const RECT& rect)
-    : CRegViewPage(parentWnd, rect)
+CGifPacketView::CGifPacketView(QWidget* parent)
+    : QTextEdit(parent)
 {
+
 }
 
 void CGifPacketView::SetPacket(const uint8* vuMem, uint32 packetAddress, uint32 packetSize)
@@ -65,7 +66,7 @@ void CGifPacketView::SetPacket(const uint8* vuMem, uint32 packetAddress, uint32 
 		                        CGSHandler::DisassembleWrite(writeInfo.write.first, writeInfo.write.second).c_str());
 	}
 
-	SetDisplayText(result.c_str());
+	setText(result.c_str());
 }
 
 void CGifPacketView::DumpPacked(const uint8* vuMem, uint32& packetAddress, const CGIF::TAG& tag, WriteInfoList& writes)

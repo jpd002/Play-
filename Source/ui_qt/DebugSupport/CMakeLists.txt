@@ -60,28 +60,29 @@ set(SRC_FILES
 	# ${SRC_ROOT}/ElfViewRes.h
 	# ${SRC_ROOT}/FrameDebugger/FrameDebugger.cpp
 	# ${SRC_ROOT}/FrameDebugger/FrameDebugger.h	
-	# ${SRC_ROOT}/FrameDebugger/GifPacketView.cpp
-	# ${SRC_ROOT}/FrameDebugger/GifPacketView.h
-	# ${SRC_ROOT}/FrameDebugger/GsContextView.cpp
-	# ${SRC_ROOT}/FrameDebugger/GsContextView.h
-	# ${SRC_ROOT}/FrameDebugger/GsContextStateView.cpp
-	# ${SRC_ROOT}/FrameDebugger/GsContextStateView.h
+	${SRC_ROOT}/FrameDebugger/GifPacketView.cpp
+	${SRC_ROOT}/FrameDebugger/GifPacketView.h
+	${SRC_ROOT}/FrameDebugger/GsContextView.cpp
+	${SRC_ROOT}/FrameDebugger/GsContextView.h
 	# ${SRC_ROOT}/FrameDebugger/GsInputStateView.cpp
 	# ${SRC_ROOT}/FrameDebugger/GsInputStateView.h
 	# ${SRC_ROOT}/FrameDebugger/GsPacketListView.cpp
 	# ${SRC_ROOT}/FrameDebugger/GsPacketListView.h
+
+	${SRC_ROOT}/FrameDebugger/GsPacketListModel.cpp
+	${SRC_ROOT}/FrameDebugger/GsPacketListModel.h
+
+	${SRC_ROOT}/FrameDebugger/GsPacketData.cpp
+	${SRC_ROOT}/FrameDebugger/GsPacketData.h
+
 	${SRC_ROOT}/FrameDebugger/GSH_OpenGLQt_Framedebugger.cpp
 	${SRC_ROOT}/FrameDebugger/GSH_OpenGLQt_Framedebugger.h
 	${SRC_ROOT}/FrameDebugger/GsStateUtils.cpp
 	${SRC_ROOT}/FrameDebugger/GsStateUtils.h
-	# ${SRC_ROOT}/FrameDebugger/PixelBufferView.cpp
-	# ${SRC_ROOT}/FrameDebugger/PixelBufferView.h
-	# ${SRC_ROOT}/FrameDebugger/PixelBufferViewOverlay.cpp
-	# ${SRC_ROOT}/FrameDebugger/PixelBufferViewOverlay.h
-	# ${SRC_ROOT}/FrameDebugger/TabHost.cpp
-	# ${SRC_ROOT}/FrameDebugger/TabHost.h
-	# ${SRC_ROOT}/FrameDebugger/Vu1ProgramView.cpp
-	# ${SRC_ROOT}/FrameDebugger/Vu1ProgramView.h
+	${SRC_ROOT}/FrameDebugger/PixelBufferView.cpp
+	${SRC_ROOT}/FrameDebugger/PixelBufferView.h
+	${SRC_ROOT}/FrameDebugger/Vu1ProgramView.cpp
+	${SRC_ROOT}/FrameDebugger/Vu1ProgramView.h
 	${SRC_ROOT}/FrameDebugger/Vu1Vm.cpp
 	${SRC_ROOT}/FrameDebugger/Vu1Vm.h
 	${SRC_ROOT}/MemoryViewMIPSWnd.cpp
@@ -92,8 +93,6 @@ set(SRC_FILES
 	${SRC_ROOT}/QtMemoryViewModel.h
 	# ${SRC_ROOT}/OptionWnd.cpp
 	# ${SRC_ROOT}/OptionWnd.h
-	# ${SRC_ROOT}/OutputWnd.cpp
-	# ${SRC_ROOT}/OutputWnd.h
 	${SRC_ROOT}/RegViewFPU.cpp
 	${SRC_ROOT}/RegViewFPU.h
 	${SRC_ROOT}/RegViewGeneral.cpp
@@ -113,6 +112,9 @@ set(SRC_FILES
 	${SRC_ROOT}/QtGenericTableModel.cpp
 	${SRC_ROOT}/QtDebugger.cpp
 	${SRC_ROOT}/QtDialogListWidget.cpp
+
+	${SRC_ROOT}/Framedebugger/QtFramedebugger.cpp
+
 )
 
 set(QT_DEBUGGER_MOC_HEADERS
@@ -124,6 +126,10 @@ set(QT_DEBUGGER_MOC_HEADERS
 	${SRC_ROOT}/QtDebugger.h
 	${SRC_ROOT}/QtDialogListWidget.h
 	${SRC_ROOT}/QtMemoryViewModel.h
+	${SRC_ROOT}/Framedebugger/QtFramedebugger.h
+	${SRC_ROOT}/FrameDebugger/GsPacketListModel.h
+
+
 )
 
 set(QT_DEBUGGER_UI
@@ -132,6 +138,7 @@ set(QT_DEBUGGER_UI
 
 	${SRC_ROOT}/Qt_ui/QtDebugger.ui
 	${SRC_ROOT}/Qt_ui/QtDialogListWidget.ui
+	${SRC_ROOT}/Framedebugger/Qt_ui/QtFramedebugger.ui
 )
 
 set(QT_RESOURCES

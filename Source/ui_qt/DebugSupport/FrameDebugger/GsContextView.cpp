@@ -2,9 +2,8 @@
 #include "GsStateUtils.h"
 #include "gs/GsPixelFormats.h"
 #include "gs/GSH_OpenGLWin32/GSH_OpenGLWin32.h"
-#include "win32/VerticalSplitter.h"
 
-#define WNDSTYLE (WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN)
+#include <QVBoxLayout>
 
 enum TAB_IDS
 {
@@ -18,42 +17,21 @@ enum TAB_IDS
 	TAB_ID_TEXTURE_MIP6
 };
 
-CGsContextView::CGsContextView(HWND parent, const RECT& rect, CGSHandler* gs, unsigned int contextId)
-    : m_contextId(contextId)
+CGsContextView::CGsContextView(QWidget* parent, QComboBox* contextBuffer, QPushButton* fitButton, CGSHandler* gs, unsigned int contextId)
+    : QWidget(parent)
+    , m_contextId(contextId)
     , m_gs(gs)
 {
-	Create(0, Framework::Win32::CDefaultWndClass::GetName(), NULL, WNDSTYLE, rect, parent, NULL);
-	SetClassPtr();
 
-	m_mainSplitter = std::make_unique<Framework::Win32::CVerticalSplitter>(m_hWnd, GetClientRect());
+	m_bufferView = std::make_unique<CPixelBufferView>(this, contextBuffer);
+	auto layout = new QVBoxLayout;
+	setLayout(layout);
+	layout->addWidget(m_bufferView.get());
 
-	m_bufferSelectionTab = std::make_unique<Framework::Win32::CTab>(*m_mainSplitter, Framework::Win32::CRect(0, 0, 1, 1), TCS_BOTTOM);
-	m_bufferSelectionTab->SetTabData(
-	    m_bufferSelectionTab->InsertTab(_T("Framebuffer")), TAB_ID_FRAMEBUFFER);
-	m_bufferSelectionTab->SetTabData(
-	    m_bufferSelectionTab->InsertTab(_T("Texture (Base)")), TAB_ID_TEXTURE_BASE);
-	m_bufferSelectionTab->SetTabData(
-	    m_bufferSelectionTab->InsertTab(_T("Texture (Mip 1)")), TAB_ID_TEXTURE_MIP1);
-	m_bufferSelectionTab->SetTabData(
-	    m_bufferSelectionTab->InsertTab(_T("Texture (Mip 2)")), TAB_ID_TEXTURE_MIP2);
-	m_bufferSelectionTab->SetTabData(
-	    m_bufferSelectionTab->InsertTab(_T("Texture (Mip 3)")), TAB_ID_TEXTURE_MIP3);
-	m_bufferSelectionTab->SetTabData(
-	    m_bufferSelectionTab->InsertTab(_T("Texture (Mip 4)")), TAB_ID_TEXTURE_MIP4);
-	m_bufferSelectionTab->SetTabData(
-	    m_bufferSelectionTab->InsertTab(_T("Texture (Mip 5)")), TAB_ID_TEXTURE_MIP5);
-	m_bufferSelectionTab->SetTabData(
-	    m_bufferSelectionTab->InsertTab(_T("Texture (Mip 6)")), TAB_ID_TEXTURE_MIP6);
-
-	m_bufferView = std::make_unique<CPixelBufferView>(*m_bufferSelectionTab, Framework::Win32::CRect(0, 0, 1, 1));
-	m_bufferView->Show(SW_SHOW);
-	m_stateView = std::make_unique<CGsContextStateView>(*m_mainSplitter, GetClientRect(), m_contextId);
-	m_stateView->Show(SW_SHOW);
-
-	m_mainSplitter->SetChild(0, *m_bufferSelectionTab);
-	m_mainSplitter->SetChild(1, *m_stateView);
-	m_mainSplitter->SetMasterChild(1);
-	m_mainSplitter->SetEdgePosition(0.5f);
+	connect(fitButton, &QPushButton::clicked, [&]()
+	{
+		m_bufferView->FitBitmap();
+	});
 }
 
 CGsContextView::~CGsContextView()
@@ -71,13 +49,17 @@ void CGsContextView::UpdateState(CGSHandler* gs, CGsPacketMetadata*, DRAWINGKICK
 	assert(gs == m_gs);
 	m_drawingKick = (*drawingKick);
 	UpdateBufferView();
-	m_stateView->UpdateState(m_gs);
+}
+
+void CGsContextView::SetSelection(int selected)
+{
+	m_selected = selected;
+	UpdateBufferView();
 }
 
 void CGsContextView::UpdateBufferView()
 {
-	int selectionIndex = m_bufferSelectionTab->GetSelection();
-	uint32 selectedId = m_bufferSelectionTab->GetTabData(selectionIndex);
+	uint32 selectedId = m_selected;
 	switch(selectedId)
 	{
 	case TAB_ID_FRAMEBUFFER:
@@ -103,7 +85,7 @@ void CGsContextView::UpdateBufferView()
 
 		if(mipLevel <= tex1.nMaxMip)
 		{
-			texture = static_cast<CGSH_OpenGLWin32*>(m_gs)->GetTexture(tex0Reg, tex1.nMaxMip, miptbp1Reg, miptbp2Reg, mipLevel);
+			texture = static_cast<CGSH_OpenGL*>(m_gs)->GetTexture(tex0Reg, tex1.nMaxMip, miptbp1Reg, miptbp2Reg, mipLevel);
 		}
 
 		if(!texture.IsEmpty() && CGsPixelFormats::IsPsmIDTEX(tex0.nPsm))
@@ -129,6 +111,7 @@ void CGsContextView::UpdateBufferView()
 	}
 	break;
 	}
+	m_bufferView->repaint();
 }
 
 void CGsContextView::UpdateFramebufferView()
@@ -136,7 +119,7 @@ void CGsContextView::UpdateFramebufferView()
 	uint64 frameReg = m_gs->GetRegisters()[GS_REG_FRAME_1 + m_contextId];
 	auto frame = make_convertible<CGSHandler::FRAME>(frameReg);
 
-	auto framebuffer = static_cast<CGSH_OpenGLWin32*>(m_gs)->GetFramebuffer(frame);
+	auto framebuffer = static_cast<CGSH_OpenGL*>(m_gs)->GetFramebuffer(frame);
 	if(framebuffer.IsEmpty())
 	{
 		m_bufferView->SetPixelBuffers(CPixelBufferView::PixelBufferArray());
@@ -289,32 +272,4 @@ Framework::CBitmap CGsContextView::ExtractAlpha32(const Framework::CBitmap& srcB
 		dstPixels += dstBitmap.GetPitch() / 4;
 	}
 	return std::move(dstBitmap);
-}
-
-long CGsContextView::OnSize(unsigned int, unsigned int, unsigned int)
-{
-	m_mainSplitter->SetSizePosition(GetClientRect());
-	return TRUE;
-}
-
-long CGsContextView::OnCommand(unsigned short, unsigned short, HWND hwndFrom)
-{
-	if(CWindow::IsCommandSource(m_mainSplitter.get(), hwndFrom))
-	{
-		m_bufferView->SetSizePosition(m_bufferSelectionTab->GetDisplayAreaRect());
-	}
-	return TRUE;
-}
-
-LRESULT CGsContextView::OnNotify(WPARAM wParam, NMHDR* hdr)
-{
-	if(CWindow::IsNotifySource(m_bufferSelectionTab.get(), hdr))
-	{
-		if(hdr->code == TCN_SELCHANGE)
-		{
-			UpdateBufferView();
-			m_bufferView->FitBitmap();
-		}
-	}
-	return FALSE;
 }

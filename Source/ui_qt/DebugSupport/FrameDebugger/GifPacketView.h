@@ -1,15 +1,17 @@
 #pragma once
 
-#include "../RegViewPage.h"
+#include <QWidget>
+#include <QTextEdit>
+
 #include "Types.h"
 #include "ee/GIF.h"
 #include "gs/GSHandler.h"
 
-class CGifPacketView : public CRegViewPage
+class CGifPacketView : public QTextEdit
 {
 public:
-	CGifPacketView(HWND, const RECT&);
-	virtual ~CGifPacketView() = default;
+	CGifPacketView(QWidget*);
+	virtual ~CGifPacketView();
 
 	void SetPacket(const uint8*, uint32, uint32);
 

@@ -35,6 +35,7 @@
 #endif
 #ifdef DEBUGGER_INCLUDED
 #include "DebugSupport/QtDebugger.h"
+#include "DebugSupport/Framedebugger/QtFramedebugger.h"
 #include "ui_debugmenu.h"
 #endif
 #include "input/PH_GenericInput.h"
@@ -106,7 +107,7 @@ MainWindow::MainWindow(QWidget* parent)
 
 #ifdef DEBUGGER_INCLUDED
 	m_debugger = std::make_unique<QtDebugger>(*m_virtualMachine);
-	// m_frameDebugger = std::make_unique<CFrameDebugger>();
+	m_frameDebugger = std::make_unique<QtFramedebugger>(this);
 	// m_frameDebugger->Show(SW_SHOWMAXIMIZED);
 
 	auto debugMenu = new QMenu(this);
@@ -115,7 +116,7 @@ MainWindow::MainWindow(QWidget* parent)
 	ui->menuBar->insertMenu(ui->menuHelp->menuAction(), debugMenu);
 
 	connect(debugMenuUi->actionShowDebugger, &QAction::triggered, this, std::bind(&MainWindow::ShowDebugger, this));
-	//connect(debugMenuUi->actionShowFrameDebugger, &QAction::triggered, this, std::bind(&MainWindow::ShowFrameDebugger, this));
+	connect(debugMenuUi->actionShowFrameDebugger, &QAction::triggered, this, std::bind(&MainWindow::ShowFrameDebugger, this));
 	connect(debugMenuUi->actionDumpNextFrame, &QAction::triggered, this, std::bind(&MainWindow::DumpNextFrame, this));
 	connect(debugMenuUi->actionGsDrawEnabled, &QAction::triggered, this, std::bind(&MainWindow::ToggleGsDraw, this));
 #endif
@@ -125,7 +126,7 @@ MainWindow::~MainWindow()
 {
 #ifdef DEBUGGER_INCLUDED
 	m_debugger.reset();
-	//m_frameDebugger.reset();
+	m_frameDebugger.reset();
 #endif
 	CAppConfig::GetInstance().Save();
 	if(m_virtualMachine != nullptr)
@@ -810,7 +811,7 @@ void MainWindow::ShowDebugger()
 
 void MainWindow::ShowFrameDebugger()
 {
-	//m_frameDebugger->Show(SW_SHOWMAXIMIZED);
+	m_frameDebugger->show();
 	//SetForegroundWindow(*m_frameDebugger);
 }
 
