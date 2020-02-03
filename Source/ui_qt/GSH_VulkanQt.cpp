@@ -7,6 +7,10 @@
 #include <MoltenVK/vk_mvk_moltenvk.h>
 #endif
 
+#ifdef __linux__
+#include <QX11Info>
+#endif
+
 CGSH_VulkanQt::CGSH_VulkanQt(QWindow* renderWindow)
     : m_renderWindow(renderWindow)
 {
@@ -73,7 +77,7 @@ void CGSH_VulkanQt::InitializeImpl()
 	
 #ifdef __linux__
 	auto surfaceCreateInfo = Framework::Vulkan::XcbSurfaceCreateInfoKHR();
-	surfaceCreateInfo.window = reinterpret_cast<xcb_window_t>(m_renderWindow->winId());
+	surfaceCreateInfo.window = static_cast<xcb_window_t>(m_renderWindow->winId());
 	surfaceCreateInfo.connection = QX11Info::connection();
 	auto result = m_instance.vkCreateXcbSurfaceKHR(m_instance, &surfaceCreateInfo, nullptr, &m_context->surface);
 	CHECKVULKANERROR(result);

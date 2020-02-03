@@ -209,8 +209,17 @@ set(QT_RESOURCES
 	Qt_ui/resources.qrc
 )
 
-find_package(Qt5 REQUIRED COMPONENTS Widgets Core)
+set(QT_COMPONENTS Widgets Core)
+if(TARGET_PLATFORM_LINUX)
+	list(APPEND QT_COMPONENTS X11Extras)
+endif()
+find_package(Qt5 REQUIRED COMPONENTS ${QT_COMPONENTS})
+
 list(APPEND PROJECT_LIBS Qt5::Widgets Qt5::Core)
+if(TARGET_PLATFORM_LINUX)
+	list(APPEND PROJECT_LIBS Qt5::X11Extras)
+endif()
+
 add_definitions(${QT_DEFINITIONS})
 
 QT5_ADD_RESOURCES(QT_RES_SOURCES ${QT_RESOURCES})
