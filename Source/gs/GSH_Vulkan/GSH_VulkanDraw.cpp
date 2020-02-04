@@ -244,7 +244,7 @@ void CDraw::FlushVertices()
 		memoryBarrier.dstAccessMask = VK_ACCESS_SHADER_WRITE_BIT;
 
 		m_context->device.vkCmdPipelineBarrier(commandBuffer, VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT, VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT,
-												0, 1, &memoryBarrier, 0, nullptr, 0, nullptr);
+		                                       0, 1, &memoryBarrier, 0, nullptr, 0, nullptr);
 	}
 
 	auto descriptorSetCaps = make_convertible<DESCRIPTORSET_CAPS>(0);

@@ -602,9 +602,9 @@ void CGSH_Vulkan::SetRenderingContext(uint64 primReg)
 	    clamp.GetMinU(), clamp.GetMinV(),
 	    clamp.GetMaxU(), clamp.GetMaxV());
 	m_draw->SetFogParams(
-		static_cast<float>(fogCol.nFCR) / 255.f, 
-		static_cast<float>(fogCol.nFCG) / 255.f,
-		static_cast<float>(fogCol.nFCB) / 255.f);
+	    static_cast<float>(fogCol.nFCR) / 255.f,
+	    static_cast<float>(fogCol.nFCG) / 255.f,
+	    static_cast<float>(fogCol.nFCB) / 255.f);
 	m_draw->SetAlphaBlendingParams(alpha.nFix);
 	m_draw->SetAlphaTestParams(test.nAlphaRef);
 	m_draw->SetScissor(scissor.scax0, scissor.scay0,

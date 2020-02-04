@@ -74,7 +74,7 @@ void CGSH_VulkanQt::InitializeImpl()
 
 	DisableSyncQueueSubmits();
 #endif
-	
+
 #ifdef __linux__
 	auto surfaceCreateInfo = Framework::Vulkan::XcbSurfaceCreateInfoKHR();
 	surfaceCreateInfo.window = static_cast<xcb_window_t>(m_renderWindow->winId());
