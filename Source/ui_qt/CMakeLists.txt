@@ -10,6 +10,17 @@ project(PlayUI)
 
 add_definitions(-DPLAY_VERSION="${PROJECT_Version}")
 
+set(USE_GSH_VULKAN OFF)
+if(NOT TARGET_PLATFORM_UNIX_AARCH64)
+	find_package(Vulkan)
+	if(Vulkan_FOUND)
+		set(USE_GSH_VULKAN ON)
+		message("Building with Vulkan support.")
+	else()
+		message("Building without Vulkan support. If you want to enable Vulkan, please make sure VULKAN_SDK is set.")
+	endif()
+endif()
+
 if(NOT TARGET PlayCore)
 	add_subdirectory(
 		${CMAKE_CURRENT_SOURCE_DIR}/../
@@ -26,7 +37,7 @@ if(NOT TARGET gsh_opengl)
 endif()
 list(INSERT PROJECT_LIBS 0 gsh_opengl)
 
-if(NOT TARGET_PLATFORM_UNIX_AARCH64)
+if(USE_GSH_VULKAN)
 	if(NOT TARGET gsh_vulkan)
 		add_subdirectory(
 			${CMAKE_CURRENT_SOURCE_DIR}/../gs/GSH_Vulkan
@@ -235,8 +246,10 @@ if(TARGET_PLATFORM_MACOS)
 	set(OSX_RES
 		${CMAKE_CURRENT_SOURCE_DIR}/macos/AppIcon.icns
 		${CMAKE_CURRENT_SOURCE_DIR}/../../patches.xml
-		$ENV{VULKAN_SDK}/../MoltenVK/macOS/dynamic/libMoltenVk.dylib
 	)
+	if(USE_GSH_VULKAN)
+		list(APPEND OSX_RES $ENV{VULKAN_SDK}/../MoltenVK/macOS/dynamic/libMoltenVk.dylib)
+	endif()
 	add_executable(Play MACOSX_BUNDLE ${QT_SOURCES} ${QT_MOC_SRCS} ${QT_RES_SOURCES} ${QT_UI_HEADERS} ${OSX_RES})
 	# Set a custom plist file for the app bundle
 	# NOTE: for these values to be used Info.plist has to be edited
@@ -257,7 +270,9 @@ if(TARGET_PLATFORM_MACOS)
 		RESOURCE "${OSX_RES}"
 	)
 	list(APPEND PROJECT_LIBS "-framework IOKit -framework CoreFoundation")
-	target_include_directories(Play PRIVATE $ENV{VULKAN_SDK}/../MoltenVK/include)
+	if(USE_GSH_VULKAN)
+		target_include_directories(Play PRIVATE $ENV{VULKAN_SDK}/../MoltenVK/include)
+	endif()
 elseif(TARGET_PLATFORM_WIN32)
 	set(QT_SOURCES
 		${QT_SOURCES}
