@@ -426,18 +426,21 @@ void QtFramedebugger::on_actionAlpha_Blend_Enabled_triggered(bool value)
 void QtFramedebugger::on_actionRaw_triggered(bool value)
 {
 	ui->actionRaw->setChecked(value);
+	SetFbDisplayMode(CGsContextView::FB_DISPLAY_MODE_RAW);
 	Redraw();
 }
 
 void QtFramedebugger::on_action640x448_Non_Interlaced_triggered(bool value)
 {
 	ui->action640x448_Non_Interlaced->setChecked(value);
+	SetFbDisplayMode(CGsContextView::FB_DISPLAY_MODE_448P);
 	Redraw();
 }
 
 void QtFramedebugger::on_action640x448_Interlaced_triggered(bool value)
 {
 	ui->action640x448_Interlaced->setChecked(value);
+	SetFbDisplayMode(CGsContextView::FB_DISPLAY_MODE_448I);
 	Redraw();
 }
 
