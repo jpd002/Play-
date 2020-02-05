@@ -1,8 +1,7 @@
 #pragma once
 
 #include "signal/Signal.h"
-#include <QMdiArea>
-#include <QMdiSubWindow>
+#include <QWidget>
 #include <QListWidget>
 #include "Types.h"
 #include "MIPS.h"
@@ -10,12 +9,12 @@
 
 class CBiosDebugInfoProvider;
 
-class CCallStackWnd : public QMdiSubWindow, public CVirtualMachineStateView
+class CCallStackWnd : public QListWidget, public CVirtualMachineStateView
 {
 public:
 	typedef Framework::CSignal<void(uint32)> OnFunctionDblClickSignal;
 
-	CCallStackWnd(QMdiArea*, CMIPS*, CBiosDebugInfoProvider*);
+	CCallStackWnd(QWidget*, CMIPS*, CBiosDebugInfoProvider*);
 	virtual ~CCallStackWnd();
 
 	void HandleMachineStateChange() override;
@@ -30,6 +29,4 @@ private:
 
 	CMIPS* m_context;
 	CBiosDebugInfoProvider* m_biosDebugInfoProvider;
-
-	QListWidget* m_listWidget;
 };

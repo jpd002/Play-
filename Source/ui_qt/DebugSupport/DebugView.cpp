@@ -28,9 +28,12 @@ CDebugView::CDebugView(QMdiArea* parent, CVirtualMachine& virtualMachine, CMIPS*
 	m_memoryViewWnd->setWindowTitle("Memory View");
 
 
-	m_callStackWnd = new CCallStackWnd(parent, m_ctx, m_biosDebugInfoProvider);
+	auto callStackWnd = new CCallStackWnd(parent, m_ctx, m_biosDebugInfoProvider);
+	m_callStackWnd = new QMdiSubWindow(parent);
+	m_callStackWnd->setWidget(callStackWnd);
+	m_callStackWnd->setWindowTitle("Call Stack");
 
-	m_OnFunctionDblClickConnection = m_callStackWnd->OnFunctionDblClick.Connect(std::bind(&CDebugView::OnCallStackWndFunctionDblClick, this, std::placeholders::_1));
+	m_OnFunctionDblClickConnection = callStackWnd->OnFunctionDblClick.Connect(std::bind(&CDebugView::OnCallStackWndFunctionDblClick, this, std::placeholders::_1));
 
 	Hide();
 }
@@ -48,7 +51,7 @@ void CDebugView::HandleMachineStateChange()
 	GetDisassemblyWindow()->HandleMachineStateChange();
 	m_regViewWnd->HandleMachineStateChange();
 	GetMemoryViewWindow()->HandleMachineStateChange();
-	m_callStackWnd->HandleMachineStateChange();
+	GetCallStackWindow()->HandleMachineStateChange();
 }
 
 void CDebugView::HandleRunningStateChange(CVirtualMachine::STATUS newState)
@@ -56,7 +59,7 @@ void CDebugView::HandleRunningStateChange(CVirtualMachine::STATUS newState)
 	GetDisassemblyWindow()->HandleRunningStateChange(newState);
 	m_regViewWnd->HandleRunningStateChange(newState);
 	GetMemoryViewWindow()->HandleRunningStateChange(newState);
-	m_callStackWnd->HandleRunningStateChange(newState);
+	GetCallStackWindow()->HandleRunningStateChange(newState);
 }
 
 const char* CDebugView::GetName() const
@@ -105,7 +108,7 @@ CRegViewWnd* CDebugView::GetRegisterViewWindow()
 
 CCallStackWnd* CDebugView::GetCallStackWindow()
 {
-	return m_callStackWnd;
+	return static_cast<CCallStackWnd*>(m_callStackWnd->widget());
 }
 
 void CDebugView::OnCallStackWndFunctionDblClick(uint32 nAddress)

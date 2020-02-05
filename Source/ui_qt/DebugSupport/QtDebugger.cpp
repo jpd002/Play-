@@ -390,8 +390,8 @@ void QtDebugger::Layout1024()
 	static_cast<QWidget*>(GetMemoryViewWindow()->parent())->setGeometry(0, 435, 700, 265);
 	static_cast<QWidget*>(GetMemoryViewWindow()->parent())->show();
 
-	GetCallStackWindow()->setGeometry(700, 572, 324, 128);
-	GetCallStackWindow()->show();
+	static_cast<QWidget*>(GetCallStackWindow()->parent())->setGeometry(700, 572, 324, 128);
+	static_cast<QWidget*>(GetCallStackWindow()->parent())->show();
 }
 
 void QtDebugger::Layout1280()
@@ -405,8 +405,8 @@ void QtDebugger::Layout1280()
 	static_cast<QWidget*>(GetMemoryViewWindow()->parent())->setGeometry(0, 540, 900, 416);
 	static_cast<QWidget*>(GetMemoryViewWindow()->parent())->show();
 
-	GetCallStackWindow()->setGeometry(900, 784, 380, 172);
-	GetCallStackWindow()->show();
+	static_cast<QWidget*>(GetCallStackWindow()->parent())->setGeometry(900, 784, 380, 172);
+	static_cast<QWidget*>(GetCallStackWindow()->parent())->show();
 }
 
 void QtDebugger::Layout1600()
@@ -420,8 +420,8 @@ void QtDebugger::Layout1600()
 	static_cast<QWidget*>(GetMemoryViewWindow()->parent())->setGeometry(0, 725, 1094, 407);
 	static_cast<QWidget*>(GetMemoryViewWindow()->parent())->show();
 
-	GetCallStackWindow()->setGeometry(1094, 725, 506, 407);
-	GetCallStackWindow()->show();
+	static_cast<QWidget*>(GetCallStackWindow()->parent())->setGeometry(1094, 725, 506, 407);
+	static_cast<QWidget*>(GetCallStackWindow()->parent())->show();
 }
 
 void QtDebugger::ActivateView(unsigned int nView)
@@ -480,7 +480,7 @@ void QtDebugger::SaveViewLayout()
 	                        "debugger.memoryview.sizey",
 	                        "debugger.memoryview.visible");
 
-	SerializeWindowGeometry(GetCallStackWindow(),
+	SerializeWindowGeometry(static_cast<QWidget*>(GetCallStackWindow()->parent()),
 	                        "debugger.callstack.posx",
 	                        "debugger.callstack.posy",
 	                        "debugger.callstack.sizex",
@@ -511,7 +511,7 @@ void QtDebugger::LoadViewLayout()
 	                          "debugger.memoryview.sizey",
 	                          "debugger.memoryview.visible");
 
-	UnserializeWindowGeometry(GetCallStackWindow(),
+	UnserializeWindowGeometry(static_cast<QWidget*>(GetCallStackWindow()->parent()),
 	                          "debugger.callstack.posx",
 	                          "debugger.callstack.posy",
 	                          "debugger.callstack.sizex",
@@ -771,8 +771,8 @@ void QtDebugger::on_actionFind_Word_Half_Value_triggered()
 
 void QtDebugger::on_actionCall_Stack_triggered()
 {
-	GetCallStackWindow()->show();
-	GetCallStackWindow()->setFocus(Qt::ActiveWindowFocusReason);
+	static_cast<QWidget*>(GetCallStackWindow()->parent())->show();
+	static_cast<QWidget*>(GetCallStackWindow()->parent())->setFocus(Qt::ActiveWindowFocusReason);
 }
 
 void QtDebugger::on_actionFunctions_triggered()

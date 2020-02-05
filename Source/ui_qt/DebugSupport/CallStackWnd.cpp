@@ -8,21 +8,14 @@
 #include <QVBoxLayout>
 #include <QLabel>
 
-CCallStackWnd::CCallStackWnd(QMdiArea* parent, CMIPS* context, CBiosDebugInfoProvider* biosDebugInfoProvider)
-    : QMdiSubWindow(parent)
+CCallStackWnd::CCallStackWnd(QWidget* parent, CMIPS* context, CBiosDebugInfoProvider* biosDebugInfoProvider)
+    : QListWidget(parent)
     , m_context(context)
     , m_biosDebugInfoProvider(biosDebugInfoProvider)
 {
 	resize(320, 750);
-
-	parent->addSubWindow(this);
-	setWindowTitle("Call Stack");
-
-	m_listWidget = new QListWidget(this);
-	setWidget(m_listWidget);
-	m_listWidget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-
-	connect(m_listWidget, &QListWidget::itemDoubleClicked, this, &CCallStackWnd::listDoubleClick);
+	setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+	connect(this, &QListWidget::itemDoubleClicked, this, &CCallStackWnd::listDoubleClick);
 
 	Update();
 }
@@ -42,13 +35,13 @@ void CCallStackWnd::Update()
 	uint32 nRA = m_context->m_State.nGPR[CMIPS::RA].nV[0];
 	uint32 nSP = m_context->m_State.nGPR[CMIPS::SP].nV[0];
 
-	m_listWidget->clear();
+	clear();
 
 	auto callStackItems = CMIPSAnalysis::GetCallStack(m_context, nPC, nSP, nRA);
 
 	if(callStackItems.size() == 0)
 	{
-		m_listWidget->addItem("Call stack unavailable at this state");
+		addItem("Call stack unavailable at this state");
 		return;
 	}
 
@@ -57,7 +50,7 @@ void CCallStackWnd::Update()
 	for(const auto& callStackItem : callStackItems)
 	{
 		auto locationString = DebugUtils::PrintAddressLocation(callStackItem, m_context, modules);
-		m_listWidget->addItem(locationString.c_str());
+		addItem(locationString.c_str());
 	}
 }
 
