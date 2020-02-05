@@ -9,7 +9,7 @@
 #include "MIPS.h"
 #include "VirtualMachineStateView.h"
 
-class CDisAsmWnd : public QWidget, public CVirtualMachineStateView
+class CDisAsmWnd : public QTableView, public CVirtualMachineStateView
 {
 public:
 	typedef Framework::CSignal<void(uint32)> FindCallersRequestedEvent;
@@ -74,6 +74,5 @@ private:
 	unsigned int m_historyPosition;
 	unsigned int m_historySize;
 
-	QTableView* m_tableView;
 	CQtDisAsmTableModel* m_model;
 };

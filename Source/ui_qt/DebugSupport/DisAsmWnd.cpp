@@ -21,7 +21,7 @@
 #include "DebugExpressionEvaluator.h"
 
 CDisAsmWnd::CDisAsmWnd(QWidget* parent, CVirtualMachine& virtualMachine, CMIPS* ctx, const char* name, CQtDisAsmTableModel::DISASM_TYPE disAsmType, int memSize)
-    : QWidget(parent)
+    : QTableView(parent)
     , m_virtualMachine(virtualMachine)
     , m_ctx(ctx)
     , m_disAsmType(disAsmType)
@@ -30,29 +30,24 @@ CDisAsmWnd::CDisAsmWnd(QWidget* parent, CVirtualMachine& virtualMachine, CMIPS* 
 
 	resize(320, 240);
 
-	m_tableView = new QTableView(this);
-	QVBoxLayout* mainLayout = new QVBoxLayout;
-	mainLayout->addWidget(m_tableView);
-	setLayout(mainLayout);
-
 	switch(disAsmType)
 	{
 	case CQtDisAsmTableModel::DISASM_STANDARD:
-		m_model = new CQtDisAsmTableModel(m_tableView, virtualMachine, ctx, memSize);
+		m_model = new CQtDisAsmTableModel(this, virtualMachine, ctx, memSize);
 		m_instructionSize = 4;
 		break;
 	case CQtDisAsmTableModel::DISASM_VU:
-		m_model = new CQtDisAsmVuTableModel(m_tableView, virtualMachine, ctx, memSize);
+		m_model = new CQtDisAsmVuTableModel(this, virtualMachine, ctx, memSize);
 		m_instructionSize = 8;
 		break;
 	default:
 		assert(0);
 		break;
 	}
-	// setWidget(m_tableView);
-	m_tableView->setModel(m_model);
 
-	auto header = m_tableView->horizontalHeader();
+	setModel(m_model);
+
+	auto header = horizontalHeader();
 	header->setMinimumSectionSize(25);
 	header->setSectionResizeMode(0, QHeaderView::ResizeToContents);
 	header->setSectionResizeMode(1, QHeaderView::ResizeToContents);
@@ -71,25 +66,25 @@ CDisAsmWnd::CDisAsmWnd(QWidget* parent, CVirtualMachine& virtualMachine, CMIPS* 
 		header->setSectionResizeMode(8, QHeaderView::Stretch);
 	}
 
-	m_tableView->verticalHeader()->hide();
-	m_tableView->resizeColumnsToContents();
+	verticalHeader()->hide();
+	resizeColumnsToContents();
 
-	m_tableView->setContextMenuPolicy(Qt::CustomContextMenu);
-	connect(m_tableView, &QTableView::customContextMenuRequested, this, &CDisAsmWnd::ShowContextMenu);
+	setContextMenuPolicy(Qt::CustomContextMenu);
+	connect(this, &QTableView::customContextMenuRequested, this, &CDisAsmWnd::ShowContextMenu);
 
-	m_tableView->setSelectionBehavior(QAbstractItemView::SelectRows);
-	m_tableView->setSelectionMode(QAbstractItemView::ContiguousSelection);
-	connect(m_tableView->selectionModel(), &QItemSelectionModel::selectionChanged, this, &CDisAsmWnd::selectionChanged);
+	setSelectionBehavior(QAbstractItemView::SelectRows);
+	setSelectionMode(QAbstractItemView::ContiguousSelection);
+	connect(selectionModel(), &QItemSelectionModel::selectionChanged, this, &CDisAsmWnd::selectionChanged);
 
 	QAction* copyAction = new QAction("copy", this);
 	copyAction->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_C));
 	connect(copyAction, &QAction::triggered, this, &CDisAsmWnd::OnCopy);
-	m_tableView->addAction(copyAction);
+	addAction(copyAction);
 
 	QAction* breakpointAction = new QAction("breakpoint toggle", this);
 	breakpointAction->setShortcut(QKeySequence(Qt::Key_F9));
 	connect(breakpointAction, &QAction::triggered, this, &CDisAsmWnd::OnListDblClick);
-	m_tableView->addAction(breakpointAction);
+	addAction(breakpointAction);
 
 	QAction* rightArrowAction = new QAction("Right Arrow", this);
 	rightArrowAction->setShortcut(QKeySequence(Qt::Key_Right));
@@ -110,7 +105,7 @@ CDisAsmWnd::CDisAsmWnd(QWidget* parent, CVirtualMachine& virtualMachine, CMIPS* 
 			}
 		}
 	});
-	m_tableView->addAction(rightArrowAction);
+	addAction(rightArrowAction);
 
 	QAction* leftArrowAction = new QAction("Left Arrow", this);
 	leftArrowAction->setShortcut(QKeySequence(Qt::Key_Left));
@@ -121,8 +116,8 @@ CDisAsmWnd::CDisAsmWnd(QWidget* parent, CVirtualMachine& virtualMachine, CMIPS* 
 			SetSelectedAddress(m_address);
 		}
 	});
-	m_tableView->addAction(leftArrowAction);
-	connect(m_tableView, &QTableView::doubleClicked, this, &CDisAsmWnd::OnListDblClick);
+	addAction(leftArrowAction);
+	connect(this, &QTableView::doubleClicked, this, &CDisAsmWnd::OnListDblClick);
 }
 
 CDisAsmWnd::~CDisAsmWnd()
@@ -153,7 +148,7 @@ void CDisAsmWnd::ShowContextMenu(const QPoint& pos)
 	connect(findCallerAction, &QAction::triggered, std::bind(&CDisAsmWnd::FindCallers, this));
 	rightClickMenu->addAction(findCallerAction);
 
-	auto index = m_tableView->currentIndex();
+	auto index = currentIndex();
 	if(index.isValid())
 	{
 		if(m_selected != MIPS_INVALID_PC)
@@ -204,18 +199,18 @@ void CDisAsmWnd::ShowContextMenu(const QPoint& pos)
 		rightClickMenu->addAction(analyseVuction);
 	}
 
-	rightClickMenu->popup(m_tableView->viewport()->mapToGlobal(pos));
+	rightClickMenu->popup(viewport()->mapToGlobal(pos));
 }
 
 void CDisAsmWnd::SetAddress(uint32 address)
 {
-	m_tableView->scrollTo(m_model->index(address / m_instructionSize, 0), QAbstractItemView::PositionAtTop);
+	scrollTo(m_model->index(address / m_instructionSize, 0), QAbstractItemView::PositionAtTop);
 	m_address = address;
 }
 
 void CDisAsmWnd::SetCenterAtAddress(uint32 address)
 {
-	m_tableView->scrollTo(m_model->index(m_address / m_instructionSize, 0), QAbstractItemView::PositionAtCenter);
+	scrollTo(m_model->index(m_address / m_instructionSize, 0), QAbstractItemView::PositionAtCenter);
 	m_address = address;
 }
 
@@ -224,8 +219,8 @@ void CDisAsmWnd::SetSelectedAddress(uint32 address)
 	m_selectionEnd = -1;
 	m_selected = address;
 	auto index = m_model->index(address / m_instructionSize, 0);
-	m_tableView->scrollTo(index, QAbstractItemView::PositionAtTop);
-	m_tableView->setCurrentIndex(index);
+	scrollTo(index, QAbstractItemView::PositionAtTop);
+	setCurrentIndex(index);
 }
 
 void CDisAsmWnd::HandleMachineStateChange()
@@ -471,7 +466,7 @@ void CDisAsmWnd::UpdatePosition(int delta)
 
 void CDisAsmWnd::selectionChanged()
 {
-	auto indexes = m_tableView->selectionModel()->selectedIndexes();
+	auto indexes = selectionModel()->selectedIndexes();
 	if(!indexes.empty())
 	{
 		auto selected = indexes.first().row() * m_instructionSize;

@@ -789,8 +789,8 @@ void QtDebugger::on_actionThreads_triggered()
 
 void QtDebugger::on_actionView_Disassmebly_triggered()
 {
-	GetDisassemblyWindow()->show();
-	GetDisassemblyWindow()->setFocus(Qt::ActiveWindowFocusReason);
+	static_cast<QWidget*>(GetDisassemblyWindow()->parent())->show();
+	static_cast<QWidget*>(GetDisassemblyWindow()->parent())->setFocus(Qt::ActiveWindowFocusReason);
 }
 
 void QtDebugger::on_actionView_Registers_triggered()
