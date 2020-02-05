@@ -69,7 +69,7 @@ void CVu1ProgramView::OnMachineStateChange()
 
 void CVu1ProgramView::OnRunningStateChange()
 {
-	OnRunningStateChange();
+	OnRunningStateChangeMsg();
 }
 
 void CVu1ProgramView::OnMachineStateChangeMsg()
