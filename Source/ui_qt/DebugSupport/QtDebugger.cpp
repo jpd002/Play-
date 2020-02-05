@@ -41,9 +41,13 @@ QtDebugger::QtDebugger(CPS2VM& virtualMachine)
 	m_OnFunctionsStateChangeConnection = m_pFunctionsView->OnFunctionsStateChange.Connect(std::bind(&QtDebugger::OnFunctionsViewFunctionsStateChange, this));
 
 	//Threads View Initialization
-	m_threadsView = new CThreadsViewWnd(ui->mdiArea);
+	auto threadsView = new CThreadsViewWnd(ui->mdiArea);
+	m_threadsView = new QMdiSubWindow(ui->mdiArea);
+	m_threadsView->setWidget(threadsView);
+	m_threadsView->setWindowTitle("Threads");
+
 	m_threadsView->hide();
-	m_OnGotoAddressConnection = m_threadsView->OnGotoAddress.Connect(std::bind(&QtDebugger::OnThreadsViewAddressDblClick, this, std::placeholders::_1));
+	m_OnGotoAddressConnection = threadsView->OnGotoAddress.Connect(std::bind(&QtDebugger::OnThreadsViewAddressDblClick, this, std::placeholders::_1));
 
 	//Address List View Initialization
 	m_addressListView = new CAddressListViewWnd(ui->mdiArea);
@@ -445,7 +449,7 @@ void QtDebugger::ActivateView(unsigned int nView)
 	{
 		auto biosDebugInfoProvider = GetCurrentView()->GetBiosDebugInfoProvider();
 		m_pFunctionsView->SetContext(GetCurrentView()->GetContext(), biosDebugInfoProvider);
-		m_threadsView->SetContext(GetCurrentView()->GetContext(), biosDebugInfoProvider);
+		static_cast<CThreadsViewWnd*>(m_threadsView->widget())->SetContext(GetCurrentView()->GetContext(), biosDebugInfoProvider);
 	}
 
 	if(GetDisassemblyWindow()->isVisible())
@@ -666,7 +670,7 @@ void QtDebugger::OnMachineStateChange()
 	{
 		view->HandleMachineStateChange();
 	}
-	m_threadsView->HandleMachineStateChange();
+	static_cast<CThreadsViewWnd*>(m_threadsView->widget())->HandleMachineStateChange();
 }
 
 void QtDebugger::OnRunningStateChange()
@@ -676,7 +680,7 @@ void QtDebugger::OnRunningStateChange()
 	{
 		view->HandleRunningStateChange(newState);
 	}
-	m_threadsView->HandleRunningStateChange(newState);
+	static_cast<CThreadsViewWnd*>(m_threadsView->widget())->HandleRunningStateChange(newState);
 }
 
 void QtDebugger::LoadDebugTags()

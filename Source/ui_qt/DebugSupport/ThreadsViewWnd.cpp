@@ -5,39 +5,32 @@
 #include "DebugUtils.h"
 #include "QtDialogListWidget.h"
 
-CThreadsViewWnd::CThreadsViewWnd(QMdiArea* parent)
-    : QMdiSubWindow(parent)
+CThreadsViewWnd::CThreadsViewWnd(QWidget* parent)
+    : QTableView(parent)
     , m_context(nullptr)
     , m_biosDebugInfoProvider(nullptr)
 {
-
 	resize(300, 700);
-
-	parent->addSubWindow(this);
-	setWindowTitle("Threads");
-
-	m_tableView = new QTableView(this);
-	setWidget(m_tableView);
-	m_tableView->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+	setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 
 	std::vector<std::string> headers = {"Id", "Priority", "Location", "State"};
-	m_model = new CQtGenericTableModel(m_tableView, {"Id", "Priority", "Location", "State"});
-	m_tableView->setModel(m_model);
-	auto header = m_tableView->horizontalHeader();
+	m_model = new CQtGenericTableModel(this, {"Id", "Priority", "Location", "State"});
+	setModel(m_model);
+	auto header = horizontalHeader();
 	header->setSectionResizeMode(0, QHeaderView::ResizeToContents);
 	header->setSectionResizeMode(1, QHeaderView::Interactive);
 	header->setSectionResizeMode(2, QHeaderView::Stretch);
 	header->setSectionResizeMode(3, QHeaderView::Stretch);
-	m_tableView->verticalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
-	m_tableView->verticalHeader()->hide();
-	m_tableView->setSelectionBehavior(QAbstractItemView::SelectRows);
+	verticalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
+	verticalHeader()->hide();
+	setSelectionBehavior(QAbstractItemView::SelectRows);
 
 	QString text("Priority");
-	QFontMetrics fm = m_tableView->fontMetrics();
+	QFontMetrics fm = fontMetrics();
 	int width = fm.width(text);
 	header->resizeSection(1, width);
 
-	connect(m_tableView, &QTableView::doubleClicked, this, &CThreadsViewWnd::tableDoubleClick);
+	connect(this, &QTableView::doubleClicked, this, &CThreadsViewWnd::tableDoubleClick);
 }
 
 void CThreadsViewWnd::HandleMachineStateChange()

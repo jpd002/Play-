@@ -1,7 +1,6 @@
 #pragma once
 
-#include <QMdiArea>
-#include <QMdiSubWindow>
+#include <QWidget>
 #include <QTableView>
 #include "QtGenericTableModel.h"
 
@@ -11,10 +10,10 @@
 #include "Types.h"
 #include "VirtualMachineStateView.h"
 
-class CThreadsViewWnd : public QMdiSubWindow, public CVirtualMachineStateView
+class CThreadsViewWnd : public QTableView, public CVirtualMachineStateView
 {
 public:
-	CThreadsViewWnd(QMdiArea*);
+	CThreadsViewWnd(QWidget*);
 	virtual ~CThreadsViewWnd() = default;
 
 	void HandleMachineStateChange() override;

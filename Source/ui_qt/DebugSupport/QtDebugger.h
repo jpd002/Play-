@@ -134,7 +134,7 @@ private:
 
 	CELFView* m_pELFView = nullptr;
 	CFunctionsView* m_pFunctionsView = nullptr;
-	CThreadsViewWnd* m_threadsView = nullptr;
+	QMdiSubWindow* m_threadsView = nullptr;
 	CDebugView* m_pView[DEBUGVIEW_MAX];
 	CAddressListViewWnd* m_addressListView = nullptr;
 	unsigned int m_nCurrentView;
