@@ -45,7 +45,7 @@ private:
 	CVirtualMachine& m_virtualMachine;
 	CMIPS* m_ctx;
 	QMdiSubWindow* m_disAsmWnd;
-	CMemoryViewMIPSWnd* m_memoryViewWnd;
+	QMdiSubWindow* m_memoryViewWnd;
 	CRegViewWnd* m_regViewWnd;
 	CCallStackWnd* m_callStackWnd;
 	StepFunction m_stepFunction;

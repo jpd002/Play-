@@ -1,6 +1,6 @@
 #pragma once
 
-#include <QMdiArea>
+#include <QWidget>
 #include <QMdiSubWindow>
 #include <QLineEdit>
 
@@ -15,10 +15,10 @@ namespace Ui
 	class CMemoryViewMIPSWnd;
 }
 
-class CMemoryViewMIPSWnd : public QMdiSubWindow, public CVirtualMachineStateView
+class CMemoryViewMIPSWnd : public QWidget, public CVirtualMachineStateView
 {
 public:
-	CMemoryViewMIPSWnd(QMdiArea*, CVirtualMachine&, CMIPS*, int);
+	CMemoryViewMIPSWnd(QWidget*, CVirtualMachine&, CMIPS*, int);
 	~CMemoryViewMIPSWnd();
 
 	void HandleMachineStateChange() override;
@@ -34,9 +34,6 @@ private:
 	void UpdateStatusBar(uint32);
 
 	Ui::CMemoryViewMIPSWnd* ui;
-
-	QLineEdit* m_addressEdit;
-	CMemoryViewTable* m_tableView;
 
 	Framework::CSignal<void(uint32)>::Connection m_OnSelectionChangeConnection;
 };

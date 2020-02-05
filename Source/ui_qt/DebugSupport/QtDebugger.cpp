@@ -387,8 +387,8 @@ void QtDebugger::Layout1024()
 	GetRegisterViewWindow()->setGeometry(700, 0, 324, 572);
 	GetRegisterViewWindow()->show();
 
-	GetMemoryViewWindow()->setGeometry(0, 435, 700, 265);
-	GetMemoryViewWindow()->show();
+	static_cast<QWidget*>(GetMemoryViewWindow()->parent())->setGeometry(0, 435, 700, 265);
+	static_cast<QWidget*>(GetMemoryViewWindow()->parent())->show();
 
 	GetCallStackWindow()->setGeometry(700, 572, 324, 128);
 	GetCallStackWindow()->show();
@@ -402,8 +402,8 @@ void QtDebugger::Layout1280()
 	GetRegisterViewWindow()->setGeometry(900, 0, 380, 784);
 	GetRegisterViewWindow()->show();
 
-	GetMemoryViewWindow()->setGeometry(0, 540, 900, 416);
-	GetMemoryViewWindow()->show();
+	static_cast<QWidget*>(GetMemoryViewWindow()->parent())->setGeometry(0, 540, 900, 416);
+	static_cast<QWidget*>(GetMemoryViewWindow()->parent())->show();
 
 	GetCallStackWindow()->setGeometry(900, 784, 380, 172);
 	GetCallStackWindow()->show();
@@ -417,8 +417,8 @@ void QtDebugger::Layout1600()
 	GetRegisterViewWindow()->setGeometry(1094, 0, 506, 725);
 	GetRegisterViewWindow()->show();
 
-	GetMemoryViewWindow()->setGeometry(0, 725, 1094, 407);
-	GetMemoryViewWindow()->show();
+	static_cast<QWidget*>(GetMemoryViewWindow()->parent())->setGeometry(0, 725, 1094, 407);
+	static_cast<QWidget*>(GetMemoryViewWindow()->parent())->show();
 
 	GetCallStackWindow()->setGeometry(1094, 725, 506, 407);
 	GetCallStackWindow()->show();
@@ -473,7 +473,7 @@ void QtDebugger::SaveViewLayout()
 	                        "debugger.regview.sizey",
 	                        "debugger.regview.visible");
 
-	SerializeWindowGeometry(GetMemoryViewWindow(),
+	SerializeWindowGeometry(static_cast<QWidget*>(GetMemoryViewWindow()->parent()),
 	                        "debugger.memoryview.posx",
 	                        "debugger.memoryview.posy",
 	                        "debugger.memoryview.sizex",
@@ -504,7 +504,7 @@ void QtDebugger::LoadViewLayout()
 	                          "debugger.regview.sizey",
 	                          "debugger.regview.visible");
 
-	UnserializeWindowGeometry(GetMemoryViewWindow(),
+	UnserializeWindowGeometry(static_cast<QWidget*>(GetMemoryViewWindow()->parent()),
 	                          "debugger.memoryview.posx",
 	                          "debugger.memoryview.posy",
 	                          "debugger.memoryview.sizex",

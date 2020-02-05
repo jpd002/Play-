@@ -13,15 +13,12 @@
 #include "ui_MemoryViewMIPSWnd.h"
 #include "DebugExpressionEvaluator.h"
 
-CMemoryViewMIPSWnd::CMemoryViewMIPSWnd(QMdiArea* parent, CVirtualMachine& virtualMachine, CMIPS* ctx, int size)
-    : QMdiSubWindow(parent)
+CMemoryViewMIPSWnd::CMemoryViewMIPSWnd(QWidget* parent, CVirtualMachine& virtualMachine, CMIPS* ctx, int size)
+    : QWidget(parent)
     , ui(new Ui::CMemoryViewMIPSWnd)
 {
 	ui->setupUi(this);
 
-	parent->addSubWindow(this);
-
-	setWidget(ui->centralWidget);
 	auto getByte = [ctx](uint32 address) {
 		return ctx->m_pMemoryMap->GetByte(address);
 	};
@@ -40,13 +37,13 @@ CMemoryViewMIPSWnd::~CMemoryViewMIPSWnd()
 
 void CMemoryViewMIPSWnd::showEvent(QShowEvent* evt)
 {
-	QMdiSubWindow::showEvent(evt);
+	QWidget::showEvent(evt);
 	ui->tableView->ShowEvent();
 }
 
 void CMemoryViewMIPSWnd::resizeEvent(QResizeEvent* evt)
 {
-	QMdiSubWindow::resizeEvent(evt);
+	QWidget::resizeEvent(evt);
 	ui->tableView->ResizeEvent();
 }
 

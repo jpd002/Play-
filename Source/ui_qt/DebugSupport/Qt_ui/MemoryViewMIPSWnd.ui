@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
  <class>CMemoryViewMIPSWnd</class>
- <widget class="QMdiSubWindow" name="CMemoryViewMIPSWnd">
+ <widget class="QWidget" name="CMemoryViewMIPSWnd">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -9,9 +9,6 @@
     <width>320</width>
     <height>240</height>
    </rect>
-  </property>
-  <property name="windowTitle">
-   <string>Memory</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
    <item row="0" column="0">
@@ -40,12 +37,6 @@
   </layout>
  </widget>
  <customwidgets>
-  <customwidget>
-   <class>QMdiSubWindow</class>
-   <extends>QWidget</extends>
-   <header>qmdisubwindow.h</header>
-   <container>1</container>
-  </customwidget>
   <customwidget>
    <class>CMemoryViewTable</class>
    <extends>QTableView</extends>
