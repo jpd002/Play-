@@ -46,7 +46,7 @@ private:
 	CMIPS* m_ctx;
 	QMdiSubWindow* m_disAsmWnd;
 	QMdiSubWindow* m_memoryViewWnd;
-	CRegViewWnd* m_regViewWnd;
+	QMdiSubWindow* m_regViewWnd;
 	QMdiSubWindow* m_callStackWnd;
 	StepFunction m_stepFunction;
 	CBiosDebugInfoProvider* m_biosDebugInfoProvider;

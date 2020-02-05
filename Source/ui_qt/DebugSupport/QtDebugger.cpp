@@ -384,8 +384,8 @@ void QtDebugger::Layout1024()
 	static_cast<QWidget*>(GetDisassemblyWindow()->parent())->setGeometry(0, 0, 700, 435);
 	static_cast<QWidget*>(GetDisassemblyWindow()->parent())->show();
 
-	GetRegisterViewWindow()->setGeometry(700, 0, 324, 572);
-	GetRegisterViewWindow()->show();
+	static_cast<QWidget*>(GetRegisterViewWindow()->parent())->setGeometry(700, 0, 324, 572);
+	static_cast<QWidget*>(GetRegisterViewWindow()->parent())->show();
 
 	static_cast<QWidget*>(GetMemoryViewWindow()->parent())->setGeometry(0, 435, 700, 265);
 	static_cast<QWidget*>(GetMemoryViewWindow()->parent())->show();
@@ -399,8 +399,8 @@ void QtDebugger::Layout1280()
 	static_cast<QWidget*>(GetDisassemblyWindow()->parent())->setGeometry(0, 0, 900, 540);
 	static_cast<QWidget*>(GetDisassemblyWindow()->parent())->show();
 
-	GetRegisterViewWindow()->setGeometry(900, 0, 380, 784);
-	GetRegisterViewWindow()->show();
+	static_cast<QWidget*>(GetRegisterViewWindow()->parent())->setGeometry(900, 0, 380, 784);
+	static_cast<QWidget*>(GetRegisterViewWindow()->parent())->show();
 
 	static_cast<QWidget*>(GetMemoryViewWindow()->parent())->setGeometry(0, 540, 900, 416);
 	static_cast<QWidget*>(GetMemoryViewWindow()->parent())->show();
@@ -414,8 +414,8 @@ void QtDebugger::Layout1600()
 	static_cast<QWidget*>(GetDisassemblyWindow()->parent())->setGeometry(0, 0, 1094, 725);
 	static_cast<QWidget*>(GetDisassemblyWindow()->parent())->show();
 
-	GetRegisterViewWindow()->setGeometry(1094, 0, 506, 725);
-	GetRegisterViewWindow()->show();
+	static_cast<QWidget*>(GetRegisterViewWindow()->parent())->setGeometry(1094, 0, 506, 725);
+	static_cast<QWidget*>(GetRegisterViewWindow()->parent())->show();
 
 	static_cast<QWidget*>(GetMemoryViewWindow()->parent())->setGeometry(0, 725, 1094, 407);
 	static_cast<QWidget*>(GetMemoryViewWindow()->parent())->show();
@@ -466,7 +466,7 @@ void QtDebugger::SaveViewLayout()
 	                        "debugger.disasm.sizey",
 	                        "debugger.disasm.visible");
 
-	SerializeWindowGeometry(GetRegisterViewWindow(),
+	SerializeWindowGeometry(static_cast<QWidget*>(GetRegisterViewWindow()->parent()),
 	                        "debugger.regview.posx",
 	                        "debugger.regview.posy",
 	                        "debugger.regview.sizex",
@@ -497,7 +497,7 @@ void QtDebugger::LoadViewLayout()
 	                          "debugger.disasm.sizey",
 	                          "debugger.disasm.visible");
 
-	UnserializeWindowGeometry(GetRegisterViewWindow(),
+	UnserializeWindowGeometry(static_cast<QWidget*>(GetRegisterViewWindow()->parent()),
 	                          "debugger.regview.posx",
 	                          "debugger.regview.posy",
 	                          "debugger.regview.sizex",
@@ -795,8 +795,8 @@ void QtDebugger::on_actionView_Disassmebly_triggered()
 
 void QtDebugger::on_actionView_Registers_triggered()
 {
-	GetRegisterViewWindow()->show();
-	GetRegisterViewWindow()->setFocus(Qt::ActiveWindowFocusReason);
+	static_cast<QWidget*>(GetRegisterViewWindow()->parent())->show();
+	static_cast<QWidget*>(GetRegisterViewWindow()->parent())->setFocus(Qt::ActiveWindowFocusReason);
 }
 
 void QtDebugger::on_actionMemory_triggered()

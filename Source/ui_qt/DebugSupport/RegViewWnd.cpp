@@ -4,27 +4,22 @@
 #include "RegViewFPU.h"
 #include "RegViewVU.h"
 
-CRegViewWnd::CRegViewWnd(QMdiArea* parent, CMIPS* ctx)
-    : QMdiSubWindow(parent)
-    , m_tab(new QTabWidget(parent))
+CRegViewWnd::CRegViewWnd(QWidget* parent, CMIPS* ctx)
+    : QTabWidget(parent)
 {
-
-	parent->addSubWindow(this);
-	setWindowTitle("Registers");
 	resize(320, 700);
 
-	setWidget(m_tab);
-	m_tab->setTabPosition(QTabWidget::South);
+	setTabPosition(QTabWidget::South);
 
-	m_regView[0] = new CRegViewGeneral(m_tab, ctx);
-	m_regView[1] = new CRegViewSCU(m_tab, ctx);
-	m_regView[2] = new CRegViewFPU(m_tab, ctx);
-	m_regView[3] = new CRegViewVU(m_tab, ctx);
+	m_regView[0] = new CRegViewGeneral(this, ctx);
+	m_regView[1] = new CRegViewSCU(this, ctx);
+	m_regView[2] = new CRegViewFPU(this, ctx);
+	m_regView[3] = new CRegViewVU(this, ctx);
 
-	m_tab->addTab(m_regView[0], "General");
-	m_tab->addTab(m_regView[1], "SCU");
-	m_tab->addTab(m_regView[2], "FPU");
-	m_tab->addTab(m_regView[3], "VU");
+	addTab(m_regView[0], "General");
+	addTab(m_regView[1], "SCU");
+	addTab(m_regView[2], "FPU");
+	addTab(m_regView[3], "VU");
 }
 
 CRegViewWnd::~CRegViewWnd()
