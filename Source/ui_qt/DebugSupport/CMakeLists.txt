@@ -57,24 +57,14 @@ set(SRC_FILES
 	${SRC_ROOT}/ELFSymbolView.h
 	${SRC_ROOT}/ELFView.cpp
 	${SRC_ROOT}/ELFView.h
-	# ${SRC_ROOT}/ElfViewRes.h
-	# ${SRC_ROOT}/FrameDebugger/FrameDebugger.cpp
-	# ${SRC_ROOT}/FrameDebugger/FrameDebugger.h	
 	${SRC_ROOT}/FrameDebugger/GifPacketView.cpp
 	${SRC_ROOT}/FrameDebugger/GifPacketView.h
 	${SRC_ROOT}/FrameDebugger/GsContextView.cpp
 	${SRC_ROOT}/FrameDebugger/GsContextView.h
-	# ${SRC_ROOT}/FrameDebugger/GsInputStateView.cpp
-	# ${SRC_ROOT}/FrameDebugger/GsInputStateView.h
-	# ${SRC_ROOT}/FrameDebugger/GsPacketListView.cpp
-	# ${SRC_ROOT}/FrameDebugger/GsPacketListView.h
-
 	${SRC_ROOT}/FrameDebugger/GsPacketListModel.cpp
 	${SRC_ROOT}/FrameDebugger/GsPacketListModel.h
-
 	${SRC_ROOT}/FrameDebugger/GsPacketData.cpp
 	${SRC_ROOT}/FrameDebugger/GsPacketData.h
-
 	${SRC_ROOT}/FrameDebugger/GSH_OpenGLQt_Framedebugger.cpp
 	${SRC_ROOT}/FrameDebugger/GSH_OpenGLQt_Framedebugger.h
 	${SRC_ROOT}/FrameDebugger/GsStateUtils.cpp
