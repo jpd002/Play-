@@ -24,7 +24,6 @@ public:
 
 	void FitBitmap();
 	void OnSaveBitmap();
-	bool m_init = false;
 
 protected:
 	void showEvent(QShowEvent*) Q_DECL_OVERRIDE;

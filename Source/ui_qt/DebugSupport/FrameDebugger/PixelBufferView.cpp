@@ -34,11 +34,9 @@ CPixelBufferView::CPixelBufferView(QWidget* parent, QComboBox* contextBuffer)
 	layout->addWidget(container);
 
 	m_openglpanel->create();
-	{
-		m_gs = std::make_unique<CGSH_OpenGLFramedebugger>(m_openglpanel);
-		m_gs->InitializeImpl();
-		m_gs->PrepareFramedebugger();
-	}
+	m_gs = std::make_unique<CGSH_OpenGLFramedebugger>(m_openglpanel);
+	m_gs->InitializeImpl();
+	m_gs->PrepareFramedebugger();
 
 	connect(m_openglpanel, &QWindow::widthChanged, this, &CPixelBufferView::Refresh);
 
@@ -66,13 +64,6 @@ void CPixelBufferView::showEvent(QShowEvent* event)
 void CPixelBufferView::paintEvent(QPaintEvent* event)
 {
 	QWidget::paintEvent(event);
-	if(!m_gs)
-	{
-		m_gs = std::make_unique<CGSH_OpenGLFramedebugger>(m_openglpanel);
-		m_gs->InitializeImpl();
-		m_gs->PrepareFramedebugger();
-		m_init = true;
-	}
 	Refresh();
 }
 
