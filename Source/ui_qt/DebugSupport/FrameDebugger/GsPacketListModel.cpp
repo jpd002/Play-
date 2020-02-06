@@ -7,13 +7,13 @@
 
 PacketTreeModel::PacketTreeModel(QWidget* parent)
     : QAbstractItemModel(parent)
-    , rootItem(new GsPacketData("Packets", 0))
+    , m_rootItem(new GsPacketData("Packets", 0))
 {
 }
 
 PacketTreeModel::~PacketTreeModel()
 {
-	delete rootItem;
+	delete m_rootItem;
 }
 
 int PacketTreeModel::columnCount(const QModelIndex& parent) const
@@ -45,7 +45,7 @@ Qt::ItemFlags PacketTreeModel::flags(const QModelIndex& index) const
 QVariant PacketTreeModel::headerData(int section, Qt::Orientation orientation, int role) const
 {
 	if(orientation == Qt::Horizontal && role == Qt::DisplayRole)
-		return rootItem->data(section);
+		return m_rootItem->data(section);
 
 	return QVariant();
 }
@@ -58,7 +58,7 @@ QModelIndex PacketTreeModel::index(int row, int column, const QModelIndex& paren
 	GsPacketData* parentItem;
 
 	if(!parent.isValid())
-		parentItem = rootItem;
+		parentItem = m_rootItem;
 	else
 		parentItem = static_cast<GsPacketData*>(parent.internalPointer());
 
@@ -76,7 +76,7 @@ QModelIndex PacketTreeModel::parent(const QModelIndex& index) const
 	GsPacketData* childItem = static_cast<GsPacketData*>(index.internalPointer());
 	GsPacketData* parentItem = childItem->parent();
 
-	if(parentItem == rootItem)
+	if(parentItem == m_rootItem)
 		return QModelIndex();
 
 	return createIndex(parentItem->row(), 0, parentItem);
@@ -89,7 +89,7 @@ int PacketTreeModel::rowCount(const QModelIndex& parent) const
 		return 0;
 
 	if(!parent.isValid())
-		parentItem = rootItem;
+		parentItem = m_rootItem;
 	else
 		parentItem = static_cast<GsPacketData*>(parent.internalPointer());
 
@@ -120,8 +120,8 @@ void PacketTreeModel::setupModelData(CFrameDump& m_frameDump)
 			packetDescription = string_format("%d: Image Packet (Size: 0x%08X)", packetIndex, packet.imageData.size());
 		}
 
-		auto parent = new GsPacketData(packetDescription.c_str(), cmdIndex, rootItem);
-		rootItem->appendChild(parent);
+		auto parent = new GsPacketData(packetDescription.c_str(), cmdIndex, m_rootItem);
+		m_rootItem->appendChild(parent);
 
 		QVector<QVariant> columnData;
 		columnData.reserve(packet.registerWrites.size());

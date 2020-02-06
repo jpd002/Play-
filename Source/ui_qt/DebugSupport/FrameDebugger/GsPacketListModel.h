@@ -28,5 +28,5 @@ public:
 	void setupModelData(CFrameDump&);
 
 private:
-	GsPacketData* rootItem;
+	GsPacketData* m_rootItem;
 };
