@@ -118,8 +118,7 @@ set(QT_DEBUGGER_MOC_HEADERS
 	${SRC_ROOT}/QtMemoryViewModel.h
 	${SRC_ROOT}/Framedebugger/QtFramedebugger.h
 	${SRC_ROOT}/FrameDebugger/GsPacketListModel.h
-
-
+	${SRC_ROOT}/FrameDebugger/Vu1ProgramView.h
 )
 
 set(QT_DEBUGGER_UI

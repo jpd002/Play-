@@ -60,6 +60,12 @@ private slots:
 	void on_actionVector_Unit_1_triggered();
 	void on_actionIOP_View_triggered();
 
+signals:
+	void OnExecutableChange();
+	void OnExecutableUnloading();
+	void OnMachineStateChange();
+	void OnRunningStateChange();
+
 private:
 	Ui::QtDebugger* ui;
 
@@ -113,10 +119,10 @@ private:
 	void OnFunctionsViewFunctionDblClick(uint32);
 	void OnFunctionsViewFunctionsStateChange();
 	void OnThreadsViewAddressDblClick(uint32);
-	void OnExecutableChange();
-	void OnExecutableUnloading();
-	void OnMachineStateChange();
-	void OnRunningStateChange();
+	void OnExecutableChangeMsg();
+	void OnExecutableUnloadingMsg();
+	void OnMachineStateChangeMsg();
+	void OnRunningStateChangeMsg();
 	void OnFindCallersRequested(uint32);
 	void OnFindCallersAddressDblClick(uint32);
 

@@ -79,6 +79,11 @@ QtDebugger::QtDebugger(CPS2VM& virtualMachine)
 	{
 		GetDisassemblyWindow()->setFocus(Qt::ActiveWindowFocusReason);
 	}
+
+	connect(this, &QtDebugger::OnMachineStateChange, this, &QtDebugger::OnMachineStateChangeMsg);
+	connect(this, &QtDebugger::OnRunningStateChange, this, &QtDebugger::OnRunningStateChangeMsg);
+	connect(this, &QtDebugger::OnExecutableChange, this, &QtDebugger::OnExecutableChangeMsg);
+	connect(this, &QtDebugger::OnExecutableUnloading, this, &QtDebugger::OnExecutableUnloadingMsg);
 }
 
 QtDebugger::~QtDebugger()
@@ -647,7 +652,7 @@ void QtDebugger::OnFindCallersAddressDblClick(uint32 address)
 	disAsm->SetSelectedAddress(address);
 }
 
-void QtDebugger::OnExecutableChange()
+void QtDebugger::OnExecutableChangeMsg()
 {
 	m_pELFView->SetELF(m_virtualMachine.m_ee->m_os->GetELF());
 
@@ -658,13 +663,13 @@ void QtDebugger::OnExecutableChange()
 	m_pFunctionsView->Refresh();
 }
 
-void QtDebugger::OnExecutableUnloading()
+void QtDebugger::OnExecutableUnloadingMsg()
 {
 	SaveDebugTags();
 	m_pELFView->SetELF(NULL);
 }
 
-void QtDebugger::OnMachineStateChange()
+void QtDebugger::OnMachineStateChangeMsg()
 {
 	for(auto& view : m_pView)
 	{
@@ -673,7 +678,7 @@ void QtDebugger::OnMachineStateChange()
 	static_cast<CThreadsViewWnd*>(m_threadsView->widget())->HandleMachineStateChange();
 }
 
-void QtDebugger::OnRunningStateChange()
+void QtDebugger::OnRunningStateChangeMsg()
 {
 	auto newState = m_virtualMachine.GetStatus();
 	for(auto& view : m_pView)

@@ -42,6 +42,9 @@ CVu1ProgramView::CVu1ProgramView(QWidget* parent, CVu1Vm& virtualMachine)
 	m_packetView = std::make_unique<CGifPacketView>(this);
 	tab->addTab(m_memoryView.get(), "VU Memory");
 	tab->addTab(m_packetView.get(), "Packet");
+
+	connect(this, &CVu1ProgramView::OnMachineStateChange, this, &CVu1ProgramView::OnMachineStateChangeMsg);
+	connect(this, &CVu1ProgramView::OnRunningStateChange, this, &CVu1ProgramView::OnRunningStateChangeMsg);
 }
 
 void CVu1ProgramView::UpdateState(CGSHandler* gs, CGsPacketMetadata* metadata, DRAWINGKICK_INFO*)
@@ -54,22 +57,12 @@ void CVu1ProgramView::UpdateState(CGSHandler* gs, CGsPacketMetadata* metadata, D
 	m_virtualMachine.SetVpu1Itop(metadata->vpu1Itop);
 	m_vuMemPacketAddress = metadata->vuMemPacketAddress;
 #endif
-	OnMachineStateChangeMsg();
+	OnMachineStateChange();
 }
 
 void CVu1ProgramView::StepVu1()
 {
 	m_virtualMachine.StepVu1();
-}
-
-void CVu1ProgramView::OnMachineStateChange()
-{
-	OnMachineStateChangeMsg();
-}
-
-void CVu1ProgramView::OnRunningStateChange()
-{
-	OnRunningStateChangeMsg();
 }
 
 void CVu1ProgramView::OnMachineStateChangeMsg()

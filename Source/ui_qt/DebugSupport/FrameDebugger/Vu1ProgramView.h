@@ -11,6 +11,8 @@
 
 class CVu1ProgramView : public QWidget
 {
+	Q_OBJECT
+
 public:
 	CVu1ProgramView(QWidget*, CVu1Vm&);
 	virtual ~CVu1ProgramView() = default;
@@ -19,10 +21,11 @@ public:
 
 	void StepVu1();
 
-private:
+signals:
 	void OnMachineStateChange();
 	void OnRunningStateChange();
 
+private:
 	void OnMachineStateChangeMsg();
 	void OnRunningStateChangeMsg();
 
