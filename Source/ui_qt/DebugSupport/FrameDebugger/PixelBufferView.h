@@ -23,6 +23,7 @@ public:
 	void SetPixelBuffers(PixelBufferArray);
 
 	void FitBitmap();
+	void OnSaveBitmap();
 	bool m_init = false;
 
 protected:
@@ -45,7 +46,6 @@ private:
 	const PixelBuffer* GetSelectedPixelBuffer();
 	void CreateSelectedPixelBufferTexture();
 
-	void OnSaveBitmap();
 	static Framework::CBitmap ConvertBGRToRGB(Framework::CBitmap);
 
 	void DrawCheckerboard();

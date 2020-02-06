@@ -19,7 +19,7 @@ public:
 		FB_DISPLAY_MODE_448I
 	};
 
-	CGsContextView(QWidget*, QComboBox*, QPushButton*, CGSHandler*, unsigned int);
+	CGsContextView(QWidget*, QComboBox*, QPushButton*, QPushButton*, CGSHandler*, unsigned int);
 	virtual ~CGsContextView() = default;
 
 	void SetFbDisplayMode(FB_DISPLAY_MODE);

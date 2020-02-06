@@ -17,7 +17,7 @@ enum TAB_IDS
 	TAB_ID_TEXTURE_MIP6
 };
 
-CGsContextView::CGsContextView(QWidget* parent, QComboBox* contextBuffer, QPushButton* fitButton, CGSHandler* gs, unsigned int contextId)
+CGsContextView::CGsContextView(QWidget* parent, QComboBox* contextBuffer, QPushButton* fitButton, QPushButton* saveButton, CGSHandler* gs, unsigned int contextId)
     : QWidget(parent)
     , m_contextId(contextId)
     , m_gs(gs)
@@ -30,6 +30,9 @@ CGsContextView::CGsContextView(QWidget* parent, QComboBox* contextBuffer, QPushB
 
 	connect(fitButton, &QPushButton::clicked, [&]() {
 		m_bufferView->FitBitmap();
+	});
+		connect(saveButton, &QPushButton::clicked, [&]() {
+		m_bufferView->OnSaveBitmap();
 	});
 }
 
