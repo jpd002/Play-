@@ -355,14 +355,17 @@ void QtFramedebugger::UpdateCurrentTab()
 
 int QtFramedebugger::GetCurrentCmdIndex()
 {
-	auto indexes = ui->treeView->selectionModel()->selectedIndexes();
-	if(!indexes.empty())
+	if(ui->treeView->selectionModel())
 	{
-		auto index = indexes.first();
-		if(index.isValid())
+		auto indexes = ui->treeView->selectionModel()->selectedIndexes();
+		if(!indexes.empty())
 		{
-			auto cmdindex = static_cast<GsPacketData*>(index.internalPointer())->GetCmdIndex();
-			return cmdindex;
+			auto index = indexes.first();
+			if(index.isValid())
+			{
+				auto cmdindex = static_cast<GsPacketData*>(index.internalPointer())->GetCmdIndex();
+				return cmdindex;
+			}
 		}
 	}
 	return -1;
