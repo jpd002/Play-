@@ -36,7 +36,6 @@ set(SRC_FILES
 	${SRC_ROOT}/DebugExpressionEvaluator.h
 	${SRC_ROOT}/AddressListViewWnd.cpp
 	${SRC_ROOT}/AddressListViewWnd.h
-	
 	${SRC_ROOT}/DebugUtils.cpp
 	${SRC_ROOT}/DebugUtils.h
 	${SRC_ROOT}/DebugView.cpp
@@ -45,8 +44,6 @@ set(SRC_FILES
 	${SRC_ROOT}/DisAsmWnd.h
 	${SRC_ROOT}/FunctionsView.cpp
 	${SRC_ROOT}/FunctionsView.h
-	# ${SRC_ROOT}/DirectXControl.cpp
-	# ${SRC_ROOT}/DirectXControl.h
 	${SRC_ROOT}/ELFHeaderView.cpp
 	${SRC_ROOT}/ELFHeaderView.h
 	${SRC_ROOT}/ELFProgramView.cpp
@@ -81,8 +78,6 @@ set(SRC_FILES
 	${SRC_ROOT}/MemoryViewTable.h
 	${SRC_ROOT}/QtMemoryViewModel.cpp
 	${SRC_ROOT}/QtMemoryViewModel.h
-	# ${SRC_ROOT}/OptionWnd.cpp
-	# ${SRC_ROOT}/OptionWnd.h
 	${SRC_ROOT}/RegViewFPU.cpp
 	${SRC_ROOT}/RegViewFPU.h
 	${SRC_ROOT}/RegViewGeneral.cpp
@@ -122,8 +117,8 @@ set(QT_DEBUGGER_MOC_HEADERS
 )
 
 set(QT_DEBUGGER_UI
-        ${SRC_ROOT}/Qt_ui/AddressListViewWnd.ui
-        ${SRC_ROOT}/Qt_ui/MemoryViewMIPSWnd.ui
+	${SRC_ROOT}/Qt_ui/AddressListViewWnd.ui
+	${SRC_ROOT}/Qt_ui/MemoryViewMIPSWnd.ui
 
 	${SRC_ROOT}/Qt_ui/QtDebugger.ui
 	${SRC_ROOT}/Qt_ui/QtDialogListWidget.ui
