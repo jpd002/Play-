@@ -23,5 +23,6 @@ private:
 
 	INTEGER_BRANCH_DELAY_INFO GetIntegerBranchDelayInfo() const;
 	bool CheckIsSpecialIntegerLoop(unsigned int) const;
+	std::vector<uint32> GetBlockCompileHints() const;
 	static void EmitXgKick(CMipsJitter*);
 };
