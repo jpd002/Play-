@@ -14,7 +14,7 @@ class CELFSymbolView : public QWidget
 
 public:
 	CELFSymbolView(QMdiSubWindow*, QLayout*);
-	~CELFSymbolView();
+	~CELFSymbolView() = default;
 
 	void SetELF(CELF*);
 	void Reset();

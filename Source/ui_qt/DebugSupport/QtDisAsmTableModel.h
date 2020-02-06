@@ -16,7 +16,7 @@ public:
 		DISASM_VU
 	};
 	CQtDisAsmTableModel(QObject* parent, CVirtualMachine&, CMIPS*, int);
-	~CQtDisAsmTableModel();
+	~CQtDisAsmTableModel() = default;
 
 	int rowCount(const QModelIndex& parent = QModelIndex()) const Q_DECL_OVERRIDE;
 	int columnCount(const QModelIndex& parent = QModelIndex()) const Q_DECL_OVERRIDE;

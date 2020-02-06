@@ -7,7 +7,7 @@ class CQtGenericTableModel : public QAbstractTableModel
 	Q_OBJECT
 public:
 	CQtGenericTableModel(QObject* parent, std::vector<std::string>);
-	~CQtGenericTableModel();
+	~CQtGenericTableModel() = default;
 
 	int rowCount(const QModelIndex& parent = QModelIndex()) const Q_DECL_OVERRIDE;
 	int columnCount(const QModelIndex& parent = QModelIndex()) const Q_DECL_OVERRIDE;

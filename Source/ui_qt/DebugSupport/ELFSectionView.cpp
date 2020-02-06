@@ -58,10 +58,6 @@ CELFSectionView::CELFSectionView(QMdiSubWindow* parent, QLayout* groupBoxLayout)
 	hide();
 }
 
-CELFSectionView::~CELFSectionView()
-{
-}
-
 void CELFSectionView::SetSection(int section)
 {
 	FillInformation(section);

@@ -14,10 +14,6 @@ CQtDisAsmVuTableModel::CQtDisAsmVuTableModel(QObject* parent, CVirtualMachine& v
 	m_disAsmType = DISASM_TYPE::DISASM_VU;
 }
 
-CQtDisAsmVuTableModel::~CQtDisAsmVuTableModel()
-{
-}
-
 std::string CQtDisAsmVuTableModel::GetInstructionDetails(int index, uint32 address) const
 {
 	assert((address & 0x07) == 0);

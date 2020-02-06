@@ -14,7 +14,7 @@ class CMemoryViewTable : public QTableView, public CVirtualMachineStateView
 {
 public:
 	CMemoryViewTable(QWidget*);
-	~CMemoryViewTable();
+	~CMemoryViewTable() = default;
 
 	void Setup(CVirtualMachine* = nullptr, CMIPS* = nullptr, bool = false);
 

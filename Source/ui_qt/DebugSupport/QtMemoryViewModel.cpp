@@ -19,10 +19,6 @@ CQtMemoryViewModel::CQtMemoryViewModel(QObject* parent, getByteProto getByte, in
 {
 }
 
-CQtMemoryViewModel::~CQtMemoryViewModel()
-{
-}
-
 int CQtMemoryViewModel::rowCount(const QModelIndex& /*parent*/) const
 {
 	return std::ceil((m_size * 1.f) / UnitsForCurrentLine());

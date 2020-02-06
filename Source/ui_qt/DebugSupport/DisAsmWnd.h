@@ -15,7 +15,7 @@ public:
 	typedef Framework::CSignal<void(uint32)> FindCallersRequestedEvent;
 
 	CDisAsmWnd(QWidget*, CVirtualMachine&, CMIPS*, const char*, CQtDisAsmTableModel::DISASM_TYPE, int);
-	virtual ~CDisAsmWnd();
+	virtual ~CDisAsmWnd() = default;
 
 	void HandleMachineStateChange() override;
 	void HandleRunningStateChange(CVirtualMachine::STATUS) override;

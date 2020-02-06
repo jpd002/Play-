@@ -17,7 +17,7 @@ class CELFSectionView : public QWidget
 
 public:
 	CELFSectionView(QMdiSubWindow*, QLayout*);
-	~CELFSectionView();
+	~CELFSectionView() = default;
 
 	void SetELF(CELF*);
 	void SetSection(int);

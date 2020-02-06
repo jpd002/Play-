@@ -18,7 +18,7 @@ class CELFView : public QMdiSubWindow
 
 public:
 	CELFView(QMdiArea*);
-	~CELFView();
+	~CELFView() = default;
 
 	void SetELF(CELF*);
 	void Reset();

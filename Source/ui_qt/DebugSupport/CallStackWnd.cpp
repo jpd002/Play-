@@ -20,10 +20,6 @@ CCallStackWnd::CCallStackWnd(QWidget* parent, CMIPS* context, CBiosDebugInfoProv
 	Update();
 }
 
-CCallStackWnd::~CCallStackWnd()
-{
-}
-
 void CCallStackWnd::HandleMachineStateChange()
 {
 	Update();

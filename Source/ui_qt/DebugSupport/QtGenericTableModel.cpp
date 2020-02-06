@@ -7,10 +7,6 @@ CQtGenericTableModel::CQtGenericTableModel(QObject* parent, std::vector<std::str
 		m_headers.insert(i, QVariant(headers[i].c_str()));
 }
 
-CQtGenericTableModel::~CQtGenericTableModel()
-{
-}
-
 int CQtGenericTableModel::rowCount(const QModelIndex& /*parent*/) const
 {
 	return m_data.size();

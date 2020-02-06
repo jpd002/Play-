@@ -32,10 +32,6 @@ CELFSymbolView::CELFSymbolView(QMdiSubWindow* parent, QLayout* groupBoxLayout)
 	hide();
 }
 
-CELFSymbolView::~CELFSymbolView()
-{
-}
-
 void CELFSymbolView::Reset()
 {
 	m_tableWidget->setRowCount(0);

@@ -15,7 +15,7 @@ public:
 	typedef Framework::CSignal<void(uint32)> OnFunctionDblClickSignal;
 
 	CCallStackWnd(QWidget*, CMIPS*, CBiosDebugInfoProvider*);
-	virtual ~CCallStackWnd();
+	virtual ~CCallStackWnd() = default;
 
 	void HandleMachineStateChange() override;
 

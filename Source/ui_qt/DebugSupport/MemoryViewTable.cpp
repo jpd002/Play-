@@ -38,10 +38,6 @@ CMemoryViewTable::CMemoryViewTable(QWidget* parent)
 	connect(selectionModel(), &QItemSelectionModel::selectionChanged, this, &CMemoryViewTable::SelectionChanged);
 }
 
-CMemoryViewTable::~CMemoryViewTable()
-{
-}
-
 void CMemoryViewTable::Setup(CVirtualMachine* virtualMachine, CMIPS* ctx, bool memoryJumps)
 {
 	m_virtualMachine = virtualMachine;

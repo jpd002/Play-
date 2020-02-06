@@ -14,7 +14,7 @@ class CELFProgramView : public QWidget
 
 public:
 	CELFProgramView(QMdiSubWindow*, QLayout*);
-	~CELFProgramView();
+	~CELFProgramView() = default;
 
 	void SetELF(CELF*);
 	void SetProgram(int);

@@ -14,7 +14,7 @@ class CELFHeaderView : public QWidget
 
 public:
 	CELFHeaderView(QMdiSubWindow*, QLayout*);
-	~CELFHeaderView();
+	~CELFHeaderView() = default;
 
 	void SetELF(CELF*);
 	void Reset();

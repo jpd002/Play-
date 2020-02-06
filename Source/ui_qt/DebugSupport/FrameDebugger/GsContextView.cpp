@@ -33,10 +33,6 @@ CGsContextView::CGsContextView(QWidget* parent, QComboBox* contextBuffer, QPushB
 	});
 }
 
-CGsContextView::~CGsContextView()
-{
-}
-
 void CGsContextView::SetFbDisplayMode(FB_DISPLAY_MODE fbDisplayMode)
 {
 	m_fbDisplayMode = fbDisplayMode;

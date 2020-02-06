@@ -38,10 +38,6 @@ CELFHeaderView::CELFHeaderView(QMdiSubWindow* parent, QLayout* groupBoxLayout)
 	hide();
 }
 
-CELFHeaderView::~CELFHeaderView()
-{
-}
-
 void CELFHeaderView::Reset()
 {
 	for(auto editField : m_editFields)

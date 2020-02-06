@@ -11,7 +11,7 @@ class CGifPacketView : public QTextEdit
 {
 public:
 	CGifPacketView(QWidget*);
-	virtual ~CGifPacketView();
+	virtual ~CGifPacketView() = default;
 
 	void SetPacket(const uint8*, uint32, uint32);
 

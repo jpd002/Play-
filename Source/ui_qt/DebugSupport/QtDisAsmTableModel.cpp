@@ -109,10 +109,6 @@ CQtDisAsmTableModel::CQtDisAsmTableModel(QObject* parent, CVirtualMachine& virtu
 	}
 }
 
-CQtDisAsmTableModel::~CQtDisAsmTableModel()
-{
-}
-
 int CQtDisAsmTableModel::rowCount(const QModelIndex& /*parent*/) const
 {
 	return m_memSize / m_instructionSize;

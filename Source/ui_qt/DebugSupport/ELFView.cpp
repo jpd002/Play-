@@ -37,10 +37,6 @@ CELFView::CELFView(QMdiArea* parent)
 	connect(m_treeWidget, &QTreeWidget::itemSelectionChanged, this, &CELFView::itemSelectionChanged);
 }
 
-CELFView::~CELFView()
-{
-}
-
 void CELFView::Reset()
 {
 	m_pHeaderView->Reset();

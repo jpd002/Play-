@@ -120,10 +120,6 @@ CDisAsmWnd::CDisAsmWnd(QWidget* parent, CVirtualMachine& virtualMachine, CMIPS* 
 	connect(this, &QTableView::doubleClicked, this, &CDisAsmWnd::OnListDblClick);
 }
 
-CDisAsmWnd::~CDisAsmWnd()
-{
-}
-
 void CDisAsmWnd::ShowContextMenu(const QPoint& pos)
 {
 	QMenu* rightClickMenu = new QMenu(this);

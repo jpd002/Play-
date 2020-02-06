@@ -47,10 +47,6 @@ CELFProgramView::CELFProgramView(QMdiSubWindow* parent, QLayout* groupBoxLayout)
 	hide();
 }
 
-CELFProgramView::~CELFProgramView()
-{
-}
-
 void CELFProgramView::Reset()
 {
 	for(auto editField : m_editFields)
