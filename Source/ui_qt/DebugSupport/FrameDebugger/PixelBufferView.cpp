@@ -40,6 +40,8 @@ CPixelBufferView::CPixelBufferView(QWidget *parent, QComboBox* contextBuffer)
 		m_gs->PrepareFramedebugger();
 	}
 
+	connect(m_openglpanel, &QWindow::widthChanged, this, &CPixelBufferView::Refresh);
+
 	m_mouseWheelConnection = static_cast<OpenGLWindow*>(m_openglpanel)->onMouseWheelEvent.Connect([&](QWheelEvent* event)
 	{
 		OnMouseWheel(event);
