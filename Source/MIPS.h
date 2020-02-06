@@ -129,6 +129,7 @@ public:
 	CMIPS(MEMORYMAP_ENDIANESS, bool usePageTable = false);
 	~CMIPS();
 	void ToggleBreakpoint(uint32);
+	bool HasBreakpointInRange(uint32, uint32) const;
 	bool IsBranch(uint32);
 	static int32 GetBranch(uint16);
 	static uint32 TranslateAddress64(CMIPS*, uint32);

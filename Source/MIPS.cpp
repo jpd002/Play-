@@ -76,6 +76,15 @@ void CMIPS::ToggleBreakpoint(uint32 address)
 	m_executor->ClearActiveBlocksInRange(address, address + 4, false);
 }
 
+bool CMIPS::HasBreakpointInRange(uint32 begin, uint32 end) const
+{
+	for(auto breakpointAddress : m_breakpoints)
+	{
+		if((breakpointAddress >= begin) && (breakpointAddress <= end)) return true;
+	}
+	return false;
+}
+
 int32 CMIPS::GetBranch(uint16 nData)
 {
 	if(nData & 0x8000)

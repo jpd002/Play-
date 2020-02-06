@@ -130,24 +130,31 @@ BasicBlockPtr CEeExecutor::BlockFactory(CMIPS& context, uint32 start, uint32 end
 
 	uint32 checksum = crc32(0, reinterpret_cast<Bytef*>(blockMemory), blockSize);
 
-	auto equalRange = m_cachedBlocks.equal_range(checksum);
-	for(; equalRange.first != equalRange.second; ++equalRange.first)
+	bool hasBreakpoint = m_context.HasBreakpointInRange(start, end);
+	if(!hasBreakpoint)
 	{
-		const auto& basicBlock(equalRange.first->second);
-		if(basicBlock->GetBeginAddress() == start)
+		auto equalRange = m_cachedBlocks.equal_range(checksum);
+		for(; equalRange.first != equalRange.second; ++equalRange.first)
 		{
-			if(basicBlock->GetEndAddress() == end)
+			const auto& basicBlock(equalRange.first->second);
+			if(basicBlock->GetBeginAddress() == start)
 			{
-				uint32 recycleCount = basicBlock->GetRecycleCount();
-				basicBlock->SetRecycleCount(std::min<uint32>(RECYCLE_NOLINK_THRESHOLD, recycleCount + 1));
-				return basicBlock;
+				if(basicBlock->GetEndAddress() == end)
+				{
+					uint32 recycleCount = basicBlock->GetRecycleCount();
+					basicBlock->SetRecycleCount(std::min<uint32>(RECYCLE_NOLINK_THRESHOLD, recycleCount + 1));
+					return basicBlock;
+				}
 			}
 		}
 	}
 
 	auto result = std::make_shared<CBasicBlock>(context, start, end);
 	result->Compile();
-	m_cachedBlocks.insert(std::make_pair(checksum, result));
+	if(!hasBreakpoint)
+	{
+		m_cachedBlocks.insert(std::make_pair(checksum, result));
+	}
 	return result;
 }
 

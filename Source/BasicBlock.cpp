@@ -410,11 +410,7 @@ void CBasicBlock::HandleExternalFunctionReference(uintptr_t symbol, uint32 offse
 
 bool CBasicBlock::HasBreakpoint() const
 {
-	for(auto breakpointAddress : m_context.m_breakpoints)
-	{
-		if(breakpointAddress >= GetBeginAddress() && breakpointAddress <= GetEndAddress()) return true;
-	}
-	return false;
+	return m_context.HasBreakpointInRange(GetBeginAddress(), GetEndAddress());
 }
 
 uint32 CBasicBlock::BreakpointFilter(CMIPS* context)
