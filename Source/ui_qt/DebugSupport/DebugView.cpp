@@ -30,7 +30,6 @@ CDebugView::CDebugView(QMdiArea* parent, CVirtualMachine& virtualMachine, CMIPS*
 	m_memoryViewWnd->setWidget(memoryViewWnd);
 	m_memoryViewWnd->setWindowTitle("Memory View");
 
-
 	auto callStackWnd = new CCallStackWnd(parent, m_ctx, m_biosDebugInfoProvider);
 	m_callStackWnd = new QMdiSubWindow(parent);
 	m_callStackWnd->setWidget(callStackWnd);

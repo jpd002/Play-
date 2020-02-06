@@ -10,7 +10,7 @@ OpenGLWindow::OpenGLWindow(QWindow* parent)
 
 QSurfaceFormat OpenGLWindow::GetSurfaceFormat()
 {
-		QSurfaceFormat format;
+	QSurfaceFormat format;
 #if defined(GLES_COMPATIBILITY)
 	format.setVersion(3, 0);
 #else

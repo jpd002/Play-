@@ -5,7 +5,7 @@
 
 #include <QStringList>
 
-PacketTreeModel::PacketTreeModel(QWidget *parent)
+PacketTreeModel::PacketTreeModel(QWidget* parent)
     : QAbstractItemModel(parent)
     , rootItem(new GsPacketData("Packets", 0))
 {
@@ -16,27 +16,27 @@ PacketTreeModel::~PacketTreeModel()
 	delete rootItem;
 }
 
-int PacketTreeModel::columnCount(const QModelIndex &parent) const
+int PacketTreeModel::columnCount(const QModelIndex& parent) const
 {
 	return 1;
 }
 
-QVariant PacketTreeModel::data(const QModelIndex &index, int role) const
+QVariant PacketTreeModel::data(const QModelIndex& index, int role) const
 {
-	if (!index.isValid())
+	if(!index.isValid())
 		return QVariant();
 
-	if (role != Qt::DisplayRole)
+	if(role != Qt::DisplayRole)
 		return QVariant();
 
-	GsPacketData *item = static_cast<GsPacketData*>(index.internalPointer());
+	GsPacketData* item = static_cast<GsPacketData*>(index.internalPointer());
 
 	return item->data(index.column());
 }
 
-Qt::ItemFlags PacketTreeModel::flags(const QModelIndex &index) const
+Qt::ItemFlags PacketTreeModel::flags(const QModelIndex& index) const
 {
-	if (!index.isValid())
+	if(!index.isValid())
 		return Qt::NoItemFlags;
 
 	return QAbstractItemModel::flags(index);
@@ -44,51 +44,51 @@ Qt::ItemFlags PacketTreeModel::flags(const QModelIndex &index) const
 
 QVariant PacketTreeModel::headerData(int section, Qt::Orientation orientation, int role) const
 {
-	if (orientation == Qt::Horizontal && role == Qt::DisplayRole)
+	if(orientation == Qt::Horizontal && role == Qt::DisplayRole)
 		return rootItem->data(section);
 
 	return QVariant();
 }
 
-QModelIndex PacketTreeModel::index(int row, int column, const QModelIndex &parent) const
+QModelIndex PacketTreeModel::index(int row, int column, const QModelIndex& parent) const
 {
-	if (!hasIndex(row, column, parent))
+	if(!hasIndex(row, column, parent))
 		return QModelIndex();
 
-	GsPacketData *parentItem;
+	GsPacketData* parentItem;
 
-	if (!parent.isValid())
+	if(!parent.isValid())
 		parentItem = rootItem;
 	else
 		parentItem = static_cast<GsPacketData*>(parent.internalPointer());
 
-	GsPacketData *childItem = parentItem->child(row);
-	if (childItem)
+	GsPacketData* childItem = parentItem->child(row);
+	if(childItem)
 		return createIndex(row, column, childItem);
 	return QModelIndex();
 }
 
-QModelIndex PacketTreeModel::parent(const QModelIndex &index) const
+QModelIndex PacketTreeModel::parent(const QModelIndex& index) const
 {
-	if (!index.isValid())
+	if(!index.isValid())
 		return QModelIndex();
 
-	GsPacketData *childItem = static_cast<GsPacketData*>(index.internalPointer());
-	GsPacketData *parentItem = childItem->parent();
+	GsPacketData* childItem = static_cast<GsPacketData*>(index.internalPointer());
+	GsPacketData* parentItem = childItem->parent();
 
-	if (parentItem == rootItem)
+	if(parentItem == rootItem)
 		return QModelIndex();
 
 	return createIndex(parentItem->row(), 0, parentItem);
 }
 
-int PacketTreeModel::rowCount(const QModelIndex &parent) const
+int PacketTreeModel::rowCount(const QModelIndex& parent) const
 {
-	GsPacketData *parentItem;
-	if (parent.column() > 0)
+	GsPacketData* parentItem;
+	if(parent.column() > 0)
 		return 0;
 
-	if (!parent.isValid())
+	if(!parent.isValid())
 		parentItem = rootItem;
 	else
 		parentItem = static_cast<GsPacketData*>(parent.internalPointer());
@@ -134,7 +134,5 @@ void PacketTreeModel::setupModelData(CFrameDump& m_frameDump)
 			++cmdIndex;
 		}
 		++packetIndex;
-
 	}
-
 }

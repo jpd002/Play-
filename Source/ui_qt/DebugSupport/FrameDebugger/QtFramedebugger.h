@@ -8,8 +8,9 @@
 #include "Vu1Vm.h"
 #include "Vu1ProgramView.h"
 
-namespace Ui {
-class QtFramedebugger;
+namespace Ui
+{
+	class QtFramedebugger;
 }
 
 class QtFramedebugger : public QMainWindow
@@ -17,12 +18,11 @@ class QtFramedebugger : public QMainWindow
 	Q_OBJECT
 
 public:
-	explicit QtFramedebugger(QWidget *parent = nullptr);
+	explicit QtFramedebugger(QWidget* parent = nullptr);
 	~QtFramedebugger();
 
 protected:
 	void showEvent(QShowEvent*) Q_DECL_OVERRIDE;
-
 
 private slots:
 	void on_action640x448_Interlaced_triggered(bool);
@@ -67,10 +67,8 @@ private:
 	CGsContextView::FB_DISPLAY_MODE m_fbDisplayMode = CGsContextView::FB_DISPLAY_MODE_RAW;
 	CFrameDump m_frameDump;
 	CVu1Vm m_vu1vm;
-	
+
 	std::unique_ptr<CGsContextView> m_gsContextView0;
 	std::unique_ptr<CGsContextView> m_gsContextView1;
 	std::unique_ptr<CVu1ProgramView> m_vu1ProgramView;
-
-
 };

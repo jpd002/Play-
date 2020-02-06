@@ -28,8 +28,7 @@ CGsContextView::CGsContextView(QWidget* parent, QComboBox* contextBuffer, QPushB
 	setLayout(layout);
 	layout->addWidget(m_bufferView.get());
 
-	connect(fitButton, &QPushButton::clicked, [&]()
-	{
+	connect(fitButton, &QPushButton::clicked, [&]() {
 		m_bufferView->FitBitmap();
 	});
 }

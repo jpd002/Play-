@@ -13,7 +13,7 @@
 #include "DebugExpressionEvaluator.h"
 
 CMemoryViewTable::CMemoryViewTable(QWidget* parent)
-	: QTableView(parent)
+    : QTableView(parent)
 {
 	m_model = new CQtMemoryViewModel(this);
 

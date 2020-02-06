@@ -6,7 +6,6 @@
 CGifPacketView::CGifPacketView(QWidget* parent)
     : QTextEdit(parent)
 {
-
 }
 
 void CGifPacketView::SetPacket(const uint8* vuMem, uint32 packetAddress, uint32 packetSize)

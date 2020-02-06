@@ -26,7 +26,6 @@ private:
 	QWindow* m_renderWindow = nullptr;
 	QOpenGLContext* m_context = nullptr;
 
-
 	Framework::OpenGl::CBuffer m_vertexBufferFramedebugger;
 	Framework::OpenGl::ProgramPtr m_checkerboardProgram;
 	Framework::OpenGl::ProgramPtr m_pixelBufferViewProgram;

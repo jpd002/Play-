@@ -11,7 +11,6 @@
 #include "GSH_OpenGLQt_Framedebugger.h"
 #include "../../openglwindow.h"
 
-
 class CPixelBufferView : public QWidget
 {
 public:

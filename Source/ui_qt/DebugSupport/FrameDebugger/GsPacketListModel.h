@@ -26,8 +26,7 @@ public:
 	int columnCount(const QModelIndex& = QModelIndex()) const override;
 
 	void setupModelData(CFrameDump&);
+
 private:
-
-	GsPacketData *rootItem;
+	GsPacketData* rootItem;
 };
-

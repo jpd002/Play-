@@ -19,10 +19,10 @@ public:
 	GsPacketData* parent();
 
 	int GetCmdIndex() const;
+
 private:
 	QVector<GsPacketData*> m_children;
 	QVariant m_data;
 	GsPacketData* m_parent;
 	int m_cmdIndex = 0;
 };
-

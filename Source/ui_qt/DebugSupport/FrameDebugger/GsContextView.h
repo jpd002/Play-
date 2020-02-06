@@ -27,7 +27,6 @@ public:
 	void UpdateState(CGSHandler*, CGsPacketMetadata*, DRAWINGKICK_INFO*);
 	void SetSelection(int);
 
-
 private:
 	typedef std::array<uint32, 256> ColorArray;
 

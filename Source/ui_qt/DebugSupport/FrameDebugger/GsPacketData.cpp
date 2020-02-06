@@ -1,9 +1,9 @@
 #include "GsPacketData.h"
 
 GsPacketData::GsPacketData(const QVariant& data, int cmdIndex, GsPacketData* parent)
-	: m_data(data)
-	, m_parent(parent)
-	, m_cmdIndex(cmdIndex)
+    : m_data(data)
+    , m_parent(parent)
+    , m_cmdIndex(cmdIndex)
 {
 }
 
@@ -46,7 +46,7 @@ GsPacketData* GsPacketData::parent()
 
 int GsPacketData::row() const
 {
-	if (m_parent)
+	if(m_parent)
 		return m_parent->m_children.indexOf(const_cast<GsPacketData*>(this));
 
 	return 0;

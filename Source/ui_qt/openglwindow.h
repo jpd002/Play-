@@ -10,5 +10,4 @@ public:
 	~OpenGLWindow() = default;
 
 	static QSurfaceFormat GetSurfaceFormat();
-
 };

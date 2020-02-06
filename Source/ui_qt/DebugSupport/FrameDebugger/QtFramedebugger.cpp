@@ -11,7 +11,6 @@
 #include "GsPacketListModel.h"
 #include "GsStateUtils.h"
 
-
 #include <QMessageBox>
 #include <QFileDialog>
 #include <QOffscreenSurface>
@@ -328,28 +327,28 @@ void QtFramedebugger::UpdateCurrentTab()
 	switch(ui->tabWidget->currentIndex())
 	{
 	case 0:
-		{
-			m_gsContextView0->UpdateState(m_gs.get(), &m_currentMetadata, &m_currentDrawingKick);
-			std::string result = CGsStateUtils::GetContextState(m_gs.get(), 0);
-			ui->contextState0->setText(result.c_str());
-		}
-		break;
+	{
+		m_gsContextView0->UpdateState(m_gs.get(), &m_currentMetadata, &m_currentDrawingKick);
+		std::string result = CGsStateUtils::GetContextState(m_gs.get(), 0);
+		ui->contextState0->setText(result.c_str());
+	}
+	break;
 	case 1:
-		{
-			m_gsContextView1->UpdateState(m_gs.get(), &m_currentMetadata, &m_currentDrawingKick);
-			std::string result = CGsStateUtils::GetContextState(m_gs.get(), 1);
-			ui->contextState1->setText(result.c_str());
-		}
-		break;
+	{
+		m_gsContextView1->UpdateState(m_gs.get(), &m_currentMetadata, &m_currentDrawingKick);
+		std::string result = CGsStateUtils::GetContextState(m_gs.get(), 1);
+		ui->contextState1->setText(result.c_str());
+	}
+	break;
 	case 2:
-		{
-			std::string result = CGsStateUtils::GetInputState(m_gs.get());
-			ui->inputStateTextEdit->setText(result.c_str());
-		}
-		break;
+	{
+		std::string result = CGsStateUtils::GetInputState(m_gs.get());
+		ui->inputStateTextEdit->setText(result.c_str());
+	}
+	break;
 	case 3:
 		m_vu1ProgramView->UpdateState(m_gs.get(), &m_currentMetadata, &m_currentDrawingKick);
-	break;
+		break;
 	}
 }
 

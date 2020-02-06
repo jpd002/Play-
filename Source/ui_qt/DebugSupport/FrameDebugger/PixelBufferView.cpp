@@ -11,7 +11,7 @@
 #include "StdStreamUtils.h"
 #include "string_format.h"
 
-CPixelBufferView::CPixelBufferView(QWidget *parent, QComboBox* contextBuffer)
+CPixelBufferView::CPixelBufferView(QWidget* parent, QComboBox* contextBuffer)
     : QWidget(parent)
     , m_contextBuffer(contextBuffer)
     , m_zoomFactor(1)
@@ -42,22 +42,17 @@ CPixelBufferView::CPixelBufferView(QWidget *parent, QComboBox* contextBuffer)
 
 	connect(m_openglpanel, &QWindow::widthChanged, this, &CPixelBufferView::Refresh);
 
-	m_mouseWheelConnection = static_cast<OpenGLWindow*>(m_openglpanel)->onMouseWheelEvent.Connect([&](QWheelEvent* event)
-	{
+	m_mouseWheelConnection = static_cast<OpenGLWindow*>(m_openglpanel)->onMouseWheelEvent.Connect([&](QWheelEvent* event) {
 		OnMouseWheel(event);
 	});
 
-	m_mouseMoveConnection = static_cast<OpenGLWindow*>(m_openglpanel)->onMouseMoveEvent.Connect([&](QMouseEvent* event)
-	{
+	m_mouseMoveConnection = static_cast<OpenGLWindow*>(m_openglpanel)->onMouseMoveEvent.Connect([&](QMouseEvent* event) {
 		OnMouseMoveEvent(event);
 	});
 
-	
-	m_mousePressConnection = static_cast<OpenGLWindow*>(m_openglpanel)->onMousePressEvent.Connect([&](QMouseEvent* event)
-	{
+	m_mousePressConnection = static_cast<OpenGLWindow*>(m_openglpanel)->onMousePressEvent.Connect([&](QMouseEvent* event) {
 		OnMousePressEvent(event);
 	});
-
 }
 
 void CPixelBufferView::showEvent(QShowEvent* event)
@@ -68,7 +63,7 @@ void CPixelBufferView::showEvent(QShowEvent* event)
 	Refresh();
 }
 
-void CPixelBufferView::paintEvent(QPaintEvent *event)
+void CPixelBufferView::paintEvent(QPaintEvent* event)
 {
 	QWidget::paintEvent(event);
 	if(!m_gs)
@@ -104,7 +99,6 @@ void CPixelBufferView::SetPixelBuffers(PixelBufferArray pixelBuffers)
 			m_contextBuffer->setCurrentIndex(selectedIndex);
 		}
 		m_contextBuffer->blockSignals(false);
-
 	}
 	CreateSelectedPixelBufferTexture();
 	Refresh();

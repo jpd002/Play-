@@ -88,7 +88,6 @@ void OutputWindow::wheelEvent(QWheelEvent* ev)
 	onMouseWheelEvent(ev);
 }
 
-
 void OutputWindow::mouseMoveEvent(QMouseEvent* ev)
 {
 	onMouseMoveEvent(ev);

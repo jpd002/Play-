@@ -17,7 +17,6 @@ CVu1ProgramView::CVu1ProgramView(QWidget* parent, CVu1Vm& virtualMachine)
 	auto v = new QVBoxLayout(this);
 	auto h = new QHBoxLayout();
 
-
 	m_disAsm = std::make_unique<CDisAsmWnd>(this, m_virtualMachine, m_virtualMachine.GetVu1Context(), "Vector Unit 1", CQtDisAsmTableModel::DISASM_VU, PS2::VUMEM1SIZE);
 	h->addWidget(m_disAsm.get());
 
@@ -26,15 +25,12 @@ CVu1ProgramView::CVu1ProgramView(QWidget* parent, CVu1Vm& virtualMachine)
 	v->addLayout(h);
 
 	m_memoryView = std::make_unique<CMemoryViewTable>(this);
-	auto getByte = [ctx = m_virtualMachine.GetVu1Context()](uint32 address)
-	{
+	auto getByte = [ctx = m_virtualMachine.GetVu1Context()](uint32 address) {
 		return ctx->m_pMemoryMap->GetByte(address);
 	};
 
 	m_memoryView->Setup(&m_virtualMachine, m_virtualMachine.GetVu1Context(), true);
 	m_memoryView->SetData(getByte, PS2::VUMEM1SIZE);
-
-
 
 	auto tab = new QTabWidget(this);
 	v->addWidget(tab);
