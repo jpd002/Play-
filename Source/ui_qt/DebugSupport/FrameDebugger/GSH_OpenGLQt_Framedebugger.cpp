@@ -62,7 +62,7 @@ void CGSH_OpenGLFramedebugger::Begin()
 
 void CGSH_OpenGLFramedebugger::PresentBackbuffer()
 {
-	// if(m_renderWindow->isExposed())
+	if(m_renderWindow->isExposed())
 	{
 		m_context->swapBuffers(m_renderWindow);
 		m_context->makeCurrent(m_renderWindow);

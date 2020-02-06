@@ -3,6 +3,7 @@
 #endif
 
 #include <QSurface>
+#include <QWindow>
 #include <QOpenGLContext>
 
 #if defined(GLES_COMPATIBILITY)
@@ -58,6 +59,15 @@ void CGSH_OpenGLQt::ReleaseImpl()
 
 void CGSH_OpenGLQt::PresentBackbuffer()
 {
-	m_context->swapBuffers(m_renderSurface);
-	m_context->makeCurrent(m_renderSurface);
+	bool swapBuffer = true;
+	if(m_renderSurface->surfaceClass() == QSurface::Window)
+	{
+		swapBuffer = static_cast<QWindow*>(m_renderSurface)->isExposed();
+	}
+
+	if(swapBuffer)
+	{
+		m_context->swapBuffers(m_renderSurface);
+		m_context->makeCurrent(m_renderSurface);
+	}
 }
