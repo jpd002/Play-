@@ -1,6 +1,6 @@
 #include "GsStateUtils.h"
 #include "string_format.h"
-#include "gs/GSH_OpenGLWin32/GSH_OpenGLWin32.h"
+#include "gs/GSH_OpenGL/GSH_OpenGL.h"
 
 static const char* g_yesNoString[2] =
     {
@@ -215,7 +215,7 @@ std::string CGsStateUtils::GetInputState(CGSHandler* gs)
 
 	result += "\r\n";
 
-	auto vertices = static_cast<CGSH_OpenGLWin32*>(gs)->GetInputVertices();
+	auto vertices = static_cast<CGSH_OpenGL*>(gs)->GetInputVertices();
 
 	result += string_format("Positions:\r\n");
 	result += string_format("\t                 PosX        PosY        PosZ        OfsX        OfsY\r\n");

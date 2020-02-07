@@ -14,6 +14,7 @@
 #include <QMessageBox>
 #include <QFileDialog>
 #include <QOffscreenSurface>
+#include <QApplication>
 
 #define PREF_FRAMEDEBUGGER_FRAMEBUFFER_DISPLAYMODE "framedebugger.framebuffer.displaymode"
 
@@ -167,7 +168,7 @@ void QtFramedebugger::StepVu1()
 #ifdef DEBUGGER_INCLUDED
 	if(m_currentMetadata.pathIndex != 1)
 	{
-		MessageBeep(-1);
+		QApplication::beep();
 		return;
 	}
 

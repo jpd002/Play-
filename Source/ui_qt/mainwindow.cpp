@@ -35,7 +35,7 @@
 #endif
 #ifdef DEBUGGER_INCLUDED
 #include "DebugSupport/QtDebugger.h"
-#include "DebugSupport/Framedebugger/QtFramedebugger.h"
+#include "DebugSupport/FrameDebugger/QtFramedebugger.h"
 #include "ui_debugmenu.h"
 #endif
 #include "input/PH_GenericInput.h"

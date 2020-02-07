@@ -1,7 +1,7 @@
 #include "GsContextView.h"
 #include "GsStateUtils.h"
 #include "gs/GsPixelFormats.h"
-#include "gs/GSH_OpenGLWin32/GSH_OpenGLWin32.h"
+#include "gs/GSH_OpenGL/GSH_OpenGL.h"
 
 #include <QVBoxLayout>
 

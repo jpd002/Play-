@@ -6,7 +6,7 @@
 #include "MIPS.h"
 #include "VirtualMachineStateView.h"
 #include "QtMemoryViewModel.h"
-#include "Signal/Signal.h"
+#include "signal/Signal.h"
 
 class QResizeEvent;
 

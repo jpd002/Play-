@@ -42,10 +42,12 @@ void CGSH_OpenGLFramedebugger::InitializeImpl()
 #endif
 	glGetError();
 
+#ifdef __WIN32__
 	if(wglSwapIntervalEXT)
 	{
 		wglSwapIntervalEXT(-1);
 	}
+#endif
 }
 
 void CGSH_OpenGLFramedebugger::ReleaseImpl()

@@ -2,7 +2,7 @@
 
 #include "../DisAsmWnd.h"
 #include "../MemoryViewTable.h"
-#include "../RegViewVu.h"
+#include "../RegViewVU.h"
 #include "Vu1Vm.h"
 #include "gs/GSHandler.h"
 #include "FrameDump.h"

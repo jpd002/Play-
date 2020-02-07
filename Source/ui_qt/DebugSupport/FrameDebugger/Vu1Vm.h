@@ -4,7 +4,7 @@
 #include "MIPS.h"
 #include "MailBox.h"
 #include "ee/MA_VU.h"
-#include "ee/VUExecutor.h"
+#include "ee/VuExecutor.h"
 
 class CVu1Vm : public CVirtualMachine
 {

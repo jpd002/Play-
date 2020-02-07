@@ -1,5 +1,6 @@
 #include "GifPacketView.h"
-#include "win32/DeviceContext.h"
+#include "gs/GSHandler.h"
+#include "ee/GIF.h"
 #include "uint128.h"
 #include "string_format.h"
 
@@ -40,7 +41,7 @@ void CGifPacketView::SetPacket(const uint8* vuMem, uint32 packetAddress, uint32 
 		{
 			if(tag.pre)
 			{
-				writes.push_back(WriteInfo(tagAddress, GS_REG_PRIM, tag.prim));
+				writes.push_back(WriteInfo(tagAddress, GS_REG_PRIM, static_cast<uint64>(tag.prim)));
 			}
 		}
 

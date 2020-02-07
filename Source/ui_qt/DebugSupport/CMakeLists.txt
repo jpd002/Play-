@@ -98,7 +98,7 @@ set(SRC_FILES
 	${SRC_ROOT}/QtDebugger.cpp
 	${SRC_ROOT}/QtDialogListWidget.cpp
 
-	${SRC_ROOT}/Framedebugger/QtFramedebugger.cpp
+	${SRC_ROOT}/FrameDebugger/QtFramedebugger.cpp
 
 )
 
@@ -111,7 +111,7 @@ set(QT_DEBUGGER_MOC_HEADERS
 	${SRC_ROOT}/QtDebugger.h
 	${SRC_ROOT}/QtDialogListWidget.h
 	${SRC_ROOT}/QtMemoryViewModel.h
-	${SRC_ROOT}/Framedebugger/QtFramedebugger.h
+	${SRC_ROOT}/FrameDebugger/QtFramedebugger.h
 	${SRC_ROOT}/FrameDebugger/GsPacketListModel.h
 	${SRC_ROOT}/FrameDebugger/Vu1ProgramView.h
 )
@@ -122,7 +122,7 @@ set(QT_DEBUGGER_UI
 
 	${SRC_ROOT}/Qt_ui/QtDebugger.ui
 	${SRC_ROOT}/Qt_ui/QtDialogListWidget.ui
-	${SRC_ROOT}/Framedebugger/Qt_ui/QtFramedebugger.ui
+	${SRC_ROOT}/FrameDebugger/Qt_ui/QtFramedebugger.ui
 )
 
 set(QT_RESOURCES
@@ -136,4 +136,4 @@ QT5_WRAP_CPP(QT_DEBUGGER_MOC_SRCS ${QT_DEBUGGER_MOC_HEADERS})
 add_library(PlayDebugSupport STATIC ${SRC_FILES} ${QT_DEBUGGER_UI_HEADERS} ${QT_DEBUGGER_MOC_SRCS} ${QT_RES_SOURCES})
 target_link_libraries(PlayDebugSupport PlayCore Framework_OpenGl Qt5::Core Qt5::Widgets)
 target_compile_definitions(PlayDebugSupport PRIVATE NOMINMAX)
-target_include_directories(PlayDebugSupport PRIVATE ../../${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_BINARY_DIR})
+target_include_directories(PlayDebugSupport PRIVATE ${CMAKE_CURRENT_SOURCE_DIR} ../../${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_BINARY_DIR})
