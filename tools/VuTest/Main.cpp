@@ -4,17 +4,21 @@
 #include "AddTest.h"
 #include "FlagsTest.h"
 #include "FlagsTest2.h"
+#include "FlagsTest3.h"
 #include "TriAceTest.h"
 
 typedef std::function<CTest*()> TestFactoryFunction;
 
+// clang-format off
 static const TestFactoryFunction s_factories[] =
-    {
-        []() { return new CAddTest(); },
-        []() { return new CFlagsTest(); },
-        []() { return new CFlagsTest2(); },
-        []() { return new CTriAceTest(); },
+{
+	[]() { return new CAddTest(); },
+	[]() { return new CFlagsTest(); },
+	[]() { return new CFlagsTest2(); },
+	[]() { return new CFlagsTest3(); },
+	[]() { return new CTriAceTest(); },
 };
+// clang-format on
 
 int main(int argc, const char** argv)
 {

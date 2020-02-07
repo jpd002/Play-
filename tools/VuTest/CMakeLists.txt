@@ -17,12 +17,22 @@ endif()
 
 add_executable(VuTest
 	AddTest.cpp
-	FlagsTest2.cpp
 	FlagsTest.cpp
+	FlagsTest2.cpp
+	FlagsTest3.cpp
 	Main.cpp
 	TestVm.cpp
 	TriAceTest.cpp
 	VuAssembler.cpp
+
+	AddTest.h
+	FlagsTest.h
+	FlagsTest2.h
+	FlagsTest3.h
+	Test.h
+	TestVm.h
+	TriAceTest.h
+	VuAssembler.h
 )
 target_link_libraries(VuTest PlayCore)
 add_test(NAME VuTest
