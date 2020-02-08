@@ -236,7 +236,11 @@ void CGSH_Direct3D9::ResetImpl()
 
 void CGSH_Direct3D9::ReleaseImpl()
 {
+	ResetImpl();
+	OnDeviceResetting();
 	delete[] m_cvtBuffer;
+	m_device.Reset();
+	m_d3d.Reset();
 }
 
 CGSH_Direct3D9::FramebufferPtr CGSH_Direct3D9::FindFramebuffer(uint64 frameReg) const
