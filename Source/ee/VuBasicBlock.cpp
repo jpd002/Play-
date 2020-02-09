@@ -27,7 +27,11 @@ void CVuBasicBlock::CompileRange(CMipsJitter* jitter)
 		    hasPendingXgKick = false;
 	    };
 
-	auto hints = GetBlockCompileHints();
+	uint32 maxPipeTime = ((m_end - m_begin) / 8) + 1;
+	std::vector<uint32> hints;
+	hints.resize(maxPipeTime);
+
+	ComputeSkipFlagsHints(hints);
 	
 	for(uint32 address = m_begin; address <= m_end; address += 8)
 	{
@@ -272,23 +276,24 @@ void CVuBasicBlock::EmitXgKick(CMipsJitter* jitter)
 	jitter->Call(reinterpret_cast<void*>(&MemoryUtils_SetWordProxy), 3, false);
 }
 
-std::vector<uint32> CVuBasicBlock::GetBlockCompileHints() const
+void CVuBasicBlock::ComputeSkipFlagsHints(std::vector<uint32>& hints) const
 {
 	auto arch = static_cast<CMA_VU*>(m_context.m_pArch);
 
-	uint32 maxPipeTime = ((m_end - m_begin) / 8) + 1;
-	
-	std::vector<uint32> hints;
-	hints.resize(maxPipeTime + 1);
+	uint32 maxPipeTime = static_cast<uint32>(hints.size());
+	uint32 extendedMaxPipeTime = maxPipeTime + VUShared::LATENCY_MAC;
 
-	bool wroteInSpan = false;
-	static const uint32 defaultTimeOut = VUShared::LATENCY_MAC + 1;
-	uint32 updateTimeOut = defaultTimeOut;
-	
-	for(int32 address = (m_end + 4); address >= static_cast<int32>(m_begin); address -= 8)
+	std::vector<uint32> resultPipeTime;
+	resultPipeTime.resize(extendedMaxPipeTime);
+	std::fill(resultPipeTime.begin(), resultPipeTime.end(), -1);
+
+	std::vector<bool> resultUsed;
+	resultUsed.resize(maxPipeTime);
+
+	for(uint32 address = m_begin; address <= m_end; address += 8)
 	{
 		uint32 relativePipeTime = (address - m_begin) / 8;
-		assert(relativePipeTime <= maxPipeTime);
+		assert(relativePipeTime < maxPipeTime);
 
 		uint32 addressLo = address + 0;
 		uint32 addressHi = address + 4;
@@ -299,28 +304,41 @@ std::vector<uint32> CVuBasicBlock::GetBlockCompileHints() const
 		auto loOps = arch->GetAffectedOperands(&m_context, addressLo, opcodeLo);
 		auto hiOps = arch->GetAffectedOperands(&m_context, addressHi, opcodeHi);
 
-		if(loOps.readMACflags)
+		if(hiOps.writeMACflags)
 		{
-			updateTimeOut = defaultTimeOut;
-		}
-		
-		if(updateTimeOut != 0)
-		{
-			hints[relativePipeTime] = 0;
-			updateTimeOut--;
-			continue;
+			//Make this result available
+			std::fill(
+				resultPipeTime.begin() + relativePipeTime + VUShared::LATENCY_MAC,
+				resultPipeTime.end(), relativePipeTime);
 		}
 
-		if(hiOps.writeMACflags && !wroteInSpan)
+		if(loOps.readMACflags)
 		{
-			wroteInSpan = true;
-			hints[relativePipeTime] = 0;
-		}
-		else
-		{
-			hints[relativePipeTime] = VUShared::COMPILEHINT_SKIPFMACUPDATE;
+			uint32 pipeTimeForResult = resultPipeTime[relativePipeTime];
+			if(pipeTimeForResult != -1)
+			{
+				resultUsed[pipeTimeForResult] = true;
+			}
 		}
 	}
 
-	return hints;
+	//Simulate usage from outside our block
+	for(uint32 relativePipeTime = maxPipeTime; relativePipeTime < extendedMaxPipeTime; relativePipeTime++)
+	{
+		uint32 pipeTimeForResult = resultPipeTime[relativePipeTime];
+		if(pipeTimeForResult != -1)
+		{
+			resultUsed[pipeTimeForResult] = true;
+		}
+	}
+
+	//Flag unused results
+	for(uint32 relativePipeTime = 0; relativePipeTime < maxPipeTime; relativePipeTime++)
+	{
+		bool used = resultUsed[relativePipeTime];
+		if(!used)
+		{
+			hints[relativePipeTime] |= VUShared::COMPILEHINT_SKIPFMACUPDATE;
+		}
+	}
 }
