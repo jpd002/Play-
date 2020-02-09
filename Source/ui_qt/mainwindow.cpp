@@ -83,6 +83,7 @@ MainWindow::MainWindow(QWidget* parent)
 	}
 
 	QWidget* container = QWidget::createWindowContainer(m_outputwindow);
+	m_outputwindow->create();
 	ui->gridLayout->addWidget(container, 0, 0);
 
 	connect(m_outputwindow, SIGNAL(heightChanged(int)), this, SLOT(outputWindow_resized()));
@@ -123,6 +124,7 @@ MainWindow::MainWindow(QWidget* parent)
 	ui->actionBoot_DiscImage_S3->setVisible(S3FileBrowser::IsAvailable());
 
 	InitVirtualMachine();
+	SetupGsHandler();
 
 #ifdef DEBUGGER_INCLUDED
 	m_debugger = std::make_unique<CDebugger>(*m_virtualMachine);
@@ -160,12 +162,6 @@ MainWindow::~MainWindow()
 		m_virtualMachine = nullptr;
 	}
 	delete ui;
-}
-
-void MainWindow::showEvent(QShowEvent* event)
-{
-	QMainWindow::showEvent(event);
-	SetupGsHandler();
 }
 
 void MainWindow::InitVirtualMachine()
