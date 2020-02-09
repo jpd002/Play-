@@ -214,21 +214,17 @@ void MainWindow::SetOutputWindowSize()
 void MainWindow::SetupGsHandler()
 {
 	assert(m_virtualMachine);
-	auto gsHandler = m_virtualMachine->GetGSHandler();
-	if(!gsHandler)
-	{
 #ifdef HAS_GSH_VULKAN
-		if(CAppConfig::GetInstance().GetPreferenceBoolean(PREF_VIDEO_USEVULKAN))
-		{
-			m_virtualMachine->CreateGSHandler(CGSH_VulkanQt::GetFactoryFunction(m_outputwindow));
-		}
-		else
-#endif
-		{
-			m_virtualMachine->CreateGSHandler(CGSH_OpenGLQt::GetFactoryFunction(m_outputwindow));
-		}
-		m_OnNewFrameConnection = m_virtualMachine->m_ee->m_gs->OnNewFrame.Connect(std::bind(&CStatsManager::OnNewFrame, &CStatsManager::GetInstance(), std::placeholders::_1));
+	if(CAppConfig::GetInstance().GetPreferenceBoolean(PREF_VIDEO_USEVULKAN))
+	{
+		m_virtualMachine->CreateGSHandler(CGSH_VulkanQt::GetFactoryFunction(m_outputwindow));
 	}
+	else
+#endif
+	{
+		m_virtualMachine->CreateGSHandler(CGSH_OpenGLQt::GetFactoryFunction(m_outputwindow));
+	}
+	m_OnNewFrameConnection = m_virtualMachine->m_ee->m_gs->OnNewFrame.Connect(std::bind(&CStatsManager::OnNewFrame, &CStatsManager::GetInstance(), std::placeholders::_1));
 }
 
 void MainWindow::SetupSoundHandler()

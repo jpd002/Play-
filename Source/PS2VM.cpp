@@ -100,7 +100,6 @@ CPS2VM::CPS2VM()
 
 void CPS2VM::CreateGSHandler(const CGSHandler::FactoryFunction& factoryFunction)
 {
-	if(m_ee->m_gs != nullptr) return;
 	m_mailBox.SendCall([this, factoryFunction]() { CreateGsHandlerImpl(factoryFunction); }, true);
 }
 
@@ -507,9 +506,24 @@ void CPS2VM::DestroyImpl()
 
 void CPS2VM::CreateGsHandlerImpl(const CGSHandler::FactoryFunction& factoryFunction)
 {
+	auto gs = m_ee->m_gs;
 	m_ee->m_gs = factoryFunction();
 	m_ee->m_gs->SetIntc(&m_ee->m_intc);
 	m_ee->m_gs->Initialize();
+	if(gs)
+	{
+		Framework::CZipArchiveWriter archive;
+		gs->SaveState(archive);
+
+		Framework::CMemStream stateStream;
+		archive.Write(stateStream);
+		stateStream.Seek(0, Framework::STREAM_SEEK_DIRECTION::STREAM_SEEK_SET);
+
+		Framework::CZipArchiveReader readArchive(stateStream);
+		m_ee->m_gs->LoadState(readArchive);
+		gs->Release();
+		delete gs;
+	}
 	m_OnNewFrameConnection = m_ee->m_gs->OnNewFrame.Connect(std::bind(&CPS2VM::OnGsNewFrame, this));
 }
 
