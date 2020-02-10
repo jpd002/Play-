@@ -205,42 +205,60 @@
         </widget>
        </item>
        <item>
-        <widget class="QLabel" name="label_6">
-         <property name="text">
-          <string>GS Handler:</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QComboBox" name="comboBox_gs_selection">
-         <item>
-          <property name="text">
-           <string>OpenGL</string>
+        <widget class="QWidget" name="gs_option_widget" native="true">
+         <layout class="QGridLayout" name="gridLayout_2">
+          <property name="leftMargin">
+           <number>0</number>
           </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>Vulkan</string>
+          <property name="topMargin">
+           <number>0</number>
           </property>
-         </item>
-        </widget>
-       </item>
-       <item>
-        <widget class="QLabel" name="label_5">
-         <property name="text">
-          <string>Warning: The Vulkan GS handler requires the VK_EXT_fragment_shader_interlock extension to work properly.
+          <property name="rightMargin">
+           <number>0</number>
+          </property>
+          <property name="bottomMargin">
+           <number>0</number>
+          </property>
+          <item row="0" column="0">
+           <widget class="QLabel" name="label_6">
+            <property name="text">
+             <string>GS Handler:</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="0">
+           <widget class="QComboBox" name="comboBox_gs_selection">
+            <item>
+             <property name="text">
+              <string>OpenGL</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>Vulkan</string>
+             </property>
+            </item>
+           </widget>
+          </item>
+          <item row="2" column="0">
+           <widget class="QLabel" name="label_5">
+            <property name="text">
+             <string>Warning: The Vulkan GS handler requires the VK_EXT_fragment_shader_interlock extension to work properly.
 
 Changing this setting during gameplay can produce unexpected results.</string>
-         </property>
-         <property name="textFormat">
-          <enum>Qt::AutoText</enum>
-         </property>
-         <property name="alignment">
-          <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
-         </property>
-         <property name="wordWrap">
-          <bool>true</bool>
-         </property>
+            </property>
+            <property name="textFormat">
+             <enum>Qt::AutoText</enum>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
+            </property>
+            <property name="wordWrap">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+         </layout>
         </widget>
        </item>
        <item>

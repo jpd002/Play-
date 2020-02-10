@@ -14,6 +14,10 @@ SettingsDialog::SettingsDialog(QWidget* parent)
 	//Not needed, as it can be set in the ui editor, but left for ease of ui edit.
 	ui->stackedWidget->setCurrentIndex(0);
 
+#ifndef HAS_GSH_VULKAN
+	ui->gs_option_widget->hide();
+#endif
+
 	LoadPreferences();
 	connect(ui->listWidget, &QListWidget::currentItemChanged, this, &SettingsDialog::changePage);
 }
