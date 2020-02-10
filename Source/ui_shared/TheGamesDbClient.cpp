@@ -129,7 +129,10 @@ GamesList CClient::PopulateGameList(const nlohmann::json& parsed_json)
 		int game_id = game["id"].get<int>();
 		TheGamesDb::Game meta;
 		meta.id = game_id;
-		meta.overview = game["overview"].get<std::string>();
+		if(!game["overview"].empty())
+		{
+			meta.overview = game["overview"].get<std::string>();
+		}
 		if(!game["uids"].empty())
 		{
 			auto uids = game["uids"].get<std::vector<nlohmann::json>>();
