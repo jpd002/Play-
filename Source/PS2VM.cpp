@@ -512,15 +512,7 @@ void CPS2VM::CreateGsHandlerImpl(const CGSHandler::FactoryFunction& factoryFunct
 	m_ee->m_gs->Initialize();
 	if(gs)
 	{
-		Framework::CZipArchiveWriter archive;
-		gs->SaveState(archive);
-
-		Framework::CMemStream stateStream;
-		archive.Write(stateStream);
-		stateStream.Seek(0, Framework::STREAM_SEEK_DIRECTION::STREAM_SEEK_SET);
-
-		Framework::CZipArchiveReader readArchive(stateStream);
-		m_ee->m_gs->LoadState(readArchive);
+		m_ee->m_gs->Copy(gs);
 		gs->Release();
 		delete gs;
 	}
