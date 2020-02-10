@@ -205,10 +205,24 @@
         </widget>
        </item>
        <item>
-        <widget class="QCheckBox" name="checkBox_enable_vulkan">
+        <widget class="QLabel" name="label_6">
          <property name="text">
-          <string>Enable Vulkan GS Handler</string>
+          <string>GS Handler:</string>
          </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QComboBox" name="comboBox_gs_selection">
+         <item>
+          <property name="text">
+           <string>OpenGL</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>Vulkan</string>
+          </property>
+         </item>
         </widget>
        </item>
        <item>
@@ -216,7 +230,7 @@
          <property name="text">
           <string>Warning: The Vulkan GS handler requires the VK_EXT_fragment_shader_interlock extension to work properly.
 
-This setting will take effect next time the emulator is restarted.</string>
+Changing this setting during gameplay can produce unexpected results.</string>
          </property>
          <property name="textFormat">
           <enum>Qt::AutoText</enum>

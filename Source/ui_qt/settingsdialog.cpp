@@ -38,7 +38,7 @@ void SettingsDialog::LoadPreferences()
 	int factor_index = std::log2(factor);
 	ui->comboBox_res_multiplyer->setCurrentIndex(factor_index);
 	ui->checkBox_force_bilinear_filtering->setChecked(CAppConfig::GetInstance().GetPreferenceBoolean(PREF_CGSH_OPENGL_FORCEBILINEARTEXTURES));
-	ui->checkBox_enable_vulkan->setChecked(CAppConfig::GetInstance().GetPreferenceBoolean(PREF_VIDEO_USEVULKAN));
+	ui->comboBox_gs_selection->setCurrentIndex(CAppConfig::GetInstance().GetPreferenceInteger(PREF_VIDEO_GS_HANDLER));
 
 	ui->checkBox_enable_audio->setChecked(CAppConfig::GetInstance().GetPreferenceBoolean(PREFERENCE_AUDIO_ENABLEOUTPUT));
 	ui->spinBox_spuBlockCount->setValue(CAppConfig::GetInstance().GetPreferenceInteger(PREF_AUDIO_SPUBLOCKCOUNT));
@@ -50,9 +50,9 @@ void SettingsDialog::on_checkBox_force_bilinear_filtering_clicked(bool checked)
 	CAppConfig::GetInstance().SetPreferenceBoolean(PREF_CGSH_OPENGL_FORCEBILINEARTEXTURES, checked);
 }
 
-void SettingsDialog::on_checkBox_enable_vulkan_clicked(bool checked)
+void SettingsDialog::on_comboBox_gs_selection_currentIndexChanged(int index)
 {
-	CAppConfig::GetInstance().SetPreferenceBoolean(PREF_VIDEO_USEVULKAN, checked);
+	CAppConfig::GetInstance().SetPreferenceInteger(PREF_VIDEO_GS_HANDLER, index);
 }
 
 void SettingsDialog::on_checkBox_enable_audio_clicked(bool checked)
