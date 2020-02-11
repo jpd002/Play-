@@ -52,6 +52,9 @@
 #define STATE_PRIVREGS_SIGLBLID ("SIGLBLID")
 #define STATE_PRIVREGS_CRTMODE ("CrtMode")
 
+#define STATE_REG_CBP0 ("cbp0")
+#define STATE_REG_CBP1 ("cbp1")
+
 #define LOG_NAME ("gs")
 
 struct MASSIVEWRITE_INFO
@@ -253,6 +256,8 @@ void CGSHandler::SaveState(Framework::CZipArchiveWriter& archive)
 		registerFile->SetRegister64(STATE_PRIVREGS_IMR, m_nIMR);
 		registerFile->SetRegister64(STATE_PRIVREGS_SIGLBLID, m_nSIGLBLID);
 		registerFile->SetRegister32(STATE_PRIVREGS_CRTMODE, m_nCrtMode);
+		registerFile->SetRegister32(STATE_REG_CBP0, m_nCBP0);
+		registerFile->SetRegister32(STATE_REG_CBP1, m_nCBP1);
 
 		archive.InsertFile(registerFile);
 	}
@@ -276,6 +281,8 @@ void CGSHandler::LoadState(Framework::CZipArchiveReader& archive)
 		m_nIMR = registerFile.GetRegister64(STATE_PRIVREGS_IMR);
 		m_nSIGLBLID = registerFile.GetRegister64(STATE_PRIVREGS_SIGLBLID);
 		m_nCrtMode = registerFile.GetRegister32(STATE_PRIVREGS_CRTMODE);
+		m_nCBP0 = registerFile.GetRegister32(STATE_REG_CBP0);
+		m_nCBP1 = registerFile.GetRegister32(STATE_REG_CBP1);
 	}
 }
 
@@ -296,6 +303,8 @@ void CGSHandler::Copy(const CGSHandler* gs)
 		m_nIMR = gs->m_nIMR;
 		m_nSIGLBLID = gs->m_nSIGLBLID;
 		m_nCrtMode = gs->m_nCrtMode;
+		m_nCBP0 = gs->m_nCBP0;
+		m_nCBP1 = gs->m_nCBP1;
 	}
 }
 
