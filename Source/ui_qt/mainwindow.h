@@ -120,7 +120,6 @@ private:
 
 protected:
 	void closeEvent(QCloseEvent*) Q_DECL_OVERRIDE;
-	void showEvent(QShowEvent*) Q_DECL_OVERRIDE;
 
 signals:
 	void onExecutableChange();

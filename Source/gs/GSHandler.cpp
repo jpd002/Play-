@@ -279,6 +279,26 @@ void CGSHandler::LoadState(Framework::CZipArchiveReader& archive)
 	}
 }
 
+void CGSHandler::Copy(CGSHandler* gs)
+{
+	memcpy(GetRam(), gs->GetRam(), RAMSIZE);
+	memcpy(m_nReg, gs->m_nReg, sizeof(uint64) * CGSHandler::REGISTER_MAX);
+	m_trxCtx = gs->m_trxCtx;
+
+	{
+		m_nPMODE = gs->m_nPMODE;
+		m_nSMODE2 = gs->m_nSMODE2;
+		m_nDISPFB1.value.q = gs->m_nDISPFB1.value.q;
+		m_nDISPLAY1.value.q = gs->m_nDISPLAY1.value.q;
+		m_nDISPFB2.value.q = gs->m_nDISPFB2.value.q;
+		m_nDISPLAY2.value.q = gs->m_nDISPLAY2.value.q;
+		m_nCSR = gs->m_nCSR;
+		m_nIMR = gs->m_nIMR;
+		m_nSIGLBLID = gs->m_nSIGLBLID;
+		m_nCrtMode = gs->m_nCrtMode;
+	}
+}
+
 void CGSHandler::SetFrameDump(CFrameDump* frameDump)
 {
 	m_frameDump = frameDump;

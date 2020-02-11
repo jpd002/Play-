@@ -71,31 +71,6 @@ MainWindow::MainWindow(QWidget* parent)
 
 	m_continuationChecker = new CContinuationChecker(this);
 
-#ifdef HAS_GSH_VULKAN
-	if(CAppConfig::GetInstance().GetPreferenceBoolean(PREF_VIDEO_USEVULKAN))
-	{
-		m_outputwindow = new VulkanWindow;
-	}
-	else
-#endif
-	{
-		m_outputwindow = new OpenGLWindow;
-	}
-
-	QWidget* container = QWidget::createWindowContainer(m_outputwindow);
-	ui->gridLayout->addWidget(container, 0, 0);
-
-	connect(m_outputwindow, SIGNAL(heightChanged(int)), this, SLOT(outputWindow_resized()));
-	connect(m_outputwindow, SIGNAL(widthChanged(int)), this, SLOT(outputWindow_resized()));
-
-	connect(m_outputwindow, SIGNAL(keyUp(QKeyEvent*)), this, SLOT(keyReleaseEvent(QKeyEvent*)));
-	connect(m_outputwindow, SIGNAL(keyDown(QKeyEvent*)), this, SLOT(keyPressEvent(QKeyEvent*)));
-
-	connect(m_outputwindow, SIGNAL(focusOut(QFocusEvent*)), this, SLOT(focusOutEvent(QFocusEvent*)));
-	connect(m_outputwindow, SIGNAL(focusIn(QFocusEvent*)), this, SLOT(focusInEvent(QFocusEvent*)));
-
-	connect(m_outputwindow, SIGNAL(doubleClick(QMouseEvent*)), this, SLOT(doubleClickEvent(QMouseEvent*)));
-
 #ifdef PROFILE
 	{
 		m_profileStatsLabel = new QLabel(this);
@@ -123,6 +98,7 @@ MainWindow::MainWindow(QWidget* parent)
 	ui->actionBoot_DiscImage_S3->setVisible(S3FileBrowser::IsAvailable());
 
 	InitVirtualMachine();
+	SetupGsHandler();
 
 #ifdef DEBUGGER_INCLUDED
 	m_debugger = std::make_unique<CDebugger>(*m_virtualMachine);
@@ -160,12 +136,6 @@ MainWindow::~MainWindow()
 		m_virtualMachine = nullptr;
 	}
 	delete ui;
-}
-
-void MainWindow::showEvent(QShowEvent* event)
-{
-	QMainWindow::showEvent(event);
-	SetupGsHandler();
 }
 
 void MainWindow::InitVirtualMachine()
@@ -218,21 +188,42 @@ void MainWindow::SetOutputWindowSize()
 void MainWindow::SetupGsHandler()
 {
 	assert(m_virtualMachine);
-	auto gsHandler = m_virtualMachine->GetGSHandler();
-	if(!gsHandler)
+	switch(CAppConfig::GetInstance().GetPreferenceInteger(PREF_VIDEO_GS_HANDLER))
 	{
 #ifdef HAS_GSH_VULKAN
-		if(CAppConfig::GetInstance().GetPreferenceBoolean(PREF_VIDEO_USEVULKAN))
-		{
-			m_virtualMachine->CreateGSHandler(CGSH_VulkanQt::GetFactoryFunction(m_outputwindow));
-		}
-		else
-#endif
-		{
-			m_virtualMachine->CreateGSHandler(CGSH_OpenGLQt::GetFactoryFunction(m_outputwindow));
-		}
-		m_OnNewFrameConnection = m_virtualMachine->m_ee->m_gs->OnNewFrame.Connect(std::bind(&CStatsManager::OnNewFrame, &CStatsManager::GetInstance(), std::placeholders::_1));
+	case SettingsDialog::GS_HANDLERS::VULKAN:
+	{
+		m_outputwindow = new VulkanWindow;
+		QWidget* container = QWidget::createWindowContainer(m_outputwindow);
+		m_outputwindow->create();
+		ui->gridLayout->addWidget(container, 0, 0);
+		m_virtualMachine->CreateGSHandler(CGSH_VulkanQt::GetFactoryFunction(m_outputwindow));
 	}
+	break;
+	case SettingsDialog::GS_HANDLERS::OPENGL:
+#endif
+	default:
+	{
+		m_outputwindow = new OpenGLWindow;
+		QWidget* container = QWidget::createWindowContainer(m_outputwindow);
+		m_outputwindow->create();
+		ui->gridLayout->addWidget(container, 0, 0);
+		m_virtualMachine->CreateGSHandler(CGSH_OpenGLQt::GetFactoryFunction(m_outputwindow));
+	}
+	}
+
+	connect(m_outputwindow, SIGNAL(heightChanged(int)), this, SLOT(outputWindow_resized()));
+	connect(m_outputwindow, SIGNAL(widthChanged(int)), this, SLOT(outputWindow_resized()));
+
+	connect(m_outputwindow, SIGNAL(keyUp(QKeyEvent*)), this, SLOT(keyReleaseEvent(QKeyEvent*)));
+	connect(m_outputwindow, SIGNAL(keyDown(QKeyEvent*)), this, SLOT(keyPressEvent(QKeyEvent*)));
+
+	connect(m_outputwindow, SIGNAL(focusOut(QFocusEvent*)), this, SLOT(focusOutEvent(QFocusEvent*)));
+	connect(m_outputwindow, SIGNAL(focusIn(QFocusEvent*)), this, SLOT(focusInEvent(QFocusEvent*)));
+
+	connect(m_outputwindow, SIGNAL(doubleClick(QMouseEvent*)), this, SLOT(doubleClickEvent(QMouseEvent*)));
+
+	m_OnNewFrameConnection = m_virtualMachine->m_ee->m_gs->OnNewFrame.Connect(std::bind(&CStatsManager::OnNewFrame, &CStatsManager::GetInstance(), std::placeholders::_1));
 }
 
 void MainWindow::SetupSoundHandler()
@@ -441,7 +432,42 @@ void MainWindow::CreateStatusBar()
 
 	statusBar()->addWidget(m_msgLabel, 1);
 	statusBar()->addWidget(m_fpsLabel);
+#ifdef HAS_GSH_VULKAN
+	auto gsLabel = new QLabel("");
+	auto gs_index = CAppConfig::GetInstance().GetPreferenceInteger(PREF_VIDEO_GS_HANDLER);
 
+	switch(gs_index)
+	{
+	default:
+	case SettingsDialog::GS_HANDLERS::OPENGL:
+		gsLabel->setText("OpenGL");
+		break;
+	case SettingsDialog::GS_HANDLERS::VULKAN:
+		gsLabel->setText("Vulkan");
+		break;
+	}
+	gsLabel->setAlignment(Qt::AlignHCenter);
+	gsLabel->setMinimumSize(gsLabel->sizeHint());
+	//QLabel have no click event, so we're using ContextMenu event aka rightClick to toggle GS
+	gsLabel->setContextMenuPolicy(Qt::CustomContextMenu);
+	connect(gsLabel, &QLabel::customContextMenuRequested, [&, gsLabel]() {
+		auto gs_index = CAppConfig::GetInstance().GetPreferenceInteger(PREF_VIDEO_GS_HANDLER);
+		gs_index = (gs_index + 1) % SettingsDialog::GS_HANDLERS::MAX_HANDLER;
+		CAppConfig::GetInstance().SetPreferenceInteger(PREF_VIDEO_GS_HANDLER, gs_index);
+		SetupGsHandler();
+		switch(gs_index)
+		{
+		default:
+		case SettingsDialog::GS_HANDLERS::OPENGL:
+			gsLabel->setText("OpenGL");
+			break;
+		case SettingsDialog::GS_HANDLERS::VULKAN:
+			gsLabel->setText("Vulkan");
+			break;
+		}
+	});
+	statusBar()->addWidget(gsLabel);
+#endif
 	m_msgLabel->setText(QString("Play! v%1 - %2").arg(PLAY_VERSION).arg(__DATE__));
 
 	m_fpsTimer = new QTimer(this);
@@ -463,17 +489,26 @@ void MainWindow::updateStats()
 
 void MainWindow::on_actionSettings_triggered()
 {
+	auto gs_index = CAppConfig::GetInstance().GetPreferenceInteger(PREF_VIDEO_GS_HANDLER);
 	SettingsDialog sd;
 	sd.exec();
 	SetupSoundHandler();
 	if(m_virtualMachine != nullptr)
 	{
 		m_virtualMachine->ReloadSpuBlockCount();
-		outputWindow_resized();
-		auto gsHandler = m_virtualMachine->GetGSHandler();
-		if(gsHandler)
+		auto new_gs_index = CAppConfig::GetInstance().GetPreferenceInteger(PREF_VIDEO_GS_HANDLER);
+		if(gs_index != new_gs_index)
 		{
-			gsHandler->NotifyPreferencesChanged();
+			SetupGsHandler();
+		}
+		else
+		{
+			outputWindow_resized();
+			auto gsHandler = m_virtualMachine->GetGSHandler();
+			if(gsHandler)
+			{
+				gsHandler->NotifyPreferencesChanged();
+			}
 		}
 	}
 }
@@ -623,7 +658,7 @@ void MainWindow::RegisterPreferences()
 {
 	CAppConfig::GetInstance().RegisterPreferenceBoolean(PREFERENCE_AUDIO_ENABLEOUTPUT, true);
 	CAppConfig::GetInstance().RegisterPreferenceBoolean(PREF_UI_PAUSEWHENFOCUSLOST, true);
-	CAppConfig::GetInstance().RegisterPreferenceBoolean(PREF_VIDEO_USEVULKAN, false);
+	CAppConfig::GetInstance().RegisterPreferenceInteger(PREF_VIDEO_GS_HANDLER, SettingsDialog::GS_HANDLERS::OPENGL);
 }
 
 void MainWindow::focusOutEvent(QFocusEvent* event)
