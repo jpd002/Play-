@@ -188,8 +188,10 @@ void MainWindow::SetOutputWindowSize()
 void MainWindow::SetupGsHandler()
 {
 	assert(m_virtualMachine);
+	switch(CAppConfig::GetInstance().GetPreferenceInteger(PREF_VIDEO_GS_HANDLER))
+	{
 #ifdef HAS_GSH_VULKAN
-	if(CAppConfig::GetInstance().GetPreferenceInteger(PREF_VIDEO_GS_HANDLER) == 1)
+	case SettingsDialog::GS_HANDLERS::VULKAN:
 	{
 		m_outputwindow = new VulkanWindow;
 		QWidget* container = QWidget::createWindowContainer(m_outputwindow);
@@ -197,14 +199,17 @@ void MainWindow::SetupGsHandler()
 		ui->gridLayout->addWidget(container, 0, 0);
 		m_virtualMachine->CreateGSHandler(CGSH_VulkanQt::GetFactoryFunction(m_outputwindow));
 	}
-	else
+	break;
+	case SettingsDialog::GS_HANDLERS::OPENGL:
 #endif
+	default:
 	{
 		m_outputwindow = new OpenGLWindow;
 		QWidget* container = QWidget::createWindowContainer(m_outputwindow);
 		m_outputwindow->create();
 		ui->gridLayout->addWidget(container, 0, 0);
 		m_virtualMachine->CreateGSHandler(CGSH_OpenGLQt::GetFactoryFunction(m_outputwindow));
+	}
 	}
 
 	connect(m_outputwindow, SIGNAL(heightChanged(int)), this, SLOT(outputWindow_resized()));
@@ -431,13 +436,15 @@ void MainWindow::CreateStatusBar()
 	auto gsLabel = new QLabel("");
 	auto gs_index = CAppConfig::GetInstance().GetPreferenceInteger(PREF_VIDEO_GS_HANDLER);
 
-	if(gs_index == 0)
+	switch(gs_index)
 	{
+	default:
+	case SettingsDialog::GS_HANDLERS::OPENGL:
 		gsLabel->setText("OpenGL");
-	}
-	else
-	{
+		break;
+	case SettingsDialog::GS_HANDLERS::VULKAN:
 		gsLabel->setText("Vulkan");
+		break;
 	}
 	gsLabel->setAlignment(Qt::AlignHCenter);
 	gsLabel->setMinimumSize(gsLabel->sizeHint());
@@ -445,15 +452,18 @@ void MainWindow::CreateStatusBar()
 	gsLabel->setContextMenuPolicy(Qt::CustomContextMenu);
 	connect(gsLabel, &QLabel::customContextMenuRequested, [&, gsLabel]() {
 		auto gs_index = CAppConfig::GetInstance().GetPreferenceInteger(PREF_VIDEO_GS_HANDLER);
-		CAppConfig::GetInstance().SetPreferenceInteger(PREF_VIDEO_GS_HANDLER, 1 - gs_index);
+		gs_index = (gs_index + 1) % SettingsDialog::GS_HANDLERS::MAX_HANDLER;
+		CAppConfig::GetInstance().SetPreferenceInteger(PREF_VIDEO_GS_HANDLER, gs_index);
 		SetupGsHandler();
-		if(1 - gs_index == 0)
+		switch(gs_index)
 		{
+		default:
+		case SettingsDialog::GS_HANDLERS::OPENGL:
 			gsLabel->setText("OpenGL");
-		}
-		else
-		{
+			break;
+		case SettingsDialog::GS_HANDLERS::VULKAN:
 			gsLabel->setText("Vulkan");
+			break;
 		}
 	});
 	statusBar()->addWidget(gsLabel);
@@ -648,7 +658,7 @@ void MainWindow::RegisterPreferences()
 {
 	CAppConfig::GetInstance().RegisterPreferenceBoolean(PREFERENCE_AUDIO_ENABLEOUTPUT, true);
 	CAppConfig::GetInstance().RegisterPreferenceBoolean(PREF_UI_PAUSEWHENFOCUSLOST, true);
-	CAppConfig::GetInstance().RegisterPreferenceInteger(PREF_VIDEO_GS_HANDLER, 1);
+	CAppConfig::GetInstance().RegisterPreferenceInteger(PREF_VIDEO_GS_HANDLER, SettingsDialog::GS_HANDLERS::OPENGL);
 }
 
 void MainWindow::focusOutEvent(QFocusEvent* event)

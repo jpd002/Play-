@@ -3,6 +3,7 @@
 #include "PS2VM_Preferences.h"
 #include "PreferenceDefs.h"
 #include "../gs/GSH_OpenGL/GSH_OpenGL.h"
+#include <cassert>
 #include <cmath>
 
 SettingsDialog::SettingsDialog(QWidget* parent)
@@ -14,9 +15,15 @@ SettingsDialog::SettingsDialog(QWidget* parent)
 	//Not needed, as it can be set in the ui editor, but left for ease of ui edit.
 	ui->stackedWidget->setCurrentIndex(0);
 
-#ifndef HAS_GSH_VULKAN
+	ui->comboBox_gs_selection->insertItem(SettingsDialog::GS_HANDLERS::OPENGL, "OpenGL");
+#ifdef HAS_GSH_VULKAN
+	ui->comboBox_gs_selection->insertItem(SettingsDialog::GS_HANDLERS::VULKAN, "Vulkan");
+#else
 	ui->gs_option_widget->hide();
 #endif
+
+	// this assert is to ensure no one adds an item to the combobox through qt creator by accident
+	assert(ui->comboBox_gs_selection->count() == SettingsDialog::GS_HANDLERS::MAX_HANDLER);
 
 	LoadPreferences();
 	connect(ui->listWidget, &QListWidget::currentItemChanged, this, &SettingsDialog::changePage);

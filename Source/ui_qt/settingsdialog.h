@@ -16,6 +16,15 @@ class SettingsDialog : public QDialog
 	Q_OBJECT
 
 public:
+	enum GS_HANDLERS
+	{
+		OPENGL,
+#ifdef HAS_GSH_VULKAN
+		VULKAN,
+#endif
+		MAX_HANDLER
+	};
+
 	explicit SettingsDialog(QWidget* parent = 0);
 	~SettingsDialog();
 	void LoadPreferences();
