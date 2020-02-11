@@ -771,7 +771,7 @@ public:
 
 	virtual void SaveState(Framework::CZipArchiveWriter&);
 	virtual void LoadState(Framework::CZipArchiveReader&);
-	void Copy(CGSHandler*);
+	void Copy(const CGSHandler*);
 
 	void SetFrameDump(CFrameDump*);
 

@@ -279,7 +279,7 @@ void CGSHandler::LoadState(Framework::CZipArchiveReader& archive)
 	}
 }
 
-void CGSHandler::Copy(CGSHandler* gs)
+void CGSHandler::Copy(const CGSHandler* gs)
 {
 	memcpy(GetRam(), gs->GetRam(), RAMSIZE);
 	memcpy(m_nReg, gs->m_nReg, sizeof(uint64) * CGSHandler::REGISTER_MAX);
