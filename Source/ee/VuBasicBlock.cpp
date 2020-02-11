@@ -32,7 +32,7 @@ void CVuBasicBlock::CompileRange(CMipsJitter* jitter)
 	hints.resize(maxPipeTime);
 
 	ComputeSkipFlagsHints(hints);
-	
+
 	for(uint32 address = m_begin; address <= m_end; address += 8)
 	{
 		uint32 relativePipeTime = (address - m_begin) / 8;
@@ -300,7 +300,7 @@ void CVuBasicBlock::ComputeSkipFlagsHints(std::vector<uint32>& hints) const
 
 		uint32 opcodeLo = m_context.m_pMemoryMap->GetInstruction(addressLo);
 		uint32 opcodeHi = m_context.m_pMemoryMap->GetInstruction(addressHi);
-		
+
 		auto loOps = arch->GetAffectedOperands(&m_context, addressLo, opcodeLo);
 		auto hiOps = arch->GetAffectedOperands(&m_context, addressHi, opcodeHi);
 
@@ -308,8 +308,8 @@ void CVuBasicBlock::ComputeSkipFlagsHints(std::vector<uint32>& hints) const
 		{
 			//Make this result available
 			std::fill(
-				resultPipeTime.begin() + relativePipeTime + VUShared::LATENCY_MAC,
-				resultPipeTime.end(), relativePipeTime);
+			    resultPipeTime.begin() + relativePipeTime + VUShared::LATENCY_MAC,
+			    resultPipeTime.end(), relativePipeTime);
 		}
 
 		if(loOps.readMACflags)
