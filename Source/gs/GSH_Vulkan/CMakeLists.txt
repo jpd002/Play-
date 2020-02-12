@@ -42,6 +42,8 @@ add_library(gsh_vulkan STATIC
 	GSH_VulkanPresent.h
 	GSH_VulkanTransfer.cpp
 	GSH_VulkanTransfer.h
+	GSH_VulkanTransferLocal.cpp
+	GSH_VulkanTransferLocal.h
 )
 
 target_link_libraries(gsh_vulkan ${GSH_VULKAN_PROJECT_LIBS})

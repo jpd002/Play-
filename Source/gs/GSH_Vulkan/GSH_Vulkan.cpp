@@ -91,6 +91,7 @@ void CGSH_Vulkan::InitializeImpl()
 	m_draw = std::make_shared<CDraw>(m_context, m_frameCommandBuffer);
 	m_present = std::make_shared<CPresent>(m_context);
 	m_transfer = std::make_shared<CTransfer>(m_context, m_frameCommandBuffer);
+	m_transferLocal = std::make_shared<CTransferLocal>(m_context, m_frameCommandBuffer);
 
 	m_frameCommandBuffer->RegisterWriter(m_draw.get());
 	m_frameCommandBuffer->RegisterWriter(m_transfer.get());
@@ -108,6 +109,7 @@ void CGSH_Vulkan::ReleaseImpl()
 	m_draw.reset();
 	m_present.reset();
 	m_transfer.reset();
+	m_transferLocal.reset();
 	m_frameCommandBuffer.reset();
 
 	m_context->device.vkDestroyImageView(m_context->device, m_context->swizzleTablePSMCT32View, nullptr);
@@ -876,6 +878,31 @@ void CGSH_Vulkan::ProcessLocalToHostTransfer()
 
 void CGSH_Vulkan::ProcessLocalToLocalTransfer()
 {
+	//Flush previous cached info
+	m_clutState = CLUTSTATE();
+	m_draw->FlushRenderPass();
+
+	auto bltBuf = make_convertible<BITBLTBUF>(m_nReg[GS_REG_BITBLTBUF]);
+	auto trxReg = make_convertible<TRXREG>(m_nReg[GS_REG_TRXREG]);
+	auto trxPos = make_convertible<TRXPOS>(m_nReg[GS_REG_TRXPOS]);
+
+	m_transferLocal->Params.srcBufAddress = bltBuf.GetSrcPtr();
+	m_transferLocal->Params.srcBufWidth = bltBuf.GetSrcWidth();
+	m_transferLocal->Params.dstBufAddress = bltBuf.GetDstPtr();
+	m_transferLocal->Params.dstBufWidth = bltBuf.GetDstWidth();
+	m_transferLocal->Params.ssax = trxPos.nSSAX;
+	m_transferLocal->Params.ssay = trxPos.nSSAY;
+	m_transferLocal->Params.dsax = trxPos.nDSAX;
+	m_transferLocal->Params.dsay = trxPos.nDSAY;
+	m_transferLocal->Params.rrw = trxReg.nRRW;
+	m_transferLocal->Params.rrh = trxReg.nRRH;
+
+	auto pipelineCaps = make_convertible<CTransferLocal::PIPELINE_CAPS>(0);
+	pipelineCaps.srcFormat = bltBuf.nSrcPsm;
+	pipelineCaps.dstFormat = bltBuf.nDstPsm;
+
+	m_transferLocal->SetPipelineCaps(pipelineCaps);
+	m_transferLocal->DoTransfer();
 }
 
 void CGSH_Vulkan::ProcessClutTransfer(uint32 csa, uint32)
