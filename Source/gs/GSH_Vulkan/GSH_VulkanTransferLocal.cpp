@@ -170,6 +170,18 @@ Framework::Vulkan::CShaderModule CTransferLocal::CreateShader(const PIPELINE_CAP
 
 		auto size = sizeParams->xy();
 
+		BeginIf(b, inputInvocationId->x() >= size->x());
+		{
+			Return(b);
+		}
+		EndIf(b);
+
+		BeginIf(b, inputInvocationId->y() >= size->y());
+		{
+			Return(b);
+		}
+		EndIf(b);
+
 		auto srcPos = inputInvocationId->xy() + srcOffset;
 		auto dstPos = inputInvocationId->xy() + dstOffset;
 
@@ -177,6 +189,13 @@ Framework::Vulkan::CShaderModule CTransferLocal::CreateShader(const PIPELINE_CAP
 
 		switch(caps.srcFormat)
 		{
+		case CGSHandler::PSMCT32:
+		{
+			auto address = CMemoryUtils::GetPixelAddress<CGsPixelFormats::STORAGEPSMCT32>(
+			    b, srcSwizzleTable, srcBufAddress, srcBufWidth, srcPos);
+			pixel = CMemoryUtils::Memory_Read32(b, memoryBuffer, address);
+		}
+		break;
 		case CGSHandler::PSMCT16:
 		{
 			auto address = CMemoryUtils::GetPixelAddress<CGsPixelFormats::STORAGEPSMCT16>(
@@ -191,6 +210,13 @@ Framework::Vulkan::CShaderModule CTransferLocal::CreateShader(const PIPELINE_CAP
 
 		switch(caps.dstFormat)
 		{
+		case CGSHandler::PSMCT32:
+		{
+			auto address = CMemoryUtils::GetPixelAddress<CGsPixelFormats::STORAGEPSMCT32>(
+			    b, dstSwizzleTable, dstBufAddress, dstBufWidth, dstPos);
+			CMemoryUtils::Memory_Write32(b, memoryBuffer, address, pixel);
+		}
+		break;
 		case CGSHandler::PSMCT16:
 		{
 			auto address = CMemoryUtils::GetPixelAddress<CGsPixelFormats::STORAGEPSMCT16>(

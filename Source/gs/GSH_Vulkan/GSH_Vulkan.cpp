@@ -886,6 +886,8 @@ void CGSH_Vulkan::ProcessLocalToLocalTransfer()
 	auto trxReg = make_convertible<TRXREG>(m_nReg[GS_REG_TRXREG]);
 	auto trxPos = make_convertible<TRXPOS>(m_nReg[GS_REG_TRXPOS]);
 
+	assert(trxPos.nDIR == 0);
+
 	m_transferLocal->Params.srcBufAddress = bltBuf.GetSrcPtr();
 	m_transferLocal->Params.srcBufWidth = bltBuf.GetSrcWidth();
 	m_transferLocal->Params.dstBufAddress = bltBuf.GetDstPtr();
