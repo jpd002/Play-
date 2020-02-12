@@ -86,6 +86,7 @@ private:
 	void RegisterPreferences();
 	void saveState(int);
 	void toggleFullscreen();
+	void UpdateGSHandlerLabel(int);
 #ifdef DEBUGGER_INCLUDED
 	bool nativeEventFilter(const QByteArray&, void*, long*) Q_DECL_OVERRIDE;
 #endif
@@ -94,6 +95,7 @@ private:
 
 	QWindow* m_outputwindow = nullptr;
 	QLabel* m_fpsLabel = nullptr;
+	QLabel* m_gsLabel = nullptr;
 #ifdef PROFILE
 	QLabel* m_profileStatsLabel = nullptr;
 	CPS2VM::ProfileFrameDoneSignal::Connection m_profileFrameDoneConnection;
