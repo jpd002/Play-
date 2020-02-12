@@ -433,40 +433,22 @@ void MainWindow::CreateStatusBar()
 	statusBar()->addWidget(m_msgLabel, 1);
 	statusBar()->addWidget(m_fpsLabel);
 #ifdef HAS_GSH_VULKAN
-	auto gsLabel = new QLabel("");
+	m_gsLabel = new QLabel("");
 	auto gs_index = CAppConfig::GetInstance().GetPreferenceInteger(PREF_VIDEO_GS_HANDLER);
+	UpdateGSHandlerLabel(gs_index);
 
-	switch(gs_index)
-	{
-	default:
-	case SettingsDialog::GS_HANDLERS::OPENGL:
-		gsLabel->setText("OpenGL");
-		break;
-	case SettingsDialog::GS_HANDLERS::VULKAN:
-		gsLabel->setText("Vulkan");
-		break;
-	}
-	gsLabel->setAlignment(Qt::AlignHCenter);
-	gsLabel->setMinimumSize(gsLabel->sizeHint());
+	m_gsLabel->setAlignment(Qt::AlignHCenter);
+	m_gsLabel->setMinimumSize(m_gsLabel->sizeHint());
 	//QLabel have no click event, so we're using ContextMenu event aka rightClick to toggle GS
-	gsLabel->setContextMenuPolicy(Qt::CustomContextMenu);
-	connect(gsLabel, &QLabel::customContextMenuRequested, [&, gsLabel]() {
+	m_gsLabel->setContextMenuPolicy(Qt::CustomContextMenu);
+	connect(m_gsLabel, &QLabel::customContextMenuRequested, [&]() {
 		auto gs_index = CAppConfig::GetInstance().GetPreferenceInteger(PREF_VIDEO_GS_HANDLER);
 		gs_index = (gs_index + 1) % SettingsDialog::GS_HANDLERS::MAX_HANDLER;
 		CAppConfig::GetInstance().SetPreferenceInteger(PREF_VIDEO_GS_HANDLER, gs_index);
 		SetupGsHandler();
-		switch(gs_index)
-		{
-		default:
-		case SettingsDialog::GS_HANDLERS::OPENGL:
-			gsLabel->setText("OpenGL");
-			break;
-		case SettingsDialog::GS_HANDLERS::VULKAN:
-			gsLabel->setText("Vulkan");
-			break;
-		}
+		UpdateGSHandlerLabel(gs_index);
 	});
-	statusBar()->addWidget(gsLabel);
+	statusBar()->addWidget(m_gsLabel);
 #endif
 	m_msgLabel->setText(QString("Play! v%1 - %2").arg(PLAY_VERSION).arg(__DATE__));
 
@@ -499,6 +481,7 @@ void MainWindow::on_actionSettings_triggered()
 		auto new_gs_index = CAppConfig::GetInstance().GetPreferenceInteger(PREF_VIDEO_GS_HANDLER);
 		if(gs_index != new_gs_index)
 		{
+			UpdateGSHandlerLabel(new_gs_index);
 			SetupGsHandler();
 		}
 		else
@@ -870,5 +853,21 @@ void MainWindow::on_actionList_Bootables_triggered()
 			messageBox.critical(nullptr, "Error", e.what());
 			messageBox.show();
 		}
+	}
+}
+
+void MainWindow::UpdateGSHandlerLabel(int gs_index)
+{
+	switch(gs_index)
+	{
+	default:
+	case SettingsDialog::GS_HANDLERS::OPENGL:
+		m_gsLabel->setText("OpenGL");
+		break;
+#ifdef HAS_GSH_VULKAN
+	case SettingsDialog::GS_HANDLERS::VULKAN:
+		m_gsLabel->setText("Vulkan");
+		break;
+#endif
 	}
 }
