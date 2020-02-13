@@ -1,4 +1,4 @@
-#include "GSH_VulkanTransfer.h"
+#include "GSH_VulkanTransferHost.h"
 #include "GSH_VulkanMemoryUtils.h"
 #include "MemStream.h"
 #include "vulkan/StructDefs.h"
@@ -16,7 +16,7 @@ using namespace GSH_Vulkan;
 
 #define LOCAL_SIZE_X 1024
 
-CTransfer::CTransfer(const ContextPtr& context, const FrameCommandBufferPtr& frameCommandBuffer)
+CTransferHost::CTransferHost(const ContextPtr& context, const FrameCommandBufferPtr& frameCommandBuffer)
     : m_context(context)
     , m_frameCommandBuffer(frameCommandBuffer)
     , m_pipelineCache(context->device)
@@ -35,7 +35,7 @@ CTransfer::CTransfer(const ContextPtr& context, const FrameCommandBufferPtr& fra
 	m_pipelineCaps <<= 0;
 }
 
-CTransfer::~CTransfer()
+CTransferHost::~CTransferHost()
 {
 	for(auto& frame : m_frames)
 	{
@@ -43,12 +43,12 @@ CTransfer::~CTransfer()
 	}
 }
 
-void CTransfer::SetPipelineCaps(const PIPELINE_CAPS& pipelineCaps)
+void CTransferHost::SetPipelineCaps(const PIPELINE_CAPS& pipelineCaps)
 {
 	m_pipelineCaps = pipelineCaps;
 }
 
-void CTransfer::DoHostToLocalTransfer(const XferBuffer& inputData)
+void CTransferHost::DoTransfer(const XferBuffer& inputData)
 {
 	auto result = VK_SUCCESS;
 
@@ -124,7 +124,7 @@ void CTransfer::DoHostToLocalTransfer(const XferBuffer& inputData)
 	m_xferBufferOffset += inputData.size();
 }
 
-VkDescriptorSet CTransfer::PrepareDescriptorSet(VkDescriptorSetLayout descriptorSetLayout, const DESCRIPTORSET_CAPS& caps)
+VkDescriptorSet CTransferHost::PrepareDescriptorSet(VkDescriptorSetLayout descriptorSetLayout, const DESCRIPTORSET_CAPS& caps)
 {
 	auto descriptorSetIterator = m_descriptorSetCache.find(caps);
 	if(descriptorSetIterator != std::end(m_descriptorSetCache))
@@ -203,16 +203,16 @@ VkDescriptorSet CTransfer::PrepareDescriptorSet(VkDescriptorSetLayout descriptor
 	return descriptorSet;
 }
 
-void CTransfer::PreFlushFrameCommandBuffer()
+void CTransferHost::PreFlushFrameCommandBuffer()
 {
 }
 
-void CTransfer::PostFlushFrameCommandBuffer()
+void CTransferHost::PostFlushFrameCommandBuffer()
 {
 	m_xferBufferOffset = 0;
 }
 
-Framework::Vulkan::CShaderModule CTransfer::CreateXferShader(const PIPELINE_CAPS& caps)
+Framework::Vulkan::CShaderModule CTransferHost::CreateXferShader(const PIPELINE_CAPS& caps)
 {
 	using namespace Nuanceur;
 
@@ -330,12 +330,12 @@ Framework::Vulkan::CShaderModule CTransfer::CreateXferShader(const PIPELINE_CAPS
 	return Framework::Vulkan::CShaderModule(m_context->device, shaderStream);
 }
 
-Nuanceur::CUintRvalue CTransfer::XferStream_Read32(Nuanceur::CShaderBuilder& b, Nuanceur::CArrayUintValue xferBuffer, Nuanceur::CIntValue pixelIndex)
+Nuanceur::CUintRvalue CTransferHost::XferStream_Read32(Nuanceur::CShaderBuilder& b, Nuanceur::CArrayUintValue xferBuffer, Nuanceur::CIntValue pixelIndex)
 {
 	return Load(xferBuffer, pixelIndex);
 }
 
-Nuanceur::CUintRvalue CTransfer::XferStream_Read24(Nuanceur::CShaderBuilder& b, Nuanceur::CArrayUintValue xferBuffer, Nuanceur::CIntValue pixelIndex)
+Nuanceur::CUintRvalue CTransferHost::XferStream_Read24(Nuanceur::CShaderBuilder& b, Nuanceur::CArrayUintValue xferBuffer, Nuanceur::CIntValue pixelIndex)
 {
 	auto byteOffset = pixelIndex * NewInt(b, 3);
 	auto byte0 = XferStream_Read8(b, xferBuffer, byteOffset + NewInt(b, 0));
@@ -344,28 +344,28 @@ Nuanceur::CUintRvalue CTransfer::XferStream_Read24(Nuanceur::CShaderBuilder& b, 
 	return (byte0) | (byte1 << NewUint(b, 8)) | (byte2 << NewUint(b, 16));
 }
 
-Nuanceur::CUintRvalue CTransfer::XferStream_Read16(Nuanceur::CShaderBuilder& b, Nuanceur::CArrayUintValue xferBuffer, Nuanceur::CIntValue pixelIndex)
+Nuanceur::CUintRvalue CTransferHost::XferStream_Read16(Nuanceur::CShaderBuilder& b, Nuanceur::CArrayUintValue xferBuffer, Nuanceur::CIntValue pixelIndex)
 {
 	auto srcOffset = pixelIndex / NewInt(b, 2);
 	auto srcShift = (ToUint(pixelIndex) & NewUint(b, 1)) * NewUint(b, 16);
 	return (Load(xferBuffer, srcOffset) >> srcShift) & NewUint(b, 0xFFFF);
 }
 
-Nuanceur::CUintRvalue CTransfer::XferStream_Read8(Nuanceur::CShaderBuilder& b, Nuanceur::CArrayUintValue xferBuffer, Nuanceur::CIntValue pixelIndex)
+Nuanceur::CUintRvalue CTransferHost::XferStream_Read8(Nuanceur::CShaderBuilder& b, Nuanceur::CArrayUintValue xferBuffer, Nuanceur::CIntValue pixelIndex)
 {
 	auto srcOffset = pixelIndex / NewInt(b, 4);
 	auto srcShift = (ToUint(pixelIndex) & NewUint(b, 3)) * NewUint(b, 8);
 	return (Load(xferBuffer, srcOffset) >> srcShift) & NewUint(b, 0xFF);
 }
 
-Nuanceur::CUintRvalue CTransfer::XferStream_Read4(Nuanceur::CShaderBuilder& b, Nuanceur::CArrayUintValue xferBuffer, Nuanceur::CIntValue pixelIndex)
+Nuanceur::CUintRvalue CTransferHost::XferStream_Read4(Nuanceur::CShaderBuilder& b, Nuanceur::CArrayUintValue xferBuffer, Nuanceur::CIntValue pixelIndex)
 {
 	auto srcOffset = pixelIndex / NewInt(b, 8);
 	auto srcShift = (ToUint(pixelIndex) & NewUint(b, 7)) * NewUint(b, 4);
 	return (Load(xferBuffer, srcOffset) >> srcShift) & NewUint(b, 0xF);
 }
 
-PIPELINE CTransfer::CreateXferPipeline(const PIPELINE_CAPS& caps)
+PIPELINE CTransferHost::CreateXferPipeline(const PIPELINE_CAPS& caps)
 {
 	PIPELINE xferPipeline;
 

@@ -8,7 +8,7 @@
 #include "GSH_VulkanClutLoad.h"
 #include "GSH_VulkanDraw.h"
 #include "GSH_VulkanPresent.h"
-#include "GSH_VulkanTransfer.h"
+#include "GSH_VulkanTransferHost.h"
 #include "GSH_VulkanTransferLocal.h"
 #include <vector>
 #include "../GSHandler.h"
@@ -83,9 +83,9 @@ private:
 	GSH_Vulkan::FrameCommandBufferPtr m_frameCommandBuffer;
 	GSH_Vulkan::ClutLoadPtr m_clutLoad;
 	GSH_Vulkan::DrawPtr m_draw;
-	GSH_Vulkan::TransferLocalPtr m_transferLocal;
 	GSH_Vulkan::PresentPtr m_present;
-	GSH_Vulkan::TransferPtr m_transfer;
+	GSH_Vulkan::TransferHostPtr m_transferHost;
+	GSH_Vulkan::TransferLocalPtr m_transferLocal;
 
 	uint8* m_memoryBufferPtr = nullptr;
 

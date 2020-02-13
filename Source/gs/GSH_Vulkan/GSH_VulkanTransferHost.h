@@ -10,7 +10,7 @@
 
 namespace GSH_Vulkan
 {
-	class CTransfer : public IFrameCommandBufferWriter
+	class CTransferHost : public IFrameCommandBufferWriter
 	{
 	public:
 		enum
@@ -39,12 +39,12 @@ namespace GSH_Vulkan
 		};
 		static_assert(sizeof(XFERPARAMS) == 0x20, "XFERPARAMS must be 32 bytes large.");
 
-		CTransfer(const ContextPtr&, const FrameCommandBufferPtr&);
-		virtual ~CTransfer();
+		CTransferHost(const ContextPtr&, const FrameCommandBufferPtr&);
+		virtual ~CTransferHost();
 
 		void SetPipelineCaps(const PIPELINE_CAPS&);
 
-		void DoHostToLocalTransfer(const XferBuffer&);
+		void DoTransfer(const XferBuffer&);
 
 		void PreFlushFrameCommandBuffer() override;
 		void PostFlushFrameCommandBuffer() override;
@@ -93,5 +93,5 @@ namespace GSH_Vulkan
 		PIPELINE_CAPS m_pipelineCaps;
 	};
 
-	typedef std::shared_ptr<CTransfer> TransferPtr;
+	typedef std::shared_ptr<CTransferHost> TransferHostPtr;
 }

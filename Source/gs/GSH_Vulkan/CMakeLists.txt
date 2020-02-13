@@ -40,8 +40,8 @@ add_library(gsh_vulkan STATIC
 	GSH_VulkanPipelineCache.h
 	GSH_VulkanPresent.cpp
 	GSH_VulkanPresent.h
-	GSH_VulkanTransfer.cpp
-	GSH_VulkanTransfer.h
+	GSH_VulkanTransferHost.cpp
+	GSH_VulkanTransferHost.h
 	GSH_VulkanTransferLocal.cpp
 	GSH_VulkanTransferLocal.h
 )

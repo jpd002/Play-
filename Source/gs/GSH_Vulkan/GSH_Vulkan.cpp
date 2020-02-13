@@ -90,11 +90,11 @@ void CGSH_Vulkan::InitializeImpl()
 	m_clutLoad = std::make_shared<CClutLoad>(m_context, m_frameCommandBuffer);
 	m_draw = std::make_shared<CDraw>(m_context, m_frameCommandBuffer);
 	m_present = std::make_shared<CPresent>(m_context);
-	m_transfer = std::make_shared<CTransfer>(m_context, m_frameCommandBuffer);
+	m_transferHost = std::make_shared<CTransferHost>(m_context, m_frameCommandBuffer);
 	m_transferLocal = std::make_shared<CTransferLocal>(m_context, m_frameCommandBuffer);
 
 	m_frameCommandBuffer->RegisterWriter(m_draw.get());
-	m_frameCommandBuffer->RegisterWriter(m_transfer.get());
+	m_frameCommandBuffer->RegisterWriter(m_transferHost.get());
 	m_frameCommandBuffer->BeginFrame();
 }
 
@@ -108,7 +108,7 @@ void CGSH_Vulkan::ReleaseImpl()
 	m_clutLoad.reset();
 	m_draw.reset();
 	m_present.reset();
-	m_transfer.reset();
+	m_transferHost.reset();
 	m_transferLocal.reset();
 	m_frameCommandBuffer.reset();
 
@@ -859,17 +859,17 @@ void CGSH_Vulkan::ProcessHostToLocalTransfer()
 	auto trxReg = make_convertible<TRXREG>(m_nReg[GS_REG_TRXREG]);
 	auto trxPos = make_convertible<TRXPOS>(m_nReg[GS_REG_TRXPOS]);
 
-	m_transfer->Params.bufAddress = bltBuf.GetDstPtr();
-	m_transfer->Params.bufWidth = bltBuf.GetDstWidth();
-	m_transfer->Params.rrw = trxReg.nRRW;
-	m_transfer->Params.dsax = trxPos.nDSAX;
-	m_transfer->Params.dsay = trxPos.nDSAY;
+	m_transferHost->Params.bufAddress = bltBuf.GetDstPtr();
+	m_transferHost->Params.bufWidth = bltBuf.GetDstWidth();
+	m_transferHost->Params.rrw = trxReg.nRRW;
+	m_transferHost->Params.dsax = trxPos.nDSAX;
+	m_transferHost->Params.dsay = trxPos.nDSAY;
 
-	auto pipelineCaps = make_convertible<CTransfer::PIPELINE_CAPS>(0);
+	auto pipelineCaps = make_convertible<CTransferHost::PIPELINE_CAPS>(0);
 	pipelineCaps.dstFormat = bltBuf.nDstPsm;
 
-	m_transfer->SetPipelineCaps(pipelineCaps);
-	m_transfer->DoHostToLocalTransfer(m_xferBuffer);
+	m_transferHost->SetPipelineCaps(pipelineCaps);
+	m_transferHost->DoTransfer(m_xferBuffer);
 }
 
 void CGSH_Vulkan::ProcessLocalToHostTransfer()
