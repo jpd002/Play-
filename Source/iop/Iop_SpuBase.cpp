@@ -497,6 +497,11 @@ uint32 CSpuBase::ReceiveDma(uint8* buffer, uint32 blockSize, uint32 blockAmount)
 #endif
 	if(m_transferMode == TRANSFER_MODE_VOICE)
 	{
+		if((m_ctrl & CONTROL_DMA) == CONTROL_DMA_STOP)
+		{
+			//Genso Suikoden 5 uses this
+			return 0;
+		}
 		if((m_ctrl & CONTROL_DMA) == CONTROL_DMA_READ)
 		{
 			//DMA reads need to be throttled to allow FFX IopSoundDriver to properly synchronize itself
