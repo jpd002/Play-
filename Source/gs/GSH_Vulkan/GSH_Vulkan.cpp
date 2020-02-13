@@ -528,6 +528,8 @@ void CGSH_Vulkan::SetRenderingContext(uint64 primReg)
 	pipelineCaps.texClampV = clamp.nWMT;
 	pipelineCaps.hasFog = prim.nFog;
 	pipelineCaps.hasAlphaBlending = prim.nAlpha;
+	pipelineCaps.hasDstAlphaTest = test.nDestAlphaEnabled;
+	pipelineCaps.dstAlphaTestRef = test.nDestAlphaMode;
 	pipelineCaps.writeDepth = (zbuf.nMask == 0);
 	pipelineCaps.textureFormat = tex0.nPsm;
 	pipelineCaps.clutFormat = tex0.nCPSM;

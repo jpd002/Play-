@@ -928,6 +928,43 @@ static Nuanceur::CFloat3Rvalue GetAlphaC(Nuanceur::CShaderBuilder& b, uint32 alp
 	}
 }
 
+static void DestinationAlphaTest(Nuanceur::CShaderBuilder& b, uint32 framebufferFormat,
+                                 uint32 dstAlphaTestRef, Nuanceur::CUintValue dstPixel,
+                                 Nuanceur::CBoolValue& writeColor, Nuanceur::CBoolValue& writeDepth)
+{
+	using namespace Nuanceur;
+
+	auto alphaBit = CUintLvalue(b.CreateTemporaryUint());
+	switch(framebufferFormat)
+	{
+	case CGSHandler::PSMCT16:
+	case CGSHandler::PSMCT16S:
+		alphaBit = dstPixel & NewUint(b, 0x8000);
+		break;
+	default:
+		assert(false);
+		break;
+	}
+
+	auto dstAlphaTestResult = CBoolLvalue(b.CreateTemporaryBool());
+	if(dstAlphaTestRef)
+	{
+		//Pixels with alpha bit set pass
+		dstAlphaTestResult = (alphaBit != NewUint(b, 0));
+	}
+	else
+	{
+		dstAlphaTestResult = (alphaBit == NewUint(b, 0));
+	}
+
+	BeginIf(b, !dstAlphaTestResult);
+	{
+		writeColor = NewBool(b, false);
+		writeDepth = NewBool(b, false);
+	}
+	EndIf(b);
+}
+
 static void WriteToFramebuffer(Nuanceur::CShaderBuilder& b, uint32 framebufferFormat,
                                Nuanceur::CArrayUintValue memoryBuffer, Nuanceur::CIntValue fbAddress,
                                Nuanceur::CUintValue fbWriteMask, Nuanceur::CUintValue dstPixel, Nuanceur::CFloat4Value dstColor)
@@ -1221,7 +1258,8 @@ Framework::Vulkan::CShaderModule CDraw::CreateFragmentShader(const PIPELINE_CAPS
 		auto dstAlpha = CFloat4Lvalue(b.CreateVariableFloat("dstAlpha"));
 		auto dstDepth = CUintLvalue(b.CreateTemporaryUint());
 
-		bool needsDstColor = (caps.hasAlphaBlending != 0) || (caps.maskColor != 0) || canDiscardAlpha;
+		bool needsDstColor = (caps.hasAlphaBlending != 0) || (caps.maskColor != 0)
+			|| canDiscardAlpha || (caps.hasDstAlphaTest != 0);
 		if(needsDstColor)
 		{
 			switch(caps.framebufferFormat)
@@ -1253,6 +1291,11 @@ Framework::Vulkan::CShaderModule CDraw::CreateFragmentShader(const PIPELINE_CAPS
 			{
 				dstAlpha = dstColor->wwww();
 			}
+		}
+
+		if(caps.hasDstAlphaTest)
+		{
+			DestinationAlphaTest(b, caps.framebufferFormat, caps.dstAlphaTestRef, dstPixel, writeColor, writeDepth);
 		}
 
 		bool needsDstDepth = (caps.depthTestFunction == CGSHandler::DEPTH_TEST_GEQUAL) ||
