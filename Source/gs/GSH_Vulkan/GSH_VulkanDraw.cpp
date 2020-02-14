@@ -930,7 +930,7 @@ static Nuanceur::CFloat3Rvalue GetAlphaC(Nuanceur::CShaderBuilder& b, uint32 alp
 
 static void DestinationAlphaTest(Nuanceur::CShaderBuilder& b, uint32 framebufferFormat,
                                  uint32 dstAlphaTestRef, Nuanceur::CUintValue dstPixel,
-                                 Nuanceur::CBoolValue& writeColor, Nuanceur::CBoolValue& writeDepth)
+                                 Nuanceur::CBoolLvalue writeColor, Nuanceur::CBoolLvalue writeDepth)
 {
 	using namespace Nuanceur;
 
