@@ -937,6 +937,9 @@ static void DestinationAlphaTest(Nuanceur::CShaderBuilder& b, uint32 framebuffer
 	auto alphaBit = CUintLvalue(b.CreateTemporaryUint());
 	switch(framebufferFormat)
 	{
+	case CGSHandler::PSMCT32:
+		alphaBit = dstPixel & NewUint(b, 0x80000000);
+		break;
 	case CGSHandler::PSMCT16:
 	case CGSHandler::PSMCT16S:
 		alphaBit = dstPixel & NewUint(b, 0x8000);
