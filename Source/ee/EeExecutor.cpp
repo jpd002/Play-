@@ -266,6 +266,8 @@ void CEeExecutor::HandlerThreadProc()
 		assert(result == KERN_SUCCESS);
 
 		assert(inMsg.head.msgh_id == 2406); //MACH_EXCEPTION_RAISE_RPC
+		assert(inMsg.flavor == STATE_FLAVOR);
+		assert(inMsg.stateCount == STATE_FLAVOR_COUNT);
 
 		bool success = HandleAccessFault(inMsg.code[1]);
 
