@@ -32,18 +32,6 @@
    <string>Bootable Selection Dialog</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
-   <property name="leftMargin">
-    <number>0</number>
-   </property>
-   <property name="topMargin">
-    <number>10</number>
-   </property>
-   <property name="rightMargin">
-    <number>0</number>
-   </property>
-   <property name="bottomMargin">
-    <number>0</number>
-   </property>
    <item row="1" column="2">
     <widget class="QPushButton" name="add_games_button">
      <property name="sizePolicy">
