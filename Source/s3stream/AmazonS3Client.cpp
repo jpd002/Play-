@@ -172,7 +172,7 @@ GetObjectResult CAmazonS3Client::GetObject(const GetObjectRequest& request)
 	Request rq;
 	rq.method = Framework::Http::HTTP_VERB::GET;
 	rq.uri = "/" + Framework::Http::CHttpClient::UrlEncode(request.object);
-	rq.host = string_format("%s." S3_HOSTNAME, request.bucket.c_str());
+	rq.host = string_format("%s.s3-%s.amazonaws.com", request.bucket.c_str(), m_region.c_str());
 	rq.urlHost = rq.host;
 
 	if(request.range.first != request.range.second)
@@ -201,7 +201,7 @@ HeadObjectResult CAmazonS3Client::HeadObject(const HeadObjectRequest& request)
 	Request rq;
 	rq.method = Framework::Http::HTTP_VERB::HEAD;
 	rq.uri = "/" + Framework::Http::CHttpClient::UrlEncode(request.object);
-	rq.host = string_format("%s." S3_HOSTNAME, request.bucket.c_str());
+	rq.host = string_format("%s.s3-%s.amazonaws.com", request.bucket.c_str(), m_region.c_str());
 	rq.urlHost = rq.host;
 
 	auto response = ExecuteRequest(rq);
@@ -233,7 +233,7 @@ ListObjectsResult CAmazonS3Client::ListObjects(std::string bucket)
 	Request rq;
 	rq.method = Framework::Http::HTTP_VERB::GET;
 	rq.uri = "/";
-	rq.host = string_format("%s." S3_HOSTNAME, bucket.c_str());
+	rq.host = string_format("%s.s3-%s.amazonaws.com", bucket.c_str(), m_region.c_str());
 	rq.urlHost = rq.host;
 
 	auto response = ExecuteRequest(rq);
