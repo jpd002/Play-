@@ -90,9 +90,9 @@ VkDescriptorSet CClutLoad::PrepareDescriptorSet(VkDescriptorSetLayout descriptor
 		descriptorMemoryBufferInfo.buffer = m_context->memoryBuffer;
 		descriptorMemoryBufferInfo.range = VK_WHOLE_SIZE;
 
-		VkDescriptorImageInfo descriptorClutImageInfo = {};
-		descriptorClutImageInfo.imageView = m_context->clutImageView;
-		descriptorClutImageInfo.imageLayout = VK_IMAGE_LAYOUT_GENERAL;
+		VkDescriptorBufferInfo descriptorClutBufferInfo = {};
+		descriptorClutBufferInfo.buffer = m_context->clutBuffer;
+		descriptorClutBufferInfo.range = VK_WHOLE_SIZE;
 
 		VkDescriptorImageInfo descriptorSwizzleTableImageInfo = {};
 		descriptorSwizzleTableImageInfo.imageView = m_context->GetSwizzleTable(cpsm);
@@ -115,8 +115,8 @@ VkDescriptorSet CClutLoad::PrepareDescriptorSet(VkDescriptorSetLayout descriptor
 			writeSet.dstSet = descriptorSet;
 			writeSet.dstBinding = DESCRIPTOR_LOCATION_CLUT;
 			writeSet.descriptorCount = 1;
-			writeSet.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_IMAGE;
-			writeSet.pImageInfo = &descriptorClutImageInfo;
+			writeSet.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+			writeSet.pBufferInfo = &descriptorClutBufferInfo;
 			writes.push_back(writeSet);
 		}
 
@@ -169,7 +169,7 @@ Framework::Vulkan::CShaderModule CClutLoad::CreateLoadShader(const PIPELINE_CAPS
 	{
 		auto inputInvocationId = CInt4Lvalue(b.CreateInputInt(Nuanceur::SEMANTIC_SYSTEM_GIID));
 		auto memoryBuffer = CArrayUintValue(b.CreateUniformArrayUint("memoryBuffer", DESCRIPTOR_LOCATION_MEMORY));
-		auto clutImage = CImageUint2DValue(b.CreateImage2DUint(DESCRIPTOR_LOCATION_CLUT));
+		auto clutBuffer = CArrayUintValue(b.CreateUniformArrayUint("clutBuffer", DESCRIPTOR_LOCATION_CLUT));
 		auto swizzleTable = CImageUint2DValue(b.CreateImage2DUint(DESCRIPTOR_LOCATION_SWIZZLETABLE));
 
 		auto loadParams1 = CInt4Lvalue(b.CreateUniformInt4("loadParams1", Nuanceur::UNIFORM_UNIT_PUSHCONSTANT));
@@ -240,17 +240,17 @@ Framework::Vulkan::CShaderModule CClutLoad::CreateLoadShader(const PIPELINE_CAPS
 		case CGSHandler::PSMCT32:
 		case CGSHandler::PSMCT24:
 		{
-			auto colorPixelLo = (colorPixel)&NewUint(b, 0xFFFF);
+			auto colorPixelLo = colorPixel & NewUint(b, 0xFFFF);
 			auto colorPixelHi = (colorPixel >> NewUint(b, 16)) & NewUint(b, 0xFFFF);
-			auto clutIndexLo = NewInt2(clutIndex, NewInt(b, 0));
-			auto clutIndexHi = NewInt2(clutIndex + NewInt(b, 0x100), NewInt(b, 0));
-			Store(clutImage, clutIndexLo, NewUint4(colorPixelLo, NewUint3(b, 0, 0, 0)));
-			Store(clutImage, clutIndexHi, NewUint4(colorPixelHi, NewUint3(b, 0, 0, 0)));
+			auto clutIndexLo = clutIndex;
+			auto clutIndexHi = clutIndex + NewInt(b, 0x100);
+			Store(clutBuffer, clutIndexLo, colorPixelLo);
+			Store(clutBuffer, clutIndexHi, colorPixelHi);
 		}
 		break;
 		case CGSHandler::PSMCT16:
 		{
-			Store(clutImage, NewInt2(clutIndex, NewInt(b, 0)), NewUint4(colorPixel, NewUint3(b, 0, 0, 0)));
+			Store(clutBuffer, clutIndex, colorPixel);
 		}
 		break;
 		default:
@@ -290,7 +290,7 @@ PIPELINE CClutLoad::CreateLoadPipeline(const PIPELINE_CAPS& caps)
 		{
 			VkDescriptorSetLayoutBinding binding = {};
 			binding.binding = DESCRIPTOR_LOCATION_CLUT;
-			binding.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_IMAGE;
+			binding.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
 			binding.descriptorCount = 1;
 			binding.stageFlags = VK_SHADER_STAGE_COMPUTE_BIT;
 			bindings.push_back(binding);

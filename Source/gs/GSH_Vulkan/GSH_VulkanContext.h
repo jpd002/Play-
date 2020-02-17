@@ -21,7 +21,7 @@ namespace GSH_Vulkan
 		VkDescriptorPool descriptorPool = VK_NULL_HANDLE;
 		VkPhysicalDeviceMemoryProperties physicalDeviceMemoryProperties;
 		Framework::Vulkan::CBuffer memoryBuffer;
-		VkImageView clutImageView = VK_NULL_HANDLE;
+		Framework::Vulkan::CBuffer clutBuffer;
 		VkImageView swizzleTablePSMCT32View = VK_NULL_HANDLE;
 		VkImageView swizzleTablePSMCT16View = VK_NULL_HANDLE;
 		VkImageView swizzleTablePSMCT16SView = VK_NULL_HANDLE;

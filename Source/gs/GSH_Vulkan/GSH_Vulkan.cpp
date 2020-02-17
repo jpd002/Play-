@@ -70,7 +70,7 @@ void CGSH_Vulkan::InitializeImpl()
 
 	CreateDescriptorPool();
 	CreateMemoryBuffer();
-	CreateClutImage();
+	CreateClutBuffer();
 
 	m_swizzleTablePSMCT32 = CreateSwizzleTable<CGsPixelFormats::STORAGEPSMCT32>(m_context->device, m_context->physicalDeviceMemoryProperties, m_context->queue, m_context->commandBufferPool);
 	m_swizzleTablePSMCT16 = CreateSwizzleTable<CGsPixelFormats::STORAGEPSMCT16>(m_context->device, m_context->physicalDeviceMemoryProperties, m_context->queue, m_context->commandBufferPool);
@@ -118,7 +118,6 @@ void CGSH_Vulkan::ReleaseImpl()
 	m_context->device.vkDestroyImageView(m_context->device, m_context->swizzleTablePSMT8View, nullptr);
 	m_context->device.vkDestroyImageView(m_context->device, m_context->swizzleTablePSMT4View, nullptr);
 	m_context->device.vkDestroyImageView(m_context->device, m_context->swizzleTablePSMZ32View, nullptr);
-	m_context->device.vkDestroyImageView(m_context->device, m_context->clutImageView, nullptr);
 
 	m_swizzleTablePSMCT32.Reset();
 	m_swizzleTablePSMCT16.Reset();
@@ -126,9 +125,9 @@ void CGSH_Vulkan::ReleaseImpl()
 	m_swizzleTablePSMT8.Reset();
 	m_swizzleTablePSMT4.Reset();
 	m_swizzleTablePSMZ32.Reset();
-	m_clutImage.Reset();
 
 	m_context->device.vkDestroyDescriptorPool(m_context->device, m_context->descriptorPool, nullptr);
+	m_context->clutBuffer.Reset();
 	m_context->device.vkUnmapMemory(m_context->device, m_context->memoryBuffer.GetMemory());
 	m_context->memoryBuffer.Reset();
 	m_context->commandBufferPool.Reset();
@@ -386,36 +385,23 @@ void CGSH_Vulkan::CreateMemoryBuffer()
 	CHECKVULKANERROR(result);
 }
 
-void CGSH_Vulkan::CreateClutImage()
+void CGSH_Vulkan::CreateClutBuffer()
 {
-	assert(m_clutImage.IsEmpty());
-	assert(m_context->clutImageView == VK_NULL_HANDLE);
+	assert(m_context->clutBuffer.IsEmpty());
 
-	m_clutImage = Framework::Vulkan::CImage(m_context->device, m_context->physicalDeviceMemoryProperties,
-	                                        VK_IMAGE_USAGE_STORAGE_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT,
-	                                        VK_FORMAT_R32_UINT, CLUTENTRYCOUNT, 1);
-
-	m_context->clutImageView = m_clutImage.CreateImageView();
+	static const uint32 clutBufferSize = CLUTENTRYCOUNT * sizeof(uint32);
+	m_context->clutBuffer = Framework::Vulkan::CBuffer(m_context->device,
+	                                                   m_context->physicalDeviceMemoryProperties, VK_BUFFER_USAGE_STORAGE_BUFFER_BIT, clutBufferSize);
 
 #ifdef FILL_IMAGES
 	{
-		std::vector<uint32> imageContents;
-		imageContents.resize(CLUTENTRYCOUNT);
-		assert((imageContents.size() * sizeof(uint32)) == m_clutImage.GetLinearSize());
-
-		for(unsigned int x = 0; x < CLUTENTRYCOUNT; x++)
-		{
-			uint32 colX = (x * 0xFFFFFFULL) / CLUTENTRYCOUNT;
-			imageContents[x] = colX;
-		}
-
-		m_clutImage.Fill(m_context->queue, m_context->commandBufferPool,
-		                 m_context->physicalDeviceMemoryProperties, imageContents.data());
+		uint32* memory = nullptr;
+		m_context->device.vkMapMemory(m_context->device, m_context->clutBuffer.GetMemory(),
+		                              0, VK_WHOLE_SIZE, 0, reinterpret_cast<void**>(&memory));
+		memset(memory, 0x80, clutBufferSize);
+		m_context->device.vkUnmapMemory(m_context->device, m_context->clutBuffer.GetMemory());
 	}
 #endif
-
-	m_clutImage.SetLayout(m_context->queue, m_context->commandBufferPool,
-	                      VK_IMAGE_LAYOUT_GENERAL, VK_ACCESS_SHADER_READ_BIT | VK_ACCESS_SHADER_WRITE_BIT);
 }
 
 void CGSH_Vulkan::VertexKick(uint8 registerId, uint64 data)

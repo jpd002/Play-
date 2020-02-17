@@ -72,7 +72,7 @@ private:
 	void CreateDevice(VkPhysicalDevice);
 	void CreateDescriptorPool();
 	void CreateMemoryBuffer();
-	void CreateClutImage();
+	void CreateClutBuffer();
 
 	void VertexKick(uint8, uint64);
 	void SetRenderingContext(uint64);
@@ -100,8 +100,6 @@ private:
 	uint32 m_texHeight = 0;
 	CLUTSTATE m_clutState;
 	std::vector<uint8> m_xferBuffer;
-
-	Framework::Vulkan::CImage m_clutImage;
 
 	Framework::Vulkan::CImage m_swizzleTablePSMCT32;
 	Framework::Vulkan::CImage m_swizzleTablePSMCT16;

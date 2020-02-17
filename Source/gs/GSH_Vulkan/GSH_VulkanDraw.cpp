@@ -322,9 +322,9 @@ VkDescriptorSet CDraw::PrepareDescriptorSet(VkDescriptorSetLayout descriptorSetL
 		descriptorMemoryBufferInfo.buffer = m_context->memoryBuffer;
 		descriptorMemoryBufferInfo.range = VK_WHOLE_SIZE;
 
-		VkDescriptorImageInfo descriptorClutImageInfo = {};
-		descriptorClutImageInfo.imageView = m_context->clutImageView;
-		descriptorClutImageInfo.imageLayout = VK_IMAGE_LAYOUT_GENERAL;
+		VkDescriptorBufferInfo descriptorClutBufferInfo = {};
+		descriptorClutBufferInfo.buffer = m_context->clutBuffer;
+		descriptorClutBufferInfo.range = VK_WHOLE_SIZE;
 
 		VkDescriptorImageInfo descriptorTexSwizzleTableImageInfo = {};
 		descriptorTexSwizzleTableImageInfo.imageView = m_context->GetSwizzleTable(caps.textureFormat);
@@ -388,8 +388,8 @@ VkDescriptorSet CDraw::PrepareDescriptorSet(VkDescriptorSetLayout descriptorSetL
 				writeSet.dstSet = descriptorSet;
 				writeSet.dstBinding = DESCRIPTOR_LOCATION_IMAGE_CLUT;
 				writeSet.descriptorCount = 1;
-				writeSet.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_IMAGE;
-				writeSet.pImageInfo = &descriptorClutImageInfo;
+				writeSet.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+				writeSet.pBufferInfo = &descriptorClutBufferInfo;
 				writes.push_back(writeSet);
 			}
 		}
@@ -516,7 +516,7 @@ PIPELINE CDraw::CreateDrawPipeline(const PIPELINE_CAPS& caps)
 			{
 				VkDescriptorSetLayoutBinding setLayoutBinding = {};
 				setLayoutBinding.binding = DESCRIPTOR_LOCATION_IMAGE_CLUT;
-				setLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_IMAGE;
+				setLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
 				setLayoutBinding.descriptorCount = 1;
 				setLayoutBinding.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
 				setLayoutBindings.push_back(setLayoutBinding);
@@ -741,7 +741,7 @@ static Nuanceur::CIntRvalue ClampTexCoord(Nuanceur::CShaderBuilder& b, uint32 cl
 
 static Nuanceur::CFloat4Rvalue GetClutColor(Nuanceur::CShaderBuilder& b,
                                             uint32 textureFormat, uint32 clutFormat, Nuanceur::CUintValue texPixel,
-                                            Nuanceur::CImageUint2DValue clutImage, Nuanceur::CIntValue texCsa)
+                                            Nuanceur::CArrayUintValue clutBuffer, Nuanceur::CIntValue texCsa)
 {
 	using namespace Nuanceur;
 
@@ -766,23 +766,23 @@ static Nuanceur::CFloat4Rvalue GetClutColor(Nuanceur::CShaderBuilder& b,
 	case CGSHandler::PSMCT32:
 	case CGSHandler::PSMCT24:
 	{
-		auto clutIndexLo = NewInt2(clutIndex, NewInt(b, 0));
-		auto clutIndexHi = NewInt2(clutIndex + NewInt(b, 0x100), NewInt(b, 0));
-		auto clutPixelLo = Load(clutImage, clutIndexLo)->x();
-		auto clutPixelHi = Load(clutImage, clutIndexHi)->x();
+		auto clutIndexLo = clutIndex;
+		auto clutIndexHi = clutIndex + NewInt(b, 0x100);
+		auto clutPixelLo = Load(clutBuffer, clutIndexLo);
+		auto clutPixelHi = Load(clutBuffer, clutIndexHi);
 		auto clutPixel = clutPixelLo | (clutPixelHi << NewUint(b, 16));
 		return CMemoryUtils::PSM32ToVec4(b, clutPixel);
 	}
 	case CGSHandler::PSMCT16:
 	{
-		auto clutPixel = Load(clutImage, NewInt2(clutIndex, NewInt(b, 0)))->x();
+		auto clutPixel = Load(clutBuffer, clutIndex);
 		return CMemoryUtils::PSM16ToVec4(b, clutPixel);
 	}
 	}
 }
 
 static Nuanceur::CFloat4Rvalue GetTextureColor(Nuanceur::CShaderBuilder& b, uint32 textureFormat, uint32 clutFormat,
-                                               Nuanceur::CInt2Value texelPos, Nuanceur::CArrayUintValue memoryBuffer, Nuanceur::CImageUint2DValue clutImage,
+                                               Nuanceur::CInt2Value texelPos, Nuanceur::CArrayUintValue memoryBuffer, Nuanceur::CArrayUintValue clutBuffer,
                                                Nuanceur::CImageUint2DValue texSwizzleTable, Nuanceur::CIntValue texBufAddress, Nuanceur::CIntValue texBufWidth,
                                                Nuanceur::CIntValue texCsa)
 {
@@ -819,21 +819,21 @@ static Nuanceur::CFloat4Rvalue GetTextureColor(Nuanceur::CShaderBuilder& b, uint
 		auto texAddress = CMemoryUtils::GetPixelAddress<CGsPixelFormats::STORAGEPSMT8>(
 		    b, texSwizzleTable, texBufAddress, texBufWidth, texelPos);
 		auto texPixel = CMemoryUtils::Memory_Read8(b, memoryBuffer, texAddress);
-		return GetClutColor(b, textureFormat, clutFormat, texPixel, clutImage, texCsa);
+		return GetClutColor(b, textureFormat, clutFormat, texPixel, clutBuffer, texCsa);
 	}
 	case CGSHandler::PSMT4:
 	{
 		auto texAddress = CMemoryUtils::GetPixelAddress_PSMT4(
 		    b, texSwizzleTable, texBufAddress, texBufWidth, texelPos);
 		auto texPixel = CMemoryUtils::Memory_Read4(b, memoryBuffer, texAddress);
-		return GetClutColor(b, textureFormat, clutFormat, texPixel, clutImage, texCsa);
+		return GetClutColor(b, textureFormat, clutFormat, texPixel, clutBuffer, texCsa);
 	}
 	case CGSHandler::PSMT8H:
 	{
 		auto texAddress = CMemoryUtils::GetPixelAddress<CGsPixelFormats::STORAGEPSMCT32>(
 		    b, texSwizzleTable, texBufAddress, texBufWidth, texelPos);
 		auto texPixel = CMemoryUtils::Memory_Read8(b, memoryBuffer, texAddress + NewInt(b, 3));
-		return GetClutColor(b, textureFormat, clutFormat, texPixel, clutImage, texCsa);
+		return GetClutColor(b, textureFormat, clutFormat, texPixel, clutBuffer, texCsa);
 	}
 	case CGSHandler::PSMT4HL:
 	{
@@ -841,7 +841,7 @@ static Nuanceur::CFloat4Rvalue GetTextureColor(Nuanceur::CShaderBuilder& b, uint
 		    b, texSwizzleTable, texBufAddress, texBufWidth, texelPos);
 		auto texNibAddress = (texAddress + NewInt(b, 3)) * NewInt(b, 2);
 		auto texPixel = CMemoryUtils::Memory_Read4(b, memoryBuffer, texNibAddress);
-		return GetClutColor(b, textureFormat, clutFormat, texPixel, clutImage, texCsa);
+		return GetClutColor(b, textureFormat, clutFormat, texPixel, clutBuffer, texCsa);
 	}
 	case CGSHandler::PSMT4HH:
 	{
@@ -849,7 +849,7 @@ static Nuanceur::CFloat4Rvalue GetTextureColor(Nuanceur::CShaderBuilder& b, uint
 		    b, texSwizzleTable, texBufAddress, texBufWidth, texelPos);
 		auto texNibAddress = ((texAddress + NewInt(b, 3)) * NewInt(b, 2)) | NewInt(b, 1);
 		auto texPixel = CMemoryUtils::Memory_Read4(b, memoryBuffer, texNibAddress);
-		return GetClutColor(b, textureFormat, clutFormat, texPixel, clutImage, texCsa);
+		return GetClutColor(b, textureFormat, clutFormat, texPixel, clutBuffer, texCsa);
 	}
 	}
 }
@@ -1045,7 +1045,7 @@ Framework::Vulkan::CShaderModule CDraw::CreateFragmentShader(const PIPELINE_CAPS
 		auto outputColor = CFloat4Lvalue(b.CreateOutput(Nuanceur::SEMANTIC_SYSTEM_COLOR));
 
 		auto memoryBuffer = CArrayUintValue(b.CreateUniformArrayUint("memoryBuffer", DESCRIPTOR_LOCATION_BUFFER_MEMORY));
-		auto clutImage = CImageUint2DValue(b.CreateImage2DUint(DESCRIPTOR_LOCATION_IMAGE_CLUT));
+		auto clutBuffer = CArrayUintValue(b.CreateUniformArrayUint("clutBuffer", DESCRIPTOR_LOCATION_IMAGE_CLUT));
 		auto texSwizzleTable = CImageUint2DValue(b.CreateImage2DUint(DESCRIPTOR_LOCATION_IMAGE_SWIZZLETABLE_TEX));
 		auto fbSwizzleTable = CImageUint2DValue(b.CreateImage2DUint(DESCRIPTOR_LOCATION_IMAGE_SWIZZLETABLE_FB));
 		auto depthSwizzleTable = CImageUint2DValue(b.CreateImage2DUint(DESCRIPTOR_LOCATION_IMAGE_SWIZZLETABLE_DEPTH));
@@ -1096,7 +1096,7 @@ Framework::Vulkan::CShaderModule CDraw::CreateFragmentShader(const PIPELINE_CAPS
 			auto clampTexPos = NewInt2(clampPosU, clampPosV);
 
 			textureColor = GetTextureColor(b, caps.textureFormat, caps.clutFormat, clampTexPos,
-			                               memoryBuffer, clutImage, texSwizzleTable, texBufAddress, texBufWidth, texCsa);
+			                               memoryBuffer, clutBuffer, texSwizzleTable, texBufAddress, texBufWidth, texCsa);
 
 			if(caps.textureHasAlpha)
 			{
