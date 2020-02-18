@@ -265,7 +265,7 @@ void CDraw::FlushVertices()
 
 	std::vector<uint32> descriptorDynamicOffsets;
 
-	if(CGsPixelFormats::IsPsmIDTEX(m_pipelineCaps.textureFormat))
+	if(m_pipelineCaps.hasTexture && CGsPixelFormats::IsPsmIDTEX(m_pipelineCaps.textureFormat))
 	{
 		descriptorDynamicOffsets.push_back(m_clutBufferOffset);
 	}
