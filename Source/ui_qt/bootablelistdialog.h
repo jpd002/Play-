@@ -46,6 +46,7 @@ private:
 	CContinuationChecker* m_continuationChecker = nullptr;
 
 	void resetModel();
+	void SelectionChange(const QModelIndex&);
 
 Q_SIGNALS:
 	void AsyncUpdateCoverDisplay();

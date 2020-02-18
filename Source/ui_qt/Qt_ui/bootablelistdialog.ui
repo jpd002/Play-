@@ -31,24 +31,8 @@
   <property name="windowTitle">
    <string>Bootable Selection Dialog</string>
   </property>
-  <layout class="QGridLayout" name="gridLayout">
-   <item row="1" column="3">
-    <widget class="QPushButton" name="refresh_button">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
-     <property name="text">
-      <string>Refresh</string>
-     </property>
-     <property name="autoDefault">
-      <bool>false</bool>
-     </property>
-    </widget>
-   </item>
-   <item row="0" column="2" colspan="5">
+  <layout class="QVBoxLayout" name="verticalLayout_3">
+   <item>
     <widget class="QListView" name="listView">
      <property name="sizePolicy">
       <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
@@ -70,59 +54,86 @@
      </property>
     </widget>
    </item>
-   <item row="1" column="2">
-    <widget class="QPushButton" name="add_games_button">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
-     <property name="text">
-      <string>Add Games...</string>
-     </property>
-     <property name="autoDefault">
-      <bool>false</bool>
+   <item>
+    <widget class="QLineEdit" name="pathLineEdit">
+     <property name="readOnly">
+      <bool>true</bool>
      </property>
     </widget>
    </item>
-   <item row="1" column="6">
-    <widget class="QComboBox" name="comboBox">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
+   <item>
+    <layout class="QHBoxLayout" name="horizontalLayout">
      <item>
-      <property name="text">
-       <string>Recently Played</string>
-      </property>
+      <widget class="QPushButton" name="add_games_button">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="text">
+        <string>Add Games...</string>
+       </property>
+       <property name="autoDefault">
+        <bool>false</bool>
+       </property>
+      </widget>
      </item>
      <item>
-      <property name="text">
-       <string>Homebrew</string>
-      </property>
+      <widget class="QPushButton" name="refresh_button">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="text">
+        <string>Refresh</string>
+       </property>
+       <property name="autoDefault">
+        <bool>false</bool>
+       </property>
+      </widget>
      </item>
      <item>
-      <property name="text">
-       <string>Unsorted</string>
-      </property>
+      <widget class="QPushButton" name="awsS3Button">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="text">
+        <string>Scan AWS S3</string>
+       </property>
+      </widget>
      </item>
-    </widget>
-   </item>
-   <item row="1" column="4">
-    <widget class="QPushButton" name="awsS3Button">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
-     <property name="text">
-      <string>Scan AWS S3</string>
-     </property>
-    </widget>
+     <item>
+      <widget class="QComboBox" name="comboBox">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <item>
+        <property name="text">
+         <string>Recently Played</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Homebrew</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Unsorted</string>
+        </property>
+       </item>
+      </widget>
+     </item>
+    </layout>
    </item>
   </layout>
  </widget>

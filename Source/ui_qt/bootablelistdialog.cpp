@@ -86,6 +86,7 @@ void BootableListDialog::resetModel()
 	m_bootables = BootablesDb::CClient::GetInstance().GetBootables(m_sortingMethod);
 	model = new BootableModel(this, m_bootables);
 	ui->listView->setModel(model);
+	connect(ui->listView->selectionModel(), &QItemSelectionModel::currentChanged, this, &BootableListDialog::SelectionChange);
 
 	if(!m_thread_running)
 	{
@@ -107,7 +108,7 @@ BootablesDb::Bootable BootableListDialog::getResult()
 
 void BootableListDialog::showEvent(QShowEvent* ev)
 {
-	ui->gridLayout->invalidate();
+	ui->horizontalLayout->invalidate();
 	QDialog::showEvent(ev);
 }
 
@@ -215,4 +216,10 @@ void BootableListDialog::on_awsS3Button_clicked()
 		resetModel();
 	};
 	m_continuationChecker->GetContinuationManager().Register(std::move(getListFuture), updateBootableCallback);
+}
+
+void BootableListDialog::SelectionChange(const QModelIndex &index)
+{
+	bootable = model->GetBootable(index);
+	ui->pathLineEdit->setText(bootable.path.string().c_str());
 }
