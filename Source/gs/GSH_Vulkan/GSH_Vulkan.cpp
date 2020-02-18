@@ -138,7 +138,7 @@ void CGSH_Vulkan::ResetImpl()
 {
 	m_vtxCount = 0;
 	m_primitiveType = PRIM_INVALID;
-	m_clutState = CLUTSTATE();
+	memset(&m_clutStates, 0, sizeof(m_clutStates));
 }
 
 void CGSH_Vulkan::SetPresentationParams(const CGSHandler::PRESENTATION_PARAMS& presentationParams)
@@ -389,7 +389,7 @@ void CGSH_Vulkan::CreateClutBuffer()
 {
 	assert(m_context->clutBuffer.IsEmpty());
 
-	static const uint32 clutBufferSize = CLUTENTRYCOUNT * sizeof(uint32);
+	static const uint32 clutBufferSize = CLUTENTRYCOUNT * sizeof(uint32) * CLUT_CACHE_SIZE;
 	m_context->clutBuffer = Framework::Vulkan::CBuffer(m_context->device,
 	                                                   m_context->physicalDeviceMemoryProperties, VK_BUFFER_USAGE_STORAGE_BUFFER_BIT, clutBufferSize);
 
@@ -789,6 +789,32 @@ void CGSH_Vulkan::Prim_Sprite()
 	m_draw->AddVertices(std::begin(vertices), std::end(vertices));
 }
 
+int32 CGSH_Vulkan::FindCachedClut(const CLUTKEY& key) const
+{
+	for(uint32 i = 0; i < CLUT_CACHE_SIZE; i++)
+	{
+		if(m_clutStates[i] == key)
+		{
+			return i;
+		}
+	}
+	return -1;
+}
+
+CGSH_Vulkan::CLUTKEY CGSH_Vulkan::MakeCachedClutKey(const TEX0& tex0, const TEXCLUT& texClut)
+{
+	auto clutKey = make_convertible<CLUTKEY>(0);
+	clutKey.idx4 = CGsPixelFormats::IsPsmIDTEX4(tex0.nPsm);
+	clutKey.cbp = tex0.nCBP;
+	clutKey.cpsm = tex0.nCPSM;
+	clutKey.csm = tex0.nCSM;
+	clutKey.csa = tex0.nCSA;
+	clutKey.cbw = texClut.nCBW;
+	clutKey.cou = texClut.nCOU;
+	clutKey.cov = texClut.nCOV;
+	return clutKey;
+}
+
 /////////////////////////////////////////////////////////////
 // Other Functions
 /////////////////////////////////////////////////////////////
@@ -840,7 +866,7 @@ void CGSH_Vulkan::WriteRegisterImpl(uint8 registerId, uint64 data)
 void CGSH_Vulkan::ProcessHostToLocalTransfer()
 {
 	//Flush previous cached info
-	m_clutState = CLUTSTATE();
+	memset(&m_clutStates, 0, sizeof(m_clutStates));
 	m_draw->FlushRenderPass();
 
 	auto bltBuf = make_convertible<BITBLTBUF>(m_nReg[GS_REG_BITBLTBUF]);
@@ -867,7 +893,7 @@ void CGSH_Vulkan::ProcessLocalToHostTransfer()
 void CGSH_Vulkan::ProcessLocalToLocalTransfer()
 {
 	//Flush previous cached info
-	m_clutState = CLUTSTATE();
+	memset(&m_clutStates, 0, sizeof(m_clutStates));
 	m_draw->FlushRenderPass();
 
 	auto bltBuf = make_convertible<BITBLTBUF>(m_nReg[GS_REG_BITBLTBUF]);
@@ -915,20 +941,22 @@ void CGSH_Vulkan::SyncCLUT(const TEX0& tex0)
 	if(!ProcessCLD(tex0)) return;
 
 	auto texClut = make_convertible<TEXCLUT>(m_nReg[GS_REG_TEXCLUT]);
-	auto tex0ClutInfo = static_cast<uint64>(tex0) & (~TEX0_CLUTINFO_MASK);
 
-	if(
-	    (m_clutState.tex0ClutInfo == tex0ClutInfo) &&
-	    (m_clutState.texClut == texClut))
+	auto clutKey = MakeCachedClutKey(tex0, texClut);
+	int32 clutCacheIndex = FindCachedClut(clutKey);
+	if(clutCacheIndex == -1)
 	{
-		return;
+		clutCacheIndex = m_nextClutCacheIndex++;
+		m_nextClutCacheIndex %= CLUT_CACHE_SIZE;
+		m_clutStates[clutCacheIndex] = clutKey;
+
+		m_draw->FlushRenderPass();
+		uint32 clutBufferOffset = sizeof(uint32) * CLUTENTRYCOUNT * clutCacheIndex;
+		m_clutLoad->DoClutLoad(clutBufferOffset, tex0, texClut);
 	}
 
-	m_clutState.tex0ClutInfo = tex0ClutInfo;
-	m_clutState.texClut = texClut;
-
-	m_draw->FlushRenderPass();
-	m_clutLoad->DoClutLoad(tex0, texClut);
+	uint32 clutBufferOffset = sizeof(uint32) * CLUTENTRYCOUNT * clutCacheIndex;
+	m_draw->SetClutBufferOffset(clutBufferOffset);
 }
 
 void CGSH_Vulkan::ReadFramebuffer(uint32 width, uint32 height, void* buffer)

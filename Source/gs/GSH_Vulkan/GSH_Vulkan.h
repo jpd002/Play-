@@ -57,10 +57,23 @@ private:
 		uint8 fog;
 	};
 
-	struct CLUTSTATE
+	struct CLUTKEY : public convertible<uint64>
 	{
-		uint64 tex0ClutInfo = 0;
-		uint64 texClut = 0;
+		uint32 idx4 : 1;
+		uint32 cbp : 14;
+		uint32 cpsm : 4;
+		uint32 csm : 1;
+		uint32 csa : 5;
+		uint32 cbw : 6;
+		uint32 cou : 6;
+		uint32 cov : 10;
+		uint32 reserved : 16;
+	};
+	static_assert(sizeof(CLUTKEY) == sizeof(uint64), "CLUTKEY too big for an uint64");
+
+	enum
+	{
+		CLUT_CACHE_SIZE = 32,
 	};
 
 	virtual void PresentBackbuffer() = 0;
@@ -80,6 +93,9 @@ private:
 	void Prim_Triangle();
 	void Prim_Sprite();
 
+	int32 FindCachedClut(const CLUTKEY&) const;
+	static CLUTKEY MakeCachedClutKey(const TEX0&, const TEXCLUT&);
+
 	GSH_Vulkan::FrameCommandBufferPtr m_frameCommandBuffer;
 	GSH_Vulkan::ClutLoadPtr m_clutLoad;
 	GSH_Vulkan::DrawPtr m_draw;
@@ -98,7 +114,8 @@ private:
 	float m_primOfsY = 0;
 	uint32 m_texWidth = 0;
 	uint32 m_texHeight = 0;
-	CLUTSTATE m_clutState;
+	CLUTKEY m_clutStates[CLUT_CACHE_SIZE];
+	uint32 m_nextClutCacheIndex = 0;
 	std::vector<uint8> m_xferBuffer;
 
 	Framework::Vulkan::CImage m_swizzleTablePSMCT32;

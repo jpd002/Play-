@@ -19,7 +19,7 @@ CClutLoad::CClutLoad(const ContextPtr& context, const FrameCommandBufferPtr& fra
 {
 }
 
-void CClutLoad::DoClutLoad(const CGSHandler::TEX0& tex0, const CGSHandler::TEXCLUT& texClut)
+void CClutLoad::DoClutLoad(uint32 clutBufferOffset, const CGSHandler::TEX0& tex0, const CGSHandler::TEXCLUT& texClut)
 {
 	auto caps = make_convertible<PIPELINE_CAPS>(0);
 	caps.idx8 = CGsPixelFormats::IsPsmIDTEX8(tex0.nPsm) ? 1 : 0;
@@ -54,7 +54,7 @@ void CClutLoad::DoClutLoad(const CGSHandler::TEX0& tex0, const CGSHandler::TEXCL
 		                                       0, 1, &memoryBarrier, 0, nullptr, 0, nullptr);
 	}
 
-	m_context->device.vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_COMPUTE, loadPipeline->pipelineLayout, 0, 1, &descriptorSet, 0, nullptr);
+	m_context->device.vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_COMPUTE, loadPipeline->pipelineLayout, 0, 1, &descriptorSet, 1, &clutBufferOffset);
 	m_context->device.vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_COMPUTE, loadPipeline->pipeline);
 	m_context->device.vkCmdPushConstants(commandBuffer, loadPipeline->pipelineLayout, VK_SHADER_STAGE_COMPUTE_BIT, 0, sizeof(LOAD_PARAMS), &loadParams);
 	m_context->device.vkCmdDispatch(commandBuffer, 1, 1, 1);
@@ -115,7 +115,7 @@ VkDescriptorSet CClutLoad::PrepareDescriptorSet(VkDescriptorSetLayout descriptor
 			writeSet.dstSet = descriptorSet;
 			writeSet.dstBinding = DESCRIPTOR_LOCATION_CLUT;
 			writeSet.descriptorCount = 1;
-			writeSet.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+			writeSet.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC;
 			writeSet.pBufferInfo = &descriptorClutBufferInfo;
 			writes.push_back(writeSet);
 		}
@@ -290,7 +290,7 @@ PIPELINE CClutLoad::CreateLoadPipeline(const PIPELINE_CAPS& caps)
 		{
 			VkDescriptorSetLayoutBinding binding = {};
 			binding.binding = DESCRIPTOR_LOCATION_CLUT;
-			binding.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+			binding.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC;
 			binding.descriptorCount = 1;
 			binding.stageFlags = VK_SHADER_STAGE_COMPUTE_BIT;
 			bindings.push_back(binding);

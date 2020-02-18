@@ -14,7 +14,7 @@ namespace GSH_Vulkan
 	public:
 		CClutLoad(const ContextPtr&, const FrameCommandBufferPtr&);
 
-		void DoClutLoad(const CGSHandler::TEX0&, const CGSHandler::TEXCLUT&);
+		void DoClutLoad(uint32, const CGSHandler::TEX0&, const CGSHandler::TEXCLUT&);
 
 	private:
 		typedef uint32 PipelineCapsInt;

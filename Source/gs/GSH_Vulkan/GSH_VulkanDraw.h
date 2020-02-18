@@ -71,6 +71,7 @@ namespace GSH_Vulkan
 		void SetFramebufferParams(uint32, uint32, uint32);
 		void SetDepthbufferParams(uint32, uint32);
 		void SetTextureParams(uint32, uint32, uint32, uint32, uint32);
+		void SetClutBufferOffset(uint32);
 		void SetTextureAlphaParams(uint32, uint32);
 		void SetTextureClampParams(uint32, uint32, uint32, uint32);
 		void SetFogParams(float, float, float);
@@ -174,6 +175,7 @@ namespace GSH_Vulkan
 		uint32 m_scissorY = 0;
 		uint32 m_scissorWidth = 0;
 		uint32 m_scissorHeight = 0;
+		uint32 m_clutBufferOffset = 0;
 	};
 
 	typedef std::shared_ptr<CDraw> DrawPtr;

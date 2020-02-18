@@ -110,6 +110,14 @@ void CDraw::SetTextureParams(uint32 bufAddr, uint32 bufWidth, uint32 width, uint
 	m_pushConstants.texCsa = csa;
 }
 
+void CDraw::SetClutBufferOffset(uint32 clutBufferOffset)
+{
+	bool changed = m_clutBufferOffset != clutBufferOffset;
+	if(!changed) return;
+	FlushVertices();
+	m_clutBufferOffset = clutBufferOffset;
+}
+
 void CDraw::SetTextureAlphaParams(uint32 texA0, uint32 texA1)
 {
 	bool changed =
@@ -255,8 +263,15 @@ void CDraw::FlushVertices()
 
 	auto descriptorSet = PrepareDescriptorSet(drawPipeline->descriptorSetLayout, descriptorSetCaps);
 
+	std::vector<uint32> descriptorDynamicOffsets;
+
+	if(CGsPixelFormats::IsPsmIDTEX(m_pipelineCaps.textureFormat))
+	{
+		descriptorDynamicOffsets.push_back(m_clutBufferOffset);
+	}
+
 	m_context->device.vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, drawPipeline->pipelineLayout,
-	                                          0, 1, &descriptorSet, 0, nullptr);
+	                                          0, 1, &descriptorSet, descriptorDynamicOffsets.size(), descriptorDynamicOffsets.data());
 
 	m_context->device.vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, drawPipeline->pipeline);
 
@@ -388,7 +403,7 @@ VkDescriptorSet CDraw::PrepareDescriptorSet(VkDescriptorSetLayout descriptorSetL
 				writeSet.dstSet = descriptorSet;
 				writeSet.dstBinding = DESCRIPTOR_LOCATION_IMAGE_CLUT;
 				writeSet.descriptorCount = 1;
-				writeSet.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+				writeSet.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC;
 				writeSet.pBufferInfo = &descriptorClutBufferInfo;
 				writes.push_back(writeSet);
 			}
@@ -516,7 +531,7 @@ PIPELINE CDraw::CreateDrawPipeline(const PIPELINE_CAPS& caps)
 			{
 				VkDescriptorSetLayoutBinding setLayoutBinding = {};
 				setLayoutBinding.binding = DESCRIPTOR_LOCATION_IMAGE_CLUT;
-				setLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+				setLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC;
 				setLayoutBinding.descriptorCount = 1;
 				setLayoutBinding.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
 				setLayoutBindings.push_back(setLayoutBinding);
