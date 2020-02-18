@@ -67,7 +67,7 @@ void CPresent::DoPresent(uint32 bufPsm, uint32 bufAddress, uint32 bufWidth, uint
 		CreateSwapChain();
 		return;
 	}
-	CHECKVULKANERROR(result);
+	if(result != VK_SUBOPTIMAL_KHR) CHECKVULKANERROR(result);
 
 	UpdateBackbuffer(imageIndex, bufPsm, bufAddress, bufWidth, dispWidth, dispHeight);
 
@@ -80,7 +80,7 @@ void CPresent::DoPresent(uint32 bufPsm, uint32 bufAddress, uint32 bufWidth, uint
 		presentInfo.waitSemaphoreCount = 1;
 		presentInfo.pWaitSemaphores = &m_renderCompleteSemaphore;
 		result = m_context->device.vkQueuePresentKHR(m_context->queue, &presentInfo);
-		CHECKVULKANERROR(result);
+		if(result != VK_SUBOPTIMAL_KHR) CHECKVULKANERROR(result);
 	}
 }
 
