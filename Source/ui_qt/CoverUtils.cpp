@@ -49,7 +49,11 @@ void CoverUtils::PopulateCache(std::vector<BootablesDb::Bootable> bootables)
 			auto itr = CoverUtils::cache.find(bootable.discId.c_str());
 			if(itr == CoverUtils::cache.end())
 			{
-				auto pixmap = QPixmap(PathToQString(path));
+				auto pixmap = QPixmap();
+				if(!pixmap.load(PathToQString(path)))
+				{
+					pixmap.load(PathToQString(path), "png");
+				}
 				pixmap = pixmap.scaled(placeholder_size, Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
 				CoverUtils::cache.insert(std::make_pair(bootable.discId.c_str(), pixmap));
 			}
