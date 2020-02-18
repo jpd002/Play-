@@ -43,6 +43,13 @@ CClient::CClient()
 	}
 }
 
+bool CClient::BootableExist(const fs::path& path)
+{
+	Framework::CSqliteStatement statement(m_db, "SELECT * FROM bootables WHERE path = ?");
+	statement.BindText(1, Framework::PathUtils::GetNativeStringFromPath(path).c_str());
+	return statement.Step();
+}
+
 Bootable CClient::GetBootable(const fs::path& path)
 {
 	Framework::CSqliteStatement statement(m_db, "SELECT * FROM bootables WHERE path = ?");

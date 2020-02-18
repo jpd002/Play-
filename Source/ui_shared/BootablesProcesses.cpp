@@ -36,6 +36,7 @@ void TryRegisteringBootable(const fs::path& path)
 {
 	std::string serial;
 	if(
+	    !BootablesDb::CClient::GetInstance().BootableExist(path) &&
 	    !IsBootableExecutablePath(path) &&
 	    !(IsBootableDiscImagePath(path) && DiskUtils::TryGetDiskId(path, &serial)))
 	{
