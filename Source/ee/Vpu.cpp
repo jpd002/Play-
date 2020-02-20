@@ -188,7 +188,7 @@ void CVpu::ProcessXgKick(uint32 address)
 	memcpy(metadata.microMem1, GetMicroMemoryMiniState(), PS2::MICROMEM1SIZE);
 #endif
 
-	m_gif.ProcessSinglePacket(GetVuMemory(), address, PS2::VUMEM1SIZE, metadata);
+	m_gif.ProcessSinglePacket(GetVuMemory(), PS2::VUMEM1SIZE, address, PS2::VUMEM1SIZE, metadata);
 
 #ifdef DEBUGGER_INCLUDED
 	SaveMiniState();

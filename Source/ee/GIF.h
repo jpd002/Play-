@@ -46,8 +46,8 @@ public:
 	void Reset();
 	uint32 ReceiveDMA(uint32, uint32, uint32, bool);
 
-	uint32 ProcessSinglePacket(const uint8*, uint32, uint32, const CGsPacketMetadata&);
-	uint32 ProcessMultiplePackets(const uint8*, uint32, uint32, const CGsPacketMetadata&);
+	uint32 ProcessSinglePacket(const uint8*, uint32, uint32, uint32, const CGsPacketMetadata&);
+	uint32 ProcessMultiplePackets(const uint8*, uint32, uint32, uint32, const CGsPacketMetadata&);
 
 	uint32 GetRegister(uint32);
 	void SetRegister(uint32, uint32);
@@ -69,7 +69,7 @@ private:
 
 	uint32 ProcessPacked(CGSHandler::RegisterWriteList&, const uint8*, uint32, uint32);
 	uint32 ProcessRegList(CGSHandler::RegisterWriteList&, const uint8*, uint32, uint32);
-	uint32 ProcessImage(const uint8*, uint32, uint32);
+	uint32 ProcessImage(const uint8*, uint32, uint32, uint32);
 
 	void DisassembleGet(uint32);
 	void DisassembleSet(uint32, uint32);

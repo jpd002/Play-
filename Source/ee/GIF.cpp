@@ -246,17 +246,31 @@ uint32 CGIF::ProcessRegList(CGSHandler::RegisterWriteList& writeList, const uint
 	return address - start;
 }
 
-uint32 CGIF::ProcessImage(const uint8* memory, uint32 address, uint32 end)
+uint32 CGIF::ProcessImage(const uint8* memory, uint32 memorySize, uint32 address, uint32 end)
 {
 	uint16 totalLoops = static_cast<uint16>((end - address) / 0x10);
 	totalLoops = std::min<uint16>(totalLoops, m_loops);
-	m_gs->FeedImageData(memory + address, totalLoops * 0x10);
+
+	//Some games like Dark Cloud 2 will execute a huge transfer that goes over the RAM size's limit
+	//In that case, we split the transfer in half
+	uint32 xferSize = totalLoops * 0x10;
+	bool requiresSplit = (address + xferSize) > memorySize;
+
+	uint32 firstXferSize = requiresSplit ? (memorySize - address) : xferSize;
+	m_gs->FeedImageData(memory + address, firstXferSize);
+
+	if(requiresSplit)
+	{
+		assert(xferSize > firstXferSize);
+		m_gs->FeedImageData(memory, xferSize - firstXferSize);
+	}
+
 	m_loops -= totalLoops;
 
 	return (totalLoops * 0x10);
 }
 
-uint32 CGIF::ProcessSinglePacket(const uint8* memory, uint32 address, uint32 end, const CGsPacketMetadata& packetMetadata)
+uint32 CGIF::ProcessSinglePacket(const uint8* memory, uint32 memorySize, uint32 address, uint32 end, const CGsPacketMetadata& packetMetadata)
 {
 	static CGSHandler::RegisterWriteList writeList;
 	static const auto flushWriteList =
@@ -336,7 +350,7 @@ uint32 CGIF::ProcessSinglePacket(const uint8* memory, uint32 address, uint32 end
 			//that specifies pixel transfer information in GS registers (and that has to be send first)
 			//This is done by FFX
 			flushWriteList(m_gs, packetMetadata);
-			address += ProcessImage(memory, address, end);
+			address += ProcessImage(memory, memorySize, address, end);
 			break;
 		}
 
@@ -364,7 +378,7 @@ uint32 CGIF::ProcessSinglePacket(const uint8* memory, uint32 address, uint32 end
 	return address - start;
 }
 
-uint32 CGIF::ProcessMultiplePackets(const uint8* memory, uint32 address, uint32 end, const CGsPacketMetadata& packetMetadata)
+uint32 CGIF::ProcessMultiplePackets(const uint8* memory, uint32 memorySize, uint32 address, uint32 end, const CGsPacketMetadata& packetMetadata)
 {
 	//This will attempt to process everything from [address, end[ even if it contains multiple GIF packets
 
@@ -377,7 +391,7 @@ uint32 CGIF::ProcessMultiplePackets(const uint8* memory, uint32 address, uint32 
 	uint32 start = address;
 	while(address < end)
 	{
-		address += ProcessSinglePacket(memory, address, end, packetMetadata);
+		address += ProcessSinglePacket(memory, memorySize, address, end, packetMetadata);
 		if(m_signalState == SIGNAL_STATE_PENDING)
 		{
 			//No point in continuing, GS won't accept any more data
@@ -393,16 +407,20 @@ uint32 CGIF::ReceiveDMA(uint32 address, uint32 qwc, uint32 unused, bool tagInclu
 	uint32 size = qwc * 0x10;
 
 	uint8* memory = nullptr;
+	uint32 memorySize = 0;
 	if(address & 0x80000000)
 	{
 		memory = m_spr;
-		address &= PS2::EE_SPR_SIZE - 1;
-		assert((address + size) <= PS2::EE_SPR_SIZE);
+		memorySize = PS2::EE_SPR_SIZE;
 	}
 	else
 	{
 		memory = m_ram;
+		memorySize = PS2::EE_RAM_SIZE;
 	}
+
+	address &= (memorySize - 1);
+	assert((address + size) <= memorySize);
 
 	uint32 start = address;
 	uint32 end = address + size;
@@ -413,7 +431,7 @@ uint32 CGIF::ReceiveDMA(uint32 address, uint32 qwc, uint32 unused, bool tagInclu
 		address += 0x10;
 	}
 
-	address += ProcessMultiplePackets(memory, address, end, CGsPacketMetadata(3));
+	address += ProcessMultiplePackets(memory, memorySize, address, end, CGsPacketMetadata(3));
 	assert(address <= end);
 
 	return (address - start) / 0x10;

@@ -161,7 +161,7 @@ void CVif1::Cmd_DIRECT(StreamType& stream, CODE nCommand)
 	if(nSize != 0)
 	{
 		auto packet = stream.GetDirectPointer();
-		uint32 processed = m_gif.ProcessMultiplePackets(packet, 0, nSize, CGsPacketMetadata(2));
+		uint32 processed = m_gif.ProcessMultiplePackets(packet, nSize, 0, nSize, CGsPacketMetadata(2));
 		assert(processed <= nSize);
 		stream.Advance(processed);
 		//Adjust size in case not everything was processed by GIF
