@@ -28,6 +28,7 @@ void CVuBasicBlock::CompileRange(CMipsJitter* jitter)
 	    };
 
 	uint32 relativePipeTime = 0;
+	uint32 fmacPipeTime = 0;
 	uint32 writeFTime[32];
 	memset(writeFTime, 0, sizeof(writeFTime));
 
@@ -159,23 +160,55 @@ void CVuBasicBlock::CompileRange(CMipsJitter* jitter)
 		}
 		//Adjust pipeTime
 		relativePipeTime++;
+		fmacPipeTime++;
+
+		uint32 prevFmacPipeTime = fmacPipeTime;
 
 		//--- Check FMAC hazards
-		if(loOps.readF0 != 0) relativePipeTime = std::max<uint32>(relativePipeTime, writeFTime[loOps.readF0]);
-		if(loOps.readF1 != 0) relativePipeTime = std::max<uint32>(relativePipeTime, writeFTime[loOps.readF1]);
-		if(hiOps.readF0 != 0) relativePipeTime = std::max<uint32>(relativePipeTime, writeFTime[hiOps.readF0]);
-		if(hiOps.readF1 != 0) relativePipeTime = std::max<uint32>(relativePipeTime, writeFTime[hiOps.readF1]);
+		if(loOps.readF0 != 0)
+		{
+			fmacPipeTime = std::max<uint32>(fmacPipeTime, writeFTime[loOps.readF0]);
+		}
+		if(loOps.readF1 != 0)
+		{
+			fmacPipeTime = std::max<uint32>(fmacPipeTime, writeFTime[loOps.readF1]);
+		}
+		if(hiOps.readF0 != 0)
+		{
+			fmacPipeTime = std::max<uint32>(fmacPipeTime, writeFTime[hiOps.readF0]);
+		}
+		if(hiOps.readF1 != 0)
+		{
+			fmacPipeTime = std::max<uint32>(fmacPipeTime, writeFTime[hiOps.readF1]);
+		}
+
+		if(prevFmacPipeTime != fmacPipeTime)
+		{
+			//We got a stall, sync
+			assert(fmacPipeTime >= prevFmacPipeTime);
+			uint32 diff = fmacPipeTime - prevFmacPipeTime;
+
+			jitter->PushRel(VUShared::g_pipeInfoQ.counter);
+			jitter->PushCst(diff);
+			jitter->Sub();
+			jitter->PullRel(VUShared::g_pipeInfoQ.counter);
+
+			jitter->PushRel(VUShared::g_pipeInfoP.counter);
+			jitter->PushCst(diff);
+			jitter->Sub();
+			jitter->PullRel(VUShared::g_pipeInfoP.counter);
+		}
 
 		if(loOps.writeF != 0)
 		{
 			assert(loOps.writeF < 32);
-			writeFTime[loOps.writeF] = relativePipeTime + VUShared::LATENCY_MAC;
+			writeFTime[loOps.writeF] = fmacPipeTime + VUShared::LATENCY_MAC;
 		}
 
 		if(hiOps.writeF != 0)
 		{
 			assert(hiOps.writeF < 32);
-			writeFTime[hiOps.writeF] = relativePipeTime + VUShared::LATENCY_MAC;
+			writeFTime[hiOps.writeF] = fmacPipeTime + VUShared::LATENCY_MAC;
 		}
 		//----------------------
 
