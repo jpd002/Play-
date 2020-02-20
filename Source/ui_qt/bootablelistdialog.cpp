@@ -218,8 +218,9 @@ void BootableListDialog::on_awsS3Button_clicked()
 	m_continuationChecker->GetContinuationManager().Register(std::move(getListFuture), updateBootableCallback);
 }
 
-void BootableListDialog::SelectionChange(const QModelIndex &index)
+void BootableListDialog::SelectionChange(const QModelIndex& index)
 {
 	bootable = model->GetBootable(index);
 	ui->pathLineEdit->setText(bootable.path.string().c_str());
+	ui->serialLineEdit->setText(bootable.discId.c_str());
 }
