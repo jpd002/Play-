@@ -21,6 +21,7 @@ add_executable(VuTest
 	FlagsTest2.cpp
 	FlagsTest3.cpp
 	Main.cpp
+	StallTest.cpp
 	TestVm.cpp
 	TriAceTest.cpp
 	VuAssembler.cpp
@@ -29,6 +30,7 @@ add_executable(VuTest
 	FlagsTest.h
 	FlagsTest2.h
 	FlagsTest3.h
+	StallTest.h
 	Test.h
 	TestVm.h
 	TriAceTest.h
