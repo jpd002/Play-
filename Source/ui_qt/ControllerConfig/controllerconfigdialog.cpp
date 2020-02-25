@@ -156,6 +156,7 @@ void ControllerConfigDialog::on_comboBox_currentIndexChanged(int index)
 	ui->delProfileButton->setEnabled(ui->comboBox->count() > 1);
 
 	auto profile = ui->comboBox->itemText(index).toStdString();
+	m_inputManager->Save();
 	m_inputManager->Load(profile.c_str());
 	CAppConfig::GetInstance().SetPreferenceString(PREF_INPUT_PAD1_PROFILE, profile.c_str());
 
