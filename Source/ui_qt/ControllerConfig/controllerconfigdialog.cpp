@@ -6,10 +6,18 @@
 #include <QFile>
 #include <QAbstractButton>
 #include <QPushButton>
+#include <QInputDialog>
 
+#include "AppConfig.h"
+#include "PreferenceDefs.h"
+#include "PathUtils.h"
 #include "bindingmodel.h"
 #include "ControllerInfo.h"
 #include "inputeventselectiondialog.h"
+#include "QStringUtils.h"
+
+#include "filesystem_def.h"
+#include <iostream>
 
 ControllerConfigDialog::ControllerConfigDialog(CInputBindingManager* inputBindingManager, CInputProviderQtKey* qtKeyInputProvider, QWidget* parent)
     : QDialog(parent)
@@ -18,7 +26,23 @@ ControllerConfigDialog::ControllerConfigDialog(CInputBindingManager* inputBindin
     , m_qtKeyInputProvider(qtKeyInputProvider)
 {
 	ui->setupUi(this);
+	std::string profile = CAppConfig::GetInstance().GetPreferenceString(PREF_INPUT_PAD1_PROFILE);
+
 	PrepareBindingsView();
+
+	auto path = CInputConfig::GetProfilePath();
+	if(fs::is_directory(path))
+	{
+		for(auto& entry : fs::directory_iterator(path))
+		{
+			auto profile = Framework::PathUtils::GetNativeStringFromPath(entry.path().stem());
+			ui->comboBox->addItem(profile.c_str());
+		}
+	}
+
+	auto index = ui->comboBox->findText(profile.c_str());
+	if(index >= 0)
+		ui->comboBox->setCurrentIndex(index);
 }
 
 ControllerConfigDialog::~ControllerConfigDialog()
@@ -43,10 +67,12 @@ void ControllerConfigDialog::on_buttonBox_clicked(QAbstractButton* button)
 	if(button == ui->buttonBox->button(QDialogButtonBox::Ok))
 	{
 		m_inputManager->Save();
+		CAppConfig::GetInstance().Save();
 	}
 	else if(button == ui->buttonBox->button(QDialogButtonBox::Apply))
 	{
 		m_inputManager->Save();
+		CAppConfig::GetInstance().Save();
 	}
 	else if(button == ui->buttonBox->button(QDialogButtonBox::RestoreDefaults))
 	{
@@ -60,7 +86,7 @@ void ControllerConfigDialog::on_buttonBox_clicked(QAbstractButton* button)
 	}
 	else if(button == ui->buttonBox->button(QDialogButtonBox::Cancel))
 	{
-		m_inputManager->Load();
+		m_inputManager->Reload();
 	}
 }
 
@@ -123,4 +149,59 @@ int ControllerConfigDialog::OpenBindConfigDialog(int index)
 	IESD.Setup(button.c_str(), m_inputManager, m_qtKeyInputProvider, static_cast<PS2::CControllerInfo::BUTTON>(index));
 	auto res = IESD.exec();
 	return res;
+}
+
+void ControllerConfigDialog::on_comboBox_currentIndexChanged(int index)
+{
+	ui->delProfileButton->setEnabled(index > 0);
+
+	auto profile = ui->comboBox->itemText(index).toStdString();
+	m_inputManager->Load(profile.c_str());
+	CAppConfig::GetInstance().SetPreferenceString(PREF_INPUT_PAD1_PROFILE, profile.c_str());
+
+	static_cast<CBindingModel*>(ui->tableView->model())->Refresh();
+}
+
+void ControllerConfigDialog::on_addProfileButton_clicked()
+{
+	std::string profile_name;
+	while(profile_name.empty())
+	{
+		bool ok_pressed = false;
+		QString name = QInputDialog::getText(this, tr("Enter Profile Name"), tr("Only letters, numbers and dash characters allowed.\nProfile name:"),
+		                                     QLineEdit::Normal, "", &ok_pressed);
+
+		if(!ok_pressed)
+			return;
+
+		if(!name.isEmpty() && CInputConfig::IsValidProfileName(name.toStdString()))
+			profile_name = name.toStdString();
+	}
+
+	{
+		auto profile_path = CInputConfig::GetProfile(profile_name);
+		if(!fs::exists(profile_path))
+		{
+			ui->comboBox->addItem(profile_name.c_str());
+		}
+
+		auto index = ui->comboBox->findText(profile_name.c_str());
+		if(index >= 0)
+			ui->comboBox->setCurrentIndex(index);
+	}
+}
+
+void ControllerConfigDialog::on_delProfileButton_clicked()
+{
+	auto name = ui->comboBox->currentText();
+	std::string profile_name = name.toStdString();
+	{
+		auto profile_path = CInputConfig::GetProfile(profile_name);
+		if(fs::exists(profile_path))
+		{
+			fs::remove(profile_path);
+			int index = ui->comboBox->currentIndex();
+			ui->comboBox->removeItem(index);
+		}
+	}
 }

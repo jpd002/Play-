@@ -1,11 +1,13 @@
 #pragma once
 
 #include "Config.h"
+#include "InputConfig.h"
 #include "ControllerInfo.h"
 #include "InputProvider.h"
 #include <array>
 #include <memory>
 #include <functional>
+#include <string>
 
 class CInputBindingManager
 {
@@ -60,7 +62,8 @@ public:
 	void SetPovHatBinding(uint32, PS2::CControllerInfo::BUTTON, const BINDINGTARGET&, uint32);
 	void SetSimulatedAxisBinding(uint32, PS2::CControllerInfo::BUTTON, const BINDINGTARGET&, const BINDINGTARGET&);
 
-	void Load();
+	void Reload();
+	void Load(std::string);
 	void Save();
 
 private:
@@ -149,6 +152,6 @@ private:
 	static uint32 m_buttonDefaultValue[PS2::CControllerInfo::MAX_BUTTONS];
 	static const char* m_padPreferenceName[MAX_PADS];
 
-	Framework::CConfig& m_config;
+	std::unique_ptr<CInputConfig> m_config;
 	ProviderMap m_providers;
 };

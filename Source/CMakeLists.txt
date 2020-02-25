@@ -198,6 +198,8 @@ set(COMMON_SRC_FILES
 	FpUtils.h
 	FrameDump.cpp
 	FrameDump.h
+	InputConfig.cpp
+	InputConfig.h
 	GenericMipsExecutor.h
 	gs/GsCachedArea.cpp
 	gs/GsCachedArea.h
