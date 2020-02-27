@@ -23,7 +23,7 @@ private:
 
 	INTEGER_BRANCH_DELAY_INFO GetIntegerBranchDelayInfo() const;
 	bool CheckIsSpecialIntegerLoop(unsigned int) const;
-	void ComputeSkipFlagsHints(std::vector<uint32>&) const;
+	void ComputeSkipFlagsHints(const std::vector<uint32>&, std::vector<uint32>&) const;
 	std::vector<uint32> ComputeFmacStallDelays() const;
 	static void EmitXgKick(CMipsJitter*);
 };

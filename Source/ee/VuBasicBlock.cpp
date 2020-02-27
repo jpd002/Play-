@@ -27,13 +27,13 @@ void CVuBasicBlock::CompileRange(CMipsJitter* jitter)
 		    hasPendingXgKick = false;
 	    };
 
+	auto fmacStallDelays = ComputeFmacStallDelays();
+
 	uint32 maxInstructions = ((m_end - m_begin) / 8) + 1;
 	std::vector<uint32> hints;
 	hints.resize(maxInstructions);
 
-	ComputeSkipFlagsHints(hints);
-
-	auto fmacStallDelays = ComputeFmacStallDelays();
+	ComputeSkipFlagsHints(fmacStallDelays, hints);
 
 	uint32 relativePipeTime = 0;
 	uint32 instructionIndex = 0;
@@ -106,8 +106,7 @@ void CVuBasicBlock::CompileRange(CMipsJitter* jitter)
 		auto fmacStallDelay = fmacStallDelays[instructionIndex];
 		relativePipeTime += fmacStallDelay;
 
-		//uint32 compileHints = hints[instructionIndex];
-		uint32 compileHints = 0;
+		uint32 compileHints = hints[instructionIndex];
 		arch->SetRelativePipeTime(relativePipeTime, compileHints);
 		arch->CompileInstruction(addressHi, jitter, &m_context);
 
@@ -285,24 +284,32 @@ void CVuBasicBlock::EmitXgKick(CMipsJitter* jitter)
 	jitter->Call(reinterpret_cast<void*>(&MemoryUtils_SetWordProxy), 3, false);
 }
 
-void CVuBasicBlock::ComputeSkipFlagsHints(std::vector<uint32>& hints) const
+void CVuBasicBlock::ComputeSkipFlagsHints(const std::vector<uint32>& fmacStallDelays, std::vector<uint32>& hints) const
 {
+	static const uint32 g_undefinedMACflagsResult = -1;
+
 	auto arch = static_cast<CMA_VU*>(m_context.m_pArch);
 
-	uint32 maxPipeTime = static_cast<uint32>(hints.size());
+	uint32 maxInstructions = static_cast<uint32>(hints.size());
+
+	uint32 maxPipeTime = maxInstructions;
+	for(const auto& fmacStallDelay : fmacStallDelays) maxPipeTime += fmacStallDelay;
+
+	//Take into account the instructions that come after this block (up to 4 cycles later)
 	uint32 extendedMaxPipeTime = maxPipeTime + VUShared::LATENCY_MAC;
 
-	std::vector<uint32> resultPipeTime;
-	resultPipeTime.resize(extendedMaxPipeTime);
-	std::fill(resultPipeTime.begin(), resultPipeTime.end(), -1);
+	std::vector<uint32> flagsResults;
+	flagsResults.resize(extendedMaxPipeTime);
+	std::fill(flagsResults.begin(), flagsResults.end(), g_undefinedMACflagsResult);
 
 	std::vector<bool> resultUsed;
-	resultUsed.resize(maxPipeTime);
+	resultUsed.resize(maxInstructions);
 
+	uint32 relativePipeTime = 0;
 	for(uint32 address = m_begin; address <= m_end; address += 8)
 	{
-		uint32 relativePipeTime = (address - m_begin) / 8;
-		assert(relativePipeTime < maxPipeTime);
+		uint32 instructionIndex = (address - m_begin) / 8;
+		assert(instructionIndex < maxInstructions);
 
 		uint32 addressLo = address + 0;
 		uint32 addressHi = address + 4;
@@ -313,41 +320,45 @@ void CVuBasicBlock::ComputeSkipFlagsHints(std::vector<uint32>& hints) const
 		auto loOps = arch->GetAffectedOperands(&m_context, addressLo, opcodeLo);
 		auto hiOps = arch->GetAffectedOperands(&m_context, addressHi, opcodeHi);
 
+		relativePipeTime += fmacStallDelays[instructionIndex];
+
 		if(hiOps.writeMACflags)
 		{
 			//Make this result available
 			std::fill(
-			    resultPipeTime.begin() + relativePipeTime + VUShared::LATENCY_MAC,
-			    resultPipeTime.end(), relativePipeTime);
+			    flagsResults.begin() + relativePipeTime + VUShared::LATENCY_MAC,
+			    flagsResults.end(), instructionIndex);
 		}
 
 		if(loOps.readMACflags)
 		{
-			uint32 pipeTimeForResult = resultPipeTime[relativePipeTime];
-			if(pipeTimeForResult != -1)
+			uint32 pipeTimeForResult = flagsResults[relativePipeTime];
+			if(pipeTimeForResult != g_undefinedMACflagsResult)
 			{
 				resultUsed[pipeTimeForResult] = true;
 			}
 		}
+
+		relativePipeTime++;
 	}
 
 	//Simulate usage from outside our block
 	for(uint32 relativePipeTime = maxPipeTime; relativePipeTime < extendedMaxPipeTime; relativePipeTime++)
 	{
-		uint32 pipeTimeForResult = resultPipeTime[relativePipeTime];
-		if(pipeTimeForResult != -1)
+		uint32 pipeTimeForResult = flagsResults[relativePipeTime];
+		if(pipeTimeForResult != g_undefinedMACflagsResult)
 		{
 			resultUsed[pipeTimeForResult] = true;
 		}
 	}
 
 	//Flag unused results
-	for(uint32 relativePipeTime = 0; relativePipeTime < maxPipeTime; relativePipeTime++)
+	for(uint32 instructionIndex = 0; instructionIndex < maxInstructions; instructionIndex++)
 	{
-		bool used = resultUsed[relativePipeTime];
+		bool used = resultUsed[instructionIndex];
 		if(!used)
 		{
-			hints[relativePipeTime] |= VUShared::COMPILEHINT_SKIPFMACUPDATE;
+			hints[instructionIndex] |= VUShared::COMPILEHINT_SKIPFMACUPDATE;
 		}
 	}
 }
