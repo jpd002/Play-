@@ -112,7 +112,10 @@ public:
 		};
 
 		static uint32 ADDi(DEST, VF_REGISTER, VF_REGISTER);
+		static uint32 CLIP(VF_REGISTER, VF_REGISTER);
+		static uint32 FTOI4(DEST, VF_REGISTER, VF_REGISTER);
 		static uint32 ITOF0(DEST, VF_REGISTER, VF_REGISTER);
+		static uint32 ITOF12(DEST, VF_REGISTER, VF_REGISTER);
 		static uint32 MADDbc(DEST, VF_REGISTER, VF_REGISTER, VF_REGISTER, BROADCAST);
 		static uint32 MADDAbc(DEST, VF_REGISTER, VF_REGISTER, BROADCAST);
 		static uint32 MULi(DEST, VF_REGISTER, VF_REGISTER);
@@ -128,9 +131,13 @@ public:
 	{
 	public:
 		static uint32 DIV(VF_REGISTER, FVF, VF_REGISTER, FVF);
+		static uint32 FCAND(uint32);
 		static uint32 FMAND(VI_REGISTER, VI_REGISTER);
 		static uint32 FSAND(VI_REGISTER, uint16);
+		static uint32 IADDIU(VI_REGISTER, VI_REGISTER, uint16);
+		static uint32 LQ(DEST, VF_REGISTER, uint16, VI_REGISTER);
 		static uint32 NOP();
+		static uint32 SQ(DEST, VF_REGISTER, uint16, VI_REGISTER);
 		static uint32 WAITQ();
 	};
 
