@@ -27,15 +27,16 @@ void CVuBasicBlock::CompileRange(CMipsJitter* jitter)
 		    hasPendingXgKick = false;
 	    };
 
-	uint32 relativePipeTime = 0;
-
-	uint32 maxPipeTime = ((m_end - m_begin) / 8) + 1;
+	uint32 maxInstructions = ((m_end - m_begin) / 8) + 1;
 	std::vector<uint32> hints;
-	hints.resize(maxPipeTime);
+	hints.resize(maxInstructions);
 
 	ComputeSkipFlagsHints(hints);
 
 	auto fmacStallDelays = ComputeFmacStallDelays();
+
+	uint32 relativePipeTime = 0;
+	uint32 instructionIndex = 0;
 
 	for(uint32 address = m_begin; address <= m_end; address += 8)
 	{
@@ -102,28 +103,13 @@ void CVuBasicBlock::CompileRange(CMipsJitter* jitter)
 			jitter->PullRel(offsetof(CMIPS, m_State.savedIntReg));
 		}
 
-		uint32 compileHints = hints[relativePipeTime];
+		auto fmacStallDelay = fmacStallDelays[instructionIndex];
+		relativePipeTime += fmacStallDelay;
+
+		//uint32 compileHints = hints[instructionIndex];
+		uint32 compileHints = 0;
 		arch->SetRelativePipeTime(relativePipeTime, compileHints);
 		arch->CompileInstruction(addressHi, jitter, &m_context);
-
-		// ----------------------
-		// Check FMAC stall before we execute the lower instruction
-		// If the lower op is a FDIV or EFU instruction, the stall shouldn't have an impact
-		{
-			auto fmacStallDelay = fmacStallDelays[relativePipeTime + 1];
-			if(fmacStallDelay != 0)
-			{
-				jitter->PushRel(VUShared::g_pipeInfoQ.counter);
-				jitter->PushCst(fmacStallDelay);
-				jitter->Sub();
-				jitter->PullRel(VUShared::g_pipeInfoQ.counter);
-
-				jitter->PushRel(VUShared::g_pipeInfoP.counter);
-				jitter->PushCst(fmacStallDelay);
-				jitter->Sub();
-				jitter->PullRel(VUShared::g_pipeInfoP.counter);
-			}
-		}
 
 		if(savedReg != 0)
 		{
@@ -178,6 +164,7 @@ void CVuBasicBlock::CompileRange(CMipsJitter* jitter)
 		}
 		//Adjust pipeTime
 		relativePipeTime++;
+		instructionIndex++;
 
 		//Sanity check
 		assert(jitter->IsStackEmpty());
@@ -369,19 +356,33 @@ std::vector<uint32> CVuBasicBlock::ComputeFmacStallDelays() const
 {
 	auto arch = static_cast<CMA_VU*>(m_context.m_pArch);
 
-	uint32 maxPipeTime = ((m_end - m_begin) / 8) + 1;
+	uint32 maxInstructions = ((m_end - m_begin) / 8) + 1;
 
 	std::vector<uint32> fmacStallDelays;
-	fmacStallDelays.resize(maxPipeTime + 1);
+	fmacStallDelays.resize(maxInstructions);
 
-	uint32 fmacPipeTime = 0;
-	uint32 writeFTime[32];
+	uint32 relativePipeTime = 0;
+	uint32 writeFTime[32][4];
 	memset(writeFTime, 0, sizeof(writeFTime));
+
+	auto adjustPipeTime =
+		[&writeFTime](uint32 pipeTime, uint32 dest, uint32 regIndex)
+		{
+			if(regIndex == 0) return pipeTime;
+			for(unsigned int i = 0; i < 4; i++)
+			{
+				if(dest & (1 << i))
+				{
+					pipeTime = std::max<uint32>(pipeTime, writeFTime[regIndex][i]);
+				}
+			}
+			return pipeTime;
+		};
 
 	for(uint32 address = m_begin; address <= m_end; address += 8)
 	{
-		uint32 relativePipeTime = (address - m_begin) / 8;
-		assert(relativePipeTime < maxPipeTime);
+		uint32 instructionIndex = (address - m_begin) / 8;
+		assert(instructionIndex < maxInstructions);
 
 		uint32 addressLo = address + 0;
 		uint32 addressHi = address + 4;
@@ -392,34 +393,49 @@ std::vector<uint32> CVuBasicBlock::ComputeFmacStallDelays() const
 		auto loOps = arch->GetAffectedOperands(&m_context, addressLo, opcodeLo);
 		auto hiOps = arch->GetAffectedOperands(&m_context, addressHi, opcodeHi);
 
+		uint32 loDest = (opcodeLo >> 21) & 0xF;
+		uint32 hiDest = (opcodeHi >> 21) & 0xF;
+
 		//Instruction executes...
 
-		fmacPipeTime++;
-		uint32 prevFmacPipeTime = fmacPipeTime;
+		relativePipeTime++;
+		uint32 prevRelativePipeTime = relativePipeTime;
 
-		if(loOps.readF0 != 0) fmacPipeTime = std::max<uint32>(fmacPipeTime, writeFTime[loOps.readF0]);
-		if(loOps.readF1 != 0) fmacPipeTime = std::max<uint32>(fmacPipeTime, writeFTime[loOps.readF1]);
-		if(hiOps.readF0 != 0) fmacPipeTime = std::max<uint32>(fmacPipeTime, writeFTime[hiOps.readF0]);
-		if(hiOps.readF1 != 0) fmacPipeTime = std::max<uint32>(fmacPipeTime, writeFTime[hiOps.readF1]);
+		relativePipeTime = adjustPipeTime(relativePipeTime, loDest, loOps.readF0);
+		relativePipeTime = adjustPipeTime(relativePipeTime, loDest, loOps.readF1);
+		relativePipeTime = adjustPipeTime(relativePipeTime, hiDest, hiOps.readF0);
+		relativePipeTime = adjustPipeTime(relativePipeTime, hiDest, hiOps.readF1);
 
-		if(prevFmacPipeTime != fmacPipeTime)
+		if(prevRelativePipeTime != relativePipeTime)
 		{
 			//We got a stall, sync
-			assert(fmacPipeTime >= prevFmacPipeTime);
-			uint32 diff = fmacPipeTime - prevFmacPipeTime;
-			fmacStallDelays[relativePipeTime + 1] = diff;
+			assert(relativePipeTime >= prevRelativePipeTime);
+			uint32 diff = relativePipeTime - prevRelativePipeTime;
+			fmacStallDelays[instructionIndex] = diff;
 		}
 
 		if(loOps.writeF != 0)
 		{
 			assert(loOps.writeF < 32);
-			writeFTime[loOps.writeF] = fmacPipeTime + VUShared::LATENCY_MAC;
+			for(uint32 i = 0; i < 4; i++)
+			{
+				if(loDest & (1 << i))
+				{
+					writeFTime[loOps.writeF][i] = relativePipeTime + VUShared::LATENCY_MAC;
+				}
+			}
 		}
 
 		if(hiOps.writeF != 0)
 		{
 			assert(hiOps.writeF < 32);
-			writeFTime[hiOps.writeF] = fmacPipeTime + VUShared::LATENCY_MAC;
+			for(uint32 i = 0; i < 4; i++)
+			{
+				if(hiDest & (1 << i))
+				{
+					writeFTime[hiOps.writeF][i] = relativePipeTime + VUShared::LATENCY_MAC;
+				}
+			}
 		}
 	}
 
