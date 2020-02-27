@@ -11,36 +11,45 @@ void CStallTest::Execute(CTestVm& virtualMachine)
 
 	CVuAssembler assembler(microMem);
 
+	//pipeTime = 0
 	assembler.Write(
 		CVuAssembler::Upper::MULAbc(CVuAssembler::DEST_XYZW, CVuAssembler::VF1, CVuAssembler::VF10, CVuAssembler::BC_X),
 		CVuAssembler::Lower::DIV(CVuAssembler::VF0, CVuAssembler::FVF_W, CVuAssembler::VF9, CVuAssembler::FVF_W));
 
+	//pipeTime = 1
 	assembler.Write(
 		CVuAssembler::Upper::MADDAbc(CVuAssembler::DEST_XYZW, CVuAssembler::VF2, CVuAssembler::VF10, CVuAssembler::BC_Y),
 		CVuAssembler::Lower::NOP());
 
+	//pipeTime = 2
 	assembler.Write(
 		CVuAssembler::Upper::MADDAbc(CVuAssembler::DEST_XYZW, CVuAssembler::VF3, CVuAssembler::VF10, CVuAssembler::BC_Z),
 		CVuAssembler::Lower::NOP());
 
+	//pipeTime = 3
+	//Writing to VF10xyzw, result will be available at pipeTime 7
 	assembler.Write(
 		CVuAssembler::Upper::MADDbc(CVuAssembler::DEST_XYZW, CVuAssembler::VF10, CVuAssembler::VF5, CVuAssembler::VF10, CVuAssembler::BC_W),
 		CVuAssembler::Lower::NOP());
 
+	//pipeTime = 4, 5, 6, 7
 	//The DIV here will wait for the result to be written to VF10 (by previous instruction), causing a FMAC stall
 	//But it won't disrupt the execution, we will get 3 different values in the 3 MULq instructions below
 	assembler.Write(
 		CVuAssembler::Upper::MULAbc(CVuAssembler::DEST_XYZW, CVuAssembler::VF1, CVuAssembler::VF11, CVuAssembler::BC_X),
 		CVuAssembler::Lower::DIV(CVuAssembler::VF0, CVuAssembler::FVF_W, CVuAssembler::VF10, CVuAssembler::FVF_W));
 
+	//pipeTime = 8
 	assembler.Write(
 		CVuAssembler::Upper::MADDAbc(CVuAssembler::DEST_XYZW, CVuAssembler::VF2, CVuAssembler::VF11, CVuAssembler::BC_Y),
 		CVuAssembler::Lower::NOP());
 
+	//pipeTime = 9
 	assembler.Write(
 		CVuAssembler::Upper::MADDAbc(CVuAssembler::DEST_XYZW, CVuAssembler::VF3, CVuAssembler::VF11, CVuAssembler::BC_Z),
 		CVuAssembler::Lower::NOP());
 
+	//pipeTime = 10
 	assembler.Write(
 		CVuAssembler::Upper::MADDbc(CVuAssembler::DEST_XYZW, CVuAssembler::VF11, CVuAssembler::VF5, CVuAssembler::VF11, CVuAssembler::BC_W),
 		CVuAssembler::Lower::NOP());
