@@ -98,23 +98,9 @@ static void SaveBindingTargetPreference(Framework::CConfig& config, const char* 
 }
 
 CInputBindingManager::CInputBindingManager()
-    : m_config(CAppConfig::GetInstance())
 {
-	for(unsigned int pad = 0; pad < MAX_PADS; pad++)
-	{
-		for(unsigned int button = 0; button < PS2::CControllerInfo::MAX_BUTTONS; button++)
-		{
-			auto prefBase = Framework::CConfig::MakePreferenceName(CONFIG_PREFIX, m_padPreferenceName[pad], PS2::CControllerInfo::m_buttonName[button]);
-			m_config.RegisterPreferenceInteger(Framework::CConfig::MakePreferenceName(prefBase, CONFIG_BINDING_TYPE).c_str(), 0);
-			RegisterBindingTargetPreference(m_config, Framework::CConfig::MakePreferenceName(prefBase, CONFIG_BINDINGTARGET1).c_str());
-			if(PS2::CControllerInfo::IsAxis(static_cast<PS2::CControllerInfo::BUTTON>(button)))
-			{
-				RegisterBindingTargetPreference(m_config, Framework::CConfig::MakePreferenceName(prefBase, CONFIG_BINDINGTARGET2).c_str());
-			}
-			CPovHatBinding::RegisterPreferences(m_config, prefBase.c_str());
-		}
-	}
-	Load();
+	m_config = CInputConfig::LoadProfile();
+	Reload();
 }
 
 bool CInputBindingManager::HasBindings() const
@@ -174,15 +160,31 @@ void CInputBindingManager::OnInputEventReceived(const BINDINGTARGET& target, uin
 	}
 }
 
-void CInputBindingManager::Load()
+void CInputBindingManager::Reload()
 {
+
+	for(unsigned int pad = 0; pad < MAX_PADS; pad++)
+	{
+		for(unsigned int button = 0; button < PS2::CControllerInfo::MAX_BUTTONS; button++)
+		{
+			auto prefBase = Framework::CConfig::MakePreferenceName(CONFIG_PREFIX, m_padPreferenceName[pad], PS2::CControllerInfo::m_buttonName[button]);
+			m_config->RegisterPreferenceInteger(Framework::CConfig::MakePreferenceName(prefBase, CONFIG_BINDING_TYPE).c_str(), 0);
+			RegisterBindingTargetPreference(*m_config, Framework::CConfig::MakePreferenceName(prefBase, CONFIG_BINDINGTARGET1).c_str());
+			if(PS2::CControllerInfo::IsAxis(static_cast<PS2::CControllerInfo::BUTTON>(button)))
+			{
+				RegisterBindingTargetPreference(*m_config, Framework::CConfig::MakePreferenceName(prefBase, CONFIG_BINDINGTARGET2).c_str());
+			}
+			CPovHatBinding::RegisterPreferences(*m_config, prefBase.c_str());
+		}
+	}
+
 	for(unsigned int pad = 0; pad < MAX_PADS; pad++)
 	{
 		for(unsigned int button = 0; button < PS2::CControllerInfo::MAX_BUTTONS; button++)
 		{
 			BINDINGTYPE bindingType = BINDING_UNBOUND;
 			auto prefBase = Framework::CConfig::MakePreferenceName(CONFIG_PREFIX, m_padPreferenceName[pad], PS2::CControllerInfo::m_buttonName[button]);
-			bindingType = static_cast<BINDINGTYPE>(m_config.GetPreferenceInteger((prefBase + "." + std::string(CONFIG_BINDING_TYPE)).c_str()));
+			bindingType = static_cast<BINDINGTYPE>(m_config->GetPreferenceInteger((prefBase + "." + std::string(CONFIG_BINDING_TYPE)).c_str()));
 			if(bindingType == BINDING_UNBOUND) continue;
 			BindingPtr binding;
 			switch(bindingType)
@@ -199,12 +201,18 @@ void CInputBindingManager::Load()
 			}
 			if(binding)
 			{
-				binding->Load(m_config, prefBase.c_str());
+				binding->Load(*m_config, prefBase.c_str());
 			}
 			m_bindings[pad][button] = binding;
 		}
 	}
 	ResetBindingValues();
+}
+
+void CInputBindingManager::Load(std::string profile)
+{
+	m_config = CInputConfig::LoadProfile(profile);
+	Reload();
 }
 
 void CInputBindingManager::Save()
@@ -216,11 +224,11 @@ void CInputBindingManager::Save()
 			const auto& binding = m_bindings[pad][button];
 			if(!binding) continue;
 			auto prefBase = Framework::CConfig::MakePreferenceName(CONFIG_PREFIX, m_padPreferenceName[pad], PS2::CControllerInfo::m_buttonName[button]);
-			m_config.SetPreferenceInteger(Framework::CConfig::MakePreferenceName(prefBase, CONFIG_BINDING_TYPE).c_str(), binding->GetBindingType());
-			binding->Save(m_config, prefBase.c_str());
+			m_config->SetPreferenceInteger(Framework::CConfig::MakePreferenceName(prefBase, CONFIG_BINDING_TYPE).c_str(), binding->GetBindingType());
+			binding->Save(*m_config, prefBase.c_str());
 		}
 	}
-	m_config.Save();
+	m_config->Save();
 }
 
 const CInputBindingManager::CBinding* CInputBindingManager::GetBinding(uint32 pad, PS2::CControllerInfo::BUTTON button) const
