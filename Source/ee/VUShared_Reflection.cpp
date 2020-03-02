@@ -4,33 +4,35 @@
 using namespace MIPSReflection;
 using namespace VUShared;
 
+// clang-format off
 const char* VUShared::m_sBroadcast[4] =
-    {
-        "x",
-        "y",
-        "z",
-        "w",
+{
+	"x",
+	"y",
+	"z",
+	"w",
 };
 
 const char* VUShared::m_sDestination[16] =
-    {
-        "",     //0000
-        "w",    //000w
-        "z",    //00z0
-        "zw",   //00zw
-        "y",    //0y00
-        "yw",   //0y0w
-        "yz",   //0yz0
-        "yzw",  //0yzw
-        "x",    //x000
-        "xw",   //x00w
-        "xz",   //x0z0
-        "xzw",  //x0zw
-        "xy",   //xy00
-        "xyw",  //xy0w
-        "xyz",  //xyz0
-        "xyzw", //xyzw
+{
+	"",     //0000
+	"w",    //000w
+	"z",    //00z0
+	"zw",   //00zw
+	"y",    //0y00
+	"yw",   //0y0w
+	"yz",   //0yz0
+	"yzw",  //0yzw
+	"x",    //x000
+	"xw",   //x00w
+	"xz",   //x0z0
+	"xzw",  //x0zw
+	"xy",   //xy00
+	"xyw",  //xy0w
+	"xyz",  //xyz0
+	"xyzw", //xyzw
 };
+// clang-format on
 
 int32 VUShared::GetImm11Offset(uint16 nImm11)
 {
