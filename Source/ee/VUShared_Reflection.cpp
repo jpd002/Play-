@@ -34,6 +34,12 @@ const char* VUShared::m_sDestination[16] =
 };
 // clang-format on
 
+static uint32 MakeDestFromComponent(uint32 component)
+{
+	assert(component <= VECTOR_COMPW);
+	return (1 << (3 - component));
+}
+
 int32 VUShared::GetImm11Offset(uint16 nImm11)
 {
 	if(nImm11 & 0x400)
@@ -370,12 +376,27 @@ void VUShared::ReflOpAffQ(VUINSTRUCTION* pInstr, CMIPS* pCtx, uint32 nAddress, u
 
 void VUShared::ReflOpAffWrARdFsFt(VUINSTRUCTION*, CMIPS*, uint32, uint32 opcode, OPERANDSET& operandSet)
 {
+	auto dest = static_cast<uint8>((opcode >> 21) & 0x000F);
 	auto ft = static_cast<uint8>((opcode >> 16) & 0x001F);
 	auto fs = static_cast<uint8>((opcode >> 11) & 0x001F);
 
 	//TODO: Write A
 	operandSet.readF0 = fs;
 	operandSet.readF1 = ft;
+	operandSet.readElemF1 = dest;
+	operandSet.writeMACflags = true;
+}
+
+void VUShared::ReflOpAffWrARdFsFtBc(VUINSTRUCTION*, CMIPS*, uint32, uint32 opcode, OPERANDSET& operandSet)
+{
+	auto ft = static_cast<uint8>((opcode >> 16) & 0x001F);
+	auto fs = static_cast<uint8>((opcode >> 11) & 0x001F);
+	auto bc = static_cast<uint8>((opcode >> 0) & 0x0003);
+
+	//TODO: Write A
+	operandSet.readF0 = fs;
+	operandSet.readF1 = ft;
+	operandSet.readElemF1 = MakeDestFromComponent(bc);
 	operandSet.writeMACflags = true;
 }
 
@@ -397,10 +418,12 @@ void VUShared::ReflOpAffWrCfRdFsFt(VUINSTRUCTION*, CMIPS*, uint32, uint32 opcode
 	//TODO: Write CF
 	operandSet.readF0 = fs;
 	operandSet.readF1 = ft;
+	operandSet.readElemF1 = MakeDestFromComponent(VECTOR_COMPW);
 }
 
 void VUShared::ReflOpAffWrFdRdFsFt(VUINSTRUCTION*, CMIPS*, uint32, uint32 opcode, OPERANDSET& operandSet)
 {
+	auto dest = static_cast<uint8>((opcode >> 21) & 0x000F);
 	auto ft = static_cast<uint8>((opcode >> 16) & 0x001F);
 	auto fs = static_cast<uint8>((opcode >> 11) & 0x001F);
 	auto fd = static_cast<uint8>((opcode >> 6) & 0x001F);
@@ -408,6 +431,7 @@ void VUShared::ReflOpAffWrFdRdFsFt(VUINSTRUCTION*, CMIPS*, uint32, uint32 opcode
 	operandSet.writeF = fd;
 	operandSet.readF0 = fs;
 	operandSet.readF1 = ft;
+	operandSet.readElemF1 = dest;
 	operandSet.writeMACflags = true;
 }
 

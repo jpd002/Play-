@@ -337,7 +337,7 @@ VUINSTRUCTION CMA_VU::CUpper::m_cVuReflVX0[32] =
 	{	"MSUBA",	NULL,			ReflOpAffWrARdFsFt	},
 	{	"ITOF0",	NULL,			ReflOpAffFtFs		},
 	{	"FTOI0",	NULL,			ReflOpAffFtFs		},
-	{	"MULA",		NULL,			ReflOpAffWrARdFsFt	},
+	{	"MULA",		NULL,			ReflOpAffWrARdFsFtBc},
 	{	"MULA",		NULL,			ReflOpAffWrARdFsQ	},
 	//0x08
 	{	NULL,		NULL,			NULL				},
@@ -377,7 +377,7 @@ VUINSTRUCTION CMA_VU::CUpper::m_cVuReflVX1[32] =
 	{	"MSUBA",	NULL,			ReflOpAffWrARdFsFt	},
 	{	"ITOF4",	NULL,			ReflOpAffFtFs,		},
 	{	"FTOI4",	NULL,			ReflOpAffFtFs,		},
-	{	"MULA",		NULL,			ReflOpAffWrARdFsFt	},
+	{	"MULA",		NULL,			ReflOpAffWrARdFsFtBc},
 	{	"ABS",		NULL,			ReflOpAffFtFs		},
 	//0x08
 	{	"MADDA",	NULL,			ReflOpAffWrARdFsQ	},
@@ -417,7 +417,7 @@ VUINSTRUCTION CMA_VU::CUpper::m_cVuReflVX2[32] =
 	{	"MSUBA",	NULL,			ReflOpAffWrARdFsFt	},
 	{	"ITOF12",	NULL,			ReflOpAffFtFs		},
 	{	"FTOI12",	NULL,			ReflOpAffFtFs		},
-	{	"MULA",		NULL,			ReflOpAffWrARdFsFt	},
+	{	"MULA",		NULL,			ReflOpAffWrARdFsFtBc},
 	{	"MULA",		NULL,			ReflOpAffAccFsI		},
 	//0x08
 	{	"ADDA",		NULL,			ReflOpAffAccFsI,	},
@@ -457,7 +457,7 @@ VUINSTRUCTION CMA_VU::CUpper::m_cVuReflVX3[32] =
 	{	"MSUBA",	NULL,			ReflOpAffWrARdFsFt	},
 	{	"ITOF15",	NULL,			ReflOpAffFtFs		},
 	{	"FTOI15",	NULL,			ReflOpAffFtFs		},
-	{	"MULA",		NULL,			ReflOpAffWrARdFsFt	},
+	{	"MULA",		NULL,			ReflOpAffWrARdFsFtBc},
 	{	"CLIP",		NULL,			ReflOpAffWrCfRdFsFt	},
 	//0x08
 	{	"MADDA",	NULL,			ReflOpAffAccFsI		},

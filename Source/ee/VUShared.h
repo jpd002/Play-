@@ -47,6 +47,7 @@ namespace VUShared
 		unsigned int writeF;
 		unsigned int readF0;
 		unsigned int readF1;
+		unsigned int readElemF1;
 		unsigned int writeI;
 		unsigned int readI0;
 		unsigned int readI1;
@@ -243,6 +244,7 @@ namespace VUShared
 	void ReflOpAffQ(VUINSTRUCTION*, CMIPS*, uint32, uint32, OPERANDSET&);
 
 	void ReflOpAffWrARdFsFt(VUINSTRUCTION*, CMIPS*, uint32, uint32, OPERANDSET&);
+	void ReflOpAffWrARdFsFtBc(VUINSTRUCTION*, CMIPS*, uint32, uint32, OPERANDSET&);
 	void ReflOpAffWrARdFsQ(VUINSTRUCTION*, CMIPS*, uint32, uint32, OPERANDSET&);
 	void ReflOpAffWrCfRdFsFt(VUINSTRUCTION*, CMIPS*, uint32, uint32, OPERANDSET&);
 	void ReflOpAffWrFdRdFsFt(VUINSTRUCTION*, CMIPS*, uint32, uint32, OPERANDSET&);
