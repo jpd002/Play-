@@ -28,13 +28,13 @@ int main(int argc, const char** argv)
 {
 	fesetround(FE_TOWARDZERO);
 
-	CTestVm virtualMachine;
+	auto virtualMachine = std::make_unique<CTestVm>();
 
 	for(const auto& factory : s_factories)
 	{
-		virtualMachine.Reset();
+		virtualMachine->Reset();
 		auto test = factory();
-		test->Execute(virtualMachine);
+		test->Execute(*virtualMachine);
 		delete test;
 	}
 	return 0;
