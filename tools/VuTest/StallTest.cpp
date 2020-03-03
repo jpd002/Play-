@@ -87,27 +87,27 @@ void CStallTest::Execute(CTestVm& virtualMachine)
 	    CVuAssembler::Lower::NOP());
 
 	//Some transformation matrix (identity)
-	virtualMachine.m_cpu.m_State.nCOP2[1] = MakeVector(1, 0, 0, 0);
-	virtualMachine.m_cpu.m_State.nCOP2[2] = MakeVector(0, 1, 0, 0);
-	virtualMachine.m_cpu.m_State.nCOP2[3] = MakeVector(0, 0, 1, 0);
-	virtualMachine.m_cpu.m_State.nCOP2[5] = MakeVector(0, 0, 0, 1);
+	virtualMachine.m_cpu.m_State.nCOP2[1] = uint128{Float::_1, Float::_0, Float::_0, Float::_0};
+	virtualMachine.m_cpu.m_State.nCOP2[2] = uint128{Float::_0, Float::_1, Float::_0, Float::_0};
+	virtualMachine.m_cpu.m_State.nCOP2[3] = uint128{Float::_0, Float::_0, Float::_1, Float::_0};
+	virtualMachine.m_cpu.m_State.nCOP2[5] = uint128{Float::_0, Float::_0, Float::_0, Float::_1};
 
 	//Some vectors that will be normalized
-	virtualMachine.m_cpu.m_State.nCOP2[9]  = MakeVector(2, 2, 2, 2);
-	virtualMachine.m_cpu.m_State.nCOP2[10] = MakeVector(4, 4, 4, 4);
-	virtualMachine.m_cpu.m_State.nCOP2[11] = MakeVector(8, 8, 8, 8);
+	virtualMachine.m_cpu.m_State.nCOP2[9]  = uint128 {Float::_2, Float::_2, Float::_2, Float::_2};
+	virtualMachine.m_cpu.m_State.nCOP2[10] = uint128 {Float::_4, Float::_4, Float::_4, Float::_4};
+	virtualMachine.m_cpu.m_State.nCOP2[11] = uint128 {Float::_8, Float::_8, Float::_8, Float::_8};
 
 	virtualMachine.ExecuteTest(0);
 
-	TEST_VERIFY(virtualMachine.m_cpu.m_State.nCOP2[12].nV0 == MakeFloat(1));
-	TEST_VERIFY(virtualMachine.m_cpu.m_State.nCOP2[12].nV1 == MakeFloat(1));
-	TEST_VERIFY(virtualMachine.m_cpu.m_State.nCOP2[12].nV2 == MakeFloat(1));
+	TEST_VERIFY(virtualMachine.m_cpu.m_State.nCOP2[12].nV0 == Float::_1);
+	TEST_VERIFY(virtualMachine.m_cpu.m_State.nCOP2[12].nV1 == Float::_1);
+	TEST_VERIFY(virtualMachine.m_cpu.m_State.nCOP2[12].nV2 == Float::_1);
 
-	TEST_VERIFY(virtualMachine.m_cpu.m_State.nCOP2[9].nV0 == MakeFloat(1));
-	TEST_VERIFY(virtualMachine.m_cpu.m_State.nCOP2[9].nV1 == MakeFloat(1));
-	TEST_VERIFY(virtualMachine.m_cpu.m_State.nCOP2[9].nV2 == MakeFloat(1));
+	TEST_VERIFY(virtualMachine.m_cpu.m_State.nCOP2[9].nV0 == Float::_1);
+	TEST_VERIFY(virtualMachine.m_cpu.m_State.nCOP2[9].nV1 == Float::_1);
+	TEST_VERIFY(virtualMachine.m_cpu.m_State.nCOP2[9].nV2 == Float::_1);
 
-	TEST_VERIFY(virtualMachine.m_cpu.m_State.nCOP2[11].nV0 == MakeFloat(1));
-	TEST_VERIFY(virtualMachine.m_cpu.m_State.nCOP2[11].nV1 == MakeFloat(1));
-	TEST_VERIFY(virtualMachine.m_cpu.m_State.nCOP2[11].nV2 == MakeFloat(1));
+	TEST_VERIFY(virtualMachine.m_cpu.m_State.nCOP2[11].nV0 == Float::_1);
+	TEST_VERIFY(virtualMachine.m_cpu.m_State.nCOP2[11].nV1 == Float::_1);
+	TEST_VERIFY(virtualMachine.m_cpu.m_State.nCOP2[11].nV2 == Float::_1);
 }

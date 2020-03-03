@@ -15,20 +15,12 @@ public:
 	virtual ~CTest() = default;
 	virtual void Execute(CTestVm&) = 0;
 
-	static uint32 MakeFloat(float input)
+	enum Float
 	{
-		return *reinterpret_cast<uint32*>(&input);
-	}
-
-	static uint128 MakeVector(float x, float y, float z, float w)
-	{
-		uint128 vector =
-			{
-				MakeFloat(x),
-				MakeFloat(y),
-				MakeFloat(z),
-				MakeFloat(w)
-			};
-		return vector;
-	}
+		_0 = 0000000000,
+		_1 = 0x3F800000,
+		_2 = 0x40000000,
+		_4 = 0x40800000,
+		_8 = 0x41000000,
+	};
 };

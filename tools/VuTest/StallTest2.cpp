@@ -52,7 +52,7 @@ void CStallTest2::Execute(CTestVm& virtualMachine)
 	    CVuAssembler::Upper::NOP(),
 	    CVuAssembler::Lower::NOP());
 
-	virtualMachine.m_cpu.m_State.nCOP2[25] = MakeVector(2.0f, 2.0f, 2.0f, 1.0f);
+	virtualMachine.m_cpu.m_State.nCOP2[25] = uint128{Float::_2, Float::_2, Float::_2, Float::_1};
 
 	virtualMachine.ExecuteTest(0);
 
