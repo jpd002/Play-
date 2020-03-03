@@ -983,7 +983,7 @@ VUINSTRUCTION CMA_VU::CLower::m_cVuReflVX0[32] =
 	{	NULL,		NULL,			NULL				},
 	{	"MOVE",		NULL,			ReflOpAffWrFtRdFs	},
 	{	"LQI",		NULL,			ReflOpAffWrFtIsRdIs	},
-	{	"DIV",		NULL,			ReflOpAffWrQRdFtFs	},
+	{	"DIV",		NULL,			ReflOpAffWrQRdFsFt	},
 	{	"MTIR",		NULL,			ReflOpAffWrItRdFs	},
 	//0x10
 	{	"RNEXT",	NULL,			ReflOpAffFtR		},
@@ -1063,7 +1063,7 @@ VUINSTRUCTION CMA_VU::CLower::m_cVuReflVX2[32] =
 	{	NULL,		NULL,			NULL				},
 	{	NULL,		NULL,			NULL				},
 	{	"LQD",		NULL,			ReflOpAffWrFtIsRdIs	},
-	{	"RSQRT",	NULL,			ReflOpAffWrQRdFtFs	},
+	{	"RSQRT",	NULL,			ReflOpAffWrQRdFsFt	},
 	{	"ILWR",		NULL,			ReflOpAffWrItBvRdIs	},
 	//0x10
 	{	"RINIT",	NULL,			ReflOpAffRFsf		},
