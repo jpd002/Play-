@@ -293,7 +293,8 @@ void CVuBasicBlock::ComputeSkipFlagsHints(const std::vector<uint32>& fmacStallDe
 	uint32 maxInstructions = static_cast<uint32>(hints.size());
 
 	uint32 maxPipeTime = maxInstructions;
-	for(const auto& fmacStallDelay : fmacStallDelays) maxPipeTime += fmacStallDelay;
+	for(const auto& fmacStallDelay : fmacStallDelays)
+		maxPipeTime += fmacStallDelay;
 
 	//Take into account the instructions that come after this block (up to 4 cycles later)
 	uint32 extendedMaxPipeTime = maxPipeTime + VUShared::LATENCY_MAC;
@@ -377,18 +378,17 @@ std::vector<uint32> CVuBasicBlock::ComputeFmacStallDelays() const
 	memset(writeFTime, 0, sizeof(writeFTime));
 
 	auto adjustPipeTime =
-		[&writeFTime](uint32 pipeTime, uint32 dest, uint32 regIndex)
-		{
-			if(regIndex == 0) return pipeTime;
-			for(unsigned int i = 0; i < 4; i++)
-			{
-				if(dest & (1 << i))
-				{
-					pipeTime = std::max<uint32>(pipeTime, writeFTime[regIndex][i]);
-				}
-			}
-			return pipeTime;
-		};
+	    [&writeFTime](uint32 pipeTime, uint32 dest, uint32 regIndex) {
+		    if(regIndex == 0) return pipeTime;
+		    for(unsigned int i = 0; i < 4; i++)
+		    {
+			    if(dest & (1 << i))
+			    {
+				    pipeTime = std::max<uint32>(pipeTime, writeFTime[regIndex][i]);
+			    }
+		    }
+		    return pipeTime;
+	    };
 
 	for(uint32 address = m_begin; address <= m_end; address += 8)
 	{
