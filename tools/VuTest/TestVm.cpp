@@ -4,8 +4,8 @@
 CTestVm::CTestVm()
     : m_cpu(MEMORYMAP_ENDIAN_LSBF)
     , m_executor(m_cpu, PS2::MICROMEM1SIZE)
-    , m_vuMem(new uint8[PS2::VUMEM1SIZE])
-    , m_microMem(new uint8[PS2::MICROMEM1SIZE])
+    , m_vuMem(reinterpret_cast<uint8*>(framework_aligned_alloc(PS2::VUMEM1SIZE, 0x10)))
+    , m_microMem(reinterpret_cast<uint8*>(framework_aligned_alloc(PS2::MICROMEM1SIZE, 0x10)))
     , m_maVu(PS2::VUMEM1SIZE - 1)
 {
 	m_cpu.m_pMemoryMap->InsertReadMap(0x00000000, 0x00003FFF, m_vuMem, 0x00);
@@ -21,8 +21,8 @@ CTestVm::CTestVm()
 
 CTestVm::~CTestVm()
 {
-	delete[] m_vuMem;
-	delete[] m_microMem;
+	framework_aligned_free(m_vuMem);
+	framework_aligned_free(m_microMem);
 }
 
 void CTestVm::Reset()
