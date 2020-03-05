@@ -124,4 +124,5 @@ private:
 	Framework::Vulkan::CImage m_swizzleTablePSMT8;
 	Framework::Vulkan::CImage m_swizzleTablePSMT4;
 	Framework::Vulkan::CImage m_swizzleTablePSMZ32;
+	Framework::Vulkan::CImage m_swizzleTablePSMZ16;
 };

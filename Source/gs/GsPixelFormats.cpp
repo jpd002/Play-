@@ -66,6 +66,24 @@ const int CGsPixelFormats::STORAGEPSMCT16S::m_nColumnSwizzleTable[2][16] =
 	{	4,	6,	12,	14,	20,	22,	28,	30,	5,	7,	13,	15,	21,	23,	29,	31,	},
 };
 
+const int CGsPixelFormats::STORAGEPSMZ16::m_nBlockSwizzleTable[8][4] =
+{
+	{ 24, 26, 16, 18, },
+	{ 25, 27, 17, 19, },
+	{ 28, 30, 20, 22, },
+	{ 29, 31, 21, 23, },
+	{ 8,  10, 0,  2,  },
+	{ 9,  11, 1,  3,  },
+	{ 12, 14, 4,  6,  },
+	{ 13, 15, 5,  7,  },
+};
+
+const int CGsPixelFormats::STORAGEPSMZ16::m_nColumnSwizzleTable[2][16] =
+{
+	{ 0, 2, 8,  10, 16, 18, 24, 26, 1, 3, 9,  11, 17, 19, 25, 27, },
+	{ 4, 6, 12, 14, 20, 22, 28, 30, 5, 7, 13, 15, 21, 23, 29, 31, },
+};
+
 const int CGsPixelFormats::STORAGEPSMT8::m_nBlockSwizzleTable[4][8] =
 {
 	{	0,	1,	4,	5,	16,	17,	20,	21	},

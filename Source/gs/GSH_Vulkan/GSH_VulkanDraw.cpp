@@ -1264,7 +1264,7 @@ Framework::Vulkan::CShaderModule CDraw::CreateFragmentShader(const PIPELINE_CAPS
 		case CGSHandler::PSMZ16:
 		case CGSHandler::PSMZ16S:
 			//TODO: Use real swizzle table
-			depthAddress = CMemoryUtils::GetPixelAddress<CGsPixelFormats::STORAGEPSMCT16>(
+			depthAddress = CMemoryUtils::GetPixelAddress<CGsPixelFormats::STORAGEPSMZ16>(
 			    b, depthSwizzleTable, depthBufAddress, depthBufWidth, screenPos);
 			break;
 		}
