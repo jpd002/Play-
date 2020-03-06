@@ -1,15 +1,32 @@
 #include "FpUtils.h"
 #include "MipsJitter.h"
 
+#ifdef _WIN32
+	#define DENORM_X86
+#elif defined(__APPLE__)
+	#include <TargetConditionals.h>
+	#if TARGET_CPU_X86 || TARGET_CPU_X86_64
+		#define DENORM_X86
+	#endif
+#elif defined(__ANDROID__) || defined(__linux__) || defined(__FreeBSD__)
+	#if defined(__i386__) || defined(__x86_64__)
+		#define DENORM_X86
+	#endif
+#endif
+
+#ifdef DENORM_X86
 #include <xmmintrin.h>
 #include <pmmintrin.h>
+#endif
 
 #define EXC_FP_MAX 0x7F7FFFFF
 
 void FpUtils::SetDenormalHandlingMode()
 {
+#ifdef DENORM_X86
 	_MM_SET_DENORMALS_ZERO_MODE(_MM_DENORMALS_ZERO_ON);
 	_MM_SET_FLUSH_ZERO_MODE(_MM_FLUSH_ZERO_ON);
+#endif
 }
 
 void FpUtils::IsZero(CMipsJitter* codeGen, size_t offset)
