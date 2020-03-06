@@ -51,6 +51,7 @@ namespace Iop
 			COMMANDID_SEEK = 4,
 			COMMANDID_DOPEN = 9,
 			COMMANDID_GETSTAT = 12,
+			COMMANDID_CCODE = 18,
 			COMMANDID_MOUNT = 20,
 			COMMANDID_UMOUNT = 21,
 			COMMANDID_DEVCTL = 23,
@@ -104,6 +105,12 @@ namespace Iop
 			COMMANDHEADER header;
 			uint32 statBuffer;
 			char fileName[256];
+		};
+
+		struct CCODECOMMAND
+		{
+			COMMANDHEADER header;
+			char path[256];
 		};
 
 		struct MOUNTCOMMAND
@@ -193,6 +200,15 @@ namespace Iop
 			Ioman::STAT stat;
 		};
 
+		struct CCODEREPLY
+		{
+			REPLYHEADER header;
+			uint32 result;
+			uint32 unknown2;
+			uint32 unknown3;
+			uint32 unknown4;
+		};
+
 		struct MOUNTREPLY
 		{
 			REPLYHEADER header;
@@ -226,6 +242,7 @@ namespace Iop
 		uint32 InvokeSeek(uint32*, uint32, uint32*, uint32, uint8*);
 		uint32 InvokeDopen(uint32*, uint32, uint32*, uint32, uint8*);
 		uint32 InvokeGetStat(uint32*, uint32, uint32*, uint32, uint8*);
+		uint32 InvokeCcode(uint32*, uint32, uint32*, uint32, uint8*);
 		uint32 InvokeMount(uint32*, uint32, uint32*, uint32, uint8*);
 		uint32 InvokeUmount(uint32*, uint32, uint32*, uint32, uint8*);
 		uint32 InvokeDevctl(uint32*, uint32, uint32*, uint32, uint8*);
