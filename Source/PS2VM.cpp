@@ -2,6 +2,7 @@
 #include <exception>
 #include <memory>
 #include <fenv.h>
+#include "FpUtils.h"
 #include "make_unique.h"
 #include "string_format.h"
 #include "PS2VM.h"
@@ -743,6 +744,7 @@ void CPS2VM::ReloadExecutable(const char* executablePath, const CPS2OS::Argument
 void CPS2VM::EmuThread()
 {
 	fesetround(FE_TOWARDZERO);
+	FpUtils::SetDenormalHandlingMode();
 	CProfiler::GetInstance().SetWorkThread();
 #ifdef PROFILE
 	CProfilerZone profilerZone(m_otherProfilerZone);

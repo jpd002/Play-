@@ -1,7 +1,16 @@
 #include "FpUtils.h"
 #include "MipsJitter.h"
 
+#include <xmmintrin.h>
+#include <pmmintrin.h>
+
 #define EXC_FP_MAX 0x7F7FFFFF
+
+void FpUtils::SetDenormalHandlingMode()
+{
+	_MM_SET_DENORMALS_ZERO_MODE(_MM_DENORMALS_ZERO_ON);
+	_MM_SET_FLUSH_ZERO_MODE(_MM_FLUSH_ZERO_ON);
+}
 
 void FpUtils::IsZero(CMipsJitter* codeGen, size_t offset)
 {
