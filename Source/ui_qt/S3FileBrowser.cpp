@@ -4,6 +4,7 @@
 #include "../s3stream/S3ObjectStream.h"
 #include "string_format.h"
 #include "AppConfig.h"
+#include "ui_shared/AmazonS3Utils.h"
 
 #define PREF_S3FILEBROWSER_BUCKETNAME "s3.filebrowser.bucketname"
 
@@ -96,37 +97,11 @@ void S3FileBrowser::launchUpdate()
 	ui->objectList->clear();
 	updateOkButtonState();
 
-	auto getListFuture = std::async(
-	    [bucketName = m_lastUpdateBucketName.toStdString()]() {
-		    std::string bucketRegion;
-
-		    //Obtain bucket region
-		    try
-		    {
-			    {
-				    CAmazonS3Client client(
-				        CS3ObjectStream::CConfig::GetInstance().GetAccessKeyId(),
-				        CS3ObjectStream::CConfig::GetInstance().GetSecretAccessKey());
-
-				    GetBucketLocationRequest request;
-				    request.bucket = bucketName;
-
-				    auto result = client.GetBucketLocation(request);
-				    bucketRegion = result.locationConstraint;
-			    }
-
-			    //List objects
-			    CAmazonS3Client client(
-			        CS3ObjectStream::CConfig::GetInstance().GetAccessKeyId(),
-			        CS3ObjectStream::CConfig::GetInstance().GetSecretAccessKey(),
-			        bucketRegion);
-			    return client.ListObjects(bucketName);
-		    }
-		    catch(...)
-		    {
-			    return ListObjectsResult();
-		    }
-	    });
+	auto getListFuture = std::async([bucketName = m_lastUpdateBucketName.toStdString()]() {
+		auto accessKeyId = CS3ObjectStream::CConfig::GetInstance().GetAccessKeyId();
+		auto secretAccessKey = CS3ObjectStream::CConfig::GetInstance().GetSecretAccessKey();
+		return AmazonS3Utils::GetListObjects(accessKeyId, secretAccessKey, bucketName);
+	});
 	m_continuationChecker->GetContinuationManager().Register(std::move(getListFuture),
 	                                                         [this](auto& result) {
 		                                                         m_bucketItems = result;

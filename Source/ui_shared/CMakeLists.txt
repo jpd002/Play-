@@ -46,6 +46,8 @@ endif()
 list(APPEND SHARED_UI_PROJECT_LIBS PlayCore)
 
 set(SHARED_UI_SRC_FILES
+	AmazonS3Utils.cpp
+	AmazonS3Utils.h
 	BootablesDbClient.cpp
 	BootablesDbClient.h
 	BootablesProcesses.cpp
