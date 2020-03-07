@@ -10,9 +10,6 @@ travis_before_install()
         else
             wget -c "https://github.com/probonopd/linuxdeployqt/releases/download/continuous/linuxdeployqt-continuous-x86_64.AppImage"
             chmod a+x linuxdeployqt*.AppImage
-            wget -c "https://github.com/RPCS3/AppImageKit-checkrt/releases/download/continuous2/AppRun-patched-x86_64" -O AppRun
-            chmod a+x AppRun
-            wget -c "https://github.com/RPCS3/AppImageKit-checkrt/releases/download/continuous2/exec-x86_64.so" -O exec.so
 
             wget -q -O vulkansdk.tar.gz https://vulkan.lunarg.com/sdk/download/${VULKAN_SDK_VERSION}/linux/vulkansdk-linux-x86_64-${VULKAN_SDK_VERSION}.tar.gz?Human=true
             tar -zxf vulkansdk.tar.gz
@@ -91,13 +88,6 @@ travis_script()
             ctest
             cmake --build . --target install
             if [ "$TARGET_ARCH" = "x86_64" ]; then
-                mkdir -p appdir/usr/optional/
-                mkdir -p appdir/usr/optional/libstdc++/
-                cp /usr/lib/*-linux-gnu/libstdc++.so.6 ./appdir/usr/optional/libstdc++/
-                cp ../AppRun ./appdir/AppRun
-                cp ../exec.so ./appdir/usr/optional/exec.so
-                printf "#include <memory>\nint main(){std::make_exception_ptr(0);}" | $CXX -x c++ -o ./appdir/usr/optional/checker -
-
                 mkdir -p appdir/usr/share/doc/libc6/
                 echo "" > appdir/usr/share/doc/libc6/copyright
                 # AppImage Creation
