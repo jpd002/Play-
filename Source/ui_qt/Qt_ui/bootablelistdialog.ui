@@ -32,22 +32,6 @@
    <string>Bootable Selection Dialog</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
-   <item row="1" column="2">
-    <widget class="QPushButton" name="add_games_button">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
-     <property name="text">
-      <string>Add Games...</string>
-     </property>
-     <property name="autoDefault">
-      <bool>false</bool>
-     </property>
-    </widget>
-   </item>
    <item row="1" column="3">
     <widget class="QPushButton" name="refresh_button">
      <property name="sizePolicy">
@@ -64,7 +48,7 @@
      </property>
     </widget>
    </item>
-   <item row="0" column="2" colspan="4">
+   <item row="0" column="2" colspan="5">
     <widget class="QListView" name="listView">
      <property name="sizePolicy">
       <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
@@ -86,7 +70,23 @@
      </property>
     </widget>
    </item>
-   <item row="1" column="5">
+   <item row="1" column="2">
+    <widget class="QPushButton" name="add_games_button">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="text">
+      <string>Add Games...</string>
+     </property>
+     <property name="autoDefault">
+      <bool>false</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="6">
     <widget class="QComboBox" name="comboBox">
      <property name="sizePolicy">
       <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
@@ -109,6 +109,19 @@
        <string>Unsorted</string>
       </property>
      </item>
+    </widget>
+   </item>
+   <item row="1" column="4">
+    <widget class="QPushButton" name="awsS3Button">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="text">
+      <string>Scan AWS S3</string>
+     </property>
     </widget>
    </item>
   </layout>

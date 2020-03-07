@@ -73,7 +73,9 @@ std::set<fs::path> GetActiveBootableDirectories()
 	for(const auto& bootable : bootables)
 	{
 		auto parentPath = bootable.path.parent_path();
-		result.insert(parentPath);
+		static const char* s3ImagePathPrefix = "//s3/";
+		if(parentPath.string().find(s3ImagePathPrefix) == std::string::npos)
+			result.insert(parentPath);
 	}
 	return result;
 }
