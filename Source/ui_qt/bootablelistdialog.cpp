@@ -194,7 +194,7 @@ void BootableListDialog::on_awsS3Button_clicked()
 	if(bucketName.empty())
 		return;
 
-	auto getListFuture = std::async([bucketName]() {
+	auto getListFuture = std::async(std::launch::async, [bucketName]() {
 		auto accessKeyId = CS3ObjectStream::CConfig::GetInstance().GetAccessKeyId();
 		auto secretAccessKey = CS3ObjectStream::CConfig::GetInstance().GetSecretAccessKey();
 		auto result = AmazonS3Utils::GetListObjects(accessKeyId, secretAccessKey, bucketName);
