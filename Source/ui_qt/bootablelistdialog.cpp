@@ -197,10 +197,7 @@ void BootableListDialog::on_awsS3Button_clicked()
 	auto getListFuture = std::async([bucketName]() {
 		auto accessKeyId = CS3ObjectStream::CConfig::GetInstance().GetAccessKeyId();
 		auto secretAccessKey = CS3ObjectStream::CConfig::GetInstance().GetSecretAccessKey();
-		return AmazonS3Utils::GetListObjects(accessKeyId, secretAccessKey, bucketName);
-	});
-
-	auto updateBootableCallback = [this, bucketName](auto& result) {
+		auto result = AmazonS3Utils::GetListObjects(accessKeyId, secretAccessKey, bucketName);
 		for(const auto& item : result.objects)
 		{
 			auto path = string_format("//s3/%s/%s", bucketName.c_str(), item.key.c_str());
@@ -213,6 +210,10 @@ void BootableListDialog::on_awsS3Button_clicked()
 				//Failed to process a path, keep going
 			}
 		}
+		return true;
+	});
+
+	auto updateBootableCallback = [this](bool) {
 		resetModel();
 	};
 	m_continuationChecker->GetContinuationManager().Register(std::move(getListFuture), updateBootableCallback);
