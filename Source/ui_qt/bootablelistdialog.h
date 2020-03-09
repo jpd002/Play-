@@ -6,6 +6,7 @@
 #include <thread>
 #include <atomic>
 #include "BootableModel.h"
+#include "ContinuationChecker.h"
 
 namespace Ui
 {
@@ -31,6 +32,8 @@ private slots:
 	void on_comboBox_currentIndexChanged(int index);
 	void UpdateCoverDisplay();
 
+	void on_awsS3Button_clicked();
+
 private:
 	Ui::BootableListDialog* ui;
 
@@ -40,8 +43,10 @@ private:
 	int m_sortingMethod = 2;
 	std::thread cover_loader;
 	std::atomic<bool> m_thread_running;
+	CContinuationChecker* m_continuationChecker = nullptr;
 
 	void resetModel();
+	void SelectionChange(const QModelIndex&);
 
 Q_SIGNALS:
 	void AsyncUpdateCoverDisplay();

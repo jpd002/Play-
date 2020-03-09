@@ -4,6 +4,7 @@
 #include <QAction>
 #include <QFileDialog>
 #include <QGridLayout>
+#include <QInputDialog>
 #include <QLabel>
 #include <QPixmap>
 #include <QPixmapCache>
@@ -13,9 +14,15 @@
 #include "AppConfig.h"
 #include "CoverUtils.h"
 #include "http/HttpClientFactory.h"
+#include "string_format.h"
 #include "QStringUtils.h"
 #include "ui_shared/BootablesProcesses.h"
 #include "ui_shared/BootablesDbClient.h"
+
+#include "S3FileBrowser.h"
+#include "../s3stream/AmazonS3Client.h"
+#include "../s3stream/S3ObjectStream.h"
+#include "ui_shared/AmazonS3Utils.h"
 
 BootableListDialog::BootableListDialog(QWidget* parent)
     : QDialog(parent)
@@ -59,6 +66,8 @@ BootableListDialog::BootableListDialog(QWidget* parent)
 		        BootablesDb::CClient::GetInstance().UnregisterBootable(bootable.path);
 		        model->removeItem(index);
 	        });
+	m_continuationChecker = new CContinuationChecker(this);
+	ui->awsS3Button->setVisible(S3FileBrowser::IsAvailable());
 }
 
 BootableListDialog::~BootableListDialog()
@@ -77,6 +86,7 @@ void BootableListDialog::resetModel()
 	m_bootables = BootablesDb::CClient::GetInstance().GetBootables(m_sortingMethod);
 	model = new BootableModel(this, m_bootables);
 	ui->listView->setModel(model);
+	connect(ui->listView->selectionModel(), &QItemSelectionModel::currentChanged, this, &BootableListDialog::SelectionChange);
 
 	if(!m_thread_running)
 	{
@@ -98,7 +108,7 @@ BootablesDb::Bootable BootableListDialog::getResult()
 
 void BootableListDialog::showEvent(QShowEvent* ev)
 {
-	ui->gridLayout->invalidate();
+	ui->horizontalLayout->invalidate();
 	QDialog::showEvent(ev);
 }
 
@@ -166,4 +176,51 @@ void BootableListDialog::resizeEvent(QResizeEvent* ev)
 {
 	model->SetWidth(ui->listView->size().width() - ui->listView->style()->pixelMetric(QStyle::PM_ScrollBarExtent) - 5);
 	QDialog::resizeEvent(ev);
+}
+
+void BootableListDialog::on_awsS3Button_clicked()
+{
+	std::string bucketName = CAppConfig::GetInstance().GetPreferenceString("s3.filebrowser.bucketname");
+	{
+		bool ok;
+		QString res = QInputDialog::getText(this, tr("New Function"),
+		                                    tr("New Function Name:"), QLineEdit::Normal,
+		                                    bucketName.c_str(), &ok);
+		if(!ok || res.isEmpty())
+			return;
+
+		bucketName = res.toStdString();
+	}
+	if(bucketName.empty())
+		return;
+
+	auto getListFuture = std::async([bucketName]() {
+		auto accessKeyId = CS3ObjectStream::CConfig::GetInstance().GetAccessKeyId();
+		auto secretAccessKey = CS3ObjectStream::CConfig::GetInstance().GetSecretAccessKey();
+		return AmazonS3Utils::GetListObjects(accessKeyId, secretAccessKey, bucketName);
+	});
+
+	auto updateBootableCallback = [this, bucketName](auto& result) {
+		for(const auto& item : result.objects)
+		{
+			auto path = string_format("//s3/%s/%s", bucketName.c_str(), item.key.c_str());
+			try
+			{
+				TryRegisteringBootable(path);
+			}
+			catch(const std::exception& exception)
+			{
+				//Failed to process a path, keep going
+			}
+		}
+		resetModel();
+	};
+	m_continuationChecker->GetContinuationManager().Register(std::move(getListFuture), updateBootableCallback);
+}
+
+void BootableListDialog::SelectionChange(const QModelIndex& index)
+{
+	bootable = model->GetBootable(index);
+	ui->pathLineEdit->setText(bootable.path.string().c_str());
+	ui->serialLineEdit->setText(bootable.discId.c_str());
 }
