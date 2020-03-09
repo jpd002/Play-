@@ -79,6 +79,8 @@ BootableListDialog::BootableListDialog(QWidget* parent)
 	        });
 	m_continuationChecker = new CContinuationChecker(this);
 	ui->awsS3Button->setVisible(S3FileBrowser::IsAvailable());
+
+	SetupStatusBar();
 }
 
 BootableListDialog::~BootableListDialog()
@@ -214,29 +216,40 @@ void BootableListDialog::on_awsS3Button_clicked()
 	if(bucketName.empty())
 		return;
 
-	auto getListFuture = std::async(std::launch::async, [bucketName, s3_processing = &m_s3_processing]() mutable {
-		s3_processing->store(true);
+	m_statusBar->show();
+	auto getListFuture = std::async(std::launch::async, [this, bucketName]() {
+		m_s3_processing = true;
 		auto accessKeyId = CS3ObjectStream::CConfig::GetInstance().GetAccessKeyId();
 		auto secretAccessKey = CS3ObjectStream::CConfig::GetInstance().GetSecretAccessKey();
+		AsyncUpdateStatus("Requesting S3 Bucket Content.");
 		auto result = AmazonS3Utils::GetListObjects(accessKeyId, secretAccessKey, bucketName);
+		auto size = result.objects.size();
+		int i = 1;
 		for(const auto& item : result.objects)
 		{
 			auto path = string_format("//s3/%s/%s", bucketName.c_str(), item.key.c_str());
 			try
 			{
+				std::string msg = string_format("Processing: %s (%d/%d)", path.c_str(), i, size);
+				AsyncUpdateStatus(msg);
+
 				TryRegisteringBootable(path);
 			}
 			catch(const std::exception& exception)
 			{
 				//Failed to process a path, keep going
 			}
+			++i;
 		}
 		return true;
 	});
 
 	auto updateBootableCallback = [this](bool) {
+		AsyncUpdateStatus("Refreshing Model.");
 		resetModel();
 		m_s3_processing = false;
+		AsyncUpdateStatus("Complete.");
+		m_statusBar->hide();
 	};
 	m_continuationChecker->GetContinuationManager().Register(std::move(getListFuture), updateBootableCallback);
 }
@@ -261,4 +274,27 @@ void BootableListDialog::closeEvent(QCloseEvent* event)
 	{
 		event->accept();
 	}
+}
+
+void BootableListDialog::SetupStatusBar()
+{
+	m_statusBar = new QStatusBar(this);
+	ui->verticalLayout_3->addWidget(m_statusBar);
+
+	m_msgLabel = new ElidedLabel();
+	m_msgLabel->setAlignment(Qt::AlignLeft);
+	QFontMetrics fm(m_msgLabel->font());
+	m_msgLabel->setMinimumSize(fm.boundingRect("...").size());
+	m_msgLabel->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Preferred);
+
+	qRegisterMetaType<std::string>("std::string");
+	connect(this, SIGNAL(AsyncUpdateStatus(std::string)), this, SLOT(UpdateStatus(std::string)));
+
+	m_statusBar->addWidget(m_msgLabel, 1);
+	m_statusBar->hide();
+}
+
+void BootableListDialog::UpdateStatus(std::string msg)
+{
+	m_msgLabel->setText(msg.c_str());
 }
