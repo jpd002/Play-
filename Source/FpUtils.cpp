@@ -2,20 +2,20 @@
 #include "MipsJitter.h"
 
 #ifdef _WIN32
-	#define DENORM_X86
+#define DENORM_X86
 #elif defined(__APPLE__)
-	#include <TargetConditionals.h>
-	#if TARGET_CPU_X86 || TARGET_CPU_X86_64
-		#define DENORM_X86
-	#elif TARGET_CPU_ARM64
-		#define DENORM_AARCH64
-	#endif
+#include <TargetConditionals.h>
+#if TARGET_CPU_X86 || TARGET_CPU_X86_64
+#define DENORM_X86
+#elif TARGET_CPU_ARM64
+#define DENORM_AARCH64
+#endif
 #elif defined(__ANDROID__) || defined(__linux__) || defined(__FreeBSD__)
-	#if defined(__i386__) || defined(__x86_64__)
-		#define DENORM_X86
-	#elif defined(__aarch64__)
-		#define DENORM_AARCH64
-	#endif
+#if defined(__i386__) || defined(__x86_64__)
+#define DENORM_X86
+#elif defined(__aarch64__)
+#define DENORM_AARCH64
+#endif
 #endif
 
 #ifdef DENORM_X86
@@ -34,10 +34,12 @@ void FpUtils::SetDenormalHandlingMode()
 #ifdef DENORM_AARCH64
 	static const uint64 fpcrFZ = (1 << 24);
 	__asm__ __volatile__(
-		"mrs x0, fpcr\n"
-		"orr x0, x0, %0\n"
-		"msr fpcr, x0\n"
-		: : "ri"(fpcrFZ) : "x0");
+	    "mrs x0, fpcr\n"
+	    "orr x0, x0, %0\n"
+	    "msr fpcr, x0\n"
+	    :
+	    : "ri"(fpcrFZ)
+	    : "x0");
 #endif
 }
 
