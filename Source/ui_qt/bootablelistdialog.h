@@ -43,6 +43,7 @@ private:
 	int m_sortingMethod = 2;
 	std::thread cover_loader;
 	std::atomic<bool> m_thread_running;
+	std::atomic<bool> m_s3_processing;
 	CContinuationChecker* m_continuationChecker = nullptr;
 
 	void resetModel();
@@ -54,4 +55,5 @@ Q_SIGNALS:
 protected:
 	void showEvent(QShowEvent*) Q_DECL_OVERRIDE;
 	void resizeEvent(QResizeEvent*) Q_DECL_OVERRIDE;
+	void closeEvent(QCloseEvent*) Q_DECL_OVERRIDE;
 };

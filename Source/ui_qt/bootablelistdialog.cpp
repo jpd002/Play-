@@ -6,6 +6,7 @@
 #include <QGridLayout>
 #include <QInputDialog>
 #include <QLabel>
+#include <QMessageBox>
 #include <QPixmap>
 #include <QPixmapCache>
 #include <iostream>
@@ -28,6 +29,7 @@ BootableListDialog::BootableListDialog(QWidget* parent)
     : QDialog(parent)
     , ui(new Ui::BootableListDialog)
     , m_thread_running(false)
+    , m_s3_processing(false)
 {
 	ui->setupUi(this);
 	CAppConfig::GetInstance().RegisterPreferenceInteger("ui.sortmethod", 2);
@@ -57,7 +59,16 @@ BootableListDialog::BootableListDialog(QWidget* parent)
 	        [&](bool) {
 		        QModelIndex index = ui->listView->selectionModel()->selectedIndexes().at(0);
 		        bootable = model->GetBootable(index);
-		        accept();
+		        if(!m_s3_processing)
+		        {
+			        accept();
+		        }
+		        else
+		        {
+			        QMessageBox::warning(this, "Warning Message",
+			                             "Can't close dialog while background operation in progress.",
+			                             QMessageBox::Ok, QMessageBox::Ok);
+		        }
 	        });
 	connect(removegame, &QAction::triggered,
 	        [&](bool) {
@@ -136,7 +147,16 @@ void BootableListDialog::on_add_games_button_clicked()
 void BootableListDialog::on_listView_doubleClicked(const QModelIndex& index)
 {
 	bootable = model->GetBootable(index);
-	accept();
+	if(!m_s3_processing)
+	{
+		accept();
+	}
+	else
+	{
+		QMessageBox::warning(this, "Warning Message",
+		                     "Can't close dialog while background operation in progress.",
+		                     QMessageBox::Ok, QMessageBox::Ok);
+	}
 }
 
 void BootableListDialog::on_refresh_button_clicked()
@@ -194,7 +214,8 @@ void BootableListDialog::on_awsS3Button_clicked()
 	if(bucketName.empty())
 		return;
 
-	auto getListFuture = std::async(std::launch::async, [bucketName]() {
+	auto getListFuture = std::async(std::launch::async, [bucketName, s3_processing = &m_s3_processing]() mutable {
+		s3_processing->store(true);
 		auto accessKeyId = CS3ObjectStream::CConfig::GetInstance().GetAccessKeyId();
 		auto secretAccessKey = CS3ObjectStream::CConfig::GetInstance().GetSecretAccessKey();
 		auto result = AmazonS3Utils::GetListObjects(accessKeyId, secretAccessKey, bucketName);
@@ -215,6 +236,7 @@ void BootableListDialog::on_awsS3Button_clicked()
 
 	auto updateBootableCallback = [this](bool) {
 		resetModel();
+		m_s3_processing = false;
 	};
 	m_continuationChecker->GetContinuationManager().Register(std::move(getListFuture), updateBootableCallback);
 }
@@ -224,4 +246,19 @@ void BootableListDialog::SelectionChange(const QModelIndex& index)
 	bootable = model->GetBootable(index);
 	ui->pathLineEdit->setText(bootable.path.string().c_str());
 	ui->serialLineEdit->setText(bootable.discId.c_str());
+}
+
+void BootableListDialog::closeEvent(QCloseEvent* event)
+{
+	if(m_s3_processing)
+	{
+		event->ignore();
+		QMessageBox::warning(this, "Warning Message",
+		                     "Can't close dialog while background operation in progress.",
+		                     QMessageBox::Ok, QMessageBox::Ok);
+	}
+	else
+	{
+		event->accept();
+	}
 }
