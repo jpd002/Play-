@@ -46,9 +46,10 @@ void FpUtils::SetDenormalHandlingMode()
 void FpUtils::IsZero(CMipsJitter* codeGen, size_t offset)
 {
 	//Check wether an FP number is +/-0
+	//If the exponent is 0, then we have 0 (denormals count as 0)
 	//BeginIf(CONDITION_EQ) to verify result
 	codeGen->PushRel(offset);
-	codeGen->PushCst(0x7FFFFFFF);
+	codeGen->PushCst(0x7F800000);
 	codeGen->And();
 	codeGen->PushCst(0);
 }
