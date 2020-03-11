@@ -38,6 +38,7 @@ BootableListDialog::BootableListDialog(QWidget* parent)
 
 	// used as workaround to avoid direct ui access from a thread
 	connect(this, SIGNAL(AsyncUpdateCoverDisplay()), this, SLOT(UpdateCoverDisplay()));
+	connect(this, SIGNAL(AsyncResetModel(bool)), this, SLOT(resetModel(bool)));
 
 	//if m_sortingMethod == currentIndex == 0, setting index wont trigger on_comboBox_currentIndexChanged() thus resetModel()
 	if(m_sortingMethod == 0)
@@ -90,13 +91,15 @@ BootableListDialog::~BootableListDialog()
 	delete ui;
 }
 
-void BootableListDialog::resetModel()
+void BootableListDialog::resetModel(bool repopulateBootables)
 {
 	ui->listView->setModel(nullptr);
 	if(model)
 		delete model;
 
-	m_bootables = BootablesDb::CClient::GetInstance().GetBootables(m_sortingMethod);
+	if(repopulateBootables)
+		m_bootables = BootablesDb::CClient::GetInstance().GetBootables(m_sortingMethod);
+
 	model = new BootableModel(this, m_bootables);
 	ui->listView->setModel(model);
 	connect(ui->listView->selectionModel(), &QItemSelectionModel::currentChanged, this, &BootableListDialog::SelectionChange);
@@ -232,8 +235,11 @@ void BootableListDialog::on_awsS3Button_clicked()
 			{
 				std::string msg = string_format("Processing: %s (%d/%d)", path.c_str(), i, size);
 				AsyncUpdateStatus(msg);
-
-				TryRegisteringBootable(path);
+				if(TryRegisteringBootable(path))
+				{
+					m_bootables = BootablesDb::CClient::GetInstance().GetBootables(m_sortingMethod);
+					AsyncResetModel(false);
+				}
 			}
 			catch(const std::exception& exception)
 			{

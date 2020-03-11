@@ -37,6 +37,8 @@ private slots:
 	void on_awsS3Button_clicked();
 	void UpdateStatus(std::string);
 
+	void resetModel(bool = true);
+
 private:
 	Ui::BootableListDialog* ui;
 
@@ -52,11 +54,11 @@ private:
 	std::atomic<bool> m_s3_processing;
 	CContinuationChecker* m_continuationChecker = nullptr;
 
-	void resetModel();
 	void SelectionChange(const QModelIndex&);
 	void SetupStatusBar();
 
 Q_SIGNALS:
+	void AsyncResetModel(bool);
 	void AsyncUpdateCoverDisplay();
 	void AsyncUpdateStatus(std::string);
 
