@@ -23,6 +23,10 @@ set(BUILD_LIBRETRO_CORE OFF CACHE BOOL "Build Libretro Core")
 set(PROJECT_NAME "Play!")
 set(PROJECT_Version 0.30)
 
+if(BUILD_TESTS)
+	enable_testing()
+endif()
+
 execute_process(COMMAND git rev-parse --short HEAD RESULT_VARIABLE SHORT_HASH_RESULT OUTPUT_VARIABLE SHORT_HASH OUTPUT_STRIP_TRAILING_WHITESPACE)
 if(SHORT_HASH_RESULT EQUAL 0)
 	message("Building for hash ${SHORT_HASH}.")
@@ -60,8 +64,6 @@ if(BUILD_PLAY)
 endif(BUILD_PLAY)
 
 if(BUILD_TESTS)
-	enable_testing()
-
 	add_subdirectory(tools/AutoTest/)
 	add_subdirectory(tools/McServTest/)
 	add_subdirectory(tools/VuTest/)
