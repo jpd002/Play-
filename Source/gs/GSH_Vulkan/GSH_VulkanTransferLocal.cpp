@@ -16,7 +16,7 @@ using namespace GSH_Vulkan;
 CTransferLocal::CTransferLocal(const ContextPtr& context, const FrameCommandBufferPtr& frameCommandBuffer)
     : m_context(context)
     , m_frameCommandBuffer(frameCommandBuffer)
-	, m_pipelineCache(context->device)
+    , m_pipelineCache(context->device)
 {
 	m_pipelineCaps <<= 0;
 }

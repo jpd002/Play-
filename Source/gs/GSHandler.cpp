@@ -1045,8 +1045,8 @@ void CGSHandler::TransferReadHandlerPSMCT24(void* buffer, uint32 length)
 		uint32 x = (m_trxCtx.nRRX + trxPos.nSSAX) % 2048;
 		uint32 y = (m_trxCtx.nRRY + trxPos.nSSAY) % 2048;
 		auto pixel = indexor.GetPixel(x, y);
-		dst[i + 0] = (pixel >>  0) & 0xFF;
-		dst[i + 1] = (pixel >>  8) & 0xFF;
+		dst[i + 0] = (pixel >> 0) & 0xFF;
+		dst[i + 1] = (pixel >> 8) & 0xFF;
 		dst[i + 2] = (pixel >> 16) & 0xFF;
 		m_trxCtx.nRRX++;
 		if(m_trxCtx.nRRX == trxReg.nRRW)
