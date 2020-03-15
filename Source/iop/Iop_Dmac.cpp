@@ -17,12 +17,12 @@ using namespace Iop::Dmac;
 CDmac::CDmac(uint8* ram, CIntc& intc)
     : m_ram(ram)
     , m_intc(intc)
-    , m_channelSpu0(CH4_BASE, 4, *this)
-    , m_channelSpu1(CH8_BASE, 8, *this)
+    , m_channelSpu0(CH4_BASE, CHANNEL_SPU0, *this)
+    , m_channelSpu1(CH8_BASE, CHANNEL_SPU1, *this)
 {
 	memset(m_channel, 0, sizeof(m_channel));
-	m_channel[4] = &m_channelSpu0;
-	m_channel[8] = &m_channelSpu1;
+	m_channel[CHANNEL_SPU0] = &m_channelSpu0;
+	m_channel[CHANNEL_SPU1] = &m_channelSpu1;
 	Reset();
 }
 

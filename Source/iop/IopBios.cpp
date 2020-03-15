@@ -34,6 +34,8 @@
 #include "Iop_Heaplib.h"
 #include "Iop_Timrman.h"
 #include "Iop_Intrman.h"
+#include "Iop_Dmacman.h"
+#include "Iop_Secrman.h"
 #include "Iop_Vblank.h"
 #include "Iop_Dynamic.h"
 

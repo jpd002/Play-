@@ -231,6 +231,8 @@ set(COMMON_SRC_FILES
 	iop/Iop_Dmac.h
 	iop/Iop_DmacChannel.cpp
 	iop/Iop_DmacChannel.h
+	iop/Iop_Dmacman.cpp
+	iop/Iop_Dmacman.h
 	iop/Iop_Dynamic.cpp
 	iop/Iop_Dynamic.h
 	iop/Iop_FileIo.cpp
@@ -267,6 +269,8 @@ set(COMMON_SRC_FILES
 	iop/Iop_PathUtils.h
 	iop/Iop_RootCounters.cpp
 	iop/Iop_RootCounters.h
+	iop/Iop_Secrman.cpp
+	iop/Iop_Secrman.h
 	iop/Iop_SifCmd.cpp
 	iop/Iop_SifCmd.h
 	iop/Iop_SifDynamic.cpp
