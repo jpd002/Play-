@@ -443,6 +443,65 @@ void CSio2::ProcessMultitap(unsigned int portId, size_t outputOffset, uint32 dst
 	}
 }
 
+static uint8 ComputeEDC(const std::deque<uint8>& bytes, uint32 offset, uint32 size)
+{
+	uint8 checksum = 0;
+	for(uint32 i = 0; i < size; i++)
+	{
+		checksum ^= bytes.at(offset + i);
+	}
+	return static_cast<uint8>(checksum);
+}
+
+void CSio2::ProcessMemoryCard(unsigned int portId, size_t outputOffset, uint32 dstSize, uint32 srcSize)
+{
+	uint8 cmd = m_inputBuffer[1];
+	switch(cmd)
+	{
+	case 0x11:
+		m_outputBuffer[outputOffset + 0x03] = m_inputBuffer[2];
+		CLog::GetInstance().Print(LOG_NAME, "MemoryCard: CardChanged();\r\n");
+		break;
+	case 0x23:
+		m_outputBuffer[outputOffset + 0x08] = m_inputBuffer[2];
+		CLog::GetInstance().Print(LOG_NAME, "MemoryCard: Read_?();\r\n");
+		break;
+	case 0x26:
+		m_outputBuffer[outputOffset + 0x02] = 0; //flags
+		m_outputBuffer[outputOffset + 0x03] = 0; //pageSizeLo
+		m_outputBuffer[outputOffset + 0x04] = 1; //pageSizeHi
+		m_outputBuffer[outputOffset + 0x05] = 0; //blockSizeLo
+		m_outputBuffer[outputOffset + 0x06] = 0x10; //blockSizeHi
+		m_outputBuffer[outputOffset + 0x07] = 0; //cardSize0
+		m_outputBuffer[outputOffset + 0x08] = 0; //cardSize1
+		m_outputBuffer[outputOffset + 0x09] = 0x10; //cardSize2
+		m_outputBuffer[outputOffset + 0x0A] = 0; //cardSize3
+		m_outputBuffer[outputOffset + 0x0B] = ComputeEDC(m_outputBuffer, outputOffset + 3, 8);
+		m_outputBuffer[outputOffset + 0x0C] = m_inputBuffer[2];
+		CLog::GetInstance().Print(LOG_NAME, "MemoryCard: GetCardSpec();\r\n");
+		break;
+	case 0x27:
+		m_outputBuffer[outputOffset + 0x04] = m_inputBuffer[2];
+		CLog::GetInstance().Print(LOG_NAME, "MemoryCard: Probe2();\r\n");
+		break;
+	case 0x28:
+		m_outputBuffer[outputOffset + 0x04] = 0x66;
+		CLog::GetInstance().Print(LOG_NAME, "MemoryCard: Probe1();\r\n");
+		break;
+	case 0xBF:
+		m_outputBuffer[outputOffset + 0x04] = m_inputBuffer[2];
+		CLog::GetInstance().Print(LOG_NAME, "MemoryCard: Cmd_BF();\r\n");
+		break;
+	case 0xF3:
+		m_outputBuffer[outputOffset + 0x03] = 0x2B;
+		CLog::GetInstance().Print(LOG_NAME, "MemoryCard: ResetAuth();\r\n");
+		break;
+	default:
+		assert(false);
+		break;
+	}
+}
+
 void CSio2::DisassembleRead(uint32 address, uint32 value)
 {
 	switch(address)

@@ -76,6 +76,7 @@ namespace Iop
 		void ProcessCommand();
 		void ProcessController(unsigned int, size_t, uint32, uint32);
 		void ProcessMultitap(unsigned int, size_t, uint32, uint32);
+		void ProcessMemoryCard(unsigned int, size_t, uint32, uint32);
 
 		void DisassembleRead(uint32, uint32);
 		void DisassembleWrite(uint32, uint32);
