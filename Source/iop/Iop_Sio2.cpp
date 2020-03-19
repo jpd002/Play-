@@ -214,12 +214,42 @@ void CSio2::WriteRegister(uint32 address, uint32 value)
 #endif
 }
 
+uint32 CSio2::ReceiveDmaIn(uint8* buffer, uint32 blockSize, uint32 blockAmount)
+{
+	assert(m_currentRegIndex == 0);
+	for(uint32 i = 0; i < blockAmount; i++)
+	{
+		m_inputBuffer.insert(std::end(m_inputBuffer), buffer, buffer + blockSize);
+		buffer += blockSize;
+		ProcessCommand();
+	}
+	assert(m_currentRegIndex == blockAmount);
+	return blockAmount;
+}
+
+uint32 CSio2::ReceiveDmaOut(uint8* buffer, uint32 blockSize, uint32 blockAmount)
+{
+	assert(m_currentRegIndex == blockAmount);
+	for(uint32 i = 0; i < blockAmount; i++)
+	{
+		uint32 currentReg = m_regs[i];
+		uint32 dstSize = (currentReg >> 18) & 0x1FF;
+		for(uint32 j = 0; j < dstSize; j++)
+		{
+			buffer[j] = m_outputBuffer.front();
+			m_outputBuffer.pop_front();
+		}
+		buffer += blockSize;
+	}
+	return blockAmount;
+}
+
 void CSio2::ProcessCommand()
 {
 	uint32 currentReg = m_regs[m_currentRegIndex];
 	uint32 srcSize = (currentReg >> 8) & 0x1FF;
 	uint32 dstSize = (currentReg >> 18) & 0x1FF;
-	if(m_inputBuffer.size() == srcSize)
+	if(m_inputBuffer.size() >= srcSize)
 	{
 		unsigned int portId = currentReg & 0x03;
 		uint32 deviceId = m_ctrl2[portId];
@@ -455,16 +485,17 @@ static uint8 ComputeEDC(const std::deque<uint8>& bytes, uint32 offset, uint32 si
 
 void CSio2::ProcessMemoryCard(unsigned int portId, size_t outputOffset, uint32 dstSize, uint32 srcSize)
 {
+	static uint8 g_terminationCode = 0x55;
 	uint8 cmd = m_inputBuffer[1];
 	switch(cmd)
 	{
 	case 0x11:
-		m_outputBuffer[outputOffset + 0x03] = m_inputBuffer[2];
+		m_outputBuffer[outputOffset + 0x03] = g_terminationCode;
 		CLog::GetInstance().Print(LOG_NAME, "MemoryCard: CardChanged();\r\n");
 		break;
 	case 0x23:
-		m_outputBuffer[outputOffset + 0x08] = m_inputBuffer[2];
-		CLog::GetInstance().Print(LOG_NAME, "MemoryCard: Read_?();\r\n");
+		m_outputBuffer[outputOffset + 0x08] = g_terminationCode;
+		CLog::GetInstance().Print(LOG_NAME, "MemoryCard: SeekPage();\r\n");
 		break;
 	case 0x26:
 		m_outputBuffer[outputOffset + 0x02] = 0; //flags
@@ -477,19 +508,33 @@ void CSio2::ProcessMemoryCard(unsigned int portId, size_t outputOffset, uint32 d
 		m_outputBuffer[outputOffset + 0x09] = 0x10; //cardSize2
 		m_outputBuffer[outputOffset + 0x0A] = 0; //cardSize3
 		m_outputBuffer[outputOffset + 0x0B] = ComputeEDC(m_outputBuffer, outputOffset + 3, 8);
-		m_outputBuffer[outputOffset + 0x0C] = m_inputBuffer[2];
+		m_outputBuffer[outputOffset + 0x0C] = g_terminationCode;
 		CLog::GetInstance().Print(LOG_NAME, "MemoryCard: GetCardSpec();\r\n");
 		break;
 	case 0x27:
-		m_outputBuffer[outputOffset + 0x04] = m_inputBuffer[2];
+		g_terminationCode = m_inputBuffer[2];
+		m_outputBuffer[outputOffset + 0x04] = g_terminationCode;
 		CLog::GetInstance().Print(LOG_NAME, "MemoryCard: Probe2();\r\n");
 		break;
 	case 0x28:
 		m_outputBuffer[outputOffset + 0x04] = 0x66;
 		CLog::GetInstance().Print(LOG_NAME, "MemoryCard: Probe1();\r\n");
 		break;
+	case 0x43:
+		for(unsigned int i = 0; i < 0x80; i++)
+		{
+			m_outputBuffer[outputOffset + 0x04 + i] = 0xCC;
+		}
+		m_outputBuffer[outputOffset + 0x04 + 0x80] = ComputeEDC(m_outputBuffer, outputOffset + 0x04, 0x80);
+		m_outputBuffer[outputOffset + 0x04 + 0x81] = g_terminationCode;
+		CLog::GetInstance().Print(LOG_NAME, "MemoryCard: ReadPage();\r\n");
+		break;
+	case 0x81:
+		m_outputBuffer[outputOffset + 0x03] = g_terminationCode;
+		CLog::GetInstance().Print(LOG_NAME, "MemoryCard: Cmd_81();\r\n");
+		break;
 	case 0xBF:
-		m_outputBuffer[outputOffset + 0x04] = m_inputBuffer[2];
+		m_outputBuffer[outputOffset + 0x04] = g_terminationCode;
 		CLog::GetInstance().Print(LOG_NAME, "MemoryCard: Cmd_BF();\r\n");
 		break;
 	case 0xF3:
