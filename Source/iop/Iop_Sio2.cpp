@@ -264,6 +264,10 @@ void CSio2::ProcessCommand()
 		{
 			ProcessMultitap(portId, outputOffset, dstSize, srcSize);
 		}
+		else if(deviceId == 0x5FFFF)
+		{
+			ProcessMemoryCard(portId, outputOffset, dstSize, srcSize);
+		}
 		else
 		{
 			ProcessController(portId, outputOffset, dstSize, srcSize);

@@ -73,6 +73,8 @@ namespace Iop
 
 		Dmac::CChannel m_channelSpu0;
 		Dmac::CChannel m_channelSpu1;
+		Dmac::CChannel m_channelSio2In;
+		Dmac::CChannel m_channelSio2Out;
 		Dmac::CChannel* m_channel[MAX_CHANNEL];
 
 		uint32 m_DPCR;

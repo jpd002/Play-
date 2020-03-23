@@ -221,6 +221,12 @@ void CIopBios::Reset(const Iop::SifManPtr& sifMan)
 		RegisterModule(std::make_shared<Iop::CIntrman>(*this, m_ram));
 	}
 	{
+		RegisterModule(std::make_shared<Iop::CDmacman>());
+	}
+	{
+		RegisterModule(std::make_shared<Iop::CSecrman>());
+	}
+	{
 		RegisterModule(std::make_shared<Iop::CVblank>(*this));
 	}
 	{
