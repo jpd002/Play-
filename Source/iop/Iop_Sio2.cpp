@@ -554,12 +554,16 @@ void CSio2::ProcessMemoryCard(unsigned int portId, size_t outputOffset, uint32 d
 		CLog::GetInstance().Print(LOG_NAME, "MemoryCard: WritePage();\r\n");
 		break;
 	case 0x43:
-		for(unsigned int i = 0; i < 0x80; i++)
 		{
-			m_outputBuffer[outputOffset + 0x04 + i] = 0xCC;
+			uint8 readCount = m_inputBuffer[2];
+			for(uint32 i = 0; i < readCount; i++)
+			{
+				m_outputBuffer[outputOffset + 0x04 + i] = 0xCC;
+			}
+			g_currentPage += 1;
+			m_outputBuffer[outputOffset + 0x04 + readCount + 0] = ComputeEDC(m_outputBuffer, outputOffset + 0x04, readCount);
+			m_outputBuffer[outputOffset + 0x04 + readCount + 1] = g_terminationCode;
 		}
-		m_outputBuffer[outputOffset + 0x04 + 0x80] = ComputeEDC(m_outputBuffer, outputOffset + 0x04, 0x80);
-		m_outputBuffer[outputOffset + 0x04 + 0x81] = g_terminationCode;
 		CLog::GetInstance().Print(LOG_NAME, "MemoryCard: ReadPage();\r\n");
 		break;
 	case 0x81:
