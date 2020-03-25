@@ -11,6 +11,7 @@
 #include "../OsStructQueue.h"
 #include "../gs/GSHandler.h"
 #include "SIF.h"
+#include "Ee_LibMc2.h"
 
 #define INTERRUPTS_ENABLED_MASK (CMIPS::STATUS_IE | CMIPS::STATUS_EIE)
 
@@ -366,6 +367,7 @@ private:
 
 	CGSHandler*& m_gs;
 	CSIF& m_sif;
+	Ee::CLibMc2 m_libMc2;
 	CIopBios& m_iopBios;
 
 #ifdef DEBUGGER_INCLUDED

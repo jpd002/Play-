@@ -92,18 +92,18 @@ bool CMcServ::Invoke(uint32 method, uint32* args, uint32 argsSize, uint32* ret, 
 	case 0x78:
 		GetInfo(args, argsSize, ret, retSize, ram);
 		break;
-	case 0x02:
+	case CMD_ID_OPEN:
 	case 0x71:
 		Open(args, argsSize, ret, retSize, ram);
 		break;
-	case 0x03:
+	case CMD_ID_CLOSE:
 	case 0x72:
 		Close(args, argsSize, ret, retSize, ram);
 		break;
-	case 0x04:
+	case CMD_ID_SEEK:
 		Seek(args, argsSize, ret, retSize, ram);
 		break;
-	case 0x05:
+	case CMD_ID_READ:
 	case 0x73:
 		Read(args, argsSize, ret, retSize, ram);
 		break;

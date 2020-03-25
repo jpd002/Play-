@@ -19,6 +19,23 @@ namespace Iop
 	class CMcServ : public CModule, public CSifModule
 	{
 	public:
+		enum CMD_ID
+		{
+			CMD_ID_OPEN = 0x02,
+			CMD_ID_CLOSE = 0x03,
+			CMD_ID_SEEK = 0x04,
+			CMD_ID_READ = 0x05,
+		};
+
+		enum OPEN_FLAGS
+		{
+			OPEN_FLAG_RDONLY = 0x00000001,
+			OPEN_FLAG_WRONLY = 0x00000002,
+			OPEN_FLAG_RDWR = 0x00000003,
+			OPEN_FLAG_CREAT = 0x00000200,
+			OPEN_FLAG_TRUNC = 0x00000400,
+		};
+
 		struct CMD
 		{
 			uint32 port;
@@ -29,6 +46,18 @@ namespace Iop
 			char name[0x400];
 		};
 		static_assert(sizeof(CMD) == 0x414, "Size of CMD structure must be 0x414 bytes.");
+
+		struct FILECMD
+		{
+			uint32 handle;
+			uint32 pad[2];
+			uint32 size;
+			uint32 offset;
+			uint32 origin;
+			uint32 bufferAddress;
+			uint32 paramAddress;
+			char data[16];
+		};
 
 		struct ENTRY
 		{
@@ -92,30 +121,9 @@ namespace Iop
 			RET_PERMISSION_DENIED = -5
 		};
 
-		enum OPEN_FLAGS
-		{
-			OPEN_FLAG_RDONLY = 0x00000001,
-			OPEN_FLAG_WRONLY = 0x00000002,
-			OPEN_FLAG_RDWR = 0x00000003,
-			OPEN_FLAG_CREAT = 0x00000200,
-			OPEN_FLAG_TRUNC = 0x00000400,
-		};
-
 		enum
 		{
 			MAX_FILES = 5
-		};
-
-		struct FILECMD
-		{
-			uint32 handle;
-			uint32 pad[2];
-			uint32 size;
-			uint32 offset;
-			uint32 origin;
-			uint32 bufferAddress;
-			uint32 paramAddress;
-			char data[16];
 		};
 
 		class CPathFinder

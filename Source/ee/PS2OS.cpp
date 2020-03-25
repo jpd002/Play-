@@ -234,6 +234,7 @@ CPS2OS::CPS2OS(CMIPS& ee, uint8* ram, uint8* bios, uint8* spr, CGSHandler*& gs, 
     , m_bios(bios)
     , m_spr(spr)
     , m_sif(sif)
+    , m_libMc2(ram, iopBios)
     , m_iopBios(iopBios)
     , m_threads(reinterpret_cast<THREAD*>(m_ram + BIOS_ADDRESS_THREAD_BASE), BIOS_ID_BASE, MAX_THREAD)
     , m_semaphores(reinterpret_cast<SEMAPHORE*>(m_ram + BIOS_ADDRESS_SEMAPHORE_BASE), BIOS_ID_BASE, MAX_SEMAPHORE)
@@ -651,6 +652,8 @@ void CPS2OS::ApplyPatches()
 			break;
 		}
 	}
+
+	m_libMc2.HookLibMc2Functions();
 }
 
 void CPS2OS::AssembleCustomSyscallHandler()
@@ -2917,6 +2920,10 @@ void CPS2OS::HandleSyscall()
 			ThreadLoadContext(thread, true);
 		}
 		ThreadShakeAndBake();
+	}
+	else if((func >= Ee::CLibMc2::SYSCALL_RANGE_START) && (func < Ee::CLibMc2::SYSCALL_RANGE_END))
+	{
+		m_libMc2.HandleSyscall(m_ee);
 	}
 	else
 	{
