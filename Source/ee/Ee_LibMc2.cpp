@@ -1,5 +1,6 @@
 #include <cassert>
 #include "Ee_LibMc2.h"
+#include "Ps2Const.h"
 #include "Log.h"
 #include "../iop/IopBios.h"
 #include "../iop/Iop_McServ.h"
@@ -8,6 +9,10 @@ using namespace Ee;
 
 #define LOG_NAME "ee_libmc2"
 
+#define SIGNALSEMA_SYSCALL 0x42
+#define WAITSEMA_SYSCALL 0x44
+#define POLLSEMA_SYSCALL 0x45
+
 CLibMc2::CLibMc2(uint8* ram, CIopBios& iopBios)
 	: m_ram(ram)
 	, m_iopBios(iopBios)
@@ -15,19 +20,134 @@ CLibMc2::CLibMc2(uint8* ram, CIopBios& iopBios)
 	
 }
 
+uint32 CLibMc2::AnalyzeFunction(uint32 startAddress, int16 stackAlloc)
+{
+	static const uint32 maxFunctionSize = 0x200;
+	bool completed = false;
+	uint32 maxAddress = startAddress + maxFunctionSize;
+	uint32 address = startAddress + 4;
+	maxAddress = std::min<uint32>(maxAddress, PS2::EE_RAM_SIZE);
+
+	//Pattern matching stats
+	uint32 countLUI8101 = 0;
+	std::vector<uint32> constantsLoaded;
+	std::unordered_map<uint32, uint32> syscallsUsed;
+
+	while(address < maxAddress)
+	{
+		uint32 opcode = *reinterpret_cast<uint32*>(m_ram + address);
+		if((opcode & 0xFFFF0000) == 0x27BD0000)
+		{
+			int16 offset = static_cast<int16>(opcode);
+			if(offset == stackAlloc)
+			{
+				//Ok, we're done
+				completed = true;
+				break;
+			}
+		}
+		//Check LUI {r}, {i}
+		else if((opcode & 0xFFE00000) == 0x3C000000)
+		{
+			uint32 imm = opcode & 0xFFFF;
+			if(imm == 0x8101)
+			{
+				countLUI8101++;
+			}
+		}
+		//Check for ADDIU R0, {r}, {i}
+		else if((opcode & 0xFFE00000) == 0x24000000)
+		{
+			constantsLoaded.push_back(opcode & 0xFFFF);
+		}
+		//Check for JAL {a}
+		else if((opcode & 0xFC000000) == 0x0C000000)
+		{
+			uint32 jmpAddr = (address & 0xF0000000) | ((opcode & 0x3FFFFFF) * 4);
+			if(jmpAddr < PS2::EE_RAM_SIZE)
+			{
+				uint32 opAtJmp = *reinterpret_cast<uint32*>(m_ram + jmpAddr);
+				//Check for ADDIU V1, R0, {imm}
+				if((opAtJmp & 0xFFFF0000) == 0x24030000)
+				{
+					syscallsUsed[opAtJmp & 0xFFFF]++;
+				}
+			}
+		}
+		address += 4;
+	}
+
+	if(completed)
+	{
+		if(!constantsLoaded.empty() && (countLUI8101 != 0))
+		{
+			auto has0x20 = std::find(constantsLoaded.begin(), constantsLoaded.end(), 0x20);
+			int i = 0;
+			i++;
+		}
+		if(syscallsUsed.size() == 2)
+		{
+			uint32 signalSemaCount = (syscallsUsed.find(SIGNALSEMA_SYSCALL) != std::end(syscallsUsed) ? syscallsUsed[SIGNALSEMA_SYSCALL] : 0);
+			uint32 waitSemaCount = (syscallsUsed.find(WAITSEMA_SYSCALL) != std::end(syscallsUsed) ? syscallsUsed[WAITSEMA_SYSCALL] : 0);
+			uint32 pollSemaCount = (syscallsUsed.find(POLLSEMA_SYSCALL) != std::end(syscallsUsed) ? syscallsUsed[POLLSEMA_SYSCALL] : 0);
+			if((waitSemaCount == 1) && (pollSemaCount == 1))
+			{
+				m_checkAsyncPtr = startAddress;
+			}
+			if((waitSemaCount == 1) && (signalSemaCount == 3) && (countLUI8101 != 0) && !constantsLoaded.empty())
+			{
+				switch(constantsLoaded[0])
+				{
+				case 0x02:
+					m_getInfoAsyncPtr = startAddress;
+					break;
+				case 0x0A:
+					m_getDirAsyncPtr = startAddress;
+					break;
+				case 0x0E:
+					m_searchFileAsyncPtr = startAddress;
+					break;
+				case 0x20:
+					m_readFileAsyncPtr = startAddress;
+					break;
+				}
+			}
+		}
+		return address;
+	}
+
+	return startAddress;
+}
+
 void CLibMc2::HookLibMc2Functions()
 {
-#if 0
-	WriteSyscall(0x005F27F0, SYSCALL_MC2_CHECKASYNC);
-	WriteSyscall(0x005F15E8, SYSCALL_MC2_GETINFO_ASYNC);
-	WriteSyscall(0x005F1EB8, SYSCALL_MC2_GETDIR_ASYNC);
-	WriteSyscall(0x005F16A8, SYSCALL_MC2_SEARCHFILE_ASYNC);
-	WriteSyscall(0x005F1978, SYSCALL_MC2_READFILE_ASYNC);
-#endif
+	for(uint32 address = 0; address < PS2::EE_RAM_SIZE; address += 4)
+	{
+		uint32 opcode = *reinterpret_cast<uint32*>(m_ram + address);
+		//Look for ADDIU SP, SP, {i}
+		if((opcode & 0xFFFF0000) == 0x27BD0000)
+		{
+			int16 offset = static_cast<int16>(opcode);
+			if(offset < 0)
+			{
+				//Might be a function start
+				address = AnalyzeFunction(address, -offset);
+			}
+		}
+	}
+
+	WriteSyscall(m_getInfoAsyncPtr, SYSCALL_MC2_GETINFO_ASYNC);
+	WriteSyscall(m_getDirAsyncPtr, SYSCALL_MC2_GETDIR_ASYNC);
+	WriteSyscall(m_searchFileAsyncPtr, SYSCALL_MC2_SEARCHFILE_ASYNC);
+	WriteSyscall(m_readFileAsyncPtr, SYSCALL_MC2_READFILE_ASYNC);
+	WriteSyscall(m_checkAsyncPtr, SYSCALL_MC2_CHECKASYNC);
 }
 
 void CLibMc2::WriteSyscall(uint32 address, uint16 syscallNumber)
 {
+	assert(address != 0);
+	if(address == 0) return;
+
 	*reinterpret_cast<uint32*>(m_ram + address + 0x0) = 0x24030000 | syscallNumber;
 	*reinterpret_cast<uint32*>(m_ram + address + 0x4) = 0x0000000C;
 	*reinterpret_cast<uint32*>(m_ram + address + 0x8) = 0x03E00008;

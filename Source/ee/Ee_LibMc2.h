@@ -47,6 +47,7 @@ namespace Ee
 		};
 		static_assert(sizeof(DIRPARAM) == 0x38);
 
+		uint32 AnalyzeFunction(uint32, int16);
 		void WriteSyscall(uint32, uint16);
 
 		int32 CheckAsync(uint32, uint32, uint32);
@@ -59,5 +60,11 @@ namespace Ee
 		CIopBios& m_iopBios;
 		uint32 m_lastCmd = 0;
 		uint32 m_lastResult = 0;
+
+		uint32 m_getInfoAsyncPtr = 0;
+		uint32 m_getDirAsyncPtr = 0;
+		uint32 m_searchFileAsyncPtr = 0;
+		uint32 m_readFileAsyncPtr = 0;
+		uint32 m_checkAsyncPtr = 0;
 	};
 }
