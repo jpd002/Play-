@@ -49,7 +49,7 @@ namespace Ee
 
 		void WriteSyscall(uint32, uint16);
 
-		int32 CheckAsync(uint32, uint32);
+		int32 CheckAsync(uint32, uint32, uint32);
 		int32 GetInfoAsync(uint32, uint32);
 		int32 GetDirAsync(uint32, uint32, uint32, int32, uint32, uint32);
 		int32 SearchFileAsync(uint32, uint32, uint32);

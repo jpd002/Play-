@@ -41,7 +41,8 @@ void CLibMc2::HandleSyscall(CMIPS& ee)
 	case SYSCALL_MC2_CHECKASYNC:
 		ee.m_State.nGPR[CMIPS::V0].nD0 = CheckAsync(
 			ee.m_State.nGPR[CMIPS::A0].nV0,
-			ee.m_State.nGPR[CMIPS::A1].nV0
+			ee.m_State.nGPR[CMIPS::A1].nV0,
+			ee.m_State.nGPR[CMIPS::A2].nV0
 		);
 		break;
 	case SYSCALL_MC2_GETINFO_ASYNC:
@@ -82,10 +83,10 @@ void CLibMc2::HandleSyscall(CMIPS& ee)
 	}
 }
 
-int32 CLibMc2::CheckAsync(uint32 cmdPtr, uint32 resultPtr)
+int32 CLibMc2::CheckAsync(uint32 mode, uint32 cmdPtr, uint32 resultPtr)
 {
-	CLog::GetInstance().Print(LOG_NAME, "CheckAsync(cmdPtr = 0x%08X, resultPtr = 0x%08X);\r\n",
-		cmdPtr, resultPtr);
+	CLog::GetInstance().Print(LOG_NAME, "CheckAsync(mode = %d, cmdPtr = 0x%08X, resultPtr = 0x%08X);\r\n",
+		mode, cmdPtr, resultPtr);
 
 	assert(m_lastCmd != 0);
 
