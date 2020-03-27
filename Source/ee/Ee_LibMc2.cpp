@@ -310,14 +310,22 @@ int32 CLibMc2::SearchFileAsync(uint32 socketId, uint32 pathPtr, uint32 dirParamP
 	}
 	mcServ->Invoke(0xD, reinterpret_cast<uint32*>(&cmd), sizeof(cmd), &result, sizeof(uint32), reinterpret_cast<uint8*>(entries.data()));
 
-	assert(result == 1);
+	if(static_cast<int32>(result) < 0)
+	{
+		m_lastResult = 0x81010014;
+	}
+	else
+	{
+		memset(dirParam, 0, sizeof(DIRPARAM));
+		dirParam->attributes = entries[0].attributes;
+		dirParam->size = entries[0].size;
+		strcpy(dirParam->name, reinterpret_cast<char*>(entries[0].name));
 
-	memset(dirParam, 0, sizeof(DIRPARAM));
-	dirParam->attributes = entries[0].attributes;
-	dirParam->size = entries[0].size;
-	strcpy(dirParam->name, reinterpret_cast<char*>(entries[0].name));
+		m_lastResult = 0x81010000;
 
-	m_lastResult = 0x81010000;
+		assert(result == 1);
+	}
+
 	m_lastCmd = SYSCALL_MC2_SEARCHFILE_ASYNC & 0xFF;
 
 	return 0;
