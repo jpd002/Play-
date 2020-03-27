@@ -9,6 +9,8 @@ using namespace Ee;
 
 #define LOG_NAME "ee_libmc2"
 
+#define MC_PORT 1
+
 #define SIGNALSEMA_SYSCALL 0x42
 #define WAITSEMA_SYSCALL 0x44
 #define POLLSEMA_SYSCALL 0x45
@@ -250,7 +252,7 @@ int32 CLibMc2::GetDirAsync(uint32 socketId, uint32 pathPtr, uint32 offset, int32
 	uint32 result = 0;
 	Iop::CMcServ::CMD cmd;
 	memset(&cmd, 0, sizeof(cmd));
-	cmd.port = 1;
+	cmd.port = MC_PORT;
 	cmd.maxEntries = maxEntries;
 	assert(strlen(path) <= sizeof(cmd.name));
 	strncpy(cmd.name, path, sizeof(cmd.name));
@@ -296,7 +298,7 @@ int32 CLibMc2::SearchFileAsync(uint32 socketId, uint32 pathPtr, uint32 dirParamP
 	uint32 result = 0;
 	Iop::CMcServ::CMD cmd;
 	memset(&cmd, 0, sizeof(cmd));
-	cmd.port = 1;
+	cmd.port = MC_PORT;
 	cmd.maxEntries = 1;
 	assert(strlen(path) <= sizeof(cmd.name));
 	strncpy(cmd.name, path, sizeof(cmd.name));
@@ -337,7 +339,7 @@ int32 CLibMc2::ReadFileAsync(uint32 socketId, uint32 pathPtr, uint32 bufferPtr, 
 		Iop::CMcServ::CMD cmd;
 		memset(&cmd, 0, sizeof(cmd));
 		cmd.flags = Iop::CMcServ::OPEN_FLAG_RDONLY;
-		cmd.port = 1;
+		cmd.port = MC_PORT;
 		assert(strlen(path) <= sizeof(cmd.name));
 		strncpy(cmd.name, path, sizeof(cmd.name));
 		mcServ->Invoke(Iop::CMcServ::CMD_ID_OPEN, reinterpret_cast<uint32*>(&cmd), sizeof(cmd), &fd, sizeof(uint32), nullptr);
