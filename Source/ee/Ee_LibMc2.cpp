@@ -9,7 +9,7 @@ using namespace Ee;
 
 #define LOG_NAME "ee_libmc2"
 
-#define MC_PORT 1
+#define MC_PORT 0
 
 #define SIGNALSEMA_SYSCALL 0x42
 #define WAITSEMA_SYSCALL 0x44
