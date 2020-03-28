@@ -25,6 +25,7 @@ namespace Iop
 			CMD_ID_CLOSE = 0x03,
 			CMD_ID_SEEK = 0x04,
 			CMD_ID_READ = 0x05,
+			CMD_ID_WRITE = 0x06,
 		};
 
 		enum OPEN_FLAGS

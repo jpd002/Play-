@@ -103,6 +103,9 @@ uint32 CLibMc2::AnalyzeFunction(uint32 startAddress, int16 stackAlloc)
 				case 0x02:
 					m_getInfoAsyncPtr = startAddress;
 					break;
+				case 0x06:
+					m_writeFileAsyncPtr = startAddress;
+					break;
 				case 0x07:
 					m_createFileAsyncPtr = startAddress;
 					break;
@@ -145,6 +148,7 @@ void CLibMc2::HookLibMc2Functions()
 	}
 
 	WriteSyscall(m_getInfoAsyncPtr, SYSCALL_MC2_GETINFO_ASYNC);
+	WriteSyscall(m_writeFileAsyncPtr, SYSCALL_MC2_WRITEFILE_ASYNC);
 	WriteSyscall(m_createFileAsyncPtr, SYSCALL_MC2_CREATEFILE_ASYNC);
 	WriteSyscall(m_getDirAsyncPtr, SYSCALL_MC2_GETDIR_ASYNC);
 	WriteSyscall(m_mkDirAsyncPtr, SYSCALL_MC2_MKDIR_ASYNC);
@@ -179,6 +183,15 @@ void CLibMc2::HandleSyscall(CMIPS& ee)
 		ee.m_State.nGPR[CMIPS::V0].nD0 = GetInfoAsync(
 			ee.m_State.nGPR[CMIPS::A0].nV0,
 			ee.m_State.nGPR[CMIPS::A1].nV0
+		);
+		break;
+	case SYSCALL_MC2_WRITEFILE_ASYNC:
+		ee.m_State.nGPR[CMIPS::V0].nD0 = WriteFileAsync(
+			ee.m_State.nGPR[CMIPS::A0].nV0,
+			ee.m_State.nGPR[CMIPS::A1].nV0,
+			ee.m_State.nGPR[CMIPS::A2].nV0,
+			ee.m_State.nGPR[CMIPS::A3].nV0,
+			ee.m_State.nGPR[CMIPS::T0].nV0
 		);
 		break;
 	case SYSCALL_MC2_CREATEFILE_ASYNC:
@@ -479,6 +492,70 @@ int32 CLibMc2::ReadFileAsync(uint32 socketId, uint32 pathPtr, uint32 bufferPtr, 
 
 	m_lastResult = size;
 	m_lastCmd = SYSCALL_MC2_READFILE_ASYNC & 0xFF;
+
+	return 0;
+}
+
+int32 CLibMc2::WriteFileAsync(uint32 socketId, uint32 pathPtr, uint32 bufferPtr, uint32 offset, uint32 size)
+{
+	auto path = reinterpret_cast<const char*>(m_ram + pathPtr);
+
+	CLog::GetInstance().Print(LOG_NAME, "WriteFileAsync(socketId = %d, path = '%s', bufferPtr = 0x%08X, offset = 0x%08X, size = 0x%08X);\r\n",
+		socketId, path, bufferPtr, offset, size);
+
+	auto mcServ = m_iopBios.GetMcServ();
+
+	uint32 fd = 0;
+
+	{
+		//Issue open command
+		Iop::CMcServ::CMD cmd;
+		memset(&cmd, 0, sizeof(cmd));
+		cmd.flags = Iop::CMcServ::OPEN_FLAG_WRONLY;
+		cmd.port = MC_PORT;
+		assert(strlen(path) <= sizeof(cmd.name));
+		strncpy(cmd.name, path, sizeof(cmd.name));
+		mcServ->Invoke(Iop::CMcServ::CMD_ID_OPEN, reinterpret_cast<uint32*>(&cmd), sizeof(cmd), &fd, sizeof(uint32), nullptr);
+	}
+
+	assert(fd >= 0);
+
+	if(offset != 0)
+	{
+		uint32 result = 0;
+		Iop::CMcServ::FILECMD cmd;
+		memset(&cmd, 0, sizeof(cmd));
+		cmd.handle = fd;
+		cmd.offset = offset;
+		cmd.origin = 0;
+		mcServ->Invoke(Iop::CMcServ::CMD_ID_SEEK, reinterpret_cast<uint32*>(&cmd), sizeof(cmd), &result, sizeof(uint32), nullptr);
+		assert(result == offset);
+	}
+
+	//Write
+	{
+		uint32 result = 0;
+		Iop::CMcServ::FILECMD cmd;
+		memset(&cmd, 0, sizeof(cmd));
+		cmd.handle = fd;
+		cmd.size = size;
+		cmd.bufferAddress = bufferPtr;
+		mcServ->Invoke(Iop::CMcServ::CMD_ID_WRITE, reinterpret_cast<uint32*>(&cmd), sizeof(cmd), &result, sizeof(uint32), m_ram);
+		assert(result >= 0);
+	}
+
+	//Close
+	{
+		uint32 result = 0;
+		Iop::CMcServ::FILECMD cmd;
+		memset(&cmd, 0, sizeof(cmd));
+		cmd.handle = fd;
+		mcServ->Invoke(Iop::CMcServ::CMD_ID_CLOSE, reinterpret_cast<uint32*>(&cmd), sizeof(cmd), &result, sizeof(uint32), nullptr);
+		assert(result >= 0);
+	}
+
+	m_lastResult = size;
+	m_lastCmd = SYSCALL_MC2_WRITEFILE_ASYNC & 0xFF;
 
 	return 0;
 }

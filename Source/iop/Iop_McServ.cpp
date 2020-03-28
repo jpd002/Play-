@@ -107,7 +107,7 @@ bool CMcServ::Invoke(uint32 method, uint32* args, uint32 argsSize, uint32* ret, 
 	case 0x73:
 		Read(args, argsSize, ret, retSize, ram);
 		break;
-	case 0x06:
+	case CMD_ID_WRITE:
 	case 0x74:
 		Write(args, argsSize, ret, retSize, ram);
 		break;

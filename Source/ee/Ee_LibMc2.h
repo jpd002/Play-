@@ -15,6 +15,7 @@ namespace Ee
 			SYSCALL_RANGE_START = 0x800,
 			SYSCALL_MC2_CHECKASYNC = 0x800,
 			SYSCALL_MC2_GETINFO_ASYNC = 0x802,
+			SYSCALL_MC2_WRITEFILE_ASYNC = 0x806,
 			SYSCALL_MC2_CREATEFILE_ASYNC = 0x807,
 			SYSCALL_MC2_GETDIR_ASYNC = 0x80A,
 			SYSCALL_MC2_MKDIR_ASYNC = 0x80B,
@@ -59,6 +60,7 @@ namespace Ee
 		int32 MkDirAsync(uint32, uint32);
 		int32 SearchFileAsync(uint32, uint32, uint32);
 		int32 ReadFileAsync(uint32, uint32, uint32, uint32, uint32);
+		int32 WriteFileAsync(uint32, uint32, uint32, uint32, uint32);
 
 		uint8* m_ram = nullptr;
 		CIopBios& m_iopBios;
@@ -66,6 +68,7 @@ namespace Ee
 		uint32 m_lastResult = 0;
 
 		uint32 m_getInfoAsyncPtr = 0;
+		uint32 m_writeFileAsyncPtr = 0;
 		uint32 m_createFileAsyncPtr = 0;
 		uint32 m_getDirAsyncPtr = 0;
 		uint32 m_mkDirAsyncPtr = 0;
