@@ -103,6 +103,9 @@ uint32 CLibMc2::AnalyzeFunction(uint32 startAddress, int16 stackAlloc)
 				case 0x02:
 					m_getInfoAsyncPtr = startAddress;
 					break;
+				case 0x05:
+					m_readFileAsyncPtr = startAddress;
+					break;
 				case 0x06:
 					m_writeFileAsyncPtr = startAddress;
 					break;
