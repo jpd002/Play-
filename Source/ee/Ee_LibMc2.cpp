@@ -103,8 +103,14 @@ uint32 CLibMc2::AnalyzeFunction(uint32 startAddress, int16 stackAlloc)
 				case 0x02:
 					m_getInfoAsyncPtr = startAddress;
 					break;
+				case 0x07:
+					m_createFileAsyncPtr = startAddress;
+					break;
 				case 0x0A:
 					m_getDirAsyncPtr = startAddress;
+					break;
+				case 0x0B:
+					m_mkDirAsyncPtr = startAddress;
 					break;
 				case 0x0E:
 					m_searchFileAsyncPtr = startAddress;
@@ -139,7 +145,9 @@ void CLibMc2::HookLibMc2Functions()
 	}
 
 	WriteSyscall(m_getInfoAsyncPtr, SYSCALL_MC2_GETINFO_ASYNC);
+	WriteSyscall(m_createFileAsyncPtr, SYSCALL_MC2_CREATEFILE_ASYNC);
 	WriteSyscall(m_getDirAsyncPtr, SYSCALL_MC2_GETDIR_ASYNC);
+	WriteSyscall(m_mkDirAsyncPtr, SYSCALL_MC2_MKDIR_ASYNC);
 	WriteSyscall(m_searchFileAsyncPtr, SYSCALL_MC2_SEARCHFILE_ASYNC);
 	WriteSyscall(m_readFileAsyncPtr, SYSCALL_MC2_READFILE_ASYNC);
 	WriteSyscall(m_checkAsyncPtr, SYSCALL_MC2_CHECKASYNC);
@@ -173,6 +181,12 @@ void CLibMc2::HandleSyscall(CMIPS& ee)
 			ee.m_State.nGPR[CMIPS::A1].nV0
 		);
 		break;
+	case SYSCALL_MC2_CREATEFILE_ASYNC:
+		ee.m_State.nGPR[CMIPS::V0].nD0 = CreateFileAsync(
+			ee.m_State.nGPR[CMIPS::A0].nV0,
+			ee.m_State.nGPR[CMIPS::A1].nV0
+		);
+		break;
 	case SYSCALL_MC2_GETDIR_ASYNC:
 		ee.m_State.nGPR[CMIPS::V0].nD0 = GetDirAsync(
 			ee.m_State.nGPR[CMIPS::A0].nV0,
@@ -181,6 +195,12 @@ void CLibMc2::HandleSyscall(CMIPS& ee)
 			ee.m_State.nGPR[CMIPS::A3].nV0,
 			ee.m_State.nGPR[CMIPS::T0].nV0,
 			ee.m_State.nGPR[CMIPS::T1].nV0
+		);
+		break;
+	case SYSCALL_MC2_MKDIR_ASYNC:
+		ee.m_State.nGPR[CMIPS::V0].nD0 = MkDirAsync(
+			ee.m_State.nGPR[CMIPS::A0].nV0,
+			ee.m_State.nGPR[CMIPS::A1].nV0
 		);
 		break;
 	case SYSCALL_MC2_SEARCHFILE_ASYNC:
@@ -239,6 +259,47 @@ int32 CLibMc2::GetInfoAsync(uint32 socketId, uint32 infoPtr)
 	return 0;
 }
 
+int32 CLibMc2::CreateFileAsync(uint32 socketId, uint32 pathPtr)
+{
+	auto path = reinterpret_cast<const char*>(m_ram + pathPtr);
+
+	CLog::GetInstance().Print(LOG_NAME, "CreateFileAsync(socketId = %d, path = '%s');\r\n",
+		socketId, path);
+
+	auto mcServ = m_iopBios.GetMcServ();
+
+	uint32 fd = 0;
+
+	{
+		Iop::CMcServ::CMD cmd;
+		memset(&cmd, 0, sizeof(cmd));
+		cmd.port = MC_PORT;
+		cmd.flags = Iop::CMcServ::OPEN_FLAG_CREAT;
+		assert(strlen(path) <= sizeof(cmd.name));
+		strncpy(cmd.name, path, sizeof(cmd.name));
+
+		mcServ->Invoke(Iop::CMcServ::CMD_ID_OPEN, reinterpret_cast<uint32*>(&cmd), sizeof(cmd), &fd, sizeof(uint32), nullptr);
+
+		assert(fd >= 0);
+	}
+
+	{
+		uint32 result = 0;
+		Iop::CMcServ::FILECMD cmd;
+		memset(&cmd, 0, sizeof(cmd));
+		cmd.handle = fd;
+
+		mcServ->Invoke(Iop::CMcServ::CMD_ID_CLOSE, reinterpret_cast<uint32*>(&cmd), sizeof(cmd), &result, sizeof(uint32), nullptr);
+
+		assert(result >= 0);
+	}
+
+	m_lastResult = 0x81010000;
+	m_lastCmd = SYSCALL_MC2_CREATEFILE_ASYNC & 0xFF;
+
+	return 0;
+}
+
 int32 CLibMc2::GetDirAsync(uint32 socketId, uint32 pathPtr, uint32 offset, int32 maxEntries, uint32 dirEntriesPtr, uint32 countPtr)
 {
 	auto path = reinterpret_cast<const char*>(m_ram + pathPtr);
@@ -281,6 +342,33 @@ int32 CLibMc2::GetDirAsync(uint32 socketId, uint32 pathPtr, uint32 offset, int32
 
 	m_lastResult = 0x81010000;
 	m_lastCmd = 0xC;
+
+	return 0;
+}
+
+int32 CLibMc2::MkDirAsync(uint32 socketId, uint32 pathPtr)
+{
+	auto path = reinterpret_cast<const char*>(m_ram + pathPtr);
+
+	CLog::GetInstance().Print(LOG_NAME, "MkDirAsync(socketId = %d, path = '%s');\r\n",
+		socketId, path);
+
+	auto mcServ = m_iopBios.GetMcServ();
+
+	uint32 result = 0;
+	Iop::CMcServ::CMD cmd;
+	memset(&cmd, 0, sizeof(cmd));
+	cmd.port = MC_PORT;
+	cmd.flags = 0x40;
+	assert(strlen(path) <= sizeof(cmd.name));
+	strncpy(cmd.name, path, sizeof(cmd.name));
+
+	mcServ->Invoke(Iop::CMcServ::CMD_ID_OPEN, reinterpret_cast<uint32*>(&cmd), sizeof(cmd), &result, sizeof(uint32), nullptr);
+
+	assert(result >= 0);
+
+	m_lastResult = 0x81010000;
+	m_lastCmd = SYSCALL_MC2_MKDIR_ASYNC & 0xFF;
 
 	return 0;
 }
