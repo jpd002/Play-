@@ -340,7 +340,11 @@ int32 CLibMc2::GetDirAsync(uint32 socketId, uint32 pathPtr, uint32 offset, int32
 
 	*reinterpret_cast<uint32*>(m_ram + countPtr) = result;
 
-	if((result != 0) && (maxEntries > 0))
+	if(static_cast<int32>(result) < 0)
+	{
+		m_lastResult = 0x81010014;
+	}
+	else if((result != 0) && (maxEntries > 0))
 	{
 		auto dirParam = dirEntries;
 		for(uint32 i = 0; i < result; i++)
@@ -351,10 +355,11 @@ int32 CLibMc2::GetDirAsync(uint32 socketId, uint32 pathPtr, uint32 offset, int32
 			strcpy(dirParam->name, reinterpret_cast<char*>(entries[i].name));
 			dirParam++;
 		}
+
+		m_lastResult = 0x81010000;
 	}
 
-	m_lastResult = 0x81010000;
-	m_lastCmd = 0xC;
+	m_lastCmd = SYSCALL_MC2_GETDIR_ASYNC & 0xFF;
 
 	return 0;
 }
