@@ -10,6 +10,28 @@ namespace Ee
 	class CLibMc2
 	{
 	public:
+		struct DIRPARAM
+		{
+			struct TIME
+			{
+				uint8 unknown;
+				uint8 second;
+				uint8 minute;
+				uint8 hour;
+				uint8 day;
+				uint8 month;
+				uint16 year;
+			};
+
+			TIME creationDate;
+			TIME modificationDate;
+			uint32 size;
+			uint16 attributes;
+			uint16 resv1;
+			char name[32];
+		};
+		static_assert(sizeof(DIRPARAM) == 0x38);
+
 		enum
 		{
 			SYSCALL_RANGE_START = 0x800,
@@ -36,19 +58,6 @@ namespace Ee
 			uint32 freeClusters;
 		};
 		static_assert(sizeof(CARDINFO) == 0x0C);
-
-		struct DIRPARAM
-		{
-			uint32 creationDate0;
-			uint32 creationDate1;
-			uint32 modifDate0;
-			uint32 modifDate1;
-			uint32 size;
-			uint16 attributes;
-			uint16 resv1;
-			char name[32];
-		};
-		static_assert(sizeof(DIRPARAM) == 0x38);
 
 		uint32 AnalyzeFunction(uint32, int16);
 		void WriteSyscall(uint32, uint16);

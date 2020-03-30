@@ -118,7 +118,7 @@ bool CMcServ::Invoke(uint32 method, uint32* args, uint32 argsSize, uint32* ret, 
 	case 0x0C:
 		ChDir(args, argsSize, ret, retSize, ram);
 		break;
-	case 0x0D:
+	case CMD_ID_GETDIR:
 	case 0x76: //Used by homebrew (ex.: ps2infones)
 		GetDir(args, argsSize, ret, retSize, ram);
 		break;

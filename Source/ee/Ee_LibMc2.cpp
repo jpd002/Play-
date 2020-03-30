@@ -241,6 +241,25 @@ void CLibMc2::HandleSyscall(CMIPS& ee)
 	}
 }
 
+static void CopyDirParamTime(CLibMc2::DIRPARAM::TIME* dst, const Iop::CMcServ::ENTRY::TIME* src)
+{
+	dst->year = src->year;
+	dst->month = src->month;
+	dst->day = src->day;
+	dst->hour = src->hour;
+	dst->minute = src->minute;
+	dst->second = src->second;
+}
+
+static void CopyDirParam(CLibMc2::DIRPARAM* dst, const Iop::CMcServ::ENTRY* src)
+{
+	dst->attributes = src->attributes;
+	dst->size = src->size;
+	strcpy(dst->name, reinterpret_cast<const char*>(src->name));
+	CopyDirParamTime(&dst->creationDate, &src->creationTime);
+	CopyDirParamTime(&dst->modificationDate, &src->modificationTime);
+}
+
 int32 CLibMc2::CheckAsync(uint32 mode, uint32 cmdPtr, uint32 resultPtr)
 {
 	CLog::GetInstance().Print(LOG_NAME, "CheckAsync(mode = %d, cmdPtr = 0x%08X, resultPtr = 0x%08X);\r\n",
@@ -318,6 +337,8 @@ int32 CLibMc2::CreateFileAsync(uint32 socketId, uint32 pathPtr)
 
 int32 CLibMc2::GetDirAsync(uint32 socketId, uint32 pathPtr, uint32 offset, int32 maxEntries, uint32 dirEntriesPtr, uint32 countPtr)
 {
+	assert((maxEntries >= 0) || (offset == 0));
+
 	auto path = reinterpret_cast<const char*>(m_ram + pathPtr);
 	auto dirEntries = reinterpret_cast<DIRPARAM*>(m_ram + dirEntriesPtr);
 
@@ -326,37 +347,46 @@ int32 CLibMc2::GetDirAsync(uint32 socketId, uint32 pathPtr, uint32 offset, int32
 
 	auto mcServ = m_iopBios.GetMcServ();
 
+	int32 entriesToFetch = (maxEntries >= 0) ? (maxEntries + offset) : maxEntries;
+
 	uint32 result = 0;
 	Iop::CMcServ::CMD cmd;
 	memset(&cmd, 0, sizeof(cmd));
 	cmd.port = MC_PORT;
-	cmd.maxEntries = maxEntries;
+	cmd.maxEntries = entriesToFetch;
 	assert(strlen(path) <= sizeof(cmd.name));
 	strncpy(cmd.name, path, sizeof(cmd.name));
 
 	std::vector<Iop::CMcServ::ENTRY> entries;
-	if(cmd.maxEntries > 0)
+	if(entriesToFetch >= 0)
 	{
-		entries.resize(cmd.maxEntries);
+		entries.resize(entriesToFetch);
 	}
-	mcServ->Invoke(0xD, reinterpret_cast<uint32*>(&cmd), sizeof(cmd), &result, sizeof(uint32), reinterpret_cast<uint8*>(entries.data()));
-
-	*reinterpret_cast<uint32*>(m_ram + countPtr) = result;
+	mcServ->Invoke(Iop::CMcServ::CMD_ID_GETDIR, reinterpret_cast<uint32*>(&cmd), sizeof(cmd), &result, sizeof(uint32), reinterpret_cast<uint8*>(entries.data()));
 
 	if(static_cast<int32>(result) < 0)
 	{
-		m_lastResult = 0x81010014;
+		m_lastResult = 0x81010002;
 	}
-	else if((result != 0) && (maxEntries > 0))
+	else
 	{
-		auto dirParam = dirEntries;
-		for(uint32 i = 0; i < result; i++)
+		if(maxEntries < 0)
 		{
-			memset(dirParam, 0, sizeof(DIRPARAM));
-			dirParam->attributes = entries[i].attributes;
-			dirParam->size = entries[i].size;
-			strcpy(dirParam->name, reinterpret_cast<char*>(entries[i].name));
-			dirParam++;
+			//Wanted to get the total amount of entries
+			*reinterpret_cast<uint32*>(m_ram + countPtr) = result;
+		}
+		else
+		{
+			assert(result >= offset);
+			*reinterpret_cast<uint32*>(m_ram + countPtr) = result - offset;
+
+			auto dirParam = dirEntries;
+			for(uint32 i = offset; i < result; i++)
+			{
+				memset(dirParam, 0, sizeof(DIRPARAM));
+				CopyDirParam(dirParam, &entries[i]);
+				dirParam++;
+			}
 		}
 
 		m_lastResult = 0x81010000;
@@ -417,7 +447,7 @@ int32 CLibMc2::SearchFileAsync(uint32 socketId, uint32 pathPtr, uint32 dirParamP
 	{
 		entries.resize(cmd.maxEntries);
 	}
-	mcServ->Invoke(0xD, reinterpret_cast<uint32*>(&cmd), sizeof(cmd), &result, sizeof(uint32), reinterpret_cast<uint8*>(entries.data()));
+	mcServ->Invoke(Iop::CMcServ::CMD_ID_GETDIR, reinterpret_cast<uint32*>(&cmd), sizeof(cmd), &result, sizeof(uint32), reinterpret_cast<uint8*>(entries.data()));
 
 	if(static_cast<int32>(result) < 0)
 	{
@@ -426,9 +456,7 @@ int32 CLibMc2::SearchFileAsync(uint32 socketId, uint32 pathPtr, uint32 dirParamP
 	else
 	{
 		memset(dirParam, 0, sizeof(DIRPARAM));
-		dirParam->attributes = entries[0].attributes;
-		dirParam->size = entries[0].size;
-		strcpy(dirParam->name, reinterpret_cast<char*>(entries[0].name));
+		CopyDirParam(dirParam, &entries[0]);
 
 		m_lastResult = 0x81010000;
 

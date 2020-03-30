@@ -78,7 +78,7 @@ void ExecuteTest(const CGameTestSheet::TEST& test)
 		{
 			entries.resize(cmd.maxEntries);
 		}
-		mcServ->Invoke(0xD, reinterpret_cast<uint32*>(&cmd), sizeof(cmd), &result, sizeof(uint32), reinterpret_cast<uint8*>(entries.data()));
+		mcServ->Invoke(Iop::CMcServ::CMD_ID_GETDIR, reinterpret_cast<uint32*>(&cmd), sizeof(cmd), &result, sizeof(uint32), reinterpret_cast<uint8*>(entries.data()));
 
 		CHECK(result == test.result);
 
