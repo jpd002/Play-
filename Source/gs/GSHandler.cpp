@@ -604,11 +604,8 @@ void CGSHandler::WriteRegisterMassively(RegisterWriteList registerWrites, const 
 
 void CGSHandler::WriteRegisterImpl(uint8 nRegister, uint64 nData)
 {
-	assert(nRegister < REGISTER_MAX);
-	if(nRegister < REGISTER_MAX)
-	{
-		m_nReg[nRegister] = nData;
-	}
+	nRegister &= REGISTER_MAX - 1;
+	m_nReg[nRegister] = nData;
 
 	switch(nRegister)
 	{
