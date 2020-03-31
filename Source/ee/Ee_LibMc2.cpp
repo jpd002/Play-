@@ -126,7 +126,7 @@ uint32 CLibMc2::AnalyzeFunction(uint32 startAddress, int16 stackAlloc)
 					m_searchFileAsyncPtr = startAddress;
 					break;
 				case 0x20:
-					m_readFileAsyncPtr = startAddress;
+					m_readFile2AsyncPtr = startAddress;
 					break;
 				}
 			}
@@ -155,12 +155,13 @@ void CLibMc2::HookLibMc2Functions()
 	}
 
 	WriteSyscall(m_getInfoAsyncPtr, SYSCALL_MC2_GETINFO_ASYNC);
+	WriteSyscall(m_readFileAsyncPtr, SYSCALL_MC2_READFILE_ASYNC);
 	WriteSyscall(m_writeFileAsyncPtr, SYSCALL_MC2_WRITEFILE_ASYNC);
 	WriteSyscall(m_createFileAsyncPtr, SYSCALL_MC2_CREATEFILE_ASYNC);
 	WriteSyscall(m_getDirAsyncPtr, SYSCALL_MC2_GETDIR_ASYNC);
 	WriteSyscall(m_mkDirAsyncPtr, SYSCALL_MC2_MKDIR_ASYNC);
 	WriteSyscall(m_searchFileAsyncPtr, SYSCALL_MC2_SEARCHFILE_ASYNC);
-	WriteSyscall(m_readFileAsyncPtr, SYSCALL_MC2_READFILE_ASYNC);
+	WriteSyscall(m_readFile2AsyncPtr, SYSCALL_MC2_READFILE2_ASYNC);
 	WriteSyscall(m_checkAsyncPtr, SYSCALL_MC2_CHECKASYNC);
 }
 
@@ -190,6 +191,16 @@ void CLibMc2::HandleSyscall(CMIPS& ee)
 		ee.m_State.nGPR[CMIPS::V0].nD0 = GetInfoAsync(
 			ee.m_State.nGPR[CMIPS::A0].nV0,
 			ee.m_State.nGPR[CMIPS::A1].nV0
+		);
+		break;
+	case SYSCALL_MC2_READFILE_ASYNC:
+	case SYSCALL_MC2_READFILE2_ASYNC:
+		ee.m_State.nGPR[CMIPS::V0].nD0 = ReadFileAsync(
+			ee.m_State.nGPR[CMIPS::A0].nV0,
+			ee.m_State.nGPR[CMIPS::A1].nV0,
+			ee.m_State.nGPR[CMIPS::A2].nV0,
+			ee.m_State.nGPR[CMIPS::A3].nV0,
+			ee.m_State.nGPR[CMIPS::T0].nV0
 		);
 		break;
 	case SYSCALL_MC2_WRITEFILE_ASYNC:
@@ -228,15 +239,6 @@ void CLibMc2::HandleSyscall(CMIPS& ee)
 			ee.m_State.nGPR[CMIPS::A0].nV0,
 			ee.m_State.nGPR[CMIPS::A1].nV0,
 			ee.m_State.nGPR[CMIPS::A2].nV0
-		);
-		break;
-	case SYSCALL_MC2_READFILE_ASYNC:
-		ee.m_State.nGPR[CMIPS::V0].nD0 = ReadFileAsync(
-			ee.m_State.nGPR[CMIPS::A0].nV0,
-			ee.m_State.nGPR[CMIPS::A1].nV0,
-			ee.m_State.nGPR[CMIPS::A2].nV0,
-			ee.m_State.nGPR[CMIPS::A3].nV0,
-			ee.m_State.nGPR[CMIPS::T0].nV0
 		);
 		break;
 	default:
