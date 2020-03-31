@@ -15,6 +15,10 @@ using namespace Ee;
 #define WAITSEMA_SYSCALL 0x44
 #define POLLSEMA_SYSCALL 0x45
 
+//Really not sure about these
+#define MC2_RESULT_OK 0x81010000
+#define MC2_RESULT_ERROR_NOT_FOUND 0x81010002
+
 CLibMc2::CLibMc2(uint8* ram, CIopBios& iopBios)
 	: m_ram(ram)
 	, m_iopBios(iopBios)
@@ -288,7 +292,7 @@ int32 CLibMc2::GetInfoAsync(uint32 socketId, uint32 infoPtr)
 	info->freeClusters = 0x1E81;
 
 	//Potential return value 0x81019003 -> Probably means memory card changed
-	m_lastResult = 0x81010000;
+	m_lastResult = MC2_RESULT_OK;
 	m_lastCmd = SYSCALL_MC2_GETINFO_ASYNC & 0xFF;
 
 	return 0;
@@ -329,7 +333,7 @@ int32 CLibMc2::CreateFileAsync(uint32 socketId, uint32 pathPtr)
 		assert(result >= 0);
 	}
 
-	m_lastResult = 0x81010000;
+	m_lastResult = MC2_RESULT_OK;
 	m_lastCmd = SYSCALL_MC2_CREATEFILE_ASYNC & 0xFF;
 
 	return 0;
@@ -366,7 +370,7 @@ int32 CLibMc2::GetDirAsync(uint32 socketId, uint32 pathPtr, uint32 offset, int32
 
 	if(static_cast<int32>(result) < 0)
 	{
-		m_lastResult = 0x81010002;
+		m_lastResult = MC2_RESULT_ERROR_NOT_FOUND;
 	}
 	else
 	{
@@ -389,7 +393,7 @@ int32 CLibMc2::GetDirAsync(uint32 socketId, uint32 pathPtr, uint32 offset, int32
 			}
 		}
 
-		m_lastResult = 0x81010000;
+		m_lastResult = MC2_RESULT_OK;
 	}
 
 	m_lastCmd = SYSCALL_MC2_GETDIR_ASYNC & 0xFF;
@@ -418,7 +422,7 @@ int32 CLibMc2::MkDirAsync(uint32 socketId, uint32 pathPtr)
 
 	assert(result >= 0);
 
-	m_lastResult = 0x81010000;
+	m_lastResult = MC2_RESULT_OK;
 	m_lastCmd = SYSCALL_MC2_MKDIR_ASYNC & 0xFF;
 
 	return 0;
@@ -451,14 +455,14 @@ int32 CLibMc2::SearchFileAsync(uint32 socketId, uint32 pathPtr, uint32 dirParamP
 
 	if(static_cast<int32>(result) < 0)
 	{
-		m_lastResult = 0x81010014;
+		m_lastResult = MC2_RESULT_ERROR_NOT_FOUND;
 	}
 	else
 	{
 		memset(dirParam, 0, sizeof(DIRPARAM));
 		CopyDirParam(dirParam, &entries[0]);
 
-		m_lastResult = 0x81010000;
+		m_lastResult = MC2_RESULT_OK;
 
 		assert(result == 1);
 	}
