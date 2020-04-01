@@ -460,6 +460,7 @@ void CPS2OS::LoadELF(Framework::CStream& stream, const char* executablePath, con
 
 	LoadExecutableInternal();
 	ApplyPatches();
+	m_libMc2.HookLibMc2Functions();
 
 	OnExecutableChange();
 
@@ -652,8 +653,6 @@ void CPS2OS::ApplyPatches()
 			break;
 		}
 	}
-
-	m_libMc2.HookLibMc2Functions();
 }
 
 void CPS2OS::AssembleCustomSyscallHandler()
