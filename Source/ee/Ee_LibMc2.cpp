@@ -122,6 +122,9 @@ uint32 CLibMc2::AnalyzeFunction(uint32 startAddress, int16 stackAlloc)
 				case 0x0B:
 					m_mkDirAsyncPtr = startAddress;
 					break;
+				case 0x0C:
+					m_chDirAsyncPtr = startAddress;
+					break;
 				case 0x0E:
 					m_searchFileAsyncPtr = startAddress;
 					break;
@@ -160,6 +163,7 @@ void CLibMc2::HookLibMc2Functions()
 	WriteSyscall(m_createFileAsyncPtr, SYSCALL_MC2_CREATEFILE_ASYNC);
 	WriteSyscall(m_getDirAsyncPtr, SYSCALL_MC2_GETDIR_ASYNC);
 	WriteSyscall(m_mkDirAsyncPtr, SYSCALL_MC2_MKDIR_ASYNC);
+	WriteSyscall(m_chDirAsyncPtr, SYSCALL_MC2_CHDIR_ASYNC);
 	WriteSyscall(m_searchFileAsyncPtr, SYSCALL_MC2_SEARCHFILE_ASYNC);
 	WriteSyscall(m_readFile2AsyncPtr, SYSCALL_MC2_READFILE2_ASYNC);
 	WriteSyscall(m_checkAsyncPtr, SYSCALL_MC2_CHECKASYNC);
@@ -226,6 +230,13 @@ void CLibMc2::HandleSyscall(CMIPS& ee)
 			ee.m_State.nGPR[CMIPS::A3].nV0,
 			ee.m_State.nGPR[CMIPS::T0].nV0,
 			ee.m_State.nGPR[CMIPS::T1].nV0
+		);
+		break;
+	case SYSCALL_MC2_CHDIR_ASYNC:
+		ee.m_State.nGPR[CMIPS::V0].nD0 = ChDirAsync(
+			ee.m_State.nGPR[CMIPS::A0].nV0,
+			ee.m_State.nGPR[CMIPS::A1].nV0,
+			ee.m_State.nGPR[CMIPS::A2].nV0
 		);
 		break;
 	case SYSCALL_MC2_MKDIR_ASYNC:
@@ -399,6 +410,39 @@ int32 CLibMc2::GetDirAsync(uint32 socketId, uint32 pathPtr, uint32 offset, int32
 	}
 
 	m_lastCmd = SYSCALL_MC2_GETDIR_ASYNC & 0xFF;
+
+	return 0;
+}
+
+int32 CLibMc2::ChDirAsync(uint32 socketId, uint32 pathPtr, uint32 pwdPtr)
+{
+	auto path = reinterpret_cast<const char*>(m_ram + pathPtr);
+	assert(pwdPtr == 0);
+
+	CLog::GetInstance().Print(LOG_NAME, "ChDirAsync(socketId = %d, path = '%s', pwdPtr = 0x%08X);\r\n",
+		socketId, path, pwdPtr);
+
+	auto mcServ = m_iopBios.GetMcServ();
+
+	uint32 result = 0;
+	Iop::CMcServ::CMD cmd;
+	memset(&cmd, 0, sizeof(cmd));
+	cmd.port = MC_PORT;
+	assert(strlen(path) <= sizeof(cmd.name));
+	strncpy(cmd.name, path, sizeof(cmd.name));
+
+	mcServ->Invoke(Iop::CMcServ::CMD_ID_CHDIR, reinterpret_cast<uint32*>(&cmd), sizeof(cmd), &result, sizeof(uint32), nullptr);
+
+	if(result < 0)
+	{
+		m_lastResult = MC2_RESULT_ERROR_NOT_FOUND;
+	}
+	else
+	{
+		m_lastResult = MC2_RESULT_OK;
+	}
+
+	m_lastCmd = SYSCALL_MC2_CHDIR_ASYNC & 0xFF;
 
 	return 0;
 }

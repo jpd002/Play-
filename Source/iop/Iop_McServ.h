@@ -26,6 +26,7 @@ namespace Iop
 			CMD_ID_SEEK = 0x04,
 			CMD_ID_READ = 0x05,
 			CMD_ID_WRITE = 0x06,
+			CMD_ID_CHDIR = 0x0C,
 			CMD_ID_GETDIR = 0x0D,
 		};
 

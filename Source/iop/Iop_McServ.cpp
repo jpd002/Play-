@@ -115,7 +115,7 @@ bool CMcServ::Invoke(uint32 method, uint32* args, uint32 argsSize, uint32* ret, 
 	case 0x7A:
 		Flush(args, argsSize, ret, retSize, ram);
 		break;
-	case 0x0C:
+	case CMD_ID_CHDIR:
 		ChDir(args, argsSize, ret, retSize, ram);
 		break;
 	case CMD_ID_GETDIR:
