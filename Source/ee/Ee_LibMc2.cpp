@@ -85,12 +85,46 @@ uint32 CLibMc2::AnalyzeFunction(uint32 startAddress, int16 stackAlloc)
 
 	if(completed)
 	{
-		if(!constantsLoaded.empty() && (countLUI8101 != 0))
+#if 1
+		if((countLUI8101 > 2) && (constantsLoaded.size() == 1))
 		{
-			auto has0x20 = std::find(constantsLoaded.begin(), constantsLoaded.end(), 0x20);
-			int i = 0;
-			i++;
+			switch(constantsLoaded[0])
+			{
+			case 0x02:
+				m_getInfoAsyncPtr = startAddress;
+				break;
+			case 0x05:
+				m_readFileAsyncPtr = startAddress;
+				break;
+			case 0x06:
+				m_writeFileAsyncPtr = startAddress;
+				break;
+			case 0x07:
+				m_createFileAsyncPtr = startAddress;
+				break;
+			case 0x0A:
+				if(stackAlloc < 0x100)
+				{
+					//Mana Khemia 2 has 2 potential functions that matches,
+					//we use the stack alloc to make sure we get the right one
+					m_getDirAsyncPtr = startAddress;
+				}
+				break;
+			case 0x0B:
+				m_mkDirAsyncPtr = startAddress;
+				break;
+			case 0x0C:
+				m_chDirAsyncPtr = startAddress;
+				break;
+			case 0x0E:
+				m_searchFileAsyncPtr = startAddress;
+				break;
+			case 0x20:
+				m_readFile2AsyncPtr = startAddress;
+				break;
+			}
 		}
+#endif
 		if(syscallsUsed.size() == 2)
 		{
 			uint32 signalSemaCount = (syscallsUsed.find(SIGNALSEMA_SYSCALL) != std::end(syscallsUsed) ? syscallsUsed[SIGNALSEMA_SYSCALL] : 0);
@@ -100,6 +134,7 @@ uint32 CLibMc2::AnalyzeFunction(uint32 startAddress, int16 stackAlloc)
 			{
 				m_checkAsyncPtr = startAddress;
 			}
+#if 0
 			if((waitSemaCount == 1) && (signalSemaCount == 3) && (countLUI8101 != 0) && !constantsLoaded.empty())
 			{
 				switch(constantsLoaded[0])
@@ -133,6 +168,7 @@ uint32 CLibMc2::AnalyzeFunction(uint32 startAddress, int16 stackAlloc)
 					break;
 				}
 			}
+#endif
 		}
 		return address;
 	}
