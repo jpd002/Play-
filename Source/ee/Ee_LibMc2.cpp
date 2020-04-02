@@ -535,18 +535,18 @@ int32 CLibMc2::SearchFileAsync(uint32 socketId, uint32 pathPtr, uint32 dirParamP
 	}
 	mcServ->Invoke(Iop::CMcServ::CMD_ID_GETDIR, reinterpret_cast<uint32*>(&cmd), sizeof(cmd), &result, sizeof(uint32), reinterpret_cast<uint8*>(entries.data()));
 
-	if(static_cast<int32>(result) < 0)
+	if(static_cast<int32>(result) <= 0)
 	{
 		m_lastResult = MC2_RESULT_ERROR_NOT_FOUND;
 	}
 	else
 	{
+		assert(result == 1);
+
 		memset(dirParam, 0, sizeof(DIRPARAM));
 		CopyDirParam(dirParam, &entries[0]);
 
 		m_lastResult = MC2_RESULT_OK;
-
-		assert(result == 1);
 	}
 
 	m_lastCmd = SYSCALL_MC2_SEARCHFILE_ASYNC & 0xFF;
