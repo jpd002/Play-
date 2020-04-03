@@ -23,7 +23,8 @@ CLibMc2::CLibMc2(uint8* ram, CIopBios& iopBios)
 	: m_ram(ram)
 	, m_iopBios(iopBios)
 {
-	
+	m_moduleLoadedConnection = m_iopBios.OnModuleLoaded.Connect(
+		[this] (const char* moduleName) { OnIopModuleLoaded(moduleName); });
 }
 
 uint32 CLibMc2::AnalyzeFunction(uint32 startAddress, int16 stackAlloc)
@@ -174,6 +175,17 @@ uint32 CLibMc2::AnalyzeFunction(uint32 startAddress, int16 stackAlloc)
 	}
 
 	return startAddress;
+}
+
+void CLibMc2::OnIopModuleLoaded(const char* moduleName)
+{
+	if(
+		!strcmp(moduleName, "mc2_d ") ||
+		!strcmp(moduleName, "mc2_s1")
+		)
+	{
+		HookLibMc2Functions();
+	}
 }
 
 void CLibMc2::HookLibMc2Functions()

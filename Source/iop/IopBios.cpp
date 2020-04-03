@@ -687,6 +687,8 @@ int32 CIopBios::LoadModule(CELF& elf, const char* path)
 	PrepareModuleDebugInfo(elf, moduleRange, moduleName, path);
 #endif
 
+	OnModuleLoaded(loadedModule->name);
+
 	//Patch for Shadow Hearts PSF set --------------------------------
 	if(strstr(path, "RSSD_patchmore.IRX") != NULL)
 	{

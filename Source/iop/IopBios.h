@@ -259,8 +259,10 @@ public:
 	BiosDebugThreadInfoArray GetThreadsDebugInfo() const override;
 #endif
 
+	typedef Framework::CSignal<void(const char*)> ModuleLoadedEvent;
 	typedef Framework::CSignal<void(uint32)> ModuleStartedEvent;
 
+	ModuleLoadedEvent OnModuleLoaded;
 	ModuleStartedEvent OnModuleStarted;
 
 private:

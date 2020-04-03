@@ -2,8 +2,7 @@
 
 #include "Types.h"
 #include "MIPS.h"
-
-class CIopBios;
+#include "iop/IopBios.h"
 
 namespace Ee
 {
@@ -61,6 +60,7 @@ namespace Ee
 		};
 		static_assert(sizeof(CARDINFO) == 0x0C);
 
+		void OnIopModuleLoaded(const char*);
 		uint32 AnalyzeFunction(uint32, int16);
 		void WriteSyscall(uint32, uint16);
 
@@ -76,6 +76,7 @@ namespace Ee
 
 		uint8* m_ram = nullptr;
 		CIopBios& m_iopBios;
+		CIopBios::ModuleLoadedEvent::Connection m_moduleLoadedConnection;
 		uint32 m_lastCmd = 0;
 		uint32 m_lastResult = 0;
 
