@@ -16,7 +16,7 @@ using namespace Ee;
 #define POLLSEMA_SYSCALL 0x45
 
 //Really not sure about these
-#define MC2_RESULT_OK 0x81010000
+#define MC2_RESULT_OK 0
 #define MC2_RESULT_ERROR_NOT_FOUND 0x81010002
 
 CLibMc2::CLibMc2(uint8* ram, CIopBios& iopBios)
@@ -332,13 +332,16 @@ int32 CLibMc2::CheckAsync(uint32 mode, uint32 cmdPtr, uint32 resultPtr)
 
 	assert(m_lastCmd != 0);
 
+	//Returns 1 when function has completed execution
+	//Returns -1 if no function was executing
+	uint32 result = (m_lastCmd != 0) ? 1 : -1;
+
 	*reinterpret_cast<uint32*>(m_ram + cmdPtr) = m_lastCmd;
 	*reinterpret_cast<uint32*>(m_ram + resultPtr) = m_lastResult;
 
 	m_lastCmd = 0;
 
-	//Returns 1 when function has completed execution
-	return 1;
+	return result;
 }
 
 int32 CLibMc2::GetInfoAsync(uint32 socketId, uint32 infoPtr)
