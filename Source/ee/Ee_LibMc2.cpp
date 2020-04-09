@@ -371,7 +371,7 @@ int32 CLibMc2::CreateFileAsync(uint32 socketId, uint32 pathPtr)
 
 	auto mcServ = m_iopBios.GetMcServ();
 
-	uint32 fd = 0;
+	int32 fd = 0;
 
 	{
 		Iop::CMcServ::CMD cmd;
@@ -381,18 +381,18 @@ int32 CLibMc2::CreateFileAsync(uint32 socketId, uint32 pathPtr)
 		assert(strlen(path) <= sizeof(cmd.name));
 		strncpy(cmd.name, path, sizeof(cmd.name));
 
-		mcServ->Invoke(Iop::CMcServ::CMD_ID_OPEN, reinterpret_cast<uint32*>(&cmd), sizeof(cmd), &fd, sizeof(uint32), nullptr);
+		mcServ->Invoke(Iop::CMcServ::CMD_ID_OPEN, reinterpret_cast<uint32*>(&cmd), sizeof(cmd), reinterpret_cast<uint32*>(&fd), sizeof(uint32), nullptr);
 
 		assert(fd >= 0);
 	}
 
 	{
-		uint32 result = 0;
+		int32 result = 0;
 		Iop::CMcServ::FILECMD cmd;
 		memset(&cmd, 0, sizeof(cmd));
 		cmd.handle = fd;
 
-		mcServ->Invoke(Iop::CMcServ::CMD_ID_CLOSE, reinterpret_cast<uint32*>(&cmd), sizeof(cmd), &result, sizeof(uint32), nullptr);
+		mcServ->Invoke(Iop::CMcServ::CMD_ID_CLOSE, reinterpret_cast<uint32*>(&cmd), sizeof(cmd), reinterpret_cast<uint32*>(&result), sizeof(uint32), nullptr);
 
 		assert(result >= 0);
 	}
@@ -417,7 +417,7 @@ int32 CLibMc2::GetDirAsync(uint32 socketId, uint32 pathPtr, uint32 offset, int32
 
 	int32 entriesToFetch = (maxEntries >= 0) ? (maxEntries + offset) : maxEntries;
 
-	uint32 result = 0;
+	int32 result = 0;
 	Iop::CMcServ::CMD cmd;
 	memset(&cmd, 0, sizeof(cmd));
 	cmd.port = MC_PORT;
@@ -430,9 +430,9 @@ int32 CLibMc2::GetDirAsync(uint32 socketId, uint32 pathPtr, uint32 offset, int32
 	{
 		entries.resize(entriesToFetch);
 	}
-	mcServ->Invoke(Iop::CMcServ::CMD_ID_GETDIR, reinterpret_cast<uint32*>(&cmd), sizeof(cmd), &result, sizeof(uint32), reinterpret_cast<uint8*>(entries.data()));
+	mcServ->Invoke(Iop::CMcServ::CMD_ID_GETDIR, reinterpret_cast<uint32*>(&cmd), sizeof(cmd), reinterpret_cast<uint32*>(&result), sizeof(uint32), reinterpret_cast<uint8*>(entries.data()));
 
-	if(static_cast<int32>(result) < 0)
+	if(result < 0)
 	{
 		m_lastResult = MC2_RESULT_ERROR_NOT_FOUND;
 	}
@@ -475,14 +475,14 @@ int32 CLibMc2::ChDirAsync(uint32 socketId, uint32 pathPtr, uint32 pwdPtr)
 
 	auto mcServ = m_iopBios.GetMcServ();
 
-	uint32 result = 0;
+	int32 result = 0;
 	Iop::CMcServ::CMD cmd;
 	memset(&cmd, 0, sizeof(cmd));
 	cmd.port = MC_PORT;
 	assert(strlen(path) <= sizeof(cmd.name));
 	strncpy(cmd.name, path, sizeof(cmd.name));
 
-	mcServ->Invoke(Iop::CMcServ::CMD_ID_CHDIR, reinterpret_cast<uint32*>(&cmd), sizeof(cmd), &result, sizeof(uint32), nullptr);
+	mcServ->Invoke(Iop::CMcServ::CMD_ID_CHDIR, reinterpret_cast<uint32*>(&cmd), sizeof(cmd), reinterpret_cast<uint32*>(&result), sizeof(uint32), nullptr);
 
 	if(result < 0)
 	{
@@ -507,7 +507,7 @@ int32 CLibMc2::MkDirAsync(uint32 socketId, uint32 pathPtr)
 
 	auto mcServ = m_iopBios.GetMcServ();
 
-	uint32 result = 0;
+	int32 result = 0;
 	Iop::CMcServ::CMD cmd;
 	memset(&cmd, 0, sizeof(cmd));
 	cmd.port = MC_PORT;
@@ -515,7 +515,7 @@ int32 CLibMc2::MkDirAsync(uint32 socketId, uint32 pathPtr)
 	assert(strlen(path) <= sizeof(cmd.name));
 	strncpy(cmd.name, path, sizeof(cmd.name));
 
-	mcServ->Invoke(Iop::CMcServ::CMD_ID_OPEN, reinterpret_cast<uint32*>(&cmd), sizeof(cmd), &result, sizeof(uint32), nullptr);
+	mcServ->Invoke(Iop::CMcServ::CMD_ID_OPEN, reinterpret_cast<uint32*>(&cmd), sizeof(cmd), reinterpret_cast<uint32*>(&result), sizeof(uint32), nullptr);
 
 	assert(result >= 0);
 
@@ -535,7 +535,7 @@ int32 CLibMc2::SearchFileAsync(uint32 socketId, uint32 pathPtr, uint32 dirParamP
 
 	auto mcServ = m_iopBios.GetMcServ();
 
-	uint32 result = 0;
+	int32 result = 0;
 	Iop::CMcServ::CMD cmd;
 	memset(&cmd, 0, sizeof(cmd));
 	cmd.port = MC_PORT;
@@ -548,9 +548,9 @@ int32 CLibMc2::SearchFileAsync(uint32 socketId, uint32 pathPtr, uint32 dirParamP
 	{
 		entries.resize(cmd.maxEntries);
 	}
-	mcServ->Invoke(Iop::CMcServ::CMD_ID_GETDIR, reinterpret_cast<uint32*>(&cmd), sizeof(cmd), &result, sizeof(uint32), reinterpret_cast<uint8*>(entries.data()));
+	mcServ->Invoke(Iop::CMcServ::CMD_ID_GETDIR, reinterpret_cast<uint32*>(&cmd), sizeof(cmd), reinterpret_cast<uint32*>(&result), sizeof(uint32), reinterpret_cast<uint8*>(entries.data()));
 
-	if(static_cast<int32>(result) <= 0)
+	if(result <= 0)
 	{
 		m_lastResult = MC2_RESULT_ERROR_NOT_FOUND;
 	}
@@ -578,7 +578,7 @@ int32 CLibMc2::ReadFileAsync(uint32 socketId, uint32 pathPtr, uint32 bufferPtr, 
 
 	auto mcServ = m_iopBios.GetMcServ();
 
-	uint32 fd = 0;
+	int32 fd = 0;
 
 	{
 		//Issue open command
@@ -588,42 +588,42 @@ int32 CLibMc2::ReadFileAsync(uint32 socketId, uint32 pathPtr, uint32 bufferPtr, 
 		cmd.port = MC_PORT;
 		assert(strlen(path) <= sizeof(cmd.name));
 		strncpy(cmd.name, path, sizeof(cmd.name));
-		mcServ->Invoke(Iop::CMcServ::CMD_ID_OPEN, reinterpret_cast<uint32*>(&cmd), sizeof(cmd), &fd, sizeof(uint32), nullptr);
+		mcServ->Invoke(Iop::CMcServ::CMD_ID_OPEN, reinterpret_cast<uint32*>(&cmd), sizeof(cmd), reinterpret_cast<uint32*>(&fd), sizeof(uint32), nullptr);
 	}
 
 	assert(fd >= 0);
 
 	if(offset != 0)
 	{
-		uint32 result = 0;
+		int32 result = 0;
 		Iop::CMcServ::FILECMD cmd;
 		memset(&cmd, 0, sizeof(cmd));
 		cmd.handle = fd;
 		cmd.offset = offset;
 		cmd.origin = 0;
-		mcServ->Invoke(Iop::CMcServ::CMD_ID_SEEK, reinterpret_cast<uint32*>(&cmd), sizeof(cmd), &result, sizeof(uint32), nullptr);
+		mcServ->Invoke(Iop::CMcServ::CMD_ID_SEEK, reinterpret_cast<uint32*>(&cmd), sizeof(cmd), reinterpret_cast<uint32*>(&result), sizeof(uint32), nullptr);
 		assert(result == offset);
 	}
 
 	//Read
 	{
-		uint32 result = 0;
+		int32 result = 0;
 		Iop::CMcServ::FILECMD cmd;
 		memset(&cmd, 0, sizeof(cmd));
 		cmd.handle = fd;
 		cmd.size = size;
 		cmd.bufferAddress = bufferPtr;
-		mcServ->Invoke(Iop::CMcServ::CMD_ID_READ, reinterpret_cast<uint32*>(&cmd), sizeof(cmd), &result, sizeof(uint32), m_ram);
+		mcServ->Invoke(Iop::CMcServ::CMD_ID_READ, reinterpret_cast<uint32*>(&cmd), sizeof(cmd), reinterpret_cast<uint32*>(&result), sizeof(uint32), m_ram);
 		assert(result >= 0);
 	}
 
 	//Close
 	{
-		uint32 result = 0;
+		int32 result = 0;
 		Iop::CMcServ::FILECMD cmd;
 		memset(&cmd, 0, sizeof(cmd));
 		cmd.handle = fd;
-		mcServ->Invoke(Iop::CMcServ::CMD_ID_CLOSE, reinterpret_cast<uint32*>(&cmd), sizeof(cmd), &result, sizeof(uint32), nullptr);
+		mcServ->Invoke(Iop::CMcServ::CMD_ID_CLOSE, reinterpret_cast<uint32*>(&cmd), sizeof(cmd), reinterpret_cast<uint32*>(&result), sizeof(uint32), nullptr);
 		assert(result >= 0);
 	}
 
@@ -642,7 +642,7 @@ int32 CLibMc2::WriteFileAsync(uint32 socketId, uint32 pathPtr, uint32 bufferPtr,
 
 	auto mcServ = m_iopBios.GetMcServ();
 
-	uint32 fd = 0;
+	int32 fd = 0;
 
 	{
 		//Issue open command
@@ -652,42 +652,42 @@ int32 CLibMc2::WriteFileAsync(uint32 socketId, uint32 pathPtr, uint32 bufferPtr,
 		cmd.port = MC_PORT;
 		assert(strlen(path) <= sizeof(cmd.name));
 		strncpy(cmd.name, path, sizeof(cmd.name));
-		mcServ->Invoke(Iop::CMcServ::CMD_ID_OPEN, reinterpret_cast<uint32*>(&cmd), sizeof(cmd), &fd, sizeof(uint32), nullptr);
+		mcServ->Invoke(Iop::CMcServ::CMD_ID_OPEN, reinterpret_cast<uint32*>(&cmd), sizeof(cmd), reinterpret_cast<uint32*>(&fd), sizeof(uint32), nullptr);
 	}
 
 	assert(fd >= 0);
 
 	if(offset != 0)
 	{
-		uint32 result = 0;
+		int32 result = 0;
 		Iop::CMcServ::FILECMD cmd;
 		memset(&cmd, 0, sizeof(cmd));
 		cmd.handle = fd;
 		cmd.offset = offset;
 		cmd.origin = 0;
-		mcServ->Invoke(Iop::CMcServ::CMD_ID_SEEK, reinterpret_cast<uint32*>(&cmd), sizeof(cmd), &result, sizeof(uint32), nullptr);
+		mcServ->Invoke(Iop::CMcServ::CMD_ID_SEEK, reinterpret_cast<uint32*>(&cmd), sizeof(cmd), reinterpret_cast<uint32*>(&result), sizeof(uint32), nullptr);
 		assert(result == offset);
 	}
 
 	//Write
 	{
-		uint32 result = 0;
+		int32 result = 0;
 		Iop::CMcServ::FILECMD cmd;
 		memset(&cmd, 0, sizeof(cmd));
 		cmd.handle = fd;
 		cmd.size = size;
 		cmd.bufferAddress = bufferPtr;
-		mcServ->Invoke(Iop::CMcServ::CMD_ID_WRITE, reinterpret_cast<uint32*>(&cmd), sizeof(cmd), &result, sizeof(uint32), m_ram);
+		mcServ->Invoke(Iop::CMcServ::CMD_ID_WRITE, reinterpret_cast<uint32*>(&cmd), sizeof(cmd), reinterpret_cast<uint32*>(&result), sizeof(uint32), m_ram);
 		assert(result >= 0);
 	}
 
 	//Close
 	{
-		uint32 result = 0;
+		int32 result = 0;
 		Iop::CMcServ::FILECMD cmd;
 		memset(&cmd, 0, sizeof(cmd));
 		cmd.handle = fd;
-		mcServ->Invoke(Iop::CMcServ::CMD_ID_CLOSE, reinterpret_cast<uint32*>(&cmd), sizeof(cmd), &result, sizeof(uint32), nullptr);
+		mcServ->Invoke(Iop::CMcServ::CMD_ID_CLOSE, reinterpret_cast<uint32*>(&cmd), sizeof(cmd), reinterpret_cast<uint32*>(&result), sizeof(uint32), nullptr);
 		assert(result >= 0);
 	}
 
