@@ -39,6 +39,13 @@ namespace Iop
 			OPEN_FLAG_TRUNC = 0x00000400,
 		};
 
+		enum RETURN_CODES
+		{
+			RET_OK = 0,
+			RET_NO_ENTRY = -4,
+			RET_PERMISSION_DENIED = -5
+		};
+
 		struct CMD
 		{
 			uint32 port;
@@ -115,13 +122,6 @@ namespace Iop
 		enum MODULE_ID
 		{
 			MODULE_ID = 0x80000400,
-		};
-
-		enum RETURN_CODES
-		{
-			RET_OK = 0,
-			RET_NO_ENTRY = -4,
-			RET_PERMISSION_DENIED = -5
 		};
 
 		enum

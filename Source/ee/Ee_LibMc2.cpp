@@ -578,6 +578,8 @@ int32 CLibMc2::ReadFileAsync(uint32 socketId, uint32 pathPtr, uint32 bufferPtr, 
 
 	auto mcServ = m_iopBios.GetMcServ();
 
+	m_lastCmd = SYSCALL_MC2_READFILE_ASYNC & 0xFF;
+
 	int32 fd = 0;
 
 	{
@@ -591,7 +593,12 @@ int32 CLibMc2::ReadFileAsync(uint32 socketId, uint32 pathPtr, uint32 bufferPtr, 
 		mcServ->Invoke(Iop::CMcServ::CMD_ID_OPEN, reinterpret_cast<uint32*>(&cmd), sizeof(cmd), reinterpret_cast<uint32*>(&fd), sizeof(uint32), nullptr);
 	}
 
-	assert(fd >= 0);
+	if(fd < 0)
+	{
+		assert(fd == Iop::CMcServ::RET_NO_ENTRY);
+		m_lastResult = MC2_RESULT_ERROR_NOT_FOUND;
+		return 0;
+	}
 
 	if(offset != 0)
 	{
@@ -628,7 +635,6 @@ int32 CLibMc2::ReadFileAsync(uint32 socketId, uint32 pathPtr, uint32 bufferPtr, 
 	}
 
 	m_lastResult = size;
-	m_lastCmd = SYSCALL_MC2_READFILE_ASYNC & 0xFF;
 
 	return 0;
 }
