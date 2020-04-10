@@ -15,7 +15,7 @@ matrix:
       sudo: require
     - os: linux
       arch: arm64
-      dist: bionic
+      dist: xenial
       env:
         - BUILD_TYPE="Unix Makefiles"
         - TARGET_OS=Linux
