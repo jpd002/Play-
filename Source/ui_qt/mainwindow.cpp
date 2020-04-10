@@ -21,6 +21,7 @@
 #include <QMessageBox>
 #include <QStorageInfo>
 #include <ctime>
+#include <QtGlobal>
 
 #include "StdStreamUtils.h"
 #include "string_format.h"
@@ -253,7 +254,10 @@ void MainWindow::outputWindow_resized()
 	{
 		uint32 w = m_outputwindow->size().width(), h = m_outputwindow->size().height();
 
-		auto scale = devicePixelRatioF();
+		qreal scale = 1.0;
+#if QT_VERSION >= QT_VERSION_CHECK(5, 6, 0)
+		scale = devicePixelRatioF();
+ #endif
 		CGSHandler::PRESENTATION_PARAMS presentationParams;
 		presentationParams.mode = static_cast<CGSHandler::PRESENTATION_MODE>(CAppConfig::GetInstance().GetPreferenceInteger(PREF_CGSHANDLER_PRESENTATION_MODE));
 		presentationParams.windowWidth = w * scale;
