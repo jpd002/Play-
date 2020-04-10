@@ -257,7 +257,7 @@ void MainWindow::outputWindow_resized()
 		qreal scale = 1.0;
 #if QT_VERSION >= QT_VERSION_CHECK(5, 6, 0)
 		scale = devicePixelRatioF();
- #endif
+#endif
 		CGSHandler::PRESENTATION_PARAMS presentationParams;
 		presentationParams.mode = static_cast<CGSHandler::PRESENTATION_MODE>(CAppConfig::GetInstance().GetPreferenceInteger(PREF_CGSHANDLER_PRESENTATION_MODE));
 		presentationParams.windowWidth = w * scale;
