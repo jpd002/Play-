@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <assert.h>
 #include <fenv.h>
+#include "FpUtils.h"
 #include "AddTest.h"
 #include "FlagsTest.h"
 #include "FlagsTest2.h"
@@ -29,6 +30,7 @@ static const TestFactoryFunction s_factories[] =
 int main(int argc, const char** argv)
 {
 	fesetround(FE_TOWARDZERO);
+	FpUtils::SetDenormalHandlingMode();
 
 	auto virtualMachine = std::make_unique<CTestVm>();
 
