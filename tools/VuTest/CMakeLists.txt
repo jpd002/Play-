@@ -21,6 +21,7 @@ add_executable(VuTest
 	FlagsTest2.cpp
 	FlagsTest3.cpp
 	Main.cpp
+	MinMaxTest.cpp
 	StallTest.cpp
 	StallTest2.cpp
 	TestVm.cpp
@@ -31,6 +32,7 @@ add_executable(VuTest
 	FlagsTest.h
 	FlagsTest2.h
 	FlagsTest3.h
+	MinMaxTest.h
 	StallTest.h
 	StallTest2.h
 	Test.h

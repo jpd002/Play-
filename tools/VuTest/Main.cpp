@@ -5,6 +5,7 @@
 #include "FlagsTest.h"
 #include "FlagsTest2.h"
 #include "FlagsTest3.h"
+#include "MinMaxTest.h"
 #include "StallTest.h"
 #include "StallTest2.h"
 #include "TriAceTest.h"
@@ -18,6 +19,7 @@ static const TestFactoryFunction s_factories[] =
 	[]() { return new CFlagsTest(); },
 	[]() { return new CFlagsTest2(); },
 	[]() { return new CFlagsTest3(); },
+	[]() { return new CMinMaxTest(); },
 	[]() { return new CStallTest(); },
 	[]() { return new CStallTest2(); },
 	[]() { return new CTriAceTest(); },
