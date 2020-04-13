@@ -123,6 +123,9 @@ uint32 CLibMc2::AnalyzeFunction(uint32 startAddress, int16 stackAlloc)
 			case 0x20:
 				m_readFile2AsyncPtr = startAddress;
 				break;
+			case 0x21:
+				m_writeFile2AsyncPtr = startAddress;
+				break;
 			}
 		}
 #endif
@@ -214,6 +217,7 @@ void CLibMc2::HookLibMc2Functions()
 	WriteSyscall(m_chDirAsyncPtr, SYSCALL_MC2_CHDIR_ASYNC);
 	WriteSyscall(m_searchFileAsyncPtr, SYSCALL_MC2_SEARCHFILE_ASYNC);
 	WriteSyscall(m_readFile2AsyncPtr, SYSCALL_MC2_READFILE2_ASYNC);
+	WriteSyscall(m_writeFile2AsyncPtr, SYSCALL_MC2_WRITEFILE2_ASYNC);
 	WriteSyscall(m_checkAsyncPtr, SYSCALL_MC2_CHECKASYNC);
 }
 
@@ -256,6 +260,7 @@ void CLibMc2::HandleSyscall(CMIPS& ee)
 		);
 		break;
 	case SYSCALL_MC2_WRITEFILE_ASYNC:
+	case SYSCALL_MC2_WRITEFILE2_ASYNC:
 		ee.m_State.nGPR[CMIPS::V0].nD0 = WriteFileAsync(
 			ee.m_State.nGPR[CMIPS::A0].nV0,
 			ee.m_State.nGPR[CMIPS::A1].nV0,
