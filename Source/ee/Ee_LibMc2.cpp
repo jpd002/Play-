@@ -86,7 +86,6 @@ uint32 CLibMc2::AnalyzeFunction(uint32 startAddress, int16 stackAlloc)
 
 	if(completed)
 	{
-#if 1
 		if((countLUI8101 > 2) && (constantsLoaded.size() == 1))
 		{
 			switch(constantsLoaded[0])
@@ -128,7 +127,6 @@ uint32 CLibMc2::AnalyzeFunction(uint32 startAddress, int16 stackAlloc)
 				break;
 			}
 		}
-#endif
 		if(syscallsUsed.size() == 2)
 		{
 			uint32 signalSemaCount = (syscallsUsed.find(SIGNALSEMA_SYSCALL) != std::end(syscallsUsed) ? syscallsUsed[SIGNALSEMA_SYSCALL] : 0);
@@ -138,41 +136,6 @@ uint32 CLibMc2::AnalyzeFunction(uint32 startAddress, int16 stackAlloc)
 			{
 				m_checkAsyncPtr = startAddress;
 			}
-#if 0
-			if((waitSemaCount == 1) && (signalSemaCount == 3) && (countLUI8101 != 0) && !constantsLoaded.empty())
-			{
-				switch(constantsLoaded[0])
-				{
-				case 0x02:
-					m_getInfoAsyncPtr = startAddress;
-					break;
-				case 0x05:
-					m_readFileAsyncPtr = startAddress;
-					break;
-				case 0x06:
-					m_writeFileAsyncPtr = startAddress;
-					break;
-				case 0x07:
-					m_createFileAsyncPtr = startAddress;
-					break;
-				case 0x0A:
-					m_getDirAsyncPtr = startAddress;
-					break;
-				case 0x0B:
-					m_mkDirAsyncPtr = startAddress;
-					break;
-				case 0x0C:
-					m_chDirAsyncPtr = startAddress;
-					break;
-				case 0x0E:
-					m_searchFileAsyncPtr = startAddress;
-					break;
-				case 0x20:
-					m_readFile2AsyncPtr = startAddress;
-					break;
-				}
-			}
-#endif
 		}
 		return address;
 	}
