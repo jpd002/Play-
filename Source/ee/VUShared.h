@@ -116,6 +116,9 @@ namespace VUShared
 	void MUL_base(CMipsJitter*, uint8, size_t, size_t, size_t, bool, uint32, uint32);
 	void MULA_base(CMipsJitter*, uint8, size_t, size_t, bool, uint32, uint32);
 
+	void MINI_base(CMipsJitter*, uint8, size_t, size_t, size_t, bool);
+	void MAX_base(CMipsJitter*, uint8, size_t, size_t, size_t, bool);
+
 	//Shared instructions
 	void ABS(CMipsJitter*, uint8, uint8, uint8);
 	void ADD(CMipsJitter*, uint8, uint8, uint8, uint8, uint32, uint32);

@@ -464,6 +464,80 @@ void VUShared::MULA_base(CMipsJitter* codeGen, uint8 dest, size_t fs, size_t ft,
 	TestSZFlags(codeGen, dest, offsetof(CMIPS, m_State.nCOP2A), relativePipeTime, compileHints);
 }
 
+void VUShared::MINI_base(CMipsJitter* codeGen, uint8 dest, size_t fd, size_t fs, size_t ft, bool expand)
+{
+	const auto pushFt = [&]()
+	{
+		if(expand)
+		{
+			codeGen->MD_PushRelExpand(ft);
+		}
+		else
+		{
+			codeGen->MD_PushRel(ft);
+		}
+	};
+
+	codeGen->MD_PushRel(fs);
+	pushFt();
+
+	codeGen->MD_CmpLtS();
+	auto cmp = codeGen->GetTopCursor();
+
+	//Mask FT
+	codeGen->PushTop();
+	codeGen->MD_Not();
+	pushFt();
+	codeGen->MD_And();
+
+	//Mask FS
+	codeGen->PushCursor(cmp);
+	codeGen->MD_PushRel(fs);
+	codeGen->MD_And();
+
+	codeGen->MD_Or();
+	PullVector(codeGen, dest, fd);
+
+	codeGen->PullTop();
+}
+
+void VUShared::MAX_base(CMipsJitter* codeGen, uint8 dest, size_t fd, size_t fs, size_t ft, bool expand)
+{
+	const auto pushFt = [&]()
+	{
+		if(expand)
+		{
+			codeGen->MD_PushRelExpand(ft);
+		}
+		else
+		{
+			codeGen->MD_PushRel(ft);
+		}
+	};
+
+	codeGen->MD_PushRel(fs);
+	pushFt();
+
+	codeGen->MD_CmpGtS();
+	auto cmp = codeGen->GetTopCursor();
+
+	//Mask FT
+	codeGen->PushTop();
+	codeGen->MD_Not();
+	pushFt();
+	codeGen->MD_And();
+
+	//Mask FS
+	codeGen->PushCursor(cmp);
+	codeGen->MD_PushRel(fs);
+	codeGen->MD_And();
+
+	codeGen->MD_Or();
+	PullVector(codeGen, dest, fd);
+
+	codeGen->PullTop();
+}
+
 void VUShared::ABS(CMipsJitter* codeGen, uint8 nDest, uint8 nFt, uint8 nFs)
 {
 	if(nFt == 0) return;
@@ -974,54 +1048,60 @@ void VUShared::MADDAq(CMipsJitter* codeGen, uint8 dest, uint8 fs, uint32 relativ
 	           true, relativePipeTime, compileHints);
 }
 
-void VUShared::MAX(CMipsJitter* codeGen, uint8 nDest, uint8 nFd, uint8 nFs, uint8 nFt)
+void VUShared::MAX(CMipsJitter* codeGen, uint8 dest, uint8 fd, uint8 fs, uint8 ft)
 {
-	codeGen->MD_PushRel(offsetof(CMIPS, m_State.nCOP2[nFs]));
-	codeGen->MD_PushRel(offsetof(CMIPS, m_State.nCOP2[nFt]));
-	codeGen->MD_MaxS();
-	PullVector(codeGen, nDest, offsetof(CMIPS, m_State.nCOP2[nFd]));
+	MAX_base(codeGen, dest,
+	         offsetof(CMIPS, m_State.nCOP2[fd]),
+	         offsetof(CMIPS, m_State.nCOP2[fs]),
+	         offsetof(CMIPS, m_State.nCOP2[ft]),
+	         false);
 }
 
-void VUShared::MAXbc(CMipsJitter* codeGen, uint8 nDest, uint8 nFd, uint8 nFs, uint8 nFt, uint8 nBc)
+void VUShared::MAXbc(CMipsJitter* codeGen, uint8 dest, uint8 fd, uint8 fs, uint8 ft, uint8 bc)
 {
-	if(nFd == 0) return;
+	if(fd == 0) return;
 
-	codeGen->MD_PushRel(offsetof(CMIPS, m_State.nCOP2[nFs]));
-	codeGen->MD_PushRelExpand(offsetof(CMIPS, m_State.nCOP2[nFt].nV[nBc]));
-	codeGen->MD_MaxS();
-	PullVector(codeGen, nDest, offsetof(CMIPS, m_State.nCOP2[nFd]));
+	MAX_base(codeGen, dest,
+	         offsetof(CMIPS, m_State.nCOP2[fd]),
+	         offsetof(CMIPS, m_State.nCOP2[fs]),
+	         offsetof(CMIPS, m_State.nCOP2[ft].nV[bc]),
+	         true);
 }
 
-void VUShared::MAXi(CMipsJitter* codeGen, uint8 nDest, uint8 nFd, uint8 nFs)
+void VUShared::MAXi(CMipsJitter* codeGen, uint8 dest, uint8 fd, uint8 fs)
 {
-	codeGen->MD_PushRel(offsetof(CMIPS, m_State.nCOP2[nFs]));
-	codeGen->MD_PushRelExpand(offsetof(CMIPS, m_State.nCOP2I));
-	codeGen->MD_MaxS();
-	PullVector(codeGen, nDest, offsetof(CMIPS, m_State.nCOP2[nFd]));
+	MAX_base(codeGen, dest,
+	         offsetof(CMIPS, m_State.nCOP2[fd]),
+	         offsetof(CMIPS, m_State.nCOP2[fs]),
+	         offsetof(CMIPS, m_State.nCOP2I),
+	         true);
 }
 
-void VUShared::MINI(CMipsJitter* codeGen, uint8 nDest, uint8 nFd, uint8 nFs, uint8 nFt)
+void VUShared::MINI(CMipsJitter* codeGen, uint8 dest, uint8 fd, uint8 fs, uint8 ft)
 {
-	codeGen->MD_PushRel(offsetof(CMIPS, m_State.nCOP2[nFs]));
-	codeGen->MD_PushRel(offsetof(CMIPS, m_State.nCOP2[nFt]));
-	codeGen->MD_MinS();
-	PullVector(codeGen, nDest, offsetof(CMIPS, m_State.nCOP2[nFd]));
+	MINI_base(codeGen, dest,
+	          offsetof(CMIPS, m_State.nCOP2[fd]),
+	          offsetof(CMIPS, m_State.nCOP2[fs]),
+	          offsetof(CMIPS, m_State.nCOP2[ft]),
+	          false);
 }
 
-void VUShared::MINIbc(CMipsJitter* codeGen, uint8 nDest, uint8 nFd, uint8 nFs, uint8 nFt, uint8 nBc)
+void VUShared::MINIbc(CMipsJitter* codeGen, uint8 dest, uint8 fd, uint8 fs, uint8 ft, uint8 bc)
 {
-	codeGen->MD_PushRel(offsetof(CMIPS, m_State.nCOP2[nFs]));
-	codeGen->MD_PushRelExpand(offsetof(CMIPS, m_State.nCOP2[nFt].nV[nBc]));
-	codeGen->MD_MinS();
-	PullVector(codeGen, nDest, offsetof(CMIPS, m_State.nCOP2[nFd]));
+	MINI_base(codeGen, dest,
+	          offsetof(CMIPS, m_State.nCOP2[fd]),
+	          offsetof(CMIPS, m_State.nCOP2[fs]),
+	          offsetof(CMIPS, m_State.nCOP2[ft].nV[bc]),
+	          true);
 }
 
-void VUShared::MINIi(CMipsJitter* codeGen, uint8 nDest, uint8 nFd, uint8 nFs)
+void VUShared::MINIi(CMipsJitter* codeGen, uint8 dest, uint8 fd, uint8 fs)
 {
-	codeGen->MD_PushRel(offsetof(CMIPS, m_State.nCOP2[nFs]));
-	codeGen->MD_PushRelExpand(offsetof(CMIPS, m_State.nCOP2I));
-	codeGen->MD_MinS();
-	PullVector(codeGen, nDest, offsetof(CMIPS, m_State.nCOP2[nFd]));
+	MINI_base(codeGen, dest,
+	          offsetof(CMIPS, m_State.nCOP2[fd]),
+	          offsetof(CMIPS, m_State.nCOP2[fs]),
+	          offsetof(CMIPS, m_State.nCOP2I),
+	          true);
 }
 
 void VUShared::MOVE(CMipsJitter* codeGen, uint8 nDest, uint8 nFt, uint8 nFs)
