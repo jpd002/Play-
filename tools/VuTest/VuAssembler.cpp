@@ -114,6 +114,16 @@ uint32 CVuAssembler::Upper::MULAbc(DEST dest, VF_REGISTER fs, VF_REGISTER ft, BR
 	return result;
 }
 
+uint32 CVuAssembler::Upper::MAX(DEST dest, VF_REGISTER fd, VF_REGISTER fs, VF_REGISTER ft)
+{
+	uint32 result = 0x0000002B;
+	result |= (fd << 6);
+	result |= (fs << 11);
+	result |= (ft << 16);
+	result |= (dest << 21);
+	return result;
+}
+
 uint32 CVuAssembler::Upper::MINI(DEST dest, VF_REGISTER fd, VF_REGISTER fs, VF_REGISTER ft)
 {
 	uint32 result = 0x0000002F;
