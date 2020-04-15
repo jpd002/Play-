@@ -892,6 +892,9 @@ void CGSH_Vulkan::ProcessHostToLocalTransfer()
 
 void CGSH_Vulkan::ProcessLocalToHostTransfer()
 {
+	//We're about to read from GS RAM, make sure all rendering commands are complete
+	m_frameCommandBuffer->Flush();
+	m_context->device.vkQueueWaitIdle(m_context->queue);
 }
 
 void CGSH_Vulkan::ProcessLocalToLocalTransfer()
