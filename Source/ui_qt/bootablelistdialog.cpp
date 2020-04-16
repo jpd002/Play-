@@ -66,9 +66,7 @@ BootableListDialog::BootableListDialog(QWidget* parent)
 		        }
 		        else
 		        {
-			        QMessageBox::warning(this, "Warning Message",
-			                             "Can't close dialog while background operation in progress.",
-			                             QMessageBox::Ok, QMessageBox::Ok);
+			        DisplayWarningMessage();
 		        }
 	        });
 	connect(removegame, &QAction::triggered,
@@ -158,9 +156,7 @@ void BootableListDialog::on_listView_doubleClicked(const QModelIndex& index)
 	}
 	else
 	{
-		QMessageBox::warning(this, "Warning Message",
-		                     "Can't close dialog while background operation in progress.",
-		                     QMessageBox::Ok, QMessageBox::Ok);
+		DisplayWarningMessage();
 	}
 }
 
@@ -272,9 +268,7 @@ void BootableListDialog::closeEvent(QCloseEvent* event)
 	if(m_s3_processing)
 	{
 		event->ignore();
-		QMessageBox::warning(this, "Warning Message",
-		                     "Can't close dialog while background operation in progress.",
-		                     QMessageBox::Ok, QMessageBox::Ok);
+		DisplayWarningMessage();
 	}
 	else
 	{
@@ -303,4 +297,11 @@ void BootableListDialog::SetupStatusBar()
 void BootableListDialog::UpdateStatus(std::string msg)
 {
 	m_msgLabel->setText(msg.c_str());
+}
+
+void BootableListDialog::DisplayWarningMessage()
+{
+	QMessageBox::warning(this, "Warning Message",
+	                     "Can't close dialog while background operation in progress.",
+	                     QMessageBox::Ok, QMessageBox::Ok);
 }

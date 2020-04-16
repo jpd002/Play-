@@ -56,6 +56,7 @@ private:
 
 	void SelectionChange(const QModelIndex&);
 	void SetupStatusBar();
+	void DisplayWarningMessage();
 
 Q_SIGNALS:
 	void AsyncResetModel(bool);
