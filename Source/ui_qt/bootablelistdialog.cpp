@@ -224,6 +224,7 @@ void BootableListDialog::on_awsS3Button_clicked()
 		auto result = AmazonS3Utils::GetListObjects(accessKeyId, secretAccessKey, bucketName);
 		auto size = result.objects.size();
 		int i = 1;
+		bool new_entry = false;
 		for(const auto& item : result.objects)
 		{
 			auto path = string_format("//s3/%s/%s", bucketName.c_str(), item.key.c_str());
@@ -231,11 +232,7 @@ void BootableListDialog::on_awsS3Button_clicked()
 			{
 				std::string msg = string_format("Processing: %s (%d/%d)", path.c_str(), i, size);
 				AsyncUpdateStatus(msg);
-				if(TryRegisteringBootable(path))
-				{
-					m_bootables = BootablesDb::CClient::GetInstance().GetBootables(m_sortingMethod);
-					AsyncResetModel(false);
-				}
+				new_entry |= TryRegisteringBootable(path);
 			}
 			catch(const std::exception& exception)
 			{
@@ -243,12 +240,15 @@ void BootableListDialog::on_awsS3Button_clicked()
 			}
 			++i;
 		}
-		return true;
+		return new_entry;
 	});
 
-	auto updateBootableCallback = [this](bool) {
-		AsyncUpdateStatus("Refreshing Model.");
-		resetModel();
+	auto updateBootableCallback = [this](bool new_entry) {
+		if(new_entry)
+		{
+			AsyncUpdateStatus("Refreshing Model.");
+			resetModel();
+		}
 		m_s3_processing = false;
 		AsyncUpdateStatus("Complete.");
 		m_statusBar->hide();
