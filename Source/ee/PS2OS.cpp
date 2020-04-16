@@ -1397,12 +1397,14 @@ bool CPS2OS::CheckVBlankFlag()
 
 	if(vsyncFlagPtrs.first != 0)
 	{
-		*reinterpret_cast<uint32*>(m_ram + vsyncFlagPtrs.first) = 1;
+		auto vsyncFlagFirst = GetStructPtr(vsyncFlagPtrs.first);
+		*reinterpret_cast<uint32*>(vsyncFlagFirst) = 1;
 		changed = true;
 	}
 	if(vsyncFlagPtrs.second != 0)
 	{
-		*reinterpret_cast<uint64*>(m_ram + vsyncFlagPtrs.second) = m_gs->ReadPrivRegister(CGSHandler::GS_CSR);
+		auto vsyncFlagSecond = GetStructPtr(vsyncFlagPtrs.second);
+		*reinterpret_cast<uint64*>(vsyncFlagSecond) = m_gs->ReadPrivRegister(CGSHandler::GS_CSR);
 		changed = true;
 	}
 
