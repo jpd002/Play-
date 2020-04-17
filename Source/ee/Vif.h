@@ -7,7 +7,7 @@
 #include "zip/ZipArchiveWriter.h"
 #include "zip/ZipArchiveReader.h"
 
-//#define DELAYED_MSCAL
+#define DELAYED_MSCAL
 
 class CVpu;
 class CINTC;
