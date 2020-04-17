@@ -6,6 +6,7 @@
 #include <QGridLayout>
 #include <QInputDialog>
 #include <QLabel>
+#include <QMessageBox>
 #include <QPixmap>
 #include <QPixmapCache>
 #include <iostream>
@@ -28,6 +29,7 @@ BootableListDialog::BootableListDialog(QWidget* parent)
     : QDialog(parent)
     , ui(new Ui::BootableListDialog)
     , m_thread_running(false)
+    , m_s3_processing(false)
 {
 	ui->setupUi(this);
 	CAppConfig::GetInstance().RegisterPreferenceInteger("ui.sortmethod", 2);
@@ -36,6 +38,7 @@ BootableListDialog::BootableListDialog(QWidget* parent)
 
 	// used as workaround to avoid direct ui access from a thread
 	connect(this, SIGNAL(AsyncUpdateCoverDisplay()), this, SLOT(UpdateCoverDisplay()));
+	connect(this, SIGNAL(AsyncResetModel(bool)), this, SLOT(resetModel(bool)));
 
 	//if m_sortingMethod == currentIndex == 0, setting index wont trigger on_comboBox_currentIndexChanged() thus resetModel()
 	if(m_sortingMethod == 0)
@@ -57,7 +60,14 @@ BootableListDialog::BootableListDialog(QWidget* parent)
 	        [&](bool) {
 		        QModelIndex index = ui->listView->selectionModel()->selectedIndexes().at(0);
 		        bootable = model->GetBootable(index);
-		        accept();
+		        if(!m_s3_processing)
+		        {
+			        accept();
+		        }
+		        else
+		        {
+			        DisplayWarningMessage();
+		        }
 	        });
 	connect(removegame, &QAction::triggered,
 	        [&](bool) {
@@ -68,6 +78,8 @@ BootableListDialog::BootableListDialog(QWidget* parent)
 	        });
 	m_continuationChecker = new CContinuationChecker(this);
 	ui->awsS3Button->setVisible(S3FileBrowser::IsAvailable());
+
+	SetupStatusBar();
 }
 
 BootableListDialog::~BootableListDialog()
@@ -77,13 +89,15 @@ BootableListDialog::~BootableListDialog()
 	delete ui;
 }
 
-void BootableListDialog::resetModel()
+void BootableListDialog::resetModel(bool repopulateBootables)
 {
 	ui->listView->setModel(nullptr);
 	if(model)
 		delete model;
 
-	m_bootables = BootablesDb::CClient::GetInstance().GetBootables(m_sortingMethod);
+	if(repopulateBootables)
+		m_bootables = BootablesDb::CClient::GetInstance().GetBootables(m_sortingMethod);
+
 	model = new BootableModel(this, m_bootables);
 	ui->listView->setModel(model);
 	connect(ui->listView->selectionModel(), &QItemSelectionModel::currentChanged, this, &BootableListDialog::SelectionChange);
@@ -136,7 +150,14 @@ void BootableListDialog::on_add_games_button_clicked()
 void BootableListDialog::on_listView_doubleClicked(const QModelIndex& index)
 {
 	bootable = model->GetBootable(index);
-	accept();
+	if(!m_s3_processing)
+	{
+		accept();
+	}
+	else
+	{
+		DisplayWarningMessage();
+	}
 }
 
 void BootableListDialog::on_refresh_button_clicked()
@@ -194,26 +215,43 @@ void BootableListDialog::on_awsS3Button_clicked()
 	if(bucketName.empty())
 		return;
 
-	auto getListFuture = std::async([bucketName]() {
+	m_statusBar->show();
+	auto getListFuture = std::async(std::launch::async, [this, bucketName]() {
+		m_s3_processing = true;
 		auto accessKeyId = CS3ObjectStream::CConfig::GetInstance().GetAccessKeyId();
 		auto secretAccessKey = CS3ObjectStream::CConfig::GetInstance().GetSecretAccessKey();
-		return AmazonS3Utils::GetListObjects(accessKeyId, secretAccessKey, bucketName);
-	});
-
-	auto updateBootableCallback = [this, bucketName](auto& result) {
+		AsyncUpdateStatus("Requesting S3 Bucket Content.");
+		auto result = AmazonS3Utils::GetListObjects(accessKeyId, secretAccessKey, bucketName);
+		auto size = result.objects.size();
+		int i = 1;
+		bool new_entry = false;
 		for(const auto& item : result.objects)
 		{
 			auto path = string_format("//s3/%s/%s", bucketName.c_str(), item.key.c_str());
 			try
 			{
-				TryRegisteringBootable(path);
+				std::string msg = string_format("Processing: %s (%d/%d)", path.c_str(), i, size);
+				AsyncUpdateStatus(msg);
+				new_entry |= TryRegisteringBootable(path);
 			}
 			catch(const std::exception& exception)
 			{
 				//Failed to process a path, keep going
 			}
+			++i;
 		}
-		resetModel();
+		return new_entry;
+	});
+
+	auto updateBootableCallback = [this](bool new_entry) {
+		if(new_entry)
+		{
+			AsyncUpdateStatus("Refreshing Model.");
+			resetModel();
+		}
+		m_s3_processing = false;
+		AsyncUpdateStatus("Complete.");
+		m_statusBar->hide();
 	};
 	m_continuationChecker->GetContinuationManager().Register(std::move(getListFuture), updateBootableCallback);
 }
@@ -223,4 +261,47 @@ void BootableListDialog::SelectionChange(const QModelIndex& index)
 	bootable = model->GetBootable(index);
 	ui->pathLineEdit->setText(bootable.path.string().c_str());
 	ui->serialLineEdit->setText(bootable.discId.c_str());
+}
+
+void BootableListDialog::closeEvent(QCloseEvent* event)
+{
+	if(m_s3_processing)
+	{
+		event->ignore();
+		DisplayWarningMessage();
+	}
+	else
+	{
+		event->accept();
+	}
+}
+
+void BootableListDialog::SetupStatusBar()
+{
+	m_statusBar = new QStatusBar(this);
+	ui->verticalLayout_3->addWidget(m_statusBar);
+
+	m_msgLabel = new ElidedLabel();
+	m_msgLabel->setAlignment(Qt::AlignLeft);
+	QFontMetrics fm(m_msgLabel->font());
+	m_msgLabel->setMinimumSize(fm.boundingRect("...").size());
+	m_msgLabel->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Preferred);
+
+	qRegisterMetaType<std::string>("std::string");
+	connect(this, SIGNAL(AsyncUpdateStatus(std::string)), this, SLOT(UpdateStatus(std::string)));
+
+	m_statusBar->addWidget(m_msgLabel, 1);
+	m_statusBar->hide();
+}
+
+void BootableListDialog::UpdateStatus(std::string msg)
+{
+	m_msgLabel->setText(msg.c_str());
+}
+
+void BootableListDialog::DisplayWarningMessage()
+{
+	QMessageBox::warning(this, "Warning Message",
+	                     "Can't close dialog while background operation in progress.",
+	                     QMessageBox::Ok, QMessageBox::Ok);
 }

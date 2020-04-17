@@ -3,10 +3,12 @@
 #include <QResizeEvent>
 #include <QDialog>
 #include <QDir>
+#include <QStatusBar>
 #include <thread>
 #include <atomic>
 #include "BootableModel.h"
 #include "ContinuationChecker.h"
+#include "ElidedLabel.h"
 
 namespace Ui
 {
@@ -33,9 +35,15 @@ private slots:
 	void UpdateCoverDisplay();
 
 	void on_awsS3Button_clicked();
+	void UpdateStatus(std::string);
+
+	void resetModel(bool = true);
 
 private:
 	Ui::BootableListDialog* ui;
+
+	QStatusBar* m_statusBar = nullptr;
+	ElidedLabel* m_msgLabel = nullptr;
 
 	BootablesDb::Bootable bootable;
 	std::vector<BootablesDb::Bootable> m_bootables;
@@ -43,15 +51,20 @@ private:
 	int m_sortingMethod = 2;
 	std::thread cover_loader;
 	std::atomic<bool> m_thread_running;
+	std::atomic<bool> m_s3_processing;
 	CContinuationChecker* m_continuationChecker = nullptr;
 
-	void resetModel();
 	void SelectionChange(const QModelIndex&);
+	void SetupStatusBar();
+	void DisplayWarningMessage();
 
 Q_SIGNALS:
+	void AsyncResetModel(bool);
 	void AsyncUpdateCoverDisplay();
+	void AsyncUpdateStatus(std::string);
 
 protected:
 	void showEvent(QShowEvent*) Q_DECL_OVERRIDE;
 	void resizeEvent(QResizeEvent*) Q_DECL_OVERRIDE;
+	void closeEvent(QCloseEvent*) Q_DECL_OVERRIDE;
 };

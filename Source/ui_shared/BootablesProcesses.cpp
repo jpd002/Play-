@@ -32,7 +32,7 @@ bool IsBootableDiscImagePath(const fs::path& filePath)
 	       (extension == ".bin");
 }
 
-void TryRegisteringBootable(const fs::path& path)
+bool TryRegisteringBootable(const fs::path& path)
 {
 	std::string serial;
 	if(
@@ -40,9 +40,10 @@ void TryRegisteringBootable(const fs::path& path)
 	    !IsBootableExecutablePath(path) &&
 	    !(IsBootableDiscImagePath(path) && DiskUtils::TryGetDiskId(path, &serial)))
 	{
-		return;
+		return false;
 	}
 	BootablesDb::CClient::GetInstance().RegisterBootable(path, path.filename().string().c_str(), serial.c_str());
+	return true;
 }
 
 void ScanBootables(const fs::path& parentPath, bool recursive)
