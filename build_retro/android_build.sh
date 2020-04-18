@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 
+set -e
+set -x
+
 if [ -z "$ANDROID_NDK" ]
 then
 	echo "Please set ANDROID_NDK and run again"
