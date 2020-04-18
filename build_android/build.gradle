@@ -54,6 +54,7 @@ android {
 				cppFlags "-frtti"
 				targets "Play"
 			}
+			ndkVersion "21.0.6113669"
 			ndk {
 				abiFilters 'armeabi-v7a', 'x86', 'x86_64', 'arm64-v8a'
 			}

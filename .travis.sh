@@ -37,7 +37,7 @@ travis_before_install()
         brew update
         brew install dpkg
     elif [ "$TARGET_OS" = "Android" ]; then
-        echo y | sdkmanager 'ndk;20.0.5594570'
+        echo y | sdkmanager 'ndk;21.0.6113669'
         echo y | sdkmanager 'cmake;3.10.2.4988404'
     fi;
 
@@ -51,7 +51,7 @@ travis_script()
             CMAKE_PATH=/usr/local/android-sdk/cmake/3.10.2.4988404
             export PATH=${CMAKE_PATH}/bin:$PATH
             export NINJA_EXE=${CMAKE_PATH}/bin/ninja
-            export ANDROID_NDK=/usr/local/android-sdk/ndk/20.0.5594570
+            export ANDROID_NDK=/usr/local/android-sdk/ndk/21.0.6113669
             export ANDROID_TOOLCHAIN_FILE=${ANDROID_NDK}/build/cmake/android.toolchain.cmake
             pushd build_retro
             bash android_build.sh
