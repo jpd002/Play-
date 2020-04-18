@@ -27,6 +27,6 @@ do
 	-DCMAKE_MAKE_PROGRAM=${NINJA_EXE}
 	
 	cmake --build . --target play_libretro
-	${STRIP} -strip-all -o ../play_libretro_${ABI}_android.so Source/ui_libretro/play_libretro_android.so
+	${STRIP} --strip-all -o ../play_libretro_${ABI}_android.so Source/ui_libretro/play_libretro_android.so
 	popd
 done
