@@ -97,6 +97,10 @@ void CChannel::WriteCHCR(uint32 nValue)
 		{
 			m_nSCCTRL |= SCCTRL_INITXFER;
 		}
+		if(m_number == CDMAC::CHANNEL_ID_VIF1)
+		{
+			m_nSCCTRL |= SCCTRL_PAUSE;
+		}
 		m_nSCCTRL &= ~SCCTRL_RETTOP;
 		Execute();
 	}
@@ -106,6 +110,13 @@ void CChannel::Execute()
 {
 	if(m_CHCR.nSTR != 0)
 	{
+		//Don't start the DMA transfer now, wait till the next iteration
+		//Needed for Wild Arms 4
+		if(m_nSCCTRL & SCCTRL_PAUSE)
+		{
+			m_nSCCTRL &= ~SCCTRL_PAUSE;
+			return;
+		}
 		if(m_dmac.m_D_ENABLE & CDMAC::ENABLE_CPND)
 		{
 			//TODO: Need to check cases where this is done on channels other than 4
