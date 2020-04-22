@@ -1548,6 +1548,36 @@ int32 CIopBios::RegisterVblankHandler(uint32 startEnd, uint32 priority, uint32 h
 	return KERNEL_RESULT_OK;
 }
 
+int32 CIopBios::ReleaseVblankHandler(uint32 startEnd, uint32 handlerPtr)
+{
+	assert((startEnd == 0) || (startEnd == 1));
+
+	uint32 handlerId = FindVblankHandlerByLineAndPtr(startEnd, handlerPtr);
+	if(handlerId == -1)
+	{
+		return KERNEL_RESULT_ERROR_NOTFOUND_HANDLER;
+	}
+
+	m_vblankHandlers.Free(handlerId);
+
+	return KERNEL_RESULT_OK;
+}
+
+int32 CIopBios::FindVblankHandlerByLineAndPtr(uint32 startEnd, uint32 handlerPtr)
+{
+	uint32 handlerId = -1;
+	for(unsigned int i = 0; i < MAX_VBLANKHANDLER; i++)
+	{
+		if(m_vblankHandlers[i] != nullptr && m_vblankHandlers[i]->handler == handlerPtr && m_vblankHandlers[i]->type == startEnd)
+		{
+			handlerId = i;
+			break;
+		}
+	}
+
+	return handlerId;
+}
+
 void CIopBios::SleepThreadTillVBlankStart()
 {
 	THREAD* thread = GetThread(m_currentThreadId);

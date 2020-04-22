@@ -10,6 +10,7 @@ using namespace Iop;
 #define FUNCTION_WAITVBLANKEND "WaitVblankEnd"
 #define FUNCTION_WAITVBLANK "WaitVblank"
 #define FUNCTION_REGISTERVBLANKHANDLER "RegisterVblankHandler"
+#define FUNCTION_RELEASEVBLANKHANDLER "ReleaseVblankHandler"
 
 CVblank::CVblank(CIopBios& bios)
     : m_bios(bios)
@@ -37,6 +38,9 @@ std::string CVblank::GetFunctionName(unsigned int functionId) const
 	case 8:
 		return FUNCTION_REGISTERVBLANKHANDLER;
 		break;
+	case 9:
+		return FUNCTION_RELEASEVBLANKHANDLER;
+		break;
 	default:
 		return "unknown";
 		break;
@@ -62,6 +66,11 @@ void CVblank::Invoke(CMIPS& context, unsigned int functionId)
 		    context.m_State.nGPR[CMIPS::A1].nV0,
 		    context.m_State.nGPR[CMIPS::A2].nV0,
 		    context.m_State.nGPR[CMIPS::A3].nV0);
+		break;
+	case 9:
+		context.m_State.nGPR[CMIPS::V0].nD0 = ReleaseVblankHandler(
+		    context.m_State.nGPR[CMIPS::A0].nV0,
+		    context.m_State.nGPR[CMIPS::A1].nV0);
 		break;
 	default:
 		CLog::GetInstance().Warn(LOG_NAME, "Unknown function called (%d).\r\n", functionId);
@@ -104,4 +113,13 @@ int32 CVblank::RegisterVblankHandler(uint32 startEnd, uint32 priority, uint32 ha
 	                          startEnd, priority, handlerPtr, handlerParam);
 #endif
 	return m_bios.RegisterVblankHandler(startEnd, priority, handlerPtr, handlerParam);
+}
+
+int32 CVblank::ReleaseVblankHandler(uint32 startEnd, uint32 handlerPtr)
+{
+#ifdef _DEBUG
+	CLog::GetInstance().Print(LOG_NAME, FUNCTION_RELEASEVBLANKHANDLER "(startEnd = %d, handler = 0x%08X).\r\n",
+	                          startEnd, handlerPtr);
+#endif
+	return m_bios.ReleaseVblankHandler(startEnd, handlerPtr);
 }
