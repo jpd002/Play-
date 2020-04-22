@@ -1532,11 +1532,16 @@ int32 CIopBios::RegisterVblankHandler(uint32 startEnd, uint32 priority, uint32 h
 		}
 	}
 
+	// Check if the exact handler is already registered
+	if(FindVblankHandlerByLineAndPtr(startEnd, handlerPtr) != -1)
+	{
+		return KERNEL_RESULT_ERROR_FOUND_HANDLER;
+	}
+
 	uint32 handlerId = m_vblankHandlers.Allocate();
-	assert(handlerId != -1);
 	if(handlerId == -1)
 	{
-		return -1;
+		return KERNEL_RESULT_ERROR_NO_MEMORY;
 	}
 
 	auto handler = m_vblankHandlers[handlerId];
