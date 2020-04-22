@@ -466,8 +466,7 @@ void VUShared::MULA_base(CMipsJitter* codeGen, uint8 dest, size_t fs, size_t ft,
 
 void VUShared::MINI_base(CMipsJitter* codeGen, uint8 dest, size_t fd, size_t fs, size_t ft, bool expand)
 {
-	const auto pushFt = [&]()
-	{
+	const auto pushFt = [&]() {
 		if(expand)
 		{
 			codeGen->MD_PushRelExpand(ft);
@@ -503,8 +502,7 @@ void VUShared::MINI_base(CMipsJitter* codeGen, uint8 dest, size_t fd, size_t fs,
 
 void VUShared::MAX_base(CMipsJitter* codeGen, uint8 dest, size_t fd, size_t fs, size_t ft, bool expand)
 {
-	const auto pushFt = [&]()
-	{
+	const auto pushFt = [&]() {
 		if(expand)
 		{
 			codeGen->MD_PushRelExpand(ft);

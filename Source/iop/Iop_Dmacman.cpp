@@ -55,12 +55,12 @@ void CDmacman::Invoke(CMIPS& context, unsigned int functionId)
 	{
 	case FUNCTIONID_DMACREQUEST:
 		context.m_State.nGPR[CMIPS::V0].nV0 = DmacRequest(
-			context,
-			context.m_State.nGPR[CMIPS::A0].nV0,
-			context.m_State.nGPR[CMIPS::A1].nV0,
-			context.m_State.nGPR[CMIPS::A2].nV0,
-			context.m_State.nGPR[CMIPS::A3].nV0,
-			context.m_pMemoryMap->GetWord(context.m_State.nGPR[CMIPS::SP].nV0 + 0x10));
+		    context,
+		    context.m_State.nGPR[CMIPS::A0].nV0,
+		    context.m_State.nGPR[CMIPS::A1].nV0,
+		    context.m_State.nGPR[CMIPS::A2].nV0,
+		    context.m_State.nGPR[CMIPS::A3].nV0,
+		    context.m_pMemoryMap->GetWord(context.m_State.nGPR[CMIPS::SP].nV0 + 0x10));
 		break;
 	case FUNCTIONID_DMACTRANSFER:
 		DmacTransfer(context, context.m_State.nGPR[CMIPS::A0].nV0);
@@ -74,10 +74,10 @@ void CDmacman::Invoke(CMIPS& context, unsigned int functionId)
 uint32 CDmacman::DmacRequest(CMIPS& context, uint32 channel, uint32 addr, uint32 size, uint32 count, uint32 dir)
 {
 	CLog::GetInstance().Print(LOGNAME, FUNCTION_DMACREQUEST "(channel = %d, address = 0x%08X, size = 0x%08X, count = 0x%08X, dir = %d);\r\n",
-		channel, addr, size, count, dir);
+	                          channel, addr, size, count, dir);
 	assert(size < 0x10000);
 	assert(count < 0x10000);
-	
+
 	uint32 channelBase = GetChannelBase(channel);
 	if(channelBase == INVALID_CHANNEL_BASE) return 0;
 

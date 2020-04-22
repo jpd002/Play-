@@ -20,11 +20,11 @@ using namespace Ee;
 #define MC2_RESULT_ERROR_NOT_FOUND 0x81010002
 
 CLibMc2::CLibMc2(uint8* ram, CIopBios& iopBios)
-	: m_ram(ram)
-	, m_iopBios(iopBios)
+    : m_ram(ram)
+    , m_iopBios(iopBios)
 {
 	m_moduleLoadedConnection = m_iopBios.OnModuleLoaded.Connect(
-		[this] (const char* moduleName) { OnIopModuleLoaded(moduleName); });
+	    [this](const char* moduleName) { OnIopModuleLoaded(moduleName); });
 }
 
 uint32 CLibMc2::AnalyzeFunction(uint32 startAddress, int16 stackAlloc)
@@ -146,9 +146,8 @@ uint32 CLibMc2::AnalyzeFunction(uint32 startAddress, int16 stackAlloc)
 void CLibMc2::OnIopModuleLoaded(const char* moduleName)
 {
 	if(
-		!strcmp(moduleName, "mc2_d ") ||
-		!strcmp(moduleName, "mc2_s1")
-		)
+	    !strcmp(moduleName, "mc2_d ") ||
+	    !strcmp(moduleName, "mc2_s1"))
 	{
 		HookLibMc2Functions();
 	}
@@ -201,72 +200,63 @@ void CLibMc2::HandleSyscall(CMIPS& ee)
 	{
 	case SYSCALL_MC2_CHECKASYNC:
 		ee.m_State.nGPR[CMIPS::V0].nD0 = CheckAsync(
-			ee.m_State.nGPR[CMIPS::A0].nV0,
-			ee.m_State.nGPR[CMIPS::A1].nV0,
-			ee.m_State.nGPR[CMIPS::A2].nV0
-		);
+		    ee.m_State.nGPR[CMIPS::A0].nV0,
+		    ee.m_State.nGPR[CMIPS::A1].nV0,
+		    ee.m_State.nGPR[CMIPS::A2].nV0);
 		break;
 	case SYSCALL_MC2_GETINFO_ASYNC:
 		ee.m_State.nGPR[CMIPS::V0].nD0 = GetInfoAsync(
-			ee.m_State.nGPR[CMIPS::A0].nV0,
-			ee.m_State.nGPR[CMIPS::A1].nV0
-		);
+		    ee.m_State.nGPR[CMIPS::A0].nV0,
+		    ee.m_State.nGPR[CMIPS::A1].nV0);
 		break;
 	case SYSCALL_MC2_READFILE_ASYNC:
 	case SYSCALL_MC2_READFILE2_ASYNC:
 		ee.m_State.nGPR[CMIPS::V0].nD0 = ReadFileAsync(
-			ee.m_State.nGPR[CMIPS::A0].nV0,
-			ee.m_State.nGPR[CMIPS::A1].nV0,
-			ee.m_State.nGPR[CMIPS::A2].nV0,
-			ee.m_State.nGPR[CMIPS::A3].nV0,
-			ee.m_State.nGPR[CMIPS::T0].nV0
-		);
+		    ee.m_State.nGPR[CMIPS::A0].nV0,
+		    ee.m_State.nGPR[CMIPS::A1].nV0,
+		    ee.m_State.nGPR[CMIPS::A2].nV0,
+		    ee.m_State.nGPR[CMIPS::A3].nV0,
+		    ee.m_State.nGPR[CMIPS::T0].nV0);
 		break;
 	case SYSCALL_MC2_WRITEFILE_ASYNC:
 	case SYSCALL_MC2_WRITEFILE2_ASYNC:
 		ee.m_State.nGPR[CMIPS::V0].nD0 = WriteFileAsync(
-			ee.m_State.nGPR[CMIPS::A0].nV0,
-			ee.m_State.nGPR[CMIPS::A1].nV0,
-			ee.m_State.nGPR[CMIPS::A2].nV0,
-			ee.m_State.nGPR[CMIPS::A3].nV0,
-			ee.m_State.nGPR[CMIPS::T0].nV0
-		);
+		    ee.m_State.nGPR[CMIPS::A0].nV0,
+		    ee.m_State.nGPR[CMIPS::A1].nV0,
+		    ee.m_State.nGPR[CMIPS::A2].nV0,
+		    ee.m_State.nGPR[CMIPS::A3].nV0,
+		    ee.m_State.nGPR[CMIPS::T0].nV0);
 		break;
 	case SYSCALL_MC2_CREATEFILE_ASYNC:
 		ee.m_State.nGPR[CMIPS::V0].nD0 = CreateFileAsync(
-			ee.m_State.nGPR[CMIPS::A0].nV0,
-			ee.m_State.nGPR[CMIPS::A1].nV0
-		);
+		    ee.m_State.nGPR[CMIPS::A0].nV0,
+		    ee.m_State.nGPR[CMIPS::A1].nV0);
 		break;
 	case SYSCALL_MC2_GETDIR_ASYNC:
 		ee.m_State.nGPR[CMIPS::V0].nD0 = GetDirAsync(
-			ee.m_State.nGPR[CMIPS::A0].nV0,
-			ee.m_State.nGPR[CMIPS::A1].nV0,
-			ee.m_State.nGPR[CMIPS::A2].nV0,
-			ee.m_State.nGPR[CMIPS::A3].nV0,
-			ee.m_State.nGPR[CMIPS::T0].nV0,
-			ee.m_State.nGPR[CMIPS::T1].nV0
-		);
+		    ee.m_State.nGPR[CMIPS::A0].nV0,
+		    ee.m_State.nGPR[CMIPS::A1].nV0,
+		    ee.m_State.nGPR[CMIPS::A2].nV0,
+		    ee.m_State.nGPR[CMIPS::A3].nV0,
+		    ee.m_State.nGPR[CMIPS::T0].nV0,
+		    ee.m_State.nGPR[CMIPS::T1].nV0);
 		break;
 	case SYSCALL_MC2_CHDIR_ASYNC:
 		ee.m_State.nGPR[CMIPS::V0].nD0 = ChDirAsync(
-			ee.m_State.nGPR[CMIPS::A0].nV0,
-			ee.m_State.nGPR[CMIPS::A1].nV0,
-			ee.m_State.nGPR[CMIPS::A2].nV0
-		);
+		    ee.m_State.nGPR[CMIPS::A0].nV0,
+		    ee.m_State.nGPR[CMIPS::A1].nV0,
+		    ee.m_State.nGPR[CMIPS::A2].nV0);
 		break;
 	case SYSCALL_MC2_MKDIR_ASYNC:
 		ee.m_State.nGPR[CMIPS::V0].nD0 = MkDirAsync(
-			ee.m_State.nGPR[CMIPS::A0].nV0,
-			ee.m_State.nGPR[CMIPS::A1].nV0
-		);
+		    ee.m_State.nGPR[CMIPS::A0].nV0,
+		    ee.m_State.nGPR[CMIPS::A1].nV0);
 		break;
 	case SYSCALL_MC2_SEARCHFILE_ASYNC:
 		ee.m_State.nGPR[CMIPS::V0].nD0 = SearchFileAsync(
-			ee.m_State.nGPR[CMIPS::A0].nV0,
-			ee.m_State.nGPR[CMIPS::A1].nV0,
-			ee.m_State.nGPR[CMIPS::A2].nV0
-		);
+		    ee.m_State.nGPR[CMIPS::A0].nV0,
+		    ee.m_State.nGPR[CMIPS::A1].nV0,
+		    ee.m_State.nGPR[CMIPS::A2].nV0);
 		break;
 	default:
 		assert(false);
@@ -296,7 +286,7 @@ static void CopyDirParam(CLibMc2::DIRPARAM* dst, const Iop::CMcServ::ENTRY* src)
 int32 CLibMc2::CheckAsync(uint32 mode, uint32 cmdPtr, uint32 resultPtr)
 {
 	CLog::GetInstance().Print(LOG_NAME, "CheckAsync(mode = %d, cmdPtr = 0x%08X, resultPtr = 0x%08X);\r\n",
-		mode, cmdPtr, resultPtr);
+	                          mode, cmdPtr, resultPtr);
 
 	assert(m_lastCmd != 0);
 
@@ -317,7 +307,7 @@ int32 CLibMc2::GetInfoAsync(uint32 socketId, uint32 infoPtr)
 	auto info = reinterpret_cast<CARDINFO*>(m_ram + infoPtr);
 
 	CLog::GetInstance().Print(LOG_NAME, "GetInfoAsync(socketId = %d, infoPtr = 0x%08X);\r\n",
-		socketId, infoPtr);
+	                          socketId, infoPtr);
 
 	info->type = 2; //2 = PS2
 	info->formatted = 1;
@@ -335,7 +325,7 @@ int32 CLibMc2::CreateFileAsync(uint32 socketId, uint32 pathPtr)
 	auto path = reinterpret_cast<const char*>(m_ram + pathPtr);
 
 	CLog::GetInstance().Print(LOG_NAME, "CreateFileAsync(socketId = %d, path = '%s');\r\n",
-		socketId, path);
+	                          socketId, path);
 
 	auto mcServ = m_iopBios.GetMcServ();
 
@@ -379,7 +369,7 @@ int32 CLibMc2::GetDirAsync(uint32 socketId, uint32 pathPtr, uint32 offset, int32
 	auto dirEntries = reinterpret_cast<DIRPARAM*>(m_ram + dirEntriesPtr);
 
 	CLog::GetInstance().Print(LOG_NAME, "GetDirAsync(socketId = %d, path = '%s', offset = %d, maxEntries = %d, dirEntriesPtr = 0x%08X, countPtr = 0x%08X);\r\n",
-		socketId, path, offset, maxEntries, dirEntriesPtr, countPtr);
+	                          socketId, path, offset, maxEntries, dirEntriesPtr, countPtr);
 
 	auto mcServ = m_iopBios.GetMcServ();
 
@@ -439,7 +429,7 @@ int32 CLibMc2::ChDirAsync(uint32 socketId, uint32 pathPtr, uint32 pwdPtr)
 	assert(pwdPtr == 0);
 
 	CLog::GetInstance().Print(LOG_NAME, "ChDirAsync(socketId = %d, path = '%s', pwdPtr = 0x%08X);\r\n",
-		socketId, path, pwdPtr);
+	                          socketId, path, pwdPtr);
 
 	auto mcServ = m_iopBios.GetMcServ();
 
@@ -471,7 +461,7 @@ int32 CLibMc2::MkDirAsync(uint32 socketId, uint32 pathPtr)
 	auto path = reinterpret_cast<const char*>(m_ram + pathPtr);
 
 	CLog::GetInstance().Print(LOG_NAME, "MkDirAsync(socketId = %d, path = '%s');\r\n",
-		socketId, path);
+	                          socketId, path);
 
 	auto mcServ = m_iopBios.GetMcServ();
 
@@ -499,7 +489,7 @@ int32 CLibMc2::SearchFileAsync(uint32 socketId, uint32 pathPtr, uint32 dirParamP
 	auto dirParam = reinterpret_cast<DIRPARAM*>(m_ram + dirParamPtr);
 
 	CLog::GetInstance().Print(LOG_NAME, "SearchFileAsync(socketId = %d, path = '%s', dirParamPtr = 0x%08X);\r\n",
-		socketId, path, dirParamPtr);
+	                          socketId, path, dirParamPtr);
 
 	auto mcServ = m_iopBios.GetMcServ();
 
@@ -542,7 +532,7 @@ int32 CLibMc2::ReadFileAsync(uint32 socketId, uint32 pathPtr, uint32 bufferPtr, 
 	auto path = reinterpret_cast<const char*>(m_ram + pathPtr);
 
 	CLog::GetInstance().Print(LOG_NAME, "ReadFileAsync(socketId = %d, path = '%s', bufferPtr = 0x%08X, offset = 0x%08X, size = 0x%08X);\r\n",
-		socketId, path, bufferPtr, offset, size);
+	                          socketId, path, bufferPtr, offset, size);
 
 	auto mcServ = m_iopBios.GetMcServ();
 
@@ -612,7 +602,7 @@ int32 CLibMc2::WriteFileAsync(uint32 socketId, uint32 pathPtr, uint32 bufferPtr,
 	auto path = reinterpret_cast<const char*>(m_ram + pathPtr);
 
 	CLog::GetInstance().Print(LOG_NAME, "WriteFileAsync(socketId = %d, path = '%s', bufferPtr = 0x%08X, offset = 0x%08X, size = 0x%08X);\r\n",
-		socketId, path, bufferPtr, offset, size);
+	                          socketId, path, bufferPtr, offset, size);
 
 	auto mcServ = m_iopBios.GetMcServ();
 

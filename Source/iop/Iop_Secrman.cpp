@@ -46,9 +46,9 @@ void CSecrman::Invoke(CMIPS& context, unsigned int functionId)
 		break;
 	case FUNCTIONID_AUTHCARD:
 		context.m_State.nGPR[CMIPS::V0].nV0 = AuthCard(
-			context.m_State.nGPR[CMIPS::A0].nV0,
-			context.m_State.nGPR[CMIPS::A1].nV0,
-			context.m_State.nGPR[CMIPS::A2].nV0);
+		    context.m_State.nGPR[CMIPS::A0].nV0,
+		    context.m_State.nGPR[CMIPS::A1].nV0,
+		    context.m_State.nGPR[CMIPS::A2].nV0);
 		break;
 	default:
 		CLog::GetInstance().Warn(LOGNAME, "%08X: Unknown function (%d) called.\r\n", context.m_State.nPC, functionId);
@@ -69,7 +69,7 @@ void CSecrman::SetMcDevIdHandler(uint32 handlerPtr)
 uint32 CSecrman::AuthCard(uint32 port, uint32 slot, uint32 cnum)
 {
 	CLog::GetInstance().Print(LOGNAME, "AuthCard(port = %d, slot = %d, cnum = %d);\r\n",
-		port, slot, cnum);
+	                          port, slot, cnum);
 	//Returns non-zero on success
 	return 1;
 }
