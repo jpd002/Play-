@@ -318,6 +318,28 @@ uint32 CIoman::Seek(uint32 handle, uint32 position, uint32 whence)
 	return result;
 }
 
+int32 CIoman::Mkdir(const char* path)
+{
+	CLog::GetInstance().Print(LOG_NAME, "Mkdir(path = '%s');\r\n",
+	                          path);
+	auto pathInfo = SplitPath(path);
+	auto deviceIterator = m_devices.find(pathInfo.deviceName);
+	if(deviceIterator == m_devices.end())
+	{
+		throw std::runtime_error("Device not found.");
+	}
+
+	try
+	{
+		deviceIterator->second->CreateDirectory(pathInfo.devicePath.c_str());
+		return 0;
+	}
+	catch(...)
+	{
+		return -1;
+	}
+}
+
 int32 CIoman::Dopen(const char* path)
 {
 	CLog::GetInstance().Print(LOG_NAME, "Dopen(path = '%s');\r\n",
