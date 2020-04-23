@@ -756,6 +756,12 @@ void CGSH_OpenGL::SetupBlendingFunction(uint64 alphaReg)
 		nFunction = GL_FUNC_REVERSE_SUBTRACT;
 		glBlendFuncSeparate(BLEND_SRC_ALPHA, BLEND_SRC_ALPHA, GL_ONE, GL_ZERO);
 	}
+	else if((alpha.nA == ALPHABLEND_ABD_CD) && (alpha.nB == ALPHABLEND_ABD_CS) && (alpha.nC == ALPHABLEND_C_AS) && (alpha.nD == ALPHABLEND_ABD_ZERO))
+	{
+		//1002 -> (Cd - Cs) * As
+		nFunction = GL_FUNC_REVERSE_SUBTRACT;
+		glBlendFuncSeparate(BLEND_SRC_ALPHA, BLEND_SRC_ALPHA, GL_ONE, GL_ZERO);
+	}
 	else if((alpha.nA == ALPHABLEND_ABD_CD) && (alpha.nB == ALPHABLEND_ABD_CS) && (alpha.nC == ALPHABLEND_C_AD) && (alpha.nD == ALPHABLEND_ABD_CS))
 	{
 		//1010 -> Cs * (1 - Ad) + Cd * Ad
