@@ -198,6 +198,11 @@ namespace Iop
 		static const char* m_mcPathPreference[2];
 		std::string m_currentDirectory;
 		CPathFinder m_pathFinder;
+
+		// Keeps track, if the memory card in
+		// a given slot has already been read,
+		// or if it is a newly inserted card.
+		bool m_knownMemoryCards[MAX_PORTS];
 	};
 
 	typedef std::shared_ptr<CMcServ> McServPtr;

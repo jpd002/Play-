@@ -50,6 +50,11 @@ CMcServ::CMcServ(CIopBios& bios, CSifMan& sifMan, CSifCmd& sifCmd, CSysmem& sysM
 	m_moduleDataAddr = m_sysMem.AllocateMemory(sizeof(MODULEDATA), 0, 0);
 	sifMan.RegisterModule(MODULE_ID, this);
 	BuildCustomCode();
+
+	for(bool& knownMemoryCard : m_knownMemoryCards)
+	{
+		knownMemoryCard = false;
+	}
 }
 
 const char* CMcServ::GetMcPathPreference(unsigned int port)
@@ -265,12 +270,22 @@ void CMcServ::GetInfo(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize
 		retBuffer[0x24] = 1;
 	}
 
+	if(port > 1)
+	{
+		assert(0);
+		ret[0] = -2;
+		return;
+	}
+
+	bool isKnownCard = m_knownMemoryCards[port];
+	m_knownMemoryCards[port] = true;
+
 	//Return values
 	//  0 if same card as previous call
 	//  -1 if new formatted card
 	//  -2 if new unformatted card
 	//> -2 on error
-	ret[0] = 0;
+	ret[0] = isKnownCard ? 0 : -1;
 
 	//Many games seem to be sensitive to the delay response of this function:
 	//- Nights Into Dreams (issues 2 Syncs very close to each other, infinite loop if GetInfo is instantenous)
