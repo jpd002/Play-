@@ -15,6 +15,21 @@
 // Extract game ids from disk images
 // Pull disc cover URLs and titles from GamesDb/TheGamesDb
 
+static void BootableLog(const char* format, ...)
+{
+	static FILE* logStream = nullptr;
+	if(!logStream)
+	{
+		auto logPath = CAppConfig::GetBasePath() / "bootables.log";
+		logStream = fopen(logPath.string().c_str(), "wb");
+	}
+	va_list args;
+	va_start(args, format);
+	vfprintf(logStream, format, args);
+	va_end(args);
+	fflush(logStream);
+}
+
 bool IsBootableExecutablePath(const fs::path& filePath)
 {
 	auto extension = filePath.extension().string();
@@ -48,24 +63,33 @@ bool TryRegisteringBootable(const fs::path& path)
 
 void ScanBootables(const fs::path& parentPath, bool recursive)
 {
+	BootableLog("Entering ScanBootables(path = '%s', recursive = %d);\r\n",
+		parentPath.string().c_str(), static_cast<int>(recursive));
 	for(auto pathIterator = fs::directory_iterator(parentPath);
 	    pathIterator != fs::directory_iterator(); pathIterator++)
 	{
 		auto& path = pathIterator->path();
+		BootableLog("Checking '%s'... ", path.string().c_str());
 		try
 		{
 			if(recursive && fs::is_directory(path))
 			{
+				BootableLog("is directory.\r\n");
 				ScanBootables(path, recursive);
 				continue;
 			}
-			TryRegisteringBootable(path);
+			BootableLog("registering... ");
+			bool success = TryRegisteringBootable(path);
+			BootableLog("result = %d\r\n", static_cast<int>(success));
 		}
 		catch(const std::exception& exception)
 		{
 			//Failed to process a path, keep going
+			BootableLog(" exception: %s\r\n", exception.what());
 		}
 	}
+	BootableLog("Exiting ScanBootables(path = '%s', recursive = %d);\r\n",
+		parentPath.string().c_str(), static_cast<int>(recursive));
 }
 
 std::set<fs::path> GetActiveBootableDirectories()
