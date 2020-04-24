@@ -1532,11 +1532,16 @@ int32 CIopBios::RegisterVblankHandler(uint32 startEnd, uint32 priority, uint32 h
 		}
 	}
 
+	// Check if the exact handler is already registered
+	if(FindVblankHandlerByLineAndPtr(startEnd, handlerPtr) != -1)
+	{
+		return KERNEL_RESULT_ERROR_FOUND_HANDLER;
+	}
+
 	uint32 handlerId = m_vblankHandlers.Allocate();
-	assert(handlerId != -1);
 	if(handlerId == -1)
 	{
-		return -1;
+		return KERNEL_RESULT_ERROR_NO_MEMORY;
 	}
 
 	auto handler = m_vblankHandlers[handlerId];
@@ -1546,6 +1551,36 @@ int32 CIopBios::RegisterVblankHandler(uint32 startEnd, uint32 priority, uint32 h
 	handler->type = startEnd;
 
 	return KERNEL_RESULT_OK;
+}
+
+int32 CIopBios::ReleaseVblankHandler(uint32 startEnd, uint32 handlerPtr)
+{
+	assert((startEnd == 0) || (startEnd == 1));
+
+	uint32 handlerId = FindVblankHandlerByLineAndPtr(startEnd, handlerPtr);
+	if(handlerId == -1)
+	{
+		return KERNEL_RESULT_ERROR_NOTFOUND_HANDLER;
+	}
+
+	m_vblankHandlers.Free(handlerId);
+
+	return KERNEL_RESULT_OK;
+}
+
+int32 CIopBios::FindVblankHandlerByLineAndPtr(uint32 startEnd, uint32 handlerPtr)
+{
+	uint32 handlerId = -1;
+	for(unsigned int i = 0; i < MAX_VBLANKHANDLER; i++)
+	{
+		if(m_vblankHandlers[i] != nullptr && m_vblankHandlers[i]->handler == handlerPtr && m_vblankHandlers[i]->type == startEnd)
+		{
+			handlerId = i;
+			break;
+		}
+	}
+
+	return handlerId;
 }
 
 void CIopBios::SleepThreadTillVBlankStart()

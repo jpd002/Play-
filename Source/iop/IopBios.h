@@ -207,6 +207,8 @@ public:
 	int32 ReleaseWaitThread(uint32, bool);
 
 	int32 RegisterVblankHandler(uint32, uint32, uint32, uint32);
+	int32 ReleaseVblankHandler(uint32, uint32);
+	int32 FindVblankHandlerByLineAndPtr(uint32 startEnd, uint32 handlerPtr);
 	void SleepThreadTillVBlankStart();
 	void SleepThreadTillVBlankEnd();
 
