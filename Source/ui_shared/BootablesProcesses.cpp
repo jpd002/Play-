@@ -65,28 +65,35 @@ void ScanBootables(const fs::path& parentPath, bool recursive)
 {
 	BootableLog("Entering ScanBootables(path = '%s', recursive = %d);\r\n",
 		parentPath.string().c_str(), static_cast<int>(recursive));
-	for(auto pathIterator = fs::directory_iterator(parentPath);
-	    pathIterator != fs::directory_iterator(); pathIterator++)
+	try
 	{
-		auto& path = pathIterator->path();
-		BootableLog("Checking '%s'... ", path.string().c_str());
-		try
+		for(auto pathIterator = fs::directory_iterator(parentPath);
+			pathIterator != fs::directory_iterator(); pathIterator++)
 		{
-			if(recursive && fs::is_directory(path))
+			auto& path = pathIterator->path();
+			BootableLog("Checking '%s'... ", path.string().c_str());
+			try
 			{
-				BootableLog("is directory.\r\n");
-				ScanBootables(path, recursive);
-				continue;
+				if(recursive && fs::is_directory(path))
+				{
+					BootableLog("is directory.\r\n");
+					ScanBootables(path, recursive);
+					continue;
+				}
+				BootableLog("registering... ");
+				bool success = TryRegisteringBootable(path);
+				BootableLog("result = %d\r\n", static_cast<int>(success));
 			}
-			BootableLog("registering... ");
-			bool success = TryRegisteringBootable(path);
-			BootableLog("result = %d\r\n", static_cast<int>(success));
+			catch(const std::exception& exception)
+			{
+				//Failed to process a path, keep going
+				BootableLog(" exception: %s\r\n", exception.what());
+			}
 		}
-		catch(const std::exception& exception)
-		{
-			//Failed to process a path, keep going
-			BootableLog(" exception: %s\r\n", exception.what());
-		}
+	}
+	catch(const std::exception& exception)
+	{
+		BootableLog("Caught an exception while trying to list directory: %s\r\n", exception.what());
 	}
 	BootableLog("Exiting ScanBootables(path = '%s', recursive = %d);\r\n",
 		parentPath.string().c_str(), static_cast<int>(recursive));
