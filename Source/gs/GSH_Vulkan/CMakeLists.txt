@@ -31,6 +31,8 @@ add_library(gsh_vulkan STATIC
 	GSH_VulkanContext.h
 	GSH_VulkanClutLoad.cpp
 	GSH_VulkanClutLoad.h
+	GSH_VulkanDeviceInfo.cpp
+	GSH_VulkanDeviceInfo.h
 	GSH_VulkanDraw.cpp
 	GSH_VulkanDraw.h
 	GSH_VulkanFrameCommandBuffer.cpp

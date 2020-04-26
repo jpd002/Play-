@@ -12,6 +12,7 @@
 #ifdef HAS_GSH_VULKAN
 #include "vulkanwindow.h"
 #include "GSH_VulkanQt.h"
+#include "gs/GSH_Vulkan/GSH_VulkanDeviceInfo.h"
 #endif
 
 #include <QDateTime>
@@ -197,6 +198,7 @@ void MainWindow::SetupGsHandler()
 #ifdef HAS_GSH_VULKAN
 	case SettingsDialog::GS_HANDLERS::VULKAN:
 	{
+		assert(GSH_Vulkan::CDeviceInfo::GetInstance().HasAvailableDevices());
 		m_outputwindow = new VulkanWindow;
 		QWidget* container = QWidget::createWindowContainer(m_outputwindow);
 		m_outputwindow->create();
@@ -440,22 +442,25 @@ void MainWindow::CreateStatusBar()
 	statusBar()->addWidget(m_msgLabel, 1);
 	statusBar()->addWidget(m_fpsLabel);
 #ifdef HAS_GSH_VULKAN
-	m_gsLabel = new QLabel("");
-	auto gs_index = CAppConfig::GetInstance().GetPreferenceInteger(PREF_VIDEO_GS_HANDLER);
-	UpdateGSHandlerLabel(gs_index);
-
-	m_gsLabel->setAlignment(Qt::AlignHCenter);
-	m_gsLabel->setMinimumSize(m_gsLabel->sizeHint());
-	//QLabel have no click event, so we're using ContextMenu event aka rightClick to toggle GS
-	m_gsLabel->setContextMenuPolicy(Qt::CustomContextMenu);
-	connect(m_gsLabel, &QLabel::customContextMenuRequested, [&]() {
+	if(GSH_Vulkan::CDeviceInfo::GetInstance().HasAvailableDevices())
+	{
+		m_gsLabel = new QLabel("");
 		auto gs_index = CAppConfig::GetInstance().GetPreferenceInteger(PREF_VIDEO_GS_HANDLER);
-		gs_index = (gs_index + 1) % SettingsDialog::GS_HANDLERS::MAX_HANDLER;
-		CAppConfig::GetInstance().SetPreferenceInteger(PREF_VIDEO_GS_HANDLER, gs_index);
-		SetupGsHandler();
 		UpdateGSHandlerLabel(gs_index);
-	});
-	statusBar()->addWidget(m_gsLabel);
+
+		m_gsLabel->setAlignment(Qt::AlignHCenter);
+		m_gsLabel->setMinimumSize(m_gsLabel->sizeHint());
+		//QLabel have no click event, so we're using ContextMenu event aka rightClick to toggle GS
+		m_gsLabel->setContextMenuPolicy(Qt::CustomContextMenu);
+		connect(m_gsLabel, &QLabel::customContextMenuRequested, [&]() {
+			auto gs_index = CAppConfig::GetInstance().GetPreferenceInteger(PREF_VIDEO_GS_HANDLER);
+			gs_index = (gs_index + 1) % SettingsDialog::GS_HANDLERS::MAX_HANDLER;
+			CAppConfig::GetInstance().SetPreferenceInteger(PREF_VIDEO_GS_HANDLER, gs_index);
+			SetupGsHandler();
+			UpdateGSHandlerLabel(gs_index);
+		});
+		statusBar()->addWidget(m_gsLabel);
+	}
 #endif
 	m_msgLabel->setText(QString("Play! v%1 - %2").arg(PLAY_VERSION).arg(__DATE__));
 

@@ -251,6 +251,13 @@ Changing this setting during gameplay can produce unexpected results.</string>
         </widget>
        </item>
        <item>
+        <widget class="QPushButton" name="button_vulkanDeviceInfo">
+         <property name="text">
+          <string>Show Vulkan Device Info...</string>
+         </property>
+        </widget>
+       </item>
+       <item>
         <spacer name="verticalSpacer">
          <property name="orientation">
           <enum>Qt::Vertical</enum>

@@ -37,6 +37,7 @@ private slots:
 	void changePage(QListWidgetItem* current, QListWidgetItem* previous);
 	void on_comboBox_res_multiplyer_currentIndexChanged(int index);
 	void on_spinBox_spuBlockCount_valueChanged(int value);
+	void on_button_vulkanDeviceInfo_clicked();
 
 private:
 	Ui::SettingsDialog* ui;

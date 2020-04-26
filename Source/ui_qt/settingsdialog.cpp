@@ -5,6 +5,11 @@
 #include "../gs/GSH_OpenGL/GSH_OpenGL.h"
 #include <cassert>
 #include <cmath>
+#include <QMessageBox>
+
+#ifdef HAS_GSH_VULKAN
+#include "gs/GSH_Vulkan/GSH_VulkanDeviceInfo.h"
+#endif
 
 SettingsDialog::SettingsDialog(QWidget* parent)
     : QDialog(parent)
@@ -15,17 +20,25 @@ SettingsDialog::SettingsDialog(QWidget* parent)
 	//Not needed, as it can be set in the ui editor, but left for ease of ui edit.
 	ui->stackedWidget->setCurrentIndex(0);
 
+	// this assert is to ensure no one adds an item to the combobox through qt creator by accident
+	assert(ui->comboBox_gs_selection->count() == 0);
+
 	ui->comboBox_gs_selection->blockSignals(true);
 	ui->comboBox_gs_selection->insertItem(SettingsDialog::GS_HANDLERS::OPENGL, "OpenGL");
 #ifdef HAS_GSH_VULKAN
-	ui->comboBox_gs_selection->insertItem(SettingsDialog::GS_HANDLERS::VULKAN, "Vulkan");
+	if(GSH_Vulkan::CDeviceInfo::GetInstance().HasAvailableDevices())
+	{
+		ui->comboBox_gs_selection->insertItem(SettingsDialog::GS_HANDLERS::VULKAN, "Vulkan");
+	}
 #else
-	ui->gs_option_widget->hide();
+	ui->button_vulkanDeviceInfoLog->hide();
 #endif
-	ui->comboBox_gs_selection->blockSignals(false);
+	if(ui->comboBox_gs_selection->count() <= 1)
+	{
+		ui->gs_option_widget->hide();
+	}
 
-	// this assert is to ensure no one adds an item to the combobox through qt creator by accident
-	assert(ui->comboBox_gs_selection->count() == SettingsDialog::GS_HANDLERS::MAX_HANDLER);
+	ui->comboBox_gs_selection->blockSignals(false);
 
 	LoadPreferences();
 	connect(ui->listWidget, &QListWidget::currentItemChanged, this, &SettingsDialog::changePage);
@@ -87,4 +100,12 @@ void SettingsDialog::on_comboBox_res_multiplyer_currentIndexChanged(int index)
 void SettingsDialog::on_spinBox_spuBlockCount_valueChanged(int value)
 {
 	CAppConfig::GetInstance().SetPreferenceInteger(PREF_AUDIO_SPUBLOCKCOUNT, value);
+}
+
+void SettingsDialog::on_button_vulkanDeviceInfo_clicked()
+{
+#if HAS_GSH_VULKAN
+	auto log = GSH_Vulkan::CDeviceInfo::GetInstance().GetLog();
+	QMessageBox::information(this, "Vulkan Device Info", log.c_str());
+#endif
 }

@@ -21,6 +21,8 @@ public:
 	CGSH_Vulkan();
 	virtual ~CGSH_Vulkan() = default;
 
+	static Framework::Vulkan::CInstance CreateInstance();
+
 	void SetPresentationParams(const CGSHandler::PRESENTATION_PARAMS&) override;
 
 	void ProcessHostToLocalTransfer() override;

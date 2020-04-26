@@ -45,6 +45,45 @@ CGSH_Vulkan::CGSH_Vulkan()
 	m_context = std::make_shared<CContext>();
 }
 
+Framework::Vulkan::CInstance CGSH_Vulkan::CreateInstance()
+{
+	auto instanceCreateInfo = Framework::Vulkan::InstanceCreateInfo();
+
+	std::vector<const char*> extensions;
+	extensions.push_back(VK_KHR_SURFACE_EXTENSION_NAME);
+#ifdef _WIN32
+	extensions.push_back(VK_KHR_WIN32_SURFACE_EXTENSION_NAME);
+#endif
+#ifdef __APPLE__
+	extensions.push_back(VK_MVK_MACOS_SURFACE_EXTENSION_NAME);
+#endif
+#ifdef __linux__
+	extensions.push_back(VK_KHR_XCB_SURFACE_EXTENSION_NAME);
+#endif
+
+	std::vector<const char*> layers;
+#if defined(_DEBUG) && !defined(__APPLE__)
+	layers.push_back("VK_LAYER_LUNARG_standard_validation");
+#endif
+
+	auto appInfo = Framework::Vulkan::ApplicationInfo();
+	appInfo.pApplicationName = "Play!";
+	appInfo.pEngineName = "Play!";
+#ifdef __APPLE__
+	//MoltenVK requires version to be 1.0.x
+	appInfo.apiVersion = VK_MAKE_VERSION(1, 0, 0);
+#else
+	appInfo.apiVersion = VK_MAKE_VERSION(1, 1, 0);
+#endif
+
+	instanceCreateInfo.pApplicationInfo = &appInfo;
+	instanceCreateInfo.enabledExtensionCount = extensions.size();
+	instanceCreateInfo.ppEnabledExtensionNames = extensions.data();
+	instanceCreateInfo.enabledLayerCount = layers.size();
+	instanceCreateInfo.ppEnabledLayerNames = layers.data();
+	return Framework::Vulkan::CInstance(instanceCreateInfo);
+}
+
 void CGSH_Vulkan::InitializeImpl()
 {
 	assert(!m_instance.IsEmpty());
@@ -187,26 +226,9 @@ std::vector<VkPhysicalDevice> CGSH_Vulkan::GetPhysicalDevices()
 	result = m_instance.vkEnumeratePhysicalDevices(m_instance, &physicalDeviceCount, nullptr);
 	CHECKVULKANERROR(result);
 
-	CLog::GetInstance().Print(LOG_NAME, "Found %d physical devices.\r\n", physicalDeviceCount);
-
 	std::vector<VkPhysicalDevice> physicalDevices(physicalDeviceCount);
 	result = m_instance.vkEnumeratePhysicalDevices(m_instance, &physicalDeviceCount, physicalDevices.data());
 	CHECKVULKANERROR(result);
-
-	for(const auto& physicalDevice : physicalDevices)
-	{
-		CLog::GetInstance().Print(LOG_NAME, "Physical Device Info:\r\n");
-
-		VkPhysicalDeviceProperties physicalDeviceProperties = {};
-		m_instance.vkGetPhysicalDeviceProperties(physicalDevice, &physicalDeviceProperties);
-		CLog::GetInstance().Print(LOG_NAME, "Driver Version: %d\r\n", physicalDeviceProperties.driverVersion);
-		CLog::GetInstance().Print(LOG_NAME, "Device Name:    %s\r\n", physicalDeviceProperties.deviceName);
-		CLog::GetInstance().Print(LOG_NAME, "Device Type:    %d\r\n", physicalDeviceProperties.deviceType);
-		CLog::GetInstance().Print(LOG_NAME, "API Version:    %d.%d.%d\r\n",
-		                          VK_VERSION_MAJOR(physicalDeviceProperties.apiVersion),
-		                          VK_VERSION_MINOR(physicalDeviceProperties.apiVersion),
-		                          VK_VERSION_PATCH(physicalDeviceProperties.apiVersion));
-	}
 
 	return physicalDevices;
 }

@@ -23,41 +23,7 @@ CGSH_VulkanQt::FactoryFunction CGSH_VulkanQt::GetFactoryFunction(QWindow* render
 
 void CGSH_VulkanQt::InitializeImpl()
 {
-	auto instanceCreateInfo = Framework::Vulkan::InstanceCreateInfo();
-
-	std::vector<const char*> extensions;
-	extensions.push_back(VK_KHR_SURFACE_EXTENSION_NAME);
-#ifdef _WIN32
-	extensions.push_back(VK_KHR_WIN32_SURFACE_EXTENSION_NAME);
-#endif
-#ifdef __APPLE__
-	extensions.push_back(VK_MVK_MACOS_SURFACE_EXTENSION_NAME);
-#endif
-#ifdef __linux__
-	extensions.push_back(VK_KHR_XCB_SURFACE_EXTENSION_NAME);
-#endif
-
-	std::vector<const char*> layers;
-#if defined(_DEBUG) && !defined(__APPLE__)
-	layers.push_back("VK_LAYER_LUNARG_standard_validation");
-#endif
-
-	auto appInfo = Framework::Vulkan::ApplicationInfo();
-	appInfo.pApplicationName = "Play!";
-	appInfo.pEngineName = "Play!";
-#ifdef __APPLE__
-	//MoltenVK requires version to be 1.0.x
-	appInfo.apiVersion = VK_MAKE_VERSION(1, 0, 0);
-#else
-	appInfo.apiVersion = VK_MAKE_VERSION(1, 1, 0);
-#endif
-
-	instanceCreateInfo.pApplicationInfo = &appInfo;
-	instanceCreateInfo.enabledExtensionCount = extensions.size();
-	instanceCreateInfo.ppEnabledExtensionNames = extensions.data();
-	instanceCreateInfo.enabledLayerCount = layers.size();
-	instanceCreateInfo.ppEnabledLayerNames = layers.data();
-	m_instance = Framework::Vulkan::CInstance(instanceCreateInfo);
+	m_instance = CreateInstance();
 
 #ifdef _WIN32
 	auto surfaceCreateInfo = Framework::Vulkan::Win32SurfaceCreateInfoKHR();
