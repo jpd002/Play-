@@ -60,7 +60,7 @@ void CDeviceInfo::PopulateDevices()
 			}
 			else
 			{
-				//Do something
+				m_devices.push_back({ physicalDeviceProperties.deviceName, physicalDeviceProperties.vendorID, physicalDeviceProperties.deviceID });
 			}
 
 			m_log += "\r\n\r\n";

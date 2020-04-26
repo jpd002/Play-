@@ -226,15 +226,23 @@
             </property>
            </widget>
           </item>
+          <item row="2" column="0">
+           <widget class="QLabel" name="label_7">
+            <property name="text">
+             <string>Vulkan Device:</string>
+            </property>
+           </widget>
+          </item>
           <item row="1" column="0">
            <widget class="QComboBox" name="comboBox_gs_selection"/>
           </item>
-          <item row="2" column="0">
+          <item row="3" column="0">
+           <widget class="QComboBox" name="comboBox_vulkan_device"/>
+          </item>
+          <item row="4" column="0">
            <widget class="QLabel" name="label_5">
             <property name="text">
-             <string>Warning: The Vulkan GS handler requires the VK_EXT_fragment_shader_interlock extension to work properly.
-
-Changing this setting during gameplay can produce unexpected results.</string>
+             <string>Warning: Changing these settings during gameplay can produce unexpected results.</string>
             </property>
             <property name="textFormat">
              <enum>Qt::AutoText</enum>

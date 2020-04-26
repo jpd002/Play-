@@ -26,9 +26,14 @@ SettingsDialog::SettingsDialog(QWidget* parent)
 	ui->comboBox_gs_selection->blockSignals(true);
 	ui->comboBox_gs_selection->insertItem(SettingsDialog::GS_HANDLERS::OPENGL, "OpenGL");
 #ifdef HAS_GSH_VULKAN
-	if(GSH_Vulkan::CDeviceInfo::GetInstance().HasAvailableDevices())
+	auto devices = GSH_Vulkan::CDeviceInfo::GetInstance().GetAvailableDevices();
+	if(!devices.empty())
 	{
 		ui->comboBox_gs_selection->insertItem(SettingsDialog::GS_HANDLERS::VULKAN, "Vulkan");
+		for(const auto& device : devices)
+		{
+			ui->comboBox_vulkan_device->insertItem(0, QString::fromUtf8(device.deviceName.c_str()));
+		}
 	}
 #else
 	ui->button_vulkanDeviceInfo->hide();

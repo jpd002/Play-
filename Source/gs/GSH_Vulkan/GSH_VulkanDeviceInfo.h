@@ -9,8 +9,9 @@ namespace GSH_Vulkan
 {
 	struct VULKAN_DEVICE
 	{
-		uint32 vendorID = 0;
-		uint32 deviceID = 0;
+		std::string deviceName;
+		uint32 vendorId = 0;
+		uint32 deviceId = 0;
 	};
 	typedef std::vector<VULKAN_DEVICE> DeviceList;
 
