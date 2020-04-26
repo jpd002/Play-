@@ -365,6 +365,7 @@ uint32 CGSHandler::ReadPrivRegister(uint32 nAddress)
 	switch(nAddress & ~0x0F)
 	{
 	case GS_CSR:
+	case GS_CSR_ALT:
 		//Force CSR to have the H-Blank bit set.
 		{
 			std::lock_guard<std::recursive_mutex> registerMutexLock(m_registerMutex);
@@ -418,6 +419,7 @@ void CGSHandler::WritePrivRegister(uint32 nAddress, uint32 nData)
 		WriteToDelayedRegister(nAddress, nData, m_nDISPLAY2);
 		break;
 	case GS_CSR:
+	case GS_CSR_ALT:
 	{
 		if(!(nAddress & 0x04))
 		{
@@ -1828,6 +1830,7 @@ void CGSHandler::LogPrivateWrite(uint32 address)
 	}
 	break;
 	case GS_CSR:
+	case GS_CSR_ALT:
 		//CSR
 		break;
 	case GS_IMR:
