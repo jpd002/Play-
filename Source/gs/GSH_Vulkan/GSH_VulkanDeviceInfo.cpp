@@ -1,3 +1,4 @@
+#include <cstring>
 #include "GSH_VulkanDeviceInfo.h"
 #include "GSH_Vulkan.h"
 #include "string_format.h"

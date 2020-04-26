@@ -31,7 +31,7 @@ SettingsDialog::SettingsDialog(QWidget* parent)
 		ui->comboBox_gs_selection->insertItem(SettingsDialog::GS_HANDLERS::VULKAN, "Vulkan");
 	}
 #else
-	ui->button_vulkanDeviceInfoLog->hide();
+	ui->button_vulkanDeviceInfo->hide();
 #endif
 	if(ui->comboBox_gs_selection->count() <= 1)
 	{
