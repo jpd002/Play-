@@ -504,7 +504,7 @@ int32 CIoman::PreOpen(uint32 flags, const char* path)
 	}
 	catch(const std::exception& except)
 	{
-		CLog::GetInstance().Warn(LOG_NAME, "%s: Error occured while trying to open file : %s\r\n", __FUNCTION__, except.what());
+		CLog::GetInstance().Warn(LOG_NAME, "%s: Error occured while trying to open file : %s : %s\r\n", __FUNCTION__, path, except.what());
 		FreeFileHandle(handle);
 		return -1;
 	}
