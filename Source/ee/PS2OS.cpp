@@ -2811,8 +2811,8 @@ void CPS2OS::sc_Deci2Call()
 
 			DECI2HANDLER* handler = GetDeci2Handler(id);
 			handler->valid = 1;
-			handler->device = *(uint32*)&m_ram[param + 0x00];
-			handler->bufferAddr = *(uint32*)&m_ram[param + 0x04];
+			handler->device = *reinterpret_cast<uint32*>(GetStructPtr(param + 0x00));
+			handler->bufferAddr = *reinterpret_cast<uint32*>(GetStructPtr(param + 0x04));
 
 			m_ee.m_State.nGPR[SC_RETURN].nV[0] = id;
 			m_ee.m_State.nGPR[SC_RETURN].nV[1] = 0;
