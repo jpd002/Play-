@@ -1,4 +1,5 @@
 #include <cstring>
+#include "../../AppConfig.h"
 #include "GSH_VulkanDeviceInfo.h"
 #include "GSH_Vulkan.h"
 #include "string_format.h"
@@ -7,7 +8,21 @@ using namespace GSH_Vulkan;
 
 CDeviceInfo::CDeviceInfo()
 {
+	CAppConfig::GetInstance().RegisterPreferenceInteger(PREF_CGSH_VULKAN_DEVICEID, 0);
+	CAppConfig::GetInstance().RegisterPreferenceInteger(PREF_CGSH_VULKAN_VENDORID, 0);
+
 	PopulateDevices();
+
+	m_selectedDevice.deviceId = CAppConfig::GetInstance().GetPreferenceInteger(PREF_CGSH_VULKAN_DEVICEID);
+	m_selectedDevice.vendorId = CAppConfig::GetInstance().GetPreferenceInteger(PREF_CGSH_VULKAN_VENDORID);
+
+	bool needsReset = (m_selectedDevice.deviceId == 0 || m_selectedDevice.vendorId == 0);
+	needsReset |= !HasDevice(m_selectedDevice);
+
+	if(needsReset && HasAvailableDevices())
+	{
+		SetSelectedDevice(m_devices[0]);
+	}
 }
 
 void CDeviceInfo::PopulateDevices()
@@ -72,6 +87,21 @@ void CDeviceInfo::PopulateDevices()
 	}
 }
 
+bool CDeviceInfo::HasDevice(const VULKAN_DEVICE& deviceToTest) const
+{
+	for(const auto& device : m_devices)
+	{
+		if(
+			(device.deviceId == deviceToTest.deviceId) &&
+			(device.vendorId == deviceToTest.vendorId)
+			)
+		{
+			return true;
+		}
+	}
+	return false;
+}
+
 DeviceList CDeviceInfo::GetAvailableDevices() const
 {
 	return m_devices;
@@ -79,9 +109,15 @@ DeviceList CDeviceInfo::GetAvailableDevices() const
 
 VULKAN_DEVICE CDeviceInfo::GetSelectedDevice() const
 {
-	//TODO: Check in config
-	assert(!m_devices.empty());
-	return *m_devices.begin();
+	assert(HasDevice(m_selectedDevice));
+	return m_selectedDevice;
+}
+
+void CDeviceInfo::SetSelectedDevice(const VULKAN_DEVICE& device)
+{
+	m_selectedDevice = device;
+	CAppConfig::GetInstance().SetPreferenceInteger(PREF_CGSH_VULKAN_DEVICEID, m_selectedDevice.deviceId);
+	CAppConfig::GetInstance().SetPreferenceInteger(PREF_CGSH_VULKAN_VENDORID, m_selectedDevice.vendorId);
 }
 
 bool CDeviceInfo::HasAvailableDevices() const
