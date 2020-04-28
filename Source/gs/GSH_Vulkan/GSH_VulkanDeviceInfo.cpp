@@ -77,6 +77,13 @@ DeviceList CDeviceInfo::GetAvailableDevices() const
 	return m_devices;
 }
 
+VULKAN_DEVICE CDeviceInfo::GetSelectedDevice() const
+{
+	//TODO: Check in config
+	assert(!m_devices.empty());
+	return *m_devices.begin();
+}
+
 bool CDeviceInfo::HasAvailableDevices() const
 {
 	return !m_devices.empty();

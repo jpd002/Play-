@@ -81,6 +81,7 @@ private:
 	virtual void PresentBackbuffer() = 0;
 
 	std::vector<VkPhysicalDevice> GetPhysicalDevices();
+	uint32 GetPhysicalDeviceIndex(const std::vector<VkPhysicalDevice>&) const;
 	std::vector<uint32_t> GetRenderQueueFamilies(VkPhysicalDevice);
 	std::vector<VkSurfaceFormatKHR> GetDeviceSurfaceFormats(VkPhysicalDevice);
 

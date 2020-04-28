@@ -21,6 +21,7 @@ namespace GSH_Vulkan
 		CDeviceInfo();
 
 		DeviceList GetAvailableDevices() const;
+		VULKAN_DEVICE GetSelectedDevice() const;
 		bool HasAvailableDevices() const;
 		std::string GetLog() const;
 

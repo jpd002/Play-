@@ -2,6 +2,7 @@
 #include "../GsPixelFormats.h"
 #include "../../Log.h"
 #include "GSH_Vulkan.h"
+#include "GSH_VulkanDeviceInfo.h"
 #include "vulkan/StructDefs.h"
 #include "vulkan/Utils.h"
 
@@ -91,7 +92,8 @@ void CGSH_Vulkan::InitializeImpl()
 
 	auto physicalDevices = GetPhysicalDevices();
 	assert(!physicalDevices.empty());
-	m_context->physicalDevice = physicalDevices[0];
+	auto physicalDeviceIndex = GetPhysicalDeviceIndex(physicalDevices);
+	m_context->physicalDevice = physicalDevices[physicalDeviceIndex];
 
 	auto renderQueueFamilies = GetRenderQueueFamilies(m_context->physicalDevice);
 	assert(!renderQueueFamilies.empty());
@@ -231,6 +233,25 @@ std::vector<VkPhysicalDevice> CGSH_Vulkan::GetPhysicalDevices()
 	CHECKVULKANERROR(result);
 
 	return physicalDevices;
+}
+
+uint32 CGSH_Vulkan::GetPhysicalDeviceIndex(const std::vector<VkPhysicalDevice>& physicalDevices) const
+{
+	auto selectedDevice = CDeviceInfo::GetInstance().GetSelectedDevice();
+	for(uint32 i = 0; i < physicalDevices.size(); i++)
+	{
+		const auto& physicalDevice = physicalDevices[i];
+		VkPhysicalDeviceProperties physicalDeviceProperties = {};
+		m_instance.vkGetPhysicalDeviceProperties(physicalDevice, &physicalDeviceProperties);
+		if(
+			(physicalDeviceProperties.deviceID == selectedDevice.deviceId) &&
+			(physicalDeviceProperties.vendorID == selectedDevice.vendorId))
+		{
+			return i;
+		}
+	}
+	assert(false);
+	return 0;
 }
 
 std::vector<uint32_t> CGSH_Vulkan::GetRenderQueueFamilies(VkPhysicalDevice physicalDevice)
