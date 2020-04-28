@@ -32,12 +32,13 @@ public:
 private slots:
 	void on_checkBox_force_bilinear_filtering_clicked(bool checked);
 	void on_comboBox_gs_selection_currentIndexChanged(int index);
+	void on_comboBox_vulkan_device_currentIndexChanged(int index);
+	void on_button_vulkanDeviceInfo_clicked();
 	void on_checkBox_enable_audio_clicked(bool checked);
 	void on_comboBox_presentation_mode_currentIndexChanged(int index);
 	void changePage(QListWidgetItem* current, QListWidgetItem* previous);
 	void on_comboBox_res_multiplyer_currentIndexChanged(int index);
 	void on_spinBox_spuBlockCount_valueChanged(int value);
-	void on_button_vulkanDeviceInfo_clicked();
 
 private:
 	Ui::SettingsDialog* ui;

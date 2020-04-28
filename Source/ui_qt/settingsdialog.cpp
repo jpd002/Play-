@@ -9,6 +9,7 @@
 
 #ifdef HAS_GSH_VULKAN
 #include "gs/GSH_Vulkan/GSH_VulkanDeviceInfo.h"
+Q_DECLARE_METATYPE(GSH_Vulkan::VULKAN_DEVICE);
 #endif
 
 SettingsDialog::SettingsDialog(QWidget* parent)
@@ -22,8 +23,11 @@ SettingsDialog::SettingsDialog(QWidget* parent)
 
 	// this assert is to ensure no one adds an item to the combobox through qt creator by accident
 	assert(ui->comboBox_gs_selection->count() == 0);
+	assert(ui->comboBox_vulkan_device->count() == 0);
 
 	ui->comboBox_gs_selection->blockSignals(true);
+	ui->comboBox_vulkan_device->blockSignals(true);
+
 	ui->comboBox_gs_selection->insertItem(SettingsDialog::GS_HANDLERS::OPENGL, "OpenGL");
 #ifdef HAS_GSH_VULKAN
 	auto devices = GSH_Vulkan::CDeviceInfo::GetInstance().GetAvailableDevices();
@@ -32,7 +36,7 @@ SettingsDialog::SettingsDialog(QWidget* parent)
 		ui->comboBox_gs_selection->insertItem(SettingsDialog::GS_HANDLERS::VULKAN, "Vulkan");
 		for(const auto& device : devices)
 		{
-			ui->comboBox_vulkan_device->insertItem(0, QString::fromUtf8(device.deviceName.c_str()));
+			ui->comboBox_vulkan_device->insertItem(0, QString::fromUtf8(device.deviceName.c_str()), QVariant::fromValue(device));
 		}
 	}
 #else
@@ -43,6 +47,7 @@ SettingsDialog::SettingsDialog(QWidget* parent)
 		ui->gs_option_widget->hide();
 	}
 
+	ui->comboBox_vulkan_device->blockSignals(false);
 	ui->comboBox_gs_selection->blockSignals(false);
 
 	LoadPreferences();
@@ -86,6 +91,23 @@ void SettingsDialog::on_comboBox_gs_selection_currentIndexChanged(int index)
 	CAppConfig::GetInstance().SetPreferenceInteger(PREF_VIDEO_GS_HANDLER, index);
 }
 
+void SettingsDialog::on_comboBox_vulkan_device_currentIndexChanged(int index)
+{
+#if HAS_GSH_VULKAN
+	auto deviceVariant = ui->comboBox_vulkan_device->itemData(index);
+	auto device = deviceVariant.value<GSH_Vulkan::VULKAN_DEVICE>();
+	GSH_Vulkan::CDeviceInfo::GetInstance().SetSelectedDevice(device);
+#endif
+}
+
+void SettingsDialog::on_button_vulkanDeviceInfo_clicked()
+{
+#if HAS_GSH_VULKAN
+	auto log = GSH_Vulkan::CDeviceInfo::GetInstance().GetLog();
+	QMessageBox::information(this, "Vulkan Device Info", log.c_str());
+#endif
+}
+
 void SettingsDialog::on_checkBox_enable_audio_clicked(bool checked)
 {
 	CAppConfig::GetInstance().SetPreferenceBoolean(PREFERENCE_AUDIO_ENABLEOUTPUT, checked);
@@ -105,12 +127,4 @@ void SettingsDialog::on_comboBox_res_multiplyer_currentIndexChanged(int index)
 void SettingsDialog::on_spinBox_spuBlockCount_valueChanged(int value)
 {
 	CAppConfig::GetInstance().SetPreferenceInteger(PREF_AUDIO_SPUBLOCKCOUNT, value);
-}
-
-void SettingsDialog::on_button_vulkanDeviceInfo_clicked()
-{
-#if HAS_GSH_VULKAN
-	auto log = GSH_Vulkan::CDeviceInfo::GetInstance().GetLog();
-	QMessageBox::information(this, "Vulkan Device Info", log.c_str());
-#endif
 }
