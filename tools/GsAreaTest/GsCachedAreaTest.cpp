@@ -2,6 +2,7 @@
 #include "gs/GsCachedArea.h"
 #include "gs/GSHandler.h"
 #include "gs/GsPixelFormats.h"
+#include "Test.h"
 
 void CGsCachedAreaTest::Execute()
 {
@@ -17,17 +18,17 @@ void CGsCachedAreaTest::CheckEmptyArea()
 	area.SetArea(CGSHandler::PSMCT32, 0, 0, 0);
 
 	auto areaRect = area.GetAreaPageRect();
-	assert(areaRect.width == 0);
-	assert(areaRect.height == 0);
+	TEST_VERIFY(areaRect.width == 0);
+	TEST_VERIFY(areaRect.height == 0);
 
 	auto areaSize = area.GetSize();
-	assert(areaSize == 0);
+	TEST_VERIFY(areaSize == 0);
 
 	auto dirtyRect = area.GetDirtyPageRect();
-	assert(dirtyRect.x == 0);
-	assert(dirtyRect.y == 0);
-	assert(dirtyRect.width == 0);
-	assert(dirtyRect.height == 0);
+	TEST_VERIFY(dirtyRect.x == 0);
+	TEST_VERIFY(dirtyRect.y == 0);
+	TEST_VERIFY(dirtyRect.width == 0);
+	TEST_VERIFY(dirtyRect.height == 0);
 }
 
 void CGsCachedAreaTest::CheckDirtyRect()
@@ -48,10 +49,10 @@ void CGsCachedAreaTest::CheckDirtyRect()
 		}
 
 		auto dirtyRect = area.GetDirtyPageRect();
-		assert(dirtyRect.x == 0);
-		assert(dirtyRect.y == 0);
-		assert(dirtyRect.width == areaRect.width);
-		assert(dirtyRect.height == areaRect.height);
+		TEST_VERIFY(dirtyRect.x == 0);
+		TEST_VERIFY(dirtyRect.y == 0);
+		TEST_VERIFY(dirtyRect.width == areaRect.width);
+		TEST_VERIFY(dirtyRect.height == areaRect.height);
 	}
 
 	//One page
@@ -65,10 +66,10 @@ void CGsCachedAreaTest::CheckDirtyRect()
 		area.SetPageDirty(dirtyX + (dirtyY * areaRect.width));
 
 		auto dirtyRect = area.GetDirtyPageRect();
-		assert(dirtyRect.x == dirtyX);
-		assert(dirtyRect.y == dirtyY);
-		assert(dirtyRect.width == 1);
-		assert(dirtyRect.height == 1);
+		TEST_VERIFY(dirtyRect.x == dirtyX);
+		TEST_VERIFY(dirtyRect.y == dirtyY);
+		TEST_VERIFY(dirtyRect.width == 1);
+		TEST_VERIFY(dirtyRect.height == 1);
 	}
 
 	//Completely clear
@@ -77,10 +78,10 @@ void CGsCachedAreaTest::CheckDirtyRect()
 		area.SetArea(CGSHandler::PSMCT32, 0, 512, 512);
 
 		auto dirtyRect = area.GetDirtyPageRect();
-		assert(dirtyRect.x == 0);
-		assert(dirtyRect.y == 0);
-		assert(dirtyRect.width == 0);
-		assert(dirtyRect.height == 0);
+		TEST_VERIFY(dirtyRect.x == 0);
+		TEST_VERIFY(dirtyRect.y == 0);
+		TEST_VERIFY(dirtyRect.width == 0);
+		TEST_VERIFY(dirtyRect.height == 0);
 	}
 }
 
@@ -93,16 +94,16 @@ void CGsCachedAreaTest::CheckClearDirtyPages()
 	uint32 dirtyX = 3;
 	uint32 dirtyY = 2;
 	area.SetPageDirty(dirtyX + (dirtyY * areaRect.width));
-	assert(area.HasDirtyPages());
+	TEST_VERIFY(area.HasDirtyPages());
 
 	area.ClearDirtyPages(CGsCachedArea::PageRect{0, 0, 1, 1});
-	assert(area.HasDirtyPages());
+	TEST_VERIFY(area.HasDirtyPages());
 
 	area.ClearDirtyPages(CGsCachedArea::PageRect{0, 0, 3, 2});
-	assert(area.HasDirtyPages());
+	TEST_VERIFY(area.HasDirtyPages());
 
 	area.ClearDirtyPages(CGsCachedArea::PageRect{3, 2, 1, 1});
-	assert(!area.HasDirtyPages());
+	TEST_VERIFY(!area.HasDirtyPages());
 }
 
 void CGsCachedAreaTest::CheckInvalidate()
@@ -120,10 +121,10 @@ void CGsCachedAreaTest::CheckInvalidate()
 		area.Invalidate(0, areaPageWidth * CGsPixelFormats::PAGESIZE);
 
 		auto dirtyRect = area.GetDirtyPageRect();
-		assert(dirtyRect.x == 0);
-		assert(dirtyRect.y == 0);
-		assert(dirtyRect.width == areaPageWidth);
-		assert(dirtyRect.height == 1);
+		TEST_VERIFY(dirtyRect.x == 0);
+		TEST_VERIFY(dirtyRect.y == 0);
+		TEST_VERIFY(dirtyRect.width == areaPageWidth);
+		TEST_VERIFY(dirtyRect.height == 1);
 	}
 
 	//Invalidate second line
@@ -134,10 +135,10 @@ void CGsCachedAreaTest::CheckInvalidate()
 		area.Invalidate(areaPageWidth * CGsPixelFormats::PAGESIZE, areaPageWidth * CGsPixelFormats::PAGESIZE);
 
 		auto dirtyRect = area.GetDirtyPageRect();
-		assert(dirtyRect.x == 0);
-		assert(dirtyRect.y == 1);
-		assert(dirtyRect.width == areaPageWidth);
-		assert(dirtyRect.height == 1);
+		TEST_VERIFY(dirtyRect.x == 0);
+		TEST_VERIFY(dirtyRect.y == 1);
+		TEST_VERIFY(dirtyRect.width == areaPageWidth);
+		TEST_VERIFY(dirtyRect.height == 1);
 	}
 
 	//Invalidate two first lines
@@ -148,9 +149,9 @@ void CGsCachedAreaTest::CheckInvalidate()
 		area.Invalidate(0, areaPageWidth * CGsPixelFormats::PAGESIZE * 2);
 
 		auto dirtyRect = area.GetDirtyPageRect();
-		assert(dirtyRect.x == 0);
-		assert(dirtyRect.y == 0);
-		assert(dirtyRect.width == areaPageWidth);
-		assert(dirtyRect.height == 2);
+		TEST_VERIFY(dirtyRect.x == 0);
+		TEST_VERIFY(dirtyRect.y == 0);
+		TEST_VERIFY(dirtyRect.width == areaPageWidth);
+		TEST_VERIFY(dirtyRect.height == 2);
 	}
 }

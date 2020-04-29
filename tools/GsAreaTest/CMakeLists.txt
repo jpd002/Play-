@@ -20,6 +20,7 @@ add_executable(GsAreaTest
 	Main.cpp
 
 	GsCachedAreaTest.h
+	Test.h
 )
 
 target_link_libraries(GsAreaTest PlayCore)
