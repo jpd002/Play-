@@ -693,19 +693,19 @@ public:
 		unsigned int nReserved4 : 2;
 		unsigned int nDstPsm : 6;
 		unsigned int nReserved5 : 2;
-		uint32 GetSrcPtr()
+		uint32 GetSrcPtr() const
 		{
 			return nSrcPtr * 256;
 		}
-		uint32 GetSrcWidth()
+		uint32 GetSrcWidth() const
 		{
 			return nSrcWidth * 64;
 		}
-		uint32 GetDstPtr()
+		uint32 GetDstPtr() const
 		{
 			return nDstPtr * 256;
 		}
-		uint32 GetDstWidth()
+		uint32 GetDstWidth() const
 		{
 			return nDstWidth * 64;
 		}
