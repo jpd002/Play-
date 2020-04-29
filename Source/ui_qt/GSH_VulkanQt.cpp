@@ -23,7 +23,7 @@ CGSH_VulkanQt::FactoryFunction CGSH_VulkanQt::GetFactoryFunction(QWindow* render
 
 void CGSH_VulkanQt::InitializeImpl()
 {
-	m_instance = CreateInstance();
+	m_instance = CreateInstance(true);
 
 #ifdef _WIN32
 	auto surfaceCreateInfo = Framework::Vulkan::Win32SurfaceCreateInfoKHR();

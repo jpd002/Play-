@@ -21,7 +21,7 @@ public:
 	CGSH_Vulkan();
 	virtual ~CGSH_Vulkan() = default;
 
-	static Framework::Vulkan::CInstance CreateInstance();
+	static Framework::Vulkan::CInstance CreateInstance(bool);
 
 	void SetPresentationParams(const CGSHandler::PRESENTATION_PARAMS&) override;
 

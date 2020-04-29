@@ -33,7 +33,8 @@ void CDeviceInfo::PopulateDevices()
 	{
 		auto result = VK_SUCCESS;
 
-		auto instance = CGSH_Vulkan::CreateInstance();
+		//Create instance without validation layers to be as minimalist as possible
+		auto instance = CGSH_Vulkan::CreateInstance(false);
 
 		uint32_t physicalDeviceCount = 0;
 		result = instance.vkEnumeratePhysicalDevices(instance, &physicalDeviceCount, nullptr);

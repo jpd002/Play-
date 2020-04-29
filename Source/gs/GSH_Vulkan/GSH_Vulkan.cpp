@@ -46,7 +46,7 @@ CGSH_Vulkan::CGSH_Vulkan()
 	m_context = std::make_shared<CContext>();
 }
 
-Framework::Vulkan::CInstance CGSH_Vulkan::CreateInstance()
+Framework::Vulkan::CInstance CGSH_Vulkan::CreateInstance(bool useValidationLayers)
 {
 	auto instanceCreateInfo = Framework::Vulkan::InstanceCreateInfo();
 
@@ -64,7 +64,10 @@ Framework::Vulkan::CInstance CGSH_Vulkan::CreateInstance()
 
 	std::vector<const char*> layers;
 #if defined(_DEBUG) && !defined(__APPLE__)
-	layers.push_back("VK_LAYER_LUNARG_standard_validation");
+	if(useValidationLayers)
+	{
+		layers.push_back("VK_LAYER_LUNARG_standard_validation");
+	}
 #endif
 
 	auto appInfo = Framework::Vulkan::ApplicationInfo();
