@@ -67,13 +67,19 @@ void ScanBootables(const fs::path& parentPath, bool recursive)
 		parentPath.string().c_str(), static_cast<int>(recursive));
 	try
 	{
-		for(auto pathIterator = fs::directory_iterator(parentPath);
-			pathIterator != fs::directory_iterator(); pathIterator++)
+		std::error_code ec;
+		for(auto pathIterator = fs::directory_iterator(parentPath, ec);
+			pathIterator != fs::directory_iterator(); pathIterator.increment(ec))
 		{
 			auto& path = pathIterator->path();
 			BootableLog("Checking '%s'... ", path.string().c_str());
 			try
 			{
+				if(ec)
+				{
+					BootableLog(" failed to get status: %s.\r\n", ec.message().c_str());
+					continue;
+				}
 				if(recursive && fs::is_directory(path))
 				{
 					BootableLog("is directory.\r\n");
