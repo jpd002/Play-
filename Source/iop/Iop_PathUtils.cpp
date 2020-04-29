@@ -13,5 +13,5 @@ fs::path Iop::PathUtils::MakeHostPath(const fs::path& baseHostPath, const char* 
 	auto result = baseHostPath;
 	result.concat("/");
 	result.concat(guestPath);
-	return result;
+	return fs::weakly_canonical(result);
 }

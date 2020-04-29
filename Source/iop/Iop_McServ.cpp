@@ -502,13 +502,25 @@ void CMcServ::ChDir(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, 
 		}
 		else
 		{
-			newCurrentDirectory = m_currentDirectory + SEPARATOR_CHAR + requestedDirectory;
+			if (m_currentDirectory.length() == 0) {
+				// We are at the root, but using a relative path
+				// Just roll with it - no need for a separator.
+                newCurrentDirectory = requestedDirectory;
+			} else {
+                newCurrentDirectory = m_currentDirectory + SEPARATOR_CHAR + requestedDirectory;
+            }
 		}
 
 		auto mcPath = CAppConfig::GetInstance().GetPreferencePath(m_mcPathPreference[cmd->port]);
 		auto hostPath = Iop::PathUtils::MakeHostPath(mcPath, newCurrentDirectory.c_str());
 
-		if(fs::exists(hostPath) && fs::is_directory(hostPath))
+		if(hostPath.string().size() < mcPath.string().size())
+		{
+			// No - you don't get to break out of mcPath
+            m_currentDirectory = "";
+            result = 0;
+		}
+		else if(fs::exists(hostPath) && fs::is_directory(hostPath))
 		{
 			m_currentDirectory = newCurrentDirectory;
 			result = 0;
