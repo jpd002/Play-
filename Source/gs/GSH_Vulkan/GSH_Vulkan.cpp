@@ -244,8 +244,8 @@ uint32 CGSH_Vulkan::GetPhysicalDeviceIndex(const std::vector<VkPhysicalDevice>& 
 		VkPhysicalDeviceProperties physicalDeviceProperties = {};
 		m_instance.vkGetPhysicalDeviceProperties(physicalDevice, &physicalDeviceProperties);
 		if(
-			(physicalDeviceProperties.deviceID == selectedDevice.deviceId) &&
-			(physicalDeviceProperties.vendorID == selectedDevice.vendorId))
+		    (physicalDeviceProperties.deviceID == selectedDevice.deviceId) &&
+		    (physicalDeviceProperties.vendorID == selectedDevice.vendorId))
 		{
 			return i;
 		}

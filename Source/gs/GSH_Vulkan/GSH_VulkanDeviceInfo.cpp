@@ -56,9 +56,9 @@ void CDeviceInfo::PopulateDevices()
 			m_log += string_format("Device Name:    %s\r\n", physicalDeviceProperties.deviceName);
 			m_log += string_format("Device Type:    %d\r\n", physicalDeviceProperties.deviceType);
 			m_log += string_format("API Version:    %d.%d.%d\r\n",
-									   VK_VERSION_MAJOR(physicalDeviceProperties.apiVersion),
-									   VK_VERSION_MINOR(physicalDeviceProperties.apiVersion),
-									   VK_VERSION_PATCH(physicalDeviceProperties.apiVersion));
+			                       VK_VERSION_MAJOR(physicalDeviceProperties.apiVersion),
+			                       VK_VERSION_MINOR(physicalDeviceProperties.apiVersion),
+			                       VK_VERSION_PATCH(physicalDeviceProperties.apiVersion));
 
 			uint32_t propertyCount = 0;
 			result = instance.vkEnumerateDeviceExtensionProperties(physicalDevice, nullptr, &propertyCount, nullptr);
@@ -75,7 +75,7 @@ void CDeviceInfo::PopulateDevices()
 			}
 			else
 			{
-				m_devices.push_back({ physicalDeviceProperties.deviceName, physicalDeviceProperties.vendorID, physicalDeviceProperties.deviceID });
+				m_devices.push_back({physicalDeviceProperties.deviceName, physicalDeviceProperties.vendorID, physicalDeviceProperties.deviceID});
 			}
 
 			m_log += "\r\n\r\n";
@@ -92,9 +92,8 @@ bool CDeviceInfo::HasDevice(const VULKAN_DEVICE& deviceToTest) const
 	for(const auto& device : m_devices)
 	{
 		if(
-			(device.deviceId == deviceToTest.deviceId) &&
-			(device.vendorId == deviceToTest.vendorId)
-			)
+		    (device.deviceId == deviceToTest.deviceId) &&
+		    (device.vendorId == deviceToTest.vendorId))
 		{
 			return true;
 		}
