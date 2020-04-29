@@ -938,6 +938,8 @@ protected:
 	void ReadImageDataImpl(void*, uint32);
 	void WriteRegisterMassivelyImpl(const MASSIVEWRITE_INFO&);
 
+	static std::pair<uint32, uint32> GetTransferInvalidationRange(const BITBLTBUF&, const TRXREG&, const TRXPOS&);
+
 	void BeginTransfer();
 
 	virtual void BeginTransferWrite();
