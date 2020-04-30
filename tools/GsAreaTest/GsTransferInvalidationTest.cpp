@@ -91,5 +91,5 @@ void CGsTransferInvalidationTest::Execute()
 	SinglePageTransferTest<CGSHandler::PSMCT16, CGsPixelFormats::STORAGEPSMCT16>();
 	SinglePageTransferTest<CGSHandler::PSMT8, CGsPixelFormats::STORAGEPSMT8>();
 	SimpleOffsetYTransferTest();
-	//ZeroBufWidthTransferTest();
+	ZeroBufWidthTransferTest();
 }
