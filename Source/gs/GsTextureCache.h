@@ -64,10 +64,11 @@ public:
 		auto texture = *m_textureCache.rbegin();
 		texture->Reset();
 
-        // DBZ Budokai Tenkaichi 2 and 3 use invalid (empty) buffer sizes.
-        // Account for that, by assuming image width.
-        uint32 bufSize = tex0.GetBufWidth();
-		if (bufSize == 0) {
+		// DBZ Budokai Tenkaichi 2 and 3 use invalid (empty) buffer sizes.
+		// Account for that, by assuming image width.
+		uint32 bufSize = tex0.GetBufWidth();
+		if(bufSize == 0)
+		{
 			bufSize = tex0.GetWidth();
 		}
 
