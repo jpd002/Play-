@@ -1,5 +1,6 @@
 #include <functional>
 #include "GsCachedAreaTest.h"
+#include "GsTransferInvalidationTest.h"
 
 typedef std::function<CTest*()> TestFactoryFunction;
 
@@ -7,6 +8,7 @@ typedef std::function<CTest*()> TestFactoryFunction;
 static const TestFactoryFunction s_factories[] =
 {
 	[]() { return new CGsCachedAreaTest(); },
+	[]() { return new CGsTransferInvalidationTest(); }
 };
 // clang-format on
 

@@ -17,9 +17,11 @@ endif()
 
 add_executable(GsAreaTest
 	GsCachedAreaTest.cpp
+	GsTransferInvalidationTest.cpp
 	Main.cpp
 
 	GsCachedAreaTest.h
+	GsTransferInvalidationTest.h
 	Test.h
 )
 
