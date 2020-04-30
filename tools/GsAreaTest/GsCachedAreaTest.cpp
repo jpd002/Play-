@@ -2,7 +2,6 @@
 #include "gs/GsCachedArea.h"
 #include "gs/GSHandler.h"
 #include "gs/GsPixelFormats.h"
-#include "Test.h"
 
 void CGsCachedAreaTest::Execute()
 {

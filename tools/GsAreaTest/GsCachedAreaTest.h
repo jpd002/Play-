@@ -1,9 +1,11 @@
 #pragma once
 
-class CGsCachedAreaTest
+#include "Test.h"
+
+class CGsCachedAreaTest : public CTest
 {
 public:
-	void Execute();
+	void Execute() override;
 
 private:
 	void CheckEmptyArea();
