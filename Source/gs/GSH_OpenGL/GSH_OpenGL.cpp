@@ -1980,7 +1980,15 @@ void CGSH_OpenGL::ProcessHostToLocalTransfer()
 		//Find the pages that are touched by this transfer
 		auto transferPageSize = CGsPixelFormats::GetPsmPageSize(bltBuf.nDstPsm);
 
-		uint32 pageCountX = (bltBuf.GetDstWidth() + transferPageSize.first - 1) / transferPageSize.first;
+		// DBZ Budokai Tenkaichi 2 and 3 use invalid (empty) buffer sizes
+		// Account for that, by assuming trxReg.nRRW.
+		auto width = bltBuf.GetDstWidth();
+		if(width == 0)
+		{
+			width = trxReg.nRRW;
+		}
+
+		uint32 pageCountX = (width + transferPageSize.first - 1) / transferPageSize.first;
 		uint32 pageCountY = (trxReg.nRRH + transferPageSize.second - 1) / transferPageSize.second;
 
 		uint32 pageCount = pageCountX * pageCountY;
