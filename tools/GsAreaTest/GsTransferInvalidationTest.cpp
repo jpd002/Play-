@@ -20,7 +20,6 @@ static CGSHandler::TRXREG MakeTrxReg(uint32 width, uint32 height)
 	trxReg.nRRW = width;
 	trxReg.nRRH = height;
 	return trxReg;
-
 }
 
 static CGSHandler::TRXPOS MakeDstTrxPos(uint32 x, uint32 y)
@@ -51,6 +50,7 @@ static void SimpleOffsetYTransferTest()
 {
 	//In this test, the transfer position is skipping a few pages
 	//transferAddress should start at (bufWidth / 64) * 2
+	//This is used for movie playback in many games
 
 	uint32 bufPtr = 0x100000;
 	uint32 bufWidth = 640;
