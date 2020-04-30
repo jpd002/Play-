@@ -347,11 +347,12 @@ Framework::OpenGl::CShader CGSH_OpenGL::GenerateFragmentShader(const SHADERCAPS&
 	}
 
 	shaderBuilder << "	bool outputColor = true;" << std::endl;
+	shaderBuilder << "	bool outputDepth = true;" << std::endl;
 	shaderBuilder << "	bool outputAlpha = true;" << std::endl;
 
 	if(caps.hasAlphaTest)
 	{
-		shaderBuilder << GenerateAlphaTestSection(static_cast<ALPHA_TEST_METHOD>(caps.alphaTestMethod), static_cast<ALPHA_TEST_FAIL_METHOD>(m_hasFramebufferFetchExtension ? caps.alphaFailMethod : ALPHA_TEST_FAIL_KEEP));
+		shaderBuilder << GenerateAlphaTestSection(static_cast<ALPHA_TEST_METHOD>(caps.alphaTestMethod), static_cast<ALPHA_TEST_FAIL_METHOD>(caps.alphaFailMethod));
 	}
 
 	// ----------------------
@@ -391,7 +392,11 @@ Framework::OpenGl::CShader CGSH_OpenGL::GenerateFragmentShader(const SHADERCAPS&
 
 	// ----------------------
 
-	shaderBuilder << "	gl_FragDepth = v_depth;" << std::endl;
+	shaderBuilder << "	if(outputDepth) {" << std::endl;
+
+	shaderBuilder << "		gl_FragDepth = v_depth;" << std::endl;
+
+	shaderBuilder << "	}" << std::endl;
 
 	// ----------------------
 
@@ -487,6 +492,7 @@ std::string CGSH_OpenGL::GenerateAlphaTestSection(ALPHA_TEST_METHOD testMethod, 
 		break;
 	case ALPHA_TEST_FAIL_FBONLY:
 		// Only write color and alpha
+        shaderBuilder << "	outputDepth = false;" << std::endl;
 		// TODO: We cannot prevent depth from being written at the moment
 		assert(0);
 		break;
@@ -498,6 +504,7 @@ std::string CGSH_OpenGL::GenerateAlphaTestSection(ALPHA_TEST_METHOD testMethod, 
 	case ALPHA_TEST_FAIL_RGBONLY:
 		// Only write color
 		shaderBuilder << "	outputAlpha = false;" << std::endl;
+        shaderBuilder << "	outputDepth = false;" << std::endl;
 		// TODO: We cannot prevent depth from being written at the moment
 		assert(0);
 		break;
