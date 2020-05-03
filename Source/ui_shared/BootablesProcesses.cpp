@@ -64,12 +64,12 @@ bool TryRegisteringBootable(const fs::path& path)
 void ScanBootables(const fs::path& parentPath, bool recursive)
 {
 	BootableLog("Entering ScanBootables(path = '%s', recursive = %d);\r\n",
-		parentPath.string().c_str(), static_cast<int>(recursive));
+	            parentPath.string().c_str(), static_cast<int>(recursive));
 	try
 	{
 		std::error_code ec;
 		for(auto pathIterator = fs::directory_iterator(parentPath, ec);
-			pathIterator != fs::directory_iterator(); pathIterator.increment(ec))
+		    pathIterator != fs::directory_iterator(); pathIterator.increment(ec))
 		{
 			auto& path = pathIterator->path();
 			BootableLog("Checking '%s'... ", path.string().c_str());
@@ -102,7 +102,7 @@ void ScanBootables(const fs::path& parentPath, bool recursive)
 		BootableLog("Caught an exception while trying to list directory: %s\r\n", exception.what());
 	}
 	BootableLog("Exiting ScanBootables(path = '%s', recursive = %d);\r\n",
-		parentPath.string().c_str(), static_cast<int>(recursive));
+	            parentPath.string().c_str(), static_cast<int>(recursive));
 }
 
 std::set<fs::path> GetActiveBootableDirectories()
