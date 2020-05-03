@@ -2049,9 +2049,11 @@ void CGSH_OpenGL::ProcessLocalToLocalTransfer()
 		                                           return (framebuffer->m_basePtr == bltBuf.GetDstPtr()) &&
 		                                                  (framebuffer->m_width == bltBuf.GetDstWidth());
 	                                           });
-	if(
-	    srcFramebufferIterator != std::end(m_framebuffers) &&
-	    dstFramebufferIterator != std::end(m_framebuffers))
+
+	bool foundSrc = srcFramebufferIterator != std::end(m_framebuffers);
+	bool foundDest = dstFramebufferIterator != std::end(m_framebuffers);
+
+	if(foundSrc && foundDest)
 	{
 		FlushVertexBuffer();
 		m_renderState.isValid = false;
@@ -2070,6 +2072,39 @@ void CGSH_OpenGL::ProcessLocalToLocalTransfer()
 		CHECKGLERROR();
 
 		glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
+	}
+	else if(foundSrc && !foundDest)
+	{
+		auto trxPos = make_convertible<TRXPOS>(m_nReg[GS_REG_TRXPOS]);
+		auto trxReg = make_convertible<TRXREG>(m_nReg[GS_REG_TRXREG]);
+		auto imgbuffer = Framework::CBitmap(trxReg.nRRW * m_fbScale, trxReg.nRRH * m_fbScale, 32);
+
+		glBindFramebuffer(GL_FRAMEBUFFER, (*srcFramebufferIterator)->m_framebuffer);
+		glReadPixels(trxPos.nSSAX * m_fbScale, trxPos.nSSAY * m_fbScale, trxReg.nRRW * m_fbScale, trxReg.nRRH * m_fbScale, GL_RGBA, GL_UNSIGNED_BYTE, imgbuffer.GetPixels());
+		CHECKGLERROR();
+
+		// Sample down to requested size
+		imgbuffer = imgbuffer.Resize(trxReg.nRRW, trxReg.nRRH);
+
+		auto [transferAddress, transferSize] = GetTransferInvalidationRange(bltBuf, trxReg, trxPos);
+		m_textureCache.InvalidateRange(transferAddress, transferSize);
+
+		//Write back to RAM
+		{
+			CGsPixelFormats::CPixelIndexorPSMCT32 indexor(m_pRAM, bltBuf.GetDstPtr(), bltBuf.nDstWidth);
+			for(uint32 y = 0; y < trxReg.nRRH; y++)
+			{
+				for(uint32 x = 0; x < trxReg.nRRW; x++)
+				{
+					auto pixel = imgbuffer.GetPixel(x, y);
+					indexor.SetPixel(trxPos.nDSAX + x, trxPos.nDSAY + y, MakeColor(pixel.r, pixel.g, pixel.b, pixel.a));
+				}
+			}
+		}
+	}
+	else
+	{
+		assert(0);
 	}
 }
 
