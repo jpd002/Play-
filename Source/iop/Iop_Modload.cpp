@@ -80,9 +80,9 @@ void CModload::Invoke(CMIPS& context, unsigned int functionId)
 		break;
 	case 9:
 		context.m_State.nGPR[CMIPS::V0].nD0 = static_cast<int32>(LoadModuleBufferAddress(
-			context.m_State.nGPR[CMIPS::A0].nV0,
-			context.m_State.nGPR[CMIPS::A1].nV0,
-			context.m_State.nGPR[CMIPS::A2].nV0));
+		    context.m_State.nGPR[CMIPS::A0].nV0,
+		    context.m_State.nGPR[CMIPS::A1].nV0,
+		    context.m_State.nGPR[CMIPS::A2].nV0));
 		break;
 	case 10:
 		context.m_State.nGPR[CMIPS::V0].nD0 = static_cast<int32>(LoadModuleBuffer(
