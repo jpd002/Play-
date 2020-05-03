@@ -15,8 +15,11 @@
 // Extract game ids from disk images
 // Pull disc cover URLs and titles from GamesDb/TheGamesDb
 
+//#define SCAN_LOG
+
 static void BootableLog(const char* format, ...)
 {
+#ifdef SCAN_LOG
 	static FILE* logStream = nullptr;
 	if(!logStream)
 	{
@@ -28,6 +31,7 @@ static void BootableLog(const char* format, ...)
 	vfprintf(logStream, format, args);
 	va_end(args);
 	fflush(logStream);
+#endif
 }
 
 bool IsBootableExecutablePath(const fs::path& filePath)
