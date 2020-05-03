@@ -23,6 +23,7 @@
 #define FUNCTION_CDREADCLOCK "CdReadClock"
 #define FUNCTION_CDSTATUS "CdStatus"
 #define FUNCTION_CDCALLBACK "CdCallback"
+#define FUNCTION_CDGETREADPOS "CdGetReadPos"
 #define FUNCTION_CDSTINIT "CdStInit"
 #define FUNCTION_CDSTREAD "CdStRead"
 #define FUNCTION_CDSTSTART "CdStStart"
@@ -143,6 +144,9 @@ std::string CCdvdman::GetFunctionName(unsigned int functionId) const
 	case 37:
 		return FUNCTION_CDCALLBACK;
 		break;
+	case 44:
+		return FUNCTION_CDGETREADPOS;
+		break;
 	case 56:
 		return FUNCTION_CDSTINIT;
 		break;
@@ -224,6 +228,9 @@ void CCdvdman::Invoke(CMIPS& ctx, unsigned int functionId)
 		break;
 	case 37:
 		ctx.m_State.nGPR[CMIPS::V0].nV0 = CdCallback(ctx.m_State.nGPR[CMIPS::A0].nV0);
+		break;
+	case 44:
+		ctx.m_State.nGPR[CMIPS::V0].nV0 = CdGetReadPos();
 		break;
 	case 56:
 		ctx.m_State.nGPR[CMIPS::V0].nV0 = CdStInit(
@@ -487,6 +494,14 @@ uint32 CCdvdman::CdCallback(uint32 callbackPtr)
 	uint32 oldCallbackPtr = m_callbackPtr;
 	m_callbackPtr = callbackPtr;
 	return oldCallbackPtr;
+}
+
+uint32 CCdvdman::CdGetReadPos()
+{
+	CLog::GetInstance().Print(LOG_NAME, FUNCTION_CDGETREADPOS "();\r\n");
+
+	//If we're reading, report that we've read 1 sector for now
+	return (m_pendingCommand == COMMAND_READ) ? 0x800 : 0;
 }
 
 uint32 CCdvdman::CdStInit(uint32 bufMax, uint32 bankMax, uint32 bufPtr)
