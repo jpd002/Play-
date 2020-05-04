@@ -2075,6 +2075,9 @@ void CGSH_OpenGL::ProcessLocalToLocalTransfer()
 	}
 	else if(foundSrc && !foundDest)
 	{
+		FlushVertexBuffer();
+		m_renderState.isValid = false;
+
 		auto trxPos = make_convertible<TRXPOS>(m_nReg[GS_REG_TRXPOS]);
 		auto trxReg = make_convertible<TRXREG>(m_nReg[GS_REG_TRXREG]);
 		auto imgbuffer = Framework::CBitmap(trxReg.nRRW * m_fbScale, trxReg.nRRH * m_fbScale, 32);
