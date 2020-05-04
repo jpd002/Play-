@@ -262,7 +262,7 @@ void CMcServ::Open(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, u
 
 	CMD* cmd = reinterpret_cast<CMD*>(args);
 
-	CLog::GetInstance().Print(LOG_NAME, "Open(port = %i, slot = %i, flags = %i, name = %s);\r\n",
+	CLog::GetInstance().Print(LOG_NAME, "Open(port = %i, slot = %i, flags = %i, name = '%s');\r\n",
 	                          cmd->port, cmd->slot, cmd->flags, cmd->name);
 
 	if(cmd->port > 1)
@@ -478,7 +478,7 @@ void CMcServ::ChDir(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, 
 	assert(argsSize >= 0x414);
 	CMD* cmd = reinterpret_cast<CMD*>(args);
 
-	CLog::GetInstance().Print(LOG_NAME, "ChDir(port = %i, slot = %i, tableAddress = 0x%08X, name = %s);\r\n",
+	CLog::GetInstance().Print(LOG_NAME, "ChDir(port = %i, slot = %i, tableAddress = 0x%08X, name = '%s');\r\n",
 	                          cmd->port, cmd->slot, cmd->tableAddress, cmd->name);
 
 	uint32 result = -1;
@@ -535,7 +535,7 @@ void CMcServ::GetDir(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize,
 
 	auto cmd = reinterpret_cast<const CMD*>(args);
 
-	CLog::GetInstance().Print(LOG_NAME, "GetDir(port = %i, slot = %i, flags = %i, maxEntries = %i, tableAddress = 0x%08X, name = %s);\r\n",
+	CLog::GetInstance().Print(LOG_NAME, "GetDir(port = %i, slot = %i, flags = %i, maxEntries = %i, tableAddress = 0x%08X, name = '%s');\r\n",
 	                          cmd->port, cmd->slot, cmd->flags, cmd->maxEntries, cmd->tableAddress, cmd->name);
 
 	if(cmd->port > 1)
