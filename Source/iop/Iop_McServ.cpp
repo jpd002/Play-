@@ -508,7 +508,12 @@ void CMcServ::ChDir(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, 
 		auto mcPath = CAppConfig::GetInstance().GetPreferencePath(m_mcPathPreference[cmd->port]);
 		auto hostPath = Iop::PathUtils::MakeHostPath(mcPath, newCurrentDirectory.c_str());
 
-		if(fs::exists(hostPath) && fs::is_directory(hostPath))
+		if(!Iop::PathUtils::IsInsideBasePath(mcPath, hostPath))
+		{
+			//Some games (EA games) will try to ChDir('..') from the MC's root
+			result = RET_NO_ENTRY;
+		}
+		else if(fs::exists(hostPath) && fs::is_directory(hostPath))
 		{
 			m_currentDirectory = newCurrentDirectory;
 			result = 0;
