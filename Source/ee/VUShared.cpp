@@ -886,9 +886,8 @@ void VUShared::ISWbase(CMipsJitter* codeGen, uint8 dest)
 		{
 			codeGen->PushRelRef(offsetof(CMIPS, m_vuMem));
 			codeGen->PushIdx(1); //Push computed address
-			codeGen->AddRef();   //Make new ref value
-			codeGen->PushIdx(2); //Push value to store
-			codeGen->StoreAtRef();
+			codeGen->PushIdx(3); //Push value to store
+			codeGen->StoreAtRefIdx();
 		}
 
 		if(i != 3)
