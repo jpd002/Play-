@@ -1672,9 +1672,8 @@ void VUShared::QueueInFlagPipeline(const FLAG_PIPEINFO& pipeInfo, CMipsJitter* c
 {
 	uint32 valueCursor = codeGen->GetTopCursor();
 
-	//Get offset and multiply by sizeof(uint32)
+	//Get offset
 	codeGen->PushRel(pipeInfo.index);
-	codeGen->Shl(2);
 	uint32 offsetCursor = codeGen->GetTopCursor();
 
 	//Write time
@@ -1682,7 +1681,6 @@ void VUShared::QueueInFlagPipeline(const FLAG_PIPEINFO& pipeInfo, CMipsJitter* c
 		//Generate time address
 		codeGen->PushRelAddrRef(pipeInfo.timeArray);
 		codeGen->PushCursor(offsetCursor);
-		codeGen->AddRef();
 
 		//Generate time
 		codeGen->PushRel(offsetof(CMIPS, m_State.pipeTime));
@@ -1690,7 +1688,7 @@ void VUShared::QueueInFlagPipeline(const FLAG_PIPEINFO& pipeInfo, CMipsJitter* c
 		codeGen->Add();
 
 		//--- Store time
-		codeGen->StoreAtRef();
+		codeGen->StoreAtRefIdx4();
 	}
 
 	//Write value
@@ -1698,11 +1696,10 @@ void VUShared::QueueInFlagPipeline(const FLAG_PIPEINFO& pipeInfo, CMipsJitter* c
 		//Generate value address
 		codeGen->PushRelAddrRef(pipeInfo.valueArray);
 		codeGen->PushCursor(offsetCursor);
-		codeGen->AddRef();
 
 		//--- Store value
 		codeGen->PushCursor(valueCursor);
-		codeGen->StoreAtRef();
+		codeGen->StoreAtRefIdx4();
 	}
 
 	assert(codeGen->GetTopCursor() == offsetCursor);
