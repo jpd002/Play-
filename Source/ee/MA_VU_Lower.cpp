@@ -201,8 +201,6 @@ void CMA_VU::CLower::ILW()
 	    VUShared::GetDestOffset(m_nDest),
 	    m_vuMemAddressMask);
 
-	m_codeGen->AddRef();
-
 	VUShared::ILWbase(m_codeGen, m_nIT);
 }
 

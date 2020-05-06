@@ -810,7 +810,7 @@ void VUShared::IAND(CMipsJitter* codeGen, uint8 id, uint8 is, uint8 it)
 
 void VUShared::ILWbase(CMipsJitter* codeGen, uint8 it)
 {
-	codeGen->LoadFromRef();
+	codeGen->LoadFromRefIdx();
 	codeGen->PullRel(offsetof(CMIPS, m_State.nCOP2VI[it]));
 }
 
@@ -819,7 +819,6 @@ void VUShared::ILWR(CMipsJitter* codeGen, uint8 dest, uint8 it, uint8 is, uint32
 	//Compute address
 	codeGen->PushRelRef(offsetof(CMIPS, m_vuMem));
 	ComputeMemAccessAddr(codeGen, is, 0, GetDestOffset(dest), addressMask);
-	codeGen->AddRef();
 
 	ILWbase(codeGen, it);
 }
