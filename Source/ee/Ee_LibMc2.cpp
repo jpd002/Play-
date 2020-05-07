@@ -178,8 +178,22 @@ void CLibMc2::HookLibMc2Functions()
 	WriteSyscall(m_mkDirAsyncPtr, SYSCALL_MC2_MKDIR_ASYNC);
 	WriteSyscall(m_chDirAsyncPtr, SYSCALL_MC2_CHDIR_ASYNC);
 	WriteSyscall(m_searchFileAsyncPtr, SYSCALL_MC2_SEARCHFILE_ASYNC);
-	WriteSyscall(m_readFile2AsyncPtr, SYSCALL_MC2_READFILE2_ASYNC);
-	WriteSyscall(m_writeFile2AsyncPtr, SYSCALL_MC2_WRITEFILE2_ASYNC);
+	if(m_readFile2AsyncPtr != 0)
+	{
+		WriteSyscall(m_readFile2AsyncPtr, SYSCALL_MC2_READFILE2_ASYNC);
+	}
+	else
+	{
+		CLog::GetInstance().Warn(LOG_NAME, "Implementation for ReadFile2Async not found.\r\n");
+	}
+	if(m_writeFile2AsyncPtr != 0)
+	{
+		WriteSyscall(m_writeFile2AsyncPtr, SYSCALL_MC2_WRITEFILE2_ASYNC);
+	}
+	else
+	{
+		CLog::GetInstance().Warn(LOG_NAME, "Implementation for WriteFile2Async not found.\r\n");
+	}
 	WriteSyscall(m_checkAsyncPtr, SYSCALL_MC2_CHECKASYNC);
 }
 

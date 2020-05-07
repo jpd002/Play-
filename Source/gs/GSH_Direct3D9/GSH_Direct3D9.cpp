@@ -69,35 +69,25 @@ CGSHandler::FactoryFunction CGSH_Direct3D9::GetFactoryFunction(Framework::Win32:
 
 void CGSH_Direct3D9::ProcessHostToLocalTransfer()
 {
-	auto bltBuf = make_convertible<BITBLTBUF>(m_nReg[GS_REG_BITBLTBUF]);
-	uint32 transferAddress = bltBuf.GetDstPtr();
-
 	if(m_trxCtx.nDirty)
 	{
 		//FlushVertexBuffer();
 		m_renderState.isValid = false;
 
+		auto bltBuf = make_convertible<BITBLTBUF>(m_nReg[GS_REG_BITBLTBUF]);
 		auto trxReg = make_convertible<TRXREG>(m_nReg[GS_REG_TRXREG]);
 		auto trxPos = make_convertible<TRXPOS>(m_nReg[GS_REG_TRXPOS]);
 
-		//Find the pages that are touched by this transfer
-		auto transferPageSize = CGsPixelFormats::GetPsmPageSize(bltBuf.nDstPsm);
+		auto [transferAddress, transferSize] = GetTransferInvalidationRange(bltBuf, trxReg, trxPos);
 
-		uint32 pageCountX = (bltBuf.GetDstWidth() + transferPageSize.first - 1) / transferPageSize.first;
-		uint32 pageCountY = (trxReg.nRRH + transferPageSize.second - 1) / transferPageSize.second;
-
-		uint32 pageCount = pageCountX * pageCountY;
-		uint32 transferSize = pageCount * CGsPixelFormats::PAGESIZE;
-		uint32 transferOffset = (trxPos.nDSAY / transferPageSize.second) * pageCountX * CGsPixelFormats::PAGESIZE;
-
-		m_textureCache.InvalidateRange(transferAddress + transferOffset, transferSize);
+		m_textureCache.InvalidateRange(transferAddress, transferSize);
 
 #if 0
 		bool isUpperByteTransfer = (bltBuf.nDstPsm == PSMT8H) || (bltBuf.nDstPsm == PSMT4HL) || (bltBuf.nDstPsm == PSMT4HH);
 		for(const auto& framebuffer : m_framebuffers)
 		{
 			if((framebuffer->m_psm == PSMCT24) && isUpperByteTransfer) continue;
-			framebuffer->m_cachedArea.Invalidate(transferAddress + transferOffset, transferSize);
+			framebuffer->m_cachedArea.Invalidate(transferAddress, transferSize);
 		}
 #endif
 	}

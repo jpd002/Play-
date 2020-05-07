@@ -11,6 +11,7 @@ using namespace Iop;
 
 #define FUNCTION_LOADSTARTMODULE "LoadStartModule"
 #define FUNCTION_STARTMODULE "StartModule"
+#define FUNCTION_LOADMODULEBUFFERADDRESS "LoadModuleBufferAddress"
 #define FUNCTION_LOADMODULEBUFFER "LoadModuleBuffer"
 #define FUNCTION_GETMODULEIDLIST "GetModuleIdList"
 #define FUNCTION_REFERMODULESTATUS "ReferModuleStatus"
@@ -36,6 +37,9 @@ std::string CModload::GetFunctionName(unsigned int functionId) const
 		break;
 	case 8:
 		return FUNCTION_STARTMODULE;
+		break;
+	case 9:
+		return FUNCTION_LOADMODULEBUFFERADDRESS;
 		break;
 	case 10:
 		return FUNCTION_LOADMODULEBUFFER;
@@ -73,6 +77,12 @@ void CModload::Invoke(CMIPS& context, unsigned int functionId)
 		    context.m_State.nGPR[CMIPS::A2].nV0,
 		    context.m_State.nGPR[CMIPS::A3].nV0,
 		    context.m_pMemoryMap->GetWord(context.m_State.nGPR[CMIPS::SP].nV0 + 0x10)));
+		break;
+	case 9:
+		context.m_State.nGPR[CMIPS::V0].nD0 = static_cast<int32>(LoadModuleBufferAddress(
+		    context.m_State.nGPR[CMIPS::A0].nV0,
+		    context.m_State.nGPR[CMIPS::A1].nV0,
+		    context.m_State.nGPR[CMIPS::A2].nV0));
 		break;
 	case 10:
 		context.m_State.nGPR[CMIPS::V0].nD0 = static_cast<int32>(LoadModuleBuffer(
@@ -129,6 +139,18 @@ uint32 CModload::StartModule(uint32 moduleId, uint32 pathPtr, uint32 argsLength,
 	                          moduleId, path, argsLength, argsPtr, resultPtr);
 	auto result = m_bios.StartModule(moduleId, path, args, argsLength);
 	return result;
+}
+
+uint32 CModload::LoadModuleBufferAddress(uint32 modBufPtr, uint32 dstAddr, uint32 offset)
+{
+	CLog::GetInstance().Print(LOG_NAME, FUNCTION_LOADMODULEBUFFERADDRESS "(modBufPtr = 0x%08X, dstAddr = 0x%08X, offset = %d);\r\n",
+	                          modBufPtr, dstAddr, offset);
+	//This can be used to load a module in a specific memory address
+	//Not supported for now
+	assert(dstAddr == 0);
+	assert(offset == 0);
+	assert((modBufPtr & 0x03) == 0);
+	return m_bios.LoadModule(modBufPtr);
 }
 
 uint32 CModload::LoadModuleBuffer(uint32 modBufPtr)

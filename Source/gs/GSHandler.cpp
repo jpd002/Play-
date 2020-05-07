@@ -720,6 +720,31 @@ void CGSHandler::WriteRegisterMassivelyImpl(const MASSIVEWRITE_INFO& massiveWrit
 	m_transferCount--;
 }
 
+std::pair<uint32, uint32> CGSHandler::GetTransferInvalidationRange(const BITBLTBUF& bltBuf, const TRXREG& trxReg, const TRXPOS& trxPos)
+{
+	uint32 transferAddress = bltBuf.GetDstPtr();
+
+	//Find the pages that are touched by this transfer
+	auto transferPageSize = CGsPixelFormats::GetPsmPageSize(bltBuf.nDstPsm);
+
+	// DBZ Budokai Tenkaichi 2 and 3 use invalid (empty) buffer sizes
+	// Account for that, by assuming trxReg.nRRW.
+	auto width = bltBuf.GetDstWidth();
+	if(width == 0)
+	{
+		width = trxReg.nRRW;
+	}
+
+	uint32 pageCountX = (width + transferPageSize.first - 1) / transferPageSize.first;
+	uint32 pageCountY = (trxReg.nRRH + transferPageSize.second - 1) / transferPageSize.second;
+
+	uint32 pageCount = pageCountX * pageCountY;
+	uint32 transferSize = pageCount * CGsPixelFormats::PAGESIZE;
+	uint32 transferOffset = (trxPos.nDSAY / transferPageSize.second) * pageCountX * CGsPixelFormats::PAGESIZE;
+
+	return std::make_pair(transferAddress + transferOffset, transferSize);
+}
+
 void CGSHandler::BeginTransfer()
 {
 	uint32 trxDir = m_nReg[GS_REG_TRXDIR] & 0x03;

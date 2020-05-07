@@ -64,7 +64,15 @@ public:
 		auto texture = *m_textureCache.rbegin();
 		texture->Reset();
 
-		texture->m_cachedArea.SetArea(tex0.nPsm, tex0.GetBufPtr(), tex0.GetBufWidth(), tex0.GetHeight());
+		// DBZ Budokai Tenkaichi 2 and 3 use invalid (empty) buffer sizes.
+		// Account for that, by assuming image width.
+		uint32 bufSize = tex0.GetBufWidth();
+		if(bufSize == 0)
+		{
+			bufSize = tex0.GetWidth();
+		}
+
+		texture->m_cachedArea.SetArea(tex0.nPsm, tex0.GetBufPtr(), bufSize, tex0.GetHeight());
 
 		texture->m_tex0 = static_cast<uint64>(tex0) & TEX0_CLUTINFO_MASK;
 		texture->m_textureHandle = std::move(textureHandle);

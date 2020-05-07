@@ -65,6 +65,7 @@ endif(BUILD_PLAY)
 
 if(BUILD_TESTS)
 	add_subdirectory(tools/AutoTest/)
+	add_subdirectory(tools/GsAreaTest/)
 	add_subdirectory(tools/McServTest/)
 	add_subdirectory(tools/VuTest/)
 endif()

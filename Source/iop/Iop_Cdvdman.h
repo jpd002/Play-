@@ -69,6 +69,7 @@ namespace Iop
 		uint32 CdReadClock(uint32);
 		uint32 CdStatus();
 		uint32 CdCallback(uint32);
+		uint32 CdGetReadPos();
 		uint32 CdStInit(uint32, uint32, uint32);
 		uint32 CdStRead(uint32, uint32, uint32, uint32);
 		uint32 CdStStart(uint32, uint32);
