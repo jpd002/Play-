@@ -19,6 +19,7 @@ public:
 #endif
 
 	void ClearStats();
+	void ResetStats();
 
 #ifdef PROFILE
 	void OnProfileFrameDone(CPS2VM*, const CProfiler::ZoneArray&);
