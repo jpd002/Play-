@@ -15,6 +15,14 @@
 #include "InputProviderQtKey.h"
 #include "ScreenShotUtils.h"
 
+#ifdef PROFILE
+class ProfileDialog;
+namespace Ui
+{
+	class ProfileMenu;
+}
+#endif
+
 namespace Ui
 {
 	class MainWindow;
@@ -97,7 +105,8 @@ private:
 	QLabel* m_fpsLabel = nullptr;
 	QLabel* m_gsLabel = nullptr;
 #ifdef PROFILE
-	QLabel* m_profileStatsLabel = nullptr;
+	Ui::ProfileMenu* profileMenuUi = nullptr;
+	ProfileDialog* m_profileDialog;
 	CPS2VM::ProfileFrameDoneSignal::Connection m_profileFrameDoneConnection;
 #endif
 	ElidedLabel* m_msgLabel = nullptr;

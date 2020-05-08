@@ -209,6 +209,16 @@
     <string>Ctrl+L</string>
    </property>
   </action>
+  <action name="actionShow_Profile_Dialog">
+   <property name="text">
+    <string>Show Profile Dialog</string>
+   </property>
+  </action>
+  <action name="actionProfileReset">
+   <property name="text">
+    <string>Reset</string>
+   </property>
+  </action>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
  <resources>

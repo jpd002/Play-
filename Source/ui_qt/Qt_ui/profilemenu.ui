@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>ProfileMenu</class>
+ <widget class="QMenu" name="ProfileMenu">
+  <property name="title">
+   <string>Profile</string>
+  </property>
+  <action name="actionShowProfile">
+   <property name="text">
+    <string>Show</string>
+   </property>
+  </action>
+  <action name="actionResetProfile">
+   <property name="text">
+    <string>Reset</string>
+   </property>
+  </action>
+  <addaction name="actionShowProfile"/>
+  <addaction name="actionResetProfile"/>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
