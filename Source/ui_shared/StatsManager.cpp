@@ -90,6 +90,20 @@ void CStatsManager::ClearStats()
 #endif
 }
 
+void CStatsManager::ResetStats()
+{
+	std::lock_guard<std::mutex> statsLock(m_statsMutex);
+#ifdef PROFILE
+	for(auto& zonePair : m_profilerZones)
+	{
+		zonePair.second.minValue = ~0ULL;
+		zonePair.second.maxValue = 0;
+		zonePair.second.currentValue = 0;
+	}
+	m_cpuUtilisation = CPS2VM::CPU_UTILISATION_INFO();
+#endif
+}
+
 #ifdef PROFILE
 
 void CStatsManager::OnProfileFrameDone(CPS2VM* virtualMachine, const CProfiler::ZoneArray& zones)

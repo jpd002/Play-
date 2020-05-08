@@ -37,6 +37,12 @@
 #else
 #include "tools/PsfPlayer/Source/SH_OpenAL.h"
 #endif
+
+#ifdef PROFILE
+#include "profiledialog.h"
+#include "ui_profilemenu.h"
+#endif
+
 #include "input/PH_GenericInput.h"
 #include "DiskUtils.h"
 #include "PathUtils.h"
@@ -75,11 +81,13 @@ MainWindow::MainWindow(QWidget* parent)
 
 #ifdef PROFILE
 	{
-		m_profileStatsLabel = new QLabel(this);
-		QFont courierFont("Courier");
-		m_profileStatsLabel->setFont(courierFont);
-		m_profileStatsLabel->setAlignment(Qt::AlignTop);
-		ui->gridLayout->addWidget(m_profileStatsLabel, 0, 1);
+		m_profileDialog = new ProfileDialog(this);
+		auto profileMenu = new QMenu(this);
+		profileMenuUi = new Ui::ProfileMenu();
+		profileMenuUi->setupUi(profileMenu);
+		ui->menuBar->insertMenu(ui->menuHelp->menuAction(), profileMenu);
+		connect(profileMenuUi->actionShowProfile, &QAction::triggered, m_profileDialog, &QWidget::show);
+		connect(profileMenuUi->actionResetProfile, &QAction::triggered, []() { CStatsManager::GetInstance().ResetStats(); });
 	}
 #endif
 
@@ -475,7 +483,10 @@ void MainWindow::updateStats()
 	uint32 drawCalls = CStatsManager::GetInstance().GetDrawCalls();
 	uint32 dcpf = (frames != 0) ? (drawCalls / frames) : 0;
 #ifdef PROFILE
-	m_profileStatsLabel->setText(QString::fromStdString(CStatsManager::GetInstance().GetProfilingInfo()));
+	if(m_profileDialog->isVisible())
+	{
+		m_profileDialog->updateStats(CStatsManager::GetInstance().GetProfilingInfo());
+	}
 #endif
 	m_fpsLabel->setText(QString("%1 f/s, %2 dc/f").arg(frames).arg(dcpf));
 	CStatsManager::GetInstance().ClearStats();

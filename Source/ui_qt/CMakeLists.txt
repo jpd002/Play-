@@ -119,6 +119,8 @@ set(QT_SOURCES
 	memorycardmanagerdialog.cpp
 	memorycardmanagerdialog.h
 	PreferenceDefs.h
+	profiledialog.cpp
+	profiledialog.h
 	QStringUtils.cpp
 	QStringUtils.h
 	vfsmanagerdialog.cpp
@@ -199,6 +201,7 @@ set(QT_MOC_HEADERS
 	openglwindow.h
 	outputwindow.h
 	memorycardmanagerdialog.h
+	profiledialog.h
 	S3FileBrowser.h
 	vfsmanagerdialog.h
 	vfsmodel.h
@@ -213,6 +216,8 @@ set(QT_UIS
 	Qt_ui/inputeventselectiondialog.ui
 	Qt_ui/mainwindow.ui
 	Qt_ui/memorycardmanager.ui
+	Qt_ui/profiledialog.ui
+	Qt_ui/profilemenu.ui
 	Qt_ui/s3filebrowser.ui
 	Qt_ui/settingsdialog.ui
 	Qt_ui/vfsmanagerdialog.ui

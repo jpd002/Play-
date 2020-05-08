@@ -86,7 +86,7 @@ travis_script()
             source /opt/qt512/bin/qt512-env.sh || true
             export VULKAN_SDK=$(pwd)/../${VULKAN_SDK_VERSION}/x86_64
             export PATH=$PATH:/opt/qt512/lib/cmake
-            cmake .. -G"$BUILD_TYPE" -DCMAKE_INSTALL_PREFIX=./appdir/usr -DBUILD_LIBRETRO_CORE=yes;
+            cmake .. -G"$BUILD_TYPE" -DCMAKE_INSTALL_PREFIX=./appdir/usr -DBUILD_LIBRETRO_CORE=yes -DPROFILE=yes
             cmake --build .
             ctest
             cmake --build . --target install
@@ -102,7 +102,7 @@ travis_script()
         elif [ "$TARGET_OS" = "OSX" ]; then
             export CMAKE_PREFIX_PATH="$(brew --prefix qt5)"
             export VULKAN_SDK=$(pwd)/../vulkansdk-macos-${VULKAN_SDK_VERSION}/macOS
-            cmake .. -G"$BUILD_TYPE" -DBUILD_LIBRETRO_CORE=yes
+            cmake .. -G"$BUILD_TYPE" -DBUILD_LIBRETRO_CORE=yes -DPROFILE=yes
             cmake --build . --config Release
             ctest -C Release
             $(brew --prefix qt5)/bin/macdeployqt Source/ui_qt/Release/Play.app
