@@ -166,8 +166,8 @@ bool CCdvdfsv::Invoke592(uint32 method, uint32* args, uint32 argsSize, uint32* r
 		if(retSize != 0)
 		{
 			assert(retSize >= 0x10);
-			ret[1]; // cdvdfsv Ver
-			ret[2]; // cdvdman Ver
+			// ret[1]; // cdvdfsv Ver
+			// ret[2]; // cdvdman Ver
 			ret[0x03] = 0xFF;
 		}
 		CLog::GetInstance().Print(LOG_NAME, "Init(mode = %d);\r\n", mode);
