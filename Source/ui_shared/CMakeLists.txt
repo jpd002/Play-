@@ -23,8 +23,9 @@ if(NOT TARGET Framework_Http)
 endif()
 list(APPEND SHARED_UI_PROJECT_LIBS Framework_Http)
 
-find_package(nlohmann_json)
+find_package(nlohmann_json QUIET)
 if(NOT nlohmann_json_FOUND)
+	MESSAGE("-- Using Provided nlohmann_json source")
 	if(NOT TARGET nlohmann_json)
 		add_subdirectory(
 			${CMAKE_CURRENT_SOURCE_DIR}/../../deps/Dependencies/nlohmann_json
@@ -34,6 +35,7 @@ if(NOT nlohmann_json_FOUND)
 	endif()
 	list(APPEND SHARED_UI_PROJECT_LIBS nlohmann_json)
 else()
+	MESSAGE("-- Using System nlohmann_json source")
 	list(APPEND SHARED_UI_PROJECT_LIBS nlohmann_json::nlohmann_json)
 endif()
 
