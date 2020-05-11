@@ -20,6 +20,7 @@ using namespace Iop;
 #define STATE_REGS_IRQADDR ("IRQADDR")
 #define STATE_REGS_TRANSFERADDR ("TRANSFERADDR")
 #define STATE_REGS_TRANSFERMODE ("TRANSFERMODE")
+#define STATE_REGS_CORE0OUTPUTOFFSET ("CORE0OUTPUTOFFSET")
 #define STATE_REGS_CHANNELON ("CHANNELON")
 #define STATE_REGS_CHANNELREVERB ("CHANNELREVERB")
 #define STATE_REGS_REVERBWORKADDRSTART ("REVERBWORKADDRSTART")
@@ -178,6 +179,8 @@ void CSpuBase::Reset()
 	m_transferMode = 0;
 	m_transferAddr = 0;
 
+	m_core0OutputOffset = 0;
+
 	m_reverbCurrAddr = 0;
 	m_reverbWorkAddrStart = 0;
 	m_reverbWorkAddrEnd = 0x80000;
@@ -206,6 +209,7 @@ void CSpuBase::LoadState(Framework::CZipArchiveReader& archive)
 	m_irqAddr = registerFile.GetRegister32(STATE_REGS_IRQADDR);
 	m_transferMode = registerFile.GetRegister32(STATE_REGS_TRANSFERMODE);
 	m_transferAddr = registerFile.GetRegister32(STATE_REGS_TRANSFERADDR);
+	m_core0OutputOffset = registerFile.GetRegister32(STATE_REGS_CORE0OUTPUTOFFSET);
 	m_channelOn.f = registerFile.GetRegister32(STATE_REGS_CHANNELON);
 	m_channelReverb.f = registerFile.GetRegister32(STATE_REGS_CHANNELREVERB);
 	m_reverbWorkAddrStart = registerFile.GetRegister32(STATE_REGS_REVERBWORKADDRSTART);
@@ -249,6 +253,7 @@ void CSpuBase::SaveState(Framework::CZipArchiveWriter& archive)
 	registerFile->SetRegister32(STATE_REGS_IRQADDR, m_irqAddr);
 	registerFile->SetRegister32(STATE_REGS_TRANSFERMODE, m_transferMode);
 	registerFile->SetRegister32(STATE_REGS_TRANSFERADDR, m_transferAddr);
+	registerFile->SetRegister32(STATE_REGS_CORE0OUTPUTOFFSET, m_core0OutputOffset);
 	registerFile->SetRegister32(STATE_REGS_CHANNELON, m_channelOn.f);
 	registerFile->SetRegister32(STATE_REGS_CHANNELREVERB, m_channelReverb.f);
 	registerFile->SetRegister32(STATE_REGS_REVERBWORKADDRSTART, m_reverbWorkAddrStart);
@@ -694,6 +699,21 @@ void CSpuBase::Render(int16* samples, unsigned int sampleCount, unsigned int sam
 
 			MixSamples(sampleL, 0x3FFF, samples + 0);
 			MixSamples(sampleR, 0x3FFF, samples + 1);
+		}
+
+		//Simulate SPU CORE0 writing its output in RAM and check for potential interrupts
+		if(m_spuNumber == 0)
+		{
+			if(m_irqAddr == (CORE0_OUTPUT_LEFT + m_core0OutputOffset))
+			{
+				m_irqPending = true;
+			}
+			else if(m_irqAddr == (CORE0_OUTPUT_RIGHT + m_core0OutputOffset))
+			{
+				m_irqPending = true;
+			}
+			m_core0OutputOffset++;
+			m_core0OutputOffset &= (CORE0_OUTPUT_SIZE - 1);
 		}
 
 		//Update reverb

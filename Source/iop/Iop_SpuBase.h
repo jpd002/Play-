@@ -222,6 +222,9 @@ namespace Iop
 	private:
 		enum
 		{
+			CORE0_OUTPUT_LEFT = 0x800,
+			CORE0_OUTPUT_RIGHT = 0xA00,
+			CORE0_OUTPUT_SIZE = 0x200,
 			SOUND_INPUT_DATA_CORE0_BASE = 0x2000,
 			SOUND_INPUT_DATA_CORE1_BASE = 0x2400,
 			SOUND_INPUT_DATA_SIZE = 0x400,
@@ -334,6 +337,7 @@ namespace Iop
 		bool m_irqPending = false;
 		uint16 m_transferMode;
 		uint32 m_transferAddr;
+		uint32 m_core0OutputOffset;
 		UNION32_16 m_channelOn;
 		UNION32_16 m_channelReverb;
 		uint32 m_reverbWorkAddrStart;
