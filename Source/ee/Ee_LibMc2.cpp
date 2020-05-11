@@ -37,6 +37,7 @@ uint32 CLibMc2::AnalyzeFunction(uint32 startAddress, int16 stackAlloc)
 
 	//Pattern matching stats
 	uint32 countLUI8101 = 0;
+	uint32 jalCount = 0;
 	std::vector<uint32> constantsLoaded;
 	std::unordered_map<uint32, uint32> syscallsUsed;
 
@@ -70,6 +71,7 @@ uint32 CLibMc2::AnalyzeFunction(uint32 startAddress, int16 stackAlloc)
 		//Check for JAL {a}
 		else if((opcode & 0xFC000000) == 0x0C000000)
 		{
+			jalCount++;
 			uint32 jmpAddr = (address & 0xF0000000) | ((opcode & 0x3FFFFFF) * 4);
 			if(jmpAddr < PS2::EE_RAM_SIZE)
 			{
@@ -127,7 +129,7 @@ uint32 CLibMc2::AnalyzeFunction(uint32 startAddress, int16 stackAlloc)
 				break;
 			}
 		}
-		if(syscallsUsed.size() == 2)
+		if(syscallsUsed.size() == 2 && (jalCount == 2))
 		{
 			uint32 signalSemaCount = (syscallsUsed.find(SIGNALSEMA_SYSCALL) != std::end(syscallsUsed) ? syscallsUsed[SIGNALSEMA_SYSCALL] : 0);
 			uint32 waitSemaCount = (syscallsUsed.find(WAITSEMA_SYSCALL) != std::end(syscallsUsed) ? syscallsUsed[WAITSEMA_SYSCALL] : 0);
