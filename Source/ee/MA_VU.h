@@ -104,6 +104,7 @@ private:
 		void ITOF0();
 		void FTOI0();
 		void MULAq();
+		void ADDAq();
 		void ADDA();
 		void SUBA();
 

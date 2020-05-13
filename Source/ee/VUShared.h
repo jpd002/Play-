@@ -128,6 +128,7 @@ namespace VUShared
 	void ADDA(CMipsJitter*, uint8, uint8, uint8, uint32, uint32);
 	void ADDAbc(CMipsJitter*, uint8, uint8, uint8, uint8, uint32, uint32);
 	void ADDAi(CMipsJitter*, uint8, uint8, uint32, uint32);
+	void ADDAq(CMipsJitter*, uint8, uint8, uint32, uint32);
 	void CLIP(CMipsJitter*, uint8, uint8, uint32);
 	void DIV(CMipsJitter*, uint8, uint8, uint8, uint8, uint32);
 	void FTOI0(CMipsJitter*, uint8, uint8, uint8);

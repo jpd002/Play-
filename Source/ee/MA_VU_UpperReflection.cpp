@@ -104,7 +104,7 @@ INSTRUCTION CMA_VU::CUpper::m_cReflVX0[32] =
 	{	"MULA",		NULL,			CopyMnemonic,		ReflOpAccFsFtBc,	NULL,				NULL			},
 	{	"MULA",		NULL,			CopyMnemonic,		ReflOpAccFsQ,		NULL,				NULL			},
 	//0x08
-	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
+	{	"ADDA",		NULL,			CopyMnemonic,		ReflOpAccFsQ,		NULL,				NULL			},
 	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
 	{	"ADDA",		NULL,			CopyMnemonic,		ReflOpAccFsFt,		NULL,				NULL			},
 	{	"SUBA",		NULL,			CopyMnemonic,		ReflOpAccFsFt,		NULL,				NULL			},
@@ -340,7 +340,7 @@ VUINSTRUCTION CMA_VU::CUpper::m_cVuReflVX0[32] =
 	{	"MULA",		NULL,			ReflOpAffWrARdFsFtBc},
 	{	"MULA",		NULL,			ReflOpAffWrARdFsQ	},
 	//0x08
-	{	NULL,		NULL,			NULL				},
+	{	"ADDA",		NULL,			ReflOpAffWrARdFsQ,	},
 	{	NULL,		NULL,			NULL				},
 	{	"ADDA",		NULL,			ReflOpAffWrARdFsFt	},
 	{	"SUBA",		NULL,			ReflOpAffWrARdFsFt	},

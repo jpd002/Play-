@@ -647,6 +647,14 @@ void VUShared::ADDAi(CMipsJitter* codeGen, uint8 dest, uint8 fs, uint32 relative
 	          true, relativePipeTime, compileHints);
 }
 
+void VUShared::ADDAq(CMipsJitter* codeGen, uint8 dest, uint8 fs, uint32 relativePipeTime, uint32 compileHints)
+{
+	ADDA_base(codeGen, dest,
+	          offsetof(CMIPS, m_State.nCOP2[fs]),
+	          offsetof(CMIPS, m_State.nCOP2Q),
+	          true, relativePipeTime, compileHints);
+}
+
 void VUShared::CLIP(CMipsJitter* codeGen, uint8 nFs, uint8 nFt, uint32 relativePipeTime)
 {
 	size_t tempOffset = offsetof(CMIPS, m_State.nCOP2T);

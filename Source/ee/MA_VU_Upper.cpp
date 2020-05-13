@@ -329,6 +329,12 @@ void CMA_VU::CUpper::MULAq()
 	VUShared::MULAq(m_codeGen, m_nDest, m_nFS, m_relativePipeTime, m_compileHints);
 }
 
+//08
+void CMA_VU::CUpper::ADDAq()
+{
+	VUShared::ADDAq(m_codeGen, m_nDest, m_nFS, m_relativePipeTime, m_compileHints);
+}
+
 //0A
 void CMA_VU::CUpper::ADDA()
 {
@@ -502,7 +508,7 @@ CMA_VU::CUpper::InstructionFuncConstant CMA_VU::CUpper::m_pOpVector0[0x20] =
 	//0x00
 	&CMA_VU::CUpper::ADDAbc,		&CMA_VU::CUpper::SUBAbc,		&CMA_VU::CUpper::MADDAbc,		&CMA_VU::CUpper::MSUBAbc,		&CMA_VU::CUpper::ITOF0,			&CMA_VU::CUpper::FTOI0,			&CMA_VU::CUpper::MULAbc,		&CMA_VU::CUpper::MULAq,
 	//0x08
-	&CMA_VU::CUpper::Illegal,		&CMA_VU::CUpper::Illegal,		&CMA_VU::CUpper::ADDA,			&CMA_VU::CUpper::SUBA,			&CMA_VU::CUpper::Illegal,		&CMA_VU::CUpper::Illegal,		&CMA_VU::CUpper::Illegal,		&CMA_VU::CUpper::Illegal,
+	&CMA_VU::CUpper::ADDAq,			&CMA_VU::CUpper::Illegal,		&CMA_VU::CUpper::ADDA,			&CMA_VU::CUpper::SUBA,			&CMA_VU::CUpper::Illegal,		&CMA_VU::CUpper::Illegal,		&CMA_VU::CUpper::Illegal,		&CMA_VU::CUpper::Illegal,
 	//0x10
 	&CMA_VU::CUpper::Illegal,		&CMA_VU::CUpper::Illegal,		&CMA_VU::CUpper::Illegal,		&CMA_VU::CUpper::Illegal,		&CMA_VU::CUpper::Illegal,		&CMA_VU::CUpper::Illegal,		&CMA_VU::CUpper::Illegal,		&CMA_VU::CUpper::Illegal,
 	//0x18
