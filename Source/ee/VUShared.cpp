@@ -843,11 +843,13 @@ void VUShared::ISUB(CMipsJitter* codeGen, uint8 id, uint8 is, uint8 it)
 	codeGen->PullRel(offsetof(CMIPS, m_State.nCOP2VI[id]));
 }
 
-void VUShared::ITOF0(CMipsJitter* codeGen, uint8 nDest, uint8 nFt, uint8 nFs)
+void VUShared::ITOF0(CMipsJitter* codeGen, uint8 dest, uint8 ft, uint8 fs)
 {
-	codeGen->MD_PushRel(offsetof(CMIPS, m_State.nCOP2[nFs]));
+	if(ft == 0) return;
+
+	codeGen->MD_PushRel(offsetof(CMIPS, m_State.nCOP2[fs]));
 	codeGen->MD_ToSingle();
-	PullVector(codeGen, nDest, offsetof(CMIPS, m_State.nCOP2[nFt]));
+	PullVector(codeGen, dest, offsetof(CMIPS, m_State.nCOP2[ft]));
 }
 
 void VUShared::ITOF4(CMipsJitter* codeGen, uint8 dest, uint8 ft, uint8 fs)
@@ -861,6 +863,8 @@ void VUShared::ITOF4(CMipsJitter* codeGen, uint8 dest, uint8 ft, uint8 fs)
 
 void VUShared::ITOF12(CMipsJitter* codeGen, uint8 dest, uint8 ft, uint8 fs)
 {
+	if(ft == 0) return;
+
 	codeGen->MD_PushRel(offsetof(CMIPS, m_State.nCOP2[fs]));
 	codeGen->MD_ToSingle();
 	codeGen->MD_PushCstExpand(4096.0f);
