@@ -478,7 +478,9 @@ void VUShared::MINI_base(CMipsJitter* codeGen, uint8 dest, size_t fd, size_t fs,
 	};
 
 	codeGen->MD_PushRel(fs);
+	ClampVector(codeGen);
 	pushFt();
+	ClampVector(codeGen);
 
 	codeGen->MD_CmpLtS();
 	auto cmp = codeGen->GetTopCursor();
@@ -514,7 +516,9 @@ void VUShared::MAX_base(CMipsJitter* codeGen, uint8 dest, size_t fd, size_t fs, 
 	};
 
 	codeGen->MD_PushRel(fs);
+	ClampVector(codeGen);
 	pushFt();
+	ClampVector(codeGen);
 
 	codeGen->MD_CmpGtS();
 	auto cmp = codeGen->GetTopCursor();
