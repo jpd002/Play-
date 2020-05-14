@@ -712,7 +712,7 @@ void CSpuBase::Render(int16* samples, unsigned int sampleCount, unsigned int sam
 			{
 				m_irqPending = true;
 			}
-			m_core0OutputOffset++;
+			m_core0OutputOffset += 2;
 			m_core0OutputOffset &= (CORE0_OUTPUT_SIZE - 1);
 		}
 
