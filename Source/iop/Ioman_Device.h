@@ -26,6 +26,9 @@ namespace Iop
 			virtual ~CDevice() = default;
 			virtual Framework::CStream* GetFile(uint32, const char*) = 0;
 			virtual Directory GetDirectory(const char*) = 0;
+			virtual void CreateDirectory(const char*)
+			{
+			}
 		};
 	}
 }

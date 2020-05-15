@@ -79,6 +79,10 @@ bool CFileIoHandler1000::Invoke(uint32 method, uint32* args, uint32 argsSize, ui
 		LaunchSeekRequest(args, argsSize, ret, retSize, ram);
 		return false;
 		break;
+	case 7:
+		assert(retSize == 4);
+		*ret = m_ioman->Mkdir(reinterpret_cast<const char*>(&args[0]));
+		break;
 	case 9:
 		assert(retSize == 4);
 		*ret = m_ioman->Dopen(reinterpret_cast<const char*>(&args[0]));

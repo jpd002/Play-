@@ -75,3 +75,13 @@ Directory CDirectoryDevice::GetDirectory(const char* devicePath)
 	}
 	return fs::directory_iterator(path);
 }
+
+void CDirectoryDevice::CreateDirectory(const char* devicePath)
+{
+	auto basePath = CAppConfig::GetInstance().GetPreferencePath(m_basePathPreferenceName.c_str());
+	auto path = Iop::PathUtils::MakeHostPath(basePath, devicePath);
+	if(!fs::create_directory(path))
+	{
+		throw std::runtime_error("Failed to create directory.");
+	}
+}

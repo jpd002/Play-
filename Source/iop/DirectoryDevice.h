@@ -15,6 +15,7 @@ namespace Iop
 
 			Framework::CStream* GetFile(uint32, const char*) override;
 			Directory GetDirectory(const char*) override;
+			void CreateDirectory(const char*) override;
 
 		private:
 			std::string m_basePathPreferenceName;
