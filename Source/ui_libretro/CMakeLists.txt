@@ -45,6 +45,11 @@ elseif(TARGET_PLATFORM_UNIX)
 	list(APPEND PROJECT_LIBS "-static-libstdc++")
 endif()
 
+if(CMAKE_CXX_COMPILER_ID MATCHES "GNU" AND CMAKE_CXX_COMPILER_VERSION VERSION_GREATER_EQUAL 8 AND CMAKE_CXX_COMPILER_VERSION VERSION_LESS 9)
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -lstdc++fs")
+	list(APPEND PROJECT_LIBS "libstdc++fs.a")
+endif()
+
 add_library(play_libretro SHARED ${SRC})
 target_include_directories(play_libretro PRIVATE
 	./
