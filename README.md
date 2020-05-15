@@ -69,7 +69,7 @@ Note: iOS builds generated with Makefiles will not be FAT binaries.
 
 ### Building for UNIX ###
 if you don't have Cmake or OpenAL lib installed, you'll also require Qt. (preferably version 5.6)
-You can install it using your OS packaging tool, e.g Ubuntu: `apt install cmake libalut-dev`
+You can install it using your OS packaging tool, e.g Ubuntu: `apt install cmake libalut-dev qt5-default libevdev-dev libqt5x11extras5-dev libsqlite3-dev`
 
 On UNIX systems there are 3 ways to setup a build. Using Qt creator, makefile or Ninja:
  - QT Creator
