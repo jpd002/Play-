@@ -12,6 +12,9 @@
 #define DEFAULT_GROUPID (1)
 #define DEFAULT_GROUPNAME ("Global")
 
+#define addressValueColumn (0)
+#define addressValueRole (Qt::UserRole)
+
 CFunctionsView::CFunctionsView(QMdiArea* parent)
     : QMdiSubWindow(parent)
 {
@@ -84,6 +87,7 @@ void CFunctionsView::RefreshList()
 		QTreeWidgetItem* childItem = new QTreeWidgetItem();
 		childItem->setText(0, sTag.c_str());
 		childItem->setText(1, string_format("0x%08X", itTag->first).c_str());
+		childItem->setData(addressValueColumn, addressValueRole, itTag->first);
 		if(groupingEnabled)
 		{
 			GetFunctionGroup(itTag->first)->addChild(childItem);
@@ -133,10 +137,9 @@ void CFunctionsView::SetContext(CMIPS* context, CBiosDebugInfoProvider* biosDebu
 
 void CFunctionsView::OnListDblClick(QTreeWidgetItem* item, int column)
 {
-	if(item->childCount() == 0)
+	uint32 nAddress = item->data(addressValueColumn, addressValueRole).toUInt();
+	if(nAddress)
 	{
-		auto selectedAddressStr = item->text(1).toStdString();
-		uint32 nAddress = lexical_cast_hex(selectedAddressStr);
 		OnFunctionDblClick(nAddress);
 	}
 }
