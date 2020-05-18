@@ -184,6 +184,13 @@ void QtFramedebugger::StepVu1()
 
 void QtFramedebugger::on_nextKickButton_clicked()
 {
+	auto selectionMode = ui->treeView->selectionModel();
+	auto PacketTreeModel = ui->treeView->model();
+	if(!PacketTreeModel || !selectionMode)
+	{
+		return;
+	}
+
 	unsigned int selectedItemIndex = 0;
 	auto cmdindex = GetCurrentCmdIndex();
 	if(cmdindex != -1)
@@ -200,19 +207,9 @@ void QtFramedebugger::on_nextKickButton_clicked()
 	}
 	auto nextCmdIndex = nextKickIndexIterator->first;
 
-	auto selectionMode = ui->treeView->selectionModel();
-	auto PacketTreeModel = ui->treeView->model();
-
-	auto selected_index = selectionMode->selectedIndexes().first();
-	auto row = selected_index.row();
-	if(selected_index.parent().isValid())
-	{
-		row = selected_index.parent().row();
-	}
-
 	GsPacketData* parent = nullptr;
 	int i = 0;
-	for(i = row; i <= ui->treeView->model()->rowCount(); ++i)
+	for(i = GetParentRow(); i <= ui->treeView->model()->rowCount(); ++i)
 	{
 		auto index = PacketTreeModel->index(i, 0);
 		if(index.isValid())
@@ -248,6 +245,13 @@ void QtFramedebugger::on_nextKickButton_clicked()
 
 void QtFramedebugger::on_prevKickbutton_clicked()
 {
+	auto selectionMode = ui->treeView->selectionModel();
+	auto PacketTreeModel = ui->treeView->model();
+	if(!PacketTreeModel || !selectionMode)
+	{
+		return;
+	}
+
 	unsigned int selectedItemIndex = 0;
 	auto cmdindex = GetCurrentCmdIndex();
 	if(cmdindex != -1)
@@ -264,19 +268,9 @@ void QtFramedebugger::on_prevKickbutton_clicked()
 	}
 	auto prevCmdIndex = prevKickIndexIterator->first;
 
-	auto selectionMode = ui->treeView->selectionModel();
-	auto PacketTreeModel = ui->treeView->model();
-
-	auto selected_index = selectionMode->selectedIndexes().first();
-	auto row = selected_index.row();
-	if(selected_index.parent().isValid())
-	{
-		row = selected_index.parent().row();
-	}
-
 	GsPacketData* parent = nullptr;
 	int i = 0;
-	for(i = row; i >= 0; --i)
+	for(i = GetParentRow(); i >= 0; --i)
 	{
 		auto index = PacketTreeModel->index(i, 0);
 		if(index.isValid())
@@ -305,6 +299,28 @@ void QtFramedebugger::on_prevKickbutton_clicked()
 			++j;
 		}
 	}
+}
+
+int QtFramedebugger::GetParentRow()
+{
+	int row = 0;
+	auto selectionMode = ui->treeView->selectionModel();
+	if(!selectionMode->selectedIndexes().empty())
+	{
+		auto selected_index = selectionMode->selectedIndexes().first();
+		if(selected_index.isValid())
+		{
+			if(selected_index.parent().isValid())
+			{
+				row = selected_index.parent().row();
+			}
+			else
+			{
+				row = selected_index.row();
+			}
+		}
+	}
+	return row;
 }
 
 void QtFramedebugger::selectionChanged()
