@@ -532,6 +532,13 @@ int32 CIoman::PreOpen(uint32 flags, const char* path)
 	{
 		CLog::GetInstance().Warn(LOG_NAME, "%s: Error occured while trying to open file : %s : %s\r\n", __FUNCTION__, path, except.what());
 		FreeFileHandle(handle);
+
+		if(std::string("File not found.") == except.what())
+		{
+			// Required for Mafia to boot
+			return -2;
+		}
+
 		return -1;
 	}
 	return handle;
