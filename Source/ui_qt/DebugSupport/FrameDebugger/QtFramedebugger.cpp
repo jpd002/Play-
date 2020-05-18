@@ -198,6 +198,8 @@ void QtFramedebugger::on_nextKickButton_clicked()
 		//Nothing to do here
 		return;
 	}
+	auto nextCmdIndex = nextKickIndexIterator->first;
+
 	auto selectionMode = ui->treeView->selectionModel();
 	auto PacketTreeModel = ui->treeView->model();
 
@@ -216,7 +218,7 @@ void QtFramedebugger::on_nextKickButton_clicked()
 		if(index.isValid())
 		{
 			auto item = static_cast<GsPacketData*>(index.internalPointer());
-			if(item->GetCmdIndex() <= nextKickIndexIterator->first)
+			if(item->GetCmdIndex() <= nextCmdIndex)
 			{
 				parent = item;
 			}
@@ -231,7 +233,7 @@ void QtFramedebugger::on_nextKickButton_clicked()
 		int j = 0;
 		for(auto child : parent->Children())
 		{
-			if(child->GetCmdIndex() == nextKickIndexIterator->first)
+			if(child->GetCmdIndex() == nextCmdIndex)
 			{
 				auto parentIndex = PacketTreeModel->index(i - 1, 0);
 				auto childIndex = PacketTreeModel->index(j, 0, parentIndex);
@@ -260,6 +262,7 @@ void QtFramedebugger::on_prevKickbutton_clicked()
 		//Nothing to do here
 		return;
 	}
+	auto prevCmdIndex = prevKickIndexIterator->first;
 
 	auto selectionMode = ui->treeView->selectionModel();
 	auto PacketTreeModel = ui->treeView->model();
@@ -279,7 +282,7 @@ void QtFramedebugger::on_prevKickbutton_clicked()
 		if(index.isValid())
 		{
 			auto item = static_cast<GsPacketData*>(index.internalPointer());
-			if(item->GetCmdIndex() <= prevKickIndexIterator->first)
+			if(item->GetCmdIndex() <= prevCmdIndex)
 			{
 				parent = item;
 				break;
@@ -291,7 +294,7 @@ void QtFramedebugger::on_prevKickbutton_clicked()
 		int j = 0;
 		for(auto child : parent->Children())
 		{
-			if(child->GetCmdIndex() == prevKickIndexIterator->first)
+			if(child->GetCmdIndex() == prevCmdIndex)
 			{
 				auto parentIndex = PacketTreeModel->index(i, 0);
 				auto childIndex = PacketTreeModel->index(j, 0, parentIndex);
