@@ -1,9 +1,12 @@
 #include "RegViewPage.h"
+#include <QHeaderView>
 
 CRegViewPage::CRegViewPage(QWidget* Parent)
     : QTableWidget(Parent)
 {
 	setEditTriggers(QAbstractItemView::NoEditTriggers);
+	horizontalHeader()->setVisible(false);
+	verticalHeader()->setVisible(false);
 }
 
 void CRegViewPage::AllocateTableEntries(unsigned int columnCount, unsigned int rowCount)
