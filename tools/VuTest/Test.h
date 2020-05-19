@@ -17,6 +17,7 @@ public:
 
 	enum Float
 	{
+		_Min = 0xFFFFFFFF,
 		_Minus8 = 0xC1000000,
 		_Minus1 = 0xBF800000,
 		_0 = 0000000000,
@@ -26,5 +27,6 @@ public:
 		_8 = 0x41000000,
 		_64 = 0x42800000,
 		_256 = 0x43800000,
+		_Max = 0x7FFFFFFF,
 	};
 };
