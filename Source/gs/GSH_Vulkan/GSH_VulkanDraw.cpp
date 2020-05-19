@@ -808,6 +808,7 @@ static Nuanceur::CFloat4Rvalue GetTextureColor(Nuanceur::CShaderBuilder& b, uint
 	default:
 		assert(false);
 	case CGSHandler::PSMCT32:
+	case CGSHandler::PSMZ32:
 	{
 		auto texAddress = CMemoryUtils::GetPixelAddress<CGsPixelFormats::STORAGEPSMCT32>(
 		    b, texSwizzleTable, texBufAddress, texBufWidth, texelPos);
@@ -815,6 +816,7 @@ static Nuanceur::CFloat4Rvalue GetTextureColor(Nuanceur::CShaderBuilder& b, uint
 		return CMemoryUtils::PSM32ToVec4(b, texPixel);
 	}
 	case CGSHandler::PSMCT24:
+	case CGSHandler::PSMZ24:
 	{
 		auto texAddress = CMemoryUtils::GetPixelAddress<CGsPixelFormats::STORAGEPSMCT32>(
 		    b, texSwizzleTable, texBufAddress, texBufWidth, texelPos);
@@ -823,6 +825,7 @@ static Nuanceur::CFloat4Rvalue GetTextureColor(Nuanceur::CShaderBuilder& b, uint
 	}
 	case CGSHandler::PSMCT16:
 	case CGSHandler::PSMCT16S:
+	case CGSHandler::PSMZ16:
 	{
 		auto texAddress = CMemoryUtils::GetPixelAddress<CGsPixelFormats::STORAGEPSMCT16>(
 		    b, texSwizzleTable, texBufAddress, texBufWidth, texelPos);
@@ -998,6 +1001,7 @@ static void WriteToFramebuffer(Nuanceur::CShaderBuilder& b, uint32 framebufferFo
 	}
 	break;
 	case CGSHandler::PSMCT24:
+	case CGSHandler::PSMZ24:
 	{
 		dstPixel = (CMemoryUtils::Vec4ToPSM32(b, dstColor) & fbWriteMask) | (dstPixel & ~fbWriteMask);
 		CMemoryUtils::Memory_Write24(b, memoryBuffer, fbAddress, dstPixel);
@@ -1242,6 +1246,7 @@ Framework::Vulkan::CShaderModule CDraw::CreateFragmentShader(const PIPELINE_CAPS
 			assert(false);
 		case CGSHandler::PSMCT32:
 		case CGSHandler::PSMCT24:
+		case CGSHandler::PSMZ24:
 			fbAddress = CMemoryUtils::GetPixelAddress<CGsPixelFormats::STORAGEPSMCT32>(
 			    b, fbSwizzleTable, fbBufAddress, fbBufWidth, screenPos);
 			break;
