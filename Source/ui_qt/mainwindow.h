@@ -82,6 +82,7 @@ private:
 	void SetupSaveLoadStateSlots();
 	QString GetSaveStateInfo(int);
 	void EmitOnExecutableChange();
+	bool IsExecutableLoaded() const;
 	void UpdateUI();
 	void RegisterPreferences();
 	void saveState(int);

@@ -510,7 +510,7 @@ void MainWindow::on_actionSettings_triggered()
 
 void MainWindow::SetupSaveLoadStateSlots()
 {
-	bool enable = (m_virtualMachine != nullptr ? (m_virtualMachine->m_ee->m_os->GetELF() != nullptr) : false);
+	bool enable = IsExecutableLoaded();
 	ui->menuSave_States->clear();
 	ui->menuLoad_States->clear();
 	for(int i = 0; i < 10; i++)
@@ -641,10 +641,16 @@ void MainWindow::HandleOnExecutableChange()
 	setWindowTitle(titleString);
 }
 
+bool MainWindow::IsExecutableLoaded() const
+{
+	return (m_virtualMachine != nullptr ? (m_virtualMachine->m_ee->m_os->GetELF() != nullptr) : false);
+}
+
 void MainWindow::UpdateUI()
 {
 	ui->actionPause_when_focus_is_lost->setChecked(m_pauseFocusLost);
 	ui->actionReset->setEnabled(!m_lastOpenCommand.path.empty());
+	ui->actionPause_Resume->setEnabled(IsExecutableLoaded());
 	SetOutputWindowSize();
 	SetupSaveLoadStateSlots();
 }
