@@ -312,6 +312,12 @@ void CMcServ::Open(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, u
 		return;
 	}
 
+	if(filePath.filename() == "mafia.ico")
+	{
+		ret[0] = -1;
+		return;
+	}
+
 	if(cmd->flags == 0x40)
 	{
 		//Directory only?
