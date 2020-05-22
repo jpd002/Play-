@@ -1,6 +1,6 @@
 #include "GamePadInputEventListener.h"
 #include <fcntl.h>
-#include <sys/signalfd.h>
+#include <sys/select.h>
 #include <poll.h>
 #include <csignal>
 #include <cstring>
@@ -48,21 +48,18 @@ void CGamePadInputEventListener::InputDeviceListenerThread()
 
 	auto device = CGamePadUtils::GetDeviceID(dev);
 
-	struct pollfd fds[2];
+	fd_set fds;
+	FD_ZERO(&fds);
+	FD_SET(fd, &fds);
+
 	sigset_t mask;
-
-	fds[0].fd = fd;
-	fds[0].events = POLLIN;
-
 	sigemptyset(&mask);
 	sigaddset(&mask, SIGINT);
-	fds[1].fd = signalfd(-1, &mask, SFD_NONBLOCK);
-	fds[1].events = POLLIN;
 	sigprocmask(SIG_BLOCK, &mask, NULL);
 
 	while(m_running)
 	{
-		if(poll(fds, 2, 500) == 0) continue;
+		if(pselect(fd + 1, &fds, NULL, NULL, 500, &mask) == 0) continue;
 
 		int rc = 0;
 		do
