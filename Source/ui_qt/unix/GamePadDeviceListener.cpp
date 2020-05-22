@@ -3,6 +3,7 @@
 #include "GamePadDeviceListener.h"
 #include <fcntl.h>
 #include <sys/select.h>
+#include <sys/time.h>
 #include <poll.h>
 #include <sys/inotify.h>
 #include <csignal>
@@ -96,6 +97,9 @@ void CGamePadDeviceListener::InputDeviceListenerThread()
 		return;
 	}
 
+	struct timespec ts;
+	ts.tv_nsec = 5e+8; // 500 millisecond
+
 	fd_set fds;
 	FD_ZERO(&fds);
 	FD_SET(fd, &fds);
@@ -111,7 +115,7 @@ void CGamePadDeviceListener::InputDeviceListenerThread()
 
 	while(m_running)
 	{
-		if(pselect(fd + 1, &fds, NULL, NULL, 500, &mask) == 0) continue;
+		if(pselect(fd + 1, &fds, NULL, NULL, &ts, &mask) == 0) continue;
 
 		int length = read(fd, buffer, EVENT_BUF_LEN);
 		if(length < 0)
