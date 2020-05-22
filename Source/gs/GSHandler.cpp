@@ -640,6 +640,11 @@ void CGSHandler::WriteRegisterImpl(uint8 nRegister, uint64 nData)
 	case GS_REG_TRXDIR:
 		BeginTransfer();
 		break;
+
+	case GS_REG_HWREG:
+		m_transferCount++;
+		FeedImageDataImpl(reinterpret_cast<const uint8*>(&nData), 8);
+		break;
 	}
 
 #ifdef _DEBUG
