@@ -39,6 +39,8 @@ travis_before_install()
     elif [ "$TARGET_OS" = "Android" ]; then
         echo y | sdkmanager 'ndk;21.0.6113669'
         echo y | sdkmanager 'cmake;3.10.2.4988404'
+    elif [ "$TARGET_OS" = "FREEBSD" ]; then
+        su -m root -c 'pkg install -y cmake qt5 gcc9 evdev-proto'
     fi;
 
     git submodule update -q --init --recursive
@@ -117,6 +119,10 @@ travis_script()
             ./build_ipa.sh
             popd
             popd
+        elif [ "$TARGET_OS" = "FREEBSD" ]; then
+            export CXX="g++9" CC="gcc9"
+            cmake ..
+            cmake --build . -j$(sysctl -n hw.ncpu)
         fi;
         
         popd
