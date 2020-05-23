@@ -64,6 +64,9 @@ if(TARGET_PLATFORM_UNIX)
 
 	list(APPEND PROJECT_LIBS "-static-libgcc")
 	list(APPEND PROJECT_LIBS "-static-libstdc++")
+
+	# most unix system seem to implicitly link to libinotify, but not BSD
+	list(APPEND PROJECT_LIBS "libinotify.so")
 endif()
 
 if(TARGET_PLATFORM_MACOS OR TARGET_PLATFORM_UNIX)
