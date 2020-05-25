@@ -1118,13 +1118,8 @@ void VUShared::MINIi(CMipsJitter* codeGen, uint8 dest, uint8 fd, uint8 fs)
 
 void VUShared::MOVE(CMipsJitter* codeGen, uint8 nDest, uint8 nFt, uint8 nFs)
 {
-	for(unsigned int i = 0; i < 4; i++)
-	{
-		if(!DestinationHasElement(nDest, i)) continue;
-
-		codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2[nFs].nV[i]));
-		codeGen->PullRel(offsetof(CMIPS, m_State.nCOP2[nFt].nV[i]));
-	}
+	codeGen->MD_PushRel(offsetof(CMIPS, m_State.nCOP2[nFs]));
+	PullVector(codeGen, nDest, offsetof(CMIPS, m_State.nCOP2[nFt]));
 }
 
 void VUShared::MR32(CMipsJitter* codeGen, uint8 nDest, uint8 nFt, uint8 nFs)
@@ -1397,10 +1392,21 @@ void VUShared::RNEXT(CMipsJitter* codeGen, uint8 dest, uint8 ft)
 {
 	//Compute next R
 	codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2R));
-	codeGen->PushCst(0xDEADBEEF);
+	codeGen->Srl(4);
+	codeGen->PushCst(1);
+	codeGen->And();
+
+	codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2R));
+	codeGen->Srl(22);
+	codeGen->PushCst(1);
+	codeGen->And();
+
+	codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2R));
+	codeGen->Shl(1);
+
 	codeGen->Xor();
-	codeGen->PushCst(0xDEADBEEF);
-	codeGen->Add();
+	codeGen->Xor();
+
 	codeGen->PushCst(0x007FFFFF);
 	codeGen->And();
 	codeGen->PullRel(offsetof(CMIPS, m_State.nCOP2R));
