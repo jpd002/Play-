@@ -19,7 +19,7 @@ public:
 	CMIPSAssembler(uint32*);
 	~CMIPSAssembler();
 
-	unsigned int GetProgramSize();
+	unsigned int GetProgramSize() const;
 	LABEL CreateLabel();
 	void MarkLabel(LABEL);
 

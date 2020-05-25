@@ -15,7 +15,7 @@ CMIPSAssembler::~CMIPSAssembler()
 	ResolveLabelReferences();
 }
 
-unsigned int CMIPSAssembler::GetProgramSize()
+unsigned int CMIPSAssembler::GetProgramSize() const
 {
 	return static_cast<unsigned int>(m_ptr - m_startPtr);
 }
