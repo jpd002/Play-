@@ -36,8 +36,10 @@ void CTestVm::Reset()
 void CTestVm::ExecuteTest(uint32 startAddress)
 {
 	m_cpu.m_State.nPC = startAddress;
+	assert(m_cpu.m_State.nHasException == 0);
 	while(!m_cpu.m_State.nHasException)
 	{
 		m_executor.Execute(100);
 	}
+	m_cpu.m_State.nHasException = 0;
 }

@@ -3,6 +3,7 @@
 #include <fenv.h>
 #include "FpUtils.h"
 #include "AddTest.h"
+#include "BranchTest.h"
 #include "FlagsTest.h"
 #include "FlagsTest2.h"
 #include "FlagsTest3.h"
@@ -17,6 +18,7 @@ typedef std::function<CTest*()> TestFactoryFunction;
 static const TestFactoryFunction s_factories[] =
 {
 	[]() { return new CAddTest(); },
+	[]() { return new CBranchTest(); },
 	[]() { return new CFlagsTest(); },
 	[]() { return new CFlagsTest2(); },
 	[]() { return new CFlagsTest3(); },

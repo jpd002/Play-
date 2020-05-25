@@ -17,6 +17,7 @@ endif()
 
 add_executable(VuTest
 	AddTest.cpp
+	BranchTest.cpp
 	FlagsTest.cpp
 	FlagsTest2.cpp
 	FlagsTest3.cpp
@@ -29,6 +30,7 @@ add_executable(VuTest
 	VuAssembler.cpp
 
 	AddTest.h
+	BranchTest.h
 	FlagsTest.h
 	FlagsTest2.h
 	FlagsTest3.h
