@@ -98,6 +98,11 @@ public:
 		FVF_W
 	};
 
+	enum
+	{
+		INSTRUCTION_SIZE = 8,
+	};
+
 	CVuAssembler(uint32*);
 	virtual ~CVuAssembler();
 

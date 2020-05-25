@@ -28,7 +28,7 @@ CVuAssembler::LABEL CVuAssembler::CreateLabel()
 	return m_nextLabelId++;
 }
 
-void CVuAssembler::MarkLabel(CVuAssembler::LABEL label)
+void CVuAssembler::MarkLabel(LABEL label)
 {
 	m_labels[label] = GetProgramSize();
 }
