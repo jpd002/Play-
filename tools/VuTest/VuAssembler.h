@@ -1,5 +1,6 @@
 #pragma once
 
+#include <map>
 #include "Types.h"
 
 class CVuAssembler
@@ -100,7 +101,20 @@ public:
 	CVuAssembler(uint32*);
 	virtual ~CVuAssembler();
 
+	typedef uint32 LABEL;
+
+	struct BRANCHOP
+	{
+		uint32 op = 0;
+		LABEL label = 0;
+	};
+
+	unsigned int GetProgramSize() const;
+	LABEL CreateLabel();
+	void MarkLabel(LABEL);
+
 	void Write(uint32, uint32);
+	void Write(uint32, BRANCHOP);
 
 	class Upper
 	{
@@ -132,11 +146,13 @@ public:
 	class Lower
 	{
 	public:
+		static BRANCHOP B(LABEL);
 		static uint32 DIV(VF_REGISTER, FVF, VF_REGISTER, FVF);
 		static uint32 FCAND(uint32);
 		static uint32 FMAND(VI_REGISTER, VI_REGISTER);
 		static uint32 FSAND(VI_REGISTER, uint16);
 		static uint32 IADDIU(VI_REGISTER, VI_REGISTER, uint16);
+		static BRANCHOP IBEQ(VI_REGISTER, VI_REGISTER, LABEL);
 		static uint32 LQ(DEST, VF_REGISTER, uint16, VI_REGISTER);
 		static uint32 NOP();
 		static uint32 SQ(DEST, VF_REGISTER, uint16, VI_REGISTER);
@@ -144,5 +160,20 @@ public:
 	};
 
 private:
+	void ResolveLabelReferences();
+	void CreateLabelReference(LABEL);
+
+	struct LABELREF
+	{
+		size_t address;
+	};
+
+	typedef std::map<LABEL, size_t> LabelMapType;
+	typedef std::multimap<LABEL, LABELREF> LabelReferenceMapType;
+
 	uint32* m_ptr = nullptr;
+	uint32* m_startPtr = nullptr;
+	LabelMapType m_labels;
+	LabelReferenceMapType m_labelReferences;
+	uint32 m_nextLabelId = 1;
 };

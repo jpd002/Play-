@@ -1,18 +1,79 @@
 #include "VuAssembler.h"
 #include <cassert>
+#include <stdexcept>
+
+#define BRANCH_MIN -1024
+#define BRANCH_MAX 1023
 
 CVuAssembler::CVuAssembler(uint32* ptr)
     : m_ptr(ptr)
+    , m_startPtr(ptr)
 {
 }
 
 CVuAssembler::~CVuAssembler()
 {
+	ResolveLabelReferences();
+}
+
+unsigned int CVuAssembler::GetProgramSize() const
+{
+	auto wordSize = static_cast<unsigned int>(m_ptr - m_startPtr);
+	assert((wordSize & 1) == 0);
+	return wordSize / 2;
+}
+
+CVuAssembler::LABEL CVuAssembler::CreateLabel()
+{
+	return m_nextLabelId++;
+}
+
+void CVuAssembler::MarkLabel(CVuAssembler::LABEL label)
+{
+	m_labels[label] = GetProgramSize();
+}
+
+void CVuAssembler::CreateLabelReference(LABEL label)
+{
+	LABELREF reference;
+	reference.address = GetProgramSize();
+	m_labelReferences.insert(LabelReferenceMapType::value_type(label, reference));
+}
+
+void CVuAssembler::ResolveLabelReferences()
+{
+	for(const auto& labelRef : m_labelReferences)
+	{
+		auto label(m_labels.find(labelRef.first));
+		if(label == m_labels.end())
+		{
+			throw std::runtime_error("Invalid label.");
+		}
+		size_t referencePos = labelRef.second.address;
+		size_t labelPos = label->second;
+		int offset = static_cast<int>(labelPos - referencePos - 1);
+		if(offset > BRANCH_MAX || offset < BRANCH_MIN)
+		{
+			throw std::runtime_error("Jump length too long.");
+		}
+		uint32& instruction = m_startPtr[referencePos * 2];
+		instruction &= 0xFFFFF800;
+		instruction |= static_cast<uint32>(offset & 0x7FF);
+	}
+	m_labelReferences.clear();
 }
 
 void CVuAssembler::Write(uint32 upperOp, uint32 lowerOp)
 {
 	m_ptr[0] = lowerOp;
+	m_ptr[1] = upperOp;
+	m_ptr += 2;
+}
+
+void CVuAssembler::Write(uint32 upperOp, BRANCHOP lowerOp)
+{
+	CreateLabelReference(lowerOp.label);
+	m_ptr[0] = lowerOp.op;
 	m_ptr[1] = upperOp;
 	m_ptr += 2;
 }
@@ -171,6 +232,14 @@ uint32 CVuAssembler::Upper::SUBbc(DEST dest, VF_REGISTER fd, VF_REGISTER fs, VF_
 //LOWER OPs
 //---------------------------------------------------------------------------------
 
+CVuAssembler::BRANCHOP CVuAssembler::Lower::B(LABEL label)
+{
+	BRANCHOP result;
+	result.label = label;
+	result.op = 0x40000000;
+	return result;
+}
+
 uint32 CVuAssembler::Lower::DIV(VF_REGISTER fs, FVF fsf, VF_REGISTER ft, FVF ftf)
 {
 	uint32 result = 0x800003BC;
@@ -215,6 +284,16 @@ uint32 CVuAssembler::Lower::IADDIU(VI_REGISTER it, VI_REGISTER is, uint16 imm)
 	result |= (is << 11);
 	result |= (imm & 0x7FF);
 	result |= (((imm & 0x7800) >> 11) << 21);
+	return result;
+}
+
+CVuAssembler::BRANCHOP CVuAssembler::Lower::IBEQ(VI_REGISTER it, VI_REGISTER is, LABEL label)
+{
+	BRANCHOP result;
+	result.label = label;
+	result.op = 0x50000000;
+	result.op |= (it << 16);
+	result.op |= (is << 11);
 	return result;
 }
 
