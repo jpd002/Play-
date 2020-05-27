@@ -131,7 +131,7 @@ VkDescriptorSet CClutLoad::PrepareDescriptorSet(VkDescriptorSetLayout descriptor
 			writes.push_back(writeSet);
 		}
 
-		m_context->device.vkUpdateDescriptorSets(m_context->device, writes.size(), writes.data(), 0, nullptr);
+		m_context->device.vkUpdateDescriptorSets(m_context->device, static_cast<uint32_t>(writes.size()), writes.data(), 0, nullptr);
 	}
 
 	m_descriptorSetCache.insert(std::make_pair(cpsm, descriptorSet));
@@ -307,7 +307,7 @@ PIPELINE CClutLoad::CreateLoadPipeline(const PIPELINE_CAPS& caps)
 		}
 
 		auto createInfo = Framework::Vulkan::DescriptorSetLayoutCreateInfo();
-		createInfo.bindingCount = bindings.size();
+		createInfo.bindingCount = static_cast<uint32_t>(bindings.size());
 		createInfo.pBindings = bindings.data();
 		result = m_context->device.vkCreateDescriptorSetLayout(m_context->device, &createInfo, nullptr, &loadPipeline.descriptorSetLayout);
 		CHECKVULKANERROR(result);
