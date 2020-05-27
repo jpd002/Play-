@@ -1107,19 +1107,72 @@ Framework::Vulkan::CShaderModule CDraw::CreateFragmentShader(const PIPELINE_CAPS
 
 		if(caps.hasTexture)
 		{
-			auto texelPos = ToInt(inputTexCoord->xy() / inputTexCoord->zz() * ToFloat(texSize));
+			auto clampCoordinates =
+				[&](auto& textureIuv) {
+				auto clampU = ClampTexCoord(b, caps.texClampU, textureIuv->x(), texSize->x(), clampMin->x(), clampMax->x());
+				auto clampV = ClampTexCoord(b, caps.texClampV, textureIuv->y(), texSize->y(), clampMin->y(), clampMax->y());
+				return NewInt2(clampU, clampV);
+			};
 
-			auto clampPosU = ClampTexCoord(b, caps.texClampU, texelPos->x(), texSize->x(), clampMin->x(), clampMax->x());
-			auto clampPosV = ClampTexCoord(b, caps.texClampV, texelPos->y(), texSize->y(), clampMin->y(), clampMax->y());
+			auto getTextureColor =
+				[&](auto& textureIuv, auto& textureColor) {
+				textureColor = GetTextureColor(b, caps.textureFormat, caps.clutFormat, textureIuv,
+					memoryBuffer, clutBuffer, texSwizzleTable, texBufAddress, texBufWidth, texCsa);
+				if (caps.textureHasAlpha)
+				{
+					ExpandAlpha(b, caps.textureFormat, caps.clutFormat, caps.textureBlackIsTransparent, textureColor, texA0, texA1);
+				}
+			};
 
-			auto clampTexPos = NewInt2(clampPosU, clampPosV);
+			auto textureSt = CFloat2Lvalue(b.CreateVariableFloat("textureSt"));
+			textureSt = inputTexCoord->xy() / inputTexCoord->zz();
 
-			textureColor = GetTextureColor(b, caps.textureFormat, caps.clutFormat, clampTexPos,
-			                               memoryBuffer, clutBuffer, texSwizzleTable, texBufAddress, texBufWidth, texCsa);
-
-			if(caps.textureHasAlpha)
+			if(false)
 			{
-				ExpandAlpha(b, caps.textureFormat, caps.clutFormat, caps.textureBlackIsTransparent, textureColor, texA0, texA1);
+				//Linear Sampling
+				//-------------------------------------
+
+				auto textureLinearPos = CFloat2Lvalue(b.CreateVariableFloat("textureLinearPos"));
+				auto textureLinearAb = CFloat2Lvalue(b.CreateVariableFloat("textureLinearAb"));
+				auto textureIuv0 = CInt2Lvalue(b.CreateVariableInt("textureIuv0"));
+				auto textureIuv1 = CInt2Lvalue(b.CreateVariableInt("textureIuv1"));
+				auto textureColorA = CFloat4Lvalue(b.CreateVariableFloat("textureColorA"));
+				auto textureColorB = CFloat4Lvalue(b.CreateVariableFloat("textureColorB"));
+				auto textureColorC = CFloat4Lvalue(b.CreateVariableFloat("textureColorC"));
+				auto textureColorD = CFloat4Lvalue(b.CreateVariableFloat("textureColorD"));
+
+				textureLinearPos = (textureSt * ToFloat(texSize)) + NewFloat2(b, -0.5f, -0.5f);
+				textureLinearAb = Fract(textureLinearPos);
+
+				textureIuv0 = ToInt(textureLinearPos);
+				textureIuv1 = textureIuv0 + NewInt2(b, 1, 1);
+
+				auto textureClampIuv0 = clampCoordinates(textureIuv0);
+				auto textureClampIuv1 = clampCoordinates(textureIuv1);
+
+				getTextureColor(NewInt2(textureClampIuv0->x(), textureClampIuv0->y()), textureColorA);
+				getTextureColor(NewInt2(textureClampIuv1->x(), textureClampIuv0->y()), textureColorB);
+				getTextureColor(NewInt2(textureClampIuv0->x(), textureClampIuv1->y()), textureColorC);
+				getTextureColor(NewInt2(textureClampIuv1->x(), textureClampIuv1->y()), textureColorD);
+
+				auto factorA = (NewFloat(b, 1.0f) - textureLinearAb->x()) * (NewFloat(b, 1.0f) - textureLinearAb->y());
+				auto factorB = textureLinearAb->x() * (NewFloat(b, 1.0f) - textureLinearAb->y());
+				auto factorC = (NewFloat(b, 1.0f) - textureLinearAb->x()) * textureLinearAb->y();
+				auto factorD = textureLinearAb->x() * textureLinearAb->y();
+
+				textureColor =
+				    textureColorA * factorA->xxxx() +
+				    textureColorB * factorB->xxxx() +
+				    textureColorC * factorC->xxxx() +
+				    textureColorD * factorD->xxxx();
+			}
+			else
+			{
+				//Point Sampling
+				//------------------------------
+				auto texelPos = ToInt(textureSt * ToFloat(texSize));
+				auto clampTexPos = clampCoordinates(texelPos);
+				getTextureColor(clampTexPos, textureColor);
 			}
 
 			switch(caps.textureFunction)
