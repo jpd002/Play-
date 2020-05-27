@@ -328,6 +328,7 @@ private:
 		void MFIR();
 		void RGET();
 		void XITOP();
+		void ERSADD();
 		void EATANxz();
 		void ERSQRT();
 

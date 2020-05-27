@@ -11,6 +11,7 @@
 #define LATENCY_ELENG 17
 #define LATENCY_ERCPR 11
 #define LATENCY_ERLENG 23
+#define LATENCY_ERSADD 17
 #define LATENCY_ERSQRT 17
 #define LATENCY_ESADD 10
 #define LATENCY_ESIN 28
@@ -800,6 +801,41 @@ void CMA_VU::CLower::XITOP()
 	m_codeGen->PullRel(offsetof(CMIPS, m_State.nCOP2VI[m_nIT]));
 }
 
+//1C
+void CMA_VU::CLower::ERSADD()
+{
+	auto destination = VUShared::g_pipeInfoP.heldValue;
+	VUShared::QueueInPipeline(VUShared::g_pipeInfoP, m_codeGen, LATENCY_ERSADD, m_relativePipeTime);
+
+	///////////////////////////////////////////////////
+	//Raise all components to the power of 2
+
+	m_codeGen->FP_PushSingle(offsetof(CMIPS, m_State.nCOP2[m_nIS].nV[0]));
+	m_codeGen->PushTop();
+	m_codeGen->FP_Mul();
+
+	m_codeGen->FP_PushSingle(offsetof(CMIPS, m_State.nCOP2[m_nIS].nV[1]));
+	m_codeGen->PushTop();
+	m_codeGen->FP_Mul();
+
+	m_codeGen->FP_PushSingle(offsetof(CMIPS, m_State.nCOP2[m_nIS].nV[2]));
+	m_codeGen->PushTop();
+	m_codeGen->FP_Mul();
+
+	///////////////////////////////////////////////////
+	//Sum all components
+
+	m_codeGen->FP_Add();
+	m_codeGen->FP_Add();
+
+	///////////////////////////////////////////////////
+	//Inverse
+
+	m_codeGen->FP_Rcpl();
+
+	m_codeGen->FP_PullSingle(destination);
+}
+
 //1D
 void CMA_VU::CLower::EATANxz()
 {
@@ -1115,7 +1151,7 @@ CMA_VU::CLower::InstructionFuncConstant CMA_VU::CLower::m_pOpVector1[0x20] =
 	//0x10
 	&CMA_VU::CLower::RGET,			&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,
 	//0x18
-	&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::XITOP,			&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::EATANxz,		&CMA_VU::CLower::ERSQRT,		&CMA_VU::CLower::Illegal,
+	&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::XITOP,			&CMA_VU::CLower::Illegal,		&CMA_VU::CLower::ERSADD,		&CMA_VU::CLower::EATANxz,		&CMA_VU::CLower::ERSQRT,		&CMA_VU::CLower::Illegal,
 };
 
 CMA_VU::CLower::InstructionFuncConstant CMA_VU::CLower::m_pOpVector2[0x20] =
