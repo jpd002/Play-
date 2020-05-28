@@ -27,6 +27,7 @@ namespace GSH_Vulkan
 			uint32 textureHasAlpha : 1;
 			uint32 textureBlackIsTransparent : 1;
 			uint32 textureFunction : 2;
+			uint32 textureUseLinearFiltering : 1;
 			uint32 texClampU : 2;
 			uint32 texClampV : 2;
 

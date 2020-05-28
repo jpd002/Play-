@@ -1127,7 +1127,7 @@ Framework::Vulkan::CShaderModule CDraw::CreateFragmentShader(const PIPELINE_CAPS
 			auto textureSt = CFloat2Lvalue(b.CreateVariableFloat("textureSt"));
 			textureSt = inputTexCoord->xy() / inputTexCoord->zz();
 
-			if(false)
+			if(caps.textureUseLinearFiltering)
 			{
 				//Linear Sampling
 				//-------------------------------------

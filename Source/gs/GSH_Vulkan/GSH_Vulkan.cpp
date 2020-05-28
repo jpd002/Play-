@@ -548,6 +548,7 @@ void CGSH_Vulkan::SetRenderingContext(uint64 primReg)
 	auto frame = make_convertible<FRAME>(m_nReg[GS_REG_FRAME_1 + context]);
 	auto zbuf = make_convertible<ZBUF>(m_nReg[GS_REG_ZBUF_1 + context]);
 	auto tex0 = make_convertible<TEX0>(m_nReg[GS_REG_TEX0_1 + context]);
+	auto tex1 = make_convertible<TEX1>(m_nReg[GS_REG_TEX1_1 + context]);
 	auto clamp = make_convertible<CLAMP>(m_nReg[GS_REG_CLAMP_1 + context]);
 	auto alpha = make_convertible<ALPHA>(m_nReg[GS_REG_ALPHA_1 + context]);
 	auto scissor = make_convertible<SCISSOR>(m_nReg[GS_REG_SCISSOR_1 + context]);
@@ -573,6 +574,38 @@ void CGSH_Vulkan::SetRenderingContext(uint64 primReg)
 	pipelineCaps.depthbufferFormat = zbuf.nPsm | 0x30;
 
 	uint32 fbWriteMask = ~frame.nMask;
+
+	if(prim.nTexture)
+	{
+		bool minLinear = false;
+		bool magLinear = false;
+
+		switch(tex1.nMinFilter)
+		{
+		case MIN_FILTER_NEAREST:
+		case MIN_FILTER_NEAREST_MIP_NEAREST:
+		case MIN_FILTER_NEAREST_MIP_LINEAR:
+			minLinear = false;
+			break;
+		case MIN_FILTER_LINEAR:
+		case MIN_FILTER_LINEAR_MIP_NEAREST:
+		case MIN_FILTER_LINEAR_MIP_LINEAR:
+			minLinear = true;
+			break;
+		}
+
+		switch(tex1.nMagFilter)
+		{
+		case MAG_FILTER_NEAREST:
+			magLinear = false;
+			break;
+		case MAG_FILTER_LINEAR:
+			magLinear = true;
+			break;
+		}
+
+		pipelineCaps.textureUseLinearFiltering = (minLinear && magLinear);
+	}
 
 	if(prim.nAlpha)
 	{
