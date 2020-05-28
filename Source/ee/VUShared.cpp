@@ -12,31 +12,37 @@
 #define STATUS_ZS 0x40
 #define STATUS_SS 0x80
 
+// clang-format off
 const VUShared::REGISTER_PIPEINFO VUShared::g_pipeInfoQ =
-    {
-        offsetof(CMIPS, m_State.nCOP2Q),
-        offsetof(CMIPS, m_State.pipeQ.heldValue),
-        offsetof(CMIPS, m_State.pipeQ.counter)};
+{
+	offsetof(CMIPS, m_State.nCOP2Q),
+	offsetof(CMIPS, m_State.pipeQ.heldValue),
+	offsetof(CMIPS, m_State.pipeQ.counter)
+};
 
 const VUShared::REGISTER_PIPEINFO VUShared::g_pipeInfoP =
-    {
-        offsetof(CMIPS, m_State.nCOP2P),
-        offsetof(CMIPS, m_State.pipeP.heldValue),
-        offsetof(CMIPS, m_State.pipeP.counter)};
+{
+	offsetof(CMIPS, m_State.nCOP2P),
+	offsetof(CMIPS, m_State.pipeP.heldValue),
+	offsetof(CMIPS, m_State.pipeP.counter)
+};
 
 const VUShared::FLAG_PIPEINFO VUShared::g_pipeInfoMac =
-    {
-        offsetof(CMIPS, m_State.nCOP2MF),
-        offsetof(CMIPS, m_State.pipeMac.index),
-        offsetof(CMIPS, m_State.pipeMac.values),
-        offsetof(CMIPS, m_State.pipeMac.pipeTimes)};
+{
+	offsetof(CMIPS, m_State.nCOP2MF),
+	offsetof(CMIPS, m_State.pipeMac.index),
+	offsetof(CMIPS, m_State.pipeMac.values),
+	offsetof(CMIPS, m_State.pipeMac.pipeTimes)
+};
 
 const VUShared::FLAG_PIPEINFO VUShared::g_pipeInfoClip =
-    {
-        offsetof(CMIPS, m_State.nCOP2CF),
-        offsetof(CMIPS, m_State.pipeClip.index),
-        offsetof(CMIPS, m_State.pipeClip.values),
-        offsetof(CMIPS, m_State.pipeClip.pipeTimes)};
+{
+	offsetof(CMIPS, m_State.nCOP2CF),
+	offsetof(CMIPS, m_State.pipeClip.index),
+	offsetof(CMIPS, m_State.pipeClip.values),
+	offsetof(CMIPS, m_State.pipeClip.pipeTimes)
+};
+// clang-format on
 
 using namespace VUShared;
 
