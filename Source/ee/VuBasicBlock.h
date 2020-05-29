@@ -8,6 +8,8 @@ public:
 	CVuBasicBlock(CMIPS&, uint32, uint32);
 	virtual ~CVuBasicBlock() = default;
 
+	bool IsLinkable() const;
+
 protected:
 	void CompileRange(CMipsJitter*) override;
 
@@ -20,10 +22,13 @@ private:
 	};
 
 	static bool IsConditionalBranch(uint32);
+	static bool IsNonConditionalBranch(uint32);
 
 	INTEGER_BRANCH_DELAY_INFO GetIntegerBranchDelayInfo() const;
 	bool CheckIsSpecialIntegerLoop(unsigned int) const;
 	void ComputeSkipFlagsHints(const std::vector<uint32>&, std::vector<uint32>&) const;
 	std::vector<uint32> ComputeFmacStallDelays() const;
 	static void EmitXgKick(CMipsJitter*);
+
+	bool m_isLinkable = true;
 };

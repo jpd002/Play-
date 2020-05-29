@@ -69,11 +69,6 @@ void CMA_VU::CLower::SetBranchAddress(bool nCondition, int32 nOffset)
 		m_codeGen->PushCst((m_nAddress + nOffset + 4) & maxIAddr);
 		m_codeGen->PullRel(offsetof(CMIPS, m_State.nDelayedJumpAddr));
 	}
-	m_codeGen->Else();
-	{
-		m_codeGen->PushCst(MIPS_INVALID_PC);
-		m_codeGen->PullRel(offsetof(CMIPS, m_State.nDelayedJumpAddr));
-	}
 	m_codeGen->EndIf();
 }
 

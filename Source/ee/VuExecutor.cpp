@@ -88,5 +88,9 @@ void CVuExecutor::PartitionFunction(uint32 startAddress)
 	}
 	assert((endAddress - startAddress) <= MAX_BLOCK_SIZE);
 	CreateBlock(startAddress, endAddress);
-	SetupBlockLinks(startAddress, endAddress, branchAddress);
+	auto block = static_cast<CVuBasicBlock*>(FindBlockStartingAt(startAddress));
+	if(block->IsLinkable())
+	{
+		SetupBlockLinks(startAddress, endAddress, branchAddress);
+	}
 }

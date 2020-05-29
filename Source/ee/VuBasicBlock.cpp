@@ -9,6 +9,11 @@ CVuBasicBlock::CVuBasicBlock(CMIPS& context, uint32 begin, uint32 end)
 {
 }
 
+bool CVuBasicBlock::IsLinkable() const
+{
+	return m_isLinkable;
+}
+
 void CVuBasicBlock::CompileRange(CMipsJitter* jitter)
 {
 	CompileProlog(jitter);
@@ -165,6 +170,26 @@ void CVuBasicBlock::CompileRange(CMipsJitter* jitter)
 		relativePipeTime++;
 		instructionIndex++;
 
+		//Handle some branch in delay slot situation (Star Ocean 3):
+		//B   $label1
+		//Bxx $label2
+		if((address == (m_end - 4)) && IsConditionalBranch(opcodeLo))
+		{
+			//Disable block linking because targets will be wrong
+			m_isLinkable = false;
+
+			uint32 branchOpcodeAddr = address - 8;
+			assert(branchOpcodeAddr >= m_begin);
+			uint32 branchOpcodeLo = m_context.m_pMemoryMap->GetInstruction(branchOpcodeAddr);
+			if(IsNonConditionalBranch(branchOpcodeLo))
+			{
+				//We need to compile the instruction at the branch target because it will be executed
+				//before the branch is taken
+				uint32 branchTgtAddress = branchOpcodeAddr + VUShared::GetBranch(branchOpcodeLo & 0x7FF) + 8;
+				arch->CompileInstruction(branchTgtAddress, jitter, &m_context);
+			}
+		}
+
 		//Sanity check
 		assert(jitter->IsStackEmpty());
 	}
@@ -192,6 +217,12 @@ bool CVuBasicBlock::IsConditionalBranch(uint32 opcodeLo)
 	//Conditional branches are in the contiguous opcode range 0x28 -> 0x2F inclusive
 	uint32 id = (opcodeLo >> 25) & 0x7F;
 	return (id >= 0x28) && (id < 0x30);
+}
+
+bool CVuBasicBlock::IsNonConditionalBranch(uint32 opcodeLo)
+{
+	uint32 id = (opcodeLo >> 25) & 0x7F;
+	return (id == 0x20);
 }
 
 CVuBasicBlock::INTEGER_BRANCH_DELAY_INFO CVuBasicBlock::GetIntegerBranchDelayInfo() const
