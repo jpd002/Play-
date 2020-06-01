@@ -104,6 +104,7 @@ struct MIPSSTATE
 	REGISTER_PIPELINE pipeQ;
 	REGISTER_PIPELINE pipeP;
 	FLAG_PIPELINE pipeMac;
+	FLAG_PIPELINE pipeSticky;
 	FLAG_PIPELINE pipeClip;
 
 	uint32 pipeTime;

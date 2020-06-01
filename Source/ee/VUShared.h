@@ -264,6 +264,7 @@ namespace VUShared
 	extern const REGISTER_PIPEINFO g_pipeInfoQ;
 	extern const REGISTER_PIPEINFO g_pipeInfoP;
 	extern const FLAG_PIPEINFO g_pipeInfoMac;
+	extern const FLAG_PIPEINFO g_pipeInfoSticky;
 	extern const FLAG_PIPEINFO g_pipeInfoClip;
 }
 

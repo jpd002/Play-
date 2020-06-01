@@ -35,6 +35,14 @@ const VUShared::FLAG_PIPEINFO VUShared::g_pipeInfoMac =
 	offsetof(CMIPS, m_State.pipeMac.pipeTimes)
 };
 
+const VUShared::FLAG_PIPEINFO VUShared::g_pipeInfoSticky =
+{
+	offsetof(CMIPS, m_State.nCOP2SF),
+	offsetof(CMIPS, m_State.pipeSticky.index),
+	offsetof(CMIPS, m_State.pipeSticky.values),
+	offsetof(CMIPS, m_State.pipeSticky.pipeTimes)
+};
+
 const VUShared::FLAG_PIPEINFO VUShared::g_pipeInfoClip =
 {
 	offsetof(CMIPS, m_State.nCOP2CF),
@@ -183,10 +191,27 @@ void VUShared::TestSZFlags(CMipsJitter* codeGen, uint8 dest, size_t regOffset, u
 	}
 
 	//Update sticky flags
-	codeGen->PushTop();
-	codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2SF));
-	codeGen->Or();
-	codeGen->PullRel(offsetof(CMIPS, m_State.nCOP2SF));
+	{
+		codeGen->PushTop();
+
+		//Load previous value
+		{
+			codeGen->PushRelAddrRef(offsetof(CMIPS, m_State.pipeSticky.values));
+
+			codeGen->PushRel(offsetof(CMIPS, m_State.pipeSticky.index));
+			codeGen->PushCst(1);
+			codeGen->Sub();
+			codeGen->PushCst(FLAG_PIPELINE_SLOTS - 1);
+			codeGen->And();
+
+			codeGen->Shl(2);
+			codeGen->AddRef();
+			codeGen->LoadFromRef();
+		}
+
+		codeGen->Or();
+		QueueInFlagPipeline(g_pipeInfoSticky, codeGen, LATENCY_MAC, relativePipeTime);
+	}
 
 	if((compileHints & COMPILEHINT_SKIPFMACUPDATE) == 0)
 	{
@@ -203,6 +228,7 @@ void VUShared::GetStatus(CMipsJitter* codeGen, size_t dstOffset, uint32 relative
 	//Get STATUS flag using information from other values (MACflags and sticky flags)
 
 	CheckFlagPipeline(g_pipeInfoMac, codeGen, relativePipeTime);
+	CheckFlagPipeline(g_pipeInfoSticky, codeGen, relativePipeTime);
 
 	//Reset result
 	codeGen->PushCst(0);
@@ -312,6 +338,9 @@ void VUShared::SetStatus(CMipsJitter* codeGen, size_t srcOffset)
 		codeGen->PullRel(offsetof(CMIPS, m_State.nCOP2SF));
 	}
 	codeGen->EndIf();
+
+	codeGen->PushRel(offsetof(CMIPS, m_State.nCOP2SF));
+	ResetFlagPipeline(VUShared::g_pipeInfoSticky, codeGen);
 }
 
 void VUShared::ADDA_base(CMipsJitter* codeGen, uint8 dest, size_t fs, size_t ft, bool expand, uint32 relativePipeTime, uint32 compileHints)
