@@ -82,6 +82,17 @@ void CVuAssembler::Write(uint32 upperOp, BRANCHOP lowerOp)
 //UPPER OPs
 //---------------------------------------------------------------------------------
 
+uint32 CVuAssembler::Upper::ADDbc(DEST dest, VF_REGISTER fd, VF_REGISTER fs, VF_REGISTER ft, BROADCAST bc)
+{
+	uint32 result = 0x00000000;
+	result |= bc;
+	result |= (fd << 6);
+	result |= (fs << 11);
+	result |= (ft << 16);
+	result |= (dest << 21);
+	return result;
+}
+
 uint32 CVuAssembler::Upper::ADDi(DEST dest, VF_REGISTER fd, VF_REGISTER fs)
 {
 	uint32 result = 0x00000022;
@@ -214,6 +225,16 @@ uint32 CVuAssembler::Upper::OPMSUB(VF_REGISTER fd, VF_REGISTER fs, VF_REGISTER f
 	result |= (fd << 6);
 	result |= (fs << 11);
 	result |= (ft << 16);
+	return result;
+}
+
+uint32 CVuAssembler::Upper::SUB(DEST dest, VF_REGISTER fd, VF_REGISTER fs, VF_REGISTER ft)
+{
+	uint32 result = 0x0000002C;
+	result |= (fd << 6);
+	result |= (fs << 11);
+	result |= (ft << 16);
+	result |= (dest << 21);
 	return result;
 }
 
