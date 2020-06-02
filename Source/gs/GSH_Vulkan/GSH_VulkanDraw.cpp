@@ -1108,21 +1108,21 @@ Framework::Vulkan::CShaderModule CDraw::CreateFragmentShader(const PIPELINE_CAPS
 		if(caps.hasTexture)
 		{
 			auto clampCoordinates =
-				[&](auto& textureIuv) {
-				auto clampU = ClampTexCoord(b, caps.texClampU, textureIuv->x(), texSize->x(), clampMin->x(), clampMax->x());
-				auto clampV = ClampTexCoord(b, caps.texClampV, textureIuv->y(), texSize->y(), clampMin->y(), clampMax->y());
-				return NewInt2(clampU, clampV);
-			};
+			    [&](auto& textureIuv) {
+				    auto clampU = ClampTexCoord(b, caps.texClampU, textureIuv->x(), texSize->x(), clampMin->x(), clampMax->x());
+				    auto clampV = ClampTexCoord(b, caps.texClampV, textureIuv->y(), texSize->y(), clampMin->y(), clampMax->y());
+				    return NewInt2(clampU, clampV);
+			    };
 
 			auto getTextureColor =
-				[&](auto& textureIuv, auto& textureColor) {
-				textureColor = GetTextureColor(b, caps.textureFormat, caps.clutFormat, textureIuv,
-					memoryBuffer, clutBuffer, texSwizzleTable, texBufAddress, texBufWidth, texCsa);
-				if (caps.textureHasAlpha)
-				{
-					ExpandAlpha(b, caps.textureFormat, caps.clutFormat, caps.textureBlackIsTransparent, textureColor, texA0, texA1);
-				}
-			};
+			    [&](auto& textureIuv, auto& textureColor) {
+				    textureColor = GetTextureColor(b, caps.textureFormat, caps.clutFormat, textureIuv,
+				                                   memoryBuffer, clutBuffer, texSwizzleTable, texBufAddress, texBufWidth, texCsa);
+				    if(caps.textureHasAlpha)
+				    {
+					    ExpandAlpha(b, caps.textureFormat, caps.clutFormat, caps.textureBlackIsTransparent, textureColor, texA0, texA1);
+				    }
+			    };
 
 			auto textureSt = CFloat2Lvalue(b.CreateVariableFloat("textureSt"));
 			textureSt = inputTexCoord->xy() / inputTexCoord->zz();
