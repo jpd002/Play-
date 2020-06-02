@@ -1108,14 +1108,14 @@ Framework::Vulkan::CShaderModule CDraw::CreateFragmentShader(const PIPELINE_CAPS
 		if(caps.hasTexture)
 		{
 			auto clampCoordinates =
-			    [&](auto& textureIuv) {
+			    [&](CInt2Value textureIuv) {
 				    auto clampU = ClampTexCoord(b, caps.texClampU, textureIuv->x(), texSize->x(), clampMin->x(), clampMax->x());
 				    auto clampV = ClampTexCoord(b, caps.texClampV, textureIuv->y(), texSize->y(), clampMin->y(), clampMax->y());
 				    return NewInt2(clampU, clampV);
 			    };
 
 			auto getTextureColor =
-			    [&](auto& textureIuv, auto& textureColor) {
+			    [&](CInt2Value textureIuv, CFloat4Lvalue& textureColor) {
 				    textureColor = GetTextureColor(b, caps.textureFormat, caps.clutFormat, textureIuv,
 				                                   memoryBuffer, clutBuffer, texSwizzleTable, texBufAddress, texBufWidth, texCsa);
 				    if(caps.textureHasAlpha)
