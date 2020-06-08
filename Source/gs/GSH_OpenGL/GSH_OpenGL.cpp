@@ -803,7 +803,7 @@ void CGSH_OpenGL::SetupBlendingFunction(uint64 alphaReg)
 	}
 	else if((alpha.nA == 1) && (alpha.nB == 2) && (alpha.nC == 2) && (alpha.nD == 2))
 	{
-		//Cd * FIX
+		//1222 -> Cd * FIX
 		glBlendColor(0, 0, 0, static_cast<float>(alpha.nFix) / 128.0f);
 		glBlendFuncSeparate(GL_ZERO, GL_CONSTANT_ALPHA, GL_ONE, GL_ZERO);
 	}
