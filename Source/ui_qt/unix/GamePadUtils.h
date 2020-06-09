@@ -2,6 +2,7 @@
 
 #include <libevdev.h>
 #include <array>
+#include <string>
 #include "Types.h"
 
 typedef std::array<uint32, 6> GamePadDeviceId;
