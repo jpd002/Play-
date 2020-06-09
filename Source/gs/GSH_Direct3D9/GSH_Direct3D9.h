@@ -95,7 +95,8 @@ private:
 	{
 		uint32 texSourceMode : 2;
 		uint32 texFunction : 2;
-		uint32 padding : 28;
+		uint32 colorOutputWhite : 1;
+		uint32 padding : 27;
 
 		bool isIndexedTextureSource() const
 		{
@@ -179,6 +180,7 @@ private:
 	void VertexKick(uint8, uint64);
 
 	void FillShaderCapsFromTexture(SHADERCAPS&, const uint64&);
+	void FillShaderCapsFromAlpha(SHADERCAPS&, const uint64&);
 
 	void SetRenderingContext(uint64);
 	void SetupBlendingFunction(uint64);

@@ -1061,6 +1061,14 @@ void CGSH_Direct3D9::FillShaderCapsFromTexture(SHADERCAPS& shaderCaps, const uin
 	shaderCaps.texFunction = tex0.nFunction;
 }
 
+void CGSH_Direct3D9::FillShaderCapsFromAlpha(SHADERCAPS& shaderCaps, const uint64& alphaReg)
+{
+	auto alpha = make_convertible<ALPHA>(alphaReg);
+
+	//If we don't use the source color at all, output white to support some funky blending modes (ex: ones that doubles dest color).
+	shaderCaps.colorOutputWhite = (alpha.nA != ALPHABLEND_ABD_CS) && (alpha.nB != ALPHABLEND_ABD_CS) && (alpha.nD != ALPHABLEND_ABD_CS);
+}
+
 void CGSH_Direct3D9::SetRenderingContext(uint64 primReg)
 {
 	auto prim = make_convertible<PRMODE>(primReg);
@@ -1081,6 +1089,7 @@ void CGSH_Direct3D9::SetRenderingContext(uint64 primReg)
 	//Get shader caps
 	auto shaderCaps = make_convertible<SHADERCAPS>(0);
 	FillShaderCapsFromTexture(shaderCaps, tex0Reg);
+	FillShaderCapsFromAlpha(shaderCaps, alphaReg);
 
 	if(!prim.nTexture)
 	{
@@ -1286,6 +1295,15 @@ void CGSH_Direct3D9::SetupBlendingFunction(uint64 alphaReg)
 		//1220 -> Cd * FIX + Cs
 		uint8 fix = MulBy2Clamp(alpha.nFix);
 		m_device->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_ONE);
+		m_device->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_BLENDFACTOR);
+		m_device->SetRenderState(D3DRS_BLENDFACTOR, D3DCOLOR_ARGB(fix, fix, fix, fix));
+	}
+	else if((alpha.nA == ALPHABLEND_ABD_CD) && (alpha.nB == ALPHABLEND_ABD_ZERO) && (alpha.nC == ALPHABLEND_C_FIX) && (alpha.nD == ALPHABLEND_ABD_CD))
+	{
+		//1221 -> Cd * (1 + FIX)
+		//Relies on colorOutputWhite shader cap
+		uint8 fix = MulBy2Clamp(alpha.nFix);
+		m_device->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_DESTCOLOR);
 		m_device->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_BLENDFACTOR);
 		m_device->SetRenderState(D3DRS_BLENDFACTOR, D3DCOLOR_ARGB(fix, fix, fix, fix));
 	}

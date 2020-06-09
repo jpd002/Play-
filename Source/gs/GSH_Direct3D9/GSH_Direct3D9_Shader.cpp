@@ -155,6 +155,11 @@ Nuanceur::CShaderBuilder CGSH_Direct3D9::GeneratePixelShader(SHADERCAPS caps)
 		//This has the side effect of not writing a proper value in the framebuffer (should write alpha "as is")
 		finalAlpha = Saturate(textureColor->w() * NewFloat(b, 2));
 		outputColor = NewFloat4(textureColor->xyz(), finalAlpha);
+
+		if(caps.colorOutputWhite)
+		{
+			outputColor = NewFloat4(b, 1, 1, 1, 1);
+		}
 	}
 
 	return b;
