@@ -5,6 +5,7 @@
 #include <cstdlib>
 #include <cstring>
 #include <ctime>
+#include <stdexcept>
 #include "HashUtils.h"
 #include "string_format.h"
 #include "xml/Parser.h"
