@@ -535,6 +535,7 @@ void CGSH_OpenGL::SetRenderingContext(uint64 primReg)
 	auto shaderCaps = make_convertible<SHADERCAPS>(0);
 	FillShaderCapsFromTexture(shaderCaps, tex0Reg, tex1Reg, texAReg, clampReg);
 	FillShaderCapsFromTest(shaderCaps, testReg);
+	FillShaderCapsFromAlpha(shaderCaps, alphaReg);
 	auto technique = GetTechniqueFromTest(testReg);
 
 	if(prim.nFog)
@@ -787,8 +788,8 @@ void CGSH_OpenGL::SetupBlendingFunction(uint64 alphaReg)
 	else if((alpha.nA == ALPHABLEND_ABD_CD) && (alpha.nB == ALPHABLEND_ABD_ZERO) && (alpha.nC == ALPHABLEND_C_AS) && (alpha.nD == ALPHABLEND_ABD_CD))
 	{
 		//1201 -> Cd * (As + 1)
-		//TODO: Implement this properly (multiple passes?)
-		glBlendFuncSeparate(GL_ZERO, GL_ONE, GL_ONE, GL_ZERO);
+		//Relies on colorOutputWhite shader cap
+		glBlendFuncSeparate(GL_DST_COLOR, BLEND_SRC_ALPHA, GL_ONE, GL_ZERO);
 	}
 	else if((alpha.nA == ALPHABLEND_ABD_CD) && (alpha.nB == ALPHABLEND_ABD_ZERO) && (alpha.nC == ALPHABLEND_C_AS) && (alpha.nD == ALPHABLEND_ABD_ZERO))
 	{
@@ -1107,6 +1108,14 @@ void CGSH_OpenGL::FillShaderCapsFromTest(SHADERCAPS& shaderCaps, const uint64& t
 	{
 		shaderCaps.hasAlphaTest = 0;
 	}
+}
+
+void CGSH_OpenGL::FillShaderCapsFromAlpha(SHADERCAPS& shaderCaps, const uint64& alphaReg)
+{
+	auto alpha = make_convertible<ALPHA>(alphaReg);
+
+	//If we don't use the source color at all, output white to support some blending modes (ex: ones that doubles dest color).
+	shaderCaps.colorOutputWhite = (alpha.nA != ALPHABLEND_ABD_CS) && (alpha.nB != ALPHABLEND_ABD_CS) && (alpha.nD != ALPHABLEND_ABD_CS);
 }
 
 CGSH_OpenGL::TECHNIQUE CGSH_OpenGL::GetTechniqueFromTest(const uint64& testReg)

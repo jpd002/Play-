@@ -340,6 +340,11 @@ Framework::OpenGl::CShader CGSH_OpenGL::GenerateFragmentShader(const SHADERCAPS&
 	shaderBuilder << "	fragColor.a = clamp(textureColor.a * 2.0, 0.0, 1.0);" << std::endl;
 #endif
 
+	if(caps.colorOutputWhite)
+	{
+		shaderBuilder << "	fragColor.xyz = vec3(1, 1, 1);" << std::endl;
+	}
+
 	shaderBuilder << "	gl_FragDepth = v_depth;" << std::endl;
 
 	shaderBuilder << "}" << std::endl;

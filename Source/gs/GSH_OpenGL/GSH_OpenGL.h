@@ -70,7 +70,8 @@ private:
 		unsigned int hasFog : 1;
 		unsigned int hasAlphaTest : 1;
 		unsigned int alphaTestMethod : 3;
-		unsigned int padding : 15;
+		unsigned int colorOutputWhite : 1;
+		unsigned int padding : 14;
 
 		bool isIndexedTextureSource() const
 		{
@@ -340,6 +341,7 @@ private:
 	static bool CanRegionRepeatClampModeSimplified(uint32, uint32);
 	void FillShaderCapsFromTexture(SHADERCAPS&, const uint64&, const uint64&, const uint64&, const uint64&);
 	void FillShaderCapsFromTest(SHADERCAPS&, const uint64&);
+	void FillShaderCapsFromAlpha(SHADERCAPS&, const uint64&);
 	TECHNIQUE GetTechniqueFromTest(const uint64&);
 
 	void SetupTexture(uint64, uint64, uint64, uint64, uint64);
