@@ -158,7 +158,7 @@ Nuanceur::CShaderBuilder CGSH_Direct3D9::GeneratePixelShader(SHADERCAPS caps)
 
 		if(caps.colorOutputWhite)
 		{
-			outputColor = NewFloat4(b, 1, 1, 1, 1);
+			outputColor = NewFloat4(NewFloat3(b, 1, 1, 1), outputColor->w());
 		}
 	}
 

@@ -1065,7 +1065,7 @@ void CGSH_Direct3D9::FillShaderCapsFromAlpha(SHADERCAPS& shaderCaps, const uint6
 {
 	auto alpha = make_convertible<ALPHA>(alphaReg);
 
-	//If we don't use the source color at all, output white to support some funky blending modes (ex: ones that doubles dest color).
+	//If we don't use the source color at all, output white to support some blending modes (ex: ones that doubles dest color).
 	shaderCaps.colorOutputWhite = (alpha.nA != ALPHABLEND_ABD_CS) && (alpha.nB != ALPHABLEND_ABD_CS) && (alpha.nD != ALPHABLEND_ABD_CS);
 }
 
