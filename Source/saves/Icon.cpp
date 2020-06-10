@@ -1,5 +1,6 @@
 #include <exception>
 #include <cassert>
+#include <stdexcept>
 #include "Icon.h"
 
 #pragma pack(push, 1)
