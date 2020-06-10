@@ -180,7 +180,7 @@ private:
 	void VertexKick(uint8, uint64);
 
 	void FillShaderCapsFromTexture(SHADERCAPS&, const uint64&);
-	void FillShaderCapsFromAlpha(SHADERCAPS&, const uint64&);
+	void FillShaderCapsFromAlpha(SHADERCAPS&, bool, const uint64&);
 
 	void SetRenderingContext(uint64);
 	void SetupBlendingFunction(uint64);

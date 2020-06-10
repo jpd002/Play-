@@ -1061,12 +1061,12 @@ void CGSH_Direct3D9::FillShaderCapsFromTexture(SHADERCAPS& shaderCaps, const uin
 	shaderCaps.texFunction = tex0.nFunction;
 }
 
-void CGSH_Direct3D9::FillShaderCapsFromAlpha(SHADERCAPS& shaderCaps, const uint64& alphaReg)
+void CGSH_Direct3D9::FillShaderCapsFromAlpha(SHADERCAPS& shaderCaps, bool alphaEnabled, const uint64& alphaReg)
 {
 	auto alpha = make_convertible<ALPHA>(alphaReg);
 
 	//If we don't use the source color at all, output white to support some blending modes (ex: ones that doubles dest color).
-	shaderCaps.colorOutputWhite = (alpha.nA != ALPHABLEND_ABD_CS) && (alpha.nB != ALPHABLEND_ABD_CS) && (alpha.nD != ALPHABLEND_ABD_CS);
+	shaderCaps.colorOutputWhite = alphaEnabled && (alpha.nA != ALPHABLEND_ABD_CS) && (alpha.nB != ALPHABLEND_ABD_CS) && (alpha.nD != ALPHABLEND_ABD_CS);
 }
 
 void CGSH_Direct3D9::SetRenderingContext(uint64 primReg)
@@ -1089,7 +1089,7 @@ void CGSH_Direct3D9::SetRenderingContext(uint64 primReg)
 	//Get shader caps
 	auto shaderCaps = make_convertible<SHADERCAPS>(0);
 	FillShaderCapsFromTexture(shaderCaps, tex0Reg);
-	FillShaderCapsFromAlpha(shaderCaps, alphaReg);
+	FillShaderCapsFromAlpha(shaderCaps, prim.nAlpha != 0, alphaReg);
 
 	if(!prim.nTexture)
 	{

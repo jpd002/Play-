@@ -341,7 +341,7 @@ private:
 	static bool CanRegionRepeatClampModeSimplified(uint32, uint32);
 	void FillShaderCapsFromTexture(SHADERCAPS&, const uint64&, const uint64&, const uint64&, const uint64&);
 	void FillShaderCapsFromTest(SHADERCAPS&, const uint64&);
-	void FillShaderCapsFromAlpha(SHADERCAPS&, const uint64&);
+	void FillShaderCapsFromAlpha(SHADERCAPS&, bool, const uint64&);
 	TECHNIQUE GetTechniqueFromTest(const uint64&);
 
 	void SetupTexture(uint64, uint64, uint64, uint64, uint64);
