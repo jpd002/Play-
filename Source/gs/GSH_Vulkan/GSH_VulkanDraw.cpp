@@ -1329,10 +1329,10 @@ Framework::Vulkan::CShaderModule CDraw::CreateFragmentShader(const PIPELINE_CAPS
 
 		BeginInvocationInterlock(b);
 
-		auto dstPixel = CUintLvalue(b.CreateTemporaryUint());
+		auto dstPixel = CUintLvalue(b.CreateVariableUint("dstPixel"));
 		auto dstColor = CFloat4Lvalue(b.CreateVariableFloat("dstColor"));
 		auto dstAlpha = CFloat4Lvalue(b.CreateVariableFloat("dstAlpha"));
-		auto dstDepth = CUintLvalue(b.CreateTemporaryUint());
+		auto dstDepth = CUintLvalue(b.CreateVariableUint("dstDepth"));
 
 		bool needsDstColor = (caps.hasAlphaBlending != 0) || (caps.maskColor != 0) || canDiscardAlpha || (caps.hasDstAlphaTest != 0);
 		if(needsDstColor)
