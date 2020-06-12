@@ -802,7 +802,7 @@ void CGSH_OpenGL::SetupBlendingFunction(uint64 alphaReg)
 		glBlendColor(0, 0, 0, static_cast<float>(alpha.nFix) / 128.0f);
 		glBlendFuncSeparate(GL_ONE, GL_CONSTANT_ALPHA, GL_ONE, GL_ZERO);
 	}
-	else if ((alpha.nA == ALPHABLEND_ABD_CD) && (alpha.nB == ALPHABLEND_ABD_ZERO) && (alpha.nC == ALPHABLEND_C_FIX) && (alpha.nD == ALPHABLEND_ABD_CD))
+	else if((alpha.nA == ALPHABLEND_ABD_CD) && (alpha.nB == ALPHABLEND_ABD_ZERO) && (alpha.nC == ALPHABLEND_C_FIX) && (alpha.nD == ALPHABLEND_ABD_CD))
 	{
 		//1221 -> Cd * (1 + FIX)
 		//Relies on colorOutputWhite shader cap
