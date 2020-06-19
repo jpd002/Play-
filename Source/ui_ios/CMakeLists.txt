@@ -67,6 +67,7 @@ set(OSX_SOURCES
 	BackgroundLayer.m
 	CoverViewCell.m
 	CoverViewController.mm
+	DebuggerSimulator.cpp
 	EmulatorViewController.mm
 	GlEsView.mm
 	GSH_OpenGLiOS.cpp
@@ -84,6 +85,7 @@ set(OSX_HEADERS
 	BackgroundLayer.h
 	CoverViewCell.h
 	CoverViewController.h
+	DebuggerSimulator.h
 	EmulatorViewController.h
 	GlEsView.h
 	GSH_OpenGLiOS.h
