@@ -64,6 +64,11 @@ if(TARGET_PLATFORM_UNIX)
 
 	list(APPEND PROJECT_LIBS "-static-libgcc")
 	list(APPEND PROJECT_LIBS "-static-libstdc++")
+
+	if(${CMAKE_SYSTEM_NAME} MATCHES "FreeBSD")
+		# most unix system seem to implicitly link to libinotify, but not FreeBSD
+		list(APPEND PROJECT_LIBS "libinotify.so")
+	endif()
 endif()
 
 if(TARGET_PLATFORM_MACOS OR TARGET_PLATFORM_UNIX)
