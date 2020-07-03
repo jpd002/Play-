@@ -185,6 +185,9 @@ void CMemoryViewTable::ResizeColumns()
 
 void CMemoryViewTable::AutoColumn()
 {
+	if(m_bytesPerLine)
+		return;
+
 	QFont font = this->font();
 	QFontMetrics metric(font);
 	int columnHeaderWidth = metric.horizontalAdvance(" 0x00000000");
@@ -261,11 +264,14 @@ void CMemoryViewTable::SetActiveUnit(int index)
 {
 	m_model->SetActiveUnit(index);
 	AutoColumn();
+
+	ResizeColumns();
+	m_model->Redraw();
 }
 
 void CMemoryViewTable::SetSelectionStart(uint32 address)
 {
-	auto column = address % m_model->BytesForCurrentLine();
+	auto column = address % m_model->UnitsForCurrentLine();
 	auto row = (address - column) / m_model->UnitsForCurrentLine();
 
 	auto index = m_model->index(row, column);
@@ -284,7 +290,7 @@ void CMemoryViewTable::SelectionChanged()
 		{
 			offset = index.column() * m_model->GetBytesPerUnit();
 		}
-		int address = offset + (index.row() * m_model->BytesForCurrentLine());
+		int address = offset + (index.row() * m_model->UnitsForCurrentLine());
 		m_selected = address;
 		OnSelectionChange(m_selected);
 	}

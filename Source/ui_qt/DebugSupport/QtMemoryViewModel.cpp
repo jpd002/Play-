@@ -26,24 +26,24 @@ int CQtMemoryViewModel::rowCount(const QModelIndex& /*parent*/) const
 
 int CQtMemoryViewModel::columnCount(const QModelIndex& /*parent*/) const
 {
-	return UnitsForCurrentLine() + 1;
+	return (UnitsForCurrentLine() / g_units[m_activeUnit].bytesPerUnit) + 1;
 }
 
 QVariant CQtMemoryViewModel::data(const QModelIndex& index, int role) const
 {
 	if(role == Qt::DisplayRole)
 	{
-		if(index.column() < UnitsForCurrentLine())
+		if(index.column() < UnitsForCurrentLine() / g_units[m_activeUnit].bytesPerUnit)
 		{
 			int offset = (index.column() * g_units[m_activeUnit].bytesPerUnit);
-			int address = offset + (index.row() * BytesForCurrentLine());
+			int address = offset + (index.row() * UnitsForCurrentLine());
 			return (this->*(g_units[m_activeUnit].renderer))(address).c_str();
 		}
 		else
 		{
-			int address = index.row() * BytesForCurrentLine();
+			int address = index.row() * UnitsForCurrentLine();
 			std::string res = "";
-			for(auto j = 0; j < BytesForCurrentLine(); j++)
+			for(auto j = 0; j < UnitsForCurrentLine(); j++)
 			{
 				uint8 value = 0x0;
 				if(address + j < m_size)
@@ -77,7 +77,7 @@ QVariant CQtMemoryViewModel::headerData(int section, Qt::Orientation orientation
 		}
 		else
 		{
-			auto address = section * BytesForCurrentLine();
+			auto address = section * (UnitsForCurrentLine());
 			return ("0x" + lexical_cast_hex<std::string>(address, 8)).c_str();
 		}
 	}
