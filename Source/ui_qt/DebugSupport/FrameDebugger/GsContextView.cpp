@@ -31,7 +31,7 @@ CGsContextView::CGsContextView(QWidget* parent, QComboBox* contextBuffer, QPushB
 	connect(fitButton, &QPushButton::clicked, [&]() {
 		m_bufferView->FitBitmap();
 	});
-		connect(saveButton, &QPushButton::clicked, [&]() {
+	connect(saveButton, &QPushButton::clicked, [&]() {
 		m_bufferView->OnSaveBitmap();
 	});
 }
