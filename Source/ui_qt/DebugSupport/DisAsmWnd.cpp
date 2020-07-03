@@ -201,15 +201,27 @@ void CDisAsmWnd::ShowContextMenu(const QPoint& pos)
 	rightClickMenu->popup(viewport()->mapToGlobal(pos));
 }
 
+bool CDisAsmWnd::isAddressInView(QModelIndex& index) const
+{
+	auto startRow = indexAt(rect().topLeft());
+	auto endRow = indexAt(rect().bottomRight());
+	return index.row() >= startRow.row() && index.row() <= endRow.row();
+}
+
 void CDisAsmWnd::SetAddress(uint32 address)
 {
-	scrollTo(m_model->index(address / m_instructionSize, 0), QAbstractItemView::PositionAtTop);
+	auto addressRow = m_model->index(address / m_instructionSize, 0);
+	if(!isAddressInView(addressRow))
+		scrollTo(addressRow, QAbstractItemView::PositionAtTop);
 	m_address = address;
 }
 
 void CDisAsmWnd::SetCenterAtAddress(uint32 address)
 {
-	scrollTo(m_model->index(m_address / m_instructionSize, 0), QAbstractItemView::PositionAtCenter);
+	auto addressRow = m_model->index(address / m_instructionSize, 0);
+	if(!isAddressInView(addressRow))
+		scrollTo(addressRow, QAbstractItemView::PositionAtCenter);
+
 	m_address = address;
 }
 
@@ -218,7 +230,8 @@ void CDisAsmWnd::SetSelectedAddress(uint32 address)
 	m_selectionEnd = -1;
 	m_selected = address;
 	auto index = m_model->index(address / m_instructionSize, 0);
-	scrollTo(index, QAbstractItemView::PositionAtTop);
+	if(!isAddressInView(index))
+		scrollTo(index, QAbstractItemView::PositionAtTop);
 	setCurrentIndex(index);
 }
 

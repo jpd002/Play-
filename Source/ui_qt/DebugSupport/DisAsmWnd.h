@@ -60,6 +60,8 @@ private:
 
 	void OnListDblClick();
 
+	bool isAddressInView(QModelIndex& index) const;
+
 	CVirtualMachine& m_virtualMachine;
 	CMIPS* m_ctx;
 	int32 m_instructionSize;
