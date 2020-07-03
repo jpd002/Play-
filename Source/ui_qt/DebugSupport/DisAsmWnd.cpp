@@ -28,6 +28,9 @@ CDisAsmWnd::CDisAsmWnd(QWidget* parent, CVirtualMachine& virtualMachine, CMIPS* 
 {
 	HistoryReset();
 
+	QFont fixedFont = QFont("Courier New", 8);
+	setFont(fixedFont);
+
 	resize(320, 240);
 
 	switch(disAsmType)
