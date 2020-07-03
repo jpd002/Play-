@@ -4,8 +4,7 @@
 #include <QMenu>
 #include <QMessageBox>
 #include <QHeaderView>
-#include <QFontDatabase>
-#include <QFontMetrics>
+#include <QFont>
 #include <QVBoxLayout>
 
 #include "string_format.h"
@@ -20,9 +19,7 @@ CMemoryViewTable::CMemoryViewTable(QWidget* parent)
 	setModel(m_model);
 
 	// prepare monospaced font
-	QFont font = this->font();
-	QFont fixedFont = QFontDatabase::systemFont(QFontDatabase::FixedFont);
-	fixedFont.setPointSize(font.pointSize());
+	QFont fixedFont = QFont("Courier New", 8);
 	setFont(fixedFont);
 
 	QFontMetrics metric(fixedFont);
