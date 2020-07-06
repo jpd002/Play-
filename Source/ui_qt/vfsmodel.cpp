@@ -62,6 +62,7 @@ void VFSModel::SetupDevices()
 	m_devices[1] = new CDirectoryDevice("mc1", PREF_PS2_MC1_DIRECTORY);
 	m_devices[2] = new CDirectoryDevice("host", PREF_PS2_HOST_DIRECTORY);
 	m_devices[3] = new CCdrom0Device();
+	m_devices[4] = new CDirectoryDevice("rom0", PREF_PS2_ROM0_DIRECTORY);
 }
 
 bool VFSModel::setHeaderData(int section, Qt::Orientation orientation, const QVariant& value, int role)

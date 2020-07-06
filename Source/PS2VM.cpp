@@ -31,6 +31,7 @@
 
 #define LOG_NAME ("ps2vm")
 
+#define PREF_PS2_ROM0_DIRECTORY_DEFAULT ("vfs/rom0")
 #define PREF_PS2_HOST_DIRECTORY_DEFAULT ("vfs/host")
 #define PREF_PS2_MC0_DIRECTORY_DEFAULT ("vfs/mc0")
 #define PREF_PS2_MC1_DIRECTORY_DEFAULT ("vfs/mc1")
@@ -60,6 +61,7 @@ CPS2VM::CPS2VM()
 {
 	static const std::pair<const char*, const char*> basicDirectorySettings[] =
 	    {
+	        std::make_pair(PREF_PS2_ROM0_DIRECTORY, PREF_PS2_ROM0_DIRECTORY_DEFAULT),
 	        std::make_pair(PREF_PS2_HOST_DIRECTORY, PREF_PS2_HOST_DIRECTORY_DEFAULT),
 	        std::make_pair(PREF_PS2_MC0_DIRECTORY, PREF_PS2_MC0_DIRECTORY_DEFAULT),
 	        std::make_pair(PREF_PS2_MC1_DIRECTORY, PREF_PS2_MC1_DIRECTORY_DEFAULT),
@@ -391,7 +393,9 @@ void CPS2VM::ResetVM()
 
 		iopOs->Reset(std::make_shared<Iop::CSifManPs2>(m_ee->m_sif, m_ee->m_ram, m_iop->m_ram));
 
+		iopOs->GetIoman()->RegisterDevice("rom0", Iop::CIoman::DevicePtr(new Iop::Ioman::CDirectoryDevice(PREF_PS2_ROM0_DIRECTORY)));
 		iopOs->GetIoman()->RegisterDevice("host", Iop::CIoman::DevicePtr(new Iop::Ioman::CDirectoryDevice(PREF_PS2_HOST_DIRECTORY)));
+		iopOs->GetIoman()->RegisterDevice("host0", Iop::CIoman::DevicePtr(new Iop::Ioman::CDirectoryDevice(PREF_PS2_HOST_DIRECTORY)));
 		iopOs->GetIoman()->RegisterDevice("mc0", Iop::CIoman::DevicePtr(new Iop::Ioman::CDirectoryDevice(PREF_PS2_MC0_DIRECTORY)));
 		iopOs->GetIoman()->RegisterDevice("mc1", Iop::CIoman::DevicePtr(new Iop::Ioman::CDirectoryDevice(PREF_PS2_MC1_DIRECTORY)));
 		iopOs->GetIoman()->RegisterDevice("cdrom", Iop::CIoman::DevicePtr(new Iop::Ioman::COpticalMediaDevice(m_cdrom0)));
