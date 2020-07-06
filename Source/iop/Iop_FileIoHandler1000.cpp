@@ -159,8 +159,9 @@ std::pair<bool, int32> CFileIoHandler1000::FinishReadRequest(MODULEDATA* moduleD
 	}
 	else if(result == 0)
 	{
+		//We didn't read anything this time, probably got EOF
 		result = moduleData->bytesProcessed;
-		done = false;
+		done = true;
 	}
 	else
 	{
