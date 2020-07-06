@@ -268,6 +268,10 @@ uint32 CIoman::Write(uint32 handle, uint32 size, const void* buffer)
 	try
 	{
 		auto stream = GetFileStream(handle);
+		if(!stream)
+		{
+			throw std::runtime_error("Failed to obtain file stream.");
+		}
 		result = static_cast<uint32>(stream->Write(buffer, size));
 		if((handle == FID_STDOUT) || (handle == FID_STDERR))
 		{
