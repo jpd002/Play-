@@ -65,6 +65,17 @@ std::string CMcServ::GetFunctionName(unsigned int) const
 	return "unknown";
 }
 
+void CMcServ::ProcessCommands(CSifMan* sifMan)
+{
+	auto moduleData = reinterpret_cast<MODULEDATA*>(m_ram + m_moduleDataAddr);
+	if(moduleData->pendingCommand != CMD_ID_NONE)
+	{
+		assert(moduleData->pendingCommand == CMD_ID_GETINFO);
+		sifMan->SendCallReply(MODULE_ID, nullptr);
+		moduleData->pendingCommand = CMD_ID_NONE;
+	}
+}
+
 void CMcServ::Invoke(CMIPS& context, unsigned int functionId)
 {
 	switch(functionId)
@@ -88,9 +99,10 @@ bool CMcServ::Invoke(uint32 method, uint32* args, uint32 argsSize, uint32* ret, 
 {
 	switch(method)
 	{
-	case 0x01:
+	case CMD_ID_GETINFO:
 	case 0x78:
 		GetInfo(args, argsSize, ret, retSize, ram);
+		return false;
 		break;
 	case CMD_ID_OPEN:
 	case 0x71:
@@ -254,6 +266,10 @@ void CMcServ::GetInfo(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize
 	//  -2 if new unformatted card
 	//> -2 on error
 	ret[0] = 0;
+
+	auto moduleData = reinterpret_cast<MODULEDATA*>(m_ram + m_moduleDataAddr);
+	assert(moduleData->pendingCommand == CMD_ID_NONE);
+	moduleData->pendingCommand = CMD_ID_GETINFO;
 }
 
 void CMcServ::Open(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, uint8* ram)

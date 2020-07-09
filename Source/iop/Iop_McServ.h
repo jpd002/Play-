@@ -21,6 +21,8 @@ namespace Iop
 	public:
 		enum CMD_ID
 		{
+			CMD_ID_NONE = 0x00,
+			CMD_ID_GETINFO = 0x01,
 			CMD_ID_OPEN = 0x02,
 			CMD_ID_CLOSE = 0x03,
 			CMD_ID_SEEK = 0x04,
@@ -101,6 +103,8 @@ namespace Iop
 		void Invoke(CMIPS&, unsigned int) override;
 		bool Invoke(uint32, uint32*, uint32, uint32*, uint32, uint8*) override;
 
+		void ProcessCommands(CSifMan*);
+
 	private:
 		struct MODULEDATA
 		{
@@ -116,6 +120,7 @@ namespace Iop
 			uint32 readFastHandle = 0;
 			uint32 readFastSize = 0;
 			uint32 readFastBufferAddress = 0;
+			uint32 pendingCommand = 0;
 			uint8 trampoline[TRAMPOLINE_SIZE];
 		};
 
@@ -191,4 +196,6 @@ namespace Iop
 		std::string m_currentDirectory;
 		CPathFinder m_pathFinder;
 	};
+
+	typedef std::shared_ptr<CMcServ> McServPtr;
 }

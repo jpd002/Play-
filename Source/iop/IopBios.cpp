@@ -15,9 +15,6 @@
 #include "../states/StructCollectionStateFile.h"
 
 #ifdef _IOP_EMULATE_MODULES
-#include "Iop_Cdvdfsv.h"
-#include "Iop_McServ.h"
-#include "Iop_FileIo.h"
 #include "Iop_Naplink.h"
 #endif
 
@@ -1775,6 +1772,7 @@ void CIopBios::NotifyVBlankEnd()
 	m_cdvdfsv->ProcessCommands(m_sifMan.get());
 	m_cdvdman->ProcessCommands();
 	m_fileIo->ProcessCommands(m_sifMan.get());
+	m_mcserv->ProcessCommands(m_sifMan.get());
 #endif
 }
 

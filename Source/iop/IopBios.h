@@ -24,13 +24,7 @@
 #include "Iop_PadMan.h"
 #include "Iop_MtapMan.h"
 #include "Iop_Cdvdfsv.h"
-#endif
-
-#ifdef _IOP_EMULATE_MODULES
-namespace Iop
-{
-	class CMcServ;
-}
+#include "Iop_McServ.h"
 #endif
 
 class CIopBios : public Iop::CBiosBase
@@ -635,7 +629,7 @@ private:
 	Iop::FileIoPtr m_fileIo;
 	Iop::PadManPtr m_padman;
 	Iop::MtapManPtr m_mtapman;
-	Iop::ModulePtr m_mcserv;
+	Iop::McServPtr m_mcserv;
 	Iop::CdvdfsvPtr m_cdvdfsv;
 
 	std::map<std::string, Iop::ModulePtr> m_hleModules;
