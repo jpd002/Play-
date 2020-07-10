@@ -14,6 +14,7 @@ CVpu::CVpu(unsigned int number, const VPUINIT& vpuInit, CGIF& gif, CINTC& intc, 
     : m_number(number)
     , m_vif((number == 0) ? std::make_unique<CVif>(0, *this, intc, ram, spr) : std::make_unique<CVif1>(1, *this, gif, intc, ram, spr))
     , m_microMem(vpuInit.microMem)
+    , m_microMemSize((number == 0) ? PS2::MICROMEM0SIZE : PS2::MICROMEM1SIZE)
     , m_vuMem(vpuInit.vuMem)
     , m_vuMemSize((number == 0) ? PS2::VUMEM0SIZE : PS2::VUMEM1SIZE)
     , m_ctx(vpuInit.context)
@@ -116,6 +117,11 @@ CMIPS& CVpu::GetContext() const
 uint8* CVpu::GetMicroMemory() const
 {
 	return m_microMem;
+}
+
+uint32 CVpu::GetMicroMemorySize() const
+{
+	return m_microMemSize;
 }
 
 uint8* CVpu::GetVuMemory() const

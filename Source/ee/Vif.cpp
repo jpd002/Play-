@@ -493,6 +493,7 @@ void CVif::Cmd_MPG(StreamType& stream, CODE nCommand)
 	nSize = std::min<uint32>(nNum, nSize);
 
 	uint32 nDstAddr = (m_CODE.nIMM * 8) + nTransfered;
+	nDstAddr &= (m_vpu.GetMicroMemorySize() - 1);
 
 	//Check if microprogram is running
 	if(m_vpu.IsVuRunning())
@@ -503,15 +504,37 @@ void CVif::Cmd_MPG(StreamType& stream, CODE nCommand)
 
 	if(nSize != 0)
 	{
+		auto microMem = m_vpu.GetMicroMemory();
+		auto copyToMicroMem =
+		    [&](const uint8* microProgramPtr, uint32 start, uint32 size) {
+			    //Check if there's a change
+			    if(memcmp(microMem + start, microProgramPtr, size) != 0)
+			    {
+				    m_vpu.InvalidateMicroProgram(start, start + size);
+				    memcpy(microMem + start, microProgramPtr, size);
+			    }
+		    };
+
 		uint8* microProgram = reinterpret_cast<uint8*>(alloca(nSize));
 		stream.Read(microProgram, nSize);
 
-		//Check if there's a change
-		auto microMem = m_vpu.GetMicroMemory();
-		if(memcmp(microMem + nDstAddr, microProgram, nSize) != 0)
+		assert(nSize <= m_vpu.GetMicroMemorySize());
+
+		//Check if the copy's destination address will wrap around
+		if((nDstAddr + nSize) > m_vpu.GetMicroMemorySize())
 		{
-			m_vpu.InvalidateMicroProgram(nDstAddr, nDstAddr + nSize);
-			memcpy(microMem + nDstAddr, microProgram, nSize);
+			uint32 start1 = nDstAddr;
+			uint32 size1 = m_vpu.GetMicroMemorySize() - nDstAddr;
+
+			uint32 start2 = 0;
+			uint32 size2 = nSize - size1;
+
+			copyToMicroMem(microProgram, start1, size1);
+			copyToMicroMem(microProgram + size1, start2, size2);
+		}
+		else
+		{
+			copyToMicroMem(microProgram, nDstAddr, nSize);
 		}
 	}
 

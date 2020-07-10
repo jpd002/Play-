@@ -48,6 +48,7 @@ public:
 
 	CMIPS& GetContext() const;
 	uint8* GetMicroMemory() const;
+	uint32 GetMicroMemorySize() const;
 	uint8* GetVuMemory() const;
 	uint32 GetVuMemorySize() const;
 	bool IsVuRunning() const;
@@ -75,6 +76,7 @@ protected:
 	typedef std::unique_ptr<CVif> VifPtr;
 
 	uint8* m_microMem = nullptr;
+	uint32 m_microMemSize = 0;
 	uint8* m_vuMem = nullptr;
 	uint32 m_vuMemSize = 0;
 	CMIPS* m_ctx = nullptr;
