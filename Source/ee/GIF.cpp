@@ -433,6 +433,9 @@ uint32 CGIF::GetRegister(uint32 address)
 			result |= (0x1F << 24);
 		}
 		break;
+	default:
+		CLog::GetInstance().Warn(LOG_NAME, "Reading unknown register 0x%08X.\r\n", address);
+		break;
 	}
 #ifdef _DEBUG
 	DisassembleGet(address);

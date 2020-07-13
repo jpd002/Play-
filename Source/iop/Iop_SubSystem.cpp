@@ -260,7 +260,7 @@ uint32 CSubSystem::WriteIoRegister(uint32 address, uint32 value)
 	}
 	else
 	{
-		CLog::GetInstance().Print(LOG_NAME, "Writing to an unknown hardware register (0x%08X, 0x%08X).\r\n", address, value);
+		CLog::GetInstance().Warn(LOG_NAME, "Writing to an unknown hardware register (0x%08X, 0x%08X).\r\n", address, value);
 	}
 
 	if(

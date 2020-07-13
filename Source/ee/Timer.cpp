@@ -136,7 +136,7 @@ uint32 CTimer::GetRegister(uint32 nAddress)
 		break;
 
 	default:
-		CLog::GetInstance().Print(LOG_NAME, "Read an unhandled IO port (0x%08X).\r\n", nAddress);
+		CLog::GetInstance().Warn(LOG_NAME, "Read an unhandled IO port (0x%08X).\r\n", nAddress);
 		break;
 	}
 
@@ -186,7 +186,7 @@ void CTimer::SetRegister(uint32 nAddress, uint32 nValue)
 		break;
 
 	default:
-		CLog::GetInstance().Print(LOG_NAME, "Wrote to an unhandled IO port (0x%08X, 0x%08X).\r\n", nAddress, nValue);
+		CLog::GetInstance().Warn(LOG_NAME, "Wrote to an unhandled IO port (0x%08X, 0x%08X).\r\n", nAddress, nValue);
 		break;
 	}
 }

@@ -128,6 +128,9 @@ uint32 CVif::GetRegister(uint32 address)
 	case VIF1_R3:
 		result = m_R[3];
 		break;
+	default:
+		CLog::GetInstance().Warn(LOG_NAME, "Reading unknown register 0x%08X.\r\n", address);
+		break;
 	}
 #ifdef _DEBUG
 	DisassembleGet(address);
@@ -168,6 +171,9 @@ void CVif::SetRegister(uint32 address, uint32 value)
 		case VIF0_MARK:
 		case VIF1_MARK:
 			m_MARK = value;
+			break;
+		default:
+			CLog::GetInstance().Warn(LOG_NAME, "Writing unknown register 0x%08X, 0x%08X.\r\n", address, value);
 			break;
 		}
 	}
