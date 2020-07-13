@@ -184,11 +184,10 @@ uint32 CSubSystem::ReadIoRegister(uint32 address)
 	{
 		return m_spu.ReadRegister(address);
 	}
-	else if(address >= CDmac::DMAC_ZONE1_START && address <= CDmac::DMAC_ZONE1_END)
-	{
-		return m_dmac.ReadRegister(address);
-	}
-	else if(address >= CDmac::DMAC_ZONE2_START && address <= CDmac::DMAC_ZONE2_END)
+	else if(
+	    (address >= CDmac::DMAC_ZONE1_START && address <= CDmac::DMAC_ZONE1_END) ||
+	    (address >= CDmac::DMAC_ZONE2_START && address <= CDmac::DMAC_ZONE2_END) ||
+	    (address >= CDmac::DMAC_ZONE3_START && address <= CDmac::DMAC_ZONE3_END))
 	{
 		return m_dmac.ReadRegister(address);
 	}
@@ -226,15 +225,14 @@ uint32 CSubSystem::ReadIoRegister(uint32 address)
 
 uint32 CSubSystem::WriteIoRegister(uint32 address, uint32 value)
 {
-	if(address >= CDmac::DMAC_ZONE1_START && address <= CDmac::DMAC_ZONE1_END)
-	{
-		m_dmac.WriteRegister(address, value);
-	}
-	else if(address >= CSpu::SPU_BEGIN && address <= CSpu::SPU_END)
+	if(address >= CSpu::SPU_BEGIN && address <= CSpu::SPU_END)
 	{
 		m_spu.WriteRegister(address, static_cast<uint16>(value));
 	}
-	else if(address >= CDmac::DMAC_ZONE2_START && address <= CDmac::DMAC_ZONE2_END)
+	else if(
+	    (address >= CDmac::DMAC_ZONE1_START && address <= CDmac::DMAC_ZONE1_END) ||
+	    (address >= CDmac::DMAC_ZONE2_START && address <= CDmac::DMAC_ZONE2_END) ||
+	    (address >= CDmac::DMAC_ZONE3_START && address <= CDmac::DMAC_ZONE3_END))
 	{
 		m_dmac.WriteRegister(address, value);
 	}

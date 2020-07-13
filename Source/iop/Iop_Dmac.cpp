@@ -9,6 +9,7 @@
 
 #define STATE_REGS_XML ("iop_dmac/regs.xml")
 #define STATE_REGS_DPCR ("DPCR")
+#define STATE_REGS_DPCR2 ("DPCR2")
 #define STATE_REGS_DICR ("DICR")
 
 using namespace Iop;
@@ -34,6 +35,7 @@ CDmac::CDmac(uint8* ram, CIntc& intc)
 void CDmac::Reset()
 {
 	m_DPCR = 0;
+	m_DPCR2 = 0;
 	m_DICR = 0;
 
 	for(unsigned int i = 0; i < MAX_CHANNEL; i++)
@@ -111,6 +113,9 @@ uint32 CDmac::ReadRegister(uint32 address)
 	case DPCR:
 		return m_DPCR;
 		break;
+	case DPCR2:
+		return m_DPCR2;
+		break;
 	case DICR:
 		return m_DICR;
 		break;
@@ -137,6 +142,9 @@ uint32 CDmac::WriteRegister(uint32 address, uint32 value)
 	case DPCR:
 		m_DPCR = value;
 		break;
+	case DPCR2:
+		m_DPCR2 = value;
+		break;
 	case DICR:
 		m_DICR &= 0xFF000000;
 		m_DICR |= value;
@@ -160,6 +168,7 @@ void CDmac::LoadState(Framework::CZipArchiveReader& archive)
 	{
 		auto registerFile = CRegisterStateFile(*archive.BeginReadFile(STATE_REGS_XML));
 		m_DPCR = registerFile.GetRegister32(STATE_REGS_DPCR);
+		m_DPCR2 = registerFile.GetRegister32(STATE_REGS_DPCR2);
 		m_DICR = registerFile.GetRegister32(STATE_REGS_DICR);
 	}
 
@@ -176,6 +185,7 @@ void CDmac::SaveState(Framework::CZipArchiveWriter& archive)
 	{
 		auto registerFile = new CRegisterStateFile(STATE_REGS_XML);
 		registerFile->SetRegister32(STATE_REGS_DPCR, m_DPCR);
+		registerFile->SetRegister32(STATE_REGS_DPCR2, m_DPCR2);
 		registerFile->SetRegister32(STATE_REGS_DICR, m_DICR);
 		archive.InsertFile(registerFile);
 	}
