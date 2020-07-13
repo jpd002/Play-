@@ -94,7 +94,6 @@ uint32 CVif::GetRegister(uint32 address)
 	case VIF0_MARK:
 	case VIF1_MARK:
 		result = m_MARK;
-		m_STAT.nMRK = 0;
 		break;
 	case VIF0_CYCLE:
 	case VIF1_CYCLE:
@@ -166,10 +165,20 @@ void CVif::SetRegister(uint32 address, uint32 value)
 				m_STAT <<= 0;
 				m_NUM = 0;
 			}
+			if(value & FBRST_FBK || value & FBRST_STP)
+			{
+				// TODO: We need to properly handle this!
+				// But I lack games which leverage it.
+				assert(0);
+			}
 			if(value & FBRST_STC)
 			{
+				m_STAT.nVSS = 0;
+				m_STAT.nVFS = 0;
 				m_STAT.nVIS = 0;
 				m_STAT.nINT = 0;
+				m_STAT.nER0 = 0;
+				m_STAT.nER1 = 0;
 			}
 			break;
 		case VIF0_ERR:
@@ -179,6 +188,7 @@ void CVif::SetRegister(uint32 address, uint32 value)
 		case VIF0_MARK:
 		case VIF1_MARK:
 			m_MARK = value;
+			m_STAT.nMRK = 0;
 			break;
 		default:
 			CLog::GetInstance().Warn(LOG_NAME, "Writing unknown register 0x%08X, 0x%08X.\r\n", address, value);
@@ -478,7 +488,7 @@ void CVif::ExecuteCommand(StreamType& stream, CODE nCommand)
 		Cmd_MPG(stream, nCommand);
 		break;
 	default:
-		assert(0);
+		m_STAT.nER1 = 1;
 		break;
 	}
 }
