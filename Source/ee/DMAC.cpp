@@ -36,6 +36,15 @@
 		return 0;                  \
 		break;
 
+#define REGISTER_WRITE(addr, reg, value) \
+	case (addr) + 0x0:                   \
+		(reg) = (value);                 \
+		break;                           \
+	case (addr) + 0x4:                   \
+	case (addr) + 0x8:                   \
+	case (addr) + 0xC:                   \
+		break;
+
 using namespace Dmac;
 
 static uint32 DummyTransferFunction(uint32 address, uint32 size, uint32, bool)
@@ -311,6 +320,8 @@ uint32 CDMAC::GetRegister(uint32 nAddress)
 		REGISTER_READ(D1_MADR, m_D1.m_nMADR)
 		REGISTER_READ(D1_QWC, m_D1.m_nQWC)
 		REGISTER_READ(D1_TADR, m_D1.m_nTADR)
+		REGISTER_READ(D1_ASR0, m_D1.m_nASR[0])
+		REGISTER_READ(D1_ASR1, m_D1.m_nASR[1])
 
 	case D1_CHCR + 0x1:
 		//This is done by FFXII
@@ -543,6 +554,9 @@ void CDMAC::SetRegister(uint32 nAddress, uint32 nData)
 	case D1_TADR + 0x8:
 	case D1_TADR + 0xC:
 		break;
+
+	REGISTER_WRITE(D1_ASR0, m_D1.m_nASR[0], nData & MADR_WRITE_MASK)
+	REGISTER_WRITE(D1_ASR1, m_D1.m_nASR[1], nData & MADR_WRITE_MASK)
 
 	//D2_CHCR
 	case D2_CHCR + 0x0:
@@ -965,6 +979,8 @@ void CDMAC::DisassembleGet(uint32 nAddress)
 		LOG_GET(D1_CHCR)
 		LOG_GET(D1_MADR)
 		LOG_GET(D1_TADR)
+		LOG_GET(D1_ASR0)
+		LOG_GET(D1_ASR1)
 
 		//Channel 2
 		LOG_GET(D2_CHCR)
@@ -1034,6 +1050,8 @@ void CDMAC::DisassembleSet(uint32 nAddress, uint32 nData)
 		LOG_SET(D1_MADR)
 		LOG_SET(D1_QWC)
 		LOG_SET(D1_TADR)
+		LOG_SET(D1_ASR0)
+		LOG_SET(D1_ASR1)
 
 		//Channel 2
 		LOG_SET(D2_CHCR)
