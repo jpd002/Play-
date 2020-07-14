@@ -103,7 +103,7 @@ namespace Iop
 		void Invoke(CMIPS&, unsigned int) override;
 		bool Invoke(uint32, uint32*, uint32, uint32*, uint32, uint8*) override;
 
-		void ProcessCommands(CSifMan*);
+		void CountTicks(uint32, CSifMan*);
 
 	private:
 		struct MODULEDATA
@@ -121,6 +121,7 @@ namespace Iop
 			uint32 readFastSize = 0;
 			uint32 readFastBufferAddress = 0;
 			uint32 pendingCommand = 0;
+			uint32 pendingCommandDelay = 0;
 			uint8 trampoline[TRAMPOLINE_SIZE];
 		};
 

@@ -30,6 +30,8 @@ using namespace Iop;
 
 #define SEPARATOR_CHAR '/'
 
+#define CMD_DELAY_GETINFO 4000
+
 // clang-format off
 const char* CMcServ::m_mcPathPreference[2] =
 {
@@ -65,10 +67,13 @@ std::string CMcServ::GetFunctionName(unsigned int) const
 	return "unknown";
 }
 
-void CMcServ::ProcessCommands(CSifMan* sifMan)
+void CMcServ::CountTicks(uint32 ticks, CSifMan* sifMan)
 {
 	auto moduleData = reinterpret_cast<MODULEDATA*>(m_ram + m_moduleDataAddr);
-	if(moduleData->pendingCommand != CMD_ID_NONE)
+	if(moduleData->pendingCommand == CMD_ID_NONE) return;
+
+	moduleData->pendingCommandDelay -= std::min<uint32>(moduleData->pendingCommandDelay, ticks);
+	if(moduleData->pendingCommandDelay == 0)
 	{
 		assert(moduleData->pendingCommand == CMD_ID_GETINFO);
 		sifMan->SendCallReply(MODULE_ID, nullptr);
@@ -267,9 +272,15 @@ void CMcServ::GetInfo(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize
 	//> -2 on error
 	ret[0] = 0;
 
+	//Many games seem to be sensitive to the delay response of this function:
+	//- Nights Into Dreams (issues 2 Syncs very close to each other, infinite loop if GetInfo is instantenous)
+	//- Melty Blood Actress Again
+	//- Baroque
+	//- Naruto Shippuden: Ultimate Ninja 5 (if GetInfo doesn't return quickly enough, MC thread is killed and game will hang)
 	auto moduleData = reinterpret_cast<MODULEDATA*>(m_ram + m_moduleDataAddr);
 	assert(moduleData->pendingCommand == CMD_ID_NONE);
 	moduleData->pendingCommand = CMD_ID_GETINFO;
+	moduleData->pendingCommandDelay = CMD_DELAY_GETINFO;
 }
 
 void CMcServ::Open(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, uint8* ram)
