@@ -30,7 +30,7 @@ using namespace Iop;
 
 #define SEPARATOR_CHAR '/'
 
-#define CMD_DELAY_GETINFO 4000
+#define CMD_DELAY_GETINFO 100000
 
 // clang-format off
 const char* CMcServ::m_mcPathPreference[2] =
