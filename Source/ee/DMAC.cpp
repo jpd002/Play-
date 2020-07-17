@@ -37,12 +37,12 @@
 		break;
 
 #define REGISTER_WRITE(addr, reg, value) \
-	case (addr) + 0x0:                   \
+	case(addr) + 0x0:                    \
 		(reg) = (value);                 \
 		break;                           \
-	case (addr) + 0x4:                   \
-	case (addr) + 0x8:                   \
-	case (addr) + 0xC:                   \
+	case(addr) + 0x4:                    \
+	case(addr) + 0x8:                    \
+	case(addr) + 0xC:                    \
 		break;
 
 using namespace Dmac;
@@ -555,8 +555,8 @@ void CDMAC::SetRegister(uint32 nAddress, uint32 nData)
 	case D1_TADR + 0xC:
 		break;
 
-	REGISTER_WRITE(D1_ASR0, m_D1.m_nASR[0], nData & MADR_WRITE_MASK)
-	REGISTER_WRITE(D1_ASR1, m_D1.m_nASR[1], nData & MADR_WRITE_MASK)
+		REGISTER_WRITE(D1_ASR0, m_D1.m_nASR[0], nData & MADR_WRITE_MASK)
+		REGISTER_WRITE(D1_ASR1, m_D1.m_nASR[1], nData & MADR_WRITE_MASK)
 
 	//D2_CHCR
 	case D2_CHCR + 0x0:
