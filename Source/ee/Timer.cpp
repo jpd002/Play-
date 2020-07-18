@@ -3,10 +3,14 @@
 #include "../Log.h"
 #include "../states/RegisterStateFile.h"
 #include "Timer.h"
+#include "Ps2Const.h"
 
 #define LOG_NAME ("ee_timer")
 
 #define STATE_REGS_XML ("timer/regs.xml")
+
+#define TIMER_VIDEO_FRAMES_PER_SEC 50
+#define TIMER_VIDEO_LINES_PER_FRAME 625
 
 CTimer::CTimer(CINTC& intc)
     : m_intc(intc)
@@ -44,7 +48,7 @@ void CTimer::Count(unsigned int ticks)
 			divider = 256 * 2;
 			break;
 		case MODE_CLOCK_SELECT_EXTERNAL:
-			divider = 9437; // PAL
+			divider = PS2::EE_CLOCK_FREQ / (TIMER_VIDEO_FRAMES_PER_SEC * TIMER_VIDEO_LINES_PER_FRAME) * 2;
 			break;
 		}
 
