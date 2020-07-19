@@ -1,3 +1,4 @@
+#include <cstring>
 #include "MemoryUtils.h"
 #include "Integer64.h"
 #include "Log.h"
