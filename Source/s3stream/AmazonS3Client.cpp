@@ -142,12 +142,18 @@ CAmazonS3Client::CAmazonS3Client(std::string accessKeyId, std::string secretAcce
 
 GetBucketLocationResult CAmazonS3Client::GetBucketLocation(const GetBucketLocationRequest& request)
 {
+	if(request.bucket.empty())
+	{
+		throw new std::runtime_error("Bucket name must be provided.");
+	}
+
 	Request rq;
 	rq.method = Framework::Http::HTTP_VERB::GET;
 	rq.host = string_format("%s." S3_HOSTNAME, request.bucket.c_str());
 	rq.urlHost = S3_HOSTNAME;
 	rq.uri = "/";
-	rq.query = "location=";
+	//We add a bucket parameter even if the S3 API doesn't use it to prevent caching
+	rq.query = string_format("bucket=%s&location=", request.bucket.c_str());
 
 	auto response = ExecuteRequest(rq);
 	if(response.statusCode != Framework::Http::HTTP_STATUS_CODE::OK)
