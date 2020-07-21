@@ -77,6 +77,7 @@ void CTransferHost::DoTransfer(const XferBuffer& inputData)
 	default:
 		assert(false);
 	case CGSHandler::PSMCT32:
+	case CGSHandler::PSMZ32:
 		pixelCount = inputData.size() / 4;
 		break;
 	case CGSHandler::PSMCT24:
@@ -253,6 +254,7 @@ Framework::Vulkan::CShaderModule CTransferHost::CreateXferShader(const PIPELINE_
 		switch(caps.dstFormat)
 		{
 		case CGSHandler::PSMCT32:
+		case CGSHandler::PSMZ32:
 		{
 			auto input = XferStream_Read32(b, xferBuffer, pixelIndex);
 			auto address = CMemoryUtils::GetPixelAddress<CGsPixelFormats::STORAGEPSMCT32>(
