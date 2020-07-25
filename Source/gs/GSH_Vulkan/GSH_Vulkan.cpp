@@ -905,6 +905,13 @@ CGSH_Vulkan::CLUTKEY CGSH_Vulkan::MakeCachedClutKey(const TEX0& tex0, const TEXC
 
 void CGSH_Vulkan::WriteRegisterImpl(uint8 registerId, uint64 data)
 {
+	//Some games such as Silent Hill 2 don't finish their transfers
+	//completely: make sure we push the data to the GS's RAM nevertheless.
+	if(!m_xferBuffer.empty())
+	{
+		ProcessHostToLocalTransfer();
+	}
+
 	CGSHandler::WriteRegisterImpl(registerId, data);
 
 	switch(registerId)
@@ -968,6 +975,8 @@ void CGSH_Vulkan::ProcessHostToLocalTransfer()
 
 	m_transferHost->SetPipelineCaps(pipelineCaps);
 	m_transferHost->DoTransfer(m_xferBuffer);
+
+	m_xferBuffer.clear();
 }
 
 void CGSH_Vulkan::ProcessLocalToHostTransfer()
@@ -1014,6 +1023,7 @@ void CGSH_Vulkan::ProcessClutTransfer(uint32 csa, uint32)
 
 void CGSH_Vulkan::BeginTransferWrite()
 {
+	assert(m_xferBuffer.empty());
 	m_xferBuffer.clear();
 }
 
