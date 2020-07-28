@@ -43,6 +43,14 @@ void FpUtils::SetDenormalHandlingMode()
 #endif
 }
 
+void FpUtils::EnableFpExceptions()
+{
+#ifdef _WIN32
+	unsigned int currentState = 0;
+	_controlfp_s(&currentState, _MCW_EM & ~(_EM_ZERODIVIDE | _EM_INVALID), _MCW_EM);
+#endif
+}
+
 void FpUtils::IsZero(CMipsJitter* codeGen, size_t offset)
 {
 	//Check wether an FP number is +/-0
