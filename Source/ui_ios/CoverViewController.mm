@@ -20,6 +20,7 @@ static NSString* const reuseIdentifier = @"coverCell";
 	[super awakeFromNib];
 	
 	ScanBootables(Framework::PathUtils::GetPersonalDataPath());
+	ScanBootables("/private/var/mobile");
 	PurgeInexistingFiles();
 	FetchGameTitles();
 }
