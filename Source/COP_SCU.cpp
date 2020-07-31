@@ -204,7 +204,8 @@ void CCOP_SCU::BC0FL()
 //02
 void CCOP_SCU::TLBWI()
 {
-	//TLB not supported for now
+	m_codeGen->PushCtx();
+	m_codeGen->Call(reinterpret_cast<void*>(&CMIPS::HandleTLBWrite), 1, Jitter::CJitter::RETURN_VALUE_NONE);
 }
 
 //18

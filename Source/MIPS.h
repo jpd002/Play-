@@ -43,6 +43,14 @@ enum
 	MIPS_EXCEPTION_BREAKPOINT,
 };
 
+struct TLBENTRY
+{
+	uint32 entryLo0;
+	uint32 entryLo1;
+	uint32 entryHi;
+	uint32 pageMask;
+};
+
 #define MIPS_EXECUTION_STATUS_QUOTADONE 0x80
 
 struct MIPSSTATE
@@ -116,6 +124,13 @@ struct MIPSSTATE
 	uint32 savedIntReg;
 	uint32 savedIntRegTemp;
 	uint32 xgkickAddress;
+
+	enum
+	{
+		TLB_ENTRY_MAX = 48,
+	};
+
+	TLBENTRY tlbEntries[TLB_ENTRY_MAX];
 };
 
 #define MIPS_INVALID_PC (0x00000001)
@@ -147,6 +162,7 @@ public:
 
 	void* m_vuMem = nullptr;
 	void** m_pageLookup = nullptr;
+	static void HandleTLBWrite(CMIPS*);
 
 	std::function<void(CMIPS*)> m_emptyBlockHandler;
 
