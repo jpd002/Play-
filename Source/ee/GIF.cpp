@@ -432,6 +432,9 @@ uint32 CGIF::GetRegister(uint32 address)
 			//Indicate that FIFO is full (15 qwords) (needed for GTA: San Andreas)
 			result |= (0x1F << 24);
 		}
+
+		result |= (m_gs->GetBUSDIR() << 12);
+
 		break;
 	default:
 		CLog::GetInstance().Warn(LOG_NAME, "Reading unknown register 0x%08X.\r\n", address);

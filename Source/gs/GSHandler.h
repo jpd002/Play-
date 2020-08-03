@@ -102,6 +102,7 @@ public:
 		GS_CSR_ALT = 0x12000400, // Used by funslower demo
 		GS_CSR = 0x12001000,
 		GS_IMR = 0x12001010,
+		GS_BUSDIR = 0x12001040,
 		GS_SIGLBLID = 0x12001080,
 	};
 
@@ -820,6 +821,8 @@ public:
 	uint64 GetSMODE2() const;
 	void SetSMODE2(uint64);
 
+	uint64 GetBUSDIR() const;
+
 	int GetPendingTransferCount() const;
 	void NotifyEvent(uint32);
 
@@ -1003,6 +1006,7 @@ protected:
 	DELAYED_REGISTER m_nDISPLAY2; //0x120000A0
 	uint64 m_nCSR;                //0x12001000
 	uint64 m_nIMR;                //0x12001010
+	uint64 m_nBUSDIR;             //0x12001040
 	uint64 m_nSIGLBLID;           //0x12001080
 
 	PRESENTATION_PARAMS m_presentationParams;
