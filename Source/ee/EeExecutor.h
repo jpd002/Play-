@@ -26,7 +26,8 @@ public:
 	BasicBlockPtr BlockFactory(CMIPS&, uint32, uint32) override;
 
 private:
-	typedef std::unordered_multimap<uint32, BasicBlockPtr> CachedBlockMap;
+	typedef std::tuple<uint32, uint32, uint32> CachedBlockKey;
+	typedef std::map<CachedBlockKey, BasicBlockPtr> CachedBlockMap;
 	CachedBlockMap m_cachedBlocks;
 
 	uint8* m_ram = nullptr;

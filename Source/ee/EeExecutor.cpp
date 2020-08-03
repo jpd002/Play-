@@ -128,23 +128,18 @@ BasicBlockPtr CEeExecutor::BlockFactory(CMIPS& context, uint32 start, uint32 end
 	}
 
 	uint32 checksum = crc32(0, reinterpret_cast<Bytef*>(blockMemory), blockSize);
+	auto blockKey = std::make_tuple(checksum, start, end);
 
 	bool hasBreakpoint = m_context.HasBreakpointInRange(start, end);
 	if(!hasBreakpoint)
 	{
-		auto equalRange = m_cachedBlocks.equal_range(checksum);
-		for(; equalRange.first != equalRange.second; ++equalRange.first)
+		auto blockIterator = m_cachedBlocks.find(blockKey);
+		if(blockIterator != std::end(m_cachedBlocks))
 		{
-			const auto& basicBlock(equalRange.first->second);
-			if(basicBlock->GetBeginAddress() == start)
-			{
-				if(basicBlock->GetEndAddress() == end)
-				{
-					uint32 recycleCount = basicBlock->GetRecycleCount();
-					basicBlock->SetRecycleCount(std::min<uint32>(RECYCLE_NOLINK_THRESHOLD, recycleCount + 1));
-					return basicBlock;
-				}
-			}
+			const auto& basicBlock(blockIterator->second);
+			uint32 recycleCount = basicBlock->GetRecycleCount();
+			basicBlock->SetRecycleCount(std::min<uint32>(RECYCLE_NOLINK_THRESHOLD, recycleCount + 1));
+			return basicBlock;
 		}
 	}
 
@@ -152,7 +147,7 @@ BasicBlockPtr CEeExecutor::BlockFactory(CMIPS& context, uint32 start, uint32 end
 	result->Compile();
 	if(!hasBreakpoint)
 	{
-		m_cachedBlocks.insert(std::make_pair(checksum, result));
+		m_cachedBlocks.insert(std::make_pair(blockKey, result));
 	}
 	return result;
 }
