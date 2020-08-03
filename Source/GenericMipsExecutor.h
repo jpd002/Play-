@@ -86,8 +86,7 @@ public:
 	{
 		m_blockLookup.Clear();
 		m_blocks.clear();
-		m_blockLinks.clear();
-		m_pendingBlockLinks.clear();
+		m_blockOutLinks.clear();
 	}
 
 	void ClearActiveBlocksInRange(uint32 start, uint32 end, bool executing) override
@@ -119,15 +118,7 @@ public:
 #endif
 
 protected:
-	//Outgoing block link
-	struct BLOCK_LINK
-	{
-		CBasicBlock::LINK_SLOT slot;
-		uint32 address;
-	};
-
 	typedef std::list<BasicBlockPtr> BlockList;
-	typedef std::multimap<uint32, BLOCK_LINK> BlockLinkMap;
 
 	bool HasBlockAt(uint32 address) const
 	{
@@ -156,50 +147,50 @@ protected:
 
 		{
 			uint32 nextBlockAddress = (endAddress + 4) & m_addressMask;
-			block->SetLinkTargetAddress(CBasicBlock::LINK_SLOT_NEXT, nextBlockAddress);
-			auto link = std::make_pair(nextBlockAddress, BLOCK_LINK{CBasicBlock::LINK_SLOT_NEXT, startAddress});
+			const auto linkSlot = LINK_SLOT_NEXT;
+			auto link = m_blockOutLinks.insert(std::make_pair(nextBlockAddress, BLOCK_OUT_LINK{linkSlot, startAddress, false}));
+			block->SetOutLink(linkSlot, link);
+
 			auto nextBlock = m_blockLookup.FindBlockAt(nextBlockAddress);
 			if(!nextBlock->IsEmpty())
 			{
-				block->LinkBlock(CBasicBlock::LINK_SLOT_NEXT, nextBlock);
-				m_blockLinks.insert(link);
-			}
-			else
-			{
-				m_pendingBlockLinks.insert(link);
+				block->LinkBlock(linkSlot, nextBlock);
+				link->second.live = true;
 			}
 		}
 
 		if(branchAddress != 0)
 		{
 			branchAddress &= m_addressMask;
-			block->SetLinkTargetAddress(CBasicBlock::LINK_SLOT_BRANCH, branchAddress);
-			auto link = std::make_pair(branchAddress, BLOCK_LINK{CBasicBlock::LINK_SLOT_BRANCH, startAddress});
+			const auto linkSlot = LINK_SLOT_BRANCH;
+			auto link = m_blockOutLinks.insert(std::make_pair(branchAddress, BLOCK_OUT_LINK{linkSlot, startAddress, false}));
+			block->SetOutLink(linkSlot, link);
+
 			auto branchBlock = m_blockLookup.FindBlockAt(branchAddress);
 			if(!branchBlock->IsEmpty())
 			{
-				block->LinkBlock(CBasicBlock::LINK_SLOT_BRANCH, branchBlock);
-				m_blockLinks.insert(link);
+				block->LinkBlock(linkSlot, branchBlock);
+				link->second.live = true;
 			}
-			else
-			{
-				m_pendingBlockLinks.insert(link);
-			}
+		}
+		else
+		{
+			block->SetOutLink(LINK_SLOT_BRANCH, std::end(m_blockOutLinks));
 		}
 
 		//Resolve any block links that could be valid now that block has been created
 		{
-			auto lowerBound = m_pendingBlockLinks.lower_bound(startAddress);
-			auto upperBound = m_pendingBlockLinks.upper_bound(startAddress);
+			auto lowerBound = m_blockOutLinks.lower_bound(startAddress);
+			auto upperBound = m_blockOutLinks.upper_bound(startAddress);
 			for(auto blockLinkIterator = lowerBound; blockLinkIterator != upperBound; blockLinkIterator++)
 			{
-				const auto& blockLink = blockLinkIterator->second;
-				auto referringBlock = m_blockLookup.FindBlockAt(blockLink.address);
+				auto& blockLink = blockLinkIterator->second;
+				if(blockLink.live) continue;
+				auto referringBlock = m_blockLookup.FindBlockAt(blockLink.srcAddress);
 				if(referringBlock->IsEmpty()) continue;
 				referringBlock->LinkBlock(blockLink.slot, block);
-				m_blockLinks.insert(*blockLinkIterator);
+				blockLink.live = true;
 			}
-			m_pendingBlockLinks.erase(lowerBound, upperBound);
 		}
 	}
 
@@ -237,34 +228,20 @@ protected:
 	void OrphanBlock(CBasicBlock* block)
 	{
 		auto orphanBlockLinkSlot =
-		    [&](CBasicBlock::LINK_SLOT linkSlot) {
-			    auto slotSearch =
-			        [&](const std::pair<uint32, BLOCK_LINK>& link) {
-				        return (link.second.address == block->GetBeginAddress()) &&
-				               (link.second.slot == linkSlot);
-			        };
-			    uint32 linkTargetAddress = block->GetLinkTargetAddress(linkSlot);
-			    //Check if block has this specific link slot
-			    if(linkTargetAddress != MIPS_INVALID_PC)
+		    [&](LINK_SLOT linkSlot) {
+			    auto link = block->GetOutLink(linkSlot);
+			    if(link != std::end(m_blockOutLinks))
 			    {
-				    //If it has that link slot, it's either linked or pending to be linked
-				    auto slotIterator = std::find_if(m_blockLinks.begin(), m_blockLinks.end(), slotSearch);
-				    if(slotIterator != std::end(m_blockLinks))
+				    if(link->second.live)
 				    {
 					    block->UnlinkBlock(linkSlot);
-					    m_blockLinks.erase(slotIterator);
 				    }
-				    else
-				    {
-					    slotIterator = std::find_if(m_pendingBlockLinks.begin(), m_pendingBlockLinks.end(), slotSearch);
-					    assert(slotIterator != std::end(m_pendingBlockLinks));
-					    m_pendingBlockLinks.erase(slotIterator);
-				    }
+				    block->SetOutLink(linkSlot, std::end(m_blockOutLinks));
+				    m_blockOutLinks.erase(link);
 			    }
-			    block->SetLinkTargetAddress(linkSlot, MIPS_INVALID_PC);
 		    };
-		orphanBlockLinkSlot(CBasicBlock::LINK_SLOT_NEXT);
-		orphanBlockLinkSlot(CBasicBlock::LINK_SLOT_BRANCH);
+		orphanBlockLinkSlot(LINK_SLOT_NEXT);
+		orphanBlockLinkSlot(LINK_SLOT_BRANCH);
 	}
 
 	void ClearActiveBlocksInRangeInternal(uint32 start, uint32 end, CBasicBlock* protectedBlock)
@@ -294,17 +271,17 @@ protected:
 		//Undo all stale links
 		for(auto& block : clearedBlocks)
 		{
-			auto lowerBound = m_blockLinks.lower_bound(block->GetBeginAddress());
-			auto upperBound = m_blockLinks.upper_bound(block->GetBeginAddress());
+			auto lowerBound = m_blockOutLinks.lower_bound(block->GetBeginAddress());
+			auto upperBound = m_blockOutLinks.upper_bound(block->GetBeginAddress());
 			for(auto blockLinkIterator = lowerBound; blockLinkIterator != upperBound; blockLinkIterator++)
 			{
-				const auto& blockLink = blockLinkIterator->second;
-				auto referringBlock = m_blockLookup.FindBlockAt(blockLink.address);
+				auto& blockLink = blockLinkIterator->second;
+				if(!blockLink.live) continue;
+				auto referringBlock = m_blockLookup.FindBlockAt(blockLink.srcAddress);
 				if(referringBlock->IsEmpty()) continue;
 				referringBlock->UnlinkBlock(blockLink.slot);
-				m_pendingBlockLinks.insert(*blockLinkIterator);
+				blockLink.live = false;
 			}
-			m_blockLinks.erase(lowerBound, upperBound);
 		}
 
 		if(!clearedBlocks.empty())
@@ -315,8 +292,7 @@ protected:
 
 	BlockList m_blocks;
 	BasicBlockPtr m_emptyBlock;
-	BlockLinkMap m_blockLinks;
-	BlockLinkMap m_pendingBlockLinks;
+	BlockOutLinkMap m_blockOutLinks;
 	CMIPS& m_context;
 	uint32 m_maxAddress = 0;
 	uint32 m_addressMask = 0;

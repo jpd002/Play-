@@ -46,16 +46,31 @@ extern "C"
 	void NextBlockTrampoline(CMIPS*);
 }
 
+enum LINK_SLOT
+{
+	LINK_SLOT_NEXT,
+	LINK_SLOT_BRANCH,
+	LINK_SLOT_MAX,
+};
+
+//Block outgoing link
+struct BLOCK_OUT_LINK
+{
+	LINK_SLOT slot;    //slot used in the source block
+	uint32 srcAddress; //address of source block
+	bool live;         //live if linked to another block, otherwise, link is pending
+};
+
+//Block outgoing links map (key: target link address, value: struct describing link status)
+typedef std::multimap<uint32, BLOCK_OUT_LINK> BlockOutLinkMap;
+
+//When block linking is used, each basic block will maintain pointers
+//to their outgoing link definitions inside the map
+typedef BlockOutLinkMap::iterator BlockOutLinkPointer;
+
 class CBasicBlock
 {
 public:
-	enum LINK_SLOT
-	{
-		LINK_SLOT_NEXT,
-		LINK_SLOT_BRANCH,
-		LINK_SLOT_MAX,
-	};
-
 	CBasicBlock(CMIPS&, uint32 = MIPS_INVALID_PC, uint32 = MIPS_INVALID_PC);
 	virtual ~CBasicBlock() = default;
 	void Execute();
@@ -70,8 +85,9 @@ public:
 	uint32 GetRecycleCount() const;
 	void SetRecycleCount(uint32);
 
-	uint32 GetLinkTargetAddress(LINK_SLOT);
-	void SetLinkTargetAddress(LINK_SLOT, uint32);
+	BlockOutLinkPointer GetOutLink(LINK_SLOT) const;
+	void SetOutLink(LINK_SLOT, BlockOutLinkPointer);
+
 	void LinkBlock(LINK_SLOT, CBasicBlock*);
 	void UnlinkBlock(LINK_SLOT);
 
@@ -107,7 +123,7 @@ private:
 	void (*m_function)(void*);
 #endif
 	uint32 m_recycleCount = 0;
-	uint32 m_linkTargetAddress[LINK_SLOT_MAX];
+	BlockOutLinkPointer m_outLinks[LINK_SLOT_MAX];
 	uint32 m_linkBlockTrampolineOffset[LINK_SLOT_MAX];
 #ifdef _DEBUG
 	CBasicBlock* m_linkBlock[LINK_SLOT_MAX];

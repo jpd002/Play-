@@ -55,7 +55,6 @@ CBasicBlock::CBasicBlock(CMIPS& context, uint32 begin, uint32 end)
 #ifdef _DEBUG
 		m_linkBlock[i] = nullptr;
 #endif
-		m_linkTargetAddress[i] = MIPS_INVALID_PC;
 		m_linkBlockTrampolineOffset[i] = INVALID_LINK_SLOT;
 	}
 }
@@ -341,16 +340,16 @@ void CBasicBlock::SetRecycleCount(uint32 recycleCount)
 	m_recycleCount = recycleCount;
 }
 
-uint32 CBasicBlock::GetLinkTargetAddress(LINK_SLOT linkSlot)
+BlockOutLinkPointer CBasicBlock::GetOutLink(LINK_SLOT linkSlot) const
 {
 	assert(linkSlot < LINK_SLOT_MAX);
-	return m_linkTargetAddress[linkSlot];
+	return m_outLinks[linkSlot];
 }
 
-void CBasicBlock::SetLinkTargetAddress(LINK_SLOT linkSlot, uint32 address)
+void CBasicBlock::SetOutLink(LINK_SLOT linkSlot, BlockOutLinkPointer link)
 {
 	assert(linkSlot < LINK_SLOT_MAX);
-	m_linkTargetAddress[linkSlot] = address;
+	m_outLinks[linkSlot] = link;
 }
 
 void CBasicBlock::LinkBlock(LINK_SLOT linkSlot, CBasicBlock* otherBlock)
