@@ -314,6 +314,8 @@ uint32 CDMAC::GetRegister(uint32 nAddress)
 		REGISTER_READ(D0_MADR, m_D0.m_nMADR)
 		REGISTER_READ(D0_QWC, m_D0.m_nQWC)
 		REGISTER_READ(D0_TADR, m_D0.m_nTADR)
+		REGISTER_READ(D0_ASR0, m_D0.m_nASR[0])
+		REGISTER_READ(D0_ASR1, m_D0.m_nASR[1])
 
 		//Channel 1
 		REGISTER_READ(D1_CHCR, m_D1.ReadCHCR())
@@ -338,6 +340,8 @@ uint32 CDMAC::GetRegister(uint32 nAddress)
 		REGISTER_READ(D2_MADR, m_D2.m_nMADR)
 		REGISTER_READ(D2_QWC, m_D2.m_nQWC)
 		REGISTER_READ(D2_TADR, m_D2.m_nTADR)
+		REGISTER_READ(D2_ASR0, m_D2.m_nASR[0])
+		REGISTER_READ(D2_ASR1, m_D2.m_nASR[1])
 
 	case D2_CHCR + 0x1:
 		//This is done by Parappa The Rapper 2
@@ -517,6 +521,22 @@ void CDMAC::SetRegister(uint32 nAddress, uint32 nData)
 	case D0_TADR + 0xC:
 		break;
 
+	case D0_ASR0 + 0x0:
+		m_D0.m_nASR[0] = nData;
+		break;
+	case D0_ASR0 + 0x4:
+	case D0_ASR0 + 0x8:
+	case D0_ASR0 + 0xC:
+		break;
+
+	case D0_ASR1 + 0x0:
+		m_D0.m_nASR[1] = nData;
+		break;
+	case D0_ASR1 + 0x4:
+	case D0_ASR1 + 0x8:
+	case D0_ASR1 + 0xC:
+		break;
+
 	//Channel 1
 	case D1_CHCR + 0x0:
 		m_D1.WriteCHCR(nData);
@@ -592,6 +612,22 @@ void CDMAC::SetRegister(uint32 nAddress, uint32 nData)
 	case D2_TADR + 0x4:
 	case D2_TADR + 0x8:
 	case D2_TADR + 0xC:
+		break;
+
+	case D2_ASR0 + 0x0:
+		m_D2.m_nASR[0] = nData;
+		break;
+	case D2_ASR0 + 0x4:
+	case D2_ASR0 + 0x8:
+	case D2_ASR0 + 0xC:
+		break;
+
+	case D2_ASR1 + 0x0:
+		m_D2.m_nASR[1] = nData;
+		break;
+	case D2_ASR1 + 0x4:
+	case D2_ASR1 + 0x8:
+	case D2_ASR1 + 0xC:
 		break;
 
 	//D3_CHCR
@@ -974,6 +1010,8 @@ void CDMAC::DisassembleGet(uint32 nAddress)
 		LOG_GET(D0_MADR)
 		LOG_GET(D0_QWC)
 		LOG_GET(D0_TADR)
+		LOG_GET(D0_ASR0)
+		LOG_GET(D0_ASR1)
 
 		//Channel 1
 		LOG_GET(D1_CHCR)
@@ -986,6 +1024,8 @@ void CDMAC::DisassembleGet(uint32 nAddress)
 		LOG_GET(D2_CHCR)
 		LOG_GET(D2_MADR)
 		LOG_GET(D2_TADR)
+		LOG_GET(D2_ASR0)
+		LOG_GET(D2_ASR1)
 
 		//Channel 3
 		LOG_GET(D3_CHCR)
@@ -1044,6 +1084,8 @@ void CDMAC::DisassembleSet(uint32 nAddress, uint32 nData)
 		LOG_SET(D0_MADR)
 		LOG_SET(D0_QWC)
 		LOG_SET(D0_TADR)
+		LOG_SET(D0_ASR0)
+		LOG_SET(D0_ASR1)
 
 		//Channel 1
 		LOG_SET(D1_CHCR)
@@ -1058,6 +1100,8 @@ void CDMAC::DisassembleSet(uint32 nAddress, uint32 nData)
 		LOG_SET(D2_MADR)
 		LOG_SET(D2_QWC)
 		LOG_SET(D2_TADR)
+		LOG_SET(D2_ASR0)
+		LOG_SET(D2_ASR1)
 
 		//Channel 3
 		LOG_SET(D3_CHCR)
