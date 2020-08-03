@@ -39,6 +39,8 @@ public:
 	    , m_blockLookup(m_emptyBlock.get(), maxAddress)
 	{
 		m_emptyBlock->Compile();
+		ResetBlockOutLinks(m_emptyBlock.get());
+
 		assert(!context.m_emptyBlockHandler);
 		context.m_emptyBlockHandler =
 		    [&](CMIPS* context) {
@@ -130,8 +132,17 @@ protected:
 	{
 		assert(!HasBlockAt(start));
 		auto block = BlockFactory(m_context, start, end);
+		ResetBlockOutLinks(block.get());
 		m_blockLookup.AddBlock(block.get());
 		m_blocks.push_back(std::move(block));
+	}
+
+	void ResetBlockOutLinks(CBasicBlock* block)
+	{
+		for(uint32 i = 0; i < LINK_SLOT_MAX; i++)
+		{
+			block->SetOutLink(static_cast<LINK_SLOT>(i), std::end(m_blockOutLinks));
+		}
 	}
 
 	virtual BasicBlockPtr BlockFactory(CMIPS& context, uint32 start, uint32 end)
