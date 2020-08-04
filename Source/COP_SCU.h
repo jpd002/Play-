@@ -95,6 +95,9 @@ protected:
 	MIPSReflection::SUBTABLE m_ReflMtPerfTable;
 
 private:
+	static void HandleTLBRead(CMIPS*);
+	static void HandleTLBWrite(CMIPS*);
+
 	typedef void (CCOP_SCU::*InstructionFuncConstant)();
 
 	static InstructionFuncConstant m_pOpGeneral[0x20];
@@ -117,6 +120,7 @@ private:
 	void BC0FL();
 
 	//C0
+	void TLBR();
 	void TLBWI();
 	void ERET();
 	void EI();

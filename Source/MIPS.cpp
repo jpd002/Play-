@@ -160,16 +160,3 @@ void CMIPS::MapPages(uint32 vAddress, uint32 size, uint8* memory)
 		m_pageLookup[pageBase + pageIndex] = memory + (MIPS_PAGE_SIZE * pageIndex);
 	}
 }
-
-void CMIPS::HandleTLBWrite(CMIPS* context)
-{
-	uint32 index = context->m_State.nCOP0[CCOP_SCU::INDEX];
-	assert(index < MIPSSTATE::TLB_ENTRY_MAX);
-	index &= (MIPSSTATE::TLB_ENTRY_MAX - 1);
-
-	auto& entry = context->m_State.tlbEntries[index];
-	entry.entryLo0 = context->m_State.nCOP0[CCOP_SCU::ENTRYLO0];
-	entry.entryLo1 = context->m_State.nCOP0[CCOP_SCU::ENTRYLO1];
-	entry.entryHi = context->m_State.nCOP0[CCOP_SCU::ENTRYHI];
-	entry.pageMask = context->m_State.nCOP0[CCOP_SCU::PAGEMASK];
-}

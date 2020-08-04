@@ -62,6 +62,32 @@ void CCOP_SCU::CompileInstruction(uint32 nAddress, CMipsJitter* codeGen, CMIPS* 
 	((this)->*(m_pOpGeneral[(m_nOpcode >> 21) & 0x1F]))();
 }
 
+void CCOP_SCU::HandleTLBRead(CMIPS* context)
+{
+	uint32 index = context->m_State.nCOP0[CCOP_SCU::INDEX];
+	assert(index < MIPSSTATE::TLB_ENTRY_MAX);
+	index &= (MIPSSTATE::TLB_ENTRY_MAX - 1);
+
+	const auto& entry = context->m_State.tlbEntries[index];
+	context->m_State.nCOP0[CCOP_SCU::ENTRYLO0] = entry.entryLo0;
+	context->m_State.nCOP0[CCOP_SCU::ENTRYLO1] = entry.entryLo1;
+	context->m_State.nCOP0[CCOP_SCU::ENTRYHI] = entry.entryHi;
+	context->m_State.nCOP0[CCOP_SCU::PAGEMASK] = entry.pageMask;
+}
+
+void CCOP_SCU::HandleTLBWrite(CMIPS* context)
+{
+	uint32 index = context->m_State.nCOP0[CCOP_SCU::INDEX];
+	assert(index < MIPSSTATE::TLB_ENTRY_MAX);
+	index &= (MIPSSTATE::TLB_ENTRY_MAX - 1);
+
+	auto& entry = context->m_State.tlbEntries[index];
+	entry.entryLo0 = context->m_State.nCOP0[CCOP_SCU::ENTRYLO0];
+	entry.entryLo1 = context->m_State.nCOP0[CCOP_SCU::ENTRYLO1];
+	entry.entryHi = context->m_State.nCOP0[CCOP_SCU::ENTRYHI];
+	entry.pageMask = context->m_State.nCOP0[CCOP_SCU::PAGEMASK];
+}
+
 //////////////////////////////////////////////////
 //General Opcodes
 //////////////////////////////////////////////////
@@ -201,11 +227,18 @@ void CCOP_SCU::BC0FL()
 //Coprocessor Specific Opcodes
 //////////////////////////////////////////////////
 
+//01
+void CCOP_SCU::TLBR()
+{
+	m_codeGen->PushCtx();
+	m_codeGen->Call(reinterpret_cast<void*>(&CCOP_SCU::HandleTLBRead), 1, Jitter::CJitter::RETURN_VALUE_NONE);
+}
+
 //02
 void CCOP_SCU::TLBWI()
 {
 	m_codeGen->PushCtx();
-	m_codeGen->Call(reinterpret_cast<void*>(&CMIPS::HandleTLBWrite), 1, Jitter::CJitter::RETURN_VALUE_NONE);
+	m_codeGen->Call(reinterpret_cast<void*>(&CCOP_SCU::HandleTLBWrite), 1, Jitter::CJitter::RETURN_VALUE_NONE);
 }
 
 //18
@@ -301,7 +334,7 @@ CCOP_SCU::InstructionFuncConstant CCOP_SCU::m_pOpBC0[0x20] =
 CCOP_SCU::InstructionFuncConstant CCOP_SCU::m_pOpC0[0x40] =
 {
 	//0x00
-	&CCOP_SCU::Illegal,		&CCOP_SCU::Illegal,		&CCOP_SCU::TLBWI,		&CCOP_SCU::Illegal,		&CCOP_SCU::Illegal,		&CCOP_SCU::Illegal,		&CCOP_SCU::Illegal,		&CCOP_SCU::Illegal,
+	&CCOP_SCU::Illegal,		&CCOP_SCU::TLBR,		&CCOP_SCU::TLBWI,		&CCOP_SCU::Illegal,		&CCOP_SCU::Illegal,		&CCOP_SCU::Illegal,		&CCOP_SCU::Illegal,		&CCOP_SCU::Illegal,
 	//0x08
 	&CCOP_SCU::Illegal,		&CCOP_SCU::Illegal,		&CCOP_SCU::Illegal,		&CCOP_SCU::Illegal,		&CCOP_SCU::Illegal,		&CCOP_SCU::Illegal,		&CCOP_SCU::Illegal,		&CCOP_SCU::Illegal,
 	//0x10

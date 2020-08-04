@@ -165,7 +165,6 @@ public:
 
 	void* m_vuMem = nullptr;
 	void** m_pageLookup = nullptr;
-	static void HandleTLBWrite(CMIPS*);
 
 	std::function<void(CMIPS*)> m_emptyBlockHandler;
 
