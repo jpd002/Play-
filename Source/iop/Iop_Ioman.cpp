@@ -141,7 +141,7 @@ void CIoman::PrepareOpenThunk()
 
 std::string CIoman::GetId() const
 {
-	return "ioman";
+	return "iomanx";
 }
 
 std::string CIoman::GetFunctionName(unsigned int functionId) const

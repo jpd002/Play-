@@ -84,7 +84,7 @@ uint32 CVif::GetRegister(uint32 address)
 		{
 			//When FDR is set, it usually means the game is trying to
 			//read data from GS and that FIFO has some data in it
-			result |= (0x10 << 24);
+			//result |= (0x10 << 24);
 		}
 		break;
 	case VIF0_MARK:

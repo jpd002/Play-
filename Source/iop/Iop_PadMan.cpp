@@ -9,8 +9,8 @@ using namespace Iop;
 using namespace PS2;
 
 #define PADNUM (1)
-#define MODE (0x7) //DUAL SHOCK
-//#define MODE			(0x4)		//DIGITAL
+//#define MODE (0x7) //DUAL SHOCK
+#define MODE (0x4) //DIGITAL
 #define LOG_NAME "iop_padman"
 
 #define STATE_PADDATA ("iop_padman/paddata.xml")
@@ -19,6 +19,7 @@ using namespace PS2;
 
 CPadMan::CPadMan()
     : m_nPadDataAddress(0)
+    , m_nPadDataAddress1(0)
     , m_nPadDataType(PAD_DATA_STD)
 {
 }
@@ -94,6 +95,12 @@ void CPadMan::LoadState(Framework::CZipArchiveReader& archive)
 
 void CPadMan::SetButtonState(unsigned int nPadNumber, CControllerInfo::BUTTON nButton, bool nPressed, uint8* ram)
 {
+	if(m_nPadDataAddress1 != 0)
+	{
+		CPadDataHandler<PADDATA> padData(reinterpret_cast<PADDATA*>(ram + m_nPadDataAddress1) + 1);
+		padData.SetReqState(0);
+	}
+
 	if(m_nPadDataAddress == 0) return;
 
 	ExecutePadDataFunction(std::bind(&CPadMan::PDF_SetButtonState, PLACEHOLDER_1, nButton, nPressed),
@@ -130,6 +137,8 @@ void CPadMan::Open(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, u
 	}
 	else if(nPort == 1)
 	{
+		m_nPadDataAddress1 = nAddress;
+
 		ExecutePadDataFunction(&CPadMan::PDF_InitializeStruct0, ram + nAddress, 0);
 		ExecutePadDataFunction(&CPadMan::PDF_InitializeStruct1, ram + nAddress, 1);
 	}

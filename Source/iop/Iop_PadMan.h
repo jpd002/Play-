@@ -187,6 +187,7 @@ namespace Iop
 
 		PAD_DATA_TYPE m_nPadDataType;
 		uint32 m_nPadDataAddress;
+		uint32 m_nPadDataAddress1;
 
 		void Open(uint32*, uint32, uint32*, uint32, uint8*);
 		void Close(uint32*, uint32, uint32*, uint32, uint8*);

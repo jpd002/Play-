@@ -641,7 +641,7 @@ void CSifCmd::ProcessNextDynamicCommand()
 		CLog::GetInstance().Print(LOG_NAME, "Calling SIF command handler for command 0x%08X at 0x%08X with data 0x%08X.\r\n",
 		                          commandHeader->commandId, cmdDataEntry.sifCmdHandler, cmdDataEntry.data);
 
-		assert(cmdDataEntry.sifCmdHandler != 0);
+		//assert(cmdDataEntry.sifCmdHandler != 0);
 		if(cmdDataEntry.sifCmdHandler != 0)
 		{
 			//This expects to be in an interrupt and the handler is called in the interrupt.
