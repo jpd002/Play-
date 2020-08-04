@@ -46,9 +46,14 @@ public:
 	void HandleInterrupt();
 	void HandleSyscall();
 	void HandleReturnFromException();
+	void HandleTLBException();
 	bool CheckVBlankFlag();
 
+	void UpdateTLBEnabledState();
+
 	static uint32 TranslateAddress(CMIPS*, uint32);
+	static uint32 TranslateAddressTLB(CMIPS*, uint32);
+	static uint32 CheckTLBExceptions(CMIPS*, uint32, uint32);
 
 #ifdef DEBUGGER_INCLUDED
 	BiosDebugModuleInfoArray GetModulesDebugInfo() const override;

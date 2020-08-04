@@ -23,11 +23,19 @@ public:
 		ERROREPC = 0x1E,
 	};
 
-	enum CAUSE
+	enum CAUSE_BITS
 	{
-		CAUSE_INT = 0,  //Interrupt
-		CAUSE_TLBL = 2, //TLB exception (load or instruction fetch)
-		CAUSE_TLBS = 3, //TLB exception (store)
+		CAUSE_EXCCODE_INT = (0x00 << 2),  //Interrupt
+		CAUSE_EXCCODE_TLBL = (0x02 << 2), //TLB refill exception (load or instruction fetch)
+		CAUSE_EXCCODE_TLBS = (0x03 << 2), //TLB refill exception (store)
+		CAUSE_EXCCODE_MASK = (0x1F << 2)
+	};
+
+	enum ENTRYLO_BITS
+	{
+		ENTRYLO_GLOBAL = (1 << 0),
+		ENTRYLO_VALID = (1 << 1),
+		ENTRYLO_DIRTY = (1 << 2)
 	};
 
 	struct PCCR : public convertible<uint32>

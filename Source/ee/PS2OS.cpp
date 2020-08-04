@@ -1412,20 +1412,146 @@ bool CPS2OS::CheckVBlankFlag()
 	return changed;
 }
 
+void CPS2OS::UpdateTLBEnabledState()
+{
+	bool TLBenabled = (m_tlblExceptionHandler != 0) || (m_tlbsExceptionHandler != 0);
+	if(TLBenabled)
+	{
+		m_ee.m_pAddrTranslator = &TranslateAddressTLB;
+		m_ee.m_TLBExceptionChecker = &CheckTLBExceptions;
+	}
+	else
+	{
+		m_ee.m_pAddrTranslator = &TranslateAddress;
+		m_ee.m_TLBExceptionChecker = nullptr;
+	}
+}
+
+//The EE kernel defines some default TLB entries
+//These defines seek to allow simple translation without scanning the TLB
+
+//Direct access to physical addresses
+#define TLB_IS_DIRECT_VADDRESS(a) ((a) <= 0x1FFFFFFF)
+#define TLB_TRANSLATE_DIRECT_VADDRESS(a) ((a)&0x1FFFFFFF)
+
+//RAM access, "uncached" as per TLB entry
+#define TLB_IS_UNCACHED_RAM_VADDRESS(a) (((a) >= 0x20100000) && ((a) <= 0x21FFFFFF))
+#define TLB_TRANSLATE_UNCACHED_RAM_VADDRESS(a) ((a)-0x20000000)
+
+//RAM access, "uncached & accelerated" as per TLB entry
+#define TLB_IS_UNCACHED_FAST_RAM_VADDRESS(a) (((a) >= 0x30100000) && ((a) <= 0x31FFFFFF))
+#define TLB_TRANSLATE_UNCACHED_FAST_RAM_VADDRESS(a) ((a)-0x30000000)
+
+//SPR memory access, the TLB entry for this should have the SPR bit set
+#define TLB_IS_SPR_VADDRESS(a) (((a) >= 0x70000000) && ((a) <= 0x70003FFF))
+#define TLB_TRANSLATE_SPR_VADDRESS(a) ((a) - (0x70000000 - PS2::EE_SPR_ADDR))
+
 uint32 CPS2OS::TranslateAddress(CMIPS*, uint32 vaddrLo)
 {
-	if(vaddrLo >= 0x70000000 && vaddrLo <= 0x70003FFF)
+	if(TLB_IS_SPR_VADDRESS(vaddrLo))
 	{
-		//SPR memory access, the TLB entry for this should have the SPR bit set
-		static const uint32 addressFixUp = 0x70000000 - PS2::EE_SPR_ADDR;
-		return (vaddrLo - addressFixUp);
+		return TLB_TRANSLATE_SPR_VADDRESS(vaddrLo);
 	}
-	if(vaddrLo >= 0x30100000 && vaddrLo <= 0x31FFFFFF)
+	if(TLB_IS_UNCACHED_FAST_RAM_VADDRESS(vaddrLo))
 	{
-		//RAM access, "uncached & accelerated" as per TLB entry
-		return (vaddrLo - 0x30000000);
+		return TLB_TRANSLATE_UNCACHED_FAST_RAM_VADDRESS(vaddrLo);
 	}
+	//No need to check "uncached" RAM access here, will be translated correctly by the macro below
+	return TLB_TRANSLATE_DIRECT_VADDRESS(vaddrLo);
+}
+
+uint32 CPS2OS::TranslateAddressTLB(CMIPS* context, uint32 vaddrLo)
+{
+	if(TLB_IS_DIRECT_VADDRESS(vaddrLo))
+	{
+		return TLB_TRANSLATE_DIRECT_VADDRESS(vaddrLo);
+	}
+	if(TLB_IS_UNCACHED_RAM_VADDRESS(vaddrLo))
+	{
+		return TLB_TRANSLATE_UNCACHED_RAM_VADDRESS(vaddrLo);
+	}
+	if(TLB_IS_UNCACHED_FAST_RAM_VADDRESS(vaddrLo))
+	{
+		return TLB_TRANSLATE_UNCACHED_FAST_RAM_VADDRESS(vaddrLo);
+	}
+	if(TLB_IS_SPR_VADDRESS(vaddrLo))
+	{
+		return TLB_TRANSLATE_SPR_VADDRESS(vaddrLo);
+	}
+	for(uint32 i = 0; i < MIPSSTATE::TLB_ENTRY_MAX; i++)
+	{
+		const auto& entry = context->m_State.tlbEntries[i];
+		if(entry.entryHi == 0) continue;
+
+		uint32 pageSize = ((entry.pageMask >> 13) + 1) * 0x1000;
+		uint32 vpnMask = (pageSize * 2) - 1;
+		uint32 vpn = vaddrLo & ~vpnMask;
+		uint32 tlbVpn = entry.entryHi & ~vpnMask;
+
+		if(vpn == tlbVpn)
+		{
+			uint32 mask = (pageSize - 1);
+			uint32 entryLo = (vaddrLo & pageSize) ? entry.entryLo1 : entry.entryLo0;
+			assert(entryLo & CCOP_SCU::ENTRYLO_GLOBAL);
+			assert(entryLo & CCOP_SCU::ENTRYLO_VALID);
+			uint32 pfn = ((entryLo >> 6) << 12);
+			uint32 paddr = pfn + (vaddrLo & mask);
+			return paddr;
+		}
+	}
+	//Shouldn't come here
+	//assert(false);
 	return vaddrLo & 0x1FFFFFFF;
+}
+
+uint32 CPS2OS::CheckTLBExceptions(CMIPS* context, uint32 vaddrLo, uint32 isWrite)
+{
+	if(TLB_IS_DIRECT_VADDRESS(vaddrLo))
+	{
+		return MIPS_EXCEPTION_NONE;
+	}
+	if(TLB_IS_UNCACHED_RAM_VADDRESS(vaddrLo))
+	{
+		return MIPS_EXCEPTION_NONE;
+	}
+	if(TLB_IS_UNCACHED_FAST_RAM_VADDRESS(vaddrLo))
+	{
+		return MIPS_EXCEPTION_NONE;
+	}
+	if(TLB_IS_SPR_VADDRESS(vaddrLo))
+	{
+		return MIPS_EXCEPTION_NONE;
+	}
+	for(uint32 i = 0; i < MIPSSTATE::TLB_ENTRY_MAX; i++)
+	{
+		const auto& entry = context->m_State.tlbEntries[i];
+		if(entry.entryHi == 0) continue;
+
+		uint32 pageSize = ((entry.pageMask >> 13) + 1) * 0x1000;
+		uint32 vpnMask = (pageSize * 2) - 1;
+		uint32 vpn = vaddrLo & ~vpnMask;
+		uint32 tlbVpn = entry.entryHi & ~vpnMask;
+
+		if(vpn == tlbVpn)
+		{
+			uint32 entryLo = (vaddrLo & pageSize) ? entry.entryLo1 : entry.entryLo0;
+			assert(entryLo & CCOP_SCU::ENTRYLO_GLOBAL);
+			if((entryLo & CCOP_SCU::ENTRYLO_VALID) == 0)
+			{
+				//This causes a TLBL or TLBS exception, but should use the common vector
+				context->m_State.nCOP0[CCOP_SCU::CAUSE] &= ~CCOP_SCU::CAUSE_EXCCODE_MASK;
+				context->m_State.nCOP0[CCOP_SCU::CAUSE] |= isWrite ? CCOP_SCU::CAUSE_EXCCODE_TLBS : CCOP_SCU::CAUSE_EXCCODE_TLBL;
+				context->m_State.nCOP0[CCOP_SCU::BADVADDR] = vaddrLo;
+				context->m_State.nHasException = MIPS_EXCEPTION_TLB;
+				return context->m_State.nHasException;
+			}
+			assert(!isWrite || ((entryLo & CCOP_SCU::ENTRYLO_DIRTY) != 0));
+			return MIPS_EXCEPTION_NONE;
+		}
+	}
+	//assert(false);
+	//We should probably raise some kind of exception here since we didn't match anything
+	return MIPS_EXCEPTION_NONE;
 }
 
 //////////////////////////////////////////////////
@@ -1526,20 +1652,20 @@ void CPS2OS::sc_ExecPS2()
 //0D
 void CPS2OS::sc_SetVTLBRefillHandler()
 {
-	//TODO: Enable TLB processing
-
 	uint32 cause = m_ee.m_State.nGPR[SC_PARAM0].nV0;
 	uint32 handler = m_ee.m_State.nGPR[SC_PARAM1].nV0;
 
-	switch(cause)
+	switch(cause << 2)
 	{
-	case CCOP_SCU::CAUSE_TLBL:
+	case CCOP_SCU::CAUSE_EXCCODE_TLBL:
 		m_tlblExceptionHandler = handler;
 		break;
-	case CCOP_SCU::CAUSE_TLBS:
+	case CCOP_SCU::CAUSE_EXCCODE_TLBS:
 		m_tlbsExceptionHandler = handler;
 		break;
 	}
+
+	UpdateTLBEnabledState();
 }
 
 //0E
@@ -2950,6 +3076,29 @@ void CPS2OS::HandleSyscall()
 		}
 	}
 
+	m_ee.m_State.nHasException = MIPS_EXCEPTION_NONE;
+}
+
+void CPS2OS::HandleTLBException()
+{
+	assert(m_ee.CanGenerateInterrupt());
+	m_ee.m_State.nCOP0[CCOP_SCU::STATUS] |= CMIPS::STATUS_EXL;
+	assert(m_ee.m_State.nDelayedJumpAddr == MIPS_INVALID_PC);
+
+	uint32 excCode = m_ee.m_State.nCOP0[CCOP_SCU::CAUSE] & CCOP_SCU::CAUSE_EXCCODE_MASK;
+	switch(excCode)
+	{
+	case CCOP_SCU::CAUSE_EXCCODE_TLBL:
+		m_ee.m_State.nPC = m_tlblExceptionHandler;
+		break;
+	case CCOP_SCU::CAUSE_EXCCODE_TLBS:
+		m_ee.m_State.nPC = m_tlbsExceptionHandler;
+		break;
+	default:
+		//Can't handle other types of exceptions here
+		assert(false);
+		break;
+	}
 	m_ee.m_State.nHasException = MIPS_EXCEPTION_NONE;
 }
 

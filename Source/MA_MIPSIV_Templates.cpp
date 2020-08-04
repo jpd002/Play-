@@ -67,6 +67,8 @@ void CMA_MIPSIV::Template_Sub64(bool isSigned)
 
 void CMA_MIPSIV::Template_Load32(const MemoryAccessTraits& traits)
 {
+	CheckTLBExceptions(false);
+
 	if(m_nRT == 0) return;
 
 	const auto finishLoad =
@@ -124,6 +126,8 @@ void CMA_MIPSIV::Template_Load32(const MemoryAccessTraits& traits)
 
 void CMA_MIPSIV::Template_Store32(const MemoryAccessTraits& traits)
 {
+	CheckTLBExceptions(true);
+
 	bool usePageLookup = (m_pCtx->m_pageLookup != nullptr);
 
 	if(usePageLookup)

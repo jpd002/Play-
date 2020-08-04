@@ -4,6 +4,7 @@
 #include "MIPS.h"
 #include "offsetof_def.h"
 #include "BitManip.h"
+#include "COP_SCU.h"
 
 CMIPSInstructionFactory::CMIPSInstructionFactory(MIPS_REGSIZE nRegSize)
     : m_regSize(nRegSize)
@@ -17,6 +18,46 @@ void CMIPSInstructionFactory::SetupQuickVariables(uint32 nAddress, CMipsJitter* 
 	m_nAddress = nAddress;
 
 	m_nOpcode = m_pCtx->m_pMemoryMap->GetInstruction(m_nAddress);
+}
+
+static void HandleTLBException(CMIPS*)
+{
+	//Will exit CPU execution loop with an exception pending
+}
+
+void CMIPSInstructionFactory::CheckTLBExceptions(bool isWrite)
+{
+	if(m_pCtx->m_pAddrTranslator == &CMIPS::TranslateAddress64) return;
+	if(m_pCtx->m_TLBExceptionChecker == nullptr) return;
+
+	uint8 nRS = (uint8)((m_nOpcode >> 21) & 0x001F);
+	uint16 nImmediate = (uint16)((m_nOpcode >> 0) & 0xFFFF);
+
+	//Push context
+	m_codeGen->PushCtx();
+
+	//Push low part of address
+	m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[nRS].nV[0]));
+	if(nImmediate != 0)
+	{
+		m_codeGen->PushCst((int16)nImmediate);
+		m_codeGen->Add();
+	}
+
+	//Push isWrite
+	m_codeGen->PushCst(isWrite ? 1 : 0);
+
+	//Call
+	m_codeGen->Call(reinterpret_cast<void*>(m_pCtx->m_TLBExceptionChecker), 3, true);
+
+	m_codeGen->PushCst(MIPS_EXCEPTION_NONE);
+	m_codeGen->BeginIf(Jitter::CONDITION_NE);
+	{
+		m_codeGen->PushCst(m_nAddress);
+		m_codeGen->PullRel(offsetof(CMIPS, m_State.nCOP0[CCOP_SCU::EPC]));
+		m_codeGen->JumpTo(reinterpret_cast<void*>(&HandleTLBException));
+	}
+	m_codeGen->EndIf();
 }
 
 void CMIPSInstructionFactory::ComputeMemAccessAddr()

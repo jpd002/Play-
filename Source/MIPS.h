@@ -41,6 +41,7 @@ enum
 	MIPS_EXCEPTION_RETURNFROMEXCEPTION,
 	MIPS_EXCEPTION_CALLMS,
 	MIPS_EXCEPTION_BREAKPOINT,
+	MIPS_EXCEPTION_TLB,
 };
 
 struct TLBENTRY
@@ -140,6 +141,8 @@ class CMIPS
 {
 public:
 	typedef uint32 (*AddressTranslator)(CMIPS*, uint32);
+	typedef uint32 (*TLBExceptionChecker)(CMIPS*, uint32, uint32);
+
 	typedef std::set<uint32> BreakpointSet;
 
 	CMIPS(MEMORYMAP_ENDIANESS, bool usePageTable = false);
@@ -177,6 +180,7 @@ public:
 	CMIPSTags m_Functions;
 
 	AddressTranslator m_pAddrTranslator = nullptr;
+	TLBExceptionChecker m_TLBExceptionChecker = nullptr;
 
 	enum REGISTER
 	{

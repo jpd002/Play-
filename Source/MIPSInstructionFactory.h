@@ -32,6 +32,7 @@ protected:
 	void ComputeMemAccessRef(uint32);
 	void ComputeMemAccessPageRef();
 
+	void CheckTLBExceptions(bool);
 	void Branch(Jitter::CONDITION);
 	void BranchLikely(Jitter::CONDITION);
 

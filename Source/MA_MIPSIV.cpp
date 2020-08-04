@@ -558,6 +558,8 @@ void CMA_MIPSIV::LH()
 //22
 void CMA_MIPSIV::LWL()
 {
+	CheckTLBExceptions(false);
+
 	if(m_nRT == 0) return;
 
 	ComputeMemAccessAddrNoXlat();
@@ -595,6 +597,8 @@ void CMA_MIPSIV::LHU()
 //26
 void CMA_MIPSIV::LWR()
 {
+	CheckTLBExceptions(false);
+
 	if(m_nRT == 0) return;
 
 	ComputeMemAccessAddrNoXlat();
@@ -614,6 +618,8 @@ void CMA_MIPSIV::LWR()
 //27
 void CMA_MIPSIV::LWU()
 {
+	CheckTLBExceptions(false);
+
 	if(m_nRT == 0) return;
 
 	ComputeMemAccessAddrNoXlat();
@@ -644,6 +650,7 @@ void CMA_MIPSIV::SH()
 //2A
 void CMA_MIPSIV::SWL()
 {
+	CheckTLBExceptions(true);
 	ComputeMemAccessAddrNoXlat();
 	m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[0]));
 	m_codeGen->PushCtx();
@@ -681,6 +688,7 @@ void CMA_MIPSIV::SDR()
 //2E
 void CMA_MIPSIV::SWR()
 {
+	CheckTLBExceptions(true);
 	ComputeMemAccessAddrNoXlat();
 	m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[0]));
 	m_codeGen->PushCtx();
