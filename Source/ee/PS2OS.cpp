@@ -264,6 +264,7 @@ void CPS2OS::Initialize()
 	m_elf = nullptr;
 
 	SetVsyncFlagPtrs(0, 0);
+	UpdateTLBEnabledState();
 
 	AssembleCustomSyscallHandler();
 	AssembleInterruptHandler();
