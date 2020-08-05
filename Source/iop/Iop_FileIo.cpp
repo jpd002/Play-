@@ -2,7 +2,7 @@
 #include "Iop_FileIo.h"
 #include "Iop_FileIoHandler1000.h"
 #include "Iop_FileIoHandler2100.h"
-#include "Iop_FileIoHandler2240.h"
+#include "Iop_FileIoHandler2200.h"
 #include "../states/RegisterStateFile.h"
 
 #define LOG_NAME ("iop_fileio")
@@ -28,13 +28,13 @@ void CFileIo::SetModuleVersion(unsigned int moduleVersion)
 {
 	m_handler.reset();
 	m_moduleVersion = moduleVersion;
-	if(moduleVersion >= 2100 && moduleVersion < 2240)
+	if(moduleVersion >= 2100 && moduleVersion < 2200)
 	{
 		m_handler = std::make_unique<CFileIoHandler2100>(&m_ioman);
 	}
-	else if(moduleVersion >= 2240)
+	else if(moduleVersion >= 2200)
 	{
-		m_handler = std::make_unique<CFileIoHandler2240>(&m_ioman, m_sifMan);
+		m_handler = std::make_unique<CFileIoHandler2200>(&m_ioman, m_sifMan);
 	}
 	else
 	{

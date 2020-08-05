@@ -1,6 +1,6 @@
 #include <cassert>
 #include <cstring>
-#include "Iop_FileIoHandler2240.h"
+#include "Iop_FileIoHandler2200.h"
 #include "Iop_Ioman.h"
 #include "Iop_SifManPs2.h"
 #include "../states/RegisterStateFile.h"
@@ -10,17 +10,17 @@
 
 #define LOG_NAME ("iop_fileio")
 
-#define STATE_XML ("iop_fileio/state2240.xml")
+#define STATE_XML ("iop_fileio/state2200.xml")
 #define STATE_RESULTPTR0 ("resultPtr0")
 #define STATE_RESULTPTR1 ("resultPtr1")
-#define STATE_PENDINGREPLY ("iop_fileio/state2240_pending")
+#define STATE_PENDINGREPLY ("iop_fileio/state2200_pending")
 
 using namespace Iop;
 
 #define DEVCTL_CDVD_GETERROR 0x4320
 #define DEVCTL_CDVD_DISKREADY 0x4325
 
-CFileIoHandler2240::CFileIoHandler2240(CIoman* ioman, CSifMan& sifMan)
+CFileIoHandler2200::CFileIoHandler2200(CIoman* ioman, CSifMan& sifMan)
     : CHandler(ioman)
     , m_sifMan(sifMan)
 {
@@ -28,7 +28,7 @@ CFileIoHandler2240::CFileIoHandler2240(CIoman* ioman, CSifMan& sifMan)
 	memset(m_pendingReply.buffer.data(), 0, PENDINGREPLY::REPLY_BUFFER_SIZE);
 }
 
-bool CFileIoHandler2240::Invoke(uint32 method, uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, uint8* ram)
+bool CFileIoHandler2200::Invoke(uint32 method, uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, uint8* ram)
 {
 	switch(method)
 	{
@@ -86,7 +86,7 @@ bool CFileIoHandler2240::Invoke(uint32 method, uint32* args, uint32 argsSize, ui
 	return true;
 }
 
-void CFileIoHandler2240::LoadState(Framework::CZipArchiveReader& archive)
+void CFileIoHandler2200::LoadState(Framework::CZipArchiveReader& archive)
 {
 	{
 		auto registerFile = CRegisterStateFile(*archive.BeginReadFile(STATE_XML));
@@ -97,7 +97,7 @@ void CFileIoHandler2240::LoadState(Framework::CZipArchiveReader& archive)
 	archive.BeginReadFile(STATE_PENDINGREPLY)->Read(&m_pendingReply, sizeof(m_pendingReply));
 }
 
-void CFileIoHandler2240::SaveState(Framework::CZipArchiveWriter& archive) const
+void CFileIoHandler2200::SaveState(Framework::CZipArchiveWriter& archive) const
 {
 	{
 		auto registerFile = new CRegisterStateFile(STATE_XML);
@@ -112,7 +112,7 @@ void CFileIoHandler2240::SaveState(Framework::CZipArchiveWriter& archive) const
 	}
 }
 
-void CFileIoHandler2240::ProcessCommands(CSifMan* sifMan)
+void CFileIoHandler2200::ProcessCommands(CSifMan* sifMan)
 {
 	if(m_pendingReply.valid)
 	{
@@ -125,7 +125,7 @@ void CFileIoHandler2240::ProcessCommands(CSifMan* sifMan)
 	}
 }
 
-uint32 CFileIoHandler2240::InvokeOpen(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, uint8* ram)
+uint32 CFileIoHandler2200::InvokeOpen(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, uint8* ram)
 {
 	assert(retSize == 4);
 	auto command = reinterpret_cast<OPENCOMMAND*>(args);
@@ -148,7 +148,7 @@ uint32 CFileIoHandler2240::InvokeOpen(uint32* args, uint32 argsSize, uint32* ret
 	return 1;
 }
 
-uint32 CFileIoHandler2240::InvokeClose(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, uint8* ram)
+uint32 CFileIoHandler2200::InvokeClose(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, uint8* ram)
 {
 	assert(retSize == 4);
 	auto command = reinterpret_cast<CLOSECOMMAND*>(args);
@@ -188,7 +188,7 @@ uint32 CFileIoHandler2240::InvokeClose(uint32* args, uint32 argsSize, uint32* re
 	return 1;
 }
 
-uint32 CFileIoHandler2240::InvokeRead(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, uint8* ram)
+uint32 CFileIoHandler2200::InvokeRead(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, uint8* ram)
 {
 	assert(retSize == 4);
 	auto command = reinterpret_cast<READCOMMAND*>(args);
@@ -211,7 +211,7 @@ uint32 CFileIoHandler2240::InvokeRead(uint32* args, uint32 argsSize, uint32* ret
 	return 1;
 }
 
-uint32 CFileIoHandler2240::InvokeSeek(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, uint8* ram)
+uint32 CFileIoHandler2200::InvokeSeek(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, uint8* ram)
 {
 	assert(retSize == 4);
 	auto command = reinterpret_cast<SEEKCOMMAND*>(args);
@@ -234,7 +234,7 @@ uint32 CFileIoHandler2240::InvokeSeek(uint32* args, uint32 argsSize, uint32* ret
 	return 1;
 }
 
-uint32 CFileIoHandler2240::InvokeDopen(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, uint8* ram)
+uint32 CFileIoHandler2200::InvokeDopen(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, uint8* ram)
 {
 	assert(retSize == 4);
 	auto command = reinterpret_cast<DOPENCOMMAND*>(args);
@@ -259,7 +259,7 @@ uint32 CFileIoHandler2240::InvokeDopen(uint32* args, uint32 argsSize, uint32* re
 	return 1;
 }
 
-uint32 CFileIoHandler2240::InvokeGetStat(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, uint8* ram)
+uint32 CFileIoHandler2200::InvokeGetStat(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, uint8* ram)
 {
 	assert(retSize == 4);
 	Ioman::STAT stat;
@@ -282,7 +282,7 @@ uint32 CFileIoHandler2240::InvokeGetStat(uint32* args, uint32 argsSize, uint32* 
 	return 1;
 }
 
-uint32 CFileIoHandler2240::InvokeCcode(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, uint8* ram)
+uint32 CFileIoHandler2200::InvokeCcode(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, uint8* ram)
 {
 	//This is used by Gigawing Generations
 	assert(argsSize >= 0xD);
@@ -310,7 +310,7 @@ uint32 CFileIoHandler2240::InvokeCcode(uint32* args, uint32 argsSize, uint32* re
 	return 0;
 }
 
-uint32 CFileIoHandler2240::InvokeMount(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, uint8* ram)
+uint32 CFileIoHandler2200::InvokeMount(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, uint8* ram)
 {
 	//This is used by Final Fantasy X
 	assert(argsSize >= 0xC14);
@@ -338,7 +338,7 @@ uint32 CFileIoHandler2240::InvokeMount(uint32* args, uint32 argsSize, uint32* re
 	return 0;
 }
 
-uint32 CFileIoHandler2240::InvokeUmount(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, uint8* ram)
+uint32 CFileIoHandler2200::InvokeUmount(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, uint8* ram)
 {
 	//This is used by Romancing Saga with 'pfs0:' parameter.
 	assert(argsSize >= 0x0C);
@@ -365,7 +365,7 @@ uint32 CFileIoHandler2240::InvokeUmount(uint32* args, uint32 argsSize, uint32* r
 	return 0;
 }
 
-uint32 CFileIoHandler2240::InvokeDevctl(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, uint8* ram)
+uint32 CFileIoHandler2200::InvokeDevctl(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, uint8* ram)
 {
 	//This is used by Romancing Saga with 'hdd0:' parameter.
 	//This is also used by Phantasy Star Collection with 'cdrom0:' parameter.
@@ -412,14 +412,14 @@ uint32 CFileIoHandler2240::InvokeDevctl(uint32* args, uint32 argsSize, uint32* r
 	return 1;
 }
 
-void CFileIoHandler2240::CopyHeader(REPLYHEADER& reply, const COMMANDHEADER& command)
+void CFileIoHandler2200::CopyHeader(REPLYHEADER& reply, const COMMANDHEADER& command)
 {
 	reply.semaphoreId = command.semaphoreId;
 	reply.resultPtr = command.resultPtr;
 	reply.resultSize = command.resultSize;
 }
 
-void CFileIoHandler2240::SendPendingReply(uint8* ram)
+void CFileIoHandler2200::SendPendingReply(uint8* ram)
 {
 	//Send response
 	if(m_resultPtr[0] != 0)
@@ -430,7 +430,7 @@ void CFileIoHandler2240::SendPendingReply(uint8* ram)
 	m_pendingReply.valid = false;
 }
 
-void CFileIoHandler2240::SendSifReply()
+void CFileIoHandler2200::SendSifReply()
 {
 	size_t packetSize = sizeof(SIFCMDHEADER);
 	uint8* callbackPacket = reinterpret_cast<uint8*>(alloca(packetSize));

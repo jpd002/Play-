@@ -7,10 +7,10 @@
 
 namespace Iop
 {
-	class CFileIoHandler2240 : public CFileIo::CHandler
+	class CFileIoHandler2200 : public CFileIo::CHandler
 	{
 	public:
-		CFileIoHandler2240(CIoman*, CSifMan&);
+		CFileIoHandler2200(CIoman*, CSifMan&);
 
 		bool Invoke(uint32, uint32*, uint32, uint32*, uint32, uint8*) override;
 
