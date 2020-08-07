@@ -37,7 +37,7 @@ travis_before_install()
         brew update
         brew install dpkg
     elif [ "$TARGET_OS" = "Android" ]; then
-        echo y | sdkmanager 'ndk;21.0.6113669'
+        echo y | sdkmanager 'ndk;21.3.6528147'
         echo y | sdkmanager 'cmake;3.10.2.4988404'
     elif [ "$TARGET_OS" = "FREEBSD" ]; then
         su -m root -c 'pkg install -y cmake qt5 evdev-proto'
@@ -53,7 +53,7 @@ travis_script()
             CMAKE_PATH=/usr/local/android-sdk/cmake/3.10.2.4988404
             export PATH=${CMAKE_PATH}/bin:$PATH
             export NINJA_EXE=${CMAKE_PATH}/bin/ninja
-            export ANDROID_NDK=/usr/local/android-sdk/ndk/21.0.6113669
+            export ANDROID_NDK=/usr/local/android-sdk/ndk/21.3.6528147
             export ANDROID_TOOLCHAIN_FILE=${ANDROID_NDK}/build/cmake/android.toolchain.cmake
             pushd build_retro
             bash android_build.sh

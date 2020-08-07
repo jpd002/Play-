@@ -9,7 +9,7 @@ buildscript {
 	}
 
 	dependencies {
-		classpath 'com.android.tools.build:gradle:3.6.3'
+		classpath 'com.android.tools.build:gradle:4.0.1'
 	}
 }
 
@@ -40,7 +40,6 @@ android {
 	}
 
 	compileSdkVersion 'android-28'
-	buildToolsVersion '28.0.3'
 
 	defaultConfig {
 		versionCode 40
@@ -54,7 +53,7 @@ android {
 				cppFlags "-frtti"
 				targets "Play"
 			}
-			ndkVersion "21.0.6113669"
+			ndkVersion "21.3.6528147"
 			ndk {
 				abiFilters 'armeabi-v7a', 'x86', 'x86_64', 'arm64-v8a'
 			}
