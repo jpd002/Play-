@@ -55,9 +55,11 @@ namespace Iop
 		{
 			CDVD_FUNCTION_READ = 1,
 			CDVD_FUNCTION_SEEK = 4,
+			CDVD_FUNCTION_STANDBY = 5,
 		};
 
 		uint32 CdInit(uint32);
+		uint32 CdStandby();
 		uint32 CdRead(uint32, uint32, uint32, uint32);
 		uint32 CdSeek(uint32);
 		uint32 CdGetError();

@@ -12,6 +12,7 @@
 #define STATE_PENDING_COMMAND ("PendingCommand")
 
 #define FUNCTION_CDINIT "CdInit"
+#define FUNCTION_CDSTANDBY "CdStandby"
 #define FUNCTION_CDREAD "CdRead"
 #define FUNCTION_CDSEEK "CdSeek"
 #define FUNCTION_CDGETERROR "CdGetError"
@@ -111,6 +112,9 @@ std::string CCdvdman::GetFunctionName(unsigned int functionId) const
 	case 4:
 		return FUNCTION_CDINIT;
 		break;
+	case 5:
+		return FUNCTION_CDSTANDBY;
+		break;
 	case 6:
 		return FUNCTION_CDREAD;
 		break;
@@ -186,6 +190,9 @@ void CCdvdman::Invoke(CMIPS& ctx, unsigned int functionId)
 	{
 	case 4:
 		ctx.m_State.nGPR[CMIPS::V0].nV0 = CdInit(ctx.m_State.nGPR[CMIPS::A0].nV0);
+		break;
+	case 5:
+		ctx.m_State.nGPR[CMIPS::V0].nV0 = CdStandby();
 		break;
 	case 6:
 		ctx.m_State.nGPR[CMIPS::V0].nV0 = CdRead(
@@ -319,6 +326,16 @@ uint32 CCdvdman::CdInit(uint32 mode)
 	//0 - Initialize
 	//1 - Init & No Check
 	//5 - Exit
+	return 1;
+}
+
+uint32 CCdvdman::CdStandby()
+{
+	CLog::GetInstance().Print(LOG_NAME, FUNCTION_CDSTANDBY "();\r\n");
+	if(m_callbackPtr != 0)
+	{
+		m_bios.TriggerCallback(m_callbackPtr, CDVD_FUNCTION_STANDBY);
+	}
 	return 1;
 }
 
