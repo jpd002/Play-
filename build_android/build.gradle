@@ -10,12 +10,16 @@ buildscript {
 
 	dependencies {
 		classpath 'com.android.tools.build:gradle:4.0.1'
+		classpath 'org.ajoberstar.grgit:grgit-gradle:4.0.2'
 	}
 }
 
 project.ext {
 	keyStorePropFile = rootProject.file('keystore.properties')
 	signingEnabled = keyStorePropFile.exists()
+	git = org.ajoberstar.grgit.Grgit.open()
+	gitVersionCode = git.tag.list().size()
+	gitVersionName = "${git.describe()}"
 }
 
 project.afterEvaluate {
@@ -42,8 +46,8 @@ android {
 	compileSdkVersion 'android-28'
 
 	defaultConfig {
-		versionCode 40
-		versionName '0.30'
+		versionCode (100 + gitVersionCode)
+		versionName gitVersionName
 		minSdkVersion 19
 		targetSdkVersion 28
 		externalNativeBuild {
