@@ -2,13 +2,17 @@
 
 !define BINARY_INPUT_PATH "..\build\Source\ui_qt\Release"
 
-!searchparse /file ../Source/AppDef.h '#define APP_VERSIONSTR _T("' APP_VERSION '")'
+; Get version info from git repo
+!tempfile GitDescribeOut
+!system '"git" describe > "${GitDescribeOut}"'
+!searchparse /file  "${GitDescribeOut}" "" APP_VERSION
+!undef GitDescribeOut
 
 ; The name of the installer
 Name "Play! v${APP_VERSION}"
 
 ; The file to write
-OutFile "Play-${APP_VERSION}-32.exe"
+OutFile "Play-x86-32.exe"
 
 ; The default installation directory
 InstallDir $PROGRAMFILES\Play
