@@ -304,7 +304,7 @@ uint32 CSysmem::FreeMemory(uint32 address)
 	}
 	else
 	{
-		CLog::GetInstance().Print(LOG_NAME, "%s: Trying to unallocate an unexisting memory block (0x%08X).\r\n", __FUNCTION__, address);
+		CLog::GetInstance().Warn(LOG_NAME, "%s: Trying to unallocate an unexisting memory block (0x%08X).\r\n", __FUNCTION__, address);
 	}
 	return 0;
 }
