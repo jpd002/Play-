@@ -1,13 +1,19 @@
 !include "MUI2.nsh"
 !include "x64.nsh"
 
-!searchparse /file ../Source/AppDef.h '#define APP_VERSIONSTR _T("' APP_VERSION '")'
+!define BINARY_INPUT_PATH "..\build\Source\ui_qt\Release"
+
+; Get version info from git repo
+!tempfile GitDescribeOut
+!system '"git" describe > "${GitDescribeOut}"'
+!searchparse /file  "${GitDescribeOut}" "" APP_VERSION
+!undef GitDescribeOut
 
 ; The name of the installer
 Name "Play! v${APP_VERSION}"
 
 ; The file to write
-OutFile "Play-${APP_VERSION}-64.exe"
+OutFile "Play-x86-64.exe"
 
 ; The default installation directory
 InstallDir $PROGRAMFILES64\Play
@@ -67,13 +73,13 @@ Section "Play! (required)"
   CreateDirectory $INSTDIR\imageformats
   
   ; Put file there
-  File "..\build\Source\ui_qt\Release\Play.exe"
-  File "..\build\Source\ui_qt\Release\Qt5Core.dll"
-  File "..\build\Source\ui_qt\Release\Qt5Gui.dll"
-  File "..\build\Source\ui_qt\Release\Qt5Widgets.dll"
-  File /oname=platforms\qwindows.dll "..\build\Source\ui_qt\Release\platforms\qwindows.dll"
-  File /oname=styles\qwindowsvistastyle.dll "..\build\Source\ui_qt\Release\styles\qwindowsvistastyle.dll"
-  File /oname=imageformats\qjpeg.dll "..\build\Source\ui_qt\Release\imageformats\qjpeg.dll"
+  File "${BINARY_INPUT_PATH}\Play.exe"
+  File "${BINARY_INPUT_PATH}\Qt5Core.dll"
+  File "${BINARY_INPUT_PATH}\Qt5Gui.dll"
+  File "${BINARY_INPUT_PATH}\Qt5Widgets.dll"
+  File /oname=platforms\qwindows.dll "${BINARY_INPUT_PATH}\platforms\qwindows.dll"
+  File /oname=styles\qwindowsvistastyle.dll "${BINARY_INPUT_PATH}\styles\qwindowsvistastyle.dll"
+  File /oname=imageformats\qjpeg.dll "${BINARY_INPUT_PATH}\imageformats\qjpeg.dll"
   File "..\Readme.html"
   File "..\Changelog.html"
   File "..\Patches.xml"
