@@ -34,9 +34,17 @@ SettingsDialog::SettingsDialog(QWidget* parent)
 	if(!devices.empty())
 	{
 		ui->comboBox_gs_selection->insertItem(SettingsDialog::GS_HANDLERS::VULKAN, "Vulkan");
+		auto selectedDevice = GSH_Vulkan::CDeviceInfo::GetInstance().GetSelectedDevice();
 		for(const auto& device : devices)
 		{
-			ui->comboBox_vulkan_device->insertItem(0, QString::fromUtf8(device.deviceName.c_str()), QVariant::fromValue(device));
+			ui->comboBox_vulkan_device->addItem(QString::fromUtf8(device.deviceName.c_str()), QVariant::fromValue(device));
+			if(
+			    (selectedDevice.deviceId == device.deviceId) &&
+			    (selectedDevice.vendorId == device.vendorId))
+			{
+				auto selectedIndex = ui->comboBox_vulkan_device->count() - 1;
+				ui->comboBox_vulkan_device->setCurrentIndex(selectedIndex);
+			}
 		}
 	}
 #else
