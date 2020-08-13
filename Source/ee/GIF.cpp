@@ -211,30 +211,25 @@ uint32 CGIF::ProcessRegList(CGSHandler::RegisterWriteList& writeList, const uint
 {
 	uint32 start = address;
 
-	while(m_loops != 0)
+	while((m_loops != 0) && (address < end))
 	{
-		if(address == end)
+		while((m_regsTemp != 0) && (address < end))
 		{
-			break;
-		}
+			uint32 regDesc = (uint32)((m_regList >> ((m_regs - m_regsTemp) * 4)) & 0x0F);
+			uint64 packet = *reinterpret_cast<const uint64*>(memory + address);
 
-		for(uint32 j = 0; j < m_regs; j++)
-		{
-			assert(address < end);
-
-			uint128 packet;
-			uint32 nRegDesc = (uint32)((m_regList >> (j * 4)) & 0x0F);
-
-			packet.nV[0] = *(uint32*)&memory[address + 0x00];
-			packet.nV[1] = *(uint32*)&memory[address + 0x04];
 			address += 0x08;
+			m_regsTemp--;
 
-			if(nRegDesc == 0x0F) continue;
-
-			writeList.push_back(CGSHandler::RegisterWrite(static_cast<uint8>(nRegDesc), packet.nD0));
+			if(regDesc == 0x0F) continue;
+			writeList.push_back(CGSHandler::RegisterWrite(static_cast<uint8>(regDesc), packet));
 		}
 
-		m_loops--;
+		if(m_regsTemp == 0)
+		{
+			m_loops--;
+			m_regsTemp = m_regs;
+		}
 	}
 
 	//Align on qword boundary
