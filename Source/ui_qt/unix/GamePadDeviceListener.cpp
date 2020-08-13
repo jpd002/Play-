@@ -101,8 +101,6 @@ void CGamePadDeviceListener::InputDeviceListenerThread()
 	ts.tv_nsec = 5e+8; // 500 millisecond
 
 	fd_set fds;
-	FD_ZERO(&fds);
-	FD_SET(fd, &fds);
 
 	sigset_t mask;
 	sigemptyset(&mask);
@@ -115,6 +113,8 @@ void CGamePadDeviceListener::InputDeviceListenerThread()
 
 	while(m_running)
 	{
+		FD_ZERO(&fds);
+		FD_SET(fd, &fds);
 		if(pselect(fd + 1, &fds, NULL, NULL, &ts, &mask) == 0) continue;
 
 		int length = read(fd, buffer, EVENT_BUF_LEN);
