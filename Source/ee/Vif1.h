@@ -9,7 +9,7 @@ class CVif1 : public CVif
 {
 public:
 	CVif1(unsigned int, CVpu&, CGIF&, CINTC&, uint8*, uint8*);
-	virtual ~CVif1();
+	virtual ~CVif1() = default;
 
 	void Reset() override;
 	void SaveState(Framework::CZipArchiveWriter&) override;

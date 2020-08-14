@@ -20,10 +20,6 @@ CVif1::CVif1(unsigned int number, CVpu& vpu, CGIF& gif, CINTC& intc, uint8* ram,
 {
 }
 
-CVif1::~CVif1()
-{
-}
-
 void CVif1::Reset()
 {
 	CVif::Reset();
