@@ -33,4 +33,12 @@ private:
 	uint32 m_OFST;
 	uint32 m_TOP;
 	uint32 m_TOPS;
+
+	enum
+	{
+		QWORD_SIZE = 0x10,
+	};
+
+	uint8 m_directQwordBuffer[QWORD_SIZE];
+	uint32 m_directQwordBufferIndex = 0;
 };

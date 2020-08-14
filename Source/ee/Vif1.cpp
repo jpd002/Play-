@@ -27,6 +27,7 @@ void CVif1::Reset()
 	m_TOP = 0;
 	m_TOPS = 0;
 	m_OFST = 0;
+	m_directQwordBufferIndex = 0;
 }
 
 void CVif1::SaveState(Framework::CZipArchiveWriter& archive)
@@ -154,21 +155,50 @@ void CVif1::ExecuteCommand(StreamType& stream, CODE nCommand)
 void CVif1::Cmd_DIRECT(StreamType& stream, CODE nCommand)
 {
 	uint32 nSize = stream.GetAvailableReadBytes();
-	nSize = std::min<uint32>(m_CODE.nIMM * 0x10, nSize);
-	assert((nSize & 0x0F) == 0);
+	assert((nSize & 0x03) == 0);
 
 	if(nSize != 0)
 	{
-		auto packet = stream.GetDirectPointer();
-		uint32 processed = m_gif.ProcessMultiplePackets(packet, nSize, 0, nSize, CGsPacketMetadata(2));
-		assert(processed <= nSize);
-		stream.Advance(processed);
-		//Adjust size in case not everything was processed by GIF
-		nSize = processed;
+		//Check if we have data but less than a qword
+		//If we do, we have to go inside a different path to complete a full qword
+		bool hasPartialQword = (m_directQwordBufferIndex != 0) || (nSize < QWORD_SIZE);
+		if(hasPartialQword)
+		{
+			//Read enough bytes to try to complete our qword
+			assert(m_directQwordBufferIndex < QWORD_SIZE);
+			uint32 readAmount = std::min(nSize, QWORD_SIZE - m_directQwordBufferIndex);
+			stream.Read(m_directQwordBuffer + m_directQwordBufferIndex, readAmount);
+			m_directQwordBufferIndex += readAmount;
+			nSize -= readAmount;
+
+			//If our qword is complete, send to GIF
+			if(m_directQwordBufferIndex == QWORD_SIZE)
+			{
+				assert(m_CODE.nIMM != 0);
+				uint32 processed = m_gif.ProcessMultiplePackets(m_directQwordBuffer, QWORD_SIZE, 0, QWORD_SIZE, CGsPacketMetadata(2));
+				assert(processed == QWORD_SIZE);
+				m_CODE.nIMM--;
+				m_directQwordBufferIndex = 0;
+			}
+		}
+
+		//If no data pending in our partial qword buffer, go forward with multiple qword transfer
+		if(m_directQwordBufferIndex == 0)
+		{
+			nSize = std::min<uint32>(m_CODE.nIMM * 0x10, nSize & ~0xF);
+
+			auto packet = stream.GetDirectPointer();
+			uint32 processed = m_gif.ProcessMultiplePackets(packet, nSize, 0, nSize, CGsPacketMetadata(2));
+			assert(processed <= nSize);
+			stream.Advance(processed);
+			//Adjust size in case not everything was processed by GIF
+			nSize = processed;
+
+			m_CODE.nIMM -= (nSize / 0x10);
+		}
 	}
 
-	m_CODE.nIMM -= (nSize / 0x10);
-	if((m_CODE.nIMM == 0) && (nSize != 0))
+	if(m_CODE.nIMM == 0)
 	{
 		m_STAT.nVPS = 0;
 	}
