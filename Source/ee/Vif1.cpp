@@ -122,13 +122,11 @@ void CVif1::ExecuteCommand(StreamType& stream, CODE nCommand)
 		{
 			m_STAT.nVEW = 0;
 		}
-#ifdef DELAYED_MSCAL
 		if(ResumeDelayedMicroProgram())
 		{
 			m_STAT.nVEW = 1;
 			return;
 		}
-#endif
 		break;
 	case 0x13:
 		//FLUSHA
@@ -139,6 +137,11 @@ void CVif1::ExecuteCommand(StreamType& stream, CODE nCommand)
 		else
 		{
 			m_STAT.nVEW = 0;
+		}
+		if(ResumeDelayedMicroProgram())
+		{
+			m_STAT.nVEW = 1;
+			return;
 		}
 		break;
 	case 0x50:

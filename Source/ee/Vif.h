@@ -7,8 +7,6 @@
 #include "zip/ZipArchiveWriter.h"
 #include "zip/ZipArchiveReader.h"
 
-#define DELAYED_MSCAL
-
 class CVpu;
 class CINTC;
 
@@ -208,10 +206,8 @@ protected:
 
 	virtual void PrepareMicroProgram();
 	void StartMicroProgram(uint32);
-#ifdef DELAYED_MSCAL
 	void StartDelayedMicroProgram(uint32);
 	bool ResumeDelayedMicroProgram();
-#endif
 
 	void DisassembleCommand(CODE);
 	void DisassembleGet(uint32);
@@ -240,10 +236,7 @@ protected:
 	uint32 m_ITOPS;
 	uint32 m_readTick;
 	uint32 m_writeTick;
-#ifdef DELAYED_MSCAL
 	uint32 m_pendingMicroProgram;
-	CODE m_previousCODE;
-#endif
 
 	CProfiler::ZoneHandle m_vifProfilerZone = 0;
 };

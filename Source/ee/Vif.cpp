@@ -68,10 +68,7 @@ void CVif::Reset()
 	m_readTick = 0;
 	m_writeTick = 0;
 	m_stream.Reset();
-#ifdef DELAYED_MSCAL
 	m_pendingMicroProgram = -1;
-	memset(&m_previousCODE, 0, sizeof(CODE));
-#endif
 }
 
 uint32 CVif::GetRegister(uint32 address)
@@ -335,9 +332,6 @@ void CVif::ProcessPacket(StreamType& stream)
 			continue;
 		}
 
-#ifdef DELAYED_MSCAL
-		m_previousCODE = m_CODE;
-#endif
 		if(m_STAT.nVIS)
 		{
 			break;
@@ -361,12 +355,10 @@ void CVif::ProcessPacket(StreamType& stream)
 		ExecuteCommand(stream, m_CODE);
 	}
 
-#ifdef DELAYED_MSCAL
 	if(stream.GetAvailableReadBytes() == 0)
 	{
 		ResumeDelayedMicroProgram();
 	}
-#endif
 }
 
 void CVif::ExecuteCommand(StreamType& stream, CODE nCommand)
@@ -379,21 +371,6 @@ void CVif::ExecuteCommand(StreamType& stream, CODE nCommand)
 #endif
 	if(nCommand.nCMD >= 0x60)
 	{
-#ifdef DELAYED_MSCAL
-		//Check if previous cmd was MSCAL and if we have a pending MSCAL
-		if(m_previousCODE.nCMD == 0x14)
-		{
-			uint32 prevImm = m_pendingMicroProgram / 8;
-			if(ResumeDelayedMicroProgram())
-			{
-				assert(m_previousCODE.nIMM == prevImm);
-				m_previousCODE.nCMD = 0;
-				//Set waiting for microprogram bit to make sure we come back here and execute UNPACK
-				m_STAT.nVEW = 1;
-				return;
-			}
-		}
-#endif
 		Cmd_UNPACK(stream, nCommand, (nCommand.nIMM & 0x03FF));
 		return;
 	}
@@ -407,13 +384,12 @@ void CVif::ExecuteCommand(StreamType& stream, CODE nCommand)
 		m_CYCLE <<= nCommand.nIMM;
 		break;
 	case 0x04:
-#ifdef DELAYED_MSCAL
+		//ITOP
 		if(ResumeDelayedMicroProgram())
 		{
 			m_STAT.nVEW = 1;
 			return;
 		}
-#endif
 		m_ITOPS = nCommand.nIMM & 0x3FF;
 		break;
 	case 0x05:
@@ -434,27 +410,38 @@ void CVif::ExecuteCommand(StreamType& stream, CODE nCommand)
 		{
 			m_STAT.nVEW = 0;
 		}
+		if(ResumeDelayedMicroProgram())
+		{
+			m_STAT.nVEW = 1;
+			return;
+		}
 		break;
 	case 0x14:
 		//MSCAL
-#ifdef DELAYED_MSCAL
 		if(ResumeDelayedMicroProgram())
 		{
 			m_STAT.nVEW = 1;
 			return;
 		}
 		StartDelayedMicroProgram(nCommand.nIMM * 8);
-#else
-		StartMicroProgram(nCommand.nIMM * 8);
-#endif
 		break;
 	case 0x15:
 		//MSCALF
 		//TODO: Wait for GIF PATH 1 and 2 transfers to be over
+		if(ResumeDelayedMicroProgram())
+		{
+			m_STAT.nVEW = 1;
+			return;
+		}
 		StartMicroProgram(nCommand.nIMM * 8);
 		break;
 	case 0x17:
 		//MSCNT
+		if(ResumeDelayedMicroProgram())
+		{
+			m_STAT.nVEW = 1;
+			return;
+		}
 		StartMicroProgram(m_vpu.GetContext().m_State.nPC);
 		break;
 	case 0x20:
@@ -974,10 +961,11 @@ void CVif::StartMicroProgram(uint32 address)
 	m_vpu.ExecuteMicroProgram(address);
 }
 
-#ifdef DELAYED_MSCAL
-
 void CVif::StartDelayedMicroProgram(uint32 address)
 {
+	//Snowblind Studio games start a VU microprogram and issues an UNPACK command
+	//which has data needed by the microprogram. We simulate the microprogram
+	//starting a bit later to let the UNPACK command execute
 	if(m_vpu.IsVuRunning())
 	{
 		m_STAT.nVEW = 1;
@@ -1004,8 +992,6 @@ bool CVif::ResumeDelayedMicroProgram()
 		return false;
 	}
 }
-
-#endif
 
 void CVif::DisassembleGet(uint32 address)
 {
