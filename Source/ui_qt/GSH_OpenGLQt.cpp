@@ -9,6 +9,10 @@
 #include "GSH_OpenGLQt.h"
 #endif
 
+#ifdef __APPLE__
+#include <CoreFoundation/CoreFoundation.h>
+#endif
+
 CGSH_OpenGLQt::CGSH_OpenGLQt(QWindow* renderWindow)
     : m_renderWindow(renderWindow)
 {
@@ -21,6 +25,12 @@ CGSH_OpenGL::FactoryFunction CGSH_OpenGLQt::GetFactoryFunction(QWindow* renderWi
 
 void CGSH_OpenGLQt::InitializeImpl()
 {
+#ifdef __APPLE__
+	//When building against macOS SDK 10.15+ and running on macOS 10.15+, the system will trigger an assert because we
+	//are not using NSOpenGLContext on the main thread. Disable this assert since it doesn't cause any problem if we do.
+	CFPreferencesSetAppValue(CFSTR("NSOpenGLContextSuppressThreadAssertions"), kCFBooleanTrue, kCFPreferencesCurrentApplication);
+#endif
+	
 	m_context = new QOpenGLContext();
 	m_context->setFormat(m_renderWindow->requestedFormat());
 
