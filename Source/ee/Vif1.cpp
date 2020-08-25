@@ -13,6 +13,8 @@
 #define STATE_REGS_TOP ("TOP")
 #define STATE_REGS_TOPS ("TOPS")
 #define STATE_REGS_OFST ("OFST")
+#define STATE_REGS_DIRECTQWORDBUFFER ("directQwordBuffer")
+#define STATE_REGS_DIRECTQWORDBUFFER_INDEX ("directQwordBufferIndex")
 
 CVif1::CVif1(unsigned int number, CVpu& vpu, CGIF& gif, CINTC& intc, uint8* ram, uint8* spr)
     : CVif(1, vpu, intc, ram, spr)
@@ -40,6 +42,8 @@ void CVif1::SaveState(Framework::CZipArchiveWriter& archive)
 	registerFile->SetRegister32(STATE_REGS_TOP, m_TOP);
 	registerFile->SetRegister32(STATE_REGS_TOPS, m_TOPS);
 	registerFile->SetRegister32(STATE_REGS_OFST, m_OFST);
+	registerFile->SetRegister128(STATE_REGS_DIRECTQWORDBUFFER, *reinterpret_cast<uint128*>(&m_directQwordBuffer));
+	registerFile->SetRegister32(STATE_REGS_DIRECTQWORDBUFFER_INDEX, m_directQwordBufferIndex);
 	archive.InsertFile(registerFile);
 }
 
@@ -53,6 +57,8 @@ void CVif1::LoadState(Framework::CZipArchiveReader& archive)
 	m_TOP = registerFile.GetRegister32(STATE_REGS_TOP);
 	m_TOPS = registerFile.GetRegister32(STATE_REGS_TOPS);
 	m_OFST = registerFile.GetRegister32(STATE_REGS_OFST);
+	*reinterpret_cast<uint128*>(&m_directQwordBuffer) = registerFile.GetRegister128(STATE_REGS_DIRECTQWORDBUFFER);
+	m_directQwordBufferIndex = registerFile.GetRegister32(STATE_REGS_DIRECTQWORDBUFFER_INDEX);
 }
 
 uint32 CVif1::GetTOP() const
