@@ -35,6 +35,7 @@
 #define STATE_REGS_ITOPS ("ITOPS")
 #define STATE_REGS_READTICK ("readTick")
 #define STATE_REGS_WRITETICK ("writeTick")
+#define STATE_REGS_PENDINGMICROPROGRAM ("pendingMicroProgram")
 #define STATE_REGS_FIFOINDEX ("fifoIndex")
 
 CVif::CVif(unsigned int number, CVpu& vpu, CINTC& intc, uint8* ram, uint8* spr)
@@ -199,6 +200,7 @@ void CVif::SaveState(Framework::CZipArchiveWriter& archive)
 		registerFile->SetRegister32(STATE_REGS_ITOPS, m_ITOPS);
 		registerFile->SetRegister32(STATE_REGS_READTICK, m_readTick);
 		registerFile->SetRegister32(STATE_REGS_WRITETICK, m_writeTick);
+		registerFile->SetRegister32(STATE_REGS_PENDINGMICROPROGRAM, m_pendingMicroProgram);
 		registerFile->SetRegister32(STATE_REGS_FIFOINDEX, m_fifoIndex);
 		archive.InsertFile(registerFile);
 	}
@@ -232,6 +234,7 @@ void CVif::LoadState(Framework::CZipArchiveReader& archive)
 		m_ITOPS = registerFile.GetRegister32(STATE_REGS_ITOPS);
 		m_readTick = registerFile.GetRegister32(STATE_REGS_READTICK);
 		m_writeTick = registerFile.GetRegister32(STATE_REGS_WRITETICK);
+		m_pendingMicroProgram = registerFile.GetRegister32(STATE_REGS_PENDINGMICROPROGRAM);
 		m_fifoIndex = registerFile.GetRegister32(STATE_REGS_FIFOINDEX);
 	}
 	{
