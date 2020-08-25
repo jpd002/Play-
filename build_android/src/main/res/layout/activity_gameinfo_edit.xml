@@ -6,7 +6,7 @@
     tools:context="com.virtualapplications.play.CoverEditActivity"
     android:orientation="vertical">
 
-    <android.support.v7.widget.Toolbar
+    <androidx.appcompat.widget.Toolbar
         android:id="@+id/my_awesome_toolbar"
         android:layout_height="wrap_content"
         android:layout_width="match_parent"

@@ -11,19 +11,19 @@ import android.graphics.Color;
 import android.graphics.drawable.GradientDrawable;
 import android.os.*;
 import android.preference.PreferenceManager;
-import android.support.annotation.NonNull;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
-import android.support.v7.app.*;
-import android.support.v7.app.ActionBar;
-import android.support.v7.widget.Toolbar;
-import android.util.Log;
+import androidx.annotation.NonNull;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+import androidx.appcompat.app.*;
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.widget.Toolbar;
+
 import android.view.*;
 import android.view.View;
 import android.widget.*;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.GridView;
-import android.support.v4.widget.DrawerLayout;
+import androidx.drawerlayout.widget.DrawerLayout;
 
 import java.io.File;
 import java.text.*;
@@ -349,7 +349,7 @@ public class MainActivity extends AppCompatActivity implements NavigationDrawerF
 
 	public void restoreActionBar()
 	{
-		android.support.v7.app.ActionBar actionBar = getSupportActionBar();
+		androidx.appcompat.app.ActionBar actionBar = getSupportActionBar();
 		actionBar.setDisplayShowTitleEnabled(true);
 		actionBar.setTitle(R.string.app_name);
 		actionBar.setSubtitle("Games - " + navSubtitle);

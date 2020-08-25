@@ -7,11 +7,11 @@ import android.content.res.Configuration;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.support.v4.view.GravityCompat;
-import android.support.v4.widget.DrawerLayout;
-import android.support.v7.app.ActionBar;
-import android.support.v7.app.ActionBarDrawerToggle;
-import android.support.v7.app.AppCompatActivity;
+import androidx.core.view.GravityCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.ActionBarDrawerToggle;
+import androidx.appcompat.app.AppCompatActivity;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -168,7 +168,7 @@ public class NavigationDrawerFragment extends Fragment
 		mDrawerLayout.setDrawerShadow(R.drawable.drawer_shadow, GravityCompat.START);
 		// set up the drawer's list view with items and click listener
 
-		android.support.v7.app.ActionBar actionBar = ((AppCompatActivity)getActivity()).getSupportActionBar();
+		androidx.appcompat.app.ActionBar actionBar = ((AppCompatActivity)getActivity()).getSupportActionBar();
 		actionBar.setDisplayHomeAsUpEnabled(true);
 		actionBar.setHomeButtonEnabled(true);
 
@@ -363,7 +363,7 @@ public class NavigationDrawerFragment extends Fragment
 	 */
 	private void showGlobalContextActionBar()
 	{
-		android.support.v7.app.ActionBar actionBar = ((AppCompatActivity)getActivity()).getSupportActionBar();
+		androidx.appcompat.app.ActionBar actionBar = ((AppCompatActivity)getActivity()).getSupportActionBar();
 		actionBar.setDisplayShowTitleEnabled(true);
 		actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
 		actionBar.setSubtitle("Navigation");

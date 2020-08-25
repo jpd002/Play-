@@ -7,7 +7,7 @@
 	tools:context=".MainActivity"
 	android:id="@+id/relative_layout">
 
-	<android.support.v7.widget.Toolbar
+	<androidx.appcompat.widget.Toolbar
 		android:id="@+id/my_awesome_toolbar"
 		android:layout_height="wrap_content"
 		android:layout_width="match_parent"
@@ -17,7 +17,7 @@
 		android:layout_alignParentLeft="true"
 		android:layout_alignParentStart="true" />
 
-	<android.support.v4.widget.DrawerLayout
+	<androidx.drawerlayout.widget.DrawerLayout
 		android:id="@+id/drawer_layout"
 		android:layout_width="match_parent"
 		android:layout_height="match_parent"
@@ -48,5 +48,5 @@
 			tools:layout="@layout/fragment_navigation_drawer"
 			android:visibility="gone"
 			/>
-	</android.support.v4.widget.DrawerLayout>
+	</androidx.drawerlayout.widget.DrawerLayout>
 </RelativeLayout>

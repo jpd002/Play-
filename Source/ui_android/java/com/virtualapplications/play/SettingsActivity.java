@@ -10,7 +10,7 @@ import android.widget.*;
 import java.io.File;
 import java.util.*;
 
-import android.support.v7.widget.Toolbar;
+import androidx.appcompat.widget.Toolbar;
 
 public class SettingsActivity extends PreferenceActivity implements SharedPreferences.OnSharedPreferenceChangeListener
 {

@@ -43,13 +43,13 @@ android {
 		mavenCentral()
 	}
 
-	compileSdkVersion 'android-28'
+	compileSdkVersion 'android-29'
 
 	defaultConfig {
 		versionCode (100 + gitVersionCode)
 		versionName gitVersionName
 		minSdkVersion 19
-		targetSdkVersion 28
+		targetSdkVersion 29
 		externalNativeBuild {
 			cmake {
 				arguments "-DANDROID_ARM_NEON=TRUE", "-DANDROID_TOOLCHAIN=clang",
@@ -66,7 +66,7 @@ android {
 	}
 
 	dependencies {
-		api 'com.android.support:appcompat-v7:28.0.0'
+		api 'androidx.appcompat:appcompat:1.0.0'
 		api 'org.apache.commons:commons-lang3:3.4'
 		api 'commons-io:commons-io:2.5'
 	}

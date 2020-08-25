@@ -1,12 +1,9 @@
 package com.virtualapplications.play;
 
 import android.app.*;
-import android.content.*;
-import android.content.res.Configuration;
-import android.content.res.TypedArray;
 import android.os.*;
-import android.graphics.Color;
-import android.support.v4.widget.DrawerLayout;
+
+import androidx.drawerlayout.widget.DrawerLayout;
 import android.util.*;
 import android.view.*;
 import android.widget.*;
