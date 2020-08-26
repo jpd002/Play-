@@ -220,7 +220,11 @@ public class SettingsActivity extends PreferenceActivity implements SharedPrefer
 		private void clearCoverCache()
 		{
 			File dir = new File(getActivity().getExternalFilesDir(null), "covers");
-			for(File file : dir.listFiles())
+
+			File[] files = dir.listFiles();
+			if(files == null) return;
+
+			for(File file : files)
 			{
 				if(!file.isDirectory())
 				{
