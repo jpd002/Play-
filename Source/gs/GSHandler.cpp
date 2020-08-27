@@ -740,8 +740,12 @@ std::pair<uint32, uint32> CGSHandler::GetTransferInvalidationRange(const BITBLTB
 		width = trxReg.nRRW;
 	}
 
+	//Espgaluda uses an offset into a big memory area. The Y offset is not necessarily
+	//a multiple of the page height. We need to make sure to take this into account.
+	uint32 intraPageOffsetY = trxPos.nDSAY % transferPageSize.second;
+
 	uint32 pageCountX = (width + transferPageSize.first - 1) / transferPageSize.first;
-	uint32 pageCountY = (trxReg.nRRH + transferPageSize.second - 1) / transferPageSize.second;
+	uint32 pageCountY = (intraPageOffsetY + trxReg.nRRH + transferPageSize.second - 1) / transferPageSize.second;
 
 	uint32 pageCount = pageCountX * pageCountY;
 	uint32 transferSize = pageCount * CGsPixelFormats::PAGESIZE;
