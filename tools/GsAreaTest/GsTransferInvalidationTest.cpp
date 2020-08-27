@@ -85,6 +85,25 @@ static void ZeroBufWidthTransferTest()
 	TEST_VERIFY(transferSize == CGsPixelFormats::PAGESIZE);
 }
 
+void EspgaludaTransferTest()
+{
+	uint32 bufPtr = 0x320000;
+	uint32 bufWidth = 1024;
+
+	auto bltBuf = MakeDstBltBuf(CGSHandler::PSMT8, bufPtr, bufWidth);
+	auto trxReg = MakeTrxReg(160, 128);
+	auto trxPos = MakeDstTrxPos(16, 16);
+
+	auto [transferAddress, transferSize] = CGSHandler::GetTransferInvalidationRange(bltBuf, trxReg, trxPos);
+
+	//PSMT8 page size is 128x64
+	//This transfer spans 8 pages on the X dimension -> ceil(1024 / 128)
+	//This transfer also touches 3 pages on the Y dimension -> ceil((128 + 16) / 64)
+
+	TEST_VERIFY(transferAddress == bufPtr);
+	TEST_VERIFY(transferSize == (8 * 3) * CGsPixelFormats::PAGESIZE);
+}
+
 void CGsTransferInvalidationTest::Execute()
 {
 	SinglePageTransferTest<CGSHandler::PSMCT32, CGsPixelFormats::STORAGEPSMCT32>();
@@ -92,4 +111,5 @@ void CGsTransferInvalidationTest::Execute()
 	SinglePageTransferTest<CGSHandler::PSMT8, CGsPixelFormats::STORAGEPSMT8>();
 	SimpleOffsetYTransferTest();
 	ZeroBufWidthTransferTest();
+	EspgaludaTransferTest();
 }
