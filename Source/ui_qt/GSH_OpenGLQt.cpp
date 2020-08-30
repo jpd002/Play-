@@ -30,7 +30,7 @@ void CGSH_OpenGLQt::InitializeImpl()
 	//are not using NSOpenGLContext on the main thread. Disable this assert since it doesn't cause any problem if we do.
 	CFPreferencesSetAppValue(CFSTR("NSOpenGLContextSuppressThreadAssertions"), kCFBooleanTrue, kCFPreferencesCurrentApplication);
 #endif
-	
+
 	m_context = new QOpenGLContext();
 	m_context->setFormat(m_renderWindow->requestedFormat());
 
