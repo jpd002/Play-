@@ -108,7 +108,7 @@ travis_script()
             cmake --build . --config Release
             ctest -C Release
             $(brew --prefix qt5)/bin/macdeployqt Source/ui_qt/Release/Play.app
-            appdmg ../installer_macosx/spec.json Play.dmg
+            appdmg ../installer_macos/spec.json Play.dmg
         elif [ "$TARGET_OS" = "IOS" ]; then
             cmake .. -G"$BUILD_TYPE" -DCMAKE_TOOLCHAIN_FILE=../deps/Dependencies/cmake-ios/ios.cmake -DTARGET_IOS=ON -DBUILD_PSFPLAYER=ON -DBUILD_LIBRETRO_CORE=yes
             cmake --build . --config Release
