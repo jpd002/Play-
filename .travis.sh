@@ -28,6 +28,7 @@ travis_before_install()
         sudo apt-get update -y
         sudo apt-get install -y clang-format-6.0
     elif [ "$TARGET_OS" = "OSX" ]; then
+        ./.travis.macos.import_certificate.sh
         npm install -g appdmg
         curl -L --show-error --output vulkansdk.tar.gz https://vulkan.lunarg.com/sdk/download/${VULKAN_SDK_VERSION}/mac/vulkansdk-macos-${VULKAN_SDK_VERSION}.tar.gz?Human=true
         tar -zxf vulkansdk.tar.gz
