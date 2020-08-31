@@ -106,8 +106,10 @@ travis_script()
             cmake --build . --config Release
             ctest -C Release
             $(brew --prefix qt5)/bin/macdeployqt Source/ui_qt/Release/Play.app
-            ../.travis.macos.import_certificate.sh
-            ../installer_macos/sign.sh
+            if [ "$TRAVIS_PULL_REQUEST" = "false" ]; then
+                ../.travis.macos.import_certificate.sh
+                ../installer_macos/sign.sh
+            fi;
             appdmg ../installer_macos/spec.json Play.dmg
         elif [ "$TARGET_OS" = "IOS" ]; then
             cmake .. -G"$BUILD_TYPE" -DCMAKE_TOOLCHAIN_FILE=../deps/Dependencies/cmake-ios/ios.cmake -DTARGET_IOS=ON -DBUILD_PSFPLAYER=ON -DBUILD_LIBRETRO_CORE=yes
@@ -136,7 +138,7 @@ travis_before_deploy()
     pushd deploy
     mkdir $SHORT_HASH
     pushd $SHORT_HASH
-    if [ -z "$ANDROID_KEYSTORE_PASS" ]; then
+    if [ "$TRAVIS_PULL_REQUEST" != "false" ]; then
         return
     fi;
     if [ "$TARGET_OS" = "Linux" ]; then
