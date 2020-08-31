@@ -28,7 +28,6 @@ travis_before_install()
         sudo apt-get update -y
         sudo apt-get install -y clang-format-6.0
     elif [ "$TARGET_OS" = "OSX" ]; then
-        ./.travis.macos.import_certificate.sh
         npm install -g appdmg
         curl -L --show-error --output vulkansdk.tar.gz https://vulkan.lunarg.com/sdk/download/${VULKAN_SDK_VERSION}/mac/vulkansdk-macos-${VULKAN_SDK_VERSION}.tar.gz?Human=true
         tar -zxf vulkansdk.tar.gz
@@ -107,6 +106,8 @@ travis_script()
             cmake --build . --config Release
             ctest -C Release
             $(brew --prefix qt5)/bin/macdeployqt Source/ui_qt/Release/Play.app
+            ../.travis.macos.import_certificate.sh
+            ../installer_macos/sign.sh
             appdmg ../installer_macos/spec.json Play.dmg
         elif [ "$TARGET_OS" = "IOS" ]; then
             cmake .. -G"$BUILD_TYPE" -DCMAKE_TOOLCHAIN_FILE=../deps/Dependencies/cmake-ios/ios.cmake -DTARGET_IOS=ON -DBUILD_PSFPLAYER=ON -DBUILD_LIBRETRO_CORE=yes
