@@ -159,6 +159,7 @@ travis_before_deploy()
         fi
     fi;
     if [ "$TARGET_OS" = "OSX" ]; then
+        ../../.travis.macos.notarize.sh
         cp ../../build/Play.dmg .
         cp ../../build/Source/ui_libretro/Release/play_libretro.dylib play_libretro_macOS-x86_64.dylib
     fi;
