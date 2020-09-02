@@ -18,6 +18,7 @@
 
 #define DMATAG_IRQ 0x8000
 #define DMATAG_ID 0x7000
+#define DMATAG_ADDR_MASK 0xFFFFFFF0
 
 using namespace Dmac;
 
@@ -377,7 +378,7 @@ void CChannel::ExecuteSourceChain()
 		{
 		case DMATAG_SRC_REFE:
 			//REFE - Data to transfer is pointer in memory address, transfer is done
-			m_nMADR = (uint32)((nTag >> 32) & 0xFFFFFFFF);
+			m_nMADR = (uint32)((nTag >> 32) & DMATAG_ADDR_MASK);
 			m_nQWC = (uint32)((nTag >> 0) & 0x0000FFFF);
 			m_nTADR = m_nTADR + 0x10;
 			break;
@@ -391,12 +392,12 @@ void CChannel::ExecuteSourceChain()
 			//NEXT - Transfers data after tag, next tag is at position in ADDR field
 			m_nMADR = m_nTADR + 0x10;
 			m_nQWC = (uint32)((nTag >> 0) & 0x0000FFFF);
-			m_nTADR = (uint32)((nTag >> 32) & 0xFFFFFFFF);
+			m_nTADR = (uint32)((nTag >> 32) & DMATAG_ADDR_MASK);
 			break;
 		case DMATAG_SRC_REF:
 		case DMATAG_SRC_REFS:
 			//REF/REFS - Data to transfer is pointed in memory address, next tag is after this tag
-			m_nMADR = (uint32)((nTag >> 32) & 0xFFFFFFFF);
+			m_nMADR = (uint32)((nTag >> 32) & DMATAG_ADDR_MASK);
 			m_nQWC = (uint32)((nTag >> 0) & 0x0000FFFF);
 			m_nTADR = m_nTADR + 0x10;
 			break;
@@ -406,7 +407,7 @@ void CChannel::ExecuteSourceChain()
 			m_nMADR = m_nTADR + 0x10;
 			m_nQWC = (uint32)(nTag & 0xFFFF);
 			m_nASR[m_CHCR.nASP] = m_nMADR + (m_nQWC * 0x10);
-			m_nTADR = (uint32)((nTag >> 32) & 0xFFFFFFFF);
+			m_nTADR = (uint32)((nTag >> 32) & DMATAG_ADDR_MASK);
 			m_CHCR.nASP++;
 			break;
 		case DMATAG_SRC_RET:
@@ -433,6 +434,9 @@ void CChannel::ExecuteSourceChain()
 			assert(0);
 			break;
 		}
+
+		assert((m_nMADR & 0xF) == 0);
+		assert((m_nTADR & 0xF) == 0);
 
 		//Pause transfer if channel is stalled
 		if(isStallDrainChannel && (nID == DMATAG_SRC_REFS) && (m_nMADR >= m_dmac.m_D_STADR))
