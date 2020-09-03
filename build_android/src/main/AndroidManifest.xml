@@ -25,6 +25,7 @@
 		android:logo="@drawable/ic_logo"
 		android:isGame="true"
 		android:theme="@style/Blue"
+		android:requestLegacyExternalStorage="true"
 		>
 		<activity 
 			android:name=".MainActivity"
