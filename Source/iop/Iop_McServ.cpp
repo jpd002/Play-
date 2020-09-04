@@ -650,10 +650,9 @@ void CMcServ::Delete(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize,
 
 void CMcServ::GetEntSpace(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, uint8* ram)
 {
-
 	auto cmd = reinterpret_cast<CMD*>(args);
 
-	CLog::GetInstance().Print(LOG_NAME, "GetEntSpace(port = %i, slot = %i, flags = %i, name = %s);\r\n",
+	CLog::GetInstance().Print(LOG_NAME, "GetEntSpace(port = %i, slot = %i, flags = %i, name = '%s');\r\n",
 	                          cmd->port, cmd->slot, cmd->flags, cmd->name);
 
 	auto mcPath = CAppConfig::GetInstance().GetPreferencePath(m_mcPathPreference[cmd->port]);
