@@ -35,7 +35,7 @@ public class GameIndexer
 					continue;
 				if (StringUtils.containsIgnoreCase(line, "asec"))
 					continue;
-				if((StringUtils.containsIgnoreCase(line, "/mnt/runtime")
+				if ((StringUtils.containsIgnoreCase(line, "/mnt/runtime")
 						|| StringUtils.containsIgnoreCase(line, "/mnt/remote")) && StringUtils.containsIgnoreCase(line, "cifs"))
 					continue;
 
