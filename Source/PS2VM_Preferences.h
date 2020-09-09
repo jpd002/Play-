@@ -8,3 +8,5 @@
 #define PREF_PS2_MC1_DIRECTORY ("ps2.mc1.directory.v2")
 
 #define PREF_AUDIO_SPUBLOCKCOUNT ("audio.spublockcount")
+
+#define PREF_SYSTEM_LANGUAGE ("system.language")

@@ -181,6 +181,41 @@ private:
 		uint32 gp;
 	};
 
+	enum class OSD_VERSION
+	{
+		V1,
+		V2,
+		V2_EXT,
+	};
+
+	enum class OSD_LANGUAGE
+	{
+		JAPANESE,
+		ENGLISH,
+		FRENCH,
+		SPANISH,
+		GERMAN,
+		ITALIAN,
+		DUTCH,
+		PORTUGUESE,
+		RUSSIAN,
+		KOREAN,
+		CHINESE_TRADITIONAL,
+		CHINESE_SIMPLIFIED
+	};
+
+	struct OSDCONFIGPARAM : public convertible<uint32>
+	{
+		uint32 spdifMode : 1;
+		uint32 screenType : 2;
+		uint32 videoOutput : 1;
+		uint32 jpLanguage : 1;
+		uint32 ps1drvConfig : 8;
+		uint32 version : 3;
+		uint32 language : 5;
+		uint32 timezoneOffset : 11;
+	};
+
 #ifdef DEBUGGER_INCLUDED
 	struct SYSCALL_NAME
 	{

@@ -30,6 +30,7 @@ public:
 	void LoadPreferences();
 
 private slots:
+	void on_comboBox_system_language_currentIndexChanged(int index);
 	void on_checkBox_force_bilinear_filtering_clicked(bool checked);
 	void on_comboBox_gs_selection_currentIndexChanged(int index);
 	void on_comboBox_vulkan_device_currentIndexChanged(int index);

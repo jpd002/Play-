@@ -78,6 +78,8 @@ void SettingsDialog::changePage(QListWidgetItem* current, QListWidgetItem* previ
 
 void SettingsDialog::LoadPreferences()
 {
+	ui->comboBox_system_language->setCurrentIndex(CAppConfig::GetInstance().GetPreferenceInteger(PREF_SYSTEM_LANGUAGE));
+
 	int factor = CAppConfig::GetInstance().GetPreferenceInteger(PREF_CGSH_OPENGL_RESOLUTION_FACTOR);
 	int factor_index = std::log2(factor);
 	ui->comboBox_res_multiplyer->setCurrentIndex(factor_index);
@@ -87,6 +89,11 @@ void SettingsDialog::LoadPreferences()
 	ui->checkBox_enable_audio->setChecked(CAppConfig::GetInstance().GetPreferenceBoolean(PREFERENCE_AUDIO_ENABLEOUTPUT));
 	ui->spinBox_spuBlockCount->setValue(CAppConfig::GetInstance().GetPreferenceInteger(PREF_AUDIO_SPUBLOCKCOUNT));
 	ui->comboBox_presentation_mode->setCurrentIndex(CAppConfig::GetInstance().GetPreferenceInteger(PREF_CGSHANDLER_PRESENTATION_MODE));
+}
+
+void SettingsDialog::on_comboBox_system_language_currentIndexChanged(int index)
+{
+	CAppConfig::GetInstance().SetPreferenceInteger(PREF_SYSTEM_LANGUAGE, index);
 }
 
 void SettingsDialog::on_checkBox_force_bilinear_filtering_clicked(bool checked)

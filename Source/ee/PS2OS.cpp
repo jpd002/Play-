@@ -25,6 +25,8 @@
 #include "xml/Parser.h"
 #include "xml/FilteringNodeIterator.h"
 #include "StdStreamUtils.h"
+#include "AppConfig.h"
+#include "PS2VM_Preferences.h"
 
 // PS2OS Memory Allocation
 // Start		End				Description
@@ -250,6 +252,8 @@ CPS2OS::CPS2OS(CMIPS& ee, uint8* ram, uint8* bios, uint8* spr, CGSHandler*& gs, 
     , m_dmacHandlerQueue(m_dmacHandlers, reinterpret_cast<uint32*>(m_ram + BIOS_ADDRESS_DMACHANDLERQUEUE_BASE))
 {
 	static_assert((BIOS_ADDRESS_SEMAPHORE_BASE + (sizeof(SEMAPHORE) * MAX_SEMAPHORE)) <= BIOS_ADDRESS_CUSTOMSYSCALL_BASE, "Semaphore overflow");
+
+	CAppConfig::GetInstance().RegisterPreferenceInteger(PREF_SYSTEM_LANGUAGE, static_cast<uint32>(OSD_LANGUAGE::JAPANESE));
 }
 
 CPS2OS::~CPS2OS()
@@ -2732,8 +2736,15 @@ void CPS2OS::sc_ReferSemaStatus()
 //4B
 void CPS2OS::sc_GetOsdConfigParam()
 {
-	auto configParam = reinterpret_cast<uint32*>(GetStructPtr(m_ee.m_State.nGPR[SC_PARAM0].nV0));
-	(*configParam) = 0;
+	auto language = static_cast<OSD_LANGUAGE>(CAppConfig::GetInstance().GetPreferenceInteger(PREF_SYSTEM_LANGUAGE));
+
+	auto configParam = make_convertible<OSDCONFIGPARAM>(0);
+	configParam.version = static_cast<uint32>(OSD_VERSION::V2_EXT);
+	configParam.jpLanguage = (language == OSD_LANGUAGE::JAPANESE) ? 0 : 1;
+	configParam.language = static_cast<uint32>(language);
+
+	auto configParamPtr = reinterpret_cast<uint32*>(GetStructPtr(m_ee.m_State.nGPR[SC_PARAM0].nV0));
+	(*configParamPtr) = configParam;
 }
 
 //64
