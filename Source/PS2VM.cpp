@@ -59,13 +59,15 @@ CPS2VM::CPS2VM()
     , m_gsSyncProfilerZone(CProfiler::GetInstance().RegisterZone("GSSYNC"))
     , m_otherProfilerZone(CProfiler::GetInstance().RegisterZone("OTHER"))
 {
+	// clang-format off
 	static const std::pair<const char*, const char*> basicDirectorySettings[] =
-	    {
-	        std::make_pair(PREF_PS2_ROM0_DIRECTORY, PREF_PS2_ROM0_DIRECTORY_DEFAULT),
-	        std::make_pair(PREF_PS2_HOST_DIRECTORY, PREF_PS2_HOST_DIRECTORY_DEFAULT),
-	        std::make_pair(PREF_PS2_MC0_DIRECTORY, PREF_PS2_MC0_DIRECTORY_DEFAULT),
-	        std::make_pair(PREF_PS2_MC1_DIRECTORY, PREF_PS2_MC1_DIRECTORY_DEFAULT),
-	    };
+	{
+		std::make_pair(PREF_PS2_ROM0_DIRECTORY, PREF_PS2_ROM0_DIRECTORY_DEFAULT),
+		std::make_pair(PREF_PS2_HOST_DIRECTORY, PREF_PS2_HOST_DIRECTORY_DEFAULT),
+		std::make_pair(PREF_PS2_MC0_DIRECTORY, PREF_PS2_MC0_DIRECTORY_DEFAULT),
+		std::make_pair(PREF_PS2_MC1_DIRECTORY, PREF_PS2_MC1_DIRECTORY_DEFAULT),
+	};
+	// clang-format on
 
 	for(const auto& basicDirectorySetting : basicDirectorySettings)
 	{
