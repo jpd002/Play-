@@ -1,6 +1,7 @@
 #pragma once
 
 #include <string>
+#include <memory>
 #include "filesystem_def.h"
 #include "signal/Signal.h"
 #include "../ELF.h"
@@ -345,7 +346,7 @@ private:
 	uint8* m_bios = nullptr;
 	uint8* m_spr = nullptr;
 
-	CELF* m_elf;
+	std::unique_ptr<CELF> m_elf;
 	CMIPS& m_ee;
 	ThreadList m_threads;
 	SemaphoreList m_semaphores;

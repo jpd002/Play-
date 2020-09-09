@@ -8,7 +8,6 @@
 #ifdef __ANDROID__
 #include "android/AssetStream.h"
 #endif
-#include "PtrMacro.h"
 #include "../Ps2Const.h"
 #include "../DiskUtils.h"
 #include "../ElfFile.h"
@@ -229,7 +228,6 @@ const CPS2OS::SYSCALL_NAME CPS2OS::g_syscallNames[] =
 CPS2OS::CPS2OS(CMIPS& ee, uint8* ram, uint8* bios, uint8* spr, CGSHandler*& gs, CSIF& sif, CIopBios& iopBios)
     : m_ee(ee)
     , m_gs(gs)
-    , m_elf(nullptr)
     , m_ram(ram)
     , m_bios(bios)
     , m_spr(spr)
@@ -391,7 +389,7 @@ void CPS2OS::BootFromCDROM()
 
 CELF* CPS2OS::GetELF()
 {
-	return m_elf;
+	return m_elf.get();
 }
 
 const char* CPS2OS::GetExecutableName() const
@@ -425,26 +423,23 @@ std::pair<uint32, uint32> CPS2OS::GetExecutableRange() const
 
 void CPS2OS::LoadELF(Framework::CStream& stream, const char* executablePath, const ArgumentList& arguments)
 {
-	CELF* elf(new CElfFile(stream));
-
+	auto elf = std::make_unique<CElfFile>(stream);
 	const auto& header = elf->GetHeader();
 
 	//Check for MIPS CPU
 	if(header.nCPU != CELF::EM_MIPS)
 	{
-		DELETEPTR(elf);
 		throw std::runtime_error("Invalid target CPU. Must be MIPS.");
 	}
 
 	if(header.nType != CELF::ET_EXEC)
 	{
-		DELETEPTR(elf);
 		throw std::runtime_error("Not an executable ELF file.");
 	}
 
 	UnloadExecutable();
 
-	m_elf = elf;
+	m_elf = std::move(elf);
 
 	m_currentArguments.clear();
 	m_currentArguments.push_back(executablePath);
@@ -543,11 +538,11 @@ void CPS2OS::LoadExecutableInternal()
 
 void CPS2OS::UnloadExecutable()
 {
-	if(m_elf == NULL) return;
+	if(!m_elf) return;
 
 	OnExecutableUnloading();
 
-	DELETEPTR(m_elf);
+	m_elf.reset();
 }
 
 uint32 CPS2OS::LoadExecutable(const char* path, const char* section)
@@ -3491,7 +3486,7 @@ BiosDebugModuleInfoArray CPS2OS::GetModulesDebugInfo() const
 		module.name = m_executableName;
 		module.begin = executableRange.first;
 		module.end = executableRange.second;
-		module.param = m_elf;
+		module.param = m_elf.get();
 		result.push_back(module);
 	}
 
