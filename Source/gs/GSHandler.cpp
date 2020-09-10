@@ -778,6 +778,7 @@ void CGSHandler::BeginTransfer()
 			break;
 		case PSMCT16:
 		case PSMCT16S:
+		case PSMZ16S:
 			nPixelSize = 16;
 			break;
 		case PSMT8:
