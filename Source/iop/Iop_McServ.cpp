@@ -510,6 +510,17 @@ void CMcServ::ChDir(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, 
 
 	uint32 result = -1;
 
+	//Write out current directory
+	if(cmd->tableAddress != 0)
+	{
+		//Make sure we return '/' even if the current directory is empty, needed by Silent Hill 3
+		auto curDir = m_currentDirectory.empty() ? std::string(1, SEPARATOR_CHAR) : m_currentDirectory;
+
+		const size_t maxCurDirSize = 256;
+		char* currentDirOut = reinterpret_cast<char*>(ram + cmd->tableAddress);
+		strncpy(currentDirOut, curDir.c_str(), maxCurDirSize - 1);
+	}
+
 	try
 	{
 		std::string newCurrentDirectory;
