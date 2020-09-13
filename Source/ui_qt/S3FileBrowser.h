@@ -2,8 +2,7 @@
 
 #include <QDialog>
 #include <QListWidgetItem>
-#undef DELETE
-#include "../s3stream/AmazonS3Client.h"
+#include "amazon/AmazonS3Client.h"
 #include "filesystem_def.h"
 #include "ContinuationChecker.h"
 

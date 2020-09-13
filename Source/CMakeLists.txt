@@ -48,15 +48,14 @@ endif()
 list(APPEND PROJECT_LIBS Framework)
 
 if(ENABLE_AMAZON_S3)
-	if(NOT TARGET Framework_Http)
+	if(NOT TARGET Framework_Amazon)
 		add_subdirectory(
-			${CMAKE_CURRENT_SOURCE_DIR}/../deps/Framework/build_cmake/FrameworkHttp
-			${CMAKE_CURRENT_BINARY_DIR}/FrameworkHttp
+			${CMAKE_CURRENT_SOURCE_DIR}/../deps/Framework/build_cmake/FrameworkAmazon
+			${CMAKE_CURRENT_BINARY_DIR}/FrameworkAmazon
 		)
 	endif()
-	list(APPEND PROJECT_LIBS Framework_Http)
+	list(APPEND PROJECT_LIBS Framework_Amazon)
 	set(AMAZON_S3_SRC
-		s3stream/AmazonS3Client.cpp
 		s3stream/S3ObjectStream.cpp
 	)
 	list(APPEND DEFINITIONS_LIST HAS_AMAZON_S3=1)

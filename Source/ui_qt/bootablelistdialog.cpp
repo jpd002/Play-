@@ -21,7 +21,7 @@
 #include "ui_shared/BootablesDbClient.h"
 
 #include "S3FileBrowser.h"
-#include "../s3stream/AmazonS3Client.h"
+#include "amazon/AmazonS3Client.h"
 #include "../s3stream/S3ObjectStream.h"
 #include "ui_shared/AmazonS3Utils.h"
 

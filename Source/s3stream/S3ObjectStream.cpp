@@ -1,7 +1,7 @@
 #include <cassert>
 #include <cstring>
 #include "S3ObjectStream.h"
-#include "AmazonS3Client.h"
+#include "amazon/AmazonS3Client.h"
 #include "Singleton.h"
 #include "AppConfig.h"
 #include "PathUtils.h"

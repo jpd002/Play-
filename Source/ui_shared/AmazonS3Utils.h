@@ -1,7 +1,7 @@
 #pragma once
 
 #include <string>
-#include "../s3stream/AmazonS3Client.h"
+#include "amazon/AmazonS3Client.h"
 
 namespace AmazonS3Utils
 {
