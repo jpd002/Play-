@@ -28,9 +28,10 @@ InputEventSelectionDialog::~InputEventSelectionDialog()
 	delete ui;
 }
 
-void InputEventSelectionDialog::Setup(const char* text, CInputBindingManager* inputManager, CInputProviderQtKey* qtKeyInputProvider, PS2::CControllerInfo::BUTTON button)
+void InputEventSelectionDialog::Setup(const char* text, CInputBindingManager* inputManager, CInputProviderQtKey* qtKeyInputProvider, uint32 padIndex, PS2::CControllerInfo::BUTTON button)
 {
 	m_inputManager = inputManager;
+	m_padIndex = padIndex;
 	m_button = button;
 	m_buttonName = QString::fromUtf8(text);
 	m_qtKeyInputProvider = qtKeyInputProvider;
@@ -220,11 +221,11 @@ void InputEventSelectionDialog::confirmBinding()
 	switch(m_bindingType)
 	{
 	case CInputBindingManager::BINDING_SIMPLE:
-		m_inputManager->SetSimpleBinding(0, m_button, m_selectedTarget);
+		m_inputManager->SetSimpleBinding(m_padIndex, m_button, m_selectedTarget);
 		accept();
 		break;
 	case CInputBindingManager::BINDING_POVHAT:
-		m_inputManager->SetPovHatBinding(0, m_button, m_selectedTarget, m_bindingValue);
+		m_inputManager->SetPovHatBinding(m_padIndex, m_button, m_selectedTarget, m_bindingValue);
 		accept();
 		break;
 	case CInputBindingManager::BINDING_SIMULATEDAXIS:
@@ -237,7 +238,7 @@ void InputEventSelectionDialog::confirmBinding()
 		}
 		else if(m_state == STATE::SIMULATEDAXIS_SELECTED)
 		{
-			m_inputManager->SetSimulatedAxisBinding(0, m_button, m_selectedTarget, m_selectedTargetSimulatedAxis);
+			m_inputManager->SetSimulatedAxisBinding(m_padIndex, m_button, m_selectedTarget, m_selectedTargetSimulatedAxis);
 			accept();
 		}
 		break;

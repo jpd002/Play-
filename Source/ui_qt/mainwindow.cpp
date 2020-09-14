@@ -172,7 +172,7 @@ void MainWindow::InitVirtualMachine()
 #endif
 		if(!bindingManager.HasBindings())
 		{
-			ControllerConfigDialog::AutoConfigureKeyboard(&bindingManager);
+			ControllerConfigDialog::AutoConfigureKeyboard(0, &bindingManager);
 		}
 	}
 

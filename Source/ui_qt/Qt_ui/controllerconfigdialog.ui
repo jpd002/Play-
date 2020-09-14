@@ -57,7 +57,17 @@ QGroupBox::title {
       </attribute>
       <layout class="QGridLayout" name="gridLayout">
        <item row="0" column="0">
-        <widget class="QTableView" name="tableView"/>
+        <widget class="QTableView" name="pad1TableView"/>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="tab_2">
+      <attribute name="title">
+       <string>Pad2</string>
+      </attribute>
+      <layout class="QGridLayout" name="gridLayout1">
+       <item row="0" column="0">
+        <widget class="QTableView" name="pad2TableView"/>
        </item>
       </layout>
      </widget>
@@ -90,8 +100,7 @@ QGroupBox::title {
      </property>
      <layout class="QHBoxLayout" name="horizontalLayout_3">
       <item>
-       <widget class="QComboBox" name="comboBox">
-       </widget>
+       <widget class="QComboBox" name="comboBox"/>
       </item>
       <item>
        <widget class="QPushButton" name="addProfileButton">

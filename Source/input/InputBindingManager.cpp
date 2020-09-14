@@ -162,7 +162,6 @@ void CInputBindingManager::OnInputEventReceived(const BINDINGTARGET& target, uin
 
 void CInputBindingManager::Reload()
 {
-
 	for(unsigned int pad = 0; pad < MAX_PADS; pad++)
 	{
 		for(unsigned int button = 0; button < PS2::CControllerInfo::MAX_BUTTONS; button++)

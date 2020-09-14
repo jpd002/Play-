@@ -1,15 +1,14 @@
 #include "bindingmodel.h"
 #include "ControllerInfo.h"
+#include "../input/InputBindingManager.h"
 
 #define CONFIG_PREFIX ("input")
 #define CONFIG_BINDING_TYPE ("bindingtype")
 
-CBindingModel::CBindingModel(QObject* parent)
+CBindingModel::CBindingModel(QObject* parent, CInputBindingManager* inputManager, uint32 padIndex)
     : QAbstractTableModel(parent)
-{
-}
-
-CBindingModel::~CBindingModel()
+    , m_inputManager(inputManager)
+    , m_padIndex(padIndex)
 {
 }
 
@@ -27,7 +26,7 @@ QVariant CBindingModel::data(const QModelIndex& index, int role) const
 {
 	if(role == Qt::DisplayRole)
 	{
-		auto binding = m_inputManager->GetBinding(0, static_cast<PS2::CControllerInfo::BUTTON>(index.row()));
+		auto binding = m_inputManager->GetBinding(m_padIndex, static_cast<PS2::CControllerInfo::BUTTON>(index.row()));
 		if(binding != nullptr)
 		{
 			switch(index.column())
@@ -51,16 +50,10 @@ QVariant CBindingModel::data(const QModelIndex& index, int role) const
 	return QVariant();
 }
 
-void CBindingModel::Setup(CInputBindingManager* inputManager)
-{
-	m_inputManager = inputManager;
-}
-
 bool CBindingModel::setHeaderData(int section, Qt::Orientation orientation, const QVariant& value, int role)
 {
 	if(orientation == Qt::Horizontal)
 	{
-
 		if(role == Qt::DisplayRole)
 		{
 			m_h_header.insert(section, value);

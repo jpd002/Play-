@@ -20,7 +20,7 @@ public:
 	explicit InputEventSelectionDialog(QWidget* parent = nullptr);
 	~InputEventSelectionDialog();
 
-	void Setup(const char*, CInputBindingManager*, CInputProviderQtKey*, PS2::CControllerInfo::BUTTON);
+	void Setup(const char*, CInputBindingManager*, CInputProviderQtKey*, uint32, PS2::CControllerInfo::BUTTON);
 
 protected:
 	void keyPressEvent(QKeyEvent*) Q_DECL_OVERRIDE;
@@ -41,6 +41,7 @@ private:
 	QTimer* m_countdownTimer = nullptr;
 	uint32 m_countdownRemain = 0;
 
+	uint32 m_padIndex = 0;
 	PS2::CControllerInfo::BUTTON m_button;
 	QString m_buttonName;
 	CInputBindingManager* m_inputManager = nullptr;

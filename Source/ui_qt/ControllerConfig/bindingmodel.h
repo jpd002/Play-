@@ -1,14 +1,16 @@
 #pragma once
 
 #include <QAbstractTableModel>
-#include "../input/InputBindingManager.h"
+#include "Types.h"
+
+class CInputBindingManager;
 
 class CBindingModel : public QAbstractTableModel
 {
 	Q_OBJECT
 public:
-	CBindingModel(QObject* parent);
-	~CBindingModel();
+	CBindingModel(QObject* parent, CInputBindingManager*, uint32 padIndex);
+	~CBindingModel() = default;
 
 	int rowCount(const QModelIndex& parent = QModelIndex()) const Q_DECL_OVERRIDE;
 	int columnCount(const QModelIndex& parent = QModelIndex()) const Q_DECL_OVERRIDE;
@@ -17,12 +19,11 @@ public:
 	bool setHeaderData(int section, Qt::Orientation orientation, const QVariant& value, int role = Qt::EditRole) Q_DECL_OVERRIDE;
 	void Refresh();
 
-	void Setup(CInputBindingManager*);
-
 protected:
 	QVariant headerData(int section, Qt::Orientation orientation, int role) const Q_DECL_OVERRIDE;
 
 private:
-	CInputBindingManager* m_inputManager;
+	CInputBindingManager* m_inputManager = nullptr;
+	uint32 m_padIndex = 0;
 	QVariantList m_h_header;
 };

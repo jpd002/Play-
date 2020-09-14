@@ -26,9 +26,40 @@ ControllerConfigDialog::ControllerConfigDialog(CInputBindingManager* inputBindin
     , m_qtKeyInputProvider(qtKeyInputProvider)
 {
 	ui->setupUi(this);
-	std::string profile = CAppConfig::GetInstance().GetPreferenceString(PREF_INPUT_PAD1_PROFILE);
 
-	PrepareBindingsView();
+	m_bindingsViews.push_back(ui->pad1TableView);
+	m_bindingsViews.push_back(ui->pad2TableView);
+
+	for(uint32 padIndex = 0; padIndex < m_bindingsViews.size(); padIndex++)
+	{
+		PrepareBindingsView(padIndex);
+		QObject::connect(m_bindingsViews[padIndex], SIGNAL(doubleClicked(const QModelIndex&)), this, SLOT(bindingsViewDoubleClicked(const QModelIndex&)));
+	}
+
+	PrepareProfiles();
+}
+
+ControllerConfigDialog::~ControllerConfigDialog()
+{
+	delete ui;
+}
+
+void ControllerConfigDialog::PrepareBindingsView(uint32 padIndex)
+{
+	CBindingModel* model = new CBindingModel(this, m_inputManager, padIndex);
+	model->setHeaderData(0, Qt::Orientation::Horizontal, QVariant("Button"), Qt::DisplayRole);
+	model->setHeaderData(1, Qt::Orientation::Horizontal, QVariant("Binding Type"), Qt::DisplayRole);
+	model->setHeaderData(2, Qt::Orientation::Horizontal, QVariant("Binding Value"), Qt::DisplayRole);
+	assert(padIndex < m_bindingsViews.size());
+	auto bindingsView = m_bindingsViews[padIndex];
+	bindingsView->setModel(model);
+	bindingsView->horizontalHeader()->setStretchLastSection(true);
+	bindingsView->resizeColumnsToContents();
+}
+
+void ControllerConfigDialog::PrepareProfiles()
+{
+	std::string profile = CAppConfig::GetInstance().GetPreferenceString(PREF_INPUT_PAD1_PROFILE);
 
 	auto path = CInputConfig::GetProfilePath();
 	if(fs::is_directory(path))
@@ -45,23 +76,6 @@ ControllerConfigDialog::ControllerConfigDialog(CInputBindingManager* inputBindin
 		ui->comboBox->setCurrentIndex(index);
 }
 
-ControllerConfigDialog::~ControllerConfigDialog()
-{
-	delete ui;
-}
-
-void ControllerConfigDialog::PrepareBindingsView()
-{
-	CBindingModel* model = new CBindingModel(this);
-	model->Setup(m_inputManager);
-	model->setHeaderData(0, Qt::Orientation::Horizontal, QVariant("Button"), Qt::DisplayRole);
-	model->setHeaderData(1, Qt::Orientation::Horizontal, QVariant("Binding Type"), Qt::DisplayRole);
-	model->setHeaderData(2, Qt::Orientation::Horizontal, QVariant("Binding Value"), Qt::DisplayRole);
-	ui->tableView->setModel(model);
-	ui->tableView->horizontalHeader()->setStretchLastSection(true);
-	ui->tableView->resizeColumnsToContents();
-}
-
 void ControllerConfigDialog::on_buttonBox_clicked(QAbstractButton* button)
 {
 	if(button == ui->buttonBox->button(QDialogButtonBox::Ok))
@@ -76,12 +90,12 @@ void ControllerConfigDialog::on_buttonBox_clicked(QAbstractButton* button)
 	}
 	else if(button == ui->buttonBox->button(QDialogButtonBox::RestoreDefaults))
 	{
-		switch(ui->tabWidget->currentIndex())
+		uint32 padIndex = ui->tabWidget->currentIndex();
+		assert(padIndex < CInputBindingManager::MAX_PADS);
+		AutoConfigureKeyboard(padIndex, m_inputManager);
+		for(auto& bindingsView : m_bindingsViews)
 		{
-		case 0:
-			AutoConfigureKeyboard(m_inputManager);
-			static_cast<CBindingModel*>(ui->tableView->model())->Refresh();
-			break;
+			static_cast<CBindingModel*>(bindingsView->model())->Refresh();
 		}
 	}
 	else if(button == ui->buttonBox->button(QDialogButtonBox::Cancel))
@@ -90,63 +104,68 @@ void ControllerConfigDialog::on_buttonBox_clicked(QAbstractButton* button)
 	}
 }
 
-void ControllerConfigDialog::on_tableView_doubleClicked(const QModelIndex& index)
+void ControllerConfigDialog::bindingsViewDoubleClicked(const QModelIndex& index)
 {
-	OpenBindConfigDialog(index.row());
+	auto bindingsViewIterator = std::find(m_bindingsViews.begin(), m_bindingsViews.end(), QObject::sender());
+	if(bindingsViewIterator == m_bindingsViews.end()) return;
+	auto padIndex = std::distance(m_bindingsViews.begin(), bindingsViewIterator);
+	OpenBindConfigDialog(padIndex, index.row());
 }
 
 void ControllerConfigDialog::on_ConfigAllButton_clicked()
 {
-	for(int i = 0; i < PS2::CControllerInfo::MAX_BUTTONS; ++i)
+	for(uint32 buttonIndex = 0; buttonIndex < PS2::CControllerInfo::MAX_BUTTONS; ++buttonIndex)
 	{
-		if(!OpenBindConfigDialog(i))
+		uint32 padIndex = 0;
+		if(!OpenBindConfigDialog(padIndex, buttonIndex))
 		{
 			break;
 		}
 	}
 }
 
-void ControllerConfigDialog::AutoConfigureKeyboard(CInputBindingManager* bindingManager)
+void ControllerConfigDialog::AutoConfigureKeyboard(uint32 padIndex, CInputBindingManager* bindingManager)
 {
-	bindingManager->SetSimpleBinding(0, PS2::CControllerInfo::START, CInputProviderQtKey::MakeBindingTarget(Qt::Key_Return));
-	bindingManager->SetSimpleBinding(0, PS2::CControllerInfo::SELECT, CInputProviderQtKey::MakeBindingTarget(Qt::Key_Backspace));
-	bindingManager->SetSimpleBinding(0, PS2::CControllerInfo::DPAD_LEFT, CInputProviderQtKey::MakeBindingTarget(Qt::Key_Left));
-	bindingManager->SetSimpleBinding(0, PS2::CControllerInfo::DPAD_RIGHT, CInputProviderQtKey::MakeBindingTarget(Qt::Key_Right));
-	bindingManager->SetSimpleBinding(0, PS2::CControllerInfo::DPAD_UP, CInputProviderQtKey::MakeBindingTarget(Qt::Key_Up));
-	bindingManager->SetSimpleBinding(0, PS2::CControllerInfo::DPAD_DOWN, CInputProviderQtKey::MakeBindingTarget(Qt::Key_Down));
-	bindingManager->SetSimpleBinding(0, PS2::CControllerInfo::SQUARE, CInputProviderQtKey::MakeBindingTarget(Qt::Key_A));
-	bindingManager->SetSimpleBinding(0, PS2::CControllerInfo::CROSS, CInputProviderQtKey::MakeBindingTarget(Qt::Key_Z));
-	bindingManager->SetSimpleBinding(0, PS2::CControllerInfo::TRIANGLE, CInputProviderQtKey::MakeBindingTarget(Qt::Key_S));
-	bindingManager->SetSimpleBinding(0, PS2::CControllerInfo::CIRCLE, CInputProviderQtKey::MakeBindingTarget(Qt::Key_X));
-	bindingManager->SetSimpleBinding(0, PS2::CControllerInfo::L1, CInputProviderQtKey::MakeBindingTarget(Qt::Key_1));
-	bindingManager->SetSimpleBinding(0, PS2::CControllerInfo::L2, CInputProviderQtKey::MakeBindingTarget(Qt::Key_2));
-	bindingManager->SetSimpleBinding(0, PS2::CControllerInfo::L3, CInputProviderQtKey::MakeBindingTarget(Qt::Key_3));
-	bindingManager->SetSimpleBinding(0, PS2::CControllerInfo::R1, CInputProviderQtKey::MakeBindingTarget(Qt::Key_8));
-	bindingManager->SetSimpleBinding(0, PS2::CControllerInfo::R2, CInputProviderQtKey::MakeBindingTarget(Qt::Key_9));
-	bindingManager->SetSimpleBinding(0, PS2::CControllerInfo::R3, CInputProviderQtKey::MakeBindingTarget(Qt::Key_0));
+	bindingManager->SetSimpleBinding(padIndex, PS2::CControllerInfo::START, CInputProviderQtKey::MakeBindingTarget(Qt::Key_Return));
+	bindingManager->SetSimpleBinding(padIndex, PS2::CControllerInfo::SELECT, CInputProviderQtKey::MakeBindingTarget(Qt::Key_Backspace));
+	bindingManager->SetSimpleBinding(padIndex, PS2::CControllerInfo::DPAD_LEFT, CInputProviderQtKey::MakeBindingTarget(Qt::Key_Left));
+	bindingManager->SetSimpleBinding(padIndex, PS2::CControllerInfo::DPAD_RIGHT, CInputProviderQtKey::MakeBindingTarget(Qt::Key_Right));
+	bindingManager->SetSimpleBinding(padIndex, PS2::CControllerInfo::DPAD_UP, CInputProviderQtKey::MakeBindingTarget(Qt::Key_Up));
+	bindingManager->SetSimpleBinding(padIndex, PS2::CControllerInfo::DPAD_DOWN, CInputProviderQtKey::MakeBindingTarget(Qt::Key_Down));
+	bindingManager->SetSimpleBinding(padIndex, PS2::CControllerInfo::SQUARE, CInputProviderQtKey::MakeBindingTarget(Qt::Key_A));
+	bindingManager->SetSimpleBinding(padIndex, PS2::CControllerInfo::CROSS, CInputProviderQtKey::MakeBindingTarget(Qt::Key_Z));
+	bindingManager->SetSimpleBinding(padIndex, PS2::CControllerInfo::TRIANGLE, CInputProviderQtKey::MakeBindingTarget(Qt::Key_S));
+	bindingManager->SetSimpleBinding(padIndex, PS2::CControllerInfo::CIRCLE, CInputProviderQtKey::MakeBindingTarget(Qt::Key_X));
+	bindingManager->SetSimpleBinding(padIndex, PS2::CControllerInfo::L1, CInputProviderQtKey::MakeBindingTarget(Qt::Key_1));
+	bindingManager->SetSimpleBinding(padIndex, PS2::CControllerInfo::L2, CInputProviderQtKey::MakeBindingTarget(Qt::Key_2));
+	bindingManager->SetSimpleBinding(padIndex, PS2::CControllerInfo::L3, CInputProviderQtKey::MakeBindingTarget(Qt::Key_3));
+	bindingManager->SetSimpleBinding(padIndex, PS2::CControllerInfo::R1, CInputProviderQtKey::MakeBindingTarget(Qt::Key_8));
+	bindingManager->SetSimpleBinding(padIndex, PS2::CControllerInfo::R2, CInputProviderQtKey::MakeBindingTarget(Qt::Key_9));
+	bindingManager->SetSimpleBinding(padIndex, PS2::CControllerInfo::R3, CInputProviderQtKey::MakeBindingTarget(Qt::Key_0));
 
-	bindingManager->SetSimulatedAxisBinding(0, PS2::CControllerInfo::ANALOG_LEFT_X,
+	bindingManager->SetSimulatedAxisBinding(padIndex, PS2::CControllerInfo::ANALOG_LEFT_X,
 	                                        CInputProviderQtKey::MakeBindingTarget(Qt::Key_F),
 	                                        CInputProviderQtKey::MakeBindingTarget(Qt::Key_H));
-	bindingManager->SetSimulatedAxisBinding(0, PS2::CControllerInfo::ANALOG_LEFT_Y,
+	bindingManager->SetSimulatedAxisBinding(padIndex, PS2::CControllerInfo::ANALOG_LEFT_Y,
 	                                        CInputProviderQtKey::MakeBindingTarget(Qt::Key_T),
 	                                        CInputProviderQtKey::MakeBindingTarget(Qt::Key_G));
 
-	bindingManager->SetSimulatedAxisBinding(0, PS2::CControllerInfo::ANALOG_RIGHT_X,
+	bindingManager->SetSimulatedAxisBinding(padIndex, PS2::CControllerInfo::ANALOG_RIGHT_X,
 	                                        CInputProviderQtKey::MakeBindingTarget(Qt::Key_J),
 	                                        CInputProviderQtKey::MakeBindingTarget(Qt::Key_L));
-	bindingManager->SetSimulatedAxisBinding(0, PS2::CControllerInfo::ANALOG_RIGHT_Y,
+	bindingManager->SetSimulatedAxisBinding(padIndex, PS2::CControllerInfo::ANALOG_RIGHT_Y,
 	                                        CInputProviderQtKey::MakeBindingTarget(Qt::Key_I),
 	                                        CInputProviderQtKey::MakeBindingTarget(Qt::Key_K));
 }
 
-int ControllerConfigDialog::OpenBindConfigDialog(int index)
+int ControllerConfigDialog::OpenBindConfigDialog(uint32 padIndex, uint32 buttonIndex)
 {
-	std::string button(PS2::CControllerInfo::m_buttonName[index]);
-	std::transform(button.begin(), button.end(), button.begin(), ::toupper);
+	auto button = static_cast<PS2::CControllerInfo::BUTTON>(buttonIndex);
+	std::string buttonName(PS2::CControllerInfo::m_buttonName[button]);
+	std::transform(buttonName.begin(), buttonName.end(), buttonName.begin(), ::toupper);
 
 	InputEventSelectionDialog IESD(this);
-	IESD.Setup(button.c_str(), m_inputManager, m_qtKeyInputProvider, static_cast<PS2::CControllerInfo::BUTTON>(index));
+	IESD.Setup(buttonName.c_str(), m_inputManager, m_qtKeyInputProvider, padIndex, button);
 	auto res = IESD.exec();
 	return res;
 }
@@ -160,7 +179,10 @@ void ControllerConfigDialog::on_comboBox_currentIndexChanged(int index)
 	m_inputManager->Load(profile.c_str());
 	CAppConfig::GetInstance().SetPreferenceString(PREF_INPUT_PAD1_PROFILE, profile.c_str());
 
-	static_cast<CBindingModel*>(ui->tableView->model())->Refresh();
+	for(auto& bindingsView : m_bindingsViews)
+	{
+		static_cast<CBindingModel*>(bindingsView->model())->Refresh();
+	}
 }
 
 void ControllerConfigDialog::on_addProfileButton_clicked()
