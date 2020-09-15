@@ -92,16 +92,18 @@ void CPadMan::LoadState(Framework::CZipArchiveReader& archive)
 	m_nPadDataType = static_cast<PAD_DATA_TYPE>(registerFile.GetRegister32(STATE_PADDATA_TYPE));
 }
 
-void CPadMan::SetButtonState(unsigned int nPadNumber, CControllerInfo::BUTTON nButton, bool nPressed, uint8* ram)
+void CPadMan::SetButtonState(unsigned int padNumber, CControllerInfo::BUTTON button, bool pressed, uint8* ram)
 {
+	if(padNumber != 0) return;
 	if(m_nPadDataAddress == 0) return;
 
-	ExecutePadDataFunction(std::bind(&CPadMan::PDF_SetButtonState, PLACEHOLDER_1, nButton, nPressed),
+	ExecutePadDataFunction(std::bind(&CPadMan::PDF_SetButtonState, PLACEHOLDER_1, button, pressed),
 	                       ram + m_nPadDataAddress, PADNUM);
 }
 
 void CPadMan::SetAxisState(unsigned int padNumber, CControllerInfo::BUTTON button, uint8 axisValue, uint8* ram)
 {
+	if(padNumber != 0) return;
 	if(m_nPadDataAddress == 0) return;
 
 	ExecutePadDataFunction(std::bind(&CPadMan::PDF_SetAxisState, std::placeholders::_1, button, axisValue),
