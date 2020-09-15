@@ -4,20 +4,23 @@ void CPH_GenericInput::Update(uint8* ram)
 {
 	for(auto* listener : m_listeners)
 	{
-		for(unsigned int i = 0; i < PS2::CControllerInfo::MAX_BUTTONS; i++)
+		for(unsigned int pad = 0; pad < CInputBindingManager::MAX_PADS; pad++)
 		{
-			auto button = static_cast<PS2::CControllerInfo::BUTTON>(i);
-			const auto& binding = m_bindingManager.GetBinding(0, button);
-			if(!binding) continue;
-			uint32 value = binding->GetValue();
-			auto currentButtonId = static_cast<PS2::CControllerInfo::BUTTON>(i);
-			if(PS2::CControllerInfo::IsAxis(currentButtonId))
+			for(unsigned int buttonIdx = 0; buttonIdx < PS2::CControllerInfo::MAX_BUTTONS; buttonIdx++)
 			{
-				listener->SetAxisState(0, currentButtonId, value & 0xFF, ram);
-			}
-			else
-			{
-				listener->SetButtonState(0, currentButtonId, value != 0, ram);
+				auto button = static_cast<PS2::CControllerInfo::BUTTON>(buttonIdx);
+				const auto& binding = m_bindingManager.GetBinding(pad, button);
+				if(!binding) continue;
+				uint32 value = binding->GetValue();
+				auto currentButtonId = static_cast<PS2::CControllerInfo::BUTTON>(buttonIdx);
+				if(PS2::CControllerInfo::IsAxis(currentButtonId))
+				{
+					listener->SetAxisState(pad, currentButtonId, value & 0xFF, ram);
+				}
+				else
+				{
+					listener->SetButtonState(pad, currentButtonId, value != 0, ram);
+				}
 			}
 		}
 	}
