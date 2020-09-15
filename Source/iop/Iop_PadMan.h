@@ -15,7 +15,7 @@ namespace Iop
 	class CPadMan : public CModule, public CPadListener, public CSifModule, public CSifModuleProvider
 	{
 	public:
-		CPadMan();
+		CPadMan() = default;
 
 		std::string GetId() const override;
 		std::string GetFunctionName(unsigned int) const override;
@@ -38,6 +38,11 @@ namespace Iop
 		};
 
 	private:
+		enum
+		{
+			MAX_PADS = 2,
+		};
+
 		struct PADDATA
 		{
 			uint32 nFrame;
@@ -185,8 +190,8 @@ namespace Iop
 			PAD_DATA_EX
 		};
 
-		PAD_DATA_TYPE m_nPadDataType;
-		uint32 m_nPadDataAddress;
+		PAD_DATA_TYPE m_padDataType = PAD_DATA_STD;
+		uint32 m_padDataAddress[MAX_PADS]{};
 
 		void Open(uint32*, uint32, uint32*, uint32, uint8*);
 		void Close(uint32*, uint32, uint32*, uint32, uint8*);

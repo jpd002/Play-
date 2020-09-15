@@ -14,14 +14,9 @@ using namespace PS2;
 #define LOG_NAME "iop_padman"
 
 #define STATE_PADDATA ("iop_padman/paddata.xml")
-#define STATE_PADDATA_ADDRESS ("address")
+#define STATE_PADDATA_PAD0_ADDRESS ("pad_address0")
+#define STATE_PADDATA_PAD1_ADDRESS ("pad_address1")
 #define STATE_PADDATA_TYPE ("type")
-
-CPadMan::CPadMan()
-    : m_nPadDataAddress(0)
-    , m_nPadDataType(PAD_DATA_STD)
-{
-}
 
 std::string CPadMan::GetId() const
 {
@@ -79,8 +74,9 @@ void CPadMan::SaveState(Framework::CZipArchiveWriter& archive)
 {
 	CRegisterStateFile* registerFile = new CRegisterStateFile(STATE_PADDATA);
 
-	registerFile->SetRegister32(STATE_PADDATA_ADDRESS, m_nPadDataAddress);
-	registerFile->SetRegister32(STATE_PADDATA_TYPE, m_nPadDataType);
+	registerFile->SetRegister32(STATE_PADDATA_PAD0_ADDRESS, m_padDataAddress[0]);
+	registerFile->SetRegister32(STATE_PADDATA_PAD1_ADDRESS, m_padDataAddress[1]);
+	registerFile->SetRegister32(STATE_PADDATA_TYPE, m_padDataType);
 
 	archive.InsertFile(registerFile);
 }
@@ -88,52 +84,51 @@ void CPadMan::SaveState(Framework::CZipArchiveWriter& archive)
 void CPadMan::LoadState(Framework::CZipArchiveReader& archive)
 {
 	CRegisterStateFile registerFile(*archive.BeginReadFile(STATE_PADDATA));
-	m_nPadDataAddress = registerFile.GetRegister32(STATE_PADDATA_ADDRESS);
-	m_nPadDataType = static_cast<PAD_DATA_TYPE>(registerFile.GetRegister32(STATE_PADDATA_TYPE));
+	m_padDataAddress[0] = registerFile.GetRegister32(STATE_PADDATA_PAD0_ADDRESS);
+	m_padDataAddress[1] = registerFile.GetRegister32(STATE_PADDATA_PAD1_ADDRESS);
+	m_padDataType = static_cast<PAD_DATA_TYPE>(registerFile.GetRegister32(STATE_PADDATA_TYPE));
 }
 
 void CPadMan::SetButtonState(unsigned int padNumber, CControllerInfo::BUTTON button, bool pressed, uint8* ram)
 {
-	if(padNumber != 0) return;
-	if(m_nPadDataAddress == 0) return;
+	if(padNumber >= MAX_PADS) return;
+
+	uint32 padDataAddress = m_padDataAddress[padNumber];
+	if(padDataAddress == 0) return;
 
 	ExecutePadDataFunction(std::bind(&CPadMan::PDF_SetButtonState, PLACEHOLDER_1, button, pressed),
-	                       ram + m_nPadDataAddress, PADNUM);
+	                       ram + padDataAddress, PADNUM);
 }
 
 void CPadMan::SetAxisState(unsigned int padNumber, CControllerInfo::BUTTON button, uint8 axisValue, uint8* ram)
 {
-	if(padNumber != 0) return;
-	if(m_nPadDataAddress == 0) return;
+	if(padNumber >= MAX_PADS) return;
+
+	uint32 padDataAddress = m_padDataAddress[padNumber];
+	if(padDataAddress == 0) return;
 
 	ExecutePadDataFunction(std::bind(&CPadMan::PDF_SetAxisState, std::placeholders::_1, button, axisValue),
-	                       ram + m_nPadDataAddress, PADNUM);
+	                       ram + padDataAddress, PADNUM);
 }
 
 void CPadMan::Open(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, uint8* ram)
 {
-	uint32 nPort = args[1];
-	uint32 nSlot = args[2];
-	uint32 nAddress = args[4];
+	uint32 port = args[1];
+	uint32 slot = args[2];
+	uint32 address = args[4];
 
 	CLog::GetInstance().Print(LOG_NAME, "Open(port = %d, slot = %d, padAreaAddr = 0x%08x);\r\n",
-	                          nPort, nSlot, nAddress);
+	                          port, slot, address);
 
-	if(nPort == 0)
+	if(port < MAX_PADS)
 	{
-		m_nPadDataAddress = nAddress;
+		m_padDataAddress[port] = address;
+		m_padDataType = GetDataType(ram + address);
 
-		m_nPadDataType = GetDataType(ram + m_nPadDataAddress);
+		CLog::GetInstance().Print(LOG_NAME, "Detected data type %d.\r\n", m_padDataType);
 
-		CLog::GetInstance().Print(LOG_NAME, "Detected data type %d.\r\n", m_nPadDataType);
-
-		ExecutePadDataFunction(&CPadMan::PDF_InitializeStruct0, ram + m_nPadDataAddress, 0);
-		ExecutePadDataFunction(&CPadMan::PDF_InitializeStruct1, ram + m_nPadDataAddress, 1);
-	}
-	else if(nPort == 1)
-	{
-		ExecutePadDataFunction(&CPadMan::PDF_InitializeStruct0, ram + nAddress, 0);
-		ExecutePadDataFunction(&CPadMan::PDF_InitializeStruct1, ram + nAddress, 1);
+		ExecutePadDataFunction(&CPadMan::PDF_InitializeStruct0, ram + address, 0);
+		ExecutePadDataFunction(&CPadMan::PDF_InitializeStruct1, ram + address, 1);
 	}
 
 	//Returns 0 on error
@@ -149,9 +144,9 @@ void CPadMan::Close(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, 
 	CLog::GetInstance().Print(LOG_NAME, "Close(port = %d, slot = %d, wait = %d);\r\n",
 	                          port, slot, wait);
 
-	if(port == 0)
+	if(port < MAX_PADS)
 	{
-		m_nPadDataAddress = 0;
+		m_padDataAddress[port] = 0;
 	}
 
 	ret[3] = 1;
@@ -184,7 +179,7 @@ void CPadMan::GetModuleVersion(uint32* args, uint32 argsSize, uint32* ret, uint3
 
 void CPadMan::ExecutePadDataFunction(const PadDataFunction& func, void* pBase, size_t nOffset)
 {
-	switch(m_nPadDataType)
+	switch(m_padDataType)
 	{
 	case PAD_DATA_STD:
 	{
