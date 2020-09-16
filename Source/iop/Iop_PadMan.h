@@ -194,6 +194,7 @@ namespace Iop
 		uint32 m_padDataAddress[MAX_PADS]{};
 
 		void Open(uint32*, uint32, uint32*, uint32, uint8*);
+		void SetMainMode(uint32*, uint32, uint32*, uint32, uint8*);
 		void Close(uint32*, uint32, uint32*, uint32, uint8*);
 		void SetActuatorAlign(uint32*, uint32, uint32*, uint32, uint8*);
 		void Init(uint32*, uint32, uint32*, uint32, uint8*);
@@ -204,6 +205,7 @@ namespace Iop
 
 		static void PDF_InitializeStruct0(CPadDataInterface*);
 		static void PDF_InitializeStruct1(CPadDataInterface*);
+		static void PDF_SetMode(CPadDataInterface*, uint8);
 		static void PDF_SetButtonState(CPadDataInterface*, PS2::CControllerInfo::BUTTON, bool);
 		static void PDF_SetAxisState(CPadDataInterface*, PS2::CControllerInfo::BUTTON, uint8);
 	};

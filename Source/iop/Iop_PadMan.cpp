@@ -9,8 +9,10 @@ using namespace Iop;
 using namespace PS2;
 
 #define PADNUM (1)
-#define MODE (0x7) //DUAL SHOCK
-//#define MODE			(0x4)		//DIGITAL
+
+#define PAD_MODE_DIGITAL 4
+#define PAD_MODE_DUALSHOCK 7
+
 #define LOG_NAME "iop_padman"
 
 #define STATE_PADDATA ("iop_padman/paddata.xml")
@@ -50,6 +52,9 @@ bool CPadMan::Invoke(uint32 method, uint32* args, uint32 argsSize, uint32* ret, 
 	case 0x00000001:
 	case 0x80000100:
 		Open(args, argsSize, ret, retSize, ram);
+		break;
+	case 0x80000105:
+		SetMainMode(args, argsSize, ret, retSize, ram);
 		break;
 	case 0x8000010D:
 		Close(args, argsSize, ret, retSize, ram);
@@ -133,6 +138,31 @@ void CPadMan::Open(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, u
 
 	//Returns 0 on error
 	ret[3] = 0x00000001;
+}
+
+void CPadMan::SetMainMode(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, uint8* ram)
+{
+	uint32 port = args[1];
+	uint32 slot = args[2];
+	uint32 mode = args[3];
+	uint32 lock = args[4];
+
+	CLog::GetInstance().Print(LOG_NAME, "SetMainMode(port = %d, slot = %d, mode = %d, lock = %d);\r\n",
+	                          port, slot, mode, lock);
+
+	assert(mode <= 1);
+
+	if(port < MAX_PADS)
+	{
+		uint32 padDataAddress = m_padDataAddress[port];
+		if(padDataAddress != 0)
+		{
+			ExecutePadDataFunction(std::bind(&CPadMan::PDF_SetMode, PLACEHOLDER_1, mode ? PAD_MODE_DUALSHOCK : PAD_MODE_DIGITAL),
+			                       ram + padDataAddress, PADNUM);
+		}
+	}
+
+	ret[3] = 1;
 }
 
 void CPadMan::Close(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, uint8* ram)
@@ -235,25 +265,36 @@ void CPadMan::PDF_InitializeStruct0(CPadDataInterface* pPadData)
 	}
 }
 
-void CPadMan::PDF_InitializeStruct1(CPadDataInterface* pPadData)
+void CPadMan::PDF_InitializeStruct1(CPadDataInterface* padData)
 {
-	pPadData->SetFrame(1);
-	pPadData->SetState(6);
-	pPadData->SetReqState(0);
-	pPadData->SetLength(32);
-	pPadData->SetOk(1);
+	padData->SetFrame(1);
+	padData->SetState(6);
+	padData->SetReqState(0);
+	padData->SetLength(32);
+	padData->SetOk(1);
 
 	//Reset analog sticks
 	for(unsigned int i = 0; i < 4; i++)
 	{
-		pPadData->SetData(4 + i, 0x7F);
+		padData->SetData(4 + i, 0x7F);
 	}
 
+	//Set pad mode
+	padData->SetData(0, 0);
+	padData->SetData(1, PAD_MODE_DUALSHOCK << 4);
+
 	//EX struct initialization
-	pPadData->SetModeCurId(MODE << 4);
-	pPadData->SetModeCurOffset(0);
-	pPadData->SetModeTable(0, MODE);
-	pPadData->SetNumberOfModes(4);
+	padData->SetModeCurId(PAD_MODE_DUALSHOCK << 4);
+	padData->SetModeCurOffset(0);
+	padData->SetModeTable(0, PAD_MODE_DUALSHOCK);
+	padData->SetNumberOfModes(4);
+}
+
+void CPadMan::PDF_SetMode(CPadDataInterface* padData, uint8 mode)
+{
+	assert(mode < 0x0F);
+	padData->SetData(0, 0);
+	padData->SetData(1, mode << 4);
 }
 
 void CPadMan::PDF_SetButtonState(CPadDataInterface* pPadData, CControllerInfo::BUTTON nButton, bool nPressed)
@@ -271,9 +312,6 @@ void CPadMan::PDF_SetButtonState(CPadDataInterface* pPadData, CControllerInfo::B
 
 	pPadData->SetData(2, static_cast<uint8>(nStatus >> 8));
 	pPadData->SetData(3, static_cast<uint8>(nStatus >> 0));
-
-	pPadData->SetData(0, 0);
-	pPadData->SetData(1, MODE << 4);
 }
 
 void CPadMan::PDF_SetAxisState(CPadDataInterface* padData, CControllerInfo::BUTTON axis, uint8 axisValue)
@@ -293,7 +331,4 @@ void CPadMan::PDF_SetAxisState(CPadDataInterface* padData, CControllerInfo::BUTT
 	padData->SetReqState(0);
 
 	padData->SetData(axisIndex[axis], axisValue);
-
-	padData->SetData(0, 0);
-	padData->SetData(1, MODE << 4);
 }
