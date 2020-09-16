@@ -278,19 +278,17 @@ void CPadMan::PDF_SetButtonState(CPadDataInterface* pPadData, CControllerInfo::B
 
 void CPadMan::PDF_SetAxisState(CPadDataInterface* padData, CControllerInfo::BUTTON axis, uint8 axisValue)
 {
-	//rjoy_h 4;
-	//rjoy_v 5;
-	//ljoy_h 6;
-	//ljoy_v 7;
-
 	assert(axis < 4);
 
+	// clang-format off
 	unsigned int axisIndex[4] =
-	    {
-	        6,
-	        7,
-	        4,
-	        5};
+	{
+		6, //ljoy_h
+		7, //ljoy_v
+		4, //rjoy_h
+		5  //rjoy_v
+	};
+	// clang-format on
 
 	padData->SetReqState(0);
 
