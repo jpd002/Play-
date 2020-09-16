@@ -1,28 +1,28 @@
-#include "bindingmodel.h"
+#include "inputbindingmodel.h"
 #include "ControllerInfo.h"
 #include "../input/InputBindingManager.h"
 
 #define CONFIG_PREFIX ("input")
 #define CONFIG_BINDING_TYPE ("bindingtype")
 
-CBindingModel::CBindingModel(QObject* parent, CInputBindingManager* inputManager, uint32 padIndex)
+CInputBindingModel::CInputBindingModel(QObject* parent, CInputBindingManager* inputManager, uint32 padIndex)
     : QAbstractTableModel(parent)
     , m_inputManager(inputManager)
     , m_padIndex(padIndex)
 {
 }
 
-int CBindingModel::rowCount(const QModelIndex& /*parent*/) const
+int CInputBindingModel::rowCount(const QModelIndex& /*parent*/) const
 {
 	return PS2::CControllerInfo::MAX_BUTTONS;
 }
 
-int CBindingModel::columnCount(const QModelIndex& /*parent*/) const
+int CInputBindingModel::columnCount(const QModelIndex& /*parent*/) const
 {
 	return 3;
 }
 
-QVariant CBindingModel::data(const QModelIndex& index, int role) const
+QVariant CInputBindingModel::data(const QModelIndex& index, int role) const
 {
 	if(role == Qt::DisplayRole)
 	{
@@ -50,7 +50,7 @@ QVariant CBindingModel::data(const QModelIndex& index, int role) const
 	return QVariant();
 }
 
-bool CBindingModel::setHeaderData(int section, Qt::Orientation orientation, const QVariant& value, int role)
+bool CInputBindingModel::setHeaderData(int section, Qt::Orientation orientation, const QVariant& value, int role)
 {
 	if(orientation == Qt::Horizontal)
 	{
@@ -63,7 +63,7 @@ bool CBindingModel::setHeaderData(int section, Qt::Orientation orientation, cons
 	return QAbstractTableModel::setHeaderData(section, orientation, value, role);
 }
 
-QVariant CBindingModel::headerData(int section, Qt::Orientation orientation, int role) const
+QVariant CInputBindingModel::headerData(int section, Qt::Orientation orientation, int role) const
 {
 	if(orientation == Qt::Horizontal)
 	{
@@ -77,7 +77,7 @@ QVariant CBindingModel::headerData(int section, Qt::Orientation orientation, int
 	return QAbstractTableModel::headerData(section, orientation, role);
 }
 
-void CBindingModel::Refresh()
+void CInputBindingModel::Refresh()
 {
 	QAbstractTableModel::layoutChanged();
 }

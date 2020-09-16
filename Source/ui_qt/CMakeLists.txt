@@ -94,10 +94,10 @@ set(QT_SOURCES
 	bootablelistdialog.h
 	BootableModel.cpp
 	BootableModel.h
-	ControllerConfig/bindingmodel.cpp
-	ControllerConfig/bindingmodel.h
 	ControllerConfig/controllerconfigdialog.cpp
 	ControllerConfig/controllerconfigdialog.h
+	ControllerConfig/inputbindingmodel.cpp
+	ControllerConfig/inputbindingmodel.h
 	ControllerConfig/inputeventselectiondialog.cpp
 	ControllerConfig/inputeventselectiondialog.h
 	CoverUtils.cpp
@@ -194,8 +194,8 @@ endif()
 set(QT_MOC_HEADERS
 	bootablelistdialog.h
 	BootableModel.h
-	ControllerConfig/bindingmodel.h
 	ControllerConfig/controllerconfigdialog.h
+	ControllerConfig/inputbindingmodel.h
 	ControllerConfig/inputeventselectiondialog.h
 	mainwindow.h
 	ContinuationChecker.h

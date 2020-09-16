@@ -11,7 +11,7 @@
 #include "AppConfig.h"
 #include "PreferenceDefs.h"
 #include "PathUtils.h"
-#include "bindingmodel.h"
+#include "inputbindingmodel.h"
 #include "ControllerInfo.h"
 #include "inputeventselectiondialog.h"
 #include "QStringUtils.h"
@@ -46,7 +46,7 @@ ControllerConfigDialog::~ControllerConfigDialog()
 
 void ControllerConfigDialog::PrepareBindingsView(uint32 padIndex)
 {
-	CBindingModel* model = new CBindingModel(this, m_inputManager, padIndex);
+	CInputBindingModel* model = new CInputBindingModel(this, m_inputManager, padIndex);
 	model->setHeaderData(0, Qt::Orientation::Horizontal, QVariant("Button"), Qt::DisplayRole);
 	model->setHeaderData(1, Qt::Orientation::Horizontal, QVariant("Binding Type"), Qt::DisplayRole);
 	model->setHeaderData(2, Qt::Orientation::Horizontal, QVariant("Binding Value"), Qt::DisplayRole);
@@ -95,7 +95,7 @@ void ControllerConfigDialog::on_buttonBox_clicked(QAbstractButton* button)
 		AutoConfigureKeyboard(padIndex, m_inputManager);
 		for(auto& bindingsView : m_bindingsViews)
 		{
-			static_cast<CBindingModel*>(bindingsView->model())->Refresh();
+			static_cast<CInputBindingModel*>(bindingsView->model())->Refresh();
 		}
 	}
 	else if(button == ui->buttonBox->button(QDialogButtonBox::Cancel))
@@ -181,7 +181,7 @@ void ControllerConfigDialog::on_comboBox_currentIndexChanged(int index)
 
 	for(auto& bindingsView : m_bindingsViews)
 	{
-		static_cast<CBindingModel*>(bindingsView->model())->Refresh();
+		static_cast<CInputBindingModel*>(bindingsView->model())->Refresh();
 	}
 }
 

@@ -5,12 +5,12 @@
 
 class CInputBindingManager;
 
-class CBindingModel : public QAbstractTableModel
+class CInputBindingModel : public QAbstractTableModel
 {
 	Q_OBJECT
 public:
-	CBindingModel(QObject* parent, CInputBindingManager*, uint32 padIndex);
-	~CBindingModel() = default;
+	CInputBindingModel(QObject* parent, CInputBindingManager*, uint32 padIndex);
+	~CInputBindingModel() = default;
 
 	int rowCount(const QModelIndex& parent = QModelIndex()) const Q_DECL_OVERRIDE;
 	int columnCount(const QModelIndex& parent = QModelIndex()) const Q_DECL_OVERRIDE;
