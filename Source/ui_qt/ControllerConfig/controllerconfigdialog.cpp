@@ -18,6 +18,7 @@
 
 #include "filesystem_def.h"
 #include <iostream>
+#include <cassert>
 
 ControllerConfigDialog::ControllerConfigDialog(CInputBindingManager* inputBindingManager, CInputProviderQtKey* qtKeyInputProvider, QWidget* parent)
     : QDialog(parent)
