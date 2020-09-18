@@ -732,6 +732,26 @@ void CGSH_Vulkan::Prim_Line()
 	float t[2] = {0, 0};
 	float q[2] = {1, 1};
 
+	if(m_primitiveMode.nTexture)
+	{
+		if(m_primitiveMode.nUseUV)
+		{
+			UV uv[3];
+			uv[0] <<= m_vtxBuffer[1].uv;
+			uv[1] <<= m_vtxBuffer[0].uv;
+
+			s[0] = uv[0].GetU() / static_cast<float>(m_texWidth);
+			s[1] = uv[1].GetU() / static_cast<float>(m_texWidth);
+
+			t[0] = uv[0].GetV() / static_cast<float>(m_texHeight);
+			t[1] = uv[1].GetV() / static_cast<float>(m_texHeight);
+		}
+		else
+		{
+			assert(false);
+		}
+	}
+
 	auto color1 = MakeColor(
 	    rgbaq[0].nR, rgbaq[0].nG,
 	    rgbaq[0].nB, rgbaq[0].nA);
