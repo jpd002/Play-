@@ -162,7 +162,9 @@ int CTimrman::AllocHardTimer(CMIPS& context, uint32 source, uint32 size, uint32 
 	    (source == CRootCounters::COUNTER_SOURCE_SYSCLOCK) ||
 	    (source == CRootCounters::COUNTER_SOURCE_PIXEL) ||
 	    (source == CRootCounters::COUNTER_SOURCE_HLINE));
-	for(unsigned int i = 0; i < CRootCounters::MAX_COUNTERS; i++)
+	//Look for a match in reverse order because counters with
+	//multiple sources appear at the beginning of the list
+	for(int i = (CRootCounters::MAX_COUNTERS - 1); i >= 0; i--)
 	{
 		if(
 		    (CRootCounters::g_counterSizes[i] == size) &&
