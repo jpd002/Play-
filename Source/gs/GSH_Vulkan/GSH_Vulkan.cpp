@@ -505,16 +505,16 @@ void CGSH_Vulkan::VertexKick(uint8 registerId, uint64 data)
 			if(nDrawingKick) Prim_Point();
 			m_nVtxCount = 1;
 			break;
+#endif
 		case PRIM_LINE:
-			if(nDrawingKick) Prim_Line();
-			m_nVtxCount = 2;
+			if(drawingKick) Prim_Line();
+			m_vtxCount = 2;
 			break;
 		case PRIM_LINESTRIP:
-			if(nDrawingKick) Prim_Line();
-			memcpy(&m_VtxBuffer[1], &m_VtxBuffer[0], sizeof(VERTEX));
-			m_nVtxCount = 1;
+			if(drawingKick) Prim_Line();
+			memcpy(&m_vtxBuffer[1], &m_vtxBuffer[0], sizeof(VERTEX));
+			m_vtxCount = 1;
 			break;
-#endif
 		case PRIM_TRIANGLE:
 			if(drawingKick) Prim_Triangle();
 			m_vtxCount = 3;
@@ -572,6 +572,22 @@ void CGSH_Vulkan::SetRenderingContext(uint64 primReg)
 	pipelineCaps.clutFormat = tex0.nCPSM;
 	pipelineCaps.framebufferFormat = frame.nPsm;
 	pipelineCaps.depthbufferFormat = zbuf.nPsm | 0x30;
+
+	switch(m_primitiveType)
+	{
+	default:
+		assert(false);
+	case PRIM_TRIANGLE:
+	case PRIM_TRIANGLEFAN:
+	case PRIM_TRIANGLESTRIP:
+	case PRIM_SPRITE:
+		pipelineCaps.primitiveType = CDraw::PIPELINE_PRIMITIVE_TRIANGLE;
+		break;
+	case PRIM_LINE:
+	case PRIM_LINESTRIP:
+		pipelineCaps.primitiveType = CDraw::PIPELINE_PRIMITIVE_LINE;
+		break;
+	}
 
 	uint32 fbWriteMask = ~frame.nMask;
 
@@ -690,6 +706,49 @@ void CGSH_Vulkan::SetRenderingContext(uint64 primReg)
 
 	m_texWidth = tex0.GetWidth();
 	m_texHeight = tex0.GetHeight();
+}
+
+void CGSH_Vulkan::Prim_Line()
+{
+	XYZ pos[2];
+	pos[0] <<= m_vtxBuffer[1].position;
+	pos[1] <<= m_vtxBuffer[0].position;
+
+	float x1 = pos[0].GetX(), x2 = pos[1].GetX();
+	float y1 = pos[0].GetY(), y2 = pos[1].GetY();
+	uint32 z1 = pos[0].nZ, z2 = pos[1].nZ;
+
+	RGBAQ rgbaq[2];
+	rgbaq[0] <<= m_vtxBuffer[1].rgbaq;
+	rgbaq[1] <<= m_vtxBuffer[0].rgbaq;
+
+	x1 -= m_primOfsX;
+	x2 -= m_primOfsX;
+
+	y1 -= m_primOfsY;
+	y2 -= m_primOfsY;
+
+	float s[2] = {0, 0};
+	float t[2] = {0, 0};
+	float q[2] = {1, 1};
+
+	auto color1 = MakeColor(
+	    rgbaq[0].nR, rgbaq[0].nG,
+	    rgbaq[0].nB, rgbaq[0].nA);
+
+	auto color2 = MakeColor(
+	    rgbaq[1].nR, rgbaq[1].nG,
+	    rgbaq[1].nB, rgbaq[1].nA);
+
+	// clang-format off
+	CDraw::PRIM_VERTEX vertices[] =
+	{
+		{	x1, y1, z1, color1, s[0], t[0], q[0], 0 },
+		{	x2, y2, z2, color2, s[1], t[1], q[1], 0 },
+	};
+	// clang-format on
+
+	m_draw->AddVertices(std::begin(vertices), std::end(vertices));
 }
 
 void CGSH_Vulkan::Prim_Triangle()

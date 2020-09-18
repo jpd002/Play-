@@ -563,7 +563,17 @@ PIPELINE CDraw::CreateDrawPipeline(const PIPELINE_CAPS& caps)
 	}
 
 	auto inputAssemblyInfo = Framework::Vulkan::PipelineInputAssemblyStateCreateInfo();
-	inputAssemblyInfo.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
+	switch (caps.primitiveType)
+	{
+	default:
+		assert(false);
+	case PIPELINE_PRIMITIVE_TRIANGLE:
+		inputAssemblyInfo.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
+		break;
+	case PIPELINE_PRIMITIVE_LINE:
+		inputAssemblyInfo.topology = VK_PRIMITIVE_TOPOLOGY_LINE_LIST;
+		break;
+	}
 
 	std::vector<VkVertexInputAttributeDescription> vertexAttributes;
 

@@ -21,8 +21,16 @@ namespace GSH_Vulkan
 
 		typedef uint64 PipelineCapsInt;
 
+		enum PIPELINE_PRIMITIVE_TYPE
+		{
+			PIPELINE_PRIMITIVE_TRIANGLE = 0,
+			PIPELINE_PRIMITIVE_LINE = 1,
+		};
+
 		struct PIPELINE_CAPS : public convertible<PipelineCapsInt>
 		{
+			uint32 primitiveType : 2;
+
 			uint32 hasTexture : 1;
 			uint32 textureHasAlpha : 1;
 			uint32 textureBlackIsTransparent : 1;
