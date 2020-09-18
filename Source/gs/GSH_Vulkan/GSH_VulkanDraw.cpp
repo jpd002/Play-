@@ -563,7 +563,7 @@ PIPELINE CDraw::CreateDrawPipeline(const PIPELINE_CAPS& caps)
 	}
 
 	auto inputAssemblyInfo = Framework::Vulkan::PipelineInputAssemblyStateCreateInfo();
-	switch (caps.primitiveType)
+	switch(caps.primitiveType)
 	{
 	default:
 		assert(false);
