@@ -12,50 +12,57 @@
 
 using namespace Iop;
 
+// clang-format off
 const uint32 CRootCounters::g_counterInterruptLines[MAX_COUNTERS] =
-    {
-        CIntc::LINE_RTC0,
-        CIntc::LINE_RTC1,
-        CIntc::LINE_RTC2,
-        CIntc::LINE_RTC3,
-        CIntc::LINE_RTC4,
-        CIntc::LINE_RTC5};
+{
+	CIntc::LINE_RTC0,
+	CIntc::LINE_RTC1,
+	CIntc::LINE_RTC2,
+	CIntc::LINE_RTC3,
+	CIntc::LINE_RTC4,
+	CIntc::LINE_RTC5
+};
 
 const uint32 CRootCounters::g_counterBaseAddresses[MAX_COUNTERS] =
-    {
-        CNT0_BASE,
-        CNT1_BASE,
-        CNT2_BASE,
-        CNT3_BASE,
-        CNT4_BASE,
-        CNT5_BASE};
+{
+	CNT0_BASE,
+	CNT1_BASE,
+	CNT2_BASE,
+	CNT3_BASE,
+	CNT4_BASE,
+	CNT5_BASE
+};
 
 const uint32 CRootCounters::g_counterSources[MAX_COUNTERS] =
-    {
-        COUNTER_SOURCE_SYSCLOCK | COUNTER_SOURCE_PIXEL | COUNTER_SOURCE_HOLD,
-        COUNTER_SOURCE_SYSCLOCK | COUNTER_SOURCE_HLINE | COUNTER_SOURCE_HOLD,
-        COUNTER_SOURCE_SYSCLOCK,
-        COUNTER_SOURCE_SYSCLOCK,
-        COUNTER_SOURCE_SYSCLOCK,
-        COUNTER_SOURCE_SYSCLOCK};
+{
+	COUNTER_SOURCE_SYSCLOCK | COUNTER_SOURCE_PIXEL | COUNTER_SOURCE_HOLD,
+	COUNTER_SOURCE_SYSCLOCK | COUNTER_SOURCE_HLINE | COUNTER_SOURCE_HOLD,
+	COUNTER_SOURCE_SYSCLOCK,
+	COUNTER_SOURCE_SYSCLOCK,
+	COUNTER_SOURCE_SYSCLOCK,
+	COUNTER_SOURCE_SYSCLOCK
+};
 
 const uint32 CRootCounters::g_counterSizes[MAX_COUNTERS] =
-    {
-        16,
-        16,
-        16,
-        32,
-        32,
-        32};
+{
+	16,
+	16,
+	16,
+	32,
+	32,
+	32
+};
 
 const uint32 CRootCounters::g_counterMaxScales[MAX_COUNTERS] =
-    {
-        1,
-        1,
-        8,
-        1,
-        256,
-        256};
+{
+	1,
+	1,
+	8,
+	1,
+	256,
+	256
+};
+// clang-format on
 
 CRootCounters::CRootCounters(unsigned int clockFreq, Iop::CIntc& intc)
     : m_hsyncClocks(clockFreq / (480 * 60))
