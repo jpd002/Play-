@@ -38,7 +38,7 @@ const uint32 CRootCounters::g_counterSources[MAX_COUNTERS] =
 	COUNTER_SOURCE_SYSCLOCK | COUNTER_SOURCE_PIXEL | COUNTER_SOURCE_HOLD,
 	COUNTER_SOURCE_SYSCLOCK | COUNTER_SOURCE_HLINE | COUNTER_SOURCE_HOLD,
 	COUNTER_SOURCE_SYSCLOCK,
-	COUNTER_SOURCE_SYSCLOCK,
+	COUNTER_SOURCE_SYSCLOCK | COUNTER_SOURCE_HLINE,
 	COUNTER_SOURCE_SYSCLOCK,
 	COUNTER_SOURCE_SYSCLOCK
 };
@@ -127,7 +127,7 @@ void CRootCounters::Update(unsigned int ticks)
 		{
 			clockRatio = m_pixelClocks;
 		}
-		if(i == 1 && counter.mode.clc)
+		if(((i == 1) || (i == 3)) && counter.mode.clc)
 		{
 			clockRatio = m_hsyncClocks;
 		}
