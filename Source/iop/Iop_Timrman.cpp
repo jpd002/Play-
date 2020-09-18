@@ -190,7 +190,8 @@ int CTimrman::AllocHardTimer(CMIPS& context, uint32 source, uint32 size, uint32 
 			return (i + 1);
 		}
 	}
-	return 0;
+	CLog::GetInstance().Warn(LOG_NAME, "Couldn't allocate a timer.\r\n");
+	return CIopBios::KERNEL_RESULT_ERROR_NO_TIMER;
 }
 
 int CTimrman::ReferHardTimer(uint32 source, uint32 size, uint32 mode, uint32 modeMask)
