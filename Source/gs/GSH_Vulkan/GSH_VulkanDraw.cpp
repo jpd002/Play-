@@ -282,7 +282,6 @@ void CDraw::FlushVertices()
 	m_context->device.vkCmdPushConstants(commandBuffer, drawPipeline->pipelineLayout, VK_SHADER_STAGE_FRAGMENT_BIT,
 	                                     0, sizeof(DRAW_PIPELINE_PUSHCONSTANTS), &m_pushConstants);
 
-	assert((vertexCount % 3) == 0);
 	m_context->device.vkCmdDraw(commandBuffer, vertexCount, 1, 0, 0);
 
 	m_passVertexStart = m_passVertexEnd;
