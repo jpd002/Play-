@@ -107,17 +107,17 @@ void ControllerConfigDialog::on_buttonBox_clicked(QAbstractButton* button)
 
 void ControllerConfigDialog::bindingsViewDoubleClicked(const QModelIndex& index)
 {
-	auto bindingsViewIterator = std::find(m_bindingsViews.begin(), m_bindingsViews.end(), QObject::sender());
-	if(bindingsViewIterator == m_bindingsViews.end()) return;
-	auto padIndex = std::distance(m_bindingsViews.begin(), bindingsViewIterator);
+	uint32 padIndex = ui->tabWidget->currentIndex();
+	assert(padIndex < CInputBindingManager::MAX_PADS);
 	OpenBindConfigDialog(padIndex, index.row());
 }
 
 void ControllerConfigDialog::on_ConfigAllButton_clicked()
 {
+	uint32 padIndex = ui->tabWidget->currentIndex();
+	assert(padIndex < CInputBindingManager::MAX_PADS);
 	for(uint32 buttonIndex = 0; buttonIndex < PS2::CControllerInfo::MAX_BUTTONS; ++buttonIndex)
 	{
-		uint32 padIndex = 0;
 		if(!OpenBindConfigDialog(padIndex, buttonIndex))
 		{
 			break;
