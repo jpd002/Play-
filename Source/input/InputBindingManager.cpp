@@ -181,13 +181,17 @@ void CInputBindingManager::Reload()
 	{
 		for(unsigned int button = 0; button < PS2::CControllerInfo::MAX_BUTTONS; button++)
 		{
-			BINDINGTYPE bindingType = BINDING_UNBOUND;
 			auto prefBase = Framework::CConfig::MakePreferenceName(CONFIG_PREFIX, m_padPreferenceName[pad], PS2::CControllerInfo::m_buttonName[button]);
-			bindingType = static_cast<BINDINGTYPE>(m_config->GetPreferenceInteger((prefBase + "." + std::string(CONFIG_BINDING_TYPE)).c_str()));
-			if(bindingType == BINDING_UNBOUND) continue;
+			auto prefBindingType = Framework::CConfig::MakePreferenceName(prefBase, CONFIG_BINDING_TYPE);
+			auto bindingType = static_cast<BINDINGTYPE>(m_config->GetPreferenceInteger(prefBindingType.c_str()));
 			BindingPtr binding;
 			switch(bindingType)
 			{
+			default:
+				assert(false);
+				[[fallthrough]];
+			case BINDING_UNBOUND:
+				break;
 			case BINDING_SIMPLE:
 				binding = std::make_shared<CSimpleBinding>();
 				break;
@@ -220,11 +224,18 @@ void CInputBindingManager::Save()
 	{
 		for(unsigned int button = 0; button < PS2::CControllerInfo::MAX_BUTTONS; button++)
 		{
-			const auto& binding = m_bindings[pad][button];
-			if(!binding) continue;
 			auto prefBase = Framework::CConfig::MakePreferenceName(CONFIG_PREFIX, m_padPreferenceName[pad], PS2::CControllerInfo::m_buttonName[button]);
-			m_config->SetPreferenceInteger(Framework::CConfig::MakePreferenceName(prefBase, CONFIG_BINDING_TYPE).c_str(), binding->GetBindingType());
-			binding->Save(*m_config, prefBase.c_str());
+			auto prefBindingType = Framework::CConfig::MakePreferenceName(prefBase, CONFIG_BINDING_TYPE);
+			const auto& binding = m_bindings[pad][button];
+			if(binding)
+			{
+				m_config->SetPreferenceInteger(prefBindingType.c_str(), binding->GetBindingType());
+				binding->Save(*m_config, prefBase.c_str());
+			}
+			else
+			{
+				m_config->SetPreferenceInteger(prefBindingType.c_str(), BINDING_UNBOUND);
+			}
 		}
 	}
 	m_config->Save();
