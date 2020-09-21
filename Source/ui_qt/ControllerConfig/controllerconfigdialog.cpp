@@ -212,6 +212,9 @@ void ControllerConfigDialog::on_addProfileButton_clicked()
 		auto index = ui->comboBox->findText(profile_name.c_str());
 		if(index >= 0)
 			ui->comboBox->setCurrentIndex(index);
+
+		//Set some defaults
+		AutoConfigureKeyboard(0, m_inputManager);
 	}
 }
 
