@@ -24,8 +24,8 @@ namespace Iop
 		void ProcessCommands(CSifMan*);
 		void SetOpticalMedia(COpticalMedia*);
 
-		void LoadState(Framework::CZipArchiveReader&);
-		void SaveState(Framework::CZipArchiveWriter&);
+		void LoadState(Framework::CZipArchiveReader&) override;
+		void SaveState(Framework::CZipArchiveWriter&) const override;
 
 		enum MODULE_ID
 		{

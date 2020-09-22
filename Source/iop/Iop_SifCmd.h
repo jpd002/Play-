@@ -23,8 +23,8 @@ namespace Iop
 
 		void ProcessInvocation(uint32, uint32, uint32*, uint32);
 
-		void LoadState(Framework::CZipArchiveReader&);
-		void SaveState(Framework::CZipArchiveWriter&);
+		void LoadState(Framework::CZipArchiveReader&) override;
+		void SaveState(Framework::CZipArchiveWriter&) const override;
 
 		void SifBindRpc(CMIPS&);
 		void SifCallRpc(CMIPS&);

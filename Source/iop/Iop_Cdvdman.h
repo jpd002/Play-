@@ -37,8 +37,8 @@ namespace Iop
 		void ProcessCommands();
 		void SetOpticalMedia(COpticalMedia*);
 
-		void LoadState(Framework::CZipArchiveReader&);
-		void SaveState(Framework::CZipArchiveWriter&);
+		void LoadState(Framework::CZipArchiveReader&) override;
+		void SaveState(Framework::CZipArchiveWriter&) const override;
 
 		uint32 CdReadClockDirect(uint8*);
 		uint32 CdGetDiskTypeDirect(COpticalMedia*);

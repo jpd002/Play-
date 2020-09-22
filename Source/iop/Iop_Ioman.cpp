@@ -762,7 +762,7 @@ void CIoman::Invoke(CMIPS& context, unsigned int functionId)
 	}
 }
 
-void CIoman::SaveState(Framework::CZipArchiveWriter& archive)
+void CIoman::SaveState(Framework::CZipArchiveWriter& archive) const
 {
 	SaveFilesState(archive);
 	SaveUserDevicesState(archive);
@@ -774,7 +774,7 @@ void CIoman::LoadState(Framework::CZipArchiveReader& archive)
 	LoadUserDevicesState(archive);
 }
 
-void CIoman::SaveFilesState(Framework::CZipArchiveWriter& archive)
+void CIoman::SaveFilesState(Framework::CZipArchiveWriter& archive) const
 {
 	auto fileStateFile = new CXmlStateFile(STATE_FILES_FILENAME, STATE_FILES_FILESNODE);
 	auto filesStateNode = fileStateFile->GetRoot();
@@ -797,7 +797,7 @@ void CIoman::SaveFilesState(Framework::CZipArchiveWriter& archive)
 	archive.InsertFile(fileStateFile);
 }
 
-void CIoman::SaveUserDevicesState(Framework::CZipArchiveWriter& archive)
+void CIoman::SaveUserDevicesState(Framework::CZipArchiveWriter& archive) const
 {
 	auto deviceStateFile = new CXmlStateFile(STATE_USERDEVICES_FILENAME, STATE_USERDEVICES_DEVICESNODE);
 	auto devicesStateNode = deviceStateFile->GetRoot();

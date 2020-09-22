@@ -133,7 +133,7 @@ void CCdvdfsv::LoadState(Framework::CZipArchiveReader& archive)
 	m_streamBufferSize = registerFile.GetRegister32(STATE_STREAMBUFFERSIZE);
 }
 
-void CCdvdfsv::SaveState(Framework::CZipArchiveWriter& archive)
+void CCdvdfsv::SaveState(Framework::CZipArchiveWriter& archive) const
 {
 	auto registerFile = new CRegisterStateFile(STATE_FILENAME);
 

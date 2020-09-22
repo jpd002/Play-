@@ -133,7 +133,7 @@ void CLoadcore::LoadState(Framework::CZipArchiveReader& archive)
 	m_moduleVersion = registerFile.GetRegister32(STATE_VERSION_MODULEVERSION);
 }
 
-void CLoadcore::SaveState(Framework::CZipArchiveWriter& archive)
+void CLoadcore::SaveState(Framework::CZipArchiveWriter& archive) const
 {
 	auto registerFile = new CRegisterStateFile(STATE_VERSION_XML);
 	registerFile->SetRegister32(STATE_VERSION_MODULEVERSION, m_moduleVersion);

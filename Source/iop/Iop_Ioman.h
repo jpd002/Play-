@@ -38,8 +38,8 @@ namespace Iop
 		std::string GetFunctionName(unsigned int) const override;
 		void Invoke(CMIPS&, unsigned int) override;
 
-		void SaveState(Framework::CZipArchiveWriter&);
-		void LoadState(Framework::CZipArchiveReader&);
+		void SaveState(Framework::CZipArchiveWriter&) const override;
+		void LoadState(Framework::CZipArchiveReader&) override;
 
 		void RegisterDevice(const char*, const DevicePtr&);
 
@@ -137,8 +137,8 @@ namespace Iop
 		bool IsUserDeviceFileHandle(int32) const;
 		uint32 GetUserDeviceFileDescPtr(int32) const;
 
-		void SaveFilesState(Framework::CZipArchiveWriter&);
-		void SaveUserDevicesState(Framework::CZipArchiveWriter&);
+		void SaveFilesState(Framework::CZipArchiveWriter&) const;
+		void SaveUserDevicesState(Framework::CZipArchiveWriter&) const;
 
 		void LoadFilesState(Framework::CZipArchiveReader&);
 		void LoadUserDevicesState(Framework::CZipArchiveReader&);

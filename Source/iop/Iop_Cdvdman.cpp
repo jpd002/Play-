@@ -51,7 +51,7 @@ void CCdvdman::LoadState(Framework::CZipArchiveReader& archive)
 	m_pendingCommand = static_cast<COMMAND>(registerFile.GetRegister32(STATE_PENDING_COMMAND));
 }
 
-void CCdvdman::SaveState(Framework::CZipArchiveWriter& archive)
+void CCdvdman::SaveState(Framework::CZipArchiveWriter& archive) const
 {
 	auto registerFile = new CRegisterStateFile(STATE_FILENAME);
 	registerFile->SetRegister32(STATE_CALLBACK_ADDRESS, m_callbackPtr);

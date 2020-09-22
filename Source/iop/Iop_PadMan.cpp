@@ -75,7 +75,7 @@ bool CPadMan::Invoke(uint32 method, uint32* args, uint32 argsSize, uint32* ret, 
 	return true;
 }
 
-void CPadMan::SaveState(Framework::CZipArchiveWriter& archive)
+void CPadMan::SaveState(Framework::CZipArchiveWriter& archive) const
 {
 	CRegisterStateFile* registerFile = new CRegisterStateFile(STATE_PADDATA);
 

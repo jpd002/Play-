@@ -85,7 +85,7 @@ void CSifCmd::LoadState(Framework::CZipArchiveReader& archive)
 	}
 }
 
-void CSifCmd::SaveState(Framework::CZipArchiveWriter& archive)
+void CSifCmd::SaveState(Framework::CZipArchiveWriter& archive) const
 {
 	auto modulesFile = new CStructCollectionStateFile(STATE_MODULES);
 	{
