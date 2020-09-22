@@ -24,10 +24,7 @@ using namespace Iop;
 CTimrman::CTimrman(CIopBios& bios)
     : m_bios(bios)
 {
-}
-
-CTimrman::~CTimrman()
-{
+	static_assert((sizeof(m_hardTimerAlloc) * 8) >= Iop::CRootCounters::MAX_COUNTERS);
 }
 
 std::string CTimrman::GetId() const
@@ -169,7 +166,8 @@ int CTimrman::AllocHardTimer(CMIPS& context, uint32 source, uint32 size, uint32 
 		if(
 		    (CRootCounters::g_counterSizes[i] == size) &&
 		    ((CRootCounters::g_counterSources[i] & source) != 0) &&
-		    (CRootCounters::g_counterMaxScales[i] >= prescale))
+		    (CRootCounters::g_counterMaxScales[i] >= prescale) &&
+		    ((m_hardTimerAlloc & (1 << i)) == 0))
 		{
 			//Set proper clock divider
 			auto modeAddr = CRootCounters::g_counterBaseAddresses[i] + CRootCounters::CNT_MODE;
@@ -188,6 +186,7 @@ int CTimrman::AllocHardTimer(CMIPS& context, uint32 source, uint32 size, uint32 
 				assert(false);
 
 			context.m_pMemoryMap->SetWord(modeAddr, mode);
+			m_hardTimerAlloc |= (1 << i);
 
 			return (i + 1);
 		}

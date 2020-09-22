@@ -10,7 +10,7 @@ namespace Iop
 	{
 	public:
 		CTimrman(CIopBios&);
-		virtual ~CTimrman();
+		virtual ~CTimrman() = default;
 
 		std::string GetId() const override;
 		std::string GetFunctionName(unsigned int) const override;
@@ -30,5 +30,6 @@ namespace Iop
 		int32 StopHardTimer(uint32);
 
 		CIopBios& m_bios;
+		uint32 m_hardTimerAlloc = 0;
 	};
 }
