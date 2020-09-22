@@ -16,6 +16,9 @@ namespace Iop
 		std::string GetFunctionName(unsigned int) const override;
 		void Invoke(CMIPS&, unsigned int) override;
 
+		void SaveState(Framework::CZipArchiveWriter&) const override;
+		void LoadState(Framework::CZipArchiveReader&) override;
+
 	private:
 		int AllocHardTimer(CMIPS&, uint32, uint32, uint32);
 		int ReferHardTimer(uint32, uint32, uint32, uint32);

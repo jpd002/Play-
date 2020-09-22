@@ -5,6 +5,10 @@
 #include "IopBios.h"
 #include "Iop_RootCounters.h"
 
+#include "zip/ZipArchiveWriter.h"
+#include "zip/ZipArchiveReader.h"
+#include "states/RegisterStateFile.h"
+
 #define LOG_NAME ("iop_timrman")
 
 #define FUNCTION_ALLOCHARDTIMER "AllocHardTimer"
@@ -18,6 +22,10 @@
 #define FUNCTION_SETUPHARDTIMER "SetupHardTimer"
 #define FUNCTION_STARTHARDTIMER "StartHardTimer"
 #define FUNCTION_STOPHARDTIMER "StopHardTimer"
+
+#define STATE_FILENAME ("iop_timrman/state.xml")
+
+#define STATE_HARDTIMERALLOC ("HardTimerAlloc")
 
 using namespace Iop;
 
@@ -147,6 +155,19 @@ void CTimrman::Invoke(CMIPS& context, unsigned int functionId)
 		                         context.m_State.nPC, functionId);
 		break;
 	}
+}
+
+void CTimrman::SaveState(Framework::CZipArchiveWriter& archive) const
+{
+	auto registerFile = new CRegisterStateFile(STATE_FILENAME);
+	registerFile->SetRegister32(STATE_HARDTIMERALLOC, m_hardTimerAlloc);
+	archive.InsertFile(registerFile);
+}
+
+void CTimrman::LoadState(Framework::CZipArchiveReader& archive)
+{
+	auto registerFile = CRegisterStateFile(*archive.BeginReadFile(STATE_FILENAME));
+	m_hardTimerAlloc = registerFile.GetRegister32(STATE_HARDTIMERALLOC);
 }
 
 int CTimrman::AllocHardTimer(CMIPS& context, uint32 source, uint32 size, uint32 prescale)
