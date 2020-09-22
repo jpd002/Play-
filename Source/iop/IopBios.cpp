@@ -383,7 +383,7 @@ void CIopBios::LoadState(Framework::CZipArchiveReader& archive)
 		{
 			auto moduleIterator = std::find_if(m_hleModules.begin(), m_hleModules.end(),
 			                                   [&](const auto& modulePair) {
-				                                   return strcmp(loadedModule->name, modulePair.second->GetId().c_str()) != 0;
+				                                   return strcmp(loadedModule->name, modulePair.second->GetId().c_str()) == 0;
 			                                   });
 			assert(moduleIterator != std::end(m_hleModules));
 			if(moduleIterator != std::end(m_hleModules))
