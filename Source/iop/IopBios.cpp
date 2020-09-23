@@ -326,15 +326,11 @@ void CIopBios::SaveState(Framework::CZipArchiveWriter& archive)
 	}
 	archive.InsertFile(modulesFile);
 
-	m_sifCmd->SaveState(archive);
-	m_cdvdman->SaveState(archive);
-	m_loadcore->SaveState(archive);
-	m_ioman->SaveState(archive);
-#ifdef _IOP_EMULATE_MODULES
-	m_fileIo->SaveState(archive);
-	m_padman->SaveState(archive);
-	m_cdvdfsv->SaveState(archive);
-#endif
+	auto builtInModules = GetBuiltInModules();
+	for(const auto& module : builtInModules)
+	{
+		module->SaveState(archive);
+	}
 }
 
 void CIopBios::LoadState(Framework::CZipArchiveReader& archive)
@@ -353,6 +349,12 @@ void CIopBios::LoadState(Framework::CZipArchiveReader& archive)
 		}
 	}
 
+	auto builtInModules = GetBuiltInModules();
+	for(const auto& module : builtInModules)
+	{
+		module->LoadState(archive);
+	}
+
 	CStructCollectionStateFile modulesFile(*archive.BeginReadFile(STATE_MODULES));
 	{
 		for(auto structIterator(modulesFile.GetStructBegin());
@@ -366,15 +368,7 @@ void CIopBios::LoadState(Framework::CZipArchiveReader& archive)
 		}
 	}
 
-	m_sifCmd->LoadState(archive);
-	m_cdvdman->LoadState(archive);
-	m_loadcore->LoadState(archive);
-	m_ioman->LoadState(archive);
 #ifdef _IOP_EMULATE_MODULES
-	m_fileIo->LoadState(archive);
-	m_padman->LoadState(archive);
-	m_cdvdfsv->LoadState(archive);
-
 	//Make sure HLE modules are properly registered
 	for(const auto& loadedModule : m_loadedModules)
 	{
@@ -3128,6 +3122,28 @@ void CIopBios::RegisterHleModule(const Iop::ModulePtr& module)
 	{
 		sifModuleProvider->RegisterSifModules(*m_sifMan);
 	}
+}
+
+CIopBios::ModuleSet CIopBios::GetBuiltInModules() const
+{
+	//This gathers all built-in modules
+	//We don't have a centralised place for them at the moment
+	//and we only need this for save/load state
+	ModuleSet modules;
+	for(const auto& modulePair : m_modules)
+	{
+		//Exclude dynamic modules
+		if(std::dynamic_pointer_cast<Iop::CDynamic>(modulePair.second))
+		{
+			continue;
+		}
+		modules.insert(modulePair.second.get());
+	}
+	for(const auto& modulePair : m_hleModules)
+	{
+		modules.insert(modulePair.second.get());
+	}
+	return modules;
 }
 
 std::string CIopBios::ReadModuleName(uint32 address)

@@ -3,6 +3,7 @@
 #include <memory>
 #include <list>
 #include <map>
+#include <set>
 #include "../MIPSAssembler.h"
 #include "../MIPS.h"
 #include "../ELF.h"
@@ -538,6 +539,7 @@ private:
 	typedef COsStructManager<VPL> VplList;
 	typedef COsStructManager<LOADEDMODULE> LoadedModuleList;
 	typedef std::map<std::string, Iop::ModulePtr> IopModuleMapType;
+	typedef std::set<Iop::CModule*> ModuleSet;
 	typedef std::pair<uint32, uint32> ExecutableRange;
 
 	void LoadThreadContext(uint32);
@@ -564,6 +566,8 @@ private:
 
 	int32 LoadHleModule(const Iop::ModulePtr&);
 	void RegisterHleModule(const Iop::ModulePtr&);
+
+	ModuleSet GetBuiltInModules() const;
 
 	uint32 AssembleThreadFinish(CMIPSAssembler&);
 	uint32 AssembleReturnFromException(CMIPSAssembler&);
