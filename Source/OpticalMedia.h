@@ -6,6 +6,8 @@
 class COpticalMedia
 {
 public:
+	COpticalMedia() = default;
+
 	enum CREATE_FLAGS
 	{
 		CREATE_AUTO_DISABLE_DL_DETECT = 0x01,
@@ -20,8 +22,8 @@ public:
 
 	typedef std::shared_ptr<Framework::CStream> StreamPtr;
 
-	static COpticalMedia* CreateAuto(StreamPtr&, uint32 = 0);
-	static COpticalMedia* CreateDvd(StreamPtr&, bool = false, uint32 = 0);
+	static std::unique_ptr<COpticalMedia> CreateAuto(StreamPtr&, uint32 = 0);
+	static std::unique_ptr<COpticalMedia> CreateDvd(StreamPtr&, bool = false, uint32 = 0);
 
 	//TODO: Get Track Count
 	TRACK_DATA_TYPE GetTrackDataType(uint32) const;
@@ -32,8 +34,6 @@ public:
 	uint32 GetDvdSecondLayerStart() const;
 
 private:
-	COpticalMedia() = default;
-
 	typedef std::unique_ptr<CISO9660> Iso9660Ptr;
 
 	void CheckDualLayerDvd(const StreamPtr&);

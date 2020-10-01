@@ -4,9 +4,9 @@
 
 #define DVD_LAYER_MAX_BLOCKS 2295104
 
-COpticalMedia* COpticalMedia::CreateAuto(StreamPtr& stream, uint32 createFlags)
+std::unique_ptr<COpticalMedia> COpticalMedia::CreateAuto(StreamPtr& stream, uint32 createFlags)
 {
-	auto result = new COpticalMedia();
+	auto result = std::make_unique<COpticalMedia>();
 	//Simulate a disk with only one data track
 	try
 	{
@@ -39,9 +39,9 @@ COpticalMedia* COpticalMedia::CreateAuto(StreamPtr& stream, uint32 createFlags)
 	return result;
 }
 
-COpticalMedia* COpticalMedia::CreateDvd(StreamPtr& stream, bool isDualLayer, uint32 secondLayerStart)
+std::unique_ptr<COpticalMedia> COpticalMedia::CreateDvd(StreamPtr& stream, bool isDualLayer, uint32 secondLayerStart)
 {
-	auto result = new COpticalMedia();
+	auto result = std::make_unique<COpticalMedia>();
 	auto blockProvider = std::make_shared<ISO9660::CBlockProvider2048>(stream);
 	result->m_fileSystem = std::make_unique<CISO9660>(blockProvider);
 	result->m_track0DataType = TRACK_DATA_TYPE_MODE1_2048;

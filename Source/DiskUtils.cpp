@@ -76,7 +76,7 @@ DiskUtils::OpticalMediaPtr DiskUtils::CreateOpticalMediaFromPath(const fs::path&
 		imageDataPath.replace_extension("mdf");
 		auto imageDataStream = std::shared_ptr<Framework::CStream>(CreateImageStream(imageDataPath));
 
-		return std::unique_ptr<COpticalMedia>(COpticalMedia::CreateDvd(imageDataStream, discImage.IsDualLayer(), discImage.GetLayerBreak()));
+		return COpticalMedia::CreateDvd(imageDataStream, discImage.IsDualLayer(), discImage.GetLayerBreak());
 	}
 #ifdef _WIN32
 	else if(imagePath.string()[0] == '\\')
@@ -104,7 +104,7 @@ DiskUtils::OpticalMediaPtr DiskUtils::CreateOpticalMediaFromPath(const fs::path&
 		stream = std::shared_ptr<Framework::CStream>(CreateImageStream(imagePath));
 	}
 
-	return std::unique_ptr<COpticalMedia>(COpticalMedia::CreateAuto(stream, opticalMediaCreateFlags));
+	return COpticalMedia::CreateAuto(stream, opticalMediaCreateFlags);
 }
 
 DiskUtils::SystemConfigMap DiskUtils::ParseSystemConfigFile(Framework::CStream* systemCnfFile)
