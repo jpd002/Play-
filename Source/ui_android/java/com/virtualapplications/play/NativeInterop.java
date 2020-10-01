@@ -18,8 +18,6 @@ public class NativeInterop
 
 	public static native boolean isVirtualMachineCreated();
 
-	public static native boolean isVirtualMachineRunning();
-
 	public static native void resumeVirtualMachine();
 
 	public static native void pauseVirtualMachine();
@@ -33,6 +31,4 @@ public class NativeInterop
 	public static native void bootDiskImage(String selectedFilePath);
 
 	public static native void setupGsHandler(Surface surface);
-
-	public static native String getDiskId(String diskImagePath);
 }

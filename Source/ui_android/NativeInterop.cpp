@@ -93,12 +93,6 @@ extern "C" JNIEXPORT jboolean JNICALL Java_com_virtualapplications_play_NativeIn
 	return (g_virtualMachine != nullptr);
 }
 
-extern "C" JNIEXPORT jboolean JNICALL Java_com_virtualapplications_play_NativeInterop_isVirtualMachineRunning(JNIEnv* env, jobject obj)
-{
-	if(g_virtualMachine == nullptr) return false;
-	return g_virtualMachine->GetStatus() == CVirtualMachine::RUNNING;
-}
-
 extern "C" JNIEXPORT void JNICALL Java_com_virtualapplications_play_NativeInterop_resumeVirtualMachine(JNIEnv* env, jobject obj)
 {
 	assert(g_virtualMachine != nullptr);
@@ -186,16 +180,4 @@ extern "C" JNIEXPORT void JNICALL Java_com_virtualapplications_play_NativeIntero
 	{
 		static_cast<CGSH_OpenGLAndroid*>(gsHandler)->SetWindow(nativeWindow);
 	}
-}
-
-extern "C" JNIEXPORT jstring JNICALL Java_com_virtualapplications_play_NativeInterop_getDiskId(JNIEnv* env, jobject obj, jstring diskImagePath)
-{
-	std::string diskId;
-	bool succeeded = DiskUtils::TryGetDiskId(GetStringFromJstring(env, diskImagePath).c_str(), &diskId);
-	if(!succeeded)
-	{
-		return NULL;
-	}
-	jstring result = env->NewStringUTF(diskId.c_str());
-	return result;
 }
