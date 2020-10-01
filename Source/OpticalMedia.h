@@ -6,6 +6,11 @@
 class COpticalMedia
 {
 public:
+	enum CREATE_FLAGS
+	{
+		CREATE_AUTO_DISABLE_DL_DETECT = 0x01,
+	};
+
 	enum TRACK_DATA_TYPE
 	{
 		TRACK_DATA_TYPE_AUDIO,
@@ -15,7 +20,7 @@ public:
 
 	typedef std::shared_ptr<Framework::CStream> StreamPtr;
 
-	static COpticalMedia* CreateAuto(StreamPtr&);
+	static COpticalMedia* CreateAuto(StreamPtr&, uint32 = 0);
 	static COpticalMedia* CreateDvd(StreamPtr&, bool = false, uint32 = 0);
 
 	//TODO: Get Track Count

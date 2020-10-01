@@ -50,7 +50,7 @@ static Framework::CStream* CreateImageStream(const fs::path& imagePath)
 #endif
 }
 
-DiskUtils::OpticalMediaPtr DiskUtils::CreateOpticalMediaFromPath(const fs::path& imagePath)
+DiskUtils::OpticalMediaPtr DiskUtils::CreateOpticalMediaFromPath(const fs::path& imagePath, uint32 opticalMediaCreateFlags)
 {
 	assert(!imagePath.empty());
 
@@ -104,7 +104,7 @@ DiskUtils::OpticalMediaPtr DiskUtils::CreateOpticalMediaFromPath(const fs::path&
 		stream = std::shared_ptr<Framework::CStream>(CreateImageStream(imagePath));
 	}
 
-	return std::unique_ptr<COpticalMedia>(COpticalMedia::CreateAuto(stream));
+	return std::unique_ptr<COpticalMedia>(COpticalMedia::CreateAuto(stream, opticalMediaCreateFlags));
 }
 
 DiskUtils::SystemConfigMap DiskUtils::ParseSystemConfigFile(Framework::CStream* systemCnfFile)
@@ -144,7 +144,7 @@ bool DiskUtils::TryGetDiskId(const fs::path& imagePath, std::string* diskIdPtr)
 {
 	try
 	{
-		auto opticalMedia = CreateOpticalMediaFromPath(imagePath);
+		auto opticalMedia = CreateOpticalMediaFromPath(imagePath, COpticalMedia::CREATE_AUTO_DISABLE_DL_DETECT);
 		auto fileSystem = opticalMedia->GetFileSystem();
 		auto systemConfigFile = std::unique_ptr<Framework::CStream>(fileSystem->Open("SYSTEM.CNF;1"));
 		if(!systemConfigFile) return false;

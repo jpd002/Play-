@@ -4,7 +4,7 @@
 
 #define DVD_LAYER_MAX_BLOCKS 2295104
 
-COpticalMedia* COpticalMedia::CreateAuto(StreamPtr& stream)
+COpticalMedia* COpticalMedia::CreateAuto(StreamPtr& stream, uint32 createFlags)
 {
 	auto result = new COpticalMedia();
 	//Simulate a disk with only one data track
@@ -22,7 +22,9 @@ COpticalMedia* COpticalMedia::CreateAuto(StreamPtr& stream)
 		result->m_track0DataType = TRACK_DATA_TYPE_MODE2_2352;
 	}
 
-	if(result->m_track0DataType == TRACK_DATA_TYPE_MODE1_2048)
+	if(
+	    (result->m_track0DataType == TRACK_DATA_TYPE_MODE1_2048) &&
+	    !(createFlags & CREATE_AUTO_DISABLE_DL_DETECT))
 	{
 		try
 		{
