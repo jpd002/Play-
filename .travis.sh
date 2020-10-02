@@ -41,6 +41,7 @@ travis_before_install()
         su -m root -c 'pkg install -y cmake qt5 evdev-proto'
     fi;
 
+    git fetch --tags
     git submodule update -q --init --recursive
 }
 
