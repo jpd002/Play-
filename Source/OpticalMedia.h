@@ -3,6 +3,11 @@
 #include "Stream.h"
 #include "ISO9660/ISO9660.h"
 
+namespace ISO9660
+{
+	class CBlockProvider;
+}
+
 class COpticalMedia
 {
 public:
@@ -27,6 +32,9 @@ public:
 
 	//TODO: Get Track Count
 	TRACK_DATA_TYPE GetTrackDataType(uint32) const;
+
+	ISO9660::CBlockProvider* GetTrackBlockProvider(uint32) const;
+
 	CISO9660* GetFileSystem();
 	CISO9660* GetFileSystemL1();
 
@@ -35,11 +43,13 @@ public:
 
 private:
 	typedef std::unique_ptr<CISO9660> Iso9660Ptr;
+	typedef std::shared_ptr<ISO9660::CBlockProvider> BlockProviderPtr;
 
 	void CheckDualLayerDvd(const StreamPtr&);
 	void SetupSecondLayer(const StreamPtr&);
 
 	TRACK_DATA_TYPE m_track0DataType = TRACK_DATA_TYPE_MODE1_2048;
+	BlockProviderPtr m_track0BlockProvider;
 	bool m_dvdIsDualLayer = false;
 	uint32 m_dvdSecondLayerStart = 0;
 	Iso9660Ptr m_fileSystem;

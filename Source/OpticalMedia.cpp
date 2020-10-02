@@ -13,6 +13,7 @@ std::unique_ptr<COpticalMedia> COpticalMedia::CreateAuto(StreamPtr& stream, uint
 		auto blockProvider = std::make_shared<ISO9660::CBlockProvider2048>(stream);
 		result->m_fileSystem = std::make_unique<CISO9660>(blockProvider);
 		result->m_track0DataType = TRACK_DATA_TYPE_MODE1_2048;
+		result->m_track0BlockProvider = blockProvider;
 	}
 	catch(...)
 	{
@@ -20,6 +21,7 @@ std::unique_ptr<COpticalMedia> COpticalMedia::CreateAuto(StreamPtr& stream, uint
 		auto blockProvider = std::make_shared<ISO9660::CBlockProviderCDROMXA>(stream);
 		result->m_fileSystem = std::make_unique<CISO9660>(blockProvider);
 		result->m_track0DataType = TRACK_DATA_TYPE_MODE2_2352;
+		result->m_track0BlockProvider = blockProvider;
 	}
 
 	if(
@@ -45,6 +47,7 @@ std::unique_ptr<COpticalMedia> COpticalMedia::CreateDvd(StreamPtr& stream, bool 
 	auto blockProvider = std::make_shared<ISO9660::CBlockProvider2048>(stream);
 	result->m_fileSystem = std::make_unique<CISO9660>(blockProvider);
 	result->m_track0DataType = TRACK_DATA_TYPE_MODE1_2048;
+	result->m_track0BlockProvider = blockProvider;
 	result->m_dvdIsDualLayer = isDualLayer;
 	result->m_dvdSecondLayerStart = secondLayerStart;
 	result->SetupSecondLayer(stream);
@@ -55,6 +58,12 @@ COpticalMedia::TRACK_DATA_TYPE COpticalMedia::GetTrackDataType(uint32 trackIndex
 {
 	assert(trackIndex == 0);
 	return m_track0DataType;
+}
+
+ISO9660::CBlockProvider* COpticalMedia::GetTrackBlockProvider(uint32 trackIndex) const
+{
+	assert(trackIndex == 0);
+	return m_track0BlockProvider.get();
 }
 
 CISO9660* COpticalMedia::GetFileSystem()

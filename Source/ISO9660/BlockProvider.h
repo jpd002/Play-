@@ -1,6 +1,7 @@
 #pragma once
 
 #include <memory>
+#include <cassert>
 #include "Types.h"
 #include "Stream.h"
 
@@ -16,6 +17,9 @@ namespace ISO9660
 
 		virtual ~CBlockProvider() = default;
 		virtual void ReadBlock(uint32, void*) = 0;
+		virtual void ReadRawBlock(uint32, void*) = 0;
+		virtual uint32 GetBlockCount() = 0;
+		virtual uint32 GetRawBlockSize() const = 0;
 	};
 
 	class CBlockProvider2048 : public CBlockProvider
@@ -33,6 +37,23 @@ namespace ISO9660
 		{
 			m_stream->Seek(static_cast<uint64>(address + m_offset) * BLOCKSIZE, Framework::STREAM_SEEK_SET);
 			m_stream->Read(block, BLOCKSIZE);
+		}
+
+		void ReadRawBlock(uint32 address, void* block) override
+		{
+			ReadBlock(address, block);
+		}
+
+		uint32 GetBlockCount() override
+		{
+			uint64 imageSize = m_stream->GetLength();
+			assert((imageSize % BLOCKSIZE) == 0);
+			return static_cast<uint32>(imageSize / BLOCKSIZE);
+		}
+
+		uint32 GetRawBlockSize() const override
+		{
+			return BLOCKSIZE;
 		}
 
 	private:
@@ -54,6 +75,24 @@ namespace ISO9660
 		{
 			m_stream->Seek((static_cast<uint64>(address) * INTERNAL_BLOCKSIZE) + BLOCKHEADER_SIZE, Framework::STREAM_SEEK_SET);
 			m_stream->Read(block, BLOCKSIZE);
+		}
+
+		void ReadRawBlock(uint32 address, void* block) override
+		{
+			m_stream->Seek(static_cast<uint64>(address) * INTERNAL_BLOCKSIZE, Framework::STREAM_SEEK_SET);
+			m_stream->Read(block, INTERNAL_BLOCKSIZE);
+		}
+
+		uint32 GetBlockCount() override
+		{
+			uint64 imageSize = m_stream->GetLength();
+			assert((imageSize % INTERNAL_BLOCKSIZE) == 0);
+			return static_cast<uint32>(imageSize / INTERNAL_BLOCKSIZE);
+		}
+
+		uint32 GetRawBlockSize() const override
+		{
+			return INTERNAL_BLOCKSIZE;
 		}
 
 	private:
