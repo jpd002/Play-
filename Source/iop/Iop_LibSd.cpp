@@ -20,6 +20,7 @@ using namespace Iop;
 #define FUNCTION_VOICETRANSSTATUS "VoiceTransStatus"
 #define FUNCTION_BLOCKTRANSSTATUS "BlockTransStatus"
 #define FUNCTION_SETTRANSCALLBACK "SetTransCallback"
+#define FUNCTION_SETEFFECTATTR "SetEffectAttr"
 #define FUNCTION_SETTRANSINTRHANDLER "SetTransIntrHandler"
 #define FUNCTION_SETSPU2INTRHANDLER "SetSpu2IntrHandler"
 
@@ -72,6 +73,9 @@ std::string CLibSd::GetFunctionName(unsigned int functionId) const
 		break;
 	case 21:
 		return FUNCTION_SETTRANSCALLBACK;
+		break;
+	case 23:
+		return FUNCTION_SETEFFECTATTR;
 		break;
 	case 26:
 		return FUNCTION_SETTRANSINTRHANDLER;
@@ -184,6 +188,10 @@ void CLibSd::TraceCall(CMIPS& context, unsigned int functionId)
 		break;
 	case 21:
 		CLog::GetInstance().Print(LOG_NAME, FUNCTION_SETTRANSCALLBACK "(channel = 0x%04X, function = 0x%08X);\r\n",
+		                          context.m_State.nGPR[CMIPS::A0].nV0, context.m_State.nGPR[CMIPS::A1].nV0);
+		break;
+	case 23:
+		CLog::GetInstance().Print(LOG_NAME, FUNCTION_SETEFFECTATTR "(core = 0x%04X, attr = 0x%08X);\r\n",
 		                          context.m_State.nGPR[CMIPS::A0].nV0, context.m_State.nGPR[CMIPS::A1].nV0);
 		break;
 	case 26:
