@@ -507,10 +507,12 @@ uint32 CSpuBase::ReceiveDma(uint8* buffer, uint32 blockSize, uint32 blockAmount)
 			//Genso Suikoden 5 uses this
 			return 0;
 		}
+		//- DMA reads need to be throttled to allow FFX IopSoundDriver to properly synchronize itself
+		//- Tsugunai needs voice transfers to be throttled because it starts a DMA transfer
+		//  and then writes data that is necessary to the transfer callback in memory
+		blockAmount = std::min<uint32>(blockAmount, 0x10);
 		if((m_ctrl & CONTROL_DMA) == CONTROL_DMA_READ)
 		{
-			//DMA reads need to be throttled to allow FFX IopSoundDriver to properly synchronize itself
-			blockAmount = std::min<uint32>(blockAmount, 0x10);
 			return blockAmount;
 		}
 		assert((m_ctrl & CONTROL_DMA) == CONTROL_DMA_WRITE);
