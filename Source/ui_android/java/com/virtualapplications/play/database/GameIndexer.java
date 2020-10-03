@@ -17,7 +17,7 @@ public class GameIndexer
 	private static HashSet<String> getExternalMounts()
 	{
 		final HashSet<String> out = new HashSet<String>();
-		String reg = "(?i).*vold.*(vfat|ntfs|exfat|fat32|ext3|ext4|fuse|sdfat).*rw.*";
+		String reg = "(?i).*(//|vold).*(vfat|ntfs|exfat|fat32|ext3|ext4|fuse|sdfat|cifs).*rw.*";
 		try
 		{
 			final java.lang.Process process = new ProcessBuilder().command("mount")
@@ -35,13 +35,17 @@ public class GameIndexer
 					continue;
 				if (StringUtils.containsIgnoreCase(line, "asec"))
 					continue;
+				if ((StringUtils.containsIgnoreCase(line, "/mnt/runtime")
+						|| StringUtils.containsIgnoreCase(line, "/mnt/remote")) && StringUtils.containsIgnoreCase(line, "cifs"))
+					continue;
+
 				if (line.matches(reg))
 				{
 					String[] parts = line.split(" ");
 					for (String part : parts)
 					{
 						if (part.startsWith("/"))
-							if (!StringUtils.containsIgnoreCase(part, "vold"))
+							if (!StringUtils.containsIgnoreCase(part, "vold") && !StringUtils.containsIgnoreCase(part, "//"))
 								out.add(part);
 					}
 				}
