@@ -4,9 +4,9 @@
 #include "make_unique.h"
 #include "stricmp.h"
 #include "DiskUtils.h"
-#include "IszImageStream.h"
-#include "CsoImageStream.h"
-#include "MdsDiscImage.h"
+#include "discimages/IszImageStream.h"
+#include "discimages/CsoImageStream.h"
+#include "discimages/MdsDiscImage.h"
 #include "StdStream.h"
 #include "StringUtils.h"
 #ifdef HAS_AMAZON_S3
