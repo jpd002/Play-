@@ -87,6 +87,12 @@ static DiskUtils::OpticalMediaPtr CreateOpticalMediaFromMds(const fs::path& imag
 	return COpticalMedia::CreateDvd(imageDataStream, discImage.IsDualLayer(), discImage.GetLayerBreak());
 }
 
+const DiskUtils::ExtensionList& DiskUtils::GetSupportedExtensions()
+{
+	static auto extensionList = ExtensionList{".iso", ".mds", ".isz", ".cso", ".cue"};
+	return extensionList;
+}
+
 DiskUtils::OpticalMediaPtr DiskUtils::CreateOpticalMediaFromPath(const fs::path& imagePath, uint32 opticalMediaCreateFlags)
 {
 	assert(!imagePath.empty());
