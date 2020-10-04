@@ -4,8 +4,8 @@
 #include "make_unique.h"
 #include "stricmp.h"
 #include "DiskUtils.h"
-#include "discimages/IszImageStream.h"
 #include "discimages/CsoImageStream.h"
+#include "discimages/IszImageStream.h"
 #include "discimages/MdsDiscImage.h"
 #include "StdStream.h"
 #include "StringUtils.h"
@@ -50,6 +50,19 @@ static Framework::CStream* CreateImageStream(const fs::path& imagePath)
 #endif
 }
 
+static DiskUtils::OpticalMediaPtr CreateOpticalMediaFromMds(const fs::path& imagePath)
+{
+	auto imageStream = std::unique_ptr<Framework::CStream>(CreateImageStream(imagePath));
+	auto discImage = CMdsDiscImage(*imageStream);
+
+	//Create image data path
+	auto imageDataPath = imagePath;
+	imageDataPath.replace_extension("mdf");
+	auto imageDataStream = std::shared_ptr<Framework::CStream>(CreateImageStream(imageDataPath));
+
+	return COpticalMedia::CreateDvd(imageDataStream, discImage.IsDualLayer(), discImage.GetLayerBreak());
+}
+
 DiskUtils::OpticalMediaPtr DiskUtils::CreateOpticalMediaFromPath(const fs::path& imagePath, uint32 opticalMediaCreateFlags)
 {
 	assert(!imagePath.empty());
@@ -68,15 +81,7 @@ DiskUtils::OpticalMediaPtr DiskUtils::CreateOpticalMediaFromPath(const fs::path&
 	}
 	else if(!stricmp(extension.c_str(), ".mds"))
 	{
-		auto imageStream = std::unique_ptr<Framework::CStream>(CreateImageStream(imagePath));
-		auto discImage = CMdsDiscImage(*imageStream);
-
-		//Create image data path
-		auto imageDataPath = imagePath;
-		imageDataPath.replace_extension("mdf");
-		auto imageDataStream = std::shared_ptr<Framework::CStream>(CreateImageStream(imageDataPath));
-
-		return COpticalMedia::CreateDvd(imageDataStream, discImage.IsDualLayer(), discImage.GetLayerBreak());
+		return CreateOpticalMediaFromMds(imagePath);
 	}
 #ifdef _WIN32
 	else if(imagePath.string()[0] == '\\')
