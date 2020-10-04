@@ -1,4 +1,5 @@
 #include <cassert>
+#include <stdexcept>
 #include "CueSheet.h"
 #include "string_format.h"
 
