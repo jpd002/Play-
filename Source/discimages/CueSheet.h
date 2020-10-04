@@ -39,7 +39,7 @@ public:
 	const CommandList& GetCommands() const;
 
 private:
-	void        Read(Framework::CStream&);
+	void Read(Framework::CStream&);
 	std::string ReadCommand(Framework::CStream&);
 	std::string ReadPath(Framework::CStream&);
 
