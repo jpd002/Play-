@@ -17,6 +17,7 @@
 #include "http/HttpClientFactory.h"
 #include "string_format.h"
 #include "QStringUtils.h"
+#include "QtUtils.h"
 #include "ui_shared/BootablesProcesses.h"
 #include "ui_shared/BootablesDbClient.h"
 
@@ -128,9 +129,14 @@ void BootableListDialog::showEvent(QShowEvent* ev)
 
 void BootableListDialog::on_add_games_button_clicked()
 {
+	QStringList filters;
+	filters.push_back(QtUtils::GetDiscImageFormatsFilter());
+	filters.push_back("ELF files (*.elf)");
+	filters.push_back("All files (*)");
+
 	QFileDialog dialog(this);
 	dialog.setFileMode(QFileDialog::ExistingFile);
-	dialog.setNameFilter(tr("All supported types(*.iso *.bin *.isz *.cso *.elf);;UltraISO Compressed Disk Images (*.isz);;CISO Compressed Disk Images (*.cso);;ELF files (*.elf);;All files (*.*)"));
+	dialog.setNameFilters(filters);
 	if(dialog.exec())
 	{
 		auto filePath = QStringToPath(dialog.selectedFiles().first()).parent_path();

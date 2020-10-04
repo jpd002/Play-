@@ -5,6 +5,7 @@
 #include "S3FileBrowser.h"
 #include "ui_shared/BootablesProcesses.h"
 #include "ui_shared/StatsManager.h"
+#include "QtUtils.h"
 
 #include "openglwindow.h"
 #include "GSH_OpenGLQt.h"
@@ -271,10 +272,14 @@ void MainWindow::outputWindow_resized()
 
 void MainWindow::on_actionBoot_DiscImage_triggered()
 {
+	QStringList filters;
+	filters.push_back(QtUtils::GetDiscImageFormatsFilter());
+	filters.push_back("All files (*)");
+
 	QFileDialog dialog(this);
 	dialog.setDirectory(PathToQString(m_lastPath));
 	dialog.setFileMode(QFileDialog::ExistingFile);
-	dialog.setNameFilter(tr("All supported types(*.iso *.bin *.isz *.cso);;UltraISO Compressed Disk Images (*.isz);;CISO Compressed Disk Images (*.cso);;All files (*.*)"));
+	dialog.setNameFilters(filters);
 	if(dialog.exec())
 	{
 		auto filePath = QStringToPath(dialog.selectedFiles().first());

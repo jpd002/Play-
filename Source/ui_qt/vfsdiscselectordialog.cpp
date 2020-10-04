@@ -4,6 +4,7 @@
 #include <QFileDialog>
 #include <QMessageBox>
 #include "QStringUtils.h"
+#include "QtUtils.h"
 
 VFSDiscSelectorDialog::VFSDiscSelectorDialog(fs::path path, CCdrom0Device::BINDINGTYPE m_nBindingType, QWidget* parent)
     : QDialog(parent)
@@ -33,9 +34,13 @@ VFSDiscSelectorDialog::~VFSDiscSelectorDialog()
 
 void VFSDiscSelectorDialog::on_iso_browse_button_clicked()
 {
+	QStringList filters;
+	filters.push_back(QtUtils::GetDiscImageFormatsFilter());
+	filters.push_back("All files (*)");
+
 	QFileDialog dialog(this);
 	dialog.setFileMode(QFileDialog::ExistingFile);
-	dialog.setNameFilter(tr("All supported types(*.iso *.bin *.isz *.cso);;UltraISO Compressed Disk Images (*.isz);;CISO Compressed Disk Images (*.cso);;All files (*.*)"));
+	dialog.setNameFilters(filters);
 	if(dialog.exec())
 	{
 		m_path = QStringToPath(dialog.selectedFiles().first());

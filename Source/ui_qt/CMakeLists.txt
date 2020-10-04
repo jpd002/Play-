@@ -126,6 +126,8 @@ set(QT_SOURCES
 	PreferenceDefs.h
 	QStringUtils.cpp
 	QStringUtils.h
+	QtUtils.cpp
+	QtUtils.h
 	vfsmanagerdialog.cpp
 	vfsmanagerdialog.h
 	vfsmodel.cpp

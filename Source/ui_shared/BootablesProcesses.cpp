@@ -43,12 +43,11 @@ bool IsBootableExecutablePath(const fs::path& filePath)
 
 bool IsBootableDiscImagePath(const fs::path& filePath)
 {
+	const auto& supportedExtensions = DiskUtils::GetSupportedExtensions();
 	auto extension = filePath.extension().string();
 	std::transform(extension.begin(), extension.end(), extension.begin(), ::tolower);
-	return (extension == ".iso") ||
-	       (extension == ".isz") ||
-	       (extension == ".cso") ||
-	       (extension == ".bin");
+	auto extensionIterator = supportedExtensions.find(extension);
+	return extensionIterator != std::end(supportedExtensions);
 }
 
 bool TryRegisteringBootable(const fs::path& path)
