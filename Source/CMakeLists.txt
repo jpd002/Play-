@@ -126,6 +126,8 @@ set(COMMON_SRC_FILES
 	COP_SCU_Reflection.cpp
 	discimages/CsoImageStream.cpp
 	discimages/CsoImageStream.h
+	discimages/CueSheet.cpp
+	discimages/CueSheet.h
 	discimages/IszImageStream.cpp
 	discimages/IszImageStream.h
 	discimages/MdsDiscImage.cpp

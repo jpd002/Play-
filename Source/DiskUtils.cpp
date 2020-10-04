@@ -5,6 +5,7 @@
 #include "stricmp.h"
 #include "DiskUtils.h"
 #include "discimages/CsoImageStream.h"
+#include "discimages/CueSheet.h"
 #include "discimages/IszImageStream.h"
 #include "discimages/MdsDiscImage.h"
 #include "StdStream.h"
@@ -50,6 +51,29 @@ static Framework::CStream* CreateImageStream(const fs::path& imagePath)
 #endif
 }
 
+static DiskUtils::OpticalMediaPtr CreateOpticalMediaFromCueSheet(const fs::path& imagePath)
+{
+	auto currentPath = imagePath.parent_path();
+	auto imageStream = std::unique_ptr<Framework::CStream>(CreateImageStream(imagePath));
+	auto fileStream = std::shared_ptr<Framework::CStream>();
+	CCueSheet cueSheet(*imageStream);
+	for(const auto& command : cueSheet.GetCommands())
+	{
+		if(auto fileCommand = dynamic_cast<CCueSheet::COMMAND_FILE*>(command.get()))
+		{
+			assert(fileCommand->filetype == "BINARY");
+			auto filePath = currentPath / fileCommand->filename;
+			fileStream = std::shared_ptr<Framework::CStream>(CreateImageStream(filePath));
+			break;
+		}
+	}
+	if(!fileStream)
+	{
+		throw std::runtime_error("Could not build media from cuesheet.");
+	}
+	return COpticalMedia::CreateAuto(fileStream);
+}
+
 static DiskUtils::OpticalMediaPtr CreateOpticalMediaFromMds(const fs::path& imagePath)
 {
 	auto imageStream = std::unique_ptr<Framework::CStream>(CreateImageStream(imagePath));
@@ -78,6 +102,10 @@ DiskUtils::OpticalMediaPtr DiskUtils::CreateOpticalMediaFromPath(const fs::path&
 	else if(!stricmp(extension.c_str(), ".cso"))
 	{
 		stream = std::make_shared<CCsoImageStream>(CreateImageStream(imagePath));
+	}
+	else if(!stricmp(extension.c_str(), ".cue"))
+	{
+		return CreateOpticalMediaFromCueSheet(imagePath);
 	}
 	else if(!stricmp(extension.c_str(), ".mds"))
 	{
