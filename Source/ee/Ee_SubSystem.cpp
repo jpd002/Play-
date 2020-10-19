@@ -345,6 +345,13 @@ void CSubSystem::NotifyVBlankStart()
 		//if vsync flag was set, we want to make sure interrupt is caught
 		CheckPendingInterrupts();
 	}
+	//Give some breathing room for games to check registers and
+	//prevent idle loop detection from kicking in too early
+	//(Tony Hawk Pro Skater 3 is sensitive to this)
+	for(auto& statusRegisterCheckerPair : m_statusRegisterCheckers)
+	{
+		statusRegisterCheckerPair.second = std::max<int32>(0, statusRegisterCheckerPair.second - 100);
+	}
 }
 
 void CSubSystem::NotifyVBlankEnd()
