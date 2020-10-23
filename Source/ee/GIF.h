@@ -67,8 +67,8 @@ private:
 		SIGNAL_STATE_PENDING,
 	};
 
-	uint32 ProcessPacked(CGSHandler::RegisterWriteList&, const uint8*, uint32, uint32);
-	uint32 ProcessRegList(CGSHandler::RegisterWriteList&, const uint8*, uint32, uint32);
+	uint32 ProcessPacked(const uint8*, uint32, uint32);
+	uint32 ProcessRegList(const uint8*, uint32, uint32);
 	uint32 ProcessImage(const uint8*, uint32, uint32, uint32);
 
 	void DisassembleGet(uint32);

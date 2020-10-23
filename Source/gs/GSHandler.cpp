@@ -62,7 +62,8 @@ struct MASSIVEWRITE_INFO
 #ifdef DEBUGGER_INCLUDED
 	CGsPacketMetadata metadata;
 #endif
-	CGSHandler::RegisterWriteList writes;
+	uint32 bufferStartIndex;
+	uint32 bufferEndIndex;
 };
 
 CGSHandler::CGSHandler(bool gsThreaded)
@@ -82,6 +83,7 @@ CGSHandler::CGSHandler(bool gsThreaded)
 
 	m_pRAM = new uint8[RAMSIZE];
 	m_pCLUT = new uint16[CLUTENTRYCOUNT];
+	m_writeBuffer = new RegisterWrite[REGISTERWRITEBUFFER_SIZE];
 
 	for(int i = 0; i < PSM_MAX; i++)
 	{
@@ -121,6 +123,7 @@ CGSHandler::~CGSHandler()
 	}
 	delete[] m_pRAM;
 	delete[] m_pCLUT;
+	delete[] m_writeBuffer;
 }
 
 void CGSHandler::RegisterPreferences()
@@ -550,12 +553,13 @@ void CGSHandler::ReadImageData(void* data, uint32 length)
 	SendGSCall([this, data, length]() { ReadImageDataImpl(data, length); }, true);
 }
 
-void CGSHandler::WriteRegisterMassively(RegisterWriteList registerWrites, const CGsPacketMetadata* metadata)
+void CGSHandler::WriteRegisterMassively(uint32 bufferStartIndex, uint32 bufferEndIndex, const CGsPacketMetadata* metadata)
 {
 	m_transferCount++;
 
 	MASSIVEWRITE_INFO massiveWrite;
-	massiveWrite.writes = std::move(registerWrites);
+	massiveWrite.bufferStartIndex = bufferStartIndex;
+	massiveWrite.bufferEndIndex = bufferEndIndex;
 #ifdef DEBUGGER_INCLUDED
 	if(metadata != nullptr)
 	{
@@ -573,14 +577,11 @@ void CGSHandler::WriteRegisterMassively(RegisterWriteList registerWrites, const 
 	    });
 }
 
-CGSHandler::RegisterWriteList& CGSHandler::GetWriteBuffer()
-{
-	return m_writeBuffer;
-}
-
 void CGSHandler::ProcessWriteBuffer()
 {
-	for(uint32 writeIndex = m_writeBufferMark; writeIndex < m_writeBuffer.size(); writeIndex++)
+	assert(m_writeBufferProcessIndex <= m_writeBufferSize);
+	assert(m_writeBufferSubmitIndex <= m_writeBufferProcessIndex);
+	for(uint32 writeIndex = m_writeBufferProcessIndex; writeIndex < m_writeBufferSize; writeIndex++)
 	{
 		const auto& write = m_writeBuffer[writeIndex];
 		switch(write.first)
@@ -612,18 +613,31 @@ void CGSHandler::ProcessWriteBuffer()
 		break;
 		}
 	}
-	m_writeBufferMark = m_writeBuffer.size();
-	if(m_writeBuffer.size() > 0x400)
+	m_writeBufferProcessIndex = m_writeBufferSize;
+	uint32 submitPending = m_writeBufferProcessIndex - m_writeBufferSubmitIndex;
+	if(submitPending >= REGISTERWRITEBUFFER_SUBMIT_THRESHOLD)
 	{
-		FlushWriteBuffer();
+		SubmitWriteBuffer();
 	}
+}
+
+void CGSHandler::SubmitWriteBuffer()
+{
+	assert(m_writeBufferSubmitIndex <= m_writeBufferSize);
+	if(m_writeBufferSubmitIndex == m_writeBufferSize) return;
+	WriteRegisterMassively(m_writeBufferSubmitIndex, m_writeBufferSize, nullptr);
+	m_writeBufferSubmitIndex = m_writeBufferSize;
 }
 
 void CGSHandler::FlushWriteBuffer()
 {
-	if(m_writeBuffer.empty()) return;
-	WriteRegisterMassively(std::move(m_writeBuffer), nullptr);
-	m_writeBufferMark = 0;
+	//Make sure everything is processed and submitted
+	ProcessWriteBuffer();
+	SubmitWriteBuffer();
+	m_writeBufferSize = 0;
+	m_writeBufferProcessIndex = 0;
+	m_writeBufferSubmitIndex = 0;
+	//Nothing should be written to the buffer after that
 }
 
 void CGSHandler::WriteRegisterImpl(uint8 nRegister, uint64 nData)
@@ -738,8 +752,9 @@ void CGSHandler::WriteRegisterMassivelyImpl(const MASSIVEWRITE_INFO& massiveWrit
 	}
 #endif
 
-	for(const auto& write : massiveWrite.writes)
+	for(uint32 i = massiveWrite.bufferStartIndex; i < massiveWrite.bufferEndIndex; i++)
 	{
+		const auto& write = m_writeBuffer[i];
 		WriteRegisterImpl(write.first, write.second);
 	}
 

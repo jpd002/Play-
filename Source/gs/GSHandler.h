@@ -791,10 +791,17 @@ public:
 	void WriteRegister(uint8, uint64);
 	void FeedImageData(const void*, uint32);
 	void ReadImageData(void*, uint32);
-	void WriteRegisterMassively(RegisterWriteList, const CGsPacketMetadata*);
+	void WriteRegisterMassively(uint32, uint32, const CGsPacketMetadata*);
 
-	RegisterWriteList& GetWriteBuffer();
+	inline void AddWriteToBuffer(const RegisterWrite& write)
+	{
+		assert(m_writeBufferSize < REGISTERWRITEBUFFER_SIZE);
+		if(m_writeBufferSize == REGISTERWRITEBUFFER_SIZE) return;
+		m_writeBuffer[m_writeBufferSize++] = write;
+	}
+
 	void ProcessWriteBuffer();
+	void SubmitWriteBuffer();
 	void FlushWriteBuffer();
 	
 	virtual void SetCrt(bool, unsigned int, bool);
@@ -844,6 +851,12 @@ protected:
 	{
 		CLUTSIZE = 0x400,
 		CLUTENTRYCOUNT = (CLUTSIZE / 2)
+	};
+
+	enum
+	{
+		REGISTERWRITEBUFFER_SIZE = 0x100000,
+		REGISTERWRITEBUFFER_SUBMIT_THRESHOLD = 0x100
 	};
 
 	enum MAG_FILTER
@@ -1007,8 +1020,12 @@ protected:
 	uint32 m_nCBP1;
 
 	uint32 m_drawCallCount;
-	RegisterWriteList m_writeBuffer;
-	uint32 m_writeBufferMark = 0;
+
+	//Rename to register write buffer?
+	RegisterWrite* m_writeBuffer;
+	uint32 m_writeBufferSize = 0;
+	uint32 m_writeBufferProcessIndex = 0;
+	uint32 m_writeBufferSubmitIndex = 0;
 
 	unsigned int m_nCrtMode;
 	std::thread m_thread;
