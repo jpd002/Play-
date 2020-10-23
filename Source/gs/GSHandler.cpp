@@ -550,6 +550,7 @@ void CGSHandler::FeedImageData(const void* data, uint32 length)
 
 void CGSHandler::ReadImageData(void* data, uint32 length)
 {
+	SubmitWriteBuffer();
 	SendGSCall([this, data, length]() { ReadImageDataImpl(data, length); }, true);
 }
 
