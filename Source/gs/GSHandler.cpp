@@ -331,7 +331,7 @@ void CGSHandler::SetDrawEnabled(bool drawEnabled)
 void CGSHandler::SetVBlank()
 {
 	{
-		Flip();
+		Finish();
 	}
 
 	std::lock_guard<std::recursive_mutex> registerMutexLock(m_registerMutex);
@@ -482,15 +482,16 @@ void CGSHandler::Release()
 	SendGSCall(std::bind(&CGSHandler::ReleaseImpl, this), true);
 }
 
-void CGSHandler::Flip(bool showOnly)
+void CGSHandler::Finish()
 {
-	if(!showOnly)
-	{
-		FlushWriteBuffer();
-		SendGSCall([]() {}, true);
-		SendGSCall(std::bind(&CGSHandler::MarkNewFrame, this));
-	}
-	SendGSCall(std::bind(&CGSHandler::FlipImpl, this), true, true);
+	FlushWriteBuffer();
+	SendGSCall(std::bind(&CGSHandler::MarkNewFrame, this), true);
+	Flip();
+}
+
+void CGSHandler::Flip(bool waitForCompletion)
+{
+	SendGSCall(std::bind(&CGSHandler::FlipImpl, this), waitForCompletion);
 }
 
 void CGSHandler::FlipImpl()
