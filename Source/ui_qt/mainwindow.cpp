@@ -266,7 +266,10 @@ void MainWindow::outputWindow_resized()
 		presentationParams.windowWidth = w * scale;
 		presentationParams.windowHeight = h * scale;
 		m_virtualMachine->m_ee->m_gs->SetPresentationParams(presentationParams);
-		m_virtualMachine->m_ee->m_gs->Flip(true);
+		if(m_virtualMachine->GetStatus() == CVirtualMachine::PAUSED)
+		{
+			m_virtualMachine->m_ee->m_gs->Flip(true);
+		}
 	}
 }
 
