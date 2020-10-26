@@ -156,7 +156,7 @@ travis_before_deploy()
             ABI_LIST="arm64-v8a armeabi-v7a x86 x86_64"
         else
             cp ../../build_android/build/outputs/apk/release/Play-release-unsigned.apk .
-            export ANDROID_BUILD_TOOLS=$ANDROID_HOME/build-tools/28.0.3
+            export ANDROID_BUILD_TOOLS=$ANDROID_HOME/build-tools/29.0.3
             $ANDROID_BUILD_TOOLS/zipalign -v -p 4 Play-release-unsigned.apk Play-release.apk
             $ANDROID_BUILD_TOOLS/apksigner sign --ks ../../installer_android/deploy.keystore --ks-key-alias deploy --ks-pass env:ANDROID_KEYSTORE_PASS --key-pass env:ANDROID_KEYSTORE_PASS Play-release.apk
         fi

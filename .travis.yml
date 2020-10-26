@@ -46,8 +46,7 @@ matrix:
         components:
         - tools
         - platform-tools
-        - build-tools-28.0.3
-        - android-28
+        - build-tools-29.0.3
         - extra-android-m2repository
     - os: linux
       dist: trusty
@@ -60,8 +59,7 @@ matrix:
         components:
         - tools
         - platform-tools
-        - build-tools-28.0.3
-        - android-28
+        - build-tools-29.0.3
         - extra-android-m2repository
     - os: freebsd
       dist: trusty
