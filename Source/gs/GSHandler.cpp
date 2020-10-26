@@ -485,13 +485,13 @@ void CGSHandler::Release()
 void CGSHandler::Finish()
 {
 	FlushWriteBuffer();
-	SendGSCall(std::bind(&CGSHandler::MarkNewFrame, this), true);
-	Flip();
+	SendGSCall(std::bind(&CGSHandler::MarkNewFrame, this), m_gsThreaded);
+	Flip(!m_gsThreaded);
 }
 
 void CGSHandler::Flip(bool waitForCompletion)
 {
-	SendGSCall(std::bind(&CGSHandler::FlipImpl, this), waitForCompletion);
+	SendGSCall(std::bind(&CGSHandler::FlipImpl, this), waitForCompletion, waitForCompletion);
 }
 
 void CGSHandler::FlipImpl()
@@ -1957,6 +1957,7 @@ void CGSHandler::SendGSCall(CMailBox::FunctionType&& function)
 void CGSHandler::ProcessSingleFrame()
 {
 	assert(!m_gsThreaded);
+	assert(!m_flipped);
 	while(!m_flipped)
 	{
 		m_mailBox.WaitForCall();
