@@ -522,6 +522,9 @@ void CGSHandler::SetSMODE2(uint64 value)
 
 void CGSHandler::FeedImageData(const void* data, uint32 length)
 {
+	assert(m_writeBufferProcessIndex == m_writeBufferSize);
+	SubmitWriteBuffer();
+
 	m_transferCount++;
 
 	//Allocate 0x10 more bytes to allow transfer handlers
@@ -543,6 +546,7 @@ void CGSHandler::FeedImageData(const void* data, uint32 length)
 
 void CGSHandler::ReadImageData(void* data, uint32 length)
 {
+	assert(m_writeBufferProcessIndex == m_writeBufferSize);
 	SubmitWriteBuffer();
 	SendGSCall([this, data, length]() { ReadImageDataImpl(data, length); }, true);
 }
@@ -554,7 +558,11 @@ void CGSHandler::ProcessWriteBuffer(const CGsPacketMetadata* metadata)
 #ifdef DEBUGGER_INCLUDED
 	if(m_frameDump)
 	{
-		m_frameDump->AddRegisterPacket(m_writeBuffer + m_writeBufferProcessIndex, m_writeBufferSize - m_writeBufferProcessIndex, metadata);
+		uint32 packetSize = m_writeBufferSize - m_writeBufferProcessIndex;
+		if(packetSize != 0)
+		{
+			m_frameDump->AddRegisterPacket(m_writeBuffer + m_writeBufferProcessIndex, packetSize, metadata);
+		}
 	}
 #endif
 	for(uint32 writeIndex = m_writeBufferProcessIndex; writeIndex < m_writeBufferSize; writeIndex++)

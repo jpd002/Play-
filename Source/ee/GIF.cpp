@@ -243,8 +243,6 @@ uint32 CGIF::ProcessRegList(const uint8* memory, uint32 address, uint32 end)
 
 uint32 CGIF::ProcessImage(const uint8* memory, uint32 memorySize, uint32 address, uint32 end)
 {
-	m_gs->SubmitWriteBuffer();
-
 	uint16 totalLoops = static_cast<uint16>((end - address) / 0x10);
 	totalLoops = std::min<uint16>(totalLoops, m_loops);
 

@@ -238,15 +238,6 @@ void CFrameDebugger::UpdateDisplay(int32 targetCmdIndex)
 	memcpy(gsRegisters, m_frameDump.GetInitialGsRegisters(), CGSHandler::REGISTER_MAX * sizeof(uint64));
 	m_gs->SetSMODE2(m_frameDump.GetInitialSMODE2());
 
-	CGsPacket::RegisterWriteArray registerWrites;
-
-	const auto flushRegisterWrites =
-	    [&]() {
-		    auto currentCapacity = registerWrites.capacity();
-		    m_gs->WriteRegisterMassively(std::move(registerWrites), nullptr);
-		    registerWrites.reserve(currentCapacity);
-	    };
-
 	int32 cmdIndex = 0;
 	for(const auto& packet : m_frameDump.GetPackets())
 	{
@@ -256,7 +247,7 @@ void CFrameDebugger::UpdateDisplay(int32 targetCmdIndex)
 
 		if(packet.registerWrites.empty())
 		{
-			flushRegisterWrites();
+			m_gs->ProcessWriteBuffer(nullptr);
 			m_gs->FeedImageData(packet.imageData.data(), packet.imageData.size());
 		}
 		else
@@ -264,14 +255,14 @@ void CFrameDebugger::UpdateDisplay(int32 targetCmdIndex)
 			for(const auto& registerWrite : packet.registerWrites)
 			{
 				if((cmdIndex - 1) >= targetCmdIndex) break;
-				registerWrites.push_back(registerWrite);
+				m_gs->WriteRegister(registerWrite);
 				cmdIndex++;
 			}
 		}
 	}
 
-	flushRegisterWrites();
-	m_gs->Flip();
+	m_gs->ProcessWriteBuffer(nullptr);
+	m_gs->Finish();
 
 	const auto& drawingKicks = m_frameDump.GetDrawingKicks();
 	if(!drawingKicks.empty())
