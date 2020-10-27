@@ -57,15 +57,6 @@
 
 #define LOG_NAME ("gs")
 
-struct MASSIVEWRITE_INFO
-{
-#ifdef DEBUGGER_INCLUDED
-	CGsPacketMetadata metadata;
-#endif
-	uint32 bufferStartIndex;
-	uint32 bufferEndIndex;
-};
-
 CGSHandler::CGSHandler(bool gsThreaded)
     : m_threadDone(false)
     , m_drawCallCount(0)
@@ -529,11 +520,6 @@ void CGSHandler::SetSMODE2(uint64 value)
 	m_nSMODE2 = value;
 }
 
-void CGSHandler::WriteRegister(uint8 registerId, uint64 value)
-{
-	SendGSCall(std::bind(&CGSHandler::WriteRegisterImpl, this, registerId, value));
-}
-
 void CGSHandler::FeedImageData(const void* data, uint32 length)
 {
 	m_transferCount++;
@@ -543,6 +529,12 @@ void CGSHandler::FeedImageData(const void* data, uint32 length)
 
 	std::vector<uint8> imageData(length + 0x10);
 	memcpy(imageData.data(), data, length);
+#ifdef DEBUGGER_INCLUDED
+	if(m_frameDump)
+	{
+		m_frameDump->AddImagePacket(imageData.data(), length);
+	}
+#endif
 	SendGSCall(
 	    [this, imageData = std::move(imageData), length]() {
 		    FeedImageDataImpl(imageData.data(), length);
@@ -555,34 +547,16 @@ void CGSHandler::ReadImageData(void* data, uint32 length)
 	SendGSCall([this, data, length]() { ReadImageDataImpl(data, length); }, true);
 }
 
-void CGSHandler::WriteRegisterMassively(uint32 bufferStartIndex, uint32 bufferEndIndex, const CGsPacketMetadata* metadata)
-{
-	m_transferCount++;
-
-	MASSIVEWRITE_INFO massiveWrite;
-	massiveWrite.bufferStartIndex = bufferStartIndex;
-	massiveWrite.bufferEndIndex = bufferEndIndex;
-#ifdef DEBUGGER_INCLUDED
-	if(metadata != nullptr)
-	{
-		memcpy(&massiveWrite.metadata, metadata, sizeof(CGsPacketMetadata));
-	}
-	else
-	{
-		massiveWrite.metadata = CGsPacketMetadata();
-	}
-#endif
-
-	SendGSCall(
-	    [this, massiveWrite = std::move(massiveWrite)]() {
-		    WriteRegisterMassivelyImpl(massiveWrite);
-	    });
-}
-
-void CGSHandler::ProcessWriteBuffer()
+void CGSHandler::ProcessWriteBuffer(const CGsPacketMetadata* metadata)
 {
 	assert(m_writeBufferProcessIndex <= m_writeBufferSize);
 	assert(m_writeBufferSubmitIndex <= m_writeBufferProcessIndex);
+#ifdef DEBUGGER_INCLUDED
+	if(m_frameDump)
+	{
+		m_frameDump->AddRegisterPacket(m_writeBuffer + m_writeBufferProcessIndex, m_writeBufferSize - m_writeBufferProcessIndex, metadata);
+	}
+#endif
 	for(uint32 writeIndex = m_writeBufferProcessIndex; writeIndex < m_writeBufferSize; writeIndex++)
 	{
 		const auto& write = m_writeBuffer[writeIndex];
@@ -627,14 +601,24 @@ void CGSHandler::SubmitWriteBuffer()
 {
 	assert(m_writeBufferSubmitIndex <= m_writeBufferSize);
 	if(m_writeBufferSubmitIndex == m_writeBufferSize) return;
-	WriteRegisterMassively(m_writeBufferSubmitIndex, m_writeBufferSize, nullptr);
+
+	m_transferCount++;
+	uint32 bufferStartIndex = m_writeBufferSubmitIndex;
+	uint32 bufferEndIndex = m_writeBufferSize;
+
+	SendGSCall(
+	    [this, bufferStartIndex, bufferEndIndex]() {
+		    SubmitWriteBufferImpl(bufferStartIndex, bufferEndIndex);
+	    });
+
 	m_writeBufferSubmitIndex = m_writeBufferSize;
 }
 
 void CGSHandler::FlushWriteBuffer()
 {
-	//Make sure everything is processed and submitted
-	ProcessWriteBuffer();
+	//Everything should be processed at this point
+	assert(m_writeBufferProcessIndex == m_writeBufferSize);
+	//Make sure everything is submitted
 	SubmitWriteBuffer();
 	m_writeBufferSize = 0;
 	m_writeBufferProcessIndex = 0;
@@ -692,13 +676,6 @@ void CGSHandler::WriteRegisterImpl(uint8 nRegister, uint64 nData)
 
 void CGSHandler::FeedImageDataImpl(const uint8* imageData, uint32 length)
 {
-#ifdef DEBUGGER_INCLUDED
-	if(m_frameDump)
-	{
-		m_frameDump->AddImagePacket(imageData, length);
-	}
-#endif
-
 	if(m_trxCtx.nSize == 0)
 	{
 #ifdef _DEBUG
@@ -745,16 +722,9 @@ void CGSHandler::ReadImageDataImpl(void* ptr, uint32 size)
 	((this)->*(m_transferReadHandlers[bltBuf.nSrcPsm]))(ptr, size);
 }
 
-void CGSHandler::WriteRegisterMassivelyImpl(const MASSIVEWRITE_INFO& massiveWrite)
+void CGSHandler::SubmitWriteBufferImpl(uint32 bufferStartIndex, uint32 bufferEndIndex)
 {
-#ifdef DEBUGGER_INCLUDED
-	if(m_frameDump)
-	{
-		m_frameDump->AddRegisterPacket(massiveWrite.writes.data(), massiveWrite.writes.size(), &massiveWrite.metadata);
-	}
-#endif
-
-	for(uint32 i = massiveWrite.bufferStartIndex; i < massiveWrite.bufferEndIndex; i++)
+	for(uint32 i = bufferStartIndex; i < bufferEndIndex; i++)
 	{
 		const auto& write = m_writeBuffer[i];
 		WriteRegisterImpl(write.first, write.second);

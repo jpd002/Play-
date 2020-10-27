@@ -18,7 +18,6 @@
 class CFrameDump;
 class CGsPacketMetadata;
 class CINTC;
-struct MASSIVEWRITE_INFO;
 
 #define PREF_CGSHANDLER_PRESENTATION_MODE "renderer.presentationmode"
 
@@ -788,19 +787,17 @@ public:
 	void SetVBlank();
 	void ResetVBlank();
 
-	void WriteRegister(uint8, uint64);
 	void FeedImageData(const void*, uint32);
 	void ReadImageData(void*, uint32);
-	void WriteRegisterMassively(uint32, uint32, const CGsPacketMetadata*);
 
-	inline void AddWriteToBuffer(const RegisterWrite& write)
+	inline void WriteRegister(const RegisterWrite& write)
 	{
 		assert(m_writeBufferSize < REGISTERWRITEBUFFER_SIZE);
 		if(m_writeBufferSize == REGISTERWRITEBUFFER_SIZE) return;
 		m_writeBuffer[m_writeBufferSize++] = write;
 	}
 
-	void ProcessWriteBuffer();
+	void ProcessWriteBuffer(const CGsPacketMetadata*);
 	void SubmitWriteBuffer();
 	void FlushWriteBuffer();
 	
@@ -956,7 +953,7 @@ protected:
 	virtual void WriteRegisterImpl(uint8, uint64);
 	void FeedImageDataImpl(const uint8*, uint32);
 	void ReadImageDataImpl(void*, uint32);
-	void WriteRegisterMassivelyImpl(const MASSIVEWRITE_INFO&);
+	void SubmitWriteBufferImpl(uint32, uint32);
 
 	void BeginTransfer();
 

@@ -91,7 +91,7 @@ uint32 CGIF::ProcessPacked(const uint8* memory, uint32 address, uint32 end)
 			{
 			case 0x00:
 				//PRIM
-				m_gs->AddWriteToBuffer(CGSHandler::RegisterWrite(GS_REG_PRIM, packet.nV0));
+				m_gs->WriteRegister(CGSHandler::RegisterWrite(GS_REG_PRIM, packet.nV0));
 				break;
 			case 0x01:
 				//RGBA
@@ -100,18 +100,18 @@ uint32 CGIF::ProcessPacked(const uint8* memory, uint32 address, uint32 end)
 				temp |= (packet.nV[2] & 0xFF) << 16;
 				temp |= (packet.nV[3] & 0xFF) << 24;
 				temp |= ((uint64)m_qtemp << 32);
-				m_gs->AddWriteToBuffer(CGSHandler::RegisterWrite(GS_REG_RGBAQ, temp));
+				m_gs->WriteRegister(CGSHandler::RegisterWrite(GS_REG_RGBAQ, temp));
 				break;
 			case 0x02:
 				//ST
 				m_qtemp = packet.nV2;
-				m_gs->AddWriteToBuffer(CGSHandler::RegisterWrite(GS_REG_ST, packet.nD0));
+				m_gs->WriteRegister(CGSHandler::RegisterWrite(GS_REG_ST, packet.nD0));
 				break;
 			case 0x03:
 				//UV
 				temp = (packet.nV[0] & 0x7FFF);
 				temp |= (packet.nV[1] & 0x7FFF) << 16;
-				m_gs->AddWriteToBuffer(CGSHandler::RegisterWrite(GS_REG_UV, temp));
+				m_gs->WriteRegister(CGSHandler::RegisterWrite(GS_REG_UV, temp));
 				break;
 			case 0x04:
 				//XYZF2
@@ -121,11 +121,11 @@ uint32 CGIF::ProcessPacked(const uint8* memory, uint32 address, uint32 end)
 				temp |= (uint64)(packet.nV[3] & 0x00000FF0) << 52;
 				if(packet.nV[3] & 0x8000)
 				{
-					m_gs->AddWriteToBuffer(CGSHandler::RegisterWrite(GS_REG_XYZF3, temp));
+					m_gs->WriteRegister(CGSHandler::RegisterWrite(GS_REG_XYZF3, temp));
 				}
 				else
 				{
-					m_gs->AddWriteToBuffer(CGSHandler::RegisterWrite(GS_REG_XYZF2, temp));
+					m_gs->WriteRegister(CGSHandler::RegisterWrite(GS_REG_XYZF2, temp));
 				}
 				break;
 			case 0x05:
@@ -135,36 +135,36 @@ uint32 CGIF::ProcessPacked(const uint8* memory, uint32 address, uint32 end)
 				temp |= (uint64)(packet.nV[2] & 0xFFFFFFFF) << 32;
 				if(packet.nV[3] & 0x8000)
 				{
-					m_gs->AddWriteToBuffer(CGSHandler::RegisterWrite(GS_REG_XYZ3, temp));
+					m_gs->WriteRegister(CGSHandler::RegisterWrite(GS_REG_XYZ3, temp));
 				}
 				else
 				{
-					m_gs->AddWriteToBuffer(CGSHandler::RegisterWrite(GS_REG_XYZ2, temp));
+					m_gs->WriteRegister(CGSHandler::RegisterWrite(GS_REG_XYZ2, temp));
 				}
 				break;
 			case 0x06:
 				//TEX0_1
-				m_gs->AddWriteToBuffer(CGSHandler::RegisterWrite(GS_REG_TEX0_1, packet.nD0));
+				m_gs->WriteRegister(CGSHandler::RegisterWrite(GS_REG_TEX0_1, packet.nD0));
 				break;
 			case 0x07:
 				//TEX0_2
-				m_gs->AddWriteToBuffer(CGSHandler::RegisterWrite(GS_REG_TEX0_2, packet.nD0));
+				m_gs->WriteRegister(CGSHandler::RegisterWrite(GS_REG_TEX0_2, packet.nD0));
 				break;
 			case 0x08:
 				//CLAMP_1
-				m_gs->AddWriteToBuffer(CGSHandler::RegisterWrite(GS_REG_CLAMP_1, packet.nD0));
+				m_gs->WriteRegister(CGSHandler::RegisterWrite(GS_REG_CLAMP_1, packet.nD0));
 				break;
 			case 0x09:
 				//CLAMP_2
-				m_gs->AddWriteToBuffer(CGSHandler::RegisterWrite(GS_REG_CLAMP_2, packet.nD0));
+				m_gs->WriteRegister(CGSHandler::RegisterWrite(GS_REG_CLAMP_2, packet.nD0));
 				break;
 			case 0x0A:
 				//FOG
-				m_gs->AddWriteToBuffer(CGSHandler::RegisterWrite(GS_REG_FOG, (packet.nD1 >> 36) << 56));
+				m_gs->WriteRegister(CGSHandler::RegisterWrite(GS_REG_FOG, (packet.nD1 >> 36) << 56));
 				break;
 			case 0x0D:
 				//XYZ3
-				m_gs->AddWriteToBuffer(CGSHandler::RegisterWrite(GS_REG_XYZ3, packet.nD0));
+				m_gs->WriteRegister(CGSHandler::RegisterWrite(GS_REG_XYZ3, packet.nD0));
 				break;
 			case 0x0E:
 				//A + D
@@ -182,7 +182,7 @@ uint32 CGIF::ProcessPacked(const uint8* memory, uint32 address, uint32 end)
 						}
 						m_signalState = SIGNAL_STATE_ENCOUNTERED;
 					}
-					m_gs->AddWriteToBuffer(CGSHandler::RegisterWrite(reg, packet.nD0));
+					m_gs->WriteRegister(CGSHandler::RegisterWrite(reg, packet.nD0));
 				}
 				break;
 			case 0x0F:
@@ -222,7 +222,7 @@ uint32 CGIF::ProcessRegList(const uint8* memory, uint32 address, uint32 end)
 			m_regsTemp--;
 
 			if(regDesc == 0x0F) continue;
-			m_gs->AddWriteToBuffer(CGSHandler::RegisterWrite(static_cast<uint8>(regDesc), packet));
+			m_gs->WriteRegister(CGSHandler::RegisterWrite(static_cast<uint8>(regDesc), packet));
 		}
 
 		if(m_regsTemp == 0)
@@ -312,7 +312,7 @@ uint32 CGIF::ProcessSinglePacket(const uint8* memory, uint32 memorySize, uint32 
 			{
 				if(tag.pre != 0)
 				{
-					m_gs->AddWriteToBuffer(CGSHandler::RegisterWrite(GS_REG_PRIM, static_cast<uint64>(tag.prim)));
+					m_gs->WriteRegister(CGSHandler::RegisterWrite(GS_REG_PRIM, static_cast<uint64>(tag.prim)));
 				}
 			}
 
@@ -334,7 +334,7 @@ uint32 CGIF::ProcessSinglePacket(const uint8* memory, uint32 memorySize, uint32 
 			//We need to flush our list here because image data can be embedded in a GIF packet
 			//that specifies pixel transfer information in GS registers (and that has to be send first)
 			//This is done by FFX
-			m_gs->ProcessWriteBuffer();
+			m_gs->ProcessWriteBuffer(&packetMetadata);
 			address += ProcessImage(memory, memorySize, address, end);
 			break;
 		}
@@ -354,7 +354,7 @@ uint32 CGIF::ProcessSinglePacket(const uint8* memory, uint32 memorySize, uint32 
 		}
 	}
 
-	m_gs->ProcessWriteBuffer();
+	m_gs->ProcessWriteBuffer(&packetMetadata);
 
 #ifdef _DEBUG
 	CLog::GetInstance().Print(LOG_NAME, "Processed 0x%08X bytes.\r\n", address - start);
