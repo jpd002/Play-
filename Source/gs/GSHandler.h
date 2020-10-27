@@ -800,7 +800,7 @@ public:
 	void ProcessWriteBuffer(const CGsPacketMetadata*);
 	void SubmitWriteBuffer();
 	void FlushWriteBuffer();
-	
+
 	virtual void SetCrt(bool, unsigned int, bool);
 	void Initialize();
 	void Release();
