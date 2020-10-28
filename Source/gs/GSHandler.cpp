@@ -476,8 +476,8 @@ void CGSHandler::Release()
 void CGSHandler::Finish()
 {
 	FlushWriteBuffer();
-	SendGSCall(std::bind(&CGSHandler::MarkNewFrame, this), m_gsThreaded);
-	Flip(!m_gsThreaded);
+	SendGSCall(std::bind(&CGSHandler::MarkNewFrame, this));
+	Flip(true);
 }
 
 void CGSHandler::Flip(bool waitForCompletion)
