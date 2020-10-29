@@ -13,6 +13,7 @@
 
 #define FUNCTION_ALLOCHARDTIMER "AllocHardTimer"
 #define FUNCTION_REFERHARDTIMER "ReferHardTimer"
+#define FUNCTION_FREEHARDTIMER "FreeHardTimer"
 #define FUNCTION_SETTIMERMODE "SetTimerMode"
 #define FUNCTION_GETTIMERSTATUS "GetTimerStatus"
 #define FUNCTION_GETTIMERCOUNTER "GetTimerCounter"
@@ -49,6 +50,9 @@ std::string CTimrman::GetFunctionName(unsigned int functionId) const
 		break;
 	case 5:
 		return FUNCTION_REFERHARDTIMER;
+		break;
+	case 6:
+		return FUNCTION_FREEHARDTIMER;
 		break;
 	case 7:
 		return FUNCTION_SETTIMERMODE;
@@ -100,6 +104,10 @@ void CTimrman::Invoke(CMIPS& context, unsigned int functionId)
 		    context.m_State.nGPR[CMIPS::A1].nV0,
 		    context.m_State.nGPR[CMIPS::A2].nV0,
 		    context.m_State.nGPR[CMIPS::A3].nV0);
+		break;
+	case 6:
+		context.m_State.nGPR[CMIPS::V0].nD0 = FreeHardTimer(
+		    context.m_State.nGPR[CMIPS::A0].nV0);
 		break;
 	case 7:
 		SetTimerMode(
@@ -222,6 +230,26 @@ int CTimrman::ReferHardTimer(uint32 source, uint32 size, uint32 mode, uint32 mod
 	CLog::GetInstance().Print(LOG_NAME, FUNCTION_REFERHARDTIMER "(source = %d, size = %d, mode = 0x%08X, mask = 0x%08X);\r\n",
 	                          source, size, mode, modeMask);
 #endif
+	return 0;
+}
+
+int32 CTimrman::FreeHardTimer(uint32 timerId)
+{
+#ifdef _DEBUG
+	CLog::GetInstance().Print(LOG_NAME, FUNCTION_FREEHARDTIMER "(timerId = %d);\r\n", timerId);
+#endif
+	uint32 hardTimerIndex = timerId - 1;
+	if(hardTimerIndex >= CRootCounters::MAX_COUNTERS)
+	{
+		CLog::GetInstance().Warn(LOG_NAME, "Trying to free an invalid timer id (%d).\r\n", timerId);
+		return CIopBios::KERNEL_RESULT_ERROR_ILLEGAL_TIMERID;
+	}
+	if((m_hardTimerAlloc & (1 << hardTimerIndex)) == 0)
+	{
+		CLog::GetInstance().Warn(LOG_NAME, "Trying to free a free timer (%d).\r\n", timerId);
+		return CIopBios::KERNEL_RESULT_ERROR_ILLEGAL_TIMERID;
+	}
+	m_hardTimerAlloc &= ~(1 << hardTimerIndex);
 	return 0;
 }
 

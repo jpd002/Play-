@@ -22,6 +22,7 @@ namespace Iop
 	private:
 		int AllocHardTimer(CMIPS&, uint32, uint32, uint32);
 		int ReferHardTimer(uint32, uint32, uint32, uint32);
+		int32 FreeHardTimer(uint32);
 		void SetTimerMode(CMIPS&, uint32, uint32);
 		int GetTimerStatus(CMIPS&, uint32);
 		int GetTimerCounter(CMIPS&, uint32);
