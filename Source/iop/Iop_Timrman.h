@@ -20,7 +20,7 @@ namespace Iop
 		void LoadState(Framework::CZipArchiveReader&) override;
 
 	private:
-		int AllocHardTimer(CMIPS&, uint32, uint32, uint32);
+		int32 AllocHardTimer(uint32, uint32, uint32);
 		int ReferHardTimer(uint32, uint32, uint32, uint32);
 		int32 FreeHardTimer(uint32);
 		void SetTimerMode(CMIPS&, uint32, uint32);
@@ -28,10 +28,10 @@ namespace Iop
 		int GetTimerCounter(CMIPS&, uint32);
 		void SetTimerCompare(CMIPS&, uint32, uint32);
 		int GetHardTimerIntrCode(uint32);
-		int SetTimerCallback(CMIPS&, int, uint32, uint32, uint32);
-		int SetupHardTimer(uint32, uint32, uint32, uint32);
-		int StartHardTimer(uint32);
-		int32 StopHardTimer(uint32);
+		int32 SetTimerCallback(CMIPS&, uint32, uint32, uint32, uint32);
+		int32 SetupHardTimer(CMIPS&, uint32, uint32, uint32, uint32);
+		int32 StartHardTimer(CMIPS&, uint32);
+		int32 StopHardTimer(CMIPS&, uint32);
 
 		CIopBios& m_bios;
 		uint32 m_hardTimerAlloc = 0;

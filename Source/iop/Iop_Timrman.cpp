@@ -93,7 +93,6 @@ void CTimrman::Invoke(CMIPS& context, unsigned int functionId)
 	{
 	case 4:
 		context.m_State.nGPR[CMIPS::V0].nD0 = AllocHardTimer(
-		    context,
 		    context.m_State.nGPR[CMIPS::A0].nV0,
 		    context.m_State.nGPR[CMIPS::A1].nV0,
 		    context.m_State.nGPR[CMIPS::A2].nV0);
@@ -145,6 +144,7 @@ void CTimrman::Invoke(CMIPS& context, unsigned int functionId)
 		break;
 	case 22:
 		context.m_State.nGPR[CMIPS::V0].nD0 = SetupHardTimer(
+		    context,
 		    context.m_State.nGPR[CMIPS::A0].nV0,
 		    context.m_State.nGPR[CMIPS::A1].nV0,
 		    context.m_State.nGPR[CMIPS::A2].nV0,
@@ -152,10 +152,12 @@ void CTimrman::Invoke(CMIPS& context, unsigned int functionId)
 		break;
 	case 23:
 		context.m_State.nGPR[CMIPS::V0].nD0 = StartHardTimer(
+		    context,
 		    context.m_State.nGPR[CMIPS::A0].nV0);
 		break;
 	case 24:
 		context.m_State.nGPR[CMIPS::V0].nD0 = StopHardTimer(
+		    context,
 		    context.m_State.nGPR[CMIPS::A0].nV0);
 		break;
 	default:
@@ -178,7 +180,7 @@ void CTimrman::LoadState(Framework::CZipArchiveReader& archive)
 	m_hardTimerAlloc = registerFile.GetRegister32(STATE_HARDTIMERALLOC);
 }
 
-int CTimrman::AllocHardTimer(CMIPS& context, uint32 source, uint32 size, uint32 prescale)
+int32 CTimrman::AllocHardTimer(uint32 source, uint32 size, uint32 prescale)
 {
 #ifdef _DEBUG
 	CLog::GetInstance().Print(LOG_NAME, FUNCTION_ALLOCHARDTIMER "(source = %d, size = %d, prescale = %d);\r\n",
@@ -198,25 +200,7 @@ int CTimrman::AllocHardTimer(CMIPS& context, uint32 source, uint32 size, uint32 
 		    (CRootCounters::g_counterMaxScales[i] >= prescale) &&
 		    ((m_hardTimerAlloc & (1 << i)) == 0))
 		{
-			//Set proper clock divider
-			auto modeAddr = CRootCounters::g_counterBaseAddresses[i] + CRootCounters::CNT_MODE;
-			auto mode = make_convertible<CRootCounters::MODE>(context.m_pMemoryMap->GetWord(modeAddr));
-			mode.clc = (source != CRootCounters::COUNTER_SOURCE_SYSCLOCK) ? 1 : 0;
-
-			if(prescale == 1)
-				mode.div = CRootCounters::COUNTER_SCALE_1;
-			else if(prescale == 8)
-				mode.div = CRootCounters::COUNTER_SCALE_8;
-			else if(prescale == 16)
-				mode.div = CRootCounters::COUNTER_SCALE_16;
-			else if(prescale == 256)
-				mode.div = CRootCounters::COUNTER_SCALE_256;
-			else
-				assert(false);
-
-			context.m_pMemoryMap->SetWord(modeAddr, mode);
 			m_hardTimerAlloc |= (1 << i);
-
 			return (i + 1);
 		}
 	}
@@ -309,59 +293,159 @@ int CTimrman::GetHardTimerIntrCode(uint32 timerId)
 	return CRootCounters::g_counterInterruptLines[timerId];
 }
 
-int CTimrman::SetTimerCallback(CMIPS& context, int timerId, uint32 target, uint32 handler, uint32 arg)
+int32 CTimrman::SetTimerCallback(CMIPS& context, uint32 timerId, uint32 target, uint32 handler, uint32 arg)
 {
 #ifdef _DEBUG
 	CLog::GetInstance().Print(LOG_NAME, FUNCTION_SETTIMERCALLBACK "(timerId = %d, target = %d, handler = 0x%08X, arg = 0x%08X);\r\n",
 	                          timerId, target, handler, arg);
 #endif
-	if(timerId == 0) return 0;
-	timerId--;
+	uint32 hardTimerIndex = timerId - 1;
+	if(hardTimerIndex >= CRootCounters::MAX_COUNTERS)
+	{
+		CLog::GetInstance().Warn(LOG_NAME, "Setting callback on an invalid timer id (%d).\r\n", timerId);
+		return CIopBios::KERNEL_RESULT_ERROR_ILLEGAL_TIMERID;
+	}
+	if((m_hardTimerAlloc & (1 << hardTimerIndex)) == 0)
+	{
+		CLog::GetInstance().Warn(LOG_NAME, "Setting callback on a free timer (%d).\r\n", timerId);
+		return CIopBios::KERNEL_RESULT_ERROR_ILLEGAL_TIMERID;
+	}
 
-	uint32 timerInterruptLine = CRootCounters::g_counterInterruptLines[timerId];
+	context.m_pMemoryMap->SetWord(CRootCounters::g_counterBaseAddresses[hardTimerIndex] + CRootCounters::CNT_TARGET, target);
+
+	uint32 timerInterruptLine = CRootCounters::g_counterInterruptLines[hardTimerIndex];
+	m_bios.ReleaseIntrHandler(timerInterruptLine);
 	m_bios.RegisterIntrHandler(timerInterruptLine, 0, handler, arg);
 
-	auto modeAddr = CRootCounters::g_counterBaseAddresses[timerId] + CRootCounters::CNT_MODE;
-	auto mode = make_convertible<CRootCounters::MODE>(context.m_pMemoryMap->GetWord(modeAddr));
-
-	mode.tar = 1;
-	mode.iq1 = 1;
-	mode.iq2 = 1;
-
-	//Enable timer
-	context.m_pMemoryMap->SetWord(CRootCounters::g_counterBaseAddresses[timerId] + CRootCounters::CNT_COUNT, 0x0000);
-	context.m_pMemoryMap->SetWord(CRootCounters::g_counterBaseAddresses[timerId] + CRootCounters::CNT_MODE, mode);
-	context.m_pMemoryMap->SetWord(CRootCounters::g_counterBaseAddresses[timerId] + CRootCounters::CNT_TARGET, target);
-
-	uint32 mask = context.m_pMemoryMap->GetWord(CIntc::MASK0);
-	mask |= (1 << timerInterruptLine);
-	context.m_pMemoryMap->SetWord(CIntc::MASK0, mask);
 	return 0;
 }
 
-int CTimrman::SetupHardTimer(uint32 timerId, uint32 source, uint32 mode, uint32 prescale)
+int32 CTimrman::SetupHardTimer(CMIPS& context, uint32 timerId, uint32 source, uint32 gateMode, uint32 prescale)
 {
 #ifdef _DEBUG
 	CLog::GetInstance().Print(LOG_NAME, FUNCTION_SETUPHARDTIMER "(timerId = %d, source = %d, mode = %d, prescale = %d);\r\n",
-	                          timerId, source, mode, prescale);
+	                          timerId, source, gateMode, prescale);
 #endif
+
+	uint32 hardTimerIndex = timerId - 1;
+	if(hardTimerIndex >= CRootCounters::MAX_COUNTERS)
+	{
+		CLog::GetInstance().Warn(LOG_NAME, "Trying to setup an invalid timer (%d).\r\n", timerId);
+		return CIopBios::KERNEL_RESULT_ERROR_ILLEGAL_TIMERID;
+	}
+	if((m_hardTimerAlloc & (1 << hardTimerIndex)) == 0)
+	{
+		CLog::GetInstance().Warn(LOG_NAME, "Trying to setup a free timer (%d).\r\n", timerId);
+		return CIopBios::KERNEL_RESULT_ERROR_ILLEGAL_TIMERID;
+	}
+
+	assert(gateMode == 0);
+	assert((CRootCounters::g_counterSources[hardTimerIndex] & source) != 0);
+	assert(CRootCounters::g_counterMaxScales[hardTimerIndex] >= prescale);
+
+	//Set proper clock divider
+	auto modeAddr = CRootCounters::g_counterBaseAddresses[hardTimerIndex] + CRootCounters::CNT_MODE;
+	auto mode = make_convertible<CRootCounters::MODE>(context.m_pMemoryMap->GetWord(modeAddr));
+	mode.clc = (source != CRootCounters::COUNTER_SOURCE_SYSCLOCK) ? 1 : 0;
+
+	if(prescale == 1)
+		mode.div = CRootCounters::COUNTER_SCALE_1;
+	else if(prescale == 8)
+		mode.div = CRootCounters::COUNTER_SCALE_8;
+	else if(prescale == 16)
+		mode.div = CRootCounters::COUNTER_SCALE_16;
+	else if(prescale == 256)
+		mode.div = CRootCounters::COUNTER_SCALE_256;
+	else
+		assert(false);
+
+	context.m_pMemoryMap->SetWord(modeAddr, mode);
+
 	return 0;
 }
 
-int CTimrman::StartHardTimer(uint32 timerId)
+int32 CTimrman::StartHardTimer(CMIPS& context, uint32 timerId)
 {
 #ifdef _DEBUG
 	CLog::GetInstance().Print(LOG_NAME, FUNCTION_STARTHARDTIMER "(timerId = %d);\r\n",
 	                          timerId);
 #endif
+
+	uint32 hardTimerIndex = timerId - 1;
+	if(hardTimerIndex >= CRootCounters::MAX_COUNTERS)
+	{
+		CLog::GetInstance().Warn(LOG_NAME, "Trying to start an invalid timer (%d).\r\n", timerId);
+		return CIopBios::KERNEL_RESULT_ERROR_ILLEGAL_TIMERID;
+	}
+	if((m_hardTimerAlloc & (1 << hardTimerIndex)) == 0)
+	{
+		CLog::GetInstance().Warn(LOG_NAME, "Trying to start a free timer (%d).\r\n", timerId);
+		return CIopBios::KERNEL_RESULT_ERROR_ILLEGAL_TIMERID;
+	}
+
+	//Enable timer
+	{
+		auto modeAddr = CRootCounters::g_counterBaseAddresses[hardTimerIndex] + CRootCounters::CNT_MODE;
+		auto mode = make_convertible<CRootCounters::MODE>(context.m_pMemoryMap->GetWord(modeAddr));
+
+		mode.tar = 1;
+		mode.iq1 = 1;
+		mode.iq2 = 1;
+
+		context.m_pMemoryMap->SetWord(CRootCounters::g_counterBaseAddresses[hardTimerIndex] + CRootCounters::CNT_COUNT, 0x0000);
+		context.m_pMemoryMap->SetWord(CRootCounters::g_counterBaseAddresses[hardTimerIndex] + CRootCounters::CNT_MODE, mode);
+	}
+
+	//Enable interrupts
+	{
+		uint32 timerInterruptLine = CRootCounters::g_counterInterruptLines[hardTimerIndex];
+		uint32 status = context.m_pMemoryMap->GetWord(CIntc::STATUS0);
+		uint32 mask = context.m_pMemoryMap->GetWord(CIntc::MASK0);
+		mask |= (1 << timerInterruptLine);
+		context.m_pMemoryMap->SetWord(CIntc::MASK0, mask);
+	}
+
 	return 0;
 }
 
-int32 CTimrman::StopHardTimer(uint32 timerId)
+int32 CTimrman::StopHardTimer(CMIPS& context, uint32 timerId)
 {
 #ifdef _DEBUG
 	CLog::GetInstance().Print(LOG_NAME, FUNCTION_STOPHARDTIMER "(timerId = %d);\r\n",
 	                          timerId);
 #endif
+
+	uint32 hardTimerIndex = timerId - 1;
+	if(hardTimerIndex >= CRootCounters::MAX_COUNTERS)
+	{
+		CLog::GetInstance().Warn(LOG_NAME, "Trying to stop an invalid timer (%d).\r\n", timerId);
+		return CIopBios::KERNEL_RESULT_ERROR_ILLEGAL_TIMERID;
+	}
+	if((m_hardTimerAlloc & (1 << hardTimerIndex)) == 0)
+	{
+		CLog::GetInstance().Warn(LOG_NAME, "Trying to stop a free timer (%d).\r\n", timerId);
+		return CIopBios::KERNEL_RESULT_ERROR_ILLEGAL_TIMERID;
+	}
+
+	//Stop timer
+	{
+		auto modeAddr = CRootCounters::g_counterBaseAddresses[hardTimerIndex] + CRootCounters::CNT_MODE;
+		auto mode = make_convertible<CRootCounters::MODE>(context.m_pMemoryMap->GetWord(modeAddr));
+
+		mode.tar = 0;
+		mode.iq1 = 0;
+		mode.iq2 = 0;
+
+		context.m_pMemoryMap->SetWord(CRootCounters::g_counterBaseAddresses[hardTimerIndex] + CRootCounters::CNT_MODE, mode);
+	}
+
+	//Disable interrupts
+	{
+		uint32 timerInterruptLine = CRootCounters::g_counterInterruptLines[hardTimerIndex];
+		uint32 mask = context.m_pMemoryMap->GetWord(CIntc::MASK0);
+		mask &= ~(1 << timerInterruptLine);
+		context.m_pMemoryMap->SetWord(CIntc::MASK0, mask);
+	}
+
 	return 0;
 }
