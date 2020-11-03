@@ -1372,7 +1372,14 @@ uint32 CIopBios::WakeupThread(uint32 threadId, bool inInterrupt)
 	                          m_currentThreadId.Get(), threadId);
 #endif
 
-	THREAD* thread = GetThread(threadId);
+	auto thread = GetThread(threadId);
+	if(!thread)
+	{
+		CLog::GetInstance().Warn(LOGNAME, "%d: Trying to wakeup a non-existing thread (%d).\r\n",
+		                         m_currentThreadId.Get(), threadId);
+		return KERNEL_RESULT_ERROR_UNKNOWN_THID;
+	}
+
 	if(thread->status == THREAD_STATUS_SLEEPING)
 	{
 		thread->status = THREAD_STATUS_RUNNING;
