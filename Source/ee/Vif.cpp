@@ -488,6 +488,7 @@ void CVif::ExecuteCommand(StreamType& stream, CODE nCommand)
 		Cmd_MPG(stream, nCommand);
 		break;
 	default:
+		CLog::GetInstance().Warn(LOG_NAME, "Executed invalid command %d.\r\n", nCommand.nCMD);
 		m_STAT.nER1 = 1;
 		break;
 	}
