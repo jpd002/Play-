@@ -211,6 +211,10 @@ uint32 CSubSystem::ReadIoRegister(uint32 address)
 	{
 		return m_spu2.ReadRegister(address);
 	}
+	else if((address >= 0x1F801000 && address <= 0x1F801020) || (address >= 0x1F801400 && address <= 0x1F801420))
+	{
+		CLog::GetInstance().Print(LOG_NAME, "Reading from SSBUS.\r\n");
+	}
 	else if(address >= 0x1F808400 && address <= 0x1F808500)
 	{
 		//iLink (aka Firewire) stuff
@@ -255,6 +259,10 @@ uint32 CSubSystem::WriteIoRegister(uint32 address, uint32 value)
 	else if(address >= CSpu2::REGS_BEGIN && address <= CSpu2::REGS_END)
 	{
 		return m_spu2.WriteRegister(address, value);
+	}
+	else if((address >= 0x1F801000 && address <= 0x1F801020) || (address >= 0x1F801400 && address <= 0x1F801420))
+	{
+		CLog::GetInstance().Print(LOG_NAME, "Writing to SSBUS (0x%08X).\r\n", value);
 	}
 	else
 	{
