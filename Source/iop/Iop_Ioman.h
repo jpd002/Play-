@@ -29,6 +29,10 @@ namespace Iop
 			SEEK_DIR_END = 2
 		};
 
+		class FileNotFoundException : public std::exception
+		{
+		};
+
 		typedef std::shared_ptr<Ioman::CDevice> DevicePtr;
 
 		CIoman(CIopBios&, uint8*);
