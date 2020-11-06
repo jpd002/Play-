@@ -87,10 +87,13 @@ uint32 CVif::GetRegister(uint32 address)
 			result |= (0x10 << 24);
 		}
 		break;
+	case VIF0_ERR:
+	case VIF1_ERR:
+		result = m_ERR;
+		break;
 	case VIF0_MARK:
 	case VIF1_MARK:
 		result = m_MARK;
-		m_STAT.nMRK = 0;
 		break;
 	case VIF0_CYCLE:
 	case VIF1_CYCLE:
@@ -128,6 +131,9 @@ uint32 CVif::GetRegister(uint32 address)
 	case VIF1_R3:
 		result = m_R[3];
 		break;
+	default:
+		CLog::GetInstance().Warn(LOG_NAME, "Reading unknown register 0x%08X.\r\n", address);
+		break;
 	}
 #ifdef _DEBUG
 	DisassembleGet(address);
@@ -159,15 +165,33 @@ void CVif::SetRegister(uint32 address, uint32 value)
 				m_STAT <<= 0;
 				m_NUM = 0;
 			}
+			if(value & FBRST_FBK || value & FBRST_STP)
+			{
+				// TODO: We need to properly handle this!
+				// But I lack games which leverage it.
+				assert(0);
+			}
 			if(value & FBRST_STC)
 			{
+				m_STAT.nVSS = 0;
+				m_STAT.nVFS = 0;
 				m_STAT.nVIS = 0;
 				m_STAT.nINT = 0;
+				m_STAT.nER0 = 0;
+				m_STAT.nER1 = 0;
 			}
+			break;
+		case VIF0_ERR:
+		case VIF1_ERR:
+			m_ERR <<= value;
 			break;
 		case VIF0_MARK:
 		case VIF1_MARK:
 			m_MARK = value;
+			m_STAT.nMRK = 0;
+			break;
+		default:
+			CLog::GetInstance().Warn(LOG_NAME, "Writing unknown register 0x%08X, 0x%08X.\r\n", address, value);
 			break;
 		}
 	}
@@ -464,7 +488,8 @@ void CVif::ExecuteCommand(StreamType& stream, CODE nCommand)
 		Cmd_MPG(stream, nCommand);
 		break;
 	default:
-		assert(0);
+		CLog::GetInstance().Warn(LOG_NAME, "Executed invalid command %d.\r\n", nCommand.nCMD);
+		m_STAT.nER1 = 1;
 		break;
 	}
 }
@@ -1006,6 +1031,7 @@ void CVif::DisassembleGet(uint32 address)
 	switch(address)
 	{
 		LOG_GET(VIF0_STAT)
+		LOG_GET(VIF0_ERR)
 		LOG_GET(VIF0_MARK)
 		LOG_GET(VIF0_CYCLE)
 		LOG_GET(VIF0_MODE)
@@ -1018,6 +1044,7 @@ void CVif::DisassembleGet(uint32 address)
 		LOG_GET(VIF0_R3)
 
 		LOG_GET(VIF1_STAT)
+		LOG_GET(VIF1_ERR)
 		LOG_GET(VIF1_MARK)
 		LOG_GET(VIF1_CYCLE)
 		LOG_GET(VIF1_MODE)
@@ -1058,9 +1085,11 @@ void CVif::DisassembleSet(uint32 address, uint32 value)
 		{
 			LOG_SET(VIF0_FBRST)
 			LOG_SET(VIF0_MARK)
+			LOG_SET(VIF0_ERR)
 
 			LOG_SET(VIF1_FBRST)
 			LOG_SET(VIF1_MARK)
+			LOG_SET(VIF1_ERR)
 
 		default:
 			CLog::GetInstance().Print(LOG_NAME, "Writing unknown register 0x%08X, 0x%08X.\r\n", address, value);

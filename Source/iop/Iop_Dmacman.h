@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Iop_Module.h"
+#include "Iop_Dmac.h"
 
 class CIopBios;
 
@@ -19,5 +20,9 @@ namespace Iop
 	private:
 		uint32 DmacRequest(CMIPS&, uint32, uint32, uint32, uint32, uint32);
 		void DmacTransfer(CMIPS&, uint32);
+		void DmacChSetDpcr(CMIPS&, uint32, uint32);
+		void DmacEnable(CMIPS&, uint32);
+		void DmacDisable(CMIPS&, uint32);
+		uint32 GetDPCRAddr(uint32 channel);
 	};
 }

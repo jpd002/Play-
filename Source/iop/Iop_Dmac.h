@@ -41,6 +41,8 @@ namespace Iop
 			DMAC_ZONE1_END = 0x1F8010FF,
 			DMAC_ZONE2_START = 0x1F801500,
 			DMAC_ZONE2_END = 0x1F80155F,
+			DMAC_ZONE3_START = 0x1F801570,
+			DMAC_ZONE3_END = 0x1F801578,
 		};
 
 		CDmac(uint8*, CIntc&);
@@ -62,6 +64,7 @@ namespace Iop
 		enum
 		{
 			DPCR = 0x1F8010F0,
+			DPCR2 = 0x1F801570,
 			DICR = 0x1F8010F4
 		};
 
@@ -78,6 +81,8 @@ namespace Iop
 		Dmac::CChannel* m_channel[MAX_CHANNEL];
 
 		uint32 m_DPCR;
+		uint32 m_DPCR2;
+
 		uint32 m_DICR;
 		uint8* m_ram;
 		CIntc& m_intc;

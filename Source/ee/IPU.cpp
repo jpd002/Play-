@@ -189,7 +189,7 @@ uint32 CIPU::GetRegister(uint32 nAddress)
 		break;
 
 	default:
-		CLog::GetInstance().Print(LOG_NAME, "Reading an unhandled register (0x%08X).\r\n", nAddress);
+		CLog::GetInstance().Warn(LOG_NAME, "Reading an unhandled register (0x%08X).\r\n", nAddress);
 		break;
 	}
 
@@ -251,7 +251,7 @@ void CIPU::SetRegister(uint32 nAddress, uint32 nValue)
 		break;
 
 	default:
-		CLog::GetInstance().Print(LOG_NAME, "Writing 0x%08X to an unhandled register (0x%08X).\r\n", nValue, nAddress);
+		CLog::GetInstance().Warn(LOG_NAME, "Writing 0x%08X to an unhandled register (0x%08X).\r\n", nValue, nAddress);
 		break;
 	}
 }

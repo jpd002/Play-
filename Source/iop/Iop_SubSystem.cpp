@@ -184,11 +184,10 @@ uint32 CSubSystem::ReadIoRegister(uint32 address)
 	{
 		return m_spu.ReadRegister(address);
 	}
-	else if(address >= CDmac::DMAC_ZONE1_START && address <= CDmac::DMAC_ZONE1_END)
-	{
-		return m_dmac.ReadRegister(address);
-	}
-	else if(address >= CDmac::DMAC_ZONE2_START && address <= CDmac::DMAC_ZONE2_END)
+	else if(
+	    (address >= CDmac::DMAC_ZONE1_START && address <= CDmac::DMAC_ZONE1_END) ||
+	    (address >= CDmac::DMAC_ZONE2_START && address <= CDmac::DMAC_ZONE2_END) ||
+	    (address >= CDmac::DMAC_ZONE3_START && address <= CDmac::DMAC_ZONE3_END))
 	{
 		return m_dmac.ReadRegister(address);
 	}
@@ -212,6 +211,10 @@ uint32 CSubSystem::ReadIoRegister(uint32 address)
 	{
 		return m_spu2.ReadRegister(address);
 	}
+	else if((address >= 0x1F801000 && address <= 0x1F801020) || (address >= 0x1F801400 && address <= 0x1F801420))
+	{
+		CLog::GetInstance().Print(LOG_NAME, "Reading from SSBUS.\r\n");
+	}
 	else if(address >= 0x1F808400 && address <= 0x1F808500)
 	{
 		//iLink (aka Firewire) stuff
@@ -226,15 +229,14 @@ uint32 CSubSystem::ReadIoRegister(uint32 address)
 
 uint32 CSubSystem::WriteIoRegister(uint32 address, uint32 value)
 {
-	if(address >= CDmac::DMAC_ZONE1_START && address <= CDmac::DMAC_ZONE1_END)
-	{
-		m_dmac.WriteRegister(address, value);
-	}
-	else if(address >= CSpu::SPU_BEGIN && address <= CSpu::SPU_END)
+	if(address >= CSpu::SPU_BEGIN && address <= CSpu::SPU_END)
 	{
 		m_spu.WriteRegister(address, static_cast<uint16>(value));
 	}
-	else if(address >= CDmac::DMAC_ZONE2_START && address <= CDmac::DMAC_ZONE2_END)
+	else if(
+	    (address >= CDmac::DMAC_ZONE1_START && address <= CDmac::DMAC_ZONE1_END) ||
+	    (address >= CDmac::DMAC_ZONE2_START && address <= CDmac::DMAC_ZONE2_END) ||
+	    (address >= CDmac::DMAC_ZONE3_START && address <= CDmac::DMAC_ZONE3_END))
 	{
 		m_dmac.WriteRegister(address, value);
 	}
@@ -258,9 +260,13 @@ uint32 CSubSystem::WriteIoRegister(uint32 address, uint32 value)
 	{
 		return m_spu2.WriteRegister(address, value);
 	}
+	else if((address >= 0x1F801000 && address <= 0x1F801020) || (address >= 0x1F801400 && address <= 0x1F801420))
+	{
+		CLog::GetInstance().Print(LOG_NAME, "Writing to SSBUS (0x%08X).\r\n", value);
+	}
 	else
 	{
-		CLog::GetInstance().Print(LOG_NAME, "Writing to an unknown hardware register (0x%08X, 0x%08X).\r\n", address, value);
+		CLog::GetInstance().Warn(LOG_NAME, "Writing to an unknown hardware register (0x%08X, 0x%08X).\r\n", address, value);
 	}
 
 	if(

@@ -18,6 +18,7 @@ public:
 		REGS0_START = 0x10003800,
 		VIF0_STAT = 0x10003800,
 		VIF0_FBRST = 0x10003810,
+		VIF0_ERR = 0x10003820,
 		VIF0_MARK = 0x10003830,
 		VIF0_CYCLE = 0x10003840,
 		VIF0_MODE = 0x10003850,
@@ -33,6 +34,7 @@ public:
 		REGS1_START = 0x10003C00,
 		VIF1_STAT = 0x10003C00,
 		VIF1_FBRST = 0x10003C10,
+		VIF1_ERR = 0x10003C20,
 		VIF1_MARK = 0x10003C30,
 		VIF1_CYCLE = 0x10003C40,
 		VIF1_MODE = 0x10003C50,
@@ -76,6 +78,8 @@ protected:
 	enum
 	{
 		FBRST_RST = 0x01,
+		FBRST_FBK = 0x02,
+		FBRST_STP = 0x04,
 		FBRST_STC = 0x08
 	};
 
@@ -149,6 +153,15 @@ protected:
 		unsigned int nReserved3 : 4;
 	};
 	static_assert(sizeof(STAT) == sizeof(uint32), "Size of STAT struct must be 4 bytes.");
+
+	struct ERR : public convertible<uint32>
+	{
+		unsigned int nMII : 1;
+		unsigned int nME0 : 1;
+		unsigned int nME1 : 1;
+		unsigned int nReserved : 29;
+	};
+	static_assert(sizeof(ERR) == sizeof(uint32), "Size of ERR struct must be 4 bytes.");
 
 	struct CYCLE : public convertible<uint32>
 	{
@@ -224,6 +237,7 @@ protected:
 	uint32 m_fifoIndex = 0;
 
 	STAT m_STAT;
+	ERR m_ERR;
 	CYCLE m_CYCLE;
 	CODE m_CODE;
 	uint8 m_NUM;

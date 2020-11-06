@@ -9,9 +9,15 @@ using namespace Iop;
 
 #define FUNCTIONID_DMACREQUEST 28
 #define FUNCTIONID_DMACTRANSFER 32
+#define FUNCTIONID_DMACCHSETDPCR 33
+#define FUNCTIONID_DMACENABLE 34
+#define FUNCTIONID_DMACDISABLE 35
 
 #define FUNCTION_DMACREQUEST "DmacRequest"
 #define FUNCTION_DMACTRANSFER "DmacTransfer"
+#define FUNCTION_DMACCHSETDPCR "DmacChSetDpcr"
+#define FUNCTION_DMACENABLE "DmacEnable"
+#define FUNCTION_DMACDISABLE "DmacDisable"
 
 #define INVALID_CHANNEL_BASE (-1)
 
@@ -43,6 +49,12 @@ std::string CDmacman::GetFunctionName(unsigned int functionId) const
 		return FUNCTION_DMACREQUEST;
 	case FUNCTIONID_DMACTRANSFER:
 		return FUNCTION_DMACTRANSFER;
+	case FUNCTIONID_DMACCHSETDPCR:
+		return FUNCTION_DMACCHSETDPCR;
+	case FUNCTIONID_DMACENABLE:
+		return FUNCTION_DMACENABLE;
+	case FUNCTIONID_DMACDISABLE:
+		return FUNCTION_DMACDISABLE;
 	default:
 		return "unknown";
 		break;
@@ -64,6 +76,22 @@ void CDmacman::Invoke(CMIPS& context, unsigned int functionId)
 		break;
 	case FUNCTIONID_DMACTRANSFER:
 		DmacTransfer(context, context.m_State.nGPR[CMIPS::A0].nV0);
+		break;
+	case FUNCTIONID_DMACCHSETDPCR:
+		DmacChSetDpcr(
+		    context,
+		    context.m_State.nGPR[CMIPS::A0].nV0,
+		    context.m_State.nGPR[CMIPS::A1].nV0);
+		break;
+	case FUNCTIONID_DMACENABLE:
+		DmacEnable(
+		    context,
+		    context.m_State.nGPR[CMIPS::A0].nV0);
+		break;
+	case FUNCTIONID_DMACDISABLE:
+		DmacDisable(
+		    context,
+		    context.m_State.nGPR[CMIPS::A0].nV0);
 		break;
 	default:
 		CLog::GetInstance().Warn(LOGNAME, "%08X: Unknown function (%d) called.\r\n", context.m_State.nPC, functionId);
@@ -100,4 +128,69 @@ void CDmacman::DmacTransfer(CMIPS& context, uint32 channel)
 	if(channelBase == INVALID_CHANNEL_BASE) return;
 
 	context.m_pMemoryMap->SetWord(channelBase + Dmac::CChannel::REG_CHCR, chcr);
+}
+
+void CDmacman::DmacChSetDpcr(CMIPS& context, uint32 channel, uint32 value)
+{
+	CLog::GetInstance().Print(LOGNAME, FUNCTION_DMACCHSETDPCR "(channel = %d, value = 0x%08X);\r\n", channel, value);
+
+	uint32 dpcrAddr = GetDPCRAddr(channel);
+
+	uint32 dpcr = context.m_pMemoryMap->GetWord(dpcrAddr);
+	uint32 mask = ~(0x7 << ((channel % 7) * 4));
+
+	dpcr = (dpcr & mask) | ((value & 0x7) << ((channel % 7) * 4));
+
+	context.m_pMemoryMap->SetWord(dpcrAddr, dpcr | mask);
+
+	return;
+}
+
+void CDmacman::DmacEnable(CMIPS& context, uint32 channel)
+{
+	CLog::GetInstance().Print(LOGNAME, FUNCTION_DMACENABLE "(channel = %d);\r\n", channel);
+
+	uint32 dpcrAddr = GetDPCRAddr(channel);
+
+	uint32 dpcr = context.m_pMemoryMap->GetWord(dpcrAddr);
+
+	uint32 mask = 0x8 << ((channel % 7) * 4);
+
+	context.m_pMemoryMap->SetWord(dpcrAddr, dpcr | mask);
+
+	return;
+}
+
+void CDmacman::DmacDisable(CMIPS& context, uint32 channel)
+{
+	CLog::GetInstance().Print(LOGNAME, FUNCTION_DMACDISABLE "(channel = %d);\r\n", channel);
+
+	uint32 dpcrAddr = GetDPCRAddr(channel);
+
+	uint32 dpcr = context.m_pMemoryMap->GetWord(dpcrAddr);
+
+	uint32 mask = ~(0x8 << ((channel % 7) * 4));
+
+	context.m_pMemoryMap->SetWord(dpcrAddr, dpcr & mask);
+
+	return;
+}
+
+uint32 CDmacman::GetDPCRAddr(uint32 channel)
+{
+	// 0 - 6
+	if(channel < 7)
+	{
+		return CDmac::DPCR;
+	}
+	// 7 - 12
+	else if(channel < 13)
+	{
+		return CDmac::DPCR2;
+	}
+	else
+	{
+		// DPCR3?
+		assert(0);
+	}
 }

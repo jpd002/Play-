@@ -49,6 +49,7 @@
 #define STATE_PRIVREGS_DISPLAY2 ("DISPLAY2")
 #define STATE_PRIVREGS_CSR ("CSR")
 #define STATE_PRIVREGS_IMR ("IMR")
+#define STATE_PRIVREGS_BUSDIR ("BUSDIR")
 #define STATE_PRIVREGS_SIGLBLID ("SIGLBLID")
 #define STATE_PRIVREGS_CRTMODE ("CrtMode")
 
@@ -250,6 +251,7 @@ void CGSHandler::SaveState(Framework::CZipArchiveWriter& archive)
 		registerFile->SetRegister64(STATE_PRIVREGS_DISPLAY2, m_nDISPLAY2.value.q);
 		registerFile->SetRegister64(STATE_PRIVREGS_CSR, m_nCSR);
 		registerFile->SetRegister64(STATE_PRIVREGS_IMR, m_nIMR);
+		registerFile->SetRegister64(STATE_PRIVREGS_BUSDIR, m_nBUSDIR);
 		registerFile->SetRegister64(STATE_PRIVREGS_SIGLBLID, m_nSIGLBLID);
 		registerFile->SetRegister32(STATE_PRIVREGS_CRTMODE, m_nCrtMode);
 		registerFile->SetRegister32(STATE_REG_CBP0, m_nCBP0);
@@ -275,6 +277,7 @@ void CGSHandler::LoadState(Framework::CZipArchiveReader& archive)
 		m_nDISPLAY2.value.q = registerFile.GetRegister64(STATE_PRIVREGS_DISPLAY2);
 		m_nCSR = registerFile.GetRegister64(STATE_PRIVREGS_CSR);
 		m_nIMR = registerFile.GetRegister64(STATE_PRIVREGS_IMR);
+		m_nBUSDIR = registerFile.GetRegister64(STATE_PRIVREGS_BUSDIR);
 		m_nSIGLBLID = registerFile.GetRegister64(STATE_PRIVREGS_SIGLBLID);
 		m_nCrtMode = registerFile.GetRegister32(STATE_PRIVREGS_CRTMODE);
 		m_nCBP0 = registerFile.GetRegister32(STATE_REG_CBP0);
@@ -297,6 +300,7 @@ void CGSHandler::Copy(const CGSHandler* gs)
 		m_nDISPLAY2.value.q = gs->m_nDISPLAY2.value.q;
 		m_nCSR = gs->m_nCSR;
 		m_nIMR = gs->m_nIMR;
+		m_nBUSDIR = gs->m_nBUSDIR;
 		m_nSIGLBLID = gs->m_nSIGLBLID;
 		m_nCrtMode = gs->m_nCrtMode;
 		m_nCBP0 = gs->m_nCBP0;
@@ -447,6 +451,9 @@ void CGSHandler::WritePrivRegister(uint32 nAddress, uint32 nData)
 			NotifyEvent(m_nCSR & 0x1F);
 		}
 		break;
+	case GS_BUSDIR:
+		W_REG(nAddress, nData, m_nBUSDIR);
+		break;
 	case GS_SIGLBLID:
 		W_REG(nAddress, nData, m_nSIGLBLID);
 		break;
@@ -518,6 +525,11 @@ uint64 CGSHandler::GetSMODE2() const
 void CGSHandler::SetSMODE2(uint64 value)
 {
 	m_nSMODE2 = value;
+}
+
+uint64 CGSHandler::GetBUSDIR() const
+{
+	return m_nBUSDIR;
 }
 
 void CGSHandler::FeedImageData(const void* data, uint32 length)
