@@ -136,6 +136,7 @@ private:
 	void PHMADH();
 	void PAND();
 	void PXOR();
+	void PEXEH();
 	void PREVH();
 	void PMULTH();
 	void PEXEW();

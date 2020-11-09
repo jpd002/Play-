@@ -1179,6 +1179,42 @@ void CMA_EE::PXOR()
 	PullVector(m_nRD);
 }
 
+//1A
+void CMA_EE::PEXEH()
+{
+	if(m_nRD == 0) return;
+
+	for(unsigned int i = 0; i < 4; i += 2)
+	{
+		//Compute rd[1]
+		//t0 = rt[0] & 0x0000FFFF
+		//t1 = rt[1] & 0xFFFF0000
+		//t2 = t0 | t1
+		m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[i + 0]));
+		m_codeGen->PushCst(0x0000FFFF);
+		m_codeGen->And();
+		m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[i + 1]));
+		m_codeGen->PushCst(0xFFFF0000);
+		m_codeGen->And();
+		m_codeGen->Or();
+
+		//Compute rd[0]
+		//t0 = rt[0] & 0xFFFF0000
+		//t1 = rt[1] & 0x0000FFFF
+		//t2 = t0 | t1
+		m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[i + 0]));
+		m_codeGen->PushCst(0xFFFF0000);
+		m_codeGen->And();
+		m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[i + 1]));
+		m_codeGen->PushCst(0x0000FFFF);
+		m_codeGen->And();
+		m_codeGen->Or();
+
+		m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[i + 0]));
+		m_codeGen->PullRel(offsetof(CMIPS, m_State.nGPR[m_nRD].nV[i + 1]));
+	}
+}
+
 //1B
 void CMA_EE::PREVH()
 {
@@ -1839,7 +1875,7 @@ CMA_EE::InstructionFuncConstant CMA_EE::m_pOpMmi2[0x20] =
 	//0x10
 	&CMA_EE::PMADDH,		&CMA_EE::PHMADH,		&CMA_EE::PAND,			&CMA_EE::PXOR,			&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,
 	//0x18
-	&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::PREVH,			&CMA_EE::PMULTH,		&CMA_EE::Illegal,		&CMA_EE::PEXEW,			&CMA_EE::PROT3W,
+	&CMA_EE::Illegal,		&CMA_EE::Illegal,		&CMA_EE::PEXEH,			&CMA_EE::PREVH,			&CMA_EE::PMULTH,		&CMA_EE::Illegal,		&CMA_EE::PEXEW,			&CMA_EE::PROT3W,
 };
 
 CMA_EE::InstructionFuncConstant CMA_EE::m_pOpMmi3[0x20] = 

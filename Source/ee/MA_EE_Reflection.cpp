@@ -210,7 +210,7 @@ INSTRUCTION CMA_EE::m_cReflMmi2[32] =
 	//0x18
 	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
 	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
-	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
+	{	"PEXEH",	NULL,			CopyMnemonic,		ReflOpRdRt,			NULL,				NULL			},
 	{	"PREVH",	NULL,			CopyMnemonic,		ReflOpRdRt,			NULL,				NULL			},
 	{	"PMULTH",	NULL,			CopyMnemonic,		ReflOpRdRsRt,		NULL,				NULL			},
 	{	NULL,		NULL,			NULL,				NULL,				NULL,				NULL			},
