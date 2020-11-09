@@ -1436,9 +1436,9 @@ void CMA_EE::PEXCH()
 
 	for(unsigned int i = 0; i < 4; i += 2)
 	{
-		//Compute first value
-		//t0 = rt[0] >> 16;
-		//t1 = (rt[1] & 0xFFFF0000)
+		//Compute rd[1]
+		//t0 = rt[0] >> 16
+		//t1 = rt[1] & 0xFFFF0000
 		//t2 = t0 | t1
 		m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[i + 0]));
 		m_codeGen->Srl(16);
@@ -1447,9 +1447,9 @@ void CMA_EE::PEXCH()
 		m_codeGen->And();
 		m_codeGen->Or();
 
-		//Compute second value
-		//t0 = rt[1] << 16;
-		//t1 = (r1[0] & 0x0000FFFF)
+		//Compute rd[0]
+		//t0 = rt[1] << 16
+		//t1 = rt[0] & 0x0000FFFF
 		//t2 = t0 | t1
 		m_codeGen->PushRel(offsetof(CMIPS, m_State.nGPR[m_nRT].nV[i + 1]));
 		m_codeGen->Shl(16);
