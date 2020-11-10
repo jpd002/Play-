@@ -39,6 +39,9 @@ using namespace Iop;
 #define STAT_MODE_DIR (0747 | (1 << 12))  //File mode + Dir type (1)
 #define STAT_MODE_FILE (0777 | (2 << 12)) //File mode + File type (2)
 
+/** No such file or directory */
+#define ERROR_ENOENT 2
+
 static std::string RightTrim(std::string inputString)
 {
 	auto nonSpaceEnd = std::find_if(inputString.rbegin(), inputString.rend(), [](int ch) { return !std::isspace(ch); });
@@ -509,7 +512,7 @@ int32 CIoman::PreOpen(uint32 flags, const char* path)
 			file.stream = deviceIterator->second->GetFile(flags, pathInfo.devicePath.c_str());
 			if(!file.stream)
 			{
-				throw std::runtime_error("File not found.");
+				throw FileNotFoundException();
 			}
 		}
 		else if(userDeviceIterator != m_userDevices.end())
@@ -528,10 +531,18 @@ int32 CIoman::PreOpen(uint32 flags, const char* path)
 			throw std::runtime_error("Unknown device.");
 		}
 	}
+	catch(const CIoman::FileNotFoundException& except)
+	{
+		CLog::GetInstance().Warn(LOG_NAME, "%s: Error occurred while trying to open not existing file : %s\r\n", __FUNCTION__, path);
+		FreeFileHandle(handle);
+
+		return -ERROR_ENOENT;
+	}
 	catch(const std::exception& except)
 	{
-		CLog::GetInstance().Warn(LOG_NAME, "%s: Error occured while trying to open file : %s : %s\r\n", __FUNCTION__, path, except.what());
+		CLog::GetInstance().Warn(LOG_NAME, "%s: Error occurred while trying to open file : %s : %s\r\n", __FUNCTION__, path, except.what());
 		FreeFileHandle(handle);
+
 		return -1;
 	}
 	return handle;
