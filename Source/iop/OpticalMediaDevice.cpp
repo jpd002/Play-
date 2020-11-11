@@ -17,7 +17,6 @@ char COpticalMediaDevice::FixSlashes(char input)
 
 Framework::CStream* COpticalMediaDevice::GetFile(uint32 mode, const char* devicePath)
 {
-	if((mode & OPEN_FLAG_ACCMODE) != OPEN_FLAG_RDONLY) return nullptr;
 	if(!m_opticalMedia) return nullptr;
 	std::string fixedString(devicePath);
 	transform(fixedString.begin(), fixedString.end(), fixedString.begin(), &COpticalMediaDevice::FixSlashes);
