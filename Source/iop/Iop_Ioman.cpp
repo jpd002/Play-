@@ -490,13 +490,6 @@ uint32 CIoman::DelDrv(uint32 drvNamePtr)
 
 int32 CIoman::PreOpen(uint32 flags, const char* path)
 {
-	if(flags == 0)
-	{
-		//If no flags provided, assume we want to open the file
-		//Required by Capcom Arcade Collection
-		flags = Ioman::CDevice::OPEN_FLAG_RDONLY;
-	}
-
 	int32 handle = AllocateFileHandle();
 	try
 	{
