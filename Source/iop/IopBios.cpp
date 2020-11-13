@@ -1607,6 +1607,8 @@ void CIopBios::LoadThreadContext(uint32 threadId)
 		if(i == CMIPS::K1) continue;
 		m_cpu.m_State.nGPR[i].nD0 = static_cast<int32>(thread->context.gpr[i]);
 	}
+	m_cpu.m_State.nLO[0] = thread->context.gpr[CMIPS::K0];
+	m_cpu.m_State.nHI[0] = thread->context.gpr[CMIPS::K1];
 	m_cpu.m_State.nPC = thread->context.epc;
 	m_cpu.m_State.nDelayedJumpAddr = thread->context.delayJump;
 }
@@ -1621,6 +1623,8 @@ void CIopBios::SaveThreadContext(uint32 threadId)
 		if(i == CMIPS::K1) continue;
 		thread->context.gpr[i] = m_cpu.m_State.nGPR[i].nV0;
 	}
+	thread->context.gpr[CMIPS::K0] = m_cpu.m_State.nLO[0];
+	thread->context.gpr[CMIPS::K1] = m_cpu.m_State.nHI[0];
 	thread->context.epc = m_cpu.m_State.nPC;
 	thread->context.delayJump = m_cpu.m_State.nDelayedJumpAddr;
 }
