@@ -2696,6 +2696,27 @@ uint32 CIopBios::GetVplFreeSize(uint32 vplId)
 	return freeSize;
 }
 
+void CIopBios::WaitCdSync()
+{
+	uint32 threadId = m_currentThreadId;
+	auto thread = GetThread(threadId);
+	thread->status = THREAD_STATUS_WAIT_CDSYNC;
+	UnlinkThread(threadId);
+	m_rescheduleNeeded = true;
+}
+
+void CIopBios::ReleaseWaitCdSync()
+{
+	for(auto thread : m_threads)
+	{
+		if(!thread) continue;
+		if(thread->status != THREAD_STATUS_WAIT_CDSYNC) continue;
+
+		thread->status = THREAD_STATUS_RUNNING;
+		LinkThread(thread->id);
+	}
+}
+
 Iop::CSysmem* CIopBios::GetSysmem()
 {
 	return m_sysmem.get();

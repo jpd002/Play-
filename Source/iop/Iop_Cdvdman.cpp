@@ -310,6 +310,8 @@ void CCdvdman::ProcessCommands()
 			assert(false);
 			break;
 		}
+		m_bios.ReleaseWaitCdSync();
+		m_status = CDVD_STATUS_PAUSED;
 		m_pendingCommand = COMMAND_NONE;
 	}
 }
@@ -453,12 +455,13 @@ uint32 CCdvdman::CdSync(uint32 mode)
 	    (mode == 0x10) || (mode == 0x11));
 	if((mode == 0x00) || (mode == 0x10))
 	{
-		ProcessCommands();
-		assert(m_pendingCommand == COMMAND_NONE);
-	}
-	if(m_status == CDVD_STATUS_READING)
-	{
-		m_status = CDVD_STATUS_PAUSED;
+		if(m_pendingCommand != COMMAND_NONE)
+		{
+			//Put the thread in a wait state till the CD command is complete
+			m_bios.WaitCdSync();
+		}
+		//When the thread will be ready, the return value needs to be 0
+		return 0;
 	}
 	return (m_pendingCommand == COMMAND_NONE) ? 0 : 1;
 }

@@ -113,6 +113,7 @@ public:
 		THREAD_STATUS_WAITING_MESSAGEBOX = 6,
 		THREAD_STATUS_WAIT_VBLANK_START = 7,
 		THREAD_STATUS_WAIT_VBLANK_END = 8,
+		THREAD_STATUS_WAIT_CDSYNC = 9,
 	};
 
 	struct THREAD_INFO
@@ -244,6 +245,9 @@ public:
 	uint32 FreeVpl(uint32, uint32);
 	uint32 ReferVplStatus(uint32, uint32);
 	uint32 GetVplFreeSize(uint32);
+
+	void WaitCdSync();
+	void ReleaseWaitCdSync();
 
 	int32 RegisterIntrHandler(uint32, uint32, uint32, uint32);
 	int32 ReleaseIntrHandler(uint32);
