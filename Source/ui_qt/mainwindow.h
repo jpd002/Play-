@@ -20,6 +20,8 @@ namespace Ui
 	class MainWindow;
 }
 
+class OutputWindow;
+
 #ifdef DEBUGGER_INCLUDED
 class CDebugger;
 class CFrameDebugger;
@@ -94,7 +96,7 @@ private:
 
 	Ui::MainWindow* ui;
 
-	QWindow* m_outputwindow = nullptr;
+	OutputWindow* m_outputwindow = nullptr;
 	QLabel* m_fpsLabel = nullptr;
 	QLabel* m_gsLabel = nullptr;
 #ifdef PROFILE

@@ -715,12 +715,14 @@ void MainWindow::toggleFullscreen()
 		showNormal();
 		statusBar()->show();
 		menuBar()->show();
+		m_outputwindow->DismissFullScreenCursor();
 	}
 	else
 	{
 		showFullScreen();
 		statusBar()->hide();
 		menuBar()->hide();
+		m_outputwindow->ShowFullScreenCursor();
 	}
 }
 
