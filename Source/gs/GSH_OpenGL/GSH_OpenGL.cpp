@@ -33,7 +33,7 @@ const GLenum CGSH_OpenGL::g_nativeClampModes[CGSHandler::CLAMP_MODE_MAX] =
 const unsigned int CGSH_OpenGL::g_shaderClampModes[CGSHandler::CLAMP_MODE_MAX] =
 {
 	TEXTURE_CLAMP_MODE_STD,
-	TEXTURE_CLAMP_MODE_STD,
+	TEXTURE_CLAMP_MODE_CLAMP,
 	TEXTURE_CLAMP_MODE_REGION_CLAMP,
 	TEXTURE_CLAMP_MODE_REGION_REPEAT
 };
@@ -1047,7 +1047,7 @@ void CGSH_OpenGL::FillShaderCapsFromTexture(SHADERCAPS& shaderCaps, const uint64
 
 	shaderCaps.texSourceMode = TEXTURE_SOURCE_MODE_STD;
 
-	if((clamp.nWMS > CLAMP_MODE_CLAMP) || (clamp.nWMT > CLAMP_MODE_CLAMP))
+	if((clamp.nWMS >= CLAMP_MODE_CLAMP) || (clamp.nWMT >= CLAMP_MODE_CLAMP))
 	{
 		unsigned int clampMode[2];
 
@@ -1230,7 +1230,7 @@ void CGSH_OpenGL::SetupTexture(uint64 primReg, uint64 tex0Reg, uint64 tex1Reg, u
 	m_renderState.texture0WrapS = g_nativeClampModes[clamp.nWMS];
 	m_renderState.texture0WrapT = g_nativeClampModes[clamp.nWMT];
 
-	if((clamp.nWMS > CLAMP_MODE_CLAMP) || (clamp.nWMT > CLAMP_MODE_CLAMP))
+	if((clamp.nWMS >= CLAMP_MODE_CLAMP) || (clamp.nWMT >= CLAMP_MODE_CLAMP))
 	{
 		unsigned int clampMode[2];
 
@@ -1245,14 +1245,20 @@ void CGSH_OpenGL::SetupTexture(uint64 primReg, uint64 tex0Reg, uint64 tex1Reg, u
 
 		for(unsigned int i = 0; i < 2; i++)
 		{
-			if(clampMode[i] == TEXTURE_CLAMP_MODE_REGION_REPEAT)
+			if(clampMode[i] == TEXTURE_CLAMP_MODE_CLAMP)
+			{
+				uint32 size = (i == 0) ? tex0.GetWidth() : tex0.GetHeight();
+				clampMin[i] = 0;
+				clampMax[i] = static_cast<unsigned int>(static_cast<float>(size - 1) * textureScaleRatio[i]);
+			}
+			else if(clampMode[i] == TEXTURE_CLAMP_MODE_REGION_REPEAT)
 			{
 				if(CanRegionRepeatClampModeSimplified(clampMin[i], clampMax[i]))
 				{
 					clampMin[i]++;
 				}
 			}
-			if(clampMode[i] == TEXTURE_CLAMP_MODE_REGION_CLAMP)
+			else if(clampMode[i] == TEXTURE_CLAMP_MODE_REGION_CLAMP)
 			{
 				clampMin[i] = static_cast<unsigned int>(static_cast<float>(clampMin[i]) * textureScaleRatio[i]);
 				clampMax[i] = static_cast<unsigned int>(static_cast<float>(clampMax[i]) * textureScaleRatio[i]);

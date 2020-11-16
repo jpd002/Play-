@@ -60,8 +60,8 @@ private:
 	struct SHADERCAPS : public convertible<uint32>
 	{
 		unsigned int texFunction : 2; //0 - Modulate, 1 - Decal, 2 - Highlight, 3 - Hightlight2
-		unsigned int texClampS : 2;
-		unsigned int texClampT : 2;
+		unsigned int texClampS : 3;
+		unsigned int texClampT : 3;
 		unsigned int texSourceMode : 2;
 		unsigned int texHasAlpha : 1;
 		unsigned int texBilinearFilter : 1;
@@ -71,7 +71,7 @@ private:
 		unsigned int hasAlphaTest : 1;
 		unsigned int alphaTestMethod : 3;
 		unsigned int colorOutputWhite : 1;
-		unsigned int padding : 14;
+		unsigned int padding : 12;
 
 		bool isIndexedTextureSource() const
 		{
@@ -183,10 +183,11 @@ private:
 
 	enum TEXTURE_CLAMP_MODE
 	{
-		TEXTURE_CLAMP_MODE_STD = 0,
-		TEXTURE_CLAMP_MODE_REGION_CLAMP = 1,
-		TEXTURE_CLAMP_MODE_REGION_REPEAT = 2,
-		TEXTURE_CLAMP_MODE_REGION_REPEAT_SIMPLE = 3
+		TEXTURE_CLAMP_MODE_STD,
+		TEXTURE_CLAMP_MODE_CLAMP,
+		TEXTURE_CLAMP_MODE_REGION_CLAMP,
+		TEXTURE_CLAMP_MODE_REGION_REPEAT,
+		TEXTURE_CLAMP_MODE_REGION_REPEAT_SIMPLE
 	};
 
 	typedef std::unordered_map<uint32, Framework::OpenGl::ProgramPtr> ShaderMap;

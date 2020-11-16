@@ -367,6 +367,10 @@ std::string CGSH_OpenGL::GenerateTexCoordClampingSection(TEXTURE_CLAMP_MODE clam
 
 	switch(clampMode)
 	{
+	case TEXTURE_CLAMP_MODE_CLAMP:
+		shaderBuilder << "	texCoord." << coordinate << " = clamp(texCoord." << coordinate
+		              << ", g_clampMin." << coordinate << ", g_clampMax." << coordinate << ");" << std::endl;
+		break;
 	case TEXTURE_CLAMP_MODE_REGION_CLAMP:
 		shaderBuilder << "	texCoord." << coordinate << " = min(g_clampMax." << coordinate << ", "
 		              << "max(g_clampMin." << coordinate << ", texCoord." << coordinate << "));" << std::endl;
