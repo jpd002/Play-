@@ -260,7 +260,8 @@ void CCOP_VU::CTC2()
 			m_codeGen->PullRel(offsetof(CMIPS, m_State.nCOP2I));
 			break;
 		case CTRL_REG_Q:
-			m_codeGen->PullRel(offsetof(CMIPS, m_State.nCOP2Q));
+			m_codeGen->PullRel(VUShared::g_pipeInfoQ.heldValue);
+			VUShared::FlushPipeline(VUShared::g_pipeInfoQ, m_codeGen);
 			break;
 		case CTRL_REG_CMSAR0:
 			m_codeGen->PushCst(0xFFFF);
