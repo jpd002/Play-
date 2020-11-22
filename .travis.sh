@@ -14,7 +14,7 @@ travis_before_install()
             wget -c "https://github.com/probonopd/linuxdeployqt/releases/download/continuous/linuxdeployqt-continuous-x86_64.AppImage"
             chmod a+x linuxdeployqt*.AppImage
 
-            wget -q -O vulkansdk.tar.gz https://vulkan.lunarg.com/sdk/download/${VULKAN_SDK_VERSION}/linux/vulkansdk-linux-x86_64-${VULKAN_SDK_VERSION}.tar.gz?Human=true
+            wget -q -O vulkansdk.tar.gz https://sdk.lunarg.com/sdk/download/${VULKAN_SDK_VERSION}/linux/vulkansdk-linux-x86_64-${VULKAN_SDK_VERSION}.tar.gz?Human=true
             tar -zxf vulkansdk.tar.gz
 
             sudo add-apt-repository --yes ppa:beineri/opt-qt-5.12.3-xenial
@@ -29,7 +29,7 @@ travis_before_install()
         sudo apt-get install -y clang-format-6.0
     elif [ "$TARGET_OS" = "OSX" ]; then
         npm install -g appdmg
-        curl -L --show-error --output vulkansdk.tar.gz https://vulkan.lunarg.com/sdk/download/${VULKAN_SDK_VERSION}/mac/vulkansdk-macos-${VULKAN_SDK_VERSION}.tar.gz?Human=true
+        curl -L --show-error --output vulkansdk.tar.gz https://sdk.lunarg.com/sdk/download/${VULKAN_SDK_VERSION}/mac/vulkansdk-macos-${VULKAN_SDK_VERSION}.tar.gz?Human=true
         tar -zxf vulkansdk.tar.gz
     elif [ "$TARGET_OS" = "IOS" ]; then
         brew update
