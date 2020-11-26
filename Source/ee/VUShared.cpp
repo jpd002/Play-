@@ -1365,6 +1365,7 @@ void VUShared::OPMSUB(CMipsJitter* codeGen, uint8 fd, uint8 fs, uint8 ft, uint32
 {
 	//We keep the value in a temp register because it's possible to specify a FD which can be used as FT or FS
 	uint8 tempRegIndex = 32;
+	uint32 dest = 0x0E;
 
 	//X
 	codeGen->FP_PushSingle(GetAccumulatorElement(VECTOR_COMPX));
@@ -1390,12 +1391,12 @@ void VUShared::OPMSUB(CMipsJitter* codeGen, uint8 fd, uint8 fs, uint8 ft, uint32
 	codeGen->FP_Sub();
 	codeGen->FP_PullSingle(GetVectorElement(tempRegIndex, VECTOR_COMPZ));
 
-	TestSZFlags(codeGen, 0xF, offsetof(CMIPS, m_State.nCOP2[tempRegIndex]), relativePipeTime, compileHints);
+	TestSZFlags(codeGen, dest, offsetof(CMIPS, m_State.nCOP2[tempRegIndex]), relativePipeTime, compileHints);
 
 	if(fd != 0)
 	{
 		codeGen->MD_PushRel(offsetof(CMIPS, m_State.nCOP2[tempRegIndex]));
-		codeGen->MD_PullRel(offsetof(CMIPS, m_State.nCOP2[fd]));
+		PullVector(codeGen, dest, offsetof(CMIPS, m_State.nCOP2[fd]));
 	}
 }
 
