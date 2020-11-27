@@ -80,6 +80,6 @@ void CFlagsTest2::Execute(CTestVm& virtualMachine)
 	TEST_VERIFY(virtualMachine.m_cpu.m_State.nCOP2A.nV2 == 0x00000000);
 	TEST_VERIFY(virtualMachine.m_cpu.m_State.nCOP2A.nV3 == 0x40000000);
 
-	//Check if Z flag is set for every component (cross product result)
-	TEST_VERIFY(virtualMachine.m_cpu.m_State.nCOP2VI[11] == 0xF);
+	//Check if Z flag is set for XYZ component (cross product result)
+	TEST_VERIFY(virtualMachine.m_cpu.m_State.nCOP2VI[11] == 0xE);
 }

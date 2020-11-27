@@ -63,6 +63,11 @@ void CFlagsTest3::Execute(CTestVm& virtualMachine)
 	    CVuAssembler::Upper::NOP(),
 	    CVuAssembler::Lower::NOP());
 
+	virtualMachine.m_cpu.m_State.nCOP2[1].nV0 = 0x40000000; //VF1 = (2, 2, 2, 2)
+	virtualMachine.m_cpu.m_State.nCOP2[1].nV1 = 0x40000000;
+	virtualMachine.m_cpu.m_State.nCOP2[1].nV2 = 0x40000000;
+	virtualMachine.m_cpu.m_State.nCOP2[1].nV3 = 0x40000000;
+
 	virtualMachine.m_cpu.m_State.nCOP2[6].nV0 = 0x3F800000; //VF6 = (1, 0, 0, 1)
 	virtualMachine.m_cpu.m_State.nCOP2[6].nV1 = 0x3F800000;
 	virtualMachine.m_cpu.m_State.nCOP2[6].nV2 = 0x00000000;
@@ -82,10 +87,11 @@ void CFlagsTest3::Execute(CTestVm& virtualMachine)
 	TEST_VERIFY(virtualMachine.m_cpu.m_State.nCOP2A.nV2 == 0xBF800000);
 	TEST_VERIFY(virtualMachine.m_cpu.m_State.nCOP2A.nV3 == 0x00000000);
 
+	//VF1w should be unchanged from initial value
 	TEST_VERIFY(virtualMachine.m_cpu.m_State.nCOP2[1].nV0 == 0x00000000);
 	TEST_VERIFY(virtualMachine.m_cpu.m_State.nCOP2[1].nV1 == 0x00000000);
 	TEST_VERIFY(virtualMachine.m_cpu.m_State.nCOP2[1].nV2 == 0xBF800000);
-	TEST_VERIFY(virtualMachine.m_cpu.m_State.nCOP2[1].nV3 == 0x3F800000);
+	TEST_VERIFY(virtualMachine.m_cpu.m_State.nCOP2[1].nV3 == 0x40000000);
 
 	//Check sign and zero flags
 	TEST_VERIFY(virtualMachine.m_cpu.m_State.nCOP2VI[9] == 0xE);
