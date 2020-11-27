@@ -103,7 +103,7 @@ void CVu1ProgramView::OnMachineStateChangeMsg()
 {
 	m_disAsm->HandleMachineStateChange();
 	m_memoryView->HandleMachineStateChange();
-	m_packetView->SetPacket(m_virtualMachine.GetVuMem1() + m_vuMemPacketAddress, PS2::VUMEM1SIZE - m_vuMemPacketAddress);
+	m_packetView->SetPacket(m_virtualMachine.GetVuMem1(), m_vuMemPacketAddress, PS2::VUMEM1SIZE - m_vuMemPacketAddress);
 	m_packetView->Update();
 	m_regView->Update();
 }
