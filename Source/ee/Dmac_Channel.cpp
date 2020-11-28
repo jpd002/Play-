@@ -165,7 +165,19 @@ void CChannel::ExecuteNormal()
 		break;
 	}
 
+	// When starting a normal transfer, always at least one
+	// QW is send, regardless of the value of the QWC register.
+	// In case of a QWC of 0, this causes the QWC register to
+	// underflow down the line, which is intentional (actually
+	// happens on real hardware).
+	// Games that do exhibit a normal transfer with 0 QWC
+	// (Enter the Matrix, Star Wars Racer Revenge) mitigate
+	// this by setting the QWC register each frame.
 	uint32 qwc = m_nQWC;
+	if(qwc == 0)
+	{
+		qwc = 1;
+	}
 
 	if(isMfifo)
 	{
@@ -177,7 +189,7 @@ void CChannel::ExecuteNormal()
 		uint32 ringBufferSize = m_dmac.m_D_RBSR + 0x10;
 		assert(ringBufferAddr < ringBufferSize);
 
-		qwc = std::min<int32>(m_nQWC, (ringBufferSize - ringBufferAddr) / 0x10);
+		qwc = std::min<int32>(qwc, (ringBufferSize - ringBufferAddr) / 0x10);
 	}
 
 	uint32 nRecv = m_receive(m_nMADR, qwc, m_CHCR.nDIR, false);
