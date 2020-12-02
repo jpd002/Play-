@@ -1,11 +1,6 @@
 matrix:
   include:
     - os: linux
-      dist: trusty
-      env:
-        - TARGET_OS=Linux_Clang_Format
-      sudo: require
-    - os: linux
       dist: xenial
       env:
         - BUILD_TYPE="Unix Makefiles"

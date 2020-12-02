@@ -21,12 +21,6 @@ travis_before_install()
             sudo apt update -qq
             sudo apt install -qq qt512base qt512x11extras gcc-9 g++-9 libgl1-mesa-dev libglu1-mesa-dev libalut-dev libevdev-dev
         fi
-    elif [ "$TARGET_OS" = "Linux_Clang_Format" ]; then
-        wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | sudo apt-key add -
-        sudo apt-add-repository --yes "deb http://apt.llvm.org/trusty/ llvm-toolchain-trusty-6.0 main"
-        sudo add-apt-repository --yes ppa:ubuntu-toolchain-r/test
-        sudo apt-get update -y
-        sudo apt-get install -y clang-format-6.0
     elif [ "$TARGET_OS" = "OSX" ]; then
         npm install -g appdmg
         curl -L --show-error --output vulkansdk.tar.gz https://sdk.lunarg.com/sdk/download/${VULKAN_SDK_VERSION}/mac/vulkansdk-macos-${VULKAN_SDK_VERSION}.tar.gz?Human=true
@@ -63,21 +57,6 @@ travis_script()
             ./gradlew assembleRelease
             popd
         fi
-    elif [ "$TARGET_OS" = "Linux_Clang_Format" ]; then
-        set +e
-        find ./Source/ ./tools/ -iname *.h -o -iname *.cpp -o -iname *.m  -iname *.mm | xargs clang-format-6.0 -i
-        git config --global user.name "Clang-Format"
-        git config --global user.email "Clang-Format"
-        git commit -am"Clang-format";
-        if [ $? -eq 0 ]; then
-            url=$(git format-patch -1 HEAD --stdout | nc termbin.com 9999)
-            echo "generated clang-format patch can be found at: $url"
-            echo "you can pipe patch directly using the following command:";
-            echo "curl $url | git apply -v"
-            echo "then manually commit and push the changes"
-            exit -1;
-        fi
-        exit 0;
     else
         mkdir build
         pushd build
