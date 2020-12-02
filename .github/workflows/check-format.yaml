@@ -15,7 +15,9 @@ jobs:
         extensions: 'h,cpp,c,m,mm'
         clangFormatVersion: 6
         inplace: True
-    - run: |
+    - name: Check for changes
+      run: |
+        set +e
         git config --global user.name "Clang-Format"
         git config --global user.email "Clang-Format"
         git commit -am"Clang-format";
@@ -27,3 +29,4 @@ jobs:
             echo "then manually commit and push the changes"
             exit -1;
         fi
+        exit 0;
