@@ -19,6 +19,8 @@ public:
 
 	void AddExceptionHandler();
 	void RemoveExceptionHandler();
+	
+	void AttachExceptionHandlerToThread();
 
 	void Reset() override;
 	void ClearActiveBlocksInRange(uint32, uint32, bool) override;

@@ -60,20 +60,16 @@ void CEeExecutor::AddExceptionHandler()
 	int result = sigaction(SIGSEGV, &sigAction, nullptr);
 	assert(result >= 0);
 #elif defined(__APPLE__)
-	kern_return_t result = mach_port_allocate(mach_task_self(), MACH_PORT_RIGHT_RECEIVE, &m_port);
-	assert(result == KERN_SUCCESS);
+	if(!m_running)
+	{
+		kern_return_t result = mach_port_allocate(mach_task_self(), MACH_PORT_RIGHT_RECEIVE, &m_port);
+		assert(result == KERN_SUCCESS);
 
-	m_running = true;
-	m_handlerThread = std::thread([this]() { HandlerThreadProc(); });
-
-	result = mach_port_insert_right(mach_task_self(), m_port, m_port, MACH_MSG_TYPE_MAKE_SEND);
-	assert(result == KERN_SUCCESS);
-
-	result = thread_set_exception_ports(mach_thread_self(), EXC_MASK_BAD_ACCESS, m_port, EXCEPTION_STATE | MACH_EXCEPTION_CODES, STATE_FLAVOR);
-	assert(result == KERN_SUCCESS);
-
-	result = mach_port_mod_refs(mach_task_self(), m_port, MACH_PORT_RIGHT_SEND, -1);
-	assert(result == KERN_SUCCESS);
+		m_running = true;
+		m_handlerThread = std::thread([this]() { HandlerThreadProc(); });
+	}
+	
+	AttachExceptionHandlerToThread();
 #endif
 }
 
@@ -91,6 +87,23 @@ void CEeExecutor::RemoveExceptionHandler()
 #endif //!DISABLE_PROTECTION
 
 	g_eeExecutor = nullptr;
+}
+
+void CEeExecutor::AttachExceptionHandlerToThread()
+{
+	//Only necessary for macOS and iOS since the handler is set on a thread basis
+#if defined(__APPLE__)
+	assert(m_running);
+
+	auto result = mach_port_insert_right(mach_task_self(), m_port, m_port, MACH_MSG_TYPE_MAKE_SEND);
+	assert(result == KERN_SUCCESS);
+
+	result = thread_set_exception_ports(mach_thread_self(), EXC_MASK_BAD_ACCESS, m_port, EXCEPTION_STATE | MACH_EXCEPTION_CODES, STATE_FLAVOR);
+	assert(result == KERN_SUCCESS);
+
+	result = mach_port_mod_refs(mach_task_self(), m_port, MACH_PORT_RIGHT_SEND, -1);
+	assert(result == KERN_SUCCESS);
+#endif
 }
 
 void CEeExecutor::Reset()

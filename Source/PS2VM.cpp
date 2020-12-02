@@ -517,6 +517,10 @@ void CPS2VM::CreateGsHandlerImpl(const CGSHandler::FactoryFunction& factoryFunct
 	m_ee->m_gs = factoryFunction();
 	m_ee->m_gs->SetIntc(&m_ee->m_intc);
 	m_ee->m_gs->Initialize();
+	m_ee->m_gs->SendGSCall([this]()
+	{
+		static_cast<CEeExecutor*>(m_ee->m_EE.m_executor.get())->AttachExceptionHandlerToThread();
+	});
 	if(gs)
 	{
 		m_ee->m_gs->Copy(gs);

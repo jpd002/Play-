@@ -836,6 +836,10 @@ public:
 	static std::pair<uint32, uint32> GetTransferInvalidationRange(const BITBLTBUF&, const TRXREG&, const TRXPOS&);
 
 	virtual Framework::CBitmap GetScreenshot();
+	
+	void SendGSCall(CMailBox::FunctionType&&);
+	void SendGSCall(const CMailBox::FunctionType&, bool = false, bool = false);
+	
 	void ProcessSingleFrame();
 
 	FlipCompleteEvent OnFlipComplete;
@@ -990,9 +994,6 @@ protected:
 	void ReadCLUT8(const TEX0&);
 
 	static bool IsCompatibleFramebufferPSM(unsigned int, unsigned int);
-
-	void SendGSCall(const CMailBox::FunctionType&, bool = false, bool = false);
-	void SendGSCall(CMailBox::FunctionType&&);
 
 	PRESENTATION_VIEWPORT GetPresentationViewport() const;
 
