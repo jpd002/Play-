@@ -836,10 +836,10 @@ public:
 	static std::pair<uint32, uint32> GetTransferInvalidationRange(const BITBLTBUF&, const TRXREG&, const TRXPOS&);
 
 	virtual Framework::CBitmap GetScreenshot();
-	
+
 	void SendGSCall(CMailBox::FunctionType&&);
 	void SendGSCall(const CMailBox::FunctionType&, bool = false, bool = false);
-	
+
 	void ProcessSingleFrame();
 
 	FlipCompleteEvent OnFlipComplete;

@@ -19,7 +19,7 @@ public:
 
 	void AddExceptionHandler();
 	void RemoveExceptionHandler();
-	
+
 	void AttachExceptionHandlerToThread();
 
 	void Reset() override;

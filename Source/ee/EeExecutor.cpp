@@ -68,7 +68,7 @@ void CEeExecutor::AddExceptionHandler()
 		m_running = true;
 		m_handlerThread = std::thread([this]() { HandlerThreadProc(); });
 	}
-	
+
 	AttachExceptionHandlerToThread();
 #endif
 }
