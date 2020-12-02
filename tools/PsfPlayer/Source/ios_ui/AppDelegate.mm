@@ -4,9 +4,8 @@
 
 @synthesize window;
 
--(void)applicationDidFinishLaunching: (UIApplication*)application
+- (void)applicationDidFinishLaunching:(UIApplication*)application
 {
-	
 }
 
 @end

@@ -8,19 +8,18 @@
 
 #import "PlaylistItem.h"
 
-
 @implementation PlaylistItem
 
--(id)init: (NSString*)path game: (NSString*)game title: (NSString*)title length: (NSString*)length
+- (id)init:(NSString*)path game:(NSString*)game title:(NSString*)title length:(NSString*)length
 {
-	m_path = [[NSString alloc] initWithString: path];
-	m_game = [[NSString alloc] initWithString: game];
-	m_title = [[NSString alloc] initWithString: title];
-	m_length = [[NSString alloc] initWithString: length];
+	m_path = [[NSString alloc] initWithString:path];
+	m_game = [[NSString alloc] initWithString:game];
+	m_title = [[NSString alloc] initWithString:title];
+	m_length = [[NSString alloc] initWithString:length];
 	return [super init];
 }
 
--(void)dealloc
+- (void)dealloc
 {
 	[m_path release];
 	[m_game release];
@@ -29,17 +28,17 @@
 	[super dealloc];
 }
 
--(NSString*)game
+- (NSString*)game
 {
 	return m_game;
 }
 
--(NSString*)title
+- (NSString*)title
 {
 	return m_title;
 }
 
--(NSString*)length
+- (NSString*)length
 {
 	return m_length;
 }

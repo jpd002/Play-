@@ -2,7 +2,7 @@
 #import "AppDelegate.h"
 #include "DebuggerSimulator.h"
 
-int main(int argc, char * argv[])
+int main(int argc, char* argv[])
 {
 	StartSimulateDebugger();
 	@autoreleasepool

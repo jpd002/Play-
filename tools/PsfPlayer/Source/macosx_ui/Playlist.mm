@@ -10,50 +10,49 @@
 
 @implementation Playlist
 
--(Playlist*)init
+- (Playlist*)init
 {
 	m_playList = [[NSMutableArray alloc] init];
 	return [super init];
 }
 
--(void)dealloc
+- (void)dealloc
 {
-	[m_playList release];	
+	[m_playList release];
 	[super dealloc];
 }
 
--(void)save
+- (void)save
 {
-	
 }
 
--(int)numberOfRowsInTableView: (NSTableView*)tableView
+- (int)numberOfRowsInTableView:(NSTableView*)tableView
 {
 	return [m_playList count];
 }
 
--(id)tableView: (NSTableView*)tableView objectValueForTableColumn:(NSTableColumn*)tableColumn row:(int)row
+- (id)tableView:(NSTableView*)tableView objectValueForTableColumn:(NSTableColumn*)tableColumn row:(int)row
 {
 	if(row >= [m_playList count]) return @"";
-	PlaylistItem* item = [m_playList objectAtIndex: row];
-	if([[tableColumn identifier] isEqualToString: @"game"])
+	PlaylistItem* item = [m_playList objectAtIndex:row];
+	if([[tableColumn identifier] isEqualToString:@"game"])
 	{
 		return [item game];
 	}
-	else if([[tableColumn identifier] isEqualToString: @"title"])
+	else if([[tableColumn identifier] isEqualToString:@"title"])
 	{
 		return [item title];
 	}
-	else if([[tableColumn identifier] isEqualToString: @"length"])
+	else if([[tableColumn identifier] isEqualToString:@"length"])
 	{
 		return [item length];
 	}
 	return @"";
 }
 
--(void)addItem: (PlaylistItem*)item
+- (void)addItem:(PlaylistItem*)item
 {
-	[m_playList addObject: item];
+	[m_playList addObject:item];
 }
 
 @end

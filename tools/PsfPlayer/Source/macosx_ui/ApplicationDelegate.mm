@@ -17,14 +17,14 @@ string GetTagValue(const CPsfBase::TagMap& tags, const char* tagName)
 
 @implementation ApplicationDelegate
 
--(id)init
+- (id)init
 {
 	m_virtualMachine = new CPsfVm();
 	m_virtualMachine->SetSpuHandler(&CSH_OpenAL::HandlerFactory);
 	return [super init];
 }
 
--(void)OnFileOpen: (id)sender
+- (void)OnFileOpen:(id)sender
 {
 	NSOpenPanel* openPanel = [NSOpenPanel openPanel];
 	NSArray* fileTypes = [NSArray arrayWithObjects:@"psf", @"psf2", @"minipsf", @"minipsf2", nil];
@@ -33,26 +33,26 @@ string GetTagValue(const CPsfBase::TagMap& tags, const char* tagName)
 		return;
 	}
 	NSString* fileName = [openPanel filename];
-	[self LoadPsf: fileName];
+	[self LoadPsf:fileName];
 }
 
--(void)LoadPsf : (NSString*)fileName
-{	
+- (void)LoadPsf:(NSString*)fileName
+{
 	m_virtualMachine->Pause();
 	m_virtualMachine->Reset();
 	try
 	{
 		CPsfBase::TagMap tags;
 		CPsfLoader::LoadPsf(*m_virtualMachine, std::string([fileName fileSystemRepresentation]), "", &tags);
-		NSString* game  = [[NSString alloc] initWithUTF8String: GetTagValue(tags, "game").c_str()];
-		NSString* title = [[NSString alloc] initWithUTF8String: GetTagValue(tags, "title").c_str()]; 
-		NSString* length = [[NSString alloc] initWithUTF8String: GetTagValue(tags, "length").c_str()];
-		PlaylistItem* item = [[PlaylistItem alloc] init: fileName game: game title: title length: length];
+		NSString* game = [[NSString alloc] initWithUTF8String:GetTagValue(tags, "game").c_str()];
+		NSString* title = [[NSString alloc] initWithUTF8String:GetTagValue(tags, "title").c_str()];
+		NSString* length = [[NSString alloc] initWithUTF8String:GetTagValue(tags, "length").c_str()];
+		PlaylistItem* item = [[PlaylistItem alloc] init:fileName game:game title:title length:length];
 		[game release];
 		[title release];
 		[length release];
-		[m_playlist addItem: item];
-		[m_playListView reloadData];		
+		[m_playlist addItem:item];
+		[m_playListView reloadData];
 		m_virtualMachine->Resume();
 	}
 	catch(const exception& excep)
@@ -61,5 +61,5 @@ string GetTagValue(const CPsfBase::TagMap& tags, const char* tagName)
 		NSRunCriticalAlertPanel(@"PSF load error:", errorMessage, NULL, NULL, NULL);
 	}
 }
-						
+
 @end

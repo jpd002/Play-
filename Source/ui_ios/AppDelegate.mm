@@ -9,34 +9,30 @@
 
 @implementation AppDelegate
 
--(BOOL)application: (UIApplication*)application didFinishLaunchingWithOptions: (NSDictionary*)launchOption
+- (BOOL)application:(UIApplication*)application didFinishLaunchingWithOptions:(NSDictionary*)launchOption
 {
 	[EmulatorViewController registerPreferences];
 	CGSH_OpenGL::RegisterPreferences();
 	return YES;
 }
 
--(void)applicationWillResignActive: (UIApplication*)application
+- (void)applicationWillResignActive:(UIApplication*)application
 {
-	
 }
 
--(void)applicationDidEnterBackground: (UIApplication*)application
+- (void)applicationDidEnterBackground:(UIApplication*)application
 {
-	
 }
 
--(void)applicationWillEnterForeground: (UIApplication*)application
+- (void)applicationWillEnterForeground:(UIApplication*)application
 {
-	
 }
 
--(void)applicationDidBecomeActive: (UIApplication*)application
+- (void)applicationDidBecomeActive:(UIApplication*)application
 {
-	
 }
 
--(void)applicationWillTerminate: (UIApplication*)application
+- (void)applicationWillTerminate:(UIApplication*)application
 {
 	StopSimulateDebugger();
 }

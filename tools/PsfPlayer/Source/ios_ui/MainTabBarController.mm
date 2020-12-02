@@ -7,14 +7,14 @@
 #import <MediaPlayer/MediaPlayer.h>
 #import "NSStringUtils.h"
 
-#define PLAY_STRING		@"Play"
-#define PAUSE_STRING	@"Pause"
+#define PLAY_STRING @"Play"
+#define PAUSE_STRING @"Pause"
 
 @implementation MainTabBarController
 
--(void)onAudioSessionInterruption: (NSNotification*)notification
+- (void)onAudioSessionInterruption:(NSNotification*)notification
 {
-	NSNumber* interruptionType = [notification.userInfo valueForKey: AVAudioSessionInterruptionTypeKey];
+	NSNumber* interruptionType = [notification.userInfo valueForKey:AVAudioSessionInterruptionTypeKey];
 	if([interruptionType intValue] == AVAudioSessionInterruptionTypeBegan)
 	{
 		if(m_playing)
@@ -24,25 +24,25 @@
 	}
 }
 
--(void)onAudioSessionRouteChanged: (NSNotification*)notification
+- (void)onAudioSessionRouteChanged:(NSNotification*)notification
 {
 	//Pause if we're moving away from any output port that's not the built-in speaker
 	//to prevent playback from continuing when disconnecting headphones and other devices
-	AVAudioSessionRouteDescription* route = [notification.userInfo valueForKey: AVAudioSessionRouteChangePreviousRouteKey];
+	AVAudioSessionRouteDescription* route = [notification.userInfo valueForKey:AVAudioSessionRouteChangePreviousRouteKey];
 	if([route.outputs count] > 0)
 	{
-		AVAudioSessionPortDescription* port = [route.outputs objectAtIndex: 0];
-		if([port.portType compare: AVAudioSessionPortBuiltInSpeaker] != NSOrderedSame)
+		AVAudioSessionPortDescription* port = [route.outputs objectAtIndex:0];
+		if([port.portType compare:AVAudioSessionPortBuiltInSpeaker] != NSOrderedSame)
 		{
 			if(m_playing)
 			{
-				[self performSelectorOnMainThread: @selector(onPlayButtonPress) withObject: nil waitUntilDone: NO];
+				[self performSelectorOnMainThread:@selector(onPlayButtonPress) withObject:nil waitUntilDone:NO];
 			}
 		}
 	}
 }
 
--(void)remoteControlReceivedWithEvent: (UIEvent*)receivedEvent
+- (void)remoteControlReceivedWithEvent:(UIEvent*)receivedEvent
 {
 	if(receivedEvent.type == UIEventTypeRemoteControl)
 	{
@@ -70,7 +70,7 @@
 	}
 }
 
--(void)reset
+- (void)reset
 {
 	m_ready = false;
 	m_playing = false;
@@ -80,74 +80,74 @@
 	m_volumeAdjust = 1.0f;
 }
 
--(void)viewDidLoad
+- (void)viewDidLoad
 {
 	m_playlist = nullptr;
 	m_currentPlaylistItem = 0;
 	m_repeatMode = PLAYLIST_REPEAT;
-	
+
 	m_virtualMachine = new CPsfVm();
 	m_OnNewFrameConnection = m_virtualMachine->OnNewFrame.Connect(ObjCMemberFunctionPointer(self, sel_getUid("onNewFrame")));
-	
-	[NSTimer scheduledTimerWithTimeInterval: 0.20 target: self selector: @selector(onUpdateTrackTimeTimer) userInfo: nil repeats: YES];
-	[NSTimer scheduledTimerWithTimeInterval: 0.05 target: self selector: @selector(onUpdateFadeTimer) userInfo: nil repeats: YES];
-	
+
+	[NSTimer scheduledTimerWithTimeInterval:0.20 target:self selector:@selector(onUpdateTrackTimeTimer) userInfo:nil repeats:YES];
+	[NSTimer scheduledTimerWithTimeInterval:0.05 target:self selector:@selector(onUpdateFadeTimer) userInfo:nil repeats:YES];
+
 	[self reset];
-	
+
 	m_virtualMachine->Pause();
 	m_virtualMachine->Reset();
-	
+
 	//Force all views to be loaded
 	for(UIViewController* viewController in self.viewControllers)
 	{
 		viewController.view;
 	}
-	
+
 	m_playlistViewController = (PlaylistViewController*)self.viewControllers[0];
 	m_playlistViewController.delegate = self;
-	
+
 	m_fileInfoViewController = (FileInfoViewController*)self.viewControllers[1];
 	m_fileInfoViewController.delegate = self;
-	
-	[[NSNotificationCenter defaultCenter] addObserver: self selector: @selector(onAudioSessionInterruption:) name: AVAudioSessionInterruptionNotification object: nil];
-	[[NSNotificationCenter defaultCenter] addObserver: self selector: @selector(onAudioSessionRouteChanged:) name: AVAudioSessionRouteChangeNotification object: nil];
+
+	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(onAudioSessionInterruption:) name:AVAudioSessionInterruptionNotification object:nil];
+	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(onAudioSessionRouteChanged:) name:AVAudioSessionRouteChangeNotification object:nil];
 	NSError* setCategoryErr = nil;
-	[[AVAudioSession sharedInstance] setCategory: AVAudioSessionCategoryPlayback error: &setCategoryErr];
-	
+	[[AVAudioSession sharedInstance] setCategory:AVAudioSessionCategoryPlayback error:&setCategoryErr];
+
 	[[UIApplication sharedApplication] beginReceivingRemoteControlEvents];
 	[self becomeFirstResponder];
 }
 
--(void)onPlayButtonPress
+- (void)onPlayButtonPress
 {
 	if(!m_ready) return;
 	if(m_playing)
 	{
-		[m_fileInfoViewController setPlayButtonText: PLAY_STRING];
+		[m_fileInfoViewController setPlayButtonText:PLAY_STRING];
 		m_virtualMachine->Pause();
 		m_playing = false;
-		
+
 		m_virtualMachine->SetSpuHandler(nullptr);
-		
+
 		NSError* activationErr = nil;
-		BOOL success = [[AVAudioSession sharedInstance] setActive: NO error: &activationErr];
+		BOOL success = [[AVAudioSession sharedInstance] setActive:NO error:&activationErr];
 		assert(success == YES);
 	}
 	else
 	{
 		NSError* activationErr = nil;
-		BOOL success = [[AVAudioSession sharedInstance] setActive: YES error: &activationErr];
+		BOOL success = [[AVAudioSession sharedInstance] setActive:YES error:&activationErr];
 		assert(success == YES);
-		
+
 		m_virtualMachine->SetSpuHandler(&CSH_OpenAL::HandlerFactory);
-		
-		[m_fileInfoViewController setPlayButtonText: PAUSE_STRING];
+
+		[m_fileInfoViewController setPlayButtonText:PAUSE_STRING];
 		m_virtualMachine->Resume();
 		m_playing = true;
 	}
 }
 
--(void)onPrevButtonPress
+- (void)onPrevButtonPress
 {
 	if(!m_playlist) return;
 	if(m_playlist->GetItemCount() == 0) return;
@@ -167,10 +167,10 @@
 			m_currentPlaylistItem = m_playlist->GetItemCount() - 1;
 		}
 	}
-	[self onPlaylistItemSelected: m_currentPlaylistItem];
+	[self onPlaylistItemSelected:m_currentPlaylistItem];
 }
 
--(void)onNextButtonPress
+- (void)onNextButtonPress
 {
 	if(!m_playlist) return;
 	if(m_playlist->GetItemCount() == 0) return;
@@ -191,39 +191,39 @@
 			m_currentPlaylistItem = 0;
 		}
 	}
-	[self onPlaylistItemSelected: m_currentPlaylistItem];
+	[self onPlaylistItemSelected:m_currentPlaylistItem];
 }
 
--(void)onPlaylistSelected: (CPlaylist*)playlist
+- (void)onPlaylistSelected:(CPlaylist*)playlist
 {
 	m_playlist = playlist;
-	[self onPlaylistItemSelected: 0];
+	[self onPlaylistItemSelected:0];
 }
 
--(void)onPlaylistItemSelected: (unsigned int)itemIndex
+- (void)onPlaylistItemSelected:(unsigned int)itemIndex
 {
 	const auto& playlistItem(m_playlist->GetItem(itemIndex));
-	
+
 	//Initialize UI
 	[self reset];
-	[m_fileInfoViewController setPlayButtonText: PLAY_STRING];
-	
+	[m_fileInfoViewController setPlayButtonText:PLAY_STRING];
+
 	unsigned int archiveId = playlistItem.archiveId;
-	
+
 	m_virtualMachine->Pause();
 	m_virtualMachine->Reset();
-		
+
 	try
 	{
 		CPsfBase::TagMap tags;
 		CPsfLoader::LoadPsf(
-							*m_virtualMachine,
-							playlistItem.path,
-							(archiveId == 0) ? nullptr : m_playlist->GetArchive(archiveId),
-							&tags);
+		    *m_virtualMachine,
+		    playlistItem.path,
+		    (archiveId == 0) ? nullptr : m_playlist->GetArchive(archiveId),
+		    &tags);
 		m_virtualMachine->SetReverbEnabled(true);
 		m_virtualMachine->Resume();
-		
+
 		CPsfTags psfTags(tags);
 		NSString* title = @"PsfPlayer";
 		if(psfTags.HasTag("title"))
@@ -235,7 +235,7 @@
 		{
 			gameName = stringWithWchar(psfTags.DecodeTagValue(psfTags.GetRawTagValue("game").c_str()));
 		}
-		
+
 		try
 		{
 			m_volumeAdjust = std::stof(psfTags.GetTagValue("volume"));
@@ -243,18 +243,17 @@
 		}
 		catch(...)
 		{
-			
 		}
-	
-		[m_fileInfoViewController setTrackTitle: title];
-		[m_fileInfoViewController setTrackTime: @"00:00"];
-		[m_fileInfoViewController setTags: psfTags];
-		
-		NSArray* keys = [NSArray arrayWithObjects: MPMediaItemPropertyAlbumTitle, MPMediaItemPropertyTitle, nil];
-		NSArray* values = [NSArray arrayWithObjects: gameName, title, nil];
+
+		[m_fileInfoViewController setTrackTitle:title];
+		[m_fileInfoViewController setTrackTime:@"00:00"];
+		[m_fileInfoViewController setTags:psfTags];
+
+		NSArray* keys = [NSArray arrayWithObjects:MPMediaItemPropertyAlbumTitle, MPMediaItemPropertyTitle, nil];
+		NSArray* values = [NSArray arrayWithObjects:gameName, title, nil];
 		NSDictionary* mediaInfo = [NSDictionary dictionaryWithObjects:values forKeys:keys];
 		[MPNowPlayingInfoCenter defaultCenter].nowPlayingInfo = mediaInfo;
-		
+
 		if(m_repeatMode != TRACK_REPEAT)
 		{
 			double fade = 10.f;
@@ -265,7 +264,7 @@
 			}
 			else
 			{
-				m_trackLength = 60.f * 60.f;	//1 minute default length
+				m_trackLength = 60.f * 60.f; //1 minute default length
 			}
 			if(psfTags.HasTag("fade"))
 			{
@@ -277,7 +276,7 @@
 
 		m_ready = true;
 		m_currentPlaylistItem = itemIndex;
-		[m_playlistViewController setPlayingItemIndex: itemIndex];
+		[m_playlistViewController setPlayingItemIndex:itemIndex];
 		[self onPlayButtonPress];
 	}
 	catch(const std::exception& exception)
@@ -286,19 +285,19 @@
 	}
 }
 
--(void)onUpdateTrackTimeTimer
+- (void)onUpdateTrackTimeTimer
 {
 	const int fps = 60;
-		
+
 	int time = m_frames / fps;
 	int seconds = time % 60;
 	int minutes = time / 60;
-	
-	NSString* timeString = [NSString stringWithFormat: @"%0.2d:%0.2d", minutes, seconds];
-	[m_fileInfoViewController setTrackTime: timeString];
+
+	NSString* timeString = [NSString stringWithFormat:@"%0.2d:%0.2d", minutes, seconds];
+	[m_fileInfoViewController setTrackTime:timeString];
 }
 
--(void)onUpdateFadeTimer
+- (void)onUpdateFadeTimer
 {
 	if(m_trackLength != 0)
 	{
@@ -315,7 +314,7 @@
 	}
 }
 
--(void)onNewFrame
+- (void)onNewFrame
 {
 	m_frames++;
 }

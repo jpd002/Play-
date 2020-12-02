@@ -25,38 +25,38 @@ enum
 
 @synthesize delegate;
 
--(void)setTags: (const CPsfTags&)tags
+- (void)setTags:(const CPsfTags&)tags
 {
 	m_tags = tags;
 	m_rawTags.clear();
-	
+
 	for(CPsfTags::ConstTagIterator tagIterator(m_tags.GetTagsBegin());
-		tagIterator != m_tags.GetTagsEnd(); tagIterator++)
+	    tagIterator != m_tags.GetTagsEnd(); tagIterator++)
 	{
 		std::string rawTag;
 		rawTag = tagIterator->first + ": " + tagIterator->second;
 		m_rawTags.push_back(rawTag);
 	}
-	
+
 	[m_tagsTable reloadData];
 }
 
--(void)setTrackTitle: (NSString*)trackTitle
+- (void)setTrackTitle:(NSString*)trackTitle
 {
 	m_trackTitleLabel.text = trackTitle;
 }
 
--(void)setTrackTime: (NSString*)trackTime
+- (void)setTrackTime:(NSString*)trackTime
 {
 	m_trackTimeLabel.text = trackTime;
 }
 
--(void)setPlayButtonText: (NSString*)playButtonText
+- (void)setPlayButtonText:(NSString*)playButtonText
 {
-	[m_playButton setTitle: playButtonText forState: UIControlStateNormal];
+	[m_playButton setTitle:playButtonText forState:UIControlStateNormal];
 }
 
--(IBAction)onPlayButtonPress: (id)sender
+- (IBAction)onPlayButtonPress:(id)sender
 {
 	if(delegate != nil)
 	{
@@ -64,7 +64,7 @@ enum
 	}
 }
 
--(IBAction)onPrevButtonPress: (id)sender
+- (IBAction)onPrevButtonPress:(id)sender
 {
 	if(delegate != nil)
 	{
@@ -72,7 +72,7 @@ enum
 	}
 }
 
--(IBAction)onNextButtonPress: (id)sender
+- (IBAction)onNextButtonPress:(id)sender
 {
 	if(delegate != nil)
 	{
@@ -80,101 +80,101 @@ enum
 	}
 }
 
--(NSInteger)numberOfSectionsInTableView: (UITableView*)tableView 
+- (NSInteger)numberOfSectionsInTableView:(UITableView*)tableView
 {
 	return SECTION_COUNT;
 }
 
--(NSInteger)tableView: (UITableView*)tableView numberOfRowsInSection: (NSInteger)section 
+- (NSInteger)tableView:(UITableView*)tableView numberOfRowsInSection:(NSInteger)section
 {
 	NSInteger rowCount = 0;
 	switch(section)
 	{
-		case SECTION_INFO:
-			rowCount = INFO_SECTION_COUNT;
-			break;
-		case SECTION_RAWTAGS:
-			rowCount = m_rawTags.size();
-			break;
+	case SECTION_INFO:
+		rowCount = INFO_SECTION_COUNT;
+		break;
+	case SECTION_RAWTAGS:
+		rowCount = m_rawTags.size();
+		break;
 	}
 	return rowCount;
 }
 
--(NSString*)tableView: (UITableView*)tableView titleForHeaderInSection: (NSInteger)section 
+- (NSString*)tableView:(UITableView*)tableView titleForHeaderInSection:(NSInteger)section
 {
-	NSString *sectionHeader = nil;
-	
+	NSString* sectionHeader = nil;
+
 	switch(section)
 	{
-		case SECTION_INFO:
-			sectionHeader = @"Info";
-			break;
-		case SECTION_RAWTAGS:
-			sectionHeader = @"Raw Tags";
-			break;
+	case SECTION_INFO:
+		sectionHeader = @"Info";
+		break;
+	case SECTION_RAWTAGS:
+		sectionHeader = @"Raw Tags";
+		break;
 	}
-	
+
 	return sectionHeader;
 }
 
--(NSString*)infoDisplayTextForItem: (const char*)itemName withTag: (const char*)tagName
+- (NSString*)infoDisplayTextForItem:(const char*)itemName withTag:(const char*)tagName
 {
 	NSString* itemValue = @"";
 	if(m_tags.HasTag(tagName))
 	{
 		itemValue = stringWithWchar(m_tags.GetTagValue(tagName));
 	}
-	return [NSString stringWithFormat: @"%s: %@", itemName, itemValue];
+	return [NSString stringWithFormat:@"%s: %@", itemName, itemValue];
 }
 
--(UITableViewCell*)tableView: (UITableView*)tableView cellForRowAtIndexPath: (NSIndexPath*)indexPath 
+- (UITableViewCell*)tableView:(UITableView*)tableView cellForRowAtIndexPath:(NSIndexPath*)indexPath
 {
 	static NSString* CellIdentifier = @"Cell";
-	
-	UITableViewCell* cell = [tableView dequeueReusableCellWithIdentifier: CellIdentifier];
+
+	UITableViewCell* cell = [tableView dequeueReusableCellWithIdentifier:CellIdentifier];
 	if(cell == nil)
 	{
-		cell = [[[UITableViewCell alloc] initWithStyle: UITableViewCellStyleDefault reuseIdentifier: CellIdentifier] autorelease];
+		cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:CellIdentifier] autorelease];
 	}
-	
+
 	cell.textLabel.adjustsFontSizeToFitWidth = YES;
-	
+
 	if(indexPath.section == SECTION_INFO)
 	{
 		switch(indexPath.row)
 		{
 		case INFO_SECTION_TITLE:
-			cell.textLabel.text = [self infoDisplayTextForItem: "Title" withTag: "title"];
+			cell.textLabel.text = [self infoDisplayTextForItem:"Title" withTag:"title"];
 			break;
 		case INFO_SECTION_ARTIST:
-			cell.textLabel.text = [self infoDisplayTextForItem: "Artist" withTag: "artist"];
+			cell.textLabel.text = [self infoDisplayTextForItem:"Artist" withTag:"artist"];
 			break;
 		case INFO_SECTION_GAME:
-			cell.textLabel.text = [self infoDisplayTextForItem: "Game" withTag: "game"];
+			cell.textLabel.text = [self infoDisplayTextForItem:"Game" withTag:"game"];
 			break;
 		case INFO_SECTION_YEAR:
-			cell.textLabel.text = [self infoDisplayTextForItem: "Year" withTag: "year"];
+			cell.textLabel.text = [self infoDisplayTextForItem:"Year" withTag:"year"];
 			break;
 		case INFO_SECTION_GENRE:
-			cell.textLabel.text = [self infoDisplayTextForItem: "Genre" withTag: "genre"];
+			cell.textLabel.text = [self infoDisplayTextForItem:"Genre" withTag:"genre"];
 			break;
 		case INFO_SECTION_COMMENT:
-			cell.textLabel.text = [self infoDisplayTextForItem: "Comment" withTag: "comment"];
+			cell.textLabel.text = [self infoDisplayTextForItem:"Comment" withTag:"comment"];
 			break;
 		case INFO_SECTION_COPYRIGHT:
-			cell.textLabel.text = [self infoDisplayTextForItem: "Copyright" withTag: "copyright"];
+			cell.textLabel.text = [self infoDisplayTextForItem:"Copyright" withTag:"copyright"];
 			break;
 		case INFO_SECTION_PSFBY:
-			cell.textLabel.text = [self infoDisplayTextForItem: "Psf by" withTag: "psfby"];
+			cell.textLabel.text = [self infoDisplayTextForItem:"Psf by" withTag:"psfby"];
 			break;
 		}
 	}
 	else if(indexPath.section == SECTION_RAWTAGS)
 	{
 		std::string rawTag = m_rawTags[indexPath.row];
-		cell.textLabel.text = [NSString stringWithUTF8String: rawTag.c_str()];
+		cell.textLabel.text = [NSString stringWithUTF8String:rawTag.c_str()];
 	}
-	
+
 	return cell;
 }
 

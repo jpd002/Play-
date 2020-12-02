@@ -2,24 +2,20 @@
 
 @implementation VirtualPadItem
 
--(void)draw: (CGContextRef)context
+- (void)draw:(CGContextRef)context
 {
-
 }
 
--(void)onPointerDown: (CGPoint)position
+- (void)onPointerDown:(CGPoint)position
 {
-
 }
 
--(void)onPointerMove: (CGPoint)position
+- (void)onPointerMove:(CGPoint)position
 {
-
 }
 
--(void)onPointerUp
+- (void)onPointerUp
 {
-
 }
 
 @end

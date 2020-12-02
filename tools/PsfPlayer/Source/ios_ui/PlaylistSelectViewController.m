@@ -4,98 +4,98 @@
 
 @synthesize delegate;
 
--(void)dealloc
+- (void)dealloc
 {
 	[m_archives release];
 	[super dealloc];
 }
 
--(void)viewDidLoad 
+- (void)viewDidLoad
 {
 	[super viewDidLoad];
-	
+
 	NSString* path = [@"~" stringByExpandingTildeInPath];
 	NSFileManager* localFileManager = [[NSFileManager alloc] init];
-	
-	NSDirectoryEnumerator* dirEnum = [localFileManager enumeratorAtPath: path];	
-	
+
+	NSDirectoryEnumerator* dirEnum = [localFileManager enumeratorAtPath:path];
+
 	NSMutableArray* archives = [[NSMutableArray alloc] init];
-	
+
 	NSString* file = nil;
 	while(file = [dirEnum nextObject])
 	{
-		if([[file pathExtension] isEqualToString: @"zip"])
+		if([[file pathExtension] isEqualToString:@"zip"])
 		{
-			[archives addObject: file];
+			[archives addObject:file];
 		}
 	}
-	
+
 	[localFileManager release];
-	
-	m_archives = [archives sortedArrayUsingSelector: @selector(caseInsensitiveCompare:)];
-	
+
+	m_archives = [archives sortedArrayUsingSelector:@selector(caseInsensitiveCompare:)];
+
 	[m_archives retain];
 	[archives release];
 }
 
--(void)viewDidDisappear: (BOOL)animated
+- (void)viewDidDisappear:(BOOL)animated
 {
-	[super viewDidDisappear: animated];
+	[super viewDidDisappear:animated];
 	//[self.tableView deselectRowAtIndexPath: [self.tableView indexPathForSelectedRow] animated:NO];
 }
 
--(IBAction)onCancel: (id)sender
+- (IBAction)onCancel:(id)sender
 {
-	[self dismissViewControllerAnimated: YES completion: nil];
+	[self dismissViewControllerAnimated:YES completion:nil];
 }
 
--(NSInteger)numberOfSectionsInTableView: (UITableView*)tableView 
+- (NSInteger)numberOfSectionsInTableView:(UITableView*)tableView
 {
 	return 1;
 }
 
--(NSInteger)tableView: (UITableView *)tableView numberOfRowsInSection: (NSInteger)section 
+- (NSInteger)tableView:(UITableView*)tableView numberOfRowsInSection:(NSInteger)section
 {
 	return [m_archives count];
 }
 
--(NSString*)tableView: (UITableView*)tableView titleForHeaderInSection: (NSInteger)section 
+- (NSString*)tableView:(UITableView*)tableView titleForHeaderInSection:(NSInteger)section
 {
 	return @"";
 }
 
--(UITableViewCell*)tableView: (UITableView*)tableView cellForRowAtIndexPath: (NSIndexPath*)indexPath 
+- (UITableViewCell*)tableView:(UITableView*)tableView cellForRowAtIndexPath:(NSIndexPath*)indexPath
 {
-	static NSString *CellIdentifier = @"Cell";
+	static NSString* CellIdentifier = @"Cell";
 
-	UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier: CellIdentifier];
+	UITableViewCell* cell = [tableView dequeueReusableCellWithIdentifier:CellIdentifier];
 	if(cell == nil)
 	{
-		cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier: CellIdentifier] autorelease];
+		cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:CellIdentifier] autorelease];
 	}
-	
+
 	assert(indexPath.row < [m_archives count]);
-	NSString* playlistPath = [m_archives objectAtIndex: indexPath.row];
-	
+	NSString* playlistPath = [m_archives objectAtIndex:indexPath.row];
+
 	cell.textLabel.text = [playlistPath lastPathComponent];
-	
+
 	return cell;
 }
 
--(void)tableView: (UITableView*)tableView didSelectRowAtIndexPath: (NSIndexPath*)indexPath
+- (void)tableView:(UITableView*)tableView didSelectRowAtIndexPath:(NSIndexPath*)indexPath
 {
 	assert(indexPath.row < [m_archives count]);
-	
-	NSString* playlistPath = [m_archives objectAtIndex: indexPath.row];
+
+	NSString* playlistPath = [m_archives objectAtIndex:indexPath.row];
 	NSString* homeDirPath = [@"~" stringByExpandingTildeInPath];
-	NSString* absolutePath = [homeDirPath stringByAppendingPathComponent: playlistPath];
-	
+	NSString* absolutePath = [homeDirPath stringByAppendingPathComponent:playlistPath];
+
 	if(self.delegate != nil)
 	{
-		[self.delegate onPlaylistSelected: absolutePath];
+		[self.delegate onPlaylistSelected:absolutePath];
 	}
 
-	[self dismissViewControllerAnimated: YES completion: nil];
+	[self dismissViewControllerAnimated:YES completion:nil];
 }
 
 @end
