@@ -159,7 +159,7 @@ void CGSHandler::ResetBase()
 	m_nIMR = ~0;
 	m_nBUSDIR = 0;
 	m_nSIGLBLID = 0;
-	m_nCrtMode = 2;
+	m_crtMode = CRT_MODE_NTSC;
 	m_nCBP0 = 0;
 	m_nCBP1 = 0;
 	m_transferCount = 0;
@@ -254,7 +254,7 @@ void CGSHandler::SaveState(Framework::CZipArchiveWriter& archive)
 		registerFile->SetRegister64(STATE_PRIVREGS_IMR, m_nIMR);
 		registerFile->SetRegister64(STATE_PRIVREGS_BUSDIR, m_nBUSDIR);
 		registerFile->SetRegister64(STATE_PRIVREGS_SIGLBLID, m_nSIGLBLID);
-		registerFile->SetRegister32(STATE_PRIVREGS_CRTMODE, m_nCrtMode);
+		registerFile->SetRegister32(STATE_PRIVREGS_CRTMODE, m_crtMode);
 		registerFile->SetRegister32(STATE_REG_CBP0, m_nCBP0);
 		registerFile->SetRegister32(STATE_REG_CBP1, m_nCBP1);
 
@@ -280,7 +280,7 @@ void CGSHandler::LoadState(Framework::CZipArchiveReader& archive)
 		m_nIMR = registerFile.GetRegister64(STATE_PRIVREGS_IMR);
 		m_nBUSDIR = registerFile.GetRegister64(STATE_PRIVREGS_BUSDIR);
 		m_nSIGLBLID = registerFile.GetRegister64(STATE_PRIVREGS_SIGLBLID);
-		m_nCrtMode = registerFile.GetRegister32(STATE_PRIVREGS_CRTMODE);
+		m_crtMode = static_cast<CRT_MODE>(registerFile.GetRegister32(STATE_PRIVREGS_CRTMODE));
 		m_nCBP0 = registerFile.GetRegister32(STATE_REG_CBP0);
 		m_nCBP1 = registerFile.GetRegister32(STATE_REG_CBP1);
 	}
@@ -303,7 +303,7 @@ void CGSHandler::Copy(const CGSHandler* gs)
 		m_nIMR = gs->m_nIMR;
 		m_nBUSDIR = gs->m_nBUSDIR;
 		m_nSIGLBLID = gs->m_nSIGLBLID;
-		m_nCrtMode = gs->m_nCrtMode;
+		m_crtMode = gs->m_crtMode;
 		m_nCBP0 = gs->m_nCBP0;
 		m_nCBP1 = gs->m_nCBP1;
 	}
@@ -1123,7 +1123,7 @@ void CGSHandler::TransferReadHandlerPSMCT24(void* buffer, uint32 length)
 
 void CGSHandler::SetCrt(bool nIsInterlaced, unsigned int nMode, bool nIsFrameMode)
 {
-	m_nCrtMode = nMode;
+	m_crtMode = static_cast<CRT_MODE>(nMode);
 
 	SMODE2 smode2;
 	smode2 <<= 0;
@@ -1134,37 +1134,31 @@ void CGSHandler::SetCrt(bool nIsInterlaced, unsigned int nMode, bool nIsFrameMod
 
 unsigned int CGSHandler::GetCrtWidth() const
 {
-	switch(m_nCrtMode)
+	switch(m_crtMode)
 	{
-	case 0x02:
-	case 0x03:
-	case 0x1C:
-		return 640;
-		break;
 	default:
-		assert(0);
+		assert(false);
+		[[fallthrough]];
+	case CRT_MODE_NTSC:
+	case CRT_MODE_PAL:
+	case CRT_MODE_VGA_640_75:
 		return 640;
-		break;
 	}
 }
 
 unsigned int CGSHandler::GetCrtHeight() const
 {
-	switch(m_nCrtMode)
+	switch(m_crtMode)
 	{
-	case 0x02:
-		return 448;
-		break;
-	case 0x03:
-		return 512;
-		break;
-	case 0x1C:
-		return 480;
-		break;
 	default:
-		assert(0);
+		assert(false);
+		[[fallthrough]];
+	case CRT_MODE_NTSC:
 		return 448;
-		break;
+	case CRT_MODE_PAL:
+		return 512;
+	case CRT_MODE_VGA_640_75:
+		return 480;
 	}
 }
 

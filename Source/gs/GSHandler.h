@@ -882,6 +882,12 @@ protected:
 
 	//-----------------------------------
 	//Private Registers
+	enum CRT_MODE : uint32
+	{
+		CRT_MODE_NTSC = 0x02,
+		CRT_MODE_PAL = 0x03,
+		CRT_MODE_VGA_640_75 = 0x1C,
+	};
 
 	struct SMODE2 : public convertible<uint64>
 	{
@@ -1030,7 +1036,7 @@ protected:
 	uint32 m_writeBufferProcessIndex = 0;
 	uint32 m_writeBufferSubmitIndex = 0;
 
-	unsigned int m_nCrtMode;
+	CRT_MODE m_crtMode;
 	std::thread m_thread;
 	std::recursive_mutex m_registerMutex;
 	std::atomic<int> m_transferCount;
