@@ -4,16 +4,15 @@
 #include "../states/RegisterStateFile.h"
 #include "Timer.h"
 #include "Ps2Const.h"
+#include "gs/GSHandler.h"
 
 #define LOG_NAME ("ee_timer")
 
 #define STATE_REGS_XML ("timer/regs.xml")
 
-#define TIMER_VIDEO_FRAMES_PER_SEC 50
-#define TIMER_VIDEO_LINES_PER_FRAME 625
-
-CTimer::CTimer(CINTC& intc)
+CTimer::CTimer(CINTC& intc, CGSHandler*& gs)
     : m_intc(intc)
+    , m_gs(gs)
 {
 	Reset();
 }
@@ -48,8 +47,12 @@ void CTimer::Count(unsigned int ticks)
 			divider = 256 * 2;
 			break;
 		case MODE_CLOCK_SELECT_EXTERNAL:
-			divider = PS2::EE_CLOCK_FREQ / (TIMER_VIDEO_FRAMES_PER_SEC * TIMER_VIDEO_LINES_PER_FRAME) * 2;
-			break;
+		{
+			assert(m_gs);
+			uint32 hSyncFreq = m_gs->GetCrtHSyncFrequency();
+			divider = PS2::EE_CLOCK_FREQ / hSyncFreq;
+		}
+		break;
 		}
 
 		//Compute increment

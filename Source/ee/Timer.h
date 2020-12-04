@@ -5,6 +5,8 @@
 #include "zip/ZipArchiveWriter.h"
 #include "zip/ZipArchiveReader.h"
 
+class CGSHandler;
+
 class CTimer
 {
 public:
@@ -40,7 +42,7 @@ public:
 		T3_MODE = 0x10001810,
 	};
 
-	CTimer(CINTC&);
+	CTimer(CINTC&, CGSHandler*&);
 	virtual ~CTimer() = default;
 
 	void Reset();
@@ -79,4 +81,5 @@ private:
 
 	TIMER m_timer[MAX_TIMER];
 	CINTC& m_intc;
+	CGSHandler*& m_gs;
 };

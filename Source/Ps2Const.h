@@ -27,6 +27,12 @@ namespace PS2
 
 	enum
 	{
+		GS_NTSC_HSYNC_FREQ = 15734,
+		GS_PAL_HSYNC_FREQ = 15625
+	};
+
+	enum
+	{
 		IOP_RAM_SIZE = 0x00200000
 	};
 

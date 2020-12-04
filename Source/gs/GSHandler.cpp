@@ -1162,6 +1162,20 @@ unsigned int CGSHandler::GetCrtHeight() const
 	}
 }
 
+uint32 CGSHandler::GetCrtHSyncFrequency() const
+{
+	switch(m_crtMode)
+	{
+	default:
+		assert(false);
+		[[fallthrough]];
+	case CRT_MODE_NTSC:
+		return PS2::GS_NTSC_HSYNC_FREQ;
+	case CRT_MODE_PAL:
+		return PS2::GS_PAL_HSYNC_FREQ;
+	}
+}
+
 bool CGSHandler::GetCrtIsInterlaced() const
 {
 	SMODE2 smode2;

@@ -828,6 +828,7 @@ public:
 
 	unsigned int GetCrtWidth() const;
 	unsigned int GetCrtHeight() const;
+	uint32 GetCrtHSyncFrequency() const;
 	bool GetCrtIsInterlaced() const;
 	bool GetCrtIsFrameMode() const;
 	std::pair<uint64, uint64> GetCurrentDisplayInfo();
