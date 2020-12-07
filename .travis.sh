@@ -21,10 +21,6 @@ travis_before_install()
             sudo apt update -qq
             sudo apt install -qq qt512base qt512x11extras gcc-9 g++-9 libgl1-mesa-dev libglu1-mesa-dev libalut-dev libevdev-dev
         fi
-    elif [ "$TARGET_OS" = "OSX" ]; then
-        npm install -g appdmg
-        curl -L --show-error --output vulkansdk.tar.gz https://sdk.lunarg.com/sdk/download/${VULKAN_SDK_VERSION}/mac/vulkansdk-macos-${VULKAN_SDK_VERSION}.tar.gz?Human=true
-        tar -zxf vulkansdk.tar.gz
     elif [ "$TARGET_OS" = "IOS" ]; then
         brew update
         brew install dpkg
@@ -79,18 +75,6 @@ travis_script()
                 ../linuxdeployqt*.AppImage ./appdir/usr/share/applications/*.desktop -bundle-non-qt-libs -unsupported-allow-new-glibc -qmake=`which qmake`
                 ../linuxdeployqt*.AppImage ./appdir/usr/share/applications/*.desktop -appimage -unsupported-allow-new-glibc -qmake=`which qmake`
             fi
-        elif [ "$TARGET_OS" = "OSX" ]; then
-            export CMAKE_PREFIX_PATH="$(brew --prefix qt5)"
-            export VULKAN_SDK=$(pwd)/../vulkansdk-macos-${VULKAN_SDK_VERSION}/macOS
-            cmake .. -G"$BUILD_TYPE" -DBUILD_LIBRETRO_CORE=yes
-            cmake --build . --config Release
-            ctest -C Release
-            $(brew --prefix qt5)/bin/macdeployqt Source/ui_qt/Release/Play.app
-            if [ "$TRAVIS_PULL_REQUEST" = "false" ]; then
-                ../.travis.macos.import_certificate.sh
-                ../installer_macos/sign.sh
-            fi;
-            appdmg ../installer_macos/spec.json Play.dmg
         elif [ "$TARGET_OS" = "IOS" ]; then
             cmake .. -G"$BUILD_TYPE" -DCMAKE_TOOLCHAIN_FILE=../deps/Dependencies/cmake-ios/ios.cmake -DTARGET_IOS=ON -DBUILD_PSFPLAYER=ON -DBUILD_LIBRETRO_CORE=yes
             cmake --build . --config Release
@@ -141,11 +125,6 @@ travis_before_deploy()
             $ANDROID_BUILD_TOOLS/zipalign -c -v 4 Play-release.apk
             $ANDROID_BUILD_TOOLS/zipalign -c -v 4 Play-release-unsigned.apk
         fi
-    fi;
-    if [ "$TARGET_OS" = "OSX" ]; then
-        ../../.travis.macos.notarize.sh
-        cp ../../build/Play.dmg .
-        cp ../../build/Source/ui_libretro/Release/play_libretro.dylib play_libretro_macOS-x86_64.dylib
     fi;
     if [ "$TARGET_OS" = "IOS" ]; then
         cp ../../installer_ios/Play.ipa .
