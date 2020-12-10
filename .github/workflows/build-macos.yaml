@@ -55,9 +55,9 @@ jobs:
     - name: Sign And Notarize
       if: ${{ github.event_name != 'pull_request'}}
       run: |
-        ./.travis.macos.import_certificate.sh
+        ./.ci.macos.import_certificate.sh
         ./installer_macos/sign.sh
-        ./.travis.macos.notarize.sh
+        ./.ci.macos.notarize.sh
       env:
         MACOS_DEVID_CERTIFICATE: ${{ secrets.MACOS_DEVID_CERTIFICATE }}
         MACOS_DEVID_CERTIFICATE_PASSWORD: ${{ secrets.MACOS_DEVID_CERTIFICATE_PASSWORD }}
