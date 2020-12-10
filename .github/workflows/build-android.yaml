@@ -1,0 +1,84 @@
+name: Build Android
+
+on:
+  push:
+    branches:
+      - '*'
+jobs:
+  build_android:
+    strategy:
+      matrix:
+        build-type: ['apk', 'libretro']
+    runs-on: ubuntu-latest
+    steps:
+    - name: Setup Android SDK
+      uses: android-actions/setup-android@v2
+    - name: Install Android SDK dependencies
+      run: |
+        echo y | sdkmanager "ndk;${ANDROID_NDK_VERSION}"
+        echo y | sdkmanager "cmake;${ANDROID_CMAKE_VERSION}"
+        echo "ANDROID_NDK_VERSION=${ANDROID_NDK_VERSION}" >> $GITHUB_ENV
+        echo "ANDROID_CMAKE_VERSION=${ANDROID_CMAKE_VERSION}" >> $GITHUB_ENV
+      env:
+        ANDROID_NDK_VERSION: "21.3.6528147"
+        ANDROID_CMAKE_VERSION: "3.10.2.4988404"
+    - name: Checkout
+      uses: actions/checkout@v2
+      with:
+        submodules: recursive
+        fetch-depth: 0
+    - name: Set SHORT_HASH
+      run: echo "::set-output name=VALUE::${LONG_HASH:0:8}"
+      id: short_hash
+      env:
+        LONG_HASH: ${{ github.sha }}
+    - name: Build APKs
+      if: ${{ matrix.build-type == 'apk' }}
+      run: |
+        cd build_android
+        ./gradlew
+        ./gradlew assembleRelease
+    - name: Build libretro Core
+      if: ${{ matrix.build-type == 'libretro' }}
+      run: |
+        CMAKE_PATH=${ANDROID_SDK_ROOT}/cmake/${ANDROID_CMAKE_VERSION}
+        export PATH=${CMAKE_PATH}/bin:$PATH
+        export NINJA_EXE=${CMAKE_PATH}/bin/ninja
+        export ANDROID_NDK=${ANDROID_SDK_ROOT}/ndk/${ANDROID_NDK_VERSION}
+        export ANDROID_TOOLCHAIN_FILE=${ANDROID_NDK}/build/cmake/android.toolchain.cmake
+        cd build_retro
+        ./android_build.sh
+    - name: Prepare APKs for Distribution
+      if: ${{ matrix.build-type == 'apk' }}
+      run: |
+        cp build_android/build/outputs/apk/release/Play-release-unsigned.apk .
+        cp Play-release-unsigned.apk Play-release.apk
+        export ANDROID_BUILD_TOOLS=$ANDROID_HOME/build-tools/29.0.3
+        $ANDROID_BUILD_TOOLS/apksigner sign --ks installer_android/deploy.keystore --ks-key-alias deploy --ks-pass env:ANDROID_KEYSTORE_PASS --key-pass env:ANDROID_KEYSTORE_PASS Play-release.apk
+        $ANDROID_BUILD_TOOLS/zipalign -c -v 4 Play-release.apk
+        $ANDROID_BUILD_TOOLS/zipalign -c -v 4 Play-release-unsigned.apk
+      env:
+        ANDROID_KEYSTORE_PASS: ${{ secrets.ANDROID_KEYSTORE_PASS }}
+    - name: Upload APKs to S3
+      if: ${{ github.event_name != 'pull_request' && matrix.build-type == 'apk' }}
+      run: |
+        aws s3 cp Play-release.apk s3://playbuilds/$SHORT_HASH/Play-release.apk --acl public-read
+        aws s3 cp Play-release-unsigned.apk s3://playbuilds/$SHORT_HASH/Play-release-unsigned.apk --acl public-read
+      env:
+        SHORT_HASH: ${{ steps.short_hash.outputs.VALUE }}
+        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        AWS_DEFAULT_REGION: 'us-east-2'
+    - name: Upload libretro Core to S3
+      if: ${{ github.event_name != 'pull_request' && matrix.build-type == 'libretro' }}
+      run: |
+        ABI_LIST="arm64-v8a armeabi-v7a x86 x86_64"
+        for ABI in $ABI_LIST
+        do
+          aws s3 cp build_retro/play_libretro_${ABI}_android.so s3://playbuilds/$SHORT_HASH/play_libretro_${ABI}_android.so --acl public-read
+        done
+      env:
+        SHORT_HASH: ${{ steps.short_hash.outputs.VALUE }}
+        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        AWS_DEFAULT_REGION: 'us-east-2'
