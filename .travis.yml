@@ -13,31 +13,6 @@ matrix:
       env:
         - BUILD_TYPE=Xcode
         - TARGET_OS=IOS
-    - os: linux
-      dist: trusty
-      language: android
-      sudo: required
-      env:
-        - TARGET_OS=Android
-      android:
-        components:
-        - tools
-        - platform-tools
-        - build-tools-29.0.3
-        - extra-android-m2repository
-    - os: linux
-      dist: trusty
-      language: android
-      sudo: required
-      env:
-        - TARGET_OS=Android
-        - BUILD_LIBRETRO=yes
-      android:
-        components:
-        - tools
-        - platform-tools
-        - build-tools-29.0.3
-        - extra-android-m2repository
     - os: freebsd
       dist: trusty
       env:
