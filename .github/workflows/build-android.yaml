@@ -49,7 +49,7 @@ jobs:
         cd build_retro
         ./android_build.sh
     - name: Prepare APKs for Distribution
-      if: ${{ matrix.build-type == 'apk' }}
+      if: ${{ github.event_name != 'pull_request' && matrix.build-type == 'apk' }}
       run: |
         cp build_android/build/outputs/apk/release/Play-release-unsigned.apk .
         cp Play-release-unsigned.apk Play-release.apk
