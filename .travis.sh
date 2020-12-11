@@ -21,9 +21,6 @@ travis_before_install()
             sudo apt update -qq
             sudo apt install -qq qt512base qt512x11extras gcc-9 g++-9 libgl1-mesa-dev libglu1-mesa-dev libalut-dev libevdev-dev
         fi
-    elif [ "$TARGET_OS" = "IOS" ]; then
-        brew update
-        brew install dpkg
     elif [ "$TARGET_OS" = "FREEBSD" ]; then
         su -m root -c 'pkg install -y cmake qt5 evdev-proto'
     fi;
@@ -55,16 +52,6 @@ travis_script()
             ../linuxdeployqt*.AppImage ./appdir/usr/share/applications/*.desktop -bundle-non-qt-libs -unsupported-allow-new-glibc -qmake=`which qmake`
             ../linuxdeployqt*.AppImage ./appdir/usr/share/applications/*.desktop -appimage -unsupported-allow-new-glibc -qmake=`which qmake`
         fi
-    elif [ "$TARGET_OS" = "IOS" ]; then
-        cmake .. -G"$BUILD_TYPE" -DCMAKE_TOOLCHAIN_FILE=../deps/Dependencies/cmake-ios/ios.cmake -DTARGET_IOS=ON -DBUILD_PSFPLAYER=ON -DBUILD_LIBRETRO_CORE=yes
-        cmake --build . --config Release
-        codesign -s "-" Source/ui_ios/Release-iphoneos/Play.app
-        pushd ..
-        pushd installer_ios
-        ./build_cydia.sh
-        ./build_ipa.sh
-        popd
-        popd
     elif [ "$TARGET_OS" = "FREEBSD" ]; then
         export CXX="g++" CC="gcc"
         cmake ..
@@ -91,12 +78,6 @@ travis_before_deploy()
         else
             cp ../../build/Source/ui_libretro/play_libretro.so play_libretro_linux-ARM64.so
         fi;
-    fi;
-    if [ "$TARGET_OS" = "IOS" ]; then
-        cp ../../installer_ios/Play.ipa .
-        cp ../../installer_ios/Play.deb .
-        cp ../../installer_ios/Packages.bz2 .
-        cp ../../build/Source/ui_libretro/Release-iphoneos/play_libretro_ios.dylib play_libretro_ios.dylib
     fi;
     popd
     popd
