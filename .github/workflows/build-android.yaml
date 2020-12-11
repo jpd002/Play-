@@ -4,6 +4,9 @@ on:
   push:
     branches:
       - '*'
+env:
+  ANDROID_NDK_VERSION: '21.3.6528147'
+  ANDROID_CMAKE_VERSION: '3.10.2.4988404'
 jobs:
   build_android:
     strategy:
@@ -15,13 +18,8 @@ jobs:
       uses: android-actions/setup-android@v2
     - name: Install Android SDK dependencies
       run: |
-        echo y | sdkmanager "ndk;${ANDROID_NDK_VERSION}"
-        echo y | sdkmanager "cmake;${ANDROID_CMAKE_VERSION}"
-        echo "ANDROID_NDK_VERSION=${ANDROID_NDK_VERSION}" >> $GITHUB_ENV
-        echo "ANDROID_CMAKE_VERSION=${ANDROID_CMAKE_VERSION}" >> $GITHUB_ENV
-      env:
-        ANDROID_NDK_VERSION: "21.3.6528147"
-        ANDROID_CMAKE_VERSION: "3.10.2.4988404"
+        echo y | sdkmanager "ndk;${{ env.ANDROID_NDK_VERSION }}"
+        echo y | sdkmanager "cmake;${{ env.ANDROID_CMAKE_VERSION }}"
     - name: Checkout
       uses: actions/checkout@v2
       with:
@@ -41,10 +39,10 @@ jobs:
     - name: Build libretro Core
       if: ${{ matrix.build-type == 'libretro' }}
       run: |
-        CMAKE_PATH=${ANDROID_SDK_ROOT}/cmake/${ANDROID_CMAKE_VERSION}
+        CMAKE_PATH=${ANDROID_SDK_ROOT}/cmake/${{ env.ANDROID_CMAKE_VERSION }}
         export PATH=${CMAKE_PATH}/bin:$PATH
         export NINJA_EXE=${CMAKE_PATH}/bin/ninja
-        export ANDROID_NDK=${ANDROID_SDK_ROOT}/ndk/${ANDROID_NDK_VERSION}
+        export ANDROID_NDK=${ANDROID_SDK_ROOT}/ndk/${{ env.ANDROID_NDK_VERSION }}
         export ANDROID_TOOLCHAIN_FILE=${ANDROID_NDK}/build/cmake/android.toolchain.cmake
         cd build_retro
         ./android_build.sh
