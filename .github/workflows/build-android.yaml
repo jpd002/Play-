@@ -16,6 +16,12 @@ jobs:
     steps:
     - name: Setup Android SDK
       uses: android-actions/setup-android@v2
+    - name: Cache NDK
+      id: ndk-cache
+      uses: actions/cache@v2
+      with:
+        path: /usr/local/lib/android/sdk/ndk
+        key: ${{ runner.os }}-NdkCache-${{ env.ANDROID_NDK_VERSION }}
     - name: Install Android SDK dependencies
       run: |
         echo y | sdkmanager "ndk;${{ env.ANDROID_NDK_VERSION }}"
