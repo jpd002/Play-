@@ -1,9 +1,6 @@
 name: Build Linux
 
-on:
-  push:
-    branches:
-      - '*'
+on: [push, pull_request]
 jobs:
   build_linux:
     runs-on: ubuntu-16.04

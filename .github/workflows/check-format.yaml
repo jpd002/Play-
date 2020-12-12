@@ -1,9 +1,6 @@
 name: Check Format
 
-on:
-  push:
-    branches:
-      - '*'
+on: [push, pull_request]
 jobs:
   run_clangformat:
     runs-on: ubuntu-latest
