@@ -64,6 +64,16 @@ jobs:
       run: |
         cd build
         appdmg ../installer_macos/spec.json Play.dmg
+    - name: Upload a Build Artifact dmg
+      uses: actions/upload-artifact@v2
+      with:
+        name: Play_MacOS_dmg
+        path: build/Play.dmg
+    - name: Upload a Build Artifact libretro
+      uses: actions/upload-artifact@v2
+      with:
+        name: Play_MacOS_libretro
+        path: build/Source/ui_libretro/Release/play_libretro.dylib
     - name: Upload to S3
       if: ${{ github.event_name != 'pull_request'}}
       run: |

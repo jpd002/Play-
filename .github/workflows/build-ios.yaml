@@ -36,6 +36,19 @@ jobs:
       run: |
         cd installer_ios
         ./build_cydia.sh
+    - name: Upload a Build Artifact ipa/deb/bz2
+      uses: actions/upload-artifact@v2
+      with:
+        name: Play_iOS
+        path: |
+          installer_ios/Play.ipa
+          installer_ios/Play.deb
+          installer_ios/Packages.bz2
+    - name: Upload a Build Artifact libretro
+      uses: actions/upload-artifact@v2
+      with:
+        name: Play_iOS_libretro
+        path: build/Source/ui_libretro/Release-iphoneos/play_libretro_ios.dylib
     - name: Upload to S3
       if: ${{ github.event_name != 'pull_request'}}
       run: |

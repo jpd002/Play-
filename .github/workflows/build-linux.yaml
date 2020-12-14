@@ -70,6 +70,18 @@ jobs:
         ${DEPLOYQT_PATH}/linuxdeployqt*.AppImage ./appdir/usr/share/applications/*.desktop -appimage -unsupported-allow-new-glibc
       env:
         VERSION: ${{ steps.short_hash.outputs.VALUE }}
+    - name: Upload a Build Artifact x86_64 AppImage
+      uses: actions/upload-artifact@v2
+      with:
+        name: Play_Linux_x86_64_AppImage
+        path: build/Play!-${{ env.SHORT_HASH }}-x86_64.AppImage
+      env:
+        SHORT_HASH: ${{ steps.short_hash.outputs.VALUE }}
+    - name: Upload a Build Artifact x86_64 Libretro
+      uses: actions/upload-artifact@v2
+      with:
+        name: Play_Linux_x86_64_libretro
+        path: build/Source/ui_libretro/play_libretro.so
     - name: Upload to S3
       if: ${{ github.event_name != 'pull_request'}}
       run: |
