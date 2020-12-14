@@ -33,6 +33,7 @@ static Framework::CStream* CreateImageStream(const fs::path& imagePath)
 	{
 #ifdef HAS_AMAZON_S3
 		auto fullObjectPath = std::string(imagePathString.c_str() + strlen(s3ImagePathPrefix));
+		std::replace(fullObjectPath.begin(), fullObjectPath.end(), '\\', '/');
 		auto objectPathPos = fullObjectPath.find('/');
 		if(objectPathPos == std::string::npos)
 		{
