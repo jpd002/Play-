@@ -49,19 +49,41 @@ jobs:
         export ANDROID_TOOLCHAIN_FILE=${ANDROID_NDK}/build/cmake/android.toolchain.cmake
         cd build_retro
         ./android_build.sh
-    - name: Prepare APKs for Distribution
-      if: ${{ github.event_name != 'pull_request' && matrix.build-type == 'apk' }}
+    - name: Prepare Unsigned APKs for Distribution
+      if: ${{ matrix.build-type == 'apk'}}
       run: |
+        export ANDROID_BUILD_TOOLS=$ANDROID_HOME/build-tools/29.0.3
         cp build_android/build/outputs/apk/release/Play-release-unsigned.apk .
         cp Play-release-unsigned.apk Play-release.apk
+        $ANDROID_BUILD_TOOLS/zipalign -c -v 4 Play-release-unsigned.apk
+    - name: Prepare Signed APKs for Distribution
+      if: ${{ matrix.build-type == 'apk'  && env.ANDROID_KEYSTORE_PASS != null}}
+      run: |
         export ANDROID_BUILD_TOOLS=$ANDROID_HOME/build-tools/29.0.3
         $ANDROID_BUILD_TOOLS/apksigner sign --ks installer_android/deploy.keystore --ks-key-alias deploy --ks-pass env:ANDROID_KEYSTORE_PASS --key-pass env:ANDROID_KEYSTORE_PASS Play-release.apk
         $ANDROID_BUILD_TOOLS/zipalign -c -v 4 Play-release.apk
-        $ANDROID_BUILD_TOOLS/zipalign -c -v 4 Play-release-unsigned.apk
       env:
         ANDROID_KEYSTORE_PASS: ${{ secrets.ANDROID_KEYSTORE_PASS }}
+    - name: Upload a Build Artifact Android APK Signed
+      if: ${{ matrix.build-type == 'apk' && env.AWS_ACCESS_KEY_ID != null}}
+      uses: actions/upload-artifact@v2
+      with:
+        name: Play_Android_Signed
+        path: Play-release.apk
+    - name: Upload a Build Artifact Android APK Unsigned
+      if: ${{ matrix.build-type == 'apk' }}
+      uses: actions/upload-artifact@v2
+      with:
+        name: Play_Android_APK_Unsigned
+        path: Play-release-unsigned.apk
+    - name: Upload a Build Artifact Android libretro
+      if: ${{ matrix.build-type == 'libretro' }}
+      uses: actions/upload-artifact@v2
+      with:
+        name: Play_Android_libretro
+        path: build_retro/play_libretro_*_android.so
     - name: Upload APKs to S3
-      if: ${{ github.event_name != 'pull_request' && matrix.build-type == 'apk' }}
+      if: ${{ matrix.build-type == 'apk' && env.AWS_ACCESS_KEY_ID != null}}
       run: |
         aws s3 cp Play-release.apk s3://playbuilds/$SHORT_HASH/Play-release.apk --acl public-read
         aws s3 cp Play-release-unsigned.apk s3://playbuilds/$SHORT_HASH/Play-release-unsigned.apk --acl public-read
@@ -71,7 +93,7 @@ jobs:
         AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         AWS_DEFAULT_REGION: 'us-east-2'
     - name: Upload libretro Core to S3
-      if: ${{ github.event_name != 'pull_request' && matrix.build-type == 'libretro' }}
+      if: ${{ matrix.build-type == 'libretro' && env.AWS_ACCESS_KEY_ID != null}}
       run: |
         ABI_LIST="arm64-v8a armeabi-v7a x86 x86_64"
         for ABI in $ABI_LIST

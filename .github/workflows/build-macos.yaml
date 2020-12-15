@@ -50,7 +50,7 @@ jobs:
         cd build
         ctest -C Release
     - name: Sign And Notarize
-      if: ${{ github.event_name != 'pull_request'}}
+      if: ${{ env.MACOS_DEVID_CERTIFICATE != null }}
       run: |
         ./.ci.macos.import_certificate.sh
         ./installer_macos/sign.sh
@@ -64,8 +64,18 @@ jobs:
       run: |
         cd build
         appdmg ../installer_macos/spec.json Play.dmg
+    - name: Upload a Build Artifact dmg
+      uses: actions/upload-artifact@v2
+      with:
+        name: Play_MacOS_dmg
+        path: build/Play.dmg
+    - name: Upload a Build Artifact libretro
+      uses: actions/upload-artifact@v2
+      with:
+        name: Play_MacOS_libretro
+        path: build/Source/ui_libretro/Release/play_libretro.dylib
     - name: Upload to S3
-      if: ${{ github.event_name != 'pull_request'}}
+      if: ${{ env.AWS_ACCESS_KEY_ID != null}}
       run: |
         aws s3 cp build/Play.dmg s3://playbuilds/$SHORT_HASH/Play.dmg --acl public-read
         aws s3 cp build/Source/ui_libretro/Release/play_libretro.dylib s3://playbuilds/$SHORT_HASH/play_libretro_macOS-x86_64.dylib --acl public-read
