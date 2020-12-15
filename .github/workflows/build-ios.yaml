@@ -50,7 +50,7 @@ jobs:
         name: Play_iOS_libretro
         path: build/Source/ui_libretro/Release-iphoneos/play_libretro_ios.dylib
     - name: Upload to S3
-      if: ${{ github.event_name != 'pull_request'}}
+      if: ${{ env.AWS_ACCESS_KEY_ID != null}}
       run: |
         aws s3 cp installer_ios/Play.ipa s3://playbuilds/$SHORT_HASH/Play.ipa --acl public-read
         aws s3 cp installer_ios/Play.deb s3://playbuilds/$SHORT_HASH/Play.deb --acl public-read
