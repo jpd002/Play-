@@ -287,15 +287,11 @@ void MainWindow::on_actionBoot_DiscImage_triggered()
 	if(dialog.exec())
 	{
 		auto filePath = QStringToPath(dialog.selectedFiles().first());
-		m_lastPath = filePath.parent_path();
-		CAppConfig::GetInstance().SetPreferencePath(PREF_PS2_CDROM0_PATH, filePath);
-
 		if(m_virtualMachine != nullptr)
 		{
 			try
 			{
-				TryRegisterBootable(filePath);
-				m_lastOpenCommand = LastOpenCommand(BootType::CD, filePath);
+				LoadCDROM(filePath);
 				BootCDROM();
 			}
 			catch(const std::exception& e)
@@ -314,11 +310,11 @@ void MainWindow::on_actionBoot_DiscImage_S3_triggered()
 	if(browser.exec())
 	{
 		auto filePath = browser.GetSelectedPath();
-		CAppConfig::GetInstance().SetPreferencePath(PREF_PS2_CDROM0_PATH, filePath);
 		if(m_virtualMachine != nullptr)
 		{
 			try
 			{
+				LoadCDROM(filePath);
 				BootCDROM();
 			}
 			catch(const std::exception& e)
@@ -373,15 +369,17 @@ void MainWindow::on_actionBoot_ELF_triggered()
 
 void MainWindow::BootElf(fs::path filePath)
 {
-	TryUpdateLastBootedTime(filePath);
-
-	m_lastOpenCommand = LastOpenCommand(BootType::ELF, filePath);
 	m_virtualMachine->Pause();
 	m_virtualMachine->Reset();
 	m_virtualMachine->m_ee->m_os->BootFromFile(filePath);
 #ifndef DEBUGGER_INCLUDED
 	m_virtualMachine->Resume();
 #endif
+	{
+		TryRegisterBootable(filePath);
+		TryUpdateLastBootedTime(filePath);
+		m_lastOpenCommand = LastOpenCommand(BootType::ELF, filePath);
+	}
 	m_msgLabel->setText(QString("Loaded executable '%1'.")
 	                        .arg(m_virtualMachine->m_ee->m_os->GetExecutableName()));
 }
@@ -394,15 +392,18 @@ void MainWindow::LoadCDROM(fs::path filePath)
 
 void MainWindow::BootCDROM()
 {
-	auto filePath = CAppConfig::GetInstance().GetPreferencePath(PREF_PS2_CDROM0_PATH);
-	m_lastOpenCommand = LastOpenCommand(BootType::CD, filePath);
-	TryUpdateLastBootedTime(filePath);
 	m_virtualMachine->Pause();
 	m_virtualMachine->Reset();
 	m_virtualMachine->m_ee->m_os->BootFromCDROM();
 #ifndef DEBUGGER_INCLUDED
 	m_virtualMachine->Resume();
 #endif
+	{
+		auto filePath = CAppConfig::GetInstance().GetPreferencePath(PREF_PS2_CDROM0_PATH);
+		TryRegisterBootable(filePath);
+		TryUpdateLastBootedTime(filePath);
+		m_lastOpenCommand = LastOpenCommand(BootType::CD, filePath);
+	}
 	m_msgLabel->setText(QString("Loaded executable '%1' from cdrom0.")
 	                        .arg(m_virtualMachine->m_ee->m_os->GetExecutableName()));
 }
