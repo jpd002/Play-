@@ -50,18 +50,38 @@ bool IsBootableDiscImagePath(const fs::path& filePath)
 	return extensionIterator != std::end(supportedExtensions);
 }
 
-bool TryRegisteringBootable(const fs::path& path)
+bool TryRegisterBootable(const fs::path& path)
 {
-	std::string serial;
-	if(
-	    !BootablesDb::CClient::GetInstance().BootableExist(path) &&
-	    !IsBootableExecutablePath(path) &&
-	    !(IsBootableDiscImagePath(path) && DiskUtils::TryGetDiskId(path, &serial)))
+	try
+	{
+		std::string serial;
+		if(
+		    !BootablesDb::CClient::GetInstance().BootableExists(path) &&
+		    !IsBootableExecutablePath(path) &&
+		    !(IsBootableDiscImagePath(path) && DiskUtils::TryGetDiskId(path, &serial)))
+		{
+			return false;
+		}
+		BootablesDb::CClient::GetInstance().RegisterBootable(path, path.filename().string().c_str(), serial.c_str());
+		return true;
+	}
+	catch(...)
 	{
 		return false;
 	}
-	BootablesDb::CClient::GetInstance().RegisterBootable(path, path.filename().string().c_str(), serial.c_str());
-	return true;
+}
+
+bool TryUpdateLastBootedTime(const fs::path& path)
+{
+	try
+	{
+		BootablesDb::CClient::GetInstance().SetLastBootedTime(path, std::time(nullptr));
+		return true;
+	}
+	catch(...)
+	{
+		return false;
+	}
 }
 
 void ScanBootables(const fs::path& parentPath, bool recursive)
@@ -90,7 +110,7 @@ void ScanBootables(const fs::path& parentPath, bool recursive)
 					continue;
 				}
 				BootableLog("registering... ");
-				bool success = TryRegisteringBootable(path);
+				bool success = TryRegisterBootable(path);
 				BootableLog("result = %d\r\n", static_cast<int>(success));
 			}
 			catch(const std::exception& exception)

@@ -5,7 +5,8 @@
 
 bool IsBootableExecutablePath(const fs::path&);
 bool IsBootableDiscImagePath(const fs::path&);
-bool TryRegisteringBootable(const fs::path&);
+bool TryRegisterBootable(const fs::path&);
+bool TryUpdateLastBootedTime(const fs::path&);
 void ScanBootables(const fs::path&, bool = true);
 std::set<fs::path> GetActiveBootableDirectories();
 void PurgeInexistingFiles();

@@ -34,7 +34,7 @@ namespace BootablesDb
 		CClient();
 		virtual ~CClient() = default;
 
-		bool BootableExist(const fs::path&);
+		bool BootableExists(const fs::path&);
 		Bootable GetBootable(const fs::path&);
 		std::vector<Bootable> GetBootables(int32_t = SORT_METHOD_NONE);
 

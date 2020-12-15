@@ -294,7 +294,7 @@ void MainWindow::on_actionBoot_DiscImage_triggered()
 		{
 			try
 			{
-				TryRegisteringBootable(filePath);
+				TryRegisterBootable(filePath);
 				m_lastOpenCommand = LastOpenCommand(BootType::CD, filePath);
 				BootCDROM();
 			}
@@ -373,7 +373,7 @@ void MainWindow::on_actionBoot_ELF_triggered()
 
 void MainWindow::BootElf(fs::path filePath)
 {
-	BootablesDb::CClient::GetInstance().SetLastBootedTime(filePath, std::time(nullptr));
+	TryUpdateLastBootedTime(filePath);
 
 	m_lastOpenCommand = LastOpenCommand(BootType::ELF, filePath);
 	m_virtualMachine->Pause();
@@ -396,7 +396,7 @@ void MainWindow::BootCDROM()
 {
 	auto filePath = CAppConfig::GetInstance().GetPreferencePath(PREF_PS2_CDROM0_PATH);
 	m_lastOpenCommand = LastOpenCommand(BootType::CD, filePath);
-	BootablesDb::CClient::GetInstance().SetLastBootedTime(filePath, std::time(nullptr));
+	TryUpdateLastBootedTime(filePath);
 	m_virtualMachine->Pause();
 	m_virtualMachine->Reset();
 	m_virtualMachine->m_ee->m_os->BootFromCDROM();

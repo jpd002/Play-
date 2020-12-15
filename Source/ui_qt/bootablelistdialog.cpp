@@ -238,7 +238,7 @@ void BootableListDialog::on_awsS3Button_clicked()
 			{
 				std::string msg = string_format("Processing: %s (%d/%d)", path.c_str(), i, size);
 				AsyncUpdateStatus(msg);
-				new_entry |= TryRegisteringBootable(path);
+				new_entry |= TryRegisterBootable(path);
 			}
 			catch(const std::exception& exception)
 			{
