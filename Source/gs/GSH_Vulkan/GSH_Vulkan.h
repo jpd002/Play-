@@ -36,7 +36,7 @@ public:
 	Framework::CBitmap GetScreenshot() override;
 
 protected:
-	void WriteRegisterImpl(uint8, uint64);
+	void WriteRegisterImpl(uint8, uint64) override;
 	void InitializeImpl() override;
 	void ReleaseImpl() override;
 	void ResetImpl() override;
