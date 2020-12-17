@@ -379,6 +379,7 @@ void MainWindow::BootElf(fs::path filePath)
 		TryRegisterBootable(filePath);
 		TryUpdateLastBootedTime(filePath);
 		m_lastOpenCommand = LastOpenCommand(BootType::ELF, filePath);
+		UpdateUI();
 	}
 	m_msgLabel->setText(QString("Loaded executable '%1'.")
 	                        .arg(m_virtualMachine->m_ee->m_os->GetExecutableName()));
@@ -403,6 +404,7 @@ void MainWindow::BootCDROM()
 		TryRegisterBootable(filePath);
 		TryUpdateLastBootedTime(filePath);
 		m_lastOpenCommand = LastOpenCommand(BootType::CD, filePath);
+		UpdateUI();
 	}
 	m_msgLabel->setText(QString("Loaded executable '%1' from cdrom0.")
 	                        .arg(m_virtualMachine->m_ee->m_os->GetExecutableName()));

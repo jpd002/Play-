@@ -58,7 +58,7 @@ public:
 #endif
 
 private:
-	enum BootType
+	enum class BootType
 	{
 		CD,
 		ELF
