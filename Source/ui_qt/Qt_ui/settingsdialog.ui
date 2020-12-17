@@ -271,6 +271,13 @@
         </widget>
        </item>
        <item>
+        <widget class="QCheckBox" name="checkBox_widescreenOutput">
+         <property name="text">
+          <string>Resize output to widescreen (16:9)</string>
+         </property>
+        </widget>
+       </item>
+       <item>
         <widget class="QCheckBox" name="checkBox_force_bilinear_filtering">
          <property name="text">
           <string>Force Bilinear Filtering</string>

@@ -204,6 +204,13 @@ private:
 		CHINESE_SIMPLIFIED
 	};
 
+	enum class OSD_SCREENTYPE
+	{
+		RATIO_4_3,
+		FULLSCREEN,
+		RATIO_16_9,
+	};
+
 	struct OSDCONFIGPARAM : public convertible<uint32>
 	{
 		uint32 spdifMode : 1;

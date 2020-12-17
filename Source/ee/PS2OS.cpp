@@ -2737,11 +2737,13 @@ void CPS2OS::sc_ReferSemaStatus()
 void CPS2OS::sc_GetOsdConfigParam()
 {
 	auto language = static_cast<OSD_LANGUAGE>(CAppConfig::GetInstance().GetPreferenceInteger(PREF_SYSTEM_LANGUAGE));
+	auto widescreenOutput = CAppConfig::GetInstance().GetPreferenceBoolean(PREF_CGSHANDLER_WIDESCREEN);
 
 	auto configParam = make_convertible<OSDCONFIGPARAM>(0);
 	configParam.version = static_cast<uint32>(OSD_VERSION::V2_EXT);
 	configParam.jpLanguage = (language == OSD_LANGUAGE::JAPANESE) ? 0 : 1;
 	configParam.language = static_cast<uint32>(language);
+	configParam.screenType = static_cast<uint32>(widescreenOutput ? OSD_SCREENTYPE::RATIO_16_9 : OSD_SCREENTYPE::RATIO_4_3);
 
 	auto configParamPtr = reinterpret_cast<uint32*>(GetStructPtr(m_ee.m_State.nGPR[SC_PARAM0].nV0));
 	(*configParamPtr) = configParam;

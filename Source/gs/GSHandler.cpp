@@ -121,6 +121,7 @@ CGSHandler::~CGSHandler()
 void CGSHandler::RegisterPreferences()
 {
 	CAppConfig::GetInstance().RegisterPreferenceInteger(PREF_CGSHANDLER_PRESENTATION_MODE, CGSHandler::PRESENTATION_MODE_FIT);
+	CAppConfig::GetInstance().RegisterPreferenceBoolean(PREF_CGSHANDLER_WIDESCREEN, false);
 }
 
 void CGSHandler::NotifyPreferencesChanged()
@@ -181,8 +182,11 @@ void CGSHandler::SetPresentationParams(const PRESENTATION_PARAMS& presentationPa
 CGSHandler::PRESENTATION_VIEWPORT CGSHandler::GetPresentationViewport() const
 {
 	PRESENTATION_VIEWPORT viewport;
-	unsigned int sourceWidth = GetCrtWidth();
-	unsigned int sourceHeight = GetCrtHeight();
+	auto sourceSize = std::make_pair(GetCrtWidth(), GetCrtHeight());
+	if(CAppConfig::GetInstance().GetPreferenceBoolean(PREF_CGSHANDLER_WIDESCREEN))
+	{
+		sourceSize = std::make_pair(1920, 1080);
+	}
 	switch(m_presentationParams.mode)
 	{
 	case PRESENTATION_MODE_FILL:
@@ -197,10 +201,10 @@ CGSHandler::PRESENTATION_VIEWPORT CGSHandler::GetPresentationViewport() const
 		int viewportHeight[2];
 		{
 			viewportWidth[0] = m_presentationParams.windowWidth;
-			viewportHeight[0] = (sourceWidth != 0) ? (m_presentationParams.windowWidth * sourceHeight) / sourceWidth : 0;
+			viewportHeight[0] = (sourceSize.first != 0) ? (m_presentationParams.windowWidth * sourceSize.second) / sourceSize.first : 0;
 		}
 		{
-			viewportWidth[1] = (sourceHeight != 0) ? (m_presentationParams.windowHeight * sourceWidth) / sourceHeight : 0;
+			viewportWidth[1] = (sourceSize.second != 0) ? (m_presentationParams.windowHeight * sourceSize.first) / sourceSize.second : 0;
 			viewportHeight[1] = m_presentationParams.windowHeight;
 		}
 		int selectedViewport = 0;
@@ -223,12 +227,12 @@ CGSHandler::PRESENTATION_VIEWPORT CGSHandler::GetPresentationViewport() const
 	break;
 	case PRESENTATION_MODE_ORIGINAL:
 	{
-		int offsetX = static_cast<int>(m_presentationParams.windowWidth - sourceWidth) / 2;
-		int offsetY = static_cast<int>(m_presentationParams.windowHeight - sourceHeight) / 2;
+		int offsetX = static_cast<int>(m_presentationParams.windowWidth - sourceSize.first) / 2;
+		int offsetY = static_cast<int>(m_presentationParams.windowHeight - sourceSize.second) / 2;
 		viewport.offsetX = offsetX;
 		viewport.offsetY = offsetY;
-		viewport.width = sourceWidth;
-		viewport.height = sourceHeight;
+		viewport.width = sourceSize.first;
+		viewport.height = sourceSize.second;
 	}
 	break;
 	}

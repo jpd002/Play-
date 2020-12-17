@@ -83,6 +83,7 @@ void SettingsDialog::LoadPreferences()
 	int factor = CAppConfig::GetInstance().GetPreferenceInteger(PREF_CGSH_OPENGL_RESOLUTION_FACTOR);
 	int factor_index = std::log2(factor);
 	ui->comboBox_res_multiplyer->setCurrentIndex(factor_index);
+	ui->checkBox_widescreenOutput->setChecked(CAppConfig::GetInstance().GetPreferenceBoolean(PREF_CGSHANDLER_WIDESCREEN));
 	ui->checkBox_force_bilinear_filtering->setChecked(CAppConfig::GetInstance().GetPreferenceBoolean(PREF_CGSH_OPENGL_FORCEBILINEARTEXTURES));
 	ui->comboBox_gs_selection->setCurrentIndex(CAppConfig::GetInstance().GetPreferenceInteger(PREF_VIDEO_GS_HANDLER));
 
@@ -94,6 +95,11 @@ void SettingsDialog::LoadPreferences()
 void SettingsDialog::on_comboBox_system_language_currentIndexChanged(int index)
 {
 	CAppConfig::GetInstance().SetPreferenceInteger(PREF_SYSTEM_LANGUAGE, index);
+}
+
+void SettingsDialog::on_checkBox_widescreenOutput_clicked(bool checked)
+{
+	CAppConfig::GetInstance().SetPreferenceBoolean(PREF_CGSHANDLER_WIDESCREEN, checked);
 }
 
 void SettingsDialog::on_checkBox_force_bilinear_filtering_clicked(bool checked)
