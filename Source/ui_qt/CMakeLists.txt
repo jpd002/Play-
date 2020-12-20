@@ -258,7 +258,7 @@ if(TARGET_PLATFORM_MACOS)
 		${CMAKE_CURRENT_SOURCE_DIR}/../../patches.xml
 	)
 	if(USE_GSH_VULKAN)
-		list(APPEND OSX_RES $ENV{VULKAN_SDK}/../MoltenVK/macOS/dynamic/libMoltenVk.dylib)
+		list(APPEND OSX_RES $ENV{VULKAN_SDK}/../MoltenVK/dylib/macOS/libMoltenVk.dylib)
 	endif()
 	add_executable(Play MACOSX_BUNDLE ${QT_SOURCES} ${QT_MOC_SRCS} ${QT_RES_SOURCES} ${QT_UI_HEADERS} ${OSX_RES})
 	# Set a custom plist file for the app bundle
