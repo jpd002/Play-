@@ -1395,6 +1395,10 @@ Framework::Vulkan::CShaderModule CDraw::CreateFragmentShader(const PIPELINE_CAPS
 				dstAlpha = dstColor->wwww();
 			}
 		}
+		else
+		{
+			dstPixel = NewUint(b, 0);
+		}
 
 		if(caps.hasDstAlphaTest)
 		{
