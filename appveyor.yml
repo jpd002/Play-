@@ -28,7 +28,7 @@ build_script:
     
     git submodule update -q --init --recursive
     
-    set VULKAN_VERSION=1.2.131.1
+    set VULKAN_VERSION=1.2.162.0
     
     if not exist VulkanSDK.exe curl -L --silent --show-error --output VulkanSDK.exe https://sdk.lunarg.com/sdk/download/%VULKAN_VERSION%/windows/VulkanSDK-%VULKAN_VERSION%-Installer.exe?Human=true
     
