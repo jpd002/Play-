@@ -745,19 +745,25 @@ void MainWindow::buildResizeWindowMenu()
 		{ "PAL", 640, 512 },
 		{ "HDTV (1080)", 1920, 1080 }
 	};
+	static const float scaleRatios[] =
+	{
+		0.5f,
+		1.0f,
+		2.0f
+	};
 	for(const auto& videoMode : videoModes)
 	{
 		auto videoModeDesc = QString("%1 - %2x%3").arg(videoMode.name).arg(videoMode.width).arg(videoMode.height);
 		QMenu* videoModeMenu = ui->menuResizeWindow->addMenu(videoModeDesc);
 		
-		for(unsigned int i = 1; i <= 3; i++)
+		for(const auto& scaleRatio : scaleRatios)
 		{
 			QAction* scaleAction = new QAction(this);
-			scaleAction->setText(QString("%1x").arg(i));
+			scaleAction->setText(QString("%1x").arg(scaleRatio));
 			videoModeMenu->addAction(scaleAction);
 			
-			unsigned int width = videoMode.width * i;
-			unsigned int height = videoMode.height * i;
+			auto width = static_cast<uint32>(static_cast<float>(videoMode.width) * scaleRatio);
+			auto height = static_cast<uint32>(static_cast<float>(videoMode.height) * scaleRatio);
 			connect(scaleAction, &QAction::triggered, std::bind(&MainWindow::resizeWindow, this, width, height));
 		}
 	}
