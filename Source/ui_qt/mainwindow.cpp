@@ -69,6 +69,7 @@ MainWindow::MainWindow(QWidget* parent)
     , ui(new Ui::MainWindow)
 {
 	ui->setupUi(this);
+	buildResizeWindowMenu();
 
 	RegisterPreferences();
 
@@ -728,6 +729,46 @@ void MainWindow::toggleFullscreen()
 		menuBar()->hide();
 		m_outputwindow->ShowFullScreenCursor();
 	}
+}
+
+void MainWindow::buildResizeWindowMenu()
+{
+	struct VIDEO_MODE
+	{
+		const char* name;
+		unsigned int width;
+		unsigned int height;
+	};
+	static const VIDEO_MODE videoModes[] =
+	{
+		{ "NTSC", 640, 448 },
+		{ "PAL", 640, 512 },
+		{ "HDTV (1080)", 1920, 1080 }
+	};
+	for(const auto& videoMode : videoModes)
+	{
+		auto videoModeDesc = QString("%1 - %2x%3").arg(videoMode.name).arg(videoMode.width).arg(videoMode.height);
+		QMenu* videoModeMenu = ui->menuResizeWindow->addMenu(videoModeDesc);
+		
+		for(unsigned int i = 1; i <= 3; i++)
+		{
+			QAction* scaleAction = new QAction(this);
+			scaleAction->setText(QString("%1x").arg(i));
+			videoModeMenu->addAction(scaleAction);
+			
+			unsigned int width = videoMode.width * i;
+			unsigned int height = videoMode.height * i;
+			connect(scaleAction, &QAction::triggered, std::bind(&MainWindow::resizeWindow, this, width, height));
+		}
+	}
+}
+
+void MainWindow::resizeWindow(unsigned int width, unsigned int height)
+{
+	ui->centralWidget->resize(width, height);
+	ui->centralWidget->setMinimumSize(width, height);
+	adjustSize();
+	ui->centralWidget->setMinimumSize(0, 0);
 }
 
 #ifdef DEBUGGER_INCLUDED

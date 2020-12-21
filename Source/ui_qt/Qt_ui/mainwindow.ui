@@ -82,6 +82,11 @@
      </property>
      <addaction name="actionLoad_Slot_1_Empty"/>
     </widget>
+    <widget class="QMenu" name="menuResizeWindow">
+      <property name="title">
+        <string>Resize Window</string>
+      </property>
+    </widget>
     <addaction name="menuSave_States"/>
     <addaction name="menuLoad_States"/>
     <addaction name="separator"/>
@@ -89,6 +94,7 @@
     <addaction name="actionPause_when_focus_is_lost"/>
     <addaction name="actionReset"/>
     <addaction name="separator"/>
+    <addaction name="menuResizeWindow"/>
     <addaction name="actionCapture_Screen"/>
    </widget>
    <widget class="QMenu" name="menuHelp">

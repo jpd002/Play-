@@ -89,6 +89,8 @@ private:
 	void RegisterPreferences();
 	void saveState(int);
 	void toggleFullscreen();
+	void buildResizeWindowMenu();
+	void resizeWindow(unsigned int, unsigned int);
 	void UpdateGSHandlerLabel(int);
 #ifdef DEBUGGER_INCLUDED
 	bool nativeEventFilter(const QByteArray&, void*, long*) Q_DECL_OVERRIDE;
