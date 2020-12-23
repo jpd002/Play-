@@ -623,6 +623,7 @@ void CSpuBase::Render(int16* samples, unsigned int sampleCount, unsigned int sam
 			auto& channel(m_channel[i]);
 			if((channel.status == STOPPED) && !checkIrqs) continue;
 			auto& reader(m_reader[i]);
+			reader.SetIrqAddress(m_irqAddr);
 			if(channel.status == KEY_ON)
 			{
 				reader.SetParams(channel.address, channel.repeat);
@@ -648,8 +649,6 @@ void CSpuBase::Render(int16* samples, unsigned int sampleCount, unsigned int sam
 				//Update repeat in case it has been changed externally (needed for FFX)
 				reader.SetRepeat(channel.repeat);
 			}
-
-			reader.SetIrqAddress(m_irqAddr);
 
 			int16 readSample = 0;
 			reader.SetPitch(m_baseSamplingRate, channel.pitch);
