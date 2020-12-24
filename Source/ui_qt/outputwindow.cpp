@@ -71,6 +71,7 @@ void OutputWindow::mouseMoveEvent(QMouseEvent* ev)
 	{
 		ShowFullScreenCursor();
 	}
+	onMouseMoveEvent(ev);
 }
 
 void OutputWindow::mouseDoubleClickEvent(QMouseEvent* ev)
@@ -86,9 +87,4 @@ void OutputWindow::mousePressEvent(QMouseEvent* ev)
 void OutputWindow::wheelEvent(QWheelEvent* ev)
 {
 	onMouseWheelEvent(ev);
-}
-
-void OutputWindow::mouseMoveEvent(QMouseEvent* ev)
-{
-	onMouseMoveEvent(ev);
 }
