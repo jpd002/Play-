@@ -1168,14 +1168,19 @@ void CSpuBase::CSampleReader::UnpackSamples(int16* dst)
 
 	//Generate PCM samples
 	{
-		static const int32 predictorTable[5][2] =
-		    {
-		        {0, 0},
-		        {60, 0},
-		        {115, -52},
-		        {98, -55},
-		        {122, -60},
-		    };
+		// clang-format off
+		//Table is 16 entries long to prevent reading indeterminate
+		//values if predictNumber is greater or equal to 5.
+		//According to some sources, entries at 5 and beyond contain 0 on real hardware
+		static const int32 predictorTable[16][2] =
+		{
+			{0, 0},
+			{60, 0},
+			{115, -52},
+			{98, -55},
+			{122, -60},
+		};
+		// clang-format on
 
 		for(unsigned int i = 0; i < BUFFER_SAMPLES; i++)
 		{
