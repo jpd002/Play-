@@ -45,6 +45,7 @@ public:
 
 	void Resume() override;
 	void Pause() override;
+	void PauseAsync();
 	void Reset();
 
 	STATUS GetStatus() const override;

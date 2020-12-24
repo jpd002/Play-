@@ -207,6 +207,17 @@ void CPS2VM::Pause()
 	OnRunningStateChange();
 }
 
+void CPS2VM::PauseAsync()
+{
+	if(m_nStatus == PAUSED) return;
+	m_mailBox.SendCall([this]()
+	{
+		PauseImpl();
+		OnMachineStateChange();
+		OnRunningStateChange();
+	});
+}
+
 void CPS2VM::Reset()
 {
 	assert(m_nStatus == PAUSED);
