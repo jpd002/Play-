@@ -21,6 +21,10 @@ public:
 
 	void StepVu1();
 
+protected:
+	void resizeEvent(QResizeEvent*) Q_DECL_OVERRIDE;
+	void showEvent(QShowEvent*) Q_DECL_OVERRIDE;
+
 signals:
 	void OnMachineStateChange();
 	void OnRunningStateChange();

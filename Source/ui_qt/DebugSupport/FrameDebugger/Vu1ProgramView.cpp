@@ -43,6 +43,18 @@ CVu1ProgramView::CVu1ProgramView(QWidget* parent, CVu1Vm& virtualMachine)
 	connect(this, &CVu1ProgramView::OnRunningStateChange, this, &CVu1ProgramView::OnRunningStateChangeMsg);
 }
 
+void CVu1ProgramView::showEvent(QShowEvent* evt)
+{
+	QWidget::showEvent(evt);
+	m_memoryView->ShowEvent();
+}
+
+void CVu1ProgramView::resizeEvent(QResizeEvent* evt)
+{
+	QWidget::resizeEvent(evt);
+	m_memoryView->ResizeEvent();
+}
+
 void CVu1ProgramView::UpdateState(CGSHandler* gs, CGsPacketMetadata* metadata, DRAWINGKICK_INFO*)
 {
 #ifdef DEBUGGER_INCLUDED
