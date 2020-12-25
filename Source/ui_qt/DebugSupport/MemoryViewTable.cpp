@@ -80,7 +80,7 @@ void CMemoryViewTable::SetBytesPerLine(int bytesForLine)
 	m_bytesPerLine = bytesForLine;
 	if(bytesForLine)
 	{
-		m_model->SetUnitsForCurrentLine(bytesForLine);
+		m_model->SetColumnCount(bytesForLine);
 		ResizeColumns();
 		m_model->Redraw();
 	}
@@ -163,14 +163,16 @@ void CMemoryViewTable::ResizeColumns()
 	auto header = horizontalHeader();
 	header->setSectionResizeMode(QHeaderView::Fixed);
 
-	auto units = m_model->UnitsForCurrentLine();
+	auto units = m_model->columnCount() - 1;
+	auto bytesPerUnit = m_model->GetBytesPerUnit();
+
 	auto valueCell = m_cwidth * (m_model->CharsPerUnit() + 2);
-	int asciiCell = m_cwidth * (m_model->GetBytesPerUnit());
+	int asciiCell = (m_cwidth * bytesPerUnit * units) + (m_cwidth * 2);
 	for(auto i = 0; i < units; ++i)
 	{
 		header->resizeSection(i, valueCell);
 	}
-	header->resizeSection(units, (units * asciiCell) + (m_cwidth * 2));
+	header->resizeSection(units, asciiCell);
 
 	// collapse unused column
 	for(auto i = units + 1; i < m_maxUnits; ++i)
@@ -193,7 +195,7 @@ void CMemoryViewTable::AutoColumn()
 	auto bytesPerUnit = m_model->GetBytesPerUnit();
 
 	int valueCell = m_cwidth * (m_model->CharsPerUnit() + 2);
-	int asciiCell = m_cwidth * (m_model->GetBytesPerUnit());
+	int asciiCell = m_cwidth * bytesPerUnit;
 
 	int i = 0x2;
 	while(true)
@@ -208,7 +210,7 @@ void CMemoryViewTable::AutoColumn()
 		}
 		++i;
 	}
-	m_model->SetUnitsForCurrentLine(i);
+	m_model->SetColumnCount(i * bytesPerUnit);
 	ResizeColumns();
 	m_model->Redraw();
 }
@@ -268,8 +270,8 @@ void CMemoryViewTable::SetActiveUnit(int index)
 
 void CMemoryViewTable::SetSelectionStart(uint32 address)
 {
-	auto column = address % m_model->UnitsForCurrentLine();
-	auto row = (address - column) / m_model->UnitsForCurrentLine();
+	auto column = address % m_model->BytesForCurrentLine();
+	auto row = (address - column) / m_model->BytesForCurrentLine();
 
 	auto index = m_model->index(row, column);
 	selectionModel()->setCurrentIndex(index, QItemSelectionModel::ClearAndSelect);
@@ -282,12 +284,11 @@ void CMemoryViewTable::SelectionChanged()
 	if(!indexes.empty())
 	{
 		auto index = indexes.first();
-		int offset = 0;
-		if(index.column() < m_model->UnitsForCurrentLine())
+		int address = index.row() * (m_model->BytesForCurrentLine());
+		if(m_model->columnCount() -1 != index.column())
 		{
-			offset = index.column() * m_model->GetBytesPerUnit();
+			address += index.column() * m_model->GetBytesPerUnit();
 		}
-		int address = offset + (index.row() * m_model->UnitsForCurrentLine());
 		m_selected = address;
 		OnSelectionChange(m_selected);
 	}

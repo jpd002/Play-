@@ -21,29 +21,29 @@ CQtMemoryViewModel::CQtMemoryViewModel(QObject* parent, getByteProto getByte, in
 
 int CQtMemoryViewModel::rowCount(const QModelIndex& /*parent*/) const
 {
-	return std::ceil((m_size * 1.f) / UnitsForCurrentLine());
+	return std::ceil((m_size * 1.f) / m_columnCount);
 }
 
 int CQtMemoryViewModel::columnCount(const QModelIndex& /*parent*/) const
 {
-	return (UnitsForCurrentLine() / g_units[m_activeUnit].bytesPerUnit) + 1;
+	return (m_columnCount  / GetBytesPerUnit()) + 1;
 }
 
 QVariant CQtMemoryViewModel::data(const QModelIndex& index, int role) const
 {
 	if(role == Qt::DisplayRole)
 	{
-		if(index.column() < UnitsForCurrentLine() / g_units[m_activeUnit].bytesPerUnit)
+		if(index.column() < columnCount() - 1)
 		{
 			int offset = (index.column() * g_units[m_activeUnit].bytesPerUnit);
-			int address = offset + (index.row() * UnitsForCurrentLine());
-			return (this->*(g_units[m_activeUnit].renderer))(address).c_str();
+			int address = index.row() * (columnCount() - 1);
+			return (this->*(g_units[m_activeUnit].renderer))(address + offset).c_str();
 		}
 		else
 		{
-			int address = index.row() * UnitsForCurrentLine();
+			int address = index.row() * (columnCount() - 1);
 			std::string res = "";
-			for(auto j = 0; j < UnitsForCurrentLine(); j++)
+			for(auto j = 0; j < m_columnCount; j++)
 			{
 				uint8 value = 0x0;
 				if(address + j < m_size)
@@ -77,7 +77,7 @@ QVariant CQtMemoryViewModel::headerData(int section, Qt::Orientation orientation
 		}
 		else
 		{
-			auto address = section * (UnitsForCurrentLine());
+			auto address = section * m_columnCount;
 			return ("0x" + lexical_cast_hex<std::string>(address, 8)).c_str();
 		}
 	}
@@ -125,19 +125,14 @@ std::string CQtMemoryViewModel::RenderSingleUnit(uint32 address) const
 	return string_format("%+04.4e", *reinterpret_cast<const float*>(&unitValue));
 }
 
-unsigned int CQtMemoryViewModel::UnitsForCurrentLine() const
-{
-	return m_unitsForCurrentLine;
-}
-
 unsigned int CQtMemoryViewModel::BytesForCurrentLine() const
 {
-	return g_units[m_activeUnit].bytesPerUnit * m_unitsForCurrentLine;
+	return m_columnCount;
 }
 
-void CQtMemoryViewModel::SetUnitsForCurrentLine(unsigned int size)
+void CQtMemoryViewModel::SetColumnCount(unsigned int count)
 {
-	m_unitsForCurrentLine = size;
+	m_columnCount = count;
 }
 
 unsigned int CQtMemoryViewModel::CharsPerUnit() const
@@ -155,7 +150,7 @@ int CQtMemoryViewModel::GetActiveUnit()
 	return m_activeUnit;
 }
 
-int CQtMemoryViewModel::GetBytesPerUnit()
+unsigned int CQtMemoryViewModel::GetBytesPerUnit() const
 {
 	return g_units[m_activeUnit].bytesPerUnit;
 }

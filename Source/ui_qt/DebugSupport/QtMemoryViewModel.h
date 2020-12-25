@@ -30,14 +30,13 @@ public:
 
 	void Redraw();
 
-	unsigned int UnitsForCurrentLine() const;
 	unsigned int BytesForCurrentLine() const;
-	void SetUnitsForCurrentLine(unsigned int);
+	void SetColumnCount(unsigned int);
 	unsigned int CharsPerUnit() const;
 
 	void SetActiveUnit(int);
 	int GetActiveUnit();
-	int GetBytesPerUnit();
+	unsigned int GetBytesPerUnit() const;
 
 	void SetData(getByteProto, int);
 
@@ -55,5 +54,6 @@ private:
 	getByteProto m_getByte = nullptr;
 	int m_activeUnit;
 	unsigned int m_size;
-	std::atomic<unsigned int> m_unitsForCurrentLine = 0x20;
+	std::atomic<unsigned int> m_columnCount = 0x2;
+
 };
