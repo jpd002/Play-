@@ -26,7 +26,7 @@ int CQtMemoryViewModel::rowCount(const QModelIndex& /*parent*/) const
 
 int CQtMemoryViewModel::columnCount(const QModelIndex& /*parent*/) const
 {
-	return (m_columnCount  / GetBytesPerUnit()) + 1;
+	return (m_columnCount / GetBytesPerUnit()) + 1;
 }
 
 QVariant CQtMemoryViewModel::data(const QModelIndex& index, int role) const

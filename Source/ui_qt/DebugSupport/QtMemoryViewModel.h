@@ -55,5 +55,4 @@ private:
 	int m_activeUnit;
 	unsigned int m_size;
 	std::atomic<unsigned int> m_columnCount = 0x2;
-
 };

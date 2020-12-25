@@ -285,7 +285,7 @@ void CMemoryViewTable::SelectionChanged()
 	{
 		auto index = indexes.first();
 		int address = index.row() * (m_model->BytesForCurrentLine());
-		if(m_model->columnCount() -1 != index.column())
+		if(m_model->columnCount() - 1 != index.column())
 		{
 			address += index.column() * m_model->GetBytesPerUnit();
 		}
