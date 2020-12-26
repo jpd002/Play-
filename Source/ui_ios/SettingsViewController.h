@@ -6,6 +6,7 @@
 	IBOutlet UISwitch* showVirtualPadSwitch;
 
 	IBOutlet UILabel* resolutionFactor;
+	IBOutlet UISwitch* resizeOutputToWidescreen;
 	IBOutlet UISwitch* forceBilinearFiltering;
 
 	IBOutlet UISwitch* enableAudioOutput;
