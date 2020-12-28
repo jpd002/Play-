@@ -1665,7 +1665,11 @@ uint32 CPS2OS::TranslateAddress(CMIPS*, uint32 vaddrLo)
 
 uint32 CPS2OS::TranslateAddressTLB(CMIPS* context, uint32 vaddrLo)
 {
-	if(TLB_IS_DIRECT_VADDRESS(vaddrLo))
+	if(vaddrLo <= 0x1ffffff)
+	{
+		return TLB_TRANSLATE_DIRECT_VADDRESS(vaddrLo);
+	}
+	if(vaddrLo & 0x80000000)
 	{
 		return TLB_TRANSLATE_DIRECT_VADDRESS(vaddrLo);
 	}
@@ -1689,7 +1693,7 @@ uint32 CPS2OS::TranslateAddressTLB(CMIPS* context, uint32 vaddrLo)
 		uint32 pageSize = ((entry.pageMask >> 13) + 1) * 0x1000;
 		uint32 vpnMask = (pageSize * 2) - 1;
 		uint32 vpn = vaddrLo & ~vpnMask;
-		uint32 tlbVpn = entry.entryHi & ~vpnMask;
+		uint32 tlbVpn = (entry.entryHi & ~0x20000000) & ~vpnMask;
 
 		if(vpn == tlbVpn)
 		{
@@ -1709,7 +1713,19 @@ uint32 CPS2OS::TranslateAddressTLB(CMIPS* context, uint32 vaddrLo)
 
 uint32 CPS2OS::CheckTLBExceptions(CMIPS* context, uint32 vaddrLo, uint32 isWrite)
 {
-	if(TLB_IS_DIRECT_VADDRESS(vaddrLo))
+	//if(TLB_IS_DIRECT_VADDRESS(vaddrLo))
+	//{
+	//	return MIPS_EXCEPTION_NONE;
+	//}
+	if(vaddrLo <= 0x1ffffff)
+	{
+		return MIPS_EXCEPTION_NONE;
+	}
+	if ((vaddrLo >= 0x10000000) && (vaddrLo <= 0x1FFFFFFF))
+	{
+		return MIPS_EXCEPTION_NONE;
+	}
+	if(vaddrLo & 0x80000000)
 	{
 		return MIPS_EXCEPTION_NONE;
 	}
@@ -1733,7 +1749,7 @@ uint32 CPS2OS::CheckTLBExceptions(CMIPS* context, uint32 vaddrLo, uint32 isWrite
 		uint32 pageSize = ((entry.pageMask >> 13) + 1) * 0x1000;
 		uint32 vpnMask = (pageSize * 2) - 1;
 		uint32 vpn = vaddrLo & ~vpnMask;
-		uint32 tlbVpn = entry.entryHi & ~vpnMask;
+		uint32 tlbVpn = (entry.entryHi & ~0x20000000) & ~vpnMask;
 
 		if(vpn == tlbVpn)
 		{
@@ -1754,7 +1770,12 @@ uint32 CPS2OS::CheckTLBExceptions(CMIPS* context, uint32 vaddrLo, uint32 isWrite
 	}
 	//assert(false);
 	//We should probably raise some kind of exception here since we didn't match anything
-	return MIPS_EXCEPTION_NONE;
+	context->m_State.nCOP0[CCOP_SCU::CAUSE] &= ~CCOP_SCU::CAUSE_EXCCODE_MASK;
+	context->m_State.nCOP0[CCOP_SCU::CAUSE] |= isWrite ? CCOP_SCU::CAUSE_EXCCODE_TLBS : CCOP_SCU::CAUSE_EXCCODE_TLBL;
+	context->m_State.nCOP0[CCOP_SCU::BADVADDR] = vaddrLo;
+	context->m_State.nHasException = MIPS_EXCEPTION_TLB;
+	return context->m_State.nHasException;
+	//return MIPS_EXCEPTION_NONE;
 }
 
 //////////////////////////////////////////////////
@@ -3391,6 +3412,10 @@ void CPS2OS::HandleTLBException()
 	assert(m_ee.CanGenerateInterrupt());
 	m_ee.m_State.nCOP0[CCOP_SCU::STATUS] |= CMIPS::STATUS_EXL;
 	assert(m_ee.m_State.nDelayedJumpAddr == MIPS_INVALID_PC);
+	if (m_ee.m_State.nDelayedJumpAddr != MIPS_INVALID_PC)
+	{
+		m_ee.m_State.nCOP0[CCOP_SCU::EPC] -= 4;
+	}
 
 	uint32 excCode = m_ee.m_State.nCOP0[CCOP_SCU::CAUSE] & CCOP_SCU::CAUSE_EXCCODE_MASK;
 	switch(excCode)
