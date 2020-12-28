@@ -571,13 +571,18 @@ void retro_deinit()
 
 	if(m_virtualMachine)
 	{
-		// Note: since we're forced GS into running on this thread
-		// we need to clear its queue, to prevent it freezing the reset of the system during delete
-		auto gsHandler = m_virtualMachine->GetGSHandler();
+		m_virtualMachine->PauseAsync();
+		auto gsHandler = static_cast<CGSH_OpenGL_Libretro*>(m_virtualMachine->GetGSHandler());
 		if(gsHandler)
-			static_cast<CGSH_OpenGL_Libretro*>(gsHandler)->Release();
-
-		m_virtualMachine->Pause();
+		{
+			// Note: since we've forced GS into running on this/main/libretro thread
+			// we need to clear its queue, to prevent it from locking up VM
+			while(m_virtualMachine->GetStatus() != CVirtualMachine::PAUSED)
+			{
+				std::this_thread::yield();
+				gsHandler->Release();
+			}
+		}
 		m_virtualMachine->DestroyPadHandler();
 		m_virtualMachine->DestroyGSHandler();
 		m_virtualMachine->DestroySoundHandler();
