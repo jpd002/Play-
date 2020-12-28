@@ -69,7 +69,7 @@ void CGSH_OpenGL_Libretro::FlushMailBox()
 	bool isFlushed = false;
 	SendGSCall([&]() {
 		isFlushed = true;
-		m_flipped  = true;
+		m_flipped = true;
 	},
 	           true);
 	while(!isFlushed)
