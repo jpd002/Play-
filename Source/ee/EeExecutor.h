@@ -51,6 +51,6 @@ private:
 
 	mach_port_t m_port = MACH_PORT_NULL;
 	std::thread m_handlerThread;
-	std::atomic<bool> m_running;
+	std::atomic<bool> m_running = false;
 #endif
 };
