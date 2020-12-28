@@ -3038,7 +3038,6 @@ void CIopBios::HandleInterrupt()
 	if(m_cpu.GenerateInterrupt(m_cpu.m_State.nPC))
 	{
 		//Find first concerned interrupt
-		unsigned int line = -1;
 		UNION64_32 status(
 		    m_cpu.m_pMemoryMap->GetWord(Iop::CIntc::STATUS0),
 		    m_cpu.m_pMemoryMap->GetWord(Iop::CIntc::STATUS1));
@@ -3046,21 +3045,14 @@ void CIopBios::HandleInterrupt()
 		    m_cpu.m_pMemoryMap->GetWord(Iop::CIntc::MASK0),
 		    m_cpu.m_pMemoryMap->GetWord(Iop::CIntc::MASK1));
 		status.f &= mask.f;
-		for(unsigned int i = 0; i < 0x40; i++)
-		{
-			if(status.f & (1LL << i))
-			{
-				line = i;
-				break;
-			}
-		}
-		assert(line != -1);
-		if(line == -1)
+		assert(status.f != 0);
+		if(status.f == 0)
 		{
 			ReturnFromException();
 			return;
 		}
-		status.f = ~(1LL << line);
+		uint32 line = __builtin_ctzll(status.f);
+		status.f = ~(1ULL << line);
 		m_cpu.m_pMemoryMap->SetWord(Iop::CIntc::STATUS0, status.h0);
 		m_cpu.m_pMemoryMap->SetWord(Iop::CIntc::STATUS1, status.h1);
 		//Check if there's an handler to call
