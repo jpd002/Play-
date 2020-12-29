@@ -18,6 +18,7 @@ endif()
 add_executable(SpuTest
 	Main.cpp
 	SimpleIrqTest.cpp
+	Test.cpp
 
 	SimpleIrqTest.h
 	Test.h
