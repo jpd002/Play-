@@ -2,6 +2,7 @@
 
 #include <vector>
 #include <cassert>
+#include <cstring>
 
 #include "Ps2Const.h"
 
