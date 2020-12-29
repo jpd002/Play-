@@ -10,7 +10,7 @@ namespace Iop
 	{
 	public:
 		CSpu2(CSpuBase&, CSpuBase&);
-		virtual ~CSpu2();
+		virtual ~CSpu2() = default;
 
 		CSpu2(const CSpu2&) = delete;
 		CSpu2& operator=(const CSpu2&) = delete;
