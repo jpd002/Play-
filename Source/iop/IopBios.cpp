@@ -4,6 +4,7 @@
 #include "PtrStream.h"
 #include "xml/FilteringNodeIterator.h"
 #include "lexical_cast_ex.h"
+#include "BitManip.h"
 
 #include "IopBios.h"
 #include "../COP_SCU.h"
