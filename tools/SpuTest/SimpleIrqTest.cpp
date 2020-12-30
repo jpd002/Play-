@@ -13,7 +13,7 @@ void CSimpleIrqTest::Execute()
 	m_ram[irqSampleAddress + 1] = 0x07;
 	
 	//Setup voices
-	for(unsigned int i = 0; i < 24; i++)
+	for(unsigned int i = 0; i < VOICE_COUNT; i++)
 	{
 		SetVoiceRegister(0, i, Iop::Spu2::CCore::VP_PITCH, 0x1000);
 		SetVoiceAddress(0, i, Iop::Spu2::CCore::VA_SSA_HI, nullSampleAddress);

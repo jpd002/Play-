@@ -16,10 +16,12 @@ if (NOT TARGET PlayCore)
 endif()
 
 add_executable(SpuTest
+	KeyOnOffTest.cpp
 	Main.cpp
 	SimpleIrqTest.cpp
 	Test.cpp
 
+	KeyOnOffTest.h
 	SimpleIrqTest.h
 	Test.h
 )

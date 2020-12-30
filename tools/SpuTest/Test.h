@@ -18,10 +18,22 @@ public:
 	virtual void Execute() = 0;
 
 protected:
+	enum
+	{
+		VOICE_COUNT = 24,
+	};
+	
 	void RunSpu(unsigned int);
+
+	uint32 GetCoreRegister(unsigned int, uint32);
 	void SetCoreRegister(unsigned int, uint32, uint32);
+
+	uint32 GetCoreAddress(unsigned int, uint32);
 	void SetCoreAddress(unsigned int, uint32, uint32);
+
 	void SetVoiceRegister(unsigned int, unsigned int, uint32, uint32);
+	
+	uint32 GetVoiceAddress(unsigned int, unsigned int, uint32);
 	void SetVoiceAddress(unsigned int, unsigned int, uint32, uint32);
 
 	uint8* m_ram = nullptr;

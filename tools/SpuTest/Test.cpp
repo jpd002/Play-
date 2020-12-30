@@ -29,10 +29,24 @@ void CTest::RunSpu(unsigned int ticks)
 	m_spuCore1.Render(samples.data(), blockSize, DST_SAMPLE_RATE);
 }
 
+uint32 CTest::GetCoreRegister(unsigned int coreIndex, uint32 address)
+{
+	assert(coreIndex == 0);
+	return m_spu.ReadRegister(address);
+}
+
 void CTest::SetCoreRegister(unsigned int coreIndex, uint32 address, uint32 value)
 {
 	assert(coreIndex == 0);
 	m_spu.WriteRegister(address, value);
+}
+
+uint32 CTest::GetCoreAddress(unsigned int coreIndex, uint32 registerAddress)
+{
+	assert((registerAddress & 0x2) == 0);
+	uint32 addrHi = GetCoreRegister(coreIndex, registerAddress + 0);
+	uint32 addrLo = GetCoreRegister(coreIndex, registerAddress + 2);
+	return (addrHi << 17) | (addrLo << 1);
 }
 
 void CTest::SetCoreAddress(unsigned int coreIndex, uint32 registerAddress, uint32 targetAddress)
@@ -48,7 +62,13 @@ void CTest::SetVoiceRegister(unsigned int coreIndex, uint32 voiceIndex, uint32 a
 	SetCoreRegister(coreIndex, voiceAddress, value);
 }
 
-void CTest::SetVoiceAddress(unsigned int coreIndex, uint32 voiceIndex, uint32 registerAddress, uint32 targetAddress)
+uint32 CTest::GetVoiceAddress(unsigned int coreIndex, unsigned int voiceIndex, uint32 registerAddress)
+{
+	uint32 voiceAddress = registerAddress + (voiceIndex * 12);
+	return GetCoreAddress(coreIndex, voiceAddress);
+}
+
+void CTest::SetVoiceAddress(unsigned int coreIndex, unsigned int voiceIndex, uint32 registerAddress, uint32 targetAddress)
 {
 	uint32 voiceAddress = registerAddress + (voiceIndex * 12);
 	SetCoreAddress(coreIndex, voiceAddress, targetAddress);

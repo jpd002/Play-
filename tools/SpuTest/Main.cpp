@@ -1,4 +1,5 @@
 #include <functional>
+#include "KeyOnOffTest.h"
 #include "SimpleIrqTest.h"
 
 typedef std::function<CTest*()> TestFactoryFunction;
@@ -6,6 +7,7 @@ typedef std::function<CTest*()> TestFactoryFunction;
 // clang-format off
 static const TestFactoryFunction s_factories[] =
 {
+	[]() { return new CKeyOnOffTest(); },
 	[]() { return new CSimpleIrqTest(); },
 };
 // clang-format on
