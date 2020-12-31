@@ -243,7 +243,8 @@ namespace Iop
 			void LoadState(const CRegisterStateFile&, const std::string&);
 			void SaveState(CRegisterStateFile*, const std::string&) const;
 
-			void SetParams(uint32, uint32);
+			void SetParamsRead(uint32, uint32);
+			void SetParamsNoRead(uint32, uint32);
 			void SetPitch(uint32, uint16);
 			void GetSamples(int16*, unsigned int, unsigned int);
 			uint32 GetRepeat() const;
@@ -266,6 +267,7 @@ namespace Iop
 				BUFFER_SAMPLES = 28,
 			};
 
+			void SetParams(uint32, uint32);
 			void UnpackSamples(int16*);
 			void AdvanceBuffer();
 			int16 GetSample(unsigned int);

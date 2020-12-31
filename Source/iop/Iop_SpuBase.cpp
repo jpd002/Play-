@@ -456,6 +456,11 @@ void CSpuBase::SendKeyOff(uint32 channels)
 			if(channel.status == KEY_ON)
 			{
 				channel.status = STOPPED;
+				//Update channel registers since we are doing KEY_ON -> STOPPED transition
+				auto& reader = m_reader[i];
+				reader.SetParamsNoRead(channel.address, channel.repeat);
+				reader.ClearEndFlag();
+				channel.current = reader.GetCurrent();
 			}
 			else
 			{
@@ -626,7 +631,7 @@ void CSpuBase::Render(int16* samples, unsigned int sampleCount, unsigned int sam
 			reader.SetIrqAddress(m_irqAddr);
 			if(channel.status == KEY_ON)
 			{
-				reader.SetParams(channel.address, channel.repeat);
+				reader.SetParamsRead(channel.address, channel.repeat);
 				reader.ClearEndFlag();
 				channel.status = ATTACK;
 				channel.adsrVolume = 0;
@@ -1086,7 +1091,18 @@ void CSpuBase::CSampleReader::SetParams(uint32 address, uint32 repeat)
 	m_nextValid = false;
 	m_done = false;
 	m_didChangeRepeat = false;
+}
+
+void CSpuBase::CSampleReader::SetParamsRead(uint32 address, uint32 repeat)
+{
+	SetParams(address, repeat);
 	AdvanceBuffer();
+}
+
+void CSpuBase::CSampleReader::SetParamsNoRead(uint32 address, uint32 repeat)
+{
+	SetParams(address, repeat);
+	memset(m_buffer, 0, sizeof(m_buffer));
 }
 
 void CSpuBase::CSampleReader::SetPitch(uint32 baseSamplingRate, uint16 pitch)
