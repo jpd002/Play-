@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.5)
 
 # macOS deployment target needs to be set before 'project' to work
 if(APPLE AND NOT TARGET_IOS)
-	set(CMAKE_OSX_DEPLOYMENT_TARGET "10.9" CACHE STRING "Minimum OS X deployment version")
+	set(CMAKE_OSX_DEPLOYMENT_TARGET "11.0" CACHE STRING "Minimum OS X deployment version")
 endif()
 
 project(Play)
