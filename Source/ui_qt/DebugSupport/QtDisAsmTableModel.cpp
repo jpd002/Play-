@@ -251,13 +251,13 @@ std::string CQtDisAsmTableModel::GetInstructionDetails(int index, uint32 address
 	case 1:
 	{
 		char disAsm[256];
-		m_ctx->m_pArch->GetInstructionMnemonic(m_ctx, address + 4, instruction, disAsm, 256);
+		m_ctx->m_pArch->GetInstructionMnemonic(m_ctx, address, instruction, disAsm, 256);
 		return disAsm;
 	}
 	case 2:
 	{
 		char disAsm[256];
-		m_ctx->m_pArch->GetInstructionOperands(m_ctx, address + 4, instruction, disAsm, 256);
+		m_ctx->m_pArch->GetInstructionOperands(m_ctx, address, instruction, disAsm, 256);
 		return disAsm;
 	}
 	}
