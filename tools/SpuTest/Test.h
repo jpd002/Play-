@@ -22,7 +22,7 @@ protected:
 	{
 		VOICE_COUNT = 24,
 	};
-	
+
 	void RunSpu(unsigned int);
 
 	uint32 GetCoreRegister(unsigned int, uint32);
@@ -32,7 +32,7 @@ protected:
 	void SetCoreAddress(unsigned int, uint32, uint32);
 
 	void SetVoiceRegister(unsigned int, unsigned int, uint32, uint32);
-	
+
 	uint32 GetVoiceAddress(unsigned int, unsigned int, uint32);
 	void SetVoiceAddress(unsigned int, unsigned int, uint32, uint32);
 

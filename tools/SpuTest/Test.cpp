@@ -7,17 +7,17 @@
 #include "Ps2Const.h"
 
 CTest::CTest()
-: m_ram(new uint8[PS2::SPU_RAM_SIZE])
-, m_spuCore0(m_ram, PS2::SPU_RAM_SIZE, 0)
-, m_spuCore1(m_ram, PS2::SPU_RAM_SIZE, 1)
-, m_spu(m_spuCore0, m_spuCore1)
+    : m_ram(new uint8[PS2::SPU_RAM_SIZE])
+    , m_spuCore0(m_ram, PS2::SPU_RAM_SIZE, 0)
+    , m_spuCore1(m_ram, PS2::SPU_RAM_SIZE, 1)
+    , m_spu(m_spuCore0, m_spuCore1)
 {
 	memset(m_ram, 0, PS2::SPU_RAM_SIZE);
 }
 
 CTest::~CTest()
 {
-	delete [] m_ram;
+	delete[] m_ram;
 }
 
 void CTest::RunSpu(unsigned int ticks)
