@@ -739,6 +739,7 @@ void MainWindow::buildResizeWindowMenu()
 		unsigned int width;
 		unsigned int height;
 	};
+	// clang-format off
 	static const VIDEO_MODE videoModes[] =
 	{
 		{ "NTSC", 640, 448 },
@@ -751,17 +752,18 @@ void MainWindow::buildResizeWindowMenu()
 		1.0f,
 		2.0f
 	};
+	// clang-format on
 	for(const auto& videoMode : videoModes)
 	{
 		auto videoModeDesc = QString("%1 - %2x%3").arg(videoMode.name).arg(videoMode.width).arg(videoMode.height);
 		QMenu* videoModeMenu = ui->menuResizeWindow->addMenu(videoModeDesc);
-		
+
 		for(const auto& scaleRatio : scaleRatios)
 		{
 			QAction* scaleAction = new QAction(this);
 			scaleAction->setText(QString("%1x").arg(scaleRatio));
 			videoModeMenu->addAction(scaleAction);
-			
+
 			auto width = static_cast<uint32>(static_cast<float>(videoMode.width) * scaleRatio);
 			auto height = static_cast<uint32>(static_cast<float>(videoMode.height) * scaleRatio);
 			connect(scaleAction, &QAction::triggered, std::bind(&MainWindow::resizeWindow, this, width, height));
