@@ -270,7 +270,7 @@ void CMemoryViewTable::SetActiveUnit(int index)
 
 void CMemoryViewTable::SetSelectionStart(uint32 address)
 {
-	auto column = address % m_model->BytesForCurrentLine();
+	auto column = (address % m_model->BytesForCurrentLine()) / m_model->GetBytesPerUnit();
 	auto row = (address - column) / m_model->BytesForCurrentLine();
 
 	auto index = m_model->index(row, column);
