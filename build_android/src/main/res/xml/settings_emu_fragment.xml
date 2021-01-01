@@ -27,6 +27,12 @@
 			android:negativeButtonText="@null"
 			android:positiveButtonText="@null"/>
 		<CheckBoxPreference
+			android:key="renderer.widescreen"
+			android:title="@string/pref_emu_video_widescreen_title"
+			android:summary="@string/pref_emu_video_widescreen_summary"
+			android:persistent="false"
+		/>
+		<CheckBoxPreference
 			android:key="renderer.opengl.forcebilineartextures"
 			android:title="@string/pref_emu_video_force_bilinear_title"
 			android:summary="@string/pref_emu_video_force_bilinear_summary"
