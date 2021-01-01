@@ -251,6 +251,7 @@ protected:
 	uint32 m_readTick;
 	uint32 m_writeTick;
 	uint32 m_pendingMicroProgram;
+	uint32 m_incomingFifoDelay;
 
 	CProfiler::ZoneHandle m_vifProfilerZone = 0;
 };

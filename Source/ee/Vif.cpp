@@ -70,6 +70,7 @@ void CVif::Reset()
 	m_writeTick = 0;
 	m_stream.Reset();
 	m_pendingMicroProgram = -1;
+	m_incomingFifoDelay = 0;
 }
 
 uint32 CVif::GetRegister(uint32 address)
@@ -84,7 +85,11 @@ uint32 CVif::GetRegister(uint32 address)
 		{
 			//When FDR is set, it usually means the game is trying to
 			//read data from GS and that FIFO has some data in it
-			result |= (0x10 << 24);
+			result |= (m_incomingFifoDelay << 24);
+			if(m_incomingFifoDelay != 0)
+			{
+				m_incomingFifoDelay--;
+			}
 		}
 		break;
 	case VIF0_ERR:
@@ -155,6 +160,10 @@ void CVif::SetRegister(uint32 address, uint32 value)
 		{
 		case VIF1_STAT:
 			m_STAT.nFDR = ((value & STAT_FDR) != 0) ? 1 : 0;
+			if(m_STAT.nFDR)
+			{
+				m_incomingFifoDelay = 0x1F;
+			}
 			break;
 		case VIF0_FBRST:
 		case VIF1_FBRST:
