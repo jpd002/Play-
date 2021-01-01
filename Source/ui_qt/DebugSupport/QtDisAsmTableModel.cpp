@@ -15,7 +15,7 @@ CQtDisAsmTableModel::CQtDisAsmTableModel(QObject* parent, CVirtualMachine& virtu
     , m_disAsmType(DISASM_TYPE::DISASM_STANDARD)
     , m_memSize(memSize)
 {
-	m_headers = {"S", "Address", "R", "Instr", "I-Mn", "I-Op", "Target"};
+	m_headers = {"S", "Address", "R", "Instr", "I-Mn", "I-Op", "Target", "Comments"};
 
 	auto size = m_start_line.size();
 	auto start = 2;
@@ -143,6 +143,8 @@ QVariant CQtDisAsmTableModel::data(const QModelIndex& index, int role) const
 			return GetInstructionDetails(subindex, address).c_str();
 		else if(subindex == size)
 			return GetInstructionMetadata(address).c_str();
+		else if(subindex == size + 1)
+			return m_ctx->m_Comments.Find(address);
 	}
 	if(role == Qt::SizeHintRole)
 	{

@@ -8,7 +8,7 @@
 CQtDisAsmVuTableModel::CQtDisAsmVuTableModel(QObject* parent, CVirtualMachine& virtualMachine, CMIPS* context, int memSize)
     : CQtDisAsmTableModel(parent, virtualMachine, context, memSize)
 {
-	m_headers = {"S", "Address", "R", "Instr", "LI-Mn", "LI-Op", "UI-Mn", "UI-Op", "Target"};
+	m_headers = {"S", "Address", "R", "Instr", "LI-Mn", "LI-Op", "UI-Mn", "UI-Op", "Target", "Comments"};
 
 	m_instructionSize = 8;
 	m_disAsmType = DISASM_TYPE::DISASM_VU;
