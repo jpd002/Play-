@@ -1,6 +1,7 @@
 #include <QGuiApplication>
 #include <QPalette>
 #include <QPainter>
+#include <QPainterPath>
 
 #include "QtDisAsmTableModel.h"
 #include "string_cast.h"
