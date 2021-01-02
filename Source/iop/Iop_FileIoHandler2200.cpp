@@ -20,6 +20,9 @@ using namespace Iop;
 #define DEVCTL_CDVD_GETERROR 0x4320
 #define DEVCTL_CDVD_DISKREADY 0x4325
 
+#define DEVCTL_HDD_STATUS 0x4807
+#define DEVCTL_HDD_FREESECTOR 0x480A
+
 CFileIoHandler2200::CFileIoHandler2200(CIoman* ioman, CSifMan& sifMan)
     : CHandler(ioman)
     , m_sifMan(sifMan)
@@ -367,7 +370,7 @@ uint32 CFileIoHandler2200::InvokeUmount(uint32* args, uint32 argsSize, uint32* r
 
 uint32 CFileIoHandler2200::InvokeDevctl(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, uint8* ram)
 {
-	//This is used by Romancing Saga with 'hdd0:' parameter.
+	//This is used by Romancing Saga and FFX with 'hdd0:' parameter.
 	//This is also used by Phantasy Star Collection with 'cdrom0:' parameter.
 
 	assert(argsSize >= 0x81C);
@@ -389,6 +392,14 @@ uint32 CFileIoHandler2200::InvokeDevctl(uint32* args, uint32 argsSize, uint32* r
 		assert(command->outputSize == 4);
 		CLog::GetInstance().Print(LOG_NAME, "DevCtl -> CdDiskReady(%d);\r\n", input[0]);
 		output[0] = 2; //Disk ready
+		break;
+	case DEVCTL_HDD_STATUS:
+		CLog::GetInstance().Print(LOG_NAME, "DevCtl -> HddStatus();\r\n");
+		break;
+	case DEVCTL_HDD_FREESECTOR:
+		assert(command->outputSize == 4);
+		CLog::GetInstance().Print(LOG_NAME, "DevCtl -> HddFreeSector();\r\n");
+		output[0] = 0x400000; //Number of sectors
 		break;
 	default:
 		CLog::GetInstance().Print(LOG_NAME, "DevCtl -> Unknown(cmd = %08X);\r\n", command->cmdId);
