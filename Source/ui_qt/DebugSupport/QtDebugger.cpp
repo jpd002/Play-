@@ -58,7 +58,7 @@ QtDebugger::QtDebugger(CPS2VM& virtualMachine)
 	m_nCurrentView = -1;
 
 	m_pView[DEBUGVIEW_EE] = new CDebugView(ui->mdiArea, m_virtualMachine, &m_virtualMachine.m_ee->m_EE,
-	                                       std::bind(&CPS2VM::StepEe, &m_virtualMachine), m_virtualMachine.m_ee->m_os, "EmotionEngine", PS2::EE_RAM_SIZE);
+	                                       std::bind(&CPS2VM::StepEe, &m_virtualMachine), m_virtualMachine.m_ee->m_os, "EmotionEngine", PS2::EE_BIOS_ADDR + PS2::EE_BIOS_SIZE);
 	m_pView[DEBUGVIEW_VU0] = new CDebugView(ui->mdiArea, m_virtualMachine, &m_virtualMachine.m_ee->m_VU0,
 	                                        std::bind(&CPS2VM::StepVu0, &m_virtualMachine), nullptr, "Vector Unit 0", PS2::VUMEM0SIZE, CQtDisAsmTableModel::DISASM_VU);
 	m_pView[DEBUGVIEW_VU1] = new CDebugView(ui->mdiArea, m_virtualMachine, &m_virtualMachine.m_ee->m_VU1,
