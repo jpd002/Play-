@@ -38,6 +38,7 @@ namespace GSH_Vulkan
 				assert(false);
 			case CGSHandler::PSMCT32:
 			case CGSHandler::PSMCT24:
+			case CGSHandler::PSMCT24_UNK:
 			case CGSHandler::PSMT8H:
 			case CGSHandler::PSMT4HL:
 			case CGSHandler::PSMT4HH:

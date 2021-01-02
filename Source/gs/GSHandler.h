@@ -141,7 +141,7 @@ public:
 		PSMCT32 = 0x00,
 		PSMCT24 = 0x01,
 		PSMCT16 = 0x02,
-		PSMCT24_UNK = 0x09,
+		PSMCT24_UNK = 0x09, //Used by FFX (in menus)
 		PSMCT16S = 0x0A,
 		PSMT8 = 0x13,
 		PSMT4 = 0x14,

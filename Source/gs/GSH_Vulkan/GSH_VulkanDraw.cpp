@@ -825,6 +825,7 @@ static Nuanceur::CFloat4Rvalue GetTextureColor(Nuanceur::CShaderBuilder& b, uint
 		return CMemoryUtils::PSM32ToVec4(b, texPixel);
 	}
 	case CGSHandler::PSMCT24:
+	case CGSHandler::PSMCT24_UNK:
 	case CGSHandler::PSMZ24:
 	{
 		auto texAddress = CMemoryUtils::GetPixelAddress<CGsPixelFormats::STORAGEPSMCT32>(
