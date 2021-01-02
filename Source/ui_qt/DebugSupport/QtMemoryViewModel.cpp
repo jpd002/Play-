@@ -36,12 +36,12 @@ QVariant CQtMemoryViewModel::data(const QModelIndex& index, int role) const
 		if(index.column() < columnCount() - 1)
 		{
 			int offset = (index.column() * g_units[m_activeUnit].bytesPerUnit);
-			int address = index.row() * (columnCount() - 1);
+			int address = index.row() * m_columnCount;
 			return (this->*(g_units[m_activeUnit].renderer))(address + offset).c_str();
 		}
 		else
 		{
-			int address = index.row() * (columnCount() - 1);
+			int address = index.row() * m_columnCount;
 			std::string res = "";
 			for(auto j = 0; j < m_columnCount; j++)
 			{
