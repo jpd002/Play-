@@ -357,7 +357,7 @@ void CDisAsmWnd::EditComment()
 	QString value = QInputDialog::getText(this, ("Edit Comment"),
 	                                      ("Enter new comment:"), QLineEdit::Normal,
 	                                      (commentConv.c_str()), &ok);
-	if(!ok || value.isEmpty())
+	if(!ok)
 		return;
 
 	m_ctx->m_Comments.InsertTag(m_selected, value.toStdString().c_str());
