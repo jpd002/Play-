@@ -77,7 +77,7 @@ CSubSystem::CSubSystem(uint8* iopRam, CIopBios& iopBios)
 		m_EE.m_pMemoryMap->InsertReadMap(PS2::VUMEM1ADDR, PS2::VUMEM1ADDR + PS2::VUMEM1SIZE - 1, m_vuMem1, 0x06);
 		m_EE.m_pMemoryMap->InsertReadMap(0x12000000, 0x12FFFFFF, std::bind(&CSubSystem::IOPortReadHandler, this, PLACEHOLDER_1), 0x07);
 		m_EE.m_pMemoryMap->InsertReadMap(0x1C000000, 0x1C001000, m_fakeIopRam, 0x08);
-		m_EE.m_pMemoryMap->InsertReadMap(0x1FC00000, 0x1FFFFFFF, m_bios, 0x09);
+		m_EE.m_pMemoryMap->InsertReadMap(PS2::EE_BIOS_ADDR, PS2::EE_BIOS_ADDR + PS2::EE_BIOS_SIZE - 1, m_bios, 0x09);
 
 		//Write map
 		m_EE.m_pMemoryMap->InsertWriteMap(0x00000000, 0x01FFFFFF, m_ram, 0x00);
@@ -91,7 +91,7 @@ CSubSystem::CSubSystem(uint8* iopRam, CIopBios& iopBios)
 
 		//Instruction map
 		m_EE.m_pMemoryMap->InsertInstructionMap(0x00000000, 0x01FFFFFF, m_ram, 0x00);
-		m_EE.m_pMemoryMap->InsertInstructionMap(0x1FC00000, 0x1FFFFFFF, m_bios, 0x01);
+		m_EE.m_pMemoryMap->InsertInstructionMap(PS2::EE_BIOS_ADDR, PS2::EE_BIOS_ADDR + PS2::EE_BIOS_SIZE - 1, m_bios, 0x01);
 
 		m_EE.m_pArch = &m_EEArch;
 		m_EE.m_pCOP[0] = &m_COP_SCU;

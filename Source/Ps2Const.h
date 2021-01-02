@@ -15,6 +15,7 @@ namespace PS2
 
 	enum
 	{
+		EE_BIOS_ADDR = 0x1FC00000,
 		EE_BIOS_SIZE = 0x00400000,
 	};
 
