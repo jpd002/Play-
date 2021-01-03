@@ -24,6 +24,7 @@
 #include "PathUtils.h"
 #include "iop/IopBios.h"
 #include "iop/DirectoryDevice.h"
+#include "iop/HardDiskDevice.h"
 #include "iop/OpticalMediaDevice.h"
 #include "Log.h"
 #include "ISO9660/BlockProvider.h"
@@ -412,6 +413,7 @@ void CPS2VM::ResetVM()
 		iopOs->GetIoman()->RegisterDevice("mc1", Iop::CIoman::DevicePtr(new Iop::Ioman::CDirectoryDevice(PREF_PS2_MC1_DIRECTORY)));
 		iopOs->GetIoman()->RegisterDevice("cdrom", Iop::CIoman::DevicePtr(new Iop::Ioman::COpticalMediaDevice(m_cdrom0)));
 		iopOs->GetIoman()->RegisterDevice("cdrom0", Iop::CIoman::DevicePtr(new Iop::Ioman::COpticalMediaDevice(m_cdrom0)));
+		iopOs->GetIoman()->RegisterDevice("hdd0", std::make_shared<Iop::Ioman::CHardDiskDevice>());
 
 		iopOs->GetLoadcore()->SetLoadExecutableHandler(std::bind(&CPS2OS::LoadExecutable, m_ee->m_os, std::placeholders::_1, std::placeholders::_2));
 	}
