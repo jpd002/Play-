@@ -55,6 +55,7 @@ namespace Iop
 			COMMANDID_MOUNT = 20,
 			COMMANDID_UMOUNT = 21,
 			COMMANDID_DEVCTL = 23,
+			COMMANDID_IOCTL2 = 26,
 		};
 
 		struct COMMANDHEADER
@@ -137,6 +138,17 @@ namespace Iop
 			uint32 inputSize;
 			uint32 outputPtr;
 			uint32 outputSize;
+		};
+
+		struct IOCTL2COMMAND
+		{
+			COMMANDHEADER header;
+			uint32 fd;
+			uint32 cmdId;
+			char inputBuffer[0x400];
+			uint32 outputPtr;
+			uint32 outputSize;
+			uint32 inputSize;
 		};
 
 		struct REPLYHEADER
@@ -235,6 +247,15 @@ namespace Iop
 			uint32 unknown3;
 			uint32 unknown4;
 		};
+		
+		struct IOCTL2REPLY
+		{
+			REPLYHEADER header;
+			uint32 result;
+			uint32 unknown2;
+			uint32 unknown3;
+			uint32 unknown4;
+		};
 
 		uint32 InvokeOpen(uint32*, uint32, uint32*, uint32, uint8*);
 		uint32 InvokeClose(uint32*, uint32, uint32*, uint32, uint8*);
@@ -246,6 +267,7 @@ namespace Iop
 		uint32 InvokeMount(uint32*, uint32, uint32*, uint32, uint8*);
 		uint32 InvokeUmount(uint32*, uint32, uint32*, uint32, uint8*);
 		uint32 InvokeDevctl(uint32*, uint32, uint32*, uint32, uint8*);
+		uint32 InvokeIoctl2(uint32*, uint32, uint32*, uint32, uint8*);
 
 		void CopyHeader(REPLYHEADER&, const COMMANDHEADER&);
 		void SendPendingReply(uint8*);

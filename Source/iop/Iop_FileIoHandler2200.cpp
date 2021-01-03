@@ -23,6 +23,8 @@ using namespace Iop;
 #define DEVCTL_HDD_STATUS 0x4807
 #define DEVCTL_HDD_FREESECTOR 0x480A
 
+#define IOCTL_HDD_ADDSUB 0x6801
+
 CFileIoHandler2200::CFileIoHandler2200(CIoman* ioman, CSifMan& sifMan)
     : CHandler(ioman)
     , m_sifMan(sifMan)
@@ -64,6 +66,9 @@ bool CFileIoHandler2200::Invoke(uint32 method, uint32* args, uint32 argsSize, ui
 		break;
 	case COMMANDID_DEVCTL:
 		*ret = InvokeDevctl(args, argsSize, ret, retSize, ram);
+		break;
+	case COMMANDID_IOCTL2:
+		*ret = InvokeIoctl2(args, argsSize, ret, retSize, ram);
 		break;
 	case 255:
 		//Not really sure about that...
@@ -417,6 +422,39 @@ uint32 CFileIoHandler2200::InvokeDevctl(uint32* args, uint32 argsSize, uint32* r
 		reply.unknown3 = 0;
 		reply.unknown4 = 0;
 		memcpy(ram + m_resultPtr[0], &reply, sizeof(DEVCTLREPLY));
+	}
+
+	SendSifReply();
+	return 1;
+}
+
+uint32 CFileIoHandler2200::InvokeIoctl2(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, uint8* ram)
+{
+	assert(argsSize >= 0x420);
+	assert(retSize == 4);
+	auto command = reinterpret_cast<IOCTL2COMMAND*>(args);
+
+	switch(command->cmdId)
+	{
+	case IOCTL_HDD_ADDSUB:
+		CLog::GetInstance().Print(LOG_NAME, "IoCtl2 -> HddAddSub(%s);\r\n", command->inputBuffer);
+		break;
+	default:
+		CLog::GetInstance().Warn(LOG_NAME, "IoCtl2 -> Unknown(cmd = %08X);\r\n", command->cmdId);
+		break;
+	}
+	
+	if(m_resultPtr[0] != 0)
+	{
+		//Send response
+		IOCTL2REPLY reply;
+		reply.header.commandId = COMMANDID_IOCTL2;
+		CopyHeader(reply.header, command->header);
+		reply.result = 0;
+		reply.unknown2 = 0;
+		reply.unknown3 = 0;
+		reply.unknown4 = 0;
+		memcpy(ram + m_resultPtr[0], &reply, sizeof(IOCTL2REPLY));
 	}
 
 	SendSifReply();
