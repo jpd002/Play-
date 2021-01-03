@@ -17,7 +17,7 @@ CMemoryViewTable::CMemoryViewTable(QWidget* parent)
 	m_model = new CQtMemoryViewModel(this);
 
 	setModel(m_model);
-
+	SetBytesPerLine(32);
 	// prepare monospaced font
 	QFont fixedFont = QFont("Courier New", 8);
 	setFont(fixedFont);
@@ -197,7 +197,7 @@ void CMemoryViewTable::AutoColumn()
 	int valueCell = m_cwidth * (m_model->CharsPerUnit() + 2);
 	int asciiCell = m_cwidth * bytesPerUnit;
 
-	int i = 0x2;
+	int i = 16;
 	while(true)
 	{
 		int valueCellsWidth = i * valueCell;
