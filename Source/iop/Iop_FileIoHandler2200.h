@@ -51,6 +51,7 @@ namespace Iop
 			COMMANDID_SEEK = 4,
 			COMMANDID_DOPEN = 9,
 			COMMANDID_GETSTAT = 12,
+			COMMANDID_FORMAT = 14,
 			COMMANDID_CCODE = 18,
 			COMMANDID_MOUNT = 20,
 			COMMANDID_UMOUNT = 21,
@@ -108,6 +109,15 @@ namespace Iop
 			char fileName[256];
 		};
 
+		struct FORMATCOMMAND
+		{
+			COMMANDHEADER header;
+			char device[0x400];
+			char blockDevice[0x400];
+			char args[0x400];
+			uint32 argsSize;
+		};
+		
 		struct CCODECOMMAND
 		{
 			COMMANDHEADER header;
@@ -212,6 +222,15 @@ namespace Iop
 			Ioman::STAT stat;
 		};
 
+		struct FORMATREPLY
+		{
+			REPLYHEADER header;
+			uint32 result;
+			uint32 unknown2;
+			uint32 unknown3;
+			uint32 unknown4;
+		};
+
 		struct CCODEREPLY
 		{
 			REPLYHEADER header;
@@ -263,6 +282,7 @@ namespace Iop
 		uint32 InvokeSeek(uint32*, uint32, uint32*, uint32, uint8*);
 		uint32 InvokeDopen(uint32*, uint32, uint32*, uint32, uint8*);
 		uint32 InvokeGetStat(uint32*, uint32, uint32*, uint32, uint8*);
+		uint32 InvokeFormat(uint32*, uint32, uint32*, uint32, uint8*);
 		uint32 InvokeCcode(uint32*, uint32, uint32*, uint32, uint8*);
 		uint32 InvokeMount(uint32*, uint32, uint32*, uint32, uint8*);
 		uint32 InvokeUmount(uint32*, uint32, uint32*, uint32, uint8*);

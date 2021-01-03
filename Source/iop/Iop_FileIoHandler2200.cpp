@@ -55,6 +55,9 @@ bool CFileIoHandler2200::Invoke(uint32 method, uint32* args, uint32 argsSize, ui
 	case COMMANDID_GETSTAT:
 		*ret = InvokeGetStat(args, argsSize, ret, retSize, ram);
 		break;
+	case COMMANDID_FORMAT:
+		*ret = InvokeFormat(args, argsSize, ret, retSize, ram);
+		break;
 	case COMMANDID_CCODE:
 		*ret = InvokeCcode(args, argsSize, ret, retSize, ram);
 		break;
@@ -284,6 +287,34 @@ uint32 CFileIoHandler2200::InvokeGetStat(uint32* args, uint32 argsSize, uint32* 
 		reply.dstPtr = command->statBuffer;
 		reply.stat = stat;
 		memcpy(ram + m_resultPtr[0], &reply, sizeof(GETSTATREPLY));
+	}
+
+	SendSifReply();
+	return 1;
+}
+
+uint32 CFileIoHandler2200::InvokeFormat(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, uint8* ram)
+{
+	assert(argsSize >= 0xC10);
+	assert(retSize == 4);
+	
+	auto command = reinterpret_cast<FORMATCOMMAND*>(args);
+	
+	//This is a stub and is not implemented yet
+	CLog::GetInstance().Print(LOG_NAME, "Format(device = '%s', blockDevice = '%s', args, argsSize = %d);\r\n",
+							  command->device, command->blockDevice, command->argsSize);
+	
+	//Send response
+	if(m_resultPtr[0] != 0)
+	{
+		FORMATREPLY reply;
+		reply.header.commandId = COMMANDID_FORMAT;
+		CopyHeader(reply.header, command->header);
+		reply.result = 0;
+		reply.unknown2 = 0;
+		reply.unknown3 = 0;
+		reply.unknown4 = 0;
+		memcpy(ram + m_resultPtr[0], &reply, sizeof(FORMATREPLY));
 	}
 
 	SendSifReply();
