@@ -8,15 +8,18 @@
 #include "string_format.h"
 #include "lexical_cast_ex.h"
 
-CQtDisAsmTableModel::CQtDisAsmTableModel(QObject* parent, CVirtualMachine& virtualMachine, CMIPS* context, int memSize)
+CQtDisAsmTableModel::CQtDisAsmTableModel(QTableView* parent, CVirtualMachine& virtualMachine, CMIPS* context, int memSize, DISASM_TYPE disAsmType)
     : QAbstractTableModel(parent)
     , m_virtualMachine(virtualMachine)
     , m_ctx(context)
     , m_instructionSize(4)
-    , m_disAsmType(DISASM_TYPE::DISASM_STANDARD)
+    , m_disAsmType(disAsmType)
     , m_memSize(memSize)
 {
-	m_headers = {"S", "Address", "R", "Instr", "I-Mn", "I-Op", "Target", "Comments"};
+	m_headers = {"S", "Address", "R", "Instr", "I-Mn", "I-Op", "Target/Comments"};
+
+	auto target_comment_column_index = ((m_disAsmType == CQtDisAsmTableModel::DISASM_STANDARD) ? 3 : 5) + 3;
+	parent->setItemDelegateForColumn(target_comment_column_index, new TableColumnDelegateTargetComment(parent));
 
 	auto size = m_start_line.size();
 	auto start = 2;
@@ -144,7 +147,12 @@ QVariant CQtDisAsmTableModel::data(const QModelIndex& index, int role) const
 			return GetInstructionDetails(subindex, address).c_str();
 		else if(subindex == size)
 			return GetInstructionMetadata(address).c_str();
-		else if(subindex == size + 1)
+	}
+	if(role == Qt::UserRole)
+	{
+		auto size = (m_disAsmType == DISASM_TYPE::DISASM_STANDARD) ? 3 : 5;
+		auto subindex = index.column() - 3;
+		if(subindex == size)
 			return m_ctx->m_Comments.Find(address);
 	}
 	if(role == Qt::SizeHintRole)
@@ -225,7 +233,8 @@ QVariant CQtDisAsmTableModel::headerData(int section, Qt::Orientation orientatio
 
 void CQtDisAsmTableModel::Redraw()
 {
-	emit QAbstractTableModel::dataChanged(index(0, 0), index(rowCount(), columnCount()));
+	emit QAbstractTableModel::beginResetModel();
+	emit QAbstractTableModel::endResetModel();
 }
 
 void CQtDisAsmTableModel::Redraw(uint32 address)
@@ -299,4 +308,46 @@ std::string CQtDisAsmTableModel::GetInstructionMetadata(uint32 address) const
 		}
 	}
 	return disAsm.c_str();
+}
+
+TableColumnDelegateTargetComment::TableColumnDelegateTargetComment(QObject* parent)
+    : QStyledItemDelegate(parent)
+{
+}
+
+void TableColumnDelegateTargetComment::paint(QPainter* painter, const QStyleOptionViewItem& option, const QModelIndex& index) const
+{
+	QString target = index.data(Qt::DisplayRole).toString();
+	QString comment = index.data(Qt::UserRole).toString();
+	if(!target.isEmpty() || !comment.isEmpty())
+	{
+		if(!comment.isEmpty())
+		{
+			comment = ";" + comment;
+		}
+
+		painter->save();
+		if((option.state & QStyle::State_Selected) && (option.state & QStyle::State_Active))
+		{
+			painter->setPen(Qt::white);
+			painter->fillRect(option.rect, option.palette.highlight());
+		}
+		else if((option.state & QStyle::State_Selected) && !(option.state & QStyle::State_HasFocus))
+		{
+			painter->fillRect(option.rect, option.palette.background());
+		}
+
+		const QString html = QString("<html><target>%1</target> <comment>%2</comment></html>").arg(target).arg(comment);
+		QTextDocument doc;
+		doc.setTextWidth(option.rect.width());
+		doc.setDefaultStyleSheet("target {color : blue;} comment {color : red;}");
+		doc.setHtml(html);
+
+		QRect clip(0, 0, option.rect.width(), option.rect.height());
+		painter->translate(option.rect.left(), option.rect.top());
+		doc.drawContents(painter, clip);
+		painter->restore();
+		return;
+	}
+	QStyledItemDelegate::paint(painter, option, index);
 }

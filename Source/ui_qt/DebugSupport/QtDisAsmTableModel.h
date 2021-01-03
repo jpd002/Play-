@@ -2,6 +2,13 @@
 
 #include <QAbstractTableModel>
 #include <QPixmap>
+#include <QTableView>
+#include <QTextDocument>
+#include <QStyledItemDelegate>
+#include <QApplication>
+#include <QPainter>
+#include <QStyleOptionViewItem>
+#include <QModelIndex>
 
 #include "MIPS.h"
 #include "VirtualMachineStateView.h"
@@ -15,7 +22,7 @@ public:
 		DISASM_STANDARD,
 		DISASM_VU
 	};
-	CQtDisAsmTableModel(QObject* parent, CVirtualMachine&, CMIPS*, int);
+	CQtDisAsmTableModel(QTableView* parent, CVirtualMachine&, CMIPS*, int, DISASM_TYPE = DISASM_TYPE::DISASM_STANDARD);
 	~CQtDisAsmTableModel() = default;
 
 	int rowCount(const QModelIndex& parent = QModelIndex()) const Q_DECL_OVERRIDE;
@@ -45,4 +52,13 @@ protected:
 	QPixmap m_arrow = QPixmap(22, 22);
 	QPixmap m_breakpoint = QPixmap(22, 22);
 	QPixmap m_breakpoint_arrow = QPixmap(22, 22);
+};
+
+class TableColumnDelegateTargetComment : public QStyledItemDelegate
+{
+	Q_OBJECT
+public:
+	explicit TableColumnDelegateTargetComment(QObject* = nullptr);
+
+	void paint(QPainter*, const QStyleOptionViewItem&, const QModelIndex&) const Q_DECL_OVERRIDE;
 };

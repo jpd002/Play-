@@ -2,6 +2,7 @@
 
 #include <QAbstractTableModel>
 #include <QPixmap>
+#include <QTableView>
 
 #include "QtDisAsmTableModel.h"
 #include "MIPS.h"
@@ -11,7 +12,7 @@ class CQtDisAsmVuTableModel : public CQtDisAsmTableModel
 {
 	Q_OBJECT
 public:
-	CQtDisAsmVuTableModel(QObject* parent, CVirtualMachine&, CMIPS*, int);
+	CQtDisAsmVuTableModel(QTableView* parent, CVirtualMachine&, CMIPS*, int);
 	~CQtDisAsmVuTableModel() = default;
 
 	virtual std::string GetInstructionDetails(int, uint32) const override;

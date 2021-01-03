@@ -5,13 +5,12 @@
 #include "string_format.h"
 #include "lexical_cast_ex.h"
 
-CQtDisAsmVuTableModel::CQtDisAsmVuTableModel(QObject* parent, CVirtualMachine& virtualMachine, CMIPS* context, int memSize)
-    : CQtDisAsmTableModel(parent, virtualMachine, context, memSize)
+CQtDisAsmVuTableModel::CQtDisAsmVuTableModel(QTableView* parent, CVirtualMachine& virtualMachine, CMIPS* context, int memSize)
+    : CQtDisAsmTableModel(parent, virtualMachine, context, memSize, DISASM_TYPE::DISASM_VU)
 {
-	m_headers = {"S", "Address", "R", "Instr", "LI-Mn", "LI-Op", "UI-Mn", "UI-Op", "Target", "Comments"};
+	m_headers = {"S", "Address", "R", "Instr", "LI-Mn", "LI-Op", "UI-Mn", "UI-Op", "Target/Comments"};
 
 	m_instructionSize = 8;
-	m_disAsmType = DISASM_TYPE::DISASM_VU;
 }
 
 std::string CQtDisAsmVuTableModel::GetInstructionDetails(int index, uint32 address) const
