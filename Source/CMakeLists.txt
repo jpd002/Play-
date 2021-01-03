@@ -230,6 +230,8 @@ set(COMMON_SRC_FILES
 	iop/ArgumentIterator.h
 	iop/DirectoryDevice.cpp
 	iop/DirectoryDevice.h
+	iop/HardDiskDevice.cpp
+	iop/HardDiskDevice.h
 	iop/Ioman_Defs.h
 	iop/Ioman_Device.h
 	iop/Ioman_ScopedFile.cpp
