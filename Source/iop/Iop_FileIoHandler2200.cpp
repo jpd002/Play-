@@ -255,7 +255,7 @@ uint32 CFileIoHandler2200::InvokeDopen(uint32* args, uint32 argsSize, uint32* re
 		reply.unknown2 = 0;
 		reply.unknown3 = 0;
 		reply.unknown4 = 0;
-		memcpy(ram + m_resultPtr[0], &reply, sizeof(SEEKREPLY));
+		memcpy(ram + m_resultPtr[0], &reply, sizeof(DOPENREPLY));
 	}
 
 	SendSifReply();
