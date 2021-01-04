@@ -497,7 +497,7 @@ uint32 CFileIoHandler2200::InvokeDevctl(uint32* args, uint32 argsSize, uint32* r
 		output[0] = 0x400000; //Number of sectors
 		break;
 	default:
-		CLog::GetInstance().Warn(LOG_NAME, "DevCtl -> Unknown(cmd = %08X);\r\n", command->cmdId);
+		CLog::GetInstance().Warn(LOG_NAME, "DevCtl -> Unknown(cmd = 0x%08X);\r\n", command->cmdId);
 		break;
 	}
 
