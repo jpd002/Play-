@@ -137,8 +137,8 @@ void CSysclib::Invoke(CMIPS& context, unsigned int functionId)
 		break;
 	case 11:
 		context.m_State.nGPR[CMIPS::V0].nD0 = static_cast<int32>(__memcmp(
-		    reinterpret_cast<void*>(&m_ram[context.m_State.nGPR[CMIPS::A0].nV0]),
-		    reinterpret_cast<void*>(&m_ram[context.m_State.nGPR[CMIPS::A1].nV0]),
+		    context.m_State.nGPR[CMIPS::A0].nV0,
+		    context.m_State.nGPR[CMIPS::A1].nV0,
 		    context.m_State.nGPR[CMIPS::A2].nV0));
 		break;
 	case 12:
@@ -371,9 +371,11 @@ uint32 CSysclib::__look_ctype_table(uint32 character)
 	return ctype_table[character & 0x7F];
 }
 
-uint32 CSysclib::__memcmp(const void* dst, const void* src, uint32 length)
+uint32 CSysclib::__memcmp(uint32 ptr1, uint32 ptr2, uint32 length)
 {
-	return static_cast<uint32>(memcmp(dst, src, length));
+	auto mem1 = reinterpret_cast<const void*>(GetPtr(ptr1, length));
+	auto mem2 = reinterpret_cast<const void*>(GetPtr(ptr2, length));
+	return static_cast<uint32>(memcmp(mem1, mem2, length));
 }
 
 void CSysclib::__memcpy(void* dest, const void* src, unsigned int length)

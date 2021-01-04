@@ -38,7 +38,7 @@ namespace Iop
 		int32 __setjmp(CMIPS&);
 		void __longjmp(CMIPS&);
 		uint32 __look_ctype_table(uint32);
-		uint32 __memcmp(const void*, const void*, uint32);
+		uint32 __memcmp(uint32, uint32, uint32);
 		void __memcpy(void*, const void*, unsigned int);
 		void __memmove(void*, const void*, uint32);
 		uint32 __memset(uint32, uint32, uint32);
