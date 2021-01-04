@@ -16,6 +16,7 @@ using namespace Iop;
 #define FUNCTION_GETMODULEIDLIST "GetModuleIdList"
 #define FUNCTION_REFERMODULESTATUS "ReferModuleStatus"
 #define FUNCTION_SEARCHMODULEBYNAME "SearchModuleByName"
+#define FUNCTION_ALLOCLOADMEMORY "AllocLoadMemory"
 
 CModload::CModload(CIopBios& bios, uint8* ram)
     : m_bios(bios)
@@ -52,6 +53,9 @@ std::string CModload::GetFunctionName(unsigned int functionId) const
 		break;
 	case 22:
 		return FUNCTION_SEARCHMODULEBYNAME;
+		break;
+	case 28:
+		return FUNCTION_ALLOCLOADMEMORY;
 		break;
 	default:
 		return "unknown";
@@ -102,6 +106,12 @@ void CModload::Invoke(CMIPS& context, unsigned int functionId)
 	case 22:
 		context.m_State.nGPR[CMIPS::V0].nD0 = SearchModuleByName(
 		    context.m_State.nGPR[CMIPS::A0].nV0);
+		break;
+	case 28:
+		context.m_State.nGPR[CMIPS::V0].nD0 = AllocLoadMemory(
+		    context.m_State.nGPR[CMIPS::A0].nV0,
+		    context.m_State.nGPR[CMIPS::A1].nV0,
+		    context.m_State.nGPR[CMIPS::A2].nV0);
 		break;
 	default:
 		CLog::GetInstance().Warn(LOG_NAME, "(%08X): Unknown function (%d) called.\r\n",
@@ -186,4 +196,13 @@ int32 CModload::SearchModuleByName(uint32 moduleNamePtr)
 	CLog::GetInstance().Print(LOG_NAME, FUNCTION_SEARCHMODULEBYNAME "(moduleNamePtr = %s);\r\n",
 	                          PrintStringParameter(m_ram, moduleNamePtr).c_str());
 	return KERNEL_RESULT_ERROR_UNKNOWN_MODULE;
+}
+
+int32 CModload::AllocLoadMemory(uint32 unknown1, uint32 size, uint32 unknown2)
+{
+	CLog::GetInstance().Print(LOG_NAME, FUNCTION_ALLOCLOADMEMORY "(unknown1 = %d, size = 0x%08X, unknown2 = %d);\r\n",
+							  unknown1, size, unknown2);
+	auto sysmem = m_bios.GetSysmem();
+	uint32 result = sysmem->AllocateMemory(size, 0, 0);
+	return result;
 }

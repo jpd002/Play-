@@ -24,6 +24,7 @@ namespace Iop
 		uint32 GetModuleIdList(uint32, uint32, uint32);
 		int32 ReferModuleStatus(uint32, uint32);
 		int32 SearchModuleByName(uint32);
+		int32 AllocLoadMemory(uint32, uint32, uint32);
 
 		CIopBios& m_bios;
 		uint8* m_ram = nullptr;
