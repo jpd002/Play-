@@ -387,7 +387,6 @@ const QModelIndex CQtDisAsmTableModel::TranslateAddressToModelIndex(uint32 addre
 	return index(tAddress / m_instructionSize, 0);
 }
 
-
 TableColumnDelegateTargetComment::TableColumnDelegateTargetComment(QObject* parent)
     : QStyledItemDelegate(parent)
 {

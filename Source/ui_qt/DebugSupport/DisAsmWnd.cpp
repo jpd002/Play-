@@ -221,7 +221,7 @@ void CDisAsmWnd::SetAddress(uint32 address)
 
 void CDisAsmWnd::SetCenterAtAddress(uint32 address)
 {
-	auto addressRow =m_model->TranslateAddressToModelIndex(address);
+	auto addressRow = m_model->TranslateAddressToModelIndex(address);
 	if(!isAddressInView(addressRow))
 		scrollTo(addressRow, QAbstractItemView::PositionAtCenter);
 
@@ -232,7 +232,7 @@ void CDisAsmWnd::SetSelectedAddress(uint32 address)
 {
 	m_selectionEnd = -1;
 	m_selected = address;
-	auto index =m_model->TranslateAddressToModelIndex(address);
+	auto index = m_model->TranslateAddressToModelIndex(address);
 	if(!isAddressInView(index))
 		scrollTo(index, QAbstractItemView::PositionAtTop);
 	setCurrentIndex(index);
