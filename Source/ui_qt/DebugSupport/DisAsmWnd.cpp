@@ -213,7 +213,7 @@ bool CDisAsmWnd::isAddressInView(QModelIndex& index) const
 
 void CDisAsmWnd::SetAddress(uint32 address)
 {
-	auto addressRow = m_model->index(address / m_instructionSize, 0);
+	auto addressRow = m_model->TranslateAddressToModelIndex(address);
 	if(!isAddressInView(addressRow))
 		scrollTo(addressRow, QAbstractItemView::PositionAtTop);
 	m_address = address;
@@ -221,7 +221,7 @@ void CDisAsmWnd::SetAddress(uint32 address)
 
 void CDisAsmWnd::SetCenterAtAddress(uint32 address)
 {
-	auto addressRow = m_model->index(address / m_instructionSize, 0);
+	auto addressRow =m_model->TranslateAddressToModelIndex(address);
 	if(!isAddressInView(addressRow))
 		scrollTo(addressRow, QAbstractItemView::PositionAtCenter);
 
@@ -232,7 +232,7 @@ void CDisAsmWnd::SetSelectedAddress(uint32 address)
 {
 	m_selectionEnd = -1;
 	m_selected = address;
-	auto index = m_model->index(address / m_instructionSize, 0);
+	auto index =m_model->TranslateAddressToModelIndex(address);
 	if(!isAddressInView(index))
 		scrollTo(index, QAbstractItemView::PositionAtTop);
 	setCurrentIndex(index);
@@ -484,8 +484,8 @@ void CDisAsmWnd::selectionChanged()
 	auto indexes = selectionModel()->selectedIndexes();
 	if(!indexes.empty())
 	{
-		auto selected = indexes.first().row() * m_instructionSize;
-		auto selectionEnd = indexes.last().row() * m_instructionSize;
+		auto selected = m_model->TranslateModelIndexToAddress(indexes.first());
+		auto selectionEnd = m_model->TranslateModelIndexToAddress(indexes.last());
 		m_selected = selected;
 		m_selectionEnd = (selectionEnd == selected) ? -1 : selectionEnd;
 	}
@@ -495,7 +495,7 @@ void CDisAsmWnd::OnCopy()
 {
 	std::string text;
 	auto selectionRange = GetSelectionRange();
-	for(uint32 address = selectionRange.first; address <= selectionRange.second; address += m_instructionSize)
+	for(uint32 address = selectionRange.first; address <= selectionRange.second; address = m_model->TranslateAddress(address + m_instructionSize))
 	{
 		if(address != selectionRange.first)
 		{
@@ -540,7 +540,7 @@ std::string CDisAsmWnd::GetInstructionDetailsText(uint32 address)
 
 std::string CDisAsmWnd::GetInstructionDetailsTextVu(uint32 address)
 {
-	assert((address & 0x07) == 0);
+	// assert((address & 0x07) == 0);
 
 	uint32 lowerInstruction = GetInstruction(address + 0);
 	uint32 upperInstruction = GetInstruction(address + 4);

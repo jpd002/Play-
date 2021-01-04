@@ -126,7 +126,7 @@ int CQtDisAsmTableModel::columnCount(const QModelIndex& /*parent*/) const
 QVariant CQtDisAsmTableModel::data(const QModelIndex& index, int role) const
 {
 	// "S", "Address", "R", "I-Mn", "I-Op", "Name",
-	uint32 address = (index.row() * m_instructionSize);
+	uint32 address = TranslateModelIndexToAddress(index);
 	if(role == Qt::DisplayRole)
 	{
 		switch(index.column())
@@ -309,6 +309,36 @@ std::string CQtDisAsmTableModel::GetInstructionMetadata(uint32 address) const
 	}
 	return disAsm.c_str();
 }
+
+uint32 CQtDisAsmTableModel::TranslateAddress(uint32 address) const
+{
+	uint32 tAddress = address;
+	if(tAddress > 0x01FFFFFF && tAddress < 0x1FC00000)
+	{
+		tAddress -= 0x01FFFFFF;
+		tAddress += 0x1FC00000;
+		tAddress -= 0x1;
+	}
+	return tAddress;
+}
+
+uint32 CQtDisAsmTableModel::TranslateModelIndexToAddress(const QModelIndex& index) const
+{
+	return TranslateAddress(index.row() * m_instructionSize);
+}
+
+const QModelIndex CQtDisAsmTableModel::TranslateAddressToModelIndex(uint32 address) const
+{
+	uint32 tAddress = address;
+	if(tAddress > 0x1FC00000)
+	{
+		tAddress -= 0x1FC00000;
+		tAddress += 0x01FFFFFF;
+		tAddress += 0x1;
+	}
+	return index(tAddress / m_instructionSize, 0);
+}
+
 
 TableColumnDelegateTargetComment::TableColumnDelegateTargetComment(QObject* parent)
     : QStyledItemDelegate(parent)

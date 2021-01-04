@@ -35,6 +35,10 @@ public:
 	virtual std::string GetInstructionDetails(int, uint32) const;
 	std::string GetInstructionMetadata(uint32) const;
 
+	uint32 TranslateAddress(uint32) const;
+	uint32 TranslateModelIndexToAddress(const QModelIndex&) const;
+	const QModelIndex TranslateAddressToModelIndex(uint32) const;
+
 protected:
 	QVariant headerData(int section, Qt::Orientation orientation, int role) const Q_DECL_OVERRIDE;
 

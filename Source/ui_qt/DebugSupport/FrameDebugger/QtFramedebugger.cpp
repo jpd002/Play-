@@ -32,7 +32,7 @@ QtFramedebugger::QtFramedebugger(QWidget* parent)
 	m_gs->SetLoggingEnabled(false);
 	m_gs->Initialize();
 	m_gs->Reset();
-	CHECKGLERROR();
+	// CHECKGLERROR();
 
 	m_gsContextView0 = std::make_unique<CGsContextView>(this, ui->context0Buffer, ui->fitContext1Button, ui->saveContext1, m_gs.get(), 0);
 	m_gsContextView1 = std::make_unique<CGsContextView>(this, ui->context1Buffer, ui->fitContext2Button, ui->saveContext2, m_gs.get(), 1);
