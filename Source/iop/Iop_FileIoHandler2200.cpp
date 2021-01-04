@@ -59,6 +59,12 @@ bool CFileIoHandler2200::Invoke(uint32 method, uint32* args, uint32 argsSize, ui
 	case COMMANDID_DOPEN:
 		*ret = InvokeDopen(args, argsSize, ret, retSize, ram);
 		break;
+	case COMMANDID_DCLOSE:
+		*ret = InvokeDclose(args, argsSize, ret, retSize, ram);
+		break;
+	case COMMANDID_DREAD:
+		*ret = InvokeDread(args, argsSize, ret, retSize, ram);
+		break;
 	case COMMANDID_GETSTAT:
 		*ret = InvokeGetStat(args, argsSize, ret, retSize, ram);
 		break;
@@ -301,6 +307,55 @@ uint32 CFileIoHandler2200::InvokeDopen(uint32* args, uint32 argsSize, uint32* re
 		reply.unknown3 = 0;
 		reply.unknown4 = 0;
 		memcpy(ram + m_resultPtr[0], &reply, sizeof(DOPENREPLY));
+	}
+
+	SendSifReply();
+	return 1;
+}
+
+uint32 CFileIoHandler2200::InvokeDclose(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, uint8* ram)
+{
+	assert(argsSize >= 20);
+	assert(retSize == 4);
+	auto command = reinterpret_cast<DCLOSECOMMAND*>(args);
+	auto result = m_ioman->Dclose(command->fd);
+
+	//Send response
+	if(m_resultPtr[0] != 0)
+	{
+		DCLOSEREPLY reply;
+		reply.header.commandId = COMMANDID_DCLOSE;
+		CopyHeader(reply.header, command->header);
+		reply.result = result;
+		reply.unknown2 = 0;
+		reply.unknown3 = 0;
+		reply.unknown4 = 0;
+		memcpy(ram + m_resultPtr[0], &reply, sizeof(DCLOSEREPLY));
+	}
+
+	SendSifReply();
+	return 1;
+}
+
+uint32 CFileIoHandler2200::InvokeDread(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, uint8* ram)
+{
+	assert(argsSize >= 32);
+	assert(retSize == 4);
+	auto command = reinterpret_cast<DREADCOMMAND*>(args);
+	Ioman::DIRENTRY dirEntry;
+	auto result = m_ioman->Dread(command->fd, &dirEntry);
+
+	//Send response
+	if(m_resultPtr[0] != 0)
+	{
+		DREADREPLY reply;
+		reply.header.commandId = COMMANDID_DREAD;
+		CopyHeader(reply.header, command->header);
+		reply.result = result;
+		reply.dirEntryPtr = command->dirEntryPtr;
+		reply.unknown3 = 0;
+		reply.unknown4 = 0;
+		memcpy(ram + m_resultPtr[0], &reply, sizeof(DREADREPLY));
 	}
 
 	SendSifReply();

@@ -51,6 +51,8 @@ namespace Iop
 			COMMANDID_WRITE = 3,
 			COMMANDID_SEEK = 4,
 			COMMANDID_DOPEN = 9,
+			COMMANDID_DCLOSE = 10,
+			COMMANDID_DREAD = 11,
 			COMMANDID_GETSTAT = 12,
 			COMMANDID_FORMAT = 14,
 			COMMANDID_CCODE = 18,
@@ -112,6 +114,19 @@ namespace Iop
 		{
 			COMMANDHEADER header;
 			char dirName[256];
+		};
+
+		struct DCLOSECOMMAND
+		{
+			COMMANDHEADER header;
+			uint32 fd;
+		};
+
+		struct DREADCOMMAND
+		{
+			COMMANDHEADER header;
+			uint32 fd;
+			uint32 dirEntryPtr;
 		};
 
 		struct GETSTATCOMMAND
@@ -242,6 +257,24 @@ namespace Iop
 			uint32 unknown4;
 		};
 
+		struct DCLOSEREPLY
+		{
+			REPLYHEADER header;
+			uint32 result;
+			uint32 unknown2;
+			uint32 unknown3;
+			uint32 unknown4;
+		};
+
+		struct DREADREPLY
+		{
+			REPLYHEADER header;
+			uint32 result;
+			uint32 dirEntryPtr;
+			uint32 unknown3;
+			uint32 unknown4;
+		};
+
 		struct GETSTATREPLY
 		{
 			REPLYHEADER header;
@@ -319,6 +352,8 @@ namespace Iop
 		uint32 InvokeWrite(uint32*, uint32, uint32*, uint32, uint8*);
 		uint32 InvokeSeek(uint32*, uint32, uint32*, uint32, uint8*);
 		uint32 InvokeDopen(uint32*, uint32, uint32*, uint32, uint8*);
+		uint32 InvokeDclose(uint32*, uint32, uint32*, uint32, uint8*);
+		uint32 InvokeDread(uint32*, uint32, uint32*, uint32, uint8*);
 		uint32 InvokeGetStat(uint32*, uint32, uint32*, uint32, uint8*);
 		uint32 InvokeFormat(uint32*, uint32, uint32*, uint32, uint8*);
 		uint32 InvokeCcode(uint32*, uint32, uint32*, uint32, uint8*);
