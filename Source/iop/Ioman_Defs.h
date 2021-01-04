@@ -15,10 +15,15 @@ namespace Iop
 			uint8 lastAccessTime[8];
 			uint8 lastModificationTime[8];
 			uint32 hiSize;
-			//Reserved (private) fields to be used in later versions of IOMAN
-			//uint32 reserved[6];
 		};
 		static_assert(sizeof(STAT) == 40, "STAT structure must be 40 bytes long.");
+
+		//Same as above, except for added reserved fields (used in later versions of IOMAN)
+		struct STATEX : public STAT
+		{
+			uint32 reserved[6];
+		};
+		static_assert(sizeof(STATEX) == 64, "STATEX structure must be 64 bytes long.");
 
 		struct DIRENTRY
 		{

@@ -71,6 +71,9 @@ bool CFileIoHandler2200::Invoke(uint32 method, uint32* args, uint32 argsSize, ui
 	case COMMANDID_GETSTAT:
 		*ret = InvokeGetStat(args, argsSize, ret, retSize, ram);
 		break;
+	case COMMANDID_CHSTAT:
+		*ret = InvokeChstat(args, argsSize, ret, retSize, ram);
+		break;
 	case COMMANDID_FORMAT:
 		*ret = InvokeFormat(args, argsSize, ret, retSize, ram);
 		break;
@@ -405,6 +408,32 @@ uint32 CFileIoHandler2200::InvokeGetStat(uint32* args, uint32 argsSize, uint32* 
 		reply.dstPtr = command->statBuffer;
 		reply.stat = stat;
 		memcpy(ram + m_resultPtr[0], &reply, sizeof(GETSTATREPLY));
+	}
+
+	SendSifReply();
+	return 1;
+}
+
+uint32 CFileIoHandler2200::InvokeChstat(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, uint8* ram)
+{
+	assert(retSize == 4);
+	auto command = reinterpret_cast<CHSTATCOMMAND*>(args);
+	
+	CLog::GetInstance().Print(LOG_NAME, "Chstat('%s', %d);\r\n", command->path, command->flags);
+
+	auto result = 0;
+
+	//Send response
+	if(m_resultPtr[0] != 0)
+	{
+		OPENREPLY reply;
+		reply.header.commandId = COMMANDID_CHSTAT;
+		CopyHeader(reply.header, command->header);
+		reply.result = result;
+		reply.unknown2 = 0;
+		reply.unknown3 = 0;
+		reply.unknown4 = 0;
+		memcpy(ram + m_resultPtr[0], &reply, sizeof(OPENREPLY));
 	}
 
 	SendSifReply();
