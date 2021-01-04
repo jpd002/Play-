@@ -48,6 +48,7 @@ Framework::CStream* CDirectoryDevice::GetFile(uint32 accessType, const char* dev
 		mode = "r+b";
 		break;
 	case(OPEN_FLAG_RDWR | OPEN_FLAG_CREAT):
+	case(OPEN_FLAG_RDWR | OPEN_FLAG_CREAT | OPEN_FLAG_TRUNC):
 		mode = "w+b";
 		break;
 	default:
