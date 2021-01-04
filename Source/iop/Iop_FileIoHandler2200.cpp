@@ -56,6 +56,9 @@ bool CFileIoHandler2200::Invoke(uint32 method, uint32* args, uint32 argsSize, ui
 	case COMMANDID_SEEK:
 		*ret = InvokeSeek(args, argsSize, ret, retSize, ram);
 		break;
+	case COMMANDID_MKDIR:
+		*ret = InvokeMkdir(args, argsSize, ret, retSize, ram);
+		break;
 	case COMMANDID_DOPEN:
 		*ret = InvokeDopen(args, argsSize, ret, retSize, ram);
 		break;
@@ -282,6 +285,29 @@ uint32 CFileIoHandler2200::InvokeSeek(uint32* args, uint32 argsSize, uint32* ret
 		reply.unknown3 = 0;
 		reply.unknown4 = 0;
 		memcpy(ram + m_resultPtr[0], &reply, sizeof(SEEKREPLY));
+	}
+
+	SendSifReply();
+	return 1;
+}
+
+uint32 CFileIoHandler2200::InvokeMkdir(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, uint8* ram)
+{
+	assert(retSize == 4);
+	auto command = reinterpret_cast<MKDIRCOMMAND*>(args);
+	auto result = m_ioman->Mkdir(command->dirName);
+
+	//Send response
+	if(m_resultPtr[0] != 0)
+	{
+		MKDIRREPLY reply;
+		reply.header.commandId = COMMANDID_MKDIR;
+		CopyHeader(reply.header, command->header);
+		reply.result = result;
+		reply.unknown2 = 0;
+		reply.unknown3 = 0;
+		reply.unknown4 = 0;
+		memcpy(ram + m_resultPtr[0], &reply, sizeof(MKDIRREPLY));
 	}
 
 	SendSifReply();

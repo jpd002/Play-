@@ -50,6 +50,7 @@ namespace Iop
 			COMMANDID_READ = 2,
 			COMMANDID_WRITE = 3,
 			COMMANDID_SEEK = 4,
+			COMMANDID_MKDIR = 7,
 			COMMANDID_DOPEN = 9,
 			COMMANDID_DCLOSE = 10,
 			COMMANDID_DREAD = 11,
@@ -108,6 +109,13 @@ namespace Iop
 			uint32 fd;
 			uint32 offset;
 			uint32 whence;
+		};
+
+		struct MKDIRCOMMAND
+		{
+			COMMANDHEADER header;
+			uint32 mode;
+			char dirName[256];
 		};
 
 		struct DOPENCOMMAND
@@ -248,6 +256,15 @@ namespace Iop
 			uint32 unknown4;
 		};
 
+		struct MKDIRREPLY
+		{
+			REPLYHEADER header;
+			uint32 result;
+			uint32 unknown2;
+			uint32 unknown3;
+			uint32 unknown4;
+		};
+
 		struct DOPENREPLY
 		{
 			REPLYHEADER header;
@@ -351,6 +368,7 @@ namespace Iop
 		uint32 InvokeRead(uint32*, uint32, uint32*, uint32, uint8*);
 		uint32 InvokeWrite(uint32*, uint32, uint32*, uint32, uint8*);
 		uint32 InvokeSeek(uint32*, uint32, uint32*, uint32, uint8*);
+		uint32 InvokeMkdir(uint32*, uint32, uint32*, uint32, uint8*);
 		uint32 InvokeDopen(uint32*, uint32, uint32*, uint32, uint8*);
 		uint32 InvokeDclose(uint32*, uint32, uint32*, uint32, uint8*);
 		uint32 InvokeDread(uint32*, uint32, uint32*, uint32, uint8*);
