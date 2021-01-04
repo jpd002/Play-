@@ -64,6 +64,9 @@ bool CFileIoHandler2200::Invoke(uint32 method, uint32* args, uint32 argsSize, ui
 	case COMMANDID_CCODE:
 		*ret = InvokeCcode(args, argsSize, ret, retSize, ram);
 		break;
+	case COMMANDID_SYNC:
+		*ret = InvokeSync(args, argsSize, ret, retSize, ram);
+		break;
 	case COMMANDID_MOUNT:
 		*ret = InvokeMount(args, argsSize, ret, retSize, ram);
 		break;
@@ -377,6 +380,32 @@ uint32 CFileIoHandler2200::InvokeCcode(uint32* args, uint32 argsSize, uint32* re
 	SendSifReply();
 	//Not supported for now, return 0
 	return 0;
+}
+
+uint32 CFileIoHandler2200::InvokeSync(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, uint8* ram)
+{
+	assert(argsSize >= 0x414);
+	assert(retSize == 4);
+	auto command = reinterpret_cast<SYNCCOMMAND*>(args);
+	
+	//Seems deviceName can be either a string or a fd (FFX)
+	CLog::GetInstance().Print(LOG_NAME, "Sync(...);\r\n");
+
+	if(m_resultPtr[0] != 0)
+	{
+		//Send response
+		SYNCREPLY reply;
+		reply.header.commandId = COMMANDID_SYNC;
+		CopyHeader(reply.header, command->header);
+		reply.result = 0;
+		reply.unknown2 = 0;
+		reply.unknown3 = 0;
+		reply.unknown4 = 0;
+		memcpy(ram + m_resultPtr[0], &reply, sizeof(SYNCREPLY));
+	}
+
+	SendSifReply();
+	return 1;
 }
 
 uint32 CFileIoHandler2200::InvokeMount(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, uint8* ram)
