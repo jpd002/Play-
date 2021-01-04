@@ -48,6 +48,7 @@ namespace Iop
 			COMMANDID_OPEN = 0,
 			COMMANDID_CLOSE = 1,
 			COMMANDID_READ = 2,
+			COMMANDID_WRITE = 3,
 			COMMANDID_SEEK = 4,
 			COMMANDID_DOPEN = 9,
 			COMMANDID_GETSTAT = 12,
@@ -88,6 +89,16 @@ namespace Iop
 			uint32 size;
 		};
 
+		struct WRITECOMMAND
+		{
+			COMMANDHEADER header;
+			uint32 fd;
+			uint32 buffer;
+			uint32 size;
+			uint32 unalignedSize;
+			uint8 unalignedData[64];
+		};
+		
 		struct SEEKCOMMAND
 		{
 			COMMANDHEADER header;
@@ -196,6 +207,15 @@ namespace Iop
 			uint32 unknown4;
 		};
 
+		struct WRITEREPLY
+		{
+			REPLYHEADER header;
+			uint32 result;
+			uint32 unknown2;
+			uint32 unknown3;
+			uint32 unknown4;
+		};
+
 		struct SEEKREPLY
 		{
 			REPLYHEADER header;
@@ -279,6 +299,7 @@ namespace Iop
 		uint32 InvokeOpen(uint32*, uint32, uint32*, uint32, uint8*);
 		uint32 InvokeClose(uint32*, uint32, uint32*, uint32, uint8*);
 		uint32 InvokeRead(uint32*, uint32, uint32*, uint32, uint8*);
+		uint32 InvokeWrite(uint32*, uint32, uint32*, uint32, uint8*);
 		uint32 InvokeSeek(uint32*, uint32, uint32*, uint32, uint8*);
 		uint32 InvokeDopen(uint32*, uint32, uint32*, uint32, uint8*);
 		uint32 InvokeGetStat(uint32*, uint32, uint32*, uint32, uint8*);

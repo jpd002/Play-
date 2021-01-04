@@ -46,6 +46,9 @@ bool CFileIoHandler2200::Invoke(uint32 method, uint32* args, uint32 argsSize, ui
 	case COMMANDID_READ:
 		*ret = InvokeRead(args, argsSize, ret, retSize, ram);
 		break;
+	case COMMANDID_WRITE:
+		*ret = InvokeWrite(args, argsSize, ret, retSize, ram);
+		break;
 	case COMMANDID_SEEK:
 		*ret = InvokeSeek(args, argsSize, ret, retSize, ram);
 		break;
@@ -219,6 +222,33 @@ uint32 CFileIoHandler2200::InvokeRead(uint32* args, uint32 argsSize, uint32* ret
 	//work properly (probably because it causes EE threads to be rescheduled).
 	m_pendingReply.SetReply(reply);
 	m_pendingReply.fileId = command->fd;
+	return 1;
+}
+
+uint32 CFileIoHandler2200::InvokeWrite(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, uint8* ram)
+{
+	assert(argsSize >= 48);
+	assert(retSize == 4);
+	auto command = reinterpret_cast<WRITECOMMAND*>(args);
+	
+	assert(command->unalignedSize == 0);
+	uint32 writeAddress = command->buffer & (PS2::EE_RAM_SIZE - 1);
+	auto result = m_ioman->Write(command->fd, command->size, reinterpret_cast<const void*>(ram + writeAddress));
+
+	//Send response
+	if(m_resultPtr[0] != 0)
+	{
+		WRITEREPLY reply;
+		reply.header.commandId = COMMANDID_WRITE;
+		CopyHeader(reply.header, command->header);
+		reply.result = result;
+		reply.unknown2 = 0;
+		reply.unknown3 = 0;
+		reply.unknown4 = 0;
+		memcpy(ram + m_resultPtr[0], &reply, sizeof(WRITEREPLY));
+	}
+
+	SendSifReply();
 	return 1;
 }
 
