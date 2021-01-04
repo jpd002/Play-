@@ -276,8 +276,6 @@ uint32 CQtDisAsmTableModel::GetInstruction(uint32 address) const
 
 std::string CQtDisAsmTableModel::GetInstructionDetails(int index, uint32 address) const
 {
-	assert((address & 0x07) == 0);
-
 	uint32 instruction = GetInstruction(address);
 	switch(index)
 	{

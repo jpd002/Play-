@@ -540,8 +540,6 @@ std::string CDisAsmWnd::GetInstructionDetailsText(uint32 address)
 
 std::string CDisAsmWnd::GetInstructionDetailsTextVu(uint32 address)
 {
-	// assert((address & 0x07) == 0);
-
 	uint32 lowerInstruction = GetInstruction(address + 0);
 	uint32 upperInstruction = GetInstruction(address + 4);
 
