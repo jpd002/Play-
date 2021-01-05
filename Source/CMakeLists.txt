@@ -228,12 +228,14 @@ set(COMMON_SRC_FILES
 	input/PH_GenericInput.h
 	iop/ArgumentIterator.cpp
 	iop/ArgumentIterator.h
-	iop/DirectoryDevice.cpp
-	iop/DirectoryDevice.h
-	iop/HardDiskDevice.cpp
-	iop/HardDiskDevice.h
-	iop/ioman/PreferenceDirectoryDevice.h
+	iop/ioman/DirectoryDevice.cpp
+	iop/ioman/DirectoryDevice.h
+	iop/ioman/HardDiskDevice.cpp
+	iop/ioman/HardDiskDevice.h
+	iop/ioman/OpticalMediaDevice.cpp
+	iop/ioman/OpticalMediaDevice.h
 	iop/ioman/PathDirectoryDevice.h
+	iop/ioman/PreferenceDirectoryDevice.h
 	iop/Ioman_Defs.h
 	iop/Ioman_Device.h
 	iop/Ioman_ScopedFile.cpp
@@ -332,8 +334,6 @@ set(COMMON_SRC_FILES
 	iop/Iop_Vblank.h
 	iop/IopBios.cpp
 	iop/IopBios.h
-	iop/OpticalMediaDevice.cpp
-	iop/OpticalMediaDevice.h
 	ISO9660/DirectoryRecord.cpp
 	ISO9660/DirectoryRecord.h
 	ISO9660/File.cpp

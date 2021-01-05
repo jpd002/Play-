@@ -1,7 +1,7 @@
 #pragma once
 
 #include <string>
-#include "Ioman_Device.h"
+#include "../Ioman_Device.h"
 
 namespace Iop
 {

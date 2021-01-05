@@ -1,7 +1,7 @@
 #include "HardDiskDevice.h"
 #include <cassert>
 #include "AppConfig.h"
-#include "../PS2VM_Preferences.h"
+#include "PS2VM_Preferences.h"
 #include "StringUtils.h"
 
 using namespace Iop::Ioman;

@@ -1,8 +1,8 @@
 #pragma once
 
 #include <memory>
-#include "Ioman_Device.h"
-#include "../OpticalMedia.h"
+#include "../Ioman_Device.h"
+#include "../../OpticalMedia.h"
 
 namespace Iop
 {

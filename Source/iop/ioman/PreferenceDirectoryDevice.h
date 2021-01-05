@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../DirectoryDevice.h"
+#include "DirectoryDevice.h"
 #include "../../AppConfig.h"
 
 namespace Iop
