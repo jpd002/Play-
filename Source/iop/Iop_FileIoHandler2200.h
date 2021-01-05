@@ -291,15 +291,6 @@ namespace Iop
 			uint32 unknown4;
 		};
 
-		struct DEVCTLREPLY
-		{
-			REPLYHEADER header;
-			uint32 result;
-			uint32 unknown2;
-			uint32 unknown3;
-			uint32 unknown4;
-		};
-		
 		uint32 InvokeOpen(uint32*, uint32, uint32*, uint32, uint8*);
 		uint32 InvokeClose(uint32*, uint32, uint32*, uint32, uint8*);
 		uint32 InvokeRead(uint32*, uint32, uint32*, uint32, uint8*);
