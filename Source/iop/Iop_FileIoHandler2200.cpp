@@ -253,19 +253,7 @@ uint32 CFileIoHandler2200::InvokeSeek(uint32* args, uint32 argsSize, uint32* ret
 	auto command = reinterpret_cast<SEEKCOMMAND*>(args);
 	auto result = m_ioman->Seek(command->fd, command->offset, command->whence);
 
-	//Send response
-	if(m_resultPtr[0] != 0)
-	{
-		SEEKREPLY reply;
-		reply.header.commandId = COMMANDID_SEEK;
-		CopyHeader(reply.header, command->header);
-		reply.result = result;
-		reply.unknown2 = 0;
-		reply.unknown3 = 0;
-		reply.unknown4 = 0;
-		memcpy(ram + m_resultPtr[0], &reply, sizeof(SEEKREPLY));
-	}
-
+	PrepareGenericReply(ram, command->header, COMMANDID_SEEK, result);
 	SendSifReply();
 	return 1;
 }
@@ -276,19 +264,7 @@ uint32 CFileIoHandler2200::InvokeMkdir(uint32* args, uint32 argsSize, uint32* re
 	auto command = reinterpret_cast<MKDIRCOMMAND*>(args);
 	auto result = m_ioman->Mkdir(command->dirName);
 
-	//Send response
-	if(m_resultPtr[0] != 0)
-	{
-		MKDIRREPLY reply;
-		reply.header.commandId = COMMANDID_MKDIR;
-		CopyHeader(reply.header, command->header);
-		reply.result = result;
-		reply.unknown2 = 0;
-		reply.unknown3 = 0;
-		reply.unknown4 = 0;
-		memcpy(ram + m_resultPtr[0], &reply, sizeof(MKDIRREPLY));
-	}
-
+	PrepareGenericReply(ram, command->header, COMMANDID_MKDIR, result);
 	SendSifReply();
 	return 1;
 }

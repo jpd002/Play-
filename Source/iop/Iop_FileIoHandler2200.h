@@ -247,24 +247,6 @@ namespace Iop
 			uint32 unknown4;
 		};
 
-		struct SEEKREPLY
-		{
-			REPLYHEADER header;
-			uint32 result;
-			uint32 unknown2;
-			uint32 unknown3;
-			uint32 unknown4;
-		};
-
-		struct MKDIRREPLY
-		{
-			REPLYHEADER header;
-			uint32 result;
-			uint32 unknown2;
-			uint32 unknown3;
-			uint32 unknown4;
-		};
-
 		struct DREADREPLY
 		{
 			REPLYHEADER header;
