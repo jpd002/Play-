@@ -492,6 +492,7 @@ uint32 CFileIoHandler2200::InvokeDevctl(uint32* args, uint32 argsSize, uint32* r
 
 	uint32* input = reinterpret_cast<uint32*>(command->inputBuffer);
 	uint32* output = reinterpret_cast<uint32*>(ram + command->outputPtr);
+	uint32 result = 0;
 
 	switch(command->cmdId)
 	{
@@ -519,19 +520,7 @@ uint32 CFileIoHandler2200::InvokeDevctl(uint32* args, uint32 argsSize, uint32* r
 		break;
 	}
 
-	if(m_resultPtr[0] != 0)
-	{
-		//Send response
-		DEVCTLREPLY reply;
-		reply.header.commandId = COMMANDID_DEVCTL;
-		CopyHeader(reply.header, command->header);
-		reply.result = 0;
-		reply.unknown2 = 0;
-		reply.unknown3 = 0;
-		reply.unknown4 = 0;
-		memcpy(ram + m_resultPtr[0], &reply, sizeof(DEVCTLREPLY));
-	}
-
+	PrepareGenericReply(ram, command->header, COMMANDID_DEVCTL, result);
 	SendSifReply();
 	return 1;
 }
