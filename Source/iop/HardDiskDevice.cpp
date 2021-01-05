@@ -70,7 +70,7 @@ void CHardDiskDevice::CreatePartition(const std::vector<std::string>& createPara
 
 void CHardDiskPartition::Seek(int64, Framework::STREAM_SEEK_DIRECTION)
 {
-	throw new std::runtime_error("Not supported.");
+	//Used by FFX
 }
 
 uint64 CHardDiskPartition::Read(void*, uint64)
@@ -78,9 +78,10 @@ uint64 CHardDiskPartition::Read(void*, uint64)
 	throw new std::runtime_error("Not supported.");
 }
 
-uint64 CHardDiskPartition::Write(const void*, uint64)
+uint64 CHardDiskPartition::Write(const void*, uint64 size)
 {
-	throw new std::runtime_error("Not supported.");
+	//FFX writes to partition (PS2ICON3D?)
+	return size;
 }
 
 uint64 CHardDiskPartition::Tell()
