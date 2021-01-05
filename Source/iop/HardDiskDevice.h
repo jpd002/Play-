@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Ioman_Device.h"
+#include "filesystem_def.h"
 
 namespace Iop
 {
@@ -9,12 +10,14 @@ namespace Iop
 		class CHardDiskDevice : public CDevice
 		{
 		public:
+			CHardDiskDevice();
+			
 			Framework::CStream* GetFile(uint32, const char*) override;
 			Directory GetDirectory(const char*) override;
 			void CreateDirectory(const char* devicePath) override;
 
 		private:
-			
+			fs::path m_basePath;
 		};
 	
 		class CHardDiskPartition : public Framework::CStream

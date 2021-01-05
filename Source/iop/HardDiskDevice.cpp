@@ -1,8 +1,15 @@
 #include "HardDiskDevice.h"
 #include <cassert>
+#include "AppConfig.h"
+#include "../PS2VM_Preferences.h"
 #include "StringUtils.h"
 
 using namespace Iop::Ioman;
+
+CHardDiskDevice::CHardDiskDevice()
+{
+	m_basePath = CAppConfig::GetInstance().GetPreferencePath(PREF_PS2_HDD_DIRECTORY);
+}
 
 Framework::CStream* CHardDiskDevice::GetFile(uint32 accessType, const char* devicePath)
 {
@@ -21,7 +28,7 @@ Framework::CStream* CHardDiskDevice::GetFile(uint32 accessType, const char* devi
 
 Directory CHardDiskDevice::GetDirectory(const char* devicePath)
 {
-	throw std::runtime_error("Blah");
+	return Directory(m_basePath);
 }
 
 void CHardDiskDevice::CreateDirectory(const char* devicePath)
