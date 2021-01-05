@@ -297,23 +297,9 @@ uint32 CFileIoHandler2200::InvokeDopen(uint32* args, uint32 argsSize, uint32* re
 {
 	assert(retSize == 4);
 	auto command = reinterpret_cast<DOPENCOMMAND*>(args);
+	auto result = m_ioman->Dopen(command->dirName);
 
-	//This is a stub and is not implemented yet
-	CLog::GetInstance().Print(LOG_NAME, "Dopen('%s');\r\n", command->dirName);
-
-	//Send response
-	if(m_resultPtr[0] != 0)
-	{
-		DOPENREPLY reply;
-		reply.header.commandId = COMMANDID_DOPEN;
-		CopyHeader(reply.header, command->header);
-		reply.result = -1;
-		reply.unknown2 = 0;
-		reply.unknown3 = 0;
-		reply.unknown4 = 0;
-		memcpy(ram + m_resultPtr[0], &reply, sizeof(DOPENREPLY));
-	}
-
+	PrepareGenericReply(ram, command->header, COMMANDID_DOPEN, result);
 	SendSifReply();
 	return 1;
 }
