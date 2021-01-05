@@ -220,15 +220,15 @@ namespace Iop
 			uint32 resultSize;
 		};
 
-		struct OPENREPLY
+		struct GENERICREPLY
 		{
 			REPLYHEADER header;
 			uint32 result;
-			uint32 unknown2;
-			uint32 unknown3;
-			uint32 unknown4;
+			uint32 unknown2 = 0;
+			uint32 unknown3 = 0;
+			uint32 unknown4 = 0;
 		};
-
+		
 		struct CLOSEREPLY
 		{
 			REPLYHEADER header;
@@ -239,15 +239,6 @@ namespace Iop
 		};
 
 		struct READREPLY
-		{
-			REPLYHEADER header;
-			uint32 result;
-			uint32 unknown2;
-			uint32 unknown3;
-			uint32 unknown4;
-		};
-
-		struct WRITEREPLY
 		{
 			REPLYHEADER header;
 			uint32 result;
@@ -283,15 +274,6 @@ namespace Iop
 			uint32 unknown4;
 		};
 
-		struct DCLOSEREPLY
-		{
-			REPLYHEADER header;
-			uint32 result;
-			uint32 unknown2;
-			uint32 unknown3;
-			uint32 unknown4;
-		};
-
 		struct DREADREPLY
 		{
 			REPLYHEADER header;
@@ -309,43 +291,7 @@ namespace Iop
 			Ioman::STAT stat;
 		};
 
-		struct FORMATREPLY
-		{
-			REPLYHEADER header;
-			uint32 result;
-			uint32 unknown2;
-			uint32 unknown3;
-			uint32 unknown4;
-		};
-
-		struct CCODEREPLY
-		{
-			REPLYHEADER header;
-			uint32 result;
-			uint32 unknown2;
-			uint32 unknown3;
-			uint32 unknown4;
-		};
-
-		struct SYNCREPLY
-		{
-			REPLYHEADER header;
-			uint32 result;
-			uint32 unknown2;
-			uint32 unknown3;
-			uint32 unknown4;
-		};
-		
 		struct MOUNTREPLY
-		{
-			REPLYHEADER header;
-			uint32 result;
-			uint32 unknown2;
-			uint32 unknown3;
-			uint32 unknown4;
-		};
-
-		struct UMOUNTREPLY
 		{
 			REPLYHEADER header;
 			uint32 result;
@@ -363,15 +309,6 @@ namespace Iop
 			uint32 unknown4;
 		};
 		
-		struct IOCTL2REPLY
-		{
-			REPLYHEADER header;
-			uint32 result;
-			uint32 unknown2;
-			uint32 unknown3;
-			uint32 unknown4;
-		};
-
 		uint32 InvokeOpen(uint32*, uint32, uint32*, uint32, uint8*);
 		uint32 InvokeClose(uint32*, uint32, uint32*, uint32, uint8*);
 		uint32 InvokeRead(uint32*, uint32, uint32*, uint32, uint8*);
@@ -392,6 +329,7 @@ namespace Iop
 		uint32 InvokeIoctl2(uint32*, uint32, uint32*, uint32, uint8*);
 
 		void CopyHeader(REPLYHEADER&, const COMMANDHEADER&);
+		void PrepareGenericReply(uint8*, const COMMANDHEADER&, COMMANDID, uint32);
 		void SendPendingReply(uint8*);
 		void SendSifReply();
 

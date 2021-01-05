@@ -164,19 +164,7 @@ uint32 CFileIoHandler2200::InvokeOpen(uint32* args, uint32 argsSize, uint32* ret
 	auto command = reinterpret_cast<OPENCOMMAND*>(args);
 	auto result = m_ioman->Open(command->flags, command->fileName);
 
-	//Send response
-	if(m_resultPtr[0] != 0)
-	{
-		OPENREPLY reply;
-		reply.header.commandId = COMMANDID_OPEN;
-		CopyHeader(reply.header, command->header);
-		reply.result = result;
-		reply.unknown2 = 0;
-		reply.unknown3 = 0;
-		reply.unknown4 = 0;
-		memcpy(ram + m_resultPtr[0], &reply, sizeof(OPENREPLY));
-	}
-
+	PrepareGenericReply(ram, command->header, COMMANDID_OPEN, result);
 	SendSifReply();
 	return 1;
 }
@@ -254,19 +242,7 @@ uint32 CFileIoHandler2200::InvokeWrite(uint32* args, uint32 argsSize, uint32* re
 	uint32 writeAddress = command->buffer & (PS2::EE_RAM_SIZE - 1);
 	auto result = m_ioman->Write(command->fd, command->size, reinterpret_cast<const void*>(ram + writeAddress));
 
-	//Send response
-	if(m_resultPtr[0] != 0)
-	{
-		WRITEREPLY reply;
-		reply.header.commandId = COMMANDID_WRITE;
-		CopyHeader(reply.header, command->header);
-		reply.result = result;
-		reply.unknown2 = 0;
-		reply.unknown3 = 0;
-		reply.unknown4 = 0;
-		memcpy(ram + m_resultPtr[0], &reply, sizeof(WRITEREPLY));
-	}
-
+	PrepareGenericReply(ram, command->header, COMMANDID_WRITE, result);
 	SendSifReply();
 	return 1;
 }
@@ -349,19 +325,7 @@ uint32 CFileIoHandler2200::InvokeDclose(uint32* args, uint32 argsSize, uint32* r
 	auto command = reinterpret_cast<DCLOSECOMMAND*>(args);
 	auto result = m_ioman->Dclose(command->fd);
 
-	//Send response
-	if(m_resultPtr[0] != 0)
-	{
-		DCLOSEREPLY reply;
-		reply.header.commandId = COMMANDID_DCLOSE;
-		CopyHeader(reply.header, command->header);
-		reply.result = result;
-		reply.unknown2 = 0;
-		reply.unknown3 = 0;
-		reply.unknown4 = 0;
-		memcpy(ram + m_resultPtr[0], &reply, sizeof(DCLOSEREPLY));
-	}
-
+	PrepareGenericReply(ram, command->header, COMMANDID_DCLOSE, result);
 	SendSifReply();
 	return 1;
 }
@@ -423,19 +387,7 @@ uint32 CFileIoHandler2200::InvokeChstat(uint32* args, uint32 argsSize, uint32* r
 
 	auto result = 0;
 
-	//Send response
-	if(m_resultPtr[0] != 0)
-	{
-		OPENREPLY reply;
-		reply.header.commandId = COMMANDID_CHSTAT;
-		CopyHeader(reply.header, command->header);
-		reply.result = result;
-		reply.unknown2 = 0;
-		reply.unknown3 = 0;
-		reply.unknown4 = 0;
-		memcpy(ram + m_resultPtr[0], &reply, sizeof(OPENREPLY));
-	}
-
+	PrepareGenericReply(ram, command->header, COMMANDID_CHSTAT, result);
 	SendSifReply();
 	return 1;
 }
@@ -451,19 +403,7 @@ uint32 CFileIoHandler2200::InvokeFormat(uint32* args, uint32 argsSize, uint32* r
 	CLog::GetInstance().Print(LOG_NAME, "Format(device = '%s', blockDevice = '%s', args, argsSize = %d);\r\n",
 							  command->device, command->blockDevice, command->argsSize);
 	
-	//Send response
-	if(m_resultPtr[0] != 0)
-	{
-		FORMATREPLY reply;
-		reply.header.commandId = COMMANDID_FORMAT;
-		CopyHeader(reply.header, command->header);
-		reply.result = 0;
-		reply.unknown2 = 0;
-		reply.unknown3 = 0;
-		reply.unknown4 = 0;
-		memcpy(ram + m_resultPtr[0], &reply, sizeof(FORMATREPLY));
-	}
-
+	PrepareGenericReply(ram, command->header, COMMANDID_FORMAT, 0);
 	SendSifReply();
 	return 1;
 }
@@ -478,19 +418,7 @@ uint32 CFileIoHandler2200::InvokeCcode(uint32* args, uint32 argsSize, uint32* re
 	CLog::GetInstance().Print(LOG_NAME, "CCode('%s');\r\n",
 	                          command->path);
 
-	if(m_resultPtr[0] != 0)
-	{
-		//Send response
-		CCODEREPLY reply;
-		reply.header.commandId = COMMANDID_CCODE;
-		CopyHeader(reply.header, command->header);
-		reply.result = 0;
-		reply.unknown2 = 0;
-		reply.unknown3 = 0;
-		reply.unknown4 = 0;
-		memcpy(ram + m_resultPtr[0], &reply, sizeof(CCODEREPLY));
-	}
-
+	PrepareGenericReply(ram, command->header, COMMANDID_CCODE, 0);
 	SendSifReply();
 	//Not supported for now, return 0
 	return 0;
@@ -505,19 +433,7 @@ uint32 CFileIoHandler2200::InvokeSync(uint32* args, uint32 argsSize, uint32* ret
 	//Seems deviceName can be either a string or a fd (FFX)
 	CLog::GetInstance().Print(LOG_NAME, "Sync(...);\r\n");
 
-	if(m_resultPtr[0] != 0)
-	{
-		//Send response
-		SYNCREPLY reply;
-		reply.header.commandId = COMMANDID_SYNC;
-		CopyHeader(reply.header, command->header);
-		reply.result = 0;
-		reply.unknown2 = 0;
-		reply.unknown3 = 0;
-		reply.unknown4 = 0;
-		memcpy(ram + m_resultPtr[0], &reply, sizeof(SYNCREPLY));
-	}
-
+	PrepareGenericReply(ram, command->header, COMMANDID_SYNC, 0);
 	SendSifReply();
 	return 1;
 }
@@ -559,19 +475,7 @@ uint32 CFileIoHandler2200::InvokeUmount(uint32* args, uint32 argsSize, uint32* r
 
 	CLog::GetInstance().Print(LOG_NAME, "Umount('%s');\r\n", command->deviceName);
 
-	if(m_resultPtr[0] != 0)
-	{
-		//Send response
-		UMOUNTREPLY reply;
-		reply.header.commandId = COMMANDID_UMOUNT;
-		CopyHeader(reply.header, command->header);
-		reply.result = 0;
-		reply.unknown2 = 0;
-		reply.unknown3 = 0;
-		reply.unknown4 = 0;
-		memcpy(ram + m_resultPtr[0], &reply, sizeof(UMOUNTREPLY));
-	}
-
+	PrepareGenericReply(ram, command->header, COMMANDID_UMOUNT, 0);
 	SendSifReply();
 	//Not supported for now, return 0
 	return 0;
@@ -648,19 +552,7 @@ uint32 CFileIoHandler2200::InvokeIoctl2(uint32* args, uint32 argsSize, uint32* r
 		break;
 	}
 	
-	if(m_resultPtr[0] != 0)
-	{
-		//Send response
-		IOCTL2REPLY reply;
-		reply.header.commandId = COMMANDID_IOCTL2;
-		CopyHeader(reply.header, command->header);
-		reply.result = 0;
-		reply.unknown2 = 0;
-		reply.unknown3 = 0;
-		reply.unknown4 = 0;
-		memcpy(ram + m_resultPtr[0], &reply, sizeof(IOCTL2REPLY));
-	}
-
+	PrepareGenericReply(ram, command->header, COMMANDID_IOCTL2, 0);
 	SendSifReply();
 	return 1;
 }
@@ -670,6 +562,18 @@ void CFileIoHandler2200::CopyHeader(REPLYHEADER& reply, const COMMANDHEADER& com
 	reply.semaphoreId = command.semaphoreId;
 	reply.resultPtr = command.resultPtr;
 	reply.resultSize = command.resultSize;
+}
+
+void CFileIoHandler2200::PrepareGenericReply(uint8* ram, const COMMANDHEADER& header, COMMANDID commandId, uint32 result)
+{
+	if(m_resultPtr[0] != 0)
+	{
+		GENERICREPLY reply;
+		reply.header.commandId = commandId;
+		CopyHeader(reply.header, header);
+		reply.result = result;
+		memcpy(ram + m_resultPtr[0], &reply, sizeof(GENERICREPLY));
+	}
 }
 
 void CFileIoHandler2200::SendPendingReply(uint8* ram)
