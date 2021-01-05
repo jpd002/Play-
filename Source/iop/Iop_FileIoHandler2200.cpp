@@ -474,10 +474,22 @@ uint32 CFileIoHandler2200::InvokeDevctl(uint32* args, uint32 argsSize, uint32* r
 	case DEVCTL_HDD_STATUS:
 		CLog::GetInstance().Print(LOG_NAME, "HddStatus();\r\n");
 		break;
+	case DEVCTL_HDD_TOTALSECTOR:
+		CLog::GetInstance().Print(LOG_NAME, "HddTotalSector();\r\n");
+		result = 0x400000; //Number of sectors
+		break;
 	case DEVCTL_HDD_FREESECTOR:
 		assert(command->outputSize == 4);
 		CLog::GetInstance().Print(LOG_NAME, "HddFreeSector();\r\n");
 		output[0] = 0x400000; //Number of sectors
+		break;
+	case DEVCTL_PFS_ZONESIZE:
+		CLog::GetInstance().Print(LOG_NAME, "PfsZoneSize();\r\n");
+		result = 0x1000000;
+		break;
+	case DEVCTL_PFS_ZONEFREE:
+		CLog::GetInstance().Print(LOG_NAME, "PfsZoneFree();\r\n");
+		result = 0x10;
 		break;
 	default:
 		CLog::GetInstance().Warn(LOG_NAME, "Unknown(cmd = 0x%08X);\r\n", command->cmdId);
