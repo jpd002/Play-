@@ -30,6 +30,10 @@ namespace Iop
 			{
 				throw std::runtime_error("Directory creation not supported.");
 			}
+			virtual fs::path GetMountPath(const char*)
+			{
+				throw std::runtime_error("Mounting not supported.");
+			}
 		};
 	}
 }

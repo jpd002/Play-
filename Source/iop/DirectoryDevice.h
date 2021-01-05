@@ -10,15 +10,14 @@ namespace Iop
 		class CDirectoryDevice : public CDevice
 		{
 		public:
-			CDirectoryDevice(const char*);
 			virtual ~CDirectoryDevice() = default;
 
 			Framework::CStream* GetFile(uint32, const char*) override;
 			Directory GetDirectory(const char*) override;
 			void CreateDirectory(const char*) override;
 
-		private:
-			std::string m_basePathPreferenceName;
+		protected:
+			virtual fs::path GetBasePath() = 0;
 		};
 	}
 }

@@ -11,6 +11,7 @@
 #include "../AppConfig.h"
 #include "../Log.h"
 #include "../states/XmlStateFile.h"
+#include "ioman/PathDirectoryDevice.h"
 
 using namespace Iop;
 
@@ -34,6 +35,8 @@ using namespace Iop;
 
 #define FUNCTION_ADDDRV "AddDrv"
 #define FUNCTION_DELDRV "DelDrv"
+#define FUNCTION_MOUNT "Mount"
+#define FUNCTION_UMOUNT "Umount"
 
 //Directories have "group read" only permissions? This is required by PS2PSXe.
 #define STAT_MODE_DIR (0747 | (1 << 12))  //File mode + Dir type (1)
@@ -486,6 +489,60 @@ uint32 CIoman::DelDrv(uint32 drvNamePtr)
 	CLog::GetInstance().Print(LOG_NAME, FUNCTION_DELDRV "(drvNamePtr = %s);\r\n",
 	                          PrintStringParameter(m_ram, drvNamePtr).c_str());
 	return -1;
+}
+
+int32 CIoman::Mount(const char* fsName, const char* devicePath)
+{
+	CLog::GetInstance().Print(LOG_NAME, FUNCTION_MOUNT "(fsName = '%s', devicePath = '%s');\r\n",
+							  fsName, devicePath);
+	
+	auto pathInfo = SplitPath(devicePath);
+	auto deviceIterator = m_devices.find(pathInfo.deviceName);
+	if(deviceIterator == m_devices.end())
+	{
+		return -1;
+	}
+
+	auto device = deviceIterator->second;
+	uint32 result = 0;
+	try
+	{
+		auto mountedDeviceName = std::string(fsName);
+		//Strip any colons we might have in the string
+		mountedDeviceName.erase(std::remove(mountedDeviceName.begin(), mountedDeviceName.end(), ':'), mountedDeviceName.end());
+		assert(m_devices.find(mountedDeviceName) == std::end(m_devices));
+
+		auto partitionPath = device->GetMountPath(pathInfo.devicePath.c_str());
+		auto mountedDevice = std::make_shared<Ioman::CPathDirectoryDevice>(partitionPath);
+		m_devices[mountedDeviceName] = mountedDevice;
+	}
+	catch(const std::exception& except)
+	{
+		CLog::GetInstance().Warn(LOG_NAME, "%s: Error occurred while trying to mount : %s : %s\r\n", __FUNCTION__, devicePath, except.what());
+		result = -1;
+	}
+	return result;
+}
+
+int32 CIoman::Umount(const char* deviceName)
+{
+	CLog::GetInstance().Print(LOG_NAME, FUNCTION_UMOUNT "(deviceName = '%s');\r\n", deviceName);
+
+	auto mountedDeviceName = std::string(deviceName);
+	//Strip any colons we might have in the string
+	mountedDeviceName.erase(std::remove(mountedDeviceName.begin(), mountedDeviceName.end(), ':'), mountedDeviceName.end());
+	
+	auto deviceIterator = m_devices.find(mountedDeviceName);
+	if(deviceIterator == std::end(m_devices))
+	{
+		//Device not found
+		return -1;
+	}
+	
+	//We maybe need to make sure we don't have outstanding fds?
+	m_devices.erase(deviceIterator);
+	
+	return 0;
 }
 
 int32 CIoman::PreOpen(uint32 flags, const char* path)

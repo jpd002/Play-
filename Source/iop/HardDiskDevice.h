@@ -14,8 +14,11 @@ namespace Iop
 			
 			Framework::CStream* GetFile(uint32, const char*) override;
 			Directory GetDirectory(const char*) override;
-
+			fs::path GetMountPath(const char*) override;
+			
 		private:
+			void CreatePartition(const std::vector<std::string>&);
+			
 			fs::path m_basePath;
 		};
 	

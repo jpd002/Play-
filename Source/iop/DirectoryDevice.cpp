@@ -3,14 +3,8 @@
 #include "Iop_PathUtils.h"
 #include "StdStream.h"
 #include "string_cast.h"
-#include "../AppConfig.h"
 
 using namespace Iop::Ioman;
-
-CDirectoryDevice::CDirectoryDevice(const char* basePathPreferenceName)
-    : m_basePathPreferenceName(basePathPreferenceName)
-{
-}
 
 template <typename StringType>
 Framework::CStdStream* CreateStdStream(const StringType&, const char*);
@@ -30,7 +24,7 @@ Framework::CStdStream* CreateStdStream(const std::wstring& path, const char* mod
 
 Framework::CStream* CDirectoryDevice::GetFile(uint32 accessType, const char* devicePath)
 {
-	auto basePath = CAppConfig::GetInstance().GetPreferencePath(m_basePathPreferenceName.c_str());
+	auto basePath = GetBasePath();
 	auto path = Iop::PathUtils::MakeHostPath(basePath, devicePath);
 
 	const char* mode = nullptr;
@@ -44,6 +38,7 @@ Framework::CStream* CDirectoryDevice::GetFile(uint32 accessType, const char* dev
 	case(OPEN_FLAG_WRONLY | OPEN_FLAG_CREAT | OPEN_FLAG_TRUNC):
 		mode = "wb";
 		break;
+	case OPEN_FLAG_WRONLY:
 	case OPEN_FLAG_RDWR:
 		mode = "r+b";
 		break;
@@ -68,7 +63,7 @@ Framework::CStream* CDirectoryDevice::GetFile(uint32 accessType, const char* dev
 
 Directory CDirectoryDevice::GetDirectory(const char* devicePath)
 {
-	auto basePath = CAppConfig::GetInstance().GetPreferencePath(m_basePathPreferenceName.c_str());
+	auto basePath = GetBasePath();
 	auto path = Iop::PathUtils::MakeHostPath(basePath, devicePath);
 	if(!fs::is_directory(path))
 	{
@@ -79,7 +74,7 @@ Directory CDirectoryDevice::GetDirectory(const char* devicePath)
 
 void CDirectoryDevice::CreateDirectory(const char* devicePath)
 {
-	auto basePath = CAppConfig::GetInstance().GetPreferencePath(m_basePathPreferenceName.c_str());
+	auto basePath = GetBasePath();
 	auto path = Iop::PathUtils::MakeHostPath(basePath, devicePath);
 	if(!fs::create_directory(path))
 	{

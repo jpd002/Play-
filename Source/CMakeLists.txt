@@ -232,6 +232,8 @@ set(COMMON_SRC_FILES
 	iop/DirectoryDevice.h
 	iop/HardDiskDevice.cpp
 	iop/HardDiskDevice.h
+	iop/ioman/PreferenceDirectoryDevice.h
+	iop/ioman/PathDirectoryDevice.h
 	iop/Ioman_Defs.h
 	iop/Ioman_Device.h
 	iop/Ioman_ScopedFile.cpp

@@ -406,26 +406,11 @@ uint32 CFileIoHandler2200::InvokeMount(uint32* args, uint32 argsSize, uint32* re
 	assert(argsSize >= 0xC14);
 	assert(retSize == 4);
 	auto command = reinterpret_cast<MOUNTCOMMAND*>(args);
+	auto result = m_ioman->Mount(command->fileSystemName, command->deviceName);
 
-	CLog::GetInstance().Print(LOG_NAME, "Mount('%s', '%s');\r\n",
-	                          command->fileSystemName, command->deviceName);
-
-	if(m_resultPtr[0] != 0)
-	{
-		//Send response
-		MOUNTREPLY reply;
-		reply.header.commandId = COMMANDID_MOUNT;
-		CopyHeader(reply.header, command->header);
-		reply.result = 0;
-		reply.unknown2 = 0;
-		reply.unknown3 = 0;
-		reply.unknown4 = 0;
-		memcpy(ram + m_resultPtr[0], &reply, sizeof(MOUNTREPLY));
-	}
-
+	PrepareGenericReply(ram, command->header, COMMANDID_MOUNT, result);
 	SendSifReply();
-	//Not supported for now, return 0
-	return 0;
+	return 1;
 }
 
 uint32 CFileIoHandler2200::InvokeUmount(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, uint8* ram)
@@ -434,13 +419,11 @@ uint32 CFileIoHandler2200::InvokeUmount(uint32* args, uint32 argsSize, uint32* r
 	assert(argsSize >= 0x0C);
 	assert(retSize == 4);
 	auto command = reinterpret_cast<UMOUNTCOMMAND*>(args);
+	auto result = m_ioman->Umount(command->deviceName);
 
-	CLog::GetInstance().Print(LOG_NAME, "Umount('%s');\r\n", command->deviceName);
-
-	PrepareGenericReply(ram, command->header, COMMANDID_UMOUNT, 0);
+	PrepareGenericReply(ram, command->header, COMMANDID_UMOUNT, result);
 	SendSifReply();
-	//Not supported for now, return 0
-	return 0;
+	return 1;
 }
 
 uint32 CFileIoHandler2200::InvokeDevctl(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, uint8* ram)

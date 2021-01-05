@@ -23,7 +23,7 @@
 #include "AppConfig.h"
 #include "PathUtils.h"
 #include "iop/IopBios.h"
-#include "iop/DirectoryDevice.h"
+#include "iop/ioman/PreferenceDirectoryDevice.h"
 #include "iop/HardDiskDevice.h"
 #include "iop/OpticalMediaDevice.h"
 #include "Log.h"
@@ -408,11 +408,11 @@ void CPS2VM::ResetVM()
 
 		iopOs->Reset(std::make_shared<Iop::CSifManPs2>(m_ee->m_sif, m_ee->m_ram, m_iop->m_ram));
 
-		iopOs->GetIoman()->RegisterDevice("rom0", Iop::CIoman::DevicePtr(new Iop::Ioman::CDirectoryDevice(PREF_PS2_ROM0_DIRECTORY)));
-		iopOs->GetIoman()->RegisterDevice("host", Iop::CIoman::DevicePtr(new Iop::Ioman::CDirectoryDevice(PREF_PS2_HOST_DIRECTORY)));
-		iopOs->GetIoman()->RegisterDevice("host0", Iop::CIoman::DevicePtr(new Iop::Ioman::CDirectoryDevice(PREF_PS2_HOST_DIRECTORY)));
-		iopOs->GetIoman()->RegisterDevice("mc0", Iop::CIoman::DevicePtr(new Iop::Ioman::CDirectoryDevice(PREF_PS2_MC0_DIRECTORY)));
-		iopOs->GetIoman()->RegisterDevice("mc1", Iop::CIoman::DevicePtr(new Iop::Ioman::CDirectoryDevice(PREF_PS2_MC1_DIRECTORY)));
+		iopOs->GetIoman()->RegisterDevice("rom0", std::make_shared<Iop::Ioman::CPreferenceDirectoryDevice>(PREF_PS2_ROM0_DIRECTORY));
+		iopOs->GetIoman()->RegisterDevice("host", std::make_shared<Iop::Ioman::CPreferenceDirectoryDevice>(PREF_PS2_HOST_DIRECTORY));
+		iopOs->GetIoman()->RegisterDevice("host0", std::make_shared<Iop::Ioman::CPreferenceDirectoryDevice>(PREF_PS2_HOST_DIRECTORY));
+		iopOs->GetIoman()->RegisterDevice("mc0", std::make_shared<Iop::Ioman::CPreferenceDirectoryDevice>(PREF_PS2_MC0_DIRECTORY));
+		iopOs->GetIoman()->RegisterDevice("mc1", std::make_shared<Iop::Ioman::CPreferenceDirectoryDevice>(PREF_PS2_MC1_DIRECTORY));
 		iopOs->GetIoman()->RegisterDevice("cdrom", Iop::CIoman::DevicePtr(new Iop::Ioman::COpticalMediaDevice(m_cdrom0)));
 		iopOs->GetIoman()->RegisterDevice("cdrom0", Iop::CIoman::DevicePtr(new Iop::Ioman::COpticalMediaDevice(m_cdrom0)));
 		iopOs->GetIoman()->RegisterDevice("hdd0", std::make_shared<Iop::Ioman::CHardDiskDevice>());
