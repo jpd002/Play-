@@ -456,29 +456,31 @@ uint32 CFileIoHandler2200::InvokeDevctl(uint32* args, uint32 argsSize, uint32* r
 	uint32* output = reinterpret_cast<uint32*>(ram + command->outputPtr);
 	uint32 result = 0;
 
+	CLog::GetInstance().Print(LOG_NAME, "DevCtl('%s') -> ", command->device);
+	
 	switch(command->cmdId)
 	{
 	case DEVCTL_CDVD_GETERROR:
 		assert(command->outputSize == 4);
-		CLog::GetInstance().Print(LOG_NAME, "DevCtl -> CdGetError();\r\n");
+		CLog::GetInstance().Print(LOG_NAME, "CdGetError();\r\n");
 		output[0] = 0; //No error
 		break;
 	case DEVCTL_CDVD_DISKREADY:
 		assert(command->inputSize == 4);
 		assert(command->outputSize == 4);
-		CLog::GetInstance().Print(LOG_NAME, "DevCtl -> CdDiskReady(%d);\r\n", input[0]);
+		CLog::GetInstance().Print(LOG_NAME, "CdDiskReady(%d);\r\n", input[0]);
 		output[0] = 2; //Disk ready
 		break;
 	case DEVCTL_HDD_STATUS:
-		CLog::GetInstance().Print(LOG_NAME, "DevCtl -> HddStatus();\r\n");
+		CLog::GetInstance().Print(LOG_NAME, "HddStatus();\r\n");
 		break;
 	case DEVCTL_HDD_FREESECTOR:
 		assert(command->outputSize == 4);
-		CLog::GetInstance().Print(LOG_NAME, "DevCtl -> HddFreeSector();\r\n");
+		CLog::GetInstance().Print(LOG_NAME, "HddFreeSector();\r\n");
 		output[0] = 0x400000; //Number of sectors
 		break;
 	default:
-		CLog::GetInstance().Warn(LOG_NAME, "DevCtl -> Unknown(cmd = 0x%08X);\r\n", command->cmdId);
+		CLog::GetInstance().Warn(LOG_NAME, "Unknown(cmd = 0x%08X);\r\n", command->cmdId);
 		break;
 	}
 
