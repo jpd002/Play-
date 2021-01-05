@@ -28,6 +28,7 @@ namespace Iop
 			virtual Directory GetDirectory(const char*) = 0;
 			virtual void CreateDirectory(const char*)
 			{
+				throw std::runtime_error("Directory creation not supported.");
 			}
 		};
 	}

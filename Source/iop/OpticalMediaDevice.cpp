@@ -28,8 +28,3 @@ Directory COpticalMediaDevice::GetDirectory(const char* devicePath)
 {
 	throw std::runtime_error("Not supported.");
 }
-
-void COpticalMediaDevice::CreateDirectory(const char* devicePath)
-{
-	throw std::runtime_error("Not supported.");
-}

@@ -31,11 +31,6 @@ Directory CHardDiskDevice::GetDirectory(const char* devicePath)
 	return Directory(m_basePath);
 }
 
-void CHardDiskDevice::CreateDirectory(const char* devicePath)
-{
-	throw std::runtime_error("Blah");
-}
-
 //-----------------------------------------------
 //CHardDiskPartition
 

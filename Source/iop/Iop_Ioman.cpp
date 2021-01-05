@@ -327,22 +327,22 @@ uint32 CIoman::Seek(uint32 handle, uint32 position, uint32 whence)
 
 int32 CIoman::Mkdir(const char* path)
 {
-	CLog::GetInstance().Print(LOG_NAME, "Mkdir(path = '%s');\r\n",
-	                          path);
-	auto pathInfo = SplitPath(path);
-	auto deviceIterator = m_devices.find(pathInfo.deviceName);
-	if(deviceIterator == m_devices.end())
-	{
-		throw std::runtime_error("Device not found.");
-	}
-
+	CLog::GetInstance().Print(LOG_NAME, "Mkdir(path = '%s');\r\n", path);
 	try
 	{
+		auto pathInfo = SplitPath(path);
+		auto deviceIterator = m_devices.find(pathInfo.deviceName);
+		if(deviceIterator == m_devices.end())
+		{
+			throw std::runtime_error("Device not found.");
+		}
+
 		deviceIterator->second->CreateDirectory(pathInfo.devicePath.c_str());
 		return 0;
 	}
-	catch(...)
+	catch(const std::exception& except)
 	{
+		CLog::GetInstance().Warn(LOG_NAME, "%s: Error occured while trying to create directory : %s\r\n", __FUNCTION__, except.what());
 		return -1;
 	}
 }
