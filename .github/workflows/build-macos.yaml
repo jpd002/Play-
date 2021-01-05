@@ -36,7 +36,7 @@ jobs:
       run: |
         curl -L --show-error --output qt-5.15.2.arm64_big_sur.bottle.tar.gz https://homebrew.bintray.com/bottles/qt-5.15.2.arm64_big_sur.bottle.tar.gz
         tar xf qt-5.15.2.arm64_big_sur.bottle.tar.gz
-        sh .github/CI_MISC/pre_qt_universal_build.sh $Qt5_DIR/ `pwd`/qt/5.15.2/
+        python3 .github/CI_MISC/pre_qt_universal_build.py $Qt5_DIR/ `pwd`/qt/5.15.2/
     - name: Set SHORT_HASH
       run: echo "::set-output name=VALUE::${LONG_HASH:0:8}"
       id: short_hash
