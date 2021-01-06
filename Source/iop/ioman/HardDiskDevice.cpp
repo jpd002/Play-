@@ -45,7 +45,7 @@ Directory CHardDiskDevice::GetDirectory(const char* devicePath)
 fs::path CHardDiskDevice::GetMountPath(const char* devicePath)
 {
 	auto mountParams = StringUtils::Split(devicePath, ',', true);
-	assert(mountParams.size() >= 2);
+	assert(!mountParams.empty());
 	auto partitionPath = m_basePath / mountParams[0];
 	if(!fs::exists(partitionPath))
 	{
