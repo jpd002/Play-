@@ -57,7 +57,7 @@ namespace Iop
 			COMMANDID_GETSTAT = 12,
 			COMMANDID_CHSTAT = 13,
 			COMMANDID_FORMAT = 14,
-			COMMANDID_CCODE = 18,
+			COMMANDID_CHDIR = 18,
 			COMMANDID_SYNC = 19,
 			COMMANDID_MOUNT = 20,
 			COMMANDID_UMOUNT = 21,
@@ -295,7 +295,7 @@ namespace Iop
 		uint32 InvokeGetStat(uint32*, uint32, uint32*, uint32, uint8*);
 		uint32 InvokeChstat(uint32*, uint32, uint32*, uint32, uint8*);
 		uint32 InvokeFormat(uint32*, uint32, uint32*, uint32, uint8*);
-		uint32 InvokeCcode(uint32*, uint32, uint32*, uint32, uint8*);
+		uint32 InvokeChdir(uint32*, uint32, uint32*, uint32, uint8*);
 		uint32 InvokeSync(uint32*, uint32, uint32*, uint32, uint8*);
 		uint32 InvokeMount(uint32*, uint32, uint32*, uint32, uint8*);
 		uint32 InvokeUmount(uint32*, uint32, uint32*, uint32, uint8*);

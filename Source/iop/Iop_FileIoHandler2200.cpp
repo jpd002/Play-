@@ -77,8 +77,8 @@ bool CFileIoHandler2200::Invoke(uint32 method, uint32* args, uint32 argsSize, ui
 	case COMMANDID_FORMAT:
 		*ret = InvokeFormat(args, argsSize, ret, retSize, ram);
 		break;
-	case COMMANDID_CCODE:
-		*ret = InvokeCcode(args, argsSize, ret, retSize, ram);
+	case COMMANDID_CHDIR:
+		*ret = InvokeChdir(args, argsSize, ret, retSize, ram);
 		break;
 	case COMMANDID_SYNC:
 		*ret = InvokeSync(args, argsSize, ret, retSize, ram);
@@ -373,20 +373,18 @@ uint32 CFileIoHandler2200::InvokeFormat(uint32* args, uint32 argsSize, uint32* r
 	return 1;
 }
 
-uint32 CFileIoHandler2200::InvokeCcode(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, uint8* ram)
+uint32 CFileIoHandler2200::InvokeChdir(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, uint8* ram)
 {
-	//This is used by Gigawing Generations
+	//This is used by Gigawing Generations & FF11
 	assert(argsSize >= 0xD);
 	assert(retSize == 4);
 	auto command = reinterpret_cast<CCODECOMMAND*>(args);
 
-	CLog::GetInstance().Print(LOG_NAME, "CCode('%s');\r\n",
-	                          command->path);
+	CLog::GetInstance().Print(LOG_NAME, "Chdir('%s');\r\n", command->path);
 
-	PrepareGenericReply(ram, command->header, COMMANDID_CCODE, 0);
+	PrepareGenericReply(ram, command->header, COMMANDID_CHDIR, 0);
 	SendSifReply();
-	//Not supported for now, return 0
-	return 0;
+	return 1;
 }
 
 uint32 CFileIoHandler2200::InvokeSync(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, uint8* ram)
