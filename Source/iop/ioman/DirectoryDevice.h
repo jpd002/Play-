@@ -14,7 +14,7 @@ namespace Iop
 
 			Framework::CStream* GetFile(uint32, const char*) override;
 			Directory GetDirectory(const char*) override;
-			void CreateDirectory(const char*) override;
+			void MakeDirectory(const char*) override;
 
 		protected:
 			virtual fs::path GetBasePath() = 0;

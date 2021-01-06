@@ -72,7 +72,7 @@ Directory CDirectoryDevice::GetDirectory(const char* devicePath)
 	return fs::directory_iterator(path);
 }
 
-void CDirectoryDevice::CreateDirectory(const char* devicePath)
+void CDirectoryDevice::MakeDirectory(const char* devicePath)
 {
 	auto basePath = GetBasePath();
 	auto path = Iop::PathUtils::MakeHostPath(basePath, devicePath);

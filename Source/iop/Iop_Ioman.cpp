@@ -329,7 +329,7 @@ int32 CIoman::Mkdir(const char* path)
 			throw std::runtime_error("Device not found.");
 		}
 
-		deviceIterator->second->CreateDirectory(pathInfo.devicePath.c_str());
+		deviceIterator->second->MakeDirectory(pathInfo.devicePath.c_str());
 		return 0;
 	}
 	catch(const std::exception& except)
