@@ -37,6 +37,7 @@
 #define STATE_REGS_WRITETICK ("writeTick")
 #define STATE_REGS_PENDINGMICROPROGRAM ("pendingMicroProgram")
 #define STATE_REGS_FIFOINDEX ("fifoIndex")
+#define STATE_REGS_INCOMINGFIFODELAY ("incomingFifoDelay")
 
 CVif::CVif(unsigned int number, CVpu& vpu, CINTC& intc, uint8* ram, uint8* spr)
     : m_number(number)
@@ -235,6 +236,7 @@ void CVif::SaveState(Framework::CZipArchiveWriter& archive)
 		registerFile->SetRegister32(STATE_REGS_WRITETICK, m_writeTick);
 		registerFile->SetRegister32(STATE_REGS_PENDINGMICROPROGRAM, m_pendingMicroProgram);
 		registerFile->SetRegister32(STATE_REGS_FIFOINDEX, m_fifoIndex);
+		registerFile->SetRegister32(STATE_REGS_INCOMINGFIFODELAY, m_incomingFifoDelay);
 		archive.InsertFile(registerFile);
 	}
 	{
@@ -269,6 +271,7 @@ void CVif::LoadState(Framework::CZipArchiveReader& archive)
 		m_writeTick = registerFile.GetRegister32(STATE_REGS_WRITETICK);
 		m_pendingMicroProgram = registerFile.GetRegister32(STATE_REGS_PENDINGMICROPROGRAM);
 		m_fifoIndex = registerFile.GetRegister32(STATE_REGS_FIFOINDEX);
+		m_incomingFifoDelay = registerFile.GetRegister32(STATE_REGS_INCOMINGFIFODELAY);
 	}
 	{
 		auto path = string_format(STATE_PATH_FIFO_FORMAT, m_number);
