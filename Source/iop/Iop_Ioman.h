@@ -51,7 +51,7 @@ namespace Iop
 		uint32 Close(uint32);
 		uint32 Read(uint32, uint32, void*);
 		uint32 Write(uint32, uint32, const void*);
-		uint32 Seek(uint32, uint32, uint32);
+		uint32 Seek(uint32, int32, uint32);
 		int32 Mkdir(const char* path);
 		int32 Dopen(const char*);
 		int32 Dread(uint32, Ioman::DIRENTRY*);

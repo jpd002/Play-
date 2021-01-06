@@ -295,9 +295,9 @@ uint32 CIoman::Write(uint32 handle, uint32 size, const void* buffer)
 	return result;
 }
 
-uint32 CIoman::Seek(uint32 handle, uint32 position, uint32 whence)
+uint32 CIoman::Seek(uint32 handle, int32 position, uint32 whence)
 {
-	CLog::GetInstance().Print(LOG_NAME, "Seek(handle = %d, position = 0x%X, whence = %d);\r\n",
+	CLog::GetInstance().Print(LOG_NAME, "Seek(handle = %d, position = %d, whence = %d);\r\n",
 	                          handle, position, whence);
 
 	uint32 result = 0xFFFFFFFF;

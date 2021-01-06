@@ -108,7 +108,7 @@ namespace Iop
 		{
 			COMMANDHEADER header;
 			uint32 fd;
-			uint32 offset;
+			int32 offset;
 			uint32 whence;
 		};
 
