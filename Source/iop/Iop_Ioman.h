@@ -60,6 +60,7 @@ namespace Iop
 		uint32 DelDrv(uint32);
 		int32 Mount(const char*, const char*);
 		int32 Umount(const char*);
+		uint64 Seek64(uint32, int64, uint32);
 
 		//These are to be called from VM code, because they might
 		//execute user device code
@@ -137,6 +138,8 @@ namespace Iop
 		int32 AllocateFileHandle();
 		void FreeFileHandle(uint32);
 		int32 PreOpen(uint32, const char*);
+
+		static Framework::STREAM_SEEK_DIRECTION ConvertWhence(uint32);
 
 		void InvokeUserDeviceMethod(CMIPS&, uint32, size_t offset, uint32 arg0 = 0, uint32 arg1 = 0, uint32 arg2 = 0);
 

@@ -37,6 +37,7 @@ using namespace Iop;
 #define FUNCTION_DELDRV "DelDrv"
 #define FUNCTION_MOUNT "Mount"
 #define FUNCTION_UMOUNT "Umount"
+#define FUNCTION_SEEK64 "Seek64"
 
 //Directories have "group read" only permissions? This is required by PS2PSXe.
 #define STAT_MODE_DIR (0747 | (1 << 12))  //File mode + Dir type (1)
@@ -300,25 +301,13 @@ uint32 CIoman::Seek(uint32 handle, int32 position, uint32 whence)
 	CLog::GetInstance().Print(LOG_NAME, "Seek(handle = %d, position = %d, whence = %d);\r\n",
 	                          handle, position, whence);
 
-	uint32 result = 0xFFFFFFFF;
+	uint32 result = -1U;
 	assert(!IsUserDeviceFileHandle(handle));
 	try
 	{
 		auto stream = GetFileStream(handle);
-		switch(whence)
-		{
-		case SEEK_DIR_SET:
-			whence = Framework::STREAM_SEEK_SET;
-			break;
-		case SEEK_DIR_CUR:
-			whence = Framework::STREAM_SEEK_CUR;
-			break;
-		case SEEK_DIR_END:
-			whence = Framework::STREAM_SEEK_END;
-			break;
-		}
-
-		stream->Seek(position, static_cast<Framework::STREAM_SEEK_DIRECTION>(whence));
+		auto direction = ConvertWhence(whence);
+		stream->Seek(position, direction);
 		result = static_cast<uint32>(stream->Tell());
 	}
 	catch(const std::exception& except)
@@ -545,6 +534,27 @@ int32 CIoman::Umount(const char* deviceName)
 	return 0;
 }
 
+uint64 CIoman::Seek64(uint32 handle, int64 position, uint32 whence)
+{
+	CLog::GetInstance().Print(LOG_NAME, FUNCTION_SEEK64 "(handle = %d, position = %ld, whence = %d);\r\n",
+							  handle, position, whence);
+
+	uint64 result = -1ULL;
+	assert(!IsUserDeviceFileHandle(handle));
+	try
+	{
+		auto stream = GetFileStream(handle);
+		auto direction = ConvertWhence(whence);
+		stream->Seek(position, direction);
+		result = stream->Tell();
+	}
+	catch(const std::exception& except)
+	{
+		CLog::GetInstance().Warn(LOG_NAME, "%s: Error occured while trying to seek file : %s\r\n", __FUNCTION__, except.what());
+	}
+	return result;
+}
+
 int32 CIoman::PreOpen(uint32 flags, const char* path)
 {
 	int32 handle = AllocateFileHandle();
@@ -596,6 +606,22 @@ int32 CIoman::PreOpen(uint32 flags, const char* path)
 		return -1;
 	}
 	return handle;
+}
+
+Framework::STREAM_SEEK_DIRECTION CIoman::ConvertWhence(uint32 whence)
+{
+	switch(whence)
+	{
+	default:
+		assert(false);
+		[[fallthrough]];
+	case SEEK_DIR_SET:
+		return Framework::STREAM_SEEK_SET;
+	case SEEK_DIR_CUR:
+		return Framework::STREAM_SEEK_CUR;
+	case SEEK_DIR_END:
+		return Framework::STREAM_SEEK_END;
+	}
 }
 
 bool CIoman::IsUserDeviceFileHandle(int32 fileHandle) const

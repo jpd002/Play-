@@ -61,6 +61,7 @@ namespace Iop
 			COMMANDID_SYNC = 19,
 			COMMANDID_MOUNT = 20,
 			COMMANDID_UMOUNT = 21,
+			COMMANDID_SEEK64 = 22,
 			COMMANDID_DEVCTL = 23,
 			COMMANDID_IOCTL2 = 26,
 		};
@@ -189,6 +190,16 @@ namespace Iop
 			char deviceName[0x100];
 		};
 
+		struct SEEK64COMMAND
+		{
+			COMMANDHEADER header;
+			uint32 fd;
+			int64 offset;
+			uint32 whence;
+			uint32 dummy;
+		};
+		static_assert(sizeof(SEEK64COMMAND) == 0x20, "SEEK64COMMAND needs to be 0x20 bytes long.");
+
 		struct DEVCTLCOMMAND
 		{
 			COMMANDHEADER header;
@@ -263,6 +274,14 @@ namespace Iop
 			uint32 dstPtr;
 			Ioman::STAT stat;
 		};
+		
+		struct SEEK64REPLY
+		{
+			REPLYHEADER header;
+			uint64 result;
+			uint32 unknown3;
+			uint32 unknown4;
+		};
 
 		uint32 InvokeOpen(uint32*, uint32, uint32*, uint32, uint8*);
 		uint32 InvokeClose(uint32*, uint32, uint32*, uint32, uint8*);
@@ -280,6 +299,7 @@ namespace Iop
 		uint32 InvokeSync(uint32*, uint32, uint32*, uint32, uint8*);
 		uint32 InvokeMount(uint32*, uint32, uint32*, uint32, uint8*);
 		uint32 InvokeUmount(uint32*, uint32, uint32*, uint32, uint8*);
+		uint32 InvokeSeek64(uint32*, uint32, uint32*, uint32, uint8*);
 		uint32 InvokeDevctl(uint32*, uint32, uint32*, uint32, uint8*);
 		uint32 InvokeIoctl2(uint32*, uint32, uint32*, uint32, uint8*);
 

@@ -89,6 +89,9 @@ bool CFileIoHandler2200::Invoke(uint32 method, uint32* args, uint32 argsSize, ui
 	case COMMANDID_UMOUNT:
 		*ret = InvokeUmount(args, argsSize, ret, retSize, ram);
 		break;
+	case COMMANDID_SEEK64:
+		*ret = InvokeSeek64(args, argsSize, ret, retSize, ram);
+		break;
 	case COMMANDID_DEVCTL:
 		*ret = InvokeDevctl(args, argsSize, ret, retSize, ram);
 		break;
@@ -422,6 +425,28 @@ uint32 CFileIoHandler2200::InvokeUmount(uint32* args, uint32 argsSize, uint32* r
 	auto result = m_ioman->Umount(command->deviceName);
 
 	PrepareGenericReply(ram, command->header, COMMANDID_UMOUNT, result);
+	SendSifReply();
+	return 1;
+}
+
+uint32 CFileIoHandler2200::InvokeSeek64(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, uint8* ram)
+{
+	assert(retSize == 4);
+	auto command = reinterpret_cast<SEEK64COMMAND*>(args);
+	auto result = m_ioman->Seek64(command->fd, command->offset, command->whence);
+
+	//Send response
+	if(m_resultPtr[0] != 0)
+	{
+		SEEK64REPLY reply;
+		reply.header.commandId = COMMANDID_SEEK64;
+		CopyHeader(reply.header, command->header);
+		reply.result = result;
+		reply.unknown3 = 0;
+		reply.unknown4 = 0;
+		memcpy(ram + m_resultPtr[0], &reply, sizeof(SEEK64REPLY));
+	}
+
 	SendSifReply();
 	return 1;
 }
