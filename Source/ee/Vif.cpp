@@ -86,6 +86,12 @@ uint32 CVif::GetRegister(uint32 address)
 		{
 			//When FDR is set, it usually means the game is trying to
 			//read data from GS and that FIFO has some data in it
+			//Set FQC (amount of quadwords in FIFO) to something to
+			//let the game know the transfer is being executed
+			//Games sensitive to this behavior:
+			//- Serious Sam: Takes screen shots at checkpoints, waits for FQC to become 0
+			//- PS2PSXe: Takes a screen shot of what is currently on screen, waits for FQC to become 0
+			//- There are games that will check that it's not zero once FDR is set.
 			result |= (m_incomingFifoDelay << 24);
 			if(m_incomingFifoDelay != 0)
 			{
