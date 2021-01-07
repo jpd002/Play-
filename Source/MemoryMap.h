@@ -30,6 +30,7 @@ public:
 		MemoryMapHandlerType handler;
 		MEMORYMAP_TYPE nType;
 	};
+	typedef std::vector<MEMORYMAPELEMENT> MemoryMapListType;
 
 	virtual ~CMemoryMap() = default;
 	uint8 GetByte(uint32);
@@ -44,12 +45,11 @@ public:
 	void InsertWriteMap(uint32, uint32, void*, unsigned char);
 	void InsertWriteMap(uint32, uint32, const MemoryMapHandlerType&, unsigned char);
 	void InsertInstructionMap(uint32, uint32, void*, unsigned char);
+	const MemoryMapListType& GetInstructionMaps();
 	const MEMORYMAPELEMENT* GetReadMap(uint32) const;
 	const MEMORYMAPELEMENT* GetWriteMap(uint32) const;
 
 protected:
-	typedef std::vector<MEMORYMAPELEMENT> MemoryMapListType;
-
 	static const MEMORYMAPELEMENT* GetMap(const MemoryMapListType&, uint32);
 
 	MemoryMapListType m_instructionMap;
