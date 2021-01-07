@@ -411,7 +411,7 @@ void TableColumnDelegateTargetComment::paint(QPainter* painter, const QStyleOpti
 		}
 		else if((option.state & QStyle::State_Selected) && !(option.state & QStyle::State_HasFocus))
 		{
-			painter->fillRect(option.rect, option.palette.background());
+			painter->fillRect(option.rect, option.palette.window());
 		}
 
 		const QString html = QString("<html><target>%1</target> <comment>%2</comment></html>").arg(target).arg(comment);
