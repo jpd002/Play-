@@ -786,33 +786,15 @@ void MainWindow::resizeWindow(unsigned int width, unsigned int height)
 }
 
 #ifdef DEBUGGER_INCLUDED
-//bool MainWindow::nativeEventFilter(const QByteArray&, void* message, long* result)
-//{
-//	auto msg = reinterpret_cast<MSG*>(message);
-//	HWND activeWnd = GetActiveWindow();
-//	if(m_debugger && (activeWnd == m_debugger->m_hWnd) &&
-//	   TranslateAccelerator(m_debugger->m_hWnd, m_debugger->GetAccelerators(), msg))
-//	{
-//		return true;
-//	}
-//	if(m_frameDebugger && (activeWnd == m_frameDebugger->m_hWnd) &&
-//	   TranslateAccelerator(m_frameDebugger->m_hWnd, m_frameDebugger->GetAccelerators(), msg))
-//	{
-//		return true;
-//	}
-//	return false;
-//}
 
 void MainWindow::ShowDebugger()
 {
 	m_debugger->showMaximized();
-	//SetForegroundWindow(*m_debugger);
 }
 
 void MainWindow::ShowFrameDebugger()
 {
 	m_frameDebugger->show();
-	//SetForegroundWindow(*m_frameDebugger);
 }
 
 fs::path MainWindow::GetFrameDumpDirectoryPath()

@@ -40,9 +40,6 @@ int main(int argc, char* argv[])
 	parser.process(a);
 
 	MainWindow w;
-	//#ifdef DEBUGGER_INCLUDED
-	//	a.installNativeEventFilter(&w);
-	//#endif
 	w.show();
 
 	if(parser.isSet(cdrom_image_option))
