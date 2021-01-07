@@ -22,7 +22,7 @@ public:
 		DISASM_STANDARD,
 		DISASM_VU
 	};
-	CQtDisAsmTableModel(QTableView* parent, CVirtualMachine&, CMIPS*, int, DISASM_TYPE = DISASM_TYPE::DISASM_STANDARD);
+	CQtDisAsmTableModel(QTableView* parent, CVirtualMachine&, CMIPS*, DISASM_TYPE = DISASM_TYPE::DISASM_STANDARD);
 	~CQtDisAsmTableModel() = default;
 
 	int rowCount(const QModelIndex& parent = QModelIndex()) const Q_DECL_OVERRIDE;
@@ -47,7 +47,8 @@ protected:
 	CVirtualMachine& m_virtualMachine;
 	uint32 m_instructionSize;
 	DISASM_TYPE m_disAsmType;
-	int m_memSize;
+	int m_memSize = 0;
+	const CMemoryMap::MemoryMapListType& m_maps;
 
 	QVariantList m_headers;
 	QPixmap m_start_line = QPixmap(22, 22);

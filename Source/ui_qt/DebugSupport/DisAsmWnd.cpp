@@ -20,7 +20,7 @@
 
 #include "DebugExpressionEvaluator.h"
 
-CDisAsmWnd::CDisAsmWnd(QWidget* parent, CVirtualMachine& virtualMachine, CMIPS* ctx, const char* name, CQtDisAsmTableModel::DISASM_TYPE disAsmType, int memSize)
+CDisAsmWnd::CDisAsmWnd(QWidget* parent, CVirtualMachine& virtualMachine, CMIPS* ctx, const char* name, CQtDisAsmTableModel::DISASM_TYPE disAsmType)
     : QTableView(parent)
     , m_virtualMachine(virtualMachine)
     , m_ctx(ctx)
@@ -36,11 +36,11 @@ CDisAsmWnd::CDisAsmWnd(QWidget* parent, CVirtualMachine& virtualMachine, CMIPS* 
 	switch(disAsmType)
 	{
 	case CQtDisAsmTableModel::DISASM_STANDARD:
-		m_model = new CQtDisAsmTableModel(this, virtualMachine, ctx, memSize);
+		m_model = new CQtDisAsmTableModel(this, virtualMachine, ctx);
 		m_instructionSize = 4;
 		break;
 	case CQtDisAsmTableModel::DISASM_VU:
-		m_model = new CQtDisAsmVuTableModel(this, virtualMachine, ctx, memSize);
+		m_model = new CQtDisAsmVuTableModel(this, virtualMachine, ctx);
 		m_instructionSize = 8;
 		break;
 	default:

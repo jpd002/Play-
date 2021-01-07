@@ -8,19 +8,23 @@
 #include "string_format.h"
 #include "lexical_cast_ex.h"
 
-CQtDisAsmTableModel::CQtDisAsmTableModel(QTableView* parent, CVirtualMachine& virtualMachine, CMIPS* context, int memSize, DISASM_TYPE disAsmType)
+CQtDisAsmTableModel::CQtDisAsmTableModel(QTableView* parent, CVirtualMachine& virtualMachine, CMIPS* context, DISASM_TYPE disAsmType)
     : QAbstractTableModel(parent)
     , m_virtualMachine(virtualMachine)
     , m_ctx(context)
     , m_instructionSize(4)
     , m_disAsmType(disAsmType)
-    , m_memSize(memSize)
+    , m_maps(m_ctx->m_pMemoryMap->GetInstructionMaps())
 {
 	m_headers = {"S", "Address", "R", "Instr", "I-Mn", "I-Op", "Target/Comments"};
 
 	auto target_comment_column_index = ((m_disAsmType == CQtDisAsmTableModel::DISASM_STANDARD) ? 3 : 5) + 3;
 	parent->setItemDelegateForColumn(target_comment_column_index, new TableColumnDelegateTargetComment(parent));
 
+	for(const auto& map : m_maps)
+	{
+		m_memSize += (map.nEnd + 1) - map.nStart;
+	}
 	auto size = m_start_line.size();
 	auto start = 2;
 	auto middle = size.width() / 2;
@@ -212,6 +216,28 @@ QVariant CQtDisAsmTableModel::data(const QModelIndex& index, int role) const
 		}
 		}
 	}
+	if(role == Qt::BackgroundRole)
+	{
+		auto map_index = 0;
+		for(const auto& map : m_maps)
+		{
+			if(address <= map.nEnd)
+				break;
+			++map_index;
+		}
+		QColor background;
+		if(map_index % 2 == 0)
+		{
+			background = QColor(QPalette().base().color());
+		}
+		else
+		{
+			background = QColor(QPalette().alternateBase().color());
+		}
+
+		QBrush brush(background);
+		return brush;
+	}
 	return QVariant();
 }
 
@@ -313,12 +339,24 @@ std::string CQtDisAsmTableModel::GetInstructionMetadata(uint32 address) const
 uint32 CQtDisAsmTableModel::TranslateAddress(uint32 address) const
 {
 	uint32 tAddress = address;
-	if(tAddress > 0x01FFFFFF && tAddress < 0x1FC00000)
+	for(auto itr = m_maps.rbegin(); itr != m_maps.rend(); ++itr)
 	{
-		tAddress -= 0x01FFFFFF;
-		tAddress += 0x1FC00000;
-		tAddress -= 0x1;
+		auto map = *itr;
+		if(tAddress >= map.nStart && tAddress < map.nEnd)
+			break;
+
+		if(map.nStart > tAddress)
+			continue;
+
+		assert(itr != m_maps.rbegin());
+		--itr;
+		auto map2 = *itr;
+
+		tAddress += map2.nStart;
+		tAddress -= map.nEnd + 1;
+		break;
 	}
+
 	return tAddress;
 }
 
@@ -330,12 +368,24 @@ uint32 CQtDisAsmTableModel::TranslateModelIndexToAddress(const QModelIndex& inde
 const QModelIndex CQtDisAsmTableModel::TranslateAddressToModelIndex(uint32 address) const
 {
 	uint32 tAddress = address;
-	if(tAddress > 0x1FC00000)
+	auto itr = m_maps.rbegin();
+	for(; itr != m_maps.rend(); ++itr)
 	{
-		tAddress -= 0x1FC00000;
-		tAddress += 0x01FFFFFF;
-		tAddress += 0x1;
+		auto map = *itr;
+		if(tAddress >= map.nStart && tAddress < map.nEnd)
+		{
+			tAddress -= map.nStart;
+			++itr;
+			break;
+		}
 	}
+
+	for(; itr != m_maps.rend(); ++itr)
+	{
+		auto map = *itr;
+		tAddress += (map.nEnd + 1) - map.nStart;
+	}
+
 	return index(tAddress / m_instructionSize, 0);
 }
 

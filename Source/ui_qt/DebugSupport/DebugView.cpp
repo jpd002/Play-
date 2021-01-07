@@ -15,7 +15,7 @@ CDebugView::CDebugView(QMdiArea* parent, CVirtualMachine& virtualMachine, CMIPS*
     , m_biosDebugInfoProvider(biosDebugInfoProvider)
 {
 
-	auto disAsm = new CDisAsmWnd(parent, virtualMachine, m_ctx, name, disAsmType, size);
+	auto disAsm = new CDisAsmWnd(parent, virtualMachine, m_ctx, name, disAsmType);
 	m_disAsmWnd = new QMdiSubWindow(parent);
 	m_disAsmWnd->setWidget(disAsm);
 	m_disAsmWnd->setWindowTitle("Disassembly");

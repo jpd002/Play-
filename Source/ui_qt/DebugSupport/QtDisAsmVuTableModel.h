@@ -12,7 +12,7 @@ class CQtDisAsmVuTableModel : public CQtDisAsmTableModel
 {
 	Q_OBJECT
 public:
-	CQtDisAsmVuTableModel(QTableView* parent, CVirtualMachine&, CMIPS*, int);
+	CQtDisAsmVuTableModel(QTableView* parent, CVirtualMachine&, CMIPS*);
 	~CQtDisAsmVuTableModel() = default;
 
 	virtual std::string GetInstructionDetails(int, uint32) const override;

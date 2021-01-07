@@ -5,8 +5,8 @@
 #include "string_format.h"
 #include "lexical_cast_ex.h"
 
-CQtDisAsmVuTableModel::CQtDisAsmVuTableModel(QTableView* parent, CVirtualMachine& virtualMachine, CMIPS* context, int memSize)
-    : CQtDisAsmTableModel(parent, virtualMachine, context, memSize, DISASM_TYPE::DISASM_VU)
+CQtDisAsmVuTableModel::CQtDisAsmVuTableModel(QTableView* parent, CVirtualMachine& virtualMachine, CMIPS* context)
+    : CQtDisAsmTableModel(parent, virtualMachine, context, DISASM_TYPE::DISASM_VU)
 {
 	m_headers = {"S", "Address", "R", "Instr", "LI-Mn", "LI-Op", "UI-Mn", "UI-Op", "Target/Comments"};
 
