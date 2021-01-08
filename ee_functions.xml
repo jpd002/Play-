@@ -354,11 +354,21 @@
 		<FunctionComment Comment="SceStdioWriteSema" Function="Write" />
 		<FunctionComment Comment="SceStdioIoctlSema" Function="Ioctl" />
 		<FunctionComment Comment="SceStdioIoctl2Sema" Function="Ioctl2" />
+		<FunctionComment Comment="SceStdioCCodeSema" Function="CCode" />
 		<FunctionComment Comment="SceStdioMkdirSema" Function="Mkdir" />
-		<FunctionComment Comment="SceStdioWriteSema" Function="Write" />
-		<FunctionComment Comment="SceStdioIoctlSema" Function="Ioctl" />
-		<FunctionComment Comment="SceStdioIoctl2Sema" Function="Ioctl2" />
-		<FunctionComment Comment="SceStdioMkdirSema" Function="Mkdir" />
+		<FunctionComment Comment="SceStdioFormatSema" Function="Format" />
+		<FunctionComment Comment="SceStdioAddDrvSema" Function="AddDrv" />
+		<FunctionComment Comment="SceStdioDcloseSema" Function="Dclose" />
+		<FunctionComment Comment="SceStdioDreadSema" Function="Dread" />
+		<FunctionComment Comment="SceStdioGetstatSema" Function="Getstat" />
+		<FunctionComment Comment="SceStdioChstatSema" Function="Chstat" />
+		<FunctionComment Comment="SceStdioRenameSema" Function="Rename" />
+		<FunctionComment Comment="SceStdioSyncSema" Function="Sync" />
+		<FunctionComment Comment="SceStdioMountSema" Function="Mount" />
+		<FunctionComment Comment="SceStdioLseek64Sema" Function="Lseek64" />
+		<FunctionComment Comment="SceStdioDevctlSema" Function="Devctl" />
+		<FunctionComment Comment="SceStdioSymlinkSema" Function="Symlink" />
+		<FunctionComment Comment="SceStdioReadlinkSema" Function="Readlink" />
 
 		<FunctionComment Comment="call cdread cmd&#x0A;" Function="CdRead" />
 		<FunctionComment Comment="N cmd wait&#x0A;" Function="CdSync" />
