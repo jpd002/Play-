@@ -865,6 +865,33 @@ bool CIopBios::TryGetImageVersionFromContents(const std::string& imagePath, unsi
 	int32 fd = m_ioman->Open(Iop::Ioman::CDevice::OPEN_FLAG_RDONLY, imagePathStart);
 	if(fd < 0) return false;
 
+	//Some notes about this:
+	//- FFXI/POLViewer resets the IOP with a image without version in the filename
+	//  and it also doesn't have a fileio string that lets us find the required version,
+	//  thus, we rely on the ioprp pattern for this game.
+	static const std::string fileIoPatternString = "PsIIfileio  ";
+	static const std::string ioprpPatternString = "ioprp";
+
+	auto tryMatchVersionPattern =
+		[result](auto moduleVersionString, const std::string& patternString)
+		{
+			if(!strncmp(moduleVersionString, patternString.c_str(), patternString.size()))
+			{
+				//Found something
+				unsigned int imageVersion = atoi(moduleVersionString + patternString.size());
+				if(imageVersion < 1000) return false;
+				if(result)
+				{
+					(*result) = imageVersion;
+				}
+				return true;
+			}
+			else
+			{
+				return false;
+			}
+		};
+	
 	Iop::Ioman::CScopedFile file(fd, *m_ioman);
 	auto stream = m_ioman->GetFileStream(file);
 	while(1)
@@ -874,15 +901,12 @@ bool CIopBios::TryGetImageVersionFromContents(const std::string& imagePath, unsi
 		auto currentPos = stream->Tell();
 		stream->Read(moduleVersionString, moduleVersionStringSize);
 		moduleVersionString[moduleVersionStringSize] = 0;
-		if(!strncmp(moduleVersionString, "PsIIfileio  ", 12))
+		if(tryMatchVersionPattern(moduleVersionString, fileIoPatternString))
 		{
-			//Found something
-			unsigned int imageVersion = atoi(moduleVersionString + 12);
-			if(imageVersion < 1000) return false;
-			if(result)
-			{
-				(*result) = imageVersion;
-			}
+			return true;
+		}
+		else if(tryMatchVersionPattern(moduleVersionString, ioprpPatternString))
+		{
 			return true;
 		}
 		stream->Seek(currentPos + 1, Framework::STREAM_SEEK_SET);
