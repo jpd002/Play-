@@ -1,6 +1,7 @@
 #include "HardDiskDevice.h"
 #include <cassert>
 #include "AppConfig.h"
+#include "PathUtils.h"
 #include "PS2VM_Preferences.h"
 #include "StringUtils.h"
 
@@ -9,6 +10,15 @@ using namespace Iop::Ioman;
 CHardDiskDevice::CHardDiskDevice()
 {
 	m_basePath = CAppConfig::GetInstance().GetPreferencePath(PREF_PS2_HDD_DIRECTORY);
+	//Seems that FFXI needs the "__common" partition to exist and also needs the "Your Saves" directory
+	try
+	{
+		Framework::PathUtils::EnsurePathExists(m_basePath / "__common/Your Saves");
+	}
+	catch(...)
+	{
+		//We failed to create it, let's not crash for nothing
+	}
 }
 
 Framework::CStream* CHardDiskDevice::GetFile(uint32 accessType, const char* devicePath)
