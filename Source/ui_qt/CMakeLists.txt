@@ -255,6 +255,9 @@ if(TARGET_PLATFORM_MACOS)
 		${CMAKE_CURRENT_SOURCE_DIR}/macos/AppIcon.icns
 		${CMAKE_CURRENT_SOURCE_DIR}/../../patches.xml
 	)
+	if(DEBUGGER_INCLUDED)
+		list(APPEND OSX_RES ${CMAKE_CURRENT_SOURCE_DIR}/../../ee_functions.xml)
+	endif()
 	if(USE_GSH_VULKAN)
 		list(APPEND OSX_RES $ENV{VULKAN_SDK}/../MoltenVK/dylib/macOS/libMoltenVk.dylib)
 	endif()

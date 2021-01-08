@@ -12,10 +12,12 @@
 #include "ee/PS2OS.h"
 #include "MipsFunctionPatternDb.h"
 #include "StdStream.h"
+#include "StdStreamUtils.h"
 #include "xml/Parser.h"
 #include "xml/Utils.h"
 #include "string_cast.h"
 #include "string_format.h"
+#include "PathUtils.h"
 
 #define PREF_DEBUGGER_MEMORYVIEW_BYTEWIDTH "debugger.memoryview.bytewidth"
 
@@ -331,7 +333,8 @@ void QtDebugger::FindEeFunctions()
 	uint32 minAddr = executableRange.first;
 	uint32 maxAddr = executableRange.second & ~0x03;
 
-	Framework::CStdStream functionsStream("ee_functions.xml", "rb");
+	auto functionsPath = Framework::PathUtils::GetAppResourcesPath() / "ee_functions.xml";
+	auto functionsStream = Framework::CreateInputStdStream(functionsPath.native());
 	auto functionsDocument = std::unique_ptr<Framework::Xml::CNode>(Framework::Xml::CParser::ParseDocument(functionsStream));
 	auto functionsNode = functionsDocument->Select("Functions");
 
