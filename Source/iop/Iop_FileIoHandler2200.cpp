@@ -56,8 +56,14 @@ bool CFileIoHandler2200::Invoke(uint32 method, uint32* args, uint32 argsSize, ui
 	case COMMANDID_SEEK:
 		*ret = InvokeSeek(args, argsSize, ret, retSize, ram);
 		break;
+	case COMMANDID_REMOVE:
+		*ret = InvokeRemove(args, argsSize, ret, retSize, ram);
+		break;
 	case COMMANDID_MKDIR:
 		*ret = InvokeMkdir(args, argsSize, ret, retSize, ram);
+		break;
+	case COMMANDID_RMDIR:
+		*ret = InvokeRmdir(args, argsSize, ret, retSize, ram);
 		break;
 	case COMMANDID_DOPEN:
 		*ret = InvokeDopen(args, argsSize, ret, retSize, ram);
@@ -261,6 +267,19 @@ uint32 CFileIoHandler2200::InvokeSeek(uint32* args, uint32 argsSize, uint32* ret
 	return 1;
 }
 
+uint32 CFileIoHandler2200::InvokeRemove(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, uint8* ram)
+{
+	assert(retSize == 4);
+	auto command = reinterpret_cast<CCODECOMMAND*>(args);
+	auto result = 0;
+
+	CLog::GetInstance().Print(LOG_NAME, "Remove('%s');\r\n", command->path);
+
+	PrepareGenericReply(ram, command->header, COMMANDID_REMOVE, result);
+	SendSifReply();
+	return 1;
+}
+
 uint32 CFileIoHandler2200::InvokeMkdir(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, uint8* ram)
 {
 	assert(retSize == 4);
@@ -268,6 +287,19 @@ uint32 CFileIoHandler2200::InvokeMkdir(uint32* args, uint32 argsSize, uint32* re
 	auto result = m_ioman->Mkdir(command->dirName);
 
 	PrepareGenericReply(ram, command->header, COMMANDID_MKDIR, result);
+	SendSifReply();
+	return 1;
+}
+
+uint32 CFileIoHandler2200::InvokeRmdir(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, uint8* ram)
+{
+	assert(retSize == 4);
+	auto command = reinterpret_cast<CCODECOMMAND*>(args);
+	auto result = 0;
+	
+	CLog::GetInstance().Print(LOG_NAME, "Rmdir('%s');\r\n", command->path);
+
+	PrepareGenericReply(ram, command->header, COMMANDID_RMDIR, result);
 	SendSifReply();
 	return 1;
 }

@@ -50,7 +50,9 @@ namespace Iop
 			COMMANDID_READ = 2,
 			COMMANDID_WRITE = 3,
 			COMMANDID_SEEK = 4,
+			COMMANDID_REMOVE = 6,
 			COMMANDID_MKDIR = 7,
+			COMMANDID_RMDIR = 8,
 			COMMANDID_DOPEN = 9,
 			COMMANDID_DCLOSE = 10,
 			COMMANDID_DREAD = 11,
@@ -288,7 +290,9 @@ namespace Iop
 		uint32 InvokeRead(uint32*, uint32, uint32*, uint32, uint8*);
 		uint32 InvokeWrite(uint32*, uint32, uint32*, uint32, uint8*);
 		uint32 InvokeSeek(uint32*, uint32, uint32*, uint32, uint8*);
+		uint32 InvokeRemove(uint32*, uint32, uint32*, uint32, uint8*);
 		uint32 InvokeMkdir(uint32*, uint32, uint32*, uint32, uint8*);
+		uint32 InvokeRmdir(uint32*, uint32, uint32*, uint32, uint8*);
 		uint32 InvokeDopen(uint32*, uint32, uint32*, uint32, uint8*);
 		uint32 InvokeDclose(uint32*, uint32, uint32*, uint32, uint8*);
 		uint32 InvokeDread(uint32*, uint32, uint32*, uint32, uint8*);
