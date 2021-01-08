@@ -820,10 +820,13 @@ bool CIopBios::TryGetImageVersionFromPath(const std::string& imagePath, unsigned
 		const char* start;
 		const char* pattern;
 	};
+	// clang-format off
 	static const IMAGE_FILE_PATTERN g_imageFilePatterns[] =
-	    {
-	        {"IOPRP", "IOPRP%d.IMG;1"},
-	        {"DNAS", "DNAS%d.IMG;1"}};
+	{
+		{"IOPRP", "IOPRP%d.IMG;1"},
+		{"DNAS", "DNAS%d.IMG;1"}
+	};
+	// clang-format on
 
 	for(const auto imageFilePattern : g_imageFilePatterns)
 	{
