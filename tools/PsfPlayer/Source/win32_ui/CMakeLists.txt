@@ -63,26 +63,24 @@ else()
 	set(MANIFEST PsfPlayer-x86.manifest)
 endif()
 
-set(DEBUGSUPPORT_ROOT ../../../../Source/ui_qt/win32/DebugSupport/)
-
 if(DEBUGGER_INCLUDED)
 	add_definitions("-DFUNCTIONSVIEW_STANDALONE")
 	set(DEBUG_SRC
-		${DEBUGSUPPORT_ROOT}/DebugExpressionEvaluator.cpp
-		${DEBUGSUPPORT_ROOT}/DisAsm.cpp
-		${DEBUGSUPPORT_ROOT}/FunctionsView.cpp
-		${DEBUGSUPPORT_ROOT}/MemoryView.cpp
-		${DEBUGSUPPORT_ROOT}/MemoryViewMIPS.cpp
-		${DEBUGSUPPORT_ROOT}/RegViewGeneral.cpp
-		${DEBUGSUPPORT_ROOT}/RegViewPage.cpp
-		${DEBUGSUPPORT_ROOT}/WinUtils.cpp
+		DebugSupport/DebugExpressionEvaluator.cpp
+		DebugSupport/DisAsm.cpp
+		DebugSupport/FunctionsView.cpp
+		DebugSupport/MemoryView.cpp
+		DebugSupport/MemoryViewMIPS.cpp
+		DebugSupport/RegViewGeneral.cpp
+		DebugSupport/RegViewPage.cpp
+		DebugSupport/WinUtils.cpp
 		MiniDebugger.cpp
 	)
 endif()
 
 set(WIN32_SRC
 
-	${DEBUGSUPPORT_ROOT}/DirectXControl.cpp
+	DebugSupport/DirectXControl.cpp
 	AboutWindow.cpp
 	AcceleratorTable.cpp
 	FileInformationPanel.cpp
@@ -98,7 +96,7 @@ set(WIN32_SRC
 
 add_executable(PsfPlayer WIN32 ${WIN32_SRC} ${DEBUG_SRC} Res.rc)
 target_link_libraries(PsfPlayer PUBLIC d3d9 uxtheme ${PROJECT_LIBS} ${AUDIO_LIBS})
-target_include_directories(PsfPlayer PRIVATE ${DEBUGSUPPORT_ROOT})
+target_include_directories(PsfPlayer PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/DebugSupport)
 
 include(PrecompiledHeader)
 add_precompiled_header(PsfPlayer StdAfx.h FORCEINCLUDE SOURCE_CXX StdAfx.cpp)

@@ -34,6 +34,11 @@ void CMemoryMap::InsertInstructionMap(uint32 start, uint32 end, void* pointer, u
 	InsertMap(m_instructionMap, start, end, pointer, key);
 }
 
+const CMemoryMap::MemoryMapListType& CMemoryMap::GetInstructionMaps()
+{
+	return m_instructionMap;
+}
+
 const CMemoryMap::MEMORYMAPELEMENT* CMemoryMap::GetReadMap(uint32 address) const
 {
 	return GetMap(m_readMap, address);

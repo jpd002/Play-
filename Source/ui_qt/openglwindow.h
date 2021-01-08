@@ -8,4 +8,6 @@ class OpenGLWindow : public OutputWindow
 public:
 	explicit OpenGLWindow(QWindow* parent = 0);
 	~OpenGLWindow() = default;
+
+	static QSurfaceFormat GetSurfaceFormat();
 };

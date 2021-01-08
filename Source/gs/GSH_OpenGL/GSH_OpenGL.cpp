@@ -585,8 +585,15 @@ void CGSH_OpenGL::SetRenderingContext(uint64 primReg)
 		//			glDisable(GL_BLEND);
 		//		}
 
-		m_renderState.blendEnabled = prim.nAlpha ? GL_TRUE : GL_FALSE;
-		m_validGlState &= ~GLSTATE_BLEND;
+		if(((prim.nAlpha != 0) && m_alphaBlendingEnabled))
+		{
+			m_renderState.blendEnabled = GL_TRUE;
+			m_validGlState &= ~GLSTATE_BLEND;
+		}
+		else
+		{
+			m_renderState.blendEnabled = GL_FALSE;
+		}
 	}
 
 	if(!m_renderState.isValid ||
@@ -1123,7 +1130,7 @@ void CGSH_OpenGL::FillShaderCapsFromTest(SHADERCAPS& shaderCaps, const uint64& t
 		}
 		else
 		{
-			shaderCaps.hasAlphaTest = 1;
+			shaderCaps.hasAlphaTest = m_alphaTestingEnabled ? 1 : 0;
 			shaderCaps.alphaTestMethod = test.nAlphaMethod;
 		}
 	}
@@ -1705,7 +1712,7 @@ void CGSH_OpenGL::DoRenderPass()
 		m_validGlState |= GLSTATE_BLEND;
 	}
 
-	if((m_validGlState & GLSTATE_DEPTHTEST) == 0)
+	if((m_validGlState & GLSTATE_DEPTHTEST) == 0 && m_depthTestingEnabled)
 	{
 		m_renderState.depthTest ? glEnable(GL_DEPTH_TEST) : glDisable(GL_DEPTH_TEST);
 		m_validGlState |= GLSTATE_DEPTHTEST;
@@ -2203,6 +2210,140 @@ Framework::CBitmap CGSH_OpenGL::GetScreenshot()
 		return imgbuffer.Resize(dispWidth * m_fbScale, dispHeight * 2 * m_fbScale);
 	}
 	return imgbuffer;
+}
+
+Framework::CBitmap CGSH_OpenGL::GetFramebuffer(uint64 frameReg)
+{
+	Framework::CBitmap result;
+	SendGSCall([&]() { result = GetFramebufferImpl(frameReg); }, true);
+	return result;
+}
+
+Framework::CBitmap CGSH_OpenGL::GetFramebufferImpl(uint64 frameReg)
+{
+#ifndef GLES_COMPATIBILITY
+	auto frame = make_convertible<FRAME>(frameReg);
+	auto framebuffer = FindFramebuffer(frame);
+	if(!framebuffer)
+	{
+		return Framework::CBitmap();
+	}
+	else
+	{
+		glBindFramebuffer(GL_FRAMEBUFFER, framebuffer->m_framebuffer);
+		auto imgbuffer = Framework::CBitmap(framebuffer->m_width, framebuffer->m_height, 32);
+		glReadPixels(0, 0, framebuffer->m_width, framebuffer->m_height, GL_BGRA, GL_UNSIGNED_BYTE, imgbuffer.GetPixels());
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		return imgbuffer;
+	}
+#else
+	throw std::runtime_error("Feature is not implemented in current backend.");
+#endif
+}
+
+Framework::CBitmap CGSH_OpenGL::GetTexture(uint64 tex0Reg, uint32 maxMip, uint64 miptbp1Reg, uint64 miptbp2Reg, uint32 mipLevel)
+{
+	Framework::CBitmap result;
+	SendGSCall([&]() { result = GetTextureImpl(tex0Reg, maxMip, miptbp1Reg, miptbp2Reg, mipLevel); }, true);
+	return result;
+}
+
+Framework::CBitmap CGSH_OpenGL::GetTextureImpl(uint64 tex0Reg, uint32 maxMip, uint64 miptbp1Reg, uint64 miptbp2Reg, uint32 mipLevel)
+{
+#ifndef GLES_COMPATIBILITY
+	// auto miptbp1 = make_convertible<MIPTBP1>(miptbp1Reg);
+	// auto miptbp2 = make_convertible<MIPTBP2>(miptbp2Reg);
+	// auto texInfo = LoadTexture(tex0, maxMip, miptbp1, miptbp2);
+	auto tex0 = make_convertible<TEX0>(tex0Reg);
+	auto width = std::max<uint32>(tex0.GetWidth() >> mipLevel, 1);
+	auto height = std::max<uint32>(tex0.GetHeight() >> mipLevel, 1);
+
+	FRAME frame = {};
+	frame.nPtr = tex0.GetBufPtr() / 8192;
+	frame.nWidth = tex0.GetWidth() / 64;
+	frame.nPsm = tex0.nPsm;
+	auto framebuffer = FindFramebuffer(frame);
+	if(framebuffer)
+	{
+		glBindFramebuffer(GL_FRAMEBUFFER, framebuffer->m_framebuffer);
+		auto imgbuffer = Framework::CBitmap(width, height, 32);
+		glReadPixels(0, 0, width, height, GL_BGRA, GL_UNSIGNED_BYTE, imgbuffer.GetPixels());
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		return imgbuffer;
+	}
+
+	auto texInfo = PrepareTexture(tex0);
+	if(texInfo.textureHandle == 0)
+	{
+		return Framework::CBitmap();
+	}
+
+	auto texFormat = GetTextureFormatInfo(tex0.nPsm);
+	auto bitsPerPixel =
+	    [format = tex0.nPsm]() {
+		    switch(format)
+		    {
+		    case PSMCT16:
+			    return 16;
+		    case PSMT4:
+		    case PSMT8:
+		    case PSMT8H:
+		    case PSMT4HL:
+		    case PSMT4HH:
+			    return 8;
+		    default:
+			    assert(false);
+		    case PSMCT32:
+		    case PSMCT24:
+			    return 32;
+		    }
+	    }();
+
+	auto imgbuffer = Framework::CBitmap(width, height, bitsPerPixel);
+	glGetTexImage(GL_TEXTURE_2D, 0, texFormat.format, texFormat.type, imgbuffer.GetPixels());
+	glBindTexture(GL_TEXTURE_2D, 0);
+	return imgbuffer;
+#else
+	throw std::runtime_error("Feature is not implemented in current backend.");
+#endif
+}
+
+const CGSH_OpenGL::VERTEX* CGSH_OpenGL::GetInputVertices() const
+{
+	return m_VtxBuffer;
+}
+
+bool CGSH_OpenGL::GetDepthTestingEnabled() const
+{
+	return m_depthTestingEnabled;
+}
+
+void CGSH_OpenGL::SetDepthTestingEnabled(bool depthTestingEnabled)
+{
+	m_depthTestingEnabled = depthTestingEnabled;
+	m_renderState.isValid = false;
+}
+
+bool CGSH_OpenGL::GetAlphaBlendingEnabled() const
+{
+	return m_alphaBlendingEnabled;
+}
+
+void CGSH_OpenGL::SetAlphaBlendingEnabled(bool alphaBlendingEnabled)
+{
+	m_alphaBlendingEnabled = alphaBlendingEnabled;
+	m_renderState.isValid = false;
+}
+
+bool CGSH_OpenGL::GetAlphaTestingEnabled() const
+{
+	return m_alphaTestingEnabled;
+}
+
+void CGSH_OpenGL::SetAlphaTestingEnabled(bool alphaTestingEnabled)
+{
+	m_alphaTestingEnabled = alphaTestingEnabled;
+	m_renderState.isValid = false;
 }
 
 /////////////////////////////////////////////////////////////

@@ -30,13 +30,13 @@
 
 #ifdef _WIN32
 #include "../../tools/PsfPlayer/Source/win32_ui/SH_WaveOut.h"
-#ifdef DEBUGGER_INCLUDED
-#include "win32/DebugSupport/Debugger.h"
-#include "win32/DebugSupport/FrameDebugger/FrameDebugger.h"
-#include "ui_debugmenu.h"
-#endif
 #else
 #include "tools/PsfPlayer/Source/SH_OpenAL.h"
+#endif
+#ifdef DEBUGGER_INCLUDED
+#include "DebugSupport/QtDebugger.h"
+#include "DebugSupport/FrameDebugger/QtFramedebugger.h"
+#include "ui_debugmenu.h"
 #endif
 #include "input/PH_GenericInput.h"
 #include "DiskUtils.h"
@@ -106,8 +106,9 @@ MainWindow::MainWindow(QWidget* parent)
 	SetupGsHandler();
 
 #ifdef DEBUGGER_INCLUDED
-	m_debugger = std::make_unique<CDebugger>(*m_virtualMachine);
-	m_frameDebugger = std::make_unique<CFrameDebugger>();
+	m_debugger = std::make_unique<QtDebugger>(*m_virtualMachine);
+	m_frameDebugger = std::make_unique<QtFramedebugger>(this);
+	// m_frameDebugger->Show(SW_SHOWMAXIMIZED);
 
 	auto debugMenu = new QMenu(this);
 	debugMenuUi = new Ui::DebugMenu();
@@ -126,7 +127,6 @@ MainWindow::~MainWindow()
 #ifdef DEBUGGER_INCLUDED
 	m_debugger.reset();
 	m_frameDebugger.reset();
-	delete debugMenuUi;
 #endif
 	CAppConfig::GetInstance().Save();
 	if(m_virtualMachine != nullptr)
@@ -140,7 +140,10 @@ MainWindow::~MainWindow()
 		delete m_virtualMachine;
 		m_virtualMachine = nullptr;
 	}
+#ifdef DEBUGGER_INCLUDED
 	delete ui;
+	delete debugMenuUi;
+#endif
 }
 
 void MainWindow::InitVirtualMachine()
@@ -632,6 +635,9 @@ void MainWindow::closeEvent(QCloseEvent* event)
 	else
 	{
 		event->accept();
+#ifdef DEBUGGER_INCLUDED
+		m_debugger->close();
+#endif
 	}
 }
 
@@ -780,33 +786,15 @@ void MainWindow::resizeWindow(unsigned int width, unsigned int height)
 }
 
 #ifdef DEBUGGER_INCLUDED
-bool MainWindow::nativeEventFilter(const QByteArray&, void* message, long* result)
-{
-	auto msg = reinterpret_cast<MSG*>(message);
-	HWND activeWnd = GetActiveWindow();
-	if(m_debugger && (activeWnd == m_debugger->m_hWnd) &&
-	   TranslateAccelerator(m_debugger->m_hWnd, m_debugger->GetAccelerators(), msg))
-	{
-		return true;
-	}
-	if(m_frameDebugger && (activeWnd == m_frameDebugger->m_hWnd) &&
-	   TranslateAccelerator(m_frameDebugger->m_hWnd, m_frameDebugger->GetAccelerators(), msg))
-	{
-		return true;
-	}
-	return false;
-}
 
 void MainWindow::ShowDebugger()
 {
-	m_debugger->Show(SW_SHOWMAXIMIZED);
-	SetForegroundWindow(*m_debugger);
+	m_debugger->showMaximized();
 }
 
 void MainWindow::ShowFrameDebugger()
 {
-	m_frameDebugger->Show(SW_SHOWMAXIMIZED);
-	SetForegroundWindow(*m_frameDebugger);
+	m_frameDebugger->show();
 }
 
 fs::path MainWindow::GetFrameDumpDirectoryPath()

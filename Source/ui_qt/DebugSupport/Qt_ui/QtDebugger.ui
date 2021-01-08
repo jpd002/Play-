@@ -1,0 +1,270 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>QtDebugger</class>
+ <widget class="QMainWindow" name="QtDebugger">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>674</width>
+    <height>513</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>QtDebugger</string>
+  </property>
+  <property name="windowIcon">
+   <iconset resource="../../Qt_ui/resources.qrc">
+    <normaloff>:/assets/app_icon.png</normaloff>:/assets/app_icon.png</iconset>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <layout class="QGridLayout" name="gridLayout">
+    <property name="sizeConstraint">
+     <enum>QLayout::SetNoConstraint</enum>
+    </property>
+    <property name="leftMargin">
+     <number>0</number>
+    </property>
+    <property name="topMargin">
+     <number>0</number>
+    </property>
+    <property name="rightMargin">
+     <number>0</number>
+    </property>
+    <property name="bottomMargin">
+     <number>0</number>
+    </property>
+    <item row="0" column="0">
+     <widget class="QMdiArea" name="mdiArea">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QMenuBar" name="menubar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>674</width>
+     <height>21</height>
+    </rect>
+   </property>
+   <widget class="QMenu" name="menu_Virtual_Machine">
+    <property name="title">
+     <string>Virtual Machine</string>
+    </property>
+    <addaction name="actionResume"/>
+    <addaction name="actionStep_CPU"/>
+    <addaction name="actionDump_INTC_Handlers"/>
+    <addaction name="actionDump_DMAC_Handlers"/>
+    <addaction name="actionfind_word_value"/>
+    <addaction name="actionFind_Word_Half_Value"/>
+    <addaction name="actionAssemble_JAL"/>
+    <addaction name="actionReanalyse_ee"/>
+    <addaction name="actionFind_Functions"/>
+   </widget>
+   <widget class="QMenu" name="menuView">
+    <property name="title">
+     <string>View</string>
+    </property>
+    <addaction name="actionView_Disassmebly"/>
+    <addaction name="actionMemory"/>
+    <addaction name="actionCall_Stack"/>
+    <addaction name="actionFunctions"/>
+    <addaction name="actionELF_File_Information"/>
+    <addaction name="actionThreads"/>
+    <addaction name="actionView_Registers"/>
+    <addaction name="separator"/>
+    <addaction name="actionEmotionEngine_View"/>
+    <addaction name="actionVector_Unit_0"/>
+    <addaction name="actionVector_Unit_1"/>
+    <addaction name="actionIOP_View"/>
+   </widget>
+   <widget class="QMenu" name="menuWindow">
+    <property name="title">
+     <string>Window</string>
+    </property>
+    <addaction name="actionCascade"/>
+    <addaction name="actionTile"/>
+    <addaction name="actionLayout_1024x768"/>
+    <addaction name="actionLayout_1280x1024"/>
+    <addaction name="actionLayout_1600x1200"/>
+   </widget>
+   <addaction name="menu_Virtual_Machine"/>
+   <addaction name="menuView"/>
+   <addaction name="menuWindow"/>
+  </widget>
+  <widget class="QStatusBar" name="statusbar"/>
+  <action name="actionResume">
+   <property name="text">
+    <string>Resume</string>
+   </property>
+   <property name="shortcut">
+    <string>F5</string>
+   </property>
+  </action>
+  <action name="actionStep_CPU">
+   <property name="text">
+    <string>Step CPU</string>
+   </property>
+   <property name="shortcut">
+    <string>F10</string>
+   </property>
+  </action>
+  <action name="actionDump_INTC_Handlers">
+   <property name="text">
+    <string>Dump INTC Handlers</string>
+   </property>
+  </action>
+  <action name="actionDump_DMAC_Handlers">
+   <property name="text">
+    <string>Dump DMAC Handlers</string>
+   </property>
+  </action>
+  <action name="actionfind_word_value">
+   <property name="text">
+    <string>Find Word Value in Memory...</string>
+   </property>
+  </action>
+  <action name="actionFind_Word_Half_Value">
+   <property name="text">
+    <string>Find Word Low-Half Value in Memory</string>
+   </property>
+  </action>
+  <action name="actionAssemble_JAL">
+   <property name="text">
+    <string>Assemble JAL...</string>
+   </property>
+  </action>
+  <action name="actionReanalyse_ee">
+   <property name="text">
+    <string>Re-analyze EE Executable</string>
+   </property>
+  </action>
+  <action name="actionFind_Functions">
+   <property name="text">
+    <string>Find Common EE Functions</string>
+   </property>
+  </action>
+  <action name="actionView_Disassmebly">
+   <property name="text">
+    <string>Disassembly</string>
+   </property>
+  </action>
+  <action name="actionMemory">
+   <property name="text">
+    <string>Memory</string>
+   </property>
+  </action>
+  <action name="actionCall_Stack">
+   <property name="text">
+    <string>Call Stack</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+A</string>
+   </property>
+  </action>
+  <action name="actionFunctions">
+   <property name="text">
+    <string>Functions</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+F</string>
+   </property>
+  </action>
+  <action name="actionELF_File_Information">
+   <property name="text">
+    <string>ELF File Information</string>
+   </property>
+  </action>
+  <action name="actionThreads">
+   <property name="text">
+    <string>Threads</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+T</string>
+   </property>
+  </action>
+  <action name="actionEmotionEngine_View">
+   <property name="text">
+    <string>EmotionEngine View</string>
+   </property>
+   <property name="shortcut">
+    <string>Alt+1</string>
+   </property>
+  </action>
+  <action name="actionVector_Unit_0">
+   <property name="text">
+    <string>Vector Unit 0 View</string>
+   </property>
+   <property name="shortcut">
+    <string>Alt+2</string>
+   </property>
+  </action>
+  <action name="actionVector_Unit_1">
+   <property name="text">
+    <string>Vector Unit 1 View</string>
+   </property>
+   <property name="toolTip">
+    <string>Vector Unit 1 View</string>
+   </property>
+   <property name="shortcut">
+    <string>Alt+3</string>
+   </property>
+  </action>
+  <action name="actionIOP_View">
+   <property name="text">
+    <string>IOP View</string>
+   </property>
+   <property name="shortcut">
+    <string>Alt+4</string>
+   </property>
+  </action>
+  <action name="actionCascade">
+   <property name="text">
+    <string>Cascade</string>
+   </property>
+  </action>
+  <action name="actionTile">
+   <property name="text">
+    <string>Tile</string>
+   </property>
+  </action>
+  <action name="actionTile_Vertical">
+   <property name="text">
+    <string>Tile Vertical</string>
+   </property>
+  </action>
+  <action name="actionLayout_1024x768">
+   <property name="text">
+    <string>Layout (1024x768)</string>
+   </property>
+  </action>
+  <action name="actionLayout_1280x1024">
+   <property name="text">
+    <string>Layout (1280x1024)</string>
+   </property>
+  </action>
+  <action name="actionLayout_1600x1200">
+   <property name="text">
+    <string>Layout (1600x1200)</string>
+   </property>
+  </action>
+  <action name="actionView_Registers">
+   <property name="text">
+    <string>Registers</string>
+   </property>
+   <property name="toolTip">
+    <string>Registers</string>
+   </property>
+  </action>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

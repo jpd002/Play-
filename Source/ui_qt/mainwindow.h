@@ -23,8 +23,8 @@ namespace Ui
 class OutputWindow;
 
 #ifdef DEBUGGER_INCLUDED
-class CDebugger;
-class CFrameDebugger;
+class QtDebugger;
+class QtFramedebugger;
 
 namespace Ui
 {
@@ -33,10 +33,6 @@ namespace Ui
 #endif
 
 class MainWindow : public QMainWindow
-#ifdef DEBUGGER_INCLUDED
-    ,
-                   public QAbstractNativeEventFilter
-#endif
 {
 	Q_OBJECT
 
@@ -92,9 +88,6 @@ private:
 	void buildResizeWindowMenu();
 	void resizeWindow(unsigned int, unsigned int);
 	void UpdateGSHandlerLabel(int);
-#ifdef DEBUGGER_INCLUDED
-	bool nativeEventFilter(const QByteArray&, void*, long*) Q_DECL_OVERRIDE;
-#endif
 
 	Ui::MainWindow* ui;
 
@@ -120,8 +113,8 @@ private:
 	CScreenShotUtils::Connection m_screenShotCompleteConnection;
 
 #ifdef DEBUGGER_INCLUDED
-	std::unique_ptr<CDebugger> m_debugger;
-	std::unique_ptr<CFrameDebugger> m_frameDebugger;
+	std::unique_ptr<QtDebugger> m_debugger;
+	std::unique_ptr<QtFramedebugger> m_frameDebugger;
 	Ui::DebugMenu* debugMenuUi = nullptr;
 #endif
 

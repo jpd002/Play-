@@ -2,6 +2,7 @@
 #include "GSH_OpenGLQt.h"
 #endif
 
+#include <QSurface>
 #include <QWindow>
 #include <QOpenGLContext>
 
@@ -13,14 +14,14 @@
 #include <CoreFoundation/CoreFoundation.h>
 #endif
 
-CGSH_OpenGLQt::CGSH_OpenGLQt(QWindow* renderWindow)
-    : m_renderWindow(renderWindow)
+CGSH_OpenGLQt::CGSH_OpenGLQt(QSurface* renderSurface)
+    : m_renderSurface(renderSurface)
 {
 }
 
-CGSH_OpenGL::FactoryFunction CGSH_OpenGLQt::GetFactoryFunction(QWindow* renderWindow)
+CGSH_OpenGL::FactoryFunction CGSH_OpenGLQt::GetFactoryFunction(QSurface* renderSurface)
 {
-	return [renderWindow]() { return new CGSH_OpenGLQt(renderWindow); };
+	return [renderSurface]() { return new CGSH_OpenGLQt(renderSurface); };
 }
 
 void CGSH_OpenGLQt::InitializeImpl()
@@ -32,12 +33,12 @@ void CGSH_OpenGLQt::InitializeImpl()
 #endif
 
 	m_context = new QOpenGLContext();
-	m_context->setFormat(m_renderWindow->requestedFormat());
+	m_context->setFormat(m_renderSurface->format());
 
 	bool succeeded = m_context->create();
 	Q_ASSERT(succeeded);
 
-	succeeded = m_context->makeCurrent(m_renderWindow);
+	succeeded = m_context->makeCurrent(m_renderSurface);
 	Q_ASSERT(succeeded);
 
 #ifdef USE_GLEW
@@ -58,9 +59,15 @@ void CGSH_OpenGLQt::ReleaseImpl()
 
 void CGSH_OpenGLQt::PresentBackbuffer()
 {
-	if(m_renderWindow->isExposed())
+	bool swapBuffer = true;
+	if(m_renderSurface->surfaceClass() == QSurface::Window)
 	{
-		m_context->swapBuffers(m_renderWindow);
-		m_context->makeCurrent(m_renderWindow);
+		swapBuffer = static_cast<QWindow*>(m_renderSurface)->isExposed();
+	}
+
+	if(swapBuffer)
+	{
+		m_context->swapBuffers(m_renderSurface);
+		m_context->makeCurrent(m_renderSurface);
 	}
 }

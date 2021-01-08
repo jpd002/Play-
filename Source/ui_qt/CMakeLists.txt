@@ -174,25 +174,23 @@ if(TARGET_PLATFORM_WIN32)
 
 	set(QT_SOURCES
 		${QT_SOURCES}
-		win32/Res.rc
-		win32/DebugSupport/ElfViewRes.rc
 		${MANIFEST}
 	)
 	
 	list(APPEND PROJECT_LIBS dinput8)
 	list(APPEND PROJECT_LIBS xinput)
-	
-	if(DEBUGGER_INCLUDED)
-		if(NOT TARGET PlayDebugSupport)
-			add_subdirectory(
-				${CMAKE_CURRENT_SOURCE_DIR}/win32/DebugSupport
-				${CMAKE_CURRENT_BINARY_DIR}/PlayDebugSupport
-			)
-		endif()
-		list(APPEND PROJECT_LIBS PlayDebugSupport)
-	endif()
-	
 endif()
+	
+if(DEBUGGER_INCLUDED)
+	if(NOT TARGET PlayDebugSupport)
+		add_subdirectory(
+			${CMAKE_CURRENT_SOURCE_DIR}/DebugSupport
+			${CMAKE_CURRENT_BINARY_DIR}/PlayDebugSupport
+		)
+	endif()
+	list(APPEND PROJECT_LIBS PlayDebugSupport)
+endif()
+	
 set(QT_MOC_HEADERS
 	bootablelistdialog.h
 	BootableModel.h

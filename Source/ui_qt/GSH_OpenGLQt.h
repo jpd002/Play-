@@ -2,22 +2,22 @@
 
 #include "gs/GSH_OpenGL/GSH_OpenGL.h"
 
-class QWindow;
+class QSurface;
 class QOpenGLContext;
 
 class CGSH_OpenGLQt : public CGSH_OpenGL
 {
 public:
-	CGSH_OpenGLQt(QWindow*);
+	CGSH_OpenGLQt(QSurface*);
 	virtual ~CGSH_OpenGLQt() = default;
 
-	static FactoryFunction GetFactoryFunction(QWindow*);
+	static FactoryFunction GetFactoryFunction(QSurface*);
 
 	void InitializeImpl() override;
 	void ReleaseImpl() override;
 	void PresentBackbuffer() override;
 
 private:
-	QWindow* m_renderWindow = nullptr;
+	QSurface* m_renderSurface = nullptr;
 	QOpenGLContext* m_context = nullptr;
 };

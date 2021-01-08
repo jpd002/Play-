@@ -22,6 +22,8 @@ int main(int argc, char* argv[])
 #ifdef DEBUGGER_INCLUDED
 	QCommandLineOption debugger_option("debugger", "Show debugger");
 	parser.addOption(debugger_option);
+	QCommandLineOption frame_debugger_option("framedebugger", "Show frame debugger");
+	parser.addOption(frame_debugger_option);
 #endif
 	QCommandLineOption cdrom_image_option("cdrom0", "Boot last booted cdvd image");
 	parser.addOption(cdrom_image_option);
@@ -38,9 +40,6 @@ int main(int argc, char* argv[])
 	parser.process(a);
 
 	MainWindow w;
-#ifdef DEBUGGER_INCLUDED
-	a.installNativeEventFilter(&w);
-#endif
 	w.show();
 
 	if(parser.isSet(cdrom_image_option))
@@ -76,6 +75,10 @@ int main(int argc, char* argv[])
 	if(parser.isSet(debugger_option))
 	{
 		w.ShowDebugger();
+	}
+	if(parser.isSet(frame_debugger_option))
+	{
+		w.ShowFrameDebugger();
 	}
 #endif
 	return a.exec();
