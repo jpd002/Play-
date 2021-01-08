@@ -3,7 +3,6 @@
 OpenGLWindow::OpenGLWindow(QWindow* parent)
     : OutputWindow(parent)
 {
-
 	setSurfaceType(QWindow::OpenGLSurface);
 	setFormat(GetSurfaceFormat());
 }
@@ -18,6 +17,6 @@ QSurfaceFormat OpenGLWindow::GetSurfaceFormat()
 #endif
 	format.setProfile(QSurfaceFormat::CoreProfile);
 	format.setSwapBehavior(QSurfaceFormat::DoubleBuffer);
-
+	format.setAlphaBufferSize(0);
 	return format;
 }
