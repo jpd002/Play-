@@ -423,6 +423,18 @@ uint32 CIoman::GetStat(const char* path, Ioman::STAT* stat)
 {
 	CLog::GetInstance().Print(LOG_NAME, "GetStat(path = '%s', stat = ptr);\r\n", path);
 
+	//Try with a directory
+	{
+		int32 fd = Dopen(path);
+		if(fd >= 0)
+		{
+			Dclose(fd);
+			memset(stat, 0, sizeof(Ioman::STAT));
+			stat->mode = STAT_MODE_DIR;
+			return 0;
+		}
+	}
+
 	//Try with a file
 	{
 		int32 fd = Open(Ioman::CDevice::OPEN_FLAG_RDONLY, path);
@@ -433,18 +445,6 @@ uint32 CIoman::GetStat(const char* path, Ioman::STAT* stat)
 			memset(stat, 0, sizeof(Ioman::STAT));
 			stat->mode = STAT_MODE_FILE;
 			stat->loSize = size;
-			return 0;
-		}
-	}
-
-	//Try with a directory
-	{
-		int32 fd = Dopen(path);
-		if(fd >= 0)
-		{
-			Dclose(fd);
-			memset(stat, 0, sizeof(Ioman::STAT));
-			stat->mode = STAT_MODE_DIR;
 			return 0;
 		}
 	}
