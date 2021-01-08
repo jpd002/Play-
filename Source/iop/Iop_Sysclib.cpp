@@ -167,9 +167,9 @@ void CSysclib::Invoke(CMIPS& context, unsigned int functionId)
 	case 15:
 		//bcmp
 		context.m_State.nGPR[CMIPS::V0].nD0 = static_cast<int32>(__memcmp(
-			context.m_State.nGPR[CMIPS::A0].nV0,
-			context.m_State.nGPR[CMIPS::A1].nV0,
-			context.m_State.nGPR[CMIPS::A2].nV0));
+		    context.m_State.nGPR[CMIPS::A0].nV0,
+		    context.m_State.nGPR[CMIPS::A1].nV0,
+		    context.m_State.nGPR[CMIPS::A2].nV0));
 		break;
 	case 16:
 		//bcopy

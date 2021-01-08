@@ -483,8 +483,8 @@ uint32 CIoman::DelDrv(uint32 drvNamePtr)
 int32 CIoman::Mount(const char* fsName, const char* devicePath)
 {
 	CLog::GetInstance().Print(LOG_NAME, FUNCTION_MOUNT "(fsName = '%s', devicePath = '%s');\r\n",
-							  fsName, devicePath);
-	
+	                          fsName, devicePath);
+
 	auto pathInfo = SplitPath(devicePath);
 	auto deviceIterator = m_devices.find(pathInfo.deviceName);
 	if(deviceIterator == m_devices.end())
@@ -520,24 +520,24 @@ int32 CIoman::Umount(const char* deviceName)
 	auto mountedDeviceName = std::string(deviceName);
 	//Strip any colons we might have in the string
 	mountedDeviceName.erase(std::remove(mountedDeviceName.begin(), mountedDeviceName.end(), ':'), mountedDeviceName.end());
-	
+
 	auto deviceIterator = m_devices.find(mountedDeviceName);
 	if(deviceIterator == std::end(m_devices))
 	{
 		//Device not found
 		return -1;
 	}
-	
+
 	//We maybe need to make sure we don't have outstanding fds?
 	m_devices.erase(deviceIterator);
-	
+
 	return 0;
 }
 
 uint64 CIoman::Seek64(uint32 handle, int64 position, uint32 whence)
 {
 	CLog::GetInstance().Print(LOG_NAME, FUNCTION_SEEK64 "(handle = %d, position = %ld, whence = %d);\r\n",
-							  handle, position, whence);
+	                          handle, position, whence);
 
 	uint64 result = -1ULL;
 	assert(!IsUserDeviceFileHandle(handle));

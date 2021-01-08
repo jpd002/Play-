@@ -106,7 +106,7 @@ namespace Iop
 			uint32 unalignedSize;
 			uint8 unalignedData[64];
 		};
-		
+
 		struct SEEKCOMMAND
 		{
 			COMMANDHEADER header;
@@ -164,7 +164,7 @@ namespace Iop
 			char args[0x400];
 			uint32 argsSize;
 		};
-		
+
 		struct CCODECOMMAND
 		{
 			COMMANDHEADER header;
@@ -241,7 +241,7 @@ namespace Iop
 			uint32 unknown3 = 0;
 			uint32 unknown4 = 0;
 		};
-		
+
 		struct CLOSEREPLY
 		{
 			REPLYHEADER header;
@@ -276,7 +276,7 @@ namespace Iop
 			uint32 dstPtr;
 			Ioman::STAT stat;
 		};
-		
+
 		struct SEEK64REPLY
 		{
 			REPLYHEADER header;

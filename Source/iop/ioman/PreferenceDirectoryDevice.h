@@ -11,7 +11,7 @@ namespace Iop
 		{
 		public:
 			CPreferenceDirectoryDevice(const char* basePathPreferenceName)
-				: m_basePathPreferenceName(basePathPreferenceName)
+			    : m_basePathPreferenceName(basePathPreferenceName)
 			{
 			}
 
@@ -20,7 +20,7 @@ namespace Iop
 			{
 				return CAppConfig::GetInstance().GetPreferencePath(m_basePathPreferenceName.c_str());
 			}
-			
+
 		private:
 			std::string m_basePathPreferenceName;
 		};

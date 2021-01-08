@@ -201,7 +201,7 @@ int32 CModload::SearchModuleByName(uint32 moduleNamePtr)
 int32 CModload::AllocLoadMemory(uint32 unknown1, uint32 size, uint32 unknown2)
 {
 	CLog::GetInstance().Print(LOG_NAME, FUNCTION_ALLOCLOADMEMORY "(unknown1 = %d, size = 0x%08X, unknown2 = %d);\r\n",
-							  unknown1, size, unknown2);
+	                          unknown1, size, unknown2);
 	auto sysmem = m_bios.GetSysmem();
 	uint32 result = sysmem->AllocateMemory(size, 0, 0);
 	return result;

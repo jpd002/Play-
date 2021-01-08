@@ -873,25 +873,24 @@ bool CIopBios::TryGetImageVersionFromContents(const std::string& imagePath, unsi
 	static const std::string ioprpPatternString = "ioprp";
 
 	auto tryMatchVersionPattern =
-		[result](auto moduleVersionString, const std::string& patternString)
-		{
-			if(!strncmp(moduleVersionString, patternString.c_str(), patternString.size()))
-			{
-				//Found something
-				unsigned int imageVersion = atoi(moduleVersionString + patternString.size());
-				if(imageVersion < 1000) return false;
-				if(result)
-				{
-					(*result) = imageVersion;
-				}
-				return true;
-			}
-			else
-			{
-				return false;
-			}
-		};
-	
+	    [result](auto moduleVersionString, const std::string& patternString) {
+		    if(!strncmp(moduleVersionString, patternString.c_str(), patternString.size()))
+		    {
+			    //Found something
+			    unsigned int imageVersion = atoi(moduleVersionString + patternString.size());
+			    if(imageVersion < 1000) return false;
+			    if(result)
+			    {
+				    (*result) = imageVersion;
+			    }
+			    return true;
+		    }
+		    else
+		    {
+			    return false;
+		    }
+	    };
+
 	Iop::Ioman::CScopedFile file(fd, *m_ioman);
 	auto stream = m_ioman->GetFileStream(file);
 	while(1)

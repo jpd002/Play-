@@ -246,7 +246,7 @@ uint32 CFileIoHandler2200::InvokeWrite(uint32* args, uint32 argsSize, uint32* re
 	assert(argsSize >= 48);
 	assert(retSize == 4);
 	auto command = reinterpret_cast<WRITECOMMAND*>(args);
-	
+
 	assert(command->unalignedSize == 0);
 	uint32 writeAddress = command->buffer & (PS2::EE_RAM_SIZE - 1);
 	auto result = m_ioman->Write(command->fd, command->size, reinterpret_cast<const void*>(ram + writeAddress));
@@ -296,7 +296,7 @@ uint32 CFileIoHandler2200::InvokeRmdir(uint32* args, uint32 argsSize, uint32* re
 	assert(retSize == 4);
 	auto command = reinterpret_cast<CCODECOMMAND*>(args);
 	auto result = 0;
-	
+
 	CLog::GetInstance().Print(LOG_NAME, "Rmdir('%s');\r\n", command->path);
 
 	PrepareGenericReply(ram, command->header, COMMANDID_RMDIR, result);
@@ -379,7 +379,7 @@ uint32 CFileIoHandler2200::InvokeChstat(uint32* args, uint32 argsSize, uint32* r
 {
 	assert(retSize == 4);
 	auto command = reinterpret_cast<CHSTATCOMMAND*>(args);
-	
+
 	CLog::GetInstance().Print(LOG_NAME, "Chstat('%s', %d);\r\n", command->path, command->flags);
 
 	auto result = 0;
@@ -393,13 +393,13 @@ uint32 CFileIoHandler2200::InvokeFormat(uint32* args, uint32 argsSize, uint32* r
 {
 	assert(argsSize >= 0xC10);
 	assert(retSize == 4);
-	
+
 	auto command = reinterpret_cast<FORMATCOMMAND*>(args);
-	
+
 	//This is a stub and is not implemented yet
 	CLog::GetInstance().Print(LOG_NAME, "Format(device = '%s', blockDevice = '%s', args, argsSize = %d);\r\n",
-							  command->device, command->blockDevice, command->argsSize);
-	
+	                          command->device, command->blockDevice, command->argsSize);
+
 	PrepareGenericReply(ram, command->header, COMMANDID_FORMAT, 0);
 	SendSifReply();
 	return 1;
@@ -424,7 +424,7 @@ uint32 CFileIoHandler2200::InvokeSync(uint32* args, uint32 argsSize, uint32* ret
 	assert(argsSize >= 0x414);
 	assert(retSize == 4);
 	auto command = reinterpret_cast<SYNCCOMMAND*>(args);
-	
+
 	//Seems deviceName can be either a string or a fd (FFX)
 	CLog::GetInstance().Print(LOG_NAME, "Sync(...);\r\n");
 
@@ -495,7 +495,7 @@ uint32 CFileIoHandler2200::InvokeDevctl(uint32* args, uint32 argsSize, uint32* r
 	uint32 result = 0;
 
 	CLog::GetInstance().Print(LOG_NAME, "DevCtl('%s') -> ", command->device);
-	
+
 	switch(command->cmdId)
 	{
 	case DEVCTL_CDVD_GETERROR:
@@ -554,7 +554,7 @@ uint32 CFileIoHandler2200::InvokeIoctl2(uint32* args, uint32 argsSize, uint32* r
 		CLog::GetInstance().Warn(LOG_NAME, "IoCtl2 -> Unknown(cmd = %08X);\r\n", command->cmdId);
 		break;
 	}
-	
+
 	PrepareGenericReply(ram, command->header, COMMANDID_IOCTL2, 0);
 	SendSifReply();
 	return 1;

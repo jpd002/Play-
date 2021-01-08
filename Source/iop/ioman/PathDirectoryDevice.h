@@ -11,7 +11,7 @@ namespace Iop
 		{
 		public:
 			CPathDirectoryDevice(const fs::path& basePath)
-				: m_basePath(basePath)
+			    : m_basePath(basePath)
 			{
 			}
 
@@ -20,7 +20,7 @@ namespace Iop
 			{
 				return m_basePath;
 			}
-			
+
 		private:
 			fs::path m_basePath;
 		};
