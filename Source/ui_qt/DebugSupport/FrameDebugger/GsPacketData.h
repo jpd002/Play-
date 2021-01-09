@@ -20,6 +20,7 @@ public:
 
 	int GetCmdIndex() const;
 	bool IsDrawKick();
+
 private:
 	QVector<GsPacketData*> m_children;
 	QVariant m_data;

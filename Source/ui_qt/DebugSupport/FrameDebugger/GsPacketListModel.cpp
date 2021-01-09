@@ -26,7 +26,7 @@ QVariant PacketTreeModel::data(const QModelIndex& index, int role) const
 	if(!index.isValid())
 		return QVariant();
 
-	if(role ==  Qt::FontRole)
+	if(role == Qt::FontRole)
 	{
 		GsPacketData* item = static_cast<GsPacketData*>(index.internalPointer());
 		if(item->IsDrawKick())
