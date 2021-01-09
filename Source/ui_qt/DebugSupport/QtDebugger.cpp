@@ -395,45 +395,57 @@ void QtDebugger::Layout1024()
 {
 	static_cast<QWidget*>(GetDisassemblyWindow()->parent())->setGeometry(0, 0, 700, 435);
 	static_cast<QWidget*>(GetDisassemblyWindow()->parent())->show();
+	GetDisassemblyWindow()->show();
 
 	static_cast<QWidget*>(GetRegisterViewWindow()->parent())->setGeometry(700, 0, 324, 572);
 	static_cast<QWidget*>(GetRegisterViewWindow()->parent())->show();
+	GetRegisterViewWindow()->show();
 
 	static_cast<QWidget*>(GetMemoryViewWindow()->parent())->setGeometry(0, 435, 700, 265);
 	static_cast<QWidget*>(GetMemoryViewWindow()->parent())->show();
+	GetMemoryViewWindow()->show();
 
 	static_cast<QWidget*>(GetCallStackWindow()->parent())->setGeometry(700, 572, 324, 128);
 	static_cast<QWidget*>(GetCallStackWindow()->parent())->show();
+	GetCallStackWindow()->show();
 }
 
 void QtDebugger::Layout1280()
 {
 	static_cast<QWidget*>(GetDisassemblyWindow()->parent())->setGeometry(0, 0, 900, 540);
 	static_cast<QWidget*>(GetDisassemblyWindow()->parent())->show();
+	GetDisassemblyWindow()->show();
 
 	static_cast<QWidget*>(GetRegisterViewWindow()->parent())->setGeometry(900, 0, 380, 784);
 	static_cast<QWidget*>(GetRegisterViewWindow()->parent())->show();
+	GetRegisterViewWindow()->show();
 
 	static_cast<QWidget*>(GetMemoryViewWindow()->parent())->setGeometry(0, 540, 900, 416);
 	static_cast<QWidget*>(GetMemoryViewWindow()->parent())->show();
+	GetMemoryViewWindow()->show();
 
 	static_cast<QWidget*>(GetCallStackWindow()->parent())->setGeometry(900, 784, 380, 172);
 	static_cast<QWidget*>(GetCallStackWindow()->parent())->show();
+	GetCallStackWindow()->show();
 }
 
 void QtDebugger::Layout1600()
 {
 	static_cast<QWidget*>(GetDisassemblyWindow()->parent())->setGeometry(0, 0, 1094, 725);
 	static_cast<QWidget*>(GetDisassemblyWindow()->parent())->show();
+	GetDisassemblyWindow()->show();
 
 	static_cast<QWidget*>(GetRegisterViewWindow()->parent())->setGeometry(1094, 0, 506, 725);
 	static_cast<QWidget*>(GetRegisterViewWindow()->parent())->show();
+	GetRegisterViewWindow()->show();
 
 	static_cast<QWidget*>(GetMemoryViewWindow()->parent())->setGeometry(0, 725, 1094, 407);
 	static_cast<QWidget*>(GetMemoryViewWindow()->parent())->show();
+	GetMemoryViewWindow()->show();
 
 	static_cast<QWidget*>(GetCallStackWindow()->parent())->setGeometry(1094, 725, 506, 407);
 	static_cast<QWidget*>(GetCallStackWindow()->parent())->show();
+	GetCallStackWindow()->show();
 }
 
 void QtDebugger::ActivateView(unsigned int nView)
@@ -783,6 +795,7 @@ void QtDebugger::on_actionFind_Word_Half_Value_triggered()
 
 void QtDebugger::on_actionCall_Stack_triggered()
 {
+	GetCallStackWindow()->show();
 	static_cast<QWidget*>(GetCallStackWindow()->parent())->show();
 	static_cast<QWidget*>(GetCallStackWindow()->parent())->setFocus(Qt::ActiveWindowFocusReason);
 }
@@ -801,12 +814,14 @@ void QtDebugger::on_actionThreads_triggered()
 
 void QtDebugger::on_actionView_Disassmebly_triggered()
 {
+	GetDisassemblyWindow()->show();
 	static_cast<QWidget*>(GetDisassemblyWindow()->parent())->show();
 	static_cast<QWidget*>(GetDisassemblyWindow()->parent())->setFocus(Qt::ActiveWindowFocusReason);
 }
 
 void QtDebugger::on_actionView_Registers_triggered()
 {
+	GetRegisterViewWindow()->show();
 	static_cast<QWidget*>(GetRegisterViewWindow()->parent())->show();
 	static_cast<QWidget*>(GetRegisterViewWindow()->parent())->setFocus(Qt::ActiveWindowFocusReason);
 }

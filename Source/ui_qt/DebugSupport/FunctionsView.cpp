@@ -54,6 +54,12 @@ CFunctionsView::CFunctionsView(QMdiArea* parent)
 	m_treeWidget->header()->setVisible(true);
 }
 
+void CFunctionsView::showEvent(QShowEvent* evt)
+{
+	QMdiSubWindow::showEvent(evt);
+	widget()->show();
+}
+
 void CFunctionsView::Refresh()
 {
 	RefreshList();

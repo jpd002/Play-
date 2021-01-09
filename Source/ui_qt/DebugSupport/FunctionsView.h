@@ -29,6 +29,9 @@ public slots:
 	void OnDeleteClick();
 	void OnImportClick();
 
+protected:
+	void showEvent(QShowEvent*) Q_DECL_OVERRIDE;
+
 private:
 	void RefreshList();
 	void InitializeModuleGrouper();
