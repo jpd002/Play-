@@ -26,6 +26,16 @@ QVariant PacketTreeModel::data(const QModelIndex& index, int role) const
 	if(!index.isValid())
 		return QVariant();
 
+	if(role ==  Qt::FontRole)
+	{
+		GsPacketData* item = static_cast<GsPacketData*>(index.internalPointer());
+		if(item->IsDrawKick())
+		{
+			QFont boldFont;
+			boldFont.setBold(true);
+			return boldFont;
+		}
+	}
 	if(role != Qt::DisplayRole)
 		return QVariant();
 
@@ -128,9 +138,10 @@ void PacketTreeModel::setupModelData(CFrameDump& m_frameDump)
 		auto cmdIndexStart = cmdIndex;
 		for(const auto& registerWrite : packet.registerWrites)
 		{
+
 			auto packetWriteDescription = CGSHandler::DisassembleWrite(registerWrite.first, registerWrite.second);
 			auto GsPacketDataText = string_format("%04X: %s", cmdIndex - cmdIndexStart, packetWriteDescription.c_str());
-			parent->appendChild(new GsPacketData(GsPacketDataText.c_str(), cmdIndex, parent));
+			parent->appendChild(new GsPacketData(GsPacketDataText.c_str(), cmdIndex, parent, drawingKicks.count(cmdIndex) > 0));
 			++cmdIndex;
 		}
 		++packetIndex;

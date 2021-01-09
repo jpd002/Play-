@@ -6,7 +6,7 @@
 class GsPacketData
 {
 public:
-	explicit GsPacketData(const QVariant&, int, GsPacketData* = nullptr);
+	explicit GsPacketData(const QVariant&, int, GsPacketData* = nullptr, bool = false);
 	~GsPacketData();
 
 	void appendChild(GsPacketData*);
@@ -19,10 +19,11 @@ public:
 	GsPacketData* parent();
 
 	int GetCmdIndex() const;
-
+	bool IsDrawKick();
 private:
 	QVector<GsPacketData*> m_children;
 	QVariant m_data;
 	GsPacketData* m_parent;
 	int m_cmdIndex = 0;
+	bool m_isDrawKick = false;
 };
