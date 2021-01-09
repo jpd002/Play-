@@ -236,6 +236,7 @@ void QtFramedebugger::on_nextKickButton_clicked()
 				auto childIndex = PacketTreeModel->index(j, 0, parentIndex);
 				ui->treeView->expand(parentIndex);
 				selectionMode->select(childIndex, QItemSelectionModel::Select | QItemSelectionModel::Clear);
+				ui->treeView->scrollTo(childIndex);
 				break;
 			}
 			++j;
@@ -294,6 +295,7 @@ void QtFramedebugger::on_prevKickbutton_clicked()
 				auto childIndex = PacketTreeModel->index(j, 0, parentIndex);
 				ui->treeView->expand(parentIndex);
 				selectionMode->select(childIndex, QItemSelectionModel::Select | QItemSelectionModel::Clear);
+				ui->treeView->scrollTo(childIndex);
 				break;
 			}
 			++j;
