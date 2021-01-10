@@ -2231,8 +2231,8 @@ Framework::CBitmap CGSH_OpenGL::GetFramebufferImpl(uint64 frameReg)
 	else
 	{
 		glBindFramebuffer(GL_FRAMEBUFFER, framebuffer->m_framebuffer);
-		auto imgbuffer = Framework::CBitmap(framebuffer->m_width, framebuffer->m_height, 32);
-		glReadPixels(0, 0, framebuffer->m_width, framebuffer->m_height, GL_BGRA, GL_UNSIGNED_BYTE, imgbuffer.GetPixels());
+		auto imgbuffer = Framework::CBitmap(framebuffer->m_width * m_fbScale, framebuffer->m_height * m_fbScale, 32);
+		glReadPixels(0, 0, framebuffer->m_width * m_fbScale, framebuffer->m_height * m_fbScale, GL_BGRA, GL_UNSIGNED_BYTE, imgbuffer.GetPixels());
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		return imgbuffer;
 	}
