@@ -185,8 +185,8 @@ void QtFramedebugger::StepVu1()
 void QtFramedebugger::on_nextKickButton_clicked()
 {
 	auto selectionMode = ui->treeView->selectionModel();
-	auto PacketTreeModel = ui->treeView->model();
-	if(!PacketTreeModel || !selectionMode)
+	auto packetTreeModel = ui->treeView->model();
+	if(!packetTreeModel || !selectionMode)
 	{
 		return;
 	}
@@ -206,40 +206,17 @@ void QtFramedebugger::on_nextKickButton_clicked()
 		return;
 	}
 	auto nextCmdIndex = nextKickIndexIterator->first;
-
-	GsPacketData* parent = nullptr;
-	int i = 0;
-	for(i = GetParentRow(); i <= ui->treeView->model()->rowCount(); ++i)
+	auto kicks = static_cast<PacketTreeModel*>(packetTreeModel)->GetDrawKickIndexes();
+	for(const auto& indexes : kicks)
 	{
-		auto index = PacketTreeModel->index(i, 0);
-		if(index.isValid())
+		if(indexes.cmdIndex == nextCmdIndex)
 		{
-			auto item = static_cast<GsPacketData*>(index.internalPointer());
-			if(item->GetCmdIndex() <= nextCmdIndex)
-			{
-				parent = item;
-			}
-			else
-			{
-				break;
-			}
-		}
-	}
-	if(parent)
-	{
-		int j = 0;
-		for(auto child : parent->Children())
-		{
-			if(child->GetCmdIndex() == nextCmdIndex)
-			{
-				auto parentIndex = PacketTreeModel->index(i - 1, 0);
-				auto childIndex = PacketTreeModel->index(j, 0, parentIndex);
-				ui->treeView->expand(parentIndex);
-				selectionMode->select(childIndex, QItemSelectionModel::Select | QItemSelectionModel::Clear);
-				ui->treeView->scrollTo(childIndex);
-				break;
-			}
-			++j;
+			auto parentIndex = packetTreeModel->index(indexes.parentIndex, 0);
+			auto childIndex = packetTreeModel->index(indexes.childIndex, 0, parentIndex);
+			ui->treeView->expand(parentIndex);
+			selectionMode->select(childIndex, QItemSelectionModel::Select | QItemSelectionModel::Clear);
+			ui->treeView->scrollTo(childIndex);
+			break;
 		}
 	}
 }
@@ -247,8 +224,8 @@ void QtFramedebugger::on_nextKickButton_clicked()
 void QtFramedebugger::on_prevKickbutton_clicked()
 {
 	auto selectionMode = ui->treeView->selectionModel();
-	auto PacketTreeModel = ui->treeView->model();
-	if(!PacketTreeModel || !selectionMode)
+	auto packetTreeModel = ui->treeView->model();
+	if(!packetTreeModel || !selectionMode)
 	{
 		return;
 	}
@@ -268,61 +245,19 @@ void QtFramedebugger::on_prevKickbutton_clicked()
 		return;
 	}
 	auto prevCmdIndex = prevKickIndexIterator->first;
-
-	GsPacketData* parent = nullptr;
-	int i = 0;
-	for(i = GetParentRow(); i >= 0; --i)
+	auto kicks = static_cast<PacketTreeModel*>(packetTreeModel)->GetDrawKickIndexes();
+	for(const auto& indexes : kicks)
 	{
-		auto index = PacketTreeModel->index(i, 0);
-		if(index.isValid())
+		if(indexes.cmdIndex == prevCmdIndex)
 		{
-			auto item = static_cast<GsPacketData*>(index.internalPointer());
-			if(item->GetCmdIndex() <= prevCmdIndex)
-			{
-				parent = item;
-				break;
-			}
+			auto parentIndex = packetTreeModel->index(indexes.parentIndex, 0);
+			auto childIndex = packetTreeModel->index(indexes.childIndex, 0, parentIndex);
+			ui->treeView->expand(parentIndex);
+			selectionMode->select(childIndex, QItemSelectionModel::Select | QItemSelectionModel::Clear);
+			ui->treeView->scrollTo(childIndex);
+			break;
 		}
 	}
-	if(parent)
-	{
-		int j = 0;
-		for(auto child : parent->Children())
-		{
-			if(child->GetCmdIndex() == prevCmdIndex)
-			{
-				auto parentIndex = PacketTreeModel->index(i, 0);
-				auto childIndex = PacketTreeModel->index(j, 0, parentIndex);
-				ui->treeView->expand(parentIndex);
-				selectionMode->select(childIndex, QItemSelectionModel::Select | QItemSelectionModel::Clear);
-				ui->treeView->scrollTo(childIndex);
-				break;
-			}
-			++j;
-		}
-	}
-}
-
-int QtFramedebugger::GetParentRow()
-{
-	int row = 0;
-	auto selectionMode = ui->treeView->selectionModel();
-	if(!selectionMode->selectedIndexes().empty())
-	{
-		auto selected_index = selectionMode->selectedIndexes().first();
-		if(selected_index.isValid())
-		{
-			if(selected_index.parent().isValid())
-			{
-				row = selected_index.parent().row();
-			}
-			else
-			{
-				row = selected_index.row();
-			}
-		}
-	}
-	return row;
 }
 
 void QtFramedebugger::selectionChanged()

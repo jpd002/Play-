@@ -109,6 +109,7 @@ int PacketTreeModel::rowCount(const QModelIndex& parent) const
 void PacketTreeModel::setupModelData(CFrameDump& m_frameDump)
 {
 	uint32 packetIndex = 0, cmdIndex = 0;
+	m_drawKickIndexInfo.clear();
 	const auto& drawingKicks = m_frameDump.GetDrawingKicks();
 	for(const auto& packet : m_frameDump.GetPackets())
 	{
@@ -138,12 +139,21 @@ void PacketTreeModel::setupModelData(CFrameDump& m_frameDump)
 		auto cmdIndexStart = cmdIndex;
 		for(const auto& registerWrite : packet.registerWrites)
 		{
-
+			bool isKickDraw = drawingKicks.count(cmdIndex) > 0;
 			auto packetWriteDescription = CGSHandler::DisassembleWrite(registerWrite.first, registerWrite.second);
 			auto GsPacketDataText = string_format("%04X: %s", cmdIndex - cmdIndexStart, packetWriteDescription.c_str());
-			parent->appendChild(new GsPacketData(GsPacketDataText.c_str(), cmdIndex, parent, drawingKicks.count(cmdIndex) > 0));
+			parent->appendChild(new GsPacketData(GsPacketDataText.c_str(), cmdIndex, parent, isKickDraw));
+			if(isKickDraw)
+			{
+				m_drawKickIndexInfo.push_back({packetIndex, cmdIndex - cmdIndexStart, cmdIndex});
+			}
 			++cmdIndex;
 		}
 		++packetIndex;
 	}
+}
+
+const std::vector<PacketTreeModel::DrawKickIndexInfo>& PacketTreeModel::GetDrawKickIndexes()
+{
+	return m_drawKickIndexInfo;
 }
