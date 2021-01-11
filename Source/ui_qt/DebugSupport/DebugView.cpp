@@ -2,7 +2,7 @@
 #include "BiosDebugInfoProvider.h"
 #include <QVBoxLayout>
 
-CDebugView::CDebugView(QMdiArea* parent, CVirtualMachine& virtualMachine, CMIPS* ctx,
+CDebugView::CDebugView(QWidget* parent, QMdiArea* mdiArea, CVirtualMachine& virtualMachine, CMIPS* ctx,
                        const StepFunction& stepFunction, CBiosDebugInfoProvider* biosDebugInfoProvider, const char* name, int size, CQtDisAsmTableModel::DISASM_TYPE disAsmType)
     : m_virtualMachine(virtualMachine)
     , m_ctx(ctx)
@@ -16,22 +16,22 @@ CDebugView::CDebugView(QMdiArea* parent, CVirtualMachine& virtualMachine, CMIPS*
 {
 
 	auto disAsm = new CDisAsmWnd(parent, virtualMachine, m_ctx, name, disAsmType);
-	m_disAsmWnd = new QMdiSubWindow(parent);
+	m_disAsmWnd = new QMdiSubWindow(mdiArea);
 	m_disAsmWnd->setWidget(disAsm);
 	m_disAsmWnd->setWindowTitle("Disassembly");
 
 	auto regViewWnd = new CRegViewWnd(parent, m_ctx);
-	m_regViewWnd = new QMdiSubWindow(parent);
+	m_regViewWnd = new QMdiSubWindow(mdiArea);
 	m_regViewWnd->setWidget(regViewWnd);
 	m_regViewWnd->setWindowTitle("Registers");
 
 	auto memoryViewWnd = new CMemoryViewMIPSWnd(parent, virtualMachine, m_ctx, size);
-	m_memoryViewWnd = new QMdiSubWindow(parent);
+	m_memoryViewWnd = new QMdiSubWindow(mdiArea);
 	m_memoryViewWnd->setWidget(memoryViewWnd);
 	m_memoryViewWnd->setWindowTitle("Memory View");
 
 	auto callStackWnd = new CCallStackWnd(parent, m_ctx, m_biosDebugInfoProvider);
-	m_callStackWnd = new QMdiSubWindow(parent);
+	m_callStackWnd = new QMdiSubWindow(mdiArea);
 	m_callStackWnd->setWidget(callStackWnd);
 	m_callStackWnd->setWindowTitle("Call Stack");
 

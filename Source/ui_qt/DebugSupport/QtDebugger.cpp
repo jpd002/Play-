@@ -59,13 +59,13 @@ QtDebugger::QtDebugger(CPS2VM& virtualMachine)
 	//Debug Views Initialization
 	m_nCurrentView = -1;
 
-	m_pView[DEBUGVIEW_EE] = new CDebugView(ui->mdiArea, m_virtualMachine, &m_virtualMachine.m_ee->m_EE,
+	m_pView[DEBUGVIEW_EE] = new CDebugView(this, ui->mdiArea, m_virtualMachine, &m_virtualMachine.m_ee->m_EE,
 	                                       std::bind(&CPS2VM::StepEe, &m_virtualMachine), m_virtualMachine.m_ee->m_os, "EmotionEngine", PS2::EE_RAM_SIZE + PS2::EE_BIOS_SIZE);
-	m_pView[DEBUGVIEW_VU0] = new CDebugView(ui->mdiArea, m_virtualMachine, &m_virtualMachine.m_ee->m_VU0,
+	m_pView[DEBUGVIEW_VU0] = new CDebugView(this, ui->mdiArea, m_virtualMachine, &m_virtualMachine.m_ee->m_VU0,
 	                                        std::bind(&CPS2VM::StepVu0, &m_virtualMachine), nullptr, "Vector Unit 0", PS2::VUMEM0SIZE, CQtDisAsmTableModel::DISASM_VU);
-	m_pView[DEBUGVIEW_VU1] = new CDebugView(ui->mdiArea, m_virtualMachine, &m_virtualMachine.m_ee->m_VU1,
+	m_pView[DEBUGVIEW_VU1] = new CDebugView(this, ui->mdiArea, m_virtualMachine, &m_virtualMachine.m_ee->m_VU1,
 	                                        std::bind(&CPS2VM::StepVu1, &m_virtualMachine), nullptr, "Vector Unit 1", PS2::VUMEM1SIZE, CQtDisAsmTableModel::DISASM_VU);
-	m_pView[DEBUGVIEW_IOP] = new CDebugView(ui->mdiArea, m_virtualMachine, &m_virtualMachine.m_iop->m_cpu,
+	m_pView[DEBUGVIEW_IOP] = new CDebugView(this, ui->mdiArea, m_virtualMachine, &m_virtualMachine.m_iop->m_cpu,
 	                                        std::bind(&CPS2VM::StepIop, &m_virtualMachine), m_virtualMachine.m_iop->m_bios.get(), "IO Processor", PS2::IOP_RAM_SIZE);
 
 	m_OnExecutableChangeConnection = m_virtualMachine.m_ee->m_os->OnExecutableChange.Connect(std::bind(&QtDebugger::OnExecutableChange, this));
