@@ -17,6 +17,13 @@ public:
 	explicit PacketTreeModel(QWidget* = nullptr);
 	~PacketTreeModel();
 
+	struct DrawKickIndexInfo
+	{
+		uint32 parentIndex;
+		uint32 childIndex;
+		uint32 cmdIndex;
+	};
+
 	QVariant data(const QModelIndex&, int) const override;
 	Qt::ItemFlags flags(const QModelIndex&) const override;
 	QVariant headerData(int, Qt::Orientation, int = Qt::DisplayRole) const override;
@@ -26,7 +33,9 @@ public:
 	int columnCount(const QModelIndex& = QModelIndex()) const override;
 
 	void setupModelData(CFrameDump&);
+	const std::vector<DrawKickIndexInfo>& GetDrawKickIndexes();
 
 private:
 	GsPacketData* m_rootItem;
+	std::vector<DrawKickIndexInfo> m_drawKickIndexInfo;
 };

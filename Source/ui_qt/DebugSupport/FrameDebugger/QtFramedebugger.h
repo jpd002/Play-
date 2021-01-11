@@ -45,7 +45,6 @@ private slots:
 	void on_nextKickButton_clicked();
 
 private:
-	int GetParentRow();
 	void selectionChanged();
 	void ShowContextMenu(const QPoint&);
 

@@ -1,9 +1,10 @@
 #include "GsPacketData.h"
 
-GsPacketData::GsPacketData(const QVariant& data, int cmdIndex, GsPacketData* parent)
+GsPacketData::GsPacketData(const QVariant& data, int cmdIndex, GsPacketData* parent, bool isDrawKick)
     : m_data(data)
     , m_parent(parent)
     , m_cmdIndex(cmdIndex)
+    , m_isDrawKick(isDrawKick)
 {
 }
 
@@ -55,4 +56,9 @@ int GsPacketData::row() const
 int GsPacketData::GetCmdIndex() const
 {
 	return m_cmdIndex;
+}
+
+bool GsPacketData::IsDrawKick()
+{
+	return m_isDrawKick;
 }
