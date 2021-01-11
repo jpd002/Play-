@@ -125,15 +125,15 @@ void CGsContextView::UpdateFramebufferView()
 		return;
 	}
 
-
+	auto scale = CAppConfig::GetInstance().GetPreferenceInteger(PREF_CGSH_OPENGL_RESOLUTION_FACTOR);
 	//Clip framebuffer
 	if(m_fbDisplayMode == FB_DISPLAY_MODE_448P)
 	{
-		framebuffer = framebuffer.ResizeCanvas(640, 448);
+		framebuffer = framebuffer.ResizeCanvas(640 * scale, 448 * scale);
 	}
 	else if(m_fbDisplayMode == FB_DISPLAY_MODE_448I)
 	{
-		framebuffer = framebuffer.ResizeCanvas(640, 224);
+		framebuffer = framebuffer.ResizeCanvas(640 * scale, 224 * scale);
 	}
 
 	Framework::CBitmap alphaFramebuffer;
@@ -144,13 +144,13 @@ void CGsContextView::UpdateFramebufferView()
 	}
 
 	auto postProcessFramebuffer =
-	    [this](Framework::CBitmap src) {
+	    [this, scale](Framework::CBitmap src) {
 		    if(!src.IsEmpty())
 		    {
 			    RenderDrawKick(src);
 			    if(m_fbDisplayMode == FB_DISPLAY_MODE_448I)
 			    {
-				    src = src.Resize(640, 448);
+				    src = src.Resize(640 * scale, 448 * scale);
 			    }
 		    }
 		    return src;
