@@ -647,6 +647,8 @@ int32 CIoman::OpenVirtual(CMIPS& context)
 
 	auto path = reinterpret_cast<const char*>(m_ram + pathPtr);
 
+	CLog::GetInstance().Print(LOG_NAME, "OpenVirtual(flags = 0x%08X, path = '%s');\r\n", flags, path);
+
 	int32 handle = PreOpen(flags, path);
 	if(handle < 0)
 	{
@@ -682,6 +684,8 @@ int32 CIoman::CloseVirtual(CMIPS& context)
 {
 	int32 handle = context.m_State.nGPR[CMIPS::A0].nV0;
 
+	CLog::GetInstance().Print(LOG_NAME, "CloseVirtual(handle = %d);\r\n", handle);
+
 	auto fileIterator = m_files.find(handle);
 	if(fileIterator == std::end(m_files))
 	{
@@ -712,6 +716,8 @@ int32 CIoman::ReadVirtual(CMIPS& context)
 	uint32 bufferPtr = context.m_State.nGPR[CMIPS::A1].nV0;
 	uint32 count = context.m_State.nGPR[CMIPS::A2].nV0;
 
+	CLog::GetInstance().Print(LOG_NAME, "ReadVirtual(handle = %d, size = 0x%X, buffer = ptr);\r\n", handle, count);
+
 	auto fileIterator = m_files.find(handle);
 	if(fileIterator == std::end(m_files))
 	{
@@ -740,6 +746,9 @@ int32 CIoman::SeekVirtual(CMIPS& context)
 	int32 handle = context.m_State.nGPR[CMIPS::A0].nV0;
 	uint32 position = context.m_State.nGPR[CMIPS::A1].nV0;
 	uint32 whence = context.m_State.nGPR[CMIPS::A2].nV0;
+
+	CLog::GetInstance().Print(LOG_NAME, "SeekVirtual(handle = %d, position = %d, whence = %d);\r\n",
+	                          handle, position, whence);
 
 	auto fileIterator = m_files.find(handle);
 	if(fileIterator == std::end(m_files))
