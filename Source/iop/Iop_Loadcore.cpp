@@ -158,6 +158,10 @@ uint32 CLoadcore::RegisterLibraryEntries(uint32 exportTablePtr)
 	uint32* exportTable = reinterpret_cast<uint32*>(&m_ram[exportTablePtr]);
 	auto module = std::make_shared<CDynamic>(exportTable);
 	bool registered = m_bios.RegisterModule(module);
+	if(!registered)
+	{
+		CLog::GetInstance().Warn(LOG_NAME, "Failed to register library '%s'.\r\n", module->GetId().c_str());
+	}
 	return 0;
 }
 
