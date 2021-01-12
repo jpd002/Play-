@@ -350,6 +350,7 @@ void Compile(const char* databasePathName, const char* cpuArchName, const char* 
 			blockTableStream.Write32(functionTableItem.key.crc);
 			blockTableStream.Write32(functionTableItem.key.begin);
 			blockTableStream.Write32(functionTableItem.key.end);
+			blockTableStream.Write32(functionTableItem.key.align);
 
 			{
 				Jitter::CObjectFile::SYMBOL_REFERENCE ref;

@@ -154,7 +154,7 @@ void CBasicBlock::Compile()
 	AOT_BLOCK* blocksBegin = &_aot_firstBlock;
 	AOT_BLOCK* blocksEnd = blocksBegin + _aot_blockCount;
 
-	AOT_BLOCK blockRef = {blockChecksum, m_begin, m_end, nullptr};
+	AOT_BLOCK blockRef = {blockChecksum, m_begin, m_end, 0, nullptr};
 
 	static const auto blockComparer =
 	    [](const AOT_BLOCK& item1, const AOT_BLOCK& item2) {
