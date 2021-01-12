@@ -64,8 +64,8 @@ CDisAsmWnd::CDisAsmWnd(QWidget* parent, CVirtualMachine& virtualMachine, CMIPS* 
 	}
 	else
 	{
-		header->setSectionResizeMode(6, QHeaderView::ResizeToContents);
-		header->setSectionResizeMode(7, QHeaderView::ResizeToContents);
+		header->setSectionResizeMode(6, QHeaderView::Interactive);
+		header->setSectionResizeMode(7, QHeaderView::Interactive);
 		header->setSectionResizeMode(8, QHeaderView::Stretch);
 	}
 
@@ -74,7 +74,12 @@ CDisAsmWnd::CDisAsmWnd(QWidget* parent, CVirtualMachine& virtualMachine, CMIPS* 
 
 	header->resizeSection(4, 80);
 	header->resizeSection(5, 160);
-
+	if(disAsmType == CQtDisAsmTableModel::DISASM_VU)
+	{
+		header->resizeSection(6, 80);
+		header->resizeSection(7, 160);
+	}
+	
 	setContextMenuPolicy(Qt::CustomContextMenu);
 	connect(this, &QTableView::customContextMenuRequested, this, &CDisAsmWnd::ShowContextMenu);
 
