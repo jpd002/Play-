@@ -2,6 +2,7 @@
 #include "GsStateUtils.h"
 #include "gs/GsPixelFormats.h"
 #include "gs/GSH_OpenGL/GSH_OpenGL.h"
+#include "../../../AppConfig.h"
 
 #include <QVBoxLayout>
 
@@ -124,14 +125,15 @@ void CGsContextView::UpdateFramebufferView()
 		return;
 	}
 
+	auto scale = CAppConfig::GetInstance().GetPreferenceInteger(PREF_CGSH_OPENGL_RESOLUTION_FACTOR);
 	//Clip framebuffer
 	if(m_fbDisplayMode == FB_DISPLAY_MODE_448P)
 	{
-		framebuffer = framebuffer.ResizeCanvas(640, 448);
+		framebuffer = framebuffer.ResizeCanvas(640 * scale, 448 * scale);
 	}
 	else if(m_fbDisplayMode == FB_DISPLAY_MODE_448I)
 	{
-		framebuffer = framebuffer.ResizeCanvas(640, 224);
+		framebuffer = framebuffer.ResizeCanvas(640 * scale, 224 * scale);
 	}
 
 	Framework::CBitmap alphaFramebuffer;
@@ -142,13 +144,13 @@ void CGsContextView::UpdateFramebufferView()
 	}
 
 	auto postProcessFramebuffer =
-	    [this](Framework::CBitmap src) {
+	    [this, scale](Framework::CBitmap src) {
 		    if(!src.IsEmpty())
 		    {
 			    RenderDrawKick(src);
 			    if(m_fbDisplayMode == FB_DISPLAY_MODE_448I)
 			    {
-				    src = src.Resize(640, 448);
+				    src = src.Resize(640 * scale, 448 * scale);
 			    }
 		    }
 		    return src;
@@ -172,19 +174,19 @@ void CGsContextView::RenderDrawKick(Framework::CBitmap& bitmap)
 	if(m_drawingKick.context != m_contextId) return;
 
 	auto primHighlightColor = Framework::CColor(0, 0xFF, 0, 0xFF);
-
+	int scale = CAppConfig::GetInstance().GetPreferenceInteger(PREF_CGSH_OPENGL_RESOLUTION_FACTOR);
 	switch(m_drawingKick.primType)
 	{
 	case CGSHandler::PRIM_TRIANGLE:
 	case CGSHandler::PRIM_TRIANGLESTRIP:
 	case CGSHandler::PRIM_TRIANGLEFAN:
 	{
-		int x1 = static_cast<int16>(m_drawingKick.vertex[0].x) / 16;
-		int y1 = static_cast<int16>(m_drawingKick.vertex[0].y) / 16;
-		int x2 = static_cast<int16>(m_drawingKick.vertex[1].x) / 16;
-		int y2 = static_cast<int16>(m_drawingKick.vertex[1].y) / 16;
-		int x3 = static_cast<int16>(m_drawingKick.vertex[2].x) / 16;
-		int y3 = static_cast<int16>(m_drawingKick.vertex[2].y) / 16;
+		int x1 = (static_cast<int16>(m_drawingKick.vertex[0].x) / 16) * scale;
+		int y1 = (static_cast<int16>(m_drawingKick.vertex[0].y) / 16) * scale;
+		int x2 = (static_cast<int16>(m_drawingKick.vertex[1].x) / 16) * scale;
+		int y2 = (static_cast<int16>(m_drawingKick.vertex[1].y) / 16) * scale;
+		int x3 = (static_cast<int16>(m_drawingKick.vertex[2].x) / 16) * scale;
+		int y3 = (static_cast<int16>(m_drawingKick.vertex[2].y) / 16) * scale;
 		bitmap.DrawLine(x1, y1, x2, y2, primHighlightColor);
 		bitmap.DrawLine(x1, y1, x3, y3, primHighlightColor);
 		bitmap.DrawLine(x2, y2, x3, y3, primHighlightColor);
@@ -192,10 +194,10 @@ void CGsContextView::RenderDrawKick(Framework::CBitmap& bitmap)
 	break;
 	case CGSHandler::PRIM_SPRITE:
 	{
-		int x1 = static_cast<int16>(m_drawingKick.vertex[0].x) / 16;
-		int y1 = static_cast<int16>(m_drawingKick.vertex[0].y) / 16;
-		int x2 = static_cast<int16>(m_drawingKick.vertex[1].x) / 16;
-		int y2 = static_cast<int16>(m_drawingKick.vertex[1].y) / 16;
+		int x1 = (static_cast<int16>(m_drawingKick.vertex[0].x) / 16) * scale;
+		int y1 = (static_cast<int16>(m_drawingKick.vertex[0].y) / 16) * scale;
+		int x2 = (static_cast<int16>(m_drawingKick.vertex[1].x) / 16) * scale;
+		int y2 = (static_cast<int16>(m_drawingKick.vertex[1].y) / 16) * scale;
 		bitmap.DrawLine(x1, y1, x1, y2, primHighlightColor);
 		bitmap.DrawLine(x1, y2, x2, y2, primHighlightColor);
 		bitmap.DrawLine(x2, y2, x2, y1, primHighlightColor);

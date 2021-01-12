@@ -808,6 +808,7 @@ void QtDebugger::on_actionFunctions_triggered()
 
 void QtDebugger::on_actionThreads_triggered()
 {
+	static_cast<CThreadsViewWnd*>(m_threadsView->widget())->show();
 	m_threadsView->show();
 	m_threadsView->setFocus(Qt::ActiveWindowFocusReason);
 }
