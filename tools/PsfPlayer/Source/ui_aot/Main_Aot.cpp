@@ -225,7 +225,7 @@ void CompileIopFunctions(const char* databasePathName, CMipsJitter* jitter, Jitt
 	fs::path databasePath(databasePathName);
 	auto blocks = GetBlocksFromCache(databasePath, ".blockcache_iop");
 
-	printf("Got %d IOP blocks to compile.\r\n", blocks.size());
+	printf("Got %zd IOP blocks to compile.\r\n", blocks.size());
 
 	CPsfVm virtualMachine;
 	auto subSystem = std::make_shared<Iop::CPsfSubSystem>(false);
@@ -239,7 +239,7 @@ void CompilePspFunctions(const char* databasePathName, CMipsJitter* jitter, Jitt
 	fs::path databasePath(databasePathName);
 	auto blocks = GetBlocksFromCache(databasePath, ".blockcache_psp");
 
-	printf("Got %d PSP blocks to compile.\r\n", blocks.size());
+	printf("Got %zd PSP blocks to compile.\r\n", blocks.size());
 
 	CPsfVm virtualMachine;
 	auto subSystem = std::make_shared<Psp::CPsfSubSystem>();
