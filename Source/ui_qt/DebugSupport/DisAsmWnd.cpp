@@ -79,7 +79,7 @@ CDisAsmWnd::CDisAsmWnd(QWidget* parent, CVirtualMachine& virtualMachine, CMIPS* 
 		header->resizeSection(6, 80);
 		header->resizeSection(7, 160);
 	}
-	
+
 	setContextMenuPolicy(Qt::CustomContextMenu);
 	connect(this, &QTableView::customContextMenuRequested, this, &CDisAsmWnd::ShowContextMenu);
 
