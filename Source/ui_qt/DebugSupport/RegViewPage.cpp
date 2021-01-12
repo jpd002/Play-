@@ -4,6 +4,9 @@
 CRegViewPage::CRegViewPage(QWidget* Parent)
     : QTableWidget(Parent)
 {
+	QFont fixedFont = QFont("Courier New", 8);
+	setFont(fixedFont);
+	
 	setEditTriggers(QAbstractItemView::NoEditTriggers);
 	horizontalHeader()->setVisible(false);
 	verticalHeader()->setVisible(false);
