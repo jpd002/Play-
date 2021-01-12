@@ -8,7 +8,7 @@
 CQtDisAsmVuTableModel::CQtDisAsmVuTableModel(QTableView* parent, CVirtualMachine& virtualMachine, CMIPS* context)
     : CQtDisAsmTableModel(parent, virtualMachine, context, DISASM_TYPE::DISASM_VU)
 {
-	m_headers = {"S", "Address", "R", "Instr", "LI-Mn", "LI-Op", "UI-Mn", "UI-Op", "Target/Comments"};
+	m_headers = {"S", "Address", "R", "Instr", "UI-Mn", "UI-Op", "LI-Mn", "LI-Op", "Target/Comments"};
 
 	m_instructionSize = 8;
 }
