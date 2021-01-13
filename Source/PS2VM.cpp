@@ -699,10 +699,7 @@ void CPS2VM::UpdateSpu()
 	{
 		if(m_soundHandler)
 		{
-			if(m_soundHandler->HasFreeBuffers())
-			{
-				m_soundHandler->RecycleBuffers();
-			}
+			m_soundHandler->RecycleBuffers();
 			m_soundHandler->Write(m_samples, BLOCK_SIZE * m_spuBlockCount, DST_SAMPLE_RATE);
 		}
 		m_currentSpuBlock = 0;
