@@ -13,6 +13,8 @@ jobs:
       with:
         submodules: recursive
         fetch-depth: 0
+    - name: Force Fetch Git Tags
+      run: git fetch --tags --force
     - name: Set SHORT_HASH
       run: echo "::set-output name=VALUE::${LONG_HASH:0:8}"
       id: short_hash
