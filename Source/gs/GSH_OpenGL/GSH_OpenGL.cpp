@@ -574,26 +574,8 @@ void CGSH_OpenGL::SetRenderingContext(uint64 primReg)
 	   (m_renderState.primReg != primReg))
 	{
 		FlushVertexBuffer();
-
-		//Humm, not quite sure about this
-		//		if(prim.nAntiAliasing)
-		//		{
-		//			glEnable(GL_BLEND);
-		//		}
-		//		else
-		//		{
-		//			glDisable(GL_BLEND);
-		//		}
-
-		if(((prim.nAlpha != 0) && m_alphaBlendingEnabled))
-		{
-			m_renderState.blendEnabled = GL_TRUE;
-			m_validGlState &= ~GLSTATE_BLEND;
-		}
-		else
-		{
-			m_renderState.blendEnabled = GL_FALSE;
-		}
+		m_renderState.blendEnabled = ((prim.nAlpha != 0) && m_alphaBlendingEnabled) ? GL_TRUE : GL_FALSE;
+		m_validGlState &= ~GLSTATE_BLEND;
 	}
 
 	if(!m_renderState.isValid ||
@@ -879,7 +861,7 @@ void CGSH_OpenGL::SetupTestFunctions(uint64 testReg)
 	m_fragmentParams.alphaRef = test.nAlphaRef;
 	m_validGlState &= ~GLSTATE_FRAGMENT_PARAMS;
 
-	m_renderState.depthTest = (test.nDepthEnabled != 0);
+	m_renderState.depthTest = (test.nDepthEnabled != 0) && m_depthTestingEnabled;
 	m_validGlState &= ~GLSTATE_DEPTHTEST;
 
 	if(test.nDepthEnabled)
@@ -1712,7 +1694,7 @@ void CGSH_OpenGL::DoRenderPass()
 		m_validGlState |= GLSTATE_BLEND;
 	}
 
-	if((m_validGlState & GLSTATE_DEPTHTEST) == 0 && m_depthTestingEnabled)
+	if((m_validGlState & GLSTATE_DEPTHTEST) == 0)
 	{
 		m_renderState.depthTest ? glEnable(GL_DEPTH_TEST) : glDisable(GL_DEPTH_TEST);
 		m_validGlState |= GLSTATE_DEPTHTEST;
