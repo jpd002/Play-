@@ -15,7 +15,7 @@ CRegViewVU::CRegViewVU(QWidget* parent, CMIPS* ctx)
 	horizontalHeader()->setStretchLastSection(true);
 	for(unsigned int x = 0; x < 32; x++)
 	{
-		WriteTableLabel(x, "VF%02d", x);
+		WriteTableLabel(x, "VF%d", x);
 	}
 	WriteTableLabel(32, "ACC");
 	WriteTableLabel(33, "Q");
@@ -32,7 +32,7 @@ CRegViewVU::CRegViewVU(QWidget* parent, CMIPS* ctx)
 	WriteTableLabel(44, "PIPEC");
 	for(unsigned int x = 0; x < 16; x++)
 	{
-		WriteTableLabel(x + 45, "VI%02d", x);
+		WriteTableLabel(x + 45, "VI%d", x);
 		setRowHeight(45 + x, 16);
 	}
 	Update();

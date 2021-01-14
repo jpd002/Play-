@@ -16,7 +16,7 @@ CRegViewFPU::CRegViewFPU(QWidget* parent, CMIPS* pC)
 	for(unsigned int x = 0; x < 32; x++)
 	{
 		setRowHeight(x, 16);
-		WriteTableLabel(x, "F%02d", x);
+		WriteTableLabel(x, "F%d", x);
 	}
 	WriteTableLabel(32, "ACC");
 	WriteTableLabel(33, "FCSR");
