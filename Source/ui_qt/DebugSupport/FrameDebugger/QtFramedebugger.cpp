@@ -18,9 +18,8 @@
 
 #define PREF_FRAMEDEBUGGER_FRAMEBUFFER_DISPLAYMODE "framedebugger.framebuffer.displaymode"
 
-QtFramedebugger::QtFramedebugger(QWidget* parent)
-    : QMainWindow(parent)
-    , ui(new Ui::QtFramedebugger)
+QtFramedebugger::QtFramedebugger()
+    : ui(new Ui::QtFramedebugger)
 {
 	ui->setupUi(this);
 

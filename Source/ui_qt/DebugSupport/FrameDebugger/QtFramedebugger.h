@@ -18,7 +18,7 @@ class QtFramedebugger : public QMainWindow
 	Q_OBJECT
 
 public:
-	explicit QtFramedebugger(QWidget* parent = nullptr);
+	explicit QtFramedebugger();
 	~QtFramedebugger();
 
 protected:
