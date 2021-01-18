@@ -62,6 +62,26 @@ void FpUtils::IsZero(CMipsJitter* codeGen, size_t offset)
 	codeGen->PushCst(0);
 }
 
+void FpUtils::IsNaN(CMipsJitter* codeGen, size_t offset)
+{
+	//Check wether an FP number is a NaN (exponent is 0xFF)
+	//BeginIf(CONDITION_EQ) to verify result
+	codeGen->PushRel(offset);
+	codeGen->PushCst(0x7F800000);
+	codeGen->And();
+	codeGen->PushCst(0x7F800000);
+}
+
+void FpUtils::AssertIsNotNaN(CMipsJitter* codeGen, size_t offset)
+{
+	FpUtils::IsNaN(codeGen, offset);
+	codeGen->BeginIf(Jitter::CONDITION_EQ);
+	{
+		codeGen->Break();
+	}
+	codeGen->EndIf();
+}
+
 void FpUtils::ComputeDivisionByZero(CMipsJitter* codeGen, size_t dividend, size_t divisor)
 {
 	//Return either +/-FP_MAX
