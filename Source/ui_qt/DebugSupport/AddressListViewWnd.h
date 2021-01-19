@@ -31,6 +31,7 @@ public:
 	AddressSelectedEvent AddressSelected;
 
 public slots:
+	void show();
 	void tableDoubleClick(const QModelIndex&);
 
 private:

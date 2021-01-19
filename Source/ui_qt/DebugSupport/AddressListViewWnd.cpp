@@ -49,3 +49,9 @@ void CAddressListViewWnd::tableDoubleClick(const QModelIndex& index)
 	uint32 selectedAddress = lexical_cast_hex(selectedAddressStr);
 	AddressSelected(selectedAddress);
 }
+
+void CAddressListViewWnd::show()
+{
+	ui->addressListView->show();
+	QMdiSubWindow::show();
+}
