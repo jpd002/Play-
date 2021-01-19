@@ -345,6 +345,7 @@ void VUShared::SetStatus(CMipsJitter* codeGen, size_t srcOffset)
 void VUShared::ADD_base(CMipsJitter* codeGen, uint8 dest, size_t fd, size_t fs, size_t ft, bool expand, uint32 relativePipeTime, uint32 compileHints)
 {
 	codeGen->MD_PushRel(fs);
+	ClampVector(codeGen);
 	if(expand)
 	{
 		codeGen->MD_PushRelExpand(ft);
@@ -485,6 +486,7 @@ void VUShared::MSUBA_base(CMipsJitter* codeGen, uint8 dest, size_t fs, size_t ft
 void VUShared::MUL_base(CMipsJitter* codeGen, uint8 dest, size_t fd, size_t fs, size_t ft, bool expand, uint32 relativePipeTime, uint32 compileHints)
 {
 	codeGen->MD_PushRel(fs);
+	ClampVector(codeGen);
 	if(expand)
 	{
 		codeGen->MD_PushRelExpand(ft);
