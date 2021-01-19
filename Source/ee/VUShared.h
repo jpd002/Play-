@@ -106,6 +106,7 @@ namespace VUShared
 	void GetStatus(CMipsJitter*, size_t, uint32);
 	void SetStatus(CMipsJitter*, size_t);
 
+	void ADD_base(CMipsJitter*, uint8, size_t, size_t, size_t, bool, uint32, uint32);
 	void ADDA_base(CMipsJitter*, uint8, size_t, size_t, bool, uint32, uint32);
 	void MADD_base(CMipsJitter*, uint8, size_t, size_t, size_t, bool, uint32, uint32);
 	void MADDA_base(CMipsJitter*, uint8, size_t, size_t, bool, uint32, uint32);

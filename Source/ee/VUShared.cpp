@@ -342,6 +342,22 @@ void VUShared::SetStatus(CMipsJitter* codeGen, size_t srcOffset)
 	ResetFlagPipeline(VUShared::g_pipeInfoSticky, codeGen);
 }
 
+void VUShared::ADD_base(CMipsJitter* codeGen, uint8 dest, size_t fd, size_t fs, size_t ft, bool expand, uint32 relativePipeTime, uint32 compileHints)
+{
+	codeGen->MD_PushRel(fs);
+	if(expand)
+	{
+		codeGen->MD_PushRelExpand(ft);
+	}
+	else
+	{
+		codeGen->MD_PushRel(ft);
+	}
+	codeGen->MD_AddS();
+	PullVector(codeGen, dest, fd);
+	TestSZFlags(codeGen, dest, fd, relativePipeTime, compileHints);
+}
+
 void VUShared::ADDA_base(CMipsJitter* codeGen, uint8 dest, size_t fs, size_t ft, bool expand, uint32 relativePipeTime, uint32 compileHints)
 {
 	codeGen->MD_PushRel(fs);
@@ -583,38 +599,22 @@ void VUShared::ABS(CMipsJitter* codeGen, uint8 nDest, uint8 nFt, uint8 nFs)
 	PullVector(codeGen, nDest, offsetof(CMIPS, m_State.nCOP2[nFt]));
 }
 
-void VUShared::ADD(CMipsJitter* codeGen, uint8 nDest, uint8 nFd, uint8 nFs, uint8 nFt, uint32 relativePipeTime, uint32 compileHints)
+void VUShared::ADD(CMipsJitter* codeGen, uint8 dest, uint8 fd, uint8 fs, uint8 ft, uint32 relativePipeTime, uint32 compileHints)
 {
-	if(nFd == 0)
-	{
-		//Use the temporary register to store the result
-		nFd = 32;
-	}
-
-	codeGen->MD_PushRel(offsetof(CMIPS, m_State.nCOP2[nFs]));
-	codeGen->MD_PushRel(offsetof(CMIPS, m_State.nCOP2[nFt]));
-	codeGen->MD_AddS();
-	PullVector(codeGen, nDest, offsetof(CMIPS, m_State.nCOP2[nFd]));
-
-	TestSZFlags(codeGen, nDest, offsetof(CMIPS, m_State.nCOP2[nFd]), relativePipeTime, compileHints);
+	ADD_base(codeGen, dest,
+	         offsetof(CMIPS, m_State.nCOP2[(fd != 0) ? fd : 32]),
+	         offsetof(CMIPS, m_State.nCOP2[fs]),
+	         offsetof(CMIPS, m_State.nCOP2[ft]),
+	         false, relativePipeTime, compileHints);
 }
 
-void VUShared::ADDbc(CMipsJitter* codeGen, uint8 nDest, uint8 nFd, uint8 nFs, uint8 nFt, uint8 nBc, uint32 relativePipeTime, uint32 compileHints)
+void VUShared::ADDbc(CMipsJitter* codeGen, uint8 dest, uint8 fd, uint8 fs, uint8 ft, uint8 bc, uint32 relativePipeTime, uint32 compileHints)
 {
-	if(nDest == 0) return;
-
-	if(nFd == 0)
-	{
-		//Use the temporary register to store the result
-		nFd = 32;
-	}
-
-	codeGen->MD_PushRel(offsetof(CMIPS, m_State.nCOP2[nFs]));
-	codeGen->MD_PushRelExpand(offsetof(CMIPS, m_State.nCOP2[nFt].nV[nBc]));
-	codeGen->MD_AddS();
-	PullVector(codeGen, nDest, offsetof(CMIPS, m_State.nCOP2[nFd]));
-
-	TestSZFlags(codeGen, nDest, offsetof(CMIPS, m_State.nCOP2[nFd]), relativePipeTime, compileHints);
+	ADD_base(codeGen, dest,
+	         offsetof(CMIPS, m_State.nCOP2[(fd != 0) ? fd : 32]),
+	         offsetof(CMIPS, m_State.nCOP2[fs]),
+	         offsetof(CMIPS, m_State.nCOP2[ft].nV[bc]),
+	         true, relativePipeTime, compileHints);
 }
 
 void VUShared::ADDi(CMipsJitter* codeGen, uint8 nDest, uint8 nFd, uint8 nFs, uint32 relativePipeTime, uint32 compileHints)
@@ -645,20 +645,13 @@ void VUShared::ADDi(CMipsJitter* codeGen, uint8 nDest, uint8 nFd, uint8 nFs, uin
 	TestSZFlags(codeGen, nDest, offsetof(CMIPS, m_State.nCOP2[nFd]), relativePipeTime, compileHints);
 }
 
-void VUShared::ADDq(CMipsJitter* codeGen, uint8 nDest, uint8 nFd, uint8 nFs, uint32 relativePipeTime, uint32 compileHints)
+void VUShared::ADDq(CMipsJitter* codeGen, uint8 dest, uint8 fd, uint8 fs, uint32 relativePipeTime, uint32 compileHints)
 {
-	if(nFd == 0)
-	{
-		//Use the temporary register to store the result
-		nFd = 32;
-	}
-
-	codeGen->MD_PushRel(offsetof(CMIPS, m_State.nCOP2[nFs]));
-	codeGen->MD_PushRelExpand(offsetof(CMIPS, m_State.nCOP2Q));
-	codeGen->MD_AddS();
-	PullVector(codeGen, nDest, offsetof(CMIPS, m_State.nCOP2[nFd]));
-
-	TestSZFlags(codeGen, nDest, offsetof(CMIPS, m_State.nCOP2[nFd]), relativePipeTime, compileHints);
+	ADD_base(codeGen, dest,
+	         offsetof(CMIPS, m_State.nCOP2[(fd != 0) ? fd : 32]),
+	         offsetof(CMIPS, m_State.nCOP2[fs]),
+	         offsetof(CMIPS, m_State.nCOP2Q),
+	         true, relativePipeTime, compileHints);
 }
 
 void VUShared::ADDA(CMipsJitter* codeGen, uint8 dest, uint8 fs, uint8 ft, uint32 relativePipeTime, uint32 compileHints)
