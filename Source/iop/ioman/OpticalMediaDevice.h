@@ -21,6 +21,7 @@ namespace Iop
 
 		private:
 			static char FixSlashes(char);
+			static std::string RemoveExtraVersionSpecifiers(const std::string&);
 
 			OpticalMediaPtr& m_opticalMedia;
 		};
