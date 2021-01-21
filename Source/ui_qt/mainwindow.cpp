@@ -636,6 +636,7 @@ void MainWindow::closeEvent(QCloseEvent* event)
 		event->accept();
 #ifdef DEBUGGER_INCLUDED
 		m_debugger->close();
+		m_frameDebugger->close();
 #endif
 	}
 }
