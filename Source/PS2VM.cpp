@@ -25,6 +25,7 @@
 #include "iop/IopBios.h"
 #include "iop/ioman/HardDiskDevice.h"
 #include "iop/ioman/OpticalMediaDevice.h"
+#include "iop/ioman/PathDirectoryDevice.h"
 #include "iop/ioman/PreferenceDirectoryDevice.h"
 #include "Log.h"
 #include "ISO9660/BlockProvider.h"
@@ -753,6 +754,15 @@ void CPS2VM::RegisterModulesInPadHandler()
 	m_pad->RemoveAllListeners();
 	m_pad->InsertListener(iopOs->GetPadman());
 	m_pad->InsertListener(&m_iop->m_sio2);
+}
+
+void CPS2VM::BootFromFile(const fs::path& execPath)
+{
+	auto iopOs = dynamic_cast<CIopBios*>(m_iop->m_bios.get());
+
+	iopOs->GetIoman()->RegisterDevice("host", std::make_shared<Iop::Ioman::CPathDirectoryDevice>(execPath.parent_path()));
+	iopOs->GetIoman()->RegisterDevice("host0", std::make_shared<Iop::Ioman::CPathDirectoryDevice>(execPath.parent_path()));
+	m_ee->m_os->BootFromFile(execPath);
 }
 
 void CPS2VM::ReloadExecutable(const char* executablePath, const CPS2OS::ArgumentList& arguments)
