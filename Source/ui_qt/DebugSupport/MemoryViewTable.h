@@ -32,7 +32,6 @@ public:
 
 private:
 	void ShowContextMenu(const QPoint&);
-	void ResizeColumns();
 	void AutoColumn();
 	void GotoAddress();
 	void FollowPointer();
