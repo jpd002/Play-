@@ -411,7 +411,7 @@ void CCore::LogRead(uint32 address, uint32 value)
 		LOG_GET(A_EEA_LO)
 
 	default:
-		CLog::GetInstance().Print(logName, "Read an unknown register 0x%04X.\r\n", address);
+		CLog::GetInstance().Warn(logName, "Read an unknown register 0x%04X.\r\n", address);
 		break;
 	}
 
@@ -466,7 +466,7 @@ void CCore::LogWrite(uint32 address, uint32 value)
 		LOG_SET(P_BVOLR)
 
 	default:
-		CLog::GetInstance().Print(logName, "Write 0x%04X to an unknown register 0x%04X.\r\n", value, address);
+		CLog::GetInstance().Warn(logName, "Write 0x%04X to an unknown register 0x%04X.\r\n", value, address);
 		break;
 	}
 
@@ -499,8 +499,8 @@ void CCore::LogChannelRead(unsigned int channelId, uint32 address, uint32 value)
 		LOG_GET(VA_NAX_LO)
 
 	default:
-		CLog::GetInstance().Print(logName, "ch%02d: Read an unknown register 0x%04X.\r\n",
-		                          channelId, address);
+		CLog::GetInstance().Warn(logName, "ch%02d: Read an unknown register 0x%04X.\r\n",
+		                         channelId, address);
 		break;
 	}
 
@@ -531,8 +531,8 @@ void CCore::LogChannelWrite(unsigned int channelId, uint32 address, uint32 value
 		LOG_SET(VA_LSAX_LO)
 
 	default:
-		CLog::GetInstance().Print(logName, "ch%02d: Wrote %04X to an unknown register 0x%04X.\r\n",
-		                          channelId, value, address);
+		CLog::GetInstance().Warn(logName, "ch%02d: Wrote %04X to an unknown register 0x%04X.\r\n",
+		                         channelId, value, address);
 		break;
 	}
 
