@@ -386,8 +386,15 @@
     <addaction name="actionAlpha_Blend_Enabled"/>
     <addaction name="menuFramebuffer_Display_Mode"/>
    </widget>
+   <widget class="QMenu" name="menuVirtual_Machine">
+    <property name="title">
+     <string>Virtual Machine</string>
+    </property>
+    <addaction name="actionStep_VU1"/>
+   </widget>
    <addaction name="menuFile"/>
    <addaction name="menuSettings"/>
+   <addaction name="menuVirtual_Machine"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
   <action name="actionLoad_Dump">
@@ -441,6 +448,14 @@
    </property>
    <property name="text">
     <string>640x448 Interlaced</string>
+   </property>
+  </action>
+  <action name="actionStep_VU1">
+   <property name="text">
+    <string>Step VU1</string>
+   </property>
+   <property name="shortcut">
+    <string>F10</string>
    </property>
   </action>
  </widget>
