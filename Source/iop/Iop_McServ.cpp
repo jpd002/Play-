@@ -651,7 +651,7 @@ void CMcServ::Delete(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize,
 			ret[0] = RET_NO_ENTRY;
 		}
 	}
-	catch(const std::filesystem::filesystem_error& exception)
+	catch(const fs::filesystem_error& exception)
 	{
 		CLog::GetInstance().Warn(LOG_NAME, "Error while executing Delete: %s.\r\n", exception.what());
 		auto errorCode = exception.code();
