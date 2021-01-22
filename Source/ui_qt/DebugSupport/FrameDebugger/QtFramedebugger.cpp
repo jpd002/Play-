@@ -410,3 +410,8 @@ void QtFramedebugger::Redraw()
 		UpdateDisplay(selectedItemIndex);
 	}
 }
+
+void QtFramedebugger::on_actionStep_VU1_triggered()
+{
+	StepVu1();
+}

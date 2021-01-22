@@ -32,6 +32,7 @@ private slots:
 	void on_actionDepth_Test_Enabled_triggered(bool);
 	void on_actionAlpha_Test_Enabled_triggered(bool);
 	void on_actionLoad_Dump_triggered();
+	void on_actionStep_VU1_triggered();
 
 	void on_context0Buffer_currentIndexChanged(int index);
 	void on_context0Source_currentIndexChanged(int index);
