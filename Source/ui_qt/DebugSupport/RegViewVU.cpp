@@ -150,11 +150,9 @@ std::string CRegViewVU::PrintPipeline(const FLAG_PIPELINE& pipe)
 		pipeTimes[i] = pipe.pipeTimes[currIndex];
 	}
 
-	for(unsigned int i = 0; i < (FLAG_PIPELINE_SLOTS / 2); i++)
+	for(unsigned int i = 0; i < FLAG_PIPELINE_SLOTS; i++)
 	{
-		result += string_format("0x%04X:0x%06X, 0x%04X:0x%06X",
-		                        pipeTimes[(i * 2) + 0], pipeValues[(i * 2) + 0],
-		                        pipeTimes[(i * 2) + 1], pipeValues[(i * 2) + 1]);
+		result += string_format("0x%04X:0x%06X ", pipeTimes[i], pipeValues[i]);
 	}
 
 	return result;
