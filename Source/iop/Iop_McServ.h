@@ -45,7 +45,8 @@ namespace Iop
 		{
 			RET_OK = 0,
 			RET_NO_ENTRY = -4,
-			RET_PERMISSION_DENIED = -5
+			RET_PERMISSION_DENIED = -5,
+			RET_NOT_EMPTY = -6,
 		};
 
 		struct CMD
