@@ -131,20 +131,6 @@ void CRegViewVU::DisplayGeneral()
 		WriteTableEntry(45 + x, "0x%04X", state.nCOP2VI[x] & 0xFFFF);
 	}
 }
-/*
-std::string CRegViewVU::GetDisplayText()
-{
-	// Header?
-	result += "              x               y       \r\n";
-	result += "              z               w       \r\n";
-
-	result += PrintPipeline("PIPEM:", state.pipeMac);
-	result += PrintPipeline("PIPEC:", state.pipeClip);
-
-	// Maybe Allow modes for these registers?
-	sprintf(sLine, "%s: 0x%04X    %s: 0x%04X\r\n", sReg1, state.nCOP2VI[i] & 0xFFFF, sReg2, state.nCOP2VI[i + 1] & 0xFFFF);
-}
-*/
 
 std::string CRegViewVU::PrintPipeline(const FLAG_PIPELINE& pipe)
 {
