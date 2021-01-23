@@ -3,14 +3,16 @@
 #include "../MIPS.h"
 #include "../MA_MIPSIV.h"
 #include "../COP_SCU.h"
+#include "Iop_BiosBase.h"
+#include "Iop_Dev9.h"
+#include "Iop_Dmac.h"
+#include "Iop_Intc.h"
+#include "Iop_RootCounters.h"
+#include "Iop_Speed.h"
 #include "Iop_SpuBase.h"
 #include "Iop_Spu.h"
 #include "Iop_Spu2.h"
 #include "Iop_Sio2.h"
-#include "Iop_Dmac.h"
-#include "Iop_Intc.h"
-#include "Iop_RootCounters.h"
-#include "Iop_BiosBase.h"
 #include "zip/ZipArchiveWriter.h"
 #include "zip/ZipArchiveReader.h"
 
@@ -43,6 +45,8 @@ namespace Iop
 		CSpuBase m_spuCore1;
 		CSpu m_spu;
 		CSpu2 m_spu2;
+		CDev9 m_dev9;
+		CSpeed m_speed;
 #ifdef _IOP_EMULATE_MODULES
 		CSio2 m_sio2;
 #endif
@@ -54,6 +58,8 @@ namespace Iop
 	private:
 		enum
 		{
+			SPEED_REG_BEGIN = 0x10000000,
+			SPEED_REG_END = 0x1001FFFF,
 			HW_REG_BEGIN = 0x1F801000,
 			HW_REG_END = 0x1F9FFFFF
 		};

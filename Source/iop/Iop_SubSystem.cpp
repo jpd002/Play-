@@ -51,16 +51,18 @@ CSubSystem::CSubSystem(bool ps2Mode)
 	m_cpu.m_pMemoryMap->InsertReadMap((1 * IOP_RAM_SIZE), (1 * IOP_RAM_SIZE) + IOP_RAM_SIZE - 1, m_ram, 0x02);
 	m_cpu.m_pMemoryMap->InsertReadMap((2 * IOP_RAM_SIZE), (2 * IOP_RAM_SIZE) + IOP_RAM_SIZE - 1, m_ram, 0x03);
 	m_cpu.m_pMemoryMap->InsertReadMap((3 * IOP_RAM_SIZE), (3 * IOP_RAM_SIZE) + IOP_RAM_SIZE - 1, m_ram, 0x04);
-	m_cpu.m_pMemoryMap->InsertReadMap(IOP_SCRATCH_ADDR, IOP_SCRATCH_ADDR + IOP_SCRATCH_SIZE - 1, m_scratchPad, 0x05);
-	m_cpu.m_pMemoryMap->InsertReadMap(HW_REG_BEGIN, HW_REG_END, std::bind(&CSubSystem::ReadIoRegister, this, std::placeholders::_1), 0x06);
+	m_cpu.m_pMemoryMap->InsertReadMap(SPEED_REG_BEGIN, SPEED_REG_END, std::bind(&CSubSystem::ReadIoRegister, this, std::placeholders::_1), 0x05);
+	m_cpu.m_pMemoryMap->InsertReadMap(IOP_SCRATCH_ADDR, IOP_SCRATCH_ADDR + IOP_SCRATCH_SIZE - 1, m_scratchPad, 0x06);
+	m_cpu.m_pMemoryMap->InsertReadMap(HW_REG_BEGIN, HW_REG_END, std::bind(&CSubSystem::ReadIoRegister, this, std::placeholders::_1), 0x07);
 
 	//Write memory map
 	m_cpu.m_pMemoryMap->InsertWriteMap((0 * IOP_RAM_SIZE), (0 * IOP_RAM_SIZE) + IOP_RAM_SIZE - 1, m_ram, 0x01);
 	m_cpu.m_pMemoryMap->InsertWriteMap((1 * IOP_RAM_SIZE), (1 * IOP_RAM_SIZE) + IOP_RAM_SIZE - 1, m_ram, 0x02);
 	m_cpu.m_pMemoryMap->InsertWriteMap((2 * IOP_RAM_SIZE), (2 * IOP_RAM_SIZE) + IOP_RAM_SIZE - 1, m_ram, 0x03);
 	m_cpu.m_pMemoryMap->InsertWriteMap((3 * IOP_RAM_SIZE), (3 * IOP_RAM_SIZE) + IOP_RAM_SIZE - 1, m_ram, 0x04);
-	m_cpu.m_pMemoryMap->InsertWriteMap(IOP_SCRATCH_ADDR, IOP_SCRATCH_ADDR + IOP_SCRATCH_SIZE - 1, m_scratchPad, 0x05);
-	m_cpu.m_pMemoryMap->InsertWriteMap(HW_REG_BEGIN, HW_REG_END, std::bind(&CSubSystem::WriteIoRegister, this, std::placeholders::_1, std::placeholders::_2), 0x06);
+	m_cpu.m_pMemoryMap->InsertWriteMap(SPEED_REG_BEGIN, SPEED_REG_END, std::bind(&CSubSystem::WriteIoRegister, this, std::placeholders::_1, std::placeholders::_2), 0x05);
+	m_cpu.m_pMemoryMap->InsertWriteMap(IOP_SCRATCH_ADDR, IOP_SCRATCH_ADDR + IOP_SCRATCH_SIZE - 1, m_scratchPad, 0x06);
+	m_cpu.m_pMemoryMap->InsertWriteMap(HW_REG_BEGIN, HW_REG_END, std::bind(&CSubSystem::WriteIoRegister, this, std::placeholders::_1, std::placeholders::_2), 0x07);
 
 	//Instruction memory map
 	m_cpu.m_pMemoryMap->InsertInstructionMap((0 * IOP_RAM_SIZE), (0 * IOP_RAM_SIZE) + IOP_RAM_SIZE - 1, m_ram, 0x01);
@@ -215,6 +217,14 @@ uint32 CSubSystem::ReadIoRegister(uint32 address)
 	{
 		CLog::GetInstance().Print(LOG_NAME, "Reading from SSBUS.\r\n");
 	}
+	else if(address >= CDev9::ADDR_BEGIN && address <= CDev9::ADDR_END)
+	{
+		return m_dev9.ReadRegister(address);
+	}
+	else if(address >= SPEED_REG_BEGIN && address <= SPEED_REG_END)
+	{
+		return m_speed.ReadRegister(address);
+	}
 	else if(address >= 0x1F808400 && address <= 0x1F808500)
 	{
 		//iLink (aka Firewire) stuff
@@ -263,6 +273,14 @@ uint32 CSubSystem::WriteIoRegister(uint32 address, uint32 value)
 	else if((address >= 0x1F801000 && address <= 0x1F801020) || (address >= 0x1F801400 && address <= 0x1F801420))
 	{
 		CLog::GetInstance().Print(LOG_NAME, "Writing to SSBUS (0x%08X).\r\n", value);
+	}
+	else if(address >= CDev9::ADDR_BEGIN && address <= CDev9::ADDR_END)
+	{
+		m_dev9.WriteRegister(address, value);
+	}
+	else if(address >= SPEED_REG_BEGIN && address <= SPEED_REG_END)
+	{
+		m_speed.WriteRegister(address, value);
 	}
 	else
 	{
