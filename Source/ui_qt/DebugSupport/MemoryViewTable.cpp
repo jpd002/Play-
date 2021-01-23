@@ -236,6 +236,7 @@ void CMemoryViewTable::FollowPointer()
 void CMemoryViewTable::SetActiveUnit(int index)
 {
 	m_model->SetActiveUnit(index);
+	m_model->Redraw();
 	AutoColumn();
 }
 
