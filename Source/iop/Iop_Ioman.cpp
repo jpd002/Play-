@@ -33,6 +33,7 @@ using namespace Iop;
 
 #define PREF_IOP_FILEIO_STDLOGGING ("iop.fileio.stdlogging")
 
+#define FUNCTION_WRITE "Write"
 #define FUNCTION_ADDDRV "AddDrv"
 #define FUNCTION_DELDRV "DelDrv"
 #define FUNCTION_MOUNT "Mount"
@@ -163,6 +164,9 @@ std::string CIoman::GetFunctionName(unsigned int functionId) const
 		break;
 	case 6:
 		return "read";
+		break;
+	case 7:
+		return FUNCTION_WRITE;
 		break;
 	case 8:
 		return "seek";
@@ -741,6 +745,37 @@ int32 CIoman::ReadVirtual(CMIPS& context)
 	}
 }
 
+int32 CIoman::WriteVirtual(CMIPS& context)
+{
+	int32 handle = context.m_State.nGPR[CMIPS::A0].nV0;
+	uint32 bufferPtr = context.m_State.nGPR[CMIPS::A1].nV0;
+	uint32 count = context.m_State.nGPR[CMIPS::A2].nV0;
+
+	CLog::GetInstance().Print(LOG_NAME, "WriteVirtual(handle = %d, size = 0x%X, buffer = ptr);\r\n", handle, count);
+
+	auto fileIterator = m_files.find(handle);
+	if(fileIterator == std::end(m_files))
+	{
+		CLog::GetInstance().Warn(LOG_NAME, "%s : Provided invalid fd %d.\r\n",
+								 __FUNCTION__, handle);
+		return -1;
+	}
+
+	if(IsUserDeviceFileHandle(handle))
+	{
+		uint32 descPtr = GetUserDeviceFileDescPtr(handle);
+		auto desc = reinterpret_cast<Ioman::DEVICEFILE*>(m_ram + descPtr);
+		InvokeUserDeviceMethod(context, desc->devicePtr,
+							   offsetof(Ioman::DEVICEOPS, writePtr),
+							   descPtr, bufferPtr, count);
+		return 0;
+	}
+	else
+	{
+		return Write(handle, count, m_ram + bufferPtr);
+	}
+}
+
 int32 CIoman::SeekVirtual(CMIPS& context)
 {
 	int32 handle = context.m_State.nGPR[CMIPS::A0].nV0;
@@ -836,6 +871,9 @@ void CIoman::Invoke(CMIPS& context, unsigned int functionId)
 		break;
 	case 6:
 		context.m_State.nGPR[CMIPS::V0].nD0 = static_cast<int32>(ReadVirtual(context));
+		break;
+	case 7:
+		context.m_State.nGPR[CMIPS::V0].nD0 = static_cast<int32>(WriteVirtual(context));
 		break;
 	case 8:
 		context.m_State.nGPR[CMIPS::V0].nD0 = static_cast<int32>(SeekVirtual(context));

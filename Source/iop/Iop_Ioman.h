@@ -67,6 +67,7 @@ namespace Iop
 		int32 OpenVirtual(CMIPS&);
 		int32 CloseVirtual(CMIPS&);
 		int32 ReadVirtual(CMIPS&);
+		int32 WriteVirtual(CMIPS&);
 		int32 SeekVirtual(CMIPS&);
 		int32 AddDrv(CMIPS&);
 
