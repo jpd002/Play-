@@ -36,9 +36,15 @@ namespace Iop
 			REG_INTR_MASK = 0x1000002A,
 			REG_PIO_DIR = 0x1000002C,
 			REG_PIO_DATA = 0x1000002E,
+			REG_SMAP_TXFIFO_FRAME_INC = 0x10001010,
 			REG_SMAP_TXFIFO_DATA = 0x10001100,
+			REG_SMAP_EMAC3_TXMODE0_HI = 0x10002008,
+			REG_SMAP_EMAC3_TXMODE0_LO = 0x1000200A,
 			REG_SMAP_EMAC3_STA_CTRL_HI = 0x1000205C,
 			REG_SMAP_EMAC3_STA_CTRL_LO = 0x1000205E,
+			SMAP_BD_SIZE = 0x00000200,
+			REG_SMAP_BD_TX_BASE = 0x10003000,
+			REG_SMAP_BD_RX_BASE = 0x10003200,
 		};
 
 		enum REV3_FLAGS
@@ -64,9 +70,17 @@ namespace Iop
 			uint32 phyData : 16;
 		};
 
+		void ProcessEmac3StaCtrl();
+		
 		void LogRead(uint32);
 		void LogWrite(uint32, uint32);
-				
+		void LogBdRead(const char*, uint32, uint32);
+		void LogBdWrite(const char*, uint32, uint32, uint32);
+
+		uint32 m_intrMask = 0;
+		uint32 m_eepRomReadIndex = 0;
+		static const uint32 m_eepRomDataSize = 4;
+		static const uint16 m_eepromData[];
 		UNION32_16 m_smapEmac3StaCtrl;
 	};
 }
