@@ -1,5 +1,6 @@
 #pragma once
 
+#include <vector>
 #include "Types.h"
 #include "BasicUnion.h"
 #include "Convertible.h"
@@ -14,6 +15,8 @@ namespace Iop
 		uint32 ReadRegister(uint32);
 		void WriteRegister(uint32, uint32);
 		
+		uint32 ReceiveDma(uint8*, uint32, uint32);
+
 	private:
 		enum
 		{
@@ -32,6 +35,7 @@ namespace Iop
 		{
 			REG_REV1 = 0x10000002,
 			REG_REV3 = 0x10000004,
+			REG_DMA_CTRL = 0x10000024,
 			REG_INTR_STAT = 0x10000028,
 			REG_INTR_MASK = 0x1000002A,
 			REG_PIO_DIR = 0x1000002C,
@@ -81,6 +85,8 @@ namespace Iop
 		uint32 m_eepRomReadIndex = 0;
 		static const uint32 m_eepRomDataSize = 4;
 		static const uint16 m_eepromData[];
+		std::vector<uint8> m_txBuffer;
 		UNION32_16 m_smapEmac3StaCtrl;
+		uint8 m_smapBdTx[SMAP_BD_SIZE];
 	};
 }

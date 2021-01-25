@@ -20,12 +20,14 @@ CDmac::CDmac(uint8* ram, CIntc& intc)
     , m_intc(intc)
     , m_channelSpu0(CH4_BASE, CHANNEL_SPU0, *this)
     , m_channelSpu1(CH8_BASE, CHANNEL_SPU1, *this)
+    , m_channelDev9(CH9_BASE, CHANNEL_DEV9, *this)
     , m_channelSio2In(CH11_BASE, CHANNEL_SIO2in, *this)
     , m_channelSio2Out(CH12_BASE, CHANNEL_SIO2out, *this)
 {
 	memset(m_channel, 0, sizeof(m_channel));
 	m_channel[CHANNEL_SPU0] = &m_channelSpu0;
 	m_channel[CHANNEL_SPU1] = &m_channelSpu1;
+	m_channel[CHANNEL_DEV9] = &m_channelDev9;
 	//Not enabled, only used for testing purposes
 	//m_channel[CHANNEL_SIO2in] = &m_channelSio2In;
 	//m_channel[CHANNEL_SIO2out] = &m_channelSio2Out;

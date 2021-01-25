@@ -113,6 +113,14 @@ uint32 CSpeed::ReadRegister(uint32 address)
 		result = m_smapEmac3StaCtrl.h0;
 		break;
 	}
+
+	if((address >= REG_SMAP_BD_TX_BASE) && (address < (REG_SMAP_BD_TX_BASE + SMAP_BD_SIZE)))
+	{
+		uint32 regOffset = address - REG_SMAP_BD_TX_BASE;
+		assert(regOffset < SMAP_BD_SIZE);
+		result = *reinterpret_cast<uint16*>(m_smapBdTx + regOffset);
+	}
+
 	LogRead(address);
 	return result;
 }
@@ -131,6 +139,22 @@ void CSpeed::WriteRegister(uint32 address, uint32 value)
 			m_eepRomReadIndex = 0;
 		}
 		break;
+	case REG_SMAP_TXFIFO_DATA:
+		{
+			m_txBuffer.push_back(static_cast<uint8>(value >> 0));
+			m_txBuffer.push_back(static_cast<uint8>(value >> 8));
+			m_txBuffer.push_back(static_cast<uint8>(value >> 16));
+			m_txBuffer.push_back(static_cast<uint8>(value >> 24));
+		}
+		break;
+	case REG_SMAP_EMAC3_TXMODE0_HI:
+		if(value & 0x8000)
+		{
+			//Ready to send some stuff (wrote SMAP_E3_TX_GNP_0 bit)
+			//Gotta check the TX BD and do something I guess?
+			m_txBuffer.clear();
+		}
+		break;
 	case REG_SMAP_EMAC3_STA_CTRL_HI:
 		m_smapEmac3StaCtrl.h1 = static_cast<uint16>(value);
 		m_smapEmac3StaCtrl.h0 = static_cast<uint16>(value >> 16);
@@ -141,7 +165,21 @@ void CSpeed::WriteRegister(uint32 address, uint32 value)
 		ProcessEmac3StaCtrl();
 		break;
 	}
+
+	if((address >= REG_SMAP_BD_TX_BASE) && (address < (REG_SMAP_BD_TX_BASE + SMAP_BD_SIZE)))
+	{
+		uint32 regOffset = address - REG_SMAP_BD_TX_BASE;
+		assert(regOffset < SMAP_BD_SIZE);
+		*reinterpret_cast<uint16*>(m_smapBdTx + regOffset) = static_cast<uint16>(value);
+	}
+	
 	LogWrite(address, value);
+}
+
+uint32 CSpeed::ReceiveDma(uint8* buffer, uint32 blockSize, uint32 blockAmount)
+{
+	m_txBuffer.insert(std::end(m_txBuffer), buffer, buffer + blockSize * blockAmount);
+	return blockAmount;
 }
 
 void CSpeed::LogRead(uint32 address)
@@ -202,6 +240,7 @@ void CSpeed::LogWrite(uint32 address, uint32 value)
 	
 	switch(address)
 	{
+		LOG_SET(REG_DMA_CTRL)
 		LOG_SET(REG_INTR_STAT)
 		LOG_SET(REG_INTR_MASK)
 		LOG_SET(REG_PIO_DIR)
