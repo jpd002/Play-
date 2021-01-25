@@ -27,8 +27,10 @@ CMemoryViewTable::CMemoryViewTable(QWidget* parent)
 
 	auto header = horizontalHeader();
 	header->setMinimumSectionSize(m_cwidth);
+	header->setStretchLastSection(true);
+	header->setSectionResizeMode(QHeaderView::ResizeToContents);
 	header->hide();
-	ResizeColumns();
+	m_model->Redraw();
 
 	setContextMenuPolicy(Qt::CustomContextMenu);
 	connect(this, &QTableView::customContextMenuRequested, this, &CMemoryViewTable::ShowContextMenu);
@@ -81,7 +83,6 @@ void CMemoryViewTable::SetBytesPerLine(int bytesForLine)
 	if(bytesForLine)
 	{
 		m_model->SetColumnCount(bytesForLine);
-		ResizeColumns();
 		m_model->Redraw();
 	}
 	else
@@ -158,49 +159,23 @@ void CMemoryViewTable::ShowContextMenu(const QPoint& pos)
 	rightClickMenu->popup(viewport()->mapToGlobal(pos));
 }
 
-void CMemoryViewTable::ResizeColumns()
-{
-	auto header = horizontalHeader();
-	header->setSectionResizeMode(QHeaderView::Fixed);
-
-	auto units = m_model->columnCount() - 1;
-	auto bytesPerUnit = m_model->GetBytesPerUnit();
-
-	auto valueCell = m_cwidth * (m_model->CharsPerUnit() + 2);
-	int asciiCell = (m_cwidth * bytesPerUnit * units) + (m_cwidth * 2);
-	for(auto i = 0; i < units; ++i)
-	{
-		header->resizeSection(i, valueCell);
-	}
-	header->resizeSection(units, asciiCell);
-
-	// collapse unused column
-	for(auto i = units + 1; i < m_maxUnits; ++i)
-	{
-		header->resizeSection(i, 0);
-	}
-	m_maxUnits = units + 1;
-}
-
 void CMemoryViewTable::AutoColumn()
 {
 	if(m_bytesPerLine)
 		return;
 
-	QFont font = this->font();
-	QFontMetrics metric(font);
-	int columnHeaderWidth = metric.horizontalAdvance(" 0x00000000");
+	int columnHeaderWidth = verticalHeader()->size().width();
+	int columnCellWidth = columnWidth(0);
 
 	int tableWidth = size().width() - columnHeaderWidth - style()->pixelMetric(QStyle::PM_ScrollBarExtent);
-	auto bytesPerUnit = m_model->GetBytesPerUnit();
 
-	int valueCell = m_cwidth * (m_model->CharsPerUnit() + 2);
+	auto bytesPerUnit = m_model->GetBytesPerUnit();
 	int asciiCell = m_cwidth * bytesPerUnit;
 
 	int i = 16;
 	while(true)
 	{
-		int valueCellsWidth = i * valueCell;
+		int valueCellsWidth = i * columnCellWidth;
 		int asciiCellsWidth = (i * asciiCell) + (m_cwidth * 2);
 		int totalWidth = valueCellsWidth + asciiCellsWidth;
 		if(totalWidth > tableWidth)
@@ -211,7 +186,6 @@ void CMemoryViewTable::AutoColumn()
 		++i;
 	}
 	m_model->SetColumnCount(i * bytesPerUnit);
-	ResizeColumns();
 	m_model->Redraw();
 }
 
@@ -262,10 +236,8 @@ void CMemoryViewTable::FollowPointer()
 void CMemoryViewTable::SetActiveUnit(int index)
 {
 	m_model->SetActiveUnit(index);
-	AutoColumn();
-
-	ResizeColumns();
 	m_model->Redraw();
+	AutoColumn();
 }
 
 void CMemoryViewTable::SetSelectionStart(uint32 address)
