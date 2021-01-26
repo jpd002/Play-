@@ -15,6 +15,7 @@ using namespace Iop;
 #define FUNCTION_GETLIBRARYENTRYTABLE "GetLibraryEntryTable"
 #define FUNCTION_FLUSHDCACHE "FlushDcache"
 #define FUNCTION_REGISTERLIBRARYENTRIES "RegisterLibraryEntries"
+#define FUNCTION_RELEASELIBRARYENTRIES "ReleaseLibraryEntries"
 #define FUNCTION_QUERYBOOTMODE "QueryBootMode"
 #define FUNCTION_SETREBOOTTIMELIBHANDLINGMODE "SetRebootTimeLibraryHandlingMode"
 
@@ -51,6 +52,9 @@ std::string CLoadcore::GetFunctionName(unsigned int functionId) const
 	case 6:
 		return FUNCTION_REGISTERLIBRARYENTRIES;
 		break;
+	case 7:
+		return FUNCTION_RELEASELIBRARYENTRIES;
+		break;
 	case 12:
 		return FUNCTION_QUERYBOOTMODE;
 		break;
@@ -76,6 +80,10 @@ void CLoadcore::Invoke(CMIPS& context, unsigned int functionId)
 	case 6:
 		context.m_State.nGPR[CMIPS::V0].nD0 = static_cast<int32>(RegisterLibraryEntries(
 		    context.m_State.nGPR[CMIPS::A0].nV0));
+		break;
+	case 7:
+		context.m_State.nGPR[CMIPS::V0].nD0 = ReleaseLibraryEntries(
+		    context.m_State.nGPR[CMIPS::A0].nV0);
 		break;
 	case 12:
 		context.m_State.nGPR[CMIPS::V0].nD0 = static_cast<int32>(QueryBootMode(
@@ -161,6 +169,19 @@ uint32 CLoadcore::RegisterLibraryEntries(uint32 exportTablePtr)
 	if(!registered)
 	{
 		CLog::GetInstance().Warn(LOG_NAME, "Failed to register library '%s'.\r\n", module->GetId().c_str());
+	}
+	return 0;
+}
+
+int32 CLoadcore::ReleaseLibraryEntries(uint32 exportTablePtr)
+{
+	CLog::GetInstance().Print(LOG_NAME, FUNCTION_RELEASELIBRARYENTRIES "(exportTable = 0x%08X);\r\n", exportTablePtr);
+	uint32* exportTable = reinterpret_cast<uint32*>(&m_ram[exportTablePtr]);
+	auto moduleName = CDynamic::GetDynamicModuleName(exportTable);
+	bool released = m_bios.ReleaseModule(moduleName);
+	if(!released)
+	{
+		CLog::GetInstance().Warn(LOG_NAME, "Failed to release library '%s'.\r\n", moduleName.c_str());
 	}
 	return 0;
 }

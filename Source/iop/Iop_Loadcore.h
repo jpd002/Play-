@@ -38,6 +38,7 @@ namespace Iop
 	private:
 		uint32 GetLibraryEntryTable();
 		uint32 RegisterLibraryEntries(uint32);
+		int32 ReleaseLibraryEntries(uint32);
 		uint32 QueryBootMode(uint32);
 		uint32 SetRebootTimeLibraryHandlingMode(uint32, uint32);
 

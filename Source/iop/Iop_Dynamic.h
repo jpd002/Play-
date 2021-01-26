@@ -8,14 +8,16 @@ namespace Iop
 	{
 	public:
 		CDynamic(uint32*);
-		virtual ~CDynamic();
+		virtual ~CDynamic() = default;
+
+		static std::string GetDynamicModuleName(uint32*);
 
 		std::string GetId() const override;
 		std::string GetFunctionName(unsigned int) const override;
 		void Invoke(CMIPS&, unsigned int) override;
 
 		uint32* GetExportTable() const;
-
+		
 	private:
 		uint32* m_exportTable;
 		std::string m_name;

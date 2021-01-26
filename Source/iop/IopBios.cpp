@@ -3232,6 +3232,14 @@ bool CIopBios::RegisterModule(const Iop::ModulePtr& module)
 	return true;
 }
 
+bool CIopBios::ReleaseModule(const std::string& moduleName)
+{
+	auto moduleIterator = m_modules.find(moduleName);
+	if(moduleIterator == std::end(m_modules)) return false;
+	m_modules.erase(moduleIterator);
+	return true;
+}
+
 uint32 CIopBios::LoadExecutable(CELF& elf, ExecutableRange& executableRange)
 {
 	unsigned int programHeaderIndex = GetElfProgramToLoad(elf);
