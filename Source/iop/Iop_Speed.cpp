@@ -18,6 +18,11 @@ void CSpeed::Reset()
 	m_smapEmac3StaCtrl.f = 0;
 }
 
+void CSpeed::SetEthernetFrameTxHandler(const EthernetFrameTxHandler& ethernetFrameTxHandler)
+{
+	m_ethernetFrameTxHandler = ethernetFrameTxHandler;
+}
+
 void CSpeed::ProcessEmac3StaCtrl()
 {
 	auto staCtrl = make_convertible<SMAP_EMAC3_STA_CTRL>(m_smapEmac3StaCtrl.f);
@@ -69,6 +74,27 @@ void CSpeed::ProcessEmac3StaCtrl()
 		break;
 	}
 	m_smapEmac3StaCtrl.f = staCtrl;
+}
+
+void CSpeed::HandleTx()
+{
+	for(uint32 i = 0; i < SMAP_BD_COUNT; i++)
+	{
+		auto& bdTx = reinterpret_cast<SMAP_BD*>(m_smapBdTx)[i];
+		if(bdTx.ctrlStat & SMAP_BD_TX_READY)
+		{
+			//Is this always 0x1000?
+			static const uint32 bdTxBase = 0x1000;
+			assert(bdTx.pointer >= bdTxBase);
+			if(m_ethernetFrameTxHandler)
+			{
+				m_ethernetFrameTxHandler(m_txBuffer.data() + bdTx.pointer - bdTxBase, bdTx.length);
+			}
+			bdTx.ctrlStat &= ~SMAP_BD_TX_READY;
+		}
+	}
+	//Assert some interrupt lines?
+	m_txBuffer.clear();
 }
 
 uint32 CSpeed::ReadRegister(uint32 address)
@@ -151,8 +177,7 @@ void CSpeed::WriteRegister(uint32 address, uint32 value)
 		if(value & 0x8000)
 		{
 			//Ready to send some stuff (wrote SMAP_E3_TX_GNP_0 bit)
-			//Gotta check the TX BD and do something I guess?
-			m_txBuffer.clear();
+			HandleTx();
 		}
 		break;
 	case REG_SMAP_EMAC3_STA_CTRL_HI:

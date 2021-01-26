@@ -10,14 +10,39 @@ namespace Iop
 	class CSpeed
 	{
 	public:
+		typedef std::function<void (const uint8*, uint32)> EthernetFrameTxHandler;
+		
 		void Reset();
 		
+		void SetEthernetFrameTxHandler(const EthernetFrameTxHandler&);
+		void RxEthernetFrame(const uint8*, uint32);
+
 		uint32 ReadRegister(uint32);
 		void WriteRegister(uint32, uint32);
 		
 		uint32 ReceiveDma(uint8*, uint32, uint32);
 
 	private:
+		enum SMAP_BD_TX_CTRLSTAT
+		{
+			SMAP_BD_TX_READY = 0x8000,
+		};
+		
+		struct SMAP_BD
+		{
+			uint16 ctrlStat;
+			uint16 reserved;
+			uint16 length;
+			uint16 pointer;
+		};
+		static_assert(sizeof(SMAP_BD) == 0x8, "Size of SMAP_BD must be 8 bytes.");
+
+		enum
+		{
+			SMAP_BD_SIZE = 0x00000200,
+			SMAP_BD_COUNT = SMAP_BD_SIZE / sizeof(SMAP_BD),
+		};
+
 		enum
 		{
 			INTR_ATA0 = 0,
@@ -30,7 +55,7 @@ namespace Iop
 			INTR_DVR = 9,
 			INTR_UART = 12
 		};
-		
+
 		enum
 		{
 			REG_REV1 = 0x10000002,
@@ -46,7 +71,6 @@ namespace Iop
 			REG_SMAP_EMAC3_TXMODE0_LO = 0x1000200A,
 			REG_SMAP_EMAC3_STA_CTRL_HI = 0x1000205C,
 			REG_SMAP_EMAC3_STA_CTRL_LO = 0x1000205E,
-			SMAP_BD_SIZE = 0x00000200,
 			REG_SMAP_BD_TX_BASE = 0x10003000,
 			REG_SMAP_BD_RX_BASE = 0x10003200,
 		};
@@ -73,14 +97,17 @@ namespace Iop
 			uint32 phyOpComp : 1;
 			uint32 phyData : 16;
 		};
-
+		
 		void ProcessEmac3StaCtrl();
+		void HandleTx();
 		
 		void LogRead(uint32);
 		void LogWrite(uint32, uint32);
 		void LogBdRead(const char*, uint32, uint32);
 		void LogBdWrite(const char*, uint32, uint32, uint32);
 
+		EthernetFrameTxHandler m_ethernetFrameTxHandler;
+		
 		uint32 m_intrMask = 0;
 		uint32 m_eepRomReadIndex = 0;
 		static const uint32 m_eepRomDataSize = 4;
