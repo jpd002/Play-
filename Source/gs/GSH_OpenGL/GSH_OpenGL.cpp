@@ -976,8 +976,7 @@ void CGSH_OpenGL::SetupFramebuffer(uint64 frameReg, uint64 zbufReg, uint64 sciss
 	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depthbuffer->m_depthBuffer);
 	CHECKGLERROR();
 
-	GLenum result = glCheckFramebufferStatus(GL_FRAMEBUFFER);
-	assert(result == GL_FRAMEBUFFER_COMPLETE);
+	assert(glCheckFramebufferStatus(GL_FRAMEBUFFER) == GL_FRAMEBUFFER_COMPLETE);
 
 	m_renderState.framebufferHandle = framebuffer->m_framebuffer;
 	m_validGlState |= GLSTATE_FRAMEBUFFER; //glBindFramebuffer used to set just above
