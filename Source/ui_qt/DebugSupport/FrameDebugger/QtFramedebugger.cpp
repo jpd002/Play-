@@ -23,6 +23,9 @@ QtFramedebugger::QtFramedebugger()
 {
 	ui->setupUi(this);
 
+	QFont fixedFont = QFont("Courier New", 8);
+	ui->inputStateTextEdit->setFont(fixedFont);
+
 	OpenGLWindow openglpanel;
 	QOffscreenSurface* surface = new QOffscreenSurface();
 	surface->setFormat(OpenGLWindow::GetSurfaceFormat());
