@@ -64,17 +64,16 @@ private:
 
 	CVirtualMachine& m_virtualMachine;
 	CMIPS* m_ctx;
-	int32 m_instructionSize;
+	int32 m_instructionSize = 0;
 	CQtDisAsmTableModel::DISASM_TYPE m_disAsmType;
 
-	uint32 m_address;
-	uint32 m_selected;
-	uint32 m_selectionEnd;
-	bool m_focus;
+	uint32 m_address = 0;
+	uint32 m_selected = MIPS_INVALID_PC;
+	uint32 m_selectionEnd = -1;
 
 	uint32 m_history[HISTORY_STACK_MAX];
 	unsigned int m_historyPosition;
 	unsigned int m_historySize;
 
-	CQtDisAsmTableModel* m_model;
+	CQtDisAsmTableModel* m_model = nullptr;
 };
