@@ -15,7 +15,7 @@ public:
 	virtual ~CTest() = default;
 	virtual void Execute(CTestVm&) = 0;
 
-	enum Float
+	enum Float : uint32
 	{
 		_Min = 0xFFFFFFFF,
 		_Minus8 = 0xC1000000,

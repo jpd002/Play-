@@ -26,6 +26,7 @@ add_executable(VuTest
 	MinMaxTest.cpp
 	StallTest.cpp
 	StallTest2.cpp
+	StallTest3.cpp
 	TestVm.cpp
 	TriAceTest.cpp
 	VuAssembler.cpp
@@ -39,6 +40,7 @@ add_executable(VuTest
 	MinMaxTest.h
 	StallTest.h
 	StallTest2.h
+	StallTest3.h
 	Test.h
 	TestVm.h
 	TriAceTest.h

@@ -278,6 +278,13 @@ uint32 CVuAssembler::Lower::FCAND(uint32 imm)
 	return result;
 }
 
+uint32 CVuAssembler::Lower::FCGET(VI_REGISTER it)
+{
+	uint32 result = 0x38000000;
+	result |= (it << 16);
+	return result;
+}
+
 uint32 CVuAssembler::Lower::FMAND(VI_REGISTER it, VI_REGISTER is)
 {
 	uint32 result = 0x34000000;
@@ -325,6 +332,24 @@ uint32 CVuAssembler::Lower::LQ(DEST dest, VF_REGISTER ft, uint16 imm, VI_REGISTE
 	result |= (is << 11);
 	result |= (ft << 16);
 	result |= (dest << 21);
+	return result;
+}
+
+uint32 CVuAssembler::Lower::MFIR(DEST dest, VF_REGISTER ft, VI_REGISTER is)
+{
+	uint32 result = 0x800003FD;
+	result |= (is << 11);
+	result |= (ft << 16);
+	result |= (dest << 21);
+	return result;
+}
+
+uint32 CVuAssembler::Lower::MTIR(VI_REGISTER it, VF_REGISTER fs, FVF fsf)
+{
+	uint32 result = 0x800003FC;
+	result |= (fsf << 21);
+	result |= (it << 16);
+	result |= (fs << 11);
 	return result;
 }
 
