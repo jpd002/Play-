@@ -132,6 +132,12 @@ uint32 CSpeed::ReadRegister(uint32 address)
 			m_eepRomReadIndex++;
 		}
 		break;
+	case REG_SMAP_EMAC3_ADDR_HI:
+		result = m_smapEmac3AddressHi;
+		break;
+	case REG_SMAP_EMAC3_ADDR_LO:
+		result = m_smapEmac3AddressLo;
+		break;
 	case REG_SMAP_EMAC3_STA_CTRL_HI:
 		result = m_smapEmac3StaCtrl.h1 | (m_smapEmac3StaCtrl.h0 << 16);
 		break;
@@ -179,6 +185,12 @@ void CSpeed::WriteRegister(uint32 address, uint32 value)
 			//Ready to send some stuff (wrote SMAP_E3_TX_GNP_0 bit)
 			HandleTx();
 		}
+		break;
+	case REG_SMAP_EMAC3_ADDR_HI:
+		m_smapEmac3AddressHi = value;
+		break;
+	case REG_SMAP_EMAC3_ADDR_LO:
+		m_smapEmac3AddressLo = value;
 		break;
 	case REG_SMAP_EMAC3_STA_CTRL_HI:
 		m_smapEmac3StaCtrl.h1 = static_cast<uint16>(value);
@@ -235,6 +247,8 @@ void CSpeed::LogRead(uint32 address)
 		LOG_GET(REG_PIO_DATA)
 		LOG_GET(REG_SMAP_EMAC3_TXMODE0_HI)
 		LOG_GET(REG_SMAP_EMAC3_TXMODE0_LO)
+		LOG_GET(REG_SMAP_EMAC3_ADDR_HI)
+		LOG_GET(REG_SMAP_EMAC3_ADDR_LO)
 		LOG_GET(REG_SMAP_EMAC3_STA_CTRL_HI)
 		LOG_GET(REG_SMAP_EMAC3_STA_CTRL_LO)
 
@@ -274,6 +288,8 @@ void CSpeed::LogWrite(uint32 address, uint32 value)
 		LOG_SET(REG_SMAP_TXFIFO_DATA)
 		LOG_SET(REG_SMAP_EMAC3_TXMODE0_HI)
 		LOG_SET(REG_SMAP_EMAC3_TXMODE0_LO)
+		LOG_SET(REG_SMAP_EMAC3_ADDR_HI)
+		LOG_SET(REG_SMAP_EMAC3_ADDR_LO)
 		LOG_SET(REG_SMAP_EMAC3_STA_CTRL_HI)
 		LOG_SET(REG_SMAP_EMAC3_STA_CTRL_LO)
 

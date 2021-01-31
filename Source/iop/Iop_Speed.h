@@ -69,6 +69,8 @@ namespace Iop
 			REG_SMAP_TXFIFO_DATA = 0x10001100,
 			REG_SMAP_EMAC3_TXMODE0_HI = 0x10002008,
 			REG_SMAP_EMAC3_TXMODE0_LO = 0x1000200A,
+			REG_SMAP_EMAC3_ADDR_HI = 0x1000201C,
+			REG_SMAP_EMAC3_ADDR_LO = 0x10002020,
 			REG_SMAP_EMAC3_STA_CTRL_HI = 0x1000205C,
 			REG_SMAP_EMAC3_STA_CTRL_LO = 0x1000205E,
 			REG_SMAP_BD_TX_BASE = 0x10003000,
@@ -113,6 +115,8 @@ namespace Iop
 		static const uint32 m_eepRomDataSize = 4;
 		static const uint16 m_eepromData[];
 		std::vector<uint8> m_txBuffer;
+		uint32 m_smapEmac3AddressHi = 0;
+		uint32 m_smapEmac3AddressLo = 0;
 		UNION32_16 m_smapEmac3StaCtrl;
 		uint8 m_smapBdTx[SMAP_BD_SIZE];
 	};
