@@ -424,6 +424,8 @@ inline void CGsPixelFormats::CPixelIndexor<CGsPixelFormats::STORAGEPSMT4>::SetPi
 template <>
 inline void CGsPixelFormats::CPixelIndexor<CGsPixelFormats::STORAGEPSMT4>::BuildPageOffsetTable()
 {
+	if(m_pageOffsetsInitialized) return;
+
 	typedef STORAGEPSMT4 Storage;
 
 	for(uint32 y = 0; y < Storage::PAGEHEIGHT; y++)
@@ -458,11 +460,14 @@ inline void CGsPixelFormats::CPixelIndexor<CGsPixelFormats::STORAGEPSMT4>::Build
 			m_pageOffsets[y][x] = offset;
 		}
 	}
+	m_pageOffsetsInitialized = true;
 }
 
 template <>
 inline void CGsPixelFormats::CPixelIndexor<CGsPixelFormats::STORAGEPSMT8>::BuildPageOffsetTable()
 {
+	if(m_pageOffsetsInitialized) return;
+
 	typedef CGsPixelFormats::STORAGEPSMT8 Storage;
 
 	for(uint32 y = 0; y < Storage::PAGEHEIGHT; y++)
@@ -493,4 +498,5 @@ inline void CGsPixelFormats::CPixelIndexor<CGsPixelFormats::STORAGEPSMT8>::Build
 			m_pageOffsets[y][x] = offset;
 		}
 	}
+	m_pageOffsetsInitialized = true;
 }
