@@ -12,6 +12,7 @@
 #include "StallTest.h"
 #include "StallTest2.h"
 #include "StallTest3.h"
+#include "StallTest4.h"
 #include "TriAceTest.h"
 
 typedef std::function<CTest*()> TestFactoryFunction;
@@ -29,6 +30,7 @@ static const TestFactoryFunction s_factories[] =
 	[]() { return new CStallTest(); },
 	[]() { return new CStallTest2(); },
 	[]() { return new CStallTest3(); },
+	[]() { return new CStallTest4(); },
 	[]() { return new CTriAceTest(); },
 };
 // clang-format on
