@@ -34,7 +34,7 @@ const char* VUShared::m_sDestination[16] =
 };
 // clang-format on
 
-static uint32 MakeDestFromComponent(uint32 component)
+uint32 VUShared::MakeDestFromComponent(uint32 component)
 {
 	assert(component <= VECTOR_COMPW);
 	return (1 << (3 - component));
@@ -356,19 +356,6 @@ void VUShared::ReflOpAffFtFs(VUINSTRUCTION* pInstr, CMIPS* pCtx, uint32 nAddress
 	operandSet.writeF = nFT;
 }
 
-void VUShared::ReflOpAffRFsf(VUINSTRUCTION* pInstr, CMIPS* pCtx, uint32 nAddress, uint32 nOpcode, OPERANDSET& operandSet)
-{
-	uint8 nFS = (uint8)((nOpcode >> 11) & 0x001F);
-	operandSet.readF0 = nFS;
-}
-
-void VUShared::ReflOpAffFtR(VUINSTRUCTION* pInstr, CMIPS* pCtx, uint32 nAddress, uint32 nOpcode, OPERANDSET& operandSet)
-{
-	uint8 nFT = (uint8)((nOpcode >> 16) & 0x001F);
-
-	operandSet.writeF = nFT;
-}
-
 void VUShared::ReflOpAffQ(VUINSTRUCTION* pInstr, CMIPS* pCtx, uint32 nAddress, uint32 nOpcode, OPERANDSET& operandSet)
 {
 	operandSet.syncQ = true;
@@ -433,24 +420,4 @@ void VUShared::ReflOpAffWrFdRdFsFt(VUINSTRUCTION*, CMIPS*, uint32, uint32 opcode
 	operandSet.readF1 = ft;
 	operandSet.readElemF1 = dest;
 	operandSet.writeMACflags = true;
-}
-
-void VUShared::ReflOpAffWrQRdFt(VUINSTRUCTION*, CMIPS*, uint32, uint32 opcode, OPERANDSET& operandSet)
-{
-	auto ft = static_cast<uint8>((opcode >> 16) & 0x001F);
-
-	//Would probably be write Q
-	operandSet.readF0 = ft;
-	operandSet.syncQ = true;
-}
-
-void VUShared::ReflOpAffWrQRdFsFt(VUINSTRUCTION*, CMIPS*, uint32, uint32 opcode, OPERANDSET& operandSet)
-{
-	auto ft = static_cast<uint8>((opcode >> 16) & 0x001F);
-	auto fs = static_cast<uint8>((opcode >> 11) & 0x001F);
-
-	//Would probably be write Q
-	operandSet.readF0 = fs;
-	operandSet.readF1 = ft;
-	operandSet.syncQ = true;
 }

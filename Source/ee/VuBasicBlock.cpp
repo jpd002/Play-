@@ -443,8 +443,8 @@ std::vector<uint32> CVuBasicBlock::ComputeFmacStallDelays() const
 		relativePipeTime++;
 		uint32 prevRelativePipeTime = relativePipeTime;
 
-		relativePipeTime = adjustPipeTime(relativePipeTime, loDest, loOps.readF0);
-		relativePipeTime = adjustPipeTime(relativePipeTime, loDest, loOps.readF1);
+		relativePipeTime = adjustPipeTime(relativePipeTime, loOps.readElemF0, loOps.readF0);
+		relativePipeTime = adjustPipeTime(relativePipeTime, loOps.readElemF1, loOps.readF1);
 		relativePipeTime = adjustPipeTime(relativePipeTime, hiDest, hiOps.readF0);
 		relativePipeTime = adjustPipeTime(relativePipeTime, hiOps.readElemF1, hiOps.readF1);
 

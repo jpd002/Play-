@@ -200,11 +200,13 @@ void CMA_VU::CLower::ReflOpAffRdIs(VUINSTRUCTION*, CMIPS*, uint32, uint32 opcode
 
 void CMA_VU::CLower::ReflOpAffRdItFs(VUINSTRUCTION*, CMIPS*, uint32, uint32 opcode, OPERANDSET& operandSet)
 {
+	auto dest = static_cast<uint8>((opcode >> 21) & 0x000F);
 	auto it = static_cast<uint8>((opcode >> 16) & 0x001F);
 	auto fs = static_cast<uint8>((opcode >> 11) & 0x001F);
 
 	operandSet.readI0 = it;
 	operandSet.readF0 = fs;
+	operandSet.readElemF0 = dest;
 }
 
 void CMA_VU::CLower::ReflOpAffRdItIs(VUINSTRUCTION*, CMIPS*, uint32, uint32 opcode, OPERANDSET& operandSet)
@@ -224,11 +226,13 @@ void CMA_VU::CLower::ReflOpAffP(VUINSTRUCTION*, CMIPS*, uint32, uint32 opcode, O
 
 void CMA_VU::CLower::ReflOpAffWrFtRdFs(VUINSTRUCTION*, CMIPS*, uint32, uint32 opcode, OPERANDSET& operandSet)
 {
+	auto dest = static_cast<uint8>((opcode >> 21) & 0x000F);
 	auto ft = static_cast<uint8>((opcode >> 16) & 0x001F);
 	auto fs = static_cast<uint8>((opcode >> 11) & 0x001F);
 
 	operandSet.writeF = ft;
 	operandSet.readF0 = fs;
+	operandSet.readElemF0 = dest;
 }
 
 void CMA_VU::CLower::ReflOpAffWrFtIsRdIs(VUINSTRUCTION*, CMIPS*, uint32, uint32 opcode, OPERANDSET& operandSet)
@@ -293,13 +297,15 @@ void CMA_VU::CLower::ReflOpAffWrItBvRdFmac(VUINSTRUCTION*, CMIPS*, uint32, uint3
 	operandSet.readMACflags = true;
 }
 
-void CMA_VU::CLower::ReflOpAffWrItRdFs(VUINSTRUCTION*, CMIPS*, uint32, uint32 opcode, OPERANDSET& operandSet)
+void CMA_VU::CLower::ReflOpAffWrItRdFsf(VUINSTRUCTION*, CMIPS*, uint32, uint32 opcode, OPERANDSET& operandSet)
 {
+	auto fsf = static_cast<uint8>((opcode >> 21) & 0x0003);
 	auto it = static_cast<uint8>((opcode >> 16) & 0x001F);
 	auto fs = static_cast<uint8>((opcode >> 11) & 0x001F);
 
 	operandSet.writeI = it;
 	operandSet.readF0 = fs;
+	operandSet.readElemF0 = VUShared::MakeDestFromComponent(fsf);
 }
 
 void CMA_VU::CLower::ReflOpAffWrItRdIs(VUINSTRUCTION*, CMIPS*, uint32, uint32 opcode, OPERANDSET& operandSet)
@@ -334,20 +340,76 @@ void CMA_VU::CLower::ReflOpAffWrItBvRdFmacIs(VUINSTRUCTION*, CMIPS*, uint32, uin
 
 void CMA_VU::CLower::ReflOpAffWrItRdItFs(VUINSTRUCTION*, CMIPS*, uint32, uint32 opcode, OPERANDSET& operandSet)
 {
+	auto dest = static_cast<uint8>((opcode >> 21) & 0x000F);
 	auto it = static_cast<uint8>((opcode >> 16) & 0x001F);
 	auto fs = static_cast<uint8>((opcode >> 11) & 0x001F);
 
 	operandSet.writeI = it;
 	operandSet.readI0 = it;
 	operandSet.readF0 = fs;
+	operandSet.readElemF0 = dest;
 }
 
 void CMA_VU::CLower::ReflOpAffWrPRdFs(VUINSTRUCTION*, CMIPS*, uint32, uint32 opcode, OPERANDSET& operandSet)
 {
+	auto dest = static_cast<uint8>((opcode >> 21) & 0x000F);
 	auto fs = static_cast<uint8>((opcode >> 11) & 0x001F);
 
 	//TODO: Write P
 	operandSet.readF0 = fs;
+	operandSet.readElemF0 = dest;
+}
+
+void CMA_VU::CLower::ReflOpAffWrPRdFsf(VUINSTRUCTION*, CMIPS*, uint32, uint32 opcode, OPERANDSET& operandSet)
+{
+	auto fsf = static_cast<uint8>((opcode >> 21) & 0x0003);
+	auto fs = static_cast<uint8>((opcode >> 11) & 0x001F);
+
+	//TODO: Write P
+	operandSet.readF0 = fs;
+	operandSet.readElemF0 = VUShared::MakeDestFromComponent(fsf);
+}
+
+void CMA_VU::CLower::ReflOpAffWrQRdFtf(VUINSTRUCTION*, CMIPS*, uint32, uint32 opcode, OPERANDSET& operandSet)
+{
+	auto ftf = static_cast<uint8>((opcode >> 23) & 0x0003);
+	auto ft = static_cast<uint8>((opcode >> 16) & 0x001F);
+
+	//Would probably be write Q
+	operandSet.readF0 = ft;
+	operandSet.readElemF0 = VUShared::MakeDestFromComponent(ftf);
+	operandSet.syncQ = true;
+}
+
+void CMA_VU::CLower::ReflOpAffWrQRdFsfFtf(VUINSTRUCTION*, CMIPS*, uint32, uint32 opcode, OPERANDSET& operandSet)
+{
+	auto ftf = static_cast<uint8>((opcode >> 23) & 0x0003);
+	auto fsf = static_cast<uint8>((opcode >> 21) & 0x0003);
+	auto ft = static_cast<uint8>((opcode >> 16) & 0x001F);
+	auto fs = static_cast<uint8>((opcode >> 11) & 0x001F);
+
+	//Would probably be write Q
+	operandSet.readF0 = fs;
+	operandSet.readElemF0 = VUShared::MakeDestFromComponent(fsf);
+	operandSet.readF1 = ft;
+	operandSet.readElemF1 = VUShared::MakeDestFromComponent(ftf);
+	operandSet.syncQ = true;
+}
+
+void CMA_VU::CLower::ReflOpAffWrRRdFsf(VUINSTRUCTION*, CMIPS*, uint32, uint32 opcode, OPERANDSET& operandSet)
+{
+	auto fs = static_cast<uint8>((opcode >> 11) & 0x001F);
+	auto fsf = static_cast<uint8>((opcode >> 21) & 0x0003);
+
+	operandSet.readF0 = fs;
+	operandSet.readElemF0 = VUShared::MakeDestFromComponent(fsf);
+}
+
+void CMA_VU::CLower::ReflOpAffWrFtRdR(VUINSTRUCTION*, CMIPS*, uint32, uint32 opcode, OPERANDSET& operandSet)
+{
+	auto ft = static_cast<uint8>((opcode >> 16) & 0x001F);
+
+	operandSet.writeF = ft;
 }
 
 void CMA_VU::CLower::ReflOpAffWrVi1Bv(VUINSTRUCTION*, CMIPS*, uint32, uint32 opcode, OPERANDSET& operandSet)
@@ -983,10 +1045,10 @@ VUINSTRUCTION CMA_VU::CLower::m_cVuReflVX0[32] =
 	{	NULL,		NULL,			NULL				},
 	{	"MOVE",		NULL,			ReflOpAffWrFtRdFs	},
 	{	"LQI",		NULL,			ReflOpAffWrFtIsRdIs	},
-	{	"DIV",		NULL,			ReflOpAffWrQRdFsFt	},
-	{	"MTIR",		NULL,			ReflOpAffWrItRdFs	},
+	{	"DIV",		NULL,			ReflOpAffWrQRdFsfFtf},
+	{	"MTIR",		NULL,			ReflOpAffWrItRdFsf	},
 	//0x10
-	{	"RNEXT",	NULL,			ReflOpAffFtR		},
+	{	"RNEXT",	NULL,			ReflOpAffWrFtRdR	},
 	{	NULL,		NULL,			NULL				},
 	{	NULL,		NULL,			NULL				},
 	{	NULL,		NULL,			NULL				},
@@ -1001,8 +1063,8 @@ VUINSTRUCTION CMA_VU::CLower::m_cVuReflVX0[32] =
 	{	"XGKICK",	NULL,			ReflOpAffRdIs		},
 	{	"ESADD",	NULL,			ReflOpAffWrPRdFs	},
 	{	"EATANxy",	NULL,			ReflOpAffWrPRdFs	},
-	{	"ESQRT",	NULL,			ReflOpAffWrPRdFs	},
-	{	"ESIN",		NULL,			ReflOpAffWrPRdFs	},
+	{	"ESQRT",	NULL,			ReflOpAffWrPRdFsf	},
+	{	"ESIN",		NULL,			ReflOpAffWrPRdFsf	},
 };
 
 VUINSTRUCTION CMA_VU::CLower::m_cVuReflVX1[32] =
@@ -1023,10 +1085,10 @@ VUINSTRUCTION CMA_VU::CLower::m_cVuReflVX1[32] =
 	{	NULL,		NULL,			NULL				},
 	{	"MR32",		NULL,			ReflOpAffWrFtRdFs	},
 	{	"SQI",		NULL,			ReflOpAffWrItRdItFs	},
-	{	"SQRT",		NULL,			ReflOpAffWrQRdFt	},
+	{	"SQRT",		NULL,			ReflOpAffWrQRdFtf	},
 	{	"MFIR",		NULL,			ReflOpAffWrFtRdIs	},
 	//0x10
-	{	"RGET",		NULL,			ReflOpAffFtR		},
+	{	"RGET",		NULL,			ReflOpAffWrFtRdR	},
 	{	NULL,		NULL,			NULL				},
 	{	NULL,		NULL,			NULL				},
 	{	NULL,		NULL,			NULL				},
@@ -1041,7 +1103,7 @@ VUINSTRUCTION CMA_VU::CLower::m_cVuReflVX1[32] =
 	{	NULL,		NULL,			NULL				},
 	{	"ERSADD",	NULL,			ReflOpAffWrPRdFs	},
 	{	"EATANxz",	NULL,			ReflOpAffWrPRdFs	},
-	{	"ERSQRT",	NULL,			ReflOpAffWrPRdFs	},
+	{	"ERSQRT",	NULL,			ReflOpAffWrPRdFsf	},
 	{	NULL,		NULL,			NULL				},
 };
 
@@ -1063,10 +1125,10 @@ VUINSTRUCTION CMA_VU::CLower::m_cVuReflVX2[32] =
 	{	NULL,		NULL,			NULL				},
 	{	NULL,		NULL,			NULL				},
 	{	"LQD",		NULL,			ReflOpAffWrFtIsRdIs	},
-	{	"RSQRT",	NULL,			ReflOpAffWrQRdFsFt	},
+	{	"RSQRT",	NULL,			ReflOpAffWrQRdFsfFtf},
 	{	"ILWR",		NULL,			ReflOpAffWrItBvRdIs	},
 	//0x10
-	{	"RINIT",	NULL,			ReflOpAffRFsf		},
+	{	"RINIT",	NULL,			ReflOpAffWrRRdFsf	},
 	{	NULL,		NULL,			NULL				},
 	{	NULL,		NULL,			NULL				},
 	{	NULL,		NULL,			NULL				},
@@ -1081,8 +1143,8 @@ VUINSTRUCTION CMA_VU::CLower::m_cVuReflVX2[32] =
 	{	NULL,		NULL,			NULL				},
 	{	"ELENG",	NULL,			ReflOpAffWrPRdFs	},
 	{	"ESUM",		NULL,			ReflOpAffWrPRdFs	},
-	{	"ERCPR",	NULL,			ReflOpAffWrPRdFs	},
-	{	"EEXP",		NULL,			ReflOpAffWrPRdFs	},
+	{	"ERCPR",	NULL,			ReflOpAffWrPRdFsf	},
+	{	"EEXP",		NULL,			ReflOpAffWrPRdFsf	},
 };
 
 VUINSTRUCTION CMA_VU::CLower::m_cVuReflVX3[32] =
@@ -1106,7 +1168,7 @@ VUINSTRUCTION CMA_VU::CLower::m_cVuReflVX3[32] =
 	{	"WAITQ",	NULL,			ReflOpAffQ			},
 	{	"ISWR",		NULL,			ReflOpAffRdItIs		},
 	//0x10
-	{	"RXOR",		NULL,			ReflOpAffRFsf		},
+	{	"RXOR",		NULL,			ReflOpAffWrRRdFsf	},
 	{	NULL,		NULL,			NULL				},
 	{	NULL,		NULL,			NULL				},
 	{	NULL,		NULL,			NULL				},

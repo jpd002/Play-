@@ -255,12 +255,17 @@ private:
 		static void ReflOpAffWrIt(VUShared::VUINSTRUCTION*, CMIPS*, uint32, uint32, VUShared::OPERANDSET&);
 		static void ReflOpAffWrItBv(VUShared::VUINSTRUCTION*, CMIPS*, uint32, uint32, VUShared::OPERANDSET&);
 		static void ReflOpAffWrItBvRdFmac(VUShared::VUINSTRUCTION*, CMIPS*, uint32, uint32, VUShared::OPERANDSET&);
-		static void ReflOpAffWrItRdFs(VUShared::VUINSTRUCTION*, CMIPS*, uint32, uint32, VUShared::OPERANDSET&);
+		static void ReflOpAffWrItRdFsf(VUShared::VUINSTRUCTION*, CMIPS*, uint32, uint32, VUShared::OPERANDSET&);
 		static void ReflOpAffWrItRdIs(VUShared::VUINSTRUCTION*, CMIPS*, uint32, uint32, VUShared::OPERANDSET&);
 		static void ReflOpAffWrItBvRdIs(VUShared::VUINSTRUCTION*, CMIPS*, uint32, uint32, VUShared::OPERANDSET&);
 		static void ReflOpAffWrItBvRdFmacIs(VUShared::VUINSTRUCTION*, CMIPS*, uint32, uint32, VUShared::OPERANDSET&);
 		static void ReflOpAffWrItRdItFs(VUShared::VUINSTRUCTION*, CMIPS*, uint32, uint32, VUShared::OPERANDSET&);
 		static void ReflOpAffWrPRdFs(VUShared::VUINSTRUCTION*, CMIPS*, uint32, uint32, VUShared::OPERANDSET&);
+		static void ReflOpAffWrPRdFsf(VUShared::VUINSTRUCTION*, CMIPS*, uint32, uint32, VUShared::OPERANDSET&);
+		static void ReflOpAffWrQRdFtf(VUShared::VUINSTRUCTION*, CMIPS*, uint32, uint32, VUShared::OPERANDSET&);
+		static void ReflOpAffWrQRdFsfFtf(VUShared::VUINSTRUCTION*, CMIPS*, uint32, uint32, VUShared::OPERANDSET&);
+		static void ReflOpAffWrRRdFsf(VUShared::VUINSTRUCTION*, CMIPS*, uint32, uint32, VUShared::OPERANDSET&);
+		static void ReflOpAffWrFtRdR(VUShared::VUINSTRUCTION*, CMIPS*, uint32, uint32, VUShared::OPERANDSET&);
 		static void ReflOpAffWrVi1Bv(VUShared::VUINSTRUCTION*, CMIPS*, uint32, uint32, VUShared::OPERANDSET&);
 
 		void ApplySumSeries(size_t, const uint32*, const unsigned int*, unsigned int);

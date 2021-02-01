@@ -46,6 +46,7 @@ namespace VUShared
 	{
 		unsigned int writeF;
 		unsigned int readF0;
+		unsigned int readElemF0;
 		unsigned int readF1;
 		unsigned int readElemF1;
 		unsigned int writeI;
@@ -84,6 +85,7 @@ namespace VUShared
 		COMPILEHINT_SKIPFMACUPDATE = 0x01,
 	};
 
+	uint32 MakeDestFromComponent(uint32);
 	int32 GetImm11Offset(uint16);
 	int32 GetBranch(uint16);
 
@@ -243,8 +245,6 @@ namespace VUShared
 	void ReflOpAffAccFsI(VUINSTRUCTION*, CMIPS*, uint32, uint32, OPERANDSET&);
 	void ReflOpAffFdFsQ(VUINSTRUCTION*, CMIPS*, uint32, uint32, OPERANDSET&);
 	void ReflOpAffFdFsI(VUINSTRUCTION*, CMIPS*, uint32, uint32, OPERANDSET&);
-	void ReflOpAffRFsf(VUINSTRUCTION*, CMIPS*, uint32, uint32, OPERANDSET&);
-	void ReflOpAffFtR(VUINSTRUCTION*, CMIPS*, uint32, uint32, OPERANDSET&);
 	void ReflOpAffFtFs(VUINSTRUCTION*, CMIPS*, uint32, uint32, OPERANDSET&);
 	void ReflOpAffQ(VUINSTRUCTION*, CMIPS*, uint32, uint32, OPERANDSET&);
 
@@ -253,8 +253,6 @@ namespace VUShared
 	void ReflOpAffWrARdFsQ(VUINSTRUCTION*, CMIPS*, uint32, uint32, OPERANDSET&);
 	void ReflOpAffWrCfRdFsFt(VUINSTRUCTION*, CMIPS*, uint32, uint32, OPERANDSET&);
 	void ReflOpAffWrFdRdFsFt(VUINSTRUCTION*, CMIPS*, uint32, uint32, OPERANDSET&);
-	void ReflOpAffWrQRdFt(VUINSTRUCTION*, CMIPS*, uint32, uint32, OPERANDSET&);
-	void ReflOpAffWrQRdFsFt(VUINSTRUCTION*, CMIPS*, uint32, uint32, OPERANDSET&);
 
 	VUINSTRUCTION* DereferenceInstruction(VUSUBTABLE*, uint32);
 	void SubTableAffectedOperands(VUINSTRUCTION* pInstr, CMIPS* pCtx, uint32, uint32, OPERANDSET&);
