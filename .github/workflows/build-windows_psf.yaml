@@ -20,6 +20,8 @@ jobs:
       with:
         submodules: recursive
         fetch-depth: 0
+    - name: Force Fetch Git Tags
+      run: git fetch --tags --force
     - name: Cache DirectX SDK
       if: ${{ matrix.aot-build == 'off' }}
       uses: actions/cache@v2
