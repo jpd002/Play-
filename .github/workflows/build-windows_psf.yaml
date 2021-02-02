@@ -1,9 +1,9 @@
-name: Build Windows
+name: Build Windows Psf
 
 on: [push, pull_request]
 
 jobs:
-  build_windows:
+  build_windows_psf:
     strategy:
       matrix:
         aot-build: ['off', 'on']
