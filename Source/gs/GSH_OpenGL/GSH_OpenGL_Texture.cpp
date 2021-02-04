@@ -25,7 +25,7 @@ void CGSH_OpenGL::SetupTextureUpdaters()
 	m_textureUpdater[PSMCT32_UNK] = &CGSH_OpenGL::TexUpdater_Psm32;
 	m_textureUpdater[PSMCT24_UNK] = &CGSH_OpenGL::TexUpdater_Psm32;
 	m_textureUpdater[PSMCT16S] = &CGSH_OpenGL::TexUpdater_Psm16<CGsPixelFormats::CPixelIndexorPSMCT16S>;
-	m_textureUpdater[PSMT8] = &CGSH_OpenGL::TexUpdater_Psm48<CGsPixelFormats::CPixelIndexorPSMT8>;
+	m_textureUpdater[PSMT8] = &CGSH_OpenGL::TexUpdater_Psm8;
 	m_textureUpdater[PSMT4] = &CGSH_OpenGL::TexUpdater_Psm48<CGsPixelFormats::CPixelIndexorPSMT4>;
 	m_textureUpdater[PSMT8H] = &CGSH_OpenGL::TexUpdater_Psm48H<24, 0xFF>;
 	m_textureUpdater[PSMT4HL] = &CGSH_OpenGL::TexUpdater_Psm48H<24, 0x0F>;
@@ -319,6 +319,122 @@ void CGSH_OpenGL::TexUpdater_Psm16(uint32 bufPtr, uint32 bufWidth, unsigned int 
 	glTexSubImage2D(GL_TEXTURE_2D, 0, texX, texY, texWidth, texHeight, GL_RGBA, GL_UNSIGNED_SHORT_5_5_5_1, m_pCvtBuffer);
 	CHECKGLERROR();
 }
+
+#if defined(_x86_64__) || defined(_M_X64) || defined(TARGET_CPU_X86_64)
+#include <xmmintrin.h>
+#include <emmintrin.h>
+void convertColumn8(uint8* dest, const int destStride, uint8* src, int colNum)
+{
+	__m128i* mSrc = (__m128i*)src;
+
+	__m128i a = mSrc[0];
+	__m128i b = mSrc[1];
+	__m128i c = mSrc[2];
+	__m128i d = mSrc[3];
+
+	__m128i* mdest = (__m128i*)dest;
+
+	__m128i temp_a = a;
+	__m128i temp_c = c;
+
+	a = _mm_unpacklo_epi8(temp_a, b);
+	c = _mm_unpackhi_epi8(temp_a, b);
+	b = _mm_unpacklo_epi8(temp_c, d);
+	d = _mm_unpackhi_epi8(temp_c, d);
+
+	temp_a = a;
+	temp_c = c;
+
+	a = _mm_unpacklo_epi16(temp_a, b);
+	c = _mm_unpackhi_epi16(temp_a, b);
+	b = _mm_unpacklo_epi16(temp_c, d);
+	d = _mm_unpackhi_epi16(temp_c, d);
+
+	temp_a = a;
+	__m128i temp_b = b;
+
+	a = _mm_unpacklo_epi8(temp_a, c);
+	b = _mm_unpackhi_epi8(temp_a, c);
+	c = _mm_unpacklo_epi8(temp_b, d);
+	d = _mm_unpackhi_epi8(temp_b, d);
+
+	temp_a = a;
+	temp_c = c;
+
+	a = _mm_unpacklo_epi64(temp_a, b);
+	c = _mm_unpackhi_epi64(temp_a, b);
+	b = _mm_unpacklo_epi64(temp_c, d);
+	d = _mm_unpackhi_epi64(temp_c, d);
+
+	if((colNum & 1) == 0)
+	{
+		c = _mm_shuffle_epi32(c, _MM_SHUFFLE(2, 3, 0, 1));
+		d = _mm_shuffle_epi32(d, _MM_SHUFFLE(2, 3, 0, 1));
+	}
+	else
+	{
+		a = _mm_shuffle_epi32(a, _MM_SHUFFLE(2, 3, 0, 1));
+		b = _mm_shuffle_epi32(b, _MM_SHUFFLE(2, 3, 0, 1));
+	}
+
+	int mStride = destStride / 16;
+
+	mdest[0] = a;
+	mdest[mStride] = b;
+	mdest[mStride * 2] = c;
+	mdest[mStride * 3] = d;
+}
+
+void CGSH_OpenGL::TexUpdater_Psm8(uint32 bufPtr, uint32 bufWidth, unsigned int texX, unsigned int texY, unsigned int texWidth, unsigned int texHeight)
+{
+	CGsPixelFormats::CPixelIndexorPSMT8 indexor(m_pRAM, bufPtr, bufWidth);
+	uint8* dst = m_pCvtBuffer;
+	for(unsigned int y = 0; y < texHeight; y += 16)
+	{
+		for(unsigned int x = 0; x < texWidth; x += 16)
+		{
+			uint8* colDst = dst;
+			uint8* src = indexor.GetPixelAddress(texX + x, texY + y);
+
+			// process an entire 16x16 block.
+			// A column (64 bytes) is 16x4 pixels and they stack vertically in a block
+
+			int colNum = 0;
+			for(unsigned int coly = 0; coly < 16; coly += 4)
+			{
+				convertColumn8(colDst + x, texWidth, src, colNum++);
+				src += 64;
+				colDst += texWidth * 4;
+			}
+		}
+
+		dst += texWidth * 16;
+	}
+
+	glTexSubImage2D(GL_TEXTURE_2D, 0, texX, texY, texWidth, texHeight, GL_RED, GL_UNSIGNED_BYTE, m_pCvtBuffer);
+	CHECKGLERROR();
+}
+#else
+void CGSH_OpenGL::TexUpdater_Psm8(uint32 bufPtr, uint32 bufWidth, unsigned int texX, unsigned int texY, unsigned int texWidth, unsigned int texHeight)
+{
+	CGsPixelFormats::CPixelIndexorPSMT8 indexor(m_pRAM, bufPtr, bufWidth);
+
+	uint8* dst = m_pCvtBuffer;
+	for(unsigned int y = 0; y < texHeight; y++)
+	{
+		for(unsigned int x = 0; x < texWidth; x++)
+		{
+			uint8 pixel = indexor.GetPixel(texX + x, texY + y);
+			dst[x] = pixel;
+		}
+
+		dst += texWidth;
+	}
+
+	glTexSubImage2D(GL_TEXTURE_2D, 0, texX, texY, texWidth, texHeight, GL_RED, GL_UNSIGNED_BYTE, m_pCvtBuffer);
+	CHECKGLERROR();
+}
+#endif
 
 template <typename IndexorType>
 void CGSH_OpenGL::TexUpdater_Psm48(uint32 bufPtr, uint32 bufWidth, unsigned int texX, unsigned int texY, unsigned int texWidth, unsigned int texHeight)
