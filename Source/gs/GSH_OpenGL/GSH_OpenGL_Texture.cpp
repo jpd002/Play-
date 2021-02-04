@@ -320,7 +320,24 @@ void CGSH_OpenGL::TexUpdater_Psm16(uint32 bufPtr, uint32 bufWidth, unsigned int 
 	CHECKGLERROR();
 }
 
-#if defined(_x86_64__) || defined(_M_X64) || defined(TARGET_CPU_X86_64)
+#ifdef _WIN32
+#define USE_SSE
+#elif defined(__APPLE__)
+#include <TargetConditionals.h>
+#if TARGET_CPU_X86_64
+#define USE_SSE
+#elif TARGET_CPU_ARM64
+#define USE_NEON
+#endif
+#elif defined(__ANDROID__) || defined(__linux__) || defined(__FreeBSD__)
+#if defined(__x86_64__)
+#define USE_SSE
+#elif defined(__aarch64__)
+#define USE_NEON
+#endif
+#endif
+
+#if defined(USE_SSE)
 #include <xmmintrin.h>
 #include <emmintrin.h>
 void convertColumn8(uint8* dest, const int destStride, uint8* src, int colNum)
