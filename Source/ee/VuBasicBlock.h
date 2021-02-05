@@ -24,10 +24,25 @@ private:
 	static bool IsConditionalBranch(uint32);
 	static bool IsNonConditionalBranch(uint32);
 
+	typedef uint32 FmacRegWriteTimes[32][4];
+	struct BlockFmacPipelineInfo
+	{
+		//State of the write times at the end of block
+		FmacRegWriteTimes regWriteTimes = {};
+
+		//Delays incurred during every instruction execution
+		std::vector<uint32> stallDelays;
+
+		//Pipe time at the end of block
+		uint32 pipeTime = 0;
+	};
+
 	INTEGER_BRANCH_DELAY_INFO GetIntegerBranchDelayInfo() const;
 	bool CheckIsSpecialIntegerLoop(unsigned int) const;
 	void ComputeSkipFlagsHints(const std::vector<uint32>&, std::vector<uint32>&) const;
-	std::vector<uint32> ComputeFmacStallDelays() const;
+	BlockFmacPipelineInfo ComputeFmacStallDelays(uint32, uint32, FmacRegWriteTimes = nullptr) const;
+	std::pair<uint32, uint32> GetPreviousBlockWindow() const;
+	static void OffsetFmacWriteTimes(BlockFmacPipelineInfo&);
 	static void EmitXgKick(CMipsJitter*);
 
 	bool m_isLinkable = true;

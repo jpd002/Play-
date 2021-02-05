@@ -32,13 +32,21 @@ void CVuBasicBlock::CompileRange(CMipsJitter* jitter)
 		    hasPendingXgKick = false;
 	    };
 
-	auto fmacStallDelays = ComputeFmacStallDelays();
+	BlockFmacPipelineInfo prevBlockFmacPipelineInfo;
+	auto prevBlockWindow = GetPreviousBlockWindow();
+	if((prevBlockWindow.second - prevBlockWindow.first) != 0)
+	{
+		prevBlockFmacPipelineInfo = ComputeFmacStallDelays(prevBlockWindow.first, prevBlockWindow.second);
+		OffsetFmacWriteTimes(prevBlockFmacPipelineInfo);
+	}
+
+	auto fmacPipelineInfo = ComputeFmacStallDelays(m_begin, m_end, prevBlockFmacPipelineInfo.regWriteTimes);
 
 	uint32 maxInstructions = ((m_end - m_begin) / 8) + 1;
 	std::vector<uint32> hints;
 	hints.resize(maxInstructions);
 
-	ComputeSkipFlagsHints(fmacStallDelays, hints);
+	ComputeSkipFlagsHints(fmacPipelineInfo.stallDelays, hints);
 
 	uint32 relativePipeTime = 0;
 	uint32 instructionIndex = 0;
@@ -108,7 +116,7 @@ void CVuBasicBlock::CompileRange(CMipsJitter* jitter)
 			jitter->PullRel(offsetof(CMIPS, m_State.savedIntReg));
 		}
 
-		auto fmacStallDelay = fmacStallDelays[instructionIndex];
+		auto fmacStallDelay = fmacPipelineInfo.stallDelays[instructionIndex];
 		relativePipeTime += fmacStallDelay;
 
 		uint32 compileHints = hints[instructionIndex];
@@ -395,18 +403,23 @@ void CVuBasicBlock::ComputeSkipFlagsHints(const std::vector<uint32>& fmacStallDe
 	}
 }
 
-std::vector<uint32> CVuBasicBlock::ComputeFmacStallDelays() const
+CVuBasicBlock::BlockFmacPipelineInfo CVuBasicBlock::ComputeFmacStallDelays(uint32 begin, uint32 end, FmacRegWriteTimes initWriteFTime) const
 {
 	auto arch = static_cast<CMA_VU*>(m_context.m_pArch);
 
-	uint32 maxInstructions = ((m_end - m_begin) / 8) + 1;
+	assert((begin & 0x07) == 0);
+	assert(((end + 4) & 0x07) == 0);
+	uint32 maxInstructions = ((end - begin) / 8) + 1;
 
 	std::vector<uint32> fmacStallDelays;
 	fmacStallDelays.resize(maxInstructions);
 
 	uint32 relativePipeTime = 0;
-	uint32 writeFTime[32][4];
-	memset(writeFTime, 0, sizeof(writeFTime));
+	FmacRegWriteTimes writeFTime = {};
+	if(initWriteFTime != nullptr)
+	{
+		memcpy(writeFTime, initWriteFTime, sizeof(writeFTime));
+	}
 
 	auto adjustPipeTime =
 	    [&writeFTime](uint32 pipeTime, uint32 dest, uint32 regIndex) {
@@ -421,9 +434,9 @@ std::vector<uint32> CVuBasicBlock::ComputeFmacStallDelays() const
 		    return pipeTime;
 	    };
 
-	for(uint32 address = m_begin; address <= m_end; address += 8)
+	for(uint32 address = begin; address <= end; address += 8)
 	{
-		uint32 instructionIndex = (address - m_begin) / 8;
+		uint32 instructionIndex = (address - begin) / 8;
 		assert(instructionIndex < maxInstructions);
 
 		uint32 addressLo = address + 0;
@@ -481,5 +494,43 @@ std::vector<uint32> CVuBasicBlock::ComputeFmacStallDelays() const
 		}
 	}
 
-	return fmacStallDelays;
+	//TODO: Check that we don't have unconditional branches?
+
+	BlockFmacPipelineInfo result;
+	result.pipeTime = relativePipeTime;
+	result.stallDelays = fmacStallDelays;
+	memcpy(result.regWriteTimes, writeFTime, sizeof(writeFTime));
+	return result;
+}
+
+std::pair<uint32, uint32> CVuBasicBlock::GetPreviousBlockWindow() const
+{
+	//3 previous instructions
+	static const uint32 windowSize = (3 * 8);
+	auto result = std::make_pair(0U, 0U);
+	if(m_begin >= windowSize)
+	{
+		//TODO: Check for unconditional jumps
+		result = std::make_pair(m_begin - windowSize, m_begin - 4);
+		assert((result.second + 4) == m_begin);
+	}
+	assert(result.second >= result.first);
+	return result;
+}
+
+void CVuBasicBlock::OffsetFmacWriteTimes(BlockFmacPipelineInfo& pipelineInfo)
+{
+	auto& writeFTime = pipelineInfo.regWriteTimes;
+
+	//Resync all write times
+	for(uint32 reg = 0; reg < 32; reg++)
+	{
+		for(uint32 elem = 0; elem < 4; elem++)
+		{
+			if(writeFTime[reg][elem] >= pipelineInfo.pipeTime)
+			{
+				writeFTime[reg][elem] -= pipelineInfo.pipeTime;
+			}
+		}
+	}
 }
