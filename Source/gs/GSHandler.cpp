@@ -147,15 +147,15 @@ void CGSHandler::ResetBase()
 	memset(m_pRAM, 0, RAMSIZE);
 	memset(m_pCLUT, 0, CLUTSIZE);
 	m_nPMODE = 0;
-	m_nSMODE2 = 0;
+	m_nSMODE2 = 0x3; // Interlacing with fullframe
 	m_nDISPFB1.heldValue = 0;
 	m_nDISPFB1.value.q = 0;
 	m_nDISPLAY1.heldValue = 0;
-	m_nDISPLAY1.value.q = 0;
+	m_nDISPLAY1.value.q = 0x1BF9FF72617467;
 	m_nDISPFB2.heldValue = 0;
 	m_nDISPFB2.value.q = 0;
 	m_nDISPLAY2.heldValue = 0;
-	m_nDISPLAY2.value.q = 0;
+	m_nDISPLAY2.value.q = 0x1BF9FF72617467;
 	m_nCSR = CSR_FIFO_EMPTY | (GS_REVISION << 16);
 	m_nIMR = ~0;
 	m_nBUSDIR = 0;
