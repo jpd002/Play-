@@ -100,7 +100,7 @@ jobs:
     - name: Upload to S3
       if: ${{ env.AWS_ACCESS_KEY_ID != null}}
       run: |
-        aws s3 cp installer_win32/*.exe s3://playbuilds/${{ env.SHORT_HASH }}/ --acl public-read
+        aws s3 cp installer_win32/ s3://playbuilds/${{ env.SHORT_HASH }}/ --acl public-read --recursive --exclude "*" --include "*.exe"
         aws s3 cp build/Source/ui_libretro/Release/play_libretro.dll s3://playbuilds/${{ env.SHORT_HASH }}/play_libretro_$ARCH_TYPE.dll --acl public-read
       env:
         ARCH_TYPE: ${{ matrix.arch-type }}
