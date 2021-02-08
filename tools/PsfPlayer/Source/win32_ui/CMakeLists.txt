@@ -40,8 +40,15 @@ include_directories(${DirectX_D3D9_INCLUDE_DIR} ${DirectX_D3DX9_INCLUDE_DIR})
 set(AUDIO_LIBS)
 find_package(OpenAL)
 if(OPENAL_FOUND)
+	if(NOT TARGET Framework_OpenAl)
+		add_subdirectory(
+			${CMAKE_CURRENT_SOURCE_DIR}/../../../../deps/Framework/build_cmake/FrameworkOpenAl
+			${CMAKE_CURRENT_BINARY_DIR}/FrameworkOpenAl
+		)
+	endif()
+	list(APPEND PROJECT_LIBS Framework_OpenAl)
 	add_library(SH_OpenAL SHARED ../SH_OpenAL.cpp SH_OpenAL/DllMain.cpp)
-	target_link_libraries(SH_OpenAL PRIVATE ${OPENAL_LIBRARY} Framework_OpenAl Framework)
+	target_link_libraries(SH_OpenAL PRIVATE Framework_OpenAl Framework)
 	list(APPEND AUDIO_LIBS SH_OpenAL)
 endif()
 
