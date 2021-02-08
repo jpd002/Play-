@@ -60,7 +60,9 @@ jobs:
         arch: ${{ matrix.qt-arch }}
         cached: ${{ steps.cache-qt.outputs.cache-hit }}
     - name: Set SHORT_HASH
-      run: echo "::set-output name=VALUE::${LONG_HASH:0:8}"
+      run: |
+        $short_hash = "${{ env.LONG_HASH }}".substring(0, 8)
+        echo "::set-output name=VALUE::$short_hash"
       id: short_hash
       env:
         LONG_HASH: ${{ github.sha }}
@@ -98,8 +100,8 @@ jobs:
     - name: Upload to S3
       if: ${{ env.AWS_ACCESS_KEY_ID != null}}
       run: |
-        aws s3 cp installer_win32/*.exe s3://playbuilds/$SHORT_HASH/ --acl public-read
-        aws s3 cp build/Source/ui_libretro/Release/play_libretro.dll s3://playbuilds/$SHORT_HASH/play_libretro_$ARCH_TYPE.dll --acl public-read
+        aws s3 cp installer_win32/*.exe s3://playbuilds/${{ env.SHORT_HASH }}/ --acl public-read
+        aws s3 cp build/Source/ui_libretro/Release/play_libretro.dll s3://playbuilds/${{ env.SHORT_HASH }}/play_libretro_$ARCH_TYPE.dll --acl public-read
       env:
         ARCH_TYPE: ${{ matrix.arch-type }}
         SHORT_HASH: ${{ steps.short_hash.outputs.VALUE }}
