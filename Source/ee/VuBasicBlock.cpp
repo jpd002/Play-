@@ -458,7 +458,7 @@ CVuBasicBlock::BlockFmacPipelineInfo CVuBasicBlock::ComputeFmacStallDelays(uint3
 
 		relativePipeTime = adjustPipeTime(relativePipeTime, loOps.readElemF0, loOps.readF0);
 		relativePipeTime = adjustPipeTime(relativePipeTime, loOps.readElemF1, loOps.readF1);
-		relativePipeTime = adjustPipeTime(relativePipeTime, hiDest, hiOps.readF0);
+		relativePipeTime = adjustPipeTime(relativePipeTime, hiOps.readElemF0, hiOps.readF0);
 		relativePipeTime = adjustPipeTime(relativePipeTime, hiOps.readElemF1, hiOps.readF1);
 
 		if(prevRelativePipeTime != relativePipeTime)

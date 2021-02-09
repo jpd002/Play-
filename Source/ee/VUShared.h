@@ -242,17 +242,19 @@ namespace VUShared
 	void ReflOpItIsImm5(MIPSReflection::INSTRUCTION*, CMIPS*, uint32, uint32, char*, unsigned int);
 
 	void ReflOpAffNone(VUINSTRUCTION*, CMIPS*, uint32, uint32, OPERANDSET&);
-	void ReflOpAffAccFsI(VUINSTRUCTION*, CMIPS*, uint32, uint32, OPERANDSET&);
-	void ReflOpAffFdFsQ(VUINSTRUCTION*, CMIPS*, uint32, uint32, OPERANDSET&);
-	void ReflOpAffFdFsI(VUINSTRUCTION*, CMIPS*, uint32, uint32, OPERANDSET&);
-	void ReflOpAffFtFs(VUINSTRUCTION*, CMIPS*, uint32, uint32, OPERANDSET&);
-	void ReflOpAffQ(VUINSTRUCTION*, CMIPS*, uint32, uint32, OPERANDSET&);
 
 	void ReflOpAffWrARdFsFt(VUINSTRUCTION*, CMIPS*, uint32, uint32, OPERANDSET&);
 	void ReflOpAffWrARdFsFtBc(VUINSTRUCTION*, CMIPS*, uint32, uint32, OPERANDSET&);
+	void ReflOpAffWrARdFsI(VUINSTRUCTION*, CMIPS*, uint32, uint32, OPERANDSET&);
 	void ReflOpAffWrARdFsQ(VUINSTRUCTION*, CMIPS*, uint32, uint32, OPERANDSET&);
+
 	void ReflOpAffWrCfRdFsFt(VUINSTRUCTION*, CMIPS*, uint32, uint32, OPERANDSET&);
+
 	void ReflOpAffWrFdRdFsFt(VUINSTRUCTION*, CMIPS*, uint32, uint32, OPERANDSET&);
+	void ReflOpAffWrFdRdFsI(VUINSTRUCTION*, CMIPS*, uint32, uint32, OPERANDSET&);
+	void ReflOpAffWrFdRdFsQ(VUINSTRUCTION*, CMIPS*, uint32, uint32, OPERANDSET&);
+
+	void ReflOpAffWrFtRdFs(VUINSTRUCTION*, CMIPS*, uint32, uint32, OPERANDSET&);
 
 	VUINSTRUCTION* DereferenceInstruction(VUSUBTABLE*, uint32);
 	void SubTableAffectedOperands(VUINSTRUCTION* pInstr, CMIPS* pCtx, uint32, uint32, OPERANDSET&);

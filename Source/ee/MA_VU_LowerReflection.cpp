@@ -224,15 +224,9 @@ void CMA_VU::CLower::ReflOpAffP(VUINSTRUCTION*, CMIPS*, uint32, uint32 opcode, O
 	operandSet.syncP = true;
 }
 
-void CMA_VU::CLower::ReflOpAffWrFtRdFs(VUINSTRUCTION*, CMIPS*, uint32, uint32 opcode, OPERANDSET& operandSet)
+void CMA_VU::CLower::ReflOpAffQ(VUINSTRUCTION*, CMIPS*, uint32, uint32 opcode, OPERANDSET& operandSet)
 {
-	auto dest = static_cast<uint8>((opcode >> 21) & 0x000F);
-	auto ft = static_cast<uint8>((opcode >> 16) & 0x001F);
-	auto fs = static_cast<uint8>((opcode >> 11) & 0x001F);
-
-	operandSet.writeF = ft;
-	operandSet.readF0 = fs;
-	operandSet.readElemF0 = dest;
+	operandSet.syncQ = true;
 }
 
 void CMA_VU::CLower::ReflOpAffWrFtIsRdIs(VUINSTRUCTION*, CMIPS*, uint32, uint32 opcode, OPERANDSET& operandSet)
