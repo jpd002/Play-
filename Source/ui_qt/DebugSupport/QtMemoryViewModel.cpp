@@ -5,11 +5,14 @@
 
 #include <cmath>
 
+// clang-format off
 std::vector<CQtMemoryViewModel::UNITINFO> CQtMemoryViewModel::g_units =
-    {
-        {1, 2, &CQtMemoryViewModel::RenderByteUnit, "8-bit Integers"},
-        {4, 8, &CQtMemoryViewModel::RenderWordUnit, "32-bit Integers"},
-        {4, 11, &CQtMemoryViewModel::RenderSingleUnit, "Single Precision Floating Point Numbers"}};
+{
+	{1, 2, &CQtMemoryViewModel::RenderByteUnit, "8-bit Integers"},
+	{4, 8, &CQtMemoryViewModel::RenderWordUnit, "32-bit Integers"},
+	{4, 11, &CQtMemoryViewModel::RenderSingleUnit, "Single Precision Floating Point Numbers"}
+};
+// clang-format on
 
 CQtMemoryViewModel::CQtMemoryViewModel(QObject* parent, getByteProto getByte, int size)
     : QAbstractTableModel(parent)
