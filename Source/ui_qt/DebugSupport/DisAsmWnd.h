@@ -26,6 +26,9 @@ public:
 
 	FindCallersRequestedEvent FindCallersRequested;
 
+protected:
+	int sizeHintForColumn(int) const override;
+
 private:
 	enum
 	{

@@ -37,6 +37,16 @@ CMemoryViewTable::CMemoryViewTable(QWidget* parent)
 	connect(selectionModel(), &QItemSelectionModel::selectionChanged, this, &CMemoryViewTable::SelectionChanged);
 }
 
+int CMemoryViewTable::sizeHintForColumn(int col) const
+{
+	//This doesn't work for auto mode
+	if(col < m_model->columnCount() - 1)
+	{
+		return m_model->CharsPerUnit() * m_cwidth * 2;
+	}
+	return 0;
+}
+
 void CMemoryViewTable::Setup(CVirtualMachine* virtualMachine, CMIPS* ctx, bool memoryJumps)
 {
 	m_virtualMachine = virtualMachine;

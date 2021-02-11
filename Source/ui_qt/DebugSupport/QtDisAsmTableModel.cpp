@@ -159,16 +159,6 @@ QVariant CQtDisAsmTableModel::data(const QModelIndex& index, int role) const
 		if(subindex == size)
 			return m_ctx->m_Comments.Find(address);
 	}
-	if(role == Qt::SizeHintRole)
-	{
-		if(index.column() == 0 || index.column() == 2)
-		{
-			auto size = m_line.size();
-			size.rheight() += 15;
-			size.rwidth() += 15;
-			return size;
-		}
-	}
 	if(role == Qt::DecorationRole)
 	{
 		switch(index.column())

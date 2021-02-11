@@ -30,6 +30,9 @@ public:
 
 	Framework::CSignal<void(uint32)> OnSelectionChange;
 
+protected:
+	int sizeHintForColumn(int) const override;
+
 private:
 	void ShowContextMenu(const QPoint&);
 	void AutoColumn();

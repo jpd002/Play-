@@ -51,7 +51,7 @@ CDisAsmWnd::CDisAsmWnd(QWidget* parent, CVirtualMachine& virtualMachine, CMIPS* 
 	setModel(m_model);
 
 	auto header = horizontalHeader();
-	header->setMinimumSectionSize(25);
+	header->setMinimumSectionSize(1);
 	header->setSectionResizeMode(0, QHeaderView::ResizeToContents);
 	header->setSectionResizeMode(1, QHeaderView::ResizeToContents);
 	header->setSectionResizeMode(2, QHeaderView::ResizeToContents);
@@ -214,6 +214,18 @@ bool CDisAsmWnd::isAddressInView(QModelIndex& index) const
 	auto startRow = indexAt(rect().topLeft());
 	auto endRow = indexAt(rect().bottomRight());
 	return index.row() >= startRow.row() && index.row() <= endRow.row();
+}
+
+int CDisAsmWnd::sizeHintForColumn(int col) const
+{
+	if(col == 0 || col == 2)
+	{
+		return 22 + 15;
+	}
+	else
+	{
+		return 65;
+	}
 }
 
 void CDisAsmWnd::SetAddress(uint32 address)
