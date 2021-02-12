@@ -44,12 +44,12 @@ private:
 
 	CMIPS* m_context = nullptr;
 	CVirtualMachine* m_virtualMachine = nullptr;
-	CQtMemoryViewModel* m_model;
+	CQtMemoryViewModel* m_model = nullptr;
 
 	uint32 m_selected = 0;
 	int m_cwidth = 0;
 	int m_bytesPerLine = 0;
 	int m_maxUnits = 0;
 
-	bool m_enableMemoryJumps;
+	bool m_enableMemoryJumps = false;
 };
