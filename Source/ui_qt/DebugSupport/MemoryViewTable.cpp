@@ -42,7 +42,7 @@ int CMemoryViewTable::sizeHintForColumn(int col) const
 	//This doesn't work for auto mode
 	if(col < m_model->columnCount() - 1)
 	{
-		return m_model->CharsPerUnit() * m_cwidth * 2;
+		return (m_model->CharsPerUnit() + 1) * m_cwidth;
 	}
 	return 0;
 }
