@@ -39,6 +39,8 @@ public:
 	uint32 TranslateModelIndexToAddress(const QModelIndex&) const;
 	const QModelIndex TranslateAddressToModelIndex(uint32) const;
 
+	int GetLinePixMapWidth() const;
+
 protected:
 	QVariant headerData(int section, Qt::Orientation orientation, int role) const Q_DECL_OVERRIDE;
 

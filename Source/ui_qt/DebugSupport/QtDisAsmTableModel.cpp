@@ -377,6 +377,11 @@ const QModelIndex CQtDisAsmTableModel::TranslateAddressToModelIndex(uint32 addre
 	return index(tAddress / m_instructionSize, 0);
 }
 
+int CQtDisAsmTableModel::GetLinePixMapWidth() const
+{
+	return m_line.width();
+}
+
 TableColumnDelegateTargetComment::TableColumnDelegateTargetComment(QObject* parent)
     : QStyledItemDelegate(parent)
 {

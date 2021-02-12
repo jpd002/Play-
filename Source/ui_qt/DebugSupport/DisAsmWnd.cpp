@@ -31,6 +31,9 @@ CDisAsmWnd::CDisAsmWnd(QWidget* parent, CVirtualMachine& virtualMachine, CMIPS* 
 	QFont fixedFont = QFont("Courier New", 8);
 	setFont(fixedFont);
 
+	QFontMetrics metric(fixedFont);
+	m_cwidth = metric.maxWidth();
+
 	resize(320, 240);
 
 	switch(disAsmType)
@@ -220,11 +223,13 @@ int CDisAsmWnd::sizeHintForColumn(int col) const
 {
 	if(col == 0 || col == 2)
 	{
-		return 22 + 15;
+		//The added units is to account for margins
+		return m_model->GetLinePixMapWidth() + 11;
 	}
 	else
 	{
-		return 65;
+		//There's 8 characters in the address and instruction views
+		return (8 * m_cwidth);
 	}
 }
 
