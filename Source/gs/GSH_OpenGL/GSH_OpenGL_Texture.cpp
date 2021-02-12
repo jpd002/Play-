@@ -402,6 +402,50 @@ void convertColumn8(uint8* dest, const int destStride, uint8* src, int colNum)
 	mdest[mStride * 3] = d;
 }
 
+#elif defined(USE_NEON)
+#include <arm_neon.h>
+
+inline void convertColumn8(uint8* dest, const int destStride, uint8* src, int colNum)
+{
+	// This sucks in the entire column and de-interleaves it
+	uint8x16x4_t data = vld4q_u8(src);
+
+	uint16x8_t row0 = vcombine_u16(vmovn_u32(vreinterpretq_u32_u8(data.val[0])), vmovn_u32(vreinterpretq_u32_u8(data.val[2])));
+	uint16x8_t revr0 = vrev32q_u16(vreinterpretq_u16_u8(data.val[0]));
+	uint16x8_t revr2 = vrev32q_u16(vreinterpretq_u16_u8(data.val[2]));
+	uint16x8_t row1 = vcombine_u16(vmovn_u32(vreinterpretq_u32_u16(revr0)), vmovn_u32(vreinterpretq_u32_u16(revr2)));
+
+	uint16x8_t row2 = vcombine_u16(vmovn_u32(vreinterpretq_u32_u8(data.val[1])), vmovn_u32(vreinterpretq_u32_u8(data.val[3])));
+	uint16x8_t revr1 = vrev32q_u16(vreinterpretq_u16_u8(data.val[1]));
+	uint16x8_t revr3 = vrev32q_u16(vreinterpretq_u16_u8(data.val[3]));
+	uint16x8_t row3 = vcombine_u16(vmovn_u32(vreinterpretq_u32_u16(revr1)), vmovn_u32(vreinterpretq_u32_u16(revr3)));
+
+	if((colNum & 1) == 0)
+	{
+		row2 = vreinterpretq_u16_u32(vrev64q_u32(vreinterpretq_u32_u16(row2)));
+		row3 = vreinterpretq_u16_u32(vrev64q_u32(vreinterpretq_u32_u16(row3)));
+	}
+	else
+	{
+		row0 = vreinterpretq_u16_u32(vrev64q_u32(vreinterpretq_u32_u16(row0)));
+		row1 = vreinterpretq_u16_u32(vrev64q_u32(vreinterpretq_u32_u16(row1)));
+	}
+
+	vst1q_u8(dest, vreinterpretq_u8_u16(row0));
+	vst1q_u8(dest + destStride, vreinterpretq_u8_u16(row1));
+	vst1q_u8(dest + 2 * destStride, vreinterpretq_u8_u16(row2));
+	vst1q_u8(dest + 3 * destStride, vreinterpretq_u8_u16(row3));
+}
+#else
+/*
+// If we have a platform that does not have SIMD then implement the basic case here.
+void convertColumn8(uint8* dest, const int destStride, uint8* src, int colNum)
+{
+	
+}
+*/
+#endif
+
 void CGSH_OpenGL::TexUpdater_Psm8(uint32 bufPtr, uint32 bufWidth, unsigned int texX, unsigned int texY, unsigned int texWidth, unsigned int texHeight)
 {
 	CGsPixelFormats::CPixelIndexorPSMT8 indexor(m_pRAM, bufPtr, bufWidth);
@@ -431,27 +475,6 @@ void CGSH_OpenGL::TexUpdater_Psm8(uint32 bufPtr, uint32 bufWidth, unsigned int t
 	glTexSubImage2D(GL_TEXTURE_2D, 0, texX, texY, texWidth, texHeight, GL_RED, GL_UNSIGNED_BYTE, m_pCvtBuffer);
 	CHECKGLERROR();
 }
-#else
-void CGSH_OpenGL::TexUpdater_Psm8(uint32 bufPtr, uint32 bufWidth, unsigned int texX, unsigned int texY, unsigned int texWidth, unsigned int texHeight)
-{
-	CGsPixelFormats::CPixelIndexorPSMT8 indexor(m_pRAM, bufPtr, bufWidth);
-
-	uint8* dst = m_pCvtBuffer;
-	for(unsigned int y = 0; y < texHeight; y++)
-	{
-		for(unsigned int x = 0; x < texWidth; x++)
-		{
-			uint8 pixel = indexor.GetPixel(texX + x, texY + y);
-			dst[x] = pixel;
-		}
-
-		dst += texWidth;
-	}
-
-	glTexSubImage2D(GL_TEXTURE_2D, 0, texX, texY, texWidth, texHeight, GL_RED, GL_UNSIGNED_BYTE, m_pCvtBuffer);
-	CHECKGLERROR();
-}
-#endif
 
 template <typename IndexorType>
 void CGSH_OpenGL::TexUpdater_Psm48(uint32 bufPtr, uint32 bufWidth, unsigned int texX, unsigned int texY, unsigned int texWidth, unsigned int texHeight)
