@@ -228,6 +228,13 @@ int CDisAsmWnd::sizeHintForColumn(int col) const
 	}
 }
 
+void CDisAsmWnd::verticalScrollbarValueChanged(int value)
+{
+	auto topLeftIndex = indexAt(rect().topLeft());
+	m_address = m_model->TranslateModelIndexToAddress(topLeftIndex);
+	QTableView::verticalScrollbarValueChanged(value);
+}
+
 void CDisAsmWnd::SetAddress(uint32 address)
 {
 	auto addressRow = m_model->TranslateAddressToModelIndex(address);
@@ -488,12 +495,6 @@ void CDisAsmWnd::ToggleBreakpoint(uint32 address)
 	}
 	m_ctx->ToggleBreakpoint(address);
 	m_model->Redraw(address);
-}
-
-void CDisAsmWnd::UpdatePosition(int delta)
-{
-	m_address += delta;
-	SetAddress(m_address);
 }
 
 void CDisAsmWnd::selectionChanged()

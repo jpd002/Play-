@@ -28,6 +28,7 @@ public:
 
 protected:
 	int sizeHintForColumn(int) const override;
+	void verticalScrollbarValueChanged(int) override;
 
 private:
 	enum
@@ -43,7 +44,6 @@ private:
 	void GotoEA();
 	void EditComment();
 	void FindCallers();
-	void UpdatePosition(int);
 	void ToggleBreakpoint(uint32);
 	SelectionRangeType GetSelectionRange();
 	void HistoryReset();
