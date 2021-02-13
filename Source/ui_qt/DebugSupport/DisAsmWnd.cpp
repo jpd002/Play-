@@ -31,7 +31,7 @@ CDisAsmWnd::CDisAsmWnd(QWidget* parent, CVirtualMachine& virtualMachine, CMIPS* 
 
 	QFont fixedFont = QFont("Courier New", 8);
 	setFont(fixedFont);
-	
+
 	m_numericalCellWidth = ComputeNumericalCellWidth();
 
 	resize(320, 240);
