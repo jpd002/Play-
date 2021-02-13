@@ -9,6 +9,7 @@ CRegViewPage::CRegViewPage(QWidget* Parent)
 
 	setEditTriggers(QAbstractItemView::NoEditTriggers);
 	horizontalHeader()->setVisible(false);
+	horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
 	verticalHeader()->setVisible(false);
 }
 
