@@ -6,6 +6,7 @@
 #include <QHeaderView>
 #include <QFont>
 #include <QVBoxLayout>
+#include <QTextLayout>
 
 #include "string_format.h"
 #include "MemoryViewTable.h"
@@ -26,7 +27,7 @@ CMemoryViewTable::CMemoryViewTable(QWidget* parent)
 	m_cwidth = metric.maxWidth();
 
 	auto header = horizontalHeader();
-	header->setMinimumSectionSize(m_cwidth);
+	header->setMinimumSectionSize(1);
 	header->setStretchLastSection(true);
 	header->setSectionResizeMode(QHeaderView::ResizeToContents);
 	header->hide();
@@ -39,12 +40,27 @@ CMemoryViewTable::CMemoryViewTable(QWidget* parent)
 
 int CMemoryViewTable::sizeHintForColumn(int col) const
 {
-	//This doesn't work for auto mode
 	if(col < m_model->columnCount() - 1)
 	{
-		return (m_model->CharsPerUnit() + 1) * m_cwidth;
+		return ComputeItemCellWidth();
 	}
 	return 0;
+}
+
+int CMemoryViewTable::ComputeItemCellWidth() const
+{
+	auto modelString = std::string(m_model->CharsPerUnit(), '0');
+	int marginWidth = style()->pixelMetric(QStyle::PM_FocusFrameHMargin, nullptr, this) + 1;
+
+	QTextLayout layout(modelString.c_str(), font());
+	layout.beginLayout();
+	auto line = layout.createLine();
+	line.setLineWidth(1000);
+	int textWidth = ceil(line.naturalTextWidth());
+	layout.endLayout();
+
+	int result = textWidth + (2 * marginWidth) + 1;
+	return result;
 }
 
 void CMemoryViewTable::Setup(CVirtualMachine* virtualMachine, CMIPS* ctx, bool memoryJumps)

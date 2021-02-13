@@ -37,6 +37,8 @@ private:
 	};
 	typedef std::pair<uint32, uint32> SelectionRangeType;
 
+	int ComputeNumericalCellWidth() const;
+
 	uint32 GetInstruction(uint32);
 
 	void GotoAddress();
@@ -70,7 +72,7 @@ private:
 	int32 m_instructionSize = 0;
 	CQtDisAsmTableModel::DISASM_TYPE m_disAsmType;
 
-	int m_cwidth = 0;
+	int m_numericalCellWidth = 0;
 	uint32 m_address = 0;
 	uint32 m_selected = MIPS_INVALID_PC;
 	uint32 m_selectionEnd = -1;

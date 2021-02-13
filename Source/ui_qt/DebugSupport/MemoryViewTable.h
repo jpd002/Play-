@@ -34,6 +34,8 @@ protected:
 	int sizeHintForColumn(int) const override;
 
 private:
+	int ComputeItemCellWidth() const;
+
 	void ShowContextMenu(const QPoint&);
 	void AutoColumn();
 	void GotoAddress();

@@ -7,6 +7,7 @@
 #include <QInputDialog>
 #include <QMessageBox>
 #include <QHeaderView>
+#include <QTextLayout>
 
 #include "DisAsmWnd.h"
 #include "ee/VuAnalysis.h"
@@ -30,9 +31,8 @@ CDisAsmWnd::CDisAsmWnd(QWidget* parent, CVirtualMachine& virtualMachine, CMIPS* 
 
 	QFont fixedFont = QFont("Courier New", 8);
 	setFont(fixedFont);
-
-	QFontMetrics metric(fixedFont);
-	m_cwidth = metric.maxWidth();
+	
+	m_numericalCellWidth = ComputeNumericalCellWidth();
 
 	resize(320, 240);
 
@@ -134,6 +134,22 @@ CDisAsmWnd::CDisAsmWnd(QWidget* parent, CVirtualMachine& virtualMachine, CMIPS* 
 	connect(this, &QTableView::doubleClicked, this, &CDisAsmWnd::OnListDblClick);
 }
 
+int CDisAsmWnd::ComputeNumericalCellWidth() const
+{
+	int marginWidth = style()->pixelMetric(QStyle::PM_FocusFrameHMargin, nullptr, this) + 1;
+
+	//There's 8 characters in the address and instruction views
+	QTextLayout layout("00000000", font());
+	layout.beginLayout();
+	auto line = layout.createLine();
+	line.setLineWidth(1000);
+	int textWidth = ceil(line.naturalTextWidth());
+	layout.endLayout();
+
+	int result = textWidth + (2 * marginWidth) + 1;
+	return result;
+}
+
 void CDisAsmWnd::ShowContextMenu(const QPoint& pos)
 {
 	QMenu* rightClickMenu = new QMenu(this);
@@ -228,8 +244,7 @@ int CDisAsmWnd::sizeHintForColumn(int col) const
 	}
 	else
 	{
-		//There's 8 characters in the address and instruction views
-		return (8 * m_cwidth);
+		return m_numericalCellWidth;
 	}
 }
 
