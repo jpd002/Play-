@@ -10,6 +10,7 @@
 #include "GsPacketData.h"
 #include "GsPacketListModel.h"
 #include "GsStateUtils.h"
+#include "DebuggerDefaults.h"
 
 #include <QMessageBox>
 #include <QFileDialog>
@@ -23,7 +24,7 @@ QtFramedebugger::QtFramedebugger()
 {
 	ui->setupUi(this);
 
-	QFont fixedFont = QFont("Courier New", 8);
+	QFont fixedFont = QFont(DEBUGGER_DEFAULT_MONOSPACE_FONT_FACE_NAME, DEBUGGER_DEFAULT_MONOSPACE_FONT_SIZE);
 	ui->inputStateTextEdit->setFont(fixedFont);
 
 	OpenGLWindow openglpanel;

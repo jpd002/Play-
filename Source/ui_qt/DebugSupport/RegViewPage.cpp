@@ -1,10 +1,11 @@
 #include "RegViewPage.h"
 #include <QHeaderView>
+#include "DebuggerDefaults.h"
 
 CRegViewPage::CRegViewPage(QWidget* Parent)
     : QTableWidget(Parent)
 {
-	QFont fixedFont = QFont("Courier New", 8);
+	QFont fixedFont = QFont(DEBUGGER_DEFAULT_MONOSPACE_FONT_FACE_NAME, DEBUGGER_DEFAULT_MONOSPACE_FONT_SIZE);
 	setFont(fixedFont);
 
 	setEditTriggers(QAbstractItemView::NoEditTriggers);

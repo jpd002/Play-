@@ -34,6 +34,7 @@ set(SRC_FILES
 	${SRC_ROOT}/CallStackWnd.h
 	${SRC_ROOT}/DebugExpressionEvaluator.cpp
 	${SRC_ROOT}/DebugExpressionEvaluator.h
+	${SRC_ROOT}/DebuggerDefaults.h
 	${SRC_ROOT}/AddressListViewWnd.cpp
 	${SRC_ROOT}/AddressListViewWnd.h
 	${SRC_ROOT}/DebugUtils.cpp
