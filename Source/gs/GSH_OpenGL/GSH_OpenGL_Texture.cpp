@@ -330,9 +330,9 @@ void CGSH_OpenGL::TexUpdater_Psm16(uint32 bufPtr, uint32 bufWidth, unsigned int 
 #define USE_NEON
 #endif
 #elif defined(__ANDROID__) || defined(__linux__) || defined(__FreeBSD__)
-#if defined(__x86_64__)
+#if defined(__x86_64__) || defined(__i386__)
 #define USE_SSE
-#elif defined(__aarch64__)
+#elif defined(__aarch64__) || defined(__arm__)
 #define USE_NEON
 #endif
 #endif
