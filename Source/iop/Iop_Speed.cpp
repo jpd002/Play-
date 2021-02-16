@@ -1,4 +1,5 @@
 #include "Iop_Speed.h"
+#include "Iop_Intc.h"
 #include "Log.h"
 
 #define LOG_NAME ("iop_speed")
@@ -13,14 +14,30 @@ const uint16 CSpeed::m_eepromData[] =
 	0x66AA
 };
 
+CSpeed::CSpeed(CIntc& intc)
+    : m_intc(intc)
+{
+	
+}
+
 void CSpeed::Reset()
 {
 	m_smapEmac3StaCtrl.f = 0;
+	m_intrStat = 0;
+	m_intrMask = 0;
 }
 
 void CSpeed::SetEthernetFrameTxHandler(const EthernetFrameTxHandler& ethernetFrameTxHandler)
 {
 	m_ethernetFrameTxHandler = ethernetFrameTxHandler;
+}
+
+void CSpeed::CheckInterrupts()
+{
+	if(m_intrStat & m_intrMask)
+	{
+		m_intc.AssertLine(CIntc::LINE_DEV9);
+	}
 }
 
 void CSpeed::ProcessEmac3StaCtrl()
@@ -93,8 +110,9 @@ void CSpeed::HandleTx()
 			bdTx.ctrlStat &= ~SMAP_BD_TX_READY;
 		}
 	}
-	//Assert some interrupt lines?
 	m_txBuffer.clear();
+	m_intrStat |= (1 << INTR_SMAP_TXDNV) | (1 << INTR_SMAP_TXEND) | (1 << INTR_SMAP_RXEND);
+	CheckInterrupts();
 }
 
 uint32 CSpeed::ReadRegister(uint32 address)
@@ -110,7 +128,7 @@ uint32 CSpeed::ReadRegister(uint32 address)
 		result = SPEED_CAPS_SMAP;
 		break;
 	case REG_INTR_STAT:
-		result = (1 << INTR_SMAP_TXDNV) | (1 << INTR_SMAP_TXEND) | (1 << INTR_SMAP_RXEND);
+		result = m_intrStat;
 		break;
 	case REG_INTR_MASK:
 		result = m_intrMask;
@@ -163,6 +181,7 @@ void CSpeed::WriteRegister(uint32 address, uint32 value)
 	{
 	case REG_INTR_MASK:
 		m_intrMask = value;
+		CheckInterrupts();
 		break;
 	case REG_PIO_DIR:
 		if(value == 0xE1)
@@ -170,6 +189,9 @@ void CSpeed::WriteRegister(uint32 address, uint32 value)
 			//Reset reading process
 			m_eepRomReadIndex = 0;
 		}
+		break;
+	case REG_SMAP_INTR_CLR:
+		m_intrStat &= ~value;
 		break;
 	case REG_SMAP_TXFIFO_DATA:
 		{
@@ -284,6 +306,7 @@ void CSpeed::LogWrite(uint32 address, uint32 value)
 		LOG_SET(REG_INTR_MASK)
 		LOG_SET(REG_PIO_DIR)
 		LOG_SET(REG_PIO_DATA)
+		LOG_SET(REG_SMAP_INTR_CLR)
 		LOG_SET(REG_SMAP_TXFIFO_FRAME_INC)
 		LOG_SET(REG_SMAP_TXFIFO_DATA)
 		LOG_SET(REG_SMAP_EMAC3_TXMODE0_HI)

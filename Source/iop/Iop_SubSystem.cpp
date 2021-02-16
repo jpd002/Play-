@@ -31,6 +31,7 @@ CSubSystem::CSubSystem(bool ps2Mode)
 #ifdef _IOP_EMULATE_MODULES
     , m_sio2(m_intc)
 #endif
+    , m_speed(m_intc)
     , m_cpuArch(MIPS_REGSIZE_32)
     , m_copScu(MIPS_REGSIZE_32)
     , m_dmaUpdateTicks(0)
@@ -152,6 +153,7 @@ void CSubSystem::Reset()
 #ifdef _IOP_EMULATE_MODULES
 	m_sio2.Reset();
 #endif
+	m_speed.Reset();
 	m_counters.Reset();
 	m_dmac.Reset();
 	m_intc.Reset();

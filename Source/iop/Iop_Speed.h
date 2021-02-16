@@ -7,10 +7,14 @@
 
 namespace Iop
 {
+	class CIntc;
+
 	class CSpeed
 	{
 	public:
 		typedef std::function<void (const uint8*, uint32)> EthernetFrameTxHandler;
+		
+		CSpeed(CIntc&);
 		
 		void Reset();
 		
@@ -65,6 +69,7 @@ namespace Iop
 			REG_INTR_MASK = 0x1000002A,
 			REG_PIO_DIR = 0x1000002C,
 			REG_PIO_DATA = 0x1000002E,
+			REG_SMAP_INTR_CLR = 0x10000128,
 			REG_SMAP_TXFIFO_FRAME_INC = 0x10001010,
 			REG_SMAP_TXFIFO_DATA = 0x10001100,
 			REG_SMAP_EMAC3_TXMODE0_HI = 0x10002008,
@@ -100,6 +105,7 @@ namespace Iop
 			uint32 phyData : 16;
 		};
 		
+		void CheckInterrupts();
 		void ProcessEmac3StaCtrl();
 		void HandleTx();
 		
@@ -110,6 +116,9 @@ namespace Iop
 
 		EthernetFrameTxHandler m_ethernetFrameTxHandler;
 		
+		CIntc& m_intc;
+		
+		uint32 m_intrStat = 0;
 		uint32 m_intrMask = 0;
 		uint32 m_eepRomReadIndex = 0;
 		static const uint32 m_eepRomDataSize = 4;
