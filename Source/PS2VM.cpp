@@ -770,6 +770,8 @@ void CPS2VM::EmuThread()
 	CProfilerZone profilerZone(m_otherProfilerZone);
 #endif
 	static_cast<CEeExecutor*>(m_ee->m_EE.m_executor.get())->AddExceptionHandler();
+	m_frameLimiter.SetFrameRate(60);
+	m_frameLimiter.BeginFrame();
 	while(1)
 	{
 		while(m_mailBox.IsPending())
@@ -833,6 +835,8 @@ void CPS2VM::EmuThread()
 						{
 							m_ee->m_gs->ResetVBlank();
 						}
+						m_frameLimiter.EndFrame();
+						m_frameLimiter.BeginFrame();
 					}
 				}
 

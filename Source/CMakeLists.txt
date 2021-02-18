@@ -208,6 +208,8 @@ set(COMMON_SRC_FILES
 	FpUtils.h
 	FrameDump.cpp
 	FrameDump.h
+	FrameLimiter.cpp
+	FrameLimiter.h
 	InputConfig.cpp
 	InputConfig.h
 	GenericMipsExecutor.h

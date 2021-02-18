@@ -13,6 +13,7 @@
 #include "iop/Iop_SubSystem.h"
 #include "../tools/PsfPlayer/Source/SoundHandler.h"
 #include "FrameDump.h"
+#include "FrameLimiter.h"
 #include "Profiler.h"
 
 class CPS2VM : public CVirtualMachine
@@ -137,6 +138,7 @@ private:
 	int m_spuUpdateTicks = 0;
 	int m_eeExecutionTicks = 0;
 	int m_iopExecutionTicks = 0;
+	CFrameLimiter m_frameLimiter;
 
 	CPU_UTILISATION_INFO m_cpuUtilisation;
 
