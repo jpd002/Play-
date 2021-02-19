@@ -1057,6 +1057,16 @@ int32 CIopBios::StartThread(uint32 threadId, uint32 param)
 	thread->context.gpr[CMIPS::RA] = m_threadFinishAddress;
 	thread->context.gpr[CMIPS::SP] = thread->stackBase + thread->stackSize - STACK_FRAME_RESERVE_SIZE;
 
+	//IOP BIOS disassembly shows that this is done at thread start.
+	//Not sure why it's needed, but some games seem to rely on it (Armored Core 2: Another Age)
+	//because thread stack is initialized to 0xFF but it needs a part of it to be set to 0
+	{
+		uint32 alignedStackSize = thread->stackSize & ~0x3;
+		uint32 stackTopClearSize = std::min<uint32>(alignedStackSize, 0xB8);
+		uint32 clearArea = thread->stackBase + alignedStackSize - stackTopClearSize;
+		memset(m_ram + clearArea, 0, stackTopClearSize);
+	}
+
 	m_rescheduleNeeded = true;
 	return 0;
 }
