@@ -1,6 +1,7 @@
 #pragma once
 
 #include <vector>
+#include <functional>
 #include "Types.h"
 #include "BasicUnion.h"
 #include "Convertible.h"
