@@ -1,6 +1,7 @@
 #include "Iop_Speed.h"
 #include "Iop_Intc.h"
 #include "Log.h"
+#include <cassert>
 
 #define LOG_NAME ("iop_speed")
 
