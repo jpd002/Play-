@@ -6,9 +6,6 @@ using namespace Iop;
 
 #define LOG_NAME ("iop_modload")
 
-//TODO: Move this in CIopBios
-#define KERNEL_RESULT_ERROR_UNKNOWN_MODULE -202
-
 #define FUNCTION_LOADSTARTMODULE "LoadStartModule"
 #define FUNCTION_STARTMODULE "StartModule"
 #define FUNCTION_LOADMODULEBUFFERADDRESS "LoadModuleBufferAddress"
@@ -195,7 +192,7 @@ int32 CModload::SearchModuleByName(uint32 moduleNamePtr)
 {
 	CLog::GetInstance().Print(LOG_NAME, FUNCTION_SEARCHMODULEBYNAME "(moduleNamePtr = %s);\r\n",
 	                          PrintStringParameter(m_ram, moduleNamePtr).c_str());
-	return KERNEL_RESULT_ERROR_UNKNOWN_MODULE;
+	return m_bios.SearchModuleByName(reinterpret_cast<const char*>(m_ram + moduleNamePtr));
 }
 
 int32 CModload::AllocLoadMemory(uint32 unknown1, uint32 size, uint32 unknown2)

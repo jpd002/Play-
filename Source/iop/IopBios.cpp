@@ -798,7 +798,7 @@ int32 CIopBios::SearchModuleByName(const char* moduleName) const
 	{
 		return MODULE_ID_CDVD_EE_DRIVER;
 	}
-	return -1;
+	return KERNEL_RESULT_ERROR_UNKNOWN_MODULE;
 }
 
 void CIopBios::ProcessModuleReset(const std::string& imagePath)
