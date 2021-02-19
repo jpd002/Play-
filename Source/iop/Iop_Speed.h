@@ -25,6 +25,7 @@ namespace Iop
 		void WriteRegister(uint32, uint32);
 
 		uint32 ReceiveDma(uint8*, uint32, uint32);
+		uint32 SendDma(uint8*, uint32, uint32);
 
 	private:
 		enum SMAP_BD_TX_CTRLSTAT
@@ -127,12 +128,16 @@ namespace Iop
 
 		CIntc& m_intc;
 
+		
 		uint32 m_intrStat = 0;
 		uint32 m_intrMask = 0;
 		uint32 m_eepRomReadIndex = 0;
 		static const uint32 m_eepRomDataSize = 4;
 		static const uint16 m_eepromData[];
 		std::vector<uint8> m_txBuffer;
+		std::vector<uint8> m_rxBuffer;
+		uint32 m_rxFifoPtr = 0;
+		uint32 m_rxFrameCount = 0;
 		uint32 m_smapEmac3AddressHi = 0;
 		uint32 m_smapEmac3AddressLo = 0;
 		UNION32_16 m_smapEmac3StaCtrl;

@@ -152,6 +152,19 @@ uint32 CSpeed::ReadRegister(uint32 address)
 		m_eepRomReadIndex++;
 	}
 	break;
+	case REG_SMAP_RXFIFO_FRAME_CNT:
+		result = m_rxFrameCount;
+		break;
+	case REG_SMAP_RXFIFO_DATA:
+		{
+			result =
+				(m_rxBuffer[m_rxFifoPtr + 0] << 0) |
+				(m_rxBuffer[m_rxFifoPtr + 1] << 8) |
+				(m_rxBuffer[m_rxFifoPtr + 2] << 16) |
+				(m_rxBuffer[m_rxFifoPtr + 3] << 24);
+			m_rxFifoPtr += 4;
+		}
+		break;
 	case REG_SMAP_EMAC3_ADDR_HI:
 		result = m_smapEmac3AddressHi;
 		break;
@@ -200,6 +213,10 @@ void CSpeed::WriteRegister(uint32 address, uint32 value)
 		break;
 	case REG_SMAP_INTR_CLR:
 		m_intrStat &= ~value;
+		break;
+	case REG_SMAP_RXFIFO_FRAME_DEC:
+		assert(m_rxFrameCount != 0);
+		m_rxFrameCount--;
 		break;
 	case REG_SMAP_TXFIFO_DATA:
 	{
@@ -252,6 +269,14 @@ void CSpeed::WriteRegister(uint32 address, uint32 value)
 uint32 CSpeed::ReceiveDma(uint8* buffer, uint32 blockSize, uint32 blockAmount)
 {
 	m_txBuffer.insert(std::end(m_txBuffer), buffer, buffer + blockSize * blockAmount);
+	return blockAmount;
+}
+
+uint32 CSpeed::SendDma(uint8* buffer, uint32 blockSize, uint32 blockAmount)
+{
+	uint32 size = blockSize * blockAmount;
+	memcpy(buffer, m_rxBuffer.data() + m_rxFifoPtr, size);
+	m_rxFifoPtr += size;
 	return blockAmount;
 }
 
