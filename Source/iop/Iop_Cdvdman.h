@@ -74,6 +74,7 @@ namespace Iop
 		uint32 CdGetReadPos();
 		uint32 CdStInit(uint32, uint32, uint32);
 		uint32 CdStRead(uint32, uint32, uint32, uint32);
+		uint32 CdStSeek(uint32);
 		uint32 CdStStart(uint32, uint32);
 		uint32 CdStStat();
 		uint32 CdStStop();

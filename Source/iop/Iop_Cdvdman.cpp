@@ -27,6 +27,7 @@
 #define FUNCTION_CDGETREADPOS "CdGetReadPos"
 #define FUNCTION_CDSTINIT "CdStInit"
 #define FUNCTION_CDSTREAD "CdStRead"
+#define FUNCTION_CDSTSEEK "CdStSeek"
 #define FUNCTION_CDSTSTART "CdStStart"
 #define FUNCTION_CDSTSTAT "CdStStat"
 #define FUNCTION_CDSTSTOP "CdStStop"
@@ -157,6 +158,9 @@ std::string CCdvdman::GetFunctionName(unsigned int functionId) const
 	case 57:
 		return FUNCTION_CDSTREAD;
 		break;
+	case 58:
+		return FUNCTION_CDSTSEEK;
+		break;
 	case 59:
 		return FUNCTION_CDSTSTART;
 		break;
@@ -251,6 +255,10 @@ void CCdvdman::Invoke(CMIPS& ctx, unsigned int functionId)
 		    ctx.m_State.nGPR[CMIPS::A1].nV0,
 		    ctx.m_State.nGPR[CMIPS::A2].nV0,
 		    ctx.m_State.nGPR[CMIPS::A3].nV0);
+		break;
+	case 58:
+		ctx.m_State.nGPR[CMIPS::V0].nV0 = CdStSeek(
+		    ctx.m_State.nGPR[CMIPS::A0].nV0);
 		break;
 	case 59:
 		ctx.m_State.nGPR[CMIPS::V0].nV0 = CdStStart(
@@ -549,6 +557,14 @@ uint32 CCdvdman::CdStRead(uint32 sectors, uint32 bufPtr, uint32 mode, uint32 err
 		(*err) = 0; //No error
 	}
 	return sectors;
+}
+
+uint32 CCdvdman::CdStSeek(uint32 sector)
+{
+	CLog::GetInstance().Print(LOG_NAME, FUNCTION_CDSTSEEK "(sector = %d);\r\n",
+	                          sector);
+	m_streamPos = sector;
+	return 1;
 }
 
 uint32 CCdvdman::CdStStart(uint32 sector, uint32 modePtr)
