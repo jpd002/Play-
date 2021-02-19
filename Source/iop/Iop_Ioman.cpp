@@ -757,7 +757,7 @@ int32 CIoman::WriteVirtual(CMIPS& context)
 	if(fileIterator == std::end(m_files))
 	{
 		CLog::GetInstance().Warn(LOG_NAME, "%s : Provided invalid fd %d.\r\n",
-								 __FUNCTION__, handle);
+		                         __FUNCTION__, handle);
 		return -1;
 	}
 
@@ -766,8 +766,8 @@ int32 CIoman::WriteVirtual(CMIPS& context)
 		uint32 descPtr = GetUserDeviceFileDescPtr(handle);
 		auto desc = reinterpret_cast<Ioman::DEVICEFILE*>(m_ram + descPtr);
 		InvokeUserDeviceMethod(context, desc->devicePtr,
-							   offsetof(Ioman::DEVICEOPS, writePtr),
-							   descPtr, bufferPtr, count);
+		                       offsetof(Ioman::DEVICEOPS, writePtr),
+		                       descPtr, bufferPtr, count);
 		return 0;
 	}
 	else

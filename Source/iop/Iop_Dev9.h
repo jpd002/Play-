@@ -15,7 +15,7 @@ namespace Iop
 
 		uint32 ReadRegister(uint32);
 		void WriteRegister(uint32, uint32);
-		
+
 	private:
 		enum
 		{

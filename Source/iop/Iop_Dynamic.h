@@ -17,7 +17,7 @@ namespace Iop
 		void Invoke(CMIPS&, unsigned int) override;
 
 		uint32* GetExportTable() const;
-		
+
 	private:
 		uint32* m_exportTable;
 		std::string m_name;

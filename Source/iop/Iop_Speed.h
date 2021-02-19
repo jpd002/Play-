@@ -12,18 +12,18 @@ namespace Iop
 	class CSpeed
 	{
 	public:
-		typedef std::function<void (const uint8*, uint32)> EthernetFrameTxHandler;
-		
+		typedef std::function<void(const uint8*, uint32)> EthernetFrameTxHandler;
+
 		CSpeed(CIntc&);
-		
+
 		void Reset();
-		
+
 		void SetEthernetFrameTxHandler(const EthernetFrameTxHandler&);
 		void RxEthernetFrame(const uint8*, uint32);
 
 		uint32 ReadRegister(uint32);
 		void WriteRegister(uint32, uint32);
-		
+
 		uint32 ReceiveDma(uint8*, uint32, uint32);
 
 	private:
@@ -31,12 +31,12 @@ namespace Iop
 		{
 			SMAP_BD_TX_READY = 0x8000,
 		};
-		
+
 		enum SMAP_BD_RX_CTRLSTAT
 		{
 			SMAP_BD_RX_EMPTY = 0x8000,
 		};
-		
+
 		struct SMAP_BD
 		{
 			uint16 ctrlStat;
@@ -96,13 +96,13 @@ namespace Iop
 			SPEED_CAPS_SMAP = 0x01,
 			SPEED_CAPS_ATA = 0x02,
 		};
-		
+
 		enum SMAP_EMAC3_STA_CMD
 		{
 			SMAP_EMAC3_STA_CMD_READ = 0x01,
 			SMAP_EMAC3_STA_CMD_WRITE = 0x02,
 		};
-		
+
 		struct SMAP_EMAC3_STA_CTRL : public convertible<uint32>
 		{
 			uint32 phyRegAddr : 5;
@@ -113,20 +113,20 @@ namespace Iop
 			uint32 phyOpComp : 1;
 			uint32 phyData : 16;
 		};
-		
+
 		void CheckInterrupts();
 		void ProcessEmac3StaCtrl();
 		void HandleTx();
-		
+
 		void LogRead(uint32);
 		void LogWrite(uint32, uint32);
 		void LogBdRead(const char*, uint32, uint32);
 		void LogBdWrite(const char*, uint32, uint32, uint32);
 
 		EthernetFrameTxHandler m_ethernetFrameTxHandler;
-		
+
 		CIntc& m_intc;
-		
+
 		uint32 m_intrStat = 0;
 		uint32 m_intrMask = 0;
 		uint32 m_eepRomReadIndex = 0;

@@ -7,6 +7,7 @@
 
 using namespace Iop;
 
+// clang-format off
 const uint16 CSpeed::m_eepromData[] =
 {
 	//MAC address
@@ -14,11 +15,11 @@ const uint16 CSpeed::m_eepromData[] =
 	//Checksum (just the sum of words above)
 	0x66AA
 };
+// clang-format on
 
 CSpeed::CSpeed(CIntc& intc)
     : m_intc(intc)
 {
-	
 }
 
 void CSpeed::Reset()
@@ -135,22 +136,22 @@ uint32 CSpeed::ReadRegister(uint32 address)
 		result = m_intrMask;
 		break;
 	case REG_PIO_DATA:
+	{
+		assert(m_eepRomReadIndex < ((m_eepRomDataSize * 16) + 1));
+		if(m_eepRomReadIndex == 0)
 		{
-			assert(m_eepRomReadIndex < ((m_eepRomDataSize * 16) + 1));
-			if(m_eepRomReadIndex == 0)
-			{
-				result = 0;
-			}
-			else
-			{
-				assert(m_eepRomReadIndex >= 1);
-				uint32 wordIndex = (m_eepRomReadIndex - 1) / 16;
-				uint32 wordBit = 15 - ((m_eepRomReadIndex - 1) % 16);
-				result = (m_eepromData[wordIndex] & (1 << wordBit)) ? 0x10 : 0;
-			}
-			m_eepRomReadIndex++;
+			result = 0;
 		}
-		break;
+		else
+		{
+			assert(m_eepRomReadIndex >= 1);
+			uint32 wordIndex = (m_eepRomReadIndex - 1) / 16;
+			uint32 wordBit = 15 - ((m_eepRomReadIndex - 1) % 16);
+			result = (m_eepromData[wordIndex] & (1 << wordBit)) ? 0x10 : 0;
+		}
+		m_eepRomReadIndex++;
+	}
+	break;
 	case REG_SMAP_EMAC3_ADDR_HI:
 		result = m_smapEmac3AddressHi;
 		break;
@@ -201,13 +202,13 @@ void CSpeed::WriteRegister(uint32 address, uint32 value)
 		m_intrStat &= ~value;
 		break;
 	case REG_SMAP_TXFIFO_DATA:
-		{
-			m_txBuffer.push_back(static_cast<uint8>(value >> 0));
-			m_txBuffer.push_back(static_cast<uint8>(value >> 8));
-			m_txBuffer.push_back(static_cast<uint8>(value >> 16));
-			m_txBuffer.push_back(static_cast<uint8>(value >> 24));
-		}
-		break;
+	{
+		m_txBuffer.push_back(static_cast<uint8>(value >> 0));
+		m_txBuffer.push_back(static_cast<uint8>(value >> 8));
+		m_txBuffer.push_back(static_cast<uint8>(value >> 16));
+		m_txBuffer.push_back(static_cast<uint8>(value >> 24));
+	}
+	break;
 	case REG_SMAP_EMAC3_TXMODE0_HI:
 		if(value & 0x8000)
 		{
@@ -266,7 +267,7 @@ void CSpeed::LogRead(uint32 address)
 		LogBdRead("REG_SMAP_BD_TX", REG_SMAP_BD_TX_BASE, address);
 		return;
 	}
-	
+
 	if((address >= REG_SMAP_BD_RX_BASE) && (address < (REG_SMAP_BD_RX_BASE + SMAP_BD_SIZE)))
 	{
 		LogBdRead("REG_SMAP_BD_RX", REG_SMAP_BD_RX_BASE, address);
@@ -307,13 +308,13 @@ void CSpeed::LogWrite(uint32 address, uint32 value)
 		LogBdWrite("REG_SMAP_BD_TX", REG_SMAP_BD_TX_BASE, address, value);
 		return;
 	}
-	
+
 	if((address >= REG_SMAP_BD_RX_BASE) && (address < (REG_SMAP_BD_RX_BASE + SMAP_BD_SIZE)))
 	{
 		LogBdWrite("REG_SMAP_BD_RX", REG_SMAP_BD_RX_BASE, address, value);
 		return;
 	}
-	
+
 	switch(address)
 	{
 		LOG_SET(REG_DMA_CTRL)
