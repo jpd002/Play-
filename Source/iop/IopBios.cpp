@@ -3157,7 +3157,7 @@ void CIopBios::DeleteModules()
 int32 CIopBios::LoadHleModule(const Iop::ModulePtr& module)
 {
 	auto loadedModuleId = SearchModuleByName(module->GetId().c_str());
-	if(loadedModuleId != -1)
+	if(loadedModuleId >= 0)
 	{
 		return loadedModuleId;
 	}
