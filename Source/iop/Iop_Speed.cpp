@@ -170,6 +170,12 @@ uint32 CSpeed::ReadRegister(uint32 address)
 		assert(regOffset < SMAP_BD_SIZE);
 		result = *reinterpret_cast<uint16*>(m_smapBdTx + regOffset);
 	}
+	else if((address >= REG_SMAP_BD_RX_BASE) && (address < (REG_SMAP_BD_RX_BASE + SMAP_BD_SIZE)))
+	{
+		uint32 regOffset = address - REG_SMAP_BD_RX_BASE;
+		assert(regOffset < SMAP_BD_SIZE);
+		result = *reinterpret_cast<uint16*>(m_smapBdRx + regOffset);
+	}
 
 	LogRead(address);
 	return result;
@@ -231,7 +237,13 @@ void CSpeed::WriteRegister(uint32 address, uint32 value)
 		assert(regOffset < SMAP_BD_SIZE);
 		*reinterpret_cast<uint16*>(m_smapBdTx + regOffset) = static_cast<uint16>(value);
 	}
-	
+	else if((address >= REG_SMAP_BD_RX_BASE) && (address < (REG_SMAP_BD_RX_BASE + SMAP_BD_SIZE)))
+	{
+		uint32 regOffset = address - REG_SMAP_BD_RX_BASE;
+		assert(regOffset < SMAP_BD_SIZE);
+		*reinterpret_cast<uint16*>(m_smapBdRx + regOffset) = static_cast<uint16>(value);
+	}
+
 	LogWrite(address, value);
 }
 
@@ -267,6 +279,8 @@ void CSpeed::LogRead(uint32 address)
 		LOG_GET(REG_INTR_STAT)
 		LOG_GET(REG_INTR_MASK)
 		LOG_GET(REG_PIO_DATA)
+		LOG_GET(REG_SMAP_RXFIFO_FRAME_CNT)
+		LOG_GET(REG_SMAP_RXFIFO_DATA)
 		LOG_GET(REG_SMAP_EMAC3_TXMODE0_HI)
 		LOG_GET(REG_SMAP_EMAC3_TXMODE0_LO)
 		LOG_GET(REG_SMAP_EMAC3_ADDR_HI)
@@ -308,6 +322,7 @@ void CSpeed::LogWrite(uint32 address, uint32 value)
 		LOG_SET(REG_PIO_DATA)
 		LOG_SET(REG_SMAP_INTR_CLR)
 		LOG_SET(REG_SMAP_TXFIFO_FRAME_INC)
+		LOG_SET(REG_SMAP_RXFIFO_FRAME_DEC)
 		LOG_SET(REG_SMAP_TXFIFO_DATA)
 		LOG_SET(REG_SMAP_EMAC3_TXMODE0_HI)
 		LOG_SET(REG_SMAP_EMAC3_TXMODE0_LO)
