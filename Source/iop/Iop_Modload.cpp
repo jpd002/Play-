@@ -185,7 +185,7 @@ int32 CModload::ReferModuleStatus(uint32 moduleId, uint32 moduleStatusPtr)
 {
 	CLog::GetInstance().Print(LOG_NAME, FUNCTION_REFERMODULESTATUS "(moduleId = %d, moduleStatusPtr = 0x%08X);\r\n",
 	                          moduleId, moduleStatusPtr);
-	return KERNEL_RESULT_ERROR_UNKNOWN_MODULE;
+	return CIopBios::KERNEL_RESULT_ERROR_UNKNOWN_MODULE;
 }
 
 int32 CModload::SearchModuleByName(uint32 moduleNamePtr)
