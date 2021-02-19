@@ -72,12 +72,13 @@ uint32 CSifManPs2::SifSetDma(uint32 structAddr, uint32 count)
 		return 0;
 	}
 
-	auto dmaReg = reinterpret_cast<SIFDMAREG*>(m_iopRam + structAddr);
+	auto dmaRegs = reinterpret_cast<const SIFDMAREG*>(m_iopRam + structAddr);
 	for(unsigned int i = 0; i < count; i++)
 	{
-		uint8* src = m_iopRam + dmaReg[i].srcAddr;
-		uint8* dst = m_eeRam + (dmaReg[i].dstAddr & (PS2::EE_RAM_SIZE - 1));
-		memcpy(dst, src, dmaReg[i].size);
+		const auto& dmaReg = dmaRegs[i];
+		uint8* src = m_iopRam + dmaReg.srcAddr;
+		uint8* dst = m_eeRam + (dmaReg.dstAddr & (PS2::EE_RAM_SIZE - 1));
+		memcpy(dst, src, dmaReg.size);
 	}
 
 	return count;
