@@ -669,6 +669,7 @@ int32 CIopBios::LoadModule(CELF& elf, const char* path)
 
 	//Fill in module info
 	strncpy(loadedModule->name, moduleName.c_str(), LOADEDMODULE::MAX_NAME_SIZE);
+	loadedModule->version = iopMod->moduleVersion;
 	loadedModule->start = moduleRange.first;
 	loadedModule->end = moduleRange.second;
 	loadedModule->entryPoint = entryPoint;
@@ -799,6 +800,21 @@ int32 CIopBios::SearchModuleByName(const char* moduleName) const
 		return MODULE_ID_CDVD_EE_DRIVER;
 	}
 	return KERNEL_RESULT_ERROR_UNKNOWN_MODULE;
+}
+
+int32 CIopBios::ReferModuleStatus(uint32 moduleId, uint32 statusPtr)
+{
+	auto loadedModule = m_loadedModules[moduleId];
+	if(loadedModule == nullptr)
+	{
+		return KERNEL_RESULT_ERROR_UNKNOWN_MODULE;
+	}
+
+	auto moduleStatus = reinterpret_cast<MODULE_INFO*>(m_ram + statusPtr);
+	strncpy(moduleStatus->name, loadedModule->name, MODULE_INFO::MAX_NAME_SIZE);
+	moduleStatus->version = loadedModule->version;
+	moduleStatus->id = moduleId;
+	return KERNEL_RESULT_OK;
 }
 
 void CIopBios::ProcessModuleReset(const std::string& imagePath)

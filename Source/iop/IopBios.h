@@ -134,6 +134,26 @@ public:
 		uint32 regContextAddr;
 		uint32 reserved[4];
 	};
+	
+	struct MODULE_INFO
+	{
+		enum
+		{
+			MAX_NAME_SIZE = 56,
+		};
+		
+		char name[MAX_NAME_SIZE];
+		uint16 version;
+		uint16 flags;
+		uint32 id;
+		uint32 entryPoint;
+		uint32 gp;
+		uint32 textSectionAddr;
+		uint32 textSectionSize;
+		uint32 dataSectionSize;
+		uint32 bssSectionSize;
+		uint32 reserved[2];
+	};
 
 	CIopBios(CMIPS&, uint8*, uint32, uint8*);
 	virtual ~CIopBios();
@@ -147,6 +167,7 @@ public:
 	bool CanStopModule(uint32) const;
 	bool IsModuleHle(uint32) const;
 	int32 SearchModuleByName(const char*) const;
+	int32 ReferModuleStatus(uint32, uint32);
 	void ProcessModuleReset(const std::string&);
 
 	bool TryGetImageVersionFromPath(const std::string&, unsigned int*);
@@ -491,6 +512,7 @@ private:
 
 		uint32 isValid;
 		char name[MAX_NAME_SIZE];
+		uint32 version;
 		uint32 start;
 		uint32 end;
 		uint32 entryPoint;
@@ -507,7 +529,7 @@ private:
 		uint32 textSectionSize;
 		uint32 dataSectionSize;
 		uint32 bssSectionSize;
-		uint16 moduleStructAttr;
+		uint16 moduleVersion;
 		char moduleName[256];
 	};
 
