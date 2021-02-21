@@ -193,4 +193,5 @@ uint32 CDmacman::GetDPCRAddr(uint32 channel)
 		// DPCR3?
 		assert(0);
 	}
+	return 0;
 }
