@@ -129,7 +129,6 @@ namespace Iop
 
 		CIntc& m_intc;
 
-		
 		uint32 m_intrStat = 0;
 		uint32 m_intrMask = 0;
 		uint32 m_eepRomReadIndex = 0;

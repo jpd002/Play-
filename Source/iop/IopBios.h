@@ -134,14 +134,14 @@ public:
 		uint32 regContextAddr;
 		uint32 reserved[4];
 	};
-	
+
 	struct MODULE_INFO
 	{
 		enum
 		{
 			MAX_NAME_SIZE = 56,
 		};
-		
+
 		char name[MAX_NAME_SIZE];
 		uint16 version;
 		uint16 flags;

@@ -157,15 +157,15 @@ uint32 CSpeed::ReadRegister(uint32 address)
 		result = m_rxFrameCount;
 		break;
 	case REG_SMAP_RXFIFO_DATA:
-		{
-			result =
-				(m_rxBuffer[m_rxFifoPtr + 0] << 0) |
-				(m_rxBuffer[m_rxFifoPtr + 1] << 8) |
-				(m_rxBuffer[m_rxFifoPtr + 2] << 16) |
-				(m_rxBuffer[m_rxFifoPtr + 3] << 24);
-			m_rxFifoPtr += 4;
-		}
-		break;
+	{
+		result =
+		    (m_rxBuffer[m_rxFifoPtr + 0] << 0) |
+		    (m_rxBuffer[m_rxFifoPtr + 1] << 8) |
+		    (m_rxBuffer[m_rxFifoPtr + 2] << 16) |
+		    (m_rxBuffer[m_rxFifoPtr + 3] << 24);
+		m_rxFifoPtr += 4;
+	}
+	break;
 	case REG_SMAP_EMAC3_ADDR_HI:
 		result = m_smapEmac3AddressHi;
 		break;
