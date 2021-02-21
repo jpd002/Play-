@@ -26,12 +26,25 @@ To build for Windows you will need to have CMake installed on your system.
  ```
  ```
  # Not specifying -G will automatically generate 32-bit projects.
+ # This will generate a 64bits build with VS2017 compiler
  cmake .. -G "Visual Studio 15 2017 Win64" -DCMAKE_PREFIX_PATH="C:\Qt\5.10.1\msvc2017_64" -DUSE_QT=YES
+
+ # This will generate a 64bits build with VS2019 compiler
+  cmake .. -G "Visual Studio 16 2019" -DCMAKE_PREFIX_PATH="C:\Qt\5.15.2\msvc2019_64" -DUSE_QT=YES
  ```
 You can now build the project by opening the generated Visual Studio Solution or continue through cmdline:
  ```cmd
  cmake --build . --config Release
  ```
+
+ To add the Play! debugger to the binaries, simply add the following command to cmake
+ ```cmd
+   # To add the debugger to the build
+  -DDEBUGGER_INCLUDED=on
+ ```
+
+ If a plugin cannot be found when running the application, simply copy the folder `plugins` from the Qt compiler folder (e.g. `C:\Qt\5.15.2\msvc2019_64\plugins`) to the output directory `Source\ui_qt\Debug\`.
+ 
 Note: `--config` can be `Release`, `Debug`, or `RelWithDebInfo`.
 
 ### Building for macOS & iOS ###
