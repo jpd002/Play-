@@ -14,7 +14,7 @@ jobs:
         with:
           submodules: recursive
           fetch-depth: 0
-      - name: Test Run Docker Image
+      - name: Build
         uses: addnab/docker-run-action@v2
         with:
           image: jpd002/linux_arm32_build
