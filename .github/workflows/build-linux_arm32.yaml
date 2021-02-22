@@ -14,7 +14,7 @@ jobs:
         with:
           submodules: recursive
           fetch-depth: 0
-      - name: Build
+      - name: Build & Test
         uses: addnab/docker-run-action@v2
         with:
           image: jpd002/linux_arm32_build
@@ -27,3 +27,5 @@ jobs:
             cd build
             cmake ../..
             make -j $(nproc)
+            # VuTest won't work on ARMv7 due to FP differences
+            ctest -C Release -E "(VuTest)"
