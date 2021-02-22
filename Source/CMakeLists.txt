@@ -103,10 +103,9 @@ if(ICUUC_FOUND)
 endif()
 
 if(NOT (TARGET_PLATFORM_ANDROID OR TARGET_PLATFORM_IOS))
+	set(THREADS_PREFER_PTHREAD_FLAG ON)
 	find_package(Threads REQUIRED)
-	if(CMAKE_THREAD_LIBS_INIT)
-		list(APPEND PROJECT_LIBS "${CMAKE_THREAD_LIBS_INIT}")
-	endif()
+	list(APPEND PROJECT_LIBS Threads::Threads)
 endif()
 
 set(COMMON_SRC_FILES
@@ -452,11 +451,6 @@ target_include_directories(PlayCore
 		${CMAKE_CURRENT_SOURCE_DIR}/../deps/CodeGen/include
 )
 target_compile_definitions(PlayCore PUBLIC ${DEFINITIONS_LIST})
-if(NOT ANDROID)
-	if(THREADS_HAVE_PTHREAD_ARG)
-		target_compile_options(PUBLIC PlayCore "-pthread")
-	endif()
-endif()
 
 if(TARGET_PLATFORM_WIN32)
 	add_precompiled_header(PlayCore Pch.h FORCEINCLUDE SOURCE_CXX Pch.cpp)
