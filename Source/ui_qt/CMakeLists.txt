@@ -233,18 +233,21 @@ if(TARGET_PLATFORM_UNIX)
 	list(APPEND QT_COMPONENTS X11Extras)
 endif()
 
-set(QT_MOC_EXECUTABLE /usr/bin/moc)
-add_executable(Qt5::moc IMPORTED)
-set_property(TARGET Qt5::moc PROPERTY IMPORTED_LOCATION ${QT_MOC_EXECUTABLE})
+if(IS_CROSS_COMPILING)
+	# when cross compiling, we need to resolve these tools location to prevent target binaries from being used
+	set(QT_MOC_EXECUTABLE /usr/bin/moc)
+	add_executable(Qt5::moc IMPORTED)
+	set_property(TARGET Qt5::moc PROPERTY IMPORTED_LOCATION ${QT_MOC_EXECUTABLE})
 
-set(QT_RCC_EXECUTABLE /usr/bin/rcc)
-add_executable(Qt5::rcc IMPORTED)
-set_property(TARGET Qt5::rcc PROPERTY IMPORTED_LOCATION ${QT_RCC_EXECUTABLE})
+	set(QT_RCC_EXECUTABLE /usr/bin/rcc)
+	add_executable(Qt5::rcc IMPORTED)
+	set_property(TARGET Qt5::rcc PROPERTY IMPORTED_LOCATION ${QT_RCC_EXECUTABLE})
 
 
-set(QT_UIC_EXECUTABLE /usr/bin/uic)
-add_executable(Qt5::uic IMPORTED)
-set_property(TARGET Qt5::uic PROPERTY IMPORTED_LOCATION ${QT_UIC_EXECUTABLE})
+	set(QT_UIC_EXECUTABLE /usr/bin/uic)
+	add_executable(Qt5::uic IMPORTED)
+	set_property(TARGET Qt5::uic PROPERTY IMPORTED_LOCATION ${QT_UIC_EXECUTABLE})
+endif()
 
 
 find_package(Qt5 REQUIRED COMPONENTS ${QT_COMPONENTS})
