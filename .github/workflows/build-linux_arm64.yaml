@@ -1,8 +1,8 @@
-name: Build Linux
+name: Build Linux ARM64
 
 on: [push, pull_request]
 jobs:
-  build_linux:
+  build-linux_arm64:
     runs-on: ubuntu-latest
     steps:
     - name: Checkout

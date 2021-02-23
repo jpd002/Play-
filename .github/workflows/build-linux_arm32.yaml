@@ -2,30 +2,35 @@ name: Build Linux ARM32
 
 on: [push, pull_request]
 jobs:
-  build_linux_arm32:
-    runs-on: ubuntu-20.04
+  build-linux_arm32:
+    runs-on: ubuntu-latest
     steps:
-      - name: Install Dependencies
+    - name: Checkout
+      uses: actions/checkout@v2
+      with:
+        submodules: recursive
+        fetch-depth: 0
+    - name: Force Fetch Git Tags
+      run: git fetch --tags --force
+    - name: Set SHORT_HASH
+      run: echo "::set-output name=VALUE::${LONG_HASH:0:8}"
+      id: short_hash
+      env:
+        LONG_HASH: ${{ github.sha }}
+    - name: Build Docker
+      id: docker_build
+      uses: docker/build-push-action@v2
+      with:
+        context: ./
+        file: build_docker/x86_64-cross_compile/armv7/Dockerfile
+        push: false
+        tags: cross_compile-armv7
+    - name: Build & Test
+      uses: addnab/docker-run-action@v2
+      with:
+        image: cross_compile-armv7
+        options: -v ${{ github.workspace }}:/workdir
         run: |
-          sudo apt update
-          sudo apt install qemu-user-static binfmt-support
-      - name: Checkout
-        uses: actions/checkout@v2
-        with:
-          submodules: recursive
-          fetch-depth: 0
-      - name: Build & Test
-        uses: addnab/docker-run-action@v2
-        with:
-          image: jpd002/linux_arm32_build
-          options: -v ${{ github.workspace }}:/work
-          run: |
-            apt-get install -y libcurl4-openssl-dev libgl1-mesa-dev libglu1-mesa-dev libalut-dev libevdev-dev qt5-default libqt5x11extras5-dev
-            cd /work
-            cd build_cmake
             mkdir build
-            cd build
-            cmake ../..
-            make -j $(nproc)
-            # VuTest won't work on ARMv7 due to FP differences
-            ctest -C Release -E "(VuTest)"
+            cmake -Bbuild -H. -DCMAKE_TOOLCHAIN_FILE=./build_docker/x86_64-cross_compile/armv7/toolchain.cmake -DENABLE_AMAZON_S3=off -DQt5_DIR=/usr/lib/arm-linux-gnueabihf/cmake/Qt5/ -DUSE_GLES=on
+            cmake --build build

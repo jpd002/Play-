@@ -320,7 +320,7 @@ else()
 	add_executable(Play ${QT_SOURCES} ${QT_MOC_SRCS} ${QT_RES_SOURCES} ${QT_UI_HEADERS})
 endif()
 
-target_link_libraries(Play ${PROJECT_LIBS} stdc++fs)
+target_link_libraries(Play ${PROJECT_LIBS})
 target_compile_definitions(Play PRIVATE ${DEFINITIONS_LIST})
 
 target_include_directories(Play PRIVATE
