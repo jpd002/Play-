@@ -48,8 +48,6 @@ endif()
 list(APPEND SHARED_UI_PROJECT_LIBS PlayCore)
 
 set(SHARED_UI_SRC_FILES
-	AmazonS3Utils.cpp
-	AmazonS3Utils.h
 	BootablesDbClient.cpp
 	BootablesDbClient.h
 	BootablesProcesses.cpp
@@ -59,7 +57,13 @@ set(SHARED_UI_SRC_FILES
 	StatsManager.cpp
 	StatsManager.h
 )
-
+if(ENABLE_AMAZON_S3)
+	set(SHARED_UI_SRC_FILES
+		${SHARED_UI_SRC_FILES}
+		AmazonS3Utils.cpp
+		AmazonS3Utils.h
+	)
+endif()
 add_library(ui_shared STATIC ${SHARED_UI_SRC_FILES})
 target_link_libraries(ui_shared ${SHARED_UI_PROJECT_LIBS})
 target_include_directories(ui_shared PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/..)

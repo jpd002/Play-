@@ -2,7 +2,9 @@
 #include "QStringUtils.h"
 #include "settingsdialog.h"
 #include "memorycardmanagerdialog.h"
+#ifdef HAS_AMAZON_S3
 #include "S3FileBrowser.h"
+#endif
 #include "ui_shared/BootablesProcesses.h"
 #include "ui_shared/StatsManager.h"
 #include "QtUtils.h"
@@ -100,8 +102,9 @@ MainWindow::MainWindow(QWidget* parent)
 	CreateStatusBar();
 	UpdateUI();
 	addAction(ui->actionPause_Resume);
+#ifdef HAS_AMAZON_S3
 	ui->actionBoot_DiscImage_S3->setVisible(S3FileBrowser::IsAvailable());
-
+#endif
 	InitVirtualMachine();
 	SetupGsHandler();
 
@@ -309,6 +312,7 @@ void MainWindow::on_actionBoot_DiscImage_triggered()
 
 void MainWindow::on_actionBoot_DiscImage_S3_triggered()
 {
+#ifdef HAS_AMAZON_S3
 	S3FileBrowser browser(this);
 	if(browser.exec())
 	{
@@ -328,6 +332,7 @@ void MainWindow::on_actionBoot_DiscImage_S3_triggered()
 			}
 		}
 	}
+#endif
 }
 
 void MainWindow::on_actionBoot_cdrom0_triggered()

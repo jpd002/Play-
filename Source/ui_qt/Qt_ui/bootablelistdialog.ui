@@ -159,6 +159,9 @@
        <property name="autoDefault">
         <bool>false</bool>
        </property>
+       <property name="visible">
+        <bool>false</bool>
+       </property>
       </widget>
      </item>
      <item>

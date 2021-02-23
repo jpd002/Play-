@@ -21,10 +21,12 @@
 #include "ui_shared/BootablesProcesses.h"
 #include "ui_shared/BootablesDbClient.h"
 
+#ifdef HAS_AMAZON_S3
 #include "S3FileBrowser.h"
 #include "amazon/AmazonS3Client.h"
 #include "../s3stream/S3ObjectStream.h"
 #include "ui_shared/AmazonS3Utils.h"
+#endif
 
 BootableListDialog::BootableListDialog(QWidget* parent)
     : QDialog(parent)
@@ -78,7 +80,9 @@ BootableListDialog::BootableListDialog(QWidget* parent)
 		        model->removeItem(index);
 	        });
 	m_continuationChecker = new CContinuationChecker(this);
+#ifdef HAS_AMAZON_S3
 	ui->awsS3Button->setVisible(S3FileBrowser::IsAvailable());
+#endif
 
 	SetupStatusBar();
 }
@@ -207,6 +211,7 @@ void BootableListDialog::resizeEvent(QResizeEvent* ev)
 
 void BootableListDialog::on_awsS3Button_clicked()
 {
+#ifdef HAS_AMAZON_S3
 	std::string bucketName = CAppConfig::GetInstance().GetPreferenceString("s3.filebrowser.bucketname");
 	{
 		bool ok;
@@ -260,6 +265,7 @@ void BootableListDialog::on_awsS3Button_clicked()
 		m_statusBar->hide();
 	};
 	m_continuationChecker->GetContinuationManager().Register(std::move(getListFuture), updateBootableCallback);
+#endif
 }
 
 void BootableListDialog::SelectionChange(const QModelIndex& index)

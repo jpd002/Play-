@@ -113,8 +113,6 @@ set(QT_SOURCES
 	GSH_OpenGLQt.h
 	InputProviderQtKey.cpp
 	InputProviderQtKey.h
-	S3FileBrowser.cpp
-	S3FileBrowser.h
 	settingsdialog.cpp
 	settingsdialog.h
 	openglwindow.cpp
@@ -138,6 +136,16 @@ set(QT_SOURCES
 	VfsDevice.h
 	${GSH_VULKAN_QT_SRC}
 )
+if(ENABLE_AMAZON_S3)
+	set(QT_SOURCES
+		${QT_SOURCES}
+		S3FileBrowser.cpp
+		S3FileBrowser.h
+	)
+	set(AMAZON_S3_QT_MOC
+		S3FileBrowser.h
+	)
+endif()
 if(LIBEVDEV_FOUND)
 	set(QT_SOURCES
 		${QT_SOURCES}
@@ -204,10 +212,10 @@ set(QT_MOC_HEADERS
 	openglwindow.h
 	outputwindow.h
 	memorycardmanagerdialog.h
-	S3FileBrowser.h
 	vfsmanagerdialog.h
 	vfsmodel.h
 	vfsdiscselectordialog.h
+	${AMAZON_S3_QT_MOC}
 	${GSH_VULKAN_QT_MOC}
 )
 
