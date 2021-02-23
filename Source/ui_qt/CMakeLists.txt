@@ -232,6 +232,21 @@ set(QT_COMPONENTS Widgets Core)
 if(TARGET_PLATFORM_UNIX)
 	list(APPEND QT_COMPONENTS X11Extras)
 endif()
+
+set(QT_MOC_EXECUTABLE /usr/bin/moc)
+add_executable(Qt5::moc IMPORTED)
+set_property(TARGET Qt5::moc PROPERTY IMPORTED_LOCATION ${QT_MOC_EXECUTABLE})
+
+set(QT_RCC_EXECUTABLE /usr/bin/rcc)
+add_executable(Qt5::rcc IMPORTED)
+set_property(TARGET Qt5::rcc PROPERTY IMPORTED_LOCATION ${QT_RCC_EXECUTABLE})
+
+
+set(QT_UIC_EXECUTABLE /usr/bin/uic)
+add_executable(Qt5::uic IMPORTED)
+set_property(TARGET Qt5::uic PROPERTY IMPORTED_LOCATION ${QT_UIC_EXECUTABLE})
+
+
 find_package(Qt5 REQUIRED COMPONENTS ${QT_COMPONENTS})
 
 list(APPEND PROJECT_LIBS Qt5::Widgets Qt5::Core)
@@ -305,7 +320,7 @@ else()
 	add_executable(Play ${QT_SOURCES} ${QT_MOC_SRCS} ${QT_RES_SOURCES} ${QT_UI_HEADERS})
 endif()
 
-target_link_libraries(Play ${PROJECT_LIBS})
+target_link_libraries(Play ${PROJECT_LIBS} stdc++fs)
 target_compile_definitions(Play PRIVATE ${DEFINITIONS_LIST})
 
 target_include_directories(Play PRIVATE
