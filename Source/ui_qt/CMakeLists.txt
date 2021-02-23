@@ -324,13 +324,11 @@ target_include_directories(Play PRIVATE
 )
 
 if(TARGET_PLATFORM_WIN32)
-	add_custom_command(TARGET Play POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different 
-		$<TARGET_FILE:Qt5::Core> $<TARGET_FILE_DIR:Play>
-	)
-	add_custom_command(TARGET Play POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different 
-		$<TARGET_FILE:Qt5::Widgets> $<TARGET_FILE_DIR:Play>
-	)
-	add_custom_command(TARGET Play POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different 
-		$<TARGET_FILE:Qt5::Gui> $<TARGET_FILE_DIR:Play>
+	find_program(WINDEPLOYQT_EXE windeployqt HINTS "${QT_BINARY_DIRECTORY}")
+	add_custom_command(TARGET Play POST_BUILD
+		COMMAND "${WINDEPLOYQT_EXE}" $<IF:$<CONFIG:Debug>,--debug,--release>
+									 --no-translations
+									 --no-compiler-runtime
+									 "$<TARGET_FILE:Play>"
 	)
 endif()
