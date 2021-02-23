@@ -32,5 +32,5 @@ jobs:
         options: -v ${{ github.workspace }}:/workdir
         run: |
             mkdir build
-            cmake -Bbuild -H. -DCMAKE_TOOLCHAIN_FILE=./build_docker/toolchain.arm64.cmake -DENABLE_AMAZON_S3=off -DQt5_DIR=/usr/lib/aarch64-linux-gnu/cmake/Qt5/ -DUSE_GLES=off
+            cmake -Bbuild -H. -DCMAKE_TOOLCHAIN_FILE=./build_docker/x86_64-cross_compile/arm64/toolchain.cmake -DENABLE_AMAZON_S3=off -DQt5_DIR=/usr/lib/aarch64-linux-gnu/cmake/Qt5/ -DUSE_GLES=off
             cmake --build build
