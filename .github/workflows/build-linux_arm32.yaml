@@ -25,13 +25,28 @@ jobs:
         file: build_docker/x86_64-cross_compile/armv7/Dockerfile
         push: false
         tags: cross_compile-armv7
-    - name: Build & Test
+    - name: Generate CMake Project
       uses: addnab/docker-run-action@v2
       with:
         image: cross_compile-armv7
         options: -v ${{ github.workspace }}:/workdir
         run: |
+            set -e
             mkdir build
             cmake -Bbuild -H. -DCMAKE_TOOLCHAIN_FILE=./build_docker/x86_64-cross_compile/armv7/toolchain.cmake -DENABLE_AMAZON_S3=off -DQt5_DIR=/usr/lib/arm-linux-gnueabihf/cmake/Qt5/ -DUSE_GLES=on
+    - name: Build
+      uses: addnab/docker-run-action@v2
+      with:
+        image: cross_compile-armv7
+        options: -v ${{ github.workspace }}:/workdir
+        run: |
+            set -e
             cmake --build build --config Release
+    - name: Run Tests
+      uses: addnab/docker-run-action@v2
+      with:
+        image: cross_compile-armv7
+        options: -v ${{ github.workspace }}:/workdir
+        run: |
+            set -e
             ctest -C Release
