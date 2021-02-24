@@ -233,7 +233,7 @@ if(TARGET_PLATFORM_UNIX)
 	list(APPEND QT_COMPONENTS X11Extras)
 endif()
 
-if(IS_CROSS_COMPILING)
+if(CMAKE_CROSSCOMPILING)
 	# when cross compiling, we need to resolve these tools location to prevent target binaries from being used
 	set(QT_MOC_EXECUTABLE /usr/bin/moc)
 	add_executable(Qt5::moc IMPORTED)
