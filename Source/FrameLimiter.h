@@ -1,6 +1,7 @@
 #pragma once
 
 #include <chrono>
+#include "Types.h"
 
 class CFrameLimiter
 {
