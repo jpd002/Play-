@@ -560,6 +560,10 @@ void retro_init()
 	m_virtualMachine = new CPS2VM();
 	m_virtualMachine->Initialize();
 
+	//Disable frame limiter, RetroArch handles this on its own
+	CAppConfig::GetInstance().SetPreferenceBoolean(PREF_PS2_LIMIT_FRAMERATE, false);
+	m_virtualMachine->ReloadFrameRateLimit();
+
 	SetupInputHandler();
 	SetupSoundHandler();
 	first_run = false;
