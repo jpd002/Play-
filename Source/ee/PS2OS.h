@@ -66,6 +66,7 @@ public:
 	Framework::CSignal<void()> OnRequestInstructionCacheFlush;
 	RequestLoadExecutableEvent OnRequestLoadExecutable;
 	Framework::CSignal<void()> OnRequestExit;
+	Framework::CSignal<void()> OnCrtModeChange;
 
 private:
 	struct SEMAPHOREPARAM

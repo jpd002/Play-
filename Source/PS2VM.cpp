@@ -97,6 +97,7 @@ CPS2VM::CPS2VM()
 
 	m_ee = std::make_unique<Ee::CSubSystem>(m_iop->m_ram, *iopOs);
 	m_OnRequestLoadExecutableConnection = m_ee->m_os->OnRequestLoadExecutable.Connect(std::bind(&CPS2VM::ReloadExecutable, this, std::placeholders::_1, std::placeholders::_2));
+	m_OnCrtModeChangeConnection = m_ee->m_os->OnCrtModeChange.Connect(std::bind(&CPS2VM::OnCrtModeChange, this));
 
 	CAppConfig::GetInstance().RegisterPreferenceBoolean(PREF_PS2_LIMIT_FRAMERATE, true);
 	ReloadFrameRateLimit();
@@ -167,8 +168,13 @@ void CPS2VM::DestroySoundHandler()
 
 void CPS2VM::ReloadFrameRateLimit()
 {
+	uint32 frameRate = 60;
+	if(m_ee->m_gs != nullptr)
+	{
+		frameRate = m_ee->m_gs->GetCrtFrameRate();
+	}
 	bool limitFrameRate = CAppConfig::GetInstance().GetPreferenceBoolean(PREF_PS2_LIMIT_FRAMERATE);
-	m_frameLimiter.SetFrameRate(limitFrameRate ? 60 : 0);
+	m_frameLimiter.SetFrameRate(limitFrameRate ? frameRate : 0);
 }
 
 CVirtualMachine::STATUS CPS2VM::GetStatus() const
@@ -768,6 +774,11 @@ void CPS2VM::ReloadExecutable(const char* executablePath, const CPS2OS::Argument
 {
 	ResetVM();
 	m_ee->m_os->BootFromVirtualPath(executablePath, arguments);
+}
+
+void CPS2VM::OnCrtModeChange()
+{
+	ReloadFrameRateLimit();
 }
 
 void CPS2VM::EmuThread()

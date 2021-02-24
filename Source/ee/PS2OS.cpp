@@ -1574,6 +1574,8 @@ void CPS2OS::sc_GsSetCrt()
 	{
 		m_gs->SetCrt(isInterlaced, mode, isFrameMode);
 	}
+
+	OnCrtModeChange();
 }
 
 //04

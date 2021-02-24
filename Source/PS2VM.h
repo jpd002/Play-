@@ -102,6 +102,7 @@ private:
 	bool LoadVMState(const fs::path&);
 
 	void ReloadExecutable(const char*, const CPS2OS::ArgumentList&);
+	void OnCrtModeChange();
 
 	void ResumeImpl();
 	void PauseImpl();
@@ -179,5 +180,6 @@ private:
 	CProfiler::ZoneHandle m_otherProfilerZone = 0;
 
 	CPS2OS::RequestLoadExecutableEvent::Connection m_OnRequestLoadExecutableConnection;
+	Framework::CSignal<void()>::Connection m_OnCrtModeChangeConnection;
 	Framework::CSignal<void(uint32)>::Connection m_OnNewFrameConnection;
 };

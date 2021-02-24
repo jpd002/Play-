@@ -1166,6 +1166,20 @@ unsigned int CGSHandler::GetCrtHeight() const
 	}
 }
 
+uint32 CGSHandler::GetCrtFrameRate() const
+{
+	switch(m_crtMode)
+	{
+	default:
+		assert(false);
+		[[fallthrough]];
+	case CRT_MODE_NTSC:
+		return 60;
+	case CRT_MODE_PAL:
+		return 50;
+	}
+}
+
 uint32 CGSHandler::GetCrtHSyncFrequency() const
 {
 	switch(m_crtMode)
