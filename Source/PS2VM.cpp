@@ -98,6 +98,9 @@ CPS2VM::CPS2VM()
 	m_ee = std::make_unique<Ee::CSubSystem>(m_iop->m_ram, *iopOs);
 	m_OnRequestLoadExecutableConnection = m_ee->m_os->OnRequestLoadExecutable.Connect(std::bind(&CPS2VM::ReloadExecutable, this, std::placeholders::_1, std::placeholders::_2));
 
+	CAppConfig::GetInstance().RegisterPreferenceBoolean(PREF_PS2_LIMIT_FRAMERATE, true);
+	ReloadFrameRateLimit();
+
 	CAppConfig::GetInstance().RegisterPreferenceInteger(PREF_AUDIO_SPUBLOCKCOUNT, 100);
 	m_spuBlockCount = CAppConfig::GetInstance().GetPreferenceInteger(PREF_AUDIO_SPUBLOCKCOUNT);
 }
@@ -160,6 +163,12 @@ void CPS2VM::DestroySoundHandler()
 {
 	if(m_soundHandler == nullptr) return;
 	m_mailBox.SendCall([this]() { DestroySoundHandlerImpl(); }, true);
+}
+
+void CPS2VM::ReloadFrameRateLimit()
+{
+	bool limitFrameRate = CAppConfig::GetInstance().GetPreferenceBoolean(PREF_PS2_LIMIT_FRAMERATE);
+	m_frameLimiter.SetFrameRate(limitFrameRate ? 60 : 0);
 }
 
 CVirtualMachine::STATUS CPS2VM::GetStatus() const
@@ -770,7 +779,6 @@ void CPS2VM::EmuThread()
 	CProfilerZone profilerZone(m_otherProfilerZone);
 #endif
 	static_cast<CEeExecutor*>(m_ee->m_EE.m_executor.get())->AddExceptionHandler();
-	m_frameLimiter.SetFrameRate(60);
 	m_frameLimiter.BeginFrame();
 	while(1)
 	{

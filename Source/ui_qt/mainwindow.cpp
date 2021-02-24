@@ -510,6 +510,7 @@ void MainWindow::on_actionSettings_triggered()
 	if(m_virtualMachine != nullptr)
 	{
 		m_virtualMachine->ReloadSpuBlockCount();
+		m_virtualMachine->ReloadFrameRateLimit();
 		auto new_gs_index = CAppConfig::GetInstance().GetPreferenceInteger(PREF_VIDEO_GS_HANDLER);
 		if(gs_index != new_gs_index)
 		{

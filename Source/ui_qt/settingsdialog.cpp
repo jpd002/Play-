@@ -79,6 +79,7 @@ void SettingsDialog::changePage(QListWidgetItem* current, QListWidgetItem* previ
 void SettingsDialog::LoadPreferences()
 {
 	ui->comboBox_system_language->setCurrentIndex(CAppConfig::GetInstance().GetPreferenceInteger(PREF_SYSTEM_LANGUAGE));
+	ui->checkBox_limitFrameRate->setChecked(CAppConfig::GetInstance().GetPreferenceBoolean(PREF_PS2_LIMIT_FRAMERATE));
 
 	int factor = CAppConfig::GetInstance().GetPreferenceInteger(PREF_CGSH_OPENGL_RESOLUTION_FACTOR);
 	int factor_index = std::log2(factor);
@@ -95,6 +96,11 @@ void SettingsDialog::LoadPreferences()
 void SettingsDialog::on_comboBox_system_language_currentIndexChanged(int index)
 {
 	CAppConfig::GetInstance().SetPreferenceInteger(PREF_SYSTEM_LANGUAGE, index);
+}
+
+void SettingsDialog::on_checkBox_limitFrameRate_clicked(bool checked)
+{
+	CAppConfig::GetInstance().SetPreferenceBoolean(PREF_PS2_LIMIT_FRAMERATE, checked);
 }
 
 void SettingsDialog::on_checkBox_widescreenOutput_clicked(bool checked)

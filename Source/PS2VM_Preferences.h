@@ -8,6 +8,8 @@
 #define PREF_PS2_MC1_DIRECTORY ("ps2.mc1.directory.v2")
 #define PREF_PS2_HDD_DIRECTORY ("ps2.hdd.directory")
 
+#define PREF_PS2_LIMIT_FRAMERATE ("ps2.limitframerate")
+
 #define PREF_AUDIO_SPUBLOCKCOUNT ("audio.spublockcount")
 
 #define PREF_SYSTEM_LANGUAGE ("system.language")

@@ -67,6 +67,8 @@ public:
 	void DestroySoundHandler();
 	void ReloadSpuBlockCount();
 
+	void ReloadFrameRateLimit();
+
 	static fs::path GetStateDirectoryPath();
 	fs::path GenerateStatePath(unsigned int) const;
 
