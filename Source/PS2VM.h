@@ -136,6 +136,8 @@ private:
 	STATUS m_nStatus;
 	bool m_nEnd;
 
+	uint32 m_onScreenTicksTotal = 0;
+	uint32 m_vblankTicksTotal = 0;
 	int m_vblankTicks = 0;
 	bool m_inVblank = 0;
 	int m_spuUpdateTicks = 0;

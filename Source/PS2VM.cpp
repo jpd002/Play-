@@ -38,10 +38,6 @@
 #define PREF_PS2_MC1_DIRECTORY_DEFAULT ("vfs/mc1")
 #define PREF_PS2_HDD_DIRECTORY_DEFAULT ("vfs/hdd")
 
-#define FRAME_TICKS (PS2::EE_CLOCK_FREQ / 60)
-#define ONSCREEN_TICKS (FRAME_TICKS * 9 / 10)
-#define VBLANK_TICKS (FRAME_TICKS / 10)
-
 CPS2VM::CPS2VM()
     : m_nStatus(PAUSED)
     , m_nEnd(false)
@@ -175,6 +171,10 @@ void CPS2VM::ReloadFrameRateLimit()
 	}
 	bool limitFrameRate = CAppConfig::GetInstance().GetPreferenceBoolean(PREF_PS2_LIMIT_FRAMERATE);
 	m_frameLimiter.SetFrameRate(limitFrameRate ? frameRate : 0);
+
+	uint32 frameTicks = PS2::EE_CLOCK_FREQ / frameRate;
+	m_onScreenTicksTotal = frameTicks * 9 / 10;
+	m_vblankTicksTotal = frameTicks / 10;
 }
 
 CVirtualMachine::STATUS CPS2VM::GetStatus() const
@@ -437,7 +437,7 @@ void CPS2VM::ResetVM()
 
 	CDROM0_SyncPath();
 
-	m_vblankTicks = ONSCREEN_TICKS;
+	m_vblankTicks = m_onScreenTicksTotal;
 	m_inVblank = false;
 
 	m_eeExecutionTicks = 0;
@@ -818,7 +818,7 @@ void CPS2VM::EmuThread()
 					m_inVblank = !m_inVblank;
 					if(m_inVblank)
 					{
-						m_vblankTicks += VBLANK_TICKS;
+						m_vblankTicks += m_vblankTicksTotal;
 						m_ee->NotifyVBlankStart();
 						m_iop->NotifyVBlankStart();
 
@@ -847,7 +847,7 @@ void CPS2VM::EmuThread()
 					}
 					else
 					{
-						m_vblankTicks += ONSCREEN_TICKS;
+						m_vblankTicks += m_onScreenTicksTotal;
 						m_ee->NotifyVBlankEnd();
 						m_iop->NotifyVBlankEnd();
 						if(m_ee->m_gs != NULL)
