@@ -33,4 +33,5 @@ jobs:
         run: |
             mkdir build
             cmake -Bbuild -H. -DCMAKE_TOOLCHAIN_FILE=./build_docker/x86_64-cross_compile/armv7/toolchain.cmake -DENABLE_AMAZON_S3=off -DQt5_DIR=/usr/lib/arm-linux-gnueabihf/cmake/Qt5/ -DUSE_GLES=on
-            cmake --build build
+            cmake --build build --config Release
+            ctest -C Release

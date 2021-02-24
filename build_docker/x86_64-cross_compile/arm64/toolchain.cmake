@@ -12,3 +12,5 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -I /usr/include/aarch64-linux-gnu/ -I /u
 
 set(CMAKE_SYSTEM_LIBRARY_PATH "/usr/lib/aarch64-linux-gnu/;/lib/aarch64-linux-gnu/;/usr/aarch64-linux-gnu/lib/;")
 set(CMAKE_SYSTEM_INCLUDE_PATH "${CMAKE_SYSTEM_INCLUDE_PATH};/usr/include/;/usr/include/aarch64-linux-gnu/;")
+
+set(CMAKE_CROSSCOMPILING_EMULATOR /usr/bin/qemu-aarch64)
