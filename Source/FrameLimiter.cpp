@@ -45,6 +45,14 @@ void CFrameLimiter::EndFrame()
 			WaitForSingleObject(timer, INFINITE);
 			CloseHandle(timer);
 		}
+#elif defined(__APPLE__)
+		//Sleeping for the whole delay on macOS/iOS doesn't provide a good enough resolution
+		while(frameDuration < m_minFrameDuration)
+		{
+			std::this_thread::sleep_for(std::chrono::microseconds(250));
+			currentFrameTime = std::chrono::high_resolution_clock::now();
+			frameDuration = std::chrono::duration_cast<std::chrono::microseconds>(currentFrameTime - m_lastFrameTime);
+		}
 #else
 		std::this_thread::sleep_for(delay);
 #endif
