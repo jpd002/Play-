@@ -35,6 +35,26 @@ void CSpeed::SetEthernetFrameTxHandler(const EthernetFrameTxHandler& ethernetFra
 	m_ethernetFrameTxHandler = ethernetFrameTxHandler;
 }
 
+void CSpeed::RxEthernetFrame(const uint8* frameData, uint32 frameSize)
+{
+	assert(!m_pendingRx);
+	
+	m_rxBuffer.resize(frameSize);
+	memcpy(m_rxBuffer.data(), frameData, frameSize);
+	
+	auto& bdRx = reinterpret_cast<SMAP_BD*>(m_smapBdRx)[m_rxIndex];
+	assert((bdRx.ctrlStat & SMAP_BD_RX_EMPTY) != 0);
+	bdRx.ctrlStat &= ~SMAP_BD_RX_EMPTY;
+	bdRx.length = frameSize;
+	bdRx.pointer = 0;
+	
+	m_rxIndex++;
+	m_rxIndex %= SMAP_BD_SIZE;
+
+	m_pendingRx = true;
+	m_rxDelay = 100000;
+}
+
 void CSpeed::CheckInterrupts()
 {
 	if(m_intrStat & m_intrMask)
@@ -215,6 +235,9 @@ void CSpeed::WriteRegister(uint32 address, uint32 value)
 	case REG_SMAP_INTR_CLR:
 		m_intrStat &= ~value;
 		break;
+	case REG_SMAP_RXFIFO_RD_PTR:
+		m_rxFifoPtr = value;
+		break;
 	case REG_SMAP_RXFIFO_FRAME_DEC:
 		assert(m_rxFrameCount != 0);
 		m_rxFrameCount--;
@@ -279,6 +302,21 @@ uint32 CSpeed::SendDma(uint8* buffer, uint32 blockSize, uint32 blockAmount)
 	memcpy(buffer, m_rxBuffer.data() + m_rxFifoPtr, size);
 	m_rxFifoPtr += size;
 	return blockAmount;
+}
+
+void CSpeed::CountTicks(uint32 ticks)
+{
+	if(m_pendingRx)
+	{
+		m_rxDelay -= ticks;
+		if(m_rxDelay <= 0)
+		{
+			m_intrStat |= (1 << INTR_SMAP_RXEND);
+			CheckInterrupts();
+			m_pendingRx = false;
+			m_rxFrameCount++;
+		}
+	}
 }
 
 void CSpeed::LogRead(uint32 address)
@@ -350,6 +388,7 @@ void CSpeed::LogWrite(uint32 address, uint32 value)
 		LOG_SET(REG_PIO_DATA)
 		LOG_SET(REG_SMAP_INTR_CLR)
 		LOG_SET(REG_SMAP_TXFIFO_FRAME_INC)
+		LOG_SET(REG_SMAP_RXFIFO_RD_PTR)
 		LOG_SET(REG_SMAP_RXFIFO_FRAME_DEC)
 		LOG_SET(REG_SMAP_TXFIFO_DATA)
 		LOG_SET(REG_SMAP_EMAC3_TXMODE0_HI)

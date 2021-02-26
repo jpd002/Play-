@@ -321,6 +321,7 @@ void CSubSystem::CountTicks(int ticks)
 {
 	static const int g_dmaUpdateDelay = 10000;
 	m_counters.Update(ticks);
+	m_speed.CountTicks(ticks);
 	m_bios->CountTicks(ticks);
 	m_dmaUpdateTicks += ticks;
 	if(m_dmaUpdateTicks >= g_dmaUpdateDelay)
