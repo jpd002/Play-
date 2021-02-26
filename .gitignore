@@ -34,4 +34,4 @@ ReleaseAot
 *.xccheckout
 *.xcscmblueprint
 xcuserdata
-
+.DS_Store
