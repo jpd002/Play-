@@ -26,7 +26,10 @@ void CGSH_OpenGL::SetupTextureUpdaters()
 	m_textureUpdater[PSMCT24_UNK] = &CGSH_OpenGL::TexUpdater_Psm32;
 	m_textureUpdater[PSMCT16S] = &CGSH_OpenGL::TexUpdater_Psm16<CGsPixelFormats::CPixelIndexorPSMCT16S>;
 	m_textureUpdater[PSMT8] = &CGSH_OpenGL::TexUpdater_Psm8;
-	m_textureUpdater[PSMT4] = &CGSH_OpenGL::TexUpdater_Psm48<CGsPixelFormats::CPixelIndexorPSMT4>;
+	m_textureUpdater[PSMT4] = &CGSH_OpenGL::TexUpdater_Psm4;
+	// original for quick perf testing
+	//m_textureUpdater[PSMT4] = &CGSH_OpenGL::TexUpdater_Psm48<CGsPixelFormats::CPixelIndexorPSMT4>;
+
 	m_textureUpdater[PSMT8H] = &CGSH_OpenGL::TexUpdater_Psm48H<24, 0xFF>;
 	m_textureUpdater[PSMT4HL] = &CGSH_OpenGL::TexUpdater_Psm48H<24, 0x0F>;
 	m_textureUpdater[PSMT4HH] = &CGSH_OpenGL::TexUpdater_Psm48H<28, 0x0F>;
@@ -340,15 +343,10 @@ void CGSH_OpenGL::TexUpdater_Psm16(uint32 bufPtr, uint32 bufWidth, unsigned int 
 #if defined(USE_SSE)
 #include <xmmintrin.h>
 #include <emmintrin.h>
-void convertColumn8(uint8* dest, const int destStride, uint8* src, int colNum)
+#include <tmmintrin.h>
+
+void convertColumn8(uint8* dest, const int destStride, int colNum, __m128i a, __m128i b, __m128i c, __m128i d)
 {
-	__m128i* mSrc = (__m128i*)src;
-
-	__m128i a = mSrc[0];
-	__m128i b = mSrc[1];
-	__m128i c = mSrc[2];
-	__m128i d = mSrc[3];
-
 	__m128i* mdest = (__m128i*)dest;
 
 	__m128i temp_a = a;
@@ -400,6 +398,65 @@ void convertColumn8(uint8* dest, const int destStride, uint8* src, int colNum)
 	mdest[mStride] = b;
 	mdest[mStride * 2] = c;
 	mdest[mStride * 3] = d;
+}
+
+inline void convertColumn8(uint8* dest, const int destStride, uint8* src, int colNum)
+{
+	__m128i* mSrc = (__m128i*)src;
+
+	__m128i a = mSrc[0];
+	__m128i b = mSrc[1];
+	__m128i c = mSrc[2];
+	__m128i d = mSrc[3];
+	convertColumn8(dest, destStride, colNum, a, b, c, d);
+}
+
+inline void convertColumn4(uint8* dest, const int destStride, uint8* src, int colNum)
+{
+	__m128i* mSrc = (__m128i*)src;
+
+	__m128i a = mSrc[0];
+	__m128i b = mSrc[1];
+	__m128i c = mSrc[2];
+	__m128i d = mSrc[3];
+
+	// 4 bpp looks like 2 8bpp columns side by side.
+	// The 4pp are expanded to 8bpp.
+	// so 01 23 45 67 89 ab cd ef gh ij kl mn op qr st uv expands to
+	// 00 01 02 03 08 09 0a 0b 0g 0h 0i 0j 0o 0p 0q 0r as the first row on the left hand block.
+
+	__m128i perm = _mm_setr_epi8(0, 1, 4, 5, 8, 9, 0x0c, 0x0d, 2, 3, 6, 7, 0x0a, 0x0b, 0x0e, 0x0f);
+	a = _mm_shuffle_epi8(a, perm);
+	b = _mm_shuffle_epi8(b, perm);
+	c = _mm_shuffle_epi8(c, perm);
+	d = _mm_shuffle_epi8(d, perm);
+
+	__m128i a_orig = a;
+
+	const __m128i mask = _mm_set1_epi32(0x0f0f0f0f);
+	const __m128i shiftCount = _mm_set_epi32(0, 0, 0, 4);
+	__m128i lowNybbles = _mm_and_si128(a, mask);
+	__m128i highNybbles = _mm_and_si128(_mm_srl_epi32(a, shiftCount), mask);
+	a = _mm_unpacklo_epi8(lowNybbles, highNybbles);
+	__m128i a2 = _mm_unpackhi_epi8(lowNybbles, highNybbles);
+
+	lowNybbles = _mm_and_si128(b, mask);
+	highNybbles = _mm_and_si128(_mm_srl_epi32(b, shiftCount), mask);
+	b = _mm_unpacklo_epi8(lowNybbles, highNybbles);
+	__m128i b2 = _mm_unpackhi_epi8(lowNybbles, highNybbles);
+
+	lowNybbles = _mm_and_si128(c, mask);
+	highNybbles = _mm_and_si128(_mm_srl_epi32(c, shiftCount), mask);
+	c = _mm_unpacklo_epi8(lowNybbles, highNybbles);
+	__m128i c2 = _mm_unpackhi_epi8(lowNybbles, highNybbles);
+
+	lowNybbles = _mm_and_si128(d, mask);
+	highNybbles = _mm_and_si128(_mm_srl_epi32(d, shiftCount), mask);
+	d = _mm_unpacklo_epi8(lowNybbles, highNybbles);
+	__m128i d2 = _mm_unpackhi_epi8(lowNybbles, highNybbles);
+
+	convertColumn8(dest, destStride, colNum, a, b, c, d);
+	convertColumn8(dest + 16, destStride, colNum, a2, b2, c2, d2);
 }
 
 #elif defined(USE_NEON)
@@ -472,6 +529,36 @@ void CGSH_OpenGL::TexUpdater_Psm8(uint32 bufPtr, uint32 bufWidth, unsigned int t
 		dst += texWidth * 16;
 	}
 
+	glTexSubImage2D(GL_TEXTURE_2D, 0, texX, texY, texWidth, texHeight, GL_RED, GL_UNSIGNED_BYTE, m_pCvtBuffer);
+	CHECKGLERROR();
+}
+
+void CGSH_OpenGL::TexUpdater_Psm4(unsigned int bufPtr, unsigned int bufWidth, unsigned int texX, unsigned int texY, unsigned int texWidth, unsigned int texHeight)
+{
+	CGsPixelFormats::CPixelIndexorPSMT4 indexor(m_pRAM, bufPtr, bufWidth);
+
+	uint8* dst = m_pCvtBuffer;
+	for(unsigned int y = 0; y < texHeight; y += 16)
+	{
+		for(unsigned int x = 0; x < texWidth; x += 32)
+		{
+			uint8* colDst = dst;
+			uint8* src = indexor.GetPixelAddress(texX + x, texY + y);
+
+			// process an entire 32x16 block.
+			// A column (64 bytes) is 32x4 pixels and they stack vertically in a block
+
+			int colNum = 0;
+			for(unsigned int coly = 0; coly < 16; coly += 4)
+			{
+				convertColumn4(colDst + x, texWidth, src, colNum++);
+				src += 64;
+				colDst += texWidth * 4;
+			}
+		}
+
+		dst += texWidth * 32;
+	}
 	glTexSubImage2D(GL_TEXTURE_2D, 0, texX, texY, texWidth, texHeight, GL_RED, GL_UNSIGNED_BYTE, m_pCvtBuffer);
 	CHECKGLERROR();
 }
