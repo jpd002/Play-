@@ -29,7 +29,7 @@ namespace Iop
 		uint32 SendDma(uint8*, uint32, uint32);
 
 		void CountTicks(uint32);
-		
+
 	private:
 		enum SMAP_BD_TX_CTRLSTAT
 		{
@@ -134,7 +134,7 @@ namespace Iop
 		bool m_pendingRx = false;
 		int32 m_rxDelay = 0;
 		uint32 m_rxIndex = 0;
-		
+
 		uint32 m_intrStat = 0;
 		uint32 m_intrMask = 0;
 		uint32 m_eepRomReadIndex = 0;

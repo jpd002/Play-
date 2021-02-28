@@ -38,16 +38,16 @@ void CSpeed::SetEthernetFrameTxHandler(const EthernetFrameTxHandler& ethernetFra
 void CSpeed::RxEthernetFrame(const uint8* frameData, uint32 frameSize)
 {
 	assert(!m_pendingRx);
-	
+
 	m_rxBuffer.resize(frameSize);
 	memcpy(m_rxBuffer.data(), frameData, frameSize);
-	
+
 	auto& bdRx = reinterpret_cast<SMAP_BD*>(m_smapBdRx)[m_rxIndex];
 	assert((bdRx.ctrlStat & SMAP_BD_RX_EMPTY) != 0);
 	bdRx.ctrlStat &= ~SMAP_BD_RX_EMPTY;
 	bdRx.length = frameSize;
 	bdRx.pointer = 0;
-	
+
 	m_rxIndex++;
 	m_rxIndex %= SMAP_BD_SIZE;
 
