@@ -21,6 +21,7 @@ std::string CInputProviderEvDev::GetTargetDescription(const BINDINGTARGET& targe
 
 void CInputProviderEvDev::OnEvDevInputEvent(GamePadDeviceId deviceId, int code, int value, int type, const input_absinfo* abs)
 {
+	if(!OnInput) return;
 	BINDINGTARGET tgt;
 	tgt.providerId = PROVIDER_ID;
 	tgt.deviceId = deviceId;
