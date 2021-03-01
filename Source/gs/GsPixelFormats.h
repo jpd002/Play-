@@ -303,6 +303,25 @@ public:
 			return reinterpret_cast<uint32*>(m_pageOffsets);
 		}
 
+		uint32 GetColumnAddress(unsigned int& nX, unsigned int& nY)
+		{
+			uint32 nPageNum = (nX / Storage::PAGEWIDTH) + (nY / Storage::PAGEHEIGHT) * (m_nWidth * 64) / Storage::PAGEWIDTH;
+
+			nX %= Storage::PAGEWIDTH;
+			nY %= Storage::PAGEHEIGHT;
+
+			uint32 nBlockNum = Storage::m_nBlockSwizzleTable[nY / Storage::BLOCKHEIGHT][nX / Storage::BLOCKWIDTH];
+
+			nX %= Storage::BLOCKWIDTH;
+			nY %= Storage::BLOCKHEIGHT;
+
+			uint32 nColumnNum = (nY / Storage::COLUMNHEIGHT);
+
+			nY %= Storage::COLUMNHEIGHT;
+
+			return (m_nPointer + (nPageNum * PAGESIZE) + (nBlockNum * BLOCKSIZE) + (nColumnNum * COLUMNSIZE)) & (CGSHandler::RAMSIZE - 1);
+		}
+
 	private:
 		static void BuildPageOffsetTable()
 		{
@@ -330,25 +349,6 @@ public:
 			}
 
 			m_pageOffsetsInitialized = true;
-		}
-
-		uint32 GetColumnAddress(unsigned int& nX, unsigned int& nY)
-		{
-			uint32 nPageNum = (nX / Storage::PAGEWIDTH) + (nY / Storage::PAGEHEIGHT) * (m_nWidth * 64) / Storage::PAGEWIDTH;
-
-			nX %= Storage::PAGEWIDTH;
-			nY %= Storage::PAGEHEIGHT;
-
-			uint32 nBlockNum = Storage::m_nBlockSwizzleTable[nY / Storage::BLOCKHEIGHT][nX / Storage::BLOCKWIDTH];
-
-			nX %= Storage::BLOCKWIDTH;
-			nY %= Storage::BLOCKHEIGHT;
-
-			uint32 nColumnNum = (nY / Storage::COLUMNHEIGHT);
-
-			nY %= Storage::COLUMNHEIGHT;
-
-			return (m_nPointer + (nPageNum * PAGESIZE) + (nBlockNum * BLOCKSIZE) + (nColumnNum * COLUMNSIZE)) & (CGSHandler::RAMSIZE - 1);
 		}
 
 		uint32 m_nPointer;

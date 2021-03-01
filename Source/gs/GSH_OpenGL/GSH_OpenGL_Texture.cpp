@@ -542,22 +542,24 @@ void CGSH_OpenGL::TexUpdater_Psm4(unsigned int bufPtr, unsigned int bufWidth, un
 	{
 		for(unsigned int x = 0; x < texWidth; x += 32)
 		{
-			uint8* colDst = dst;
-			uint8* src = indexor.GetPixelAddress(texX + x, texY + y);
+			uint8* colDst = dst+x; 
+			unsigned int nx = texX + x;
+			unsigned int ny = texY + y;
+			uint32 colAddr = indexor.GetColumnAddress(nx, ny);
+			uint8* src = m_pRAM+colAddr;
 
 			// process an entire 32x16 block.
 			// A column (64 bytes) is 32x4 pixels and they stack vertically in a block
 
-			int colNum = 0;
-			for(unsigned int coly = 0; coly < 16; coly += 4)
+			for(unsigned int colNum = 0; colNum < 4; ++colNum)
 			{
-				convertColumn4(colDst + x, texWidth, src, colNum++);
+				convertColumn4(colDst, texWidth, src, colNum);
 				src += 64;
 				colDst += texWidth * 4;
 			}
 		}
 
-		dst += texWidth * 32;
+		dst += texWidth * 16;
 	}
 	glTexSubImage2D(GL_TEXTURE_2D, 0, texX, texY, texWidth, texHeight, GL_RED, GL_UNSIGNED_BYTE, m_pCvtBuffer);
 	CHECKGLERROR();
