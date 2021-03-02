@@ -456,7 +456,10 @@ inline void convertColumn4(uint8* dest, const int destStride, uint8* src, int co
 	__m128i d2 = _mm_unpackhi_epi8(lowNybbles, highNybbles);
 
 	convertColumn8(dest, destStride, colNum, a, b, c, d);
-	convertColumn8(dest + 16, destStride, colNum, a2, b2, c2, d2);
+	if(destStride > 16)
+	{
+		convertColumn8(dest + 16, destStride, colNum, a2, b2, c2, d2);
+	}
 }
 
 #elif defined(USE_NEON)
@@ -543,10 +546,10 @@ void CGSH_OpenGL::TexUpdater_Psm8(uint32 bufPtr, uint32 bufWidth, unsigned int t
 
 void CGSH_OpenGL::TexUpdater_Psm4(unsigned int bufPtr, unsigned int bufWidth, unsigned int texX, unsigned int texY, unsigned int texWidth, unsigned int texHeight)
 {
-	if(texWidth < 32)
+	if(texWidth < 16)
 	{
 		// Widths are powers of 2, so anything over 32 will be an integral number of columns wide.
-		// TODO: can can also deal with 16 wide using SIMD.
+		// 16 wide textures are dealt with as a special case in the SIMD code.
 		// Note: for small textures it still may be a win to do the SIMD swizzle and then cut out the sub-region to
 		// correct the row stride.
 		return CGSH_OpenGL::TexUpdater_Psm48<CGsPixelFormats::CPixelIndexorPSMT4>(bufPtr, bufWidth, texX, texY, texWidth, texHeight);
