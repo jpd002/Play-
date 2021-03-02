@@ -505,6 +505,14 @@ void convertColumn8(uint8* dest, const int destStride, uint8* src, int colNum)
 
 void CGSH_OpenGL::TexUpdater_Psm8(uint32 bufPtr, uint32 bufWidth, unsigned int texX, unsigned int texY, unsigned int texWidth, unsigned int texHeight)
 {
+	if(texWidth < 16)
+	{
+		// Widths are powers of 2, so anything over 16 will be an integral number of columns wide.
+		// Note: for small textures it still may be a win to do the SIMD swizzle and then cut out the sub-region to
+		// correct the row stride.
+		return CGSH_OpenGL::TexUpdater_Psm48<CGsPixelFormats::CPixelIndexorPSMT8>(bufPtr, bufWidth, texX, texY, texWidth, texHeight);
+	}
+
 	CGsPixelFormats::CPixelIndexorPSMT8 indexor(m_pRAM, bufPtr, bufWidth);
 	uint8* dst = m_pCvtBuffer;
 	for(unsigned int y = 0; y < texHeight; y += 16)
@@ -535,6 +543,15 @@ void CGSH_OpenGL::TexUpdater_Psm8(uint32 bufPtr, uint32 bufWidth, unsigned int t
 
 void CGSH_OpenGL::TexUpdater_Psm4(unsigned int bufPtr, unsigned int bufWidth, unsigned int texX, unsigned int texY, unsigned int texWidth, unsigned int texHeight)
 {
+	if(texWidth < 32)
+	{
+		// Widths are powers of 2, so anything over 32 will be an integral number of columns wide.
+		// TODO: can can also deal with 16 wide using SIMD.
+		// Note: for small textures it still may be a win to do the SIMD swizzle and then cut out the sub-region to
+		// correct the row stride.
+		return CGSH_OpenGL::TexUpdater_Psm48<CGsPixelFormats::CPixelIndexorPSMT4>(bufPtr, bufWidth, texX, texY, texWidth, texHeight);
+	}
+
 	CGsPixelFormats::CPixelIndexorPSMT4 indexor(m_pRAM, bufPtr, bufWidth);
 
 	uint8* dst = m_pCvtBuffer;
