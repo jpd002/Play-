@@ -498,6 +498,8 @@ void CSIF::Cmd_Bind(const SIFCMDHEADER* hdr)
 {
 	auto bind = reinterpret_cast<const SIFRPCBIND*>(hdr);
 
+	uint32 dummyServerId = (bind->serverId == 0) ? ~0 : bind->serverId;
+
 	SIFRPCREQUESTEND rend;
 	memset(&rend, 0, sizeof(SIFRPCREQUESTEND));
 	rend.header.packetSize = sizeof(SIFRPCREQUESTEND);
@@ -509,7 +511,7 @@ void CSIF::Cmd_Bind(const SIFCMDHEADER* hdr)
 	rend.rpcId = bind->rpcId;
 	rend.clientDataAddr = bind->clientDataAddr;
 	rend.commandId = SIF_CMD_BIND;
-	rend.serverDataAddr = bind->serverId;
+	rend.serverDataAddr = dummyServerId;
 	rend.buffer = RPC_RECVADDR;
 	rend.cbuffer = 0xDEADCAFE;
 
@@ -534,9 +536,17 @@ void CSIF::Cmd_Call(const SIFCMDHEADER* hdr)
 
 	CLog::GetInstance().Print(LOG_NAME, "Calling function 0x%08X of module 0x%08X.\r\n", call->rpcNumber, call->serverDataAddr);
 
+	if(call->serverDataAddr == ~0)
+	{
+		int i = 0;
+		i++;
+	}
+
+	uint32 serverDataAddress = (call->serverDataAddr == ~0) ? 0 : call->serverDataAddr;
+
 	uint32 nRecvAddr = (call->recv & (PS2::EE_RAM_SIZE - 1));
 
-	auto moduleIterator(m_modules.find(call->serverDataAddr));
+	auto moduleIterator(m_modules.find(serverDataAddress));
 	if(moduleIterator != std::end(m_modules))
 	{
 		CSifModule* pModule(moduleIterator->second);
@@ -547,7 +557,7 @@ void CSIF::Cmd_Call(const SIFCMDHEADER* hdr)
 	}
 	else
 	{
-		CLog::GetInstance().Print(LOG_NAME, "Called an unknown module (0x%08X).\r\n", call->serverDataAddr);
+		CLog::GetInstance().Print(LOG_NAME, "Called an unknown module (0x%08X).\r\n", serverDataAddress);
 	}
 
 	{
@@ -571,11 +581,11 @@ void CSIF::Cmd_Call(const SIFCMDHEADER* hdr)
 		{
 			//Hold the packet
 			//We assume that there's only one call that
-			assert(m_callReplies.find(call->serverDataAddr) == m_callReplies.end());
+			assert(m_callReplies.find(serverDataAddress) == m_callReplies.end());
 			CALLREQUESTINFO requestInfo;
 			requestInfo.reply = rend;
 			requestInfo.call = *call;
-			m_callReplies[call->serverDataAddr] = requestInfo;
+			m_callReplies[serverDataAddress] = requestInfo;
 		}
 	}
 }
