@@ -7,6 +7,7 @@
 #include <QFont>
 #include <QVBoxLayout>
 #include <QTextLayout>
+#include <cmath>
 
 #include "string_format.h"
 #include "MemoryViewTable.h"
