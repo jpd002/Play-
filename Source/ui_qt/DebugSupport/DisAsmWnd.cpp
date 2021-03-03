@@ -8,6 +8,7 @@
 #include <QMessageBox>
 #include <QHeaderView>
 #include <QTextLayout>
+#include <cmath>
 
 #include "DisAsmWnd.h"
 #include "ee/VuAnalysis.h"
