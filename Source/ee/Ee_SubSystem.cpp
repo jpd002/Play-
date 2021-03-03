@@ -345,13 +345,6 @@ void CSubSystem::NotifyVBlankStart()
 		//if vsync flag was set, we want to make sure interrupt is caught
 		CheckPendingInterrupts();
 	}
-	//Give some breathing room for games to check registers and
-	//prevent idle loop detection from kicking in too early
-	//(Tony Hawk Pro Skater 3 is sensitive to this)
-	for(auto& statusRegisterCheckerPair : m_statusRegisterCheckers)
-	{
-		statusRegisterCheckerPair.second = std::max<int32>(0, statusRegisterCheckerPair.second - 100);
-	}
 }
 
 void CSubSystem::NotifyVBlankEnd()
@@ -462,12 +455,26 @@ uint32 CSubSystem::IOPortReadHandler(uint32 nAddress)
 
 	if((nAddress == CINTC::INTC_STAT) || (nAddress == CGSHandler::GS_CSR))
 	{
-		static const uint32 checkCountMax = 5000;
-		uint32& checkCount = m_statusRegisterCheckers[m_EE.m_State.nPC];
-		checkCount = std::min<uint32>(checkCount + 1, checkCountMax);
-		if(checkCount == checkCountMax)
+		//Some games will loop checking for the vblank start interrupt or vblank event
+		//This is usually a good sign indicating that the game is idling
+		//Games sensitive to changes in the scheme:
+		//- Tony Hawk Pro Skater 3
+		//- Spongebob Squarepants: The Movie
+		//- Gundam: Federation vs. Zeon
+		//- Castlevania: Curse of Darkness
+		//Games also need to catch the interrupt flag before the interrupt is serviced,
+		//extra care is needed in NotifyVBlankStart not to break this
+
+		//Only consider user code (non-kernel code) for idle loop detection
+		if(m_EE.m_State.nPC < PS2::EE_RAM_SIZE)
 		{
-			m_EE.m_State.nHasException = MIPS_EXCEPTION_IDLE;
+			static const uint32 checkCountMax = 5000;
+			uint32& checkCount = m_statusRegisterCheckers[m_EE.m_State.nPC];
+			checkCount = std::min<uint32>(checkCount + 1, checkCountMax);
+			if(checkCount == checkCountMax)
+			{
+				m_EE.m_State.nHasException = MIPS_EXCEPTION_IDLE;
+			}
 		}
 	}
 
