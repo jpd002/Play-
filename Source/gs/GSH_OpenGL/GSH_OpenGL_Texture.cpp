@@ -467,9 +467,6 @@ inline void convertColumn4(uint8* dest, const int destStride, uint8* src, int co
 
 inline void convertColumn8(uint8x16x4_t data, uint8* dest, const int destStride, int colNum)
 {
-	// This sucks in the entire column and de-interleaves it
-	uint8x16x4_t data = vld4q_u8(src);
-
 	uint16x8_t row0 = vcombine_u16(vmovn_u32(vreinterpretq_u32_u8(data.val[0])), vmovn_u32(vreinterpretq_u32_u8(data.val[2])));
 	uint16x8_t revr0 = vrev32q_u16(vreinterpretq_u16_u8(data.val[0]));
 	uint16x8_t revr2 = vrev32q_u16(vreinterpretq_u16_u8(data.val[2]));
@@ -497,7 +494,7 @@ inline void convertColumn8(uint8x16x4_t data, uint8* dest, const int destStride,
 	vst1q_u8(dest + 3 * destStride, vreinterpretq_u8_u16(row3));
 }
 
-inline void convertColumn8(uint8* dest, const int destStride, int colNum)
+inline void convertColumn8(uint8* dest, const int destStride, uint8* src, int colNum)
 {
 	// This sucks in the entire column and de-interleaves it
 	uint8x16x4_t data = vld4q_u8(src);
