@@ -71,6 +71,7 @@ namespace Iop
 		int32 WriteVirtual(CMIPS&);
 		int32 SeekVirtual(CMIPS&);
 		int32 AddDrv(CMIPS&);
+		int32 DevCtlVirtual(CMIPS&);
 
 		uint32 GetFileMode(uint32) const;
 

@@ -39,6 +39,7 @@ using namespace Iop;
 #define FUNCTION_MOUNT "Mount"
 #define FUNCTION_UMOUNT "Umount"
 #define FUNCTION_SEEK64 "Seek64"
+#define FUNCTION_DEVCTL "DevCtl"
 
 //Directories have "group read" only permissions? This is required by PS2PSXe.
 #define STAT_MODE_DIR (0747 | (1 << 12))  //File mode + Dir type (1)
@@ -190,6 +191,9 @@ std::string CIoman::GetFunctionName(unsigned int functionId) const
 		break;
 	case 21:
 		return FUNCTION_DELDRV;
+		break;
+	case 31:
+		return FUNCTION_DEVCTL;
 		break;
 	default:
 		return "unknown";
@@ -493,6 +497,25 @@ uint32 CIoman::DelDrv(uint32 drvNamePtr)
 	CLog::GetInstance().Print(LOG_NAME, FUNCTION_DELDRV "(drvNamePtr = %s);\r\n",
 	                          PrintStringParameter(m_ram, drvNamePtr).c_str());
 	return -1;
+}
+
+int32 CIoman::DevCtlVirtual(CMIPS& context)
+{
+	uint32 deviceNamePtr = context.m_State.nGPR[CMIPS::A0].nV0;
+	uint32 commandId = context.m_State.nGPR[CMIPS::A1].nV0;
+	uint32 inputPtr = context.m_State.nGPR[CMIPS::A2].nV0;
+	uint32 inputSize = context.m_State.nGPR[CMIPS::A3].nV0;
+	uint32 outputPtr = context.m_pMemoryMap->GetWord(context.m_State.nGPR[CMIPS::SP].nV0 + 0x10);
+	uint32 outputSize = context.m_pMemoryMap->GetWord(context.m_State.nGPR[CMIPS::SP].nV0 + 0x14);
+
+	CLog::GetInstance().Print(LOG_NAME, FUNCTION_DEVCTL "(deviceName = %s, cmd = 0x%08X, input = 0x%08X, inputSize = 0x%08X, output = 0x%08X, outputSize = 0x%08X);\r\n",
+	                          PrintStringParameter(m_ram, deviceNamePtr).c_str(), commandId, inputPtr, inputSize, outputPtr, outputSize);
+	
+	auto deviceName = reinterpret_cast<const char*>(m_ram + deviceNamePtr);
+	auto input = reinterpret_cast<const uint32*>(m_ram + inputPtr);
+	auto output = reinterpret_cast<uint32*>(m_ram + outputPtr);
+	
+	return DevCtl(deviceName, commandId, input, inputSize, output, outputSize);
 }
 
 int32 CIoman::Mount(const char* fsName, const char* devicePath)
@@ -943,6 +966,9 @@ void CIoman::Invoke(CMIPS& context, unsigned int functionId)
 	case 21:
 		context.m_State.nGPR[CMIPS::V0].nD0 = static_cast<int32>(DelDrv(
 		    context.m_State.nGPR[CMIPS::A0].nV0));
+		break;
+	case 31:
+		context.m_State.nGPR[CMIPS::V0].nD0 = DevCtlVirtual(context);
 		break;
 	default:
 		CLog::GetInstance().Warn(LOG_NAME, "%s(%08X): Unknown function (%d) called.\r\n", __FUNCTION__, context.m_State.nPC, functionId);
