@@ -425,7 +425,7 @@ void CIopBios::RequestModuleStart(bool stopRequest, uint32 moduleId, const char*
 	assert(requestPtr != 0);
 	if(requestPtr == 0)
 	{
-		CLog::GetInstance().Print(LOGNAME, "Too many modules to be loaded.");
+		CLog::GetInstance().Warn(LOGNAME, "Too many modules to be loaded.");
 		return;
 	}
 
@@ -749,20 +749,20 @@ int32 CIopBios::StopModule(uint32 loadedModuleId)
 	auto loadedModule = m_loadedModules[loadedModuleId];
 	if(loadedModule == nullptr)
 	{
-		CLog::GetInstance().Print(LOGNAME, "StopModule failed because specified module (%d) doesn't exist.\r\n",
-		                          loadedModuleId);
+		CLog::GetInstance().Warn(LOGNAME, "StopModule failed because specified module (%d) doesn't exist.\r\n",
+		                         loadedModuleId);
 		return -1;
 	}
 	if(loadedModule->state != MODULE_STATE::STARTED)
 	{
-		CLog::GetInstance().Print(LOGNAME, "StopModule failed because specified module (%d) wasn't started.\r\n",
-		                          loadedModuleId);
+		CLog::GetInstance().Warn(LOGNAME, "StopModule failed because specified module (%d) wasn't started.\r\n",
+		                         loadedModuleId);
 		return -1;
 	}
 	if(loadedModule->residentState != MODULE_RESIDENT_STATE::REMOVABLE_RESIDENT_END)
 	{
-		CLog::GetInstance().Print(LOGNAME, "StopModule failed because specified module (%d) isn't removable.\r\n",
-		                          loadedModuleId);
+		CLog::GetInstance().Warn(LOGNAME, "StopModule failed because specified module (%d) isn't removable.\r\n",
+		                         loadedModuleId);
 		return -1;
 	}
 	RequestModuleStart(true, loadedModuleId, "other", nullptr, 0);
