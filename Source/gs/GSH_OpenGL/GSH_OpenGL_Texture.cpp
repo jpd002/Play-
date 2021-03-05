@@ -465,7 +465,7 @@ inline void convertColumn4(uint8* dest, const int destStride, uint8* src, int co
 #elif defined(USE_NEON)
 #include <arm_neon.h>
 
-inline void convertColumn8(uint8* dest, const int destStride, uint8* src, int colNum)
+inline void convertColumn8(uint8x16x4_t data, uint8* dest, const int destStride, int colNum)
 {
 	// This sucks in the entire column and de-interleaves it
 	uint8x16x4_t data = vld4q_u8(src);
@@ -496,6 +496,50 @@ inline void convertColumn8(uint8* dest, const int destStride, uint8* src, int co
 	vst1q_u8(dest + 2 * destStride, vreinterpretq_u8_u16(row2));
 	vst1q_u8(dest + 3 * destStride, vreinterpretq_u8_u16(row3));
 }
+
+inline void convertColumn8(uint8* dest, const int destStride, int colNum)
+{
+	// This sucks in the entire column and de-interleaves it
+	uint8x16x4_t data = vld4q_u8(src);
+	convertColumn8(data, dest, destStride, colNum);
+}
+
+inline void convertColumn4(uint8* dest, const int destStride, uint8* src, int colNum)
+{
+	// https://developer.arm.com/architectures/instruction-sets/simd-isas/neon/intrinsics
+
+	uint8x16x4_t data = vld4q_u8(src);
+
+	const auto mask = vdupq_n_u8(0x0F);
+
+	auto high_nybbles = vshrq_n_u8(data.val[0], 4);
+	auto lo_nybbles = vandq_u8(data.val[0], mask);
+
+	uint8x16x4_t col8Data;
+	col8Data.val[0] = lo_nybbles;
+	col8Data.val[1] = high_nybbles;
+
+	high_nybbles = vshrq_n_u8(data.val[1], 4);
+	lo_nybbles = vandq_u8(data.val[1], mask);
+	col8Data.val[2] = lo_nybbles;
+	col8Data.val[3] = high_nybbles;
+	convertColumn8(col8Data, dest, destStride, colNum);
+
+	if(destStride > 16)
+	{
+
+		high_nybbles = vshrq_n_u8(data.val[2], 4);
+		lo_nybbles = vandq_u8(data.val[2], mask);
+		col8Data.val[0] = lo_nybbles;
+		col8Data.val[1] = high_nybbles;
+		high_nybbles = vshrq_n_u8(data.val[3], 4);
+		lo_nybbles = vandq_u8(data.val[3], mask);
+		col8Data.val[2] = lo_nybbles;
+		col8Data.val[3] = high_nybbles;
+		convertColumn8(col8Data, dest + 16, destStride, colNum);
+	}
+}
+
 #else
 /*
 // If we have a platform that does not have SIMD then implement the basic case here.
