@@ -36,6 +36,8 @@ using namespace Iop;
 #define FUNCTION_SIFEXECREQUEST "SifExecRequest"
 #define FUNCTION_SIFRPCLOOP "SifRpcLoop"
 #define FUNCTION_SIFGETOTHERDATA "SifGetOtherData"
+#define FUNCTION_SIFREMOVERPC "SifRemoveRpc"
+#define FUNCTION_SIFREMOVERPCQUEUE "SifRemoveRpcQueue"
 #define FUNCTION_SIFSENDCMDINTR "SifSendCmdIntr"
 #define FUNCTION_FINISHEXECREQUEST "FinishExecRequest"
 #define FUNCTION_FINISHEXECCMD "FinishExecCmd"
@@ -158,6 +160,12 @@ std::string CSifCmd::GetFunctionName(unsigned int functionId) const
 	case 23:
 		return FUNCTION_SIFGETOTHERDATA;
 		break;
+	case 24:
+		return FUNCTION_SIFREMOVERPC;
+		break;
+	case 25:
+		return FUNCTION_SIFREMOVERPCQUEUE;
+		break;
 	case 28:
 		return FUNCTION_SIFSENDCMDINTR;
 		break;
@@ -248,6 +256,15 @@ void CSifCmd::Invoke(CMIPS& context, unsigned int functionId)
 		    context.m_State.nGPR[CMIPS::A2].nV0,
 		    context.m_State.nGPR[CMIPS::A3].nV0,
 		    context.m_pMemoryMap->GetWord(context.m_State.nGPR[CMIPS::SP].nV0 + 0x10));
+		break;
+	case 24:
+		context.m_State.nGPR[CMIPS::V0].nV0 = SifRemoveRpc(
+		    context.m_State.nGPR[CMIPS::A0].nV0,
+		    context.m_State.nGPR[CMIPS::A1].nV0);
+		break;
+	case 25:
+		context.m_State.nGPR[CMIPS::V0].nV0 = SifRemoveRpcQueue(
+		    context.m_State.nGPR[CMIPS::A0].nV0);
 		break;
 	case 28:
 		context.m_State.nGPR[CMIPS::V0].nV0 = SifSendCmdIntr(
@@ -912,6 +929,38 @@ void CSifCmd::SifRpcLoop(CMIPS& context)
 	CLog::GetInstance().Print(LOG_NAME, FUNCTION_SIFRPCLOOP "(queue = 0x%08X);\r\n",
 	                          queueAddr);
 	context.m_State.nPC = m_sifRpcLoopAddr;
+}
+
+uint32 CSifCmd::SifRemoveRpc(uint32 serverDataAddr, uint32 queueDataAddr)
+{
+	CLog::GetInstance().Print(LOG_NAME, FUNCTION_SIFREMOVERPC "(server = 0x%08X, queue = 0x%08X);\r\n",
+	                          serverDataAddr, queueDataAddr);
+
+	if(serverDataAddr == 0)
+	{
+		CLog::GetInstance().Warn(LOG_NAME, FUNCTION_SIFREMOVERPC ": serverDataAddr is null.\r\n");
+		return 0;
+	}
+
+	auto serverData = reinterpret_cast<const SIFRPCSERVERDATA*>(&m_ram[serverDataAddr]);
+
+	bool registered = m_sifMan.IsModuleRegistered(serverData->serverId);
+	if(!registered)
+	{
+		CLog::GetInstance().Warn(LOG_NAME, FUNCTION_SIFREMOVERPC ": server not registered.\r\n");
+		return 0;
+	}
+
+	m_sifMan.UnregisterModule(serverData->serverId);
+
+	return 1;
+}
+
+uint32 CSifCmd::SifRemoveRpcQueue(uint32 queueDataAddr)
+{
+	CLog::GetInstance().Print(LOG_NAME, FUNCTION_SIFREMOVERPCQUEUE "(queue = 0x%08X);\r\n",
+	                          queueDataAddr);
+	return 1;
 }
 
 uint32 CSifCmd::SifGetOtherData(uint32 packetPtr, uint32 src, uint32 dst, uint32 size, uint32 mode)
