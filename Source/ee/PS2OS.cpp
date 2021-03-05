@@ -1300,7 +1300,10 @@ bool CPS2OS::SemaReleaseSingleThread(uint32 semaId, bool cancelled)
 	}
 
 	//Something went wrong if nothing changed
-	assert(changed);
+	if(!changed)
+	{
+		CLog::GetInstance().Warn(LOG_NAME, "SemaReleaseSingleThread: Had to release a single thread but it was not possible. Something could be in a wrong state.\r\n");
+	}
 	return changed;
 }
 

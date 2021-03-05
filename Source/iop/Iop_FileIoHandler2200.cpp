@@ -530,7 +530,7 @@ uint32 CFileIoHandler2200::InvokeDevctl(uint32* args, uint32 argsSize, uint32* r
 		result = 0x10;
 		break;
 	default:
-		CLog::GetInstance().Warn(LOG_NAME, "Unknown(cmd = 0x%08X);\r\n", command->cmdId);
+		CLog::GetInstance().Warn(LOG_NAME, "DevCtl -> Unknown(cmd = 0x%08X);\r\n", command->cmdId);
 		break;
 	}
 
