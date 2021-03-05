@@ -17,16 +17,6 @@
 
 using namespace Iop;
 
-#define DEVCTL_CDVD_GETERROR 0x4320
-#define DEVCTL_CDVD_DISKREADY 0x4325
-
-#define DEVCTL_HDD_STATUS 0x4807
-#define DEVCTL_HDD_TOTALSECTOR 0x4802
-#define DEVCTL_HDD_FREESECTOR 0x480A
-
-#define DEVCTL_PFS_ZONESIZE 0x5001
-#define DEVCTL_PFS_ZONEFREE 0x5002
-
 #define IOCTL_HDD_ADDSUB 0x6801
 
 CFileIoHandler2200::CFileIoHandler2200(CIoman* ioman, CSifMan& sifMan)
@@ -484,7 +474,7 @@ uint32 CFileIoHandler2200::InvokeSeek64(uint32* args, uint32 argsSize, uint32* r
 uint32 CFileIoHandler2200::InvokeDevctl(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, uint8* ram)
 {
 	//This is used by Romancing Saga and FFX with 'hdd0:' parameter.
-	//This is also used by Phantasy Star Collection with 'cdrom0:' parameter.
+	//This is also used by Phantasy Star Collection & PS Universe with 'cdrom0:' parameter.
 
 	assert(argsSize >= 0x81C);
 	assert(retSize == 4);
@@ -492,48 +482,8 @@ uint32 CFileIoHandler2200::InvokeDevctl(uint32* args, uint32 argsSize, uint32* r
 
 	uint32* input = reinterpret_cast<uint32*>(command->inputBuffer);
 	uint32* output = reinterpret_cast<uint32*>(ram + command->outputPtr);
-	uint32 result = 0;
-
-	CLog::GetInstance().Print(LOG_NAME, "DevCtl('%s') -> ", command->device);
-
-	switch(command->cmdId)
-	{
-	case DEVCTL_CDVD_GETERROR:
-		assert(command->outputSize == 4);
-		CLog::GetInstance().Print(LOG_NAME, "CdGetError();\r\n");
-		output[0] = 0; //No error
-		break;
-	case DEVCTL_CDVD_DISKREADY:
-		assert(command->inputSize == 4);
-		assert(command->outputSize == 4);
-		CLog::GetInstance().Print(LOG_NAME, "CdDiskReady(%d);\r\n", input[0]);
-		output[0] = 2; //Disk ready
-		break;
-	case DEVCTL_HDD_STATUS:
-		CLog::GetInstance().Print(LOG_NAME, "HddStatus();\r\n");
-		break;
-	case DEVCTL_HDD_TOTALSECTOR:
-		CLog::GetInstance().Print(LOG_NAME, "HddTotalSector();\r\n");
-		result = 0x400000; //Number of sectors
-		break;
-	case DEVCTL_HDD_FREESECTOR:
-		assert(command->outputSize == 4);
-		CLog::GetInstance().Print(LOG_NAME, "HddFreeSector();\r\n");
-		output[0] = 0x400000; //Number of sectors
-		break;
-	case DEVCTL_PFS_ZONESIZE:
-		CLog::GetInstance().Print(LOG_NAME, "PfsZoneSize();\r\n");
-		result = 0x1000000;
-		break;
-	case DEVCTL_PFS_ZONEFREE:
-		CLog::GetInstance().Print(LOG_NAME, "PfsZoneFree();\r\n");
-		result = 0x10;
-		break;
-	default:
-		CLog::GetInstance().Warn(LOG_NAME, "DevCtl -> Unknown(cmd = 0x%08X);\r\n", command->cmdId);
-		break;
-	}
-
+	auto result = m_ioman->DevCtl(command->device, command->cmdId, input, command->inputSize, output, command->outputSize);
+	
 	PrepareGenericReply(ram, command->header, COMMANDID_DEVCTL, result);
 	SendSifReply();
 	return 1;

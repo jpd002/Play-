@@ -61,6 +61,7 @@ namespace Iop
 		int32 Mount(const char*, const char*);
 		int32 Umount(const char*);
 		uint64 Seek64(uint32, int64, uint32);
+		int32 DevCtl(const char*, uint32, const uint32*, uint32, uint32*, uint32);
 
 		//These are to be called from VM code, because they might
 		//execute user device code

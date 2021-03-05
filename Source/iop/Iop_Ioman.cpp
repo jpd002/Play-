@@ -47,6 +47,17 @@ using namespace Iop;
 /** No such file or directory */
 #define ERROR_ENOENT 2
 
+//Ref: https://github.com/ps2homebrew/Open-PS2-Loader/blob/master/modules/iopcore/common/cdvdman.h
+#define DEVCTL_CDVD_GETERROR 0x4320
+#define DEVCTL_CDVD_DISKREADY 0x4325
+
+#define DEVCTL_HDD_STATUS 0x4807
+#define DEVCTL_HDD_TOTALSECTOR 0x4802
+#define DEVCTL_HDD_FREESECTOR 0x480A
+
+#define DEVCTL_PFS_ZONESIZE 0x5001
+#define DEVCTL_PFS_ZONEFREE 0x5002
+
 static std::string RightTrim(std::string inputString)
 {
 	auto nonSpaceEnd = std::find_if(inputString.rbegin(), inputString.rend(), [](int ch) { return !std::isspace(ch); });
@@ -555,6 +566,49 @@ uint64 CIoman::Seek64(uint32 handle, int64 position, uint32 whence)
 	catch(const std::exception& except)
 	{
 		CLog::GetInstance().Warn(LOG_NAME, "%s: Error occured while trying to seek file : %s\r\n", __FUNCTION__, except.what());
+	}
+	return result;
+}
+
+int32 CIoman::DevCtl(const char* deviceName, uint32 command, const uint32* input, uint32 inputSize, uint32* output, uint32 outputSize)
+{
+	uint32 result = 0;
+	switch(command)
+	{
+	case DEVCTL_CDVD_GETERROR:
+		assert(outputSize == 4);
+		CLog::GetInstance().Print(LOG_NAME, "CdGetError();\r\n");
+		output[0] = 0; //No error
+		break;
+	case DEVCTL_CDVD_DISKREADY:
+		assert(inputSize == 4);
+		assert(outputSize == 4);
+		CLog::GetInstance().Print(LOG_NAME, "CdDiskReady(%d);\r\n", input[0]);
+		output[0] = 2; //Disk ready
+		break;
+	case DEVCTL_HDD_STATUS:
+		CLog::GetInstance().Print(LOG_NAME, "HddStatus();\r\n");
+		break;
+	case DEVCTL_HDD_TOTALSECTOR:
+		CLog::GetInstance().Print(LOG_NAME, "HddTotalSector();\r\n");
+		result = 0x400000; //Number of sectors
+		break;
+	case DEVCTL_HDD_FREESECTOR:
+		assert(outputSize == 4);
+		CLog::GetInstance().Print(LOG_NAME, "HddFreeSector();\r\n");
+		output[0] = 0x400000; //Number of sectors
+		break;
+	case DEVCTL_PFS_ZONESIZE:
+		CLog::GetInstance().Print(LOG_NAME, "PfsZoneSize();\r\n");
+		result = 0x1000000;
+		break;
+	case DEVCTL_PFS_ZONEFREE:
+		CLog::GetInstance().Print(LOG_NAME, "PfsZoneFree();\r\n");
+		result = 0x10;
+		break;
+	default:
+		CLog::GetInstance().Warn(LOG_NAME, "DevCtl -> Unknown(deviceName = '%s', cmd = 0x%08X);\r\n", deviceName, command);
+		break;
 	}
 	return result;
 }
