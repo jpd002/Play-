@@ -39,6 +39,7 @@ namespace Ee
 			SYSCALL_MC2_READFILE_ASYNC = 0x805,
 			SYSCALL_MC2_WRITEFILE_ASYNC = 0x806,
 			SYSCALL_MC2_CREATEFILE_ASYNC = 0x807,
+			SYSCALL_MC2_DELETE_ASYNC = 0x808,
 			SYSCALL_MC2_GETDIR_ASYNC = 0x80A,
 			SYSCALL_MC2_MKDIR_ASYNC = 0x80B,
 			SYSCALL_MC2_CHDIR_ASYNC = 0x80C,
@@ -69,6 +70,7 @@ namespace Ee
 		int32 CheckAsync(uint32, uint32, uint32);
 		int32 GetInfoAsync(uint32, uint32);
 		int32 CreateFileAsync(uint32, uint32);
+		int32 DeleteAsync(uint32, uint32);
 		int32 GetDirAsync(uint32, uint32, uint32, int32, uint32, uint32);
 		int32 MkDirAsync(uint32, uint32);
 		int32 ChDirAsync(uint32, uint32, uint32);
@@ -86,6 +88,7 @@ namespace Ee
 		uint32 m_getInfoAsyncPtr = 0;
 		uint32 m_writeFileAsyncPtr = 0;
 		uint32 m_createFileAsyncPtr = 0;
+		uint32 m_deleteAsyncPtr = 0;
 		uint32 m_getDirAsyncPtr = 0;
 		uint32 m_mkDirAsyncPtr = 0;
 		uint32 m_chDirAsyncPtr = 0;

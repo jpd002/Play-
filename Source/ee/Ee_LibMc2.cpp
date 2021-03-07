@@ -104,6 +104,9 @@ uint32 CLibMc2::AnalyzeFunction(uint32 startAddress, int16 stackAlloc)
 			case 0x07:
 				m_createFileAsyncPtr = startAddress;
 				break;
+			case 0x08:
+				m_deleteAsyncPtr = startAddress;
+				break;
 			case 0x0A:
 				if(stackAlloc < 0x100)
 				{
@@ -179,6 +182,7 @@ void CLibMc2::HookLibMc2Functions()
 	WriteSyscall(m_readFileAsyncPtr, SYSCALL_MC2_READFILE_ASYNC);
 	WriteSyscall(m_writeFileAsyncPtr, SYSCALL_MC2_WRITEFILE_ASYNC);
 	WriteSyscall(m_createFileAsyncPtr, SYSCALL_MC2_CREATEFILE_ASYNC);
+	WriteSyscall(m_deleteAsyncPtr, SYSCALL_MC2_DELETE_ASYNC);
 	WriteSyscall(m_getDirAsyncPtr, SYSCALL_MC2_GETDIR_ASYNC);
 	WriteSyscall(m_mkDirAsyncPtr, SYSCALL_MC2_MKDIR_ASYNC);
 	WriteSyscall(m_chDirAsyncPtr, SYSCALL_MC2_CHDIR_ASYNC);
@@ -249,6 +253,11 @@ void CLibMc2::HandleSyscall(CMIPS& ee)
 		break;
 	case SYSCALL_MC2_CREATEFILE_ASYNC:
 		ee.m_State.nGPR[CMIPS::V0].nD0 = CreateFileAsync(
+		    ee.m_State.nGPR[CMIPS::A0].nV0,
+		    ee.m_State.nGPR[CMIPS::A1].nV0);
+		break;
+	case SYSCALL_MC2_DELETE_ASYNC:
+		ee.m_State.nGPR[CMIPS::V0].nD0 = DeleteAsync(
 		    ee.m_State.nGPR[CMIPS::A0].nV0,
 		    ee.m_State.nGPR[CMIPS::A1].nV0);
 		break;
@@ -383,6 +392,41 @@ int32 CLibMc2::CreateFileAsync(uint32 socketId, uint32 pathPtr)
 
 	m_lastResult = MC2_RESULT_OK;
 	m_lastCmd = SYSCALL_MC2_CREATEFILE_ASYNC & 0xFF;
+
+	return 0;
+}
+
+int32 CLibMc2::DeleteAsync(uint32 socketId, uint32 pathPtr)
+{
+	auto path = reinterpret_cast<const char*>(m_ram + pathPtr);
+
+	CLog::GetInstance().Print(LOG_NAME, "DeleteAsync(socketId = %d, path = '%s');\r\n",
+	                          socketId, path);
+
+	auto mcServ = m_iopBios.GetMcServ();
+	int32 result = 0;
+
+	{
+		Iop::CMcServ::CMD cmd;
+		memset(&cmd, 0, sizeof(cmd));
+		cmd.port = MC_PORT;
+		assert(strlen(path) <= sizeof(cmd.name));
+		strncpy(cmd.name, path, sizeof(cmd.name));
+
+		mcServ->Invoke(Iop::CMcServ::CMD_ID_DELETE, reinterpret_cast<uint32*>(&cmd), sizeof(cmd), reinterpret_cast<uint32*>(&result), sizeof(int32), nullptr);
+	}
+
+	if(result >= 0)
+	{
+		m_lastResult = MC2_RESULT_OK;
+	}
+	else
+	{
+		assert(result == Iop::CMcServ::RET_NO_ENTRY);
+		m_lastResult = MC2_RESULT_ERROR_NOT_FOUND;
+	}
+
+	m_lastCmd = SYSCALL_MC2_DELETE_ASYNC & 0xFF;
 
 	return 0;
 }

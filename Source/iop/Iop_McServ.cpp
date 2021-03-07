@@ -139,7 +139,7 @@ bool CMcServ::Invoke(uint32 method, uint32* args, uint32 argsSize, uint32* ret, 
 	case 0x76: //Used by homebrew (ex.: ps2infones)
 		GetDir(args, argsSize, ret, retSize, ram);
 		break;
-	case 0x0F:
+	case CMD_ID_DELETE:
 	case 0x79:
 		Delete(args, argsSize, ret, retSize, ram);
 		break;
