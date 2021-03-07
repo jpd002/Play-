@@ -257,16 +257,16 @@ void CLibMc2::HandleSyscall(CMIPS& ee)
 		    ee.m_State.nGPR[CMIPS::T0].nV0,
 		    ee.m_State.nGPR[CMIPS::T1].nV0);
 		break;
+	case SYSCALL_MC2_MKDIR_ASYNC:
+		ee.m_State.nGPR[CMIPS::V0].nD0 = MkDirAsync(
+		    ee.m_State.nGPR[CMIPS::A0].nV0,
+		    ee.m_State.nGPR[CMIPS::A1].nV0);
+		break;
 	case SYSCALL_MC2_CHDIR_ASYNC:
 		ee.m_State.nGPR[CMIPS::V0].nD0 = ChDirAsync(
 		    ee.m_State.nGPR[CMIPS::A0].nV0,
 		    ee.m_State.nGPR[CMIPS::A1].nV0,
 		    ee.m_State.nGPR[CMIPS::A2].nV0);
-		break;
-	case SYSCALL_MC2_MKDIR_ASYNC:
-		ee.m_State.nGPR[CMIPS::V0].nD0 = MkDirAsync(
-		    ee.m_State.nGPR[CMIPS::A0].nV0,
-		    ee.m_State.nGPR[CMIPS::A1].nV0);
 		break;
 	case SYSCALL_MC2_SEARCHFILE_ASYNC:
 		ee.m_State.nGPR[CMIPS::V0].nD0 = SearchFileAsync(
@@ -439,6 +439,33 @@ int32 CLibMc2::GetDirAsync(uint32 socketId, uint32 pathPtr, uint32 offset, int32
 	return 0;
 }
 
+int32 CLibMc2::MkDirAsync(uint32 socketId, uint32 pathPtr)
+{
+	auto path = reinterpret_cast<const char*>(m_ram + pathPtr);
+
+	CLog::GetInstance().Print(LOG_NAME, "MkDirAsync(socketId = %d, path = '%s');\r\n",
+	                          socketId, path);
+
+	auto mcServ = m_iopBios.GetMcServ();
+
+	int32 result = 0;
+	Iop::CMcServ::CMD cmd;
+	memset(&cmd, 0, sizeof(cmd));
+	cmd.port = MC_PORT;
+	cmd.flags = 0x40;
+	assert(strlen(path) <= sizeof(cmd.name));
+	strncpy(cmd.name, path, sizeof(cmd.name));
+
+	mcServ->Invoke(Iop::CMcServ::CMD_ID_OPEN, reinterpret_cast<uint32*>(&cmd), sizeof(cmd), reinterpret_cast<uint32*>(&result), sizeof(uint32), nullptr);
+
+	assert(result >= 0);
+
+	m_lastResult = MC2_RESULT_OK;
+	m_lastCmd = SYSCALL_MC2_MKDIR_ASYNC & 0xFF;
+
+	return 0;
+}
+
 int32 CLibMc2::ChDirAsync(uint32 socketId, uint32 pathPtr, uint32 pwdPtr)
 {
 	auto path = reinterpret_cast<const char*>(m_ram + pathPtr);
@@ -468,33 +495,6 @@ int32 CLibMc2::ChDirAsync(uint32 socketId, uint32 pathPtr, uint32 pwdPtr)
 	}
 
 	m_lastCmd = SYSCALL_MC2_CHDIR_ASYNC & 0xFF;
-
-	return 0;
-}
-
-int32 CLibMc2::MkDirAsync(uint32 socketId, uint32 pathPtr)
-{
-	auto path = reinterpret_cast<const char*>(m_ram + pathPtr);
-
-	CLog::GetInstance().Print(LOG_NAME, "MkDirAsync(socketId = %d, path = '%s');\r\n",
-	                          socketId, path);
-
-	auto mcServ = m_iopBios.GetMcServ();
-
-	int32 result = 0;
-	Iop::CMcServ::CMD cmd;
-	memset(&cmd, 0, sizeof(cmd));
-	cmd.port = MC_PORT;
-	cmd.flags = 0x40;
-	assert(strlen(path) <= sizeof(cmd.name));
-	strncpy(cmd.name, path, sizeof(cmd.name));
-
-	mcServ->Invoke(Iop::CMcServ::CMD_ID_OPEN, reinterpret_cast<uint32*>(&cmd), sizeof(cmd), reinterpret_cast<uint32*>(&result), sizeof(uint32), nullptr);
-
-	assert(result >= 0);
-
-	m_lastResult = MC2_RESULT_OK;
-	m_lastCmd = SYSCALL_MC2_MKDIR_ASYNC & 0xFF;
 
 	return 0;
 }
