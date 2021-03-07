@@ -483,7 +483,7 @@ uint32 CFileIoHandler2200::InvokeDevctl(uint32* args, uint32 argsSize, uint32* r
 	uint32* input = reinterpret_cast<uint32*>(command->inputBuffer);
 	uint32* output = reinterpret_cast<uint32*>(ram + command->outputPtr);
 	auto result = m_ioman->DevCtl(command->device, command->cmdId, input, command->inputSize, output, command->outputSize);
-	
+
 	PrepareGenericReply(ram, command->header, COMMANDID_DEVCTL, result);
 	SendSifReply();
 	return 1;

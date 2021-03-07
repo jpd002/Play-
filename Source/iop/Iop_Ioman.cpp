@@ -510,11 +510,11 @@ int32 CIoman::DevCtlVirtual(CMIPS& context)
 
 	CLog::GetInstance().Print(LOG_NAME, FUNCTION_DEVCTL "(deviceName = %s, cmd = 0x%08X, input = 0x%08X, inputSize = 0x%08X, output = 0x%08X, outputSize = 0x%08X);\r\n",
 	                          PrintStringParameter(m_ram, deviceNamePtr).c_str(), commandId, inputPtr, inputSize, outputPtr, outputSize);
-	
+
 	auto deviceName = reinterpret_cast<const char*>(m_ram + deviceNamePtr);
 	auto input = reinterpret_cast<const uint32*>(m_ram + inputPtr);
 	auto output = reinterpret_cast<uint32*>(m_ram + outputPtr);
-	
+
 	return DevCtl(deviceName, commandId, input, inputSize, output, outputSize);
 }
 
