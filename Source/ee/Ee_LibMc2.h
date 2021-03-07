@@ -42,6 +42,7 @@ namespace Ee
 			SYSCALL_MC2_GETDIR_ASYNC = 0x80A,
 			SYSCALL_MC2_MKDIR_ASYNC = 0x80B,
 			SYSCALL_MC2_CHDIR_ASYNC = 0x80C,
+			SYSCALL_MC2_CHMOD_ASYNC = 0x80D,
 			SYSCALL_MC2_SEARCHFILE_ASYNC = 0x80E,
 			SYSCALL_MC2_READFILE2_ASYNC = 0x820,
 			SYSCALL_MC2_WRITEFILE2_ASYNC = 0x821,
@@ -71,6 +72,7 @@ namespace Ee
 		int32 GetDirAsync(uint32, uint32, uint32, int32, uint32, uint32);
 		int32 MkDirAsync(uint32, uint32);
 		int32 ChDirAsync(uint32, uint32, uint32);
+		int32 ChModAsync(uint32, uint32, uint32);
 		int32 SearchFileAsync(uint32, uint32, uint32);
 		int32 ReadFileAsync(uint32, uint32, uint32, uint32, uint32);
 		int32 WriteFileAsync(uint32, uint32, uint32, uint32, uint32);
@@ -87,6 +89,7 @@ namespace Ee
 		uint32 m_getDirAsyncPtr = 0;
 		uint32 m_mkDirAsyncPtr = 0;
 		uint32 m_chDirAsyncPtr = 0;
+		uint32 m_chModAsyncPtr = 0;
 		uint32 m_searchFileAsyncPtr = 0;
 		uint32 m_readFileAsyncPtr = 0;
 		uint32 m_readFile2AsyncPtr = 0;

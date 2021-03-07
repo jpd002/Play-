@@ -118,6 +118,9 @@ uint32 CLibMc2::AnalyzeFunction(uint32 startAddress, int16 stackAlloc)
 			case 0x0C:
 				m_chDirAsyncPtr = startAddress;
 				break;
+			case 0x0D:
+				m_chModAsyncPtr = startAddress;
+				break;
 			case 0x0E:
 				m_searchFileAsyncPtr = startAddress;
 				break;
@@ -179,6 +182,7 @@ void CLibMc2::HookLibMc2Functions()
 	WriteSyscall(m_getDirAsyncPtr, SYSCALL_MC2_GETDIR_ASYNC);
 	WriteSyscall(m_mkDirAsyncPtr, SYSCALL_MC2_MKDIR_ASYNC);
 	WriteSyscall(m_chDirAsyncPtr, SYSCALL_MC2_CHDIR_ASYNC);
+	WriteSyscall(m_chModAsyncPtr, SYSCALL_MC2_CHMOD_ASYNC);
 	WriteSyscall(m_searchFileAsyncPtr, SYSCALL_MC2_SEARCHFILE_ASYNC);
 	if(m_readFile2AsyncPtr != 0)
 	{
@@ -264,6 +268,12 @@ void CLibMc2::HandleSyscall(CMIPS& ee)
 		break;
 	case SYSCALL_MC2_CHDIR_ASYNC:
 		ee.m_State.nGPR[CMIPS::V0].nD0 = ChDirAsync(
+		    ee.m_State.nGPR[CMIPS::A0].nV0,
+		    ee.m_State.nGPR[CMIPS::A1].nV0,
+		    ee.m_State.nGPR[CMIPS::A2].nV0);
+		break;
+	case SYSCALL_MC2_CHMOD_ASYNC:
+		ee.m_State.nGPR[CMIPS::V0].nD0 = ChModAsync(
 		    ee.m_State.nGPR[CMIPS::A0].nV0,
 		    ee.m_State.nGPR[CMIPS::A1].nV0,
 		    ee.m_State.nGPR[CMIPS::A2].nV0);
@@ -495,6 +505,19 @@ int32 CLibMc2::ChDirAsync(uint32 socketId, uint32 pathPtr, uint32 pwdPtr)
 	}
 
 	m_lastCmd = SYSCALL_MC2_CHDIR_ASYNC & 0xFF;
+
+	return 0;
+}
+
+int32 CLibMc2::ChModAsync(uint32 socketId, uint32 pathPtr, uint32 mode)
+{
+	auto path = reinterpret_cast<const char*>(m_ram + pathPtr);
+
+	CLog::GetInstance().Print(LOG_NAME, "ChModAsync(socketId = %d, path = '%s', mode = %d);\r\n",
+	                          socketId, path, mode);
+
+	m_lastResult = MC2_RESULT_OK;
+	m_lastCmd = SYSCALL_MC2_CHMOD_ASYNC & 0xFF;
 
 	return 0;
 }
