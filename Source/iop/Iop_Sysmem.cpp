@@ -106,6 +106,8 @@ void CSysmem::Invoke(CMIPS& context, unsigned int functionId)
 
 bool CSysmem::Invoke(uint32 method, uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, uint8* ram)
 {
+	//On a real console, this is implemented by the FileIO module
+	//The functions that are available depend on the version of that module
 	switch(method)
 	{
 	case 0x01:
@@ -125,13 +127,13 @@ bool CSysmem::Invoke(uint32 method, uint32* args, uint32 argsSize, uint32* ret, 
 		assert(retSize == 4);
 		ret[0] = SifAllocateSystemMemory(args[0], args[1], args[2]);
 		break;
-	case 0x06:
+	case 0x05:
 		ret[0] = m_memorySize;
 		break;
-	case 0x07:
+	case 0x06:
 		ret[0] = QueryMaxFreeMemSize();
 		break;
-	case 0x08:
+	case 0x07:
 		ret[0] = QueryTotalFreeMemSize();
 		break;
 	default:
