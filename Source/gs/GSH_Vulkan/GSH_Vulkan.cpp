@@ -66,7 +66,7 @@ Framework::Vulkan::CInstance CGSH_Vulkan::CreateInstance(bool useValidationLayer
 #if defined(_DEBUG) && !defined(__APPLE__)
 	if(useValidationLayers)
 	{
-		layers.push_back("VK_LAYER_LUNARG_standard_validation");
+		layers.push_back("VK_LAYER_KHRONOS_validation");
 	}
 #endif
 
