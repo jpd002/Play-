@@ -482,8 +482,8 @@ int32 CIoman::AddDrv(CMIPS& context)
 	auto deviceName = device->namePtr ? reinterpret_cast<const char*>(m_ram + device->namePtr) : nullptr;
 	auto deviceDesc = device->descPtr ? reinterpret_cast<const char*>(m_ram + device->descPtr) : nullptr;
 	CLog::GetInstance().Print(LOG_NAME, "Requested registration of device '%s'.\r\n", deviceName);
-	//We only support "cdfs" for now
-	if(!deviceName || strcmp(deviceName, "cdfs"))
+	//We only support "cdfs" & "dev9x" for now
+	if(!deviceName || (strcmp(deviceName, "cdfs") && strcmp(deviceName, "dev9x")))
 	{
 		return -1;
 	}
