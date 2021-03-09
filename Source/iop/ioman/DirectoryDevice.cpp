@@ -30,6 +30,9 @@ Framework::CStream* CDirectoryDevice::GetFile(uint32 accessType, const char* dev
 	const char* mode = nullptr;
 	switch(accessType)
 	{
+	default:
+		assert(0);
+		[[fallthrough]];
 	case 0:
 	case OPEN_FLAG_RDONLY:
 		mode = "rb";
@@ -45,9 +48,6 @@ Framework::CStream* CDirectoryDevice::GetFile(uint32 accessType, const char* dev
 	case(OPEN_FLAG_RDWR | OPEN_FLAG_CREAT):
 	case(OPEN_FLAG_RDWR | OPEN_FLAG_CREAT | OPEN_FLAG_TRUNC):
 		mode = "w+b";
-		break;
-	default:
-		assert(0);
 		break;
 	}
 
