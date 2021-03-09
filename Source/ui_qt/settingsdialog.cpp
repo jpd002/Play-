@@ -93,6 +93,8 @@ void SettingsDialog::LoadPreferences()
 	ui->comboBox_presentation_mode->setCurrentIndex(CAppConfig::GetInstance().GetPreferenceInteger(PREF_CGSHANDLER_PRESENTATION_MODE));
 }
 
+//General Page ---------------------------------
+
 void SettingsDialog::on_comboBox_system_language_currentIndexChanged(int index)
 {
 	CAppConfig::GetInstance().SetPreferenceInteger(PREF_SYSTEM_LANGUAGE, index);
@@ -102,6 +104,8 @@ void SettingsDialog::on_checkBox_limitFrameRate_clicked(bool checked)
 {
 	CAppConfig::GetInstance().SetPreferenceBoolean(PREF_PS2_LIMIT_FRAMERATE, checked);
 }
+
+//Video Page ---------------------------------
 
 void SettingsDialog::on_checkBox_widescreenOutput_clicked(bool checked)
 {
@@ -135,11 +139,6 @@ void SettingsDialog::on_button_vulkanDeviceInfo_clicked()
 #endif
 }
 
-void SettingsDialog::on_checkBox_enable_audio_clicked(bool checked)
-{
-	CAppConfig::GetInstance().SetPreferenceBoolean(PREFERENCE_AUDIO_ENABLEOUTPUT, checked);
-}
-
 void SettingsDialog::on_comboBox_presentation_mode_currentIndexChanged(int index)
 {
 	CAppConfig::GetInstance().SetPreferenceInteger(PREF_CGSHANDLER_PRESENTATION_MODE, index);
@@ -149,6 +148,13 @@ void SettingsDialog::on_comboBox_res_multiplyer_currentIndexChanged(int index)
 {
 	int factor = pow(2, index);
 	CAppConfig::GetInstance().SetPreferenceInteger(PREF_CGSH_OPENGL_RESOLUTION_FACTOR, factor);
+}
+
+//Audio Page ---------------------------------
+
+void SettingsDialog::on_checkBox_enable_audio_clicked(bool checked)
+{
+	CAppConfig::GetInstance().SetPreferenceBoolean(PREFERENCE_AUDIO_ENABLEOUTPUT, checked);
 }
 
 void SettingsDialog::on_spinBox_spuBlockCount_valueChanged(int value)
