@@ -49,6 +49,7 @@ using namespace Iop;
 #define ERROR_ENOENT 2
 
 //Ref: https://github.com/ps2homebrew/Open-PS2-Loader/blob/master/modules/iopcore/common/cdvdman.h
+#define DEVCTL_CDVD_READCLOCK 0x430C
 #define DEVCTL_CDVD_GETERROR 0x4320
 #define DEVCTL_CDVD_DISKREADY 0x4325
 
@@ -598,6 +599,11 @@ int32 CIoman::DevCtl(const char* deviceName, uint32 command, const uint32* input
 	uint32 result = 0;
 	switch(command)
 	{
+	case DEVCTL_CDVD_READCLOCK:
+		assert(inputSize == 0);
+		assert(outputSize == 8);
+		CLog::GetInstance().Print(LOG_NAME, "CdReadClock();\r\n");
+		break;
 	case DEVCTL_CDVD_GETERROR:
 		assert(outputSize == 4);
 		CLog::GetInstance().Print(LOG_NAME, "CdGetError();\r\n");
