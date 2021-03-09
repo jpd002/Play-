@@ -27,6 +27,10 @@ Framework::CStream* CDirectoryDevice::GetFile(uint32 accessType, const char* dev
 	auto basePath = GetBasePath();
 	auto path = Iop::PathUtils::MakeHostPath(basePath, devicePath);
 
+	//Get rid of unwanted flags
+	//Used by Midnight Club 3
+	accessType &= ~OPEN_FLAG_NOWAIT;
+
 	const char* mode = nullptr;
 	switch(accessType)
 	{
