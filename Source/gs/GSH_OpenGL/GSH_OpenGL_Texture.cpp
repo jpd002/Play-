@@ -603,11 +603,11 @@ void CGSH_OpenGL::TexUpdater_Psm4(unsigned int bufPtr, unsigned int bufWidth, un
 	{
 		for(unsigned int x = 0; x < texWidth; x += 32)
 		{
-			uint8* colDst = dst+x; 
+			uint8* colDst = dst + x; 
 			unsigned int nx = texX + x;
 			unsigned int ny = texY + y;
 			uint32 colAddr = indexor.GetColumnAddress(nx, ny);
-			uint8* src = m_pRAM+colAddr;
+			uint8* src = m_pRAM + colAddr;
 
 			// process an entire 32x16 block.
 			// A column (64 bytes) is 32x4 pixels and they stack vertically in a block
