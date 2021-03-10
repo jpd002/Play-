@@ -463,7 +463,7 @@ void CDraw::CreateRenderPass()
 	subpassDependency.dstSubpass = 0;
 	subpassDependency.dstStageMask = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
 	subpassDependency.dstAccessMask = VK_ACCESS_SHADER_WRITE_BIT;
-	subpassDependency.dependencyFlags=VK_DEPENDENCY_BY_REGION_BIT;
+	subpassDependency.dependencyFlags = VK_DEPENDENCY_BY_REGION_BIT;
 
 	auto renderPassCreateInfo = Framework::Vulkan::RenderPassCreateInfo();
 	renderPassCreateInfo.subpassCount = 1;
