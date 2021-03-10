@@ -863,6 +863,10 @@ void CSifCmd::SifRegisterRpc(CMIPS& context)
 		serverData->cfunction = cfunction;
 		serverData->cbuffer = cbuffer;
 		serverData->queueAddr = queueAddr;
+		//If a serverId was already registed before this call to SifRegisterRpc, we mark serverData as
+		//not being active. This is important for SifRemoveRpc because it might try to unregister
+		//something that was present before (ex.: FF12 with MCSERV)
+		serverData->active = moduleRegistered ? false : true;
 	}
 
 	if(queueAddr != 0)
@@ -943,6 +947,11 @@ uint32 CSifCmd::SifRemoveRpc(uint32 serverDataAddr, uint32 queueDataAddr)
 	}
 
 	auto serverData = reinterpret_cast<const SIFRPCSERVERDATA*>(&m_ram[serverDataAddr]);
+	if(!serverData->active)
+	{
+		//Server was not active, don't bother unregistering it
+		return 1;
+	}
 
 	bool registered = m_sifMan.IsModuleRegistered(serverData->serverId);
 	if(!registered)

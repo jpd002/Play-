@@ -58,6 +58,9 @@ namespace Iop
 			uint32 rid;
 
 			uint32 queueAddr;
+
+			//This field is not a part of the real structure, added for bookkeeping reasons.
+			uint32 active;
 		};
 		static_assert(sizeof(SIFRPCSERVERDATA) <= 0x44, "Size of SIFRPCSERVERDATA must be less or equal to 68 bytes.");
 
