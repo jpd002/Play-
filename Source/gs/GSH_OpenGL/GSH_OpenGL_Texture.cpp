@@ -603,7 +603,7 @@ void CGSH_OpenGL::TexUpdater_Psm4(unsigned int bufPtr, unsigned int bufWidth, un
 	{
 		for(unsigned int x = 0; x < texWidth; x += 32)
 		{
-			uint8* colDst = dst + x; 
+			uint8* colDst = dst + x;
 			unsigned int nx = texX + x;
 			unsigned int ny = texY + y;
 			uint32 colAddr = indexor.GetColumnAddress(nx, ny);
