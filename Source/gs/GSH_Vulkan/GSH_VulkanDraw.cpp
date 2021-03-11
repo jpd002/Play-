@@ -252,7 +252,7 @@ void CDraw::FlushVertices()
 		memoryBarrier.dstAccessMask = VK_ACCESS_SHADER_WRITE_BIT;
 
 		m_context->device.vkCmdPipelineBarrier(commandBuffer, VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT, VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT,
-		                                       0, 1, &memoryBarrier, 0, nullptr, 0, nullptr);
+		                                       VK_DEPENDENCY_BY_REGION_BIT, 1, &memoryBarrier, 0, nullptr, 0, nullptr);
 	}
 
 	auto descriptorSetCaps = make_convertible<DESCRIPTORSET_CAPS>(0);
@@ -463,6 +463,7 @@ void CDraw::CreateRenderPass()
 	subpassDependency.dstSubpass = 0;
 	subpassDependency.dstStageMask = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
 	subpassDependency.dstAccessMask = VK_ACCESS_SHADER_WRITE_BIT;
+	subpassDependency.dependencyFlags = VK_DEPENDENCY_BY_REGION_BIT;
 
 	auto renderPassCreateInfo = Framework::Vulkan::RenderPassCreateInfo();
 	renderPassCreateInfo.subpassCount = 1;
