@@ -373,7 +373,7 @@ void CGSH_OpenGLFramedebugger::LoadTextureFromBitmap(const Framework::CBitmap& b
 		glActiveTexture(GL_TEXTURE0 + 4);
 		glGenTextures(1, &m_activeTexture);
 		glBindTexture(GL_TEXTURE_2D, m_activeTexture);
-		glTexImage2D(GL_TEXTURE_2D, 0, textureFormat[0], bitmap.GetWidth(), bitmap.GetHeight(), 0, textureFormat[1], GL_UNSIGNED_BYTE, bitmap.GetPixels());
+		glTexImage2D(GL_TEXTURE_2D, 0, textureFormat[0], bitmap.GetWidth(), bitmap.GetHeight(), 0, textureFormat[1], type, bitmap.GetPixels());
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);

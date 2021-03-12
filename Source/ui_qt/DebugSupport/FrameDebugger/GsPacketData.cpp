@@ -20,7 +20,6 @@ void GsPacketData::appendChild(GsPacketData* item)
 
 GsPacketData* GsPacketData::child(int row)
 {
-	assert(row < 0 || row >= m_children.size());
 	return m_children.at(row);
 }
 
