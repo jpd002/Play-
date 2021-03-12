@@ -43,6 +43,11 @@ void CCueSheet::Read(Framework::CStream& stream)
 			indexCommand->time = ReadCommand(stream);
 			m_commands.push_back(std::move(indexCommand));
 		}
+		else if(nextCommand == "REM")
+		{
+			//Ignore remarks
+			auto remark = stream.ReadLine();
+		}
 		else
 		{
 			auto message = string_format("Unknown command '%s' encountered.", nextCommand.c_str());
