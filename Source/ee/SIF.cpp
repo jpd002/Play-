@@ -10,6 +10,7 @@
 #include "string_format.h"
 
 #define RPC_RECVADDR 0xDEADBEF0
+#define RPC_SERVERID_XOR (0xACACACAC)
 #define SIF_RESETADDR 0 //Only works if equals to 0
 
 #define LOG_NAME ("sif")
@@ -509,7 +510,9 @@ void CSIF::Cmd_Bind(const SIFCMDHEADER* hdr)
 	rend.rpcId = bind->rpcId;
 	rend.clientDataAddr = bind->clientDataAddr;
 	rend.commandId = SIF_CMD_BIND;
-	rend.serverDataAddr = bind->serverId;
+	//serverDataAddr must not be 0 because it indicates that binding has failed
+	//Also, some games use RPC server ID 0 (Resident Evil: Outbreak)
+	rend.serverDataAddr = (bind->serverId ^ RPC_SERVERID_XOR);
 	rend.buffer = RPC_RECVADDR;
 	rend.cbuffer = 0xDEADCAFE;
 
@@ -530,13 +533,14 @@ void CSIF::Cmd_Bind(const SIFCMDHEADER* hdr)
 void CSIF::Cmd_Call(const SIFCMDHEADER* hdr)
 {
 	auto call = reinterpret_cast<const SIFRPCCALL*>(hdr);
+	uint32 serverId = call->serverDataAddr ^ RPC_SERVERID_XOR;
 	bool sendReply = true;
 
-	CLog::GetInstance().Print(LOG_NAME, "Calling function 0x%08X of module 0x%08X.\r\n", call->rpcNumber, call->serverDataAddr);
+	CLog::GetInstance().Print(LOG_NAME, "Calling function 0x%08X of module 0x%08X.\r\n", call->rpcNumber, serverId);
 
 	uint32 recvAddr = (call->recv & (PS2::EE_RAM_SIZE - 1));
 
-	auto moduleIterator(m_modules.find(call->serverDataAddr));
+	auto moduleIterator(m_modules.find(serverId));
 	if(moduleIterator != std::end(m_modules))
 	{
 		auto module = moduleIterator->second;
@@ -547,7 +551,7 @@ void CSIF::Cmd_Call(const SIFCMDHEADER* hdr)
 	}
 	else
 	{
-		CLog::GetInstance().Warn(LOG_NAME, "Called an unknown module (0x%08X).\r\n", call->serverDataAddr);
+		CLog::GetInstance().Warn(LOG_NAME, "Called an unknown module (0x%08X).\r\n", serverId);
 	}
 
 	{
@@ -571,11 +575,11 @@ void CSIF::Cmd_Call(const SIFCMDHEADER* hdr)
 		{
 			//Hold the packet
 			//We assume that there's only one call that
-			assert(m_callReplies.find(call->serverDataAddr) == m_callReplies.end());
+			assert(m_callReplies.find(serverId) == m_callReplies.end());
 			CALLREQUESTINFO requestInfo;
 			requestInfo.reply = rend;
 			requestInfo.call = *call;
-			m_callReplies[call->serverDataAddr] = requestInfo;
+			m_callReplies[serverId] = requestInfo;
 		}
 	}
 }
