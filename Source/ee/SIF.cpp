@@ -534,20 +534,20 @@ void CSIF::Cmd_Call(const SIFCMDHEADER* hdr)
 
 	CLog::GetInstance().Print(LOG_NAME, "Calling function 0x%08X of module 0x%08X.\r\n", call->rpcNumber, call->serverDataAddr);
 
-	uint32 nRecvAddr = (call->recv & (PS2::EE_RAM_SIZE - 1));
+	uint32 recvAddr = (call->recv & (PS2::EE_RAM_SIZE - 1));
 
 	auto moduleIterator(m_modules.find(call->serverDataAddr));
 	if(moduleIterator != std::end(m_modules))
 	{
-		CSifModule* pModule(moduleIterator->second);
-		sendReply = pModule->Invoke(call->rpcNumber,
-		                            reinterpret_cast<uint32*>(m_eeRam + m_nDataAddr), call->sendSize,
-		                            reinterpret_cast<uint32*>(m_eeRam + nRecvAddr), call->recvSize,
-		                            m_eeRam);
+		auto module = moduleIterator->second;
+		sendReply = module->Invoke(call->rpcNumber,
+		                           reinterpret_cast<uint32*>(m_eeRam + m_nDataAddr), call->sendSize,
+		                           reinterpret_cast<uint32*>(m_eeRam + recvAddr), call->recvSize,
+		                           m_eeRam);
 	}
 	else
 	{
-		CLog::GetInstance().Print(LOG_NAME, "Called an unknown module (0x%08X).\r\n", call->serverDataAddr);
+		CLog::GetInstance().Warn(LOG_NAME, "Called an unknown module (0x%08X).\r\n", call->serverDataAddr);
 	}
 
 	{
