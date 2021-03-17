@@ -2200,8 +2200,8 @@ void CPS2OS::sc_ReferThreadStatus()
 	auto thread = m_threads[id];
 	if(!thread)
 	{
-		//TODO: This is actually valid on a real PS2 and won't return an error
-		m_ee.m_State.nGPR[SC_RETURN].nD0 = static_cast<int32>(-1);
+		//Returns 0 if thread has been deleted (needed by MGS2)
+		m_ee.m_State.nGPR[SC_RETURN].nD0 = static_cast<int32>(0);
 		return;
 	}
 
