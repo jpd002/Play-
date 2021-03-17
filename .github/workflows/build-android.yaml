@@ -11,6 +11,10 @@ jobs:
         build-type: ['apk', 'libretro']
     runs-on: ubuntu-latest
     steps:
+    - name: Set up JDK
+      uses: actions/setup-java@v1
+      with:
+        java-version: 1.8
     - name: Setup Android SDK
       uses: android-actions/setup-android@v2
     - name: Cache NDK
