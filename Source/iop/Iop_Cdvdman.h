@@ -27,6 +27,14 @@ namespace Iop
 			CDVD_DISKTYPE_PS2DVD = 0x14,
 		};
 
+		struct FILEINFO
+		{
+			uint32 sector;
+			uint32 size;
+			char name[16];
+			uint8 date[8];
+		};
+
 		CCdvdman(CIopBios&, uint8*);
 		virtual ~CCdvdman() = default;
 
@@ -42,6 +50,7 @@ namespace Iop
 
 		uint32 CdReadClockDirect(uint8*);
 		uint32 CdGetDiskTypeDirect(COpticalMedia*);
+		uint32 CdLayerSearchFileDirect(COpticalMedia*, FILEINFO*, const char*, uint32);
 
 	private:
 		enum COMMAND : uint32

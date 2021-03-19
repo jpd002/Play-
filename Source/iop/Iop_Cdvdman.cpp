@@ -101,6 +101,77 @@ uint32 CCdvdman::CdGetDiskTypeDirect(COpticalMedia* opticalMedia)
 	}
 }
 
+uint32 CCdvdman::CdLayerSearchFileDirect(COpticalMedia* opticalMedia, FILEINFO* fileInfo, const char* path, uint32 layer)
+{
+	assert(m_opticalMedia == opticalMedia);
+	if(!m_opticalMedia)
+	{
+		assert(false);
+		return 0;
+	}
+
+	CISO9660* fileSystem = nullptr;
+	uint32 layerBaseSector = 0;
+
+	switch(layer)
+	{
+	case 0:
+		fileSystem = m_opticalMedia->GetFileSystem();
+		break;
+	case 1:
+		fileSystem = m_opticalMedia->GetFileSystemL1();
+		layerBaseSector = m_opticalMedia->GetDvdSecondLayerStart();
+		break;
+	default:
+		assert(false);
+		break;
+	}
+
+	if(!fileSystem)
+	{
+		assert(false);
+		return 0;
+	}
+
+	std::string fixedPath(path);
+
+	//Fix all slashes
+	{
+		auto slashPos = fixedPath.find('\\');
+		while(slashPos != std::string::npos)
+		{
+			fixedPath[slashPos] = '/';
+			slashPos = fixedPath.find('\\', slashPos + 1);
+		}
+	}
+
+	//Hack to remove any superfluous version extensions (ie.: ;1) that might be present in the path
+	//Don't know if this is valid behavior but shouldn't hurt compatibility. This was done for Sengoku Musou 2.
+	while(1)
+	{
+		auto semColCount = std::count(fixedPath.begin(), fixedPath.end(), ';');
+		if(semColCount <= 1) break;
+		auto semColPos = fixedPath.rfind(';');
+		assert(semColPos != std::string::npos);
+		fixedPath = std::string(fixedPath.begin(), fixedPath.begin() + semColPos);
+	}
+
+	ISO9660::CDirectoryRecord record;
+	if(fileSystem->GetFileRecord(&record, fixedPath.c_str()))
+	{
+		fileInfo->sector = record.GetPosition() + layerBaseSector;
+		fileInfo->size = record.GetDataLength();
+		strncpy(fileInfo->name, record.GetName(), 16);
+		fileInfo->name[15] = 0;
+		memset(fileInfo->date, 0, 8);
+		return 1;
+	}
+	else
+	{
+		return 0;
+	}
+}
+
 std::string CCdvdman::GetId() const
 {
 	return "cdvdman";
@@ -398,60 +469,9 @@ uint32 CCdvdman::CdGetError()
 
 uint32 CCdvdman::CdSearchFile(uint32 fileInfoPtr, uint32 namePtr)
 {
-	struct FILEINFO
-	{
-		uint32 sector;
-		uint32 size;
-		char name[16];
-		uint8 date[8];
-	};
-
-	const char* name = NULL;
-	FILEINFO* fileInfo = NULL;
-
-	if(namePtr != 0)
-	{
-		name = reinterpret_cast<const char*>(m_ram + namePtr);
-	}
-	if(fileInfoPtr != 0)
-	{
-		fileInfo = reinterpret_cast<FILEINFO*>(m_ram + fileInfoPtr);
-	}
-
-#ifdef _DEBUG
-	CLog::GetInstance().Print(LOG_NAME, FUNCTION_CDSEARCHFILE "(fileInfo = 0x%08X, name = '%s');\r\n",
-	                          fileInfoPtr, name);
-#endif
-
-	uint32 result = 0;
-
-	if(m_opticalMedia && name && fileInfo)
-	{
-		std::string fixedPath(name);
-
-		//Fix all slashes
-		std::string::size_type slashPos = fixedPath.find('\\');
-		while(slashPos != std::string::npos)
-		{
-			fixedPath[slashPos] = '/';
-			slashPos = fixedPath.find('\\', slashPos + 1);
-		}
-
-		ISO9660::CDirectoryRecord record;
-		auto fileSystem = m_opticalMedia->GetFileSystem();
-		if(fileSystem->GetFileRecord(&record, fixedPath.c_str()))
-		{
-			fileInfo->sector = record.GetPosition();
-			fileInfo->size = record.GetDataLength();
-			strncpy(fileInfo->name, record.GetName(), 16);
-			fileInfo->name[15] = 0;
-			memset(fileInfo->date, 0, 8);
-
-			result = 1;
-		}
-	}
-
-	return result;
+	CLog::GetInstance().Print(LOG_NAME, FUNCTION_CDSEARCHFILE "(fileInfoPtr = 0x%08X, namePtr = 0x%08X);\r\n",
+	                          fileInfoPtr, namePtr);
+	return CdLayerSearchFile(fileInfoPtr, namePtr, 0);
 }
 
 uint32 CCdvdman::CdSync(uint32 mode)
@@ -616,8 +636,21 @@ uint32 CCdvdman::CdReadDvdDualInfo(uint32 onDualPtr, uint32 layer1StartPtr)
 
 uint32 CCdvdman::CdLayerSearchFile(uint32 fileInfoPtr, uint32 namePtr, uint32 layer)
 {
-	CLog::GetInstance().Print(LOG_NAME, FUNCTION_CDLAYERSEARCHFILE "(fileInfoPtr = 0x%08X, namePtr = 0x%08X, layer = %d);\r\n",
-	                          fileInfoPtr, namePtr, layer);
-	assert(layer == 0);
-	return CdSearchFile(fileInfoPtr, namePtr);
+	const char* name = NULL;
+	FILEINFO* fileInfo = NULL;
+
+	if(namePtr != 0)
+	{
+		name = reinterpret_cast<const char*>(m_ram + namePtr);
+	}
+	if(fileInfoPtr != 0)
+	{
+		fileInfo = reinterpret_cast<FILEINFO*>(m_ram + fileInfoPtr);
+	}
+
+	CLog::GetInstance().Print(LOG_NAME, FUNCTION_CDLAYERSEARCHFILE "(fileInfo = 0x%08X, name = '%s', layer = %d);\r\n",
+	                          fileInfoPtr, name, layer);
+
+	uint32 result = CdLayerSearchFileDirect(m_opticalMedia, fileInfo, name, layer);
+	return result;
 }

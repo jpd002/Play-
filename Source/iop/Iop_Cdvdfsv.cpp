@@ -538,42 +538,12 @@ void CCdvdfsv::SearchFile(uint32* args, uint32 argsSize, uint32* ret, uint32 ret
 	const char* path = reinterpret_cast<const char*>(args) + pathOffset;
 	CLog::GetInstance().Print(LOG_NAME, "SearchFile(layer = %d, path = '%s');\r\n", layer, path);
 
-	//Fix all slashes
-	std::string fixedPath(path);
+	CCdvdman::FILEINFO fileInfo = {};
+	uint32 result = m_cdvdman.CdLayerSearchFileDirect(m_opticalMedia, &fileInfo, path, layer);
+	if(result)
 	{
-		auto slashPos = fixedPath.find('\\');
-		while(slashPos != std::string::npos)
-		{
-			fixedPath[slashPos] = '/';
-			slashPos = fixedPath.find('\\', slashPos + 1);
-		}
+		args[0x00] = fileInfo.sector;
+		args[0x01] = fileInfo.size;
 	}
-
-	//Hack to remove any superfluous version extensions (ie.: ;1) that might be present in the path
-	//Don't know if this is valid behavior but shouldn't hurt compatibility. This was done for Sengoku Musou 2.
-	while(1)
-	{
-		auto semColCount = std::count(fixedPath.begin(), fixedPath.end(), ';');
-		if(semColCount <= 1) break;
-		auto semColPos = fixedPath.rfind(';');
-		assert(semColPos != std::string::npos);
-		fixedPath = std::string(fixedPath.begin(), fixedPath.begin() + semColPos);
-	}
-
-	ISO9660::CDirectoryRecord record;
-	auto fileSystem = (layer == 0) ? m_opticalMedia->GetFileSystem() : m_opticalMedia->GetFileSystemL1();
-	if(!fileSystem->GetFileRecord(&record, fixedPath.c_str()))
-	{
-		ret[0] = 0;
-		return;
-	}
-
-	args[0x00] = record.GetPosition();
-	args[0x01] = record.GetDataLength();
-	if(layer != 0)
-	{
-		args[0x00] += m_opticalMedia->GetDvdSecondLayerStart();
-	}
-
-	ret[0] = 1;
+	ret[0] = result;
 }
