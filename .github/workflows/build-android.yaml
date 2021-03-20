@@ -71,11 +71,13 @@ jobs:
       env:
         ANDROID_KEYSTORE_PASS: ${{ secrets.ANDROID_KEYSTORE_PASS }}
     - name: Upload a Build Artifact Android APK Signed
-      if: ${{ matrix.build-type == 'apk' && env.AWS_ACCESS_KEY_ID != null}}
+      if: ${{ matrix.build-type == 'apk' && env.ANDROID_KEYSTORE_PASS != null }}
       uses: actions/upload-artifact@v2
       with:
         name: Play_Android_Signed
         path: Play-release.apk
+      env:
+        ANDROID_KEYSTORE_PASS: ${{ secrets.ANDROID_KEYSTORE_PASS }}
     - name: Upload a Build Artifact Android APK Unsigned
       if: ${{ matrix.build-type == 'apk' }}
       uses: actions/upload-artifact@v2
