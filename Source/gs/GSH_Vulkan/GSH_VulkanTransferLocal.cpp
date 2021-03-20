@@ -210,6 +210,13 @@ Framework::Vulkan::CShaderModule CTransferLocal::CreateShader(const PIPELINE_CAP
 			pixel = CMemoryUtils::Memory_Read8(b, memoryBuffer, address);
 		}
 		break;
+		case CGSHandler::PSMT4:
+		{
+			auto texAddress = CMemoryUtils::GetPixelAddress_PSMT4(
+			    b, srcSwizzleTable, srcBufAddress, srcBufWidth, srcPos);
+			pixel = CMemoryUtils::Memory_Read4(b, memoryBuffer, texAddress);
+		}
+		break;
 		default:
 			assert(false);
 			break;
@@ -236,6 +243,14 @@ Framework::Vulkan::CShaderModule CTransferLocal::CreateShader(const PIPELINE_CAP
 			auto address = CMemoryUtils::GetPixelAddress<CGsPixelFormats::STORAGEPSMT8>(
 			    b, dstSwizzleTable, dstBufAddress, dstBufWidth, dstPos);
 			CMemoryUtils::Memory_Write8(b, memoryBuffer, address, pixel);
+		}
+		break;
+		case CGSHandler::PSMT4HL:
+		{
+			auto address = CMemoryUtils::GetPixelAddress<CGsPixelFormats::STORAGEPSMCT32>(
+			    b, dstSwizzleTable, dstBufAddress, dstBufWidth, dstPos);
+			auto nibAddress = (address + NewInt(b, 3)) * NewInt(b, 2);
+			CMemoryUtils::Memory_Write4(b, memoryBuffer, nibAddress, pixel);
 		}
 		break;
 		default:
