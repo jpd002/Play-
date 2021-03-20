@@ -743,7 +743,17 @@ void CGSH_Vulkan::Prim_Line()
 		}
 		else
 		{
-			assert(false);
+			ST st[2];
+			st[0] <<= m_vtxBuffer[1].st;
+			st[1] <<= m_vtxBuffer[0].st;
+
+			s[0] = st[0].nS;
+			s[1] = st[1].nS;
+			t[0] = st[0].nT;
+			t[1] = st[1].nT;
+
+			q[0] = rgbaq[0].nQ;
+			q[1] = rgbaq[1].nQ;
 		}
 	}
 
