@@ -2,194 +2,208 @@
 #include "string_format.h"
 #include "gs/GSH_OpenGL/GSH_OpenGL.h"
 
+// clang-format off
 static const char* g_yesNoString[2] =
-    {
-        "NO",
-        "YES"};
+{
+	"NO",
+	"YES"
+};
 
 static const char* g_pixelFormats[0x40] =
-    {
-        //0x00
-        "PSMCT32",
-        "PSMCT24",
-        "PSMCT16",
-        "(INVALID)",
-        //0x04
-        "(INVALID)",
-        "(INVALID)",
-        "(INVALID)",
-        "(INVALID)",
-        //0x08
-        "(INVALID)",
-        "(INVALID)",
-        "PSMCT16S",
-        "(INVALID)",
-        //0x0C
-        "(INVALID)",
-        "(INVALID)",
-        "(INVALID)",
-        "(INVALID)",
+{
+	//0x00
+	"PSMCT32",
+	"PSMCT24",
+	"PSMCT16",
+	"(INVALID)",
+	//0x04
+	"(INVALID)",
+	"(INVALID)",
+	"(INVALID)",
+	"(INVALID)",
+	//0x08
+	"(INVALID)",
+	"(INVALID)",
+	"PSMCT16S",
+	"(INVALID)",
+	//0x0C
+	"(INVALID)",
+	"(INVALID)",
+	"(INVALID)",
+	"(INVALID)",
 
-        //0x10
-        "(INVALID)",
-        "(INVALID)",
-        "(INVALID)",
-        "PSMT8",
-        //0x14
-        "PSMT4",
-        "(INVALID)",
-        "(INVALID)",
-        "(INVALID)",
-        //0x18
-        "(INVALID)",
-        "(INVALID)",
-        "(INVALID)",
-        "PSMT8H",
-        //0x1C
-        "(INVALID)",
-        "(INVALID)",
-        "(INVALID)",
-        "(INVALID)",
+	//0x10
+	"(INVALID)",
+	"(INVALID)",
+	"(INVALID)",
+	"PSMT8",
+	//0x14
+	"PSMT4",
+	"(INVALID)",
+	"(INVALID)",
+	"(INVALID)",
+	//0x18
+	"(INVALID)",
+	"(INVALID)",
+	"(INVALID)",
+	"PSMT8H",
+	//0x1C
+	"(INVALID)",
+	"(INVALID)",
+	"(INVALID)",
+	"(INVALID)",
 
-        //0x20
-        "(INVALID)",
-        "(INVALID)",
-        "(INVALID)",
-        "(INVALID)",
-        //0x24
-        "PSMT4HL",
-        "(INVALID)",
-        "(INVALID)",
-        "(INVALID)",
-        //0x28
-        "(INVALID)",
-        "(INVALID)",
-        "(INVALID)",
-        "(INVALID)",
-        //0x2C
-        "PSMT4HH",
-        "(INVALID)",
-        "(INVALID)",
-        "(INVALID)",
+	//0x20
+	"(INVALID)",
+	"(INVALID)",
+	"(INVALID)",
+	"(INVALID)",
+	//0x24
+	"PSMT4HL",
+	"(INVALID)",
+	"(INVALID)",
+	"(INVALID)",
+	//0x28
+	"(INVALID)",
+	"(INVALID)",
+	"(INVALID)",
+	"(INVALID)",
+	//0x2C
+	"PSMT4HH",
+	"(INVALID)",
+	"(INVALID)",
+	"(INVALID)",
 
-        //0x30
-        "PSMZ32",
-        "PSMZ24",
-        "PSMZ16",
-        "(INVALID)",
-        //0x34
-        "(INVALID)",
-        "(INVALID)",
-        "(INVALID)",
-        "(INVALID)",
-        //0x38
-        "(INVALID)",
-        "(INVALID)",
-        "PSMZ16S",
-        "(INVALID)",
-        //0x3C
-        "(INVALID)",
-        "(INVALID)",
-        "(INVALID)",
-        "(INVALID)",
+	//0x30
+	"PSMZ32",
+	"PSMZ24",
+	"PSMZ16",
+	"(INVALID)",
+	//0x34
+	"(INVALID)",
+	"(INVALID)",
+	"(INVALID)",
+	"(INVALID)",
+	//0x38
+	"(INVALID)",
+	"(INVALID)",
+	"PSMZ16S",
+	"(INVALID)",
+	//0x3C
+	"(INVALID)",
+	"(INVALID)",
+	"(INVALID)",
+	"(INVALID)",
 };
 
 static const char* g_primitiveTypeString[8] =
-    {
-        "POINT",
-        "LINE",
-        "LINESTRIP",
-        "TRIANGLE",
-        "TRIANGLESTRIP",
-        "TRIANGLEFAN",
-        "SPRITE",
-        "(INVALID)"};
+{
+	"POINT",
+	"LINE",
+	"LINESTRIP",
+	"TRIANGLE",
+	"TRIANGLESTRIP",
+	"TRIANGLEFAN",
+	"SPRITE",
+	"(INVALID)"
+};
 
 static const char* g_depthTestFunctionString[4] =
-    {
-        "NEVER",
-        "ALWAYS",
-        "GEQUAL",
-        "GREATER"};
+{
+	"NEVER",
+	"ALWAYS",
+	"GEQUAL",
+	"GREATER"
+};
 
 static const char* g_alphaTestFunctionString[8] =
-    {
-        "NEVER",
-        "ALWAYS",
-        "LESS",
-        "LEQUAL",
-        "EQUAL",
-        "GEQUAL",
-        "GREATER",
-        "NOTEQUAL"};
+{
+	"NEVER",
+	"ALWAYS",
+	"LESS",
+	"LEQUAL",
+	"EQUAL",
+	"GEQUAL",
+	"GREATER",
+	"NOTEQUAL"
+};
 
 static const char* g_alphaTestFailOpString[4] =
-    {
-        "KEEP",
-        "FB_ONLY",
-        "ZB_ONLY",
-        "RGB_ONLY"};
+{
+	"KEEP",
+	"FB_ONLY",
+	"ZB_ONLY",
+	"RGB_ONLY"
+};
 
 static const char* g_alphaBlendAbdCoefString[4] =
-    {
-        "Cs",
-        "Cd",
-        "0",
-        "(INVALID)"};
+{
+	"Cs",
+	"Cd",
+	"0",
+	"(INVALID)"
+};
 
 static const char* g_alphaBlendCCoefString[4] =
-    {
-        "As",
-        "Ad",
-        "FIX",
-        "(INVALID)"};
+{
+	"As",
+	"Ad",
+	"FIX",
+	"(INVALID)"
+};
 
 static const char* g_textureFunctionString[4] =
-    {
-        "MODULATE",
-        "DECAL",
-        "HIGHLIGHT",
-        "HIGHLIGHT2"};
+{
+	"MODULATE",
+	"DECAL",
+	"HIGHLIGHT",
+	"HIGHLIGHT2"
+};
 
 static const char* g_textureClutLoadControlString[8] =
-    {
-        "DO NOT LOAD",
-        "LOAD",
-        "LOAD AND COPY CBP TO CBP0",
-        "LOAD AND COPY CBP TO CBP1",
-        "LOAD IF CBP != CBP0 AND COPY CBP TO CBP0",
-        "LOAD IF CBP != CBP1 AND COPY CBP TO CBP1",
-        "(INVALID)",
-        "(INVALID)",
+{
+	"DO NOT LOAD",
+	"LOAD",
+	"LOAD AND COPY CBP TO CBP0",
+	"LOAD AND COPY CBP TO CBP1",
+	"LOAD IF CBP != CBP0 AND COPY CBP TO CBP0",
+	"LOAD IF CBP != CBP1 AND COPY CBP TO CBP1",
+	"(INVALID)",
+	"(INVALID)",
 };
 
 static const char* g_textureMagFilterString[2] =
-    {
-        "NEAREST",
-        "LINEAR"};
+{
+	"NEAREST",
+	"LINEAR"
+};
 
 static const char* g_textureMinFilterString[8] =
-    {
-        "NEAREST",
-        "LINEAR",
-        "NEAREST_MIPMAP_NEAREST",
-        "NEAREST_MIPMAP_LINEAR",
-        "LINEAR_MIPMAP_NEAREST",
-        "LINEAR_MIPMAP_LINEAR",
-        "(INVALID)",
-        "(INVALID)"};
+{
+	"NEAREST",
+	"LINEAR",
+	"NEAREST_MIPMAP_NEAREST",
+	"NEAREST_MIPMAP_LINEAR",
+	"LINEAR_MIPMAP_NEAREST",
+	"LINEAR_MIPMAP_LINEAR",
+	"(INVALID)",
+	"(INVALID)"
+};
 
 static const char* g_wrapModeString[4] =
-    {
-        "REPEAT",
-        "CLAMP",
-        "REGION_CLAMP",
-        "REGION_REPEAT"};
+{
+	"REPEAT",
+	"CLAMP",
+	"REGION_CLAMP",
+	"REGION_REPEAT"
+};
 
 static const char* g_colorClampModeString[2] =
-    {
-        "MASK",
-        "CLAMP"};
+{
+	"MASK",
+	"CLAMP"
+};
+// clang-format on
 
 std::string CGsStateUtils::GetInputState(CGSHandler* gs)
 {
