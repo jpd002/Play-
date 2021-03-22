@@ -1716,6 +1716,11 @@ std::string CGSHandler::DisassembleWrite(uint8 registerId, uint64 data)
 		                       clut.nCBW, clut.nCOU, clut.nCOV);
 	}
 	break;
+	case GS_REG_SCANMSK:
+	{
+		result = string_format("SCANMSK(MSK: %d)", data & 0x03);
+	}
+	break;
 	case GS_REG_MIPTBP1_1:
 	case GS_REG_MIPTBP1_2:
 	{

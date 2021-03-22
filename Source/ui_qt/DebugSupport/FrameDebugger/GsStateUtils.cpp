@@ -203,6 +203,14 @@ static const char* g_colorClampModeString[2] =
 	"MASK",
 	"CLAMP"
 };
+
+static const char* g_scanMaskModeString[4] =
+{
+	"NONE",
+	"(INVALID)",
+	"KEEP ODD",
+	"KEEP EVEN"
+};
 // clang-format on
 
 std::string CGsStateUtils::GetInputState(CGSHandler* gs)
@@ -280,6 +288,9 @@ std::string CGsStateUtils::GetInputState(CGSHandler* gs)
 
 	auto colClamp = gs->GetRegisters()[GS_REG_COLCLAMP];
 	result += string_format("Color Clamping: %s\r\n", g_colorClampModeString[colClamp & 1]);
+
+	auto scanMsk = gs->GetRegisters()[GS_REG_SCANMSK];
+	result += string_format("Scan Mask: %s\r\n", g_scanMaskModeString[scanMsk & 3]);
 
 	return result;
 }
