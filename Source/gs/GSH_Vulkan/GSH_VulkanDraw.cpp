@@ -245,11 +245,11 @@ void CDraw::FlushVertices()
 		m_renderPassBegun = true;
 	}
 
-	//Add a barrier to ensure reads are complete before writing to GS memory
+	//Add a barrier to ensure reads/writes are complete before writing to GS memory
 	{
 		auto memoryBarrier = Framework::Vulkan::MemoryBarrier();
-		memoryBarrier.srcAccessMask = VK_ACCESS_SHADER_READ_BIT;
-		memoryBarrier.dstAccessMask = VK_ACCESS_SHADER_WRITE_BIT;
+		memoryBarrier.srcAccessMask = VK_ACCESS_SHADER_READ_BIT | VK_ACCESS_SHADER_WRITE_BIT;
+		memoryBarrier.dstAccessMask = VK_ACCESS_SHADER_READ_BIT | VK_ACCESS_SHADER_WRITE_BIT;
 
 		m_context->device.vkCmdPipelineBarrier(commandBuffer, VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT, VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT,
 		                                       VK_DEPENDENCY_BY_REGION_BIT, 1, &memoryBarrier, 0, nullptr, 0, nullptr);
@@ -459,10 +459,10 @@ void CDraw::CreateRenderPass()
 	VkSubpassDependency subpassDependency = {};
 	subpassDependency.srcSubpass = 0;
 	subpassDependency.srcStageMask = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
-	subpassDependency.srcAccessMask = VK_ACCESS_SHADER_READ_BIT;
+	subpassDependency.srcAccessMask = VK_ACCESS_SHADER_READ_BIT | VK_ACCESS_SHADER_WRITE_BIT;
 	subpassDependency.dstSubpass = 0;
 	subpassDependency.dstStageMask = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
-	subpassDependency.dstAccessMask = VK_ACCESS_SHADER_WRITE_BIT;
+	subpassDependency.dstAccessMask = VK_ACCESS_SHADER_READ_BIT | VK_ACCESS_SHADER_WRITE_BIT;
 	subpassDependency.dependencyFlags = VK_DEPENDENCY_BY_REGION_BIT;
 
 	auto renderPassCreateInfo = Framework::Vulkan::RenderPassCreateInfo();
