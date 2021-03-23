@@ -360,9 +360,21 @@ void CGSH_Vulkan::CreateDevice(VkPhysicalDevice physicalDevice)
 	auto physicalDeviceFeatures2 = Framework::Vulkan::PhysicalDeviceFeatures2KHR();
 	physicalDeviceFeatures2.pNext = &physicalDeviceFeaturesInvocationInterlock;
 	physicalDeviceFeatures2.features.fragmentStoresAndAtomics = VK_TRUE;
+	physicalDeviceFeatures2.features.shaderInt16 = VK_TRUE;
+
+	auto physicalDeviceVulkan12features = Framework::Vulkan::PhysicalDeviceVulkan12Features();
+	physicalDeviceVulkan12features.pNext = &physicalDeviceFeatures2;
+	physicalDeviceVulkan12features.shaderInt8 = VK_TRUE;
+	physicalDeviceVulkan12features.storageBuffer8BitAccess = VK_TRUE;
+	physicalDeviceVulkan12features.uniformAndStorageBuffer8BitAccess = VK_TRUE;
+
+	auto physicalDevice16BitStorageFeatures = Framework::Vulkan::PhysicalDevice16BitStorageFeatures();
+	physicalDevice16BitStorageFeatures.pNext = &physicalDeviceVulkan12features;
+	physicalDevice16BitStorageFeatures.storageBuffer16BitAccess = VK_TRUE;
+	physicalDevice16BitStorageFeatures.uniformAndStorageBuffer16BitAccess = VK_TRUE;
 
 	auto deviceCreateInfo = Framework::Vulkan::DeviceCreateInfo();
-	deviceCreateInfo.pNext = &physicalDeviceFeatures2;
+	deviceCreateInfo.pNext = &physicalDevice16BitStorageFeatures;
 	deviceCreateInfo.flags = 0;
 	deviceCreateInfo.enabledLayerCount = static_cast<uint32>(enabledLayers.size());
 	deviceCreateInfo.ppEnabledLayerNames = enabledLayers.data();
