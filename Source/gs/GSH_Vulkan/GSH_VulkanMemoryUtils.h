@@ -31,8 +31,11 @@ namespace GSH_Vulkan
 
 		static void Memory_Write32(Nuanceur::CShaderBuilder&, Nuanceur::CArrayUintValue, Nuanceur::CIntValue, Nuanceur::CUintValue);
 		static void Memory_Write24(Nuanceur::CShaderBuilder&, Nuanceur::CArrayUintValue, Nuanceur::CIntValue, Nuanceur::CUintValue);
+		static void Memory_Write24(Nuanceur::CShaderBuilder&, Nuanceur::CArrayUint8Value, Nuanceur::CIntValue, Nuanceur::CUintValue);
 		static void Memory_Write16(Nuanceur::CShaderBuilder&, Nuanceur::CArrayUintValue, Nuanceur::CIntValue, Nuanceur::CUintValue);
+		static void Memory_Write16(Nuanceur::CShaderBuilder&, Nuanceur::CArrayUint8Value, Nuanceur::CIntValue, Nuanceur::CUintValue);
 		static void Memory_Write8(Nuanceur::CShaderBuilder&, Nuanceur::CArrayUintValue, Nuanceur::CIntValue, Nuanceur::CUintValue);
+		static void Memory_Write8(Nuanceur::CShaderBuilder&, Nuanceur::CArrayUint8Value, Nuanceur::CIntValue, Nuanceur::CUintValue);
 		static void Memory_Write4(Nuanceur::CShaderBuilder&, Nuanceur::CArrayUintValue, Nuanceur::CIntValue, Nuanceur::CUintValue);
 
 		static Nuanceur::CFloat4Rvalue PSM32ToVec4(Nuanceur::CShaderBuilder&, Nuanceur::CUintValue);
