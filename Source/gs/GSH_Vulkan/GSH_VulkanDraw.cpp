@@ -1315,6 +1315,29 @@ Framework::Vulkan::CShaderModule CDraw::CreateFragmentShader(const PIPELINE_CAPS
 
 		auto screenPos = ToInt(inputPosition->xy());
 
+		switch(caps.scanMask)
+		{
+		default:
+			assert(false);
+			[[fallthrough]];
+		case 0:
+			break;
+		case 2:
+		{
+			auto write = (screenPos->y() & NewInt(b, 1)) != NewInt(b, 0);
+			writeColor = write;
+			writeDepth = write;
+		}
+		break;
+		case 3:
+		{
+			auto write = (screenPos->y() & NewInt(b, 1)) == NewInt(b, 0);
+			writeColor = write;
+			writeDepth = write;
+		}
+		break;
+		}
+
 		auto fbAddress = CIntLvalue(b.CreateTemporaryInt());
 		auto depthAddress = CIntLvalue(b.CreateTemporaryInt());
 

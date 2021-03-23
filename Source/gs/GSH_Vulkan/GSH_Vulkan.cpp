@@ -550,6 +550,7 @@ void CGSH_Vulkan::SetRenderingContext(uint64 primReg)
 	auto test = make_convertible<TEST>(m_nReg[GS_REG_TEST_1 + context]);
 	auto texA = make_convertible<TEXA>(m_nReg[GS_REG_TEXA]);
 	auto fogCol = make_convertible<FOGCOL>(m_nReg[GS_REG_FOGCOL]);
+	auto scanMask = m_nReg[GS_REG_SCANMSK] & 3;
 
 	auto pipelineCaps = make_convertible<CDraw::PIPELINE_CAPS>(0);
 	pipelineCaps.hasTexture = prim.nTexture;
@@ -559,6 +560,7 @@ void CGSH_Vulkan::SetRenderingContext(uint64 primReg)
 	pipelineCaps.texClampU = clamp.nWMS;
 	pipelineCaps.texClampV = clamp.nWMT;
 	pipelineCaps.hasFog = prim.nFog;
+	pipelineCaps.scanMask = scanMask;
 	pipelineCaps.hasAlphaBlending = prim.nAlpha;
 	pipelineCaps.hasDstAlphaTest = test.nDestAlphaEnabled;
 	pipelineCaps.dstAlphaTestRef = test.nDestAlphaMode;

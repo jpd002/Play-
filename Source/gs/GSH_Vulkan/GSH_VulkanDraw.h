@@ -44,6 +44,8 @@ namespace GSH_Vulkan
 			uint32 maskColor : 1;
 			uint32 writeDepth : 1;
 
+			uint32 scanMask : 2;
+
 			uint32 hasAlphaBlending : 1;
 			uint32 alphaA : 2;
 			uint32 alphaB : 2;
