@@ -413,7 +413,10 @@ void CGSH_Vulkan::CreateMemoryBuffer()
 	assert(m_context->memoryBuffer.IsEmpty());
 
 	m_context->memoryBuffer = Framework::Vulkan::CBuffer(m_context->device,
-	                                                     m_context->physicalDeviceMemoryProperties, VK_BUFFER_USAGE_STORAGE_BUFFER_BIT, RAMSIZE);
+	                                                     m_context->physicalDeviceMemoryProperties,
+	                                                     VK_BUFFER_USAGE_STORAGE_BUFFER_BIT,
+	                                                     VK_MEMORY_PROPERTY_HOST_COHERENT_BIT | VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT,
+	                                                     RAMSIZE);
 
 #ifdef FILL_IMAGES
 	{
@@ -436,17 +439,10 @@ void CGSH_Vulkan::CreateClutBuffer()
 
 	static const uint32 clutBufferSize = CLUTENTRYCOUNT * sizeof(uint32) * CLUT_CACHE_SIZE;
 	m_context->clutBuffer = Framework::Vulkan::CBuffer(m_context->device,
-	                                                   m_context->physicalDeviceMemoryProperties, VK_BUFFER_USAGE_STORAGE_BUFFER_BIT, clutBufferSize);
-
-#ifdef FILL_IMAGES
-	{
-		uint32* memory = nullptr;
-		m_context->device.vkMapMemory(m_context->device, m_context->clutBuffer.GetMemory(),
-		                              0, VK_WHOLE_SIZE, 0, reinterpret_cast<void**>(&memory));
-		memset(memory, 0x80, clutBufferSize);
-		m_context->device.vkUnmapMemory(m_context->device, m_context->clutBuffer.GetMemory());
-	}
-#endif
+	                                                   m_context->physicalDeviceMemoryProperties,
+	                                                   VK_BUFFER_USAGE_STORAGE_BUFFER_BIT,
+	                                                   VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
+	                                                   clutBufferSize);
 }
 
 void CGSH_Vulkan::VertexKick(uint8 registerId, uint64 data)

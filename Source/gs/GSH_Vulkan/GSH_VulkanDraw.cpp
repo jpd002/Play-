@@ -40,7 +40,8 @@ CDraw::CDraw(const ContextPtr& context, const FrameCommandBufferPtr& frameComman
 	{
 		frame.vertexBuffer = Framework::Vulkan::CBuffer(
 		    m_context->device, m_context->physicalDeviceMemoryProperties,
-		    VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, sizeof(PRIM_VERTEX) * MAX_VERTEX_COUNT);
+		    VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+		    sizeof(PRIM_VERTEX) * MAX_VERTEX_COUNT);
 
 		auto result = m_context->device.vkMapMemory(m_context->device, frame.vertexBuffer.GetMemory(),
 		                                            0, VK_WHOLE_SIZE, 0, reinterpret_cast<void**>(&frame.vertexBufferPtr));

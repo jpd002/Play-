@@ -25,7 +25,8 @@ CTransferHost::CTransferHost(const ContextPtr& context, const FrameCommandBuffer
 	{
 		frame.xferBuffer = Framework::Vulkan::CBuffer(
 		    m_context->device, m_context->physicalDeviceMemoryProperties,
-		    VK_BUFFER_USAGE_STORAGE_BUFFER_BIT, XFER_BUFFER_SIZE);
+		    VK_BUFFER_USAGE_STORAGE_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+		    XFER_BUFFER_SIZE);
 
 		auto result = m_context->device.vkMapMemory(m_context->device, frame.xferBuffer.GetMemory(),
 		                                            0, VK_WHOLE_SIZE, 0, reinterpret_cast<void**>(&frame.xferBufferPtr));
