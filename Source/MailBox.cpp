@@ -1,7 +1,4 @@
 #include "MailBox.h"
-#if defined(_WIN32)
-#include "win32/Win32Defs.h"
-#endif
 
 bool CMailBox::IsPending() const
 {
