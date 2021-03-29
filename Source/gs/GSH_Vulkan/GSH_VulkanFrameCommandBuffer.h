@@ -17,7 +17,7 @@ namespace GSH_Vulkan
 	public:
 		enum
 		{
-			MAX_FRAMES = 2,
+			MAX_FRAMES = 3,
 		};
 
 		CFrameCommandBuffer(const ContextPtr&);

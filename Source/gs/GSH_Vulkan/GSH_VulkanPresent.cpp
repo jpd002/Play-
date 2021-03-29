@@ -336,6 +336,7 @@ void CPresent::CreateSwapChain()
 	//will cause frame rate to be capped at 120fps instead of 60fps
 	swapChainCreateInfo.minImageCount = surfaceCaps.minImageCount;
 #else
+	//Make sure to check that MAX_FRAMES in CFrameCommandBuffer is at least as big as minImageCount
 	swapChainCreateInfo.minImageCount = 3; //Recommended by nVidia in UsingtheVulkanAPI_20160216.pdf
 #endif
 	swapChainCreateInfo.imageFormat = m_context->surfaceFormat.format;
@@ -347,7 +348,7 @@ void CPresent::CreateSwapChain()
 	swapChainCreateInfo.imageSharingMode = VK_SHARING_MODE_EXCLUSIVE;
 	swapChainCreateInfo.queueFamilyIndexCount = 0;
 	swapChainCreateInfo.pQueueFamilyIndices = nullptr;
-	swapChainCreateInfo.presentMode = VK_PRESENT_MODE_FIFO_KHR;
+	swapChainCreateInfo.presentMode = VK_PRESENT_MODE_MAILBOX_KHR;
 	swapChainCreateInfo.clipped = VK_TRUE;
 	swapChainCreateInfo.compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
 
