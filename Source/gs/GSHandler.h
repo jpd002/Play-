@@ -977,8 +977,8 @@ protected:
 	virtual void BeginTransferWrite();
 	virtual void TransferWrite(const uint8*, uint32);
 
-	virtual void WriteBackMemoryCache() {};
-	virtual void SyncMemoryCache() {};
+	virtual void WriteBackMemoryCache(){};
+	virtual void SyncMemoryCache(){};
 
 	TRANSFERWRITEHANDLER m_transferWriteHandlers[PSM_MAX];
 	TRANSFERREADHANDLER m_transferReadHandlers[PSM_MAX];
