@@ -44,6 +44,8 @@ protected:
 	void FlipImpl() override;
 	void BeginTransferWrite() override;
 	void TransferWrite(const uint8*, uint32) override;
+	void WriteBackMemoryCache() override;
+	void SyncMemoryCache() override;
 	void SyncCLUT(const TEX0&) override;
 
 	Framework::Vulkan::CInstance m_instance;
@@ -107,7 +109,7 @@ private:
 	GSH_Vulkan::TransferHostPtr m_transferHost;
 	GSH_Vulkan::TransferLocalPtr m_transferLocal;
 
-	uint8* m_memoryBufferPtr = nullptr;
+	uint8* m_memoryCache = nullptr;
 
 	//Draw context
 	VERTEX m_vtxBuffer[3];

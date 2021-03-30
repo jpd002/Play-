@@ -241,6 +241,8 @@ CGSHandler::PRESENTATION_VIEWPORT CGSHandler::GetPresentationViewport() const
 
 void CGSHandler::SaveState(Framework::CZipArchiveWriter& archive)
 {
+	SendGSCall([&]() { SyncMemoryCache(); }, true);
+
 	archive.InsertFile(new CMemoryStateFile(STATE_RAM, GetRam(), RAMSIZE));
 	archive.InsertFile(new CMemoryStateFile(STATE_REGS, m_nReg, sizeof(uint64) * CGSHandler::REGISTER_MAX));
 	archive.InsertFile(new CMemoryStateFile(STATE_TRXCTX, &m_trxCtx, sizeof(TRXCONTEXT)));
@@ -288,29 +290,35 @@ void CGSHandler::LoadState(Framework::CZipArchiveReader& archive)
 		m_nCBP0 = registerFile.GetRegister32(STATE_REG_CBP0);
 		m_nCBP1 = registerFile.GetRegister32(STATE_REG_CBP1);
 	}
+
+	SendGSCall([&]() { WriteBackMemoryCache(); });
 }
 
-void CGSHandler::Copy(const CGSHandler* gs)
+void CGSHandler::Copy(CGSHandler* source)
 {
-	memcpy(GetRam(), gs->GetRam(), RAMSIZE);
-	memcpy(m_nReg, gs->m_nReg, sizeof(uint64) * CGSHandler::REGISTER_MAX);
-	m_trxCtx = gs->m_trxCtx;
+	source->SendGSCall([&]() { SyncMemoryCache(); }, true);
+
+	memcpy(GetRam(), source->GetRam(), RAMSIZE);
+	memcpy(m_nReg, source->m_nReg, sizeof(uint64) * CGSHandler::REGISTER_MAX);
+	m_trxCtx = source->m_trxCtx;
 
 	{
-		m_nPMODE = gs->m_nPMODE;
-		m_nSMODE2 = gs->m_nSMODE2;
-		m_nDISPFB1.value.q = gs->m_nDISPFB1.value.q;
-		m_nDISPLAY1.value.q = gs->m_nDISPLAY1.value.q;
-		m_nDISPFB2.value.q = gs->m_nDISPFB2.value.q;
-		m_nDISPLAY2.value.q = gs->m_nDISPLAY2.value.q;
-		m_nCSR = gs->m_nCSR;
-		m_nIMR = gs->m_nIMR;
-		m_nBUSDIR = gs->m_nBUSDIR;
-		m_nSIGLBLID = gs->m_nSIGLBLID;
-		m_crtMode = gs->m_crtMode;
-		m_nCBP0 = gs->m_nCBP0;
-		m_nCBP1 = gs->m_nCBP1;
+		m_nPMODE = source->m_nPMODE;
+		m_nSMODE2 = source->m_nSMODE2;
+		m_nDISPFB1.value.q = source->m_nDISPFB1.value.q;
+		m_nDISPLAY1.value.q = source->m_nDISPLAY1.value.q;
+		m_nDISPFB2.value.q = source->m_nDISPFB2.value.q;
+		m_nDISPLAY2.value.q = source->m_nDISPLAY2.value.q;
+		m_nCSR = source->m_nCSR;
+		m_nIMR = source->m_nIMR;
+		m_nBUSDIR = source->m_nBUSDIR;
+		m_nSIGLBLID = source->m_nSIGLBLID;
+		m_crtMode = source->m_crtMode;
+		m_nCBP0 = source->m_nCBP0;
+		m_nCBP1 = source->m_nCBP1;
 	}
+
+	SendGSCall([&]() { WriteBackMemoryCache(); });
 }
 
 void CGSHandler::SetFrameDump(CFrameDump* frameDump)

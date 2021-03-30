@@ -10,8 +10,6 @@
 
 using namespace GSH_Vulkan;
 
-//#define FILL_IMAGES
-
 static uint32 MakeColor(uint8 r, uint8 g, uint8 b, uint8 a)
 {
 	return (a << 24) | (b << 16) | (g << 8) | (r);
@@ -171,10 +169,12 @@ void CGSH_Vulkan::ReleaseImpl()
 
 	m_context->device.vkDestroyDescriptorPool(m_context->device, m_context->descriptorPool, nullptr);
 	m_context->clutBuffer.Reset();
-	m_context->device.vkUnmapMemory(m_context->device, m_context->memoryBuffer.GetMemory());
 	m_context->memoryBuffer.Reset();
 	m_context->commandBufferPool.Reset();
 	m_context->device.Reset();
+
+	delete[] m_memoryCache;
+	m_memoryCache = nullptr;
 }
 
 void CGSH_Vulkan::ResetImpl()
@@ -411,26 +411,19 @@ void CGSH_Vulkan::CreateDescriptorPool()
 void CGSH_Vulkan::CreateMemoryBuffer()
 {
 	assert(m_context->memoryBuffer.IsEmpty());
+	assert(!m_memoryCache);
 
 	m_context->memoryBuffer = Framework::Vulkan::CBuffer(m_context->device,
 	                                                     m_context->physicalDeviceMemoryProperties,
-	                                                     VK_BUFFER_USAGE_STORAGE_BUFFER_BIT,
-	                                                     VK_MEMORY_PROPERTY_HOST_COHERENT_BIT | VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT,
+	                                                     VK_BUFFER_USAGE_STORAGE_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_SRC_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT,
+	                                                     VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
 	                                                     RAMSIZE);
 
-#ifdef FILL_IMAGES
-	{
-		uint32* memory = nullptr;
-		m_context->device.vkMapMemory(m_context->device, m_context->memoryBuffer.GetMemory(),
-		                              0, VK_WHOLE_SIZE, 0, reinterpret_cast<void**>(&memory));
-		memset(memory, 0x80, RAMSIZE);
-		m_context->device.vkUnmapMemory(m_context->device, m_context->memoryBuffer.GetMemory());
-	}
-#endif
+	m_memoryCache = new uint8[RAMSIZE];
+	memset(m_memoryCache, 0, RAMSIZE);
 
-	auto result = m_context->device.vkMapMemory(m_context->device, m_context->memoryBuffer.GetMemory(),
-	                                            0, VK_WHOLE_SIZE, 0, reinterpret_cast<void**>(&m_memoryBufferPtr));
-	CHECKVULKANERROR(result);
+	m_context->memoryBuffer.Write(m_context->queue, m_context->commandBufferPool,
+	                              m_context->physicalDeviceMemoryProperties, m_memoryCache);
 }
 
 void CGSH_Vulkan::CreateClutBuffer()
@@ -1063,9 +1056,8 @@ void CGSH_Vulkan::ProcessHostToLocalTransfer()
 
 void CGSH_Vulkan::ProcessLocalToHostTransfer()
 {
-	//We're about to read from GS RAM, make sure all rendering commands are complete
-	m_frameCommandBuffer->Flush();
-	m_context->device.vkQueueWaitIdle(m_context->queue);
+	//Make sure our local RAM copy is in sync with GPU
+	SyncMemoryCache();
 }
 
 void CGSH_Vulkan::ProcessLocalToLocalTransfer()
@@ -1114,6 +1106,24 @@ void CGSH_Vulkan::TransferWrite(const uint8* imageData, uint32 length)
 	m_xferBuffer.insert(m_xferBuffer.end(), imageData, imageData + length);
 }
 
+void CGSH_Vulkan::WriteBackMemoryCache()
+{
+	m_frameCommandBuffer->Flush();
+	m_context->device.vkQueueWaitIdle(m_context->queue);
+
+	m_context->memoryBuffer.Write(m_context->queue, m_context->commandBufferPool,
+	                              m_context->physicalDeviceMemoryProperties, m_memoryCache);
+}
+
+void CGSH_Vulkan::SyncMemoryCache()
+{
+	m_frameCommandBuffer->Flush();
+	m_context->device.vkQueueWaitIdle(m_context->queue);
+
+	m_context->memoryBuffer.Read(m_context->queue, m_context->commandBufferPool,
+	                             m_context->physicalDeviceMemoryProperties, m_memoryCache);
+}
+
 void CGSH_Vulkan::SyncCLUT(const TEX0& tex0)
 {
 	if(!CGsPixelFormats::IsPsmIDTEX(tex0.nPsm)) return;
@@ -1144,7 +1154,7 @@ void CGSH_Vulkan::ReadFramebuffer(uint32 width, uint32 height, void* buffer)
 
 uint8* CGSH_Vulkan::GetRam() const
 {
-	return m_memoryBufferPtr;
+	return m_memoryCache;
 }
 
 Framework::CBitmap CGSH_Vulkan::GetScreenshot()
