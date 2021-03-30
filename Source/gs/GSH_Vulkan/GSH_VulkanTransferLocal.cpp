@@ -1,5 +1,6 @@
 #include "GSH_VulkanTransferLocal.h"
 #include "GSH_VulkanMemoryUtils.h"
+#include "StdStream.h"
 #include "MemStream.h"
 #include "vulkan/StructDefs.h"
 #include "nuanceur/generators/SpirvShaderGenerator.h"
@@ -9,6 +10,7 @@ using namespace GSH_Vulkan;
 #define DESCRIPTOR_LOCATION_MEMORY 0
 #define DESCRIPTOR_LOCATION_SWIZZLETABLE_SRC 1
 #define DESCRIPTOR_LOCATION_SWIZZLETABLE_DST 2
+#define DESCRIPTOR_LOCATION_MEMORY_8BIT 3
 
 #define LOCAL_SIZE_X 32
 #define LOCAL_SIZE_Y 32
@@ -105,6 +107,18 @@ VkDescriptorSet CTransferLocal::PrepareDescriptorSet(VkDescriptorSetLayout descr
 			auto writeSet = Framework::Vulkan::WriteDescriptorSet();
 			writeSet.dstSet = descriptorSet;
 			writeSet.dstBinding = DESCRIPTOR_LOCATION_MEMORY;
+			writeSet.descriptorCount = 1;
+			writeSet.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+			writeSet.pBufferInfo = &descriptorMemoryBufferInfo;
+			writes.push_back(writeSet);
+		}
+
+
+		//Memory Image Descriptor 8 bit
+		{
+			auto writeSet = Framework::Vulkan::WriteDescriptorSet();
+			writeSet.dstSet = descriptorSet;
+			writeSet.dstBinding = DESCRIPTOR_LOCATION_MEMORY_8BIT;
 			writeSet.descriptorCount = 1;
 			writeSet.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
 			writeSet.pBufferInfo = &descriptorMemoryBufferInfo;
@@ -281,6 +295,16 @@ PIPELINE CTransferLocal::CreatePipeline(const PIPELINE_CAPS& caps)
 		{
 			VkDescriptorSetLayoutBinding binding = {};
 			binding.binding = DESCRIPTOR_LOCATION_MEMORY;
+			binding.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+			binding.descriptorCount = 1;
+			binding.stageFlags = VK_SHADER_STAGE_COMPUTE_BIT;
+			bindings.push_back(binding);
+		}
+
+		//Memory Image Descriptor 8 bit
+		{
+			VkDescriptorSetLayoutBinding binding = {};
+			binding.binding = DESCRIPTOR_LOCATION_MEMORY_8BIT;
 			binding.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
 			binding.descriptorCount = 1;
 			binding.stageFlags = VK_SHADER_STAGE_COMPUTE_BIT;

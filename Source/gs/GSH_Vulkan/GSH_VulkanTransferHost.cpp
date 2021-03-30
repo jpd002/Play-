@@ -13,6 +13,7 @@ using namespace GSH_Vulkan;
 #define DESCRIPTOR_LOCATION_MEMORY 0
 #define DESCRIPTOR_LOCATION_XFERBUFFER 1
 #define DESCRIPTOR_LOCATION_SWIZZLETABLE_DST 2
+#define DESCRIPTOR_LOCATION_MEMORY_8BIT 3
 
 #define LOCAL_SIZE_X 1024
 
@@ -176,6 +177,17 @@ VkDescriptorSet CTransferHost::PrepareDescriptorSet(VkDescriptorSetLayout descri
 			writes.push_back(writeSet);
 		}
 
+		//Memory Image Descriptor 8 bit
+		{
+			auto writeSet = Framework::Vulkan::WriteDescriptorSet();
+			writeSet.dstSet = descriptorSet;
+			writeSet.dstBinding = DESCRIPTOR_LOCATION_MEMORY_8BIT;
+			writeSet.descriptorCount = 1;
+			writeSet.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+			writeSet.pBufferInfo = &descriptorMemoryBufferInfo;
+			writes.push_back(writeSet);
+		}
+
 		//Xfer Buffer Descriptor
 		{
 			auto writeSet = Framework::Vulkan::WriteDescriptorSet();
@@ -226,7 +238,7 @@ Framework::Vulkan::CShaderModule CTransferHost::CreateXferShader(const PIPELINE_
 	{
 		auto inputInvocationId = CInt4Lvalue(b.CreateInputInt(Nuanceur::SEMANTIC_SYSTEM_GIID));
 		auto memoryBuffer = CArrayUintValue(b.CreateUniformArrayUint("memoryBuffer", DESCRIPTOR_LOCATION_MEMORY));
-		auto memoryBuffer8 = CArrayUint8Value(b.CreateUniformArrayUint8("memoryBuffer8", DESCRIPTOR_LOCATION_MEMORY));
+		auto memoryBuffer8 = CArrayUint8Value(b.CreateUniformArrayUint8("memoryBuffer8", DESCRIPTOR_LOCATION_MEMORY_8BIT));
 		auto xferBuffer = CArrayUintValue(b.CreateUniformArrayUint("xferBuffer", DESCRIPTOR_LOCATION_XFERBUFFER));
 		auto dstSwizzleTable = CImageUint2DValue(b.CreateImage2DUint(DESCRIPTOR_LOCATION_SWIZZLETABLE_DST));
 
@@ -386,6 +398,15 @@ PIPELINE CTransferHost::CreateXferPipeline(const PIPELINE_CAPS& caps)
 		{
 			VkDescriptorSetLayoutBinding binding = {};
 			binding.binding = DESCRIPTOR_LOCATION_MEMORY;
+			binding.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+			binding.descriptorCount = 1;
+			binding.stageFlags = VK_SHADER_STAGE_COMPUTE_BIT;
+			bindings.push_back(binding);
+		}
+		//GS memory - 8bit buffer access
+		{
+			VkDescriptorSetLayoutBinding binding = {};
+			binding.binding = DESCRIPTOR_LOCATION_MEMORY_8BIT;
 			binding.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
 			binding.descriptorCount = 1;
 			binding.stageFlags = VK_SHADER_STAGE_COMPUTE_BIT;
