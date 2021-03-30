@@ -296,7 +296,7 @@ void CGSHandler::LoadState(Framework::CZipArchiveReader& archive)
 
 void CGSHandler::Copy(CGSHandler* source)
 {
-	source->SendGSCall([&]() { SyncMemoryCache(); }, true);
+	source->SendGSCall([source]() { source->SyncMemoryCache(); }, true);
 
 	memcpy(GetRam(), source->GetRam(), RAMSIZE);
 	memcpy(m_nReg, source->m_nReg, sizeof(uint64) * CGSHandler::REGISTER_MAX);
