@@ -66,8 +66,7 @@ void CMemoryUtils::Memory_Write24(Nuanceur::CShaderBuilder& b, Nuanceur::CArrayU
 
 void CMemoryUtils::Memory_Write24(Nuanceur::CShaderBuilder& b, Nuanceur::CArrayUcharValue memoryBuffer, Nuanceur::CIntValue address, Nuanceur::CUintValue value)
 {
-	Store(memoryBuffer, address, ToUchar(value));
-	Store(memoryBuffer, address + NewInt(b, 1), ToUchar(value >> NewUint(b, 8)));
+	Store(memoryBuffer, address, ToUshort(value));
 	Store(memoryBuffer, address + NewInt(b, 2), ToUchar(value >> NewUint(b, 16)));
 }
 
@@ -83,8 +82,7 @@ void CMemoryUtils::Memory_Write16(Nuanceur::CShaderBuilder& b, Nuanceur::CArrayU
 
 void CMemoryUtils::Memory_Write16(Nuanceur::CShaderBuilder& b, Nuanceur::CArrayUcharValue memoryBuffer, Nuanceur::CIntValue address, Nuanceur::CUintValue value)
 {
-	Store(memoryBuffer, address, ToUchar(value));
-	Store(memoryBuffer, address, ToUchar(value >> NewUint(b, 8)));
+	Store(memoryBuffer, address, ToUshort(value));
 }
 
 void CMemoryUtils::Memory_Write8(Nuanceur::CShaderBuilder& b, Nuanceur::CArrayUintValue memoryBuffer, Nuanceur::CIntValue address, Nuanceur::CUintValue value)
