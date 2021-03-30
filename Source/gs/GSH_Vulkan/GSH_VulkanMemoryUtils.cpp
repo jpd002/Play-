@@ -64,11 +64,11 @@ void CMemoryUtils::Memory_Write24(Nuanceur::CShaderBuilder& b, Nuanceur::CArrayU
 	AtomicOr(memoryBuffer, wordAddress, value);
 }
 
-void CMemoryUtils::Memory_Write24(Nuanceur::CShaderBuilder& b, Nuanceur::CArrayUint8Value memoryBuffer, Nuanceur::CIntValue address, Nuanceur::CUintValue value)
+void CMemoryUtils::Memory_Write24(Nuanceur::CShaderBuilder& b, Nuanceur::CArrayUcharValue memoryBuffer, Nuanceur::CIntValue address, Nuanceur::CUintValue value)
 {
-	Store(memoryBuffer, address, ToUint8(value));
-	Store(memoryBuffer, address + NewInt(b, 1), ToUint8(value >> NewUint(b, 8)));
-	Store(memoryBuffer, address + NewInt(b, 2), ToUint8(value >> NewUint(b, 16)));
+	Store(memoryBuffer, address, ToUchar(value));
+	Store(memoryBuffer, address + NewInt(b, 1), ToUchar(value >> NewUint(b, 8)));
+	Store(memoryBuffer, address + NewInt(b, 2), ToUchar(value >> NewUint(b, 16)));
 }
 
 void CMemoryUtils::Memory_Write16(Nuanceur::CShaderBuilder& b, Nuanceur::CArrayUintValue memoryBuffer, Nuanceur::CIntValue address, Nuanceur::CUintValue value)
@@ -81,10 +81,10 @@ void CMemoryUtils::Memory_Write16(Nuanceur::CShaderBuilder& b, Nuanceur::CArrayU
 	AtomicOr(memoryBuffer, wordAddress, valueWord);
 }
 
-void CMemoryUtils::Memory_Write16(Nuanceur::CShaderBuilder& b, Nuanceur::CArrayUint8Value memoryBuffer, Nuanceur::CIntValue address, Nuanceur::CUintValue value)
+void CMemoryUtils::Memory_Write16(Nuanceur::CShaderBuilder& b, Nuanceur::CArrayUcharValue memoryBuffer, Nuanceur::CIntValue address, Nuanceur::CUintValue value)
 {
-	Store(memoryBuffer, address, ToUint8(value));
-	Store(memoryBuffer, address, ToUint8(value >> NewUint(b, 8)));
+	Store(memoryBuffer, address, ToUchar(value));
+	Store(memoryBuffer, address, ToUchar(value >> NewUint(b, 8)));
 }
 
 void CMemoryUtils::Memory_Write8(Nuanceur::CShaderBuilder& b, Nuanceur::CArrayUintValue memoryBuffer, Nuanceur::CIntValue address, Nuanceur::CUintValue value)
@@ -97,9 +97,9 @@ void CMemoryUtils::Memory_Write8(Nuanceur::CShaderBuilder& b, Nuanceur::CArrayUi
 	AtomicOr(memoryBuffer, wordAddress, valueWord);
 }
 
-void CMemoryUtils::Memory_Write8(Nuanceur::CShaderBuilder& b, Nuanceur::CArrayUint8Value memoryBuffer, Nuanceur::CIntValue address, Nuanceur::CUintValue value)
+void CMemoryUtils::Memory_Write8(Nuanceur::CShaderBuilder& b, Nuanceur::CArrayUcharValue memoryBuffer, Nuanceur::CIntValue address, Nuanceur::CUintValue value)
 {
-	Store(memoryBuffer, address, ToUint8(value));
+	Store(memoryBuffer, address, ToUchar(value));
 }
 
 void CMemoryUtils::Memory_Write4(Nuanceur::CShaderBuilder& b, Nuanceur::CArrayUintValue memoryBuffer, Nuanceur::CIntValue nibAddress, Nuanceur::CUintValue value)
