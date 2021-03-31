@@ -247,6 +247,9 @@ void CDraw::FlushVertices()
 	}
 
 	//Add a barrier to ensure reads/writes are complete before writing to GS memory
+	//On Apple M1 GPU, this doesn't seem to be supported and needed, so we disable it
+	//Not sure about Intel GPUs on macOS though
+#ifndef __APPLE__
 	{
 		auto memoryBarrier = Framework::Vulkan::MemoryBarrier();
 		memoryBarrier.srcAccessMask = VK_ACCESS_SHADER_READ_BIT | VK_ACCESS_SHADER_WRITE_BIT;
@@ -255,6 +258,7 @@ void CDraw::FlushVertices()
 		m_context->device.vkCmdPipelineBarrier(commandBuffer, VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT, VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT,
 		                                       VK_DEPENDENCY_BY_REGION_BIT, 1, &memoryBarrier, 0, nullptr, 0, nullptr);
 	}
+#endif
 
 	auto descriptorSetCaps = make_convertible<DESCRIPTORSET_CAPS>(0);
 	descriptorSetCaps.hasTexture = m_pipelineCaps.hasTexture;
