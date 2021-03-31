@@ -355,14 +355,8 @@ void CPresent::CreateSwapChain()
 
 	auto swapChainCreateInfo = Framework::Vulkan::SwapchainCreateInfoKHR();
 	swapChainCreateInfo.surface = m_context->surface;
-#ifdef __APPLE__
-	//MoltenVK will report minImageCount = 2. Setting something > 2 in the swapchain create info
-	//will cause frame rate to be capped at 120fps instead of 60fps
-	swapChainCreateInfo.minImageCount = surfaceCaps.minImageCount;
-#else
 	//Make sure to check that MAX_FRAMES in CFrameCommandBuffer is at least as big as minImageCount
 	swapChainCreateInfo.minImageCount = 3; //Recommended by nVidia in UsingtheVulkanAPI_20160216.pdf
-#endif
 	swapChainCreateInfo.imageFormat = m_context->surfaceFormat.format;
 	swapChainCreateInfo.imageColorSpace = m_context->surfaceFormat.colorSpace;
 	swapChainCreateInfo.imageExtent = m_surfaceExtents;

@@ -17,7 +17,5 @@ public:
 	void PresentBackbuffer() override;
 
 private:
-	void DisableSyncQueueSubmits();
-
 	QWindow* m_renderWindow = nullptr;
 };
