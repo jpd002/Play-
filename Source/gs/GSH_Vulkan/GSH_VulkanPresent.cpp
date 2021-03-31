@@ -58,13 +58,27 @@ void CPresent::DoPresent(uint32 bufPsm, uint32 bufAddress, uint32 bufWidth, uint
 {
 	auto result = VK_SUCCESS;
 
-	uint32_t imageIndex = 0;
-	result = m_context->device.vkAcquireNextImageKHR(m_context->device, m_swapChain, UINT64_MAX, m_imageAcquireSemaphore, VK_NULL_HANDLE, &imageIndex);
-	if((result == VK_ERROR_OUT_OF_DATE_KHR) || !m_swapChainValid)
+	if(!m_swapChainValid && (m_swapChain != VK_NULL_HANDLE))
 	{
 		m_context->device.vkQueueWaitIdle(m_context->queue);
 		DestroySwapChain();
+	}
+
+	if(m_swapChain == VK_NULL_HANDLE)
+	{
+		//Try creating the swap chain
 		CreateSwapChain();
+		//If it's still not valid, nevermind presenting, try later
+		if(m_swapChain == VK_NULL_HANDLE) return;
+		assert(m_swapChainValid);
+	}
+
+	uint32_t imageIndex = 0;
+	result = m_context->device.vkAcquireNextImageKHR(m_context->device, m_swapChain, UINT64_MAX, m_imageAcquireSemaphore, VK_NULL_HANDLE, &imageIndex);
+	if(result == VK_ERROR_OUT_OF_DATE_KHR)
+	{
+		m_context->device.vkQueueWaitIdle(m_context->queue);
+		DestroySwapChain();
 		return;
 	}
 	if(result != VK_SUBOPTIMAL_KHR) CHECKVULKANERROR(result);
@@ -80,6 +94,12 @@ void CPresent::DoPresent(uint32 bufPsm, uint32 bufAddress, uint32 bufWidth, uint
 		presentInfo.waitSemaphoreCount = 1;
 		presentInfo.pWaitSemaphores = &m_renderCompleteSemaphore;
 		result = m_context->device.vkQueuePresentKHR(m_context->queue, &presentInfo);
+		if(result == VK_ERROR_OUT_OF_DATE_KHR)
+		{
+			m_context->device.vkQueueWaitIdle(m_context->queue);
+			DestroySwapChain();
+			return;
+		}
 		if(result != VK_SUBOPTIMAL_KHR) CHECKVULKANERROR(result);
 	}
 }
@@ -311,6 +331,15 @@ void CPresent::CreateSwapChain()
 
 	auto result = VK_SUCCESS;
 
+	VkSurfaceCapabilitiesKHR surfaceCaps = {};
+	result = m_context->instance->vkGetPhysicalDeviceSurfaceCapabilitiesKHR(m_context->physicalDevice, m_context->surface, &surfaceCaps);
+	if(result == VK_ERROR_SURFACE_LOST_KHR)
+	{
+		return;
+	}
+	CHECKVULKANERROR(result);
+	m_surfaceExtents = surfaceCaps.currentExtent;
+
 	//Create the semaphore that will be used to prevent submit from rendering before getting the image
 	{
 		auto semaphoreCreateInfo = Framework::Vulkan::SemaphoreCreateInfo();
@@ -323,11 +352,6 @@ void CPresent::CreateSwapChain()
 		auto result = m_context->device.vkCreateSemaphore(m_context->device, &semaphoreCreateInfo, nullptr, &m_renderCompleteSemaphore);
 		CHECKVULKANERROR(result);
 	}
-
-	VkSurfaceCapabilitiesKHR surfaceCaps = {};
-	result = m_context->instance->vkGetPhysicalDeviceSurfaceCapabilitiesKHR(m_context->physicalDevice, m_context->surface, &surfaceCaps);
-	CHECKVULKANERROR(result);
-	m_surfaceExtents = surfaceCaps.currentExtent;
 
 	auto swapChainCreateInfo = Framework::Vulkan::SwapchainCreateInfoKHR();
 	swapChainCreateInfo.surface = m_context->surface;
