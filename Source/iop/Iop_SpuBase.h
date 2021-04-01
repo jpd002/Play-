@@ -213,7 +213,7 @@ namespace Iop
 
 		void WriteWord(uint16);
 
-		uint32 ReceiveDma(uint8*, uint32, uint32);
+		uint32 ReceiveDma(uint8*, uint32, uint32, uint32);
 
 		void Render(int16*, unsigned int, unsigned int);
 

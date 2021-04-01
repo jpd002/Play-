@@ -1,5 +1,6 @@
 #include "Iop_Speed.h"
 #include "Iop_Intc.h"
+#include "Iop_DmacChannel.h"
 #include "Log.h"
 #include <cassert>
 #include <cstring>
@@ -290,17 +291,18 @@ void CSpeed::WriteRegister(uint32 address, uint32 value)
 	LogWrite(address, value);
 }
 
-uint32 CSpeed::ReceiveDma(uint8* buffer, uint32 blockSize, uint32 blockAmount)
+uint32 CSpeed::ReceiveDma(uint8* buffer, uint32 blockSize, uint32 blockAmount, uint32 direction)
 {
-	m_txBuffer.insert(std::end(m_txBuffer), buffer, buffer + blockSize * blockAmount);
-	return blockAmount;
-}
-
-uint32 CSpeed::SendDma(uint8* buffer, uint32 blockSize, uint32 blockAmount)
-{
-	uint32 size = blockSize * blockAmount;
-	memcpy(buffer, m_rxBuffer.data() + m_rxFifoPtr, size);
-	m_rxFifoPtr += size;
+	if(direction == Iop::Dmac::CChannel::CHCR_DR_TO)
+	{
+		uint32 size = blockSize * blockAmount;
+		memcpy(buffer, m_rxBuffer.data() + m_rxFifoPtr, size);
+		m_rxFifoPtr += size;
+	}
+	else
+	{
+		m_txBuffer.insert(std::end(m_txBuffer), buffer, buffer + blockSize * blockAmount);
+	}
 	return blockAmount;
 }
 

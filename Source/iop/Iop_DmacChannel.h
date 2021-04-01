@@ -15,13 +15,19 @@ namespace Iop
 		class CChannel
 		{
 		public:
-			typedef std::function<uint32(uint8*, uint32, uint32)> ReceiveFunctionType;
+			typedef std::function<uint32(uint8*, uint32, uint32, uint32)> ReceiveFunctionType;
 
 			enum
 			{
 				REG_MADR = 0x00,
 				REG_BCR = 0x04,
 				REG_CHCR = 0x08
+			};
+
+			enum CHCR_DIR
+			{
+				CHCR_DR_TO = 0,
+				CHCR_DR_FROM = 1,
 			};
 
 			struct BCR : public convertible<uint32>

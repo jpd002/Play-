@@ -75,11 +75,11 @@ CSubSystem::CSubSystem(bool ps2Mode)
 	m_cpu.m_pCOP[0] = &m_copScu;
 	m_cpu.m_pAddrTranslator = &CMIPS::TranslateAddress64;
 
-	m_dmac.SetReceiveFunction(CDmac::CHANNEL_SPU0, std::bind(&CSpuBase::ReceiveDma, &m_spuCore0, PLACEHOLDER_1, PLACEHOLDER_2, PLACEHOLDER_3));
-	m_dmac.SetReceiveFunction(CDmac::CHANNEL_SPU1, std::bind(&CSpuBase::ReceiveDma, &m_spuCore1, PLACEHOLDER_1, PLACEHOLDER_2, PLACEHOLDER_3));
-	m_dmac.SetReceiveFunction(CDmac::CHANNEL_DEV9, std::bind(&CSpeed::ReceiveDma, &m_speed, PLACEHOLDER_1, PLACEHOLDER_2, PLACEHOLDER_3));
-	m_dmac.SetReceiveFunction(CDmac::CHANNEL_SIO2in, std::bind(&CSio2::ReceiveDmaIn, &m_sio2, PLACEHOLDER_1, PLACEHOLDER_2, PLACEHOLDER_3));
-	m_dmac.SetReceiveFunction(CDmac::CHANNEL_SIO2out, std::bind(&CSio2::ReceiveDmaOut, &m_sio2, PLACEHOLDER_1, PLACEHOLDER_2, PLACEHOLDER_3));
+	m_dmac.SetReceiveFunction(CDmac::CHANNEL_SPU0, std::bind(&CSpuBase::ReceiveDma, &m_spuCore0, PLACEHOLDER_1, PLACEHOLDER_2, PLACEHOLDER_3, PLACEHOLDER_4));
+	m_dmac.SetReceiveFunction(CDmac::CHANNEL_SPU1, std::bind(&CSpuBase::ReceiveDma, &m_spuCore1, PLACEHOLDER_1, PLACEHOLDER_2, PLACEHOLDER_3, PLACEHOLDER_4));
+	m_dmac.SetReceiveFunction(CDmac::CHANNEL_DEV9, std::bind(&CSpeed::ReceiveDma, &m_speed, PLACEHOLDER_1, PLACEHOLDER_2, PLACEHOLDER_3, PLACEHOLDER_4));
+	m_dmac.SetReceiveFunction(CDmac::CHANNEL_SIO2in, std::bind(&CSio2::ReceiveDmaIn, &m_sio2, PLACEHOLDER_1, PLACEHOLDER_2, PLACEHOLDER_3, PLACEHOLDER_4));
+	m_dmac.SetReceiveFunction(CDmac::CHANNEL_SIO2out, std::bind(&CSio2::ReceiveDmaOut, &m_sio2, PLACEHOLDER_1, PLACEHOLDER_2, PLACEHOLDER_3, PLACEHOLDER_4));
 
 	SetupPageTable();
 }

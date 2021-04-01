@@ -27,8 +27,8 @@ namespace Iop
 		uint32 ReadRegister(uint32);
 		void WriteRegister(uint32, uint32);
 
-		uint32 ReceiveDmaIn(uint8*, uint32, uint32);
-		uint32 ReceiveDmaOut(uint8*, uint32, uint32);
+		uint32 ReceiveDmaIn(uint8*, uint32, uint32, uint32);
+		uint32 ReceiveDmaOut(uint8*, uint32, uint32, uint32);
 
 		void SetButtonState(unsigned int, PS2::CControllerInfo::BUTTON, bool, uint8*) override;
 		void SetAxisState(unsigned int, PS2::CControllerInfo::BUTTON, uint8, uint8*) override;

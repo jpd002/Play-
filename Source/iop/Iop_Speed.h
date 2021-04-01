@@ -25,8 +25,7 @@ namespace Iop
 		uint32 ReadRegister(uint32);
 		void WriteRegister(uint32, uint32);
 
-		uint32 ReceiveDma(uint8*, uint32, uint32);
-		uint32 SendDma(uint8*, uint32, uint32);
+		uint32 ReceiveDma(uint8*, uint32, uint32, uint32);
 
 		void CountTicks(uint32);
 
