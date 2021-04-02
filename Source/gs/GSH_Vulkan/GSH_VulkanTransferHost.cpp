@@ -14,6 +14,7 @@ using namespace GSH_Vulkan;
 #define DESCRIPTOR_LOCATION_XFERBUFFER 1
 #define DESCRIPTOR_LOCATION_SWIZZLETABLE_DST 2
 #define DESCRIPTOR_LOCATION_MEMORY_8BIT 3
+#define DESCRIPTOR_LOCATION_MEMORY_16BIT 4
 
 #define LOCAL_SIZE_X 1024
 
@@ -188,6 +189,17 @@ VkDescriptorSet CTransferHost::PrepareDescriptorSet(VkDescriptorSetLayout descri
 			writes.push_back(writeSet);
 		}
 
+		//Memory Image Descriptor 16 bit
+		{
+			auto writeSet = Framework::Vulkan::WriteDescriptorSet();
+			writeSet.dstSet = descriptorSet;
+			writeSet.dstBinding = DESCRIPTOR_LOCATION_MEMORY_16BIT;
+			writeSet.descriptorCount = 1;
+			writeSet.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+			writeSet.pBufferInfo = &descriptorMemoryBufferInfo;
+			writes.push_back(writeSet);
+		}
+
 		//Xfer Buffer Descriptor
 		{
 			auto writeSet = Framework::Vulkan::WriteDescriptorSet();
@@ -239,6 +251,7 @@ Framework::Vulkan::CShaderModule CTransferHost::CreateXferShader(const PIPELINE_
 		auto inputInvocationId = CInt4Lvalue(b.CreateInputInt(Nuanceur::SEMANTIC_SYSTEM_GIID));
 		auto memoryBuffer = CArrayUintValue(b.CreateUniformArrayUint("memoryBuffer", DESCRIPTOR_LOCATION_MEMORY));
 		auto memoryBuffer8 = CArrayUcharValue(b.CreateUniformArrayUchar("memoryBuffer8", DESCRIPTOR_LOCATION_MEMORY_8BIT));
+		auto memoryBuffer16 = CArrayUshortValue(b.CreateUniformArrayUshort("memoryBuffer16", DESCRIPTOR_LOCATION_MEMORY_16BIT));
 		auto xferBuffer = CArrayUintValue(b.CreateUniformArrayUint("xferBuffer", DESCRIPTOR_LOCATION_XFERBUFFER));
 		auto dstSwizzleTable = CImageUint2DValue(b.CreateImage2DUint(DESCRIPTOR_LOCATION_SWIZZLETABLE_DST));
 
@@ -282,7 +295,7 @@ Framework::Vulkan::CShaderModule CTransferHost::CreateXferShader(const PIPELINE_
 			auto input = XferStream_Read24(b, xferBuffer, pixelIndex);
 			auto address = CMemoryUtils::GetPixelAddress<CGsPixelFormats::STORAGEPSMCT32>(
 			    b, dstSwizzleTable, bufAddress, bufWidth, NewInt2(trxX, trxY));
-			CMemoryUtils::Memory_Write24(b, memoryBuffer8, address, input);
+			CMemoryUtils::Memory_Write24(b, memoryBuffer8, memoryBuffer16, address, input);
 		}
 		break;
 		case CGSHandler::PSMCT16S:
@@ -291,7 +304,7 @@ Framework::Vulkan::CShaderModule CTransferHost::CreateXferShader(const PIPELINE_
 			auto input = XferStream_Read16(b, xferBuffer, pixelIndex);
 			auto address = CMemoryUtils::GetPixelAddress<CGsPixelFormats::STORAGEPSMCT16>(
 			    b, dstSwizzleTable, bufAddress, bufWidth, NewInt2(trxX, trxY));
-			CMemoryUtils::Memory_Write16(b, memoryBuffer8, address, input);
+			CMemoryUtils::Memory_Write16(b, memoryBuffer16, address, input);
 		}
 		break;
 		case CGSHandler::PSMT8:
@@ -403,10 +416,21 @@ PIPELINE CTransferHost::CreateXferPipeline(const PIPELINE_CAPS& caps)
 			binding.stageFlags = VK_SHADER_STAGE_COMPUTE_BIT;
 			bindings.push_back(binding);
 		}
+
 		//GS memory - 8bit buffer access
 		{
 			VkDescriptorSetLayoutBinding binding = {};
 			binding.binding = DESCRIPTOR_LOCATION_MEMORY_8BIT;
+			binding.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+			binding.descriptorCount = 1;
+			binding.stageFlags = VK_SHADER_STAGE_COMPUTE_BIT;
+			bindings.push_back(binding);
+		}
+
+		//GS memory - 16bit buffer access
+		{
+			VkDescriptorSetLayoutBinding binding = {};
+			binding.binding = DESCRIPTOR_LOCATION_MEMORY_16BIT;
 			binding.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
 			binding.descriptorCount = 1;
 			binding.stageFlags = VK_SHADER_STAGE_COMPUTE_BIT;
