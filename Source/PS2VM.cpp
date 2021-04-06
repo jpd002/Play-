@@ -772,7 +772,14 @@ void CPS2VM::RegisterModulesInPadHandler()
 
 void CPS2VM::ReloadExecutable(const char* executablePath, const CPS2OS::ArgumentList& arguments)
 {
-	ResetVM();
+	{
+		//SPU RAM is not cleared by a LoadExecPS2 operation, we must keep its contents
+		//Deus Ex uses SPU RAM to keep game state in between executable reloads
+		auto savedSpuRam = std::vector<uint8>(PS2::SPU_RAM_SIZE);
+		memcpy(savedSpuRam.data(), m_iop->m_spuRam, PS2::SPU_RAM_SIZE);
+		ResetVM();
+		memcpy(m_iop->m_spuRam, savedSpuRam.data(), PS2::SPU_RAM_SIZE);
+	}
 	m_ee->m_os->BootFromVirtualPath(executablePath, arguments);
 }
 
