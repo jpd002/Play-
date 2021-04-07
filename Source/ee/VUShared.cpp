@@ -384,6 +384,7 @@ void VUShared::MADD_base(CMipsJitter* codeGen, uint8 dest, size_t fd, size_t fs,
 	if(expand)
 	{
 		codeGen->MD_PushRelExpand(ft);
+		ClampVector(codeGen); //Fatal Frame 1's door-blocking bug can be fixed by this
 	}
 	else
 	{
