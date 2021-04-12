@@ -67,6 +67,10 @@ void CDraw::SetPipelineCaps(const PIPELINE_CAPS& caps)
 {
 	bool changed = static_cast<uint64>(caps) != static_cast<uint64>(m_pipelineCaps);
 	if(!changed) return;
+	if(caps.textureUseMemoryCopy)
+	{
+		FlushRenderPass();
+	}
 	FlushVertices();
 	m_pipelineCaps = caps;
 }
@@ -205,6 +209,7 @@ void CDraw::AddVertices(const PRIM_VERTEX* vertexBeginPtr, const PRIM_VERTEX* ve
 	m_passVertexEnd += amount;
 	if(m_pipelineCaps.textureUseMemoryCopy)
 	{
+		//We can only render a primitive at once when in this mode
 		FlushRenderPass();
 	}
 }
