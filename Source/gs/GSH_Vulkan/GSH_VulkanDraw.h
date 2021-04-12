@@ -32,6 +32,7 @@ namespace GSH_Vulkan
 			uint32 primitiveType : 2;
 
 			uint32 hasTexture : 1;
+			uint32 textureUseMemoryCopy : 1;
 			uint32 textureHasAlpha : 1;
 			uint32 textureBlackIsTransparent : 1;
 			uint32 textureFunction : 2;

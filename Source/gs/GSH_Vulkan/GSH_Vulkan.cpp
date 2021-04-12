@@ -170,6 +170,7 @@ void CGSH_Vulkan::ReleaseImpl()
 	m_context->device.vkDestroyDescriptorPool(m_context->device, m_context->descriptorPool, nullptr);
 	m_context->clutBuffer.Reset();
 	m_context->memoryBuffer.Reset();
+	m_context->memoryBufferCopy.Reset();
 	m_context->commandBufferPool.Reset();
 	m_context->device.Reset();
 
@@ -424,6 +425,12 @@ void CGSH_Vulkan::CreateMemoryBuffer()
 
 	m_context->memoryBuffer.Write(m_context->queue, m_context->commandBufferPool,
 	                              m_context->physicalDeviceMemoryProperties, m_memoryCache);
+
+	m_context->memoryBufferCopy = Framework::Vulkan::CBuffer(m_context->device,
+	                                                         m_context->physicalDeviceMemoryProperties,
+	                                                         VK_BUFFER_USAGE_STORAGE_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT,
+	                                                         VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
+	                                                         RAMSIZE);
 }
 
 void CGSH_Vulkan::CreateClutBuffer()
@@ -667,6 +674,20 @@ void CGSH_Vulkan::SetRenderingContext(uint64 primReg)
 		assert(false);
 		break;
 	}
+
+	bool needsTextureCopy = false;
+	uint32 texBufPtr = tex0.GetBufPtr();
+	uint32 frameBufPtr = frame.GetBasePtr();
+	uint32 depthBufPtr = zbuf.GetBasePtr();
+	if((m_primitiveType == PRIM_SPRITE) && pipelineCaps.hasTexture)
+	{
+		needsTextureCopy |= (texBufPtr == frameBufPtr);
+		if(pipelineCaps.writeDepth)
+		{
+			needsTextureCopy |= (texBufPtr == depthBufPtr);
+		}
+	}
+	pipelineCaps.textureUseMemoryCopy = needsTextureCopy;
 
 	m_draw->SetPipelineCaps(pipelineCaps);
 	m_draw->SetFramebufferParams(frame.GetBasePtr(), frame.GetWidth(), fbWriteMask);
