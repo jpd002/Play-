@@ -207,3 +207,13 @@ bool CGsPixelFormats::IsPsmIDTEX8(unsigned int psm)
 {
 	return psm == CGSHandler::PSMT8 || psm == CGSHandler::PSMT8H;
 }
+
+bool CGsPixelFormats::IsPsmUpperByte(unsigned int psm)
+{
+	return psm == CGSHandler::PSMT8H || psm == CGSHandler::PSMT4HH || psm == CGSHandler::PSMT4HL;
+}
+
+bool CGsPixelFormats::IsPsm24Bits(unsigned int psm)
+{
+	return psm == CGSHandler::PSMZ24 || psm == CGSHandler::PSMCT24;
+}

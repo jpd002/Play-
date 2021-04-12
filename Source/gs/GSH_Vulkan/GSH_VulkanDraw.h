@@ -90,6 +90,7 @@ namespace GSH_Vulkan
 		void SetAlphaBlendingParams(uint32);
 		void SetAlphaTestParams(uint32);
 		void SetScissor(uint32, uint32, uint32, uint32);
+		void SetMemoryCopyParams(uint32, uint32);
 
 		void AddVertices(const PRIM_VERTEX*, const PRIM_VERTEX*);
 		void FlushVertices();
@@ -188,6 +189,8 @@ namespace GSH_Vulkan
 		uint32 m_scissorWidth = 0;
 		uint32 m_scissorHeight = 0;
 		uint32 m_clutBufferOffset = 0;
+		uint32 m_memoryCopyAddress = 0;
+		uint32 m_memoryCopySize = 0;
 	};
 
 	typedef std::shared_ptr<CDraw> DrawPtr;

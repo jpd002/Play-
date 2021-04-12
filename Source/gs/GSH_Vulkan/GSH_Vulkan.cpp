@@ -675,16 +675,32 @@ void CGSH_Vulkan::SetRenderingContext(uint64 primReg)
 		break;
 	}
 
+	//Check if we need to save a copy of RAM because primitive writes to texture area
 	bool needsTextureCopy = false;
-	uint32 texBufPtr = tex0.GetBufPtr();
-	uint32 frameBufPtr = frame.GetBasePtr();
-	uint32 depthBufPtr = zbuf.GetBasePtr();
+	uint32 memoryCopyAddress = 0;
+	uint32 memoryCopySize = 0;
 	if((m_primitiveType == PRIM_SPRITE) && pipelineCaps.hasTexture)
 	{
-		needsTextureCopy |= (texBufPtr == frameBufPtr);
+		uint32 texBufPtr = tex0.GetBufPtr();
+		uint32 frameBufPtr = frame.GetBasePtr();
+		uint32 depthBufPtr = zbuf.GetBasePtr();
+		bool isTexUpperBytePsm = CGsPixelFormats::IsPsmUpperByte(tex0.nPsm);
+		{
+			bool isFrame24Bits = CGsPixelFormats::IsPsm24Bits(frame.nPsm);
+			needsTextureCopy |= (texBufPtr == frameBufPtr) && !(isTexUpperBytePsm && isFrame24Bits);
+		}
 		if(pipelineCaps.writeDepth)
 		{
-			needsTextureCopy |= (texBufPtr == depthBufPtr);
+			bool isDepth24Bits = CGsPixelFormats::IsPsm24Bits(zbuf.nPsm);
+			needsTextureCopy |= (texBufPtr == depthBufPtr) && !(isTexUpperBytePsm && isDepth24Bits);
+		}
+		if(needsTextureCopy)
+		{
+			CGsCachedArea textureArea;
+			textureArea.SetArea(tex0.nPsm, tex0.nBufPtr, tex0.GetBufWidth(), tex0.GetHeight());
+			memoryCopyAddress = texBufPtr;
+			memoryCopySize = textureArea.GetSize();
+			m_draw->SetMemoryCopyParams(memoryCopyAddress, memoryCopySize);
 		}
 	}
 	pipelineCaps.textureUseMemoryCopy = needsTextureCopy;

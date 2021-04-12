@@ -196,6 +196,12 @@ void CDraw::SetScissor(uint32 scissorX, uint32 scissorY, uint32 scissorWidth, ui
 	m_scissorHeight = scissorHeight;
 }
 
+void CDraw::SetMemoryCopyParams(uint32 memoryCopyAddress, uint32 memoryCopySize)
+{
+	m_memoryCopyAddress = memoryCopyAddress;
+	m_memoryCopySize = memoryCopySize;
+}
+
 void CDraw::AddVertices(const PRIM_VERTEX* vertexBeginPtr, const PRIM_VERTEX* vertexEndPtr)
 {
 	auto amount = vertexEndPtr - vertexBeginPtr;
@@ -229,7 +235,9 @@ void CDraw::FlushVertices()
 
 		//We need to keep a copy of the memory
 		VkBufferCopy bufferCopy = {};
-		bufferCopy.size = 0x400000;
+		bufferCopy.srcOffset = m_memoryCopyAddress;
+		bufferCopy.dstOffset = m_memoryCopyAddress;
+		bufferCopy.size = m_memoryCopySize;
 
 		m_context->device.vkCmdCopyBuffer(commandBuffer, m_context->memoryBuffer, m_context->memoryBufferCopy, 1, &bufferCopy);
 	}
