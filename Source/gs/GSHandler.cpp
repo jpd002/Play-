@@ -97,6 +97,7 @@ CGSHandler::CGSHandler(bool gsThreaded)
 	m_transferReadHandlers[PSMCT24] = &CGSHandler::TransferReadHandlerPSMCT24;
 	m_transferReadHandlers[PSMCT16] = &CGSHandler::TransferReadHandlerGeneric<CGsPixelFormats::STORAGEPSMCT16>;
 	m_transferReadHandlers[PSMT8] = &CGSHandler::TransferReadHandlerGeneric<CGsPixelFormats::STORAGEPSMT8>;
+	m_transferReadHandlers[PSMZ32] = &CGSHandler::TransferReadHandlerGeneric<CGsPixelFormats::STORAGEPSMZ32>;
 
 	ResetBase();
 
