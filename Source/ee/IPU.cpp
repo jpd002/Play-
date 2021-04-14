@@ -1945,7 +1945,27 @@ bool CIPU::CCSCCommand::Execute()
 				pPixel += 0x10;
 			}
 
-			m_OUT_FIFO->Write(nPixel, sizeof(uint32) * 0x100);
+			if(m_command.ofm == 1)
+			{
+				//RGBA16 output
+				uint16 cvtPixels[0x100];
+				for(uint32 i = 0; i < 0x100; i++)
+				{
+					uint32 pixel = nPixel[i];
+					uint16 result = 0;
+					result |= ((pixel & 0x000000F8) >> (0 + 3)) << 0;
+					result |= ((pixel & 0x0000F800) >> (8 + 3)) << 5;
+					result |= ((pixel & 0x00F80000) >> (16 + 3)) << 10;
+					result |= ((pixel & 0x80000000) >> 31) << 15;
+					cvtPixels[i] = result;
+				}
+				m_OUT_FIFO->Write(cvtPixels, sizeof(uint16) * 0x100);
+			}
+			else
+			{
+				//RGBA32 output
+				m_OUT_FIFO->Write(nPixel, sizeof(uint32) * 0x100);
+			}
 
 			m_mbCount--;
 			m_state = STATE_FLUSHBLOCK;
