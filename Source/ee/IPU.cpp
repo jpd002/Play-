@@ -1918,30 +1918,9 @@ bool CIPU::CCSCCommand::Execute()
 					float nG = nY - 0.34414f * (nCb - 128) - 0.71414f * (nCr - 128);
 					float nB = nY + 1.772f * (nCb - 128);
 
-					if(nR < 0)
-					{
-						nR = 0;
-					}
-					if(nR > 255)
-					{
-						nR = 255;
-					}
-					if(nG < 0)
-					{
-						nG = 0;
-					}
-					if(nG > 255)
-					{
-						nG = 255;
-					}
-					if(nB < 0)
-					{
-						nB = 0;
-					}
-					if(nB > 255)
-					{
-						nB = 255;
-					}
+					nR = std::clamp(nR, 0.f, 255.f);
+					nG = std::clamp(nG, 0.f, 255.f);
+					nB = std::clamp(nB, 0.f, 255.f);
 
 					uint8 a = 0;
 					uint32 rgb = (static_cast<uint8>(nB) << 16) | (static_cast<uint8>(nG) << 8) | (static_cast<uint8>(nR) << 0);
