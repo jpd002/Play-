@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+	<!-- Application Navigation -->
+
+	<string name="main_menu_settings">Настройки</string>
+	<string name="main_menu_about">О приложении</string>
+	<string name="main_menu_exit">Выход</string>
+
+	<string name="game_info">Нет информации</string>
+
+	<string name="search_games">Создание коллекции&#8230;</string>
+	<string name="search_games_msg">Пожалуйста, подождите&#8230;</string>
+	<string name="updating_db">Обновление коллекции&#8230;</string>
+
+	<string name="navigation_drawer_open">Navigation drawer открыт</string>
+	<string name="navigation_drawer_close">Navigation drawer закрыт</string>
+
+	<string name="menu_title_open">Меню</string>
+	<string name="menu_title_shut">Игры</string>
+	<string name="menu_title_look">Поиск</string>
+
+	<string name="file_list_recent">Недавние</string>
+	<string name="file_list_homebrew">Homebrew</string>
+	<string name="file_list_default">Без сортировки</string>
+
+	<string name="game_unavailable">Игра недоступна.\nУдалить её из списка?</string>
+	<string name="not_found">Не найдено</string>
+	<string name="no_game_found_adapter">Игры PS2 не найдены. Пожалуйста, переместите игры на устройство и перезапустите приложение.</string>
+
+	<!-- Application Preferences -->
+
+	<string name="title_activity_settings">Настройки</string>
+
+	<string name="preferences_screen_emu">Эмулятор</string>
+
+	<string name="pref_emu_general">Основные</string>
+
+	<string name="pref_emu_general_fps_display_title">Счётчики кадров и вызовов отрисовки</string>
+	<string name="pref_emu_general_fps_display_summary">Выводить на экран количество &quot;кадров в секунду&quot; (f/s) и &quot;вызовов отрисовок на кадр&quot; (dc/f)</string>
+
+	<string name="pref_emu_general_pad_display_title">Показывать экранный геймпад</string>
+	<string name="pref_emu_general_pad_display_summary">Включить отображение виртуального контроллера</string>
+
+	<string name="pref_emu_video">Видео</string>
+
+	<string name="pref_emu_video_res_factor_title">Масштаб разрешения</string>
+
+	<string name="pref_emu_video_widescreen_title">Масштабировать под широкий экран</string>
+	<string name="pref_emu_video_widescreen_summary">Изменять размер изображения до 16:9</string>
+
+	<string name="pref_emu_video_force_bilinear_title">Форсировать билинейную фильтрацию</string>
+	<string name="pref_emu_video_force_bilinear_summary">Принудительно использовать билинейную фильтрацию для всех типов текстур</string>
+
+	<string name="pref_emu_video_presentation_mode_title">Режим вывода</string>
+
+	<string name="pref_emu_audio">Аудио</string>
+
+	<string name="pref_emu_audio_enable_output_title">Выводить звук</string>
+	<string name="pref_emu_audio_enable_output_summary">Включить вывод звука</string>
+
+	<string name="pref_emu_audio_spublockcount_title">Размер буфера</string>
+
+	<string name="preferences_screen_ui">Настройки интерфейса</string>
+
+	<string name="preferences_ui">Настройки хранилища</string>
+
+	<string name="pref_ui_rescan_all_title">Повторное сканирование</string>
+	<string name="pref_ui_rescan_all_summary">Поиск новых игр в памяти устройства</string>
+
+	<string name="pref_ui_clear_unavailable_title">Удалить недоступные игры</string>
+	<string name="pref_ui_clear_unavailable_summary">Убрать из списка все недоступные игры</string>
+
+	<string name="pref_ui_reset_cache_title">Очистить кэш</string>
+	<string name="pref_ui_reset_cache_summary">Удалить сохранённые обложки</string>
+
+	<string name="preferences_theme">Настройки темы</string>
+
+	<string name="pref_title_theme_selection">Выбор темы</string>
+
+	<string-array name="pref_theme_selection_titles">
+		<item>Янтарная</item>
+		<item>Голубая (по умолчанию)</item>
+		<item>Розовая</item>
+		<item>Фиолетовая</item>
+		<item>Бирюзовая</item>
+		<item>Тёмно-фиолетовая</item>
+		<item>Зелёная</item>
+	</string-array>
+
+	<string-array name="pref_emu_video_res_factor_entries">
+		<item>1x</item>
+		<item>2x</item>
+		<item>4x</item>
+		<item>8x</item>
+	</string-array>
+
+	<string-array name="pref_emu_video_presentation_mode_entries">
+		<item>На весь экран</item>
+		<item>По размеру экрана (по умолчанию)</item>
+		<item>Оригинальный размер</item>
+	</string-array>
+
+	<string-array name="pref_emu_audio_spublockcount_entries">
+		<item>400</item>
+		<item>100</item>
+		<item>10</item>
+	</string-array>
+
+	<!-- Emulator Drawer -->
+
+	<string name="emulator_drawer_exit">Выход</string>
+	<string name="emulator_drawer_savestate">Сохранить состояние</string>
+	<string name="emulator_drawer_loadstate">Загрузить состояние</string>
+
+	<string name="emulator_save_state_ok">Сохранено успешно.</string>
+	<string name="emulator_save_state_fail">Не удалось сохранить.</string>
+
+	<string name="emulator_load_state_ok">Загружено успешно.</string>
+	<string name="emulator_load_state_fail">Не удалось загрузить.</string>
+
+	<!-- Error Reporting / Debugging -->
+
+	<string name="report_issue">Обнаружен сбой</string>
+
+	<string name="dismiss">Закрыть</string>
+	<string name="report">Сообщить</string>
+
+	<string name="platform">Копирование содержимого logcat в буфер обмена\nПожалуйста, вставьте в отчёт о проблеме</string>
+	<string name="log_saved">Лог сохранён в \"Files Dir\"</string>
+	<string name="no_recent_adapter">Не найдены запущенные ранее игры PS2.</string>
+	
+	<!-- Editor Menu -->
+	<string name="editor_menu_save">Сохранить</string>
+	<string name="editor_menu_reset">Сброс</string>
+	<string name="editor_menu_cancel">Отмена</string>
+	
+	<!-- Game Info Edit Activity -->
+	<string name="gameinfo_edit_activity_gametitle">Название</string>
+	<string name="gameinfo_edit_activity_gameoverview">Обзор</string>
+	<string name="gameinfo_edit_activity_gamecover">Обложка</string>
+	<string name="gameinfo_edit_activity_gamecover_change">Сменить</string>
+	<string name="gameinfo_edit_activity_gamecover_default">По умолчанию</string>
+	
+</resources>
