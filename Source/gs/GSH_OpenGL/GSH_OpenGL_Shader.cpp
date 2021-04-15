@@ -137,7 +137,15 @@ Framework::OpenGl::CShader CGSH_OpenGL::GenerateFragmentShader(const SHADERCAPS&
 {
 	std::stringstream shaderBuilder;
 
+	bool writeDestAlphaTest = caps.hasDestAlphaTest && m_hasFramebufferFetchExtension;
+	bool useFramebufferFetch = writeDestAlphaTest;
+
 	shaderBuilder << GLSL_VERSION << std::endl;
+
+	if(useFramebufferFetch)
+	{
+		shaderBuilder << "#extension GL_EXT_shader_framebuffer_fetch : require" << std::endl;
+	}
 
 	shaderBuilder << "precision mediump float;" << std::endl;
 
@@ -149,7 +157,15 @@ Framework::OpenGl::CShader CGSH_OpenGL::GenerateFragmentShader(const SHADERCAPS&
 		shaderBuilder << "in float v_fog;" << std::endl;
 	}
 
-	shaderBuilder << "out vec4 fragColor;" << std::endl;
+	if(useFramebufferFetch)
+	{
+		shaderBuilder << "inout vec4 fragColor;" << std::endl;
+	}
+	else
+	{
+		shaderBuilder << "out vec4 fragColor;" << std::endl;
+	}
+
 #ifdef USE_DUALSOURCE_BLENDING
 	shaderBuilder << "out vec4 blendColor;" << std::endl;
 #endif
@@ -203,6 +219,19 @@ Framework::OpenGl::CShader CGSH_OpenGL::GenerateFragmentShader(const SHADERCAPS&
 
 	shaderBuilder << "void main()" << std::endl;
 	shaderBuilder << "{" << std::endl;
+
+	if(writeDestAlphaTest)
+	{
+		switch(caps.destAlphaTestRef)
+		{
+		case 0:
+			shaderBuilder << "	if(fragColor.a >= 0.5) discard;";
+			break;
+		case 1:
+			shaderBuilder << "	if(fragColor.a < 0.5) discard;";
+			break;
+		}
+	}
 
 	shaderBuilder << "	highp vec3 texCoord = v_texCoord;" << std::endl;
 	shaderBuilder << "	texCoord.st /= texCoord.p;" << std::endl;

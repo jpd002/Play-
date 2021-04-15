@@ -275,6 +275,7 @@ void CGSH_OpenGL::InitializeRC()
 	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 	glClearDepthf(0.0f);
 
+	CheckExtensions();
 	SetupTextureUpdaters();
 
 	m_presentProgram = GeneratePresentProgram();
@@ -299,6 +300,20 @@ void CGSH_OpenGL::InitializeRC()
 	PresentBackbuffer();
 
 	CHECKGLERROR();
+}
+
+void CGSH_OpenGL::CheckExtensions()
+{
+	GLint numExtensions = 0;
+	glGetIntegerv(GL_NUM_EXTENSIONS, &numExtensions);
+	for(GLint i = 0; i < numExtensions; i++)
+	{
+		const char* extensionName = reinterpret_cast<const char*>(glGetStringi(GL_EXTENSIONS, i));
+		if(!strcmp(extensionName, "GL_EXT_shader_framebuffer_fetch"))
+		{
+			m_hasFramebufferFetchExtension = true;
+		}
+	}
 }
 
 Framework::OpenGl::CBuffer CGSH_OpenGL::GeneratePresentVertexBuffer()
@@ -1116,6 +1131,9 @@ void CGSH_OpenGL::FillShaderCapsFromTest(SHADERCAPS& shaderCaps, const uint64& t
 	{
 		shaderCaps.hasAlphaTest = 0;
 	}
+
+	shaderCaps.hasDestAlphaTest = test.nDestAlphaEnabled;
+	shaderCaps.destAlphaTestRef = test.nDestAlphaMode;
 }
 
 void CGSH_OpenGL::FillShaderCapsFromAlpha(SHADERCAPS& shaderCaps, bool alphaEnabled, const uint64& alphaReg)

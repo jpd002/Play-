@@ -85,8 +85,10 @@ private:
 		unsigned int hasFog : 1;
 		unsigned int hasAlphaTest : 1;
 		unsigned int alphaTestMethod : 3;
+		unsigned int hasDestAlphaTest : 1;
+		unsigned int destAlphaTestRef : 1;
 		unsigned int colorOutputWhite : 1;
-		unsigned int padding : 12;
+		unsigned int padding : 10;
 
 		bool isIndexedTextureSource() const
 		{
@@ -299,6 +301,7 @@ private:
 	void WriteRegisterImpl(uint8, uint64) override;
 
 	void InitializeRC();
+	void CheckExtensions();
 	void SetupTextureUpdaters();
 	virtual void PresentBackbuffer() = 0;
 	void MakeLinearZOrtho(float*, float, float, float, float);
@@ -457,4 +460,6 @@ private:
 	Framework::OpenGl::CBuffer m_vertexParamsBuffer;
 	Framework::OpenGl::CBuffer m_fragmentParamsBuffer;
 	VertexBuffer m_vertexBuffer;
+
+	bool m_hasFramebufferFetchExtension = false;
 };
