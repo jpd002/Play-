@@ -72,12 +72,6 @@ protected:
 private:
 	typedef CGsTextureCache<Framework::OpenGl::CTexture> TextureCache;
 
-	enum class TECHNIQUE
-	{
-		STANDARD,
-		ALPHATEST_TWOPASS,
-	};
-
 	struct SHADERCAPS : public convertible<uint32>
 	{
 		unsigned int texFunction : 2; //0 - Modulate, 1 - Decal, 2 - Highlight, 3 - Hightlight2
@@ -121,7 +115,6 @@ private:
 		uint64 fogColReg;
 
 		//Intermediate State
-		TECHNIQUE technique;
 		SHADERCAPS shaderCaps;
 
 		//OpenGL state
@@ -355,7 +348,6 @@ private:
 	void FillShaderCapsFromTexture(SHADERCAPS&, const uint64&, const uint64&, const uint64&, const uint64&);
 	void FillShaderCapsFromTest(SHADERCAPS&, const uint64&);
 	void FillShaderCapsFromAlpha(SHADERCAPS&, bool, const uint64&);
-	TECHNIQUE GetTechniqueFromTest(const uint64&);
 
 	void SetupTexture(uint64, uint64, uint64, uint64, uint64);
 	static uint32 GetFramebufferBitDepth(uint32);
@@ -393,7 +385,6 @@ private:
 	bool m_forceBilinearTextures = false;
 	unsigned int m_fbScale = 1;
 	bool m_multisampleEnabled = false;
-	bool m_accurateAlphaTestEnabled = false;
 	bool m_depthTestingEnabled = true;
 	bool m_alphaBlendingEnabled = true;
 	bool m_alphaTestingEnabled = true;
