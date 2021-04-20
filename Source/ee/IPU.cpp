@@ -1134,7 +1134,10 @@ bool CIPU::CIDECCommand::Execute()
 			uint32 startCode = 0;
 			if(!m_IN_FIFO->TryPeekBits_MSBF(24, startCode))
 			{
-				return false;
+				//Not enough bits to get the full code, but we detected 8 zero bits
+				//in the previous state, we can assume we found a start code and bail
+				//Helps games like SMT: Nocturne which finishes a data packet with 8 zero bits
+				throw CStartCodeException();
 			}
 			if(startCode != 0x1)
 			{
