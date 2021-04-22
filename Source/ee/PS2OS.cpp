@@ -2632,6 +2632,7 @@ void CPS2OS::sc_SignalSema()
 	auto sema = m_semaphores[id];
 	if(sema == nullptr)
 	{
+		CLog::GetInstance().Warn(LOG_NAME, "Trying to signal an invalid semaphore (%d).\r\n", id);
 		m_ee.m_State.nGPR[SC_RETURN].nD0 = static_cast<int32>(-1);
 		return;
 	}
@@ -2663,6 +2664,7 @@ void CPS2OS::sc_WaitSema()
 	auto sema = m_semaphores[id];
 	if(sema == nullptr)
 	{
+		CLog::GetInstance().Warn(LOG_NAME, "Trying to wait an invalid semaphore (%d).\r\n", id);
 		m_ee.m_State.nGPR[SC_RETURN].nD0 = -1;
 		return;
 	}
