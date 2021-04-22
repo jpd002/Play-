@@ -87,7 +87,7 @@
 //Some notes about SEMA_ID_BASE:
 // 2K games (ex.: NBA 2K12) seem to have a bug where they wait for a semaphore they don't own.
 // The semaphore id is never set and the game will use the id in WaitSema and SignalSema.
-// On a real PS2, this seem to work because ids start at 0. The first semaphore created in the 
+// On a real PS2, this seem to work because ids start at 0. The first semaphore created in the
 // game's lifetime doesn't seem to be used, so this bug probably doesn't have any side effect.
 #define SEMA_ID_BASE 0
 
