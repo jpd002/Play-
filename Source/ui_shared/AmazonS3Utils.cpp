@@ -3,7 +3,7 @@
 ListObjectsResult AmazonS3Utils::GetListObjects(const CAmazonCredentials& credentials, std::string bucketName)
 {
 	std::string bucketRegion;
-	
+
 	//Obtain bucket region
 	try
 	{
