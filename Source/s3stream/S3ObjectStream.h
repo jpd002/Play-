@@ -4,6 +4,7 @@
 #include "Singleton.h"
 #include "Stream.h"
 #include "filesystem_def.h"
+#include "amazon/AmazonS3Client.h"
 
 class CS3ObjectStream : public Framework::CStream
 {
@@ -12,8 +13,7 @@ public:
 	{
 	public:
 		CConfig();
-		std::string GetAccessKeyId();
-		std::string GetSecretAccessKey();
+		CAmazonCredentials GetCredentials();
 	};
 
 	CS3ObjectStream(const char*, const char*);
@@ -32,7 +32,7 @@ private:
 
 	std::string m_bucketName;
 	std::string m_bucketRegion;
-	std::string m_objectName;
+	std::string m_objectKey;
 
 	//Object Metadata
 	uint64 m_objectSize = 0;

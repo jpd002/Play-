@@ -1,14 +1,14 @@
 #include "AmazonS3Utils.h"
 
-ListObjectsResult AmazonS3Utils::GetListObjects(std::string accessKeyId, std::string secretAccessKey, std::string bucketName)
+ListObjectsResult AmazonS3Utils::GetListObjects(const CAmazonCredentials& credentials, std::string bucketName)
 {
 	std::string bucketRegion;
-
+	
 	//Obtain bucket region
 	try
 	{
 		{
-			CAmazonS3Client client(accessKeyId, secretAccessKey);
+			CAmazonS3Client client(credentials);
 
 			GetBucketLocationRequest request;
 			request.bucket = bucketName;
@@ -18,7 +18,7 @@ ListObjectsResult AmazonS3Utils::GetListObjects(std::string accessKeyId, std::st
 		}
 
 		//List objects
-		CAmazonS3Client client(accessKeyId, secretAccessKey, bucketRegion);
+		CAmazonS3Client client(credentials, bucketRegion);
 		return client.ListObjects(bucketName);
 	}
 	catch(...)

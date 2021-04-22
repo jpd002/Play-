@@ -5,5 +5,5 @@
 
 namespace AmazonS3Utils
 {
-	ListObjectsResult GetListObjects(std::string, std::string, std::string);
+	ListObjectsResult GetListObjects(const CAmazonCredentials&, std::string);
 };

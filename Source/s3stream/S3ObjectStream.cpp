@@ -23,19 +23,17 @@ CS3ObjectStream::CConfig::CConfig()
 	CAppConfig::GetInstance().RegisterPreferenceString(PREF_S3_OBJECTSTREAM_SECRETACCESSKEY, "");
 }
 
-std::string CS3ObjectStream::CConfig::GetAccessKeyId()
+CAmazonCredentials CS3ObjectStream::CConfig::GetCredentials()
 {
-	return CAppConfig::GetInstance().GetPreferenceString(PREF_S3_OBJECTSTREAM_ACCESSKEYID);
+	CAmazonCredentials credentials;
+	credentials.accessKeyId = CAppConfig::GetInstance().GetPreferenceString(PREF_S3_OBJECTSTREAM_ACCESSKEYID);
+	credentials.secretAccessKey = CAppConfig::GetInstance().GetPreferenceString(PREF_S3_OBJECTSTREAM_SECRETACCESSKEY);
+	return credentials;
 }
 
-std::string CS3ObjectStream::CConfig::GetSecretAccessKey()
-{
-	return CAppConfig::GetInstance().GetPreferenceString(PREF_S3_OBJECTSTREAM_SECRETACCESSKEY);
-}
-
-CS3ObjectStream::CS3ObjectStream(const char* bucketName, const char* objectName)
+CS3ObjectStream::CS3ObjectStream(const char* bucketName, const char* objectKey)
     : m_bucketName(bucketName)
-    , m_objectName(objectName)
+    , m_objectKey(objectKey)
 {
 	m_buffer.resize(BUFFERSIZE);
 	Framework::PathUtils::EnsurePathExists(GetCachePath());
@@ -135,7 +133,7 @@ void CS3ObjectStream::GetObjectInfo()
 {
 	//Obtain bucket region
 	{
-		CAmazonS3Client client(CConfig::GetInstance().GetAccessKeyId(), CConfig::GetInstance().GetSecretAccessKey());
+		CAmazonS3Client client(CConfig::GetInstance().GetCredentials());
 
 		GetBucketLocationRequest request;
 		request.bucket = m_bucketName;
@@ -146,11 +144,11 @@ void CS3ObjectStream::GetObjectInfo()
 
 	//Obtain object info
 	{
-		CAmazonS3Client client(CConfig::GetInstance().GetAccessKeyId(), CConfig::GetInstance().GetSecretAccessKey(), m_bucketRegion);
+		CAmazonS3Client client(CConfig::GetInstance().GetCredentials(), m_bucketRegion);
 
 		HeadObjectRequest request;
 		request.bucket = m_bucketName;
-		request.object = m_objectName;
+		request.key = m_objectKey;
 
 		auto objectHeader = client.HeadObject(request);
 		m_objectSize = objectHeader.contentLength;
@@ -195,9 +193,9 @@ void CS3ObjectStream::SyncBuffer()
 	if(!cachedReadSucceeded)
 	{
 		assert(size > 0);
-		CAmazonS3Client client(CConfig::GetInstance().GetAccessKeyId(), CConfig::GetInstance().GetSecretAccessKey(), m_bucketRegion);
+		CAmazonS3Client client(CConfig::GetInstance().GetCredentials(), m_bucketRegion);
 		GetObjectRequest request;
-		request.object = m_objectName;
+		request.key = m_objectKey;
 		request.bucket = m_bucketName;
 		request.range = range;
 		auto objectContent = client.GetObject(request);
