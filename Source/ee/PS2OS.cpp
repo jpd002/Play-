@@ -84,6 +84,13 @@
 
 #define BIOS_ID_BASE 1
 
+//Some notes about SEMA_ID_BASE:
+// 2K games (ex.: NBA 2K12) seem to have a bug where they wait for a semaphore they don't own.
+// The semaphore id is never set and the game will use the id in WaitSema and SignalSema.
+// On a real PS2, this seem to work because ids start at 0. The first semaphore created in the 
+// game's lifetime doesn't seem to be used, so this bug probably doesn't have any side effect.
+#define SEMA_ID_BASE 0
+
 #define PATCHESFILENAME "patches.xml"
 #define LOG_NAME ("ps2os")
 
@@ -237,7 +244,7 @@ CPS2OS::CPS2OS(CMIPS& ee, uint8* ram, uint8* bios, uint8* spr, CGSHandler*& gs, 
     , m_libMc2(ram, iopBios)
     , m_iopBios(iopBios)
     , m_threads(reinterpret_cast<THREAD*>(m_ram + BIOS_ADDRESS_THREAD_BASE), BIOS_ID_BASE, MAX_THREAD)
-    , m_semaphores(reinterpret_cast<SEMAPHORE*>(m_ram + BIOS_ADDRESS_SEMAPHORE_BASE), BIOS_ID_BASE, MAX_SEMAPHORE)
+    , m_semaphores(reinterpret_cast<SEMAPHORE*>(m_ram + BIOS_ADDRESS_SEMAPHORE_BASE), SEMA_ID_BASE, MAX_SEMAPHORE)
     , m_intcHandlers(reinterpret_cast<INTCHANDLER*>(m_ram + BIOS_ADDRESS_INTCHANDLER_BASE), BIOS_ID_BASE, MAX_INTCHANDLER)
     , m_dmacHandlers(reinterpret_cast<DMACHANDLER*>(m_ram + BIOS_ADDRESS_DMACHANDLER_BASE), BIOS_ID_BASE, MAX_DMACHANDLER)
     , m_alarms(reinterpret_cast<ALARM*>(m_ram + BIOS_ADDRESS_ALARM_BASE), BIOS_ID_BASE, MAX_ALARM)
