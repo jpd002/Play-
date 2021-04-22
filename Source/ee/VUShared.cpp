@@ -1147,6 +1147,7 @@ void VUShared::MINIi(CMipsJitter* codeGen, uint8 dest, uint8 fd, uint8 fs)
 
 void VUShared::MOVE(CMipsJitter* codeGen, uint8 nDest, uint8 nFt, uint8 nFs)
 {
+	if(nFt == 0) return;
 	codeGen->MD_PushRel(offsetof(CMIPS, m_State.nCOP2[nFs]));
 	PullVector(codeGen, nDest, offsetof(CMIPS, m_State.nCOP2[nFt]));
 }
