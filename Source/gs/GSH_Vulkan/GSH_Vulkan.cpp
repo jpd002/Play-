@@ -712,6 +712,12 @@ void CGSH_Vulkan::SetRenderingContext(uint64 primReg)
 			textureArea.SetArea(tex0.nPsm, tex0.nBufPtr, tex0.GetBufWidth(), tex0.GetHeight());
 			memoryCopyAddress = texBufPtr;
 			memoryCopySize = textureArea.GetSize();
+			if((memoryCopyAddress + memoryCopySize) > RAMSIZE)
+			{
+				//Some games (Castlevania: Curse of Darkness) have a texture that goes beyond
+				//RAMSIZE, make sure we stay inside bounds.
+				memoryCopySize = RAMSIZE - memoryCopyAddress;
+			}
 			m_draw->SetMemoryCopyParams(memoryCopyAddress, memoryCopySize);
 		}
 	}
