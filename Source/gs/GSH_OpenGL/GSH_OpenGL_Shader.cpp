@@ -138,7 +138,7 @@ Framework::OpenGl::CShader CGSH_OpenGL::GenerateFragmentShader(const SHADERCAPS&
 	std::stringstream shaderBuilder;
 
 	bool writeDestAlphaTest = caps.hasDestAlphaTest && m_hasFramebufferFetchExtension;
-	bool useFramebufferFetch = (caps.hasDestAlphaTest || (caps.hasAlphaTest && caps.alphaFailMethod != ALPHA_TEST_FAIL_KEEP)) && m_hasFramebufferFetchExtension;
+	bool useFramebufferFetch = (caps.hasDestAlphaTest || caps.hasAlphaTest) && m_hasFramebufferFetchExtension;
 
 	shaderBuilder << GLSL_VERSION << std::endl;
 
