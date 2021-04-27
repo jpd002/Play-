@@ -346,8 +346,11 @@ Framework::OpenGl::CShader CGSH_OpenGL::GenerateFragmentShader(const SHADERCAPS&
 		shaderBuilder << "	textureColor = v_color;" << std::endl;
 	}
 
-	shaderBuilder << "	bool outputColor = true;" << std::endl;
-	shaderBuilder << "	bool outputAlpha = true;" << std::endl;
+	if(useFramebufferFetch)
+	{
+		shaderBuilder << "	bool outputColor = true;" << std::endl;
+		shaderBuilder << "	bool outputAlpha = true;" << std::endl;
+	}
 
 	if(caps.hasAlphaTest)
 	{
@@ -356,33 +359,52 @@ Framework::OpenGl::CShader CGSH_OpenGL::GenerateFragmentShader(const SHADERCAPS&
 
 	// ----------------------
 
-	shaderBuilder << "	if(outputColor) {" << std::endl;
+	if(useFramebufferFetch)
+	{
+		shaderBuilder << "	if(outputColor) {" << std::endl
+		              << "	";
+	}
 
 	if(caps.hasFog)
 	{
-		shaderBuilder << "		fragColor.xyz = mix(textureColor.rgb, g_fogColor, v_fog);" << std::endl;
+		shaderBuilder << "	fragColor.xyz = mix(textureColor.rgb, g_fogColor, v_fog);" << std::endl;
 	}
 	else
 	{
-		shaderBuilder << "		fragColor.xyz = textureColor.xyz;" << std::endl;
+		shaderBuilder << "	fragColor.xyz = textureColor.xyz;" << std::endl;
 	}
 
-	shaderBuilder << "	}" << std::endl;
+	if(useFramebufferFetch)
+	{
+		shaderBuilder << "	}" << std::endl;
+	}
 
 	// ----------------------
 
-	shaderBuilder << "	if(outputAlpha) {" << std::endl;
+	if(useFramebufferFetch)
+	{
+		shaderBuilder << "	if(outputAlpha) {" << std::endl
+		              << "	";
+	}
 
 	//For proper alpha blending, alpha has to be multiplied by 2 (0x80 -> 1.0)
 #ifdef USE_DUALSOURCE_BLENDING
-	shaderBuilder << "		fragColor.a = textureColor.a;" << std::endl;
-	shaderBuilder << "		blendColor.a = clamp(textureColor.a * 2.0, 0.0, 1.0);" << std::endl;
+	shaderBuilder << "	fragColor.a = textureColor.a;" << std::endl;
+	if(useFramebufferFetch)
+	{
+		// format shader nicely
+		shaderBuilder << "	";
+	}
+	shaderBuilder << "	blendColor.a = clamp(textureColor.a * 2.0, 0.0, 1.0);" << std::endl;
 #else
 	//This has the side effect of not writing a proper value in the framebuffer (should write alpha "as is")
-	shaderBuilder << "		fragColor.a = clamp(textureColor.a * 2.0, 0.0, 1.0);" << std::endl;
+	shaderBuilder << "	fragColor.a = clamp(textureColor.a * 2.0, 0.0, 1.0);" << std::endl;
 #endif
 
-	shaderBuilder << "	}" << std::endl;
+	if(useFramebufferFetch)
+	{
+		shaderBuilder << "	}" << std::endl;
+	}
 
 	if(caps.colorOutputWhite)
 	{
