@@ -351,7 +351,7 @@ Framework::OpenGl::CShader CGSH_OpenGL::GenerateFragmentShader(const SHADERCAPS&
 
 	if(caps.hasAlphaTest)
 	{
-		shaderBuilder << GenerateAlphaTestSection(static_cast<ALPHA_TEST_METHOD>(caps.alphaTestMethod), static_cast<ALPHA_TEST_FAIL_METHOD>(m_hasFramebufferFetchExtension ? caps.alphaFailMethod : ALPHA_TEST_FAIL_KEEP));
+		shaderBuilder << GenerateAlphaTestSection(static_cast<ALPHA_TEST_METHOD>(caps.alphaTestMethod), static_cast<ALPHA_TEST_FAIL_METHOD>(caps.alphaFailMethod));
 	}
 
 	// ----------------------
@@ -489,17 +489,43 @@ std::string CGSH_OpenGL::GenerateAlphaTestSection(ALPHA_TEST_METHOD testMethod, 
 		// Only write color and alpha
 		// TODO: We cannot prevent depth from being written at the moment
 		assert(0);
+		// Failure note: We rather accept writing depth here, than discarding the
+		// whole pixel, as most games work better with this hack.
 		break;
 	case ALPHA_TEST_FAIL_ZBONLY:
 		// Only write depth
-		shaderBuilder << "	outputColor = false;" << std::endl;
-		shaderBuilder << "	outputAlpha = false;" << std::endl;
+		if(m_hasFramebufferFetchExtension)
+		{
+			shaderBuilder << "	outputColor = false;" << std::endl;
+			shaderBuilder << "	outputAlpha = false;" << std::endl;
+		}
+		else
+		{
+			// TODO: Prevent framebuffer writing without extension
+			assert(0);
+			shaderBuilder << "	discard;" << std::endl;
+			// Failure note: This also discards depth
+		}
 		break;
 	case ALPHA_TEST_FAIL_RGBONLY:
 		// Only write color
-		shaderBuilder << "	outputAlpha = false;" << std::endl;
-		// TODO: We cannot prevent depth from being written at the moment
-		assert(0);
+		if(m_hasFramebufferFetchExtension)
+		{
+			shaderBuilder << "	outputAlpha = false;" << std::endl;
+
+			// TODO: Prevent depth writing
+			assert(0);
+			// Failure note: We rather accept writing depth here, than discarding the
+			// whole pixel, as most games work better with this hack.
+		}
+		else
+		{
+			// TODO: Prevent color and depth writing without extension
+			assert(0);
+			// Failure note: We are somewhat out of luck, and just draw the pixel as is.
+			// This is completely wrong, but nothing we can do about it at this point.
+		}
+
 		break;
 	}
 
