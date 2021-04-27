@@ -32,9 +32,17 @@ jobs:
         fetch-depth: 0
     - name: Force Fetch Git Tags
       run: git fetch --tags --force
+    - name: Cache Qt ARM
+      uses: actions/cache@v2
+      id: cache-qt-arm
+      with:
+        path: qt-5.15.2.arm64_big_sur.bottle.tar.gz
+        key: ${{ runner.os }}-QtARMCache
+    - name: Download Qt ARM Library
+      if: steps.cache-qt-arm.outputs.cache-hit != 'true'
+      run: curl -L --show-error --output qt-5.15.2.arm64_big_sur.bottle.tar.gz https://homebrew.bintray.com/bottles/qt-5.15.2.arm64_big_sur.bottle.tar.gz
     - name: Prepare Qt Universal Libs
       run: |
-        curl -L --show-error --output qt-5.15.2.arm64_big_sur.bottle.tar.gz https://homebrew.bintray.com/bottles/qt-5.15.2.arm64_big_sur.bottle.tar.gz
         tar xf qt-5.15.2.arm64_big_sur.bottle.tar.gz
         python3 .github/CI_MISC/pre_qt_universal_build.py $Qt5_DIR/ `pwd`/qt/5.15.2/
     - name: Set SHORT_HASH
