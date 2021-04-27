@@ -138,7 +138,7 @@ Framework::OpenGl::CShader CGSH_OpenGL::GenerateFragmentShader(const SHADERCAPS&
 	std::stringstream shaderBuilder;
 
 	bool writeDestAlphaTest = caps.hasDestAlphaTest && m_hasFramebufferFetchExtension;
-	bool useFramebufferFetch = writeDestAlphaTest;
+	bool useFramebufferFetch = (caps.hasDestAlphaTest || caps.hasAlphaTest) && m_hasFramebufferFetchExtension;
 
 	shaderBuilder << GLSL_VERSION << std::endl;
 
@@ -346,35 +346,54 @@ Framework::OpenGl::CShader CGSH_OpenGL::GenerateFragmentShader(const SHADERCAPS&
 		shaderBuilder << "	textureColor = v_color;" << std::endl;
 	}
 
+	shaderBuilder << "	bool outputColor = true;" << std::endl;
+	shaderBuilder << "	bool outputAlpha = true;" << std::endl;
+
 	if(caps.hasAlphaTest)
 	{
-		shaderBuilder << GenerateAlphaTestSection(static_cast<ALPHA_TEST_METHOD>(caps.alphaTestMethod));
+		shaderBuilder << GenerateAlphaTestSection(static_cast<ALPHA_TEST_METHOD>(caps.alphaTestMethod), static_cast<ALPHA_TEST_FAIL_METHOD>(m_hasFramebufferFetchExtension ? caps.alphaFailMethod : ALPHA_TEST_FAIL_KEEP));
 	}
+
+	// ----------------------
+
+	shaderBuilder << "	if(outputColor) {" << std::endl;
 
 	if(caps.hasFog)
 	{
-		shaderBuilder << "	fragColor.xyz = mix(textureColor.rgb, g_fogColor, v_fog);" << std::endl;
+		shaderBuilder << "		fragColor.xyz = mix(textureColor.rgb, g_fogColor, v_fog);" << std::endl;
 	}
 	else
 	{
-		shaderBuilder << "	fragColor.xyz = textureColor.xyz;" << std::endl;
+		shaderBuilder << "		fragColor.xyz = textureColor.xyz;" << std::endl;
 	}
+
+	shaderBuilder << "	}" << std::endl;
+
+	// ----------------------
+
+	shaderBuilder << "	if(outputAlpha) {" << std::endl;
 
 	//For proper alpha blending, alpha has to be multiplied by 2 (0x80 -> 1.0)
 #ifdef USE_DUALSOURCE_BLENDING
-	shaderBuilder << "	fragColor.a = textureColor.a;" << std::endl;
-	shaderBuilder << "	blendColor.a = clamp(textureColor.a * 2.0, 0.0, 1.0);" << std::endl;
+	shaderBuilder << "		fragColor.a = textureColor.a;" << std::endl;
+	shaderBuilder << "		blendColor.a = clamp(textureColor.a * 2.0, 0.0, 1.0);" << std::endl;
 #else
 	//This has the side effect of not writing a proper value in the framebuffer (should write alpha "as is")
-	shaderBuilder << "	fragColor.a = clamp(textureColor.a * 2.0, 0.0, 1.0);" << std::endl;
+	shaderBuilder << "		fragColor.a = clamp(textureColor.a * 2.0, 0.0, 1.0);" << std::endl;
 #endif
+
+	shaderBuilder << "	}" << std::endl;
 
 	if(caps.colorOutputWhite)
 	{
 		shaderBuilder << "	fragColor.xyz = vec3(1, 1, 1);" << std::endl;
 	}
 
+	// ----------------------
+
 	shaderBuilder << "	gl_FragDepth = v_depth;" << std::endl;
+
+	// ----------------------
 
 	shaderBuilder << "}" << std::endl;
 
@@ -418,7 +437,7 @@ std::string CGSH_OpenGL::GenerateTexCoordClampingSection(TEXTURE_CLAMP_MODE clam
 	return shaderSource;
 }
 
-std::string CGSH_OpenGL::GenerateAlphaTestSection(ALPHA_TEST_METHOD testMethod)
+std::string CGSH_OpenGL::GenerateAlphaTestSection(ALPHA_TEST_METHOD testMethod, ALPHA_TEST_FAIL_METHOD failMethod)
 {
 	std::stringstream shaderBuilder;
 
@@ -459,7 +478,31 @@ std::string CGSH_OpenGL::GenerateAlphaTestSection(ALPHA_TEST_METHOD testMethod)
 	shaderBuilder << "uint textureColorAlphaInt = uint(textureColor.a * 255.0);" << std::endl;
 	shaderBuilder << test << std::endl;
 	shaderBuilder << "{" << std::endl;
-	shaderBuilder << "	discard;" << std::endl;
+
+	switch(failMethod)
+	{
+	case ALPHA_TEST_FAIL_KEEP:
+		// No write at all
+		shaderBuilder << "	discard;" << std::endl;
+		break;
+	case ALPHA_TEST_FAIL_FBONLY:
+		// Only write color and alpha
+		// TODO: We cannot prevent depth from being written at the moment
+		assert(0);
+		break;
+	case ALPHA_TEST_FAIL_ZBONLY:
+		// Only write depth
+		shaderBuilder << "	outputColor = false;" << std::endl;
+		shaderBuilder << "	outputAlpha = false;" << std::endl;
+		break;
+	case ALPHA_TEST_FAIL_RGBONLY:
+		// Only write color
+		shaderBuilder << "	outputAlpha = false;" << std::endl;
+		// TODO: We cannot prevent depth from being written at the moment
+		assert(0);
+		break;
+	}
+
 	shaderBuilder << "}" << std::endl;
 
 	std::string shaderSource = shaderBuilder.str();
