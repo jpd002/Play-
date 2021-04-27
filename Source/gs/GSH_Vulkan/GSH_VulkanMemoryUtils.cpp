@@ -64,6 +64,12 @@ void CMemoryUtils::Memory_Write24(Nuanceur::CShaderBuilder& b, Nuanceur::CArrayU
 	AtomicOr(memoryBuffer, wordAddress, value);
 }
 
+void CMemoryUtils::Memory_Write24(Nuanceur::CShaderBuilder& b, Nuanceur::CArrayUcharValue memoryBuffer8, Nuanceur::CArrayUshortValue memoryBuffer16, Nuanceur::CIntValue address, Nuanceur::CUintValue value)
+{
+	Store(memoryBuffer16, address / NewInt(b, 2), ToUshort(value));
+	Store(memoryBuffer8, address + NewInt(b, 2), ToUchar(value >> NewUint(b, 16)));
+}
+
 void CMemoryUtils::Memory_Write16(Nuanceur::CShaderBuilder& b, Nuanceur::CArrayUintValue memoryBuffer, Nuanceur::CIntValue address, Nuanceur::CUintValue value)
 {
 	auto wordAddress = address / NewInt(b, 4);
@@ -74,6 +80,11 @@ void CMemoryUtils::Memory_Write16(Nuanceur::CShaderBuilder& b, Nuanceur::CArrayU
 	AtomicOr(memoryBuffer, wordAddress, valueWord);
 }
 
+void CMemoryUtils::Memory_Write16(Nuanceur::CShaderBuilder& b, Nuanceur::CArrayUshortValue memoryBuffer, Nuanceur::CIntValue address, Nuanceur::CUintValue value)
+{
+	Store(memoryBuffer, address / NewInt(b, 2), ToUshort(value));
+}
+
 void CMemoryUtils::Memory_Write8(Nuanceur::CShaderBuilder& b, Nuanceur::CArrayUintValue memoryBuffer, Nuanceur::CIntValue address, Nuanceur::CUintValue value)
 {
 	auto wordAddress = address / NewInt(b, 4);
@@ -82,6 +93,11 @@ void CMemoryUtils::Memory_Write8(Nuanceur::CShaderBuilder& b, Nuanceur::CArrayUi
 	auto valueWord = value << shiftAmount;
 	AtomicAnd(memoryBuffer, wordAddress, mask);
 	AtomicOr(memoryBuffer, wordAddress, valueWord);
+}
+
+void CMemoryUtils::Memory_Write8(Nuanceur::CShaderBuilder& b, Nuanceur::CArrayUcharValue memoryBuffer, Nuanceur::CIntValue address, Nuanceur::CUintValue value)
+{
+	Store(memoryBuffer, address, ToUchar(value));
 }
 
 void CMemoryUtils::Memory_Write4(Nuanceur::CShaderBuilder& b, Nuanceur::CArrayUintValue memoryBuffer, Nuanceur::CIntValue nibAddress, Nuanceur::CUintValue value)
