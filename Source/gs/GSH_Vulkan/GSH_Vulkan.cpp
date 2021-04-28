@@ -71,7 +71,7 @@ Framework::Vulkan::CInstance CGSH_Vulkan::CreateInstance(bool useValidationLayer
 	auto appInfo = Framework::Vulkan::ApplicationInfo();
 	appInfo.pApplicationName = "Play!";
 	appInfo.pEngineName = "Play!";
-	appInfo.apiVersion = VK_MAKE_VERSION(1, 1, 0);
+	appInfo.apiVersion = VK_API_VERSION_1_2;
 
 	instanceCreateInfo.pApplicationInfo = &appInfo;
 	instanceCreateInfo.enabledExtensionCount = extensions.size();
