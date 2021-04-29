@@ -3,6 +3,40 @@ import os
 import shutil
 import glob
 
+def fix_id(lib_name, is_fw):
+    if(lib_name.count("HOMEBREW_PREFIX") == 0):
+        return ""
+
+    if(is_fw):
+        lib_name = "/".join(lib_name.split(" (c")[0].strip().split("/")[4:])
+        new_lib_path = f"@rpath/{lib_name}"
+        return f"-add_rpath @loader_path/../../../ -id {new_lib_path}"
+    else:
+        lib_name = lib_name.split(" (c")[0].strip().split("/")[-1]
+        return f"-add_rpath @loader_path/../../lib -id {lib_name}"
+
+
+def fix_framework(data):
+    data = [lib_name.strip().split(" (c")[0].strip() for lib_name in data if lib_name.count("HOMEBREW_CELLAR")]
+    l = []
+    for lib_name in data:
+        new_lib_name = "/".join(lib_name.split("/")[4:])
+        new_lib_path = f"@rpath/{new_lib_name}"
+        l.append(f"-change {lib_name} {new_lib_path}")
+    return " ".join(l).strip()
+
+def fix_library(fw_path, is_fw):
+    stream = os.popen(f"otool -L {fw_path}")
+    output = stream.read()
+    data = output.split('\n')[1:]
+
+    change_name = fix_framework(data)
+    change_id = fix_id(data[0], is_fw)
+    args = f" {change_name} {change_id} {fw_path}"
+    if(change_id or change_name):
+        os.system(f"install_name_tool {args}")
+        print(f"install_name_tool {args}")
+
 def process_framework():
     framework_list = glob.glob(os.path.join(qt_base, "lib_orig", "Qt*"))
     for orig_fw_path in framework_list:
@@ -13,6 +47,8 @@ def process_framework():
                 new_path = shutil.copytree(orig_fw_path, orig_fw_path.replace("lib_orig", "lib"), symlinks=True)
                 os.remove(os.path.join(new_path, "Versions", "5", fw_name))
                 print(f"Processing {fw_name}.framework")
+                fix_library(f"{orig_fw_path}/Versions/5/{fw_name}", True)
+                fix_library(f"{other_fw_path}/Versions/5/{fw_name}", True)
                 os.system(f"lipo -create -output {new_path}/Versions/5/{fw_name} {orig_fw_path}/Versions/5/{fw_name} {other_fw_path}/Versions/5/{fw_name}")
             else:
                 src = os.path.join(qt_base, "lib_orig", f"{fw_name}.framework")
@@ -43,6 +79,8 @@ def process_plugins():
             new_plugin_path = orig_plugin_path.replace("plugins_orig", "plugins")
             os.makedirs(os.path.dirname(new_plugin_path), exist_ok=True)
             print(f"Processing {plugin_name}")
+            fix_library(orig_plugin_path, False)
+            fix_library(other_plugin_path, False)
             os.system(f"lipo -create -output {new_plugin_path} {orig_plugin_path} {other_plugin_path}")
 
 def prepare_folders():
