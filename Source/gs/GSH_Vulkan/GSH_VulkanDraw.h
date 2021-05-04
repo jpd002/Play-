@@ -8,6 +8,7 @@
 #include "vulkan/Buffer.h"
 #include "vulkan/Image.h"
 #include "Convertible.h"
+#include "../GsSpriteRegion.h"
 
 namespace GSH_Vulkan
 {
@@ -191,6 +192,8 @@ namespace GSH_Vulkan
 		uint32 m_clutBufferOffset = 0;
 		uint32 m_memoryCopyAddress = 0;
 		uint32 m_memoryCopySize = 0;
+
+		CGsSpriteRegion m_memoryCopyRegion;
 	};
 
 	typedef std::shared_ptr<CDraw> DrawPtr;

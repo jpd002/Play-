@@ -198,6 +198,11 @@ void CDraw::SetScissor(uint32 scissorX, uint32 scissorY, uint32 scissorWidth, ui
 
 void CDraw::SetMemoryCopyParams(uint32 memoryCopyAddress, uint32 memoryCopySize)
 {
+	bool changed =
+	    (memoryCopyAddress != m_memoryCopyAddress) ||
+	    (memoryCopySize != m_memoryCopySize);
+	if(!changed) return;
+	FlushRenderPass();
 	m_memoryCopyAddress = memoryCopyAddress;
 	m_memoryCopySize = memoryCopySize;
 }
@@ -210,14 +215,29 @@ void CDraw::AddVertices(const PRIM_VERTEX* vertexBeginPtr, const PRIM_VERTEX* ve
 		m_frameCommandBuffer->Flush();
 		assert((m_passVertexEnd + amount) <= MAX_VERTEX_COUNT);
 	}
+	if(m_pipelineCaps.textureUseMemoryCopy)
+	{
+		//Check if sprite we are about to add overlaps with current region
+		//Some games use tiny sprites to do full screen effects that requires
+		//to keep a copy of RAM for texture sampling:
+		//- Metal Gear Solid 3
+		//- MK: Shaolin Monks
+		//- Tales of Legendia
+		const auto topLeftCorner = vertexBeginPtr;
+		const auto bottomRightCorner = vertexBeginPtr + 5;
+		CGsSpriteRect rect(topLeftCorner->x, topLeftCorner->y, bottomRightCorner->x, bottomRightCorner->y);
+		if(m_memoryCopyRegion.Intersects(rect))
+		{
+			FlushRenderPass();
+		}
+		else
+		{
+			m_memoryCopyRegion.Insert(rect);
+		}
+	}
 	auto& frame = m_frames[m_frameCommandBuffer->GetCurrentFrame()];
 	memcpy(frame.vertexBufferPtr + m_passVertexEnd, vertexBeginPtr, amount * sizeof(PRIM_VERTEX));
 	m_passVertexEnd += amount;
-	if(m_pipelineCaps.textureUseMemoryCopy)
-	{
-		//We can only render a primitive at once when in this mode
-		FlushRenderPass();
-	}
 }
 
 void CDraw::FlushVertices()
@@ -231,7 +251,6 @@ void CDraw::FlushVertices()
 	if(m_pipelineCaps.textureUseMemoryCopy)
 	{
 		assert(!m_renderPassBegun);
-		assert(vertexCount == 6);
 
 		//We need to keep a copy of the memory
 		VkBufferCopy bufferCopy = {};
@@ -240,6 +259,8 @@ void CDraw::FlushVertices()
 		bufferCopy.size = m_memoryCopySize;
 
 		m_context->device.vkCmdCopyBuffer(commandBuffer, m_context->memoryBuffer, m_context->memoryBufferCopy, 1, &bufferCopy);
+
+		m_memoryCopyRegion.Reset();
 	}
 
 	//Find pipeline and create it if we've never encountered it before

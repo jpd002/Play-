@@ -221,6 +221,7 @@ set(COMMON_SRC_FILES
 	gs/GSHandler.h
 	gs/GsPixelFormats.cpp
 	gs/GsPixelFormats.h
+	gs/GsSpriteRegion.h
 	gs/GsTextureCache.h
 	input/InputBindingManager.cpp
 	input/InputBindingManager.h
