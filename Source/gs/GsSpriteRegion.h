@@ -7,10 +7,10 @@ class CGsSpriteRect
 {
 public:
 	CGsSpriteRect(float x1 = 0, float y1 = 0, float x2 = 0, float y2 = 0)
-		: x1(x1)
-		, y1(y1)
-		, x2(x2)
-		, y2(y2)
+	    : x1(x1)
+	    , y1(y1)
+	    , x2(x2)
+	    , y2(y2)
 	{
 		assert(x1 <= x2);
 		assert(y1 <= y2);
@@ -64,8 +64,8 @@ public:
 		for(auto& spriteRect : m_spriteRects)
 		{
 			if(
-				(spriteRect.x1 == rect.x1) &&
-				(spriteRect.x2 == rect.x2))
+			    (spriteRect.x1 == rect.x1) &&
+			    (spriteRect.x2 == rect.x2))
 			{
 				//rect & spriteRect share the same horizontal edges
 				spriteRect.y1 = std::min<float>(spriteRect.y1, rect.y1);
@@ -73,8 +73,8 @@ public:
 				return;
 			}
 			if(
-				(spriteRect.y1 == rect.y1) &&
-				(spriteRect.y2 == rect.y2))
+			    (spriteRect.y1 == rect.y1) &&
+			    (spriteRect.y2 == rect.y2))
 			{
 				//rect & spriteRect share the same vertical edges
 				spriteRect.x1 = std::min<float>(spriteRect.x1, rect.x1);
