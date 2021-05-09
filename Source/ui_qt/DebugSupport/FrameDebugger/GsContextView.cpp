@@ -80,7 +80,7 @@ void CGsContextView::UpdateBufferView()
 		auto tex1 = make_convertible<CGSHandler::TEX1>(tex1Reg);
 
 		uint32 mipLevel = selectedId - TAB_ID_TEXTURE_BASE;
-		Framework::CBitmap texture, clutTexture;
+		Framework::CBitmap texture, clutTexture, alphaTexture;
 
 		if(mipLevel <= tex1.nMaxMip)
 		{
@@ -92,6 +92,11 @@ void CGsContextView::UpdateBufferView()
 			ColorArray convertedClut;
 			m_gs->MakeLinearCLUT(tex0, convertedClut);
 			clutTexture = LookupBitmap(texture, convertedClut);
+
+			if(tex0.nCPSM == CGSHandler::PSMCT32)
+			{
+				alphaTexture = ExtractAlpha32(clutTexture);
+			}
 		}
 
 		if(!texture.IsEmpty() && CGsPixelFormats::IsPsmIDTEX4(tex0.nPsm))
@@ -100,11 +105,20 @@ void CGsContextView::UpdateBufferView()
 			BrightenBitmap(texture);
 		}
 
+		if(!texture.IsEmpty() && tex0.nPsm == CGSHandler::PSMCT32)
+		{
+			alphaTexture = ExtractAlpha32(texture);
+		}
+
 		CPixelBufferView::PixelBufferArray pixelBuffers;
 		pixelBuffers.emplace_back("Raw", std::move(texture));
 		if(!clutTexture.IsEmpty())
 		{
 			pixelBuffers.emplace_back("+ CLUT", std::move(clutTexture));
+		}
+		if(!alphaTexture.IsEmpty())
+		{
+			pixelBuffers.emplace_back("Alpha", std::move(alphaTexture));
 		}
 		m_bufferView->SetPixelBuffers(std::move(pixelBuffers));
 	}
