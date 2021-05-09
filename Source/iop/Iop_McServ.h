@@ -105,6 +105,9 @@ namespace Iop
 		void Invoke(CMIPS&, unsigned int) override;
 		bool Invoke(uint32, uint32*, uint32, uint32*, uint32, uint8*) override;
 
+		void LoadState(Framework::CZipArchiveReader&) override;
+		void SaveState(Framework::CZipArchiveWriter&) const override;
+
 		void CountTicks(uint32, CSifMan*);
 
 	private:

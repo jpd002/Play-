@@ -1,6 +1,8 @@
 #include <assert.h>
 #include <stdio.h>
 #include <algorithm>
+#include <states/XmlStateFile.h>
+#include <xml/Utils.h>
 #include "../AppConfig.h"
 #include "../PS2VM_Preferences.h"
 #include "../Log.h"
@@ -31,6 +33,13 @@ using namespace Iop;
 #define SEPARATOR_CHAR '/'
 
 #define CMD_DELAY_GETINFO 100000
+
+#define STATE_MEMCARDS_FILE ("iop_mcserv/memcards.xml")
+#define STATE_MEMCARDS_NODE "Memorycards"
+#define STATE_MEMCARDS_CARDNODE "Memorycard"
+
+#define STATE_MEMCARDS_CARDNODE_PORTATTRIBUTE ("Port")
+#define STATE_MEMCARDS_CARDNODE_KNOWNATTRIBUTE ("Known")
 
 // clang-format off
 const char* CMcServ::m_mcPathPreference[2] =
@@ -846,6 +855,37 @@ fs::path CMcServ::GetAbsoluteFilePath(unsigned int port, unsigned int slot, cons
 	{
 		return Iop::PathUtils::MakeHostPath(Iop::PathUtils::MakeHostPath(mcPath, m_currentDirectory.c_str()), name);
 	}
+}
+
+void CMcServ::LoadState(Framework::CZipArchiveReader& archive)
+{
+	auto stateFile = CXmlStateFile(*archive.BeginReadFile(STATE_MEMCARDS_FILE));
+	auto stateNode = stateFile.GetRoot();
+
+	auto cardNodes = stateNode->SelectNodes(STATE_MEMCARDS_NODE "/" STATE_MEMCARDS_CARDNODE);
+
+	int i = 0;
+	for(auto fileNode : cardNodes)
+	{
+		Framework::Xml::GetAttributeIntValue(fileNode, STATE_MEMCARDS_CARDNODE_PORTATTRIBUTE, &i);
+		Framework::Xml::GetAttributeBoolValue(fileNode, STATE_MEMCARDS_CARDNODE_KNOWNATTRIBUTE, &m_knownMemoryCards[i]);
+	}
+}
+
+void CMcServ::SaveState(Framework::CZipArchiveWriter& archive) const
+{
+	auto stateFile = new CXmlStateFile(STATE_MEMCARDS_FILE, STATE_MEMCARDS_NODE);
+	auto stateNode = stateFile->GetRoot();
+
+	for(unsigned int i = 0; i < MAX_PORTS; i++)
+	{
+		auto cardNode = new Framework::Xml::CNode(STATE_MEMCARDS_CARDNODE, true);
+		cardNode->InsertAttribute(Framework::Xml::CreateAttributeIntValue(STATE_MEMCARDS_CARDNODE_PORTATTRIBUTE, i));
+		cardNode->InsertAttribute(Framework::Xml::CreateAttributeBoolValue(STATE_MEMCARDS_CARDNODE_KNOWNATTRIBUTE, m_knownMemoryCards[i]));
+		stateNode->InsertNode(cardNode);
+	}
+
+	archive.InsertFile(stateFile);
 }
 
 /////////////////////////////////////////////
