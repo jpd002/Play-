@@ -270,7 +270,7 @@ void CMcServ::GetInfo(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize
 		retBuffer[0x24] = 1;
 	}
 
-	if(port > 1)
+	if(port >= MAX_PORTS)
 	{
 		assert(0);
 		ret[0] = -2;
@@ -307,7 +307,7 @@ void CMcServ::Open(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, u
 	CLog::GetInstance().Print(LOG_NAME, "Open(port = %i, slot = %i, flags = %i, name = '%s');\r\n",
 	                          cmd->port, cmd->slot, cmd->flags, cmd->name);
 
-	if(cmd->port > 1)
+	if(cmd->port >= MAX_PORTS)
 	{
 		assert(0);
 		ret[0] = -1;
@@ -596,7 +596,7 @@ void CMcServ::GetDir(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize,
 	CLog::GetInstance().Print(LOG_NAME, "GetDir(port = %i, slot = %i, flags = %i, maxEntries = %i, tableAddress = 0x%08X, name = '%s');\r\n",
 	                          cmd->port, cmd->slot, cmd->flags, cmd->maxEntries, cmd->tableAddress, cmd->name);
 
-	if(cmd->port > 1)
+	if(cmd->port >= MAX_PORTS)
 	{
 		assert(0);
 		ret[0] = -1;

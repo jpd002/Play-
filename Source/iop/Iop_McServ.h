@@ -134,7 +134,8 @@ namespace Iop
 
 		enum
 		{
-			MAX_FILES = 5
+			MAX_FILES = 5,
+			MAX_PORTS = 2,
 		};
 
 		class CPathFinder
