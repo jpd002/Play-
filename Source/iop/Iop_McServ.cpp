@@ -166,6 +166,9 @@ bool CMcServ::Invoke(uint32 method, uint32* args, uint32 argsSize, uint32* ret, 
 	case 0x16:
 		return ReadFast(args, argsSize, ret, retSize, ram);
 		break;
+	case 0x1B:
+		WriteFast(args, argsSize, ret, retSize, ram);
+		break;
 	case 0xFE:
 	case 0x70:
 		//Get version?
@@ -748,6 +751,28 @@ bool CMcServ::ReadFast(uint32* args, uint32 argsSize, uint32* ret, uint32 retSiz
 
 	m_bios.TriggerCallback(m_readFastAddr);
 	return false;
+}
+
+void CMcServ::WriteFast(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, uint8* ram)
+{
+	FILECMD* cmd = reinterpret_cast<FILECMD*>(args);
+
+	CLog::GetInstance().Print(LOG_NAME, "WriteFast(handle = %d, size = 0x%08X, bufferAddress = 0x%08X, paramAddress = 0x%08X);\r\n",
+	                          cmd->handle, cmd->size, cmd->bufferAddress, cmd->paramAddress);
+
+	auto file = GetFileFromHandle(cmd->handle);
+	if(file == nullptr)
+	{
+		ret[0] = RET_PERMISSION_DENIED;
+		assert(0);
+		return;
+	}
+
+	const void* dst = &ram[cmd->bufferAddress];
+	uint32 result = 0;
+
+	result += static_cast<uint32>(file->Write(dst, cmd->size));
+	ret[0] = result;
 }
 
 void CMcServ::GetVersionInformation(uint32* args, uint32 argsSize, uint32* ret, uint32 retSize, uint8* ram)
