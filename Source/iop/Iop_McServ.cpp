@@ -759,6 +759,11 @@ void CMcServ::GetVersionInformation(uint32* args, uint32 argsSize, uint32* ret, 
 	ret[1] = 0x0000020A; //mcserv version
 	ret[2] = 0x0000020E; //mcman version
 
+	for(bool& knownMemoryCard : m_knownMemoryCards)
+	{
+		knownMemoryCard = false;
+	}
+
 	CLog::GetInstance().Print(LOG_NAME, "Init();\r\n");
 }
 
