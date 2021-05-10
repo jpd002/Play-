@@ -188,34 +188,59 @@ void CLibMc2::HookLibMc2Functions()
 	WriteSyscall(m_chDirAsyncPtr, SYSCALL_MC2_CHDIR_ASYNC);
 	WriteSyscall(m_chModAsyncPtr, SYSCALL_MC2_CHMOD_ASYNC);
 	WriteSyscall(m_searchFileAsyncPtr, SYSCALL_MC2_SEARCHFILE_ASYNC);
-	if(m_readFile2AsyncPtr != 0)
-	{
-		WriteSyscall(m_readFile2AsyncPtr, SYSCALL_MC2_READFILE2_ASYNC);
-	}
-	else
-	{
-		CLog::GetInstance().Warn(LOG_NAME, "Implementation for ReadFile2Async not found.\r\n");
-	}
-	if(m_writeFile2AsyncPtr != 0)
-	{
-		WriteSyscall(m_writeFile2AsyncPtr, SYSCALL_MC2_WRITEFILE2_ASYNC);
-	}
-	else
-	{
-		CLog::GetInstance().Warn(LOG_NAME, "Implementation for WriteFile2Async not found.\r\n");
-	}
+	WriteSyscall(m_readFile2AsyncPtr, SYSCALL_MC2_READFILE2_ASYNC);
+	WriteSyscall(m_writeFile2AsyncPtr, SYSCALL_MC2_WRITEFILE2_ASYNC);
 	WriteSyscall(m_checkAsyncPtr, SYSCALL_MC2_CHECKASYNC);
 }
 
 void CLibMc2::WriteSyscall(uint32 address, uint16 syscallNumber)
 {
-	assert(address != 0);
-	if(address == 0) return;
+	if(address == 0)
+	{
+		CLog::GetInstance().Warn(LOG_NAME, "Implementation for %s not found.\r\n", GetSysCallDescription(syscallNumber));
+		return;
+	}
 
 	*reinterpret_cast<uint32*>(m_ram + address + 0x0) = 0x24030000 | syscallNumber;
 	*reinterpret_cast<uint32*>(m_ram + address + 0x4) = 0x0000000C;
 	*reinterpret_cast<uint32*>(m_ram + address + 0x8) = 0x03E00008;
 	*reinterpret_cast<uint32*>(m_ram + address + 0xC) = 0x00000000;
+}
+
+const char* CLibMc2::GetSysCallDescription(uint16 syscallNumber)
+{
+	switch(syscallNumber)
+	{
+	case SYSCALL_MC2_CHECKASYNC:
+		return "CheckAsync";
+	case SYSCALL_MC2_GETINFO_ASYNC:
+		return "GetInfoAsync";
+	case SYSCALL_MC2_READFILE_ASYNC:
+		return "ReadFileAsync";
+	case SYSCALL_MC2_WRITEFILE_ASYNC:
+		return "WriteAsync";
+	case SYSCALL_MC2_CREATEFILE_ASYNC:
+		return "CreateFileAsync";
+	case SYSCALL_MC2_DELETE_ASYNC:
+		return "DeleteAsync";
+	case SYSCALL_MC2_GETDIR_ASYNC:
+		return "GetDirAsync";
+	case SYSCALL_MC2_MKDIR_ASYNC:
+		return "MkDirAsync";
+	case SYSCALL_MC2_CHDIR_ASYNC:
+		return "ChDirAsync";
+	case SYSCALL_MC2_CHMOD_ASYNC:
+		return "ChModAsync";
+	case SYSCALL_MC2_SEARCHFILE_ASYNC:
+		return "SearchFileAsync";
+	case SYSCALL_MC2_READFILE2_ASYNC:
+		return "ReadFile2Async";
+	case SYSCALL_MC2_WRITEFILE2_ASYNC:
+		return "WriteFile2Async";
+	default:
+		return "unknown";
+		break;
+	}
 }
 
 void CLibMc2::HandleSyscall(CMIPS& ee)
