@@ -79,6 +79,8 @@ namespace Ee
 		int32 ReadFileAsync(uint32, uint32, uint32, uint32, uint32);
 		int32 WriteFileAsync(uint32, uint32, uint32, uint32, uint32);
 
+		static const char* GetSysCallDescription(uint16);
+
 		uint8* m_ram = nullptr;
 		CIopBios& m_iopBios;
 		CIopBios::ModuleLoadedEvent::Connection m_moduleLoadedConnection;
