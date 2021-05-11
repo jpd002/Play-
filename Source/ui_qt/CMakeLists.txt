@@ -181,6 +181,7 @@ if(TARGET_PLATFORM_WIN32)
 	endif()
 
 	set(RESOURCE_FILE win32/Resources/Res.rc)
+	set(CMAKE_RC_FLAGS "/d PLAY_VERSION=${PROJECT_Version}")
 
 	set(QT_SOURCES
 		${QT_SOURCES}

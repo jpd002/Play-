@@ -2,6 +2,9 @@
 //
 #include "resource.h"
 
+#define stringize( x )        stringizei( x )
+#define stringizei( x )       #x
+
 #define APSTUDIO_READONLY_SYMBOLS
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -69,12 +72,12 @@ BEGIN
         BEGIN
             VALUE "CompanyName", "Virtual Applications"
             VALUE "FileDescription", "Play! - PlayStation2 Emulator"
-            VALUE "FileVersion", "1.0.0.0"
+            VALUE "FileVersion", stringize(PLAY_VERSION)
             VALUE "InternalName", "Play.exe"
             VALUE "LegalCopyright", "Copyright (C) 2006-2021, Virtual Applications"
             VALUE "OriginalFilename", "Play.exe"
             VALUE "ProductName", "Play! - PlayStation2 Emulator"
-            VALUE "ProductVersion", "1.0.0.0"
+            VALUE "ProductVersion", stringize(PLAY_VERSION)
         END
     END
     BLOCK "VarFileInfo"
