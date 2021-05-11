@@ -180,8 +180,11 @@ if(TARGET_PLATFORM_WIN32)
 		set(MANIFEST win32/Play-x64.manifest)
 	endif()
 
+	set(RESOURCE_FILE win32/Resources/Res.rc)
+
 	set(QT_SOURCES
 		${QT_SOURCES}
+		${RESOURCE_FILE}
 		${MANIFEST}
 	)
 	
