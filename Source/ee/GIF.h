@@ -11,6 +11,7 @@ class CGIF
 public:
 	enum REGISTER
 	{
+		GIF_MODE = 0x10003010,
 		GIF_STAT = 0x10003020
 	};
 
@@ -76,6 +77,7 @@ private:
 
 	bool m_path3Masked = false;
 	uint32 m_activePath = 0;
+	uint32 m_MODE = 0;
 
 	uint16 m_loops = 0;
 	uint8 m_cmd = 0;
