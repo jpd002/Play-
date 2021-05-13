@@ -6,6 +6,8 @@
 #include "../gs/GSHandler.h"
 #include "../Profiler.h"
 
+class CDMAC;
+
 class CGIF
 {
 public:
@@ -41,7 +43,7 @@ public:
 	};
 	static_assert(sizeof(TAG) == 0x10, "Size of TAG must be 16 bytes.");
 
-	CGIF(CGSHandler*&, uint8*, uint8*);
+	CGIF(CGSHandler*&, CDMAC&, uint8*, uint8*);
 	virtual ~CGIF() = default;
 
 	void Reset();
@@ -68,6 +70,13 @@ private:
 		SIGNAL_STATE_PENDING,
 	};
 
+	enum MASKED_PATH3_XFER_STATE
+	{
+		MASKED_PATH3_XFER_NONE,
+		MASKED_PATH3_XFER_PROCESSING,
+		MASKED_PATH3_XFER_DONE,
+	};
+
 	uint32 ProcessPacked(const uint8*, uint32, uint32);
 	uint32 ProcessRegList(const uint8*, uint32, uint32);
 	uint32 ProcessImage(const uint8*, uint32, uint32, uint32);
@@ -87,9 +96,11 @@ private:
 	bool m_eop = false;
 	uint32 m_qtemp;
 	SIGNAL_STATE m_signalState = SIGNAL_STATE_NONE;
+	MASKED_PATH3_XFER_STATE m_maskedPath3XferState = MASKED_PATH3_XFER_NONE;
 	uint8* m_ram;
 	uint8* m_spr;
 	CGSHandler*& m_gs;
+	CDMAC& m_dmac;
 
 	CProfiler::ZoneHandle m_gifProfilerZone = 0;
 };

@@ -6,6 +6,7 @@
 #include "../FrameDump.h"
 #include "../states/RegisterStateFile.h"
 #include "GIF.h"
+#include "DMAC.h"
 
 #define QTEMP_INIT (0x3F800000)
 
@@ -23,11 +24,12 @@
 #define STATE_REGS_EOP ("EOP")
 #define STATE_REGS_QTEMP ("QTEMP")
 
-CGIF::CGIF(CGSHandler*& gs, uint8* ram, uint8* spr)
+CGIF::CGIF(CGSHandler*& gs, CDMAC& dmac, uint8* ram, uint8* spr)
     : m_qtemp(QTEMP_INIT)
     , m_ram(ram)
     , m_spr(spr)
     , m_gs(gs)
+    , m_dmac(dmac)
     , m_gifProfilerZone(CProfiler::GetInstance().RegisterZone("GIF"))
 {
 }
@@ -45,6 +47,7 @@ void CGIF::Reset()
 	m_eop = false;
 	m_qtemp = QTEMP_INIT;
 	m_signalState = SIGNAL_STATE_NONE;
+	m_maskedPath3XferState = MASKED_PATH3_XFER_NONE;
 }
 
 void CGIF::LoadState(Framework::CZipArchiveReader& archive)
@@ -356,6 +359,15 @@ uint32 CGIF::ProcessSinglePacket(const uint8* memory, uint32 memorySize, uint32 
 		}
 	}
 
+	if((m_activePath == 0) && (packetMetadata.pathIndex == 3))
+	{
+		assert(m_loops == 0);
+		if(m_maskedPath3XferState == MASKED_PATH3_XFER_PROCESSING)
+		{
+			m_maskedPath3XferState = MASKED_PATH3_XFER_DONE;
+		}
+	}
+
 	m_gs->ProcessWriteBuffer(&packetMetadata);
 
 #ifdef _DEBUG
@@ -378,6 +390,13 @@ uint32 CGIF::ProcessMultiplePackets(const uint8* memory, uint32 memorySize, uint
 	uint32 start = address;
 	while(address < end)
 	{
+		if((m_path3Masked || (m_maskedPath3XferState == MASKED_PATH3_XFER_DONE)) &&
+		   (m_activePath == 0) && (packetMetadata.pathIndex == 3))
+		{
+			//Going to do a PATH3 transfer, but PATH3 is masked or already transfered a single masked packet
+			break;
+		}
+
 		address += ProcessSinglePacket(memory, memorySize, address, end, packetMetadata);
 		if(m_signalState == SIGNAL_STATE_PENDING)
 		{
@@ -470,7 +489,17 @@ CGSHandler* CGIF::GetGsHandler()
 
 void CGIF::SetPath3Masked(bool masked)
 {
+	bool unmasking = m_path3Masked && !masked;
 	m_path3Masked = masked;
+	if(unmasking)
+	{
+		assert(m_activePath == 0);
+		assert(m_maskedPath3XferState == MASKED_PATH3_XFER_NONE);
+		m_maskedPath3XferState = MASKED_PATH3_XFER_PROCESSING;
+		m_dmac.ResumeDMA2();
+		assert(m_activePath == 0);
+		m_maskedPath3XferState = MASKED_PATH3_XFER_NONE;
+	}
 }
 
 void CGIF::DisassembleGet(uint32 address)
