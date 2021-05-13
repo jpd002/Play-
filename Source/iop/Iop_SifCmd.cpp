@@ -39,6 +39,7 @@ using namespace Iop;
 #define FUNCTION_SIFREMOVERPC "SifRemoveRpc"
 #define FUNCTION_SIFREMOVERPCQUEUE "SifRemoveRpcQueue"
 #define FUNCTION_SIFSENDCMDINTR "SifSendCmdIntr"
+#define FUNCTION_ISIFSENDCMDINTR "iSifSendCmdIntr"
 #define FUNCTION_FINISHEXECREQUEST "FinishExecRequest"
 #define FUNCTION_FINISHEXECCMD "FinishExecCmd"
 #define FUNCTION_FINISHBINDRPC "FinishBindRpc"
@@ -169,6 +170,9 @@ std::string CSifCmd::GetFunctionName(unsigned int functionId) const
 	case 28:
 		return FUNCTION_SIFSENDCMDINTR;
 		break;
+	case 29:
+		return FUNCTION_ISIFSENDCMDINTR;
+		break;
 	case CUSTOM_FINISHEXECREQUEST:
 		return FUNCTION_FINISHEXECREQUEST;
 		break;
@@ -267,6 +271,7 @@ void CSifCmd::Invoke(CMIPS& context, unsigned int functionId)
 		    context.m_State.nGPR[CMIPS::A0].nV0);
 		break;
 	case 28:
+	case 29:
 		context.m_State.nGPR[CMIPS::V0].nV0 = SifSendCmdIntr(
 		    context.m_State.nGPR[CMIPS::A0].nV0,
 		    context.m_State.nGPR[CMIPS::A1].nV0,
